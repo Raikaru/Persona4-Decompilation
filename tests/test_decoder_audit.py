@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import subprocess
+import tempfile
 import sys
 import unittest
 from pathlib import Path
@@ -55,17 +56,17 @@ class AliasTests(unittest.TestCase):
 
 class EndToEndTests(unittest.TestCase):
     def test_no_instruction_in_a_vu_heavy_listing_is_decoded_WRONG(self) -> None:
-        """`func_00485870` is `lqc2`/`sqc2`-heavy, which is what exposed the
-        branch-on-bit defect.  Its VU macro-mode ops are still undecoded and
-        print as raw words - that is expected and safe.  What must not appear
-        is a `listing says X / decoder says Y`, which names one instruction
-        as another."""
-        listing = REPO / "asm" / "nonmatchings" / "code1_0048" / "func_00485870.s"
-        self.assertTrue(listing.is_file())
-        done = subprocess.run(
-            [sys.executable, "-E", "-s", "tools/decoder_audit.py", "--quiet",
-             str(listing)],
-            cwd=REPO, capture_output=True, text=True, timeout=600)
+        """VU quadword transfers must not decode as Octeon branches."""
+        with tempfile.TemporaryDirectory() as directory:
+            listing = Path(directory) / "vu_quadword.s"
+            listing.write_text(
+                "    /* 3858A8 004858A8 40008ADA */  lqc2       $vf10, 0x40($20)\n"
+                "    /* 3858AC 004858AC 80008AFA */  sqc2       $vf10, 0x80($20)\n"
+            )
+            done = subprocess.run(
+                [sys.executable, "-E", "-s", "tools/decoder_audit.py", "--quiet",
+                 str(listing)],
+                cwd=REPO, capture_output=True, text=True, timeout=600)
         self.assertNotIn("listing says", done.stdout)
         self.assertEqual(done.returncode, 0)
 

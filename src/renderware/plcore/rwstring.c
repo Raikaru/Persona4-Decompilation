@@ -441,8 +441,10 @@ _rwStringStreamWrite(const RwChar * string, RwStream * stream)
  On exit    : String created
  */
 
+// FUN_003E4BE0
+#pragma schedule on
 static RwChar      *
-StringStreamRead(RwChar *nativeString, RwStream * stream, RwUInt32 length)
+func_003e4be0(RwChar *nativeString, RwStream * stream, RwUInt32 length)
 {
     /* NOTE: This is one of the rare places we really do need to use char.
      *     : The binary standard defines the things in the file as being chars.
@@ -502,6 +504,8 @@ StringStreamRead(RwChar *nativeString, RwStream * stream, RwUInt32 length)
 
     RWRETURN(nativeString);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /****************************************************************************
  UnicodeStringStreamRead
@@ -514,8 +518,10 @@ StringStreamRead(RwChar *nativeString, RwStream * stream, RwUInt32 length)
  On exit    : String created
  */
 
+// FUN_003E4D80
+#pragma schedule on
 static RwChar      *
-UnicodeStringStreamRead(RwChar *nativeString, RwStream * stream, RwUInt32 length)
+func_003e4d80(RwChar *nativeString, RwStream * stream, RwUInt32 length)
 {
     /* NOTE: This is one of the rare places we really do need to use unsigned shorts.
      *     : The binary standard defines the things in the file as being unsigned shorts.
@@ -579,6 +585,8 @@ UnicodeStringStreamRead(RwChar *nativeString, RwStream * stream, RwUInt32 length
 
     RWRETURN(nativeString);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /****************************************************************************
  _rwStringStreamFindAndRead

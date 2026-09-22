@@ -26,6 +26,8 @@
 #define RpAtomicGetWorld func_003cbce0
 #define RwFrameUpdateObjects func_003e9680
 #define _rwPluginRegistryCopyObject func_003e3c90
+#define RpClumpForAllLights func_003c0050
+#define _rpWriteAtomicRights func_003be8a0
 
 /**
  * \ingroup rpatomic
@@ -227,6 +229,7 @@ static RwPluginRegistry clumpTKList =
 
 extern RwInt32 _rpClumpCameraExtOffset;  /* P4: file static, at its retail address */
 extern RwInt32 _rpClumpLightExtOffset;  /* P4: file static, at its retail address */
+extern RwInt32 iGpffffb6b4;  /* P4: adjacent file-static offset used by RpClumpForAllLights */
 
 extern RwModuleInfo clumpModule;  /* P4: file static, at its retail address */
 
@@ -312,8 +315,10 @@ _rpReadAtomicRights(RwStream *s,
     RWRETURN(s);
 }
 
+// FUN_003BE8A0
+#pragma schedule on
 RwStream*
-_rpWriteAtomicRights(RwStream *s,
+func_003be8a0(RwStream *s,
                      RwInt32 len __RWUNUSED__,
                      const void *obj,
                      RwInt32 off __RWUNUSED__,
@@ -341,6 +346,8 @@ _rpWriteAtomicRights(RwStream *s,
 
     RWRETURN(s);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 RwInt32
 _rpSizeAtomicRights(const void *obj,
@@ -2390,8 +2397,10 @@ RpClumpForAllCameras(RpClump * clump, RwCameraCallBack callback, void *pData)
  * \see RpWorldPluginAttach
  *
  */
+// FUN_003C0050
+#pragma schedule on
 RpClump            *
-RpClumpForAllLights(RpClump * clump, RpLightCallBack callback, void *pData)
+func_003c0050(RpClump * clump, RpLightCallBack callback, void *pData)
 {
     RwLLLink           *cur, *end, *next;
 
@@ -2408,7 +2417,7 @@ RpClumpForAllLights(RpClump * clump, RpLightCallBack callback, void *pData)
     while (cur != end)
     {
         RpLight *light = (RpLight *) ((RwUInt8 *)(cur) -
-            offsetof(RpClumpLightExt, inClumpLink) - _rpClumpLightExtOffset);
+            offsetof(RpClumpLightExt, inClumpLink) - iGpffffb6b4);
 
         RWASSERTISTYPE(light, rpLIGHT);
 
@@ -2427,6 +2436,8 @@ RpClumpForAllLights(RpClump * clump, RpLightCallBack callback, void *pData)
 
     RWRETURN(clump);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2618,8 +2629,10 @@ RpAtomicCreate(void)
  * \see RpWorldPluginAttach
  *
  */
+// FUN_003C0210
+#pragma schedule on
 RpAtomic           *
-RpAtomicSetGeometry(RpAtomic * atomic, RpGeometry * geometry, RwUInt32 flags)
+func_003c0210(RpAtomic * atomic, RpGeometry * geometry, RwUInt32 flags)
 {
     RWAPIFUNCTION(RWSTRING("RpAtomicSetGeometry"));
     RWASSERT(clumpModule.numInstances);
@@ -2672,6 +2685,8 @@ RpAtomicSetGeometry(RpAtomic * atomic, RpGeometry * geometry, RwUInt32 flags)
 
     RWRETURN(atomic);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 #if ( defined(RWDEBUG) || defined(RWSUPPRESSINLINE) )
 

@@ -10,9 +10,14 @@ Sint32 adxpd_internal_error = 0;
 ADX_XPDOBJ adxpd_obj[16] = { 0 };
 
 // 100% matching!
+// Retail 0x004CF710 clears D_00723548 for 0xC0 (`addiu $a2, $zero, 0xc0` at
+// 0x004CF724): 16*0xC, not 16*0x3C. This TU's 0x3C pool (ExecServer 0xF,
+// Create/Destroy 0x3C) proves 0x3C0, so Init cannot use sizeof here and
+// keeps the explicit retail size.
+// FUN_004CF710
 void ADXPD_Init(void) 
 {
-    memset(adxpd_obj, 0, sizeof(adxpd_obj));
+    memset(adxpd_obj, 0, 0xC0);
 }
 
 // 100% matching!

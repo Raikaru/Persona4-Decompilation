@@ -205,13 +205,6 @@ void func_003e9250(u8 *arg0)
 #pragma no_branch_likely on
 extern u8 *func_003e9320(void); /* P4: ported verbatim into src/renderware */
 #pragma no_branch_likely off
-/* measured: no_branch_likely keeps func_003e9460's plain branch guards. */
-#pragma no_branch_likely on
-// FUN_003E9460
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9460);
-#pragma no_branch_likely off
-// FUN_003E95C0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e95c0);
 /* measured: retail uses a plain beqz guard for func_003e9680. */
 #pragma no_branch_likely on
 // FUN_003E9680
@@ -259,12 +252,6 @@ u32 func_003e9750(int param_1)
 /* measured: source unit 004125d0 requires optimization_level 3. */
 #pragma optimization_level 3
 
-#pragma no_branch_likely on
-#pragma no_branch_likely off
-// FUN_003E99A0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e99a0);
-/* measured: closes no_branch_likely around func_003e99a0. */
-#pragma no_branch_likely off
 /* measured: retail list callback branches are plain beqz/bnez. */
 #pragma no_branch_likely on
 extern u8 *func_003e9af0(u8 *arg0, s32 (*arg1)(u8 *, s32), s32 arg2); /* P4: ported verbatim into src/renderware */
@@ -351,19 +338,11 @@ extern u8 *func_003ea2c0(s32 arg0, s32 arg1, s32 arg2); /* P4: ported verbatim i
 #pragma no_branch_likely on
 extern s32 func_003ea370(u8 *arg0); /* P4: ported verbatim into src/renderware */
 #pragma no_branch_likely off
-// FUN_003EA3E0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ea3e0);
 extern u8 *func_003ea510(u8 *arg0); /* P4: ported verbatim into src/renderware */
 // FUN_003EAB70
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eab70);
-// FUN_003EAF00
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eaf00);
-// FUN_003EB0D0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eb0d0);
 // FUN_003EB700
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eb700);
-// FUN_003EBAC0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ebac0);
 // FUN_003EBBF0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ebbf0);
 // FUN_003EBFF0
@@ -433,14 +412,6 @@ extern u8 *func_003ef0d0(void); /* P4: ported verbatim into src/renderware */
 #pragma no_branch_likely on
 extern s32 func_003ef1b0(u8 *arg0); /* P4: ported verbatim into src/renderware */
 #pragma no_branch_likely off
-// FUN_003EF260
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef260);
-// FUN_003EF2E0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef2e0);
-// FUN_003EF470
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef470);
-// FUN_003EF510
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef510);
 #pragma no_branch_likely on
 extern u8 *func_003ef5b0(u8 *arg0, u8 *arg1); /* P4: ported verbatim into src/renderware */
 #pragma no_branch_likely off
@@ -448,8 +419,6 @@ extern u8 *func_003ef5b0(u8 *arg0, u8 *arg1); /* P4: ported verbatim into src/re
 #pragma no_branch_likely on
 extern u8 *func_003ef610(u8 *arg0); /* P4: ported verbatim into src/renderware */
 #pragma no_branch_likely off
-// FUN_003EF650
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef650);
 // FUN_003EF6D0
 s32 func_003ef6d0(void)
 {
@@ -1494,8 +1463,6 @@ allocate:
 }
 /* measured: closes no_branch_likely around func_004117b0. */
 #pragma no_branch_likely off
-// FUN_00411820
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00411820);
 // FUN_00411FD0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00411fd0);
 // FUN_004125D0

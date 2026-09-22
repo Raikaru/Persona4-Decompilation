@@ -89,6 +89,7 @@ Sint32 ADX_DecodeInfo(Sint8 *ibuf, Sint32 ibuflen, Sint16 *dlen, Sint8 *code, Si
 }
 
 // 100% matching!
+// FUN_004C5870
 Sint32 ADX_DecodeInfoExADPCM2(Sint8 *ibuf, Sint32 ibuflen, Sint16 *cof) 
 {
 	Sint32 dlen; 
@@ -103,7 +104,10 @@ Sint32 ADX_DecodeInfoExADPCM2(Sint8 *ibuf, Sint32 ibuflen, Sint16 *cof)
         return -2;
     }
     
-    if ((Sint16)BSWAP_S16(((Uint16*)ibuf)[1]) < 14) 
+    // Retail isolates the high byte with `lbu 3(a3)` (0x4C58A8 90e30003), not
+    // `srl 8`: the halfword-plus-byte form forces `lhu 2(a3)`+`lbu 3(a3)`.
+    // Value is still BSWAP(((Uint16*)ibuf)[1]): ((half<<8)&0xFF00)|byte3.
+    if ((Sint16)((((Uint16*)ibuf)[1] << 8) & 0xFF00 | (Uint8)ibuf[3]) < 14)
     {
         return -1;
     }
@@ -192,7 +196,9 @@ Sint32 ADX_DecodeFooter(Sint8 *ibuf, Sint32 ibuflen, Sint16 *dlen)
         return -2;
     }
 
-    *dlen = BSWAP_U16_EX(((Uint16*)ibuf)[1]) + 4;
+    // Same `lhu 2`+`lbu 3` shape as ADPCM2 (retail 0x4C6018 lhu + 0x4C6020 lbu):
+    // ((half<<8)&0xFF00)|byte3 is BSWAP(((Uint16*)ibuf)[1]).
+    *dlen = ((((Uint16*)ibuf)[1] << 8) & 0xFF00 | (Uint8)ibuf[3]) + 4;
     
     return 0;
 }

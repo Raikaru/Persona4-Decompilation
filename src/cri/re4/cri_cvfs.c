@@ -445,16 +445,16 @@ const Char8 *cvFsGetDevName(CVFS_OBJ *obj)
 {
 	Sint32 i;
 
-	if (obj == NULL || obj->vtbl == NULL) {
+	if (obj == NULL) {
 		cvfs_Error("cvFsGetDevName #1:vtbl error");
 		return NULL;
 	}
 	for (i = 0; i < CVFS_MAX_DEV; i++) {
 		if (cvfs_tbl[i].vtbl == obj->vtbl) {
-			return cvfs_tbl[i].name;
+			break;
 		}
 	}
-	return NULL;
+	return cvfs_tbl[i].name;
 }
 
 /* dead */

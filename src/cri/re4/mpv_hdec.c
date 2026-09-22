@@ -6,6 +6,8 @@
 #include "mpv.h"
 #include "mpv_bit.h"
 
+extern SJ func_004ed600(void *buf, Sint32 bsize);
+
 #define MPV_HDR_SEQ 1
 #define MPV_HDR_GOP 2
 #define MPV_HDR_PIC 3
@@ -562,7 +564,7 @@ Sint32 MPV_DecodePicAtr(MPV mpv, SJCK *ck, Sint32 *used)
 	Sint32 ret;
 	SJ sj;
 
-	sj = SJMEM_Create(ck->data, ck->len);
+	sj = func_004ed600(ck->data, ck->len);
 	if (sj == NULL) {
 		return -1;
 	}

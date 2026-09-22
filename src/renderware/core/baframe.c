@@ -7,6 +7,7 @@
 /* P4: callees not yet ported under their RenderWare names; the header
    prototypes then declare the retail func_ symbols. */
 #define RwFrameDestroyHierarchy func_003e95c0
+#define rwFrameDestroyRecurse func_003e9460
 #define _rwPluginRegistryInitObject func_003e3b70
 #define _rwPluginRegistryCopyObject func_003e3c90
 #define RwFrameUpdateObjects func_003e9680
@@ -837,8 +838,10 @@ rwFrameDestroyRecurseDestroyLeaf(RwFrame *frame)
  On exit    :
  */
 
+// FUN_003E9460
+#pragma schedule on
 static void
-rwFrameDestroyRecurse(RwFrame * frame)
+func_003e9460(RwFrame * frame)
 {
     RWFUNCTION(RWSTRING("rwFrameDestroyRecurse"));
 
@@ -867,6 +870,8 @@ rwFrameDestroyRecurse(RwFrame * frame)
 
     RWRETURNVOID();
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwframe
@@ -886,8 +891,10 @@ rwFrameDestroyRecurse(RwFrame * frame)
  * \see RwFrameAddChild
  *
  */
+// FUN_003E95C0
+#pragma schedule on
 RwBool
-RwFrameDestroyHierarchy(RwFrame *frame)
+func_003e95c0(RwFrame *frame)
 {
     RWAPIFUNCTION(RWSTRING("RwFrameDestroyHierarchy"));
     RWASSERT(frameModule.numInstances);
@@ -898,6 +905,8 @@ RwFrameDestroyHierarchy(RwFrame *frame)
     rwFrameDestroyRecurse(frame);
     RWRETURN(TRUE);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1258,8 +1267,10 @@ RwFrameAddChild(RwFrame *parent, RwFrame *child)
  * \see RwFrameDestroyHierarchy
  *
  */
+// FUN_003E99A0
+#pragma schedule on
 RwFrame *
-RwFrameRemoveChild(RwFrame *child)
+func_003e99a0(RwFrame *child)
 {
     RwFrame *curFrame;
 
@@ -1301,6 +1312,8 @@ RwFrameRemoveChild(RwFrame *child)
 
     RWRETURN(child);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 
 

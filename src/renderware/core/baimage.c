@@ -16,6 +16,8 @@
 #define RwImageCopy func_003ebac0
 #define memcpy func_0043f810
 #define ImagePathForAllFullNames func_003eab70
+#define ImageAttempRead func_003eaf00
+#define ImageDetermineExtender func_003eb0d0
 
 /*
  *
@@ -940,8 +942,10 @@ RwImageGetPalette(const RwImage *image)
  * \see RwImageSetPalette
  *
  */
+// FUN_003EA3E0
+#pragma schedule on
 RwImage            *
-RwImageAllocatePixels(RwImage * image)
+func_003ea3e0(RwImage * image)
 {
     RwUInt32            imageDepth;
     RwBool              imagePalette;
@@ -991,6 +995,8 @@ RwImageAllocatePixels(RwImage * image)
     /* Done */
     RWRETURN(image);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwimage
@@ -1680,8 +1686,10 @@ ImagePathForAllFullNames(const RwChar * filename, RwInt32 extraBytes,
             : some more...!
  */
 
+// FUN_003EAF00
+#pragma schedule on
 static RwChar      *
-ImageAttempRead(RwChar * pathname, void *data)
+func_003eaf00(RwChar * pathname, void *data)
 {
     imageReadData      *imageData = (imageReadData *) data;
 
@@ -1703,6 +1711,8 @@ ImageAttempRead(RwChar * pathname, void *data)
     /* Else keep going */
     RWRETURN(pathname);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwimage
@@ -1816,8 +1826,10 @@ RwImageRead(const RwChar * imageName)
             : some more...!
  */
 
+// FUN_003EB0D0
+#pragma schedule on
 static RwChar      *
-ImageDetermineExtender(RwChar * pathname, void *data)
+func_003eb0d0(RwChar * pathname, void *data)
 {
     RwChar            **extender = (RwChar **) data;
     rwImageFormat      *imageFormat;
@@ -1861,6 +1873,8 @@ ImageDetermineExtender(RwChar * pathname, void *data)
     /* Try some more */
     RWRETURN(pathname);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwimage
@@ -2478,8 +2492,10 @@ ImageConvertDepth(RwImage * ipDestin, const RwImage * ipSource)
  * \see RwImageCreate
  *
  */
+// FUN_003EBAC0
+#pragma schedule on
 RwImage            *
-RwImageCopy(RwImage * destImage, const RwImage * sourceImage)
+func_003ebac0(RwImage * destImage, const RwImage * sourceImage)
 {
     RWAPIFUNCTION(RWSTRING("RwImageCopy"));
     RWASSERT(imageModule.numInstances);
@@ -2511,6 +2527,8 @@ RwImageCopy(RwImage * destImage, const RwImage * sourceImage)
 
     RWRETURN(destImage);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

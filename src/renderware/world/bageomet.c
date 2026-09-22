@@ -2599,8 +2599,10 @@ RpGeometryValidatePlugins(const RpGeometry * geometry __RWUNUSEDRELEASE__)
     RWRETURN(valid);
 }
 
+// FUN_003C2BD0
+#pragma schedule on
 static RwInt32
-GeometryStreamGetSizeActual(const RpGeometry *geometry)
+func_003c2bd0(const RpGeometry *geometry)
 {
     RwInt32 size;
     RwInt32 i;
@@ -2655,6 +2657,8 @@ GeometryStreamGetSizeActual(const RpGeometry *geometry)
 
     RWRETURN(size);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /****************************************************************************
  *

@@ -37,7 +37,7 @@ extern void *ADXSJD_GetSpsdInfo(void *sjd);
 extern Sint32 ADXSJD_GetDecNumSmpl(void *sjd);
 extern void ADXSJD_Stop(void *sjd);
 extern void ADXSJD_Start(void *sjd);
-extern void ADXSJD_ExecHndl(void *sjd);
+extern void func_004ce858(void *sjd);
 extern void ADXSJD_TermSupply(void *sjd);
 extern void ADXSJD_SetDecPos(void *sjd, Sint32 pos);
 extern void ADXSJD_TakeSnapshot(void *sjd);
@@ -383,7 +383,7 @@ void adxt_nlp_trap_entry(void *obj)
 	p->decsmpl += ADXSJD_GetDecNumSmpl(sjd);
 	ADXSJD_Stop(sjd);
 	ADXSJD_Start(sjd);
-	ADXSJD_ExecHndl(sjd);
+	func_004ce858(sjd);
 	if (ADXSJD_GetStat(sjd) != 2) {
 		ADXT_SetLnkSw(p, 0);
 		return;

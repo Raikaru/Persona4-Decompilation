@@ -10,7 +10,7 @@
 #define ADXF_CMD_HSTRY_NUM 0x100
 #define ADXF_CMD_NUM 8
 
-extern void ADXF_CloseAll(void);
+extern void func_004c8b48(void);
 
 /* volatile: the build string must stay referenced (dead `lwz` in ADXF_Init) */
 const Char8 *const volatile adxf_build = "\nADXF/GC Ver.7.18 Build:Oct  8 2004 13:32:02\n";
@@ -57,7 +57,7 @@ Sint32 ADXF_GetNumCmd(Sint32 *ncall)
 void ADXF_Finish(void)
 {
 	if (--adxf_init_cnt == 0) {
-		ADXF_CloseAll();
+		func_004c8b48();
 		adxf_ldptnw_last_stat = 1;
 		adxf_ldptnw_ptid = -1;
 		adxf_ldptnw_hn = NULL;

@@ -4,19 +4,24 @@
 #include "cri_xpt.h"
 
 typedef struct {
+	Sint32 flg;
+	Sint32 a;
+	Sint32 b;
+} SFX_TAGBLK;
+
+typedef struct {
 	Sint32 pad0;
 	Sint32 compo_mode;
 	Sint32 fxtype;
 	Sint32 outbuf_width;
 	Sint32 outbuf_height;
+	/* P4 9.44 order (retail 0052BAF0/0052B950): the tag block sits at 0x14
+	 * (`addiu $s1, $t0, 0x14`, `sw 4($s1)`/`sw 8($s1)`/`sw ($s1)`) and
+	 * unit_width follows it at 0x20, with sfxz at 0x24 in both orders.
+	 * sfx.h still carries the 9.31 order (unit_width at 0x14, tag at 0x18);
+	 * it needs the same swap, left out of scope here. */
+	SFX_TAGBLK tag;
 	Sint32 unit_width;
-	Sint32 taginf_flg;
-	Sint32 tag_a;
-	Sint32 tag_b;
-	/* P4: same four-byte removal as sfx.h SFX_OBJ: retail SFX_SetTagInf at
-	 * 0x0052BAF0 uses `addiu $s1, $t0, 0x14` (0052BAFC) for the tag block
-	 * and `lw $s0, 0x24($t0)` (0052BB2C) for sfxz, both 4 below this
-	 * layout's 0x18/0x28. */
 	void *sfxz;
 	Sint32 pad2C[3];
 	void *coladj;
@@ -45,25 +50,27 @@ void SFX_SetColAdj(SFX_OBJ *sfx, void *coladj)
 // The tag info block (address, length) given by SFX_SetTagInf, 0/0 when none.
 void SFX_GetTagInf(SFX_OBJ *sfx, Sint32 *a, Sint32 *b)
 {
-	if (sfx->taginf_flg != 1) {
+	if (sfx->tag.flg != 1) {
 		*a = 0;
 		*b = 0;
 	} else {
-		*a = sfx->tag_a;
-		*b = sfx->tag_b;
+		*a = sfx->tag.a;
+		*b = sfx->tag.b;
 	}
 }
 
 // Records the "SFXINFS" tag block of the additional-info stream and passes its "SFXZ" record to the
 // Z sub-object.
+// FUN_0052BAF0
 void SFX_SetTagInf(SFX_OBJ *sfx, Sint32 a, Sint32 b)
 {
 	SFX_TAGINF inf;
 	SFX_TAGINF out;
+	SFX_TAGBLK *tag = &sfx->tag;
 	void *sfxz = sfx->sfxz;
 
-	sfx->tag_a = a;
-	sfx->tag_b = b;
+	tag->a = a;
+	tag->b = b;
 	inf.a = a;
 	inf.b = b;
 	if (SJ_SearchTag(&inf, "SFXZ", "SFXINFE", &out) == NULL) {
@@ -71,7 +78,7 @@ void SFX_SetTagInf(SFX_OBJ *sfx, Sint32 a, Sint32 b)
 	} else {
 		SFXZ_SetTagInf(sfxz, out.a, out.b);
 	}
-	sfx->taginf_flg = 1;
+	tag->flg = 1;
 }
 
 // 1: the output size is in pixels; 0: the width is a byte pitch (mwPlyFxSetOutBufPitchHeight).

@@ -124,104 +124,6 @@ extern s32 D_007647C8;
 
 extern s32 D_007647BC;
 
-/* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
-   unfilled (nop); retail fills it with the final store (nd 15 -> 0). */
-
-/* measured (this session): probe_variants Lane119e3c_003c0050_body.c scores 26 differing words (144B/144B window; b119 candidate improves on W4C3C nd 13/136B; residual is ,p alignment nop after filled back-edge delay slot which plain -O2 cannot emit; decl-order/dependent-init ruled out, schedule off oversized 156B/nd 106); banked guarded. See docs/probe_archive/Lane119e3c_003c0050_body.c. */
-/* measured 2026-09-19: object 36 instrs against retail 36, exact, 26 differing
-   words, 14 fnalign edits.  The residual is a saved-register exchange plus
-   the branch polarity that follows from it: retail holds the list end in
-   `$s1` and the loaded node in `$s0` and tests `beq $v0, $s1`, where b210
-   holds them the other way round and tests `bne $v0, $s0` with an extra
-   forward branch, and retail's loop tail is `bnez`/`nop`/`b` where b210 emits
-   `bnel` with the value in the delay slot.
-   Six spellings measured, all 26: the three declaration orders of
-   `end`/`node`/`next` (the 7n lever that fixed the same exchange in
-   `func_00263cb0`), `end` typed as `s32` rather than `u8 *`, the two
-   assignments swapped, a `while` loop and a `do`/`while`.  The register
-   choice here does not follow declaration order. */
-// FUN_003C0050 NONMATCHING
-#ifdef NON_MATCHING
-#pragma schedule on
-u8 *func_003c0050(u8 *arg0, s32 (*arg1)(s32, s32), s32 arg2) {
-    extern s32 iGpffffb6b4;
-    u8 *end;
-    s32 *node;
-    s32 next;
-
-    end = arg0 + 0x10;
-    node = *(s32 **)(arg0 + 0x10);
-    if (node == (s32 *)end)
-        return arg0;
-loop:
-    next = *node;
-    if (arg1((s32)((u8 *)node - 4) - iGpffffb6b4, arg2) == 0)
-        return arg0;
-    node = (s32 *)next;
-    if (next != (s32)end)
-        goto loop;
-    return arg0;
-}
-#pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0050);
-#endif
-/* measured (this session): probe_variants P3C_003c0210_body.c scores 25 differing words (obj 196B/window 208B, nd 23); census clean (same four calls), float block register-coloured differently (retail loads f3 first from +4); declaration/load-order/store-order/nesting/hoist ruled out (480-variant sweep floor at nd 23); banked guarded. See docs/probe_archive/P3C_003c0210_body.c. */
-// FUN_003C0210 NONMATCHING
-#ifdef NON_MATCHING
-#pragma schedule on
-#pragma no_branch_likely on
-u8 *func_003c0210(u8 *arg0, u8 *arg1, s32 arg2) {
-    extern void func_003c2a60(u8 *arg0);
-    extern void func_003c2a80(u8 *arg0);
-    extern s32 func_003cbce0(s32 arg0);
-    extern void func_003e9680(u8 *arg0);
-    f32 f1;
-    f32 f2;
-    f32 f3;
-    f32 f0;
-    u8 *temp;
-    u8 *temp_2;
-
-    if (arg1 == *(u8 **)(arg0 + 0x18)) {
-        goto end;
-    }
-    if (arg1 != NULL) {
-        func_003c2a60(arg1);
-    }
-    temp = *(u8 **)(arg0 + 0x18);
-    if (temp != NULL) {
-        func_003c2a80(temp);
-    }
-    *(u8 **)(arg0 + 0x18) = arg1;
-    if ((arg2 & 1) == 0) {
-        if (arg1 != NULL) {
-            temp_2 = *(u8 **)(arg1 + 0x5C);
-            f0 = *(f32 *)(temp_2 + 0x10);
-            f1 = *(f32 *)(temp_2 + 0xC);
-            f3 = *(f32 *)(temp_2 + 4);
-            f2 = *(f32 *)(temp_2 + 8);
-            *(f32 *)(arg0 + 0x1C) = f3;
-            *(f32 *)(arg0 + 0x20) = f2;
-            *(f32 *)(arg0 + 0x28) = f0;
-            *(f32 *)(arg0 + 0x24) = f1;
-        }
-    }
-    temp = *(u8 **)(arg0 + 4);
-    if (temp == NULL) {
-        goto end;
-    }
-    if (func_003cbce0((s32)arg0) != 0) {
-        func_003e9680(temp);
-    }
-end:
-    return arg0;
-}
-#pragma no_branch_likely off
-#pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0210);
-#endif
 /* measured: schedule on fills callback argument delay slots. */
 #pragma schedule on
 /* measured: no_branch_likely on keeps the cleanup tests as plain branches. */
@@ -610,8 +512,6 @@ s32 func_003c2ba0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 #pragma tailcall off
 /* measured: closes the schedule bracket for func_003c2ba0; explicit opposite state restores the file default. */
 #pragma schedule off
-// FUN_003C2BD0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2bd0);
 /* measured: schedule on fills the four jal/jr delay slots; without it the
    object is 104 bytes against a 96-byte window (nd 58). */
 #pragma schedule on
@@ -673,8 +573,6 @@ s32 func_003c3980(u8 *arg0) {
 }
 /* measured: schedule off closes the saved-constant probe. */
 #pragma schedule off
-// FUN_003C39C0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c39c0);
 // FUN_003C3AE0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3ae0);
 // FUN_003C3CC0
@@ -935,38 +833,6 @@ s32 func_003c4370(s32 arg0, s32 arg1) {
 
 // FUN_003C4390
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4390);
-/* measured: schedule on takes this from nd 71 (obj 104B/window 96B)
-   to nd 8 (obj 92B/window 96B), with every instruction right; the residual
-   is three prologue words -- retail interleaves `move $s1,$a0` between the
-   two saved-register stores while b210 emits both stores first. Measured
-   identical at nd 8: naming the inner pointer in a local before the guard;
-   folding the 0x28 into both arms of an if/else is much worse (nd 42).
-   Prologue scheduling floor. Committed at nd 8. */
-/* measured (this session): probe_variants W3CA_003c47c0_body.c scores 21 differing words (obj 92B/window 96B, nd 8); residual words +0x0C/+0x10: retail interleaves `move $s1,$a0` between sq saves while b210 emits both saves first; block-scope callee typing, schedule-on shape, decl-order reversal, and delayed param read ruled out; prologue-order floor, banked guarded. See docs/probe_archive/W3CA_003c47c0_body.c. */
-/* measured 2026-09-19: object 23 instrs against retail 23, exact, 2 differing
-   words, down from 26/24 at 21 words.  Both surplus instructions were `nop`
-   in branch delay slots; `#pragma schedule on` fills them the way retail does
-   and needs no source change (handoff 7ac). */
-// FUN_003C47C0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma schedule on
-s32 func_003c47c0(u8 *arg0) {
-    extern s32 func_003e6240(u8 *arg0);
-    s32 total;
-
-    total = 0x28;
-    if (*(u8 **)arg0 != NULL) {
-        total += func_003e6240(*(u8 **)arg0) + 0xC;
-    }
-    return total + (func_003e3370(D_0070AFF0, arg0) + 0xC);
-}
-#pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
-#endif
-
-// FUN_003C4820
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4820);
 
 /* measured (this session): probe_variants K3C1_003c49a0_body.c scores 27 differing words (obj 148B/window 160B, nd 74; offsets 0x20,0x2c-0x2e,0x30,0x33,0x35-0x37,0x3c-0x40,0x42-0x43); typed callee, decl/order, straight/do-while loops, cursor/index locals, callback teardown, and schedule ruled out; residual entry slt/beq guard, branch layout, callback target; banked guarded. See docs/probe_archive/K3C1_003c49a0_body.c. */
 /* measured 2026-09-19: object 38 instrs against retail 38, exact, 7 differing
@@ -1519,51 +1385,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9d40);
 // FUN_003C9EB0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9eb0);
 
-/* measured 2026-09-19: object 41 instrs against retail 42, inside the gate,
-   22 differing words.  Was 47 against 44 (+6.8%, outside) at 31 words, and
-   that score was not comparable (handoff 7y).
-   The whole surplus was three unfilled branch delay slots: `#pragma schedule
-   on` around the function fills them exactly as retail does, taking the count
-   inside and the score 31 -> 22 with no source change at all.  The earlier
-   note's callback branch-polarity and epilogue-displacement residual is what
-   remains at 22.  Prior probe archive: docs/probe_archive/K3C2_003ca320_body.c. */
-// FUN_003CA320 NONMATCHING
-#ifdef NON_MATCHING
-#pragma schedule on
-u8 *func_003ca320(u8 *arg0, s32 (*arg1)(u8 *, s32), s32 arg2) {
-    u8 *stack[64];
-    s32 depth;
-    s32 value;
-    u8 *current;
-
-    current = *(u8 **)(arg0 + 0x1C);
-    depth = 0;
-loop:
-    if (*(s32 *)current < 0)
-        goto callback;
-    value = *(s32 *)(current + 0xC);
-    depth += 1;
-    current = *(u8 **)(current + 8);
-    stack[depth] = (u8 *)value;
-check:
-    if (depth >= 0)
-        goto loop;
-    goto finish;
-finish:
-    return arg0;
-callback:
-    if (arg1(current, arg2) != 0)
-        goto callback_continue;
-    return arg0;
-callback_continue:
-    current = stack[depth];
-    depth -= 1;
-    goto check;
-}
-#pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca320);
-#endif
 // FUN_003CA3D0
 #pragma schedule on
 #pragma tailcall on
@@ -2187,10 +2008,6 @@ extern u8 *func_003cbde0(u8 *arg0, u8 *(*arg1)(u8 *arg0, u8 *arg1), u8 *arg2); /
 /* measured: schedule off closes cbde0's callback-delay bracket. */
 #pragma schedule off
 
-// FUN_003CBE80 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbe80);
-/* measured: closes the schedule bracket opened above and restores the file default. */
-#pragma schedule off
 
 // FUN_003CBF30
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbf30);

@@ -13,6 +13,7 @@
 #define _rpMeshDestroy func_003c5760
 #define _rpBuildMeshCreate func_003c55f0
 #define WorldBuildMeshAtomicSector func_003c8eb0
+#define RpWorldForAllWorldSectors func_003ca320
 
 
 
@@ -2433,8 +2434,10 @@ RpWorldForAllLights(RpWorld * world, RpLightCallBack fpCallBack,
  * \see RpWorldPluginAttach
  *
  */
+// FUN_003CA320
+#pragma schedule on
 RpWorld            *
-RpWorldForAllWorldSectors(RpWorld * world,
+func_003ca320(RpWorld * world,
                           RpWorldSectorCallBack fpCallBack, void *pData)
 {
     RpSector           *spSect;
@@ -2474,6 +2477,8 @@ RpWorldForAllWorldSectors(RpWorld * world,
 
     RWRETURN(world);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 #if (defined(RWDEBUG) || defined(RWSUPPRESSINLINE))
 

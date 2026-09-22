@@ -10,6 +10,7 @@
 #define memcpy func_0043f810
 #define memset func_0043f9c8
 #define PipelineTopSort func_00411fd0
+#define PipelineCalcNumUniqueClusters func_00411820
 
 /*
  * Defining nodes in custom pipelines
@@ -193,8 +194,10 @@ StalacMiteAlloc(RwUInt32 size)
 /*****************************************************************************
  PipelineCalcNumUniqueClusters
  */
+// FUN_00411820
+#pragma schedule on
 RwUInt32
-PipelineCalcNumUniqueClusters(RxPipeline *pipeline)
+func_00411820(RxPipeline *pipeline)
 {
     RxClusterDefinition *lastAddress, *newAddress;
     RwUInt32             numUniqueClusters;
@@ -241,6 +244,8 @@ PipelineCalcNumUniqueClusters(RxPipeline *pipeline)
 
     RWRETURN(numUniqueClusters);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /*****************************************************************************
  ReallocAndFixupSuperBlock

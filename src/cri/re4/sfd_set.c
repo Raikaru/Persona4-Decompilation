@@ -40,6 +40,7 @@ Sint32 SFSET_GetCond(SFD sfd, Sint32 id)
 }
 
 // Condition `id` of the handle, or the library default when sfd is NULL.
+// FUN_00524FF8
 Sint32 SFD_GetCond(SFD sfd, Sint32 id, Sint32 *val)
 {
 	if (sfd == NULL) {
@@ -48,7 +49,7 @@ Sint32 SFD_GetCond(SFD sfd, Sint32 id, Sint32 *val)
 		if (SFLIB_CheckHn(sfd) != 0) {
 			return SFLIB_SetErr(NULL, 0xFF000113);
 		}
-		*val = sfd->cond[id];
+		*val = SFSET_GetCond(sfd, id);
 	}
 	return 0;
 }

@@ -1,6 +1,9 @@
 #include "mwsfd.h"
 #include "sfd.h"
 
+extern void func_005120b8(void *stm, Sint32 min_nsct, Sint32 max_nsct);
+extern void func_00510460(MWPLY_OBJ *mwply, Sint32 nsct);
+
 /* This unit is compiled with `-inline auto,deferred` (CRI_CFLAG_OVERRIDES): every accessor inlines
  * MWSFD_IsEnableHndl / mwPlyGetSfdHn / mwPlyGetNumSkipDec, which are defined at the top of the file,
  * and deferred code generation emits the functions in reverse source order (the DOL's .text and
@@ -41,8 +44,8 @@ void MWSFD_SetCond(MWPLY mwply, Sint32 id, Sint32 val)
 // FUN_0050D380
 void MWSFD_SetFlowLimit(MWPLY mwply, Sint32 min_nsct, Sint32 max_nsct)
 {
-	MWSTM_SetFlowLimit(mwply->stm, min_nsct, max_nsct);
-	MWSFLSC_SetFlowLimit(mwply, min_nsct);
+	func_005120b8(mwply->stm, min_nsct, max_nsct);
+	func_00510460(mwply, min_nsct);
 }
 
 // Non-NULL and in use.

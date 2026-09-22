@@ -401,7 +401,7 @@ void func_00100670(void)
     extern s32 func_00396f00(void);
     extern s32 func_003b82d0(void);
     extern s32 func_0039b380(void);
-    extern s32 func_003d71b0(void);
+    extern s32 RpUVAnimPluginAttach(void);
     extern s32 func_00417470(void);
     extern s32 func_003a16c0(void);
     extern s32 func_003b7110(void);
@@ -613,7 +613,7 @@ void func_00100670(void)
     v14[4] = 0;
     func_0039b680((s32)v14);
     func_0039b380();
-    func_003d71b0();
+    RpUVAnimPluginAttach();
     func_00417470();
 
     v13[0] = (s32)D_0064FAC0;

@@ -3,6 +3,7 @@
    (config/compiler_units.txt, config/version_flags.txt). File-scope statics
    are externs at their retail addresses (config/symbol_data_addrs.txt). */
 #include "include_asm.h"
+#define RpLightStreamWrite func_003c39c0
 
 
 /**
@@ -685,8 +686,10 @@ RpLightStreamGetSize(const RpLight * light)
  * \see RpWorldPluginAttach
  *
  */
+// FUN_003C39C0
+#pragma schedule on
 const RpLight      *
-RpLightStreamWrite(const RpLight * light, RwStream * stream)
+func_003c39c0(const RpLight * light, RwStream * stream)
 {
     _rpLight            lite;
     RpLightType         type;
@@ -740,6 +743,8 @@ RpLightStreamWrite(const RpLight * light, RwStream * stream)
     /* Done */
     RWRETURN(light);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rplight

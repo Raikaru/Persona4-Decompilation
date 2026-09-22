@@ -3398,8 +3398,10 @@ RwCameraForAllAtomicsInFrustum(RwCamera *camera,
  * \see RpLightCreate
  * \see RpWorldPluginAttach
  */
+// FUN_003CBE80
+#pragma schedule on
 RpWorld            *
-RpWorldAddLight(RpWorld * world, RpLight * light)
+func_003cbe80(RpWorld * world, RpLight * light)
 {
     RpWorldLightExt    *lightExt;
 
@@ -3445,6 +3447,8 @@ RpWorldAddLight(RpWorld * world, RpLight * light)
     /* The object will be repositioned in the world */
     RWRETURN(world);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rpworldsub

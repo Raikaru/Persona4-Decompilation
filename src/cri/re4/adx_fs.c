@@ -6,6 +6,8 @@
 #include "adx_f.h"
 #include <string.h>
 
+extern void func_004d1ce8(ADXSTM stm);
+
 #define ADXF_SCT_SIZE 2048
 #define ADXF_SEEK_SET 0
 #define ADXF_SEEK_CUR 1
@@ -198,7 +200,7 @@ void ADXF_Close(ADXF adxf)
 		stm = adxf->stm;
 		adxf->stm = NULL;
 		ADXSTM_ReleaseFile(stm);
-		ADXSTM_Destroy(stm);
+		func_004d1ce8(stm);
 	}
 	memset(adxf, 0, sizeof(ADXF_OBJ));
 	adxf_SetCmdHstry(ADXF_CMD_CLOSE, 1, adxf, -1, -1);

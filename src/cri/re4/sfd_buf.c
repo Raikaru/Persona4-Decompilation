@@ -7,6 +7,7 @@
 extern Sint32 SJRBF_GetFlowCnt(SJ sj, Sint32 id, Sint32 dir);
 extern Sint32 SJMEM_GetBufSize(SJ sj);
 extern void SFPTS_InitPtsQue(SFPTS_QUE *que);
+extern SJ func_004ed600(void *buf, Sint32 bsize);
 
 #define SFBUF_TR_NONE 9
 #define SFBUF_PRV_XSIZE 0x800
@@ -704,7 +705,7 @@ void SFBUF_Init(void *work)
 	sj = SJRBF_Create(dmy, 8, 0);
 	sfbuf_sjrbf_uuid = SJ_GetUuid(sj);
 	SJ_Destroy(sj);
-	sj = SJMEM_Create(dmy, 8);
+	sj = func_004ed600(dmy, 8);
 	sfbuf_sjmem_uuid = SJ_GetUuid(sj);
 	SJ_Destroy(sj);
 }

@@ -423,10 +423,11 @@ void ADXSJE_Destroy(ADXSJE sje)
 
 // Takes an encoder slot reading `nch` PCM stream joints and writing ADX to `sjo`: defaults 44.1 kHz,
 // 4-bit 18-byte blocks (32 samples), 500 Hz cut-off, no loop, no AINF, unbounded length.
+// FUN_004D0E98
 ADXSJE ADXSJE_Create(Sint32 nch, SJ *sji, SJ sjo)
 {
 	ADXSJE sje;
-	Sint32 i;
+	Sint32 i, j;
 
 	for (i = 0; i < ADXSJE_MAX_OBJ; i++) {
 		if (adxsje_obj[i].used == 0) {
@@ -438,8 +439,8 @@ ADXSJE ADXSJE_Create(Sint32 nch, SJ *sji, SJ sjo)
 	}
 	sje = &adxsje_obj[i];
 	sje->nch = nch;
-	for (i = 0; i < nch; i++) {
-		sje->sji[i] = sji[i];
+	for (j = 0; j < nch; j++) {
+		sje->sji[j] = sji[j];
 	}
 	sje->sjo = sjo;
 	sje->stat = 0;

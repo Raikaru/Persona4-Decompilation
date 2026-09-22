@@ -74,8 +74,9 @@ extern Sint32 ADXB_GetLpStartOfst(ADXB adxb);
 extern Sint32 ADXB_GetLpEndPos(ADXB adxb);
 extern Sint32 ADXB_GetLpEndOfst(ADXB adxb);
 extern Sint32 ADXB_GetAinfLen(ADXB adxb);
-extern Sint32 ADXB_GetDefOutVol(ADXB adxb);
-extern Sint32 ADXB_GetDefPan(ADXB adxb, Sint32 ch);
+extern Sint16 ADXB_GetDefOutVol(ADXB adxb);
+extern Sint16 ADXB_GetDefPan(ADXB adxb, Sint32 ch);
+extern void *func_004c3ce8(ADXB adxb);
 extern Sint32 ADXB_GetDecNumSmpl(ADXB adxb);
 extern Sint32 ADXB_GetDecDtLen(ADXB adxb);
 extern void *ADXB_GetPcmBuf(ADXB adxb);
@@ -94,6 +95,7 @@ void (*pl2setsfreqfunc)(ADXB adxb, Sint32 sfreq);
 ADXSJD_OBJ adxsjd_obj[ADXSJD_MAX_OBJ];
 
 void ADXSJD_ExecHndl(ADXSJD sjd);
+void func_004ce858(ADXSJD sjd);
 void adxsjd_decexec_start(ADXSJD sjd);
 void *adxsjd_get_wr(void *obj, Sint32 *pos, Sint32 *nsmpl, Sint32 *trap);
 void adxsjd_decode_prep(ADXSJD sjd);
@@ -117,6 +119,7 @@ void *ADXSJD_GetSpsdInfo(ADXSJD sjd)
 	return sjd->spsdinf;
 }
 
+// FUN_004CEF50
 // Default pan of channel `ch` from the stream's AINF chunk, only once the header has been decoded
 // (stat DECODE/END); -128 otherwise.
 Sint32 ADXSJD_GetDefPan(ADXSJD sjd, Sint32 ch)
@@ -128,13 +131,23 @@ Sint32 ADXSJD_GetDefPan(ADXSJD sjd, Sint32 ch)
 }
 
 // Default output volume from the stream's AINF chunk once decoding has begun; 0 otherwise.
-// FUN_004CEFB8
+// FUN_004CEEF8
 Sint32 ADXSJD_GetDefOutVol(ADXSJD sjd)
 {
 	if (ADXB_GetAinfLen(sjd->adxb) > 0 && (sjd->stat == ADXSJD_STAT_DECODE || sjd->stat == ADXSJD_STAT_END)) {
 		return ADXB_GetDefOutVol(sjd->adxb);
 	}
 	return 0;
+}
+
+// Default pan table from the stream's AINF chunk once decoding has begun; NULL otherwise.
+// FUN_004CEFB8
+void *func_004cefb8(ADXSJD sjd)
+{
+	if (ADXB_GetAinfLen(sjd->adxb) > 0 && (sjd->stat == ADXSJD_STAT_DECODE || sjd->stat == ADXSJD_STAT_END)) {
+		return func_004c3ce8(sjd->adxb);
+	}
+	return NULL;
 }
 
 // Loop end byte offset of the stream (ADXB_GetLpEndOfst).
@@ -266,7 +279,7 @@ void ADXSJD_ExecServer(void)
 
 	for (i = 0; i < ADXSJD_MAX_OBJ; i++) {
 		if (adxsjd_obj[i].used == 1) {
-			ADXSJD_ExecHndl(&adxsjd_obj[i]);
+			func_004ce858(&adxsjd_obj[i]);
 		}
 	}
 }
@@ -710,10 +723,11 @@ void ADXSJD_Destroy(ADXSJD sjd)
 
 // Takes a free adxsjd_obj slot; the ADXB writes into the ring buffer of the first output stream joint
 // (`sjo[0]`, its size and extra area in samples), the other channels are `chofst` samples apart.
+// FUN_004CDAB8
 ADXSJD ADXSJD_Create(SJ sji, Sint32 nch, SJ *sjo)
 {
 	ADXSJD sjd;
-	Sint32 i;
+	Sint32 i, j;
 	void *buf;
 	SJ sjo0;
 	Sint32 bsize;
@@ -739,8 +753,8 @@ ADXSJD ADXSJD_Create(SJ sji, Sint32 nch, SJ *sjo)
 	ADXB_EntryGetWrFunc(sjd->adxb, adxsjd_get_wr, sjd);
 	sjd->sji = sji;
 	sjd->nch = nch;
-	for (i = 0; i < nch; i++) {
-		sjd->sjo[i] = sjo[i];
+	for (j = 0; j < nch; j++) {
+		sjd->sjo[j] = sjo[j];
 	}
 	sjd->stat = ADXSJD_STAT_STOP;
 	adxsjd_reset(sjd);

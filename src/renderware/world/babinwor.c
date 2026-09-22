@@ -14,6 +14,8 @@
 #define WorldSectorStreamRead func_003bd6b0
 #define _rpWorldSectorDeinstanceAll func_003c91d0
 #define _rpWorldSectorDestroyRecurse func_003c9300
+#define _rpWriteSectRights func_003bd610
+#define _rpWriteWorldRights func_003bd4f0
 
 
 /****************************************************************************
@@ -125,8 +127,10 @@ _rpReadWorldRights(RwStream *s,
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
+// FUN_003BD4F0
+#pragma schedule on
 RwStream*
-_rpWriteWorldRights(RwStream *s,
+func_003bd4f0(RwStream *s,
                     RwInt32 len __RWUNUSED__,
                     const void *obj,
                     RwInt32 off __RWUNUSED__,
@@ -154,6 +158,8 @@ _rpWriteWorldRights(RwStream *s,
 
     RWRETURN(s);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 RwInt32
 _rpSizeWorldRights(const void *obj,
@@ -206,8 +212,10 @@ _rpReadSectRights(RwStream *s,
     RWRETURN(s);
 }
 
+// FUN_003BD610
+#pragma schedule on
 RwStream*
-_rpWriteSectRights(RwStream *s,
+func_003bd610(RwStream *s,
                    RwInt32 len __RWUNUSED__,
                    const void *obj,
                    RwInt32 off __RWUNUSED__,
@@ -235,6 +243,8 @@ _rpWriteSectRights(RwStream *s,
 
     RWRETURN(s);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 RwInt32
 _rpSizeSectRights(const void *obj,

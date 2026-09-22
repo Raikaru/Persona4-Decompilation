@@ -6,6 +6,8 @@
 #include "sj.h"
 #include <string.h>
 
+extern SJ func_004ed600(void *buf, Sint32 bsize);
+
 typedef struct {
 	Uint8 pad[0x14];
 	SJ sji;
@@ -43,8 +45,8 @@ void ADXT_InsertHdrSfa(ADXT_OBJ *adxt, Sint32 a, Sint32 b, Sint32 c)
 
 	ADXSJE_Init();
 	sjo = SJRBF_Create(adxt_hdbuf, 0x400, 0);
-	sjs[0] = SJMEM_Create(adxt_dmybuf, 0x20);
-	sjs[1] = SJMEM_Create(adxt_dmybuf + 0x20, 0x20);
+	sjs[0] = func_004ed600(adxt_dmybuf, 0x20);
+	sjs[1] = func_004ed600(adxt_dmybuf + 0x20, 0x20);
 	sji = adxt->sji;
 	sje = ADXSJE_Create(2, sjs, sjo);
 	ADXSJE_SetConfigSfa(sje, a, b, c);
