@@ -294,10 +294,6 @@ void func_00517d80() {
 // FUN_00517D88
 void func_00517d88() {
 }
-// FUN_00517D90
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517d90);
-// FUN_00517DA8
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517da8);
 
 
 

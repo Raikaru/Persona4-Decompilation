@@ -316,6 +316,7 @@ void SFD_SetMpvParaTbl(SFMPV_PARA *para, void **rfb, void **tbl)
 
 // Y/Cb/Cr plane addresses and row strides of a planar YCC 4:2:0 buffer of width x height (the MW
 // player's mwPlyCalcYccPlane).
+// FUN_00519C88
 void SFD_CalcYccPlane(void *buf, Sint32 width, Sint32 height, SFMPV_PLANE *plane)
 {
 	sfmpv_CalcYccPlane(buf, width, height, plane);
@@ -433,6 +434,7 @@ static Sint32 sfmpv_ChkFatal(void)
 }
 
 // Library finish: MPV decoder.
+// FUN_0051A6D0
 Sint32 SFMPV_Finish(void)
 {
 	MPV_Finish();
@@ -440,6 +442,7 @@ Sint32 SFMPV_Finish(void)
 }
 
 // Driver ExecServer (SFD_tr_vd_mpv slot 2).
+// FUN_0051A6F0
 Sint32 SFMPV_ExecServer(SFD sfd)
 {
 	return sfmpv_ExecServerSub(sfd);

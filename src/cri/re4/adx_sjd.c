@@ -64,7 +64,7 @@ extern Sint32 ADXB_DecodeHeader(ADXB adxb, Uint8 *data);
 extern void ADXB_SetDefPrm(ADXB adxb);
 extern Sint32 ADXB_GetFormat(ADXB adxb);
 extern Sint32 ADXB_GetSfreq(ADXB adxb);
-extern Sint32 ADXB_GetNumChan(ADXB adxb);
+extern Sint32 func_004c3c00(ADXB adxb);
 extern Sint32 ADXB_GetOutBps(ADXB adxb);
 extern Sint32 ADXB_GetBlkSmpl(ADXB adxb);
 extern Sint32 ADXB_GetTotalNumSmpl(ADXB adxb);
@@ -102,12 +102,14 @@ void adxsjd_decode_prep(ADXSJD sjd);
 
 // Restores the block decoder's ADPCM history/key snapshot (see ADXB_RestoreSnapshot); ADXT uses it to
 // resume after a loop/seek.
+// FUN_004CF050
 void ADXSJD_RestoreSnapshot(ADXSJD sjd)
 {
 	ADXB_RestoreSnapshot(sjd->adxb);
 }
 
 // Saves the block decoder's ADPCM history/key snapshot.
+// FUN_004CF038
 void ADXSJD_TakeSnapshot(ADXSJD sjd)
 {
 	ADXB_TakeSnapshot(sjd->adxb);
@@ -157,6 +159,7 @@ Sint32 ADXSJD_GetLpEndOfst(ADXSJD sjd)
 }
 
 // Loop end sample position of the stream.
+// FUN_004CEEB0
 Sint32 ADXSJD_GetLpEndPos(ADXSJD sjd)
 {
 	return ADXB_GetLpEndPos(sjd->adxb);
@@ -173,6 +176,7 @@ Sint32 ADXSJD_GetLpStartOfst(ADXSJD sjd)
 }
 
 // Loop start sample position.
+// FUN_004CEE68
 Sint32 ADXSJD_GetLpStartPos(ADXSJD sjd)
 {
 	return ADXB_GetLpStartPos(sjd->adxb);
@@ -185,6 +189,7 @@ Sint32 ADXSJD_GetNumLoop(ADXSJD sjd)
 }
 
 // Total samples per channel of the current stream.
+// FUN_004CEE08
 Sint32 ADXSJD_GetTotalNumSmpl(ADXSJD sjd)
 {
 	return ADXB_GetTotalNumSmpl(sjd->adxb);
@@ -197,15 +202,17 @@ Sint32 ADXSJD_GetBlkSmpl(ADXSJD sjd)
 }
 
 // Output bits per sample.
+// FUN_004CEDC0
 Sint32 ADXSJD_GetOutBps(ADXSJD sjd)
 {
 	return ADXB_GetOutBps(sjd->adxb);
 }
 
 // Output channel count (2 when a Pro Logic II encoder upmixes mono).
+// FUN_004CF018
 Sint32 ADXSJD_GetNumChan(ADXSJD sjd)
 {
-	return ADXB_GetNumChan(sjd->adxb);
+	return func_004c3c00(sjd->adxb);
 }
 
 // Sampling rate in Hz of the current stream.
@@ -221,12 +228,14 @@ Sint32 ADXSJD_GetFormat(ADXSJD sjd)
 }
 
 // Presets the input-byte counter of the trap (used by ADXT to align the loop-end trap to a file position).
+// FUN_004CED68
 void ADXSJD_SetTrapDtLen(ADXSJD sjd, Sint32 len)
 {
 	sjd->trap_dtlen = len;
 }
 
 // Presets the trap's decoded-sample counter.
+// FUN_004CED58
 void ADXSJD_SetTrapCnt(ADXSJD sjd, Sint32 cnt)
 {
 	sjd->trap_cnt = cnt;
@@ -234,12 +243,14 @@ void ADXSJD_SetTrapCnt(ADXSJD sjd, Sint32 cnt)
 
 // Sets the sample count at which the trap callback fires before the next block starts (-1: no trap).
 // ADXT uses it for the loop end and for the linked-file boundary.
+// FUN_004CED48
 void ADXSJD_SetTrapNumSmpl(ADXSJD sjd, Sint32 nsmpl)
 {
 	sjd->trap_nsmpl = nsmpl;
 }
 
 // Registers the trap callback (`fn(obj)`) run by adxsjd_decexec_start when trap_cnt reaches trap_nsmpl.
+// FUN_004CED38
 void ADXSJD_EntryTrapFunc(ADXSJD sjd, void (*fn)(void *obj), void *obj)
 {
 	sjd->trapfn = fn;
@@ -254,6 +265,7 @@ void ADXSJD_SetLnkSw(ADXSJD sjd, Sint32 sw)
 }
 
 // Overrides the decode position in samples (ADXT sets it to the loop start after a loop jump).
+// FUN_004CEC18
 void ADXSJD_SetDecPos(ADXSJD sjd, Sint32 pos)
 {
 	sjd->decpos = pos;

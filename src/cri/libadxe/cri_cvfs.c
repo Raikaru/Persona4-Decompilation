@@ -424,6 +424,7 @@ static void getDevName(Sint8 *dname, Sint8 *fname, const Sint8 *fn)
 }
 
 // 100% matching!
+// FUN_004E1FC0
 static void getDefDev(Sint8 *dev)
 {
     Sint32 len;
@@ -1321,6 +1322,7 @@ Sint8* cvFsGetDevName(CVFS cvfs)
 }
 
 // 100% matching!
+// FUN_004E2E28
 void cvFsEntryErrFunc(CVF_FS_ERRFN errfn, void *obj)
 {
     if (errfn == NULL)

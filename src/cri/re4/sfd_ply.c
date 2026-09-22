@@ -1132,6 +1132,7 @@ Bool SFD_IsSvrWait(void)
 }
 
 // 1 when this handle has nothing to do (inactive state or no change flagged).
+// FUN_00521850
 Bool SFD_IsHnSvrWait(SFD sfd)
 {
 	/* `> 3` written out: the negated SFD_STAT_IS_ACTIVE gives `bgt` with the `li r3,1` last */

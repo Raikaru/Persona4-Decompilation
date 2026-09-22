@@ -4,6 +4,7 @@
 #include "adx_stm.h"
 
 // ADXSTM_STAT_* of the controller.
+// FUN_005122A0
 Sint32 MWSTM_GetStat(ADXSTM stm)
 {
 	return ADXSTM_GetStat(stm);
@@ -18,6 +19,7 @@ void MWSTM_ReqStop(ADXSTM stm)
 }
 
 // Starts streaming the bound range.
+// FUN_004F54C0
 void MWSTM_ReqStart(ADXSTM stm)
 {
 	ADXSTM_Start(stm);

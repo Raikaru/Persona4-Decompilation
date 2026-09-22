@@ -559,12 +559,14 @@ void ADXB_EvokeDecode(ADXB adxb)
 }
 
 // Samples decoded by the block that just completed (per channel); read by adxsjd_decexec_end.
+// FUN_004C4080
 Sint32 ADXB_GetDecNumSmpl(ADXB adxb)
 {
 	return adxb->dec_nsmpl;
 }
 
 // Input bytes consumed by the block that just completed; the SJD frees that much of its input chunk.
+// FUN_004C4078
 Sint32 ADXB_GetDecDtLen(ADXB adxb)
 {
 	return adxb->dec_nbyte;
@@ -594,6 +596,7 @@ void ADXB_Stop(ADXB adxb)
 }
 
 // Arms a stopped decoder (STOP -> DECODE); ADXB_ExecHndl then fetches the write window and decodes.
+// FUN_004C3FD8
 void ADXB_Start(ADXB adxb)
 {
 	if (adxb->stat == ADXB_STAT_STOP) {
@@ -603,6 +606,7 @@ void ADXB_Start(ADXB adxb)
 
 // Points the decoder at the next input chunk (`buf`, `nbyte` bytes) and converts its length into whole
 // blocks (ADX: block bytes x0f; PCM types: bps/8 * nch). Clears the per-block decode counters.
+// FUN_004C3F58
 void ADXB_EntryData(ADXB adxb, Sint16 *buf, Sint32 nbyte)
 {
 	if (adxb->x98 == ADXB_TYPE_ADX) {
@@ -651,6 +655,7 @@ Sint16 ADXB_GetDefPan(ADXB adxb, Sint32 ch)
 }
 
 // Default output volume from the AINF header chunk (0 if the stream carries none).
+// FUN_004C3CD0
 Sint16 ADXB_GetDefOutVol(ADXB adxb)
 {
 	return adxb->def_outvol;
@@ -669,6 +674,7 @@ Sint32 ADXB_GetLpEndOfst(ADXB adxb)
 }
 
 // Loop end position in samples (x30), from the ADX loop header.
+// FUN_004C3CB8
 Sint32 ADXB_GetLpEndPos(ADXB adxb)
 {
 	return adxb->x30;
@@ -685,6 +691,7 @@ Sint32 ADXB_GetLpStartOfst(ADXB adxb)
 }
 
 // Loop start position in samples (x28).
+// FUN_004C3C98
 Sint32 ADXB_GetLpStartPos(ADXB adxb)
 {
 	return adxb->x28;
@@ -697,6 +704,7 @@ Sint16 ADXB_GetNumLoop(ADXB adxb)
 }
 
 // Total samples per channel in the stream (0x7FFFFFFF for a header-less raw stream).
+// FUN_004C3C78
 Sint32 ADXB_GetTotalNumSmpl(ADXB adxb)
 {
 	return adxb->total_nsmpl;
@@ -763,6 +771,7 @@ Sint16 *ADXB_GetPcmBuf(ADXB adxb)
 
 // Replaces the default write-window callback: the SJD installs adxsjd_get_wr so the decoder writes
 // straight into the free part of its output ring buffers.
+// FUN_004C3B98
 void ADXB_EntryGetWrFunc(ADXB adxb, void (*func)(void *obj, Sint32 *pos, Sint32 *nsmpl, Sint32 *x70), void *obj)
 {
 	adxb->getwr_func = func;
@@ -793,6 +802,7 @@ Sint32 ADXB_DecodeHeader(ADXB adxb, void *buf, Sint32 bsize)
 
 // Header-less stream (x9a raw mode): assumes 48 kHz stereo 16-bit PCM in 1024-sample blocks and
 // resets the loop info; used by adxsjd_decode_prep when ADXB_DecodeHeader fails on a raw handle.
+// FUN_004C3980
 void ADXB_SetDefPrm(ADXB adxb)
 {
 	adxb->x02 = 1;
@@ -995,6 +1005,7 @@ ADXB ADXB_Create(Sint32 x38, Sint16 *pcmbuf, Sint32 bufsmpl, Sint32 chofst)
 
 // Default write-advance callback: moves the ring write position x8c and the total written x88 by the
 // samples just decoded (used only when no SJD callback is installed).
+// FUN_004C34C8
 void adxb_DefAddWr(void *obj, Sint32 nbyte, Sint32 nsmpl)
 {
 	ADXB adxb = obj;

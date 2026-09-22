@@ -217,11 +217,6 @@ s32 *func_0050b3c0(void)
    addiu into the jr delay slot (lui $v0; jr $ra; addiu $v0, $v0, %lo). */
 #pragma optimization_level 3
 
-// FUN_0050B3D0
-s32 *func_0050b3d0(void)
-{
-    return D_007442A0;
-}
 #pragma optimization_level 2
 
 

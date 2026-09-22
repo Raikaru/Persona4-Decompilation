@@ -474,6 +474,7 @@ void adxt_stat_decend(ADXT adxt)
 }
 
 // 100% matching!
+// FUN_004D8208
 void adxt_stat_playend(ADXT adxt) 
 {
 

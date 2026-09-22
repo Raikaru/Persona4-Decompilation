@@ -19,7 +19,12 @@
 # `-DRWBUILDNUMBER=55`: the tree defaults to build 101, retail's chunk headers
 # are written with build 55 (the `addiu $t0, 0x37` before every
 # _rwStreamWriteVersionedChunkHeader call).
-cw3.0.1b119 -O4 -inline auto -DRWBUILDNUMBER=55 -nosyspath -Iinclude/rw/std -Iinclude/rw/ps2 -Iinclude/rw/plcore -Iinclude/rw/core -Iinclude/rw/p2 -Iinclude/rw/drvcommon -Iinclude/rw/drvnull -Iinclude/rw/world -Iinclude/rw/worldp2 -Iinclude/rw/p2null -Iinclude/rw/worldp2null -Iinclude/rw/inc
+# `-DSKY2_DRVMODEL_H`: retail's Im3D globals place the two PS2All material
+# pipeline pointers before `curPool` (`curPool` is at 0x40 in RwIm3DTransform,
+# and CorePluginAttach registers 0x7c bytes rather than the null model's 0x74).
+# Defining the 3.7 header guard selects that PS2 layout without substituting
+# the incompatible RenderWare 3.5 sky2 public headers.
+cw3.0.1b119 -O4 -inline auto -DRWBUILDNUMBER=55 -DSKY2_DRVMODEL_H -nosyspath -Iinclude/rw/std -Iinclude/rw/ps2 -Iinclude/rw/plcore -Iinclude/rw/core -Iinclude/rw/p2 -Iinclude/rw/drvcommon -Iinclude/rw/drvnull -Iinclude/rw/world -Iinclude/rw/worldp2 -Iinclude/rw/p2null -Iinclude/rw/worldp2null -Iinclude/rw/inc
 
 # The ee-gcc 2.96 vendor units (config/gcc_units.txt). CRI shipped its PS2
 # middleware as GCC-built libraries - `libadxe.a`'s objects carry

@@ -347,6 +347,7 @@ void ADXB_ExecOneWav4(ADXB adxb)
 }
 
 // 100% matching!
+// FUN_004C5388
 Sint32 ADXB_CheckWav(Sint8 *ibuf)
 {
     if ((memcmp(ibuf, "RIFF", 4) == 0) && (memcmp(&ibuf[8], "WAVE", 4) == 0)) 

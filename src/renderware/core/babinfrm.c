@@ -18,7 +18,6 @@
 #define RwFrameAddChildNoUpdate func_003e9760
 #define _rwMatrixOrthogonalError func_003e0180
 #define _rwMatrixDeterminant func_003e0130
-#define _rwPluginRegistryReadDataChunks func_003e3110
 #define RwFrameDestroyHierarchy func_003e95c0
 #define RwFrameGetRoot func_003e9750
 #define RwFrameUpdateObjects func_003e9680

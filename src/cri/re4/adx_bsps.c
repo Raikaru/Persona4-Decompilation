@@ -88,6 +88,7 @@ Sint32 ADXB_DecodeHeaderSpsd(ADXB adxb, void *buf, Sint32 bsize)
 
 // Parses the SPSD header (header length = byte 7 << 4, channels from byte 9, rate at 0x2A, codec at
 // byte 8); the trailing overrides force 16-bit PCM in 2-byte frames whatever the codec byte says.
+// FUN_004C47F0
 Sint32 ADX_DecodeInfoSpsd(Uint8 *buf, Sint32 bsize, Sint16 *hdrlen, Sint8 *x0c, Sint8 *bps, Sint8 *x0f,
 			  Sint8 *nch, Sint32 *sfreq, Sint32 *nsmpl, Sint32 *fmt, Sint16 *x9c)
 {

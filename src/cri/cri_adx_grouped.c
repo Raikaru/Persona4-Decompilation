@@ -1907,8 +1907,6 @@ s8 func_004c0fe0(int object)
 
 #pragma optimization_level 3
 
-// FUN_004C0FE8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c0fe8);
 // FUN_004C1000
 void func_004c1000(int object, u32 value)
 {
@@ -1974,8 +1972,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c1348);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c1398);
 // FUN_004C13E8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c13e8);
-// FUN_004C1568
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c1568);
 // FUN_004C1718
 asm void func_004c1718(u32 *param_1)
 {
@@ -2154,8 +2150,6 @@ asm void func_004c1718(u32 *param_1)
 // FUN_004C19D0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c19d0);
 
-// FUN_004C1A30
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c1a30);
 // FUN_004C1A38
 void func_004c1a38(int object, u32 value)
 {
@@ -2331,10 +2325,6 @@ asm u32 func_004c1bc8(char *param_1)
 
 /* Source unit: src/cri/cri_adx_004c1d40.c (1 function markers) */
 
-// FUN_004C1C50
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c1c50);
-// FUN_004C1D10
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c1d10);
 // FUN_004C1D40
 asm u8 * func_004c1d40(u8 *param_1,int *param_2,u32 *param_3,u32 *param_4,u32 *param_5)
 {
@@ -2575,16 +2565,12 @@ extern u32 DAT_00714c1c[];
 
 #pragma schedule on
 
-// FUN_004C20D0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c20d0);
 
 
 // FUN_004C2248
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c2248);
 
 
-// FUN_004C24F8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c24f8);
 
 
 // FUN_004C26A0
@@ -2598,8 +2584,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c2b20);
 // FUN_004C2C20
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c2c20);
 
-// FUN_004C2DB8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c2db8);
 
 
 
@@ -2660,22 +2644,6 @@ asm u64 func_004c33e0(short *param_1,short *param_2,short *param_3)
   .word 0xa4830000
 }
 
-/* Source unit: src/cri/cri_adx_004c34c8.c (1 function markers) */
-
-#pragma schedule on
-// FUN_004C34C8
-int func_004c34c8(int object, u64 unused, int amount)
-{
-    int value_8c = *(int *)(object + 0x8c);
-    int value_88 = *(int *)(object + 0x88);
-
-    value_8c += amount;
-    value_88 += amount;
-    *(int *)(object + 0x8c) = value_8c;
-    *(int *)(object + 0x88) = value_88;
-    return value_8c;
-}
-#pragma schedule off
 
 /* Source unit: src/cri/cri_adx_004c3980.c (1 function markers) */
 
@@ -2687,63 +2655,12 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3520);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3688);
 // FUN_004C3978
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3978);
-// FUN_004C3980
-asm void func_004c3980(int param_1)
-{
-  .set noreorder
-  .word 0x3c027fff
-  .word 0x948c009a
-  .word 0x8c8f003c
-  .word 0x240b0400
-  .word 0x8c8e0040
-  .word 0x240a0001
-  .word 0x8c8d0044
-  .word 0x3407bb80
-  .word 0x24030002
-  .word 0x24050010
-  .word 0x3442ffff
-  .word 0x2406007f
-  .word 0x24080002
-  .word 0x2409007f
-  .word 0xa48a0002
-  .word 0xac870014
-  .word 0xa083000e
-  .word 0xa085000d
-  .word 0xac820018
-  .word 0xa086000f
-  .word 0xa48c0098
-  .word 0xac880050
-  .word 0xac890054
-  .word 0xac8b0058
-  .word 0xac8f005c
-  .word 0xac8e0060
-  .word 0xac8d0064
-  .word 0xac800088
-  .word 0xac8b0010
-  .word 0xac80008c
-  .word 0xa480001c
-  .word 0xa4800024
-  .word 0xa4800026
-  .word 0xac800020
-  .word 0xac800028
-  .word 0xac80002c
-  .word 0xac800030
-  .word 0x03e00008
-  .word 0xac800034
-  .word 0x00000000
-}
 
 /* Source unit: src/cri/cri_adx_004c3b98.c (1 function markers) */
 #pragma optimization_level 3
 
 // FUN_004C3A20
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3a20);
-// FUN_004C3B98
-void func_004c3b98(int object, u32 first, u32 second)
-{
-    *(u32*)(object + 0x7c) = second;
-    *(u32*)(object + 0x78) = first;
-}
 #pragma optimization_level 2
 
 /* Source unit: src/cri/cri_adx_004c3ba8.c (1 function markers) */
@@ -2760,8 +2677,6 @@ void func_004c3ba8(int object, u32 first, u32 second)
 
 #pragma optimization_level 3
 
-// FUN_004C3BB8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3bb8);
 // FUN_004C3BC0
 s16 func_004c3bc0(int object)
 {
@@ -2773,8 +2688,6 @@ s16 func_004c3bc0(int object)
 
 #pragma schedule on
 
-// FUN_004C3BC8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3bc8);
 
 // FUN_004C3C00
 s8 func_004c3c00(int object)
@@ -2804,15 +2717,6 @@ s8 func_004c3c70(int object)
 }
 #pragma schedule off
 
-/* Source unit: src/cri/cri_adx_004c3c78.c (1 function markers) */
-
-#pragma optimization_level 3
-// FUN_004C3C78
-u32 func_004c3c78(int object)
-{
-  return *(u32 *)(object + 0x18);
-}
-#pragma optimization_level 2
 
 /* Source unit: src/cri/cri_adx_004c3c80.c (1 function markers) */
 
@@ -2844,26 +2748,7 @@ s16 func_004c3c90(int param_1)
 }
 #pragma schedule off
 
-/* Source unit: src/cri/cri_adx_004c3c98.c (1 function markers) */
 
-#pragma schedule on
-// FUN_004C3C98
-u32 func_004c3c98(int param_1)
-{
-    return *(u32 *)(param_1 + 0x28);
-}
-#pragma schedule off
-
-/* Source unit: src/cri/cri_adx_004c3cb8.c (1 function markers) */
-
-#pragma optimization_level 3
-
-// FUN_004C3CB8
-u32 func_004c3cb8(int object)
-{
-  return *(u32 *)(object + 0x30);
-}
-#pragma optimization_level 2
 
 /* Source unit: src/cri/cri_adx_004c3cc0.c (1 function markers) */
 
@@ -2885,15 +2770,6 @@ u32 func_004c3cc8(int object)
 }
 #pragma optimization_level 2
 
-/* Source unit: src/cri/cri_adx_004c3cd0.c (1 function markers) */
-
-#pragma optimization_level 3
-// FUN_004C3CD0
-s16 func_004c3cd0(int object)
-{
-  return *(s16 *)(object + 0xe0);
-}
-#pragma optimization_level 2
 
 /* Source unit: src/cri/cri_adx_004c3ce8.c (1 function markers) */
 
@@ -2926,81 +2802,7 @@ void func_004c3e40(int object, u16 x, u16 y, u16 z)
 
 // FUN_004C3E50
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3e50);
-// FUN_004C3F50
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3f50);
-// FUN_004C3F58
-asm void func_004c3f58(int param_1,u32 param_2,int param_3)
-{
-  .set noreorder
-  .word 0x0080382d
-  .word 0x84e20098
-  .word 0x14400009
-  .word 0x00a0402d
-  .word 0x80e2000f
-  .word 0xace80048
-  .word 0x00c2001a
-  .word 0x50400001
-  .word 0x000001cd
-  .word 0x00001812
-  .word 0x1000000e
-  .word 0xace00074
-  .word 0x80e2000d
-  .word 0x80e5000e
-  .word 0x28430000
-  .word 0x24440007
-  .word 0x0083100b
-  .word 0xace80048
-  .word 0x000210c3
-  .word 0x00451018
-  .word 0x70c2001a
-  .word 0x50400001
-  .word 0x000001cd
-  .word 0xace00074
-  .word 0x70001812
-  .word 0xace3004c
-  .word 0xace000f4
-  .word 0xace00090
-  .word 0xace00094
-  .word 0x03e00008
-  .word 0xace000f8
-  .word 0x00000000
-}
 
-/* Source unit: src/cri/cri_adx_004c3fd8.c (1 function markers) */
-
-// FUN_004C3FD8
-asm void func_004c3fd8(int param_1)
-{
-  .set noreorder
-  .word 0x8c820004
-  .word 0x14400002
-  .word 0x24020001
-  .word 0xac820004
-  .word 0x03e00008
-  .word 0x00000000
-}
-
-/* Source unit: src/cri/cri_adx_004c4078.c (1 function markers) */
-
-#pragma optimization_level 3
-
-
-// FUN_004C4078
-u32 func_004c4078(int object)
-{
-  return *(u32 *)(object + 0x94);
-}
-#pragma optimization_level 2
-
-/* Source unit: src/cri/cri_adx_004c4080.c (1 function markers) */
-
-#pragma optimization_level 3
-// FUN_004C4080
-u32 func_004c4080(int object)
-{
-  return *(u32 *)(object + 0x90);
-}
-#pragma optimization_level 2
 
 /* Source unit: src/cri/cri_adx_004c4088.c (1 function markers) */
 #pragma optimization_level 3
@@ -3014,31 +2816,12 @@ void func_004c4088(int object, u32 first, u32 second)
 
 /* Source unit: src/cri/cri_adx_004c42a8.c (1 function markers) */
 
-// FUN_004C4098
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c4098);
 // FUN_004C40A0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c40a0);
 // FUN_004C4148
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c4148);
 // FUN_004C41A0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c41a0);
-// FUN_004C42A8
-asm void func_004c42a8(u16 *param_1,u16 *param_2,int param_3)
-{
-  .set noreorder
-  .word 0x18c00008
-  .word 0x00000000
-  .word 0x94a20000
-  .word 0x24a50002
-  .word 0x24c6ffff
-  .word 0xa4820000
-  .word 0x00000000
-  .word 0x1cc0fffa
-  .word 0x24840002
-  .word 0x03e00008
-  .word 0x00000000
-  .word 0x00000000
-}
 
 /* Source unit: src/cri/cri_adx_004c4728.c (1 function markers) */
 
@@ -3080,86 +2863,6 @@ asm void func_004c4728(int param_1)
   .word 0x00000000
 }
 
-/* Source unit: src/cri/cri_adx_004c47f0.c (1 function markers) */
-
-// FUN_004C47F0
-asm u64 func_004c47f0(int param_1,u64 param_2,short *param_3,u8 *param_4,u8 *param_5, char *param_6,char *param_7,u32 *param_8,int *param_9,u32 *param_10, u16 *param_11)
-{
-  .set noreorder
-  .word 0x0080602d
-  .word 0x240f0001
-  .word 0x91820007
-  .word 0x8fa50010
-  .word 0x00021100
-  .word 0x8fad0008
-  .word 0xa4c20000
-  .word 0x8fae0000
-  .word 0x91820009
-  .word 0x30420003
-  .word 0x24420001
-  .word 0xa1420000
-  .word 0x9583002a
-  .word 0xad630000
-  .word 0x91840008
-  .word 0x108f0018
-  .word 0x28820002
-  .word 0x50400006
-  .word 0x28820004
-  .word 0x50800008
-  .word 0x24030010
-  .word 0x10000024
-  .word 0x24030002
-  .word 0x00000000
-  .word 0x50400021
-  .word 0x24030002
-  .word 0x10000015
-  .word 0x24030004
-  .word 0xa1030000
-  .word 0x81420000
-  .word 0x00021040
-  .word 0xa1220000
-  .word 0xadaf0000
-  .word 0xa4a00000
-  .word 0x8d82000c
-  .word 0x00021fc2
-  .word 0x00431021
-  .word 0x10000012
-  .word 0x00021043
-  .word 0x00000000
-  .word 0x24020008
-  .word 0xa1020000
-  .word 0x81430000
-  .word 0xa1230000
-  .word 0xada40000
-  .word 0xa4a40000
-  .word 0x10000009
-  .word 0x8d82000c
-  .word 0x24040002
-  .word 0xa1030000
-  .word 0x81420000
-  .word 0xa1220000
-  .word 0xada40000
-  .word 0xa4a40000
-  .word 0x8d82000c
-  .word 0x00021040
-  .word 0xadc20000
-  .word 0x24030002
-  .word 0x24040001
-  .word 0xa1230000
-  .word 0x24050010
-  .word 0xada40000
-  .word 0x2406ffff
-  .word 0x0000102d
-  .word 0x8d83000c
-  .word 0x000327c2
-  .word 0x00641821
-  .word 0x00031843
-  .word 0xadc30000
-  .word 0xa1050000
-  .word 0x03e00008
-  .word 0xa0e60000
-}
-
 /* Source unit: src/cri/cri_adx_004c5770.c (1 function markers) */
 
 // FUN_004C4A08
@@ -3172,16 +2875,10 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c4ed8);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c5050);
 // FUN_004C51E8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c51e8);
-// FUN_004C5388
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c5388);
 // FUN_004C5448
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c5448);
 // FUN_004C5478
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c5478);
-// FUN_004C54A8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c54a8);
-// FUN_004C54C0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c54c0);
 // FUN_004C54D8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c54d8);
 // FUN_004C54E0
@@ -3190,75 +2887,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c54e0);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c54e8);
 // FUN_004C56C8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c56c8);
-// FUN_004C5770
-asm u32 func_004c5770(u8 *param_1,long param_2,short *param_3,u8 *param_4,char *param_5, char *param_6,u8 *param_7,u32 *param_8,u32 *param_9,int *param_10)
-{
-  .set noreorder
-  .word 0x28a50010
-  .word 0x0080602d
-  .word 0x8fad0008
-  .word 0x14a0003a
-  .word 0x2402ffff
-  .word 0x91830000
-  .word 0x34058000
-  .word 0x91840001
-  .word 0x00031a00
-  .word 0x00832025
-  .word 0x14850033
-  .word 0x2402fffe
-  .word 0x91830002
-  .word 0x91820003
-  .word 0x00031a00
-  .word 0x00431025
-  .word 0x24420004
-  .word 0xa4c20000
-  .word 0x91830004
-  .word 0xa0e30000
-  .word 0x91820005
-  .word 0xa1220000
-  .word 0x91830006
-  .word 0xa1030000
-  .word 0x91840007
-  .word 0xa1440000
-  .word 0x91820008
-  .word 0x9183000a
-  .word 0x91840009
-  .word 0x00021600
-  .word 0x9185000b
-  .word 0x00031a00
-  .word 0x00042400
-  .word 0x00641825
-  .word 0x00451025
-  .word 0x00431025
-  .word 0xad620000
-  .word 0x9183000d
-  .word 0x9182000c
-  .word 0x9184000e
-  .word 0x00031c00
-  .word 0x9185000f
-  .word 0x00021600
-  .word 0x00042200
-  .word 0x00832025
-  .word 0x8fa30000
-  .word 0x00451025
-  .word 0x00441025
-  .word 0xac620000
-  .word 0x81080000
-  .word 0x55000003
-  .word 0x81220000
-  .word 0x10000008
-  .word 0xada00000
-  .word 0x51000001
-  .word 0x000001cd
-  .word 0x000210c0
-  .word 0x2442fff0
-  .word 0x0048001a
-  .word 0x00001012
-  .word 0xada20000
-  .word 0x0000102d
-  .word 0x03e00008
-  .word 0x00000000
-}
 
 /* Source unit: src/cri/cri_adx_004c5fe8.c (1 function markers) */
 
@@ -3272,35 +2900,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c5aa0);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c5b68);
 // FUN_004C5DC8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c5dc8);
-// FUN_004C5FE8
-asm u32 func_004c5fe8(u16 *param_1,long param_2,short *param_3)
-{
-  .set noreorder
-  .word 0x28a50010
-  .word 0x0080382d
-  .word 0x14a00012
-  .word 0x2402ffff
-  .word 0x94e30000
-  .word 0x34058001
-  .word 0x00032200
-  .word 0x00031a02
-  .word 0x00641825
-  .word 0x3063ffff
-  .word 0x1465000a
-  .word 0x2402fffe
-  .word 0x94e30002
-  .word 0x2405ff00
-  .word 0x90e40003
-  .word 0x0000102d
-  .word 0x00031a00
-  .word 0x00651824
-  .word 0x00832025
-  .word 0x24840004
-  .word 0xa4c40000
-  .word 0x03e00008
-  .word 0x00000000
-  .word 0x00000000
-}
 
 /* Source unit: src/cri/cri_adx_004c6048.c (1 function markers) */
 
@@ -3340,10 +2939,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c60a0);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c6280);
 // FUN_004C6648
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c6648);
-// FUN_004C6A00
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c6a00);
-// FUN_004C6A38
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c6a38);
 // FUN_004C6A70
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c6a70);
 // FUN_004C6CF0
@@ -3390,26 +2985,6 @@ asm int func_004c7238(int param_1)
   .word 0x0004202a
   .word 0x03e00008
   .word 0x00441021
-}
-
-/* Source unit: src/cri/cri_adx_004c7310.c (1 function markers) */
-
-// FUN_004C7310
-asm void func_004c7310(void)
-{
-  .set noreorder
-  .word 0x3402c350
-  .word 0x2442ffff
-  .word 0x00000000
-  .word 0x00000000
-  .word 0x00000000
-  .word 0x00000000
-  .word 0x00000000
-  .word 0x5440fffa
-  .word 0x2442ffff
-  .word 0x03e00008
-  .word 0x00000000
-  .word 0x00000000
 }
 
 /* Source unit: src/cri/cri_adx_004c9f20.c (1 function markers) */
@@ -3665,58 +3240,12 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd5a8);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd5d8);
 // FUN_004CD5F0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd5f0);
-// FUN_004CD608
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd608);
-// FUN_004CD620
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd620);
-// FUN_004CD638
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd638);
-// FUN_004CD650
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd650);
-// FUN_004CD668
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd668);
 // FUN_004CD680
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd680);
-// FUN_004CD688
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd688);
-// FUN_004CD6D8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd6d8);
-// FUN_004CD6F0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd6f0);
-// FUN_004CD708
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd708);
-// FUN_004CD720
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd720);
-// FUN_004CD738
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd738);
 // FUN_004CD750
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd750);
 // FUN_004CD768
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd768);
-// FUN_004CD7B8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd7b8);
-// FUN_004CD7D0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd7d0);
-// FUN_004CD7E8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd7e8);
-// FUN_004CD800
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd800);
-// FUN_004CD818
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd818);
-// FUN_004CD830
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd830);
-// FUN_004CD848
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd848);
-// FUN_004CD860
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd860);
-// FUN_004CD878
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd878);
-// FUN_004CD890
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd890);
-// FUN_004CD8A8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd8a8);
-// FUN_004CD8C0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd8c0);
 // FUN_004CD8D8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd8d8);
 // FUN_004CD8F0
@@ -3746,18 +3275,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd930);
 // FUN_004CD948
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd948);
 
-// FUN_004CD958
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd958);
-// FUN_004CD978
-u32 func_004cd978(void)
-{
-    u32 base = (u32)DAT_007212d8;
-    u32 value = *(u32 *)base;
-
-    value++;
-    *(u32 *)base = value;
-    return value;
-}
 #pragma schedule off
 
 /* Source unit: src/cri/cri_adx_004cd990.c (1 function markers) */
@@ -3811,8 +3328,6 @@ asm void func_004cda78(int param_1)
 
 /* Source unit: src/cri/cri_adx_004cea50.c (1 function markers) */
 
-// FUN_004CDC98
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cdc98);
 // FUN_004CDCA0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cdca0);
 // FUN_004CDCF0
@@ -3944,11 +3459,6 @@ u32 func_004cebf8(int object)
 
 // FUN_004CEC00
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cec00);
-// FUN_004CEC18
-void func_004cec18(int object, u32 value)
-{
-    *(u32*)(object + 0x34) = value;
-}
 #pragma optimization_level 2
 
 /* Source unit: src/cri/cri_adx_004cec20.c (1 function markers) */
@@ -4009,37 +3519,12 @@ void func_004ced28(int object, u32 first, u32 second)
 }
 #pragma optimization_level 2
 
-/* Source unit: src/cri/cri_adx_004ced38.c (1 function markers) */
-#pragma optimization_level 3
-// FUN_004CED38
-void func_004ced38(int object, u32 first, u32 second)
-{
-    *(u32*)(object + 0x4c) = second;
-    *(u32*)(object + 0x48) = first;
-}
-#pragma optimization_level 2
-
-/* Source unit: src/cri/cri_adx_004ced48.c (1 function markers) */
-
-#pragma optimization_level 3
-// FUN_004CED48
-void func_004ced48(int object, u32 value)
-{
-    *(u32*)(object + 0x3c) = value;
-}
-#pragma optimization_level 2
-
 /* Source unit: src/cri/cri_adx_004ced58.c (1 function markers) */
 
 #pragma optimization_level 3
 
 // FUN_004CED50
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ced50);
-// FUN_004CED58
-void func_004ced58(int object, u32 value)
-{
-    *(u32*)(object + 0x40) = value;
-}
 #pragma optimization_level 2
 
 /* Source unit: src/cri/cri_adx_004ced68.c (1 function markers) */
@@ -4048,11 +3533,6 @@ void func_004ced58(int object, u32 value)
 
 // FUN_004CED60
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ced60);
-// FUN_004CED68
-void func_004ced68(int object, u32 value)
-{
-    *(u32*)(object + 0x44) = value;
-}
 #pragma optimization_level 2
 
 /* Source unit: src/cri/cri_adx_004ced70.c (1 function markers) */
@@ -4075,11 +3555,7 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ced78);
 // FUN_004CED90
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ced90);
 
-// FUN_004CEDA8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ceda8);
 
-// FUN_004CEDC0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cedc0);
 
 // FUN_004CEDD8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cedd8);
@@ -4087,8 +3563,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cedd8);
 // FUN_004CEDF0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cedf0);
 
-// FUN_004CEE08
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cee08);
 
 // FUN_004CEE20
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cee20);
@@ -4099,12 +3573,8 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cee38);
 // FUN_004CEE50
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cee50);
 
-// FUN_004CEE68
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cee68);
 
 
-// FUN_004CEEB0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ceeb0);
 
 // FUN_004CEEC8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ceec8);
@@ -4118,8 +3588,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ceee0);
 // FUN_004CF010
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cf010);
 
-// FUN_004CF018
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cf018);
 // FUN_004CF030
 int func_004cf030(int object)
 {
@@ -4133,11 +3601,7 @@ extern u32 DAT_00721d68[];
 
 #pragma schedule on
 
-// FUN_004CF038
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cf038);
 
-// FUN_004CF050
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cf050);
 
 // FUN_004CF068
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cf068);
@@ -4208,8 +3672,6 @@ u32 func_004cf348(void)
 
 /* Source unit: src/cri/cri_adx_004cf360.c (1 function markers) */
 
-// FUN_004CF350
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cf350);
 // FUN_004CF360
 asm int func_004cf360(int param_1,int param_2,int param_3)
 {
@@ -4395,12 +3857,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d0e40);
 // FUN_004D10D0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d10d0);
 
-// FUN_004D1200
-u32 func_004d1200(int object)
-{
-    *(u8*)(object + 3) = 1;
-    return 1;
-}
 #pragma optimization_level 2
 
 /* Source unit: src/cri/cri_adx_004d1210.c (1 function markers) */
@@ -4586,22 +4042,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d15b0);
 // FUN_004D15D0
 void func_004d15d0(int object, u32 value) { *(u32 *)(object + 0xc) = value; }
 #pragma optimization_level 2
-
-/* Source unit: src/cri/cri_adx_004d18e8.c (1 function markers) */
-
-// FUN_004D18E8
-asm void func_004d18e8(u32 param_1)
-{
-  .set noreorder
-  .word 0x24020028
-  .word 0x3c030072
-  .word 0x00441023
-  .word 0x3c050072
-  .word 0xac623f14
-  .word 0x03e00008
-  .word 0xaca43f18
-  .word 0x00000000
-}
 
 /* Source unit: src/cri/cri_adx_004d1ff0.c (1 function markers) */
 
@@ -4851,8 +4291,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d2cf0);
 // FUN_004D2CF8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d2cf8);
 
-// FUN_004D2D30
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d2d30);
 
 // FUN_004D2D38
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d2d38);
@@ -4863,8 +4301,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d2d70);
 // FUN_004D2D78
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d2d78);
 
-// FUN_004D2DB0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d2db0);
 
 // FUN_004D2DC8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d2dc8);
@@ -4939,36 +4375,26 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d4ac0);
 
 // FUN_004D4AF8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d4af8);
-
 // FUN_004D4B48
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d4b48);
-
-// FUN_004D4B80
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d4b80);
-
 // FUN_004D4BD0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d4bd0);
-
-// FUN_004D4C08
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d4c08);
-
 // FUN_004D4C58
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d4c58);
 
-// FUN_004D4C90
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d4c90);
+
+
+
+
+
 
 // FUN_004D4CE0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d4ce0);
 
-// FUN_004D4D18
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d4d18);
 
 // FUN_004D4D68
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d4d68);
 
-// FUN_004D4DA0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d4da0);
 
 // FUN_004D4DF0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d4df0);
@@ -5138,8 +4564,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d5b58);
 // FUN_004D5C48
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d5c48);
 
-// FUN_004D5C70
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d5c70);
 
 // FUN_004D5C88
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d5c88);
@@ -5164,8 +4588,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d5e08);
 // FUN_004D5F10
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d5f10);
 
-// FUN_004D5F48
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d5f48);
 
 // FUN_004D5F78
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d5f78);
@@ -5199,11 +4621,7 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6270);
 // FUN_004D62A8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d62a8);
 
-// FUN_004D62C0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d62c0);
 
-// FUN_004D62C8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d62c8);
 
 // FUN_004D62D0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d62d0);
@@ -5214,8 +4632,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6308);
 // FUN_004D6310
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6310);
 
-// FUN_004D6340
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6340);
 
 // FUN_004D6358
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6358);
@@ -5273,8 +4689,6 @@ void func_004d6550(int object, u32 value) { *(u32 *)(object + 0x88) = value; }
 
 // FUN_004D6558
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6558);
-// FUN_004D65A0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d65a0);
 // FUN_004D65B8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d65b8);
 // FUN_004D65F8
@@ -5320,27 +4734,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6748);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6780);
 // FUN_004D67B8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d67b8);
-// FUN_004D68D0
-asm u32 func_004d68d0(u16 *param_1,long param_2,u32 *param_3)
-{
-  .set noreorder
-  .word 0x00a0382d
-  .word 0x28e30002
-  .word 0x1460000b
-  .word 0x0000102d
-  .word 0x94830000
-  .word 0x34058001
-  .word 0x00032200
-  .word 0x00031a02
-  .word 0x00641825
-  .word 0x3063ffff
-  .word 0x14650003
-  .word 0x00000000
-  .word 0xacc70000
-  .word 0x24020001
-  .word 0x03e00008
-  .word 0x00000000
-}
 
 /* Source unit: src/cri/cri_adx_004d6cb8.c (1 function markers) */
 #pragma optimization_level 3
@@ -5361,8 +4754,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6c08);
 // FUN_004D6C38
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6c38);
 
-// FUN_004D6C68
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6c68);
 
 // FUN_004D6C80
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6c80);
@@ -5410,8 +4801,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d7d90);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d7f18);
 // FUN_004D8000
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d8000);
-// FUN_004D8208
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d8208);
 // FUN_004D8210
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d8210);
 // FUN_004D8550
@@ -5451,65 +4840,15 @@ void func_004d8a08(int object, u32 value)
 }
 #pragma schedule off
 
-/* Source unit: src/cri/cri_adx_004d8a10.c (1 function markers) */
-#pragma optimization_level 3
-// FUN_004D8A10
-u32 func_004d8a10(int object) { return *(u32 *)(object + 0xc); }
-#pragma optimization_level 2
-
 /* Source unit: src/cri/cri_adx_004d8a48.c (1 function markers) */
 
 // FUN_004D8A18
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d8a18);
-// FUN_004D8A48
-asm u32 func_004d8a48(int param_1,u32 param_2,u32 param_3,u32 param_4,u32 param_5 )
-{
-  .set noreorder
-  .word 0x8c82000c
-  .word 0x14400008
-  .word 0x24030002
-  .word 0xac880024
-  .word 0xac850018
-  .word 0x24020001
-  .word 0xac86001c
-  .word 0xac830014
-  .word 0x03e00008
-  .word 0xac870020
-  .word 0x03e00008
-  .word 0x0000102d
-}
 
 /* Source unit: src/cri/cri_adx_004d8aa8.c (1 function markers) */
 
 // FUN_004D8A78
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d8a78);
-// FUN_004D8AA8
-asm void func_004d8aa8(int param_1)
-{
-  .set noreorder
-  .word 0x8c82000c
-  .word 0x14400003
-  .word 0x24020001
-  .word 0xac800010
-  .word 0xac82000c
-  .word 0x03e00008
-  .word 0x00000000
-  .word 0x00000000
-}
-
-/* Source unit: src/cri/cri_adx_004d8af0.c (1 function markers) */
-
-// FUN_004D8AF0
-asm void func_004d8af0(int param_1)
-{
-  .set noreorder
-  .word 0x8c82000c
-  .word 0x24030003
-  .word 0x50430001
-  .word 0xac80000c
-  .word 0x03e00008
-  .word 0x00000000
-}
 
 /* Source unit: src/cri/cri_adx_004d9880.c (1 function markers) */
 
@@ -8559,8 +7898,6 @@ void func_004e1e68(u32* values)
 // FUN_004E1E78
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e1e78);
 
-// FUN_004E1FC0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e1fc0);
 
 
 
@@ -8614,8 +7951,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e2c20);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e2ce0);
 
 
-// FUN_004E2E28
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e2e28);
 
 
 
@@ -8696,18 +8031,6 @@ asm void func_004e39b8(void)
   .word 0x00000000
 }
 
-/* Source unit: src/cri/cri_adx_004e5028.c (1 function markers) */
-
-// FUN_004E5028
-asm void func_004e5028(int param_1)
-{
-  .set noreorder
-  .word 0x24020001
-  .word 0xac80003c
-  .word 0x03e00008
-  .word 0xa0820001
-}
-
 /* Source unit: src/cri/cri_adx_004e52d8.c (1 function markers) */
 
 extern u32 DAT_007324a0[];
@@ -8775,8 +8098,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e55c8);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e5738);
 // FUN_004E58A0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e58a0);
-// FUN_004E59A8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e59a8);
 // FUN_004E5A08
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e5a08);
 // FUN_004E5A38
@@ -8937,8 +8258,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e7110);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e7258);
 // FUN_004E72A0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e72a0);
-// FUN_004E7368
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e7368);
 // FUN_004E7378
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e7378);
 // FUN_004E7390
@@ -8973,8 +8292,6 @@ asm void func_004e7428(void)
 
 extern u32 D_00733F60[];
 
-// FUN_004E7458
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e7458);
 // FUN_004E7488
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e7488);
 // FUN_004E74D8
@@ -9136,10 +8453,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9420);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9450);
 // FUN_004E9740
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9740);
-// FUN_004E9818
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9818);
-// FUN_004E9838
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9838);
 // FUN_004E9850
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9850);
 // FUN_004E9878
@@ -9164,8 +8477,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9e20);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9e38);
 // FUN_004E9E50
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9e50);
-// FUN_004E9E68
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9e68);
 // FUN_004E9E98
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9e98);
 // FUN_004E9EB0
@@ -9235,11 +8546,7 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ea608);
 // FUN_004EA690
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ea690);
 
-// FUN_004EA710
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ea710);
 
-// FUN_004EA728
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ea728);
 
 // FUN_004EA740
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ea740);
@@ -9369,9 +8676,9 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004eb2e8);
 
 // FUN_004EB300
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004eb300);
-
 // FUN_004EB318
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004eb318);
+
 
 // FUN_004EB3D8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004eb3d8);
@@ -9413,9 +8720,9 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ec068);
 
 // FUN_004EC0D8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ec0d8);
-
 // FUN_004EC140
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ec140);
+
 
 // FUN_004EC190
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ec190);
@@ -9509,9 +8816,9 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ed070);
 
 // FUN_004ED0B8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ed0b8);
-
 // FUN_004ED0E8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ed0e8);
+
 
 // FUN_004ED118
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ed118);
@@ -9618,29 +8925,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ed8a8);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ed908);
 // FUN_004ED938
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ed938);
-// FUN_004ED9A0
-asm u32 func_004ed9a0(int param_1,int param_2)
-{
-  .set noreorder
-  .word 0x27bdfff0
-  .word 0x24020001
-  .word 0x14a20003
-  .word 0xffbf0000
-  .word 0x1000000a
-  .word 0x8c82000c
-  .word 0x10a00008
-  .word 0x0000102d
-  .word 0x8c82001c
-  .word 0x50400005
-  .word 0x0000102d
-  .word 0x8c840020
-  .word 0x0040f809
-  .word 0x2405fffd
-  .word 0x0000102d
-  .word 0xdfbf0000
-  .word 0x03e00008
-  .word 0x27bd0010
-}
 
 /* Source unit: src/cri/cri_adx_004edea8.c (1 function markers) */
 #pragma optimization_level 3
@@ -9669,10 +8953,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004edd68);
 // FUN_004EDDD0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004eddd0);
 
-// FUN_004EDEA0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004edea0);
-// FUN_004EDEA8
-u32 func_004edea8(int object) { return *(u32 *)(object + 0x18); }
 #pragma optimization_level 2
 
 /* Source unit: src/cri/cri_adx_004ee1f8.c (1 function markers) */
@@ -9727,31 +9007,6 @@ void func_004ee200(int object, u32 first, u32 second)
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ee210);
 // FUN_004EE240
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ee240);
-// FUN_004EE2C0
-asm u32 func_004ee2c0(int param_1,int param_2)
-{
-  .set noreorder
-  .word 0x27bdfff0
-  .word 0x24020001
-  .word 0x14a20003
-  .word 0xffbf0000
-  .word 0x1000000b
-  .word 0x8c82000c
-  .word 0x54a00003
-  .word 0x8c820038
-  .word 0x10000007
-  .word 0x8c820010
-  .word 0x50400005
-  .word 0x0000102d
-  .word 0x8c84003c
-  .word 0x0040f809
-  .word 0x2405fffd
-  .word 0x0000102d
-  .word 0xdfbf0000
-  .word 0x03e00008
-  .word 0x27bd0010
-  .word 0x00000000
-}
 
 /* Source unit: src/cri/cri_adx_004eea78.c (1 function markers) */
 #pragma optimization_level 3
@@ -9780,16 +9035,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ee910);
 // FUN_004EE978
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ee978);
 
-// FUN_004EEA70
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004eea70);
-// FUN_004EEA78
-u32 func_004eea78(int object) { return *(u32 *)(object + 0x20); }
-#pragma optimization_level 2
-
-/* Source unit: src/cri/cri_adx_004eea80.c (1 function markers) */
-#pragma optimization_level 3
-// FUN_004EEA80
-u32 func_004eea80(int object) { return *(u32 *)(object + 0x24); }
 #pragma optimization_level 2
 
 /* Source unit: src/cri/cri_adx_004eeaa0.c (1 function markers) */
@@ -9866,35 +9111,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ef770);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ef800);
 // FUN_004EF838
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ef838);
-// FUN_004EF8B8
-asm void func_004ef8b8(u64 *param_1,int param_2,int *param_3,int *param_4)
-{
-  .set noreorder
-  .word 0x68820007
-  .word 0x6c820000
-  .word 0xb0c20007
-  .word 0xb4c20000
-  .word 0x8cc20004
-  .word 0xace20004
-  .word 0x8cc30004
-  .word 0x00a3102a
-  .word 0x50400004
-  .word 0x8ce20004
-  .word 0xacc50004
-  .word 0x00a0182d
-  .word 0x8ce20004
-  .word 0x00431023
-  .word 0x14400003
-  .word 0xace20004
-  .word 0x03e00008
-  .word 0xace00000
-  .word 0x8cc20000
-  .word 0x8cc30004
-  .word 0x00431021
-  .word 0x03e00008
-  .word 0xace20000
-  .word 0x00000000
-}
 
 /* Source unit: src/cri/cri_adx_004f0ec0.c (1 function markers) */
 
@@ -9936,8 +9152,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004eff60);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004efff0);
 
 
-// FUN_004F01A0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004f01a0);
 
 // FUN_004F01B8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004f01b8);
@@ -11016,8 +10230,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00500f70);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00501020);
 // FUN_00501078
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00501078);
-// FUN_005010A0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005010a0);
 // FUN_005010B8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005010b8);
 // FUN_005010D0
@@ -11586,20 +10798,6 @@ asm void func_00505078(int param_1,int param_2,u32 param_3,u32 param_4,u32 param
   .word 0x00000000
 }
 
-/* Source unit: src/cri/cri_adx_005050a0.c (1 function markers) */
-
-// FUN_005050A0
-asm void func_005050a0(int param_1,u32 param_2,u32 param_3)
-{
-  .set noreorder
-  .word 0x248403e8
-  .word 0xac850000
-  .word 0xac860004
-  .word 0x03e00008
-  .word 0xac800008
-  .word 0x00000000
-}
-
 /* Source unit: src/cri/cri_adx_005050b8.c (1 function markers) */
 
 // FUN_005050B8
@@ -11642,33 +10840,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00506748);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00506850);
 // FUN_00506A50
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00506a50);
-// FUN_00506B20
-asm u32 func_00506b20(u64 param_1,long param_2)
-{
-  .set noreorder
-  .word 0x27bdffd0
-  .word 0xffb00010
-  .word 0x0080802d
-  .word 0xffb10018
-  .word 0x2cb10001
-  .word 0xffbf0020
-  .word 0x8e030000
-  .word 0x8c620018
-  .word 0x0040f809
-  .word 0x03a0382d
-  .word 0x8e030000
-  .word 0x0200202d
-  .word 0x0220282d
-  .word 0x8c620020
-  .word 0x0040f809
-  .word 0x03a0302d
-  .word 0x8fa20004
-  .word 0xdfb00010
-  .word 0xdfb10018
-  .word 0xdfbf0020
-  .word 0x03e00008
-  .word 0x27bd0030
-}
 
 /* Source unit: src/cri/cri_adx_00506b78.c (1 function markers) */
 
@@ -13301,8 +12472,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00511898);
 // FUN_005118E0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005118e0);
 
-// FUN_00511900
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00511900);
 
 // FUN_00511920
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00511920);
@@ -13470,8 +12639,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00512238);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00512250);
 // FUN_00512278
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00512278);
-// FUN_005122A0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005122a0);
 // FUN_00512318
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00512318);
 // FUN_00512358
@@ -14815,12 +13982,8 @@ asm void func_00519b98(u32 *param_1)
 
 #pragma schedule on
 
-// FUN_00519C20
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00519c20);
 
 
-// FUN_00519C88
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00519c88);
 // FUN_00519CA0
 u64 func_00519ca0(void)
 {
@@ -14930,10 +14093,6 @@ u64 func_0051a6c8(void)
 
 /* Source unit: src/cri/cri_adx_0051ab28.c (1 function markers) */
 
-// FUN_0051A6D0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0051a6d0);
-// FUN_0051A6F0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0051a6f0);
 // FUN_0051A708
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0051a708);
 // FUN_0051A7A0
@@ -15829,21 +14988,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005217e8);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00521830);
 // FUN_00521848
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00521848);
-// FUN_00521850
-asm u8 func_00521850(int param_1)
-{
-  .set noreorder
-  .word 0x8c830048
-  .word 0x2463ffff
-  .word 0x2c630004
-  .word 0x10600003
-  .word 0x24020001
-  .word 0x8c820044
-  .word 0x2c420001
-  .word 0x03e00008
-  .word 0x00000000
-  .word 0x00000000
-}
 
 /* Source unit: src/cri/cri_adx_00521af8.c (1 function markers) */
 
@@ -16277,15 +15421,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00524d90);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00524e48);
 // FUN_00524F70
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00524f70);
-// FUN_00525098
-asm u32 func_00525098(int param_1,int param_2)
-{
-  .set noreorder
-  .word 0x00052880
-  .word 0x00a42821
-  .word 0x03e00008
-  .word 0x8ca20a0c
-}
 
 /* Source unit: src/cri/cri_adx_005253c0.c (1 function markers) */
 
@@ -16524,35 +15659,8 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00525e18);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00525e90);
 // FUN_00525F70
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00525f70);
-// FUN_00525FD0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00525fd0);
 // FUN_00525FF0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00525ff0);
-// FUN_005260E8
-asm u32 func_005260e8(int param_1,u32 *param_2,u32 *param_3)
-{
-  .set noreorder
-  .word 0x8c830048
-  .word 0x24020004
-  .word 0x1062000f
-  .word 0x00000000
-  .word 0x2402fffc
-  .word 0x1062000c
-  .word 0x00000000
-  .word 0x24020006
-  .word 0x10620009
-  .word 0x00000000
-  .word 0x2402fffa
-  .word 0x10620006
-  .word 0x2403ffff
-  .word 0x24040001
-  .word 0xaca30000
-  .word 0x0000102d
-  .word 0x03e00008
-  .word 0xacc40000
-  .word 0x03e00008
-  .word 0x24020001
-}
 
 /* Source unit: src/cri/cri_adx_005264f0.c (1 function markers) */
 
@@ -16680,8 +15788,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00526ea0);
 
 // FUN_00526F90
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00526f90);
-// FUN_00527028
-void func_00527028(int object, u32 value) { *(u32 *)(object + 0xfdc) = value; }
 #pragma optimization_level 2
 
 /* Source unit: src/cri/cri_adx_00527030.c (1 function markers) */
@@ -17027,62 +16133,6 @@ void func_00527aa0(u32 *output, u32 value)
   *output = value;
 }
 #pragma schedule off
-
-/* Source unit: src/cri/cri_adx_00527aa8.c (1 function markers) */
-
-// FUN_00527AA8
-asm void func_00527aa8(int param_1,u64 *param_2)
-{
-  .set noreorder
-  .word 0xdca20000
-  .word 0xfc820138
-  .word 0xdca30008
-  .word 0x03e00008
-  .word 0xfc830140
-  .word 0x00000000
-}
-
-/* Source unit: src/cri/cri_adx_00527ac0.c (1 function markers) */
-
-// FUN_00527AC0
-asm void func_00527ac0(int param_1,u64 *param_2)
-{
-  .set noreorder
-  .word 0xdca20000
-  .word 0xfc820148
-  .word 0xdca30008
-  .word 0x03e00008
-  .word 0xfc830150
-  .word 0x00000000
-}
-
-/* Source unit: src/cri/cri_adx_00527ad8.c (1 function markers) */
-
-// FUN_00527AD8
-asm void func_00527ad8(int param_1,u64 *param_2)
-{
-  .set noreorder
-  .word 0xdca20000
-  .word 0xfc820158
-  .word 0xdca30008
-  .word 0x03e00008
-  .word 0xfc830160
-  .word 0x00000000
-}
-
-/* Source unit: src/cri/cri_adx_00527af0.c (1 function markers) */
-
-// FUN_00527AF0
-asm void func_00527af0(int param_1,u64 *param_2)
-{
-  .set noreorder
-  .word 0xdca20000
-  .word 0xfc820168
-  .word 0xdca30008
-  .word 0x03e00008
-  .word 0xfc830170
-  .word 0x00000000
-}
 
 /* Source unit: src/cri/cri_adx_00527b18.c (1 function markers) */
 
@@ -17585,18 +16635,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00529cb0);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00529d90);
 // FUN_00529E08
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00529e08);
-// FUN_00529F28
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00529f28);
-// FUN_00529F98
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00529f98);
-// FUN_0052A160
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0052a160);
-// FUN_0052A1E8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0052a1e8);
-// FUN_0052A370
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0052a370);
-// FUN_0052A3B0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0052a3b0);
 // FUN_0052A3F0
 asm u32 func_0052a3f0(int param_1)
 {
@@ -17653,26 +16691,6 @@ asm void func_0052a540(int param_1)
   .word 0x03e00008
   .word 0xa0600000
   .word 0x00000000
-}
-
-/* Source unit: src/cri/cri_adx_0052a580.c (1 function markers) */
-
-extern u32 DAT_00745b40[];
-
-// FUN_0052A580
-u32 func_0052a580(u32 *output)
-{
-    u32 base;
-    u32 value;
-
-    if (output != 0) {
-        *output = 0;
-        base = (u32)DAT_00745b40;
-        value = *(u32 *)base;
-        value--;
-        *(u32 *)base = value;
-        return value;
-    }
 }
 
 /* Source unit: src/cri/cri_adx_0052a5a8.c (1 function markers) */
@@ -18000,15 +17018,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0052b680);
 
 // FUN_0052B6C8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0052b6c8);
-// FUN_0052B720
-u32 func_0052b720(u32 value, u32 size)
-{
-    u32 base = (u32)DAT_00745c78;
-
-    *(u32 *)(base + 4) = size;
-    *(u32 *)base = value;
-    return base;
-}
 #pragma schedule off
 
 /* Source unit: src/cri/cri_adx_0052b940.c (1 function markers) */

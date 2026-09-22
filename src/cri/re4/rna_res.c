@@ -3,7 +3,8 @@
  * these buffers while the server DMAs decoded PCM into them. Addresses are kept in 16-bit sample units. */
 #include "cri_xpt.h"
 #include <string.h>
-#include <dolphin/ar.h>
+extern Uint32 ARAlloc(Uint32 length);
+extern Uint32 ARFree(Uint32 *length);
 
 extern void RNAERR_CallErrFunc(Char8 *msg);
 

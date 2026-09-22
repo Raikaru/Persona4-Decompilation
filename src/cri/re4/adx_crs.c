@@ -9,12 +9,14 @@ Sint32 adxcrs_lvl;
 static Sint32 adxcrs_msk;
 
 // Leaves the ADX critical section (SVM_Unlock).
+// FUN_004C54C0
 void ADXCRS_Unlock(void)
 {
 	SVM_Unlock();
 }
 
 // Enters the ADX critical section (SVM_Lock); guards handle state shared with the server callbacks.
+// FUN_004C54A8
 void ADXCRS_Lock(void)
 {
 	SVM_Lock();

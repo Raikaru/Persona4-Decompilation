@@ -159,6 +159,7 @@ void ADXPD_Reset(ADXPD xpd)
 }
 
 // 100% matching!
+// FUN_004D2D30
 Sint32 ADXPD_GetNumBlk(ADXPD xpd)
 {
     return xpd->ndecblk;

@@ -42,6 +42,7 @@ void MWSFSVM_Error(const Char8 *fmt, ...)
 }
 
 // Re-entry guard for the server flags.
+// FUN_004CD470
 Sint32 MWSFSVM_TestAndSet(Sint32 *flag)
 {
 	return SVM_TestAndSet(flag);

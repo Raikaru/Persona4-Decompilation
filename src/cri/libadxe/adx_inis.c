@@ -21,6 +21,7 @@ void ADXT_ConfigVsyncSvr(Sint32 vsync_svr_flag)
 }
 
 // 100% matching!
+// FUN_004CA668
 void adxini_rnaerr_cbfn(void *obj, const Char8 *msg)
 {
     ADXERR_CallErrFunc1((const Sint8*)msg);

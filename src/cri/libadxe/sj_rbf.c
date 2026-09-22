@@ -143,6 +143,7 @@ void SJRBF_Reset(SJ sj)
 }
 
 // 100% matching!
+// FUN_004EE2C0
 Sint32 SJRBF_GetNumData(SJ sj, Sint32 id)
 {
     SJRBF rbf;
@@ -370,18 +371,21 @@ Sint32 SJRBF_IsGetChunk(SJ sj, Sint32 id, Sint32 nbyte, Sint32 *rbyte)
 }
 
 // 100% matching!
+// FUN_004EEA70
 Sint8* SJRBF_GetBufPtr(SJRBF sjrbf)
 {
     return sjrbf->buf;
 }
 
 // 100% matching!
+// FUN_004EEA78
 Sint32 SJRBF_GetBufSize(SJRBF sjrbf)
 {
     return sjrbf->bsize;
 }
 
 // 100% matching!
+// FUN_004EEA80
 Sint32 SJRBF_GetXtrSize(SJRBF sjrbf) 
 {
     return sjrbf->xsize;

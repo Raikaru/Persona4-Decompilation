@@ -141,6 +141,7 @@ static void mpvhdec_DecSlice(MPV mpv, SJ sj)
 
 // Moves `nbyte` bytes of a stream joint from side `id` to the other (DATA -> FREE consumes them);
 // returns the bytes moved.
+// FUN_00506B20
 Sint32 MPV_MoveChunk(SJ sj, Sint32 id, Sint32 nbyte)
 {
 	SJCK ck;
@@ -729,6 +730,7 @@ void MPV_GetPicUsr(MPV mpv, Uint8 **buf, Sint32 *len)
 }
 
 // Buffer that receives each picture's user data (Sofdec per-frame data, SFD_SetPicUsrBuf).
+// FUN_005050A0
 void MPV_SetPicUsrBuf(MPV mpv, Uint8 *buf, Sint32 bufsiz)
 {
 	/* base pointer for addiu 1000 pattern (retail 005050A0 addiu 1000 proves base+small for 0,4,8 stores) */

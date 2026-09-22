@@ -258,6 +258,7 @@ void mwsflib_LscErrFunc(void *obj, Char8 *msg)
 }
 
 // The library work (player handles, callbacks, frame pool setting).
+// FUN_0050B3D0
 MWSFD_LIBWORK *MWSFLIB_GetLibWorkPtr(void)
 {
 	return &mwsfd_libwork;

@@ -1151,25 +1151,7 @@ s32 func_003c8d60(s32 arg0, s32 arg1) {
 #pragma tailcall off
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
-// FUN_003C8D80
-/* measured: schedule and tailcall reproduce the direct shared-helper jump. */
-#pragma schedule on
-/* measured: tailcall on preserves the frameless helper jump. */
-#pragma tailcall on
-s32 func_003c8d80(s32 arg0, s32 arg1) {
-    return func_003e30c0(D_0070B040, arg0, arg1);
-}
-/* measured: tailcall off closes this function's bracket. */
-#pragma tailcall off
-/* measured: schedule off closes this function's bracket. */
-#pragma schedule off
-/* measured: schedule fills the branch and return delay slots. */
-#pragma schedule on
-/* measured: no_branch_likely keeps the equality test as an ordinary branch. */
-#pragma no_branch_likely on
 extern s32 func_003c8da0(s32 arg0, u8 *arg1); /* P4: ported verbatim into src/renderware */
-#pragma no_branch_likely off
-#pragma schedule off
 /* measured: archived stamp-local candidate object 232B/window 224B,
    normalized_diff 151; differing offsets 16,20,24,28,32,36,40,44,48,52,
    56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,124,128,132,
@@ -1945,21 +1927,7 @@ active:
 }
 #pragma no_branch_likely off
 #pragma schedule off
-// FUN_003CBC90
-#pragma schedule on
-u8 *func_003cbc90(u8 *arg0, u8 *arg1) {
-    u8 *node = arg1 + iGpffffb70c;
-    u8 *v = *(u8 **)(arg1 + 4);
-    if (v != 0)
-        func_003e9680(v);
-    *(s32 *)(node + 0x0) = (s32)arg0;
-    return arg0;
-}
-/* measured: schedule on places the GP-derived field load in the jr delay slot. */
-#pragma schedule on
 extern s32 func_003cbce0(s32 arg0); /* P4: ported verbatim into src/renderware */
-/* measured: schedule off closes the single-function bracket. */
-#pragma schedule off
 
 /* measured: schedule and ordinary branches probe cbcf0's field/link setup. */
 #pragma schedule on

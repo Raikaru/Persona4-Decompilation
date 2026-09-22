@@ -79,6 +79,7 @@ Sint32 ADXPD_GetNumBlk(ADXPD pd)
 }
 
 // DONE -> STOP so the next entry can be queued (the history is kept for continuity).
+// FUN_004D8AF0
 void ADXPD_Reset(ADXPD pd)
 {
 	if (pd->stat == ADXPD_STAT_DONE) {
@@ -95,6 +96,7 @@ void ADXPD_Stop(ADXPD pd)
 }
 
 // Arms a queued entry (STOP -> START).
+// FUN_004D8AA8
 void ADXPD_Start(ADXPD pd)
 {
 	if (pd->stat == ADXPD_STAT_STOP) {
@@ -118,6 +120,7 @@ Sint32 ADXPD_EntryPl2(ADXPD pd, void *in, Sint32 nblk, Sint16 *out0, Sint16 *out
 }
 
 // Queues `nblk` interleaved L/R blocks from `in` into out0 (L) / out1 (R); rejected (0) unless idle.
+// FUN_004D8A48
 Sint32 ADXPD_EntrySte(ADXPD pd, void *in, Sint32 nblk, Sint16 *out0, Sint16 *out1)
 {
 	if (pd->stat == ADXPD_STAT_STOP) {
@@ -146,6 +149,7 @@ Sint32 ADXPD_EntryMono(ADXPD pd, void *in, Sint32 nblk, Sint16 *out0, Sint16 *ou
 }
 
 // ADXPD_STAT_STOP 0, START 1, EXEC 2, DONE 3.
+// FUN_004D8A10
 Sint32 ADXPD_GetStat(ADXPD pd)
 {
 	return pd->stat;
