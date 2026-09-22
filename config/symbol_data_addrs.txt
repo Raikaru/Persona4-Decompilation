@@ -863,3 +863,13 @@ uGpffffb270 = 0x00764360; // type:data evidence: retail func_0015d730 sound-memo
 
 // Field preset records: count/count/minorIds[10], three records.
 fldResourcePresets = 0x005f0590; // type:data evidence: func_0014efc0 preset lookup
+
+// Community score and particle render constants, GP 0x007690F0.
+iGpffff81dc = 0x007612cc; // type:data evidence: func_0024d1f0 retail lwc1 at 0x0024E5E4, GP minus 0x7E24
+fGpffff80a0 = 0x00761190; // type:data evidence: func_00487fb0 retail lwc1 at 0x00488128, GP minus 0x7F60
+fGpffff80a4 = 0x00761194; // type:data evidence: func_00487fb0 retail lwc1 at 0x004882B8, GP minus 0x7F5C
+fGpffff80a8 = 0x00761198; // type:data evidence: func_00487fb0 retail lwc1 at 0x004882BC, GP minus 0x7F58
+fGpffff80ac = 0x0076119c; // type:data evidence: func_00487fb0 retail lwc1 at 0x0048870C, GP minus 0x7F54
+fGpffff80b0 = 0x007611a0; // type:data evidence: func_00487fb0 retail lwc1 at 0x0048873C, GP minus 0x7F50
+fGpffff80b4 = 0x007611a4; // type:data evidence: func_00487fb0 retail lwc1 at 0x0048874C and 0x00488840, GP minus 0x7F4C
+fGpffff80b8 = 0x007611a8; // type:data evidence: func_00487fb0 retail lwc1 at 0x00488844, GP minus 0x7F48

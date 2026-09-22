@@ -7399,3 +7399,13 @@ uGpffffb270 = 0x00764360; // type:data
 
 // Field preset records: count/count/minorIds[10], three records.
 fldResourcePresets = 0x005f0590; // type:data evidence: func_0014efc0 preset lookup
+
+// Community score and particle render constants, GP 0x007690F0.
+iGpffff81dc = 0x007612cc; // type:data
+fGpffff80a0 = 0x00761190; // type:data
+fGpffff80a4 = 0x00761194; // type:data
+fGpffff80a8 = 0x00761198; // type:data
+fGpffff80ac = 0x0076119c; // type:data
+fGpffff80b0 = 0x007611a0; // type:data
+fGpffff80b4 = 0x007611a4; // type:data
+fGpffff80b8 = 0x007611a8; // type:data

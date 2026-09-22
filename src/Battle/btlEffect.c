@@ -1,4 +1,5 @@
 /* Source unit: src/Battle/btlEffect_001d6880.c */
+#include "btl_skill_target_internal.h"
 #include "type.h"
 #include "include_asm.h"
 
@@ -49,7 +50,6 @@ extern u32 func_001ef4d0();
 
 extern u32 func_001ef720();
 
-extern u16 func_001d7f10(u32 param_1, u32 param_2, u16 param_3, u32 param_4);
 extern u32 func_00201f60(int param_1);
 
 extern void func_00440b68();
@@ -432,7 +432,7 @@ u32 btlCond_MYGROUP(int param_1)
 {
   u16 result;
 
-  result = func_001d7f10(param_1, 0, *(u16 *)(param_1 + 0x7e), 0);
+  result = func_001d7f10((u8 *)param_1, 0, *(u16 *)(param_1 + 0x7e), 0);
   switch (result) {
   case 1:
   case 2:

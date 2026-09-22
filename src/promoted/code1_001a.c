@@ -1,3 +1,4 @@
+#include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "btl_target_state_packet_internal.h"
@@ -28,7 +29,6 @@ void func_001f6cd0(void);
 
 void func_001f14f0(u8 *arg0);
 void func_001eb3b0(u8 *arg0);
-u8 func_001d7f10(void *arg0, u8 *arg1, u16 arg2, u32 arg3);
 extern void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 void func_001d8cb0(void *arg0, void *arg1);
 
@@ -1426,7 +1426,7 @@ void func_001a2b50(u8 *arg0)
 // FUN_001A2C10
 void func_001a2c10(s64 *arg0) {
     func_001eb3b0((u8 *)arg0 + 0x38);
-    func_001d7f10(arg0, (u8 *)arg0 + 0x98, 0, 0);
+    func_001d7f10((u8 *)arg0, (u8 *)arg0 + 0x98, 0, 0);
     func_001d8cb0(NULL, arg0 + 0x13);
 }
 
@@ -2089,7 +2089,6 @@ void func_001a4390(void)
 void func_001a43a0(u8 *arg0) {
     extern u8 *func_001fa320(void);
     extern s32 func_001a05f0(u8 *arg0);
-    extern s32 func_001d7f10(void *arg0, u8 *arg1, u16 arg2, u32 arg3);
     s32 spF0[12];
     s32 spC0[12];
     s16 spB0;
