@@ -1,6 +1,6 @@
 {
  "_comment": "Proposed names for windows whose body is shared by several reference functions. A body cannot decide between them; the callers and callees can. For each window, every candidate name gathers its co-called and co-calling names from the five reference binaries, and the candidate whose neighbourhood overlaps this window's already-named neighbours most is proposed. Sole winner with a positive score only. PROPOSALS: they are not landed in config/symbol_names*.txt and each needs the same review a mined name gets before it is allowed to rename a definition.",
- "resolved": 276,
+ "resolved": 317,
  "windows": {
   "0044e168": {
    "name": "dpmul",
@@ -1549,6 +1549,17 @@
     "MPV_DecodePicAtrSj"
    ]
   },
+  "00504d10": {
+   "name": "MPV_SkipFrmSj",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 46,
+   "context_names": [
+    "MPV_GoNextDelimSj",
+    "MPV_MoveChunk",
+    "sfmpv_SkipFrm"
+   ]
+  },
   "00505078": {
    "name": "MPV_SetUsrSj",
    "context_score": 2,
@@ -1557,6 +1568,15 @@
    "context_names": [
     "SFD_SetVideoUsrSj",
     "mpvlib_InitHn"
+   ]
+  },
+  "005050b8": {
+   "name": "MPV_GetPicUsr",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 10,
+   "context_names": [
+    "sfmpv_DecodePicAtr"
    ]
   },
   "005079a0": {
@@ -1797,6 +1817,15 @@
     "ADXSTM_Stop"
    ]
   },
+  "005140c8": {
+   "name": "sfaoap_ChkPrepFlg",
+   "context_score": 1,
+   "candidates": 4,
+   "words": 28,
+   "context_names": [
+    "SFBUF_GetPrepFlg"
+   ]
+  },
   "00514138": {
    "name": "sfaoap_ChkTermFlg",
    "context_score": 1,
@@ -1841,6 +1870,25 @@
    "words": 8,
    "context_names": [
     "sfmps_ChkSupply"
+   ]
+  },
+  "00515940": {
+   "name": "SFBUF_SetPrepFlg",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 8,
+   "context_names": [
+    "sfmpv_ChkPrepFlg"
+   ]
+  },
+  "00515960": {
+   "name": "SFBUF_GetPrepFlg",
+   "context_score": 2,
+   "candidates": 4,
+   "words": 8,
+   "context_names": [
+    "sfmps_ChkPrepFlg",
+    "sfmpv_ChkPrepFlg"
    ]
   },
   "00515980": {
@@ -1920,6 +1968,15 @@
     "sfcre_AnalyMps"
    ]
   },
+  "00516558": {
+   "name": "sfcre_ProcessHdr",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 20,
+   "context_names": [
+    "sfcre_AnalySfh"
+   ]
+  },
   "005165a8": {
    "name": "sfcre_AnalyAudio",
    "context_score": 1,
@@ -1977,6 +2034,15 @@
     "sfcre_AnalyMpa"
    ]
   },
+  "00516bb0": {
+   "name": "sfcre_ReadAauHdr",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 32,
+   "context_names": [
+    "sfcre_SerachMpaAau"
+   ]
+  },
   "00516c30": {
    "name": "sfcre_AnalyMpv",
    "context_score": 2,
@@ -1994,6 +2060,15 @@
    "words": 4,
    "context_names": [
     "SFD_Destroy"
+   ]
+  },
+  "00517dd0": {
+   "name": "SFMEM_ExecServer",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 10,
+   "context_names": [
+    "SFBUF_SetPrepFlg"
    ]
   },
   "00518120": {
@@ -2045,6 +2120,15 @@
     "sfmps_SkipNext"
    ]
   },
+  "00518790": {
+   "name": "sfmps_GetSupSj",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 10,
+   "context_names": [
+    "sfmps_IsEndOfRingBuf"
+   ]
+  },
   "005187b8": {
    "name": "sfmps_CopyPketData",
    "context_score": 2,
@@ -2064,6 +2148,25 @@
     "sfmps_CopyPketData"
    ]
   },
+  "00518d70": {
+   "name": "sfmps_CopyPrvate",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 40,
+   "context_names": [
+    "SFHDS_SetHdr",
+    "sfmps_CopyUsrSj"
+   ]
+  },
+  "00518e10": {
+   "name": "sfmps_CopyUsrSj",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 54,
+   "context_names": [
+    "sfmps_CopySj"
+   ]
+  },
   "00518ee8": {
    "name": "sfmps_CopySj",
    "context_score": 1,
@@ -2071,6 +2174,15 @@
    "words": 42,
    "context_names": [
     "sfmps_CopyElemOutSj"
+   ]
+  },
+  "00518f90": {
+   "name": "sfmps_ExecCopySj",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 28,
+   "context_names": [
+    "sfmps_CopySj"
    ]
   },
   "00519198": {
@@ -2129,6 +2241,91 @@
     "SFBUF_GetTermFlg"
    ]
   },
+  "00519490": {
+   "name": "sfmps_ProcPrep",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 22,
+   "context_names": [
+    "sfmps_ChkPrepFlg"
+   ]
+  },
+  "005194e8": {
+   "name": "sfmps_ChkPrepFlg",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 34,
+   "context_names": [
+    "sfmps_IsPrepEnd"
+   ]
+  },
+  "00519570": {
+   "name": "sfmps_GetPrepDst",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 28,
+   "context_names": [
+    "sfmps_ChkPrepFlg"
+   ]
+  },
+  "005195e0": {
+   "name": "sfmps_SetPrepDst",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 24,
+   "context_names": [
+    "SFBUF_SetPrepFlg"
+   ]
+  },
+  "00519640": {
+   "name": "sfmps_IsPrepEnd",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 24,
+   "context_names": [
+    "sfmps_GetSupSj"
+   ]
+  },
+  "005196a0": {
+   "name": "sfmps_AdjustAvPlay",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 62,
+   "context_names": [
+    "SFX_GetCnvTable",
+    "sfmps_ProcPrep"
+   ]
+  },
+  "00519798": {
+   "name": "sfmps_GetStmNum",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 44,
+   "context_names": [
+    "MPS_GetSysHd",
+    "sfmps_ProcPrep"
+   ]
+  },
+  "00519848": {
+   "name": "sfmps_SetMvInf",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 38,
+   "context_names": [
+    "MPS_GetPackHd",
+    "MPS_GetSysHd",
+    "sfmps_ProcPrep"
+   ]
+  },
+  "005198e0": {
+   "name": "sfmps_SetMpsHd",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 44,
+   "context_names": [
+    "sfmps_ProcPrep"
+   ]
+  },
   "00519998": {
    "name": "sfmps_SetMpsRaw",
    "context_score": 2,
@@ -2156,6 +2353,34 @@
    "context_names": [
     "MPV_DecodePicAtr",
     "SFX_GetCnvTable"
+   ]
+  },
+  "0051a8c8": {
+   "name": "sfmpv_ChkPrepFlg",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 44,
+   "context_names": [
+    "sfmpv_IsPrepEnd"
+   ]
+  },
+  "0051a978": {
+   "name": "sfmpv_IsPrepEnd",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 24,
+   "context_names": [
+    "sfmpv_IsVbvEnough"
+   ]
+  },
+  "0051aa40": {
+   "name": "sfmpv_IsVbvEnough",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 58,
+   "context_names": [
+    "MPV_GetBitRate",
+    "SFBUF_GetRingBufSiz"
    ]
   },
   "0051ac68": {
@@ -2238,6 +2463,42 @@
     "SFBUF_GetRTot"
    ]
   },
+  "0051bb58": {
+   "name": "sfmpv_AddRtotSj",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 18,
+   "context_names": [
+    "sfmpv_DecodePicAtr"
+   ]
+  },
+  "0051bba0": {
+   "name": "sfmpv_IsTerm",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 18,
+   "context_names": [
+    "sfmpv_GetTermSrc"
+   ]
+  },
+  "0051bbe8": {
+   "name": "sfmpv_GetTermSrc",
+   "context_score": 1,
+   "candidates": 8,
+   "words": 6,
+   "context_names": [
+    "sfmpv_IsVbvEnough"
+   ]
+  },
+  "0051bc00": {
+   "name": "sfmpv_ChkMpvErr",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 38,
+   "context_names": [
+    "sfmpv_DecodePicAtr"
+   ]
+  },
   "0051bc98": {
    "name": "sfmpv_DecodePicAtr",
    "context_score": 6,
@@ -2251,6 +2512,99 @@
     "SFX_GetCnvTable",
     "SJRBF_GetFlowCnt",
     "sfmpv_FirstPicAtr"
+   ]
+  },
+  "0051bff0": {
+   "name": "sfmpv_ReadPtsQue",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 42,
+   "context_names": [
+    "sfmpv_DecodePicAtr"
+   ]
+  },
+  "0051c0c0": {
+   "name": "sfmpv_ComplementPts",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 96,
+   "context_names": [
+    "sfmpv_ReadPtsQue"
+   ]
+  },
+  "0051c240": {
+   "name": "sfmpv_Nfrm2Pts",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 16,
+   "context_names": [
+    "__divdi3",
+    "sfmpv_ComplementPts"
+   ]
+  },
+  "0051c280": {
+   "name": "sfmpv_CalcRepeatField",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 162,
+   "context_names": [
+    "sfmpv_DecodePicAtr"
+   ]
+  },
+  "0051c508": {
+   "name": "sfmpv_CalcFrmTtu",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 52,
+   "context_names": [
+    "sfmpv_CalcRepeatField"
+   ]
+  },
+  "0051c5d8": {
+   "name": "sfmpv_ReformTc",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 56,
+   "context_names": [
+    "SFX_GetCnvTable",
+    "sfmpv_DecodePicAtr"
+   ]
+  },
+  "0051c6b8": {
+   "name": "sfmpv_DetectTcErr",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 48,
+   "context_names": [
+    "SFX_GetCnvTable",
+    "sfmpv_ReformTc"
+   ]
+  },
+  "0051cb80": {
+   "name": "sfmpv_SetHeadTtu",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 56,
+   "context_names": [
+    "sfmpv_DecodePicAtr"
+   ]
+  },
+  "0051cc60": {
+   "name": "sfmpv_SetDecTtu",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 82,
+   "context_names": [
+    "sfmpv_DecodePicAtr"
+   ]
+  },
+  "0051cda8": {
+   "name": "sfmpv_ReadTcode",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 20,
+   "context_names": [
+    "sfmpv_CalcRepeatField"
    ]
   },
   "0051cdf8": {
@@ -2290,6 +2644,26 @@
    "words": 110,
    "context_names": [
     "sfmpv_FirstPicAtr"
+   ]
+  },
+  "0051d7a8": {
+   "name": "sfmpv_SkipFrm",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 60,
+   "context_names": [
+    "SJRBF_GetFlowCnt",
+    "sfmpv_AddRtotSj",
+    "sfmpv_ChkMpvErr"
+   ]
+  },
+  "0051d898": {
+   "name": "sfmpv_SetSkipTtu",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 30,
+   "context_names": [
+    "sfmpv_SkipFrm"
    ]
   },
   "0051e200": {
@@ -2622,6 +2996,16 @@
    "context_names": [
     "SFX_GetCnvTable",
     "sfply_ChkFin"
+   ]
+  },
+  "00522df8": {
+   "name": "SFPLY_AddSkipPic",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 26,
+   "context_names": [
+    "SFX_GetCnvTable",
+    "sfmpv_SkipFrm"
    ]
   },
   "00527218": {
