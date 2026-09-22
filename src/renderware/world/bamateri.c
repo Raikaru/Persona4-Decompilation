@@ -8,6 +8,8 @@
    prototypes then declare the retail func_ symbols. */
 #define RwStreamWriteInt32 func_003df240
 #define RwTextureDestroy func_003ef3a0
+#define RpMaterialStreamGetSize func_003c47c0
+#define RpMaterialStreamWrite func_003c4820
 
 
 /**
@@ -1295,8 +1297,10 @@ RpMaterialStreamRead(RwStream * stream)
  * \see RpMaterialStreamWrite
  * \see RpWorldPluginAttach
  */
+// FUN_003C47C0
+#pragma schedule on
 RwUInt32
-RpMaterialStreamGetSize(const RpMaterial * material)
+func_003c47c0(const RpMaterial * material)
 {
     RwUInt32            size;
 
@@ -1316,6 +1320,8 @@ RpMaterialStreamGetSize(const RpMaterial * material)
 
     RWRETURN(size);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rpmaterial
@@ -1339,8 +1345,10 @@ RpMaterialStreamGetSize(const RpMaterial * material)
  * \see RpWorldPluginAttach
  *
  */
+// FUN_003C4820
+#pragma schedule on
 const RpMaterial   *
-RpMaterialStreamWrite(const RpMaterial * material, RwStream * stream)
+func_003c4820(const RpMaterial * material, RwStream * stream)
 {
     _rpMaterial         mat;
     const RwSurfaceProperties * source;
@@ -1410,3 +1418,5 @@ RpMaterialStreamWrite(const RpMaterial * material, RwStream * stream)
 
     RWRETURN(material);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off

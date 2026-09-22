@@ -1,13 +1,13 @@
-/* Grouped verified Persona 4 source units. */
-/* The original guards were independently verified before grouping. */
+/* Grouped RenderWare animation and UV-animation source units. */
+/* The 0x135 registration below is rwID_UVANIMPLUGIN; this block is not Rt2d. */
 #include "include_asm.h"
 #include "type.h"
 
 /* Canonical grouped function declarations. */
 void func_003d5830(u8 *value);
-void func_003d5990(s32 object, u32 first, u32 second);
+void RtAnimInterpolatorSetAnimLoopCallBack(s32 object, u32 first, u32 second);
 u32 func_003d60e0(u32 object, u32 value);
-u32 func_003d7b30(u32 value);
+u32 _rpUVAnimCustomDataStreamGetSize(u32 value);
 
 extern s32 func_003df8a0(s32 value);
 extern s32 *func_003df890(s32 value);
@@ -20,7 +20,7 @@ extern void func_003d6010(u8 *value);
 extern void func_003d5000(u8 *value);
 extern void func_003d5fb0(u8 *value);
 extern void func_003e12f0(s32 value);
-extern u8 *func_003d6c10(u8 *dst, u8 *src);
+extern u8 *RpUVAnimLinearKeyFrameDataInitFromMatrix(u8 *dst, u8 *src);
 extern u8 *func_003e05d0(u8 *value);
 extern u8 *func_003d6fb0(u8 *dst, u8 *src);
 extern void *(*D_008873F8[])(s32, s32);
@@ -33,14 +33,14 @@ extern s32 iGpffffb744;
 extern s32 iGpffffb748;
 extern s32 iGpffffab24;
 extern s32 iGpffffab28;
-extern s32 func_003d70c0(s32 value);
-extern s32 func_003d7150(s32 value);
-extern s32 func_003d7260(s32 value);
+extern s32 UVAnimOpen(s32 value);
+extern s32 UVAnimClose(s32 value);
+extern s32 UVAnimConstructor(s32 value);
 extern s32 func_003d72a0(s32 value);
 extern s32 func_003d7350(s32 value, s32 arg1);
 extern s32 func_003d77f0(s32 value, s32 arg1);
 extern s32 func_003d75b0(s32 value, s32 arg1);
-extern s32 func_003d79b0(s32 value);
+extern s32 UVAnimSize(s32 value);
 extern s32 func_003d8150(void);
 extern s32 func_003e8930(s32, s32, s32 (*)(s32), s32 (*)(s32));
 extern s32 func_003c4310(s32, s32, s32 (*)(s32), s32 (*)(s32), s32 (*)(s32, s32));
@@ -70,7 +70,7 @@ INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d5840);
 /* measured: optimization_level 3 probe for func_003d5990. */
 #pragma optimization_level 3
 // FUN_003D5990
-void func_003d5990(s32 object, u32 first, u32 second)
+void RtAnimInterpolatorSetAnimLoopCallBack(s32 object, u32 first, u32 second)
 {
     *(u32*)(object + 0x18) = first;
     *(u32*)(object + 0x1c) = second;
@@ -117,7 +117,7 @@ INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d68b0);
 #pragma tailcall on
 /* measured: schedule on probe for func_003d6900 tail delay. */
 #pragma schedule on
-void func_003d6900(u8 *arg0, u8 *arg1)
+void RpUVAnimLinearKeyFrameApply(u8 *arg0, u8 *arg1)
 {
     *(f32 *)(arg0 + 0) = *(f32 *)(arg1 + 8);
     *(f32 *)(arg0 + 4) = *(f32 *)(arg1 + 0xC);
@@ -141,7 +141,7 @@ INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d6950);
 /* measured: schedule-on probe for func_003d6a00 FPU order. */
 #pragma schedule on
 // FUN_003D6A00
-void func_003d6a00(u8 *arg0, u8 *arg1, u8 *arg2, f32 factor)
+void RpUVAnimLinearKeyFrameBlend(u8 *arg0, u8 *arg1, u8 *arg2, f32 factor)
 {
     *(f32 *)(arg0 + 8) =
         *(f32 *)(arg1 + 8) +
@@ -171,7 +171,7 @@ INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d6aa0);
 /* measured: schedule on probe for func_003d6b70 load order. */
 #pragma schedule on
 // FUN_003D6B70
-void func_003d6b70(u8 *arg0, u8 *arg1, u8 *arg2)
+void RpUVAnimLinearKeyFrameAdd(u8 *arg0, u8 *arg1, u8 *arg2)
 {
     f32 a;
     f32 b;
@@ -206,7 +206,7 @@ void func_003d6b70(u8 *arg0, u8 *arg1, u8 *arg2)
 /* measured: schedule on probe for func_003d6c10 delay-slot placement. */
 #pragma schedule on
 // FUN_003D6C10
-u8 *func_003d6c10(u8 *arg0, u8 *arg1)
+u8 *RpUVAnimLinearKeyFrameDataInitFromMatrix(u8 *arg0, u8 *arg1)
 {
     f32 value0;
     f32 value1;
@@ -255,7 +255,7 @@ INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d6fb0);
 /* measured: schedule on probe for func_003d70c0 instruction order. */
 #pragma schedule on
 // FUN_003D70C0
-s32 func_003d70c0(s32 arg0)
+s32 UVAnimOpen(s32 arg0)
 {
     s32 result;
     s32 value;
@@ -284,7 +284,7 @@ set_zero:
 /* measured: schedule on probe for func_003d7150 instruction order. */
 #pragma schedule on
 // FUN_003D7150
-s32 func_003d7150(s32 arg0)
+s32 UVAnimClose(s32 arg0)
 {
     s32 value;
 
@@ -306,17 +306,17 @@ s32 func_003d7150(s32 arg0)
 /* measured: no_branch_likely on probe for func_003d71b0 plain branch. */
 #pragma no_branch_likely on
 // FUN_003D71B0
-s32 func_003d71b0(void)
+s32 RpUVAnimPluginAttach(void)
 {
     s32 result;
 
-    if (func_003e8930(0, 0x135, func_003d70c0, func_003d7150) < 0) {
+    if (func_003e8930(0, 0x135, UVAnimOpen, UVAnimClose) < 0) {
         return 0;
     }
-    D_0072483C = func_003c4310(0x30, 0x135, func_003d7260,
+    D_0072483C = func_003c4310(0x30, 0x135, UVAnimConstructor,
                                func_003d72a0, func_003d7350);
     result = func_003c4340(0x135, func_003d77f0, func_003d75b0,
-                            func_003d79b0) >= 0;
+                            UVAnimSize) >= 0;
     if (result != 0) {
         result = D_0072483C >= 0;
     }
@@ -329,7 +329,7 @@ s32 func_003d71b0(void)
 /* measured: schedule on probe for func_003d7260 prologue argument setup. */
 #pragma schedule on
 // FUN_003D7260
-s32 func_003d7260(s32 arg0)
+s32 UVAnimConstructor(s32 arg0)
 {
     func_0043f9c8((void *)(arg0 + D_0072483C), 0, 0x30);
     return arg0;
@@ -353,7 +353,7 @@ INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d77f0);
 /* measured: no_branch_likely on probe for func_003d79b0 plain branches. */
 #pragma no_branch_likely on
 // FUN_003D79B0
-s32 func_003d79b0(s32 arg0)
+s32 UVAnimSize(s32 arg0)
 {
     extern s32 iGpffffb74c;
     s32 value;
@@ -387,7 +387,7 @@ INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d7ac0);
 /* measured: schedule on probe for func_003d7b30 return delay slot. */
 #pragma schedule on
 // FUN_003D7B30
-u32 func_003d7b30(u32 value)
+u32 _rpUVAnimCustomDataStreamGetSize(u32 value)
 {
     return 0x40;
 }

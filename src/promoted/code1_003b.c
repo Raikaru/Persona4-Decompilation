@@ -1441,20 +1441,6 @@ do2:
 /* measured: close schedule around func_003bd470. */
 #pragma schedule off
 #pragma no_branch_likely off
-/* measured: all three of func_003bd4f0/003bd610/003be8a0 share one spelling (two func_003df240 calls + movz ternary, only the 0x6C/0x7C offset differs) and one overshoot: without schedule the two jal delays and the b delay are nops (+3) and the b210 movz expands to beqz/b/move (+3) for 34 vs 28. pragma_sweep 29 -> 12 with schedule on (O3 ties at 12 but changes the file baseline, so the local pragma is honest); no address hack and no if/else-for-switch present. With schedule the body is 26/26 after trailing-nop trim, inside the gate; residual is the lw-before-sd prologue wall and b210 movz->beql/bnel (retail has no branch-likely, plain b210 cannot emit movz - the b119 nd5 does not reproduce under b210). Banked as floor. */
-#pragma schedule on
-// FUN_003BD4F0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003bd4f0(s32 arg0, s32 arg1, u8 *arg2) {
-    if (func_003df240(arg0, (s32)(*(u8 **)(arg2 + 0x6C) + 0x2C), 4) == 0) {
-        return 0;
-    }
-    return func_003df240(arg0, (s32)(*(u8 **)(arg2 + 0x6C) + 0x30), 4) ? arg0 : 0;
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd4f0);
-#endif
-#pragma schedule off
 
 /* measured: schedule on is required for func_003bd560's return delay slot. */
 #pragma schedule on
@@ -1521,20 +1507,6 @@ do2:
 /* measured: schedule off closes func_003bd590 before the archived ASM sibling. */
 #pragma schedule off
 
-/* measured: twin of func_003bd4f0 (0x7C offset variant of the same two-call + movz spelling); same schedule-on fix, 34 vs 28 -> 26/26 inside the gate, 29 -> 12 differing words. See func_003bd4f0 note for the shared cause and residual. Banked as floor. */
-#pragma schedule on
-// FUN_003BD610 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003bd610(s32 arg0, s32 arg1, u8 *arg2) {
-    if (func_003df240(arg0, (s32)(*(u8 **)(arg2 + 0x7C) + 0x2C), 4) == 0) {
-        return 0;
-    }
-    return func_003df240(arg0, (s32)(*(u8 **)(arg2 + 0x7C) + 0x30), 4) ? arg0 : 0;
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd610);
-#endif
-#pragma schedule off
 
 /* measured: schedule on opens func_003bd680's independent probe. */
 #pragma schedule on
@@ -1651,20 +1623,6 @@ do2:
 /* measured: schedule off closes func_003be820 before the archived ASM sibling. */
 #pragma schedule off
 
-/* measured: twin of func_003bd4f0 (0x6C offset, same two-call + movz spelling as 003bd4f0/003bd610); same schedule-on fix, 34 vs 28 -> 26/26 inside the gate, 29 -> 12 differing words. See func_003bd4f0 note for the shared cause and residual. Banked as floor. */
-#pragma schedule on
-// FUN_003BE8A0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003be8a0(s32 arg0, s32 arg1, u8 *arg2) {
-    if (func_003df240(arg0, (s32)(*(u8 **)(arg2 + 0x6C) + 0x2C), 4) == 0) {
-        return 0;
-    }
-    return func_003df240(arg0, (s32)(*(u8 **)(arg2 + 0x6C) + 0x30), 4) ? arg0 : 0;
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be8a0);
-#endif
-#pragma schedule off
 
 /* measured: schedule on opens func_003be910's independent probe. */
 #pragma schedule on

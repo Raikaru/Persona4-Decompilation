@@ -162,8 +162,20 @@ void ADXPD_Destroy(ADXPD pd)
 }
 
 // Reads the scale key state (running key, multiplier, adder) for a snapshot.
-// FUN_004D89B0
+// FUN_004C3E20
 void ADXPD_GetExtPrm(ADXPD pd, Sint16 *e1, Sint16 *e2, Sint16 *e3)
+{
+	/* retail lhu 0xA0/0xA2/0xA4, not ADXPD_OBJ.ext1 (0x34); local view keeps
+	   Destroy/Create (exact with sizeof 0x3C) and Init (other agent) untouched. */
+	typedef struct { Uint8 pad[0xA0]; Sint16 f1; Sint16 f2; Sint16 f3; } ExtView;
+	*e1 = ((ExtView *)pd)->f1;
+	*e2 = ((ExtView *)pd)->f2;
+	*e3 = ((ExtView *)pd)->f3;
+}
+
+// ADXPD state accessor for the second linked ADX library instance.
+// FUN_004D89B0
+void func_004d89b0(ADXPD pd, Sint16 *e1, Sint16 *e2, Sint16 *e3)
 {
 	*e1 = pd->ext1;
 	*e2 = pd->ext2;
@@ -173,9 +185,11 @@ void ADXPD_GetExtPrm(ADXPD pd, Sint16 *e1, Sint16 *e2, Sint16 *e3)
 // Sets the scale key state (from the header's version-dependent key, or a restored snapshot).
 void ADXPD_SetExtPrm(ADXPD pd, Sint16 e1, Sint16 e2, Sint16 e3)
 {
-	pd->ext1 = e1;
-	pd->ext2 = e2;
-	pd->ext3 = e3;
+	/* retail sh 0xA0/0xA2/0xA4, not ADXPD_OBJ.ext1 (0x34); see GetExtPrm. */
+	typedef struct { Uint8 pad[0xA0]; Sint16 f1; Sint16 f2; Sint16 f3; } ExtView;
+	((ExtView *)pd)->f1 = e1;
+	((ExtView *)pd)->f2 = e2;
+	((ExtView *)pd)->f3 = e3;
 }
 
 // Reads the two-sample prediction history of both channels (d0 = sample -1, d1 = sample -2).

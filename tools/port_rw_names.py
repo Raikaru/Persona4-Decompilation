@@ -54,7 +54,6 @@ from __future__ import annotations
 import argparse
 import json
 import collections
-import importlib.util
 import re
 import sys
 from pathlib import Path
@@ -63,10 +62,7 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "tools"))
 import verify as V  # noqa: E402
 
-SPEC = importlib.util.spec_from_file_location("p4_rwref_fid", REPO / "build" / "rwref_fid.py")
-assert SPEC is not None and SPEC.loader is not None
-fid = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(fid)
+from rw_reference import ReferenceElf, words  # noqa: E402
 
 OUTPUT = REPO / "config" / "symbol_names.vendor.txt"
 IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
@@ -265,7 +261,7 @@ def exact_claims(references: dict[str, Path], retail, windows):
         data = retail.bytes_at(int(text, 16), size)
         if data is None:
             continue
-        raw = fid.words(data)
+        raw = words(data)
         relocs = _reloc_words(raw, spans)
         by_size.setdefault(size, []).append(
             (int(text, 16), raw, relocs,
@@ -282,12 +278,12 @@ def exact_claims(references: dict[str, Path], retail, windows):
         # One read per reference, not one per function: a 48 MB image read
         # 20k times is a terabyte of pointless page-cache traffic.
         ref_spans = _elf_spans(path)
-        for name, _addr, body in fid.ReferenceElf(path).functions:
+        for name, _addr, body in ReferenceElf(path).functions:
             if len(body) < 16 or not IDENTIFIER.match(name):
                 continue
             if not vendor_family(name, authored, _addr):
                 continue
-            raw_ref = fid.words(body)
+            raw_ref = words(body)
             ref_relocs = _reloc_words(raw_ref, ref_spans)
             theirs = [_relaxed(word) if index in ref_relocs else word
                       for index, word in enumerate(raw_ref)]

@@ -33,13 +33,13 @@ extern Sint32 ADXPD_EntryPl2(ADXPD pd, void *in, Sint32 nblk, Sint16 *out0, Sint
 extern Sint32 ADXPD_EntrySte(ADXPD pd, void *in, Sint32 nblk, Sint16 *out0, Sint16 *out1);
 extern Sint32 ADXPD_EntryMono(ADXPD pd, void *in, Sint32 nblk, Sint16 *out0, Sint16 *out1);
 extern void ADXPD_Destroy(ADXPD pd);
-extern void ADXPD_GetExtPrm(ADXPD pd, Sint16 *e1, Sint16 *e2, Sint16 *e3);
+extern void func_004d89b0(ADXPD pd, Sint16 *e1, Sint16 *e2, Sint16 *e3);
 extern void ADXPD_SetExtPrm(ADXPD pd, Sint16 e1, Sint16 e2, Sint16 e3);
 extern void ADXPD_GetDly(ADXPD pd, Sint16 *d0, Sint16 *d1);
 extern void ADXPD_SetDly(ADXPD pd, Sint16 *d0, Sint16 *d1);
 extern void ADXPD_SetCoef(ADXPD pd, Sint32 sfreq, Sint32 cutoff);
 extern ADXPD ADXPD_Create(void);
-extern void ADXPD_Init(void);
+extern void func_004d8830(void);
 extern Sint32 ADX_DecodeInfo(Uint8 *data, Sint32 len, Sint16 *hdrlen, Sint8 *fmt, Sint8 *bps, Sint8 *blksiz,
                              Sint8 *nch, Sint32 *sfreq, Sint32 *nsmpl, Sint32 *blksmpl);
 extern Sint32 ADX_DecodeInfoExVer(Uint8 *data, Sint32 len, Uint8 *major, Uint8 *minor);
@@ -640,7 +640,7 @@ void ADXB_RestoreSnapshot(ADXB adxb)
 void ADXB_TakeSnapshot(ADXB adxb)
 {
 	ADXPD_GetDly(adxb->pd, adxb->dly[0], adxb->dly[1]);
-	ADXPD_GetExtPrm(adxb->pd, &adxb->extprm[0], &adxb->extprm[1], &adxb->extprm[2]);
+	func_004d89b0(adxb->pd, &adxb->extprm[0], &adxb->extprm[1], &adxb->extprm[2]);
 }
 
 // Default pan of channel `ch` from the AINF header chunk (-128 = none), as ADXT applies at start.
@@ -1025,7 +1025,7 @@ Sint16 *adxb_DefGetWr(void *obj, Sint32 *pos, Sint32 *nsmpl, Sint32 *x70)
 // FUN_004C3460
 void ADXB_Init(void)
 {
-	ADXPD_Init();
+	func_004d8830();
 	SKG_Init();
 	memset(adxb_obj, 0, sizeof(adxb_obj));
 }

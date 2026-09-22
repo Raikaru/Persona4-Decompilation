@@ -480,105 +480,6 @@ extern u8 *func_003e2650(u8 *arg0, s32 arg1, u32 arg2); /* P4: ported verbatim i
 #pragma schedule off
 #pragma no_branch_likely off
 
-/* measured: schedule on fills the jr delay slot and the alignment nop after
-   the filled back-edge, and no_branch_likely on preserves the plain beq/bne
-   shape for the linked-list search. */
-// FUN_003E3110 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: this body was raw m2c output and had NOT COMPILED since it was
-   written: its K&R scaffolding externs `s32 func_003df590();` and
-   `M2C_UNK func_003df4d0();` contradict the real prototypes at lines 57-58
-   ("identifier redeclared, was declared as int (int, ...), now declared as
-   int (...)"), so the floor produced no object and no score at all.  Nothing
-   noticed because a guarded body is never compiled by tools/build.py and
-   gate_audit.py only counted it.  Dropped the duplicate K&R rows, dropped the
-   fourteen unused m2c typedefs and macros (only M2C_FIELD is used, 11 times),
-   and gave the three externs that ARE only used here real parameter lists
-   taken from their call sites, so no implicit conversion is introduced.
-   Now measurable and the count is already EXACT: retail 118 instrs vs object
-   118, 96 edits, 100 differing words.  A live floor, not a dead one. */
-#define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
-extern s32 func_003deea0(s32, s32 *, s32 *, s32, s32);
-extern s32 func_003df050(s32, s32, s32 *, u32 *);
-extern s32 func_003e2ce0(s32, s32);
-u8 *func_003e3110(u8 *arg0, s32 arg1, s32 arg2) {
-    s32 sp5C;
-    u32 sp58;
-    s32 sp54;
-    s32 sp50;
-    s32 sp4C;
-    s32 sp48;
-    s32 (*temp_2)(s32, s32, s32, s32, s32);
-    s32 (*temp_2_3)(s32, s32, s32);
-    s32 temp_2_2;
-    u8 *var_17;
-    u8 *var_8;
-
-    if (func_003df050(arg1, 3, &sp5C, &sp58) != 0) {
-        if ((sp58 >= 0x35000U) && (sp58 < 0x37003U)) {
-            if (sp5C == 0) {
-                goto block_4;
-            }
-loop_9:
-            if (func_003deea0(arg1, &sp54, &sp50, 0, 0) == 0) {
-                goto block_27;
-            }
-            var_8 = (u8 *)(M2C_FIELD(arg0, u8 **, 0x10));
-            if (var_8 != NULL) {
-loop_13:
-                if (M2C_FIELD(var_8, s32 *, 8) != sp54) {
-                    var_8 = (u8 *)(M2C_FIELD(var_8, u8 **, 0x30));
-                    if (var_8 != NULL) {
-                        goto loop_13;
-                    }
-                }
-            }
-            if (var_8 != NULL) {
-                temp_2 = (s32 (*)(s32, s32, s32, s32, s32))(M2C_FIELD(var_8, s32 (**)(s32, s32, s32, s32, s32), 0xC));
-                if (temp_2 != NULL) {
-                    if (temp_2(arg1, sp50, arg2, M2C_FIELD(var_8, s32 *, 0), M2C_FIELD(var_8, s32 *, 4)) == 0) {
-                        goto block_27;
-                    }
-                    goto block_19;
-                }
-            }
-            if (func_003e2ce0(arg1, sp50) == 0) {
-                goto block_27;
-            }
-block_19:
-            temp_2_2 = sp5C - (sp50 + 0xC);
-            sp5C = temp_2_2;
-            if (temp_2_2 == 0) {
-block_4:
-                var_17 = (u8 *)(M2C_FIELD(arg0, u8 **, 0x10));
-                if (var_17 != NULL) {
-loop_5:
-                    temp_2_3 = (s32 (*)(s32, s32, s32))(M2C_FIELD(var_17, s32 (**)(s32, s32, s32), 0x18));
-                    if ((temp_2_3 != NULL) && (temp_2_3(arg2, M2C_FIELD(var_17, s32 *, 0), M2C_FIELD(var_17, s32 *, 4)) == 0)) {
-                        goto block_27;
-                    }
-                    var_17 = (u8 *)(M2C_FIELD(var_17, u8 **, 0x30));
-                    if (var_17 == NULL) {
-                        goto block_25;
-                    }
-                    goto loop_5;
-                }
-block_25:
-                return (u8 *)(arg0);
-            }
-            goto loop_9;
-        }
-        sp48 = 1;
-        sp4C = func_003df590(0x80000004);
-        func_003df4d0(&sp48);
-        goto block_27;
-    }
-block_27:
-    return NULL;
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3110);
-#endif
 
 // FUN_003E3630
 /* measured: schedule bracket retained for func_003e3630. */
@@ -820,15 +721,6 @@ extern s32 func_003e4ad0(char *arg0); /* P4: ported verbatim into src/renderware
 /* measured: closes the function pragma bracket. */
 #pragma schedule off
 
-/* measured: schedule on + no_branch_likely on are load-bearing for this body
-   (nd 76 without them) - they place result=0 in the beqz  delay slot and
-   keep the arg0[1]==0x3A test's xori/sltiu out of a branch-likely. */
-
-// FUN_003E4BE0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4be0);
-
-// FUN_003E4D80
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4d80);
 
 // FUN_003E50A0
 /* measured: schedule/no_branch_likely bracket retained for func_003e50a0. */

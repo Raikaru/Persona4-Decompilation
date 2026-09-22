@@ -94,13 +94,16 @@ Sint8 *MPV_BsearchDelim(Sint8 *p, Sint32 n, Sint32 mask)
 // Start-code class of the 4 bytes at ptr: 0x04 picture (0x00), 0x03 first slice (0x01), 0x01 other
 // slices (0x02..0xAF), 0x20 user data (0xB2), 0x40 sequence header (0xB3), 0x10 extension (0xB5),
 // 0x80 sequence end (0xB7), 0x08 GOP (0xB8); 0 for anything else (the SFMPV_DLM_* masks).
+// FUN_00503C58
 Sint32 MPV_CheckDelim(void *ptr)
 {
 	Uint8 *p = ptr;
 	Sint32 code;
 	Sint32 ret;
 
-	code = (p[0] << 8) | p[1];
+	code = p[0];
+	code <<= 8;
+	code |= p[1];
 	code <<= 8;
 	code |= p[2];
 	code <<= 8;
