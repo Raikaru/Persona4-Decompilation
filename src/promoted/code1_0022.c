@@ -901,64 +901,15 @@ s32 func_002240b0(void)
 
 
 
-/* Camera-pose floor (880B window). First probe nd 123 (frame/prologue
-   verified); structure and callee conventions per archived notes. Open:
-   s-reg rotation (s1/s2/s5) and scheduler ordering. See P022 doc. */
-/* Floor: 118 differing words (was 123) and, with the scoped
-   `opt_propagation off` this body carries, an instruction-level alignment
-   reports 218 against retail's 218 with no inserts or deletes: the residual
-   is the $s1/$s5 pair plus one boolean materialisation.  The declaration
-   order below is the best of 150 measured permutations. */
-// FUN_002240E0 NONMATCHING
-#ifdef NON_MATCHING
 #pragma push
 #pragma opt_propagation off
-/* Complete ordinary-C source; production remains ASM.
- * classification=SOURCE_SHAPE_NONMATCH; object_size=872; window=880;
- * normalized_diff=344; fully_resolved_code_relocations=34;
- * unmasked_overlap_byte_diff=413;
- * differing_executable_words_including_uncovered=135;
- * retail_executable_bytes=876; missing_executable_bytes=4;
- * unresolved_relocations=0; window_overrun=0; no jump table.
- * Final four retail bytes are zero alignment. Measured in the current
- * production owner after the 002258b0 and 0022d200 promotions.
- * Previous retained source: 872 bytes, 414 unmasked differing bytes,
- * 136 differing executable words including the uncovered instruction.
- *
- * One camera pointer is the complete ABI. Matched caller func_00227e40
- * forwards it at retail 0x227EE4 and 0x227F08. All saved GPRs are defined
- * locally; no missing live-in or unwritten pose component was found.
- * Source/destination poses are seven floats each (pair size 0x38).
- * func_001bd560 writes the complete first pose; func_001bd780 writes the
- * destination quaternion, and the explicit float snapshot supplies XYZ.
- * The normal preset record contains six floats: eye[3], lookAt[3].
- *
- * Absolute special-vector objects are at 0x634870 and 0x63487C. Scalar
- * aliases at 0x634874/0x634878 use the existing unsized-array declaration
- * convention, not small-data scalar declarations that emit out-of-range
- * GP loads. Duration fGpffff80e8 is at 0x7611D8 (word 0x3F666666).
- * Both status accumulators are presence flags; traversal does not stop
- * after either flag becomes true. The canonical datCalcChkBadStatus is
- * used, rather than the owner's old generic func_00232710 declaration.
- *
- * Remaining differences: saved-register assignment, conditional narrowing
- * and instruction selection. Scoped walks, inline selection, reordered
- * declarations, explicit mask/selection separation, optimization level 1,
- * common-subexpression/propagation/conditional-rebuilding controls did not
- * produce a match. Diagnostic helpers and permutations are not retained.
- * No fixed registers, inline assembly, padding fields, invented arguments
- * or undefined reads were introduced. No native/game execution is claimed.
- * Rechecked after the halfword transition API repair: the complete baseline
- * still gives 872 bytes / 344 normalized differences. Word-sized variant
- * and party selectors give 868 bytes / 343 differences, omitting eight
- * executable bytes instead of four. Current propagation-off and explicit
- * selection temporaries do not close the missing narrowing or register
- * allocation differences. The complete baseline below remains preferred.
- * Fresh CSE-off recheck: 880/880 bytes but 371 normalized differences.
- * It adds two unit-pointer reloads while still missing the conditional
- * narrowing. Explicit unit snapshots return to 872/344; additionally
- * staging selection with propagation off gives 872/346. No new floor.
- * Additional declarations assume the live owner's existing types/providers.
+/* Select the encounter camera's eye/focus preset from the actor's party
+ * ordinal and the roster's highest-priority status. Preserve both complete
+ * position/quaternion poses across the immediate/interpolated transition.
+ * The presence predicate returns a signed halfword before conversion to the
+ * unsigned preset index; this retains both retail narrowing operations.
+ * Scoped propagation and distinct selector lifetimes reproduce native b210
+ * O2: 876/880 bytes, 34 fully resolved relocations, four zero tail bytes.
  */
 extern s32 func_00243d80(u8 *unitData);
 extern s32 func_00243e30(u16 *unitData);
@@ -969,6 +920,12 @@ extern f32 D_00634874[];
 extern f32 D_00634878[];
 extern u8 D_0063487C[];
 
+static inline s16 btlCameraPresetPresence(s32 present)
+{
+    return present != 0;
+}
+
+// FUN_002240E0
 void func_002240e0(u8 *camera)
 {
     struct CameraPosePair {
@@ -980,18 +937,18 @@ void func_002240e0(u8 *camera)
     f32 z;
     u8 *enemy;
     s32 reset;
-    u16 partyIndex;
+    s32 hasStatus;
     s32 hasPriorityStatus;
     u8 *unit;
-    u8 *ally;
     u16 variant;
+    u8 *ally;
     f32 x;
     f32 y;
-    u8 *record;
+    struct EyeFocus { RwV3d eye; RwV3d focus; } *record;
     u8 *partyMember;
     u16 previousState;
     u32 ordinal;
-    s32 hasStatus;
+    u16 partyIndex;
 
     previousState = *(u16 *)(iGpffffb3ac + 0x108);
     switch (previousState) {
@@ -1040,7 +997,7 @@ void func_002240e0(u8 *camera)
         }
         enemy = *(u8 **)(enemy + 0xA6C);
     }
-    variant = hasPriorityStatus != 0 ? 2 : (u16)(hasStatus != 0);
+    variant = hasPriorityStatus != 0 ? 2 : (u16)btlCameraPresetPresence(hasStatus);
     if (func_001ef9a0() == 0x208 && (u16)variant == 0) {
         ally = *(u8 **)(iGpffffb3ac + 0x178);
         while (ally != NULL) {
@@ -1055,15 +1012,10 @@ void func_002240e0(u8 *camera)
     }
     func_001bd560((f32 *)&poses.first, (f32 *)(camera + 0x9C));
     if (func_001ef9a0() != 0x215) {
-        record = *(u8 **)(iGpffffb3ac + 0xB98) +
-                 (u16)partyIndex * 0x48 + (u16)variant * 0x18;
-        func_001bd780(&poses.secondRotation, record, record + 0xC, D_0060A0E0);
-        x = *(f32 *)record;
-        y = *(f32 *)(record + 4);
-        z = *(f32 *)(record + 8);
-        poses.second.x = x;
-        poses.second.y = y;
-        poses.second.z = z;
+        record = (struct EyeFocus *)(*(u8 **)(iGpffffb3ac + 0xB98) +
+                 (u16)partyIndex * 0x48 + (u16)variant * 0x18);
+        func_001bd780(&poses.secondRotation, &record->eye, &record->focus, D_0060A0E0);
+        poses.second = record->eye;
     } else {
         func_001bd780(&poses.secondRotation, D_00634870, D_0063487C, D_0060A0E0);
         x = *(f32 *)D_00634870;
@@ -1083,9 +1035,6 @@ void func_002240e0(u8 *camera)
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002240e0);
-#endif
 /* measured: MWCC -O2 plain, object 1312B/window 1312B, normalized_diff 38 (m2c baseline 1308B/756). Levers: (1) var_19>=1 756->62; (3) Vec3 0x215 tail 62->46, var_4/var_5_2 decl swap 46->38; (2) explicit chain regress, dead store 0; (4) opt_loop_invariants 0; (5) s64+full pragmas catastrophic, plain s64 regress; (6) unsigned/<1U/u16/split fold. Remaining 32 words s0/s1 swap + slti-vs-sltu/xori-vs-andi + daddiu. No volatile/asm. Preserves defective 22466C->224888 vs safe 22482C->return. Pushed from NearGA.Push24450 /tmp/push_24450_full.c. */
 /* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/code1_0022.c func_00224450 --pairs` banked 32 (note above still says 38: drifted, re-measured); best ties 32 (opt_loop_invariants on, opt_strength_reduction off, opt_unroll_loops off and three pairwise combos); all 28 pairs neutral or worse (dead 174, commons+prop 246, schedule 276-296, commons 293-295, peephole 292-308, propagation 296-308). fnalign retail/object 328/328 per assignment. Floor stands; production stays ASM. */
 /* 2026-09-18, handoff 7o re-probe; floor stands at 32.  The pair is the

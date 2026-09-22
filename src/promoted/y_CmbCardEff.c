@@ -68,34 +68,30 @@ typedef struct {
     } storage;
 } Cmb43Work;
 typedef struct {
-    FclBoundsPacket v80;
-    FclBoundsPacket v90;
-    FclBoundsPacket vA0;
-    FclBoundsPacket vB0;
-    FclBoundsPacket vC0;
-    FclBoundsPacket vD0;
-    FclBoundsPacket vE0;
-    FclBoundsPacket vF0;
-    FclBoundsPacket v100;
-    FclBoundsPacket v110;
-    FclBoundsPacket v120;
-    FclPackedPosition s130;
-    FclPackedPosition s138;
-    FclPackedPosition s140;
-    FclPackedPosition s148;
-    FclPackedPosition s150;
-    FclPackedPosition s158;
-    FclPackedPosition s160;
-    FclPackedPosition s168;
-    FclPackedPosition s170;
-    FclPackedPosition s178;
-    FclPackedPosition s180;
-    FclPackedPosition s188;
-    u32 pad190;
-    FclDrawColor c194;
-    FclDrawColor c198;
-    FclDrawColor c19C;
-} Cmb48Work;
+    FclBoundsPacket fifthEndBounds;
+    FclBoundsPacket fifthStartBounds;
+    FclBoundsPacket fourthEndBounds;
+    FclBoundsPacket fourthStartBounds;
+    FclBoundsPacket thirdEndBounds;
+    FclBoundsPacket thirdStartBounds;
+    FclBoundsPacket secondEndBounds;
+    FclBoundsPacket secondStartBounds;
+    FclBoundsPacket firstEndBounds;
+    FclBoundsPacket firstStartBounds;
+    FclBoundsPacket initialBounds;
+    FclPackedPosition fifthEndPosition;
+    FclPackedPosition fifthStartPosition;
+    FclPackedPosition fourthEndPosition;
+    FclPackedPosition fourthStartPosition;
+    FclPackedPosition thirdEndPosition;
+    FclPackedPosition thirdStartPosition;
+    FclPackedPosition secondEndPosition;
+    FclPackedPosition secondStartPosition;
+    FclPackedPosition firstEndPosition;
+    FclPackedPosition firstStartPosition;
+    FclPackedPosition initialPosition;
+    FclPackedPosition spawnPosition;
+} CmbFiveSpriteSetup;
 
 static inline u8 *cmbAddPtrRev(u32 base, u32 index) { return (u8 *)(index + base); }
 
@@ -123,7 +119,10 @@ void func_003489c0(u8 *arg0, CmbVec3f *src, f32 f0, f32 f1, f32 f2, f32 f3, CmbR
 void func_00348a90(u8 *arg0, CmbVec3f *src1, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f *src2, CmbRGBA arg6, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5, f32 f6, f32 f7);
 s32 *func_00331620(void);
 void func_003f6440(u32 arg0, u32 arg1);
-void func_003dc740(void *arg0, void *arg1, u32 arg2);
+struct RtQuat;
+struct RwV3d;
+struct RtQuat *func_003dc740(struct RtQuat *rotation, const struct RwV3d *axis,
+                           f32 angle, s32 mode);
 void func_0036de20(void *arg0, void *arg1);
 void func_0036dd10(void *arg0, void *arg1, f32 arg2);
 s32 func_00285b30(void);
@@ -157,8 +156,8 @@ extern u8 D_005DC7D0[];
 
 
 
-void func_002b6130(s32, s32);
-void func_002b5e20(s32, f32);
+void func_002b6130(u8 *, u32);
+void func_002b5e20(u8 *, f32);
 
 
 
@@ -298,7 +297,6 @@ s32 func_0033e810(u8 *arg0) {
     void func_0036de20(void *, void *);
     void func_0036de40(void *, void *);
     void func_0036df90(void *, void *);
-    void func_003dc740(void *, void *, u32, f32);
     extern s64 D_0064A4C8;
     extern f32 D_0064A4D0;
     extern u8 D_00794E70[];
@@ -343,7 +341,7 @@ s32 func_0033e810(u8 *arg0) {
             *(f32 *)(obj + (s32)i * 0x84 + 0x8C) = 1.0f;
             st64 = D_0064A4C8;
             stf = D_0064A4D0;
-            func_003dc740(buf, &st64, 0, 180.0f);
+            func_003dc740((struct RtQuat *)buf, (const struct RwV3d *)&st64, 180.0f, 0);
             func_0036de20(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + (s32)(s8)i * 0xFB0 + 0xE398, buf);
         }
         *(s16 *)(obj + 0x63C) = 0;
@@ -528,13 +526,18 @@ void *func_0033fa20(u8 *arg0) {
     return *(void **)(arg0 + 0x38);
 }
 
+/* The angle arrives in the independent floating-point argument register and
+ * is forwarded to the quaternion constructor before the draw scale is formed.
+ * The task callback caller supplies zero or its current animation angle.
+ * Native b210 -O2 remains 224/224 bytes; contract and controlled-provider proof:
+ * docs/probe_archive/yCmb_angle_forwarding_20260922.md. */
 // FUN_0033FA30
 #pragma push
 /* measured: opt_propagation off keeps &sp40 in $a1 before the D_0064A5A0/D_0064A5A8
    staging loads and the p84 multiply below the arg0 chain (the "scheduler-CSE floor"
    above was propagation, not scheduling). */
 #pragma opt_propagation off
-void func_0033fa30(u8 *arg0, s8 arg1) {
+void func_0033fa30(u8 *arg0, s8 arg1, f32 angle) {
     struct { f32 sp30[4]; s64 sp40; f32 sp48; } sp;
     s64 txy;
     f32 tz;
@@ -551,7 +554,7 @@ void func_0033fa30(u8 *arg0, s8 arg1) {
     tz = *(f32 *)&D_0064A5A0[1];
     sp.sp40 = txy;
     sp.sp48 = tz;
-    func_003dc740(&sp.sp30, p40, 0);
+    func_003dc740((struct RtQuat *)&sp.sp30, (const struct RwV3d *)p40, angle, 0);
     table = *(u8 **)(*(u8 **)(obj + 4) + 0x38);
     if ((s8)*table == 4) {
         pFB0 = table + (s32)arg1 * 0xFB0;
@@ -3802,107 +3805,115 @@ void func_00348c30(u8 *arg0, u16 arg1) {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x3E) = arg1;
 }
 
-/* measured: banked reconstruction (switch 0,1 + Cmb48Work struct with V16+pad) matches retail calls/constants; frame now 0x1A0 via 11xV16 (0x80-0x12F) +12xs64 (0x130-0x18F)+pad+3xu32 (0x194-0x19C), fixing prior 0x150 coalescing claim. fnalign retail 389/object 386, 56 edits: register-color (obj s3 vs s1, idx s0 vs s4, slot s2 vs s0, scaled s1 vs s5, colors s5/s4 vs s3/s2) + tail return branchless (xori/sltiu/negu vs bne/addiu -1) + displacements. Tried: if-1-first vs switch-0,1 (switch gives retail beq-1/beqz-0), scalar s64 vs struct (struct fixes frame), pad190 fixes color offsets, decl-order flips (no move), s16->s32 return fixes dsll32/dsra32. Floor: register allocation + -1/0 materialization. */
-// FUN_00348C40 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00348c40(u8 *arg0) {
-    s32 i;
-    s32 base;
-    s32 r;
-    s32 g;
-    s32 b;
-    u8 *slot;
-    u8 *obj;
-    Cmb48Work work;
-    /* --- state dispatch: retail beq-1/beqz-0, ascending 0,1 switch gives it --- */
-    obj = *(u8 **)(arg0 + 0x38);
-    switch (*(s8 *)(obj + 1)) {
+/* Build the channel gradient in its own value scope. This genuine inline
+ * color constructor preserves the channel/base lifetimes without sharing the
+ * controller's handle and index temporaries. */
+static inline FclDrawColor cmbFiveSpriteColor(s32 base)
+{
+    s32 red;
+    s32 green;
+    s32 blue;
+    red = func_002b2cb0(base, 10, 0xFF, 0, 1) & 0xFF;
+    green = func_002b2cb0(base + 0x37, 10, 0xFF, 0, 1) & 0xFF;
+    blue = func_002b2cb0(base + 0xF2, 10, 0xFF, 0, 1) & 0xFF;
+    return func_002b2a60(red, green, blue, 0xFF);
+}
+
+/* Create five colored sprites and configure their bounds animations. The
+ * final sprite's completion state controls this task's -1 completion return.
+ * Native b210 -O2: 1560/1568 bytes plus eight verified zero alignment bytes.
+ * Full source, contract and sibling proof:
+ * docs/probe_archive/yCmb_angle_forwarding_20260922.md. */
+// FUN_00348C40
+#pragma push
+s32 func_00348c40(u8 *task) {
+    s32 index;
+    u8 *handleSlot;
+    u8 *updatedHandleSlot;
+    u8 *work;
+    CmbFiveSpriteSetup setup;
+    FclDrawColor gradientColor;
+    FclDrawColor lastGradientColor;
+    FclDrawColor solidColor;
+    /* Initialize once, then wait for the fifth sprite to finish. */
+    work = *(u8 **)(task + 0x38);
+    switch (*(s8 *)(work + 1)) {
     case 0:
-        /* --- init loop: 5 handles (offsets 4,8,C,10,14) --- */
-        i = 0;
-        while (i < 5) {
+        /* The task work owns five consecutive sprite handles. */
+        index = 0;
+        while (index < 5) {
             /* handle create: 465,0 -> 5c90 */
-            slot = obj + i * 4 + 4;
-            func_002b2970((u8 *)(&work.s188.bits), 0x1D1, 0.0f);
-            *(s32 *)slot = func_002b5c90((s32)arg0, work.s188.position);
+            handleSlot = work + index * 4 + 4;
+            func_002b2970((u8 *)(&setup.spawnPosition.bits), 0x1D1, 0.0f);
+            *(s32 *)handleSlot = func_002b5c90((s32)task, setup.spawnPosition.position);
             /* vec: 9.0,480.0 -> 5db0 */
-            func_002b2970((u8 *)(&work.s180.bits), 0x1D1, 0.0f);
-            func_002b29e0((u8 *)(&work.v120), 9.0f, 480.0f);
-            func_002b5db0((u8 *)*(s32 *)slot, work.s180.position, &work.v120);
-            /* color conditional: byte0==1 uses (i+2)*10 else gray */
-            if (*(s8 *)obj == 1) {
-                base = (i + 2) * 10;
-                r = func_002b2cb0(base, 10, 0xFF, 0, 1) & 0xFF;
-                g = func_002b2cb0(base + 0x37, 10, 0xFF, 0, 1) & 0xFF;
-                b = func_002b2cb0(base + 0xF2, 10, 0xFF, 0, 1) & 0xFF;
-                fclWriteColorBytes(&work.c19C, r, g, b, 0xFF);
-                func_002b5e30((u8 *)*(s32 *)slot, work.c19C);
-                if (i == 4) {
-                    base = (i + 1) * 10;
-                    r = func_002b2cb0(base, 10, 0xFF, 0, 1) & 0xFF;
-                    g = func_002b2cb0(base + 0x37, 10, 0xFF, 0, 1) & 0xFF;
-                    b = func_002b2cb0(base + 0xF2, 10, 0xFF, 0, 1) & 0xFF;
-                    fclWriteColorBytes(&work.c198, r, g, b, 0xFF);
-                    func_002b5e30((u8 *)*(s32 *)slot, work.c198);
+            func_002b2970((u8 *)(&setup.initialPosition.bits), 0x1D1, 0.0f);
+            func_002b29e0((u8 *)(&setup.initialBounds), 9.0f, 480.0f);
+            func_002b5db0((u8 *)*(s32 *)handleSlot, setup.initialPosition.position, &setup.initialBounds);
+            /* Mode one uses a gradient; other modes use solid blue. */
+            if (*(s8 *)work == 1) {
+                gradientColor = cmbFiveSpriteColor((index + 2) * 10);
+                func_002b5e30((u8 *)*(s32 *)handleSlot, gradientColor);
+                if (index == 4) {
+                    lastGradientColor = cmbFiveSpriteColor((index + 1) * 10);
+                    func_002b5e30((u8 *)*(s32 *)handleSlot, lastGradientColor);
                 }
             } else {
-                fclWriteColorBytes(&work.c194, 0, 0x37, 0xF2, 0xFF);
-                func_002b5e30((u8 *)*(s32 *)slot, work.c194);
+                solidColor = func_002b2a60(0, 0x37, 0xF2, 0xFF);
+                func_002b5e30((u8 *)*(s32 *)handleSlot, solidColor);
             }
-            /* per-iteration tail: 0xBB + 50.0f */
-            slot = obj + i * 4 + 4;
-            func_002b6130(*(s32 *)slot, 0xBB);
-            func_002b5e20(*(s32 *)slot, 50.0f);
-            i++;
+            /* Recompute the handle slot for flags and draw depth. */
+            updatedHandleSlot = work + (u32)index * 4U + 4;
+            func_002b6130(*(u8 **)updatedHandleSlot, 0xBB);
+            func_002b5e20(*(u8 **)updatedHandleSlot, 50.0f);
+            index++;
         }
         /* --- five post-loop 5fd0 groups --- */
         /* group offset 4: 465,275 + 8,480 + 380,480, last 0 */
-        func_002b2970((u8 *)(&work.s178.bits), 0x1D1, 0.0f);
-        func_002b2970((u8 *)(&work.s170.bits), 0x113, 0.0f);
-        func_002b29e0((u8 *)(&work.v110), 8.0f, 480.0f);
-        func_002b29e0((u8 *)(&work.v100), 380.0f, 480.0f);
-        func_002b5fd0((u8 *)*(s32 *)(obj + 4), work.s178.position, work.s170.position, &work.v110, &work.v100, 0xF, 0);
+        func_002b2970((u8 *)(&setup.firstStartPosition.bits), 0x1D1, 0.0f);
+        func_002b2970((u8 *)(&setup.firstEndPosition.bits), 0x113, 0.0f);
+        func_002b29e0((u8 *)(&setup.firstStartBounds), 8.0f, 480.0f);
+        func_002b29e0((u8 *)(&setup.firstEndBounds), 380.0f, 480.0f);
+        func_002b5fd0((u8 *)*(s32 *)(work + 4), setup.firstStartPosition.position, setup.firstEndPosition.position, &setup.firstStartBounds, &setup.firstEndBounds, 0xF, 0);
         /* group offset 8: same, last 2 */
-        func_002b2970((u8 *)(&work.s168.bits), 0x1D1, 0.0f);
-        func_002b2970((u8 *)(&work.s160.bits), 0x113, 0.0f);
-        func_002b29e0((u8 *)(&work.vF0), 8.0f, 480.0f);
-        func_002b29e0((u8 *)(&work.vE0), 380.0f, 480.0f);
-        func_002b5fd0((u8 *)*(s32 *)(obj + 8), work.s168.position, work.s160.position, &work.vF0, &work.vE0, 0xF, 2);
+        func_002b2970((u8 *)(&setup.secondStartPosition.bits), 0x1D1, 0.0f);
+        func_002b2970((u8 *)(&setup.secondEndPosition.bits), 0x113, 0.0f);
+        func_002b29e0((u8 *)(&setup.secondStartBounds), 8.0f, 480.0f);
+        func_002b29e0((u8 *)(&setup.secondEndBounds), 380.0f, 480.0f);
+        func_002b5fd0((u8 *)*(s32 *)(work + 8), setup.secondStartPosition.position, setup.secondEndPosition.position, &setup.secondStartBounds, &setup.secondEndBounds, 0xF, 2);
         /* group offset C: same, last 9 */
-        func_002b2970((u8 *)(&work.s158.bits), 0x1D1, 0.0f);
-        func_002b2970((u8 *)(&work.s150.bits), 0x113, 0.0f);
-        func_002b29e0((u8 *)(&work.vD0), 8.0f, 480.0f);
-        func_002b29e0((u8 *)(&work.vC0), 380.0f, 480.0f);
-        func_002b5fd0((u8 *)*(s32 *)(obj + 0xC), work.s158.position, work.s150.position, &work.vD0, &work.vC0, 0xF, 9);
+        func_002b2970((u8 *)(&setup.thirdStartPosition.bits), 0x1D1, 0.0f);
+        func_002b2970((u8 *)(&setup.thirdEndPosition.bits), 0x113, 0.0f);
+        func_002b29e0((u8 *)(&setup.thirdStartBounds), 8.0f, 480.0f);
+        func_002b29e0((u8 *)(&setup.thirdEndBounds), 380.0f, 480.0f);
+        func_002b5fd0((u8 *)*(s32 *)(work + 0xC), setup.thirdStartPosition.position, setup.thirdEndPosition.position, &setup.thirdStartBounds, &setup.thirdEndBounds, 0xF, 9);
         /* group offset 0x10: 8,480 + 8,480, last 9 */
-        func_002b2970((u8 *)(&work.s148.bits), 0x1D1, 0.0f);
-        func_002b2970((u8 *)(&work.s140.bits), 0x113, 0.0f);
-        func_002b29e0((u8 *)(&work.vB0), 8.0f, 480.0f);
-        func_002b29e0((u8 *)(&work.vA0), 8.0f, 480.0f);
-        func_002b5fd0((u8 *)*(s32 *)(obj + 0x10), work.s148.position, work.s140.position, &work.vB0, &work.vA0, 0xF, 9);
+        func_002b2970((u8 *)(&setup.fourthStartPosition.bits), 0x1D1, 0.0f);
+        func_002b2970((u8 *)(&setup.fourthEndPosition.bits), 0x113, 0.0f);
+        func_002b29e0((u8 *)(&setup.fourthStartBounds), 8.0f, 480.0f);
+        func_002b29e0((u8 *)(&setup.fourthEndBounds), 8.0f, 480.0f);
+        func_002b5fd0((u8 *)*(s32 *)(work + 0x10), setup.fourthStartPosition.position, setup.fourthEndPosition.position, &setup.fourthStartBounds, &setup.fourthEndBounds, 0xF, 9);
         /* group offset 0x14: 465,655 + 8,480 + 8,480, last 9 */
-        func_002b2970((u8 *)(&work.s138.bits), 0x1D1, 0.0f);
-        func_002b2970((u8 *)(&work.s130.bits), 0x28F, 0.0f);
-        func_002b29e0((u8 *)(&work.v90), 8.0f, 480.0f);
-        func_002b29e0((u8 *)(&work.v80), 8.0f, 480.0f);
-        func_002b5fd0((u8 *)*(s32 *)(obj + 0x14), work.s138.position, work.s130.position, &work.v90, &work.v80, 0xF, 9);
-        *(s8 *)(obj + 1) = 1;
+        func_002b2970((u8 *)(&setup.fifthStartPosition.bits), 0x1D1, 0.0f);
+        func_002b2970((u8 *)(&setup.fifthEndPosition.bits), 0x28F, 0.0f);
+        func_002b29e0((u8 *)(&setup.fifthStartBounds), 8.0f, 480.0f);
+        func_002b29e0((u8 *)(&setup.fifthEndBounds), 8.0f, 480.0f);
+        func_002b5fd0((u8 *)*(s32 *)(work + 0x14), setup.fifthStartPosition.position, setup.fifthEndPosition.position, &setup.fifthStartBounds, &setup.fifthEndBounds, 0xF, 9);
+        *(s8 *)(work + 1) = 1;
         break;
     case 1:
         /* --- state-1 check: 5th handle via 5da0, -1 if byte==1 else 0 --- */
-        if (*(s8 *)func_002b5da0((u8 *)*(s32 *)(obj + 0x14)) != 1) {
-            return 0;
+        if (*(s8 *)func_002b5da0((u8 *)*(s32 *)(work + 0x14)) == 1) {
+            return -1;
         }
-        return -1;
+        break;
     default:
         break;
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_00348c40);
-#endif
 
+#pragma pop
 // FUN_00349260
 void func_00349260(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));

@@ -1159,249 +1159,249 @@ s32 func_0010be20(u8 *arg0)
     return 0;
 }
 
-/* measured: object 1820B/window 1856B/normalized_diff 1426 (443 differing words, live re-measured current tree). */
-/* measured: live 443 words / fnalign 388 edits (463 vs 455 instrs, 8 short, 1820B/1856B within 3%); slti inclusive top-down 15 variants all tie except >=0xC0->>0xBF +1 regress (pid, i>=5 x3, level>=0x64/>=2, dispatch, av+sv<0x63, nv+sv>=0x64, j<5, i<3, out>=0x20 x2, id2 dispatch x2); 8 short is layout-inversion delete 60 at dispatch (shadow inline vs retail out-of-line) so dead-arm N-A (ends assert/loop, no retail slti-at trailing dead compare); sltiu 0 so adjacent-== fold N-A (|| are pid==0||>=0x100 and id<0xC0||>=0xD8); frame 0xD0 vs 0xA0 single-site calls and true u32 param for 00231d70 per btlUnit.c so index-mask N-A; banked floor. */
-/* measured 0010be60: `schedule on` inside the guard is worth 10 words (443 -> 433). */
-/* gate: object 455 against retail 463, -1.7% - INSIDE the +-3% band (dropped */
-/* `schedule on`: 413->455, edits 514->388; words 433->443 is the outside-gate */
-/* artefact noted above, not a regression). */
-/* measured 0010be60 (2026-09-20): braced typ==4/3/2/1 chain with default -> switch by hand (automatic sweep handles only single-line arms); fnalign 388 -> 334 ascending (1/2/3/4, plus 16 reloc-only) vs 396 reverse-source descending 4/3/2/1 (plus 12 reloc-only); ascending wins by 62, descending loses by 8 to the chain; guarded 443 -> 442 words. */
-/* measured 0010be60 (2026-09-20): outer dispatch layout inversion to retail's shape (condition to <0xC0||>=0xD8, triple i<3 loop inline, level>=2 j-loop out-of-line at 0x10C138 as retail 0x10BFCC/0x10C138); fnalign 334 -> 273 (-61, plus 19 reloc-only), guarded 442 -> 436 words; deficit_scan 463 vs 456 (-1.5% INSIDE, was 463 vs 455 -1.7%), retail-only 15 at 0x10C1D4/11 at 0x10C1A4/10 at 0x10C234 (frame-driven stat 0x90 vs 0xC0 offsets + loop-back need block, outer do-while/for probe ties 273 so rotation N-A); banked floor. */
-// FUN_0010BE60 NONMATCHING
-#ifdef NON_MATCHING
+/* Preview level, stat and skill changes without changing the persona.
+ * Ordinary personas attempt three weighted stat gains per level; party
+ * personas use fixed growth rows. Only stats below 99 can grow. Skill
+ * additions/removals cover the newly reached level range.
+ * Native b210 O2: 1856/1856 bytes, 34 resolved relocations, no tail.
+ */
+#pragma push
 #pragma opt_loop_invariants on
-void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2) {
+static inline s32 DPGrowthIsParty(u8 *persona)
+{
+    s32 id = *(u16 *)(persona + 2);
+    if (id >= 0xC0 && id < 0xD8) {
+        return 1;
+    }
+    return 0;
+}
+
+static inline u8 DPGrowthBaseLevel(u16 id)
+{
+    u8 *table = iGpffffb3d4;
+    return table[(u32)id * 14 + 3];
+}
+
+static inline u32 DPGrowthOffset(u32 offset, u32 base)
+{
+    return offset + base;
+}
+
+static inline s32 DPGrowthFindSkill(u16 skill, u8 *skills, s32 known)
+{
+    s32 index;
+    for (index = 0; (index & 0xFFFF) < known; index = (index + 1) & 0xFFFF) {
+        if (skill == *(u16 *)(skills + (u16)index * 2)) { break; }
+    }
+    return index & 0xFFFF;
+}
+
+static inline s32 DPGrowthAddStat(s32 gain, s32 base) { return gain + base; }
+
+// FUN_0010BE60
+void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2)
+{
     u16 stat[5];
-    s32 i;
-    s32 j;
-    s32 k;
-    s32 a;
-    s32 b;
-    u16 pid;
-    s32 level;
-    s32 expsum;
+    s32 pid;
+    s32 statIndex;
+    u8 *statBytes;
+    u16 *statValue;
+    u16 level;
+    u32 expsum;
     s32 pidoff;
+    s32 roll;
+    s32 weight;
+    s32 total;
+    s32 sumIndex;
+    s32 partyIndex;
+    s32 statScan;
+    s32 choice;
+    u8 *table;
+    u8 *gain;
+    u16 statBase;
+    u16 bonusIndex;
+    u16 *checkedIndex;
     u8 *entry;
     u8 *skills;
     s32 known;
+    s32 limit;
+    s32 oldLevel;
+    s32 newLevel;
+    s32 first;
+    s32 found;
+    s32 span;
+    s32 last;
+    s32 count;
+    s32 rangeCurrent;
+    s32 rangeIndex;
+    s32 search;
+    s32 added;
+    s32 removed;
+    s32 collectIndex;
+    u8 *event;
+
     pid = *(u16 *)(arg0 + 2);
     if (pid == 0 || pid >= 0x100) {
         func_0046d730(D_005E4318, 0x56D);
     }
     func_0043f9c8(arg1, 0, 0x88);
-    i = 0;
-    while ((u16)i < 5) {
-        if ((u16)i >= 5) {
+    for (statIndex = 0; (statIndex & 0xFFFF) < 5; statIndex = (statIndex + 1) & 0xFFFF) {
+        if ((statIndex & 0xFFFF) >= 5) {
             func_0046d730(D_005E4318, 0x1DE);
         }
-        stat[(u16)i] = *(u8 *)(arg0 + 0x1C + (u16)i);
-        if ((u16)i >= 5) {
+        statBytes = arg0 + (u16)statIndex;
+        statValue = &stat[(u16)statIndex];
+        *statValue = statBytes[0x1C];
+        if ((u16)statIndex >= 5) {
             func_0046d730(D_005E4318, 0x268);
         }
-        stat[(u16)i] = (u16)(stat[(u16)i] + *(s8 *)(arg0 + 0x21 + (u16)i));
-        if ((u16)i >= 5) {
+        /* The next accessor checks this unsigned halfword lvalue. */
+        checkedIndex = &bonusIndex;
+        *checkedIndex = statIndex;
+        *statValue += *(s8 *)(statBytes + 0x21);
+        if (*checkedIndex >= 5) {
             func_0046d730(D_005E4318, 0x299);
         }
-        stat[(u16)i] = (u16)(stat[(u16)i] + *(s8 *)(arg0 + 0x26 + (u16)i));
-        i = (i + 1) & 0xFFFF;
+        *statValue += *(s8 *)(statBytes + 0x26);
     }
-    level = ((*(u8 *)(arg0 + 4) + 1) & 0xFFFF);
-    expsum = *(s32 *)(arg0 + 8) + arg2;
-    pidoff = (s32)pid * 0x46;
-    while (1) {
-        u32 need;
-        need = func_0010c750(arg0, (u16)level);
-        if ((u32)expsum < need) {
-            break;
-        }
-        if ((u16)level >= 0x64) {
-            break;
-        }
-        if (*(u16 *)(arg0 + 2) < 0xC0 || *(u16 *)(arg0 + 2) >= 0xD8) {
-            i = 0;
-            while ((u16)i < 3) {
-                a = 0;
-                j = 0;
-                while ((u16)j < 5) {
-                    if ((s32)(*(u8 *)(arg1 + (u16)j + 0x82) + stat[(u16)j]) < 0x63) {
-                        a = (a + *(u8 *)(iGpffffb3dc + pidoff + (u16)j)) & 0xFFFF;
+    level = arg0[4] + 1;
+    expsum = *(u32 *)(arg0 + 8) + (u32)arg2;
+    pidoff = (pid & 0xFFFF) * 0x46;
+    while (func_0010c750(arg0, level) <= expsum && level <= 99) {
+        if (!DPGrowthIsParty(arg0)) {
+            for (roll = 0; (roll & 0xFFFF) < 3; roll = (roll + 1) & 0xFFFF) {
+                total = 0;
+                sumIndex = 0;
+                table = (u8 *)DPGrowthOffset((u32)pidoff, (u32)iGpffffb3dc);
+                while ((sumIndex & 0xFFFF) < 5) {
+                    if ((s32)(arg1[(sumIndex & 0xFFFF) + 0x82] + stat[(u16)sumIndex]) < 99) {
+                        total = (total + table[sumIndex & 0xFFFF]) & 0xFFFF;
                     }
-                    j = (j + 1) & 0xFFFF;
+                    sumIndex = (sumIndex + 1) & 0xFFFF;
                 }
-                a = a & 0xFFFF;
-                if ((a & 0xFFFF) > 0) {
-                    b = (func_00231d70(a & 0xFFFF) + 1) & 0xFFFF;
-                    k = 0;
-                    a = 0;
-                    j = 0;
-                    while ((u16)j < 5) {
-                        if ((s32)(*(u8 *)(arg1 + (u16)j + 0x82) + stat[(u16)j]) < 0x63) {
-                            a = (a + *(u8 *)(iGpffffb3dc + pidoff + (u16)j)) & 0xFFFF;
-                            if (a >= b) {
-                                *(u8 *)(arg1 + (u16)j + 0x82) = (u8)(*(u8 *)(arg1 + (u16)j + 0x82) + 1);
+                if ((total & 0xFFFF) > 0) {
+                    choice = (func_00231d70(total & 0xFFFF) + 1) & 0xFFFF;
+                    weight = 0;
+                    statScan = 0;
+                    table = (u8 *)DPGrowthOffset((u32)pidoff, (u32)iGpffffb3dc);
+                    while ((statScan & 0xFFFF) < 5) {
+                        gain = arg1 + (statScan & 0xFFFF) + 0x82;
+                        if ((s32)(*gain + stat[(u16)statScan]) < 99) {
+                            weight = (weight + table[statScan & 0xFFFF]) & 0xFFFF;
+                            if (choice <= weight) {
+                                *gain += 1;
                                 break;
                             }
                         }
-                        j = (j + 1) & 0xFFFF;
+                        statScan = (statScan + 1) & 0xFFFF;
                     }
                 }
-                i = (i + 1) & 0xFFFF;
             }
         } else {
-            if (*(u16 *)(arg0 + 2) < 0xC0 || *(u16 *)(arg0 + 2) >= 0xD8) {
+            if (*(u16 *)(arg0 + 2) < 0xC0 || *(u16 *)(arg0 + 2) > 0xD7) {
                 func_0046d730(D_005E4318, 0x59F);
             }
-            if ((u16)level >= 2) {
-                u8 *base;
-                base = (u8 *)iGpffffb3e4 + (*(u16 *)(arg0 + 2) - 0xC0) * 0x26E + (level & 0xFFFF) * 5;
-                j = 0;
-                while ((u16)j < 5) {
-                    u16 sv;
-                    u8 av;
-                    sv = stat[(u16)j];
-                    av = *(u8 *)(arg1 + (u16)j + 0x82);
-                    if ((s32)(av + sv) < 0x63) {
-                        u8 gain;
-                        u8 nv;
-                        gain = *(u8 *)(base + (u16)j + 0x7A);
-                        nv = (u8)(av + gain);
-                        *(u8 *)(arg1 + (u16)j + 0x82) = nv;
-                        if ((s32)(nv + sv) >= 0x64) {
-                            *(u8 *)(arg1 + (u16)j + 0x82) = (u8)(0x63 - sv);
+            table = (u8 *)iGpffffb3e4 + (*(u16 *)(arg0 + 2) - 0xC0) * 0x26E;
+            if (level >= 2) {
+                partyIndex = 0;
+                table += (u16)level * 5;
+                while ((partyIndex & 0xFFFF) < 5) {
+                    statValue = &stat[(u16)partyIndex];
+                    statBase = *statValue;
+                    gain = arg1 + (partyIndex & 0xFFFF) + 0x82;
+                    if ((s32)(*gain + statBase) < 99) {
+                        arg1[(partyIndex & 0xFFFF) + 0x82] += table[(partyIndex & 0xFFFF) + 0x7A];
+                        if ((s32)DPGrowthAddStat(arg1[(partyIndex & 0xFFFF) + 0x82], statBase) > 99) {
+                            *gain = 99 - statBase;
                         }
                     }
-                    j = (j + 1) & 0xFFFF;
+                    partyIndex = (partyIndex + 1) & 0xFFFF;
                 }
             }
         }
-        level = (level + 1) & 0xFFFF;
-        *(u8 *)(arg1 + 0) += 1;
+        level++;
+        arg1[0] += 1;
     }
-    {
-        u16 id2;
-        s32 limit;
-        s32 oldlv;
-        s32 newlv;
-        s32 first;
-        s32 found;
-        s32 span;
-        s32 last;
-        s32 slot;
-        s32 out1;
-        s32 out2;
-        id2 = *(u16 *)(arg0 + 2);
-        if (id2 >= 0xC0 && id2 < 0xD8) {
-            entry = (u8 *)iGpffffb3e4 + (id2 - 0xC0) * 0x26E + 4;
-            limit = 0x20;
-            oldlv = *(u8 *)(arg0 + 4);
-        } else {
-            entry = iGpffffb3dc + (s32)id2 * 0x46 + 6;
-            limit = 0x10;
-            oldlv = *(u8 *)(arg0 + 4) - *(u8 *)(iGpffffb3d4 + (s32)id2 * 0xE + 3);
+    if (DPGrowthIsParty(arg0)) {
+        entry = (u8 *)iGpffffb3e4 + (*(u16 *)(arg0 + 2) - 0xC0) * 0x26E + 4;
+        limit = 32;
+        oldLevel = arg0[4];
+    } else {
+        pid = (u16)*(s16 *)(arg0 + 2);
+        entry = (u8 *)iGpffffb3dc + pid * 0x46 + 6;
+        limit = 16;
+        oldLevel = arg0[4] - DPGrowthBaseLevel(pid);
+    }
+    newLevel = oldLevel + arg1[0];
+    first = 0;
+    found = 0;
+    span = 0;
+    for (rangeIndex = 0; (rangeCurrent = rangeIndex & 0xFFFF) < limit; rangeIndex = (rangeIndex + 1) & 0xFFFF) {
+        event = entry + (u16)rangeIndex * 4;
+        if (*(s8 *)(event + 1) == 0) {
+            break;
         }
-        newlv = oldlv + *(u8 *)(arg1 + 0);
-        first = 0;
-        found = 0;
-        span = 0;
-        last = 0;
-        i = 0;
-        while ((u16)i < limit) {
-            u8 *e;
-            e = entry + (u16)i * 4;
-            if (*(s8 *)(e + 1) == 0) {
-                break;
+        if (oldLevel < event[0]) {
+            if (!found) {
+                found = 1;
+                first = (u16)rangeIndex;
+                last = (u16)rangeIndex;
             }
-            if ((s32)oldlv < (s32)*(u8 *)e) {
-                if (found == 0) {
-                    found = 1;
-                    first = (u16)i;
-                    last = (u16)i;
-                }
-                if ((s32)newlv >= (s32)*(u8 *)e) {
-                    span = 1;
-                    last = (u16)i;
-                }
+            if (event[0] <= newLevel) {
+                span = 1;
+                last = rangeCurrent;
             }
-            i = (i + 1) & 0xFFFF;
         }
-        if (span != 0) {
-            slot = (last + 1) - first;
-        } else {
-            slot = 0;
-        }
-        entry = entry + first * 4;
-        skills = arg0 + 0xC;
-        known = func_0010ceb0(arg0);
-        out1 = 0;
-        out2 = 0;
-        i = 0;
-        while ((u16)i < slot) {
-            s8 typ;
-            typ = *(s8 *)(entry + 1);
-            switch (typ) {
-            case 1: {
-                u16 sk2;
-                sk2 = *(u16 *)(entry + 2);
-                if (sk2 != 0) {
-                    j = 0;
-                    while ((u16)j < known) {
-                        if (sk2 == *(u16 *)(skills + (u16)j * 2)) {
-                            break;
-                        }
-                        j = (j + 1) & 0xFFFF;
+    }
+    if (span) {
+        count = (last + 1) - first;
+    } else {
+        count = 0;
+    }
+    entry += first * 4;
+    skills = arg0 + 0xC;
+    known = func_0010ceb0(arg0);
+    added = 0;
+    removed = 0;
+    collectIndex = 0;
+    while ((collectIndex & 0xFFFF) < count) {
+        switch (*(s8 *)(entry + 1)) {
+        case 1:
+            if (*(u16 *)(entry + 2) != 0) {
+                search = DPGrowthFindSkill(*(u16 *)(entry + 2), skills, known);
+                if (search == known) {
+                    if ((added & 0xFFFF) >= 32) {
+                        func_0046d730(D_005E4318, 0x604);
                     }
-                    if ((u16)j == (u16)known) {
-                        if ((u16)out1 >= 0x20) {
-                            func_0046d730(D_005E4318, 0x604);
-                        }
-                        *(u16 *)(arg1 + (u16)out1 * 2 + 2) = sk2;
-                        out1 = (out1 + 1) & 0xFFFF;
-                    }
+                    *(u16 *)(arg1 + (u16)added * 2 + 2) = *(u16 *)(entry + 2);
+                    added = (added + 1) & 0xFFFF;
                 }
-                break;
             }
-            case 2: {
-                u16 sk;
-                sk = *(u16 *)(entry + 2);
-                if (sk != 0) {
-                    j = 0;
-                    while ((u16)j < known) {
-                        if (sk == *(u16 *)(skills + (u16)j * 2)) {
-                            break;
-                        }
-                        j = (j + 1) & 0xFFFF;
+            break;
+        case 2:
+            if (*(u16 *)(entry + 2) != 0) {
+                search = DPGrowthFindSkill(*(u16 *)(entry + 2), skills, known);
+                if (search != known) {
+                    if ((removed & 0xFFFF) >= 32) {
+                        func_0046d730(D_005E4318, 0x614);
                     }
-                    if ((u16)j != (u16)known) {
-                        if ((u16)out2 >= 0x20) {
-                            func_0046d730(D_005E4318, 0x614);
-                        }
-                        *(u16 *)(arg1 + (u16)out2 * 2 + 0x42) = sk;
-                        out2 = (out2 + 1) & 0xFFFF;
-                    }
+                    *(u16 *)(arg1 + (u16)removed * 2 + 0x42) = *(u16 *)(entry + 2);
+                    removed = (removed + 1) & 0xFFFF;
                 }
-                break;
             }
-            case 3: {
-                break;
-            }
-            case 4: {
-                break;
-            }
-            default: {
-                func_0046d730(D_005E4318, 0x61F);
-                break;
-            }
-            }
-            i = (i + 1) & 0xFFFF;
-            entry += 4;
+            break;
+        case 3:
+        case 4:
+            break;
+        default:
+            func_0046d730(D_005E4318, 0x61F);
+            break;
         }
+        collectIndex = (collectIndex + 1) & 0xFFFF;
+        entry += 4;
     }
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010be60);
-#endif
-
+#pragma pop
 // FUN_0010C5A0
 void func_0010c5a0(u8 *arg0, u8 *arg1)
 {

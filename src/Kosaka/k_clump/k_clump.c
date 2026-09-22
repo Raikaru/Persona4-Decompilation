@@ -1,6 +1,7 @@
 /* Source unit: src/Kosaka/k_clump/k_clump_004578b0.c (1 function markers) */
 #include "include_asm.h"
 #include "Kosaka/k_clump_internal.h"
+#include "texture_callback_internal.h"
 
 typedef struct KClumpResourceList
 {
@@ -586,12 +587,17 @@ scan_found:
 /* measured: opt_propagation on closes the target-only bracket. */
 #pragma opt_propagation on
 // FUN_00463100
-s32 func_00463100(u8* arg0, u32** arg1)
+struct RwTexture *func_00463100(struct RwTexture *texture, void *list)
 {
+    u8* arg0;
+    u32** arg1;
     u8* resource;
     char* work;
     u8* current;
     u32** next;
+
+    arg0 = (u8*)texture;
+    arg1 = (u32**)list;
 
     resource = func_003ef650(func_003ef6d0(), arg0 + 0x10);
     if (resource != NULL)
@@ -622,7 +628,7 @@ s32 func_00463100(u8* arg0, u32** arg1)
         }
         *next = (u32*)work;
     }
-    return (s32)arg0;
+    return texture;
 }
 // FUN_00463250
 void func_00463250(u32* arg0)

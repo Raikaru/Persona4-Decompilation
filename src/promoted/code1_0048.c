@@ -2337,183 +2337,183 @@ void func_0048a980(f32 *arg0)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048a980);
 #endif
-/* 0048abd0 count recovery (2026-09-19): before retail 260 / object 202 (58 short,
-   22.3% deficit, worst in tree), 217 fnalign edits via `tools/fnalign.py
-   src/promoted/code1_0048.c func_0048abd0 --candidate <extracted guard body>`
-   without --quiet. The old handoff-7y differing-word score (216 words) was
-   measured against the wrong-length body and is ignored per assignment.
-   Before deletes (retail indices -> addresses via 0x0048ABD0 + i*4):
-   - retail[141:142] @ 0x0048AE04 (1: `lwc1 $f1,-0x7fbc($gp)` = fGpffff8044
-     0x00761134, VU vitof0 scale reused for both spC/sp8 quads; artefact of
-     downstream shift, body has same load at object[113] as `lwc1 $f1,($gp)`).
-   - retail[196:199] @ 0x0048AEE0-0x0048AEE8 (3: `mtc1 $a2,$f0/nop/cvt.s.w
-     $f1,$f0` = (float)arg2 numerator for arg1 true-path var_f2=arg2/v0).
-   - retail[204:224] @ 0x0048AF00-0x0048AF4C (20: `nop,nop,b,nop,slt $at,$v1,$a2/
-     beqz/nop/subu $v0,$a3,$a2/mtc1/cvt/subu $v0,$a3,$v1/mtc1/cvt/div
-     $f2,$f1,$f0/nop,nop,nop/lw $v0,($a1)` = second arg1 var_f2 arm
-     (v1<arg2) $f2=(arg3-arg2)/(arg3-v1) with FPU-hazard nops plus join and the
-     final-stage `lw $v0,($a1)` for temp_2; body has same arm at object[97:111]
-     but misaligned by the switch hole below).
-   Main hole is the replace retail[54:139] @ 0x0048ACA8-0x0048ADFC (85 vs 2):
-   switch-derived vuMix ($f3) that the body never computed. Retail leaves:
-   case0: $f3=(float)arg2/(float)arg3; case1-true: $f3=(float)arg2/(float)v1;
-   case1-false: $f3=(float)(arg2-v1)/(float)(arg3-v1); case2-true1:
-   $f3=(float)arg2/(float)t0; case2-true2: $f3=(float)(arg2-t0)/(float)(v1-t0);
-   case2-false: $f3=(float)(arg2-v1)/(float)(arg3-v1); default: $f3=0.0
-   (clear). Body conflated VU mix with arg1 finalMix (single var_f2) and left
-   VU on the wrong source. Fix: new `vuMix`/`vuInv` per leaf (tmpV1/tmpT0
-   hoisted; case2 second temp lazy inside else to match retail eager/lazy),
-   VU now on vuMix/vuInv, arg1 finalMix block moved after VU (was eager before,
-   retail is lazy after), temp_2 outer `if>=0` collapsed to single
-   `var_f0=(f32)(u32)temp_2` (was duplicate bltz+7, retail single bltz+srl
-   path). After: retail 260 / object 259 (1 short, 0.4%), 111 edits (+57
-   recovered, inside 252-268 gate). Remaining deletes are colouring/placement,
-   not logic: retail[141:142] @ 0x0048AE04 (gp-load $f1 vs object $f3) and
-   retail[198:201] @ 0x0048AEE8-0x0048AEF0 (cvt/mtc1/nop for (float)v0 with
-   $f1/$f0 vs $f0/$f3); net -1 is VU `inv=1.0-mix` in C before VU (lui/sub.s)
-   vs retail inside VU plus sp4 slot 0xC vs 4 and early-return dsll32 $v0 vs
-   $v1. No `gate:` stamp present. Caller note kept: `u64` on guarded def only;
-   0048b220 block prototype stays `s32` (widening regressed it 159 words).
-   */
-// FUN_0048ABD0 NONMATCHING
-#ifdef NON_MATCHING
-u64 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
-    s32 spC;
-    s32 sp8;
-    s32 sp4;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f1;
-    f32 temp_f1_2;
-    f32 var_f0;
-    f32 var_f2;
-    s32 temp_2;
-    s32 var_3;
-    s32 var_4;
-    s32 var_9;
-    u8 temp_3;
-    f32 inv;
-    f32 vuMix;
-    f32 vuInv;
-    s32 tmpV1;
-    s32 tmpT0;
+/* The fields consumed by the packed-color interpolator. */
+typedef struct EffectPackedColorKeys {
+    u8 mode;
+    u8 pad01[3];
+    u32 startColor;
+    u32 endColor;
+    u32 firstMiddleColor;
+    f32 firstFraction;
+    u32 secondMiddleColor;
+    f32 secondFraction;
+} EffectPackedColorKeys;
 
-    if (arg3 == 0) {
-        return ((u64)((s64)*(s32 *)(arg0 + 4) << 40) >> 40) |
-               (*(s32 *)(arg1 + 0) << 24);
+typedef struct EffectPackedOpacityKeys {
+    u32 alpha;
+    u32 field04;
+    f32 fadeInFraction;
+    f32 fadeOutFraction;
+} EffectPackedOpacityKeys;
+
+/* Fade against integer frame boundaries, retaining full opacity between ramps.
+ * measured: the returning helper preserves native division-wait boundaries. */
+static inline f32 effect_color_opacity(s32 frame, s32 duration, s32 fadeIn, s32 fadeOut, f32 fullOpacity)
+{
+    if (frame < fadeIn) {
+        return (f32)frame / (f32)fadeIn;
     }
-    temp_f0 = (f32)arg3;
-    temp_3 = *(u8 *)(arg0 + 0);
-    switch (temp_3) {
+    if (fadeOut < frame) {
+        return (f32)(duration - frame) / (f32)(duration - fadeOut);
+    }
+    return fullOpacity;
+}
+
+/* Interpolate the configured RGB keys in VU0 and apply the independent alpha
+ * envelope. Packed RGBA returns as a sign-extended 32-bit word.
+ * measured: native b210 -O2, 1044/1056 bytes, one exact resolved relocation. */
+// FUN_0048ABD0
+s32 func_0048abd0(u8 *colorData, u8 *opacityData, s32 frame, s32 duration) {
+    const EffectPackedColorKeys *colors = (const EffectPackedColorKeys *)colorData;
+    const EffectPackedOpacityKeys *opacityKeys = (const EffectPackedOpacityKeys *)opacityData;
+    s32 secondColor;
+    s32 firstColor;
+    s32 packedRgb;
+    s32 mixedColor;
+    const s32 *colorSource;
+    f32 normalization;
+    f32 blend;
+    f32 durationFloat;
+    f32 scaledAlpha;
+    f32 alphaFloat;
+    f32 opacity;
+    s32 baseAlpha;
+    s32 alpha;
+    s32 endColor;
+    s32 startColor;
+    u8 mode;
+    f32 inverseBlend;
+    f32 segmentSpan;
+    s32 endFrame;
+    s32 startFrame;
+
+    if (duration == 0) {
+        return (s32)((colors->startColor & 0xFFFFFFU) |
+                     (opacityKeys->alpha << 24));
+    }
+    durationFloat = (f32)duration;
+    mode = colors->mode;
+    switch (mode) {
     case 0:
-        var_9 = *(s32 *)(arg0 + 4);
-        var_4 = *(s32 *)(arg0 + 8);
-        vuMix = (f32)arg2 / temp_f0;
+        startColor = (s32)colors->startColor;
+        endColor = (s32)colors->endColor;
+        blend = (f32)frame / durationFloat;
         break;
     case 1:
-        tmpV1 = (s32)(*(f32 *)(arg0 + 0x10) * temp_f0);
-        if (arg2 < tmpV1) {
-            var_9 = *(s32 *)(arg0 + 4);
-            var_4 = *(s32 *)(arg0 + 0xC);
-            vuMix = (f32)arg2 / (f32)tmpV1;
+        endFrame = (s32)(colors->firstFraction * durationFloat);
+        if (frame < endFrame) {
+            startColor = (s32)colors->startColor;
+            endColor = (s32)colors->firstMiddleColor;
+            blend = (f32)frame / (f32)endFrame;
         } else {
-            var_9 = *(s32 *)(arg0 + 0xC);
-            var_4 = *(s32 *)(arg0 + 8);
-            vuMix = (f32)(arg2 - tmpV1) / (f32)(arg3 - tmpV1);
+            startColor = (s32)colors->firstMiddleColor;
+            endColor = (s32)colors->endColor;
+            blend = (segmentSpan = (f32)(duration - endFrame), (f32)(frame - endFrame) / segmentSpan);
         }
         break;
     case 2:
-        tmpT0 = (s32)(*(f32 *)(arg0 + 0x10) * temp_f0);
-        if (arg2 < tmpT0) {
-            var_9 = *(s32 *)(arg0 + 4);
-            var_4 = *(s32 *)(arg0 + 0xC);
-            vuMix = (f32)arg2 / (f32)tmpT0;
+        startFrame = (s32)(colors->firstFraction * durationFloat);
+        if (frame < startFrame) {
+            startColor = (s32)colors->startColor;
+            endColor = (s32)colors->firstMiddleColor;
+            blend = (f32)frame / (f32)startFrame;
         } else {
-            tmpV1 = (s32)(*(f32 *)(arg0 + 0x18) * temp_f0);
-            if (arg2 < tmpV1) {
-                var_9 = *(s32 *)(arg0 + 0xC);
-                var_4 = *(s32 *)(arg0 + 0x14);
-                vuMix = (f32)(arg2 - tmpT0) / (f32)(tmpV1 - tmpT0);
+            endFrame = (s32)(colors->secondFraction * durationFloat);
+            if (frame < endFrame) {
+                startColor = (s32)colors->firstMiddleColor;
+                endColor = (s32)colors->secondMiddleColor;
+                blend = (segmentSpan = (f32)(endFrame - startFrame), (f32)(frame - startFrame) / segmentSpan);
             } else {
-                var_9 = *(s32 *)(arg0 + 0x14);
-                var_4 = *(s32 *)(arg0 + 8);
-                vuMix = (f32)(arg2 - tmpV1) / (f32)(arg3 - tmpV1);
+                startColor = (s32)colors->secondMiddleColor;
+                endColor = (s32)colors->endColor;
+                blend = (segmentSpan = (f32)(duration - endFrame), (f32)(frame - endFrame) / segmentSpan);
             }
         }
         break;
     default:
-        var_9 = *(s32 *)(arg0 + 4);
-        var_4 = *(s32 *)(arg0 + 8);
-        vuMix = 0.0f;
+        startColor = (s32)colors->startColor;
+        endColor = (s32)colors->endColor;
+        blend = 0.0f;
         break;
     }
-    spC = var_4;
-    sp8 = var_9;
-    vuInv = 1.0f - vuMix;
-    inv = vuInv;
+    secondColor = endColor;
+    colorSource = &secondColor;
+    normalization = fGpffff8044;
     __asm__ volatile(
-        ".set noreorder\n"
-        "sw %0, 12($sp)\n"
-        "addiu $2, $sp, 12\n"
-        "lw $2, 0($2)\n"
-        "pextlb $2, $0, $2\n"
-        "pextlh $2, $0, $2\n"
+        "lw $2, 0(%0)\n"
+        "pextlb $2, $zero, $2\n"
+        "pextlh $2, $zero, $2\n"
         "qmtc2.ni $2, $vf10\n"
         "vitof0.xyzw $vf10, $vf10\n"
-        "mfc1 $2, %2\n"
+        "mfc1 $2, %1\n"
         "nop\n"
         "qmtc2.ni $2, $vf2\n"
         "vmulx.xyzw $vf10, $vf10, $vf2x\n"
         "vmove.xyzw $vf11, $vf10\n"
-        "sw %1, 8($sp)\n"
-        "addiu $2, $sp, 8\n"
-        "lw $2, 0($2)\n"
-        "pextlb $2, $0, $2\n"
-        "pextlh $2, $0, $2\n"
+        : : "r"(colorSource), "f"(normalization), "m"(secondColor)
+        : "$2", "$vf2", "$vf10", "$vf11", "memory");
+    firstColor = startColor;
+    __asm__ volatile(
+        "lw $2, 0(%0)\n"
+        "pextlb $2, $zero, $2\n"
+        "pextlh $2, $zero, $2\n"
         "qmtc2.ni $2, $vf10\n"
         "vitof0.xyzw $vf10, $vf10\n"
-        "mfc1 $2, %2\n"
+        "mfc1 $2, %1\n"
         "nop\n"
         "qmtc2.ni $2, $vf2\n"
         "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-        "mfc1 $2, %3\n"
+        : : "r"(&firstColor), "f"(normalization), "m"(firstColor)
+        : "$2", "$vf2", "$vf10", "memory");
+    opacity = 1.0f; /* Full alpha between the two independently configured ramps. */
+    inverseBlend = opacity - blend;
+    __asm__ volatile(
+        "mfc1 $2, %0\n"
         "nop\n"
         "qmtc2.ni $2, $vf2\n"
         "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-        "mfc1 $2, %4\n"
+        "mfc1 $2, %1\n"
         "nop\n"
         "qmtc2.ni $2, $vf2\n"
         "vmulx.xyzw $vf11, $vf11, $vf2x\n"
         "vadd.xyzw $vf10, $vf10, $vf11\n"
-        "lui $2, 0x437f\n"
-        "qmtc2.ni $2, $vf2\n"
-        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-        "vftoi0.xyzw $vf10, $vf10\n"
-        "qmfc2.ni $2, $vf10\n"
-        "ppach $2, $0, $2\n"
-        "ppacb $2, $0, $2\n"
-        "sw $2, 4($sp)\n"
-        ".set reorder\n"
-        :
-        : "r"(spC), "r"(sp8), "f"(fGpffff8044), "f"(vuInv), "f"(vuMix)
+        : : "f"(inverseBlend), "f"(blend)
         : "$2", "$vf2", "$vf10", "$vf11", "memory");
-    sp4 = *(s32 *)(void *)((u8 *)&sp4);
-    temp_f1 = *(f32 *)(arg1 + 8) * temp_f0;
-    temp_f0_2 = *(f32 *)(arg1 + 0xC) * temp_f0;
-    if (arg2 < (s32)temp_f1) {
-        var_f2 = (f32)arg2 / (f32)temp_f1;
-    } else if ((s32)temp_f0_2 < arg2) {
-        var_f2 = (f32)(arg3 - arg2) / (f32)(arg3 - (s32)temp_f0_2);
+    {
+        u32 colorWork = 0x437F0000U; /* Binary32 255.0f for the VU color scale. */
+        __asm__ volatile(
+            "qmtc2.ni %0, $vf2\n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+            "vftoi0.xyzw $vf10, $vf10\n"
+            "qmfc2.ni %0, $vf10\n"
+            "ppach %0, $zero, %0\n"
+            "ppacb %0, $zero, %0\n"
+            "sw %0, packedRgb\n"
+            : "+r"(colorWork), "=m"(packedRgb)
+            : : "$vf2", "$vf10", "memory");
     }
-    temp_2 = *(s32 *)(arg1 + 0);
-    var_f0 = (f32)(u32)temp_2;
-    temp_f1_2 = var_f0 * var_f2;
-    var_3 = (s32)(u32)temp_f1_2;
-    return ((u64)((s64)sp4 << 40) >> 40) | (var_3 << 24);
+    mixedColor = packedRgb;
+    {
+        s32 fadeIn = (s32)(opacityKeys->fadeInFraction * durationFloat);
+        s32 fadeOut = (s32)(opacityKeys->fadeOutFraction * durationFloat);
+        opacity = effect_color_opacity(frame, duration, fadeIn, fadeOut, opacity);
+    }
+    baseAlpha = (s32)opacityKeys->alpha;
+    alphaFloat = (f32)(u32)baseAlpha;
+    scaledAlpha = alphaFloat * opacity;
+    alpha = (s32)(u32)scaledAlpha;
+    return (s32)(((u32)mixedColor & 0xFFFFFFU) | ((u32)alpha << 24));
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048abd0);
-#endif
 /* measured: opt_propagation off tested for target subtraction scheduling. */
 #pragma opt_propagation off
 // FUN_0048AFF0

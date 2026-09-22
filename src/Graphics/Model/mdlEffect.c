@@ -52,6 +52,17 @@ extern void func_004bce80(void);
 extern void func_004bceb0(void);
 typedef struct RwV3d { f32 x, y, z; } RwV3d;
 typedef struct RwMatrixTag RwMatrix;
+typedef struct RwFrame RwFrame;
+typedef struct RwTexture RwTexture;
+typedef struct RpMaterial RpMaterial;
+typedef struct RpGeometry RpGeometry;
+/* Same combine contract as the existing frame-transform provider. */
+typedef enum RwOpCombineType {
+    rwCOMBINEREPLACE = 0,
+    rwCOMBINEPRECONCAT,
+    rwCOMBINEPOSTCONCAT,
+    rwOPCOMBINETYPEFORCEENUMSIZEINT = 0x7FFFFFFF
+} RwOpCombineType;
 extern RwV3d *func_003e42a0(RwV3d *out, const RwV3d *in, const RwMatrix *matrix);
 extern f32 D_00713D10[];
 extern f32 D_00713D14[];
@@ -1258,79 +1269,52 @@ void func_004a6e50(int param_1)
 
 
 
-/* measured: first guarded reconstruction from retail + Ghidra + IDA + romwright-raw + m2c-bulk (TMPDIR /var/tmp/cold4a6e70/). */
-/* File idiom: f32 proj/gmul[4] __attribute__((aligned(16))) for the 16B VU vectors; s128 whole copy */
-/* (*(s128c *)proj = *(s128c *)arg0, lq/sq) rather than field-by-field, per this unit's convention; */
-/* MdlCol iGpffffbb64 struct for the 0x00724C54 color state as in effLineNova/effPolygonWind. */
-/* Retail 572 instrs per fnalign; v6b object 587 instrs (+15, +2.6%, within 3% gate), edits 527 */
-/* (v6a 589/+17/529; v5 564/590 +18 over gate; v4 564/590; v3 566/595; v2 760/794; v1 compile-error). */
-/* Census v6a (opclass obj-retail): lwc1 -30, mul.s +28, nop +24, ?? -21, andi +19, mtc1 +18, */
-/* cvt.s.w +16, sra +15, add.s -12, dmtc2 -9, lw -9, addiu -9, lbu -9, lui -8. v6b: andi +15 (-4), */
-/* sra +12 (-3), lbu -5 (+4), -2 instrs, -2 edits via outWord sw+lbu below. */
-/* 7r-reverse fused variant measured and rejected: fx/fytemps fused into single a*b+c */
-/* (tmpX=320+dx*entry, tmpY=224+dy*entry, f0 double-product duplicated) scores 592/+20 edits 532 */
-/* (+3 worse; ?? -21->-17, mtc1 +18->+19, add.s -12->-14). Both sides already suppress the */
-/* accumulator by reuse (fx/fy feed tmp and f0), so retail tmp adds are plain add.s like here. */
-/* ?? -21 is VU/MMI, not FPU: retail ??36 = 5 GPR lq/sq +6 FPU (mula/madd/msub at dist/f0/tail) */
-/* +2 c1 +23 VU/MMI (pextlb/pextlh/vitof/vmulx/vmul/vftoi/ppach); obj ??15 = 7 GPR +6 FPU +2 c1, */
-/* 0 VU. FPU/c1 equal; net -21 = -23 VU +2 GPR. dmtc2 -9 is qmtc2 x9 (+dmfc2 x1 below threshold). */
-/* u_long128/s128 emits GPR lq/sq (micro: u_long128 loop -> andi.b/ext, f32[4] aligned -> lwc1/swc1), */
-/* never qmtc2/vitof/vmul/vftoi/ppach; interior pipeline needs asm bridges as in effPolygonWind */
-/* func_004a4000 / code1_0048 func_004865c0, kept scalar per VU handoff clean-C rule. btlMain */
-/* u_long128 matrix copy is the GPR idiom already used for the proj s128 copy. */
-/* vtx reload variant fixes lwc1/add.s exactly (627/+9.6% outside gate, lwc1 -30->-4, add.s -12->0, */
-/* edits -2) but needs -38 instrs from color VU to re-enter gate; not banked. Caller func_004a7760 */
-/* fixed to pass arg0. INCLUDE_ASM retained; 51 MATCH in owner intact. */
-/* measured 004a6e70 (owner, 2026-09-19): fnalign **527 -> 525 edits**, count
-   587 -> 585 against retail 572, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits - no guard before the first iteration, one compare
-   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
-/* measured 004a6e70 (owner, 2026-09-19): fnalign **525 -> 524 edits**, count
-   585 -> 583 against retail 572, converting a SECOND constant-bound `for` loop
-   to `do { } while` after the first conversion was already banked.
-   The lever is iterative, which the first sweep hid: it converts the single best loop
-   per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
-// FUN_004A6E70 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_004A6E70
+/* Render the model flare entries around the projected source position.
+ * measured with native b210 -O2: 2276/2288 bytes, 53 resolved relocations.
+ * Assembly is confined to the packed-color and vector MMI/COP2 bridges. */
+#pragma push
+#pragma enable_vu0_registers on
+#pragma vu0_mmi_reg_binding on
+/* measured: keep outer-loop material and scale values at their use sites. */
+#pragma opt_loop_invariants off
 void func_004a6e70(u8 *arg0)
 {
     extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
-    extern void func_003c2290(u8 *a, s32 b);
-    extern void func_003c22f0(u8 *a);
-    extern void func_003c42b0(u8 *a, s32 b);
-    extern s32 func_00481300(u8 b);
+    extern u8 *func_003c2290(u8 *a, s32 b);
+    extern RpGeometry *func_003c22f0(RpGeometry *geometry);
+    extern RpMaterial *RpMaterialSetTexture(RpMaterial *material, RwTexture *texture);
+    extern s32 func_00481300(u16 b);
     extern s32 func_004814d0(u16 b);
-    extern void func_00460ac0(void *a, void *b);
-    extern void func_003e9cb0(s32 a, void *b, s32 c);
+    extern void func_00460ac0(u8 *a, u8 *b);
+    extern RwFrame *func_003e9cb0(RwFrame *frame, const RwMatrix *matrix, RwOpCombineType combine);
     extern s32 func_00457120(void);
-    extern u8 *func_003e9700(s32 a);
+    extern RwMatrix *RwFrameGetLTM(RwFrame *frame);
     extern f32 sqrtf(f32 x);
     extern u8 D_007141B0[];
     extern f32 D_00922D80[];
-    extern f32 D_00922D84[];
-    extern f32 D_00922D88[];
     typedef struct { u8 c0; u8 c1; u8 c2; u8 c3; } MdlCol;
     extern MdlCol iGpffffbb64;
+    extern f32 fGpffff8044;
+    f32 normalization;
     f32 proj[4] __attribute__((aligned(16)));
     f32 gmul[4] __attribute__((aligned(16)));
+    f32 dist;
+    f32 scale;
     f32 dx;
     f32 dy;
-    f32 dist;
     f32 maxD;
-    f32 base;
-    f32 scale;
     s32 cnt10;
     s32 cnt50;
     u8 *listBase;
-    s32 colA;
+    union { s32 word; MdlCol rgba; } color;
+    const u32 *colorSource;
+    u32 colA;
     s32 colB;
-    u8 *vtxBase;
-    u8 *vtxCur;
-    u32 *auxBase;
-    u32 *auxCur;
     u8 *entry;
-    u8 *entryBase;
+    u8 *vtxCur;
+    u8 *vtxBase;
+    u32 *auxCur;
     u32 outer;
     u32 inner;
     s32 tmpX;
@@ -1344,20 +1328,19 @@ void func_004a6e70(u8 *arg0)
     f32 gw;
     s32 isz;
     s32 packed;
+    s32 entryColor;
     s32 outWord;
-    u8 b0;
-    u8 b1;
-    u8 b2;
-    u8 b3;
     u8 *slot;
     f32 *fp;
     u32 j;
 
-    typedef signed __int128 s128c;
-    *(s128c *)proj = *(s128c *)arg0;
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0),
+        "m"(*(f32 (*)[4])arg0) : "$vf10", "memory");
     if (func_0048a510() == 0) {
         return;
     }
+    __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(proj) : "r"(proj)
+        : "$vf10", "memory");
     dx = proj[0] - 320.0f;
     dy = proj[1] - 224.0f;
     cnt50 = *(s32 *)(arg0 + 0x50);
@@ -1367,143 +1350,157 @@ void func_004a6e70(u8 *arg0)
         return;
     }
     dist = sqrtf(dx * dx + dy * dy);
-    if (!(dist > 0.0f)) {
+    if (dist <= 0.0f) {
         return;
     }
-    maxD = 390.60977f;
-    base = *(f32 *)(arg0 + 0x4C);
-    scale = (maxD - dist) / maxD * base;
+    maxD = sqrtf(152576.0f); /* Squared distance from screen center to its corner. */
+    scale = (maxD - dist) / maxD;
+    scale = scale * *(f32 *)(arg0 + 0x4C);
     colA = func_0048abd0(arg0 + 0x18, arg0 + 0x3C, cnt10, cnt50);
+    colorSource = &colA;
+    normalization = fGpffff8044;
+    __asm__ volatile(
+        "lw $2, 0(%0)\n"
+        "pextlb $2, $zero, $2\n"
+        "pextlh $2, $zero, $2\n"
+        "qmtc2.ni $2, $vf11\n"
+        "vitof0.xyzw $vf11, $vf11\n"
+        "mfc1 $2, %1\n"
+        "nop\n"
+        "qmtc2.ni $2, $vf2\n"
+        "vmulx.xyzw $vf11, $vf11, $vf2x\n"
+        :
+        : "r"(colorSource), "f"(normalization), "m"(colA)
+        : "$2", "$vf11", "$vf2", "memory");
     colB = *(s32 *)(arg0 + 0x14);
-    {
-        s32 ca = colA;
-        s32 cb = colB;
-        f32 fa0 = (f32)(s32)(u8)ca;
-        f32 fa1 = (f32)(s32)(u8)(ca >> 8);
-        f32 fa2 = (f32)(s32)(u8)(ca >> 16);
-        f32 fa3 = (f32)(s32)(u8)(ca >> 24);
-        f32 fb0 = (f32)(s32)(u8)cb;
-        f32 fb1 = (f32)(s32)(u8)(cb >> 8);
-        f32 fb2 = (f32)(s32)(u8)(cb >> 16);
-        f32 fb3 = (f32)(s32)(u8)(cb >> 24);
-        f32 k = 0.0039215689f;
-        gmul[0] = (fa0 * k) * (fb0 * k);
-        gmul[1] = (fa1 * k) * (fb1 * k);
-        gmul[2] = (fa2 * k) * (fb2 * k);
-        gmul[3] = (fa3 * k) * (fb3 * k);
-    }
+    __asm__ volatile(
+        "lw $2, 0(%0)\n"
+        "pextlb $2, $zero, $2\n"
+        "pextlh $2, $zero, $2\n"
+        "qmtc2.ni $2, $vf10\n"
+        "vitof0.xyzw $vf10, $vf10\n"
+        "mfc1 $2, %1\n"
+        "nop\n"
+        "qmtc2.ni $2, $vf2\n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+        "vmul.xyzw $vf10, $vf10, $vf11\n"
+        :
+        : "r"(&colB), "f"(normalization), "m"(colB)
+        : "$2", "$vf10", "$vf2", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(gmul) : "r"(gmul)
+        : "$vf10", "memory");
     {
         u8 *p = *(u8 **)(listBase + 0x10);
         u8 *q = *(u8 **)(p + 0x18);
         func_003c2290(q, 0xFF2);
-        vtxBase = *(u8 **)(*(u8 **)(*(u8 **)(listBase + 0x10) + 0x18) + 0x5C);
-        vtxBase = *(u8 **)((u8 *)vtxBase + 0x14);
-        auxBase = *(u32 **)(*(u8 **)(*(u8 **)(listBase + 0x10) + 0x18) + 0x34);
-        vtxCur = vtxBase;
-        auxCur = auxBase;
-        entryBase = D_007141B0 + (s32)*(u8 *)(arg0 + 0x54) * 0xD0;
+        vtxCur = *(u8 **)(*(u8 **)(*(u8 **)(listBase + 0x10) + 0x18) + 0x5C);
+        vtxCur = *(u8 **)(vtxCur + 0x14);
+        vtxBase = vtxCur;
+        auxCur = *(u32 **)(*(u8 **)(*(u8 **)(listBase + 0x10) + 0x18) + 0x34);
+        entry = D_007141B0 + (s32)*(u8 *)(arg0 + 0x54) * 0xD0;
         outer = 0;
-        do {
-            entry = entryBase + outer * 0x10;
+        while (outer < 13) {
             if ((*(s32 *)(entry + 0xC) & 0xFF000000) == 0) {
                 auxCur = (u32 *)((u8 *)auxCur + 0x80);
+/* measured: hoist the four position-record source bases for this loop. */
+#pragma opt_loop_invariants on
                 for (inner = 0; inner < 4; inner++) {
-                    *(f32 *)(vtxCur + 0x0) = D_00922D80[0];
-                    *(f32 *)(vtxCur + 0x4) = D_00922D84[0];
-                    *(f32 *)(vtxCur + 0x8) = D_00922D88[0];
-                    *(f32 *)(vtxCur + 0xC) = D_00922D80[0];
-                    *(f32 *)(vtxCur + 0x10) = D_00922D84[0];
-                    *(f32 *)(vtxCur + 0x14) = D_00922D88[0];
-                    *(f32 *)(vtxCur + 0x18) = D_00922D80[0];
-                    *(f32 *)(vtxCur + 0x1C) = D_00922D84[0];
-                    *(f32 *)(vtxCur + 0x20) = D_00922D88[0];
-                    *(f32 *)(vtxCur + 0x24) = D_00922D80[0];
-                    *(f32 *)(vtxCur + 0x28) = D_00922D84[0];
-                    *(f32 *)(vtxCur + 0x2C) = D_00922D88[0];
+                    *(RwV3d *)(vtxCur + 0x0) = *(const RwV3d *)D_00922D80;
+                    *(RwV3d *)(vtxCur + 0xC) = *(const RwV3d *)D_00922D80;
+                    *(RwV3d *)(vtxCur + 0x18) = *(const RwV3d *)D_00922D80;
+                    *(RwV3d *)(vtxCur + 0x24) = *(const RwV3d *)D_00922D80;
                     vtxCur += 0x30;
                 }
+/* measured: restore the outer loop's unhoisted material and scale values. */
+#pragma opt_loop_invariants off
                 {
-                    u8 *tbl = *(u8 **)(listBase + 0x54);
-                    u8 *sl = *(u8 **)(tbl + (outer & 0xFFFF) * 4);
                     if (iGpffffbb64.c3 != 0xFF) {
-                        sl[4] = iGpffffbb64.c0;
-                        sl[5] = iGpffffbb64.c1;
-                        sl[6] = iGpffffbb64.c2;
-                        sl[7] = iGpffffbb64.c3;
+                        u8 *tbl = *(u8 **)(listBase + 0x54);
+                        u8 *sl = *(u8 **)(tbl + (outer & 0xFFFF) * 4);
+                        *(MdlCol *)(sl + 4) = iGpffffbb64;
                     } else {
+                        u8 *tbl;
+                        u8 *sl;
                         iGpffffbb64.c3 = 0xFE;
-                        sl[4] = iGpffffbb64.c0;
-                        sl[5] = iGpffffbb64.c1;
-                        sl[6] = iGpffffbb64.c2;
-                        sl[7] = iGpffffbb64.c3;
+                        tbl = *(u8 **)(listBase + 0x54);
+                        sl = *(u8 **)(tbl + (outer & 0xFFFF) * 4);
+                        *(MdlCol *)(sl + 4) = iGpffffbb64;
                         iGpffffbb64.c3 = 0xFF;
                     }
                 }
             } else {
-                s32 idx = (outer & 0xFFFF) * 4;
-                u8 *tbl = *(u8 **)(listBase + 0x54);
+                s32 idx;
                 s32 dev = func_00481300(*(u8 *)(entry + 8));
-                func_003c42b0(*(u8 **)(tbl + idx), dev);
+                idx = (outer & 0xFFFF) * 4;
+                RpMaterialSetTexture(*(RpMaterial **)(*(u8 **)(listBase + 0x54) + idx), (RwTexture *)(u32)dev);
                 fx = dx * *(f32 *)(entry + 0x0);
                 fy = dy * *(f32 *)(entry + 0x0);
-                f0 = fx * fx + fy * fy;
-                f0 = sqrtf(f0);
-                f1 = (f0 / dist) * scale;
-                {
-                    f32 ey = *(f32 *)(entry + 0x4);
-                    f0 = 128.0f * ey * f1 * 0.5f;
-                }
                 tmpX = (s32)(320.0f + fx);
                 tmpY = (s32)(224.0f + fy);
-                isz = ((s32)f0 >> 1) - 1;
+                f0 = sqrtf(fx * fx + fy * fy);
+                f1 = f0 / dist;
+                f1 = f1 * scale;
+                f0 = 128.0f;
+                f0 = f0 * *(f32 *)(entry + 4);
+                f0 = f0 * f1;
+                isz = (s32)(0.5f * f0);
+                packed = ((u32)(255.0f * sqrtf(f1)) << 24) | 0xFFFFFF;
+                normalization = fGpffff8044;
+                __asm__ volatile(
+                    "lw $2, 0(%0)\n"
+                    "pextlb $2, $zero, $2\n"
+                    "pextlh $2, $zero, $2\n"
+                    "qmtc2.ni $2, $vf11\n"
+                    "vitof0.xyzw $vf11, $vf11\n"
+                    "mfc1 $2, %1\n"
+                    "nop\n"
+                    "qmtc2.ni $2, $vf2\n"
+                    "vmulx.xyzw $vf11, $vf11, $vf2x\n"
+                    :
+                    : "r"(&packed), "f"(normalization), "m"(packed)
+                    : "$2", "$vf11", "$vf2", "memory");
+                entryColor = *(s32 *)(entry + 0xC);
+                __asm__ volatile(
+                    "lw $2, 0(%0)\n"
+                    "pextlb $2, $zero, $2\n"
+                    "pextlh $2, $zero, $2\n"
+                    "qmtc2.ni $2, $vf10\n"
+                    "vitof0.xyzw $vf10, $vf10\n"
+                    "mfc1 $2, %1\n"
+                    "nop\n"
+                    "qmtc2.ni $2, $vf2\n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                    "vmul.xyzw $vf10, $vf10, $vf11\n"
+                    :
+                    : "r"(&entryColor), "f"(normalization), "m"(entryColor)
+                    : "$2", "$vf10", "$vf2", "memory");
+                __asm__ volatile(
+                    "lqc2 $vf11, 0(%0)\n"
+                    "vmul.xyzw $vf10, $vf10, $vf11\n"
+                    : : "r"(gmul), "m"(gmul) : "$vf10", "$vf11", "memory");
                 {
-                    f32 h = 255.0f * sqrtf(f0);
-                    s32 hi;
-                    if (h >= 2147483648.0f) {
-                        hi = (s32)(h - 2147483648.0f) | 0x80000000;
-                    } else {
-                        hi = (s32)h;
-                    }
-                    packed = (hi << 24) | 0xFFFFFF;
+                    u32 colorWork = 0x437F0000U; /* Binary32 255.0f for the VU color scale. */
+                    __asm__ volatile(
+                        "qmtc2.ni %0, $vf2\n"
+                        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                        "vftoi0.xyzw $vf10, $vf10\n"
+                        "qmfc2.ni %0, $vf10\n"
+                        "ppach %0, $zero, %0\n"
+                        "ppacb %0, $zero, %0\n"
+                        "sw %0, outWord\n"
+                        : "+r"(colorWork), "=m"(outWord)
+                        : : "$vf2", "$vf10", "memory");
                 }
                 {
-                    s32 pc = packed;
-                    f32 pa0 = (f32)(s32)(u8)pc;
-                    f32 pa1 = (f32)(s32)(u8)(pc >> 8);
-                    f32 pa2 = (f32)(s32)(u8)(pc >> 16);
-                    f32 pa3 = (f32)(s32)(u8)(pc >> 24);
-                    s32 ec = *(s32 *)(entry + 0xC);
-                    f32 ea0 = (f32)(s32)(u8)ec;
-                    f32 ea1 = (f32)(s32)(u8)(ec >> 8);
-                    f32 ea2 = (f32)(s32)(u8)(ec >> 16);
-                    f32 ea3 = (f32)(s32)(u8)(ec >> 24);
-                    f32 k = 0.0039215689f;
-                    f32 ra0 = (ea0 * k) * (pa0 * k) * gmul[0] - 255.0f;
-                    f32 ra1 = (ea1 * k) * (pa1 * k) * gmul[1] - 255.0f;
-                    f32 ra2 = (ea2 * k) * (pa2 * k) * gmul[2] - 255.0f;
-                    f32 ra3 = (ea3 * k) * (pa3 * k) * gmul[3] - 255.0f;
-                    s32 ia0 = (s32)ra0;
-                    s32 ia1 = (s32)ra1;
-                    s32 ia2 = (s32)ra2;
-                    s32 ia3 = (s32)ra3;
-                    s32 out = ia0 | (ia1 << 8) | (ia2 << 16) | (ia3 << 24);
-                    outWord = out;
-                    b0 = *(u8 *)((u8 *)&outWord + 0);
-                    b1 = *(u8 *)((u8 *)&outWord + 1);
-                    b2 = *(u8 *)((u8 *)&outWord + 2);
-                    b3 = *(u8 *)((u8 *)&outWord + 3);
-                    if (b3 == 0xFF) {
-                        slot = *(u8 **)(tbl + idx);
-                        slot[4] = b0;
-                        slot[5] = b1;
-                        slot[6] = b2;
-                        slot[7] = 0xFE;
+                    color.word = outWord;
+                    if (color.rgba.c3 != 0xFF) {
+                        slot = *(u8 **)(*(u8 **)(listBase + 0x54) + idx);
+                        *(MdlCol *)(slot + 4) = color.rgba;
                     } else {
-                        slot = *(u8 **)(tbl + idx);
-                        slot[4] = b0;
-                        slot[5] = b1;
-                        slot[6] = b2;
-                        slot[7] = b3;
+                        color.rgba.c3 = 0xFE;
+                        slot = *(u8 **)(*(u8 **)(listBase + 0x54) + idx);
+                        *(MdlCol *)(slot + 4) = color.rgba;
+                        color.rgba.c3 = 0xFF;
                     }
                 }
                 auxCur[0] = 0;
@@ -1514,17 +1511,18 @@ void func_004a6e70(u8 *arg0)
                 auxCur[5] = 0x3F700000;
                 auxCur[6] = 0x3F700000;
                 auxCur[7] = 0x3F700000;
+                isz = (isz >> 1) - 1;
                 vx0 = (f32)(tmpX - isz);
-                vy0 = (f32)(tmpY - isz);
-                gw = (f32)isz;
                 *(f32 *)(vtxCur + 0x0) = vx0;
+                vy0 = (f32)(tmpY - isz);
                 *(f32 *)(vtxCur + 0x4) = vy0;
-                *(f32 *)(vtxCur + 0xC) = vx0 + gw;
-                *(f32 *)(vtxCur + 0x10) = vy0;
-                *(f32 *)(vtxCur + 0x18) = vx0;
-                *(f32 *)(vtxCur + 0x1C) = vy0 + gw;
-                *(f32 *)(vtxCur + 0x24) = vx0 + gw;
-                *(f32 *)(vtxCur + 0x28) = vy0 + gw;
+                gw = (f32)isz;
+                *(f32 *)(vtxCur + 0xC) = *(f32 *)(vtxCur + 0x0) + gw;
+                *(f32 *)(vtxCur + 0x10) = *(f32 *)(vtxCur + 0x4);
+                *(f32 *)(vtxCur + 0x18) = *(f32 *)(vtxCur + 0x0);
+                *(f32 *)(vtxCur + 0x1C) = *(f32 *)(vtxCur + 0x4) + gw;
+                *(f32 *)(vtxCur + 0x24) = *(f32 *)(vtxCur + 0x0) + gw;
+                *(f32 *)(vtxCur + 0x28) = *(f32 *)(vtxCur + 0x4) + gw;
                 auxCur[8] = 0x3F700000;
                 auxCur[9] = 0;
                 auxCur[10] = 0;
@@ -1537,12 +1535,12 @@ void func_004a6e70(u8 *arg0)
                     f32 vx1 = (f32)tmpX;
                     *(f32 *)(vtxCur + 0x30) = vx1;
                     *(f32 *)(vtxCur + 0x34) = vy0;
-                    *(f32 *)(vtxCur + 0x3C) = vx1 + gw;
-                    *(f32 *)(vtxCur + 0x40) = vy0;
-                    *(f32 *)(vtxCur + 0x48) = vx1;
-                    *(f32 *)(vtxCur + 0x4C) = vy0 + gw;
-                    *(f32 *)(vtxCur + 0x54) = vx1 + gw;
-                    *(f32 *)(vtxCur + 0x58) = vy0 + gw;
+                    *(f32 *)(vtxCur + 0x3C) = *(f32 *)(vtxCur + 0x30) + gw;
+                    *(f32 *)(vtxCur + 0x40) = *(f32 *)(vtxCur + 0x34);
+                    *(f32 *)(vtxCur + 0x48) = *(f32 *)(vtxCur + 0x30);
+                    *(f32 *)(vtxCur + 0x4C) = *(f32 *)(vtxCur + 0x34) + gw;
+                    *(f32 *)(vtxCur + 0x54) = *(f32 *)(vtxCur + 0x30) + gw;
+                    *(f32 *)(vtxCur + 0x58) = *(f32 *)(vtxCur + 0x34) + gw;
                 }
                 auxCur[16] = 0;
                 auxCur[17] = 0x3F700000;
@@ -1556,12 +1554,12 @@ void func_004a6e70(u8 *arg0)
                     f32 vy1 = (f32)tmpY;
                     *(f32 *)(vtxCur + 0x60) = vx0;
                     *(f32 *)(vtxCur + 0x64) = vy1;
-                    *(f32 *)(vtxCur + 0x6C) = vx0 + gw;
-                    *(f32 *)(vtxCur + 0x70) = vy1;
-                    *(f32 *)(vtxCur + 0x78) = vx0;
-                    *(f32 *)(vtxCur + 0x7C) = vy1 + gw;
-                    *(f32 *)(vtxCur + 0x84) = vx0 + gw;
-                    *(f32 *)(vtxCur + 0x88) = vy1 + gw;
+                    *(f32 *)(vtxCur + 0x6C) = *(f32 *)(vtxCur + 0x60) + gw;
+                    *(f32 *)(vtxCur + 0x70) = *(f32 *)(vtxCur + 0x64);
+                    *(f32 *)(vtxCur + 0x78) = *(f32 *)(vtxCur + 0x60);
+                    *(f32 *)(vtxCur + 0x7C) = *(f32 *)(vtxCur + 0x64) + gw;
+                    *(f32 *)(vtxCur + 0x84) = *(f32 *)(vtxCur + 0x60) + gw;
+                    *(f32 *)(vtxCur + 0x88) = *(f32 *)(vtxCur + 0x64) + gw;
                 }
                 auxCur[24] = 0x3F700000;
                 auxCur[25] = 0x3F700000;
@@ -1576,67 +1574,67 @@ void func_004a6e70(u8 *arg0)
                     f32 vy1 = (f32)tmpY;
                     *(f32 *)(vtxCur + 0x90) = vx1;
                     *(f32 *)(vtxCur + 0x94) = vy1;
-                    *(f32 *)(vtxCur + 0x9C) = vx1 + gw;
-                    *(f32 *)(vtxCur + 0xA0) = vy1;
-                    *(f32 *)(vtxCur + 0xA8) = vx1;
-                    *(f32 *)(vtxCur + 0xAC) = vy1 + gw;
-                    *(f32 *)(vtxCur + 0xB4) = vx1 + gw;
-                    *(f32 *)(vtxCur + 0xB8) = vy1 + gw;
+                    *(f32 *)(vtxCur + 0x9C) = *(f32 *)(vtxCur + 0x90) + gw;
+                    *(f32 *)(vtxCur + 0xA0) = *(f32 *)(vtxCur + 0x94);
+                    *(f32 *)(vtxCur + 0xA8) = *(f32 *)(vtxCur + 0x90);
+                    *(f32 *)(vtxCur + 0xAC) = *(f32 *)(vtxCur + 0x94) + gw;
+                    *(f32 *)(vtxCur + 0xB4) = *(f32 *)(vtxCur + 0x90) + gw;
+                    *(f32 *)(vtxCur + 0xB8) = *(f32 *)(vtxCur + 0x94) + gw;
                 }
                 vtxCur += 0xC0;
                 auxCur += 0x20;
             }
             outer++;
-        } while (outer < 13);
+            entry += 0x10;
+        }
     }
     {
-        u8 *c = (u8 *)(u32)func_00457120();
-        f32 cx = *(f32 *)(c + 0x80);
-        u8 *d = (u8 *)(u32)func_00457120();
-        f32 cy = *(f32 *)(d + 0x84);
-        f32 tz = cy - cx;
-        f32 k2 = (tz * -65535.0f * cy) / (cy * -65535.0f - (cy - cx) * -255.0f);
-        u8 *e = (u8 *)(u32)func_00457120();
-        f32 ex = *(f32 *)(e + 0x68);
-        f32 ey = *(f32 *)(e + 0x6C);
-        f32 fA = 2.0f * (ex * k2);
-        f32 fB = 2.0f * (ey * k2);
-        f32 fC = k2 + 1.0f;
-        fp = (f32 *)vtxBase;
+        u8 *window = ((u8 *)(u32)func_00457120()) + 0x68;
+        f32 nearPlane = *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+        f32 farPlane = *(f32 *)(((u8 *)(u32)func_00457120()) + 0x84);
+        f32 span = farPlane - nearPlane;
+        f32 deviceDepth = (f32)(s32)0xFFFF0001;
+        f32 denominator = deviceDepth * farPlane - -255.0f * span;
+        f32 numerator;
+        f32 k2 = (numerator = deviceDepth * nearPlane, numerator * farPlane) / denominator;
+        f32 fA = 2.0f * (*(f32 *)(window + 0) * k2);
+        f32 fB = 2.0f * (*(f32 *)(window + 4) * k2);
+        f32 fC;
         j = 0;
-        do {
+        fC = 1.0f + k2;
+        fp = (f32 *)vtxBase;
+/* measured: retain the screen dimensions across the projection loop. */
+#pragma opt_loop_invariants on
+        while (j < 0xD0) {
             fp[0] = (-fp[0] / 640.0f + 0.5f) * fA;
             fp[1] = (-fp[1] / 448.0f + 0.5f) * fB;
             fp[2] = fC;
             fp += 3;
             j++;
-        } while (j < 0xD0);
+        }
     }
     {
         u8 *p = *(u8 **)(listBase + 0x10);
         u8 *q = *(u8 **)(p + 0x18);
-        func_003c22f0(q);
+        func_003c22f0((RpGeometry *)q);
         if ((*(u16 *)listBase & 4) != 0) {
             *(u16 *)(q + 0xC) |= 1;
         }
         {
-            u8 *r = (u8 *)(u32)func_00457120();
-            u8 *s2 = func_003e9700(*(s32 *)(r + 4));
-            func_003e9cb0(*(s32 *)(listBase + 0xC), s2, 0);
+            u8 *r = (u8 *)((u8 *)(u32)func_00457120());
+            RwMatrix *s2 = RwFrameGetLTM(*(RwFrame **)(r + 4));
+            func_003e9cb0(*(RwFrame **)(listBase + 0xC), s2, rwCOMBINEREPLACE);
         }
         {
             u16 id = *(u16 *)(arg0 + 0x40);
-            void *wd = (void *)func_004814d0(id);
+            u8 *wd = (u8 *)(u32)func_004814d0(id);
             *(s32 *)(listBase + 0x18) = 0;
             *(s32 *)(listBase + 0x1C) = 0;
             func_00460ac0(wd, listBase + 0x18);
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_004a6e70);
-#endif
-
+#pragma pop
 // FUN_004A7760
 void func_004a7760(u8 *arg0) {
     (*(s32 *)(arg0 + 0x10))++;

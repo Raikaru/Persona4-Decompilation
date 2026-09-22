@@ -189,7 +189,7 @@ void func_004ac2c0(u32 *param_1)
 extern void func_004accc0(u8 *arg0);
 extern char D_007144B8[];
 extern void func_0047a850(void *arg0);
-extern s32 func_0048abd0(void *arg0, void *arg1, u32 arg2, u32 arg3);
+extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern void func_0047a220(void *arg0, s32 *arg1);
 extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
 extern void func_0048a150(void *arg0, void *arg1);

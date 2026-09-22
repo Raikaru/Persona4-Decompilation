@@ -1,4 +1,5 @@
 #include "model_motion_internal.h"
+#include "texture_callback_internal.h"
 #include "include_asm.h"
 /* Source unit: src/Graphics/Model/mdlManager_004711e0.c */
 /* Ported from P3FES src/Graphics/Model/mdlManager.c FUN_003115a0 (verified MATCH there). */
@@ -130,7 +131,7 @@ typedef struct MdlAnimResourceEntry
 } MdlAnimResourceEntry;
 
 extern void func_0047fa60(int resource);
-extern void (*DAT_008873ec[])();
+extern void (*DAT_008873ec[])(void* memory);
 
 extern s32 func_003df7f0(u8* arg0);
 extern void func_003d6230();
@@ -180,8 +181,8 @@ extern u8 D_007241d0;
 extern void* D_00922BE0[];
 extern void func_00440b68(void* a, void* b, int c);
 extern u8* func_00454a60(u8* a, s32 b);
-extern void func_0044ea90(void* a, int b);
-extern void func_0043f9c8(void* a, int b, int c);
+extern void func_0044ea90(const void* file, s32 line);
+extern void* func_0043f9c8(void* destination, int value, size_t count);
 extern void* DAT_008873e8[];
 extern s64 DAT_00723cd8;
 extern void func_004787e0(u8* a0);
@@ -271,8 +272,8 @@ extern u32* func_003971d0(u8*, s32, s32, s32);
 extern void* func_00462ae0(void* object);
 extern void func_0047da30();
 extern void* func_003c0520();
-extern void* func_0047d200();
-extern void* func_0047dc30();
+extern u32 *func_0047d200(u32 **head);
+extern u32 *func_0047dc30(u32 **head);
 extern void func_0047ea40();
 extern s32 func_0047ae90();
 extern void func_00478410(u8* a, u8* b);
@@ -522,7 +523,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     extern int func_003d5e90(unsigned char *, unsigned char *, unsigned char *, float);
     extern float func_004bd4a0(unsigned char *, unsigned char *);
     extern s32 func_003954b0();
-    extern s32 func_00397c40();
+    extern s32 func_00397c40(void* hierarchy);
     extern s32 func_003d5840();
     extern s32 func_003dc610();
     extern s32 func_003dc740();
@@ -1411,7 +1412,7 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);
    gate: GUARDED_SCORE 1636, fnalign edits 2073, both comparable (equal length).
    Production guarded, fallback INCLUDE_ASM retained. */
 
-extern void func_00397c40(void* a, void* b);
+extern s32 func_00397c40(void* hierarchy);
 extern s32 func_00471370(u8 *a, u8 *b, u8 *c, void *d);
 // FUN_00472F30
 void func_00472f30(u8* param_1, int param_2)
@@ -1463,7 +1464,7 @@ void func_00473000(u8* arg0, u8* arg1)
             func_00471370(arg0, arg1, arg1 + 0x54, 0);
             *(u16*)(arg1 + 0x54) |= 0x4000;
         } else {
-            func_00397c40(arg0, p5);
+            func_00397c40(arg0);
             *(u16*)(arg1 + 0x54) &= 0xBFFF;
         }
         *(s32*)(*(u8**)(arg0 + 0x20) + 0x3C) = *(s32*)DAT_00922ba0_abs;
@@ -1910,118 +1911,189 @@ void func_00473870(u8 *arg0)
 #pragma pop
 
 extern void func_00473870(u8* a);
-extern void func_003d5e90(void* a, void* b, void* c, f32 d);
-extern void func_00397c40_1(void* a);
-/* measured: simplified v18 (manual 2.0f halving removed) + fixed 3d5bc0 arity (retail 2-arg a0/f12, not 3-arg with tbl). Transferable lever: write `(f32)(u32)x` and let b210 emit bltz/srl/andi/or/mtc1/cvt/add.s itself. Prior draft 298 words 1380/1440 (4.2% short, correctly unbanked); this 1472/1440 passes. */
-// FUN_00473B20 NONMATCHING
-#ifdef NON_MATCHING
+extern s32 func_003d5e90(void* a, void* b, void* c, f32 d);
+/* Native b210 O2 MATCH: 1432B/window 1440B; the remaining eight bytes are zero.
+   Narrow each animation index after its table guard, including the repeated
+   sentinel fallback check. Keep the blend input separate from post-callback
+   increments, and share only the actual count, sentinel and conversion inputs. */
+#pragma push
+#pragma opt_propagation off
+#pragma opt_common_subs off
+// FUN_00473B20
 u8 *func_00473b20(u8 *arg0, u8 *arg1, s32 arg2)
 {
-    extern void func_00397c40();
-    s16 idx;
-    u8 *tbl;
-    u8 *ptr;
-    u8 *ptr2;
-    f32 temp_f20;
-    s32 off;
-    s32 off2;
-    u16 cnt;
-    s64 sIdx;
-    s64 sIdx2;
-    u16 v18;
-    f32 var_f;
-    f32 nf;
-    u32 b40;
+    s32 idx;
+    u8 *table;
+    u8 *animation;
+    u8 *animationBase;
+    s32 offset;
+    s32 selectedIndex;
+    s64 count;
+    f32 elapsed;
+    f32 duration;
+    f32 one;
+    f32 step;
+    f32 progress;
+    f32 inputProgress;
+    f32 fallbackDuration;
+    f32 fallbackStep;
+    f32 frameScale;
+    f32 frameOffset;
+    f32 frameTime;
+    u32 flags;
+    u8 *emptyAnimation;
+    void *currentInterpolator;
 
-    idx = *(s16*)(arg0 + 4);
+    idx = *(s16 *)(arg0 + 4);
     if (idx < 0) {
         return arg1;
     }
-    if (*(u8*)(arg0 + 2) == 1) {
-        tbl = *(u8**)(arg0 + 0x34);
-        if ((tbl != (u8*)0) && (idx < *(u16*)(tbl + 8))) {
-            off = (s32)idx * 0x50;
-            ptr = *(u8**)(*(u32*)tbl + 0x40 + off);
-            if ((ptr != (u8*)0) && (ptr != (u8*)D_00922BC0_abs)) {
-                if ((tbl != (u8*)0) && (*(s32*)(tbl + 4) != 0)) {
-                    func_003d5e40(*(u8**)(*(u8**)(arg0 + 0x20) + 0x20), *(f32*)(arg0 + 0xC) - 1.0f);
-                    func_003d5e40(*(u8**)(*(u8**)(arg0 + 0x20) + 0x20), *(f32*)(arg0 + 0xC));
+    if (arg0[2] == 1) {
+        table = *(u8 **)(arg0 + 0x34);
+        if (table != 0 && idx < *(u16 *)(table + 8)) {
+            offset = idx * 0x50;
+            animation = *(u8 **)(*(u32 *)table + 0x40 + offset);
+            if (animation != 0 && animation != (u8 *)D_00922BC0_abs) {
+                if (table != 0 && *(u32 *)(table + 4) != 0) {
+                    func_003d5e40(*(u8 **)(*(u8 **)(arg0 + 0x20) + 0x20),
+                        *(f32 *)(arg0 + 0xC) - 1.0f);
+                    func_003d5e40(*(u8 **)(*(u8 **)(arg0 + 0x20) + 0x20),
+                        *(f32 *)(arg0 + 0xC));
                     func_00473870(arg0);
                 }
-                func_00397c40(*(u8**)(arg0 + 0x20));
+                func_00397c40(*(void **)(arg0 + 0x20));
             }
         }
         return arg1;
     }
-    temp_f20 = iGpffff8040 * *(f32*)(arg0 + 8);
-    if ((!(temp_f20 <= 0.0f)) || (*(u16*)(arg0 + 0) & 6)) {
-        if (*(f32*)(arg0 + 0x1C) < 1.0f) {
-            tbl = *(u8**)(arg0 + 0x34);
-            if ((tbl != (u8*)0) && (sIdx = (s64)idx, cnt = *(u16*)(tbl + 8), sIdx < (s64)(u32)cnt) && (off = (s32)sIdx * 0x50, b40 = *(u32*)tbl + 0x40, ptr = *(u8**)(b40 + off), (ptr != (u8*)0) && (ptr != (u8*)D_00922BC0_abs)) && (sIdx2 = (s64)*(s16*)(arg0 + 0x10), sIdx2 < (s64)(u32)cnt) && (off2 = (s32)sIdx2 * 0x50, ptr2 = *(u8**)(b40 + off2), (ptr2 != (u8*)0) && (ptr2 != (u8*)D_00922BC0_abs))) {
-                func_003d5e90(*(void**)(*(u8**)(arg0 + 0x20) + 0x20), *(void**)(arg0 + 0x24), *(void**)(arg0 + 0x28), *(f32*)(arg0 + 0x1C));
-                v18 = *(u16*)(arg0 + 0x18);
-                var_f = (f32)(u32)v18;
-                nf = *(f32*)(arg0 + 0x1C) + (1.0f / var_f);
-                *(f32*)(arg0 + 0x1C) = nf;
-                if (!(nf < 1.0f)) {
-                    func_003d5840(*(void**)(*(u8**)(arg0 + 0x20) + 0x20), *(void**)(*(u8**)(arg0 + 0x28)));
-                    ptr = *(u8**)(*(u32*)(*(u32*)(arg0 + 0x34)) + 0x4C + off);
-                    if (ptr == (u8*)0) {
-                        func_003d5e40(*(u8**)(*(u8**)(arg0 + 0x20) + 0x20), temp_f20);
-                    } else {
-                        func_003d5e40(*(u8**)(*(u8**)(arg0 + 0x20) + 0x20), temp_f20 + iGpffff8040 * (f32)*(s32*)ptr);
+    elapsed = iGpffff8040 * *(f32 *)(arg0 + 8);
+    if (!(elapsed <= 0.0f) || (*(u16 *)arg0 & 6) != 0) {
+        inputProgress = *(f32 *)(arg0 + 0x1C);
+        if (inputProgress < 1.0f) {
+            table = *(u8 **)(arg0 + 0x34);
+            if (table == 0) {
+                goto advance_blend;
+            }
+            selectedIndex = (s16)idx;
+            count = *(u16 *)(table + 8);
+            if (selectedIndex >= count) {
+                goto advance_blend;
+            }
+            offset = selectedIndex * 0x50;
+            animationBase = *(u8 **)table + 0x40;
+            animation = *(u8 **)(animationBase + offset);
+            if (animation == 0) {
+                goto advance_blend;
+            }
+            emptyAnimation = (u8 *)D_00922BC0_abs;
+            if (animation == emptyAnimation) {
+                goto advance_blend;
+            }
+            if (table == 0) {
+                goto advance_blend;
+            }
+            selectedIndex = *(s16 *)(arg0 + 0x10);
+            if (selectedIndex >= count) {
+                goto advance_blend;
+            }
+            animation = *(u8 **)(animationBase + selectedIndex * 0x50);
+            if (animation == 0 || animation == emptyAnimation) {
+                goto advance_blend;
+            }
+            func_003d5e90(*(void **)(*(u8 **)(arg0 + 0x20) + 0x20),
+                *(void **)(arg0 + 0x24), *(void **)(arg0 + 0x28),
+                inputProgress);
+            duration = (f32)(u32)*(u16 *)(arg0 + 0x18);
+            one = 1.0f;
+            step = one / duration;
+            progress = *(f32 *)(arg0 + 0x1C) + step;
+            *(f32 *)(arg0 + 0x1C) = progress;
+            if (!(progress < one)) {
+                func_003d5840(*(void **)(*(u8 **)(arg0 + 0x20) + 0x20),
+                    *(void **)*(void **)(arg0 + 0x28));
+                animation = *(u8 **)(*(u32 *)*(u8 **)(arg0 + 0x34) + 0x4C + offset);
+                if (animation == 0) {
+                    func_003d5e40(*(u8 **)(*(u8 **)(arg0 + 0x20) + 0x20), elapsed);
+                } else {
+                    frameScale = iGpffff8040;
+                    frameOffset = (f32)*(s32 *)animation;
+                    frameTime = elapsed + frameScale * frameOffset;
+                    func_003d5e40(*(u8 **)(*(u8 **)(arg0 + 0x20) + 0x20), frameTime);
+                }
+            }
+            goto finish_time;
+advance_blend:
+            fallbackDuration = (f32)(u32)*(u16 *)(arg0 + 0x18);
+            fallbackStep = 1.0f / fallbackDuration;
+            *(f32 *)(arg0 + 0x1C) = *(f32 *)(arg0 + 0x1C) + fallbackStep;
+        } else {
+            table = *(u8 **)(arg0 + 0x34);
+            if (table != 0) {
+                selectedIndex = (s16)idx;
+                if (selectedIndex < (s64)(u32)*(u16 *)(table + 8)) {
+                    offset = selectedIndex * 0x50;
+                    animation = *(u8 **)(*(u32 *)table + 0x40 + offset);
+                    if (animation != 0 && animation != (u8 *)D_00922BC0_abs) {
+                        func_003d5bc0(*(void **)(*(u8 **)(arg0 + 0x20) + 0x20), elapsed);
+                        goto finish_time;
                     }
                 }
-            } else {
-                v18 = *(u16*)(arg0 + 0x18);
-                var_f = (f32)(u32)v18;
-                *(f32*)(arg0 + 0x1C) = *(f32*)(arg0 + 0x1C) + (1.0f / var_f);
             }
-        } else {
-            tbl = *(u8**)(arg0 + 0x34);
-            if ((tbl != (u8*)0) && ((s64)idx < (s64)(u32)*(u16*)(tbl + 8)) && (*(u8**)(*(u32*)tbl + 0x40 + (s32)idx * 0x50) != (u8*)0) && (*(u8**)(*(u32*)tbl + 0x40 + (s32)idx * 0x50) != (u8*)D_00922BC0_abs)) {
-                func_003d5bc0(*(void**)(*(u8**)(arg0 + 0x20) + 0x20), temp_f20);
-            } else if (tbl == (u8*)0) {
-                *(f32*)(arg0 + 0xC) = *(f32*)(arg0 + 0xC) + temp_f20;
-            } else if (*(u8**)(*(u32*)tbl + (s32)idx * 0x50 + 0x40) == (u8*)D_00922BC0_abs) {
-            } else {
-                *(f32*)(arg0 + 0xC) = *(f32*)(arg0 + 0xC) + temp_f20;
+            if (table == 0) {
+                goto advance_clock;
             }
+            selectedIndex = (s16)idx;
+            if (selectedIndex >= (s64)(u32)*(u16 *)(table + 8)) {
+                goto advance_clock;
+            }
+            animationBase = *(u8 **)table;
+            offset = selectedIndex * 0x50;
+            if (*(u8 **)(offset + (u32)animationBase + 0x40) == (u8 *)D_00922BC0_abs) {
+                goto finish_time;
+            }
+advance_clock:
+            *(f32 *)(arg0 + 0xC) = *(f32 *)(arg0 + 0xC) + elapsed;
         }
-        *(u16*)(arg0 + 0) = *(u16*)(arg0 + 0) & 0xFFFB;
+finish_time:
+        *(u16 *)arg0 &= 0xFFFB;
     }
-    tbl = *(u8**)(arg0 + 0x34);
-    if ((tbl != (u8*)0) && ((s64)idx < (s64)(u32)*(u16*)(tbl + 8))) {
-        off = (s32)idx * 0x50;
-        ptr = *(u8**)(*(u32*)tbl + 0x40 + off);
-        if ((ptr != (u8*)0) && (ptr != (u8*)D_00922BC0_abs)) {
-            if ((*(u16*)(arg0 + 0) & 2) && (arg1 != (u8*)0)) {
-                func_00471280(*(void**)(*(u8**)(arg0 + 0x20) + 0x20), *(void**)(*(u8**)(arg1 + 0x20) + 0x20), *(void**)(*(u8**)(arg0 + 0x20) + 0x20), 1.0f);
-            }
-            func_00473870(arg0);
-            if (arg2 != 0) {
-                if (*(u16*)(arg0 + 0) & 0x10) {
-                    func_00473000(*(u8**)(arg0 + 0x20), arg0);
-                } else if (*(u16*)(arg0 + 0x54) & 0x81E0) {
-                    func_00471370(*(u8**)(arg0 + 0x20), arg0, arg0 + 0x54, (void*)0);
-                } else {
-                    func_00397c40(*(u8**)(arg0 + 0x20));
+    table = *(u8 **)(arg0 + 0x34);
+    if (table != 0) {
+        selectedIndex = (s16)idx;
+        if (selectedIndex < (s64)(u32)*(u16 *)(table + 8)) {
+            offset = selectedIndex * 0x50;
+            animation = *(u8 **)(*(u32 *)table + 0x40 + offset);
+            if (animation != 0 && animation != (u8 *)D_00922BC0_abs) {
+                if ((*(u16 *)arg0 & 2) != 0 && arg1 != 0) {
+                    currentInterpolator = *(void **)(*(u8 **)(arg0 + 0x20) + 0x20);
+                    func_00471280(currentInterpolator,
+                        *(void **)(*(u8 **)(arg1 + 0x20) + 0x20),
+                        currentInterpolator, 1.0f);
                 }
+                func_00473870(arg0);
+                if (arg2 != 0) {
+                    if ((*(u16 *)arg0 & 0x10) != 0) {
+                        func_00473000(*(void **)(arg0 + 0x20), arg0);
+                    } else if ((*(u16 *)(arg0 + 0x54) & 0x81E0) != 0) {
+                        func_00471370(*(void **)(arg0 + 0x20), arg0, arg0 + 0x54, 0);
+                    } else {
+                        func_00397c40(*(void **)(arg0 + 0x20));
+                    }
+                }
+                flags = *(u16 *)(arg0 + 0x54);
+                if ((flags & 0x81E0) != 0) {
+                    *(u16 *)(arg0 + 0x54) = flags | 0x4000;
+                } else {
+                    *(u16 *)(arg0 + 0x54) = flags & 0xBFFF;
+                }
+                *(f32 *)(arg0 + 0xC) = *(f32 *)(*(u8 **)(*(u8 **)(arg0 + 0x20) + 0x20) + 4);
             }
-            v18 = *(u16*)(arg0 + 0x54);
-            if (v18 & 0x81E0) {
-                *(u16*)(arg0 + 0x54) = v18 | 0x4000;
-            } else {
-                *(u16*)(arg0 + 0x54) = v18 & 0xBFFF;
-            }
-            *(f32*)(arg0 + 0xC) = *(f32*)(*(u32*)(*(u32*)(arg0 + 0x20) + 0x20) + 4);
         }
     }
     return arg0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473b20);
-#endif
+
+#pragma pop
 extern void func_003d59a0(void* a, void* b);
 /* MATCH: 1320B instructions plus eight zero-tail bytes. Member-first
    field bases, signed promoted counts and separate attachment offsets
@@ -3007,7 +3079,6 @@ typedef struct {
 /* measured: schedule on 1014->915 (-99, 4524->4028B, 28B over window; frame still 0x1D0 vs 0x1A0). */
 void func_00475cd0(void* param_1)
 {
-    extern void func_00397c40();
     extern void func_003f6440(s32 a, s32 b);
     extern void func_00477260(void* a, u32* b, u16 c);
     extern void func_004789c0(void* a);
@@ -5483,7 +5554,7 @@ s32 func_0047a320(void* arg0) {
             elemOff = (s32)idx * 0x50;
             item = *(void**)((u32)((u32)*(s32*)list + 0x40) + (u32)elemOff);
             if (item != (void*)0 && item != (void*)D_00922BC0_abs) {
-                { extern void func_00397c40(); func_00397c40(*(void**)((u8*)arg0 + 0x10C)); }
+                func_00397c40(*(void**)((u8*)arg0 + 0x10C));
                 i = 0;
                 while ((i & 0xFFFF) < 5) {
                     elemOff = (u16)i;
@@ -5497,7 +5568,7 @@ s32 func_0047a320(void* arg0) {
                                 innerBase = *(void**)inner;
                                 item = *(void**)((u32)innerBase + (u32)((s32)widx * 0x50) + 0x40);
                                 if (item != (void*)0 && item != (void*)D_00922BC0_abs) {
-                                    func_00397c40(*(void**)((u8*)wpn + 0x10C), wpn);
+                                    func_00397c40(*(void**)((u8*)wpn + 0x10C));
                                 }
                             }
                         }
@@ -6004,11 +6075,9 @@ s32 func_0047b0c0(u8 *arg0)
     extern s32 func_003e2ce0();
     extern s32 func_003e2f60();
     extern s32 func_003ef1b0();
-    extern s32 func_003ef260();
     extern s32 func_0043f9c8();
     extern s32 func_004667d0(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
-    extern void func_00463100(void *);
-    extern u8 D_0070B610;
+    extern u8 D_0070B610[];
     extern s32 func_0047d460();
 /* irregular: 10 native warning(s); review required */
   unsigned short temp_v0;
@@ -6076,7 +6145,7 @@ s32 func_0047b0c0(u8 *arg0)
         }
         else {
           temp_v7 = func_003e6a90(*piVar2);
-          func_003ef260(temp_v7,func_00463100,piVar2 + 0xd);
+          func_003ef260((const struct RwTexDictionary *)(u32)temp_v7,func_00463100,piVar2 + 0xd);
           func_003ef1b0(temp_v7);
         }
       break;
@@ -6107,7 +6176,7 @@ s32 func_0047b0c0(u8 *arg0)
       break;
     case 0x23:
         temp_v7 = func_003dc370(*piVar2);
-        func_003ef260(temp_v7,func_00463100,piVar2 + 0xd);
+        func_003ef260((const struct RwTexDictionary *)(u32)temp_v7,func_00463100,piVar2 + 0xd);
         func_003ef1b0(temp_v7);
       break;
     case 0x2b:
@@ -6488,87 +6557,80 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047b0c0);
 #endif
 
 
-typedef unsigned int u_long128 __attribute__((mode(TI)));
-extern u32 func_004669d0(u32 a, u32* b, u32* c);
-extern void func_003ef260(void* a, void* b, void* c);
-extern void func_003ef1b0(void* a);
-extern void func_003e2e40(void* a, void* b);
-extern void func_003d60e0(void* a, s32 b);
-extern s32 func_004667d0();
-extern u32 func_0047f9f0(void* a);
+extern u8 *func_004669d0(u8 *request, s32 *ready, s32 *handle);
+extern s32 func_003ef1b0(void* dictionary);
+extern s32 func_003e2e40(void* stream, void* data);
+extern void* func_003d60e0(void* schema, void* dictionary);
+extern u8 *func_004667d0(s32 kind, const char *name, const char *path,
+    s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName,
+    s32 resultKind, s32 memoryKind);
+extern s32 *func_0047f9f0(void);
 extern s32 func_004800d0(void *stream, u8 **head, u32 kind, void *clump);
-extern void func_00463100(void* a);
-extern u8 D_0070B610;
-/* measured cold47c660: sanitized m2c (3x K&R->ANSI) 282 lines; raw u8* idiom (no new struct,
-   alloc/free/memset via DAT_008873e8[0]/DAT_008873ec[0]/func_0043f9c8, single-arg d200/dc30).
-   Count first: fndiff window 1952B (488 words incl. 3 trailing nops), fnalign retail 485 instrs.
-   R1: v1 de-noised 366 words / 464 instrs / 309 edits+6 reloc-only, frame 0xD0 vs 0x100.
-   R2: v3 explicit outer/mapBase/cntBase/layer (tbl k-stride fix) 364 / 464 / 294+6 (best, -2/-15).
-   R3: Model-clump idiom 373 (+9 regress, raw kept); u_long128 spills v2 400/480 and v4 400/471
-   (+36 regress, mixed-width dsll32/dsrl32 before sq where retail sq's directly, cf 0x480670).
-   R4 pragmas on v3: propoff 364 tie (466 instrs), loopinv 364 tie, csuboff 461, schedon 443.
-   Two unproductive families (pragmas, spills/idiom) after one productive (explicit locals), stop.
-   fnalign best (v3): retail 485 vs object 464 (21 short, 4.3% short), 294 edits+6 reloc-only.
-   Residual: 5-way saved-reg rotation (retail sz:$s0/t17:$s1/p:$s2/v19:$s3/v20:$s4/obj:$s5/cnt:$s6/cnt2:$s7
-   vs b210 t17:$s0/p:$s2/obj:$s4/v20:$s5...), D_0070B610 scalar gp-relative vs retail lui (1 word),
-   and 4x sq/lq 32-bit spills emitted as sw/lw (frame 0xD0 vs 0x100). Prior nd~409 floor retained
-   below as context; production stays ASM. */
-/* prior floor context (retained): three alloc blocks, 0xC list loop, 0x234/0x254 slot tables,
-   8-word 0x50 copy, d200/dc30 1-arg calls, 0x667d0 10-arg call, sq/lq u_long128 spE0/D0/C0/B0,
-   rotation groups {t17,sz} and {v19,v20,obj} rotate together in every declaration order tried. */
-/* gate: object 475 against retail 485, -2.1% - INSIDE the +-3% band (need >=470).
-   Fixes: 0x234 block (s32)map->(s32)(s64)map to match retail dsll32/dsra32 for both
-   0x234/0x254 tables (+2, 464->466); u32 i/j/k->u16 to match retail andi wrapping
-   (+9, 466->475, frame 0xE0->0x100 matching retail). fnalign 294->298 edits (count
-   fix before word-score comparison, handoff 7y). Remaining: saved-reg rotation,
-   D_0070B610 gp-relative vs lui (1 word), sq/lq spills (count-neutral). */
-// FUN_0047C660 NONMATCHING
-#ifdef NON_MATCHING
+extern u8 D_0070B610[];
+/* Native b210 O2 MATCH: 1944B/window 1952B; the remaining eight bytes are zero.
+   Poll results retain their real pointer type and their status/stream outputs.
+   Copy the RwMatrix value, reload entry storage after writes and callbacks,
+   and dereference the two effect-list pointer arrays at offsets 0x14/0x20.
+   Full-width iteration and independently narrowed asset indices are distinct.
+   Prior probe notes and native receipts are retained in model-manager-after-rebase. */
+#pragma push
+#pragma opt_propagation off
+// FUN_0047C660
 s32 func_0047c660(u8 *arg0)
 {
+    u8 *secondaryResult;
+    u8 *primaryResult;
     u8 *owner;
+    u8 *slot;
+    u32 k;
     s32 ok;
     s32 okA;
     s32 okB;
     u32 size;
-    u32 res;
-    u32 ready;
-    void *handle;
+    u32 i;
+    u8 *node;
+    u32 j;
+    u8 *next;
+    u8 *entryResult;
+    u8 *clumpResult;
+    struct { s32 ready; s32 handle; } loaded;
     u16 cnt;
-    u16 i;
-    u16 j;
-    u16 k;
-    u8 *slot;
-    u8 *base;
-    s16 map;
+    s32 map;
+    s16 checkedMap;
     u32 srcIdx;
     u32 dstIdx;
     s32 srcOff;
     s32 dstOff;
     u8 *srcEnt;
     u8 *dstEnt;
-    s32 n;
-    u8 *s;
-    u8 *d;
     u32 anim;
     u8 *tbl;
-    u8 *node;
-    u8 *next;
     u8 *outer;
     u8 *mapBase;
     u8 *cntBase;
     u8 *layer;
+    u8 *table;
+    u8 *entries;
+    u8 **mapSlot;
+    s32 srcPointerOff;
+    s32 dstPointerOff;
+    s32 pendingSource;
+    u8 *requestTable;
+    u8 *pendingRequest;
+    u32 requestByteOffset;
+    u32 resourceEntryOffset;
+    s32 checkedByteOffset;
 
     owner = *(u8 **)(arg0 + 0x30C);
     ok = 1;
     okA = 1;
     okB = 1;
     if (*(u32 *)(owner + 4) != 0) {
-        res = func_004669d0(*(u32 *)(owner + 4), &ready, (u32 *)&handle);
-        if (ready == 1) {
-            func_003ef260((void *)res, func_00463100, owner + 0x34);
-            func_003ef1b0((void *)res);
-            func_003e2e40(handle, 0);
+        primaryResult = func_004669d0(*(u8 **)(owner + 4), &loaded.ready, &loaded.handle);
+        if (loaded.ready == 1) {
+            func_003ef260((const struct RwTexDictionary *)primaryResult, func_00463100, owner + 0x34);
+            func_003ef1b0((void *)primaryResult);
+            func_003e2e40((void *)loaded.handle, 0);
             *(u32 *)(owner + 4) = 0;
         } else {
             okA = 0;
@@ -6576,8 +6638,8 @@ s32 func_0047c660(u8 *arg0)
         }
     }
     if (*(u32 *)(owner + 8) != 0) {
-        res = func_004669d0(*(u32 *)(owner + 8), &ready, (u32 *)&handle);
-        if (ready == 1) {
+        secondaryResult = func_004669d0(*(u8 **)(owner + 8), &loaded.ready, &loaded.handle);
+        if (loaded.ready == 1) {
             if (*(void **)(arg0 + 0x254) == 0) {
                 cnt = *(u16 *)(owner + 0x20);
                 size = (u32)cnt * 8 + 0x10;
@@ -6589,9 +6651,9 @@ s32 func_0047c660(u8 *arg0)
                 *(u16 *)(slot + 0xE) = 1;
                 *(u8 **)(arg0 + 0x254) = slot;
             }
-            *(u32 *)(*(u8 **)(arg0 + 0x254) + 4) = res;
-            func_003d60e0(&D_0070B610, (s32)res);
-            func_003e2e40(handle, 0);
+            *(u32 *)(*(u8 **)(arg0 + 0x254) + 4) = (u32)secondaryResult;
+            func_003d60e0(D_0070B610, secondaryResult);
+            func_003e2e40((void *)loaded.handle, 0);
             *(u32 *)(owner + 8) = 0;
         } else {
             ok = 0;
@@ -6601,9 +6663,12 @@ s32 func_0047c660(u8 *arg0)
     if (*(u32 *)(owner + 0xC) != 0) {
         i = 0;
         while (i < *(u16 *)(owner + 0x20)) {
-            if (*(u32 *)(*(u8 **)(owner + 0xC) + i * 4) != 0) {
-                res = func_004669d0(*(u32 *)(*(u8 **)(owner + 0xC) + i * 4), &ready, (u32 *)&handle);
-                if (ready == 1) {
+            requestTable = *(u8 **)(owner + 0xC);
+            requestByteOffset = i * 4;
+            pendingRequest = *(u8 **)(requestTable + requestByteOffset);
+            if (pendingRequest != 0) {
+                entryResult = func_004669d0(pendingRequest, &loaded.ready, &loaded.handle);
+                if (loaded.ready == 1) {
                     if (*(void **)(arg0 + 0x254) == 0) {
                         cnt = *(u16 *)(owner + 0x20);
                         size = (u32)cnt * 8 + 0x10;
@@ -6615,10 +6680,11 @@ s32 func_0047c660(u8 *arg0)
                         *(u16 *)(slot + 0xE) = 1;
                         *(u8 **)(arg0 + 0x254) = slot;
                     }
-                    base = *(u8 **)(*(u8 **)(arg0 + 0x254) + 0);
-                    *(u32 *)(base + (i & 0xFFFF) * 8) = res;
-                    func_003e2e40(handle, 0);
-                    *(u32 *)(*(u8 **)(owner + 0xC) + i * 4) = 0;
+                    table = *(u8 **)(arg0 + 0x254);
+                    resourceEntryOffset = (u16)i * 8;
+                    *(u32 *)(*(u8 **)table + resourceEntryOffset) = (u32)entryResult;
+                    func_003e2e40((void *)loaded.handle, 0);
+                    *(u32 *)(*(u8 **)(owner + 0xC) + requestByteOffset) = 0;
                 } else {
                     ok = 0;
                 }
@@ -6626,17 +6692,18 @@ s32 func_0047c660(u8 *arg0)
             i++;
         }
     }
-    if (*(u32 *)(owner + 0x14) != 0 || *(u32 *)(owner + 0x10) != 0) {
+    pendingSource = *(s32 *)(owner + 0x14);
+    if (pendingSource != 0 || *(u32 *)(owner + 0x10) != 0) {
         if (okA == 1 && okB == 1) {
-            if (*(u32 *)(owner + 0x14) != 0) {
-                *(u32 *)(owner + 0x10) = (u32)func_004667d0(2, 0, 0, 0, *(s32 *)(owner + 0x14), 0, 0, 0, 0, 0);
+            if (pendingSource != 0) {
+                *(u32 *)(owner + 0x10) = (u32)func_004667d0(2, 0, 0, 0, pendingSource, 0, 0, 0, 0, 0);
                 *(u32 *)(owner + 0x14) = 0;
                 ok = 0;
             } else {
-                res = func_004669d0(*(u32 *)(owner + 0x10), &ready, (u32 *)&handle);
-                if (ready == 1) {
-                    *(u32 *)(arg0 + 0xDC) = res;
-                    func_003e2e40(handle, 0);
+                clumpResult = func_004669d0(*(u8 **)(owner + 0x10), &loaded.ready, &loaded.handle);
+                if (loaded.ready == 1) {
+                    *(u32 *)(arg0 + 0xDC) = (u32)clumpResult;
+                    func_003e2e40((void *)loaded.handle, 0);
                     *(u32 *)(owner + 0x10) = 0;
                 } else {
                     ok = 0;
@@ -6661,11 +6728,10 @@ s32 func_0047c660(u8 *arg0)
                     *(u16 *)(slot + 6) = 1;
                     *(u8 **)(arg0 + 0x234) = slot;
                 }
-                base = *(u8 **)(arg0 + 0x234);
-                if (*(u32 *)(*(u8 **)(base + 0) + *(u16 *)(node + 4) * 8) == 0) {
-                    *(u32 *)(*(u8 **)(base + 0) + *(u16 *)(node + 4) * 8) = (u32)func_0047f9f0(base);
+                if (*(u32 *)(**(u8 ***)(arg0 + 0x234) + *(u16 *)(node + 4) * 8) == 0) {
+                    *(u32 *)(**(u8 ***)(arg0 + 0x234) + *(u16 *)(node + 4) * 8) = (u32)func_0047f9f0();
                 }
-                func_004800d0(*(void **)(node + 8), (u8 **)*(void **)(*(u8 **)(base + 0) + *(u16 *)(node + 4) * 8), *(u32 *)(node + 0), *(void **)(arg0 + 0xDC));
+                func_004800d0(*(void **)(node + 8), (u8 **)*(void **)(**(u8 ***)(arg0 + 0x234) + *(u16 *)(node + 4) * 8), *(u32 *)(node + 0), *(void **)(arg0 + 0xDC));
                 func_003e2e40(*(void **)(node + 8), 0);
                 next = *(u8 **)(node + 0xC);
                 DAT_008873ec[0](node);
@@ -6680,76 +6746,84 @@ s32 func_0047c660(u8 *arg0)
         k = 0;
         while (k < 2) {
             outer = owner + k * 4;
-            cntBase = owner + k * 2;
-            layer = arg0 + k * 0xA4;
-            if (*(u32 *)(outer + 0x24) != 0) {
+            mapSlot = (u8 **)(outer + 0x24);
+            if (*(u8 **)(outer + 0x24) != 0) {
                 j = 0;
+                layer = arg0 + k * 0xA4;
+                cntBase = owner + k * 2;
                 while (j < *(u16 *)(cntBase + 0x20)) {
                     mapBase = *(u8 **)(outer + 0x24);
                     map = *(s16 *)(mapBase + j * 2);
                     if (map != -1) {
+                        table = *(u8 **)(layer + 0x120);
+                        entries = *(u8 **)table;
                         srcIdx = (u16)map;
+                        srcOff = srcIdx * 0x50;
                         dstIdx = (u16)j;
-                        srcOff = (s32)srcIdx * 0x50;
-                        dstOff = (s32)dstIdx * 0x50;
-                        base = *(u8 **)(layer + 0x120);
-                        srcEnt = *(u8 **)base + srcOff;
-                        dstEnt = *(u8 **)base + dstOff;
-                        s = srcEnt;
-                        d = dstEnt;
-                        n = 8;
-                        do {
-                            *(u32 *)(d + 0) = *(u32 *)(s + 0);
-                            *(u32 *)(d + 4) = *(u32 *)(s + 4);
-                            s += 8;
-                            n--;
-                            d += 8;
-                        } while (n > 0);
-                        base = *(u8 **)base;
-                        anim = *(u32 *)(base + srcOff + 0x40);
+                        dstOff = dstIdx * 0x50;
+                        srcEnt = entries + srcOff;
+                        dstEnt = entries + dstOff;
+                        *(RwMatrix*)dstEnt = *(RwMatrix*)srcEnt;
+                        entries = *(u8 **)table;
+                        anim = *(u32 *)(entries + srcOff + 0x40);
                         if (anim != 0) {
-                            *(u32 *)(base + dstOff + 0x40) = anim;
+                            *(u32 *)(entries + dstOff + 0x40) = anim;
                         }
-                        *(u32 *)(base + dstOff + 0x44) |= 1;
+                        entries = *(u8 **)table;
+                        *(u32 *)(entries + dstOff + 0x44) |= 1;
                         if (k == 0) {
-                            if (*(void **)(arg0 + 0x234) != 0) {
-                                if ((s32)(s64)map < (s32)*(u16 *)(*(u8 **)(arg0 + 0x234) + 4)) {
-                                    base = *(u8 **)(*(u8 **)(arg0 + 0x234) + 0);
-                                    if (*(u32 *)(base + (u32)(u16)map * 8) != 0) {
-                                        *(u32 *)(base + (j & 0xFFFF) * 8) = *(u32 *)(base + (u32)(u16)map * 8);
-                                        *(u8 *)(base + (j & 0xFFFF) * 8 + 4) |= 1;
+                            table = *(u8 **)(arg0 + 0x234);
+                            if (table != 0) {
+                                checkedMap = (s16)map;
+                                if (checkedMap < (s64)(u32)*(u16 *)(table + 4)) {
+                                    checkedByteOffset = checkedMap * 8;
+                                    entries = *(u8 **)table;
+                                    if (*(u32 *)(entries + checkedByteOffset) != 0) {
+                                        dstPointerOff = (u16)j * 8;
+                                        *(u32 *)(entries + dstPointerOff) = *(u32 *)(entries + srcIdx * 8);
+                                        entries = *(u8 **)table;
+                                        *(u8 *)(entries + dstPointerOff + 4) |= 1;
                                     }
                                 }
                             }
-                            if (*(void **)(arg0 + 0x254) != 0) {
-                                if ((s32)(s64)map < (s32)*(u16 *)(*(u8 **)(arg0 + 0x254) + 0xC)) {
-                                    base = *(u8 **)(*(u8 **)(arg0 + 0x254) + 0);
-                                    if (*(u32 *)(base + (u32)(u16)map * 8) != 0) {
-                                        *(u32 *)(base + (j & 0xFFFF) * 8) = *(u32 *)(base + (u32)(u16)map * 8);
-                                        *(u8 *)(base + (j & 0xFFFF) * 8 + 4) |= 1;
+                            table = *(u8 **)(arg0 + 0x254);
+                            if (table != 0) {
+                                checkedMap = (s16)map;
+                                if (checkedMap < (s64)(u32)*(u16 *)(table + 0xC)) {
+                                    checkedByteOffset = checkedMap * 8;
+                                    entries = *(u8 **)table;
+                                    if (*(u32 *)(entries + checkedByteOffset) != 0) {
+                                        dstPointerOff = (u16)j * 8;
+                                        *(u32 *)(entries + dstPointerOff) = *(u32 *)(entries + srcIdx * 8);
+                                        entries = *(u8 **)table;
+                                        *(u8 *)(entries + dstPointerOff + 4) |= 1;
                                     }
                                 }
                             }
                             tbl = *(u8 **)(layer + 0x124);
                             if (tbl != 0) {
-                                if (*(void **)(tbl + 0x14 + (u32)(u16)map * 4) != 0) {
-                                    *(void **)(tbl + 0x14 + (u16)j * 4) = func_0047d200(*(void **)(tbl + 0x14 + (u32)(u16)map * 4));
+                                entries = *(u8 **)(tbl + 0x14);
+                                srcPointerOff = srcIdx * 4;
+                                if (*(u32 **)(entries + srcPointerOff) != 0) {
+                                    *(u32 **)(*(u8 **)(tbl + 0x14) + dstIdx * 4) =
+                                        func_0047d200(*(u32 ***)(entries + srcPointerOff));
                                 }
-                                if (*(void **)(tbl + 0x20 + (u32)(u16)map * 4) != 0) {
-                                    *(void **)(tbl + 0x20 + (u16)j * 4) = func_0047dc30(*(void **)(tbl + 0x20 + (u32)(u16)map * 4));
+                                entries = *(u8 **)(tbl + 0x20);
+                                if (*(u32 **)(entries + srcPointerOff) != 0) {
+                                    *(u32 **)(*(u8 **)(tbl + 0x20) + dstIdx * 4) =
+                                        func_0047dc30(*(u32 ***)(entries + srcPointerOff));
                                 }
                             }
                         }
                     }
                     j++;
                 }
-                DAT_008873ec[0](*(void **)(outer + 0x24));
+                DAT_008873ec[0](*mapSlot);
             }
             k++;
         }
     }
     return ok;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047c660);
-#endif
+
+#pragma pop
