@@ -1,0 +1,2730 @@
+{
+ "_comment": "Proposed names for windows whose body is shared by several reference functions. A body cannot decide between them; the callers and callees can. For each window, every candidate name gathers its co-called and co-calling names from the five reference binaries, and the candidate whose neighbourhood overlaps this window's already-named neighbours most is proposed. Sole winner with a positive score only. PROPOSALS: they are not landed in config/symbol_names*.txt and each needs the same review a mined name gets before it is allowed to rename a definition.",
+ "resolved": 276,
+ "windows": {
+  "0044e168": {
+   "name": "dpmul",
+   "context_score": 6,
+   "candidates": 2,
+   "words": 22,
+   "context_names": [
+    "MWSFPLY_SetFlowLimit",
+    "__dtoa_ratio",
+    "__floatdidf",
+    "__floatdisf",
+    "__unpack_d",
+    "adxsje_calc_rsig",
+    "adxsje_set_rsig",
+    "ldexp"
+   ]
+  },
+  "004c0ee0": {
+   "name": "ACSVHL_Destroy",
+   "context_score": 1,
+   "candidates": 6,
+   "words": 10,
+   "context_names": [
+    "ACSSVR_Finish"
+   ]
+  },
+  "004c0f88": {
+   "name": "ACSVHL_Finish",
+   "context_score": 1,
+   "candidates": 3,
+   "words": 14,
+   "context_names": [
+    "ACSSVR_Finish",
+    "MWSTM_SetFlowLimit"
+   ]
+  },
+  "004c19d0": {
+   "name": "ADXAMP_ExecServer",
+   "context_score": 1,
+   "candidates": 12,
+   "words": 24,
+   "context_names": [
+    "ADXAMP_ExecHndl"
+   ]
+  },
+  "004c3178": {
+   "name": "SKG_Init",
+   "context_score": 2,
+   "candidates": 5,
+   "words": 7,
+   "context_names": [
+    "ADXB_Init",
+    "SKG_GenerateKey"
+   ]
+  },
+  "004c3198": {
+   "name": "SKG_Finish",
+   "context_score": 1,
+   "candidates": 5,
+   "words": 7,
+   "context_names": [
+    "ADXB_Finish"
+   ]
+  },
+  "004c31b8": {
+   "name": "SKG_GenerateKey",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 110,
+   "context_names": [
+    "ADXB_SetExtString",
+    "adxb_get_key"
+   ]
+  },
+  "004cdcf0": {
+   "name": "ADXSJD_SetMaxDecSmpl",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 16,
+   "context_names": [
+    "ADXB_SetAhxDecSmpl",
+    "adxt_nlp_trap_entry",
+    "adxt_stat_decinfo"
+   ]
+  },
+  "004ceec8": {
+   "name": "ADXSJD_GetLpEndOfst",
+   "context_score": 2,
+   "candidates": 124,
+   "words": 6,
+   "context_names": [
+    "adxt_SetLpFlg",
+    "adxt_stat_decinfo"
+   ]
+  },
+  "004d0de8": {
+   "name": "ADXSJE_Init",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 22,
+   "context_names": [
+    "ADXT_InsertHdrSfa",
+    "memset"
+   ]
+  },
+  "004d1c58": {
+   "name": "ADXSTM_Create",
+   "context_score": 3,
+   "candidates": 28,
+   "words": 18,
+   "context_names": [
+    "adxf_CreateAdxFs",
+    "adxstm_Create",
+    "adxt_Create"
+   ]
+  },
+  "004d1ce8": {
+   "name": "ADXSTM_Destroy",
+   "context_score": 3,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "adxf_Close",
+    "adxstm_Destroy",
+    "adxt_Destroy"
+   ]
+  },
+  "004d1e58": {
+   "name": "ADXSTM_BindFile",
+   "context_score": 4,
+   "candidates": 3,
+   "words": 28,
+   "context_names": [
+    "adxf_SetAfsFileInfo",
+    "adxf_SetFileInfoEx",
+    "adxf_SetFileInfoRange",
+    "adxstm_BindFile"
+   ]
+  },
+  "004d1f00": {
+   "name": "ADXSTM_ReleaseFileNw",
+   "context_score": 6,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "LSC_ExecServer",
+    "MWSTM_SetFileRange",
+    "MWSTM_SetFname",
+    "adxstm_ReleaseFile",
+    "adxstm_ReleaseFileNw",
+    "adxt_Stop",
+    "adxt_start_stm"
+   ]
+  },
+  "004d1f70": {
+   "name": "ADXSTM_ReleaseFile",
+   "context_score": 6,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "adxf_Close",
+    "adxf_SetAfsFileInfo",
+    "adxf_SetFileInfoEx",
+    "adxf_SetFileInfoRange",
+    "adxstm_Destroy",
+    "adxstm_ReleaseFile"
+   ]
+  },
+  "004d1ff8": {
+   "name": "ADXSTM_GetStat",
+   "context_score": 9,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "ADXT_ExecErrChk",
+    "ADXT_ExecRdCompChk",
+    "ADXT_ExecRdErrChk",
+    "adxf_ExecOne",
+    "adxf_GetFsizeSct",
+    "adxf_SetAfsFileInfo",
+    "adxf_SetFileInfoEx",
+    "adxf_SetFileInfoRange",
+    "adxf_read_sj32",
+    "adxt_stat_decinfo"
+   ]
+  },
+  "004d2038": {
+   "name": "ADXSTM_Seek",
+   "context_score": 5,
+   "candidates": 28,
+   "words": 18,
+   "context_names": [
+    "LSC_ExecServer",
+    "MWSTM_SeekSct",
+    "adxf_read_sj32",
+    "adxstm_Seek",
+    "adxstmf_stat_exec",
+    "adxt_RcvrReplay",
+    "adxt_start_stm"
+   ]
+  },
+  "004d20a0": {
+   "name": "ADXSTM_Tell",
+   "context_score": 4,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "MWSTM_SeekSct",
+    "adxf_ExecOne",
+    "adxf_Stop",
+    "adxstm_Tell"
+   ]
+  },
+  "004d2128": {
+   "name": "ADXSTM_Start",
+   "context_score": 3,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "LSC_ExecServer",
+    "adxstm_Start",
+    "adxt_RcvrReplay",
+    "adxt_start_stm"
+   ]
+  },
+  "004d21a0": {
+   "name": "ADXSTM_Start2",
+   "context_score": 2,
+   "candidates": 28,
+   "words": 18,
+   "context_names": [
+    "adxf_read_sj32",
+    "adxstm_Start2"
+   ]
+  },
+  "004d2230": {
+   "name": "ADXSTM_StopNw",
+   "context_score": 5,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "LSC_ExecServer",
+    "adxf_StopNw",
+    "adxstm_ReleaseFileNw",
+    "adxstm_Stop",
+    "adxstm_StopNw",
+    "adxt_start_stm"
+   ]
+  },
+  "004d22c8": {
+   "name": "ADXSTM_Stop",
+   "context_score": 7,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "LSC_Stop",
+    "adxf_Stop",
+    "adxf_read_sj32",
+    "adxstm_Destroy",
+    "adxstm_ReleaseFile",
+    "adxstm_Stop",
+    "adxt_RcvrReplay"
+   ]
+  },
+  "004d2348": {
+   "name": "ADXSTM_EntryEosFunc",
+   "context_score": 3,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "adxt_Destroy",
+    "adxt_start_stm",
+    "adxt_stat_decinfo"
+   ]
+  },
+  "004d23a8": {
+   "name": "ADXSTM_SetEos",
+   "context_score": 4,
+   "candidates": 35,
+   "words": 16,
+   "context_names": [
+    "LSC_ExecServer",
+    "adxf_read_sj32",
+    "adxstm_SetEos",
+    "adxt_start_stm",
+    "adxt_stat_decinfo"
+   ]
+  },
+  "004d2a20": {
+   "name": "ADXSTM_ExecServer",
+   "context_score": 1,
+   "candidates": 20,
+   "words": 10,
+   "context_names": [
+    "adxstm_ExecServer"
+   ]
+  },
+  "004d2c30": {
+   "name": "ADXSTM_SetBufSize",
+   "context_score": 5,
+   "candidates": 13,
+   "words": 22,
+   "context_names": [
+    "LSC_ExecServer",
+    "adxstm_SetBufSize",
+    "adxt_ResetReloadTime",
+    "adxt_SetReloadSct",
+    "adxt_SetReloadTime",
+    "adxt_start_stm"
+   ]
+  },
+  "004d2c98": {
+   "name": "ADXSTM_SetReqRdSize",
+   "context_score": 2,
+   "candidates": 28,
+   "words": 18,
+   "context_names": [
+    "MWSTM_SetRdSct",
+    "adxf_read_sj32"
+   ]
+  },
+  "004d2cf8": {
+   "name": "ADXSTM_GetFileLen",
+   "context_score": 3,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "MWSTM_GetFsizeByte",
+    "MWSTM_SeekSct",
+    "adxf_GetFsizeSct",
+    "adxf_SetFileInfoEx"
+   ]
+  },
+  "004d2fa8": {
+   "name": "ADXSTM_SetSj",
+   "context_score": 2,
+   "candidates": 35,
+   "words": 16,
+   "context_names": [
+    "adxf_read_sj32",
+    "adxstm_SetSj"
+   ]
+  },
+  "004d4760": {
+   "name": "adxt_time_adjust_trap",
+   "context_score": 1,
+   "candidates": 13,
+   "words": 6,
+   "context_names": [
+    "adxt_GetTime"
+   ]
+  },
+  "004d4778": {
+   "name": "ADXT_GetTime",
+   "context_score": 1,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "adxt_GetTime"
+   ]
+  },
+  "004d4ac0": {
+   "name": "ADXT_GetTimeReal",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetTimeReal"
+   ]
+  },
+  "004d4af8": {
+   "name": "adxt_GetTimeReal",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 20,
+   "context_names": [
+    "adxt_GetTime"
+   ]
+  },
+  "004d4b48": {
+   "name": "ADXT_GetNumSmpl",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetNumSmpl"
+   ]
+  },
+  "004d4bd0": {
+   "name": "ADXT_GetSfreq",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetSfreq"
+   ]
+  },
+  "004d4c58": {
+   "name": "ADXT_GetNumChan",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetNumChan"
+   ]
+  },
+  "004d4ce0": {
+   "name": "ADXT_GetHdrLen",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetHdrLen"
+   ]
+  },
+  "004d4d68": {
+   "name": "ADXT_GetFmtBps",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetFmtBps"
+   ]
+  },
+  "004d4df0": {
+   "name": "ADXT_SetOutPan",
+   "context_score": 2,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "adxt_SetOutPan",
+    "adxt_set_outpan"
+   ]
+  },
+  "004d4f58": {
+   "name": "ADXT_GetOutPan",
+   "context_score": 1,
+   "candidates": 28,
+   "words": 18,
+   "context_names": [
+    "adxt_GetOutPan"
+   ]
+  },
+  "004d4fe0": {
+   "name": "ADXT_SetOutBalance",
+   "context_score": 1,
+   "candidates": 35,
+   "words": 16,
+   "context_names": [
+    "adxt_SetOutBalance"
+   ]
+  },
+  "004d50a8": {
+   "name": "ADXT_GetOutBalance",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetOutBalance"
+   ]
+  },
+  "004d5110": {
+   "name": "ADXT_SetOutVol",
+   "context_score": 2,
+   "candidates": 35,
+   "words": 16,
+   "context_names": [
+    "adxt_SetOutVol",
+    "adxt_stat_decinfo"
+   ]
+  },
+  "004d51c0": {
+   "name": "ADXT_GetOutVol",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetOutVol"
+   ]
+  },
+  "004d5440": {
+   "name": "ADXT_SetDefSvrFreq",
+   "context_score": 2,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "ADXT_Init",
+    "adxt_SetDefSvrFreq"
+   ]
+  },
+  "004d5488": {
+   "name": "ADXT_SetSvrFreq",
+   "context_score": 1,
+   "candidates": 35,
+   "words": 16,
+   "context_names": [
+    "adxt_SetSvrFreq"
+   ]
+  },
+  "004d5560": {
+   "name": "adxt_SetReloadTime",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 44,
+   "context_names": [
+    "ADXT_SetReloadTime"
+   ]
+  },
+  "004d5610": {
+   "name": "ADXT_ResetReloadTime",
+   "context_score": 1,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "adxt_ResetReloadTime"
+   ]
+  },
+  "004d5640": {
+   "name": "adxt_ResetReloadTime",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 32,
+   "context_names": [
+    "ADXSTM_SetBufSize",
+    "ADXT_ResetReloadTime"
+   ]
+  },
+  "004d56c0": {
+   "name": "ADXT_SetReloadSct",
+   "context_score": 1,
+   "candidates": 35,
+   "words": 16,
+   "context_names": [
+    "adxt_SetReloadSct"
+   ]
+  },
+  "004d5700": {
+   "name": "adxt_SetReloadSct",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 22,
+   "context_names": [
+    "ADXSTM_SetBufSize",
+    "ADXT_SetReloadSct"
+   ]
+  },
+  "004d5760": {
+   "name": "ADXT_GetNumSctIbuf",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetNumSctIbuf"
+   ]
+  },
+  "004d5798": {
+   "name": "ADXT_GetNumSctIbuf",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 24,
+   "context_names": [
+    "ADXERR_CallErrFunc1"
+   ]
+  },
+  "004d57f8": {
+   "name": "ADXT_GetNumSmplObuf",
+   "context_score": 1,
+   "candidates": 28,
+   "words": 18,
+   "context_names": [
+    "adxt_GetNumSmplObuf"
+   ]
+  },
+  "004d58e8": {
+   "name": "adxt_GetIbufRemainTime",
+   "context_score": 4,
+   "candidates": 2,
+   "words": 58,
+   "context_names": [
+    "ADXERR_CallErrFunc1",
+    "ADXT_GetIbufRemainTime",
+    "adxt_GetNumChan",
+    "adxt_GetSfreq",
+    "adxt_GetStat"
+   ]
+  },
+  "004d5a08": {
+   "name": "ADXT_IsIbufSafety",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 28,
+   "context_names": [
+    "ADXERR_CallErrFunc1"
+   ]
+  },
+  "004d5ac0": {
+   "name": "ADXT_IsCompleted",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_IsCompleted"
+   ]
+  },
+  "004d5b30": {
+   "name": "ADXT_ExecServer",
+   "context_score": 4,
+   "candidates": 20,
+   "words": 10,
+   "context_names": [
+    "ADXPS2_ExecServer",
+    "ADXPS2_ExecServerEx",
+    "adxt_DiscardSmpl",
+    "adxt_ExecServer"
+   ]
+  },
+  "004d5c88": {
+   "name": "ADXT_GetErrCode",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetErrCode"
+   ]
+  },
+  "004d5cf0": {
+   "name": "ADXT_ClearErrCode",
+   "context_score": 1,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "adxt_ClearErrCode"
+   ]
+  },
+  "004d5d20": {
+   "name": "adxt_ClearErrCode",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 16,
+   "context_names": [
+    "ADXT_ClearErrCode"
+   ]
+  },
+  "004d5d60": {
+   "name": "ADXT_GetLpCnt",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetLpCnt"
+   ]
+  },
+  "004d5dc8": {
+   "name": "ADXT_SetLpFlg",
+   "context_score": 1,
+   "candidates": 35,
+   "words": 16,
+   "context_names": [
+    "adxt_SetLpFlg"
+   ]
+  },
+  "004d5f10": {
+   "name": "ADXT_GetInputSj",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetInputSj"
+   ]
+  },
+  "004d5f78": {
+   "name": "ADXT_SetWaitPlayStart",
+   "context_score": 1,
+   "candidates": 35,
+   "words": 16,
+   "context_names": [
+    "adxt_SetWaitPlayStart"
+   ]
+  },
+  "004d5fe8": {
+   "name": "ADXT_IsReadyPlayStart",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_IsReadyPlayStart"
+   ]
+  },
+  "004d6050": {
+   "name": "ADXT_Pause",
+   "context_score": 1,
+   "candidates": 35,
+   "words": 16,
+   "context_names": [
+    "adxt_Pause"
+   ]
+  },
+  "004d61c0": {
+   "name": "ADXT_GetStatPause",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetStatPause"
+   ]
+  },
+  "004d63a0": {
+   "name": "ADXT_DiscardSmpl",
+   "context_score": 1,
+   "candidates": 28,
+   "words": 18,
+   "context_names": [
+    "adxt_DiscardSmpl"
+   ]
+  },
+  "004d65b8": {
+   "name": "ADXT_SetLnkSw",
+   "context_score": 5,
+   "candidates": 35,
+   "words": 16,
+   "context_names": [
+    "adxt_SetLnkSw",
+    "adxt_StartAfs",
+    "adxt_StartMem2",
+    "adxt_StartMemIdx",
+    "adxt_nlp_trap_entry"
+   ]
+  },
+  "004d66d8": {
+   "name": "ADXT_GetDecNumSmpl",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetDecNumSmpl"
+   ]
+  },
+  "004d6748": {
+   "name": "ADXT_GetDecDtLen",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "adxt_GetDecDtLen"
+   ]
+  },
+  "004d6910": {
+   "name": "ADXT_InsertSilence",
+   "context_score": 1,
+   "candidates": 13,
+   "words": 22,
+   "context_names": [
+    "adxt_InsertSilence"
+   ]
+  },
+  "004d6bc8": {
+   "name": "ADXT_SetKeyString",
+   "context_score": 1,
+   "candidates": 35,
+   "words": 16,
+   "context_names": [
+    "adxt_SetKeyString"
+   ]
+  },
+  "004d6c08": {
+   "name": "adxt_SetKeyString",
+   "context_score": 1,
+   "candidates": 6,
+   "words": 12,
+   "context_names": [
+    "ADXT_SetKeyString"
+   ]
+  },
+  "004d6d18": {
+   "name": "ADXT_StartAfs",
+   "context_score": 1,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "adxt_StartAfs"
+   ]
+  },
+  "004d6e60": {
+   "name": "ADXT_StartFnameRange",
+   "context_score": 1,
+   "candidates": 8,
+   "words": 24,
+   "context_names": [
+    "adxt_StartFnameRange"
+   ]
+  },
+  "004d7030": {
+   "name": "ADXT_StartMem2",
+   "context_score": 1,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "adxt_StartMem2"
+   ]
+  },
+  "004d7160": {
+   "name": "ADXT_StartMemIdx",
+   "context_score": 1,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "adxt_StartMemIdx"
+   ]
+  },
+  "004d8668": {
+   "name": "ADXT_ExecHndl",
+   "context_score": 2,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "adxt_ExecHndl",
+    "adxt_ExecServer"
+   ]
+  },
+  "004d8830": {
+   "name": "ADXPD_Finish",
+   "context_score": 1,
+   "candidates": 6,
+   "words": 10,
+   "context_names": [
+    "ADXB_Finish"
+   ]
+  },
+  "004d89a0": {
+   "name": "ADXPD_SetExtPrm",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 4,
+   "context_names": [
+    "ADXB_DecodeHeaderAdx"
+   ]
+  },
+  "004d8a18": {
+   "name": "ADXPD_EntryMono",
+   "context_score": 1,
+   "candidates": 3,
+   "words": 12,
+   "context_names": [
+    "ADXB_EvokeExpandMono"
+   ]
+  },
+  "004d8a78": {
+   "name": "ADXPD_EntryPl2",
+   "context_score": 1,
+   "candidates": 3,
+   "words": 12,
+   "context_names": [
+    "ADXB_EvokeExpandPl2"
+   ]
+  },
+  "004e0b80": {
+   "name": "aixsjd_parse_packet_header",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 56,
+   "context_names": [
+    "aixsjd_decode_exec"
+   ]
+  },
+  "004e0db0": {
+   "name": "aixsjd_decode_exec",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 212,
+   "context_names": [
+    "SJ_SplitChunk",
+    "memcpy"
+   ]
+  },
+  "004e1100": {
+   "name": "aixsjd_decode_exec_adx",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 64,
+   "context_names": [
+    "SJ_SplitChunk",
+    "memcpy"
+   ]
+  },
+  "004e1200": {
+   "name": "AIXSJD_ExecHndl",
+   "context_score": 1,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "aixsjd_ExecHndl"
+   ]
+  },
+  "004e1230": {
+   "name": "aixsjd_ExecHndl",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 46,
+   "context_names": [
+    "aixsjd_decode_exec"
+   ]
+  },
+  "004e3340": {
+   "name": "isNeedDevName",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 20,
+   "context_names": [
+    "cvFsGetNumFiles"
+   ]
+  },
+  "004e3390": {
+   "name": "addDevName",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 38,
+   "context_names": [
+    "cvFsLoadDirInfo",
+    "strcpy"
+   ]
+  },
+  "004e5b10": {
+   "name": "dvCiExecHndl",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 50,
+   "context_names": [
+    "dvCiExecServer"
+   ]
+  },
+  "004e5bd8": {
+   "name": "dvCiExecServer",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 30,
+   "context_names": [
+    "dvCiStopTr"
+   ]
+  },
+  "004e63b0": {
+   "name": "dvCiGetStat",
+   "context_score": 1,
+   "candidates": 3,
+   "words": 14,
+   "context_names": [
+    "dvCiStopTr"
+   ]
+  },
+  "004e6810": {
+   "name": "analysis_flist",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 102,
+   "context_names": [
+    "dvCiLoadDirInfo",
+    "dvCiSetFcache",
+    "memcpy"
+   ]
+  },
+  "004e6b30": {
+   "name": "search_fstate",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 100,
+   "context_names": [
+    "ADXPS2_PrintfWarn",
+    "dvCiCdSearchFile",
+    "dvCiLoadDirInfo",
+    "dvCiSetFcache"
+   ]
+  },
+  "004e6d88": {
+   "name": "dvci_init_flist",
+   "context_score": 1,
+   "candidates": 6,
+   "words": 10,
+   "context_names": [
+    "dvCiLoadDirInfo",
+    "dvCiSetFcache"
+   ]
+  },
+  "004e7428": {
+   "name": "htci_wait",
+   "context_score": 1,
+   "candidates": 4,
+   "words": 12,
+   "context_names": [
+    "htCiStopTr"
+   ]
+  },
+  "004e75a0": {
+   "name": "htCiExecHndl",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 50,
+   "context_names": [
+    "htCiExecServer"
+   ]
+  },
+  "004e7668": {
+   "name": "htCiExecServer",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 30,
+   "context_names": [
+    "htCiStopTr"
+   ]
+  },
+  "004e9420": {
+   "name": "LSC_GetStat",
+   "context_score": 2,
+   "candidates": 11,
+   "words": 12,
+   "context_names": [
+    "ADXT_ExecRdErrChk",
+    "LSC_CallErrFunc"
+   ]
+  },
+  "004e9450": {
+   "name": "LSC_GetNumStm",
+   "context_score": 2,
+   "candidates": 11,
+   "words": 12,
+   "context_names": [
+    "LSC_CallErrFunc",
+    "mwlSfdExecDecSvrPlaying"
+   ]
+  },
+  "004e9850": {
+   "name": "LSC_EntryErrFunc",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 10,
+   "context_names": [
+    "ADXT_Init",
+    "LSC_Init",
+    "mwPlyInitSfdFx"
+   ]
+  },
+  "004ea740": {
+   "name": "PL2ENC_SetCbErr",
+   "context_score": 1,
+   "candidates": 35,
+   "words": 16,
+   "context_names": [
+    "ADXT_AttachDolbyProLogicII"
+   ]
+  },
+  "004eae58": {
+   "name": "PL2ENC_SetPos",
+   "context_score": 2,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "ADXT_AttachDolbyProLogicII",
+    "ADXT_SetOutPos"
+   ]
+  },
+  "004eb158": {
+   "name": "ADXT_DetachDolbyProLogicII",
+   "context_score": 1,
+   "candidates": 24,
+   "words": 10,
+   "context_names": [
+    "ADXT_AttachDolbyProLogicII"
+   ]
+  },
+  "004ec9b0": {
+   "name": "PS2RNA_SetPlaySw",
+   "context_score": 1,
+   "candidates": 3,
+   "words": 12,
+   "context_names": [
+    "ADXRNA_Destroy"
+   ]
+  },
+  "004eca48": {
+   "name": "PS2RNA_SetDiscardSw",
+   "context_score": 2,
+   "candidates": 3,
+   "words": 12,
+   "context_names": [
+    "adxt_StopWithoutLsc",
+    "adxt_stat_decend"
+   ]
+  },
+  "004ed600": {
+   "name": "SJMEM_Create",
+   "context_score": 6,
+   "candidates": 28,
+   "words": 18,
+   "context_names": [
+    "ADXT_InsertHdrSfa",
+    "MPV_DecodeFrm",
+    "MPV_DecodePicAtr",
+    "adxt_StartMem2",
+    "adxt_StartMemIdx",
+    "mwPlyStartMem",
+    "sjmem_Create"
+   ]
+  },
+  "004ed7c8": {
+   "name": "SJMEM_GetUuid",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "sjmem_GetUuid"
+   ]
+  },
+  "004ed858": {
+   "name": "SJMEM_EntryErrFunc",
+   "context_score": 1,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "sjmem_EntryErrFunc"
+   ]
+  },
+  "004ed908": {
+   "name": "SJMEM_Reset",
+   "context_score": 1,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "sjmem_Reset"
+   ]
+  },
+  "004ed9e8": {
+   "name": "SJMEM_GetChunk",
+   "context_score": 1,
+   "candidates": 8,
+   "words": 24,
+   "context_names": [
+    "sjmem_GetChunk"
+   ]
+  },
+  "004edb28": {
+   "name": "SJMEM_PutChunk",
+   "context_score": 1,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "sjmem_PutChunk"
+   ]
+  },
+  "004edc18": {
+   "name": "SJMEM_UngetChunk",
+   "context_score": 1,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "sjmem_UngetChunk"
+   ]
+  },
+  "004edd68": {
+   "name": "SJMEM_IsGetChunk",
+   "context_score": 1,
+   "candidates": 11,
+   "words": 26,
+   "context_names": [
+    "sjmem_IsGetChunk"
+   ]
+  },
+  "004ee018": {
+   "name": "SJRBF_Create",
+   "context_score": 6,
+   "candidates": 13,
+   "words": 22,
+   "context_names": [
+    "ADXT_InsertHdrSfa",
+    "MWSFTAG_CreateAinfSj",
+    "MWSST_Create",
+    "adxf_ReadNw32",
+    "adxt_Create",
+    "sjrbf_Create"
+   ]
+  },
+  "004ee210": {
+   "name": "SJRBF_Reset",
+   "context_score": 1,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "sjrbf_Reset"
+   ]
+  },
+  "004ee310": {
+   "name": "SJRBF_GetChunk",
+   "context_score": 1,
+   "candidates": 8,
+   "words": 24,
+   "context_names": [
+    "sjrbf_GetChunk"
+   ]
+  },
+  "004ee510": {
+   "name": "SJRBF_PutChunk",
+   "context_score": 1,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "sjrbf_PutChunk"
+   ]
+  },
+  "004ee6e0": {
+   "name": "SJRBF_UngetChunk",
+   "context_score": 1,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "sjrbf_UngetChunk"
+   ]
+  },
+  "004ee910": {
+   "name": "SJRBF_IsGetChunk",
+   "context_score": 1,
+   "candidates": 11,
+   "words": 26,
+   "context_names": [
+    "sjrbf_IsGetChunk"
+   ]
+  },
+  "004eead8": {
+   "name": "SJUNI_CallErr_",
+   "context_score": 8,
+   "candidates": 9,
+   "words": 18,
+   "context_names": [
+    "sjuni_GetChunk",
+    "sjuni_GetNumChainPool",
+    "sjuni_GetNumChunk",
+    "sjuni_GetNumData",
+    "sjuni_GetUuid",
+    "sjuni_IsGetChunk",
+    "strcat",
+    "strcpy"
+   ]
+  },
+  "004eec20": {
+   "name": "SJUNI_Create",
+   "context_score": 1,
+   "candidates": 13,
+   "words": 22,
+   "context_names": [
+    "sjuni_Create"
+   ]
+  },
+  "004eed60": {
+   "name": "SJUNI_Destroy",
+   "context_score": 1,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "sjuni_Destroy"
+   ]
+  },
+  "004eee18": {
+   "name": "SJUNI_GetUuid",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "sjuni_GetUuid"
+   ]
+  },
+  "004eeea8": {
+   "name": "SJUNI_EntryErrFunc",
+   "context_score": 1,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "sjuni_EntryErrFunc"
+   ]
+  },
+  "004eef58": {
+   "name": "SJUNI_Reset",
+   "context_score": 1,
+   "candidates": 37,
+   "words": 12,
+   "context_names": [
+    "sjuni_Reset"
+   ]
+  },
+  "004ef060": {
+   "name": "SJUNI_GetNumData",
+   "context_score": 1,
+   "candidates": 28,
+   "words": 18,
+   "context_names": [
+    "sjuni_GetNumData"
+   ]
+  },
+  "004ef160": {
+   "name": "SJUNI_GetChunk",
+   "context_score": 1,
+   "candidates": 8,
+   "words": 24,
+   "context_names": [
+    "sjuni_GetChunk"
+   ]
+  },
+  "004ef310": {
+   "name": "SJUNI_PutChunk",
+   "context_score": 1,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "sjuni_PutChunk"
+   ]
+  },
+  "004ef488": {
+   "name": "SJUNI_UngetChunk",
+   "context_score": 1,
+   "candidates": 23,
+   "words": 20,
+   "context_names": [
+    "sjuni_UngetChunk"
+   ]
+  },
+  "004ef5f8": {
+   "name": "SJUNI_IsGetChunk",
+   "context_score": 1,
+   "candidates": 11,
+   "words": 26,
+   "context_names": [
+    "sjuni_IsGetChunk"
+   ]
+  },
+  "004ef728": {
+   "name": "SJUNI_GetNumChunk",
+   "context_score": 1,
+   "candidates": 28,
+   "words": 18,
+   "context_names": [
+    "sjuni_GetNumChunk"
+   ]
+  },
+  "004ef800": {
+   "name": "SJUNI_GetNumChainPool",
+   "context_score": 1,
+   "candidates": 74,
+   "words": 14,
+   "context_names": [
+    "sjuni_GetNumChainPool"
+   ]
+  },
+  "004f0608": {
+   "name": "SVM_Lock",
+   "context_score": 4,
+   "candidates": 21,
+   "words": 6,
+   "context_names": [
+    "DTX_CallUrpc",
+    "SVM_DelCbSvr",
+    "SVM_SetCbSvrIdWithString",
+    "SVM_SetCbSvrWithString"
+   ]
+  },
+  "004f0638": {
+   "name": "SVM_LockVar",
+   "context_score": 2,
+   "candidates": 21,
+   "words": 6,
+   "context_names": [
+    "dvCiExecHndl",
+    "htCiExecHndl"
+   ]
+  },
+  "004f0a60": {
+   "name": "SVM_SetCbSvrWithString",
+   "context_score": 2,
+   "candidates": 11,
+   "words": 26,
+   "context_names": [
+    "ADXT_Init",
+    "MWSFSVM_EntryVint"
+   ]
+  },
+  "004f0b88": {
+   "name": "SVM_DelCbSvr",
+   "context_score": 2,
+   "candidates": 35,
+   "words": 16,
+   "context_names": [
+    "ACSSVR_Finish",
+    "ADXT_Finish"
+   ]
+  },
+  "004f0c78": {
+   "name": "SVM_SetCbSvrIdWithString",
+   "context_score": 3,
+   "candidates": 3,
+   "words": 28,
+   "context_names": [
+    "ACSSVR_Init",
+    "ADXT_Init",
+    "MWSFSVM_EntryIdVfunc"
+   ]
+  },
+  "004f1050": {
+   "name": "SVM_ExecSvrVint",
+   "context_score": 2,
+   "candidates": 3,
+   "words": 6,
+   "context_names": [
+    "ADXMNG_CallVintServerFunctions",
+    "ADXM_ExecSvrAll"
+   ]
+  },
+  "004f1068": {
+   "name": "SVM_ExecSvrUsrVsync",
+   "context_score": 3,
+   "candidates": 21,
+   "words": 6,
+   "context_names": [
+    "ADXMNG_CallVintServerFunctions",
+    "ADXM_ExecSvrAll",
+    "adxm_usrvsync_proc"
+   ]
+  },
+  "004f1080": {
+   "name": "SVM_ExecSvrVsync",
+   "context_score": 3,
+   "candidates": 21,
+   "words": 6,
+   "context_names": [
+    "ADXMNG_CallVintServerFunctions",
+    "ADXM_ExecSvrAll",
+    "adxm_vsync_proc"
+   ]
+  },
+  "004f10b0": {
+   "name": "SVM_ExecSvrFs",
+   "context_score": 2,
+   "candidates": 21,
+   "words": 6,
+   "context_names": [
+    "ADXM_ExecSvrAll",
+    "adxm_fs_proc"
+   ]
+  },
+  "004f10c8": {
+   "name": "SVM_ExecSvrMain",
+   "context_score": 3,
+   "candidates": 21,
+   "words": 6,
+   "context_names": [
+    "ADXMNG_CallMainServerFunctions",
+    "ADXMNG_CallVintServerFunctions",
+    "ADXM_ExecSvrAll"
+   ]
+  },
+  "004f10e0": {
+   "name": "SVM_ExecSvrMwIdle",
+   "context_score": 3,
+   "candidates": 21,
+   "words": 6,
+   "context_names": [
+    "ADXMNG_CallMainServerFunctions",
+    "ADXM_ExecSvrAll",
+    "adxm_mwidle_proc"
+   ]
+  },
+  "004f10f8": {
+   "name": "SVM_ExecSvrUsrIdle",
+   "context_score": 3,
+   "candidates": 21,
+   "words": 6,
+   "context_names": [
+    "ADXMNG_CallMainServerFunctions",
+    "ADXM_ExecSvrAll",
+    "adxm_usridle_proc"
+   ]
+  },
+  "004f1320": {
+   "name": "SVM_SetCbPreWaitV",
+   "context_score": 2,
+   "candidates": 6,
+   "words": 5,
+   "context_names": [
+    "MWSFSVM_DeleteWaitVsyncFunc",
+    "MWSFSVM_EntryWaitVsyncFunc"
+   ]
+  },
+  "004fb410": {
+   "name": "M2V_DecodePicAtr",
+   "context_score": 1,
+   "candidates": 4,
+   "words": 12,
+   "context_names": [
+    "MPVM2V_DecodePicAtr"
+   ]
+  },
+  "004fc948": {
+   "name": "parseUdsc",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 134,
+   "context_names": [
+    "m2vhdec_AnalyUd"
+   ]
+  },
+  "004fcb60": {
+   "name": "m2vhdec_AnalyUd",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 94,
+   "context_names": [
+    "memcpy"
+   ]
+  },
+  "004fccd8": {
+   "name": "appendUd",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 16,
+   "context_names": [
+    "m2vhdec_AnalyUd"
+   ]
+  },
+  "005015e8": {
+   "name": "MPS_SetPketLenField",
+   "context_score": 1,
+   "candidates": 3,
+   "words": 22,
+   "context_names": [
+    "MPSLIB_CheckHn"
+   ]
+  },
+  "00504a10": {
+   "name": "MPVERR_InitErrInf",
+   "context_score": 1,
+   "candidates": 19,
+   "words": 6,
+   "context_names": [
+    "mpvlib_InitHn"
+   ]
+  },
+  "00504b18": {
+   "name": "MPVERR_SetCode",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 20,
+   "context_names": [
+    "MPV_DecodePicAtrSj"
+   ]
+  },
+  "00505078": {
+   "name": "MPV_SetUsrSj",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 10,
+   "context_names": [
+    "SFD_SetVideoUsrSj",
+    "mpvlib_InitHn"
+   ]
+  },
+  "005079a0": {
+   "name": "SKG_Init",
+   "context_score": 2,
+   "candidates": 5,
+   "words": 7,
+   "context_names": [
+    "MWSKG_SetKeyString",
+    "SKG_GenerateKey"
+   ]
+  },
+  "005079e0": {
+   "name": "SKG_GenerateKey",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 110,
+   "context_names": [
+    "MWSKG_SetKeyString"
+   ]
+  },
+  "0050a370": {
+   "name": "mwsffrm_CheckAinf",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 20,
+   "context_names": [
+    "MWSFTAG_UpdateTagInf",
+    "mwPlyGetCurFrm",
+    "mwPlyGetFrm"
+   ]
+  },
+  "0050a7c8": {
+   "name": "mwsffrm_SaveFrmDetail",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 18,
+   "context_names": [
+    "mwPlyGetCurFrm",
+    "mwPlyGetFrm"
+   ]
+  },
+  "0050ab98": {
+   "name": "mwPlyIsNextFrmReady",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 28,
+   "context_names": [
+    "MWSFSVM_Error",
+    "mwPlyGetCurFrm",
+    "mwPlyGetSfdHn"
+   ]
+  },
+  "0050ace8": {
+   "name": "mwPlyGetNumSkipDisp",
+   "context_score": 3,
+   "candidates": 3,
+   "words": 20,
+   "context_names": [
+    "MWSFSVM_Error",
+    "mwPlyGetNumDropFrm",
+    "mwPlyGetPlyInf"
+   ]
+  },
+  "0050dcd0": {
+   "name": "mwPlyGetNumSkipEmptyB",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 22,
+   "context_names": [
+    "MWSFD_GetPlyInf",
+    "MWSFSVM_Error",
+    "mwPlyGetPlyInf"
+   ]
+  },
+  "0050dda8": {
+   "name": "mwPlyGetInputSj",
+   "context_score": 3,
+   "candidates": 3,
+   "words": 20,
+   "context_names": [
+    "MWSFSVM_Error",
+    "mwPlyStartAfs",
+    "mwPlyStartFnameRange"
+   ]
+  },
+  "0050f1b0": {
+   "name": "MWSFTAG_ResetAinfSj",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 12,
+   "context_names": [
+    "mw_sfd_start_ex"
+   ]
+  },
+  "0050f280": {
+   "name": "mwsftag_GetAinfFromSj",
+   "context_score": 5,
+   "candidates": 2,
+   "words": 84,
+   "context_names": [
+    "MWSFTAG_ClearUsrSj",
+    "MWSFTAG_SetTagInf",
+    "MWSFTAG_UpdateTagInf",
+    "SJ_SearchTag",
+    "memcpy"
+   ]
+  },
+  "0050f7a8": {
+   "name": "MWSFD_MakeTblZ16",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 40,
+   "context_names": [
+    "MWSFSFX_CnvFrmInfToSfx",
+    "MWSFSVM_Error",
+    "SFX_MakeTblZ16"
+   ]
+  },
+  "0050f848": {
+   "name": "MWSFD_MakeTblZ32",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 40,
+   "context_names": [
+    "MWSFSFX_CnvFrmInfToSfx",
+    "MWSFSVM_Error",
+    "SFX_MakeTblZ32"
+   ]
+  },
+  "00510438": {
+   "name": "MWSFLSC_IsFsStatErr",
+   "context_score": 1,
+   "candidates": 7,
+   "words": 10,
+   "context_names": [
+    "LSC_GetStat"
+   ]
+  },
+  "00510568": {
+   "name": "mwPlyStartLsnLp",
+   "context_score": 2,
+   "candidates": 4,
+   "words": 20,
+   "context_names": [
+    "mwPlyStartFnameLp",
+    "sprintf"
+   ]
+  },
+  "00510608": {
+   "name": "mwPlyGetAixWorkSize",
+   "context_score": 1,
+   "candidates": 3,
+   "words": 10,
+   "context_names": [
+    "MWSST_CalcAixWorkSize"
+   ]
+  },
+  "00511128": {
+   "name": "MWSFSVM_LockVar",
+   "context_score": 1,
+   "candidates": 8,
+   "words": 8,
+   "context_names": [
+    "SVM_LockVar"
+   ]
+  },
+  "005112b8": {
+   "name": "MWSFSVM_GotoIdleBorder",
+   "context_score": 1,
+   "candidates": 21,
+   "words": 6,
+   "context_names": [
+    "MWSST_Destroy"
+   ]
+  },
+  "00511758": {
+   "name": "mwSfdExecDecSvrHndl",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 30,
+   "context_names": [
+    "mwlSfdExecDecSvrPlaying"
+   ]
+  },
+  "005117d0": {
+   "name": "mwsfd_CheckFsErr",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 26,
+   "context_names": [
+    "mwSfdExecDecSvrHndl"
+   ]
+  },
+  "005118e0": {
+   "name": "MWSFSVR_GetDecSvrFromIprm",
+   "context_score": 1,
+   "candidates": 10,
+   "words": 8,
+   "context_names": [
+    "MWSFSVR_IdleThrdProc",
+    "MWSFSVR_VsyncThrdProc"
+   ]
+  },
+  "00512068": {
+   "name": "MWSTM_Start",
+   "context_score": 1,
+   "candidates": 19,
+   "words": 8,
+   "context_names": [
+    "ADXSTM_Start"
+   ]
+  },
+  "005120b8": {
+   "name": "MWSTM_SetFlowLimit",
+   "context_score": 1,
+   "candidates": 6,
+   "words": 10,
+   "context_names": [
+    "MWSFD_SetFlowLimit"
+   ]
+  },
+  "00512250": {
+   "name": "MWSTM_ReqStop",
+   "context_score": 1,
+   "candidates": 8,
+   "words": 10,
+   "context_names": [
+    "ADXSTM_StopNw"
+   ]
+  },
+  "00512278": {
+   "name": "MWSTM_Stop",
+   "context_score": 1,
+   "candidates": 8,
+   "words": 10,
+   "context_names": [
+    "ADXSTM_Stop"
+   ]
+  },
+  "00514138": {
+   "name": "sfaoap_ChkTermFlg",
+   "context_score": 1,
+   "candidates": 4,
+   "words": 28,
+   "context_names": [
+    "SFBUF_GetTermFlg"
+   ]
+  },
+  "00514ca8": {
+   "name": "SFBUF_RingGetRead",
+   "context_score": 2,
+   "candidates": 3,
+   "words": 6,
+   "context_names": [
+    "sfmpv_GetActiveSize",
+    "sfmpv_GoDdelim"
+   ]
+  },
+  "00514d80": {
+   "name": "SFBUF_RingAddRead",
+   "context_score": 1,
+   "candidates": 3,
+   "words": 6,
+   "context_names": [
+    "sfmpv_RingAddRead"
+   ]
+  },
+  "005151a0": {
+   "name": "SFBUF_GetRingBufSiz",
+   "context_score": 1,
+   "candidates": 4,
+   "words": 8,
+   "context_names": [
+    "sfmpv_FirstPicAtr"
+   ]
+  },
+  "005151c0": {
+   "name": "SFBUF_GetRTot",
+   "context_score": 1,
+   "candidates": 4,
+   "words": 8,
+   "context_names": [
+    "sfmps_ChkSupply"
+   ]
+  },
+  "00515980": {
+   "name": "SFBUF_SetTermFlg",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 8,
+   "context_names": [
+    "SFD_TermSupply"
+   ]
+  },
+  "005159a0": {
+   "name": "SFBUF_GetTermFlg",
+   "context_score": 1,
+   "candidates": 4,
+   "words": 8,
+   "context_names": [
+    "SFD_TermSupply"
+   ]
+  },
+  "005159c0": {
+   "name": "SFBUF_RingGetDataSiz",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 10,
+   "context_names": [
+    "SFBUF_RingGetRead",
+    "sfply_IsBpaOn"
+   ]
+  },
+  "00516118": {
+   "name": "sfcre_AnalyCreInf",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 44,
+   "context_names": [
+    "SFD_AnalyCreInf",
+    "sfcre_AnalyAdx"
+   ]
+  },
+  "005161c8": {
+   "name": "sfcre_SetDflCreInf",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 24,
+   "context_names": [
+    "memset",
+    "sfcre_AnalyCreInf"
+   ]
+  },
+  "00516230": {
+   "name": "sfcre_AnalyMps",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 46,
+   "context_names": [
+    "sfcre_AnalyAudio",
+    "sfcre_AnalyCreInf"
+   ]
+  },
+  "005162e8": {
+   "name": "sfcre_AnalyPackSiz",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 58,
+   "context_names": [
+    "sfcre_AnalyMps"
+   ]
+  },
+  "00516468": {
+   "name": "sfcre_AnalySfh",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 60,
+   "context_names": [
+    "SFHDS_IsSfdHeader",
+    "sfcre_AnalyMps"
+   ]
+  },
+  "005165a8": {
+   "name": "sfcre_AnalyAudio",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 66,
+   "context_names": [
+    "sfcre_AnalyAdx"
+   ]
+  },
+  "00516718": {
+   "name": "sfcre_GetPketData",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 32,
+   "context_names": [
+    "MPS_DecHd",
+    "MPS_Destroy",
+    "sfcre_AnalyAudio"
+   ]
+  },
+  "00516798": {
+   "name": "sfcre_AnalyAdx",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 38,
+   "context_names": [
+    "sfcre_AnalyAdxAlign4"
+   ]
+  },
+  "00516830": {
+   "name": "sfcre_AnalyAdxAlign4",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 54,
+   "context_names": [
+    "memcpy"
+   ]
+  },
+  "00516a38": {
+   "name": "sfcre_AnalyMpa",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 42,
+   "context_names": [
+    "sfcre_AnalyAudio",
+    "sfcre_AnalyCreInf"
+   ]
+  },
+  "00516ae0": {
+   "name": "sfcre_SerachMpaAau",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 52,
+   "context_names": [
+    "sfcre_AnalyMpa"
+   ]
+  },
+  "00516c30": {
+   "name": "sfcre_AnalyMpv",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 90,
+   "context_names": [
+    "MPV_SearchDelim",
+    "sfcre_AnalyCreInf"
+   ]
+  },
+  "00516de8": {
+   "name": "SFHDS_FinishFhd",
+   "context_score": 1,
+   "candidates": 10,
+   "words": 4,
+   "context_names": [
+    "SFD_Destroy"
+   ]
+  },
+  "00518120": {
+   "name": "sfmps_DecodeSomeUnit",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 62,
+   "context_names": [
+    "sfmps_DecodeOneUnit"
+   ]
+  },
+  "00518340": {
+   "name": "sfmps_DecodeOneUnit",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 180,
+   "context_names": [
+    "MPS_CheckDelim",
+    "MPS_DecHd",
+    "SFX_GetCnvTable",
+    "sfmps_ShortSupply"
+   ]
+  },
+  "00518610": {
+   "name": "sfmps_SkipNext",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 56,
+   "context_names": [
+    "MPS_CheckDelim",
+    "sfmps_DecodeOneUnit"
+   ]
+  },
+  "005186f0": {
+   "name": "sfmps_IsZero",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 16,
+   "context_names": [
+    "sfmps_SkipNext"
+   ]
+  },
+  "00518730": {
+   "name": "sfmps_IsEndOfRingBuf",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 24,
+   "context_names": [
+    "sfmps_SkipNext"
+   ]
+  },
+  "005187b8": {
+   "name": "sfmps_CopyPketData",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 94,
+   "context_names": [
+    "MPS_GetPketHd",
+    "sfmps_ShortSupply"
+   ]
+  },
+  "00518930": {
+   "name": "sfmps_CopyElemOutSj",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 28,
+   "context_names": [
+    "sfmps_CopyPketData"
+   ]
+  },
+  "00518ee8": {
+   "name": "sfmps_CopySj",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 42,
+   "context_names": [
+    "sfmps_CopyElemOutSj"
+   ]
+  },
+  "00519198": {
+   "name": "sfmps_SetTermDst",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 28,
+   "context_names": [
+    "SFBUF_SetTermFlg"
+   ]
+  },
+  "00519208": {
+   "name": "sfmps_GetTermDst",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 28,
+   "context_names": [
+    "SFBUF_GetTermFlg"
+   ]
+  },
+  "00519278": {
+   "name": "sfmps_Concat",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 5,
+   "context_names": [
+    "sfmps_DecodeOneUnit"
+   ]
+  },
+  "00519290": {
+   "name": "sfmps_ChkSupply",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 82,
+   "context_names": [
+    "MPS_CheckDelim",
+    "sfmps_SetTermDst",
+    "sfmps_ShortSupply"
+   ]
+  },
+  "005193d8": {
+   "name": "sfmps_IsEffectiveEndcode",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 20,
+   "context_names": [
+    "sfmps_ChkSupply"
+   ]
+  },
+  "00519428": {
+   "name": "sfmps_ShortSupply",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 26,
+   "context_names": [
+    "SFBUF_GetTermFlg"
+   ]
+  },
+  "00519998": {
+   "name": "sfmps_SetMpsRaw",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 46,
+   "context_names": [
+    "MPS_GetLastSysHd",
+    "sfmps_DecodeOneUnit"
+   ]
+  },
+  "00519a50": {
+   "name": "sfmps_UpdateFlowCnt",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 32,
+   "context_names": [
+    "sfmps_DecodeSomeUnit"
+   ]
+  },
+  "0051a810": {
+   "name": "sfmpv_ProcessAuxShc",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 40,
+   "context_names": [
+    "MPV_DecodePicAtr",
+    "SFX_GetCnvTable"
+   ]
+  },
+  "0051ac68": {
+   "name": "sfmpv_DecodeSomePic",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 32,
+   "context_names": [
+    "sfmpv_GetActiveSize"
+   ]
+  },
+  "0051ace8": {
+   "name": "sfmpv_GetActiveSize",
+   "context_score": 4,
+   "candidates": 2,
+   "words": 144,
+   "context_names": [
+    "MPV_CheckDelim",
+    "sfmpv_BsearchDelim",
+    "sfmpv_NeedSafeDlmRefresh",
+    "sfmpv_SearchDelim"
+   ]
+  },
+  "0051af28": {
+   "name": "sfmpv_NeedSafeDlmRefresh",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 112,
+   "context_names": [
+    "MPV_CheckDelim",
+    "memcpy"
+   ]
+  },
+  "0051b0e8": {
+   "name": "sfmpv_CalcDistance",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 26,
+   "context_names": [
+    "sfmpv_GetActiveSize"
+   ]
+  },
+  "0051b1d8": {
+   "name": "sfmpv_SearchDelim",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 86,
+   "context_names": [
+    "MPV_CheckDelim",
+    "MPV_SearchDelim",
+    "memcpy"
+   ]
+  },
+  "0051b330": {
+   "name": "sfmpv_BsearchDelim",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 90,
+   "context_names": [
+    "MPV_BsearchDelim",
+    "MPV_CheckDelim",
+    "memcpy"
+   ]
+  },
+  "0051b768": {
+   "name": "sfmpv_PeekChnk",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 20,
+   "context_names": [
+    "SFBUF_RingGetRead"
+   ]
+  },
+  "0051b7b8": {
+   "name": "sfmpv_FixedForSeek",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 46,
+   "context_names": [
+    "SFBUF_GetRTot"
+   ]
+  },
+  "0051bc98": {
+   "name": "sfmpv_DecodePicAtr",
+   "context_score": 6,
+   "candidates": 2,
+   "words": 214,
+   "context_names": [
+    "MPV_DecodePicAtrSj",
+    "MPV_GetPicAtr",
+    "MPV_SearchDelim",
+    "MPV_SetPicUsrBuf",
+    "SFX_GetCnvTable",
+    "SJRBF_GetFlowCnt",
+    "sfmpv_FirstPicAtr"
+   ]
+  },
+  "0051cdf8": {
+   "name": "sfmpv_FirstPicAtr",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 76,
+   "context_names": [
+    "MPV_GetBitRate",
+    "MPV_GetVbvBufSiz",
+    "SFX_GetCnvTable",
+    "sfmpv_SetMpvHd"
+   ]
+  },
+  "0051cf28": {
+   "name": "sfmpv_SetMpvHd",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 72,
+   "context_names": [
+    "sfmpv_GetHd"
+   ]
+  },
+  "0051d048": {
+   "name": "sfmpv_SetMvInf",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 14,
+   "context_names": [
+    "sfmpv_FirstPicAtr"
+   ]
+  },
+  "0051d080": {
+   "name": "sfmpv_ChkBufSiz",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 110,
+   "context_names": [
+    "sfmpv_FirstPicAtr"
+   ]
+  },
+  "0051e200": {
+   "name": "sfmpv_ChangePicUd",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 42,
+   "context_names": [
+    "memcpy"
+   ]
+  },
+  "0051e2a8": {
+   "name": "sfmpv_PeekNextPicUd",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 94,
+   "context_names": [
+    "MPV_CheckDelim",
+    "MPV_SearchDelim",
+    "sfmpv_ChangePicUd"
+   ]
+  },
+  "0051e420": {
+   "name": "sfmpv_CopyPicUsrInf",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 18,
+   "context_names": [
+    "memcpy"
+   ]
+  },
+  "0051e468": {
+   "name": "sfmpv_GoDdelim",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 88,
+   "context_names": [
+    "sfmpv_SearchDelim"
+   ]
+  },
+  "0051e5c8": {
+   "name": "sfmpv_RingAddRead",
+   "context_score": 1,
+   "candidates": 6,
+   "words": 8,
+   "context_names": [
+    "sfmpv_GoDdelim"
+   ]
+  },
+  "0051e5e8": {
+   "name": "sfmpv_UpdateFlowCnt",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 22,
+   "context_names": [
+    "sfmpv_DecodeSomePic"
+   ]
+  },
+  "0051f228": {
+   "name": "SFMPV_Seek",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 28,
+   "context_names": [
+    "SFX_GetCnvTable",
+    "sfmpv_ReprocessShc"
+   ]
+  },
+  "0051f298": {
+   "name": "sfmpv_ReprocessShc",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 62,
+   "context_names": [
+    "MPV_DecodePicAtr"
+   ]
+  },
+  "0051f390": {
+   "name": "sfmpv_GetHd",
+   "context_score": 1,
+   "candidates": 4,
+   "words": 12,
+   "context_names": [
+    "sfmpv_ReprocessShc"
+   ]
+  },
+  "0051fa98": {
+   "name": "sfmpvf_ReferNextFrmReady",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 38,
+   "context_names": [
+    "SFD_GetNextPicUsr",
+    "SFD_IsNextFrmReady",
+    "SFX_GetCnvTable"
+   ]
+  },
+  "00520b58": {
+   "name": "sfmpvp_PutVibuf",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 40,
+   "context_names": [
+    "copy2area"
+   ]
+  },
+  "00520bf8": {
+   "name": "mpegNodata",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 42,
+   "context_names": [
+    "sfmpvp_PutVibuf"
+   ]
+  },
+  "00520ef0": {
+   "name": "copy2area",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 76,
+   "context_names": [
+    "memcpy"
+   ]
+  },
+  "005216e0": {
+   "name": "SFD_SetAudioCh",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 28,
+   "context_names": [
+    "SFD_SetCond",
+    "mwPlySetAudioCh"
+   ]
+  },
+  "00521750": {
+   "name": "SFD_SetVideoCh",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 28,
+   "context_names": [
+    "SFD_SetCond",
+    "mwPlySetVideoCh"
+   ]
+  },
+  "005219a0": {
+   "name": "sfply_ExecOne",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 70,
+   "context_names": [
+    "SFD_ExecOne",
+    "SFD_ExecServer"
+   ]
+  },
+  "00521ab8": {
+   "name": "sfply_ExecOneSub",
+   "context_score": 1,
+   "candidates": 8,
+   "words": 10,
+   "context_names": [
+    "sfply_ExecOne"
+   ]
+  },
+  "00521ae0": {
+   "name": "sfply_TrExecServer",
+   "context_score": 1,
+   "candidates": 5,
+   "words": 6,
+   "context_names": [
+    "sfply_ExecOneSub"
+   ]
+  },
+  "00521af8": {
+   "name": "sfply_StatStop",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 12,
+   "context_names": [
+    "sfply_ExecOne"
+   ]
+  },
+  "00521b28": {
+   "name": "sfply_StatPrep",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 48,
+   "context_names": [
+    "sfply_ExecOne"
+   ]
+  },
+  "00521be8": {
+   "name": "sfply_IsPrepEnd",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 44,
+   "context_names": [
+    "SFX_GetCnvTable",
+    "sfply_StatPrep"
+   ]
+  },
+  "00521cc8": {
+   "name": "sfply_FixAvPlay",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 42,
+   "context_names": [
+    "SFBUF_GetRTot"
+   ]
+  },
+  "00521ec0": {
+   "name": "sfply_StatStby",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 40,
+   "context_names": [
+    "sfply_ExecOne"
+   ]
+  },
+  "00521f60": {
+   "name": "sfply_StatPlay",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 28,
+   "context_names": [
+    "sfply_ExecOne"
+   ]
+  },
+  "00521fd8": {
+   "name": "sfply_IsStartSync",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 26,
+   "context_names": [
+    "sfply_StatPrep",
+    "sfply_StatStby"
+   ]
+  },
+  "00522040": {
+   "name": "sfply_ChkBpa",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 44,
+   "context_names": [
+    "sfply_StatPlay"
+   ]
+  },
+  "005220f0": {
+   "name": "sfply_IsBpaOn",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 96,
+   "context_names": [
+    "SFX_GetCnvTable",
+    "sfply_IsAnyoneTerm"
+   ]
+  },
+  "00522270": {
+   "name": "sfply_IsBpaOff",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 56,
+   "context_names": [
+    "SFX_GetCnvTable",
+    "sfply_IsAnyoneTerm"
+   ]
+  },
+  "00522350": {
+   "name": "sfply_IsAnyoneTerm",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 40,
+   "context_names": [
+    "SFBUF_GetTermFlg",
+    "SFX_GetCnvTable"
+   ]
+  },
+  "005224a8": {
+   "name": "sfply_EnoughAiData",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 32,
+   "context_names": [
+    "sfply_IsBpaOff"
+   ]
+  },
+  "00522528": {
+   "name": "sfply_ChkFin",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 28,
+   "context_names": [
+    "sfply_StatPlay"
+   ]
+  },
+  "00522598": {
+   "name": "sfply_IsEtime",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 28,
+   "context_names": [
+    "sfply_ChkFin"
+   ]
+  },
+  "00522608": {
+   "name": "sfply_IsEtrg",
+   "context_score": 3,
+   "candidates": 2,
+   "words": 50,
+   "context_names": [
+    "SFTRN_GetTermFlg",
+    "SFX_GetCnvTable",
+    "sfply_ChkFin",
+    "sfply_IsStartSync"
+   ]
+  },
+  "005226d0": {
+   "name": "sfply_IsStagnant",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 22,
+   "context_names": [
+    "sfply_ChkFin"
+   ]
+  },
+  "00522728": {
+   "name": "sfply_IsPlayTimeAutoStop",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 36,
+   "context_names": [
+    "SFX_GetCnvTable",
+    "sfply_ChkFin"
+   ]
+  },
+  "00527218": {
+   "name": "SFTRN_Finish",
+   "context_score": 1,
+   "candidates": 5,
+   "words": 6,
+   "context_names": [
+    "SFD_Finish"
+   ]
+  },
+  "00527948": {
+   "name": "SFTRN_GetTermFlg",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 6,
+   "context_names": [
+    "sfaoap_ChkTermFlg",
+    "sfply_IsAnyoneTerm"
+   ]
+  },
+  "005288c0": {
+   "name": "sfuo_SetUoch",
+   "context_score": 2,
+   "candidates": 6,
+   "words": 5,
+   "context_names": [
+    "SFD_SetSystemUsrSj",
+    "SFD_SetUsrSj"
+   ]
+  },
+  "00528e40": {
+   "name": "initSfhObj",
+   "context_score": 1,
+   "candidates": 19,
+   "words": 5,
+   "context_names": [
+    "SFH_Destroy"
+   ]
+  },
+  "00528e70": {
+   "name": "initLibWork",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 20,
+   "context_names": [
+    "SFH_Init",
+    "initSfhObj"
+   ]
+  },
+  "00528ed0": {
+   "name": "isEffectiveVer",
+   "context_score": 7,
+   "candidates": 2,
+   "words": 18,
+   "context_names": [
+    "SFH_AnalyHdrComment",
+    "SFH_AnlyByteRate",
+    "SFH_AnlyPackType",
+    "SFH_AnlyPketSizLen",
+    "SFH_AnlySfdFname",
+    "SFH_AnlySfdTimStmp",
+    "SFH_IsExistStmId"
+   ]
+  },
+  "00528f18": {
+   "name": "isEffectiveObj",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 10,
+   "context_names": [
+    "SFH_AnlyHdrToolInf",
+    "isEffectiveVer"
+   ]
+  },
+  "0052ac20": {
+   "name": "SFX_MakeTblZ16",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 30,
+   "context_names": [
+    "MWSFD_MakeTblZ16",
+    "SFXZ_IsSetZclip"
+   ]
+  },
+  "0052ac98": {
+   "name": "SFX_MakeTblZ32",
+   "context_score": 2,
+   "candidates": 2,
+   "words": 30,
+   "context_names": [
+    "MWSFD_MakeTblZ32",
+    "SFXZ_IsSetZclip"
+   ]
+  },
+  "0052bb88": {
+   "name": "SFX_GetTagInf",
+   "context_score": 1,
+   "candidates": 2,
+   "words": 12,
+   "context_names": [
+    "MWSFD_GetAinfFx"
+   ]
+  }
+ }
+}

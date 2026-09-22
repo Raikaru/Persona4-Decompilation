@@ -20,3 +20,13 @@
 //                             this function's translation unit
 //   string:"<text>"           a debug/panic string uniquely referenced here
 //   caller:<addr>             an already-named caller that fixes this role
+//
+// Recovered by tools/mine_name_strings.py class A ({name,fn} record
+// adjacency) in the run that produced the 89-entry symbol_names.strings.txt,
+// and preserved here because the current record-adjacency rule no longer
+// derives them: re-running the miner drops these three addresses entirely,
+// and config/symbol_addrs.txt is regenerated from this family, so leaving
+// them to the producer would silently delete them.
+btlAct_SKILL_RECITE_E = 0x001BFC00; // type:func  evidence: string:"SKILL_RECITE_E"
+btlAct_SKILL_EXEC_ONE = 0x001C6B60; // type:func  evidence: string:"SKILL_EXEC_ONE"
+btlAct_TARGET = 0x001CC9E0; // type:func  evidence: string:"TARGET"
