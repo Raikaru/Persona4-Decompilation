@@ -1,3 +1,4 @@
+#include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "btl_skill_internal.h"
@@ -2132,8 +2133,6 @@ s32 func_001eae30(void) {
 s32 func_001eaec0(void)
 {
     extern u8 *func_001d9280(s64 arg0, s32 arg1, s32 arg2);
-    extern void func_00198920(s32 arg0, s64 arg1, s64 arg2, f32 arg3,
-                               s64 arg4);
     s64 temp_20;
     s64 temp_19;
     s64 temp_18;
@@ -2154,8 +2153,7 @@ s32 func_001eaec0(void)
     }
     temp_2 = func_001d9280(temp_19 & 0xFFFF, var_2 & 0xFFFF, 0x80000);
     if (temp_2 != NULL) {
-        func_00198920(*(s32 *)(temp_2 + 0x30), (s16)temp_18,
-                      temp_17 & 0xFFFF, 1.0f, temp_16 & 0xFFFF);
+        func_00198920(*(u8 **)(temp_2 + 0x30), (s16)temp_18, (u16)temp_17, 1.0f, (u16)temp_16);
     }
     return 1;
 }

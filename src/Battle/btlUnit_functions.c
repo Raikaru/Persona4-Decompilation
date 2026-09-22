@@ -1,3 +1,4 @@
+#include "btl_motion_internal.h"
 /* Source unit: src/Battle/btlUnit_00198300.c */
 #include "include_asm.h"
 #include "type.h"
@@ -31,7 +32,6 @@ typedef struct BtlUnitPacket {
     u8 padding_06[2];
 } BtlUnitPacket;
 u32 func_0019a010(void* work);
-u32 func_0019a030(void* work);
 u32 func_0019a0a0(void* work);
 typedef struct BtlUnitPacketResNullifiedAnim {
     BtlUnit* unit;
@@ -74,7 +74,6 @@ typedef struct BtlUnitSpeedWork {
     u8 padding_0e[2];
 } BtlUnitSpeedWork;
 u32 func_0019aae0(void* work);
-u32 func_0019ab00(void* work);
 u32 func_0019ac20(void* work);
 u32 func_0019b620(void* work);
 u32 func_0019b640(void* work);

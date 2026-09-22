@@ -35,7 +35,7 @@ u8 *func_003ef2e0(u8 *arg0);
 void func_0046d730(const char *file, s32 line);
 s32 func_004ab2c0(void *arg0);
 s32 func_004ab800(void *arg0);
-void func_00488d70(void);
+void func_00488d70(u8 *arg0);
 s32 func_004b0f70(void *arg0);
 s32 func_004b0fa0(void *arg0);
 s32 func_004aed70(void *arg0);
@@ -238,8 +238,8 @@ void func_00481740(void *arg0) {
 }
 
 // FUN_004818A0
-void func_004818a0(void) {
-    func_00488d70();
+void func_004818a0(void *arg0) {
+    func_00488d70((u8 *)arg0);
 }
 
 // FUN_004818C0

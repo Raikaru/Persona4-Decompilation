@@ -2,10 +2,10 @@
 /* Original translation unit sdkPrimitive.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "primitive_point_buffer.h"
 
 typedef struct { u8 c[4]; } PrimByte4;
 typedef struct { f32 v[4]; } PrimFloat4;
-typedef struct { f32 v[2]; } PrimFloat2;
 typedef struct {
     f32 x;
     f32 y;
@@ -26,7 +26,7 @@ extern u8 *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
 extern void func_0045d890(void);
 extern void func_0045d370(void *out, void *a1, void *a2, f32 f0, s32 a3, s32 a4, f32 f1, f32 f2, f32 f3);
-extern void func_0045dd30(PrimVertex *out, const PrimByte4 *colors, const PrimFloat2 *positions,
+extern void func_0045dd30(PrimVertex *out, const u8 *colors, const void *positions,
                           f32 depth, u32 count, s32 offsetX, s32 offsetY,
                           f32 rotation, f32 scaleX, f32 scaleY);
 extern void func_003f6440(s32 param, s32 value);
@@ -109,7 +109,7 @@ void func_0045db40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4,
  * Keep both coordinate subtractions before the in-place scale multiplications;
  * the base position and unsigned color channels retain their actual layouts. */
 // FUN_0045DD30
-void func_0045dd30(PrimVertex *out, const PrimByte4 *colors, const PrimFloat2 *positions,
+void func_0045dd30(PrimVertex *out, const u8 *colors, const void *positions,
                   f32 depth, u32 count, s32 offsetX, s32 offsetY,
                   f32 rotation, f32 scaleX, f32 scaleY) {
     PrimFloat2 base;
@@ -132,13 +132,13 @@ void func_0045dd30(PrimVertex *out, const PrimByte4 *colors, const PrimFloat2 *p
     angle = iGpffff81d0 * rotation;
     sine = func_0044b7b0(angle);
     cosine = func_0044b610(angle);
-    base = *positions;
+    base = *(const PrimFloat2 *)positions;
     i = 0;
     centerX = base.v[0] + (f32)offsetX;
     centerY = base.v[1] + (f32)offsetY;
     negSine = -sine;
     while (i < count) {
-        position = &positions[i];
+        position = (const PrimFloat2 *)((const u8 *)positions + i * sizeof(PrimFloat2));
         x = position->v[0] - centerX;
         y = position->v[1] - centerY;
         x *= scaleX;
@@ -147,7 +147,7 @@ void func_0045dd30(PrimVertex *out, const PrimByte4 *colors, const PrimFloat2 *p
         vertex->x = centerX + (x * cosine + y * sine);
         vertex->y = centerY + (x * negSine + y * cosine);
         vertex->z = depth;
-        color = colors[i].c;
+        color = colors + i * 4;
         vertex->color[0] = (f32)(u32)color[0];
         vertex->color[1] = (f32)(u32)color[1];
         vertex->color[2] = (f32)(u32)color[2];
@@ -295,7 +295,7 @@ void func_0045e310(void *unused, PrimBatch *work) {
 
 
 // FUN_0045E6A0
-void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg1, f32 fparg2, f32 fparg3) {
+void func_0045e6a0(const void *arg0, const void *arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg1, f32 fparg2, f32 fparg3) {
     s32 saved[6];
     s32 *p;
     s32 *out;
@@ -313,7 +313,7 @@ void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4,
     }
     func_0044ea90(D_007124C0, 0x355);
     out = (s32 *)jtbl_008873E8[0](arg2 << 6, 0x40000);
-    func_0045dd30((PrimVertex *)out, (const PrimByte4 *)arg0, (const PrimFloat2 *)arg1,
+    func_0045dd30((PrimVertex *)out, (const u8 *)arg0, arg1,
                   fparg0, arg2, arg5, arg6, fparg1, fparg2, fparg3);
     D_00887310[0](arg3, out, arg2);
     if (arg4 != 0) {

@@ -860,3 +860,6 @@ fGpffff8124 = 0x00761214; // type:data evidence: func_001c80f0 lwc1 at 0x001C865
 D_00762FC8 = 0x00762fc8; // type:data evidence: retail func_0015d730 request-name array, GPREL16 sites 0015d788..0015da14
 iGpffffb26c = 0x0076435c; // type:data evidence: retail func_0015d730 sound request handle, store 0015da98 and load 0015dd80
 uGpffffb270 = 0x00764360; // type:data evidence: retail func_0015d730 sound-memory pointer, store 0015da78
+
+// Field preset records: count/count/minorIds[10], three records.
+fldResourcePresets = 0x005f0590; // type:data evidence: func_0014efc0 preset lookup

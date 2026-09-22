@@ -1,3 +1,4 @@
+#include "model_motion_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "model_callbacks_internal.h"

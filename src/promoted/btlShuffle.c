@@ -85,7 +85,7 @@ extern u8 *iGpffffb3f0;
 extern u8 *iGpffffb3e0;
 extern u8 *iGpffffb3ec;
 extern s32 func_001094d0(u32 arg0);
-extern void func_0010cd70(u8 *arg0, s32 arg1, s32 arg2);
+extern s32 func_0010cd70(u8 *arg0, s32 arg1, u16 arg2);
 
 extern s32 D_0064E7B0[];
 

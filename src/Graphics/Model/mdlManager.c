@@ -1,3 +1,4 @@
+#include "model_motion_internal.h"
 #include "include_asm.h"
 /* Source unit: src/Graphics/Model/mdlManager_004711e0.c */
 /* Ported from P3FES src/Graphics/Model/mdlManager.c FUN_003115a0 (verified MATCH there). */
@@ -273,11 +274,7 @@ extern void* func_003c0520();
 extern void* func_0047d200();
 extern void* func_0047dc30();
 extern void func_0047ea40();
-extern s32 func_00479d10(u8* a, u32 b, s32 c);
-extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
-extern void func_0047eb20();
 extern s32 func_0047ae90();
-extern void func_00475350();
 extern void func_00478410(u8* a, u8* b);
 extern void func_0047b050(void* a, int b);
 
@@ -2048,7 +2045,7 @@ typedef struct MdlDispatchAnimTable {
 #pragma opt_common_subs off
 #pragma opt_propagation off
 // FUN_004740C0
-void func_004740c0(u8* layer, s32 animation, s32 blendTicks, s32 flags)
+void func_004740c0(u8* layer, s16 animation, u16 blendTicks, s32 flags)
 {
     u32 narrowFlags;
     s32 entryCount;
@@ -2733,16 +2730,12 @@ static inline void mdlSetupDetach(u32 *object) {
 }
 
 /* 1220/1232 bytes; 46 resolved relocations and twelve zero alignment bytes.
- * Old-style narrow parameters preserve the dispatcher's raw s32 arguments;
- * the retail signed-short and unsigned-short conversions occur here.
+ * Animation and blend use their signed/unsigned short domains. The raw
+ * flag word is narrowed at use; the dispatcher shares this typed boundary.
  * Keep the animation and interpolator lifetimes in this declaration order. */
 // FUN_00475350
-void func_00475350(clump, state, index, blend, flags)
-void *clump;
-MdlAnimControlView *state;
-s16 index;
-u16 blend;
-u16 flags;
+void func_00475350(void *clump, MdlAnimControlView *state,
+                   s16 index, u16 blend, s32 flags)
 {
     MdlAnimResourceView *resource;
     u32 *object;
@@ -2752,7 +2745,7 @@ u16 flags;
     s32 special;
     if (state->resource != 0) {
         state->flags &= ~1u;
-        state->flags |= flags & 0xffff & 1;
+        state->flags |= (u16)flags & 0xffff & 1;
         state->mode = 0;
         state->secondaryTime = 0;
         if (blend > 0 && state->index != -1 && state->resource != 0 &&
@@ -5080,7 +5073,7 @@ void func_00479910(void* param_1)
 #pragma push
 #pragma opt_common_subs off
 
-static inline void mdl_dispatch_animation(u8* mdl, u32 layer, s32 animation, s32 frame, s32 flags)
+static inline void mdl_dispatch_animation(u8* mdl, u32 layer, s16 animation, u16 frame, s32 flags)
 {
     u32 baseLayer;
     u32 narrowFlags;
@@ -5142,7 +5135,7 @@ static inline void mdl_dispatch_animation(u8* mdl, u32 layer, s32 animation, s32
 }
 #pragma opt_common_subs on
 // FUN_00479940
-s32 func_00479940(u8* mdl, u32 layer, s32 animation, s32 frame, s32 flags)
+s32 func_00479940(u8* mdl, u32 layer, s16 animation, u16 frame, s32 flags)
 {
     if (func_00479d10(mdl, layer, animation))
         mdl_dispatch_animation(mdl, layer, animation, frame, flags);
@@ -5175,13 +5168,10 @@ s32 func_00479ca0(void* param_1, s32 param_2)
    reusing iVar4 for *obj (iVar4 = *(int*)(iVar4+0)) which routes the load into
    the $a3 mask reg exactly as retail does, with addOff folding index into the
    addu. The (u16)param_2 second check uses plain ints (no mask local). */
-/* The promoted s32 argument remains raw at callers; the old-style s16
-   parameter performs the retail signed-short conversion inside this callee. */
+/* The signed-short animation contract is shared by the model and battle
+   callers. Integer comparisons perform the retail sign extension here. */
 // FUN_00479D10
-s32 func_00479d10(param_1, param_2, param_3)
-u8* param_1;
-u32 param_2;
-s16 param_3;
+s32 func_00479d10(u8* param_1, u32 param_2, s16 param_3)
 {
     int result = 0;
     int iVar4;

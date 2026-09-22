@@ -139,7 +139,7 @@ static void func_0044e9e0(u8 *arg0)
 }
 
 // FUN_0044EA90
-void func_0044ea90(void) {}
+void func_0044ea90(const void *file, s32 line) {}
 /* measured: func_0044eaa0 matches with propagation disabled. The explicit
    class-size temporary preserves retail's classBytes load order. */
 #pragma opt_propagation off

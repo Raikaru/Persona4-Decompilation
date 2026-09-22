@@ -1,7 +1,9 @@
+#include "model_motion_internal.h"
 typedef signed __int128 s128;
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "primitive_point_buffer.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 extern f32 fGpffff9cA0;
@@ -2341,9 +2343,6 @@ extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2,
                          s32 arg4, s32 arg5);
 extern void func_002aaac0(void);
 extern s32 func_003f6440(s32 arg0, s32 arg1);
-extern void func_0045e6a0(void *arg0, void *arg1, f32 fparg0, s32 arg2,
-                          s32 arg3, s32 arg4, s32 arg5, s32 arg6,
-                          f32 fparg1, f32 fparg2, f32 fparg3);
 extern void func_00489f80(void);
 extern void func_0048a000(void);
 extern s32 D_005E55E0[];
@@ -2354,11 +2353,11 @@ extern void (*D_00887300[])(s32 arg0, s32 arg1);
 void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
 {
     u8 spCC[4];
-    s32 sp90[12];
+    PrimPointRow sp90[6];
     s8 sp70[0x20];
-    f32 sp40[12];
+    PrimFloat2 sp40[6];
     s32 *src;
-    s32 *dst;
+    PrimPointRow *dst;
     s32 count;
     s32 temp1;
     s32 temp2;
@@ -2373,7 +2372,7 @@ void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
     f32 x;
     f32 y;
     f32 *out;
-    f32 *in;
+    PrimPointRow *in;
 
     src = D_005E55E0;
     dst = sp90;
@@ -2383,9 +2382,9 @@ void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
         temp2 = src[1];
         src += 2;
         count--;
-        dst[0] = temp1;
-        dst[1] = temp2;
-        dst += 2;
+        dst->words.w0 = temp1;
+        dst->words.w1 = temp2;
+        dst++;
     } while (count > 0);
 
     src8 = D_005E5610;
@@ -2420,10 +2419,10 @@ void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
     x = -100.0f + fparg0;
     y = -200.0f + fparg1;
     while ((u32)i < 6) {
-        in = &((f32 *)sp90)[i * 2];
-        out = &sp40[i * 2];
-        out[0] = x + in[0];
-        out[1] = y + in[1];
+        in = &sp90[i];
+        out = sp40[i].v;
+        out[0] = x + in->point.v[0];
+        out[1] = y + in->point.v[1];
         i++;
     }
 
@@ -2651,7 +2650,6 @@ void func_001265a0(s32 arg1) {
     extern s32 func_0046d730();
     extern s32 func_004782b0();
     extern s32 func_00478e70();
-    extern s32 func_00479940();
     extern s32 func_0047a0e0();
     extern s32 func_0047a1c0();
     extern s32 func_00489f80();
@@ -4387,7 +4385,6 @@ s32 func_0012aa70(u8 *arg0)
     extern void func_004599a0(s32 arg0, s32 arg1);
     extern void func_0045aac0(s16 arg0, s32 arg1, s32 arg2);
     extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-    extern s32 func_00479940(u8 *arg0, u32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
     extern char iGpffff9c90;
     extern void func_001265a0(void);

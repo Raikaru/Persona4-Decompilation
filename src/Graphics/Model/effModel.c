@@ -1,3 +1,4 @@
+#include "model_motion_internal.h"
 #include "include_asm.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -19,7 +20,6 @@ extern void *func_00478140(u16 arg0, u16 arg1, s32 arg2);
 extern void func_0046d730(const char *arg0, s32 arg1);
 extern void func_0047a2a0(void *arg0);
 extern s32 func_00479ca0(void *arg0, s32 arg1);
-extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
 extern void func_00478eb0(void *arg0, void (*arg1)(void), void *arg2);
 extern void func_004787e0(u32 arg0);

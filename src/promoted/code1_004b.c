@@ -1,7 +1,8 @@
 #include "include_asm.h"
 #include "type.h"
+#include "btl_shuffle_draw_internal.h"
 #include "effect_update_internal.h"
-extern u8 *func_00457120(void);
+extern s32 func_00457120(void);
 extern s32 iGpffffbb9c;
 /* gp - 0x4460 = 0x00764c90: base of a 0x1C-strided per-type handler table */
 extern u8 *iGpffffbba0;
@@ -96,11 +97,11 @@ extern void func_003c42b0(s32 arg0, s32 arg1);
 extern s32 func_00482800(u16 *arg0);
 extern void func_003e8110(u8 *arg0);
 extern s32 func_003e8120(u8 *arg0);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern s32 func_003f6440(s32 command, void *value);
 extern u8 *func_00401b80(void);
 extern u8 D_008872FC_abs[];
-extern void (*D_00887300[])(u32 arg0, u32 arg1);
-extern s32 (*D_00887310_abs[])(s32 arg0, void *arg1, s32 arg2);
+extern BtlShuffleRenderStateSet D_00887300[];
+extern BtlShuffleRenderPrimitive D_00887310_abs[];
 
 extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
@@ -560,7 +561,7 @@ void func_004b1ad0(u8 *arg0)
     extern void func_003e9cb0(void *a, void *b, s32 c);
     extern void func_00460ac0(void *a, void *b);
     extern s32 func_004814d0(u16 a);
-    extern u8 *func_00457120(void);
+    extern s32 func_00457120(void);
     extern f32 func_0044b610(f32 a);
     extern f32 func_0044b7b0(f32 a);
     extern f32 fGpffff8044;
@@ -775,7 +776,7 @@ void func_004b1ad0(u8 *arg0)
         out_uv[7] = (f32)stk96 * inv_h;
         out_uv[4] = (f32)stk90 * inv_w;
         out_uv[5] = (f32)stk92 * inv_h;
-        cam = func_00457120();
+        cam = ((u8 *)(u32)func_00457120());
         cam80 = *(f32 *)(cam + 0x80);
         cam84 = *(f32 *)(cam + 0x84);
         f1 = (f32)*(s32 *)(arg0 + 0x9C);
@@ -801,7 +802,7 @@ void func_004b1ad0(u8 *arg0)
         if ((*(u16 *)tmp2_a4 & 4) != 0) {
             *(u16 *)(ctx18 + 0x0C) = *(u16 *)(ctx18 + 0x0C) | 1;
         }
-        cam = func_00457120();
+        cam = ((u8 *)(u32)func_00457120());
         func_003e9cb0((void *)(u32)*(u32 *)(tmp_a4 + 0x0C), (void *)(*(u8 **)(cam + 4) + 0x10), 0);
         *(u16 *)tmp_a4 = *(u16 *)tmp_a4 & 0xFFFE;
         *(u32 *)(tmp_a4 + 0x18) = 0;
@@ -831,7 +832,7 @@ s32 func_004b2780(u8 *arg0) {
     f32 temp_f20;
     f32 temp_f0;
     f32 temp_f2;
-    void (**base)(u32,u32);
+    BtlShuffleRenderStateSet *base;
     u8 *temp_17;
     u8 *temp_2;
 
@@ -842,17 +843,17 @@ s32 func_004b2780(u8 *arg0) {
     temp_17 = temp_2;
     temp_f21 = 640.0f / (f32)*(s32 *)(temp_2 + 0xC);
     temp_f20 = 448.0f / (f32)*(s32 *)(temp_2 + 0x10);
-    func_003f6440(2, 0x2024);
-    func_003f6440(3, 0x717FB);
+    func_003f6440(2, (void *)0x2024);
+    func_003f6440(3, (void *)0x717FB);
     base = D_00887300;
-    base[0](0xE, 0);
-    base[0](6, 0);
-    base[0](8, 0);
-    base[0](9, 2);
-    base[0](0xC, 1);
-    base[0](1, (u32)temp_17);
-    base[0](3, 3);
-    base[0](4, 3);
+    base[0]((RwRenderState)0xE, (void *)0);
+    base[0]((RwRenderState)6, (void *)0);
+    base[0]((RwRenderState)8, (void *)0);
+    base[0]((RwRenderState)9, (void *)2);
+    base[0]((RwRenderState)0xC, (void *)1);
+    base[0]((RwRenderState)1, (void *)(u32)temp_17);
+    base[0]((RwRenderState)3, (void *)3);
+    base[0]((RwRenderState)4, (void *)3);
     temp_f2 = *(f32 *)D_008872FC_abs;
     temp_f0 = 1.0f / *(f32 *)(*(u8 **)(arg0 + 0xC) + 0x84);
     *(s32 *)(work.packet + 0x00) = 0;
@@ -895,195 +896,119 @@ s32 func_004b2780(u8 *arg0) {
     *(f32 *)(work.packet + 0xD8) = temp_f0;
     *(f32 *)(work.packet + 0xD0) = temp_f21;
     *(f32 *)(work.packet + 0xD4) = temp_f20;
-    D_00887310_abs[0](4, work.packet, 4);
-    base[0](1, 0);
+    D_00887310_abs[0]((BtlShufflePrimitive)4, (BtlShuffleSkyVertex *)work.packet, 4);
+    base[0]((RwRenderState)1, (void *)0);
     func_003e8110(*(u8 **)(arg0 + 0xC));
     return 1;
 }
 /* measured: close the opt_propagation bracket around func_004b2780. */
 #pragma opt_propagation on
-/* Archived C body: docs/probe_archive/C4B_004b2a00_body.c (v10); object 1016B; */
-/* retail window 1024B; 17 reloc-masked differing words. Remaining: or-dest */
-/* v0-vs-v1 wall at six sites plus (u8)-conversion f-reg f1-vs-f0 wall at five */
-/* rows; single-expr/split/two-temp and separate div-result variants inert. */
-/* Fnalign edit 17 plus six reloc-only pairs; production remains ASM. */
-/* measured 2026-09-17 full pragma_sweep --pairs: banked 17 via measure_guarded */
-/* (already carries opt_propagation off + opt_common_subs off); best stays 17 */
-/* with that pair (105 prop+peephole next, 175 loopinv/strength/unroll ties, 195 */
-/* csoff singles, 222 dead group, 231-240 schedule/prop groups, 251-258 peephole */
-/* high). No pair wins; installed pair is load-bearing. */
-/* `python3 -E -s tools/pragma_sweep.py src/promoted/code1_004b.c func_004b2a00 --pairs`. */
-/* measured 2026-09-17 earliest-hunk only (fnalign 254/254, 17 edits +6 reloc-only; */
-/* earliest replace retail[16:18] or $v1 vs or $v0 + mtc1): u32 temp_2 for the */
-/* *(u16*)(arg0+4) load fixes earliest hunk, 17->15 words (fnalign 15 edits +6 */
-/* reloc-only, still 254/254) via `tools/fnalign.py ... --candidate */
-/* /var/tmp/pairteen/earliest_b.c`; inclusive flip >-1 243 and u32 t2a 241 both */
-/* worse (probe_variants a 243, c 241, b 15). Remaining 15 are the second or-site */
-/* onward plus f-reg wall; stop per earliest-hunk-only. */
-/* 2026-09-18: part of this floor is caused by `opt_common_subs off`, not by the
-   source.  That pragma makes b210 allocate the float-to-integer conversion
-   temporary out of the CSE table, so the `(u8)`-of-float idiom emits
-   `cvt.w.s $f1, $f1` where retail has `cvt.w.s $f0, $f1` (measured with
-   tools/micro_codegen.py; every other setting writes the fresh register).
-   Removing it costs 240 words and removing both pragmas costs 171, so it
-   stays for now - but the conversion rows here are not a source-shape
-   residual and should not be probed as one. */
-/* 2026-09-19 frame-first + pairs (masked 15, raw 21/24, 254/254 exact, frame */
-/* both addiu $sp,$sp,-0x150): fnalign 15 (+6 reloc-only); or-dest $v0 vs $v1 at */
-/* 5 sites (off 31,143,169,196,224: object or $v0,$v1,$v0 + mtc1 $v0 vs retail or */
-/* $v1,$v1,$v0 + mtc1 $v1) + FP cvt/mfc/sub (off 53: cvt.w.s $f1 vs $f0, off 59: */
-/* sub.s $f1 vs $f0 + cvt/mfc); stacking sched 230, nobranch 15 tie, peephole */
-/* 242; oru32 single tie 15, orall u32 266 (s32 correct); propag+cs load-bearing */
-/* (removal 240/171 per note, conversion rows pragma-caused per micro_codegen). */
-// FUN_004B2A00 NONMATCHING
-#ifdef SKIP_ASM
-#pragma opt_propagation off
-#pragma opt_common_subs off
-void func_004b2a00(u8 *arg0) {
-    struct {
-        u8 packet[0xF0];
-        u8 pad[0x10];
-    } work;
-    f32 temp_f20;
-    f32 temp_f1_2;
-    f32 temp_f1;
-    f32 temp_f0;
-    f32 f2a;
-    f32 f2b;
-    f32 f2c;
-    f32 f2d;
-    s32 ck;
-    s32 three;
-    s32 four;
-    u32 temp_2;
-    s32 temp_2_2;
-    s32 var_3;
-    s32 temp_17;
-    u8 *temp_18;
-    void (**base)(u32, u32);
-
-    temp_2 = *(u16 *)(arg0 + 4);
-    if (temp_2 >= 0) {
-        temp_f1 = (f32)temp_2;
-    } else {
-        s32 t2a = ((u32)temp_2 >> 1);
-        t2a = t2a | (temp_2 & 1);
-        temp_f1 = (f32)t2a;
-        temp_f1 += temp_f1;
-    }
-    temp_2_2 = *(u16 *)(arg0 + 2);
-    if (temp_2_2 >= 0) {
-        temp_f0 = (f32)temp_2_2;
-    } else {
-        s32 t2b = ((u32)temp_2_2 >> 1);
-        t2b = t2b | (temp_2_2 & 1);
-        temp_f0 = (f32)t2b;
-        temp_f0 += temp_f0;
-    }
-    temp_f1 = 255.0f * (1.0f - (temp_f1 / temp_f0));
-    var_3 = (u8)temp_f1;
-    temp_17 = var_3 & 0xFF;
-    temp_18 = *(u8 **)(*(u8 **)(arg0 + 12) + 96);
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x717FB);
-    base = D_00887300;
-    base[0](0xE, 0);
-    base[0](6, 0);
-    base[0](8, 0);
-    base[0](9, 2);
-    base[0](0xC, 1);
-    base[0](1, (u32)temp_18);
-    three = 3;
-    base[0](three, three);
-    base[0](4, 3);
-    temp_f20 = *(f32 *)D_008872FC_abs;
-    temp_f1_2 = 1.0f / *(f32 *)(func_00457120() + 132);
-    *(s32 *)(work.packet + 0x00) = 0;
-    *(s32 *)(work.packet + 0x04) = 0;
-    *(f32 *)(work.packet + 0x08) = temp_f20;
-    ck = 0x437F0000;
-    *(s32 *)(work.packet + 0x20) = ck;
-    *(s32 *)(work.packet + 0x24) = ck;
-    *(s32 *)(work.packet + 0x28) = ck;
-    if (temp_17 >= 0) {
-        f2a = (f32)temp_17;
-    } else {
-        s32 u2a = ((u32)temp_17 >> 1);
-        u2a = u2a | (temp_17 & 1);
-        f2a = (f32)u2a;
-        f2a += f2a;
-    }
-    *(f32 *)(work.packet + 0x2C) = f2a;
-    *(f32 *)(work.packet + 0x18) = temp_f1_2;
-    *(s32 *)(work.packet + 0x10) = 0;
-    *(s32 *)(work.packet + 0x14) = 0;
-    *(s32 *)(work.packet + 0x40) = 0;
-    *(s32 *)(work.packet + 0x44) = 0x43E00000;
-    *(f32 *)(work.packet + 0x48) = temp_f20;
-    ck = 0x437F0000;
-    *(s32 *)(work.packet + 0x60) = ck;
-    *(s32 *)(work.packet + 0x64) = ck;
-    *(s32 *)(work.packet + 0x68) = ck;
-    if (temp_17 >= 0) {
-        f2b = (f32)temp_17;
-    } else {
-        s32 u2b = ((u32)temp_17 >> 1);
-        u2b = u2b | (temp_17 & 1);
-        f2b = (f32)u2b;
-        f2b += f2b;
-    }
-    *(f32 *)(work.packet + 0x6C) = f2b;
-    *(f32 *)(work.packet + 0x58) = temp_f1_2;
-    *(s32 *)(work.packet + 0x50) = 0;
-    *(s32 *)(work.packet + 0x54) = 0x3F800000;
-    *(s32 *)(work.packet + 0x80) = 0x44200000;
-    *(s32 *)(work.packet + 0x84) = 0;
-    *(f32 *)(work.packet + 0x88) = temp_f20;
-    ck = 0x437F0000;
-    *(s32 *)(work.packet + 0xA0) = ck;
-    *(s32 *)(work.packet + 0xA4) = ck;
-    *(s32 *)(work.packet + 0xA8) = ck;
-    if (temp_17 >= 0) {
-        f2c = (f32)temp_17;
-    } else {
-        s32 u2c = ((u32)temp_17 >> 1);
-        u2c = u2c | (temp_17 & 1);
-        f2c = (f32)u2c;
-        f2c += f2c;
-    }
-    *(f32 *)(work.packet + 0xAC) = f2c;
-    *(f32 *)(work.packet + 0x98) = temp_f1_2;
-    *(s32 *)(work.packet + 0x90) = 0x3F800000;
-    *(s32 *)(work.packet + 0x94) = 0;
-    *(s32 *)(work.packet + 0xC0) = 0x44200000;
-    *(s32 *)(work.packet + 0xC4) = 0x43E00000;
-    *(f32 *)(work.packet + 0xC8) = temp_f20;
-    ck = 0x437F0000;
-    *(s32 *)(work.packet + 0xE0) = ck;
-    *(s32 *)(work.packet + 0xE4) = ck;
-    *(s32 *)(work.packet + 0xE8) = ck;
-    if (temp_17 >= 0) {
-        f2d = (f32)temp_17;
-    } else {
-        s32 u2d = ((u32)temp_17 >> 1);
-        u2d = u2d | (temp_17 & 1);
-        f2d = (f32)u2d;
-        f2d += f2d;
-    }
-    *(f32 *)(work.packet + 0xEC) = f2d;
-    *(f32 *)(work.packet + 0xD8) = temp_f1_2;
-    ck = 0x3F800000;
-    *(s32 *)(work.packet + 0xD0) = ck;
-    *(s32 *)(work.packet + 0xD4) = ck;
-    four = 4;
-    D_00887310_abs[0](four, work.packet, four);
-    base[0](1, 0);
-}
-#pragma opt_common_subs on
+/* Native b210 recovery: 1016 executable bytes and eight zero alignment bytes.
+   Native unsigned conversions retain the retail paths. The raster declaration
+   precedes opacity, and the render-state table keeps its address while each
+   call reloads its callback. Four PS2 vertices own the complete draw buffer.
+   For initialized positive-duration state 3, elapsed is below duration.
+   Float operation order is retained. See Crossfade_004b2a00_20260922.md. */
+// FUN_004B2A00
+#pragma push
 #pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b2a00);
-#endif
+#pragma opt_common_subs on
+void func_004b2a00(u8 *fade) {
+    BtlShuffleSkyVertex vertices[4];
+    u8 *raster;
+    s32 opacity;
+    f32 screenDepth;
+    f32 reciprocalFar;
+    f32 alphaFloat;
+    f32 duration;
+    f32 alpha0;
+    f32 alpha1;
+    f32 alpha2;
+    f32 alpha3;
+    f32 colorValue;
+    s32 addressMode;
+    s32 vertexCount;
+    u32 elapsed;
+    s32 durationFrames;
+    s32 convertedAlpha;
+    uintptr_t stateInterface;
+
+    elapsed = *(u16 *)(fade + 4);
+    alphaFloat = (f32)(u32)elapsed;
+    durationFrames = *(u16 *)(fade + 2);
+    duration = (f32)(u32)durationFrames;
+    alphaFloat = 255.0f * (1.0f - (alphaFloat / duration));
+    convertedAlpha = (u8)alphaFloat;
+    opacity = convertedAlpha & 0xFF;
+    raster = *(u8 **)(*(u8 **)(fade + 12) + 96);
+    func_003f6440(2, (void *)0x44);
+    func_003f6440(3, (void *)0x717FB);
+    stateInterface = (uintptr_t)D_00887300;
+    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)0xE, (void *)0);
+    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)6, (void *)0);
+    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)8, (void *)0);
+    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)9, (void *)2);
+    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)0xC, (void *)1);
+    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)1, (void *)(u32)raster);
+    addressMode = 3;
+    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)addressMode, (void *)addressMode);
+    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)4, (void *)3);
+    screenDepth = *(f32 *)D_008872FC_abs;
+    reciprocalFar = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 132);
+    vertices[0].u.els.scrVertex.x = 0.0f;
+    vertices[0].u.els.scrVertex.y = 0.0f;
+    vertices[0].u.els.scrVertex.z = screenDepth;
+    colorValue = 255.0f;
+    vertices[0].u.els.color.r = colorValue;
+    vertices[0].u.els.color.g = colorValue;
+    vertices[0].u.els.color.b = colorValue;
+    alpha0 = (f32)(u32)opacity;
+    vertices[0].u.els.color.a = alpha0;
+    vertices[0].u.els.recipZ = reciprocalFar;
+    vertices[0].u.els.u = 0.0f;
+    vertices[0].u.els.v = 0.0f;
+    vertices[1].u.els.scrVertex.x = 0.0f;
+    vertices[1].u.els.scrVertex.y = 448.0f;
+    vertices[1].u.els.scrVertex.z = screenDepth;
+    colorValue = 255.0f;
+    vertices[1].u.els.color.r = colorValue;
+    vertices[1].u.els.color.g = colorValue;
+    vertices[1].u.els.color.b = colorValue;
+    alpha1 = (f32)(u32)opacity;
+    vertices[1].u.els.color.a = alpha1;
+    vertices[1].u.els.recipZ = reciprocalFar;
+    vertices[1].u.els.u = 0.0f;
+    vertices[1].u.els.v = 1.0f;
+    vertices[2].u.els.scrVertex.x = 640.0f;
+    vertices[2].u.els.scrVertex.y = 0.0f;
+    vertices[2].u.els.scrVertex.z = screenDepth;
+    colorValue = 255.0f;
+    vertices[2].u.els.color.r = colorValue;
+    vertices[2].u.els.color.g = colorValue;
+    vertices[2].u.els.color.b = colorValue;
+    alpha2 = (f32)(u32)opacity;
+    vertices[2].u.els.color.a = alpha2;
+    vertices[2].u.els.recipZ = reciprocalFar;
+    vertices[2].u.els.u = 1.0f;
+    vertices[2].u.els.v = 0.0f;
+    vertices[3].u.els.scrVertex.x = 640.0f;
+    vertices[3].u.els.scrVertex.y = 448.0f;
+    vertices[3].u.els.scrVertex.z = screenDepth;
+    colorValue = 255.0f;
+    vertices[3].u.els.color.r = colorValue;
+    vertices[3].u.els.color.g = colorValue;
+    vertices[3].u.els.color.b = colorValue;
+    alpha3 = (f32)(u32)opacity;
+    vertices[3].u.els.color.a = alpha3;
+    vertices[3].u.els.recipZ = reciprocalFar;
+    colorValue = 1.0f;
+    vertices[3].u.els.u = colorValue;
+    vertices[3].u.els.v = colorValue;
+    vertexCount = 4;
+    D_00887310_abs[0](rwPRIMTYPETRISTRIP, vertices, vertexCount);
+    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)1, (void *)0);
+}
+#pragma pop
 // FUN_004B2E00
 void func_004b2e00(u8 *object) {
     u8 *base;

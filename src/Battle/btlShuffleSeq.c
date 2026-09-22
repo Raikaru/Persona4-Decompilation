@@ -66,7 +66,7 @@ extern void func_002bbf60(void);
 extern void func_002bad10(s32 a);
 extern void func_00442830(char *dst, s32 value);
 extern char *func_002438b0(s32 a);
-extern void func_002bbd20(s32 a, char *b);
+extern void func_002bbd20(s32 a, void *b);
 extern void func_00389200(s32 a, s32 b, s32 c, s32 d);
 extern s32 func_00389280(s32 a);
 extern s32 func_003891e0(s32 a);
