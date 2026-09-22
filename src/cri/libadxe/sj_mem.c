@@ -123,6 +123,7 @@ void SJMEM_Reset(SJ sj)
 }
 
 // 100% matching!
+// FUN_004ED9A0
 Sint32 SJMEM_GetNumData(SJ sj, Sint32 id)
 {
     SJMEM sjmem;
@@ -304,12 +305,14 @@ Sint32 SJMEM_IsGetChunk(SJ sj, Sint32 id, Sint32 nbyte, Sint32 *rbyte)
 }
 
 // 100% matching!
+// FUN_004EDEA0
 Sint8* SJMEM_GetBufPtr(SJMEM sjmem)
 {
     return sjmem->buf;
 }
 
 // 100% matching!
+// FUN_004EDEA8
 Sint32 SJMEM_GetBufSize(SJMEM sjmem) 
 {
     return sjmem->bsize;

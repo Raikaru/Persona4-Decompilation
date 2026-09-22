@@ -63,6 +63,7 @@ void *SJ_SearchTag(SJCK *inf, const Char8 *tag, const Char8 *name, SJCK *out)
 
 // Splits `src` into the first `n` bytes (*a) and the rest (*b, data NULL when empty); a and b may
 // alias src. Used everywhere a producer consumes part of a chunk and ungets the remainder.
+// FUN_004EF8B8
 void SJ_SplitChunk(SJCK *src, Sint32 n, SJCK *a, SJCK *b)
 {
 	*a = *src;

@@ -11,6 +11,7 @@ void SFA_Finish(void)
 }
 
 // Increments the SFA user count.
+// FUN_004CD978
 void SFA_Init(void)
 {
 	sfa_init_cnt++;

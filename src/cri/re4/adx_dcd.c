@@ -285,6 +285,7 @@ Sint32 ADX_DecodeInfoExADPCM2(Uint8 *data, Sint32 len, Uint16 *cutoff)
 // Parses the fixed 16-byte ADX header: header length (offset field + 4), encoding type, block size
 // in bytes, bits per sample, channels, sampling rate, total samples and the derived samples per
 // block. -1 short, -2 not 0x8000.
+// FUN_004C5770
 Sint32 ADX_DecodeInfo(Uint8 *data, Sint32 len, Sint16 *hdrlen, Sint8 *fmt, Sint8 *bps, Sint8 *blksiz, Sint8 *nch,
                       Sint32 *sfreq, Sint32 *nsmpl, Sint32 *blksmpl)
 {

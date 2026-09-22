@@ -285,7 +285,7 @@ void ADXT_Destroy(ADXT adxt)
 
 // Destroys every live handle (ADXT_Finish).
 // FUN_004D3F08
-void ADXT_DestroyAll(void)
+void func_004d3f08(void)
 {
 	Sint32 i;
 
@@ -397,6 +397,7 @@ void ADXT_Stop(ADXT adxt)
 
 // Public handle state: 0 stop, 1 decinfo, 2 prep, 3 playing, 4 playend-wait, 5 playend, 6 error
 // (ADXT_ISTAT_*); -1 for a NULL handle.
+// FUN_004D4430
 Sint32 ADXT_GetStat(ADXT adxt)
 {
 	if (adxt == NULL) {
@@ -498,7 +499,8 @@ Float32 ADXT_GetMvTime(ADXT adxt)
 }
 
 // Total sample count of the stream once the header is known (stat >= PREP), else 0.
-Sint32 ADXT_GetNumSmpl(ADXT adxt)
+// FUN_004D4B80
+Sint32 func_004d4b80(ADXT adxt)
 {
 	if (adxt == NULL) {
 		ADXERR_CallErrFunc1("E02080817 ADXT_GetNumSmpl: parameter error");
@@ -511,6 +513,7 @@ Sint32 ADXT_GetNumSmpl(ADXT adxt)
 }
 
 /* (dead-stripped) */
+// FUN_004D4C08
 Sint32 ADXT_GetHdrLen(ADXT adxt)
 {
 	if (adxt == NULL) {
@@ -524,6 +527,7 @@ Sint32 ADXT_GetHdrLen(ADXT adxt)
 }
 
 /* (dead-stripped) */
+// FUN_004D4C90
 Sint32 ADXT_GetFmtBps(ADXT adxt)
 {
 	if (adxt == NULL) {
@@ -537,7 +541,8 @@ Sint32 ADXT_GetFmtBps(ADXT adxt)
 }
 
 // Sampling rate of the stream in Hz once the header is known, else 0.
-Sint32 ADXT_GetSfreq(ADXT adxt)
+// FUN_004D4D18
+Sint32 func_004d4d18(ADXT adxt)
 {
 	if (adxt == NULL) {
 		ADXERR_CallErrFunc1("E02080819 ADXT_GetSfreq: parameter error");
@@ -550,7 +555,8 @@ Sint32 ADXT_GetSfreq(ADXT adxt)
 }
 
 // Channel count of the stream once the header is known, else 0.
-Sint32 ADXT_GetNumChan(ADXT adxt)
+// FUN_004D4DA0
+Sint32 func_004d4da0(ADXT adxt)
 {
 	if (adxt == NULL) {
 		ADXERR_CallErrFunc1("E02080820 ADXT_GetNumChan: parameter error");
@@ -847,6 +853,7 @@ void ADXT_SetLpFlg(ADXT adxt, Sint32 flg)
 }
 
 /* (dead-stripped) */
+// FUN_004D5F48
 SJ ADXT_GetInputSj(ADXT adxt)
 {
 	if (adxt == NULL) {
@@ -924,16 +931,19 @@ Sint32 ADXT_GetStatPause(ADXT adxt)
 }
 
 // Pitch transpose is not supported by the AX renderer: no-op kept for the API.
+// FUN_004D62C0
 void ADXT_SetTranspose(ADXT adxt, Sint32 oct, Sint32 cent)
 {
 }
 
 // No-op (see ADXT_SetTranspose).
+// FUN_004D62C8
 void ADXT_GetTranspose(ADXT adxt, Sint32 *oct, Sint32 *cent)
 {
 }
 
 // Tells the decoder that no more input data will arrive (end of a memory / stream-joint source).
+// FUN_004D6340
 void ADXT_TermSupply(ADXT adxt)
 {
 	ADXSJD_TermSupply(adxt->sjd);
@@ -1028,6 +1038,7 @@ Bool ADXT_IsHeader(Uint8 *data, Sint32 size, Sint32 *hdrsiz)
 }
 
 // True if `data` starts with an ADX end code (magic 0x8001); *ecsiz gets the remaining size.
+// FUN_004D68D0
 Bool ADXT_IsEndcode(Uint8 *data, Sint32 size, Sint32 *ecsiz)
 {
 	if (size <= 1) {

@@ -242,8 +242,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e7d08);
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e7d40);
 // FUN_004E7ED0
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e7ed0);
-// FUN_004E7FC8
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e7fc8);
 /* measured: schedule on places the constant return in the jr delay slot. */
 #pragma schedule on
 // FUN_004E8000

@@ -215,6 +215,8 @@ rwImmediGlobals    *_rwIm3DGlobals = (rwImmediGlobals *)NULL;
  * \see RwIm3DSetTransformPipeline
  *
  */
+// FUN_00410420
+#pragma schedule on
 void               *
 RwIm3DTransform(RwIm3DVertex * pVerts,
                 RwUInt32 numVerts, RwMatrix * ltm, RwUInt32 flags)
@@ -284,6 +286,8 @@ RwIm3DTransform(RwIm3DVertex * pVerts,
 
     RWRETURN(NULL);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwim3d
@@ -308,6 +312,8 @@ RwIm3DTransform(RwIm3DVertex * pVerts,
  *
  */
 
+// FUN_004104D0
+#pragma schedule on
 RwBool
 RwIm3DEnd(void)
 {
@@ -332,6 +338,8 @@ RwIm3DEnd(void)
 #endif /* (!defined(SUPPRESS_IM3D)) */
     RWRETURN(TRUE);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwim3d
@@ -359,6 +367,8 @@ RwIm3DEnd(void)
  * \see RwIm3DSetTransformPipeline
  *
  */
+// FUN_00410520
+#pragma schedule on
 RwBool
 RwIm3DRenderIndexedPrimitive(RwPrimitiveType primType,
                              RwImVertexIndex * indices,
@@ -489,6 +499,8 @@ RwIm3DRenderIndexedPrimitive(RwPrimitiveType primType,
 #endif /* (!defined(SUPPRESS_IM3D)) */
 
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwim3d
@@ -515,6 +527,8 @@ RwIm3DRenderIndexedPrimitive(RwPrimitiveType primType,
  *
  */
 
+// FUN_004106A0
+#pragma schedule on
 RwBool
 RwIm3DRenderPrimitive(RwPrimitiveType primType)
 {
@@ -644,6 +658,8 @@ RwIm3DRenderPrimitive(RwPrimitiveType primType)
 #endif /* (!defined(SUPPRESS_IM3D)) */
 
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwim3d
@@ -676,6 +692,8 @@ RwIm3DRenderPrimitive(RwPrimitiveType primType)
  * \see RwIm3DSetTransformPipeline
  *
  */
+// FUN_00410800
+#pragma schedule on
 RwBool
 RwIm3DRenderTriangle(RwInt32 vert1, RwInt32 vert2, RwInt32 vert3)
 {
@@ -753,6 +771,8 @@ RwIm3DRenderTriangle(RwInt32 vert1, RwInt32 vert2, RwInt32 vert3)
     RWRETURN(TRUE);
 #endif /* (!defined(SUPPRESS_IM3D)) */
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwim3d
@@ -784,6 +804,8 @@ RwIm3DRenderTriangle(RwInt32 vert1, RwInt32 vert2, RwInt32 vert3)
  * \see RwIm3DSetTransformPipeline
  *
  */
+// FUN_00410930
+#pragma schedule on
 RwBool
 RwIm3DRenderLine(RwInt32 vert1, RwInt32 vert2)
 {
@@ -860,6 +882,8 @@ RwIm3DRenderLine(RwInt32 vert1, RwInt32 vert2)
     RWRETURN(TRUE);
 #endif /* (!defined(SUPPRESS_IM3D)) */
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwim3d
@@ -1279,6 +1303,8 @@ _rwIm3DClose(void *instance, RwInt32 __RWUNUSED__ offset,
 /****************************************************************************
  _rwIm3DOpen
  */
+// FUN_00410DF0
+#pragma schedule on
 void               *
 _rwIm3DOpen(void *instance, RwInt32 offset, RwInt32 size)
 {
@@ -1340,3 +1366,5 @@ _rwIm3DOpen(void *instance, RwInt32 offset, RwInt32 size)
 #endif /* (!defined(SUPPRESS_IM3D)) */
 
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off

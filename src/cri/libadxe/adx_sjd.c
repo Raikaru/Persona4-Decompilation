@@ -131,6 +131,7 @@ void ADXSJD_Destroy(ADXSJD sjd)
 }
 
 // 100% matching!
+// FUN_004CDC98
 Sint32 ADXSJD_GetStat(ADXSJD sjd)
 {
     return sjd->stat;
@@ -508,6 +509,7 @@ Sint32 ADXSJD_GetTrapDtLen(ADXSJD sjd)
 }
 
 // 100% matching!
+// FUN_004C0FE8
 Sint32 ADXSJD_GetFormat(ADXSJD sjd)
 {
     return ADXB_GetFormat(sjd->adxb);
@@ -598,6 +600,7 @@ Sint32 ADXSJD_GetHdrLen(ADXSJD sjd)
 }
 
 // 100% matching!
+// FUN_004CEDA8
 Sint32 ADXSJD_GetFmtBps(ADXSJD sjd)
 {
     return ADXB_GetFmtBps(sjd->adxb);

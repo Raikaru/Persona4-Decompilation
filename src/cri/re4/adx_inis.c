@@ -132,6 +132,7 @@ Sint32 adxt_exec_fssvr(void *obj)
 }
 
 // SVM callback (type 2, vsync): one ADXT_ExecServer pass (threaded setup only).
+// FUN_004CA6E0
 Sint32 adxt_exec_tsvr(void *obj)
 {
 	ADXT_ExecServer();

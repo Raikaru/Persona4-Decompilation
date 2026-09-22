@@ -244,6 +244,7 @@ Sint32 SFMPS_Destroy(SFD sfd)
 }
 
 // MPS parser errors -> the handle's SFLIB_SetErr.
+// FUN_00519C20
 void sfmps_ErrFn(void *obj, Sint32 code)
 {
 	SFLIB_SetErr(obj, code);
@@ -1013,6 +1014,7 @@ static Sint32 sfmps_GetRead(SFD sfd, Uint8 **data, Sint32 *len, Sint32 *total)
 
 // Parses one unit (pack header / system header / packet) at `data` through the MPS parser and
 // dispatches its payload; *nbyte consumed, *nskip garbage skipped.
+// FUN_004EA710
 static Sint32 sfmps_Decode(SFD sfd, Uint8 *data, Sint32 len, Sint32 *nbyte, Sint32 *nskip, Sint32 total)
 {
 	return sfmps_DecodeOneUnit(sfd, data, len, nbyte, nskip, total);
@@ -1105,12 +1107,14 @@ Sint32 sfmps_ExecServerSub(SFD sfd)
  * are @temps: `li ret,0; mr skiptot,ret; mr tot,ret` shares the entry zero), which makes ExecServerSub small enough
  * for -inline auto to inline it here; the target keeps the `bl` (CRI pass 29). */
 // Driver ExecServer (SFD_tr_sd_mps slot 2).
+// FUN_004EA728
 static Sint32 SFMPS_ExecServer(SFD sfd)
 {
 	return sfmps_ExecServerSub(sfd);
 }
 
 // Library finish: MPS parser.
+// FUN_00511900
 Sint32 SFMPS_Finish(void)
 {
 	MPS_Finish();

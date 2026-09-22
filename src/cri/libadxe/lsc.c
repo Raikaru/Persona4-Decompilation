@@ -308,6 +308,7 @@ Sint32 LSC_GetStat(LSC lsc)
 // GetStmId 0x24). GetNumStm is the cross-donor outlier, so it reads the
 // 0x14 slot (bufmin in the 0x4E layout) to converge at 0x004C95C8.
 // 100% matching at 0x004C95C8!
+// FUN_004C95C8
 Sint32 LSC_GetNumStm(LSC lsc) 
 {
     if (lsc == NULL) 

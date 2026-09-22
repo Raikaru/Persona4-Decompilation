@@ -116,6 +116,7 @@ static const Char8 *adxsje_get_build(void);
 const Char8 *ADXSJE_GetVersion(void);
 
 /* (dead-stripped) */
+// FUN_004CF350
 static const Char8 *adxsje_get_build(void)
 {
 	return "\nADXENC/GC Ver.1.09 Build:Oct  8 2004 13:33:15\n";
@@ -315,6 +316,7 @@ void ADXSJE_SetConfigSfa(ADXSJE sje, Sint32 nch, Sint32 sfreq, Sint32 nsmpl)
 }
 
 // Requests the end code after the current block.
+// FUN_004D1200
 void ADXSJE_Stop(ADXSJE sje)
 {
 	sje->stopflg = 1;

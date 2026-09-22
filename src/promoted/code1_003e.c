@@ -197,32 +197,9 @@ u8 *func_003e0250(u8 *arg0) {
 /* measured: closes the schedule bracket opened above and restores the
    translation-unit baseline. */
 #pragma schedule off
-// FUN_003E0380
-/* measured: iGpffffb768 is the registered scalar for GP -0x4898. The
-   absolute D_008872E0 array plus the scalar offset reproduces retail's
-   lui/addiu, gp-load, addu addressing sequence. */
-/* measured: open the one-function optimization probe for func_003e0380. */
-#pragma optimization_level 3
-s32 func_003e0380(MatrixTolerance003e *arg0) {
-    u8 *globals;
-    s32 result;
-    globals = (u8 *)D_008872E0 + (s32)iGpffffb768;
-    result = 1;
-    *(MatrixTolerance003e *)arg0 = *(MatrixTolerance003e *)(globals + 0xc);
-    return result;
-}
-/* measured: close the one-function optimization probe for func_003e0380. */
-#pragma optimization_level 2
 
-/* measured: use the same registered scalar and absolute array domain as the
-   getter; retaining the true return value reproduces retail's addiu v0,1. */
-#pragma optimization_level 3
 extern s32 func_003e03b0(const MatrixTolerance003e *arg0); /* P4: ported verbatim into src/renderware */
-#pragma optimization_level 2
-#pragma optimization_level 3
 extern u8 *RwMatrixUpdate(u8 *arg0); /* P4: ported verbatim into src/renderware */
-/* measured: closes the bracket above at the -O2 baseline. */
-#pragma optimization_level 2
 
 /* measured: schedule on keeps the returned pointer in retail's jr delay slot. */
 #pragma schedule on
@@ -834,26 +811,6 @@ extern s32 func_003e5550(u8 ***arg0, u8 *arg1); /* P4: ported verbatim into src/
 #pragma schedule on
 extern u8 *func_003e59e0(u8 *arg0); /* P4: ported verbatim into src/renderware */
 /* measured: closes the bracket noted above the marker. */
-#pragma schedule off
-
-/* measured: schedule on is load-bearing - it hoists move $s1,$a0 before the
-   first call and fills each jal delay slot with the running-total addu. */
-
-/* measured: optimization_level 3 reproduces retail's argument-register
-   materialisation for this direct wrapper. */
-#pragma optimization_level 3
-// FUN_003E6210
-/* measured: tailcall knob retains the func_003e6210 bracket. */
-#pragma tailcall on
-void func_003e6210(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    func_003e3020((u8 *)D_0070B800, arg0, arg1, arg2, arg3);
-}
-/* measured: closes the function pragma bracket. */
-#pragma tailcall off
-/* measured: closes optimization_level 3 around func_003e6210. */
-#pragma optimization_level 2
-#pragma schedule on
-/* measured: closes the function pragma bracket. */
 #pragma schedule off
 
 /* measured: optimization_level 3 is load-bearing for func_003e66c0/6750. */

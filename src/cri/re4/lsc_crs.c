@@ -6,12 +6,14 @@ extern void SJCRS_Lock(void);
 extern void SJCRS_Unlock(void);
 
 // Leaves the scheduler critical section.
+// FUN_004E9838
 void LSC_UnlockCrs(Sint32 *msk)
 {
 	SJCRS_Unlock();
 }
 
 // Enters the scheduler critical section.
+// FUN_004E9818
 void LSC_LockCrs(Sint32 *msk)
 {
 	Sint32 tmp; /* retail 0x429E08 prologue 27bdfff0 addiu sp,-16 + sd ra + jal 0x429D90 + ld ra (28B + 4B padding =32B window); prevents tail-call like libadxe lsc_crs.c */

@@ -434,6 +434,7 @@ static void sjrbf_Reset(SJRBF_OBJ *sj)
 }
 
 // Locked wrapper of sjrbf_Reset (ADXT_Stop / ADXRNA_SetPlaySw(0) reset their rings this way).
+// FUN_004CADD8
 void SJRBF_Reset(SJRBF_OBJ *sj)
 {
 	SJCRS_Lock();

@@ -57,6 +57,7 @@ void SFXA_MakeAlpLumiTbl(SFXA_OBJ *sfxa, void *frm, void *tbl)
 // Frees the object. The barrier keeps retail's order (sw used before the
 // sfxa_work address materialisation) and its unfilled beqz delay slot; it is
 // a pure compiler memory barrier (lint-allowed) with no observable effect.
+// FUN_0052A580
 void SFXA_Destroy(SFXA_OBJ *sfxa)
 {
 	if (sfxa == NULL) {

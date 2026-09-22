@@ -12,7 +12,6 @@
 #define memset func_0043f9c8
 #define RwStreamRead func_003e2910
 #define RwCameraCreate func_003e84a0
-#define _rwPluginRegistryReadDataChunks func_003e3110
 #define RwCameraSetViewWindow func_003e83a0
 #define RwCameraSetViewOffset func_003e8130
 #define RwCameraSetNearClipPlane func_003e8180

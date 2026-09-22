@@ -81,8 +81,6 @@ INCLUDE_ASM("asm/nonmatchings/rofs_mai", func_004f51c8);
 // FUN_004F53C0
 INCLUDE_ASM("asm/nonmatchings/rofs_mai", func_004f53c0);
 
-// FUN_004F54C0
-INCLUDE_ASM("asm/nonmatchings/rofs_mai", func_004f54c0);
 
 // FUN_004F54D8
 INCLUDE_ASM("asm/nonmatchings/rofs_mai", func_004f54d8);

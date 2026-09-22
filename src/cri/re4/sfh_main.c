@@ -220,6 +220,7 @@ static Uint32 sfh_GetStmType(Uint32 id)
 }
 
 // The audio element carries a feature block (flag == 1).
+// FUN_0052A370
 static Bool sfh_IsEffFtrAud(Uint32 id, SFH_ELEM *elem)
 {
 	Uint32 flg;
@@ -237,6 +238,7 @@ static Bool sfh_IsEffFtrAud(Uint32 id, SFH_ELEM *elem)
 }
 
 // The video element carries a feature block (flag == 1).
+// FUN_0052A3B0
 static Bool sfh_IsEffFtrVid(Uint32 id, SFH_ELEM *elem)
 {
 	Uint32 flg;
@@ -332,6 +334,7 @@ Bool SFH_AnlyFtrFxType(SFH sfh, Uint8 id, Sint32 *val)
 }
 
 // Video feature: GOP M (P-picture spacing).
+// FUN_0052A1E8
 Bool SFH_AnlyFtrGopM(SFH sfh, Uint8 id, Sint32 *val)
 {
 	SFH_ELEM *elem;
@@ -352,6 +355,7 @@ Bool SFH_AnlyFtrGopM(SFH sfh, Uint8 id, Sint32 *val)
 }
 
 // Video feature: GOP N (GOP length).
+// FUN_0052A160
 Bool SFH_AnlyFtrGopN(SFH sfh, Uint8 id, Sint32 *val)
 {
 	SFH_ELEM *elem;
@@ -426,6 +430,7 @@ Bool SFH_AnlyFtrFixFlg(SFH sfh, Uint8 id, Sint32 *val)
 }
 
 // Video feature: picture type restriction.
+// FUN_00529F98
 Bool SFH_AnlyFtrPicType(SFH sfh, Uint8 id, Sint32 *val)
 {
 	SFH_ELEM *elem;
@@ -443,6 +448,7 @@ Bool SFH_AnlyFtrPicType(SFH sfh, Uint8 id, Sint32 *val)
 }
 
 // Video feature: colour type (3 = colour-space conversion needed; drives the SFX colour adjustment).
+// FUN_00529F28
 Bool SFH_AnlyFtrColType(SFH sfh, Uint8 id, Sint32 *val)
 {
 	SFH_ELEM *elem;

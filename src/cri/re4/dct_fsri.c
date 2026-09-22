@@ -56,10 +56,6 @@ void DCT_FsriTransCore(DCT_PA *pa, Sint32 cbp)
 	register Sint32 cnt;
 	register Sint16 *o;
 	register Float32 *p;
-	/* the kernel's paired-single registers: the constants c1..c6 (loop-invariant) and the
-	 * temporaries, all allocated by the compiler (no hard register in the asm: the C paths share
-	 * f0/f7 and r5/r7 with them) */
-	register __vec2x32float__ x0, c1, c2, c3, c4, c5, c6, x7, x8, x9, x10, x11, x12, x13, x31;
 	Sint32 i;
 	int k;
 	Float32 dc;

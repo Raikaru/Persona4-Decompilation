@@ -7,6 +7,7 @@ void *adxerr_obj = NULL;
 Sint8 adxerr_msg[256] __attribute__((aligned(64))) = { 0 }; 
 
 // 100% matching!
+// FUN_004C6A00
 void ADXERR_Init(void)
 {
     memset(adxerr_msg, 0, sizeof(adxerr_msg));
@@ -16,6 +17,7 @@ void ADXERR_Init(void)
 }
 
 // 100% matching!
+// FUN_004C6A38
 void ADXERR_Finish(void) 
 {
     memset(adxerr_msg, 0, sizeof(adxerr_msg));

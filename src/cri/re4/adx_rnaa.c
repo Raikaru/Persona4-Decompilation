@@ -27,6 +27,7 @@ extern void AXRNA_Init(void);
 extern void ADXERR_CallErrFunc1(Char8 *msg);
 
 // Forwards the sampling-rate correction switch.
+// FUN_004CD608
 void ADXRNA_SetAdjsfreqFlg(AXRNA rna, Sint32 flg)
 {
 	AXRNA_SetAdjsfreqFlg(rna, flg);
@@ -45,12 +46,14 @@ void ADXRNA_SetTotalNumSmpl(AXRNA rna, Sint32 nsmpl)
 }
 
 // Forwards a discard request (AXRNA does not implement it).
+// FUN_004CD620
 void ADXRNA_DiscardData(AXRNA rna, Sint32 nsmpl)
 {
 	AXRNA_DiscardData(rna, nsmpl);
 }
 
 // Forwards the PCM bit depth.
+// FUN_004CD638
 void ADXRNA_SetBitPerSmpl(AXRNA rna, Sint32 bps)
 {
 	AXRNA_SetBitPerSmpl(rna, bps);
@@ -62,18 +65,21 @@ void ADXRNA_SetOutBalance(AXRNA rna, Sint32 bal)
 }
 
 // Forwards the per-channel pan (-15..15).
+// FUN_004CD650
 void ADXRNA_SetOutPan(AXRNA rna, Sint32 ch, Sint32 pan)
 {
 	AXRNA_SetOutPan(rna, ch, pan);
 }
 
 // Forwards the output volume (1/10 dB, <= 0).
+// FUN_004CD668
 void ADXRNA_SetOutVol(AXRNA rna, Sint32 vol)
 {
 	AXRNA_SetOutVol(rna, vol);
 }
 
 // Forwards the sampling rate.
+// FUN_004CD688
 void ADXRNA_SetSfreq(AXRNA rna, Sint32 sfreq)
 {
 	AXRNA_SetSfreq(rna, sfreq);
@@ -104,12 +110,14 @@ Sint32 ADXRNA_GetNumData(AXRNA rna)
 }
 
 // Starts (1) / stops (0) the AX voices.
+// FUN_004CD720
 void ADXRNA_SetPlaySw(AXRNA rna, Sint32 sw)
 {
 	AXRNA_SetPlaySw(rna, sw);
 }
 
 // Enables (1) / disables (0) the PCM transfer from the decoder output into ARAM.
+// FUN_004CD708
 void ADXRNA_SetTransSw(AXRNA rna, Sint32 sw)
 {
 	AXRNA_SetTransSw(rna, sw);
@@ -132,12 +140,14 @@ void ADXRNA_Destroy(AXRNA rna)
 }
 
 // Creates an AXRNA over the decoder output stream joints.
+// FUN_004CD6D8
 AXRNA ADXRNA_Create(Sint32 nch, void *sj)
 {
 	return AXRNA_Create(nch, sj);
 }
 
 // Registers the renderer error callback.
+// FUN_004CD6F0
 void ADXRNA_EntryErrFunc(void (*func)(void *obj, Char8 *msg), void *obj)
 {
 	AXRNA_EntryErrFunc(func, obj);

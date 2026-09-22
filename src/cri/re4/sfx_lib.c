@@ -138,6 +138,7 @@ SFX_OBJ *SFX_Create(void *work, Sint32 wsize)
 }
 
 // Installs the library error callback.
+// FUN_0052B720
 void SFX_SetErrFn(void (*fn)(void *obj, const Char8 *msg), void *obj)
 {
 	SFX_ERRAREA *e = (SFX_ERRAREA *)&sfx_libwork.errfn;

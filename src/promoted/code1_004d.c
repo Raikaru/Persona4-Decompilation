@@ -142,8 +142,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d33f8);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3458);
 // FUN_004D34C0
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d34c0);
-// FUN_004D3528
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3528);
 // FUN_004D3540
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3540);
 // FUN_004D3558
@@ -266,15 +264,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d4338);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d43f8);
 /* measured: optimization level 3 reproduces the null-accessor branch shape. */
 #pragma optimization_level 3
-// FUN_004D4430
-s8 func_004d4430(u8 *arg0)
-{
-    if (arg0 == NULL) {
-        func_004c6a98(D_00758C58);
-        return -1;
-    }
-    return *(s8 *)(arg0 + 1);
-}
 /* measured: restore optimization level 2 after func_004d4430. */
 #pragma optimization_level 2
 // FUN_004D4460

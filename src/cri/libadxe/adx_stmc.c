@@ -20,6 +20,7 @@ void ADXT_SetupRtimeNumStm(Sint32 num)
 }
 
 // 100% matching!
+// FUN_004D18E8
 void ADXT_SetupNrmlNumStm(Sint32 num)
 {
     adxstmf_nrml_ofst = 40 - num;
@@ -45,6 +46,7 @@ void ADXSTM_Reset(void)
 }
 
 // 100% matching!
+// FUN_004D2DB0
 void ADXSTM_Finish(void)
 {
     cvFsFinish();

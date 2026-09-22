@@ -308,9 +308,7 @@ CorePluginAttach(void)
     state |=
         _rwPipeAttach();
     state |=
-        /* PS2 adds two PS2All material-pipeline pointers which the
-         * reconstructed null-driver rwImmediGlobals header omits. */
-        RwEngineRegisterPlugin(sizeof(rwImmediGlobals) + 8, rwID_IMMEDIATEMODULE,
+        RwEngineRegisterPlugin(sizeof(rwImmediGlobals), rwID_IMMEDIATEMODULE,
                                _rwIm3DOpen, _rwIm3DClose);
     state |=
         RwEngineRegisterPlugin(sizeof(rwResourcesGlobals), rwID_RESOURCESMODULE,

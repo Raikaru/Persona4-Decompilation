@@ -92,6 +92,7 @@ void ADXAMP_Destroy(ADXAMP amp)
 }
 
 // 100% matching! 
+// FUN_004C1568
 Sint32 ADXAMP_GetStat(ADXAMP amp)
 {
     return amp->stat;
@@ -232,6 +233,7 @@ void ADXAMP_ExecServer(void)
 }
 
 // 100% matching! 
+// FUN_004C1A30
 Sint32 ADXAMP_GetExtractNumSmpl(ADXAMP amp) 
 {
     return amp->total_exsmpl[0];

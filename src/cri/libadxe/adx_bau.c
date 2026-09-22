@@ -283,6 +283,7 @@ void ADXB_ExecOneAu16(ADXB adxb)
 }
 
 // 100% matching!
+// FUN_004C2DB8
 void ADXB_ExecOneAu8(ADXB adxb) 
 {
 	AdxDecPara *dp;

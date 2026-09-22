@@ -593,6 +593,8 @@ RpWorldSectorSetStreamAlwaysCallBack(
  * \see RpWorldPluginAttach
  *
  */
+// FUN_003C8D80
+#pragma schedule on
 RwInt32
 RpWorldSectorSetStreamRightsCallBack(RwUInt32 pluginID,
                                      RwPluginDataChunkRightsCallBack rightsCB)
@@ -608,6 +610,8 @@ RpWorldSectorSetStreamRightsCallBack(RwUInt32 pluginID,
 
     RWRETURN(plug);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rpworldsector

@@ -19,7 +19,6 @@
 #define RwTextureSetAutoMipmapping func_003ef040
 #define _rwStringStreamFindAndRead func_003e4f60
 #define RwTextureRead func_003ef740
-#define _rwPluginRegistryReadDataChunks func_003e3110
 #define _rwerror func_003df590
 #define RwTexDictionaryForAllTextures func_003ef260
 #define _rwDeviceSystemRequest func_003e87f0
@@ -140,6 +139,8 @@ struct _nativeTextureWriteInfo
  * \see RwTextureValidatePlugins
  *
  */
+// FUN_003E6210
+#pragma schedule on
 RwInt32
 RwTextureRegisterPluginStream(RwUInt32 pluginID,
                               RwPluginDataChunkReadCallBack readCB,
@@ -159,6 +160,8 @@ RwTextureRegisterPluginStream(RwUInt32 pluginID,
 
     RWRETURN(plug);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwtexture

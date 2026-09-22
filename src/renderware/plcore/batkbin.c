@@ -17,7 +17,6 @@
 #define _rwStreamReadChunkHeader func_003deea0
 #define _rwStreamWriteVersionedChunkHeader func_003deff0
 #define RwStreamSkip func_003e2ce0
-#define _rwPluginRegistryReadDataChunks func_003e3110
 
 #include "bastream.h"
 #include "babinary.h"
@@ -239,7 +238,7 @@ _rwPluginRegistryAddPlgnStrmRightsCB(RwPluginRegistry *reg, RwUInt32 pluginID,
 // FUN_003E3110
 #pragma schedule on
 const RwPluginRegistry *
-func_003e3110(const RwPluginRegistry * reg, RwStream * stream, void *object)
+_rwPluginRegistryReadDataChunks(const RwPluginRegistry * reg, RwStream * stream, void *object)
 {
     RwUInt32 length, version;
 

@@ -419,11 +419,6 @@ extern u8 *func_003ef5b0(u8 *arg0, u8 *arg1); /* P4: ported verbatim into src/re
 #pragma no_branch_likely on
 extern u8 *func_003ef610(u8 *arg0); /* P4: ported verbatim into src/renderware */
 #pragma no_branch_likely off
-// FUN_003EF6D0
-s32 func_003ef6d0(void)
-{
-    return *(s32 *)((u8 *)D_008872E0 + iGpffffb7e0 + 0x10);
-}
 /* measured: no_branch_likely preserves the retail callback null branch. */
 #pragma no_branch_likely on
 // FUN_003EF6F0
@@ -1317,79 +1312,11 @@ s32 func_00410370(s32 arg0, s32 *arg1, s32 *arg2)
 }
 // FUN_00410390
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410390);
-// FUN_00410420
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410420);
-/* measured: retail 004104d0 null guard is plain beqz, not beql. */
-#pragma no_branch_likely on
-// FUN_004104D0
-s32 func_004104d0(void)
-{
-    u8 *temp_3;
-
-    temp_3 = (u8 *)((u8 *)D_008872E0 + iGpffffb9b0);
-    if (*(s32 *)(temp_3 + 0x44) == 0) {
-        goto zero;
-    }
-    func_0043f9c8(temp_3 + 0x40, 0, 0x3c);
-    goto done;
-zero:
-    return 0;
-done:
-    return 1;
-}
-/* measured: closes no_branch_likely around func_004104d0. */
-#pragma no_branch_likely off
-// FUN_00410520
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410520);
-// FUN_004106A0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004106a0);
-// FUN_00410800
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410800);
-// FUN_00410930
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410930);
 #pragma no_branch_likely on
 extern s32 func_00410a40(s32 arg0); /* P4: ported verbatim into src/renderware */
 #pragma no_branch_likely off
 #pragma no_branch_likely on
 extern s32 func_00410ab0(s32 arg0, u32 arg1); /* P4: ported verbatim into src/renderware */
-#pragma no_branch_likely off
-/* measured: retail preserves plain return branches in func_00410df0. */
-#pragma no_branch_likely on
-// FUN_00410DF0
-s32 func_00410df0(s32 arg0, s32 arg1)
-{
-    s32 var_2;
-    u8 *temp_4;
-
-    extern s32 func_00415930(void *arg0);
-    extern s32 func_00415950(void *arg0);
-
-    iGpffffb9b0 = arg1;
-    temp_4 = (u8 *)((u8 *)D_008872E0 + arg1);
-    iGpffffb9ac = (s32)temp_4;
-    iGpffffb9b4 += 1;
-    func_0043f9c8(temp_4, 0, 0x7C);
-    var_2 = func_00415930(
-        (void *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x1C));
-    if (var_2 != 0)
-        goto call_second;
-check_done:
-    if (var_2 == 0)
-        goto cleanup;
-    return arg0;
-call_second:
-    var_2 = func_00415950(
-        (void *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x20));
-    goto check_done;
-cleanup:
-    func_00415940(
-        (void *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x20));
-    func_00415920(
-        (void *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x1C));
-    iGpffffb9b4 -= 1;
-    return 0;
-}
-/* measured: closes no_branch_likely around func_00410df0. */
 #pragma no_branch_likely off
 // FUN_00410F30
 s32 func_00410f30(void)

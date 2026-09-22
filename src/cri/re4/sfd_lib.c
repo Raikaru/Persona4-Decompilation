@@ -28,12 +28,14 @@ static const Char8 *cri_verstr_ptr = NULL;
 SFLIB_WORK SFLIB_libwork;
 
 // Leaves the SFD critical section (SVM_Unlock, a no-op in this game).
+// FUN_00517DA8
 void SFLIB_UnlockCs(Sint32 *cs)
 {
 	SVM_Unlock();
 }
 
 // Enters the SFD critical section.
+// FUN_00517D90
 void SFLIB_LockCs(Sint32 *cs)
 {
 	SVM_Lock();

@@ -18,7 +18,6 @@
 #define _rpMaterialListStreamRead func_003c4fa0
 #define RpGeometryAddMorphTargets func_003c1ea0
 #define RwResourcesFreeResEntry func_003e1ea0
-#define _rwPluginRegistryReadDataChunks func_003e3110
 #define RpGeometryUnlock func_003c22f0
 
 /**
