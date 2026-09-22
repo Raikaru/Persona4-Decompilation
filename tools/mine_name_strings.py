@@ -9,7 +9,7 @@ format (``Name = 0xADDR; // type:func  evidence: string:"<text>"``), which
 
 Evidence classes mined (with measured outcomes):
 
-A. {name, fn} record adjacency  -- the only paying class (89 names accepted)
+A. {name, fn} record adjacency  -- 87 names accepted
    A C-identifier string whose address appears as a data word immediately
    beside (within one word of) exactly one canonical function address, with
    no second canonical function on the far side of that field.  PS2 task,
@@ -37,6 +37,22 @@ D. C++ RTTI/class-name strings -- absent
    Zero strings contain ``::`` or a ``_Z`` mangling prefix and the ELF
    compiler comment is "MW MIPS C Compiler (2.4.1.01)", i.e. the image is
    C, not C++.
+
+E. error/assert text naming its own function -- 236 names accepted
+   CRI's error macros embed the reporting function's name in the message
+   (``E2003060604 ACSSND_GetCprm : Not initialized.``), so the text itself
+   binds a name to the one function that references it - no dispatch record
+   and no first-party restriction needed.  This is the class that names the
+   vendor blocks: class A's ``third_party`` veto kept CRI, Sony and
+   RenderWare out of the symbol table entirely, and class B measured the
+   same strings and declared them out of scope.  331 error-tagged strings
+   are referenced from exactly one function; 236 are accepted.
+
+   The name must end at a ``:`` or at the end of the string.  That is what
+   rejects prose after a tag - ``E5022301: cnvfrm work is short.`` reads
+   ``cnvfrm`` as a name otherwise.  A name whose text is emitted by two
+   different functions names neither, matching class A's rule; a function
+   already named by class A keeps its class A name.
 
 Identifier transform (documented contract):
   ``to_identifier()`` only accepts strings that are already legal C
@@ -99,6 +115,16 @@ MIN_STRING = 3
 LUI_OP, ADDIU_OP, ORI_OP = 0x0F, 0x09, 0x0D
 
 IDENTIFIER = re.compile(rb"^[A-Za-z_][A-Za-z0-9_]*$")
+# Class E: CRI's error macros embed the reporting function's own name -
+#   "E2003060604 ACSSND_GetCprm : Not initialized."
+#   "E02080828 adxt_SetLpFlg: parameter error"
+#   "E1052501 ADXT_AttachAHX"            (name last, message before it)
+#   "E0082101: ... (htCiGetFileSize)"    (parenthesised trailer)
+# The name is the first identifier after the E-code and must end at a ':' or
+# at the end of the string: that rejects prose after the tag, e.g.
+# "E5022301: cnvfrm work is short." where "cnvfrm" is not a function name.
+ERROR_TAG = re.compile(rb"^E\d+[A-Z]?[: ]\s*([A-Za-z_][A-Za-z0-9_]*)\s*(?::|$)")
+PAREN_TAG = re.compile(rb"\(([A-Za-z_][A-Za-z0-9_]*)\)\s*$")
 PLACEHOLDER = re.compile(r"^(?:FUN|func)_[0-9A-Fa-f]+$")
 C_KEYWORDS = {
     "auto", "break", "case", "char", "const", "continue", "default", "do",
@@ -307,6 +333,36 @@ def unique_reference_names(
     return names
 
 
+def error_string_names(
+    ref_users: dict[int, set[int]],
+    string_at: dict[int, bytes],
+) -> dict[int, tuple[bytes, int]]:
+    """Names written into error/assert text, bound to their reporting function.
+
+    Returns ``{string_addr: (name_bytes, fn_addr)}`` for strings carrying an
+    error tag whose name resolves to exactly one referring function.  The
+    target is deliberately NOT restricted to first-party code: the CRI and
+    SDK blocks name themselves the same way Atlus's does, and unlike class A
+    this needs no dispatch record to bind name to function.
+
+    A tag naming two referencers is dropped - the macro text is shared and
+    says nothing about which of the two functions it came from.
+    """
+    names: dict[int, tuple[bytes, int]] = {}
+    for string_addr, users in ref_users.items():
+        text = string_at.get(string_addr)
+        if text is None or len(users) != 1:
+            continue
+        match = ERROR_TAG.match(text) or PAREN_TAG.search(text)
+        if match is None:
+            continue
+        name = match.group(1)
+        if len(name) < 4:
+            continue
+        names[string_addr] = (name, next(iter(users)))
+    return names
+
+
 def load_owners() -> dict[int, list[Path]]:
     """Map canonical addresses to their src marker owners (relative paths)."""
     owners: dict[int, list[Path]] = defaultdict(list)
@@ -472,6 +528,37 @@ def main() -> int:
         accepted_strings[fn_addr] = strings[string_addr]
         prefix_counts[prefix] += 1
 
+    # --- Class E acceptance: names written into error/assert text ----------
+    # Unlike class A this reaches the vendor blocks (CRI, Sony, RenderWare):
+    # their error macros name the reporting function and nothing else binds a
+    # name to a function there.  Same uniqueness rules as class A.
+    class_e = error_string_names(ref_users, strings)
+    # A name whose text is emitted by two different functions proves nothing
+    # about which one it came from, so it names neither - the same rule class A
+    # applies to a string reaching two records.
+    by_name: dict[bytes, set[int]] = defaultdict(set)
+    for _string_addr, (raw_name, fn_addr) in class_e.items():
+        by_name[raw_name].add(fn_addr)
+    shared_name = {n for n, fns in by_name.items() if len(fns) > 1}
+    accepted_error: dict[int, str] = {}
+    discarded_e_collision = 0
+    discarded_e_shared = 0
+    discarded_e_taken = 0
+    for string_addr, (raw_name, fn_addr) in sorted(class_e.items()):
+        name = raw_name.decode("ascii", "replace")
+        if raw_name in shared_name:
+            discarded_e_shared += 1
+            continue
+        if name in p3_names or name in existing or name in accepted.values():
+            discarded_e_collision += 1
+            continue
+        if fn_addr in accepted:
+            discarded_e_taken += 1
+            continue
+        accepted[fn_addr] = name
+        accepted_strings[fn_addr] = strings[string_addr]
+        accepted_error[fn_addr] = name
+
     # --- Report -------------------------------------------------------------
     class_a_candidates = len(by_string)
     print(f"class A  {{name,fn}} record adjacency")
@@ -486,7 +573,7 @@ def main() -> int:
         f"not an identifier: {discarded_no_identifier} | "
         f"P3/curated name collision: {discarded_collision}"
     )
-    print(f"  ACCEPTED: {len(accepted)}")
+    print(f"  ACCEPTED: {len(accepted) - len(accepted_error)}")
     for prefix in sorted(prefix_counts):
         print(f"    {prefix}: {prefix_counts[prefix]}")
 
@@ -500,6 +587,14 @@ def main() -> int:
     print(f"  referenced from >=2 functions (name none): {sum(1 for u in ref_users.values() if len(u) >= 2)}")
     print(f"  referenced from exactly 1 function: {len(unique_ref)}")
     print(f"  ACCEPTED: 0 (tags are CRI/SDK module names or unverifiable task callbacks; see module docstring)")
+    print(f"class E  error/assert text naming its own function")
+    print(f"  error-tagged strings referenced from exactly one function: {len(class_e)}")
+    print(
+        f"  discarded: name claimed by >1 function: {discarded_e_shared} | "
+        f"name already used: {discarded_e_collision} | "
+        f"function already named by class A: {discarded_e_taken}"
+    )
+    print(f"  ACCEPTED: {len(accepted_error)}")
     print(f"class D  C++ RTTI: 0 strings with '::' or '_Z' mangling; ELF comment is the MW C compiler")
 
     if args.check:
@@ -512,8 +607,11 @@ def main() -> int:
         "// String-evidenced Persona 4 function names, mined from orig/SLUS_217.82",
         "// by tools/mine_name_strings.py. Regenerate with:",
         "//   python tools/mine_name_strings.py",
-        "// Evidence: the name string sits in a data record whose function-pointer",
-        "// field is the only canonical function in the record.",
+        "// Evidence, two classes:",
+        "//   a data record whose function-pointer field is the only canonical",
+        "//   function in the record (the btlAct_/btlCond_ dispatch tables), or",
+        "//   error/assert text naming its own function (class E; CRI and Sony",
+        "//   name themselves this way).  The evidence note keeps the raw text.",
     ]
     for fn_addr, name in sorted(accepted.items()):
         text = truncate(accepted_strings[fn_addr].decode("ascii", "replace"))
