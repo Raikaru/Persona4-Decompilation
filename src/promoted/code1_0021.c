@@ -2039,34 +2039,7 @@ void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002142b0);
 #endif
-/* measured 00215c10: banked floor obj 1464B/window 1472B via `python tools/measure_guarded.py src/promoted/code1_0021.c func_00215c10` (366/366 instrs, 13 edits +1 reloc-only via `python tools/fnalign.py src/promoted/code1_0021.c func_00215c10 --candidate /tmp/cand_both_reload.c` after s16 reload 21->13; park intsFirst/floatsFirst/pin neutral at 21/13; MAC neutral 79/81; pragmas schedule 431/prop 62/loopInv 21/commonSubs 226 by EDIT count; frame -0x60 correct, residual prologue park order, FPU coloring, 85/conversion coloring. Best legal plain-C; parked as compiler floor. */
-/* measured 2026-09-17 full pragma_sweep --pairs: banked 20 via measure_guarded; */
-/* best stays 20 (ties: loopinv on, strength off, unroll off and pairs; 172 dead */
-/* group, 309-335 schedule group, 342-343 peephole ties, 348 prop group, 350 csoff */
-/* group, 358-369 high). No pair wins; prologue move $s1,$a2 + FPU/85 coloring floor. */
-/* `python3 -E -s tools/pragma_sweep.py src/promoted/code1_0021.c func_00215c10 --pairs`. */
-/* 20 -> 18 (2026-09-18): same lever as the sibling func_002161d0 - the two
-   float parameters are used directly instead of through var_f23/var_f22
-   copies, which b210 propagates away before leaving the values in $f12/$f13
-   where retail keeps them in $f23/$f22.  Remaining 18 words are the
-   `move $s1, $a2` parameter save, two slots early, and the 85.0f constant
-   that retail materialises before the (f32)(u32) conversion block and b210
-   sinks to its use. */
-/* 2026-09-18 lead pass, 5 measured variants; floor confirmed at 18 words.
-   366/366 instructions.  Three residual slots, all scheduler decisions and
-   all insensitive to source order: the `move $s1, $a2` parameter save lands
-   two instructions early, retail materialises the 85.0f constant
-   (`lui 0x42aa` / `mtc1`) before the two `cvt.s.w` conversions where this
-   body materialises it after, and the conversion destination is $f2 in
-   retail against $f3 here (a consequence of the second).
-   Every reordering ties at 18 with a byte-identical stream: hoisting
-   `var_f3 = 85.0f` above the `var_f4` statement, hoisting it to the top of
-   the function, swapping it with `var_f2 = (f32)(u32)var_s17`, and both
-   permutations of the three parameter-save assignments.  Its sibling
-   `func_002161d0` carries the same three slots and the same five ties.
-   Section 7m class; not where the next MATCH is. */
-// FUN_00215C10 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00215C10
 void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 {
     extern f32 D_007615A4;
@@ -2077,7 +2050,7 @@ void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
     extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1, u8 arg5, u8 arg6, u8 arg7, u8 arg8);
     s32 *var_s19;
     u8 *var_s18;
-    s32 var_s17;
+    u32 var_s17;
     u8 *var_s16;
     f32 var_f21;
     f32 var_f20;
@@ -2125,9 +2098,7 @@ void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         }
         var_f4 = 2.0f * var_f2 - var_f2 * var_f2;
         fparg0 = fparg0 + var_f4 * (D_007615A4 - fparg0);
-        var_f3 = 85.0f;
-        var_f2 = (f32)(u32)var_s17;
-        var_f0 = D_007615A8 + var_f2 * var_f3;
+        var_f0 = D_007615A8 + 85.0f * (f32)var_s17;
         var_f0 = var_f0 - fparg1;
         fparg1 = fparg1 + var_f4 * var_f0;
         var_f12 = 1.0f - fGpffff8218 * var_f4;
@@ -2197,29 +2168,7 @@ void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         func_00201720(var_s19, 1.0f, 1.0f);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00215c10);
-#endif
-/* measured: plain-C reconstruction reaches object 1564B against the 1568B retail window at 21 differing words (reloc-masked, fnalign 14 edits + 3 reloc-only). Frame 0x70, saves s16-s20 + f20-f22, parks s20/s19/f22/f21/s18/s16, forward CFG, FMA adda/madda/madd/msub/div chains and (u8) clamps via cvt.w.s/mfc1/andi with or-0x80000000 path all match; residual is prologue park order, commutative add.s, param-vs-saved FPU coloring (f12 vs f22, f13 vs f21) and 85/conversion f2/f3 coloring. Mined MATCH neighbours for helper prototypes and flag offsets; probe_variants top-down 29->21 via u8 s17 (fixes daddiu 0xFF and andi/move). Endgame levers tried in order, no loop so invariants/guard N/A. Best legal plain-C body; parked as compiler floor. */
-/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/code1_0021.c func_002161d0 --pairs` banked 21; best ties 21 (opt_loop_invariants on, opt_strength_reduction off, opt_unroll_loops off and their three pairwise combos); all 28 pairs neutral or worse (next 327, worst opt_common_subs off + peephole off 430). fnalign retail/object 391/391, 14 edits + 3 reloc-only. Floor stands; production stays ASM. */
-/* 21 -> 18 (2026-09-18).  Two measured levers:
-   1. the two float parameters are used directly instead of being copied into
-      var_f22/var_f21 locals.  b210 propagates the copies away and then keeps
-      the values in $f12/$f13, where retail has them in the callee-saved
-      $f22/$f21; dropping the copies makes b210 save them the same way.
-      A two-definition pin on the copies is inert (20).
-   2. `*(f32 *)(var_s19 + 0xA24) = var_f1 + 360.0f;` split into an
-      accumulate (`var_f1 = var_f1 + 360.0f;` then the store) puts the
-      variable in rs of the `add.s`, as retail does; commuting the operands
-      in place is inert and `+=` on the memory destination costs 234.
-   Remaining 18 words: the `move $s2, $a2` parameter save is two slots early,
-   and retail materialises the 85.0f constant before the (f32)(u32)
-   conversion block while b210 sinks it to its use.  Measured and rejected on
-   that: a two-definition pin on var_f3 (18), hoisting its assignment above
-   the var_f4 statement (18), inlining the literal (19), commuting the
-   multiply (19). */
-// FUN_002161D0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_002161D0
 void func_002161d0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 {
     extern f32 D_007615A4;
@@ -2291,9 +2240,7 @@ void func_002161d0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         }
         var_f4 = 2.0f * var_f2 - var_f2 * var_f2;
         fparg0 = fparg0 + var_f4 * (D_007615A4 - fparg0);
-        var_f3 = 85.0f;
-        var_f2 = (f32)var_s18;
-        var_f0 = D_007615A8 + var_f2 * var_f3;
+        var_f0 = D_007615A8 + 85.0f * (f32)var_s18;
         var_f0 = var_f0 - fparg1;
         fparg1 = fparg1 + var_f4 * var_f0;
         var_f12 = 1.0f - fGpffff8218 * var_f4;
@@ -2346,9 +2293,6 @@ void func_002161d0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
     func_00201650((u8 *)var_s20, 8, 0xD, 13.0f, 12.0f, 0xFE, 0xFF, 0x22, var_s17);
     func_002016e0((u8 *)var_s20, 0, 0, 0.0f);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002161d0);
-#endif
 /* 844/848 bytes; nine resolved relocations; four zero alignment bytes.
  * Snapshot the four party slots before callbacks can update the actor list. */
 // FUN_002167F0

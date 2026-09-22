@@ -3,6 +3,7 @@
 /* Source unit: src/Kosaka/k_clump/k_clumpInstance.c */
 #include "type.h"
 #include "Kosaka/k_clump_internal.h"
+#include "texture_callback_internal.h"
 
 typedef struct ClumpWork
 {
@@ -21,7 +22,6 @@ extern void *func_003e2f60(s32 arg0, s32 arg1, void *arg2);
 extern s32 func_003df3c0(void *arg0, s32 *arg1);
 extern void *func_003e6a90(void *arg0);
 extern void func_003e6870(void *arg0, void *arg1);
-extern void func_003ef260(void *arg0, void (*arg1)(void), s32 *arg2);
 extern void func_003ef1b0(void *arg0);
 extern void *func_003c0f20(void *arg0);
 extern s32 func_00457c90(void *arg0, const char *arg1);
@@ -36,7 +36,6 @@ extern void func_003e2ab0(void *arg0, void *arg1, s32 arg2);
 extern void func_00463250(void *arg0);
 extern void func_003e2e40(void *arg0, s32 arg1);
 extern void *func_00191e20(void *object, void *data);
-extern void func_00463100(void);
 extern void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2);
 extern s32 func_001921a0(u8 *arg0);
 extern void func_00192480(u8 *arg0);
@@ -98,7 +97,7 @@ void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
             case 0x16:
                 s3 = func_003e6a90(s1);
                 func_003e6870(s3, s0);
-                func_003ef260(s3, &func_00463100, &sp70[7]);
+                func_003ef260((const struct RwTexDictionary *)s3, &func_00463100, &sp70[7]);
                 func_003ef1b0(s3);
                 break;
             case 0x10:

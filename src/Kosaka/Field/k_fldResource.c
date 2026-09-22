@@ -1,4 +1,5 @@
 #include "model_motion_internal.h"
+#include "texture_callback_internal.h"
 #include "include_asm.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldResource.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -78,9 +79,7 @@ extern void func_003e2ce0(s32 arg0, u32 arg1);
 extern void func_003e2e40(s32 arg0, s32 arg1);
 extern s32 func_004667d0(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
 extern s32 func_003dc370(void *arg0);
-extern void func_003ef260(s32 arg0, void (*arg1)(void), void *arg2);
 extern void func_003ef1b0(s32 arg0);
-extern void func_00463100();
 extern RwBool (*D_00887300[])(RwRenderState state, void *value);
 extern u8 *func_00149ca0(void);
 extern u8 *func_00149ce0(void);
@@ -1190,7 +1189,7 @@ void func_00150ce0(u8 *resource)
                     break;
                 case 35:
                     callbackHandle = func_003dc370((void *)streamHandle);
-                    func_003ef260(callbackHandle, func_00463100,
+                    func_003ef260((const struct RwTexDictionary *)(u32)callbackHandle, func_00463100,
                                   *(u8 **)(resource + 0xA44) + 0x128);
                     func_003ef1b0(callbackHandle);
                     break;
@@ -1250,7 +1249,7 @@ s32 func_001510c0(u8 *arg0)
         }
         temp_18 = (s32)func_004669d0(*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x84), &sp68, &sp6C);
         if (sp68 == 1) {
-            func_003ef260(temp_18, func_00463100, *(u8 **)(arg0 + 0xA44) + 0x128);
+            func_003ef260((const struct RwTexDictionary *)(u32)temp_18, func_00463100, *(u8 **)(arg0 + 0xA44) + 0x128);
             func_003ef1b0(temp_18);
             *(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x84) = 0;
             if (sp6C != 0) {

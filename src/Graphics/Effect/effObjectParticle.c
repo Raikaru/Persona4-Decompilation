@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "Kosaka/k_clump_internal.h"
+#include "texture_callback_internal.h"
 
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_00492cd0(void *ptr);
@@ -21,12 +22,10 @@ extern s32 func_003e2f60(s32 arg0, s32 arg1, s32 *arg2);
 extern s32 func_003df3c0(s32 arg0, s32 *arg1);
 extern s32 func_003e2e40(s32 arg0, s32 *arg1);
 extern u8 *func_003e6a90(s32 arg0);
-extern void func_003ef260(void *arg0, s32 (*arg1)(s32, void *), s32 *arg2);
 extern void func_003ef1b0(void *arg0);
 extern u8 *func_003c0f20(s32 arg0);
 extern void func_003e2ce0(s32 arg0, u32 arg1);
 extern void func_00463250(void *arg0);
-extern s32 func_00463100(s32 arg0, void *arg1);
 extern u8 *func_00484490(void);
 extern s32 func_004844d0(void *obj);
 
@@ -238,7 +237,7 @@ void func_004aea70(u8 *arg0, s32 arg1, s32 arg2) {
       case 22:
         if (var16 == NULL) {
           var16 = func_003e6a90(temp18);
-          func_003ef260(var16, func_00463100, &work.out);
+          func_003ef260((const struct RwTexDictionary *)var16, func_00463100, &work.out);
           func_003ef1b0(var16);
         }
         break;
