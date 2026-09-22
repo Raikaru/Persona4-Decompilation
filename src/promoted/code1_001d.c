@@ -1,3 +1,4 @@
+#include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
 typedef struct BtlPacket BtlPacket;
@@ -2161,7 +2162,7 @@ next:
     }
 }
 // FUN_001D7F10
-u8 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
+u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
 {
     u32 effect;
     s32 offset;

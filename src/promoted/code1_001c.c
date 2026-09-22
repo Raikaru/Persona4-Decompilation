@@ -1,3 +1,4 @@
+#include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
 
@@ -76,7 +77,6 @@ extern void func_001ca590(u8 *arg0, f32 arg1, f32 arg2);
 extern void func_001cacd0(u8 *arg0, f32 arg1, f32 arg2);
 extern void func_0019de70(BtlUnitStateWork *work, u16 value);
 extern s32 func_001bc560(u8 *arg0, u8 *arg1);
-extern s16 func_001d7f10(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_001d8df0(u8 *arg0);
 extern u32 func_001d8bc0(void *formation);
 extern void func_001c79f0(u8 *arg0, s32 arg1);
@@ -3057,13 +3057,13 @@ void func_001c8cf0(u8 *arg0)
     u8 *temp_16;
     u8 *call_arg0;
     s32 call_arg1;
-    s32 call_arg2;
+    u16 call_arg2;
 
     temp_16 = *(u8 **)(arg0 + 0xE0);
     call_arg0 = temp_16;
     call_arg1 = 0;
     call_arg2 = *(u16 *)(temp_16 + 0x6E);
-    *(s16 *)(arg0 + 0x106) = func_001d7f10((s32)call_arg0, call_arg1, call_arg2, 0);
+    *(s16 *)(arg0 + 0x106) = func_001d7f10(call_arg0, (u8 *)call_arg1, (u16)call_arg2, 0);
     *(s16 *)(arg0 + 0x104) = func_001d8df0(temp_16 + 0x98);
     *(s32 *)(arg0 + 0x100) = 0;
 }

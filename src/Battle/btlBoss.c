@@ -1,4 +1,5 @@
 /* Source unit: src/Battle/btlBoss_0022fb90.c */
+#include "btl_skill_target_internal.h"
 #include "type.h"
 #include "include_asm.h"
 
@@ -27,7 +28,6 @@ BtlPacket* func_00194470(u32 type, u32 workSize);
 u32 func_002303e0(void* work);
 u32 func_00230450(void* work);
 extern s32 func_001f0ff0();
-extern u16 func_001d7f10();
 extern u32 func_00232710(s32 arg0, u32 arg1);
 extern s32 func_0019fc70();
 extern s32 func_001ef9a0();
@@ -230,7 +230,7 @@ loop_16:
 // FUN_0022FF70
 s32 func_0022ff70(u8 *arg0)
 {
-    u16 value;
+    s32 value;
     s32 temp_3;
     s32 result;
 

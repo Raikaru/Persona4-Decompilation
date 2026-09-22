@@ -1,4 +1,5 @@
 /* Source unit: src/Battle/btlEffect_001db100.c */
+#include "btl_skill_target_internal.h"
 #include "type.h"
 #include "include_asm.h"
 
@@ -54,7 +55,6 @@ extern void *D_00609850[];
 extern u32 D_00609600[];
 extern u32 func_001b1570(u16 arg0);
 extern u32 func_00233880(u32 arg0, u32 arg1);
-extern u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3);
 extern u32 func_00231d70(u32 arg0);
 extern s32 func_001ef720(s32 arg0, s32 arg1);
 extern s32 func_001ef4d0(s32 arg0, s32 arg1);

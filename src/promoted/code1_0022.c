@@ -1,3 +1,4 @@
+#include "btl_skill_target_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -1035,210 +1036,199 @@ void func_002240e0(u8 *camera)
     }
 }
 #pragma pop
-/* measured: MWCC -O2 plain, object 1312B/window 1312B, normalized_diff 38 (m2c baseline 1308B/756). Levers: (1) var_19>=1 756->62; (3) Vec3 0x215 tail 62->46, var_4/var_5_2 decl swap 46->38; (2) explicit chain regress, dead store 0; (4) opt_loop_invariants 0; (5) s64+full pragmas catastrophic, plain s64 regress; (6) unsigned/<1U/u16/split fold. Remaining 32 words s0/s1 swap + slti-vs-sltu/xori-vs-andi + daddiu. No volatile/asm. Preserves defective 22466C->224888 vs safe 22482C->return. Pushed from NearGA.Push24450 /tmp/push_24450_full.c. */
-/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/code1_0022.c func_00224450 --pairs` banked 32 (note above still says 38: drifted, re-measured); best ties 32 (opt_loop_invariants on, opt_strength_reduction off, opt_unroll_loops off and three pairwise combos); all 28 pairs neutral or worse (dead 174, commons+prop 246, schedule 276-296, commons 293-295, peephole 292-308, propagation 296-308). fnalign retail/object 328/328 per assignment. Floor stands; production stays ASM. */
-/* 2026-09-18, handoff 7o re-probe; floor stands at 32.  The pair is the
-   clean two-cycle $s0/$s1 the signature scan prints: retail holds `var_16`
-   in $s1 and the `var_17` chain in $s0, this body the other way round.
-   Eight variants, all without initialisers: retail computation order at
-   function scope 32 (tie), reversed 49, second scope arrangement 32 / 49,
-   the two block-scope arrangements 65 / 81 both ways.  Every reversal is a
-   regression, so the order this body already uses is retail's, and the
-   exchange survives all four scope arrangements. */
-// FUN_00224450 NONMATCHING
-#ifdef NON_MATCHING
-void func_00224450(u8 *arg0)
+/* Select a skill camera preset from the roster status and actor party index.
+ * The word-sized priority predicate and the later halfword preset have
+ * separate lifetimes, preserving the retail narrowing and register reuse.
+ * measured: native b210 -O2, 1312/1312 bytes and 46 resolved relocations.
+ *
+ * Original retail omission: with target mask 2, global flag 0x400, skill
+ * classification 0 and encounter other than 0x215, the branch at 0x22466C
+ * falls through to the final pose consumer without writing the second pose.
+ * Preserve that path and its unwritten automatic storage. The corresponding
+ * target-mask-1 path returns immediately; neither path is given new state.
+ */
+// FUN_00224450
+void func_00224450(u8 *camera)
 {
-    typedef struct {
-        f32 x;
-        f32 y;
-        f32 z;
-    } Vec3;
-    struct Work {
-        f32 first[7];
-        Vec3 second;
-        f32 third[4];
-    } work;
-    extern s32 func_00243d80(u8 *arg0);
-    extern s32 func_00243e30(s32 arg0);
-    extern s32 func_00232710(u8 *arg0, s32 arg1);
+    struct CameraPosePair {
+        RwV3d first;
+        RtQuat firstRotation;
+        RwV3d second;
+        RtQuat secondRotation;
+    } poses;
+    extern s32 func_00243d80(u8 *unitData);
+    extern s32 func_00243e30(u16 *unitData);
     extern s32 func_001ef9a0(void);
-    extern s32 func_001d8df0(u8 *arg0);
-    extern s32 func_001d7f10(u8 *arg0, s32 arg1, u16 arg2, s32 arg3);
-    extern void func_001c8cf0(u8 *arg0);
+    extern u32 func_001d8df0(s32 targets);
+    extern void func_001c8cf0(u8 *camera);
     extern u8 D_00634890[];
-    extern u8 D_00634894[];
-    extern u8 D_00634898[];
     extern u8 D_0063489C[];
-    u8 *temp_4;
-    u16 temp_3;
-    u8 *var_20;
-    s32 var_19;
-    s32 var_17;
-    s32 var_16;
-    u16 temp_19;
-    s32 temp_20;
-    s32 temp_19_2;
-    s32 temp_4_2;
-    s32 var_2;
-    s32 var_17_2;
-    u8 *var_19_2;
-    s32 temp_3_2;
-    u8 *temp_2;
-    u8 *temp_3_3;
-    u8 *temp_3_4;
-    s32 var_2_2;
-    s32 var_2_3;
-    u8 *var_5;
-    s32 var_2_4;
-    u8 *var_5_2;
-    s32 var_4;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_2_4;
-    u8 *temp_17;
-    u8 *temp_17_2;
-    u8 *temp_17_3;
+    u8 *battleWork;
+    u16 previousState;
+    u8 *enemy;
+    s32 hasStatus;
+    u32 hasPriorityStatus;
+    u16 preset;
+    s32 reset;
+    u16 skill;
+    s32 targetGroups;
+    s32 classification;
+    s32 unitData;
+    s32 selectedPreset;
+    u8 *ally;
+    s32 targetMask;
+    u8 *action;
+    u8 *actor2;
+    u8 *actor1;
+    s32 partyIndex2;
+    s32 ordinal2;
+    u8 *partyMember2;
+    s32 partyIndex1;
+    u8 *partyMember1;
+    s32 ordinal1;
+    u8 *recordBase2;
+    u8 *recordBase1;
+    u8 *recordBase;
+    u8 *record2;
+    u8 *record1;
+    u8 *record;
 
     *(s32 *)(DAT_0076449c + 0xC0C) = 0;
-    temp_4 = DAT_0076449c;
-    temp_3 = *(u16 *)(temp_4 + 0x108);
-    switch (temp_3) {
+    battleWork = DAT_0076449c;
+    previousState = *(u16 *)(battleWork + 0x108);
+    switch (previousState) {
     case 2:
     case 0x21:
     case 0x28:
     case 0x29:
-        var_16 = 0;
+        reset = 0;
         break;
     default:
-        var_16 = 1;
+        reset = 1;
         break;
     }
-    var_19 = 0;
-    var_17 = 0;
-    var_20 = *(u8 **)(temp_4 + 0x180);
-    while (var_20 != NULL) {
-        if ((*(s32 *)(var_20 + 0x9C) & 8) != 0) {
-            temp_4_2 = *(s32 *)(var_20 + 0xA64);
-            if (temp_4_2 != 0 && func_00243d80((u8 *)temp_4_2) != 0) {
-                if (func_00232710(*(u8 **)(var_20 + 0xA64), 0x100000) != 0) {
-                    var_19 = 1;
+    hasStatus = 0;
+    hasPriorityStatus = 0;
+    enemy = *(u8 **)(battleWork + 0x180);
+    while (enemy != NULL) {
+        if ((*(s32 *)(enemy + 0x9C) & 8) != 0) {
+            unitData = *(s32 *)(enemy + 0xA64);
+            if (unitData != 0 && func_00243d80((u8 *)unitData) != 0) {
+                if (datCalcChkBadStatus(*(s32 *)(enemy + 0xA64), 0x100000) != 0) {
+                    hasStatus = 1;
                 }
-                if (func_00243e30(*(s32 *)(var_20 + 0xA64)) != 0) {
-                    var_17 = 1;
+                if (func_00243e30(*(u16 **)(enemy + 0xA64)) != 0) {
+                    hasPriorityStatus = 1;
                 }
             }
         }
-        var_20 = *(u8 **)(var_20 + 0xA6C);
+        enemy = *(u8 **)(enemy + 0xA6C);
     }
-    if (var_17 != 0) {
-        var_2 = 2;
+    if (hasPriorityStatus != 0) {
+        selectedPreset = 2;
     } else {
-        var_2 = (var_19 >= 1) & 0xFFFF;
+        selectedPreset = (u16)btlCameraPresetPresence(hasStatus);
     }
-    var_17_2 = var_2 & 0xFFFF;
-    if (func_001ef9a0() == 0x208 && (var_17_2 & 0xFFFF) == 0) {
-        var_19_2 = *(u8 **)(DAT_0076449c + 0x178);
-        while (var_19_2 != NULL) {
-            if ((*(s32 *)(var_19_2 + 0x9C) & 8) != 0) {
-                temp_4_2 = *(s32 *)(var_19_2 + 0xA64);
-                if (temp_4_2 != 0 && func_00232710((u8 *)temp_4_2, 0x100) != 0) {
-                    var_17_2 = 2;
+    preset = selectedPreset & 0xFFFF;
+    if (func_001ef9a0() == 0x208 && (preset & 0xFFFF) == 0) {
+        ally = *(u8 **)(DAT_0076449c + 0x178);
+        while (ally != NULL) {
+            if ((*(s32 *)(ally + 0x9C) & 8) != 0) {
+                unitData = *(s32 *)(ally + 0xA64);
+                if (unitData != 0 && datCalcChkBadStatus(unitData, 0x100) != 0) {
+                    preset = 2;
                     break;
                 }
             }
-            var_19_2 = *(u8 **)(var_19_2 + 0xA6C);
+            ally = *(u8 **)(ally + 0xA6C);
         }
     }
-    temp_2 = *(u8 **)(arg0 + 0xE0);
-    temp_19 = *(u16 *)(temp_2 + 0x6E);
-    temp_20 = func_001d8df0(temp_2 + 0x98) & 0xFFFF;
-    temp_19_2 = func_001d7f10(*(u8 **)(arg0 + 0xE0), 0, temp_19, 0) & 0xFFFF;
-    func_001bd560((f32 *)&work.first, (f32 *)(arg0 + 0x9C));
-    temp_3_2 = temp_20 & 0xFFFF;
-    if (temp_3_2 == 2) {
-        if ((*(s32 *)(DAT_0076449c + 0x10) & 0x400) != 0 && (temp_19_2 & 0xFFFF) == 0) {
-            func_001c8cf0(arg0);
+    action = *(u8 **)(camera + 0xE0);
+    skill = *(u16 *)(action + 0x6E);
+    targetGroups = func_001d8df0((s32)(action + 0x98)) & 0xFFFF;
+    classification = func_001d7f10(*(u8 **)(camera + 0xE0), 0, skill, 0) & 0xFFFF;
+    func_001bd560((f32 *)&poses.first, (f32 *)(camera + 0x9C));
+    targetMask = targetGroups & 0xFFFF;
+    if (targetMask == 2) {
+        if ((*(s32 *)(DAT_0076449c + 0x10) & 0x400) != 0 && (classification & 0xFFFF) == 0) {
+            func_001c8cf0(camera);
             *(s32 *)(DAT_0076449c + 0xC0C) = 1;
         } else {
-            temp_3_3 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
-            if (*(u8 *)(temp_3_3 + 0xA2) != 0) {
-                var_2_2 = 0;
+            actor2 = *(u8 **)(*(u8 **)(camera + 0xE0) + 0x30);
+            if (*(u8 *)(actor2 + 0xA2) != 0) {
+                partyIndex2 = 0;
             } else {
-                var_2_3 = 0;
-                var_5 = *(u8 **)(DAT_0076449c + 0x17C);
-                goto loop_38_check;
-loop_38:
-                if (temp_3_3 == var_5) {
-                    goto loop_38_done;
+                ordinal2 = 0;
+                partyMember2 = *(u8 **)(DAT_0076449c + 0x17C);
+                goto group2_party_check;
+group2_party_body:
+                if (actor2 == partyMember2) {
+                    goto group2_party_done;
                 }
-                var_2_3 = (var_2_3 + 1) & 0xFFFF;
-                var_5 = *(u8 **)(var_5 + 0xA68);
-                goto loop_38_check;
-loop_38_check:
-                if (var_5 != NULL) {
-                    goto loop_38;
+                ordinal2 = (ordinal2 + 1) & 0xFFFF;
+                partyMember2 = *(u8 **)(partyMember2 + 0xA68);
+                goto group2_party_check;
+group2_party_check:
+                if (partyMember2 != NULL) {
+                    goto group2_party_body;
                 }
-loop_38_done:
-                var_2_2 = var_2_3 & 0xFFFF;
+group2_party_done:
+                partyIndex2 = ordinal2 & 0xFFFF;
             }
-            temp_2_2 = *(u8 **)(DAT_0076449c + 0xB98) + ((var_2_2 & 0xFFFF) * 0x48) + ((var_17_2 & 0xFFFF) * 0x18);
-            temp_17 = temp_2_2 + 0x120;
-            func_001bd780(work.third, temp_17, temp_17 + 0xC, D_0060A0E0);
-            work.second = *(Vec3 *)temp_17;
+            recordBase2 = *(u8 **)(DAT_0076449c + 0xB98) + ((partyIndex2 & 0xFFFF) * 0x48) + ((preset & 0xFFFF) * 0x18);
+            record2 = recordBase2 + 0x120;
+            func_001bd780(&poses.secondRotation, record2, record2 + 0xC, D_0060A0E0);
+            poses.second = *(RwV3d *)record2;
         }
-    } else if (temp_3_2 == 1) {
-        if ((temp_19_2 & 0xFFFF) != 0) {
-            temp_3_4 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
-            if (*(u8 *)(temp_3_4 + 0xA2) != 0) {
-                var_2_4 = 0;
+    } else if (targetMask == 1) {
+        if ((classification & 0xFFFF) != 0) {
+            actor1 = *(u8 **)(*(u8 **)(camera + 0xE0) + 0x30);
+            if (*(u8 *)(actor1 + 0xA2) != 0) {
+                partyIndex1 = 0;
             } else {
-                var_4 = 0;
-                var_5_2 = *(u8 **)(DAT_0076449c + 0x17C);
-                goto loop_48_check;
-loop_48:
-                if (temp_3_4 == var_5_2) {
-                    goto loop_48_done;
+                ordinal1 = 0;
+                partyMember1 = *(u8 **)(DAT_0076449c + 0x17C);
+                goto group1_party_check;
+group1_party_body:
+                if (actor1 == partyMember1) {
+                    goto group1_party_done;
                 }
-                var_4 = (var_4 + 1) & 0xFFFF;
-                var_5_2 = *(u8 **)(var_5_2 + 0xA68);
-loop_48_check:
-                if (var_5_2 != NULL) {
-                    goto loop_48;
+                ordinal1 = (ordinal1 + 1) & 0xFFFF;
+                partyMember1 = *(u8 **)(partyMember1 + 0xA68);
+group1_party_check:
+                if (partyMember1 != NULL) {
+                    goto group1_party_body;
                 }
-loop_48_done:
-                var_2_4 = var_4 & 0xFFFF;
+group1_party_done:
+                partyIndex1 = ordinal1 & 0xFFFF;
             }
-            temp_2_3 = *(u8 **)(DAT_0076449c + 0xB98) + ((var_2_4 & 0xFFFF) * 0x48) + ((var_17_2 & 0xFFFF) * 0x18);
-            temp_17_2 = temp_2_3 + 0x240;
-            func_001bd780(work.third, temp_17_2, temp_17_2 + 0xC, D_0060A0E0);
-            work.second = *(Vec3 *)temp_17_2;
+            recordBase1 = *(u8 **)(DAT_0076449c + 0xB98) + ((partyIndex1 & 0xFFFF) * 0x48) + ((preset & 0xFFFF) * 0x18);
+            record1 = recordBase1 + 0x240;
+            func_001bd780(&poses.secondRotation, record1, record1 + 0xC, D_0060A0E0);
+            poses.second = *(RwV3d *)record1;
         } else {
-            func_001c8cf0(arg0);
+            func_001c8cf0(camera);
             *(s32 *)(DAT_0076449c + 0xC0C) = 1;
             return;
         }
     } else {
-        temp_2_4 = *(u8 **)(DAT_0076449c + 0xB98) + ((var_17_2 & 0xFFFF) * 0x18);
-        temp_17_3 = temp_2_4 + 0x360;
-        func_001bd780(work.third, temp_17_3, temp_17_3 + 0xC, D_0060A0E0);
-        work.second = *(Vec3 *)temp_17_3;
+        recordBase = *(u8 **)(DAT_0076449c + 0xB98) + ((preset & 0xFFFF) * 0x18);
+        record = recordBase + 0x360;
+        func_001bd780(&poses.secondRotation, record, record + 0xC, D_0060A0E0);
+        poses.second = *(RwV3d *)record;
     }
     if (func_001ef9a0() == 0x215) {
-        func_001bd780(work.third, D_00634890, D_0063489C, D_0060A0E0);
-        work.second = *(Vec3 *)D_00634890;
+        func_001bd780(&poses.secondRotation, D_00634890, D_0063489C, D_0060A0E0);
+        poses.second = *(RwV3d *)D_00634890;
     }
-    if (var_16 != 0) {
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 0x100);
-        func_001bab00((u16 *)arg0, (f32 *)&work.second);
+    if (reset != 0) {
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+        func_001bab00((u16 *)camera, (f32 *)&poses.second);
         return;
     }
-    func_001bac20((u16 *)arg0, (f32 *)&work.first, (f32 *)&work.second, 1);
-    func_001bbef0(arg0, 0.75f);
+    func_001bac20((u16 *)camera, (f32 *)&poses.first, (f32 *)&poses.second, 1);
+    func_001bbef0(camera, 0.75f);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00224450);
-#endif
 // FUN_00224970
 void func_00224970(void)
 {
