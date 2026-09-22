@@ -1,3 +1,4 @@
+#include "effect_geometry_internal.h"
 /* Consolidated Persona 4 source units. */
 /* Build with -DP4_UNIT_<address> to select one original source unit. */
 /* Original translation unit effPolygonFlash.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -57,7 +58,6 @@ typedef struct
 extern char D_00713FF0[];
 extern char D_007133A0[];
 extern char D_007133C0[];
-extern u8 *func_00482f70(s32, s32, s32, char *, s32);
 extern u8 *func_00483270(void *);
 extern void func_0049cfc0(u8 *, u8 *);
 extern void func_0049ddd0(u8 *, u8 *);

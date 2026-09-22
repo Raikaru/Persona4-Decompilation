@@ -927,7 +927,7 @@ s32 func_00172e00(u8 *arg0)
     s32 func_001602a0(s32, s32);
     s32 func_00477e80(s32, s32, void *, s32);
     s32 func_004782b0(s32);
-    void func_00457140(u8, u8, u8, s32);
+    void func_00457140(u8, u8, u8, u8);
     u8 *func_00457130(void);
     u8 *func_00457120(u8, u8);
     void func_0043f9c8(void *, s32, s32);

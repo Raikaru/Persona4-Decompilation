@@ -1,3 +1,4 @@
+#include "effect_geometry_internal.h"
 #include "include_asm.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effGeometry.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -166,7 +167,7 @@ u8 *func_00482dc0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 }
 
 // FUN_00482F70
-u8 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+u8 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, const void *arg3, s32 arg4) {
     s32 temp_16;
     s32 temp_17;
     s32 temp_22;
@@ -200,7 +201,7 @@ u8 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
         var_18 = 0;
         temp_22 = var_17 & 0xFFFF;
         while (var_18 < spA0) {
-            temp_3_2 = (u8 *)(arg3 + (var_18 * 2));
+            temp_3_2 = (u8 *)arg3 + (var_18 * 2);
             func_003c2130(temp_21, var_20, (temp_22 + *(u16 *)(temp_3_2 + 0)) & 0xFFFF, (temp_22 + *(u16 *)(temp_3_2 + 2)) & 0xFFFF, (temp_22 + *(u16 *)(temp_3_2 + 4)) & 0xFFFF);
             func_003c2150(temp_21, var_20, spB0);
             var_20 += 8;

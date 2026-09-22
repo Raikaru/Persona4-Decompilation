@@ -1,3 +1,4 @@
+#include "effect_geometry_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "btl_shuffle_draw_internal.h"
@@ -89,7 +90,6 @@ extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 extern u8 *func_00484490(u8 *arg0);
 extern u16 *func_004844d0(u8 *arg0);
-extern u16 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4);
 extern void func_00483970(u8 *arg0, u16 *arg1);
 extern s32 func_00481d80(u16 *arg0);
 extern s32 func_00481300(u16 arg0);
@@ -415,7 +415,7 @@ u8 *func_004b16c0(u8 *arg0) {
         func_0046d730(&iGpffffb118, 0x2C);
     }
     func_0043f810(temp_2 + 0xC, temp_2_2, 0x98);
-    temp_2_3 = func_00482f70(1, 2, 4, D_00713408, 0x4C);
+    temp_2_3 = (u16 *)func_00482f70(1, 2, 4, D_00713408, 0x4C);
     *(u16 **)(temp_2 + 0xA4) = temp_2_3;
     *temp_2_3 = *temp_2_3 & 0xFFFB;
     temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0xA4) + 0x10) + 0x18);

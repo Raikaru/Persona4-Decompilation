@@ -258,9 +258,9 @@ extern void func_00142d80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 
 extern u8 *func_001452b0(s32 arg0);
 extern void func_0014a000(s32 arg0, s32 arg1);
-extern void func_001538a0(s32 arg0, u8 *arg1);
-extern void func_00457140(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern u8 *func_00457160(void);
+extern void func_001538a0(u32 *resource, const f32 *color);
+extern void func_00457140(u8 red, u8 green, u8 blue, u8 alpha);
+extern s8 *func_00457160(void);
 extern u8 *resrcMngGetListHead(u8 *resManager, u8 resType);
 extern void func_00153b20(s32 arg0, s32 arg1);
 
@@ -3761,82 +3761,79 @@ void func_00149690(s32 arg0) {
     }
     iGpffff9dd0 = 0x1D;
 }
-/* measured 001496c0 honest v2 (plain (f32)b u8->float + plain (u32)(f*arg) float->u32 + 1538a0(arg0) call fix): 298 words obj 1472B/window 1504B (368 vs 375 instrs -1.9% gate PASS, fnalign 96 edits+1 reloc-only; was 339 words 1600B 400 vs 376 +6.6% FAIL 397 edits). 8-variant census same file: base 339, plainU-s32 277/265instrs-FAIL, plainS-s32 279, plainU-u32 299/368-PASS, plainS-u32 299, base-u32 436, explicit-compare 311, narrow-(u8) 322. Byte dir unsigned wins 277 vs 279 (+2 retail bltz idiom); float dir s32 wins words 277 vs 299 but loses gate (265 vs 368) so honest u32 stands; explicit/narrow worse per 7a-quinquies. Extras: tvlinear/tvalt 298 ties, decl1-4 298-299 ties, spillA 299 tie, prop-off 309 (+11 worse), call fix 299->298 (-1). Residual: frame/spill sb+lbu 0x3C-0x3F (-0x40 vs -0x30) + GPR colour lui/mfc1/srl/andi/or ($v0 vs $v1/$a0) + sltiu $at vs GPR. */
-// FUN_001496C0 NONMATCHING
-#ifdef NON_MATCHING
-void func_001496c0(u8 *arg0) {
-    u8 *cur;
-    u32 tv32;
-    u8 *ctab;
-    u8 b0;
-    u8 b1;
-    u8 b2;
-    u8 b3;
-    f32 f0;
-    f32 f1;
-    f32 f2;
-    f32 f3;
-    u32 v0;
-    u32 v1;
-    u32 v2;
-    u32 v3;
-    u32 x0;
-    u32 x1;
-    u32 x2;
-    u32 x3;
-    cur = func_001452b0(0xC);
-    while (cur != NULL) {
-        func_001538a0(*(s32 *)(cur + 0x1A0), arg0);
-        cur = *(u8 **)(cur + 0x138);
+/* Applies the four color factors to scene resources, camera clear color
+   and fog color. Keep the four-byte color snapshot and unsigned
+   float conversions before each upper clamp. Native b210 -O2:
+   1504/1504 bytes, all relocations exact, no padding or inline asm.
+   See Retained_color_and_sphere_20260922_worker6.md. */
+// FUN_001496C0
+void func_001496c0(void *value) {
+    const u8 *factors;
+    u8 *resource;
+    u32 fogColor;
+    u8 *colorBytes;
+    P4Bytes0014 color;
+    f32 redFactor;
+    f32 greenFactor;
+    f32 blueFactor;
+    f32 alphaFactor;
+    u32 red;
+    u32 green;
+    u32 blue;
+    u32 alpha;
+    u32 fogRed;
+    u32 fogGreen;
+    u32 fogBlue;
+    u32 fogAlpha;
+    factors = (const u8 *)value;
+    resource = func_001452b0(0xC);
+    while (resource != NULL) {
+        func_001538a0(*(u32 **)(resource + 0x1A0), (const f32 *)factors);
+        resource = *(u8 **)(resource + 0x138);
     }
-    if ((*(f32 *)(arg0 + 0) <= 0.0f && *(f32 *)(arg0 + 4) <= 0.0f && *(f32 *)(arg0 + 8) <= 0.0f) || *(f32 *)(arg0 + 0xC) <= 0.0f) {
+    if ((*(f32 *)(factors + 0) <= 0.0f && *(f32 *)(factors + 4) <= 0.0f && *(f32 *)(factors + 8) <= 0.0f) || *(f32 *)(factors + 0xC) <= 0.0f) {
         func_0014a000(0, 1);
     } else {
         func_0014a000(1, 1);
     }
-    ctab = func_00457160();
-    b0 = *(u8 *)(ctab + 0);
-    b1 = *(u8 *)(ctab + 1);
-    b2 = *(u8 *)(ctab + 2);
-    b3 = *(u8 *)(ctab + 3);
-    tv32 = iGpffffba64 | ((iGpffffba60 << 8) | ((iGpffffba68 << 0x18) | (iGpffffba5c << 0x10)));
-    f0 = (f32)b0;
-    v0 = (u32)(f0 * *(f32 *)(arg0 + 0));
-    f1 = (f32)b1;
-    v1 = (u32)(f1 * *(f32 *)(arg0 + 4));
-    f2 = (f32)b2;
-    v2 = (u32)(f2 * *(f32 *)(arg0 + 8));
-    f3 = (f32)b3;
-    v3 = (u32)(f3 * *(f32 *)(arg0 + 0xC));
-    if (v3 >= 0x100) { v3 = 0xFF; }
-    if (v2 >= 0x100) { v2 = 0xFF; }
-    if (v1 >= 0x100) { v1 = 0xFF; }
-    if (v0 >= 0x100) { v0 = 0xFF; }
-    func_00457140(v0 & 0xFF, v1 & 0xFF, v2 & 0xFF, v3 & 0xFF);
-    x0 = (tv32 >> 0x10) & 0xFF;
-    f0 = (f32)x0;
-    x0 = (u32)(f0 * *(f32 *)(arg0 + 0));
-    x1 = (tv32 >> 8) & 0xFF;
-    f1 = (f32)x1;
-    x1 = (u32)(f1 * *(f32 *)(arg0 + 4));
-    x2 = tv32 & 0xFF;
-    f2 = (f32)x2;
-    x2 = (u32)(f2 * *(f32 *)(arg0 + 8));
-    x3 = (tv32 >> 0x18) & 0xFF;
-    f3 = (f32)x3;
-    x3 = (u32)(f3 * *(f32 *)(arg0 + 0xC));
-    if (x0 >= 0x100) { x0 = 0xFF; }
-    iGpffffba4c = (u8)x0;
-    if (x1 >= 0x100) { x1 = 0xFF; }
-    iGpffffba50 = (u8)x1;
-    if (x2 >= 0x100) { x2 = 0xFF; }
-    iGpffffba54 = (u8)x2;
-    if (x3 >= 0x100) { x3 = 0xFF; }
-    iGpffffba58 = (u8)x3;
+    colorBytes = (u8 *)func_00457160();
+    color = *(const P4Bytes0014 *)colorBytes;
+    fogColor = iGpffffba64 | (((u32)iGpffffba60 << 8) | (((u32)iGpffffba68 << 0x18) | ((u32)iGpffffba5c << 0x10)));
+    redFactor = (f32)color.b0;
+    red = (u32)(redFactor * *(f32 *)(factors + 0));
+    greenFactor = (f32)color.b1;
+    green = (u32)(greenFactor * *(f32 *)(factors + 4));
+    blueFactor = (f32)color.b2;
+    blue = (u32)(blueFactor * *(f32 *)(factors + 8));
+    alphaFactor = (f32)color.b3;
+    alpha = (u32)(alphaFactor * *(f32 *)(factors + 0xC));
+    if (alpha > 0xFF) { alpha = 0xFF; }
+    if (blue > 0xFF) { blue = 0xFF; }
+    if (green > 0xFF) { green = 0xFF; }
+    if (red > 0xFF) { red = 0xFF; }
+    func_00457140(red & 0xFF, green & 0xFF, blue & 0xFF, alpha & 0xFF);
+    fogRed = (fogColor >> 0x10) & 0xFF;
+    redFactor = (f32)fogRed;
+    fogRed = (u32)(redFactor * *(f32 *)(factors + 0));
+    fogGreen = (fogColor >> 8) & 0xFF;
+    greenFactor = (f32)fogGreen;
+    fogGreen = (u32)(greenFactor * *(f32 *)(factors + 4));
+    fogBlue = fogColor & 0xFF;
+    blueFactor = (f32)fogBlue;
+    fogBlue = (u32)(blueFactor * *(f32 *)(factors + 8));
+    fogAlpha = (fogColor >> 0x18) & 0xFF;
+    alphaFactor = (f32)fogAlpha;
+    fogAlpha = (u32)(alphaFactor * *(f32 *)(factors + 0xC));
+    if (fogRed > 0xFF) { fogRed = 0xFF; }
+    iGpffffba4c = (u8)fogRed;
+    if (fogGreen > 0xFF) { fogGreen = 0xFF; }
+    iGpffffba50 = (u8)fogGreen;
+    if (fogBlue > 0xFF) { fogBlue = 0xFF; }
+    iGpffffba54 = (u8)fogBlue;
+    if (fogAlpha > 0xFF) { fogAlpha = 0xFF; }
+    iGpffffba58 = (u8)fogAlpha;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001496c0);
-#endif
+
 // FUN_00149CA0
 u8 *func_00149ca0(void) {
     u8 *temp_2;

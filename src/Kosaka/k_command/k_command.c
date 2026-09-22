@@ -11,7 +11,7 @@ extern char* strcat(char* destination, const char* source);
 #include "include_asm.h"
 
 extern s32 func_0029cc00(s32 arg0);
-extern void func_00457140(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 
 extern f32 func_0029cd50(s32 arg0);
 extern f32 D_00764B5C;
@@ -811,8 +811,8 @@ s32 func_00178360(void)
 // FUN_001783B0
 s32 func_001783b0(void)
 {
-    s32 temp_17;
-    s32 temp_16;
+    u8 temp_17;
+    u8 temp_16;
 
     temp_17 = func_0029cc00(0) & 0xFF;
     temp_16 = func_0029cc00(1) & 0xFF;
