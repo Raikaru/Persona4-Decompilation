@@ -5557,6 +5557,12 @@ versions installed in an isolated environment, `regenerate_asm.py --check`
 reproduces **all 11,152 fallback files** and retains both hand-maintained
 files unchanged. No expected output hash or reconstruction recipe changes.
 
+The later `requirements-python.txt` input bump
+`8e0d2cd27bc3` → `a710c34702b6` pins `PyYAML==6.0.3`, which CI imports
+directly while validating configuration. It changes no generator code.
+`TMPDIR=/var/tmp python3 tools/regenerate_asm.py --check` reproduced all
+**11,152 generated files** and left both retained files unchanged.
+
 Commit `bfeb9ac6` passed
 [CI 34094185276](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/34094185276),
 including the corrected generator-provenance gate.

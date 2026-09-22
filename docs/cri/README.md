@@ -24,12 +24,11 @@ streams by accident. The masked comparison leaves registers, opcodes,
 branch offsets and every non-relocated immediate intact, so a hit means the
 same compiler emitted the same source at the same optimisation level.
 
-The file keeps the 788 where the address and the name are mutually unique;
-687 of those are corroborated by more than one game, and 87 more were
-decided by majority where the games disagreed. 131 addresses were left out
-as undecided rather than guessed.
-The unmasked scores differ only in the relocated fields, as expected for
-the same code linked at three different addresses.
+The file keeps the 788 where the address and the name are mutually unique.
+686 are corroborated by more than one game; the remaining 102 have one source
+in the ledger. 131 addresses were left out as undecided rather than guessed.
+For entries found in multiple games, the unmasked scores differ only in the
+relocated fields, as expected for the same code linked at different addresses.
 
 **Measured against this project's own work:** 69 of the CRI markers in
 `src/cri` sit at an address these tables name, and 65 agree with the name

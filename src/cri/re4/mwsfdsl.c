@@ -17,7 +17,7 @@ typedef struct {
 extern Bool MWSFD_IsEnableHndl(MWPLY_OBJ *mwply);
 extern void MWSFSVM_Error(const Char8 *fmt, ...);
 extern Sint32 SFD_SetConcatPlay(void *sfd);
-extern void func_005250a8(void *sfd, void *inf);
+extern void SFD_GetMvInf(void *sfd, void *mvinf);
 extern Sint32 LSC_GetStat(void *lsc);
 extern void mwPlyEntryFnameSub(MWPLY_OBJ *mwply, const Char8 *fname);
 extern Sint32 mwPlyEntryFnameCore(MWPLY_OBJ *mwply, const Char8 *fname);
@@ -182,13 +182,12 @@ void mwPlyReleaseLp(MWPLY_OBJ *mwply)
 }
 
 // Copies the decoder's 0x40-byte movie-information block when this player owns a decoder.
-// The four shipped symbol tables misidentify this same-shape wrapper as MWSFLSC_SetFlowLimit:
-// the retail caller passes a stack output buffer, and its callee is SFD_GetMvInf.
+// Retail callers pass a stack output buffer, and SFD_GetMvInf copies into that buffer.
 // FUN_0050D2F0
-void func_0050d2f0(MWPLY_OBJ *mwply, void *inf)
+void MWSFD_GetMvInf(MWPLY_OBJ *mwply, void *mvinf)
 {
 	if (mwply->sfd_944 != NULL) {
-		func_005250a8(mwply->sfd_944, inf);
+		SFD_GetMvInf(mwply->sfd_944, mvinf);
 	}
 }
 
