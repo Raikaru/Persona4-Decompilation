@@ -55,7 +55,7 @@ extern s32 D_008872F8[];
 extern u8 D_0070B7A0[];
 extern u8 D_0070B7E0[];
 extern u8 D_0070B800[];
-extern void func_003e3870(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+extern s32 func_003e3870(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern s8 *func_003eab70(s8 *arg0, s32 arg1, s32 (*arg2)(s32, s32), s32 *arg3);
 extern s32 func_003eb0d0(s32 arg0, u8 **arg1);
 extern s32 func_00410ff0(void);
@@ -384,7 +384,6 @@ extern s32 func_003ec330(u8 *arg0); /* P4: ported verbatim into src/renderware *
 // FUN_003EC3A0
 s32 func_003ec3a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
-    extern s32 func_003e3870(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
     return func_003e3870(D_0070B7E0, arg0, arg1, arg2, arg3, arg4);
 }
 /* measured: retail uses a plain beqz for the callback result. */
