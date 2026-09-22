@@ -179,6 +179,35 @@ class UniqueReferenceTests(unittest.TestCase):
         self.assertNotIn(0x2000, names)
 
 
+class ErrorStringTests(unittest.TestCase):
+    def test_error_tag_names_its_own_function(self) -> None:
+        ref_users = {0x1000: {0x4000}}
+        strings = {0x1000: b"E2003060604 ACSSND_GetCprm : Not initialized."}
+        names = mine.error_string_names(ref_users, strings)
+        self.assertEqual(names, {0x1000: (b"ACSSND_GetCprm", 0x4000)})
+
+    def test_paren_tag_is_only_read_inside_an_error_macro(self) -> None:
+        """"mainDraw(drawOt)" names the function mainDraw, not the argument."""
+        ref_users = {0x1000: {0x4000}, 0x2000: {0x4000}}
+        strings = {
+            0x1000: b"mainDraw(drawOt)",
+            0x2000: b"E0082101: read failed (htCiGetFileSize)",
+        }
+        names = mine.error_string_names(ref_users, strings)
+        self.assertEqual(names, {0x2000: (b"htCiGetFileSize", 0x4000)})
+
+    def test_prose_after_the_tag_is_not_a_name(self) -> None:
+        """E5022301: cnvfrm work is short. - "cnvfrm" is prose, not a name."""
+        ref_users = {0x1000: {0x4000}}
+        strings = {0x1000: b"E5022301: cnvfrm work is short."}
+        self.assertEqual(mine.error_string_names(ref_users, strings), {})
+
+    def test_tag_shared_by_two_functions_names_neither(self) -> None:
+        ref_users = {0x1000: {0x4000, 0x5000}}
+        strings = {0x1000: b"E2003052901 ACSSND_Stop : Not initialized."}
+        self.assertEqual(mine.error_string_names(ref_users, strings), {})
+
+
 class CommittedOutputTests(unittest.TestCase):
     def test_output_file_is_contract_clean(self) -> None:
         path = REPO / "config" / "symbol_names.strings.txt"
@@ -204,16 +233,31 @@ class CommittedOutputTests(unittest.TestCase):
             self.assertIn(address, canonical, f"{path.name}:{number}")
             self.assertIn('evidence: string:"', match["rest"])
             self.assertIsNone(reconcile.PLACEHOLDER.match(name))
-            # The role prefix is presentation; the evidence note must carry
-            # the raw retail keyword (the name minus its prefix) verbatim.
-            prefix = next((p for p in ("btlAct_", "btlCond_", "tbl_") if name.startswith(p)), None)
-            self.assertIsNotNone(prefix, f"{path.name}:{number}: unknown prefix in {name!r}")
             evidence = re.search(r'evidence: string:"([^"]*)"', match["rest"])
             assert evidence is not None
-            self.assertEqual(
-                evidence.group(1), name[len(prefix):],
-                f"{path.name}:{number}: evidence keyword must equal the unprefixed name",
-            )
+            text = evidence.group(1)
+            if mine.ERROR_STRING.match(text.encode()):
+                # Class E: the error macro names its own function, so the name
+                # is already the retail name and needs no role prefix.  The
+                # evidence is the whole message, and the tag inside it must be
+                # the name being claimed.
+                tag = (mine.ERROR_TAG.match(text.encode())
+                       or mine.PAREN_TAG.search(text.encode()))
+                assert tag is not None
+                self.assertEqual(
+                    tag.group(1).decode(), name,
+                    f"{path.name}:{number}: error tag must equal the name",
+                )
+            else:
+                # Class A: the string is a dispatch-table ROLE LABEL (NOP,
+                # MYHP), not a function name, so a prefix marks the role and
+                # the evidence keeps the bare keyword verbatim.
+                prefix = next((p for p in ("btlAct_", "btlCond_", "tbl_") if name.startswith(p)), None)
+                self.assertIsNotNone(prefix, f"{path.name}:{number}: unknown prefix in {name!r}")
+                self.assertEqual(
+                    text, name[len(prefix):],
+                    f"{path.name}:{number}: evidence keyword must equal the unprefixed name",
+                )
             self.assertNotIn(name, names, f"{path.name}:{number}: duplicate name")
             self.assertNotIn(address, addresses, f"{path.name}:{number}: duplicate address")
             names[name] = address
