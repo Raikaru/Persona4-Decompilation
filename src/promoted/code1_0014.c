@@ -8,6 +8,39 @@
 #include "model_matrix_internal.h"
 #include "field_light_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
+#include "rw/plcore/barenderstate.h"
+
+/* Device callback signatures and the PS2 vertex layout follow badevice.h
+   and sky2/rwplcore.h. The owning packet contains seven complete vertices. */
+typedef enum RwPrimitiveType {
+    rwPRIMTYPENAPRIMTYPE = 0,
+    rwPRIMTYPELINELIST,
+    rwPRIMTYPEPOLYLINE,
+    rwPRIMTYPETRILIST,
+    rwPRIMTYPETRISTRIP,
+    rwPRIMTYPETRIFAN,
+    rwPRIMTYPEPOINTLIST,
+    rwPRIMITIVETYPEFORCEENUMSIZEINT = 0x7FFFFFFF
+} RadarPrimitive;
+typedef struct RwRGBAReal { f32 r, g, b, a; } RadarColorReal;
+typedef struct RwSky2DVertexFields {
+    RwV3d scrVertex;
+    f32 camVertex_z;
+    f32 u, v, recipZ, pad1;
+    RadarColorReal color;
+    RwV3d objNormal;
+    f32 pad2;
+} RadarVertexFields;
+typedef union RwSky2DVertexAlignmentOverlay {
+    RadarVertexFields els;
+    unsigned __int128 qWords[4];
+} RadarVertexOverlay;
+typedef struct RwSky2DVertex { RadarVertexOverlay u; } RadarVertex;
+typedef s32 (*RadarRenderStateSet)(RwRenderState state, void *value);
+typedef s32 (*RadarRenderPrimitive)(RadarPrimitive kind, RadarVertex *vertices, s32 count);
+
+extern RadarRenderStateSet D_00887300_abs[];
+extern RadarRenderPrimitive D_00887310_abs[];
 
 typedef struct RwMatrix RwMatrix;
 
@@ -107,7 +140,7 @@ extern void func_003c38b0(void *arg0, void *arg1);
 extern void func_003e8110(void *arg0);
 extern void func_003e8120(void *arg0);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
-extern u8 *func_00457120(void);
+extern s32 func_00457120(void);
 extern u8 *func_004571a0(void);
 extern u8 *func_004571b0(void);
 extern u8 *func_004571c0(void);
@@ -139,7 +172,7 @@ extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 D_008872F8[];
 extern f32 fGpffff8198;
 extern u8 D_005EF710[];
-extern void func_00364c50();
+extern void func_00364c50(void);
 extern void func_00364c70(void);
 extern u16 D_008C024E[];
 extern s32 iGpffffba48;
@@ -328,7 +361,7 @@ extern s32 func_0010d6d0(s16 arg0);
 extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
 extern void func_001423c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
 extern void func_001424b0(Float2_0014 pos, f32 fparg0, u32 arg1, u8 *arg2, s32 arg3);
-extern void func_001427c0(Float2_0014 pos, s32 arg1, u8 *arg2, f32 fparg0);
+extern void func_001427c0(Float2_0014 pos, f32 depth, s32 opacity, u8 *state);
 extern void func_00142bf0(s64 arg0, s64 arg1, s32 arg2, f32 fparg0, s32 arg3);
 
 void func_001400f0(u8 *arg0)
@@ -588,7 +621,7 @@ void func_001400f0(u8 *arg0)
             Float2_0014 p2;
             p2.x = sp220;
             p2.y = sp224;
-            func_001427c0(p2, alpha, arg0, 0.0f);
+            func_001427c0(p2, 0.0f, alpha, arg0);
         }
         sp220 = (f32)0x13B + (f23 + *(f32 *)(arg0 + 0x680));
         sp224 = (116.0f + (f22 + *(f32 *)(arg0 + 0x684)));
@@ -990,84 +1023,89 @@ void func_001424b0(Float2_0014 pos, f32 fparg0, u32 arg1, u8 *arg2, s32 arg3)
                   0x6E,
                   -2);
 }
-/* measured 001427c0: `opt_loop_invariants on` inside the guard is worth 42 words (225 -> 183), the loop-preheader constant hoist. */
-// FUN_001427C0 NONMATCHING
-#ifdef SKIP_ASM
+/* Draws the five-point radar as a closed seven-vertex triangle fan,
+   then draws its five point sprites with scaled byte opacity.
+   measured: b210 -O2, 1068/1072 bytes, 14 resolved relocations.
+   Palette records retain their address across each draw phase.
+   See Radar_001427c0_20260922_worker1.md. */
+// FUN_001427C0
+#pragma push
 #pragma opt_loop_invariants on
-/* 001427c0 floor (nd 182 fresh frame buf[0x1E0] (was 183 at [0x1C0]; frame addiu -0x250 now exact, saves stay 0x50); post-loop *(buf+0x18)=recip dead store +10 ruled out (retail keeps it in-loop, LICM defeat not source-reachable); for-form loops +4 ruled out (no auto-vectorization); parent 4938e0 levers N/A (no 0xFFFF-at-calls + frame-reg symptom -- mask here is 0xFF single-use, frame delta is buf-size; no || anywhere; no COP2); WALLS: quad saves below ra (`??`+`subu.qb`, 2xSQ 128-bit unreachable from plain C) + byte-combining (retail lbux3 vs build lw+extract) + colours/loop-structural; 266 vs 265 instrs (1 short) fresh; honest Float2 pos with u32 byte conversions, i%5 packet build and 5-sprite second loop. Triaged dead-arm hunt checked -- no trailing if/else-if chain ending 2-3 short (shortfall is frame -0x250 vs -0x230 + saves, not trailing per top-down fnalign). Production stays ASM. See docs/probe_archive/C14_001427c0_body.c. */
-void func_001427c0(Float2_0014 pos, s32 arg1, u8 *arg2, f32 fparg0)
+void func_001427c0(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
 {
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2F4[];
     extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u32 arg4);
-    u8 buf[0x1E0];
-    f32 base;
-    f32 recip;
-    f32 x;
-    f32 y;
-    f32 diff;
-    u8 cr;
-    u8 cg;
-    u8 cb;
-    s32 i;
-    s32 j;
-    u8 *src;
-    u8 *dst;
-    f32 x1;
-    f32 y1;
-    x = pos.x;
-    y = pos.y;
-    base = D_008872F8[0];
-    recip = p4_0014_recip(*(f32 *)(func_00457120() + 0x80));
-    D_00887300[0](1, 0);
-    *(f32 *)(buf + 0x00) = 1.0f + ((f32)0x19F + x);
-    *(f32 *)(buf + 0x04) = 1.0f + (221.0f + y);
-    diff = base - fparg0;
-    *(f32 *)(buf + 0x08) = diff;
-    *(f32 *)(buf + 0x20) = (f32)(u32)(cr = D_0064B2F4[0]);
-    *(f32 *)(buf + 0x24) = (f32)(u32)(cg = D_0064B2F4[1]);
-    *(f32 *)(buf + 0x28) = (f32)(u32)(cb = D_0064B2F4[2]);
-    *(f32 *)(buf + 0x2C) = (f32)(u32)arg1;
-    *(f32 *)(buf + 0x18) = recip;
-    i = 0;
-    x1 = 1.0f + x;
-    y1 = 1.0f + y;
-    while (i < 6) {
-        src = arg2 + ((i % 5) * 0x30);
-        dst = buf + 0x40 + (i << 6);
-        *(f32 *)(dst + 0x00) = x1 + *(f32 *)(src + 0x590);
-        *(f32 *)(dst + 0x04) = y1 + *(f32 *)(src + 0x594);
-        *(f32 *)(dst + 0x08) = diff;
-        *(f32 *)(dst + 0x20) = (f32)(u32)cr;
-        *(f32 *)(dst + 0x24) = (f32)(u32)cg;
-        *(f32 *)(dst + 0x28) = (f32)(u32)cb;
-        *(f32 *)(dst + 0x2C) = (f32)(u32)arg1;
-        *(f32 *)(buf + 0x18) = recip;
-        i += 1;
+    union { RadarVertex vertices[7]; u8 bytes[7 * sizeof(RadarVertex)]; } packet;
+    f32 screenDepth;
+    f32 reciprocalNear;
+    f32 originX;
+    f32 originY;
+    f32 vertexDepth;
+    struct RadarColor { u8 r, g, b; };
+    struct RadarColor *palette;
+    void *sprite;
+    s32 pointIndex;
+    s32 spriteIndex;
+    u8 spriteAlpha;
+    u8 *point;
+    u8 *previousVertex;
+    f32 offsetX;
+    f32 offsetY;
+    originY = pos.y;
+    originX = pos.x;
+    screenDepth = D_008872F8[0];
+    reciprocalNear = (1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80));
+    palette = (struct RadarColor *)D_0064B2F4;
+    D_00887300_abs[0](rwRENDERSTATETEXTURERASTER, NULL);
+    *(f32 *)(packet.bytes + 0x00) = 1.0f + ((f32)0x19F + originX);
+    *(f32 *)(packet.bytes + 0x04) = 1.0f + (221.0f + originY);
+    vertexDepth = screenDepth - depthOffset;
+    *(f32 *)(packet.bytes + 0x08) = vertexDepth;
+    *(f32 *)(packet.bytes + 0x20) = (f32)(u32)palette->r;
+    *(f32 *)(packet.bytes + 0x24) = (f32)(u32)palette->g;
+    *(f32 *)(packet.bytes + 0x28) = (f32)(u32)palette->b;
+    *(f32 *)(packet.bytes + 0x2C) = (f32)(u32)opacity;
+    *(f32 *)(packet.bytes + 0x18) = reciprocalNear;
+    pointIndex = 0;
+    offsetX = 1.0f + pos.x;
+    offsetY = 1.0f + originY;
+    while (pointIndex < 6) {
+        point = state + ((pointIndex % 5) * 0x30);
+        previousVertex = packet.bytes + (pointIndex << 6);
+        *(f32 *)(previousVertex + 0x40) = offsetX + *(f32 *)(point + 0x590);
+        *(f32 *)(previousVertex + 0x44) = offsetY + *(f32 *)(point + 0x594);
+        *(f32 *)(previousVertex + 0x48) = vertexDepth;
+        *(f32 *)(previousVertex + 0x60) = (f32)(u32)palette->r;
+        *(f32 *)(previousVertex + 0x64) = (f32)(u32)palette->g;
+        *(f32 *)(previousVertex + 0x68) = (f32)(u32)palette->b;
+        *(f32 *)(previousVertex + 0x6C) = (f32)(u32)opacity;
+        *(f32 *)(packet.bytes + 0x18) = reciprocalNear;
+        pointIndex += 1;
     }
     func_00364c50();
-    D_00887310[0](5, buf, 7);
+    D_00887310_abs[0](rwPRIMTYPETRIFAN, packet.vertices, 7);
     func_00364c70();
-    j = 0;
-    while (j < 5) {
-        u8 *e;
-        f32 px;
-        f32 py;
+    sprite = *(void **)(state + 0x1838);
+    palette = (struct RadarColor *)D_0064B2E8;
+    spriteIndex = 0;
+    spriteAlpha = (u8)opacity;
+    while (spriteIndex < 5) {
+        u8 *spritePoint;
+        f32 spriteX;
+        f32 spriteY;
         u8 tint;
         u32 alpha;
-        e = arg2 + (j * 0x30);
-        px = (*(f32 *)(e + 0x590) + x) - 5.0f;
-        py = (*(f32 *)(e + 0x594) + y) - 5.0f;
-        tint = *(u8 *)(e + 0x59A);
-        alpha = ((tint * (arg1 & 0xFF)) / 255) & 0xFF;
-        func_0034f2e0(*(void **)(arg2 + 0x1838), px, py, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], alpha);
-        j += 1;
+        spritePoint = state + (spriteIndex * 0x30);
+        spriteX = (*(f32 *)(spritePoint + 0x590) + originX) - 5.0f;
+        spriteY = (*(f32 *)(spritePoint + 0x594) + originY) - 5.0f;
+        tint = *(u8 *)(spritePoint + 0x59A);
+        alpha = ((tint * spriteAlpha) / 255) & 0xFF;
+        func_0034f2e0(sprite, spriteX, spriteY, palette->r, palette->g, palette->b, alpha);
+        spriteIndex += 1;
     }
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001427c0);
-#endif
+#pragma pop
 /* measured: opt_propagation off probe for func_00142bf0. */
 #pragma opt_propagation off
 /* measured: opt_loop_invariants on probe for func_00142bf0. */
@@ -2920,7 +2958,7 @@ void func_00147640(u8 *arg0, u8 *arg1) {
     s32 var_4;
     void (**base)(u32, u32);
 
-    func_003e8110(func_00457120());
+    func_003e8110(((u8 *)(u32)func_00457120()));
     temp_2 = func_004571a0();
     temp_f3 = *(f32 *)(temp_2 + 0x18);
     temp_f2 = *(f32 *)(temp_2 + 0x1C);
@@ -2961,7 +2999,7 @@ void func_00147640(u8 *arg0, u8 *arg1) {
         temp_16_4 = func_004571b0();
         func_003e9cb0(*(s32 *)(temp_16_4 + 4), func_00149d20(), 0);
     }
-    func_003e8120(func_00457120());
+    func_003e8120(((u8 *)(u32)func_00457120()));
     if (iGpffffba48 == 1) {
         base = D_00887300;
         base[0](0xE, 1);
@@ -2979,7 +3017,7 @@ void func_00147640(u8 *arg0, u8 *arg1) {
 void func_00147830(u8 *arg0, u8 *arg1) {
     u8 *temp_16;
 
-    func_003e8110(func_00457120());
+    func_003e8110(((u8 *)(u32)func_00457120()));
     temp_16 = func_00457190();
     func_003cbe80(temp_16, func_004571c0());
     if (func_00149ca0() != NULL) {
@@ -2987,7 +3025,7 @@ void func_00147830(u8 *arg0, u8 *arg1) {
         func_003c38b0(func_004571b0(), arg1 + 0x10);
         func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x20, 0);
     }
-    func_003e8120(func_00457120());
+    func_003e8120(((u8 *)(u32)func_00457120()));
 }
 /* measured probe: opt_propagation off for 00147910 float and vtable order. */
 #pragma opt_propagation off
@@ -3012,7 +3050,7 @@ void func_00147910(u8 *arg0, u8 *arg1) {
     s32 var_4_2;
     void (**base)(u32, u32);
 
-    func_003e8110(func_00457120());
+    func_003e8110(((u8 *)(u32)func_00457120()));
     temp_2 = func_004571a0();
     temp_f3 = *(f32 *)(temp_2 + 0x18);
     temp_f2 = *(f32 *)(temp_2 + 0x1C);
@@ -3064,7 +3102,7 @@ void func_00147910(u8 *arg0, u8 *arg1) {
         *(s32 *)(var_5_2 + 4) = temp_2_5;
         var_5_2 += 8;
     } while (var_4_2 > 0);
-    func_003e8120(func_00457120());
+    func_003e8120(((u8 *)(u32)func_00457120()));
     if (iGpffffba48 == 1) {
         base = D_00887300;
         base[0](0xE, 1);
@@ -3081,13 +3119,13 @@ void func_00147910(u8 *arg0, u8 *arg1) {
 #pragma opt_propagation on
 // FUN_00147AE0
 void func_00147ae0(u8 *arg0, u8 *arg1) {
-    func_003e8110(func_00457120());
+    func_003e8110(((u8 *)(u32)func_00457120()));
     func_003c38b0(func_004571a0(), arg1);
     func_003c38b0(func_004571c0(), arg1 + 0x60);
     func_003c38b0(func_004571b0(), arg1 + 0x10);
     func_003e9cb0(*(s32 *)(func_004571c0() + 4), arg1 + 0x70, 0);
     func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x20, 0);
-    func_003e8120(func_00457120());
+    func_003e8120(((u8 *)(u32)func_00457120()));
 }
 // FUN_00147BB0
 void func_00147bb0(u8 *arg0, u8 *arg1) {
@@ -3095,7 +3133,7 @@ void func_00147bb0(u8 *arg0, u8 *arg1) {
     u8 *temp_16;
 
     temp_16 = func_001452b0(4);
-    func_003e8110(func_00457120());
+    func_003e8110(((u8 *)(u32)func_00457120()));
     func_003c38b0(func_004571a0(), temp_16 + 0x140);
     func_003c38b0(func_004571c0(), temp_16 + 0x150);
     func_003e9cb0(*(s32 *)(func_004571c0() + 4), temp_16 + 0x160, 0);
@@ -3113,40 +3151,40 @@ void func_00147bb0(u8 *arg0, u8 *arg1) {
         func_003c38b0(func_004571b0(), temp_16 + 0x1A0);
         func_003e9cb0(*(s32 *)(func_004571b0() + 4), temp_16 + 0x1B0, 0);
     }
-    func_003e8120(func_00457120());
+    func_003e8120(((u8 *)(u32)func_00457120()));
 }
 // FUN_00147D80
 void func_00147d80(void) {
     u8 *temp_16;
 
     temp_16 = func_001452b0(5);
-    func_003e8110(func_00457120());
+    func_003e8110(((u8 *)(u32)func_00457120()));
     func_003c38b0(func_004571a0(), temp_16 + 0x140);
     func_003c38b0(func_004571c0(), temp_16 + 0x150);
     func_003c38b0(func_004571b0(), temp_16 + 0x1A0);
     func_003e9cb0(*(s32 *)(func_004571c0() + 4), temp_16 + 0x160, 0);
     func_003e9cb0(*(s32 *)(func_004571b0() + 4), temp_16 + 0x1B0, 0);
-    func_003e8120(func_00457120());
+    func_003e8120(((u8 *)(u32)func_00457120()));
 }
 // FUN_00147E60
 void func_00147e60(u8 *arg0, u8 *arg1) {
-    func_003e8110(func_00457120());
+    func_003e8110(((u8 *)(u32)func_00457120()));
     func_003c38b0(func_004571a0(), arg1 + 0x168);
     func_003c38b0(func_004571c0(), arg1 + 0x178);
     func_003c38b0(func_004571b0(), arg1 + 0x1D0);
     func_003e9cb0(*(s32 *)(func_004571c0() + 4), arg1 + 0x190, 0);
     func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x1E0, 0);
-    func_003e8120(func_00457120());
+    func_003e8120(((u8 *)(u32)func_00457120()));
 }
 // FUN_00147F30
 void func_00147f30(u8 *arg0, u8 *arg1) {
-    func_003e8110(func_00457120());
+    func_003e8110(((u8 *)(u32)func_00457120()));
     func_003c38b0(func_004571a0(), arg1 + 0x15C);
     func_003c38b0(func_004571c0(), arg1 + 0x16C);
     func_003c38b0(func_004571b0(), arg1 + 0x1C0);
     func_003e9cb0(*(s32 *)(func_004571c0() + 4), arg1 + 0x180, 0);
     func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x1D0, 0);
-    func_003e8120(func_00457120());
+    func_003e8120(((u8 *)(u32)func_00457120()));
 }
 /* measured probe: opt_propagation off preserves 00148000 vector coloring. */
 #pragma opt_propagation off
@@ -3169,7 +3207,7 @@ s32 func_00148000(u8 **arg0, u8 **arg1) {
     u8 *temp_17;
     u8 *temp_2;
 
-    temp_2 = func_00457120();
+    temp_2 = ((u8 *)(u32)func_00457120());
     temp_2 = func_003e9700(*(s32 *)(temp_2 + 4));
     temp_f2 = *(f32 *)(temp_2 + 0x30);
     temp_f1 = *(f32 *)(temp_2 + 0x34);
@@ -3213,7 +3251,7 @@ s32 func_00148140(u8 **arg0, u8 **arg1) {
     u8 *temp_17;
     u8 *temp_2;
 
-    temp_2 = func_00457120();
+    temp_2 = ((u8 *)(u32)func_00457120());
     temp_2 = func_003e9700(*(s32 *)(temp_2 + 4));
     temp_f2 = *(f32 *)(temp_2 + 0x30);
     temp_f1 = *(f32 *)(temp_2 + 0x34);
@@ -4898,7 +4936,7 @@ void func_0014def0(s32 arg0, u8 *arg1,
 
     z = RwIm2DGetNearScreenZ() - fparg2;
     if (fparg2 == 0.0f) {
-        z = RwIm2DGetNearScreenZ() - *(f32 *)(func_00457120() + 0x80);
+        z = RwIm2DGetNearScreenZ() - *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     }
     inverse = 1.0f / z;
     switch (arg4) {
@@ -5291,7 +5329,7 @@ s32 func_0014e950(u8 *task)
         {
             u8 *child = *(u8 **)(work + 0xC);
             if (fieldTransitionChildReady(child)) {
-                s32 *source = (s32 *)func_003e9700(*(s32 *)(func_00457120() + 4));
+                s32 *source = (s32 *)func_003e9700(*(s32 *)(((u8 *)(u32)func_00457120()) + 4));
                 s32 *destination = (s32 *)(work + 0x10);
                 s32 count = 8;
                 do {

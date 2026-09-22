@@ -3364,26 +3364,21 @@ void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2) {
 
 
 
-/* Banked 2026-09-15 at nd 96 (re-measured; 12 float-const externs added
-   with config addresses; COP1 second-wave residue per above). */
-// FUN_001B70C0 NONMATCHING
-#ifdef NON_MATCHING
-/* Best candidate for func_001b70c0, retained before rollback to ASM.
- * Object/window: 828B/816B.
- * Normalized residual: 96 words; differing byte offsets: 0, 28, 40, 56, 84, 92, 96, 100, 104, 108, 372, 376, 380, 384, 388, 392, 400, 404, 420, 424, 432, 480, 484, 488, 492, 496, 500, 504, 524, 528, 532, 536, 540, 544, 548, 552, 556, 564, 568, 572, 580, 584, 588, 592, 596, 600, 604, 608, 616, 620, 628, 636, 640, 644, 648, 652, 656, 660, 664, 668, 672, 676, 680, 688, 696, 700, 704, 708, 712, 716, 720, 724, 728, 732, 736, 740, 748, 752, 756, 760, 764, 768, 772, 776, 780, 784, 788, 792, 796, 800, 804, 808, 812, 816, 820, 824.
- * COP1 accumulator chain: reproduced for the first cross-product wave; the
- * second wave remains mismatched in the residual.
- * Ruled out: aggregate Vec3 input versus field loads, raw pointer Vec3 copy,
- * scalar input staging, direct cross-product expressions, reordered accumulator
- * temporaries, and unscoped/alternate pragma placements.
- * No new data references beyond existing retail globals and helper symbols;
- * all D_XXXXXXXX and func_XXXXXXXX references are real, placeable references.
+/* Native b210: 812/816 bytes, unmasked relocations and zero tail proved.
+ * Scene getters return void * from u16 IDs; matrix copies use SDK values.
+ * Evidence: build/continue-first-party-20260922/battle-after-rebase/light-native.
  */
+// FUN_001B70C0
 #pragma push
-// measured: opt_propagation off probe for func_001b70c0 accumulator/copy ordering.
+/* Preserve the position/color snapshots and the two cross-product phases. */
 #pragma opt_propagation off
 void func_001b70c0(u8 *arg0)
 {
+    extern void *func_0014a5d0(u16 resTypeId);
+    extern void *func_0014a8a0(u16 resTypeId);
+    extern void *func_0014a990(u16 resTypeId);
+    extern f32 func_003e40b0(f32 *dst, const f32 *src);
+    extern void *func_003e0870(void *matrix, const void *axis, f32 angle, s32 combine);
     extern u8 D_005F7290[];
     extern u8 D_005F7294[];
     extern u8 D_005F7298[];
@@ -3402,25 +3397,23 @@ void func_001b70c0(u8 *arg0)
         f32 z;
     } Vec3;
     typedef struct {
-        Vec3 v20;
-        u32 pad2C;
-        Vec3 v30;
-        u32 pad3C;
-        Vec3 v40;
-        u32 pad4C;
-        Vec3 v50;
-        u32 pad5C;
-        Vec3 v60;
-        u32 pad6C;
-        Vec3 v70;
-        u32 pad7C;
-        Vec3 v80;
-        u32 pad8C;
-        Vec3 v90;
-        u32 pad9C;
-        Vec3 vA0;
-    } Frame;
-    Frame frame;
+        Vec3 right;
+        u32 flags;
+        Vec3 up;
+        u32 pad1;
+        Vec3 at;
+        u32 pad2;
+        Vec3 pos;
+        u32 pad3;
+    } Matrix;
+    /* Independent vector locals preserve the native aggregate-copy alignment. */
+    Matrix light;
+    Vec3 at;
+    Vec3 right;
+    Vec3 up;
+    Vec3 position;
+    Vec3 center;
+    f32 red, green, blue, alpha;
     f32 adjusted;
     f32 output_y;
     f32 cross_x;
@@ -3429,8 +3422,6 @@ void func_001b70c0(u8 *arg0)
     f32 axis_x;
     f32 axis_y;
     f32 axis_z;
-    u64 copy_xy;
-    f32 copy_z;
     f32 cross2_y;
     f32 cross2_z;
     f32 cross2_normz;
@@ -3444,90 +3435,78 @@ void func_001b70c0(u8 *arg0)
         case 0:
         case 1: {
             f32 *dstf;
-            u32 *src;
-            u32 *dst;
-            s32 count;
-            frame.v70.x = *(f32 *)(arg0 + 0x54);
-            frame.v70.y = *(f32 *)(arg0 + 0x58);
-            frame.v70.z = *(f32 *)(arg0 + 0x5C);
-            func_00195850(arg0, (f32 *)&frame.v60);
-            output_y = frame.v60.y;
+            red = *(f32 *)(arg0 + 0x54);
+            green = *(f32 *)(arg0 + 0x58);
+            blue = *(f32 *)(arg0 + 0x5C);
+            position.x = red;
+            position.y = green;
+            position.z = blue;
+            func_00195850(arg0, (f32 *)&center);
+            output_y = center.y;
             adjusted = output_y + 5.0f;
-            if (!(adjusted < frame.v70.y)) {
-                frame.v70.y = adjusted;
+            if (!(adjusted < position.y)) {
+                position.y = adjusted;
             }
-            frame.v50 = frame.v70;
-            frame.vA0.x = frame.v60.x - frame.v70.x;
-            frame.vA0.y = output_y - frame.v70.y;
-            frame.vA0.z = frame.v60.z - frame.v70.z;
-            func_003e40b0(&frame.vA0.x, &frame.vA0.x);
-            frame.v40 = frame.vA0;
-            cross_y = frame.vA0.y;
+            light.pos = position;
+            at.x = center.x - position.x;
+            at.y = output_y - position.y;
+            at.z = center.z - position.z;
+            func_003e40b0(&at.x, &at.x);
+            light.at = at;
+            cross_y = at.y;
             axis_z = *(f32 *)D_0060A0E8;
-            cross_z = frame.vA0.z;
+            cross_z = at.z;
             axis_y = *(f32 *)D_0060A0E4;
-            frame.v90.x = axis_y * cross_z - axis_z * cross_y;
+            right.x = axis_y * cross_z - axis_z * cross_y;
             axis_x = *(f32 *)(u8 *)D_0060A0E0;
-            cross_x = frame.vA0.x;
-            frame.v90.y = axis_z * cross_x - axis_x * cross_z;
-            frame.v90.z = axis_x * cross_y - axis_y * cross_x;
-            func_003e40b0(&frame.v90.x, &frame.v90.x);
-            *(u64 *)&frame.v20 =
-                ((copy_xy = *(u64 *)&frame.v90),
-                 (copy_z = frame.v90.z),
-                 copy_xy);
-            frame.v20.z = copy_z;
-            cross2_y = frame.v90.y;
-            cross2_z = frame.vA0.z;
-            cross2_normz = frame.v90.z;
-            cross2_dy = frame.vA0.y;
-            frame.v80.x = cross2_dy * cross2_normz -
-                          cross2_z * cross2_y;
-            frame.v80.y = frame.vA0.z * frame.v90.x -
-                          frame.vA0.x * frame.v90.z;
-            frame.v80.z = frame.vA0.x * frame.v90.y -
-                          frame.vA0.y * frame.v90.x;
-            frame.v30 = frame.v80;
+            cross_x = at.x;
+            right.y = axis_z * cross_x - axis_x * cross_z;
+            right.z = axis_x * cross_y - axis_y * cross_x;
+            func_003e40b0(&right.x, &right.x);
+            light.right = right;
+            cross2_y = right.y;
+            cross2_z = at.z;
+            cross2_normz = right.z;
+            cross2_dy = at.y;
+            up.x = cross2_dy * cross2_normz - cross2_z * cross2_y;
+            up.y = at.z * right.x - at.x * right.z;
+            up.z = at.x * right.y - at.y * right.x;
+            light.up = up;
             dstf = (f32 *)func_0014a8a0(*(u16 *)(arg0 + 0x9FE));
-            dstf[0] = *(f32 *)(arg0 + 0x70);
-            dstf[1] = *(f32 *)(arg0 + 0x74);
-            dstf[2] = *(f32 *)(arg0 + 0x78);
-            dstf[3] = *(f32 *)(arg0 + 0x7C);
-            dst = (u32 *)func_0014a990(*(u16 *)(arg0 + 0x9FE));
-            src = (u32 *)&frame.v20;
-            for (count = 8; count > 0; count--) {
-                dst[0] = src[0];
-                dst[1] = src[1];
-                src += 2;
-                dst += 2;
-            }
+            red = *(f32 *)(arg0 + 0x70);
+            green = *(f32 *)(arg0 + 0x74);
+            blue = *(f32 *)(arg0 + 0x78);
+            alpha = *(f32 *)(arg0 + 0x7C);
+            dstf[0] = red;
+            dstf[1] = green;
+            dstf[2] = blue;
+            dstf[3] = alpha;
+            *(Matrix *)func_0014a990(*(u16 *)(arg0 + 0x9FE)) = light;
             break;
         }
         case 2: {
             f32 *dstf;
-            u32 *src;
-            u32 *dst;
-            s32 count;
 
-            func_003e0870(&frame.v20, D_0060A0D0, 0, -90.0f);
+            func_003e0870(&light, D_0060A0D0, -90.0f, 0);
             dstf = (f32 *)func_0014a5d0(*(u16 *)(arg0 + 0x9FE));
-            dstf[0] = *(f32 *)D_005F7290;
-            dstf[1] = *(f32 *)D_005F7294;
-            dstf[2] = *(f32 *)D_005F7298;
-            dstf[3] = *(f32 *)D_005F729C;
+            red = *(f32 *)D_005F7290;
+            green = *(f32 *)D_005F7294;
+            blue = *(f32 *)D_005F7298;
+            alpha = *(f32 *)D_005F729C;
+            dstf[0] = red;
+            dstf[1] = green;
+            dstf[2] = blue;
+            dstf[3] = alpha;
             dstf = (f32 *)func_0014a8a0(*(u16 *)(arg0 + 0x9FE));
-            dstf[0] = *(f32 *)D_005F72A0;
-            dstf[1] = *(f32 *)D_005F72A4;
-            dstf[2] = *(f32 *)D_005F72A8;
-            dstf[3] = *(f32 *)D_005F72AC;
-            dst = (u32 *)func_0014a990(*(u16 *)(arg0 + 0x9FE));
-            src = (u32 *)&frame.v20;
-            for (count = 8; count > 0; count--) {
-                dst[0] = src[0];
-                dst[1] = src[1];
-                src += 2;
-                dst += 2;
-            }
+            red = *(f32 *)D_005F72A0;
+            green = *(f32 *)D_005F72A4;
+            blue = *(f32 *)D_005F72A8;
+            alpha = *(f32 *)D_005F72AC;
+            dstf[0] = red;
+            dstf[1] = green;
+            dstf[2] = blue;
+            dstf[3] = alpha;
+            *(Matrix *)func_0014a990(*(u16 *)(arg0 + 0x9FE)) = light;
             break;
         }
         default:
@@ -3536,9 +3515,6 @@ void func_001b70c0(u8 *arg0)
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b70c0);
-#endif
 // FUN_001B73F0
 void func_001b73f0(u8 *arg0)
 {
