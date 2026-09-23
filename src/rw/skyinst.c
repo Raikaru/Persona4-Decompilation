@@ -387,8 +387,23 @@ s32 func_0040d0a0(s32 arg0, s32 arg1)
 }
 /* measured: closes no_branch_likely around func_0040d0a0. */
 #pragma no_branch_likely off
+// FUN_0040D110
+void func_0040d110(void)
+{
+    D_00887308[0] = (void (*)(void))func_0040afb0;
+    D_0088730C[0] = (void (*)(void))func_0040b230;
+    D_00887310[0] = func_0040c0f0;
+    D_00887314[0] = (void (*)(void))func_0040d0a0;
+    func_0040aa60((void (*)(void))func_0040c0f0);
+}
+// FUN_0040D160
+void func_0040d160(void)
+{
+}
 // FUN_0040D170
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040d170);
+// FUN_0040D570
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040d570);
 #pragma no_branch_likely on
 extern s32 func_00410a40(s32 arg0); /* P4: ported verbatim into src/renderware */
 #pragma no_branch_likely off

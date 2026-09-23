@@ -271,6 +271,20 @@ extern void func_003efda0(u8 *arg0); /* P4: ported verbatim into src/renderware 
 #pragma no_branch_likely on
 /* measured: closes no_branch_likely around func_00402680. */
 #pragma no_branch_likely off
+// FUN_00407BD0
+s32 func_00407bd0(s32 arg0, u8 *arg1)
+{
+    iGpffffb980 = arg1;
+    D_0088CAC0[0] = *(s16 *)(arg1 + 0x1c);
+    D_0088CAC4[0] = *(s16 *)(arg1 + 0x1e);
+    D_0088CAC8[0] = *(s32 *)(arg1 + 0xc);
+    D_0088CACC[0] = *(s32 *)(arg1 + 0x10);
+    return 1;
+}
+// FUN_00407C10
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00407c10);
+// FUN_00407D10
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00407d10);
 // FUN_00407DF0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00407df0);
 // FUN_00407FF0

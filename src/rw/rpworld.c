@@ -82,3 +82,22 @@ int func_003d4e90(void)
     return func_003cc070(0);
 }
 #pragma optimization_level 2
+
+/* Grouped verified Persona 4 source units. */
+/* The original guards were independently verified before grouping. */
+#include "type.h"
+
+/* Canonical grouped function declarations. */
+void func_0038fb10(void);
+
+/* Source unit: src/rw/rpworld_0038fb10.c (1 function markers) */
+
+extern void (*DAT_008873ec_abs[])(void);
+
+#pragma optimization_level 3
+// FUN_0038FB10
+void func_0038fb10(void)
+{
+    DAT_008873ec_abs[0]();
+}
+#pragma optimization_level 2

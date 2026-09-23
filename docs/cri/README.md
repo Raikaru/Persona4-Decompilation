@@ -84,3 +84,27 @@ own instructions, the way `build/adx_survey.py` finds them.
 `residual_dispositions.json` records every right-size donor candidate that
 did not become a source owner, including compiler floors, layout/version
 divergence, wrong attributions, and candidates superseded by exact donors.
+
+## Retail holding-unit split
+
+`cri_unit_attribution.json` assigns all 2,471 former
+`src/cri/cri_adx_grouped.c` markers to source owners. The original 32
+string-named/TWEWY-attributed entries are retained. Fourteen soft-float
+runtime entries live in `src/middleware/soft_float.c`; 62 entries belonging
+to the ROFS interfaces live under `src/sce/`. The five separately compiled
+wrappers in `src/cri/cri_adx.c` stay separate: their original prototypes
+conflict with the grouped unit's declarations.
+
+The mapping is **not** a proof of 2,471 original CRI translation-unit
+boundaries. Named functions, donor source filenames and existing port markers
+anchor the split. Of the original markers, 1,049 lie between same-owner
+anchors, while 692 at transitions use the nearest linker-order anchor.
+Another 14 are assigned by the runtime address region. Namespace and
+similarity evidence is weaker than a retail filename; isolated same-shaped
+donor-port matches were excluded from boundary inference. The generated
+owner files retain the old function bodies, declarations and pragma order;
+they do not claim that their inferred filenames are recovered debug data.
+
+The scoped before/after verifier compares all 2,476 original CRI rows
+(including the five untouched wrappers): status and `normalized_diff` did
+not change. The full linker build separately checks both retail SHA-1s.

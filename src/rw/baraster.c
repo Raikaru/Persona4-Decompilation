@@ -234,6 +234,8 @@ extern s32 func_003ec6a0(s32 arg0, s32 arg1, s32 arg2); /* P4: ported verbatim i
 #pragma no_branch_likely on
 extern s32 func_003ec6f0(s32 arg0); /* P4: ported verbatim into src/renderware */
 #pragma no_branch_likely off
+// FUN_003EC840
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec840);
 /* measured: retail ef0d0 allocator guard is plain beqz, not bnel. */
 #pragma no_branch_likely on
 extern u8 *func_003ef0d0(void); /* P4: ported verbatim into src/renderware */

@@ -260,6 +260,32 @@ extern u8 *func_003e9af0(u8 *arg0, s32 (*arg1)(u8 *, s32), s32 arg2); /* P4: por
 #pragma no_branch_likely off
 /* measured: retail uses plain beqz in func_003e9c10's flag test. */
 #pragma no_branch_likely on
+// FUN_003E9C10
+u8 *func_003e9c10(u8 *arg0, const f32 *translation, s32 combineOp)
+{
+    extern u8 *func_003e0c90(u8 *, const f32 *, s32);
+    u8 *temp_3;
+    u8 temp_5;
+    u8 **head;
+
+    func_003e0c90(arg0 + 0x10, translation, combineOp);
+    temp_3 = *(u8 **)(arg0 + 0xA0);
+    temp_5 = *(u8 *)(temp_3 + 3);
+    if ((temp_5 & 3) == 0) {
+        goto insert;
+    }
+update:
+    *(u8 *)(*(u8 **)(arg0 + 0xA0) + 3) = (u8)(temp_5 | 3);
+    *(u8 *)(arg0 + 3) = (u8)(*(u8 *)(arg0 + 3) | 0xC);
+    return arg0;
+insert:
+    head = (u8 **)D_0088739C;
+    *(u8 **)(temp_3 + 8) = *head;
+    *(u8 **)(*(u8 **)(arg0 + 0xA0) + 0xC) = (u8 *)head;
+    *(u8 **)(*head + 4) = *(u8 **)(arg0 + 0xA0) + 8;
+    *head = *(u8 **)(arg0 + 0xA0) + 8;
+    goto update;
+}
 /* measured: closes no_branch_likely around func_003e9c10. */
 #pragma no_branch_likely off
 /* measured: sibling list helper func_003e9cb0 uses plain beqz branches. */

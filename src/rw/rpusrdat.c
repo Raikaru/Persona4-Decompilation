@@ -13,3 +13,20 @@ s32 func_003bcfa0(RpMaterial* material, char* name, s32 format, s32 numElements)
     return func_003bc9c0((u8*)material + iGpffffb680, name, format, numElements);
 }
 #pragma optimization_level 2
+
+/* Grouped verified Persona 4 source units. */
+/* The original guards were independently verified before grouping. */
+#include "type.h"
+
+/* Canonical grouped function declarations. */
+s32 func_003bd060(void* object);
+
+/* Source unit: src/rw/rpusrdat_003bd060.c (1 function markers) */
+#pragma optimization_level 3
+
+// FUN_003BD060
+s32 func_003bd060(void* object)
+{
+    return *(s32*)((u8*)object + 8);
+}
+#pragma optimization_level 2
