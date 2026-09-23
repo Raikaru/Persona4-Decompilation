@@ -98,6 +98,7 @@ src/cri/libadxe/adx_tsvr.c
 src/cri/libadxe/adx_xpnd.c
 src/cri/libadxe/cri_cvfs.c
 src/cri/libadxe/cri_srd.c
+src/cri/libadxe/cri_srd_control.c
 src/cri/libadxe/dtr.c
 src/cri/libadxe/dtx.c
 src/cri/libadxe/dvci.c
