@@ -998,7 +998,7 @@ extern s16 D_005E4D58[];
 u32 func_003b7060(void);
 void func_0045dfd0(u8 *, u8 *, f32, s32, s32, s32);
 void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg2, u8 arg3, u8 arg4, u32 arg5,
+                   u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                    u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
 /* measured: bank 2026-09-18 00117980 -- object 885 vs retail 907 = -22 (-2.4%, PASS 3% gate 880-934), fnalign edit 667 +6 reloc-only, frame 0x140 matches (addiu at index0 drops out of diff). Full-C from /var/tmp/cold117980/cand_v1.c (381 lines) with bare-unsigned int-to-float tails (f32)b505/(f32)col/(f32)lim for the six lbu/lhu sites per 0011d5b0 outer-(s32) lesson (each +11, 839->906, +67; manual s32-vb/vc/v if-blocks folded to cvt only vs retail bltz/srl/andi/or/mtc1/cvt/add 9+2), deduped cnt<4/5 t1 to single post-f21 block (4x0044b7b0->3x matching retail 15 jal +1 jalr, 906->885, -21), s8 sp13C for retail lb (670->668), (u32)func_003b7060()%0x14 for retail divu (668->667). Kept (f32)(s32)cnt/4, /15, /3, /400 and manual (s32)af&0xFF/0xFFFF guards where retail is cheap (bare (u32)af folds smaller, 839->836, -3). jal: retail 15 (4x003f6440, 3x003657d0, 2x0034f4a0, 3x0044b7b0, 1x0044b610, 1x0045dfd0, 1x003b7060) +1 jalr tblbase vs object same 15+1 (deduped). Reused existing decls plus local extern D_007611AC/D_00761288 inside body, no new file-scope globals. */
 // FUN_00117980 NONMATCHING
@@ -1334,7 +1334,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117980);
 
 
 void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg2, u8 arg3, u8 arg4, u32 arg5,
+                   u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                    u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
 /* measured: retail keeps only t16 and arg2 in saved registers (frame 0x60 with
    the two s64 homes at 0x50/0x58); mwcc b210 also saves arg0 (frame 0x80,
@@ -1360,7 +1360,7 @@ void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
 #ifdef NON_MATCHING
 void func_001187b0(u8 *arg0, s64 arg1, u8 arg2, s64 arg3, f32 fparg0)
 {
-    void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+    void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     s32 tmp;
     f32 f21;
     f32 f20;
@@ -1868,14 +1868,15 @@ void func_00119810(u8 *work)
         s32 alpha;
         f32 floatAlpha;
         f32 glowOpacity;
+        u8 glowAlpha;
         alpha = *(u8 *)(work + 0x505);
         floatAlpha = (f32)(u32)alpha;
         glowOpacity = 0.5f * floatAlpha * (maximum - glowProgress);
-        color = (u8)glowOpacity;
+        glowAlpha = (u8)glowOpacity;
         func_003f6440(3, (void *)0x71801);
         func_003f6440(2, (void *)0x48);
         func_0034f4a0(*(s32 *)(work + 0x2C8), 0xB, (f32)0x19B, 296.0f, 0.0f,
-                   0xFF, 0xFF, 0xFF, color, 0x1000, 0x1000, angle, (s16)0x12E, (s16)0x21);
+                   0xFF, 0xFF, 0xFF, glowAlpha, 0x1000, 0x1000, angle, (s16)0x12E, (s16)0x21);
         func_003f6440(3, (void *)0x717FB);
         func_003f6440(2, (void *)0x44);
     }
@@ -1922,7 +1923,7 @@ void func_00114e50(s64, u8, s32, s32);
 void func_00119210(u8 *);
 void func_00119810(u8 *);
 void func_00117980(u8 *);
-void func_0034f9d0(Vec2f unused, f32 fparg0, u32 arg1, s32 arg2, s32 arg3);
+void func_0034f9d0(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
 /* measured: fully decoded, best nd 830 (obj 3844B / window 3216B, frame 0xA0
    vs 0x90) at attempt 3. The TRUE signature is `void func_00119e10(u8 *arg0,
    u8 *arg1)` with the USED base in $5 (the m2c's arg1 — a leading param was

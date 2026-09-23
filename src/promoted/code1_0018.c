@@ -3809,7 +3809,7 @@ extern s32 func_0015c6f0(u8 *arg0);
 extern void func_0015c730(u8 *arg0);
 extern void func_0015c630(u8 *arg0);
 extern void func_0043f810(u8 *dst, s32 x, s32 y);
-extern void func_00156800(s16 *arg0, s32 mask);
+extern void func_00156800(void *arg0, u32 mask);
 /* Floor: 328 differing words over 156 fnalign edits (160 at baseline),
    460 emitted against retail's 465 (1.1%, within 3%), measured via
    probe_variants/fnalign --candidate (production stays INCLUDE_ASM, so
@@ -3975,7 +3975,7 @@ s32 func_0018f950(u8 *arg0)
                 count--;
                 dst++;
             } while (count > 0);
-            func_00156800(row, 1 << *(s32 *)(temp_20 + 0x1AB8));
+            func_00156800(row, 1U << *(s32 *)(temp_20 + 0x1AB8));
             func_0018f7b0(temp_20, row, (u16)*(s32 *)(temp_20 + 0x1AB0),
                           (u16)*(s32 *)(temp_20 + 0x1AB4),
                           *(s16 *)(temp_20 + 0x1AB8));

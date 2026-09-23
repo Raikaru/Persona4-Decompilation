@@ -268,7 +268,7 @@ void func_00361ca0(u8 *arg0) {
 void func_00361d20(s32 arg0, u8 *arg1)
 {
     extern s32 func_00106330(s32 arg0);
-    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u32 arg4);
+    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
     extern void func_00442088(void *dst, const void *fmt, ...);
     extern u32 func_00354490(s32 arg0);
     extern s32 func_002751a0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 out, s32 charWidth);

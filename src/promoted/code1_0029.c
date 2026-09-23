@@ -95,8 +95,8 @@ extern u8 D_0063E810[];
 extern u16 D_008C024E[];
 extern s32 D_0063E830[];
 extern s32 func_002a2c10(u8 *arg0, f32 *arg1);
-extern void func_0025e9e0(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, f32 farg0, f32 farg1, f32 farg2);
-extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6, f32 farg3, f32 farg4, f32 farg5);
+extern void func_0025e9e0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4);
+extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
 
 
 
@@ -2760,10 +2760,10 @@ do_copy:
                 s32 c3 = *(s32 *)(pb + 12);
                 s32 c4 = *(s32 *)(pb + 16);
                 s32 c5 = *(s32 *)(pb + 20);
-                func_0025e9e0(0x2D2D2D, color, c1, iGpffffb540, 1, (f32)ix, (f32)iy, 0.0f);
+                func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, color, c1, iGpffffb540, 1);
                 jx = (ix + c2) - c4;
                 jy = (iy + c3) - c5;
-                func_0025e9e0(0x8F8F8F, color, c0, iGpffffb540, 1, (f32)jx, (f32)jy, 0.0f);
+                func_0025e9e0((f32)jx, (f32)jy, 0.0f, 0x8F8F8F, color, c0, iGpffffb540, 1);
             }
             return;
         }
@@ -2806,10 +2806,10 @@ do_copy:
             t17 = *(s32 *)(pb + 16);
             spB0 = *(s32 *)(pb + 8);
             spA0 = (ix + spB0) - t17;
-            func_0025e9e0(0x2D2D2D, 0xFF, temp30, iGpffffb540, 1, (f32)ix, (f32)iy, 0.0f);
-            func_0025e9e0(0x8F8F8F, 0xFF, temp22, iGpffffb540, 1, (f32)spA0, (f32)spC0, 0.0f);
-            func_0025e9e0(0x99, var23, temp30, iGpffffb540, 1, (f32)ix, (f32)iy, 0.0f);
-            func_0025e9e0(0xCCFFFF, var23, temp22, iGpffffb540, 1, (f32)spA0, (f32)spC0, 0.0f);
+            func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, 0xFF, temp30, iGpffffb540, 1);
+            func_0025e9e0((f32)spA0, (f32)spC0, 0.0f, 0x8F8F8F, 0xFF, temp22, iGpffffb540, 1);
+            func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x99, var23, temp30, iGpffffb540, 1);
+            func_0025e9e0((f32)spA0, (f32)spC0, 0.0f, 0xCCFFFF, var23, temp22, iGpffffb540, 1);
         }
         {
             u8 *b2 = *(u8 **)(arg0 + 0x38) + off4;
@@ -2836,7 +2836,7 @@ do_copy:
         if ((arg1 == 0) || (arg1 == 1) || (arg1 == 3)) {
             kx = (ix + spB0) - t17;
             ky = (iy + spD0) - t18;
-            func_0025e9e0(0xCCFFFF, var23, temp22 + 0xB2, iGpffffb540, 1, (f32)kx, (f32)ky, 0.0f);
+            func_0025e9e0((f32)kx, (f32)ky, 0.0f, 0xCCFFFF, var23, temp22 + 0xB2, iGpffffb540, 1);
         }
     }
 }

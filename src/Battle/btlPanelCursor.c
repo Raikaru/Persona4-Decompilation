@@ -9,7 +9,6 @@ extern u8 *func_00452560(s32 task);
 extern void func_002016e0(u8 *work, s16 mode, s32 tile, f32 angle);
 extern void func_00201820(s32 mode);
 extern void func_0021ae80(u8 *work, s32 unused);
-extern void func_0021aeb0(s32 arg0, u8 *work, s32 color, f32 x, f32 y, f32 alpha);
 extern f32 func_0021b0a0(u8 *work);
 extern f32 func_003e41e0(f32 *out, f32 *in);
 extern void func_0046d730(void *file, s32 line);
@@ -149,7 +148,7 @@ void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
     }
     if (*(u16 *)(cursor + 0x10) & 2) {
         t = func_0021b0a0(panel);
-        func_0021aeb0(task, panel, 255, position[0] - 9.0f, position[1] - 5.0f, t);
+        func_0021aeb0(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
     }
 }
 /* measured triage: no real C body was produced for the 2016B retail window;
@@ -280,7 +279,7 @@ void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
     }
     if (*(u16 *)(cursor + 0x10) & 2) {
         t = func_0021b0a0(panel);
-        func_0021aeb0(task, panel, 255, position[0] - 9.0f, position[1] - 5.0f, t);
+        func_0021aeb0(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
     }
 }
 /* measured triage: no real C body was produced for the 2112B retail window;
@@ -420,7 +419,7 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
     }
     if (*(u16 *)(cursor + 0x10) & 2) {
         t = func_0021b0a0(panel);
-        func_0021aeb0(task, panel, 255, position[0] - 9.0f, position[1] - 5.0f, t);
+        func_0021aeb0(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
     }
 }
 /* measured triage: no real C body was produced for the 2416B retail window;
@@ -575,7 +574,7 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position) {
     }
     if (*(u16 *)(cursor + 0x10) & 2) {
         t = func_0021b0a0(panel);
-        func_0021aeb0(task, panel, 255, position[0] - 9.0f, position[1] + 5.0f, t);
+        func_0021aeb0(task, panel, position[0] - 9.0f, position[1] + 5.0f, 255, t);
     }
 }
 #else

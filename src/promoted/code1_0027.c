@@ -1706,7 +1706,7 @@ void func_0027bf30(u8 *arg0, u8 *arg1) {
     extern void *func_0046a770(void *arg0);
     extern void (*D_00887300[])(s32 arg0, s32 arg1);
     extern void func_003f6440(s32 arg0, s32 arg1);
-    extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6, f32 farg3, f32 farg4, f32 farg5);
+    extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
     extern void func_0046d730(void *arg0, s32 arg1);
     extern void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s16 arg8, void *arg9, f32 farg0, f32 farg1, f32 farg2, f32 farg3);
     /* use file-scope s64 func_001060b0 with s16 narrowing */
@@ -1714,7 +1714,7 @@ void func_0027bf30(u8 *arg0, u8 *arg1) {
     extern s32 func_00110d30(s32 arg0);
     extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
     extern s32 func_00110c50(s32 arg0, s32 arg1);
-    extern void func_00262de0(s32 arg0, s32 arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4, f32 farg1, f32 farg2, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
+    extern void func_00262de0(s32 arg0, s32 arg1, f32 farg0, u8 arg2, s32 arg3, s32 arg4, f32 farg1, f32 farg2, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
     extern void func_00261560(s32 arg0, s32 arg1, f32 farg0, s32 arg1b, s32 arg2, s32 arg3, f32 fparg1, f32 fparg2, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
     extern f32 D_00761184;
     extern f32 D_00761288;

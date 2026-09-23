@@ -45,7 +45,7 @@ s32 func_00442088(char *buf, const char *fmt, ...);
 u8 *func_00455f70(void *arg0, u32 *arg1);
 u8 *func_0046aea0(const char *name);
 s32 func_0046a750(s32 param);
-extern void func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, s32, s32);
+extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern u8 D_006376F0[];
 extern u8 D_00637710[];
 extern u8 D_00637850[];
@@ -177,124 +177,76 @@ void func_00265110(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u32 arg3,
     if (arg4 != 0) {
         switch (arg3) {
         case 4:
-            func_0025f3f0((f32)(arg0 + 0x1E), (f32)(arg1 + 0x62), fparg0, 0x4C4C4C,
-                          arg2, 0xB, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x1E), (f32)(arg1 + 0x62), fparg0, 0x4C4C4C,
-                          arg2, 0xC, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x1E), (f32)(arg1 + 0x62), fparg0, 0x4C4C4C,
-                          arg2, 0x10, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x1E), (f32)(arg1 + 0x62), fparg0, 0x4C4C4C,
-                          arg2, 0x12, 0, arg4, 1);
+            func_0025f3f0((f32)(arg0 + 0x1E), (f32)(arg1 + 0x62), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x1E), (f32)(arg1 + 0x62), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x1E), (f32)(arg1 + 0x62), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x1E), (f32)(arg1 + 0x62), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
             return;
         case 5:
-            func_0025f3f0((f32)(arg0 + 0x23), (f32)(arg1 + 0x98), fparg0, 0x4C4C4C,
-                          arg2, 0xB, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x23), (f32)(arg1 + 0x98), fparg0, 0x4C4C4C,
-                          arg2, 0xC, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x23), (f32)(arg1 + 0x98), fparg0, 0x4C4C4C,
-                          arg2, 0x10, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x23), (f32)(arg1 + 0x98), fparg0, 0x4C4C4C,
-                          arg2, 0x12, 0, arg4, 1);
+            func_0025f3f0((f32)(arg0 + 0x23), (f32)(arg1 + 0x98), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x23), (f32)(arg1 + 0x98), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x23), (f32)(arg1 + 0x98), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x23), (f32)(arg1 + 0x98), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
             return;
         case 6:
-            func_0025f3f0((f32)(arg0 + 0xA), (f32)(arg1 + 0xCC), fparg0, 0x4C4C4C,
-                          arg2, 0xB, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0xA), (f32)(arg1 + 0xCC), fparg0, 0x4C4C4C,
-                          arg2, 0xC, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0xA), (f32)(arg1 + 0xCC), fparg0, 0x4C4C4C,
-                          arg2, 0x10, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0xA), (f32)(arg1 + 0xCC), fparg0, 0x4C4C4C,
-                          arg2, 0x12, 0, arg4, 1);
+            func_0025f3f0((f32)(arg0 + 0xA), (f32)(arg1 + 0xCC), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0xA), (f32)(arg1 + 0xCC), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0xA), (f32)(arg1 + 0xCC), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0xA), (f32)(arg1 + 0xCC), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
             return;
         case 7:
-            func_0025f3f0((f32)(arg0 + 0x90), (f32)(arg1 + 0xCF), fparg0, 0x4C4C4C,
-                          arg2, 0xB, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x90), (f32)(arg1 + 0xCF), fparg0, 0x4C4C4C,
-                          arg2, 0xC, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x90), (f32)(arg1 + 0xCF), fparg0, 0x4C4C4C,
-                          arg2, 0x10, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x90), (f32)(arg1 + 0xCF), fparg0, 0x4C4C4C,
-                          arg2, 0x12, 0, arg4, 1);
+            func_0025f3f0((f32)(arg0 + 0x90), (f32)(arg1 + 0xCF), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x90), (f32)(arg1 + 0xCF), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x90), (f32)(arg1 + 0xCF), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x90), (f32)(arg1 + 0xCF), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
             return;
         case 8:
-            func_0025f3f0((f32)(arg0 + 0x2), (f32)(arg1 + 0x95), fparg0, 0x4C4C4C,
-                          arg2, 0xB, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x2), (f32)(arg1 + 0x95), fparg0, 0x4C4C4C,
-                          arg2, 0xC, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x2), (f32)(arg1 + 0x95), fparg0, 0x4C4C4C,
-                          arg2, 0x10, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x2), (f32)(arg1 + 0x95), fparg0, 0x4C4C4C,
-                          arg2, 0x12, 0, arg4, 1);
+            func_0025f3f0((f32)(arg0 + 0x2), (f32)(arg1 + 0x95), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x2), (f32)(arg1 + 0x95), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x2), (f32)(arg1 + 0x95), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x2), (f32)(arg1 + 0x95), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
             return;
         case 9:
-            func_0025f3f0((f32)(arg0 + 0xA2), (f32)(arg1 + 0xC1), fparg0, 0x4C4C4C,
-                          arg2, 0xB, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0xA2), (f32)(arg1 + 0xC1), fparg0, 0x4C4C4C,
-                          arg2, 0xC, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0xA2), (f32)(arg1 + 0xC1), fparg0, 0x4C4C4C,
-                          arg2, 0x10, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0xA2), (f32)(arg1 + 0xC1), fparg0, 0x4C4C4C,
-                          arg2, 0x12, 0, arg4, 1);
+            func_0025f3f0((f32)(arg0 + 0xA2), (f32)(arg1 + 0xC1), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0xA2), (f32)(arg1 + 0xC1), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0xA2), (f32)(arg1 + 0xC1), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0xA2), (f32)(arg1 + 0xC1), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
             return;
         case 10:
-            func_0025f3f0((f32)(arg0 + 0xB3), (f32)(arg1 + 0xD9), fparg0, 0x4C4C4C,
-                          arg2, 0xB, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0xB3), (f32)(arg1 + 0xD9), fparg0, 0x4C4C4C,
-                          arg2, 0xC, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0xB3), (f32)(arg1 + 0xD9), fparg0, 0x4C4C4C,
-                          arg2, 0x10, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0xB3), (f32)(arg1 + 0xD9), fparg0, 0x4C4C4C,
-                          arg2, 0x12, 0, arg4, 1);
+            func_0025f3f0((f32)(arg0 + 0xB3), (f32)(arg1 + 0xD9), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0xB3), (f32)(arg1 + 0xD9), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0xB3), (f32)(arg1 + 0xD9), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0xB3), (f32)(arg1 + 0xD9), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
             return;
         case 11:
-            func_0025f3f0((f32)(arg0 + 0x7F), (f32)(arg1 + 0xC9), fparg0, 0x4C4C4C,
-                          arg2, 0xB, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x7F), (f32)(arg1 + 0xC9), fparg0, 0x4C4C4C,
-                          arg2, 0xC, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x7F), (f32)(arg1 + 0xC9), fparg0, 0x4C4C4C,
-                          arg2, 0x10, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x7F), (f32)(arg1 + 0xC9), fparg0, 0x4C4C4C,
-                          arg2, 0x12, 0, arg4, 1);
+            func_0025f3f0((f32)(arg0 + 0x7F), (f32)(arg1 + 0xC9), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x7F), (f32)(arg1 + 0xC9), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x7F), (f32)(arg1 + 0xC9), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x7F), (f32)(arg1 + 0xC9), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
             return;
         case 12:
-            func_0025f3f0((f32)(arg0 - 0xC), (f32)(arg1 + 0xCA), fparg0, 0x4C4C4C,
-                          arg2, 0xB, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 - 0xC), (f32)(arg1 + 0xCA), fparg0, 0x4C4C4C,
-                          arg2, 0xC, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 - 0xC), (f32)(arg1 + 0xCA), fparg0, 0x4C4C4C,
-                          arg2, 0x10, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 - 0xC), (f32)(arg1 + 0xCA), fparg0, 0x4C4C4C,
-                          arg2, 0x12, 0, arg4, 1);
+            func_0025f3f0((f32)(arg0 - 0xC), (f32)(arg1 + 0xCA), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 - 0xC), (f32)(arg1 + 0xCA), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 - 0xC), (f32)(arg1 + 0xCA), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 - 0xC), (f32)(arg1 + 0xCA), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
             return;
         case 1:
-            func_0025f3f0((f32)(arg0 + 0x99), (f32)(arg1 + 0xB7), fparg0, 0x4C4C4C,
-                          arg2, 0xB, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x99), (f32)(arg1 + 0xB7), fparg0, 0x4C4C4C,
-                          arg2, 0xC, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x99), (f32)(arg1 + 0xB7), fparg0, 0x4C4C4C,
-                          arg2, 0x10, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x99), (f32)(arg1 + 0xB7), fparg0, 0x4C4C4C,
-                          arg2, 0x11, 0, arg4, 1);
+            func_0025f3f0((f32)(arg0 + 0x99), (f32)(arg1 + 0xB7), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x99), (f32)(arg1 + 0xB7), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x99), (f32)(arg1 + 0xB7), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x99), (f32)(arg1 + 0xB7), fparg0, 0x4C4C4C, arg2, 0x11, 0, (u8 *)(arg4), 1);
             return;
         case 2:
-            func_0025f3f0((f32)(arg0 + 0x93), (f32)(arg1 + 0x90), fparg0, 0x4C4C4C,
-                          arg2, 0xB, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x93), (f32)(arg1 + 0x90), fparg0, 0x4C4C4C,
-                          arg2, 0xC, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x93), (f32)(arg1 + 0x90), fparg0, 0x4C4C4C,
-                          arg2, 0x10, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x93), (f32)(arg1 + 0x90), fparg0, 0x4C4C4C,
-                          arg2, 0x11, 0, arg4, 1);
+            func_0025f3f0((f32)(arg0 + 0x93), (f32)(arg1 + 0x90), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x93), (f32)(arg1 + 0x90), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x93), (f32)(arg1 + 0x90), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x93), (f32)(arg1 + 0x90), fparg0, 0x4C4C4C, arg2, 0x11, 0, (u8 *)(arg4), 1);
             return;
         case 3:
-            func_0025f3f0((f32)(arg0 + 0x25), (f32)(arg1 + 0x92), fparg0, 0x4C4C4C,
-                          arg2, 0xB, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x25), (f32)(arg1 + 0x92), fparg0, 0x4C4C4C,
-                          arg2, 0xC, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x25), (f32)(arg1 + 0x92), fparg0, 0x4C4C4C,
-                          arg2, 0x10, 0, arg4, 1);
-            func_0025f3f0((f32)(arg0 + 0x25), (f32)(arg1 + 0x92), fparg0, 0x4C4C4C,
-                          arg2, 0x11, 0, arg4, 1);
+            func_0025f3f0((f32)(arg0 + 0x25), (f32)(arg1 + 0x92), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x25), (f32)(arg1 + 0x92), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x25), (f32)(arg1 + 0x92), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
+            func_0025f3f0((f32)(arg0 + 0x25), (f32)(arg1 + 0x92), fparg0, 0x4C4C4C, arg2, 0x11, 0, (u8 *)(arg4), 1);
             break;
         }
     }

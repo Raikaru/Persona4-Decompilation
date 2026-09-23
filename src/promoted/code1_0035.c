@@ -1401,7 +1401,7 @@ void func_00356250(u8 *arg0)
     extern u8 D_005E5830[];
     extern u8 D_005E5850[];
     extern s32 func_00107180(s32 arg0);
-    extern u8 func_00248760(s32 arg0);
+    extern s64 func_00248760(s32 arg0);
     extern u16 func_00107ac0(s32 arg0);
     extern s32 func_00107ea0(s32 arg0);
     extern s32 func_00107c80(s32 arg0);
@@ -1657,8 +1657,8 @@ void func_00356a10(u8 *arg0) {
     extern void func_003599c0(s32, u8 *);
     extern void func_00355410(u8 *, u32);
     extern void func_00354ba0(s32);
-    extern void func_0034f2e0(s32, s32, s32, s32, s32, f32, f32);
-    extern void func_0034f320(s32, s32, s32, s32, s32, s32, s32, s64, f32, f32, s32, f32, s64);
+    extern void func_0034f2e0(void *, f32, f32, u8, u8, u8, u8);
+    extern void func_0034f320(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
     extern f32 func_0046b260(s32);
     extern f32 func_0046b2f0(s32);
     extern void func_0046d730(void *, s32);
@@ -1673,7 +1673,7 @@ void func_00356a10(u8 *arg0) {
     extern void func_0035c670(u8 *, f32 *);
     extern u16 func_00107ac0(u16);
     extern s32 func_0010d620(s32);
-    extern void func_0034f9d0(s64, s32, s32, s32, s32);
+    extern void func_0034f9d0(Vec2f, f32, u8, s32, s32);
     extern s32 (*D_00887300[])(s32, s32);
     extern u8 D_0064B2E0;
     extern u8 D_0064B2E1;
@@ -1689,6 +1689,7 @@ void func_00356a10(u8 *arg0) {
     u8 spFC;
     f32 spF4;
     f32 spF0;
+    Vec2f labelPosition;
     s32 spEC;
     s32 spE8;
     s32 spE4;
@@ -2529,7 +2530,9 @@ loop_222:
     } else {
         var_3_13 = (((s32)((temp_f1_19 - 2.1474836e9f))) | 0x80000000) & 0xFF;
     }
-    func_0034f9d0((*(s64 *)&spF0), var_3_13 & 0xFF, *( s16 *)((u8 *)(arg0) + (0x14C)), *( s32 *)((u8 *)(arg0) + (0x1304)), 0);
+    labelPosition.x = spF0;
+    labelPosition.y = spF4;
+    func_0034f9d0(labelPosition, 0.0f, (u8)(var_3_13 & 0xFF), *( s16 *)((u8 *)(arg0) + (0x14C)), *( s32 *)((u8 *)(arg0) + (0x1304)));
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356a10);
@@ -2821,7 +2824,7 @@ void func_003599a0(u8 *arg0)
 void func_003599c0(s32 arg0, u8 *arg1)
 {
     typedef signed __int128 s128;
-    extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+    extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern void func_0045d6e0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2);
     extern u8 *func_00246830(s32 arg0);
     extern s32 func_00275020(f32 arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5, s32 arg6);
@@ -4199,8 +4202,8 @@ loop_test:
 void func_0035fd60(u8 *arg0) {
     extern void func_0034f1e0(void);
     extern void func_0034c270(s64 pos, s8 alpha, s32 flag, f32 zero);
-    extern void func_0034f2e0(void *ptr, f32 x, f32 y, u8 r, u8 g, u8 b, u32 a);
-    extern void func_0034f9d0(s64 pos, f32 z, u32 alpha, s32 arg2, s32 arg3);
+    extern void func_0034f2e0(void *ptr, f32 x, f32 y, u8 r, u8 g, u8 b, u8 a);
+    extern void func_0034f9d0(Vec2f pos, f32 z, u8 alpha, s32 arg2, s32 arg3);
     extern void func_00275980(void *src, void *dst, s32 n);
     extern void func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s32 a, s32 b, void *buf, s32 c, s32 d);
     extern void func_002bc7a0(s32 item, f32 x, f32 y, f32 depth,
@@ -4222,6 +4225,7 @@ void func_0035fd60(u8 *arg0) {
     typedef union {
         f32 f[2];
         s64 s;
+        Vec2f xy;
     } PosBits;
     u8 col[4];
     u8 textbuf[0x100];
@@ -4362,7 +4366,7 @@ void func_0035fd60(u8 *arg0) {
         pos.f[0] = 640.0f + (baseX + *(f32 *)(arg0 + 0x1A8));
         pos.f[1] = 400.0f + (baseY + *(f32 *)(arg0 + 0x1AC));
         a0 = (u8)((f32)*(u8 *)(arg0 + 0x1B2) * scale);
-        func_0034f9d0(pos.s, 0.0f, a0, *(s16 *)(arg0 + 0x34), *(s32 *)(arg0 + 0x700));
+        func_0034f9d0(pos.xy, 0.0f, a0, *(s16 *)(arg0 + 0x34), *(s32 *)(arg0 + 0x700));
     }
     if (*(s32 *)(arg0 + 0x1C) & 4) {
         f26 = 23.0f + (595.0f + (baseX + *(f32 *)(arg0 + 0x148)));
@@ -4467,7 +4471,7 @@ void func_0035fd60(u8 *arg0) {
         pos.f[0] = 640.0f + (baseX + *(f32 *)(arg0 + 0x568));
         pos.f[1] = 400.0f + (baseY + *(f32 *)(arg0 + 0x56C));
         a0 = (u8)((f32)*(u8 *)(arg0 + 0x572) * scale);
-        func_0034f9d0(pos.s, 0.0f, a0, *(s16 *)(arg0 + 0x34), *(s32 *)(arg0 + 0x700));
+        func_0034f9d0(pos.xy, 0.0f, a0, *(s16 *)(arg0 + 0x34), *(s32 *)(arg0 + 0x700));
     }
 }
 #pragma opt_loop_invariants off

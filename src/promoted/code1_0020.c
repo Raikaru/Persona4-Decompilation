@@ -17,7 +17,7 @@ extern s32 func_00247cb0(s16 arg0);
 extern u16 func_00107ac0(s32 arg0);
 extern void func_00209d40(u8 *arg0, u8 *arg1);
 extern u16 func_00209dc0(u8 *arg0, u8 *arg1);
-extern void func_00209fa0(s32 arg0, u8 *arg1, f32 *arg2);
+extern void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState);
 extern void func_00209f90(void);
 extern void func_0020a5c0(void);
 extern void func_00202d20();
@@ -138,7 +138,7 @@ extern void func_00206dd0(u8 *work, u8 *state, f32 x, f32 y,
 
 extern void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, u8 arg2, s32 arg3, s32 arg4);
 extern void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
-                          void (*callback)(void), u8 *arg3);
+                          BattleSelectionDraw callback);
 extern void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);
 extern void func_00204690(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
@@ -162,15 +162,15 @@ extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern f32 fGpffff82e0, fGpffff82e4;
 extern f32 D_008872F8[];
 extern f32 D_00626890[][2];
-extern u8 *func_00457120(void);
+extern s32 func_00457120(void);
 extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
 
 
 extern void func_00201820(s32 arg0);
 extern void func_00205c20(u8 *work, s32 slot, f32 x, f32 y,
-                          u8 opacity, s32 highlighted);
+                          u8 opacity, s32 highlighted, s32 showDetail);
 extern void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
-                          u8 opacity, s32 highlighted);
+                          u8 opacity, s32 highlighted, s32 showDetail);
 extern u16 func_00243920(s64 arg0);
 extern void func_00207140(u16 *flags, u8 *work);
 extern s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel);
@@ -228,7 +228,7 @@ extern void func_0021a7b0(u8 *task, u8 *state);
 extern void func_0021b190(u8 *arg0, s32 arg1);
 extern void func_0021b1f0(s32 arg0, s32 *arg1);
 extern void func_0021be10(u8 *arg0, s32 arg1);
-extern void func_0021be80(void);
+extern void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback);
 extern s32 func_002774d0(void *arg0);
 extern u8 D_006253B0[];
 
@@ -1330,48 +1330,44 @@ void func_00202e60(u8 *arg0, void *arg1)
     *(s32 *)(arg0 + 0x18) = (s32)arg1;
 }
 
-/* Flag-ladder floor (1264B window). First probe nd 231
-   (obj 1208B, in-window); frame/prologue verified. Open:
-   GPREL-vs-absolute masks (scope-proof), return masking,
-   scheduler ordering. s32 counter beats s16 (-16); sign-
-   extend at checks verified; IDA returns over Ghidra.
-   u8 def avoids caller churn; s32 return = int history. */
-/* 2026-09-18 `tools/solve_signedness.py`: declaring `D_008C024E` and
-   `D_008C0276` as `s16` instead of `u16` collapses the census signedness
-   mismatch from 9 to 3, but the differing-word score goes 227 -> 228.
-   Reverted.  Both are array declarations, so retail's own load opcodes name
-   no offset for them - the flip was accepted only because the census
-   improved, which is the solver's weaker "decided by recompiling" path.  A
-   claim with no direct retail evidence that also costs a word is not worth
-   banking; if a later pass finds independent evidence for the signedness,
-   the census says it is worth 6. */
-// FUN_00202E70 NONMATCHING
-#ifdef NON_MATCHING
+/* Selection input uses signed row counts and four independent button masks.
+ * Advance through the visible range one row at a time, wrapping only when
+ * the selection flags or newly pressed direction permit it. */
+typedef struct BattleSelectionInput {
+    u16 flags;
+    s16 first;
+    s16 selected;
+    s16 pageSize;
+    s16 count;
+    u8 padding[0x22];
+    u16 previous;
+    u16 next;
+    u16 previousPage;
+    u16 nextPage;
+} BattleSelectionInput;
+
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_00202E70
 s32 func_00202e70(u8 *arg0)
 {
     extern u16 D_008C024E[];
     extern u16 D_008C0276[];
     extern u16 D_008C027A[];
-    u16 *a;
-    s16 v1;
-    s32 v2;
-    s32 v5;
-    s32 v6;
-    s32 v7;
-    s16 v8;
-    s32 i;
-    s16 v3;
-    s16 v4;
-    s32 v9;
+    BattleSelectionInput *selection;
+    s32 count;
+    u32 repeat;
+    u32 flags;
 
-    a = (u16 *)arg0;
-    v1 = (s16)a[4];
-    if ((s16)a[2] >= v1) {
-        a[2] = v1 - 1;
-        v2 = (s16)a[4] - (s16)a[3];
-        a[1] = v2;
-        if ((s16)v2 < 0LL) {
-            a[1] = 0;
+    selection = (BattleSelectionInput *)arg0;
+    count = selection->count;
+    if (selection->selected >= count) {
+        s32 first;
+        selection->selected = count - 1;
+        first = selection->count - selection->pageSize;
+        selection->first = (u16)first;
+        if ((s16)first < 0) {
+            selection->first = 0;
         }
     }
     if (D_008C024E[0] & 0x40) {
@@ -1383,115 +1379,139 @@ s32 func_00202e70(u8 *arg0)
     if (D_008C024E[0] & 0x80) {
         return 3;
     }
-    if ((a[0] & 4) != 0 && (D_008C024E[0] & 4) != 0) {
+    flags = selection->flags;
+    if ((flags & 4) != 0 && (D_008C024E[0] & 4) != 0) {
         return 4;
     }
-    if (((D_008C027A[0] & a[22]) != 0) || (((a[0] & 1) != 0) && ((D_008C027A[0] & a[24]) != 0))) {
-        v5 = 1;
-        v6 = (D_008C027A[0] & a[24]) != 0;
-        v7 = (v6 == 0);
-        if ((D_008C027A[0] & a[24]) != 0) {
-            v8 = a[3];
+    repeat = D_008C027A[0];
+    if ((repeat & selection->previous) != 0 ||
+        ((flags & 1) != 0 && (repeat & selection->previousPage) != 0)) {
+        s32 moved;
+        s32 page;
+        s32 single;
+        s16 amount;
+        s32 steps;
+        s16 i;
+
+        moved = 1;
+        page = (repeat & selection->previousPage) != 0;
+        single = !page;
+        if (single != 0) {
+            amount = 1;
         } else {
-            v8 = 1;
+            amount = selection->pageSize;
         }
-        for (i = 0; i < v8; i = i + 1) {
-            v1 = (s16)a[1];
-            v2 = (s16)a[2];
-            if (v1 + 1 < v2) {
-                a[2] = v2 - 1;
-            } else if (v1 <= 0) {
-                if (v2 != 1) {
-                    if (((a[0] & 2) == 0) || ((D_008C0276[0] & a[22]) != 0) || (v6 != 0 && ((D_008C0276[0] & a[24]) != 0))) {
-                        v2 = (s16)a[4] - (s16)a[3];
-                        a[1] = v2;
-                        if ((s16)v2 < 0LL) {
-                            a[1] = 0;
-                        }
-                        a[2] = (s16)a[4] - 1;
-                    } else {
-                        v5 = 0;
-                        a[1] = 0;
-                        a[2] = 0;
-                    }
-                    break;
-                }
-                a[2] = 0;
-            } else {
-                a[1] = v1 - 1;
-                a[2] = a[2] - 1;
-            }
-        }
-        if (v5 != 0 && (a[0] & 8) != 0) {
-            if (v6 != 0) {
-                func_0045af60(0, 0, 0, 5);
-            } else {
-                func_0045af60(0, 0, 0, 0);
-            }
-        }
-        if (v7 == 0) {
-            return 7;
-        } else {
-            return 5;
-        }
-    } else if (((D_008C027A[0] & a[23]) != 0) || (((a[0] & 1) != 0) && ((D_008C027A[0] & a[25]) != 0))) {
-        v5 = 1;
-        v6 = (D_008C027A[0] & a[25]) != 0;
-        v7 = (v6 == 0);
-        if ((D_008C027A[0] & a[25]) != 0) {
-            v8 = a[3];
-        } else {
-            v8 = 1;
-        }
-        for (i = 0; i < v8; i = i + 1) {
-            v1 = (s16)a[1];
-            v2 = (s16)a[2];
-            v3 = (s16)a[3];
-            v4 = (s16)a[4];
-            if (v2 < v1 + v3 - 2 && v2 < v4 - 2) {
-                a[2] = v2 + 1;
-            } else {
-                v9 = (s16)a[4] - v3;
-                if (v1 < v9) {
-                    a[1] = (s16)a[1] + 1;
-                    a[2] = (s16)a[2] + 1;
-                } else if (v2 < v4 - 1) {
-                    a[2] = (s16)a[2] + 1;
+        steps = amount;
+        for (i = 0; i < steps; ++i) {
+            s32 first;
+            s32 selected;
+            first = selection->first;
+            selected = selection->selected;
+            if (selected <= first + 1) {
+                if (first > 0) {
+                    selection->first = first - 1;
+                    selection->selected = selection->selected - 1;
+                } else if (selected == 1) {
+                    selection->selected = 0;
                 } else {
-                    if (((a[0] & 2) == 0) || ((D_008C0276[0] & a[23]) != 0) || (v6 != 0 && ((D_008C0276[0] & a[25]) != 0))) {
-                        a[1] = 0;
-                        a[2] = 0;
-                    } else {
-                        v5 = 0;
-                        if (v4 < v3) {
-                            v9 = 0;
+                    if ((selection->flags & 2) == 0 ||
+                        (D_008C0276[0] & selection->previous) != 0 ||
+                        (page != 0 && (D_008C0276[0] & selection->previousPage) != 0)) {
+                        s32 lastPage;
+                        lastPage = selection->count - selection->pageSize;
+                        selection->first = (u16)lastPage;
+                        if ((s16)lastPage < 0) {
+                            selection->first = 0;
                         }
-                        a[1] = v9;
-                        a[2] = (s16)a[4] - 1;
+                        selection->selected = selection->count - 1;
+                    } else {
+                        moved = 0;
+                        selection->first = 0;
+                        selection->selected = 0;
                     }
                     break;
                 }
-            }
-        }
-        if (v5 != 0 && (a[0] & 8) != 0) {
-            if (v6 != 0) {
-                func_0045af60(0, 0, 0, 5);
             } else {
-                func_0045af60(0, 0, 0, 0);
+                selection->selected = selected - 1;
             }
         }
-        if (v7 == 0) {
-            return 8;
-        } else {
-            return 6;
+        if (moved != 0 && (selection->flags & 8) != 0) {
+            if (page == 0) {
+                func_0045af60(0, 0, 0, 0);
+            } else {
+                func_0045af60(0, 0, 0, 5);
+            }
         }
-    } else {
-        return 0;
+        return (u16)(single != 0 ? 5 : 7);
+    } else if ((repeat & selection->next) != 0 ||
+               ((flags & 1) != 0 && (repeat & selection->nextPage) != 0)) {
+        s32 moved;
+        s32 page;
+        s32 single;
+        s16 amount;
+        s32 steps;
+        s16 i;
+
+        moved = 1;
+        page = (repeat & selection->nextPage) != 0;
+        single = !page;
+        if (single != 0) {
+            amount = 1;
+        } else {
+            amount = selection->pageSize;
+        }
+        steps = amount;
+        for (i = 0; i < steps; ++i) {
+            s32 pageSize;
+            s32 first;
+            s32 selected;
+            pageSize = selection->pageSize;
+            first = selection->first;
+            selected = selection->selected;
+            if (selected >= first + pageSize - 2 ||
+                selected >= selection->count - 2) {
+                s32 count;
+                s32 lastPage;
+                count = selection->count;
+                lastPage = count - pageSize;
+                if (first < lastPage) {
+                    ++selection->first;
+                    ++selection->selected;
+                } else if (selected < count - 1) {
+                    ++selection->selected;
+                } else {
+                    if ((selection->flags & 2) == 0 ||
+                        (D_008C0276[0] & selection->next) != 0 ||
+                        (page != 0 && (D_008C0276[0] & selection->nextPage) != 0)) {
+                        selection->first = 0;
+                        selection->selected = 0;
+                    } else {
+                        moved = 0;
+                        if (count < pageSize) {
+                            lastPage = 0;
+                        }
+                        selection->first = (u16)lastPage;
+                        selection->selected = selection->count - 1;
+                    }
+                    break;
+                }
+            } else {
+                selection->selected = selected + 1;
+            }
+        }
+        if (moved != 0 && (selection->flags & 8) != 0) {
+            if (page == 0) {
+                func_0045af60(0, 0, 0, 0);
+            } else {
+                func_0045af60(0, 0, 0, 5);
+            }
+        }
+        return (u16)(single != 0 ? 6 : 8);
     }
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202e70);
-#endif
+
+#pragma pop
 // FUN_00203360
 void func_00203360(u8 *arg0, u8 *arg1) {
     u8 *temp_16;
@@ -1718,11 +1738,15 @@ void func_002038c0(s32 task) {
     *(s16 *)b = 0;
 }
 
-/* measured: GUARDED_SCORE 765 -> 697 differing words via draw-base hoist (probe_variants), retail 856 vs object 874 -> 871 instrs (+18 -> +15, within gate); fnalign 236 -> 223 edits (+35 reloc-only). Lui per symbol retail 70 vs object 76 surplus 6 (D_006267F0 8/8 tie, D_00626890 8/8 tie, D_00887310 1 hoisted vs 8 per-site); hoisted D_00887310 to draw at first use (s32 (**draw)(s32,void*,s32) = D_00887310, 8 -> 2 bases, lui 76->70 surplus 0 exact): 765->697 words (-68). Pragmas unchanged (opt_loop_invariants on). Remaining: saved-reg rotation (retail s4/s3/s2/s1 vs build s3/s2/s1/s0), FPR colouring (retail f25/f24 vs build f21/f20), stack offsets, VU adda/madd scheduling. Banked floor; production stays ASM. */
-// FUN_00203930 NONMATCHING
-#ifdef NON_MATCHING
+/* The outline and fill use separate initialization cursors and renderer
+ * phases. Each fill edge writes a pair of adjacent 64-byte vertices. */
 #pragma push
 #pragma opt_loop_invariants on
+typedef struct {
+    s32 (*draw)(s32 primitive, void *vertices, s32 count);
+} BattlePanelPrimitiveDispatch;
+
+// FUN_00203930
 void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
 {
     extern f32 fGpffff8488;
@@ -1736,17 +1760,16 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
     extern f32 D_00626B30[][2];
     extern void func_00364c50(void);
     extern void func_00364c70(void);
-    f32 lo[42][16];
     f32 hi[80][16];
+    f32 lo[42][16];
+    f32 base;
+    f32 reciprocal;
     f32 sx2;
     f32 sy2;
     f32 sx3;
     f32 sy3;
-    f32 base;
-    f32 reciprocal;
-    u32 init;
     u32 vertex;
-    s32 (**draw)(s32, void *, s32);
+    BattlePanelPrimitiveDispatch *draw;
 
     scaleX *= fGpffff8488;
     scaleY *= fGpffff848c;
@@ -1755,198 +1778,204 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
     sx3 = fGpffff8494 * scaleX;
     sy3 = fGpffff8494 * scaleY;
     base = D_008872F8[0];
-    reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    reciprocal = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
     D_00887300[0](1, 0);
     if ((a & 0xFF) == 0xFF) {
         func_00364c50();
-        for (init = 0; init < 80; init++) {
-            f32 *out = hi[init];
+        {
+            u32 init;
+            for (init = 0; init < 80; init++) {
+                f32 *out = hi[init];
+                out[2] = base;
+                out[6] = reciprocal;
+                out[8] = (f32)r;
+                out[9] = (f32)g;
+                out[10] = (f32)b;
+                ((s32 *)out)[11] = 0x437F0000;
+            }
+        }
+        vertex = 0;
+        {
+            s32 i;
+            for (i = 0; (u32)i < 20; i++) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * point[0];
+                out[1] = (0.0f + 211.0f) - scaleY * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * -point[0];
+                out[1] = (0.0f + 211.0f) - scaleY * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 1; (u32)i < 20; i++) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * -point[0];
+                out[1] = (0.0f + 211.0f) + scaleY * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * point[0];
+                out[1] = (0.0f + 211.0f) + scaleY * point[1];
+                vertex++;
+            }
+        }
+        draw = (BattlePanelPrimitiveDispatch *)D_00887310;
+        draw->draw(2, hi, vertex);
+        vertex = 0;
+        {
+            s32 i;
+            for (i = 0; (u32)i < 20; i++) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx2 * point[0];
+                out[1] = (0.0f + 211.0f) - sy2 * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx2 * -point[0];
+                out[1] = (0.0f + 211.0f) - sy2 * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 1; (u32)i < 20; i++) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx2 * -point[0];
+                out[1] = (0.0f + 211.0f) + sy2 * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx2 * point[0];
+                out[1] = (0.0f + 211.0f) + sy2 * point[1];
+                vertex++;
+            }
+        }
+        draw->draw(2, hi, vertex);
+        vertex = 0;
+        {
+            s32 i;
+            for (i = 0; (u32)i < 20; i++) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * point[0];
+                out[1] = (0.0f + 211.0f) - scaleY * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * -point[0];
+                out[1] = (0.0f + 211.0f) - scaleY * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 1; (u32)i < 20; i++) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * -point[0];
+                out[1] = (0.0f + 211.0f) + scaleY * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * point[0];
+                out[1] = (0.0f + 211.0f) + scaleY * point[1];
+                vertex++;
+            }
+        }
+        draw->draw(2, hi, vertex);
+        vertex = 0;
+        {
+            s32 i;
+            for (i = 0; (u32)i < 20; i++) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx3 * point[0];
+                out[1] = (0.0f + 211.0f) - sy3 * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx3 * -point[0];
+                out[1] = (0.0f + 211.0f) - sy3 * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 1; (u32)i < 20; i++) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx3 * -point[0];
+                out[1] = (0.0f + 211.0f) + sy3 * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx3 * point[0];
+                out[1] = (0.0f + 211.0f) + sy3 * point[1];
+                vertex++;
+            }
+        }
+        draw->draw(2, hi, vertex);
+        func_00364c70();
+    }
+    {
+        u32 init;
+        for (init = 0; init < 42; init++) {
+            f32 *out = lo[init];
             out[2] = base;
             out[6] = reciprocal;
             out[8] = (f32)r;
             out[9] = (f32)g;
             out[10] = (f32)b;
-            ((s32 *)out)[11] = 0x437F0000;
+            out[11] = (f32)(u32)a;
         }
-        vertex = 0;
-        {
-            s32 i;
-            for (i = 0; (u32)i < 20; i++) {
-                f32 *point = D_006267F0[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + scaleX * point[0];
-                out[1] = (0.0f + 211.0f) - scaleY * point[1];
-                vertex++;
-            }
-        }
-        {
-            s32 i;
-            for (i = 18; i >= 0; i--) {
-                f32 *point = D_006267F0[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + scaleX * -point[0];
-                out[1] = (0.0f + 211.0f) - scaleY * point[1];
-                vertex++;
-            }
-        }
-        {
-            s32 i;
-            for (i = 1; (u32)i < 20; i++) {
-                f32 *point = D_006267F0[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + scaleX * -point[0];
-                out[1] = (0.0f + 211.0f) + scaleY * point[1];
-                vertex++;
-            }
-        }
-        {
-            s32 i;
-            for (i = 18; i >= 0; i--) {
-                f32 *point = D_006267F0[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + scaleX * point[0];
-                out[1] = (0.0f + 211.0f) + scaleY * point[1];
-                vertex++;
-            }
-        }
-        draw = D_00887310;
-        draw[0](2, hi, vertex);
-        vertex = 0;
-        {
-            s32 i;
-            for (i = 0; (u32)i < 20; i++) {
-                f32 *point = D_006267F0[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + sx2 * point[0];
-                out[1] = (0.0f + 211.0f) - sy2 * point[1];
-                vertex++;
-            }
-        }
-        {
-            s32 i;
-            for (i = 18; i >= 0; i--) {
-                f32 *point = D_006267F0[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + sx2 * -point[0];
-                out[1] = (0.0f + 211.0f) - sy2 * point[1];
-                vertex++;
-            }
-        }
-        {
-            s32 i;
-            for (i = 1; (u32)i < 20; i++) {
-                f32 *point = D_006267F0[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + sx2 * -point[0];
-                out[1] = (0.0f + 211.0f) + sy2 * point[1];
-                vertex++;
-            }
-        }
-        {
-            s32 i;
-            for (i = 18; i >= 0; i--) {
-                f32 *point = D_006267F0[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + sx2 * point[0];
-                out[1] = (0.0f + 211.0f) + sy2 * point[1];
-                vertex++;
-            }
-        }
-        draw[0](2, hi, vertex);
-        vertex = 0;
-        {
-            s32 i;
-            for (i = 0; (u32)i < 20; i++) {
-                f32 *point = D_00626890[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + scaleX * point[0];
-                out[1] = (0.0f + 211.0f) - scaleY * point[1];
-                vertex++;
-            }
-        }
-        {
-            s32 i;
-            for (i = 18; i >= 0; i--) {
-                f32 *point = D_00626890[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + scaleX * -point[0];
-                out[1] = (0.0f + 211.0f) - scaleY * point[1];
-                vertex++;
-            }
-        }
-        {
-            s32 i;
-            for (i = 1; (u32)i < 20; i++) {
-                f32 *point = D_00626890[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + scaleX * -point[0];
-                out[1] = (0.0f + 211.0f) + scaleY * point[1];
-                vertex++;
-            }
-        }
-        {
-            s32 i;
-            for (i = 18; i >= 0; i--) {
-                f32 *point = D_00626890[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + scaleX * point[0];
-                out[1] = (0.0f + 211.0f) + scaleY * point[1];
-                vertex++;
-            }
-        }
-        draw[0](2, hi, vertex);
-        vertex = 0;
-        {
-            s32 i;
-            for (i = 0; (u32)i < 20; i++) {
-                f32 *point = D_00626890[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + sx3 * point[0];
-                out[1] = (0.0f + 211.0f) - sy3 * point[1];
-                vertex++;
-            }
-        }
-        {
-            s32 i;
-            for (i = 18; i >= 0; i--) {
-                f32 *point = D_00626890[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + sx3 * -point[0];
-                out[1] = (0.0f + 211.0f) - sy3 * point[1];
-                vertex++;
-            }
-        }
-        {
-            s32 i;
-            for (i = 1; (u32)i < 20; i++) {
-                f32 *point = D_00626890[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + sx3 * -point[0];
-                out[1] = (0.0f + 211.0f) + sy3 * point[1];
-                vertex++;
-            }
-        }
-        {
-            s32 i;
-            for (i = 18; i >= 0; i--) {
-                f32 *point = D_00626890[i];
-                f32 *out = hi[vertex];
-                out[0] = (0.0f + 320.0f) + sx3 * point[0];
-                out[1] = (0.0f + 211.0f) + sy3 * point[1];
-                vertex++;
-            }
-        }
-        draw[0](2, hi, vertex);
-        func_00364c70();
-    }
-    for (init = 0; init < 42; init++) {
-        f32 *out = lo[init];
-        out[2] = base;
-        out[6] = reciprocal;
-        out[8] = (f32)r;
-        out[9] = (f32)g;
-        out[10] = (f32)b;
-        out[11] = (f32)(u32)a;
     }
     {
         u32 idx;
@@ -1955,18 +1984,19 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
         idx = 0;
         while (idx < 21) {
             f32 *point = D_00626930[idx];
-            f32 *point2 = D_006269E0[idx];
-            f32 *out = lo[cursor];
-            f32 *out2 = lo[cursor + 1];
-            out[0] = (0.0f + 320.0f) + sx2 * point[0];
-            out[1] = (0.0f + 211.0f) - sy2 * point[1];
-            out2[0] = (0.0f + 320.0f) + sx3 * point2[0];
-            out2[1] = (0.0f + 211.0f) - sy3 * point2[1];
+            f32 *point2;
+            f32 (*out)[16] = &lo[cursor];
+            out[0][0] = (0.0f + 320.0f) + sx2 * point[0];
+            out[0][1] = (0.0f + 211.0f) - sy2 * point[1];
+            point2 = D_006269E0[idx];
+            out[1][0] = (0.0f + 320.0f) + sx3 * point2[0];
+            out[1][1] = (0.0f + 211.0f) - sy3 * point2[1];
             cursor += 2;
             idx++;
         }
     }
-    draw[0](4, lo, 42);
+    draw = (BattlePanelPrimitiveDispatch *)D_00887310;
+    draw->draw(4, lo, 42);
     {
         u32 idx;
         u32 cursor;
@@ -1974,18 +2004,18 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
         idx = 0;
         while (idx < 21) {
             f32 *point = D_00626930[idx];
-            f32 *point2 = D_006269E0[idx];
-            f32 *out = lo[cursor];
-            f32 *out2 = lo[cursor + 1];
-            out[0] = (0.0f + 320.0f) + sx2 * point[0];
-            out[1] = (0.0f + 211.0f) + sy2 * point[1];
-            out2[0] = (0.0f + 320.0f) + sx3 * point2[0];
-            out2[1] = (0.0f + 211.0f) + sy3 * point2[1];
+            f32 *point2;
+            f32 (*out)[16] = &lo[cursor];
+            out[0][0] = (0.0f + 320.0f) + sx2 * point[0];
+            out[0][1] = (0.0f + 211.0f) + sy2 * point[1];
+            point2 = D_006269E0[idx];
+            out[1][0] = (0.0f + 320.0f) + sx3 * point2[0];
+            out[1][1] = (0.0f + 211.0f) + sy3 * point2[1];
             cursor += 2;
             idx++;
         }
     }
-    draw[0](4, lo, 42);
+    draw->draw(4, lo, 42);
     {
         u32 idx;
         u32 cursor;
@@ -1993,18 +2023,18 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
         idx = 0;
         while (idx < 19) {
             f32 *point = D_00626A90[idx];
-            f32 *point2 = D_00626B30[idx];
-            f32 *out = lo[cursor];
-            f32 *out2 = lo[cursor + 1];
-            out[0] = (0.0f + 320.0f) + sx2 * point[0];
-            out[1] = (0.0f + 211.0f) - sy2 * point[1];
-            out2[0] = (0.0f + 320.0f) + sx3 * point2[0];
-            out2[1] = (0.0f + 211.0f) - sy3 * point2[1];
+            f32 *point2;
+            f32 (*out)[16] = &lo[cursor];
+            out[0][0] = (0.0f + 320.0f) + sx2 * point[0];
+            out[0][1] = (0.0f + 211.0f) - sy2 * point[1];
+            point2 = D_00626B30[idx];
+            out[1][0] = (0.0f + 320.0f) + sx3 * point2[0];
+            out[1][1] = (0.0f + 211.0f) - sy3 * point2[1];
             cursor += 2;
             idx++;
         }
     }
-    draw[0](4, lo, 38);
+    draw->draw(4, lo, 38);
     {
         u32 idx;
         u32 cursor;
@@ -2012,24 +2042,21 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
         idx = 0;
         while (idx < 19) {
             f32 *point = D_00626A90[idx];
-            f32 *point2 = D_00626B30[idx];
-            f32 *out = lo[cursor];
-            f32 *out2 = lo[cursor + 1];
-            out[0] = (0.0f + 320.0f) + sx2 * -point[0];
-            out[1] = (0.0f + 211.0f) - sy2 * point[1];
-            out2[0] = (0.0f + 320.0f) + sx3 * -point2[0];
-            out2[1] = (0.0f + 211.0f) - sy3 * point2[1];
+            f32 *point2;
+            f32 (*out)[16] = &lo[cursor];
+            out[0][0] = (0.0f + 320.0f) + sx2 * -point[0];
+            out[0][1] = (0.0f + 211.0f) - sy2 * point[1];
+            point2 = D_00626B30[idx];
+            out[1][0] = (0.0f + 320.0f) + sx3 * -point2[0];
+            out[1][1] = (0.0f + 211.0f) - sy3 * point2[1];
             cursor += 2;
             idx++;
         }
     }
-    draw[0](4, lo, 38);
+    draw->draw(4, lo, 38);
 }
 
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00203930);
-#endif
 /*
  * measured: 916/928 bytes, 15 resolved relocations, 12 zero alignment bytes.
  * The initialization loop covers 81 real vertex records; the four geometry
@@ -2052,7 +2079,7 @@ void func_00204690(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color)
     scaleX *= fGpffff82e0;
     scaleY *= fGpffff82e4;
     transformedDepth = D_008872F8[0] - depth;
-    reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    reciprocal = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
     for (initialize = 0; initialize < 81; initialize++) {
         f32 *out = vertices[initialize];
         out[2] = transformedDepth;
@@ -2247,7 +2274,7 @@ void func_00204dc0(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend)
     f32 halfWidth;
     f32 zero;
     D_00887300[0](1, 0);
-    reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    reciprocal = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
     depth = D_008872F8[0] - depth;
     angle = fGpffff836c * angle;
     cosine = func_0044b610(angle);
@@ -2532,7 +2559,7 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
 #pragma opt_propagation off
 // FUN_00205950
 void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
-                   u8 opacity, s32 highlighted)
+                   u8 opacity, s32 highlighted, s32 showDetail)
 {
     extern u32 func_00452560(void *task);
     u8 *glyphs;
@@ -2598,7 +2625,7 @@ extern u32 func_0010d6d0(s16 arg0);
 #pragma opt_propagation off
 // FUN_00205C20
 void func_00205c20(u8 *work, s32 slot, f32 x, f32 y,
-                   u8 opacity, s32 highlighted)
+                   u8 opacity, s32 highlighted, s32 showDetail)
 {
     extern u32 func_00452560(void *task);
     u8 *glyphs;
@@ -2671,11 +2698,11 @@ void func_00205e00(u8 *panel, s32 index, f32 x, f32 y,
  * measured: retail 886 instrs / object 867 instrs, band 859-913 deficit -19 (-2.1%) INSIDE; jal 24/24, jalr 10/10 (7x base $v0 + 3x cb $s5); old obj had 11 (extra count-loop cb from duplicated selected/else arms), now shared via flag/goto matching retail (selected+highlighted skips via goto next_iter, single cb site); edits 303 (was 422 on v3/v7 824-825); +42 via x0=0.0f base for all X, s32 pos[4]/u8 col[4] struct, var_f22 duplication per &4 arm, count min (limit>=cur); stale v0b-v7 probe 792-794 not carried forward per handoff 7s.
  * Remaining: FPR/s-reg coloring + clamp c.le/bc1t vs c.olt/bc1f polarity + schedule floors; measure_guarded: obj 3468B / window 3552B, differing words 805.
  */
-void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1, void (*callback)(void), u8 *arg3)
+void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1, BattleSelectionDraw callback)
 {
     extern f32 fGpffff809c;
     extern f32 fGpffff8198;
-    void (*cb)(u8 *, s16, s8, s32, s32, f32, f32);
+    BattleSelectionDraw cb;
     void (**base)(u32, u32);
     u8 *work;
     f32 raw;
@@ -2698,7 +2725,7 @@ void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1, void (*callback)(vo
     u8 col[4];
     f32 x0;
 
-    cb = (void (*)(u8 *, s16, s8, s32, s32, f32, f32))callback;
+    cb = callback;
     work = (u8 *)func_00452560(*(s32 *)(arg0 + 0x5B0));
     var_22 = 1;
     var_19 = 1;
@@ -2839,7 +2866,7 @@ void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1, void (*callback)(vo
                 flag = 0;
             }
         do_cb:
-            cb(arg0, slot, 0xFF, flag, 0, 97.0f + x0, yy);
+            cb(arg0, slot, 97.0f + x0, yy, 0xFF, flag, 0);
         next_iter:
             ;
         }
@@ -2898,7 +2925,7 @@ void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1, void (*callback)(vo
                         } else {
                             a2 = (u8)(s32)_b;
                         }
-                        cb(arg0, *(s16 *)(arg1 + 4), a2, 1, 1, fx, fy);
+                        cb(arg0, *(s16 *)(arg1 + 4), fx, fy, a2, 1, 1);
                     }
                 }
                 tailflag = 0;
@@ -2913,7 +2940,7 @@ void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1, void (*callback)(vo
                     hh = 10.0f + h;
                 }
                 func_00201410(work, 9, 0x27, (f32)0x1DF + x0 + hh, 143.0f + span + var_f21);
-                cb(arg0, *(s16 *)(arg1 + 4), 0xFF, 1, tailflag, fx, fy);
+                cb(arg0, *(s16 *)(arg1 + 4), fx, fy, 0xFF, 1, tailflag);
             }
         }
     }
@@ -3695,7 +3722,7 @@ void func_00208fd0(u8 *arg0, u8 *arg1, f32 *arg2)
     s16 temp_3_6;
 
     if (*(u16 *)(arg1 + 2) != 2) {
-        func_00205ff0(arg1, arg0, arg2[0], arg2[1], (void (*)(void))func_00205170, arg0);
+        func_00205ff0(arg1, arg0, arg2[0], arg2[1], func_00205170);
     }
     temp_3 = *(s16 *)(arg1 + 0x20);
     if (temp_3 < 4) {
@@ -3851,7 +3878,7 @@ void func_00209640(u8 *arg0, u8 *arg1, f32 *arg2)
 
     if (*(u16 *)(arg1 + 2) != 2) {
         func_00205ff0(arg1, arg0, arg2[0], arg2[1],
-                      (void (*)(void))func_002055d0, arg0);
+                      func_002055d0);
         temp_3 = *(s16 *)(arg1 + 0x20);
         if (temp_3 < 4) {
             *(s16 *)(arg1 + 0x20) = temp_3 + 1;
@@ -3996,7 +4023,7 @@ void func_00209bc0(u8 *arg0, u8 *arg1, f32 *arg2)
     if (*(u8 **)(arg1 + 0x38) == arg1 + 0xDC) {
         if (*(u16 *)arg1 != 2) {
             func_00205ff0(arg1, arg0, arg2[0], arg2[1],
-                          (void (*)(void))func_00205c20, arg0);
+                          func_00205c20);
         }
         temp_3 = *(s16 *)(arg1 + 0x20);
         if (temp_3 < 4) {
@@ -4118,172 +4145,171 @@ u16 func_00209dc0(u8 *arg0, u8 *arg1)
 void func_00209f90(void)
 {
 }
-/* Floor: 219 differing words over 92 edits, 392 emitted against retail's 392 (plus 2 reloc-only); probe a(v3)=300 -> b(block-scope+staged)=219. Levers: nested-block loop counters/pointers, per-statement float staging into s1/s2 temporaries, 5-arg 205ff0 direct-jal via block-scope shadow decl (no extra move a3,s1), isolated MAC idioms (2*c-c*c via mula+msub, 357+0.5*(138-x) via sub+adda+madd, 402-150*x via adda+msub, (u8)f via 2.1e9 check); opt_propagation bracket removed (219->219 without it, not load-bearing). WALL: s-allocation rotation (retail s1=arg0/s0=arg2/s3=arg1/s2=temp vs object s3/s2/s1, temp_2 lands in s1); div.s dest f1 vs f0 with extra mov.s and c.ole/c.olt operand swap; 1.0/2.0 into saved f22/f23 cascading FPU dest rotation; D_00887300 base stays temp (lui $v0+lw vs retail lui $s0+lw) at 3 sites. */
-/* 2026-09-18: func_00274cd0's in-body prototype now matches the live
-   definition in src/frFontEx.c (three leading floats).  Measured tie at 219. */
-// FUN_00209FA0 NONMATCHING
-#ifdef NON_MATCHING
-void func_00209fa0(s32 arg0, u8 *arg1, f32 *arg2)
+/* Draw the current character label and advance its bounded panel timers.
+ * The secondary selection dispatcher supplies an integer work address and
+ * a draw-state byte view; its first two floats are the drawing origin. */
+struct FrFontNode;
+
+// FUN_00209FA0
+void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
 {
-    extern u8 *func_00452560(s32 arg0);
-    extern void func_00205ff0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, void (*callback)(void));
-    extern s32 func_00105f00(s16 arg0);
-    extern s32 func_0010d6d0(s16 arg0);
-    extern s32 func_002738d0(u8 *arg0);
-    extern u8 *func_00274cd0(f32 f0, f32 f1, f32 f2, s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5);
-    extern void func_00272950(u8 *arg0, s32 arg1, s32 arg2);
-    extern void func_00273170(u8 *arg0, s32 arg1, s32 arg2);
-    extern void func_00271b70(u8 *arg0);
-    void (**base)(u32, u32);
-    Work4 work;
-    u8 *temp_2;
-    u8 *res;
-    f32 f21;
-    f32 f20;
+    extern u32 func_00452560(void *task);
+    extern s16 func_00105f00(s16 selection);
+    extern u32 func_0010d6d0(s16 selection);
+    extern s32 func_002738d0(struct FrFontNode *node);
+    extern void func_00272950(s32 node, s32 x, s32 y);
+    extern s32 func_00271b70(s32 node);
+    BattleRenderDispatch *renderer;
+    s32 rect[4];
+    Color4 color;
+    f32 *origin;
+    u8 *work;
+    u8 *glyphs;
+    u8 *font;
+    f32 remaining;
+    f32 rowOffset;
     u8 alpha;
-    s32 ival;
-    s32 sval;
-    s32 dval;
-    s32 chr;
-    temp_2 = func_00452560(*(s32 *)(arg1 + 0x5B0));
-    func_002012d0(temp_2, arg2[0], arg2[1]);
-    if (*(u16 *)arg1 != 2) {
-        func_00205ff0(arg1, (u8 *)arg0, arg2[0], arg2[1], (void (*)(void))func_00205e00);
+    s32 nameX16;
+    s32 nameWidth;
+    u32 nameAddress;
+    s32 iconFrame;
+    origin = (f32 *)drawState;
+    work = (u8 *)(u32)workAddress;
+    glyphs = (u8 *)func_00452560(*(void **)(work + 0x5B0));
+    func_002012d0(glyphs, origin[0], origin[1]);
+    if (*(u16 *)work != 2) {
+        func_00205ff0(work, selection, origin[0], origin[1], func_00205e00);
     }
     {
-        s16 ct0;
-        s16 ct1;
-        s16 ct2;
-        s16 ct3;
-        s16 ct4;
-        s16 ct5;
-        ct0 = *(s16 *)(arg1 + 0x20);
-        if (ct0 < 4) {
-            *(s16 *)(arg1 + 0x20) = ct0 + 1;
+        s16 frame20;
+        s16 frame22;
+        s16 openingFrame16;
+        s16 openingFrame18;
+        s16 closingFrame16;
+        s16 closingFrame18;
+        frame20 = *(s16 *)(work + 0x20);
+        if (frame20 < 4) {
+            *(s16 *)(work + 0x20) = frame20 + 1;
         }
-        ct1 = *(s16 *)(arg1 + 0x22);
-        if (ct1 < 0xA) {
-            *(s16 *)(arg1 + 0x22) = ct1 + 1;
+        frame22 = *(s16 *)(work + 0x22);
+        if (frame22 < 0xA) {
+            *(s16 *)(work + 0x22) = frame22 + 1;
         }
-        if ((*(s32 *)(arg1 + 4) & 4) != 0) {
-            ct2 = *(s16 *)(arg1 + 0x16);
-            if (ct2 < 4) {
-                *(s16 *)(arg1 + 0x16) = ct2 + 1;
+        if ((*(s32 *)(work + 4) & 4) != 0) {
+            openingFrame16 = *(s16 *)(work + 0x16);
+            if (openingFrame16 < 4) {
+                *(s16 *)(work + 0x16) = openingFrame16 + 1;
             }
-            ct3 = *(s16 *)(arg1 + 0x18);
-            if (ct3 < 7) {
-                *(s16 *)(arg1 + 0x18) = ct3 + 1;
+            openingFrame18 = *(s16 *)(work + 0x18);
+            if (openingFrame18 < 7) {
+                *(s16 *)(work + 0x18) = openingFrame18 + 1;
             }
         } else {
-            ct4 = *(s16 *)(arg1 + 0x16);
-            if (ct4 > 0) {
-                *(s16 *)(arg1 + 0x16) = ct4 - 1;
+            closingFrame16 = *(s16 *)(work + 0x16);
+            if (closingFrame16 > 0) {
+                *(s16 *)(work + 0x16) = closingFrame16 - 1;
             }
-            ct5 = *(s16 *)(arg1 + 0x18);
-            if (ct5 > 0) {
-                *(s16 *)(arg1 + 0x18) = ct5 - 1;
+            closingFrame18 = *(s16 *)(work + 0x18);
+            if (closingFrame18 > 0) {
+                *(s16 *)(work + 0x18) = closingFrame18 - 1;
             }
         }
     }
     {
-        f32 c;
-        c = (f32)*(s16 *)(arg1 + 0x1C) / 5.0f;
-        if (c > 1.0f) {
-            c = 1.0f;
-        } else if (c < 0.0f) {
-            c = 0.0f;
+        f32 clamped;
+        f32 progress;
+        progress = (f32)*(s16 *)(work + 0x1C) / 5.0f;
+        if (progress > 1.0f) {
+            clamped = 1.0f;
+        } else if (progress < 0.0f) {
+            clamped = 0.0f;
+        } else {
+            clamped = progress;
         }
-        f21 = 1.0f - (2.0f * c - c * c);
+        remaining = 1.0f - (2.0f * clamped - clamped * clamped);
     }
-    {
-        f32 s1;
-        f32 s2;
-        f20 = 36.0f * f21;
-        s1 = 324.0f + f20;
-        s2 = s1;
-        func_00201650(temp_2, 9, 0x4E, 491.0f, s2, 0xFE, 0xFF, 0x22, 0xFF);
-    }
-    if (f21 > 0.0f) {
-        base = D_00887300;
-        base[0](1, 0);
-        base[0](8, 1);
-        work.colors.c0 = 0;
-        work.colors.c1 = 0;
-        work.colors.c2 = 0xFF;
-        work.colors.c3 = 0;
-        work.value3 = 0x64;
+    rowOffset = 36.0f * remaining;
+    func_00201650(glyphs, 9, 0x4E, 491.0f, 324.0f + rowOffset, 0xFE, 0xFF, 0x22, 0xFF);
+    if (remaining > 0.0f) {
+        renderer = (BattleRenderDispatch *)D_00887300;
+        renderer->setState(1, 0);
+        renderer->setState(8, 1);
+        color.c0 = 0;
+        color.c1 = 0;
+        color.c2 = 0xFF;
+        color.c3 = 0;
+        rect[0] = 0x64;
         {
-            f32 s1;
-            f32 s2;
-            s1 = 330.0f + f20;
-            s2 = s1 - 40.0f;
-            work.value0 = (s32)s2;
+            f32 row;
+            f32 top;
+            row = 330.0f + rowOffset;
+            top = row - 40.0f;
+            rect[1] = (s32)top;
         }
-        work.value1 = 0x1A4;
-        work.value2 = 0x28;
-        func_0045d6e0((u8 *)&work.colors, (f32 *)(void *)&work.value3, 0.0f, 0);
-        base[0](8, 0);
+        rect[2] = 0x1A4;
+        rect[3] = 0x28;
+        func_0045d6e0((u8 *)&color, (f32 *)rect, 0.0f, 0);
+        renderer->setState(8, 0);
     }
-    base = D_00887300;
-    base[0](6, 1);
-    func_002019e0(temp_2, 50.0f);
-    func_00201650(temp_2, 9, 0x3B, 493.0f, 330.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-    chr = (s16)func_00105f00(*(s16 *)(*(u8 **)(arg1 + 0x190) + 0xA4)) + 0x3F;
-    func_00201650(temp_2, 9, chr, 168.0f, 334.0f, 0xFE, 0xFF, 0x22, 0xFF);
+    renderer = (BattleRenderDispatch *)D_00887300;
+    renderer->setState(6, 1);
+    func_002019e0(glyphs, 50.0f);
+    func_00201650(glyphs, 9, 0x3B, 493.0f, 330.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+    iconFrame = (s16)func_00105f00(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4)) + 0x3F;
+    func_00201650(glyphs, 9, iconFrame, 168.0f, 334.0f, 0xFE, 0xFF, 0x22, 0xFF);
     func_00272c60(0x40);
-    dval = func_0010d6d0(*(s16 *)(*(u8 **)(arg1 + 0x190) + 0xA4));
-    res = func_00274cd0(357.0f, 332.0f, 50.0f, -1, 0, 1, dval, 0, 0);
-    sval = func_002738d0(res);
+    nameAddress = func_0010d6d0(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4));
+    font = (u8 *)(u32)func_00274cd0(357.0f, 332.0f, 50.0f, -1, 0, 1, (const char *)nameAddress, 0, NULL);
+    nameWidth = func_002738d0((struct FrFontNode *)font);
     {
-        f32 s1;
-        f32 s2;
-        f32 s3;
-        s1 = (f32)sval;
-        s2 = 138.0f - s1;
-        s3 = 0.5f * s2;
-        s1 = 357.0f + s3;
-        s2 = 16.0f * s1;
-        ival = (s32)s2;
+        f32 center;
+        f32 widthSpace;
+        f32 halfSpace;
+        widthSpace = 138.0f - (f32)nameWidth;
+        halfSpace = 0.5f * widthSpace;
+        center = 357.0f + halfSpace;
+        widthSpace = 16.0f * center;
+        nameX16 = (s32)widthSpace;
     }
-    func_00272950(res, ival, 0xA60);
-    func_00273170(res, 1, 0);
-    func_00271b70(res);
+    func_00272950((s32)(u32)font, nameX16, 0xA60);
+    func_00273170(font, 1, 0);
+    func_00271b70((s32)(u32)font);
     func_00272c80(0x40);
-    base[0](6, 0);
-    func_002019e0(temp_2, 0.0f);
+    renderer->setState(6, 0);
+    func_002019e0(glyphs, 0.0f);
     {
-        f32 c;
-        f32 tmp;
-        f32 fa;
-        f32 fb;
-        c = (f32)*(s16 *)(arg1 + 0x1E) / 10.0f;
-        if (c > 1.0f) {
-            c = 1.0f;
-        } else if (c < 0.0f) {
-            c = 0.0f;
+        f32 clamped;
+        f32 progress;
+        f32 eased;
+        f32 remainingFraction;
+        f32 visibleFraction;
+        progress = (f32)*(s16 *)(work + 0x1E) / 10.0f;
+        if (progress > 1.0f) {
+            clamped = 1.0f;
+        } else if (progress < 0.0f) {
+            clamped = 0.0f;
+        } else {
+            clamped = progress;
         }
-        tmp = 2.0f * c - c * c;
-        fa = 1.0f - tmp;
-        fb = 1.0f - fa;
-        alpha = (u8)(255.0f * fb);
-        func_00201650(temp_2, 9, 0x44, 402.0f - 150.0f * fa, 308.0f, 0xFE, 0xFF, 0x22, alpha);
+        eased = 2.0f * clamped - clamped * clamped;
+        remainingFraction = 1.0f - eased;
+        visibleFraction = 1.0f - remainingFraction;
+        alpha = (u8)(255.0f * visibleFraction);
+        func_00201650(glyphs, 9, 0x44, 402.0f - 150.0f * remainingFraction, 308.0f, 0xFE, 0xFF, 0x22, alpha);
     }
     {
-        s16 ct6;
-        s16 ct7;
-        ct6 = *(s16 *)(arg1 + 0x1C);
-        if (ct6 < 5) {
-            *(s16 *)(arg1 + 0x1C) = ct6 + 1;
+        s16 frame1c;
+        s16 frame1e;
+        frame1c = *(s16 *)(work + 0x1C);
+        if (frame1c < 5) {
+            *(s16 *)(work + 0x1C) = frame1c + 1;
         }
-        ct7 = *(s16 *)(arg1 + 0x1E);
-        if (ct7 < 0xA) {
-            *(s16 *)(arg1 + 0x1E) = ct7 + 1;
+        frame1e = *(s16 *)(work + 0x1E);
+        if (frame1e < 0xA) {
+            *(s16 *)(work + 0x1E) = frame1e + 1;
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00209fa0);
-#endif
 // FUN_0020A5C0
 void func_0020a5c0(void)
 {
@@ -4445,7 +4471,7 @@ void func_0020ac70(s32 arg0, u8 *arg1, f32 *arg2)
 
     if (*(u16 *)arg1 != 2) {
         func_00205ff0(arg1, (u8 *)arg0, arg2[0], arg2[1],
-                      (void (*)(void))func_00205950, (u8 *)arg0);
+                      func_00205950);
     }
     temp_3 = *(s16 *)(arg1 + 0x20);
     if (temp_3 < 4) {
@@ -5606,214 +5632,211 @@ void func_0020fa70(u8 *work, u8 *state)
     func_00201720(work, 1.0f, 1.0f);
     func_002019d0(work, 1.0f, 1.0f);
 }
-/* measured: GUARDED_SCORE 708 differing words (probe_variants baseline), retail 860 vs object 864 instrs (+4, +0.47% over, within 3% gate); fnalign 72 edits (+10 reloc-only). Pragmas: opt_loop_invariants on ties 708, opt_unroll_loops off ties 708, schedule off ties 708, opt_common_subs off worsens 708->811, opt_propagation off worsens 708->731, schedule on worsens 708->781. Unrolled verts (864) vs loop-hoisted colors (623 instrs, 27% short, draft); 221.0f for 0x435D0000 and [11]=0 for verts 1,2,4,5 vs color for 0,3. Remaining: saved-reg rotation (retail s2/s1/s0 vs build s1/s0), FPR colouring, D_00887300 base materialisation, extra andi per slti. Same classes as func_00207b00 note. Scratch /var/tmp/cold20ff00/v3.c. */
-// FUN_0020FF00 NONMATCHING
-#ifdef NON_MATCHING
-void func_0020ff00(u8 *arg0, u8 *arg1)
+/* Advance the transition frame before its timed drawing phases. The corner
+ * opacity is narrowed to one byte before packing the vertex color. */
+// FUN_0020FF00
+void func_0020ff00(u8 *glyphs, u8 *transition)
 {
     extern f32 func_0044b610(f32 fparg0);
     extern f32 func_0044b7b0(f32 fparg0);
-    extern u8 *func_00457120(void);
+    extern s32 func_00457120(void);
     extern f32 fGpffff837c;
     extern f32 fGpffff84a8;
-    Vec2f posOrig;
-    Vec2f posA;
-    Vec2f posB;
-    f32 verts[6][16];
-    s32 idx;
-    f32 fA;
-    f32 fB;
-    f32 fC1;
-    f32 fC2;
-    f32 fC;
-    f32 fD1;
-    f32 fD2;
-    f32 fD;
-    f32 fE1;
-    f32 fE2;
-    f32 fE;
-    f32 fF1;
-    f32 fF2;
-    f32 fF;
-    f32 tmp21;
-    f32 tmp20;
-    u32 packed;
-    s32 b0;
-    s32 b1;
-    s32 b2;
-    s32 b3;
-    f32 base;
+    Vec2f center;
+    Vec2f firstPosition;
+    Vec2f secondPosition;
+    f32 vertices[6][16];
+    s32 frame;
+    BattleRenderDispatch *renderer;
+    f32 lateBand;
+    f32 earlyBand;
+    f32 narrowIntro;
+    f32 narrowExpansion;
+    f32 narrowScale;
+    f32 diagonalIntro;
+    f32 diagonalExpansion;
+    f32 diagonalScale;
+    f32 glyphFadeIn;
+    f32 glyphFadeOut;
+    f32 glyphScale;
+    f32 cornerFadeIn;
+    f32 cornerFadeOut;
+    f32 cornerOpacity;
+    f32 horizontalExtent;
+    f32 verticalExtent;
+    u32 packedColor;
+    s32 channel0;
+    s32 channel1;
+    s32 channel2;
+    s32 channel3;
+    f32 depth;
     f32 reciprocal;
-    idx = (s32)(*(u16 *)(arg1 + 0xE) + 1);
-    *(u16 *)(arg1 + 0xE) = (u16)idx;
-    idx &= 0xFFFF;
-    posOrig.x = 302.0f;
-    posOrig.y = 224.0f;
-    D_00887300[0](1, 0);
-    if (idx < 0x23) {
-        fA = 0.0f;
-    } else if (idx < 0x2D) {
-        fA = 1.0f - func_0044b610(fGpffff84a4 * ((f32)(idx - 0x23) / 10.0f));
+    frame = ++*(u16 *)(transition + 0xE);
+    center.x = 302.0f;
+    center.y = 224.0f;
+    renderer = (BattleRenderDispatch *)D_00887300;
+    renderer->setState(1, 0);
+    if (frame < 0x23) {
+        lateBand = 0.0f;
+    } else if (frame < 0x2D) {
+        lateBand = 1.0f - func_0044b610(fGpffff84a4 * ((f32)(frame - 0x23) / 10.0f));
     } else {
-        fA = 1.0f;
+        lateBand = 1.0f;
     }
-    if (!(fA <= 0.0f)) {
+    if (!(lateBand <= 0.0f)) {
         func_00201820(2);
-        func_00365ac0(posOrig, 0.0f, 0xFF1432FF, 0.0f, 400.0f * fA, 90.0f, 1);
+        func_00365ac0(center, 0.0f, 0xFF1432FF, 0.0f, 400.0f * lateBand, 90.0f, 1);
         func_00201820(0);
     }
-    if (idx < 0x19) {
-        fB = 0.0f;
-    } else if (idx < 0x23) {
-        fB = 1.0f - func_0044b610(fGpffff84a4 * ((f32)(idx - 0x19) / 10.0f));
+    if (frame < 0x19) {
+        earlyBand = 0.0f;
+    } else if (frame < 0x23) {
+        earlyBand = 1.0f - func_0044b610(fGpffff84a4 * ((f32)(frame - 0x19) / 10.0f));
     } else {
-        fB = 1.0f;
+        earlyBand = 1.0f;
     }
-    if (!(fB <= 0.0f)) {
+    if (!(earlyBand <= 0.0f)) {
         func_00201820(2);
-        func_00365ac0(posOrig, 0.0f, 0xFF1432FF, 0.0f, 400.0f * fB, 90.0f, 1);
+        func_00365ac0(center, 0.0f, 0xFF1432FF, 0.0f, 400.0f * earlyBand, 90.0f, 1);
         func_00201820(0);
     }
-    if (idx < 0xA) {
-        fC1 = 0.0f;
-    } else if (idx < 0x14) {
-        fC1 = func_0044b7b0(fGpffff84a4 * ((f32)(idx - 0xA) / 10.0f));
+    if (frame < 0xA) {
+        narrowIntro = 0.0f;
+    } else if (frame < 0x14) {
+        narrowIntro = func_0044b7b0(fGpffff84a4 * ((f32)(frame - 0xA) / 10.0f));
     } else {
-        fC1 = 1.0f;
+        narrowIntro = 1.0f;
     }
-    if (idx < 0x28) {
-        fC2 = 0.0f;
-    } else if (idx < 0x32) {
-        fC2 = 1.0f - func_0044b610(fGpffff84a4 * ((f32)(idx - 0x28) / 10.0f));
+    if (frame < 0x28) {
+        narrowExpansion = 0.0f;
+    } else if (frame < 0x32) {
+        narrowExpansion = 1.0f - func_0044b610(fGpffff84a4 * ((f32)(frame - 0x28) / 10.0f));
     } else {
-        fC2 = 1.0f;
+        narrowExpansion = 1.0f;
     }
-    fC = 4.0f * fC2 + fC1;
-    if (!(fC <= 0.0f)) {
-        func_00365ac0(posOrig, 0.0f, 0xFF, 0.0f, 86.0f * fC, 11.0f, 1);
+    narrowScale = 4.0f * narrowExpansion + narrowIntro;
+    if (!(narrowScale <= 0.0f)) {
+        func_00365ac0(center, 0.0f, 0xFF, 0.0f, 86.0f * narrowScale, 11.0f, 1);
     }
-    if (idx < 0) {
-        fD1 = 0.0f;
-    } else if (idx < 0xA) {
-        fD1 = func_0044b7b0(fGpffff84a4 * ((f32)idx / 10.0f));
+    if (frame < 0) {
+        diagonalIntro = 0.0f;
+    } else if (frame < 0xA) {
+        diagonalIntro = func_0044b7b0(fGpffff84a4 * ((f32)frame / 10.0f));
     } else {
-        fD1 = 1.0f;
+        diagonalIntro = 1.0f;
     }
-    if (idx < 0x34) {
-        fD2 = 0.0f;
-    } else if (idx < 0x3E) {
-        fD2 = 1.0f - func_0044b610(fGpffff84a4 * ((f32)(idx - 0x34) / 10.0f));
+    if (frame < 0x34) {
+        diagonalExpansion = 0.0f;
+    } else if (frame < 0x3E) {
+        diagonalExpansion = 1.0f - func_0044b610(fGpffff84a4 * ((f32)(frame - 0x34) / 10.0f));
     } else {
-        fD2 = 1.0f;
+        diagonalExpansion = 1.0f;
     }
-    fD = 2.0f * fD2 + fD1;
-    if (!(fD <= 0.0f)) {
-        tmp21 = 273.0f * fD;
-        posA.x = 79.0f + tmp21;
-        tmp20 = 275.0f * fD;
-        posA.y = 448.0f - tmp20;
-        func_00364fb0(posA, 0.0f, 0xFF, fGpffff837c, 1, 0);
-        posB.x = 525.0f - tmp21;
-        posB.y = tmp20;
-        func_00364fb0(posB, 0.0f, 0xFF, fGpffff84a8, 1, 0);
+    diagonalScale = 2.0f * diagonalExpansion + diagonalIntro;
+    if (!(diagonalScale <= 0.0f)) {
+        horizontalExtent = 273.0f * diagonalScale;
+        firstPosition.x = 79.0f + horizontalExtent;
+        verticalExtent = 275.0f * diagonalScale;
+        firstPosition.y = 448.0f - verticalExtent;
+        func_00364fb0(firstPosition, 0.0f, 0xFF, fGpffff837c, 1, 0);
+        secondPosition.x = 525.0f - horizontalExtent;
+        secondPosition.y = verticalExtent;
+        func_00364fb0(secondPosition, 0.0f, 0xFF, fGpffff84a8, 1, 0);
     }
-    if (idx < 8) {
-        fE1 = 0.0f;
-    } else if (idx < 0xF) {
-        fE1 = (f32)(idx - 8) / 7.0f;
+    if (frame < 8) {
+        glyphFadeIn = 0.0f;
+    } else if (frame < 0xF) {
+        glyphFadeIn = (f32)(frame - 8) / 7.0f;
     } else {
-        fE1 = 1.0f;
+        glyphFadeIn = 1.0f;
     }
-    if (idx < 0x30) {
-        fE2 = 0.0f;
-    } else if (idx < 0x37) {
-        fE2 = (f32)(idx - 0x30) / 7.0f;
+    if (frame < 0x30) {
+        glyphFadeOut = 0.0f;
+    } else if (frame < 0x37) {
+        glyphFadeOut = (f32)(frame - 0x30) / 7.0f;
     } else {
-        fE2 = 1.0f;
+        glyphFadeOut = 1.0f;
     }
-    fE = fE1 - fE2;
-    if (!(fE <= 0.0f)) {
-        func_00201300((s32 *)arg0, 239.0f, 161.0f, 128.0f, 127.0f);
-        func_002019d0(arg0, fE, 1.0f);
-        func_00201650(arg0, 0xA, 0x33, 0.0f, 0.0f, 0xCC, 0, 0, 0xFF);
-        func_002019d0(arg0, fE, 1.0f);
+    glyphScale = glyphFadeIn - glyphFadeOut;
+    if (!(glyphScale <= 0.0f)) {
+        func_00201300((s32 *)glyphs, 239.0f, 161.0f, 128.0f, 127.0f);
+        func_002019d0(glyphs, glyphScale, 1.0f);
+        func_00201650(glyphs, 0xA, 0x33, 0.0f, 0.0f, 0xCC, 0, 0, 0xFF);
+        func_002019d0(glyphs, glyphScale, 1.0f);
     }
-    D_00887300[0](1, 0);
+    renderer->setState(1, 0);
     func_00201820(2);
-    if (idx < 0) {
-        fF1 = 0.0f;
-    } else if (idx < 0xA) {
-        fF1 = (f32)idx / 10.0f;
+    if (frame < 0) {
+        cornerFadeIn = 0.0f;
+    } else if (frame < 0xA) {
+        cornerFadeIn = (f32)frame / 10.0f;
     } else {
-        fF1 = 1.0f;
+        cornerFadeIn = 1.0f;
     }
-    if (idx < 0x32) {
-        fF2 = 0.0f;
-    } else if (idx < 0x3C) {
-        fF2 = (f32)(idx - 0x32) / 10.0f;
+    if (frame < 0x32) {
+        cornerFadeOut = 0.0f;
+    } else if (frame < 0x3C) {
+        cornerFadeOut = (f32)(frame - 0x32) / 10.0f;
     } else {
-        fF2 = 1.0f;
+        cornerFadeOut = 1.0f;
     }
-    fF = fF1 - fF2;
-    if (!(fF <= 0.0f)) {
-        packed = (u32)(255.0f * fF) | 0xFF000000;
-        b0 = (s32)((packed >> 24) & 0xFF);
-        b1 = (s32)((packed >> 16) & 0xFF);
-        b2 = (s32)((packed >> 8) & 0xFF);
-        b3 = (s32)(packed & 0xFF);
-        base = D_008872F8[0];
-        reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
-        verts[0][0] = 640.0f;
-        verts[0][1] = 0.0f;
-        verts[0][2] = base;
-        verts[0][6] = reciprocal;
-        verts[0][8] = (f32)(u32)b0;
-        verts[0][9] = (f32)(u32)b1;
-        verts[0][10] = (f32)(u32)b2;
-        verts[0][11] = (f32)(u32)b3;
-        verts[1][0] = 221.0f;
-        verts[1][1] = 0.0f;
-        verts[1][2] = base;
-        verts[1][6] = reciprocal;
-        verts[1][8] = (f32)(u32)b0;
-        verts[1][9] = (f32)(u32)b1;
-        verts[1][10] = (f32)(u32)b2;
-        verts[1][11] = 0.0f;
-        verts[2][0] = 640.0f;
-        verts[2][1] = 418.0f;
-        verts[2][2] = base;
-        verts[2][6] = reciprocal;
-        verts[2][8] = (f32)(u32)b0;
-        verts[2][9] = (f32)(u32)b1;
-        verts[2][10] = (f32)(u32)b2;
-        verts[2][11] = 0.0f;
-        verts[3][0] = 0.0f;
-        verts[3][1] = 448.0f;
-        verts[3][2] = base;
-        verts[3][6] = reciprocal;
-        verts[3][8] = (f32)(u32)b0;
-        verts[3][9] = (f32)(u32)b1;
-        verts[3][10] = (f32)(u32)b2;
-        verts[3][11] = (f32)(u32)b3;
-        verts[4][0] = 418.0f;
-        verts[4][1] = 448.0f;
-        verts[4][2] = base;
-        verts[4][6] = reciprocal;
-        verts[4][8] = (f32)(u32)b0;
-        verts[4][9] = (f32)(u32)b1;
-        verts[4][10] = (f32)(u32)b2;
-        verts[4][11] = 0.0f;
-        verts[5][0] = 0.0f;
-        verts[5][1] = 29.0f;
-        verts[5][2] = base;
-        verts[5][6] = reciprocal;
-        verts[5][8] = (f32)(u32)b0;
-        verts[5][9] = (f32)(u32)b1;
-        verts[5][10] = (f32)(u32)b2;
-        verts[5][11] = 0.0f;
-        D_00887310[0](3, verts, 6);
+    cornerOpacity = cornerFadeIn - cornerFadeOut;
+    if (!(cornerOpacity <= 0.0f)) {
+        packedColor = (u8)(255.0f * cornerOpacity) | 0xFF000000;
+        channel0 = (s32)((packedColor >> 24) & 0xFF);
+        channel1 = (s32)((packedColor >> 16) & 0xFF);
+        channel2 = (s32)((packedColor >> 8) & 0xFF);
+        channel3 = (s32)(packedColor & 0xFF);
+        depth = D_008872F8[0];
+        reciprocal = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+        vertices[0][0] = 640.0f;
+        vertices[0][1] = 0.0f;
+        vertices[0][2] = depth;
+        vertices[0][6] = reciprocal;
+        vertices[0][8] = (f32)(u32)channel0;
+        vertices[0][9] = (f32)(u32)channel1;
+        vertices[0][10] = (f32)(u32)channel2;
+        vertices[0][11] = (f32)(u32)channel3;
+        vertices[1][0] = 221.0f;
+        vertices[1][1] = 0.0f;
+        vertices[1][2] = depth;
+        vertices[1][6] = reciprocal;
+        vertices[1][8] = (f32)(u32)channel0;
+        vertices[1][9] = (f32)(u32)channel1;
+        vertices[1][10] = (f32)(u32)channel2;
+        vertices[1][11] = 0.0f;
+        vertices[2][0] = 640.0f;
+        vertices[2][1] = 418.0f;
+        vertices[2][2] = depth;
+        vertices[2][6] = reciprocal;
+        vertices[2][8] = (f32)(u32)channel0;
+        vertices[2][9] = (f32)(u32)channel1;
+        vertices[2][10] = (f32)(u32)channel2;
+        vertices[2][11] = 0.0f;
+        vertices[3][0] = 0.0f;
+        vertices[3][1] = 448.0f;
+        vertices[3][2] = depth;
+        vertices[3][6] = reciprocal;
+        vertices[3][8] = (f32)(u32)channel0;
+        vertices[3][9] = (f32)(u32)channel1;
+        vertices[3][10] = (f32)(u32)channel2;
+        vertices[3][11] = (f32)(u32)channel3;
+        vertices[4][0] = 418.0f;
+        vertices[4][1] = 448.0f;
+        vertices[4][2] = depth;
+        vertices[4][6] = reciprocal;
+        vertices[4][8] = (f32)(u32)channel0;
+        vertices[4][9] = (f32)(u32)channel1;
+        vertices[4][10] = (f32)(u32)channel2;
+        vertices[4][11] = 0.0f;
+        vertices[5][0] = 0.0f;
+        vertices[5][1] = 29.0f;
+        vertices[5][2] = depth;
+        vertices[5][6] = reciprocal;
+        vertices[5][8] = (f32)(u32)channel0;
+        vertices[5][9] = (f32)(u32)channel1;
+        vertices[5][10] = (f32)(u32)channel2;
+        vertices[5][11] = 0.0f;
+        D_00887310[0](3, vertices, 6);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020ff00);
-#endif

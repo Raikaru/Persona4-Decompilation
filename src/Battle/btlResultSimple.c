@@ -42,7 +42,7 @@ u8 *func_00455ea0(u8 *param, s32 a, s32 *b);
 s32 func_0046a750(s32 param);
 void func_0021fea0(u8 *arg0, u8 *work);
 void func_002214d0(u8 *task);
-void func_0034f2e0(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, u32 arg6);
+void func_0034f2e0(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6);
 extern s32 func_00442088(void *dst, const void *fmt, ...);
 void func_00460ac0(void *param, void *work);
 extern u32 D_00795F20[];
@@ -104,7 +104,7 @@ void func_0021ed10(u8 *arg0, f32 *arg1, s32 arg2, u32 arg3, s32 arg4, f32 arg5)
     u8 hi;
     u8 mid;
     u8 lo;
-    u32 ch;
+    u8 ch;
     s32 i;
     s32 n;
     s32 tmp;
@@ -639,6 +639,8 @@ INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021fa40);
 #ifdef NON_MATCHING
 void func_0021fea0(u8 *arg0, u8 *arg1)
 {
+    typedef struct { f32 x, y; } Vec2f;
+    Vec2f identifierPosition;
     u8 *w;
     u8 *p16;
     u32 vt;
@@ -734,7 +736,7 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
     extern f32 fGpffff8414;
     extern f32 fGpffff8418;
     extern void (*D_00887300[])(u32, u32);
-    void func_0034f320(u8 *, f32, f32, f32, s32, s32, s32, s64, s32, s32, s32, f32, s64);
+    void func_0034f320(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
     void func_0045db40(u8 *, u8 *, f32, s32, s32, s32, f32, f32, f32);
     void func_0045d6e0(u8 *, u8 *, f32, s32);
     s32 func_003f6440(s32, s32);
@@ -744,7 +746,7 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
     s32 func_0010d6d0(s16);
     s32 func_0021e050(u8 *);
     void func_001125d0(u8 *);
-    void func_00112300(f32, u64, s32, u8 *);
+    void func_00112300(Vec2f, f32, u8, u8 *);
     int func_00274ed0(f32, f32, f32, s32, s32, s32, s32, s32, s32);
 
     (void)arg0;
@@ -911,7 +913,9 @@ do {
                     aA0.a2 = (s16)((*(s16 *)((u8 *)(t3) + 0x2E)));
                     aA0.b6 = 6;
                     aA0.b8 = 5;
-                    func_00112300(0.0f, (*(u64 *)&f110[0]), b22, (u8 *)&aA0);
+                    identifierPosition.x = f110[0];
+                    identifierPosition.y = f110[1];
+                    func_00112300(identifierPosition, 0.0f, b22, (u8 *)&aA0);
                     f110[1] += 34.0f;
                     s21 += 1;
 } while (s21 < (*(s32 *)((u8 *)(p16) + 0x38)));

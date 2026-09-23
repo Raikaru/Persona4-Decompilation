@@ -10,7 +10,7 @@ extern s32 func_00452380(void *path);
 extern u32 func_00452560(s32 task);
 extern void func_0046d730(const void *file, u32 line);
 extern void func_0044ea90(void *arg0, s32 arg1);
-extern s8 func_00248760();
+extern s64 func_00248760(s32 arg0);
 extern s32 func_00247dd0(s32 arg0);
 extern void func_0026bc10(u16 resourceId, u8 value);
 extern s32 func_001077f0(s32 arg0);
@@ -469,7 +469,7 @@ s32 func_00107890(s32 arg0)
     id = arg0 & 0xFFFF;
     while (i < 0x1F)
     {
-        if ((id == func_00248760(i & 0xFFFF)) && (func_001070e0(i & 0xFFFFu) != 0))
+        if ((id == (s8)func_00248760(i & 0xFFFF)) && (func_001070e0(i & 0xFFFFu) != 0))
         {
             return func_00107ac0((u16)i) & 0xFFFF;
         }
@@ -840,9 +840,10 @@ ret:
    shift the whole tail; nd 64). Everything else matched on the first draft.
    Booleanize floor. */
 // FUN_001080C0
-/* measured: -O1 is load-bearing here - at -O2 b210 reorders the bit-array
-   word index and bit index computations and loses four instructions. */
-#pragma optimization_level 1
+/* The character lookup receives this function's incoming identifier.
+   With that argument explicit, the configured O2 profile preserves every
+   original instruction; the old omitted-argument O1 workaround is obsolete. */
+#pragma optimization_level 2
 f32 func_001080c0(s32 arg0) {
     f32 v;
     s32 i;
@@ -853,7 +854,7 @@ f32 func_001080c0(s32 arg0) {
     s32 hit;
 
     v = 1.0f;
-    if (func_00247c20(func_00248760()) != 0) {
+    if (func_00247c20((s8)func_00248760(arg0)) != 0) {
         v = v * *(f32 *)func_00246b80();
     }
     if (*(s32 *)((u8 *)func_00246b80() + 4) != 0) {
@@ -881,7 +882,7 @@ f32 func_001080c0(s32 arg0) {
     }
     return v;
 }
-/* measured: closes the -O1 bracket above at the file's -O2 baseline. */
+/* Continue at the configured O2 profile. */
 #pragma optimization_level 2
 
 
@@ -927,7 +928,7 @@ ret:
         return 0;
     }
     v = 1.0f;
-    if (func_00247c20(func_00248760(x)) != 0) {
+    if (func_00247c20((s8)func_00248760(x)) != 0) {
         v = v * *(f32 *)func_00246b80();
     }
     if (*(s32 *)((u8 *)func_00246b80() + 4) != 0) {

@@ -187,7 +187,7 @@ extern u8 iGpffffba68;
 extern void func_00145080(void);
 extern u8 * iGpffff9db0;
 extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5,
+                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                           u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void (*jtbl_008873EC[])(void *);
 
@@ -349,9 +349,9 @@ extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern void func_0034f1e0(void);
 extern void func_0034c270(u64 arg0, s32 arg1, s32 arg2, f32 fparg0);
 extern f32 func_0034f720(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
-extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u32 arg4);
-extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-extern void func_0034f9d0(u64 arg0, f32 fparg0, u32 arg1, s32 arg2, s32 arg3);
+extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void func_0034f9d0(Float2_0014 arg0, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
 extern void func_00355410(u8 *arg0, u32 arg1);
 extern void func_00354ba0(void *arg0);
 extern void func_00367210(u64 arg0, s32 arg1, void *arg2, f32 fparg0);
@@ -360,7 +360,7 @@ extern s32 func_00104c70(s32 arg0);
 extern s32 func_0010d6d0(s16 arg0);
 extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
 extern void func_001423c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
-extern void func_001424b0(Float2_0014 pos, f32 fparg0, u32 arg1, u8 *arg2, s32 arg3);
+extern void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3);
 extern void func_001427c0(Float2_0014 pos, f32 depth, s32 opacity, u8 *state);
 extern void func_00142bf0(s64 arg0, s64 arg1, s32 arg2, f32 fparg0, s32 arg3);
 
@@ -392,6 +392,7 @@ void func_001400f0(u8 *arg0)
     u8 g0;
     u8 b0;
     s32 colword;
+    Float2_0014 labelPosition;
 
     func_0034f1e0();
     f23 = *(f32 *)(arg0 + 4);
@@ -665,7 +666,9 @@ void func_001400f0(u8 *arg0)
         sp220 = (640.0f + (f23 + *(f32 *)(arg0 + 0x350)));
         sp224 = (400.0f + (f22 + *(f32 *)(arg0 + 0x354)));
         alpha = (u8)((f32)(u32)arg0[0x35A] * f24);
-        func_0034f9d0(*(u64 *)&sp220, 0.0f, alpha, *(s16 *)(arg0 + 0x38), *(s32 *)(arg0 + 0x1874));
+        labelPosition.x = sp220;
+        labelPosition.y = sp224;
+        func_0034f9d0(labelPosition, 0.0f, alpha, *(s16 *)(arg0 + 0x38), *(s32 *)(arg0 + 0x1874));
     }
 }
 #else
@@ -929,7 +932,7 @@ void func_001423c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
 {
     u8 *base;
     s32 count;
-    u32 c1;
+    u8 c1;
     u8 c2;
     u8 c3;
     base = arg2;
@@ -951,7 +954,7 @@ void func_001423c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
    position/color words; keep retail's integer tint scaling. Exact 776/784
    bytes, 16 fully resolved relocations and eight zero alignment bytes. */
 // FUN_001424B0
-void func_001424b0(Float2_0014 pos, f32 fparg0, u32 arg1, u8 *arg2, s32 arg3)
+void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
 {
     extern f32 fGpffff9ce0;
     extern u8 iGpffff9cd8[8];
@@ -959,7 +962,7 @@ void func_001424b0(Float2_0014 pos, f32 fparg0, u32 arg1, u8 *arg2, s32 arg3)
     extern f32 D_005EF6E4[];
     extern void func_0046d730(const void *file, s32 line);
     extern void func_00356170(s64 arg0, f32 f0, f32 f1, f32 f2, s32 arg1, s32 arg2, s32 arg3);
-    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u32 arg4);
+    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
     extern s32 func_00246980(s16 arg0, s16 arg1);
     extern s32 func_002751a0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 out, s32 charWidth);
 
@@ -1035,7 +1038,7 @@ void func_001427c0(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
 {
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2F4[];
-    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u32 arg4);
+    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
     union { RadarVertex vertices[7]; u8 bytes[7 * sizeof(RadarVertex)]; } packet;
     f32 screenDepth;
     f32 reciprocalNear;

@@ -95,6 +95,13 @@ would otherwise let a plausible-but-wrong symbol through.
 everything else and checks the image and ELF SHA-1s. CI runs the same
 pipeline against the private toolchain.
 
+The committed build configuration selects GNU ld, which preserves native local
+literal pools while placing functions at their retail addresses. Normal `make`
+and `python tools/build.py` commands use that backend. `--linker-backend mwld`
+selects the retained MWLD implementation; `--linker-backend gnu` selects GNU
+explicitly. Compiler and per-unit flags are unchanged. See
+[`docs/gnu_linker.md`](docs/gnu_linker.md) for configuration and validation details.
+
 The retail executable is a mixed build, and the tree is configured per unit
 to reproduce it:
 
@@ -116,7 +123,7 @@ You need:
 
 - Python 3.10+ and `python -m pip install -r requirements-python.txt`
 - GNU binutils for MIPS with R5900 support (`mipsel-linux-gnu-as`,
-  `mipsel-linux-gnu-objcopy`; the
+  `mipsel-linux-gnu-ld`, `mipsel-linux-gnu-objcopy`; the
   [decompals build](https://github.com/decompals/binutils-mips-ps2-decompals)
   works)
 - MWCCPS2 / MWLDPS2 3.0.1 build 210 (`mwcps2-3.0.1b210-060308`); on Linux
@@ -126,7 +133,7 @@ You need:
 - A Persona 4 USA disc image you own
 
 Point the tools at your toolchain with environment variables (`P4_MWCC`,
-`P4_RETAIL_ELF`, `P4_AS`, `P4_OBJCOPY`, `P4_MWCC_CW3_0_1B119`) or with the
+`P4_RETAIL_ELF`, `P4_AS`, `P4_OBJCOPY`, `P4_LD`, `P4_MWCC_CW3_0_1B119`) or with the
 machine-local, git-ignored `tools/verify_config.local.json` and
 `tools/build_config.local.json`:
 

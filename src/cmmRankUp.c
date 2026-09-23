@@ -24,10 +24,9 @@ extern u8 D_006364F0[];
 extern u8 D_00636540[];
 extern u8 D_00636210[];
 extern u8 D_00636230[];
-extern s64 D_00636250[];
-extern f32 D_00636258[];
+extern const struct RwV3d D_00636250;
 extern u8 D_00636260[];
-extern u8 D_006361F0[];
+extern const s32 D_006361F0[8];
 extern u32 D_80000046[];
 extern u32 D_8000001E[];
 extern f32 D_00761184;
@@ -59,46 +58,57 @@ typedef struct { u32 w0; u32 w1; } CopyPair;
 extern const CopyPair D_00636310[16];
 extern const CopyPair D_00636390[16];
 
+struct RwV3d { f32 x; f32 y; f32 z; };
+struct RwMatrixTag {
+    struct RwV3d right; u32 flags;
+    struct RwV3d up; u32 pad1;
+    struct RwV3d at; u32 pad2;
+    struct RwV3d pos; u32 pad3;
+};
+typedef struct RwMatrixTag RankUpMatrix __attribute__((aligned(16)));
+
 typedef struct {
     f32 f0;
     f32 f4;
     f32 f8;
-    f32 fC;
-    f32 f10;
-    f32 f14;
+    struct RwV3d axis;
     s32 f18;
     f32 f1C;
     s16 f20;
     s16 f22;
 } Sp120;
 extern u_long128 D_00636730;
-extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-extern void func_00252230(Sp120 *arg0, Sp120 *arg1, Sp120 *arg2, f32 fparg0);
- extern void func_003e0870(void *arg0, void *arg1, f32 fparg0, s32 arg2);
+extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
+static void func_00252230(Sp120 *arg0, Sp120 *arg1, Sp120 *arg2, f32 fparg0);
+
+extern struct RwMatrixTag *func_003e0870(struct RwMatrixTag *matrix,
+        const struct RwV3d *axis, f32 angle, s32 combine);
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern u8 *func_00251570(s32 arg0, s32 arg1);
-extern void func_00251850(s32 arg0);
+extern void func_00251850(u8 *arg0);
 extern s32 func_0025f360(s32 arg0, s32 arg1, u8 *arg2);
 extern s32 func_0035afa0(s32 arg0);
 extern u32 func_003b7060(void);
-extern void func_003e05f0(void *arg0, void *arg1, void *arg2);
+extern u8 *func_003e05f0(u8 *arg0, u8 *arg1, u8 *arg2);
 extern f32 func_0044b610(f32 fparg0);
 extern f32 func_0044b7b0(f32 fparg0);
 extern void func_00489f80(void);
 extern void func_0048a000(void);
-extern void func_0045db40(void *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4,
-                           f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
-extern void func_00366c70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
-                          s32 arg5, s32 arg6, s16 arg7, f32 fparg0, s16 arg_sp0,
-                          void *arg_sp8, s32 arg_sp10, void *arg_sp18);
+extern void func_0045db40(u8 *color, u8 *rectangle, f32 depth,
+                          s32 saveState, s32 centerX, s32 centerY,
+                          f32 rotation, f32 scaleX, f32 scaleY);
+
+extern s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
+                          s32 alpha, s32 mode, s16 centerX, s16 centerY,
+                          struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2]);
 
 extern s32 func_0025fe50(s32 arg0, s32 arg1, s32 arg2, void *arg3);
 extern s32 func_0025ff60(s32 arg0);
 extern void func_004b12e0(s32 arg0, s32 arg1);
-extern void func_004b1250(s32 arg0, void *arg1);
-extern void func_004b14f0(s32 arg0, f32 *arg1);
-extern void func_004b13f0(s32 arg0, f32 *arg1);
-extern void func_001102f0(void *arg0, s32 arg1, s32 arg2, f32 arg3);
+extern void func_004b1250(void *object, f32 *position);
+extern void func_004b14f0(void *object, s32 *color);
+extern void func_004b13f0(void *object, s32 *color);
+extern u8 *func_001102f0(u8 *position, s32 screenX, s32 screenY, f32 distance);
 extern u8 *func_00457120(void);
 extern s32 func_003e9700(s32 arg0);
 extern void func_00278450(s32 arg0, s32 arg1, void *arg2);
@@ -125,7 +135,7 @@ extern u8 D_00636710[];
 extern u8 D_00635C80[];
 extern u8 D_00635CA0[];
 extern u8 D_005DC974[];
-extern s32 func_00248760();
+extern s64 func_00248760(s32 arg0);
 extern u8 *func_002438b0();
 extern u8 *func_00246d90();
 extern u8 *func_00109220();
@@ -136,8 +146,8 @@ extern u8 *func_00109220();
 
 
 /* Forward declarations for asm-fallback siblings referenced by C bodies. */
-s32 func_00253850();
-s32 func_00254a70();
+s32 func_00253850(u8 *root, u8 *work, u8 *context);
+s32 func_00254a70(u8 *root, u8 *work, u8 *context);
 s32 func_0025b240(u8 *task);
 void func_0025c100(u8 *task);
 
@@ -256,9 +266,9 @@ extern f32 D_00635D30[];
 extern u8 D_00635D40[];
 extern u8 D_00636180[];
 extern u8 *func_00251d30(u8 *arg0);
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
-extern void func_0043f810(void *dst, void *src, u32 size);
-extern void *func_002467b0(s32 arg0);
+extern void *func_0043f9c8(void *dst, s32 value, u32 size);
+extern void *func_0043f810(void *dst, const void *src, u32 size);
+extern u8 *func_002467b0(s32 arg0);
 extern s32 func_00106330(s32 flag);
 extern s64 func_00248d80(s16 arg0);
 extern void func_00279d40(s32 arg0);
@@ -369,7 +379,9 @@ void func_00252050(s32 arg0, s32 arg1, s32 arg2) {
  * Named float snapshots preserve interpolation order. Packed channels use
  * unsigned word shifts and byte truncation, including the high channel. */
 // FUN_00252230
-void func_00252230(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
+/* All retail references are from this source unit. Internal linkage lets
+ * MWCC retain the caller values in registers this leaf does not write. */
+static void func_00252230(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
 {
     f32 fa;
     f32 fb;
@@ -381,15 +393,15 @@ void func_00252230(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
     fa = a->f8;
     fb = b->f8;
     out->f8 = fa + t * (fb - fa);
-    fa = a->fC;
-    fb = b->fC;
-    out->fC = fa + t * (fb - fa);
-    fa = a->f10;
-    fb = b->f10;
-    out->f10 = fa + t * (fb - fa);
-    fa = a->f14;
-    fb = b->f14;
-    out->f14 = fa + t * (fb - fa);
+    fa = a->axis.x;
+    fb = b->axis.x;
+    out->axis.x = fa + t * (fb - fa);
+    fa = a->axis.y;
+    fb = b->axis.y;
+    out->axis.y = fa + t * (fb - fa);
+    fa = a->axis.z;
+    fb = b->axis.z;
+    out->axis.z = fa + t * (fb - fa);
     fa = a->f1C;
     fb = b->f1C;
     out->f1C = fa + t * (fb - fa);
@@ -422,65 +434,66 @@ void func_00252230(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
 }
 
 
-/* measured: fixed solo + schedule on, 188 differing words (was 202), 211/211 exact instrs, 24 relocs resolved; frame 0x100 vs retail 0xF0 (one extra sq), s3/s1/s2/s0 vs s0/v0/s2/t0 coloring, D_00887300 hoist via work reuse, mtc1 zero scheduling; call-clobber floor (retail keeps ctx in v0/special in t0 across func_00252230 which never touches v0/t0, b210 spills to saved). Production stays ASM. */
-/* measured 00252710 2026-09-19: remove unscheduled-retail `schedule on` guard (was 194 vs 208, -6.7%); unscheduled object 211 vs 211 (exact, inside 202-214), edits 208 -> 88. */
-// FUN_00252710 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00252710(s32 arg0, u8 *work, u8 *ctx)
+/* Native b210 O2: 836/848 bytes, 12 resolved relocations and 12 zero tail
+ * bytes. The two interpolation phases share the real private leaf; the
+ * sprite provider takes depth before the width/height integer stream.
+ * See docs/probe_archive/Rankup_callback_00252710_20260922.md. */
+// FUN_00252710
+s32 func_00252710(s32 unused, u8 *work, u8 *context)
 {
-    Sp120 sp120;
-    u8 mat[0x40];
-    u8 uv[0x20];
-    u8 *src;
-    u8 *dst;
-    s32 count;
-    s32 temp_3;
-    s32 temp_2;
-    s32 rank;
-    s32 done;
+    Sp120 state;
+    RankUpMatrix matrix;
+    union { s32 words[8]; f32 coordinates[4][2]; } uvBlock;
+    const u8 *sourceBytes;
+    u8 *destinationBytes;
+    s32 pairs;
+    s32 firstWord;
+    s32 secondWord;
+    s32 frame;
+    s32 complete;
     s32 special;
-    s32 tex;
-    done = 0;
+    s32 texture;
+    complete = 0;
     special = 0;
-    if (*(s32 *)(ctx + 8) == 0xA) {
+    if (*(s32 *)(context + 8) == 0xA) {
         special = 1;
     }
     if (!(*(s32 *)(work + 0) & 2)) {
         *(s32 *)(work + 4) += 1;
     }
-    rank = *(s32 *)(work + 4);
-    if (rank >= 0x3C) {
-        done = 1;
+    frame = *(s32 *)(work + 4);
+    if (frame >= 0x3C) {
+        complete = 1;
     }
-    if (rank >= 0x1F) {
-        func_00252230(&sp120, (Sp120 *)(work + 0x30), (Sp120 *)(work + 0x54),
-                      (f32)(rank - 0x1E) / 30.0f);
+    if (frame > 30) {
+        func_00252230(&state, (Sp120 *)(work + 0x30), (Sp120 *)(work + 0x54),
+                      (f32)(frame - 0x1E) / 30.0f);
     } else {
-        func_00252230(&sp120, (Sp120 *)(work + 0xC), (Sp120 *)(work + 0x30),
-                      (f32)rank / 30.0f);
+        func_00252230(&state, (Sp120 *)(work + 0xC), (Sp120 *)(work + 0x30),
+                      (f32)frame / 30.0f);
     }
     if (special != 0) {
-        if (sp120.f18 == 0xFFE92CFF) {
+        if (state.f18 == 0xFFE92CFF) {
             *(s32 *)(work + 0xC) = 0;
-            sp120.f18 = -1;
+            state.f18 = -1;
         } else {
-            sp120.f18 = 0xBFBFBFFF;
+            state.f18 = 0xBFBFBFFF;
         }
     }
-    src = D_006361F0;
-    dst = uv;
-    count = 4;
+    sourceBytes = (const u8 *)&D_006361F0;
+    destinationBytes = (u8 *)&uvBlock.words;
+    pairs = 4;
     do {
-        temp_3 = *(s32 *)src;
-        temp_2 = *(s32 *)(src + 4);
-        src += 8;
-        count--;
-        *(s32 *)dst = temp_3;
-        *(s32 *)(dst + 4) = temp_2;
-        dst += 8;
-    } while (count > 0);
-    tex = func_0025f360(0x18, 0, *(u8 **)(ctx + 0x10));
-    func_003e0870(mat, (u8 *)&sp120 + 0xC, sp120.f1C, 0);
+        firstWord = *(const s32 *)sourceBytes;
+        secondWord = *(const s32 *)(sourceBytes + 4);
+        sourceBytes += 8;
+        pairs--;
+        *(s32 *)destinationBytes = firstWord;
+        *(s32 *)(destinationBytes + 4) = secondWord;
+        destinationBytes += 8;
+    } while (pairs > 0);
+    texture = func_0025f360(0x18, 0, *(u8 **)(context + 0x10));
+    func_003e0870(&matrix, &state.axis, state.f1C, 0);
     if (*(s32 *)(work + 0xC) == 1) {
         work = (u8 *)D_00887300;
         (*(void (**)(u32, u32))work)(7, 2);
@@ -492,1047 +505,921 @@ s32 func_00252710(s32 arg0, u8 *work, u8 *ctx)
         (*(void (**)(u32, u32))work)(0xE, 0);
         func_003f6440(3, 0x7000D);
         func_003f6440(2, 0x48);
-        func_00366c70((s32)sp120.f4, (s32)sp120.f8, sp120.f20, sp120.f22,
-                      (u32)sp120.f18 >> 8, sp120.f18 & 0xFF, 0,
-                      (s16)(sp120.f20 >> 1), 0.0f,
-                      (s16)(sp120.f22 >> 1), mat, tex, uv);
+        func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22, (u32)state.f18 >> 8,
+                      state.f18 & 0xFF, 0, (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, texture,
+                      uvBlock.coordinates);
     } else {
-        func_00366c70((s32)sp120.f4, (s32)sp120.f8, sp120.f20, sp120.f22,
-                      (u32)sp120.f18 >> 8, sp120.f18 & 0xFF, 1,
-                      (s16)(sp120.f20 >> 1), 0.0f,
-                      (s16)(sp120.f22 >> 1), mat, tex, uv);
+        func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22, (u32)state.f18 >> 8,
+                      state.f18 & 0xFF, 1, (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, texture,
+                      uvBlock.coordinates);
     }
-    return done;
+    return complete;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252710);
-#endif
+/* Native b210 O2: 3560/3568 bytes, eight zero tail bytes, and the entire
+ * emitted 0.8f literal pool at 0076120C match retail. D_00636250 is the
+ * complete (0,1,0) vector. Particle timers remain integer stores and
+ * random draws retain their original order and unsigned conversions. */
+typedef struct { struct RwV3d vector; } RankUpVectorCopy;
 
-/* measured: refused (2026-09-18): archived LRankUp_00252a60_body.c installed
-   guarded, fixed one compile error (`*(s32 *)(arg2+0x10)` -> `*(u8 **)` to match
-   current `func_0025f360(s32,s32,u8*)`, as elsewhere in this file), then measured
-   GUARDED_SCORE 983 (reloc-masked, 762 edits +2 reloc-only via
-   `python3 -E -s tools/measure_guarded.py src/cmmRankUp.c func_00252a60`);
-   fnalign retail 892 vs object 1069 instrs (+177, +19.8%, outside the 3% gate of
-   +/-27 via `python3 -E -s tools/fnalign.py src/cmmRankUp.c func_00252a60
-   --candidate /var/tmp/bank52a60/cand.c --quiet`). Frame retail 0x240 vs object
-   0x250 (+16B, one extra sq); prologue colours retail $s3/$s2/$s1 vs object
-   $s0/$s3/$fp with GPR rotation through the body. No omitted call: all retail
-   jal/jalr sites (43, incl. 2x func_00252230, 4x func_003e0870, 6x func_00366c70,
-   vtable jalr x4, func_0025f360/func_0035afa0/func_003e05f0/func_0044b7b0/
-   func_0044b610/func_00251570/func_00251850/func_003f6440) are present in the
-   body. Longer direction points at insert runs: eight int-to-float sites with
-   the `2.0f*(f32)(((u32)x>>1)|(x&1))` negative-path doubling (~10 instrs each),
-   the aggregate RankUpLocals struct vs retail separate buffers, and FP saved-reg
-   rotation. Archive health: 353 lines on disk (brief said 354); code is lines
-   1-352, line 353 is a bare trailing note without comment delimiters, the `}` closer and
-   the RankUpLocals typedef (0x28/0x20/0x20/0x40/0x40/0x40+Sp120+s64/f32/f32/f32/
-   s64/f32, from .probe/Rank52710Recovery/owner_LRankUp_00252a60.c:398-412) are
-   both missing from the archive and were supplied from the probe file; the
-   archive's `*(s32 *)` spelling for the func_0025f360 arg was the only other
-   difference from that probe. Production stays ASM. */
-/* measured: skeleton (2026-09-19): guarded fnalign retail 889 vs object 880 instrs (-9, -1.0%, inside 865-919), 782 words, 249 edits (+5 reloc-only); frame retail 0x240 vs object 0x230 (one sq under); separate buffers, plain (f32)(u32) casts, two-temp do-while x4, all 43 jal/jalr present. Production stays ASM. */
-// FUN_00252A60 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00252a60(s32 arg0, u8 *arg1, u8 *arg2) {
-    u8 spC0[0x28];
-    u8 spF0[0x20];
-    u8 sp110[0x20];
-    u8 sp130[0x40];
-    u8 sp170[0x40];
-    u8 sp1B0[0x40];
-    Sp120 sp1F0;
-    s64 sp218;
-    f32 sp220;
-    f32 sp228;
-    f32 sp22C;
-    s64 sp230;
-    f32 sp238;
-    u8 *src;
-    u8 *dst;
-    u8 *src2;
-    u8 *dst2;
-    u8 *src3;
-    u8 *dst3;
-    s32 count;
-    s32 temp1;
-    s32 temp2;
+/* The pool provider initializes 0x20 bytes. These are its four fields used
+ * here; the particle update provider treats offset 0xC as an integer timer. */
+typedef struct {
+    u32 flags;
+    f32 x;
+    f32 y;
+    s32 timer;
+} RankUpParticlePrefix;
+
+// FUN_00252A60
+s32 func_00252a60(s32 root, u8 *work, u8 *context)
+{
+    RankUpVectorCopy axis;
+    PrimFloat2 displacement;
+    RankUpVectorCopy axisTemplate;
+    Sp120 state;
+    RankUpMatrix matrix;
+    RankUpMatrix effectMatrix;
+    RankUpMatrix product;
+    union { f32 coordinates[4][2]; s32 words[8]; } uv;
+    union { f32 coordinates[4][2]; s32 words[8]; } overlayUv;
+    union { PrimFloat2 points[5]; s32 words[10]; } positions;
     s32 done;
     s32 is10;
-    s32 alpha_i;
-    s32 rnd;
-    f32 f0;
-    f32 f1;
-    f32 f20;
-    f32 f21;
-    s32 call1;
-    s32 call2;
-    s32 call3;
-    u_long128 *qsrc;
-    u_long128 *qdst;
-    void (**vt)(u32, u32);
+    s32 frame;
+    s32 textureA;
+    s32 textureB;
+    s32 overlay;
+    f32 pulse;
+    f32 angle;
+    f32 radius;
+    u8 *renderState;
 
     done = 0;
     is10 = 0;
-    if (*(s32 *)(arg2 + 8) == 0xA) {
+    if (*(s32 *)(context + 8) == 10) {
         is10 = 1;
     }
-    if (!(*(s32 *)arg1 & 2)) {
-        *(s32 *)(arg1 + 4) = *(s32 *)(arg1 + 4) + 1;
+    if (!(*(s32 *)work & 2)) {
+        *(s32 *)(work + 4) += 1;
     }
-    if ((*(s32 *)(arg1 + 4)) >= 0x3C) {
+    if (*(s32 *)(work + 4) >= 60) {
         done = 1;
     }
-    if ((*(s32 *)(arg1 + 4)) >= 0x1F) {
-        func_00252230(&sp1F0, (Sp120 *)(arg1 + 0x30), (Sp120 *)(arg1 + 0x54),
-                      (f32)((*(s32 *)(arg1 + 4)) - 0x1E) / 30.0f);
+    if (*(s32 *)(work + 4) > 30) {
+        func_00252230(&state, (Sp120 *)(work + 0x30), (Sp120 *)(work + 0x54),
+            (f32)(*(s32 *)(work + 4) - 30) / 30.0f);
     } else {
-        f20 = (D_00761184 * (f32)(*(s32 *)(arg1 + 4))) / 30.0f;
-        f20 = func_0044b7b0(f20);
-        func_00252230(&sp1F0, (Sp120 *)(arg1 + 0xC), (Sp120 *)(arg1 + 0x30), f20);
+        func_00252230(&state, (Sp120 *)(work + 0xC), (Sp120 *)(work + 0x30),
+            func_0044b7b0(D_00761184 * (f32)*(s32 *)(work + 4) / 30.0f));
     }
-
-    src = D_00636210;
-    dst = sp110;
-    count = 4;
-    do {
-        temp1 = *(s32 *)(src + 0);
-        temp2 = *(s32 *)(src + 4);
-        src += 8;
-        count--;
-        *(s32 *)(dst + 0) = temp1;
-        *(s32 *)(dst + 4) = temp2;
-        dst += 8;
-    } while (count > 0);
-
-    src2 = D_00636230;
-    dst2 = spF0;
-    count = 4;
-    do {
-        temp1 = *(s32 *)(src2 + 0);
-        temp2 = *(s32 *)(src2 + 4);
-        src2 += 8;
-        count--;
-        *(s32 *)(dst2 + 0) = temp1;
-        *(s32 *)(dst2 + 4) = temp2;
-        dst2 += 8;
-    } while (count > 0);
-
-    if ((*(s32 *)(arg1 + 4)) < 0x1F) {
-        func_003e0870(sp1B0, (u8 *)&sp1F0 + 0xC, sp1F0.f1C, 0);
-    } else {
-        temp1 = (*(s32 *)(arg1 + 4)) - 0x1E;
-        sp218 = D_00636250[0];
-        sp220 = D_00636258[0];
-        sp230 = sp218;
-        sp238 = D_00636258[0];
-        func_003e0870(sp1B0, (u8 *)&sp1F0 + 0xC, sp1F0.f1C, 0);
-        f20 = (-90.0f * (f32)temp1) / 30.0f;
-        func_003e0870(sp1B0, &sp230, f20, 2);
-    }
-
-    call1 = func_0035afa0(*(s32 *)(arg2 + 0x14));
-    call2 = func_0035afa0(*(s32 *)(arg2 + 0x18));
-    if ((*(s32 *)(arg1 + 4)) >= 0x19) {
-        call3 = func_0025f360(0x19, 0, *(u8 **)(arg2 + 0x10));
-        if ((*(s32 *)(arg1 + 4)) < 0x1F) {
-            f21 = (f32)((*(s32 *)(arg1 + 4)) - 0x19) / 5.0f;
-        } else {
-            f0 = (f32)((*(s32 *)(arg1 + 4)) - 0x1E);
-            if (f0 < 5.0f) {
-                f21 = 1.0f - (f0 / 5.0f);
-            } else {
-                f21 = 0.0f;
-            }
-        }
-        f20 = D_007613A0 * f21;
-        func_003e0870(sp170, (u8 *)&sp1F0 + 0xC, f20, 0);
-        func_003e05f0(sp130, sp170, sp1B0);
-        qsrc = (u_long128 *)sp130;
-        qdst = (u_long128 *)sp170;
+    {
+        const u8 *source;
+        u8 *destination;
+        s32 count;
+        s32 first;
+        s32 second;
+        source = D_00636210;
+        destination = (u8 *)&uv;
         count = 4;
         do {
-            *qdst = *qsrc;
-            qsrc++;
+            first = *(const s32 *)source;
+            second = *(const s32 *)(source + 4);
+            source += 8;
             count--;
-            qdst++;
+            *(s32 *)destination = first;
+            *(s32 *)(destination + 4) = second;
+            destination += 8;
         } while (count > 0);
-        func_00366c70((s32)sp1F0.f4, (s32)sp1F0.f8,
-                      0x73, 0x90, 0xFFFFFF,
-                      *(u8 *)&sp1F0.f18, 1, 0x39, 0.0f, 0x48,
-                      sp170, call3, spF0);
-        if (is10 != 0) {
-            func_00366c70((s32)sp1F0.f4, (s32)sp1F0.f8,
-                          0x6D, 0x89, 0x7F7F7F,
-                          0xFF, 1, 0x37, 0.0f, 0x45,
-                          sp1B0, call3, spF0);
+    }
+    {
+        const u8 *source;
+        u8 *destination;
+        s32 count;
+        s32 first;
+        s32 second;
+        source = D_00636230;
+        destination = (u8 *)&overlayUv;
+        count = 4;
+        do {
+            first = *(const s32 *)source;
+            second = *(const s32 *)(source + 4);
+            source += 8;
+            count--;
+            *(s32 *)destination = first;
+            *(s32 *)(destination + 4) = second;
+            destination += 8;
+        } while (count > 0);
+    }
+    if (*(s32 *)(work + 4) < 31) {
+        func_003e0870(&matrix, &state.axis, state.f1C, 0);
+    } else {
+        frame = *(s32 *)(work + 4) - 30;
+        axisTemplate.vector = D_00636250;
+        axis = axisTemplate;
+        func_003e0870(&matrix, &state.axis, state.f1C, 0);
+        func_003e0870(&matrix, &axis.vector, -90.0f * (f32)frame / 30.0f, 2);
+    }
+    textureA = func_0035afa0(*(s32 *)(context + 0x14));
+    textureB = func_0035afa0(*(s32 *)(context + 0x18));
+    if (*(s32 *)(work + 4) >= 25) {
+        f32 factor;
+        overlay = func_0025f360(25, 0, *(u8 **)(context + 0x10));
+        if (*(s32 *)(work + 4) < 31) {
+            factor = (f32)(*(s32 *)(work + 4) - 25) / 5.0f;
         } else {
-            func_00366c70((s32)sp1F0.f4, (s32)sp1F0.f8,
-                          0x6D, 0x89, 0xFF9C35,
-                          0xFF, 1, 0x37, 0.0f, 0x45,
-                          sp1B0, call3, spF0);
+            factor = (f32)(*(s32 *)(work + 4) - 30);
+            if (factor < 5.0f) {
+                factor = 1.0f - factor / 5.0f;
+            } else {
+                factor = 0.0f;
+            }
+        }
+        func_003e0870(&effectMatrix, &state.axis, D_007613A0 * factor, 0);
+        func_003e05f0((u8 *)&product, (u8 *)&effectMatrix, (u8 *)&matrix);
+        {
+            u_long128 *source;
+            u_long128 *destination;
+            s32 count;
+            u_long128 value;
+            source = (u_long128 *)&product;
+            destination = (u_long128 *)&effectMatrix;
+            count = 4;
+            do {
+                value = *source;
+                source++;
+                count--;
+                *destination = value;
+                destination++;
+            } while (count > 0);
+        }
+        func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, 115, 144, 0xFFFFFF,
+            *(u8 *)&state.f18, 1, 57, 72, &effectMatrix, overlay, overlayUv.coordinates);
+        if (is10) {
+            func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, 109, 137, 0x7F7F7F,
+                255, 1, 55, 69, &matrix, overlay, overlayUv.coordinates);
+        } else {
+            func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, 109, 137, 0xFF9C35,
+                255, 1, 55, 69, &matrix, overlay, overlayUv.coordinates);
         }
     }
-
-    func_00366c70((s32)sp1F0.f4, (s32)sp1F0.f8,
-                  sp1F0.f20, sp1F0.f22,
-                  ((u32)sp1F0.f18) >> 8,
-                  ((u32)sp1F0.f18) & 0xFF, 3,
-                  (s16)(sp1F0.f20 >> 1), 0.0f,
-                  (s16)(sp1F0.f22 >> 1), sp1B0, call1, sp110);
-    func_00366c70((s32)sp1F0.f4, (s32)sp1F0.f8,
-                  sp1F0.f20, sp1F0.f22,
-                  ((u32)sp1F0.f18) >> 8,
-                  ((u32)sp1F0.f18) & 0xFF, 5,
-                  (s16)(sp1F0.f20 >> 1), 0.0f,
-                  (s16)(sp1F0.f22 >> 1), sp1B0, call2, sp110);
-
-    vt = D_00887300;
-    vt[0](7, 2);
-    vt[0](9, 2);
-    vt[0](6, 0);
-    vt[0](8, 0);
-    vt[0](0xC, 1);
-    vt[0](2, 4);
-    vt[0](0xE, 0);
+    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22,
+        (u32)state.f18 >> 8, (u32)state.f18 & 255, 3,
+        (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, textureA, uv.coordinates);
+    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22,
+        (u32)state.f18 >> 8, (u32)state.f18 & 255, 5,
+        (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, textureB, uv.coordinates);
+    renderState = (u8 *)D_00887300;
+    (*(void (**)(u32, u32))renderState)(7, 2);
+    (*(void (**)(u32, u32))renderState)(9, 2);
+    (*(void (**)(u32, u32))renderState)(6, 0);
+    (*(void (**)(u32, u32))renderState)(8, 0);
+    (*(void (**)(u32, u32))renderState)(12, 1);
+    (*(void (**)(u32, u32))renderState)(2, 4);
+    (*(void (**)(u32, u32))renderState)(14, 0);
     func_003f6440(3, 0x30003);
     func_003f6440(2, 0x48);
-
-    temp1 = *(s16 *)(arg2 + 0x3C) + 1;
-    *(s16 *)(arg2 + 0x3C) = (s16)temp1;
-    if ((s16)temp1 >= 0x78) {
-        *(s16 *)(arg2 + 0x3C) = 0;
+    *(s16 *)(context + 0x3C) += 1;
+    if (*(s16 *)(context + 0x3C) >= 120) {
+        *(s16 *)(context + 0x3C) = 0;
     }
-    f20 = (f32)(*(s16 *)(arg2 + 0x3C));
-    f20 = (D_007612D0 * f20) / 120.0f;
-    f20 = D_007612CC + f20;
-    f20 = func_0044b7b0(f20);
-    f20 = (1.0f + f20) / 2.0f;
+    pulse = func_0044b7b0(D_007612CC + D_007612D0 * (f32)*(s16 *)(context + 0x3C) / 120.0f);
+    pulse = (1.0f + pulse) / 2.0f;
+    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22,
+        (u32)state.f18 >> 8, (s32)(0.8f * (f32)((u32)state.f18 & 255) * pulse), 2,
+        (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, textureA, uv.coordinates);
+    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22,
+        (u32)state.f18 >> 8, (s32)(0.8f * (f32)((u32)state.f18 & 255) * pulse), 4,
+        (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, textureB, uv.coordinates);
 
-    alpha_i = sp1F0.f18 & 0xFF;
-    f21 = (f32)(u32)alpha_i;
-    alpha_i = (s32)(D_0076120C * f21 * f20);
-    func_00366c70((s32)sp1F0.f4, (s32)sp1F0.f8,
-                  sp1F0.f20, sp1F0.f22,
-                  ((u32)sp1F0.f18) >> 8, alpha_i, 2,
-                  (s16)(sp1F0.f20 >> 1), 0.0f,
-                  (s16)(sp1F0.f22 >> 1), sp1B0, call1, sp110);
-
-    alpha_i = sp1F0.f18 & 0xFF;
-    f21 = (f32)(u32)alpha_i;
-    alpha_i = (s32)(D_0076120C * f21 * f20);
-    func_00366c70((s32)sp1F0.f4, (s32)sp1F0.f8,
-                  sp1F0.f20, sp1F0.f22,
-                  ((u32)sp1F0.f18) >> 8, alpha_i, 4,
-                  (s16)(sp1F0.f20 >> 1), 0.0f,
-                  (s16)(sp1F0.f22 >> 1), sp1B0, call2, sp110);
-
-    rnd = func_003b7060();
-    f21 = (f32)(u32)rnd;
-    f20 = D_007612D0 * (f21 / 2147483600.0f);
-    rnd = func_003b7060();
-    f21 = (f32)(u32)rnd;
-    if ((f21 / 2147483600.0f) < D_00761288) {
-        rnd = func_003b7060();
-        f0 = (f32)(u32)rnd;
-        f0 = 46.0f * (f0 / 2147483600.0f);
-        if (!(f0 >= 2147483600.0f)) {
-            temp1 = (s32)f0;
-        } else {
-            temp1 = (s32)(f0 - 2147483600.0f);
-            temp1 |= (s32)0x80000000;
-        }
-        temp1 += 0x46;
-        f21 = (f32)(u32)temp1;
+    angle = D_007612D0 * ((f32)func_003b7060() / 2147483648.0f);
+    if ((f32)func_003b7060() / 2147483648.0f < D_00761288) {
+        radius = (f32)((u32)(46.0f * ((f32)func_003b7060() / 2147483648.0f)) + 70U);
     } else {
-        rnd = func_003b7060();
-        f0 = (f32)(u32)rnd;
-        f0 = 40.0f * (f0 / 2147483600.0f);
-        if (!(f0 >= 2147483600.0f)) {
-            temp1 = (s32)f0;
-        } else {
-            temp1 = (s32)(f0 - 2147483600.0f);
-            temp1 |= (s32)0x80000000;
-        }
-        temp1 += 0x1E;
-        f21 = (f32)(u32)temp1;
+        radius = (f32)((u32)(40.0f * ((f32)func_003b7060() / 2147483648.0f)) + 30U);
     }
-    sp228 = f21 * func_0044b610(f20);
-    f1 = -f21 * func_0044b7b0(f20);
-    sp22C = f1;
-
-    if ((*(s32 *)(arg1 + 4)) < 0x29) {
-        u8 *p = func_00251570(arg0, 0);
-        if (p != NULL) {
-            *(f32 *)(p + 4) = sp1F0.f4 + sp228;
-            *(f32 *)(p + 8) = sp1F0.f8 + f1;
+    displacement.v[0] = radius * func_0044b610(angle);
+    displacement.v[1] = -radius * func_0044b7b0(angle);
+    if (*(s32 *)(work + 4) < 41) {
+        RankUpParticlePrefix *particle;
+        f32 y = state.f8 + displacement.v[1];
+        f32 x = state.f4 + displacement.v[0];
+        particle = (RankUpParticlePrefix *)func_00251570(root, 0);
+        if (particle != NULL) {
+            particle->x = x;
+            particle->y = y;
         }
-        src3 = D_00636260;
-        dst3 = spC0;
-        count = 5;
-        do {
-            temp1 = *(s32 *)(src3 + 0);
-            temp2 = *(s32 *)(src3 + 4);
-            src3 += 8;
-            count--;
-            *(s32 *)(dst3 + 0) = temp1;
-            *(s32 *)(dst3 + 4) = temp2;
-            dst3 += 8;
-        } while (count > 0);
-        rnd = func_003b7060();
-        f21 = (f32)(u32)rnd;
-        temp1 = (s32)(5.0f * (f21 / 2147483600.0f));
-        f20 = *(f32 *)(spC0 + temp1 * 8 + 4);
-        sp228 = *(f32 *)(spC0 + temp1 * 8);
-        sp22C = f20;
-        p = func_00251570(arg0, 3);
-        if (p != NULL) {
-            rnd = func_003b7060();
-            f21 = (f32)(u32)rnd;
-            *(f32 *)(p + 0xC) = 100.0f * (f21 / 2147483600.0f);
-            *(f32 *)(p + 4) = sp228;
-            *(f32 *)(p + 8) = f20;
+        {
+            const u8 *source;
+            u8 *destination;
+            s32 count;
+            s32 first;
+            s32 second;
+            source = D_00636260;
+            destination = (u8 *)&positions;
+            count = 5;
+            do {
+                first = *(const s32 *)source;
+                second = *(const s32 *)(source + 4);
+                source += 8;
+                count--;
+                *(s32 *)destination = first;
+                *(s32 *)(destination + 4) = second;
+                destination += 8;
+            } while (count > 0);
+        }
+        frame = (s32)(5.0f * ((f32)func_003b7060() / 2147483648.0f));
+        displacement = positions.points[frame];
+        y = displacement.v[1];
+        particle = (RankUpParticlePrefix *)func_00251570(root, 3);
+        if (particle != NULL) {
+            particle->timer = (s32)(100.0f * ((f32)func_003b7060() / 2147483648.0f));
+            particle->x = displacement.v[0];
+            particle->y = y;
         }
     }
-
-    if ((*(s32 *)(arg1 + 4)) == 0x14) {
-        u8 *p = func_00251570(arg0, 1);
-        if (p != NULL) {
-            *(u32 *)p |= 2;
-            rnd = func_003b7060();
-            f21 = (f32)(u32)rnd;
-            *(f32 *)(p + 0xC) = 100.0f * (f21 / 2147483600.0f);
-            *(f32 *)(p + 4) = 112.0f;
-            *(f32 *)(p + 8) = 272.0f;
+    if (*(s32 *)(work + 4) == 20) {
+        RankUpParticlePrefix *particle = (RankUpParticlePrefix *)func_00251570(root, 1);
+        if (particle != NULL) {
+            particle->flags |= 2;
+            particle->timer = (s32)(100.0f * ((f32)func_003b7060() / 2147483648.0f));
+            particle->x = 123.0f;
+            particle->y = 272.0f;
         }
-        p = func_00251570(arg0, 2);
-        if (p != NULL) {
-            *(u32 *)p |= 4;
-            rnd = func_003b7060();
-            f21 = (f32)(u32)rnd;
-            *(f32 *)(p + 0xC) = 100.0f * (f21 / 2147483600.0f);
-            *(f32 *)(p + 4) = 68.0f;
-            *(f32 *)(p + 8) = 419.0f;
+        particle = (RankUpParticlePrefix *)func_00251570(root, 2);
+        if (particle != NULL) {
+            particle->flags |= 4;
+            particle->timer = (s32)(100.0f * ((f32)func_003b7060() / 2147483648.0f));
+            particle->x = 68.0f;
+            particle->y = 419.0f;
         }
-    } else if ((*(s32 *)(arg1 + 4)) == 0x1F) {
-        func_00251850(arg0);
+    } else if (*(s32 *)(work + 4) == 31) {
+        func_00251850((u8 *)root);
     }
     return done;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252a60);
-#endif
-
-/* measured: not attempted this wave (4640 B); m2c draft is structurally
-   complete; its msub.s/adda.s M2C_ERRORs in the func_0025f3f0 args are
-   `a - b*c` / `a + b*c` accumulator idioms (verified on mwcc b210 - msub.s/
-   madd.s), and the sp110 table reads feed the loop's func_0025f3f0 calls.
-   Same family walls as func_00252a60/002566d0/002570f0: (u32)-cast alpha
-   sites, D_00887300 base rematerialization, mwcc stack-slot overlap of
-   same-type locals + 0x10 alignment of buffers >= 0x10, FP saved-reg
-   rotation, and the D_00636290 copy loop + zero-fill loops need the m2c
-   two-temp/do-while spellings. gp-0x7F7C/-0x7F6C floats: 0x00761174/
-   0x00761184 (GP base 0x007690F0). */
-/* measured: skeleton (2026-09-19): scratch candidate fnalign retail 1157 vs object 1128 instrs, edits 528 (+14 reloc-only), within 3% gate (1122-1192) and 1125-1195 band; delivered s32 shape obj 4516B = 1129 instrs, frame 0x150 both sides, words (reloc-masked) 1057. All 52 retail jal sites present; counted fors; two-temp/do-while copies + zero-fills; (u32)-cast alphas; accumulators as plain C. Requires fwd-decl fix void->s32 (line 102, as for 00254a70). Production stays ASM. */
-/* measured 00253850 (owner, 2026-09-19): fnalign **524 -> 522 edits**, count
-   1129 -> 1127 against retail 1157, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all. */
-// FUN_00253850 NONMATCHING
-#ifdef NON_MATCHING
-typedef struct {
-    u8 pad[8];
-    u8 spB0[0x10];
-    u8 spC0[0x20];
-    u8 spE0[0x10];
-    u8 spF0[0x20];
-    u8 sp110[0x40];
-} RankUp38Locals;
+typedef struct { u8 r, g, b, a; } RankUpVertexColor;
 extern u8 D_00636290[];
 extern u8 D_00635CC0[];
 extern u8 D_00635CE0[];
-extern f32 D_00761174;
-extern f32 D_0076118C;
-extern f32 D_00761308;
-extern f32 D_0076132C;
-extern f32 D_0076139C;
-s32 func_0025f3f0(s32 a0, s32 a1, s32 a2, s32 a3, u8 *a4, s32 a5, f32 f0, f32 f1, f32 f2);
-s32 func_0025f430(s32 a0, s32 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s32 a6, s32 a7, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5);
+extern f32 D_00761174, D_0076118C, D_00761308, D_0076132C, D_0076139C;
+s32 func_0025f3f0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5);
+s32 func_0025f430(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s16 a6, s16 a7, f32 f3, f32 f4, f32 f5);
 void func_0045dfd0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4);
-u8 *func_0046a770(char *arg0);
-f32 func_0046b1f0(void *ptr, s32 idx);
-void func_0025e9e0(s32 a0, s32 a1, s32 a2, void *a3, s32 a4, f32 f0, f32 f1, f32 f2);
-u8 *func_00246830(s32 arg0);
-s32 func_00253850(arg0, arg1, arg2)
-s32 arg0;
-u8 *arg1;
-u8 *arg2;
+u8 *func_0046a770(char *a0);
+f32 func_0046b1f0(void *a0, s32 a1);
+void func_0025e9e0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, void *a3, s32 a4);
+u8 *func_00246830(u32 a0);
+
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_pulloutconstants off
+/* measured: keep the banner constants explicit and the label distance
+   local; automatic constant extraction joins the two distance evaluations. */
+// FUN_00253850
+s32 func_00253850(u8 *root, u8 *work, u8 *context)
 {
-    RankUp38Locals sp;
+    PrimFloat2 positions[8];
+    PrimFloat2 movingPoints[4];
+    RankUpVertexColor movingColors[4];
+    PrimFloat2 fixedPoints[4];
+    RankUpVertexColor fixedColors[4];
     s32 special;
-    s32 rank;
-    s32 i;
-    s32 d;
     s32 color;
-    s32 iv;
-    s32 alpha;
-    s32 n;
-    s32 t1;
-    s32 t2;
-    s32 tbl;
-    s32 asset;
-    s32 font;
-    s32 idx;
-    s32 cnt;
-    f32 s;
-    f32 f;
-    f32 f20;
-    f32 f21;
-    f32 w;
-    f32 x;
-    u8 *src;
-    u8 *dst;
-    u8 *p;
+    s32 white;
+    f32 bannerY;
+    f32 progress;
+    f32 pulse;
+    f32 scaleX;
+    f32 scaleY;
 
     special = 0;
-    if (*(s32 *)(arg2 + 8) == 0xA) {
+    if (*(s32 *)(context + 8) == 10) {
         special = 1;
     }
-    rank = *(s32 *)(arg1 + 4);
-    if (rank >= 0x10) {
-        if (rank < 0x20) {
-            src = D_00636290;
-            dst = sp.sp110;
-            n = 8;
+    if (*(s32 *)(work + 4) > 15) {
+        if (*(s32 *)(work + 4) < 32) {
+            s32 i;
+            const u8 *source;
+            u8 *destination;
+            s32 count;
+            s32 first;
+            s32 second;
+            source = D_00636290;
+            destination = (u8 *)positions;
+            count = 8;
             do {
-                t1 = *(s32 *)src;
-                t2 = *(s32 *)(src + 4);
-                src += 8;
-                n--;
-                *(s32 *)dst = t1;
-                *(s32 *)(dst + 4) = t2;
-                dst += 8;
-            } while (n > 0);
+                first = *(const s32 *)source;
+                second = *(const s32 *)(source + 4);
+                source += 8;
+                count--;
+                *(s32 *)destination = first;
+                *(s32 *)(destination + 4) = second;
+                destination += 8;
+            } while (count > 0);
             for (i = 0; i < 8; i++) {
-                d = rank - 0xF;
-                if (i <= d) {
-                    d = d - i;
-                    if (d < 9) {
-                        s = func_0044b7b0((D_00761174 * (f32)d) / 8.0f);
-                        func_0025f3f0(0xFFFFFF, 0xFF, i + 0xD, 0, *(u8 **)(arg2 + 0x10), 1,
-                            ((f32 *)sp.sp110)[i * 2],
-                            ((f32 *)sp.sp110)[i * 2 + 1] - s * 40.0f, 0.0f);
+                s32 elapsed = *(s32 *)(work + 4) - 15;
+                if (!(elapsed < i)) {
+                    if (elapsed - i < 9) {
+                        f32 value = func_0044b7b0(D_00761174 * (f32)(elapsed - i) / 8.0f);
+                        func_0025f3f0(
+                            positions[i].v[0], (0.0f + positions[i].v[1]) - 40.0f * value, 0.0f, 0xFFFFFF, 255,
+                            i + 13, 0, *(u8 **)(context + 0x10), 1);
                     } else {
-                        func_0025f3f0(0xFFFFFF, 0xFF, i + 0xD, 0, *(u8 **)(arg2 + 0x10), 1,
-                            ((f32 *)sp.sp110)[i * 2],
-                            ((f32 *)sp.sp110)[i * 2 + 1], 0.0f);
+                        func_0025f3f0(
+                            positions[i].v[0], positions[i].v[1], 0.0f, 0xFFFFFF, 255, i + 13, 0,
+                            *(u8 **)(context + 0x10), 1);
                     }
                 }
             }
         } else {
-            func_0025f3f0(0xFFFFFF, 0xFF, 0xD, 0, *(u8 **)(arg2 + 0x10), 1, 356.0f, 340.0f, 0.0f);
-            func_0025f3f0(0xFFFFFF, 0xFF, 0xE, 0, *(u8 **)(arg2 + 0x10), 1, 396.0f, 350.0f, 0.0f);
-            func_0025f3f0(0xFFFFFF, 0xFF, 0xF, 0, *(u8 **)(arg2 + 0x10), 1, 430.0f, 350.0f, 0.0f);
-            func_0025f3f0(0xFFFFFF, 0xFF, 0x10, 0, *(u8 **)(arg2 + 0x10), 1, 467.0f, 338.0f, 0.0f);
-            func_0025f3f0(0xFFFFFF, 0xFF, 0x11, 0, *(u8 **)(arg2 + 0x10), 1, 515.0f, 349.0f, 0.0f);
-            func_0025f3f0(0xFFFFFF, 0xFF, 0x12, 0, *(u8 **)(arg2 + 0x10), 1, 550.0f, 347.0f, 0.0f);
-            func_0025f3f0(0xFFFFFF, 0xFF, 0x13, 0, *(u8 **)(arg2 + 0x10), 1, 588.0f, 340.0f, 0.0f);
-            func_0025f3f0(0xFFFFFF, 0xFF, 0x13, 0, *(u8 **)(arg2 + 0x10), 1, 603.0f, 340.0f, 0.0f);
+            func_0025f3f0(
+                356.0f, 340.0f, 0.0f, 0xFFFFFF, 255, 13, 0, *(u8 **)(context + 0x10), 1);
+            func_0025f3f0(
+                396.0f, 350.0f, 0.0f, 0xFFFFFF, 255, 14, 0, *(u8 **)(context + 0x10), 1);
+            func_0025f3f0(
+                430.0f, 350.0f, 0.0f, 0xFFFFFF, 255, 15, 0, *(u8 **)(context + 0x10), 1);
+            func_0025f3f0(
+                467.0f, 338.0f, 0.0f, 0xFFFFFF, 255, 16, 0, *(u8 **)(context + 0x10), 1);
+            func_0025f3f0(
+                515.0f, 349.0f, 0.0f, 0xFFFFFF, 255, 17, 0, *(u8 **)(context + 0x10), 1);
+            func_0025f3f0(
+                550.0f, 347.0f, 0.0f, 0xFFFFFF, 255, 18, 0, *(u8 **)(context + 0x10), 1);
+            func_0025f3f0(
+                588.0f, 340.0f, 0.0f, 0xFFFFFF, 255, 19, 0, *(u8 **)(context + 0x10), 1);
+            func_0025f3f0(
+                603.0f, 340.0f, 0.0f, 0xFFFFFF, 255, 19, 0, *(u8 **)(context + 0x10), 1);
         }
     }
-    if (rank < 0x10) {
-        s = func_0044b7b0((D_00761184 * (f32)rank) / 15.0f);
-        func_0025f3f0(0xFFFFFF, 0xFF, 0x29, 0, *(u8 **)(arg2 + 0x10), 1,
-            -((1.0f - s) * 640.0f), 375.0f, 0.0f);
+    if (*(s32 *)(work + 4) < 16) {
+        f32 value = func_0044b7b0(D_00761184 * (f32)*(s32 *)(work + 4) / 15.0f);
+        white = 0xFFFFFF;
+        bannerY = 375.0f;
+        func_0025f3f0(
+            -(640.0f * (1.0f - value)), bannerY, 0.0f, white, 255, 41, 0, *(u8 **)(context + 0x10), 1);
     } else {
-        func_0025f3f0(0xFFFFFF, 0xFF, 0x29, 0, *(u8 **)(arg2 + 0x10), 1, 0.0f, 375.0f, 0.0f);
+        white = 0xFFFFFF;
+        bannerY = 375.0f;
+        func_0025f3f0(
+            0.0f, bannerY, 0.0f, white, 255, 41, 0, *(u8 **)(context + 0x10), 1);
     }
-    if (rank >= 8) {
-        if (rank < 0x10) {
-            s = func_0044b7b0((D_00761184 * ((f32)rank - 7.0f)) / 8.0f);
-            func_0025f430(0xFFFFFF, 0xFF, special + 0x2A, 0, *(u8 **)(arg2 + 0x10), 1, 0, 0,
-                0.0f, (1.0f - s) * 10.0f + 380.0f, 0.0f, 0.0f, 1.0f, s);
+    if (*(s32 *)(work + 4) > 7) {
+        if (*(s32 *)(work + 4) < 16) {
+            f32 value = func_0044b7b0(D_00761184 * ((f32)*(s32 *)(work + 4) - 7.0f) / 8.0f);
+            func_0025f430(
+                0.0f, (0.0f + 380.0f) + 10.0f * (1.0f - value), 0.0f, white, 255, special + 42, 0,
+                *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, value);
         } else {
-            func_0025f3f0(0xFFFFFF, 0xFF, special + 0x2A, 0, *(u8 **)(arg2 + 0x10), 1, 0.0f, 380.0f, 0.0f);
+            func_0025f3f0(
+                0.0f, 380.0f, 0.0f, white, 255, special + 42, 0, *(u8 **)(context + 0x10), 1);
         }
     }
-    if (rank >= 0x13) {
-        if (rank < 0x1B) {
-            s = func_0044b7b0((D_00761184 * (f32)(rank - 0x12)) / 8.0f);
-            f = (1.0f - s) * 450.0f;
+    if (*(s32 *)(work + 4) > 18) {
+        if (*(s32 *)(work + 4) < 27) {
+            f32 value;
+            f32 displacement;
+            f32 distance;
+            f32 complement;
+            const u8 *source;
+            u8 *destination;
+            s32 count;
+            s32 first;
+            s32 second;
+            u32 vertex;
+            s32 relation;
+            u8 *sprites;
+            u8 *font;
+            s32 offset;
+            s32 width;
+            value = func_0044b7b0(D_00761184 * (f32)(*(s32 *)(work + 4) - 18) / 8.0f);
             if (special == 0) {
-                func_0025f3f0(0xFFFFFF, 0xFF, 1, 0, *(u8 **)(arg2 + 0x10), 1, 188.0f + f, 375.0f, 0.0f);
+                displacement = 1.0f - value;
+                distance = 450.0f;
+                distance *= displacement;
+                displacement = distance;
+                func_0025f3f0(
+                    188.0f + displacement, bannerY, 0.0f, white, 255, 1, 0, *(u8 **)(context + 0x10), 1);
             } else {
-                func_0025f3f0(0xFFFFFF, 0xFF, 0x1A, 0, *(u8 **)(arg2 + 0x10), 1, 184.0f + f, 336.0f, 0.0f);
+                displacement = 1.0f - value;
+                distance = 450.0f;
+                distance *= displacement;
+                displacement = distance;
+                func_0025f3f0(
+                    184.0f + displacement, 336.0f, 0.0f, white, 255, 26, 0, *(u8 **)(context + 0x10), 1);
             }
-            src = D_00635CC0;
-            dst = sp.spF0;
-            n = 4;
+            source = D_00635CC0;
+            destination = (u8 *)movingPoints;
+            count = 4;
             do {
-                t1 = *(s32 *)src;
-                t2 = *(s32 *)(src + 4);
-                src += 8;
-                n--;
-                *(s32 *)dst = t1;
-                *(s32 *)(dst + 4) = t2;
-                dst += 8;
-            } while (n > 0);
-            x = (f32)(s32)(218.0f + f);
-            for (i = 0; i < 4; i++) {
-                ((f32 *)sp.spF0)[i * 2] += x;
-                ((f32 *)sp.spF0)[i * 2 + 1] += 406.0f;
-                p = sp.spE0 + i * 4;
-                p[0] = 0;
-                p[1] = 0;
-                p[2] = 0;
-                p[3] = 0x99;
+                first = *(const s32 *)source;
+                second = *(const s32 *)(source + 4);
+                source += 8;
+                count--;
+                *(s32 *)destination = first;
+                *(s32 *)(destination + 4) = second;
+                destination += 8;
+            } while (count > 0);
+            for (vertex = 0; vertex < 4; vertex++) {
+                movingPoints[vertex].v[0] += (f32)(s32)(218.0f + displacement);
+                movingPoints[vertex].v[1] += 406.0f;
+                movingColors[vertex].r = 0;
+                movingColors[vertex].g = 0;
+                movingColors[vertex].b = 0;
+                movingColors[vertex].a = 0x99;
             }
-            func_0045dfd0(sp.spE0, sp.spF0, 0.0f, 4, 4, 1);
-            tbl = *(s32 *)(arg2 + 4);
-            asset = *(s32 *)(arg2 + 0x10);
-            font = (s32)func_0046a770((char *)D_00635CE0);
-            if (font == 0) {
+            func_0045dfd0(movingColors, movingPoints, 0.0f, 4, 4, 1);
+            relation = *(s32 *)(context + 4);
+            sprites = *(u8 **)(context + 0x10);
+            font = func_0046a770((char *)D_00635CE0);
+            if (font == NULL) {
                 func_0046d730(D_00635CF8, 0x1E4);
             }
-            w = func_0046b1f0((void *)font, (s32)(((u8 *)func_002467b0(tbl & 0xFFFF))[8]) + 0x20);
-            iv = (s32)f;
-            func_0025e9e0(0xFFFFFF, 0xFF, (s32)(((u8 *)func_002467b0(tbl & 0xFFFF))[8]) + 0x20,
-                (void *)font, 1, (f32)(iv + 299 - ((s32)w >> 1)), 407.0f, 0.0f);
-            func_0025f3f0(0xFFFFFF, 0xFF, 0x16, 0, (u8 *)asset, 1, (f32)(iv + 0x163), 411.0f, 0.0f);
-            func_00274ed0((f32)(iv + 0x188), 403.0f, 0.0f, -1, 0, 1,
-                (const char *)func_00246830(tbl & 0xFFFF), 0, 0);
+            width = (s32)func_0046b1f0(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 0x20);
+            complement = 1.0f;
+            complement -= value;
+            offset = (s32)(450.0f * complement);
+            func_0025e9e0(
+                (f32)((offset + 299) - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255,
+                ((u8 *)func_002467b0((u32)relation & 0xFFFF))[8] + 0x20, font, 1);
+            func_0025f3f0(
+                (f32)(offset + 355), 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
+            func_00274ed0((f32)(offset + 392), 403.0f, 0.0f,
+                -1, 0, 1, (const char *)func_00246830((u16)relation), 0, 0);
         } else {
+            const u8 *source;
+            u8 *destination;
+            s32 count;
+            s32 first;
+            s32 second;
+            u32 vertex;
+            s32 relation;
+            u8 *sprites;
+            u8 *font;
+            s32 width;
             if (special == 0) {
-                func_0025f3f0(0xFFFFFF, 0xFF, 1, 0, *(u8 **)(arg2 + 0x10), 1, 188.0f, 375.0f, 0.0f);
+                func_0025f3f0(
+                    188.0f, bannerY, 0.0f, white, 255, 1, 0, *(u8 **)(context + 0x10), 1);
             } else {
-                func_0025f3f0(0xFFFFFF, 0xFF, 0x1A, 0, *(u8 **)(arg2 + 0x10), 1, 184.0f, 336.0f, 0.0f);
+                func_0025f3f0(
+                    184.0f, 336.0f, 0.0f, white, 255, 26, 0, *(u8 **)(context + 0x10), 1);
             }
-            src = D_00635CC0;
-            dst = sp.spC0;
-            n = 4;
+            source = D_00635CC0;
+            destination = (u8 *)fixedPoints;
+            count = 4;
             do {
-                t1 = *(s32 *)src;
-                t2 = *(s32 *)(src + 4);
-                src += 8;
-                n--;
-                *(s32 *)dst = t1;
-                *(s32 *)(dst + 4) = t2;
-                dst += 8;
-            } while (n > 0);
-            i = 0;
-            do {
-                ((f32 *)sp.spC0)[i * 2] += 218.0f;
-                ((f32 *)sp.spC0)[i * 2 + 1] += 406.0f;
-                p = sp.spB0 + i * 4;
-                p[0] = 0;
-                p[1] = 0;
-                p[2] = 0;
-                p[3] = 0x99;
-                i++;
-            } while (i < 4);
-            func_0045dfd0(sp.spB0, sp.spC0, 0.0f, 4, 4, 1);
-            tbl = *(s32 *)(arg2 + 4);
-            asset = *(s32 *)(arg2 + 0x10);
-            font = (s32)func_0046a770((char *)D_00635CE0);
-            if (font == 0) {
+                first = *(const s32 *)source;
+                second = *(const s32 *)(source + 4);
+                source += 8;
+                count--;
+                *(s32 *)destination = first;
+                *(s32 *)(destination + 4) = second;
+                destination += 8;
+            } while (count > 0);
+            for (vertex = 0; vertex < 4; vertex++) {
+                fixedPoints[vertex].v[0] += 218.0f;
+                fixedPoints[vertex].v[1] += 406.0f;
+                fixedColors[vertex].r = 0;
+                fixedColors[vertex].g = 0;
+                fixedColors[vertex].b = 0;
+                fixedColors[vertex].a = 0x99;
+            }
+            func_0045dfd0(fixedColors, fixedPoints, 0.0f, 4, 4, 1);
+            relation = *(s32 *)(context + 4);
+            sprites = *(u8 **)(context + 0x10);
+            font = func_0046a770((char *)D_00635CE0);
+            if (font == NULL) {
                 func_0046d730(D_00635CF8, 0x1E4);
             }
-            w = func_0046b1f0((void *)font, (s32)(((u8 *)func_002467b0(tbl & 0xFFFF))[8]) + 0x20);
-            func_0025e9e0(0xFFFFFF, 0xFF, (s32)(((u8 *)func_002467b0(tbl & 0xFFFF))[8]) + 0x20,
-                (void *)font, 1, (f32)(299 - ((s32)w >> 1)), 407.0f, 0.0f);
-            func_0025f3f0(0xFFFFFF, 0xFF, 0x16, 0, (u8 *)asset, 1, 355.0f, 411.0f, 0.0f);
-            func_00274ed0(392.0f, 403.0f, 0.0f, -1, 0, 1,
-                (const char *)func_00246830(tbl & 0xFFFF), 0, 0);
+            width = (s32)func_0046b1f0(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 0x20);
+            func_0025e9e0(
+                (f32)(299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255,
+                ((u8 *)func_002467b0((u32)relation & 0xFFFF))[8] + 0x20, font, 1);
+            func_0025f3f0(
+                355.0f, 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
+            func_00274ed0(392.0f, 403.0f, 0.0f, -1, 0, 1, (const char *)func_00246830((u16)relation), 0, 0);
         }
     }
-    if (rank >= 0x1F) {
-        if (rank < 0x27) {
-            s = func_0044b7b0((D_00761174 * (f32)(rank - 0x1E)) / 8.0f);
+    if (*(s32 *)(work + 4) > 30) {
+        if (*(s32 *)(work + 4) < 39) {
+            f32 value = func_0044b7b0(D_00761174 * (f32)(*(s32 *)(work + 4) - 30) / 8.0f);
             if (special == 0) {
-                func_0025f3f0(0xFFFFFF, 0xFF, *(s32 *)(arg2 + 8) + 1, 0, *(u8 **)(arg2 + 0x10), 1,
-                    277.0f, 350.0f - s * 17.0f, 0.0f);
+                func_0025f3f0(
+                    277.0f, (0.0f + 350.0f) - 17.0f * value, 0.0f, white, 255, *(s32 *)(context + 8) + 1, 0,
+                    *(u8 **)(context + 0x10), 1);
             }
         } else if (special == 0) {
-            func_0025f3f0(0xFFFFFF, 0xFF, *(s32 *)(arg2 + 8) + 1, 0, *(u8 **)(arg2 + 0x10), 1,
-                277.0f, 350.0f, 0.0f);
+            func_0025f3f0(
+                277.0f, 350.0f, 0.0f, white, 255, *(s32 *)(context + 8) + 1, 0, *(u8 **)(context + 0x10), 1);
         }
     }
-    color = 0xFFFFFF;
-    if (rank >= 0x18) {
-        if (rank < 0x27) {
-            for (i = 0; i < 0xA; i++) {
-                d = rank - 0x17;
-                if (i <= d) {
-                    if (i >= *(s32 *)(arg2 + 8)) {
+    /* A star color is assigned before the glow can use it below. */
+    if (*(s32 *)(work + 4) > 23) {
+        if (*(s32 *)(work + 4) < 39) {
+            s32 i;
+            for (i = 0; i < 10; i++) {
+                s32 elapsed = *(s32 *)(work + 4) - 23;
+                if (!(elapsed < i)) {
+                    f32 value;
+                    if (*(s32 *)(context + 8) <= i) {
                         color = 0xDE7201;
                     } else {
-                        color = 0xFFFFFF;
+                        color = white;
                     }
-                    f = (f32)(d - i);
-                    if (f < 5.0f) {
-                        s = func_0044b7b0((D_00761184 * f) / 5.0f);
-                        func_0025f3f0(color, 0xFF, 0x15, 0, *(u8 **)(arg2 + 0x10), 1,
-                            (1.0f - s) * 400.0f + (f32)(i * 0x17 + 0x162), 381.0f, 0.0f);
+                    value = (f32)(elapsed - i);
+                    if (value < 5.0f) {
+                        value = func_0044b7b0(D_00761184 * value / 5.0f);
+                        func_0025f3f0(
+                            (0.0f + (f32)(i * 23 + 354)) + 400.0f * (1.0f - value), 381.0f, 0.0f, color, 255,
+                            21, 0, *(u8 **)(context + 0x10), 1);
                     } else {
-                        func_0025f3f0(color, 0xFF, 0x15, 0, *(u8 **)(arg2 + 0x10), 1,
-                            (f32)(i * 0x17 + 0x162), 381.0f, 0.0f);
+                        func_0025f3f0(
+                            (f32)(i * 23 + 354), 381.0f, 0.0f, color, 255, 21, 0, *(u8 **)(context + 0x10), 1);
                     }
                 }
             }
         } else {
-            for (i = 0; i < 0xA; i++) {
-                if (i >= *(s32 *)(arg2 + 8)) {
+            s32 i;
+            for (i = 0; i < 10; i++) {
+                if (*(s32 *)(context + 8) <= i) {
                     color = 0xDE7201;
                 } else {
-                    color = 0xFFFFFF;
+                    color = white;
                 }
-                func_0025f3f0(color, 0xFF, 0x15, 0, *(u8 **)(arg2 + 0x10), 1,
-                    (f32)(i * 0x17 + 0x162), 381.0f, 0.0f);
+                func_0025f3f0(
+                    (f32)(i * 23 + 354), 381.0f, 0.0f, color, 255, 21, 0, *(u8 **)(context + 0x10), 1);
             }
         }
     }
-    if (rank >= 0x1F) {
-        cnt = *(s16 *)(arg2 + 0x3E) + 1;
-        *(s16 *)(arg2 + 0x3E) = (s16)cnt;
-        if (cnt >= 0x2D) {
-            *(s16 *)(arg2 + 0x3E) = 0;
+    if (*(s32 *)(work + 4) > 30) {
+        s32 index;
+        *(s16 *)(context + 0x3E) += 1;
+        if (*(s16 *)(context + 0x3E) >= 45) {
+            *(s16 *)(context + 0x3E) = 0;
         }
-        idx = *(s32 *)(arg2 + 8) - 1;
-        s = func_0044b7b0(D_007612CC + (D_007612D0 * (f32)*(s16 *)(arg2 + 0x3E)) / 45.0f);
-        f21 = 1.0f;
-        f20 = D_00761288 + D_0076118C * ((s + 1.0f) / 2.0f);
-        if (rank < 0x3D) {
-            f21 = (f32)(rank - 0x1E) / 30.0f;
-            f = (1.0f - f21) * 255.0f;
-            if (!(f >= 2147483648.0f)) {
-                alpha = (s32)f & 0xFF;
-            } else {
-                alpha = ((s32)(f - 2147483648.0f) | 0x80000000) & 0xFF;
-            }
-            func_0025f430(0xFFFFFF, alpha, 0x1B, 0, *(u8 **)(arg2 + 0x10), 1,
-                (s32)(s16)(s32)(58.0f * f21), (s32)(s16)(s32)(62.0f * f21),
-                (f32)(idx * 0x17 + 0x165) - 58.0f * f21, 385.0f - 62.0f * f21, 0.0f,
-                90.0f * f21, f21, f21);
+        index = *(s32 *)(context + 8) - 1;
+        pulse = func_0044b7b0(D_007612CC + D_007612D0 * (f32)*(s16 *)(context + 0x3E) / 45.0f);
+        pulse = (0.0f + D_00761288) + D_0076118C * ((1.0f + pulse) / 2.0f);
+        progress = 1.0f;
+        if (*(s32 *)(work + 4) < 61) {
+            progress = (f32)(*(s32 *)(work + 4) - 30) / 30.0f;
+            func_0025f430(
+                (f32)(index * 23 + 357) - 58.0f * progress, 385.0f - 62.0f * progress, 0.0f, white,
+                (u8)(255.0f * (1.0f - progress)), 27, 0, *(u8 **)(context + 0x10), 1,
+                (s16)(s32)(58.0f * progress), (s16)(s32)(62.0f * progress), 90.0f * progress, progress,
+                progress);
         }
-        f20 = f20 * f21;
-        f = 1.0f + D_00761308 * f20;
-        x = f20 * 255.0f;
-        if (!(x >= 2147483648.0f)) {
-            alpha = (s32)x & 0xFF;
-        } else {
-            alpha = ((s32)(x - 2147483648.0f) | 0x80000000) & 0xFF;
-        }
-        func_0025f430(color, alpha, 0x1C, 0, *(u8 **)(arg2 + 0x10), 1, 0, 0,
-            (f32)(idx * 0x17 + 0x15E) - D_0076139C * f20, 377.0f - D_0076132C * f20, 0.0f, 0.0f,
-            f, f);
+        pulse *= progress;
+        scaleX = D_00761308 * pulse;
+        scaleY = scaleX;
+        scaleX = 1.0f;
+        scaleX += scaleY;
+        scaleY = scaleX;
+        func_0025f430(
+            (0.0f + (f32)(index * 23 + 350)) - D_0076139C * pulse, (0.0f + 377.0f) - D_0076132C * pulse, 0.0f,
+            color, (u8)(255.0f * pulse), 28, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, scaleX, scaleY);
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00253850);
-#endif
+#pragma pop
 
-
-/* measured: banked (2026-09-18): archived docs/probe_archive/LRankUp_00254a70_body.c
-   (332 lines on disk, code 1-331, line 332 bare trailing note stripped) installed
-   guarded. GUARDED_SCORE 931 (reloc-masked via `python3 -E -s tools/measure_guarded.py
-   src/cmmRankUp.c func_00254a70 --save-candidate /tmp/cand54a70_banked2.c`); fnalign
-   retail 1060 vs object 1070 instrs (+10, +0.9% within 3% gate +/-32 via `python3 -E -s
-   tools/fnalign.py src/cmmRankUp.c func_00254a70 --candidate /tmp/cand54a70_banked2.c --quiet`)
-   with 481 edits +13 reloc-only, body 4280B vs retail 4240B (+40B), 102 relocs, frame
-   both 0x170. "Content fails" concretely: 931 differing words / 481 edits dominated by
-   (a) D_00887300 vtable-base rematerialization (retail hoists base to $18 once per
-   7-call block, MWCC emits lui/addiu per jalr), (b) saved-GPR/FPR color rotation
-   (retail $s/$f allocation vs MWCC reverse-decl order), (c) scheduling (copy-loop
-   load/store batching, float interpolation and call-arg materialization order).
-   Frame matches, no missing calls (15 jal targets +14 vtable jalr all present).
-   Repairs from archive: supplied RankUp54Locals (not sibling RankUpLocals: 13 fields
-   240B covering 0x80-0x170), 4 data externs above, fixed forward decl `void`->`s32`
-   `func_00254a70()` (K&R kept as archived `s32(arg0,arg1,arg2)`; 0-arg caller in
-   func_00255b00 still allowed via unspecified args; modernizing would prototype the
-   caller and break the 0-arg call, so kept K&R), added `(char *)/(void *)/(s32)` casts
-   for 0046a770/0025e9e0 sites (same moves), reordered 2x func_00274ed0 calls
-   to header order (fr_font_internal.h floats-first, same $a/$f mapping), supplied 7
-   prototypes above (0025f3f0/0025f430 from shdSprite, 0045dfd0 from mc, 0046a770 from
-   promoted/code1_0046 `u8*(char*)`, 0046b1f0 from shdSprite/sdkSpr `f32(void*,s32)`,
-   00246830 from cmmMisc `u8*(s32)`); no func_0025f360 calls so sibling `*(s32*)` fix
-   N/A. No dummy locals (all used), no volatile/asm. Correctness doubt for Main:
-   func_0025e9e0 has no recovered definition (still ASM in code1_0025); prototype
-   `void(s32x4+void*+s32+f32x3)` inferred from two retail call sites ($a0-$a3+$t0 and
-   $f12-$f14 with $f14=0.0f via mtc1 $0) and matching generated call shapes; return
-   assumed void (unused). If verified definition required, treat as doubt.
-   Production stays ASM via guard (build unchanged); next pass starts from this floor. */
-// FUN_00254A70 NONMATCHING
-#ifdef NON_MATCHING
-typedef struct {
-    u8 sp80[0x10];
-    u8 sp90[0x20];
-    u8 spB0[0x10];
-    u8 spC0[0x20];
-    u8 spE0[0x10];
-    u8 spF0[0x10];
-    u8 sp100[0x10];
-    u_long128 sp110;
-    u8 sp120[0x40];
-    u32 sp160;
-    u32 sp164;
-    u32 sp168;
-    u32 sp16C;
-} RankUp54Locals;
-extern u8 D_006362D0[];
-extern u8 D_00635CC0[];
-extern u8 D_00635CE0[];
+#pragma push
+#pragma opt_loop_invariants on
+typedef struct { u8 r, g, b, a; } RankUpExitColor;
+typedef union {
+    RankUpExitColor rgba;
+    f32 copy;
+} RankUpExitColorCopy;
+typedef union {
+    struct { s32 x, y, width, height; } rect;
+    u_long128 copy;
+} RankUpExitRect;
+extern u8 D_006362D0[], D_00635CC0[], D_00635CE0[];
 extern f32 D_0076118C;
-s32 func_0025f3f0(s32 a0, s32 a1, s32 a2, s32 a3, u8 *a4, s32 a5, f32 f0, f32 f1, f32 f2);
-s32 func_0025f430(s32 a0, s32 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s32 a6, s32 a7, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5);
-void func_0045dfd0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4);
-u8 *func_0046a770(char *arg0);
-f32 func_0046b1f0(void *ptr, s32 idx);
-void func_0025e9e0(s32 a0, s32 a1, s32 a2, void *a3, s32 a4, f32 f0, f32 f1, f32 f2);
-u8 *func_00246830(s32 arg0);
-s32 func_00254a70(arg0, arg1, arg2)
-s32 arg0;
-u8 *arg1;
-u8 *arg2;
+s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
+s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+void func_0045dfd0(void *, void *, f32, s32, s32, s32);
+u8 *func_0046a770(char *);
+f32 func_0046b1f0(void *, s32);
+void func_0025e9e0(f32, f32, f32, s32, u8, s32, void *, s32);
+u8 *func_00246830(u32);
+
+/* measured: keep the unit scales local to their shrinking-sprite calls;
+   pulloutconstants otherwise retains one across both animation branches. */
+// FUN_00254A70
+#pragma opt_pulloutconstants off
+s32 func_00254a70(u8 *root, u8 *work, u8 *context)
 {
-    RankUp54Locals sp;
-    s32 var_16;
-    s32 temp_17;
-    s32 i;
-    s32 color;
-    s32 temp_s0;
-    s32 font;
-    s32 asset;
-    s32 count;
-    f32 temp_f0;
-    f32 temp_f1;
-    f32 temp_f12;
-    f32 temp_f13;
-    f32 temp_f14;
-    f32 temp_f20;
-    f32 temp_f21;
-    void (**vtable)(u32, u32);
-    u8 *src;
-    u8 *dst;
-    u8 *p;
-    s32 n;
+    RankUpExitColorCopy clipColor;
+    RankUpExitColorCopy clipColorSource;
+    RankUpExitColorCopy resetColor;
+    RankUpExitColorCopy resetColorSource;
+    PrimFloat2 positions[8];
+    RankUpExitRect clipRect;
+    RankUpExitRect clipRectSource;
+    RankUpExitRect resetRect;
+    RankUpExitRect resetRectSource;
+    PrimFloat2 fixedPoints[4];
+    RankUpExitColor fixedColors[4];
+    PrimFloat2 movingPoints[4];
+    RankUpExitColor movingColors[4];
+    s32 special;
+    s32 elapsed;
+    f32 value;
+    f32 scale;
+    f32 translation;
+    f32 origin;
+    u8 *renderState;
 
-    var_16 = 0;
-    if (*(s32 *)(arg2 + 8) == 0xA) {
-        var_16 = 1;
+    special = 0;
+    if (*(s32 *)(context + 8) == 10) {
+        special = 1;
     }
-    temp_17 = *(s32 *)(arg1 + 4) - 0x3C;
-    if (temp_17 < 0x13) {
-        src = D_006362D0;
-        dst = sp.sp120;
-        n = 8;
+    elapsed = *(s32 *)(work + 4) - 60;
+    if (elapsed < 19) {
+        s32 i;
+        const u8 *source;
+        u8 *destination;
+        s32 count;
+        s32 first;
+        s32 second;
+        source = D_006362D0;
+        destination = (u8 *)positions;
+        count = 8;
         do {
-            *(s32 *)dst = *(s32 *)src;
-            *(s32 *)(dst + 4) = *(s32 *)(src + 4);
-            src += 8;
-            dst += 8;
-            n--;
-        } while (n > 0);
-
-        p = (u8 *)&sp.sp168;
-        n = 4;
-        if (p != NULL) {
-            do {
-                *p++ = 0;
-                n--;
-            } while (n != 0);
-        }
-        sp.sp16C = sp.sp168;
-
-        p = sp.sp100;
-        n = 0x10;
-        if (p != NULL) {
-            do {
-                *p++ = 0;
-                n--;
-            } while (n != 0);
-        }
-        ((s32 *)sp.sp100)[0] = 0x15E;
-        ((s32 *)sp.sp100)[1] = 0x17C;
-        ((s32 *)sp.sp100)[2] = 0x122;
-        ((s32 *)sp.sp100)[3] = 0x64;
-        sp.sp110 = *(u_long128 *)sp.sp100;
-
-        vtable = D_00887300;
-        vtable[0](0xE, 0);
-        vtable[0](0xC, 1);
-        vtable[0](7, 2);
-        vtable[0](9, 1);
-        vtable[0](0x14, 1);
-        vtable[0](6, 0);
-        vtable[0](8, 1);
-        func_003f6440(3, 0x31003);
-        func_003f6440(2, 0x44);
-        func_00489f80();
-        func_0045d6e0(&sp.sp16C, &sp.sp110, 0, 5.0f);
-        func_0048a000();
-
-        i = 0;
-        while (i < 8) {
-            if (temp_17 < i) {
-                func_0025f3f0(0xFFFFFF, 0xFF, i + 0xD, 0,
-                              *(void **)(arg2 + 0x10), 1,
-                              ((f32 *)sp.sp120)[i * 2],
-                              ((f32 *)sp.sp120)[i * 2 + 1], 10.0f);
-            } else if (temp_17 - i < 9) {
-                temp_f0 = func_0044b7b0((D_00761184 * (f32)(temp_17 - i)) / 8.0f);
-                temp_f1 = ((f32 *)sp.sp120)[i * 2 + 1];
-                temp_f13 = temp_f1 + 50.0f * temp_f0;
-                func_0025f3f0(0xFFFFFF, 0xFF, i + 0xD, 0,
-                              *(void **)(arg2 + 0x10), 1,
-                              ((f32 *)sp.sp120)[i * 2], temp_f13, 10.0f);
+            first = *(const s32 *)source;
+            second = *(const s32 *)(source + 4);
+            source += 8;
+            count--;
+            *(s32 *)destination = first;
+            *(s32 *)(destination + 4) = second;
+            destination += 8;
+        } while (count > 0);
+        {
+            u8 *cursor;
+            u32 remaining;
+            cursor = (u8 *)&clipColorSource;
+            remaining = sizeof(clipColorSource);
+            if (cursor != NULL) {
+                do {
+                    *cursor++ = 0;
+                    remaining--;
+                } while (remaining != 0);
             }
-            i++;
         }
-
-        p = (u8 *)&sp.sp160;
-        n = 4;
-        if (p != NULL) {
-            do {
-                *p++ = 0;
-                n--;
-            } while (n != 0);
+        clipColor.copy = clipColorSource.copy;
+        {
+            u8 *cursor;
+            u32 remaining;
+            cursor = (u8 *)&clipRectSource;
+            remaining = sizeof(clipRectSource);
+            if (cursor != NULL) {
+                do {
+                    *cursor++ = 0;
+                    remaining--;
+                } while (remaining != 0);
+            }
         }
-        sp.sp164 = sp.sp160;
-
-        p = sp.spE0;
-        n = 0x10;
-        if (p != NULL) {
-            do {
-                *p++ = 0;
-                n--;
-            } while (n != 0);
-        }
-        ((s32 *)sp.spE0)[0] = 0x15E;
-        ((s32 *)sp.spE0)[1] = 0x17C;
-        ((s32 *)sp.spE0)[2] = 0x122;
-        ((s32 *)sp.spE0)[3] = 0x64;
-        *(u_long128 *)sp.spF0 = *(u_long128 *)sp.spE0;
-
-        vtable = D_00887300;
-        vtable[0](0xE, 0);
-        vtable[0](0xC, 1);
-        vtable[0](7, 2);
-        vtable[0](9, 1);
-        vtable[0](0x14, 1);
-        vtable[0](6, 0);
-        vtable[0](8, 1);
+        clipRectSource.rect.x = 350;
+        clipRectSource.rect.y = 380;
+        clipRectSource.rect.width = 290;
+        clipRectSource.rect.height = 100;
+        clipRect.copy = clipRectSource.copy;
+        renderState = (u8 *)D_00887300;
+        (*(void (**)(u32, u32))renderState)(14, 0);
+        (*(void (**)(u32, u32))renderState)(12, 1);
+        (*(void (**)(u32, u32))renderState)(7, 2);
+        (*(void (**)(u32, u32))renderState)(9, 1);
+        (*(void (**)(u32, u32))renderState)(20, 1);
+        (*(void (**)(u32, u32))renderState)(6, 0);
+        (*(void (**)(u32, u32))renderState)(8, 1);
         func_003f6440(3, 0x31003);
         func_003f6440(2, 0x44);
         func_00489f80();
-        func_0045d6e0(&sp.sp164, &sp.spF0, 0, 0.0f);
+        func_0045d6e0((u8 *)(&clipColor), (f32 *)(&clipRect), 5.0f, 0);
+        func_0048a000();
+        for (i = 0; i < 8; i++) {
+            if (!(elapsed < i)) {
+                if (elapsed - i < 9) {
+                    value = func_0044b7b0(D_00761184 * (f32)(elapsed - i) / 8.0f);
+                    func_0025f3f0(positions[i].v[0], (0.0f + positions[i].v[1]) + 50.0f * value, 10.0f, 0xFFFFFF, 255, i + 13, 0, *(u8 **)(context + 0x10), 1);
+                }
+            } else {
+                func_0025f3f0(positions[i].v[0], positions[i].v[1], 10.0f, 0xFFFFFF, 255, i + 13, 0, *(u8 **)(context + 0x10), 1);
+            }
+        }
+        {
+            u8 *cursor;
+            u32 remaining;
+            cursor = (u8 *)&resetColorSource;
+            remaining = sizeof(resetColorSource);
+            if (cursor != NULL) {
+                do {
+                    *cursor++ = 0;
+                    remaining--;
+                } while (remaining != 0);
+            }
+        }
+        resetColor.copy = resetColorSource.copy;
+        {
+            u8 *cursor;
+            u32 remaining;
+            cursor = (u8 *)&resetRectSource;
+            remaining = sizeof(resetRectSource);
+            if (cursor != NULL) {
+                do {
+                    *cursor++ = 0;
+                    remaining--;
+                } while (remaining != 0);
+            }
+        }
+        resetRectSource.rect.x = 350;
+        resetRectSource.rect.y = 380;
+        resetRectSource.rect.width = 290;
+        resetRectSource.rect.height = 100;
+        resetRect.copy = resetRectSource.copy;
+        renderState = (u8 *)D_00887300;
+        (*(void (**)(u32, u32))renderState)(14, 0);
+        (*(void (**)(u32, u32))renderState)(12, 1);
+        (*(void (**)(u32, u32))renderState)(7, 2);
+        (*(void (**)(u32, u32))renderState)(9, 1);
+        (*(void (**)(u32, u32))renderState)(20, 1);
+        (*(void (**)(u32, u32))renderState)(6, 0);
+        (*(void (**)(u32, u32))renderState)(8, 1);
+        func_003f6440(3, 0x31003);
+        func_003f6440(2, 0x44);
+        func_00489f80();
+        func_0045d6e0((u8 *)(&resetColor), (f32 *)(&resetRect), 0.0f, 0);
         func_0048a000();
     }
-
-    if (temp_17 < 0x19) {
-        func_0025f3f0(0xFFFFFF, 0xFF, 0x29, 0,
-                      *(void **)(arg2 + 0x10), 1, 0.0f, 375.0f, 0.0f);
-    } else if (temp_17 < 0x24) {
-        temp_f0 = func_0044b7b0((D_00761184 * (f32)(temp_17 - 0x19)) / 10.0f);
-        temp_f12 = 640.0f * temp_f0;
-        func_0025f3f0(0xFFFFFF, 0xFF, 0x29, 0,
-                      *(void **)(arg2 + 0x10), 1, temp_f12, 375.0f, 0.0f);
+    if (elapsed < 25) {
+        func_0025f3f0(0.0f, 375.0f, 0.0f, 0xFFFFFF, 255, 41, 0, *(u8 **)(context + 0x10), 1);
+    } else if (elapsed < 36) {
+        value = func_0044b7b0(D_00761184 * (f32)(elapsed - 25) / 10.0f);
+        func_0025f3f0(640.0f * value, 375.0f, 0.0f, 0xFFFFFF, 255, 41, 0, *(u8 **)(context + 0x10), 1);
     }
-    if (temp_17 < 0x1E) {
-        func_0025f3f0(0xFFFFFF, 0xFF, var_16 + 0x2A, 0,
-                      *(void **)(arg2 + 0x10), 1, 0.0f, 380.0f, 0.0f);
-    } else if (temp_17 < 0x24) {
-        temp_f0 = func_0044b7b0((D_00761184 * (f32)(temp_17 - 0x1E)) / 5.0f);
-        temp_f12 = 380.0f;
-        temp_f13 = 375.0f + 10.0f * temp_f0;
-        temp_f14 = temp_f12;
-        func_0025f430(0xFFFFFF, 0xFF, var_16 + 0x2A, 0,
-                      *(void **)(arg2 + 0x10), 1, 0, 0,
-                      temp_f12, temp_f13, temp_f14, temp_f14, 1.0f,
-                      1.0f - temp_f0);
+    if (elapsed < 30) {
+        func_0025f3f0(0.0f, 380.0f, 0.0f, 0xFFFFFF, 255, special + 42, 0, *(u8 **)(context + 0x10), 1);
+    } else if (elapsed < 36) {
+        value = func_0044b7b0(D_00761184 * (f32)(elapsed - 30) / 5.0f);
+        func_0025f430(0.0f, (0.0f + 380.0f) + 10.0f * value, 0.0f, 0xFFFFFF, 255, special + 42, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, 1.0f - value);
     }
-
-    if (temp_17 < 0x14) {
-        if (var_16 == 0) {
-            func_0025f3f0(0xFFFFFF, 0xFF, 1, 0,
-                          *(void **)(arg2 + 0x10), 1, 188.0f, 375.0f, 0.0f);
+    if (elapsed < 20) {
+        s32 color;
+        if (special == 0) {
+            color = 0xFFFFFF;
+            func_0025f3f0(188.0f, 375.0f, 0.0f, color, 255, 1, 0, *(u8 **)(context + 0x10), 1);
         } else {
-            func_0025f3f0(0xFFFFFF, 0xFF, 0x1A, 0,
-                          *(void **)(arg2 + 0x10), 1, 184.0f, 336.0f, 0.0f);
+            color = 0xFFFFFF;
+            func_0025f3f0(184.0f, 336.0f, 0.0f, color, 255, 26, 0, *(u8 **)(context + 0x10), 1);
         }
-        if (var_16 == 0) {
-            func_0025f3f0(0xFFFFFF, 0xFF, *(s32 *)(arg2 + 8) + 1, 0,
-                          *(void **)(arg2 + 0x10), 1, 277.0f, 350.0f, 0.0f);
+        if (special == 0) {
+            func_0025f3f0(277.0f, 350.0f, 0.0f, color, 255, *(s32 *)(context + 8) + 1, 0, *(u8 **)(context + 0x10), 1);
         }
-    } else if (temp_17 < 0x1A) {
-        temp_f0 = func_0044b7b0((D_00761184 * (f32)(temp_17 - 0x14)) / 5.0f);
-        temp_f20 = (f32)(s32)temp_f0;
-        temp_f21 = 1.0f - temp_f0;
-        if (var_16 == 0) {
-            temp_f14 = 188.0f;
-            temp_f13 = 375.0f + 28.0f * temp_f20;
-            func_0025f430(0xFFFFFF, 0xFF, 1, 0,
-                          *(void **)(arg2 + 0x10), 1, 0, 0,
-                          temp_f14, temp_f13, temp_f14, temp_f14, 1.0f,
-                          temp_f21);
+    } else if (elapsed < 26) {
+        s32 color;
+        value = func_0044b7b0(D_00761184 * (f32)(elapsed - 20) / 5.0f);
+        if (special == 0) {
+            scale = 1.0f - value;
+            color = 0xFFFFFF;
+            func_0025f430(188.0f, (0.0f + 375.0f) + 28.0f * value, 0.0f, color, 255, 1, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, scale);
         } else {
-            temp_f14 = 184.0f;
-            temp_f13 = 368.0f + 28.0f * temp_f20;
-            func_0025f430(0xFFFFFF, 0xFF, 0x1A, 0,
-                          *(void **)(arg2 + 0x10), 1, 0, 0,
-                          temp_f14, temp_f13, temp_f14, temp_f14, 1.0f,
-                          temp_f21);
+            scale = 1.0f - value;
+            color = 0xFFFFFF;
+            func_0025f430(184.0f, (0.0f + 336.0f) + 62.0f * value, 0.0f, color, 255, 26, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, scale);
         }
-        if (var_16 == 0) {
-            temp_f14 = 277.0f;
-            temp_f13 = 350.0f + 28.0f * temp_f20;
-            func_0025f430(0xFFFFFF, 0xFF, *(s32 *)(arg2 + 8) + 1, 0,
-                          *(void **)(arg2 + 0x10), 1, 0, 0,
-                          temp_f14, temp_f13, temp_f14, temp_f14, 1.0f,
-                          temp_f21);
+        if (special == 0) {
+            func_0025f430(277.0f, (0.0f + 350.0f) + 50.0f * value, 0.0f, color, 255, *(s32 *)(context + 8) + 1, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, scale);
         }
     }
-
-    if (temp_17 < 5) {
-        src = D_00635CC0;
-        dst = sp.spC0;
-        n = 4;
+    if (elapsed < 5) {
+        s32 i;
+        s32 color;
+        const u8 *source;
+        u8 *destination;
+        s32 count;
+        s32 first;
+        s32 second;
+        s32 relation;
+        u8 *sprites;
+        u8 *font;
+        s32 width;
+        u32 vertex;
+        source = D_00635CC0;
+        destination = (u8 *)fixedPoints;
+        count = 4;
         do {
-            *(s32 *)dst = *(s32 *)src;
-            *(s32 *)(dst + 4) = *(s32 *)(src + 4);
-            src += 8;
-            dst += 8;
-            n--;
-        } while (n > 0);
-        i = 0;
-        while (i < 4) {
-            ((f32 *)sp.spC0)[i * 2] += 218.0f;
-            ((f32 *)sp.spC0)[i * 2 + 1] += 406.0f;
-            p = sp.spB0 + i * 4;
-            p[0] = 0;
-            p[1] = 0;
-            p[2] = 0;
-            p[3] = 0x99;
-            i++;
+            first = *(const s32 *)source;
+            second = *(const s32 *)(source + 4);
+            source += 8;
+            count--;
+            *(s32 *)destination = first;
+            *(s32 *)(destination + 4) = second;
+            destination += 8;
+        } while (count > 0);
+        for (vertex = 0; vertex < 4U; vertex++) {
+            fixedPoints[vertex].v[0] += 218.0f;
+            fixedPoints[vertex].v[1] += 406.0f;
+            fixedColors[vertex].r = 0;
+            fixedColors[vertex].g = 0;
+            fixedColors[vertex].b = 0;
+            fixedColors[vertex].a = 153;
         }
-        func_0045dfd0(sp.spB0, sp.spC0, 4.0f, 4, 1, 0);
-        temp_s0 = *(s32 *)(arg2 + 4);
-        asset = *(s32 *)(arg2 + 0x10);
-        font = (s32)func_0046a770((char *)D_00635CE0);
-        if (font == 0) {
+        func_0045dfd0(fixedColors, fixedPoints, 0.0f, 4, 4, 1);
+        relation = *(s32 *)(context + 4);
+        sprites = *(u8 **)(context + 0x10);
+        font = func_0046a770((char *)D_00635CE0);
+        if (font == NULL) {
             func_0046d730(D_00635CF8, 0x1E4);
         }
-        temp_f20 = (f32)(299 - (((s32)func_0046b1f0(
-            (void *)font,
-            (s32)(((u8 *)func_002467b0(temp_s0 & 0xFFFF))[8]) + 0x20)) >> 1));
-        func_0025e9e0(0xFFFFFF, 0xFF,
-                      (s32)(((u8 *)func_002467b0(temp_s0 & 0xFFFF))[8]) + 0x20,
-                      (void *)font, 1, temp_f20, 407.0f, 0.0f);
-        func_0025f3f0(0xFFFFFF, 0xFF, 0x16, 0, (void *)asset, 1,
-                      355.0f, 411.0f, 0.0f);
-        func_00274ed0(392.0f, 403.0f, 0.0f, -1, 0, 1, (const char *)func_00246830(temp_s0 & 0xFFFF),
-                      0, 0);
-
-        i = 0;
-        while (i < 0xA) {
-            if (i >= *(s32 *)(arg2 + 8)) {
+        /* The width query and glyph lookup use signed and unsigned word
+           masks respectively; this preserves both retail narrowing points. */
+        width = (s32)func_0046b1f0(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 32);
+        func_0025e9e0((f32)(299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255, ((u8 *)func_002467b0((u32)relation & 0xFFFF))[8] + 32, font, 1);
+        func_0025f3f0(355.0f, 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
+        func_00274ed0(392.0f, 403.0f, 0.0f, -1, 0, 1,
+            (const char *)func_00246830((u16)relation), 0, 0);
+        for (i = 0; i < 10; i++) {
+            if (*(s32 *)(context + 8) <= i) {
                 color = 0xDE7201;
             } else {
                 color = 0xFFFFFF;
             }
-            func_0025f3f0(color, 0xFF, 0x15, 0, (void *)asset, 1,
-                          (f32)(i * 0x17 + 0x162), 381.0f, 0.0f);
-            i++;
+            func_0025f3f0((f32)(i * 23 + 354), 381.0f, 0.0f, color, 255, 21, 0, *(u8 **)(context + 0x10), 1);
         }
-        count = *(s16 *)(arg2 + 0x3E) + 1;
-        *(s16 *)(arg2 + 0x3E) = (s16)count;
-        if ((s16)count >= 0x2D) {
-            *(s16 *)(arg2 + 0x3E) = 0;
+        *(s16 *)(context + 0x3E) += 1;
+        if (*(s16 *)(context + 0x3E) >= 45) {
+            *(s16 *)(context + 0x3E) = 0;
         }
-        temp_f0 = func_0044b7b0(D_007612CC +
-                                (D_007612D0 * (f32)*(s16 *)(arg2 + 0x3E)) / 45.0f);
-        temp_f1 = (D_0076118C + D_00761288 * ((temp_f0 + 1.0f) / 2.0f));
-        temp_f1 = 255.0f * temp_f1 *
-                  (1.0f - (f32)temp_17 / 5.0f);
-        if (!(temp_f1 >= 2147483648.0f)) {
-            count = (s32)temp_f1 & 0xFF;
-        } else {
-            count = ((s32)(temp_f1 - 2147483648.0f) | 0x80000000) & 0xFF;
-        }
-        func_0025f3f0(color, count, 0x1C, 0, (void *)asset, 1,
-                      (f32)((*(s32 *)(arg2 + 8) - 1) * 0x17 + 0x15D),
-                      376.0f, 0.0f);
-    } else if (temp_17 < 0x15) {
-        temp_f20 = func_0044b7b0((D_00761184 * (f32)(temp_17 - 5)) / 15.0f);
-        src = D_00635CC0;
-        dst = sp.sp90;
-        n = 4;
+        value = func_0044b7b0(D_007612CC + D_007612D0 * (f32)*(s16 *)(context + 0x3E) / 45.0f);
+        value = (0.0f + D_00761288) + D_0076118C * ((1.0f + value) / 2.0f);
+        value *= 1.0f - (f32)elapsed / 5.0f;
+        func_0025f3f0((f32)((*(s32 *)(context + 8) - 1) * 23 + 349), 376.0f, 0.0f, color, (u8)(255.0f * value), 28, 0, *(u8 **)(context + 0x10), 1);
+    } else if (elapsed < 21) {
+        s32 i;
+        const u8 *source;
+        u8 *destination;
+        s32 count;
+        s32 first;
+        s32 second;
+        s32 relation;
+        u8 *sprites;
+        u8 *font;
+        s32 width;
+        s32 offset;
+        u32 vertex;
+        value = func_0044b7b0(D_00761184 * (f32)(elapsed - 5) / 15.0f);
+        source = D_00635CC0;
+        destination = (u8 *)movingPoints;
+        count = 4;
         do {
-            *(s32 *)dst = *(s32 *)src;
-            *(s32 *)(dst + 4) = *(s32 *)(src + 4);
-            src += 8;
-            dst += 8;
-            n--;
-        } while (n > 0);
-        i = 0;
-        while (i < 4) {
-            ((f32 *)sp.sp90)[i * 2] += 218.0f + 500.0f * temp_f20;
-            ((f32 *)sp.sp90)[i * 2 + 1] += 406.0f;
-            p = sp.sp80 + i * 4;
-            p[0] = 0;
-            p[1] = 0;
-            p[2] = 0;
-            p[3] = 0x99;
-            i++;
+            first = *(const s32 *)source;
+            second = *(const s32 *)(source + 4);
+            source += 8;
+            count--;
+            *(s32 *)destination = first;
+            *(s32 *)(destination + 4) = second;
+            destination += 8;
+        } while (count > 0);
+        vertex = 0;
+        translation = 500.0f * value;
+        origin = 218.0f;
+        origin += translation;
+        translation = origin;
+        for (; vertex < 4U; vertex++) {
+            movingPoints[vertex].v[0] += (f32)(s32)translation;
+            movingPoints[vertex].v[1] += 406.0f;
+            movingColors[vertex].r = 0;
+            movingColors[vertex].g = 0;
+            movingColors[vertex].b = 0;
+            movingColors[vertex].a = 153;
         }
-        func_0045dfd0(sp.sp80, sp.sp90, 4.0f, 4, 1, 0);
-        temp_s0 = *(s32 *)(arg2 + 4);
-        asset = *(s32 *)(arg2 + 0x10);
-        font = (s32)func_0046a770((char *)D_00635CE0);
-        if (font == 0) {
+        func_0045dfd0(movingColors, movingPoints, 0.0f, 4, 4, 1);
+        relation = *(s32 *)(context + 4);
+        sprites = *(u8 **)(context + 0x10);
+        font = func_0046a770((char *)D_00635CE0);
+        if (font == NULL) {
             func_0046d730(D_00635CF8, 0x1E4);
         }
-        temp_f0 = func_0046b1f0(
-            (void *)font,
-            (s32)(((u8 *)func_002467b0(temp_s0 & 0xFFFF))[8]) + 0x20);
-        temp_s0 = (s32)(500.0f * temp_f20);
-        temp_f21 = (f32)(temp_s0 + 299 - ((s32)temp_f0 >> 1));
-        func_0025e9e0(0xFFFFFF, 0xFF,
-                      (s32)(((u8 *)func_002467b0((*(s32 *)(arg2 + 4)) & 0xFFFF))[8]) + 0x20,
-                      (void *)font, 1, temp_f21, 407.0f, 0.0f);
-        func_0025f3f0(0xFFFFFF, 0xFF, 0x16, 0, (void *)asset, 1,
-                      (f32)(temp_s0 + 355), 411.0f, 0.0f);
-        func_00274ed0((f32)(temp_s0 + 392), 403.0f, 0.0f,
-                      -1, 0, 1, (const char *)func_00246830((*(s32 *)(arg2 + 4)) & 0xFFFF),
-                      0, 0);
-
-        i = 0;
-        while (i < 0xA) {
-            if (i >= *(s32 *)(arg2 + 8)) {
-                color = 0xDE7201;
-            } else {
-                color = 0xFFFFFF;
-            }
-            func_0025f3f0(color, 0xFF, 0x15, 0, (void *)asset, 1,
-                          (f32)(i * 0x17 + 0x162) + temp_f20,
-                          381.0f, 0.0f);
-            i++;
+        /* The width query and glyph lookup use signed and unsigned word
+           masks respectively; this preserves both retail narrowing points. */
+        width = (s32)func_0046b1f0(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 32);
+        origin = 500.0f;
+        origin *= value;
+        value = origin;
+        offset = (s32)value;
+        func_0025e9e0((f32)(offset + 299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255, ((u8 *)func_002467b0((u32)relation & 0xFFFF))[8] + 32, font, 1);
+        func_0025f3f0((f32)(offset + 355), 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
+        func_00274ed0((f32)(offset + 392), 403.0f, 0.0f, -1, 0, 1,
+            (const char *)func_00246830((u16)relation), 0, 0);
+        for (i = 0; i < 10; i++) {
+            func_0025f3f0(value + (f32)(i * 23 + 354), 381.0f, 0.0f, *(s32 *)(context + 8) <= i ? 0xDE7201 : 0xFFFFFF, 255, 21, 0, *(u8 **)(context + 0x10), 1);
         }
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00254a70);
-#endif
 
+#pragma pop
 // FUN_00255B00
-s32 func_00255b00(s32 arg0, s32 *arg1) {
+s32 func_00255b00(u8 *arg0, s32 *arg1, u8 *context) {
     s32 v;
     s32 rv;
 
@@ -1545,9 +1432,9 @@ s32 func_00255b00(s32 arg0, s32 *arg1) {
         rv = 1;
     }
     if (v < 0x3D) {
-        func_00253850();
+        func_00253850(arg0, (u8 *)arg1, context);
     } else {
-        func_00254a70();
+        func_00254a70(arg0, (u8 *)arg1, context);
     }
     return rv;
 }
@@ -1775,9 +1662,9 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
 typedef struct { u8 r, g, b, a; } RankUpColor;
 
 // FUN_002561F0
-void func_002561f0(s32 rgbValue, s32 mainAlpha, s32 upperAlpha, s32 lowerAlpha,
+void func_002561f0(f32 translateX, f32 translateY, f32 depth,
+                   s32 rgbValue, s32 mainAlpha, s32 upperAlpha, s32 lowerAlpha,
                    s32 saveState, s32 offsetX, s32 offsetY,
-                   f32 translateX, f32 translateY, f32 depth,
                    f32 scaleX, f32 scaleY)
 {
     PrimPointRow positions[16];
@@ -1883,9 +1770,9 @@ void func_002561f0(s32 rgbValue, s32 mainAlpha, s32 upperAlpha, s32 lowerAlpha,
 #pragma opt_loop_invariants on
 
 // FUN_00256460
-void func_00256460(s32 rgbValue, s32 mainAlpha, s32 upperAlpha, s32 lowerAlpha,
+void func_00256460(f32 translateX, f32 translateY, f32 depth,
+                   s32 rgbValue, s32 mainAlpha, s32 upperAlpha, s32 lowerAlpha,
                    s32 saveState, s32 offsetX, s32 offsetY,
-                   f32 translateX, f32 translateY, f32 depth,
                    f32 scaleX, f32 scaleY)
 {
     PrimPointRow positions[16];
@@ -1982,518 +1869,380 @@ void func_00256460(s32 rgbValue, s32 mainAlpha, s32 upperAlpha, s32 lowerAlpha,
 #pragma pop
 
 
-/* measured: nd 303 after four attempts; frame 0x150, prologue, both copy
-   loops, func_00252230/003e0870 call shapes and the func_00366c70 arg layout
-   (incl. s16 arg7 in $11, s16 stack args, msub.s alpha args) all match.
-   Residual: (1) FP saved-reg rotation - retail keeps fparg4/temp_f21/temp_f20
-   in $f22/$f21/$f20, mwcc allocates $f21/$f20/$f22 regardless of declaration
-   order (tried both orders); (2) the D_00887300 vtable base must be assigned
-   to a local JUST BEFORE its calls (retail lui/addiu into $s2 there); assigned
-   early mwcc hoists it to the top in $s1 and the whole mid-function shifts.
-   Tried: 6- and 9-param signatures (positional float regs confirmed: 3 unused
-   leading f32s needed to place fparg3/fparg4 at $f15/$f16), (s16)/(s64) arg
-   spellings, named vt local. FP-allocation floor + vtable-hoist placement. */
-/* object 1264B, window 1296B, normalized_diff 735 (verify); abandoned alpha/register probe */
-/* measured 002566d0 (owner, 2026-09-20): 316 against retail 322 (-1.9%, inside), **169
-   edits**, with three identical 16-instruction CROSS runs at 0x00256894, 0x00256a10 and
-   0x00256b18 - the same construct three times.
-   Retail's block reads `andi $2, $8, 0xFF` and then the unsigned float conversion on that
-   masked byte, doubling with `add.s $f0, $f0, $f0`.
-   Two rewrites measured, and the interesting one cannot be banked:
-     compact `var_f0 = (f32)(u32)alpha_u`, letting b210 emit the whole idiom:
-       **150 edits** (-19) but the count drops to 307, which is -4.7% and OUTSIDE the band
-       (312-332), so it is rejected on the gate;
-     keep the written-out idiom and double with `var_f0 = var_f0 + var_f0`:
-       182 edits, also 307 - worse on both counts.
-   The compact form being BETTER here is a genuine counter-example to the standing rule
-   that the hand-written idiom must never be compacted, which came from func_00356a10
-   where compacting 21 sites cost 486 edits.  The difference looks like the operand: a
-   masked byte here, a full word there.  Neither result is safe to generalise, and this
-   floor stays as it is until the 6 missing instructions are found - then the compact
-   form becomes bankable and is worth 19. */
-// FUN_002566D0 NONMATCHING
-#ifdef NON_MATCHING
-void func_002566d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                   f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                   f32 fparg4) {
-    Sp120 sp120;
-    u8 spD0[0x48];
-    u8 spB0[0x20];
-    u8 sp70[0x40];
-    u8 *src;
-    u8 *dst;
+/* Native b210 O2: 1292/1296 bytes, fifteen resolved relocations, and
+ * four zero tail bytes. Typed keyframes and separate expansion/centering
+ * lifetimes retain the original four-pass draw and fade calculation. */
+// FUN_002566D0
+void func_002566d0(f32 unusedX, f32 unusedY, f32 unusedZ,
+                  s32 unusedColor, s32 alpha, f32 interpolation, f32 expansion,
+                  s32 textureA, s32 textureB)
+{
+    Sp120 state;
+    union { Sp120 states[2]; s32 words[18]; } keys;
+    union { f32 coordinates[4][2]; s32 words[8]; } uv;
+    RankUpMatrix matrix;
+    const u8 *source;
+    u8 *destination;
     s32 count;
-    s32 temp_3;
-    f32 temp_f22;
-    f32 temp_f20;
-    f32 temp_f21;
-    f32 temp_f21_2;
-    f32 var_f0;
-    s32 temp_2;
-    u32 alpha_u;
-    s32 call_x;
-    s32 call_y;
-    s16 call_w;
-    s16 call_h;
-    s32 call_alpha;
-    void (*vt)(u32, u32);
-    temp_f22 = fparg4;
-    src = D_00636410;
-    dst = spD0;
+    s32 first;
+    s32 second;
+    f32 effect;
+    f32 opacity;
+    f32 growth;
+    f32 center;
+    u8 *renderState;
+
+    effect = expansion;
+    source = D_00636410;
+    destination = (u8 *)&keys;
     count = 9;
     do {
-        temp_3 = *(s32 *)src;
-        temp_2 = *(s32 *)(src + 4);
-        src += 8;
+        first = *(const s32 *)source;
+        second = *(const s32 *)(source + 4);
+        source += 8;
         count--;
-        *(s32 *)dst = temp_3;
-        *(s32 *)(dst + 4) = temp_2;
-        dst += 8;
+        *(s32 *)destination = first;
+        *(s32 *)(destination + 4) = second;
+        destination += 8;
     } while (count > 0);
-    src = D_00636460;
-    dst = spB0;
+    source = D_00636460;
+    destination = (u8 *)&uv;
     count = 4;
     do {
-        temp_3 = *(s32 *)src;
-        temp_2 = *(s32 *)(src + 4);
-        src += 8;
+        first = *(const s32 *)source;
+        second = *(const s32 *)(source + 4);
+        source += 8;
         count--;
-        *(s32 *)dst = temp_3;
-        *(s32 *)(dst + 4) = temp_2;
-        dst += 8;
+        *(s32 *)destination = first;
+        *(s32 *)(destination + 4) = second;
+        destination += 8;
     } while (count > 0);
-    temp_f21 = (f32)arg1 / 255.0f;
-    temp_f20 = 0.25f * temp_f22;
-    func_00252230(&sp120, (Sp120 *)spD0,
-                  (Sp120 *)((u8 *)spD0 + 0x24), fparg3);
-    func_003e0870(sp70, (u8 *)&sp120 + 0xC, sp120.f1C, 0);
-    call_h = sp120.f22;
-    call_w = sp120.f20;
-    call_alpha = sp120.f18;
-    call_x = (s32)sp120.f4;
-    call_y = (s32)sp120.f8;
-    alpha_u = call_alpha;
-    temp_2 = alpha_u & 0xFF;
-    if (temp_2 >= 0) {
-        var_f0 = (f32)temp_2;
-    } else {
-        var_f0 = (f32)(s32)(((u32)temp_2 >> 1) | ((u32)temp_2 & 1));
-        var_f0 += var_f0;
-    }
-    func_00366c70(call_x, call_y,
-                  call_w, call_h, call_alpha >> 8,
-                  (s32)(var_f0 * temp_f21), 3,
-                  (s16)(call_w >> 1), 0.0f,
-                  (s16)(call_h >> 1), sp70, arg2, spB0);
-    temp_2 = *(u8 *)&sp120.f18;
-    alpha_u = temp_2;
-    if (temp_2 >= 0) {
-        var_f0 = (f32)temp_2;
-    } else {
-        var_f0 = 2.0f * (f32)(s32)((alpha_u >> 1) | (alpha_u & 1));
-    }
-    func_00366c70((s32)sp120.f4, (s32)sp120.f8,
-                  sp120.f20, sp120.f22, sp120.f18 >> 8,
-                  (s32)(var_f0 * temp_f21), 5,
-                  (s16)(sp120.f20 >> 1), 0.0f,
-                  (s16)(sp120.f22 >> 1), sp70, arg3, spB0);
-    vt = D_00887300[0];
-    vt(6, 0);
-    vt(8, 1);
+
+    opacity = (f32)alpha / 255.0f;
+    growth = 0.25f * effect;
+    func_00252230(&state, &keys.states[0], &keys.states[1], interpolation);
+    func_003e0870(&matrix, &state.axis, state.f1C, 0);
+    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f,
+                  state.f20, state.f22, (u32)state.f18 >> 8,
+                  (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 3,
+                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+                  &matrix, textureA, uv.coordinates);
+    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f,
+                  state.f20, state.f22, (u32)state.f18 >> 8,
+                  (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 5,
+                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+                  &matrix, textureB, uv.coordinates);
+    renderState = (u8 *)D_00887300;
+    (*(void (**)(u32, u32))renderState)(6, 0);
+    (*(void (**)(u32, u32))renderState)(8, 1);
     func_003f6440(3, 0x31003);
     func_003f6440(2, 0x48);
-    temp_f21_2 = 1.0f + temp_f20;
-    temp_2 = *(u8 *)&sp120.f18;
-    alpha_u = temp_2;
-    if (temp_2 >= 0) {
-        var_f0 = (f32)temp_2;
-    } else {
-        var_f0 = 2.0f * (f32)(s32)((alpha_u >> 1) | (alpha_u & 1));
-    }
-    func_00366c70(
-                  (s32)((f32)sp120.f4 - (f32)sp120.f20 * temp_f20),
-                  (s32)((f32)sp120.f8 - (f32)sp120.f22 * temp_f20),
-                  (s32)((f32)sp120.f20 * temp_f21_2),
-                  (s32)((f32)sp120.f22 * temp_f21_2), sp120.f18 >> 8,
-                  (s32)(var_f0 * temp_f22), 2,
-                  (s16)(sp120.f20 >> 1), 0.0f,
-                  (s16)(sp120.f22 >> 1), sp70, arg2, spB0);
-    temp_2 = *(u8 *)&sp120.f18;
-    alpha_u = temp_2;
-    if (temp_2 >= 0) {
-        var_f0 = (f32)temp_2;
-    } else {
-        var_f0 = 2.0f * (f32)(s32)((alpha_u >> 1) | (alpha_u & 1));
-    }
-    func_00366c70(
-                  (s32)((f32)sp120.f4 - (f32)sp120.f20 * temp_f20),
-                  (s32)((f32)sp120.f8 - (f32)sp120.f22 * temp_f20),
-                  (s32)((f32)sp120.f20 * temp_f21_2),
-                  (s32)((f32)sp120.f22 * temp_f21_2), sp120.f18 >> 8,
-                  (s32)(var_f0 * temp_f22), 4,
-                  (s16)(sp120.f20 >> 1), 0.0f,
-                  (s16)(sp120.f22 >> 1), sp70, arg3, spB0);
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002566d0);
-#endif
 
-/* measured: nd 303 after four attempts; twin of func_002566d0 (same walls):
-   frame 0x150, prologue, copy loops and all call shapes match, but (1) FP
-   saved-reg rotation (fparg4/temp_f21/temp_f20 in $f22/$f21/$f20 retail vs
-   $f21/$f20/$f22 mwcc, both declaration orders tried), (2) GPR rotation: mwcc
-   saves the D_00887300 vt base in $s1 with arg2 in $s2 while retail uses $18
-   for vt and $s1/$s0 for arg2's halves (vt declared first/last both tried),
-   (3) the vt base must be assigned early to force a saved reg at all (late
-   assignment makes mwcc rematerialize lui/lw per call and the frame shrinks
-   to 0x140). Saved-register rotation + D_00887300 vtable-hoist floors; alpha
-   sites need the (u32) cast like func_002570f0. */
-/* measured: ported twin 002566d0 floor with D_00636480/D_006364D0 tables, D_0076122C global, 0.5x position factor (0.125 vs 0.25), 271 differing words; twin walls (FP/GPR rotation, vt hoist, (u32) alpha); production stays ASM. */
-// FUN_00256BE0 NONMATCHING
-#ifdef NON_MATCHING
-void func_00256be0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                   f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                   f32 fparg4) {
-    Sp120 sp120;
-    u8 spD0[0x48];
-    u8 spB0[0x20];
-    u8 sp70[0x40];
-    u8 *src;
-    u8 *dst;
+    effect = D_0076122C * (1.0f - effect);
+    effect = effect * opacity;
+    {
+        s16 height = state.f22;
+        s16 width = state.f20;
+        u32 packed = (u32)state.f18;
+        opacity = 1.0f + growth;
+        center = 0.5f * growth;
+        func_00366c70((s32)((0.0f + state.f4) - (f32)width * center),
+                      (s32)((0.0f + state.f8) - (f32)height * center), 0.0f,
+                      (s32)((f32)width * opacity), (s32)((f32)height * opacity),
+                      packed >> 8,
+                      (s32)((f32)(packed & 0xFF) * effect), 2,
+                      (s16)(width >> 1), (s16)(height >> 1),
+                      &matrix, textureA, uv.coordinates);
+    }
+    func_00366c70((s32)((0.0f + state.f4) - (f32)state.f20 * center),
+                  (s32)((0.0f + state.f8) - (f32)state.f22 * center), 0.0f,
+                  (s32)((f32)state.f20 * opacity), (s32)((f32)state.f22 * opacity),
+                  (u32)state.f18 >> 8,
+                  (s32)((f32)((u32)state.f18 & 0xFF) * effect), 4,
+                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+                  &matrix, textureB, uv.coordinates);
+}
+/* Native b210 O2: 1292/1296 bytes, fifteen resolved relocations, and
+ * four zero tail bytes. Typed keyframes and separate expansion/centering
+ * lifetimes retain the original four-pass draw and fade calculation. */
+// FUN_00256BE0
+void func_00256be0(f32 unusedX, f32 unusedY, f32 unusedZ,
+                  s32 unusedColor, s32 alpha, f32 interpolation, f32 expansion,
+                  s32 textureA, s32 textureB)
+{
+    Sp120 state;
+    union { Sp120 states[2]; s32 words[18]; } keys;
+    union { f32 coordinates[4][2]; s32 words[8]; } uv;
+    RankUpMatrix matrix;
+    const u8 *source;
+    u8 *destination;
     s32 count;
-    s32 temp_3;
-    f32 temp_f22;
-    f32 temp_f20;
-    f32 temp_f20_2;
-    f32 temp_f21;
-    f32 temp_f21_2;
-    f32 var_f0;
-    s32 temp_2;
-    u32 alpha_u;
-    s32 call_x;
-    s32 call_y;
-    s16 call_w;
-    s16 call_h;
-    s32 call_alpha;
-    void (*vt)(u32, u32);
-    temp_f22 = fparg4;
-    src = D_00636480;
-    dst = spD0;
+    s32 first;
+    s32 second;
+    f32 effect;
+    f32 opacity;
+    f32 growth;
+    f32 center;
+    u8 *renderState;
+
+    effect = expansion;
+    source = D_00636480;
+    destination = (u8 *)&keys;
     count = 9;
     do {
-        temp_3 = *(s32 *)src;
-        temp_2 = *(s32 *)(src + 4);
-        src += 8;
+        first = *(const s32 *)source;
+        second = *(const s32 *)(source + 4);
+        source += 8;
         count--;
-        *(s32 *)dst = temp_3;
-        *(s32 *)(dst + 4) = temp_2;
-        dst += 8;
+        *(s32 *)destination = first;
+        *(s32 *)(destination + 4) = second;
+        destination += 8;
     } while (count > 0);
-    src = D_006364D0;
-    dst = spB0;
+    source = D_006364D0;
+    destination = (u8 *)&uv;
     count = 4;
     do {
-        temp_3 = *(s32 *)src;
-        temp_2 = *(s32 *)(src + 4);
-        src += 8;
+        first = *(const s32 *)source;
+        second = *(const s32 *)(source + 4);
+        source += 8;
         count--;
-        *(s32 *)dst = temp_3;
-        *(s32 *)(dst + 4) = temp_2;
-        dst += 8;
+        *(s32 *)destination = first;
+        *(s32 *)(destination + 4) = second;
+        destination += 8;
     } while (count > 0);
-    temp_f21 = (f32)arg1 / 255.0f;
-    temp_f20 = 0.25f * temp_f22;
-    temp_f20_2 = 0.5f * temp_f20;
-    temp_f22 = D_0076122C * (1.0f - temp_f22) * temp_f21;
-    temp_f21_2 = 1.0f + temp_f20;
-    func_00252230(&sp120, (Sp120 *)spD0,
-                  (Sp120 *)((u8 *)spD0 + 0x24), fparg3);
-    func_003e0870(sp70, (u8 *)&sp120 + 0xC, sp120.f1C, 0);
-    call_h = sp120.f22;
-    call_w = sp120.f20;
-    call_alpha = sp120.f18;
-    call_x = (s32)sp120.f4;
-    call_y = (s32)sp120.f8;
-    alpha_u = call_alpha;
-    temp_2 = alpha_u & 0xFF;
-    if (temp_2 >= 0) {
-        var_f0 = (f32)temp_2;
-    } else {
-        var_f0 = (f32)(s32)(((u32)temp_2 >> 1) | ((u32)temp_2 & 1));
-        var_f0 += var_f0;
-    }
-    func_00366c70(call_x, call_y,
-                  call_w, call_h, call_alpha >> 8,
-                  (s32)(var_f0 * temp_f21), 3,
-                  (s16)(call_w >> 1), 0.0f,
-                  (s16)(call_h >> 1), sp70, arg2, spB0);
-    temp_2 = *(u8 *)&sp120.f18;
-    alpha_u = temp_2;
-    if (temp_2 >= 0) {
-        var_f0 = (f32)temp_2;
-    } else {
-        var_f0 = 2.0f * (f32)(s32)((alpha_u >> 1) | (alpha_u & 1));
-    }
-    func_00366c70((s32)sp120.f4, (s32)sp120.f8,
-                  sp120.f20, sp120.f22, sp120.f18 >> 8,
-                  (s32)(var_f0 * temp_f21), 5,
-                  (s16)(sp120.f20 >> 1), 0.0f,
-                  (s16)(sp120.f22 >> 1), sp70, arg3, spB0);
-    vt = D_00887300[0];
-    vt(6, 0);
-    vt(8, 1);
+
+    opacity = (f32)alpha / 255.0f;
+    growth = 0.25f * effect;
+    func_00252230(&state, &keys.states[0], &keys.states[1], interpolation);
+    func_003e0870(&matrix, &state.axis, state.f1C, 0);
+    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f,
+                  state.f20, state.f22, (u32)state.f18 >> 8,
+                  (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 3,
+                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+                  &matrix, textureA, uv.coordinates);
+    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f,
+                  state.f20, state.f22, (u32)state.f18 >> 8,
+                  (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 5,
+                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+                  &matrix, textureB, uv.coordinates);
+    renderState = (u8 *)D_00887300;
+    (*(void (**)(u32, u32))renderState)(6, 0);
+    (*(void (**)(u32, u32))renderState)(8, 1);
     func_003f6440(3, 0x31003);
     func_003f6440(2, 0x48);
-    temp_2 = *(u8 *)&sp120.f18;
-    alpha_u = temp_2;
-    if (temp_2 >= 0) {
-        var_f0 = (f32)temp_2;
-    } else {
-        var_f0 = 2.0f * (f32)(s32)((alpha_u >> 1) | (alpha_u & 1));
+
+    effect = D_0076122C * (1.0f - effect);
+    effect = effect * opacity;
+    {
+        s16 height = state.f22;
+        s16 width = state.f20;
+        u32 packed = (u32)state.f18;
+        opacity = 1.0f + growth;
+        center = 0.5f * growth;
+        func_00366c70((s32)((0.0f + state.f4) - (f32)width * center),
+                      (s32)((0.0f + state.f8) - (f32)height * center), 0.0f,
+                      (s32)((f32)width * opacity), (s32)((f32)height * opacity),
+                      packed >> 8,
+                      (s32)((f32)(packed & 0xFF) * effect), 2,
+                      (s16)(width >> 1), (s16)(height >> 1),
+                      &matrix, textureA, uv.coordinates);
     }
-    func_00366c70(
-                  (s32)((f32)sp120.f4 - (f32)sp120.f20 * temp_f20_2),
-                  (s32)((f32)sp120.f8 - (f32)sp120.f22 * temp_f20_2),
-                  (s32)((f32)sp120.f20 * temp_f21_2),
-                  (s32)((f32)sp120.f22 * temp_f21_2), sp120.f18 >> 8,
-                  (s32)(var_f0 * temp_f22), 2,
-                  (s16)(sp120.f20 >> 1), 0.0f,
-                  (s16)(sp120.f22 >> 1), sp70, arg2, spB0);
-    temp_2 = *(u8 *)&sp120.f18;
-    alpha_u = temp_2;
-    if (temp_2 >= 0) {
-        var_f0 = (f32)temp_2;
-    } else {
-        var_f0 = 2.0f * (f32)(s32)((alpha_u >> 1) | (alpha_u & 1));
-    }
-    func_00366c70(
-                  (s32)((f32)sp120.f4 - (f32)sp120.f20 * temp_f20_2),
-                  (s32)((f32)sp120.f8 - (f32)sp120.f22 * temp_f20_2),
-                  (s32)((f32)sp120.f20 * temp_f21_2),
-                  (s32)((f32)sp120.f22 * temp_f21_2), sp120.f18 >> 8,
-                  (s32)(var_f0 * temp_f22), 4,
-                  (s16)(sp120.f20 >> 1), 0.0f,
-                  (s16)(sp120.f22 >> 1), sp70, arg3, spB0);
+    func_00366c70((s32)((0.0f + state.f4) - (f32)state.f20 * center),
+                  (s32)((0.0f + state.f8) - (f32)state.f22 * center), 0.0f,
+                  (s32)((f32)state.f20 * opacity), (s32)((f32)state.f22 * opacity),
+                  (u32)state.f18 >> 8,
+                  (s32)((f32)((u32)state.f18 & 0xFF) * effect), 4,
+                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+                  &matrix, textureB, uv.coordinates);
 }
+/* Native b210 O2: 1828/1840 bytes, thirty resolved relocations, and
+ * twelve zero tail bytes. Colors, keyframes, UVs and rectangles own their
+ * complete initialized storage. The two signed displacements retain the
+ * original independent products; the drawing providers take depth third. */
+typedef union {
+    u8 channels[4];
+    f32 bits;
+    s32 packed;
+} RankUpPackedColor;
+typedef union {
+    struct { s32 x, y, width, height; } fields;
+    u_long128 quad;
+} RankUpRectangle;
 
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00256be0);
-#endif
+// FUN_002570F0
+void func_002570f0(f32 unusedX, f32 unusedY, f32 unusedZ,
+                  s32 unusedColor, s32 alpha, f32 progress, s32 texture)
+{
+    RankUpPackedColor wipeColor;
+    RankUpPackedColor firstColorCopy;
+    RankUpPackedColor firstColor;
+    RankUpPackedColor secondColorCopy;
+    RankUpPackedColor secondColor;
+    Sp120 state;
+    union { Sp120 states[2]; s32 words[18]; } keys;
+    union { f32 coordinates[4][2]; s32 words[8]; } uv;
+    RankUpMatrix matrix;
+    RankUpRectangle rectangle;
+    RankUpRectangle firstTemplate;
+    RankUpRectangle secondTemplate;
+    RankUpRectangle firstScreenCopy;
+    RankUpRectangle firstScreen;
+    RankUpRectangle secondScreenCopy;
+    RankUpRectangle secondScreen;
+    const u8 *source;
+    u8 *destination;
+    s32 count;
+    s32 first;
+    s32 second;
+    f32 opacity;
+    f32 deltaX;
+    f32 deltaY;
+    u8 *renderState;
 
-/* measured: nd 189 after four attempts; frame 0x1C0, all stack offsets, both
-   copy loops, all zero-fill loops, the struct stores/copies (lq/sq), and the
-   func_00252230/003e0870/0045d6e0/0048a000/0045db40 call shapes match. Two
-   unreachable residuals: (1) the D_00887300 render-vtable hoist floor - retail
-   keeps the base in $s0 and does lw 0($s0)/jalr per call; mwcc b210 emits a
-   dead lui/addiu $s0 and rematerializes lui+lw per call (7 calls per half).
-   (2) alpha sites: `x & 0xFF >= 0` on an s32 is provably true so mwcc drops
-   the branch - the (u32) cast (`(u32)x & 0xFF`) defeats the prover and emits
-   the retail andi/bltz exactly (verified on b210 after this was written).
-   Also: s16 arg7/stack s16s, s64 vs s32 arg_sp10 (s64 shifts every stack arg
-   and is worse). */
-/* measured (2026-09-18): probe_variants 431 differing words reloc-masked via `python3 tools/probe_variants.py src/cmmRankUp.c func_002570f0 --candidate FIX14=/tmp/cand570_fix14.c`; fnalign retail 460 vs object 472 instrs (263 edits) via `python3 tools/fnalign.py src/cmmRankUp.c func_002570f0 --candidate /tmp/cand570_fix14.c --quiet`; +12 over (2.6% within 3% rule). Signature s32 x3 + f32 x4 (s64->s32 saves 4 per opclass width wall; true s64 per prior note shifts stack and is worse); neg lever temp_f20=-temp_f21 saves 2 vs -80*mul; (u32) alpha + s16 narrowing per prior nd189 walls; copy/zero/0045d6e0/0045db40/00366c70 shapes per prior note. Wall remains vt-hoist + FPU/scheduling + frame 0x180 vs 0x1C0 (64 short, top-relative match). No volatile/asm. */
-// FUN_002570F0 NONMATCHING
-#ifdef NON_MATCHING
-
-void func_002570f0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
-    s8 sp1BC;
-    f32 sp1B8;
-    f32 sp1B4;
-    f32 sp1B0;
-    f32 sp1AC;
-    Sp120 sp180;
-    Sp120 sp154;
-    Sp120 sp130;
-    u8 sp110[32];
-    u8 spD0[64];
-    u_long128 spC0;                                      /* compiler-managed */
-    u_long128 spB0;
-    u_long128 spA0;
-    u_long128 sp90;
-    s32 sp8C;
-    s32 sp88;
-    s32 sp84;
-    s32 sp80;
-    u_long128 sp70;
-    s32 sp6C;
-    s32 sp68;
-    s32 sp64;
-    s32 sp60;
-    u8 *var_6_2;
-    u8 *var_6;
-    f32 *var_3_2;
-    f32 *var_3_4;
-    f32 temp_2;
-    f32 temp_3;
-    f32 temp_f20;
-    f32 temp_f21;
-    f32 temp_f22;
-    f32 var_f0;
-    f32 var_f0_2;
-    s32 *var_3_3;
-    s32 *var_3_5;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 temp_2_4;
-    s32 temp_3_2;
-    s32 var_2;
-    s32 var_2_2;
-    s32 var_2_3;
-    s32 var_2_4;
-    s32 var_2_5;
-    s32 var_4;
-    s32 var_4_2;
-    s8 *var_3;
-    u8 *var_7;
-    u8 *var_7_2;
-
-    var_7 = D_006364F0;
-    var_6 = (u8 *)&sp130;
-    var_4 = 9;
+    source = D_006364F0;
+    destination = (u8 *)&keys;
+    count = 9;
     do {
-        temp_3 = *(f32 *)var_7;
-        temp_2 = *(f32 *)(var_7 + 4);
-        var_7 += 8;
-        var_4 -= 1;
-        *(f32 *)var_6 = temp_3;
-        *(f32 *)(var_6 + 4) = temp_2;
-        var_6 += 8;
-    } while (var_4 > 0);
-    var_7_2 = D_00636540;
-    var_6_2 = sp110;
-    var_4_2 = 4;
+        first = *(const s32 *)source;
+        second = *(const s32 *)(source + 4);
+        source += 8;
+        count--;
+        *(s32 *)destination = first;
+        *(s32 *)(destination + 4) = second;
+        destination += 8;
+    } while (count > 0);
+    source = D_00636540;
+    destination = (u8 *)&uv;
+    count = 4;
     do {
-        temp_3_2 = *(s32 *)var_7_2;
-        temp_2_2 = *(s32 *)(var_7_2 + 4);
-        var_7_2 += 8;
-        var_4_2 -= 1;
-        *(s32 *)var_6_2 = temp_3_2;
-        *(s32 *)(var_6_2 + 4) = temp_2_2;
-        var_6_2 += 8;
-    } while (var_4_2 > 0);
-    var_3 = &sp1BC;
-    var_2 = 4;
-    if (var_3 != NULL) {
-        do {
-            *var_3 = 0;
-            var_3 += 1;
-            var_2 -= 1;
-        } while (var_2 != 0);
+        first = *(const s32 *)source;
+        second = *(const s32 *)(source + 4);
+        source += 8;
+        count--;
+        *(s32 *)destination = first;
+        *(s32 *)(destination + 4) = second;
+        destination += 8;
+    } while (count > 0);
+    {
+        u8 *bytes = (u8 *)&wipeColor;
+        s32 remaining = 4;
+        if (bytes != NULL) {
+            do {
+                *bytes++ = 0;
+            } while (--remaining != 0);
+        }
     }
-    temp_f22 = (f32) arg1 / 255.0f;
-    func_00252230(&sp180, &sp130, &sp154, 0.0f);
-    func_003e0870(&spD0, &sp180.fC, sp180.f1C, 0);
-    temp_f21 = 80.0f * fparg3;
-    temp_f20 = -temp_f21;
-    var_3_2 = &sp1B4;
-    var_2_2 = 4;
-    if (var_3_2 != NULL) {
-        do {
-            *var_3_2 = 0;
-            var_3_2 += 1;
-            var_2_2 -= 1;
-        } while (var_2_2 != 0);
+    opacity = (f32)alpha / 255.0f;
+    func_00252230(&state, &keys.states[0], &keys.states[1], 0.0f);
+    func_003e0870(&matrix, &state.axis, state.f1C, 0);
+    deltaX = 80.0f * progress;
+    deltaY = -80.0f * progress;
+    {
+        u8 *bytes = (u8 *)&firstColor;
+        s32 remaining = 4;
+        if (bytes != NULL) {
+            do {
+                *bytes++ = 0;
+            } while (--remaining != 0);
+        }
     }
-    sp1B8 = sp1B4;
-    var_3_3 = &sp80;
-    var_2_3 = 0x10;
-    if (var_3_3 != NULL) {
-        do {
-            *var_3_3 = 0;
-            var_3_3 += 1;
-            var_2_3 -= 1;
-        } while (var_2_3 != 0);
+    firstColorCopy.bits = firstColor.bits;
+    {
+        u8 *bytes = (u8 *)&firstScreen;
+        s32 remaining = 16;
+        if (bytes != NULL) {
+            do {
+                *bytes++ = 0;
+            } while (--remaining != 0);
+        }
     }
-    sp80 = 0;
-    sp84 = 0;
-    sp88 = 0x280;
-    sp8C = 0x1E0;
-    sp90 = (u_long128) sp80;
-    D_00887300[0](0xEU, 0U);
-    D_00887300[0](0xCU, 1U);
-    D_00887300[0](7U, 2U);
-    D_00887300[0](9U, 1U);
-    D_00887300[0](0x14U, 1U);
-    D_00887300[0](6U, 0U);
-    D_00887300[0](8U, 1U);
+    firstScreen.fields.x = 0;
+    firstScreen.fields.y = 0;
+    firstScreen.fields.width = 640;
+    firstScreen.fields.height = 480;
+    firstScreenCopy = firstScreen;
+    renderState = (u8 *)D_00887300;
+    (*(void (**)(u32, u32))renderState)(14, 0);
+    (*(void (**)(u32, u32))renderState)(12, 1);
+    (*(void (**)(u32, u32))renderState)(7, 2);
+    (*(void (**)(u32, u32))renderState)(9, 1);
+    (*(void (**)(u32, u32))renderState)(20, 1);
+    (*(void (**)(u32, u32))renderState)(6, 0);
+    (*(void (**)(u32, u32))renderState)(8, 1);
     func_003f6440(3, 0x31003);
     func_003f6440(2, 0x44);
     func_00489f80();
-    func_0045d6e0(&sp1B8, &sp90, 10.0f, 0);
+    func_0045d6e0((u8 *)(&firstColorCopy), (f32 *)(&firstScreenCopy), 10.0f, 0);
     func_0048a000();
-    spB0 = D_00636560;
-    spC0 = spB0;
-    *(f32 *)&spC0 = *(f32 *)&spC0 + temp_f21;
-    spC0 = (f32) spC0 + temp_f20;
-    D_00887300[0](6U, 1U);
-    D_00887300[0](8U, 1U);
+    /* Each template and the working rectangle is a complete 16-byte object.
+     * Their addressable representation copies retain the original two stores. */
+    *(u_long128 *)&firstTemplate = D_00636560;
+    *(u_long128 *)&rectangle = *(u_long128 *)&firstTemplate;
+    rectangle.fields.x = (s32)((f32)rectangle.fields.x + deltaX);
+    rectangle.fields.y = (s32)((f32)rectangle.fields.y + deltaY);
+    (*(void (**)(u32, u32))renderState)(6, 1);
+    (*(void (**)(u32, u32))renderState)(8, 1);
     func_003f6440(3, 0x71003);
     func_003f6440(2, 0x44);
-    func_0045db40(&sp1BC, &spC0, 0, 0xC8, 0, 0.0f, 45.0f, 1.0f, 1.0f);
-    temp_2_3 = (u32)sp180.f18 & 0xFF;
-    if (temp_2_3 >= 0) {
-        var_f0 = (f32) temp_2_3;
-    } else {
-        var_f0 = (f32)(((u32)temp_2_3 >> 1) | (temp_2_3 & 1)); var_f0 += var_f0;
+    func_0045db40((u8 *)&wipeColor, (u8 *)&rectangle, 0.0f, 0, 200, 0,
+                  45.0f, 1.0f, 1.0f);
+    func_00366c70((s32)(state.f4 + deltaX), (s32)(state.f8 + deltaY), 5.0f,
+                  state.f20, state.f22, (u32)state.f18 >> 8,
+                  (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 1,
+                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+                  &matrix, texture, uv.coordinates);
+    {
+        u8 *bytes = (u8 *)&secondColor;
+        s32 remaining = 4;
+        if (bytes != NULL) {
+            do {
+                *bytes++ = 0;
+            } while (--remaining != 0);
+        }
     }
-    func_00366c70((s32) (sp180.f4 + temp_f21), (s32) (sp180.f8 + temp_f20), (s32) sp180.f20, (s32) sp180.f22, (s32) ((u32) sp180.f18 >> 8), (s32) (var_f0 * temp_f22), 1, (s16)(sp180.f20 >> 1), 5.0f, (s16)(sp180.f22 >> 1), &spD0, arg2, &sp110);
-    var_3_4 = &sp1AC;
-    var_2_4 = 4;
-    if (var_3_4 != NULL) {
-        do {
-            *var_3_4 = 0;
-            var_3_4 += 1;
-            var_2_4 -= 1;
-        } while (var_2_4 != 0);
+    secondColorCopy.bits = secondColor.bits;
+    {
+        u8 *bytes = (u8 *)&secondScreen;
+        s32 remaining = 16;
+        if (bytes != NULL) {
+            do {
+                *bytes++ = 0;
+            } while (--remaining != 0);
+        }
     }
-    sp1B0 = sp1AC;
-    var_3_5 = &sp60;
-    var_2_5 = 0x10;
-    if (var_3_5 != NULL) {
-        do {
-            *var_3_5 = 0;
-            var_3_5 += 1;
-            var_2_5 -= 1;
-        } while (var_2_5 != 0);
-    }
-    sp60 = 0;
-    sp64 = 0;
-    sp68 = 0x280;
-    sp6C = 0x1E0;
-    sp70 = (u_long128) sp60;
-    D_00887300[0](0xEU, 0U);
-    D_00887300[0](0xCU, 1U);
-    D_00887300[0](7U, 2U);
-    D_00887300[0](9U, 1U);
-    D_00887300[0](0x14U, 1U);
-    D_00887300[0](6U, 0U);
-    D_00887300[0](8U, 1U);
+    secondScreen.fields.x = 0;
+    secondScreen.fields.y = 0;
+    secondScreen.fields.width = 640;
+    secondScreen.fields.height = 480;
+    secondScreenCopy = secondScreen;
+    (*(void (**)(u32, u32))renderState)(14, 0);
+    (*(void (**)(u32, u32))renderState)(12, 1);
+    (*(void (**)(u32, u32))renderState)(7, 2);
+    (*(void (**)(u32, u32))renderState)(9, 1);
+    (*(void (**)(u32, u32))renderState)(20, 1);
+    (*(void (**)(u32, u32))renderState)(6, 0);
+    (*(void (**)(u32, u32))renderState)(8, 1);
     func_003f6440(3, 0x31003);
     func_003f6440(2, 0x44);
     func_00489f80();
-    func_0045d6e0(&sp1B0, &sp70, 10.0f, 0);
+    func_0045d6e0((u8 *)(&secondColorCopy), (f32 *)(&secondScreenCopy), 10.0f, 0);
     func_0048a000();
-    spA0 = D_00636570;
-    spC0 = spA0;
-    *(f32 *)&spC0 = *(f32 *)&spC0 - temp_f21;
-    spC0 = (f32) spC0 + (-temp_f20 - 200.0f);
-    D_00887300[0](6U, 1U);
-    D_00887300[0](8U, 1U);
+    *(u_long128 *)&secondTemplate = D_00636570;
+    *(u_long128 *)&rectangle = *(u_long128 *)&secondTemplate;
+    rectangle.fields.x = (s32)((f32)rectangle.fields.x - deltaX);
+    rectangle.fields.y = (s32)((f32)rectangle.fields.y + (-deltaY - 200.0f));
+    (*(void (**)(u32, u32))renderState)(6, 1);
+    (*(void (**)(u32, u32))renderState)(8, 1);
     func_003f6440(3, 0x71003);
     func_003f6440(2, 0x44);
-    func_0045db40(&sp1BC, &spC0, 0, 0xC8, 0xC8, 0.0f, 45.0f, 1.0f, 1.0f);
-    temp_2_4 = (u32)sp180.f18 & 0xFF;
-    if (temp_2_4 >= 0) {
-        var_f0_2 = (f32) temp_2_4;
-    } else {
-        var_f0_2 = (f32)(((u32)temp_2_4 >> 1) | (temp_2_4 & 1)); var_f0_2 += var_f0_2;
-    }
-    func_00366c70((s32) (sp180.f4 - temp_f21), (s32) (sp180.f8 - temp_f20), (s32) sp180.f20, (s32) sp180.f22, (s32) ((u32) sp180.f18 >> 8), (s32) (var_f0_2 * temp_f22), 1, (s16)(sp180.f20 >> 1), 5.0f, (s16)(sp180.f22 >> 1), &spD0, arg2, &sp110);
+    func_0045db40((u8 *)&wipeColor, (u8 *)&rectangle, 0.0f, 0, 200, 200,
+                  45.0f, 1.0f, 1.0f);
+    func_00366c70((s32)(state.f4 - deltaX), (s32)(state.f8 - deltaY), 5.0f,
+                  state.f20, state.f22, (u32)state.f18 >> 8,
+                  (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 1,
+                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+                  &matrix, texture, uv.coordinates);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002570f0);
-#endif
-
 // FUN_00257820
 s32 func_00257820(s32 arg0, void *arg1) {
     s32 var_4;
@@ -2526,91 +2275,78 @@ s32 func_00257820(s32 arg0, void *arg1) {
 
 
 
-/* measured: not attempted this wave (14320 B, the file's biggest); m2c draft
-   is complete apart from 6 M2C_ERRORs (VU0-free - check them against the
-   retail asm before writing). It drives func_00256460/002566d0/00256be0/
-   002570f0 and the func_0025f3f0 menu draws. Call-signature facts established
-   this wave and needed here: func_002566d0 takes (s32 arg0, s32 arg1, s64
-   arg2, s64 arg3, f32 fparg0..fparg4) with floats position-allocated from
-   $f12 (3 unused leading floats place fparg3/fparg4 at $f15/$f16);
-   func_002570f0 takes (s32, s32, s64, f32 x4); func_00366c70 is (s32 x7, s16,
-   f32, s16, void*, s32, void*) with the s16s sign-extended via dsll32/dsra32;
-   func_00256460 takes 8 ints + 5 floats (its 6th/7th params are passed to
-   func_0045e6a0 with (s16) narrowing). Family walls (see the sibling notes):
-   (u32)-cast alpha sites, vt-base rematerialization, stack-slot overlap. */
-/* measured 00257900 (owner, 2026-09-19): fnalign **2521 -> 2519 edits**, count
-   3624 -> 3622 against retail 3580, by writing m2c's top-tested `loop_N:` /
-   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
-   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
-   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
-   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
-   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
-   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
-   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
-/* measured 00257900 (2026-09-19, structural): fnalign 2519 -> 1554 edits (-965), object
-   3622/3580 (+1.2% inside, dishonest with implicit prototypes) -> 3416/3576 (-4.5%
-   outside, honest). tail_classify 257 struct/224 reg -> 322/254; table_order N/A
-   (outer switch is beq chain for 0/10/11/12, no jtbl; inner switches 2/3 are 3-arm
-   bne chains, already in layout order). Levers, each measured via fnalign --candidate
-   on /tmp/body_current.c (honest, with 4 locals below): (a) remove 27 wrong (f32)
-   casts on temp_17/temp_18 passed as s32 to 002566d0/00256be0/002570f0 (21x
-   `, temp_18, (f32)( temp_17)` -> `, temp_18, temp_17` plus 6x `, (f32)( temp_18), 0`
-   -> `, temp_18, 0`): 2519->1705 (-814), 3622->3470, fptodp/sd/dsll32 junk gone;
-   (b) 4 local externs for 00256460 (7+5), 002566d0/00256be0 (4+5), 002570f0 (3+4)
-   matching their definitions (file-scope guarded, invisible without NON_MATCHING;
-   implicit promotes f32->double): 1705->1554 (-151), 3470->3416, honest but outside
-   the +-3% band (need +52 to re-enter; nop +49/scheduling floor, not missing logic:
-   div.s 30/30 match); (c) tail zero loops to u8-ptr sb for 4B at sp3C0 and 16B at spA0
-   (was f32-ptr s32-ptr sw for 16B/64B): 1554 unchanged, sb shape now matches retail
-   beqz/sb/bnez; (u32)sp348/268/188 alpha lever tried: 1554->1722 (+168 worse,
-   rejected). Per-loop do-while checks (all 9 currently do-while, each flipped alone
-   to while/top-tested, fnalign edits/obj): baseline 1554/3416; copy9_a 1556/3418 (+2);
-   copy4_a 1554/3418 (tie); copy9_b 1556/3418 (+2); copy4_b 1554/3418 (tie); copy9_c
-   1556/3418 (+2); copy4_c 1556/3418 (+2); big100 1556/3418 (+2); tail4 1556/3418 (+2);
-   tail10 1556/3418 (+2). All do-while kept (7 would regress +2, 2 tie); banked
-   2521->2519 was one of the +2 set. Production stays ASM (outside band); guarded
-   words 3115. */
-/* gate: func_00257900 stays INSIDE the +-3% band.  It was 3535 against retail 3576
-   (-1.1%, band 3469-3683) at 1492 edits (+42 reloc-only), deficit 41, guarded words
-   3119; it is now 3566 against 3576 (-0.3%, band 3469-3683) at **1019** edits (+46
-   reloc-only), deficit 10, guarded words 2827.
-   The +31 came from writing back genuinely absent stores as explicit overlaps, never
-   compacting the hand unsigned idiom (kept expanded with `+=`, not 2.0f*mul, per the
-   measured 486-edit cost of compacting 21 such idioms on another floor): (a) the
-   0xFF0000FF patches as ((s32 *)sp2E0/sp200/sp120)[6]/[15] (the 12-runs at 0x0025a190
-   /0x0025a3a0/0x0025a5e8, now gone; sw out of the top 8); (b) the three 00366c70 arg
-   blocks as Sp120 fields - (s32)sp330/sp250/sp170.f4/f8 plus sp330/sp250/sp170.f20/f22
-   plus (u32)sp330/sp250/sp170.f18 for >>8/&0xFF (lh/lwc1/cvt.w.s out of the top 8,
-   mfc1 9->3; the 41-run at 0x00258eb8 and the 34-run at 0x002592a0 unslid and are gone
-   from the top 3); (c) the tail as ((s32 *)&spA0)[1..3] plus spB0 via *(u_long128 *)
-   &spA0 (the 10-run at 0x0025afa4, now gone).  Opcode delta nop 24, addiu 7, mtc1/mov.s
-   /c.ole.s/bne 6, mfc1 3, swc1 2.  The 83-run at 0x0025ab5c and the 17-run at 0x002580f8
-   persist as CROSS (scheduling/F-swap, larger than the 10 deficit); the 10-run at
-   0x0025aab0 persists as branch-layout (empty-then max), not missing logic.  The 1019
-   is comparable. */
-// FUN_00257900 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00257900(u8 *arg0) {
-    extern void func_00256460(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4);
-    extern void func_002566d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4);
-    extern void func_00256be0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4);
-    extern void func_002570f0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
+extern u8 *func_003ec3d0(void *raster, s32 lockMode);
+extern void *func_003ec2e0(void *raster);
+extern s32 func_00455f70(s32 name, s32 *size);
 
-    u8 *ctx;
-    s32 temp_18;
-    s32 temp_17;
-    s32 temp_3;
-    s32 temp_3_2;
+#pragma push
+#pragma always_inline on
+#pragma opt_common_subs off
+#pragma opt_propagation off
+static inline RankUpPackedColor *rankUpCapturePackedColor(RankUpPackedColor *color, const f32 *packed)
+{
+    color->bits = *packed;
+    return color;
+}
+#pragma pop
+
+#pragma push
+#pragma always_inline on
+#pragma opt_common_subs off
+#pragma opt_propagation off
+static inline void rankUpCopyPaletteAlpha(RankUpColor *output, const RankUpColor *input)
+{
+    output->a = input->a;
+}
+#pragma pop
+
+#pragma push
+#pragma always_inline on
+#pragma opt_common_subs off
+#pragma opt_propagation off
+static inline void rankUpDrawSpriteState(const Sp120 *state, RankUpMatrix *matrix,
+                                         s32 texture, f32 uv[4][2], f32 opacity)
+{
+    s32 height = state->f22;
+    s32 width = state->f20;
+    func_00366c70((s32)state->f4, (s32)state->f8, 0.0f, width, height,
+                  (u32)state->f18 >> 8,
+                  (s32)((f32)((u32)state->f18 & 0xFF) * opacity), 0,
+                  (s16)(width >> 1), (s16)(height >> 1), matrix, texture, uv);
+}
+#pragma pop
+
+#pragma push
+#pragma always_inline on
+#pragma opt_common_subs off
+#pragma opt_propagation off
+static inline void rankUpScaleEffectAlpha(RankUpPackedColor *color, f32 amount)
+{
+    color->channels[3] = (u8)((f32)(u32)color->channels[3] * amount);
+}
+#pragma pop
+
+#pragma push
+#pragma opt_loop_invariants on
+typedef union { Sp120 states[2]; s32 words[18]; } RankUpRenderKeys;
+typedef union { f32 coordinates[4][2]; s32 words[8]; } RankUpRenderUV;
+/* Native b210 O2: 14308/14320 bytes with twelve zero alignment bytes.
+ * Complete keyframe, UV, position, color and rectangle objects preserve the
+ * renderer's original phase calculations and argument-copy boundaries.
+ * The two local panel providers keep their independent integer/float streams.
+ * See docs/probe_archive/Rankup_renderer_00257900_20260923.md. */
+// FUN_00257900
+s32 func_00257900(u8 *task) {
+
+    u8 *context;
+    u8 *renderStateTable;
+    s32 firstTexture;
+    s32 secondTexture;
+    s32 animationMode;
+    s32 mode0Frame;
     s32 temp_3_3;
     s32 temp_3_4;
     s32 temp_3_5;
-    s32 temp_3_6;
-    s32 temp_3_7;
-    s32 temp_3_8;
-    s32 temp_3_9;
-    s32 temp_3_10;
-    s32 temp_3_11;
-    s32 temp_3_12;
     s32 temp_17_2;
     s32 temp_17_3;
     s32 temp_17_4;
@@ -2638,7 +2374,7 @@ s32 func_00257900(u8 *arg0) {
     s32 temp_20_14;
     s32 temp_20_15;
     s32 temp_20_16;
-    s32 temp_20_17;
+    s32 spriteTexture;
     s32 temp_21;
     s32 temp_21_2;
     s32 temp_2_2;
@@ -2656,7 +2392,7 @@ s32 func_00257900(u8 *arg0) {
     s32 temp_2_14;
     s32 temp_2_15;
     s32 temp_2_16;
-    s32 temp_2_17;
+    s32 mode10Frame;
     s32 temp_2_18;
     s32 temp_2_19;
     s32 temp_2_20;
@@ -2670,37 +2406,12 @@ s32 func_00257900(u8 *arg0) {
     s32 temp_2_28;
     s32 temp_2_29;
     s32 temp_2_30;
-    s32 temp_2_31;
-    s32 temp_2_32;
-    s32 temp_2_33;
-    u32 temp_2_34;
-    s32 temp_2_35;
-    s32 temp_2_36;
-    u32 temp_2_37;
-    s32 temp_2_38;
-    s32 temp_2_39;
-    u32 temp_2_40;
+    s32 mode11Frame;
     s32 temp_2_41;
-    s32 temp_2_42;
+    s32 mode12Frame;
     s32 temp_2_43;
-    s32 var_2;
-    s32 var_2_2;
-    s32 var_2_3;
-    s32 var_4;
-    s32 var_4_2;
-    s32 var_4_3;
-    s32 var_4_4;
-    s32 var_4_5;
-    s32 var_4_6;
-    u8 var_3;
-    s8 var_3_2;
-    u8 var_3_3;
-    u8 var_3_4;
-    u8 var_3_5;
-    s8 var_3_6;
-    u8 var_7;
-    u8 *var_17;
-    u8 *var_19;
+    s32 var_3_2;
+    s32 var_3_6;
     f32 temp_f0;
     f32 temp_f0_2;
     f32 temp_f0_3;
@@ -2712,860 +2423,682 @@ s32 func_00257900(u8 *arg0) {
     f32 temp_f0_9;
     f32 temp_f0_10;
     f32 temp_f0_11;
-    f32 temp_f0_12;
-    f32 temp_f0_13;
-    f32 temp_f0_14;
-    f32 temp_f0_15;
-    f32 temp_f0_16;
-    f32 temp_f0_17;
-    f32 temp_f1;
-    f32 temp_f1_2;
+    f32 bannerPhase;
+    f32 transitionValue;
     f32 temp_f1_3;
     f32 temp_f20;
     f32 temp_f20_2;
-    f32 temp_f20_3;
-    f32 temp_f20_4;
+    f32 spritePhase;
+    f32 leavingOpacity;
     f32 temp_f21;
     f32 temp_f21_2;
     f32 var_f1;
     f32 var_f1_2;
     f32 var_f1_3;
-    f32 var_f1_4;
     f32 var_f1_5;
     f32 var_f1_6;
     f32 var_f1_7;
-    f32 var_f1_8;
-    f32 var_f2;
-    f32 var_f2_2;
-    f32 var_f2_3;
-    f32 var_f2_4;
-    f32 var_f3;
-    f32 var_f3_2;
-    f32 var_f4;
-    f32 var_f4_2;
-    s32 sp174;
-    s32 sp178;
-    u32 sp188;
-    s32 sp18C;
-    s32 sp190;
-    s32 sp192;
-    s32 sp254;
-    s32 sp258;
-    u32 sp268;
-    s32 sp26C;
-    s32 sp270;
-    s32 sp272;
-    s32 sp334;
-    s32 sp338;
-    u32 sp348;
-    s32 sp34C;
-    s32 sp350;
-    s32 sp352;
-    u8 unksp3CB;
-    u8 unksp3D7;
-    s32 sp3DC;
-    u8 sp3DB;
-    f32 sp3D8;
-    f32 sp3D4;
-    f32 sp3D0;
-    f32 sp3CC;
-    f32 sp3C8;
-    f32 sp3C4;
-    f32 sp3C0;
-    u8 sp3B0[0x140];
-    u_long128 sp3A0;
-    u_long128 sp390;
-    u_long128 sp380;
-    u_long128 sp370;
-    u_long128 sp360;
-    s32 sp33C;
-    Sp120 sp330;
-    s32 sp31C;
-    Sp120 sp304;
-    s32 sp2F8;
-    u8 sp2E0[72];
-    u8 sp2C0[32];
-    u8 sp280[64];
-    s32 sp25C;
-    Sp120 sp250;
-    s32 sp23C;
-    Sp120 sp224;
-    s32 sp218;
-    u8 sp200[72];
-    u8 sp1E0[32];
-    u8 sp1A0[64];
-    s32 sp17C;
-    Sp120 sp170;
-    s32 sp15C;
-    Sp120 sp144;
-    s32 sp138;
-    u8 sp120[72];
-    u8 sp100[32];
-    u8 spC0[64];
-    u_long128 spB0;
-    s32 spAC;
-    s32 spA8;
-    s32 spA4;
-    s32 spA0;
-    u8 *var_5;
-    u8 *var_5_2;
-    u8 *var_5_3;
-    u8 *var_5_4;
-    u8 *var_5_5;
-    u8 *var_5_6;
-    u8 *var_6;
-    u8 *var_6_2;
-    u8 *var_6_3;
-    u8 *var_6_4;
-    u8 *var_6_5;
-    u8 *var_6_6;
-    u8 *var_3_7;
-    u8 *var_3_8;
+    s32 resourceSize;
+    f32 *drawColor;
+    u_long128 *drawRectangle;
+    RankUpPackedColor drawColorValue;
+    RankUpPackedColor enteringColor;
+    RankUpPackedColor steadyColor;
+    RankUpPackedColor pulseColor;
+    RankUpPackedColor leavingColor;
+    RankUpPackedColor overlayColor;
+    f32 position[3];
+    RankUpRectangle drawRectangleValue;
+    RankUpRectangle enteringRectangle;
+    RankUpRectangle steadyRectangle;
+    RankUpRectangle pulseRectangle;
+    RankUpRectangle leavingRectangle;
+    Sp120 enteringSprite;
+    RankUpRenderKeys enteringKeys;
+    RankUpRenderUV enteringUv;
+    RankUpMatrix enteringMatrix;
+    Sp120 steadySprite;
+    RankUpRenderKeys steadyKeys;
+    RankUpRenderUV steadyUv;
+    RankUpMatrix steadyMatrix;
+    Sp120 leavingSprite;
+    RankUpRenderKeys leavingKeys;
+    RankUpRenderUV leavingUv;
+    RankUpMatrix leavingMatrix;
+    RankUpRectangle overlayRectangle;
 
-    ctx = (u8 *)func_00452560(arg0);
-    temp_18 = (s32)(func_0035afa0(*(s32 *)(ctx + 0x2C)));
-    temp_17 = (s32)(func_0035afa0(*(s32 *)(ctx + 0x30)));
-    temp_3 = (s32)(*(s32 *)(ctx + 0x1C));
-    switch (temp_3) {                               /* switch 1; irregular */
-    case 0:                                         /* switch 1 */
-        if (*(s32 *)(ctx + 8) >= 0x96) {
-            temp_2_2 = (s32)(*(s32 *)(ctx + 0x48) + 1);
-            *(s32 *)(ctx + 0x48) = temp_2_2;
+    context = (u8 *)func_00452560(task);
+    firstTexture = (s32)(func_0035afa0(*(s32 *)(context + 0x2C)));
+    secondTexture = (s32)(func_0035afa0(*(s32 *)(context + 0x30)));
+    animationMode = (s32)(*(s32 *)(context + 0x1C));
+    switch (animationMode) {
+    case 0:
+        if (*(s32 *)(context + 8) >= 0x96) {
+            temp_2_2 = (s32)(*(s32 *)(context + 0x48) + 1);
+            *(s32 *)(context + 0x48) = temp_2_2;
             if (temp_2_2 >= 0x2D) {
-                *(s32 *)(ctx + 0x48) = 0;
+                *(s32 *)(context + 0x48) = 0;
             }
         }
-        temp_f20 = (f32) *(s32 *)(ctx + 0x48) / 45.0f;
-        if (*(s32 *)(ctx + 8) == 0) {
-            temp_20 = (s32)(func_0025fe50((s32)(arg0), func_00455f70(&D_00636630, &sp3DC), 0x96, &D_005DC974));
-            func_001102f0(sp3B0, 0x140, 0xA5, 300.0f);
+        temp_f20 = (f32) *(s32 *)(context + 0x48) / 45.0f;
+        if (*(s32 *)(context + 8) == 0) {
+            temp_20 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_2 = func_0025ff60(temp_20);
             func_004b12e0(temp_20_2, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_20_2, sp3B0);
+            func_004b1250((void *)(temp_20_2), position);
         }
-        if (*(s32 *)(ctx + 8) == 0) {
-            temp_20_3 = (s32)(func_0025fe50((s32)(arg0), func_00455f70(&D_00636650, &sp3DC), 0x64, &D_005DC974));
-            func_001102f0(sp3B0, 0x140, 0xB4, 300.0f);
+        if (*(s32 *)(context + 8) == 0) {
+            temp_20_3 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636650, &resourceSize), 0x64, &D_005DC974));
+            func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
             temp_20_4 = func_0025ff60(temp_20_3);
             func_004b12e0(temp_20_4, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_20_4, sp3B0);
+            func_004b1250((void *)(temp_20_4), position);
         }
-        if (*(s32 *)(ctx + 8) == 0x78) {
-            temp_20_5 = (s32)(func_0025fe50((s32)(arg0), func_00455f70(&D_00636670, &sp3DC), 0x96, &D_005DC974));
-            func_001102f0(sp3B0, 0x140, 0xB4, 300.0f);
+        if (*(s32 *)(context + 8) == 0x78) {
+            temp_20_5 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636670, &resourceSize), 0x96, &D_005DC974));
+            func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
             temp_20_6 = func_0025ff60(temp_20_5);
             func_004b12e0(temp_20_6, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_20_6, sp3B0);
+            func_004b1250((void *)(temp_20_6), position);
         }
-        if (*(s32 *)(ctx + 8) == 0x23A) {
-            temp_20_7 = (s32)(func_0025fe50((s32)(arg0), func_00455f70(&D_00636630, &sp3DC), 0x96, &D_005DC974));
-            func_001102f0(sp3B0, 0x140, 0xA5, 300.0f);
+        if (*(s32 *)(context + 8) == 0x23A) {
+            temp_20_7 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_8 = func_0025ff60(temp_20_7);
             func_004b12e0(temp_20_8, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_20_8, sp3B0);
+            func_004b1250((void *)(temp_20_8), position);
         }
-        if ((*(s32 *)(ctx + 8) == 0x258) && (func_00257820(*(s32 *)(ctx + 0x20), sp3B0) != 0)) {
-            temp_20_9 = (s32)(func_0025ff60(func_0025fe50((s32)(arg0), func_00455f70(&D_00636690, &sp3DC), 0x96, &D_005DC974)));
+        if ((*(s32 *)(context + 8) == 0x258) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
+            temp_20_9 = (s32)(func_0025ff60(func_0025fe50((s32)(task), func_00455f70((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
             func_004b12e0(temp_20_9, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_20_9, sp3B0);
+            func_004b1250((void *)(temp_20_9), position);
         }
-        if ((*(s32 *)(ctx + 8) == 0x280) && (func_00257820(*(s32 *)(ctx + 0x20), sp3B0) != 0)) {
-            func_004b1250(func_0025ff60(func_0025fe50((s32)(arg0), func_00455f70(&D_006366B0, &sp3DC), 0x96, &D_005DC974)), sp3B0);
+        if ((*(s32 *)(context + 8) == 0x280) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
+            func_004b1250((void *)(func_0025ff60(func_0025fe50((s32)(task), func_00455f70((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974))), position);
         }
-        temp_3_2 = (s32)(*(s32 *)(ctx + 8));
-        if (temp_3_2 >= 0xA) {
-            if (temp_3_2 < 0x50) {
-                func_002566d0(0xFFFFFF, (s32)( (255.0f * ((f32) (temp_3_2 - 0xA) / 70.0f))), temp_18, temp_17, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-            } else if (temp_3_2 < 0x65) {
-                func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-            } else if (temp_3_2 < 0x79) {
-                func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 1.0f - ((f32) (temp_3_2 - 0x64) / 20.0f), 0.0f);
-            } else if (temp_3_2 < 0x97) {
-                func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-            } else if (temp_3_2 < 0xBF) {
-                func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, temp_f20);
-            } else if (temp_3_2 < 0x1EB) {
-                func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, temp_f20);
-                temp_17_2 = (s32)(*(s32 *)(ctx + 8) - 0xBE);
-                func_00278450(*(s8 *)(ctx + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(ctx + 0x18)) & 0xFF));
-                temp_2_3 = (s32)(*(s32 *)(ctx + 0xC));
+        mode0Frame = (s32)(*(s32 *)(context + 8));
+        if (mode0Frame >= 0xA) {
+            if (mode0Frame < 0x50) {
+                func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( (255.0f * ((f32) (mode0Frame - 0xA) / 70.0f))), 1.0f, 0.0f, firstTexture, secondTexture);
+            } else if (mode0Frame < 0x65) {
+                func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 1.0f, 0.0f, firstTexture, secondTexture);
+            } else if (mode0Frame < 0x79) {
+                transitionValue = (f32)(mode0Frame - 0x64) / 20.0f;
+                func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF,
+                              1.0f - transitionValue, 0.0f, firstTexture, secondTexture);
+            } else if (mode0Frame < 0x97) {
+                func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, 0.0f, firstTexture, secondTexture);
+            } else if (mode0Frame < 0xBF) {
+                func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
+            } else if (mode0Frame < 0x1EB) {
+                func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
+                temp_17_2 = (s32)(*(s32 *)(context + 8) - 0xBE);
+                func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+                temp_2_3 = (s32)(*(s32 *)(context + 0xC));
                 if (temp_2_3 > 0) {
-                    *(s32 *)(ctx + 0xC) = (s32) (temp_2_3 + 1);
+                    *(s32 *)(context + 0xC) = (s32) (temp_2_3 + 1);
                 }
-                temp_2_4 = (s32)(*(s32 *)(ctx + 0x10));
+                temp_2_4 = (s32)(*(s32 *)(context + 0x10));
                 if (temp_2_4 > 0) {
-                    *(s32 *)(ctx + 0x10) = (s32) (temp_2_4 + 1);
+                    *(s32 *)(context + 0x10) = (s32) (temp_2_4 + 1);
                 }
-                temp_2_5 = (s32)(*(s32 *)(ctx + 0x14));
+                temp_2_5 = (s32)(*(s32 *)(context + 0x14));
                 if (temp_2_5 > 0) {
-                    *(s32 *)(ctx + 0x14) = (s32) (temp_2_5 + 1);
+                    *(s32 *)(context + 0x14) = (s32) (temp_2_5 + 1);
                 }
-                if (*(u32 *)(ctx + 0) & 0x10) {
-                    temp_2_6 = (s32)(*(s32 *)(ctx + 0xC));
+                if (*(u32 *)(context + 0) & 0x10) {
+                    temp_2_6 = (s32)(*(s32 *)(context + 0xC));
                     if (temp_2_6 == 0) {
-                        *(s32 *)(ctx + 0xC) = (s32) (temp_2_6 + 1);
+                        *(s32 *)(context + 0xC) = (s32) (temp_2_6 + 1);
                     }
-                    temp_2_7 = (s32)(*(s32 *)(ctx + 0x10));
+                    temp_2_7 = (s32)(*(s32 *)(context + 0x10));
                     if (temp_2_7 == 0) {
-                        *(s32 *)(ctx + 0x10) = (s32) (temp_2_7 + 1);
+                        *(s32 *)(context + 0x10) = (s32) (temp_2_7 + 1);
                     }
-                    temp_2_8 = (s32)(*(s32 *)(ctx + 0x14));
+                    temp_2_8 = (s32)(*(s32 *)(context + 0x14));
                     if (temp_2_8 == 0) {
-                        *(s32 *)(ctx + 0x14) = (s32) (temp_2_8 + 1);
+                        *(s32 *)(context + 0x14) = (s32) (temp_2_8 + 1);
                     }
                 } else {
-                    switch (temp_17_2) {            /* switch 2; irregular */
-                    case 0x1:                       /* switch 2 */
-                        *(s32 *)(ctx + 0xC) = (s32) (*(s32 *)(ctx + 0xC) + 1);
-                        break;
-                    case 0x5A:                      /* switch 2 */
-                        *(s32 *)(ctx + 0x10) = (s32) (*(s32 *)(ctx + 0x10) + 1);
-                        break;
-                    case 0xB4:                      /* switch 2 */
-                        *(s32 *)(ctx + 0x14) = (s32) (*(s32 *)(ctx + 0x14) + 1);
-                        break;
+                    if (temp_17_2 == 1) {
+                        *(s32 *)(context + 0xC) += 1;
+                    } else if (temp_17_2 == 0x5A) {
+                        *(s32 *)(context + 0x10) += 1;
+                    } else if (temp_17_2 == 0xB4) {
+                        *(s32 *)(context + 0x14) += 1;
                     }
                 }
-                var_f2 = 0.0f;
-                var_f4 = 0.0f;
-                var_f3 = 0.0f;
-                temp_2_9 = (s32)(*(s32 *)(ctx + 0xC));
+                {
+                f32 middleFade;
+                f32 lastFade;
+                f32 firstFade;
+                firstFade = 0.0f;
+                middleFade = 0.0f;
+                lastFade = 0.0f;
+                temp_2_9 = (s32)(*(s32 *)(context + 0xC));
                 if (temp_2_9 > 0) {
-                    var_f2 = (f32) temp_2_9 / 30.0f;
-                    if (!(var_f2 < 1.0f)) {
-                        var_f2 = 1.0f;
+                    firstFade = (f32) temp_2_9 / 30.0f;
+                    if (!(firstFade < 1.0f)) {
+                        firstFade = 1.0f;
                     }
                 }
-                temp_2_10 = (s32)(*(s32 *)(ctx + 0x10));
+                temp_2_10 = (s32)(*(s32 *)(context + 0x10));
                 if (temp_2_10 > 0) {
-                    var_f4 = (f32) temp_2_10 / 30.0f;
-                    if (!(var_f4 < 1.0f)) {
-                        var_f4 = 1.0f;
+                    middleFade = (f32) temp_2_10 / 30.0f;
+                    if (!(middleFade < 1.0f)) {
+                        middleFade = 1.0f;
                     }
                 }
-                temp_2_11 = (s32)(*(s32 *)(ctx + 0x14));
+                temp_2_11 = (s32)(*(s32 *)(context + 0x14));
                 if (temp_2_11 > 0) {
-                    var_f3 = (f32) temp_2_11 / 30.0f;
-                    if (!(var_f3 < 1.0f)) {
-                        var_f3 = 1.0f;
+                    lastFade = (f32) temp_2_11 / 30.0f;
+                    if (!(lastFade < 1.0f)) {
+                        lastFade = 1.0f;
                     }
                 }
-                if (!(var_f2 <= 0.0f)) {
-                    func_002561f0(0, (s32)( (153.0f * var_f2)), (s32)( (153.0f * var_f4)), (s32)( (153.0f * var_f3)), 1, 0, 0, 0.0f, 40.0f, 0.0f, 1.0f, 1.0f);
+                if (!(firstFade <= 0.0f)) {
+                    func_002561f0(0.0f, 40.0f, 0.0f, 0, (s32)( (153.0f * firstFade)), (s32)( (153.0f * middleFade)), (s32)( (153.0f * lastFade)), 1, 0, 0, 1.0f, 1.0f);
                 }
-                temp_2_12 = (s32)(*(s32 *)(ctx + 0xC));
+                }
+                temp_2_12 = (s32)(*(s32 *)(context + 0xC));
                 if (temp_2_12 > 0) {
                     var_f1 = (f32) temp_2_12 / 30.0f;
                     if (!(var_f1 < 1.0f)) {
                         var_f1 = 1.0f;
                     }
                     temp_f0 = 255.0f * var_f1;
-                    func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 0);
-                    func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 1);
+                    func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 0);
+                    func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 1);
                 }
-                temp_2_13 = (s32)(*(s32 *)(ctx + 0x10));
+                temp_2_13 = (s32)(*(s32 *)(context + 0x10));
                 if (temp_2_13 > 0) {
                     var_f1_2 = (f32) temp_2_13 / 30.0f;
                     if (!(var_f1_2 < 1.0f)) {
                         var_f1_2 = 1.0f;
                     }
                     temp_f0_2 = 255.0f * var_f1_2;
-                    func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_2), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 2);
-                    func_00256040(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_2), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 3);
-                    func_00256040(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_2), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 4);
+                    func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_2), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 2);
+                    func_00256040(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_2), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 3);
+                    func_00256040(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_2), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 4);
                 }
-                temp_2_14 = (s32)(*(s32 *)(ctx + 0x14));
+                temp_2_14 = (s32)(*(s32 *)(context + 0x14));
                 if (temp_2_14 > 0) {
                     var_f1_3 = (f32) temp_2_14 / 30.0f;
                     if (!(var_f1_3 < 1.0f)) {
                         var_f1_3 = 1.0f;
                     }
                     temp_f0_3 = 255.0f * var_f1_3;
-                    func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_3), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 5);
-                    func_00256040(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_3), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 6);
+                    func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_3), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 5);
+                    func_00256040(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_3), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 6);
                 }
-                if ((D_008C024E[0] & 0x40) && (*(s32 *)(ctx + 8) < 0x1CC)) {
-                    *(s32 *)(ctx + 8) = 0x1CC;
-                    *(u32 *)(ctx + 0) |= 0x10;
+                if ((D_008C024E[0] & 0x40) && (*(s32 *)(context + 8) < 0x1CC)) {
+                    *(s32 *)(context + 8) = 0x1CC;
+                    *(u32 *)(context + 0) |= 0x10;
                 }
-            } else if (temp_3_2 < 0x213) {
-                func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, temp_f20);
-                func_002561f0(0, 0x99, 0x99, 0x99, 1, 0, 0, 0.0f, 40.0f, 0.0f, 1.0f, 1.0f);
-                func_00278450(*(s8 *)(ctx + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(ctx + 0x18)) & 0xFF));
-                func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 0);
-                func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 1);
-                func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 2);
-                func_00256040(320.0f, 180.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 3);
-                func_00256040(320.0f, 220.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 4);
-                func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 5);
-                func_00256040(320.0f, 300.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 6);
-            } else if (temp_3_2 < 0x227) {
-                temp_f21 = 1.0f - ((f32) (temp_3_2 - 0x212) / 20.0f);
-                func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, temp_f20);
+            } else if (mode0Frame < 0x213) {
+                func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
+                func_002561f0(0.0f, 40.0f, 0.0f, 0, 0x99, 0x99, 0x99, 1, 0, 0, 1.0f, 1.0f);
+                func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+                func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 0, 0);
+                func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 0, 1);
+                func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 0, 2);
+                func_00256040(320.0f, 180.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 0, 3);
+                func_00256040(320.0f, 220.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 0, 4);
+                func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 0, 5);
+                func_00256040(320.0f, 300.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 0, 6);
+            } else if (mode0Frame < 0x227) {
+                temp_f21 = 1.0f - ((f32) (mode0Frame - 0x212) / 20.0f);
+                func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
                 temp_f0_4 = 153.0f * temp_f21;
-                func_002561f0(0, (s32)( temp_f0_4), (s32)( temp_f0_4), (s32)( temp_f0_4), 1, 0, 0, 0.0f, 40.0f, 0.0f, 1.0f, 1.0f);
-                func_00278450(*(s8 *)(ctx + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(ctx + 0x18)) & 0xFF));
+                func_002561f0(0.0f, 40.0f, 0.0f, 0, (s32)( temp_f0_4), (s32)( temp_f0_4), (s32)( temp_f0_4), 1, 0, 0, 1.0f, 1.0f);
+                func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
                 temp_f0_5 = 255.0f * temp_f21;
-                func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 0);
-                func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 1);
-                func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 2);
-                func_00256040(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 3);
-                func_00256040(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 4);
-                func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 5);
-                func_00256040(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 6);
-            } else if (temp_3_2 < 0x24F) {
-                temp_19 = temp_3_2 - 0x226;
+                func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 0);
+                func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 1);
+                func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 2);
+                func_00256040(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 3);
+                func_00256040(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 4);
+                func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 5);
+                func_00256040(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 6);
+            } else if (mode0Frame < 0x24F) {
+                temp_19 = mode0Frame - 0x226;
                 if (temp_19 == 1) {
-                    temp_3_3 = (s32)(*(s32 *)(ctx + 0x1C));
+                    temp_3_3 = (s32)(*(s32 *)(context + 0x1C));
                     if ((temp_3_3 == 0xA) || (temp_3_3 == 0)) {
                         func_0045aeb0(2, &D_00635C80);
                     } else {
                         func_0045aeb0(2, &D_00635CA0);
                     }
                 }
-                func_002566d0(0xFFFFFF, (s32)( (255.0f * (1.0f - ((f32) temp_19 / 40.0f)))), temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, temp_f20);
+                func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( (255.0f * (1.0f - ((f32) temp_19 / 40.0f)))), 0.0f, temp_f20, firstTexture, secondTexture);
             }
         }
-        temp_2_15 = (s32)(*(s32 *)(ctx + 8) + 1);
-        *(s32 *)(ctx + 8) = temp_2_15;
+        temp_2_15 = (s32)(*(s32 *)(context + 8) + 1);
+        *(s32 *)(context + 8) = temp_2_15;
         if (temp_2_15 >= 0x2BC) {
-            *(s32 *)(ctx + 0x44) = 1;
+            *(s32 *)(context + 0x44) = 1;
         }
         break;
-    case 10:                                        /* switch 1 */
-        if (*(s32 *)(ctx + 8) >= 0x6E) {
-            temp_2_16 = (s32)(*(s32 *)(ctx + 0x48) + 1);
-            *(s32 *)(ctx + 0x48) = temp_2_16;
+    case 10:
+        if (*(s32 *)(context + 8) >= 0x6E) {
+            temp_2_16 = (s32)(*(s32 *)(context + 0x48) + 1);
+            *(s32 *)(context + 0x48) = temp_2_16;
             if (temp_2_16 >= 0x2D) {
-                *(s32 *)(ctx + 0x48) = 0;
+                *(s32 *)(context + 0x48) = 0;
             }
         }
-        temp_f20_2 = (f32) *(s32 *)(ctx + 0x48) / 45.0f;
-        if (*(s32 *)(ctx + 8) == 0) {
-            temp_20_10 = (s32)(func_0025fe50((s32)(arg0), func_00455f70(&D_00636630, &sp3DC), 0x96, &D_005DC974));
-            func_001102f0(sp3B0, 0x140, 0xA5, 300.0f);
+        temp_f20_2 = (f32) *(s32 *)(context + 0x48) / 45.0f;
+        if (*(s32 *)(context + 8) == 0) {
+            temp_20_10 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_11 = func_0025ff60(temp_20_10);
             func_004b12e0(temp_20_11, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_20_11, sp3B0);
+            func_004b1250((void *)(temp_20_11), position);
         }
-        if (*(s32 *)(ctx + 8) == 0xA) {
+        if (*(s32 *)(context + 8) == 0xA) {
             func_0045aeb0(2, &D_006366D0);
         }
-        temp_3_4 = (s32)(*(s32 *)(ctx + 8));
+        temp_3_4 = (s32)(*(s32 *)(context + 8));
         if (((temp_3_4 % 10) == 0) && (temp_3_4 < 0x1CD)) {
-            temp_20_12 = (s32)(func_0025fe50((s32)(arg0), func_00455f70(&D_006366F0, &sp3DC), 0x32, &D_005DC974));
-            func_001102f0(sp3B0, 0x140, 0xA5, 300.0f);
+            temp_20_12 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_006366F0, &resourceSize), 0x32, &D_005DC974));
+            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_13 = func_0025ff60(temp_20_12);
             func_004b12e0(temp_20_13, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_20_13, sp3B0);
-            func_004b14f0(temp_20_13, (f32 *) &sp3D8);
-            var_f1_4 = (f32) ((u8 *)&sp3D8)[3];
-            temp_f1 = var_f1_4 * 0.5f;
-            if (!(temp_f1 >= 2.1474836e9f)) {
-                var_3 = 0x4F000000 & 0xFF;
-            } else {
-                var_3 = ((s32)( (temp_f1 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-            }
-            ((u8 *)&sp3D8)[3] = var_3;
-            func_004b13f0(temp_20_13, (f32 *) &sp3D8);
+            func_004b1250((void *)(temp_20_13), position);
+            func_004b14f0((void *)temp_20_13, &drawColorValue.packed);
+            rankUpScaleEffectAlpha(&drawColorValue, 0.5f);
+            func_004b13f0((void *)temp_20_13, &drawColorValue.packed);
         }
-        if (*(s32 *)(ctx + 8) == 0x21C) {
-            temp_20_14 = (s32)(func_0025fe50((s32)(arg0), func_00455f70(&D_00636630, &sp3DC), 0x96, &D_005DC974));
-            func_001102f0(sp3B0, 0x140, 0xA5, 300.0f);
+        if (*(s32 *)(context + 8) == 0x21C) {
+            temp_20_14 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_15 = func_0025ff60(temp_20_14);
             func_004b12e0(temp_20_15, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_20_15, sp3B0);
+            func_004b1250((void *)(temp_20_15), position);
         }
-        if ((*(s32 *)(ctx + 8) == 0x23A) && (func_00257820(*(s32 *)(ctx + 0x20), sp3B0) != 0)) {
-            temp_20_16 = (s32)(func_0025ff60(func_0025fe50((s32)(arg0), func_00455f70(&D_00636690, &sp3DC), 0x96, &D_005DC974)));
+        if ((*(s32 *)(context + 8) == 0x23A) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
+            temp_20_16 = (s32)(func_0025ff60(func_0025fe50((s32)(task), func_00455f70((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
             func_004b12e0(temp_20_16, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_20_16, sp3B0);
+            func_004b1250((void *)(temp_20_16), position);
         }
-        if ((*(s32 *)(ctx + 8) == 0x262) && (func_00257820(*(s32 *)(ctx + 0x20), sp3B0) != 0)) {
-            temp_19_2 = (s32)(func_0025ff60(func_0025fe50((s32)(arg0), func_00455f70(&D_006366B0, &sp3DC), 0x96, &D_005DC974)));
+        if ((*(s32 *)(context + 8) == 0x262) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
+            temp_19_2 = (s32)(func_0025ff60(func_0025fe50((s32)(task), func_00455f70((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974)));
             func_004b12e0(temp_19_2, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_19_2, sp3B0);
+            func_004b1250((void *)(temp_19_2), position);
         }
-        temp_2_17 = (s32)(*(s32 *)(ctx + 8));
-        if (temp_2_17 < 0x50) {
-            func_002566d0(0xFFFFFF, (s32)( (255.0f * ((f32) temp_2_17 / 80.0f))), temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-        } else if (temp_2_17 < 0x5B) {
-            func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-        } else if (temp_2_17 < 0x97) {
-            func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, temp_f20_2);
-        } else if (temp_2_17 < 0x1C3) {
-            func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, temp_f20_2);
-            temp_17_3 = (s32)(*(s32 *)(ctx + 8) - 0x96);
-            func_00278450(*(s8 *)(ctx + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(ctx + 0x18)) & 0xFF));
-            func_00278450(*(s8 *)(ctx + 0x3C), 1, func_00109220(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(ctx + 0x18))) + 0x40)));
-            temp_2_18 = (s32)(*(s32 *)(ctx + 0xC));
+        mode10Frame = (s32)(*(s32 *)(context + 8));
+        if (mode10Frame < 0x50) {
+            func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( (255.0f * ((f32) mode10Frame / 80.0f))), 0.0f, 0.0f, firstTexture, secondTexture);
+        } else if (mode10Frame < 0x5B) {
+            func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, 0.0f, firstTexture, secondTexture);
+        } else if (mode10Frame < 0x97) {
+            func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
+        } else if (mode10Frame < 0x1C3) {
+            func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
+            temp_17_3 = (s32)(*(s32 *)(context + 8) - 0x96);
+            func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+            func_00278450(*(s8 *)(context + 0x3C), 1, func_00109220(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            temp_2_18 = (s32)(*(s32 *)(context + 0xC));
             if (temp_2_18 > 0) {
-                *(s32 *)(ctx + 0xC) = (s32) (temp_2_18 + 1);
+                *(s32 *)(context + 0xC) = (s32) (temp_2_18 + 1);
             }
-            temp_2_19 = (s32)(*(s32 *)(ctx + 0x10));
+            temp_2_19 = (s32)(*(s32 *)(context + 0x10));
             if (temp_2_19 > 0) {
-                *(s32 *)(ctx + 0x10) = (s32) (temp_2_19 + 1);
+                *(s32 *)(context + 0x10) = (s32) (temp_2_19 + 1);
             }
-            temp_2_20 = (s32)(*(s32 *)(ctx + 0x14));
+            temp_2_20 = (s32)(*(s32 *)(context + 0x14));
             if (temp_2_20 > 0) {
-                *(s32 *)(ctx + 0x14) = (s32) (temp_2_20 + 1);
+                *(s32 *)(context + 0x14) = (s32) (temp_2_20 + 1);
             }
-            if (*(u32 *)(ctx + 0) & 0x10) {
-                temp_2_21 = (s32)(*(s32 *)(ctx + 0xC));
+            if (*(u32 *)(context + 0) & 0x10) {
+                temp_2_21 = (s32)(*(s32 *)(context + 0xC));
                 if (temp_2_21 == 0) {
-                    *(s32 *)(ctx + 0xC) = (s32) (temp_2_21 + 1);
+                    *(s32 *)(context + 0xC) = (s32) (temp_2_21 + 1);
                 }
-                temp_2_22 = (s32)(*(s32 *)(ctx + 0x10));
+                temp_2_22 = (s32)(*(s32 *)(context + 0x10));
                 if (temp_2_22 == 0) {
-                    *(s32 *)(ctx + 0x10) = (s32) (temp_2_22 + 1);
+                    *(s32 *)(context + 0x10) = (s32) (temp_2_22 + 1);
                 }
-                temp_2_23 = (s32)(*(s32 *)(ctx + 0x14));
+                temp_2_23 = (s32)(*(s32 *)(context + 0x14));
                 if (temp_2_23 == 0) {
-                    *(s32 *)(ctx + 0x14) = (s32) (temp_2_23 + 1);
+                    *(s32 *)(context + 0x14) = (s32) (temp_2_23 + 1);
                 }
             } else {
-                switch (temp_17_3) {                /* switch 3; irregular */
-                case 0x1:                           /* switch 3 */
-                    *(s32 *)(ctx + 0xC) = (s32) (*(s32 *)(ctx + 0xC) + 1);
-                    break;
-                case 0x5A:                          /* switch 3 */
-                    *(s32 *)(ctx + 0x10) = (s32) (*(s32 *)(ctx + 0x10) + 1);
-                    break;
-                case 0xB4:                          /* switch 3 */
-                    *(s32 *)(ctx + 0x14) = (s32) (*(s32 *)(ctx + 0x14) + 1);
-                    break;
+                if (temp_17_3 == 1) {
+                    *(s32 *)(context + 0xC) += 1;
+                } else if (temp_17_3 == 0x5A) {
+                    *(s32 *)(context + 0x10) += 1;
+                } else if (temp_17_3 == 0xB4) {
+                    *(s32 *)(context + 0x14) += 1;
                 }
             }
-            var_f4_2 = 0.0f;
-            var_f3_2 = 0.0f;
-            var_f2_2 = 0.0f;
-            temp_2_24 = (s32)(*(s32 *)(ctx + 0xC));
+            {
+            struct { f32 first; f32 middle; f32 last; } fade;
+            fade.first = 0.0f;
+            fade.middle = 0.0f;
+            fade.last = 0.0f;
+            temp_2_24 = (s32)(*(s32 *)(context + 0xC));
             if (temp_2_24 > 0) {
-                var_f4_2 = (f32) temp_2_24 / 30.0f;
-                if (!(var_f4_2 < 1.0f)) {
-                    var_f4_2 = 1.0f;
+                fade.first = (f32) temp_2_24 / 30.0f;
+                if (!(fade.first < 1.0f)) {
+                    fade.first = 1.0f;
                 }
             }
-            temp_2_25 = (s32)(*(s32 *)(ctx + 0x10));
+            temp_2_25 = (s32)(*(s32 *)(context + 0x10));
             if (temp_2_25 > 0) {
-                var_f3_2 = (f32) temp_2_25 / 30.0f;
-                if (!(var_f3_2 < 1.0f)) {
-                    var_f3_2 = 1.0f;
+                fade.middle = (f32) temp_2_25 / 30.0f;
+                if (!(fade.middle < 1.0f)) {
+                    fade.middle = 1.0f;
                 }
             }
-            temp_2_26 = (s32)(*(s32 *)(ctx + 0x14));
+            temp_2_26 = (s32)(*(s32 *)(context + 0x14));
             if (temp_2_26 > 0) {
-                var_f2_2 = (f32) temp_2_26 / 30.0f;
-                if (!(var_f2_2 < 1.0f)) {
-                    var_f2_2 = 1.0f;
+                fade.last = (f32) temp_2_26 / 30.0f;
+                if (!(fade.last < 1.0f)) {
+                    fade.last = 1.0f;
                 }
             }
-            if (!(var_f4_2 <= 0.0f)) {
-                func_00256460(0, (s32)( (153.0f * var_f4_2)), (s32)( (153.0f * var_f3_2)), (s32)( (153.0f * var_f2_2)), 1, 0, 0, 0.0f, 40.0f, 0.0f, 1.0f, 1.0f);
+            if (!(fade.first <= 0.0f)) {
+                func_00256460(0.0f, 40.0f, 0.0f, 0, (s32)( (153.0f * fade.first)), (s32)( (153.0f * fade.middle)), (s32)( (153.0f * fade.last)), 1, 0, 0, 1.0f, 1.0f);
             }
-            temp_2_27 = (s32)(*(s32 *)(ctx + 0xC));
+            }
+            temp_2_27 = (s32)(*(s32 *)(context + 0xC));
             if (temp_2_27 > 0) {
                 var_f1_5 = (f32) temp_2_27 / 30.0f;
                 if (!(var_f1_5 < 1.0f)) {
                     var_f1_5 = 1.0f;
                 }
                 temp_f0_6 = 255.0f * var_f1_5;
-                func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_6), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 0);
-                func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_6), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 1);
-                func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_6), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 2);
+                func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_6), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 0);
+                func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_6), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 1);
+                func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_6), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 2);
             }
-            temp_2_28 = (s32)(*(s32 *)(ctx + 0x10));
+            temp_2_28 = (s32)(*(s32 *)(context + 0x10));
             if (temp_2_28 > 0) {
                 var_f1_6 = (f32) temp_2_28 / 30.0f;
                 if (!(var_f1_6 < 1.0f)) {
                     var_f1_6 = 1.0f;
                 }
                 temp_f0_7 = 255.0f * var_f1_6;
-                func_00256040(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_7), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 3);
-                func_00256040(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_7), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 4);
-                func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_7), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 5);
+                func_00256040(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_7), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 3);
+                func_00256040(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_7), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 4);
+                func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_7), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 5);
             }
-            temp_2_29 = (s32)(*(s32 *)(ctx + 0x14));
+            temp_2_29 = (s32)(*(s32 *)(context + 0x14));
             if (temp_2_29 > 0) {
                 var_f1_7 = (f32) temp_2_29 / 30.0f;
                 if (!(var_f1_7 < 1.0f)) {
                     var_f1_7 = 1.0f;
                 }
                 temp_f0_8 = 255.0f * var_f1_7;
-                func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_8), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 6);
-                func_00256040(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_8), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 7);
-                func_00256040(320.0f, 340.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_8), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 8);
+                func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_8), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 6);
+                func_00256040(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_8), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 7);
+                func_00256040(320.0f, 340.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_8), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 8);
             }
-            if ((D_008C024E[0] & 0x40) && (*(s32 *)(ctx + 8) < 0x1A4)) {
-                *(s32 *)(ctx + 8) = 0x1A4;
-                *(u32 *)(ctx + 0) |= 0x10;
+            if ((D_008C024E[0] & 0x40) && (*(s32 *)(context + 8) < 0x1A4)) {
+                *(s32 *)(context + 8) = 0x1A4;
+                *(u32 *)(context + 0) |= 0x10;
             }
-        } else if (temp_2_17 < 0x1F5) {
-            func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, temp_f20_2);
-            func_00256460(0, 0x99, 0x99, 0x99, 1, 0, 0, 0.0f, 40.0f, 0.0f, 1.0f, 1.0f);
-            func_00278450(*(s8 *)(ctx + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(ctx + 0x18)) & 0xFF));
-            func_00278450(*(s8 *)(ctx + 0x3C), 1, func_00109220(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(ctx + 0x18))) + 0x40)));
-            func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 0);
-            func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 1);
-            func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 2);
-            func_00256040(320.0f, 180.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 3);
-            func_00256040(320.0f, 220.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 4);
-            func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 5);
-            func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 6);
-            func_00256040(320.0f, 300.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 7);
-            func_00256040(320.0f, 340.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 8);
-        } else if (temp_2_17 < 0x209) {
-            temp_f21_2 = 1.0f - ((f32) (temp_2_17 - 0x1F4) / 20.0f);
-            func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, temp_f20_2);
+        } else if (mode10Frame < 0x1F5) {
+            func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
+            func_00256460(0.0f, 40.0f, 0.0f, 0, 0x99, 0x99, 0x99, 1, 0, 0, 1.0f, 1.0f);
+            func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+            func_00278450(*(s8 *)(context + 0x3C), 1, func_00109220(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 0);
+            func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 1);
+            func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 2);
+            func_00256040(320.0f, 180.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 3);
+            func_00256040(320.0f, 220.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 4);
+            func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 5);
+            func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 6);
+            func_00256040(320.0f, 300.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 7);
+            func_00256040(320.0f, 340.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 8);
+        } else if (mode10Frame < 0x209) {
+            temp_f21_2 = 1.0f - ((f32) (mode10Frame - 0x1F4) / 20.0f);
+            func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
             temp_f0_9 = 153.0f * temp_f21_2;
-            func_00256460(0, (s32)( temp_f0_9), (s32)( temp_f0_9), (s32)( temp_f0_9), 1, 0, 0, 0.0f, 40.0f, 0.0f, 1.0f, 1.0f);
-            func_00278450(*(s8 *)(ctx + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(ctx + 0x18)) & 0xFF));
-            func_00278450(*(s8 *)(ctx + 0x3C), 1, func_00109220(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(ctx + 0x18))) + 0x40)));
+            func_00256460(0.0f, 40.0f, 0.0f, 0, (s32)( temp_f0_9), (s32)( temp_f0_9), (s32)( temp_f0_9), 1, 0, 0, 1.0f, 1.0f);
+            func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+            func_00278450(*(s8 *)(context + 0x3C), 1, func_00109220(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
             temp_f0_10 = 255.0f * temp_f21_2;
-            func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 0);
-            func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 1);
-            func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 2);
-            func_00256040(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 3);
-            func_00256040(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 4);
-            func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 5);
-            func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 6);
-            func_00256040(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 7);
-            func_00256040(320.0f, 340.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(ctx + 0x3C), 1, 8);
-        } else if (temp_2_17 < 0x231) {
-            temp_19_3 = temp_2_17 - 0x208;
+            func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 0);
+            func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 1);
+            func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 2);
+            func_00256040(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 3);
+            func_00256040(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 4);
+            func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 5);
+            func_00256040(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 6);
+            func_00256040(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 7);
+            func_00256040(320.0f, 340.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 8);
+        } else if (mode10Frame < 0x231) {
+            temp_19_3 = mode10Frame - 0x208;
             if (temp_19_3 == 1) {
-                temp_3_5 = (s32)(*(s32 *)(ctx + 0x1C));
+                temp_3_5 = (s32)(*(s32 *)(context + 0x1C));
                 if ((temp_3_5 == 0xA) || (temp_3_5 == 0)) {
                     func_0045aeb0(2, &D_00635C80);
                 } else {
                     func_0045aeb0(2, &D_00635CA0);
                 }
             }
-            func_002566d0(0xFFFFFF, (s32)( (255.0f * (1.0f - ((f32) temp_19_3 / 40.0f)))), temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, temp_f20_2);
+            func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( (255.0f * (1.0f - ((f32) temp_19_3 / 40.0f)))), 0.0f, temp_f20_2, firstTexture, secondTexture);
         }
-        temp_2_30 = (s32)(*(s32 *)(ctx + 8) + 1);
-        *(s32 *)(ctx + 8) = temp_2_30;
+        temp_2_30 = (s32)(*(s32 *)(context + 8) + 1);
+        *(s32 *)(context + 8) = temp_2_30;
         if (temp_2_30 >= 0x29E) {
-            *(s32 *)(ctx + 0x44) = 1;
+            *(s32 *)(context + 0x44) = 1;
         }
         break;
-    case 11:                                        /* switch 1 */
-        temp_20_17 = (s32)(**(s32 **)(ctx + 0x54));
-        if (*(s32 *)(ctx + 8) == 0) {
-            temp_21 = (s32)(func_0025fe50((s32)(arg0), func_00455f70(&D_00636630, &sp3DC), 0x96, &D_005DC974));
-            func_001102f0(sp3B0, 0x140, 0xA5, 300.0f);
+    case 11:
+        spriteTexture = (s32)(**(s32 **)(context + 0x54));
+        if (*(s32 *)(context + 8) == 0) {
+            temp_21 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_21_2 = func_0025ff60(temp_21);
             func_004b12e0(temp_21_2, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_21_2, sp3B0);
+            func_004b1250((void *)(temp_21_2), position);
         }
-        if (*(s32 *)(ctx + 8) == 0xBE) {
-            temp_19_4 = (s32)(func_0025fe50((s32)(arg0), func_00455f70(&D_00636630, &sp3DC), 0x96, &D_005DC974));
-            func_001102f0(sp3B0, 0x140, 0xA5, 300.0f);
+        if (*(s32 *)(context + 8) == 0xBE) {
+            temp_19_4 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_19_5 = func_0025ff60(temp_19_4);
             func_004b12e0(temp_19_5, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_19_5, sp3B0);
+            func_004b1250((void *)(temp_19_5), position);
         }
-        temp_2_31 = (s32)(*(s32 *)(ctx + 8));
-        if (temp_2_31 < 0x50) {
-            func_00256be0(0xFFFFFF, (s32)( (255.0f * ((f32) temp_2_31 / 80.0f))), temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, 0);
-        } else if (temp_2_31 < 0x65) {
-            func_00256be0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, 0);
-        } else if (temp_2_31 < 0x6F) {
-            temp_f20_3 = (f32) (temp_2_31 - 0x64) / 10.0f;
-            func_00256be0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, temp_f20_3, 0);
-            var_6 = (u8 *)(&D_00636580);
-            var_5 = (u8 *)((Sp120 *)&sp2E0);
-            var_4 = 9;
-            do {
-                temp_3_6 = (s32)(*(s32 *)(var_6 + 0));
-                temp_2_32 = (s32)(*(s32 *)(var_6 + 4));
-                var_6 += 8;
-                var_4 -= 1;
-                *(s32 *)(var_5 + 0) = temp_3_6;
-                *(s32 *)(var_5 + 4) = temp_2_32;
-                var_5 += 8;
-            } while (var_4 > 0);
-            ((s32 *)sp2E0)[6] = 0xFF0000FF;
-            ((s32 *)sp2E0)[15] = 0xFF0000FF;
-            var_6_2 = (u8 *)(&D_006365D0);
-            var_5_2 = (u8 *)((void *)&sp2C0);
-            var_4_2 = 4;
-            do {
-                temp_3_7 = (s32)(*(s32 *)(var_6_2 + 0));
-                temp_2_33 = (s32)(*(s32 *)(var_6_2 + 4));
-                var_6_2 += 8;
-                var_4_2 -= 1;
-                *(s32 *)(var_5_2 + 0) = temp_3_7;
-                *(s32 *)(var_5_2 + 4) = temp_2_33;
-                var_5_2 += 8;
-            } while (var_4_2 > 0);
-            func_00252230(&sp330, (Sp120 *)&sp2E0, &sp304, temp_f20_3);
-            func_003e0870((void *)sp280, (void *)((u8 *)&sp330 + 0xC), sp330.f1C, 0);
-            D_00887300[0](6, 0);
-            D_00887300[0](8, 1);
+        mode11Frame = (s32)(*(s32 *)(context + 8));
+        if (mode11Frame < 0x50) {
+            func_00256be0(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( (255.0f * ((f32) mode11Frame / 80.0f))), 0.0f, 0, firstTexture, secondTexture);
+        } else if (mode11Frame < 0x65) {
+            func_00256be0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, 0, firstTexture, secondTexture);
+        } else if (mode11Frame < 0x6F) {
+            spritePhase = (f32) (mode11Frame - 0x64) / 10.0f;
+            func_00256be0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, spritePhase, 0, firstTexture, secondTexture);
+            enteringKeys = *(const RankUpRenderKeys *)D_00636580;
+            enteringKeys.states[0].f18 = 0xFF0000FF;
+            enteringKeys.states[1].f18 = 0xFF0000FF;
+            enteringUv = *(const RankUpRenderUV *)D_006365D0;
+            func_00252230(&enteringSprite, &enteringKeys.states[0], &enteringKeys.states[1], spritePhase);
+            func_003e0870(&enteringMatrix, &enteringSprite.axis, enteringSprite.f1C, 0);
+            renderStateTable = (u8 *)D_00887300;
+            (*(void (**)(u32, u32))renderStateTable)(6, 0);
+            (*(void (**)(u32, u32))renderStateTable)(8, 1);
             func_003f6440(3, 0x31003);
             func_003f6440(2, 0x48);
-            temp_2_34 = (u32)sp330.f18 & 0xFF;
-            if ((s32) temp_2_34 >= 0) {
-                var_f2_3 = (f32) (s32) temp_2_34;
-            } else {
-                var_f2_3 = (f32) (s32) ((temp_2_34 >> 1) | (temp_2_34 & 1));
-                var_f2_3 += var_f2_3;
-            }
-            func_00366c70((s32)sp330.f4, (s32)sp330.f8, sp330.f20, sp330.f22, (u32)sp330.f18 >> 8, (s32)( (var_f2_3 * ((f32) (255.0f * temp_f20_3) / 255.0f))), 0, (s16)(sp330.f20 >> 1), 0, (s16)(sp330.f22 >> 1), (void *)sp280, temp_20_17, (void *)&sp2C0);
-        } else if (temp_2_31 < 0xAB) {
-            func_00256be0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 1.0f, 0);
-            var_6_3 = (u8 *)(&D_00636580);
-            var_5_3 = (u8 *)((Sp120 *)&sp200);
-            var_4_3 = 9;
-            do {
-                temp_3_8 = (s32)(*(s32 *)(var_6_3 + 0));
-                temp_2_35 = (s32)(*(s32 *)(var_6_3 + 4));
-                var_6_3 += 8;
-                var_4_3 -= 1;
-                *(s32 *)(var_5_3 + 0) = temp_3_8;
-                *(s32 *)(var_5_3 + 4) = temp_2_35;
-                var_5_3 += 8;
-            } while (var_4_3 > 0);
-            ((s32 *)sp200)[6] = 0xFF0000FF;
-            ((s32 *)sp200)[15] = 0xFF0000FF;
-            var_6_4 = (u8 *)(&D_006365D0);
-            var_5_4 = (u8 *)((void *)&sp1E0);
-            var_4_4 = 4;
-            do {
-                temp_3_9 = (s32)(*(s32 *)(var_6_4 + 0));
-                temp_2_36 = (s32)(*(s32 *)(var_6_4 + 4));
-                var_6_4 += 8;
-                var_4_4 -= 1;
-                *(s32 *)(var_5_4 + 0) = temp_3_9;
-                *(s32 *)(var_5_4 + 4) = temp_2_36;
-                var_5_4 += 8;
-            } while (var_4_4 > 0);
-            func_00252230(&sp250, (Sp120 *)&sp200, &sp224, 1.0f);
-            func_003e0870((void *)sp1A0, (void *)((u8 *)&sp250 + 0xC), sp250.f1C, 0);
-            D_00887300[0](6, 0);
-            D_00887300[0](8, 1);
+            func_00366c70((s32)enteringSprite.f4, (s32)enteringSprite.f8, 0, enteringSprite.f20, enteringSprite.f22, (u32)enteringSprite.f18 >> 8,
+                          (s32)( ((f32)((u32)enteringSprite.f18 & 0xFF) * ((f32)(s32)(255.0f * spritePhase) / 255.0f))), 0,
+                          (s16)(enteringSprite.f20 >> 1), (s16)(enteringSprite.f22 >> 1), &enteringMatrix,
+                          spriteTexture, (f32 (*)[2])((void *)&enteringUv));
+        } else if (mode11Frame < 0xAB) {
+            func_00256be0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 1.0f, 0, firstTexture, secondTexture);
+            steadyKeys = *(const RankUpRenderKeys *)D_00636580;
+            steadyKeys.states[0].f18 = 0xFF0000FF;
+            steadyKeys.states[1].f18 = 0xFF0000FF;
+            steadyUv = *(const RankUpRenderUV *)D_006365D0;
+            func_00252230(&steadySprite, &steadyKeys.states[0], &steadyKeys.states[1], 1.0f);
+            func_003e0870(&steadyMatrix, &steadySprite.axis, steadySprite.f1C, 0);
+            renderStateTable = (u8 *)D_00887300;
+            (*(void (**)(u32, u32))renderStateTable)(6, 0);
+            (*(void (**)(u32, u32))renderStateTable)(8, 1);
             func_003f6440(3, 0x31003);
             func_003f6440(2, 0x48);
-            temp_2_37 = (u32)sp250.f18 & 0xFF;
-            if ((s32) temp_2_37 >= 0) {
-                var_f1_8 = (f32) (s32) temp_2_37;
-            } else {
-                var_f1_8 = (f32) (s32) ((temp_2_37 >> 1) | (temp_2_37 & 1));
-                var_f1_8 += var_f1_8;
-            }
-            func_00366c70((s32)sp250.f4, (s32)sp250.f8, sp250.f20, sp250.f22, (u32)sp250.f18 >> 8, (s32)( (var_f1_8 * 1.0f)), 0, (s16)(sp250.f20 >> 1), 0, (s16)(sp250.f22 >> 1), (void *)sp1A0, temp_20_17, (void *)&sp1E0);
-        } else if (temp_2_31 < 0xD3) {
-            temp_f0_11 = 255.0f * (1.0f - ((f32) (temp_2_31 - 0xAA) / 40.0f));
-            func_00256be0(0xFFFFFF, (s32)( temp_f0_11), temp_18, temp_17, 0.0f, 0.0f, 0.0f, 1.0f, 0);
-            var_6_5 = (u8 *)(&D_00636580);
-            var_5_5 = (u8 *)((Sp120 *)&sp120);
-            var_4_5 = 9;
-            do {
-                temp_3_10 = (s32)(*(s32 *)(var_6_5 + 0));
-                temp_2_38 = (s32)(*(s32 *)(var_6_5 + 4));
-                var_6_5 += 8;
-                var_4_5 -= 1;
-                *(s32 *)(var_5_5 + 0) = temp_3_10;
-                *(s32 *)(var_5_5 + 4) = temp_2_38;
-                var_5_5 += 8;
-            } while (var_4_5 > 0);
-            ((s32 *)sp120)[6] = 0xFF0000FF;
-            ((s32 *)sp120)[15] = 0xFF0000FF;
-            var_6_6 = (u8 *)(&D_006365D0);
-            var_5_6 = (u8 *)((void *)&sp100);
-            var_4_6 = 4;
-            do {
-                temp_3_11 = (s32)(*(s32 *)(var_6_6 + 0));
-                temp_2_39 = (s32)(*(s32 *)(var_6_6 + 4));
-                var_6_6 += 8;
-                var_4_6 -= 1;
-                *(s32 *)(var_5_6 + 0) = temp_3_11;
-                *(s32 *)(var_5_6 + 4) = temp_2_39;
-                var_5_6 += 8;
-            } while (var_4_6 > 0);
-            func_00252230(&sp170, (Sp120 *)&sp120, &sp144, 1.0f);
-            func_003e0870((void *)spC0, (void *)((u8 *)&sp170 + 0xC), sp170.f1C, 0);
-            D_00887300[0](6, 0);
-            D_00887300[0](8, 1);
+            rankUpDrawSpriteState(&steadySprite, &steadyMatrix, spriteTexture, steadyUv.coordinates, 1.0f);
+        } else if (mode11Frame < 0xD3) {
+            temp_f0_11 = 255.0f * (1.0f - ((f32) (mode11Frame - 0xAA) / 40.0f));
+            func_00256be0(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_11), 1.0f, 0, firstTexture, secondTexture);
+            leavingKeys = *(const RankUpRenderKeys *)D_00636580;
+            leavingKeys.states[0].f18 = 0xFF0000FF;
+            leavingKeys.states[1].f18 = 0xFF0000FF;
+            leavingUv = *(const RankUpRenderUV *)D_006365D0;
+            func_00252230(&leavingSprite, &leavingKeys.states[0], &leavingKeys.states[1], 1.0f);
+            func_003e0870(&leavingMatrix, &leavingSprite.axis, leavingSprite.f1C, 0);
+            renderStateTable = (u8 *)D_00887300;
+            (*(void (**)(u32, u32))renderStateTable)(6, 0);
+            (*(void (**)(u32, u32))renderStateTable)(8, 1);
             func_003f6440(3, 0x31003);
             func_003f6440(2, 0x48);
-            temp_2_40 = (u32)sp170.f18 & 0xFF;
-            if ((s32) temp_2_40 >= 0) {
-                var_f2_4 = (f32) (s32) temp_2_40;
-            } else {
-                var_f2_4 = (f32) (s32) ((temp_2_40 >> 1) | (temp_2_40 & 1));
-                var_f2_4 += var_f2_4;
-            }
-            func_00366c70((s32)sp170.f4, (s32)sp170.f8, sp170.f20, sp170.f22, (u32)sp170.f18 >> 8, (s32)( (var_f2_4 * ((f32) temp_f0_11 / 255.0f))), 0, (s16)(sp170.f20 >> 1), 0, (s16)(sp170.f22 >> 1), (void *)spC0, temp_20_17, (void *)&sp100);
+            func_00366c70((s32)leavingSprite.f4, (s32)leavingSprite.f8, 0, leavingSprite.f20, leavingSprite.f22, (u32)leavingSprite.f18 >> 8,
+                          (s32)( ((f32)((u32)leavingSprite.f18 & 0xFF) * ((f32)(s32)temp_f0_11 / 255.0f))), 0, (s16)(leavingSprite.f20 >> 1),
+                          (s16)(leavingSprite.f22 >> 1), &leavingMatrix, spriteTexture,
+                          (f32 (*)[2])((void *)&leavingUv));
         }
-        temp_2_41 = (s32)(*(s32 *)(ctx + 8) + 1);
-        *(s32 *)(ctx + 8) = temp_2_41;
+        temp_2_41 = (s32)(*(s32 *)(context + 8) + 1);
+        *(s32 *)(context + 8) = temp_2_41;
         if (temp_2_41 >= 0xD2) {
-            *(s32 *)(ctx + 0x44) = 1;
+            *(s32 *)(context + 0x44) = 1;
         }
         break;
-    case 12:                                        /* switch 1 */
-        if (*(s32 *)(ctx + 8) == 0) {
-            temp_17_4 = (s32)(func_0025fe50((s32)(arg0), func_00455f70(&D_00636630, &sp3DC), 0x96, &D_005DC974));
-            func_001102f0(sp3B0, 0x140, 0xA5, 300.0f);
+    case 12:
+        if (*(s32 *)(context + 8) == 0) {
+            temp_17_4 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_17_5 = func_0025ff60(temp_17_4);
             func_004b12e0(temp_17_5, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_17_5, sp3B0);
+            func_004b1250((void *)(temp_17_5), position);
         }
-        if (*(s32 *)(ctx + 8) == 0x9B) {
-            temp_17_6 = (s32)(func_0025fe50((s32)(arg0), func_00455f70(&D_00636710, &sp3DC), 0x96, &D_005DC974));
-            func_001102f0(sp3B0, 0x140, 0xB4, 300.0f);
+        if (*(s32 *)(context + 8) == 0x9B) {
+            temp_17_6 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636710, &resourceSize), 0x96, &D_005DC974));
+            func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
             temp_17_7 = func_0025ff60(temp_17_6);
             func_004b12e0(temp_17_7, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
-            func_004b1250(temp_17_7, sp3B0);
+            func_004b1250((void *)(temp_17_7), position);
         }
-        temp_2_42 = (s32)(*(s32 *)(ctx + 8));
-        if (temp_2_42 < 0x50) {
-            func_002570f0(0xFFFFFF, (s32)( (255.0f * ((f32) temp_2_42 / 80.0f))), temp_18, 0, 0, 0, 0.0f);
-        } else if (temp_2_42 < 0x65) {
-            func_002570f0(0xFFFFFF, 0xFF, temp_18, 0, 0, 0, 0.0f);
-        } else if (temp_2_42 < 0x8D) {
-            sp3D4 = (f32)(s32)(fGpffffa66c);
-            temp_f1_2 = 76.5f * ((f32) (temp_2_42 - 0x64) / 40.0f);
-            if (!(temp_f1_2 >= 2.1474836e9f)) {
-                var_3_2 = 0x4F000000 & 0xFF;
-            } else {
-                var_3_2 = ((s32)( (temp_f1_2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+        mode12Frame = (s32)(*(s32 *)(context + 8));
+        if (mode12Frame < 0x50) {
+            func_002570f0(0, 0, 0, 0xFFFFFF, (s32)( (255.0f * ((f32) mode12Frame / 80.0f))), 0.0f, firstTexture);
+        } else if (mode12Frame < 0x65) {
+            func_002570f0(0, 0, 0, 0xFFFFFF, 0xFF, 0.0f, firstTexture);
+        } else if (mode12Frame < 0x8D) {
+            f32 shadePhase = (f32)(mode12Frame - 0x64) / 40.0f;
+            enteringColor.bits = fGpffffa66c;
+            transitionValue = 76.5f * shadePhase;
+            var_3_2 = (u8)transitionValue;
+            enteringColor.channels[3] = var_3_2;
+            drawColor = &drawColorValue.bits;
+            drawColorValue = enteringColor;
+            *(u_long128 *)&enteringRectangle = D_006365F0;
+            drawRectangle = (u_long128 *)&drawRectangleValue;
+            *(u_long128 *)&drawRectangleValue = *(u_long128 *)&enteringRectangle;
+            func_0045d6e0((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
+            {
+                RankUpColor *palette;
+                const RankUpColor *original;
+                s32 index;
+                f32 amount = shadePhase;
+                palette = (RankUpColor *)func_003ec3d0((void *)firstTexture, 1);
+                original = *(const RankUpColor **)(context + 0x58);
+                if (palette == NULL) {
+                    func_0046d730(&D_00635CF8, 0xA5E);
+                }
+                for (index = 0; index < 0x100; ++index) {
+                    s32 green = palette->g;
+                    s32 red = palette->r;
+                    s32 maximum = green < red ? red : green;
+                    if (maximum < palette->b) {
+                        maximum = palette->b;
+                    }
+                    palette->r = (u8)((f32)(u32)original->r +
+                        amount * (f32)(maximum - (s32)original->r));
+                    palette->g = (u8)((f32)(u32)original->g +
+                        amount * (f32)(maximum - (s32)original->g));
+                    palette->b = (u8)((f32)(u32)original->b +
+                        amount * (f32)(maximum - (s32)original->b));
+                    rankUpCopyPaletteAlpha(palette, palette);
+                    palette++;
+                    original++;
+                }
             }
-            ((u8 *)&sp3D4)[3] = var_3_2;
-            sp3D8 = sp3D4;
-            sp390 = D_006365F0;
-            sp3A0 = D_006365F0;
-            func_0045d6e0((f32 *) &sp3D8, &sp3A0, 1, 0.0f);
-            var_19 = (u8 *)(func_003ec3d0(temp_18, 1));
-            var_17 = (u8 *)(*(u8 **)(ctx + 0x58));
-            if (var_19 == NULL) {
-                func_0046d730(&D_00635CF8, 0xA5E);
-            }
-            var_2 = 0;
-do {
-                    temp_3_12 = (u8)(var_19[1]);
-                    var_7 = (u8)(var_19[0]);
-                    if ((s32) temp_3_12 < (s32) var_7) {
-    
-                    } else {
-                        var_7 = temp_3_12;
-                    }
-                    if ((s32) var_7 < (s32) var_19[2]) {
-                        var_7 = var_19[2];
-                    }
-                    temp_f0_12 = (f32)var_17[0] + (((f32)(temp_2_42 - 0x64) / 40.0f) * (f32)(var_7 - var_17[0]));
-                    if (!(temp_f0_12 >= 2.1474836e9f)) {
-                        var_3_3 = (s32)( temp_f0_12) & 0xFF;
-                    } else {
-                        var_3_3 = ((s32)( (temp_f0_12 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                    }
-                    var_19[0] = var_3_3;
-                    temp_f0_13 = (f32)var_17[1] + (((f32)(temp_2_42 - 0x64) / 40.0f) * (f32)(var_7 - var_17[1]));
-                    if (!(temp_f0_13 >= 2.1474836e9f)) {
-                        var_3_4 = (s32)( temp_f0_13) & 0xFF;
-                    } else {
-                        var_3_4 = ((s32)( (temp_f0_13 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                    }
-                    var_19[1] = var_3_4;
-                    temp_f0_14 = (f32)var_17[2] + (((f32)(temp_2_42 - 0x64) / 40.0f) * (f32)(var_7 - var_17[2]));
-                    if (!(temp_f0_14 >= 2.1474836e9f)) {
-                        var_3_5 = (s32)( temp_f0_14) & 0xFF;
-                    } else {
-                        var_3_5 = ((s32)( (temp_f0_14 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                    }
-                    var_19[2] = var_3_5;
-                    var_19[3] = (u8) var_19[3];
-                    var_19 += 4;
-                    var_17 += 4;
-                    var_2 += 1;
-} while (var_2 < 0x100);
-            func_003ec2e0(temp_18);
-            func_002570f0(0xFFFFFF, 0xFF, temp_18, 0, 0, 0, 0.0f);
-        } else if (temp_2_42 < 0xA1) {
-            temp_f0_15 = (f32)(s32)(fGpffffa670);
-            sp3D0 = temp_f0_15;
-            sp3D8 = temp_f0_15;
-            sp380 = D_00636600;
-            sp3A0 = D_00636600;
-            func_0045d6e0((f32 *) &sp3D8, &sp3A0, 1, 0.0f);
-            func_002570f0(0xFFFFFF, 0xFF, temp_18, 0, 0, 0, 0.0f);
-        } else if (temp_2_42 < 0xA4) {
-            temp_f0_16 = (f32)(s32)(fGpffffa674);
-            sp3CC = temp_f0_16;
-            sp3D8 = temp_f0_16;
-            sp370 = D_00636610;
-            sp3A0 = D_00636610;
-            func_0045d6e0(&sp3D8, &sp3A0, 1, 0.0f);
-            temp_f0_17 = (f32) (*(s32 *)(ctx + 8) - 0xA0) / 3.0f;
-            func_002570f0(0xFFFFFF, 0xFF, temp_18, 0, 0, 0, temp_f0_17 * temp_f0_17);
-        } else if (temp_2_42 < 0xC9) {
-            sp3C8 = (f32)(s32)(fGpffffa678);
-            temp_f20_4 = 1.0f - ((f32) (temp_2_42 - 0xA3) / 37.0f);
-            temp_f1_3 = 76.5f * temp_f20_4;
-            if (!(temp_f1_3 >= 2.1474836e9f)) {
-                var_3_6 = 0x4F000000 & 0xFF;
-            } else {
-                var_3_6 = ((s32)( (temp_f1_3 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-            }
-            ((u8 *)&sp3C8)[3] = var_3_6;
-            sp3D8 = sp3C8;
-            sp360 = D_00636620;
-            sp3A0 = D_00636620;
-            func_0045d6e0(&sp3D8, &sp3A0, 1, 0.0f);
-            func_002570f0(0xFFFFFF, (s32)( (255.0f * temp_f20_4)), temp_18, 0, 0, 0, 1.0f);
+            func_003ec2e0((void *)firstTexture);
+            func_002570f0(0, 0, 0, 0xFFFFFF, 0xFF, 0.0f, firstTexture);
+        } else if (mode12Frame < 0xA1) {
+            drawColor = &drawColorValue.bits;
+            drawColorValue = *rankUpCapturePackedColor(&steadyColor, &fGpffffa670);
+            *(u_long128 *)&steadyRectangle = D_00636600;
+            drawRectangle = (u_long128 *)&drawRectangleValue;
+            *(u_long128 *)&drawRectangleValue = *(u_long128 *)&steadyRectangle;
+            func_0045d6e0((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
+            func_002570f0(0, 0, 0, 0xFFFFFF, 0xFF, 0.0f, firstTexture);
+        } else if (mode12Frame < 0xA4) {
+            drawColor = &drawColorValue.bits;
+            drawColorValue = *rankUpCapturePackedColor(&pulseColor, &fGpffffa674);
+            *(u_long128 *)&pulseRectangle = D_00636610;
+            drawRectangle = (u_long128 *)&drawRectangleValue;
+            *(u_long128 *)&drawRectangleValue = *(u_long128 *)&pulseRectangle;
+            func_0045d6e0((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
+            bannerPhase = (f32) (*(s32 *)(context + 8) - 0xA0) / 3.0f;
+            bannerPhase = bannerPhase * bannerPhase;
+            func_002570f0(0, 0, 0, 0xFFFFFF, 0xFF, bannerPhase, firstTexture);
+        } else if (mode12Frame < 0xC9) {
+            leavingOpacity = (f32)(mode12Frame - 0xA3) / 37.0f;
+            leavingColor.bits = fGpffffa678;
+            leavingOpacity = 1.0f - leavingOpacity;
+            temp_f1_3 = 76.5f * leavingOpacity;
+            var_3_6 = (u8)temp_f1_3;
+            leavingColor.channels[3] = var_3_6;
+            drawColor = &drawColorValue.bits;
+            drawColorValue = leavingColor;
+            *(u_long128 *)&leavingRectangle = D_00636620;
+            drawRectangle = (u_long128 *)&drawRectangleValue;
+            *(u_long128 *)&drawRectangleValue = *(u_long128 *)&leavingRectangle;
+            func_0045d6e0((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
+            func_002570f0(0, 0, 0, 0xFFFFFF, (s32)( (255.0f * leavingOpacity)), 1.0f, firstTexture);
         }
-        temp_2_43 = (s32)(*(s32 *)(ctx + 8) + 1);
-        *(s32 *)(ctx + 8) = temp_2_43;
+        temp_2_43 = (s32)(*(s32 *)(context + 8) + 1);
+        *(s32 *)(context + 8) = temp_2_43;
         if (temp_2_43 >= 0xF0) {
-            *(s32 *)(ctx + 8) = 0x64;
-            *(s32 *)(ctx + 0x44) = 1;
+            *(s32 *)(context + 8) = 0x64;
+            *(s32 *)(context + 0x44) = 1;
         }
         break;
     }
-    var_3_7 = (u8 *)(&sp3C0);
-    var_2_2 = 4;
-    if (var_3_7 != NULL) {
-        do {
-            *var_3_7 = 0;
-            var_3_7 += 1;
-            var_2_2 -= 1;
-        } while (var_2_2 != 0);
-    }
-    sp3C4 = sp3C0;
-    var_3_8 = (u8 *)(&spA0);
-    var_2_3 = 0x10;
-    if (var_3_8 != NULL) {
-        do {
-            *var_3_8 = 0;
-            var_3_8 += 1;
-            var_2_3 -= 1;
-        } while (var_2_3 != 0);
-    }
-    spA0 = 0;
-    ((s32 *)&spA0)[1] = 0;
-    ((s32 *)&spA0)[2] = 0x280;
-    ((s32 *)&spA0)[3] = 0x1C0;
-    spB0 = *(u_long128 *)&spA0;
-    D_00887300[0](0xE, 0);
-    D_00887300[0](0xC, 1);
-    D_00887300[0](7, 2);
-    D_00887300[0](9, 1);
-    D_00887300[0](0x14, 1);
-    D_00887300[0](6, 0);
-    D_00887300[0](8, 1);
+    {
+    RankUpPackedColor zeroColor = {{0, 0, 0, 0}};
+    overlayColor.bits = zeroColor.bits;
+    {
+    RankUpRectangle overlayTemplate = {{0, 0, 0, 0}};
+    overlayTemplate.fields.x = 0;
+    overlayTemplate.fields.y = 0;
+    overlayTemplate.fields.width = 0x280;
+    overlayTemplate.fields.height = 0x1C0;
+    *(u_long128 *)&overlayRectangle = *(u_long128 *)&overlayTemplate;
+    renderStateTable = (u8 *)D_00887300;
+    (*(void (**)(u32, u32))renderStateTable)(0xE, 0);
+    (*(void (**)(u32, u32))renderStateTable)(0xC, 1);
+    (*(void (**)(u32, u32))renderStateTable)(7, 2);
+    (*(void (**)(u32, u32))renderStateTable)(9, 1);
+    (*(void (**)(u32, u32))renderStateTable)(0x14, 1);
+    (*(void (**)(u32, u32))renderStateTable)(6, 0);
+    (*(void (**)(u32, u32))renderStateTable)(8, 1);
     func_003f6440(3, 0x31003);
     func_003f6440(2, 0x44);
     func_00489f80();
-    func_0045d6e0(&sp3C4, &spB0, 0, (f32) 0xFFFF);
+    func_0045d6e0((u8 *)(&overlayColor), (f32 *)(&overlayRectangle), (f32) 0xFFFF, 0);
     func_0048a000();
+    }
+    }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00257900);
-#endif
 
+#pragma pop
 /* measured: nd 94 with a full C body, object 320B against a 336B window (wave 7
    ran out of turns here and left it uncommitted). The body is undersized, so work
    is missing rather than merely mis-scheduled; re-attempt from the m2c draft. */
@@ -3614,7 +3147,7 @@ void func_0025b0f0(s32 arg0, u8 *arg1) {
     *(u_long128 *)&arr[0] = quad;
     arr16 = (u_long128 *)&arr[16];
     *(u_long128 *)&arr[16] = quad;
-    func_0045d6e0(pfbuf, arr16, 0.0f, 1);
+    func_0045d6e0((u8 *)(pfbuf), (f32 *)(arr16), 0.0f, 1);
     switch (*(u32 *)(sp + 4)) {
     case 0:
     case 1:
@@ -3651,31 +3184,26 @@ void func_0025b0f0(s32 arg0, u8 *arg1) {
    946 -> 944 against retail 944, by turning one constant-bound `for` loop into
    the `do { } while` retail emits - no guard before the first iteration, one compare
    at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
-// FUN_0025B240 NONMATCHING
-#ifdef NON_MATCHING
 extern u8 D_00636740[];
 extern u8 D_00636760[];
 extern u8 D_00636780[];
 extern u8 D_006367A0[];
 extern u8 D_00635D08[];
 extern u8 D_005DC974[];
-extern s32 gp599C;
-extern s32 gp5998;
-extern f32 gp7D5C;
-extern s32 gp4BB8;
-extern char gp5980;
-extern char gp5978;
-extern s32 func_0035adc0();
+extern s32 iGpffffa664;
+extern s32 iGpffffa668;
+extern f32 fGpffff82a4;
+extern u8 *iGpffffb448;
+extern char cGpffffa680;
+extern char cGpffffa688;
+extern u8 *func_0035adc0(s32 parent, s64 id, s32 flags);
 extern void func_00440b68();
 extern u8 *func_00454a60();
 extern s32 func_004553c0();
-extern s32 func_00455f70();
-extern s32 func_004667d0();
-extern u32 func_003ec3d0();
-extern void func_003ec2e0();
-extern void func_0043f810();
-extern void func_0043f9c8();
-extern s32 func_004669d0();
+extern u8 *func_004667d0(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName, s32 resultKind, s32 memoryKind);
+extern void *func_0043f810(void *destination, const void *source, u32 size);
+extern void *func_0043f9c8(void *destination, s32 value, u32 size);
+extern u8 *func_004669d0(u8 *request, s32 *complete, s32 *result);
 extern s32 func_00459760();
 extern s32 func_0045b400();
 extern s32 func_00459a60();
@@ -3683,7 +3211,7 @@ extern void func_0045aac0();
 extern void func_0025fd70(u8 *arg0, s32 arg1, u8 arg2);
 extern void func_0025fbb0(u8 *dst, u8 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 farg0, f32 farg1);
 extern void func_0025fd00(u8 *dst, s32 arg1, s32 arg2, f32 farg0, f32 farg1);
-extern void func_0025fab0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
+extern s32 func_0025fab0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderContext);
 extern u8 *func_00255b90();
 extern void func_002518d0();
 extern s32 func_00189fa0();
@@ -3699,19 +3227,19 @@ extern s8 func_002bab80();
 extern void func_002badc0();
 extern void func_002bae80();
 extern s32 func_00255ed0();
-extern s32 func_00248760();
+extern s64 func_00248760(s32 arg0);
 extern u8 *func_002438b0();
-extern u8 *func_00246830();
+extern u8 *func_00246830(u32);
 extern u8 *func_002468a0();
 extern u8 *func_00246d90();
-extern u8 *func_00109220();
-extern void func_00442830();
-extern void func_00275980();
-extern void func_002bbd80();
+extern u8 *func_00109220(s32 personaId);
+extern char *func_00442830(char *destination, const char *source);
+extern void func_00275980(char *source, char *destination, s32 capacity);
+extern void func_002bbd80(s8 handle, s32 variable, void *text);
 extern s32 func_00106330();
 extern void func_00106390();
 extern u16 *func_0010a900(u16 character);
-extern s32 func_0010cc20();
+extern s32 func_0010cc20(u8 *character, u16 skill);
 extern void func_004599a0();
 extern void func_00459950();
 extern void func_00459880();
@@ -3722,6 +3250,24 @@ extern s32 func_002519e0(u8 *task);
 extern void func_00251ce0(u8 *task);
 extern void func_00460ac0();
 extern u8 *func_00460990();
+typedef struct { s32 values[5]; } RankUpUnlockFlags;
+
+#pragma push
+#pragma always_inline on
+#pragma opt_common_subs off
+#pragma opt_propagation off
+static inline s32 rankUpAnimationComplete(u8 *task)
+{
+    u8 *context = (u8 *)func_00452560(task);
+    s32 complete = 0;
+    if (*(s32 *)(context + 0x44) != 0) {
+        complete = 1;
+    }
+    return complete;
+}
+#pragma pop
+
+// FUN_0025B240
 s32 func_0025b240(u8 *arg0) {
     u8 *ctx;
     s32 tmp;
@@ -3730,9 +3276,10 @@ s32 func_0025b240(u8 *arg0) {
     s32 tmp4;
     s32 st18c;
     s32 st188;
-    s32 arr58[7];
+    char sp160[0x20];
     u8 sp80[0xD8];
-    u8 sp160[0x20];
+    RankUpUnlockFlags unlockFlags;
+    s32 skill;
     s8 c;
     s8 cc;
     u8 *pb;
@@ -3740,14 +3287,13 @@ s32 func_0025b240(u8 *arg0) {
     s32 n;
     u8 *argb = arg0;
     ctx = (u8 *)func_00452560(argb);
-    tmp = 0;
+    skill = 0;
     switch (*(s32 *)(ctx + 4)) {
     case 0:
         *(s32 *)(ctx + 4) = 3;
-        c = (s8)func_00248760((u16)*(s32 *)(ctx + 0x18));
-        *(s32 *)(ctx + 0x2C) = func_0035adc0((s32)argb, c, 0);
-        *(s32 *)(ctx + 0x30) = func_0035adc0((s32)argb, -1, 0);
-        func_00440b68(&gp5980, D_00635CF8, 0xADB);
+        *(s32 *)(ctx + 0x2C) = (s32)func_0035adc0((s32)argb, func_00248760(*(u16 *)(ctx + 0x18)), 0);
+        *(s32 *)(ctx + 0x30) = (s32)func_0035adc0((s32)argb, -1, 0);
+        func_00440b68(&cGpffffa680, D_00635CF8, 0xADB);
         *(u8 **)(ctx + 0x34) = func_00454a60(D_00636760, 1);
         goto tail;
     case 1:
@@ -3760,16 +3306,16 @@ s32 func_0025b240(u8 *arg0) {
         if ((*(s32 *)ctx & 8) != 0) {
             goto tail;
         }
-        if (gp599C == -1) {
-            func_00459880();
-        } else {
-            func_004599a0((s16)gp599C, 10);
+        if (iGpffffa664 != -1) {
+            func_004599a0((s16)iGpffffa664, 10);
             func_00459950(-0x3C);
-        }
-        if (gp5998 == -1) {
-            func_0045a8d0(3, 0);
         } else {
-            func_0045b2e0(gp5998);
+            func_00459880();
+        }
+        if (iGpffffa668 != -1) {
+            func_0045b2e0(iGpffffa668);
+        } else {
+            func_0045a8d0(3, 0);
         }
         return -1;
     case 3:
@@ -3784,20 +3330,25 @@ s32 func_0025b240(u8 *arg0) {
         }
         *(s32 *)(ctx + 4) = 4;
         *(s32 *)(ctx + 0x38) = func_00455f70((s32)D_00636780, &st18c);
-        *(s32 *)(ctx + 0x50) = func_004667d0(0, (s32)D_006367A0, 0, 0, 0, 0, 0, 0, 0, 0);
-        tmp = func_0035afa0(*(s32 *)(ctx + 0x2C));
-        tmp2 = func_003ec3d0(tmp, 1);
-        if (tmp2 == 0) {
+        *(u8 **)(ctx + 0x50) = func_004667d0(0, (const char *)D_006367A0, 0, 0, 0, 0, 0, 0, 0, 0);
+        {
+        u8 *palette;
+        s32 raster;
+        u8 *paletteCopy;
+        raster = func_0035afa0(*(s32 *)(ctx + 0x2C));
+        palette = func_003ec3d0((void *)raster, 1);
+        if (palette == 0) {
             func_0046d730(D_00635CF8, 0xAF7);
         }
         func_0044ea90(D_00635CF8, 0xAF8);
-        pv = D_008873F4[0](1, 0x400, 0x40000);
-        *(u8 **)(ctx + 0x58) = (u8 *)pv;
-        func_0043f810(pv, (void *)tmp2, 0x400);
-        func_003ec2e0(tmp);
+        paletteCopy = D_008873F4[0](1, 0x400, 0x40000);
+        *(u8 **)(ctx + 0x58) = paletteCopy;
+        func_0043f810(paletteCopy, palette, 0x400);
+        func_003ec2e0((void *)raster);
+        }
         goto tail;
     case 4:
-        *(s32 *)(ctx + 0x54) = func_004669d0(*(s32 *)(ctx + 0x50), &st188, 0);
+        *(u8 **)(ctx + 0x54) = func_004669d0(*(u8 **)(ctx + 0x50), &st188, 0);
         if (st188 == 0) {
             goto tail;
         }
@@ -3805,8 +3356,8 @@ s32 func_0025b240(u8 *arg0) {
         *(s32 *)(ctx + 0x50) = 0;
         goto tail;
     case 5:
-        gp599C = func_00459760();
-        gp5998 = func_0045b400();
+        iGpffffa664 = func_00459760();
+        iGpffffa668 = func_0045b400();
         func_00459a60();
         func_0045aac0(3, 0, 10);
         *(s32 *)(ctx + 4) = 6;
@@ -3814,10 +3365,8 @@ s32 func_0025b240(u8 *arg0) {
         func_0043f9c8(sp80, 0, 0xD8);
         func_0025fd70(sp80, 0x35, 0);
         func_0025fbb0(sp80, 0, 0xFFFFFFFF, 0xFFFFFFFF, 0, 0, 0.0f, 0.0f);
-        tmp2 = 0x3E800000;
-        func_0025fd00(sp80, 0xFF, 0, gp7D5C, 0.25f);
-        func_0025fab0((s32)argb, 1, 0, sp80, (s32)D_005DC974);
-        *(s32 *)(ctx + 0x28) = tmp2;
+        func_0025fd00(sp80, 0xFF, 0, fGpffff82a4, 0.25f);
+        *(s32 *)(ctx + 0x28) = func_0025fab0((s32)argb, 1, 0, sp80, D_005DC974);
         *(s32 *)(ctx + 0x40) = (s32)func_00255b90();
         func_002518d0(*(s32 *)(ctx + 0x1C));
     case 6:
@@ -3826,14 +3375,14 @@ s32 func_0025b240(u8 *arg0) {
         if (tmp3 == 5 && func_00189fa0() != 0) {
             *(s32 *)ctx |= 1;
         }
-        if (*(s32 *)(ctx + 8) <= 0x34) {
+        if (*(s32 *)(ctx + 8) < 0x35) {
             goto tail;
         }
         func_00452080(*(s32 *)(ctx + 0x28));
-        if (*(s32 *)(ctx + 0x1C) < 1 || *(s32 *)(ctx + 0x1C) > 10) {
-            *(s32 *)(ctx + 4) = 9;
-        } else {
+        if (*(s32 *)(ctx + 0x1C) >= 1 && *(s32 *)(ctx + 0x1C) <= 10) {
             *(s32 *)(ctx + 4) = 7;
+        } else {
+            *(s32 *)(ctx + 4) = 9;
         }
         *(s32 *)(ctx + 8) = 0;
         goto tail;
@@ -3870,15 +3419,15 @@ s32 func_0025b240(u8 *arg0) {
         if (tmp4 >= 1 && tmp4 <= 9) {
             goto case10tail;
         }
-        if (tmp4 != 10) {
-            func_004599a0(0xE, 10);
-        } else {
+        if (tmp4 == 10) {
             func_004599a0(0xF, 10);
+        } else {
+            func_004599a0(0xE, 10);
         }
         /* fallthrough */
     case 10:
     case10tail:
-        if (*(s32 *)((u8 *)func_00452560(argb) + 0x44) == 0) {
+        if (rankUpAnimationComplete(argb) == 0) {
             goto tail;
         }
         *(s32 *)(ctx + 4) = 0xB;
@@ -3896,7 +3445,7 @@ s32 func_0025b240(u8 *arg0) {
         *(s8 *)(ctx + 0x3C) = func_002bab80(*(void **)(ctx + 0x38));
         tmp4 = *(s32 *)(ctx + 0x1C);
         if (tmp4 == 0) {
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(ctx + 0x18)) & 0xFF));
+            func_002bbd80(*(s8 *)(ctx + 0x3C), 0, (char *)func_002438b0((u8)func_00248760(*(u16 *)(ctx + 0x18))));
             if (*(s32 *)(ctx + 0x18) == 7) {
                 func_002badc0(*(s8 *)(ctx + 0x3C), 0xC);
             } else {
@@ -3905,11 +3454,10 @@ s32 func_0025b240(u8 *arg0) {
         } else if (tmp4 == 10) {
             func_00275980((char *)func_00246830(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, func_002438b0(func_00248760(*(u16 *)(ctx + 0x18)) & 0xFF));
-            func_00275980((char *)func_00246d90(func_00248760(*(u16 *)(ctx + 0x18))), (char *)sp160, 0x20);
+            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (char *)func_002438b0((u8)func_00248760(*(u16 *)(ctx + 0x18))));
+            func_00275980((char *)func_00246d90((s8)func_00248760(*(u16 *)(ctx + 0x18))), (char *)sp160, 0x20);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 2, sp160);
-            pb = func_00109220(*(u16 *)(func_00246d90(func_00248760(*(u16 *)(ctx + 0x18))) + 0x40));
-            func_00442830((char *)sp160, (char *)pb);
+            func_00442830((char *)sp160, (char *)func_00109220(*(u16 *)(func_00246d90((s8)func_00248760(*(u16 *)(ctx + 0x18))) + 0x40)));
             func_002bbd80(*(s8 *)(ctx + 0x3C), 3, sp160);
             func_002badc0(*(s8 *)(ctx + 0x3C), 4);
         } else if (tmp4 == 11) {
@@ -3917,38 +3465,39 @@ s32 func_0025b240(u8 *arg0) {
         } else if (tmp4 == 12) {
             func_002badc0(*(s8 *)(ctx + 0x3C), 6);
         } else {
-            if (gp599C == -1) {
-                func_00459880();
-            } else {
-                func_004599a0((s16)gp599C, 10);
+            if (iGpffffa664 != -1) {
+                func_004599a0((s16)iGpffffa664, 10);
                 func_00459950(-0xB4);
-            }
-            if (gp5998 == -1) {
-                func_0045a8d0(3, 0);
             } else {
-                func_0045b2e0(gp5998);
+                func_00459880();
+            }
+            if (iGpffffa668 != -1) {
+                func_0045b2e0(iGpffffa668);
+            } else {
+                func_0045a8d0(3, 0);
             }
             func_00275980((char *)func_00246830(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);
-            func_00442088(sp160, &gp5978, *(s32 *)(ctx + 0x1C));
+            func_00442088(sp160, &cGpffffa688, *(s32 *)(ctx + 0x1C));
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, sp160);
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 2, func_002438b0(func_00248760(*(u16 *)(ctx + 0x18)) & 0xFF));
+            func_002bbd80(*(s8 *)(ctx + 0x3C), 2, (char *)func_002438b0((u8)func_00248760(*(u16 *)(ctx + 0x18))));
             func_002badc0(*(s8 *)(ctx + 0x3C), 3);
         }
     case 14:
         if (func_002bb680(*(s8 *)(ctx + 0x3C)) == 0) {
+            s8 completedRank;
             func_002bb420(*(s8 *)(ctx + 0x3C));
             tmp4 = *(s32 *)(ctx + 0x1C);
-            cc = (s8)tmp4;
-            if (cc == 0) {
-                cc = 1;
+            completedRank = (s8)tmp4;
+            if (completedRank == 0) {
+                completedRank = 1;
             }
-            if (tmp4 == 0xB || tmp4 == 0xC || func_00255ed0(*(s32 *)(ctx + 0x18), cc) == 0) {
+            if (tmp4 != 0xB && tmp4 != 0xC && func_00255ed0(*(s32 *)(ctx + 0x18), completedRank) != 0) {
+                *(s32 *)(ctx + 4) = 0xF;
+            } else {
                 func_002bb550(*(s8 *)(ctx + 0x3C));
                 *(s32 *)(ctx + 4) = 1;
                 *(s32 *)ctx |= 4;
-            } else {
-                *(s32 *)(ctx + 4) = 0xF;
             }
         }
         func_002bbcf0(*(s8 *)(ctx + 0x3C));
@@ -3959,15 +3508,10 @@ s32 func_0025b240(u8 *arg0) {
         if (cc == 0) {
             cc = 1;
         }
-        n = 0;
-        do {
-            arr58[n + 2] = ((s32 *)D_00636740)[n];
-            n++;
-        } while (n < 5);
-        tmp = func_00255ed0(*(s32 *)(ctx + 0x18), cc);
-        c = (s8)tmp;
+        unlockFlags = *(const RankUpUnlockFlags *)D_00636740;
+        c = (s8)func_00255ed0(*(s32 *)(ctx + 0x18), cc);
         if (c >= 2 && c <= 6 && (*(s32 *)ctx & 0x20) != 0) {
-            func_00106390(arr58[c], 1);
+            func_00106390(unlockFlags.values[c - 2], 1);
             switch (c) {
             case 2:
                 func_002bae80(*(s8 *)(ctx + 0x3C), 0xD);
@@ -3988,7 +3532,7 @@ s32 func_0025b240(u8 *arg0) {
             *(s32 *)ctx &= ~0x20;
             goto case16tail;
         }
-        if (c > 1 && c < 7 && func_00106330(arr58[c]) == 0) {
+        if (c >= 2 && c < 7 && func_00106330(unlockFlags.values[c - 2]) == 0) {
             *(s32 *)ctx |= 0x20;
         }
         func_00275980((char *)func_002468a0(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
@@ -4010,30 +3554,27 @@ s32 func_0025b240(u8 *arg0) {
             func_002badc0(*(s8 *)(ctx + 0x3C), 11);
             break;
         case 7:
-            tmp = 0x113;
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)((s32)gp4BB8 + 0x1469));
+            skill = 0x113;
+            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1469));
             func_002badc0(*(s8 *)(ctx + 0x3C), 0x12);
-            pb = (u8 *)func_0010a900(5);
-            func_0010cc20(pb, 0x113);
+            func_0010cc20((u8 *)func_0010a900(5), 0x113);
             break;
         case 8:
-            tmp = 0x112;
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)((s32)gp4BB8 + 0x1456));
+            skill = 0x112;
+            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1456));
             func_002badc0(*(s8 *)(ctx + 0x3C), 0x13);
-            pb = (u8 *)func_0010a900(5);
-            func_0010cc20(pb, 0x112);
+            func_0010cc20((u8 *)func_0010a900(5), 0x112);
             break;
         case 9:
-            tmp = 0x10D;
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)((s32)gp4BB8 + 0x13F7));
-            pb = (u8 *)func_0010a900(5);
-            func_0010cc20(pb, 0x10D);
+            skill = 0x10D;
+            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x13F7));
+            func_0010cc20((u8 *)func_0010a900(5), 0x10D);
             break;
         }
-        if (tmp == 0x113) {
+        if (skill == 0x113) {
             func_00106390(0x1013, 1);
         }
-        if (tmp == 0x112) {
+        if (skill == 0x112) {
             func_00106390(0x1012, 1);
         }
         /* fallthrough */
@@ -4041,12 +3582,12 @@ s32 func_0025b240(u8 *arg0) {
     case16tail:
         if (func_002bb680(*(s8 *)(ctx + 0x3C)) == 0) {
             func_002bb420(*(s8 *)(ctx + 0x3C));
-            if ((*(s32 *)ctx & 0x20) == 0) {
+            if ((*(s32 *)ctx & 0x20) != 0) {
+                *(s32 *)(ctx + 4) = 0xF;
+            } else {
                 func_002bb550(*(s8 *)(ctx + 0x3C));
                 *(s32 *)(ctx + 4) = 1;
                 *(s32 *)ctx |= 4;
-            } else {
-                *(s32 *)(ctx + 4) = 0xF;
             }
         }
         func_002bbcf0(*(s8 *)(ctx + 0x3C));
@@ -4056,21 +3597,21 @@ s32 func_0025b240(u8 *arg0) {
     }
 tail:
     tmp4 = *(s32 *)ctx;
-    if ((tmp4 & 8) == 0) {
-        if ((tmp4 & 2) != 0) {
-            tmp = *(s32 *)(ctx + 0x4C) + 1;
+    if ((tmp4 & 8) != 0) {
+        if ((tmp4 & 4) != 0) {
+            tmp = *(s32 *)(ctx + 0x4C) - 1;
             *(s32 *)(ctx + 0x4C) = tmp;
-            if (tmp >= 0x28) {
-                *(s32 *)ctx &= ~2;
-                *(s32 *)ctx |= 8;
+            if (tmp <= 0) {
+                *(s32 *)ctx &= ~4;
+                *(s32 *)ctx &= ~8;
             }
         }
-    } else if ((tmp4 & 4) != 0) {
-        tmp = *(s32 *)(ctx + 0x4C) - 1;
+    } else if ((tmp4 & 2) != 0) {
+        tmp = *(s32 *)(ctx + 0x4C) + 1;
         *(s32 *)(ctx + 0x4C) = tmp;
-        if (tmp <= 0) {
-            *(s32 *)ctx &= ~4;
-            *(s32 *)ctx &= ~8;
+        if (tmp >= 0x28) {
+            *(s32 *)ctx &= ~2;
+            *(s32 *)ctx |= 8;
         }
     }
     pb = func_00460990();
@@ -4079,10 +3620,6 @@ tail:
     func_00460ac0(D_007963D0, pb);
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025b240);
-#endif
-
 
 
 /* measured: retail hoists the jtbl_008873EC base into $s0 (reusing the dead

@@ -32,7 +32,7 @@ extern s32 func_00107ac0(s32 idx);
 extern s32 func_00107a00(s32 idx, s32 arg1);
 extern u16 func_00108ee0(void);
 extern s32 func_001093a0(s32 idx);
-extern s8 func_00248760(s32 idx);
+extern s64 func_00248760(s32 idx);
 extern s32 func_001077f0(u16 idx);
 extern s32 func_00109280(s32 idx);
 extern s32 func_00109300(s32 idx);
@@ -517,7 +517,7 @@ s16 func_00247770(s32 arg0) {
     i = 1;
     target = (s16)arg0;
     for (; i < 0x1F; i++) {
-        if (target == func_00248760(i & 0xFFFF)) {
+        if (target == (s8)func_00248760(i & 0xFFFF)) {
             s32 v = func_00107ac0(i & 0xFFFF) & 0xFFFF;
             if (largest < v) {
                 largest = v;
@@ -1118,7 +1118,7 @@ u8 *func_002485e0(s32 arg0, s32 arg1) {
 }
 #pragma opt_loop_invariants off
 // FUN_00248760
-s8 func_00248760(s32 arg0) {
+s64 func_00248760(s32 arg0) {
     u8 *temp_16 = D_00881480[0];
     s32 off;
 

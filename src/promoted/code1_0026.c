@@ -64,7 +64,7 @@ extern void (*D_00887300[])(u32 state, u32 value);
 extern u8 D_00881530[];
 extern u8 D_0063BA30[];
 typedef struct { s32 a, b, c, d; } Quad4;
-typedef void (*Code1_0026Callback)(f32, f32, f32, s32, s32, s8 *, s32, s32, u8 *);
+typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 static inline u32 *func_0026e010_add_offset(s32 offset, u32 *base)
 {
     return (u32 *)((u8 *)base + offset + 8);
@@ -119,10 +119,7 @@ extern void func_00264cb0(s32 arg0, s32 arg1);
 extern s32 func_00110c50(s32 arg0, s32 arg1);
 extern s32 func_0043c6a0(s32 arg0);
 extern f32 func_0044b7b0(f32 fparg0);
-extern void func_00262de0(s32 arg0, s32 arg1, f32 fparg0, s32 arg2,
-                           s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
-                           s32 arg5, s32 arg6, s32 arg7,
-                           s32 arg_sp0);
+extern void func_00262de0(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
 extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
                            s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
                            s32 arg5, s32 arg6, s32 arg7,
@@ -154,7 +151,7 @@ extern void func_00489f80(void);
 extern void func_0045d6e0(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void func_0048a000(void);
 extern s32 func_0025f2c0(s32 arg0, s32 arg1, u8 *arg2);
-extern void func_0025f620(f32, f32, f32, s32, s32, const char *, s32, s16, s16, Code1_0026Callback, u8 *);
+extern void func_0025f620(f32, f32, f32, s32, u8, const char *, s32, s16, s16, Code1_0026Callback, u8 *);
 // FUN_00260510
 void func_00260510(void)
 {
@@ -181,18 +178,14 @@ void func_00260560(void)
    retail's zero/pointer/constant/halfword setup order; object 88B, retail
    window 96B with zero tail, normalized_diff 0. */
 // FUN_002605A0
-void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2,
-                   s32 arg0, s32 arg1, s8 *arg2, s32 arg3, s32 arg4, u8 *arg5)
+void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 arg1, s8 * arg2, s32 arg3, s32 arg4, u8 * arg5)
 {
-    extern void func_0025f430(s32, s32, s32, s32, u8 *, s32, s16, s16,
-                              f32, f32, f32, f32, f32, f32);
+    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     s8 temp_7;
 
     temp_7 = *(s8 *)(arg2 + arg3);
     if (temp_7 != 0xA) {
-        func_0025f430(arg0, arg1, 0, temp_7, *(u8 **)(arg5 + 0x10), 1,
-                      *(s16 *)(arg5 + 0), *(s16 *)(arg5 + 2), fparg0, fparg1, fparg2,
-                      *(f32 *)(arg5 + 4), *(f32 *)(arg5 + 8), *(f32 *)(arg5 + 0xC));
+        func_0025f430(fparg0, fparg1, fparg2, arg0, arg1, 0, temp_7, *(u8 **)(arg5 + 0x10), 1, *(s16 *)(arg5 + 0), *(s16 *)(arg5 + 2), *(f32 *)(arg5 + 4), *(f32 *)(arg5 + 8), *(f32 *)(arg5 + 0xC));
     }
 }
 /* floor (within 3%): probe_variants 474wd via `python3 tools/probe_variants.py src/promoted/code1_0026.c func_00260600 --candidate V5outer=/var/tmp/cold260600/v5_outer.c`; fnalign retail 533 vs object 525 instrs (722 edits) via `python3 tools/fnalign.py src/promoted/code1_0026.c func_00260600 --candidate /var/tmp/cold260600/v5_outer.c --quiet`; -8 short (1.5% within 3% rule). m2c+romwright agree on 2x0x18 copies + 3x0xC loops; denoised to file idiom with true s32 func_0025f430(s32x8+f32x6) from shdSprite + f32 func_0044b610/7b0 + u8 D_00637440/500 + f32 fGpffff811c/iGpffff81d0/D_007612C4; signature s32x7+f32x3 per 00260e60 caller + retail prologue daddu; per-case 14/16/41/29/12 biases + 18/13 cos/sin + 47/52/57/48 + 22.0/180.0 s16 truncations + 34/36/52/38 epilogues; opt_loop_invariants on -25wd (499->474). Wall remains save-set/colour/scheduling. No volatile/asm. */
@@ -208,7 +201,7 @@ void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2,
 #pragma opt_loop_invariants on
 void func_00260600(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg0, f32 fparg1, f32 fparg2)
 {
-    extern s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
+    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern f32 func_0044b610(f32);
     extern f32 func_0044b7b0(f32);
     extern u8 D_00637440[];
@@ -290,9 +283,9 @@ void func_00260600(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
             sy = (s16)(int)halfFiveThird;
             fmid = entry2 - 180.0f;
             fhalf = 0.5f * fparg1 * entry3;
-            func_0025f430(arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fx, fy, fparg0, fmid, fhalf, halfThird);
+            func_0025f430(fx, fy, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fmid, fhalf, halfThird);
         }
-        func_0025f430(arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, fparg1 * 34.0f + (float)biasA, fparg2 * 36.0f + (float)biasB, fparg0, 0.0f, fparg1, fparg2);
+        func_0025f430(fparg1 * 34.0f + (float)biasA, fparg2 * 36.0f + (float)biasB, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, fparg1, fparg2);
         break;
     case 1:
         biasA = (int)((float)arg0 - 41.0f * fparg1);
@@ -315,9 +308,9 @@ void func_00260600(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
             sy = (s16)(int)gpFiveThird;
             fmid = entry2 - 180.0f;
             fhalf = 0.5f * fparg1 * entry3;
-            func_0025f430(arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fx, fy, fparg0, fmid, fhalf, gpThird);
+            func_0025f430(fx, fy, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fmid, fhalf, gpThird);
         }
-        func_0025f430(arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, fparg1 * 52.0f + (float)biasA, fparg2 * 38.0f + (float)biasB, fparg0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
+        func_0025f430(fparg1 * 52.0f + (float)biasA, fparg2 * 38.0f + (float)biasB, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
         break;
     case 2:
         biasA = (int)((float)arg0 - 12.0f * fparg1);
@@ -341,10 +334,10 @@ void func_00260600(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
             sy = (s16)(int)gpFiveThird;
             fmid = entry2 - 180.0f;
             fhalf = 0.5f * fparg1 * entry3;
-            func_0025f430(arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fx, fy, fparg0, fmid, fhalf, gpThird);
+            func_0025f430(fx, fy, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fmid, fhalf, gpThird);
             i++;
         } while (i < 0xC);
-        func_0025f430(arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, fparg1 * 52.0f + (float)biasA, fparg2 * 38.0f + (float)biasB, fparg0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
+        func_0025f430(fparg1 * 52.0f + (float)biasA, fparg2 * 38.0f + (float)biasB, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
         break;
     }
 }
@@ -358,7 +351,7 @@ extern u8 D_006375C0[];
 // FUN_00260E60 NONMATCHING
 #ifdef NON_MATCHING
 void func_00260e60(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, f32 fparg0, f32 fparg1, f32 fparg2) {
-    extern s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
+    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern void func_00260600(s32, s32, s32, s32, s32, s32, s32, f32, f32, f32);
     u8 spB0[240];
     s32 var_16;
@@ -413,20 +406,20 @@ void func_00260e60(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
         }
         switch (arg4) {
         case 0:
-            func_0025f430(var_16, arg2, 8, 0, (u8 *)arg6, 0, 0, 0, (f32)arg0, (f32)arg1, fparg0, 0.0f, fparg1, fparg2);
+            func_0025f430((f32)arg0, (f32)arg1, fparg0, var_16, arg2, 8, 0, (u8 *)arg6, 0, 0, 0, 0.0f, fparg1, fparg2);
             return;
         case 1: {
             f32 tf0 = D_007612C4;
             f32 madd1 = 3.0f * fparg1;
             f32 res1 = (f32)arg0 - madd1;
-            func_0025f430(var_16, arg2, 7, 0, (u8 *)arg6, 0, 0, 0, res1, (f32)(arg1 - 4), fparg0, (f32)arg0, tf0 * fparg1, tf0 * fparg2);
+            func_0025f430(res1, (f32)(arg1 - 4), fparg0, var_16, arg2, 7, 0, (u8 *)arg6, 0, 0, 0, (f32)arg0, tf0 * fparg1, tf0 * fparg2);
             return;
         }
         case 2: {
             f32 tf02 = D_007612C4;
             f32 madd2 = 23.0f * fparg1;
             f32 res2 = (f32)arg0 + madd2;
-            func_0025f430(var_16, arg2, 7, 0, (u8 *)arg6, 0, 0, 0, res2, (f32)(arg1 + 0x1B), fparg0, (f32)arg0, tf02 * fparg1, tf02 * fparg2);
+            func_0025f430(res2, (f32)(arg1 + 0x1B), fparg0, var_16, arg2, 7, 0, (u8 *)arg6, 0, 0, 0, (f32)arg0, tf02 * fparg1, tf02 * fparg2);
             return;
         }
         }
@@ -437,13 +430,13 @@ void func_00260e60(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
         }
         switch (arg4) {
         case 0:
-            func_0025f430(var_16, arg2, 6, 0, (u8 *)arg6, 0, 0, 0, (f32)arg0, (f32)arg1, fparg0, 0.0f, fparg1, fparg2);
+            func_0025f430((f32)arg0, (f32)arg1, fparg0, var_16, arg2, 6, 0, (u8 *)arg6, 0, 0, 0, 0.0f, fparg1, fparg2);
             return;
         case 1:
-            func_0025f430(var_16, arg2, 6, 0, (u8 *)arg6, 0, 0, 0, (f32)arg0, (f32)arg1, fparg0, 0.0f, fparg1, fparg2);
+            func_0025f430((f32)arg0, (f32)arg1, fparg0, var_16, arg2, 6, 0, (u8 *)arg6, 0, 0, 0, 0.0f, fparg1, fparg2);
             return;
         case 2:
-            func_0025f430(var_16, arg2, 6, 0, (u8 *)arg6, 0, 0, 0, (f32)(arg0 - 5), (f32)(arg1 + 0x19), fparg0, 0.0f, fparg1, fparg2);
+            func_0025f430((f32)(arg0 - 5), (f32)(arg1 + 0x19), fparg0, var_16, arg2, 6, 0, (u8 *)arg6, 0, 0, 0, 0.0f, fparg1, fparg2);
             return;
         }
         break;
@@ -467,12 +460,12 @@ void func_00260e60(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
                 *(s32 *)(v5 + 4) = t2;
                 v5 += 8;
             } while (v4 > 0);
-            func_0025f430(var_16, arg2, 0x0A, 0, (u8 *)arg6, 0, 0, 0, (f32)arg0, (f32)arg1, fparg0, 0.0f, fparg1, fparg2);
+            func_0025f430((f32)arg0, (f32)arg1, fparg0, var_16, arg2, 0x0A, 0, (u8 *)arg6, 0, 0, 0, 0.0f, fparg1, fparg2);
             var_17 = 0;
             while (var_17 < 0x1E) {
                 s32 off = var_17 * 8;
                 u8 *t22 = (u8 *)((s32)spB0 + off);
-                func_0025f430(var_16, arg2, 9, 0, (u8 *)arg6, 0, 0, 0, (f32)(arg0 - 0x0A + *(s32 *)((s32)t22 + 0xB0)), (f32)(arg1 - 0x0C + *(s32 *)((s32)t22 + 0xB0 + 4)), fparg0, 0.0f, fparg1, fparg2);
+                func_0025f430((f32)(arg0 - 0x0A + *(s32 *)((s32)t22 + 0xB0)), (f32)(arg1 - 0x0C + *(s32 *)((s32)t22 + 0xB0 + 4)), fparg0, var_16, arg2, 9, 0, (u8 *)arg6, 0, 0, 0, 0.0f, fparg1, fparg2);
                 var_17 += 1;
             }
         }
@@ -496,6 +489,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00260e60);
 #pragma push
 #pragma optimization_level 3
 void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0) {
+    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     typedef signed __int128 s128;
     extern s128 D_00637430;
     extern void (*D_00887300[])(u32, u32);
@@ -658,13 +652,13 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
         tbl[0](6, 1);
         tbl[0](7, 2);
         func_003f6440(3, 0x7000D);
-        func_0025f430(var_17, arg2, 3, 0, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
+        func_0025f430((f32) arg0, (f32) arg1, 10.0f, var_17, arg2, 3, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
         temp_f20 = (f32) arg0 + (9.0f * fparg1);
-        func_0025f430(var_17, arg2, 0xD, 0, arg7, 0, 0.0f, 0.0f, temp_f20, (f32) (arg1 + 4), 10.0f, 0.0f, fparg1, fparg2);
+        func_0025f430(temp_f20, (f32) (arg1 + 4), 10.0f, var_17, arg2, 0xD, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
         if (!(fparg1 < 1.0f)) {
-            func_0025f430(var_17, arg2, 0xE, 0, arg7, 0, 0.0f, 0.0f, ((float)arg0 + 70.0f * fparg1), (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
+            func_0025f430(((float)arg0 + 70.0f * fparg1), (f32) arg1, 10.0f, var_17, arg2, 0xE, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
         } else {
-            func_0025f430(var_17, arg2, 0xE, 0, arg7, 0, 0.0f, 0.0f, ((float)arg0 + 69.0f * fparg1), (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
+            func_0025f430(((float)arg0 + 69.0f * fparg1), (f32) arg1, 10.0f, var_17, arg2, 0xE, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
         }
         var_3 = (u8 *)(&sp298);
         var_2 = 4;
@@ -695,12 +689,12 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
         tbl[0](7, 2);
         func_003f6440(3, 0x7000D);
         func_00489f80();
-        func_0025f430(var_17, arg2, 3, 0, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
-        func_0025f430(var_17, arg2, 0xD, 0, arg7, 0, 0.0f, 0.0f, temp_f20, (f32) (arg1 + 4), 10.0f, 0.0f, fparg1, fparg2);
+        func_0025f430((f32) arg0, (f32) arg1, 10.0f, var_17, arg2, 3, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
+        func_0025f430(temp_f20, (f32) (arg1 + 4), 10.0f, var_17, arg2, 0xD, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
         if (!(fparg1 < 1.0f)) {
-            func_0025f430(var_17, arg2, 0xE, 0, arg7, 0, 0.0f, 0.0f, ((float)arg0 + 70.0f * fparg1), (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
+            func_0025f430(((float)arg0 + 70.0f * fparg1), (f32) arg1, 10.0f, var_17, arg2, 0xE, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
         } else {
-            func_0025f430(var_17, arg2, 0xE, 0, arg7, 0, 0.0f, 0.0f, ((float)arg0 + 69.0f * fparg1), (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
+            func_0025f430(((float)arg0 + 69.0f * fparg1), (f32) arg1, 10.0f, var_17, arg2, 0xE, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
         }
         func_0048a000();
         var_3 = (u8 *)(&sp290);
@@ -808,7 +802,7 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     tbl[0](6, 1);
     tbl[0](7, 2);
     func_003f6440(3, 0x3000D);
-    func_0025f430(var_17, arg2, 0xF, 0, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
+    func_0025f430((f32) arg0, (f32) arg1, 10.0f, var_17, arg2, 0xF, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
     var_3 = (u8 *)(&sp278);
     var_2 = 4;
     if (var_3 != NULL) {
@@ -838,7 +832,7 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     tbl[0](7, 2);
     func_003f6440(3, 0x7000D);
     func_00489f80();
-    func_0025f430(var_17, arg2, 0xF, 0, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
+    func_0025f430((f32) arg0, (f32) arg1, 10.0f, var_17, arg2, 0xF, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
     func_0048a000();
     var_3 = (u8 *)(&sp270);
     var_2 = 4;
@@ -941,7 +935,7 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     tbl[0](6, 1);
     tbl[0](7, 2);
     func_003f6440(3, 0x3000D);
-    func_0025f430(var_17, arg2, 3, 1, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
+    func_0025f430((f32) arg0, (f32) arg1, 10.0f, var_17, arg2, 3, 1, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
     var_3 = (u8 *)(&sp258);
     var_2 = 4;
     if (var_3 != NULL) {
@@ -971,7 +965,7 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     tbl[0](7, 2);
     func_003f6440(3, 0x7000D);
     func_00489f80();
-    func_0025f430(var_17, arg2, 3, 1, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
+    func_0025f430((f32) arg0, (f32) arg1, 10.0f, var_17, arg2, 3, 1, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
     func_0048a000();
     var_3 = (u8 *)(&sp250);
     var_2 = 4;
@@ -1032,12 +1026,9 @@ static inline void calendarZeroBytes(void *memory, s32 count)
     }
 }
 // FUN_00262DE0
-void func_00262de0(s32 x, s32 y, f32 depth, s32 alpha,
-                    s32 date, s32 enabled, f32 scaleX, f32 scaleY,
-                    s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite)
+void func_00262de0(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite)
 {
-    extern s32 func_0025f430(f32, f32, f32, s32, s32, s32, s32, u8 *,
-                             s32, s32, s32, f32, f32, f32);
+    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     struct CalendarGlyphContext {
         s16 offsetX, offsetY;
         f32 depthOffset, scaleX, scaleY;
@@ -1093,9 +1084,7 @@ void func_00262de0(s32 x, s32 y, f32 depth, s32 alpha,
     func_0048a000();
     glyphWidth = func_0025f2c0(1, 0, (u8 *)fontWord);
     drawDepth = 1.0f + depth;
-    func_0025f430(((f32)x + 0.0f) + ((f32)glyphWidth / 2.0f) * (1.0f - scaleX),
-                  (f32)y, drawDepth, color, alpha, 1, weekday, (u8 *)fontWord, 1, 0, 0,
-                  0.0f, scaleX, scaleY);
+    func_0025f430(((f32)x + 0.0f) + ((f32)glyphWidth / 2.0f) * (1.0f - scaleX), (f32)y, drawDepth, color, alpha, 1, weekday, (u8 *)fontWord, 1, 0, 0, 0.0f, scaleX, scaleY);
     func_00442088(number, &iGpffffa6c4, day);
     glyphContext.offsetX = 0;
     glyphContext.offsetY = 0;
@@ -1421,8 +1410,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00263730);
 void func_00263cb0(s32 arg0, u8 *arg1)
 {
     typedef signed __int128 s128;
-    extern s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
-    extern s32 func_0025f3f0(s32, s32, s32, s32, u8 *, s32, f32, f32, f32);
+    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
     extern void func_00263730(s32, s32, s32, s32, s32, u8 *, f32);
     u8 *temp_2;
     s32 temp_3;
@@ -1499,13 +1488,9 @@ s32 spA0;
             temp_f0 = (f32)func_0025f2c0(2, 0, *(u8 **)(temp_2 + 4)) / 2.0f;
             temp_f13 = 1.0f - temp_f20;
             temp_f13_2 = 88.0f + temp_f0 * temp_f13;
-            func_0025f430(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
-                          0, 0, temp_f13_2, 0.0f, 0.0f, 0.0f,
-                          temp_f20, 1.0f);
+            func_0025f430(temp_f13_2, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f20, 1.0f);
         } else {
-            func_0025f430(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
-                          0, 0, 88.0f, 0.0f, 0.0f, 0.0f,
-                          1.0f, 1.0f);
+            func_0025f430(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         }
         temp_3_2 = *(s32 *)(temp_2 + 0x20);
         if (temp_3_2 >= 2) {
@@ -1517,23 +1502,18 @@ s32 spA0;
     case 4:
     case 9:
         temp_17_2 = *(s32 *)(temp_2 + 0x18);
-        func_0025f430(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
-                      0, 0, 88.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        func_0025f430(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         func_00263730(0, 0, 0xFF, temp_17_2, 0, temp_2, 0.0f);
         break;
     case 6:
         temp_17_5 = *(s32 *)(temp_2 + 0xC);
         if (*(s32 *)(temp_2 + 0x10) - temp_17_5 == 1) {
-            func_0025f430(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
-                          0, 0, 88.0f, 0.0f, 0.0f, 0.0f,
-                          1.0f, 1.0f);
+            func_0025f430(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             func_00263730(-0x5E, 0, 0xFF, temp_17_5, 0, temp_2, 0.0f);
         } else {
             temp_17_6 = *(s32 *)(temp_2 + 0x18);
             temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
-            func_0025f430(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
-                          0, 0, 88.0f, 0.0f, 0.0f, 0.0f,
-                          1.0f, 1.0f);
+            func_0025f430(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             func_00263730(temp_18_3, 0, 0xFF, temp_17_6, 0, temp_2, 0.0f);
         }
         break;
@@ -1542,9 +1522,7 @@ s32 spA0;
         temp_3_3 = *(s32 *)(temp_2 + 0x20);
         if (temp_3_3 < 0xA) {
             temp_f0 = 255.0f * (1.0f - (f32)temp_3_3 / 10.0f);
-            func_0025f3f0(0xFFFFFF, 0xFF, 2, 0,
-                          *(u8 **)(temp_2 + 4), 1,
-                          88.0f, 0.0f, 0.0f);
+            func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
             var_21 = 0;
             while (var_21 < 7) {
                 temp_20 = temp_18_2 - 1 + var_21;
@@ -1560,9 +1538,7 @@ s32 spA0;
             temp_16 = *(s32 *)(temp_2 + 4);
             func_00261560(0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_18_2, temp_18_2) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16, 0);
         } else if (temp_3_3 < 0x19) {
-            func_0025f3f0(0xFFFFFF, 0xFF, 2, 0,
-                          *(u8 **)(temp_2 + 4), 1,
-                          88.0f, 0.0f, 0.0f);
+            func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
             var_3 = &spE8;
             var_2 = 4;
             if (var_3 != NULL) {
@@ -1608,10 +1584,7 @@ s32 spA0;
             temp_f13_2 = 255.0f * temp_f0_2;
             temp_f0 = (f32)func_0025f2c0(2, 0, *(u8 **)(temp_2 + 4)) / 2.0f;
             temp_f13 = 88.0f + temp_f0 * temp_f20;
-            func_0025f430(0xFFFFFF, 0xFF, 2, 0,
-                          *(u8 **)(temp_2 + 4), 1,
-                          0, 0, temp_f13, 0.0f, 0.0f, 0.0f,
-                          temp_f0_2, 1.0f);
+            func_0025f430(temp_f13, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f0_2, 1.0f);
             var_3_3 = &spE0;
             var_2_3 = 4;
             if (var_3_3 != NULL) {
@@ -1662,8 +1635,7 @@ s32 spA0;
             } else {
                 var_18 = -*(s32 *)(temp_2 + 0x1C);
             }
-            func_0025f3f0(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
-                          88.0f, 0.0f, 0.0f);
+            func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
             func_00263730(var_18, 0, 0xFF, temp_17_3, 0, temp_2, 0.0f);
         } else {
             goto else48;
@@ -1676,13 +1648,11 @@ s32 spA0;
             temp_18_5 = func_00110c50(temp_17_7 + 3, temp_17_7 + 1) & 0xFFFF;
             if (temp_18_4 == temp_18_5) {
                 temp_17_8 = *(s32 *)(temp_2 + 0x18);
-                func_0025f3f0(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
-                              88.0f, 0.0f, 0.0f);
+                func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
                 func_00263730(0, 0, 0xFF, temp_17_8, 0, temp_2, 0.0f);
             } else {
                 temp_17_9 = *(s32 *)(temp_2 + 0xC);
-                func_0025f3f0(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
-                              88.0f, 0.0f, 0.0f);
+                func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
                 var_21 = 0;
                 while (var_21 < 7) {
                     if ((var_21 != 1) && (var_21 != 4)) {
@@ -1723,8 +1693,7 @@ s32 spA0;
     else48:
         temp_17_10 = *(s32 *)(temp_2 + 0x18);
         temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
-        func_0025f3f0(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
-                      88.0f, 0.0f, 0.0f);
+        func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
         func_00263730(temp_18_3, 0, 0xFF, temp_17_10, 1, temp_2, 0.0f);
         break;
     }
@@ -1855,7 +1824,7 @@ s32 func_00266ba0(u8 *arg0)
 #ifdef NON_MATCHING
 void func_00266cc0(s32 arg0, s32 arg1)
 {
-    extern s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
+    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern s32 func_0025f2c0(s32, s32, u8 *);
     extern f32 func_0044b7b0(f32);
     u8 *temp_2;
@@ -1898,38 +1867,27 @@ void func_00266cc0(s32 arg0, s32 arg1)
     temp_3 = *(s32 *)(temp_2 + 0x14);
     if (temp_3 < 0xF) {
         temp_f20 = func_0044b7b0((fGpffff84a4 * (f32)temp_3) / 15.0f);
-        func_0025f430(0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1,
-                      0, 0, 200.0f * (1.0f - temp_f20), 0.0f, 0.0f,
-                      0.0f, temp_f20, 1.0f);
+        func_0025f430(200.0f * (1.0f - temp_f20), 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f20, 1.0f);
         temp_3_2 = *(s32 *)(temp_2 + 0x14);
         if (temp_3_2 >= 0xB) {
             temp_f1 = 255.0f * ((f32)(temp_3_2 - 0xA) / 5.0f);
             var_3 = (u32)temp_f1;
-            func_0025f430(0, var_3 & 0xFF, var_18 + 1, 0,
-                          *(u8 **)(temp_2 + 4), 1,
-                          0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
-                          1.0f, 1.0f);
+            func_0025f430(0.0f, 0.0f, 0.0f, 0, var_3 & 0xFF, var_18 + 1, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         }
         return;
     }
     if (temp_3 < 0x14) {
-        func_0025f430(0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1,
-                      0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-        func_0025f430(0, 0xFF, var_18 + 1, 0, *(u8 **)(temp_2 + 4), 1,
-                      0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        func_0025f430(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        func_0025f430(0.0f, 0.0f, 0.0f, 0, 0xFF, var_18 + 1, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         return;
     }
     if (temp_3 < 0x19) {
         temp_f20 = func_0044b7b0((fGpffff84a4 * (f32)(temp_3 - 0x14)) / 5.0f);
         temp_f21 = 1.0f - temp_f20;
         temp_3_2 = func_0025f2c0(0, 0, *(u8 **)(temp_2 + 4));
-        func_0025f430(0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1,
-                      0, 0, ((f32)temp_3_2 / 2.0f) * temp_f20,
-                      0.0f, 0.0f, 0.0f, temp_f21, 1.0f);
+        func_0025f430(((f32)temp_3_2 / 2.0f) * temp_f20, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f21, 1.0f);
         temp_3_2 = func_0025f2c0(var_18 + 1, 0, *(u8 **)(temp_2 + 4));
-        func_0025f430(0, 0xFF, var_18 + 1, 0, *(u8 **)(temp_2 + 4), 1,
-                      0, 0, ((f32)temp_3_2 / 2.0f) * temp_f20,
-                      0.0f, 0.0f, 0.0f, temp_f21, 1.0f);
+        func_0025f430(((f32)temp_3_2 / 2.0f) * temp_f20, 0.0f, 0.0f, 0, 0xFF, var_18 + 1, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f21, 1.0f);
         return;
     }
     if (temp_3 < 0x1E) {
@@ -1937,20 +1895,14 @@ void func_00266cc0(s32 arg0, s32 arg1)
                      func_0044b7b0((fGpffff84a4 * (f32)(temp_3 - 0x19)) / 5.0f);
         temp_f21_2 = 1.0f - temp_f20_2;
         temp_3_2 = func_0025f2c0(0, 0, *(u8 **)(temp_2 + 4));
-        func_0025f430(0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1,
-                      0, 0, ((f32)temp_3_2 / 2.0f) * temp_f20_2,
-                      0.0f, 0.0f, 0.0f, temp_f21_2, 1.0f);
+        func_0025f430(((f32)temp_3_2 / 2.0f) * temp_f20_2, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f21_2, 1.0f);
         temp_3_2 = func_0025f2c0(var_17 + 1, 0, *(u8 **)(temp_2 + 4));
-        func_0025f430(0, 0xFF, var_17 + 1, 0, *(u8 **)(temp_2 + 4), 1,
-                      0, 0, ((f32)temp_3_2 / 2.0f) * temp_f20_2,
-                      0.0f, 0.0f, 0.0f, temp_f21_2, 1.0f);
+        func_0025f430(((f32)temp_3_2 / 2.0f) * temp_f20_2, 0.0f, 0.0f, 0, 0xFF, var_17 + 1, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f21_2, 1.0f);
         return;
     }
     if (temp_3 < 0x28) {
-        func_0025f430(0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1,
-                      0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-        func_0025f430(0, 0xFF, var_17 + 1, 0, *(u8 **)(temp_2 + 4), 1,
-                      0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        func_0025f430(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        func_0025f430(0.0f, 0.0f, 0.0f, 0, 0xFF, var_17 + 1, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         return;
     }
     if (temp_3 < 0x3C) {
@@ -1958,19 +1910,13 @@ void func_00266cc0(s32 arg0, s32 arg1)
         temp_f16 = 1.0f - temp_f0_2;
         temp_f2 = 255.0f * temp_f16;
         var_3_2 = (u32)temp_f2;
-        func_0025f430(0xFFFFFF, var_3_2 & 0xFF, 0, 0,
-                      *(u8 **)(temp_2 + 4), 1,
-                      0, 0, -200.0f * temp_f0_2, 0.0f, 0.0f, 0.0f,
-                      temp_f16, 1.0f);
+        func_0025f430(-200.0f * temp_f0_2, 0.0f, 0.0f, 0xFFFFFF, var_3_2 & 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f16, 1.0f);
         temp_3_3 = *(s32 *)(temp_2 + 0x14);
         if (temp_3_3 < 0x2D) {
             temp_f1_2 = 255.0f *
                         (1.0f - (f32)(temp_3_3 - 0x28) / 5.0f);
             var_3_3 = (u32)temp_f1_2;
-            func_0025f430(0, var_3_3 & 0xFF, var_17 + 1, 0,
-                          *(u8 **)(temp_2 + 4), 1,
-                          0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
-                          1.0f, 1.0f);
+            func_0025f430(0.0f, 0.0f, 0.0f, 0, var_3_3 & 0xFF, var_17 + 1, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         }
     }
 }

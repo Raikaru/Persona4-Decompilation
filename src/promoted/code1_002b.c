@@ -35,7 +35,7 @@ extern s32 clndGetMoonPhase(void);
 
 extern u32 func_00106a90(s16 arg0);
 extern u8 *D_00882F40[];
-extern void func_00278450(s32 arg0);
+extern void func_00278450(s32 handle, s32 variable, char *text);
 extern s32 D_0063F2B0[];
 extern u8 D_00793E80[];
 extern u8 D_0063F1F0[];
@@ -1781,12 +1781,12 @@ void func_002bbcf0(u8 *arg0) {
 
 
 // FUN_002BBD80
-void func_002bbd80(s32 arg0) {
+void func_002bbd80(s8 arg0, s32 variable, void *text) {
     u8 *p;
 
     p = D_00882F40[(s8)arg0];
     if (p != NULL) {
-        func_00278450(*(s32 *)p);
+        func_00278450(*(s32 *)p, variable, text);
     }
 }
 
