@@ -76,22 +76,20 @@ typedef struct {
 	void *ahx;                                               /* 0xB4 */
 	Sint32 nsmpl;                                            /* 0xB8 */
 	Sint32 nsmpl96;                                          /* 0xBC */
-	Sint32 ainf_len;                                         /* 0xC0 */
-	Uint8 ainf[16];                                          /* 0xC4 */
-	/* P4: 9.44 has 0xC more here, which makes the handle 0x104 rather
-	 * than 0xF8 - ADXB_Destroy clears it with `addiu $a2, $zero, 0x104`
-	 * at 0x004C366C, and def_pan and xdc are read 0xC higher
-	 * (ADXB_GetDefPan 0xE2, ADXB_GetNumChan 0xE8). */
-	Uint8 padD4[0xE0 - 0xD4];
+	Uint8 padc0[0xCC - 0xC0];
+	Sint32 ainf_len;                                         /* 0xCC */
+	Uint8 ainf[16];                                          /* 0xD0 */
+	/* P4's 0x104-byte decoder has an additional 12-byte metadata region at 0xC0;
+	 * the AINF length and data are at 0xCC and 0xD0 respectively. */
 	Sint16 def_outvol;                                       /* 0xE0 */
-	Sint16 def_pan[2];                                       /* 0xD6 */
+	Sint16 def_pan[2];                                       /* 0xE2 */
 	Uint8 padda[2];
-	void *xdc;                                               /* 0xDC (adx_sjd: pl2setsfreqfunc called when set) */
+	void *xdc;                                               /* 0xE8 (adx_sjd: pl2setsfreqfunc called when set) */
 	Uint8 pade0[8];
-	Sint32 cb_nbyte;                                         /* 0xE8 dec_nbyte at the last callback */
-	Sint32 xec;                                              /* 0xEC */
-	void (*cb_func)(void *obj, Sint32 nbyte, Sint32 nsmpl);  /* 0xF0 decode callback */
-	void *cb_obj;                                            /* 0xF4 */
+	Sint32 cb_nbyte;                                        /* 0xF4 dec_nbyte at the last callback */
+	Sint32 xec;                                             /* 0xF8 */
+	void (*cb_func)(void *obj, Sint32 nbyte, Sint32 nsmpl); /* 0xFC decode callback */
+	void *cb_obj;                                           /* 0x100 */
 } ADXB_OBJ;
 
 #define ADXB_MAX_OBJ 16

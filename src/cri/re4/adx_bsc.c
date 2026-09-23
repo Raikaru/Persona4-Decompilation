@@ -861,17 +861,18 @@ static Sint32 adxb_SetKey(ADXB adxb, Uint8 major, Uint8 minor, Sint32 nsmpl, Sin
 // Decodes an ADX/AHX header: format, rate, channels, sample count, version-dependent decryption key
 // (adxb_SetKey), ADPCM cutoff and initial history, loop points and AINF defaults; programs the ADPCM
 // core. Returns the header length, 0 if the header is incomplete, -1 on an AHX stream without an AHX decoder.
+// FUN_004C3688
 Sint32 ADXB_DecodeHeaderAdx(ADXB adxb, Uint8 *buf, Sint32 bsize)
 {
 	Sint16 hdrlen;
 	Uint8 major;
 	Uint8 minor;
+	Sint16 idly[2];
+	Sint16 idly2[2];
 	Sint16 key[4];
 	Sint16 k0;
 	Sint16 km;
 	Sint16 ka;
-	Sint16 idly[2];
-	Sint16 idly2[2];
 	Sint32 err;
 
 	adxb->x02 = 1;
