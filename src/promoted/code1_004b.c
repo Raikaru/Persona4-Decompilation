@@ -53,7 +53,7 @@ extern void func_0040fcd0(s32 arg0, s32 arg1);
 extern void func_003e8440(u8 *arg0);
 extern u8 *func_004b16c0(u8 *arg0);
 extern u8 *func_00483270(s32 arg0);
-extern void func_0043f810(void *arg0, void *arg1, s32 arg2);
+extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern void func_004b1a00(u8 *arg0, u8 *arg1);
 extern s32 func_00481e30(s32 arg0);
 extern void func_00481ee0(s32 arg0);
@@ -87,7 +87,7 @@ extern u8 D_00713408[];
 extern void func_0044ea90(void *arg0, s32 arg1);
 extern void func_0046d730(void *arg0, s32 arg1);
 extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern u8 *func_00484490(u8 *arg0);
 extern u16 *func_004844d0(u8 *arg0);
 extern void func_00483970(u8 *arg0, u16 *arg1);
@@ -97,7 +97,7 @@ extern void func_003c42b0(s32 arg0, s32 arg1);
 extern s32 func_00482800(u16 *arg0);
 extern void func_003e8110(u8 *arg0);
 extern s32 func_003e8120(u8 *arg0);
-extern s32 func_003f6440(s32 command, void *value);
+extern s32 RpSkyRenderStateSet(s32 command, void *value);
 extern u8 *func_00401b80(void);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
@@ -404,7 +404,7 @@ u8 *func_004b16c0(u8 *arg0) {
     if (temp_2 == NULL) {
         func_0046d730(&iGpffffb118, 0x1B);
     }
-    func_0043f9c8(temp_2, 0, 0xB0);
+    memset(temp_2, 0, 0xB0);
     *(s32 *)(temp_2 + 0) = -1;
     if (arg0 == NULL) {
         return temp_2;
@@ -414,7 +414,7 @@ u8 *func_004b16c0(u8 *arg0) {
     if (temp_2_2 == NULL) {
         func_0046d730(&iGpffffb118, 0x2C);
     }
-    func_0043f810(temp_2 + 0xC, temp_2_2, 0x98);
+    memcpy(temp_2 + 0xC, temp_2_2, 0x98);
     temp_2_3 = (u16 *)func_00482f70(1, 2, 4, D_00713408, 0x4C);
     *(u16 **)(temp_2 + 0xA4) = temp_2_3;
     *temp_2_3 = *temp_2_3 & 0xFFFB;
@@ -474,7 +474,7 @@ u8 *func_004b1950(u8 *arg0) {
 
     temp_2 = func_004b16c0(NULL);
     *(s32 *)(temp_2 + 4) = *(s32 *)(arg0 + 4);
-    func_0043f810(temp_2 + 0xC, arg0 + 0xC, 0x98);
+    memcpy(temp_2 + 0xC, arg0 + 0xC, 0x98);
     temp_4 = *(s32 *)(arg0 + 0xA4);
     if (temp_4 != 0) {
         temp_2_2 = func_00483270(temp_4);
@@ -556,14 +556,14 @@ void func_004b1ad0(u8 *arg0)
     extern void func_00482700(int a, float *b);
     extern void func_00482ad0(u8 *a, s32 b, u8 *c);
     extern void func_004839d0(int a, u32 *b);
-    extern u8 *func_003c2290(u8 *a, s32 b);
+    extern u8 *RpGeometryLock(u8 *a, s32 b);
     extern void func_003c22f0(u8 *a);
     extern void func_003e9cb0(void *a, void *b, s32 c);
     extern void func_00460ac0(void *a, void *b);
     extern s32 func_004814d0(u16 a);
     extern s32 func_00457120(void);
-    extern f32 func_0044b610(f32 a);
-    extern f32 func_0044b7b0(f32 a);
+    extern f32 cosf(f32 a);
+    extern f32 sinf(f32 a);
     extern f32 fGpffff8044;
     extern f32 fGpffff8084;
     s32 tmp_98;
@@ -748,7 +748,7 @@ void func_004b1ad0(u8 *arg0)
                 stk84 = out1;
             }
         }
-        func_003c2290(*(u8 **)(*(u8 **)(tmp_a4 + 0x10) + 0x18), 0xFF2);
+        RpGeometryLock(*(u8 **)(*(u8 **)(tmp_a4 + 0x10) + 0x18), 0xFF2);
         ctx18 = *(u8 **)(*(u8 **)(tmp_a4 + 0x10) + 0x18);
         out_mat = *(f32 **)(*(u8 **)(ctx18 + 0x5C) + 0x14);
         out_uv = *(f32 **)(ctx18 + 0x34);
@@ -756,8 +756,8 @@ void func_004b1ad0(u8 *arg0)
         t74 = stk74 * div100;
         t78 = stk78 * div100;
         t7c = stk7c * div100;
-        c_ang = func_0044b610(off_y);
-        s_ang = func_0044b7b0(off_y);
+        c_ang = cosf(off_y);
+        s_ang = sinf(off_y);
         out_mat[0] = ((t70 + t78) * c_ang) - ((t74 + t7c) * s_ang);
         out_mat[1] = ((t70 + t78) * s_ang) + ((t74 + t7c) * c_ang);
         out_mat[3] = ((t70 - t78) * c_ang) - ((t74 + t7c) * s_ang);
@@ -843,8 +843,8 @@ s32 func_004b2780(u8 *arg0) {
     temp_17 = temp_2;
     temp_f21 = 640.0f / (f32)*(s32 *)(temp_2 + 0xC);
     temp_f20 = 448.0f / (f32)*(s32 *)(temp_2 + 0x10);
-    func_003f6440(2, (void *)0x2024);
-    func_003f6440(3, (void *)0x717FB);
+    RpSkyRenderStateSet(2, (void *)0x2024);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
     base = D_00887300;
     base[0]((RwRenderState)0xE, (void *)0);
     base[0]((RwRenderState)6, (void *)0);
@@ -941,8 +941,8 @@ void func_004b2a00(u8 *fade) {
     convertedAlpha = (u8)alphaFloat;
     opacity = convertedAlpha & 0xFF;
     raster = *(u8 **)(*(u8 **)(fade + 12) + 96);
-    func_003f6440(2, (void *)0x44);
-    func_003f6440(3, (void *)0x717FB);
+    RpSkyRenderStateSet(2, (void *)0x44);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
     stateInterface = (uintptr_t)D_00887300;
     (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)0xE, (void *)0);
     (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)6, (void *)0);

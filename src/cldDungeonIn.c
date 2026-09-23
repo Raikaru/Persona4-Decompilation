@@ -111,13 +111,13 @@ typedef struct DungeonInWork {
     DungeonInList **list;
 } DungeonInWork;
 extern void func_0045d6e0(u8 *, f32 *, f32, s32);
-extern void func_001228a0(s32, s32, s32);
+extern void H_Fade_SetCustomColor(s32, s32, s32);
 extern void func_00267b20(f32, f32, f32, s32, s32, s32, s32, s32, s32, f32, f32, f32);
 extern s32 func_0025ea20(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32);
 extern u8 *func_0046a770(char *);
 extern u8 *func_002e2170(u8 *, u8 *, s32);
 extern void func_0046d730(const void *, s32);
-extern void *func_0043f810(void *, const void *, u32);
+extern void *memcpy(void *, const void *, u32);
 extern void func_00267670(u8 **);
 extern u8 D_005E5810[];
 
@@ -162,7 +162,7 @@ void func_00268230(void *unused, void *task)
         if (++work->frame >= 15) {
             work->frame = 0;
             work->state = 1;
-            func_001228a0(196, 196, 196);
+            H_Fade_SetCustomColor(196, 196, 196);
         }
         break;
     case 1:
@@ -237,12 +237,12 @@ void func_00268230(void *unused, void *task)
                 nodeWork->duration = duration;
                 nodeWork->mode = mode;
                 copyEntry = &entries[(s32)i];
-                func_0043f810(nodeWork->initial, initial, 16);
-                func_0043f810(nodeWork->current,
+                memcpy(nodeWork->initial, initial, 16);
+                memcpy(nodeWork->current,
                     (u8 *)copyEntry + offsetof(DungeonInEntry, current), 16);
-                func_0043f810(nodeWork->previous,
+                memcpy(nodeWork->previous,
                     (u8 *)copyEntry + offsetof(DungeonInEntry, current), 16);
-                func_0043f810(nodeWork->target, target, 16);
+                memcpy(nodeWork->target, target, 16);
             }
         }
         func_00267670((u8 **)work->list);

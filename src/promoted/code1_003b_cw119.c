@@ -12,7 +12,7 @@ extern s32 iGpffffaa7c;
 extern s32 iGpffffb618;
 extern s32 func_003b6e70(s32 arg0);
 extern s32 func_003b6e00(s32 arg0);
-extern void func_003b6f00(s32 arg0, u8 *arg1);
+extern void RpRandomSeed(s32 arg0, u8 *arg1);
 extern s32 iGpffffb6c0;
 extern s32 iGpffffb6c4;
 extern void func_003e18c0(u8 *arg0, void *arg1, s32 arg2);
@@ -91,7 +91,7 @@ extern u8 D_0070AF70[];
 /* N3B best: object 84B/window 96B, normalized_diff 7 (exact Z3BF archive text, reproduced under current TU). Requires #pragma schedule on + #pragma opt_propagation off, and the head store must go through the D_00885A90 symbol, not the base local (base-local store = nd45). Residual 2 words: retail puts jr $ra in the beqz delay slot and pads nop;nop;nop after the loop vs our nop;jr;nop — b210 will not place an epilogue instruction in that delay slot. All 156 archived 84B shapes measure nd>=7; dead-multiply spellings nd44-53. */
 #pragma schedule on
 #pragma opt_propagation off
-void func_003b6da0(s32 arg0) {
+void RpRandomSeedMT(s32 arg0) {
     u8 *base;
     s32 value;
     s32 *ptr;
@@ -122,7 +122,7 @@ done:
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
-extern u32 func_003b7060(void);
+extern u32 RpRandom(void);
 extern u64 func_003b88c0(void);
 extern u64 func_003bf1c0(u64 value);
 extern u64 func_003bf1f0(u64 value);
@@ -134,7 +134,7 @@ s32 func_003b7860(s32 arg0) {
     extern s32 func_003b8d20(s32 arg0);
     extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
     extern s32 func_003e8960(s32 arg0);
-    extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+    extern void memset(void *arg0, s32 arg1, s32 arg2);
     extern s32 iGpffffaa80;
     extern s32 iGpffffaa84;
     extern u8 D_00886460[];
@@ -159,7 +159,7 @@ initialize:
     func_003b8d20(flags);
     D_008864A8[0] = func_003e1220(0x48, iGpffffaa80, 4, iGpffffaa84, D_00886460, 0x40116);
     D_008864A0[0] = jtbl_008873E8[0](0x400F, 0x40116);
-    func_0043f9c8(D_008864A0[0], 0, 0x400F);
+    memset(D_008864A0[0], 0, 0x400F);
     D_0088649C[0] = (s32)(D_008864A0[0] + 0xF) & ~0xF;
 increment:
     D_008864B0[0] += 1;

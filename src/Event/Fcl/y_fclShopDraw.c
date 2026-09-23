@@ -185,7 +185,7 @@ s32 func_00106b20(s16);
 void func_0044ea90(const void *, u32);
 
 s32 func_002e0100(u8 *task);
-void func_0043f810(void *, s32, s32);
+void memcpy(void *, s32, s32);
 s32 func_002b89a0(void *);
 void *func_00460990(void);
 void func_00460ac0(void *, void *);
@@ -201,13 +201,13 @@ void func_002e0620(void *, u64, u64, s32, s32, s16);
 void func_002e0940(void *, f32, f32, s32, s32, s32);
 void func_002b2970(void *, f32, f32);
 void *func_002e2590(void *, s32, s32, s32, s32);
-char *func_00442830(char *, const char *);
+char *strcpy(char *, const char *);
 void *func_0046d200(void *, s32);
 f32 func_0046b260(void *);
 f32 func_0046b2f0(void *);
 void func_0046d280(void *);
 void func_0046b0d0(void *);
-void func_00454bd0(void *);
+void H_Cdvd_Destroy(void *);
 void func_002e29a0(void);
 s64 func_002bab80(void *);
 void func_002bbd80(s8, s32, void *);
@@ -218,8 +218,8 @@ void func_002bbf60(void);
 
 s32 func_002dfec0(void *, s32, void *, s8);
 s32 func_002dff90(void *, s32, void *, void *, s8);
-u32 func_003b7060(void);
-void func_0043f9c8(void *, s32, s32);
+u32 RpRandom(void);
+void memset(void *, s32, s32);
 /* measured: floats first - retail materialises $f12-$f14 before $a0..$t1. */
 void func_0025ec90(f32, f32, f32, s32, u8, s32, void *, s32, void *);
 void func_002e0700(void *, s32, f32, f32, s32, s32, s32);
@@ -261,7 +261,7 @@ void func_002e09b0(void *, s32, f32);
 void func_002e0be0(s32, Vec2f, f32, s32, u8, s32, u8 *);
 u32 func_002e7a60(void);
 u32 func_00106a90(s16);
-s32 func_00110830(s32);
+s32 clndGetMoonPhase(s32);
 s8 func_002e29d0(void);
 f32 func_002b2aa0(s32, f32, f32, f32, f32);
 void func_002e2700(void *);
@@ -516,8 +516,8 @@ s32 func_002be530(u8 *arg0)
     extern s32 func_0046aea0(void *);
     extern void func_00440b68(const void *, const void *, s32);
     extern void *func_00454a60(const void *, s32);
-    extern s32 func_004553c0(void *);
-    extern s32 func_00106330(s32);
+    extern s32 H_Cdvd_IsFileLoaded(void *);
+    extern s32 datGetFlag(s32);
     extern void func_00106390(s32, s32);
     extern void func_00106620(s16, s32);
     extern u32 func_00106850(s32);
@@ -538,7 +538,7 @@ s32 func_002be530(u8 *arg0)
     extern u8 func_002e78e0(void);
     extern void func_002e7a80(s32);
     extern void func_00331fc0(u8 *);
-    extern void func_00442088(void *, void *, s32);
+    extern void sprintf(void *, void *, s32);
     extern s32 func_00452380(void *);
     extern u8 func_0045aeb0(s16, const char *);
     extern void func_002e3560(void *, s32, s32, s32, s32);
@@ -1501,7 +1501,7 @@ extern void func_002ca770(u8 *task);
         (*(s8 *)((u8 *)(temp_17) + (0))) = 0xA;
         /* fallthrough */
     case 0xA:                                       /* switch 1 */
-        if ((func_0046a750((*(s32 *)((u8 *)(temp_17) + (0xF28)))) != 0) && (func_004553c0((*(u8 **)((u8 *)(temp_17) + (0xF2C)))) != 0)) {
+        if ((func_0046a750((*(s32 *)((u8 *)(temp_17) + (0xF28)))) != 0) && (H_Cdvd_IsFileLoaded((*(u8 **)((u8 *)(temp_17) + (0xF2C)))) != 0)) {
             (*(s8 *)((u8 *)(temp_17) + (0))) = 0xB;
             (*(s8 *)((u8 *)(temp_17) + (0xF30))) = 1;
             var_16 = 0;
@@ -1572,32 +1572,32 @@ loop_13:
             (*(s8 *)((u8 *)(temp_17) + (0xF73))) = 1;
             (*(s8 *)((u8 *)(temp_17) + (0xF7C))) = func_002d4f30((s64) (func_00106880(func_00106cd0(1, 0)) << 0x30) >> 0x30);
             (*(s8 *)((u8 *)(temp_17) + (9))) = 1;
-            if (func_00106330(0x30) != 0) {
+            if (datGetFlag(0x30) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF73))) = 2;
                 (*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF7C))) = func_002d4f30((s64) (func_00106880(func_00106cd0((*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF73))), 0)) << 0x30) >> 0x30);
                 (*(s8 *)((u8 *)(temp_17) + (9))) = (s8) ((*(s8 *)((u8 *)(temp_17) + (9))) + 1);
             }
-            if (func_00106330(0x31) != 0) {
+            if (datGetFlag(0x31) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF73))) = 3;
                 (*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF7C))) = func_002d4f30((s64) (func_00106880(func_00106cd0((*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF73))), 0)) << 0x30) >> 0x30);
                 (*(s8 *)((u8 *)(temp_17) + (9))) = (s8) ((*(s8 *)((u8 *)(temp_17) + (9))) + 1);
             }
-            if (func_00106330(0x32) != 0) {
+            if (datGetFlag(0x32) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF73))) = 4;
                 (*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF7C))) = func_002d4f30((s64) (func_00106880(func_00106cd0((*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF73))), 0)) << 0x30) >> 0x30);
                 (*(s8 *)((u8 *)(temp_17) + (9))) = (s8) ((*(s8 *)((u8 *)(temp_17) + (9))) + 1);
             }
-            if (func_00106330(0x33) != 0) {
+            if (datGetFlag(0x33) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF73))) = 6;
                 (*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF7C))) = func_002d4f30((s64) (func_00106880(func_00106cd0((*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF73))), 0)) << 0x30) >> 0x30);
                 (*(s8 *)((u8 *)(temp_17) + (9))) = (s8) ((*(s8 *)((u8 *)(temp_17) + (9))) + 1);
             }
-            if (func_00106330(0x35) != 0) {
+            if (datGetFlag(0x35) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF73))) = 8;
                 (*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF7C))) = func_002d4f30((s64) (func_00106880(func_00106cd0((*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF73))), 0)) << 0x30) >> 0x30);
                 (*(s8 *)((u8 *)(temp_17) + (9))) = (s8) ((*(s8 *)((u8 *)(temp_17) + (9))) + 1);
             }
-            if (func_00106330(0x36) != 0) {
+            if (datGetFlag(0x36) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF73))) = 7;
                 (*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF7C))) = func_002d4f30((s64) (func_00106880(func_00106cd0((*(s8 *)((u8 *)(((*(s8 *)((u8 *)(temp_17) + (9))) + temp_17)) + (0xF73))), 0)) << 0x30) >> 0x30);
                 (*(s8 *)((u8 *)(temp_17) + (9))) = (s8) ((*(s8 *)((u8 *)(temp_17) + (9))) + 1);
@@ -1628,7 +1628,7 @@ block_626:
         }
         goto block_626;
     case 0xD:                                       /* switch 1 */
-        if ((D_00748908[0] < func_002e26f0((void *)((*(s32 *)((u8 *)(temp_17) + (0xF18)))))) && (func_00106330(0x1324) == 0)) {
+        if ((D_00748908[0] < func_002e26f0((void *)((*(s32 *)((u8 *)(temp_17) + (0xF18)))))) && (datGetFlag(0x1324) == 0)) {
             temp_2_5 = (s8)(func_002bab80((*(s32 **)((u8 *)((*(u8 **)((u8 *)(temp_17) + (0xF2C)))) + (0x110)))));
             (*(s8 *)((u8 *)(temp_17) + (0x10))) = temp_2_5;
             func_002bae80((s64) ((s64) temp_2_5 << 0x38) >> 0x38, 0xB);
@@ -2248,7 +2248,7 @@ loop_151:
                     temp_18_32 = (s64) (func_002e2830((void *)((*(s32 *)((u8 *)(temp_17) + (0xF18)))), temp_19_2) << 0x30) >> 0x30;
                     func_002e28f0((void *)((*(s32 *)((u8 *)(temp_17) + (0xF18)))), temp_19_2);
                     temp_20 = (s64) (temp_18_32 << 0x30) >> 0x30;
-                    temp_19_3 = func_00110830(temp_20) & 0xFF;
+                    temp_19_3 = clndGetMoonPhase(temp_20) & 0xFF;
                     func_002b2cb0(temp_19_3, func_00106600(temp_18_32) & 0xFF, 0xFF, 0, 1);
                     temp_19_4 = func_00106a90((s64) (temp_20 << 0x30) >> 0x30) / 5U;
                     temp_4_5 = (s32)((*(s32 *)((u8 *)(temp_17) + (0xC20))) + (temp_19_4 * (func_00106600(temp_18_32) & 0xFF)));
@@ -3329,7 +3329,7 @@ loop_408:
                     var_18_5 = (s64) ((var_18_5 + 1) << 0x30) >> 0x30;
                     goto loop_408;
                 }
-                func_00442088(&spD0, D_00713910, func_002b2cb0(var_19_4, 0, 0x98967F, 0, 1));
+                sprintf(&spD0, D_00713910, func_002b2cb0(var_19_4, 0, 0x98967F, 0, 1));
                 (*(s8 *)((u8 *)(temp_17) + (0x10))) = func_002dfec0(arg0, 6, &spD0, 1);
                 (*(s8 *)((u8 *)(temp_17) + (0))) = 0x2E;
             } else if (func_002e26f0((void *)((*(s32 *)((u8 *)(((temp_3_18 * 4) + temp_17)) + (0xF18))))) > 0) {
@@ -3559,7 +3559,7 @@ loop_408:
         } else if (D_008C024E & 0x40) {
             sp678 = (s32) ((s64) (temp_16_74 << 0x30) >> 0x30);
             sp67C = 0;
-            func_00442088(&spC0, D_00713910, (s8) (*(s16 *)((u8 *)(temp_17) + (0x12))));
+            sprintf(&spC0, D_00713910, (s8) (*(s16 *)((u8 *)(temp_17) + (0x12))));
             (*(s8 *)((u8 *)(temp_17) + (0x10))) = func_002dff90(arg0, 2, &sp678, &spC0, 1);
             (*(s8 *)((u8 *)(temp_17) + (0))) = 0x28;
             func_0045af60(0, 0, 0, 1);
@@ -3594,12 +3594,12 @@ loop_408:
                 func_0045af60(0, 0, 0, 6);
                 if (func_00106850(temp_19_7) == 5) {
                     temp_16_76 = (s64) (temp_19_7 << 0x30) >> 0x30;
-                    func_00110810(temp_16_76, func_002b2cb0(func_00110830(temp_16_76) & 0xFF, (s64) (*(s16 *)((u8 *)(temp_17) + (0x12))), 0xFF, 0, 1) & 0xFF);
+                    func_00110810(temp_16_76, func_002b2cb0(clndGetMoonPhase(temp_16_76) & 0xFF, (s64) (*(s16 *)((u8 *)(temp_17) + (0x12))), 0xFF, 0, 1) & 0xFF);
                     var_16_20 = 0;
 loop_446:
                     temp_4_11 = (s64) (var_16_20 << 0x30) >> 0x30;
                     if (temp_4_11 < 0x2FF) {
-                        if (!(func_00110830(temp_4_11) & 0xFF)) {
+                        if (!(clndGetMoonPhase(temp_4_11) & 0xFF)) {
                             temp_21_3 = (s32) (func_00106b20(var_16_20) & 0xFFF00) >> 8;
                             if (func_002be160(temp_21_3, func_00106b20(var_16_20) & 0xFF) == 1) {
                                 temp_21_4 = (s32) (func_00106b50(var_16_20) & 0xFFF00) >> 8;
@@ -3628,7 +3628,7 @@ loop_453:
                         temp_21_5 = (s64) (func_002e2830((void *)((*(s32 *)((u8 *)((temp_17 + ((*(s8 *)((u8 *)(temp_17) + (0x11))) * 4))) + (0xF18)))), temp_16_78) << 0x30) >> 0x30;
                         func_002e28f0((void *)((*(s32 *)((u8 *)((temp_17 + ((*(s8 *)((u8 *)(temp_17) + (0x11))) * 4))) + (0xF18)))), temp_16_78);
                         temp_16_79 = (s64) (temp_21_5 << 0x30) >> 0x30;
-                        temp_22_2 = func_00110830(temp_16_79) & 0xFF;
+                        temp_22_2 = clndGetMoonPhase(temp_16_79) & 0xFF;
                         func_002b2cb0(temp_22_2, func_00106600(temp_21_5) & 0xFF, 0xFF, 0, 1);
                         temp_16_80 = func_00106a90((s64) (temp_16_79 << 0x30) >> 0x30) / 5U;
                         temp_4_12 = (s32)((*(s32 *)((u8 *)(temp_17) + (0xC20))) + (temp_16_80 * (func_00106600(temp_21_5) & 0xFF)));
@@ -3699,7 +3699,7 @@ loop_474:
                     temp_16_82 = (s64) (var_18_6 << 0x30) >> 0x30;
                     temp_19_8 = (s64)(s32)(func_002e2830((void *)((*(s32 *)((u8 *)((temp_17 + ((*(s8 *)((u8 *)(temp_17) + (0x11))) * 4))) + (0xF18)))), temp_16_82));
                     func_002e28f0((void *)((*(s32 *)((u8 *)((temp_17 + ((*(s8 *)((u8 *)(temp_17) + (0x11))) * 4))) + (0xF18)))), temp_16_82);
-                    temp_16_83 = func_00110830(temp_19_8) & 0xFF;
+                    temp_16_83 = clndGetMoonPhase(temp_19_8) & 0xFF;
                     func_00110810(temp_19_8, func_002b2cb0(temp_16_83, func_00106600((s64) (temp_19_8 << 0x30) >> 0x30) & 0xFF, 0xFF, 0, 1) & 0xFF);
                     temp_16_84 = func_00106a90((s64) (temp_19_8 << 0x30) >> 0x30) / 5U;
                     temp_16_85 = temp_16_84 * (func_00106600((s64) (temp_19_8 << 0x30) >> 0x30) & 0xFF);
@@ -3713,7 +3713,7 @@ loop_474:
 loop_481:
                 temp_4_14 = (s64) (var_16_21 << 0x30) >> 0x30;
                 if (temp_4_14 < 0x2FF) {
-                    if (!(func_00110830(temp_4_14) & 0xFF)) {
+                    if (!(clndGetMoonPhase(temp_4_14) & 0xFF)) {
                         temp_18_55 = (s32) (func_00106b20(var_16_21) & 0xFFF00) >> 8;
                         if (func_002be160(temp_18_55, func_00106b20(var_16_21) & 0xFF) == 1) {
                             temp_18_56 = (s32) (func_00106b50(var_16_21) & 0xFFF00) >> 8;
@@ -3809,7 +3809,7 @@ loop_481:
         if (func_002bb680((*(s8 *)((u8 *)(temp_17) + (0x10)))) != 0) {
             func_002bbcf0((*(s8 *)((u8 *)(temp_17) + (0x10))));
         } else {
-            func_00110810((s64) (*(s16 *)((u8 *)((((*(s16 *)((u8 *)(temp_17) + (0xC18))) * 2) + temp_17)) + (0x16))), ((func_00110830((s64) (*(s16 *)((u8 *)((((*(s16 *)((u8 *)(temp_17) + (0xC18))) * 2) + temp_17)) + (0x16)))) & 0xFF) | 1) & 0xFF);
+            func_00110810((s64) (*(s16 *)((u8 *)((((*(s16 *)((u8 *)(temp_17) + (0xC18))) * 2) + temp_17)) + (0x16))), ((clndGetMoonPhase((s64) (*(s16 *)((u8 *)((((*(s16 *)((u8 *)(temp_17) + (0xC18))) * 2) + temp_17)) + (0x16)))) & 0xFF) | 1) & 0xFF);
             func_002bb550((*(s8 *)((u8 *)(temp_17) + (0x10))));
             temp_2_98 = (s16)((*(s16 *)((u8 *)(temp_17) + (0xC18))) + 1);
             (*(s16 *)((u8 *)(temp_17) + (0xC18))) = temp_2_98;
@@ -4333,7 +4333,7 @@ void func_002ca770(u8 *arg0) {
         *(u32 *)((s32)work + 0xF28) = 0;
     }
     if (*(void **)((u8 *)work + 0xF2C)) {
-        func_00454bd0(*(void **)((u8 *)work + 0xF2C));
+        H_Cdvd_Destroy(*(void **)((u8 *)work + 0xF2C));
     }
     func_002e29a0();
     jtbl_008873EC[0](*(void **)((s32)arg0 + 0x38));
@@ -4417,7 +4417,7 @@ void func_002caa10(Vec2f position, f32 depth, RGBA color, u32 number_, s16 glyph
         commaWidth = (s16)(s32)(func_0046b260(commaGlyph) - 1.0f);
         func_0046d280(commaGlyph);
     }
-    func_00442830(text, iGpffffa884);
+    strcpy(text, iGpffffa884);
     entry = D_00793E80 + style * 0x30;
     base = (s16)glyphBase;
     a = color.a;
@@ -4469,7 +4469,7 @@ void func_002cacd0(u64 arg0, f32 fparg0, RGBA arg1, s32 arg2, s16 arg3, u32 arg4
     arg4 = arg4_;
     count = 0;
     x = ((f32 *)&arg0)[0];
-    func_0043f9c8(spD0, 0, 1);
+    memset(spD0, 0, 1);
     entry = D_00793E80 + arg9 * 0x30;
     base = (s16)arg5;
     a = arg1.a;
@@ -6525,7 +6525,7 @@ LAB1898_skip:
             func_002cacd0(spA8, 22.0f, c2D, 0xF, 0, uA, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
         }
         cA = (s16)func_002e2740(*(s16 *)(work + 2));
-        if (((func_00110830(cA) & 0xFF) & 1) != 0) {
+        if (((clndGetMoonPhase(cA) & 0xFF) & 1) != 0) {
             func_002b2970(&sp1D0, 37.0f, 243.0f);
             colC = func_002b2a30(0, 0xFF, 0x66, 0);
             func_002e0be0(0x49, sp1D0, 65.0f, colC, 0xFF, 0, D_00794EA0);
@@ -7763,7 +7763,7 @@ void func_002d7f90(void *arg0) {
     ((ShopWork *)func_002e04e0(work->field_C48))->field_100 = v1;
     v2 = (s16)(s32)(func_0046b2f0((u8 *)r) / 2.0f);
     ((ShopWork *)func_002e04e0(work->field_C48))->field_102 = v2;
-    hi = func_003b7060() % 20U;
+    hi = RpRandom() % 20U;
     f1 = (f32)hi;
     f20 = shopAdd(f1 / 10.0f, 1.0f);
     if (!(((ShopWork *)func_002e04e0(work->field_C44))->field_C4 <= 0.0f)) {
@@ -7821,7 +7821,7 @@ void func_002d83c0(void *arg0) {
     ((ShopWork *)func_002e04e0(work->field_ED8))->field_100 = v2;
     v2 = (s16)(s32)(func_0046b2f0((u8 *)r) / 2.0f);
     ((ShopWork *)func_002e04e0(work->field_ED8))->field_102 = v2;
-    hi = func_003b7060() % 20U;
+    hi = RpRandom() % 20U;
     f1 = (f32)hi;
     f20 = shopAdd(f1 / 10.0f, 1.0f);
     if (!(((ShopWork *)func_002e04e0(work->field_ED4))->field_C4 <= 0.0f)) {
@@ -8502,7 +8502,7 @@ void func_002da0a0(register u8 *root) {
     *(s16 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED8)) + 0x102) =
         (s16)width1;
 
-    hi = (s32)(func_003b7060() % 20U);
+    hi = (s32)(RpRandom() % 20U);
     if (hi >= 0) {
         f1 = (f32)hi;
     } else {
@@ -9807,7 +9807,7 @@ void func_002e0080(void *arg0, s8 arg1, Vec2f arg2, void *arg3) {
 s32 func_002e0100(u8 *arg0) {
     ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
 
-    func_0043f810((u8 *)work + 4, func_002b89a0(&work->field_4), 0xF0);
+    memcpy((u8 *)work + 4, func_002b89a0(&work->field_4), 0xF0);
     if (func_002e0570(arg0, 0) == 1) {
         if (func_002e0570(arg0, 0xD) == 1) {
             void *t = func_00460990();

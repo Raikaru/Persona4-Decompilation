@@ -25,7 +25,7 @@ extern void (*D_00887300[])(u32, u32);
 extern f32 D_008872F8[];
 extern u8 *func_00457120(void);
 extern s32 *func_003315e0(void);
-extern void func_003f6440(s32, s32);
+extern void RpSkyRenderStateSet(s32, s32);
 
 
 
@@ -100,8 +100,8 @@ void func_0034ae70(u8 *arg0, u8 *arg1) {
     base[0](2, 3);
     base[0](0xB, 6);
     base[0](0xA, 5);
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x717FB);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x717FB);
     *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0x20) = 0;
     *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0x24) = 0;
     *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0x60) = 0x3F800000;

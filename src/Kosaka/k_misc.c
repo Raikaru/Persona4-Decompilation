@@ -53,8 +53,8 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);  /* RwCalloc slot */
 extern void (*jtbl_008873EC[])(void*);      /* RwFree slot */
 
 extern u8 func_00452080(void* task);        /* kwlnTaskDestroyWithHierarchy */
-extern u8* func_0047a250(void* mdl);        /* mdlGetColor */
-extern void func_0047a220(void* mdl, void* color); /* mdlSetColor */
+extern u8* mdlGetColor(void* mdl);        /* mdlGetColor */
+extern void mdlSetColor(void* mdl, void* color); /* mdlSetColor */
 extern char D_005EFB28[];                   /* "k_misc.c" */
 extern char D_005EFB40[];                   /* "delay model(RMD) destroy" */
 extern char D_005EFB60[];                   /* "script shutdown(kosaka)" */
@@ -133,7 +133,7 @@ s32 func_0014ba40(u8 *arg0)
     f32 alpha;
 
     work = (RmdFadeWork *)((KwlnTask *)arg0)->workData;
-    rgba = func_0047a250(work->mdl);
+    rgba = mdlGetColor(work->mdl);
     color = *(RwRGBA *)rgba;
     switch (work->state) {
     case 0:
@@ -142,11 +142,11 @@ s32 func_0014ba40(u8 *arg0)
         alpha = alpha / (f32)work->framesRemaining + work->currentAlpha;
         work->currentAlpha = alpha;
         color.a = (u8)alpha;
-        func_0047a220(work->mdl, &color);
+        mdlSetColor(work->mdl, &color);
         work->framesRemaining--;
         if (work->framesRemaining <= 0) {
             color.a = (u8)work->targetAlpha;
-            func_0047a220(work->mdl, &color);
+            mdlSetColor(work->mdl, &color);
             work->state = 1;
         }
         break;
@@ -175,7 +175,7 @@ s32 func_0014bbe0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     s32 task;
     RmdFadeWork* work;
 
-    rgba = func_0047a250((void*)arg1);
+    rgba = mdlGetColor((void*)arg1);
     color = *(RwRGBA *)rgba;
     if (arg1 == 0) {
         return 0;
@@ -192,6 +192,6 @@ s32 func_0014bbe0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     work->framesRemaining = arg4;
     current = (f32)(u32)arg2;
     work->currentAlpha = current;
-    func_0047a220((void*)arg1, &color);
+    mdlSetColor((void*)arg1, &color);
     return task;
 }

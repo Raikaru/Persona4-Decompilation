@@ -72,7 +72,7 @@ extern s32 func_003d5bc0(u8 *arg0, f32 amount);
 extern s32 iGpffffb738;
 extern s32 iGpffffb734;
 extern void func_003e12f0();
-extern void func_0043f810(void *dst, void *src, u32 size);
+extern void memcpy(void *dst, void *src, u32 size);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern void func_00426f80(s32 arg0);
 extern s32 func_003c1ab0();
@@ -106,7 +106,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0790);
    constant materialization and branch delay-slot layout exactly (nd 0). */
 // FUN_003D0930
 #pragma schedule on
-void func_003d0930(u8 *arg0) {
+void RpMeshPS2AllInstanceCallBack(u8 *arg0) {
     s32 limit;
     limit = 0xFF;
     if (*(u8 *)(*(u8 **)(arg0 + 8)) == limit) {
@@ -130,7 +130,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d20d0);
 #pragma schedule on
 #pragma no_branch_likely on
 #pragma peephole off
-u8 *func_003d2240(u8 *arg0, s32 **arg1, s32 arg2, s32 arg3) {
+u8 *RwIm3DPS2AllResEntryAllocCallBack(u8 *arg0, s32 **arg1, s32 arg2, s32 arg3) {
     extern void func_003f3eb0(s32, s32);
     extern u8 *func_003f44c0(s32, s32);
     u8 *var_2;
@@ -680,7 +680,7 @@ fail_4f20:
    delay slot and preserves the saved callback argument across the call. */
 #pragma schedule on
 // FUN_003D4F80
-s32 func_003d4f80(s32 arg0) {
+s32 AnimClose(s32 arg0) {
     s32 temp_4;
 
     temp_4 = iGpffffb738;
@@ -698,7 +698,7 @@ s32 func_003d4f80(s32 arg0) {
 #pragma schedule on
 // FUN_003D4FC0
 s32 func_003d4fc0(void) {
-    return func_003e8930(0, 0x1B7, func_003d4f20, func_003d4f80) > 0;
+    return func_003e8930(0, 0x1B7, func_003d4f20, AnimClose) > 0;
 }
 /* measured: closes the schedule bracket. */
 #pragma schedule off
@@ -1637,7 +1637,7 @@ extern s32 iGpffffb754;
 /* measured: the wide argument on both 004218x0 calls fills the two retail
    jal delay slots; schedule on reproduces the saved-register dispatch. */
 #pragma schedule on
-s32 func_003ddf20(u8 *arg0) {
+s32 RwFclose(u8 *arg0) {
     u8 *temp;
     void (*fn)(u8 *);
 
@@ -1699,7 +1699,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de020);
 // FUN_003DE100
 /* measured: tailcall on reproduces retail's frameless indirect jump. */
 #pragma tailcall on
-void func_003de100(u8 *arg0) {
+void RwFeof(u8 *arg0) {
     ((void (*)(u8 *))(*(void **)(*(u8 **)(arg0 + 0x50) + 0x44)))(arg0);
 }
 /* measured: closes the single-function tailcall bracket. */
@@ -1713,7 +1713,7 @@ void func_003de100(u8 *arg0) {
 #pragma schedule on
 #pragma no_branch_likely on
 s32 func_003de110(u8 *arg0) {
-    extern void func_00442de8(u8 *arg0, u8 *arg1, u32 arg2);
+    extern void strncpy(u8 *arg0, u8 *arg1, u32 arg2);
     extern s32 D_008873D4[];
     extern u8 *iGpffffb750;
     s32 (**table)(u8 *arg0, s32 arg1);
@@ -1759,7 +1759,7 @@ fallback:
     selected = iGpffffb750;
     goto dispatch;
 found:
-    func_00442de8(buffer, self, index + 1);
+    strncpy(buffer, self, index + 1);
     node = (u8 *)D_00887180[0];
     cursor[1] = 0;
     if (node == NULL)

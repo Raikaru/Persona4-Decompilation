@@ -4,10 +4,10 @@
 #include "sdk_task_registration.h"
 
 extern void func_00440b68(...);
-extern void func_0043f810(void *dest, const void *src, u32 size);
+extern void memcpy(void *dest, const void *src, u32 size);
 extern void *func_00454a60(const char *path, s32 flags);
-extern void func_00454bd0(void *handle);
-extern s32 func_004553c0(void *handle);
+extern void H_Cdvd_Destroy(void *handle);
+extern s32 H_Cdvd_IsFileLoaded(void *handle);
 
 extern void func_0044ea90(const void *file, u32 line);
 extern void func_00104c50(void);
@@ -44,10 +44,10 @@ s32 func_001117c0(u8 *arg0)
         *(s32 *)temp_16 += 1;
         break;
     case 1:
-        if (func_004553c0(*(u8 **)(temp_16 + 4)) == 1) {
+        if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_16 + 4)) == 1) {
             temp_2 = *(u8 **)(temp_16 + 4);
-            func_0043f810(&D_0079BF00, *(u8 **)(temp_2 + 0x110), *(s32 *)(temp_2 + 0x118));
-            func_00454bd0(*(u8 **)(temp_16 + 4));
+            memcpy(&D_0079BF00, *(u8 **)(temp_2 + 0x110), *(s32 *)(temp_2 + 0x118));
+            H_Cdvd_Destroy(*(u8 **)(temp_16 + 4));
             *(u8 **)(temp_16 + 4) = NULL;
             func_00104c50();
             return -1;
@@ -66,7 +66,7 @@ void func_001118a0(u8 *arg0)
     temp_16 = *(u8 **)(arg0 + 0x38);
     temp_4 = *(u8 **)(temp_16 + 4);
     if (temp_4 != NULL) {
-        func_00454bd0(temp_4);
+        H_Cdvd_Destroy(temp_4);
         *(u8 **)(temp_16 + 4) = NULL;
     }
     jtbl_008873EC[0](temp_16);

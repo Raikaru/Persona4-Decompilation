@@ -16,15 +16,15 @@ extern s32 func_00455f70(char *str, void *out);
 
 extern s32 func_0025ef20(char *str);
 extern s32 func_00266b70(void);
-extern s32 func_0043f9c8(void *a0, s32 a1, s32 a2);
+extern s32 memset(void *a0, s32 a1, s32 a2);
 
 extern void func_00460b60(void *a0, s32 a1, s32 a2);
 extern void func_00460c70(void *a0, s32 a1, s32 a2);
 extern void func_00489f80(void);
 extern void func_0045da40(float *a0, void *a1, float a2, s32 a3, void *a4);
 extern void func_0048a000(void);
-extern float func_0044b7b0(float angle);
-extern float func_0044b610(float angle);
+extern float sinf(float angle);
+extern float cosf(float angle);
 extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
 extern float D_007612D0;
 extern f32 iGpffff81e0;
@@ -174,7 +174,7 @@ s32 func_0027cae0(MsgProcWindowEntry *arg)
             func_0027d800((s32)(f * 2.0f + 35.0f), (s32)(f * 42.0f + 296.0f), 0xFFA107, 0xFF, 0, 0, 0.0f, -4.7f * (1.0f - f), 1.0f, 1.0f, D_00796430);
             func_0027d800(0x25, 0x152, 0x423C2B, 0xFF, 0, 0, 0.0f, 0.0f, 1.0f, 1.0f, D_00796490);
         } else if (arg->field10 < 12) {
-            f = func_0044b7b0(iGpffff8094 * (float)(arg->field10 - 6) / 5.0f);
+            f = sinf(iGpffff8094 * (float)(arg->field10 - 6) / 5.0f);
             func_0027d800((s32)(f * 200.0f + 37.0f), (s32)(f * 200.0f + 338.0f), 0x423C2B, 0xFF, 0, 0, 0.0f, f * 10.0f, 1.0f, 1.0f, D_00796490);
         }
         if (arg->field10 < 11) {
@@ -201,7 +201,7 @@ s32 func_0027cae0(MsgProcWindowEntry *arg)
         default:
             break;
         }
-        f = func_0044b7b0(iGpffff8094 * (float)arg->field10 / 5.0f);
+        f = sinf(iGpffff8094 * (float)arg->field10 / 5.0f);
         func_0025ecd0(0.0f, (float)v0 * f + 123.0f, 0.0f, 0xFFFFFF, 0xD8, v1, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, 1.0f - f, D_00796490);
         if (arg->field10 < 5) {
             break;
@@ -224,7 +224,7 @@ s32 func_0027cae0(MsgProcWindowEntry *arg)
         ret = 1;
         break;
     case 5:
-        f = func_0044b7b0(iGpffff8094 * (float)arg->field10 / 7.0f);
+        f = sinf(iGpffff8094 * (float)arg->field10 / 7.0f);
         if (arg->field10 < 8) {
             g = 1.0f - f;
             func_0027d620((s32)(f * 202.0f + 70.0f), (s32)(f * 27.0f + 27.0f), (s32)(g * 394.0f + 10.0f), (s32)(g * 45.0f + 10.0f), 0, 0xB2, 0, 0, D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
@@ -239,7 +239,7 @@ s32 func_0027cae0(MsgProcWindowEntry *arg)
         ret = 1;
         break;
     case 6:
-        f = func_0044b7b0(iGpffff8094 * (float)arg->field10 / 10.0f);
+        f = sinf(iGpffff8094 * (float)arg->field10 / 10.0f);
         g = (1.0f - f) * 255.0f;
         func_0025ecd0(592.0f, 394.0f, 0.0f, 0xFFA107, (u8)g, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 360.0f + 180.0f, 1.0f, 1.0f, D_00796490);
         if (arg->field10 < 10) {
@@ -329,8 +329,8 @@ void func_0027d3c0(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4,
     spD0[0].a = (u8)packed;
     for (i = 1; i < 0x29; i++) {
         f25 = (D_007612D0 * (float)(s32)(i - 1)) / 40.0f;
-        f24 = func_0044b7b0(f25);
-        fsin = func_0044b610(f25);
+        f24 = sinf(f25);
+        fsin = cosf(f25);
         p = &sp180[i];
         p->x = fparg2 * ((float)arg2 * fsin) + (float)arg0;
         p->y = fparg3 * ((float)arg2 * (-f24)) + (float)arg1;
@@ -571,7 +571,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
         if ((void *)D_00882000[0] == (void *)0) {
             func_0046d730(D_0063BFC0, 0x18F);
         }
-        func_0043f9c8((void *)D_00882000[0], 0, 0x18);
+        memset((void *)D_00882000[0], 0, 0x18);
         break;
     case 4:
         if (func_002e0fb0() != 0) {
@@ -586,7 +586,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 func_002e0f90();
             }
             if (D_00882004[0] < 11) {
-                f = func_0044b610(iGpffff8094 * (float)D_00882004[0] / 10.0f);
+                f = cosf(iGpffff8094 * (float)D_00882004[0] / 10.0f);
                 src = (MsgProcWindowU32Pair *)D_0063C030;
                 dst = (MsgProcWindowU32Pair *)w0.points;
                 count = 10;
@@ -762,7 +762,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
             if (j < 8) {
                 e = &D_008820B0[j];
                 if ((e->field0 & 1) == 0) {
-                    func_0043f9c8(e, 0, 0x18);
+                    memset(e, 0, 0x18);
                     e->field0 |= 1;
                     e->field10 = 0;
                     e->field14 = 0;
@@ -786,7 +786,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 }
             }
             if (e2 != (void *)0) {
-                func_0043f9c8(e2, 0, 0x18);
+                memset(e2, 0, 0x18);
                 e2->field0 |= 1;
                 e2->field10 = 0;
                 e2->field14 = 0;
@@ -840,7 +840,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 D_00882006[0] = 0;
             }
             D_00882006[0]++;
-            f = func_0044b7b0(iGpffff8094 * (float)D_00882006[0] / 6.0f);
+            f = sinf(iGpffff8094 * (float)D_00882006[0] / 6.0f);
             lvl2 = func_00279010((void *)arg0);
             v = (5 - lvl2) * 0x1E + 0x87;
             src = (MsgProcWindowU32Pair *)D_0063C080;
@@ -980,16 +980,16 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 v0 = (b2 - (a2 + 1)) * 0x1E + 0x6D;
                 v1 = a2 * 0x1E;
                 if (v1 < v0) {
-                    f = 14.0f * func_0044b7b0(iGpffff8094 * (float)v0 / 229.0f);
+                    f = 14.0f * sinf(iGpffff8094 * (float)v0 / 229.0f);
                 } else {
-                    f = 14.0f * func_0044b7b0(iGpffff8094 * (float)a2 * 30.0f / 229.0f);
+                    f = 14.0f * sinf(iGpffff8094 * (float)a2 * 30.0f / 229.0f);
                 }
                 need32 = (s32)f;
                 if (need32 < 5) {
                     need32 = 5;
                 }
                 if (D_00882006[0] <= need32) {
-                    g = func_0044b7b0(iGpffff8094 * (float)D_00882006[0] / (float)need32);
+                    g = sinf(iGpffff8094 * (float)D_00882006[0] / (float)need32);
                     f1 = (float)((b2 * 16 - b2) * 2 + 0x6D);
                     f2 = (f1 / 259.0f) * (1.0f - g * g);
                     f3 = g * (float)(a2 * 0x1E);
@@ -1079,7 +1079,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                     cur = 0;
                 }
                 cur++;
-                f = func_0044b7b0(iGpffff8094 * (float)cur / 5.0f);
+                f = sinf(iGpffff8094 * (float)cur / 5.0f);
                 func_0025ecd0(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 180.0f, 1.0f, 1.0f, D_00796490);
                 func_0025ec90(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 3, (void *)iGpffffb4d8, 1, D_00796490);
                 if (cur >= 5) {
@@ -1115,7 +1115,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                     }
                 }
                 if (e3 != (void *)0) {
-                    func_0043f9c8(e3, 0, 0x18);
+                    memset(e3, 0, 0x18);
                     e3->field0 |= 1;
                     e3->field10 = 0;
                     e3->field14 = 0;
@@ -1369,7 +1369,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         if ((void *)D_00882020 == (void *)0) {
             func_0046d730(D_0063BFC0, 0x18F);
         }
-        func_0043f9c8(D_00882020, 0, 0x18);
+        memset(D_00882020, 0, 0x18);
         break;
     case 2:
         D_0088202A[0] = (s16)func_0027b6e0((void *)arg0, 0);
@@ -1385,7 +1385,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 }
             } else {
                 if (func_00452380(&D_00723868) == 0) {
-                    func_0043f9c8(w245, 0, 8);
+                    memset(w245, 0, 8);
                     (s32)func_00451fc0((void *)((void *)0), (const void *)(&D_00723868), 0xF, 0, 0, func_0027f560, func_0027f630, (u8 *)((void *)0));
                 }
                 handle = 0;
@@ -1419,7 +1419,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             break;
         }
         if (cnt32 < 0xB) {
-            f = func_0044b7b0(iGpffff81dc + (iGpffff8084 * (float)cnt32) / 10.0f);
+            f = sinf(iGpffff81dc + (iGpffff8084 * (float)cnt32) / 10.0f);
             f = (f + 1.0f) / 2.0f;
             subA = 1.0f - f;
             cvtA = (float)(s20 + 0x7B);
@@ -1429,14 +1429,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             chainD = iGpffff803c - (iGpffff8118 * f);
             func_0025ecd0(chainB, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, chainC, chainD, (void *)D_00796490);
         } else if (cnt32 < 0x10) {
-            f = func_0044b7b0((iGpffff8094 * (float)(cnt32 - 10)) / 5.0f);
+            f = sinf((iGpffff8094 * (float)(cnt32 - 10)) / 5.0f);
             prodB = 1.0f - f;
             chainA = (float)s20 * prodB + 123.0f;
             chainC = iGpffff80d4 * f + iGpffff81e4;
             func_0025ecd0(0.0f, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, chainC, (void *)D_00796490);
         } else if (cnt32 < 0x15) {
             func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, (void *)D_00796490);
-            f = func_0044b7b0((iGpffff8094 * (float)(cnt32 - 15)) / 5.0f);
+            f = sinf((iGpffff8094 * (float)(cnt32 - 15)) / 5.0f);
             if (D_0088202A[0] == 0) {
                 chainA = 36.0f - ((1.0f - f) * 100.0f);
                 func_0025ec90(chainA, 143.0f, 0.0f, 0xFFE92C, 0xFF, 0, (void *)iGpffffb4dc, 1, (void *)D_00796490);
@@ -1611,7 +1611,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 }
             } else {
                 if (func_00452380(&D_00723868) == 0) {
-                    func_0043f9c8(w245, 0, 8);
+                    memset(w245, 0, 8);
                     (s32)func_00451fc0((void *)((void *)0), (const void *)(&D_00723868), 0xF, 0, 0, func_0027f560, func_0027f630, (u8 *)((void *)0));
                 }
                 handle = 0;
@@ -1824,7 +1824,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 }
             }
             if (e != (MsgProcWindowEntry *)0) {
-                func_0043f9c8(e, 0, 0x18);
+                memset(e, 0, 0x18);
                 e->field0 |= 1;
                 e->field8 = 0;
                 e->fieldC = 0;
@@ -1839,7 +1839,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 }
             }
             if (e != (MsgProcWindowEntry *)0) {
-                func_0043f9c8(e, 0, 0x18);
+                memset(e, 0, 0x18);
                 e->field0 |= 1;
                 e->field8 = 0;
                 e->fieldC = 0;
@@ -1856,7 +1856,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 i++;
             } while (i < 8);
             if (e != (MsgProcWindowEntry *)0) {
-                func_0043f9c8(e, 0, 0x18);
+                memset(e, 0, 0x18);
                 e->field0 |= 1;
                 e->field8 = 0;
                 e->fieldC = 0;
@@ -1955,7 +1955,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 }
                 cntB++;
                 cntB32 = (s32)cntB;
-                f = func_0044b7b0((iGpffff8094 * (float)cntB32) / 5.0f);
+                f = sinf((iGpffff8094 * (float)cntB32) / 5.0f);
                 prodA = (float)s20;
                 prodB = (float)s19;
                 chainA = f * 180.0f;
@@ -2026,7 +2026,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 }
                 cntB++;
                 cntB32 = (s32)cntB;
-                f = func_0044b7b0((iGpffff8094 * (float)cntB32) / 10.0f);
+                f = sinf((iGpffff8094 * (float)cntB32) / 10.0f);
                 chainA = (1.0f - f) * 255.0f;
                 tmp = (s32)chainA;
                 chainB = f * 360.0f + 180.0f;
@@ -2105,7 +2105,7 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
         if ((void *)D_00882040 == NULL) {
             func_0046d730(D_0063BFC0, 0x18F);
         }
-        func_0043f9c8(D_00882040, 0, 0x18);
+        memset(D_00882040, 0, 0x18);
         tmp = func_0027be60(arg0);
         if (tmp == NULL) {
             func_0044ea90(D_0063BFC0, 0x5C0);
@@ -2130,7 +2130,7 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
             D_00882044[0] = cnt;
             cnt32 = (s32)cnt;
             if (cnt32 < 5) {
-                f = func_0044b7b0(iGpffff81dc + (iGpffff8084 * (float)cnt32) / 4.0f);
+                f = sinf(iGpffff81dc + (iGpffff8084 * (float)cnt32) / 4.0f);
                 f = (f + 1.0f) / 2.0f;
                 a0 = (s32)((1.0f - f) * 200.0f + 70.0f);
                 a1 = (s32)(47.0f - (1.0f - f) * 5.0f);
@@ -2138,13 +2138,13 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
                 a3 = (s32)(20.0f - f * 15.0f);
                 func_00366380(a0, a1, a2, a3, 0, 0xB2, 1, 0, 0, (void *)D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
             } else if (cnt32 < 11) {
-                f = func_0044b7b0((iGpffff8094 * (float)(cnt32 - 4)) / 6.0f);
+                f = sinf((iGpffff8094 * (float)(cnt32 - 4)) / 6.0f);
                 a1 = (s32)((1.0f - f) * 20.0f + 27.0f);
                 a3 = (s32)(f * 50.0f + 5.0f);
                 func_00366380(0x46, a1, 0x194, a3, 0, 0xB2, 1, 0, 0, (void *)D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
             }
             if (cnt32 < 6) {
-                f2 = func_0044b7b0((iGpffff8094 * (float)cnt32) / 5.0f);
+                f2 = sinf((iGpffff8094 * (float)cnt32) / 5.0f);
                 func_0027d3c0(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, f2, 1.0f, (void *)D_00796490);
             } else {
                 func_0027d3c0(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, (void *)D_00796490);
@@ -2152,7 +2152,7 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
             if (cnt32 > 3 && cnt32 < 11) {
                 tmp = func_0027be60(arg0);
                 if (tmp != NULL) {
-                    f = func_0044b7b0((iGpffff8094 * (float)(cnt32 - 3)) / 7.0f);
+                    f = sinf((iGpffff8094 * (float)(cnt32 - 3)) / 7.0f);
                     tmpw = func_002bd1e0(*tmp);
                     f2 = 9.0f - (1.0f - f) * 60.0f;
                     func_0025ecd0(f2, 1.0f, 0.0f, 0xFFFFFF, (u8)0xFF, 0, (void *)tmpw, 1, 0, 0, 0.0f, 1.0f, 1.0f, (void *)D_00796490);
@@ -2209,7 +2209,7 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
         e = NULL;
 found:
         if (e != NULL) {
-            func_0043f9c8(e, 0, 0x18);
+            memset(e, 0, 0x18);
             e->field0 = e->field0 | 1;
             e->field8 = 0;
             e->fieldC = 0;
@@ -2315,7 +2315,7 @@ s32 func_00282250(u8 *arg0, s32 arg1)
         func_00278170(arg0, 0x100000);
         func_00278170(arg0, 0x400000);
         func_00278170(arg0, 0x800000);
-        func_0043f9c8(D_00882060, 0, 0x18);
+        memset(D_00882060, 0, 0x18);
         break;
     case 4:
         if (func_0027bec0(arg0) != 0) {
@@ -2396,7 +2396,7 @@ s32 func_00282250(u8 *arg0, s32 arg1)
             cnt16 = D_00882066[0] + 1;
             D_00882066[0] = cnt16;
             cnt32 = (s32)cnt16;
-            f = func_0044b7b0(iGpffff8094 * (float)cnt32 / 10.0f);
+            f = sinf(iGpffff8094 * (float)cnt32 / 10.0f);
             func_00366380((s32)(-5.0f - (1.0f - f) * 500.0f), (4 - v79010) * 0x1E + 0xCE, 0x1C0, (v79010 - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
             pv = (void *)func_00278fb0(arg0);
             if (pv != NULL) {
@@ -2470,9 +2470,9 @@ s32 func_00282250(u8 *arg0, s32 arg1)
                 i1 = ((s32)v79010 - (v77070 + 1)) * 0x1E + 0x3B;
                 i2 = v77070 * 0x1E;
                 if (i2 < i1) {
-                    f2 = func_0044b7b0((iGpffff8094 * (float)i1) / 179.0f);
+                    f2 = sinf((iGpffff8094 * (float)i1) / 179.0f);
                 } else {
-                    f2 = func_0044b7b0((iGpffff8094 * (float)v77070 * 30.0f) / 179.0f);
+                    f2 = sinf((iGpffff8094 * (float)v77070 * 30.0f) / 179.0f);
                 }
                 total = (s32)(f2 * 14.0f);
                 if (total < 5) {
@@ -2481,7 +2481,7 @@ s32 func_00282250(u8 *arg0, s32 arg1)
                 need = total;
                 i3 = (s32)v79010;
                 if (cnt32 <= total) {
-                    f = func_0044b7b0((f * (float)cnt32) / (float)need);
+                    f = sinf((f * (float)cnt32) / (float)need);
                     f3 = 1.0f - f * f;
                     f4 = f * (float)(v77070 * 0x1E);
                     i4 = (v79010 * 0x10 - i3) * 2 + 0x3B;
@@ -2618,7 +2618,7 @@ s32 func_002833b0(s32 arg0)
             return arr[arg0];
         }
     } else if (func_00452380(D_0063C180) == 0) {
-        func_0043f9c8(work, 0, 0xC);
+        memset(work, 0, 0xC);
         (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 0xF, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
     }
     return 0;
@@ -2640,13 +2640,13 @@ s32 func_002833b0(s32 arg0)
 void func_00283490(u8 *arg0, u8 *arg1)
 {
     extern s32 func_00452380(void *path);
-    extern void func_0043f9c8(void *a0, s32 a1, s32 a2);
+    extern void memset(void *a0, s32 a1, s32 a2);
 
     extern s32 func_0027bec0(void *arg0);
     extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
     extern void *func_0046a770(void *arg0);
     extern void (*D_00887300[])(s32 arg0, s32 arg1);
-    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
     extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
     extern void func_0025e9e0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4);
     extern void func_0046d730(const void *file, u32 line);
@@ -2742,7 +2742,7 @@ void func_00283490(u8 *arg0, u8 *arg1)
             }
         } else {
             if (func_00452380(D_0063C180) == 0) {
-                func_0043f9c8(work, 0, 12);
+                memset(work, 0, 12);
                 (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
             }
             goto lab6_zero;
@@ -2767,7 +2767,7 @@ lab6_chk:;
                 }
             } else {
                 if (func_00452380(D_0063C180) == 0) {
-                    func_0043f9c8(work, 0, 12);
+                    memset(work, 0, 12);
                     (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
                 }
                 goto lab4_zero;
@@ -2813,8 +2813,8 @@ lab4_chk:;
             base[0](6, 1);
             base[0](8, 1);
         }
-        func_003f6440(3, 0x7000D);
-        func_003f6440(2, 0x48);
+        RpSkyRenderStateSet(3, 0x7000D);
+        RpSkyRenderStateSet(2, 0x48);
         i = 0;
         do {
             f32 fx;
@@ -2831,7 +2831,7 @@ lab4_chk:;
             i++;
         } while (i < 0x18);
         f20 = iGpffff8094 * (f32)cnt;
-        t = func_0044b7b0(f20 / 15.0f);
+        t = sinf(f20 / 15.0f);
         if (v == 0) {
             func_0046d730(D_007482F0, 0x59);
         }
@@ -2842,12 +2842,12 @@ lab4_chk:;
         func_0025ea20(-59.0f - f2, -103.0f - f2, 10.0f, 0xFFFFFF, alpha, 2, *(void **)(v + 8), 1, 0x80, 0x80, -90.0f * f3, 1.0f, 1.0f);
         if (cnt < 5) {
             f32 tt;
-            tt = func_0044b7b0(f20 / 5.0f);
+            tt = sinf(f20 / 5.0f);
             iv = (s32)(176.0f + 500.0f * (1.0f - tt));
             func_00366380(iv, 0x14F, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, (void *)0, 1.0f, iGpffff803c, 0.0f, 0.0f);
         } else if (cnt < 12) {
             f32 tt2;
-            tt2 = func_0044b7b0((iGpffff8094 * (f32)(cnt - 5)) / 7.0f);
+            tt2 = sinf((iGpffff8094 * (f32)(cnt - 5)) / 7.0f);
             if (v == 0) {
                 func_0046d730(D_007482F0, 0x59);
             }
@@ -2872,7 +2872,7 @@ lab4_chk:;
                 }
             } else {
                 if (func_00452380(D_0063C180) == 0) {
-                    func_0043f9c8(work, 0, 12);
+                    memset(work, 0, 12);
                     (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
                 }
                 goto lab4b_zero;
@@ -2909,7 +2909,7 @@ lab4b_chk:;
                     c = 7;
                 }
             }
-            ft = 1.0f - func_0044b7b0((iGpffff8094 * (f32)c) / 7.0f);
+            ft = 1.0f - sinf((iGpffff8094 * (f32)c) / 7.0f);
             d = (s32)dateBase + loop6 + 1;
             dateTmp = func_00110580(d);
             if (dateTmp == 0 || func_00110d30(d) != 0) {
@@ -2960,7 +2960,7 @@ lab4b_chk:;
             }
         } else {
             if (func_00452380(D_0063C180) == 0) {
-                func_0043f9c8(work, 0, 12);
+                memset(work, 0, 12);
                 (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
             }
             goto lab5_zero;
@@ -2991,8 +2991,8 @@ lab5_chk:;
         base[0](6, 1);
         base[0](8, 1);
     }
-    func_003f6440(3, 0x7000D);
-    func_003f6440(2, 0x48);
+    RpSkyRenderStateSet(3, 0x7000D);
+    RpSkyRenderStateSet(2, 0x48);
     for (i = 0; i < 0x18; i++) {
         f32 fx;
         f32 fy;
@@ -3026,7 +3026,7 @@ lab5_chk:;
             }
         } else {
             if (func_00452380(D_0063C180) == 0) {
-                func_0043f9c8(work, 0, 12);
+                memset(work, 0, 12);
                 (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
             }
             goto lab5b_zero;
@@ -3092,7 +3092,7 @@ s32 func_002848c0(void *arg0, s32 arg1)
         if (D_00882080 == NULL) {
             func_0046d730(D_0063BFC0, 399);
         }
-        func_0043f9c8(&D_00882080, 0, 24);
+        memset(&D_00882080, 0, 24);
         break;
     case 4:
         {
@@ -3104,7 +3104,7 @@ s32 func_002848c0(void *arg0, s32 arg1)
                 }
             } else {
                 if (func_00452380(D_0063C180) == 0) {
-                    func_0043f9c8(work, 0, 12);
+                    memset(work, 0, 12);
                     (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
                 } else {
                     goto lab4_zero;
@@ -3149,7 +3149,7 @@ lab4_chk:;
                 }
             } else {
                 if (func_00452380(D_0063C180) == 0) {
-                    func_0043f9c8(work, 0, 12);
+                    memset(work, 0, 12);
                     (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
                 }
                 goto lab5_zero;
@@ -3214,7 +3214,7 @@ lab5_chk:;
         e = NULL;
 lab7_found:
         if (e != NULL) {
-            func_0043f9c8(e, 0, 24);
+            memset(e, 0, 24);
             e->field0 |= 1;
             e->field8 = f;
             e->fieldC = 0;

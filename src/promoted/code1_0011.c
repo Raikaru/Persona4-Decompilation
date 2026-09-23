@@ -1,7 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "fr_font_internal.h"
-extern u8 *func_001094d0(void);
+extern u8 *datPersonaGetSkills(void);
 extern s32 func_00109510(u8 *persona, void *skills, void *levels);
 extern void func_0010e710(s32, u8 *, s32);
 typedef struct {
@@ -44,14 +44,14 @@ extern s32 iGpffffb1f0;
 extern void (*jtbl_008873EC[])(void *);
 extern u8 *func_0010d7c0(s32 a, s32 *b, s32 c);
 extern u8 D_007BBF00[];
-extern void func_0043f810(void *dst, void *src, s32 n);
+extern void memcpy(void *dst, void *src, s32 n);
 extern s16 D_00797B7A[];
 
 extern u8 D_0079BEF4[];
 extern s32 D_005E4610[];
-extern s32 func_00106330(s32 arg0);
-extern void func_00453570(void);
-extern void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
+extern s32 datGetFlag(s32 arg0);
+extern void H_Pad_StopRumble(void);
+extern void memset(u8 *arg0, s32 arg1, s32 arg2);
 typedef struct KwlnTask KwlnTask;
 extern s32 func_00452080(KwlnTask *task);
 extern u16 func_0010f560(s16 arg0, s32 arg1);
@@ -519,7 +519,7 @@ void func_00110e80(void) {
 
     p = func_0010d7c0(0, &sp3C, 1);
     n = sp3C;
-    func_0043f810(D_007BBF00, p, n);
+    memcpy(D_007BBF00, p, n);
     iGpffffb1b8 = n;
     jtbl_008873EC[0](p);
     iGpffffb1b4 = 1;
@@ -599,7 +599,7 @@ s32 func_001110e0(void) {
 
     var_16 = 0;
     for (var_17 = 0; var_17 < 6U; var_17++) {
-        if (func_00106330(D_005E4610[var_17]) != 0) {
+        if (datGetFlag(D_005E4610[var_17]) != 0) {
             var_16 |= 1 << var_17;
         }
     }
@@ -627,7 +627,7 @@ s32 func_00111200(void)
 
     var_16 = 0;
     for (var_17 = 0; var_17 < 6U; var_17++) {
-        if (func_00106330(D_005E4610[var_17]) != 0) {
+        if (datGetFlag(D_005E4610[var_17]) != 0) {
             var_16 |= 1 << var_17;
         }
     }
@@ -682,7 +682,7 @@ void func_001113b0(void)
     void func_00105ce0(s16, s16);
     void func_00105dc0(s16, s16, s16);
     void func_00105fa0(u32);
-    void func_00106000(s32, s16);
+    void datSetPartyId(s32, s16);
     void func_00106100(s16);
     void func_001062f0(u8);
     void func_00106300(s16);
@@ -777,10 +777,10 @@ loop_4_check:
         goto loop_4;
     }
 
-    func_00106000(0, 0);
-    func_00106000(1, 0);
-    func_00106000(2, 0);
-    func_00106000(3, 0);
+    datSetPartyId(0, 0);
+    datSetPartyId(1, 0);
+    datSetPartyId(2, 0);
+    datSetPartyId(3, 0);
     func_00155250();
     func_00162120();
     func_0015a630();
@@ -821,7 +821,7 @@ void func_00111bc0(void)
     s32 func_001064f0(s32);
     void func_00106550(s32, u32);
     s32 func_00106600(s16);
-    s32 func_00106330(s32);
+    s32 datGetFlag(s32);
     void func_00106390(s32, s32);
     s16 func_00104ea0(s16, s16);
     u32 func_00105ed0(void);
@@ -924,16 +924,16 @@ void func_00111bc0(void)
         buf[4 + (count & 0xFF)] = 0x418;
         count = (count + 1) & 0xFF;
     }
-    if (func_00106330(0x2F) != 0) {
+    if (datGetFlag(0x2F) != 0) {
         flag = 1;
     }
-    if (func_00106330(0x1DD) != 0) {
+    if (datGetFlag(0x1DD) != 0) {
         flag = 1;
     }
     i = 0;
     goto loop1_check;
 loop1:
-    buf[332 + i] = func_00106330(i + 0x39);
+    buf[332 + i] = datGetFlag(i + 0x39);
     i++;
 loop1_check:
     if (i < 7) {
@@ -948,7 +948,7 @@ loop2:
         if (v == 0) {
             goto loop2_done;
         }
-        buf[132 + result] = func_00106330(v);
+        buf[132 + result] = datGetFlag(v);
         result++;
     }
 loop2_check:
@@ -1042,7 +1042,7 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
     s32 temp_2;
     
     s32 func_00106a90(s16);
-    void func_00442088(void *, void *, s32);
+    void sprintf(void *, void *, s32);
     s32 func_0046a770(void *);
     void func_0046d730(void *, s32);
     void func_00112610(Vec2f, f32, u8, u8 *, s32, s32);
@@ -1106,7 +1106,7 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
                        D_005E479C[*(s16 *)(arg2 + 0x18) * 4];
         xy.values[1] = arg0.y;
         temp16 = ((arg1 & 0xFF) * 0xFF) / 255U;
-        func_00442088(buf, &iGpffff9be8,
+        sprintf(buf, &iGpffff9be8,
                       func_00106a90(*(s16 *)arg2));
         func_00274ed0(
             (f32)(s32)xy.values[0],
@@ -1462,18 +1462,18 @@ void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
     extern u8 D_005E4770[];
     extern u8 D_005E4798[];
     extern s32 iGpffff9bec;
-    extern s32 func_00442088(void *, const void *, ...);
-    extern s32 func_00442948(const void *);
+    extern s32 sprintf(void *, const void *, ...);
+    extern s32 strlen(const void *);
 
     temp_21 = *(s16 *)(arg2 + 2);
     temp_2 = D_005E4770 + (*(s16 *)(arg2 + 0x16) * 4);
     stack.color = *(FontGlyphColor *)temp_2;
     alpha_byte = fontDrawLeadingGlyph(&arg0, fparg0, arg1, arg3,
         &stack.color, &color2, &color1);
-    func_00442088(stack.text, &iGpffff9bec, (s16)temp_21);
+    sprintf(stack.text, &iGpffff9bec, (s16)temp_21);
     arg0.x = arg0.x + (14.0f +
         *(f32 *)(D_005E4798 + (*(s16 *)(arg2 + 0x18) * 0x10)));
-    var_20 = func_00442948(stack.text) - 1;
+    var_20 = strlen(stack.text) - 1;
     loop_color2 = color2;
     loop_color1 = color1;
     while (var_20 >= 0) {
@@ -1547,13 +1547,13 @@ void func_00113280(Vec2f arg0, f32 fparg0, s32 arg1, s16 arg2, s32 arg3,
 // FUN_00113480
 void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
-    if (func_00106330(0x39) != 0) {
+    if (datGetFlag(0x39) != 0) {
         func_004534f0(arg0, arg1, arg2, arg3);
     }
 }
 // FUN_00113500
 void func_00113500(void) {
-    func_00453570();
+    H_Pad_StopRumble();
 }
 // FUN_00113520
 s32 func_00113520(s32 arg0, s32 arg1, s32 arg2, u8 *arg3)
@@ -1599,7 +1599,7 @@ void func_00113610(s32 arg0, u8 *arg1)
     s32 index;
     u16 value;
 
-    table = func_001094d0();
+    table = datPersonaGetSkills();
     i = 0;
     while (i < 8) {
         index = (s32)i * 0xC;
@@ -1639,7 +1639,7 @@ void func_00113750(u8 *arg0) {
     *(s16 *)(arg0 + 2) = 0;
     *(s8 *)(arg0 + 4) = -1;
     *(s8 *)(arg0 + 5) = -1;
-    func_0043f9c8(arg0 + 8, 0, 0x22C);
+    memset(arg0 + 8, 0, 0x22C);
 }
 // FUN_00113790
 void func_00113790(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4)
@@ -1681,8 +1681,8 @@ void func_00113800(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3)
 }
 // FUN_00115830
 void func_00115830(u8 *arg0) {
-    func_0043f9c8(arg0 + 8, 0, 0x3C);
-    func_0043f9c8(arg0 + 0x44, 0, 0x3C);
+    memset(arg0 + 8, 0, 0x3C);
+    memset(arg0 + 0x44, 0, 0x3C);
     *(s16 *)(arg0 + 0) = 1;
     *(s16 *)(arg0 + 2) = 0;
     *(s32 *)(arg0 + 4) = 0;

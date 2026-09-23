@@ -37,15 +37,15 @@ extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
 extern s32 func_00102980(void);
 extern void func_00145080(void);
 extern void func_00260510(void);
-extern void *func_0043f9c8(void *dst, s32 value, s32 size);
+extern void *memset(void *dst, s32 value, s32 size);
 extern s32 func_00110e80(void);
 extern u8 *func_00155280(void);
 extern s32 func_00156170(s32 arg0);
 extern s32 func_00156180(s32 arg0);
-extern s32 func_00106330(s32 arg0);
+extern s32 datGetFlag(s32 arg0);
 extern s32 func_0016fd00(void);
 extern s32 func_00162510(u16 arg0, u16 arg1);
-extern u32 func_003b7060(void);
+extern u32 RpRandom(void);
 extern s32 func_0015a160(void);
 /* measured: func_00178870 needs this call unprototyped - retail masks $a2 (b)
    before the two lhu loads and $a3 (a) after them, which is the default-
@@ -94,10 +94,10 @@ extern s32 func_0017cd60(u8 *arg0);
 extern void func_0044ea90(const void *msg, s32 id);
 
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern f32 func_0044b7b0(f32 arg0);
-extern f32 func_0044b610(f32 arg0);
+extern f32 sinf(f32 arg0);
+extern f32 cosf(f32 arg0);
 extern f32 iGpffff8304;
-extern void func_003c2290(u8 *arg0, s32 arg1);
+extern void RpGeometryLock(u8 *arg0, s32 arg1);
 extern void func_003c22f0(u8 *arg0);
 extern u8 *func_0046a770(char *arg0);
 extern char D_005E5850[];
@@ -109,7 +109,7 @@ extern void (*jtbl_008873EC[])(void *);
 extern s32 func_0029d020(void);
 extern s32 func_00110f00(void);
 extern u8 *func_001452b0(s32 arg0);
-extern s32 func_00168ec0(void *arg0, void *arg1, void *arg2);
+extern s32 K_FldFrame_IsPointInTriangle(void *arg0, void *arg1, void *arg2);
 extern void func_0029cf50(s32 arg0);
 extern s32 func_00110fc0(void);
 extern s32 func_00174680(s32 arg0, s32 arg1, s32 arg2);
@@ -123,27 +123,27 @@ extern void func_0029dfe0(s32 arg0, s32 arg1);
 extern s32 func_00452490(s32 arg0);
 
 extern s32 func_0029cc00(s32 arg0);
-extern s64 func_00105ee0(s32 arg0);
+extern s64 datGetPartyId(s32 arg0);
 extern u8 *func_0029d040(void);
 extern void func_002bd240(s32 arg0);
 extern void func_002bd270(s32 arg0);
 extern void func_002bd280(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 *func_00457120(void);
-extern u8 *func_0047a2f0(void *arg0);
-extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
-extern s32 func_003e0380(f32 *arg0);
-extern u8 *func_003e03e0(void *arg0, f32 *arg1);
-extern u8 *func_003e05d0(void *arg0);
+extern u8 *mdlGetMatrix(void *arg0);
+extern void mdlScale(void *arg0, void *arg1, s32 arg2);
+extern s32 RwEngineGetMatrixTolerances(f32 *arg0);
+extern u8 *RwMatrixOptimize(void *arg0, f32 *arg1);
+extern u8 *RwMatrixUpdate(void *arg0);
 extern void func_004789c0(void *arg0);
 extern void func_0047a320(void *arg0);
 extern s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
                          s32 arg4, u8 *arg5, f32 arg6, f32 arg7);
 extern S_00178590 *func_00174c00(void);
-extern void func_003e40b0(void *arg0, void *arg1);
+extern void RwV3dNormalize(void *arg0, void *arg1);
 extern void func_003e42a0(void *dst, void *src, u8 *arg2);
 extern u8 D_007EFA00[];
-extern void func_00442088(void *dst, const void *src);
-extern s32 func_003f6440(s32 state, void *value);
+extern void sprintf(void *dst, const void *src);
+extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern s32 func_003ef6d0(void);
 extern s32 func_003ef650(s32 arg0, void *arg1);
 extern void func_0014def0(s32 arg0, s32 arg1,
@@ -161,14 +161,14 @@ extern u8 iGpffff9f54;
 extern void *func_0014ad50(void);
 extern u8 *func_003e81c0(u8 *, f32);
 extern u8 *func_003e8180(u8 *, f32);
-extern u8 *func_003e83a0(u8 *, const f32 *);
+extern u8 *RwCameraSetViewWindow(u8 *, const f32 *);
 extern u8 *func_003e9c10(u8 *, const f32 *, s32);
 extern u8 *func_003e9700(u8 *);
 extern u8 *func_003e0670(u8 *, u8 *);
-extern u8 *func_003e82a0(u8 *, void *, s32);
+extern u8 *RwCameraClear(u8 *, void *, s32);
 extern u32 func_003e8120(u32);
-extern void *func_0047a250(void *);
-extern void func_0047a220(u8 *, const void *);
+extern void *mdlGetColor(void *);
+extern void mdlSetColor(u8 *, const void *);
 extern f32 iGpffff826c;
 extern f32 iGpffff8214;
 extern f32 iGpffff8360;
@@ -234,14 +234,14 @@ s32 func_00170120(s32 arg0)
         return 1;
     temp_2 = iGpffff9db0;
     if (func_00162510(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4)) == 1)
-        return (func_003b7060() % 3U) + 6;
+        return (RpRandom() % 3U) + 6;
     temp_4 = iGpffff9db0;
     if ((*(s32 *)(temp_4 + 0) == 0x44) &&
         (*(s32 *)(temp_4 + 4) == 1))
-        return (func_003b7060() % 3U) + 6;
+        return (RpRandom() % 3U) + 6;
     if (func_0015a160() != 0)
         return 1;
-    return (func_003b7060() % 3U) + 6;
+    return (RpRandom() % 3U) + 6;
 }
 
 // FUN_00170960
@@ -308,7 +308,7 @@ s32 func_00170b50(u8 *arg0)
     u8 *temp;
 
     temp = *(u8 **)(arg0 + 0x38);
-    if (func_00106330(0x37) == 1) {
+    if (datGetFlag(0x37) == 1) {
         return 0;
     }
     if (D_008C024E[0] & 0x10) {
@@ -344,7 +344,7 @@ s32 func_00170bc0(u8 *arg0)
         if (func_00452490(*(s32 *)(temp_16 + 0x10)) != 1) {
             if (*(s32 *)(func_00155280() + 0x30) != 0)
                 func_0018a000(*(s32 *)(func_00155280() + 0x30), 0);
-            if (func_00106330(0x1401) != 0) {
+            if (datGetFlag(0x1401) != 0) {
                 func_0015a7c0(func_0015a160());
                 func_00106390(0x1401, 0);
                 temp_17 = func_0015a100();
@@ -440,7 +440,7 @@ s32 func_00170f60(u8 *arg0, s32 arg1)
     var_16 = func_001452b0(0xD);
     if ((func_0014a200() == 0) && (func_0014a270() == 0))
         return 0;
-    temp_2 = func_0047a2f0(*(u8 **)(arg0 + 0x50));
+    temp_2 = mdlGetMatrix(*(u8 **)(arg0 + 0x50));
     sp70 = *(Vec3_00178590 *)(temp_2 + 0x30);
     goto loop_21_cond;
 loop_21_body:
@@ -452,7 +452,7 @@ loop_21_body:
         sp60[0] = var_16 + 0x15C;
         sp60[1] = var_16 + 0x168;
         sp60[2] = var_16 + 0x174;
-        if ((func_00168ec0(&sp70, sp60, &sp50) == 1) &&
+        if ((K_FldFrame_IsPointInTriangle(&sp70, sp60, &sp50) == 1) &&
             (temp_f3 = *(f32 *)(sp60[0] + 4), (sp70.y < (200.0f + temp_f3))) &&
             !(sp70.y <= (temp_f3 - 200.0f))) {
             if (arg1 == 0) {
@@ -470,7 +470,7 @@ loop_21_found1:
         sp60[0] = var_16 + 0x168;
         sp60[1] = var_16 + 0x174;
         sp60[2] = var_16 + 0x180;
-        if ((func_00168ec0(&sp70, sp60, &sp50) == 1) &&
+        if ((K_FldFrame_IsPointInTriangle(&sp70, sp60, &sp50) == 1) &&
             (temp_f3_2 = *(f32 *)(sp60[0] + 4),
              (sp70.y < (200.0f + temp_f3_2))) &&
             !(sp70.y <= (temp_f3_2 - 200.0f))) {
@@ -759,7 +759,7 @@ s32 func_00176370(void) {
         return 0;
     }
     func_00260510();
-    func_0043f9c8(&sp1C, 0, 4);
+    memset(&sp1C, 0, 4);
     sp1C = func_0029cc00(0);
     func_001029a0(0xC, &sp1C, 4, 2);
     return 1;
@@ -784,7 +784,7 @@ s32 func_00176450(void)
         return 0;
     }
     func_00260510();
-    func_0043f9c8(sp10, 0, 0x1C);
+    memset(sp10, 0, 0x1C);
     sp10[0] = (s16)func_0029cc00(0);
     sp10[1] = (s16)func_0029cc00(1);
     sp10[2] = (s16)func_0029cc00(2);
@@ -802,7 +802,7 @@ s32 func_00176500(void)
     }
     func_00260510();
     *(s16 *)(iGpffff9db0 + 0x10) = -1;
-    func_0043f9c8(sp10, 0, 0x1C);
+    memset(sp10, 0, 0x1C);
     sp10[0] = (s16)func_0029cc00(0);
     sp10[1] = (s16)func_0029cc00(1);
     sp10[2] = (s16)func_0029cc00(2);
@@ -930,7 +930,7 @@ loop_8_body:
         var_5 = (var_5 != 0);
         if ((var_5 != 1) ||
             (temp_19 = *(u16 *)(temp_4 + 0x728),
-             temp_19 != (s16)func_00105ee0(var_17 - 1))) {
+             temp_19 != (s16)datGetPartyId(var_17 - 1))) {
             var_18 += 1;
             goto loop_8_cond;
         }
@@ -1051,16 +1051,16 @@ s32 func_00178590(void) {
     var_17 = 1;
     temp_2 = func_00174c00();
     if (temp_2 != NULL) {
-        temp_2_2 = func_0047a2f0(temp_2->field_144);
+        temp_2_2 = mdlGetMatrix(temp_2->field_144);
         sp40 = *(Vec3_00178590 *)(temp_2_2 + 0x20);
-        temp_f20 = *(f32 *)(func_0047a2f0(temp_2->field_144) + 0x30);
-        sp50.x = temp_f20 - *(f32 *)(func_0047a2f0(*(u8 **)D_007EFA00) + 0x30);
-        temp_f20_2 = *(f32 *)(func_0047a2f0(temp_2->field_144) + 0x34);
-        sp50.y = temp_f20_2 - *(f32 *)(func_0047a2f0(*(u8 **)D_007EFA00) + 0x34);
-        temp_f20_3 = *(f32 *)(func_0047a2f0(temp_2->field_144) + 0x38);
-        sp50.z = temp_f20_3 - *(f32 *)(func_0047a2f0(*(u8 **)D_007EFA00) + 0x38);
-        func_003e40b0(&sp50, &sp50);
-        func_003e40b0(&sp40, &sp40);
+        temp_f20 = *(f32 *)(mdlGetMatrix(temp_2->field_144) + 0x30);
+        sp50.x = temp_f20 - *(f32 *)(mdlGetMatrix(*(u8 **)D_007EFA00) + 0x30);
+        temp_f20_2 = *(f32 *)(mdlGetMatrix(temp_2->field_144) + 0x34);
+        sp50.y = temp_f20_2 - *(f32 *)(mdlGetMatrix(*(u8 **)D_007EFA00) + 0x34);
+        temp_f20_3 = *(f32 *)(mdlGetMatrix(temp_2->field_144) + 0x38);
+        sp50.z = temp_f20_3 - *(f32 *)(mdlGetMatrix(*(u8 **)D_007EFA00) + 0x38);
+        RwV3dNormalize(&sp50, &sp50);
+        RwV3dNormalize(&sp40, &sp40);
         if ((sp50.x * sp40.x + sp50.y * sp40.y + sp50.z * sp40.z) < 0.0f) {
             var_17 = 1;
         } else {
@@ -1264,7 +1264,7 @@ s32 func_00178c00(void)
 #ifdef NON_MATCHING
 #pragma opt_propagation off
 s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, u8 *arg5, f32 farg0, f32 farg1) {
-    extern u8 *func_00145270(s32 id);
+    extern u8 *MT_Scene_GetRes(s32 id);
     extern u8 *func_001791d0(u8 *arg0, u8 *arg1);
     extern void *func_00179f70(void *atomic, void *context);
     f32 f_vals[4];
@@ -1318,11 +1318,11 @@ s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, u8 *arg5, 
     f_vals[0] = tmp_f;
     f_vals[1] = tmp_f;
     f_vals[2] = 1.0f / (farg1 + f21);
-    func_003e0a90(arg5 + 0x5480, f_vals, 2);
+    RwMatrixScale(arg5 + 0x5480, f_vals, 2);
     e_vals[0] = 0x3F000000;
     e_vals[1] = 0x3F000000;
     e_vals[2] = 0;
-    func_003e0c90(arg5 + 0x5480, e_vals, 2);
+    RwMatrixTranslate(arg5 + 0x5480, e_vals, 2);
     *(s32 *)(arg5 + 0x54C4) = arg4;
     *(u8 *)(arg5 + 0x54C0) = (u8)(u32)(255.0f * f20);
     *(s32 *)(arg5 + 0x54C8) = 0;
@@ -1348,7 +1348,7 @@ check_second:
         goto alloc_path;
 alloc_path:
         {
-            alloc = func_00145270(0x400);
+            alloc = MT_Scene_GetRes(0x400);
             if (alloc == NULL) {
                 return 0;
             }
@@ -1358,7 +1358,7 @@ alloc_path:
             v1 = v1 * 0x10;
             cur = *(u16 *)(func_00155280() + v2 + v1 + 0x56);
             ids[0] = cur;
-            allocs[0] = func_00145270(cur);
+            allocs[0] = MT_Scene_GetRes(cur);
             if (allocs[0] != NULL) {
                 count++;
             }
@@ -1370,7 +1370,7 @@ alloc_path:
                 }
             }
             if (i >= count) {
-                allocs[count] = func_00145270(cur);
+                allocs[count] = MT_Scene_GetRes(cur);
                 if (allocs[count] != NULL) {
                     count++;
                 }
@@ -1383,7 +1383,7 @@ alloc_path:
                 }
             }
             if (i >= count) {
-                allocs[count] = func_00145270(cur);
+                allocs[count] = MT_Scene_GetRes(cur);
                 if (allocs[count] != NULL) {
                     count++;
                 }
@@ -1396,7 +1396,7 @@ alloc_path:
                 }
             }
             if (i >= count) {
-                allocs[count] = func_00145270(cur);
+                allocs[count] = MT_Scene_GetRes(cur);
                 if (allocs[count] != NULL) {
                     count++;
                 }
@@ -1409,7 +1409,7 @@ alloc_path:
                 }
             }
             if (i >= count) {
-                allocs[count] = func_00145270(cur);
+                allocs[count] = MT_Scene_GetRes(cur);
                 if (allocs[count] != NULL) {
                     count++;
                 }
@@ -1481,17 +1481,17 @@ void func_0017a700(u8 *arg0, u8 *arg1)
     sp40.type = 4;
     temp_f20 = *(f32 *)(arg1 + 0x18);
     sp40.values[0] = temp_f20 +
-                     *(f32 *)(func_0047a2f0(*(u8 **)(arg1 + 0x10)) + 0x30);
+                     *(f32 *)(mdlGetMatrix(*(u8 **)(arg1 + 0x10)) + 0x30);
     sp40.values[1] = temp_f20 +
-                     *(f32 *)(func_0047a2f0(*(u8 **)(arg1 + 0x10)) + 0x34);
+                     *(f32 *)(mdlGetMatrix(*(u8 **)(arg1 + 0x10)) + 0x34);
     sp40.values[2] = temp_f20 +
-                     *(f32 *)(func_0047a2f0(*(u8 **)(arg1 + 0x10)) + 0x38);
+                     *(f32 *)(mdlGetMatrix(*(u8 **)(arg1 + 0x10)) + 0x38);
     sp40.values[3] =
-        *(f32 *)(func_0047a2f0(*(u8 **)(arg1 + 0x10)) + 0x30) - temp_f20;
+        *(f32 *)(mdlGetMatrix(*(u8 **)(arg1 + 0x10)) + 0x30) - temp_f20;
     sp40.values[4] =
-        *(f32 *)(func_0047a2f0(*(u8 **)(arg1 + 0x10)) + 0x34) - temp_f20;
+        *(f32 *)(mdlGetMatrix(*(u8 **)(arg1 + 0x10)) + 0x34) - temp_f20;
     sp40.values[5] =
-        *(f32 *)(func_0047a2f0(*(u8 **)(arg1 + 0x10)) + 0x38) - temp_f20;
+        *(f32 *)(mdlGetMatrix(*(u8 **)(arg1 + 0x10)) + 0x38) - temp_f20;
     if (temp_17 != NULL) {
         if ((*(s32 *)(*(u8 **)(temp_17 + 0x1A0)) & 1) != 0) {
             func_00179fc0(*(u8 **)(arg1 + 0x44),
@@ -1504,7 +1504,7 @@ void func_0017a700(u8 *arg0, u8 *arg1)
                           *(f32 *)(arg1 + 0x18) / 2.0f);
         } else {
             sp40.type = 3;
-            temp_2 = func_0047a2f0(*(u8 **)(arg1 + 0x10));
+            temp_2 = mdlGetMatrix(*(u8 **)(arg1 + 0x10));
             temp_3 = sp40.values;
             temp_f2 = *(f32 *)(temp_2 + 0x30);
             temp_f1 = *(f32 *)(temp_2 + 0x34);
@@ -1562,7 +1562,7 @@ void func_0017a8d0(u8 *arg0, u8 *arg1)
             var_2 -= 1;
         } while (var_2 != 0);
     }
-    var_2_2 = func_0047a2f0(*(u8 **)(arg1 + 0x10));
+    var_2_2 = mdlGetMatrix(*(u8 **)(arg1 + 0x10));
     var_6 = arg1 + 0x80;
     var_5 = 8;
     do {
@@ -1613,18 +1613,18 @@ loop_11_cond:
     if (var_4_2 < 5)
         goto loop_11_body;
     *(s32 *)(*(u8 **)(arg1 + 0x10) + 0xD8) |= 4;
-    func_0047a1e0(*(u8 **)(arg1 + 0x10), stack + 0x50, 2);
-    temp_2_2 = func_0047a2f0(*(u8 **)(arg1 + 0x10));
+    mdlScale(*(u8 **)(arg1 + 0x10), stack + 0x50, 2);
+    temp_2_2 = mdlGetMatrix(*(u8 **)(arg1 + 0x10));
     temp_f1 = *(f32 *)(stack + 0x30);
     temp_f0 = *(f32 *)(stack + 0x34);
     temp_f2 = *(f32 *)(stack + 0x38);
     *(f32 *)(temp_2_2 + 0x30) = temp_f1;
     *(f32 *)(temp_2_2 + 0x34) = temp_f0;
     *(f32 *)(temp_2_2 + 0x38) = temp_f2;
-    func_003e0380((f32 *)(stack + 0x40));
-    func_003e03e0(func_0047a2f0(*(u8 **)(arg1 + 0x10)),
+    RwEngineGetMatrixTolerances((f32 *)(stack + 0x40));
+    RwMatrixOptimize(mdlGetMatrix(*(u8 **)(arg1 + 0x10)),
                   (f32 *)(stack + 0x40));
-    func_003e05d0(func_0047a2f0(*(u8 **)(arg1 + 0x10)));
+    RwMatrixUpdate(mdlGetMatrix(*(u8 **)(arg1 + 0x10)));
     *(s32 *)(*(u8 **)(arg1 + 0x10) + 0xD8) |= 0x40;
     func_004789c0(*(u8 **)(arg1 + 0x10));
     func_0047a320(*(u8 **)(arg1 + 0x10));
@@ -1645,7 +1645,7 @@ void func_0017aae0(u8 *arg0, u8 *arg1)
     temp_4 = *(u8 **)(arg1 + 0x10);
     *(s32 *)(temp_4 + 0xD8) &= ~0x40;
     D_00887300[0](0x14, 2);
-    var_2 = func_0047a2f0(*(u8 **)(arg1 + 0x10));
+    var_2 = mdlGetMatrix(*(u8 **)(arg1 + 0x10));
     var_5 = arg1 + 0x80;
     var_5_2 = 8;
     do {
@@ -1686,8 +1686,8 @@ void func_0017abd0(u8 *arg0, u8 *arg1)
     if (iGpffffba48 == 1) {
         base[0](0xE, 1);
     }
-    func_003f6440(2, (void *)0x44);
-    func_003f6440(3, (void *)0x717FB);
+    RpSkyRenderStateSet(2, (void *)0x44);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
     temp_4 = *(u8 **)(*(u8 **)(arg1 + 0x50) + 4);
     (*(void (**)(u8 *))(temp_4 + 0x48))(temp_4);
     if (iGpffffba48 == 1) {
@@ -1704,9 +1704,9 @@ void func_0017abd0(u8 *arg0, u8 *arg1)
 s32 func_0017acc0(u8 *arg0)
 {
     extern s32 func_004782b0(u8 *arg0, s32 arg1, s32 arg2);
-    extern void *func_0043f9c8(void *dst, s32 value, s32 size);
+    extern void *memset(void *dst, s32 value, s32 size);
     extern void func_003bff30(void *arg0, void (*arg1)(), void *arg2);
-    extern s32 func_0047a310(u8 *arg0);
+    extern s32 mdlGetClump(u8 *arg0);
     extern void func_0047a810(u8 *arg0);
     extern u8 *func_003c4140(void);
     extern u8 *func_003c2630(s32 a0, s32 a1, s32 a2);
@@ -1718,16 +1718,16 @@ s32 func_0017acc0(u8 *arg0)
     extern void func_003c0210(u8 *a0, u8 *a1, s32 a2);
     extern void func_003c2a80(u8 *a0);
     extern s32 func_003e9320(void);
-    extern void func_003c1b90(u8 *a0, s32 a1);
+    extern void RpAtomicSetFrame(u8 *a0, s32 a1);
     extern void func_003e9df0(u8 *a0);
     extern u8 *func_00460990(s32 a0, s32 a1, s32 a2);
     extern u8 *func_00460990_0(void);
     extern void func_00460ac0(u8 *a0, u8 *a1);
     extern void func_00479100(u8 *a0, u8 *a1);
-    extern u8 *func_0047a2f0(u8 *a0, s32 a1, s32 a2);
+    extern u8 *mdlGetMatrix(u8 *a0, s32 a1, s32 a2);
     extern void func_003e9c10(u8 *a0, void *a1, s32 a2);
-    extern f32 func_0044b610(f32 a0);
-    extern f32 func_0044b7b0(f32 a0);
+    extern f32 cosf(f32 a0);
+    extern f32 sinf(f32 a0);
     extern void func_00179130(void);
     extern void func_0017a700(u8 *a0);
     extern void func_0017a8d0(u8 *a0);
@@ -1790,7 +1790,7 @@ s32 func_0017acc0(u8 *arg0)
             } else if (sub == 3) {
                 u8 *tmp;
                 f32 spA0[3];
-                tmp = func_0047a2f0(*(u8 **)(ctx + 0x10), state, 1);
+                tmp = mdlGetMatrix(*(u8 **)(ctx + 0x10), state, 1);
                 spA0[0] = (f32)*(s32 *)(tmp + 0x30);
                 spA0[1] = (f32)*(s32 *)(tmp + 0x34);
                 spA0[2] = (f32)*(s32 *)(tmp + 0x38);
@@ -1815,8 +1815,8 @@ s32 func_0017acc0(u8 *arg0)
                 if (func_004782b0(*(u8 **)(ctx + 0x10), state, 1) != 0) {
                     u8 sp80[0x18];
                     u8 *h;
-                    func_0043f9c8(sp80, 0, 0x18);
-                    h = (u8 *)func_0047a310(*(u8 **)(ctx + 0x10));
+                    memset(sp80, 0, 0x18);
+                    h = (u8 *)mdlGetClump(*(u8 **)(ctx + 0x10));
                     func_003bff30(h, func_00179130, sp80);
                     *(u8 **)(ctx + 0x14) = *(u8 **)(sp80 + 0x14);
                     *(s32 *)(ctx + 0x18) = 0x42B40000;
@@ -1870,17 +1870,17 @@ s32 func_0017acc0(u8 *arg0)
                         for (j = 0; j < 0x20; j++) {
                             u8 *ee;
                             ee = (u8 *)((s32)arr + j * 12);
-                            *(f32 *)(ee + 0xC) = *(f32 *)(*(u8 **)(ctx + 0x50)) * func_0044b610(ang);
+                            *(f32 *)(ee + 0xC) = *(f32 *)(*(u8 **)(ctx + 0x50)) * cosf(ang);
                             *(f32 *)(ee + 0x10) = base;
-                            *(f32 *)(ee + 0x14) = *(f32 *)(*(u8 **)(ctx + 0x50)) * func_0044b7b0(ang);
+                            *(f32 *)(ee + 0x14) = *(f32 *)(*(u8 **)(ctx + 0x50)) * sinf(ang);
                             ang += fGpffff82bc;
                         }
                         {
                             u8 *ee;
                             ee = (u8 *)((s32)arr + j * 12);
-                            *(f32 *)(ee + 0xC) = *(f32 *)(*(u8 **)(ctx + 0x50)) * func_0044b610(0.0f);
+                            *(f32 *)(ee + 0xC) = *(f32 *)(*(u8 **)(ctx + 0x50)) * cosf(0.0f);
                             *(f32 *)(ee + 0x10) = base;
-                            *(f32 *)(ee + 0x14) = *(f32 *)(*(u8 **)(ctx + 0x50)) * func_0044b7b0(0.0f);
+                            *(f32 *)(ee + 0x14) = *(f32 *)(*(u8 **)(ctx + 0x50)) * sinf(0.0f);
                         }
                     }
                     {
@@ -1927,7 +1927,7 @@ s32 func_0017acc0(u8 *arg0)
                         }
                         func_003c0210(*(u8 **)(*(u8 **)(ctx + 0x50) + 4), tbl, 0);
                         func_003c2a80(tbl);
-                        func_003c1b90(*(u8 **)(*(u8 **)(ctx + 0x50) + 4), func_003e9320());
+                        RpAtomicSetFrame(*(u8 **)(*(u8 **)(ctx + 0x50) + 4), func_003e9320());
                         func_003e9df0(*(u8 **)(*(u8 **)(*(u8 **)(ctx + 0x50) + 4) + 4));
                         *(s32 *)ctx = *(s32 *)ctx + 1;
                     }
@@ -2001,10 +2001,10 @@ extern u8 *func_003ec590(s32 width, s32 height, s32 depth, s32 flags);
 extern u8 *func_003e84a0(void);
 extern u8 *func_003e9320(void);
 extern void *func_003e9df0(void *frame);
-extern void *func_003e8310(void *camera, s32 projection);
+extern void *RwCameraSetProjectionType(void *camera, s32 projection);
 extern void func_001790a0(void *camera);
 extern void *func_003cbc10(s32 world, void *camera);
-extern u8 *func_00145270(s32 id);
+extern u8 *MT_Scene_GetRes(s32 id);
 extern f32 fabsf(f32 x);
 extern s32 func_0017acc0(u8 *task);
 
@@ -2102,7 +2102,7 @@ void *func_0017b510(u8 *arg0, s32 arg1, s32 arg2)
                 zRaster = func_003ec590(128, 128, 0, 1);
                 if (zRaster != NULL) {
                     *(u8 **)(camera + 0x64) = zRaster;
-                    func_003e8310(camera, 2);
+                    RwCameraSetProjectionType(camera, 2);
                     goto camera_registered;
                 }
             }
@@ -2134,14 +2134,14 @@ camera_registered:
     }
 
     if ((((u16)arg1 & 0xFFC00) >> 10) == 1) {
-        obj = func_00145270(arg1);
+        obj = MT_Scene_GetRes(arg1);
         *(u8 **)(data + 0xC) = obj;
         if (obj == NULL) {
             func_0046d730(D_005F18C0, 0x63F);
         }
         *(void **)(data + 0x10) = *(void **)(obj + 0x164);
     } else if ((((u16)arg1 & 0xFFC00) >> 10) == 3) {
-        obj = func_00145270(arg1);
+        obj = MT_Scene_GetRes(arg1);
         *(u8 **)(data + 0xC) = obj;
         if (obj == NULL) {
             func_0046d730(D_005F18C0, 0x648);
@@ -2176,7 +2176,7 @@ void func_0017b9a0(u8 *arg0, f32 fparg0)
         object = *(s32 *)(*(s32 *)(state + 0x50) + 4);
         if (object != 0) {
             object = *(s32 *)(object + 0x18);
-            func_003c2290((u8 *)object, 0xFFF);
+            RpGeometryLock((u8 *)object, 0xFFF);
             if (((*(u16 *)(state + 8) & 0xFFC00) >> 10) == 1)
                 speed = 5.0f;
             else
@@ -2189,17 +2189,17 @@ void func_0017b9a0(u8 *arg0, f32 fparg0)
             for (index = 0; index < 0x20; index++) {
                 entry = (f32 *)((u8 *)particles + index * 0xC);
                 entry[3] =
-                    *(f32 *)(*(s32 *)(state + 0x50)) * func_0044b610(angle);
+                    *(f32 *)(*(s32 *)(state + 0x50)) * cosf(angle);
                 entry[4] = speed;
                 entry[5] =
-                    *(f32 *)(*(s32 *)(state + 0x50)) * func_0044b7b0(angle);
+                    *(f32 *)(*(s32 *)(state + 0x50)) * sinf(angle);
                 angle += iGpffff8304;
             }
             particles[index * 3 + 3] =
-                *(f32 *)(*(s32 *)(state + 0x50)) * func_0044b610(0.0f);
+                *(f32 *)(*(s32 *)(state + 0x50)) * cosf(0.0f);
             particles[index * 3 + 4] = speed;
             particles[index * 3 + 5] =
-                *(f32 *)(*(s32 *)(state + 0x50)) * func_0044b7b0(0.0f);
+                *(f32 *)(*(s32 *)(state + 0x50)) * sinf(0.0f);
             func_003c22f0((u8 *)object);
         }
     }
@@ -2260,7 +2260,7 @@ void func_0017bc60(u8 *unused, u8 *state)
     data = *(u8 **)(*(u8 **)(state + 0x224) + 0x38);
     camera = *(u8 **)(data + 0x44);
     height = *(f32 *)(data + 0x18);
-    position = *(Vec3_00178590 *)(func_0047a2f0(*(void **)(state + 0x164)) + 0x30);
+    position = *(Vec3_00178590 *)(mdlGetMatrix(*(void **)(state + 0x164)) + 0x30);
     if (*(s32 *)(*(u8 **)(*(u8 **)(state + 0x224) + 0x38)) > 0) {
         if (*(u32 *)(state + 0x28) & 0x80000000U) {
             frameSlot = (u8 **)(camera + 4);
@@ -2268,9 +2268,9 @@ void func_0017bc60(u8 *unused, u8 *state)
             *(Vec3_00178590 *)(frame + 0x10) = *(Vec3_00178590 *)(state + 0x190);
             *(Vec3_00178590 *)(frame + 0x20) = *(Vec3_00178590 *)(state + 0x1A0);
             *(Vec3_00178590 *)(frame + 0x30) = *(Vec3_00178590 *)(state + 0x1B0);
-            func_003e0380(localTolerance);
-            func_003e03e0(frame + 0x10, localTolerance);
-            func_003e05d0(frame + 0x10);
+            RwEngineGetMatrixTolerances(localTolerance);
+            RwMatrixOptimize(frame + 0x10, localTolerance);
+            RwMatrixUpdate(frame + 0x10);
         } else {
             u8 *basis = func_0014ad50();
             frameSlot = (u8 **)(camera + 4);
@@ -2278,9 +2278,9 @@ void func_0017bc60(u8 *unused, u8 *state)
             *(Vec3_00178590 *)(frame + 0x10) = *(Vec3_00178590 *)(basis + 0);
             *(Vec3_00178590 *)(frame + 0x20) = *(Vec3_00178590 *)(basis + 0x10);
             *(Vec3_00178590 *)(frame + 0x30) = *(Vec3_00178590 *)(basis + 0x20);
-            func_003e0380(sceneTolerance);
-            func_003e03e0(frame + 0x10, sceneTolerance);
-            func_003e05d0(frame + 0x10);
+            RwEngineGetMatrixTolerances(sceneTolerance);
+            RwMatrixOptimize(frame + 0x10, sceneTolerance);
+            RwMatrixUpdate(frame + 0x10);
         }
         scaledHeight = iGpffff826c * height;
         func_003e81c0(camera, 10.0f * scaledHeight);
@@ -2292,7 +2292,7 @@ void func_0017bc60(u8 *unused, u8 *state)
             viewWindow[0] = iGpffff8360 * (iGpffff826c * height);
             viewWindow[1] = viewWindow[0];
         }
-        func_003e83a0(camera, viewWindow);
+        RwCameraSetViewWindow(camera, viewWindow);
         position.y += height / 2.0f;
         frame = *frameSlot;
         translation.x = -*(f32 *)(frame + 0x40);
@@ -2309,11 +2309,11 @@ void func_0017bc60(u8 *unused, u8 *state)
             u8 *matrix = func_003e9700(frame);
             func_003e0670(matrix, matrix);
         }
-        func_003e82a0(camera, &iGpffffb308, 3);
+        RwCameraClear(camera, &iGpffffb308, 3);
         if (func_003e8120((u32)camera)) {
             FieldColor_0017 *savedColor = (FieldColor_0017 *)(*(u8 **)(*(u8 **)(state + 0x224) + 0x38) + 0x48);
-            *savedColor = *(FieldColor_0017 *)func_0047a250(*(void **)(state + 0x164));
-            func_0047a220(*(u8 **)(state + 0x164), &iGpffff9f4c);
+            *savedColor = *(FieldColor_0017 *)mdlGetColor(*(void **)(state + 0x164));
+            mdlSetColor(*(u8 **)(state + 0x164), &iGpffff9f4c);
         } else {
             func_0046d730(D_005F18C0, 0x764);
         }
@@ -2348,22 +2348,22 @@ void func_0017c010(u8 *packet, s32 stateAddress, void *callbackSelf)
         (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEZWRITEENABLE, (void *)0);
         (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATESHADEMODE, (void *)2);
         (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATETEXTURERASTER, (void *)0);
-        func_003f6440(2, (void *)0x44);
-        func_003f6440(3, (void *)0x717FB);
+        RpSkyRenderStateSet(2, (void *)0x44);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
         constant = (void *)D_008872F8;
         K_FldShadow_Draw(0.0f, 0.0f, 128.0f, 48.0f,
                          (const RwRGBA *)D_005F18F0, (const RwRGBA *)D_005F18F4,
                          *(f32 *)constant, 1.0f / *(f32 *)(camera + 0x80));
-        func_003f6440(2, (void *)0x44);
-        func_003f6440(3, (void *)0x3C803);
+        RpSkyRenderStateSet(2, (void *)0x44);
+        RpSkyRenderStateSet(3, (void *)0x3C803);
         K_FldShadow_Draw(0.0f, 48.0f, 128.0f, 76.0f,
                          (const RwRGBA *)D_005F18F4, (const RwRGBA *)D_005F18F8,
                          *(f32 *)constant, 1.0f / *(f32 *)(camera + 0x80));
         K_FldShadow_Draw(0.0f, 76.0f, 128.0f, 128.0f,
                          (const RwRGBA *)D_005F18F8, (const RwRGBA *)D_005F18FC,
                          *(f32 *)constant, 1.0f / *(f32 *)(camera + 0x80));
-        func_003f6440(2, (void *)0x44);
-        func_003f6440(3, (void *)0x717FB);
+        RpSkyRenderStateSet(2, (void *)0x44);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
         (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATECULLMODE, (void *)2);
         if (iGpffffba48 == 1)
             (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEFOGENABLE, (void *)1);
@@ -2394,7 +2394,7 @@ void func_0017c270(u8 *unused, u8 *state)
     data = *(u8 **)(*(u8 **)(state + 0x230) + 0x38);
     camera = *(u8 **)(data + 0x44);
     height = *(f32 *)(data + 0x18);
-    position = *(Vec3_00178590 *)(func_0047a2f0(*(void **)(state + 0x164)) + 0x30);
+    position = *(Vec3_00178590 *)(mdlGetMatrix(*(void **)(state + 0x164)) + 0x30);
     if (*(s32 *)(*(u8 **)(*(u8 **)(state + 0x230) + 0x38)) > 0) {
         if (*(u32 *)(state + 0x28) & 0x80000000U) {
             frameSlot = (u8 **)(camera + 4);
@@ -2402,9 +2402,9 @@ void func_0017c270(u8 *unused, u8 *state)
             *(Vec3_00178590 *)(frame + 0x10) = *(Vec3_00178590 *)(state + 0x190);
             *(Vec3_00178590 *)(frame + 0x20) = *(Vec3_00178590 *)(state + 0x1A0);
             *(Vec3_00178590 *)(frame + 0x30) = *(Vec3_00178590 *)(state + 0x1B0);
-            func_003e0380(localTolerance);
-            func_003e03e0(frame + 0x10, localTolerance);
-            func_003e05d0(frame + 0x10);
+            RwEngineGetMatrixTolerances(localTolerance);
+            RwMatrixOptimize(frame + 0x10, localTolerance);
+            RwMatrixUpdate(frame + 0x10);
         } else {
             u8 *basis = func_0014ad50();
             frameSlot = (u8 **)(camera + 4);
@@ -2412,9 +2412,9 @@ void func_0017c270(u8 *unused, u8 *state)
             *(Vec3_00178590 *)(frame + 0x10) = *(Vec3_00178590 *)(basis + 0);
             *(Vec3_00178590 *)(frame + 0x20) = *(Vec3_00178590 *)(basis + 0x10);
             *(Vec3_00178590 *)(frame + 0x30) = *(Vec3_00178590 *)(basis + 0x20);
-            func_003e0380(sceneTolerance);
-            func_003e03e0(frame + 0x10, sceneTolerance);
-            func_003e05d0(frame + 0x10);
+            RwEngineGetMatrixTolerances(sceneTolerance);
+            RwMatrixOptimize(frame + 0x10, sceneTolerance);
+            RwMatrixUpdate(frame + 0x10);
         }
         scaledHeight = iGpffff826c * height;
         func_003e81c0(camera, 10.0f * scaledHeight);
@@ -2426,7 +2426,7 @@ void func_0017c270(u8 *unused, u8 *state)
             viewWindow[0] = iGpffff8360 * (iGpffff826c * height);
             viewWindow[1] = viewWindow[0];
         }
-        func_003e83a0(camera, viewWindow);
+        RwCameraSetViewWindow(camera, viewWindow);
         position.y += height / 2.0f;
         frame = *frameSlot;
         translation.x = -*(f32 *)(frame + 0x40);
@@ -2443,11 +2443,11 @@ void func_0017c270(u8 *unused, u8 *state)
             u8 *matrix = func_003e9700(frame);
             func_003e0670(matrix, matrix);
         }
-        func_003e82a0(camera, &iGpffffb30c, 3);
+        RwCameraClear(camera, &iGpffffb30c, 3);
         if (func_003e8120((u32)camera)) {
             FieldColor_0017 *savedColor = (FieldColor_0017 *)(*(u8 **)(*(u8 **)(state + 0x230) + 0x38) + 0x48);
-            *savedColor = *(FieldColor_0017 *)func_0047a250(*(void **)(state + 0x164));
-            func_0047a220(*(u8 **)(state + 0x164), &iGpffff9f50);
+            *savedColor = *(FieldColor_0017 *)mdlGetColor(*(void **)(state + 0x164));
+            mdlSetColor(*(u8 **)(state + 0x164), &iGpffff9f50);
             for (i = 0; i < 5; i++) {
                 *(u8 *)(*(u8 **)(state + 0x164) + i * 0xC + 0x28C) &= ~1;
             }
@@ -2492,22 +2492,22 @@ void func_0017c670(u8 *packet, s32 stateAddress, void *callbackSelf)
         (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEZWRITEENABLE, (void *)0);
         (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATESHADEMODE, (void *)2);
         (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATETEXTURERASTER, (void *)0);
-        func_003f6440(2, (void *)0x44);
-        func_003f6440(3, (void *)0x717FB);
+        RpSkyRenderStateSet(2, (void *)0x44);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
         constant = (void *)D_008872F8;
         K_FldShadow_Draw(0.0f, 0.0f, 128.0f, 48.0f,
                          (const RwRGBA *)D_005F1900, (const RwRGBA *)D_005F1904,
                          *(f32 *)constant, 1.0f / *(f32 *)(matrix + 0x80));
-        func_003f6440(2, (void *)0x44);
-        func_003f6440(3, (void *)0x3C803);
+        RpSkyRenderStateSet(2, (void *)0x44);
+        RpSkyRenderStateSet(3, (void *)0x3C803);
         K_FldShadow_Draw(0.0f, 48.0f, 128.0f, 76.0f,
                          (const RwRGBA *)D_005F1904, (const RwRGBA *)D_005F1908,
                          *(f32 *)constant, 1.0f / *(f32 *)(matrix + 0x80));
         K_FldShadow_Draw(0.0f, 76.0f, 128.0f, 128.0f,
                          (const RwRGBA *)D_005F1908, (const RwRGBA *)D_005F190C,
                          *(f32 *)constant, 1.0f / *(f32 *)(matrix + 0x80));
-        func_003f6440(2, (void *)0x44);
-        func_003f6440(3, (void *)0x717FB);
+        RpSkyRenderStateSet(2, (void *)0x44);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
         (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATECULLMODE, (void *)2);
         if (iGpffffba48 == 1)
             (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEFOGENABLE, (void *)1);
@@ -2669,7 +2669,7 @@ s32 func_0017cd60(u8 *arg0)
     case 1:
         counter = *(u16 *)(work + 0x10);
         frame = (f32)(u16)counter;
-        easing = func_0044b7b0((iGpffff82fc * frame) / 15.0f);
+        easing = sinf((iGpffff82fc * frame) / 15.0f);
         inverse = 1.0f - easing;
         func_0025ecd0((f32)(*(u16 *)(work + 0xC) + 10),
                       (f32)(*(u16 *)(work + 0xE) + 25), 1000.0f,
@@ -2708,7 +2708,7 @@ void func_0017d060(u8 *arg0)
 // FUN_0017D070
 s32 func_0017d070(u8 *arg0)
 {
-    func_0043f9c8(D_007F1740, 0, 0x20);
+    memset(D_007F1740, 0, 0x20);
     return (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1950), 0x12, 0, 0, func_0017cd60, func_0017d060, (u8 *)(D_007F1740));
 }
 // FUN_0017D0F0
@@ -2728,7 +2728,7 @@ void func_0017d100(u8 *arg0)
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     temp_17 = (s32)(func_00457120() + 0x20);
-    func_003e42a0(&sp30, func_0047a2f0(*(u8 **)D_007EFA00) + 0x30, (u8 *)temp_17);
+    func_003e42a0(&sp30, mdlGetMatrix(*(u8 **)D_007EFA00) + 0x30, (u8 *)temp_17);
     temp_f1 = 640.0f * (sp30.first / sp30.second);
     if (temp_f1 <= 100.0f) {
         var_3 = 0;
@@ -2788,9 +2788,9 @@ void func_0017d240(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
     local_5 = arg5;
     local_4 = arg6;
     if (arg3 == 0) {
-        func_00442088(spA0.data, D_005F1AE0);
+        sprintf(spA0.data, D_005F1AE0);
     } else {
-        func_00442088(spA0.data, D_005F1B00);
+        sprintf(spA0.data, D_005F1B00);
     }
     temp_18 = local_2 * 0x10;
     temp_f21 = (f32)local_6;

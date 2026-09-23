@@ -201,7 +201,7 @@ s32 func_001ec8c0(f32* first, f32* second, f32* point, f32 threshold)
 // FUN_001ECA10
 s32 func_001eca10(u8 *first, u8 *second)
 {
-    extern f32 func_003e41b0(const f32 *vector);
+    extern f32 RwV2dLength(const f32 *vector);
     u8 *node;
     s32 blocked;
     s32 i;
@@ -238,14 +238,14 @@ s32 func_001eca10(u8 *first, u8 *second)
             midpointY = (f32 *)(vertex + 0x14);
             coordinate = *midpointY;
             delta[1] = coordinate - *(f32 *)(first + 0xC);
-            if (func_003e41b0(delta) < 1.0f) {
+            if (RwV2dLength(delta) < 1.0f) {
                 continue;
             }
             coordinate = *midpointX;
             delta[0] = coordinate - *(f32 *)(second + 8);
             coordinate = *midpointY;
             delta[1] = coordinate - *(f32 *)(second + 0xC);
-            if (func_003e41b0(delta) < 1.0f) {
+            if (RwV2dLength(delta) < 1.0f) {
                 continue;
             }
             next = *(f32 **)(node + i * 0x130 + 0x18);

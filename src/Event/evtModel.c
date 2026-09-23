@@ -51,15 +51,15 @@ extern f32 fGpffff8514; /* gp -0x7aec */
 extern f32 D_00761260;  /* gp -0x7e90 */
 
 extern s32 func_00291a60(u32 id);
-extern void *func_00145270(u32 id);
+extern void *MT_Scene_GetRes(u32 id);
 
 extern u8 *func_002e1db0(s32 a, s32 b, s32 c, s32 d);
 extern void func_002e1ef0(void *a);
 extern u8 *func_002e2170(void *a, s32 b, s32 c);
 extern void func_002e2240(void *a, void *b, void *c);
-extern void func_003e40b0(void *a, void *b);
-extern void func_0043f810(void *dst, void *src, s32 size);
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern void RwV3dNormalize(void *a, void *b);
+extern void memcpy(void *dst, void *src, s32 size);
+extern void memset(void *dst, s32 value, s32 size);
 extern s32 func_0044b310(s32 a);
 extern f32 func_0044b920(f32 a);
 extern s32 func_0044dcd8(f32 a);
@@ -67,7 +67,7 @@ extern f32 func_0044e7d8(s32 a);
 
 extern u8 **func_00452560();
 extern void func_0046d730(void *file, s32 line);
-extern void *func_0047a2f0(s32 a);
+extern void *mdlGetMatrix(s32 a);
 extern void func_0047a890(s32 a, f32 b);
 extern void func_0047a900(s32 a, void *b);
 extern void func_0047a950(s32 a, f32 b, f32 c);
@@ -525,9 +525,9 @@ s32 func_00292bb0(s32 arg0, u8 *arg1) {
     }
     var_3 = (u32)rec->timer2;
     if (var_3 == 0) {
-        temp_2 = (u8 *)func_0047a2f0(handle1);
+        temp_2 = (u8 *)mdlGetMatrix(handle1);
         *(F32x3 *)(sp + 0x20) = *(F32x3 *)(temp_2 + 0x30);
-        temp_2_2 = (u8 *)func_0047a2f0(handle2);
+        temp_2_2 = (u8 *)mdlGetMatrix(handle2);
         *(F32x3 *)(sp + 0x10) = *(F32x3 *)(temp_2_2 + 0x30);
         temp_f2 = *(f32 *)(sp + 0x10) - *(f32 *)(sp + 0x20);
         *(f32 *)(sp + 0x20) = temp_f2;
@@ -541,7 +541,7 @@ s32 func_00292bb0(s32 arg0, u8 *arg1) {
         if ((f32)var_2 == 0.0f) {
             *(f32 *)(sp + 0x28) = 1.0f;
         }
-        func_003e40b0(sp + 0x20, sp + 0x20);
+        RwV3dNormalize(sp + 0x20, sp + 0x20);
         func_0047a900(handle1, sp + 0x20);
         var_f12 = fGpffff8218 * temp_f20;
         if (!(var_f12 <= 1.0f)) {
@@ -555,14 +555,14 @@ s32 func_00292bb0(s32 arg0, u8 *arg1) {
         if (func_0047a9d0(handle1) == 0) {
             return 1;
         }
-        temp_2_3 = (u8 *)func_0047a2f0(handle1);
+        temp_2_3 = (u8 *)mdlGetMatrix(handle1);
         *(F32x3 *)(sp + 0x20) = *(F32x3 *)(temp_2_3 + 0x30);
-        temp_2_4 = (u8 *)func_0047a2f0(handle2);
+        temp_2_4 = (u8 *)mdlGetMatrix(handle2);
         *(F32x3 *)(sp + 0x00) = *(F32x3 *)(temp_2_4 + 0x30);
         *(f32 *)(sp + 0x20) = *(f32 *)(sp + 0x00) - *(f32 *)(sp + 0x20);
         *(f32 *)(sp + 0x28) = *(f32 *)(sp + 0x08) - *(f32 *)(sp + 0x28);
         *(u32 *)(sp + 0x24) = 0;
-        func_003e40b0(sp + 0x20, sp + 0x20);
+        RwV3dNormalize(sp + 0x20, sp + 0x20);
         func_0047a900(handle1, sp + 0x20);
         var_f12_2 = fGpffff8218 * temp_f20;
         if (!(var_f12_2 <= 1.0f)) {
@@ -602,7 +602,7 @@ big:
     var_3 = (s32)(rec->timer2 - 2.1474836e9f) | 0x80000000;
 done:
     if (var_3 == 0) {
-        func_00269820(func_00145270(id), 0, 1, 5, 0, 0, 1.0f);
+        func_00269820(MT_Scene_GetRes(id), 0, 1, 5, 0, 0, 1.0f);
     } else if (var_3 == 5) {
         sp.x = 0.0f;
         sp.y = rec->posX;
@@ -616,7 +616,7 @@ done:
             func_0026bda0(id, 2, sound, start, end, flags);
         }
     } else if (var_3 == 25) {
-        func_00269820(func_00145270(id), 0, 0, 5, 1, 0, 1.0f);
+        func_00269820(MT_Scene_GetRes(id), 0, 0, 5, 1, 0, 1.0f);
         return 1;
     }
     rec->timer2 += 1.0f;
@@ -745,7 +745,7 @@ void func_002933a0(u16 arg0, s32 arg1, f32 fparg0) {
         var_2 = (s32)func_00451de0((const void *)(D_0063C958), 0xF, 0, 0, func_002930e0, func_002931a0, (u8 *)(temp_10));
     }
     temp_17 = (u8 **)func_00452560(var_2);
-    func_0043f9c8(sp, 0, 0x2C);
+    memset(sp, 0, 0x2C);
     *(s16 *)(sp + 0) = arg0;
     *(s32 *)(sp + 4) = arg1;
     *(f32 *)(sp + 8) = fparg0;
@@ -767,7 +767,7 @@ void func_002933a0(u16 arg0, s32 arg1, f32 fparg0) {
     }
     temp_4 = (u8 *)*temp_17;
     temp_16 = (u8 *)((u8 **)func_002e2170(temp_4, *(u16 *)(temp_4 + 0x10) + 1, 0x4C))[5];
-    func_0043f810(temp_16, sp, 0x2C);
+    memcpy(temp_16, sp, 0x2C);
     *(s32 *)(temp_16 + 0x2C) = D_0063C930[*(s32 *)(sp + 4)];
 }
 
@@ -794,7 +794,7 @@ void func_00293550(u16 arg0, u16 arg1, s32 arg2, f32 fparg0) {
         var_2 = (s32)func_00451de0((const void *)(D_0063C958), 0xF, 0, 0, func_002930e0, func_002931a0, (u8 *)(temp_10));
     }
     temp_17 = (u8 **)func_00452560(var_2);
-    func_0043f9c8(sp, 0, 0x2C);
+    memset(sp, 0, 0x2C);
     *(s16 *)(sp + 0) = arg0;
     *(s16 *)(sp + 2) = arg1;
     *(s32 *)(sp + 4) = arg2;
@@ -817,6 +817,6 @@ void func_00293550(u16 arg0, u16 arg1, s32 arg2, f32 fparg0) {
     }
     temp_4 = (u8 *)*temp_17;
     temp_16 = (u8 *)((u8 **)func_002e2170(temp_4, *(u16 *)(temp_4 + 0x10) + 1, 0x4C))[5];
-    func_0043f810(temp_16, sp, 0x2C);
+    memcpy(temp_16, sp, 0x2C);
     *(s32 *)(temp_16 + 0x2C) = D_0063C930[*(s32 *)(sp + 4)];
 }

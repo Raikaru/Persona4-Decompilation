@@ -114,7 +114,7 @@ class FallbackRefusalTests(unittest.TestCase):
             for path in sorted((REPO / "src").rglob("*.c"))
             if path.parent.name != "generated" and not path.name.startswith(".")
             for marker in scan_markers(path)
-            if _is_include_asm(path, marker["name"]))
+            if marker["name"] is not None and _is_include_asm(path, marker["name"]))
         path, function = guarded
         done = self._run(str(path.relative_to(REPO)), function, "--quiet")
         self.assertEqual(done.returncode, 1)
@@ -128,7 +128,7 @@ class FallbackRefusalTests(unittest.TestCase):
             for path in sorted((REPO / "src").rglob("*.c"))
             if path.parent.name != "generated" and not path.name.startswith(".")
             for marker in scan_markers(path)
-            if _is_include_asm(path, marker["name"]))
+            if marker["name"] is not None and _is_include_asm(path, marker["name"]))
         path, function = guarded
         done = self._run(str(path.relative_to(REPO)), function, "--quiet")
         self.assertIn("measure_guarded.py", done.stdout + done.stderr)

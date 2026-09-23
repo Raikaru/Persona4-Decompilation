@@ -34,12 +34,12 @@ extern void func_003e2ab0(s32 a, void *b, s32 c);
 extern void func_003e2ce0(s32 a, s32 b);
 extern void func_003e2e40(s32 a, s32 b);
 extern s32 func_003e6a90(s32 a);
-extern s32 func_00442088(void *buf, const char *fmt, ...);
+extern s32 sprintf(void *buf, const char *fmt, ...);
 extern s32 func_004288d8(void *a, void *b);
 extern u8 *func_00454a60(void *path, s32 flags);
-extern void func_00456150(void *handle);
-extern void func_00454bd0(void *handle);
-extern void func_00442428(void *dst, const void *src);
+extern void H_Cdvd_ReadSync(void *handle);
+extern void H_Cdvd_Destroy(void *handle);
+extern void strcat(void *dst, const void *src);
 extern void func_003ef1b0(s32 arg0);
 extern void func_003ef260(s32 arg0, s32 (*arg1)(s32, s32), s32 arg2);
 extern void func_003e6870(void *arg0, void *arg1);
@@ -60,8 +60,8 @@ extern s32 D_00764498;
 
 extern s32 func_00428550(const char *path);
 extern s32 func_00428780(s32 handle, void *out);
-extern s32 func_004426e8(void *a, const void *b);
-extern void func_00442830(void *dst, const void *src);
+extern s32 strcmp(void *a, const void *b);
+extern void strcpy(void *dst, const void *src);
 extern u8 *func_00150970(void *path);
 extern s32 func_00150c80(void *hdr);
 extern void func_00150ce0(void *hdr);
@@ -69,7 +69,7 @@ extern s32 func_001510c0(void *hdr);
 extern s32 func_004581a0(void *a, const void *b);
 extern void func_00458430(s32 *out, void *a, const void *b, s32 c);
 extern s32 func_00426cf0(void *path, s32 a, s32 b);
-extern s32 func_00442948(void *buf);
+extern s32 strlen(void *buf);
 extern s32 sceWrite(s32 fd, void *buf, s32 n);
 extern s32 sceRead(s32 fd, void *buf, s32 n);
 extern s32 func_00427338(s32 fd, void *buf, s32 n);
@@ -301,13 +301,13 @@ s32 func_00190c10(u8 *arg0)
         if (tmp <= 0) {
             work[0] = 8;
         } else {
-            if (func_004426e8((void *)&work[0x12], &D_00763138) != 0 &&
-                func_004426e8((void *)&work[0x12], &D_0076313C) != 0) {
+            if (strcmp((void *)&work[0x12], &D_00763138) != 0 &&
+                strcmp((void *)&work[0x12], &D_0076313C) != 0) {
                 for (p = (s8 *)&work[0x12]; *p != '.' && *p != 0; p++) {
                 }
-                if (func_004426e8(p, &D_00763140) == 0) {
-                    func_00442830((void *)&work[0x53], D_005F61F8);
-                    func_00442428((void *)&work[0x53], (void *)&work[0x12]);
+                if (strcmp(p, &D_00763140) == 0) {
+                    strcpy((void *)&work[0x53], D_005F61F8);
+                    strcat((void *)&work[0x53], (void *)&work[0x12]);
                     work[0x93] = (s32)func_00150970((void *)&work[0x53]);
                     func_00440b68(D_005F6210, &work[0x53]);
                     work[0] = 2;
@@ -346,37 +346,37 @@ s32 func_00190c10(u8 *arg0)
         }
         break;
     case 4:
-        func_00442830(buf5A0, D_005F6270);
+        strcpy(buf5A0, D_005F6270);
         for (p = (s8 *)&work[0x53]; *p != 0; p++) {
         }
         for (; *p != '/'; p--) {
         }
-        func_00442428(buf5A0, p + 1);
+        strcat(buf5A0, p + 1);
         for (q = (s8 *)buf5A0; *q != '.'; q++) {
         }
-        func_00442830(q, &D_00763148);
+        strcpy(q, &D_00763148);
         D_00764498 = func_00426cf0(buf5A0, 0x603, 0x1FF);
         if (D_00764498 >= 0) {
             work[0x399] = 0;
             work[0x39A] = 0;
             hdr = (s32 *)work[0x93];
-            func_00442088(buf4A0, D_005F62A0, ((s16 *)hdr)[2], ((s16 *)hdr)[3]);
-            tmp = func_00442948(buf4A0);
+            sprintf(buf4A0, D_005F62A0, ((s16 *)hdr)[2], ((s16 *)hdr)[3]);
+            tmp = strlen(buf4A0);
             func_004275a8(D_00764498, buf4A0, tmp);
             for (i = 0; i < work[0x95]; i++) {
                 if (work[i + 0x96] != 0) {
-                    func_00442088(buf4A0, D_005F62B0, ((s16 *)hdr)[2]);
-                    tmp = func_00442948(buf4A0);
+                    sprintf(buf4A0, D_005F62B0, ((s16 *)hdr)[2]);
+                    tmp = strlen(buf4A0);
                     func_004275a8(D_00764498, buf4A0, tmp);
                 }
             }
             for (i = 0; i < work[0x296]; i++) {
-                func_00442088(buf4A0, D_005F62C0, ((s16 *)hdr)[2], work[i + 0x297]);
-                tmp = func_00442948(buf4A0);
+                sprintf(buf4A0, D_005F62C0, ((s16 *)hdr)[2], work[i + 0x297]);
+                tmp = strlen(buf4A0);
                 func_004275a8(D_00764498, buf4A0, tmp);
-                func_00442088(buf5A0, D_005F62D0, ((s16 *)hdr)[2], work[i + 0x297]);
+                sprintf(buf5A0, D_005F62D0, ((s16 *)hdr)[2], work[i + 0x297]);
                 func_004288d8(buf5A0, stat1);
-                func_00442088(buf3A0, D_005F6310, ((s16 *)hdr)[2], work[i + 0x297]);
+                sprintf(buf3A0, D_005F6310, ((s16 *)hdr)[2], work[i + 0x297]);
                 func_004288d8(buf5A0, stat2);
                 func_0044ea90(D_005F6168, 0x166);
                 tmp = (s32)D_008873F4[0](1, stat2[2], 0x40000);
@@ -405,11 +405,11 @@ s32 func_00190c10(u8 *arg0)
             if (work[work[0x397] + 0x96] == 0) {
                 work[0x397]++;
             } else {
-                func_00442088(buf2A0, D_005F6350, ((s16 *)((s32 *)work[0x93]))[2]);
+                sprintf(buf2A0, D_005F6350, ((s16 *)((s32 *)work[0x93]))[2]);
                 func_00440b68(&D_00763150, D_005F6168, 0x263);
                 p = (s8 *)func_00454a60(buf2A0, 0);
                 work[0x398] = (s32)p;
-                func_00456150(p);
+                H_Cdvd_ReadSync(p);
                 work[0] = 6;
             }
         } else {
@@ -427,10 +427,10 @@ s32 func_00190c10(u8 *arg0)
         break;
     case 6:
         hdr = (s32 *)work[0x93];
-        func_00442088(buf1A0, D_005F6370, ((s16 *)hdr)[2], work[work[0x397] + 0x96]);
+        sprintf(buf1A0, D_005F6370, ((s16 *)hdr)[2], work[work[0x397] + 0x96]);
         tmp = func_00190680((u8 *)work[0x398], buf1A0);
         work[work[0x397] + 0x196] = tmp;
-        func_00454bd0((void *)work[0x398]);
+        H_Cdvd_Destroy((void *)work[0x398]);
         work[0x398] = 0;
         work[0x397]++;
         work[0] = 5;
@@ -439,21 +439,21 @@ s32 func_00190c10(u8 *arg0)
         func_00440b68(&D_00763150, D_005F6168, 0x2A0);
         p = (s8 *)func_00454a60((void *)&work[0x53], 0);
         work[0x94] = (s32)p;
-        func_00456150(p);
-        func_00442830(bufA0, D_005F63B0);
+        H_Cdvd_ReadSync(p);
+        strcpy(bufA0, D_005F63B0);
         for (p = (s8 *)&work[0x53]; *p != 0; p++) {
         }
         for (; *p != '/'; p--) {
         }
-        func_00442428(bufA0, p + 1);
+        strcat(bufA0, p + 1);
         func_001909f0((u8 *)work[0x94], bufA0, (u8 *)work);
-        func_00454bd0((void *)work[0x94]);
-        func_00442830(bufA0, D_005F63B0);
+        H_Cdvd_Destroy((void *)work[0x94]);
+        strcpy(bufA0, D_005F63B0);
         for (p = (s8 *)&work[0x53]; *p != 0; p++) {
         }
         for (; *p != '/'; p--) {
         }
-        func_00442428(bufA0, p + 1);
+        strcat(bufA0, p + 1);
         func_004288d8(bufA0, stat1);
         work[0x39A] += stat1[2];
         for (i = 0; i < work[0x95]; i++) {
@@ -573,14 +573,14 @@ s32 func_00191850(u8 *arg0)
         work[0] = work[0] + 1;
         /* fallthrough */
     case 1:
-        func_00442088(&work[0x53], D_005F63F0, work[0x39B], work[0x39C]);
+        sprintf(&work[0x53], D_005F63F0, work[0x39B], work[0x39C]);
         if (func_004288d8(&work[0x53], buf240) == 0)
         {
-            func_00442088(&work[0x53], D_005F6430, work[0x39B], work[0x39C]);
+            sprintf(&work[0x53], D_005F6430, work[0x39B], work[0x39C]);
             func_00440b68(&D_00763150, D_005F6168, 0x36E);
             temp1 = (u8 *)func_00454a60(&work[0x53], 0);
             work[0x94] = (s32)temp1;
-            func_00456150(temp1);
+            H_Cdvd_ReadSync(temp1);
             work[0] = 2;
             work[0x39C] = work[0x39C] + 1;
             func_00440b68(&D_00763128, &work[0x53]);
@@ -595,24 +595,24 @@ s32 func_00191850(u8 *arg0)
         }
         break;
     case 2:
-        func_00442088(buf140, D_005F6450);
-        func_00442428(buf140, &work[0x53]);
-        func_00442428(buf140, &D_00763158);
+        sprintf(buf140, D_005F6450);
+        strcat(buf140, &work[0x53]);
+        strcat(buf140, &D_00763158);
         work[work[0x95] + 0x196] = func_001916a0((u8 *)work[0x94], buf140);
-        func_00454bd0((u8 *)work[0x94]);
+        H_Cdvd_Destroy((u8 *)work[0x94]);
         work[0x94] = 0;
         work[0x95] = work[0x95] + 1;
         work[0] = 1;
         break;
     case 3:
-        func_00442088(&work[0x53], D_005F6470, work[0x39B]);
+        sprintf(&work[0x53], D_005F6470, work[0x39B]);
         func_00440b68(&D_00763150, D_005F6168, 0x39B);
         temp2 = (u8 *)func_00454a60(&work[0x53], 0);
         work[0x94] = (s32)temp2;
-        func_00456150(temp2);
-        func_00442088(buf40, D_005F6450);
-        func_00442428(buf40, &work[0x53]);
-        func_00442428(buf40, &D_00763158);
+        H_Cdvd_ReadSync(temp2);
+        sprintf(buf40, D_005F6450);
+        strcat(buf40, &work[0x53]);
+        strcat(buf40, &D_00763158);
         func_001909f0((u8 *)work[0x94], buf40, (u8 *)work);
         for (i = 0; i < (u32)work[0x95]; i++)
         {
@@ -623,7 +623,7 @@ s32 func_00191850(u8 *arg0)
                 *elem = 0;
             }
         }
-        func_00454bd0((u8 *)work[0x94]);
+        H_Cdvd_Destroy((u8 *)work[0x94]);
         work[0x94] = 0;
         work[0x39B] = work[0x39B] + 1;
         if (work[0x39B] > 0x30)

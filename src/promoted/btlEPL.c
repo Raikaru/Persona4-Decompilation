@@ -19,27 +19,27 @@ extern u8 D_00625230[];
 static u8 *D_0072449C;
 
 extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
-extern void func_00194ee0(void *arg0, void *arg1);
-extern void func_00194f10(void *arg0, void *arg1);
+extern void btlUnitSetPos(void *arg0, void *arg1);
+extern void btlUnitSetRot(void *arg0, void *arg1);
 extern void func_0048a150(void *arg0, void *arg1);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
-extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
+extern void mdlScale(void *arg0, void *arg1, s32 arg2);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
 extern void func_00478e70(void *arg0);
 extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
-extern void func_003e0a90(void *arg0, f32 *arg1, s32 arg2);
-extern void func_003e05f0(void *arg0, void *arg1, void *arg2);
-extern void func_003dc610(void *arg0, void *arg1);
+extern void RwMatrixScale(void *arg0, f32 *arg1, s32 arg2);
+extern void RwMatrixMultiply(void *arg0, void *arg1, void *arg2);
+extern void RtQuatConvertFromMatrix(void *arg0, void *arg1);
 extern void func_001ec350(void *arg0, void *arg1);
 extern u32 func_0047a7c0(u32 arg0);
-extern u32 func_004bd050(s32 arg0);
+extern u32 effMiscRand(s32 arg0);
 extern s32 func_001fc300(void *arg0, void *arg1);
 extern void func_0019d990(void *arg0, s32 arg1);
 extern void func_00199890(void *arg0, s32 arg1);
 extern void func_0019d7a0(void *arg0, s32 arg1);
 extern s32 func_00243d80(s32 arg0);
-extern s32 func_002428f0(u32 arg0, u32 arg1);
+extern s32 datCalcIsDead(u32 arg0, u32 arg1);
 extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
 extern u8 *func_001b7020(void);
 extern u8 *func_001b7030(void);
@@ -233,7 +233,7 @@ void func_001fc630(u8 *arg0)
             spD0[1] = tmp;
             spD0[2] = tmp;
         }
-        func_0047a1e0(*(u8 **)matBase, spD0, 2);
+        mdlScale(*(u8 **)matBase, spD0, 2);
         spD0[0] = *(f32 *)(arg0 + 0x00);
         spD0[1] = *(f32 *)(arg0 + 0x04);
         spD0[2] = *(f32 *)(arg0 + 0x08);
@@ -2087,7 +2087,7 @@ void func_001ff490(u8 *arg0)
             spE0[1] = tmp;
             spE0[2] = tmp;
         }
-        func_0047a1e0(*(u8 **)matBase, spE0, 2);
+        mdlScale(*(u8 **)matBase, spE0, 2);
         spE0[0] = *(f32 *)(arg0 + 0x00);
         spE0[1] = *(f32 *)(arg0 + 0x04);
         spE0[2] = *(f32 *)(arg0 + 0x08);
@@ -2391,7 +2391,7 @@ void func_001fff40(u8 *arg0) {
             if ((func_001fc300(node, param) != 0) &&
                 ((value = *(s32 *)(node + 0xA64), value == 0) ||
                  (func_00243d80(value) != 0) ||
-                 (func_002428f0(*(s32 *)(node + 0xA64), 0) == 0))) {
+                 (datCalcIsDead(*(s32 *)(node + 0xA64), 0) == 0))) {
                 *(u16 *)(node + 0x9D8) |= 8;
                 if (count == 0) {
                     if (*(u8 *)(param + 0xE) == 0) {
@@ -2479,10 +2479,10 @@ void func_00200230(u8 *arg0) {
                 node = *(u8 **)(D_0072449C + i * 8 + 0x178);
                 while (node != NULL) {
                     if ((*(s32 *)(node + 0xA64) != 0) && (func_001fc300(node, param) != 0) &&
-                        (func_002428f0(*(s32 *)(node + 0xA64), 0) == 0)) {
+                        (datCalcIsDead(*(s32 *)(node + 0xA64), 0) == 0)) {
                         func_00194ff0(node, sp120, sp50, NULL);
-                        func_00194ee0(node, sp120);
-                        func_00194f10(node, sp50);
+                        btlUnitSetPos(node, sp120);
+                        btlUnitSetRot(node, sp50);
                         func_00198dd0(node, 0);
                         func_00198920(node, *(s16 *)(node + 0x9EC), 0, *(f32 *)(node + 0x9F0),
                                       (u16)*(s8 *)(node + 0x9F4));
@@ -2499,7 +2499,7 @@ void func_00200230(u8 *arg0) {
             sp130[2] = scale;
             sp130[1] = scale;
             sp130[0] = scale;
-            func_0047a1e0(*(u8 **)target, sp130, 2);
+            mdlScale(*(u8 **)target, sp130, 2);
             sp130[0] = *(f32 *)(arg0 + 0);
             sp130[1] = *(f32 *)(arg0 + 4);
             sp130[2] = *(f32 *)(arg0 + 8);
@@ -2512,17 +2512,17 @@ void func_00200230(u8 *arg0) {
                     while (node != NULL) {
                         if ((func_001fc300(node, param) != 0) &&
                             (*(s32 *)(node + 0xA64) == 0 ||
-                             func_002428f0(*(s32 *)(node + 0xA64), 0) == 0)) {
-                            func_00194ee0(node, sp110);
+                             datCalcIsDead(*(s32 *)(node + 0xA64), 0) == 0)) {
+                            btlUnitSetPos(node, sp110);
                             inv = 1.0f / scale;
                             sp130[2] = inv;
                             sp130[1] = inv;
                             sp130[0] = inv;
-                            func_003e0a90(spA0, sp130, 0);
-                            func_003e05f0(sp60, spE0, spA0);
-                            func_003dc610(sp50, sp60);
+                            RwMatrixScale(spA0, sp130, 0);
+                            RwMatrixMultiply(sp60, spE0, spA0);
+                            RtQuatConvertFromMatrix(sp50, sp60);
                             func_001ec350(sp50, sp50);
-                            func_00194f10(node, sp50);
+                            btlUnitSetRot(node, sp50);
                         }
                         node = *(u8 **)(node + 0xA6C);
                     }
@@ -2547,7 +2547,7 @@ s32 *func_00200550(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
         result->target = value;
         rnd = func_0047a7c0(value);
         if ((rnd >> 1) != 0) {
-            result->pattern = (s16)((func_004bd050(0) % (rnd / 2)) * 2);
+            result->pattern = (s16)((effMiscRand(0) % (rnd / 2)) * 2);
         }
     } else {
         result->target = 0;
@@ -2573,7 +2573,7 @@ s32 *func_00200650(u8 *arg0) {
         result->target = value;
         rnd = func_0047a7c0(value);
         if ((rnd >> 1) != 0) {
-            result->pattern = (s16)((func_004bd050(0) % (rnd / 2)) * 2);
+            result->pattern = (s16)((effMiscRand(0) % (rnd / 2)) * 2);
         }
     } else {
         result->target = 0;

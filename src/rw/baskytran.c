@@ -86,7 +86,7 @@ extern s32 func_0040c0f0(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_0040d0a0(s32 arg0, s32 arg1);
 extern void func_0040aa60(void (*arg0)(void));
 extern s32 func_00402d50(void *arg0, s32 *arg1);
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 iGpffffb9b0;
 extern s32 iGpffffb9ac;
 extern void func_00415920(void *arg0);
@@ -258,7 +258,7 @@ extern void func_003efda0(u8 *arg0); /* P4: ported verbatim into src/renderware 
 /* measured: closes no_branch_likely around func_004015e0. */
 #pragma no_branch_likely off
 // FUN_00402390
-void func_00402390(u8 *arg0, u8 *arg1, u8 *arg2)
+void matrixASMMult(u8 *arg0, u8 *arg1, u8 *arg2)
 {
     __asm__ volatile(
         ".set noat\n"
@@ -296,7 +296,7 @@ void func_00402390(u8 *arg0, u8 *arg1, u8 *arg2)
         : "$vf1", "$vf2", "$vf3", "$vf4", "$vf5", "$vf6", "$vf7", "$vf8", "$vf9", "$vf10", "$vf11", "$vf12", "$vf13", "ACC", "memory");
 }
 // FUN_00402410
-u8 *func_00402410(u8 *arg0, u8 *arg1, u8 *arg2)
+u8 *vectorASMMultPointSingle(u8 *arg0, u8 *arg1, u8 *arg2)
 {
     __asm__ volatile(
         ".set noat\n"
@@ -329,7 +329,7 @@ u8 *func_00402410(u8 *arg0, u8 *arg1, u8 *arg2)
         : "$vf1", "$vf2", "$vf3", "$vf4", "$vf5", "ACC", "memory");
 }
 // FUN_00402470
-u8 *func_00402470(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3)
+u8 *vectorASMMultPoints(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3)
 {
     __asm__ volatile(
         ".set noat\n"
@@ -377,7 +377,7 @@ u8 *func_00402470(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3)
         : "$vf1", "$vf2", "$vf3", "$vf4", "$vf5", "$vf6", "ACC", "memory");
 }
 // FUN_00402510
-u8 *func_00402510(u8 *arg0, u8 *arg1, u8 *arg2)
+u8 *vectorASMMultVectorSingle(u8 *arg0, u8 *arg1, u8 *arg2)
 {
     __asm__ volatile(
         ".set noat\n"

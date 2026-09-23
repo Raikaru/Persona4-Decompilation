@@ -17,7 +17,7 @@ extern u32 func_00271bd0(int param_1);
 extern int func_002738d0(int node);
 extern void *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern void memset(void *dst, s32 value, s32 size);
 
 /* Font-height tables (P3FES frFontGetHeight ports). */
 extern s8 D_00763808[8];
@@ -381,7 +381,7 @@ void func_00275980(char *src, char *dst, int maxlen)
     if (dst == 0 || src == 0 || maxlen == 0) {
         func_0046d730(D_0063BC78, 0x134);
     }
-    func_0043f9c8(dst, 0, maxlen);
+    memset(dst, 0, maxlen);
     for (; src[i] != 0 && maxlen - 1 > i; i++) {
         dst[i] = src[i];
     }

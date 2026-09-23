@@ -11,7 +11,7 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
     return left + right;
 }
 
-extern void func_00194f10(void *arg0, void *arg1);
+extern void btlUnitSetRot(void *arg0, void *arg1);
 extern void func_001ec1c0(void *out, void *first, void *second);
 extern void func_001ec6d0(s16 *arg0, s16 *arg1, f32 *position);
 extern s32 func_001ef720(s32 groupFlags, s32 excludedFlags);
@@ -21,12 +21,12 @@ extern u16 func_00232290(u8 *arg0);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 func_002428f0(u8 *arg0, s32 arg1);
+extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
 extern s32 func_00231e20(u8 *arg0);
-extern u32 func_00232710(s32 arg0, u32 arg1);
+extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern u32 datCalcChkBadStatus(int unit, u32 badStatus);
-extern u16 func_00231ed0(u8 *arg0);
-extern u16 func_00231ee0(u8 *arg0);
+extern u16 datCalcGetHp(u8 *arg0);
+extern u16 datCalcGetSp(u8 *arg0);
 extern s32 func_002340c0(s32 arg0, s32 arg1);
 extern void func_001d6de0(s32 arg0, s32 arg1);
 extern s32 func_001d6360(u8 *arg0);
@@ -38,19 +38,19 @@ extern void (*jtbl_008873EC[])(void *);
 extern void func_001d3e00(s32 arg0);
 extern void func_001d6910(u8 *arg0);
 extern void func_001d75d0(u8 *arg0);
-extern void func_00454bd0(u8 *arg0);
+extern void H_Cdvd_Destroy(u8 *arg0);
 extern u32 iGpffffb3b8;
 extern void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 
-extern void func_00195850(u8 *arg0, f32 *arg1);
+extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern s32 func_0047a6d0();
 extern void func_004789c0(u8 *arg0);
 extern void func_0047a320(u8 *arg0);
-extern void func_003dcb40(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
+extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
 extern void func_00485870(s32 arg0);
 extern s32 func_00481450(void);
 extern void func_00481440(s32 arg0);
-extern void func_0047a220(u8 *arg0, u32 *arg1);
+extern void mdlSetColor(u8 *arg0, u32 *arg1);
 extern void func_004865c0(s32 arg0, u32 arg1);
 extern void func_00478e70(s32 arg0);
 extern void func_00485630(s32 arg0);
@@ -67,13 +67,13 @@ extern void func_001d44a0(f32 arg0, f32 arg1, f32 *arg2, s32 *arg3, u8 *arg4, u8
 struct RwV3d;
 extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern void func_00194ee0(u8 *arg0, f32 *arg1);
+extern void btlUnitSetPos(u8 *arg0, f32 *arg1);
 extern void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2);
 extern u8 *func_0019eda0(u8 *arg0, s32 arg1);
-extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
+extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 extern void func_0044ea90(u8 *arg0, s32 arg1);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
-extern void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
+extern void memset(u8 *arg0, s32 arg1, s32 arg2);
 extern s8 func_00231d70(s32 arg0);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
@@ -84,7 +84,7 @@ extern void func_0048a250(u8 *arg0);
 extern void func_003dc740(void *arg0, void *arg1, f32 arg3, s32 arg2);
 
 
-extern s32 func_001d9b60(u8 *task, s32 mask);
+extern s32 btlCond_MYBAD(u8 *task, s32 mask);
 extern u8 *func_00457120();
 extern void func_003e8110(u8 *arg0);
 extern void func_003e8120(u8 *arg0);
@@ -104,15 +104,14 @@ extern s32 btlCond_MYKYUSYU(u8 *arg0, s16 arg1);
 
 
 
-extern s32 func_001da230(u8 *arg0, s16 arg1);
+extern s32 btlCond_MYHANSYA(u8 *arg0, s16 arg1);
 
-extern s32 func_001d9740(u8 *arg0, s32 arg1);
+extern s32 btlCond_MYHP(u8 *arg0, s32 arg1);
 
 extern s32 func_001d97b0(u8 *arg0, s32 arg1);
-extern void func_001da270(void);
-extern void func_001da2b0(void);
-extern void func_001da2f0(void);
-extern s32 func_001da5f0(u8 *arg0, s32 arg1);
+extern s32 btlCond_MYMUKOU(u8 *arg0, s16 arg1);
+extern s32 btlCond_MYWEAK(u8 *arg0, s16 arg1);
+extern s32 btlCond_MYUSEATTR(u8 *arg0, s32 arg1);
 extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
 extern u32 func_0023e130(u8 *arg0);
 extern s32 func_00122640(s32 arg0, s32 arg1);
@@ -142,7 +141,7 @@ struct RtQuat
 
 extern s32 func_001b1540(void);
 extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
-extern f32 func_0044b868(f32 arg0);
+extern f32 tanf(f32 arg0);
 extern void func_001bac20(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void func_001bbef0(u8 *arg0, f32 arg1);
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
@@ -154,7 +153,7 @@ extern f32 fGpffff8110;
 /* Two-unit framing: stage all three vector sums before subtracting focus.
  * MWCC: 1004/1008 bytes, 19 resolved relocations, four zero tail bytes. */
 // FUN_001D01C0
-void func_001d01c0(u8 *arg0)
+void btlAct_PURSUIT(u8 *arg0)
 {
     struct
     {
@@ -183,13 +182,13 @@ void func_001d01c0(u8 *arg0)
     action = *(u8 **)(arg0 + 0xE0);
     unitA = *(u8 **)(action + 0x30);
     unitB = *(u8 **)(temp + 0x30);
-    func_00195850(unitA, (f32 *)&firstCenter);
+    btlUnitGetSphereWorldCenter(unitA, (f32 *)&firstCenter);
     radius = *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C);
-    func_00195850(unitB, (f32 *)&secondCenter);
+    btlUnitGetSphereWorldCenter(unitB, (f32 *)&secondCenter);
     direction.x = firstCenter.x - secondCenter.x;
     direction.y = firstCenter.y - secondCenter.y;
     direction.z = firstCenter.z - secondCenter.z;
-    along = fGpffff8030 * func_003e40b0((f32 *)&direction, (f32 *)&direction);
+    along = fGpffff8030 * RwV3dNormalize((f32 *)&direction, (f32 *)&direction);
     focus.x = direction.x * along;
     focus.y = direction.y * along;
     focus.z = direction.z * along;
@@ -201,7 +200,7 @@ void func_001d01c0(u8 *arg0)
     side.x = eye.x - secondCenter.x;
     side.y = eye.y - secondCenter.y;
     side.z = eye.z - secondCenter.z;
-    func_003e40b0((f32 *)&side, (f32 *)&side);
+    RwV3dNormalize((f32 *)&side, (f32 *)&side);
     spread = 1.25f * radius;
     eye.x = (0.0f + eye.x) - side.z * spread;
     eye.z = (0.0f + eye.z) + side.x * spread;
@@ -209,7 +208,7 @@ void func_001d01c0(u8 *arg0)
             fGpffff803c * (*(f32 *)(unitA + 0x8C) * *(f32 *)(unitA + 0x2C));
     func_001bd780(&poses.firstRotation, &eye, &focus, D_0060A0E0);
     distance = (2.5f * radius) /
-               func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+               tanf(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
     direction.x = direction.x * distance;
     direction.y = direction.y * distance;
     direction.z = direction.z * distance;
@@ -219,7 +218,7 @@ void func_001d01c0(u8 *arg0)
     direction.x = sum.x - focus.x;
     direction.y = sum.y - focus.y;
     direction.z = sum.z - focus.z;
-    length = func_003e40b0((f32 *)&direction, (f32 *)&direction);
+    length = RwV3dNormalize((f32 *)&direction, (f32 *)&direction);
     along = 100.0f + length;
     direction.x = direction.x * along;
     direction.y = direction.y * along;
@@ -228,7 +227,7 @@ void func_001d01c0(u8 *arg0)
     poses.firstPosition.y = focus.y + direction.y;
     poses.firstPosition.z = focus.z + direction.z;
     poses.secondRotation = poses.firstRotation;
-    func_003dcb40((f32 *)&direction, D_0060A100, 1, (u8 *)&poses.firstRotation);
+    RtQuatTransformVectors((f32 *)&direction, D_0060A100, 1, (u8 *)&poses.firstRotation);
     along = 15.0f + length;
     direction.x = direction.x * along;
     direction.y = direction.y * along;
@@ -253,10 +252,10 @@ void func_001d1310(u16 *arg0) {
     f32 scale;
     f32 x;
     f32 y;
-    func_0043f9c8((u8 *)arg0, 0, 8);
+    memset((u8 *)arg0, 0, 8);
     node = *(u8 **)(iGpffffb3ac + 0x184);
     while (node != NULL) {
-        if (func_002428f0(*(u8 **)(node + 0xA64), 0) == 0) {
+        if (datCalcIsDead(*(u8 **)(node + 0xA64), 0) == 0) {
             scale = *(f32 *)(node + 0x2C);
             x = (f32)(s32)(*(f32 *)(node + 0x90) * scale);
             y = (f32)(s32)(*(f32 *)(node + 0x8C) * scale);
@@ -415,7 +414,7 @@ void func_001d1680(s32 applyPositions, s32 unused)
     }
     /* Keep sentinel comparison separate from the signed table-row conversion. */
     if ((s64)formation != -1) {
-        func_0043f9c8(iGpffffb3ac + 0xA74, 0, 0x24);
+        memset(iGpffffb3ac + 0xA74, 0, 0x24);
         nextSlot = 1;
         actor = *(u8 **)(iGpffffb3ac + 0x178);
         layout = D_00607E50 + formation * 0xE0;
@@ -439,7 +438,7 @@ void func_001d1680(s32 applyPositions, s32 unused)
             if (applyPositions != 0) {
                 position.x = (f32)(*(s16 *)(actor + 0x94) * 25 - 1750);
                 position.z = (f32)(*(s16 *)(actor + 0x96) * 25 - 1750);
-                func_00194ee0(actor, (f32 *)&position);
+                btlUnitSetPos(actor, (f32 *)&position);
             }
             switch (actor[0xA2]) {
             case 0:
@@ -454,9 +453,9 @@ void func_001d1680(s32 applyPositions, s32 unused)
         }
 
         enemy = *(u8 **)(iGpffffb3ac + 0x180);
-        func_0043f9c8((u8 *)occupied, 0, 5 * sizeof(occupied[0]));
+        memset((u8 *)occupied, 0, 5 * sizeof(occupied[0]));
         while (enemy != NULL) {
-            if (func_002428f0(*(u8 **)(enemy + 0xA64), 0) == 0) {
+            if (datCalcIsDead(*(u8 **)(enemy + 0xA64), 0) == 0) {
                 f32 radius;
                 f32 height;
                 f32 radiusSlack;
@@ -522,7 +521,7 @@ void func_001d1680(s32 applyPositions, s32 unused)
                 if (applyPositions != 0) {
                     position.x = (f32)(*(s16 *)(enemy + 0x94) * 25 - 1750);
                     position.z = (f32)(*(s16 *)(enemy + 0x96) * 25 - 1750);
-                    func_00194ee0(enemy, (f32 *)&position);
+                    btlUnitSetPos(enemy, (f32 *)&position);
                 }
                 switch (enemy[0xA2]) {
                 case 0:
@@ -538,19 +537,19 @@ void func_001d1680(s32 applyPositions, s32 unused)
         }
 
         func_00196040(2, 1, &enemyCenter, NULL, NULL, 1);
-        func_00195850(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30), (f32 *)&actorCenter);
+        btlUnitGetSphereWorldCenter(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30), (f32 *)&actorCenter);
         facingUnit = *(u8 **)(iGpffffb3ac + 0x17C);
         while (facingUnit != NULL) {
-            func_00195850(facingUnit, (f32 *)&position);
+            btlUnitGetSphereWorldCenter(facingUnit, (f32 *)&position);
             func_001ec1c0(&rotation, &position, &enemyCenter);
-            func_00194f10(facingUnit, &rotation);
+            btlUnitSetRot(facingUnit, &rotation);
             facingUnit = *(u8 **)(facingUnit + 0xA68);
         }
         facingUnit = *(u8 **)(iGpffffb3ac + 0x184);
         while (facingUnit != NULL) {
-            func_00195850(facingUnit, (f32 *)&position);
+            btlUnitGetSphereWorldCenter(facingUnit, (f32 *)&position);
             func_001ec1c0(&rotation, &position, &actorCenter);
-            func_00194f10(facingUnit, &rotation);
+            btlUnitSetRot(facingUnit, &rotation);
             facingUnit = *(u8 **)(facingUnit + 0xA68);
         }
         *(s16 *)(iGpffffb3ac + 0xA70) = formation;
@@ -589,7 +588,7 @@ s32 func_001d1cc0(u8 *arg0)
     frame.value60 = *(f32 *)(temp_17 + 4) - frame.value40;
     frame.value64 = 0.0f;
     frame.value68 = *(f32 *)(temp_17 + 0xC) - frame.value48;
-    func_003e40b0(&frame.value60, &frame.value60);
+    RwV3dNormalize(&frame.value60, &frame.value60);
     if ((frame.value60 == 0.0f) && (frame.value68 == 0.0f)) {
         return 1;
     }
@@ -608,20 +607,20 @@ s32 func_001d1cc0(u8 *arg0)
         frame.value50 = *(f32 *)(temp_17 + 4) + frame.value60;
         frame.value54 = *(f32 *)(temp_17 + 8) + frame.value64;
         frame.value58 = *(f32 *)(temp_17 + 0xC) + frame.value68;
-        func_00194ee0(temp_17, &frame.value50);
+        btlUnitSetPos(temp_17, &frame.value50);
         temp_4 = *(u8 **)(temp_17 + 0xA0C);
         if (temp_4 != NULL) {
             frame.value50 = *(f32 *)(temp_4 + 4) + frame.value60;
             frame.value54 = *(f32 *)(temp_4 + 8) + frame.value64;
             frame.value58 = *(f32 *)(temp_4 + 0xC) + frame.value68;
-            func_00194ee0(temp_4, &frame.value50);
+            btlUnitSetPos(temp_4, &frame.value50);
         }
     }
     if ((*(u16 *)(arg0 + 0xC) & 2) != 0) {
         frame.value50 = *(f32 *)(temp_16 + 4) + frame.value60;
         frame.value54 = *(f32 *)(temp_16 + 8) + frame.value64;
         frame.value58 = *(f32 *)(temp_16 + 0xC) + frame.value68;
-        func_00194ee0(temp_16, &frame.value50);
+        btlUnitSetPos(temp_16, &frame.value50);
     }
     return 1;
 }
@@ -640,7 +639,7 @@ u8 *func_001d41b0(u8 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4)
     size = *(u16 *)((u8 *)p4_001d7f10_add((s32)offset, (s32)base) + 0x10) * 4 + 0x68;
     func_0044ea90(D_00609498, 0x51);
     result = jtbl_008873E8[0](size, 0x40000);
-    func_0043f9c8(result, 0, size);
+    memset(result, 0, size);
     *(u8 **)(result + 0) = arg0;
     *(u8 **)(result + 4) = arg0 + offset + 8;
     *(u16 *)(result + 0x54) = *(u16 *)(*(u8 **)(result + 4) + 8);
@@ -764,7 +763,7 @@ void func_001d44a0(f32 fparg0, f32 fparg1, f32 *arg0, s32 *arg1, u8 *arg2, u8 *a
     default:
         *(struct Vec4 *)uStack_20 = *(struct Vec4 *)arg1;
         func_003dc740(uStack_20, D_0060A0E0, D_006094D0[temp_7], 2);
-        func_003dcb40(fStack_10, (f32 *)D_0060A0F0, 1, (u8 *)uStack_20);
+        RtQuatTransformVectors(fStack_10, (f32 *)D_0060A0F0, 1, (u8 *)uStack_20);
         fStack_10[0] = fStack_10[0] * fparg0;
         fStack_10[1] = fStack_10[1] * fparg0;
         fStack_10[2] = fStack_10[2] * fparg0;
@@ -806,7 +805,7 @@ void func_001d4780(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     frame.value60 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
     frame.value64 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
     frame.value68 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
-    func_003dcb40(&frame.value50, &frame.value60, 1, arg0 + 0x40);
+    RtQuatTransformVectors(&frame.value50, &frame.value60, 1, arg0 + 0x40);
     frame.value70 = frame.value50 + *(f32 *)(arg0 + 0x34);
     frame.value74 = frame.value54 + *(f32 *)(arg0 + 0x38);
     frame.value78 = frame.value58 + *(f32 *)(arg0 + 0x3C);
@@ -832,14 +831,14 @@ void func_001d48b0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
 
     temp_16 = (u8 *)(arg2 + 8);
     if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
-        func_00195850(arg1, &frame.value50);
+        btlUnitGetSphereWorldCenter(arg1, &frame.value50);
     } else {
         temp_2 = *(u16 *)(temp_16 + 4);
         if (func_0047a6d0(*(u8 **)(arg1 + 0xA00), temp_2, &frame.value50) == 0) {
             frame.value40 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
             frame.value44 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
             frame.value48 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
-            func_003dcb40(&frame.value30, &frame.value40, 1, arg0 + 0x40);
+            RtQuatTransformVectors(&frame.value30, &frame.value40, 1, arg0 + 0x40);
             frame.value50 = frame.value30 + *(f32 *)(arg0 + 0x34);
             frame.value54 = frame.value34 + *(f32 *)(arg0 + 0x38);
             frame.value58 = frame.value38 + *(f32 *)(arg0 + 0x3C);
@@ -870,7 +869,7 @@ void func_001d49c0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
 
     temp_s2 = (u8 *)(arg2 + 8);
     if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
-        func_00195850(arg1, &frame.value70);
+        btlUnitGetSphereWorldCenter(arg1, &frame.value70);
     } else {
         temp_2 = *(u8 **)(arg1 + 0xA00);
         var_19 = *(u8 **)(temp_2 + 0x29C);
@@ -883,7 +882,7 @@ void func_001d49c0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
             frame.value60 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
             frame.value64 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
             frame.value68 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
-            func_003dcb40(&frame.value50, &frame.value60, 1, arg0 + 0x40);
+            RtQuatTransformVectors(&frame.value50, &frame.value60, 1, arg0 + 0x40);
             frame.value70 = frame.value50 + *(f32 *)(arg0 + 0x34);
             frame.value74 = frame.value54 + *(f32 *)(arg0 + 0x38);
             frame.value78 = frame.value58 + *(f32 *)(arg0 + 0x3C);
@@ -914,7 +913,7 @@ void func_001d4b00(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
 
     temp_s2 = (u8 *)(arg2 + 8);
     if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
-        func_00195850(arg1, &frame.value70);
+        btlUnitGetSphereWorldCenter(arg1, &frame.value70);
     } else {
         temp_2 = *(u8 **)(arg1 + 0xA00);
         var_19 = *(u8 **)(temp_2 + 0x290);
@@ -927,7 +926,7 @@ void func_001d4b00(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
             frame.value60 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
             frame.value64 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
             frame.value68 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
-            func_003dcb40(&frame.value50, &frame.value60, 1, arg0 + 0x40);
+            RtQuatTransformVectors(&frame.value50, &frame.value60, 1, arg0 + 0x40);
             frame.value70 = frame.value50 + *(f32 *)(arg0 + 0x34);
             frame.value74 = frame.value54 + *(f32 *)(arg0 + 0x38);
             frame.value78 = frame.value58 + *(f32 *)(arg0 + 0x3C);
@@ -1080,14 +1079,14 @@ void func_001d4eb0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3)
     }
 
     if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
-        func_00195850(arg1, &frame.value90);
+        btlUnitGetSphereWorldCenter(arg1, &frame.value90);
     } else if (func_0047a6d0(*(u8 **)(arg1 + 0xA00),
                              *(u16 *)(temp_16 + 4),
                              &frame.value90) == 0) {
         frame.value70 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
         frame.value74 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
         frame.value78 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
-        func_003dcb40(&frame.value60, &frame.value70, 1, arg0 + 0x40);
+        RtQuatTransformVectors(&frame.value60, &frame.value70, 1, arg0 + 0x40);
         frame.value90 = frame.value60 + *(f32 *)(arg0 + 0x34);
         frame.value94 = frame.value64 + *(f32 *)(arg0 + 0x38);
         frame.value98 = frame.value68 + *(f32 *)(arg0 + 0x3C);
@@ -1109,7 +1108,7 @@ void func_001d4eb0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3)
         frame.value80 = *(f32 *)(temp_2 + 0x40) - frame.value90;
         frame.value84 = *(f32 *)(temp_2 + 0x44) - frame.value94;
         frame.value88 = *(f32 *)(temp_2 + 0x48) - frame.value98;
-        func_003e40b0(&frame.value80, &frame.value80);
+        RwV3dNormalize(&frame.value80, &frame.value80);
         arg3[0] = arg3[0] - frame.value80 * temp_f20;
         arg3[1] = arg3[1] - frame.value84 * temp_f20;
         arg3[2] = arg3[2] - frame.value88 * temp_f20;
@@ -1139,7 +1138,7 @@ void func_001d5130(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
     s32 lookup_offset;
     u8 *lookup_base;
 
-    extern void func_003dcb40(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
+    extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
     extern f32 func_0044b950(f32 arg0, f32 arg1);
     extern s32 func_0047a510(u8 *arg0, s32 arg1, f32 *arg2);
     extern void func_0048a980(f32 *arg0);
@@ -1149,7 +1148,7 @@ void func_001d5130(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
     type = *(u8 *)(arg2 + 8);
     switch (type) {
     case 0:
-        func_003dcb40(frame.vector, (f32 *)D_0060A0F0, 1, arg0 + 0x40);
+        RtQuatTransformVectors(frame.vector, (f32 *)D_0060A0F0, 1, arg0 + 0x40);
         if (frame.vector[0] != 0.0f)
             goto case0_nonzero;
         if (frame.vector[2] == 0.0f)
@@ -1327,8 +1326,8 @@ void func_001d53e0(s32 arg0) {
                 *(f32 *)(base + 0x48) = *(f32 *)(temp_16 + 0x24);
                 *(f32 *)(base + 0x4C) = *(f32 *)(temp_16 + 0x28);
             } else {
-                func_00195850(temp_16, frame.spD0);
-                func_00195850(*(u8 **)(base + 0x1C), frame.spC0);
+                btlUnitGetSphereWorldCenter(temp_16, frame.spD0);
+                btlUnitGetSphereWorldCenter(*(u8 **)(base + 0x1C), frame.spC0);
                 func_001ec1c0(base + 0x40, frame.spD0, frame.spC0);
             }
         }
@@ -1735,7 +1734,7 @@ void func_001d6680(void)
         if ((node->flags & 0x210) == 0x210 && (color & 0xFF000000) != 0) {
             if (node->unknown18 != NULL) {
                 arg = color;
-                func_0047a220(node->unknown18, &arg);
+                mdlSetColor(node->unknown18, &arg);
                 func_00479100((s32)D_00794150, node->unknown18);
             }
             if (node->unknown14 != NULL) {
@@ -1812,12 +1811,12 @@ u8 *func_001d6ad0(void)
     func_0044ea90(D_00609558, 0x51);
     table = (u32)jtbl_008873E8;
     array = (u8 *)((u8 *(*)(s32, s32))*(u32 *)table)(0xC8, 0x40000);
-    func_0043f9c8(array, 0, 0xC8);
+    memset(array, 0, 0xC8);
     i = 0;
     while (i < 0x30) {
         func_0044ea90(D_00609558, 0x51);
         node = (u8 *)((u8 *(*)(s32, s32))*(u32 *)table)(0x24, 0x40000);
-        func_0043f9c8(node, 0, 0x24);
+        memset(node, 0, 0x24);
         *(s32 *)(node + 4) = -1;
         *(u8 *)(node + 8) = 0x14;
         *(s32 *)(node + 0xC) = 0;
@@ -1990,7 +1989,7 @@ void func_001d75d0(u8 *arg0)
             }
         }
         if (*(int *)(iGpffffb3ac + 0xDC4) != 0) {
-            func_00454bd0((u8 *)(u32)*(u32 *)(iGpffffb3ac + 0xDC4));
+            H_Cdvd_Destroy((u8 *)(u32)*(u32 *)(iGpffffb3ac + 0xDC4));
             *(u32 *)(iGpffffb3ac + 0xDC4) = 0;
         }
     }
@@ -2019,7 +2018,7 @@ void func_001d7700(void)
     if ((*(s32 *)(temp_5 + 0x14) & 0x4000000) == 0) {
         temp_4 = *(u8 **)(temp_5 + 0xDC4);
         if (temp_4 != NULL) {
-            func_00454bd0(temp_4);
+            H_Cdvd_Destroy(temp_4);
         }
         *(u8 **)(iGpffffb3ac + 0xDC4) = NULL;
         return;
@@ -2030,7 +2029,7 @@ void func_001d7700(void)
 // FUN_001D7A60
 s32 func_001d7a60(u8 *arg0) {
     func_00122520(1, *(u16 *)(arg0 + 4));
-    func_001228a0(*(u8 *)(arg0 + 0), *(u8 *)(arg0 + 1), *(u8 *)(arg0 + 2));
+    H_Fade_SetCustomColor(*(u8 *)(arg0 + 0), *(u8 *)(arg0 + 1), *(u8 *)(arg0 + 2));
     return 1;
 }
 
@@ -2083,7 +2082,7 @@ void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4)
     u8 *unit;
     u8 *work;
     u8 utype;
-    func_0043f9c8(arg1, 0, 0x30);
+    memset(arg1, 0, 0x30);
     *(u16 *)(arg1 + 0x38) = 0;
     *(u16 *)(arg1 + 0x3A) = 0;
     *(u8 *)(arg1 + 0x3C) = 0;
@@ -2137,15 +2136,15 @@ void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4)
                         goto store;
                     }
                     if (needExcl == 0 || arg0 != unit) {
-                        if (skipDead != 0 || func_002428f0(*(u8 **)(work + 0xA64), 0) == 0) {
+                        if (skipDead != 0 || datCalcIsDead(*(u8 **)(work + 0xA64), 0) == 0) {
                             if (needAlive != 0) {
-                                if (func_00232710((s32)*(u8 **)(work + 0xA64), 0x100000) == 0) {
+                                if (datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), 0x100000) == 0) {
                                     goto next;
                                 }
                                 goto store;
                             } else if (arg4 == 0 ||
                                 ((*(s32 *)(*(u8 **)(work + 0xA64) + 0xC) & 0xFFEFFFFF) != 0 &&
-                                 func_00232710((s32)*(u8 **)(work + 0xA64), arg4) == 0)) {
+                                 datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), arg4) == 0)) {
                                 goto store;
                             }
                         }
@@ -2202,7 +2201,7 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * Guarded floor, production stays INCLUDE_ASM; verify.py src/promoted/code1_001d.c still 91 MATCH/3 ASM, no regression. */
 #ifdef SKIP_ASM
 void func_001d8010(u8 *arg0, u8 *arg1) {
-    extern void func_00195850(u8 *a0, f32 *a1);
+    extern void btlUnitGetSphereWorldCenter(u8 *a0, f32 *a1);
     extern void func_003e42a0(f32 *dst, f32 *src, u8 *cam);
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 func_001ec3d0(f32 *a0, f32 *a1, f32 *a2, f32 *a3);
@@ -2278,7 +2277,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             u8 *unit = *(u8 **)(arg1 + ((i & 0xFFFF) * 4));
             u8 *ud = *(u8 **)(unit + 0x30);
             f32 len;
-            func_00195850(ud, POS);
+            btlUnitGetSphereWorldCenter(ud, POS);
             func_003e42a0(PROJ, POS, arg0);
             if (PROJ[2] != 0.0f) {
                 stk[22] = 640.0f * (PROJ[0] / PROJ[2]);
@@ -2359,7 +2358,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     case 1: {
         s32 tmp;
         tmp = func_001d8df0(arg1) & 0xFFFF;
-        func_00195850(*(u8 **)(arg0 + 0x30), POS);
+        btlUnitGetSphereWorldCenter(*(u8 **)(arg0 + 0x30), POS);
         func_00196040(tmp, 0, (RwV3d *)CENTER, 0, 0, 1);
         BASEXZ[0] = POS[0];
         BASEXZ[1] = POS[2];
@@ -2377,7 +2376,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             u8 *ud = *(u8 **)(unit + 0x30);
             f32 dist;
             f32 dot;
-            func_00195850(ud, POS);
+            btlUnitGetSphereWorldCenter(ud, POS);
             CURXZ[0] = POS[0];
             CURXZ[1] = POS[2];
             dist = func_001ec3d0(BASEXZ, CENTERXZ, CURXZ, OUTXZ);
@@ -2565,7 +2564,7 @@ u8 *func_001d8c00(u8 *arg0)
         flags = *(u16 *)(unit + 0x1A);
         if ((flags & 1) != 0 && (flags & 8) != 0) {
             data = *(u8 **)(*(u8 **)(unit + 0x30) + 0xA64);
-            if ((data == NULL || func_002428f0(data, 0) == 0) &&
+            if ((data == NULL || datCalcIsDead(data, 0) == 0) &&
                 *(s64 *)unit == *(s64 *)(arg0 + 0x30)) {
                 return unit;
             }
@@ -2711,7 +2710,7 @@ mode_valid:
                 while ((u16)index < *(u16 *)(arg1 + 0x38)) {
                     if (*(u8 **)(arg0 + 0x30) ==
                         *(u8 **)(*(u8 **)(arg1 + (u32)(u16)index * 4) + 0x30) &&
-                        func_00232710(
+                        datCalcChkBadStatus(
                             (s32)*(u8 **)(*(u8 **)(*(u8 **)(arg1 +
                                                           (u32)(u16)index * 4) +
                                                      0x30) +
@@ -2725,7 +2724,7 @@ mode_valid:
 
                 index = 0;
                 while ((u16)index < *(u16 *)(arg1 + 0x38)) {
-                    if (func_00232710(
+                    if (datCalcChkBadStatus(
                             (s32)*(u8 **)(*(u8 **)(*(u8 **)(arg1 +
                                                           (u32)(u16)index * 4) +
                                                      0x30) +
@@ -2791,7 +2790,7 @@ mode1_select:
             index = 0;
             while ((u16)index < *(u16 *)(arg1 + 0x38)) {
                 work = *(u8 **)(*(u8 **)(arg1 + (u32)(u16)index * 4) + 0x30);
-                value = func_00231ed0(*(u8 **)(work + 0xA64));
+                value = datCalcGetHp(*(u8 **)(work + 0xA64));
                 alternate = func_00231f80(*(u8 **)(work + 0xA64));
                 if (value < best_value1 && value < alternate) {
                     best_value1 = value;
@@ -2840,7 +2839,7 @@ mode2_select:
             index = 0;
             while ((u16)index < *(u16 *)(arg1 + 0x38)) {
                 work = *(u8 **)(*(u8 **)(arg1 + (u32)(u16)index * 4) + 0x30);
-                value = func_00231ee0(*(u8 **)(work + 0xA64));
+                value = datCalcGetSp(*(u8 **)(work + 0xA64));
                 alternate = func_00232290(*(u8 **)(work + 0xA64));
                 if (value < best_value2 && value < alternate) {
                     best_value2 = value;
@@ -2878,11 +2877,11 @@ loop:
             work = *(u8 **)(unit + 0x30);
             if ((mask & (1 << *(u8 *)(work + 0xA2))) != 0) {
                 if (filter != 0) {
-                    if (func_002428f0(*(u8 **)(work + 0xA64), 0) != 0) {
+                    if (datCalcIsDead(*(u8 **)(work + 0xA64), 0) != 0) {
                         goto next;
                     }
                 }
-                if (func_00232710((s32)*(u8 **)(work + 0xA64), work_flags) != 0) {
+                if (datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), work_flags) != 0) {
                     goto next;
                 }
                 if (*(u16 *)(work + 0xA4) == id) {
@@ -2923,7 +2922,7 @@ loop:
     if ((flags & 1) != 0) {
         if ((flags & 8) != 0) {
             work = *(u8 **)(unit + 0x30);
-            if (func_00232710((s32)*(u8 **)(work + 0xA64), arg2) == 0) {
+            if (datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), arg2) == 0) {
                 if (arg5(unit, arg1) != arg4) {
                     if (arg6 != NULL) {
                         arg6[(u16)matches] = unit;
@@ -2980,7 +2979,7 @@ loop:
             if (options == 0)
                 goto check_general;
             if (option_one != 0 &&
-                func_00232710((s32)*(u8 **)(work + 0xA64), 0x100000) == 0)
+                datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), 0x100000) == 0)
                 goto next;
             if (option_two != 0) {
                 status = func_0023d6e0((s16)param_2);
@@ -3006,8 +3005,8 @@ loop:
             }
 check_general:
             if ((ignore_dead_value == 0 ||
-                 func_002428f0(*(u8 **)(work + 0xA64), 0) == 0) &&
-                func_00232710((s32)*(u8 **)(work + 0xA64), param_4) == 0 &&
+                 datCalcIsDead(*(u8 **)(work + 0xA64), 0) == 0) &&
+                datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), param_4) == 0 &&
                 param_6(unit, param_2) != 0)
                 return 1;
         }
@@ -3020,7 +3019,7 @@ test:
     return 0;
 }
 // FUN_001D9740
-s32 func_001d9740(u8 *arg0, s32 arg1)
+s32 btlCond_MYHP(u8 *arg0, s32 arg1)
 {
     u32 uVar2 = 0;
     u32 uVar1 = 0;
@@ -3042,7 +3041,7 @@ s32 func_001d97b0(u8 *arg0, s32 arg1)
 }
 
 // FUN_001D9820
-s32 func_001d9820(u8 *arg0, s32 arg1)
+s32 btlCond_MYMP(u8 *arg0, s32 arg1)
 {
     u32 uVar2 = 0;
     u32 uVar1 = 0;
@@ -3053,8 +3052,8 @@ s32 func_001d9820(u8 *arg0, s32 arg1)
 }
 
 // FUN_001D9890
-void func_001d9890(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)func_001d9740);
+void btlCond_FRHP(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYHP);
 }
 
 // FUN_001D98E0
@@ -3062,7 +3061,7 @@ void func_001d9890(u8 *arg0, u32 arg1) {
 #pragma opt_rebuildconditionals off
 /* Same shape as btlAICommand func_001db990, whose note records that removing this
    pragma costs the match (nd 0 -> 43) - measured there, inherited here. */
-void func_001d98e0(u8 *arg0, u32 arg1) {
+void btlCond_ENHP(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -3074,7 +3073,7 @@ void func_001d98e0(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001d9740);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYHP);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
@@ -3084,7 +3083,7 @@ void func_001d98e0(u8 *arg0, u32 arg1) {
 #pragma opt_rebuildconditionals off
 /* Same shape as btlAICommand func_001db990, whose note records that removing this
    pragma costs the match (nd 0 -> 43) - measured there, inherited here. */
-void func_001d9940(u8 *arg0, u32 arg1) {
+void btlCond_ENHP_O(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -3102,31 +3101,31 @@ void func_001d9940(u8 *arg0, u32 arg1) {
 #pragma opt_rebuildconditionals on
 
 // FUN_001D99A0
-s32 func_001d99a0(u8 *arg0, u32 arg1)
+s32 btlCond_MYLV_O(u8 *arg0, u32 arg1)
 {
     return (u32)(func_00231e20(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)) & 0xFF) >= arg1;
 }
 // FUN_001D9B60
-s32 func_001d9b60(u8 *task, s32 mask) {
+s32 btlCond_MYBAD(u8 *task, s32 mask) {
     return datCalcChkBadStatus(*(s32 *)(*(u8 **)(task + 0x30) + 0xA64), (u32)mask);
 }
 // FUN_001D9B90
-void func_001d9b90(u8 *arg0, u32 arg1)
+void btlCond_FRBAD(u8 *arg0, u32 arg1)
 {
     u32 mask;
 
     mask = (1 << *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2)) & 0xFFFF;
     if ((arg1 & 0x80000) != 0) {
-        func_001d94d0((int)arg0, arg1, mask, 0, 0, func_001d9b60);
+        func_001d94d0((int)arg0, arg1, mask, 0, 0, btlCond_MYBAD);
     } else {
-        func_001d94d0((int)arg0, arg1, mask, 0x80000, 0, func_001d9b60);
+        func_001d94d0((int)arg0, arg1, mask, 0x80000, 0, btlCond_MYBAD);
     }
 }
 
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 // FUN_001D9C00
 #pragma opt_rebuildconditionals off
-void func_001d9c00(u8 *arg0, u32 arg1)
+void btlCond_ENBAD(u8 *arg0, u32 arg1)
 {
     u32 shift;
     u32 temp_3;
@@ -3143,9 +3142,9 @@ void func_001d9c00(u8 *arg0, u32 arg1)
     }
     temp_3 = shift & 0xFFFF;
     if ((arg1 & 0x80000) != 0) {
-        func_001d94d0((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0, 0, func_001d9b60);
+        func_001d94d0((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0, 0, btlCond_MYBAD);
     } else {
-        func_001d94d0((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0x80000, 0, func_001d9b60);
+        func_001d94d0((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0x80000, 0, btlCond_MYBAD);
     }
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
@@ -3153,7 +3152,7 @@ void func_001d9c00(u8 *arg0, u32 arg1)
 /* measured: opt_rebuildconditionals off forces the retail mode branch. */
 #pragma opt_rebuildconditionals off
 // FUN_001D9CA0
-s32 func_001d9ca0(u8 *arg0, s32 arg1)
+s32 btlCond_ENBAD_ALL(u8 *arg0, s32 arg1)
 {
     u8 *unit;
     s32 mode;
@@ -3176,8 +3175,8 @@ done:
         if ((flags & 1) != 0 && (flags & 8) != 0) {
             temp = *(u8 **)(unit + 0x30);
             if ((mask & (1 << *(u8 *)(temp + 0xA2))) != 0 &&
-                func_002428f0(*(u8 **)(temp + 0xA64), 0) == 0 &&
-                func_00232710(*(s32 *)(temp + 0xA64), arg1) == 0) {
+                datCalcIsDead(*(u8 **)(temp + 0xA64), 0) == 0 &&
+                datCalcChkBadStatus(*(s32 *)(temp + 0xA64), arg1) == 0) {
                 break;
             }
         }
@@ -3192,7 +3191,7 @@ found:
 /* measured: restore opt_rebuildconditionals after func_001d9ca0. */
 #pragma opt_rebuildconditionals on
 // FUN_001D9DB0
-s32 func_001d9db0(u8 *arg0, s32 arg1)
+s32 btlCond_FRID(u8 *arg0, s32 arg1)
 {
     u16 flags;
     u8 *temp;
@@ -3205,7 +3204,7 @@ s32 func_001d9db0(u8 *arg0, s32 arg1)
             if ((flags & 1) != 0 && (flags & 8) != 0) {
                 temp = *(u8 **)(unit + 0x30);
                 if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == *(u8 *)(temp + 0xA2) &&
-                    func_00232710(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
+                    datCalcChkBadStatus(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
                     *(u16 *)(temp + 0xA4) == arg1) {
                     return 1;
                 }
@@ -3218,7 +3217,7 @@ s32 func_001d9db0(u8 *arg0, s32 arg1)
 /* measured: opt_rebuildconditionals off forces the retail mode branch. */
 #pragma opt_rebuildconditionals off
 // FUN_001D9E80
-s32 func_001d9e80(u8 *arg0, s32 arg1)
+s32 btlCond_ENID(u8 *arg0, s32 arg1)
 {
     u8 *unit;
     s32 value;
@@ -3241,7 +3240,7 @@ done:
         if ((flags & 1) != 0 && (flags & 8) != 0) {
             temp = *(u8 **)(unit + 0x30);
             if (*(u8 *)(temp + 0xA2) == mode &&
-                func_00232710(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
+                datCalcChkBadStatus(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
                 *(u16 *)(temp + 0xA4) == arg1) {
                 return 1;
             }
@@ -3253,7 +3252,7 @@ done:
 /* measured: restore opt_rebuildconditionals after func_001d9e80. */
 #pragma opt_rebuildconditionals on
 // FUN_001D9F60
-s32 func_001d9f60(u8 *arg0, s32 arg1)
+s32 btlCond_FRHOJO(u8 *arg0, s32 arg1)
 {
     u16 flags;
     u8 *temp;
@@ -3266,7 +3265,7 @@ s32 func_001d9f60(u8 *arg0, s32 arg1)
             if ((flags & 1) != 0 && (flags & 8) != 0) {
                 temp = *(u8 **)(unit + 0x30);
                 if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == *(u8 *)(temp + 0xA2) &&
-                    func_00232710(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
+                    datCalcChkBadStatus(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
                     func_002340c0(*(s32 *)(temp + 0xA64), arg1) != 0) {
                     return 1;
                 }
@@ -3279,7 +3278,7 @@ s32 func_001d9f60(u8 *arg0, s32 arg1)
 /* measured: opt_rebuildconditionals off forces the retail mode branch. */
 #pragma opt_rebuildconditionals off
 // FUN_001DA040
-s32 func_001da040(u8 *arg0, s32 arg1)
+s32 btlCond_ENHOJO(u8 *arg0, s32 arg1)
 {
     u8 *unit;
     s32 value;
@@ -3302,7 +3301,7 @@ done:
         if ((flags & 1) != 0 && (flags & 8) != 0) {
             temp = *(u8 **)(unit + 0x30);
             if (*(u8 *)(temp + 0xA2) == mode &&
-                func_00232710(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
+                datCalcChkBadStatus(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
                 func_002340c0(*(s32 *)(temp + 0xA64), arg1) != 0) {
                 return 1;
             }
@@ -3314,10 +3313,10 @@ done:
 /* measured: restore opt_rebuildconditionals after func_001da040. */
 #pragma opt_rebuildconditionals on
 // FUN_001DA130
-s32 func_001da130(u8 *arg0) {
+s32 btlCond_ESCAPE(u8 *arg0) {
     s32 r;
 
-    if (func_00232710(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0x180010) != 0) {
+    if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0x180010) != 0) {
         r = 0;
     } else {
         r = (*(s32 *)(iGpffffb414 + *(u16 *)(*(u8 **)(D_0076449C + 0xC68) + 8) * 0x18) & 1) != 0;
@@ -3326,13 +3325,13 @@ s32 func_001da130(u8 *arg0) {
 }
 
 // FUN_001DA1A0
-s32 func_001da1a0(void)
+s32 btlCond_SUMMON(void)
 {
     return 0;
 }
 
 // FUN_001DA1B0
-s32 func_001da1b0(u8 *arg0)
+s32 btlCond_SENSEI(u8 *arg0)
 {
     u8 genus;
 
@@ -3378,8 +3377,8 @@ s32 btlCond_MYWEAK(u8 *arg0, s16 arg1) {
 
 
 // FUN_001DA330
-void func_001da330(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)func_001da230);
+void btlCond_FRHANSYA(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYHANSYA);
 }
 
 // FUN_001DA380
@@ -3387,7 +3386,7 @@ void func_001da330(u8 *arg0, u32 arg1) {
 #pragma opt_rebuildconditionals off
 /* Same shape as btlAICommand func_001db990, whose note records that removing this
    pragma costs the match (nd 0 -> 43) - measured there, inherited here. */
-void func_001da380(u8 *arg0, u32 arg1) {
+void btlCond_ENHANSYA(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -3399,7 +3398,7 @@ void func_001da380(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001da230);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYHANSYA);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
@@ -3413,7 +3412,7 @@ void btlCond_FRKYUSYU(u8 *arg0, s32 arg1) {
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 #pragma opt_rebuildconditionals off
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
-void func_001da430(u8 *arg0, u32 arg1) {
+void btlCond_ENKYUSYU(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -3425,19 +3424,19 @@ void func_001da430(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001da270);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYKYUSYU);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 // FUN_001DA490
-void func_001da490(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)func_001da2b0);
+void btlCond_FRMUKOU(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYMUKOU);
 }
 // FUN_001DA4E0
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 #pragma opt_rebuildconditionals off
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
-void func_001da4e0(u8 *arg0, u32 arg1) {
+void btlCond_ENMUKOU(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -3449,19 +3448,19 @@ void func_001da4e0(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001da2b0);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYMUKOU);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 // FUN_001DA540
-void func_001da540(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)func_001da2f0);
+void btlCond_FRWEAK(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYWEAK);
 }
 // FUN_001DA590
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 #pragma opt_rebuildconditionals off
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
-void func_001da590(u8 *arg0, u32 arg1) {
+void btlCond_ENWEAK(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -3473,26 +3472,26 @@ void func_001da590(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001da2f0);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYWEAK);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 // FUN_001DA5F0
-s32 func_001da5f0(u8 *arg0, s32 arg1)
+s32 btlCond_MYUSEATTR(u8 *arg0, s32 arg1)
 {
     return p4_001da5f0_xor((s16)func_0023d8e0(
         *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64),
         *(u16 *)(arg0 + 0x7E)), arg1) < 1U;
 }
 // FUN_001DA640
-void func_001da640(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)func_001da5f0);
+void btlCond_FRUSEATTR(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYUSEATTR);
 }
 // FUN_001DA690
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 #pragma opt_rebuildconditionals off
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
-void func_001da690(u8 *arg0, u32 arg1) {
+void btlCond_ENUSEATTR(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -3504,13 +3503,13 @@ void func_001da690(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001da5f0);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYUSEATTR);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 /* Twin port from P3 Battle/btlEffect.c func_002c2510; P4 constants and callees recovered from retail asm. */
 // FUN_001DA930
-s32 func_001da930(u8 *arg0)
+s32 btlCond_MYHREC(u8 *arg0)
 {
     s32 data;
     s32 count;
@@ -3532,14 +3531,14 @@ s32 func_001da930(u8 *arg0)
     return 0;
 }
 // FUN_001DAA00
-void func_001daa00(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)func_001da230);
+void btlCond_FRHANSYA_ST(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)btlCond_MYHANSYA);
 }
 // FUN_001DAA50
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 #pragma opt_rebuildconditionals off
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
-void func_001daa50(u8 *arg0, u32 arg1) {
+void btlCond_ENHANSYA_ST(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -3551,19 +3550,19 @@ void func_001daa50(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)func_001da230);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYHANSYA);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 // FUN_001DAAB0
-void func_001daab0(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)func_001da270);
+void btlCond_FRKYUSYU_ST(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)btlCond_MYKYUSYU);
 }
 // FUN_001DAB00
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 #pragma opt_rebuildconditionals off
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
-void func_001dab00(u8 *arg0, u32 arg1) {
+void btlCond_ENKYUSYU_ST(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -3575,19 +3574,19 @@ void func_001dab00(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)func_001da270);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYKYUSYU);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 // FUN_001DAB60
-void func_001dab60(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)func_001da2b0);
+void btlCond_FRMUKOU_ST(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)btlCond_MYMUKOU);
 }
 // FUN_001DABB0
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 #pragma opt_rebuildconditionals off
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
-void func_001dabb0(u8 *arg0, u32 arg1) {
+void btlCond_ENMUKOU_ST(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -3599,19 +3598,19 @@ void func_001dabb0(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)func_001da2b0);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYMUKOU);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 // FUN_001DAC10
-void func_001dac10(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)func_001da2f0);
+void btlCond_FRWEAK_ST(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)btlCond_MYWEAK);
 }
 // FUN_001DAC60
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 #pragma opt_rebuildconditionals off
 /* Same branch shape as func_001da380; pragma measured on this wrapper. */
-void func_001dac60(u8 *arg0, u32 arg1) {
+void btlCond_ENWEAK_ST(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -3623,14 +3622,14 @@ void func_001dac60(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)func_001da2f0);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYWEAK);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 // FUN_001DACE0
-s32 func_001dace0(u8 *arg0, s32 arg1)
+s32 btlCond_FRALLHP(u8 *arg0, s32 arg1)
 {
-    extern u16 func_00231ed0(u8 *arg0);
+    extern u16 datCalcGetHp(u8 *arg0);
     u8 *var_21;
     u8 *temp_17;
     u16 temp_3;
@@ -3650,8 +3649,8 @@ loop_body:
     if ((temp_3 & 1) != 0 && (temp_3 & 8) != 0) {
         temp_17 = *(u8 **)(var_21 + 0x30);
         if ((temp_18 & (1 << *(u8 *)(temp_17 + 0xA2))) != 0 &&
-            func_002428f0(*(u8 **)(temp_17 + 0xA64), 0) == 0) {
-            var_20 += func_00231ed0(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF;
+            datCalcIsDead(*(u8 **)(temp_17 + 0xA64), 0) == 0) {
+            var_20 += datCalcGetHp(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF;
             var_19 += func_00231f80(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF;
         }
     }
@@ -3664,9 +3663,9 @@ loop_test:
 /* Opening state measured: opt_rebuildconditionals off is required for this mode branch. */
 #pragma opt_rebuildconditionals off
 // FUN_001DAE00
-s32 func_001dae00(u8 *arg0, s32 arg1)
+s32 btlCond_ENALLHP(u8 *arg0, s32 arg1)
 {
-    extern u16 func_00231ed0(u8 *arg0);
+    extern u16 datCalcGetHp(u8 *arg0);
     u8 *var_21;
     u8 *temp_17;
     u16 temp_3;
@@ -3696,8 +3695,8 @@ loop_body:
     if ((temp_3 & 1) != 0 && (temp_3 & 8) != 0) {
         temp_17 = *(u8 **)(var_21 + 0x30);
         if ((temp_18 & (1 << *(u8 *)(temp_17 + 0xA2))) != 0 &&
-            func_002428f0(*(u8 **)(temp_17 + 0xA64), 0) == 0) {
-            var_20 += func_00231ed0(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF;
+            datCalcIsDead(*(u8 **)(temp_17 + 0xA64), 0) == 0) {
+            var_20 += datCalcGetHp(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF;
             var_19 += func_00231f80(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF;
         }
     }

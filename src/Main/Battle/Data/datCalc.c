@@ -6,7 +6,7 @@ extern u32 RpRandom(void);
 extern void func_0046d730(void *arg0, s32 arg1);
 extern u8 D_00635938[];
 
-extern u32 func_003b7060(void);
+extern u32 RpRandom(void);
 extern u32 func_0023e130(u8 *arg0);
 
 extern void memset(void *arg0, s32 arg1, s32 arg2);
@@ -49,9 +49,9 @@ extern u16 func_00104e30(s16 character);
 extern void func_00105730(s16 character, s16 value);
 extern void func_00105d50(s16 character, u32 mask);
 
-extern u8 *func_001094e0(u16 arg0);
+extern u8 *datPersonaGetSkillsByPcId(u16 arg0);
 extern u16 *func_0010a900(u16 arg0);
-extern s32 func_00109390(s32 arg0);
+extern s32 datPersonaGetLevel(s32 arg0);
 extern u32 func_00105ed0(void);
 extern u8 *func_00105510(s32 arg0);
 extern u8 func_00232c70(u8 *arg0, s32 arg1);
@@ -66,7 +66,7 @@ extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
 extern s32 func_00238940(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
 extern s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
 extern u32 func_002397d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
-extern u32 func_00106330(s32 arg0);
+extern u32 datGetFlag(s32 arg0);
 extern s32 func_00109980(s32 arg0, s32 arg1);
 extern s64 func_00233570(u8 *arg0, s32 arg1, s64 arg2);
 /* func_00241de0 passes a 5th arg (arg4) that func_00241bc0 ignores. */
@@ -146,7 +146,7 @@ s32 func_00231e20(u8 *arg0)
         if (level == 0) {
             func_0046d730(D_00635938, 0x58);
         }
-        level = func_00109390(level) & 0xFF;
+        level = datPersonaGetLevel(level) & 0xFF;
     }
     if ((s32)(u8)level <= 0) {
         func_0046d730(D_00635938, 0x5C);
@@ -1614,7 +1614,7 @@ u8 arg7;
         if (healing == 0) {
             func_0046d730(D_00635938, 0x17);
         }
-        healing = DCDamageAddBonus((s32)(func_003b7060() % healing), bonus);
+        healing = DCDamageAddBonus((s32)(RpRandom() % healing), bonus);
         break;
     case 9:
         healing = DCDamageAddBonus((s32)(current * power / 100), bonus);
@@ -1772,8 +1772,8 @@ u8 arg7;
                 elemental = 1.875f;
             }
             passive *= elemental;
-            if (func_00106330(0x1435)) {
-                if (func_00106330(0x15C5)) {
+            if (datGetFlag(0x1435)) {
+                if (datGetFlag(0x15C5)) {
                     passive *= 2.0f;
                 } else {
                     passive *= fGpffff82c4;
@@ -1795,8 +1795,8 @@ u8 arg7;
                 elemental = 1.875f;
             }
             passive *= elemental;
-            if (func_00106330(0x1435)) {
-                if (func_00106330(0x15C6)) {
+            if (datGetFlag(0x1435)) {
+                if (datGetFlag(0x15C6)) {
                     passive *= 2.0f;
                 } else {
                     passive *= fGpffff82c4;
@@ -1818,8 +1818,8 @@ u8 arg7;
                 elemental = 1.875f;
             }
             passive *= elemental;
-            if (func_00106330(0x1435)) {
-                if (func_00106330(0x15C8)) {
+            if (datGetFlag(0x1435)) {
+                if (datGetFlag(0x15C8)) {
                     passive *= 2.0f;
                 } else {
                     passive *= fGpffff82c4;
@@ -1841,8 +1841,8 @@ u8 arg7;
                 elemental = 1.875f;
             }
             passive *= elemental;
-            if (func_00106330(0x1435)) {
-                if (func_00106330(0x15C7)) {
+            if (datGetFlag(0x1435)) {
+                if (datGetFlag(0x15C7)) {
                     passive *= 2.0f;
                 } else {
                     passive *= fGpffff82c4;
@@ -1853,11 +1853,11 @@ u8 arg7;
         if (PTDatCalcHasSkill(arg2, 0x209)) {
             passive *= 0.5f;
         }
-        if (func_00106330(0x1011)) {
+        if (datGetFlag(0x1011)) {
             if (*(u16 *)arg1 & 4) {
                 attack *= 1.5f;
             }
-        } else if (func_00106330(0x1010) && (*(u16 *)arg1 & 4)) {
+        } else if (datGetFlag(0x1010) && (*(u16 *)arg1 & 4)) {
             attack *= iGpffff8170;
         }
         if (arg5 == 2) {
@@ -1998,7 +1998,7 @@ u8 arg7;
             } else if (work <= 0) {
                 work = 1;
             }
-            damage = (u32)(work * (func_003b7060() % 11U + 95U)) / 100U;
+            damage = (u32)(work * (RpRandom() % 11U + 95U)) / 100U;
         }
         if (damage <= 0) {
             damage = 1;
@@ -2014,7 +2014,7 @@ u8 arg7;
         } else if (work <= 0) {
             work = 1;
         }
-        healing = (u32)(work * (func_003b7060() % 11U + 95U)) / 100U;
+        healing = (u32)(work * (RpRandom() % 11U + 95U)) / 100U;
         if (healing <= 0) {
             healing = 1;
         }
@@ -2088,7 +2088,7 @@ s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
             if (temp_2_2 == 0) {
                 func_0046d730(D_00635938, 0x58);
             }
-            var_16 = func_00109390(temp_2_2);
+            var_16 = datPersonaGetLevel(temp_2_2);
         }
         if ((var_16 & 0xFF) <= 0) {
             func_0046d730(D_00635938, 0x5C);
@@ -2107,7 +2107,7 @@ s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
             if (temp_2_5 == 0) {
                 func_0046d730(D_00635938, 0x58);
             }
-            var_18 = func_00109390(temp_2_5);
+            var_18 = datPersonaGetLevel(temp_2_5);
         }
         if ((var_18 & 0xFF) <= 0) {
             func_0046d730(D_00635938, 0x5C);
@@ -2120,7 +2120,7 @@ s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
         var_f0_3 = (f32)func_002439c0(arg1);
         var_f20 = var_f20 * var_f0_3;
     }
-    temp_hi = func_003b7060() % 21U;
+    temp_hi = RpRandom() % 21U;
     var_f0_4 = (f32)temp_hi;
     var_2 = var_f20 * (((100.0f + var_f0_4) - 10.0f) / 100.0f);
     temp = (s32)var_2;
@@ -2195,7 +2195,7 @@ s32 options;
         if (choiceCount == 0) {
             func_0046d730(D_00635938, 0x17);
         }
-        statuses = 1U << choices[func_003b7060() % choiceCount];
+        statuses = 1U << choices[RpRandom() % choiceCount];
     }
     if (statuses != 0 &&
         ((entry = iGpffffb3b8, mode = *(u8 *)PTDatCalcOffsetAdd((u32)entry + 0x18U, (u32)offset), mode == 1) || mode == 3)) {
@@ -2318,7 +2318,7 @@ return_zero_1:
         } else if (rate < 0) {
             rate = 0;
         }
-        if ((s32)(func_003b7060() % 100U) < rate) {
+        if ((s32)(RpRandom() % 100U) < rate) {
             success = 1;
         }
     }
@@ -3383,7 +3383,7 @@ s32 func_0023dff0(u8 *arg0)
         return 0;
     if (n == 0)
         func_0046d730(D_00635938, 0x17);
-    return choices[func_003b7060() % n];
+    return choices[RpRandom() % n];
 }
 #pragma pop
 
@@ -3395,7 +3395,7 @@ u8 *func_0023e140(u8 *arg0)
         if (*(u16 *)(arg0 + 2) >= 0xB) {
             func_0046d730(D_00635938, 0xFA5);
         }
-        return func_001094e0(*(u16 *)(arg0 + 2));
+        return datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
     }
     if (*(u16 *)(arg0 + 2) >= 0x150) {
         func_0046d730(D_00635938, 0xFA8);
@@ -3561,7 +3561,7 @@ static inline u8 *DC411SkillTable(u8 *arg0)
         if (*(u16 *)(arg0 + 2) >= 0xB) {
             func_0046d730(D_00635938, 0xFA5);
         }
-        return func_001094e0(*(u16 *)(arg0 + 2));
+        return datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
     }
     if (*(u16 *)(arg0 + 2) >= 0x150) {
         func_0046d730(D_00635938, 0xFA8);
@@ -3718,7 +3718,7 @@ s32 arg3;
                 }
                 counterRate = (s16)counterRate;
                 if (counterRate != 0 &&
-                    (s32)(func_003b7060() % 100U) < counterRate) {
+                    (s32)(RpRandom() % 100U) < counterRate) {
                     *(s16 *)(arg1 + 0x2C) = evadeCause;
                     return 0x200;
                 }
@@ -3907,7 +3907,7 @@ s32 arg3;
     } else if (baseRate < 50) {
         baseRate = 50;
     }
-    if ((s32)(func_003b7060() % 100U) >= baseRate) {
+    if ((s32)(RpRandom() % 100U) >= baseRate) {
         *(s16 *)(arg1 + 0x2C) = evadeCause;
         return 4;
     }
@@ -4062,13 +4062,13 @@ s32 arg4;
         } else if (total < 0) {
             total = 0;
         }
-        if ((s32)(func_003b7060() % 100) < thresh) {
+        if ((s32)(RpRandom() % 100) < thresh) {
             return 2;
         }
-        if ((s32)(func_003b7060() % 100) < 0) {
+        if ((s32)(RpRandom() % 100) < 0) {
             return 2;
         }
-        if ((s32)(func_003b7060() % 100) < total) {
+        if ((s32)(RpRandom() % 100) < total) {
             return 2;
         }
         break;
@@ -4299,7 +4299,7 @@ s32 func_00241f00(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
     if (var_2_5 != 0) {
         var_16 = 0;
     }
-    if ((s32)(func_003b7060() % 100) < (s32)(var_16 & 0xFFFF)) {
+    if ((s32)(RpRandom() % 100) < (s32)(var_16 & 0xFFFF)) {
         return 1;
     }
     return 0;
@@ -4374,7 +4374,7 @@ s32 func_00242360(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
                 if (*(u16 *)(arg0 + 2) >= 0xB) {
                     func_0046d730(D_00635938, 0xFA5);
                 }
-                var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+                var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
             } else {
                 if (*(u16 *)(arg0 + 2) >= 0x150) {
                     func_0046d730(D_00635938, 0xFA8);
@@ -4407,7 +4407,7 @@ done:
     if (temp_16_2 == 0) {
         return 0;
     }
-    if (temp_16_2 >= 0x64 || (s32)(func_003b7060() % 100U & 0xFFFF) < temp_16_2) {
+    if (temp_16_2 >= 0x64 || (s32)(RpRandom() % 100U & 0xFFFF) < temp_16_2) {
         return 1;
     }
     return 0;
@@ -4480,7 +4480,7 @@ s32 func_00242990(u8 *arg0, s32 arg1)
         if (*(u16 *)(arg0 + 2) >= 0xB) {
             func_0046d730(D_00635938, 0xFA5);
         }
-        var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+        var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
     } else {
         if (*(u16 *)(arg0 + 2) >= 0x150) {
             func_0046d730(D_00635938, 0xFA8);
@@ -4513,7 +4513,7 @@ done1:
         if (*(u16 *)(arg0 + 2) >= 0xB) {
             func_0046d730(D_00635938, 0xFA5);
         }
-        var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+        var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
     } else {
         if (*(u16 *)(arg0 + 2) >= 0x150) {
             func_0046d730(D_00635938, 0xFA8);
@@ -4567,7 +4567,7 @@ done2:
             if (*(u16 *)(arg0 + 2) >= 0xB) {
                 func_0046d730(D_00635938, 0xFA5);
             }
-            var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+            var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
         } else {
             if (*(u16 *)(arg0 + 2) >= 0x150) {
                 func_0046d730(D_00635938, 0xFA8);
@@ -4593,14 +4593,14 @@ done2:
         }
         found = 0;
 done3:
-        if ((found != 0) && ((s32)(func_003b7060() % 100U) < 0x32)) {
+        if ((found != 0) && ((s32)(RpRandom() % 100U) < 0x32)) {
             var_17 = 0x211;
         }
         if (!(*(u16 *)arg0 & 4)) {
             if (*(u16 *)(arg0 + 2) >= 0xB) {
                 func_0046d730(D_00635938, 0xFA5);
             }
-            var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+            var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
         } else {
             if (*(u16 *)(arg0 + 2) >= 0x150) {
                 func_0046d730(D_00635938, 0xFA8);
@@ -4642,7 +4642,7 @@ done4:
             if (*(u16 *)(arg0 + 2) >= 0xB) {
                 func_0046d730(D_00635938, 0xFA5);
             }
-            var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+            var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
         } else {
             if (*(u16 *)(arg0 + 2) >= 0x150) {
                 func_0046d730(D_00635938, 0xFA8);
@@ -4668,14 +4668,14 @@ done4:
         }
         found = 0;
 done5:
-        if ((found != 0) && ((s32)(func_003b7060() % 100U) < 0x32)) {
+        if ((found != 0) && ((s32)(RpRandom() % 100U) < 0x32)) {
             var_17 = 0x212;
         }
         if (!(*(u16 *)arg0 & 4)) {
             if (*(u16 *)(arg0 + 2) >= 0xB) {
                 func_0046d730(D_00635938, 0xFA5);
             }
-            var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+            var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
         } else {
             if (*(u16 *)(arg0 + 2) >= 0x150) {
                 func_0046d730(D_00635938, 0xFA8);
@@ -4713,7 +4713,7 @@ done6:
             if (*(u16 *)(arg0 + 2) >= 0xB) {
                 func_0046d730(D_00635938, 0xFA5);
             }
-            var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+            var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
         } else {
             if (*(u16 *)(arg0 + 2) >= 0x150) {
                 func_0046d730(D_00635938, 0xFA8);
@@ -4751,7 +4751,7 @@ done7:
         if (*(u16 *)(arg0 + 2) >= 0xB) {
             func_0046d730(D_00635938, 0xFA5);
         }
-        var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+        var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
     } else {
         if (*(u16 *)(arg0 + 2) >= 0x150) {
             func_0046d730(D_00635938, 0xFA8);
@@ -4847,7 +4847,7 @@ u8 func_00243650(u8 *arg0, s32 arg1, s32 arg2)
         func_0046d730(D_00635938, 0x17);
     }
     temp_2 = temp_16 & 0xFF;
-    return (u8)(temp_2 + func_003b7060() % temp_17);
+    return (u8)(temp_2 + RpRandom() % temp_17);
 }
 
 // FUN_00243840
@@ -4925,8 +4925,8 @@ u16 func_00243a30(u8 *arg0, s32 *arg1)
     }
     if (*(u16 *)(entry + 0x34) != 0) {
         value = *(u16 *)(entry + 0x32);
-        if (value != 0 && func_00106330(value) != 0 &&
-            (s32)((func_003b7060() % 100U) & 0xFF) < (s32)*(u8 *)(entry + 0x36)) {
+        if (value != 0 && datGetFlag(value) != 0 &&
+            (s32)((RpRandom() % 100U) & 0xFF) < (s32)*(u8 *)(entry + 0x36)) {
             result = *(u16 *)(entry + 0x34);
             if (arg1 != 0) {
                 *arg1 = 1;
@@ -4941,18 +4941,18 @@ u16 func_00243a30(u8 *arg0, s32 *arg1)
             value = *(u16 *)(slot + 0x22);
             if (value != 0 &&
                 (value < 0x400 || value >= 0x500 ||
-                 func_00106330(0x600 - value) == 0)) {
+                 datGetFlag(0x600 - value) == 0)) {
                 total = (total + *(u8 *)(slot + 0x24)) & 0xFFFF;
             }
             i = (i + 1) & 0xFFFF;
         }
         count = total & 0xFFFF;
         if (count > 0 &&
-            (s32)((func_003b7060() % 200U) & 0xFFFF) < count) {
+            (s32)((RpRandom() % 200U) & 0xFFFF) < count) {
             if (count == 0) {
                 func_0046d730(D_00635938, 0x17);
             }
-            total = (u16)(func_003b7060() % (u32)count);
+            total = (u16)(RpRandom() % (u32)count);
             second_total = 0;
             i = 0;
             while ((i & 0xFFFF) < 4) {
@@ -4961,7 +4961,7 @@ u16 func_00243a30(u8 *arg0, s32 *arg1)
                 value = *field;
                 if (value != 0 &&
                     (value < 0x400 || value >= 0x500 ||
-                     func_00106330(0x600 - value) == 0)) {
+                     datGetFlag(0x600 - value) == 0)) {
                     second_total =
                         (second_total + *(u8 *)(slot + 0x24)) & 0xFFFF;
                     if (total < second_total) {

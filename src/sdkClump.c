@@ -10,9 +10,9 @@ extern u8 D_00712518[];
 extern u32 D_00712530[];
 extern u8 D_00712558[];
 extern u8 D_00712568[];
-extern s32 func_004578b0(void *material, const char *name);
-extern u32 func_00457a90(void *material, const char *name);
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern s32 K_Clump_MatUsrDataGetInt(void *material, const char *name);
+extern u32 K_Clump_MatUsrDataHasData(void *material, const char *name);
+extern void memset(void *dst, s32 value, u32 size);
 extern s32 func_003c21e0(void *arg0, s32 (*cb)(s32, void *), void *arg2);
 extern void func_00462780(u8 *arg0, u32 arg1, u8 *arg2, s32 arg3);
 extern void func_00462bf0(void *arg0);
@@ -24,7 +24,7 @@ void *func_00462a60(void *arg0, void *arg1) {
     u8 sp30[0xC];
     s32 temp_4;
 
-    func_0043f9c8(sp30, 0, 0xC);
+    memset(sp30, 0, 0xC);
     temp_4 = *(s32 *)((u8 *)arg0 + 0x18);
     if (temp_4 != 0) {
         func_003c21e0((void *)temp_4, func_00462960, sp30);
@@ -45,7 +45,7 @@ s32 func_00462960(s32 arg0, void *arg1) {
     s32 var_5;
     s32 var_6;
 
-    temp_2 = func_004578b0((void *)arg0, (const char *)D_00712558);
+    temp_2 = K_Clump_MatUsrDataGetInt((void *)arg0, (const char *)D_00712558);
     var_6 = 0;
     while (var_6 < 0xA) {
         if (*(s32 *)arg1 == (s32)D_00712530[var_6]) {
@@ -63,7 +63,7 @@ s32 func_00462960(s32 arg0, void *arg1) {
     if (var_6 < var_5) {
         *(s32 *)arg1 = (s32)D_00712530[var_5];
     }
-    if (func_00457a90((void *)arg0, (const char *)D_00712568) == 1) {
+    if (K_Clump_MatUsrDataHasData((void *)arg0, (const char *)D_00712568) == 1) {
         *(s32 *)((u8 *)arg1 + 4) = 1;
     }
     return arg0;

@@ -44,7 +44,7 @@ extern s32 func_0036bb60(void);
 extern void func_001437b0(u8 *arg0, s16 arg1, s32 arg2);
 
 extern s32 func_0034c210(void);
-extern s32 func_00106330(s32 arg0);
+extern s32 datGetFlag(s32 arg0);
 extern s32 func_0035fa00(u8 *arg0, s32 arg1, s16 arg2);
 extern void func_0034f8f0(void *arg0);
 extern s32 func_00104c70(s32 arg0);
@@ -54,7 +54,7 @@ extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_00369440(void);
 extern u8 *func_00457120(void);
 extern void func_003e8180(void *arg0, f32 arg1);
-extern void func_004577d0(void *arg0, f32 arg1);
+extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_00457630(void *arg0, void *arg1, void *arg2, s32 arg3);
 extern void func_0011fd30(u8 *arg0);
 extern void func_0011fd50(s64 arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
@@ -74,7 +74,7 @@ extern char D_005E5830[];
 extern char D_0064E460[];
 extern char D_0064E280[];
 
-extern f32 func_0044b610(f32 arg0);
+extern f32 cosf(f32 arg0);
 static inline f32 p4_00362f00_add(f32 left, f32 right)
 {
     return left + right;
@@ -143,8 +143,8 @@ typedef struct {
 typedef void (*P4RenderState66C70)(s32 state, s32 value);
 extern RwV3d *func_003e4320(RwV3d *dst, const RwV3d *src,
                            const struct RwMatrixTag *matrix);
-extern f32 func_0044b7b0(f32 arg0);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern f32 sinf(f32 arg0);
+extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern s32 D_0064E440[];
 extern f32 D_008872F8[];
 extern P4RenderState66C70 D_00887300[];
@@ -267,9 +267,9 @@ void func_00361ca0(u8 *arg0) {
 #ifdef NON_MATCHING
 void func_00361d20(s32 arg0, u8 *arg1)
 {
-    extern s32 func_00106330(s32 arg0);
+    extern s32 datGetFlag(s32 arg0);
     extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
-    extern void func_00442088(void *dst, const void *fmt, ...);
+    extern void sprintf(void *dst, const void *fmt, ...);
     extern u32 func_00354490(s32 arg0);
     extern s32 func_002751a0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 out, s32 charWidth);
     extern u8 D_0064B2E0[];
@@ -310,9 +310,9 @@ void func_00361d20(s32 arg0, u8 *arg1)
     baseY = *(f32 *)(arg1 + 8);
     scale = (f32)arg1[0] / 255.0f;
     idx = arg0 + *(s16 *)(arg1 + 0x2C);
-    probe100 = func_00106330(idx + 0x100);
-    probe180 = func_00106330(idx + 0x180);
-    probe140 = func_00106330(idx + 0x140);
+    probe100 = datGetFlag(idx + 0x100);
+    probe180 = datGetFlag(idx + 0x180);
+    probe140 = datGetFlag(idx + 0x140);
     if (arg0 == *(s16 *)(arg1 + 0x2A)) {
         ptrA = *(s32 *)(arg1 + 0x6E8);
         mode = 8;
@@ -395,7 +395,7 @@ void func_00361d20(s32 arg0, u8 *arg1)
         u8 a3 = (u8)((f32)row3[0x422] * scale);
         func_0034f2e0(*(void **)(arg1 + 0x6F8), x3, y3, 0xFF, 0xFF, 0xFF, a3);
     }
-    func_00442088(buf, &iGpffffa980, idx + 1);
+    sprintf(buf, &iGpffffa980, idx + 1);
     lx = 89.0f + (baseX + *(f32 *)(row + 0x1D8));
     ly = -13.0f + (f22 + (118.0f + (baseY + *(f32 *)(row + 0x1DC))));
     alphaLoop = (u8)((f32)row[0x1E2] * scale);
@@ -432,7 +432,7 @@ void func_00362630(u8 *arg0)
     count = *(s32 *)(arg0 + 0x38);
     i = 0;
     while (i < count) {
-        if (func_00106330(i + 0x180) != 0) {
+        if (datGetFlag(i + 0x180) != 0) {
             if ((s16)i >= count) {
                 func_0046d730(D_0064E280, 0x37);
             }
@@ -655,7 +655,7 @@ s32 func_00362f00(u8 *arg0)
     if (temp_3 < *(s16 *)(arg0 + 0x1A)) {
         *(s16 *)(arg0 + 0x18) = temp_3 + 1;
         temp_2 = *(s16 *)(arg0 + 0x18);
-        temp_f4 = 1.0f - func_0044b610(iGpffff84a4 * ((f32)temp_2 / (f32)*(s16 *)(arg0 + 0x1A)));
+        temp_f4 = 1.0f - cosf(iGpffff84a4 * ((f32)temp_2 / (f32)*(s16 *)(arg0 + 0x1A)));
         temp_f3 = *(f32 *)(arg0 + 0);
         temp_f2 = *(f32 *)(arg0 + 8);
         temp_f2 = temp_f2 - temp_f3;
@@ -1100,8 +1100,8 @@ s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
         (*(P4RenderState66C70 *)table)(0xA, 5);
         (*(P4RenderState66C70 *)table)(2, 4);
         (*(P4RenderState66C70 *)table)(0xE, 0);
-        func_003f6440(3, 0x7000D);
-        func_003f6440(2, 0x44);
+        RpSkyRenderStateSet(3, 0x7000D);
+        RpSkyRenderStateSet(2, 0x44);
     }
     table = (u8 *)D_00887300;
     (*(P4RenderState66C70 *)table)(1, texture);
@@ -1619,11 +1619,11 @@ done:
                 pb = pa + 1;
                 x = pa[0];
                 y = pb[0];
-                c = func_0044b7b0(angle);
-                s = func_0044b610(angle);
+                c = sinf(angle);
+                s = cosf(angle);
                 nx = x * s - y * c;
-                c = func_0044b7b0(angle);
-                s = func_0044b610(angle);
+                c = sinf(angle);
+                s = cosf(angle);
                 ny = y * s + x * c;
                 pa[0] = nx;
                 pb[0] = ny;
@@ -1681,8 +1681,8 @@ void func_0036ae90(u8 *arg0, u8 *arg1) {
     extern void func_0036abd0(void *arg0, void *arg1);
     extern RwV3d *func_003e4320(RwV3d *dst, const RwV3d *src, const void *matrix);
     extern void func_003e42a0(void *dst, void *src, void *cam);
-    extern void func_003e40b0(void *dst, void *src);
-    extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+    extern void RwV3dNormalize(void *dst, void *src);
+    extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
     extern void func_003e0f40(void *arg0);
     extern u8 D_0064E490[];
     extern u8 D_0064E498[];
@@ -1745,7 +1745,7 @@ void func_0036ae90(u8 *arg0, u8 *arg1) {
     dot = stackD0.x * (*(f32 *)mtx - stack100.x) + stackD0.y * (*(f32 *)(mtx + 4) - stack100.y) + stackD0.z * (*(f32 *)(mtx + 8) - stack100.z);
     *(s32 *)arg0 &= ~1;
     if (dot < 0.0f) {
-        func_003e0870(cam, &stackC0, 1, 180.0f);
+        RwMatrixRotate(cam, &stackC0, 1, 180.0f);
         *(s32 *)arg0 |= 1;
     }
     stack100.x = 0.0f;
@@ -1753,7 +1753,7 @@ void func_0036ae90(u8 *arg0, u8 *arg1) {
     stack100.z = 100.0f;
     func_003e42a0(&stack100, &stack100, cam);
     func_003e4320(&stackB0, &stack130, cam);
-    func_003e40b0(&stackB0, &stackB0);
+    RwV3dNormalize(&stackB0, &stackB0);
     {
         u8 *dst = arg0 + 4;
         f32 ey = stackE0.y;
@@ -1781,11 +1781,11 @@ void func_0036ae90(u8 *arg0, u8 *arg1) {
                 stack110.x = stackF0.x - *(f32 *)mtx;
                 stack110.y = stackF0.y - *(f32 *)(mtx + 4);
                 stack110.z = stackF0.z - *(f32 *)(mtx + 8);
-                func_003e40b0(&stack110, &stack110);
+                RwV3dNormalize(&stack110, &stack110);
                 stack120.x = stackF0.x - stackE0.x;
                 stack120.y = stackF0.y - ey;
                 stack120.z = stackF0.z - ez;
-                func_003e40b0(&stack120, &stack120);
+                RwV3dNormalize(&stack120, &stack120);
                 dot2 = stack110.x * stack130.x + stack110.y * stack130.y + stack110.z * *(((f32 *)&stack130) + 2);
                 {
                     f32 t1 = *(((f32 *)&stack130) + 2) * dot2;
@@ -1804,7 +1804,7 @@ void func_0036ae90(u8 *arg0, u8 *arg1) {
                 stack120.x = stackE0.x - stackF0.x;
                 stack120.y = ey - stackF0.y;
                 stack120.z = ez - stackF0.z;
-                func_003e40b0(&stack120, &stack120);
+                RwV3dNormalize(&stack120, &stack120);
                 dot3 = stack120.x * stackB0.x + stack120.y * stackB0.y + stack120.z * *(((f32 *)&stackB0) + 2);
                 clamped = 0.0f;
                 if (!(dot3 <= 0.0f)) {
@@ -1872,7 +1872,7 @@ void func_0036d8b0(void)
     local.f20 = 0;
     local.f24 = 0;
     local.f28 = 0x43480000;
-    func_004577d0((void *)temp_2, 100.0f);
+    K_View_SetFov((void *)temp_2, 100.0f);
     func_00457630((void *)temp_2, &local.f30, &local.f20, 0);
 }
 // FUN_0036D940

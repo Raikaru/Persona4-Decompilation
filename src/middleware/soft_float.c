@@ -10,13 +10,13 @@
 typedef int (*code)();
 
 /* Canonical grouped function declarations. */
-u32 func_0044db98(u32 *param_1);
-void func_0044dc50(u32 *param_1,u32 *param_2);
+u32 __pack_f(u32 *param_1);
+void __unpack_f(u32 *param_1,u32 *param_2);
 u32 func_0044dd18(u32 *param_1);
-void func_0044ddf0(u32 *param_1,u32 *param_2);
+void __unpack_d(u32 *param_1,u32 *param_2);
 u64 func_0044de80(u64 param_1,u64 param_2,u64 param_3);
 u64 func_0044e410(u64 param_1,u64 param_2);
-int func_0044e508(u32 *param_1,u32 *param_2);
+int __fpcmp_parts_d(u32 *param_1,u32 *param_2);
 s8 func_004bd748(int object);
 u32 func_004bd758(int object);
 void func_004bd850(char *param_1);
@@ -601,7 +601,7 @@ void func_0052d980(u64 *param_1);
 /* Source unit: src/cri/cri_adx_0044db98.c (1 function markers) */
 
 // FUN_0044DB98
-asm u32 func_0044db98(u32 *param_1)
+asm u32 __pack_f(u32 *param_1)
 {
   .set noreorder
   .word 0x8c8e0000
@@ -655,7 +655,7 @@ asm u32 func_0044db98(u32 *param_1)
 /* Source unit: src/cri/cri_adx_0044dc50.c (1 function markers) */
 
 // FUN_0044DC50
-asm void func_0044dc50(u32 *param_1,u32 *param_2)
+asm void __unpack_f(u32 *param_1,u32 *param_2)
 {
   .set noreorder
   .word 0x8c8f0000
@@ -751,7 +751,7 @@ asm u32 func_0044dd18(u32 *param_1)
 /* Source unit: src/cri/cri_adx_0044ddf0.c (1 function markers) */
 
 // FUN_0044DDF0
-asm void func_0044ddf0(u32 *param_1,u32 *param_2)
+asm void __unpack_d(u32 *param_1,u32 *param_2)
 {
   .set noreorder
   .word 0xdc8e0000
@@ -1021,7 +1021,7 @@ asm u64 func_0044e410(u64 param_1,u64 param_2)
 /* Source unit: src/cri/cri_adx_0044e508.c (1 function markers) */
 
 // FUN_0044E508
-asm int func_0044e508(u32 *param_1,u32 *param_2)
+asm int __fpcmp_parts_d(u32 *param_1,u32 *param_2)
 {
   .set noreorder
   .word 0x8c8e0000

@@ -10,14 +10,14 @@ extern u8 D_0063C990[];
 extern char iGpffffa7c0;
 extern void func_00290710(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5);
 extern u8 *func_00454a60(u8 *arg0, s32 arg1);
-extern s32 func_004553c0(u8 *arg0);
+extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern s32 func_00455f70(u8 *arg0, s32 *arg1);
 extern s32 *func_002904f0(s32 **arg0);
 extern s32 *func_002905a0(s32 **arg0);
 extern s32 *func_00290660(s32 **arg0);
 extern void func_0044ea90(u8 *file, s32 line);
 extern void func_002852a0(s32 arg0, s32 arg1);
-extern void func_0043f9c8(void *dest, s32 value, s32 size);
+extern void memset(void *dest, s32 value, s32 size);
 
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00748340[];
@@ -25,7 +25,7 @@ extern u8 D_0063CAA0[];
 extern s32 func_002938c0(u8 *task);
 extern void func_00293d30(u8 *task);
 extern void func_00106390(s32 a, s32 b);
-extern void func_00454bd0(s32 a);
+extern void H_Cdvd_Destroy(s32 a);
 extern void func_00440b68(char *fmt, ...);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 D_0063C9B0[];
@@ -82,7 +82,7 @@ s32 func_002938c0(u8 *task) {
             *(u8 **)temp_2 = (u8 *)1;
             break;
         case 1:
-            if (func_004553c0(*(u8 **)(temp_2 + 0x1C)) == 1) {
+            if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_2 + 0x1C)) == 1) {
                 temp_2_2 = func_00455f70(spE0, &sp12C);
                 *(s32 *)(temp_2 + 0x34) = temp_2_2;
                 if (temp_2_2 == 0) {
@@ -116,7 +116,7 @@ s32 func_002938c0(u8 *task) {
             *(u8 **)temp_2 = (u8 *)1;
             break;
         case 1:
-            if (func_004553c0(*(u8 **)(temp_2 + 0x1C)) == 1) {
+            if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_2 + 0x1C)) == 1) {
                 *(s32 *)(temp_2 + 0x28) = 0;
                 *(s32 *)(temp_2 + 0x34) = func_00455f70(spE0, &sp12C);
                 func_002852a0(4, sp12C);
@@ -138,7 +138,7 @@ s32 func_002938c0(u8 *task) {
             }
             break;
         case 3:
-            if (func_004553c0(*(u8 **)(temp_2 + 0x20)) == 1) {
+            if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_2 + 0x20)) == 1) {
                 *(u8 **)temp_2 = (u8 *)4;
                 *(s32 *)(temp_2 + 0x2C) = 0;
                 *(s32 *)(temp_2 + 0x38) = func_00455f70(spA0, &sp12C);
@@ -160,7 +160,7 @@ s32 func_002938c0(u8 *task) {
             }
             break;
         case 5:
-            if (func_004553c0(*(u8 **)(temp_2 + 0x24)) == 1) {
+            if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_2 + 0x24)) == 1) {
                 *(u8 **)temp_2 = (u8 *)6;
                 *(s32 *)(temp_2 + 0x30) = 0;
                 *(s32 *)(temp_2 + 0x3C) = func_00455f70(sp60, &sp12C);
@@ -194,7 +194,7 @@ void func_00293d30(u8 *task) {
         func_00106390(h18, 0);
     }
     if (p[0x1C / 4] != 0) {
-        func_00454bd0(p[0x1C / 4]);
+        H_Cdvd_Destroy(p[0x1C / 4]);
         p[0x1C / 4] = 0;
         func_00440b68((char *)D_0063C9B0);
     }
@@ -205,7 +205,7 @@ void func_00293d30(u8 *task) {
         func_00440b68((char *)D_0063C9D0);
     }
     if (p[0x20 / 4] != 0) {
-        func_00454bd0(p[0x20 / 4]);
+        H_Cdvd_Destroy(p[0x20 / 4]);
         p[0x20 / 4] = 0;
         func_00440b68((char *)D_0063CA00);
     }
@@ -216,7 +216,7 @@ void func_00293d30(u8 *task) {
         func_00440b68((char *)D_0063CA20);
     }
     if (p[0x24 / 4] != 0) {
-        func_00454bd0(p[0x24 / 4]);
+        H_Cdvd_Destroy(p[0x24 / 4]);
         p[0x24 / 4] = 0;
         func_00440b68((char *)D_0063CA50);
     }
@@ -237,7 +237,7 @@ s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_0044ea90(D_00748340, 0x52);
     temp_20 = (s32 *)D_008873F4[0](1, 0x40, 0x40000);
     func_002852a0(1, 0x40);
-    func_0043f9c8(temp_20, 0, 0x40);
+    memset(temp_20, 0, 0x40);
     temp_20[0xC / 4] = arg0;
     temp_20[0x10 / 4] = arg1;
     temp_20[0x14 / 4] = arg2;
@@ -275,7 +275,7 @@ s32 func_002940a0(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
     u8 *elem;
     u8 *p;
 
-    func_0043f9c8(base, 0, 0x114);
+    memset(base, 0, 0x114);
     if (func_00452490(arg0) == 0) {
         func_0046d730((char *)D_0063C970, 0x123);
     }

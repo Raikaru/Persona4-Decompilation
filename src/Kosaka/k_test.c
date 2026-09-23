@@ -12,7 +12,7 @@ extern u8 D_00763098;
 extern void func_0044ea90(void *msg, s32 id);
 
 extern void func_004787e0(s32 handle);
-extern void *func_0043f9c8(void *dest, s32 value, s32 size);
+extern void *memset(void *dest, s32 value, s32 size);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
 extern s32 *func_00155280(void);
 extern s32 func_00156140(s32 handle);
@@ -58,7 +58,7 @@ s32 func_0018e5b0(u8 *arg0)
         break;
     case 4:
         if (func_00156140(*func_00155280()) != 0 && func_0015f660() != 0) {
-            func_0043f9c8(&msg, 0, 0x1C);
+            memset(&msg, 0, 0x1C);
             msg.field0 = 6;
             msg.field1 = 6;
             msg.field2 = 0;
@@ -74,7 +74,7 @@ s32 func_0018e5b0(u8 *arg0)
         break;
     case 8:
         if (func_00156140(*func_00155280()) != 0 && func_0015f660() != 0) {
-            func_0043f9c8(&msg, 0, 0x1C);
+            memset(&msg, 0, 0x1C);
             msg.field0 = 6;
             msg.field1 = 2;
             msg.field2 = 5;

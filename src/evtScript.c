@@ -29,9 +29,9 @@ extern s32 func_00452490(void *target);
 extern void func_00146630(u32);
 extern u16 func_00145780(u16, s32, s32);
 extern void func_00269c20(s32, s32);
-extern u16 *func_00145270(s32);
+extern u16 *MT_Scene_GetRes(s32);
 extern s32 func_004782b0(u32 arg0);
-extern u8 *func_0047a250(s32);
+extern u8 *mdlGetColor(s32);
 extern void func_00286ff0(u8 *, s32, u16 *);
 extern s32 func_00285af0();
 extern u8 *func_00285480();
@@ -59,7 +59,7 @@ static inline u32 evtSlot(u32 offset, u32 base)
 }
 
 extern void func_00271b70(u8 *arg0);
-extern f32 func_0044b7b0(f32 fparg0);
+extern f32 sinf(f32 fparg0);
 extern f32 iGpffff8094;
 /* INCLUDE_ASM fallback below; address taken by func_00298550. */
 extern s32 func_00298370(u8 *task);
@@ -89,7 +89,7 @@ s32 func_00298370(u8 *unusedTask) {
             func_0046d730(D_0063CF80, 0x34);
         }
         func_00269c20(temp_17, 1);
-        temp_18 = (u8 *)func_00145270(temp_17);
+        temp_18 = (u8 *)MT_Scene_GetRes(temp_17);
         temp_2_2 = func_00285af0();
         if (temp_2_2 == 0) {
             func_0046d730(D_0063CF80, 0x39);
@@ -101,7 +101,7 @@ s32 func_00298370(u8 *unusedTask) {
             func_0046d730(D_0063CF80, 0x3D);
         }
         func_00286ff0(temp_2, temp_17, (u16 *)temp_18);
-        temp_2_4 = func_0047a250(*(s32 *)(temp_18 + 0x164));
+        temp_2_4 = mdlGetColor(*(s32 *)(temp_18 + 0x164));
         *(EvtColor *)(temp_2 + 0x50) = *(EvtColor *)temp_2_4;
         return -1;
     }
@@ -128,8 +128,8 @@ s32 func_00298550(void)
     v1 = func_0029cc00(1);
     if (func_0029d020() == 0) {
         id = (u16)(((v0 + 0x384) & 0x3FF) | 0xC00);
-        if (func_00145270(id) != 0) {
-            p = (u8 *)func_00145270(id);
+        if (MT_Scene_GetRes(id) != 0) {
+            p = (u8 *)MT_Scene_GetRes(id);
             if (*(u16 *)(*(s32 *)(p + 0x164) + 0xD4) == 5 &&
                 *(u16 *)(*(s32 *)(p + 0x164) + 0xD6) == v1) {
                 func_00269c20(id, 1);
@@ -248,13 +248,13 @@ void func_00298990(s32 unused, s32 arg1) {
         if ((temp_5 < temp_4) && (temp_4 < (temp_5 + 0x12C))) {
             temp_16 = temp_4 - temp_5;
             if (temp_16 < 0xB4) {
-                var_5 = (s32)(255.0f * func_0044b7b0((iGpffff8094 * (f32)temp_16) / 180.0f));
+                var_5 = (s32)(255.0f * sinf((iGpffff8094 * (f32)temp_16) / 180.0f));
             } else if (temp_16 > 0x10E) {
                 temp_f0 = (f32)(temp_16 - 0x10E);
                 mul_left = temp_f0;
                 mul_right = iGpffff8094;
                 temp_f2 = mul_right;
-                var_5 = (s32)(255.0f * func_0044b7b0(temp_f2 + ((mul_right * mul_left) / 30.0f)));
+                var_5 = (s32)(255.0f * sinf(temp_f2 + ((mul_right * mul_left) / 30.0f)));
             } else {
                 var_5 = 255;
             }

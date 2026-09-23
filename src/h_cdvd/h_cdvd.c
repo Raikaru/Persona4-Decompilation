@@ -103,9 +103,6 @@ extern s32 func_004270f8(s32 fd, s32 offset, s32 origin);
 
 extern const char D_00711780[];
 extern s32 iGpffffad88;
-extern void func_00442830(char* destination, const char* source);
-extern void func_00442428(char* destination, const char* source);
-extern s32 func_00442948(const char* text);
 extern s32 func_00426cf0(const char* path, s32 mode);
 extern void func_00426f80(s32 fd);
 
@@ -793,7 +790,7 @@ void func_004561a0(void* handle, const char* path, s32 synchronous)
     func_00455230(directory);
     if (synchronous)
     {
-        func_0050ff20(handle, fileName);
+        mwPlyStartFnameLp(handle, fileName);
     }
     else
     {
@@ -938,8 +935,8 @@ s32 func_00456ae0(void* unused, const char* path)
     char fullPath[256];
     s32 fd;
 
-    func_00442830(fullPath, (const char*)&iGpffffad88);
-    func_00442428(fullPath, path + func_00442948(fullPath));
+    strcpy(fullPath, (const char*)&iGpffffad88);
+    strcat(fullPath, path + strlen(fullPath));
     fd = func_00426cf0(fullPath, 1);
     if (fd >= 0)
     {

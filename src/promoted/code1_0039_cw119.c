@@ -20,7 +20,7 @@ extern s32 iGpffffb5d8;
 extern s32 iGpffffb5f0;
 extern s32 iGpffffb5c8;
 extern void (*jtbl_008873EC[])(void *);
-extern u8 *func_0039aa50(u8 *arg0);
+extern u8 *_rpMatFXPipelineWorldSectorSetup(u8 *arg0);
 extern void func_003ef3a0(void *arg0, s32 arg1);
 extern s32 func_0039a7e0(u8 *arg0, s32 arg1);
 extern void func_0039a910(s32 arg0);

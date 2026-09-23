@@ -48,7 +48,7 @@ extern s32 func_0027bda0(s32 arg0);
 extern s32 func_0027be00(s32 arg0);
 extern s64 func_001060b0(void);
 extern void func_001104d0(s16 year, s32 *month, s32 *day);
-extern s32 func_00442088(void *arg0, const void *arg1, s32 arg2);
+extern s32 sprintf(void *arg0, const void *arg1, s32 arg2);
 extern u8 iGpffffa738;
 extern s32 func_001105b0(s16 arg0);
 extern void func_00275980(void *arg0, void *arg1, s32 arg2);
@@ -429,7 +429,7 @@ s32 func_00270870(s32 arg0, u8 *arg1)
     if (func_002746a0() != 0)
         return 0;
     func_001104d0((s16)func_001060b0(), &sp2C, &sp28);
-    func_00442088(sp20, &iGpffffa738, sp2C);
+    sprintf(sp20, &iGpffffa738, sp2C);
     func_00273f70(arg1);
     func_00273cc0(sp20, arg1);
     return 0;
@@ -444,7 +444,7 @@ s32 func_00270910(s32 arg0, u8 *arg1)
     if (func_002746a0() != 0)
         return 0;
     func_001104d0((s16)func_001060b0(), &sp2C, &sp28);
-    func_00442088(sp20, &iGpffffa738, sp28);
+    sprintf(sp20, &iGpffffa738, sp28);
     func_00273f70(arg1);
     func_00273cc0(sp20, arg1);
     return 0;
@@ -1701,11 +1701,11 @@ s32 func_0027bf10(s32 arg0)
 #ifdef NON_MATCHING
 void func_0027bf30(u8 *arg0, u8 *arg1) {
     extern u8 *func_002833b0(s32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 sinf(f32 arg0);
     extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
     extern void *func_0046a770(void *arg0);
     extern void (*D_00887300[])(s32 arg0, s32 arg1);
-    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
     extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
     extern void func_0046d730(void *arg0, s32 arg1);
     extern void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s16 arg8, void *arg9, f32 farg0, f32 farg1, f32 farg2, f32 farg3);
@@ -1752,7 +1752,7 @@ void func_0027bf30(u8 *arg0, u8 *arg1) {
             f32 t0;
             u8 *p1;
             s32 n1;
-            t0 = func_0044b7b0((D_00761184 * (f32)*(s32 *)(arg1 + 0x10)) / 20.0f);
+            t0 = sinf((D_00761184 * (f32)*(s32 *)(arg1 + 0x10)) / 20.0f);
             p1 = sp100;
             n1 = 4;
             if (p1 != NULL) {
@@ -1777,8 +1777,8 @@ void func_0027bf30(u8 *arg0, u8 *arg1) {
                 base[0](6, 1);
                 base[0](8, 1);
             }
-            func_003f6440(3, 0x7000D);
-            func_003f6440(2, 0x48);
+            RpSkyRenderStateSet(3, 0x7000D);
+            RpSkyRenderStateSet(2, 0x48);
             for (dateBase = 0; dateBase < 0x18; dateBase++) {
                 f22 = (f32)((dateBase % 6) * 0x7E);
                 f21 = (f32)((dateBase / 6) * 0x7E);
@@ -1804,7 +1804,7 @@ void func_0027bf30(u8 *arg0, u8 *arg1) {
             tmp = *(s32 *)(arg1 + 0x10);
             if (tmp < 4) {
                 f32 t;
-                t = func_0044b7b0((D_00761184 * (f32)tmp) / 4.0f);
+                t = sinf((D_00761184 * (f32)tmp) / 4.0f);
                 if (handle == NULL) {
                     func_0046d730(D_007482F0, 0x59);
                 }
@@ -1852,7 +1852,7 @@ void func_0027bf30(u8 *arg0, u8 *arg1) {
                             c = 5;
                         }
                     }
-                    ft = 1.0f - func_0044b7b0((D_00761184 * (f32)c) / 5.0f);
+                    ft = 1.0f - sinf((D_00761184 * (f32)c) / 5.0f);
                     d = dateBase + loop6 + 1;
                     dateTmp = func_00110580(d);
                     if (dateTmp == 0 || func_00110d30(d) != 0) {
@@ -1887,7 +1887,7 @@ void func_0027bf30(u8 *arg0, u8 *arg1) {
                 if (tmp >= 2) {
                     if (tmp < 0) {
                         f32 t;
-                        t = func_0044b7b0((D_00761184 * (f32)(tmp - 1)) / 4.0f);
+                        t = sinf((D_00761184 * (f32)(tmp - 1)) / 4.0f);
                         func_00366380(0x12C, (s32)(145.0f + 24.0f * t), 0x50, 0x7F, 0xFFE92C, 0xFF, 1, 0, 0, 0, 1.0f, 0.5f - D_0076112C * t, 0, 0);
                     } else if (tmp < 8) {
                         f32 t2;

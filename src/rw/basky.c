@@ -96,7 +96,7 @@ extern s32 func_0040c0f0(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_0040d0a0(s32 arg0, s32 arg1);
 extern void func_0040aa60(void (*arg0)(void));
 extern s32 func_00402d50(void *arg0, s32 *arg1);
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 iGpffffb9b0;
 extern s32 iGpffffb9ac;
 extern void func_00415920(void *arg0);
@@ -338,7 +338,7 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6910);
 // FUN_003F6990
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6990);
 // FUN_003F69F0
-s32 func_003f69f0(s32 *arg0)
+s32 skyGetSizeTexCB(s32 *arg0)
 {
     s32 var_2;
 

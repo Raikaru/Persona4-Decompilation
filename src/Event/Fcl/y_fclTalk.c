@@ -16,7 +16,7 @@ extern void func_002badc0(s8, s32);
 extern void func_002bbd80(s8, s32, void *);
 extern void *func_001067f0(s16);
 extern void func_00275980(void *, void *, s32);
-extern s32 func_00106330(s32);
+extern s32 datGetFlag(s32);
 extern u8 func_002e78a0(void);
 extern u8 func_002e78e0(void);
 extern s32 func_002be100(u8);
@@ -36,7 +36,7 @@ extern s32 func_00106b50(s16);
 extern s32 func_002be160(s32, s32);
 extern s32 func_002be1b0();
 extern s32 func_002dfd00(u16);
-extern u32 func_003b7060(void);
+extern u32 RpRandom(void);
 extern s32 func_00331a20(u8 *task);
 extern void func_00331f90(u8 *task);
 extern s32 func_00332060(u8 *task);
@@ -88,7 +88,7 @@ state_zero:
                     100 * (func_002be100(entry[8]) & 0xFF));
         max = (s16)(entry[11] +
                     100 * (func_002be100(entry[10]) & 0xFF));
-        if (func_00106330(*(s32 *)(entry + 4)) != 0 ||
+        if (datGetFlag(*(s32 *)(entry + 4)) != 0 ||
             *(s32 *)(entry + 4) == 0) {
             if (min > level) {
                 goto scan_next;
@@ -246,7 +246,7 @@ state_two_32520:
         work[1] = func_002bab80(D_00645240);
         func_002badc0(work[1], 0x1D);
     } else {
-        offset = (func_003b7060() % *(s32 *)(work + 0x1804)) * 4;
+        offset = (RpRandom() % *(s32 *)(work + 0x1804)) * 4;
         selected = *(s32 *)(offset + (u32)work + 4);
         if (((func_00106b20((s16)selected) & 0xFFF00) >> 8) != 0x500) {
             func_00332370(arg0, selected,

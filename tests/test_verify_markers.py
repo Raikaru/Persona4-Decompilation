@@ -40,6 +40,45 @@ class MarkerScanTests(unittest.TestCase):
         self.assertFalse(markers[0].get("asm"))
         self.assertFalse(markers[0]["nonmatching"])
 
+    def test_named_definition_after_externs_owns_its_marker(self) -> None:
+        markers = markers_for(
+            "// FUN_00100010\n"
+            "extern void unrelated(s32 arg);\n"
+            "extern void another(s32 arg);\n"
+            "#pragma schedule on\n"
+            "s32 recoveredName(u8 *arg0) {\n"
+            "    unrelated(*arg0);\n"
+            "    return 0;\n"
+            "}\n"
+        )
+        self.assertEqual([(marker["addr"], marker["name"]) for marker in markers],
+                         [(0x00100010, "recoveredName")])
+
+    def test_single_line_definition_keeps_name_after_body_semicolon(self) -> None:
+        markers = markers_for(
+            "// FUN_00100010\n"
+            "extern void unrelated(void);\n"
+            "void compact(void) { unrelated(); }\n"
+        )
+        self.assertEqual([(marker["addr"], marker["name"]) for marker in markers],
+                         [(0x00100010, "compact")])
+
+    def test_old_style_definition_keeps_signature_across_parameter_declarations(self) -> None:
+        markers = markers_for(
+            "// FUN_00100010\n"
+            "s32 func_00100010(s32 arg);\n"
+            "s32 named(arg, other)\n"
+            "u16 arg;\n"
+            "s32 other;\n"
+            "{ return arg + other; }\n"
+            "// FUN_00100020\n"
+            "s32 func_00100020(value)\n"
+            "s32 value;\n"
+            "{ return value; }\n"
+        )
+        self.assertEqual([(marker["addr"], marker["name"]) for marker in markers],
+                         [(0x00100010, "named"), (0x00100020, "func_00100020")])
+
     def test_long_notes_preserve_function_and_marker_ownership(self) -> None:
         notes = "/*\n" + " * Measured decoy(void) { return 0; }\n" * 20 + " */\n"
         markers = markers_for(

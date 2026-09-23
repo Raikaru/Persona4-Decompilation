@@ -129,7 +129,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b980);
 // FUN_0044B998 NONMATCHING
 #ifdef NON_MATCHING
 f32 func_0044b998(f32 arg0) {
-    return func_0044a4d0(arg0);
+    return __ieee754_sqrtf(arg0);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b998);

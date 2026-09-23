@@ -101,7 +101,7 @@ extern s32 iGpffffb78C;
 extern s32 iGpffffb788;
 extern s32 D_008871F0;
 extern u8 D_008873F0[];
-extern s32 func_003ddf20(void *arg0);
+extern s32 RwFclose(void *arg0);
 extern s32 func_003e3370(u8 *arg0, s32 arg1);
 extern s32 func_003e2ab0(u8 *arg0, u8 *arg1, s32 arg2);
 extern void func_003e4520(void *arg0, s32 arg1);
@@ -125,18 +125,18 @@ extern u8 D_008873D8[];
 extern u8 D_008873DC[];
 extern u8 D_008873E0[];
 extern u8 D_008873E4[];
-extern void func_00442088();
+extern void sprintf();
 extern void func_00446ed8();
-extern void func_00442830();
-extern void func_00442de8();
-extern void func_00442428();
+extern void strcpy();
+extern void strncpy();
+extern void strcat();
 extern void func_00442a80();
 extern void func_00443010();
-extern void func_004426e8();
-extern void func_00442c30();
-extern void func_00442948();
+extern void strcmp();
+extern void strncmp();
+extern void strlen();
 extern void func_00443f18();
-extern void func_00442100();
+extern void sscanf();
 typedef struct {
     void *next;
     void *prev;
@@ -198,13 +198,13 @@ u8 *func_003e0250(u8 *arg0) {
    translation-unit baseline. */
 #pragma schedule off
 
-extern s32 func_003e03b0(const MatrixTolerance003e *arg0); /* P4: ported verbatim into src/renderware */
+extern s32 RwEngineSetMatrixTolerances(const MatrixTolerance003e *arg0); /* P4: ported verbatim into src/renderware */
 extern u8 *RwMatrixUpdate(u8 *arg0); /* P4: ported verbatim into src/renderware */
 
 /* measured: schedule on keeps the returned pointer in retail's jr delay slot. */
 #pragma schedule on
 // FUN_003E05F0
-u8 *func_003e05f0(u8 *arg0, u8 *arg1, u8 *arg2) {
+u8 *RwMatrixMultiply(u8 *arg0, u8 *arg1, u8 *arg2) {
     __asm__ volatile(
         ".set noreorder\n"
         "lqc2 $vf1, 0x0($5)\n"
@@ -530,7 +530,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e40b0);
 // FUN_003E4180
 /* measured: ordinary COP1 MAC lowering is plain-C matchable; this staged
    accumulator spelling follows retail's y*y, x*x, z*z order. */
-f32 func_003e4180(f32 *arg0) {
+f32 RwV3dLength(f32 *arg0) {
     f32 result;
     result = arg0[1] * arg0[1];
     result += arg0[0] * arg0[0];
@@ -545,7 +545,7 @@ f32 func_003e4180(f32 *arg0) {
 // FUN_003E41B0
 /* measured: ordinary COP1 MAC lowering is plain-C matchable; retain the
    two-dimensional y*y then x*x accumulator order from retail. */
-f32 func_003e41b0(f32 *arg0) {
+f32 RwV2dLength(f32 *arg0) {
     f32 result;
     result = arg0[1] * arg0[1];
     result += arg0[0] * arg0[0];
@@ -909,7 +909,7 @@ extern u8 *func_003e7ee0(u8 *arg0); /* P4: ported verbatim into src/renderware *
 #pragma schedule on
 /* measured: no_branch_likely knob retains the func_003e7f50 bracket. */
 #pragma no_branch_likely on
-extern s32 func_003e7f50(u8 *arg0); /* P4: ported verbatim into src/renderware */
+extern s32 CameraEndUpdate(u8 *arg0); /* P4: ported verbatim into src/renderware */
 /* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
@@ -974,7 +974,7 @@ extern u8 *func_003e81c0(u8 *arg0, f32 fparg0); /* P4: ported verbatim into src/
 /* measured: no_branch_likely on preserves 8310's plain comparison branches. */
 #pragma no_branch_likely on
 #pragma optimization_level 3
-extern u8 *func_003e8310(u8 *arg0, s32 arg1); /* P4: ported verbatim into src/renderware */
+extern u8 *RwCameraSetProjectionType(u8 *arg0, s32 arg1); /* P4: ported verbatim into src/renderware */
 #pragma optimization_level 2
 #pragma no_branch_likely off
 

@@ -17,7 +17,7 @@ typedef struct {
     u8 pad2[16];
 } PrimVertex;
 extern void func_0044ea90(void *msg, s32 id);
-extern void func_0043f810(void *dst, const void *src, u32 size);
+extern void memcpy(void *dst, const void *src, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -29,7 +29,7 @@ extern void func_0045d370(void *out, void *a1, void *a2, f32 f0, s32 a3, s32 a4,
 extern void func_0045dd30(PrimVertex *out, const u8 *colors, const void *positions,
                           f32 depth, u32 count, s32 offsetX, s32 offsetY,
                           f32 rotation, f32 scaleX, f32 scaleY);
-extern void func_003f6440(s32 param, s32 value);
+extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern void (*D_00887300[])();
 extern void (*D_00887304[])();
 extern s32 (*D_00887310[])(s32 primType, void *verts, s32 numVerts);
@@ -39,8 +39,8 @@ extern struct {
 } D_00712490[6];
 extern u8 D_007124C0[];
 extern u8 *func_00457120(void);
-extern f32 func_0044b7b0(f32 x);
-extern f32 func_0044b610(f32 x);
+extern f32 sinf(f32 x);
+extern f32 cosf(f32 x);
 extern f32 D_008872F8[];
 extern f32 iGpffff81d0;
 
@@ -69,7 +69,7 @@ void func_0045da40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3) {
     packet.tag = arg2;
     func_0044ea90(D_007124C0, 0x101);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x1C, 0x40000);
-    func_0043f810(temp_2, &packet, 0x1C);
+    memcpy(temp_2, &packet, 0x1C);
     temp_2_2 = (u8 *)(func_00460990());
     *(void **)(temp_2_2 + 8) = (void *)func_0045d890;
     *(u8 **)(temp_2_2 + 0x10) = temp_2;
@@ -91,8 +91,8 @@ void func_0045db40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4,
             D_00887300[0](p[0], p[1]);
         }
         D_00887300[0](1, 0);
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
     }
     func_0045d370(&work.out, arg0, &work.pos, fparg0, arg3, arg4, fparg1, fparg2, fparg3);
     D_00887310[0](4, &work.out, 4);
@@ -130,8 +130,8 @@ void func_0045dd30(PrimVertex *out, const u8 *colors, const void *positions,
     inv = 1.0f / *(f32 *)(func_00457120() + 0x80);
     depth = D_008872F8[0] - depth;
     angle = iGpffff81d0 * rotation;
-    sine = func_0044b7b0(angle);
-    cosine = func_0044b610(angle);
+    sine = sinf(angle);
+    cosine = cosf(angle);
     base = *(const PrimFloat2 *)positions;
     i = 0;
     centerX = base.v[0] + (f32)offsetX;
@@ -180,8 +180,8 @@ void func_0045dfd0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4)
             D_00887300[0](p[0], p[1]);
         }
         D_00887300[0](1, 0);
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
     }
     func_0044ea90(D_007124C0, 0x2DA);
     out = (PrimVertex *)D_008873F4[0](1, arg2 << 6, 0x40000);
@@ -252,8 +252,8 @@ void func_0045e310(void *unused, PrimBatch *work) {
             D_00887300[0](p[0], p[1]);
         }
         D_00887300[0](1, 0);
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
     }
     func_0044ea90(D_007124C0, 0x30D);
     out = (PrimVertex *)jtbl_008873E8[0](count << 6, 0x40000);
@@ -308,8 +308,8 @@ void func_0045e6a0(const void *arg0, const void *arg1, f32 fparg0, u32 arg2, s32
             D_00887300[0](p[0], p[1]);
         }
         D_00887300[0](1, 0);
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
     }
     func_0044ea90(D_007124C0, 0x355);
     out = (s32 *)jtbl_008873E8[0](arg2 << 6, 0x40000);
@@ -373,11 +373,11 @@ void func_0045e8e0(void *colors, void *positions, f32 depth, s32 count,
     work->count = count;
     work->enabled = preserveState;
     work->primType = primitiveType;
-    func_0043f810(work->positions, (void *)positions, positionBytes);
-    func_0043f810(work->colors, (void *)colors, colorBytes);
+    memcpy(work->positions, (void *)positions, positionBytes);
+    memcpy(work->colors, (void *)colors, colorBytes);
     angle = iGpffff81d0 * rotation;
-    sine = func_0044b7b0(angle);
-    cosine = func_0044b610(angle);
+    sine = sinf(angle);
+    cosine = cosf(angle);
     base = *(PrimFloat2 *)work->positions;
     i = 0;
     centerX = base.v[0] + (f32)offsetX;
@@ -447,11 +447,11 @@ void func_0045eb20(void *colors, void *positions, f32 depth, s32 count,
     work->count = count;
     work->enabled = preserveState;
     work->primType = primitiveType;
-    func_0043f810(work->positions, (void *)positions, positionBytes);
-    func_0043f810(work->colors, (void *)colors, colorBytes);
+    memcpy(work->positions, (void *)positions, positionBytes);
+    memcpy(work->colors, (void *)colors, colorBytes);
     angle = iGpffff81d0 * rotation;
-    sine = func_0044b7b0(angle);
-    cosine = func_0044b610(angle);
+    sine = sinf(angle);
+    cosine = cosf(angle);
     base = *(PrimFloat2 *)work->positions;
     i = 0;
     centerX = base.v[0] + (f32)offsetX;

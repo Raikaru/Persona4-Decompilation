@@ -16,11 +16,11 @@ extern void func_0044ea90(const void *msg, s32 id);
 /* Defined below in this file; called at line 33, above its definition. */
 extern void func_0038f8d0(void);
 extern void *(*jtbl_008873E8[])(u32 size, u32 hint);
-extern s32 func_004553c0(u8 *ptr);
+extern s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 extern u8 *func_00455ea0(u8 *resource, s32 index, s32 *size);
-extern void func_00454bd0(u8 *ptr);
+extern void H_Cdvd_Destroy(u8 *ptr);
 extern u8 *func_00454a60(u8 *param, s32 mode);
-extern void *func_0043f810(void *dst, const void *src, u32 size);
+extern void *memcpy(void *dst, const void *src, u32 size);
 extern void func_00271380(s32 slot, void *data);
 extern void func_00271820(s32 slot);
 
@@ -49,7 +49,7 @@ void func_0038f680(void)
         func_0046d730(D_0064F250, 0x28);
     }
     work = sOpTailC;
-    if ((work[0] & 1) != 0 && func_004553c0((u8 *)(uintptr_t)work[2]) != 0) {
+    if ((work[0] & 1) != 0 && H_Cdvd_IsFileLoaded((u8 *)(uintptr_t)work[2]) != 0) {
         for (i = 0; i < 2; i++) {
             data = func_00455ea0((u8 *)(uintptr_t)work[2], i, &size);
             switch (i) {
@@ -59,13 +59,13 @@ void func_0038f680(void)
             case 1:
                 func_0044ea90(D_0064F250, 0x56);
                 copy = (*jtbl_008873E8)(size, 0x40000);
-                func_0043f810(copy, data, size);
+                memcpy(copy, data, size);
                 func_00271380(6, copy);
                 break;
             }
         }
         work[1] |= 1;
-        func_00454bd0((u8 *)(uintptr_t)work[2]);
+        H_Cdvd_Destroy((u8 *)(uintptr_t)work[2]);
         work[0] &= ~1u;
     }
 }

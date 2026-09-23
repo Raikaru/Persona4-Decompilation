@@ -167,7 +167,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9720);
 // FUN_004C97B8
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c97b8);
 // FUN_004C97F0
-s32 func_004c97f0(u8 *arg0)
+s32 adxf_GetNumReadSct(u8 *arg0)
 {
     if (arg0 == NULL) {
         func_004c6a98(D_007584F8);

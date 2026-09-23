@@ -19,7 +19,7 @@ extern u8 D_00628FA0[];
 extern f32 D_007615B4;
 extern f32 D_007615B8;
 extern void (*D_00887314_abs[])(s32 arg0, void *arg1, s32 arg2, void *arg3, s32 arg4);
-extern void func_00442088(u8 *dst, const char *fmt, s32 arg);
+extern void sprintf(u8 *dst, const char *fmt, s32 arg);
 extern void func_00278450(u8 *arg0, s32 arg1, u8 *arg2);
 extern void func_00271b70(s32 arg0);
 extern void func_00277ad0(s32 arg0, s32 arg1);
@@ -29,8 +29,8 @@ extern void func_00211650(u8 *arg0, u8 *arg1);
 extern void memset(void *destination, s32 value, u32 size);
 
 extern u32 func_00452560(void *task);
-extern f32 func_0044b610(f32 fparg0);
-extern f32 func_0044b7b0(f32 fparg0);
+extern f32 cosf(f32 fparg0);
+extern f32 sinf(f32 fparg0);
 extern f32 fGpffff837c;
 extern f32 fGpffff8378;
 extern u8 *iGpffffb414;
@@ -46,14 +46,14 @@ extern void func_00231ef0(u8 *arg0, u8 arg1);
 extern s32 func_00212180(s32);
 extern void func_00216c40(s32, s32);
 extern void func_001f7620(s16 channel, s32 fadeFrames);
-extern void func_00454bd0(u8 *arg0);
-extern u32 func_00106330(s32 arg0);
+extern void H_Cdvd_Destroy(u8 *arg0);
+extern u32 datGetFlag(s32 arg0);
 extern s32 func_00243ce0(u8 *arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_006290C0[];
 extern u8 D_006290D0[];
 extern void func_0044ea90(const void *arg0, s32 arg1);
-extern void func_0043f810(void *dst, void *src, u32 size);
+extern void memcpy(void *dst, void *src, u32 size);
 
 extern s32 func_0036e690(s32 arg0, void *arg1);
 extern s32 func_002215c0(s32 arg0);
@@ -64,7 +64,6 @@ extern u8 D_00796340[];
 extern s32 func_0046a750(s32 arg0);
 extern s32 func_0021d4a0(u8 *task);
 extern u8 *iGpffffb3c4;
-extern void *func_0043f9c8(void *dst, s32 value, u32 size);
 extern s32 func_0046aea0(void *arg0);
 extern u8 D_00626C30[];
 extern u8 D_00626CA0[];
@@ -103,7 +102,7 @@ extern void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 extern f32 fGpffff84a0;
 extern void func_0021b330(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
 extern s32 func_00231f80(s32 arg0);
-extern s32 func_002428f0(u8 *arg0, s32 arg1);
+extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
 extern f32 fGpffff8498;
 extern f32 fGpffff8200;
 extern s32 func_0021dba0(u8 *task);
@@ -595,7 +594,7 @@ void func_00211ba0(u8 *arg0, u8 *arg1)
                     if (++*(u16 *)(unit + 0xA44) >= 25) {
                         *(u16 *)(unit + 0xA44) = 0;
                     }
-                    pulse = func_0044b7b0((fGpffff81e0 * (f32)(s32)*(u16 *)(unit + 0xA44)) / 25.0f);
+                    pulse = sinf((fGpffff81e0 * (f32)(s32)*(u16 *)(unit + 0xA44)) / 25.0f);
                     func_00201650(draw, 10, 17, 64.0f, (0.0f + 45.0f) + 10.0f * pulse,
                                    12, 79, 85, 255);
                     func_00201650(draw, 10, 17, 64.0f, (0.0f + 37.0f) + 5.0f * pulse,
@@ -705,7 +704,7 @@ void func_002121b0(s32 task)
     sub = work + 0x75C;
     *(s16 *)(work + 0x770) = 0;
     *(s16 *)(work + 0x772) = 5;
-    func_0043f9c8(sub + 0x18, 0, 4);
+    memset(sub + 0x18, 0, 4);
     *(u16 *)(sub + 8) = *(u16 *)(sub + 8) | 0x10;
 }
 
@@ -744,7 +743,7 @@ void func_00212270(u8 *drawPayload, s32 workAddress, void *callback)
     extern f32 fGpffff8374;
     extern void func_00201820(s32 mode);
     extern s32 func_00457120(void);
-    extern BtlShuffleMatrix *func_003e0870(BtlShuffleMatrix *matrix,
+    extern BtlShuffleMatrix *RwMatrixRotate(BtlShuffleMatrix *matrix,
         const BtlShuffleVec3 *axis, f32 angle, BtlShuffleCombine combine);
     extern void func_0034f460(s32 file, s32 tile, f32 x, f32 y,
         u8 red, u8 green, u8 blue, u8 alpha);
@@ -907,8 +906,8 @@ void func_00212270(u8 *drawPayload, s32 workAddress, void *callback)
         alpha = 0;
     }
     if (alpha > 0) {
-        func_003e0870(&matrix, D_0060A0F0, fGpffff8370, rwCOMBINEREPLACE);
-        func_003e0870(&matrix, D_0060A0E0, angle, rwCOMBINEPOSTCONCAT);
+        RwMatrixRotate(&matrix, D_0060A0F0, fGpffff8370, rwCOMBINEREPLACE);
+        RwMatrixRotate(&matrix, D_0060A0E0, angle, rwCOMBINEPOSTCONCAT);
         uv[0][0] = 0.6171875f;
         uv[0][1] = 0.4375f;
         uv[1][0] = 0.6171875f;
@@ -1223,7 +1222,7 @@ void func_002138a0(s32 arg0)
     temp_17 = (u8 *)func_00452560((void *)arg0);
     func_0044ea90(&D_00626C30, 0x3A);
     temp_2 = (f32 *)jtbl_008873E8[0](0x48, 0x40000);
-    func_0043f9c8(temp_2, 0, 0x48);
+    memset(temp_2, 0, 0x48);
     *(s32 *)((u8 *)temp_2 + 4) = func_0046aea0(&D_00626CA0);
     *(s16 *)((u8 *)temp_2 + 0) = 1;
     *(void **)((u8 *)temp_2 + 0x10) = (void *)func_00212270;
@@ -1271,7 +1270,7 @@ s32 func_00213a80(void)
 }
 // FUN_00213AB0
 void func_00213ab0(s32 arg0, u8 *arg1) {
-    func_0043f9c8(arg1, 0, 0x18);
+    memset(arg1, 0, 0x18);
     *(f32 *)(arg1 + 0x10) = 0.5f;
     *(f32 *)(arg1 + 0x14) = 170.0f;
     *(s16 *)(arg1 + 0xC) = 10;
@@ -1409,10 +1408,10 @@ void func_00213d20(u8 *arg0)
 // FUN_00213E20
 void func_00213e20(u8 *arg0, u8 *arg1)
 {
-    extern s32 func_002326c0(s32 arg0);
+    extern s32 datCalcGetBadStatusNoDown(s32 arg0);
     s32 value;
 
-    value = func_002326c0(*(s32 *)(arg0 + 0xA64));
+    value = datCalcGetBadStatusNoDown(*(s32 *)(arg0 + 0xA64));
     *(s32 *)(arg1 + 0x14) = value;
     if (value == 0) {
         *(u8 *)(arg1 + 0) = 0xFF;
@@ -1627,11 +1626,11 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
     extern void func_002016b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void func_00201820(s32 arg0);
     extern void func_002019d0(u8 *arg0, f32 fparg0, f32 fparg1);
-    extern u16 func_00231ed0(s32 arg0);
-    extern u16 func_00231ee0(s32 arg0);
+    extern u16 datCalcGetHp(s32 arg0);
+    extern u16 datCalcGetSp(s32 arg0);
     extern u16 func_00231f80(DatUnit *arg0);
     extern u16 func_00232290(DatUnit *arg0);
-    extern void *func_0043f9c8(void *dst, s32 value, u32 size);
+    extern void *memset(void *dst, s32 value, u32 size);
     extern f32 fGpffff815c;
     extern f32 fGpffff8218;
     extern f32 fGpffff84b4;
@@ -1668,8 +1667,8 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
     row = arg2;
     context = (u8 *)arg0 + 0x80C;
     func_00213e20(arg1, (u8 *)&colors);
-    hp = func_00231ed0(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
-    sp = func_00231ee0(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
+    hp = datCalcGetHp(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
+    sp = datCalcGetSp(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
     maxHp = func_00231f80(*(DatUnit **)(arg1 + 0xA64)) & 0xFFFF;
     maxSp = func_00232290(*(DatUnit **)(arg1 + 0xA64)) & 0xFFFF;
     tile = *(u16 *)(arg1 + 0xA4);
@@ -1805,16 +1804,16 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
             fparg1 = fparg1 + selectionCurve * selectionY;
             selectionScale = 1.0f - fGpffff8218 * selectionCurve;
             func_002019d0((u8 *)arg0, selectionScale, selectionScale);
-            func_0043f9c8(offset, 0, 0x18);
-            func_0043f9c8(y, 0, 0x18);
-            func_0043f9c8(x, 0, 0x18);
+            memset(offset, 0, 0x18);
+            memset(y, 0, 0x18);
+            memset(x, 0, 0x18);
             baseX = 0.0f;
             baseY = 0.0f;
         } else {
             func_002012d0((u8 *)arg0, fparg0, fparg1);
-            func_0043f9c8(offset, 0, 0x18);
-            func_0043f9c8(y, 0, 0x18);
-            func_0043f9c8(x, 0, 0x18);
+            memset(offset, 0, 0x18);
+            memset(y, 0, 0x18);
+            memset(x, 0, 0x18);
             baseX = 0.0f;
             baseY = 0.0f;
         }
@@ -1905,8 +1904,8 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         u16 effectIndex;
         u16 effectFrame;
         effectFrame = *(u16 *)(arg1 + 0xA18);
-        effectCos = func_0044b610(fGpffff815c);
-        effectSin = func_0044b7b0(fGpffff815c);
+        effectCos = cosf(fGpffff815c);
+        effectSin = sinf(fGpffff815c);
         for (effectIndex = 0; effectIndex < 3U; effectIndex++) {
             amplitude = D_00626FC0[effectIndex] * D_00626CC0[effectIndex][effectFrame];
             effect[effectIndex].x = amplitude * effectCos;
@@ -1919,7 +1918,7 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
             *(s32 *)(arg1 + 0xA10) &= ~1;
         }
     } else {
-        func_0043f9c8(effect, 0, 0x18);
+        memset(effect, 0, 0x18);
     }
     func_00201300(arg0, fparg0, fparg1, 136.0f, 136.0f);
     if (*(s32 *)(arg1 + 0xA10) & 0x200) {
@@ -2515,7 +2514,7 @@ void func_00216d70(u8 *arg0, s32 arg1) {
 void func_00216da0(u8 *arg0, s32 arg1) {
     u8 sp20[0x80];
 
-    func_00442088(sp20, (const char *)&iGpffffa598, arg1);
+    sprintf(sp20, (const char *)&iGpffffa598, arg1);
     func_00278450(arg0, 1, sp20);
 }
 
@@ -2833,7 +2832,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                                       0xFF, 0x65, 0x74, colorBytes[3]);
                         if (attackSprite == 0x25) {
                             u8 pulseAlpha;
-                            pulsef = func_0044b7b0(fGpffff8478 * fGpffffb47c);
+                            pulsef = sinf(fGpffff8478 * fGpffffb47c);
                             pulseAlpha = (u8)(255.0f * ((fGpffff8218 + 0.0f) + fGpffff847c * pulsef));
                             fGpffffb47c += 12.0f;
                             if (fGpffffb47c >= 180.0f) {
@@ -3061,7 +3060,7 @@ void func_00218560(u8 *arg0, u8 *arg1)
     u8 *sub;
 
     sub = (u8 *)func_00452560(arg0) + 0x8C0;
-    if (func_00106330(0x38) != 0) {
+    if (datGetFlag(0x38) != 0) {
         *(u16 *)sub |= 4;
     } else {
         *(u16 *)sub &= 0xFFFB;
@@ -3265,7 +3264,7 @@ void func_0021a7b0(u8 *task, u8 *state)
             if (tick < 0) {
                 firstScale = 0.0f;
             } else if (tick < 0x0A) {
-                firstScale = func_0044b7b0(fGpffff84a4 * ((f32)tick / 10.0f));
+                firstScale = sinf(fGpffff84a4 * ((f32)tick / 10.0f));
             } else {
                 firstScale = 1.0f;
             }
@@ -3280,7 +3279,7 @@ void func_0021a7b0(u8 *task, u8 *state)
             if (tick < 0) {
                 secondScale = 0.0f;
             } else if (tick < 8) {
-                secondScale = 1.0f - func_0044b610(fGpffff84a4 * ((f32)tick / 8.0f));
+                secondScale = 1.0f - cosf(fGpffff84a4 * ((f32)tick / 8.0f));
             } else {
                 secondScale = 1.0f;
             }
@@ -3318,10 +3317,10 @@ void func_0021aeb0(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2, f32 fpa
     if (arg2 != 0) {
         temp_4 = *(u16 **)(arg1 + 0xA64);
         if ((temp_4 != NULL) &&
-            (func_002428f0((u8 *)temp_4, 0) == 0)) {
+            (datCalcIsDead((u8 *)temp_4, 0) == 0)) {
             temp_4_2 = *(u16 **)(arg1 + 0xA64);
             if ((*temp_4_2 & 0x20) != 0) {
-                if ((func_00231ed0((s32)temp_4_2) & 0xFFFF) <= 1) {
+                if ((datCalcGetHp((s32)temp_4_2) & 0xFFFF) <= 1) {
                     goto callback;
                 }
             }
@@ -3355,7 +3354,7 @@ loop_body:
         work = p + 0xA28;
         if (*(s16 *)(p + 0xA38) >= 0 &&
             *(s16 *)(p + 0xA38) < 0xC) {
-            value0 = (s16)func_00231ed0(*(s32 *)(p + 0xA64));
+            value0 = (s16)datCalcGetHp(*(s32 *)(p + 0xA64));
             value1 = (s16)func_00231f80(*(s32 *)(p + 0xA64));
             *(s16 *)(work + 0x10) = -1;
             *(f32 *)work = -1.0f;
@@ -3382,7 +3381,7 @@ outer_test:
 f32 func_0021b0a0(u8 *arg0)
 {
     typedef struct DatUnit DatUnit;
-    extern s32 func_00231ed0(DatUnit *arg0);
+    extern s32 datCalcGetHp(DatUnit *arg0);
     extern s32 func_00231f80(DatUnit *arg0);
     f32 var_f20;
     f32 var_f0;
@@ -3397,14 +3396,14 @@ f32 func_0021b0a0(u8 *arg0)
     if (var_f20 == 0.0f) {
         return 0.0f;
     }
-    temp_2_2 = (u32)func_00231ed0((DatUnit *)*(s32 *)(arg0 + 0xA64));
+    temp_2_2 = (u32)datCalcGetHp((DatUnit *)*(s32 *)(arg0 + 0xA64));
     var_f0 = (f32)temp_2_2;
     return var_f0 / var_f20;
 }
 // FUN_0021B190
 void func_0021b190(u8 *arg0, s32 arg1)
 {
-    func_0043f9c8(arg0, 0, 4);
+    memset(arg0, 0, 4);
     *(s32 *)arg0 = arg1;
 }
 // FUN_0021B1E0
@@ -3620,7 +3619,7 @@ void func_0021b630(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
 void func_0021bbb0(s32 arg0, u16 arg1)
 {
     extern BtlShuffleRenderStateSet D_00887300[];
-    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
     extern void func_0045c870(u8 *arg0, s32 arg1);
     extern void func_00489f80(void);
     extern void func_0048a000(void);
@@ -3656,10 +3655,10 @@ void func_0021bbb0(s32 arg0, u16 arg1)
         color.bytes[1] = 0;
         color.bytes[2] = 0;
         scale = 400.0f *
-                (1.0f - func_0044b610(
+                (1.0f - cosf(
                     fGpffff84a4 * ((f32)(arg1 - 0x21) / 15.0f)));
         func_00489f80();
-        func_003f6440(3, 0x31801);
+        RpSkyRenderStateSet(3, 0x31801);
         color.bytes[3] = 0;
         func_0045c870(color.bytes, 0);
         color.bytes[3] = 0xFF;
@@ -3668,30 +3667,30 @@ void func_0021bbb0(s32 arg0, u16 arg1)
                       color_value.i, color_value.i,
                       scale, 0.0f, 0x24, fGpffff84cc, 1.0f, 0);
         func_0048a000();
-        func_003f6440(3, 0x37801);
+        RpSkyRenderStateSet(3, 0x37801);
     }
     if (arg1 >= 3) {
         if (arg1 < 0x21) {
-            func_003f6440(2, 0x48);
+            RpSkyRenderStateSet(2, 0x48);
             scale = 400.0f *
-                    func_0044b7b0(
+                    sinf(
                         fGpffff84a4 * ((f32)(arg1 - 3) / 30.0f));
             arg_color_copy.f = *(f32 *)&arg0;
             func_00365f00(coords.v, 0.0f,
                           arg_color_copy.i, arg_color_copy.i,
                           scale, 0.0f, 0x24, fGpffff84cc, 1.0f, 0);
-            func_003f6440(2, 0x44);
+            RpSkyRenderStateSet(2, 0x44);
         } else if (arg1 < 0x30) {
-            func_003f6440(2, 0x48);
+            RpSkyRenderStateSet(2, 0x48);
             func_0045c870((u8 *)&arg0, 0);
-            func_003f6440(2, 0x44);
+            RpSkyRenderStateSet(2, 0x44);
         }
     }
 }
 // FUN_0021BE10
 void func_0021be10(u8 *arg0, s32 arg1)
 {
-    func_0043f9c8(arg0, 0, 0xC);
+    memset(arg0, 0, 0xC);
     *(s32 *)(arg0 + 8) = arg1;
     *(s16 *)(arg0 + 4) = 1;
 }
@@ -3824,10 +3823,10 @@ static inline void btlAdvantageBuildQuad(f32 x, f32 y, f32 z,
    once for the selected segments. The caller owns the halfword result. */
 static inline u16 btlAdvantageChooseSegments(void)
 {
-    extern u32 func_003b7060(void);
+    extern u32 RpRandom(void);
     s32 eligible = 0xAAAAA >>
-        (s32)(2.0f * ((f32)func_003b7060() / 2147483648.0f));
-    u32 selected = func_003b7060();
+        (s32)(2.0f * ((f32)RpRandom() / 2147483648.0f));
+    u32 selected = RpRandom();
     return selected & eligible;
 }
 
@@ -3835,8 +3834,8 @@ static inline u16 btlAdvantageChooseSegments(void)
 void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
 {
     extern BtlShuffleRenderStateSet D_00887300[];
-    extern u32 func_003b7060(void);
-    extern s32 func_003f6440(enum RpSkyRenderState state, void *value);
+    extern u32 RpRandom(void);
+    extern s32 RpSkyRenderStateSet(enum RpSkyRenderState state, void *value);
     union ColorWord color;
     u8 *work;
     s32 index;
@@ -3860,7 +3859,7 @@ void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
                 func_0021bbb0(color.word, *(u16 *)(work + 2));
                 D_00887300[0](rwRENDERSTATETEXTURERASTER, (void *)iGpffffb470);
                 btlAdvantageBackground();
-                func_003f6440(rpSKYRENDERSTATEALPHA_1, (void *)0x48);
+                RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x48);
                 color.bytes[0] = 0x6B;
                 color.bytes[1] = 0x9E;
                 color.bytes[2] = 0xFF;
@@ -3871,7 +3870,7 @@ void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
                 index = (*(u16 *)(work + 4) + 1) % 6;
                 btlAdvantageSegment(index, color);
                 btlAdvantageSegment(index + 6, color);
-                func_003f6440(rpSKYRENDERSTATEALPHA_1, (void *)0x44);
+                RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x44);
                 color.bytes[0] = 0x14;
                 color.bytes[1] = 0x14;
                 color.bytes[2] = 0x14;
@@ -3884,6 +3883,7 @@ void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
                 if (++*(u16 *)(work + 4) >= 6) {
                     *(u16 *)(work + 4) = 0;
                 }
+
             } else {
                 if (*(u16 *)(work + 2) == 4) {
                     func_0045af60(1, 14, 2, 1);
@@ -3895,7 +3895,7 @@ void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
                 func_0021bbb0(color.word, *(u16 *)(work + 2));
                 D_00887300[0](rwRENDERSTATETEXTURERASTER, (void *)iGpffffb470);
                 btlAdvantageBackground();
-                func_003f6440(rpSKYRENDERSTATEALPHA_1, (void *)0x48);
+                RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x48);
                 color.bytes[0] = 0xFF;
                 color.bytes[1] = 0x27;
                 color.bytes[2] = 0x27;
@@ -3903,7 +3903,7 @@ void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
                 for (index = 0; index < 12; ++index) {
                     bit = 1 << index;
                     if (bit & 0xC61) {
-                        if ((s32)(4.0f * ((f32)func_003b7060() / 2147483648.0f)) == 0) {
+                        if ((s32)(4.0f * ((f32)RpRandom() / 2147483648.0f)) == 0) {
                             btlAdvantageSegment(index, color);
                         }
                     }
@@ -3911,7 +3911,7 @@ void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
                         btlAdvantageSegment(index, color);
                     }
                 }
-                func_003f6440(rpSKYRENDERSTATEALPHA_1, (void *)0x44);
+                RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x44);
                 color.bytes[0] = 0x14;
                 color.bytes[1] = 0x14;
                 color.bytes[2] = 0x14;
@@ -4114,7 +4114,7 @@ void func_0021d920(u8 *sdkTaskBytes)
     p = (u8 *)func_00452560((void *)task);
     value = *(s32 *)(p + 0x934);
     if (value != 0) {
-        func_00454bd0((u8 *)value);
+        H_Cdvd_Destroy((u8 *)value);
     }
     jtbl_008873EC[0](p);
 }
@@ -4126,9 +4126,9 @@ s32 func_0021d980(s32 arg0, u16 *arg1)
 
     func_0044ea90(&D_006290D0, 0x3A);
     work = (u8 *)jtbl_008873E8[0](0x94C, 0x40000);
-    func_0043f9c8(work, 0, 0x94C);
+    memset(work, 0, 0x94C);
     result = (s32)func_00451fc0((void *)(arg0), (const void *)(&D_006290C0), 0xF, 0, 0, func_0021d4a0, func_0021d920, (u8 *)(work));
-    func_0043f810(work + 8, arg1, 0x58);
+    memcpy(work + 8, arg1, 0x58);
     if ((*arg1 & 1) != 0) {
         *(s32 *)(work + 0x60) |= 1;
     }
@@ -4214,8 +4214,8 @@ void func_0021dc50(s32 arg0, s32 *arg1)
     }
     sp38.x = 0.0f;
     sp38.y = -500.0f;
-    sp38.x = sp38.x + var_f20 * (800.0f * func_0044b7b0(fGpffff837c));
-    temp_f0 = func_0044b610(fGpffff837c);
+    sp38.x = sp38.x + var_f20 * (800.0f * sinf(fGpffff837c));
+    temp_f0 = cosf(fGpffff837c);
     temp_f1 = 800.0f * temp_f0;
     sp38.y = sp38.y + var_f20 * temp_f1;
     func_00364c90(sp38, 0.0f, 0xFF,
@@ -4229,7 +4229,7 @@ void func_0021dda0(void)
     if (func_00452380(&D_006290E0) == 0) {
         func_0044ea90(&D_006290D0, 0x3A);
         work = (u8 *)jtbl_008873E8[0](0x34, 0x40000);
-        func_0043f9c8(work, 0, 0x34);
+        memset(work, 0, 0x34);
         (s32)func_00451de0((const void *)(&D_006290E0), 0x10, 0, 0, func_0021dba0, func_0021dd60, (u8 *)(work));
         *(void **)(work + 0xC) = (void *)func_0021dc50;
         *(u8 **)(work + 0x14) = work;
@@ -4260,10 +4260,10 @@ s32 func_0021de90(s32 arg0, u8 *arg1)
     if (value <= 0) {
         return 0;
     }
-    if ((*(u16 *)arg1 & 8) == 0 && func_00106330(0x1403) != 0) {
-        if (func_00106330(0x1428) != 0) {
+    if ((*(u16 *)arg1 & 8) == 0 && datGetFlag(0x1403) != 0) {
+        if (datGetFlag(0x1428) != 0) {
             value = (s32)(2.0f * (f32)value);
-        } else if (func_00106330(0x1429) != 0) {
+        } else if (datGetFlag(0x1429) != 0) {
             value = 0;
         }
     }
@@ -4307,10 +4307,10 @@ s32 func_0021e050(u8 *arg0)
     if (value <= 0) {
         return 0;
     }
-    if ((*(u16 *)arg0 & 8) == 0 && (func_00106330(0x1403) != 0)) {
-        if (func_00106330(0x1420) != 0) {
+    if ((*(u16 *)arg0 & 8) == 0 && (datGetFlag(0x1403) != 0)) {
+        if (datGetFlag(0x1420) != 0) {
             value = (s32)(2.0f * (f32)value);
-        } else if (func_00106330(0x1421) != 0) {
+        } else if (datGetFlag(0x1421) != 0) {
             value = 1;
         }
     }
@@ -4361,7 +4361,7 @@ void func_0021e110(u8 *arg0, u8 *arg1)
     u16 *entry2;
     s32 ref;
 
-    func_0043f9c8(arg0, 0, 0x8D4);
+    memset(arg0, 0, 0x8D4);
     out = 0;
     if (*(u16 *)arg1 & 1) {
         *(u32 *)arg0 |= 1;
@@ -4468,7 +4468,7 @@ void func_0021e110(u8 *arg0, u8 *arg1)
             out += 1;
         }
     }
-    if (func_00106330(0x38) != 0) {
+    if (datGetFlag(0x38) != 0) {
         entry3 = func_0010a900(5);
         v5 = datPersonaGetLevel((s32)entry3) & 0xFF;
         lv3 = func_0021de90(v5, arg1);
@@ -4525,10 +4525,10 @@ void func_0021e9a0(u8 *arg0, u8 *arg1)
     var_16 = *(s32 *)(arg1 + 8);
     if (var_16 <= 0) {
         var_16 = 0;
-    } else if ((*(u16 *)arg1 & 8) == 0 && func_00106330(0x1403) != 0) {
-        if (func_00106330(0x1420) != 0) {
+    } else if ((*(u16 *)arg1 & 8) == 0 && datGetFlag(0x1403) != 0) {
+        if (datGetFlag(0x1420) != 0) {
             var_16 = (s32)(2.0f * (f32)var_16);
-        } else if (func_00106330(0x1421) != 0) {
+        } else if (datGetFlag(0x1421) != 0) {
             var_16 = 1;
         }
     }

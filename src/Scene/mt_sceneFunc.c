@@ -11,7 +11,7 @@ typedef struct Resrc {
     u32 flags;
 } Resrc;
 
-extern Resrc* MT_Scene_GetRes();
+extern void *MT_Scene_GetRes();
 
 u32 func_00268ce0(float* first, float* second, float* output, float* third);
 
@@ -81,25 +81,24 @@ extern float func_0026cca0(float param_1, float param_2, float *param_3, float *
 extern u16 D_00764580;
 extern void func_004b15d0(void);
 
-extern u8 *func_00145270();
 extern void func_0026c740(s32 object);
 extern float func_0026cdb0(char *param_1);
 extern s32 func_0026da30(u16 arg0, s32 arg1);
 extern s32 func_0017b990(s32 arg0, s32 arg1, s32 arg2);
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
-extern f32 func_003e40b0();
+extern void memset(void *dst, s32 value, s32 size);
+extern f32 RwV3dNormalize();
 extern s64 D_0063B110;
 extern f32 D_0063B118;
 extern u8 D_0063B110_abs[];
 extern f32 fGpffff8048;
-extern void func_003e0870(void *dst, void *src, f32 angle, s32 mode);
+extern void RwMatrixRotate(void *dst, void *src, f32 angle, s32 mode);
 extern u8 *func_003e4320(void *dst, void *src, void *mat);
-extern s32 func_003e05d0(void *arg0);
-extern s32 func_00168ec0();
+extern s32 RwMatrixUpdate(void *arg0);
+extern s32 K_FldFrame_IsPointInTriangle();
 extern s32 func_00479dd0(u32 arg0, u16 arg1, s16 arg2);
 extern void func_0047a0e0(u32 arg0, u16 arg1, f32 arg2);
 extern void func_00479e60(u32 arg0, u16 arg1, f32 arg2);
-extern u8 *func_0047a250(u32 arg0);
+extern void *mdlGetColor();
 extern void func_004b14f0(void *object, s32 *color);
 extern void func_0044ea90(const void *msg, u32 id);
 
@@ -107,17 +106,17 @@ extern void func_0046d730(const void *msg, u32 line);
 extern void func_00440b68(const void *msg, u32 value);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u32 *jtbl_008873E8[];
-extern s32 func_004577d0(void *arg0, f32 arg1);
+extern s32 K_View_SetFov(void *arg0, f32 arg1);
 extern u8 *func_00457120(void);
 extern u8 *func_003e0f80(void);
-extern void func_003e0c90(void *dst, void *src, s32 mode);
+extern void RwMatrixTranslate(void *dst, void *src, s32 mode);
 extern u32 func_0026d400(float *arg0);
 extern void func_003e9df0(void *arg0);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern void func_003e0f40(void *arg0);
 extern void func_0026bfc0(f32 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 *arg1);
 extern u8 *func_00147620(u32 arg0);
-extern f32 func_0044b610(f32 arg0);
+extern f32 cosf(f32 arg0);
 extern f32 func_0044b938(f32 arg0);
 extern f32 func_0044b950(f32 arg0, f32 arg1);
 extern u8 *PTR_DAT_00762ea0;
@@ -244,7 +243,7 @@ u32 func_00268ce0(float *first, float *second, float *output, float *third)
     dif[0] = second[0] - first[0];
     dif[1] = second[1] - first[1];
     dif[2] = second[2] - first[2];
-    fVar2 = func_003e40b0(afStack_20, dif);
+    fVar2 = RwV3dNormalize(afStack_20, dif);
     if (fVar2 == 0.0f) {
         return 0;
     }
@@ -299,7 +298,7 @@ s32 func_00268e60(u32 unk, u8 *arg1, f32 fparg0) {
 s32 func_00268f20(u32 arg0, SVec3 *arg1, u32 arg2, s8 arg3)
 {
     s32 result;
-    u8 *p = func_00145270(arg0);
+    u8 *p = MT_Scene_GetRes(arg0);
 
     if (p == NULL) return 0;
     if (p == NULL) {
@@ -361,7 +360,7 @@ s32 func_002690b0(u32 arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1,
                   f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, s32 arg3,
                   s8 arg4)
 {
-    u8 *p = func_00145270(arg0);
+    u8 *p = MT_Scene_GetRes(arg0);
     s32 result;
 
     if (p != NULL) {
@@ -447,7 +446,7 @@ u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
 s32 func_00269340(u32 arg0, SVec3 *arg1, u32 arg2, u8 arg3)
 {
     SVec3 values;
-    u8 *p = func_00145270(arg0);
+    u8 *p = MT_Scene_GetRes(arg0);
 
     if (p == NULL) return 0;
     values = *arg1;
@@ -497,7 +496,7 @@ u32 func_002694f0(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
     switch (((s32)(*(u16 *)param_1 & 0xFFC00)) >> 10) {
     case 3:
     {
-        u8 *tp = func_0047a250(*(u32 *)((u8 *)param_1 + 0x164));
+        u8 *tp = mdlGetColor(*(u32 *)((u8 *)param_1 + 0x164));
         u8 b0 = *tp++;
         u8 b1 = *tp++;
         u8 b2 = *tp++;
@@ -580,7 +579,7 @@ s32 func_00269690(u32 unk, f32 fparg0, s32 arg1) {
 // FUN_00269740
 s32 func_00269740(u32 resourceId)
 {
-    u8 *p = func_00145270(resourceId);
+    u8 *p = MT_Scene_GetRes(resourceId);
 
     if (p == NULL) return 0;
     if (p == NULL) return 0;
@@ -770,14 +769,14 @@ void func_00269c70(f32 *out, f32 *base, f32 angle0, f32 angle1, f32 scale)
     *(u64 *)vector0 = xy;
     vector0[2] = z;
 
-    func_003e0870(matrix, vector0p, -angle1, 0);
+    RwMatrixRotate(matrix, vector0p, -angle1, 0);
     func_003e4320(vector1, vector1, matrix);
     vector0[0] = 0.0f;
     vector0[1] = 1.0f;
     vector0[2] = 0.0f;
-    func_003e0870(matrix, vector0, angle0, 0);
+    RwMatrixRotate(matrix, vector0, angle0, 0);
     func_003e4320(transformed, vector1, matrix);
-    func_003e40b0(transformed, transformed);
+    RwV3dNormalize(transformed, transformed);
     transformed[0] *= scale;
     transformed[1] *= scale;
     transformed[2] *= scale;
@@ -819,29 +818,29 @@ void func_00269db0(float *param_1, float *param_2)
         axis.z = z;
     }
     adjusted = 0;
-    func_003e40b0(&input, param_2);
+    RwV3dNormalize(&input, param_2);
     matrix.pos = zero;
     matrix.at = input;
-    func_003e40b0(&matrix.at, &matrix.at);
+    RwV3dNormalize(&matrix.at, &matrix.at);
 
     matrix.right.x = matrix.at.y * axis.z - matrix.at.z * axis.y;
     at_x = matrix.at.x;
     axis_x = axis.x;
     matrix.right.y = matrix.at.z * axis_x - at_x * axis.z;
     matrix.right.z = at_x * axis.y - matrix.at.y * axis_x;
-    func_003e40b0(&matrix.right, &matrix.right);
+    RwV3dNormalize(&matrix.right, &matrix.right);
 
     matrix.up.x = matrix.at.y * matrix.right.z - matrix.at.z * matrix.right.y;
     matrix.up.y = matrix.at.z * matrix.right.x - matrix.at.x * matrix.right.z;
     matrix.up.z = matrix.at.x * matrix.right.y - matrix.at.y * matrix.right.x;
-    func_003e40b0(&matrix.up, &matrix.up);
-    func_003e05d0(&matrix);
+    RwV3dNormalize(&matrix.up, &matrix.up);
+    RwMatrixUpdate(&matrix);
 
     param_1[1] = func_0044b950(matrix.at.x, matrix.at.z);
     param_1[0] = -func_0044b938(matrix.at.y);
-    if (func_0044b610(param_1[0]) != 0.0f) {
+    if (cosf(param_1[0]) != 0.0f) {
         param_1[2] =
-            func_0044b938(matrix.right.y / func_0044b610(param_1[0]));
+            func_0044b938(matrix.right.y / cosf(param_1[0]));
         adjusted = 1;
     } else {
         param_1[1] = func_0044b950(-matrix.right.z, matrix.right.x);
@@ -987,12 +986,10 @@ typedef union SceneEffectColor {
     RwRGBA rgba;
 } SceneEffectColor;
 
-extern f32 func_003e4180(f32 *vector);
 extern void func_00146a10(u8 *resource, u8 *position, u8 *rotation, u8 *scale);
 extern void func_0026c770(f32 *start, f32 *end, f32 *delta);
 extern f32 func_0026cba0(u32 kind, f32 duration, f32 elapsed);
 extern s32 func_0026ba60(u16 *position);
-extern RwRGBA *mdlGetColor(Model *model);
 extern void mdlSetColor(Model *model, const RwRGBA *color);
 extern void func_0047a850(void *model);
 extern void func_0047a870(void *model);
@@ -1210,7 +1207,7 @@ void func_0026a020(u8 *arg0)
                 f32 length;
                 s32 remaining;
                 sceneUpdateDifference(&delta, &end, &current);
-                length = func_003e4180(&delta.x);
+                length = RwV3dLength((const RwV3d *)&delta.x);
                 remaining = frames;
                 do {
                     if (!sceneUpdateStepContinues(length, resource->moveSpeed)) {
@@ -1218,7 +1215,7 @@ void func_0026a020(u8 *arg0)
                         resource->flags &= ~1;
                         break;
                     }
-                    func_003e40b0(&unit.x, &delta.x);
+                    RwV3dNormalize(&unit.x, &delta.x);
                     if (remaining > 0) {
                         resource->position.x += unit.x * resource->moveSpeed;
                         resource->position.y += unit.y * resource->moveSpeed;
@@ -1379,7 +1376,7 @@ void func_0026a020(u8 *arg0)
         switch (sceneUpdateResourceType(resource)) {
         case 3: {
             SceneCharacterUpdate *character = (SceneCharacterUpdate *)resource;
-            RwRGBA color = *mdlGetColor((Model *)character->model);
+            RwRGBA color = *(RwRGBA *)mdlGetColor((Model *)character->model);
             color.alpha = alpha;
             if (color.alpha < 0xFF) {
                 if (resource->alphaBlend != 0) {
@@ -1576,7 +1573,7 @@ s32 func_0026ba60(u16 *arg0)
             frame.sp50 = var_16 + 0x15C;
             frame.sp54 = var_16 + 0x168;
             frame.sp58 = var_16 + 0x174;
-            if ((func_00168ec0(arg0, &frame.sp50, sp40p) == 1) &&
+            if ((K_FldFrame_IsPointInTriangle(arg0, &frame.sp50, sp40p) == 1) &&
                 (temp_f3 = *(f32 *)(frame.sp50 + 4),
                  temp_f2 = *(f32 *)((u8 *)arg0 + 4),
                  (temp_f2 < (100.0f + temp_f3))) &&
@@ -1590,7 +1587,7 @@ s32 func_0026ba60(u16 *arg0)
         frame.sp58 = var_16 + 0x180;
         {
             u8 *sp40p = (u8 *)&frame.sp40;
-            if ((func_00168ec0(arg0, &frame.sp50, &frame.sp40) == 1) &&
+            if ((K_FldFrame_IsPointInTriangle(arg0, &frame.sp50, &frame.sp40) == 1) &&
                 (temp_f3_2 = *(f32 *)(frame.sp50 + 4),
                  temp_f2_2 = *(f32 *)((u8 *)arg0 + 4),
                  (temp_f2_2 < (100.0f + temp_f3_2))) &&
@@ -1607,7 +1604,7 @@ s32 func_0026ba60(u16 *arg0)
 // FUN_0026BC10
 s32 func_0026bc10(u32 arg0, u32 arg1)
 {
-    u8 *p = func_00145270(arg0);
+    u8 *p = MT_Scene_GetRes(arg0);
 
     if (p == NULL) return 0;
     if (p == NULL) return 0;
@@ -1657,13 +1654,13 @@ s32 func_0026bd50(u32 unk, s32 arg1) {
 // FUN_0026BDA0
 s32 func_0026bda0(u32 arg0, s32 arg1, u8 arg2, s16 arg3, s16 arg4, s16 arg5)
 {
-    u8 *p = func_00145270(arg0);
+    u8 *p = MT_Scene_GetRes(arg0);
 
     if (p == NULL) return 0;
     if (p == NULL) return 0;
     {
         u8 *q = p + 0xE8;
-        func_0043f9c8(q, 0, 0xA);
+        memset(q, 0, 0xA);
         *(u8 *)(q + 0) = arg1;
         *(u8 *)(q + 1) = 0;
         *(u8 *)(q + 3) = arg2;
@@ -1677,7 +1674,7 @@ s32 func_0026bda0(u32 arg0, s32 arg1, u8 arg2, s16 arg3, s16 arg4, s16 arg5)
 // FUN_0026BE60
 s32 func_0026be60(void)
 {
-    u8 *p = func_00145270();
+    u8 *p = MT_Scene_GetRes();
 
     if (p == NULL) return 0;
     if (p == NULL) return 0;
@@ -1709,7 +1706,7 @@ void func_0026bf20(void) {
 void func_0026bf70(u32 arg0)
 {
     if (((s32)((u16)arg0 & 0xFFC00) >> 10) == 7) {
-        u8 *p = func_00145270(arg0);
+        u8 *p = MT_Scene_GetRes(arg0);
         if (p != NULL) {
             *(u16 *)(p + 0x14C) = 0;
             *(u32 *)(p + 0x144) = 0;
@@ -1807,9 +1804,9 @@ void func_0026bfc0(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f
     matrix.pos.x = 0.0f;
     matrix.flags |= 0x20003;
 
-    func_003e0870(&matrix, axis2p, fparg2, 1);
-    func_003e0870(&matrix, &axis1.value, fparg1, 1);
-    func_003e0870(&matrix, &axis3.value, fparg3, 1);
+    RwMatrixRotate(&matrix, axis2p, fparg2, 1);
+    RwMatrixRotate(&matrix, &axis1.value, fparg1, 1);
+    RwMatrixRotate(&matrix, &axis3.value, fparg3, 1);
     func_003e4320(&transformed, &axis0, &matrix);
     source.value = *(RwV3d *)input;
     output.value.x = source.value.x - transformed.value.x * fparg0;
@@ -1852,7 +1849,7 @@ void func_0026c190(f32 *out, void *resource, f32 scale)
     *(RwV3d *)base = *(RwV3d *)((u8 *)resource + 4);
     *(RwV3d *)axis = *(RwV3d *)((u8 *)resource + 0x10);
     if (*(u16 *)((u8 *)resource + 0x14c) != 0) {
-        handle = func_00145270(*(u16 *)((u8 *)resource + 0x14c));
+        handle = MT_Scene_GetRes(*(u16 *)((u8 *)resource + 0x14c));
         if (handle != NULL) {
             base[0] = *(f32 *)(handle + 4);
             base[1] = *(f32 *)(handle + 8);
@@ -1876,7 +1873,7 @@ void func_0026c190(f32 *out, void *resource, f32 scale)
             direction_z = *(f32 *)(matrix_copy + 8);
             direction.xy = direction_xy;
             direction.z = direction_z;
-            func_003e40b0(normalized, directionp);
+            RwV3dNormalize(normalized, directionp);
             base[0] = base[0] - 15.0f * normalized[0];
             base[2] = base[2] - 15.0f * normalized[2];
         }
@@ -1984,7 +1981,7 @@ void func_0026c310(u8 *param_1)
         matrix->at.x = *(f32 *)(param_1 + 0x10) - matrix->pos.x;
         matrix->at.y = *(f32 *)(param_1 + 0x14) - matrix->pos.y;
         matrix->at.z = *(f32 *)(param_1 + 0x18) - matrix->pos.z;
-        func_003e40b0(&matrix->at, &matrix->at);
+        RwV3dNormalize(&matrix->at, &matrix->at);
 
         axis_y = locals.axis.value.y;
         axis_z = locals.overlap.axis_z;
@@ -1996,7 +1993,7 @@ void func_0026c310(u8 *param_1)
         matrix->right.y = fa * axis_x - fc * axis_z;
         matrix->right.z =
             matrix->at.x * axis_y - matrix->at.y * axis_x;
-        func_003e40b0(&matrix->right, &matrix->right);
+        RwV3dNormalize(&matrix->right, &matrix->right);
 
         matrix->up.x =
             matrix->at.y * matrix->right.z -
@@ -2007,8 +2004,8 @@ void func_0026c310(u8 *param_1)
         matrix->up.z =
             matrix->at.x * matrix->right.y -
             matrix->at.y * matrix->right.x;
-        func_003e40b0(&matrix->up, &matrix->up);
-        func_003e05d0(matrix);
+        RwV3dNormalize(&matrix->up, &matrix->up);
+        RwMatrixUpdate(matrix);
     } else {
         matrix->at.z = 1.0f;
         matrix->up.y = 1.0f;
@@ -2024,10 +2021,10 @@ void func_0026c310(u8 *param_1)
         matrix->pos.x = 0.0f;
         matrix->flags |= 0x20003;
 
-        func_003e0870(matrix, locals.vec0, *(f32 *)(param_1 + 0x14), 1);
-        func_003e0870(matrix, locals.vec1, *(f32 *)(param_1 + 0x10), 1);
-        func_003e0870(matrix, locals.vec2, *(f32 *)(param_1 + 0x18), 1);
-        func_003e0c90(matrix, locals.outv, 2);
+        RwMatrixRotate(matrix, locals.vec0, *(f32 *)(param_1 + 0x14), 1);
+        RwMatrixRotate(matrix, locals.vec1, *(f32 *)(param_1 + 0x10), 1);
+        RwMatrixRotate(matrix, locals.vec2, *(f32 *)(param_1 + 0x18), 1);
+        RwMatrixTranslate(matrix, locals.outv, 2);
     }
 
     result = func_0026d400(&locals.scratch[4]);
@@ -2035,13 +2032,13 @@ void func_0026c310(u8 *param_1)
         locals.scratch[0] = locals.scratch[4];
         locals.scratch[1] = locals.scratch[5];
         locals.scratch[2] = 0.0f;
-        func_003e0c90(matrix, locals.scratch, 1);
+        RwMatrixTranslate(matrix, locals.scratch, 1);
     }
 
     func_003e9df0((void *)model);
     func_003e9cb0((void *)model, matrix, 0);
     func_003e0f40(matrix);
-    func_004577d0(scene, *(f32 *)(param_1 + 0x140));
+    K_View_SetFov(scene, *(f32 *)(param_1 + 0x140));
 }
 #pragma opt_propagation on
 

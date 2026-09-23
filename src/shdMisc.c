@@ -29,12 +29,12 @@ s32 func_0046a770(char *param);
 void func_0046d730(char *, s32);
 void func_0046d3b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3,
                   f32 z, s32 arg4);
-void func_003f6440(s32 param, s32 value);
+void RpSkyRenderStateSet(s32 param, s32 value);
 void func_00489f80(void);
 void func_0048a000(void);
 s32 func_00457120(void);
-f32 func_0044b610(f32 fparg0);
-f32 func_0044b7b0(f32 fparg0);
+f32 cosf(f32 fparg0);
+f32 sinf(f32 fparg0);
 s32 func_003645c0(char *arg0, s32 rem);
 
 /* Measured: Vec2f-by-value, explicit digit-pointer lifetime and separate alpha
@@ -254,7 +254,7 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
     D_00887300[0](9, 2);
     D_00887300[0](0xC, 1);
     D_00887300[0](1, *(s32 *)ptr);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
     if (flag) {
         verts[0][0] = fparg3;
@@ -273,7 +273,7 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
             ((u32 *)verts)[i * 16 + 11] = 0x437F0000;
             i++;
         } while (i < 4);
-        func_003f6440(3, 0x31801);
+        RpSkyRenderStateSet(3, 0x31801);
         drawbase[0](5, verts, 4);
     }
     verts[0][0] = fparg1;
@@ -291,28 +291,28 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
         verts[i][11] = (f32)(u32)temp_18;
     }
     if (flag) {
-        func_003f6440(3, 0x35801);
+        RpSkyRenderStateSet(3, 0x35801);
     } else {
-        func_003f6440(3, 0x31801);
+        RpSkyRenderStateSet(3, 0x31801);
     }
     drawbase[0](5, verts, 4);
     func_0048a000();
     D_00887300[0](1, 0);
     switch (arg3) {
     case 0:
-        func_003f6440(2, 0x54);
+        RpSkyRenderStateSet(2, 0x54);
         break;
     case 1:
-        func_003f6440(2, 0x58);
+        RpSkyRenderStateSet(2, 0x58);
         break;
     default:
         func_0046d730(D_0064E2F8, 265);
         break;
     }
     if (flag) {
-        func_003f6440(3, 0x35801);
+        RpSkyRenderStateSet(3, 0x35801);
     } else {
-        func_003f6440(3, 0x31801);
+        RpSkyRenderStateSet(3, 0x31801);
     }
     verts[0][0] = fparg1;
     verts[0][1] = fparg2;
@@ -383,8 +383,8 @@ void func_00364c90(Vec2f position, f32 depth, s32 color,
     }
     reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     far_depth = D_008872F8[0];
-    sine = func_0044b7b0(angle);
-    cosine = func_0044b610(angle);
+    sine = sinf(angle);
+    cosine = cosf(angle);
     red = (s32)(u8)(((u32)color & 0xFF000000) >> 24);
     green = (s32)(u8)(((u32)color & 0x00FF0000) >> 16);
     blue = (s32)(u8)(((u32)color & 0x0000FF00) >> 8);
@@ -443,8 +443,8 @@ void func_00364fb0(Vec2f position, f32 depth, s32 color, f32 angle, s32 arg2, s3
     origin_y = position.y;
     far_depth = D_008872F8[0] - depth;
     reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
-    sine = func_0044b7b0(angle);
-    cosine = func_0044b610(angle);
+    sine = sinf(angle);
+    cosine = cosf(angle);
     red = (s32)(u8)(((u32)color >> 24) & 0xFF);
     green = (s32)(u8)(((u32)color >> 16) & 0xFF);
     blue = (s32)(u8)(((u32)color >> 8) & 0xFF);
@@ -548,8 +548,8 @@ void func_003657d0(Vec2f arg0, f32 fparg0, s32 arg1, f32 fparg1, f32 fparg2, s32
     while (var_20 < 4) {
         temp_f27 = iGpffff8094 * (f32)var_20;
         temp_f27 += fparg2;
-        sine = func_0044b7b0(temp_f27);
-        cosine = func_0044b610(temp_f27);
+        sine = sinf(temp_f27);
+        cosine = cosf(temp_f27);
         temp_2 = (u8 *)&vertices[var_20][0];
         *(f32 *)(temp_2 + 0) = origin_x + fparg1 * sine;
         *(f32 *)(temp_2 + 4) = origin_y + fparg1 * cosine;
@@ -616,8 +616,8 @@ void func_00365ac0(Vec2f position, f32 depth, s32 color, f32 angle, f32 width, f
     green = (s32)(u8)(((u32)color & 0x00FF0000) >> 16);
     blue = (s32)(u8)(((u32)color & 0x0000FF00) >> 8);
     alpha = color & 0xFF;
-    rotationA = func_0044b7b0(angle);
-    rotationB = func_0044b610(angle);
+    rotationA = sinf(angle);
+    rotationB = cosf(angle);
     i = 0;
     for (; i < 10; i++) {
         s32 mod8a = i % 8;
@@ -704,9 +704,9 @@ void func_00365f00(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
     for (i = 0; i <= num_segments; i++) {
         current_angle = angle + (iGpffff81e0 * (f32)i) / (f32)segments;
         vertex = &vertices[i];
-        sine = func_0044b7b0(current_angle);
+        sine = sinf(current_angle);
         vertex[1][0] = (0.0f + origin_x) + xscale * (radius * sine);
-        cosine = func_0044b610(current_angle);
+        cosine = cosf(current_angle);
         vertex[1][1] = (0.0f + origin_y) + yscale * (radius * cosine);
         vertex[1][2] = far_depth;
         vertex[1][8] = (f32)(u32)edge_r;

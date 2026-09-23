@@ -29,7 +29,7 @@ extern void *func_00481390(void *arg0);
 extern void func_003ef3a0(void *arg0);
 extern void func_0044ea90(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void *func_0043f9c8(void *dst, s32 value, u32 size);
+extern void *memset(void *dst, s32 value, u32 size);
 extern void func_0046d730(void *file, s32 line);
 extern u8 D_00713CC0[];
 extern u8 D_00713CD0[];
@@ -71,7 +71,7 @@ void *func_00486a50(s32 arg0)
 
     func_0044ea90(D_00713CC0, 0x171);
     p = (u8 *)(*jtbl_008873E8)(0x60, 0x40000);
-    func_0043f9c8(p, 0, 0x60);
+    memset(p, 0, 0x60);
     if (p == NULL) {
         func_0046d730(D_00713CD0, 0x1F);
     }
@@ -107,7 +107,7 @@ s32 func_00486b00(u8 *source)
     allocatorAddress = (u32)jtbl_008873E8;
     {
         u8 *const particle = (*(void *(**)(u32, u32))allocatorAddress)(0x60, 0x40000);
-        func_0043f9c8(particle, 0, 0x60);
+        memset(particle, 0, 0x60);
         if (particle == NULL) {
             func_0046d730(D_00713CD0, 0x1F);
         }
@@ -147,7 +147,7 @@ s32 func_00486b00(u8 *source)
                 func_00487ba0(particle, resource);
                 func_0044ea90(D_00713CC0, 0x171);
                 link = (*(void *(**)(u32, u32))allocatorAddress)(0x30, 0x40000);
-                func_0043f9c8(link, 0, 0x30);
+                memset(link, 0, 0x30);
                 *(u8 **)(particle + 0x5C) = link;
                 *(u16 *)(link + 0x18) = 0x19;
                 *(u8 **)(*(u8 **)(particle + 0x5C) + 0x1C) = particle;
@@ -233,7 +233,7 @@ void *func_00486fb0(u8 *arg0)
     }
     func_0044ea90(D_00713CC0, 0x171);
     p = (u8 *)(*jtbl_008873E8)(0x60, 0x40000);
-    func_0043f9c8(p, 0, 0x60);
+    memset(p, 0, 0x60);
     if (p == NULL) {
         func_0046d730(D_00713CD0, 0x1F);
     }
@@ -368,7 +368,7 @@ void func_00487160(u8 *arg0, u8 *arg1)
         }
         func_0044ea90(D_00713CC0, 0x171);
         p = (u8 *)(*jtbl_008873E8)(0x30, 0x40000);
-        func_0043f9c8(p, 0, 0x30);
+        memset(p, 0, 0x30);
         *(u8 **)(arg0 + 0x5C) = p;
         *(u16 *)(p + 0x18) = 0x19;
         *(u8 **)(*(u8 **)(arg0 + 0x5C) + 0x1C) = arg0;
@@ -1518,8 +1518,8 @@ void func_00488d70(u8 *arg0)
     extern void func_00482ad0(TLP *a, u32 b, TlpSel *c);
     extern BtlShuffleRenderStateSet D_00887300[];
     extern BtlShuffleRenderPrimitive D_00887310[];
-    extern f32 func_0044b610(f32);
-    extern f32 func_0044b7b0(f32);
+    extern f32 cosf(f32);
+    extern f32 sinf(f32);
     extern ParticleProjectedVec3 *func_003e42a0(ParticleProjectedVec3 *a, const ParticleProjectedVec3 *b, const BtlShuffleMatrix *c);
     extern void func_0046d730(void *a, s32 b);
     extern f32 fGpffff81f4;
@@ -1664,8 +1664,8 @@ void func_00488d70(u8 *arg0)
                                 projectedDepth = 0.0f;
                             }
                             reciprocalDepth = 1.0f / projectedDepth;
-                            a0 = func_0044b610(*(f32 *)(var_18 + 0x1C));
-                            a1 = func_0044b7b0(*(f32 *)(var_18 + 0x1C));
+                            a0 = cosf(*(f32 *)(var_18 + 0x1C));
+                            a1 = sinf(*(f32 *)(var_18 + 0x1C));
                             b0 = f29 * a0;
                             b1 = f28 * a0;
                             f29 = f29 * a1;
@@ -1820,8 +1820,8 @@ void func_00488d70(u8 *arg0)
                                     f10 = zero;
                                 }
                                 inv2 = one / f10;
-                                e0 = func_0044b610(*(f32 *)(var_18 + 0x1C));
-                                e1 = func_0044b7b0(*(f32 *)(var_18 + 0x1C));
+                                e0 = cosf(*(f32 *)(var_18 + 0x1C));
+                                e1 = sinf(*(f32 *)(var_18 + 0x1C));
                                 f0b = g0 * e0;
                                 f1b = g1 * e0;
                                 g0 = g0 * e1;

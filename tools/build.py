@@ -400,15 +400,6 @@ def load_lcf_symbols():
     return gp, defs
 
 
-def load_symbol_names():
-    names = set()
-    p = REPO / "config" / "symbol_addrs.txt"
-    if p.is_file():
-        for line in p.read_text().splitlines():
-            m = re.match(r"\s*([A-Za-z_.$][\w.$]*)\s*=", line)
-            if m:
-                names.add(m.group(1))
-    return names
 
 
 def source_marker_locations():
@@ -447,14 +438,16 @@ def source_marker_names():
 
 
 def load_symbol_addr_map():
-    """Addresses from the split configuration and authoritative source markers."""
+    """Canonical addresses, immutable ASM spellings, and source markers."""
     out = {}
     p = REPO / "config" / "symbol_addrs.txt"
     if p.is_file():
         for line in p.read_text().splitlines():
             m = re.match(r"\s*([A-Za-z_.$][\w.$]*)\s*=\s*(0[xX][0-9A-Fa-f]+|\d+)\s*;", line)
             if m:
-                out[m.group(1)] = int(m.group(2), 0)
+                name, address = m.group(1), int(m.group(2), 0)
+                out[name] = address
+                out.setdefault(f"func_{address:08x}", address)
     for name, address in source_marker_addresses().items():
         if name in out and out[name] != address:
             raise ValueError(f"source/configuration address disagreement for {name}")
@@ -1704,14 +1697,10 @@ def main():
     cache = BC.ObjectCache(BUILD / "cache" / "c", REPO)
 
     gp, defs = load_lcf_symbols()
-    # Whole-file translation units reference each other's functions by name, and
-    # a symbol DEFINED by a sibling C object resolves at link time without any
-    # LCF help. Under the old per-unit scheme those references were rare because
-    # each unit carried only what it used; now that a TU is a real TU, treating
-    # only LCF-defined symbols as resolvable rejects perfectly linkable objects.
-    # Every marker name in the tree is defined by some object, so trust them.
-    resolvable = set(defs) | load_symbol_names() | source_marker_names()
     symbol_addresses = load_symbol_addr_map()
+    # Whole-file TUs may reference sibling C objects or immutable fallback ASM
+    # spellings; both canonical names and address-form aliases must resolve.
+    resolvable = set(defs) | set(symbol_addresses) | load_symbol_names() | source_marker_names()
     for name, address in defs.items():
         if name in symbol_addresses and symbol_addresses[name] != address:
             raise ValueError(f'configured symbol address disagreement for {name}')
@@ -1748,9 +1737,8 @@ def main():
             data_carves.append((base, base + size))
     print(cache.summary(("eligibility", "link")))
 
-    # Splat asm references carved functions by their symbol_addrs names; when a
-    # C object exports a canonical name instead, define the splat name as an
-    # absolute address (the C object is placed byte-exact at retail).
+    # Splat ASM and audited fallbacks may reference either spelling for a
+    # carved C function. Define the missing spelling at its retail address.
     for o in cobjs:
         for marker in o["funcs"]:
             address = marker["addr"]

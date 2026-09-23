@@ -12,13 +12,13 @@ extern u8 D_0063EE50[];
 extern void func_002aabf0(void *arg0, void *arg1);
 extern void func_002ab550(u8 *arg0, s8 *arg1);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern void func_00364c50(void);
 extern void func_00364c70(void);
 extern void func_00489f80(void);
 extern void func_0048a000(void);
-extern void func_0047a220(void *arg0, void *arg1);
+extern void mdlSetColor(void *arg0, void *arg1);
 extern void func_0047a260(void *arg0);
 extern void func_004789c0(void *arg0);
 extern void func_0047a320(void *arg0);
@@ -27,12 +27,12 @@ extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern void func_001102f0(void *arg0, s32 arg1, s32 arg2, f32 fparg0);
 extern void *func_00457120(void);
 extern u8 *func_003e9700(s32 arg0);
-extern void func_003e40b0(void *a, void *b);
-extern void func_003e05d0(void *arg0);
-extern void func_003e0a90(void *a0, void *a1, s32 a2);
-extern void func_003e05f0(void *a, void *b, void *c);
-extern void func_003e0c90(void *dst, void *src, s32 mode);
-extern void *func_0047a2f0(u32 arg0);
+extern void RwV3dNormalize(void *a, void *b);
+extern void RwMatrixUpdate(void *arg0);
+extern void RwMatrixScale(void *a0, void *a1, s32 a2);
+extern void RwMatrixMultiply(void *a, void *b, void *c);
+extern void RwMatrixTranslate(void *dst, void *src, s32 mode);
+extern void *mdlGetMatrix(u32 arg0);
 extern void func_002ab0e0(u8 *arg0, u8 *arg1);
 extern void func_002ab4b0(void *arg0, u8 *arg1);
 
@@ -104,8 +104,8 @@ void func_002ab0e0(u8 *arg0, u8 *arg1) {
     (*render)(20, 1);
     (*render)(6, 0);
     (*render)(8, 0);
-    func_003f6440(3, 0x50003);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(3, 0x50003);
+    RpSkyRenderStateSet(2, 0x44);
     (*render)(1, 0);
     if ((temp_1 & 1) != 0) {
         (*render)(6, 1);
@@ -114,13 +114,13 @@ void func_002ab0e0(u8 *arg0, u8 *arg1) {
         (*render)(8, 1);
     }
     if ((temp_1 & 4) != 0) {
-        func_003f6440(3, 0x5000D);
+        RpSkyRenderStateSet(3, 0x5000D);
     }
     if ((temp_1 & 8) != 0) {
-        func_003f6440(2, 0x54);
+        RpSkyRenderStateSet(2, 0x54);
     }
     if ((temp_1 & 0x20) != 0) {
-        func_003f6440(2, 0x58);
+        RpSkyRenderStateSet(2, 0x58);
     }
     if ((temp_1 & 0x40) != 0) {
         func_00364c50();
@@ -201,8 +201,8 @@ void func_002ab550(u8 *arg0, s8 *arg1) {
     render[0](20, 2);
     render[0](6, 0);
     render[0](8, 0);
-    func_003f6440(3, 0x50003);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(3, 0x50003);
+    RpSkyRenderStateSet(2, 0x44);
     render[0](1, 0);
     if ((*(s32 *)(arg0 + 0xD8) & 8) != 0) {
         render[0](6, 1);
@@ -216,7 +216,7 @@ void func_002ab550(u8 *arg0, s8 *arg1) {
     if ((*(s32 *)(arg0 + 0xD8) & 0x100000) != 0) {
         func_00489f80();
     }
-    func_0047a220(arg0, arg1);
+    mdlSetColor(arg0, arg1);
     func_0047a260(arg0);
     func_004789c0(arg0);
     func_0047a320(arg0);
@@ -266,7 +266,7 @@ void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 f
     u8 *var_6_3;
     s32 var_5_4;
 
-    temp_ret = func_0047a2f0((u32)(s32)arg3);
+    temp_ret = mdlGetMatrix((u32)(s32)arg3);
     v17 = (s32)fparg1;
     v16 = (s32)fparg0;
     func_001102f0(sp120, v16, v17, fparg2);
@@ -285,16 +285,16 @@ void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 f
     spE0[8] = sp120[0] - spE0[12];
     spE0[9] = sp120[1] - spE0[13];
     spE0[10] = sp120[2] - spE0[14];
-    func_003e40b0(&spE0[8], &spE0[8]);
+    RwV3dNormalize(&spE0[8], &spE0[8]);
     spE0[12] -= spE0[12];
     spE0[13] -= spE0[13];
     spE0[14] -= spE0[14];
-    func_003e05d0(spE0);
+    RwMatrixUpdate(spE0);
     sp130[2] = fparg3;
     sp130[1] = fparg3;
     sp130[0] = fparg3;
-    func_003e0a90(spE0, sp130, 0);
-    func_003e05f0(spA0, spE0, temp_ret);
+    RwMatrixScale(spE0, sp130, 0);
+    RwMatrixMultiply(spA0, spE0, temp_ret);
     var_5_2 = (s128 *)spA0;
     var_4 = (s128 *)spE0;
     var_3 = 4;
@@ -312,7 +312,7 @@ void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 f
         sp140[1] = fparg1;
         sp140[2] = fparg2;
     }
-    func_003e0c90(spE0, sp140, 2);
+    RwMatrixTranslate(spE0, sp140, 2);
     func_0044ea90(D_0063EE50, 0x16B);
     temp_2_2 = D_008873F4[0](1, 0x60, 0x40000);
     *(u32 *)(temp_2_2 + 0) = (arg0 << 8) | arg1;
@@ -336,7 +336,7 @@ void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 f
         *(u8 **)(temp_2_4 + 0x10) = temp_2_2;
         func_00460ac0(arg4, temp_2_4);
     } else {
-        var_2_2 = func_0047a2f0((u32)(s32)arg3);
+        var_2_2 = mdlGetMatrix((u32)(s32)arg3);
         var_6_3 = (u8 *)spE0;
         var_5_4 = 8;
         do {

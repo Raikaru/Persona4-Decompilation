@@ -6,8 +6,8 @@ extern f32 fGpffff81f0;
 extern f32 D_008872F8_abs[];
 extern f32 D_008872FC_abs[];
 extern f32 fGpffff8200;
-extern f32 func_0044b610(f32 fparg0);
-extern f32 func_0044b7b0(f32 fparg0);
+extern f32 cosf(f32 fparg0);
+extern f32 sinf(f32 fparg0);
 extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00446ed8(void *buf, const void *fmt, void *va);
 extern void func_00450a50(PackedColor4 color, PackedVec2f position, f32 depth, void *characters);
@@ -20,7 +20,7 @@ enum RwFrustumTestResult {
     rwSPHEREINSIDE = 2,
     rwFRUSTUMTESTRESULTFORCEENUMSIZEINT = 0x7fffffff
 };
-extern enum RwFrustumTestResult func_003e8200(const struct RwCamera *camera,
+extern enum RwFrustumTestResult RwCameraFrustumTestSphere(const struct RwCamera *camera,
                                            const struct RwSphere *sphere);
 struct RwV3d;
 struct RwMatrixTag;
@@ -36,8 +36,8 @@ typedef struct Code45CurrentEntities {
 extern Code45CurrentEntities D_008872E0;
 extern void (*D_00887300[])();
 extern s32 (*D_00887310[])(s32, void *, s32);
-extern void func_003e05d0(void *arg0);
-extern void func_003e40b0(f32 *arg0, f32 *arg1);
+extern void RwMatrixUpdate(void *arg0);
+extern void RwV3dNormalize(f32 *arg0, f32 *arg1);
 extern void func_003e9680(void *arg0);
 extern s64 D_00711858[];
 extern f32 D_00711860[];
@@ -45,8 +45,8 @@ static inline f32 add_f32(f32 a, f32 b) {
     return a + b;
 }
 extern u8 *iGpffffb9e0;
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
-extern void func_003f6440(s32 param, s32 value);
+extern void memset(void *dst, s32 value, s32 size);
+extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern void (*D_00887304[])();
 extern void (*D_008873EC[])(void *);
 extern u8 D_007124C0[];
@@ -77,7 +77,7 @@ typedef struct RwSphere {
 typedef struct {
     u8 red, green, blue, alpha;
 } Code45RGBA;
-extern u32 func_00457a90(const RpMaterial *material, const char *name);
+extern u32 K_Clump_MatUsrDataHasData(const RpMaterial *material, const char *name);
 extern s32 func_0045ce40(f32 *out, u8 *colors, s32 *pos, f32 z);
 typedef struct Code45RenderState {
     s32 state;
@@ -114,9 +114,9 @@ extern void func_004533d0(void);
 extern void func_00453310(s32 arg0, u16 arg1, s32 arg2);
 extern void func_00453250(s32 arg0, u16 arg1, s32 arg2);
 extern u8 *func_004587d0(u8 *arg0, u8 *arg1);
-extern void func_00454d20(s32 arg0, void *arg1);
-extern void func_0043f810(void *dst, void *src, s32 size);
-extern void func_00442428(void *arg0, void *arg1);
+extern void H_Cdvd_BuildPathUppercase(s32 arg0, void *arg1);
+extern void memcpy(void *dst, void *src, s32 size);
+extern void strcat(void *arg0, void *arg1);
 extern void func_00456400(u8 *arg0, u8 *arg1, s32 arg2, void *arg3);
 extern void *func_00458c40(void *arg0, void *arg1);
 extern u8 *func_00458ce0(u8 *material, u8 *data);
@@ -147,7 +147,7 @@ extern s32 D_008E413C_abs[];
 extern s32 D_008E4180_abs[];
 extern s32 D_008E41C4_abs[];
 extern s32 D_008E4208_abs[];
-extern s32 func_00442948(void *arg0);
+extern s32 strlen(void *arg0);
 extern s32 func_00426cf0(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_004270f8(s32 arg0, s32 arg1, s32 arg2);
 extern void func_00426f80(s32 arg0);
@@ -163,7 +163,7 @@ extern void func_00456b70(void);
 extern void func_00456be0(void);
 extern void func_004568a0(void);
 extern void func_00456930(void);
-extern void func_00456690(void);
+extern void adminiSeqExitTest(void);
 extern void func_004569c0(void);
 extern s32 func_00456ae0(s32 arg0);
 extern u8 *func_00456c30(void);
@@ -234,7 +234,7 @@ extern s16 D_008C030E[];
 extern u8 D_008C031E[];
 
 extern void func_0042eae0(s32 arg0);
-extern void func_0042f600(s32 arg0);
+extern void sceCdMmode(s32 arg0);
 extern void func_0042efe0(s32 arg0);
 extern void func_00468a10(s32 arg0);
 extern u8 D_008C8780[];
@@ -658,10 +658,10 @@ void func_00452760(void)
     s32 three;
     u8 *ptr;
 
-    func_0043f9c8(D_008C02E0, 0, 0x4A);
-    func_0043f9c8(D_008C032A, 0, 0x4A);
-    func_0043f9c8(D_008C0240, 0, 0x4A);
-    func_0043f9c8(D_008C028A, 0, 0x4A);
+    memset(D_008C02E0, 0, 0x4A);
+    memset(D_008C032A, 0, 0x4A);
+    memset(D_008C0240, 0, 0x4A);
+    memset(D_008C028A, 0, 0x4A);
     func_0042f6f8(0);
     func_0042fb50(0, 0, D_008C0140);
     func_0042fb50(1, 0, D_008C0040);
@@ -1168,7 +1168,7 @@ void func_004544b0(void)
     u8 *temp_base;
 
     func_0042eae0(0);
-    func_0042f600(2);
+    sceCdMmode(2);
     func_0042efe0(0);
     *(u8 **)D_008D1B80 = NULL;
     *(u8 **)D_008D1B84 = NULL;
@@ -1216,15 +1216,15 @@ void func_00456530(u8 *basePath, u8 *archive, s32 singleEntry) {
     s32 blocks;
     s32 scan;
 
-    func_00454d20((s32)basePath, directory);
+    H_Cdvd_BuildPathUppercase((s32)basePath, directory);
     offset = 0;
 next_entry:
-    func_0043f810(entryPath, directory, 0xFC);
-    func_0043f810(fileName, archive + offset, 0xFC);
+    memcpy(entryPath, directory, 0xFC);
+    memcpy(fileName, archive + offset, 0xFC);
     if (*(s8 *)fileName != 0) {
-        func_0043f810(&recordLength, archive + (offset + 0xFC), 4);
+        memcpy(&recordLength, archive + (offset + 0xFC), 4);
         dataOffset = offset + 0x100;
-        func_00442428(entryPath, fileName);
+        strcat(entryPath, fileName);
         scan = 0;
         {
             s8 reloadedCharacter;
@@ -1267,8 +1267,8 @@ s32 func_004566c0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
 
     var_16 = 0;
     func_004244c8(D_00711720, arg2);
-    func_00442830((char *)sp50, (const char *)&iGpffffad88);
-    func_00442428(&sp50, arg2 + func_00442948(&sp50));
+    strcpy((char *)sp50, (const char *)&iGpffffad88);
+    strcat(&sp50, arg2 + strlen(&sp50));
     if (arg2 == 0) {
         return 2;
     }
@@ -1338,7 +1338,7 @@ u8 *func_00456c60(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
     *(void **)(temp_2 + 0x2C) = (void *)func_00456840;
     *(void **)(temp_2 + 0x30) = (void *)func_004568a0;
     *(void **)(temp_2 + 0x34) = (void *)func_00456930;
-    *(void **)(temp_2 + 0x44) = (void *)func_00456690;
+    *(void **)(temp_2 + 0x44) = (void *)adminiSeqExitTest;
     *(void **)(temp_2 + 0x38) = (void *)func_004569c0;
     *(void **)(temp_2 + 0x4C) = (void *)func_00456ae0;
     *(void **)(temp_2 + 0x1C) = (void *)func_00456c30;
@@ -1534,7 +1534,7 @@ void func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     *(f32 *)(temp_18 + 0x34) = *(f32 *)(arg2 + 4) - *(f32 *)(temp_18 + 0x44);
     *(f32 *)(temp_18 + 0x38) = *(f32 *)(arg2 + 8) - *(f32 *)(temp_18 + 0x48);
     temp_4 = temp_17 + 0x20;
-    func_003e40b0((f32 *)temp_4, (f32 *)temp_4);
+    RwV3dNormalize((f32 *)temp_4, (f32 *)temp_4);
     *(f32 *)(temp_17 + 0) =
         *(f32 *)(temp_17 + 0x24) * temp_16[2] -
         *(f32 *)(temp_17 + 0x28) * temp_16[1];
@@ -1546,7 +1546,7 @@ void func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     *(f32 *)(temp_17 + 8) =
         first_c * temp_16[1] -
         first_a * temp_16[0];
-    func_003e40b0((f32 *)temp_17, (f32 *)temp_17);
+    RwV3dNormalize((f32 *)temp_17, (f32 *)temp_17);
     *(f32 *)(temp_17 + 0x10) =
         *(f32 *)(temp_17 + 0x24) * *(f32 *)(temp_17 + 8) -
         *(f32 *)(temp_17 + 0x28) * *(f32 *)(temp_17 + 4);
@@ -1557,8 +1557,8 @@ void func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
         *(f32 *)(temp_17 + 0x20) * *(f32 *)(temp_17 + 4) -
         *(f32 *)(temp_17 + 0x24) * *(f32 *)(temp_17 + 0);
     temp_4_2 = temp_17 + 0x10;
-    func_003e40b0((f32 *)temp_4_2, (f32 *)temp_4_2);
-    func_003e05d0(temp_17);
+    RwV3dNormalize((f32 *)temp_4_2, (f32 *)temp_4_2);
+    RwMatrixUpdate(temp_17);
     func_003e9680(temp_18);
 }
 /* measured: close propagation-off probe for func_00457630. */
@@ -1576,7 +1576,7 @@ void func_004585c0(u8 *arg0) {
 loop_004585c0_body:
     temp_2 = (s32)func_003bd000((const RpMaterial *)arg0, var_19);
     func_003bd040((RpUserDataArray *)temp_2);
-    if (func_004426e8(func_003bd040((RpUserDataArray *)temp_2), (const char *)D_00711870_abs) == 0) {
+    if (strcmp(func_003bd040((RpUserDataArray *)temp_2), (const char *)D_00711870_abs) == 0) {
         var_18 = 1;
         goto loop_004585c0_done;
     }
@@ -1612,7 +1612,7 @@ void func_004586f0(u8 *arg0, u8 *arg1) {
     goto loop_004586f0_test;
 loop_004586f0_body:
     var_16 = (s32)func_003bd000((const RpMaterial *)arg0, var_18);
-    if (func_004426e8(func_003bd040((RpUserDataArray *)var_16), (const char *)D_00711870_abs) != 0) {
+    if (strcmp(func_003bd040((RpUserDataArray *)var_16), (const char *)D_00711870_abs) != 0) {
         var_18 += 1;
         goto loop_004586f0_test;
     }
@@ -1640,7 +1640,7 @@ u8 *func_004587d0(u8 *material, u8 *data)
     s32 i;
     s32 found;
 
-    if (func_00457a90((RpMaterial *)material, (const char *)D_00711870_abs) == 0)
+    if (K_Clump_MatUsrDataHasData((RpMaterial *)material, (const char *)D_00711870_abs) == 0)
     {
         u32 packedColor;
         s32 index;
@@ -1660,7 +1660,7 @@ u8 *func_004587d0(u8 *material, u8 *data)
         RpUserDataArray *userData;
         userData = func_003bd000((RpMaterial *)material, i);
         func_003bd040(userData);
-        if (func_004426e8(func_003bd040(userData), (const char *)D_00711870_abs) == 0)
+        if (strcmp(func_003bd040(userData), (const char *)D_00711870_abs) == 0)
         {
             found = 1;
             break;
@@ -1681,7 +1681,7 @@ u8 *func_004587d0(u8 *material, u8 *data)
         {
             RpUserDataArray *userData;
             userData = func_003bd000((RpMaterial *)material, j);
-            if (func_004426e8(func_003bd040(userData), (const char *)D_00711870_abs) == 0 &&
+            if (strcmp(func_003bd040(userData), (const char *)D_00711870_abs) == 0 &&
                 func_003bd050(userData) == rpINTUSERDATA)
             {
                 colorValue = (u32)func_003bd070(userData, 0);
@@ -1751,7 +1751,7 @@ u8 *func_00458ce0(u8 *material, u8 *data) {
     s32 i;
     s32 current;
     f32 *materialColor;
-    if (func_00457a90((const RpMaterial *)material, (const char *)D_00711890_abs) == 0) {
+    if (K_Clump_MatUsrDataHasData((const RpMaterial *)material, (const char *)D_00711890_abs) == 0) {
         materialColor = (f32 *)(material + 0xC);
         created = (s32)func_003bd000((const RpMaterial *)material, func_003bcfa0((RpMaterial *)material, (char *)D_00711890_abs, 2, 3));
         func_003bd0f0((u8 *)created, 0, materialColor[0]);
@@ -1762,7 +1762,7 @@ u8 *func_00458ce0(u8 *material, u8 *data) {
     goto loop_test;
 loop_body:
     current = (s32)func_003bd000((const RpMaterial *)material, i);
-    if (func_004426e8(func_003bd040((RpUserDataArray *)current), (const char *)D_00711890_abs) == 0) {
+    if (strcmp(func_003bd040((RpUserDataArray *)current), (const char *)D_00711890_abs) == 0) {
         goto loop_done;
     }
     i += 1;
@@ -1893,8 +1893,8 @@ void func_0045c870(u8 *colors, s32 enabled)
             D_00887300[0](p[0], p[1]);
         }
         D_00887300[0](1, 0);
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
     }
     depth = D_008872F8_abs[0];
     state = func_00457120();
@@ -2020,8 +2020,8 @@ void func_0045d370(void *output, void *colorData, void *rectangle, f32 depth,
     pos[2] = (s32)((f32)pos[2] * scaleX);
     pos[3] = (s32)((f32)pos[3] * scaleY);
     radians = fGpffff8200 * angle;
-    sine = func_0044b7b0(radians);
-    cosine = func_0044b610(radians);
+    sine = sinf(radians);
+    cosine = cosf(radians);
     /* Traverse the four local corners. Preserve the first point
      * displacement before converting its shared integer origin. */
     offset.x = (f32)(-(s16)offsetX);
@@ -2081,10 +2081,10 @@ void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2)
             D_00887300[0](p[0], p[1]);
         }
         D_00887300[0](1, 0);
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
     }
-    func_0043f9c8(&work.out, 0, 0x100);
+    memset(&work.out, 0, 0x100);
     func_0045ce40(&work.out, arg0, (s32 *)&work.pos, fparg0);
     D_00887310[0](4, &work.out, 4);
     if (arg2 != 0) {
@@ -2120,8 +2120,8 @@ void func_0045d890(void *unused, u8 *arg1)
             D_00887300[0](p[0], p[1]);
         }
         D_00887300[0](1, 0);
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
     }
     func_0045ce40(&work.out, arg1, (s32 *)&work.pos, scale);
     D_00887310[0](4, &work.out, 4);
@@ -2202,8 +2202,8 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
     f32 temp_f21;
     f32 temp_f0;
     temp_f23 = fGpffff8200 * fparg0;
-    temp_f22 = func_0044b7b0(temp_f23);
-    temp_f0 = func_0044b610(temp_f23);
+    temp_f22 = sinf(temp_f23);
+    temp_f0 = cosf(temp_f23);
     arg3 = -arg3;
     {
         f32 zero;
@@ -2231,8 +2231,8 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
         fparg0 -= 360.0f;
     }
     temp_f23 = fGpffff8200 * fparg0;
-    temp_f22 = func_0044b7b0(temp_f23);
-    temp_f0 = func_0044b610(temp_f23);
+    temp_f22 = sinf(temp_f23);
+    temp_f0 = cosf(temp_f23);
     {
         f32 zero;
         f32 scale;
@@ -2259,8 +2259,8 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
         fparg0 -= 360.0f;
     }
     temp_f22_3 = fGpffff8200 * fparg0;
-    temp_f21 = func_0044b7b0(temp_f22_3);
-    temp_f0 = func_0044b610(temp_f22_3);
+    temp_f21 = sinf(temp_f22_3);
+    temp_f0 = cosf(temp_f22_3);
     {
         f32 zero;
         f32 scale;
@@ -2286,7 +2286,7 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
  * no per-function optimization overrides or arithmetic assembly are needed.
  * See docs/probe_archive/Projected_ring_0045fbe0_20260924.md. */
 // FUN_0045FBE0
-void func_0045fbe0(const Code45Vec3 *center, f32 radius, u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState)
+void primCircleLine3D(const Code45Vec3 *center, f32 radius, u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState)
 {
     typedef union RingMatrix {
         Code45Matrix fields;
@@ -2318,7 +2318,7 @@ void func_0045fbe0(const Code45Vec3 *center, f32 radius, u8 *inputColors, f32 *i
     sphere.center.x = center->x;
     sphere.center.y = center->y;
     sphere.center.z = center->z;
-    if (func_003e8200(D_008872E0.camera, &sphere) != 0) {
+    if (RwCameraFrustumTestSphere(D_008872E0.camera, &sphere) != 0) {
         const void *view;
         farDepth = D_008872FC_abs[0];
         depthScale = D_008872F8_abs[0];
@@ -2367,8 +2367,8 @@ void func_0045fbe0(const Code45Vec3 *center, f32 radius, u8 *inputColors, f32 *i
                 D_00887300[0](state->state, state->val);
             }
             D_00887300[0](1, 0);
-            func_003f6440(2, 0x48);
-            func_003f6440(3, 0x71801);
+            RpSkyRenderStateSet(2, 0x48);
+            RpSkyRenderStateSet(3, 0x71801);
         }
         {
             u32 vertexIndex;
@@ -2383,8 +2383,8 @@ void func_0045fbe0(const Code45Vec3 *center, f32 radius, u8 *inputColors, f32 *i
                 f32 ratio;
                 f32 distance;
                 f32 scaledDistance;
-                localPoint.x = radius * func_0044b610(angle);
-                localPoint.z = radius * func_0044b7b0(angle);
+                localPoint.x = radius * cosf(angle);
+                localPoint.z = radius * sinf(angle);
                 func_003e42a0(&worldPoint, &localPoint, &matrix.fields);
                 func_003e42a0(&cameraPoint, &worldPoint, (const Code45Matrix *)view);
                 ratio = nearPlane / cameraPoint.z;

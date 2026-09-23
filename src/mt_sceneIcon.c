@@ -19,7 +19,7 @@ extern u8 iGpffffa700;
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-extern u8 *func_00145270(); /* old-style: func_0026d890 passes the icon id in $a0, func_0026da30 calls it bare */
+extern u8 *MT_Scene_GetRes(); /* old-style: func_0026d890 passes the icon id in $a0, func_0026da30 calls it bare */
 extern void func_004b1170(s32 a);
 /* measured: returns 0 / -1 in $v0; the task dispatcher discards it, so the callback site casts. */
 extern s32 func_0026d890(u8 *arg0);
@@ -27,7 +27,7 @@ extern u8 D_0063B558[];
 extern u8 D_0063B568[];
 extern void func_00440b68(u8 *fmt, u8 *file, s32 line);
 extern u8 *func_00454a60(u8 *path, s32 mode);
-extern void func_00456150(u8 *handle);
+extern void H_Cdvd_ReadSync(u8 *handle);
 
 
 
@@ -40,7 +40,7 @@ extern void func_00456150(u8 *handle);
 void func_0026d840(void)
 {
     func_00440b68(&iGpffffa6f8, D_0063B558, 0x38);
-    func_00456150(func_00454a60(D_0063B568, 1));
+    H_Cdvd_ReadSync(func_00454a60(D_0063B568, 1));
 }
 
 // FUN_0026D890
@@ -72,7 +72,7 @@ s32 func_0026d890(u8 *arg0)
         break;
     case 1:
         handle = func_004b1130(*(s32 *)(w + 0xC));
-        if ((icon_raw = (s32)func_00145270(*(u16 *)(w + 4))) != 0) {
+        if ((icon_raw = (s32)MT_Scene_GetRes(*(u16 *)(w + 4))) != 0) {
             icon = (u8 *)icon_raw;
             kind = (*(u16 *)icon & 0xFFC00) >> 0xA;
             if (kind == 1) {
@@ -110,7 +110,7 @@ s32 func_0026da30(s32 arg0, s32 arg1)
     s32 kind;
 
     if (arg1 == 0xA) {
-        icon = func_00145270();
+        icon = MT_Scene_GetRes();
         /* measured: the NULL return is an `else` clause, not an early return, so
            its zero lands after the two kind blocks exactly as retail places it. */
         if (icon != NULL) {

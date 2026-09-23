@@ -12,7 +12,7 @@ extern void func_002bb7c0(s32 a);
 extern s32 func_002bb600(void);
 extern void func_002bb1e0(s32 a);
 extern void func_002bad10(s32 a);
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern void memset(void *dst, s32 value, s32 size);
 extern void func_0044ea90(const void *msg, s32 id);
 extern void func_0046d730(const void *file, u32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -77,14 +77,14 @@ extern void func_00388d40(s32 a);
 extern void func_0010ad80(s32 a);
 extern u8 *func_0010b060(u16 personaId);
 extern u16 D_008C024E[];
-extern s32 func_00106330(s32 a);
+extern s32 datGetFlag(s32 a);
 extern s32 func_00107890(s32 a);
 extern s32 func_0015a190(void);
 extern u8 func_002baac0(u8 *message);
 extern void *func_0036e910(void *a);
 extern s32 func_00377eb0(u8 *parent, s32 cardIndex);
 extern void func_0038d2a0(s32 a);
-extern u32 func_003b7060(void);
+extern u32 RpRandom(void);
 extern s32 func_00380bd0(u8 *a);
 extern u8 D_0064E6E0[];
 extern u8 D_0064E700[];
@@ -111,7 +111,7 @@ extern u16 func_0010b6f0(void);
 extern u8 *func_0010ac10(s32 a);
 extern u8 *func_0010b010(u16 personaId);
 extern char *func_002438b0(s32 a);
-extern void func_00442830(char *dst, s32 value);
+extern void strcpy(char *dst, s32 value);
 extern void func_00452080(s32 a);
 extern void func_00106390(s32 a, s32 b);
 
@@ -341,7 +341,7 @@ s32 func_003816e0(u8 *arg0) {
         if (func_002bb600() == 0) {
             func_002bb1e0(1);
             if (*(u16 *)(arg0 + 4) & 2) {
-                func_0043f9c8(arg0 + 0x18, 0, 0xC);
+                memset(arg0 + 0x18, 0, 0xC);
                 *(s32 *)(arg0 + 8) = 4;
             } else {
                 func_002bad10(8);
@@ -354,7 +354,7 @@ s32 func_003816e0(u8 *arg0) {
         if (func_002bb600() == 0) {
             func_002bb1e0(1);
             if (*(u16 *)(arg0 + 4) & 1) {
-                func_0043f9c8(p, 0, 0x1C);
+                memset(p, 0, 0x1C);
                 *(s32 *)(arg0 + 8) = 1;
                 func_002bad10(0xB);
             } else {
@@ -399,7 +399,7 @@ s32 func_00381830(u8 *arg0)
         if (func_002bb600() == 0) {
             func_002bb1e0(1);
             if (*(u16 *)(arg0 + 4) & 2) {
-                func_0043f9c8(arg0 + 0x18, 0, 0xC);
+                memset(arg0 + 0x18, 0, 0xC);
                 *(s32 *)(arg0 + 8) = 4;
             } else {
                 base = *(u8 **)arg0;
@@ -513,7 +513,7 @@ lab_1c60:
         tmp = func_00375a00(ctx + *(s32 *)(ctx + 0x1F308) * 0xE8 + 0x1D6A0);
         if (tmp != 0) {
             *(u16 *)(ctx + 0x1F2F4) = (u16)(*(u16 *)(ctx + 0x1F2F4) & 0xFFFB);
-            tmp = func_00106330(0x1434);
+            tmp = datGetFlag(0x1434);
             if (tmp == 0) {
                 func_002bb4e0();
                 func_003798d0(ctx, 4);
@@ -547,17 +547,17 @@ lab_1c60:
                     *st = 10;
                     *(s32 *)(arg0 + 0x20) = 0;
                     kind = *(u8 *)(arg0 + 0x12);
-                    tmp = func_00106330(0x1437);
+                    tmp = datGetFlag(0x1437);
                     if (tmp == 0) {
                         func_00106390(0x1437, 1);
                         hit = 1;
                     } else {
-                        tmp = func_00106330(0x1403);
+                        tmp = datGetFlag(0x1403);
                         if (tmp == 0) {
                             tmp2 = func_0015a190();
                             thresh = *(D_0064E72E + kind * 2 + (tmp2 != 0));
                         } else {
-                            tmp = func_00106330(0x140F);
+                            tmp = datGetFlag(0x140F);
                             if (tmp == 0) {
                                 tmp2 = func_0015a190();
                                 thresh = *(D_0064E72E + kind * 2 + (tmp2 != 0));
@@ -565,7 +565,7 @@ lab_1c60:
                                 thresh = 0x3C;
                             }
                         }
-                        rnd = func_003b7060() & 0xFFF;
+                        rnd = RpRandom() & 0xFFF;
                         rf = (f32)rnd;
                         if ((100.0f * (rf / 4096.0f)) < (f32)thresh) {
                             hit = 0;
@@ -574,7 +574,7 @@ lab_1c60:
                         }
                     }
                     *(s32 *)(arg0 + 0x28) = hit;
-                    rnd = func_003b7060() & 0xFFF;
+                    rnd = RpRandom() & 0xFFF;
                     rf = (f32)rnd;
                     *(u8 *)(arg0 + 0x24) = (u8)(1.0f + (1.0f + 20.0f * (rf / 4096.0f)));
                     *(u16 *)(ctx + 0x1F2F4) = (u16)(*(u16 *)(ctx + 0x1F2F4) | 0x20);
@@ -582,21 +582,21 @@ lab_1c60:
                 } else {
                     *st = 7;
                     *(u16 *)(ctx + 0x1F2F4) = (u16)(*(u16 *)(ctx + 0x1F2F4) | 0x10);
-                    rnd = func_003b7060() & 0xFFF;
+                    rnd = RpRandom() & 0xFFF;
                     rf = (f32)rnd;
                     *(s32 *)(arg0 + 0x20) = ((s32)(3.0f * (rf / 4096.0f)) + 5) * 2;
                     kind = *(u8 *)(arg0 + 0x12);
-                    tmp = func_00106330(0x1437);
+                    tmp = datGetFlag(0x1437);
                     if (tmp == 0) {
                         func_00106390(0x1437, 1);
                         hit = 1;
                     } else {
-                        tmp = func_00106330(0x1403);
+                        tmp = datGetFlag(0x1403);
                         if (tmp == 0) {
                             tmp2 = func_0015a190();
                             thresh = *(D_0064E72E + kind * 2 + (tmp2 != 0));
                         } else {
-                            tmp = func_00106330(0x140F);
+                            tmp = datGetFlag(0x140F);
                             if (tmp == 0) {
                                 tmp2 = func_0015a190();
                                 thresh = *(D_0064E72E + kind * 2 + (tmp2 != 0));
@@ -604,7 +604,7 @@ lab_1c60:
                                 thresh = 0x3C;
                             }
                         }
-                        rnd = func_003b7060() & 0xFFF;
+                        rnd = RpRandom() & 0xFFF;
                         rf = (f32)rnd;
                         if ((100.0f * (rf / 4096.0f)) < (f32)thresh) {
                             hit = 0;
@@ -672,9 +672,9 @@ lab_2310:
                 kind = *(u8 *)(arg0 + 0x24);
             }
             if (*(s32 *)(arg0 + 0x28) == 0) {
-                func_00442830((char *)bufD0, iGpffffa9E4);
+                strcpy((char *)bufD0, iGpffffa9E4);
             } else {
-                func_00442830((char *)bufD0, iGpffffa9E0);
+                strcpy((char *)bufD0, iGpffffa9E0);
             }
             func_002bbd20(0, func_002438b0(kind));
             func_002bbd20(1, bufD0);
@@ -732,18 +732,18 @@ lab_2600:
         func_002bb7c0(1);
         if (func_002bb600() == 0) {
             func_002bb1e0(1);
-            tmp = func_00106330(0x1403);
+            tmp = datGetFlag(0x1403);
             if (tmp == 0) {
                 tmp2 = 0;
             } else {
-                tmp = func_00106330(0x140E);
+                tmp = datGetFlag(0x140E);
                 if (tmp == 0) {
                     tmp2 = 0;
                 } else if (*(s32 *)(arg0 + 0x28) != 0) {
                     tmp2 = 0;
                 } else {
                     *(s32 *)(arg0 + 0x28) = 1;
-                    func_00442830((char *)buf90, iGpffffa9E0);
+                    strcpy((char *)buf90, iGpffffa9E0);
                     func_002bbd20(0, func_002438b0(6));
                     func_002bbd20(1, buf90);
                     func_002bad10(0xF);
@@ -771,9 +771,9 @@ lab_2600:
                 return 1;
             }
             if ((tmp & 0xFFFF) == 0) {
-                func_00442830((char *)buf50, iGpffffa9E4);
+                strcpy((char *)buf50, iGpffffa9E4);
             } else {
-                func_00442830((char *)buf50, iGpffffa9E0);
+                strcpy((char *)buf50, iGpffffa9E0);
             }
             func_002bbd20(0, func_002438b0((tmp >> 16) & 0xFF));
             func_002bbd20(1, buf50);
@@ -822,7 +822,7 @@ lab_2600:
             tmp = (s32)(u16)(u32)func_0010ac10((s32)id);
             if (tmp == 0) {
                 if (cnt == cur) {
-                    func_0043f9c8(arg0 + 0x18, 0, 0x7C);
+                    memset(arg0 + 0x18, 0, 0x7C);
                     func_002bbd20(0, func_00109220(id));
                     func_002bad10(3);
                     tmp = 7;
@@ -978,7 +978,7 @@ s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
         *(s32 *)(work + 8) = 8;
         return 0;
     case 0:
-        if ((func_00106330(0x1430) == 0) || (func_00106330(0x11) == 0)) {
+        if ((datGetFlag(0x1430) == 0) || (datGetFlag(0x11) == 0)) {
             hit0 = 0;
         } else {
             flag0 = (func_0015a190() != 0) & 0xFF;
@@ -987,7 +987,7 @@ s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
             } else {
                 thresh0 = (D_0064E6E0[(func_00107890(*(u8 *)(work + 0x12)) & 0xFF) * 2 + (flag0 & 0xFF)] + *(&iGpffffa9B8 + arg3)) & 0xFF;
             }
-            rnd0 = func_003b7060() & 0xFFF;
+            rnd0 = RpRandom() & 0xFFF;
             f0 = (f32)rnd0;
             chance0 = (u8)(100.0f * (f0 / 4096.0f));
             if ((chance0 & 0xFF) < (thresh0 & 0xFF)) {
@@ -998,7 +998,7 @@ s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
         }
         if (hit0 != 0) {
             flag1 = (func_0015a190() != 0) & 0xFF;
-            rnd0 = func_003b7060() & 0xFFF;
+            rnd0 = RpRandom() & 0xFFF;
             f0 = (f32)rnd0;
             chance1 = (u8)(100.0f * (f0 / 4096.0f));
             sum1 = 0;
@@ -1020,7 +1020,7 @@ s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
         *(s32 *)(work + 8) = 0;
         goto block_68;
     case 2:
-        if ((func_00106330(0x1430) == 0) || (func_00106330(0x11) == 0)) {
+        if ((datGetFlag(0x1430) == 0) || (datGetFlag(0x11) == 0)) {
             hit2 = 0;
         } else {
             flag2 = (func_0015a190() != 0) & 0xFF;
@@ -1029,7 +1029,7 @@ s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
             } else {
                 thresh2 = (D_0064E6E0[(func_00107890(*(u8 *)(work + 0x12)) & 0xFF) * 2 + (flag2 & 0xFF)] + *(&iGpffffa9B8 + arg3)) & 0xFF;
             }
-            rnd2 = func_003b7060() & 0xFFF;
+            rnd2 = RpRandom() & 0xFFF;
             f2 = (f32)rnd2;
             chance2 = (u8)(100.0f * (f2 / 4096.0f));
             if ((chance2 & 0xFF) < (thresh2 & 0xFF)) {
@@ -1040,7 +1040,7 @@ s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
         }
         if (hit2 != 0) {
             flag3 = (func_0015a190() != 0) & 0xFF;
-            rnd2 = func_003b7060() & 0xFFF;
+            rnd2 = RpRandom() & 0xFFF;
             f2 = (f32)rnd2;
             chance3 = (u8)(100.0f * (f2 / 4096.0f));
             sum3 = 0;
@@ -1144,7 +1144,7 @@ s32 func_00383720(u8 *arg0) {
         }
         if (var_2 != 0) {
             if (*(u16 *)(arg0 + 4) & 1) {
-                func_0043f9c8(arg0 + 0x18, 0, 0x1C);
+                memset(arg0 + 0x18, 0, 0x1C);
                 *(s32 *)(arg0 + 8) = 1;
                 func_002bad10(0xB);
                 goto block_39;
@@ -1162,7 +1162,7 @@ s32 func_00383720(u8 *arg0) {
         }
         if (var_2_2 != 0) {
             if (*(u16 *)(arg0 + 4) & 1) {
-                func_0043f9c8(arg0 + 0x18, 0, 0x1C);
+                memset(arg0 + 0x18, 0, 0x1C);
                 *(s32 *)(arg0 + 8) = 1;
                 func_002bad10(0xB);
                 goto block_39;
@@ -1173,7 +1173,7 @@ s32 func_00383720(u8 *arg0) {
     case 7:
         if (func_00380ea0() != 0) {
             if (*(u16 *)(arg0 + 4) & 1) {
-                func_0043f9c8(arg0 + 0x18, 0, 0x1C);
+                memset(arg0 + 0x18, 0, 0x1C);
                 *(s32 *)(arg0 + 8) = 1;
                 func_002bad10(0xB);
                 goto block_39;

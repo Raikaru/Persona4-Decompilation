@@ -62,12 +62,12 @@ extern s32 func_0014eec0(void);
 extern s32 func_001060b0(void);
 extern s32 func_001060c0(void);
 extern s8 func_00110960(s16 arg0, s32 arg1);
-extern s32 func_00106330(s32 arg0);
+extern s32 datGetFlag(s32 arg0);
 extern s32 func_001453a0(s32 arg0);
 extern s32 func_00145780(u16 arg0, u8 arg1, u32 arg2);
 extern void func_0014aa80(s32 arg0);
 extern void func_0014b0c0(s32 arg0, s32 arg1);
-extern u8 *func_00145270(s32 arg0);
+extern u8 *MT_Scene_GetRes(s32 arg0);
 extern f32 func_0014b660(u8 *arg0);
 extern f32 func_0014b5d0(u8 *arg0);
 extern f32 func_0014b6f0(u8 *arg0);
@@ -81,16 +81,16 @@ extern void *func_0015d310(s32 arg0);
 extern s32 func_00168780(s32 arg0, f32 arg1);
 extern s32 func_0017b9a0(s32 arg0, f32 arg1);
 extern s32 func_0018bb20(s32 arg0, void *arg1);
-extern s32 func_003e05d0(void *arg0);
-extern void func_0043f810(void *arg0, void *arg1, u32 arg2);
-extern void func_00442088(void *arg0, const char *arg1, u16 arg2, u16 arg3, s32 arg4);
-extern void func_00442830(void *arg0, const char *arg1);
+extern s32 RwMatrixUpdate(void *arg0);
+extern void memcpy(void *arg0, void *arg1, u32 arg2);
+extern void sprintf(void *arg0, const char *arg1, u16 arg2, u16 arg3, s32 arg4);
+extern void strcpy(void *arg0, const char *arg1);
 extern void func_00440b68(char *arg0, const char *arg1, s32 arg2);
 extern void func_0044ea90(void *arg0, s32 arg1);
-extern s32 func_00454570(void *arg0);
+extern s32 H_Cdvd_FileExists(void *arg0);
 extern u8 *func_00454a60(void *arg0, s32 arg1);
-extern void func_00454bd0(void *arg0);
-extern s32 func_004553c0(u8 *arg0);
+extern void H_Cdvd_Destroy(void *arg0);
+extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
 extern void func_0046d700(const char *arg0, s32 arg1, char *arg2, void *arg3);
 extern u32 func_00477e80(s32 arg0, s32 arg1, const char *arg2, s32 arg3);
@@ -98,8 +98,8 @@ extern s32 func_00478140(u16 arg0, u16 arg1, s32 arg2);
 extern s32 func_004782b0(u32 arg0);
 extern void *func_00478750(s32 arg0);
 extern void func_00478e70(void *arg0);
-extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
-extern void *func_0047a2f0(u32 arg0);
+extern void mdlScale(void *arg0, void *arg1, s32 arg2);
+extern void *mdlGetMatrix(u32 arg0);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb2a8;
@@ -139,9 +139,9 @@ u8 *func_0015e870(s32 arg0, s32 arg1, s16 arg2)
     iGpffffb2a0 = 0;
     if (func_0014eec0() == 0)
     {
-        func_00442830(&spC0, D_005F1078);
-        func_00442088(&sp40, D_005F1090, arg0 & 0xFFFF, arg1 & 0xFFFF, arg2);
-        if (func_00454570(&sp40) == 0)
+        strcpy(&spC0, D_005F1078);
+        sprintf(&sp40, D_005F1090, arg0 & 0xFFFF, arg1 & 0xFFFF, arg2);
+        if (H_Cdvd_FileExists(&sp40) == 0)
         {
             return NULL;
         }
@@ -179,13 +179,13 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
         return 1;
     }
     *arg1 = NULL;
-    if ((func_0014eec0() == 0) && (func_004553c0(arg0) == 0)) {
+    if ((func_0014eec0() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0)) {
         return 0;
     }
     if (func_0014eec0() == 0) {
         fbn = *(u8 **)(arg0 + 0x110);
     } else {
-        func_00442088(buf, D_005F10B0, arg2 & 0xFFFF, arg3 & 0xFFFF, (s16)arg4);
+        sprintf(buf, D_005F10B0, arg2 & 0xFFFF, arg3 & 0xFFFF, (s16)arg4);
         fbn = func_00455f70(buf, &tmp);
         if (fbn == NULL) {
             return 1;
@@ -229,7 +229,7 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
             AnimEntry *ae = func_0015cbe0(*(s32 *)((u8 *)head + 0xC));
             for (; ae->field_0 != 0xFFFF; ae++) {
                 s32 fl = ae->field_10;
-                if ((fl == -1) || (func_00106330(fl) != 1)) {
+                if ((fl == -1) || (datGetFlag(fl) != 1)) {
                     s32 kind = ae->field_18;
                     s32 search = 1;
                     if (kind == 1) {
@@ -381,7 +381,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
             rid = (s32)(func_00145780((u16)(*(u16 *)(rec + 8) & 0x3FF), (u8)(mode & 0xFF), *(u8 *)((u8 *)iGpffffb2a4 + i * 4)) & 0xFFFF);
             func_0014aa80(rid);
             func_0014b0c0(rid, 1);
-            tmp = func_00145270(rid);
+            tmp = MT_Scene_GetRes(rid);
             func_00168780(*(s32 *)(tmp + 0x228), *(f32 *)(rec + 0xC));
             func_0017b9a0(*(s32 *)(tmp + 0x230), 40.0f);
             t = (s32)*(f32 *)(rec + 0xC);
@@ -391,7 +391,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
             k = (s32)func_00478750(D_00764364);
             *(s32 *)(tmp + 0x22C) = k;
             func_0047a1a0((void *)k, &spB0, angles.y, 2);
-            func_0047a1e0((void *)*(s32 *)(tmp + 0x22C), &spA0, 2);
+            mdlScale((void *)*(s32 *)(tmp + 0x22C), &spA0, 2);
             if (*(u8 *)(rec + 0xB) & 1) {
                 *(s32 *)(tmp + 0x28) |= 0x80000000;
             } else {
@@ -401,7 +401,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
             *(s32 *)(tmp + 0x224) = *(s32 *)(rec + 0x10);
             *(u8 *)(tmp + 0x222) = *(u8 *)(rec + 0x61);
             *(u16 *)(tmp + 0x298) = *(u16 *)(rec + 0x62);
-            func_0043f810(tmp + 0x29C, rec + 0x74, 0xC0U);
+            memcpy(tmp + 0x29C, rec + 0x74, 0xC0U);
             *(f32 *)(tmp + 0x35C) = *(f32 *)(rec + 0x70);
             t = *((u8 *)((u8 *)iGpffffb2a0 + i * 0x1C));
             *(s32 *)(tmp + 0x234) = t;
@@ -409,7 +409,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
             case 0:
                 func_00478e70((void *)*(s32 *)(tmp + 0x22C));
                 src = rec + 0x20;
-                dst = func_0047a2f0(*(u8 *)((u8 *)iGpffffb2a4 + i * 4));
+                dst = mdlGetMatrix(*(u8 *)((u8 *)iGpffffb2a4 + i * 4));
                 n = 8;
                 do {
                     w0 = *(s32 *)src;
@@ -424,7 +424,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
                 angles.y = (f32)(s32)(func_0014b5d0(rec + 0x20));
                 angles.z = (f32)(s32)(func_0014b6f0(rec + 0x20));
                 func_00146e60(rid, rec + 0x50, (u8 *)&angles);
-                func_003e05d0(func_0047a2f0(*(u8 *)((u8 *)iGpffffb2a4 + i * 4)));
+                RwMatrixUpdate(mdlGetMatrix(*(u8 *)((u8 *)iGpffffb2a4 + i * 4)));
                 break;
             case 1:
                 *(s32 *)(tmp + 0x280) = *(s32 *)((u8 *)iGpffffb2a0 + t + 4);
@@ -470,7 +470,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
                 func_0044ea90(D_005F1068, 0x26F);
                 ntab = (u16 *)D_008873F4[0](1, *(u32 *)(tmp + 0x28C), 0x40000);
                 *(u16 **)(tmp + 0x288) = ntab;
-                func_0043f810(ntab, *(u8 **)(tab + 0x14), *(u32 *)(tmp + 0x28C));
+                memcpy(ntab, *(u8 **)(tab + 0x14), *(u32 *)(tmp + 0x28C));
                 func_0015d270((FbnEntry *)tab);
                 break;
             }
@@ -487,7 +487,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
         iGpffffb2a4 = (u32 *)0;
         iGpffffb2a0 = (FbnEntry *)0;
         if (func_0014eec0() == 0) {
-            func_00454bd0(arg0);
+            H_Cdvd_Destroy(arg0);
         }
         return 1;
     }

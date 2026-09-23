@@ -15,8 +15,8 @@ extern void func_004ae0a0(void *arg0, void *arg1);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *func_00492b20(u16 arg0, u32 arg1, void *arg2);
 extern void func_0044ea90(const void *msg, s32 id);
-extern void *func_0043f9c8(void *dest, s32 value, s32 size);
-extern void func_0043f810(void *dst, const void *src, u32 size);
+extern void *memset(void *dest, s32 value, s32 size);
+extern void memcpy(void *dst, const void *src, u32 size);
 extern char D_00714508[];
 extern s32 func_003e2f60(s32 arg0, s32 arg1, s32 *arg2);
 extern s32 func_003df3c0(s32 arg0, s32 *arg1);
@@ -58,7 +58,7 @@ u8 *func_004ae460(u8 *arg0)
     }
     func_0044ea90(D_00714508, 0x171);
     temp_2 = (u8 *)jtbl_008873E8[0](0x94, 0x40000);
-    func_0043f9c8(temp_2, 0, 0x94);
+    memset(temp_2, 0, 0x94);
     if (temp_2 == 0) {
         func_0046d730(D_00714520, 0xC5);
     }
@@ -70,7 +70,7 @@ u8 *func_004ae460(u8 *arg0)
     if (temp_2 == 0) {
         func_0046d730(D_00714520, 0xFF);
     }
-    func_0043f810(temp_2 + 0x10, temp_2_2, 0x44);
+    memcpy(temp_2 + 0x10, temp_2_2, 0x44);
     func_004ae930(temp_2, *(u16 *)(arg0 + 0xC), temp_2_2 + 0x44);
     if (*(u32 *)(*(u8 **)(temp_2 + 0x58) + 8) == 0) {
         return temp_2;
@@ -137,7 +137,7 @@ u8 *func_004ae6d0(u8 *arg0)
     }
     func_0044ea90(D_00714508, 0x171);
     temp_2 = (u8 *)jtbl_008873E8[0](0x94, 0x40000);
-    func_0043f9c8(temp_2, 0, 0x94);
+    memset(temp_2, 0, 0x94);
     if (temp_2 == 0) {
         func_0046d730(D_00714520, 0xC5);
     }
@@ -149,7 +149,7 @@ u8 *func_004ae6d0(u8 *arg0)
     if (temp_2 == 0) {
         func_0046d730(D_00714520, 0x14C);
     }
-    func_0043f810(temp_2 + 0x10, arg0 + 0x10, 0x44);
+    memcpy(temp_2 + 0x10, arg0 + 0x10, 0x44);
     func_004ae930(temp_2, *(u16 *)(*(u8 **)(arg0 + 0x58) + 0), temp_17);
     if (*(u32 *)(*(u8 **)(temp_2 + 0x58) + 8) == 0) {
         return temp_2;
@@ -325,10 +325,10 @@ void func_004aed70(u8 *arg0)
     extern u32 *func_004ae020(u32 *a, u8 *b);
     extern void func_003bff30(void *a, void *b, void *c);
     extern void func_003bfe90(void *a);
-    extern void func_003e0870(void *a, void *b, s32 c, f32 d);
-    extern void *func_003e05f0(void *a, void *b, void *c);
-    extern void func_003e0a90(void *a, void *b, s32 c);
-    extern void func_003e0c90(void *a, void *b, s32 c);
+    extern void RwMatrixRotate(void *a, void *b, s32 c, f32 d);
+    extern void *RwMatrixMultiply(void *a, void *b, void *c);
+    extern void RwMatrixScale(void *a, void *b, s32 c);
+    extern void RwMatrixTranslate(void *a, void *b, s32 c);
     extern void func_003e9cb0(void *a, void *b, s32 c);
     extern void func_004813f0(void);
     extern f32 fGpffff81f4;
@@ -450,9 +450,9 @@ void func_004aed70(u8 *arg0)
                     axis[0] = *(f32 *)(p17 + 0);
                     axis[1] = *(f32 *)(p17 + 4);
                     axis[2] = *(f32 *)(p17 + 8);
-                    func_003e0870(matA, axis, 0, fGpffff8048 * (f + *(f32 *)(p17 + 0x0C)));
+                    RwMatrixRotate(matA, axis, 0, fGpffff8048 * (f + *(f32 *)(p17 + 0x0C)));
                 }
-                func_003e05f0(matB, matA, base);
+                RwMatrixMultiply(matB, matA, base);
                 if (*(u16 *)(arg0 + 0x30) == 0) {
                     f32 s = *(f32 *)(p18 + 0x18);
                     scale[0] = *(f32 *)D_00713D20 * s;
@@ -464,11 +464,11 @@ void func_004aed70(u8 *arg0)
                     scale[1] = *(f32 *)D_00713D24 * s;
                     scale[2] = *(f32 *)D_00713D28 * s;
                 }
-                func_003e0a90(matB, scale, 2);
+                RwMatrixScale(matB, scale, 2);
                 pos[0] = *(f32 *)(p18 + 0);
                 pos[1] = *(f32 *)(p18 + 4);
                 pos[2] = *(f32 *)(p18 + 8);
-                func_003e0c90(matB, pos, 2);
+                RwMatrixTranslate(matB, pos, 2);
                 func_003e9cb0(*(void **)(tmp16 + 4), matB, 0);
                 func_003bfe90(tmp16);
             }
@@ -563,7 +563,7 @@ void func_004aed70(u8 *arg0)
                     axis[0] = *(f32 *)(p17 + 0);
                     axis[1] = *(f32 *)(p17 + 4);
                     axis[2] = *(f32 *)(p17 + 8);
-                    func_003e0870(matB, axis, 0, gscale * (f + *(f32 *)(p17 + 0x0C)));
+                    RwMatrixRotate(matB, axis, 0, gscale * (f + *(f32 *)(p17 + 0x0C)));
                 }
                 if (*(u16 *)(arg0 + 0x30) == 0) {
                     f32 s = *(f32 *)(p18 + 0x18);
@@ -576,8 +576,8 @@ void func_004aed70(u8 *arg0)
                     scale[1] = *(f32 *)D_00713D24 * s;
                     scale[2] = *(f32 *)D_00713D28 * s;
                 }
-                func_003e0a90(matB, scale, 2);
-                func_003e0c90(matB, pos, 2);
+                RwMatrixScale(matB, scale, 2);
+                RwMatrixTranslate(matB, pos, 2);
                 func_003e9cb0(*(void **)(tmp16 + 4), matB, 0);
                 func_003bfe90(tmp16);
             }

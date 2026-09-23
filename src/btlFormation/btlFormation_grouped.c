@@ -25,7 +25,7 @@ extern void (*jtbl_008873EC[])(void* ptr);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern char D_00609558[];
 extern void func_0044ea90(const void* msg, s32 id);
-extern void func_0043f9c8(void* dst, s32 value, u32 size);
+extern void memset(void* dst, s32 value, u32 size);
 extern void func_001d42e0(u8* arg0);
 extern void func_001d40d0(u8* arg0);
 extern u8* func_001d41b0(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -78,7 +78,7 @@ u8* func_001d6f20(s32 arg0)
     *(s32*)(temp_2 + 0xC) = 0;
     func_0044ea90(D_00609558, 0x51);
     temp_2_2 = (u8*)((void* (*)(u32, u32))*(u32*)table)(0x24, 0x40000);
-    func_0043f9c8(temp_2_2, 0, 0x24);
+    memset(temp_2_2, 0, 0x24);
     *(s32*)(temp_2_2 + 4) = -1;
     *(s8*)(temp_2_2 + 8) = 0x14;
     *(s32*)(temp_2_2 + 0xC) = 0;

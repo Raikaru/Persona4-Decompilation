@@ -9,9 +9,9 @@ static inline u8 *btlCamera_add_index(s32 index, u8 *base)
 
 /* Canonical grouped function declarations. */
 u32 func_001d10d0(void* camera);
-void func_00195850(u8* arg0, f32* arg1);
+void btlUnitGetSphereWorldCenter(u8* arg0, f32* arg1);
 void func_001bcd40(u8* arg0, u8* arg1, f32* arg2, f32 arg4, u16 arg3);
-extern s32 func_004bd050(s32 arg0);
+extern s32 effMiscRand(s32 arg0);
 extern u8 D_005FE1D0[];
 extern u32 func_00231d70(s32 arg0);
 
@@ -50,7 +50,7 @@ void func_001d05e0(u8 *arg0)
     if (temp_4 != NULL) {
         if ((*(u16 *)(temp_4 + 0x1A) & 1) != 0) {
             temp_16 = *(u8 **)(temp_4 + 0x30);
-            func_00195850(temp_16, sp30);
+            btlUnitGetSphereWorldCenter(temp_16, sp30);
             func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, sp30, 0.5f * (*(f32 *)(temp_16 + 0x90) * *(f32 *)(temp_16 + 0x2C)),
                           0xC1);
         }
@@ -75,7 +75,7 @@ void func_001d06a0(u8 *arg0)
     if (temp_4 != NULL) {
         if ((*(u16 *)(temp_4 + 0x1A) & 1) != 0) {
             temp_16 = *(u8 **)(temp_4 + 0x30);
-            func_00195850(temp_16, sp30);
+            btlUnitGetSphereWorldCenter(temp_16, sp30);
             func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, sp30, 0.5f * (*(f32 *)(temp_16 + 0x90) * *(f32 *)(temp_16 + 0x2C)),
                           0xC1);
         }
@@ -87,7 +87,7 @@ u8 *func_001d0730(s32 arg0, s32 arg1)
     if (arg1 != 0) {
         return (u8 *)((s32)&D_005FE1D0 + ((((arg0 & 0xFFFF) * 3) + 2) * 0x34));
     }
-    return (u8 *)((s32)&D_005FE1D0 + ((((arg0 & 0xFFFF) * 3) + (func_004bd050(0) & 1)) * 0x34));
+    return (u8 *)((s32)&D_005FE1D0 + ((((arg0 & 0xFFFF) * 3) + (effMiscRand(0) & 1)) * 0x34));
 }
 typedef struct RwV3d { f32 x, y, z; } RwV3d;
 typedef struct RtQuat { RwV3d imag; f32 real; } RtQuat;
@@ -117,7 +117,7 @@ s32 func_001d07e0(u8 *arg0, u8 *arg1)
     extern void func_001959d0(BtlUnit *unit, RwV3d *out);
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern void func_001bd780(void *out, const void *first, const void *second, const void *config);
-    extern RwMatrix *func_003e0870(RwMatrix *matrix, const RwV3d *axis, f32 angle, s32 mode);
+    extern RwMatrix *RwMatrixRotate(RwMatrix *matrix, const RwV3d *axis, f32 angle, s32 mode);
     extern RwV3d *func_003e4320(RwV3d *out, const RwV3d *in, const RwMatrix *matrix);
     extern void func_001bac20(u16 *camera, f32 *first, f32 *second, u16 mode);
     extern void func_001bbe80(u8 *arg0, f32 arg1);
@@ -306,7 +306,7 @@ next_entry:
     func_001bd780(&poses[0].rot, &poses[0].pos, &focus[0], &D_0060A0E0);
     angle = *(f32 *)(entry + 56);
     if (angle != 0.0f) {
-        func_003e0870(&matrix, &D_0060A0F0, angle, 0);
+        RwMatrixRotate(&matrix, &D_0060A0F0, angle, 0);
         func_003e4320(&up, &D_0060A0E0, &matrix);
     } else {
         up = D_0060A0E0;

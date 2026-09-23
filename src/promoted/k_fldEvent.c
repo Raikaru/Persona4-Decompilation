@@ -21,13 +21,13 @@ extern FldEventVec3 D_005F1838;
 void func_0044ea90(const void *, u32);
 
 void func_00182390(void);
-u8 *func_00145270(s32 arg0);
+u8 *MT_Scene_GetRes(s32 arg0);
 void func_00174be0(s32, s32);
 s32 func_00171dc0(void);
 s32 func_00175dc0(u8 *);
 u16 *func_0010a900(u16);
 s32 func_0010ce10(u8 *, u32);
-s16 func_00105ee0(s32);
+s16 datGetPartyId(s32);
 s16 func_00106cd0(s16, s32);
 s32 func_001747d0(u8 *);
 s32 func_0014a160(void);
@@ -51,10 +51,10 @@ s32 *func_00162390(void);
 s32 func_00231630(s32);
 s32 func_00172e00(u8 *);
 s32 func_002319f0(s32);
-f32 func_003e4180(void *);
+f32 RwV3dLength(void *);
 s32 func_001452b0(s32);
 s32 func_0018bbf0(s32);
-s32 func_0014bff0(f32, void *, void *);
+s32 K_FldEvent_IsPosWithinFov(f32, void *, void *);
 void func_0015ab20(s32, s32, s32);
 void func_0046d730(const void *, u32);
 void func_00167560(void);
@@ -94,9 +94,9 @@ extern u8 D_007EF9B0[];
 extern char D_005F1770[];
 extern char D_005F1780[];
 extern u32 D_007EFA04[];
-extern u8 *func_0047a310(s32);
+extern u8 *mdlGetClump(s32);
 extern s32 func_00457c90(u8 *, char *);
-extern s32 func_0014c4c0(u8 *, u8 *, f32);
+extern s32 K_FldEvent_ArePosWithinDist(u8 *, u8 *, f32);
 extern s32 func_0014a200(void);
 extern s32 func_0014a270(void);
 
@@ -133,16 +133,16 @@ s32 func_00171610(u8 *arg0)
     if (t == 0) {
         return 0;
     }
-    o = (u8 *)func_0047a2f0(D_007EFA00[0]);
+    o = (u8 *)mdlGetMatrix(D_007EFA00[0]);
     vec = *(FldEventVec3 *)(o + 0x30);
     while (p != 0) {
         if ((*(s32 *)(p + 0x28) & 2) != 0 &&
-            func_00457c90((u8 *)func_0047a310(*(s32 *)(p + 0x144)),
+            func_00457c90((u8 *)mdlGetClump(*(s32 *)(p + 0x144)),
                           D_005F1770) != 0) {
-            cx = (s32)((600.0f + *(f32 *)((u8 *)func_0047a2f0(*(s32 *)(p + 0x144)) +
+            cx = (s32)((600.0f + *(f32 *)((u8 *)mdlGetMatrix(*(s32 *)(p + 0x144)) +
                                           0x30)) /
                        1200.0f);
-            cy = (s32)((600.0f + *(f32 *)((u8 *)func_0047a2f0(*(s32 *)(p + 0x144)) +
+            cy = (s32)((600.0f + *(f32 *)((u8 *)mdlGetMatrix(*(s32 *)(p + 0x144)) +
                                           0x38)) /
                        1200.0f);
             flag = 0;
@@ -153,12 +153,12 @@ s32 func_00171610(u8 *arg0)
             }
             if (flag == 1 &&
                 !(*(u8 *)((u8 *)func_00155280() + t21 + t22 + 0x5F) & 0xF0)) {
-                o2 = (u8 *)func_0047a2f0(D_007EFA00[0]);
-                if (func_0014bff0(120.0f, o2,
-                                 (u8 *)func_0047a2f0(*(s32 *)(p + 0x144)) + 0x30) !=
+                o2 = (u8 *)mdlGetMatrix(D_007EFA00[0]);
+                if (K_FldEvent_IsPosWithinFov(120.0f, o2,
+                                 (u8 *)mdlGetMatrix(*(s32 *)(p + 0x144)) + 0x30) !=
                         0 &&
-                    func_0014c4c0((u8 *)&vec,
-                                  (u8 *)func_0047a2f0(*(s32 *)(p + 0x144)) + 0x30,
+                    K_FldEvent_ArePosWithinDist((u8 *)&vec,
+                                  (u8 *)mdlGetMatrix(*(s32 *)(p + 0x144)) + 0x30,
                                   250.0f) == 1) {
                     h[5] = 1;
                     if ((D_008C024E[0] & 0x40) != 0) {
@@ -179,13 +179,13 @@ s32 func_00171610(u8 *arg0)
 found:
     q = (u8 *)func_001452b0(0xA);
     while (q != 0) {
-        if (func_00457c90((u8 *)func_0047a310(*(s32 *)(q + 0x144)),
+        if (func_00457c90((u8 *)mdlGetClump(*(s32 *)(q + 0x144)),
                           D_005F1780) != 0) {
             cx2 = (s32)((600.0f +
-                         *(f32 *)((u8 *)func_0047a2f0(*(s32 *)(q + 0x144)) + 0x30)) /
+                         *(f32 *)((u8 *)mdlGetMatrix(*(s32 *)(q + 0x144)) + 0x30)) /
                          1200.0f);
             cy2 = (s32)((600.0f +
-                         *(f32 *)((u8 *)func_0047a2f0(*(s32 *)(q + 0x144)) + 0x38)) /
+                         *(f32 *)((u8 *)mdlGetMatrix(*(s32 *)(q + 0x144)) + 0x38)) /
                          1200.0f);
             flag2 = 0;
             t20 = cy2 << 8;
@@ -195,12 +195,12 @@ found:
             }
             if (flag2 == 1 &&
                 !(*(u8 *)((u8 *)func_00155280() + t20 + t19 + 0x5F) & 0xF0)) {
-                o = (u8 *)func_0047a2f0(D_007EFA00[0]);
-                if (func_0014bff0(120.0f, o,
-                                 (u8 *)func_0047a2f0(*(s32 *)(q + 0x144)) + 0x30) !=
+                o = (u8 *)mdlGetMatrix(D_007EFA00[0]);
+                if (K_FldEvent_IsPosWithinFov(120.0f, o,
+                                 (u8 *)mdlGetMatrix(*(s32 *)(q + 0x144)) + 0x30) !=
                         0 &&
-                    func_0014c4c0((u8 *)&vec,
-                                  (u8 *)func_0047a2f0(*(s32 *)(q + 0x144)) + 0x30,
+                    K_FldEvent_ArePosWithinDist((u8 *)&vec,
+                                  (u8 *)mdlGetMatrix(*(s32 *)(q + 0x144)) + 0x30,
                                   250.0f) == 1) {
                     h[5] = 1;
                     D_007243E8 = (s32)q;
@@ -325,16 +325,16 @@ s32 func_00171dc0(void)
         if ((*(s32 *)(p + 0x28) & 0x10000000) != 0 &&
             (*(s32 *)(p + 0x28) & 2) != 0) {
             if (func_0018bbf0(*(s32 *)(p + 0x294)) == 1) {
-                g = (void *)func_0047a2f0(D_007EFA00[0]);
-                t2 = (s32 *)func_0047a2f0(*(s32 *)(p + 0x164));
-                if (func_0014bff0(120.0f, g, t2 + 0xC) == 1) {
-                    f20 = *(f32 *)(func_0047a2f0(*(s32 *)(p + 0x164)) + 0x30);
-                    vec[0] = f20 - *(f32 *)(func_0047a2f0(D_007EFA00[0]) + 0x30);
-                    f20 = *(f32 *)(func_0047a2f0(*(s32 *)(p + 0x164)) + 0x34);
-                    vec[1] = f20 - *(f32 *)(func_0047a2f0(D_007EFA00[0]) + 0x34);
-                    f20 = *(f32 *)(func_0047a2f0(*(s32 *)(p + 0x164)) + 0x38);
-                    vec[2] = f20 - *(f32 *)(func_0047a2f0(D_007EFA00[0]) + 0x38);
-                    r = func_003e4180(vec);
+                g = (void *)mdlGetMatrix(D_007EFA00[0]);
+                t2 = (s32 *)mdlGetMatrix(*(s32 *)(p + 0x164));
+                if (K_FldEvent_IsPosWithinFov(120.0f, g, t2 + 0xC) == 1) {
+                    f20 = *(f32 *)(mdlGetMatrix(*(s32 *)(p + 0x164)) + 0x30);
+                    vec[0] = f20 - *(f32 *)(mdlGetMatrix(D_007EFA00[0]) + 0x30);
+                    f20 = *(f32 *)(mdlGetMatrix(*(s32 *)(p + 0x164)) + 0x34);
+                    vec[1] = f20 - *(f32 *)(mdlGetMatrix(D_007EFA00[0]) + 0x34);
+                    f20 = *(f32 *)(mdlGetMatrix(*(s32 *)(p + 0x164)) + 0x38);
+                    vec[2] = f20 - *(f32 *)(mdlGetMatrix(D_007EFA00[0]) + 0x38);
+                    r = RwV3dLength(vec);
                     if (r < 150.0f && r < D_007615DC) {
                         found = p;
                     }
@@ -490,7 +490,7 @@ s32 func_00172360(u8 *arg0)
 
     h = *(u8 **)(arg0 + 0x38);
     *(u16 *)(h + 0x2C) = func_0014be50(
-        (u8 *)func_0047a2f0(
+        (u8 *)mdlGetMatrix(
             *(s32 *)(*(u8 **)(h + 0x18) + 0x164)) + 0x30,
         &out);
     id = *(u16 *)(h + 0x2C);
@@ -527,7 +527,7 @@ s32 func_00172360(u8 *arg0)
         }
         i = 0;
         while (i < count) {
-            if (func_00106330(ids[i]) == 0) {
+            if (datGetFlag(ids[i]) == 0) {
                 return 0;
             }
             i++;
@@ -581,8 +581,8 @@ s32 func_00172360(u8 *arg0)
                 pos.z /= 2.0f;
                 break;
             }
-            if (func_0014bff0(120.0f,
-                              (u8 *)func_0047a2f0(D_007EFA00[0]),
+            if (K_FldEvent_IsPosWithinFov(120.0f,
+                              (u8 *)mdlGetMatrix(D_007EFA00[0]),
                               &pos) == 0) {
                 return 0;
             }
@@ -738,7 +738,7 @@ s32 func_00172ba0(void)
     }
     vals[0] = 1;
     for (i = 0; i < 3; i++) {
-        vals[i + 1] = func_00105ee0(i);
+        vals[i + 1] = datGetPartyId(i);
     }
     for (i = 0; i < 4; i++) {
         if (vals[i] != 0 && func_00106cd0(vals[i], 2) == 0x270) {
@@ -760,7 +760,7 @@ s32 func_00172cb0(u8 *arg0)
     if (func_0014a160() == 1) {
         r = *(s32 *)func_001823c0();
         if (r != 0) {
-            t = (u8 *)func_0047a2f0(D_007EFA00[0]);
+            t = (u8 *)mdlGetMatrix(D_007EFA00[0]);
             vec = *(FldEventVec3 *)(t + 0x30);
             vec.y += 100.0f;
             func_0014e740(func_0015c1e0(0), &vec);
@@ -842,9 +842,9 @@ s32 func_00172e00(u8 *arg0)
     f32 func_0047a080(s32, s32);
     void func_0045af60(s32, s32, s32, s32);
     u8 *func_0014c540(u8 *, void *, f32, f32);
-    u32 func_0014c4c0(void *, void *, f32);
+    u32 K_FldEvent_ArePosWithinDist(void *, void *, f32);
     u32 K_FldEvent_IsPosWithinFov(void *, void *, f32);
-    u8 *func_0047a2f0(u32);
+    u8 *mdlGetMatrix(u32);
     void *mdlGetMatrix(u32);
     s32 func_0015c1e0(s32);
     void func_0014e740(s32, void *);
@@ -856,7 +856,7 @@ s32 func_00172e00(u8 *arg0)
     s32 func_0016fd00(s32);
     s32 func_00172ba0(void);
     u32 RpRandom(void);
-    s32 func_00106330(s32);
+    s32 datGetFlag(s32);
     s32 func_0015a160(void);
     void func_0015a7c0(s32);
     void func_00151f80(s32);
@@ -893,7 +893,7 @@ s32 func_00172e00(u8 *arg0)
     void func_0014a0f0(s32, s32);
     void func_0015a350(void *);
     void func_0047a180(s32, void *, s32);
-    u8 *func_00145270(s32);
+    u8 *MT_Scene_GetRes(s32);
     s32 func_00175ea0(s32, s32, s32);
     s32 func_002ae630(s32);
     void func_002b2950(s32);
@@ -930,7 +930,7 @@ s32 func_00172e00(u8 *arg0)
     void func_00457140(u8, u8, u8, u8);
     u8 *func_00457130(void);
     u8 *func_00457120(u8, u8);
-    void func_0043f9c8(void *, s32, s32);
+    void memset(void *, s32, s32);
     void func_00113480(s32, s32, s32, s32);
     void func_001fc1b0(s32);
     s32 func_001fc270(void);
@@ -996,7 +996,7 @@ block_209:
                             *(u8 **)(h + 0x4C) = NULL;
                             {
                                 u8 *cur44 = *(u8 **)(h + 0x44);
-                                func_0043f9c8(h + 0x50, 0, 0x3C);
+                                memset(h + 0x50, 0, 0x3C);
                                 *(s32 *)(h + 0x54) = D_007EF9F8[0].x;
                                 *(u8 **)(h + 0x64) = *(u8 **)(cur44 + 0x48);
                             }
@@ -1029,7 +1029,7 @@ block_209:
                                     {
                                         void *mA = mdlGetMatrix(D_007EFA00[0]);
                                         void *mB = mdlGetMatrix(*(u32 *)(cand + 0x50));
-                                        if (func_0014c4c0((u8 *)mA + 0x30, (u8 *)mB + 0x30, 2400.0f) != 1) {
+                                        if (K_FldEvent_ArePosWithinDist((u8 *)mA + 0x30, (u8 *)mB + 0x30, 2400.0f) != 1) {
                                             continue;
                                         }
                                     }
@@ -1055,9 +1055,9 @@ block_209:
                                 }
                                 *(u16 *)(h + 0x50) = *(u16 *)(h + 0x50) | 8;
                                 *(u16 *)(h + 0x50) = *(u16 *)(h + 0x50) | 8;
-                                if (func_00106330(0x140C) != 0) {
+                                if (datGetFlag(0x140C) != 0) {
                                     *(u16 *)(h + 0x50) = *(u16 *)(h + 0x50) | 0x10;
-                                } else if (func_00106330(0x140D) != 0) {
+                                } else if (datGetFlag(0x140D) != 0) {
                                     *(u16 *)(h + 0x50) = (*(u16 *)(h + 0x50) & 0xFFEF) | 1;
                                 }
                             }
@@ -1093,7 +1093,7 @@ block_209:
                             }
                         }
                     } else if (*(u8 **)func_001823c0() != NULL) {
-                        u8 *m = func_0047a2f0(D_007EFA00[0]);
+                        u8 *m = mdlGetMatrix(D_007EFA00[0]);
                         f32 x = *(f32 *)(m + 0x30);
                         f32 y = *(f32 *)(m + 0x34);
                         f32 z = *(f32 *)(m + 0x38);
@@ -1124,7 +1124,7 @@ block_209:
                     {
                         u8 *cur = *func_001823c0();
                         *(u8 **)(h + 0x44) = cur;
-                        func_0043f9c8(h + 0x50, 0, 0x3C);
+                        memset(h + 0x50, 0, 0x3C);
                         *(s32 *)(h + 0x54) = D_007EF9F8[0].x;
                         *(u8 **)(h + 0x64) = *(u8 **)(cur + 0x48);
                     }
@@ -1157,7 +1157,7 @@ block_209:
                             {
                                 void *mA = mdlGetMatrix(D_007EFA00[0]);
                                 void *mB = mdlGetMatrix(*(u32 *)(cand + 0x50));
-                                if (func_0014c4c0((u8 *)mA + 0x30, (u8 *)mB + 0x30, 2400.0f) != 1) {
+                                if (K_FldEvent_ArePosWithinDist((u8 *)mA + 0x30, (u8 *)mB + 0x30, 2400.0f) != 1) {
                                     continue;
                                 }
                             }
@@ -1197,9 +1197,9 @@ block_209:
                                 *(u16 *)(h + 0x50) = *(u16 *)(h + 0x50) | 1;
                             }
                         }
-                        if (func_00106330(0x140C) != 0) {
+                        if (datGetFlag(0x140C) != 0) {
                             *(u16 *)(h + 0x50) = (*(u16 *)(h + 0x50) & 0xFFFE) | 0x10;
-                        } else if (func_00106330(0x140D) != 0) {
+                        } else if (datGetFlag(0x140D) != 0) {
                             *(u16 *)(h + 0x50) = *(u16 *)(h + 0x50) | 1;
                         }
                     }
@@ -1229,7 +1229,7 @@ block_209:
             goto block_209;
         case 3:
             {
-                func_0043f9c8(h + 0x50, 0, 0x3C);
+                memset(h + 0x50, 0, 0x3C);
                 *(s32 *)(h + 0x54) = D_007EF9F8[0].x;
                 *(u8 **)(h + 0x64) = *(u8 **)(*(u8 **)(h + 0x44) + 0x48);
                 {
@@ -1423,7 +1423,7 @@ block_209:
                     s32 v6 = func_00156170(*(s32 *)(u8 *)(u32)func_00155280());
                     func_0014eed0(v6, func_00156180(*(s32 *)(u8 *)(u32)func_00155280()));
                 }
-                if (func_00106330(0x1410) != 0 || func_00106330(0x1411) != 0) {
+                if (datGetFlag(0x1410) != 0 || datGetFlag(0x1411) != 0) {
                     *(s32 *)(h + 0x12C) = func_00164f40();
                     func_001641d0();
                     func_00452080(*(s32 *)((u8 *)(u32)func_00155280() + 0x20));
@@ -1505,14 +1505,14 @@ block_209:
                     u32 _pA04 = D_007EFA04[0];
                     func_0016ea40(*(s32 *)((u8 *)(u32)func_00155280() + 0x4), *(u16 *)(_pA04));
                 }
-                res = func_00145270(0x400);
+                res = MT_Scene_GetRes(0x400);
                 *(u8 **)(h + 0x18) = res;
                 *(s32 *)(h + 0x13C) = func_00175ea0(*(s32 *)((u8 *)(u32)func_00155280() + 0x8), *(s32 *)(res + 0x220), *(s32 *)(res + 0x164));
                 t12 = func_002ae630(*(s32 *)(u8 *)(u32)func_00155280());
                 *(s32 *)((u8 *)(u32)func_00155280() + 0x18) = t12;
                 func_002b2950(1);
                 func_0018c7e0();
-                if (func_00106330(0x1410) != 0 || func_00106330(0x1411) != 0) {
+                if (datGetFlag(0x1410) != 0 || datGetFlag(0x1411) != 0) {
                     t13 = func_00166b40(*(s32 *)(u8 *)(u32)func_00155280(), *(s32 *)(h + 0x12C));
                     *(s32 *)((u8 *)(u32)func_00155280() + 0x20) = t13;
                 }
@@ -1535,7 +1535,7 @@ block_209:
                         func_0015a350(&sp110);
                         func_0047a180(*(s32 *)(h + 0x30), &sp110, 2);
                         {
-                            u8 *r2 = func_00145270(id);
+                            u8 *r2 = MT_Scene_GetRes(id);
                             *(s32 *)(r2 + 0x28) = *(s32 *)(r2 + 0x28) | 0x02000000;
                         }
                     }
@@ -1558,7 +1558,7 @@ block_209:
             goto block_209;
         case 18:
             if (func_00452490(*(s32 *)(h + 0x10)) != 1) {
-                if (func_00106330(0xC25) == 1) {
+                if (datGetFlag(0xC25) == 1) {
                     func_00106390(0xC25, 0);
                     *(s32 *)(h + 0x8) = 1;
                     return 0;
@@ -1680,7 +1680,7 @@ s32 func_001747d0(u8 *arg0)
         break;
     }
     if (*(s32 *)(h + 0x14) == 1) {
-        func_0047a2f0(D_007EFA00[0]);
+        mdlGetMatrix(D_007EFA00[0]);
         if (D_007EFB64[0] != 0) {
             func_0017d100((u8 *)D_007EFB64[0]);
             func_0017d0f0(D_007EFB64[0], 1);
@@ -1713,7 +1713,7 @@ s32 func_00174ad0(s32 arg0)
     func_00182390();
     *(s32 *)(temp_2 + 0xC) = -1;
     temp_18 = temp_2 + 0x18;
-    *(u8 **)temp_18 = func_00145270(0x400);
+    *(u8 **)temp_18 = MT_Scene_GetRes(0x400);
     func_00174be0(arg0, D_00724358);
     *(u16 *)(temp_2 + 0x2E) = 0xFFFF;
     temp_2_2 = *(u8 **)temp_18;
@@ -1824,18 +1824,18 @@ s32 func_00174e10(u8 *arg0)
     f32 func_0014b5d0(s32);
     f32 func_0014b590(f32);
     s32 func_0016e580(s32);
-    s32 func_00106330(s32);
+    s32 datGetFlag(s32);
     void func_0016e8e0(s32, f32);
     s32 func_0016f3b0(u8 *, s32, s32);
     s32 func_0016f130(u8 *, s32, s32);
     f32 func_0016f8b0(s32, s32);
     void func_003e0670(void *, void *, void *);
     f32 func_0044b950(f32, f32);
-    u8 *func_0047a300(s32);
-    f32 func_003e4180(void *);
-    f32 func_0044b7b0(f32);
+    u8 *mdlGetClumpFrame(s32);
+    f32 RwV3dLength(void *);
+    f32 sinf(f32);
     s32 func_001761d0(s32);
-    void func_003e0870(void *, void *, s32, f32);
+    void RwMatrixRotate(void *, void *, s32, f32);
     s32 func_00175f70(s32, void *, f32, f32);
     void func_00168cb0(s32, f32);
     s32 func_00105340(s32);
@@ -1940,13 +1940,13 @@ s32 func_00174e10(u8 *arg0)
     if (D_008C024C[0] & 8) {
         if (func_0016e580(*(s32 *)(func_00155280() + 4)) == 0 || func_0016e580(*(s32 *)(func_00155280() + 4)) == 6 || func_0016e580(*(s32 *)(func_00155280() + 4)) == 7) {
             f20 = -iGpffffb288;
-            if (func_00106330(0x3E) == 1) {
+            if (datGetFlag(0x3E) == 1) {
                 f20 *= -1.0f;
             }
         }
     } else if ((D_008C024C[0] & 4) && (func_0016e580(*(s32 *)(func_00155280() + 4)) == 0 || func_0016e580(*(s32 *)(func_00155280() + 4)) == 6 || func_0016e580(*(s32 *)(func_00155280() + 4)) == 7)) {
         f20 = iGpffffb288;
-        if (func_00106330(0x3E) == 1) {
+        if (datGetFlag(0x3E) == 1) {
             f20 *= -1.0f;
         }
     }
@@ -1956,7 +1956,7 @@ s32 func_00174e10(u8 *arg0)
             f32 b;
             s32 q;
             f21 = -45.0f;
-            if (func_00106330(0x3E) == 1) {
+            if (datGetFlag(0x3E) == 1) {
                 f21 = -45.0f * -1.0f;
             }
             a = func_0014b590(func_0014b5d0(func_003e9700(*(s32 *)(func_00457120() + 4))));
@@ -1987,7 +1987,7 @@ s32 func_00174e10(u8 *arg0)
         if (func_0016e580(*(s32 *)(func_00155280() + 4)) == 0 || func_0016e580(*(s32 *)(func_00155280() + 4)) == 6 || func_0016e580(*(s32 *)(func_00155280() + 4)) == 7) {
             f32 add;
             f21 = 45.0f;
-            if (func_00106330(0x3E) == 1) {
+            if (datGetFlag(0x3E) == 1) {
                 f21 = 45.0f * -1.0f;
             }
             func_0014b590(func_0014b5d0(func_003e9700(*(s32 *)(func_00457120() + 4))));
@@ -1997,14 +1997,14 @@ s32 func_00174e10(u8 *arg0)
     } else if (sp110 < -48.0f) {
         if (func_0016e580(*(s32 *)(func_00155280() + 4)) == 0 || func_0016e580(*(s32 *)(func_00155280() + 4)) == 6 || func_0016e580(*(s32 *)(func_00155280() + 4)) == 7) {
             f20 = DAT_00761640 * -iGpffffb288 * (sp110 / -128.0f);
-            if (func_00106330(0x3E) == 1) {
+            if (datGetFlag(0x3E) == 1) {
                 f20 *= -1.0f;
             }
         }
     } else if (48.0f < sp110) {
         if (func_0016e580(*(s32 *)(func_00155280() + 4)) == 0 || func_0016e580(*(s32 *)(func_00155280() + 4)) == 6 || func_0016e580(*(s32 *)(func_00155280() + 4)) == 7) {
             f20 = DAT_00761640 * iGpffffb288 * (sp110 / 128.0f);
-            if (func_00106330(0x3E) == 1) {
+            if (datGetFlag(0x3E) == 1) {
                 f20 *= -1.0f;
             }
         }
@@ -2056,7 +2056,7 @@ bigmove:
         {
             u8 *src;
             u32 *dst;
-            mframe = func_0047a300(*(s32 *)(*(s32 *)(h + 0x18) + 0x164));
+            mframe = mdlGetClumpFrame(*(s32 *)(*(s32 *)(h + 0x18) + 0x164));
             src = mframe + 0x10;
             dst = buf50;
             {
@@ -2110,15 +2110,15 @@ bigmove:
         mat[13] = 0;
         mat[12] = 0;
         mat[3] |= 0x20003;
-        func_003e0870(mat, D_00756510, 1, f21);
-        func_003e0870(mat, D_00756510, 1, f23);
+        RwMatrixRotate(mat, D_00756510, 1, f21);
+        RwMatrixRotate(mat, D_00756510, 1, f23);
         {
             s32 r = func_00175f70(*(s32 *)(h + 0x13C), mat, f20, f21 + f23);
             ret16 = r;
             if (func_001761d0(*(s32 *)(h + 0x13C)) == 0) {
                 func_00168890(*(s32 *)(*(s32 *)(h + 0x18) + 0x220), mat);
                 {
-                    f32 len = func_003e4180(&sp120);
+                    f32 len = RwV3dLength(&sp120);
                     f32 cl = len;
                     if (128.0f < cl) {
                         cl = 128.0f;
@@ -2126,7 +2126,7 @@ bigmove:
                     if (cl < 125.0f) {
                         f22 = 6.0f;
                     } else {
-                        f22 = 128.0f * iGpffffb290 * func_0044b7b0((fGpffff84a4 * cl) / 128.0f);
+                        f22 = 128.0f * iGpffffb290 * sinf((fGpffff84a4 * cl) / 128.0f);
                     }
                 }
                 func_00168cb0(*(s32 *)(*(s32 *)(h + 0x18) + 0x220), f22);

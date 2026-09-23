@@ -10,13 +10,13 @@
 typedef int (*code)();
 
 /* Canonical grouped function declarations. */
-u32 func_0044db98(u32 *param_1);
-void func_0044dc50(u32 *param_1,u32 *param_2);
+u32 __pack_f(u32 *param_1);
+void __unpack_f(u32 *param_1,u32 *param_2);
 u32 func_0044dd18(u32 *param_1);
-void func_0044ddf0(u32 *param_1,u32 *param_2);
+void __unpack_d(u32 *param_1,u32 *param_2);
 u64 func_0044de80(u64 param_1,u64 param_2,u64 param_3);
 u64 func_0044e410(u64 param_1,u64 param_2);
-int func_0044e508(u32 *param_1,u32 *param_2);
+int __fpcmp_parts_d(u32 *param_1,u32 *param_2);
 s8 func_004bd748(int object);
 u32 func_004bd758(int object);
 void func_004bd850(char *param_1);

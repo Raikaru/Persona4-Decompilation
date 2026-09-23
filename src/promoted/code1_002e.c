@@ -29,7 +29,7 @@ extern u8 D_0063FB50[];
 extern u8 D_0063FAA0[];
 extern u8 D_0063FB90[];
 extern void func_00110810(s64 arg0, u8 arg1);
-extern s32 func_00110830();
+extern s32 clndGetMoonPhase();
 extern s32 func_002bdff0();
 extern u8 D_0063FC80[];
 extern u8 D_0063FC90[];
@@ -449,13 +449,13 @@ s32 func_002e71c0(void)
 loop_body:
     if (func_002bdff0(var_17) == 1)
     {
-        if ((func_00110830(temp_18) & 0xFF) == 0)
+        if ((clndGetMoonPhase(temp_18) & 0xFF) == 0)
         {
             var_16 = (s16)var_17;
-            func_00110810(var_16, (func_00110830(var_16) & 0xFF) | 1);
+            func_00110810(var_16, (clndGetMoonPhase(var_16) & 0xFF) | 1);
             var_16 = 1;
         }
-        else if (((u8)func_00110830(temp_18)) & 1)
+        else if (((u8)clndGetMoonPhase(temp_18)) & 1)
         {
             var_16 = 1;
         }
@@ -487,7 +487,7 @@ s32 func_002e72c0(u8 *arg0)
     u8 *func_003e9cb0(u8 *arg0, ...);
     s32 func_00452380(s8 *arg0);
     u8 *func_00457120(void);
-    void func_004577d0(void *arg0, f32 arg1);
+    void K_View_SetFov(void *arg0, f32 arg1);
     s32 func_0045a3e0(s16 arg0, ...);
     extern s8 D_0063FC68[];
     s8 state;
@@ -504,7 +504,7 @@ s32 func_002e72c0(u8 *arg0)
     case 2:
         if ((func_00144f60() != 0) && (func_0015f660() != 0)) {
             temp_17 = func_00457120();
-            func_004577d0(temp_17, func_0014b4d0());
+            K_View_SetFov(temp_17, func_0014b4d0());
             temp_17 = func_00457120();
             func_003e9cb0(*(u8 **)(temp_17 + 4), func_0014b450(), 0);
             *(s8 *)work = 3;
@@ -582,20 +582,20 @@ s32 func_002e7510(s32 arg0)
     for (i = 0; i < 0x2FF; i++) {
         if (((func_00106b20((s16)i) & 0xFFF00) >> 8) == 0 &&
             ((func_00106b50((s16)i) & 0xFFF00) >> 8) == 0) {
-            func_00110810(i, (func_00110830(i) & 0xFF) | 4);
+            func_00110810(i, (clndGetMoonPhase(i) & 0xFF) | 4);
         } else if ((func_00106b20((s16)i) & 0xFF) == 0 &&
                    (func_00106b50((s16)i) & 0xFF) == 0) {
-            func_00110810(i, (func_00110830(i) & 0xFF) | 4);
+            func_00110810(i, (clndGetMoonPhase(i) & 0xFF) | 4);
         }
     }
     for (i = 0x300; i < 0x3FF; i++) {
         if ((func_002be100(func_00106ac0((s16)i) & 0xFF) & 0xFF) <
             (func_002be100(4) & 0xFF)) {
-            func_00110810(i, (func_00110830(i) & 0xFF) | 4);
+            func_00110810(i, (clndGetMoonPhase(i) & 0xFF) | 4);
         } else if ((func_002be100(func_00106ac0((s16)i) & 0xFF) & 0xFF) ==
                    (func_002be100(4) & 0xFF) &&
                    (s8)func_00106af0((s16)i) < 2) {
-            func_00110810(i, (func_00110830(i) & 0xFF) | 4);
+            func_00110810(i, (clndGetMoonPhase(i) & 0xFF) | 4);
         }
     }
     return result;

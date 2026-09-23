@@ -57,13 +57,13 @@ extern f32 fGpffff8198;
 extern f32 fGpffff8110;
 extern f32 DAT_00761278;
 extern f32 fGpffff8100;
-extern f32 func_003e40b0(RwV3d *arg0, const RwV3d *arg1);
-extern f32 func_003e4180(f32 *arg0);
+extern f32 RwV3dNormalize(RwV3d *arg0, const RwV3d *arg1);
+extern f32 RwV3dLength(f32 *arg0);
 extern void func_001bd560();
 extern void func_001958f0(BtlUnit *unit, RwV3d *out);
 extern void func_001959d0(BtlUnit *arg0, RwV3d *arg1);
 extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
-extern RwMatrix *func_003e0870(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
+extern RwMatrix *RwMatrixRotate(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
 extern RwV3d *func_003e4320(RwV3d *arg0, const RwV3d *arg1, const RwMatrix *arg2);
 extern u32 func_001bc3a0(f32 *arg0, f32 *arg1);
 extern f32 tanf(f32 arg0);
@@ -89,7 +89,7 @@ extern void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *secon
 extern void func_001bac20(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void func_001bbef0(u8 *arg0, f32 arg1);
 extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
-extern s32 func_004bd050(s32 arg0);
+extern s32 effMiscRand(s32 arg0);
 extern s16 func_001991c0(u8 *arg0, s32 arg1, f32 arg2);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
@@ -104,11 +104,11 @@ extern s32 func_001eb440(u8 *arg0);
 extern s32 func_001f1030(u8 *arg0);
 extern s32 func_001f11e0(s16 arg0);
 extern s32 func_001f1210(s32 arg0, s16 arg1, s32 arg2);
-extern u32 func_00232710(s32 arg0, u32 arg1);
+extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern s32 func_0022f950(u8 *arg0, u8 *arg1);
-extern void func_00194fa0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
-extern void func_00195850(u8 *arg0, f32 *arg1);
-extern RwMatrix *func_003e0870(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
+extern void btlUnitSetFlags(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
+extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
+extern RwMatrix *RwMatrixRotate(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
 extern RwV3d *func_003e4320(RwV3d *arg0, const RwV3d *arg1, const RwMatrix *arg2);
 extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
 extern u8 D_0060A0D0[];
@@ -137,7 +137,7 @@ extern f32 D_00607E24[];
 extern f32 D_00607E30[];
 extern f32 D_00607E3C[];
 extern u8 *func_001d0730(s32 arg0, s32 arg1);
-extern RwV3d *func_003dcb40(RwV3d *arg0, const RwV3d *arg1, s32 arg2, const RtQuat *arg3);
+extern RwV3d *RtQuatTransformVectors(RwV3d *arg0, const RwV3d *arg1, s32 arg2, const RtQuat *arg3);
 extern void func_001c1040(u8 *arg0, s32 arg1);
 extern void func_001c17a0(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_001c21d0(u8 *arg0, s32 arg1, s32 arg2);
@@ -160,7 +160,7 @@ static inline void func_001c_copy_pair(s64 *arg0, f32 *arg1,
 static inline void func_001c_rotate(RwMatrix *arg0, const RwV3d *arg1,
                                     f32 arg2, s32 arg3)
 {
-    func_003e0870(arg0, arg1, arg2, arg3);
+    RwMatrixRotate(arg0, arg1, arg2, arg3);
 }
 
 /* Promoted from the canonical function map: every function here is a
@@ -180,7 +180,7 @@ void func_001c04e0(u8 *camera)
     extern f32 RwV3dNormalize(RwV3d *, const RwV3d *);
     extern f32 func_003e41e0(f32 *, f32 *);
     extern f32 func_001ec3d0(u8 *, u8 *, u8 *, u8 *);
-    extern f32 func_0044b868(f32);
+    extern f32 tanf(f32);
     extern void func_001bd5a0(f32 *, f32 *);
     extern void func_001bab00(u16 *, f32 *);
     extern void func_001bcd40(u8 *, u8 *, f32 *, f32, u16);
@@ -268,7 +268,7 @@ void func_001c04e0(u8 *camera)
         position.z = 0.0f + eyeZ + direction.x * offset;
     }
     func_001bd780(&frame.rot, &position, &sideDir, D_0060A0E0);
-    func_003dcb40(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frame.rot);
+    RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frame.rot);
     rayFrom[0] = sideDir.x;
     rayFrom[1] = sideDir.z;
     rayTo[0] = position.x;
@@ -280,7 +280,7 @@ void func_001c04e0(u8 *camera)
     position.x = output[0];
     position.y = eyeY;
     position.z = output[1];
-    projection = distance / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+    projection = distance / tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
     if (projection < 500.0f) projection = 500.0f;
     direction.x *= projection;
     direction.y *= projection;
@@ -311,7 +311,7 @@ void func_001c09b0(u8* camera)
     extern void func_00194ff0(u8*, u8*, f32*, f32*);
     extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
     extern void func_003dcc70(f32*, f32*, void*);
-    extern f32 func_0044b868(f32);
+    extern f32 tanf(f32);
     extern f32 func_003e41e0(f32*, f32*);
     extern f32 fGpffff8118, fGpffff815c, fGpffff804c, fGpffff8160, fGpffff8110, fGpffff818c;
     extern f32 fGpffff8180;
@@ -389,7 +389,7 @@ void func_001c09b0(u8* camera)
             blended.quat.z = 0.0f + blended.quat.z + blend.second.quat.z * ratio;
             blended.quat.w = blend.first.quat.w * w1 + blend.second.quat.w * ratio;
         }
-        func_003dcb40(&eyeAdj, (const RwV3d*)D_0060A100, 1, (const RtQuat*)&blended);
+        RtQuatTransformVectors(&eyeAdj, (const RwV3d*)D_0060A100, 1, (const RtQuat*)&blended);
         eyeAdj.x = eyeAdj.x + center.x;
         eyeAdj.y = eyeAdj.y + center.y;
         eyeAdj.z = eyeAdj.z + center.z;
@@ -399,12 +399,12 @@ void func_001c09b0(u8* camera)
     {
         func_003dc740((RtQuat*)&frames[1].rot, (const RwV3d*)D_0060A0E0, fGpffff8160, 2);
     }
-    func_003dcb40(&eyeAdj, (const RwV3d*)D_0060A100, 1, (const RtQuat*)&frames[1].rot);
-    dist = 375 / func_0044b868(fGpffff8110 * (0.5f * *(f32*)(camera + 0xb8)));
+    RtQuatTransformVectors(&eyeAdj, (const RwV3d*)D_0060A100, 1, (const RtQuat*)&frames[1].rot);
+    dist = 375 / tanf(fGpffff8110 * (0.5f * *(f32*)(camera + 0xb8)));
     eyeAdj.x = eyeAdj.x * dist;
     eyeAdj.y = eyeAdj.y * dist;
     eyeAdj.z = eyeAdj.z * dist;
-    sideOffset = dist * func_0044b868(fGpffff8110 * (0.5f * *(f32*)(camera + 0xb8)));
+    sideOffset = dist * tanf(fGpffff8110 * (0.5f * *(f32*)(camera + 0xb8)));
     sideOffset = sideOffset * 0.21875f;
     horiz[0] = eyeAdj.x;
     horiz[1] = eyeAdj.z;
@@ -458,7 +458,7 @@ s32 func_001c0e50(u8 *arg0) {
     if (((state & 3) == 3) ||
         (((check = *(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA64),
            check != 0) &&
-          (func_00232710(check, 0x100) != 0)))) {
+          (datCalcChkBadStatus(check, 0x100) != 0)))) {
         return 6;
     }
     work = *(u8 **)(arg0 + 0xE0);
@@ -493,7 +493,7 @@ void func_001c1040(u8 *camera, s32 unused)
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 fGpffff8128;
     extern f32 fGpffff807c;
-    extern f32 func_0044b868(f32 camera);
+    extern f32 tanf(f32 camera);
     f32 top;
     RwV3d unitCenter;
     RwV3d groupCenter;
@@ -534,7 +534,7 @@ void func_001c1040(u8 *camera, s32 unused)
         unitCenter.y = groupCenter.y;
         halfFov = 0.5f;
         angleToRadians = fGpffff8110;
-        cameraDistance = groupRadius / func_0044b868(angleToRadians * (halfFov * *(f32 *)(camera + 0xB8)));
+        cameraDistance = groupRadius / tanf(angleToRadians * (halfFov * *(f32 *)(camera + 0xB8)));
         if (cameraDistance < 1000.0f) cameraDistance = 1000.0f;
         if (groupCenter.x == unitCenter.x && groupCenter.z == unitCenter.z) {
             direction = D_0060A0F0;
@@ -542,7 +542,7 @@ void func_001c1040(u8 *camera, s32 unused)
             direction.x = groupCenter.x - unitCenter.x;
             direction.y = groupCenter.y - unitCenter.y;
             direction.z = groupCenter.z - unitCenter.z;
-            func_003e40b0(&direction, &direction);
+            RwV3dNormalize(&direction, &direction);
         }
         x = direction.x * groupRadius;
         direction.x = x;
@@ -565,7 +565,7 @@ void func_001c1040(u8 *camera, s32 unused)
         unitCenter.y = groupCenter.y;
         halfFov = 0.5f;
         angleToRadians = fGpffff8110;
-        cameraDistance = groupRadius / func_0044b868(angleToRadians * (halfFov * *(f32 *)(camera + 0xB8)));
+        cameraDistance = groupRadius / tanf(angleToRadians * (halfFov * *(f32 *)(camera + 0xB8)));
         if (cameraDistance < 1200.0f) cameraDistance = 1200.0f;
         if (groupCenter.x == unitCenter.x && groupCenter.z == unitCenter.z) {
             direction = D_0060A0F0;
@@ -573,7 +573,7 @@ void func_001c1040(u8 *camera, s32 unused)
             direction.x = groupCenter.x - unitCenter.x;
             direction.y = groupCenter.y - unitCenter.y;
             direction.z = groupCenter.z - unitCenter.z;
-            func_003e40b0(&direction, &direction);
+            RwV3dNormalize(&direction, &direction);
         }
         x = direction.x * groupRadius;
         direction.x = x;
@@ -591,7 +591,7 @@ void func_001c1040(u8 *camera, s32 unused)
         delta.x = branchGroundPoint.x - groupCenter.x;
         delta.y = branchGroundPoint.y - groupCenter.y;
         delta.z = branchGroundPoint.z - groupCenter.z;
-        scale = fGpffff8128 * func_003e40b0(&delta, &delta);
+        scale = fGpffff8128 * RwV3dNormalize(&delta, &delta);
         x = delta.x * scale;
         focus.x = x;
         y = delta.y * scale;
@@ -607,7 +607,7 @@ void func_001c1040(u8 *camera, s32 unused)
     delta.x = groundPoint.x - groupCenter.x;
     delta.y = groundPoint.y - groupCenter.y;
     delta.z = groundPoint.z - groupCenter.z;
-    scale = fGpffff8128 * func_003e40b0(&delta, &delta);
+    scale = fGpffff8128 * RwV3dNormalize(&delta, &delta);
     x = delta.x * scale;
     focus.x = x;
     y = delta.y * scale;
@@ -621,8 +621,8 @@ void func_001c1040(u8 *camera, s32 unused)
     direction.x = eye.x - focus.x;
     direction.y = eye.y - focus.y;
     direction.z = eye.z - focus.z;
-    func_003e40b0(&direction, &direction);
-    lateralOffset = cameraDistance * func_0044b868(angleToRadians * (halfFov * *(f32 *)(camera + 0xB8)));
+    RwV3dNormalize(&direction, &direction);
+    lateralOffset = cameraDistance * tanf(angleToRadians * (halfFov * *(f32 *)(camera + 0xB8)));
     lateralOffset *= 0.21875f;
     horizontal.x = direction.x;
     horizontal.y = direction.z;
@@ -638,10 +638,10 @@ void func_001c1040(u8 *camera, s32 unused)
     frames[1].pos.x = focus.x + x;
     frames[1].pos.y = focus.y + y;
     frames[1].pos.z = focus.z + z;
-    if (func_004bd050(0) & 1) {
-        func_003e0870(&matrix, (const RwV3d *)D_0060A0E0, -30.0f, 0);
+    if (effMiscRand(0) & 1) {
+        RwMatrixRotate(&matrix, (const RwV3d *)D_0060A0E0, -30.0f, 0);
     } else {
-        func_003e0870(&matrix, (const RwV3d *)D_0060A0E0, 30.0f, 0);
+        RwMatrixRotate(&matrix, (const RwV3d *)D_0060A0E0, 30.0f, 0);
     }
     func_003e4320(&delta, &direction, &matrix);
     x = delta.x * cameraDistance;
@@ -686,7 +686,7 @@ void func_001c17a0(u8 *camera, s32 notify, s32 unused)
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern s32 func_001bc330(u8 *camera);
     extern f32 func_003e41e0(f32 *camera, f32 *notify);
-    extern f32 func_0044b868(f32 camera);
+    extern f32 tanf(f32 camera);
     extern f32 fGpffff80e8;
     extern f32 fGpffff8110;
     s32 useOrbit;
@@ -720,14 +720,14 @@ void func_001c17a0(u8 *camera, s32 notify, s32 unused)
         } else {
             func_0019de70((BtlUnitStateWork *)target, 1);
         }
-        func_003dcb40((RwV3d *)&animationPosition, (const RwV3d *)((u8 *)animation + 4), 1, (const RtQuat *)(unit + 0x1C));
-        func_003dcb40((RwV3d *)&focus, (const RwV3d *)((u8 *)animation + 0x1C), 1, (const RtQuat *)(unit + 0x1C));
+        RtQuatTransformVectors((RwV3d *)&animationPosition, (const RwV3d *)((u8 *)animation + 4), 1, (const RtQuat *)(unit + 0x1C));
+        RtQuatTransformVectors((RwV3d *)&focus, (const RwV3d *)((u8 *)animation + 0x1C), 1, (const RtQuat *)(unit + 0x1C));
         func_001bd780(&transition.frames[0].rot, &animationPosition, &focus, D_0060A0E0);
         transition.frames[0].pos.x = animationPosition.x + *(f32 *)(unit + 4);
         transition.frames[0].pos.y = animationPosition.y + *(f32 *)(unit + 8);
         transition.frames[0].pos.z = animationPosition.z + *(f32 *)(unit + 0xC);
-        func_003dcb40((RwV3d *)&animationPosition, (const RwV3d *)((u8 *)animation + 0x10), 1, (const RtQuat *)(unit + 0x1C));
-        func_003dcb40((RwV3d *)&focus, (const RwV3d *)((u8 *)animation + 0x28), 1, (const RtQuat *)(unit + 0x1C));
+        RtQuatTransformVectors((RwV3d *)&animationPosition, (const RwV3d *)((u8 *)animation + 0x10), 1, (const RtQuat *)(unit + 0x1C));
+        RtQuatTransformVectors((RwV3d *)&focus, (const RwV3d *)((u8 *)animation + 0x28), 1, (const RtQuat *)(unit + 0x1C));
         func_001bd780(&transition.frames[1].rot, &animationPosition, &focus, D_0060A0E0);
         transition.frames[1].pos.x = animationPosition.x + *(f32 *)(unit + 4);
         transition.frames[1].pos.y = animationPosition.y + *(f32 *)(unit + 8);
@@ -746,15 +746,15 @@ void func_001c17a0(u8 *camera, s32 notify, s32 unused)
         transition.cameraHorizontal.x = *(f32 *)(camera + 0x9C) - focus.x;
         transition.cameraHorizontal.y = *(f32 *)(camera + 0xA4) - focus.z;
         func_003e41e0((f32 *)&transition.cameraHorizontal, (f32 *)&transition.cameraHorizontal);
-        func_003dcb40((RwV3d *)&forward, (const RwV3d *)(&D_0060A0F0), 1, (const RtQuat *)(unit + 0x1C));
+        RtQuatTransformVectors((RwV3d *)&forward, (const RwV3d *)(&D_0060A0F0), 1, (const RtQuat *)(unit + 0x1C));
         transition.unitHorizontal.x = forward.z;
         transition.unitHorizontal.y = -forward.x;
         func_003e41e0((f32 *)&transition.unitHorizontal, (f32 *)&transition.unitHorizontal);
         sideDot = transition.unitHorizontal.x * transition.cameraHorizontal.x + transition.unitHorizontal.y * transition.cameraHorizontal.y;
         if (!(sideDot < 0.0f)) {
-            func_003e0870((RwMatrix *)&matrix, (const RwV3d *)D_0060A0E0, 37.5f, 0);
+            RwMatrixRotate((RwMatrix *)&matrix, (const RwV3d *)D_0060A0E0, 37.5f, 0);
         } else {
-            func_003e0870((RwMatrix *)&matrix, (const RwV3d *)D_0060A0E0, -37.5f, 0);
+            RwMatrixRotate((RwMatrix *)&matrix, (const RwV3d *)D_0060A0E0, -37.5f, 0);
         }
         func_003e4320((RwV3d *)&orbitDirection, (const RwV3d *)&forward, (const RwMatrix *)&matrix);
         orbitDirection.x = orbitDirection.x * orbitRadius;
@@ -771,10 +771,10 @@ void func_001c17a0(u8 *camera, s32 notify, s32 unused)
         orbitDirection.x = position.x - focus.x;
         orbitDirection.y = position.y - focus.y;
         orbitDirection.z = position.z - focus.z;
-        func_003e40b0((RwV3d *)&orbitDirection, (const RwV3d *)&orbitDirection);
+        RwV3dNormalize((RwV3d *)&orbitDirection, (const RwV3d *)&orbitDirection);
         func_001bd780(&transition.frames[1].rot, &position, &focus, D_0060A0E0);
-        cameraDistance = orbitRadius / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
-        secondOffset = cameraDistance * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+        cameraDistance = orbitRadius / tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+        secondOffset = cameraDistance * tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
         secondOffset *= 0.21875f;
         horizontal.x = orbitDirection.x;
         horizontal.y = orbitDirection.z;
@@ -788,9 +788,9 @@ void func_001c17a0(u8 *camera, s32 notify, s32 unused)
         transition.frames[1].pos.y = focus.y + position.y;
         transition.frames[1].pos.z = focus.z + position.z;
         if (!(sideDot < 0.0f)) {
-            func_003e0870((RwMatrix *)&matrix, (const RwV3d *)D_0060A0E0, 70.0f, 0);
+            RwMatrixRotate((RwMatrix *)&matrix, (const RwV3d *)D_0060A0E0, 70.0f, 0);
         } else {
-            func_003e0870((RwMatrix *)&matrix, (const RwV3d *)D_0060A0E0, -70.0f, 0);
+            RwMatrixRotate((RwMatrix *)&matrix, (const RwV3d *)D_0060A0E0, -70.0f, 0);
         }
         func_003e4320((RwV3d *)&orbitDirection, (const RwV3d *)&forward, (const RwMatrix *)&matrix);
         orbitDirection.x = orbitDirection.x * orbitRadius;
@@ -805,10 +805,10 @@ void func_001c17a0(u8 *camera, s32 notify, s32 unused)
         orbitDirection.x = position.x - focus.x;
         orbitDirection.y = position.y - focus.y;
         orbitDirection.z = position.z - focus.z;
-        func_003e40b0((RwV3d *)&orbitDirection, (const RwV3d *)&orbitDirection);
+        RwV3dNormalize((RwV3d *)&orbitDirection, (const RwV3d *)&orbitDirection);
         focus = savedCenter;
         func_001bd780(&transition.frames[0].rot, &position, &focus, D_0060A0E0);
-        firstOffset = cameraDistance * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+        firstOffset = cameraDistance * tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
         firstOffset *= 0.21875f;
         horizontal.x = orbitDirection.x;
         horizontal.y = orbitDirection.z;
@@ -876,10 +876,10 @@ void func_001c1f70(u8 *arg0)
         } else {
             func_0019de70((BtlUnitStateWork *)temp_18, 1);
         }
-        func_003dcb40((RwV3d *)&frame.valueA0,
+        RtQuatTransformVectors((RwV3d *)&frame.valueA0,
                       (const RwV3d *)((u8 *)temp_16 + 4),
                       1, (const RtQuat *)(temp_17 + 0x1C));
-        func_003dcb40((RwV3d *)&frame.value90,
+        RtQuatTransformVectors((RwV3d *)&frame.value90,
                       (const RwV3d *)((u8 *)temp_16 + 0x1C),
                       1, (const RtQuat *)(temp_17 + 0x1C));
         func_001bd780(&frame.value5C, &frame.valueA0,
@@ -887,10 +887,10 @@ void func_001c1f70(u8 *arg0)
         frame.value50 = frame.valueA0 + *(f32 *)(temp_17 + 4);
         frame.value54 = frame.valueA4 + *(f32 *)(temp_17 + 8);
         frame.value58 = frame.valueA8 + *(f32 *)(temp_17 + 0xC);
-        func_003dcb40((RwV3d *)&frame.valueA0,
+        RtQuatTransformVectors((RwV3d *)&frame.valueA0,
                       (const RwV3d *)((u8 *)temp_16 + 0x10),
                       1, (const RtQuat *)(temp_17 + 0x1C));
-        func_003dcb40((RwV3d *)&frame.value90,
+        RtQuatTransformVectors((RwV3d *)&frame.value90,
                       (const RwV3d *)((u8 *)temp_16 + 0x28),
                       1, (const RtQuat *)(temp_17 + 0x1C));
         func_001bd780(&frame.value78, &frame.valueA0,
@@ -918,7 +918,7 @@ void func_001c21d0(u8 *camera, s32 notify, s32 distinctPoses)
     extern s32 func_001bc1b0(u8 *camera);
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
-    extern f32 func_0044b868(f32 angle);
+    extern f32 tanf(f32 angle);
     extern f32 fGpffff8030;
     extern f32 fGpffff8098;
     extern f32 fGpffff8118;
@@ -1006,7 +1006,7 @@ void func_001c21d0(u8 *camera, s32 notify, s32 distinctPoses)
     direction.x = unitCenter.x - targetCenter.x;
     direction.y = unitCenter.y - targetCenter.y;
     direction.z = unitCenter.z - targetCenter.z;
-    centerDistance = func_003e40b0((RwV3d *)&direction, (const RwV3d *)&direction);
+    centerDistance = RwV3dNormalize((RwV3d *)&direction, (const RwV3d *)&direction);
     {
         f32 focusScale = fGpffff8128 * centerDistance;
         focus.x = direction.x * focusScale;
@@ -1019,7 +1019,7 @@ void func_001c21d0(u8 *camera, s32 notify, s32 distinctPoses)
     plane.cameraHorizontal.x = *(f32 *)(camera + 0x9C) - focus.x;
     plane.cameraHorizontal.y = *(f32 *)(camera + 0xA4) - focus.z;
     func_003e41e0((f32 *)&plane.cameraHorizontal, (f32 *)&plane.cameraHorizontal);
-    if ((forceSide != 0) || (((func_004bd050(0) & 1) != 0) && (func_001bc1b0(camera) != 0))) {
+    if ((forceSide != 0) || (((effMiscRand(0) & 1) != 0) && (func_001bc1b0(camera) != 0))) {
         f32 sideRadius;
         f32 targetHeightProduct;
         f32 tilt;
@@ -1058,10 +1058,10 @@ void func_001c21d0(u8 *camera, s32 notify, s32 distinctPoses)
         focus.y = (0.0f + focus.y) + fGpffff8030 * targetHeightProduct;
         if (sideDot >= 0.0f) tilt = 2.5f;
         else tilt = -2.5f;
-        func_003e0870(&matrix, &D_0060A0F0, tilt, 0);
+        RwMatrixRotate(&matrix, &D_0060A0F0, tilt, 0);
         func_003e4320((RwV3d *)&rotatedUp, (const RwV3d *)D_0060A0E0, (const RwMatrix *)&matrix);
         func_001bd780(&frames[0].rot.quat, &eye, &focus, &rotatedUp);
-        func_003dcb40((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[0].rot.quat);
+        RtQuatTransformVectors((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[0].rot.quat);
         plane.focus.x = focus.x;
         plane.focus.y = focus.z;
         plane.eye.x = eye.x;
@@ -1073,12 +1073,12 @@ void func_001c21d0(u8 *camera, s32 notify, s32 distinctPoses)
         eye.x = projection.x;
         eye.y = 0.0f + snapshotCenter.y + 0.25f * actorTop;
         eye.z = projection.y;
-        extentScale = extentScale / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+        extentScale = extentScale / tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
         direction.x = direction.x * extentScale;
         direction.y = direction.y * extentScale;
         direction.z = direction.z * extentScale;
         if (sideDot < 0.0f) {
-            extentScale = extentScale * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+            extentScale = extentScale * tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
             extentScale *= 0.21875f;
             extentScale *= 1.25f;
             horizontal.x = direction.x;
@@ -1132,7 +1132,7 @@ void func_001c21d0(u8 *camera, s32 notify, s32 distinctPoses)
             eye.z = 0.0f + snapshotCenter.z + direction.x * targetRadius;
         }
         func_001bd780(&frames[0].rot.quat, &eye, &focus, D_0060A0E0);
-        func_003dcb40((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[0].rot.quat);
+        RtQuatTransformVectors((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[0].rot.quat);
         plane.focus.x = focus.x;
         plane.focus.y = focus.z;
         plane.eye.x = eye.x;
@@ -1145,7 +1145,7 @@ void func_001c21d0(u8 *camera, s32 notify, s32 distinctPoses)
         eye.y = snapshotCenter.y;
         eye.z = projection.y;
         {
-            f32 cameraDistance = targetExtent / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+            f32 cameraDistance = targetExtent / tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
             if (cameraDistance < (f32)0x226) {
                 cameraDistance = (f32)0x226;
             }
@@ -1166,7 +1166,7 @@ void func_001c21d0(u8 *camera, s32 notify, s32 distinctPoses)
         direction.x = unitCenter.x - frames[1].pos.x;
         direction.y = unitCenter.y - frames[1].pos.y;
         direction.z = unitCenter.z - frames[1].pos.z;
-        centerDistance = func_003e40b0((RwV3d *)&direction, (const RwV3d *)&direction);
+        centerDistance = RwV3dNormalize((RwV3d *)&direction, (const RwV3d *)&direction);
         btlUnitGetSphereWorldCenter((BtlUnit *)unit, &snapshotCenter);
         snapshotCenter.y = 0.0f + snapshotCenter.y + 0.25f * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
         func_001bd780(&frames[0].rot.quat, &frames[1].pos, (f32 *)&snapshotCenter, D_0060A0E0);
@@ -1210,7 +1210,7 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
     extern s32 func_001bc630(u8 *camera);
     extern s32 func_001bc1b0(u8 *camera);
     extern f32 func_003e41e0(f32 *out, f32 *in);
-    extern f32 func_0044b868(f32 angle);
+    extern f32 tanf(f32 angle);
     extern void func_001bbf40(u8 *camera, f32 duration);
     extern f32 fGpffff80cc;
     extern f32 fGpffff80e8;
@@ -1224,9 +1224,9 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
     extern f32 fGpffff814c;
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
-    extern RwV3d *func_003dcb40(RwV3d *camera, const RwV3d *notify, s32 distinctPoses, const RtQuat *arg3);
+    extern RwV3d *RtQuatTransformVectors(RwV3d *camera, const RwV3d *notify, s32 distinctPoses, const RtQuat *arg3);
     extern void func_001bd780(void *camera, const void *notify, const void *distinctPoses, const void *arg3);
-    extern s32 func_004bd050(s32 camera);
+    extern s32 effMiscRand(s32 camera);
     extern void func_0019de70(BtlUnitStateWork *work, u16 value);
     extern void func_001bcd40(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
     extern u32 func_001bc3a0(f32 *camera, f32 *notify);
@@ -1287,12 +1287,12 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
         actorCenter.y = fGpffff8144;
     }
     groupRadius = func_00196040(2, 0, (RwV3d *)((f32 *)&groupCenter), &top, NULL, 1);
-    func_003dcb40((RwV3d *)&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)(actor + 0x1C));
+    RtQuatTransformVectors((RwV3d *)&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)(actor + 0x1C));
     groupCenter.y = 0.5f * top;
     delta.x = actorCenter.x - groupCenter.x;
     delta.y = actorCenter.y - groupCenter.y;
     delta.z = actorCenter.z - groupCenter.z;
-    scale = func_003e40b0((RwV3d *)&delta, (const RwV3d *)&delta);
+    scale = RwV3dNormalize((RwV3d *)&delta, (const RwV3d *)&delta);
     scale = p4_cacd0_mul(fGpffff8128, scale);
     focus.x = delta.x * scale;
     focus.y = delta.y * scale;
@@ -1310,7 +1310,7 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
     forceSide = func_001bc240((s32)camera);
     specialMode = func_001bc630(camera);
     if ((alternateMode == 1) || ((*(u16 *)(iGpffffb3e0 + (*(u16 *)(target + 0xA4) * 10 + *(u16 *)(target + 0xA4)) * 8) & 0x20) == 0)) {
-        chooseSide = (func_004bd050(0) & 1) != 0;
+        chooseSide = (effMiscRand(0) & 1) != 0;
     } else {
         chooseSide = 0;
     }
@@ -1335,16 +1335,16 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
         direction.x = secondEye.x - focus.x;
         direction.y = distance - focus.y;
         direction.z = secondEye.z - focus.z;
-        extent = func_003e40b0(&direction, &direction);
+        extent = RwV3dNormalize(&direction, &direction);
         cachedAngle = fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8));
-        tangent = func_0044b868(cachedAngle);
+        tangent = tanf(cachedAngle);
         radius = radius / tangent;
-        tangent = func_0044b868(cachedAngle);
+        tangent = tanf(cachedAngle);
         radius = radius > distance / tangent ? radius : distance / tangent;
         extent = extent + radius;
-        distance = func_0044b868(cachedAngle);
+        distance = tanf(cachedAngle);
         extent = extent > groupRadius / distance ? extent : groupRadius / distance;
-        distance = extent * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+        distance = extent * tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
         distance *= 0.21875f;
         horizontal.x = direction.x;
         horizontal.y = direction.z;
@@ -1364,7 +1364,7 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
         btlUnitGetSphereWorldCenter((BtlUnit *)actor, &actorCenter);
         actorCenter.y = 0.0f + actorCenter.y + fGpffff8118 * (*(f32 *)(actor + 0x8C) * *(f32 *)(actor + 0x2C));
         distance = 2.5f * (*(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C));
-        func_003dcb40((RwV3d *)&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)(actor + 0x1C));
+        RtQuatTransformVectors((RwV3d *)&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)(actor + 0x1C));
         if (!(sideDot < 0.0f)) {
             direction.x = direction.x * -distance;
             direction.y = direction.y * -distance;
@@ -1382,11 +1382,11 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
         direction.x = firstEye.x - savedFocus.x;
         direction.y = firstEye.y - savedFocus.y;
         direction.z = firstEye.z - savedFocus.z;
-        distance = func_003e40b0((RwV3d *)&direction, (const RwV3d *)&direction);
-        radius = func_0044b868(cachedAngle);
+        distance = RwV3dNormalize((RwV3d *)&direction, (const RwV3d *)&direction);
+        radius = tanf(cachedAngle);
         distance = distance + extent / radius;
-        func_003dcb40((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[0].rot.quat);
-        extent = distance * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+        RtQuatTransformVectors((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[0].rot.quat);
+        extent = distance * tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
         extent *= 0.21875f;
         horizontal.x = direction.x;
         horizontal.y = direction.z;
@@ -1429,11 +1429,11 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
         direction.x = secondEye.x - focus.x;
         direction.y = secondEye.y - focus.y;
         direction.z = secondEye.z - focus.z;
-        distance = func_003e40b0((RwV3d *)&direction, (const RwV3d *)&direction);
+        distance = RwV3dNormalize((RwV3d *)&direction, (const RwV3d *)&direction);
         if (groupRadius < 300.0f) groupRadius = 300.0f;
-        tangent = func_0044b868(0.5f * *(f32 *)(camera + 0xB8));
+        tangent = tanf(0.5f * *(f32 *)(camera + 0xB8));
         distance = distance + groupRadius / tangent;
-        extent = distance * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+        extent = distance * tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
         extent *= 0.21875f;
         extent *= 0.5f;
         horizontal.x = direction.x;
@@ -1453,13 +1453,13 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
         func_001bd780(&frames[1].rot.quat, &frames[1].pos, &focus, D_0060A0E0);
         if (specialMode == 0) {
             if (!(sideDot < 0.0f)) {
-                func_003e0870((RwMatrix *)&matrix, (const RwV3d *)D_0060A0E0, -27.5f, 0);
+                RwMatrixRotate((RwMatrix *)&matrix, (const RwV3d *)D_0060A0E0, -27.5f, 0);
             } else {
-                func_003e0870((RwMatrix *)&matrix, (const RwV3d *)D_0060A0E0, 27.5f, 0);
+                RwMatrixRotate((RwMatrix *)&matrix, (const RwV3d *)D_0060A0E0, 27.5f, 0);
             }
             func_003e4320((RwV3d *)&delta, (const RwV3d *)&direction, (const RwMatrix *)&matrix);
             distance = distance * fGpffff80e8;
-            extent = distance * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+            extent = distance * tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
             extent *= 0.21875f;
             extent *= 0.5f;
             horizontal.x = delta.x;
@@ -1480,7 +1480,7 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
             delta.x = actorCenter.x - groupCenter.x;
             delta.y = actorCenter.y - groupCenter.y;
             delta.z = actorCenter.z - groupCenter.z;
-            extent = func_003e40b0((RwV3d *)&delta, (const RwV3d *)&delta);
+            extent = RwV3dNormalize((RwV3d *)&delta, (const RwV3d *)&delta);
             extent = p4_cacd0_mul(0.25f, extent);
             focus.x = delta.x * extent;
             focus.y = delta.y * extent;
@@ -1541,7 +1541,7 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
     }
     if ((distinctPoses == 0) && (specialMode == 0)) {
         frames[0].rot.quat = frames[1].rot.quat;
-        func_003dcb40((RwV3d *)&direction, (const RwV3d *)(&D_0060A0F0), 1, (const RtQuat *)&frames[0].rot.quat);
+        RtQuatTransformVectors((RwV3d *)&direction, (const RwV3d *)(&D_0060A0F0), 1, (const RtQuat *)&frames[0].rot.quat);
         direction.x = direction.x * 100.0f;
         direction.y = direction.y * 100.0f;
         direction.z = direction.z * 100.0f;
@@ -1594,8 +1594,8 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern void func_001bd780(void *camera, const void *notify, const void *distinctPoses, const void *arg3);
     extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
-    extern f32 func_0044b868(f32 angle);
-    extern s32 func_004bd050(s32 camera);
+    extern f32 tanf(f32 angle);
+    extern s32 effMiscRand(s32 camera);
     extern void func_0019de70(BtlUnitStateWork *action, u16 value);
     extern void func_001bcd40(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
     extern void func_001bac20(u16 *camera, f32 *notify, f32 *distinctPoses, u16 arg3);
@@ -1667,7 +1667,7 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
         } else {
             sideView = (sideView != 0);
             if (sideView == 0) {
-                sideView = (func_004bd050(0) & 1) != 0;
+                sideView = (effMiscRand(0) & 1) != 0;
                 if (sideView != 0) {
                     sideView = (func_001bc1b0(camera) != 0);
                 }
@@ -1678,7 +1678,7 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
         direction.x = resourceCenter.x - targetCenter.x;
         direction.y = resourceCenter.y - targetCenter.y;
         direction.z = resourceCenter.z - targetCenter.z;
-        directionDistance = func_003e40b0((RwV3d *)&direction, (const RwV3d *)&direction);
+        directionDistance = RwV3dNormalize((RwV3d *)&direction, (const RwV3d *)&direction);
         initialDistance = directionDistance;
         {
             f32 focusScale = fGpffff8128 * directionDistance;
@@ -1705,7 +1705,7 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
         direction.x = t3 - targetCenter.x;
         direction.y = t2 - targetCenter.y;
         direction.z = t1 - targetCenter.z;
-        directionDistance = func_003e40b0((RwV3d *)&direction, (const RwV3d *)&direction);
+        directionDistance = RwV3dNormalize((RwV3d *)&direction, (const RwV3d *)&direction);
         initialDistance = directionDistance;
         {
             f32 focusScale = fGpffff8128 * directionDistance;
@@ -1766,7 +1766,7 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
             }
         }
         func_001bd780(&frames[1].rot.quat, &eye, &focus, D_0060A0E0);
-        func_003dcb40((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot.quat);
+        RtQuatTransformVectors((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot.quat);
         plane.focus.x = focus.x;
         plane.focus.y = focus.z;
         plane.eye.x = eye.x;
@@ -1789,12 +1789,12 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
             eye.y = 0.0f + snapshotCenter.y + 0.25f * resourceTop;
         }
         eye.z = projection.y;
-        cameraDistance = cameraDistance / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+        cameraDistance = cameraDistance / tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
         direction.x = direction.x * cameraDistance;
         direction.y = direction.y * cameraDistance;
         direction.z = direction.z * cameraDistance;
         if (sideDot < 0.0f) {
-            cameraDistance = cameraDistance * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+            cameraDistance = cameraDistance * tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
             cameraDistance *= 0.21875f;
             cameraDistance *= 1.25f;
             horizontal.x = direction.x;
@@ -1812,7 +1812,7 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
         direction.x = actorCenter.x - targetCenter.x;
         direction.y = actorCenter.y - targetCenter.y;
         direction.z = actorCenter.z - targetCenter.z;
-        directionDistance = func_003e40b0((RwV3d *)&direction, (const RwV3d *)&direction);
+        directionDistance = RwV3dNormalize((RwV3d *)&direction, (const RwV3d *)&direction);
         {
             f32 focusScale = fGpffff8128 * directionDistance;
             focus.x = direction.x * focusScale;
@@ -1843,7 +1843,7 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
         }
         focus.y = 0.0f + focus.y + fGpffff8030 * (*(f32 *)(targetUnit + 0x8C) * *(f32 *)(targetUnit + 0x2C));
         func_001bd780(&frames[0].rot.quat, &eye, &focus, D_0060A0E0);
-        func_003dcb40((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[0].rot.quat);
+        RtQuatTransformVectors((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[0].rot.quat);
         plane.focus.x = focus.x;
         plane.focus.y = focus.z;
         plane.eye.x = eye.x;
@@ -1855,12 +1855,12 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
         eye.x = projection.x;
         eye.y = 0.0f + snapshotCenter.y + 0.25f * actorTop;
         eye.z = projection.y;
-        cameraDistance = cameraDistance / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+        cameraDistance = cameraDistance / tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
         direction.x = direction.x * cameraDistance;
         direction.y = direction.y * cameraDistance;
         direction.z = direction.z * cameraDistance;
         if (sideDot < 0.0f) {
-            cameraDistance = cameraDistance * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+            cameraDistance = cameraDistance * tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
             cameraDistance *= 0.21875f;
             cameraDistance *= 1.25f;
             horizontal.x = direction.x;
@@ -1909,7 +1909,7 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
             focus.y = 0.0f + focus.y + fGpffff8154 * (*(f32 *)(resourceUnit + 0x8C) * *(f32 *)(resourceUnit + 0x2C));
         }
         func_001bd780(&frames[0].rot.quat, &eye, &focus, D_0060A0E0);
-        func_003dcb40((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[0].rot.quat);
+        RtQuatTransformVectors((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[0].rot.quat);
         plane.focus.x = focus.x;
         plane.focus.y = focus.z;
         plane.eye.x = eye.x;
@@ -1921,13 +1921,13 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
         eye.x = projection.x;
         eye.y = snapshotCenter.y;
         eye.z = projection.y;
-        cameraDistance = cameraDistance / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+        cameraDistance = cameraDistance / tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
         if (cameraDistance < (f32)0x226) cameraDistance = (f32)0x226;
         direction.x = direction.x * cameraDistance;
         direction.y = direction.y * cameraDistance;
         direction.z = direction.z * cameraDistance;
         if (!(sideDot < 0.0f)) {
-            cameraDistance = cameraDistance * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+            cameraDistance = cameraDistance * tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
             cameraDistance *= 0.21875f;
             cameraDistance *= 2.0f;
             horizontal.x = savedDirection.x;
@@ -1944,7 +1944,7 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
         direction.x = actorCenter.x - frames[1].pos.x;
         direction.y = actorCenter.y - frames[1].pos.y;
         direction.z = actorCenter.z - frames[1].pos.z;
-        cameraDistance = func_003e40b0((RwV3d *)&direction, (const RwV3d *)&direction);
+        cameraDistance = RwV3dNormalize((RwV3d *)&direction, (const RwV3d *)&direction);
         btlUnitGetSphereWorldCenter((BtlUnit *)selectedUnit, &snapshotCenter);
         snapshotCenter.y = 0.0f + snapshotCenter.y + fGpffff8030 * (*(f32 *)(selectedUnit + 0x8C) * *(f32 *)(selectedUnit + 0x2C));
         func_001bd780(&frames[0].rot.quat, &frames[1].pos, (f32 *)&snapshotCenter, D_0060A0E0);
@@ -2150,7 +2150,7 @@ void func_001c5500(u8 *arg0, s32 arg1)
     extern f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
     extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
     extern void func_001bd5e0(f32 *arg0, f32 *arg1);
-    extern f32 func_0044b868(f32 arg0);
+    extern f32 tanf(f32 arg0);
 
     (void)arg1;
     action = *(u8 **)(arg0 + 0xE0);
@@ -2224,7 +2224,7 @@ void func_001c5500(u8 *arg0, s32 arg1)
 
     savedDirection = direction;
     func_001bd780(&poses.second.rot, &eye, &focus, D_0060A0E0);
-    func_003dcb40((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&poses.second.rot);
+    RtQuatTransformVectors((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&poses.second.rot);
 
     geometry.focusXZ[0] = focus.x;
     geometry.focusXZ[1] = focus.z;
@@ -2241,7 +2241,7 @@ void func_001c5500(u8 *arg0, s32 arg1)
     eye.y = unitY;
     eye.z = projectionXZ[1];
 
-    tanFov = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    tanFov = tanf(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
     distScale = accumDist / tanFov;
     if (distScale < 500.0f) {
         distScale = 500.0f;
@@ -2270,7 +2270,7 @@ void func_001c5500(u8 *arg0, s32 arg1)
     func_001bd560((f32 *)&poses.first, (f32 *)(arg0 + 0x9C));
     if (!(func_001ec2b0((P4Vec4Holder_001EC2B0*)(&poses.first.rot), (P4Vec4Holder_001EC2B0*)(&poses.second.rot)) <= fGpffff8158)) {
         func_001bd5e0((f32 *)&poses.first, (f32 *)&poses.second);
-        func_003dcb40((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&poses.first.rot);
+        RtQuatTransformVectors((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&poses.first.rot);
         direction.x *= 150.0f;
         direction.y *= 150.0f;
         direction.z *= 150.0f;
@@ -2340,7 +2340,7 @@ void func_001c5b80(u8 *arg0, s32 arg1)
     } frame;
     extern s32 func_001bc630(u8 *arg0);
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
-    extern f32 func_0044b868(f32 arg0);
+    extern f32 tanf(f32 arg0);
     extern f32 fGpffff8110;
     extern f32 fGpffff8118;
     extern f32 fGpffff8128;
@@ -2374,7 +2374,7 @@ void func_001c5b80(u8 *arg0, s32 arg1)
     group = group & 0xFFFF;
     var_f21 = func_00196040(group, 1, (RwV3d *)(frame.center150), &frame.top15C, NULL, 0);
     frame.center150[1] = 0.75f * frame.top15C;
-    var_f23 = var_f21 / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
+    var_f23 = var_f21 / tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
     if (var_f23 < 1000.0f) {
         var_f23 = 1000.0f;
     }
@@ -2388,7 +2388,7 @@ void func_001c5b80(u8 *arg0, s32 arg1)
             frame.tmp130[0] = frame.center140[0] - frame.actor100[0];
             frame.tmp130[1] = frame.center140[1] - frame.actor100[1];
             frame.tmp130[2] = frame.center140[2] - frame.actor100[2];
-            len = func_003e4180(frame.tmp130);
+            len = RwV3dLength(frame.tmp130);
             if (!(len <= var_f20)) {
                 func_001c_copy_pair(&frame.pairF0, &frame.valF8, (s64 *)frame.actor100, &frame.actor100[2]);
                 var_f20 = len;
@@ -2401,14 +2401,14 @@ void func_001c5b80(u8 *arg0, s32 arg1)
     frame.tmp130[0] = frame.center140[0] - frame.actor100[0];
     frame.tmp130[1] = frame.center140[1] - frame.actor100[1];
     frame.tmp130[2] = frame.center140[2] - frame.actor100[2];
-    len = func_003e4180(frame.tmp130);
+    len = RwV3dLength(frame.tmp130);
     if (!(len <= var_f20)) {
         func_001c_copy_pair(&frame.pairD8, &frame.valE0, (s64 *)frame.actor100, &frame.actor100[2]);
         func_001c_copy_pair(&frame.pairF0, &frame.valF8, &frame.pairD8, &frame.valE0);
         frame.dir120[0] = frame.actor100[0] - frame.center150[0];
         frame.dir120[1] = frame.actor100[1] - frame.center150[1];
         frame.dir120[2] = frame.actor100[2] - frame.center150[2];
-        len = func_003e40b0((RwV3d *)frame.dir120, (const RwV3d *)frame.dir120);
+        len = RwV3dNormalize((RwV3d *)frame.dir120, (const RwV3d *)frame.dir120);
         var_f20 = len;
         scale = fGpffff8128 * len;
         frame.actor100[0] = frame.dir120[0] * scale;
@@ -2420,7 +2420,7 @@ void func_001c5b80(u8 *arg0, s32 arg1)
         frame.center150[1] = centerY + frame.actor100[1];
         frame.center150[2] = centerZ + frame.actor100[2];
         unit = *(u8 **)(*(u8 **)(saved_arg0 + 0xE0) + 0x30);
-        cand = len + (1.25f * (*(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C))) / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
+        cand = len + (1.25f * (*(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C))) / tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
         if (!(cand <= var_f23)) {
             var_f23 = cand;
         }
@@ -2429,15 +2429,15 @@ void func_001c5b80(u8 *arg0, s32 arg1)
             frame.dir120[0] = frame.actor100[0] - frame.center150[0];
             frame.dir120[1] = frame.actor100[1] - frame.center150[1];
             frame.dir120[2] = frame.actor100[2] - frame.center150[2];
-            len = func_003e40b0((RwV3d *)frame.dir120, (const RwV3d *)frame.dir120);
-            cand = (len + *(f32 *)(*(u8 **)(*(u8 **)(saved_arg0 + 0xE0) + 0x30) + 0x90) * *(f32 *)(*(u8 **)(*(u8 **)(saved_arg0 + 0xE0) + 0x30) + 0x2C) + 50.0f) / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
+            len = RwV3dNormalize((RwV3d *)frame.dir120, (const RwV3d *)frame.dir120);
+            cand = (len + *(f32 *)(*(u8 **)(*(u8 **)(saved_arg0 + 0xE0) + 0x30) + 0x90) * *(f32 *)(*(u8 **)(*(u8 **)(saved_arg0 + 0xE0) + 0x30) + 0x2C) + 50.0f) / tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
             if (!(cand <= var_f23)) {
                 var_f23 = cand;
             }
             frame.dir120[0] = frame.actor100[0] - *(f32 *)&frame.pairF0;
             frame.dir120[1] = frame.actor100[1] - *(f32 *)((u8 *)&frame.pairF0 + 4);
             frame.dir120[2] = frame.actor100[2] - frame.valF8;
-            scale = 0.5f * func_003e40b0((RwV3d *)frame.dir120, (const RwV3d *)frame.dir120);
+            scale = 0.5f * RwV3dNormalize((RwV3d *)frame.dir120, (const RwV3d *)frame.dir120);
             frame.actor100[0] = frame.dir120[0] * scale;
             frame.actor100[1] = frame.dir120[1] * scale;
             frame.actor100[2] = frame.dir120[2] * scale;
@@ -2452,7 +2452,7 @@ void func_001c5b80(u8 *arg0, s32 arg1)
     frame.tmp130[0] = *(f32 *)&frame.pairF0 - frame.center150[0];
     frame.tmp130[1] = frame.center150[1] - frame.center150[1];
     frame.tmp130[2] = frame.valF8 - frame.center150[2];
-    func_003e40b0((RwV3d *)frame.tmp130, (const RwV3d *)frame.tmp130);
+    RwV3dNormalize((RwV3d *)frame.tmp130, (const RwV3d *)frame.tmp130);
     frame.tmp130[0] = frame.tmp130[0] * var_f21;
     frame.tmp130[1] = frame.tmp130[1] * var_f21;
     frame.tmp130[2] = frame.tmp130[2] * var_f21;
@@ -2462,7 +2462,7 @@ void func_001c5b80(u8 *arg0, s32 arg1)
     frame.dir120[0] = var_f22 - frame.center150[0];
     frame.dir120[2] = var_f20 - frame.center150[2];
     frame.dir120[1] = 0.0f;
-    scale = fGpffff8118 * func_003e40b0((RwV3d *)frame.dir120, (const RwV3d *)frame.dir120);
+    scale = fGpffff8118 * RwV3dNormalize((RwV3d *)frame.dir120, (const RwV3d *)frame.dir120);
     frame.dir120[0] = frame.dir120[0] * scale;
     frame.dir120[1] = frame.dir120[1] * scale;
     frame.dir120[2] = frame.dir120[2] * scale;
@@ -2476,20 +2476,20 @@ void func_001c5b80(u8 *arg0, s32 arg1)
     frame.tmp130[0] = var_f22 - frame.out110[0];
     frame.tmp130[1] = var_f21 - frame.out110[1];
     frame.tmp130[2] = var_f20 - frame.out110[2];
-    func_003e40b0((RwV3d *)frame.tmp130, (const RwV3d *)frame.tmp130);
-    tanRes = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
+    RwV3dNormalize((RwV3d *)frame.tmp130, (const RwV3d *)frame.tmp130);
+    tanRes = tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
     scale = var_f23 * tanRes * 0.21875f;
     frame.pairE8[0] = frame.tmp130[0];
     frame.pairE8[1] = frame.tmp130[2];
     func_003e41e0(frame.pairE8, frame.pairE8);
     frame.out110[0] = frame.pairE8[1] * scale + frame.out110[0] + 0.0f;
     frame.out110[2] = (frame.out110[2] + 0.0f) - frame.pairE8[0] * scale;
-    if (func_004bd050(0) & 1) {
+    if (effMiscRand(0) & 1) {
         scale = 7.5f;
     } else {
         scale = -7.5f;
     }
-    func_003e0870((RwMatrix *)frame.mat90, (const RwV3d *)D_0060A0E0, scale, 0);
+    RwMatrixRotate((RwMatrix *)frame.mat90, (const RwV3d *)D_0060A0E0, scale, 0);
     func_003e4320((RwV3d *)frame.dir120, (const RwV3d *)frame.tmp130, (const RwMatrix *)frame.mat90);
     frame.dir120[0] = frame.dir120[0] * var_f23;
     frame.dir120[1] = frame.dir120[1] * var_f23;
@@ -2499,7 +2499,7 @@ void func_001c5b80(u8 *arg0, s32 arg1)
     frame.out6C[2] = frame.out110[2] + frame.dir120[2];
     func_001bd780(frame.quat78, frame.out6C, frame.out110, D_0060A0E0);
     if (isZero == 0) {
-        func_003e0870((RwMatrix *)frame.mat90, (const RwV3d *)D_0060A0E0, -scale, 0);
+        RwMatrixRotate((RwMatrix *)frame.mat90, (const RwV3d *)D_0060A0E0, -scale, 0);
         func_003e4320((RwV3d *)frame.dir120, (const RwV3d *)frame.tmp130, (const RwMatrix *)frame.mat90);
         frame.dir120[0] = frame.dir120[0] * var_f23;
         frame.dir120[1] = frame.dir120[1] * var_f23;
@@ -2607,10 +2607,10 @@ void func_001c79f0(u8 *arg0, s32 arg1)
     extern f32 fGpffff813c;
     extern f32 fGpffff8030;
     extern void func_00195d50(u8 *arg0, f32 *arg1);
-    extern s32 func_002428f0(s32 arg0, s32 arg1);
+    extern s32 datCalcIsDead(s32 arg0, s32 arg1);
     extern s32 func_00243e30(s32 arg0);
-    extern s32 func_00242930(s32 arg0);
-    extern f32 func_0044b868(f32 arg0);
+    extern s32 datCalcIsLowHp(s32 arg0);
+    extern f32 tanf(f32 arg0);
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
     f32 var_f24;
     f32 var_f23;
@@ -2630,7 +2630,7 @@ void func_001c79f0(u8 *arg0, s32 arg1)
         var_f20 = func_00196040(3, 0, (RwV3d *)(frame.target118), 0, 0, 1);
         func_00196040(1, 0, NULL, &frame.max14C, &frame.min148, 1);
         frame.target118[1] = frame.min148 + 0.5f * (frame.max14C - frame.min148);
-        var_f20 = (0.75f * var_f20) / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
+        var_f20 = (0.75f * var_f20) / tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
         func_001958f0((BtlUnit *)(var16), (RwV3d *)(frame.actorE8));
         frame.eye108[0] = frame.actorE8[0];
         frame.eye108[1] = frame.target118[1];
@@ -2640,7 +2640,7 @@ void func_001c79f0(u8 *arg0, s32 arg1)
         frame.dir128[2] = frame.actorE8[2] - frame.target118[2];
         {
             f32 tmpLen;
-            tmpLen = func_003e40b0((RwV3d *)frame.dir128, (const RwV3d *)frame.dir128);
+            tmpLen = RwV3dNormalize((RwV3d *)frame.dir128, (const RwV3d *)frame.dir128);
             tmpLen = p4_cacd0_mul(fGpffff8128, tmpLen);
             frame.dir128[0] = frame.dir128[0] * tmpLen;
             frame.dir128[1] = frame.dir128[1] * tmpLen;
@@ -2653,11 +2653,11 @@ void func_001c79f0(u8 *arg0, s32 arg1)
         frame.eye108[1] = frame.max14C;
         frame.eye108[2] = frame.actorE8[2];
         func_001bd780((void *)frame.quatCC, (void *)frame.eye108, (void *)frame.baseF8, (void *)D_0060A0E0);
-        func_003dcb40((RwV3d *)frame.dir128, (const RwV3d *)D_0060A100, 1, (const RtQuat *)frame.quatCC);
+        RtQuatTransformVectors((RwV3d *)frame.dir128, (const RwV3d *)D_0060A100, 1, (const RtQuat *)frame.quatCC);
         frame.dir128[0] = frame.dir128[0] * var_f20;
         frame.dir128[1] = frame.dir128[1] * var_f20;
         frame.dir128[2] = frame.dir128[2] * var_f20;
-        var_f20 = p4_cacd0_mul(var_f20 * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))), 0.21875f);
+        var_f20 = p4_cacd0_mul(var_f20 * tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))), 0.21875f);
         var_f20 = var_f20 * fGpffff812c;
         frame.horizE0[0] = frame.dir128[0];
         frame.horizE0[1] = frame.dir128[2];
@@ -2676,46 +2676,46 @@ void func_001c79f0(u8 *arg0, s32 arg1)
         var16 = *(u8 **)(var17 + 0x30);
         var_f20 = *(f32 *)(var16 + 0x90) * *(f32 *)(var16 + 0x2C);
         var_f24 = 0.5f * (*(f32 *)(var16 + 0x8C) * *(f32 *)(var16 + 0x2C));
-        if (func_002428f0(*(s32 *)(var16 + 0xA64), 0) != 0) {
+        if (datCalcIsDead(*(s32 *)(var16 + 0xA64), 0) != 0) {
             func_00195d50(var16, frame.pos138);
             var_f23 = 1.5f;
             var_f22 = 3.5f;
             var_f21 = 25.0f;
             frame.pos138[1] = frame.pos138[1] - fGpffff8118 * var_f24;
-        } else if (func_00232710(*(s32 *)(var16 + 0xA64), 0x100000) != 0) {
-            func_00195850(var16, frame.pos138);
+        } else if (datCalcChkBadStatus(*(s32 *)(var16 + 0xA64), 0x100000) != 0) {
+            btlUnitGetSphereWorldCenter(var16, frame.pos138);
             var_f23 = fGpffff8130;
             var_f22 = fGpffff8134;
             var_f21 = 25.0f;
             frame.pos138[1] = frame.pos138[1] - fGpffff8118 * var_f24;
         } else if (func_00243e30(*(s32 *)(var16 + 0xA64)) != 0) {
-            func_00195850(var16, frame.pos138);
+            btlUnitGetSphereWorldCenter(var16, frame.pos138);
             var_f23 = fGpffff8138;
             var_f22 = 0.75f;
             var_f21 = 15.0f;
             frame.pos138[1] = frame.pos138[1] + fGpffff8118 * var_f24;
-        } else if (func_00242930(*(s32 *)(var16 + 0xA64)) != 0) {
-            func_00195850(var16, frame.pos138);
+        } else if (datCalcIsLowHp(*(s32 *)(var16 + 0xA64)) != 0) {
+            btlUnitGetSphereWorldCenter(var16, frame.pos138);
             var_f23 = fGpffff8138;
             var_f22 = 1.0f;
             var_f21 = 25.0f;
             frame.pos138[1] = frame.pos138[1] - fGpffff8030 * var_f24;
         } else {
-            func_00195850(var16, frame.pos138);
+            btlUnitGetSphereWorldCenter(var16, frame.pos138);
             var_f23 = 1.25f;
             var_f22 = 1.0f;
             var_f21 = 25.0f;
             frame.pos138[1] = frame.pos138[1] + fGpffff813c * var_f24;
         }
         if (var_f20 > var_f24) {
-            var_f20 = (var_f20 * var_f23) / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
+            var_f20 = (var_f20 * var_f23) / tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
         } else {
-            var_f20 = (var_f24 * var_f23) / func_0044b868(0.5f * *(f32 *)(saved_arg0 + 0xB8));
+            var_f20 = (var_f24 * var_f23) / tanf(0.5f * *(f32 *)(saved_arg0 + 0xB8));
         }
-        func_003dcb40((RwV3d *)frame.dir128, (const RwV3d *)(&D_0060A0F0), 1, (const RtQuat *)(var16 + 0x1C));
-        func_003e0870((RwMatrix *)frame.mat60, (const RwV3d *)D_0060A0E0, var_f21, 0);
+        RtQuatTransformVectors((RwV3d *)frame.dir128, (const RwV3d *)(&D_0060A0F0), 1, (const RtQuat *)(var16 + 0x1C));
+        RwMatrixRotate((RwMatrix *)frame.mat60, (const RwV3d *)D_0060A0E0, var_f21, 0);
         func_003e4320((RwV3d *)frame.dir128, (const RwV3d *)frame.dir128, (const RwMatrix *)frame.mat60);
-        var_f21 = p4_cacd0_mul(var_f20 * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))), 0.21875f);
+        var_f21 = p4_cacd0_mul(var_f20 * tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))), 0.21875f);
         var_f21 = var_f21 * fGpffff8118;
         frame.horizE0[0] = frame.dir128[0];
         frame.horizE0[1] = frame.dir128[2];
@@ -2771,7 +2771,7 @@ void func_001c80f0(u8 *camera, s32 immediate)
     extern void func_001bd5e0(f32 *out, f32 *in);
     extern void func_001ec1c0(u8 *out, u8 *first, u8 *second);
     extern void func_003dcc70(const void *first, const void *second, void *result);
-    extern f32 func_0044b868(f32 angle);
+    extern f32 tanf(f32 angle);
     extern f32 fGpffff8118, fGpffff80bc, fGpffff8120, fGpffff8124;
     extern f32 fGpffff8104, fGpffff8054, fGpffff8058, fGpffff805c, fGpffff8060, fGpffff8108;
 
@@ -2786,7 +2786,7 @@ void func_001c80f0(u8 *camera, s32 immediate)
     top *= fGpffff8100;
     center.y = top;
     func_001ec1c0((u8 *)&heading, (u8 *)&actorPosition, (u8 *)&center);
-    func_003dcb40(&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)&heading);
+    RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)&heading);
     direction.x *= doubledRadius;
     direction.y *= doubledRadius;
     direction.z *= doubledRadius;
@@ -2809,17 +2809,17 @@ void func_001c80f0(u8 *camera, s32 immediate)
     halfFov = 0.5f * *(f32 *)(camera + 0xB8);
     if (*(u16 *)(camera + 0x106) == 0) {
         heightDistance = 0.75f * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
-        heightDistance /= func_0044b868(halfFov);
-        minimumDistance = (0.75f * distance) / func_0044b868(halfFov);
+        heightDistance /= tanf(halfFov);
+        minimumDistance = (0.75f * distance) / tanf(halfFov);
     } else {
         heightDistance = fGpffff811c * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
-        heightDistance /= func_0044b868(halfFov);
-        minimumDistance = (fGpffff811c * distance) / func_0044b868(halfFov);
+        heightDistance /= tanf(halfFov);
+        minimumDistance = (fGpffff811c * distance) / tanf(halfFov);
     }
     distance = heightDistance + separation;
     distance = cameraSideRadius(distance, minimumDistance);
-    func_003dcb40(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&endpoints[0].rot);
-    scale = distance * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+    RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&endpoints[0].rot);
+    scale = distance * tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
     scale *= 0.109375f;
     scale *= fGpffff80bc;
     center.x = 0.0f + center.x + direction.z * scale;
@@ -2835,7 +2835,7 @@ void func_001c80f0(u8 *camera, s32 immediate)
         func_001958f0((BtlUnit *)(target), (RwV3d *)((f32 *)&center));
         if (!(50.0f <= center.y)) center.y = 50.0f;
         func_001ec1c0((u8 *)&heading, (u8 *)&actorPosition, (u8 *)&center);
-        func_003dcb40(&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)&heading);
+        RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)&heading);
         direction.x *= doubledRadius;
         direction.y *= doubledRadius;
         direction.z *= doubledRadius;
@@ -2947,7 +2947,7 @@ s32 func_001c88d0(u8 *arg0, s32 *arg1, f32 *arg2, u8 *arg3)
     distance1 = fGpffff809c * product;
     product = *(f32 *)(arg0 + 0x8C) * *(f32 *)(arg0 + 0x2C);
     distance2 = 0.5f * (fGpffff809c * product);
-    func_00195850(arg0, &frame.valueA0);
+    btlUnitGetSphereWorldCenter(arg0, &frame.valueA0);
     frame.value90 = frame.valueA0;
     frame.value94 = frame.valueA4 + distance2;
     frame.value98 = frame.valueA8;
@@ -3166,8 +3166,8 @@ void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *second)
     extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *first, P4Vec4Holder_001EC2B0 *second);
     extern void func_003dcc70(const void *first, const void *second, void *out);
     extern RtQuat *func_003dc740(RtQuat *quat, const RwV3d *axis, f32 angle, s32 combine);
-    extern f32 func_0044b868(f32 angle);
-    extern f32 func_003e41b0(f32 *in);
+    extern f32 tanf(f32 angle);
+    extern f32 RwV2dLength(f32 *in);
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 fabsf(f32 x);
     extern f32 fGpffff8118, fGpffff815c, fGpffff804c, fGpffff8160;
@@ -3251,7 +3251,7 @@ void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *second)
             limitedRotation.quat.z = 0.0f + limitedRotation.quat.z + blend.second.quat.z * ratio;
             limitedRotation.quat.w = blend.first.quat.w * firstWeight + blend.second.quat.w * ratio;
         }
-        func_003dcb40(&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&limitedRotation);
+        RtQuatTransformVectors(&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&limitedRotation);
         viewDirection.x += focus.x;
         viewDirection.y += focus.y;
         viewDirection.z += focus.z;
@@ -3260,9 +3260,9 @@ void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *second)
         func_003dc740((RtQuat *)&second->rot, (const RwV3d *)D_0060A0E0, fGpffff8160, 2);
     }
     if (height < 450.0f) height = 450.0f;
-    tanHalfFov = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+    tanHalfFov = tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
     distance = (0.5f * height) / tanHalfFov;
-    func_003dcb40(&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&second->rot);
+    RtQuatTransformVectors(&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&second->rot);
     direction.y = viewDirection.y;
     RwV3dNormalize(&direction, &direction);
     alignmentDot = viewDirection.x * direction.x + viewDirection.y * direction.y + viewDirection.z * direction.z;
@@ -3285,7 +3285,7 @@ void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *second)
         xz[0] = focus.x - basePosition.x;
         baseZ = basePosition.z;
         xz[1] = focus.z - baseZ;
-        horizontalLength = func_003e41b0(xz);
+        horizontalLength = RwV2dLength(xz);
         alternateEye.y = focus.y + (halfHeight * horizontalLength) / distance;
         alternateEye.x = 0.0f + basePosition.x + direction.z * height;
         alternateEye.z = 0.0f + baseZ - direction.x * height;
@@ -3297,12 +3297,12 @@ void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *second)
         secondAngle = func_001ec2b0(&first->rot, &secondRotation);
         if (firstAngle < secondAngle) second->rot = firstRotation;
         else second->rot = secondRotation;
-        func_003dcb40(&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&second->rot);
+        RtQuatTransformVectors(&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&second->rot);
     }
     viewDirection.x *= distance;
     viewDirection.y *= distance;
     viewDirection.z *= distance;
-    tanHalfFov = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+    tanHalfFov = tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
     lateralOffset = distance * tanHalfFov;
     lateralOffset *= 0.21875f;
     lateralOffset *= 0.5f;
@@ -3383,7 +3383,7 @@ void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
     extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *first, P4Vec4Holder_001EC2B0 *second);
-    extern f32 func_0044b868(f32 angle);
+    extern f32 tanf(f32 angle);
 
     angleLimit = suppliedLimit;
     func_001bd560((f32 *)&frames[0], (f32 *)(camera + 0x9C));
@@ -3399,7 +3399,7 @@ void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
     direction.x = actorCenter.x - targetCenter.x;
     direction.y = actorCenter.y - targetCenter.y;
     direction.z = actorCenter.z - targetCenter.z;
-    distance = func_003e40b0(&direction, &direction);
+    distance = RwV3dNormalize(&direction, &direction);
     scale = fGpffff8128 * distance;
     focus.x = direction.x * scale;
     focus.y = direction.y * scale;
@@ -3439,7 +3439,7 @@ void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
             savedDirection = direction;
         }
         func_001bd780(&frames[1].rot, &eye, &focus, D_0060A0E0);
-        func_003dcb40(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
+        RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
         plane.focus.x = focus.x;
         plane.focus.y = focus.z;
         plane.eye.x = eye.x;
@@ -3452,7 +3452,7 @@ void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
         eye.y = 0.0f + baseY + 0.25f * (*(f32 *)(actor + 0x8C) * *(f32 *)(actor + 0x2C));
         eye.z = projection.y;
         angleScale = fGpffff8110;
-        scale = distance / func_0044b868(angleScale * (0.5f * *(f32 *)(camera + 0xB8)));
+        scale = distance / tanf(angleScale * (0.5f * *(f32 *)(camera + 0xB8)));
         direction.x *= scale;
         direction.y *= scale;
         direction.z *= scale;
@@ -3494,7 +3494,7 @@ void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
             eye.z = 0.0f + baseZ + direction.x * side;
         }
         func_001bd780(&frames[1].rot, &eye, &focus, D_0060A0E0);
-        func_003dcb40(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
+        RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
         plane.focus.x = focus.x;
         plane.focus.y = focus.z;
         plane.eye.x = eye.x;
@@ -3507,7 +3507,7 @@ void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
         eye.y = baseY;
         eye.z = projection.y;
         angleScale = fGpffff8110;
-        scale = distance / func_0044b868(angleScale * (0.5f * *(f32 *)(camera + 0xB8)));
+        scale = distance / tanf(angleScale * (0.5f * *(f32 *)(camera + 0xB8)));
         if (scale < (f32)550) scale = (f32)550;
         direction.x *= scale;
         direction.y *= scale;
@@ -3529,7 +3529,7 @@ void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
     {
         if (forwardDot < 0.0f) {
             func_001bab00((u16 *)camera, (f32 *)&frames[1]);
-            func_003dcb40(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
+            RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
             direction.x *= 200.0f;
             direction.y *= 200.0f;
             direction.z *= 200.0f;
@@ -3546,7 +3546,7 @@ void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
             direction.x = actorCenter.x - targetCenter.x;
             direction.y = actorCenter.y - targetCenter.y;
             direction.z = actorCenter.z - targetCenter.z;
-            func_003e40b0(&direction, &direction);
+            RwV3dNormalize(&direction, &direction);
             eye.y = 0.0f + baseY + fGpffff8170 * (*(f32 *)(viewUnit + 0x8C) * *(f32 *)(viewUnit + 0x2C));
             if (!(geometry < 0.0f)) {
                 eye.x = (0.0f + center.x) - direction.z * forwardDot;
@@ -3556,7 +3556,7 @@ void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
                 eye.z = (0.0f + baseZ) - direction.x * forwardDot;
             }
             func_001bd780(&frames[0].rot, &eye, &focus, D_0060A0E0);
-            func_003dcb40(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[0].rot);
+            RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[0].rot);
             plane.focus.x = focus.x;
             plane.focus.y = focus.z;
             plane.eye.x = eye.x;
@@ -3567,7 +3567,7 @@ void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
             eye.x = projection.x;
             eye.y = 0.0f + baseY + fGpffff8170 * (*(f32 *)(viewUnit + 0x8C) * *(f32 *)(viewUnit + 0x2C));
             eye.z = projection.y;
-            tangent = func_0044b868(angleScale * (0.5f * *(f32 *)(camera + 0xB8)));
+            tangent = tanf(angleScale * (0.5f * *(f32 *)(camera + 0xB8)));
             scale = (4.0f * (*(f32 *)(viewUnit + 0x90) * *(f32 *)(viewUnit + 0x2C))) / tangent;
             direction.x *= scale;
             direction.y *= scale;
@@ -3646,10 +3646,10 @@ void func_001ca590(u8 *camera, f32 angle, f32 duration)
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
     extern f32 fGpffff8118;
     extern f32 func_003e41e0(f32 *out, f32 *in);
-    extern f32 func_003e41b0(f32 *in);
+    extern f32 RwV2dLength(f32 *in);
     extern f32 fabsf(f32 x);
     extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
-    extern f32 func_0044b868(f32 angle);
+    extern f32 tanf(f32 angle);
     extern void func_001bd560(f32 *out, f32 *in);
 
     action = *(u8 **)(camera + 0xE0);
@@ -3693,9 +3693,9 @@ void func_001ca590(u8 *camera, f32 angle, f32 duration)
     viewDirection.z = frames[0].pos.z - focus.z;
     sideDot = horizontal.perp[0] * horizontal.horiz[0] + horizontal.perp[1] * horizontal.horiz[1];
     if (!(sideDot < 0.0f)) {
-        func_003e0870(&matrix, (const RwV3d *)D_0060A0E0, angle, 0);
+        RwMatrixRotate(&matrix, (const RwV3d *)D_0060A0E0, angle, 0);
     } else {
-        func_003e0870(&matrix, (const RwV3d *)D_0060A0E0, -angle, 0);
+        RwMatrixRotate(&matrix, (const RwV3d *)D_0060A0E0, -angle, 0);
     }
     func_003e4320(&viewDirection, &viewDirection, &matrix);
     viewDirection.x = viewDirection.x + focus.x;
@@ -3705,9 +3705,9 @@ void func_001ca590(u8 *camera, f32 angle, f32 duration)
     if (extent < 400.0f) {
         extent = 400.0f;
     }
-    tanHalfFov = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+    tanHalfFov = tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
     distance = (0.5f * extent) / tanHalfFov;
-    func_003dcb40((RwV3d *)&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
+    RtQuatTransformVectors((RwV3d *)&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
     direction.y = viewDirection.y;
     RwV3dNormalize(&direction, &direction);
     alignmentDot = viewDirection.x * direction.x + viewDirection.y * direction.y + viewDirection.z * direction.z;
@@ -3730,7 +3730,7 @@ void func_001ca590(u8 *camera, f32 angle, f32 duration)
         xz[0] = focus.x - basePosition.x;
         baseZ = basePosition.z;
         xz[1] = focus.z - baseZ;
-        horizontalLength = func_003e41b0(xz);
+        horizontalLength = RwV2dLength(xz);
         alternateEye.y = focus.y + (halfHeight * horizontalLength) / distance;
         alternateEye.x = 0.0f + basePosition.x + direction.z * extent;
         alternateEye.z = 0.0f + baseZ - direction.x * extent;
@@ -3745,12 +3745,12 @@ void func_001ca590(u8 *camera, f32 angle, f32 duration)
         } else {
             frames[1].rot = secondRotation;
         }
-        func_003dcb40((RwV3d *)&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
+        RtQuatTransformVectors((RwV3d *)&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
     }
     viewDirection.x = viewDirection.x * distance;
     viewDirection.y = viewDirection.y * distance;
     viewDirection.z = viewDirection.z * distance;
-    finalTanHalfFov = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+    finalTanHalfFov = tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
     lateralOffset = distance * finalTanHalfFov;
     lateralOffset *= 0.21875f;
     xz[0] = viewDirection.x;
@@ -3822,7 +3822,7 @@ void func_001cacd0(u8 *arg0, f32 fparg0, f32 fparg1)
     s2 = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
     func_001bd560((f32 *)&work.frames[0], (f32 *)(arg0 + 0x9C));
     prod = *(f32 *)(s0 + 0x84) * *(f32 *)(s0 + 0x2C);
-    func_00195850(s2, (f32 *)&work.unit);
+    btlUnitGetSphereWorldCenter(s2, (f32 *)&work.unit);
     height = (0.0f + prod + p4_cacd0_mul(*(f32 *)(s0 + 0x8C), *(f32 *)(s0 + 0x2C)) * fGpffff8118);
     height += (0.0f + work.unit.y + (*(f32 *)(s2 + 0x8C) * *(f32 *)(s2 + 0x2C)) * fGpffff8118);
     work.unit.y = 0.0f;
@@ -3830,7 +3830,7 @@ void func_001cacd0(u8 *arg0, f32 fparg0, f32 fparg1)
     work.diff.x = *(f32 *)(s0 + 0xDC) - work.unit.x;
     work.diff.y = *(f32 *)(s0 + 0xE0) - zero;
     work.diff.z = *(f32 *)(s0 + 0xE4) - work.unit.z;
-    len = func_003e40b0((RwV3d *)&work.diff, (const RwV3d *)&work.diff);
+    len = RwV3dNormalize((RwV3d *)&work.diff, (const RwV3d *)&work.diff);
     work.scaled.x = work.diff.x * (0.5f * len);
     work.scaled.y = work.diff.y * (0.5f * len);
     work.scaled.z = work.diff.z * (0.5f * len);
@@ -3869,9 +3869,9 @@ void func_001cacd0(u8 *arg0, f32 fparg0, f32 fparg1)
     i = 1;
     while (i < 4) {
         if (!(dot < 0.0f)) {
-            func_003e0870((RwMatrix *)work.matrix, (const RwV3d *)D_0060A0E0, angle, 0);
+            RwMatrixRotate((RwMatrix *)work.matrix, (const RwV3d *)D_0060A0E0, angle, 0);
         } else {
-            func_003e0870((RwMatrix *)work.matrix, (const RwV3d *)D_0060A0E0, -angle, 0);
+            RwMatrixRotate((RwMatrix *)work.matrix, (const RwV3d *)D_0060A0E0, -angle, 0);
         }
         func_003e4320((RwV3d *)&work.rotated, (const RwV3d *)&work.delta, (const RwMatrix *)work.matrix);
         base = &work.frames[(u16)i];
@@ -3962,7 +3962,7 @@ void func_001cb2e0(u8 *arg0)
     u8 *target;
 
     value = *(u16 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA4);
-    flag_offset = (func_004bd050(0) & 1) * 0xF4;
+    flag_offset = (effMiscRand(0) & 1) * 0xF4;
     index_offset = (value & 0xFFFF) * 0x1E8;
     target = (u8 *)&D_005F7CA0 + index_offset;
     func_001bdd80(arg0, target + flag_offset, 2);
@@ -3983,7 +3983,7 @@ void func_001cb3a0(u8 *arg0)
     temp = *(u8 **)(arg0 + 0xE0);
     value = *(u16 *)(*(u8 **)(temp + 0x30) + 0xA4);
     func_001b73f0(*(u8 **)(temp + 0x30));
-    flag_offset = (func_004bd050(0) & 1) * 0xF4;
+    flag_offset = (effMiscRand(0) & 1) * 0xF4;
     index_offset = ((value & 0xFFFF) - 2) * 0x1E8;
     target = (u8 *)&D_005F91A0 + index_offset;
     func_001bdd80(arg0, target + flag_offset, 2);
@@ -4002,7 +4002,7 @@ void func_001cb460(u8 *arg0)
 
     value = *(u16 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA4);
     if (func_001f0ff0(*(u8 **)(arg0 + 0xE0)) != 0) {
-        flag_offset = (func_004bd050(0) & 1) * 0xF4;
+        flag_offset = (effMiscRand(0) & 1) * 0xF4;
         index_offset = ((value & 0xFFFF) - 2) * 0x1E8;
         target = (u8 *)&D_005FA2D0 + index_offset;
         func_001bdd80(arg0, target + flag_offset, 2);
@@ -4084,7 +4084,7 @@ void func_001cb610(u8 *arg0)
                     (*(f32 *)(temp17 + 0x8C) *
                      *(f32 *)(temp17 + 0x2C));
     work.center.y = work.center.y + 10.0f;
-    func_003dcb40((RwV3d *)&work.direction, (const RwV3d *)D_0060A100, 1,
+    RtQuatTransformVectors((RwV3d *)&work.direction, (const RwV3d *)D_0060A100, 1,
                   (const RtQuat *)(temp17 + 0x1C));
     work.scaled.x = work.direction.x * 200.0f;
     work.scaled.y = work.direction.y * 200.0f;
@@ -4094,9 +4094,9 @@ void func_001cb610(u8 *arg0)
     work.direction.x = (work.center.x + work.scaled.x) - work.center.x;
     work.direction.y = y - work.center.y;
     work.direction.z = (work.center.z + work.scaled.z) - work.center.z;
-    func_003e40b0((RwV3d *)&work.direction, (const RwV3d *)&work.direction);
+    RwV3dNormalize((RwV3d *)&work.direction, (const RwV3d *)&work.direction);
     rotationAngle = 30.0f;
-    func_003e0870((RwMatrix *)&work.rotation, (const RwV3d *)D_0060A0E0, 0.5f * -rotationAngle, 0);
+    RwMatrixRotate((RwMatrix *)&work.rotation, (const RwV3d *)D_0060A0E0, 0.5f * -rotationAngle, 0);
     func_003e4320((RwV3d *)&work.scaled, (const RwV3d *)&work.direction, (const RwMatrix *)&work.rotation);
     angleScale = 115.0f /
                  tanf(fGpffff8110 *
@@ -4109,7 +4109,7 @@ void func_001cb610(u8 *arg0)
     work.firstPosition.z = work.center.z + work.scaled.z;
     func_001bd780(work.firstView, &work.firstPosition, &work.center,
                   D_0060A0E0);
-    func_003e0870((RwMatrix *)&work.rotation, (const RwV3d *)D_0060A0E0, 15.0f, 0);
+    RwMatrixRotate((RwMatrix *)&work.rotation, (const RwV3d *)D_0060A0E0, 15.0f, 0);
     func_003e4320((RwV3d *)&work.scaled, (const RwV3d *)&work.direction, (const RwMatrix *)&work.rotation);
     angleScale = 165.0f /
                  tanf(fGpffff8110 *
@@ -4177,7 +4177,7 @@ void func_001cb970(u8 *camera, f32 duration, s32 initialize)
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *first, P4Vec4Holder_001EC2B0 *second);
     extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
-    extern f32 func_0044b868(f32 angle);
+    extern f32 tanf(f32 angle);
     extern void func_001bd5e0(f32 *out, f32 *in);
     extern void func_001bd560(f32 *out, f32 *in);
     extern f32 fGpffff80dc;
@@ -4257,7 +4257,7 @@ void func_001cb970(u8 *camera, f32 duration, s32 initialize)
         eye.z = (baseZ + 0.0f) + direction.x * sideRadius;
     }
     func_001bd780(&poses[1].rot, &eye, &focus, D_0060A0E0);
-    func_003dcb40(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&poses[1].rot);
+    RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&poses[1].rot);
     geometry.focusXZ[0] = focus.x;
     geometry.focusXZ[1] = focus.z;
     geometry.eyeXZ[0] = eye.x;
@@ -4269,7 +4269,7 @@ void func_001cb970(u8 *camera, f32 duration, s32 initialize)
     eye.x = projectedXZ[0];
     eye.y = baseY;
     eye.z = projectedXZ[1];
-    tanHalfFov = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+    tanHalfFov = tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
     distance = projectedRadius / tanHalfFov;
     if (distance < 500.0f) distance = 500.0f;
     direction.x *= distance;
@@ -4448,7 +4448,7 @@ void func_001ce8c0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
         frame.diff[0] = *(f32 *)(arg0 + 0x104) - frame.target[0];
         frame.diff[1] = *(f32 *)(arg0 + 0x108) - frame.target[1];
         frame.diff[2] = *(f32 *)(arg0 + 0x10C) - frame.target[2];
-        scale = fGpffff8100 * func_003e40b0((RwV3d *)frame.diff, (const RwV3d *)frame.diff);
+        scale = fGpffff8100 * RwV3dNormalize((RwV3d *)frame.diff, (const RwV3d *)frame.diff);
         frame.diff[0] *= scale;
         frame.diff[1] *= scale;
         frame.diff[2] *= scale;
@@ -4462,7 +4462,7 @@ void func_001ce8c0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
             *(f32 *)(arg0 + 0x108) - frame.target[1];
         *(f32 *)(arg0 + 0x118) =
             *(f32 *)(arg0 + 0x10C) - frame.target[2];
-        func_003e40b0((RwV3d *)(arg0 + 0x110),
+        RwV3dNormalize((RwV3d *)(arg0 + 0x110),
                       (const RwV3d *)(arg0 + 0x110));
         *(s32 *)(arg0 + 0x120) = 0;
     }
@@ -4528,7 +4528,7 @@ loop_test:
                         }
 search_done:
                         if (check == count) {
-                            func_00194fa0(*(u8 **)(current + 0x30), 2,
+                            btlUnitSetFlags(*(u8 **)(current + 0x30), 2,
                                           count, iGpffffb3ac, index);
                             *(s8 *)(*(u8 **)(current + 0x30) + 0x37) = 0;
                         }
@@ -4544,7 +4544,7 @@ void func_001cecb0(u8 *arg0) {
     func_001ce8c0(arg0, -16.0f, fGpffff8198, fGpffff80fc);
 }
 // FUN_001CECE0
-void func_001cece0(u8 *arg0)
+void btlAct_ROUNDUP_MES(u8 *arg0)
 {
     struct Frame {
         u8 first[0x1C];
@@ -4569,7 +4569,7 @@ void func_001cece0(u8 *arg0)
     *(f32 *)(frame.second + 0x18) = frame.source[0] - frame.target[0];
     *(f32 *)(frame.second + 0x1C) = frame.source[1] - frame.target[1];
     *(f32 *)(frame.second + 0x20) = frame.source[2] - frame.target[2];
-    length = func_003e40b0((RwV3d *)(frame.second + 0x18),
+    length = RwV3dNormalize((RwV3d *)(frame.second + 0x18),
                            (const RwV3d *)(frame.second + 0x18));
     length += (*(f32 *)(work + 0x90) * *(f32 *)(work + 0x2C) * 5.0f) /
               tanf(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
@@ -4636,10 +4636,10 @@ void func_001cf070(u8 *arg0, u8 *arg1)
     target = arg1;
     switch (mode) {
     case 1:
-        target = (u8 *)&D_005F78C0 + (func_004bd050(0) & 1) * 0xF4;
+        target = (u8 *)&D_005F78C0 + (effMiscRand(0) & 1) * 0xF4;
         break;
     case 0:
-        target = (u8 *)&D_005F7AB0 + (func_004bd050(0) & 1) * 0xF4;
+        target = (u8 *)&D_005F7AB0 + (effMiscRand(0) & 1) * 0xF4;
         break;
     }
     func_001bdd80(arg0, target, 2);
@@ -4685,11 +4685,11 @@ void func_001cf1f0(u8 *arg0)
         f32 vec90[4];
     } frame;
 
-    func_00195850(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
+    btlUnitGetSphereWorldCenter(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
                   &frame.vec90[0]);
     frame.vec90[1] = 0.0f;
-    func_003e0870((RwMatrix *)(u8 *)&frame, (const RwV3d *)D_0060A0D0, -30.0f, 0);
-    func_003e0870((RwMatrix *)(u8 *)&frame, (const RwV3d *)D_0060A0E0,
+    RwMatrixRotate((RwMatrix *)(u8 *)&frame, (const RwV3d *)D_0060A0D0, -30.0f, 0);
+    RwMatrixRotate((RwMatrix *)(u8 *)&frame, (const RwV3d *)D_0060A0E0,
                   *(f32 *)(arg0 + 0x100), 2);
     func_003e4320((RwV3d *)(u8 *)&frame.vec80[0], (const RwV3d *)(&D_0060A0F0), (const RwMatrix *)(u8 *)&frame);
     frame.vec60[0] = func_001c_mul_add(frame.vec80[0],
@@ -4771,7 +4771,7 @@ void func_001cf350(u8 *arg0)
     frame.sp100 = frame.sp110 - frame.spD0;
     frame.sp104 = frame.sp114 - frame.spD4;
     frame.sp108 = frame.sp118 - frame.spD8;
-    temp_f1 = 0.25f * func_003e40b0((RwV3d *)&frame.sp100, (const RwV3d *)&frame.sp100);
+    temp_f1 = 0.25f * RwV3dNormalize((RwV3d *)&frame.sp100, (const RwV3d *)&frame.sp100);
     frame.spF0 = frame.sp100 * temp_f1;
     frame.spF4 = frame.sp104 * temp_f1;
     frame.spF8 = frame.sp108 * temp_f1;
@@ -4781,9 +4781,9 @@ void func_001cf350(u8 *arg0)
     var_f21 = var_f21 * fGpffff80e8;
     temp_f20 = var_f21 / tanf(fGpffff8110 *
                                          (0.5f * *(f32 *)(arg0 + 0xB8)));
-    func_003e0870((RwMatrix *)frame.sp80, (const RwV3d *)D_0060A0D0, 32.5f, 0);
+    RwMatrixRotate((RwMatrix *)frame.sp80, (const RwV3d *)D_0060A0D0, 32.5f, 0);
     func_003e4320((RwV3d *)&frame.spF0, (const RwV3d *)D_0060A100, (const RwMatrix *)frame.sp80);
-    func_003dcb40((RwV3d *)&frame.sp100, (const RwV3d *)&frame.spF0, 1,
+    RtQuatTransformVectors((RwV3d *)&frame.sp100, (const RwV3d *)&frame.spF0, 1,
                   (const RtQuat *)(work + 0x1C));
     frame.sp110 = frame.sp100 * var_f21;
     frame.sp114 = frame.sp104 * var_f21;
@@ -4792,7 +4792,7 @@ void func_001cf350(u8 *arg0)
     frame.sp114 = frame.sp114 + frame.spD4;
     frame.sp118 = frame.sp118 + frame.spD8;
     func_001bd780(&frame.sp68, &frame.sp110, &frame.spE0, D_0060A0E0);
-    func_003dcb40((RwV3d *)&frame.spF0, (const RwV3d *)D_0060A100, 1,
+    RtQuatTransformVectors((RwV3d *)&frame.spF0, (const RwV3d *)D_0060A100, 1,
                   (const RtQuat *)&frame.sp68);
     frame.sp100 = frame.spF0 * temp_f20;
     frame.sp104 = frame.spF4 * temp_f20;
@@ -4834,7 +4834,7 @@ void func_001cf350(u8 *arg0)
     func_001bbef0(arg0, 3.0f);
 }
 // FUN_001CF730
-void func_001cf730(u8 *arg0)
+void btlAct_ALL(u8 *arg0)
 {
     struct {
         f32 sp40;
@@ -4895,7 +4895,7 @@ void func_001cf730(u8 *arg0)
     frame.sp100 = frame.sp110 - frame.spD0;
     frame.sp104 = frame.sp114 - frame.spD4;
     frame.sp108 = frame.sp118 - frame.spD8;
-    temp_f1 = DAT_0076112c * func_003e40b0((RwV3d *)&frame.sp100, (const RwV3d *)&frame.sp100);
+    temp_f1 = DAT_0076112c * RwV3dNormalize((RwV3d *)&frame.sp100, (const RwV3d *)&frame.sp100);
     frame.spF0 = frame.sp100 * temp_f1;
     frame.spF4 = frame.sp104 * temp_f1;
     frame.spF8 = frame.sp108 * temp_f1;
@@ -4909,13 +4909,13 @@ void func_001cf730(u8 *arg0)
                                           (0.5f * *(f32 *)(arg0 + 0xB8)));
     func_001c_rotate((RwMatrix *)frame.sp80, (const RwV3d *)D_0060A0D0, 35.0f, 0);
     func_003e4320((RwV3d *)&frame.spF0, (const RwV3d *)D_0060A100, (const RwMatrix *)frame.sp80);
-    func_003dcb40((RwV3d *)&frame.sp100, (const RwV3d *)&frame.spF0, 1,
+    RtQuatTransformVectors((RwV3d *)&frame.sp100, (const RwV3d *)&frame.spF0, 1,
                   (const RtQuat *)(work + 0x1C));
     frame.sp110 = frame.sp100 * var_f21;
     frame.sp114 = frame.sp104 * var_f21;
     frame.sp118 = frame.sp108 * var_f21;
     func_001bd780(&frame.sp68, &frame.sp110, &frame.spE0, D_0060A0E0);
-    func_003dcb40((RwV3d *)&frame.spF0, (const RwV3d *)D_0060A100, 1,
+    RtQuatTransformVectors((RwV3d *)&frame.spF0, (const RwV3d *)D_0060A100, 1,
                   (const RtQuat *)&frame.sp68);
     temp_f1 = 50.0f + temp_f20;
     frame.sp100 = frame.spF0 * temp_f1;
@@ -4975,7 +4975,7 @@ void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2)
     extern f32 fGpffff810c;
 
     unit = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
-    status = func_00232710(*(s32 *)(unit + 0xA64), 0x100000);
+    status = datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100000);
     func_001959d0((BtlUnit *)unit, (RwV3d *)work.center);
     if (status == 0) {
         work.center[1] = 0.0f + work.center[1] + fGpffff810c *
@@ -4984,7 +4984,7 @@ void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2)
         work.center[1] = 0.0f + work.center[1] - fGpffff810c *
                          (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
     }
-    func_003dcb40((RwV3d *)work.direction, (const RwV3d *)(&D_0060A0F0), 1,
+    RtQuatTransformVectors((RwV3d *)work.direction, (const RwV3d *)(&D_0060A0F0), 1,
                   (const RtQuat *)(unit + 0x1C));
     work.scaled[0] = 200.0f * work.direction[0];
     work.scaled[1] = 200.0f * work.direction[1];
@@ -4994,7 +4994,7 @@ void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2)
     work.direction[0] = (work.center[0] + work.scaled[0]) - work.center[0];
     work.direction[1] = y - work.center[1];
     work.direction[2] = (work.center[2] + work.scaled[2]) - work.center[2];
-    func_003e40b0((RwV3d *)work.direction, (const RwV3d *)work.direction);
+    RwV3dNormalize((RwV3d *)work.direction, (const RwV3d *)work.direction);
     extent = *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
     if (extent < 75.0f) {
         extent = 75.0f;
@@ -5046,11 +5046,11 @@ void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2)
     func_001bbef0(arg0, 3.0f);
 }
 // FUN_001CFED0
-void func_001cfed0(u8 *arg0) {
+void btlAct_ENEMY_ALL(u8 *arg0) {
     func_001cfad0(arg0, fGpffff8114, 2.5f);
 }
 // FUN_001CFF00
-void func_001cff00(u8 *arg0)
+void btlAct_TARGET_ONLY(u8 *arg0)
 {
     struct Vec3 {
         f32 x;
@@ -5074,7 +5074,7 @@ void func_001cff00(u8 *arg0)
 
     func_001bd560(fr.first, arg0 + 0x9C);
     work = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
-    func_00195850(work, (f32 *)&target);
+    btlUnitGetSphereWorldCenter(work, (f32 *)&target);
     target.y = *(f32 *)(work + 0x84) * *(f32 *)(work + 0x2C);
     speed = *(f32 *)(work + 0x90) * *(f32 *)(work + 0x2C);
     half_speed = (*(f32 *)(work + 0x8C) * *(f32 *)(work + 0x2C)) * 0.5f;
@@ -5094,7 +5094,7 @@ void func_001cff00(u8 *arg0)
         fr.first[1] - source.y;
     *(f32 *)(fr.second + 0x20) =
         fr.first[2] - source.z;
-    length = func_003e4180((f32 *)(fr.second + 0x18));
+    length = RwV3dLength((f32 *)(fr.second + 0x18));
     length *= fGpffff811c;
     *(f32 *)(fr.second + 0x18) =
         fr.first[0] - source.x;
@@ -5102,7 +5102,7 @@ void func_001cff00(u8 *arg0)
         fr.first[1] - source.y;
     *(f32 *)(fr.second + 0x20) =
         fr.first[2] - source.z;
-    func_003e40b0((RwV3d *)(fr.second + 0x18),
+    RwV3dNormalize((RwV3d *)(fr.second + 0x18),
                   (const RwV3d *)(fr.second + 0x18));
     x = *(f32 *)(fr.second + 0x18) *
         ((scale > length) ? scale : length);

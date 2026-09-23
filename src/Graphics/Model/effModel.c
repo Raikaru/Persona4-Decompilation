@@ -23,7 +23,7 @@ extern s32 func_00479ca0(void *arg0, s32 arg1);
 extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
 extern void func_00478eb0(void *arg0, void (*arg1)(void), void *arg2);
 extern void func_004787e0(u32 arg0);
-extern void func_0043f810(void *arg0, void *arg1, s32 arg2);
+extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern char D_007144A8[];
 extern void *func_004abe80(u8 *arg0);
@@ -83,7 +83,7 @@ void *func_004abe80(u8 *arg0) {
 
     func_0044ea90(D_007144B8, 0x171);
     temp_2 = (u8 *)jtbl_008873E8[0](0x9C, 0x40000);
-    func_0043f9c8(temp_2, 0, 0x9C);
+    memset(temp_2, 0, 0x9C);
     if (temp_2 == NULL) {
         func_0046d730(D_007144A8, 0x73);
     }
@@ -98,7 +98,7 @@ void *func_004abe80(u8 *arg0) {
         if (temp_2_2 == NULL) {
             func_0046d730(D_007144A8, 0x83);
         }
-        func_0043f810(temp_2 + 0x2C, temp_2_2, 0x68);
+        memcpy(temp_2 + 0x2C, temp_2_2, 0x68);
         temp_2_3 = func_004844d0(arg0);
         if (temp_2_3 != 0) {
             if (*(u16 *)(arg0 + 0x1C) != 3) {
@@ -138,7 +138,7 @@ void *func_004ac100(void *arg0)
     void *work;
 
     work = func_004abe80(0);
-    func_0043f810((u8 *)work + 0x2C, (u8 *)arg0 + 0x2C, 0x68);
+    memcpy((u8 *)work + 0x2C, (u8 *)arg0 + 0x2C, 0x68);
     func_004ac170(work, arg0);
     return work;
 }
@@ -190,11 +190,11 @@ extern void func_004accc0(u8 *arg0);
 extern char D_007144B8[];
 extern void func_0047a850(void *arg0);
 extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-extern void func_0047a220(void *arg0, s32 *arg1);
+extern void mdlSetColor(void *arg0, s32 *arg1);
 extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
 extern void func_0048a150(void *arg0, void *arg1);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
-extern void func_0047a1e0(void *arg0, f32 *arg1, s32 arg2);
+extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void func_0047aa30(void *arg0, s32 arg1);
 extern s32 func_00481450(void);
@@ -269,7 +269,7 @@ void func_004ac300(s32 arg0, u8 *arg1)
             : "r"(&spB4), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
         spBC = *(s32 *)&spB0;
-        func_0047a220(*(u8 **)(arg1 + 0x94), &spBC);
+        mdlSetColor(*(u8 **)(arg1 + 0x94), &spBC);
         temp_f20 = func_0048aff0(arg1 + 0x60, temp_17, temp_16) / 10.0f;
         func_0048a150(sp60, arg1 + 0x10);
         func_0047a1c0(*(u8 **)(arg1 + 0x94), sp60, 0);
@@ -277,7 +277,7 @@ void func_004ac300(s32 arg0, u8 *arg1)
         spA0[2] = temp_f0;
         spA0[1] = temp_f0;
         spA0[0] = temp_f0;
-        func_0047a1e0(*(u8 **)(arg1 + 0x94), spA0, 2);
+        mdlScale(*(u8 **)(arg1 + 0x94), spA0, 2);
         spA0[0] = *(f32 *)(arg1 + 0);
         spA0[1] = *(f32 *)(arg1 + 4);
         spA0[2] = *(f32 *)(arg1 + 8);
@@ -350,7 +350,7 @@ u8 *func_004ac640(u8 *arg0) {
 
     func_0044ea90(D_007144B8, 0x171);
     temp_2 = (u8 *)jtbl_008873E8[0](0xBC, 0x40000);
-    func_0043f9c8(temp_2, 0, 0xBC);
+    memset(temp_2, 0, 0xBC);
     if (temp_2 == NULL) {
         func_0046d730(D_007144A8, 0x18A);
     }
@@ -360,7 +360,7 @@ u8 *func_004ac640(u8 *arg0) {
         if (temp_2_2 == NULL) {
             func_0046d730(D_007144A8, 0x196);
         }
-        func_0043f810(temp_2 + 0x10, temp_2_2, 0xA4);
+        memcpy(temp_2 + 0x10, temp_2_2, 0xA4);
         temp_2_3 = func_004844d0(arg0);
         if (temp_2_3 != 0) {
             if (*(u16 *)(arg0 + 0x1C) != 3) {
@@ -414,7 +414,7 @@ void *func_004ac930(void *arg0)
     void *work;
 
     work = func_004ac640(0);
-    func_0043f810((u8 *)work + 0x10, (u8 *)arg0 + 0x10, 0xA4);
+    memcpy((u8 *)work + 0x10, (u8 *)arg0 + 0x10, 0xA4);
     func_004ac9a0(work, arg0);
     return work;
 }

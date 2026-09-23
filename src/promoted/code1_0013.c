@@ -7,7 +7,7 @@ extern u32 func_00104ce0(s16 arg0);
 extern u32 func_00104d50(s16 arg0);
 extern s32 func_0013ca60(s16 arg0, s16 arg1, s32 arg2);
 extern s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
-extern u32 func_003b7060(void);
+extern u32 RpRandom(void);
 extern s32 func_0034c210(void);
 struct GDataEntry;
 extern struct GDataEntry *func_00106820(s16 arg0);
@@ -104,7 +104,7 @@ extern void func_00106390(s32 arg0, s32 arg1);
 extern void func_0010f770(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 extern s32 func_00354010(void);
 extern void func_0013aa90(u8 *arg0);
-extern void *func_0043f9c8(void *arg0, s32 arg1, u32 arg2);
+extern void *memset(void *arg0, s32 arg1, u32 arg2);
 extern s16 func_00353c10(s16 *arg0);
 extern s16 func_00353b50(s16 *arg0);
 extern s32 func_00167d90(u8 *arg0);
@@ -199,9 +199,9 @@ void func_00130430(u8 *arg0)
     u32 *q;
 
     for (i = 0; i < 0xC; i++) {
-        if (func_003b7060() & 3) {
+        if (RpRandom() & 3) {
             p = arg0 + i * 0x30;
-            val = (func_003b7060() % 6U) * 0x2C;
+            val = (RpRandom() % 6U) * 0x2C;
             if (val >= 0) {
                 f = (f32)val;
             } else {
@@ -215,7 +215,7 @@ void func_00130430(u8 *arg0)
             *(f32 *)(p + 0x188C) = *(f32 *)(p + 0x187C);
             *(s32 *)(p + 0x1884) = 0xC2C80000;
             q = (u32 *)(p + 0x18A0);
-            random = func_003b7060() % 10U;
+            random = RpRandom() % 10U;
             *q = random;
             *(s32 *)(p + 0x18A4) = random + 0xA;
         } else {
@@ -763,7 +763,7 @@ s32 func_00134be0(u8 *arg0) {
     struct ChangeRecord *change;
 
     count = 0;
-    func_0043f9c8(changes, 0, sizeof(changes));
+    memset(changes, 0, sizeof(changes));
     partyCount = func_00353b50(party);
     for (member = 0; member < *(s16 *)(arg0 + 0x48); member++) {
         id = *(s16 *)(arg0 + member * 2 + 0x38);
@@ -2925,7 +2925,7 @@ void func_0013fb50(u8 *arg0) {
     u8 *src;
     u8 *dst;
 
-    func_0043f9c8(arg0, 0, 0x18B0);
+    memset(arg0, 0, 0x18B0);
     *(s32 *)(arg0 + 4) = 0;
     *(s32 *)(arg0 + 8) = 0;
     *(u8 *)(arg0 + 0) = 0xFF;

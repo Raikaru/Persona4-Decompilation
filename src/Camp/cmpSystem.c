@@ -18,7 +18,7 @@ extern char D_0064E270[];
 
 s8 func_002bab80(void *);
 s32 func_003544f0(void);
-void func_0043f9c8(void *, s32, s32);
+void memset(void *, s32, s32);
 void *func_0046a770(char *);
 s32 func_0046d200(void *, u8);
 void func_0046d730(char *, s32);
@@ -45,7 +45,7 @@ void func_0035f5b0(u8 *arg0)
     u8 *p;
     u8 *src;
 
-    func_0043f9c8(arg0, 0, 0x708);
+    memset(arg0, 0, 0x708);
     *(s32 *)(arg0 + 4) = 0;
     *(s32 *)(arg0 + 8) = 0;
     *(u8 *)arg0 = 0xFF;
@@ -178,7 +178,7 @@ s32 func_0035fa20(u8 *arg0, u32 arg1)
         var_16 = &D_0064DB50[0];
         *(s32 *)(arg0 + 0x1C) = 0xC;
         *(s16 *)(arg0 + 0x34) = 0xF;
-        func_0043f9c8(arg0 + 0x5E8, 0, 0x6E);
+        memset(arg0 + 0x5E8, 0, 0x6E);
         break;
     case 4:
         var_16 = &D_0064DDA0[0];

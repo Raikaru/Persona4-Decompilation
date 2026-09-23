@@ -14,7 +14,7 @@ extern s32 D_00731C44[];
 extern s32 D_00731C74[];
 extern s32 D_0072B678;
 extern s8 D_0072B680;
-extern void func_0043f9c8(void *, s32, s32);
+extern void memset(void *, s32, s32);
 extern void func_004e0380(void);
 extern void func_004e0398(void);
 /* Measured: retail saves callee-saved $s registers with sd; MWCCPS2 3.0.1 emits sq;
@@ -46,7 +46,7 @@ void func_004e03b0(void) {
     func_004e0380();
     value = D_0072B678;
     if (value == 0) {
-        func_0043f9c8(&D_0072B680, 0, 0x6570);
+        memset(&D_0072B680, 0, 0x6570);
     }
     D_0072B678 = value + 1;
     func_004e0398();
@@ -62,7 +62,7 @@ void func_004e0408(void) {
     value = D_0072B678 - 1;
     D_0072B678 = value;
     if (value == 0) {
-        func_0043f9c8(&D_0072B680, 0, 0x6570);
+        memset(&D_0072B680, 0, 0x6570);
     }
     func_004e0398();
 }

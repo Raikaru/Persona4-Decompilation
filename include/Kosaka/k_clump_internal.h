@@ -33,8 +33,8 @@ extern s32 func_003bd060(void* object);
 extern s32 func_003bd070(RpUserDataArray* userData, s32 index);
 extern void* func_003bff30(void* object, KClumpCallback callback, void* data);
 extern void* func_003e9af0(void* object, KClumpCallback callback, void* data);
-extern s32 func_004426e8(const char* left, const char* right);
-extern char* func_00442830(char* destination, const char* source);
+extern s32 strcmp(const char* left, const char* right);
+extern char* strcpy(char* destination, const char* source);
 
 extern void* func_00457b60(void* object, void* data);
 extern void* func_00457e00(void* object, void* data);

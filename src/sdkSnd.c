@@ -167,13 +167,13 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 /* Shared SDK blob helpers. */
 extern void func_0043c0c0(s32, s32, s32, s32);
-extern void func_0043f9c8(void *, s32, s32);
+extern void memset(void *, s32, s32);
 extern void func_0044ea90(char *file, s32 line);
 
 extern void func_00440b68(s32 fmt, ...);
-extern s32 func_00442088(void *buf, void *fmt, ...);
-extern void func_00442830();
-extern void func_00454bd0(void *handle);
+extern s32 sprintf(void *buf, void *fmt, ...);
+extern void strcpy();
+extern void H_Cdvd_Destroy(void *handle);
 extern void func_00452080(s32 handle);
 extern void func_00452570(void *parent, void *child);
 extern void func_00456370(void*, const char*);
@@ -209,7 +209,7 @@ extern void func_004d9180(s32);
 extern void func_004d91b8(s32);
 extern void func_0046d730(void *file, s32 line);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
-extern void func_0050b3f8(void *);
+extern void mwPlyInitSfdFx(void *);
 
 extern u32 func_0045a890();
 extern void func_00459790(HsndSlotWork *slot);
@@ -236,11 +236,11 @@ void func_00458fa0(void)
     D_008D2B74[0] = 1;
     D_008D2B78[0] = 1;
     D_008D2B7C[0] = 0;
-    func_0050b3f8(D_008D2B70);
+    mwPlyInitSfdFx(D_008D2B70);
     func_004d8c78();
     func_004d90f8();
     func_004d5440(0x1E);
-    func_0043f9c8(&D_008D2A60, 0, 0x28);
+    memset(&D_008D2A60, 0, 0x28);
     D_008D2A74[0] = 1;
     LD32(D_008D2A78, 0) = 0;
     LD32(D_008D2A80, 0) = 0;
@@ -265,7 +265,7 @@ void func_00458fa0(void)
     func_004d9180(0xB4);
     func_004d8f70(CH_HANDLE(0), 0xA);
     func_00440b68((s32)D_00712250, temp);
-    func_0043f9c8(&D_008D2A88, 0, 0x28);
+    memset(&D_008D2A88, 0, 0x28);
     D_008D2A9C[0] = 2;
     LD32(D_008D2AA0, 0) = 0;
     LD32(D_008D2AA8, 0) = 0;
@@ -280,7 +280,7 @@ void func_00458fa0(void)
     D_008D2B34[0] = temp;
     LD32(D_008D2CD4, 0) = 0;
     func_00440b68((s32)D_00712270, temp);
-    func_0043f9c8(&D_008D2AB0, 0, 0x28);
+    memset(&D_008D2AB0, 0, 0x28);
     D_008D2AC4[0] = 3;
     LD32(D_008D2AC8, 0) = 0;
     LD32(D_008D2AD0, 0) = 0;
@@ -295,7 +295,7 @@ void func_00458fa0(void)
     D_008D2B38[0] = temp;
     LD32(D_008D2E08, 0) = 0;
     func_00440b68((s32)D_00712290, temp);
-    func_0043f9c8(&D_008D2AD8, 0, 0x28);
+    memset(&D_008D2AD8, 0, 0x28);
     D_008D2AEC[0] = 3;
     LD32(D_008D2AF0, 0) = 0;
     LD32(D_008D2AF8, 0) = 0;
@@ -512,7 +512,7 @@ s32 func_00459ad0(s32 arg0)
     if (arg0 == 0)
     {
         func_004d8e38(CH_HANDLE(0), -0x3C);
-        func_00442088(path, &D_00764000,
+        sprintf(path, &D_00764000,
                      LD32(D_007118B4,
                           LD16(D_008D2B98, SND_IDX(arg0)) * 0xC));
         if (func_004d8dc0(CH_HANDLE(0)) != 0)
@@ -765,7 +765,7 @@ s32 func_0045a3e0(s16 arg0)
         LD16(D_008D2B98, 0) = arg0;
         LD16(D_008D2BA6, 0) = LD16(D_008D2BA4, 0);
         LD16(D_008D2BA4, 0) = 0;
-        func_00442088(&D_008D2BA8[0], &D_00764008, LD32(D_007118B4, x * 0xC));
+        sprintf(&D_008D2BA8[0], &D_00764008, LD32(D_007118B4, x * 0xC));
         func_00459ad0(0);
     }
     return 1;
@@ -1042,7 +1042,7 @@ s32 func_0045aeb0(s16 arg0, const char * arg1)
         LD16(D_008D2B9C, SND_IDX(arg0)) = 0;
         LD16(D_008D2BA6, SND_IDX(arg0)) = LD16(D_008D2BA4, SND_IDX(arg0));
         LD16(D_008D2BA4, SND_IDX(arg0)) = 0;
-        func_00442830((u8 *)ch + 0x18, arg1, ch, SND_IDX(arg0));
+        strcpy((u8 *)ch + 0x18, arg1, ch, SND_IDX(arg0));
         func_00459ad0(arg0);
     }
     return 1;
@@ -1141,7 +1141,7 @@ void func_0045b120(u8 *arg0)
     w = *(u8 **)((u8 *)arg0 + 0x38);
     if (*(s32 *)(w + 0x114) != 0)
     {
-        func_00454bd0(*(void **)(w + 0x114));
+        H_Cdvd_Destroy(*(void **)(w + 0x114));
         *(s32 *)(w + 0x114) = 0;
     }
     jtbl_008873EC[0](w);
@@ -1186,7 +1186,7 @@ s32 func_0045b1c0(void *arg0, s32 arg1, s32 arg2, void *arg3)
     func_00452570(arg0, (void *)h);
     *(s32 *)(p + 4) = arg1;
     *(s32 *)(p + 0x110) = arg2;
-    func_00442830((s32)(p + 0x10), (s32)arg3);
+    strcpy((s32)(p + 0x10), (s32)arg3);
     return h;
 }
 
@@ -1207,13 +1207,13 @@ s32 func_0045b2e0(s32 arg0)
     {
         return 1;
     }
-    func_00442088(buf, &D_00764010, LD32(D_00711F24, arg0 * 0xC));
+    sprintf(buf, &D_00764010, LD32(D_00711F24, arg0 * 0xC));
     D_008D2F2C[0] = 1;
     D_008D2F34[0] = 0;
     D_008D2F38[0] = 0;
     D_008D2F42[0] = D_008D2F40[0];
     D_008D2F40[0] = 6;
-    func_00442830(&D_008D2F44[0], (char *)buf);
+    strcpy(&D_008D2F44[0], (char *)buf);
     func_00459ad0(3);
     if (arg0 <= 0)
     {

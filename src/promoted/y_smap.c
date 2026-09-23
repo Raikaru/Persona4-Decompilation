@@ -31,10 +31,10 @@ extern char D_0063F0F0[];
 extern u8 *func_00457120(void);
 extern u8 *func_00461390(void *a, s32 b, void *c, s32 d);
 extern u8 *func_0046d200(s32 a, s32 b);
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void memset(void *dst, s32 value, u32 size);
 extern char D_0063EFD8[];
-extern void func_003f6440(s32 a, s32 b);
-extern s32 func_00442088(void *dst, const char *fmt, s32 value);
+extern void RpSkyRenderStateSet(s32 a, s32 b);
+extern s32 sprintf(void *dst, const char *fmt, s32 value);
 extern u8 *func_003ef6d0(void);
 extern s32 *func_003ef650(u8 *a, void *b);
 extern char D_0063EFF0[];
@@ -55,8 +55,8 @@ extern void func_0044ea90(void *msg, s32 id);
 extern void func_00460ac0(void *param, void *work);
 extern void func_00440b68();
 extern u8 *func_00454a60(u8 *param, s32 mode);
-extern void func_00454bd0(u8 *ptr);
-extern s32 func_004553c0(u8 *ptr);
+extern void H_Cdvd_Destroy(u8 *ptr);
+extern s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 extern s32 func_0046a750(s32 param);
 extern s32 func_0046aea0(const u8 *name);
 extern void func_0046d280(void *node);
@@ -78,7 +78,7 @@ typedef struct YRGBA { u8 a, b, c, d; } YRGBA;
 /* func_002afbc0 callees */
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern void func_002b2bd0(f32 *, s64, f32, f32, f32, f32);
-extern s32 func_00106330(s32);
+extern s32 datGetFlag(s32);
 extern u8 *func_00155280(void);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern void func_002b0b10(u8 *arg0, YVec2f arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, f32 fparg3, s32 arg3, s8 arg4, s32 arg5);
@@ -170,7 +170,7 @@ s32 func_002ac400(u8 *arg0) {
         *(s8 *)(p + 4) += 1;
         break;
     case 3:
-        if (func_004553c0(*(u8 **)p) != 0) {
+        if (H_Cdvd_IsFileLoaded(*(u8 **)p) != 0) {
             *(s32 *)(p + 8) = func_004667d0(0, D_0063EFB0, 0, 0, 0, 0, 0, 0, 0, 0);
             *(s8 *)(p + 4) += 1;
         }
@@ -179,7 +179,7 @@ s32 func_002ac400(u8 *arg0) {
         D_00764648 = func_004669d0(*(s32 *)(p + 8), &x, 0);
         if (x != 0) {
             *(s32 *)(p + 8) = 0;
-            func_00454bd0(*(u8 **)p);
+            H_Cdvd_Destroy(*(u8 **)p);
             return -1;
         }
         break;
@@ -1083,7 +1083,7 @@ u8 *func_002ae630(u8 *arg0) {
     extern s32 func_002b4140(s32, s8, u8 *);
     extern s32 func_002b4fe0(s32, s64, s32);
     extern s32 func_002b6590(s32, s16, s32);
-    extern void *func_0047a2f0(s32);
+    extern void *mdlGetMatrix(s32);
     extern u8 *func_001452b0(s32);
     extern s32 func_002add90(u8 *);
     extern void func_002ae520(u8 *);
@@ -1269,7 +1269,7 @@ u8 *func_002ae630(u8 *arg0) {
     *(s32 *)(blk + 0xD4) = 0;
     *(s32 *)(blk + 0xD0) = 0;
     while (node != NULL) {
-        v2 = func_0047a2f0(*(s32 *)(node + 0x164));
+        v2 = mdlGetMatrix(*(s32 *)(node + 0x164));
         *(s32 *)(blk + idx * 4 + 0xD0) = func_002b4140((s32)res, (s8)idx, (u8 *)(v2 + 0x30));
         idx++;
         node = *(u8 **)(node + 0x138);
@@ -1505,11 +1505,11 @@ s32 func_002afbc0(u8 *arg0) {
     if (D_0076464C == 0) {
         return 0;
     }
-    if (func_00106330(0x1417) != 0) {
+    if (datGetFlag(0x1417) != 0) {
         return 0;
     }
     if (cell->mode == 0) {
-        if (func_00106330(0x1416) == 0) {
+        if (datGetFlag(0x1416) == 0) {
             if (cell->visible == 0) {
                 return 0;
             }
@@ -1522,7 +1522,7 @@ s32 func_002afbc0(u8 *arg0) {
         if (cell->hasIcon == 1) {
             visibilityRow = ((*(u8 *)(func_00155280() + 0x47) + cell->visibilityRowOffset) & 0xFF);
             visibilityColumn = ((*(u8 *)(func_00155280() + 0x46) + cell->visibilityColumnOffset) & 0xFF);
-            if (func_00106330(0x1416) == 0) {
+            if (datGetFlag(0x1416) == 0) {
                 showIcon = (s8)(((1 << (visibilityColumn & 0xFF)) & 0xFFFF & ((u16 *)D_00764658)[visibilityRow & 0xFF]) >> (visibilityColumn & 0xFF));
             } else {
                 showIcon = 1;
@@ -1534,7 +1534,7 @@ s32 func_002afbc0(u8 *arg0) {
         func_002b0b10(task, cell->position, cell->width, cell->height, 60008.0f, cell->origin, cell->scale, color, cell->orientation, 0x50);
         cell->pendingDraw = 0;
     } else if (cell->mode == 1) {
-        if (func_00106330(0x1416) == 0) {
+        if (datGetFlag(0x1416) == 0) {
             if (cell->visible == 0) {
                 return 0;
             }
@@ -1544,7 +1544,7 @@ s32 func_002afbc0(u8 *arg0) {
         if (cell->hasIcon == 1) {
             visibilityRow = ((*(u8 *)(func_00155280() + 0x47) + cell->visibilityRowOffset) & 0xFF);
             visibilityColumn = ((*(u8 *)(func_00155280() + 0x46) + cell->visibilityColumnOffset) & 0xFF);
-            if (func_00106330(0x1416) == 0) {
+            if (datGetFlag(0x1416) == 0) {
                 showIcon = (s8)(((1 << (visibilityColumn & 0xFF)) & 0xFFFF & ((u16 *)D_00764658)[visibilityRow & 0xFF]) >> (visibilityColumn & 0xFF));
             } else {
                 showIcon = 1;
@@ -1742,8 +1742,8 @@ void func_002b07a0(u8 *arg0, u8 *arg1) {
     ((void (**)(s32, s32))fp)[0](2, 3);
     ((void (**)(s32, s32))fp)[0](0xB, 6);
     ((void (**)(s32, s32))fp)[0](0xA, 5);
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x717FB);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x717FB);
     if (*(u8 *)(arg1 + 5) == 3) {
         *(f32 *)(arg1 + 0x50) = *(f32 *)(arg1 + 0x24);
         *(f32 *)(arg1 + 0x54) = *(f32 *)(arg1 + 0x20);
@@ -1769,43 +1769,43 @@ void func_002b07a0(u8 *arg0, u8 *arg1) {
             switch (v) {
             case 9:
             case 10:
-                func_00442088(buf, D_0063EFF0, v);
+                sprintf(buf, D_0063EFF0, v);
                 break;
             case 11:
             case 12:
-                func_00442088(buf, D_0063F010, v);
+                sprintf(buf, D_0063F010, v);
                 break;
             case 13:
             case 14:
-                func_00442088(buf, D_0063EFF0, v);
+                sprintf(buf, D_0063EFF0, v);
                 break;
             }
         } else if (*(u8 *)(arg1 + 5) == 3) {
-            func_00442088(buf, D_0063EFF0, v);
+            sprintf(buf, D_0063EFF0, v);
         } else {
             switch (v) {
             case 9:
             case 10:
-                func_00442088(buf, D_0063F030, v);
+                sprintf(buf, D_0063F030, v);
                 break;
             case 11:
             case 12:
-                func_00442088(buf, D_0063F050, v);
+                sprintf(buf, D_0063F050, v);
                 break;
             case 13:
             case 14:
-                func_00442088(buf, D_0063F070, v);
+                sprintf(buf, D_0063F070, v);
                 break;
             }
         }
     } else if (v == 2) {
         if (*(u8 *)(arg1 + 5) == 1) {
-            func_00442088(buf, D_0063F090, v);
+            sprintf(buf, D_0063F090, v);
         } else {
-            func_00442088(buf, D_0063F0B0, v);
+            sprintf(buf, D_0063F0B0, v);
         }
     } else {
-        func_00442088(buf, D_0063F0D0, v);
+        sprintf(buf, D_0063F0D0, v);
     }
     ((void (**)(s32, s32))fp)[0](1, *(s32 *)func_003ef650(func_003ef6d0(), buf));
 }
@@ -2239,8 +2239,8 @@ void func_002b1520(s32 arg0, u8 *q) {
     ((void (*)(s32, s32))*(u32 *)base)(0xB, 6);
     ((void (*)(s32, s32))*(u32 *)base)(0xA, 5);
     ((void (*)(s32, s32))*(u32 *)base)(2, 4);
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x717FB);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x717FB);
     switch (*(s8 *)(q + 4)) {
     case 0:
     case 1:
@@ -2475,7 +2475,7 @@ void func_002b2290(u8 *arg0)
         q->e[k]->x = 312.0f;
         q->e[k]->y = -10.0f;
     }
-    func_0043f9c8(q->tail, 0, 0x30);
+    memset(q->tail, 0, 0x30);
     *(void (**)(s32, u8 *))(q->tail + 0x8) = func_002b1520;
     *(SmapWork **)(q->tail + 0x10) = q;
 }

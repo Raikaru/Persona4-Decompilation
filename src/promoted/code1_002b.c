@@ -55,7 +55,7 @@ extern s32 func_00106880(void);
 extern s32 func_002be1e0(s32 arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void func_00145080(void);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_00276e70(s32 arg0, s8 arg1);
 extern void func_00277250(s32 arg0);
 extern void func_00277ad0(s32 arg0, s32 arg1);
@@ -69,7 +69,7 @@ extern void func_002bbdd0(s32 arg0);
 extern void func_002bbe90(s64 arg0, s32 arg1);
 extern u32 func_002e7a60(void);
 extern u8 *func_002e2170(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_00442088();
+extern void sprintf();
 extern s64 func_001060b0(void);
 extern s32 func_00110d60(s16 arg0);
 extern s32 func_0046aea0(void *arg0);
@@ -80,8 +80,8 @@ extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
 extern f32 iGpffff82fc;
-extern f32 func_0044b610(f32 arg0);
-extern f32 func_0044b7b0(f32 arg0);
+extern f32 cosf(f32 arg0);
+extern f32 sinf(f32 arg0);
 extern s32 func_00106850(void);
 extern s32 func_00106ac0(s64 arg0);
 extern s64 func_00106af0(s64 arg0);
@@ -102,7 +102,7 @@ extern s32 func_00452380(void *arg0);
 extern u8 *func_00457120(void);
 extern s32 func_0014b450(void);
 extern f32 func_0014b4d0(void);
-extern void func_004577d0(void *arg0, f32 arg1);
+extern void K_View_SetFov(void *arg0, f32 arg1);
 extern u8 D_0063F3B0[];
 
 
@@ -112,12 +112,12 @@ extern s32 func_002b1210(u8 *arg0);
 extern f32 func_002b1260(s32 arg0, f32 fparg0);
 extern f32 func_002b1320(s32 arg0, f32 fparg0);
 extern void func_002b3ae0(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2);
-extern u8 *func_0047a2f0(u32 arg0);
+extern u8 *mdlGetMatrix(u32 arg0);
 extern u32 D_007EFA00[];
 extern u8 D_007EFA04[];
-extern void func_00442830(void *arg0, ...);
-extern void func_00442428(void *arg0, void *arg1);
-extern void func_00442de8(void *arg0, void *arg1, s32 arg2);
+extern void strcpy(void *arg0, ...);
+extern void strcat(void *arg0, void *arg1);
+extern void strncpy(void *arg0, void *arg1, s32 arg2);
 extern void func_00275980(void *arg0, void *arg1, s32 arg2);
 extern s32 func_00443010(u8 *arg0, u8 *arg1);
 extern s32 func_002b3520(u8 *arg0, s64 arg1);
@@ -215,11 +215,11 @@ f32 func_002b2aa0(s64 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
     case 0:
         return temp_f20 + ((fparg2 * (temp_f21 - temp_f20)) / fparg3);
     case 1:
-        temp_f0 = func_0044b7b0(p4_mul_left(fparg2, iGpffff82fc / (2.0f * fparg3)));
+        temp_f0 = sinf(p4_mul_left(fparg2, iGpffff82fc / (2.0f * fparg3)));
         temp_f2 = temp_f21 - temp_f20;
         return temp_f20 + temp_f2 * temp_f0;
     case 2:
-        temp_f0 = func_0044b610(p4_mul_left(fparg2, iGpffff82fc / (2.0f * fparg3)));
+        temp_f0 = cosf(p4_mul_left(fparg2, iGpffff82fc / (2.0f * fparg3)));
         temp_f2 = temp_f21 - temp_f20;
         return temp_f21 - temp_f2 * temp_f0;
     default:
@@ -606,10 +606,10 @@ u8 *func_002b32d0(u8 *arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4)
     s32 initial;
     s32 inner;
 
-    func_00442830(sp130);
-    func_00442830(sp1b0, arg2);
-    func_00442830(sp230, arg3);
-    func_00442830(sp2b0, arg4);
+    strcpy(sp130);
+    strcpy(sp1b0, arg2);
+    strcpy(sp230, arg3);
+    strcpy(sp2b0, arg4);
     initial = 0;
     while ((s16)initial < 0x40) {
         sp70[(s16)initial] = 0;
@@ -631,17 +631,17 @@ u8 *func_002b32d0(u8 *arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4)
                     inner = (s16)(inner + 1);
                 }
                 size = func_002b3520(arg0, (s8)outer);
-                func_00442de8(spf0, arg0, size);
+                strncpy(spf0, arg0, size);
                 func_00275980(spf0, spb0, 0x40);
-                func_00442428(sp70, spb0);
-                func_00442428(sp70, dest);
-                func_00442830(arg0, arg0 + size + offset);
+                strcat(sp70, spb0);
+                strcat(sp70, dest);
+                strcpy(arg0, arg0 + size + offset);
             } while (func_00443010(arg0, *entry) != 0);
         }
     }
     func_00275980(arg0, spb0, 0x40);
-    func_00442428(sp70, spb0);
-    func_00442830(arg0, sp70);
+    strcat(sp70, spb0);
+    strcpy(arg0, sp70);
     return arg0;
 }
 /* measured: object 504B/window 512B, nd 0. Retail hoists the nine tag-byte and
@@ -743,13 +743,13 @@ s32 func_002b3720(u8 *arg0)
         out.y = out.y - 2.0f;
     } else if (*(s8 *)(p + 0x20) == 1) {
         temp_f20 = ((f32)func_002b11c0(
-                        func_0047a2f0(D_007EFA00[0]) + 0x30) *
+                        mdlGetMatrix(D_007EFA00[0]) + 0x30) *
                     18.0f) + 172.0f;
         out.x = temp_f20 -
                 func_002b1260(*(s32 *)(*(u8 **)(D_007EFA04) + 0x220),
                               18.0f);
         temp_f20 = ((f32)func_002b1210(
-                        func_0047a2f0(D_007EFA00[0]) + 0x30) *
+                        mdlGetMatrix(D_007EFA00[0]) + 0x30) *
                     18.0f) + 9.0f;
         out.y = temp_f20 -
                 func_002b1320(*(s32 *)(*(u8 **)(D_007EFA04) + 0x220),
@@ -791,17 +791,17 @@ void func_002b5120(s32 arg0, u8 *arg1)
     base[0](0xC, 1);
     base[0](1, 0);
     if (*(s8 *)(arg1 + 0x184) == 1) {
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
         temp_5 = *(s8 *)(arg1 + 0x18C);
         switch (temp_5) {
         case 1:
-            func_003f6440(2, 0x48);
-            func_003f6440(3, 0x71801);
+            RpSkyRenderStateSet(2, 0x48);
+            RpSkyRenderStateSet(3, 0x71801);
             return;
         case 2:
-            func_003f6440(2, 0x42);
-            func_003f6440(3, 0x71801);
+            RpSkyRenderStateSet(2, 0x42);
+            RpSkyRenderStateSet(3, 0x71801);
             break;
         }
     }
@@ -2062,11 +2062,11 @@ s32 func_002bc9e0(u8 *arg0)
         temp_4 = *(s32 *)(temp_17 + 8);
         if (temp_4 == 0) {
             if (*(s32 *)(temp_17 + 4) == 0) {
-                func_00442088(sp40, &D_0063F340);
+                sprintf(sp40, &D_0063F340);
             } else if ((func_00110d60((s16)func_001060b0()) & 1) != 0) {
-                func_00442088(sp40, &D_0063F360, *(s32 *)(temp_17 + 4));
+                sprintf(sp40, &D_0063F360, *(s32 *)(temp_17 + 4));
             } else {
-                func_00442088(sp40, &D_0063F380, *(s32 *)(temp_17 + 4));
+                sprintf(sp40, &D_0063F380, *(s32 *)(temp_17 + 4));
             }
             *(s32 *)(temp_17 + 8) = func_0046aea0(sp40);
         } else if (func_0046a750(temp_4) != 0) {
@@ -2223,7 +2223,7 @@ s32 func_002bd8e0(u8 *arg0)
             }
             func_0045a3e0(0x15, 1);
             temp_17 = func_00457120();
-            func_004577d0(temp_17, func_0014b4d0());
+            K_View_SetFov(temp_17, func_0014b4d0());
             temp_17_2 = func_00457120();
             func_003e9cb0(*(s32 *)(temp_17_2 + 4), (void *)func_0014b450(), 0);
             *(s8 *)(temp_16 + 0) = 3;
@@ -2395,8 +2395,8 @@ void func_002be3c0(void)
     tbl[0](9, 2);
     tbl[0](2, 4);
     tbl[0](0xE, 0);
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x7100D);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x7100D);
 }
 // FUN_002BE4A0
 void func_002be4a0(void)

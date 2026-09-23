@@ -28,18 +28,17 @@ extern u32 func_0029cc00();
 extern void func_0029cf50();
 extern u8 *func_0029d050();
 
-extern s32 func_001d9b60(u8 *task, s32 mask);
-extern void func_001dacc0();
-extern void func_001da230();
-extern void func_001da270();
-extern void func_001da2b0();
-extern void func_001da2f0();
+extern s32 btlCond_MYBAD(u8 *task, s32 mask);
+extern void btlCond_MYID();
+extern void btlCond_MYHANSYA();
+extern void btlCond_MYKYUSYU();
+extern void btlCond_MYMUKOU();
 extern s32 func_001d9390();
 extern s32 func_00235520(s32 skill, u8 *source, u8 *target, s32 count, s32 hit, s32 relation, s32 options, s32 channel);
 extern void func_00233bb0(u32 arg0);
 extern s32 func_001d8cb0(u32 arg0, u8 *arg1);
 extern u32 func_001d8bc0(u8 *arg0);
-extern void func_001d9740();
+extern void btlCond_MYHP();
 extern s32 func_0023d8e0(u8 *unit, u16 command);
 extern s32 func_0023d6e0(s16 index);
 extern s8 func_00233a90(u8 *unit, s32 status);
@@ -58,7 +57,7 @@ extern u32 func_00233880(u32 arg0, u32 arg1);
 extern u32 func_00231d70(u32 arg0);
 extern s32 func_001ef720(s32 arg0, s32 arg1);
 extern s32 func_001ef4d0(s32 arg0, s32 arg1);
-extern u32 func_00231ed0(u32 arg0);
+extern u32 datCalcGetHp(u32 arg0);
 extern u32 func_002340c0();
 extern s32 func_00242800(u8 *unit, s32 index);
 extern void func_001de640(u8 *a, u8 *b, u16 c);
@@ -90,7 +89,7 @@ extern s32 func_001dd570(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 func_001dbf20(u8 *arg0, u32 arg1);
 extern char D_006095E0[];
 extern void func_0046d730(void *file, s32 line);
-extern u32 func_00232710(s32 unit, u32 mask);
+extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
 extern s32 func_00232730(u8 *unit, s32 command);
 extern s32 func_0023ddc0(u8 *unit, s32 command);
 extern u8 *iGpffffb3ac;
@@ -99,14 +98,14 @@ extern void func_001ebc00(u8 *a, u8 *b);
 extern s32 func_0023dfe0(u8 *unit);
 extern s32 func_0023dff0(u8 *arg0);
 extern u32 func_00231e20(u32 arg0);
-extern s32 func_002428f0(u32 arg0, u32 arg1);
+extern s32 datCalcIsDead(u32 arg0, u32 arg1);
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb42c;
 extern u8 *iGpffffb3cc;
 extern u8 iGpffffa2a8;
 extern u8 *iGpffffb444;
-extern void func_00442088(u8 *a, u8 *b, u32 c, u8 d);
-extern s32 func_0029de20(u32 a, u8 *b);
+extern void sprintf(u8 *a, u8 *b, u32 c, u8 d);
+extern s32 scrFindPrcdIdxByName(u32 a, u8 *b);
 extern s32 func_0029da90(u8 *a, u32 b, s32 c);
 extern void func_0029dfe0(u32 a, u8 *b);
 extern u8 *func_00452560(u32 a);
@@ -131,7 +130,7 @@ static inline s32 btlCommandUsable(u8 *p, u32 arg1) {
     }
     p = *(u8 **)(p + 0x30);
     if (a < 0x1B8) {
-        if (func_00232710((s32)*(u8 **)(p + 0xA64), 0x80008) != 0)
+        if (datCalcChkBadStatus((s32)*(u8 **)(p + 0xA64), 0x80008) != 0)
             return 0;
         if (func_00232730(*(u8 **)(p + 0xA64), a) == 0)
             return 0;
@@ -147,12 +146,12 @@ ret1:
 }
 
 // FUN_001DAF40
-s32 func_001daf40(u8 *p, u32 arg1) {
+s32 btlCond_MYABLESKIL(u8 *p, u32 arg1) {
     return btlCommandUsable(p, arg1);
 }
 
 // FUN_001DB040
-void func_001db040(u8 *arg0, u32 arg1) {
+void btlCond_ENWEAK_PAI(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -164,7 +163,7 @@ void func_001db040(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 6, (code *)&func_001da2f0);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 6, (code *)&btlCond_MYWEAK);
 }
 
 #pragma opt_rebuildconditionals on
@@ -172,7 +171,7 @@ void func_001db040(u8 *arg0, u32 arg1) {
 /* Removing this loses FUN_001DB0A0 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUN_001DB0A0
-void func_001db0a0(u8 *arg0, u32 arg1) {
+void btlCond_ENWEAK_ST_PAI(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -184,7 +183,7 @@ void func_001db0a0(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 6, (code *)&func_001da2f0);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 6, (code *)&btlCond_MYWEAK);
 }
 
 #pragma opt_rebuildconditionals on
@@ -218,7 +217,7 @@ void btlCond_ENWEAK_DW_PAI(int param_1, u32 param_2)
    508B/512B, verify nd0; the remaining four bytes are zero tail padding.
    Keep the entry reload after the value query and the existing s32 input ABI. */
 // FUN_001DB160
-s32 func_001db160(u8 *action, s32 value)
+s32 btlCond_MYATTRSKIL(u8 *action, s32 value)
 {
     u8 *unit;
     u16 count;
@@ -338,7 +337,7 @@ s32 func_001db5e0(u8 *arg0, s16 arg1) {
 /* Removing this loses FUN_001DB620 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUN_001DB620
-void func_001db620(u8 *arg0, u32 arg1) {
+void btlCond_ENNOMAL(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -358,7 +357,7 @@ void func_001db620(u8 *arg0, u32 arg1) {
 /* Removing this loses FUN_001DB680 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUN_001DB680
-void func_001db680(u8 *arg0, u32 arg1) {
+void btlCond_ENNOMAL_ST(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -432,7 +431,7 @@ s32 btlCond_SLIP(u8 *arg0) {
    offsets 0xa2c->0xa64, 0x4a8->0x450. Pragma disables the shift-fold. */
 #pragma opt_rebuildconditionals off
 // FUN_001DB7D0
-u32 func_001db7d0(int param_1, u32 param_2)
+u32 btlCond_ENOVERLV(int param_1, u32 param_2)
 {
     u32 genusValue;
 
@@ -477,7 +476,7 @@ next_unit:
 
 
 // FUN_001DB8D0
-s32 func_001db8d0(u8 *arg0) {
+s32 btlCond_MYHOJO(u8 *arg0) {
     return (s32)(func_002340c0(*(u32 *)(*(u8 **)(arg0 + 0x30) + 0xA64)) != 0);
 }
 
@@ -489,7 +488,7 @@ s32 btlCond_MYTAISEI(u8 *arg0, s16 arg1) {
 
 
 // FUN_001DB940
-void func_001db940(u8 *arg0, u32 arg1) {
+void btlCond_FRTAISEI(u8 *arg0, u32 arg1) {
     func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code *)&btlCond_MYTAISEI);
 }
 
@@ -497,7 +496,7 @@ void func_001db940(u8 *arg0, u32 arg1) {
 /* Removing this loses FUN_001DB990 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUN_001DB990
-void func_001db990(u8 *arg0, u32 arg1) {
+void btlCond_ENTAISEI(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -518,7 +517,7 @@ void func_001db990(u8 *arg0, u32 arg1) {
 #pragma push
 #pragma opt_propagation off
 // FUN_001DB9F0
-s32 func_001db9f0(u8 *arg0, s16 arg1) {
+s32 btlCond_MYNOTNOMAL(u8 *arg0, s16 arg1) {
     u8 *p = *(u8 **)(arg0 + 0x30);
     if (*(u8 *)(p + 0xA2) == 1 && func_001f9ce0(arg0, arg1) == 0) {
         u32 index = (u16)arg1;
@@ -533,7 +532,7 @@ s32 func_001db9f0(u8 *arg0, s16 arg1) {
 /* Removing this loses FUN_001DBA90 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUN_001DBA90
-void func_001dba90(u8 *arg0, u32 arg1) {
+void btlCond_ENNOTNOMAL(u8 *arg0, u32 arg1) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
@@ -545,12 +544,12 @@ void func_001dba90(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&func_001db9f0);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOTNOMAL);
 }
 
 #pragma opt_rebuildconditionals on
 // FUN_001DBAF0
-s32 func_001dbaf0(u8 *arg0, u32 arg1) {
+s32 btlCond_MYWALL(u8 *arg0, u32 arg1) {
     s32 mask = 0;
     if (arg1 & 1)
         mask |= 0x8000000;
@@ -650,7 +649,7 @@ code arg5;
         if (m1 == 0) {
             goto testm2;
         }
-        if (func_00232710(*(u32 *)(temp16 + 0xA64), 0x100000) == 0) {
+        if (datCalcChkBadStatus(*(u32 *)(temp16 + 0xA64), 0x100000) == 0) {
             continue;
         }
     testm2:
@@ -675,7 +674,7 @@ code arg5;
         }
     testm4:
         if (m4 == 0) {
-            if (func_00232710(*(u32 *)(temp16 + 0xA64), arg2) != 0) {
+            if (datCalcChkBadStatus(*(u32 *)(temp16 + 0xA64), arg2) != 0) {
                 continue;
             } else {
                 goto docallback;
@@ -793,7 +792,7 @@ s32 func_001dbf20(u8 *arg0, u32 arg1) {
                 e = (u8 *)(arg0 + 4 * n + 0x98);
                 w = *(u32 *)e;
                 f15 = func_00231f80(*(u8 **)(*(u32 *)(*(u32 *)e + 0x30) + 0xA64));
-                f16 = (u16)func_00231ed0(*(u32 *)(w + 0x30) + 0xA64);
+                f16 = (u16)datCalcGetHp(*(u32 *)(w + 0x30) + 0xA64);
                 stab[2 * n] = *(f32 *)e;
                 stab[2 * n + 1] = (f32)f16 / (f32)f15;
                 n++;
@@ -932,17 +931,17 @@ s32 func_001dc5b0(void) {
 
 // FUN_001DC5C0
 void func_001dc5c0(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 0, func_001d9b60);
+    func_001dbba0(formation, flags, 0, 0, 0, btlCond_MYBAD);
 }
 
 // FUN_001DC600
 void func_001dc600(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 1, func_001d9b60);
+    func_001dbba0(formation, flags, 0, 0, 1, btlCond_MYBAD);
 }
 
 // FUN_001DC640
 void func_001dc640(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 0, func_001dacc0);
+    func_001dbba0(formation, flags, 0, 0, 0, btlCond_MYID);
 }
 
 /* measured: entire loop body and tail compile with mwcc b210's temp registers
@@ -970,7 +969,7 @@ u32 func_001dc6a0(int param_1)
         if ((((param_1 != iVar1) && ((*(u16 *)(iVar1 + 0x1a) & 1) != 0)) &&
             ((*(u16 *)(iVar1 + 0x1a) & 8) != 0)) &&
            ((*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) == *(u8 *)(*(int *)(iVar1 + 0x30) + 0xa2) &&
-            (func_00232710(*(u32 *)(*(int *)(iVar1 + 0x30) + 0xa64), 0x80000) == 0))
+            (datCalcChkBadStatus(*(u32 *)(*(int *)(iVar1 + 0x30) + 0xa64), 0x80000) == 0))
            )) {
             aiStack_30[uVar3] = iVar1;
             uVar3++;
@@ -992,42 +991,42 @@ u32 func_001dc6a0(int param_1)
 
 // FUN_001DC7A0
 void func_001dc7a0(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 0, func_001da230);
+    func_001dbba0(formation, flags, 0, 0, 0, btlCond_MYHANSYA);
 }
 
 // FUN_001DC7E0
 void func_001dc7e0(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 0, func_001da270);
+    func_001dbba0(formation, flags, 0, 0, 0, btlCond_MYKYUSYU);
 }
 
 // FUN_001DC820
 void func_001dc820(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 0, func_001da2b0);
+    func_001dbba0(formation, flags, 0, 0, 0, btlCond_MYMUKOU);
 }
 
 // FUN_001DC860
 void func_001dc860(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 0, func_001da2f0);
+    func_001dbba0(formation, flags, 0, 0, 0, btlCond_MYWEAK);
 }
 
 // FUN_001DC8A0
 void func_001dc8a0(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 1, func_001da230);
+    func_001dbba0(formation, flags, 0, 0, 1, btlCond_MYHANSYA);
 }
 
 // FUN_001DC8E0
 void func_001dc8e0(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 1, func_001da270);
+    func_001dbba0(formation, flags, 0, 0, 1, btlCond_MYKYUSYU);
 }
 
 // FUN_001DC920
 void func_001dc920(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 1, func_001da2b0);
+    func_001dbba0(formation, flags, 0, 0, 1, btlCond_MYMUKOU);
 }
 
 // FUN_001DC960
 void func_001dc960(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 1, func_001da2f0);
+    func_001dbba0(formation, flags, 0, 0, 1, btlCond_MYWEAK);
 }
 
 /* measured: retail hoists the loop-test count load before the (u16)i mask
@@ -1101,7 +1100,7 @@ s32 func_001dca60(u8 *param_1, u32 param_2)
 // FUN_001DCB50
 void func_001dcb50(u64 formation)
 {
-    func_001dbba0(formation, 0x100000, 0, 0, 0, func_001d9b60);
+    func_001dbba0(formation, 0x100000, 0, 0, 0, btlCond_MYBAD);
 }
 
 
@@ -1109,74 +1108,74 @@ void func_001dcb50(u64 formation)
 // FUN_001DCB90
 void func_001dcb90(u64 formation)
 {
-    func_001dbba0(formation, 0x100000, 0, 0, 1, func_001d9b60);
+    func_001dbba0(formation, 0x100000, 0, 0, 1, btlCond_MYBAD);
 }
 
 
 
 // FUN_001DCBD0
 void func_001dcbd0(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 1048576, 0, 0, func_001da230);
+    func_001dbba0(formation, flags, 1048576, 0, 0, btlCond_MYHANSYA);
 }
 
 // FUN_001DCC10
 void func_001dcc10(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 1048576, 0, 0, func_001da270);
+    func_001dbba0(formation, flags, 1048576, 0, 0, btlCond_MYKYUSYU);
 }
 
 // FUN_001DCC50
 void func_001dcc50(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 1048576, 0, 0, func_001da2b0);
+    func_001dbba0(formation, flags, 1048576, 0, 0, btlCond_MYMUKOU);
 }
 
 // FUN_001DCC90
 void func_001dcc90(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 1048576, 0, 0, func_001da2f0);
+    func_001dbba0(formation, flags, 1048576, 0, 0, btlCond_MYWEAK);
 }
 
 // FUN_001DCCD0
 void func_001dccd0(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 1048576, 0, 1, func_001da230);
+    func_001dbba0(formation, flags, 1048576, 0, 1, btlCond_MYHANSYA);
 }
 
 // FUN_001DCD10
 void func_001dcd10(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 1048576, 0, 1, func_001da270);
+    func_001dbba0(formation, flags, 1048576, 0, 1, btlCond_MYKYUSYU);
 }
 
 // FUN_001DCD50
 void func_001dcd50(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 1048576, 0, 1, func_001da2b0);
+    func_001dbba0(formation, flags, 1048576, 0, 1, btlCond_MYMUKOU);
 }
 
 // FUN_001DCD90
 void func_001dcd90(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 1048576, 0, 1, func_001da2f0);
+    func_001dbba0(formation, flags, 1048576, 0, 1, btlCond_MYWEAK);
 }
 
 // FUN_001DCDD0
 void func_001dcdd0(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 1, 0, func_001da230);
+    func_001dbba0(formation, flags, 0, 1, 0, btlCond_MYHANSYA);
 }
 
 // FUN_001DCE10
 void func_001dce10(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 1, 0, func_001da270);
+    func_001dbba0(formation, flags, 0, 1, 0, btlCond_MYKYUSYU);
 }
 
 // FUN_001DCE50
 void func_001dce50(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 1, 0, func_001da2b0);
+    func_001dbba0(formation, flags, 0, 1, 0, btlCond_MYMUKOU);
 }
 
 // FUN_001DCE90
 void func_001dce90(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 1, 0, func_001da2f0);
+    func_001dbba0(formation, flags, 0, 1, 0, btlCond_MYWEAK);
 }
 
 // FUN_001DCED0
 void func_001dced0(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 1, func_001dacc0);
+    func_001dbba0(formation, flags, 0, 0, 1, btlCond_MYID);
 }
 
 /* Ported from P3FES btlEffect.c func_002c4760 (copy-all / random-select).
@@ -1207,17 +1206,17 @@ u32 func_001dcf10(u32 param_1)
 
 // FUN_001DCFD0
 void func_001dcfd0(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 0, (FormationCallback)func_001db8d0);
+    func_001dbba0(formation, flags, 0, 0, 0, (FormationCallback)btlCond_MYHOJO);
 }
 
 // FUN_001DD010
 void func_001dd010(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 1, (FormationCallback)func_001db8d0);
+    func_001dbba0(formation, flags, 0, 0, 1, (FormationCallback)btlCond_MYHOJO);
 }
 
 // FUN_001DD050
 void func_001dd050(u64 formation, u32 flags) {
-    func_001dbba0(formation, flags, 0, 0, 0, func_001db9f0);
+    func_001dbba0(formation, flags, 0, 0, 0, btlCond_MYNOTNOMAL);
 }
 
 // FUN_001DD090
@@ -1232,7 +1231,7 @@ void func_001dd090(u64 formation, u32 flags) {
    preserves source order and reproduces retail's best,bestScore,j,count
    preheader exactly. bestScore u32 (sltu). */
 // FUN_001DD0D0
-u32 func_001dd0d0(u32 param_1)
+u32 btlCond_HPMAX(u32 param_1)
 {
     u16 result;
     u16 index;
@@ -1280,7 +1279,7 @@ s32 func_001dd1c0(u8 *p, u8 *q, u16 *t, u16 u, u32 v) {
     s32 d;
     s32 d2;
 
-    s = func_00231ed0(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
+    s = datCalcGetHp(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
     best = -1;
     bd = 0xFFFFFF;
     i = 0;
@@ -1329,7 +1328,7 @@ s32 func_001dd3a0(u8 *p, u8 *q, u16 *t, u16 u, s32 v) {
     u8 b;
     s32 d;
 
-    s1 = func_00231ed0(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
+    s1 = datCalcGetHp(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
     s2 = func_00231f80(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
     best = -1;
     bd = 0xFFFFFF;
@@ -1422,7 +1421,7 @@ s32 func_001dd570(u8 *p, u8 *q, s32 arg2, s32 arg3)
                 func_0046d730(D_006095E0, 0x45F);
             unitP = *(u8 **)(p + 0x30);
             if (cmd < 0x1B8) {
-                if (func_00232710(*(u32 *)(unitP + 0xA64), 0x80008) != 0) {
+                if (datCalcChkBadStatus(*(u32 *)(unitP + 0xA64), 0x80008) != 0) {
                     ok = 0;
                     goto have_ok;
                 }
@@ -1508,7 +1507,7 @@ s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
     unit = *(u8 **)(arg0 + 0x30);
     count = func_0023e130(*(u8 **)(unit + 0xA64));
     commands = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
-    if (func_002428f0(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64), 0) != 0) {
+    if (datCalcIsDead(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64), 0) != 0) {
         result = 0;
     } else {
         hp = *(u16 *)(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64) + 8);
@@ -1516,10 +1515,10 @@ s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
         if (hp * 100 <= max * 60) {
             result = 1;
         } else {
-            if (func_00232710(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64), 0xC) != 0) {
+            if (datCalcChkBadStatus(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64), 0xC) != 0) {
                 result = 2;
             } else {
-                cur = func_00231ed0(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64)) & 0xFFFF;
+                cur = datCalcGetHp(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64)) & 0xFFFF;
                 if (cur < (s32)(func_00231f80(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64)) & 0xFFFF))
                     result = 1;
             }
@@ -1735,9 +1734,9 @@ u32 func_001de370(u8 *arg0)
         score = scores + i;
         *score = 0;
         max = func_00231f80(*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64)) & 0xFFFF;
-        current = func_00231ed0(*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64)) & 0xFFFF;
+        current = datCalcGetHp(*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64)) & 0xFFFF;
         *score += (s16)(100.0f - 100.0f * ((f32)current / (f32)max));
-        switch (func_002326c0(*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64))) {
+        switch (datCalcGetBadStatusNoDown(*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64))) {
         case 0x40:
             bonus = 50.0f;
             scoreFloat = (f32)*score;
@@ -1955,8 +1954,8 @@ s32 func_001debb0(u8 *p, u8 *q, u32 v, u32 w)
 
     if (*(u8 *)(*(u32 *)(p + 0x30) + 0xA2) == 0) {
         c = *(u8 *)(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64) + 0x10);
-        func_00442088(buf, D_00609E20, w, c);
-        c = func_0029de20(v, buf);
+        sprintf(buf, D_00609E20, w, c);
+        c = scrFindPrcdIdxByName(v, buf);
     } else {
         c = w;
     }
@@ -3584,9 +3583,9 @@ s32 func_001e2550(void) {
             np = *(u8 **)(node + 0x30);
             if ((m2 & (1 << (*(u8 *)(np + 0xA2)))) != 0) {
                 if (*(u16 *)(np + 0xA4) == c02) {
-                    if (func_002428f0(*(u32 *)(np + 0xA64), 0) == 0) {
+                    if (datCalcIsDead(*(u32 *)(np + 0xA64), 0) == 0) {
                         n = (n + 1) & 0xFFFF;
-                        if (func_00232710(*(u32 *)(np + 0xA64), v) != 0) {
+                        if (datCalcChkBadStatus(*(u32 *)(np + 0xA64), v) != 0) {
                             k = (k + 1) & 0xFFFF;
                         }
                     }
@@ -3641,9 +3640,9 @@ done:
             c0 = *(u8 **)(node + 0x30);
             if ((m2 & (1 << (*(u8 *)(c0 + 0xa2)))) != 0) {
                 if (*(u16 *)(c0 + 0xa4) == m) {
-                    if (func_002428f0(*(u32 *)(c0 + 0xa64), 0) == 0) {
+                    if (datCalcIsDead(*(u32 *)(c0 + 0xa64), 0) == 0) {
                         n = (n + 1) & 0xffff;
-                        if (func_00232710(*(u32 *)(c0 + 0xa64), v) != 0)
+                        if (datCalcChkBadStatus(*(u32 *)(c0 + 0xa64), v) != 0)
                             k = (k + 1) & 0xffff;
                     }
                 }
@@ -3714,7 +3713,7 @@ s32 func_001e2910(void) {
             np = *(u8 **)(node + 0x30);
             if ((m2 & (1 << (*(u8 *)(np + 0xA2)))) != 0) {
                 if (*(u16 *)(np + 0xA4) == c02) {
-                    if (func_002428f0(*(u32 *)(np + 0xA64), 0) == 0) {
+                    if (datCalcIsDead(*(u32 *)(np + 0xA64), 0) == 0) {
                         n = (n + 1) & 0xFFFF;
                         if (func_002340c0(*(u32 *)(np + 0xA64), v) != 0) {
                             k = (k + 1) & 0xFFFF;
@@ -3768,7 +3767,7 @@ done:
             c0 = *(u8 **)(node + 0x30);
             if ((m2 & (1 << (*(u8 *)(c0 + 0xa2)))) != 0) {
                 if (*(u16 *)(c0 + 0xa4) == m) {
-                    if (func_002428f0(*(u32 *)(c0 + 0xa64), 0) == 0) {
+                    if (datCalcIsDead(*(u32 *)(c0 + 0xa64), 0) == 0) {
                         n = (n + 1) & 0xffff;
                         if (func_002340c0(*(u32 *)(c0 + 0xa64), v) != 0)
                             k = (k + 1) & 0xffff;
@@ -4768,7 +4767,7 @@ s32 func_001e4a80(void) {
 s32 func_001e4b30(void) {
     u32 a = func_0029cc00(0);
     u32 b = func_0029cc00(1);
-    func_001dbba0(func_0029d050(), a, b, 0, 0, func_001dacc0);
+    func_001dbba0(func_0029d050(), a, b, 0, 0, btlCond_MYID);
     return 1;
 }
 
@@ -5016,7 +5015,7 @@ s32 func_001e5bf0(void) {
 s32 func_001e5ca0(void) {
     u32 a = func_0029cc00(0);
     u32 b = func_0029cc00(1);
-    func_001dbba0(func_0029d050(), a, b, 0x40, 0, func_001dacc0);
+    func_001dbba0(func_0029d050(), a, b, 0x40, 0, btlCond_MYID);
     return 1;
 }
 
@@ -5117,49 +5116,49 @@ s32 func_001e6050(void) {
 // FUN_001E60F0
 s32 func_001e60f0(void) {
     u8 *p = func_0029d050();
-    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 1, 0, &func_001db8d0, 0) & 0xFFFF);
+    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 1, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6160
 s32 func_001e6160(void) {
     u8 *p = func_0029d050();
-    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 1, 1, &func_001db8d0, 0) & 0xFFFF);
+    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 1, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E61D0
 s32 func_001e61d0(void) {
     u8 *p = func_0029d050();
-    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 1, 0, &func_001d9b60, 0) & 0xFFFF);
+    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 1, 0, &btlCond_MYBAD, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6240
 s32 func_001e6240(void) {
     u8 *p = func_0029d050();
-    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 2, 0, &func_001d9b60, 0) & 0xFFFF);
+    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 2, 0, &btlCond_MYBAD, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E62B0
 s32 func_001e62b0(void) {
     u8 *p = func_0029d050();
-    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 2, 0, &func_001db8d0, 0) & 0xFFFF);
+    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 2, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6320
 s32 func_001e6320(void) {
     u8 *p = func_0029d050();
-    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 2, 1, &func_001db8d0, 0) & 0xFFFF);
+    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 2, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6390
 s32 func_001e6390(void) {
     u8 *p = func_0029d050();
-    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 1, 0, &func_001d9740, 0) & 0xFFFF);
+    func_0029cf50(func_001d9390(p, func_0029cc00(0), 0x80000, 1, 0, &btlCond_MYHP, 0) & 0xFFFF);
     return 1;
 }
 
@@ -5214,7 +5213,7 @@ s32 func_001e6570(void) {
 
 // FUN_001E65B0
 s32 func_001e65b0(void) {
-    func_0029cf50(func_00231ed0(*(u32 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA64)) & 0xFFFF);
+    func_0029cf50(datCalcGetHp(*(u32 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA64)) & 0xFFFF);
     return -1;
 }
 
@@ -5253,7 +5252,7 @@ s32 func_001e6740(void) {
     s32 sum;
     func_00233bb0(*(u32 *)(*(u8 **)(p + 0x30) + 0xA64));
     func_00233bb0(*(u32 *)(*(u8 **)(q + 0x30) + 0xA64));
-    off = (s32)(func_00231ed0(*(u32 *)(*(u8 **)(q + 0x30) + 0xA64)) & 0xFFFF);
+    off = (s32)(datCalcGetHp(*(u32 *)(*(u8 **)(q + 0x30) + 0xA64)) & 0xFFFF);
     sum = off + x;
     func_0029cf50(sum <= 0);
     return 1;
@@ -5321,7 +5320,7 @@ s32 func_001e6a50(void) {
         func_0046d730(D_006095E0, 0x45F);
     q = *(u8 **)(q + 0x30);
     if (idx < 0x1B8) {
-        if (func_00232710((s32)*(u8 **)(q + 0xA64), 0x80008) != 0)
+        if (datCalcChkBadStatus((s32)*(u8 **)(q + 0xA64), 0x80008) != 0)
             x = 0;
         else if (func_00232730(*(u8 **)(q + 0xA64), idx) == 0)
             x = 0;

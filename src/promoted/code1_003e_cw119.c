@@ -76,7 +76,7 @@ extern s32 iGpffffb78C;
 extern s32 iGpffffb788;
 extern s32 D_008871F0;
 extern u8 D_008873F0[];
-extern s32 func_003ddf20(void *arg0);
+extern s32 RwFclose(void *arg0);
 extern s32 func_003e3370(u8 *arg0, s32 arg1);
 extern s32 func_003e2ab0(u8 *arg0, u8 *arg1, s32 arg2);
 extern u8 D_008873A4[];
@@ -159,18 +159,18 @@ extern void func_003e4520(void *arg0, s32 arg1);
 extern void func_003e4960();
 extern void func_003e4920();
 extern s32 func_003e47c0(s8 *arg0, s8 *arg1);
-extern void func_00442088();
+extern void sprintf();
 extern void func_00446ed8();
-extern void func_00442830();
-extern void func_00442de8();
-extern void func_00442428();
+extern void strcpy();
+extern void strncpy();
+extern void strcat();
 extern void func_00442a80();
 extern void func_00443010();
-extern void func_004426e8();
-extern void func_00442c30();
-extern void func_00442948();
+extern void strcmp();
+extern void strncmp();
+extern void strlen();
 extern void func_00443f18();
-extern void func_00442100();
+extern void sscanf();
 /* Archived b210 near-miss (P3E3_003e3c20); exact under b119 with schedule on. */
 #pragma schedule on
 /* measured: closes the schedule bracket; the unit default is off. */

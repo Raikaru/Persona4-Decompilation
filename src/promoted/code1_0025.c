@@ -15,11 +15,11 @@ extern void func_004ab680(s32 arg0);
 extern void func_004ab140(s32 arg0);
 extern s32 D_006367C0[];
 extern void func_0045aeb0(s32 arg0, const char *arg1);
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_00250ad0(s32 *arg0, u8 *arg1);
 extern u16 *func_0010a900(u16 arg0);
 extern s32 func_0010cfa0(u8 *arg0, u16 arg1, u8 *arg2);
-extern void func_0043f810(void *arg0, void *arg1, s32 arg2);
+extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern s16 D_00636A40[];
 extern char D_00635C00[];
 extern char D_00635C20[];
@@ -58,8 +58,8 @@ s16 func_00105010(s16 arg0, float arg1);
 s16 func_00104f10(s16 arg0);
 s32 func_0010a840(u16 arg0, s32 arg1, s32 arg2);
 void func_00106620(s16 arg0, s32 arg1);
-s16 func_00105ee0(s32 arg0);
-void func_00106000(s32 arg0, s32 arg1);
+s16 datGetPartyId(s32 arg0);
+void datSetPartyId(s32 arg0, s32 arg1);
 s16 func_00106cd0(s16 arg0, s16 arg1);
 void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 s32 func_00452490(s32 arg0);
@@ -92,8 +92,8 @@ extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
 extern f32 fGpffff8200;
-extern f32 func_0044b610(f32 arg0);
-extern f32 func_0044b7b0(f32 arg0);
+extern f32 cosf(f32 arg0);
+extern f32 sinf(f32 arg0);
 extern void func_00364c50(void);
 extern void func_00364c70(void);
 extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0,
@@ -136,8 +136,8 @@ extern void func_0045ee00(s32 arg0, s32 arg1, void *arg2, s32 arg3,
 s32 func_00250ad0(s32 *arg0, u8 *arg1)
 {
     extern s32 func_0025f430(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 * a4, s32 a5, s16 a6, s16 a7, f32 f3, f32 f4, f32 f5);
-    extern u32 func_003b7060(void);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern u32 RpRandom(void);
+    extern f32 sinf(f32 arg0);
     extern f32 fGpffff8094;
     extern f32 fGpffff8084;
     extern f32 fGpffff8170;
@@ -196,25 +196,25 @@ s32 func_00250ad0(s32 *arg0, u8 *arg1)
         if ((flags & 8) != 0) {
             arg0[4] = arg0[4] + 1;
         }
-        f22 = func_0044b7b0(fGpffff8094 + (fGpffff8094 * (f32)arg0[4]) / 30.0f);
-        second = func_0044b7b0((fGpffff8084 * (f32)arg0[3]) / 120.0f);
+        f22 = sinf(fGpffff8094 + (fGpffff8094 * (f32)arg0[4]) / 30.0f);
+        second = sinf((fGpffff8084 * (f32)arg0[3]) / 120.0f);
         f20 = 42.0f * f21;
         madd1 = p4_0025_mul_add(fGpffff8218, second, fGpffff8030);
         scaled1 = 255.0f * madd1 * f22;
         a1_1 = (u8)scaled1;
         s16_1 = (s16)(s32)f20;
         func_0025f430(*(f32 *)(arg0 + 1) - f20, *(f32 *)(arg0 + 2) - f20, 0.0f, 0xFFFFFF, a1_1, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_1, s16_1, 0.0f, f21, f21);
-        frand1 = (f32)func_003b7060();
+        frand1 = (f32)RpRandom();
         madd2 = p4_0025_mul_add(fGpffff813c, frand1 / 2.1474836e9f, fGpffff8030);
         scaled2 = 255.0f * madd2 * f22;
         a1_2 = (u8)scaled2;
         func_0025f430(*(f32 *)(arg0 + 1) - f20, *(f32 *)(arg0 + 2) - f20, 0.0f, 0xFFFFFF, a1_2, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_1, s16_1, 0.0f, f21, f21);
-        f20b = (1.0f + func_0044b7b0(D_007612CC + (fGpffff81e0 * (f32)arg0[5]) / (f32)arg0[6])) / 2.0f;
+        f20b = (1.0f + sinf(D_007612CC + (fGpffff81e0 * (f32)arg0[5]) / (f32)arg0[6])) / 2.0f;
         scaled3 = 255.0f * (fGpffff8198 * f20b) * f22;
         a1_3 = (u8)scaled3;
         s16_2 = (s16)(s32)fGpffff82a8;
         func_0025f430(*(f32 *)(arg0 + 1) - fGpffff82a8, *(f32 *)(arg0 + 2) - fGpffff82a8, 0.0f, 0xFFFFFF, a1_3, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_2, s16_2, (360.0f * (f32)arg0[3]) / 120.0f, fGpffff8170, fGpffff8170);
-        frand2 = (f32)func_003b7060();
+        frand2 = (f32)RpRandom();
         f20c = f20b + (fGpffff8218 * (frand2 / 2.1474836e9f) - fGpffff8030);
         if (f20c < 0.0f) {
             f20c = 0.0f;
@@ -228,7 +228,7 @@ s32 func_00250ad0(s32 *arg0, u8 *arg1)
         arg0[5] = tmp14;
         if (tmp14 >= arg0[6]) {
             arg0[5] = 0;
-            arg0[6] = (s32)p4_0025_mul_add(40.0f, (f32)func_003b7060() / 2.1474836e9f, 60.0f);
+            arg0[6] = (s32)p4_0025_mul_add(40.0f, (f32)RpRandom() / 2.1474836e9f, 60.0f);
         }
         tmpC = arg0[3] + 1;
         arg0[3] = tmpC;
@@ -240,12 +240,12 @@ s32 func_00250ad0(s32 *arg0, u8 *arg1)
         }
         return 0;
     }
-    fsmall20 = func_0044b7b0(fGpffff8094 - (fGpffff8094 * (f32)arg0[3]) / 30.0f);
-    fr1 = (f32)func_003b7060();
+    fsmall20 = sinf(fGpffff8094 - (fGpffff8094 * (f32)arg0[3]) / 30.0f);
+    fr1 = (f32)RpRandom();
     fsmall21 = 1.0f + (fGpffff8170 * (fr1 / 2.1474836e9f) - fGpffff8198);
-    fr2 = (f32)func_003b7060();
-    fr3 = (f32)func_003b7060();
-    fr4 = (f32)func_003b7060();
+    fr2 = (f32)RpRandom();
+    fr3 = (f32)RpRandom();
+    fr4 = (f32)RpRandom();
     tmpA = (s32)(1.0f * (fr4 / 2.1474836e9f));
     if (tmpA >= 0) {
         fconv1 = (f32)tmpA;
@@ -289,7 +289,7 @@ u8 *func_00251570(s32 arg0, s32 arg1) {
     goto first_test;
 first_body:
     if ((*(u32 *)ptr & 1) == 0) {
-        func_0043f9c8(ptr, 0, 0x20);
+        memset(ptr, 0, 0x20);
         *(u32 *)ptr |= 1;
         return ptr;
     }
@@ -309,7 +309,7 @@ select_second:
     goto second_test;
 second_body:
     if ((*(u32 *)ptr & 1) == 0) {
-        func_0043f9c8(ptr, 0, 0x20);
+        memset(ptr, 0, 0x20);
         *(u32 *)ptr |= 1;
         return ptr;
     }
@@ -329,7 +329,7 @@ select_third:
     goto third_test;
 third_body:
     if ((*(u32 *)ptr & 1) == 0) {
-        func_0043f9c8(ptr, 0, 0x20);
+        memset(ptr, 0, 0x20);
         *(u32 *)ptr |= 1;
         return ptr;
     }
@@ -732,7 +732,7 @@ s32 func_0025cf00(void) {
 
     temp_17 = func_0029cc00(0);
     temp_16 = func_0029cc00(1);
-    func_00109d80(temp_17 & 0xFFFF, temp_16 & 0xFFFF, func_0029cc00(2));
+    datPersonaAddToBonusStatByPcId(temp_17 & 0xFFFF, temp_16 & 0xFFFF, func_0029cc00(2));
     return 1;
 }
 
@@ -803,7 +803,7 @@ s32 func_0025d1b0(void) {
     var_18 = 0;
     goto loop_4_test;
 loop_4:
-    temp_16 = func_00105ee0(var_18);
+    temp_16 = datGetPartyId(var_18);
     if ((s32)temp_16 == func_0029cc00(0)) {
         var_16 = 1;
     }
@@ -818,8 +818,8 @@ loop_4_test:
     var_17 = 0;
     goto loop_10_test;
 loop_10:
-    if ((s64)func_00105ee0(var_17) == 0) {
-        func_00106000(var_17, (s32)(s64)(s16)func_0029cc00(0));
+    if ((s64)datGetPartyId(var_17) == 0) {
+        datSetPartyId(var_17, (s32)(s64)(s16)func_0029cc00(0));
         var_16 = 1;
         goto block_4;
     }
@@ -830,7 +830,7 @@ loop_10_test:
     }
 block_4:
     if (var_16 == 0) {
-        func_00106000(2, (s32)(s64)(s16)func_0029cc00(0));
+        datSetPartyId(2, (s32)(s64)(s16)func_0029cc00(0));
     }
     return 1;
 }
@@ -843,9 +843,9 @@ s32 func_0025d2d0(void) {
 
     var_17 = 0;
     while (var_17 < 3) {
-        temp_16 = func_00105ee0(var_17);
+        temp_16 = datGetPartyId(var_17);
         if (temp_16 == func_0029cc00(0)) {
-            func_00106000(var_17, 0);
+            datSetPartyId(var_17, 0);
         }
         var_17++;
     }
@@ -916,7 +916,7 @@ s32 func_0025d520(void)
 // FUN_0025D530
 s32 func_0025d530(void)
 {
-    func_0029cf50((s16)func_00105ee0(func_0029cc00(0)));
+    func_0029cf50((s16)datGetPartyId(func_0029cc00(0)));
     return 1;
 }
 
@@ -958,7 +958,7 @@ s32 func_0025d580(void) {
         (u8 *)sp60,
         *(u16 *)((u8 *)sp30 + ((temp_16 & 0xFFFF) * 4) + 2),
         (u8 *)temp_2_2);
-    func_0043f810((void *)temp_2_2, sp60, 0x30);
+    memcpy((void *)temp_2_2, sp60, 0x30);
     return 1;
 }
 
@@ -1062,14 +1062,14 @@ void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0) {
 loop_body:
     temp_f20 = 12.0f * (f32)var_19;
     temp_f25 = fGpffff8200 * temp_f20;
-    temp_f24 = func_0044b7b0(temp_f25);
-    temp_f2 = 8.5f * func_0044b610(temp_f25);
+    temp_f24 = sinf(temp_f25);
+    temp_f2 = 8.5f * cosf(temp_f25);
     var_18[0] = p4_0025_mul_add(8.5f, temp_f24, farg0 + temp_f2);
     var_18[1] = p4_0025_add(
         p4_0025_mul_add(8.5f, -temp_f24, farg1), temp_f2);
     temp_f24_2 = fGpffff8200 * (6.0f + temp_f20);
-    temp_f20_2 = func_0044b7b0(temp_f24_2);
-    temp_f2_2 = 7.0f * func_0044b610(temp_f24_2);
+    temp_f20_2 = sinf(temp_f24_2);
+    temp_f2_2 = 7.0f * cosf(temp_f24_2);
     var_18[2] = p4_0025_mul_add(7.0f, temp_f20_2, farg0 + temp_f2_2);
     var_18[3] = p4_0025_add(
         p4_0025_mul_add(7.0f, -temp_f20_2, farg1), temp_f2_2);

@@ -18,7 +18,7 @@ extern u8 D_00748340[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_0044ea90(const void *file, s32 line);
 
-extern void func_0043f9c8(void *dest, s32 value, s32 size);
+extern void memset(void *dest, s32 value, s32 size);
 extern s32 func_002862a0(s32, s32);
 extern void func_002863e0(u32, s32, s32, s32);
 extern void func_00286380(s32 task);
@@ -207,7 +207,7 @@ s32 func_002859e0(s32 arg0, s32 arg1)
     func_0044ea90(&D_00748340, 0x52);
     temp_16 = D_008873F4[0](1, 0x60, 0x40000);
     func_002852a0(0, 0x60);
-    func_0043f9c8(temp_16, 0, 0x60);
+    memset(temp_16, 0, 0x60);
     temp_17 = (s32)func_00451de0((const void *)(&D_0063C2F8), 0xF, 0, 0, func_002857c0, func_00285980, (u8 *)(temp_16));
     temp_2 = func_002862a0(0, 0);
     *(s32 *)(temp_16 + 0xC) = temp_2;

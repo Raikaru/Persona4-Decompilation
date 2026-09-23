@@ -39,17 +39,17 @@ extern s32 D_00764BB4;
 extern s32 D_00764BA4;
 extern s32 func_00464670(s32 *mode, u32 *result, s32 *error);
 extern s32 sceMc2GetInfoAsync(s32 socket, s32 *status);
-extern void func_00442088(void *dst, const void *fmt, ...);
+extern void sprintf(void *dst, const void *fmt, ...);
 extern void func_00431d78(s32 socket, void *data, void *result);
 extern void func_00440b68(const void *fmt, ...);
 extern s32 func_00431b58(s32 socket);
 extern void func_00432288(s32 socket, void *a1, void *a2, s32 a3, s32 a4);
 extern void func_004323a8(s32 socket, void *data);
 extern s32 func_004326b8(s32 socket, void *data);
-extern void func_0043f810(void *dst, void *src, s32 size);
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
-extern void func_00442830(void *dst, const void *src);
-extern void func_00442428(void *dst, void *src);
+extern void memcpy(void *dst, void *src, s32 size);
+extern void memset(void *dst, s32 value, s32 size);
+extern void strcpy(void *dst, const void *src);
+extern void strcat(void *dst, void *src);
 extern s32 func_00455f70(void *arg0, s32 *arg1);
 extern char D_007127B0[];
 extern char D_007127D0[];
@@ -154,7 +154,7 @@ s32 func_004647c0(void)
                 D_00764BC0 = 3;
                 return 2;
             }
-            func_00442088(D_008E4A20, D_007127D0, D_00764BB8, D_00764BB8);
+            sprintf(D_008E4A20, D_007127D0, D_00764BB8, D_00764BB8);
             func_00431d78(D_00764BA4, D_008E4A20, D_008E4900);
             D_00764BC0 = 2;
         }
@@ -259,7 +259,7 @@ s32 func_004647c0(void)
         }
         goto done;
     case 6:
-        func_00442088(D_008E4A20, D_00712800, D_00764BB8);
+        sprintf(D_008E4A20, D_00712800, D_00764BB8);
         func_00440b68(D_00712820, func_004326b8(D_00764BA4, D_008E4A20));
         D_00764BC0 = 7;
         return 5;
@@ -348,13 +348,13 @@ s32 func_004647c0(void)
         switch (D_00764BBC)
         {
         case 0:
-            func_00442088(D_008E4A20, D_007127D0, D_00764BB8, D_00764BB8);
+            sprintf(D_008E4A20, D_007127D0, D_00764BB8, D_00764BB8);
             break;
         case 1:
-            func_00442088(D_008E4A20, D_00712840, D_00764BB8);
+            sprintf(D_008E4A20, D_00712840, D_00764BB8);
             break;
         case 2:
-            func_00442088(D_008E4A20, D_00712860, D_00764BB8);
+            sprintf(D_008E4A20, D_00712860, D_00764BB8);
             break;
         default:
             break;
@@ -390,31 +390,31 @@ s32 func_004647c0(void)
         switch (D_00764BBC)
         {
         case 0:
-            func_00442088(D_008E4A20, D_007127D0, D_00764BB8, D_00764BB8);
+            sprintf(D_008E4A20, D_007127D0, D_00764BB8, D_00764BB8);
             func_00432288(D_00764BA4, D_008E4A20, D_00764BAC, 0, D_00764BB4);
             break;
         case 1:
-            func_00442088(D_008E4A20, D_00712840, D_00764BB8);
+            sprintf(D_008E4A20, D_00712840, D_00764BB8);
             func_00432288(D_00764BA4, D_008E4A20, (void *)func_00455f70(D_00712880, &out), 0, out);
             break;
         case 2:
-            func_00442088(D_008E4A20, D_00712860, D_00764BB8);
-            func_0043f9c8(D_008E4410, 0, 0x3C4);
-            func_00442830(D_008E4410, D_007640F8);
+            sprintf(D_008E4A20, D_00712860, D_00764BB8);
+            memset(D_008E4410, 0, 0x3C4);
+            strcpy(D_008E4410, D_007640F8);
             if ((u32)D_00764BB8 < 0x10U)
             {
-                func_00442830(D_008E44D0, D_00712890);
-                func_00442428(D_008E44D0, D_00712770[D_00764BB8]);
+                strcpy(D_008E44D0, D_00712890);
+                strcat(D_008E44D0, D_00712770[D_00764BB8]);
             }
             D_008E4416 = 0x12;
             D_008E441C = 0x60;
-            func_0043f810(D_008E4420, D_007126A0, 0x40);
-            func_0043f810(D_008E4460, D_007126E0, 0x30);
-            func_0043f810(D_008E4490, D_00712710, 0x30);
-            func_0043f810(D_008E44C0, D_00712740, 0x10);
-            func_00442830(D_008E4514, D_00712760);
-            func_00442830(D_008E4554, D_00712764);
-            func_00442830(D_008E4594, D_00712768);
+            memcpy(D_008E4420, D_007126A0, 0x40);
+            memcpy(D_008E4460, D_007126E0, 0x30);
+            memcpy(D_008E4490, D_00712710, 0x30);
+            memcpy(D_008E44C0, D_00712740, 0x10);
+            strcpy(D_008E4514, D_00712760);
+            strcpy(D_008E4554, D_00712764);
+            strcpy(D_008E4594, D_00712768);
             func_00432288(D_00764BA4, D_008E4A20, D_008E4410, 0, 0x3C4);
             break;
         default:

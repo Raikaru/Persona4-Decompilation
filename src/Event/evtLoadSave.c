@@ -24,13 +24,13 @@ extern void func_0047aa30(s32, u8 *);
 extern s32 func_002919d0(s32);
 extern u16 func_00145780(u16, s32, s32);
 extern void func_00269c20(u16, s32);
-extern u16 *func_00145270(u16);
+extern u16 *MT_Scene_GetRes(u16);
 extern void func_0046d730(u8 *, s32);
 extern void func_00286ff0(u8 *, u16, u16 *);
-extern u8 *func_0047a250(s32);
+extern u8 *mdlGetColor(s32);
 extern u8 *func_00286f00(s32, u8 *);
 extern void func_0028d110(u8 *);
-extern void func_0043f810(u8 *, u8 *, s32);
+extern void memcpy(u8 *, u8 *, s32);
 extern u8 D_005DC7D0[];
 extern u8 D_005DC878[];
 extern u8 D_0063CAB0[];
@@ -156,7 +156,7 @@ void func_00294610(u8 *arg0, u8 *arg1, s32 arg2) {
             if (*(s32 *)(arg1 + 0x40) == 0) {
                 func_0046d730(D_0063CAB0, 0x726);
             }
-            func_0043f810((u8 *)(*(s32 *)(arg1 + 0x40)), (u8 *)(*(s32 *)(arg0 + 0x60) + (v16 * 0x130)), 0x130);
+            memcpy((u8 *)(*(s32 *)(arg1 + 0x40)), (u8 *)(*(s32 *)(arg0 + 0x60) + (v16 * 0x130)), 0x130);
             break;
         }
         break;
@@ -261,27 +261,27 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
     *(s64 *)&stack.vec[0] = angles_xy;
     stack.vec[0].z = angles_z;
     if (func_00145260() != 0) {
-        idx = (s32)func_00145270(0x1E58);
+        idx = (s32)MT_Scene_GetRes(0x1E58);
         if (idx == 0) {
             resource_id = func_00145480(0x258) & 0xFFFF;
-            idx = (s32)func_00145270(resource_id);
+            idx = (s32)MT_Scene_GetRes(resource_id);
         } else {
             resource_id = *(u16 *)idx;
         }
         func_00146e60(resource_id, (u8 *)&stack.vec[1], (u8 *)&stack.vec[0]);
         *(s32 *)((u8 *)idx + 0x144) = 0;
-        *(u16 **)(arg1 + 0x12C) = func_00145270(resource_id);
+        *(u16 **)(arg1 + 0x12C) = MT_Scene_GetRes(resource_id);
         func_0026bfc0(&stack.vec[1].x, 900.0f, 45.0f, 0.0f, 0.0f, &stack.vec[2].x);
         func_00146e60(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
-        resource = (u8 *)func_00145270(0x1E59);
+        resource = (u8 *)MT_Scene_GetRes(0x1E59);
         if (resource == NULL) {
             resource_id = func_00145480(0x259) & 0xFFFF;
-            func_00145270(resource_id);
+            MT_Scene_GetRes(resource_id);
         } else {
             resource_id = *(u16 *)resource;
         }
         func_00146e60(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
-        *(s32 *)((u8 *)func_00145270(resource_id) + 0x144) = 0;
+        *(s32 *)((u8 *)MT_Scene_GetRes(resource_id) + 0x144) = 0;
         func_0028be70(arg1, 0);
         temp_3 = *(u16 **)(arg1 + 0x12C);
         if (temp_3 != NULL) {
@@ -599,12 +599,12 @@ void func_00295740(s32 arg0, u8 *arg1) {
             sp58.y = 0;
             sp58.z = (f32)-temp_2_2;
             func_00146e60(temp_16, (u8 *)&sp58, 0);
-            temp_2_3 = (u16 *)(func_00145270(temp_16));
+            temp_2_3 = (u16 *)(MT_Scene_GetRes(temp_16));
             if (temp_2_3 == NULL) {
                 func_0046d730(D_0063CAB0, 0x9C5);
             }
             func_00286ff0(arg1, temp_16, temp_2_3);
-            temp_2_4 = (u8 *)(func_0047a250(temp_17));
+            temp_2_4 = (u8 *)(mdlGetColor(temp_17));
             *(Rgba8 *)(arg1 + 0x50) = *(Rgba8 *)(temp_2_4);
             return;
         }
@@ -679,7 +679,7 @@ void func_00295b80(u8 *arg0, u8 *arg1) {
             } else {
                 var_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_7 + 0x14);
             }
-            func_0043f810(temp_2_2 + 0x10, var_2, 0x28);
+            memcpy(temp_2_2 + 0x10, var_2, 0x28);
         }
     }
 }
@@ -867,14 +867,14 @@ void func_00295db0(u8 *arg0, u8 *arg1) {
                         } else {
                             var_4 = *(u16 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 4);
                         }
-                        func_0043f810(*(u8 **)(temp_2_2 + 0x48), (u8 *)(*(s32 *)(arg0 + 0xB8) + ((var_4 & 0xFFFF) * 0x30)), 0x30);
+                        memcpy(*(u8 **)(temp_2_2 + 0x48), (u8 *)(*(s32 *)(arg0 + 0xB8) + ((var_4 & 0xFFFF) * 0x30)), 0x30);
                     } else {
                         if (type == 4) {
                             temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
                         } else {
                             temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 0x14);
                         }
-                        func_0043f810(*(u8 **)(temp_2_2 + 0x48), (u8 *)(*(s32 *)(arg0 + 0xB8) + (*(s16 *)(temp_6_2 + 0xA) * 0x30)), 0x30);
+                        memcpy(*(u8 **)(temp_2_2 + 0x48), (u8 *)(*(s32 *)(arg0 + 0xB8) + (*(s16 *)(temp_6_2 + 0xA) * 0x30)), 0x30);
                     }
                     if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
                         var_2_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);

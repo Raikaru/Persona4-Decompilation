@@ -25,7 +25,7 @@ extern char D_007127D0[];
 extern char D_008E4900[];
 extern char D_008E4A20[];
 extern s32 D_008E4B28[];
-extern void func_00442088(void* dst, const void* fmt, s32 arg2, s32 arg3);
+extern void sprintf(void* dst, const void* fmt, s32 arg2, s32 arg3);
 extern void func_00431d78(s32 socket, void* data, void* result);
 extern void func_00440b68();
 extern void func_00431f28();
@@ -34,8 +34,8 @@ extern char D_007128B0[];
 extern char D_007128E0[];
 extern s32 D_008E4910[];
 extern void func_0044ea90(const void *msg, s32 id);
-extern void func_0043f810(void *dst, void *src, s32 size);
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern void memcpy(void *dst, void *src, s32 size);
+extern void memset(void *dst, s32 value, s32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern char D_007128F8[];
@@ -198,12 +198,12 @@ s32 func_00465590(void)
             }
             if (D_00764BA0 != 0)
             {
-                func_00442088(D_008E4A20, D_007128B0,
+                sprintf(D_008E4A20, D_007128B0,
                               D_00764BB8, D_00764BB8);
             }
             else
             {
-                func_00442088(D_008E4A20, D_007127D0,
+                sprintf(D_008E4A20, D_007127D0,
                               D_00764BB8, D_00764BB8);
             }
             func_00431d78(D_00764BA4, D_008E4A20, D_008E4900);
@@ -233,12 +233,12 @@ s32 func_00465590(void)
             }
             if (D_00764BA0 != 0)
             {
-                func_00442088(D_008E4A20, D_007128B0,
+                sprintf(D_008E4A20, D_007128B0,
                               D_00764BB8, D_00764BB8);
             }
             else
             {
-                func_00442088(D_008E4A20, D_007127D0,
+                sprintf(D_008E4A20, D_007127D0,
                               D_00764BB8, D_00764BB8);
             }
             func_00431f28(D_00764BA4, D_008E4A20, D_00764BAC, 0,
@@ -349,12 +349,12 @@ s32 func_00465a10(void)
         D_00764BAC = (*jtbl_008873E8)(0x38, 0x40000);
         if (D_00764BA0 != 0)
         {
-            func_00442088(D_008E4A20, D_007128B0,
+            sprintf(D_008E4A20, D_007128B0,
                           D_00764BB8, D_00764BB8);
         }
         else
         {
-            func_00442088(D_008E4A20, D_007127D0,
+            sprintf(D_008E4A20, D_007127D0,
                           D_00764BB8, D_00764BB8);
         }
         func_00431f28(D_00764BA4, D_008E4A20, D_00764BAC, 0, 0x38);
@@ -393,7 +393,7 @@ s32 func_00465a10(void)
                     goto state3_done;
                 }
             }
-            func_0043f810(
+            memcpy(
                 (u8 *)D_00764BA8 + D_00764BB8 * 0x34 + 0x40,
                 (u8 *)D_00764BAC + 4, 0x34);
             (*jtbl_008873EC)(D_00764BAC);
@@ -408,7 +408,7 @@ s32 func_00465a10(void)
                 }
                 if (*(u16 *)(recordData + 0x32) != (checksum & 0xff))
                 {
-                    func_0043f9c8(recordData, 0, 0x34);
+                    memset(recordData, 0, 0x34);
                 }
                 D_00764BA8[D_00764BB8] = 1;
             }
@@ -499,7 +499,7 @@ s32 func_00465f40(void)
       if (-1 == func_00464670(&sp1C, (u32 *) (&sp18), &sp14))
     {
       temp_6 = (new_var8 = D_00764BB8);
-      func_00442088(D_008E4A20, D_007127D0, temp_6, new_var8);
+      sprintf(D_008E4A20, D_007127D0, temp_6, new_var8);
       func_00431d78(D_00764BA4, D_008E4A20, D_008E4900);
       D_00764BC0 = 3;
     }

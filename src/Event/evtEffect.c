@@ -6,10 +6,10 @@
 extern void func_0044ea90(u8 *file, s32 line);
 extern void func_0046d730(u8 *file, s32 line);
 extern void func_002852a0(s32 arg0, s32 arg1);
-extern void func_00454bd0(u8 *arg0);
+extern void H_Cdvd_Destroy(u8 *arg0);
 extern void func_00291470(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
-extern void func_0043f9c8(void *dest, s32 value, s32 size);
+extern void memset(void *dest, s32 value, s32 size);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00748340[];
 extern u8 D_0063C830[];
@@ -17,7 +17,7 @@ extern u8 D_0063C840[];
 extern u8 D_0063C870[];
 extern u8 iGpffffa7b8;
 extern void func_00440b68();
-extern s32 func_004553c0(u8 *arg0);
+extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern u8 *func_00455f70(u8 *arg0, u32 *arg1);
 extern s32 func_00454a60(u8 *arg0, s32 arg1);
 
@@ -32,7 +32,7 @@ u8 *func_00290f00(void)
     if (work == 0) {
         func_0046d730(D_0063C830, 0x69);
     }
-    func_0043f9c8(work, 0, 0x190);
+    memset(work, 0, 0x190);
     *(s32 *)work = 0;
     return work;
 }
@@ -47,7 +47,7 @@ void func_00290fa0(u8 *arg0)
         for (i = 0; i < *(s32 *)(arg0 + 4); i++) {
             e = arg0 + i * 0x2C;
             if (*(s32 *)(e + 0x10) == 1) {
-                func_00454bd0(*(u8 **)(e + 0x38));
+                H_Cdvd_Destroy(*(u8 **)(e + 0x38));
             }
         }
         func_00291470(arg0);
@@ -94,7 +94,7 @@ s32 func_00291080(s32 *arg0)
     } else if (kind == 1) {
         handle = (u8 *)arg0[3];
         if (handle != NULL) {
-            if (func_004553c0(handle) == 1) {
+            if (H_Cdvd_IsFileLoaded(handle) == 1) {
                 offset = index * 11;
                 record = (u8 *)(arg0 + offset + 5);
                 arg0[offset + 13] = (s32)func_00455f70(record, &sp5C);

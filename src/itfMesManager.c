@@ -48,7 +48,7 @@ void func_0027a710();
 void func_0046a340();
 void func_0046a2d0();
 void *func_0046a430();
-void func_0043f9c8();
+void memset();
 void func_0027a690();
 void func_0027a6c0();
 void func_0027a6f0(s32 arg0);
@@ -61,7 +61,7 @@ void func_0027a340(u8 *arg0, s32 arg1);
 void func_0027a4d0(int param_1, u32 param_2);
 void func_00278450(s32 arg0, s32 arg1, char *arg2);
 void func_002784e0(s32 arg0, s32 arg1, s32 arg2);
-s32 func_00442088(char *buf, const char *fmt, ...);
+s32 sprintf(char *buf, const char *fmt, ...);
 s32 func_002438b0(s32 arg0);
 s32 func_00243840(s32 arg0);
 u32 func_0010d620(s16 arg0);
@@ -73,8 +73,8 @@ int func_00278de0(int param_1, int param_2);
 s32 func_0027a520(int param_1);
 void func_002738a0(s32 arg0);
 u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8, u32 param_9);
-void func_0043f810(void *arg0, void *arg1, u32 arg2);
-s32 func_00442948(const void *param_1);
+void memcpy(void *arg0, void *arg1, u32 arg2);
+s32 strlen(const void *param_1);
 void func_00272b00(u8 *arg0, s32 arg1);
 void func_00272ba0(u8 *arg0, s32 arg1);
 void func_00274a20(u8 *arg0, f32 fparg0);
@@ -140,7 +140,7 @@ void func_00278d50(u8 *arg0);
 void func_0027a5e0(void *arg0, s16 arg1);
 extern char D_0063BED0[];
 s32 func_00454a60(char *arg0, s32 arg1);
-void func_00456150(s32 arg0);
+void H_Cdvd_ReadSync(s32 arg0);
 void func_0027d2f0(s32 arg0);
 extern char D_0063BF00[];
 extern char DAT_00723858;
@@ -639,7 +639,7 @@ slot_done:
         if (*(s32 *)(i + (u32)manager + 0x10) != 0) {
             old_list = *(s32 **)(manager + 0xC);
             if (old_list != NULL) {
-                func_0043f810(sp50, old_list, 0x130);
+                memcpy(sp50, old_list, 0x130);
                 found = 1;
             }
             *(s32 **)(manager + 0xC) = *(s32 **)(manager + i + 0x10);
@@ -661,7 +661,7 @@ u8 *func_002776a0(u8 *arg0)
         func_0046d730(D_0063BE10, 0x55A);
     func_0046a2d0(D_0063BE10, 0x567);
     obj = func_0046a430(0x130);
-    func_0043f9c8(obj, 0, 0x130);
+    memset(obj, 0, 0x130);
     *(s32 *)(obj + 4) = 0;
     func_00278570(obj, arg0);
     *(s32 *)obj = 0;
@@ -1053,7 +1053,7 @@ void func_002782c0(int param_1, int param_2, int param_3, u32 param_4) {
 
     switch (param_4) {
     case 0:
-        func_00442088(sp30, &iGpffffa760, param_3);
+        sprintf(sp30, &iGpffffa760, param_3);
         func_00278450(param_1, param_2, sp30);
         break;
     case 1:
@@ -1224,7 +1224,7 @@ s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 void func_00278940(void)
 {
     func_00440b68(&DAT_00723858, D_0063BE10, 0xA00);
-    func_00456150(func_00454a60(D_0063BF00, 1));
+    H_Cdvd_ReadSync(func_00454a60(D_0063BF00, 1));
     func_0027d2f0(0);
 }
 
@@ -1737,18 +1737,18 @@ void func_00279a80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
         *slot = 0;
     }
     if (arg3 <= 0) {
-        size = (func_00442948((const void *)arg2) + 4) & ~3;
+        size = (strlen((const void *)arg2) + 4) & ~3;
         func_0046a2d0(D_0063BE10, 0xD0F);
         res = (s32 *)func_0046a430(size);
         *(s32 **)((u32)base + (u32)arg1 * 4) = res;
-        func_0043f810(res, (void *)arg2, size);
+        memcpy(res, (void *)arg2, size);
     } else {
         size = (arg3 + 5) & ~3;
         func_0046a2d0(D_0063BE10, 0xD22);
         res = (s32 *)func_0046a430(size);
         *(s32 **)((u32)base + (u32)arg1 * 4) = res;
-        func_0043f9c8(res, 0, size);
-        func_0043f810(*(s32 **)((u32)base + (u32)arg1 * 4), (void *)arg2, arg3);
+        memset(res, 0, size);
+        memcpy(*(s32 **)((u32)base + (u32)arg1 * 4), (void *)arg2, arg3);
     }
 }
 

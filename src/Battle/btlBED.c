@@ -24,9 +24,9 @@ void func_001d3ea0(BtlBedWork* work, u32 param);
 void func_001d3ff0(BtlBedWork* work);
 void func_00440b68();
 extern u8* func_00454a60(u8* param, s32 mode);
-void func_00454bd0(u8* ptr);
+void H_Cdvd_Destroy(u8* ptr);
 s32 func_00455f70(u8* param, s32* out);
-s32 func_004553c0(u8* ptr);
+s32 H_Cdvd_IsFileLoaded(u8* ptr);
 extern void (*jtbl_008873EC[])(void* ptr);
 extern char iGpffffa288;
 extern char D_00609538[];
@@ -59,9 +59,9 @@ s32 func_001d5d60(BtlBed* bed)
         func_00440b68(&iGpffffa288, D_00609538, 0x4B1);
         bed->field04 = (s32)func_00454a60(bed->field08, 0);
     }
-    if (func_004553c0((u8*)bed->field04) != 0) {
+    if (H_Cdvd_IsFileLoaded((u8*)bed->field04) != 0) {
         func_001d3ea0(work, func_00455f70(bed->field08, &sp3C));
-        func_00454bd0((u8*)bed->field04);
+        H_Cdvd_Destroy((u8*)bed->field04);
         work->flags &= 0xFFFE;
         work->flags |= 2;
         work->count--;

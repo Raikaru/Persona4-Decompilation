@@ -42,11 +42,11 @@ extern u8 D_007EFA04[];
 
 extern void func_0044ea90(void *msg, s32 id);
 
-extern u8 *func_00145270(s32 arg0);
-extern s32 func_00106330(s32 arg0);
-extern s32 func_0014c4c0(u8 *arg0, u8 *arg1, f32 arg2);
+extern u8 *MT_Scene_GetRes(s32 arg0);
+extern s32 datGetFlag(s32 arg0);
+extern s32 K_FldEvent_ArePosWithinDist(u8 *arg0, u8 *arg1, f32 arg2);
 extern f32 func_0014b5d0(u8 *arg0);
-extern void *func_0047a2f0(void *arg0);
+extern void *mdlGetMatrix(void *arg0);
 extern s32 func_002ac740(void);
 extern s64 func_002ac3c0(s32 arg0, s32 arg1);
 extern s32 func_002b11c0(RwV3d arg0);
@@ -81,7 +81,7 @@ s32 func_002b3990(s32 arg0)
     func_0044ea90(D_0063F120, 0x98);
     work = D_008873F4[0](1, 0x24, 0x40000);
     ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063F130), 0xF, 0, 0, func_002b3720, func_002b3960, (u8 *)(work));
-    *(u32 *)(work + 4) = (u32)func_00145270(0x400);
+    *(u32 *)(work + 4) = (u32)MT_Scene_GetRes(0x400);
     *(u32 *)(work + 0) = (u32)work;
     *(u32 *)(work + 8) = 0x3F400000;
     *(u32 *)(work + 0xC) = 0x3F400000;
@@ -107,7 +107,7 @@ void func_002b3ae0(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2)
 
     fparg0_saved = fparg0;
     p = *(u8 **)(arg0 + 0x38);
-    angle = func_0014b5d0((u8 *)func_0047a2f0((void *)(u32)D_007EFA00[0]));
+    angle = func_0014b5d0((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]));
     if (angle >= 0.0f) {
         temp = angle - 180.0f;
     } else {
@@ -163,14 +163,14 @@ s32 func_002b3c70(u8 *arg0)
         return 0;
     }
     if (*(s8 *)p == 0) {
-        if (func_0014c4c0(p + 0xC,
-                          (u8 *)func_0047a2f0((void *)(u32)D_007EFA00[0]) + 0x30,
+        if (K_FldEvent_ArePosWithinDist(p + 0xC,
+                          (u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30,
                           4800.0f) == 1 &&
             (s8)func_002ac3c0(p[0x18], p[0x19]) == 1) {
             dx = (s8)(p[0x18] -
-                      func_002b11c0(*(RwV3d *)((u8 *)func_0047a2f0((void *)(u32)D_007EFA00[0]) + 0x30)));
+                      func_002b11c0(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
             dy = (s8)(p[0x19] -
-                      func_002b1210(*(RwV3d *)((u8 *)func_0047a2f0((void *)(u32)D_007EFA00[0]) + 0x30)));
+                      func_002b1210(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
             *(f32 *)(base + 0) += 17.0f;
             *(f32 *)(base + 4) += 264.0f;
             keep = *(f32 *)(base + 0) + 18.0f * (f32)dx -
@@ -268,15 +268,15 @@ s32 func_002b4250(u8 *arg0)
         return 0;
     }
     if (*p == 0) {
-        h = (u8 *)func_0047a2f0((void *)(u32)D_007EFA00[0]) + 0x30;
-        o = (u8 *)func_0047a2f0((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30;
-        if (func_00106330(0x1012) == 0) {
-            if (func_0014c4c0(o, h, 2400.0f) == 1) {
+        h = (u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30;
+        o = (u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30;
+        if (datGetFlag(0x1012) == 0) {
+            if (K_FldEvent_ArePosWithinDist(o, h, 2400.0f) == 1) {
                 var_3 = 1;
                 goto vtest1;
             }
         } else {
-            if (func_0014c4c0(o, h, (f32)0x1770) == 1) {
+            if (K_FldEvent_ArePosWithinDist(o, h, (f32)0x1770) == 1) {
                 var_3 = 1;
                 goto vtest1;
             }
@@ -284,9 +284,9 @@ s32 func_002b4250(u8 *arg0)
         var_3 = 0;
 vtest1:
         if (var_3 == 1) {
-            a = func_002b11c0(*(RwV3d *)((u8 *)func_0047a2f0((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
-            b = func_002b1210(*(RwV3d *)((u8 *)func_0047a2f0((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
-            if (func_00106330(0x1012) == 0) {
+            a = func_002b11c0(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
+            b = func_002b1210(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
+            if (datGetFlag(0x1012) == 0) {
                 if ((s8)func_002ac3c0(a, b) == 1) {
                     var_3 = 1;
                     goto vtest2;
@@ -298,8 +298,8 @@ vtest1:
             var_3 = 0;
 vtest2:
             if (var_3 == 1) {
-                dx = (s8)((a & 0xFF) - func_002b11c0(*(RwV3d *)((u8 *)func_0047a2f0((void *)(u32)D_007EFA00[0]) + 0x30)));
-                dy = (s8)((b & 0xFF) - func_002b1210(*(RwV3d *)((u8 *)func_0047a2f0((void *)(u32)D_007EFA00[0]) + 0x30)));
+                dx = (s8)((a & 0xFF) - func_002b11c0(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
+                dy = (s8)((b & 0xFF) - func_002b1210(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
                 *(f32 *)(base + 0) += 17.0f;
                 *(f32 *)(base + 4) += 264.0f;
                 keep = *(f32 *)(base + 0) + 18.0f * (f32)dx -
@@ -317,15 +317,15 @@ vtest2:
             }
         }
     } else if (*p == 1) {
-        h = (u8 *)func_0047a2f0((void *)(u32)D_007EFA00[0]) + 0x30;
-        o = (u8 *)func_0047a2f0((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30;
-        if (func_00106330(0x1012) == 0) {
-            if (func_0014c4c0(o, h, 2400.0f) == 1) {
+        h = (u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30;
+        o = (u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30;
+        if (datGetFlag(0x1012) == 0) {
+            if (K_FldEvent_ArePosWithinDist(o, h, 2400.0f) == 1) {
                 var_3 = 1;
                 goto vtest3;
             }
         } else {
-            if (func_0014c4c0(o, h, (f32)0x1770) == 1) {
+            if (K_FldEvent_ArePosWithinDist(o, h, (f32)0x1770) == 1) {
                 var_3 = 1;
                 goto vtest3;
             }
@@ -333,9 +333,9 @@ vtest2:
         var_3 = 0;
 vtest3:
         if (var_3 == 1) {
-            f = func_002b11c0(*(RwV3d *)((u8 *)func_0047a2f0((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
-            e = func_002b1210(*(RwV3d *)((u8 *)func_0047a2f0((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
-            if (func_00106330(0x1012) == 0) {
+            f = func_002b11c0(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
+            e = func_002b1210(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
+            if (datGetFlag(0x1012) == 0) {
                 if ((s8)func_002ac3c0(f, e) == 1) {
                     var_3 = 1;
                     goto vtest4;
@@ -347,11 +347,11 @@ vtest3:
             var_3 = 0;
 vtest4:
             if (var_3 == 1) {
-                keep = 172.0f + 18.0f * (f32)func_002b11c0(*(RwV3d *)((u8 *)func_0047a2f0((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) -
+                keep = 172.0f + 18.0f * (f32)func_002b11c0(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) -
                        func_002b1260(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + p[1] * 0x750) + 0x220), 18.0f);
                 keep -= 2.0f;
                 *(f32 *)&out = keep;
-                keep = 9.0f + 18.0f * (f32)func_002b1210(*(RwV3d *)((u8 *)func_0047a2f0((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) -
+                keep = 9.0f + 18.0f * (f32)func_002b1210(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) -
                        func_002b1320(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + p[1] * 0x750) + 0x220), 18.0f);
                 keep -= 2.0f;
                 *((f32 *)&out + 1) = keep;
@@ -427,7 +427,7 @@ s32 func_002b4ad0(u8 *arg0)
     if (p8 == 0) {
         b = p[0xA];
         a = p[9];
-        if (func_00106330(0x1013) == 0) {
+        if (datGetFlag(0x1013) == 0) {
             if ((s8)func_002ac3c0(a, b) == 1) {
                 var_3 = 1;
                 goto vtest1;
@@ -439,8 +439,8 @@ s32 func_002b4ad0(u8 *arg0)
         var_3 = 0;
 vtest1:
         if (var_3 == 1) {
-            dx = (s8)(p[9] - func_002b11c0(*(RwV3d *)((u8 *)func_0047a2f0((void *)(u32)D_007EFA00[0]) + 0x30)));
-            dy = (s8)(p[0xA] - func_002b1210(*(RwV3d *)((u8 *)func_0047a2f0((void *)(u32)D_007EFA00[0]) + 0x30)));
+            dx = (s8)(p[9] - func_002b11c0(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
+            dy = (s8)(p[0xA] - func_002b1210(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
             *(f32 *)(base.bytes + 0) += 17.0f;
             *(f32 *)(base.bytes + 4) += 264.0f;
             keep = *(f32 *)(base.bytes + 0) + 18.0f * (f32)dx -
@@ -468,7 +468,7 @@ vtest1:
     } else if (p8 == 1) {
         b = p[0xA];
         a = p[9];
-        if (func_00106330(0x1013) == 0) {
+        if (datGetFlag(0x1013) == 0) {
             if ((s8)func_002ac3c0(a, b) == 1) {
                 var_3 = 1;
                 goto vtest2;

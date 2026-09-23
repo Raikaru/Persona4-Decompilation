@@ -500,7 +500,7 @@ Float32 ADXT_GetMvTime(ADXT adxt)
 
 // Total sample count of the stream once the header is known (stat >= PREP), else 0.
 // FUN_004D4B80
-Sint32 func_004d4b80(ADXT adxt)
+Sint32 adxt_GetNumSmpl(ADXT adxt)
 {
 	if (adxt == NULL) {
 		ADXERR_CallErrFunc1("E02080817 ADXT_GetNumSmpl: parameter error");
@@ -542,7 +542,7 @@ Sint32 ADXT_GetFmtBps(ADXT adxt)
 
 // Sampling rate of the stream in Hz once the header is known, else 0.
 // FUN_004D4D18
-Sint32 func_004d4d18(ADXT adxt)
+Sint32 adxt_GetHdrLen(ADXT adxt)
 {
 	if (adxt == NULL) {
 		ADXERR_CallErrFunc1("E02080819 ADXT_GetSfreq: parameter error");
@@ -556,7 +556,7 @@ Sint32 func_004d4d18(ADXT adxt)
 
 // Channel count of the stream once the header is known, else 0.
 // FUN_004D4DA0
-Sint32 func_004d4da0(ADXT adxt)
+Sint32 adxt_GetFmtBps(ADXT adxt)
 {
 	if (adxt == NULL) {
 		ADXERR_CallErrFunc1("E02080820 ADXT_GetNumChan: parameter error");

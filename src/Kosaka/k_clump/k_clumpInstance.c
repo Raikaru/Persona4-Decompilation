@@ -44,12 +44,12 @@ extern char D_005F64E0[];
 extern char D_005F6500[];
 extern s32 func_00428550(const char *arg0);
 extern s32 func_00428780(s32 arg0, void *arg1);
-extern s32 func_0043c6b0(const char *arg0);
-extern void func_00442428(void *arg0, const char *arg1);
+extern s32 atoi(const char *arg0);
+extern void strcat(void *arg0, const char *arg1);
 extern void func_00440b68(char *arg0, const char *arg1, s32 arg2);
 extern u8 *func_00454a60(void *arg0, s32 arg1);
-extern void func_00456150(void *arg0);
-extern void func_00454bd0(void *arg0);
+extern void H_Cdvd_ReadSync(void *arg0);
+extern void H_Cdvd_Destroy(void *arg0);
 extern void func_003c0700(void *arg0);
 
 extern s32 func_00428618(s32 arg0);
@@ -172,24 +172,24 @@ s32 func_001921a0(u8 *arg0)
         result = func_00428780(work->field_4, work->field_8);
         if (result > 0)
         {
-            if (func_004426e8(work->name, &iGpffffa06c) != 0 &&
-                func_004426e8(work->name, &iGpffffa070) != 0)
+            if (strcmp(work->name, &iGpffffa06c) != 0 &&
+                strcmp(work->name, &iGpffffa070) != 0)
             {
                 name_cursor = work->name;
                 while (*name_cursor != '.' && *name_cursor != '\0')
                 {
                     name_cursor++;
                 }
-                if (func_004426e8(name_cursor, &iGpffffa078) == 0)
+                if (strcmp(name_cursor, &iGpffffa078) == 0)
                 {
                     local.suffix[0] = work->name[1];
                     local.suffix[1] = work->name[2];
                     local.suffix[2] = work->name[3];
                     local.suffix[3] = '\0';
-                    if (func_0043c6b0(local.suffix) < 0x14)
+                    if (atoi(local.suffix) < 0x14)
                     {
-                        func_00442830(work->path, D_005F6550);
-                        func_00442428(work->path, work->name);
+                        strcpy(work->path, D_005F6550);
+                        strcat(work->path, work->name);
                         work->state = 2;
                     }
                 }
@@ -203,8 +203,8 @@ s32 func_001921a0(u8 *arg0)
     case 2:
         func_00440b68(&iGpffffa080, D_005F6500, 0xEB);
         work->field_450 = func_00454a60(work->path, 0);
-        func_00456150(work->field_450);
-        func_00442830(local.buffer, D_005F6570);
+        H_Cdvd_ReadSync(work->field_450);
+        strcpy(local.buffer, D_005F6570);
         path_cursor = work->path;
         while (*path_cursor != '\0')
         {
@@ -213,9 +213,9 @@ s32 func_001921a0(u8 *arg0)
         for (; *path_cursor != '/'; path_cursor--)
         {
         }
-        func_00442428(local.buffer, path_cursor + 1);
+        strcat(local.buffer, path_cursor + 1);
         func_00191e90(work->field_450, (s32 *)local.buffer, (u8 *)work);
-        func_00454bd0(work->field_450);
+        H_Cdvd_Destroy(work->field_450);
         work->state = 3;
         break;
     case 3:

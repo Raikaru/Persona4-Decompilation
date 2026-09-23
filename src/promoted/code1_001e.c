@@ -23,9 +23,9 @@ typedef struct P4RouteSlerp_001EF110 {
 } P4RouteSlerp_001EF110;
 extern void func_001bd780(void *out, const void *first,
                           const void *second, const void *up);
-extern f32 func_003e4180(f32 *vector);
+extern f32 RwV3dLength(f32 *vector);
 extern void func_003dcc70(const void *first, const void *second, void *result);
-extern void *func_003dcb40(void *out, const void *in, s32 count, const void *rotation);
+extern void *RtQuatTransformVectors(void *out, const void *in, s32 count, const void *rotation);
 extern f32 sqrtf(f32 arg0);
 extern u8 *func_001b0cc0();
 extern void *D_00609850[];
@@ -67,23 +67,23 @@ extern void func_001eb7f0(u8 *arg0);
 extern s32 func_001eb860(void);
 extern void func_001a03b0(s32 arg0);
 extern BtlPacket *func_001d3700(u16 arg0, u16 arg1);
-extern u8 *func_001bc920(s32 arg0, s32 arg1);
+extern u8 *btlCameraCreateSetStatePacket(s32 arg0, s32 arg1);
 extern s32 func_001dbba0();
-extern void func_001da2f0();
+extern void btlCond_MYWEAK();
 extern u32 func_00231d70(u32 arg0);
 extern u8 *func_001d9280();
 extern u8 *func_001d8c00();
 extern u8 *func_001de370();
-extern void func_001db580();
-extern void func_001db8d0();
+extern void btlCond_MYNOMAL();
+extern void btlCond_MYHOJO();
 extern s32 func_001dd570();
 extern s32 func_001de000();
 extern s32 func_001d9390();
 extern s32 func_001dbb90(void);
-extern void func_001da230();
-extern void func_001da270();
-extern void func_001da2b0();
-extern void func_001db900();
+extern void btlCond_MYHANSYA();
+extern void btlCond_MYKYUSYU();
+extern void btlCond_MYMUKOU();
+extern void btlCond_MYTAISEI();
 
 
 extern void func_00194590(u8 *arg0, s32 arg1);
@@ -106,7 +106,6 @@ extern f32 D_00761438;
 extern u8 *func_001b1560(void);
 extern void func_001eb410(u8 *arg0);
 extern u32 func_00231d70(u32 arg0);
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 
 
 
@@ -137,13 +136,13 @@ extern f32 fGpffffb454;
 extern u8 *func_001bcb50(s32 arg0, f32 *arg1, f32 *arg2, f32 arg3, f32 *arg4, f32 *arg5, f32 arg6, f32 arg7);
 extern BtlPacket *func_002306d0(void);
 extern u8 *func_001f81f0(s32 arg0, void *arg1);
-extern void func_00442088(void *arg0, void *arg1, s64 arg2);
+extern void sprintf(void *arg0, void *arg1, s64 arg2);
 extern u8 D_00609E40[];
-extern u32 func_00232710(s32 arg0, u32 arg1);
+extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern s32 func_00232c70(s32 arg0, s32 arg1);
-extern s32 func_00231ed0(s32 arg0);
-extern s32 func_002428f0(s32 arg0, s32 arg1);
-extern s32 func_00106330(s32 arg0);
+extern s32 datCalcGetHp(s32 arg0);
+extern s32 datCalcIsDead(s32 arg0, s32 arg1);
+extern s32 datGetFlag(s32 arg0);
 extern s32 func_0019ef90(s32 arg0, s32 arg1);
 extern s32 func_001b0c80(s32 arg0);
 extern void func_001fae60(s32 initialize, s32 update, s32 packet);
@@ -153,7 +152,7 @@ extern void func_001debb0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 func_00452490(s32 arg0);
 extern u8 *func_00194470(s32 arg0, s32 arg1);
 extern u8 *func_0022ced0(s32 arg0);
-extern s32 func_0029de20(s32 arg0, s32 arg1);
+extern s32 scrFindPrcdIdxByName(s32 arg0, s32 arg1);
 extern s32 func_001eba20(u8 *arg0);
 extern u8 *iGpffffb428;
 extern u16 func_00107ac0(s32 arg0);
@@ -233,8 +232,8 @@ s32 func_001e6dc0(void) {
         if ((flags & 1) && (flags & 8)) {
             entry = *(u8 **)(current + 0x30);
             if (*(u8 *)(entry + 0xA2) == 1 &&
-                func_002428f0(*(s32 *)(entry + 0xA64), 0) == 0) {
-                value = func_00231ed0(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64)) & 0xFFFF;
+                datCalcIsDead(*(s32 *)(entry + 0xA64), 0) == 0) {
+                value = datCalcGetHp(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64)) & 0xFFFF;
                 if (value < min) {
                     best = current;
                     min = value;
@@ -255,7 +254,7 @@ s32 func_001e6ea0(void) {
 
     work = func_0029d050();
     flags = func_0029cc00(0);
-    if (func_001dbba0(work, flags, 0, 0x2E, 0, &func_001da2f0) == 1) {
+    if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -278,7 +277,7 @@ s32 func_001e6fa0(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2E, 0, &func_001da2f0) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -296,7 +295,7 @@ s32 func_001e7080(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2F, 0, &func_001da2f0) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -314,7 +313,7 @@ s32 func_001e7160(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2C, 0, &func_001db580) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -332,7 +331,7 @@ s32 func_001e7240(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2C, 0, &func_001db580) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -350,7 +349,7 @@ s32 func_001e7320(void)
     int count;
     u8 *work;
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2D, 0, &func_001db580) == 1)
+    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1)
     {
         count = *(u16 *)(work + 0x6A);
         if (count == 1)
@@ -376,7 +375,7 @@ s32 func_001e7400(void) {
     extern s32 func_0029cc00(s32 arg0);
     extern void func_0029cf50(s32 arg0);
     extern u8 *func_0029d050(void);
-    extern void func_001db8d0();
+    extern void btlCond_MYHOJO();
     u8 *formation;
     u16 count;
     int selected;
@@ -388,7 +387,7 @@ s32 func_001e7400(void) {
     unit = (u32)func_0029d050();
     selector = (u32)func_0029cc00(0);
     count = func_001d9390(unit, selector, 0x80000, 1, 1,
-                          &func_001db8d0, candidates);
+                          &btlCond_MYHOJO, candidates);
     if (count > 0) {
         index = 0;
         formation = iGpffffb3ac;
@@ -417,7 +416,7 @@ s32 func_001e7510(void) {
     extern s64 func_0029cc00();
     extern void func_0029cf50();
     extern u8 *func_0029d050();
-    extern void func_001db8d0();
+    extern void btlCond_MYHOJO();
     u8 *var_19;
     s32 var_18;
     s32 temp_17;
@@ -426,7 +425,7 @@ s32 func_001e7510(void) {
     u8 *sp50[12];
 
     temp_16 = func_0029d050();
-    temp_17 = func_001d9390(temp_16, func_0029cc00(0), 0x80000, 2, 1, &func_001db8d0, sp50) & 0xFFFF;
+    temp_17 = func_001d9390(temp_16, func_0029cc00(0), 0x80000, 2, 1, &btlCond_MYHOJO, sp50) & 0xFFFF;
     if (temp_17 > 0) {
         var_19 = NULL;
         var_18 = 0;
@@ -469,7 +468,7 @@ s32 func_001e7640(void)
     extern u8 *func_0029d050(void);
     extern u32 func_00231d70(u32);
     extern s32 func_00231e20(u8 *);
-    extern s32 func_002428f0(s32, s32);
+    extern s32 datCalcIsDead(s32, s32);
     extern void func_0029cf50(s32);
     struct {
         s32 entries[14];
@@ -498,7 +497,7 @@ s32 func_001e7640(void)
         if (((*(u16 *)(candidate + 0x1A) & 1) != 0) &&
             ((*(u16 *)(candidate + 0x1A) & 8) != 0) &&
             (*(u8 *)(*(s32 *)(candidate + 0x30) + 0xA2) == desiredValue) &&
-            (func_002428f0(*(s32 *)(*(s32 *)(candidate + 0x30) + 0xA64), 0) == 0)) {
+            (datCalcIsDead(*(s32 *)(*(s32 *)(candidate + 0x30) + 0xA64), 0) == 0)) {
             value = (u32)(func_00231e20((u8 *)*(s32 *)(*(s32 *)(candidate + 0x30) + 0xA64)) & 0xFF);
             if (value == highest) {
                 selected[selectedCount] = candidate;
@@ -533,7 +532,7 @@ s32 func_001e77f0(void) {
     u32 var_22;
 
     temp_21 = func_0029d050();
-    if (func_001dbba0(temp_21, func_0029cc00(0), 0, 0x2C, 0, &func_001db580) == 1) {
+    if (func_001dbba0(temp_21, func_0029cc00(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(temp_21 + 0x6A) == 1) {
             var_19 = *(u8 **)(temp_21 + 0x38);
         } else {
@@ -546,7 +545,7 @@ loop_body:
             temp_20 = *(u8 **)(temp_21 + var_18 * 4 + 0x38);
             temp_17 = func_00231e20(*(s32 *)(*(u8 **)(temp_20 + 0x30) + 0xA64)) & 0xFF;
             if (temp_17 >= var_22) {
-                temp_2 = func_00231ed0(*(s32 *)(*(u8 **)(temp_20 + 0x30) + 0xA64)) & 0xFFFF;
+                temp_2 = datCalcGetHp(*(s32 *)(*(u8 **)(temp_20 + 0x30) + 0xA64)) & 0xFFFF;
                 if (var_16 < temp_2) {
                     var_19 = temp_20;
                     var_16 = temp_2;
@@ -566,7 +565,7 @@ loop_test:
 }
 // FUN_001E7950
 s32 func_001e7950(void) {
-    extern s32 func_002326c0();
+    extern s32 datCalcGetBadStatusNoDown();
     u8 *temp_19;
     s32 var_18;
     s32 var_17;
@@ -575,13 +574,13 @@ s32 func_001e7950(void) {
     u8 *sp50[12];
 
     temp_19 = func_0029d050();
-    if (func_001dbba0(temp_19, func_0029cc00(0), 0, 0x2C, 0, &func_001db580) == 1) {
+    if (func_001dbba0(temp_19, func_0029cc00(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         var_17 = 0;
         var_18 = 0;
         goto loop_test;
 loop_body:
         temp_16 = *(u8 **)(temp_19 + (u16)var_18 * 4 + 0x38);
-        if (!(func_002326c0(*(s32 *)(*(u8 **)(temp_16 + 0x30) + 0xA64)) & 0xFFEFFFFF)) {
+        if (!(datCalcGetBadStatusNoDown(*(s32 *)(*(u8 **)(temp_16 + 0x30) + 0xA64)) & 0xFFEFFFFF)) {
             sp50[var_17 & 0xFFFF] = temp_16;
             var_17 = (var_17 + 1) & 0xFFFF;
         }
@@ -661,22 +660,22 @@ loop_test:
 // FUN_001E7C20
 s32 func_001e7c20(void) {
     extern s32 func_001dbba0();
-    extern s32 func_002326c0();
+    extern s32 datCalcGetBadStatusNoDown();
     extern s64 func_0029cc00();
     extern void func_0029cf50();
     extern u8 *func_0029d050();
-    extern void func_001db580();
+    extern void btlCond_MYNOMAL();
     u8 *temp_18;
     s32 var_17;
     s32 var_16;
 
     temp_18 = func_0029d050();
-    if (func_001dbba0(temp_18, func_0029cc00(0), 0, 0x2C, 0, &func_001db580) == 1) {
+    if (func_001dbba0(temp_18, func_0029cc00(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         var_16 = 0;
         var_17 = 0;
         goto loop_test;
 loop_body:
-        if (!(func_002326c0(*(s32 *)(*(u8 **)(*(u8 **)(temp_18 + (u16)var_17 * 4 + 0x38) + 0x30) + 0xA64)) & 0xFFEFFFFF)) {
+        if (!(datCalcGetBadStatusNoDown(*(s32 *)(*(u8 **)(*(u8 **)(temp_18 + (u16)var_17 * 4 + 0x38) + 0x30) + 0xA64)) & 0xFFEFFFFF)) {
             var_16 = (var_16 + 1) & 0xFFFF;
         }
         var_17 = (var_17 + 1) & 0xFFFF;
@@ -763,7 +762,7 @@ s32 func_001e7fb0(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2E, 0, &func_001db8d0) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2E, 0, &btlCond_MYHOJO) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -784,7 +783,7 @@ s32 func_001e8090(void) {
 
     work = func_0029d050();
     flags = func_0029cc00(0);
-    if (func_001dbba0(work, flags, 0, 0x2E, 0, &func_001da230) == 1) {
+    if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYHANSYA) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -810,7 +809,7 @@ s32 func_001e8190(void) {
 
     work = func_0029d050();
     flags = func_0029cc00(0);
-    if (func_001dbba0(work, flags, 0, 0x2E, 0, &func_001da270) == 1) {
+    if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYKYUSYU) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -836,7 +835,7 @@ s32 func_001e8290(void) {
 
     work = func_0029d050();
     flags = func_0029cc00(0);
-    if (func_001dbba0(work, flags, 0, 0x2E, 0, &func_001da2b0) == 1) {
+    if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYMUKOU) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -862,7 +861,7 @@ s32 func_001e8390(void) {
 
     work = func_0029d050();
     flags = func_0029cc00(0);
-    if (func_001dbba0(work, flags, 0, 0x2E, 0, &func_001db900) == 1) {
+    if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYTAISEI) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -889,7 +888,7 @@ s32 func_001e8490(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2E, 0, &func_001da2f0) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -898,7 +897,7 @@ s32 func_001e8490(void) {
             index = 0;
             while (index < *(u16 *)(work + 0x6A)) {
                 entry = *(u8 **)(work + index * 4 + 0x38);
-                value = func_00231ed0(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
+                value = datCalcGetHp(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
                 if (value < min) {
                     selected = entry;
                     min = value;
@@ -922,7 +921,7 @@ s32 func_001e85c0(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2E, 0, &func_001da2f0) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -931,7 +930,7 @@ s32 func_001e85c0(void) {
             index = 0;
             while (index < *(u16 *)(work + 0x6A)) {
                 entry = *(u8 **)(work + index * 4 + 0x38);
-                value = func_00231ed0(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
+                value = datCalcGetHp(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
                 if (value < min) {
                     selected = entry;
                     min = value;
@@ -955,7 +954,7 @@ s32 func_001e86f0(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2F, 0, &func_001da2f0) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -964,7 +963,7 @@ s32 func_001e86f0(void) {
             index = 0;
             while (index < *(u16 *)(work + 0x6A)) {
                 entry = *(u8 **)(work + index * 4 + 0x38);
-                value = func_00231ed0(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
+                value = datCalcGetHp(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
                 if (value < min) {
                     selected = entry;
                     min = value;
@@ -988,7 +987,7 @@ s32 func_001e8820(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2E, 0, &func_001da2f0) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -997,7 +996,7 @@ s32 func_001e8820(void) {
             index = 0;
             while (index < *(u16 *)(work + 0x6A)) {
                 entry = *(u8 **)(work + index * 4 + 0x38);
-                value = func_00231ed0(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
+                value = datCalcGetHp(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
                 if (value >= min) {
                     selected = entry;
                     min = value;
@@ -1021,7 +1020,7 @@ s32 func_001e8950(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2E, 0, &func_001da2f0) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1030,7 +1029,7 @@ s32 func_001e8950(void) {
             index = 0;
             while (index < *(u16 *)(work + 0x6A)) {
                 entry = *(u8 **)(work + index * 4 + 0x38);
-                value = func_00231ed0(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
+                value = datCalcGetHp(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
                 if (value >= min) {
                     selected = entry;
                     min = value;
@@ -1054,7 +1053,7 @@ s32 func_001e8a80(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2F, 0, &func_001da2f0) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1063,7 +1062,7 @@ s32 func_001e8a80(void) {
             index = 0;
             while (index < *(u16 *)(work + 0x6A)) {
                 entry = *(u8 **)(work + index * 4 + 0x38);
-                value = func_00231ed0(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
+                value = datCalcGetHp(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
                 if (value >= min) {
                     selected = entry;
                     min = value;
@@ -1143,8 +1142,8 @@ s32 func_001e8dd0(void) {
         if ((flags & 1) && (flags & 8)) {
             entry = *(u8 **)(current + 0x30);
             if (*(u8 *)(entry + 0xA2) == 0 &&
-                func_002428f0(*(s32 *)(entry + 0xA64), 0) == 0) {
-                value = func_00231ed0(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64)) & 0xFFFF;
+                datCalcIsDead(*(s32 *)(entry + 0xA64), 0) == 0) {
+                value = datCalcGetHp(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64)) & 0xFFFF;
                 if (value < min) {
                     best = current;
                     min = value;
@@ -1166,7 +1165,7 @@ s32 func_001e8eb0(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2C, 0, &func_001db580) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1175,7 +1174,7 @@ s32 func_001e8eb0(void) {
             index = 0;
             while (index < *(u16 *)(work + 0x6A)) {
                 entry = *(u8 **)(work + index * 4 + 0x38);
-                value = func_00231ed0(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
+                value = datCalcGetHp(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
                 if (value < min) {
                     selected = entry;
                     min = value;
@@ -1199,7 +1198,7 @@ s32 func_001e8fe0(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2C, 0, &func_001db580) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1208,7 +1207,7 @@ s32 func_001e8fe0(void) {
             index = 0;
             while (index < *(u16 *)(work + 0x6A)) {
                 entry = *(u8 **)(work + index * 4 + 0x38);
-                value = func_00231ed0(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
+                value = datCalcGetHp(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
                 if (value < min) {
                     selected = entry;
                     min = value;
@@ -1232,7 +1231,7 @@ s32 func_001e9110(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2D, 0, &func_001db580) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1241,7 +1240,7 @@ s32 func_001e9110(void) {
             index = 0;
             while (index < *(u16 *)(work + 0x6A)) {
                 entry = *(u8 **)(work + index * 4 + 0x38);
-                value = func_00231ed0(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
+                value = datCalcGetHp(*(s32 *)(*(u8 **)(entry + 0x30) + 0xA64)) & 0xFFFF;
                 if (value < min) {
                     selected = entry;
                     min = value;
@@ -1275,7 +1274,7 @@ s32 func_001e9240(void) {
                 entry = *(u8 **)(current + 0x30);
                 if (*(u8 *)(entry + 0xA2) == 1) {
                     data = *(u8 **)(entry + 0xA64);
-                    if (data == NULL || func_002428f0((s32)data, 0) == 0) {
+                    if (data == NULL || datCalcIsDead((s32)data, 0) == 0) {
                         stack[count & 0xFFFF] = current;
                         count = (count + 1) & 0xFFFF;
                     }
@@ -1346,7 +1345,7 @@ s32 func_001e94e0(void) {
                 entry = *(u8 **)(current + 0x30);
                 if (*(u8 *)(entry + 0xA2) == 1) {
                     data = *(u8 **)(entry + 0xA64);
-                    if (data == NULL || func_002428f0((s32)data, 0) == 0) {
+                    if (data == NULL || datCalcIsDead((s32)data, 0) == 0) {
                         stack[count & 0xFFFF] = current;
                         count = (count + 1) & 0xFFFF;
                     }
@@ -1382,8 +1381,8 @@ s32 func_001e9600(void) {
         if ((flags & 1) && (flags & 8)) {
             entry = *(u8 **)(current + 0x30);
             if (*(u8 *)(entry + 0xA2) == 1 &&
-                func_002428f0(*(s32 *)(entry + 0xA64), 0) == 0) {
-                value = func_00231ed0(*(s32 *)(entry + 0xA64)) & 0xFFFF;
+                datCalcIsDead(*(s32 *)(entry + 0xA64), 0) == 0) {
+                value = datCalcGetHp(*(s32 *)(entry + 0xA64)) & 0xFFFF;
                 if (value < min_eligible &&
                     func_001dd570(work, current, 0, 0) >= 0) {
                     best_eligible = current;
@@ -1408,8 +1407,8 @@ s32 func_001e9600(void) {
 s32 func_001e9770(void) {
     extern s32 func_0029cc00(s32 arg0);
     extern void func_0029cf50(s32 arg0);
-    extern s32 func_002428f0(s32 arg0, s32 arg1);
-    extern s32 func_00231ed0(s32 arg0);
+    extern s32 datCalcIsDead(s32 arg0, s32 arg1);
+    extern s32 datCalcGetHp(s32 arg0);
     extern s32 func_00231f80(s32 arg0);
     u32 temp_16;
     u32 temp_2;
@@ -1440,9 +1439,9 @@ loop_body:
     if (*(u8 *)(*(u8 **)(var_21 + 0x30) + 0xA2) != 0)
         goto loop_next;
     if ((temp_22 == 0) &&
-        (func_002428f0(*(s32 *)(*(u8 **)(var_21 + 0x30) + 0xA64), 0) != 0))
+        (datCalcIsDead(*(s32 *)(*(u8 **)(var_21 + 0x30) + 0xA64), 0) != 0))
         goto loop_next;
-    temp_19 = func_00231ed0(*(s32 *)(*(u8 **)(var_21 + 0x30) + 0xA64)) & 0xFFFF;
+    temp_19 = datCalcGetHp(*(s32 *)(*(u8 **)(var_21 + 0x30) + 0xA64)) & 0xFFFF;
     if ((u32)temp_23 > temp_19)
         goto loop_next;
     temp_4 = *(u8 **)(*(u8 **)(var_21 + 0x30) + 0xA64);
@@ -1451,7 +1450,7 @@ loop_body:
     if ((u32)temp_16 * 0x64 > temp_2 * (u32)temp_30)
         goto loop_next;
     if ((temp_17 != 0) &&
-        (func_00232710(*(s32 *)(*(u8 **)(var_21 + 0x30) + 0xA64), temp_17) == 0))
+        (datCalcChkBadStatus(*(s32 *)(*(u8 **)(var_21 + 0x30) + 0xA64), temp_17) == 0))
         goto loop_next;
     if (temp_19 >= var_18)
         goto loop_next;
@@ -1587,7 +1586,7 @@ outer_body:
         }
     }
     if (func_0023df70(skill & 0xFFFF) == 0) {
-        if (func_00232710(*(s32 *)(*(u8 **)(unit + 0xA64)), 0x80008) != 0) {
+        if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(unit + 0xA64)), 0x80008) != 0) {
             goto check_targets;
         }
         if (func_0023ddc0(*(u8 **)(unit + 0xA64), skill & 0xFFFF) != 0) {
@@ -1607,7 +1606,7 @@ innerA_test:
         entryA = tgt.entries[(idxA & 0xFFFF)];
         if (func_001db360(entryA, paramA, 1) != 0) {
             dmg = func_00235520(skill & 0xFFFF, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryA + 0x30) + 0xA64), 1, 1, 1, 0, 1);
-            hp = func_00231ed0(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
+            hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
             maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
             neg = -dmg;
             if (hp < neg) {
@@ -1638,7 +1637,7 @@ innerB_test:
             }
         } else {
             dmg = func_00235520(skill & 0xFFFF, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), 1, 1, 1, 0, 1);
-            hp = func_00231ed0(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
+            hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
             maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
             neg = -dmg;
             if (hp < neg) {
@@ -1697,8 +1696,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e9950);
 // FUN_001E9F20
 s32 func_001e9f20(void) {
     extern s32 func_0029cc00(s32 arg0);
-    extern s32 func_00231ed0(s32 arg0);
-    extern s32 func_002428f0(s32 arg0, s32 arg1);
+    extern s32 datCalcGetHp(s32 arg0);
+    extern s32 datCalcIsDead(s32 arg0, s32 arg1);
     extern void func_0029cf50(s32 arg0);
     u16 flags;
     u32 value;
@@ -1715,9 +1714,9 @@ s32 func_001e9f20(void) {
         flags = *(u16 *)(current + 0x1A);
         if ((flags & 1) && (flags & 8)) {
             if ((*(u8 *)(*(u8 **)(current + 0x30) + 0xA2) == 1) &&
-                (func_00232710(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64), random) != 0) &&
-                (func_002428f0(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64), 0) == 0)) {
-                value = (u32)(func_00231ed0(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64)) & 0xFFFF);
+                (datCalcChkBadStatus(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64), random) != 0) &&
+                (datCalcIsDead(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64), 0) == 0)) {
+                value = (u32)(datCalcGetHp(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64)) & 0xFFFF);
                 if (best_value < value) {
                     best = current;
                     best_value = value;
@@ -1736,8 +1735,8 @@ s32 func_001e9f20(void) {
 // FUN_001EA050
 s32 func_001ea050(void) {
     extern s32 func_0029cc00(s32 arg0);
-    extern s32 func_00231ed0(s32 arg0);
-    extern s32 func_002428f0(s32 arg0, s32 arg1);
+    extern s32 datCalcGetHp(s32 arg0);
+    extern s32 datCalcIsDead(s32 arg0, s32 arg1);
     extern void func_0029cf50(s32 arg0);
     u16 flags;
     u32 value;
@@ -1754,9 +1753,9 @@ s32 func_001ea050(void) {
         flags = *(u16 *)(current + 0x1A);
         if ((flags & 1) && (flags & 8)) {
             if ((*(u8 *)(*(u8 **)(current + 0x30) + 0xA2) == 1) &&
-                (func_00232710(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64), random) != 0) &&
-                (func_002428f0(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64), 0) == 0)) {
-                value = (u32)(func_00231ed0(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64)) & 0xFFFF);
+                (datCalcChkBadStatus(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64), random) != 0) &&
+                (datCalcIsDead(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64), 0) == 0)) {
+                value = (u32)(datCalcGetHp(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64)) & 0xFFFF);
                 if (value < best_value) {
                     best = current;
                     best_value = value;
@@ -1855,7 +1854,7 @@ s32 func_001ea4a0(void) {
 
     if (func_001ef9a0() != 0x20B)
         goto set_flag;
-    if (func_00106330(0x15FF) != 1)
+    if (datGetFlag(0x15FF) != 1)
         goto body;
 set_flag:
     *(s32 *)(iGpffffb3ac + 0x10) |= 0x10000000;
@@ -1880,7 +1879,7 @@ s32 func_001ea580(void)
 {
     func_001a03b0(*(s32 *)(iGpffffb3ac + 0x170));
     func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
-    func_00194590(func_001bc920(*(s32 *)(iGpffffb3ac + 0x170), 0x21), 0);
+    func_00194590(btlCameraCreateSetStatePacket(*(s32 *)(iGpffffb3ac + 0x170), 0x21), 0);
     return 1;
 }
 
@@ -1889,7 +1888,7 @@ s32 func_001ea5f0(void)
 {
     func_001a03b0(*(s32 *)(iGpffffb3ac + 0x170));
     func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
-    func_00194590(func_001bc920(*(s32 *)(iGpffffb3ac + 0x170), 0x2C), 0);
+    func_00194590(btlCameraCreateSetStatePacket(*(s32 *)(iGpffffb3ac + 0x170), 0x2C), 0);
     return 1;
 }
 
@@ -2162,7 +2161,7 @@ s32 func_001eaec0(void)
 #pragma opt_rebuildconditionals off
 s32 func_001eafb0(void) {
     extern void func_001ec6d0();
-    extern void func_00194ee0();
+    extern void btlUnitSetPos();
     extern s64 func_0029cc00();
     extern f32 func_0029cd50();
     f32 sp30[3];
@@ -2190,7 +2189,7 @@ select_table:
 loop_body:
     if (temp_16 == var_4) {
         func_001ec6d0(var_17 + 0x94, var_17 + 0x96, &sp30[0]);
-        func_00194ee0(var_17, &sp30[0]);
+        btlUnitSetPos(var_17, &sp30[0]);
         goto done;
     }
     var_4 += 1;
@@ -2233,7 +2232,7 @@ s32 func_001eb110(void) {
         func_00194590(temp_2_2, 1);
         break;
     case 1:
-        func_00442088(&sp20[0], &D_00609E40[0], temp_16);
+        sprintf(&sp20[0], &D_00609E40[0], temp_16);
         func_00194590(func_001f81f0(2, &sp20[0]), 1);
         break;
     }
@@ -2321,7 +2320,7 @@ void func_001eb3b0(u8 *arg0) {
     *(s32 *)(temp + 0x50) = 0;
     *(s32 *)(temp + 0x54) = 0;
     *(s32 *)(temp + 0x58) = 0;
-    func_0043f9c8(temp + 0x3E, 0, 6);
+    memset(temp + 0x3E, 0, 6);
 }
 // FUN_001EB410
 void func_001eb410(u8 *arg0) {
@@ -2334,7 +2333,7 @@ void func_001eb4a0(u8 *arg0, u8 *arg1, s64 arg2) {
     extern s32 func_00105ed0();
     extern void func_001de640(u8 *arg0, u8 *arg1, u16 arg2);
     extern s32 func_00231d70(u32 arg0);
-    extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+    extern void memset(void *arg0, s32 arg1, s32 arg2);
     extern void *D_006098BC[];
     extern void *D_00609934[];
     extern u8 D_00609E50[];
@@ -2367,7 +2366,7 @@ void func_001eb4a0(u8 *arg0, u8 *arg1, s64 arg2) {
     *(u32 *)(arg1 + 0x50) = 0;
     *(u32 *)(arg1 + 0x54) = 0;
     *(u32 *)(arg1 + 0x58) = 0;
-    func_0043f9c8(arg1 + 0x3E, 0, 6);
+    memset(arg1 + 0x3E, 0, 6);
     table = NULL;
     entry = NULL;
     mode = ((u64)arg2 << 44) >> 44;
@@ -2582,7 +2581,7 @@ u8 *func_001ebb00(s32 arg0, s32 arg1, u8 *arg2) {
         break;
     }
     *(s32 *)(temp_16 + 0x0) = arg0;
-    *(s32 *)(temp_16 + 0x4) = func_0029de20(*(s32 *)(temp_16 + 0xC), (s32)arg2);
+    *(s32 *)(temp_16 + 0x4) = scrFindPrcdIdxByName(*(s32 *)(temp_16 + 0xC), (s32)arg2);
     *(s32 *)(temp_16 + 0x8) = 0;
     return temp_2;
 }
@@ -2973,7 +2972,7 @@ typedef struct P4NeighborGroup {
     struct P4NeighborGroup *next;
 } P4NeighborGroup;
 extern s32 func_001eca10(u8 *first, u8 *second);
-extern f32 func_003e41b0(f32 *vector);
+extern f32 RwV2dLength(f32 *vector);
 typedef struct P4NeighborWorld {
     u8 prefix[0x318];
     P4NeighborGroup *groups;
@@ -3012,7 +3011,7 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
                 continue;
             linkedDelta[0] = *(f32 *)(node + 8) - *(f32 *)((u8 *)group + index * 0x130 + 0x10);
             linkedDelta[1] = *(f32 *)(node + 0xC) - *(f32 *)((u8 *)group + index * 0x130 + 0x14);
-            distance = func_003e41b0(linkedDelta);
+            distance = RwV2dLength(linkedDelta);
         *(f32 *)(node + (u16)count * 4 + 0xB0) = distance;
             *(u8 **)(node + (u16)count * 4 + 0x30) = neighbor;
             count = (u16)(count + 1);
@@ -3028,7 +3027,7 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
             continue;
         fixedDelta[0] = *(f32 *)(node + 8) - ((P4NeighborWorld *)iGpffffb3ac)->nodes[index].x;
         fixedDelta[1] = *(f32 *)(node + 0xC) - ((P4NeighborWorld *)iGpffffb3ac)->nodes[index].z;
-        distance = func_003e41b0(fixedDelta);
+        distance = RwV2dLength(fixedDelta);
         *(f32 *)(node + (u16)count * 4 + 0xB0) = distance;
         *(u8 **)(node + (u16)count * 4 + 0x30) = (u8 *)&((P4NeighborWorld *)iGpffffb3ac)->nodes[index];
         count = (u16)(count + 1);
@@ -3036,7 +3035,7 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
     if (iGpffffb3ac + 0x7DC != node && func_001eca10(node, iGpffffb3ac + 0x7DC) == 0) {
         startDelta[0] = *(f32 *)(node + 8) - *(f32 *)(iGpffffb3ac + 0x7E4);
         startDelta[1] = *(f32 *)(node + 0xC) - *(f32 *)(iGpffffb3ac + 0x7E8);
-        distance = func_003e41b0(startDelta);
+        distance = RwV2dLength(startDelta);
         *(f32 *)(p4_slot_001eb320((u16)count * 4, node) + 0xB0) = distance;
         *(u8 **)(p4_slot_001eb320((u16)count * 4, node) + 0x30) = iGpffffb3ac + 0x7DC;
         count = (u16)(count + 1);
@@ -3044,7 +3043,7 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
     if (iGpffffb3ac + 0x90C != node && func_001eca10(node, iGpffffb3ac + 0x90C) == 0) {
         goalDelta[0] = *(f32 *)(node + 8) - *(f32 *)(iGpffffb3ac + 0x914);
         goalDelta[1] = *(f32 *)(node + 0xC) - *(f32 *)(iGpffffb3ac + 0x918);
-        distance = func_003e41b0(goalDelta);
+        distance = RwV2dLength(goalDelta);
         *(f32 *)(p4_slot_001eb320((u16)count * 4, node) + 0xB0) = distance;
         *(u8 **)(p4_slot_001eb320((u16)count * 4, node) + 0x30) = iGpffffb3ac + 0x90C;
         count = (u16)(count + 1);
@@ -3107,7 +3106,7 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
 void func_001ed700(f32 radius)
 {
     extern f32 func_003e41e0(f32 *out, f32 *in);
-    extern f32 func_003e41b0(f32 *vec);
+    extern f32 RwV2dLength(f32 *vec);
     extern f32 D_0060A120[];
     extern f32 fGpffff8330;
     struct { s16 x; s16 y; } corners[4];
@@ -3269,7 +3268,7 @@ void func_001ed700(f32 radius)
                 dz = (f32)(*(s16 *)(group + 2) * 25 - 1750);
                 delta[0] = dx - bestX;
                 delta[1] = dz - bestZ;
-                *(f32 *)(group + i * 0x130 + 0x20) = func_003e41b0(delta) - (*(f32 *)(group + 4) + bestH);
+                *(f32 *)(group + i * 0x130 + 0x20) = RwV2dLength(delta) - (*(f32 *)(group + 4) + bestH);
             } else {
                 *(f32 *)(group + i * 0x130 + 0x1C) = -1.0f;
             }
@@ -3285,7 +3284,7 @@ void func_001ed700(f32 radius)
             do {
                 delta[0] = *(f32 *)(group + j * 0x130 + 8) - wpos[0];
                 delta[1] = *(f32 *)(group + j * 0x130 + 12) - wpos[1];
-                dist = func_003e41b0(delta);
+                dist = RwV2dLength(delta);
                 if (dist < bestDist) {
                     func_003e41e0(bestDir, delta);
                     best = group + j * 0x130 + 8;
@@ -3369,7 +3368,7 @@ void func_001ee250(u8 *arg0, u8 *arg1)
     s32 rounded_y;
     u8 *work;
 
-    func_00195850(arg0, coords);
+    btlUnitGetSphereWorldCenter(arg0, coords);
     scale = *(f32 *)(arg0 + 0x90) * *(f32 *)(arg0 + 0x2C);
     x = (s32)((f32)0x6D6 + coords[0]);
     y = (s32)((f32)0x6D6 + coords[2]);
@@ -3431,7 +3430,7 @@ void func_001ee430(u8 *arg0) {
 // FUN_001EE490
 s32 func_001ee490(u8 *arg0) {
     extern void func_001ec790(u8 *arg0, s16 arg1, s16 arg2, f32 arg3);
-    extern void func_00195850(u8 *arg0, f32 *arg1);
+    extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
     f32 coords[3];
     s16 out_x;
     s16 out_y;
@@ -3445,7 +3444,7 @@ s32 func_001ee490(u8 *arg0) {
     if ((*(s32 *)(arg0 + 0x9C) & 4) == 0) {
         return 0;
     }
-    func_00195850(arg0, coords);
+    btlUnitGetSphereWorldCenter(arg0, coords);
     scale = *(f32 *)(arg0 + 0x90) * *(f32 *)(arg0 + 0x2C);
     base = (f32)1750;
     x = (s32)(base + coords[0]);
@@ -3879,7 +3878,7 @@ typedef struct NWorld {
     base = iGpffffb3ac;
     initialDelta[0] = *(f32 *)(base + 0x7E4) - *(f32 *)(base + 0x914);
     initialDelta[1] = *(f32 *)(base + 0x7E8) - *(f32 *)(base + 0x918);
-    distance = func_003e41b0(initialDelta);
+    distance = RwV2dLength(initialDelta);
     *(f32 *)(iGpffffb3ac + 0x7FC) = distance;
     *(s32 *)(iGpffffb3ac + 0x808) = 0;
     base = iGpffffb3ac;
@@ -3920,7 +3919,7 @@ closed_done:
             neighbor = *updateEdge;
             goalDelta[0] = *(f32 *)(neighbor + 8) - *(f32 *)(base + 0x914);
             goalDelta[1] = *(f32 *)(neighbor + 0xC) - *(f32 *)(base + 0x918);
-            distance = func_003e41b0(goalDelta);
+            distance = RwV2dLength(goalDelta);
             *(f32 *)(*updateEdge + 0x20) = *(f32 *)(*updateEdge + 0x20) + distance;
             *(u8 **)(*updateEdge + 0x2C) = current;
             if (inClosed != 0) {
@@ -4000,7 +3999,7 @@ s32 func_001ef110(u8 *route, const f32 *startXZ,
     direction[0] = center[0] - endpoint[0];
     direction[1] = center[1] - endpoint[1];
     direction[2] = center[2] - endpoint[2];
-    startLength = func_003e4180(direction);
+    startLength = RwV3dLength(direction);
 
     endpoint[0] = endXZ[0];
     endpoint[2] = endXZ[1];
@@ -4008,7 +4007,7 @@ s32 func_001ef110(u8 *route, const f32 *startXZ,
     direction[0] = center[0] - endpoint[0];
     direction[1] = center[1] - endpoint[1];
     direction[2] = center[2] - endpoint[2];
-    lengthDelta = func_003e4180(direction);
+    lengthDelta = RwV3dLength(direction);
     blend = 0.0f;
     func_003dcc70(&startRotation, &endRotation, &interpolation);
     index = 0;
@@ -4061,7 +4060,7 @@ s32 func_001ef110(u8 *route, const f32 *startXZ,
             rotation.w = interpolation.first.w * firstWeight +
                          interpolation.second.w * secondWeight;
         }
-        func_003dcb40(direction, D_0060A0F0, 1, &rotation);
+        RtQuatTransformVectors(direction, D_0060A0F0, 1, &rotation);
         length = blend * lengthDelta + (0.0f + startLength);
         direction[0] = direction[0] * length;
         direction[1] = direction[1] * length;
@@ -4117,7 +4116,7 @@ s32 func_001ef4d0(s32 arg0, s32 arg1)
             entry = *(u8 **)(current + 0x30);
             if ((mask & (1 << *(u8 *)(entry + 0xA2))) != 0) {
                 if ((arg1 == 0) ||
-                    (func_00232710(*(s32 *)(entry + 0xA64), arg1) == 0)) {
+                    (datCalcChkBadStatus(*(s32 *)(entry + 0xA64), arg1) == 0)) {
                     total = (total +
                              (func_00231e20(*(s32 *)(entry + 0xA64)) & 0xFF)) &
                             0xFFFF;
@@ -4159,7 +4158,7 @@ s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2)
             entry = *(u8 **)(current + 0x30);
             if ((mask & (1 << *(u8 *)(entry + 0xA2))) != 0) {
                 if ((arg2 == 0) ||
-                    (func_00232710(*(s32 *)(entry + 0xA64), arg2) == 0)) {
+                    (datCalcChkBadStatus(*(s32 *)(entry + 0xA64), arg2) == 0)) {
                     total = (total +
                              (func_00232c70(*(s32 *)(entry + 0xA64), arg1) & 0xFF)) &
                             0xFFFF;
@@ -4195,7 +4194,7 @@ s32 func_001ef720(s32 arg0, s32 arg1)
         if ((*(u16 *)(current + 0x1A) & 1) && (*(u16 *)(current + 0x1A) & 8))
         {
             entry = *(u8 **)(current + 0x30);
-            if ((mask & (1 << *(u8 *)(entry + 0xA2))) && (func_00232710(*(s32 *)(entry + 0xA64), arg1) == 0))
+            if ((mask & (1 << *(u8 *)(entry + 0xA2))) && (datCalcChkBadStatus(*(s32 *)(entry + 0xA64), arg1) == 0))
             {
                 count = (count + 1) & 0xFFFF;
             }
@@ -4296,7 +4295,7 @@ s32 func_001ef9c0(u8 *action)
     if (*(u16 *)(actor + 0xA4) == 1) {
         return 0;
     }
-    if (func_00232710(*(s32 *)(actor + 0xA64), 0x1001FF) != 0) {
+    if (datCalcChkBadStatus(*(s32 *)(actor + 0xA64), 0x1001FF) != 0) {
         return 0;
     }
     if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x1000) ||
@@ -4324,13 +4323,13 @@ loop:
     actor = *(u8 **)(node + 0x30);
     if (*(u8 *)(actor + 0xA2) != 0) goto next;
     if (rank >= 5) {
-        if (func_00232710(*(s32 *)(actor + 0xA64), 1) != 0) {
+        if (datCalcChkBadStatus(*(s32 *)(actor + 0xA64), 1) != 0) {
             if (*(u8 **)(iGpffffb3ac + 0x170) == node) {
                 preferred1 = node;
             }
             status1Targets[count1] = node;
             count1++;
-        } else if (func_00232710(*(s32 *)(actor + 0xA64), 0x100000) != 0) {
+        } else if (datCalcChkBadStatus(*(s32 *)(actor + 0xA64), 0x100000) != 0) {
             if (*(u8 **)(iGpffffb3ac + 0x170) == node) {
                 preferred100000 = node;
             }
@@ -4339,7 +4338,7 @@ loop:
         }
     }
     if (rank >= 7) {
-        if (func_00232710(*(s32 *)(actor + 0xA64), 0x1E) != 0) {
+        if (datCalcChkBadStatus(*(s32 *)(actor + 0xA64), 0x1E) != 0) {
             if (*(u8 **)(iGpffffb3ac + 0x170) == node) {
                 preferred1e = node;
             }
@@ -4414,8 +4413,8 @@ u8 *func_001efd50(u8 *arg0)
             if ((*(u8 *)(temp_16 + 0xA2) == 0) &&
                 (*(u16 *)(temp_16 + 0xA4) != 1) &&
                 ((var_17 != 0) ||
-                 (func_00232710(*(s32 *)(temp_16 + 0xA64), 0x1001FF) == 0)) &&
-                (func_002428f0(*(s32 *)(temp_16 + 0xA64), 0) == 0) &&
+                 (datCalcChkBadStatus(*(s32 *)(temp_16 + 0xA64), 0x1001FF) == 0)) &&
+                (datCalcIsDead(*(s32 *)(temp_16 + 0xA64), 0) == 0) &&
                 ((var_17 != 0) ||
                  ((func_00107ac0((func_00247cb0(*(s16 *)(temp_16 + 0xA4)) &
                                    0xFFFF)) &
@@ -4446,7 +4445,7 @@ s32 func_001eff50(u8 *arg0)
         (*(u16 *)(arg0 + 0x14) == 9)) {
         return 0;
     }
-    if (func_00232710(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
+    if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
                       0x100117) != 0) {
         return 0;
     }
@@ -4468,9 +4467,9 @@ s32 func_001eff50(u8 *arg0)
             temp_16 = *(u8 **)(var_18 + 0x30);
             if ((*(u8 *)(temp_16 + 0xA2) == 0) &&
                 (*(u16 *)(temp_16 + 0xA4) != 1) &&
-                (func_00232710(*(s32 *)(temp_16 + 0xA64),
+                (datCalcChkBadStatus(*(s32 *)(temp_16 + 0xA64),
                                 0x1001FF) == 0) &&
-                (func_002428f0(*(s32 *)(temp_16 + 0xA64), 0) == 0) &&
+                (datCalcIsDead(*(s32 *)(temp_16 + 0xA64), 0) == 0) &&
                 (func_00243e30(*(u16 **)(temp_16 + 0xA64)) == 0) &&
                 ((func_00107ac0((func_00247cb0(
                                     *(s16 *)(temp_16 + 0xA4)) &

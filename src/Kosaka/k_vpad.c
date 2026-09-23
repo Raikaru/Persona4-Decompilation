@@ -73,9 +73,9 @@ typedef struct RuntimeCommandWork
 extern void func_004bc4d0(f32 value, RuntimeWork* work);
 extern void (*D_00887300[])(s32 state, s32 value);
 extern void (*D_00887304[])(s32 state, void* value);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_003e9df0(void* object);
-extern void* func_0047a2f0(void* object);
+extern void* mdlGetMatrix(void* object);
 extern void func_003e9cb0(void* object, void* matrix, s32 flags);
 extern void func_003e0960(void* matrix, const void* source);
 extern void func_003e42a0(void* destination, const void* source,
@@ -270,7 +270,7 @@ void func_004b5950(u8* workData)
                              0x8000) != 0)
                         {
                             func_003e0960(matrix,
-                                          func_0047a2f0(*(u8**)(work->field +
+                                          mdlGetMatrix(*(u8**)(work->field +
                                                                0x20)));
                         }
                         else
@@ -376,8 +376,8 @@ void func_004b5c60(RuntimeVpadWork* work)
     var_16 = 0;
     while (var_16 < *(s16*)((u8*)work->field + 4))
     {
-        func_003f6440(2, 0x48);
-        func_003f6440(3, 0x71801);
+        RpSkyRenderStateSet(2, 0x48);
+        RpSkyRenderStateSet(3, 0x71801);
         temp_17 = *(u8**)(*(u8**)(work->entries + var_16 * 8) + 4);
         if ((*(s32*)(work->statuses + var_16 * 0x20) & 8) != 0)
         {
@@ -388,7 +388,7 @@ void func_004b5c60(RuntimeVpadWork* work)
             func_003e9df0(temp_17);
             if ((~*(s32*)(*(u8**)((u8*)work->field + 0x20) + 0xD8) & 0x8000) != 0)
             {
-                func_003e9cb0(temp_17, func_0047a2f0(*(u8**)((u8*)work->field + 0x20)), 0);
+                func_003e9cb0(temp_17, mdlGetMatrix(*(u8**)((u8*)work->field + 0x20)), 0);
             }
             else
             {
@@ -473,7 +473,7 @@ void func_004b5f80(RuntimeWork* work, const u8* color)
 // FUN_004B7300
 f32 func_004b7300(const RuntimeDistanceWork* work, s32 index)
 {
-    extern f32 func_003e4180(RuntimeVec3* vector);
+    extern f32 RwV3dLength(RuntimeVec3* vector);
     s32 firstIndex;
     s32 nextIndex;
     RuntimeVec3 delta;
@@ -489,12 +489,12 @@ f32 func_004b7300(const RuntimeDistanceWork* work, s32 index)
     delta.x = work->firstVectors[nextIndex].x - work->firstVectors[firstIndex].x;
     delta.y = work->firstVectors[nextIndex].y - work->firstVectors[firstIndex].y;
     delta.z = work->firstVectors[nextIndex].z - work->firstVectors[firstIndex].z;
-    total += func_003e4180(&delta);
+    total += RwV3dLength(&delta);
 
     delta.x = work->secondVectors[nextIndex].x - work->secondVectors[firstIndex].x;
     delta.y = work->secondVectors[nextIndex].y - work->secondVectors[firstIndex].y;
     delta.z = work->secondVectors[nextIndex].z - work->secondVectors[firstIndex].z;
-    length = func_003e4180(&delta);
+    length = RwV3dLength(&delta);
     sum = total + length;
 
     zero = 0.0f;

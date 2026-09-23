@@ -12,7 +12,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *func_00452380(void *path);
 extern void func_0044ea90(const void *msg, s32 id);
 extern void func_0046d730(const char *file, s32 line);
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void memset(void *dst, s32 value, u32 size);
 
 extern void func_004b2a00(u8 *arg0);
 extern s32 func_004b2780(u8 *arg0);
@@ -24,7 +24,7 @@ extern s32 func_003e9320(void);
 extern void func_003efd20(void *a, void *b);
 extern s32 func_003ec590(s32 a, s32 b, s32 c, s32 d);
 extern void func_0040fcd0(s32 a, s32 b);
-extern void func_003e8310(void *a, s32 b);
+extern void RwCameraSetProjectionType(void *a, s32 b);
 extern void func_00460ac0(void *a, void *b);
 
 // FUN_004B2ED0
@@ -57,7 +57,7 @@ s32 func_004b2ed0(u8 *arg0) {
             return 0;
         }
         func_0040fcd0(t, 1);
-        func_003e8310(*(u8 **)(st + 0xC), 2);
+        RwCameraSetProjectionType(*(u8 **)(st + 0xC), 2);
         *(s32 *)(*(u8 **)(st + 0xC) + 0x60) = *(s32 *)(st + 8);
         *(s16 *)(st + 4) = 0;
         /* fallthrough */
@@ -132,7 +132,7 @@ void func_004b3180(s32 arg0) {
 
     func_0044ea90(D_00714618, 0x171);
     p = (u8 *)(*jtbl_008873E8)(0x40, 0x40000);
-    func_0043f9c8(p, 0, 0x40);
+    memset(p, 0, 0x40);
     if (p == NULL) {
         func_0046d730(D_00714608, 0x15B);
     }

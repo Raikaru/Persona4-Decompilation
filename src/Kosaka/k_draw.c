@@ -6,9 +6,9 @@
 #include "rw/plcore/barenderstate.h"
 extern u8 D_00887300_abs[];
 typedef s32 (*KDrawFunc)(RwRenderState state, void *value);
-extern s32 func_003f6440(s32 state, void *value);
-extern void func_0045fa00(f32 arg0, u8 *arg1, s32 arg2);
-extern void func_004604d0(f32 *position, f32 width, f32 height, u8 *color, s32 setStates);
+extern s32 RpSkyRenderStateSet(s32 state, void *value);
+extern void primAxisLine3D(f32 arg0, u8 *arg1, s32 arg2);
+extern void primCylinderLine3D(f32 *position, f32 width, f32 height, u8 *color, s32 setStates);
 extern u8 iGpffff9dd4;
 typedef struct { u8 c[4]; } Rgba8;
 
@@ -41,7 +41,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
 extern void (*jtbl_008873EC[])(void *);
-extern void func_004601c0(u8 *position, f32 size, u8 *color, s32 setStates);
+extern void primSphereLine3D(u8 *position, f32 size, u8 *color, s32 setStates);
 extern u8 D_005EFBC8[];
 extern u8 D_005EFBD8[];
 extern u8 D_005EFBE8[];
@@ -120,7 +120,7 @@ void func_0014d5f0(u8 *arg0, u8 *arg1) {
 // FUN_0014D620
 void func_0014d620(u8 *arg0, u8 *arg1)
 {
-    func_004601c0(arg1 + 4, 10.0f, arg1 + 0x10, 1);
+    primSphereLine3D(arg1 + 4, 10.0f, arg1 + 0x10, 1);
 }
 
 // FUN_0014D660
@@ -182,7 +182,7 @@ void func_0014d800(u8 *arg0, u8 *arg1) {
 // FUN_0014D830
 void func_0014d830(u8 *arg0, u8 *arg1)
 {
-    func_004604d0((f32 *)(arg1 + 4), *(f32 *)(arg1 + 0x10), *(f32 *)(arg1 + 0x14),
+    primCylinderLine3D((f32 *)(arg1 + 4), *(f32 *)(arg1 + 0x10), *(f32 *)(arg1 + 0x14),
                   &iGpffff9dd4, 1);
 }
 // FUN_0014D870
@@ -251,10 +251,10 @@ void func_0014da30(u8 *arg0, u8 *arg1)
     (*tbl)((RwRenderState)6, (void *)1);
     (*tbl)((RwRenderState)8, (void *)0);
     (*tbl)((RwRenderState)0xC, (void *)1);
-    func_003f6440(2, (void *)0x44);
-    func_003f6440(3, (void *)0x717FB);
-    func_0045fa00(60.0f, arg1, 1);
-    func_004601c0(arg1 + 0x30, 20.0f, arg1 + 0x48, 1);
+    RpSkyRenderStateSet(2, (void *)0x44);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
+    primAxisLine3D(60.0f, arg1, 1);
+    primSphereLine3D(arg1 + 0x30, 20.0f, arg1 + 0x48, 1);
 }
 // FUN_0014DB10
 s32 func_0014db10(u8 *arg0)

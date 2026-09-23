@@ -1,2 +1,4 @@
 * text=auto eol=lf
 *.bat text eol=crlf
+# Byte-pinned historical map: preserve CRLF exactly.
+config/asm_symbol_baseline.txt -text -diff

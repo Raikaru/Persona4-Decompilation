@@ -57,7 +57,7 @@ typedef struct BtlPacket {
 } BtlPacket;
 
 BtlPacket* func_00194470(u32 type, u32 workSize);
-void func_0043f810(void* dst, const void* src, u32 size);
+void memcpy(void* dst, const void* src, u32 size);
 void func_001f36b0(void* arg);
 s32 func_001f3010(u8* arg);
 extern u8* iGpffffb3ac;
@@ -68,15 +68,15 @@ extern void func_001f56d0(void* action, s32 effect, s32 arg2, s32 arg3, s32 arg4
 extern void func_00213b10(void* unit);
 extern void func_00213b30(void* unit);
 extern s32 func_00231e20(void* data);
-extern void func_00231f20(void* data, s32 value);
+extern void datCalcSetHp(void* data, s32 value);
 extern void func_002325a0(void* data, s32 value);
 extern void func_00232610(void* data, s32 value);
-extern void func_00232680(void* data, s32 value);
-extern void func_002326f0(void* data, s32 value);
-extern u32 func_00232710(s32 arg0, u32 arg1);
+extern void datCalcSetBadStatus(void* data, s32 value);
+extern void datCalcClearBadStatus(void* data, s32 value);
+extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern void func_00234830(void* data, s32 value, s32 mode);
-extern s32 func_002428f0(void* data, s32 mode);
-extern s32 func_00242930(void* data);
+extern s32 datCalcIsDead(void* data, s32 mode);
+extern s32 datCalcIsLowHp(void* data);
 extern s32 func_00243e30(void* data);
 extern void func_00243e50(void* data);
 extern void func_00243e70(void* data);
@@ -210,10 +210,10 @@ s32 func_001f3010(u8* arg0)
         return 1;
     }
     temp_18 = *(u8**)(temp_19 + 0x30);
-    temp_17 = func_002428f0(*(u8**)(temp_18 + 0xa64), 0);
-    temp_21 = func_00242930(*(u8**)(temp_18 + 0xa64));
-    temp_22 = func_00232710((s32)*(u8**)(temp_18 + 0xa64), 1);
-    temp_16 = func_00232710((s32)*(u8**)(temp_18 + 0xa64), 0x100000);
+    temp_17 = datCalcIsDead(*(u8**)(temp_18 + 0xa64), 0);
+    temp_21 = datCalcIsLowHp(*(u8**)(temp_18 + 0xa64));
+    temp_22 = datCalcChkBadStatus((s32)*(u8**)(temp_18 + 0xa64), 1);
+    temp_16 = datCalcChkBadStatus((s32)*(u8**)(temp_18 + 0xa64), 0x100000);
     if (*(u16*)(arg0 + 0x2a) & 2) {
         *(u16*)(temp_19 + 0x18) = *(u16*)(temp_19 + 0x18) | 0x1000;
     }
@@ -249,14 +249,14 @@ s32 func_001f3010(u8* arg0)
     }
     if (*(s32*)(iGpffffb3ac + 0xc) & 0x20) {
         func_001f6c40(temp_19, *(s32*)(arg0 + 0x10));
-        func_00232680(*(u8**)(temp_18 + 0xa64), *(s32*)(arg0 + 0x10));
-        func_002326f0(*(u8**)(temp_18 + 0xa64), *(s32*)(arg0 + 0x14));
+        datCalcSetBadStatus(*(u8**)(temp_18 + 0xa64), *(s32*)(arg0 + 0x10));
+        datCalcClearBadStatus(*(u8**)(temp_18 + 0xa64), *(s32*)(arg0 + 0x14));
     }
     temp_5 = *(s32*)(arg0 + 0x18);
     if (temp_5 != 0) {
         func_00234830(*(u8**)(temp_18 + 0xa64), temp_5, 1);
     }
-    if ((func_002428f0(*(u8**)(temp_18 + 0xa64), 0) != 0) && (temp_17 == 0)) {
+    if ((datCalcIsDead(*(u8**)(temp_18 + 0xa64), 0) != 0) && (temp_17 == 0)) {
         if (*(u8*)(temp_18 + 0xa2) == 1) {
             temp_3_2 = iGpffffb3ac;
             *(u16*)(temp_3_2 + 0xc5a) = *(u16*)(temp_3_2 + 0xc5a) + 1;
@@ -277,19 +277,19 @@ s32 func_001f3010(u8* arg0)
         func_00243e70(*(u8**)(temp_16_2 + 0xa64));
         if (temp_17_2 == 1) {
             if (*(u16*)(temp_19 + 0x3f4) != 0x154) {
-                func_00231f20(*(u8**)(temp_16_2 + 0xa64), 1);
+                datCalcSetHp(*(u8**)(temp_16_2 + 0xa64), 1);
             }
-            func_002326f0(*(u8**)(temp_16_2 + 0xa64), 0x80000);
+            datCalcClearBadStatus(*(u8**)(temp_16_2 + 0xa64), 0x80000);
             *(s32*)(temp_16_2 + 0x9c) = *(s32*)(temp_16_2 + 0x9c) | 0x10;
         } else {
-            func_00231f20(*(u8**)(temp_16_2 + 0xa64), 0);
-            func_002326f0(*(u8**)(temp_16_2 + 0xa64), 0xffffff);
-            func_00232680(*(u8**)(temp_16_2 + 0xa64), 0x80000);
+            datCalcSetHp(*(u8**)(temp_16_2 + 0xa64), 0);
+            datCalcClearBadStatus(*(u8**)(temp_16_2 + 0xa64), 0xffffff);
+            datCalcSetBadStatus(*(u8**)(temp_16_2 + 0xa64), 0x80000);
             temp_3_5 = *(s32*)(temp_16_2 + 0x9c) | 1;
             *(s32*)(temp_16_2 + 0x9c) = temp_3_5;
             *(s32*)(temp_16_2 + 0x9c) = temp_3_5 & ~0x10;
         }
-        if (func_002428f0(*(u8**)(temp_18 + 0xa64), 0) != 0) {
+        if (datCalcIsDead(*(u8**)(temp_18 + 0xa64), 0) != 0) {
             if (*(u8**)(iGpffffb3ac + 0x170) == temp_19) {
                 func_00113480(0x19, 0x96, 0x19, 0);
                 func_001f56d0(temp_19, 0x10, (*(s32*)(arg0 + 0x10) & 0x80000) != 0, 0, 2);
@@ -297,19 +297,19 @@ s32 func_001f3010(u8* arg0)
                 func_001f56d0(temp_19, 0x1c, 0, 0, 0);
             }
         }
-    } else if ((func_00242930(*(u8**)(temp_18 + 0xa64)) != 0) && (temp_21 == 0)) {
+    } else if ((datCalcIsLowHp(*(u8**)(temp_18 + 0xa64)) != 0) && (temp_21 == 0)) {
         func_001f56d0(temp_19, 0x1b, 0, 0, 0);
     } else {
         temp_3_6 = *(u8*)(*(u8**)(temp_19 + 0x30) + 0xa2);
         if ((temp_3_6 == 0) && (temp_3_6 != *(u8*)(*(u8**)(*(u8**)(arg0 + 0) + 0x30) + 0xa2))) {
-            if ((func_00232710((s32)*(u8**)(temp_18 + 0xa64), 1) != 0) && (temp_22 == 0)) {
+            if ((datCalcChkBadStatus((s32)*(u8**)(temp_18 + 0xa64), 1) != 0) && (temp_22 == 0)) {
                 func_001f56d0(temp_19, 0x16, 0, 0, 0);
-            } else if ((func_00232710((s32)*(u8**)(temp_18 + 0xa64), 0x100000) != 0) && (temp_16 == 0)) {
+            } else if ((datCalcChkBadStatus((s32)*(u8**)(temp_18 + 0xa64), 0x100000) != 0) && (temp_16 == 0)) {
                 func_001f56d0(temp_19, 0x17, 0, 0, 0);
             } else if (*(u16*)(arg0 + 0x28) & 6) {
                 func_001f56d0(temp_19, 0x1a, 0, 0, 0);
             }
-        } else if ((func_00232710((s32)*(u8**)(temp_18 + 0xa64), 0x100000) == 0) || (temp_16 == 1)) {
+        } else if ((datCalcChkBadStatus((s32)*(u8**)(temp_18 + 0xa64), 0x100000) == 0) || (temp_16 == 1)) {
             temp_4_2 = *(u8**)(arg0 + 0);
             temp_3_7 = *(u8*)(*(u8**)(temp_4_2 + 0x30) + 0xa2);
             if ((temp_3_7 == 0) &&
@@ -354,7 +354,7 @@ BtlPacket* func_001f36e0(s32 param_1, s32 param_2, const void* param_3, u16 para
     work = (u8*)packet->workData;
     *(s32*)(work + 0) = param_1;
     *(s32*)(work + 4) = param_2;
-    func_0043f810(work + 8, param_3, 0x20);
+    memcpy(work + 8, param_3, 0x20);
     *(u16*)(work + 0x28) = param_4;
     *(u16*)(work + 0x2a) = param_5;
     return packet;

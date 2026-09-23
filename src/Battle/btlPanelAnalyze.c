@@ -2,7 +2,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "btl_panel_internal.h"
-extern void func_0043f9c8();
+extern void memset();
 s32 func_0023a6b0(s32 arg0, s64 arg1);
 void func_00364c50(void);
 void func_00364c70(void);
@@ -15,8 +15,8 @@ void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 u8 *func_00457120(void);
 u8 *func_004571a0(void);
 u8 *func_004571c0(void);
-void func_00442088(void *dst, const void *fmt, s32 value);
-s32 func_00442948(const char *text);
+void sprintf(void *dst, const void *fmt, s32 value);
+s32 strlen(const char *text);
 void func_0046d730(const void *file, s32 line);
 extern u8 D_00628F80[];
 extern char iGpffffa59c;
@@ -115,8 +115,8 @@ mode_done:
     case 0:
     case 1:
         px = panelAdd2(96.0f, px);
-        func_00442088(locals.text, &iGpffffa59c, arg1);
-        length = func_00442948(locals.text);
+        sprintf(locals.text, &iGpffffa59c, arg1);
+        length = strlen(locals.text);
         i = 0;
         y = 4.0f + py;
         while (i < length) {
@@ -232,7 +232,7 @@ void func_00218c60(u8 *arg0, s32 arg1, s64 arg2, f32 fparg0, f32 fparg1) {
 
 // FUN_00218E50
 void func_00218e50(u8 *arg0, s32 arg1) {
-    func_0043f9c8(arg0, 0, 0x90);
+    memset(arg0, 0, 0x90);
     *(s32 *)(arg0 + 0x10) = arg1;
     *(s16 *)(arg0 + 0x2) = 0;
 }
@@ -337,11 +337,11 @@ void func_00219130(u8 *arg0) {
     void func_00478ea0(u8 *, void (*)(u8 *), u8 *);
     void func_00478eb0(u8 *, void (*)(u8 *), u8 *);
     void *func_003e4320(void *, const void *, const void *);
-    void *func_003e0870(void *, const void *, f32, s32);
-    void *func_003e05f0(void *, const void *, const void *);
-    u8 *func_0047a2f0(u8 *);
+    void *RwMatrixRotate(void *, const void *, f32, s32);
+    void *RwMatrixMultiply(void *, const void *, const void *);
+    u8 *mdlGetMatrix(u8 *);
     void func_0047a850(u8 *);
-    void func_0047a220(u8 *, const void *);
+    void mdlSetColor(u8 *, const void *);
     void func_00479100(void *, u8 *);
     AnalyzeVec3 position;
     AnalyzeVec3 transformed;
@@ -435,16 +435,16 @@ void func_00219130(u8 *arg0) {
         translated += *(f32 *)(entry + 8);
         position.z = translated;
         func_003e4320(&transformed, &position, matrix);
-        func_003e0870(&rotation, D_0060A0E0, *(f32 *)(arg0 + 0x88), 0);
-        func_003e0870(&rotation, D_0060A0D0, *(f32 *)(entry + 0xC), 2);
-        func_003e0870(&rotation, D_0060A0E0, 180.0f + *(f32 *)(entry + 0x10), 2);
-        func_003e05f0(func_0047a2f0(*(u8 **)(arg0 + 0xC)), &rotation, matrix);
+        RwMatrixRotate(&rotation, D_0060A0E0, *(f32 *)(arg0 + 0x88), 0);
+        RwMatrixRotate(&rotation, D_0060A0D0, *(f32 *)(entry + 0xC), 2);
+        RwMatrixRotate(&rotation, D_0060A0E0, 180.0f + *(f32 *)(entry + 0x10), 2);
+        RwMatrixMultiply(mdlGetMatrix(*(u8 **)(arg0 + 0xC)), &rotation, matrix);
         translated = *(f32 *)(matrix + 0x30) + transformed.x;
-        *(f32 *)(func_0047a2f0(*(u8 **)(arg0 + 0xC)) + 0x30) = translated;
+        *(f32 *)(mdlGetMatrix(*(u8 **)(arg0 + 0xC)) + 0x30) = translated;
         translated = *(f32 *)(matrix + 0x34) + transformed.y;
-        *(f32 *)(func_0047a2f0(*(u8 **)(arg0 + 0xC)) + 0x34) = translated;
+        *(f32 *)(mdlGetMatrix(*(u8 **)(arg0 + 0xC)) + 0x34) = translated;
         translated = *(f32 *)(matrix + 0x38) + transformed.z;
-        *(f32 *)(func_0047a2f0(*(u8 **)(arg0 + 0xC)) + 0x38) = translated;
+        *(f32 *)(mdlGetMatrix(*(u8 **)(arg0 + 0xC)) + 0x38) = translated;
         if (arg0[6] < 0xFF) {
             if (arg0[6] < 0xD7) {
                 arg0[6] += 0x28;
@@ -456,7 +456,7 @@ void func_00219130(u8 *arg0) {
             color[1] = 0xFF;
             color[2] = 0xFF;
             color[3] = arg0[6];
-            func_0047a220(*(u8 **)(arg0 + 0xC), color);
+            mdlSetColor(*(u8 **)(arg0 + 0xC), color);
         }
         func_00479100(D_00795020, *(u8 **)(arg0 + 0xC));
         break;
@@ -486,8 +486,8 @@ void func_00219790(s32 arg0, u8 *arg1) {
     extern u8 *iGpffffb3c4;
     extern u8 *iGpffffb444;
     extern u16 D_00628FB8[];
-    f32 func_0044b610(f32);
-    f32 func_0044b7b0(f32);
+    f32 cosf(f32);
+    f32 sinf(f32);
     void func_00201350(void);
     void func_002012d0(u8 *, f32, f32);
     void func_00201720(u8 *, f32, f32);
@@ -536,7 +536,7 @@ void func_00219790(s32 arg0, u8 *arg1) {
     if (mode < 4) {
         fade = 0.0f;
     } else if (mode < 10) {
-        fade = 1.0f - func_0044b610(fGpffff84a4 * (f32)(s32)(mode - 4) / 6.0f);
+        fade = 1.0f - cosf(fGpffff84a4 * (f32)(s32)(mode - 4) / 6.0f);
     } else {
         fade = 1.0f;
     }
@@ -547,8 +547,8 @@ void func_00219790(s32 arg0, u8 *arg1) {
         if ((*(u16 *)arg1 & 8) == 0) {
             f32 nx;
             nx = 60.0f + tmp;
-            func_00442088(text, &iGpffffa59c, func_00231e20(*(u8 **)(unit + 0xA64)) & 0xFF);
-            len = func_00442948(text);
+            sprintf(text, &iGpffffa59c, func_00231e20(*(u8 **)(unit + 0xA64)) & 0xFF);
+            len = strlen(text);
             if (len >= 3) {
                 func_0046d730(D_00628F80, 0xF4);
             }
@@ -600,7 +600,7 @@ void func_00219790(s32 arg0, u8 *arg1) {
     if ((s32)mode < 0) {
         fade = 0.0f;
     } else if (mode < 8) {
-        fade = 1.0f - func_0044b610(fGpffff84a4 * (f32)mode / 8.0f);
+        fade = 1.0f - cosf(fGpffff84a4 * (f32)mode / 8.0f);
     } else {
         fade = 1.0f;
     }
@@ -637,7 +637,7 @@ void func_00219790(s32 arg0, u8 *arg1) {
         if (mode < 4) {
             fade2 = 0.0f;
         } else if (mode < 10) {
-            fade2 = 1.0f - func_0044b610(fGpffff84a4 * (f32)(s32)(mode - 4) / 6.0f);
+            fade2 = 1.0f - cosf(fGpffff84a4 * (f32)(s32)(mode - 4) / 6.0f);
         } else {
             fade2 = 1.0f;
         }
@@ -728,7 +728,7 @@ void func_00219790(s32 arg0, u8 *arg1) {
         if (mode < 8) {
             tmp2 = 0.0f;
         } else if (mode < 13) {
-            tmp2 = func_0044b7b0(fGpffff84a4 * (f32)(s32)(mode - 8) / 5.0f);
+            tmp2 = sinf(fGpffff84a4 * (f32)(s32)(mode - 8) / 5.0f);
         } else {
             tmp2 = 1.0f;
         }

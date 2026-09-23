@@ -2,23 +2,23 @@
 #include "type.h"
 
 extern void *func_003e0f80(void);
-extern void func_003e0870(void *arg0, void *arg1, f32 fparg0, s32 arg2);
+extern void RwMatrixRotate(void *arg0, void *arg1, f32 fparg0, s32 arg2);
 extern void func_003e42a0(void *arg0, void *arg1, void *arg2);
 extern void func_003e0f40(void *arg0);
 extern void func_00371260(u8 *arg0);
 extern void func_00375fa0(u8 *arg0, s32 arg1, s32 arg2, f32 *arg3, f32 *arg4, f32 *arg5,
                            f32 fparg0, f32 fparg1);
-extern f32 func_0044b610(f32 fparg0);
-extern f32 func_0044b7b0(f32 fparg0);
+extern f32 cosf(f32 fparg0);
+extern f32 sinf(f32 fparg0);
 extern f32 fGpffff80d8;
 extern f32 fGpffff83e4;
 extern f32 fGpffff837c;
-extern void func_003e40b0(f32 *arg0, f32 *arg1);
+extern void RwV3dNormalize(f32 *arg0, f32 *arg1);
 extern s32 func_00378530(s32 arg0, s32 arg1);
 extern void func_00376330(u8 *arg0, s32 arg1, f32 *arg2);
 extern s32 func_003717e0(u8 *arg0, u8 *arg1);
-extern f32 func_003e41b0(f32 *arg0);
-extern u32 func_003b7060(void);
+extern f32 RwV2dLength(f32 *arg0);
+extern u32 RpRandom(void);
 extern void func_00370290(u8 *arg0, f32 *arg1, f32 fparg0);
 extern void func_00375e50(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 *arg4);
 extern void func_003dc740(void *arg0, void *arg1, f32 fparg0, s32 arg2);
@@ -61,8 +61,8 @@ void func_00370290(u8 *arg0, f32 *arg1, f32 fparg0) {
     second[0] = *(f32 *)(arg0 + 0x24) - *(f32 *)(arg0 + 0x00);
     second[1] = *(f32 *)(arg0 + 0x28) - *(f32 *)(arg0 + 0x04);
     second[2] = *(f32 *)(arg0 + 0x2C) - *(f32 *)(arg0 + 0x08);
-    func_003e40b0(&first[0], &first[0]);
-    func_003e40b0(&second[0], &second[0]);
+    RwV3dNormalize(&first[0], &first[0]);
+    RwV3dNormalize(&second[0], &second[0]);
 
     cross[0] = second[1] * first[2] - second[2] * first[1];
     cross[1] = second[2] * first[0] - second[0] * first[2];
@@ -106,7 +106,7 @@ void func_00370410(u8 *arg0) {
     *(struct Vec3 *)(arg0 + 0x24) = *(struct Vec3 *)work.random;
 
     scale = *(f32 *)(arg0 + 0x54);
-    value = func_003b7060() & 0xFFF;
+    value = RpRandom() & 0xFFF;
     if (value >= 0) {
         random_value = (f32)value;
     } else {
@@ -118,7 +118,7 @@ void func_00370410(u8 *arg0) {
                      scale * (random_value / 4096.0f);
 
     scale = *(f32 *)(arg0 + 0x54);
-    value = func_003b7060() & 0xFFF;
+    value = RpRandom() & 0xFFF;
     if (value >= 0) {
         random_value = (f32)value;
     } else {
@@ -130,7 +130,7 @@ void func_00370410(u8 *arg0) {
                      (scale * (random_value / 4096.0f)) / 4096.0f;
 
     scale = *(f32 *)(arg0 + 0x54);
-    value = func_003b7060() & 0xFFF;
+    value = RpRandom() & 0xFFF;
     if (value >= 0) {
         random_value = (f32)value;
     } else {
@@ -177,7 +177,7 @@ void func_00370640(u8 *arg0) {
         *(struct Vec3 *)(arg0 + 0x24) = *(struct Vec3 *)(arg0 + 0x48);
 
         scale = *(f32 *)(arg0 + 0x54);
-        value = func_003b7060() & 0xFFF;
+        value = RpRandom() & 0xFFF;
         if (value >= 0) {
             random_value = (f32)value;
         } else {
@@ -189,7 +189,7 @@ void func_00370640(u8 *arg0) {
                          scale * (random_value / 4096.0f);
 
         scale = *(f32 *)(arg0 + 0x54);
-        value = func_003b7060() & 0xFFF;
+        value = RpRandom() & 0xFFF;
         if (value >= 0) {
             random_value = (f32)value;
         } else {
@@ -201,7 +201,7 @@ void func_00370640(u8 *arg0) {
                          scale * (random_value / 4096.0f);
 
         scale = *(f32 *)(arg0 + 0x54);
-        value = func_003b7060() & 0xFFF;
+        value = RpRandom() & 0xFFF;
         if (value >= 0) {
             random_value = (f32)value;
         } else {
@@ -281,7 +281,7 @@ void func_00370a80(u8 *arg0) {
     *(struct Vec3 *)(arg0 + 0x28) = *(struct Vec3 *)work.random;
 
     scale = *(f32 *)(arg0 + 0x58);
-    value = func_003b7060() & 0xFFF;
+    value = RpRandom() & 0xFFF;
     if (value >= 0) {
         random_value = (f32)value;
     } else {
@@ -293,7 +293,7 @@ void func_00370a80(u8 *arg0) {
                      scale * (random_value / 4096.0f);
 
     scale = *(f32 *)(arg0 + 0x5C);
-    value = func_003b7060() & 0xFFF;
+    value = RpRandom() & 0xFFF;
     if (value >= 0) {
         random_value = (f32)value;
     } else {
@@ -305,7 +305,7 @@ void func_00370a80(u8 *arg0) {
                      scale * (random_value / 4096.0f);
 
     scale = *(f32 *)(arg0 + 0x60);
-    value = func_003b7060() & 0xFFF;
+    value = RpRandom() & 0xFFF;
     if (value >= 0) {
         random_value = (f32)value;
     } else {
@@ -368,7 +368,7 @@ void func_00370cd0(u8 *arg0) {
         *(struct Vec3 *)(arg0 + 0x28) = *(struct Vec3 *)(arg0 + 0x4C);
 
         scale = *(f32 *)(arg0 + 0x58);
-        value = func_003b7060() & 0xFFF;
+        value = RpRandom() & 0xFFF;
         if (value >= 0) {
             random_value = (f32)value;
         } else {
@@ -380,7 +380,7 @@ void func_00370cd0(u8 *arg0) {
                          scale * (random_value / 4096.0f);
 
         scale = *(f32 *)(arg0 + 0x5C);
-        value = func_003b7060() & 0xFFF;
+        value = RpRandom() & 0xFFF;
         if (value >= 0) {
             random_value = (f32)value;
         } else {
@@ -392,7 +392,7 @@ void func_00370cd0(u8 *arg0) {
                          scale * (random_value / 4096.0f);
 
         scale = *(f32 *)(arg0 + 0x60);
-        value = func_003b7060() & 0xFFF;
+        value = RpRandom() & 0xFFF;
         if (value >= 0) {
             random_value = (f32)value;
         } else {
@@ -457,7 +457,7 @@ void func_00371160(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, u8 *arg3) {
     sp70[0] = *(f32 *)(arg2 + 0) - *(f32 *)(arg0 + 0);
     sp70[1] = *(f32 *)(arg2 + 4) - *(f32 *)(arg0 + 4);
     sp70[2] = *(f32 *)(arg2 + 8) - *(f32 *)(arg0 + 8);
-    func_003e0870(temp_16, arg1, fparg0, 0);
+    RwMatrixRotate(temp_16, arg1, fparg0, 0);
     func_003e42a0(arg3, sp70, temp_16);
     *(f32 *)(arg3 + 0) += *(f32 *)(arg0 + 0);
     *(f32 *)(arg3 + 4) += *(f32 *)(arg0 + 4);
@@ -490,8 +490,8 @@ void func_00379e90(u8 *arg0, s32 arg1, f32 *arg2) {
     temp_f2 = work.sp68;
     work.sp58 = add_retail_order(temp_f2, 200.0f);
     work.sp40 = 0.0f;
-    work.sp44 = func_0044b610(fGpffff80d8);
-    work.sp48 = -func_0044b7b0(fGpffff80d8);
+    work.sp44 = cosf(fGpffff80d8);
+    work.sp48 = -sinf(fGpffff80d8);
     if (arg2 != NULL) {
         func_00371160((u8 *)&work.sp50, (u8 *)&work.sp40, (u8 *)&work.sp60, 0.0f, (u8 *)arg2);
         return;
@@ -523,7 +523,7 @@ s32 func_00379f90(u8 *arg0) {
     extern void func_0046d730(const void *file, u32 line);
     extern char D_0064EAC0[];
     extern u16 D_008C024E;
-    extern s32 func_00106330(s32 arg0);
+    extern s32 datGetFlag(s32 arg0);
     extern void func_00106390(s32 arg0, s32 arg1);
     extern u16 func_00378bf0(void);
     extern s32 func_00378c80(u8 *arg0, s32 arg1, s32 arg2);
@@ -677,7 +677,7 @@ s32 func_00379f90(u8 *arg0) {
         *(u32 *)(arg0 + 0x1F2F8) = 7;
     }
     case 7:
-        if (func_00106330(0x1431) == 0) {
+        if (datGetFlag(0x1431) == 0) {
             func_003798d0(arg0, 1);
             *(u32 *)(arg0 + 0x1F2F8) = 0xF;
             *(u16 *)(arg0 + 0x1F2F0) = 0;
@@ -807,18 +807,18 @@ void func_0037ab50(u8 *arg0, s32 arg1, f32 *arg2) {
         parity -= 2;
     }
     if (parity == 0) {
-        temp_f20 = -func_0044b610(fGpffff83e4);
-        work.sp50 = temp_f20 * func_0044b7b0(fGpffff837c);
-        temp_f20 = -func_0044b610(fGpffff83e4);
-        work.sp54 = temp_f20 * func_0044b610(fGpffff837c);
-        work.sp58 = func_0044b7b0(fGpffff83e4);
+        temp_f20 = -cosf(fGpffff83e4);
+        work.sp50 = temp_f20 * sinf(fGpffff837c);
+        temp_f20 = -cosf(fGpffff83e4);
+        work.sp54 = temp_f20 * cosf(fGpffff837c);
+        work.sp58 = sinf(fGpffff83e4);
         zero = 0.0f;
     } else {
-        temp_f20 = -func_0044b610(fGpffff83e4);
-        work.sp50 = temp_f20 * func_0044b7b0(fGpffff837c);
-        temp_f20 = func_0044b610(fGpffff83e4);
-        work.sp54 = temp_f20 * func_0044b610(fGpffff837c);
-        work.sp58 = -func_0044b7b0(fGpffff83e4);
+        temp_f20 = -cosf(fGpffff83e4);
+        work.sp50 = temp_f20 * sinf(fGpffff837c);
+        temp_f20 = cosf(fGpffff83e4);
+        work.sp54 = temp_f20 * cosf(fGpffff837c);
+        work.sp58 = -sinf(fGpffff83e4);
         zero = 0.0f;
     }
     if (arg2 != NULL) {
@@ -849,7 +849,7 @@ extern void func_0046d730(const void *file, u32 line);
 extern char D_0064EAE0[];
 extern char D_0064EB00[];
 extern u16 D_008C024E;
-extern s32 func_00106330(s32 arg0);
+extern s32 datGetFlag(s32 arg0);
 extern void func_00106390(s32 arg0, s32 arg1);
 extern u16 func_00378bf0(void);
 extern s32 func_00378c80(u8 *arg0, s32 arg1, s32 arg2);
@@ -1013,7 +1013,7 @@ s32 func_0037ad10(u8 *arg0) {
         *(u32 *)(arg0 + 0x1F2F8) = 7;
     }
     case 7:
-        if (func_00106330(0x1431) == 0) {
+        if (datGetFlag(0x1431) == 0) {
             func_003798d0(arg0, 1);
             *(u32 *)(arg0 + 0x1F2F8) = 0xF;
             *(u16 *)(arg0 + 0x1F2F0) = 0;
@@ -1139,22 +1139,22 @@ void func_0037b8c0(u8 *arg0, s32 arg1, f32 *arg2) {
     switch (temp_hi) {
     case 0:
         work.sp50 = 0.0f;
-        work.sp54 = func_0044b610(fGpffff80d8);
-        work.sp58 = -func_0044b7b0(fGpffff80d8);
+        work.sp54 = cosf(fGpffff80d8);
+        work.sp58 = -sinf(fGpffff80d8);
         break;
     case 1:
-        temp_f20 = -func_0044b610(fGpffff80d8);
-        work.sp50 = temp_f20 * func_0044b7b0(fGpffff837c);
-        temp_f20 = -func_0044b610(fGpffff80d8);
-        work.sp54 = temp_f20 * func_0044b610(fGpffff837c);
-        work.sp58 = func_0044b7b0(fGpffff80d8);
+        temp_f20 = -cosf(fGpffff80d8);
+        work.sp50 = temp_f20 * sinf(fGpffff837c);
+        temp_f20 = -cosf(fGpffff80d8);
+        work.sp54 = temp_f20 * cosf(fGpffff837c);
+        work.sp58 = sinf(fGpffff80d8);
         break;
     case 2:
-        temp_f20 = -func_0044b610(fGpffff80d8);
-        work.sp50 = temp_f20 * func_0044b7b0(fGpffff837c);
-        temp_f20 = func_0044b610(fGpffff80d8);
-        work.sp54 = temp_f20 * func_0044b610(fGpffff837c);
-        work.sp58 = -func_0044b7b0(fGpffff80d8);
+        temp_f20 = -cosf(fGpffff80d8);
+        work.sp50 = temp_f20 * sinf(fGpffff837c);
+        temp_f20 = cosf(fGpffff80d8);
+        work.sp54 = temp_f20 * cosf(fGpffff837c);
+        work.sp58 = -sinf(fGpffff80d8);
         break;
     }
     if (arg2 != NULL) {
@@ -1347,7 +1347,7 @@ s32 func_0037bc80(u8 *arg0) {
         *(u32 *)(arg0 + 0x1F2F8) = 7;
     }
     case 7:
-        if (func_00106330(0x1431) == 0) {
+        if (datGetFlag(0x1431) == 0) {
             func_003798d0(arg0, 1);
             *(u32 *)(arg0 + 0x1F2F8) = 0xF;
             *(u16 *)(arg0 + 0x1F2F0) = 0;
@@ -1468,7 +1468,7 @@ s32 func_0037ed90(u8 *arg0, s32 arg1) {
     func_003717e0((u8 *)work, (u8 *)screen);
     delta[0] = screen[0] - target_x;
     delta[1] = screen[1] - target_y;
-    best_dist = func_003e41b0(delta);
+    best_dist = RwV2dLength(delta);
     i = 1;
     best = 0;
     while (i < count) {
@@ -1476,7 +1476,7 @@ s32 func_0037ed90(u8 *arg0, s32 arg1) {
         func_003717e0((u8 *)work, (u8 *)screen);
         delta[0] = screen[0] - target_x;
         delta[1] = screen[1] - target_y;
-        dist = func_003e41b0(delta);
+        dist = RwV2dLength(delta);
         if (dist < best_dist) {
             best = i;
             best_dist = dist;

@@ -929,7 +929,7 @@ typedef struct RwRGBA
     u8 blue;
     u8 alpha;
 } RwRGBA;
-extern void func_00194f60(BtlUnit* unit, RwRGBA col);
+extern void btlUnitSetColor(BtlUnit* unit, RwRGBA col);
 /* Measured: all 1008 bytes and five relocations match.
  * Keep the word selector and row base separate: the base load precedes
  * index arithmetic. Work counters and list links remain callback reloads. */
@@ -1057,7 +1057,7 @@ u32 func_001b99f0(void *work)
                     {
                         col.alpha = 0xff;
                     }
-                    func_00194f60((BtlUnit *)node, col);
+                    btlUnitSetColor((BtlUnit *)node, col);
                 }
             }
             node = *(u8 **)(node + 0xa6c);
@@ -1138,7 +1138,7 @@ u32 func_001b9e50(void* work)
                 if ((s32)color.alpha < compareThreshold)
                 {
                     color.alpha = threshold;
-                    func_00194f60(unit, color);
+                    btlUnitSetColor(unit, color);
                 }
             }
             unit = *(BtlUnit **)((u8 *)unit + 0xA6C);

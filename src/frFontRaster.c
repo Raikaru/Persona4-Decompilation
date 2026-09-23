@@ -37,8 +37,8 @@ extern void func_0046d730(const void *file, u32 line);
 extern void func_0044ea90(void *msg, s32 id);
 extern void func_00440b68();
 extern s32 func_00457120(void);
-extern void *func_0043f9c8(void *dst, s32 value, u32 size);
-extern void func_0043f810();
+extern void *memset(void *dst, s32 value, u32 size);
+extern void memcpy();
 extern u32 func_003ec590(u32, u32, u32, u32);
 extern int func_003ec6a0(u32 tex, s32, s32);
 extern void func_003ec2a0(u32 tex);
@@ -74,7 +74,7 @@ void func_00275a60(s32 count)
     func_0044ea90(D_0063bc88, 0x27);
     memory = D_008873e8_abs[0](size, 0x40000);
     piGpffffb954 = (s32 *)memory;
-    func_0043f9c8((void *)memory, 0, (u32)size);
+    memset((void *)memory, 0, (u32)size);
     *piGpffffb954 = count;
     piGpffffb954[1] = (s32)(piGpffffb954 + 6);
     node = (s32 *)piGpffffb954[1];
@@ -273,7 +273,7 @@ s32 func_00275d80(s32 x, s32 y, f32 depth, u8 *glyph,
     if (opacity == 0) {
         return 0;
     }
-    func_0043f9c8(vertices, 0, 0x100);
+    memset(vertices, 0, 0x100);
     depthZ = D_008872F8[0] - depth;
     /* Unpack shifted channels after initializing the iteration. Each byte
      * converts directly to float at its store; the native invariant pass
@@ -387,7 +387,7 @@ u32 func_002762f0(u32 param_1, u32 param_2, u32 param_3)
     puVar1[1] = param_1;
     *(u16 *)((int)puVar1 + 10) = 1;
     *puVar1 = *puVar1 | 1;
-    func_0043f810(puVar1[3], param_2, 0x200);
+    memcpy(puVar1[3], param_2, 0x200);
     puVar1[4] = 0;
     return (u32)puVar1;
 }
@@ -463,7 +463,7 @@ void func_00276420(int param_1, u8 *param_2, int param_3)
     if (lVar3 == 0) {
         func_0046d730(D_0063bc88, 0x1b1);
     }
-    func_0043f810(lVar3, (u32)D_0063b5f0 + param_3 * 0x40, 0x40);
+    memcpy(lVar3, (u32)D_0063b5f0 + param_3 * 0x40, 0x40);
     func_003ec2e0(*(u32 *)(param_1 + 0x14));
     *(short *)(param_1 + 8) = (short)param_3;
 }

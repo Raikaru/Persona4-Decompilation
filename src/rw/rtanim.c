@@ -23,7 +23,7 @@ extern void func_003d5000(u8 *value);
 extern void func_003d5fb0(u8 *value);
 extern void func_003e12f0(s32 value);
 extern u8 *RpUVAnimLinearKeyFrameDataInitFromMatrix(u8 *dst, u8 *src);
-extern u8 *func_003e05d0(u8 *value);
+extern u8 *RwMatrixUpdate(u8 *value);
 extern u8 *func_003d6fb0(u8 *dst, u8 *src);
 extern void *(*D_008873F8[])(s32, s32);
 extern s32 (*D_008873C8[])(s32, s32);
@@ -48,7 +48,7 @@ extern s32 func_003d8150(void);
 extern s32 func_003e8930(s32, s32, s32 (*)(s32), s32 (*)(s32));
 extern s32 func_003c4310(s32, s32, s32 (*)(s32), s32 (*)(s32), s32 (*)(s32, s32));
 extern s32 func_003c4340(s32, s32 (*)(s32, s32), s32 (*)(s32, s32), s32 (*)(s32));
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void memset(void *dst, s32 value, u32 size);
 extern void func_003d7c50(void *value);
 extern void *func_003d7a20(s32 value);
 

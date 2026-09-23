@@ -96,7 +96,7 @@ extern s32 func_0040c0f0(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_0040d0a0(s32 arg0, s32 arg1);
 extern void func_0040aa60(void (*arg0)(void));
 extern s32 func_00402d50(void *arg0, s32 *arg1);
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 iGpffffb9b0;
 extern s32 iGpffffb9ac;
 extern void func_00415920(void *arg0);
@@ -263,12 +263,12 @@ extern u8 *func_003e9af0(u8 *arg0, s32 (*arg1)(u8 *, s32), s32 arg2); /* P4: por
 // FUN_003E9C10
 u8 *func_003e9c10(u8 *arg0, const f32 *translation, s32 combineOp)
 {
-    extern u8 *func_003e0c90(u8 *, const f32 *, s32);
+    extern u8 *RwMatrixTranslate(u8 *, const f32 *, s32);
     u8 *temp_3;
     u8 temp_5;
     u8 **head;
 
-    func_003e0c90(arg0 + 0x10, translation, combineOp);
+    RwMatrixTranslate(arg0 + 0x10, translation, combineOp);
     temp_3 = *(u8 **)(arg0 + 0xA0);
     temp_5 = *(u8 *)(temp_3 + 3);
     if ((temp_5 & 3) == 0) {

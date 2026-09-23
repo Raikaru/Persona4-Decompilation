@@ -33,7 +33,7 @@ typedef struct ShuffleContext {
 } ShuffleContext;           /* 0x1F308 */
 
 extern void func_0046d730(const void *file, u32 line);
-extern u32 func_003b7060();
+extern u32 RpRandom();
 extern s32 func_0037ed90(u8 *ctx, s32 slot);
 extern s32 func_00379150(u8 *ctx, s32 a, s32 b);
 extern void func_00389090(s32 a, s32 b);
@@ -67,7 +67,7 @@ extern s32 func_00379a70(u8 *ctx);
 extern s32 func_00379920(u8 *ctx);
 extern void func_003799d0(u8 *ctx);
 extern void func_003798d0(u8 *ctx, s32 a);
-extern s32 func_00106330(s32 a);
+extern s32 datGetFlag(s32 a);
 extern void func_00106390(s32 a, s32 b);
 extern void func_003717e0(u8 *a, f32 *b);
 extern void func_0036dc60(u8 *unit, f32 *src, f32 *dst, f32 scale);
@@ -119,7 +119,7 @@ void func_0037ef40(u8 *arg0) {
             c = n;
             k = c - 1;
             while (k > 0) {
-                rnd = func_003b7060();
+                rnd = RpRandom();
                 c = (s32)((f32)c * ((f32)(rnd & 0xFFF) / 4096.0f));
                 if (k < 0 || n <= k) {
                     func_0046d730(&D_0064EB40[0], 0xCB);
@@ -196,7 +196,7 @@ void func_0037ef40(u8 *arg0) {
             c = n;
             k = c - 1;
             while (k > 0) {
-                rnd = func_003b7060();
+                rnd = RpRandom();
                 c = (s32)((f32)c * ((f32)(rnd & 0xFFF) / 4096.0f));
                 if (k < 0 || n <= k) {
                     func_0046d730(&D_0064EB40[0], 0xDF);
@@ -436,7 +436,7 @@ temp_19 = (u8 *)(arg0 + 0x1F1D0);
                 (*( u16 *)(temp_19)) = (u16) ((*( u16 *)(temp_19)) | 0x70);
                 break;
             case 1:                                 /* switch 2 */
-                temp_2_2 = func_003b7060() & 0xFFF;
+                temp_2_2 = RpRandom() & 0xFFF;
                 if (temp_2_2 >= 0) {
                     var_f1 = (f32) temp_2_2;
                 } else {
@@ -446,7 +446,7 @@ temp_19 = (u8 *)(arg0 + 0x1F1D0);
                 (*( u16 *)(temp_19)) = (u16) ((*( u16 *)(temp_19)) & (~(0x10 << (s32)(3.0f * (var_f1 / 4096.0f))) & 0xFFFF));
                 break;
             case 2:                                 /* switch 2 */
-                temp_2_3 = func_003b7060() & 0xFFF;
+                temp_2_3 = RpRandom() & 0xFFF;
                 if (temp_2_3 >= 0) {
                     var_f1_2 = (f32) temp_2_3;
                 } else {
@@ -596,7 +596,7 @@ block_62:
         }
         goto block_140;
     case 6:                                         /* switch 1 */
-        if (func_00106330(0x1433) == 0) {
+        if (datGetFlag(0x1433) == 0) {
             func_003798d0(arg0, 3);
             (*( u32 *)((u8 *)(arg0) + 0x1F2F8)) = 0x11U;
             (*( u16 *)((u8 *)(arg0) + 0x1F2F0)) = 0U;

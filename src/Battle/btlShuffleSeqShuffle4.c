@@ -5,10 +5,10 @@
 #include "sdk_snd_internal.h"
 
 extern void func_0046d730(const void *file, u32 line);
-extern u32 func_003b7060();
+extern u32 RpRandom();
 extern s32 func_00378530(s32 a, s32 b);
 extern void func_003717e0(u8 *a, f32 *b);
-extern f32 func_003e41b0(f32 *a);
+extern f32 RwV2dLength(f32 *a);
 extern f32 func_003e41e0(f32 *a, f32 *b);
 extern void func_00375dd0(u8 *ctx, s32 idx, f32 *a, f32 *b, f32 c, f32 d);
 extern void func_00376170(u8 *ctx, s32 a, s32 b, s32 c, s32 d, s32 *e, s32 *f);
@@ -30,7 +30,7 @@ extern void func_00376290(u8 *a, s32 b, s32 c, s32 d, s32 e);
 extern void func_0038d2c0(s32 a);
 extern void func_0036dc60(u8 *a, f32 *b, f32 *c, f32 d);
 extern void func_00375ec0(u8 *a, s32 b);
-extern s32 func_00106330(s32 a);
+extern s32 datGetFlag(s32 a);
 extern void func_003798d0(u8 *a, s32 b);
 extern void func_00389110(s32 a);
 extern s32 func_00389160(s32 a);
@@ -89,7 +89,7 @@ void func_0037c720(u8 *arg0) {
     idx = *(s32 *)(arg0 + 0x1F304);
     lo1 = D_0064E6BA[idx * 2];
     hi1 = D_0064E6BB[idx * 2];
-    ratio1 = (f32)(u32)(func_003b7060() & 0xFFF) / 4096.0f;
+    ratio1 = (f32)(u32)(RpRandom() & 0xFFF) / 4096.0f;
     d1 = hi1 - lo1 + 1;
     v1 = (f32)d1 * ratio1 + (f32)lo1;
     t1 = (u16)v1;
@@ -102,7 +102,7 @@ void func_0037c720(u8 *arg0) {
     } else {
         lo2 = D_0064E6CA[idx * 2];
         hi2 = D_0064E6CB[idx * 2];
-        ratio2 = (f32)(u32)(func_003b7060() & 0xFFF) / 4096.0f;
+        ratio2 = (f32)(u32)(RpRandom() & 0xFFF) / 4096.0f;
         d2 = hi2 - lo2 + 1;
         v2 = (f32)d2 * ratio2 + (f32)lo2;
         t2 = (u16)v2;
@@ -263,7 +263,7 @@ s32 func_0037d270(u8 *arg0, s64 arg1, s64 arg2) {
         func_003717e0(arg0 + i * 0xE8 + 0x1D6B8, spA0);
         spA8[0] = spA0[0] - arg2x;
         spA8[1] = spA0[1] - arg2y;
-        dist = func_003e41b0(spA8);
+        dist = RwV2dLength(spA8);
         func_003e41e0(spA8, spA8);
         dot = *(f32 *)&sp90 * spA8[0] + *(f32 *)((u8 *)&sp90 + 4) * spA8[1];
         if (dot > iGpffff83f0) {
@@ -318,7 +318,7 @@ void func_0037d460(u8 *arg0) {
     if (D_008C027A[0] & 0x2000) {
         sp48[0] += 1.0f;
     }
-    if (func_003e41b0(sp48) != 0.0f) {
+    if (RwV2dLength(sp48) != 0.0f) {
         ret = (u16)(func_0037d270(arg0, *(s64 *)sp48, sp40) & 0xFFFF);
         if (ret != (cur & 0xFFFF)) {
             *(u16 *)(base + 4) = ret;
@@ -409,7 +409,7 @@ void func_0037d840(u8 *arg0) {
     n = func_00378530(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
     var_18 = n - 1;
     while (var_18 > 0) {
-        temp_3 = func_003b7060() & 0xFFF;
+        temp_3 = RpRandom() & 0xFFF;
         var_f1 = (f32)(u32)temp_3;
         temp_f0 = var_f1 / 4096.0f;
         temp_f0 = (f32)(var_18 + 1) * (f32)temp_f0;
@@ -659,7 +659,7 @@ loop_46:
                 func_0045af60(1, 0, 5, 2);
             case 5:                                 /* switch 1 */
                 if (func_00378930(arg0, temp_19) != 0) {
-                    if (func_00106330(0x1432) == 0) {
+                    if (datGetFlag(0x1432) == 0) {
                         func_003798d0(arg0, 2);
                         *(u32 *)(arg0 + 0x1F2F8) = 0x15U;
                         *(u16 *)(arg0 + 0x1F2F0) = 0U;
@@ -674,7 +674,7 @@ loop_63:
                                 if (var_19 < (s32) *(u16 *)(temp_17 + 0x2C)) {
                                     temp_16_2 = (s32)(func_00378530(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC)));
                                     do {
-                                        temp_2_5 = func_003b7060() & 0xFFF;
+                                        temp_2_5 = RpRandom() & 0xFFF;
                                         var_f1 = (f32)(u32)temp_2_5;
                                         temp_f1_3 = (f32)temp_16_2 * (var_f1 / 4096.0f);
                                         var_3 = (s32)temp_f1_3;

@@ -91,7 +91,7 @@ u32 func_0026d400(float* param_1)
 // FUN_0026D440
 void func_0026d440(void)
 {
-    extern u32 func_003b7060(void);
+    extern u32 RpRandom(void);
     extern f32 fabsf(f32);
     extern f32 D_00881500[4];
     extern s32 D_00881504[], D_00881508[], D_0088150C[];
@@ -118,7 +118,7 @@ void func_0026d440(void)
     for (i = 0; i < 2; i++) {
         f32 d = delta[i];
         if (d != 0.0f) {
-            f32 random = (f32)func_003b7060() / 2147483648.0f;
+            f32 random = (f32)RpRandom() / 2147483648.0f;
             f32 amplitude = delta[i];
             step = 0.5f * amplitude + 0.5f * (amplitude * random);
             output = D_00881500 + i;
@@ -126,7 +126,7 @@ void func_0026d440(void)
                 if (*output <= 0.0f) *output += step;
                 else *output -= step;
             } else {
-                *output = 0.0f + *output + 2.0f * (step * ((f32)func_003b7060() / 2147483648.0f - 0.5f));
+                *output = 0.0f + *output + 2.0f * (step * ((f32)RpRandom() / 2147483648.0f - 0.5f));
             }
             if (*output < -d) *output = -d;
             if (!(*output <= d)) *output = d;

@@ -19,8 +19,8 @@ extern u8 D_007146E0[];
 
 extern void func_0044ea90(u8 *file, s32 line);
 extern void func_0046d730(u8 *file, s32 line);
-extern f32 func_003e4180(void *a0);
-extern void func_003e40b0(f32 *a, f32 *b);
+extern f32 RwV3dLength(void *a0);
+extern void RwV3dNormalize(f32 *a, f32 *b);
 extern f32 func_004b7300(void *arg0, s32 arg1);
 extern s32 func_004b7800(void *arg0, s32 arg1);
 extern f32 func_004bc310(u8 *arg0, s32 arg1);
@@ -81,7 +81,7 @@ void func_004b7460(u8 *data, f32 distance, u32 *section, f32 *fraction) {
             leadingDelta.c[0] = nextX - firstSample->c[0];
             leadingDelta.c[1] = nextSample->c[1] - firstSample->c[1];
             leadingDelta.c[2] = nextSample->c[2] - firstSample->c[2];
-            sectionLength += func_003e4180(&leadingDelta.c[0]);
+            sectionLength += RwV3dLength(&leadingDelta.c[0]);
             vectorBase = (u8 *)*(s32 *)(data + 0x14);
             nextSample = (EffAfterVec *)(vectorBase + nextOffset);
             nextX = nextSample->c[0];
@@ -89,7 +89,7 @@ void func_004b7460(u8 *data, f32 distance, u32 *section, f32 *fraction) {
             leadingDelta.c[0] = nextX - firstSample->c[0];
             leadingDelta.c[1] = nextSample->c[1] - firstSample->c[1];
             leadingDelta.c[2] = nextSample->c[2] - firstSample->c[2];
-            sectionLength += func_003e4180(&leadingDelta.c[0]);
+            sectionLength += RwV3dLength(&leadingDelta.c[0]);
             scaledLength = 0.0f;
             scaledLength += sectionLength * *(f32 *)((u8 *)*(void **)*(void **)data + 0x2C);
             cumulative += scaledLength / total;
@@ -116,7 +116,7 @@ void func_004b7460(u8 *data, f32 distance, u32 *section, f32 *fraction) {
             trailingDelta.c[0] = nextX - firstSample->c[0];
             trailingDelta.c[1] = nextSample->c[1] - firstSample->c[1];
             trailingDelta.c[2] = nextSample->c[2] - firstSample->c[2];
-            sectionLength += func_003e4180(&trailingDelta.c[0]);
+            sectionLength += RwV3dLength(&trailingDelta.c[0]);
             vectorBase = (u8 *)*(s32 *)(data + 0x14);
             nextSample = (EffAfterVec *)(vectorBase + nextOffset);
             nextX = nextSample->c[0];
@@ -124,7 +124,7 @@ void func_004b7460(u8 *data, f32 distance, u32 *section, f32 *fraction) {
             trailingDelta.c[0] = nextX - firstSample->c[0];
             trailingDelta.c[1] = nextSample->c[1] - firstSample->c[1];
             trailingDelta.c[2] = nextSample->c[2] - firstSample->c[2];
-            sectionLength += func_003e4180(&trailingDelta.c[0]);
+            sectionLength += RwV3dLength(&trailingDelta.c[0]);
             scaledLength = 0.0f;
             scaledLength += sectionLength * *(f32 *)((u8 *)*(void **)*(void **)data + 0x2C);
             previous += scaledLength / total;
@@ -184,18 +184,18 @@ void func_004b7830(u8 *work, s32 section, s32 side, EffAfterVec *output) {
         sideDelta.c[0] = point->c[0] - points[0][0]->c[0];
         sideDelta.c[1] = point->c[1] - points[0][0]->c[1];
         sideDelta.c[2] = point->c[2] - points[0][0]->c[2];
-        func_003e40b0(&sideDelta.c[0], &sideDelta.c[0]);
+        RwV3dNormalize(&sideDelta.c[0], &sideDelta.c[0]);
         pointRow = points[selected];
         point = pointRow[other];
         projection = point->c[0];
         forward.c[0] = projection - points[0][0]->c[0];
         forward.c[1] = point->c[1] - points[0][0]->c[1];
         forward.c[2] = point->c[2] - points[0][0]->c[2];
-        func_003e40b0(&forward.c[0], &forward.c[0]);
+        RwV3dNormalize(&forward.c[0], &forward.c[0]);
         normal.c[0] = sideDelta.c[1] * forward.c[2] - sideDelta.c[2] * forward.c[1];
         normal.c[1] = sideDelta.c[2] * forward.c[0] - sideDelta.c[0] * forward.c[2];
         normal.c[2] = sideDelta.c[0] * forward.c[1] - sideDelta.c[1] * forward.c[0];
-        func_003e40b0(&normal.c[0], &normal.c[0]);
+        RwV3dNormalize(&normal.c[0], &normal.c[0]);
         switch (side) {
         case 0:
             axis.c[0] = normal.c[1] * sideDelta.c[2] - normal.c[2] * sideDelta.c[1];
@@ -212,7 +212,7 @@ void func_004b7830(u8 *work, s32 section, s32 side, EffAfterVec *output) {
         axis.c[0] *= projection;
         axis.c[1] *= projection;
         axis.c[2] *= projection;
-        func_003e40b0(&output->c[0], &axis.c[0]);
+        RwV3dNormalize(&output->c[0], &axis.c[0]);
     } else {
         s32 secondIndex;
         secondIndex = data->cursor - 1 - section;
@@ -234,18 +234,18 @@ void func_004b7830(u8 *work, s32 section, s32 side, EffAfterVec *output) {
         sideDelta.c[0] = point->c[0] - points[0][0]->c[0];
         sideDelta.c[1] = point->c[1] - points[0][0]->c[1];
         sideDelta.c[2] = point->c[2] - points[0][0]->c[2];
-        func_003e40b0(&sideDelta.c[0], &sideDelta.c[0]);
+        RwV3dNormalize(&sideDelta.c[0], &sideDelta.c[0]);
         pointRow = points[selected];
         point = pointRow[other];
         projection = point->c[0];
         forward.c[0] = projection - points[0][0]->c[0];
         forward.c[1] = point->c[1] - points[0][0]->c[1];
         forward.c[2] = point->c[2] - points[0][0]->c[2];
-        func_003e40b0(&forward.c[0], &forward.c[0]);
+        RwV3dNormalize(&forward.c[0], &forward.c[0]);
         normal.c[0] = sideDelta.c[1] * forward.c[2] - sideDelta.c[2] * forward.c[1];
         normal.c[1] = sideDelta.c[2] * forward.c[0] - sideDelta.c[0] * forward.c[2];
         normal.c[2] = sideDelta.c[0] * forward.c[1] - sideDelta.c[1] * forward.c[0];
-        func_003e40b0(&normal.c[0], &normal.c[0]);
+        RwV3dNormalize(&normal.c[0], &normal.c[0]);
         switch (side) {
         case 0:
             axis.c[0] = sideDelta.c[1] * normal.c[2] - sideDelta.c[2] * normal.c[1];
@@ -262,7 +262,7 @@ void func_004b7830(u8 *work, s32 section, s32 side, EffAfterVec *output) {
         axis.c[0] *= projection;
         axis.c[1] *= projection;
         axis.c[2] *= projection;
-        func_003e40b0(&output->c[0], &axis.c[0]);
+        RwV3dNormalize(&output->c[0], &axis.c[0]);
     }
 }
 
@@ -308,23 +308,23 @@ void func_004b7dc0(u8 *work, s32 section, EffAfterVec *output) {
         leadingDelta.c[0] = firstLeading->c[0] - secondLeading->c[0];
         leadingDelta.c[1] = firstLeading->c[1] - secondLeading->c[1];
         leadingDelta.c[2] = firstLeading->c[2] - secondLeading->c[2];
-        leadingLength = func_003e4180(&leadingDelta.c[0]);
+        leadingLength = RwV3dLength(&leadingDelta.c[0]);
         leadingDelta.c[0] = firstTrailing->c[0] - secondTrailing->c[0];
         leadingDelta.c[1] = firstTrailing->c[1] - secondTrailing->c[1];
         leadingDelta.c[2] = firstTrailing->c[2] - secondTrailing->c[2];
-        trailingLength = func_003e4180(&leadingDelta.c[0]);
+        trailingLength = RwV3dLength(&leadingDelta.c[0]);
         leadingDelta.c[0] = firstTrailing->c[0] - firstLeading->c[0];
         leadingDelta.c[1] = firstTrailing->c[1] - firstLeading->c[1];
         leadingDelta.c[2] = firstTrailing->c[2] - firstLeading->c[2];
-        func_003e40b0(&leadingDelta.c[0], &leadingDelta.c[0]);
+        RwV3dNormalize(&leadingDelta.c[0], &leadingDelta.c[0]);
         secondSide.c[0] = secondTrailing->c[0] - secondLeading->c[0];
         secondSide.c[1] = secondTrailing->c[1] - secondLeading->c[1];
         secondSide.c[2] = secondTrailing->c[2] - secondLeading->c[2];
-        func_003e40b0(&secondSide.c[0], &secondSide.c[0]);
+        RwV3dNormalize(&secondSide.c[0], &secondSide.c[0]);
         normal.c[0] = leadingDelta.c[1] * secondSide.c[2] - leadingDelta.c[2] * secondSide.c[1];
         normal.c[1] = leadingDelta.c[2] * secondSide.c[0] - leadingDelta.c[0] * secondSide.c[2];
         normal.c[2] = leadingDelta.c[0] * secondSide.c[1] - leadingDelta.c[1] * secondSide.c[0];
-        func_003e40b0(&normal.c[0], &normal.c[0]);
+        RwV3dNormalize(&normal.c[0], &normal.c[0]);
         *output = normal;
         if (!(leadingLength <= trailingLength)) {
             output->c[0] = leadingDelta.c[1] * normal.c[2] - leadingDelta.c[2] * normal.c[1];
@@ -352,23 +352,23 @@ void func_004b7dc0(u8 *work, s32 section, EffAfterVec *output) {
         leadingDelta.c[0] = firstLeading->c[0] - secondLeading->c[0];
         leadingDelta.c[1] = firstLeading->c[1] - secondLeading->c[1];
         leadingDelta.c[2] = firstLeading->c[2] - secondLeading->c[2];
-        leadingLength = func_003e4180(&leadingDelta.c[0]);
+        leadingLength = RwV3dLength(&leadingDelta.c[0]);
         leadingDelta.c[0] = firstTrailing->c[0] - secondTrailing->c[0];
         leadingDelta.c[1] = firstTrailing->c[1] - secondTrailing->c[1];
         leadingDelta.c[2] = firstTrailing->c[2] - secondTrailing->c[2];
-        trailingLength = func_003e4180(&leadingDelta.c[0]);
+        trailingLength = RwV3dLength(&leadingDelta.c[0]);
         leadingDelta.c[0] = firstTrailing->c[0] - firstLeading->c[0];
         leadingDelta.c[1] = firstTrailing->c[1] - firstLeading->c[1];
         leadingDelta.c[2] = firstTrailing->c[2] - firstLeading->c[2];
-        func_003e40b0(&leadingDelta.c[0], &leadingDelta.c[0]);
+        RwV3dNormalize(&leadingDelta.c[0], &leadingDelta.c[0]);
         secondSide.c[0] = secondTrailing->c[0] - secondLeading->c[0];
         secondSide.c[1] = secondTrailing->c[1] - secondLeading->c[1];
         secondSide.c[2] = secondTrailing->c[2] - secondLeading->c[2];
-        func_003e40b0(&secondSide.c[0], &secondSide.c[0]);
+        RwV3dNormalize(&secondSide.c[0], &secondSide.c[0]);
         normal.c[0] = secondSide.c[1] * leadingDelta.c[2] - secondSide.c[2] * leadingDelta.c[1];
         normal.c[1] = secondSide.c[2] * leadingDelta.c[0] - secondSide.c[0] * leadingDelta.c[2];
         normal.c[2] = secondSide.c[0] * leadingDelta.c[1] - secondSide.c[1] * leadingDelta.c[0];
-        func_003e40b0(&normal.c[0], &normal.c[0]);
+        RwV3dNormalize(&normal.c[0], &normal.c[0]);
         *output = normal;
         if (!(leadingLength <= trailingLength)) {
             output->c[0] = leadingDelta.c[1] * normal.c[2] - leadingDelta.c[2] * normal.c[1];
@@ -830,7 +830,7 @@ void func_004b8f40(u8 *work, void **pp)
   struct { f32 fStack_c0; f32 fStack_bc; f32 fStack_b8; f32 fStack_b4; f32 fStack_b0; f32 fStack_ac; f32 fStack_a8; f32 fStack_a4; f32 fStack_a0; f32 fStack_9c; f32 fStack_98; f32 fStack_94; f32 fStack_60; f32 fStack_58; f32 fStack_54; f32 fStack_50; f32 fStack_48; f32 fStack_44; f32 fStack_40; f32 fStack_30; f32 fStack_28; f32 fStack_24; f32 fStack_18; f32 fStack_14; f32 fStack_10; f32 prevX; f32 prevY; f32 firstX; f32 firstY; } S;
   f32 fStack_4;
   
-  func_003c2290(*pp,0x1a);
+  RpGeometryLock(*pp,0x1a);
   if (((*(u32 *)effAfterOffsetPtr(4, work) & 1) != 0) || ((~*(u32 *)effAfterOffsetPtr(4, work) & 2) != 0)) {
     temp_v0 = *(s16 *)effAfterOffsetPtr(0x38, work);
     if (temp_v0 == 2) goto La2;
@@ -1311,15 +1311,15 @@ void func_004b8f40(u8 *work, void **pp)
         S.fStack_10 = *(f32 *)effAfterOffsetPtr(0x48, (u8 *)temp_v5) - temp_v8;
         S.fStack_24 = temp_v10;
         fStack_20 = temp_v8;
-        func_003e40b0(&S.fStack_18,&S.fStack_18);
+        RwV3dNormalize(&S.fStack_18,&S.fStack_18);
         S.fStack_48 = S.prevX - S.fStack_28;
         S.fStack_44 = S.prevY - temp_v10;
         S.fStack_40 = S.fStack_30 - temp_v8;
-        func_003e40b0(&S.fStack_48,&S.fStack_48);
+        RwV3dNormalize(&S.fStack_48,&S.fStack_48);
         S.fStack_58 = S.fStack_14 * S.fStack_40 - S.fStack_10 * S.fStack_44;
         S.fStack_54 = S.fStack_10 * S.fStack_48 - S.fStack_18 * S.fStack_40;
         S.fStack_50 = S.fStack_18 * S.fStack_44 - S.fStack_14 * S.fStack_48;
-        func_003e40b0(&S.fStack_58,&S.fStack_58);
+        RwV3dNormalize(&S.fStack_58,&S.fStack_58);
         temp_v8 = S.fStack_10 * S.fStack_40 + S.fStack_18 * S.fStack_48 + S.fStack_14 * S.fStack_44;
         if (temp_v8 < 0.0f) {
           temp_v8 = temp_v8 * -1.0f;
@@ -1356,15 +1356,15 @@ void func_004b8f40(u8 *work, void **pp)
       S.fStack_10 = *(f32 *)effAfterOffsetPtr(0x48, (u8 *)temp_v5) - temp_v11;
       S.fStack_24 = temp_v7;
       fStack_20 = temp_v11;
-      func_003e40b0(&S.fStack_18,&S.fStack_18);
+      RwV3dNormalize(&S.fStack_18,&S.fStack_18);
       S.fStack_48 = S.prevX - S.fStack_28;
       S.fStack_44 = S.prevY - temp_v7;
       S.fStack_40 = S.fStack_30 - temp_v11;
-      func_003e40b0(&S.fStack_48,&S.fStack_48);
+      RwV3dNormalize(&S.fStack_48,&S.fStack_48);
       S.fStack_58 = S.fStack_14 * S.fStack_40 - S.fStack_10 * S.fStack_44;
       S.fStack_54 = S.fStack_10 * S.fStack_48 - S.fStack_18 * S.fStack_40;
       S.fStack_50 = S.fStack_18 * S.fStack_44 - S.fStack_14 * S.fStack_48;
-      func_003e40b0(&S.fStack_58,&S.fStack_58);
+      RwV3dNormalize(&S.fStack_58,&S.fStack_58);
       temp_v7 = S.fStack_10 * S.fStack_40 + S.fStack_18 * S.fStack_48 + S.fStack_14 * S.fStack_44;
       if (temp_v7 < 0.0f) {
         temp_v7 = temp_v7 * -1.0f;
@@ -1397,15 +1397,15 @@ void func_004b8f40(u8 *work, void **pp)
       S.fStack_14 = *(f32 *)effAfterOffsetPtr(0x44, (u8 *)temp_v5) - temp_v11;
       S.fStack_10 = *(f32 *)effAfterOffsetPtr(0x48, (u8 *)temp_v5) - temp_v8;
       temp_v7 = temp_v11;
-      func_003e40b0(&S.fStack_18,&S.fStack_18);
+      RwV3dNormalize(&S.fStack_18,&S.fStack_18);
       S.fStack_48 = temp_v10 - S.firstX;
       S.fStack_44 = temp_v7 - S.firstY;
       S.fStack_40 = temp_v8 - S.fStack_60;
-      func_003e40b0(&S.fStack_48,&S.fStack_48);
+      RwV3dNormalize(&S.fStack_48,&S.fStack_48);
       S.fStack_58 = S.fStack_14 * S.fStack_40 - S.fStack_10 * S.fStack_44;
       S.fStack_54 = S.fStack_10 * S.fStack_48 - S.fStack_18 * S.fStack_40;
       S.fStack_50 = S.fStack_18 * S.fStack_44 - S.fStack_14 * S.fStack_48;
-      func_003e40b0(&S.fStack_58,&S.fStack_58);
+      RwV3dNormalize(&S.fStack_58,&S.fStack_58);
       temp_v7 = S.fStack_10 * S.fStack_40 + S.fStack_18 * S.fStack_48 + S.fStack_14 * S.fStack_44;
       if (temp_v7 < 0.0f) {
         temp_v7 = temp_v7 * -1.0f;
@@ -1624,7 +1624,7 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
         b8 = b + 8;
         dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        func_003e40b0(&dir.c[0], &dir.c[0]);
+        RwV3dNormalize(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff2;
     dir.c[1] *= coeff2;
@@ -1662,7 +1662,7 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
         b8 = b + 8;
         dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        func_003e40b0(&dir.c[0], &dir.c[0]);
+        RwV3dNormalize(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff1;
     dir.c[1] *= coeff1;
@@ -1670,7 +1670,7 @@ void func_004bb1d0(void *arg0, s32 arg1) {
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    func_003e40b0(&acc.c[0], &acc.c[0]);
+    RwV3dNormalize(&acc.c[0], &acc.c[0]);
     acc.c[0] *= scale;
     acc.c[1] *= scale;
     acc.c[2] *= scale;
@@ -1727,7 +1727,7 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
         b8 = b + 8;
         dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        func_003e40b0(&dir.c[0], &dir.c[0]);
+        RwV3dNormalize(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff2;
     dir.c[1] *= coeff2;
@@ -1765,7 +1765,7 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
         b8 = b + 8;
         dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        func_003e40b0(&dir.c[0], &dir.c[0]);
+        RwV3dNormalize(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff1;
     dir.c[1] *= coeff1;
@@ -1773,7 +1773,7 @@ void func_004bb1d0(void *arg0, s32 arg1) {
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    func_003e40b0(&acc.c[0], &acc.c[0]);
+    RwV3dNormalize(&acc.c[0], &acc.c[0]);
     acc.c[0] *= scale;
     acc.c[1] *= scale;
     acc.c[2] *= scale;
@@ -1845,7 +1845,7 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
         b8 = b + 8;
         dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        func_003e40b0(&dir.c[0], &dir.c[0]);
+        RwV3dNormalize(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff0;
     dir.c[1] *= coeff0;
@@ -1883,7 +1883,7 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
         b8 = b + 8;
         dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        func_003e40b0(&dir.c[0], &dir.c[0]);
+        RwV3dNormalize(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff1;
     dir.c[1] *= coeff1;
@@ -1891,7 +1891,7 @@ void func_004bb1d0(void *arg0, s32 arg1) {
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    func_003e40b0(&acc.c[0], &acc.c[0]);
+    RwV3dNormalize(&acc.c[0], &acc.c[0]);
     acc.c[0] *= pairA1;
     acc.c[1] *= pairA1;
     acc.c[2] *= pairA1;
@@ -1946,7 +1946,7 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
         b8 = b + 8;
         dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        func_003e40b0(&dir.c[0], &dir.c[0]);
+        RwV3dNormalize(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff0;
     dir.c[1] *= coeff0;
@@ -1984,7 +1984,7 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
         b8 = b + 8;
         dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        func_003e40b0(&dir.c[0], &dir.c[0]);
+        RwV3dNormalize(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff1;
     dir.c[1] *= coeff1;
@@ -1992,7 +1992,7 @@ void func_004bb1d0(void *arg0, s32 arg1) {
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    func_003e40b0(&acc.c[0], &acc.c[0]);
+    RwV3dNormalize(&acc.c[0], &acc.c[0]);
     acc.c[0] *= pairA1;
     acc.c[1] *= pairA1;
     acc.c[2] *= pairA1;
@@ -2071,7 +2071,7 @@ f32 func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2)
     v[1] -= t;
     t = p[2];
     v[2] -= t;
-    return func_003e4180(v);
+    return RwV3dLength(v);
 }
 #pragma optimization_level 2
 
@@ -2101,7 +2101,7 @@ f32 func_004bc310(u8 *arg0, s32 arg1) {
     v1.c[0] -= t;
     v1.c[1] -= q->c[1];
     v1.c[2] -= q->c[2];
-    func_003e40b0(&v1.c[0], &v1.c[0]);
+    RwV3dNormalize(&v1.c[0], &v1.c[0]);
     j = (-2 - arg1) + *(s32 *)(arg0 + 0xC);
     if (j < 0) {
         j += *(s32 *)(arg0 + 8);
@@ -2114,7 +2114,7 @@ f32 func_004bc310(u8 *arg0, s32 arg1) {
     v2.c[0] -= t;
     v2.c[1] -= q->c[1];
     v2.c[2] -= q->c[2];
-    func_003e40b0(&v2.c[0], &v2.c[0]);
+    RwV3dNormalize(&v2.c[0], &v2.c[0]);
     d = v1.c[0] * v2.c[0] + v1.c[1] * v2.c[1] + v1.c[2] * v2.c[2];
     return (1.0f - d) / 2.0f;
 }

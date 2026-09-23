@@ -7,19 +7,19 @@ extern s32 func_0010cc20(u8 *, u16);
 extern s32 func_0010ce10(u8 *, u32);
 extern s32 func_003124a0(u16 *output, u16 first, u16 second);
 extern s32 func_003127e0();
-extern u32 func_003b7060();
+extern u32 RpRandom();
 extern s16 func_002e54c0(s8 arg0, s16 arg1);
 extern u8 *func_002e48a0(s8 arg0, s16 arg1);
-extern void func_0043f810(void *dst, void *src, u32 size);
+extern void memcpy(void *dst, void *src, u32 size);
 extern void func_0046d730(void *file, s32 line);
-extern void *func_0043f9c8(void *dst, s32 value, u32 size);
+extern void *memset(void *dst, s32 value, u32 size);
 extern void func_0010cad0(u8 *arg0, u16 arg1);
 extern u8 *iGpffffb3d4;
 extern char D_00642F30[];
 extern s32 func_00312220(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3);
 extern u8 func_00311ea0(u8 *arg0, u8 *arg1, u8 *arg2);
 extern s32 func_003130e0(u32 arg0, s32 arg1, u16 *arg2);
-extern s32 func_00106330(s32 id);
+extern s32 datGetFlag(s32 id);
 extern u8 D_006420A0[];
 extern u8 D_00642F00[];
 extern u8 D_00642F04[];
@@ -179,13 +179,13 @@ s32 func_00312220(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3) {
                 if (key == *(s16 *)(flag + 4)) {
                     bits = *(s16 *)(flag + 6);
                     if (bits & 1) {
-                        if (func_00106330(*(s32 *)flag) == 0) {
+                        if (datGetFlag(*(s32 *)flag) == 0) {
                             gate = 0;
                             goto flag_done;
                         }
                     } else if (bits & 2) {
                         allowed = 0;
-                        if (func_00106330(*(s32 *)flag) == 1) {
+                        if (datGetFlag(*(s32 *)flag) == 1) {
                             gate = 1;
                             goto flag_done;
                         }
@@ -261,10 +261,10 @@ s32 func_003124a0(u16 *output, u16 first, u16 second)
     else
         result = fclAlternatePairArcana(firstArcana, secondArcana);
     if ((u8)result == 0) {
-        func_0043f9c8(output, 0, 0x30);
+        memset(output, 0, 0x30);
         return 0;
     }
-    func_0043f9c8(excluded, 0, 0x18);
+    memset(excluded, 0, 0x18);
     excluded[0] = first;
     excluded[1] = second;
     base = iGpffffb3d4;
@@ -301,10 +301,10 @@ s32 func_003127e0(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     }
     t = func_00311ea0(arg1, arg2, arg3) & 0xFF;
     if (t == 0) {
-        func_0043f9c8(arg0, 0, 0x30);
+        memset(arg0, 0, 0x30);
         return 0;
     }
-    func_0043f9c8(sp60, 0, 0x18);
+    memset(sp60, 0, 0x18);
     *(u16 *)&sp60[0] = *(u16 *)(arg1 + 2);
     *(u16 *)&sp60[2] = *(u16 *)(arg2 + 2);
     *(u16 *)&sp60[4] = *(u16 *)(arg3 + 2);
@@ -347,11 +347,11 @@ s32 func_003129b0(u8 *arg0, s32 arg1, s32 arg2) {
     j = 0;
     while (j < 4) {
         if (a1 == tbl[j]) {
-            func_0043f810(arg0, func_002e48a0(0, func_002e54c0(0, (s16)arg2)), 0x30);
+            memcpy(arg0, func_002e48a0(0, func_002e54c0(0, (s16)arg2)), 0x30);
             return 1;
         }
         if (a2 == tbl[j]) {
-            func_0043f810(arg0, func_002e48a0(0, func_002e54c0(0, (s16)arg1)), 0x30);
+            memcpy(arg0, func_002e48a0(0, func_002e54c0(0, (s16)arg1)), 0x30);
             return 1;
         }
         j++;
@@ -379,13 +379,13 @@ s32 func_00312bc0(s8 arg0) {
     s32 v;
     switch (arg0) {
     case 2:
-        v = (s32)(func_003b7060() & 0x3F) << 6;
+        v = (s32)(RpRandom() & 0x3F) << 6;
         if (v < 0x40) {
             return 1;
         }
         break;
     case 3:
-        v = (s32)(func_003b7060() & 0x1F) << 5;
+        v = (s32)(RpRandom() & 0x1F) << 5;
         if (v < 0x20) {
             return 1;
         }
@@ -517,7 +517,7 @@ s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
             break;
         }
         running = 0;
-        roll = func_003b7060() % total;
+        roll = RpRandom() % total;
         for (pick_index = 0; pick_index < (s32)(u8)*(s16 *)(pool + 0x60); pick_index++) {
             running += weights[pick_index * 4];
             if ((s32)roll < running) {
@@ -619,14 +619,14 @@ s32 func_003130e0(u32 arg0, s32 arg1, u16 *arg2) {
                     }
                     temp_3_2 = *(s16 *)(temp_4_2 + 6);
                     if (temp_3_2 & 1) {
-                        if (func_00106330(*(s32 *)temp_4_2) != 0) {
+                        if (datGetFlag(*(s32 *)temp_4_2) != 0) {
                             continue;
                         }
                         var_3 = 0;
                         goto block_16;
                     } else if (temp_3_2 & 2) {
                         var_22 = 0;
-                        if (func_00106330(*(s32 *)temp_4_2) != 1) {
+                        if (datGetFlag(*(s32 *)temp_4_2) != 1) {
                             continue;
                         }
                         var_3 = 1;
@@ -754,14 +754,14 @@ s32 func_003133b0(u32 arg0, s32 arg1, u16 *arg2) {
                     }
                     temp_3_2 = *(s16 *)(temp_4_2 + 6);
                     if (temp_3_2 & 1) {
-                        if (func_00106330(*(s32 *)temp_4_2) != 0) {
+                        if (datGetFlag(*(s32 *)temp_4_2) != 0) {
                             continue;
                         }
                         var_3 = 0;
                         goto block_16;
                     } else if (temp_3_2 & 2) {
                         var_22 = 0;
-                        if (func_00106330(*(s32 *)temp_4_2) != 1) {
+                        if (datGetFlag(*(s32 *)temp_4_2) != 1) {
                             continue;
                         }
                         var_3 = 1;

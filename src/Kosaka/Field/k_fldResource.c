@@ -30,10 +30,10 @@ typedef enum RwOpCombineType {
 } RwOpCombineType;
 typedef struct { f32 x; f32 y; f32 z; f32 w; } Vec4;
 
-extern s32 func_00442088(char *dst, const char *format, ...);
+extern s32 sprintf(char *dst, const char *format, ...);
 extern s32 func_00440b68(const char *format, ...);
 extern s32 func_00454a60(char *path, s32 mode);
-extern s32 func_004553c0(s32 handle);
+extern s32 H_Cdvd_IsFileLoaded(s32 handle);
 extern u8 *func_00460f80(u8 *list, s32 arg1);
 extern u8 *func_00461080(u8 *list, s32 arg1);
 extern u8 *func_00461180(u8 *list, s32 arg1);
@@ -71,7 +71,7 @@ extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
 extern RwMatrix *func_003e9700(RwFrame *frame);
 extern void func_00463250(void *arg0);
 extern s32 func_004b1130(s32 a0);
-extern void *func_0043f9c8(void *dst, s32 value, u32 size);
+extern void *memset(void *dst, s32 value, u32 size);
 extern s32 func_00455f70(void *arg0, s32 *arg1);
 extern s32 func_003e2f60(s32 arg0, s32 arg1, s32 *arg2);
 extern s32 func_003df3c0(s32 arg0, s32 *arg1);
@@ -84,7 +84,7 @@ extern RwBool (*D_00887300[])(RwRenderState state, void *value);
 extern u8 *func_00149ca0(void);
 extern u8 *func_00149ce0(void);
 extern u8 *func_00149d20(void);
-extern RwBool func_003f6440(s32 state, void *payload);
+extern RwBool RpSkyRenderStateSet(s32 state, void *payload);
 extern s32 iGpffffba48;
 extern u8 iGpffffba4c;
 extern u8 iGpffffba50;
@@ -107,7 +107,7 @@ extern char D_005EFDE8[];
 extern char D_005EFE00[];
 extern char D_005EFE10[];
 extern char iGpffff9e10;
-extern void func_00442428(char *dst, char *src);
+extern void strcat(char *dst, char *src);
 extern s32 func_00477e80(s32 arg0, u16 arg1, char *arg2, s32 arg3);
 extern s32 func_00477f10(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_0014a230(s32 a0, s32 a1);
@@ -115,8 +115,8 @@ extern s32 func_0014a2a0(s32 a0, s32 a1);
 extern u8 *func_0015c640(s32 a0, s32 a1);
 extern s32 *func_00155280(void);
 extern void func_0044ea90(const void *file, s32 line);
-extern s32 func_0043c6b0(const char *arg0);
-extern void func_00442830(char *dst, char *src);
+extern s32 atoi(const char *arg0);
+extern void strcpy(char *dst, char *src);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 D_00754D88[];
 extern s32 func_0044ec30(void);
@@ -124,18 +124,18 @@ extern s32 func_003c0520(s32 arg0);
 extern s32 func_00478750(s32 arg0);
 extern s32 func_004b11b0(s32 arg0);
 extern void func_004b1250(void *effect, f32 *position);
-extern RwBool func_003e0380(RwMatrixTolerance *tolerance);
-extern RwMatrix *func_003e03e0(RwMatrix *matrix, const RwMatrixTolerance *tolerance);
+extern RwBool RwEngineGetMatrixTolerances(RwMatrixTolerance *tolerance);
+extern RwMatrix *RwMatrixOptimize(RwMatrix *matrix, const RwMatrixTolerance *tolerance);
 extern RwFrame *func_003e9680(RwFrame *frame);
 extern RwMatrix *func_003e0f80(void);
 extern RwBool func_003e0f40(RwMatrix *matrix);
-extern RwMatrix *func_003e0870(RwMatrix *matrix, const Vec3 *axis, f32 angle, RwOpCombineType combine);
+extern RwMatrix *RwMatrixRotate(RwMatrix *matrix, const Vec3 *axis, f32 angle, RwOpCombineType combine);
 extern Vec3 *func_003e42a0(Vec3 *pointOut, const Vec3 *pointIn, const RwMatrix *matrix);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const Vec3 *translation, s32 combine);
 extern s64 D_005EFE28[];
 extern f32 D_005EFE30[];
 extern u8 *iGpffff9db0;
-extern void func_00454bd0(void *ptr);
+extern void H_Cdvd_Destroy(void *ptr);
 extern u8 D_005EFD20[];
 extern u8 D_005EFD40[];
 extern u8 D_005EFD60[];
@@ -160,7 +160,7 @@ void func_0014eed0(s32 arg0, s32 arg1)
     char path[0x40];
 
     if (iGpffffb200 == 0) {
-        func_00442088(path, D_005EFC60, (u16)arg0, (u16)arg1);
+        sprintf(path, D_005EFC60, (u16)arg0, (u16)arg1);
         func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0x9E);
         iGpffffb200 = func_00454a60(path, 1);
     }
@@ -172,7 +172,7 @@ s32 func_0014ef40(void)
     if (iGpffffb200 == 0) {
         return 1;
     }
-    return func_004553c0(iGpffffb200) != 0;
+    return H_Cdvd_IsFileLoaded(iGpffffb200) != 0;
 }
 
 // FUN_0014EF80
@@ -181,7 +181,7 @@ s32 func_0014ef80(void)
     if (iGpffffb204 == 0) {
         return 1;
     }
-    return func_004553c0(iGpffffb204) != 0;
+    return H_Cdvd_IsFileLoaded(iGpffffb204) != 0;
 }
 
 
@@ -219,7 +219,7 @@ void func_0014efc0(s32 arg0, s32 arg1)
     u8 *work;
     *(s32 *)(iGpffff9db0 + 0x24) = 0;
     *(s32 *)(iGpffff9db0 + 0x94) = 0;
-    func_0043f9c8(iGpffff9db0 + 0x9C, 0, 0x40);
+    memset(iGpffff9db0 + 0x9C, 0, 0x40);
     if (func_0014a230(arg0, arg1) || func_0014a2a0(arg0, arg1)) {
         if (func_0014a2a0(arg0, arg1)) {
             var17 = (u16)((u16)arg0 - 0x14);
@@ -234,7 +234,7 @@ void func_0014efc0(s32 arg0, s32 arg1)
         work = iGpffff9db0;
         if (*(s32 *)(work + 0x88) & 0x80000000) {
             if (iGpffffb204 == 0) {
-                func_00442088(sp90, D_005EFC90, (s16)arg0, (s16)arg1);
+                sprintf(sp90, D_005EFC90, (s16)arg0, (s16)arg1);
                 func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0xC9);
                 iGpffffb204 = func_00454a60(sp90, 1);
             }
@@ -267,7 +267,7 @@ void func_0014efc0(s32 arg0, s32 arg1)
         }
     } else {
         if (iGpffffb204 == 0) {
-            func_00442088(sp50, D_005EFC90, (s16)arg0, (s16)arg1);
+            sprintf(sp50, D_005EFC90, (s16)arg0, (s16)arg1);
             func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0xC9);
             iGpffffb204 = func_00454a60(sp50, 1);
         }
@@ -304,7 +304,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     extern s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4, u8 *arg5, f32 *arg6, f32 *arg7, s32 *arg_sp0, s32 *arg_sp8);
     extern s32 func_00146440(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4, s32 *arg5, s32 *arg6, f32 fparg0, f32 fparg1, f32 fparg2);
     extern u8 *func_001452b0(s32 arg0);
-    extern u8 *func_00145270(s32 arg0);
+    extern u8 *MT_Scene_GetRes(s32 arg0);
     extern void func_00146630(u16 arg0);
     extern s32 func_00145ac0(u16 arg0, s32 arg1);
     extern s32 func_00145ba0(u16 arg0, s32 arg1);
@@ -327,11 +327,11 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     extern void func_001599d0(void);
     extern void func_0015b240(void);
     extern void func_001582f0(s32 arg0, s32 arg1, s32 arg2);
-    extern void *func_0047a310(s32 arg0);
+    extern void *mdlGetClump(s32 arg0);
     extern s32 func_0018c6c0(u8 *arg0, s32 arg1);
     extern s32 func_003ef6d0(void);
     extern s32 func_003ef650(s32 arg0, u8 *arg1);
-    extern void func_0043f810(void *dst, const void *src, s32 size);
+    extern void memcpy(void *dst, const void *src, s32 size);
     extern u8 *func_003e9700(u8 *arg0);
     extern u8 *func_003e8180(u8 *arg0, f32 arg1);
     extern s32 D_007D24E0;
@@ -478,7 +478,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
             temp_4 = (u8 *)(iGpffffb200);
             if (temp_4 == NULL) {
 
-            } else if (func_004553c0((s32)(temp_4)) != 0) {
+            } else if (H_Cdvd_IsFileLoaded((s32)(temp_4)) != 0) {
                 var_2 = 1;
             } else {
                 var_2 = 0;
@@ -489,7 +489,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
             temp_4_2 = (u8 *)(iGpffffb204);
             if (temp_4_2 == NULL) {
                 var_2_2 = 1;
-            } else if (func_004553c0((s32)(temp_4_2)) != 0) {
+            } else if (H_Cdvd_IsFileLoaded((s32)(temp_4_2)) != 0) {
                 var_2_2 = 1;
             } else {
                 var_2_2 = 0;
@@ -554,7 +554,7 @@ loop_53:
             }
             temp_4_4 = (u8 *)(iGpffffb204);
             if (temp_4_4 != NULL) {
-                func_00454bd0(temp_4_4);
+                H_Cdvd_Destroy(temp_4_4);
                 iGpffffb204 = 0;
             }
             temp_4_5 = (s32)(*( s32 * )(iGpffff9db0 + 0x8C));
@@ -606,7 +606,7 @@ loop_78:
             }
             if (func_0014a270() != 0) {
                 temp_16_3 = (s32)(*( s32 * )(*( u8 ** )(((u8 *)func_00155280()) + 0x1864) + 0x110));
-                func_0043f810(((u8 *)func_00155280()) + 0x54,(const void *)(temp_16_3 + 4), 0x1800);
+                memcpy(((u8 *)func_00155280()) + 0x54,(const void *)(temp_16_3 + 4), 0x1800);
                 func_0015c730((u8 *)(*( s32 * )(((u8 *)func_00155280()) + 0x1864)));
                 var_18 = 0;
 loop_88:
@@ -750,14 +750,14 @@ loop_150:
                             func_00146e60(temp_19, temp_18 + 0x30, (u8 *)&angles);
                             temp_4_8 = (u8 *)(iGpffff9db0);
                             if ((*( s32 * )(temp_4_8 + 0) != 0x14) || (*( s32 * )(temp_4_8 + 4) != 1)) {
-                                temp_18_2 = (s32)(func_0047a310(*( s32 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x12C)));
+                                temp_18_2 = (s32)(mdlGetClump(*( s32 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x12C)));
                                 if (func_0018c6c0((u8 *)(temp_18_2), func_003ef650(func_003ef6d0(), D_005EFCB0)) == 1) {
-                                    temp_2_6 = (u8 *)(func_00145270(temp_19));
+                                    temp_2_6 = (u8 *)(MT_Scene_GetRes(temp_19));
                                     *( s32 * )(temp_2_6 + 0x28) = (s32) (*( s32 * )(temp_2_6 + 0x28) | 0x01000000);
                                 }
                             }
                             if (*( u16 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x122) & 2) {
-                                *( s32 * )(func_00145270(temp_19) + 0x150) = 1;
+                                *( s32 * )(MT_Scene_GetRes(temp_19) + 0x150) = 1;
                             }
                             *( s32 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x12C) = 0;
                         }
@@ -778,7 +778,7 @@ loop_157:
                                 func_0046d730((const char *)D_005EFC80, 0x2C7);
                             }
                             *( s32 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_8) + 0x130) = 0;
-                            temp_2_8 = (u8 *)(func_00145270(temp_18_3));
+                            temp_2_8 = (u8 *)(MT_Scene_GetRes(temp_18_3));
                             *( s32 * )(temp_2_8 + 0x28) = (s32) (*( s32 * )(temp_2_8 + 0x28) | 2);
                         }
                         var_17_4 += 1;
@@ -908,7 +908,7 @@ loop_198:
         temp_4_11 = (u8 *)(iGpffffb200);
         if (temp_4_11 == NULL) {
             var_2_3 = 1;
-        } else if (func_004553c0((s32)(temp_4_11)) != 0) {
+        } else if (H_Cdvd_IsFileLoaded((s32)(temp_4_11)) != 0) {
             var_2_3 = 1;
         } else {
             var_2_3 = 0;
@@ -1003,7 +1003,7 @@ loop_240:
                 temp_4_12 = (u8 *)(iGpffffb200);
                 if (temp_4_12 == NULL) {
                     var_2_4 = 1;
-                } else if (func_004553c0((s32)(temp_4_12)) != 0) {
+                } else if (H_Cdvd_IsFileLoaded((s32)(temp_4_12)) != 0) {
                     var_2_4 = 1;
                 } else {
                     var_2_4 = 0;
@@ -1028,7 +1028,7 @@ loop_240:
     case 0x3E7:                                     /* switch 1 */
         temp_4_13 = (u8 *)(iGpffffb200);
         if (temp_4_13 != NULL) {
-            func_00454bd0(temp_4_13);
+            H_Cdvd_Destroy(temp_4_13);
             iGpffffb200 = 0;
         }
         return 1;
@@ -1066,7 +1066,7 @@ u8 *func_00150970(char *arg0)
         jtbl_008873EC[0](resource);
         return NULL;
     }
-    func_00442830((char *)work, arg0);
+    strcpy((char *)work, arg0);
     while (*arg0 != '\0') {
         arg0++;
     }
@@ -1102,12 +1102,12 @@ u8 *func_00150970(char *arg0)
         local.token[1] = arg0[3];
         local.token[2] = arg0[4];
         local.token[3] = '\0';
-        *(u16 *)(resource + 4) = (u16)func_0043c6b0(local.token);
+        *(u16 *)(resource + 4) = (u16)atoi(local.token);
         local.token[0] = arg0[6];
         local.token[1] = arg0[7];
         local.token[2] = arg0[8];
         local.token[3] = '\0';
-        *(u16 *)(resource + 6) = (u16)func_0043c6b0(local.token);
+        *(u16 *)(resource + 6) = (u16)atoi(local.token);
     } else {
         *(s16 *)(resource + 4) = -1;
         *(s16 *)(resource + 6) = -1;
@@ -1133,7 +1133,7 @@ s32 func_00150c80(u8 *arg0)
         return 1;
     }
     if (iGpffffb204 == 0) {
-        return func_004553c0((s32)p) != 0;
+        return H_Cdvd_IsFileLoaded((s32)p) != 0;
     }
     return 1;
 }
@@ -1217,7 +1217,7 @@ void func_00150ce0(u8 *resource)
             }
         } else {
             if (*(u8 **)(resource + 0xA44) != NULL) {
-                func_00454bd0(*(u8 **)(*(u8 **)(resource + 0xA44) + 0x80));
+                H_Cdvd_Destroy(*(u8 **)(*(u8 **)(resource + 0xA44) + 0x80));
                 jtbl_008873EC[0](*(u8 **)(resource + 0xA44));
             }
             if (resource != NULL) {
@@ -1337,7 +1337,7 @@ s32 func_001510c0(u8 *arg0)
             *(s32 *)(arg0 + 0) = *(s32 *)(arg0 + 0) | 0x10000000;
         }
         if (iGpffffb204 == 0) {
-            func_00454bd0(*(u8 **)(*(u8 **)(arg0 + 0xA44) + 0x80));
+            H_Cdvd_Destroy(*(u8 **)(*(u8 **)(arg0 + 0xA44) + 0x80));
         }
         *(s32 *)(arg0 + 0xA24) = 0x3F800000;
         *(s32 *)(arg0 + 0xA28) = 0x3F800000;
@@ -1426,45 +1426,45 @@ void func_00151710(u8 *arg0)
                 *(u16 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x120) = (u16)sp200[0];
                 if (sp200[0] == 0) {
                     if (iGpffffb204 == 0) {
-                        func_00442830(sp1A0, D_005EFD98);
-                        func_00442088(sp160, &iGpffff9e10, *(s16 *)(arg0 + 4));
-                        func_00442428(sp1A0, sp160);
-                        func_00442088(sp160, D_005EFDA8, sp1F8[0]);
-                        func_00442428(sp1A0, sp160);
+                        strcpy(sp1A0, D_005EFD98);
+                        sprintf(sp160, &iGpffff9e10, *(s16 *)(arg0 + 4));
+                        strcat(sp1A0, sp160);
+                        sprintf(sp160, D_005EFDA8, sp1F8[0]);
+                        strcat(sp1A0, sp160);
                         *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = func_00477e80(4, (u16)sp1F8[0], sp1A0, 0);
                     } else {
-                        func_00442830(sp1A0, D_005EFDB8);
-                        func_00442088(sp160, &iGpffff9e10, *(s16 *)(arg0 + 4));
-                        func_00442428(sp1A0, sp160);
-                        func_00442088(sp160, D_005EFDA8, sp1F8[0]);
-                        func_00442428(sp1A0, sp160);
+                        strcpy(sp1A0, D_005EFDB8);
+                        sprintf(sp160, &iGpffff9e10, *(s16 *)(arg0 + 4));
+                        strcat(sp1A0, sp160);
+                        sprintf(sp160, D_005EFDA8, sp1F8[0]);
+                        strcat(sp1A0, sp160);
                         r = func_00455f70(sp1A0, &sp20C);
                         *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = func_00477f10(4, (u16)sp1F8[0], r, sp20C, 0);
                     }
                 } else if (sp200[0] == 1) {
                     if (iGpffffb204 == 0) {
-                        func_00442830(sp120, D_005EFDC8);
-                        func_00442088(spE0, &iGpffff9e10, *(s16 *)(arg0 + 4));
-                        func_00442428(sp120, spE0);
-                        func_00442088(spE0, D_005EFDD8, sp1F8[0]);
-                        func_00442428(sp120, spE0);
+                        strcpy(sp120, D_005EFDC8);
+                        sprintf(spE0, &iGpffff9e10, *(s16 *)(arg0 + 4));
+                        strcat(sp120, spE0);
+                        sprintf(spE0, D_005EFDD8, sp1F8[0]);
+                        strcat(sp120, spE0);
                         func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0x6A1);
                         *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x134) = func_00454a60(sp120, 0);
                         if (*(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x134) == 0) {
                             func_0046d730((const char *)D_005EFC80, 0x6A2);
                         }
                     } else {
-                        func_00442830(sp120, D_005EFDE8);
-                        func_00442088(spE0, &iGpffff9e10, *(s16 *)(arg0 + 4));
-                        func_00442428(sp120, spE0);
-                        func_00442088(spE0, D_005EFDD8, sp1F8[0]);
-                        func_00442428(sp120, spE0);
+                        strcpy(sp120, D_005EFDE8);
+                        sprintf(spE0, &iGpffff9e10, *(s16 *)(arg0 + 4));
+                        strcat(sp120, spE0);
+                        sprintf(spE0, D_005EFDD8, sp1F8[0]);
+                        strcat(sp120, spE0);
                         *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x134) = func_00455f70(sp120, &sp208);
                     }
                 } else if (sp200[0] == 2) {
-                    func_00442830(spA0, D_005EFE00);
-                    func_00442088(sp60, D_005EFDA8, sp1F8[0]);
-                    func_00442428(spA0, sp60);
+                    strcpy(spA0, D_005EFE00);
+                    sprintf(sp60, D_005EFDA8, sp1F8[0]);
+                    strcat(spA0, sp60);
                     *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = func_00477e80(4, (u16)(sp1F8[0] + 0x3E8), spA0, 0);
                 }
                 func_00458430(sp1F0, *(void **)(temp_17 + 0x1C), (const char *)D_005EFE10, var_18);
@@ -1493,7 +1493,7 @@ s32 func_00151c80(u8 *arg0)
                 return 0;
             }
         } else if (*(u16 *)(arg0 + i * 0x18 + 0x120) == 1) {
-            if (iGpffffb204 == 0 && *(u8 **)(arg0 + i * 0x18 + 0x134) != NULL && func_004553c0((s32)*(u8 **)(arg0 + i * 0x18 + 0x134)) == 0) {
+            if (iGpffffb204 == 0 && *(u8 **)(arg0 + i * 0x18 + 0x134) != NULL && H_Cdvd_IsFileLoaded((s32)*(u8 **)(arg0 + i * 0x18 + 0x134)) == 0) {
                 return 0;
             }
         }
@@ -1511,7 +1511,7 @@ s32 func_00151c80(u8 *arg0)
                 if (*(u8 **)(arg0 + j * 0x18 + 0x134) != NULL) {
                     *(s32 *)(arg0 + j * 0x18 + 0x130) = func_004b1130(*(u32 *)(*(u8 **)(arg0 + j * 0x18 + 0x134) + 0x110));
                     func_004b1250(*(void **)(arg0 + j * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700(*(RwFrame **)(arg0 + j * 0x18 + 0x128)) + 0x30));
-                    func_00454bd0(*(u8 **)(arg0 + j * 0x18 + 0x134));
+                    H_Cdvd_Destroy(*(u8 **)(arg0 + j * 0x18 + 0x134));
                     *(u8 **)(arg0 + j * 0x18 + 0x134) = NULL;
                 }
             } else if (*(u8 **)(arg0 + j * 0x18 + 0x134) != NULL) {
@@ -1679,8 +1679,8 @@ void func_00152170(u8 *arg0, u8 *arg1)
     gs = (u8 *)D_00887300;
     (*(RwBool (**)(RwRenderState, void *))gs)(6, (void *)1);
     (*(RwBool (**)(RwRenderState, void *))gs)(8, (void *)1);
-    func_003f6440(2, (void *)0x44);
-    func_003f6440(3, (void *)0x717FB);
+    RpSkyRenderStateSet(2, (void *)0x44);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
     (*(RwBool (**)(RwRenderState, void *))gs)(0x14, (void *)2);
     if (iGpffffba48 == 1) {
         (*(RwBool (**)(RwRenderState, void *))gs)(0xE, (void *)1);
@@ -1936,8 +1936,8 @@ void func_00152e50(u8 *arg0, u8 *arg1, f32 fparg0)
             stk.v0.y += *(f32 *)(arg1 + 4);
             stk.v0.z += *(f32 *)(arg1 + 8);
             *(Vec3 *)(frame + 0x40) = stk.v0;
-            func_003e0380(&stk.t0);
-            func_003e03e0((RwMatrix *)(frame + 0x10), &stk.t0);
+            RwEngineGetMatrixTolerances(&stk.t0);
+            RwMatrixOptimize((RwMatrix *)(frame + 0x10), &stk.t0);
             func_003e9680((RwFrame *)frame);
         }
         res2 = *(u8 **)(arg0 + 0x10);
@@ -1949,8 +1949,8 @@ void func_00152e50(u8 *arg0, u8 *arg1, f32 fparg0)
             stk.v1.y += *(f32 *)(arg1 + 4);
             stk.v1.z += *(f32 *)(arg1 + 8);
             *(Vec3 *)(frame2 + 0x40) = stk.v1;
-            func_003e0380(&stk.t1);
-            func_003e03e0((RwMatrix *)(frame2 + 0x10), &stk.t1);
+            RwEngineGetMatrixTolerances(&stk.t1);
+            RwMatrixOptimize((RwMatrix *)(frame2 + 0x10), &stk.t1);
             func_003e9680((RwFrame *)frame2);
         }
         res3 = *(u8 **)(arg0 + 0x14);
@@ -1962,8 +1962,8 @@ void func_00152e50(u8 *arg0, u8 *arg1, f32 fparg0)
             stk.v2.y += *(f32 *)(arg1 + 4);
             stk.v2.z += *(f32 *)(arg1 + 8);
             *(Vec3 *)(frame3 + 0x40) = stk.v2;
-            func_003e0380(&stk.t2);
-            func_003e03e0((RwMatrix *)(frame3 + 0x10), &stk.t2);
+            RwEngineGetMatrixTolerances(&stk.t2);
+            RwMatrixOptimize((RwMatrix *)(frame3 + 0x10), &stk.t2);
             func_003e9680((RwFrame *)frame3);
         }
     }
@@ -1978,8 +1978,8 @@ void func_00152e50(u8 *arg0, u8 *arg1, f32 fparg0)
             stk.v3.y += *(f32 *)(arg1 + 4);
             stk.v3.z += *(f32 *)(arg1 + 8);
             *(Vec3 *)(frame4 + 0x40) = stk.v3;
-            func_003e0380(&stk.t3);
-            func_003e03e0((RwMatrix *)(frame4 + 0x10), &stk.t3);
+            RwEngineGetMatrixTolerances(&stk.t3);
+            RwMatrixOptimize((RwMatrix *)(frame4 + 0x10), &stk.t3);
             func_003e9680((RwFrame *)frame4);
         }
         i += 1;
@@ -2010,7 +2010,7 @@ void func_00152e50(u8 *arg0, u8 *arg1, f32 fparg0)
             *(s32 *)(mtx2 + 0x34) = 0;
             *(s32 *)(mtx2 + 0x30) = 0;
             *(s32 *)(mtx2 + 0xC) |= 0x20003;
-            func_003e0870((RwMatrix *)mtx2, &stk.axis.vector, fparg0, rwCOMBINEPOSTCONCAT);
+            RwMatrixRotate((RwMatrix *)mtx2, &stk.axis.vector, fparg0, rwCOMBINEPOSTCONCAT);
             {
                 u32 k = j;
                 u8 *base = arg0 + k * 0x18;

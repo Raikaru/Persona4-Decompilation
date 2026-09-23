@@ -39,7 +39,7 @@ extern void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg
 
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_003f6440(s32, s32);
+extern void RpSkyRenderStateSet(s32, s32);
 extern void (*D_00887300[])(u32 state, u32 value);
 
 extern void func_002b2970(u8 *, f32, f32);
@@ -76,7 +76,7 @@ void func_002b60f0(u8 *arg0, u8 arg1, u8 arg2, u32 arg3);
 
 extern void func_00489f80(void);
 extern u8 *func_00457120(void);
-extern void func_0043f810(void *, s32, s32);
+extern void memcpy(void *, s32, s32);
 extern void *func_00460990(void);
 extern void func_00460ac0(void *, void *);
 extern u8 *func_00461390(void *list, s32 arg1, void *arg2, s32 arg3);
@@ -242,8 +242,8 @@ void func_002b6180(void) {
     tbl[0](9, 2);
     tbl[0](2, 4);
     tbl[0](0xE, 0);
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x71009);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x71009);
 }
 
 // FUN_002B6260
@@ -256,8 +256,8 @@ void func_002b6260(void) {
     tbl[0](9, 2);
     tbl[0](2, 4);
     tbl[0](0xE, 0);
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x7C003);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x7C003);
 }
 
 /* measured: 536B/544B, all 19 relocations resolved; eight zero-tail bytes.
@@ -274,7 +274,7 @@ s32 func_002b6340(u8 *arg0) {
     f32 a;
     f32 g;
     p = *(u8 **)(arg0 + 0x38);
-    func_0043f810(p + 0x10, func_002b89a0(p + 0x10), 0xF0);
+    memcpy(p + 0x10, func_002b89a0(p + 0x10), 0xF0);
     if (p[0x6E] <= 0) return 0;
     a = *(f32 *)(p + 0xA0);
     g = iGpffff84f4;
@@ -634,8 +634,8 @@ void func_002b6da0(void) {
     tbl[0](9, 2);
     tbl[0](0xC, 1);
     tbl[0](1, 0);
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(3, 0x717FB);
+    RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
 }
 
@@ -689,7 +689,7 @@ s32 func_002b6ec0(u8 *arg0) {
         e = *(u8 **)(iGpffffb574 + 0x38) + off;
         if (((*(s16 *)(e + 0x14)) & 1) == 1) {
             e = *(u8 **)(iGpffffb574 + 0x38) + off;
-            func_0043f810(e + 0x14, func_002b89a0(e + 0x14), 0xF0);
+            memcpy(e + 0x14, func_002b89a0(e + 0x14), 0xF0);
             e = *(u8 **)(iGpffffb574 + 0x38) + off;
             func_002b7cd0(arg0, i, *(s16 *)(e + 8));
             e = *(u8 **)(iGpffffb574 + 0x38) + off;
@@ -1712,8 +1712,8 @@ void func_002b9ab0(u8 *arg0, u8 *arg1) {
     tbl[0](2, 3);
     tbl[0](0xB, 6);
     tbl[0](0xA, 5);
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x717FB);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x717FB);
     *(f32 *)(arg1 + 0x10) = *(f32 *)(arg1 + 0x1F4);
     *(f32 *)(arg1 + 0x14) = *(f32 *)(arg1 + 0x1F8);
     *(f32 *)(arg1 + 0x50) = *(f32 *)(arg1 + 0x1FC);
@@ -1776,7 +1776,7 @@ s32 func_002b9e10(u8 *arg0) {
         q = p + i * 0x220;
         r = (s16 *)(q + 0x104);
         if ((*(s16 *)(q + 0x104) & 1) == 1) {
-            func_0043f810((void *)r, func_002b89a0((u8 *)r), 0xF0);
+            memcpy((void *)r, func_002b89a0((u8 *)r), 0xF0);
             a = *(f32 *)(q + 0x194);
             g = fGpffff8504;
             if (!(a <= g) && !(*(f32 *)(q + 0x1A0) <= g) && (q[0x162] > 0)) {

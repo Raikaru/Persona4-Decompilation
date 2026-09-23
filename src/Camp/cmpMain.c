@@ -14,14 +14,14 @@ void func_00355550(s32 a, u8 *b, s32 c, s32 d, s32 e, s32 f, s32 g, s32 h);
 void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 s32 func_00453960(void *arg0);
-void func_0043f9c8(void *dst, s32 value, u32 size);
+void memset(void *dst, s32 value, u32 size);
 
 
 void func_00440b68();
 void func_0012d140(void);
 u8 *func_00454a60(u8 *param, s32 mode);
-s32 func_004553c0(u8 *ptr);
-void func_00454bd0(u8 *ptr);
+s32 H_Cdvd_IsFileLoaded(u8 *ptr);
+void H_Cdvd_Destroy(u8 *ptr);
 s32 func_0046b000(u32 param);
 s32 func_0046a750(s32 param);
 
@@ -459,7 +459,7 @@ s32 func_0012d000(s32 arg0, s16 arg1) {
     r = (s32)func_00451fc0((void *)(arg0), (const void *)(&iGpffff9cb8), 0xC7, 0, 0, func_0012c510, func_0012cc50, (u8 *)(p));
     func_0034bb20(0);
     func_0034c260(1);
-    func_0043f9c8(p + 0x970C, 0, 0x30);
+    memset(p + 0x970C, 0, 0x30);
     *(s32 *)(p + 0x9714) = (s32)func_0012cd90;
     *(s32 *)(p + 0x971C) = 0;
     func_0012d140();
@@ -510,7 +510,7 @@ state0:
     *(u16 *)p += 1;
 
 state1:
-    if (func_004553c0(*(u8 **)(p + 0x34)) != 0) {
+    if (H_Cdvd_IsFileLoaded(*(u8 **)(p + 0x34)) != 0) {
         for (i = 0; i < 6; i++) {
             q = p + i * 4;
             dst = q + 0x1C;
@@ -532,7 +532,7 @@ state2:
             goto done;
         }
     }
-    func_00454bd0(*(u8 **)(p + 0x34));
+    H_Cdvd_Destroy(*(u8 **)(p + 0x34));
     *(u8 **)(p + 0x34) = NULL;
     r = -1;
     goto done;

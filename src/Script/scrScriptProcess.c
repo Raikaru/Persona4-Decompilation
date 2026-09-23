@@ -163,8 +163,8 @@ void func_0044ea90(char* file, s32 line);
 void func_0046d730(char* file, s32 line);
 void func_0046d740(const void *msg, const void *file, u32 line);
 void func_0046d700(char* file, s32 line, char* msg, s32 value);
-void func_0043f9c8(void* dst, s32 value, s32 size);
-void func_0043f810(void* dst, void* src, s32 size);
+void memset(void* dst, s32 value, s32 size);
+void memcpy(void* dst, void* src, s32 size);
 void func_0046a2d0(char* file, s32 line);
 u8* func_0046a430(s32 size);
 void func_0046a340(void* ptr);
@@ -173,22 +173,22 @@ s32 func_0029cb00(void* arg0, ...);
 s32 func_0029e970(void);
 void func_0029e960(s32 arg0);
 void func_00440b68(char* fmt, ...);
-void func_004504f0(char* fmt, ...);
+void H_Dbprt_FmtLog(char* fmt, ...);
 void func_002777f0(s32 handle);
 s32 func_002774d0(u8* str);
 void func_00278640(s32 handle, s32 arg1, s32 arg2);
 s32 func_00452080(KwlnTask* task);
-void func_00454bd0(s32 handle);
+void H_Cdvd_Destroy(s32 handle);
 u8* func_00468170(void* parent, const char* text);
-s32 func_00442088(char* dst, const char* format, ...);
-u32 func_00442948(void* arg0);
+s32 sprintf(char* dst, const char* format, ...);
+u32 strlen(void* arg0);
 
 
 extern s32 func_0029e040(u8* task);
-s32 func_004553c0(s32 arg0);
+s32 H_Cdvd_IsFileLoaded(s32 arg0);
 s32 func_00454a60(void* arg0, s32 arg1);
 s32 func_004680f0(u8* task, s8* text);
-void func_00442830(void* arg0, void* arg1);
+void strcpy(void* arg0, void* arg1);
 s32 func_00455f70(s32 arg0, s32 *arg1);
 void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
 static inline u8 *scrAddOff(u32 offset, u8 *base)
@@ -279,7 +279,7 @@ void func_0029d1c0(void *arg0, void *arg1)
         *(s32 *)((u8 *)arg0 + 8) = *(s32 *)((u8 *)arg0 + 8) - 1;
         call2 = *(u32 *)arg0;
         call0 = arg1;
-        func_0043f9c8(call0, 0, call2);
+        memset(call0, 0, call2);
     }
 }
 // FUN_0029D270
@@ -581,8 +581,8 @@ s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 
     func_0046a2d0(D_0063E3D0, 0x275);
     text = func_0046a430(arg2);
-    func_0043f9c8(text, 0, arg2);
-    func_0043f810(text, (void*)arg1, arg2);
+    memset(text, 0, arg2);
+    memcpy(text, (void*)arg1, arg2);
     work = func_0029d660((ScrHeader*)text, arg3);
     if (work == NULL)
     {
@@ -604,7 +604,7 @@ void func_0029dc80(ScrScriptWork* work)
     s32 handle;
 
     func_00440b68(D_0063E548, (work->index << 5) + work->procedure);
-    func_004504f0(D_0063E560, (work->index << 5) + work->procedure);
+    H_Dbprt_FmtLog(D_0063E560, (work->index << 5) + work->procedure);
     func_0029d1c0(D_00764614, work->msgA);
     handle = work->soundHandle;
     if (handle >= 0)
@@ -807,13 +807,13 @@ s32 func_0029e040(u8 *sdkTask)
             if (*selectionText == 0) {
                 return 1;
             }
-            func_00442830(task->text + 0x100, (u8 *)selectionText + func_00442948(prefix));
+            strcpy(task->text + 0x100, (u8 *)selectionText + strlen(prefix));
             func_00440b68(&iGpffffa7d0, D_0063E3D0, 0x417);
             task->unk_210 = func_00454a60(task->text + 0x100, 0);
             task->state = 1;
             break;
         case 1:
-            if (func_004553c0(task->unk_210) != 0) {
+            if (H_Cdvd_IsFileLoaded(task->unk_210) != 0) {
                 task->unk_224 = func_00455f70((s32)(task->text + 0x100), &loadedSize);
                 task->state = 2;
                 task->unk_218 = 0;
@@ -893,7 +893,7 @@ s32 func_0029e040(u8 *sdkTask)
                 task->unk_218 = procedureCount - 1;
             }
             procedureRecord = func_0029df30((u8 *)task->unk_224, task->unk_218);
-            func_00450050(*(s64 *)((u8 *)task + 0x21C), &iGpffffa7d8, task->unk_218, procedureRecord);
+            H_Dbprt_FmtAt(*(s64 *)((u8 *)task + 0x21C), &iGpffffa7d8, task->unk_218, procedureRecord);
             pixelX = 12.0f * task->unk_21C;
             pixelY = 12.0f * task->unk_220;
             color = scrPreviewColorValue(iGpffffa7cc);
@@ -948,12 +948,12 @@ s32 func_0029e550(u8 *arg0)
     task = *(ScrTaskData **)(arg0 + 0x38);
     switch (task->unk_0C) {
     case 0:
-        func_00442088(task->text, &D_007638D0, D_0063E5F0,
-                      scrAddOff(func_00442948(D_0063E5F0), (u8 *)task) + 0x10);
-        n = func_00442948(task->text) - 1;
+        sprintf(task->text, &D_007638D0, D_0063E5F0,
+                      scrAddOff(strlen(D_0063E5F0), (u8 *)task) + 0x10);
+        n = strlen(task->text) - 1;
         while (n > 0) {
             if (task->text[n] == 0x2F) {
-                func_0043f9c8(&task->text[n + 1], 0, n - 1);
+                memset(&task->text[n + 1], 0, n - 1);
                 break;
             }
             n--;
@@ -973,7 +973,7 @@ s32 func_0029e550(u8 *arg0)
             if (child != NULL) {
                 func_00440b68(D_0063E548,
                               child->procedure + (child->index << 5));
-                func_004504f0(D_0063E560,
+                H_Dbprt_FmtLog(D_0063E560,
                               child->procedure + (child->index << 5));
                 func_0029d1c0(D_00764614, child->msgA);
                 handle = child->soundHandle;
@@ -991,7 +991,7 @@ s32 func_0029e550(u8 *arg0)
             }
             handle = task->unk_210;
             if (handle != 0) {
-                func_00454bd0(handle);
+                H_Cdvd_Destroy(handle);
                 task->unk_210 = 0;
             }
             func_00452080((KwlnTask*)task->unk_04);
@@ -1021,7 +1021,7 @@ void func_0029e7b0(u8* arg0)
     if (work != NULL)
     {
         func_00440b68(D_0063E548, (work->index << 5) + work->procedure);
-        func_004504f0(D_0063E560, (work->index << 5) + work->procedure);
+        H_Dbprt_FmtLog(D_0063E560, (work->index << 5) + work->procedure);
         func_0029d1c0(D_00764614, work->msgA);
         handle = work->soundHandle;
         if (handle >= 0)
@@ -1042,7 +1042,7 @@ void func_0029e7b0(u8* arg0)
     handle = task->unk_210;
     if (handle != 0)
     {
-        func_00454bd0(handle);
+        H_Cdvd_Destroy(handle);
         task->unk_210 = 0;
     }
     jtbl_008873EC[0](task);

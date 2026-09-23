@@ -9,13 +9,13 @@ extern u32 D_0064E9C0[];
 extern u8 *func_00457120(void);
 extern u8 *func_003e9700(s32 a0);
 extern void func_003e42a0(void *a0, void *a1, void *a2);
-extern void func_003e4180(void *a0);
+extern void RwV3dLength(void *a0);
 extern void func_00371160(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, f32 fparg0);
-extern void func_003e40b0(f32 *a0, f32 *a1);
+extern void RwV3dNormalize(f32 *a0, f32 *a1);
 extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
 extern void func_003dcc70(void *a0, void *a1, void *a2);
 extern s32 func_003e0f80(void);
-extern void func_003e0870(s32 a0, void *a1, f32 fparg0, s32 a2);
+extern void RwMatrixRotate(s32 a0, void *a1, f32 fparg0, s32 a2);
 extern void func_003e0f40(s32 a0);
 extern f32 D_00761144;
 extern f32 D_00761148;
@@ -23,8 +23,8 @@ extern f32 D_00761150;
 extern f32 D_00761434;
 extern f32 D_00761438;
 extern f32 D_007614E8;
-extern f32 func_0044b610(f32 fparg0);
-extern f32 func_0044b7b0(f32 fparg0);
+extern f32 cosf(f32 fparg0);
+extern f32 sinf(f32 fparg0);
 extern f32 D_00761470;
 f32 func_003716d0(f32 fparg0);
 typedef struct { f32 x, y, z, w; } ShuffleVec4;
@@ -365,7 +365,7 @@ void func_00371f40(u8 *arg0, f32 fparg0, u8 *arg1) {
     sp50[0] = *(f32 *)(arg0 + 0x38) - *(f32 *)(arg0 + 0x2C);
     sp50[1] = *(f32 *)(arg0 + 0x3C) - *(f32 *)(arg0 + 0x30);
     sp50[2] = *(f32 *)(arg0 + 0x40) - *(f32 *)(arg0 + 0x34);
-    func_003e0870(temp_16, arg0 + 0x20, temp_f20, 0);
+    RwMatrixRotate(temp_16, arg0 + 0x20, temp_f20, 0);
     func_003e42a0(arg1, &sp50[0], (void *)temp_16);
     *(f32 *)(arg1 + 0) += *(f32 *)(arg0 + 0x2C);
     *(f32 *)(arg1 + 4) += *(f32 *)(arg0 + 0x30);
@@ -529,7 +529,7 @@ s32 func_003724f0(ShuffleCalcUnit *unit) {
     sp40[0] = unit->start[0] - unit->target[0];
     sp40[1] = unit->start[1] - unit->target[1];
     sp40[2] = unit->start[2] - unit->target[2];
-    func_003e40b0(&sp30[0], &sp40[0]);
+    RwV3dNormalize(&sp30[0], &sp40[0]);
     temp_f2 = sp30[0];
     temp_f1 = unit->scale;
     sp30[0] = temp_f2 * temp_f1;
@@ -598,7 +598,7 @@ s32 func_003726b0(ShuffleCalcUnit *unit) {
     sp40[0] = unit->start[0] - unit->target[0];
     sp40[1] = unit->start[1] - unit->target[1];
     sp40[2] = unit->start[2] - unit->target[2];
-    func_003e40b0(&sp30[0], &sp40[0]);
+    RwV3dNormalize(&sp30[0], &sp40[0]);
     temp_f2 = sp30[0];
     temp_f1 = unit->scale;
     sp30[0] = temp_f2 * temp_f1;
@@ -1172,7 +1172,7 @@ void func_00373c20(u8 *arg0) {
     sp20.x = *(f32 *)(arg0 + 0) - sp30.x;
     sp20.y = *(f32 *)(arg0 + 4) - sp30.y;
     sp20.z = *(f32 *)(arg0 + 8) - sp30.z;
-    func_003e4180(&sp20);
+    RwV3dLength(&sp20);
 }
 
 // FUN_00373CB0
@@ -1191,9 +1191,9 @@ f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0) {
         case 0:
             return (fparg0 - fparg1) / temp_f20;
         case 1:
-            return func_0044b7b0((D_00761470 * (fparg0 - fparg1)) / temp_f20);
+            return sinf((D_00761470 * (fparg0 - fparg1)) / temp_f20);
         case 2:
-            return 1.0f - func_0044b610((D_00761470 * (fparg0 - fparg1)) / temp_f20);
+            return 1.0f - cosf((D_00761470 * (fparg0 - fparg1)) / temp_f20);
         default:
             func_0046d730(&D_0064E9C0, 0x3E9);
         }

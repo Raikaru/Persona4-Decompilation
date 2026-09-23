@@ -3,7 +3,7 @@
 #include "include_asm.h"
 #include "type.h"
 extern void func_002777f0();
-extern void func_0043f9c8();
+extern void memset();
 extern s32 func_002774d0();
 extern void func_00278640(s32 arg0, s32 arg1, s32 arg2);
 /* Source unit: src/Event/mt_evtMessage_00290a50.c (donor FUN_0039f2a0) */
@@ -43,7 +43,7 @@ s32 func_00290880(u8 *arg0, s32 arg1) {
     func_00278640(temp_2, 0, 0);
     *(s32 *)(arg0 + 8) = temp_2;
     *(s32 *)arg0 = 1;
-    func_0043f9c8(arg0 + 0x20, -1, 0x14);
+    memset(arg0 + 0x20, -1, 0x14);
     return temp_2;
 }
 // FUN_00290940
@@ -62,7 +62,7 @@ void func_00290940(int *param_1)
     func_00290b00(param_1);
     func_002777f0(piVar1[2]);
     *piVar1 = 0;
-    func_0043f9c8(param_1, 0, 0x34);
+    memset(param_1, 0, 0x34);
   }
   return;
 }

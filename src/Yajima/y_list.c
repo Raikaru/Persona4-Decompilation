@@ -27,10 +27,10 @@ extern s32 func_002e4090(u8 *arg0);
 extern void func_002e29a0(void);
 extern s8 func_002e47b0(void);
 extern void func_002e4820(s8 arg0);
-extern void *func_0043f9c8(void *dest, s32 value, u32 size);
+extern void *memset(void *dest, s32 value, u32 size);
 extern s32 func_002e6b20(s16 *arg0, s16 *arg1);
 extern s32 func_002e6630(s16 *arg0, s16 *arg1);
-extern s32 func_00440bb8();
+extern s32 qsort();
 extern u8 *func_0010fcb0(s32 arg0);
 extern s32 func_0010aa80(s32 arg0);
 extern u16 *func_0010ac10(s32 arg0);
@@ -46,14 +46,14 @@ extern s16 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00311d00(u16 id);
 extern s32 func_00311d60(u16 id);
 extern s32 func_00311e40(u16 id);
-extern void *func_0043f810(void *dst, const void *src, u32 size);
+extern void *memcpy(void *dst, const void *src, u32 size);
 extern s32 func_00106600(s16 arg0);
 extern u32 func_00106880(s16 arg0);
 extern u32 func_00106a60(s16 arg0);
 extern u32 func_00106b20(s16 arg0);
 extern u32 func_00106b50(s16 arg0);
-extern s32 func_00106330(s32 arg0);
-extern u8 func_00110830(s32 arg0);
+extern s32 datGetFlag(s32 arg0);
+extern u8 clndGetMoonPhase(s32 arg0);
 extern void func_00110810(s32 arg0, u8 arg1);
 extern s32 func_002bdff0(s16 arg0);
 extern s32 func_002be160(s32 arg0, s32 arg1);
@@ -356,7 +356,7 @@ void func_002e2a10(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
             if (ok == 1) {
                 type = (s16)func_002be1b0(i);
                 if ((type != 0x10) && (type != 0x11) && (type != 0x12)) {
-                    if (func_00106330(0x1462) == 0) {
+                    if (datGetFlag(0x1462) == 0) {
                         value = (func_00106b20(i) & 0xFFF00) >> 8;
                         if (func_002be160(value, func_00106b20(i) & 0xFF) == 1) {
                             value = (func_00106b50(i) & 0xFFF00) >> 8;
@@ -377,7 +377,7 @@ void func_002e2a10(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
                         count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
                         *(s16 *)(p + 2) = count;
                     }
-                } else if (func_00106330(0x1462) == 0) {
+                } else if (datGetFlag(0x1462) == 0) {
                     if (func_002bdff0(i) == 1) {
                         entry = p + ((s32)i * 4);
                         *(s16 *)(entry + 0x10) = 0;
@@ -470,9 +470,9 @@ void func_002e2a10(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
         }
         for (i = 0; i < *(s16 *)(p + 2); i++) {
             entry = p + ((s32)i * 4);
-            if ((func_00110830(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
+            if ((clndGetMoonPhase(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
                 reorder[out_count] = *(s16 *)(entry + 0x0E);
-                value = func_00110830(reorder[out_count]);
+                value = clndGetMoonPhase(reorder[out_count]);
                 func_00110810(*(s16 *)(entry + 0x0E), (value | 2) & 0xFF);
                 *(s16 *)(entry + 0x0E) = -1;
                 *(s16 *)(entry + 0x10) = 1;
@@ -496,14 +496,14 @@ void func_002e2a10(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
         for (n = 0; n < *(s16 *)(p + 2); n++) {
             sortbuf[n] = *(s16 *)(p + ((s32)n * 4) + 0x0E);
         }
-        func_00440bb8(sortbuf, *(s16 *)(p + 2), 4, func_002b3230);
+        qsort(sortbuf, *(s16 *)(p + 2), 4, func_002b3230);
         for (n = 0; n < *(s16 *)(p + 2); n++) {
             entry = p + ((s32)n * 4);
             *(s16 *)(entry + 0x0E) = (s16)sortbuf[n];
             *(s16 *)(entry + 0x10) = 0;
-            if ((func_00110830(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
+            if ((clndGetMoonPhase(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
                 *(s16 *)(entry + 0x10) = 1;
-                value = func_00110830(*(s16 *)(entry + 0x0E));
+                value = clndGetMoonPhase(*(s16 *)(entry + 0x0E));
                 func_00110810(*(s16 *)(entry + 0x0E), (value | 2) & 0xFF);
             }
         }
@@ -618,7 +618,7 @@ void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
             if (ok == 1) {
                 type = (s16)func_002be1b0(i);
                 if ((type != 0x10) && (type != 0x11) && (type != 0x12)) {
-                    if (func_00106330(0x1462) == 0) {
+                    if (datGetFlag(0x1462) == 0) {
                         value = (func_00106b20(i) & 0xFFF00) >> 8;
                         if (func_002be160(value, func_00106b20(i) & 0xFF) == 1) {
                             value = (func_00106b50(i) & 0xFFF00) >> 8;
@@ -639,7 +639,7 @@ void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
                         count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
                         *(s16 *)(p + 2) = count;
                     }
-                } else if (func_00106330(0x1462) == 0) {
+                } else if (datGetFlag(0x1462) == 0) {
                     if (func_002bdff0(i) == 1) {
                         entry = p + ((s32)i * 4);
                         *(s16 *)(entry + 0x10) = 0;
@@ -734,9 +734,9 @@ void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
         } while (n < 0x600);
         for (i = 0; i < *(s16 *)(p + 2); i++) {
             entry = p + ((s32)i * 4);
-            if ((func_00110830(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
+            if ((clndGetMoonPhase(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
                 reorder[out_count] = *(s16 *)(entry + 0x0E);
-                value = func_00110830(reorder[out_count]);
+                value = clndGetMoonPhase(reorder[out_count]);
                 func_00110810(*(s16 *)(entry + 0x0E), (value | 2) & 0xFF);
                 *(s16 *)(entry + 0x0E) = -1;
                 *(s16 *)(entry + 0x10) = 1;
@@ -760,14 +760,14 @@ void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
         for (n = 0; n < *(s16 *)(p + 2); n++) {
             sortbuf[n] = *(s16 *)(p + ((s32)n * 4) + 0x0E);
         }
-        func_00440bb8(sortbuf, *(s16 *)(p + 2), 4, func_002b3230);
+        qsort(sortbuf, *(s16 *)(p + 2), 4, func_002b3230);
         for (n = 0; n < *(s16 *)(p + 2); n++) {
             entry = p + ((s32)n * 4);
             *(s16 *)(entry + 0x0E) = (s16)sortbuf[n];
             *(s16 *)(entry + 0x10) = 0;
-            if ((func_00110830(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
+            if ((clndGetMoonPhase(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
                 *(s16 *)(entry + 0x10) = 1;
-                value = func_00110830(*(s16 *)(entry + 0x0E));
+                value = clndGetMoonPhase(*(s16 *)(entry + 0x0E));
                 func_00110810(*(s16 *)(entry + 0x0E), (value | 2) & 0xFF);
             }
         }
@@ -813,8 +813,8 @@ s32 func_002e4090(u8 *arg0) {
     case 1:
         for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
             if (func_0010abd0(i) == 1) {
-                func_0043f9c8(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
-                func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, func_0010ace0(i), 0x30);
+                memset(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
+                memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, func_0010ace0(i), 0x30);
                 *(s32 *)(p + 8) += 1;
             }
         }
@@ -822,8 +822,8 @@ s32 func_002e4090(u8 *arg0) {
     case 2:
         for (i = 0; i < 0x100; i++) {
             if (func_0010fcb0(i) != 0) {
-                func_0043f9c8(p + (*(s32 *)(p + 8) * 0x30) + 0x14, 0, 0x30);
-                func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0x14, func_0010fcb0(i), 0x30);
+                memset(p + (*(s32 *)(p + 8) * 0x30) + 0x14, 0, 0x30);
+                memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0x14, func_0010fcb0(i), 0x30);
                 *(s32 *)(p + 8) += 1;
             }
         }
@@ -833,8 +833,8 @@ s32 func_002e4090(u8 *arg0) {
             if (func_0010abd0(i) == 1) {
                 tmp = func_0010a900(1);
                 if (tmp != func_0010ace0(i)) {
-                    func_0043f9c8(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
-                    func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, func_0010ace0(i), 0x30);
+                    memset(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
+                    memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, func_0010ace0(i), 0x30);
                     *(s32 *)(p + 8) += 1;
                 }
             }
@@ -843,12 +843,12 @@ s32 func_002e4090(u8 *arg0) {
     case 6:
         for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
             if (func_0010abd0(i) == 1) {
-                func_0043f810(&current, func_0010ace0(i), 0x30);
+                memcpy(&current, func_0010ace0(i), 0x30);
                 if (*(u8 *)(iGpffffb3d4 + current.id * 0xE + 2) < 0x16) {
-                    func_0043f810(&registered, func_0010fcb0(current.id), 0x30);
+                    memcpy(&registered, func_0010fcb0(current.id), 0x30);
                     if (func_002e5270((u8 *)&current, (u8 *)&registered) == 1) {
-                        func_0043f9c8(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
-                        func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, func_0010ace0(i), 0x30);
+                        memset(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
+                        memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, func_0010ace0(i), 0x30);
                         *(s32 *)(p + 8) += 1;
                     }
                 }
@@ -1596,7 +1596,7 @@ void func_002e55c0(s8 arg0, s32 arg1, s8 arg2) {
                 break;
             }
             src = func_0010ac10((u16)arg1);
-            func_0043f810(q, src, 0x30);
+            memcpy(q, src, 0x30);
         }
         (*(s32 *)(*(u8 **)(*entryp + 0x38) + 8))++;
     }
@@ -1621,7 +1621,7 @@ void func_002e5960(s8 arg0) {
     case 7:
     case 8:
         for (i = 0; i < 0x100; i++) {
-            func_0043f9c8(p + ((i * 3) * 0x10) + 0x14, 0, 0x30);
+            memset(p + ((i * 3) * 0x10) + 0x14, 0, 0x30);
         }
         break;
     case 1:
@@ -1629,7 +1629,7 @@ void func_002e5960(s8 arg0) {
     case 5:
     case 6:
         for (j = 0; j < 0xC; j++) {
-            func_0043f9c8(p + ((j * 3) * 0x10) + 0xA4, 0, 0x30);
+            memset(p + ((j * 3) * 0x10) + 0xA4, 0, 0x30);
             *(u8 *)(p + j + 0x2E4) = 0;
         }
         break;
@@ -1751,7 +1751,7 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
             dst1 = q + h * 0x30 + 0x14;
             break;
         }
-        func_0043f9c8(dst1, 0, 0x30);
+        memset(dst1, 0, 0x30);
         h = *(s16 *)(p + 8);
         q = *(u8 **)(*slotp + 0x38);
         sw2 = *(u32 *)(q + 4);
@@ -1838,7 +1838,7 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
                 dst1 = q + h * 0x30 + 0x14;
                 break;
             }
-            func_0043f9c8(dst1, 0, 0x30);
+            memset(dst1, 0, 0x30);
             h = *(s16 *)(p + 8);
             q = *(u8 **)(*slotp + 0x38);
             sw2 = *(u32 *)(q + 4);
@@ -1964,7 +1964,7 @@ void func_002e6280(s8 arg0, u8 *arg1, s8 arg2)
                                 dst1 = q + (h8 * 48) + 20;
                                 break;
                             }
-                            func_0043f9c8(dst1, 0, 48);
+                            memset(dst1, 0, 48);
                             h8 = *(s16 *)(*(u8 **)(*slotp + 56) + 8);
                             q = *(u8 **)(*slotp + 56);
                             sw2 = *(u32 *)(q + 4);
@@ -2136,7 +2136,7 @@ void func_002e68b0(s8 arg0) {
     for (k = 0; k < *(s32 *)(*(u8 **)(entry + 0x38) + 8); k++) {
         arr1[k] = k;
     }
-    func_00440bb8(arr1, *(u16 *)((u8 *)*ep + 8), 2, func_002e6630);
+    qsort(arr1, *(u16 *)((u8 *)*ep + 8), 2, func_002e6630);
     j = 0;
     count2 = *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8);
     if (count2 > 0) {
@@ -2168,8 +2168,8 @@ void func_002e68b0(s8 arg0) {
     for (i = 0; i < *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8); i++) {
         dst = p + ((i * 3) * 0x10) + 0x14;
 
-        func_0043f9c8(dst, 0, 0x30);
-        func_0043f810(dst, func_0010fcb0(arr2[i]), 0x30);
+        memset(dst, 0, 0x30);
+        memcpy(dst, func_0010fcb0(arr2[i]), 0x30);
     }
 }
 /* measured: see the annotation above the matching `on` pragma (func_002e68b0). */
@@ -2292,7 +2292,7 @@ void func_002e6c90(s8 arg0) {
     for (k = 0; k < *(s32 *)(*(u8 **)(entry + 0x38) + 8); k++) {
         arr1[k] = k;
     }
-    func_00440bb8(arr1, *(u16 *)((u8 *)*ep + 8), 2, func_002e6b20);
+    qsort(arr1, *(u16 *)((u8 *)*ep + 8), 2, func_002e6b20);
     j = 0;
     count2 = *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8);
     if (count2 > 0) {
@@ -2325,8 +2325,8 @@ void func_002e6c90(s8 arg0) {
     for (i = 0; i < *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8); i++) {
         dst = p + ((i * 3) * 0x10) + 0x14;
 
-        func_0043f9c8(dst, 0, 0x30);
-        func_0043f810(dst, func_0010fcb0(arr2[i]), 0x30);
+        memset(dst, 0, 0x30);
+        memcpy(dst, func_0010fcb0(arr2[i]), 0x30);
     }
 }
 /* measured: closing the scope restores the file baseline; leaving

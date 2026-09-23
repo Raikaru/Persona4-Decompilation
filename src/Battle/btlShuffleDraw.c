@@ -15,7 +15,7 @@ extern void func_0036df30(u8 *arg0);
 extern void func_0036d8b0(void);
 extern s32 func_00457120(void);
 struct RwCamera;
-extern void func_004577d0(struct RwCamera *camera, f32 fov);
+extern void K_View_SetFov(struct RwCamera *camera, f32 fov);
 extern s32 func_0038cec0(void *arg0);
 extern s32 func_00388bd0(void *arg0);
 extern s32 func_0038d790(void *arg0);
@@ -41,7 +41,7 @@ typedef struct { f32 x, y, z, w; } ShuffleVec4;
 typedef struct RtQuat { ShuffleVec3 imag; f32 real; } ShuffleQuaternion;
 typedef struct { s64 a; f32 b; } ShuffleVec2s;
 
-extern s32 func_00442088(char *buf, const char *fmt, ...);
+extern s32 sprintf(char *buf, const char *fmt, ...);
 extern char D_0064EA80[];
 extern void func_003547c0(s32 *arg0, u8 *arg1);
 extern char D_0064EA20[];
@@ -61,13 +61,13 @@ extern void func_0046b0d0(void *ptr);
 extern void func_0044ea90(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern f32 func_00373c20(u8 *arg0);
-extern s32 func_00106330(s32 arg0);
+extern s32 datGetFlag(s32 arg0);
 extern void func_0036c900(void);
 extern void func_0036d990(u8 *arg0, u8 *arg1);
 extern void func_0036dda0(u8 *arg0, void *arg1);
 extern void func_0036de20(u8 *arg0, void *arg1);
 extern void func_0036de40(u8 *arg0, void *arg1);
-extern void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
+extern void memset(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0036dc60(u8 *unit, f32 *src, f32 *dst, f32 scale);
 extern void func_00373750(s32 arg0, s32 arg1, void *arg2);
 
@@ -92,7 +92,7 @@ extern void func_00375f00(u8 *arg0, s32 arg1);
 struct HCdvd;
 extern u32 H_Cdvd_IsFileLoaded(struct HCdvd *archive);
 extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
-extern void func_0043f810(s32 arg0, s32 arg1, s32 arg2);
+extern void memcpy(s32 arg0, s32 arg1, s32 arg2);
 extern void func_0036d230(u8 *data);
 extern u32 func_0046a750(s16 *sprite);
 extern u32 H_Cdvd_Destroy(struct HCdvd *archive);
@@ -109,7 +109,7 @@ extern void func_00376290(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern f32 func_0036de70(u8 *arg0);
 extern f32 func_0036deb0(u8 *arg0);
 extern BtlShuffleMatrix *func_003e0f80(void);
-extern BtlShuffleMatrix *func_003e0c90(BtlShuffleMatrix *matrix, const BtlShuffleVec3 *translation, BtlShuffleCombine mode);
+extern BtlShuffleMatrix *RwMatrixTranslate(BtlShuffleMatrix *matrix, const BtlShuffleVec3 *translation, BtlShuffleCombine mode);
 extern BtlShuffleVec3 *func_003e42a0(BtlShuffleVec3 *out, const BtlShuffleVec3 *in, const BtlShuffleMatrix *matrix);
 extern s32 func_003717e0(u8 *point, u8 *screen);
 extern s32 func_003e0f40(BtlShuffleMatrix *matrix);
@@ -129,15 +129,15 @@ extern f32 iGpffff840c;
 extern f32 iGpffff81e0;
 extern void *func_003e9700(s32 arg0);
 extern void func_003e0e20(u8 *arg0, void *arg1, s32 arg2);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern s32 func_0036be00(void);
 extern void func_00410420(s32 arg0, s32 arg1, void *arg2, s32 arg3);
 extern void func_004106a0(s32 arg0);
 extern f32 DAT_007613f8;
 extern f32 iGpffff8218;
-extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 fparg0);
-extern f32 func_0044b610(f32 fparg0);
-extern void func_003e0a90(void *arg0, void *arg1, s32 arg2);
+extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+extern f32 cosf(f32 fparg0);
+extern void RwMatrixScale(void *arg0, void *arg1, s32 arg2);
 
 
 // FUN_00373E10
@@ -164,8 +164,8 @@ void func_00373f00(u8 *arg0) {
     s32 i;
     u8 *p;
 
-    func_0043f9c8(arg0 + 0x1F1D0, 0, 0x40);
-    func_0043f9c8(arg0 + 0x1D6A0, 0, 0x1B30);
+    memset(arg0 + 0x1F1D0, 0, 0x40);
+    memset(arg0 + 0x1D6A0, 0, 0x1B30);
     *(u16 *)(arg0 + 0x1F2F4) = 0;
     *(s32 *)(arg0 + 0x1F2F8) = 0;
     *(u16 *)(arg0 + 0x1F2F0) = 0;
@@ -200,7 +200,7 @@ void func_003740b0(u8 *arg0, s32 arg1) {
     s32 i;
     u8 *p;
 
-    if ((func_00106330(0x1403) != 0) && (func_00106330(0x142B) != 0)) {
+    if ((datGetFlag(0x1403) != 0) && (datGetFlag(0x142B) != 0)) {
         func_0036c900();
     }
     count = func_00378530(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
@@ -416,14 +416,14 @@ loop_test:
 // FUN_00374910
 void func_00374910(u8 *arg0) {
     func_0036d8b0();
-    func_004577d0((struct RwCamera *)(u32)func_00457120(), *(f32 *)(arg0 + 0x1F310));
+    K_View_SetFov((struct RwCamera *)(u32)func_00457120(), *(f32 *)(arg0 + 0x1F310));
 }
 
 
 // FUN_00374960
 void func_00374960(u8 *arg0) {
     func_0036d8b0();
-    func_004577d0((struct RwCamera *)(u32)func_00457120(), *(f32 *)(arg0 + 0x1F310));
+    K_View_SetFov((struct RwCamera *)(u32)func_00457120(), *(f32 *)(arg0 + 0x1F310));
     *(s32 *)(arg0 + 0x1F298) = func_0038cec0((void *)*(s32 *)(arg0 + 0x1F2A8));
     *(s32 *)(arg0 + 0x1F294) = func_00388bd0((void *)*(s32 *)(arg0 + 0x1F2A8));
     *(s32 *)(arg0 + 0x1F29C) = func_0038d790((void *)*(s32 *)(arg0 + 0x1F2A8));
@@ -601,14 +601,14 @@ void func_00374d20(u8 *arg0) {
     *(s32 *)(m + 0x34) = 0;
     *(s32 *)(m + 0x38) = 0;
     *(s32 *)(m + 0x0C) = 3;
-    func_003e0c90((BtlShuffleMatrix *)m, &translation, rwCOMBINEPOSTCONCAT);
+    RwMatrixTranslate((BtlShuffleMatrix *)m, &translation, rwCOMBINEPOSTCONCAT);
     func_003e0e20(m, func_003e9700(camera), 2);
     renderStateBase = (u32)D_00887300;
     (*(BtlShuffleRenderStateSet *)renderStateBase)(6, 0);
     (*(BtlShuffleRenderStateSet *)renderStateBase)(8, 0);
     (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATECULLMODE, (void *)2);
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(3, 0x717FB);
+    RpSkyRenderStateSet(2, 0x44);
     if (*(u16 *)(arg0 + 0x1F2F4) & 0x20) {
         (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATETEXTURERASTER, (void *)(u32)func_0036be00());
         func_00410420(backVertices, 4, m, 3);
@@ -617,17 +617,17 @@ void func_00374d20(u8 *arg0) {
     func_00378280(card, *(u8 *)(p + 0xD8));
     if (*(u16 *)(arg0 + 0x1F2F4) & 0x80) {
         ShuffleVec3 axis = {0.0f, 0.0f, 1.0f};
-        func_003e0870(m, &axis, 1, 180.0f);
+        RwMatrixRotate(m, &axis, 1, 180.0f);
     }
     (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATETEXTURERASTER, (void *)(u32)texture);
     func_00410420(frontVertices, 4, m, 3);
     func_004106a0(4);
     if (*(u16 *)(arg0 + 0x1F2F4) & 0x10) {
-        func_003f6440(3, 0x71801);
-        func_003f6440(2, 0x48);
+        RpSkyRenderStateSet(3, 0x71801);
+        RpSkyRenderStateSet(2, 0x48);
         *(u16 *)(arg0 + 0x1F2F2) = (u16)((*(u16 *)(arg0 + 0x1F2F2) + 1) % 60);
         pulseFrame = (f32)(u32)*(u16 *)(arg0 + 0x1F2F2);
-        pulseAlpha = 255.0f * (1.0f - func_0044b610((iGpffff81e0 * pulseFrame) / 60.0f)) / 2.0f;
+        pulseAlpha = 255.0f * (1.0f - cosf((iGpffff81e0 * pulseFrame) / 60.0f)) / 2.0f;
         pulseByte = (u8)pulseAlpha;
         func_00378280(card, pulseByte & 0xFF);
         func_00410420(frontVertices, 4, m, 3);
@@ -646,7 +646,7 @@ void func_00374d20(u8 *arg0) {
         scale.x = 1.0f + (f32)(iGpffff840c * progress);
         scale.y = scale.x;
         scale.z = 1.0f;
-        func_003e0a90(m, &scale, 1);
+        RwMatrixScale(m, &scale, 1);
         func_00410420(frontVertices, 4, m, 3);
         func_004106a0(4);
     }
@@ -1652,8 +1652,8 @@ void func_003768e0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, f32 fparg0) {
     stack.spE4 = 0;
     stack.spE0 = 0;
     stack.spBC |= 0x20003;
-    func_003f6440(2, 0x48);
-    func_003f6440(3, 0x71801);
+    RpSkyRenderStateSet(2, 0x48);
+    RpSkyRenderStateSet(3, 0x71801);
     D_00887300[0](rwRENDERSTATECULLMODE, (void *)1);
     D_00887300[0](rwRENDERSTATEZTESTENABLE, (void *)1);
     D_00887300[0](8, 0);
@@ -2078,8 +2078,8 @@ loop_88:
             }
             break;
         }
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
     }
 }
 #else
@@ -2161,7 +2161,7 @@ void func_00377930(u8 *arg0, s32 arg1, const BtlShuffleVec3 *arg2, u8 *arg3, s32
     matrix->pos.y = 0.0f;
     matrix->pos.z = 0.0f;
     matrix->flags = 3;
-    func_003e0c90(matrix, &sp1B8v, 2);
+    RwMatrixTranslate(matrix, &sp1B8v, 2);
     sp80[0].x = halfW;
     sp80[0].y = halfH;
     sp80[0].z = 0.0f;
@@ -2347,7 +2347,7 @@ void func_003781d0(u8 *arg0, s32 arg1) {
     u8 *temp_16;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
-    func_00442088(buf, D_0064EA80, arg1 & 0xFF);
+    sprintf(buf, D_0064EA80, arg1 & 0xFF);
     func_003547c0((s32 *)(temp_16 + 8), (u8 *)buf);
     *(s32 *)temp_16 = 0;
 }

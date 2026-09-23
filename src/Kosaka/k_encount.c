@@ -18,8 +18,8 @@ extern s32 func_0015a740();
 extern s16 func_001060b0(void);
 extern u8 func_001060c0(void);
 extern s64 func_00110960(s32 day, u32 time);
-extern u32 func_00106330(s32 bit);
-extern u32 func_003b7060(void);
+extern u32 datGetFlag(s32 bit);
+extern u32 RpRandom(void);
 extern void func_0046d730(void *file, s32 line);
 extern u8 *iGpffffb41c;
 extern u8 *iGpffffb418;
@@ -176,16 +176,16 @@ s32 func_00161630(s32 field, s32 room, s32 encounter, s32 level)
     }
     day = (s16)func_001060b0();
     alternate = (s8)func_00110960(day, func_001060c0() & 0xFF) == 1;
-    if (func_00106330(0x1411) == 1) {
+    if (datGetFlag(0x1411) == 1) {
         multiplier = 100.0f;
     }
     field = (u16)field;
-    if ((field == 0x28 || field == 0x3C) && func_00106330(0xC0F) == 0) {
+    if ((field == 0x28 || field == 0x3C) && datGetFlag(0xC0F) == 0) {
         multiplier = 0.0f;
     }
     tableOffset = tableId * 0xF8;
     total = *(u8 *)(iGpffffb418 + tableOffset + alternate);
-    if (func_00106330(0x1410) == 0) {
+    if (datGetFlag(0x1410) == 0) {
         s32 available = (s32)(u16)level;
         if (available > 0) {
             total += (s32)multiplier *
@@ -198,7 +198,7 @@ s32 func_00161630(s32 field, s32 room, s32 encounter, s32 level)
     if (total == 0) {
         func_0046d730(D_005F12C8, 0x69);
     }
-    draw = (s32)(func_003b7060() % (u32)total);
+    draw = (s32)(RpRandom() % (u32)total);
     tables = iGpffffb418;
     table = tables + tableOffset;
     normalRate = *(u8 *)(table + alternate);
@@ -229,7 +229,7 @@ s32 func_00161630(s32 field, s32 room, s32 encounter, s32 level)
     if (sum == 0) {
         return -1;
     }
-    draw = (s32)(func_003b7060() % (u32)sum);
+    draw = (s32)(RpRandom() % (u32)sum);
     cumulative = 0;
     tables = iGpffffb418;
     entries = tables + tableOffset + alternateOffset;
@@ -316,7 +316,7 @@ u8 *func_00161c80(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         if (total == 0) {
             func_0046d730(D_005F12C8, 0x166);
         }
-        rnd = func_003b7060() % total;
+        rnd = RpRandom() % total;
         acc = 0;
         for (i = 0; i < 0x1D; i++) {
             rec = base + i * 0xC;

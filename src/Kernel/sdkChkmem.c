@@ -37,11 +37,11 @@ extern void func_0046d700(const char *file, s32 line, const char *msg, ...);
 extern s32 func_0043ece8(s32 size);
 extern s32 func_0042ba20(void);
 extern void func_0042ba70(void);
-extern void func_0043f810(void *dst, void *src, s32 size);
+extern void memcpy(void *dst, void *src, s32 size);
 extern void func_0043ed08(void *ptr);
 extern s32 func_0044eaa0(s32 arg0, s32 arg1, u16 arg2, s16 arg3);
 extern char iGpffffac30;
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void memset(void *dst, s32 value, u32 size);
 
 extern ChkMemPool *D_00763D1C; /* sdkChkmem pool */
 extern s32 D_00764AC0;         /* sdkChkmem lock */
@@ -450,7 +450,7 @@ s32 func_0044f140(void *arg0, u32 arg1)
         if (resizeLock != 0) {
             func_0042ba70();
         }
-        func_0043f810((void *)allocation, arg0, copySize);
+        memcpy((void *)allocation, arg0, copySize);
         freeLock = func_0042ba20();
         if (arg0 == NULL) {
             func_0046d730(D_007104E0, 0x670);
@@ -494,7 +494,7 @@ s32 func_0044f3a0(s32 arg0, s32 arg1)
         func_0042ba70();
     }
     if (temp_19_2 != 0) {
-        func_0043f9c8((void *)temp_19_2, 0, temp_18);
+        memset((void *)temp_19_2, 0, temp_18);
     }
     if (temp_17 != 0) {
         func_0042ba70();

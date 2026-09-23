@@ -32,8 +32,8 @@ extern void (*jtbl_008873EC[])(void *);
 extern void func_0049a570(void *arg0);
 
 extern void func_0044ea90();
-extern void func_0043f810(void *dst, void *src, u32 size);
-extern f32 func_004bd0b0();
+extern void memcpy(void *dst, void *src, u32 size);
+extern f32 effMiscRandFloat();
 extern u8 D_00713390[];
 extern s32 func_0048abd0();
 extern void func_004836b0(void *arg0, void *arg1, void *arg2, void *arg3);
@@ -50,10 +50,10 @@ extern s32 D_00713F24[];
 extern u32 D_00713F14[];
 extern u32 D_00713F10[];
 extern void func_0049a6c0(void *arg0);
-extern u8 *func_003c2290(u8 *arg0, s32 arg1);
+extern u8 *RpGeometryLock(u8 *arg0, s32 arg1);
 extern void func_003c22f0(void *arg0);
-extern f32 func_0044b610(f32 arg0);
-extern f32 func_0044b7b0(f32 arg0);
+extern f32 cosf(f32 arg0);
+extern f32 sinf(f32 arg0);
 extern f32 fGpffff80d0;
 extern f32 fabsf(f32 x);
 extern f32 D_00713D10[];
@@ -167,7 +167,7 @@ void func_00498f10(u8 *arg0)
         temp_f22 += *(f32 *)(temp_18 + 0x40);
         temp_2 = *(s16 *)(temp_17 + 8);
         var_16 = temp_2 / 4;
-        func_003c2290(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18), 2);
+        RpGeometryLock(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18), 2);
         var_19 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18) + 0x5C) + 0x14);
         var_f21 = 0.0f;
         var_f1 = (f32)*(u32 *)(temp_18 + 0x38);
@@ -205,8 +205,8 @@ void func_00498f10(u8 *arg0)
         __asm__ volatile("sqc2 $vf11, 0(%0)" : : "r"(&slot60) : "memory");
         var_18 = 0;
         while (var_18 < (u32)var_16) {
-            ((f32 *)&pair)[0] = func_0044b610(var_f21);
-            ((f32 *)&pair)[2] = func_0044b7b0(var_f21);
+            ((f32 *)&pair)[0] = cosf(var_f21);
+            ((f32 *)&pair)[2] = sinf(var_f21);
             __asm__ volatile(
                 "lqc2 $vf10, 0(%0) \n"
                 "vmove.xyzw $vf11, $vf10 \n"
@@ -399,7 +399,7 @@ u8 *func_00499510(u8 *arg0) {
     work = p + stride;
     *(u32 *)(work + 0) = (u32)p;
     *(u32 *)(work + 0xC) = (u32)p;
-    func_0043f810(arg0 + 0x5C, arg0, 0x5C);
+    memcpy(arg0 + 0x5C, arg0, 0x5C);
     *(u32 *)(work + 4) = (u32)func_0049a370(1, arg0 + 0x5C);
     *(u32 *)(work + 8) = (u32)func_00482f70(count & 0xFFFF, 2, 4, D_00713390, 0x48);
     dst = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(work + 8) + 0x10) + 0x18) + 0x30);
@@ -413,7 +413,7 @@ u8 *func_00499510(u8 *arg0) {
         *(s32 *)(dst + 8) = avg;
         *(s32 *)(dst + 0xC) = v44;
         f20 = *(f32 *)(arg0 + 0xCC);
-        t = func_004bd0b0(0);
+        t = effMiscRandFloat(0);
         *(f32 *)(p + 0) = *(f32 *)(arg0 + 0xC8) * ((1.0f - f20) + f20 * t);
         i++;
         dst += 0x10;
@@ -476,8 +476,8 @@ void func_00499730(u8 *arg0)
     if ((temp_20 >= temp_21) || (temp_20 == 0)) {
         func_0049a660(temp_5);
         step = (f32)temp_21 / (f32)temp_20;
-        func_003c2290(*(u8 **)(*(u8 **)(temp_16 + 0x10) + 0x18), 2);
-        func_003c2290(*(u8 **)(*(u8 **)(*temp_17 + 0x10) + 0x18), 2);
+        RpGeometryLock(*(u8 **)(*(u8 **)(temp_16 + 0x10) + 0x18), 2);
+        RpGeometryLock(*(u8 **)(*(u8 **)(*temp_17 + 0x10) + 0x18), 2);
         limit = *(u32 *)(temp_19 + 0x38);
         temp_4 = *temp_17;
         stmp = *(s16 *)(temp_4 + 8) - 1;
@@ -794,7 +794,7 @@ void func_00499e40(u8 *arg0)
         fade = f1 + *(f32 *)(temp_18 + 0x40);
         tmp2 = *(s16 *)(temp_17 + 8);
         var_16 = tmp2 / 4;
-        func_003c2290(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18), 2);
+        RpGeometryLock(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18), 2);
         var_19 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18) + 0x5C) + 0x14);
         phase = 0.0f;
         var_f1 = (f32)*(u32 *)(temp_18 + 0x38);
@@ -831,8 +831,8 @@ void func_00499e40(u8 *arg0)
         __asm__ volatile("sqc2 $vf11, 0(%0)" : : "r"(&sp60) : "$vf11", "memory");
         var_18 = 0;
         while (var_18 < (u32)var_16) {
-            ((f32 *)&stk)[0] = func_0044b610(phase);
-            ((f32 *)&stk)[2] = func_0044b7b0(phase);
+            ((f32 *)&stk)[0] = cosf(phase);
+            ((f32 *)&stk)[2] = sinf(phase);
             *(f32 *)(var_19 + 0) = zero;
             *(f32 *)(var_19 + 4) = zero;
             *(f32 *)(var_19 + 8) = zero;
@@ -985,7 +985,7 @@ u8 *func_0049a370(u16 arg0, u8 *arg1)
     *(u_long128 *)(p + 0x20) = quad;
     __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(p) : "memory");
     __asm__ volatile("sqc2 vf0, 0x10(%0)" : : "r"(p) : "memory");
-    func_0043f810(*(void **)(p + 0x40), arg1, size);
+    memcpy(*(void **)(p + 0x40), arg1, size);
     *(u32 *)(p + 0x3C) =
         ((u32 (*)(u8 *))D_00713F14[arg0 * 6])(arg1);
     ((void (*)(u8 *))D_00713F10[arg0 * 6])(p);

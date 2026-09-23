@@ -753,7 +753,7 @@ s32 func_003a8640(s32 arg0, u8 *arg1, s32 arg2, s32 arg3)
     f32 float1;
 
     extern void func_003a2bb0(u8 *arg0);
-    extern void func_0043f810(void *dst, const void *src, u32 size);
+    extern void memcpy(void *dst, const void *src, u32 size);
     work = *(s32 **)(arg1 + 0x4C);
     flags = arg3;
     if (work[56] == 1) {
@@ -778,10 +778,10 @@ apply_index:
     }
 second_mask:
     if ((flags & 0x80000) != 0 && (*(s32 *)(arg1 + 0x58) & 0x80000) != 0) {
-        func_0043f810(*(void **)(arg1 + 0x3C), arg1 + 0x90, 0x10);
+        memcpy(*(void **)(arg1 + 0x3C), arg1 + 0x90, 0x10);
     }
     if ((flags & 0x100000) != 0 && (*(s32 *)(arg1 + 0x58) & 0x100000) != 0) {
-        func_0043f810(*(void **)(arg1 + 0x44), arg1 + 0x90, 0x20);
+        memcpy(*(void **)(arg1 + 0x44), arg1 + 0x90, 0x20);
     }
     if ((flags & 0x2000) != 0 && (*(s32 *)(arg1 + 0x58) & 0x40042) == 0) {
         dst = *(u8 **)(arg1 + 0x24);
@@ -795,7 +795,7 @@ second_mask:
         dst[3] = byte3;
     }
     if ((flags & 0x40000) != 0 && (*(s32 *)(arg1 + 0x58) & 0x40000) != 0) {
-        func_0043f810(*(void **)(arg1 + 0x2C), arg1 + 0x80, 0x10);
+        memcpy(*(void **)(arg1 + 0x2C), arg1 + 0x80, 0x10);
     }
     if ((flags & 0x20000) != 0 && (*(s32 *)(arg1 + 0x58) & 0x20000) != 0) {
         dst = *(u8 **)(arg1 + 0x34);

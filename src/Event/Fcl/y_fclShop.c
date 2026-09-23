@@ -16,14 +16,14 @@ s32 func_00106ac0(s16);
 s64 func_00106af0(s16);
 s32 func_00106b20(s16);
 s32 func_00106b50(s16);
-u8 func_00110830(s32);
+u8 clndGetMoonPhase(s32);
 void func_00110810(s32, u8);
 
 void func_0044ea90(const void *, u32);
 void func_0045aac0(s16, s32, s32);
 void func_00440b68();
 s32 func_00454a60();
-void func_00456150();
+void H_Cdvd_ReadSync();
 s32 func_00455f70();
 void func_002bc010();
 void func_00104a60();
@@ -62,18 +62,18 @@ s32 func_002bdb50(s32 arg0, s8 arg1)
     for (i = 0; i < 0x2FF; i++) {
         if (((func_00106b20(i) & 0xFFF00) >> 8) == 0 &&
             ((func_00106b50(i) & 0xFFF00) >> 8) == 0) {
-            func_00110810(i, func_00110830(i) | 4);
+            func_00110810(i, clndGetMoonPhase(i) | 4);
         } else if (!(func_00106b20(i) & 0xFF) && !(func_00106b50(i) & 0xFF)) {
-            func_00110810(i, func_00110830(i) | 4);
+            func_00110810(i, clndGetMoonPhase(i) | 4);
         }
     }
     for (i = 0x300; i < 0x3FF; i++) {
         if ((func_002be100(func_00106ac0(i) & 0xFF) & 0xFF) <
             (func_002be100(4) & 0xFF)) {
-            func_00110810(i, func_00110830(i) | 4);
+            func_00110810(i, clndGetMoonPhase(i) | 4);
         } else if ((func_002be100(func_00106ac0(i) & 0xFF) & 0xFF) ==
                    (func_002be100(4) & 0xFF) && (s8)func_00106af0(i) < 2) {
-            func_00110810(i, func_00110830(i) | 4);
+            func_00110810(i, clndGetMoonPhase(i) | 4);
         }
     }
     return temp_17;
@@ -87,7 +87,7 @@ void func_002bdea0(void)
     for (i = 0; i < 0x3FF; i++) {
         u8 t;
 
-        t = func_00110830(i);
+        t = clndGetMoonPhase(i);
         if (t & 2) {
             func_00110810(i, 0);
             func_00110810(i, 4);
@@ -117,7 +117,7 @@ void func_002bdf20(void)
         dst++;
     } while (count > 0);
     func_00440b68(&iGpffffa870, D_0063F3C8, 0x179);
-    func_00456150(func_00454a60(D_0063F550, 1));
+    H_Cdvd_ReadSync(func_00454a60(D_0063F550, 1));
     for (i = 0; i < 9; i++) {
         func_002bc010(i, func_00455f70(items[i], &out));
     }

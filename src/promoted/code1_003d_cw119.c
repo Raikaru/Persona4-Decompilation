@@ -51,7 +51,7 @@ extern s32 func_003d5bc0(u8 *arg0, f32 amount);
 extern s32 iGpffffb738;
 extern s32 iGpffffb734;
 extern void func_003e12f0();
-extern void func_0043f810(void *dst, void *src, u32 size);
+extern void memcpy(void *dst, void *src, u32 size);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern void func_00426f80(s32 arg0);
 extern s32 func_003c1ab0();
@@ -229,7 +229,7 @@ u8 *func_003d5790(s32 arg0, s32 arg1) {
 // FUN_003D59A0
 #pragma schedule on
 s32 func_003d59a0(u8 *arg0, u8 *arg1) {
-    func_0043f810(arg0 + 0x4C, arg1 + 0x4C,
+    memcpy(arg0 + 0x4C, arg1 + 0x4C,
         *(s32 *)(arg0 + 0x24) * *(s32 *)(arg0 + 0x2C));
     return 1;
 }

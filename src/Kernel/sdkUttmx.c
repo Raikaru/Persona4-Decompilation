@@ -36,7 +36,7 @@ extern RwStream *func_003e2f60(RwStreamType type, RwStreamAccessType access, con
 extern u32 func_003e2910(RwStream *stream, void *destination, u32 length);
 extern s32 func_003e2e40(RwStream *stream, void *data);
 extern void func_0044ea90(u8 *file, s32 line);
-extern void func_0043f810(u8 *dst, void *src, s32 size);
+extern void memcpy(u8 *dst, void *src, s32 size);
 extern u8 *(*jtbl_008873E8[])(s32 size, s32 align);
 extern void (*jtbl_008873EC[])(void *);
 extern u8 D_00712688[];
@@ -460,7 +460,7 @@ RwImage *func_00463d60(const char *name)
         func_0044ea90(D_00712688, 0x3BE);
         buf = jtbl_008873E8[0](*(s32 *)(hdr + 4), 0x40000);
         func_003e2910(fh, buf + 0x40, *(s32 *)(hdr + 4) - 0x40);
-        func_0043f810(buf, hdr, 0x40);
+        memcpy(buf, hdr, 0x40);
         ret = func_00463930(buf);
         jtbl_008873EC[0](buf);
         func_003e2e40(fh, NULL);
@@ -744,7 +744,7 @@ s32 func_00464100(u8 *arg0, s32 arg1)
     }
     else
     {
-      func_0043f810((u8 *) texture_buffer, (void *) source_addr, ((*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14)))) * 4);
+      memcpy((u8 *) texture_buffer, (void *) source_addr, ((*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14)))) * 4);
     }
       break;
 
@@ -755,7 +755,7 @@ s32 func_00464100(u8 *arg0, s32 arg1)
     }
     else
     {
-      func_0043f810((u8 *) texture_buffer, (void *) source_addr, ((*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14)))) * 2);
+      memcpy((u8 *) texture_buffer, (void *) source_addr, ((*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14)))) * 2);
     }
       break;
 
@@ -766,7 +766,7 @@ s32 func_00464100(u8 *arg0, s32 arg1)
     }
     else
     {
-      func_0043f810((u8 *) texture_buffer, (void *) source_addr, (*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14))));
+      memcpy((u8 *) texture_buffer, (void *) source_addr, (*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14))));
     }
       break;
 
@@ -777,7 +777,7 @@ s32 func_00464100(u8 *arg0, s32 arg1)
     }
     else
     {
-      func_0043f810((u8 *) texture_buffer, (void *) source_addr, ((*((u16 *) (arg0 + 0x12))) >> 1) * (*((u16 *) (arg0 + 0x14))));
+      memcpy((u8 *) texture_buffer, (void *) source_addr, ((*((u16 *) (arg0 + 0x12))) >> 1) * (*((u16 *) (arg0 + 0x14))));
     }
       break;
 
@@ -798,7 +798,7 @@ s32 func_00464100(u8 *arg0, s32 arg1)
     }
     else
     {
-      func_0043f810((u8 *) resource_value, data_ptr, texel_scale * 4);
+      memcpy((u8 *) resource_value, data_ptr, texel_scale * 4);
     }
     func_003ec2e0(texture_handle);
   }

@@ -65,8 +65,8 @@ extern u8 *D_0076449C;
 
 extern void func_00440b68(const char* fmt, const char* file, s32 line);
 extern void* func_00454a60(const char* path, s32 flags);
-extern s32 func_004553c0(void* handle);
-extern void func_00454bd0(void* handle);
+extern s32 H_Cdvd_IsFileLoaded(void* handle);
+extern void H_Cdvd_Destroy(void* handle);
 extern u8* func_00455ea0(u8* handle, s32 index, s32* out);
 extern s32 func_0045a570(s32 bank, void* file1, u32 size1, void* file2, u32 size2, void* file3, u32 size3);
 extern s32 func_0045a890(s32 bank);
@@ -210,7 +210,7 @@ u32 func_001f7e30(void* work)
     switch (packet->state)
     {
     case 1:
-        if (!func_004553c0(packet->cdvd))
+        if (!H_Cdvd_IsFileLoaded(packet->cdvd))
         {
             return 0;
         }
@@ -233,7 +233,7 @@ u32 func_001f7e30(void* work)
             return 0;
         }
 
-        func_00454bd0(packet->cdvd);
+        H_Cdvd_Destroy(packet->cdvd);
         return 1;
     }
 
