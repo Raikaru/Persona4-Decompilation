@@ -44,6 +44,17 @@ order, each pool receives a unique section name and its independently recovered
 retail placement. The original alignment, bytes, local symbols and relocation
 indices stay intact. Missing placement evidence or differing data rejects the owner.
 
+The same first-party GNU path can place separately emitted local jump tables
+when their `.rodata` sections have gaps or a different retail order. Every
+four-byte word must have exactly one native `R_MIPS_32` relocation. Its symbol
+and original addend are independently resolved, and the complete table must
+equal the retail bytes at its recovered, aligned address. Missing, conflicting
+or overlapping placements, ambiguous targets and unsupported relocations reject
+the owner. Validated tables receive unique section names; their payloads,
+symbols and relocation records remain unchanged. Foreign data in the gaps is
+retained. This does not admit arbitrary unmatched `.rodata` or change MWLD's
+placement rules.
+
 Two native owners may refer to the same retail constant. A shared placement is
 accepted only for identical, aligned, four- or eight-byte literal atoms with local
 symbols and bounded GP-relative load references. The adapter gives private copies
@@ -78,3 +89,9 @@ literal references, foreign gaps, full-path response files, allocation failures,
 extra load segments and absolute-symbol shadowing. A native integration proof must
 also link completed compiler objects and pass both retail hashes; synthetic ELF
 fixtures alone do not establish native linker compatibility.
+
+The carving tests additionally compare partial assembly blocks across overlapping
+and nested C ranges, duplicate starts, zero-length intervals and exact boundaries.
+The indexed range-membership lookup preserves the original chunk names, labels,
+bytes and placement indices while avoiding a scan of every C range for every
+instruction.

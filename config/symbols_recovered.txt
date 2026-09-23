@@ -6415,6 +6415,7 @@ iGpffff9c28 = 0x00762d18; // type:data
 iGpffff9c54 = 0x00762d44; // type:data
 iGpffff9c58 = 0x00762d48; // type:data
 iGpffff9c60 = 0x00762d50; // type:data
+iGpffff9c90 = 0x00762d80; // type:data
 D_00762D98 = 0x00762d88; // type:data
 fGpffff9cA0 = 0x00762d90; // type:data
 fGpffff9cA4 = 0x00762d94; // type:data

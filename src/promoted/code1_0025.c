@@ -64,7 +64,7 @@ s16 func_00106cd0(s16 arg0, s16 arg1);
 void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 s32 func_00452490(s32 arg0);
 void func_00120f20(s32 arg0);
-void func_002aa300(s32 arg0, s32 arg1);
+s32 func_002aa300(u8 *parent, s32 mode);
 s32 func_002aa3f0(void);
 extern s32 func_00481450(void);
 extern void func_00481440(s32 arg0);

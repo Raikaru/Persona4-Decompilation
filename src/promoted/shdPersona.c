@@ -1390,44 +1390,13 @@ void func_001187b0(u8 *, s64, u8, s64, f32);
 void func_0045dfd0(u8 *, u8 *, f32, s32, s32, s32);
 extern f32 iGpffff8364;
 extern f32 iGpffff8094;
-/* measured: best nd 221 (obj 1720B / window 1744B) at attempt 4. The FMA
-   blocks now match byte-for-byte once each fused value is a NAMED local
-   (e.g. `x = 135.0f + 516.0f * f25;` then store x twice + `516.0f + x`):
-   an inline repeated expression gets CSE'd and mwcc then emits mul.s+
-   add.s instead of adda.s/madd.s — probed directly against b210. The
-   multiplier is 516.0f (0x44010000), NOT 512.0f. Remaining residuals,
-   all documented scheduling/colouring rows: (1) arg0 saves $s2 vs retail
-   $s1 (and the loop counter k $s1 vs $s2) — a two-saved-register swap;
-   (2) the 0x522/0x524 increment: retail [addiu in place; sh; dsll32;
-   dsra32; slti], mwcc [addiu $v1; dsll32/dsra32 on a copy; sh $v1] — the
-   store lands after the sign-extend; (3) the -11.0f block: retail emits
-   [lui; mtc1 $f1; sw] with the mtc1 before the first sw, mwcc sinks the
-   mtc1; and `484.0f + -11.0f` must NOT be a literal pair — mwcc folds it
-   to (f32)473 via addiu+cvt — an untried `f32 m11 = -11.0f;` local shared
-   by the sw stores and the final add would reproduce the lui/mtc1/sw/add.s
-   sequence (retail's $-register reuse). The lerp chains need the temp
-   + join form (`if (v<0) x=0; else if (v<6) x=func(...); else x=1;
-   f25 = 1.0f - x;`) or the branches write the saved FP regs directly.
-   func_00364c50/70 are 0-arg (m2c's 3-arg call is a hallucination from
-   stale loop registers); func_001187b0 is (u8*, s64, u8, s64, f32);
-   iGpffff8364 = gp-0x7C9C = 0x00761454 (added to symbol_data_addrs). */
-/* measured: cold 2026-09-18 00118a20 -- GUARDED_SCORE 214 in real tree via `python3 -E -s tools/measure_guarded.py src/promoted/shdPersona.c func_00118a20` (probe 214 differing words, object 430 instrs/window 435 instrs, fnalign --candidate edit 82 +6 reloc-only, 435-instr window, retail window 1744B/436 instrs). Full-C from P4 m2c draft (/var/tmp/cold118a20/m2c.c) + rw raw (/var/tmp/cold118a20/rw.c, default m2c-shaped fails CONCAT44) + types (void*, 0x505/0x520/0x522/0x524/0x534) with named FMA locals (135+516*f25 then 516+x, -21-131*f24, 552+461*f23-15 etc, m11 shared for -11 stores + 484+m11), temp+join lerp chains, 0-arg 364c50/70, s64 casts for 1187b0. Frame 0xA0 matches retail. R1 c461/c413 int-cast 215 tie (1st non-lowering); R2 decl/stack (v3a 215 tie, v3b 226, v3c 214 lowering via reversed sp90/sp80/sp60, 112->82 edits); R3 pragmas (prop-off 398, loopinv 214 tie, both 394, 1st non-lowering); R4 pointer/seed ties 214 (2nd consecutive non-lowering, stop). verify.py 91 MATCH/11 ASM/0 MISMATCH; decomp_lint 0 errors (5 pre-existing warns elsewhere). Reused existing decls (0044b7b0 f32, 0045dfd0 f32-first, 001187b0 s64/u8/s64, iGpffff8094/8364), no new globals. Walls: s1/s2 colouring, 0x522/0x524 sh-before-extend, -11 mtc1-before-sw + 473 fold, FP temps. */
-/* measured 00118a20 (owner, 2026-09-19): fnalign **82 -> 77 edits**, count 430 -> 428
-   against retail 435, by turning one constant-bound `for` loop into the `do { } while`
-   retail emits.  Same lever as the `loop_N:` goto sweep, reaching ordinary `for` loops.
-   This function's marker was written with a lowercase address where every other marker in
-   the tree uses uppercase, which silently excluded it from a batch installer keyed on the
-   uppercase form; it is normalised here.  (Spelling the two forms out literally in this
-   note is what tests/test_marker_tripwire.py exists to catch, so they are described
-   instead.) */
-/* measured 00118a20 (owner, 2026-09-19): fnalign **77 -> 76 edits**, count
-   428 -> 426 against retail 435, converting a SECOND constant-bound `for` loop
-   to `do { } while` after the first conversion was already banked.
-   The lever is iterative, which the first sweep hid: it converts the single best loop
-   per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
-// FUN_00118A20 NONMATCHING
-#ifdef NON_MATCHING
+/* Native b210 O2: 1744/1744 bytes, 18 resolved relocations. The
+ * packed-coordinate union and three aligned color objects preserve
+ * the actual buffers; each particle loop has its own counter.
+ * See docs/probe_archive/Persona_animation_00118a20_20260923.md. */
+// FUN_00118A20
+#pragma push
+#pragma opt_loop_invariants on
 void func_00118a20(u8 *arg0)
 {
     void func_00364c50(void);
@@ -1436,28 +1405,32 @@ void func_00118a20(u8 *arg0)
     f32 f24;
     f32 f23;
     f32 f22;
+    /* Retail leaves these saved-register values unwritten on the admitted
+     * early-frame paths. For frame < 7, f21 remains the incoming $f21; for
+     * frame < 9, f20 remains the incoming $f20. Preserve that omission. */
     f32 f21;
     f32 f20;
     f32 x1;
     f32 y1;
-    f32 m11;
     f32 x2;
-    f32 c337;
-    f32 y2a;
-    f32 y2b;
     f32 t90;
     f32 t94;
     f32 t98;
     f32 u90;
     f32 u94;
     f32 u98;
-    f32 sp90[4];
-    u8 sp80[16];
+    union {
+        f32 values[4];
+        PackedVec2f pairs[2];
+    } sp90;
+    PackedColor4 sp80[3] __attribute__((aligned(16)));
     f32 sp60[6];
     u8 b505;
-    s32 k;
     s16 v;
     f32 x;
+    /* Retail initializes the four phase values only in this flag arm.
+     * The two scroll values also require the frame thresholds below;
+     * no default is supplied for paths that skip those assignments. */
     if ((*(s32 *)(arg0 + 0x534) & 0x10000) != 0) {
         v = *(s16 *)(arg0 + 0x520);
         if (v < 0) {
@@ -1525,53 +1498,47 @@ void func_00118a20(u8 *arg0)
         }
     }
     b505 = *(arg0 + 0x505);
-    m11 = -11.0f;
     x1 = 135.0f + 516.0f * f25;
-    sp90[2] = x1;
-    sp90[3] = m11;
+    sp90.values[2] = x1;
+    sp90.values[3] = -11.0f;
     sp60[0] = x1;
-    sp60[1] = m11;
+    sp60[1] = sp90.values[3];
     y1 = 516.0f + x1;
     sp60[2] = y1;
-    sp60[3] = m11;
+    sp60[3] = sp90.values[3];
     sp60[4] = y1;
-    sp60[5] = 484.0f + m11;
+    sp60[5] = 484.0f + sp90.values[3];
     {
         s32 i;
-        i = 0;
-        do {
-            sp80[i * 4] = 0xED;
-            sp80[i * 4 + 1] = 0x36;
-            sp80[i * 4 + 2] = 0x11;
-            sp80[i * 4 + 3] = b505;
-            i++;
-        } while (i < 3);
+        for (i = 0; i < 3; i++) {
+            PackedColor4 *color = &sp80[i];
+            color->rgba[0] = 0xED;
+            color->rgba[1] = 0x36;
+            color->rgba[2] = 0x11;
+            color->rgba[3] = b505;
+        }
     }
     func_00364c50();
     func_0045dfd0((u8 *)sp80, (u8 *)sp60, 0.0f, 3, 5, 0);
     func_00364c70();
     x2 = -21.0f - 131.0f * f24;
-    sp90[2] = x2;
-    c337 = (f32)0x151;
-    sp90[3] = c337;
+    sp90.values[2] = x2;
+    sp90.values[3] = (f32)0x151;
     sp60[0] = x2;
-    sp60[1] = c337;
+    sp60[1] = sp90.values[3];
     sp60[2] = x2;
-    y2a = 123.0f + c337;
-    sp60[3] = y2a;
-    y2b = 131.0f + x2;
-    sp60[4] = y2b;
-    sp60[5] = y2a;
+    sp60[3] = 123.0f + sp90.values[3];
+    sp60[4] = 131.0f + x2;
+    sp60[5] = sp60[3];
     {
         s32 i;
-        i = 0;
-        do {
-            sp80[i * 4] = 0xFF;
-            sp80[i * 4 + 1] = 0x36;
-            sp80[i * 4 + 2] = 0x11;
-            sp80[i * 4 + 3] = b505;
-            i++;
-        } while (i < 3);
+        for (i = 0; i < 3; i++) {
+            PackedColor4 *color = &sp80[i];
+            color->rgba[0] = 0xFF;
+            color->rgba[1] = 0x36;
+            color->rgba[2] = 0x11;
+            color->rgba[3] = b505;
+        }
     }
     func_00364c50();
     func_0045dfd0((u8 *)sp80, (u8 *)sp60, 0.0f, 3, 5, 0);
@@ -1579,29 +1546,33 @@ void func_00118a20(u8 *arg0)
     t90 = 552.0f + 461.0f * f23 - 15.0f;
     t94 = 10.0f + 413.0f * f23;
     t98 = -(400.0f * f21);
-    sp90[0] = t90;
-    sp90[1] = t94;
-    sp90[2] = t98;
-    sp90[3] = 0.0f;
-    for (k = 0; k < 2; k++) {
-        func_001187b0(arg0, *(s64 *)&sp90[2], b505, *(s64 *)&sp90[0], iGpffff8364);
-        sp90[2] = sp90[2] + 400.0f;
+    sp90.values[0] = t90;
+    sp90.values[1] = t94;
+    sp90.values[2] = t98;
+    sp90.values[3] = 0.0f;
+    {
+        s32 k;
+        for (k = 0; k < 2; k++) {
+            func_001187b0(arg0, sp90.pairs[1].packed, b505, sp90.pairs[0].packed, iGpffff8364);
+            sp90.values[2] = sp90.values[2] + 400.0f;
+        }
     }
     u90 = 219.0f + 461.0f * f22 + 90.0f - 30.0f;
     u94 = 10.0f + 413.0f * f22;
     u98 = -(400.0f * f20);
-    sp90[0] = u90;
-    sp90[1] = u94;
-    sp90[2] = u98;
-    sp90[3] = 0.0f;
-    for (k = 0; k < 3; k++) {
-        func_001187b0(arg0, *(s64 *)&sp90[2], b505, *(s64 *)&sp90[0], iGpffff8364);
-        sp90[2] = sp90[2] + 400.0f;
+    sp90.values[0] = u90;
+    sp90.values[1] = u94;
+    sp90.values[2] = u98;
+    sp90.values[3] = 0.0f;
+    {
+        s32 k;
+        for (k = 0; k < 3; k++) {
+            func_001187b0(arg0, sp90.pairs[1].packed, b505, sp90.pairs[0].packed, iGpffff8364);
+            sp90.values[2] = sp90.values[2] + 400.0f;
+        }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00118a20);
-#endif
+#pragma pop
 
 
 
