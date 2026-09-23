@@ -2693,286 +2693,296 @@ void func_00205e00(u8 *panel, s32 index, f32 x, f32 y,
     }
 }
 #pragma pop
-// FUN_00205FF0 NONMATCHING
-#ifdef NON_MATCHING
-/* lane cold205ff0v8 probe for func_00205ff0 (0x00205ff0)
- * measured: retail 886 instrs / object 867 instrs, band 859-913 deficit -19 (-2.1%) INSIDE; jal 24/24, jalr 10/10 (7x base $v0 + 3x cb $s5); old obj had 11 (extra count-loop cb from duplicated selected/else arms), now shared via flag/goto matching retail (selected+highlighted skips via goto next_iter, single cb site); edits 303 (was 422 on v3/v7 824-825); +42 via x0=0.0f base for all X, s32 pos[4]/u8 col[4] struct, var_f22 duplication per &4 arm, count min (limit>=cur); stale v0b-v7 probe 792-794 not carried forward per handoff 7s.
- * Remaining: FPR/s-reg coloring + clamp c.le/bc1t vs c.olt/bc1f polarity + schedule floors; measure_guarded: obj 3468B / window 3552B, differing words 805.
- */
-void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1, BattleSelectionDraw callback)
+#pragma push
+#pragma opt_loop_invariants on
+typedef struct BattleRenderDispatch {
+    void (*setState)(u32 state, u32 value);
+} BattleRenderDispatch;
+
+/* Native b210 O2: 3548/3552 bytes; 28 resolved relocations and
+ * four zero alignment bytes. Distinct literal/cached bounds and
+ * successive coordinate work preserve the original evaluation
+ * order. See docs/probe_archive/Battle_selection_00205ff0_20260923.md. */
+// FUN_00205FF0
+void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, BattleSelectionDraw callback)
 {
+    extern u32 func_00452560(void *task);
     extern f32 fGpffff809c;
     extern f32 fGpffff8198;
-    BattleSelectionDraw cb;
-    void (**base)(u32, u32);
-    u8 *work;
-    f32 raw;
-    f32 clamped;
-    f32 shape;
-    f32 var_f21;
-    f32 var_f22;
-    f32 f27;
-    f32 f25;
-    f32 f24;
-    f32 f20;
-    s32 var_19;
-    s32 var_22;
-    s32 var_23;
-    s32 i;
+    BattleSelectionInput *list;
+    BattleSelectionDraw drawSelection;
+    BattleRenderDispatch *renderer;
+    u8 *glyphs;
+    f32 slideProgress;
+    f32 offsetX;
+    f32 offsetY;
+    f32 selectedOffsetY;
+    f32 unitOrScrollX;
+    f32 clipProgress;
+    f32 upperEdgeY;
+    f32 verticalWork;
+    f32 horizontalWork;
+    /* These are successive real work values: the incoming scale is consumed
+     * before the selected-row displacement replaces it; the easing slope is
+     * consumed before progress and its rescaled opacity phase replace it.
+     * Keeping this declaration order reproduces the retail saved registers. */
+    f32 scaleOrRowY;
+    f32 easingWork;
+    s32 showPrompt;
+    s32 showScroll;
+    s32 sliding;
+    s32 row;
     s32 count;
-    s16 limit;
-    s16 cur;
-    s32 pos[4];
-    u8 col[4];
-    f32 x0;
+    /* The rectangle is copied as four float-sized words by the primitive
+     * wrapper, then interpreted as signed integer coordinates by its builder.
+     * Both complete views cover the same sixteen-byte object. The twelve-byte
+     * gap preserves retail's color placement at sp+0xFC; it is never read. */
+    struct {
+        union {
+            s32 coordinates[4];
+            f32 words[4];
+        } rectangle;
+        u8 unused[12];
+        Color4 colors;
+    } clip;
 
-    cb = callback;
-    work = (u8 *)func_00452560(*(s32 *)(arg0 + 0x5B0));
-    var_22 = 1;
-    var_19 = 1;
-    if (*(s32 *)(arg0 + 4) & 4) {
-        raw = (f32)*(s16 *)(arg0 + 0x16) / 4.0f;
-        if (1.0f < raw) {
-            clamped = 1.0f;
-        } else {
-            clamped = 0.0f;
-            if (0.0f <= raw) {
-                clamped = raw;
-            }
-        }
-        shape = (2.0f * clamped) - (clamped * clamped);
-        x0 = 0.0f;
-        var_f22 = -50.0f * shape;
-        var_f21 = var_f22;
+    list = (BattleSelectionInput *)selectionState;
+    scaleOrRowY = inputScaleX;
+    drawSelection = callback;
+    glyphs = (u8 *)func_00452560(*(void **)(state + 0x5B0));
+    showScroll = 1;
+    showPrompt = 1;
+    if (*(s32 *)(state + 4) & 4) {
+        f32 raw;
+        f32 clamped;
+        verticalWork = 4.0f;
+        raw = (f32)*(s16 *)(state + 0x16) / verticalWork;
+        unitOrScrollX = 1.0f;
+        clamped = raw > unitOrScrollX ? unitOrScrollX : (raw < 0.0f ? 0.0f : raw);
+        easingWork = 2.0f;
+        slideProgress = (easingWork * clamped) - (clamped * clamped);
+        offsetX = 0.0f;
+        offsetY = -50.0f * slideProgress;
+        selectedOffsetY = offsetY;
     } else {
-        raw = 1.0f - (f32)*(s16 *)(arg0 + 0x16) / 4.0f;
-        if (1.0f < raw) {
-            clamped = 1.0f;
-        } else {
-            clamped = 0.0f;
-            if (0.0f <= raw) {
-                clamped = raw;
-            }
-        }
-        shape = 1.0f - ((2.0f * clamped) - (clamped * clamped));
-        x0 = 0.0f;
-        var_f22 = -50.0f * shape;
-        var_f21 = var_f22;
+        f32 raw;
+        f32 clamped;
+        verticalWork = 4.0f;
+        unitOrScrollX = 1.0f;
+        raw = unitOrScrollX - (f32)*(s16 *)(state + 0x16) / verticalWork;
+        clamped = raw > unitOrScrollX ? unitOrScrollX : (raw < 0.0f ? 0.0f : raw);
+        easingWork = 2.0f;
+        slideProgress = unitOrScrollX - ((easingWork * clamped) - (clamped * clamped));
+        offsetX = 0.0f;
+        offsetY = -50.0f * slideProgress;
+        selectedOffsetY = offsetY;
     }
-    var_23 = 1;
-    if (shape <= 0.0f) {
-        var_23 = 0;
+    sliding = slideProgress > 0.0f;
+    if (selectionState == state + 0xDC) {
+        selectedOffsetY += 16.0f;
+        showScroll = 0;
+        showPrompt = 0;
     }
-    if (arg1 == arg0 + 0xDC) {
-        var_f21 += 16.0f;
-        var_22 = 0;
-        var_19 = 0;
-    }
-    func_002012d0(work, farg0, farg1);
-    func_002019e0(work, 50.0f);
-    if (var_19 != 0) {
-        func_00201650(work, 9, 0x18, 261.0f, 410.0f, 0x21, 0x21, 0x21, 0xFF);
-        func_00201650(work, 9, 0x2A, 261.0f, 410.0f, 0xFF, 0x7F, 0xE9, 0xFF);
-        if (arg1 != arg0 + 0x144) {
-            if (*(s32 *)(arg0 + 4) & 4) {
-                func_00201410(work, 9, 0x2B, 283.0f, 410.0f);
+    func_002012d0(glyphs, scaleOrRowY, scaleY);
+    func_002019e0(glyphs, 50.0f);
+    if (showPrompt != 0) {
+        func_00201650(glyphs, 9, 0x18, 261.0f, 410.0f, 0x21, 0x21, 0x21, 0xFF);
+        func_00201650(glyphs, 9, 0x2A, 261.0f, 410.0f, 0xFF, 0x7F, 0xE9, 0xFF);
+        if (selectionState != state + 0x144) {
+            if (*(s32 *)(state + 4) & 4) {
+                func_00201410(glyphs, 9, 0x2B, 283.0f, 410.0f);
             } else {
-                func_00201410(work, 9, 0x2C, 283.0f, 410.0f);
+                func_00201410(glyphs, 9, 0x2C, 283.0f, 410.0f);
             }
         } else {
-            func_00201410(work, 9, 0x4D, 283.0f, 413.0f);
+            func_00201410(glyphs, 9, 0x4D, 283.0f, 413.0f);
         }
     }
-    raw = (f32)*(s16 *)(arg0 + 0x20) / 4.0f;
-    if (1.0f < raw) {
-        clamped = 1.0f;
-    } else {
-        clamped = 0.0f;
-        if (0.0f <= raw) {
-            clamped = raw;
-        }
-    }
-    f27 = 1.0f - ((2.0f * clamped) - (clamped * clamped));
-    base = D_00887300;
-    base[0](6, 1);
-    f24 = 70.0f * f27;
-    f25 = 129.0f + var_f22 + f24;
-    f20 = 476.0f + x0;
-    func_00201410(work, 9, 0x26, f20, f25);
-    f24 = (274.0f + var_f22) - f24;
-    func_00201410(work, 9, 0x26, f20, f24);
-    if (!(f27 <= 0.0f)) {
-        base[0](1, 0);
-        base[0](8, 1);
-        col[0] = 0;
-        col[1] = 0;
-        col[2] = 0xFF;
-        col[3] = 0;
-        pos[0] = (s32)(32.0f + x0);
-        pos[2] = 0x1E0;
-        pos[3] = 0x46;
-        pos[1] = (s32)(8.0f + (f25 - 70.0f));
-        func_0045d6e0(col, (f32 *)(void *)pos, 0.0f, 0);
-        pos[1] = (s32)(3.0f + f24);
-        func_0045d6e0(col, (f32 *)(void *)pos, 0.0f, 0);
-        base[0](8, 0);
-    }
-    func_00201650(work, 9, 0x24, (f32)0x1DF + x0, 135.0f + var_f22, 0x1B, 0x1B, 0x1B, 0xFF);
-    base[0](6, 0);
-    raw = (f32)*(s16 *)(arg0 + 0x22) / 10.0f;
-    if (1.0f < raw) {
-        clamped = 1.0f;
-    } else {
-        clamped = 0.0f;
-        if (0.0f <= raw) {
-            clamped = raw;
-        }
-    }
-    clamped = 1.0f - ((2.0f * clamped) - (clamped * clamped));
     {
-        f32 bright;
-        f32 y;
+        f32 raw;
+        f32 clamped;
+        raw = (f32)*(s16 *)(state + 0x20) / verticalWork;
+        clamped = raw > unitOrScrollX ? unitOrScrollX : (raw < 0.0f ? 0.0f : raw);
+        clipProgress = unitOrScrollX - ((easingWork * clamped) - (clamped * clamped));
+    }
+    renderer = (BattleRenderDispatch *)D_00887300;
+    renderer->setState(6, 1);
+    verticalWork = 70.0f * clipProgress;
+    upperEdgeY = 129.0f + offsetY + verticalWork;
+    horizontalWork = 476.0f + offsetX;
+    func_00201410(glyphs, 9, 0x26, horizontalWork, upperEdgeY);
+    verticalWork = (274.0f + offsetY) - verticalWork;
+    func_00201410(glyphs, 9, 0x26, horizontalWork, verticalWork);
+    if (!(clipProgress <= 0.0f)) {
+        BattleRenderDispatch *clipRenderer;
+        clipRenderer = (BattleRenderDispatch *)D_00887300;
+        clipRenderer->setState(1, 0);
+        clipRenderer->setState(8, 1);
+        clip.colors.c0 = 0;
+        clip.colors.c1 = 0;
+        clip.colors.c2 = 0xFF;
+        clip.colors.c3 = 0;
+        clip.rectangle.coordinates[0] = (s32)(32.0f + offsetX);
+        clip.rectangle.coordinates[2] = 0x1E0;
+        clip.rectangle.coordinates[3] = 0x46;
+        clip.rectangle.coordinates[1] = (s32)(8.0f + (upperEdgeY - 70.0f));
+        func_0045d6e0((u8 *)&clip.colors, clip.rectangle.words, 0.0f, 0);
+        clip.rectangle.coordinates[1] = (s32)(3.0f + verticalWork);
+        func_0045d6e0((u8 *)&clip.colors, clip.rectangle.words, 0.0f, 0);
+        clipRenderer->setState(8, 0);
+    }
+    {
+        f32 translation;
         f32 x;
-        u8 alpha;
-        bright = (1.0f - clamped) * 255.0f;
-        if (bright >= 2147483648.0f) {
-            alpha = (u8)((s32)(bright - 2147483648.0f) | 0x80000000);
-        } else {
-            alpha = (u8)(s32)bright;
+        x = (f32)0x1DF;
+        translation = offsetX;
+        x += translation;
+        func_00201650(glyphs, 9, 0x24, x, 135.0f + offsetY, 0x1B, 0x1B, 0x1B, 0xFF);
+    }
+    renderer->setState(6, 0);
+    {
+        f32 raw;
+        f32 clamped;
+        raw = (f32)*(s16 *)(state + 0x22) / 10.0f;
+        clamped = raw > unitOrScrollX ? unitOrScrollX : (raw < 0.0f ? 0.0f : raw);
+        clamped = 1.0f - ((easingWork * clamped) - (clamped * clamped));
+        {
+            f32 bright;
+            f32 y;
+            f32 x;
+            u32 alpha;
+            bright = (1.0f - clamped) * 255.0f;
+            alpha = (u8)bright;
+            y = 113.0f + offsetY;
+            x = (410.0f + offsetX) - clamped * 200.0f;
+            func_00201650(glyphs, 9, 0x29, x, y, 0x1B, 0x1B, 0x1B, (u8)alpha);
         }
-        y = 113.0f + var_f22;
-        x = (410.0f + x0) - clamped * 200.0f;
-        func_00201650(work, 9, 0x29, x, y, 0x1B, 0x1B, 0x1B, alpha);
     }
-    base[0](6, 1);
-    limit = *(s16 *)(arg1 + 8);
-    cur = *(s16 *)(arg1 + 6);
-    if (limit >= cur) {
-        limit = cur;
+    renderer->setState(6, 1);
+    {
+        s32 available;
+        s32 visible;
+        available = list->count;
+        visible = list->pageSize;
+        count = (s16)(available < visible ? available : visible);
     }
-    count = (s32)limit;
+    row = 0;
     if (count > 0) {
         s32 flag;
-        for (i = 0; i < count; i++) {
-            s16 slot = (s16)(*(s16 *)(arg1 + 2) + i);
-            f32 yy = 31.0f * (f32)i + 145.0f + var_f22;
-            if (*(s16 *)(arg1 + 4) == slot) {
-                if (var_23 != 0) {
+        f32 rowX;
+        f32 highlightX;
+        rowX = 97.0f + offsetX;
+        highlightX = (f32)0x1DF;
+        highlightX += offsetX;
+        for (; row < count; row++) {
+            s32 slot = list->first + row;
+            f32 rowY = 31.0f * (f32)row + 145.0f + offsetY;
+            if (list->selected == slot) {
+                if (sliding != 0) {
                     goto next_iter;
                 }
-                func_00201410(work, 9, 0x27, (f32)0x1DF + x0, 31.0f * (f32)i + 143.0f + var_f21);
+                func_00201410(glyphs, 9, 0x27, highlightX, 31.0f * (f32)row + 143.0f + selectedOffsetY);
                 flag = 1;
                 goto do_cb;
             } else {
                 flag = 0;
             }
         do_cb:
-            cb(arg0, slot, 97.0f + x0, yy, 0xFF, flag, 0);
+            drawSelection(state, slot, rowX, rowY, 0xFF, flag, 0);
         next_iter:
             ;
         }
     }
-    if (var_23 != 0) {
-        f32 shape2;
-        f32 base2;
-        f32 span;
-        f32 fx;
-        f32 fy;
-        s32 tailflag;
-        if (*(s32 *)(arg0 + 4) & 4) {
-            raw = (f32)*(s16 *)(arg0 + 0x18) / 7.0f;
-            if (1.0f < raw) {
-                clamped = 1.0f;
-            } else {
-                clamped = 0.0f;
-                if (0.0f <= raw) {
-                    clamped = raw;
-                }
-            }
-            shape2 = (2.0f * clamped) - (clamped * clamped);
-            base2 = -410.0f;
+    if (sliding != 0) {
+        f32 slideDistance;
+        f32 selectionX;
+        f32 selectionY;
+        s32 showDetail;
+        if (*(s32 *)(state + 4) & 4) {
+            f32 raw;
+            f32 clamped;
+            raw = (f32)*(s16 *)(state + 0x18) / 7.0f;
+            clamped = raw > unitOrScrollX ? unitOrScrollX : (raw < 0.0f ? 0.0f : raw);
+            easingWork = (easingWork * clamped) - (clamped * clamped);
+            slideDistance = -410.0f;
         } else {
-            raw = 1.0f - (f32)*(s16 *)(arg0 + 0x18) / 7.0f;
-            if (1.0f < raw) {
-                clamped = 1.0f;
-            } else {
-                clamped = 0.0f;
-                if (0.0f <= raw) {
-                    clamped = raw;
-                }
-            }
-            shape2 = 1.0f - ((2.0f * clamped) - (clamped * clamped));
-            base2 = -530.0f;
+            f32 raw;
+            f32 clamped;
+            raw = 1.0f - (f32)*(s16 *)(state + 0x18) / 7.0f;
+            clamped = raw > 1.0f ? unitOrScrollX : (raw < 0.0f ? 0.0f : raw);
+            easingWork = unitOrScrollX - ((easingWork * clamped) - (clamped * clamped));
+            slideDistance = -530.0f;
         }
         {
-            f32 h = base2 * (1.0f - shape2);
-            span = 31.0f * (f32)(*(s16 *)(arg1 + 4) - *(s16 *)(arg1 + 2));
-            fx = 97.0f + x0;
-            fy = 145.0f + var_f22 + span;
-            func_00201650(work, 9, 0x25, 489.0f + h, 50.0f + (88.0f + span + var_f22), 0x28, 0x28, 0x28, 0xF2);
-            func_00201410(work, 9, 0x26, 486.0f + h, 50.0f + (214.0f + span + var_f22));
-            tailflag = 1;
-            if (shape2 < 1.0f) {
-                if (!(shape2 <= fGpffff809c)) {
-                    f32 t = (shape2 - fGpffff809c) / fGpffff8198;
-                    f32 yy = 50.0f + (120.0f + span + var_f22) - (1.0f - t) * 25.0f;
-                    func_00201650(work, 9, 0x28, 68.0f, yy, 0xF3, 0, 0x0B, 0xFF);
+            horizontalWork = slideDistance * (1.0f - easingWork);
+            scaleOrRowY = 31.0f * (f32)(list->selected - list->first);
+            selectionX = 97.0f + offsetX;
+            selectionY = 145.0f + offsetY + scaleOrRowY;
+            func_00201650(glyphs, 9, 0x25, 489.0f + horizontalWork,
+                          50.0f + (88.0f + scaleOrRowY + offsetY), 0x28, 0x28, 0x28, 0xF2);
+            func_00201410(glyphs, 9, 0x26, 486.0f + horizontalWork,
+                          50.0f + (214.0f + scaleOrRowY + offsetY));
+            showDetail = 1;
+            if (easingWork < 1.0f) {
+                if (!(easingWork <= fGpffff809c)) {
+                    f32 rowY;
+                    easingWork = (easingWork - fGpffff809c) / fGpffff8198;
+                    rowY = 50.0f + (120.0f + scaleOrRowY + offsetY) - (unitOrScrollX - easingWork) * 25.0f;
+                    func_00201650(glyphs, 9, 0x28, 68.0f, rowY, 0xF3, 0, 0x0B, 0xFF);
                     {
-                        u8 a2;
-                        f32 _b;
-                        _b = 255.0f * t;
-                        if (_b >= 2147483648.0f) {
-                            a2 = (u8)((s32)(_b - 2147483648.0f) | 0x80000000);
-                        } else {
-                            a2 = (u8)(s32)_b;
-                        }
-                        cb(arg0, *(s16 *)(arg1 + 4), fx, fy, a2, 1, 1);
+                        u32 alpha;
+                        f32 opacity;
+                        opacity = 255.0f * easingWork;
+                        alpha = (u8)opacity;
+                        drawSelection(state, list->selected, selectionX, selectionY, (u8)alpha, 1, 1);
                     }
                 }
-                tailflag = 0;
+                showDetail = 0;
             } else {
-                func_00201650(work, 9, 0x28, 68.0f, 50.0f + (120.0f + span + var_f22), 0xF3, 0, 0x0B, 0xFF);
+                func_00201650(glyphs, 9, 0x28, 68.0f,
+                              50.0f + (120.0f + scaleOrRowY + offsetY), 0xF3, 0, 0x0B, 0xFF);
             }
             {
-                f32 hh;
-                if (h < -10.0f) {
-                    hh = 0.0f;
+                f32 limitedHighlightX;
+                f32 translation;
+                f32 x;
+                if (horizontalWork < -10.0f) {
+                    limitedHighlightX = 0.0f;
                 } else {
-                    hh = 10.0f + h;
+                    limitedHighlightX = 10.0f + horizontalWork;
                 }
-                func_00201410(work, 9, 0x27, (f32)0x1DF + x0 + hh, 143.0f + span + var_f21);
-                cb(arg0, *(s16 *)(arg1 + 4), fx, fy, 0xFF, 1, tailflag);
+                x = (f32)0x1DF;
+                translation = offsetX;
+                x += translation;
+                func_00201410(glyphs, 9, 0x27, x + limitedHighlightX,
+                              143.0f + scaleOrRowY + selectedOffsetY);
+                drawSelection(state, list->selected, selectionX, selectionY, 0xFF, 1, showDetail);
             }
         }
     }
-    if (var_22 != 0) {
-        f32 xx = (f32)0x1CD + x0;
-        func_00201410(work, 9, 0x2D, xx, 164.0f + var_f22);
-        func_00201410(work, 9, 0x2E, xx, 236.0f + var_f22);
+    if (showScroll != 0) {
+        unitOrScrollX = (f32)0x1CD + offsetX;
+        func_00201410(glyphs, 9, 0x2D, unitOrScrollX, 164.0f + offsetY);
+        func_00201410(glyphs, 9, 0x2E, unitOrScrollX, 236.0f + offsetY);
         {
             f32 ratio;
-            if (*(s16 *)(arg1 + 6) < *(s16 *)(arg1 + 8)) {
-                ratio = (f32)*(s16 *)(arg1 + 2) / (f32)(*(s16 *)(arg1 + 8) - *(s16 *)(arg1 + 6));
+            s32 pageSize;
+            s32 count;
+            pageSize = list->pageSize;
+            count = list->count;
+            if (pageSize < count) {
+                ratio = (f32)list->first / (f32)(count - pageSize);
             } else {
                 ratio = 0.0f;
             }
-            func_00201410(work, 9, 0x2F, (f32)0x1CF + x0, ratio * 57.0f + 166.0f + var_f22);
+            func_00201410(glyphs, 9, 0x2F, (f32)0x1CF + offsetX, ratio * 57.0f + 166.0f + offsetY);
         }
     }
-    base[0](6, 0);
-    func_002019e0(work, 0.0f);
+    renderer->setState(6, 0);
+    func_002019e0(glyphs, 0.0f);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205ff0);
-#endif
-/* 2026-09-18 cold205ff0 func_00205ff0: retail 886 / object 824 (v3_baseearly best, 792 words) band 859-913 (+/-3%) deficit -62 (-7.0%) OUTSIDE so keep bare INCLUDE_ASM; measure_guarded N/A (bare, symbol not present, cand 0B). */
-/* 2026-09-19 cold205ff0v8 func_00205ff0: retail 886 / object 867 (v8_fix) band 859-913 deficit -19 (-2.1%) INSIDE, keep INCLUDE_ASM (not MATCH); jal 24 both, jalr 10 both (7x base $v0 + 3x cb $s5) - old obj had 11 (extra count-loop cb from duplicated arms), fixed to shared flag/goto matching retail (selected+highlighted skips, single cb site; task note inverted retail 11 vs obj 10, measured retail 10 via decode); edits 303 (was 422 on v3/v7 824-825), +42 via x0=0.0f base for all X (476/479/97/461/463 + x0, pos[0]=(s32)(32+x0)), s32 pos[4]/u8 col[4] struct (4x sb + int cvt stores + 2nd 45d6e0 update), var_f22=-50*shape duplicated per &4 arm, count min (limit>=cur); stale v0b-v7 probe 792-794 not carried forward; remaining FPR/s-reg coloring + clamp c.le/bc1t vs c.olt/bc1f polarity + schedule floors; floor body docs/probe_archive/Lane0020_00205ff0_body.c. */
-/* Counts: jal 24 both (1x012d0 11x01410 7x01650 2x019e0 1x452560 2x45d6e0); jalr retail 10 (7x base $2 + 3x cb $21) vs obj 11 (7x base + 4x cb, extra loop arm); no jtbl (only jr $31), no switch, no missing case 7. Largest runs: del 45:62 len17 + ins 43:58 len15 (clamp c.le/bc1t vs c.olt/bc1f polarity pair, v1 ties); del 329:337 len8 (2nd 45d6e0 pos: stack 0xFC/0xE0 vs 0xDF/0xD8 + add/cvt/mfc/sw); del 507:515 len8 (cb sharing 1 call w/ var_7 vs duplicated 2 calls); tail del 769:770/804:805/814:815 + ins 807:744-748 ($f20 reuse vs remat 0x1CD). */
-/* 7o N/A (0 floors, structural not pair-exchange, already bare-decl form; reverse ties). Eight probe_variants one call: v0b 793, v1 793, v2 793, v3 792 best, v4 793, v5 794, v6 793, v7 792 (C89-fixed re-measured). Rejects recorded; scratch /var/tmp/cold205ff0/v0b.c+v1..v7+fnalign_v3.txt. */
-typedef struct BattleRenderDispatch {
-    void (*setState)(u32 state, u32 value);
-} BattleRenderDispatch;
 
+#pragma pop
 /* 868/880 bytes; seventeen resolved relocations and twelve zero alignment
  * bytes. Retain the renderer base separately for each drawing phase and
  * the float values between the easing product and integer pixel origin. */
