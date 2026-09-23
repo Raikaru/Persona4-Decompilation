@@ -99,7 +99,7 @@ extern u32 H_Cdvd_Destroy(struct HCdvd *archive);
 extern void func_003768e0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, f32 fparg0);
 extern f32 func_00375a70(u8 *arg0, s32 arg1);
 extern f32 iGpffff8170;
-extern void func_003766f0(f32 **arg0, s32 arg1, s32 arg2, u8 *arg3);
+extern void func_003766f0(f32 **arg0, void (*arg1)(u8 **), u8 **arg2, u8 *arg3);
 extern void func_00376800(u8 **arg0, s32 arg1);
 extern void func_00374910(u8 *arg0);
 extern void func_00375d50(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 *arg2, f32 *arg3);
@@ -519,8 +519,8 @@ void func_00374a10(u8 *arg0, s32 arg1) {
 
 
 // FUN_00374CF0
-void func_00374cf0(u8 *arg0) {
-    func_0036df30(*(u8 **)arg0);
+void func_00374cf0(u8 **arg0) {
+    func_0036df30(*arg0);
 }
 
 
@@ -653,104 +653,110 @@ void func_00374d20(u8 *arg0) {
     func_003e0f40((BtlShuffleMatrix *)m);
 }
 
-/* measured (b210 -O2, 2026-09-17): table/index/float reconstruction (largest
-   of four in TU). 0x120 frame via u8 *spA0[30] (0xA0..0x117) exact; 0xE8/0xFB0
-   index scaling, 0x1D6B8/0x1D714/0x1D778 table spans, mode dispatch
-   (4/3 zero, 2 div3, 1 div2, 0 compute) + u16->float two-sided + iGpffff8170
-   verified. probe 183w (was 197w m2c-u32-mul); fnalign 99e+reloc (was 136e),
-   object 256/256 instrs exact (0% size diff, within 3%; was 269/256 +5%).
-   Levers top-down: u16 var_17 over u32 (-9w, exact frame), doubling via
-   var_f0+=var_f0 over 2.0f*mul (-1w/-3 instrs), decl order via probe_search
-   200 (183w/99e vs 188w/115e). Residual floors: saved-color rotation
-   var_18 $s5 vs $s2 + siblings, arg-order lw-sp vs constants, loop CSE hoist
-   differences. Production stays ASM. */
-/* 183 -> 181 (2026-09-18): the hand-expanded unsigned-to-float conversion
-   replaced by `(f32)(u32)var_17`.  b210 generates the same bltz / srl / andi
-   / or / cvt.s.w / add.s sequence for the cast; the expanded copy colours
-   its temporaries differently.  Companion to the float-to-unsigned lever in
-   handoff 7a-quinquies - measured across the floors that carry it, this one
-   and func_002566d0 (228 -> 249, rejected) are the only two that move. */
-// FUN_003753F0 NONMATCHING
-#ifdef NON_MATCHING
-void func_003753f0(u8 *arg0) {
-    u8 *temp_21;
-    s32 var_19;
-    u8 sp11C[4];
-    s32 var_6;
-    u8 *spA0[30];
-    u8 *temp_16;
-    f32 var_f20;
-    u8 *temp_22;
-    f32 var_f0;
-    u8 sp118[4];
-    s32 var_18;
-    s32 temp_5;
-    f32 var_f2;
-    s32 var_16;
-    u16 var_17;
+/* Native b210 O2: 1016/1024 bytes, thirteen resolved relocations and
+ * eight zero alignment bytes. Queue pointers to the complete card
+ * slots, then dispatch them before the stack-backed payloads expire.
+ * See docs/probe_archive/Shuffle_draw_003753f0_20260923.md. */
+// FUN_003753F0
+void func_003753f0(u8 *work) {
+    u8 *cardState;
+    s32 cardIndex;
+    u8 cardColor[4];
+    s32 groupCount;
+    u8 *queuedCards[30];
+    f32 effectScale;
+    u8 *transform;
+    f32 phase;
+    u8 effectColor[4];
+    s32 cardCount;
+    s32 mode;
+    f32 modeScale;
+    s32 effectIndex;
+    u32 phaseCounter;
+    u8 *card;
     func_0034f1e0();
-    sp11C[0] = 0xFF;
-    sp11C[1] = 0xFF;
-    sp11C[2] = 0xFF;
-    if (*(u16 *)(arg0 + 0x1F2F4) & 1) {
-        var_18 = func_00378530(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
+    cardColor[0] = 0xFF;
+    cardColor[1] = 0xFF;
+    cardColor[2] = 0xFF;
+    if (*(u16 *)(work + 0x1F2F4) & 1) {
+        cardCount = func_00378530(*(s32 *)(work + 0x1F304), *(s32 *)(work + 0x1F2FC));
     } else {
-        var_18 = *(s32 *)(arg0 + 0x1F304);
+        cardCount = *(s32 *)(work + 0x1F304);
     }
-    for (var_19 = 0; var_19 < var_18; var_19++) {
-        if (*(u16 *)(arg0 + var_19 * 0xE8 + 0x1D6A0) & 2) {
-            if ((*(u16 *)(arg0 + 0x1F2F4) & 2) == 0) {
-                func_00374a10(arg0, var_19);
+    for (cardIndex = 0; cardIndex < cardCount; cardIndex++) {
+        if (*(u16 *)(work + (u32)cardIndex * 0xE8 + 0x1D6A0) & 2) {
+            if ((*(u16 *)(work + 0x1F2F4) & 2) == 0) {
+                func_00374a10(work, cardIndex);
             }
-            temp_21 = arg0 + var_19 * 0xE8;
-            temp_22 = temp_21 + 0x1D6B8;
-            temp_16 = arg0 + var_19 * 0xFB0;
-            func_0036dda0(temp_16, temp_22);
-            func_0036de20(temp_16, temp_21 + 0x1D714);
-            sp11C[3] = *(temp_21 + 0x1D778);
-            func_0036de40(temp_16, sp11C);
-            if (var_19 != *(s32 *)(arg0 + 0x1F308)) {
-                spA0[var_19] = temp_16;
-                func_003766f0((f32 **)(arg0 + 0x1F24C), (s32)func_00374cf0, (s32)(spA0 + var_19), temp_22);
+            cardState = work + cardIndex * 0xE8;
+            transform = cardState + 0x1D6B8;
+            card = work + cardIndex * 0xFB0;
+            func_0036dda0(card, transform);
+            func_0036de20(card, cardState + 0x1D714);
+            cardColor[3] = *(cardState + 0x1D778);
+            func_0036de40(card, cardColor);
+            if (cardIndex != *(s32 *)(work + 0x1F308)) {
+                queuedCards[cardIndex] = card;
+                func_003766f0((f32 **)(work + 0x1F24C), func_00374cf0,
+                              queuedCards + cardIndex, transform);
             }
         }
     }
-    func_00376800((u8 **)(arg0 + 0x1F24C), 1);
-    sp118[0] = 0x20;
-    sp118[1] = 0x40;
-    sp118[2] = 0xFF;
-    sp118[3] = 0xFF;
-    var_f2 = 1.0f;
-    var_6 = *(s32 *)(arg0 + 0x1F304);
-    temp_5 = *(s32 *)(arg0 + 0x1F2FC);
-    if (temp_5 == 4 || temp_5 == 3) {
-        var_f20 = 0.0f;
-    } else {
-        if (temp_5 == 2) {
-            var_6 /= 3;
-            var_17 = *(u16 *)(arg0 + 0x1F1D2);
-            var_f2 = iGpffff8170;
-        } else if (temp_5 == 1) {
-            var_6 /= 2;
-            var_17 = *(u16 *)(arg0 + 0x1F1D2);
-        } else if (temp_5 == 0) {
-            var_17 = *(u16 *)(arg0 + 0x1F1D2);
-        }
-        var_f0 = (f32)(u32)var_17;
-        var_f20 = var_f2 * ((0.5f * var_f0) / (f32)var_6);
+    func_00376800((u8 **)(work + 0x1F24C), 1);
+    effectColor[0] = 0x20;
+    effectColor[1] = 0x40;
+    effectColor[2] = 0xFF;
+    effectColor[3] = 0xFF;
+    modeScale = 1.0f;
+    groupCount = *(s32 *)(work + 0x1F304);
+    mode = *(s32 *)(work + 0x1F2FC);
+    if (mode == 4) {
+        goto mode_zero;
     }
-    if (!(var_f20 <= 0.0f)) {
-        for (var_16 = 0; var_16 < var_18; var_16++) {
-            if (*(u16 *)(arg0 + var_16 * 0xE8 + 0x1D6A0) & 2) {
-                func_003768e0(arg0, var_16, 2, sp118, var_f20 * func_00375a70(arg0, var_16));
+    if (mode == 3) {
+        goto mode_zero;
+    }
+    if (mode == 2) {
+        goto mode_two;
+    }
+    if (mode == 1) {
+        goto mode_one;
+    }
+    /* Retail leaves phaseCounter untouched for modes outside 0..4;
+     * retain that default path rather than inventing a fallback value. */
+    switch (mode) {
+    case 0:
+        goto mode_zero_value;
+    default:
+        goto mode_calc;
+    }
+mode_zero_value:
+    phaseCounter = *(u16 *)(work + 0x1F1D2);
+    goto mode_calc;
+mode_one:
+    groupCount /= 2;
+    phaseCounter = *(u16 *)(work + 0x1F1D2);
+    goto mode_calc;
+mode_two:
+    groupCount /= 3;
+    phaseCounter = *(u16 *)(work + 0x1F1D2);
+    modeScale = iGpffff8170;
+    goto mode_calc;
+mode_zero:
+    effectScale = 0.0f;
+    goto mode_done;
+mode_calc:
+    phase = (f32)phaseCounter;
+    effectScale = modeScale * ((0.5f * phase) / (f32)groupCount);
+mode_done:
+    if (!(effectScale <= 0.0f)) {
+        for (effectIndex = 0; effectIndex < cardCount; effectIndex++) {
+            if (*(u16 *)(work + effectIndex * 0xE8 + 0x1D6A0) & 2) {
+                func_003768e0(work, effectIndex, 2, effectColor, effectScale * func_00375a70(work, effectIndex));
             }
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003753f0);
-#endif
-
 
 // FUN_003757F0
 void func_003757f0(u8 *arg0) {
@@ -1245,7 +1251,7 @@ s32 func_00376590(u8 *arg0, u8 *arg1) {
 
 
 // FUN_003766F0
-void func_003766f0(f32 **arg0, s32 arg1, s32 arg2, u8 *arg3) {
+void func_003766f0(f32 **arg0, void (*arg1)(u8 **), u8 **arg2, u8 *arg3) {
     f32 **var_19;
     f32 *temp_2;
     f32 *temp_3;
@@ -1257,8 +1263,8 @@ void func_003766f0(f32 **arg0, s32 arg1, s32 arg2, u8 *arg3) {
         func_0046d730(D_0064EA20, 0x58A);
     }
     key = func_00373c20(arg3);
-    *(s32 *)(temp_2 + 1) = arg1;
-    *(s32 *)(temp_2 + 2) = arg2;
+    *(void (**)(u8 **))(temp_2 + 1) = arg1;
+    *(u8 ***)(temp_2 + 2) = arg2;
     temp_2[0] = key;
     var_19 = arg0;
     while ((temp_3 = *var_19) != NULL) {
@@ -1283,7 +1289,7 @@ void func_00376800(u8 **arg0, s32 arg1) {
 
     var_16 = *arg0;
     while (var_16 != NULL) {
-        (*(void (**)(s32))(var_16 + 4))(*(s32 *)(var_16 + 8));
+        (*(void (**)(u8 **))(var_16 + 4))(*(u8 ***)(var_16 + 8));
         var_16 = *(u8 **)(var_16 + 0xC);
     }
     if (arg1 != 0) {
