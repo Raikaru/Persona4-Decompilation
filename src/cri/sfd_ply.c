@@ -3498,14 +3498,8 @@ asm u8 func_005224a8(int param_1)
 
 // FUN_00522528
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00522528);
-// FUN_00522598
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00522598);
 // FUN_00522608
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00522608);
-// FUN_005226D0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005226d0);
-// FUN_00522728
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00522728);
 // FUN_005227B8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005227b8);
 // FUN_005227F8
