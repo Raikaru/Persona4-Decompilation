@@ -33,8 +33,8 @@ typedef struct {
 	Sint32 x10;
 	Sint32 x14;
 	Sint32 getfrm;             /* 0x968 a frame is held by the user */
-	Sint32 bpa;                /* 0x96C buffering pause active */
-	Sint32 nbpa;               /* 0x970 buffering pauses so far */
+	Sint32 nbpa;               /* 0x96C buffering pauses so far */
+	Sint32 bpa;                /* 0x970 buffering pause active */
 	Sint32 x24;                /* 0x974 */
 	Sint32 x28;
 	Sint32 x2c;
@@ -736,15 +736,18 @@ static Bool sfply_IsBpaOff(SFD sfd)
 }
 
 /* the user's end time was reached */
+// FUN_00522598
 static Bool sfply_IsEndTime(SFD sfd)
 {
 	Sint32 t;
 	Sint32 u;
 	Sint32 ec;
 	Sint32 eu;
+	Sint32 *cond;
 
-	ec = sfd->cond[20];
-	eu = sfd->cond[21];
+	cond = sfd->cond;
+	ec = cond[20];
+	eu = cond[21];
 	if (ec == -4) {
 		return 0;
 	}
@@ -789,9 +792,11 @@ static Bool sfply_IsTermAll(SFD sfd)
 }
 
 // Playing and the clock has not advanced for too long (SFTIM_IsStagnant) -> the play is ended.
+// FUN_005226D0
 static Bool sfply_IsStagnant(SFD sfd)
 {
-	if (!SFPLY_IS_PLAYING(sfd)) {
+	SFPLY_PLYINF *info = PLYINF(sfd);
+	if (sfd->stat != SFD_STAT_PLAYING || sfd->pause_sw == 1 || info->bpa == 1) {
 		return 0;
 	}
 	if (SFTIM_IsStagnant(sfd)) {
@@ -801,12 +806,15 @@ static Bool sfply_IsStagnant(SFD sfd)
 }
 
 /* the clock ran past the configured stop time */
+// FUN_00522728
 static Bool sfply_IsOverTime(SFD sfd)
 {
 	Sint32 t;
 	Sint32 u;
+	SFPLY_PLYINF *info;
 
-	if (!SFPLY_IS_PLAYING(sfd)) {
+	info = PLYINF(sfd);
+	if (sfd->stat != SFD_STAT_PLAYING || sfd->pause_sw == 1 || info->bpa == 1) {
 		return 0;
 	}
 	if (SFTIM_GetTimeSub(sfd, &t, &u) != 0) {
