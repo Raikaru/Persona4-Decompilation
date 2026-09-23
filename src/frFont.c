@@ -31,7 +31,7 @@ extern u32 DAT_0088152C_abs[];
 extern u32 DAT_0088179C_abs[];
 extern u32 func_00271bd0(int param_1);
 extern u32 func_00272cb0(int param_1);
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern void *func_0043f9c8(void *dst, s32 value, u32 size);
 extern int func_0045af90(int param_1);
 extern void func_002baa20(void);
 extern int func_002e0d60(void);
@@ -1517,9 +1517,10 @@ void func_00273140(void *param_1, u32 param_2)
 extern s32 D_0076459C;
 extern void func_003f6440(s32 param_1, s32 param_2);
 extern s32 func_00272e10(u8 *param_1, u8 *param_2, u8 param_3, u8 param_4);
-extern void func_00275d80(s32 param_1, s32 param_2, u8 *param_3,
-                         u8 param_4, u8 param_5, u8 param_6, s32 param_7,
-                         f32 param_8);
+/* Raster dimensions use full unsigned words; the glyph stores their byte
+ * source values. Depth precedes the glyph in the shared mixed-ABI contract. */
+extern s32 func_00275d80(s32 x, s32 y, f32 depth, u8 *glyph,
+                         s32 palette, u32 width, u32 height, u32 color);
 extern code D_00887300_abs[];
 
 
@@ -1591,8 +1592,8 @@ s32 func_00273170(void *arg0, u32 arg1, u32 arg2)
             width = glyph[0x18];
             height = glyph[0x19];
             scale = *(f32 *)(node + 0x14);
-            func_00275d80(draw_x, draw_y, glyph, palette_index, width, height,
-                         *(s32 *)(glyph + 0x10), scale);
+            func_00275d80(draw_x, draw_y, scale, glyph, palette_index, width, height,
+                         *(u32 *)(glyph + 0x10));
             if (glyph[0x10] != 0) {
                 *(u16 *)(glyph + 2) += 1;
             }

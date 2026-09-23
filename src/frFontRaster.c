@@ -36,16 +36,16 @@ extern s32 (*D_00887310[])(s32, void *, s32);     /* device.fpIm2DRenderPrimitiv
 extern void func_0046d730(const void *file, u32 line);
 extern void func_0044ea90(void *msg, s32 id);
 extern void func_00440b68();
-extern u8 *func_00457120(void);
-extern void func_0043f9c8();
+extern s32 func_00457120(void);
+extern void *func_0043f9c8(void *dst, s32 value, u32 size);
 extern void func_0043f810();
 extern u32 func_003ec590(u32, u32, u32, u32);
 extern int func_003ec6a0(u32 tex, s32, s32);
 extern void func_003ec2a0(u32 tex);
 extern u32 func_003ec3d0(u32 tex, s32);
 extern void func_003ec2e0(u32 tex);
-extern u32 func_00271f50(u32 *param_1, u32 param_2);
-extern void func_00271310(u32 param_1);
+extern u8 *func_00271f50(u8 *param_1, u32 param_2);
+extern s32 func_00271310(u8 *param_1);
 
 // Ported from P3FES FUN_003b3d60 (verified MATCH there). Calls use the
 // donor's implicit old-style declarations (FUN_003b3e00_raw/FUN_003b3e60_raw)
@@ -74,7 +74,7 @@ void func_00275a60(s32 count)
     func_0044ea90(D_0063bc88, 0x27);
     memory = D_008873e8_abs[0](size, 0x40000);
     piGpffffb954 = (s32 *)memory;
-    func_0043f9c8(memory, 0, size);
+    func_0043f9c8((void *)memory, 0, (u32)size);
     *piGpffffb954 = count;
     piGpffffb954[1] = (s32)(piGpffffb954 + 6);
     node = (s32 *)piGpffffb954[1];
@@ -172,184 +172,141 @@ extern u8 D_0063BCC0[];
 extern f32 D_008872F8[];
 extern u8 D_0063BC88[];
 extern s32 D_00881750;
-/* measured 00275d80: fnalign retail 284 / object 288 instrs (+1.4%, inside 272-288 band); edits 124 +6 reloc-only; */
-/* guarded obj 1152B/window 1136B, normalized_diff 140 (was 255), frame -448 exact (320B: 32 xy +32 copy +256 render); 5 jal +2 jalr complete; D_00881750 via DAT_00881750_abs; see docs/probe_archive/FR_00275d80_body.c */
-// FUN_00275D80 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00275d80(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, u32 arg6, f32 fparg0) {
-    f32 render[64];
-    f32 copy[8];
-    f32 xy[8];
-    f32 f22;
-    f32 f21;
-    f32 f20;
-    f32 f5;
-    f32 x2tmp;
-    f32 x5tmp;
-    f32 conv4;
-    f32 conv5;
-    s32 temp_19;
-    u8 *temp_17;
-    u8 *var_20;
-    s32 v22;
-    s32 sh24;
-    s32 sh16;
-    s32 sh8;
-    s32 t10;
-    s32 t9;
-    s32 t8;
-    s32 t7;
-    s32 t6;
-    s32 t5;
-    s32 t4;
+/* Native b210 O2: 1124/1136 bytes, nineteen resolved relocations and
+ * twelve zero alignment bytes. All seven siblings and data are unchanged.
+ * See docs/probe_archive/Font_raster_00275d80_20260923.md. */
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
+// FUN_00275D80
+s32 func_00275d80(s32 x, s32 y, f32 depth, u8 *glyph,
+                  s32 palette, u32 width, u32 height, u32 rgba)
+{
+    f32 vertices[64];
+    /* Four two-coordinate texture rows, copied by their complete word view. */
+    union { u32 words[8]; f32 coordinates[8]; } texture;
+    f32 corners[8];
+    f32 originX;
+    f32 originY;
+    f32 reciprocal;
+    f32 depthZ;
+    f32 right;
+    f32 bottom;
+    f32 extentX;
+    f32 extentY;
+    u32 opacity;
+    u8 *replacement;
+    u8 *raster;
+    s32 vertexIndex;
+    s32 redShifted;
+    s32 greenShifted;
+    s32 blueShifted;
 
-    f22 = (f32)arg0 / 16.0f;
-    f21 = (f32)arg1 / 8.0f;
-    f20 = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
-    temp_19 = arg6 & 0xFF;
+    originX = (f32)x / 16.0f;
+    originY = (f32)y / 8.0f;
+    reciprocal = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+    opacity = rgba & 0xFF;
     {
-        u8 *v7 = D_0063BCC0;
-        u8 *v6 = (u8 *)copy;
-        s32 v4 = 4;
-        s32 t3;
-        s32 t2;
+        u8 *sourceBytes = D_0063BCC0;
+        u8 *destinationBytes = (u8 *)&texture;
+        s32 pairs = 4;
+        s32 word0;
+        s32 word1;
         do {
-            t3 = *(s32 *)v7;
-            t2 = *(s32 *)(v7 + 4);
-            v7 += 8;
-            v4 -= 1;
-            *(s32 *)v6 = t3;
-            *(s32 *)(v6 + 4) = t2;
-            v6 += 8;
-        } while (v4 > 0);
+            word0 = *(s32 *)sourceBytes;
+            word1 = *(s32 *)(sourceBytes + 4);
+            sourceBytes += 8;
+            pairs -= 1;
+            *(s32 *)destinationBytes = word0;
+            *(s32 *)(destinationBytes + 4) = word1;
+            destinationBytes += 8;
+        } while (pairs > 0);
     }
+    /* Preserve the original bounded byte-clear initializer, including its
+     * null test, before assigning the four rectangle corners. */
     {
-        f32 *p = xy;
-        s32 n = 0x20;
-        if (p != (f32 *)0) {
+        u8 *clearCursor = (u8 *)corners;
+        u32 byteCount = 0x20;
+        if (clearCursor != NULL) {
             do {
-                *(u8 *)p = 0;
-                p = (f32 *)((u8 *)p + 1);
-                n -= 1;
-            } while (n != 0);
+                *clearCursor = 0;
+                clearCursor++;
+                byteCount -= 1;
+            } while (byteCount != 0);
         }
     }
-    xy[0] = f22;
-    xy[1] = f21;
-    if (arg4 >= 0) {
-        conv4 = (f32)arg4;
-    } else {
-        s32 uu = ((u32)arg4 >> 1) | (arg4 & 1);
-        f32 vf0 = (f32)uu;
-        vf0 += vf0;
-        conv4 = vf0;
-    }
-    x2tmp = f22 + conv4;
-    xy[2] = x2tmp;
-    xy[3] = f21;
-    xy[4] = f22;
-    if (arg5 >= 0) {
-        conv5 = (f32)arg5;
-    } else {
-        s32 uu2 = ((u32)arg5 >> 1) | (arg5 & 1);
-        f32 vf02 = (f32)uu2;
-        vf02 += vf02;
-        conv5 = vf02;
-    }
-    x5tmp = f21 + conv5;
-    xy[5] = x5tmp;
-    xy[6] = x2tmp;
-    xy[7] = x5tmp;
-    if (*(u8 **)(arg2 + 0x1C) == NULL) {
+    corners[0] = originX;
+    corners[1] = originY;
+    extentX = (f32)(u32)width;
+    right = originX + extentX;
+    corners[2] = right;
+    corners[3] = originY;
+    corners[4] = originX;
+    extentY = (f32)(u32)height;
+    bottom = originY + extentY;
+    corners[5] = bottom;
+    corners[6] = right;
+    corners[7] = bottom;
+    if (*(u8 **)(glyph + 0x1C) == NULL) {
         func_0046d730(&D_0063BC88, 0x9B);
     }
-    var_20 = *(u8 **)(*(u8 **)(arg2 + 0x1C) + 0x0C);
-    if (*(s16 *)(var_20 + 8) != arg3) {
-        temp_17 = (u8 *)func_00271f50((u32 *)arg2, *(s32 *)(var_20 + 4));
-        *(u16 *)((*(u8 **)(arg2 + 0x1C)) + 4) -= 1;
+    raster = *(u8 **)(*(u8 **)(glyph + 0x1C) + 0x0C);
+    if (*(s16 *)(raster + 8) != palette) {
+        replacement = func_00271f50(glyph, *(u32 *)(raster + 4));
+        *(u16 *)((*(u8 **)(glyph + 0x1C)) + 4) -= 1;
         {
-            u8 *t5b = *(u8 **)(arg2 + 0x1C);
-            if ((t5b != NULL) && (*(u16 *)(t5b + 4) == 0)) {
-                u8 *t4b = *(u8 **)(t5b + 0x0C);
-                if (t4b != NULL) {
-                    *(s32 *)(t4b + 0) &= ~1;
-                    *(s32 *)(t4b + 0x10) = 0;
+            u8 *previous = *(u8 **)(glyph + 0x1C);
+            if ((previous != NULL) && (*(u16 *)(previous + 4) == 0)) {
+                u8 *previousRaster = *(u8 **)(previous + 0x0C);
+                if (previousRaster != NULL) {
+                    *(s32 *)(previousRaster + 0) &= ~1;
+                    *(s32 *)(previousRaster + 0x10) = 0;
                 }
-                func_00271310(*(s32 *)(t5b + 8));
+                func_00271310(*(u8 **)(previous + 8));
                 DAT_00881750_abs[0] -= 1;
             }
         }
-        *(u8 **)(arg2 + 0x1C) = temp_17;
-        var_20 = *(u8 **)(temp_17 + 0x0C);
+        *(u8 **)(glyph + 0x1C) = replacement;
+        raster = *(u8 **)(replacement + 0x0C);
     }
-    *(s32 *)(var_20 + 0) |= 1;
-    if (temp_19 == 0) {
+    *(s32 *)(raster + 0) |= 1;
+    if (opacity == 0) {
         return 0;
     }
-    func_0043f9c8(render, 0, 0x100);
-    f5 = D_008872F8[0] - fparg0;
-    sh24 = arg6 >> 24;
-    sh16 = arg6 >> 16;
-    sh8 = arg6 >> 8;
-    t10 = sh24 & 0xFF;
-    t9 = t10 & 1;
-    t8 = sh16 & 0xFF;
-    t7 = t8 & 1;
-    t6 = sh8 & 0xFF;
-    t5 = t6 & 1;
-    t4 = temp_19 & 1;
-    v22 = 0;
-    while (v22 < 4) {
-        f32 *dst = &render[v22 * 16];
-        f32 *pCopy = &copy[v22 * 2];
-        f32 *pXy = &xy[v22 * 2];
-        dst[2] = f5;
-        dst[6] = f20;
-        dst[4] = *pCopy;
-        dst[5] = *(pCopy + 1);
-        if (t10 >= 0) {
-            dst[8] = (f32)t10;
-        } else {
-            s32 q10 = ((u32)t10 >> 1) | t9;
-            f32 g10 = (f32)q10;
-            g10 += g10;
-            dst[8] = g10;
-        }
-        if (t8 >= 0) {
-            dst[9] = (f32)t8;
-        } else {
-            s32 q8 = ((u32)t8 >> 1) | t7;
-            f32 g8 = (f32)q8;
-            g8 += g8;
-            dst[9] = g8;
-        }
-        if (t6 >= 0) {
-            dst[10] = (f32)t6;
-        } else {
-            s32 q6 = ((u32)t6 >> 1) | t5;
-            f32 g6 = (f32)q6;
-            g6 += g6;
-            dst[10] = g6;
-        }
-        if (temp_19 >= 0) {
-            dst[11] = (f32)temp_19;
-        } else {
-            s32 q19 = ((u32)temp_19 >> 1) | t4;
-            f32 g19 = (f32)q19;
-            g19 += g19;
-            dst[11] = g19;
-        }
-        dst[0] = *pXy;
-        dst[1] = *(pXy + 1);
-        v22 += 1;
+    func_0043f9c8(vertices, 0, 0x100);
+    depthZ = D_008872F8[0] - depth;
+    /* Unpack shifted channels after initializing the iteration. Each byte
+     * converts directly to float at its store; the native invariant pass
+     * hoists its stable mask and conversion inputs in that order. */
+    vertexIndex = 0;
+    redShifted = rgba >> 24;
+    greenShifted = rgba >> 16;
+    blueShifted = rgba >> 8;
+    while (vertexIndex < 4) {
+        f32 *vertex;
+        f32 *uv;
+        f32 *position;
+        vertex = &vertices[vertexIndex * 16];
+        vertex[2] = depthZ;
+        vertex[6] = reciprocal;
+        uv = &texture.coordinates[vertexIndex * 2];
+        vertex[4] = *uv;
+        vertex[5] = *(uv + 1);
+        vertex[8] = (f32)(u8)redShifted;
+        vertex[9] = (f32)(u8)greenShifted;
+        vertex[10] = (f32)(u8)blueShifted;
+        vertex[11] = (f32)opacity;
+        position = &corners[vertexIndex * 2];
+        vertex[0] = *position;
+        vertex[1] = *(position + 1);
+        vertexIndex += 1;
     }
-    D_00887300[0](1, *(s32 *)(var_20 + 0x14));
-    D_00887310[0](4, render, 4);
+    D_00887300[0](1, *(u32 *)(raster + 0x14));
+    D_00887310[0](4, vertices, 4);
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/frFontRaster", func_00275d80);
-#endif
+#pragma pop
+
 // end FUN_00275D80
 
 // FUN_00276260
