@@ -1336,57 +1336,75 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117980);
 void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                    u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
-/* measured: retail keeps only t16 and arg2 in saved registers (frame 0x60 with
-   the two s64 homes at 0x50/0x58); mwcc b210 also saves arg0 (frame 0x80,
-   homes at 0x70/0x78) and the whole body shifts (nd 147, obj 8B over window).
-   Tried declaration orders — identical. FP/GP colouring floor. */
-/* measured: MWCC -O2 plain, object 564B/window 624B, normalized_diff 393. Signature (u8*,s64,u8,s64,f32). Wall frame 0x70/homes 0x60,0x68 vs retail 0x60/0x50,0x58; first diff at 0 in all variants; addiu-sp-rematerialisation + FP/GP colouring floor, banked per wall rule rather than grinding. Levers: s64/u8 baseline 395, s64/s8/s32 +45, Vec2f +45, callee u8/s32 -2, decl orders +2/0, hy2-reload +84, s16-swapped -7, schedule +42, loopinv 0. No volatile/asm. Mined s64-family neighbours (00116190/001162f0/001163e0) and odd-register mapping. Staged /tmp/push_1187b0_full.c via NearGA.Shd1187b0. */
-/* 130 -> 114 (2026-09-18), and the object goes from eleven instructions
-   short of retail to one.  Two measured levers:
-   1. func_0034f4a0's parameter list is
-      (s32, s32, f32, f32, f32, u8, u8, u8, u32, u16, u16, f32, s16, s16), the
-      live definition in src/promoted/code1_0034.c, not the ints-first
-      spelling that was here; b210 emits argument setup in source order
-      (130 -> 122).
-   2. the two trailing stack arguments are `(s16)(expr)`, not
-      `(s16)(s32)(expr)`.  With the extra s32 step b210 hoists the
-      loop-invariant `hy2 - f20` conversion out of all four calls where
-      retail recomputes it per call (122 -> 114, edits 66 -> 36).
-   Remaining: `move $s1, $a2` - retail copies arg2 into a saved register and
-   b210 does not; a `u8 kind = arg2;` local in either declaration position
-   is inert. */
-/* 2026-09-19 (this lane): `move $s1,$a2` + $s0/$s1 role swap + FPU prologue order inert to two more levers, both tied at 114 with no hunk movement except the delayed load itself: delaying `tmp = *(arg0+0x2C0)` below the f21/f20/hy2 computation (only the lw slides 8 slots, allocation unchanged), and declaring `s32 tmp` after the float locals. With the prior kind-local result, the saved-reg assignment is not source-reachable - allocation wall. */
-// FUN_001187B0 NONMATCHING
-#ifdef NON_MATCHING
-void func_001187b0(u8 *arg0, s64 arg1, u8 arg2, s64 arg3, f32 fparg0)
+/* Complete views of one eight-byte incoming panel coordinate value. */
+typedef union PersonaPanelPosition {
+    f32 coordinates[2];
+    s64 packed;
+} PersonaPanelPosition;
+/* Native b210 O2: 612/624 bytes, four resolved relocations and twelve zero
+ * alignment bytes. Preserve the incoming coordinate object and the
+ * per-call Y-offset conversion rather than eagerly splitting their values.
+ * See docs/probe_archive/Persona_renderer_001187b0_20260923.md. */
+#pragma push
+#pragma opt_propagation off
+#pragma opt_scalarize off
+// FUN_001187B0
+void func_001187b0(u8 *work, PersonaPanelPosition position, u8 opacity,
+                   s64 baseCoordinates, f32 rotation)
 {
-    void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
-    s32 tmp;
-    f32 f21;
-    f32 f20;
-    f32 hy2;
-    f32 f12a;
-    f32 f12b;
-    f32 f12c;
-    tmp = *(s32 *)(arg0 + 0x2C0);
-    f21 = *(f32 *)&arg1 + *(f32 *)&arg3;
-    f20 = *((f32 *)&arg1 + 1) + *((f32 *)&arg3 + 1);
-    hy2 = *((f32 *)&arg3 + 1);
-    func_0034f4a0(*(s32 *)(arg0 + 0x2C4), 0x1D, f21, f20, 0, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, fparg0, (s16)(s32)(*(f32 *)&arg3 - f21), (s16)(hy2 - f20));
-    f12a = 207.0f + f21;
-    func_0034f4a0(tmp, 0xB2, f12a, f20, 0, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, fparg0, (s16)(s32)(*(f32 *)&arg3 - f12a), (s16)(hy2 - f20));
-    f12b = 300.0f + f21;
-    func_0034f4a0(tmp, 0xB3, f12b, f20, 0, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, fparg0, (s16)(s32)(*(f32 *)&arg3 - f12b), (s16)(hy2 - f20));
-    f12c = 314.0f + f21;
-    func_0034f4a0(tmp, 0xB3, f12c, f20, 0, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, fparg0, (s16)(s32)(*(f32 *)&arg3 - f12c), (s16)(hy2 - f20));
+    PackedVec2f basePosition;
+    f32 angle;
+    f32 baseY;
+    f32 originX;
+    f32 originY;
+    f32 offsetY;
+    f32 offsetX;
+    f32 baseX;
+    f32 x;
+    s32 resource;
+
+    basePosition.packed = baseCoordinates;
+    angle = rotation;
+    offsetY = position.coordinates[1];
+    baseY = basePosition.xy.y;
+    resource = *(s32 *)(work + 0x2C0);
+    offsetX = position.coordinates[0];
+    baseX = basePosition.xy.x;
+    originX = offsetX + baseX;
+    originY = offsetY + baseY;
+    {
+        f32 y = baseY;
+        func_0034f4a0(*(s32 *)(work + 0x2C4), 0x1D, originX, originY, 0.0f,
+                      0xBD, 0x29, 0, opacity, 0x1000, 0x1000, angle,
+                      (s16)(baseX - originX), (s16)(y - originY));
+    }
+    x = 207.0f + originX;
+    {
+        f32 y = baseY;
+        func_0034f4a0(resource, 0xB2, x, originY, 0.0f,
+                      0xBD, 0x29, 0, opacity, 0x1000, 0x1000, angle,
+                      (s16)(basePosition.xy.x - x), (s16)(y - originY));
+    }
+    x = 300.0f + originX;
+    {
+        f32 y = baseY;
+        func_0034f4a0(resource, 0xB3, x, originY, 0.0f,
+                      0xBD, 0x29, 0, opacity, 0x1000, 0x1000, angle,
+                      (s16)(basePosition.xy.x - x), (s16)(y - originY));
+    }
+    x = 314.0f + originX;
+    {
+        f32 y = baseY;
+        func_0034f4a0(resource, 0xB3, x, originY, 0.0f,
+                      0xBD, 0x29, 0, opacity, 0x1000, 0x1000, angle,
+                      (s16)(basePosition.xy.x - x), (s16)(y - originY));
+    }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001187b0);
-#endif
+#pragma pop
 
 
 
-void func_001187b0(u8 *, s64, u8, s64, f32);
+void func_001187b0(u8 *, PersonaPanelPosition, u8, s64, f32);
 void func_0045dfd0(u8 *, u8 *, f32, s32, s32, s32);
 extern f32 iGpffff8364;
 extern f32 iGpffff8094;
@@ -1421,7 +1439,7 @@ void func_00118a20(u8 *arg0)
     f32 u98;
     union {
         f32 values[4];
-        PackedVec2f pairs[2];
+        PersonaPanelPosition pairs[2];
     } sp90;
     PackedColor4 sp80[3] __attribute__((aligned(16)));
     f32 sp60[6];
@@ -1553,7 +1571,7 @@ void func_00118a20(u8 *arg0)
     {
         s32 k;
         for (k = 0; k < 2; k++) {
-            func_001187b0(arg0, sp90.pairs[1].packed, b505, sp90.pairs[0].packed, iGpffff8364);
+            func_001187b0(arg0, sp90.pairs[1], b505, sp90.pairs[0].packed, iGpffff8364);
             sp90.values[2] = sp90.values[2] + 400.0f;
         }
     }
@@ -1567,7 +1585,7 @@ void func_00118a20(u8 *arg0)
     {
         s32 k;
         for (k = 0; k < 3; k++) {
-            func_001187b0(arg0, sp90.pairs[1].packed, b505, sp90.pairs[0].packed, iGpffff8364);
+            func_001187b0(arg0, sp90.pairs[1], b505, sp90.pairs[0].packed, iGpffff8364);
             sp90.values[2] = sp90.values[2] + 400.0f;
         }
     }
