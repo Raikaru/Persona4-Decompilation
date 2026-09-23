@@ -212,6 +212,22 @@ class PlanAndRewriteTests(unittest.TestCase):
                 "u8 call(void) { return btlLevelFromExp(1); }\n",
             )
 
+    def test_include_asm_target_is_a_filename_not_a_call(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "fallback.c"
+            path.write_text(
+                'INCLUDE_ASM("asm/nonmatchings/g_data", func_001059e0);\n'
+                "INCLUDE_ASM(\n"
+                '    "asm/nonmatchings/g_data",\n'
+                "    func_001059e0\n"
+                ");\n"
+                "u8 caller(void) { return func_001059e0(1); }\n",
+                encoding="utf-8",
+            )
+            changes = apply_names.plan_file(path, self.names)
+            self.assertEqual(len(changes), 1)
+            self.assertEqual(changes[0][0], 6)
+
     def test_crlf_line_endings_preserved(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "crlf.c"
@@ -284,6 +300,54 @@ class RunTests(unittest.TestCase):
             self.assertEqual(apply_names.run(root, [], check=True), 1)
             self.assertEqual(apply_names.run(root, [], check=False), 0)
             self.assertEqual(apply_names.run(root, [], check=True), 0)
+
+    def test_assembly_linkage_prevents_partial_rename(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = make_root(Path(temporary))
+            write_curated(
+                root,
+                "btlLevelFromExp = 0x001059E0; // type:func  evidence: file:g_data.c\n",
+            )
+            fallback = root / "src" / "fallback.c"
+            caller = root / "src" / "caller.c"
+            fallback.write_text('INCLUDE_ASM("asm/nonmatchings/g_data", func_001059e0);\n')
+            caller.write_text("u8 caller(void) { return func_001059e0(1); }\n")
+            with self.assertRaisesRegex(RuntimeError, "cannot rename assembly-linked"):
+                apply_names.run(root, [str(caller)], check=False)
+            self.assertIn("func_001059e0", caller.read_text())
+            self.assertIn("func_001059e0", fallback.read_text())
+
+    def test_assembly_call_to_c_body_prevents_rename(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = make_root(Path(temporary))
+            write_curated(
+                root,
+                "btlLevelFromExp = 0x001059E0; // type:func  evidence: file:g_data.c\n",
+            )
+            target = root / "src" / "g_data.c"
+            target.write_text("u8 func_001059e0(void) { return 0; }\n")
+            asm = root / "asm" / "nonmatchings" / "caller.s"
+            asm.parent.mkdir(parents=True)
+            asm.write_text("jal func_001059e0\n.reloc .L1, R_MIPS_26, func_001059e0\n")
+            with self.assertRaisesRegex(RuntimeError, "cannot rename assembly-linked"):
+                apply_names.run(root, [], check=False)
+            self.assertIn("func_001059e0", target.read_text())
+
+    def test_incomplete_generated_assembly_aborts_before_rename(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = make_root(Path(temporary))
+            write_curated(
+                root,
+                "btlLevelFromExp = 0x001059E0; // type:func  evidence: file:g_data.c\n",
+            )
+            target = root / "src" / "g_data.c"
+            target.write_text("u8 func_001059e0(void) { return 0; }\n")
+            (root / "config" / "generated_asm.json").write_text(json.dumps({
+                "generated": [{"path": "asm/nonmatchings/missing.s"}]
+            }))
+            with self.assertRaisesRegex(RuntimeError, "assembly inventory incomplete"):
+                apply_names.run(root, [], check=False)
+            self.assertIn("func_001059e0", target.read_text())
 
     def test_main_returns_exit_codes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
