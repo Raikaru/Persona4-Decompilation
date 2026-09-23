@@ -115,6 +115,29 @@ class SectionRelocationTests(unittest.TestCase):
 
 
 class SourceInventoryTests(unittest.TestCase):
+    def test_curated_c_definition_suppresses_address_form_fallback(self) -> None:
+        code = struct.pack("<2I", 0x03E00008, 0)
+        compiled = gen.build_elf_object(code, [], "RpRandom", FLAGS)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, output = root / "owner.c", root / "owner.o"
+            source.write_text("// FUN_003B7060\nu32 RpRandom(void) { return 1; }\n")
+            symbols = root / "symbol_addrs.txt"
+            symbols.write_text("RpRandom = 0x003B7060; // type:func\n")
+            with (
+                mock.patch.object(gap, "Compiler") as compiler,
+                mock.patch.object(gap, "Assembler") as assembler,
+                mock.patch.object(
+                    gap.Preprocessor, "preprocess_c_file",
+                    return_value=([""], [(root / "func_003b7060.s", 0)]),
+                ),
+            ):
+                compiler.return_value.compile_file.return_value = compiled
+                gap.process_c_file(source, output, symbol_map_path=symbols)
+                assembler.assert_not_called()
+                compiler.return_value.compile_file.assert_called_once()
+            self.assertEqual(output.read_bytes(), compiled)
+
     def test_compilation_keeps_canonical_source_inventory_stable(self) -> None:
         name = "func_00120000"
         precompiled = gen.build_elf_object(b"", [], "already_c", FLAGS)

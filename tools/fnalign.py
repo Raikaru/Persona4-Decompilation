@@ -35,7 +35,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from verify import (FUNCTION_WINDOWS, REPO, TARGET, ObjectFile, RetailElf,
                     _compile, _die, _read_json, load_config, scan_markers,
                     window_for)
-from fndiff import _is_include_asm
+import probe_variants as probe
 
 import eedis
 
@@ -146,11 +146,9 @@ def _object_for(source: Path, function: str, candidate: Path | None,
             if not compiled:
                 _die(log.strip() or "compiler did not produce an object")
         else:
-            import probe_variants as probe
-
             text = probe._read_text(source)
             newline = probe._newline_for(source.read_bytes())
-            start, end = probe.region_for(text, probe.address_of(function), function)
+            start, end = probe.region_for(text, probe.address_of(function, source), function)
             body = probe._normalise_candidate(candidate.read_text(), newline)
             patched = probe.splice_region(text, start, end, body, newline)
             with probe.scratch_source(source) as scratch:
@@ -182,7 +180,9 @@ def main() -> None:
 
     # Reject a fallback-only measurement before requiring private build inputs.
     # The source alone establishes that it would compare retail with itself.
-    if candidate is None and _is_include_asm(source, args.function):
+    if candidate is None and probe._has_include_fallback(
+        probe._read_text(source), probe.address_of(args.function, source), args.function
+    ):
         _die(f"{args.function} still has an INCLUDE_ASM fallback in {args.file}, so "
              f"without --candidate the object IS the retail assembly and every number "
              f"below would be meaningless.\n"
@@ -205,8 +205,11 @@ def main() -> None:
     else:
         marker = next((item for item in scan_markers(source) if item["name"] == args.function), None)
         if marker is None:
-            _die(f"no // FUN_ marker found for {args.function} in {args.file}; use --addr")
-        address = marker["addr"]
+            address = int(probe.address_of(args.function, source)[4:], 16)
+            if not any(item["addr"] == address for item in scan_markers(source)):
+                _die(f"no // FUN_ marker found for {args.function} in {args.file}; use --addr")
+        else:
+            address = marker["addr"]
 
     boundaries = {int(item, 16) for item in windows["windows"]}
     boundaries.update(int(item, 16) + size for item, size in windows["windows"].items() if size)

@@ -62,6 +62,9 @@ Use this six-step loop for every target:
    call it impossible.
    Archive notes and pragma brackets are preserved. Marker lookup stops at
    the definition or next marker, not a fixed number of header lines.
+   `FUNCTION` may be a curated C name (for example `RpRandom`): its marker
+   address comes from `config/symbol_addrs.txt`, and an address-form
+   `INCLUDE_ASM` in the same guard is treated as the fallback, not a score.
 4. **Rank for payoff.** Prefer untried ordinary-C targets with a known matched
    analogue, sibling, or TU above hardware-only targets and floor families
    already exhausted by repeated measured probes.
