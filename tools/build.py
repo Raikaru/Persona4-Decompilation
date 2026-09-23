@@ -612,7 +612,83 @@ def recover_concatenated_layout(sections, recovered_bases):
     return valid[0] if len(valid) == 1 else None
 
 
-def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literals=False):
+def _independent_rodata_payload(obj, section, real, retail, address, symbol_addresses):
+    """Resolve one compiler-local R_MIPS_32 jump table and prove its retail bytes.
+
+    This path is intentionally narrower than generic .rodata placement: every
+    four-byte table word must carry exactly one R_MIPS_32 relocation. Defined
+    targets must be unique text markers in this owner; undefined targets need an
+    exact address from the caller's known-symbol map. The object payload remains
+    untouched -- the resolved copy exists only for eligibility comparison.
+    """
+    import collections
+    alignment = section['addralign'] or 1
+    if (section['type'] != 1 or section['flags'] & 2 == 0
+            or section['flags'] & (1 | 4) or section['size'] % 4
+            or alignment < 1 or alignment & (alignment - 1)
+            or address % alignment):
+        return None
+    local_symbols = [symbol for symbol in obj.symbols if symbol['shndx'] == section['idx']]
+    if not local_symbols or any(symbol['info'] >> 4 != 0
+            or symbol['value'] + symbol['size'] > section['size'] for symbol in local_symbols):
+        return None
+
+    marker_addresses = collections.defaultdict(set)
+    for marker in real:
+        if marker.get('name'):
+            marker_addresses[marker['name']].add(marker['addr'])
+
+    relocation_sections = [candidate for candidate in obj.sh
+        if candidate.get('info') == section['idx'] and candidate['size']
+        and candidate['type'] in (4, 9)]
+    if len(relocation_sections) != 1 or relocation_sections[0]['type'] != 9:
+        return None
+    relocations = relocation_sections[0]
+    if ((relocations['entsize'] or 8) != 8 or relocations['size'] % 8
+            or relocations['offset'] + relocations['size'] > len(obj.data)
+            or section['offset'] + section['size'] > len(obj.data)
+            or relocations['link'] not in obj.symtabs):
+        return None
+    symbols = obj.symtabs[relocations['link']]
+    raw = obj.data[section['offset']:section['offset'] + section['size']]
+    resolved = bytearray(raw)
+    seen = set()
+    for offset in range(relocations['offset'], relocations['offset'] + relocations['size'], 8):
+        position, info = struct.unpack_from('<II', obj.data, offset)
+        symbol_index, relocation_type = info >> 8, info & 0xFF
+        if (relocation_type != 2 or position % 4 or position + 4 > section['size']
+                or position in seen or symbol_index >= len(symbols)):
+            return None
+        seen.add(position)
+        symbol = symbols[symbol_index]
+        name = symbol['name']
+        if not name:
+            return None
+        shndx = symbol.get('shndx', 0)
+        if shndx:
+            if shndx >= len(obj.sh):
+                return None
+            target_section = obj.sh[shndx]
+            addresses = marker_addresses.get(name, set())
+            if (target_section['flags'] & 4 == 0 or symbol['info'] & 0xF != 2
+                    or len(addresses) != 1):
+                return None
+            target = next(iter(addresses))
+            if name in symbol_addresses and symbol_addresses[name] != target:
+                return None
+        else:
+            if name not in symbol_addresses:
+                return None
+            target = symbol_addresses[name]
+        addend, = struct.unpack_from('<I', raw, position)
+        struct.pack_into('<I', resolved, position, (target + addend) & 0xFFFFFFFF)
+    if seen != set(range(0, section['size'], 4)):
+        return None
+    return bytes(resolved) if bytes(resolved) == retail.bytes_at(address, section['size']) else None
+
+
+def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literals=False,
+                       independent_rodata=False, symbol_addresses=None):
     """Decide whether all of a TU's owned data sections can be placed byte-exact.
     Returns (ok, {section_name: (base, size)}).
 
@@ -628,8 +704,13 @@ def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literal
     When requested, an otherwise invalid same-name literal concatenation may use
     that path, provided every pool has its own consistent relocation-derived
     address, original alignment, and byte-exact payload. No pool is duplicated.
+
+    First-party GNU owners may separately opt into relocated .rodata jump tables.
+    This path requires every table word to be independently proven R_MIPS_32 data
+    whose resolved payload exactly matches retail; arbitrary .rodata is rejected.
     """
     import collections
+    symbol_addresses = symbol_addresses or {}
     local_syms = {s["name"] for s in obj.symbols if s["name"] and s.get("shndx", 0) != 0}
     bases = recover_section_bases(obj, real, retail, gp)
     by_name = collections.defaultdict(list)
@@ -637,6 +718,7 @@ def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literal
         if s.get("name") in DATA_SECTIONS and s["size"]:
             by_name[s["name"]].append(s)
     per_name = {}
+    independent_rodata_names = set()
     for name, secs in by_name.items():
         secs.sort(key=lambda s: s["idx"])  # mwld concatenates same-name sections in shndx order
         layout = recover_concatenated_layout(secs, bases)
@@ -661,6 +743,25 @@ def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literal
                 return False, {}
             per_name.update(individual)
             continue
+        if layout is None and independent_rodata and name == '.rodata':
+            individual = {}
+            intervals = []
+            for section in secs:
+                index = section['idx']
+                address = bases.get(index)
+                renamed = f'{name}.p4_{index:x}'
+                if (address is None or any(s['name'] == renamed for s in obj.sh)
+                        or _independent_rodata_payload(
+                            obj, section, real, retail, address, symbol_addresses) is None):
+                    return False, {}
+                individual[renamed] = (address, section['size'])
+                intervals.append((address, address + section['size']))
+            intervals.sort()
+            if any(end > following for (_, end), (following, _) in zip(intervals, intervals[1:])):
+                return False, {}
+            per_name.update(individual)
+            independent_rodata_names.update(individual)
+            continue
         if layout is None:
             return False, {}
         base, offsets, total = layout
@@ -683,6 +784,15 @@ def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literal
                 elif obj.data[s["offset"]:s["offset"] + s["size"]] != retail.bytes_at(addr, s["size"]):
                     return False, {}
         per_name[name] = (base, total)
+    if independent_rodata_names:
+        independent_intervals = [(base, base + size, name) for name, (base, size) in per_name.items()
+                                 if name in independent_rodata_names]
+        other_intervals = [(base, base + size, name) for name, (base, size) in per_name.items()
+                           if name not in independent_rodata_names]
+        if any(start < other_end and other_start < end
+               for start, end, _name in independent_intervals
+               for other_start, other_end, _other_name in other_intervals):
+            return False, {}
     return True, per_name
 
 
@@ -776,7 +886,7 @@ def _gcc_unit_has_c(path):
 
 
 def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
-                       include_generated=False):
+                       include_generated=False, symbol_addresses=None):
     """Select matching C source units that can be placed byte-exact."""
     import bisect
     retail = V.RetailElf(c["retail_elf"], TARGET, RETAIL_SHA1)
@@ -879,7 +989,9 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
                 continue
         independent_literals = c.get('linker_backend', 'mwld') == 'gnu' and has_first_party
         data_ok, sections = plan_data_sections(obj, real, retail, gp, resolvable,
-                                              independent_literals=independent_literals)
+                                              independent_literals=independent_literals,
+                                              independent_rodata=independent_literals,
+                                              symbol_addresses=symbol_addresses)
         if not data_ok:
             continue
         out.append(dict(
@@ -1005,6 +1117,11 @@ def build_code_carved(c, name, lo, hi, cobjs, entries, window_sizes):
             raise ValueError(f"Sony SDK text at {sdk_start:08x} overlaps a linked C object")
     all_carved = sorted(c_ranges + [(s, e, None) for s, e, _o in sdk_ranges])
     starts = [r[0] for r in all_carved]
+    # Prefix maxima preserve exact union membership for overlapping/nested ranges;
+    # the idx > 0 guard below also covers an empty carved-range list.
+    prefix_max_end = []
+    for _start, end, _owner in all_carved:
+        prefix_max_end.append(max(prefix_max_end[-1], end) if prefix_max_end else end)
 
     import bisect
     chunks = {}  # chunk index -> list of block lines (order preserved)
@@ -1016,11 +1133,11 @@ def build_code_carved(c, name, lo, hi, cobjs, entries, window_sizes):
             match = BYTES_RE.search(ln)
             if match:
                 addr = int(match.group(1), 16)
-                carved = any(s <= addr < e for s, e, _ in all_carved)
+                idx = bisect.bisect_right(starts, addr)
+                carved = idx > 0 and addr < prefix_max_end[idx - 1]
                 if carved:
                     pending.clear()
                 else:
-                    idx = bisect.bisect_right(starts, addr)
                     chunks.setdefault(idx, []).extend(pending)
                     pending.clear()
                     chunks[idx].append(ln)
@@ -1314,19 +1431,32 @@ def prepare_link_objects(cobj, owner, linker_backend="mwld"):
         rename_text_sections(cobj, {p.name: p.address for p in placements})
         if linker_backend == 'gnu':
             native = V.ObjectFile(cobj)
-            literal_names = {}
+            independent_names = {}
             for name, (address, size) in owner['sections'].items():
-                match = re.fullmatch(r'(\.lit[48])\.p4_([0-9a-f]+)', name)
+                match = re.fullmatch(r'(\.lit[48]|\.rodata)\.p4_([0-9a-f]+)', name)
                 if match:
+                    literal = match[1] in ('.lit4', '.lit8')
                     index = int(match[2], 16)
                     if not 0 < index < len(native.sections):
-                        raise ValueError('Literal section index changed after eligibility')
+                        raise ValueError('Literal section index changed after eligibility' if literal
+                                         else 'Independent .rodata index changed after eligibility')
                     section = native.sections[index]
                     if (section['name'] != match[1] or section['size'] != size
                             or address % max(section['addralign'], 1)):
-                        raise ValueError('Literal section layout changed after eligibility')
-                    literal_names[index] = name
-            rename_sections(cobj, literal_names)
+                        raise ValueError('Literal section layout changed after eligibility' if literal
+                                         else 'Independent .rodata layout changed after eligibility')
+                    if match[1] == '.rodata':
+                        relocs = section_relocs(native, index)
+                        if (section['type'] != 1 or section['flags'] & 2 == 0
+                                or section['flags'] & (1 | 4) or size % 4
+                                or len(relocs) != size // 4
+                                or {offset for offset, reloc_type, _symbol in relocs}
+                                   != set(range(0, size, 4))
+                                or any(reloc_type != 2 or not symbol
+                                       for _offset, reloc_type, symbol in relocs)):
+                            raise ValueError('Independent .rodata shape changed after eligibility')
+                    independent_names[index] = name
+            rename_sections(cobj, independent_names)
         leftover = [s for s in V.ObjectFile(cobj).sections if s["name"] == ".text" and s["size"]]
         if leftover:
             sys.exit(f"build: {cobj.name} has .text sections no placed marker owns; "
@@ -1581,11 +1711,17 @@ def main():
     # only LCF-defined symbols as resolvable rejects perfectly linkable objects.
     # Every marker name in the tree is defined by some object, so trust them.
     resolvable = set(defs) | load_symbol_names() | source_marker_names()
+    symbol_addresses = load_symbol_addr_map()
+    for name, address in defs.items():
+        if name in symbol_addresses and symbol_addresses[name] != address:
+            raise ValueError(f'configured symbol address disagreement for {name}')
+        symbol_addresses[name] = address
     boundaries = load_windows()
     window_sizes = load_window_sizes()
     cobjs = (
         eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes,
-                           include_generated=args.include_generated)
+                           include_generated=args.include_generated,
+                           symbol_addresses=symbol_addresses)
         if c.get("retail_elf") else []
     )
     print(f"eligible C objects: {len(cobjs)}  "
@@ -1615,7 +1751,6 @@ def main():
     # Splat asm references carved functions by their symbol_addrs names; when a
     # C object exports a canonical name instead, define the splat name as an
     # absolute address (the C object is placed byte-exact at retail).
-    symbol_addresses = load_symbol_addr_map()
     for o in cobjs:
         for marker in o["funcs"]:
             address = marker["addr"]

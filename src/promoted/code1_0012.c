@@ -1599,7 +1599,7 @@ void func_00124210(u8 *arg0)
 }
 // FUN_00124350
 extern u32 func_003b7060(void);
-s32 func_00124350(void)
+s32 func_00124350(u8 *unusedWork)
 {
     f32 temp_f0;
     f32 temp_f0_2;
@@ -4338,363 +4338,375 @@ loop_351:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001265a0);
 #endif
-/* measured: R1 651 reloc-masked words via probe_variants (fnalign retail 763/object 741 instrs, 187 edits +30 reloc-only; 22 short 2.9% within 3% gate). De-noised generated m2c 476L (switch 0..16 fallthroughs 0->1->2/4->5/6->7/8->9/10->11/12->13/14->15, inners 0..3/1..2) + romwright 518L (quat formulas, table loops, tail) into file idiom (word stores, s32 offsets, s128 copies). Array lever: scalar matrix single swc1 (657 instrs), f32 mat[9] 9 swc1 (737 instrs, micro mat_arr vs mat_sca). Inners to switch ascending per 7i: if/else 234 edits -> switch 184 edits, 737->741. Index (s32)(f32)*(s32*)row 4 instrs (lwc1+cvt.s.w+cvt.w.s+mfc1) vs (s32)*(f32*) 3 (micro conv.c f2). Free pragmas tie: loopinv/unroll/sched 654, commonsubs 654->748 worse; subscripts A/B/C tie 654; decl R1 654->651, R2 tie. Residual is stack offsets (mat 0x60 vs 0x80, D0 0xA8 vs 0xD0, frame 0xB0 vs 0xE0) + reg/FPR colour + lbu/sb sched; time-boxed per batch. */
-// FUN_0012AA70 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0012aa70(u8 *arg0)
+typedef struct Code12FrameVector { f32 x, y, z; } Code12FrameVector;
+typedef struct Code12FrameMatrix {
+    Code12FrameVector right; u32 flags;
+    Code12FrameVector up; u32 pad1;
+    Code12FrameVector at; u32 pad2;
+    Code12FrameVector pos; u32 pad3;
+} Code12FrameMatrix;
+typedef union Code12FrameQuaternion {
+    s128 packed;
+    f32 value[4];
+} Code12FrameQuaternion;
+typedef union Code12FrameVectorTransfer {
+    struct { s64 xy; f32 z; } words;
+    f32 value[3];
+    Code12FrameVector vector;
+} Code12FrameVectorTransfer;
+
+#pragma push
+#pragma opt_propagation off
+static inline void code12QuaternionMatrix(Code12FrameMatrix *matrix, const Code12FrameQuaternion *rotation)
+{
+    f32 x, y, z, w;
+    f32 xx, yy, zz, yz, zx, xy, wx, wy, wz;
+    f32 squaredYZ;
+    x = rotation->value[0];
+    y = rotation->value[1];
+    z = rotation->value[2];
+    w = rotation->value[3];
+    xx = x * x;
+    yy = y * y;
+    zz = z * z;
+    yz = y * z;
+    zx = z * x;
+    xy = x * y;
+    wx = w * x;
+    wy = w * y;
+    wz = w * z;
+    squaredYZ = yy + zz;
+    matrix->right.x = 1.0f - 2.0f * squaredYZ;
+    matrix->right.y = 2.0f * (xy + wz);
+    matrix->right.z = 2.0f * (zx - wy);
+    matrix->up.x = 2.0f * (xy - wz);
+    matrix->up.y = 1.0f - 2.0f * (xx + zz);
+    matrix->up.z = 2.0f * (yz + wx);
+    matrix->at.x = 2.0f * (zx + wy);
+    matrix->at.y = 2.0f * (yz - wx);
+    matrix->at.z = 1.0f - 2.0f * (xx + yy);
+    matrix->pos.x = 0.0f;
+    matrix->pos.y = 0.0f;
+    matrix->pos.z = 0.0f;
+    matrix->flags = 3;
+}
+#pragma pop
+
+#pragma push
+#pragma opt_propagation off
+/* Native b210 O2: 3056/3056 bytes, 105 resolved relocations and the
+ * complete 17-entry switch table at 0x00746770. Complete vector and
+ * matrix objects retain the original stack transfers; reset-phase
+ * models and the queued draw task have separate value lifetimes.
+ * See docs/probe_archive/Menu_callback_0012aa70_20260923.md. */
+// FUN_0012AA70
+s32 func_0012aa70(u8 *task)
 {
     extern s128 D_005E56F0;
-    extern s64 D_005E5700;
-    extern f32 D_005E5708;
+    extern const Code12FrameVectorTransfer D_005E5700[1];
     extern u8 D_005E5220[];
     extern u8 D_005E5230[];
     extern u8 D_005E5710[];
     extern u8 D_005E5548[];
     extern char D_00795E60[];
     extern f32 fGpffff813c;
-    extern void func_00440b68(void *arg0, u8 *arg1, s32 arg2);
-    extern u8 *func_00454a60(u8 *arg0, s32 arg1);
-    extern s32 func_004553c0(void *arg0);
-    extern u8 *func_0025ef20(u8 *arg0);
-    extern s32 func_0025f110(u8 *arg0);
-    extern s32 func_001246d0(u8 *arg0);
-    extern s32 func_00124830(u8 *arg0);
-    extern s32 func_00124350(void);
+    extern s32 func_00440b68(const char *, ...);
+    extern u8 *func_00454a60(u8 *task, s32 arg1);
+    extern s32 func_004553c0(void *task);
+    extern u8 *func_0025ef20(u8 *task);
+    extern s32 func_0025f110(u8 *task);
+    extern s32 func_001246d0(u8 *task);
+    extern s32 func_00124830(u8 *task);
+    extern s32 func_00124350(u8 *unusedWork);
     extern s32 func_001110e0(void);
-    extern void func_00111160(s32 arg0);
+    extern void func_00111160(s32 task);
     extern s32 func_00111200(void);
     extern void func_001113b0(void);
-    extern void func_00122520(s32 arg0, s32 arg1);
-    extern void func_00122640(s32 arg0, s32 arg1);
+    extern void func_00122520(s32 task, s32 arg1);
+    extern void func_00122640(s32 task, s32 arg1);
     extern s32 func_00122720(void);
-    extern s32 func_0035c690(void *arg0, s32 arg1);
-    extern s32 func_0035c7d0(u8 *arg0);
-    extern s32 func_0035c810(u8 *arg0);
+    extern s32 func_0035c690(void *task, s32 arg1);
+    extern s32 func_0035c7d0(u8 *task);
+    extern s32 func_0035c810(u8 *task);
     extern u8 *func_00457120(void);
-    extern void func_004577d0(void *arg0, f32 arg1);
-    extern void func_003e8180(u8 *arg0, f32 arg1);
-    extern void func_003e81c0(u8 *arg0, f32 arg1);
-    extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
-    extern void func_003e9c10(u8 *arg0, void *arg1, s32 arg2);
-    extern void func_004599a0(s32 arg0, s32 arg1);
-    extern void func_0045aac0(s16 arg0, s32 arg1, s32 arg2);
-    extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-    extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
-    extern char iGpffff9c90;
-    extern void func_001265a0(void);
+    extern void func_004577d0(void *task, f32 arg1);
+    extern u8 *func_003e8180(u8 *camera, f32 nearClip);
+    extern u8 *func_003e81c0(u8 *camera, f32 farClip);
+    extern u8 *func_003e9cb0(u8 *frame, const void *matrix, s32 combine);
+    extern u8 *func_003e9c10(u8 *frame, const f32 *translation, s32 combine);
+    extern void func_004599a0(s32 task, s32 arg1);
+    extern void func_0045aac0(s16 task, s32 arg1, s32 arg2);
 
-    f32 mat[9];
-    s128 sp60 __attribute__((aligned(16)));
-    s128 sp70 __attribute__((aligned(16)));
-    s64 spC0;
-    f32 spC8;
-    s64 spD0;
-    f32 spD8;
-    s32 spB0;
-    s32 spB4;
-    s32 spB8;
-    s32 sp8C;
-    u8 *p;
+    extern void func_0047a0e0(u8 *model, s32 layer, f32 speed);
+    /* The persistent copy destination is a complete 0x5D0-byte buffer. */
+    extern struct MenuSavedState { u8 bytes[0x5D0]; } iGpffff9c90 __attribute__((section(".sdata")));
+    extern s32 func_001265a0(u8 *task);
+
+    Code12FrameVectorTransfer translation;
+    Code12FrameVectorTransfer initialTranslation;
+    Code12FrameMatrix matrix;
+    Code12FrameQuaternion rotation;
+    Code12FrameQuaternion initialRotation;
+    u8 *work;
     s32 state;
-    s32 tmp;
-    s32 i;
-    s32 idx;
-    u16 pad;
-    u8 *model;
-    u8 *row;
-    f32 q0;
-    f32 q1;
-    f32 q2;
-    f32 q3;
+    s32 result;
+    s32 updateIndex;
+    s32 modelIndex;
+    u32 pressed;
+    u8 *activeModel;
+    u8 *animation;
 
-    p = (u8 *)func_00452560(arg0);
-    sp60 = D_005E56F0;
-    sp70 = sp60;
-    spC0 = D_005E5700;
-    spC8 = D_005E5708;
-    spD0 = spC0;
-    spD8 = spC8;
-    *(s32 *)(p + 4) = *(s32 *)p;
-    state = *(s32 *)p;
+    work = (u8 *)func_00452560(task);
+    initialRotation.packed = D_005E56F0;
+    rotation = initialRotation;
+    initialTranslation.vector = D_005E5700[0].vector;
+    translation.vector = initialTranslation.vector;
+    *(s32 *)(work + 4) = *(s32 *)work;
+    state = *(s32 *)work;
     switch (state) {
     case 0:
-        *(s32 *)p = 1;
+        *(s32 *)work = 1;
         func_00122640(1, 1);
     case 1:
-        *(s32 *)p = 2;
-        func_00440b68(&iGpffff9c90, D_005E5548, 0x5D0);
-        *(u8 **)(p + 0x38) = func_00454a60(D_005E5710, 1);
+        *(s32 *)work = 2;
+        func_00440b68((const char *)&iGpffff9c90, D_005E5548, 0x5D0);
+        *(u8 **)(work + 0x38) = func_00454a60(D_005E5710, 1);
     case 2:
-        if (func_004553c0(*(u8 **)(p + 0x38)) != 0) {
-            *(s32 *)p = 3;
-            *(u8 **)(p + 0x3C) = func_0025ef20(D_005E5220);
+        if (func_004553c0(*(u8 **)(work + 0x38)) != 0) {
+            *(s32 *)work = 3;
+            *(u8 **)(work + 0x3C) = func_0025ef20(D_005E5220);
         }
         break;
     case 3:
-        if ((func_0025f110(*(u8 **)(p + 0x3C)) != 0) && (func_001246d0(p) != 0)) {
-            *(s32 *)p = 4;
+        if ((func_0025f110(*(u8 **)(work + 0x3C)) != 0) && (func_001246d0(work) != 0)) {
+            *(s32 *)work = 4;
             func_004599a0(0x13, 0x1E);
         }
         break;
     case 4:
-        q0 = *(f32 *)((u8 *)&sp70 + 0);
-        q1 = *(f32 *)((u8 *)&sp70 + 4);
-        q2 = *(f32 *)((u8 *)&sp70 + 8);
-        q3 = *(f32 *)((u8 *)&sp70 + 12);
-        mat[0] = 1.0f - (q1 * q1 + q2 * q2) * 2.0f;
-        mat[1] = (q0 * q1 + q3 * q2) * 2.0f;
-        mat[2] = (q2 * q0 - q3 * q1) * 2.0f;
-        mat[3] = (q0 * q1 - q3 * q2) * 2.0f;
-        mat[4] = 1.0f - (q0 * q0 + q2 * q2) * 2.0f;
-        mat[5] = (q1 * q2 + q3 * q0) * 2.0f;
-        mat[6] = (q2 * q0 + q3 * q1) * 2.0f;
-        mat[7] = (q1 * q2 - q3 * q0) * 2.0f;
-        mat[8] = 1.0f - (q0 * q0 + q1 * q1) * 2.0f;
-        spB0 = 0;
-        spB4 = 0;
-        spB8 = 0;
-        sp8C = 3;
-        func_003e9cb0(*(s32 *)(func_00457120() + 4), mat, 0);
-        func_003e9c10(func_00457120(), &spD0, 2);
+        code12QuaternionMatrix(&matrix, &rotation);
+        func_003e9cb0(*(u8 **)(func_00457120() + 4), &matrix, 0);
+        func_003e9c10(*(u8 **)(func_00457120() + 4), translation.value, 2);
         func_004577d0(func_00457120(), 50.0f);
         func_003e81c0(func_00457120(), 25600.0f);
         func_003e8180(func_00457120(), 10.0f);
-        *(s32 *)p = 5;
-        *(s32 *)(p + 0x14) = 0;
-        *(s32 *)(p + 0xC) = 0;
-        *(s32 *)(p + 0x10) = 0;
+        *(s32 *)work = 5;
+        *(s32 *)(work + 0x14) = 0;
+        *(s32 *)(work + 0xC) = 0;
+        *(s32 *)(work + 0x10) = 0;
     case 5:
-        *(s32 *)(p + 0x14) = *(s32 *)(p + 0x14) + 1;
+        *(s32 *)(work + 0x14) = *(s32 *)(work + 0x14) + 1;
         if ((D_008C024E[0] & 0x10) || (D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80) || (D_008C024E[0] & 0x40) || (D_008C024E[0] & 4) || (D_008C024E[0] & 1) || (D_008C024E[0] & 8) || (D_008C024E[0] & 2) || (D_008C024E[0] & 0x800) || (D_008C024E[0] & 0x100)) {
             func_0045af60(0, 0, 0, 1);
-            pad = D_008C024E[0];
+            pressed = D_008C024E[0];
         } else {
-            pad = 0;
+            pressed = 0;
         }
-        if ((pad != 0) || (*(s32 *)(p + 0x14) >= 0xEC)) {
-            *(s32 *)(p + 8) = *(s32 *)(p + 8) & ~2;
-            if (*(s32 *)(p + 0x14) < 0xEC) {
-                *(s32 *)(p + 8) = *(s32 *)(p + 8) | 2;
-                *(s32 *)(p + 0x2C) = 0xA;
+        if ((pressed != 0) || (*(s32 *)(work + 0x14) >= 0xEC)) {
+            *(s32 *)(work + 8) = *(s32 *)(work + 8) & ~2;
+            if (*(s32 *)(work + 0x14) < 0xEC) {
+                *(s32 *)(work + 8) = *(s32 *)(work + 8) | 2;
+                *(s32 *)(work + 0x2C) = 0xA;
             }
-            *(s32 *)p = 6;
+            *(s32 *)work = 6;
         }
         break;
     case 6:
         func_0045aac0(2, 0, 0x1E);
-        *(s32 *)p = 7;
-        *(s32 *)(p + 0x14) = 0;
-        *(s32 *)(p + 0xC) = 0;
-        q0 = *(f32 *)((u8 *)&sp70 + 0);
-        q1 = *(f32 *)((u8 *)&sp70 + 4);
-        q2 = *(f32 *)((u8 *)&sp70 + 8);
-        q3 = *(f32 *)((u8 *)&sp70 + 12);
-        mat[0] = 1.0f - (q1 * q1 + q2 * q2) * 2.0f;
-        mat[1] = (q0 * q1 + q3 * q2) * 2.0f;
-        mat[2] = (q2 * q0 - q3 * q1) * 2.0f;
-        mat[3] = (q0 * q1 - q3 * q2) * 2.0f;
-        mat[4] = 1.0f - (q0 * q0 + q2 * q2) * 2.0f;
-        mat[5] = (q1 * q2 + q3 * q0) * 2.0f;
-        mat[6] = (q2 * q0 + q3 * q1) * 2.0f;
-        mat[7] = (q1 * q2 - q3 * q0) * 2.0f;
-        mat[8] = 1.0f - (q0 * q0 + q1 * q1) * 2.0f;
-        spB0 = 0;
-        spB4 = 0;
-        spB8 = 0;
-        sp8C = 3;
-        func_003e9cb0(*(s32 *)(func_00457120() + 4), mat, 0);
-        func_003e9c10(func_00457120(), &spD0, 2);
+        *(s32 *)work = 7;
+        *(s32 *)(work + 0x14) = 0;
+        *(s32 *)(work + 0xC) = 0;
+        code12QuaternionMatrix(&matrix, &rotation);
+        func_003e9cb0(*(u8 **)(func_00457120() + 4), &matrix, 0);
+        func_003e9c10(*(u8 **)(func_00457120() + 4), translation.value, 2);
         func_004577d0(func_00457120(), 50.0f);
         func_003e81c0(func_00457120(), 25600.0f);
         func_003e8180(func_00457120(), 10.0f);
-        if (func_004782b0(*(u8 **)(p + 0x44)) != 0) {
-            model = *(u8 **)(p + 0x44);
+        if (func_004782b0(*(u8 **)(work + 0x44)) != 0) {
+            activeModel = *(u8 **)(work + 0x44);
         } else {
-            model = 0;
+            activeModel = 0;
         }
-        func_0047a0e0(model, 0, fGpffff813c);
-        i = 1;
-        while (i < 8) {
-            row = D_005E5230 + i * 0x28;
-            idx = (s32)(f32)*(s32 *)row;
-            if (idx >= 0xF) {
-                model = 0;
+        func_0047a0e0(activeModel, 0, fGpffff813c);
+        updateIndex = 1;
+        while (updateIndex < 8) {
+            animation = D_005E5230 + updateIndex * 0x28;
+            modelIndex = (s32)(f32)*(s32 *)animation;
+            if (modelIndex >= 0xF) {
+                activeModel = 0;
             } else {
-                tmp = func_004782b0(*(u8 **)(p + idx * 4 + 0x44));
-                if (tmp != 0) {
-                    model = *(u8 **)(p + idx * 4 + 0x44);
+                result = func_004782b0(*(u8 **)(work + modelIndex * 4 + 0x44));
+                if (result != 0) {
+                    activeModel = *(u8 **)(work + modelIndex * 4 + 0x44);
                 } else {
-                    model = 0;
+                    activeModel = 0;
                 }
             }
-            if (model != 0) {
-                if ((u32)i >= 0x13) {
+            if (activeModel != 0) {
+                if ((u32)updateIndex >= 0x13) {
                     func_0046d730(D_005E5548, 0xEB);
                 }
-                func_0047a0e0(model, 0, *(f32 *)(row + 0x24));
+                func_0047a0e0(activeModel, 0, *(f32 *)(animation + 0x24));
             }
-            i++;
+            updateIndex++;
         }
-        if ((*(s32 *)(p + 8) & 2) != 0) {
-            idx = *(s32 *)D_005E5230;
-            if (idx >= 0xF) {
-                model = 0;
+        if ((*(s32 *)(work + 8) & 2) != 0) {
+            u8 *resetModel;
+            s32 resetIndex;
+            u8 *resetRow;
+            modelIndex = *(s32 *)D_005E5230;
+            if (modelIndex >= 0xF) {
+                resetModel = 0;
             } else {
-                tmp = func_004782b0(*(u8 **)(p + idx * 4 + 0x44));
-                if (tmp != 0) {
-                    model = *(u8 **)(p + idx * 4 + 0x44);
+                result = func_004782b0(*(u8 **)((u8 *)(modelIndex * 4) + (u32)work + 0x44));
+                if (result != 0) {
+                    resetModel = *(u8 **)((u8 *)(modelIndex * 4) + (u32)work + 0x44);
                 } else {
-                    model = 0;
+                    resetModel = 0;
                 }
             }
-            if (model != 0) {
-                func_00479940(model, 0, 0, 0, 1);
+            if (resetModel != 0) {
+                func_00479940(resetModel, 0, 0, 0, 1);
             }
-            i = 1;
-            while (i < 8) {
-                row = D_005E5230 + i * 0x28;
-                idx = *(s32 *)row;
-                if (idx >= 0xF) {
-                    model = 0;
+            resetIndex = 1;
+            while (resetIndex < 8) {
+                resetRow = D_005E5230 + resetIndex * 0x28;
+                modelIndex = *(s32 *)resetRow;
+                if (modelIndex >= 0xF) {
+                    resetModel = 0;
                 } else {
-                    tmp = func_004782b0(*(u8 **)(p + idx * 4 + 0x44));
-                    if (tmp != 0) {
-                        model = *(u8 **)(p + idx * 4 + 0x44);
+                    result = func_004782b0(*(u8 **)(work + modelIndex * 4 + 0x44));
+                    if (result != 0) {
+                        resetModel = *(u8 **)(work + modelIndex * 4 + 0x44);
                     } else {
-                        model = 0;
+                        resetModel = 0;
                     }
                 }
-                if (model != 0) {
-                    func_00479940(model, 0, 0, 0, 1);
+                if (resetModel != 0) {
+                    func_00479940(resetModel, 0, 0, 0, 1);
                 }
-                i++;
+                resetIndex++;
             }
         }
-        *(s32 *)(p + 8) = *(s32 *)(p + 8) | 2;
+        *(s32 *)(work + 8) = *(s32 *)(work + 8) | 2;
     case 7:
-        tmp = *(s32 *)(p + 0x14) + 1;
-        *(s32 *)(p + 0x14) = tmp;
-        if (tmp >= 0x1C2) {
-            *(s32 *)p = 0x10;
-            *(s32 *)(p + 0x1C) = 1;
-            *(s32 *)(p + 0x2C) = 0xA;
+        result = *(s32 *)(work + 0x14) + 1;
+        *(s32 *)(work + 0x14) = result;
+        if (result >= 0x1C2) {
+            *(s32 *)work = 0x10;
+            *(s32 *)(work + 0x1C) = 1;
+            *(s32 *)(work + 0x2C) = 0xA;
             func_00122520(1, 0xA);
         } else {
             if ((D_008C024E[0] & 0x10) || (D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80) || (D_008C024E[0] & 0x40) || (D_008C024E[0] & 4) || (D_008C024E[0] & 1) || (D_008C024E[0] & 8) || (D_008C024E[0] & 2) || (D_008C024E[0] & 0x800) || (D_008C024E[0] & 0x100)) {
                 func_0045af60(0, 0, 0, 1);
-                pad = D_008C024E[0];
+                pressed = D_008C024E[0];
             } else {
-                pad = 0;
+                pressed = 0;
             }
-            if (pad != 0) {
-                *(s32 *)p = 8;
+            if (pressed != 0) {
+                *(s32 *)work = 8;
             }
         }
         break;
     case 8:
         iGpffffb1e8 = iGpffffb1e8 + 1;
-        *(s32 *)p = 9;
-        *(s32 *)(p + 0x14) = 0;
-        *(s32 *)(p + 0xC) = 0;
-        *(s32 *)(p + 0x84) = func_00124350();
-        mat[0] = 1.0f;
-        mat[4] = 1.0f;
-        mat[8] = 1.0f;
-        mat[1] = 0.0f;
-        mat[2] = 0.0f;
-        mat[3] = 0.0f;
-        mat[5] = 0.0f;
-        mat[6] = 0.0f;
-        mat[7] = 0.0f;
-        spB8 = 0;
-        spB4 = 0;
-        spB0 = 0;
-        sp8C = sp8C | 0x20003;
-        func_003e9cb0(*(s32 *)(func_00457120() + 4), mat, 0);
+        *(s32 *)work = 9;
+        *(s32 *)(work + 0x14) = 0;
+        *(s32 *)(work + 0xC) = 0;
+        *(s32 *)(work + 0x84) = func_00124350(work);
+        matrix.right.x = matrix.up.y = matrix.at.z = 1.0f;
+        matrix.up.z = matrix.at.x = matrix.at.y = matrix.right.y = matrix.right.z = matrix.up.x = 0.0f;
+        matrix.pos.x = matrix.pos.y = matrix.pos.z = 0.0f;
+        /* Preserve the original identity macro's read/OR of flags. This
+         * branch does not initialize the pre-existing flag word. */
+        matrix.flags |= 0x20003;
+        func_003e9cb0(*(u8 **)(func_00457120() + 4), &matrix, 0);
         func_004577d0(func_00457120(), 70.0f);
-        *(s32 *)(p + 0x28) = 0;
-        *(s32 *)(p + 0x24) = 0;
-        *(s32 *)(p + 0x20) = 0;
+        *(s32 *)(work + 0x28) = 0;
+        *(s32 *)(work + 0x24) = 0;
+        *(s32 *)(work + 0x20) = 0;
     case 9:
-        *(s32 *)(p + 0x14) = *(s32 *)(p + 0x14) + 1;
-        if ((D_008C024E[0] & 0x20) || (*(s32 *)(p + 0x14) >= 0x1C2)) {
-            *(s32 *)(p + 0x2C) = 0xD;
-            *(s32 *)p = 6;
+        *(s32 *)(work + 0x14) = *(s32 *)(work + 0x14) + 1;
+        if ((D_008C024E[0] & 0x20) || (*(s32 *)(work + 0x14) >= 0x1C2)) {
+            *(s32 *)(work + 0x2C) = 0xD;
+            *(s32 *)work = 6;
         } else {
-            tmp = func_00124830(p);
-            switch (tmp) {
+            result = func_00124830(work);
+            switch (result) {
             case 0:
-                *(s32 *)(p + 0x14) = 0;
+                *(s32 *)(work + 0x14) = 0;
                 break;
             case 1:
-                *(s32 *)p = 0xA;
+                *(s32 *)work = 0xA;
                 break;
             case 2:
-                *(s32 *)p = 0xC;
+                *(s32 *)work = 0xC;
                 func_0045aac0(2, 0, 0);
                 break;
             case 3:
-                *(s32 *)p = 0xE;
+                *(s32 *)work = 0xE;
                 break;
             }
         }
         break;
     case 10:
-        *(s32 *)(p + 0x8C) = func_001110e0();
+        *(s32 *)(work + 0x8C) = func_001110e0();
         func_001113b0();
-        *(s32 *)p = 0xB;
-        *(s32 *)(p + 0x34) = func_002aa300(arg0, 0);
+        *(s32 *)work = 0xB;
+        *(s32 *)(work + 0x34) = func_002aa300(task, 0);
     case 11:
-        tmp = func_002aa3f0();
-        switch (tmp) {
+        result = func_002aa3f0();
+        switch (result) {
         case 1:
             func_00122520(1, 0xA);
-            *(s32 *)(p + 0x1C) = 3;
-            *(s32 *)p = 0x10;
+            *(s32 *)(work + 0x1C) = 3;
+            *(s32 *)work = 0x10;
             break;
         case 2:
-            *(s32 *)p = 8;
-            func_00111160(*(s32 *)(p + 0x8C));
+            *(s32 *)work = 8;
+            func_00111160(*(s32 *)(work + 0x8C));
             break;
         }
         break;
     case 12:
-        *(s32 *)p = 0xD;
+        *(s32 *)work = 0xD;
         func_00122520(1, 0xA);
     case 13:
         if (func_00122720() != 0) {
-            *(s32 *)(p + 0x1C) = 2;
-            *(s32 *)p = 0x10;
+            *(s32 *)(work + 0x1C) = 2;
+            *(s32 *)work = 0x10;
         }
         break;
     case 14:
-        *(s32 *)p = 0xF;
-        *(s32 *)(p + 0x34) = func_0035c690(arg0, 1);
+        *(s32 *)work = 0xF;
+        *(s32 *)(work + 0x34) = func_0035c690(task, 1);
     case 15:
-        if (func_0035c7d0(*(u8 **)(p + 0x34)) != 0) {
-            if (func_0035c810(*(u8 **)(p + 0x34)) != 0) {
+        if (func_0035c7d0(*(u8 **)(work + 0x34)) != 0) {
+            if (func_0035c810(*(u8 **)(work + 0x34)) != 0) {
                 func_00111200();
             }
-            func_00452080(*(u8 **)(p + 0x34));
-            *(s32 *)(p + 0x34) = 0;
-            *(s32 *)p = 8;
+            func_00452080(*(u8 **)(work + 0x34));
+            *(s32 *)(work + 0x34) = 0;
+            *(s32 *)work = 8;
         }
         break;
     case 16:
-        if ((func_00122720() != 0) && (*(s32 *)(p + 0x2C) == 0)) {
-            *(s32 *)(p + 0x18) = *(s32 *)(p + 0x1C);
+        if ((func_00122720() != 0) && (*(s32 *)(work + 0x2C) == 0)) {
+            *(s32 *)(work + 0x18) = *(s32 *)(work + 0x1C);
         }
         break;
     }
-    p = func_00460990();
-    *(void **)(p + 8) = (void *)func_001265a0;
-    *(u8 **)(p + 0x10) = arg0;
-    func_00460ac0(D_00795E60, p);
+    {
+        u8 *drawTask = func_00460990();
+        *(s32 (**)(u8 *))(drawTask + 8) = func_001265a0;
+        *(u8 **)(drawTask + 0x10) = task;
+        func_00460ac0(D_00795E60, drawTask);
+    }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012aa70);
-#endif
+
+#pragma pop
 // FUN_0012B660
 void func_0012b660(u8 *unusedTask)
 {

@@ -25,7 +25,7 @@ extern s32 func_00231e20(s32 arg0);
 extern s32 func_00193260(u8 *arg0);
 extern void func_0043f9c8(void *dst, s32 value, s32 size);
 extern void func_001fc1b0(s16 arg0);
-extern s32 func_002aa300(s32 arg0, s32 arg1);
+extern s32 func_002aa300(u8 *parent, s32 mode);
 extern void func_00144c90(s32 arg0, s32 arg1);
 extern s32 func_003bbb60(u8 *arg0);
 extern s32 iGpffffb3ac;

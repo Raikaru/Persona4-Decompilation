@@ -222,6 +222,179 @@ class LiteralRelocationTests(unittest.TestCase):
         )
 
 
+class IndependentRodataTests(unittest.TestCase):
+    @staticmethod
+    def _fixture(*, high_base=0x4040, low_base=0x4000, wrong_word=False,
+                 missing_low_base=False, collision=False, ambiguous_local=False,
+                 unsupported_reloc=False, duplicate_reloc=False, missing_reloc=False):
+        import struct
+
+        data = bytearray(64)
+        struct.pack_into("<II", data, 0, 4, 12)   # local_target + nonzero addends
+        struct.pack_into("<II", data, 8, 0, 8)    # ext_target + addends
+        high_second = 0 if duplicate_reloc else 4
+        high_type = 5 if unsupported_reloc else 2
+        struct.pack_into("<II", data, 16, 0, (1 << 8) | high_type)
+        struct.pack_into("<II", data, 24, high_second, (1 << 8) | 2)
+        struct.pack_into("<II", data, 32, 0, (2 << 8) | 2)
+        struct.pack_into("<II", data, 40, 4, (2 << 8) | 2)
+
+        empty = lambda index: {"idx": index, "name": "", "type": 0, "flags": 0,
+                               "size": 0, "offset": 0, "addralign": 1,
+                               "entsize": 0, "info": 0, "link": 0}
+        sh = [empty(index) for index in range(9)]
+        sh[1] = {**empty(1), "name": ".symtab", "type": 2}
+        sh[2] = {**empty(2), "name": ".text", "type": 1, "flags": 6,
+                 "addralign": 16}
+        sh[3] = {**empty(3), "name": ".rodata", "type": 1, "flags": 2,
+                 "size": 8, "offset": 0, "addralign": 16}
+        sh[4] = {**empty(4), "name": ".rel.rodata", "type": 9,
+                 "size": 8 if missing_reloc else 16,
+                 "offset": 16, "addralign": 4, "entsize": 8, "info": 3, "link": 1}
+        if collision:
+            sh[5] = {**empty(5), "name": ".rodata.p4_3", "type": 1}
+        sh[7] = {**empty(7), "name": ".rodata", "type": 1, "flags": 2,
+                 "size": 8, "offset": 8, "addralign": 16}
+        sh[8] = {**empty(8), "name": ".rel.rodata.2", "type": 9, "size": 16,
+                 "offset": 32, "addralign": 4, "entsize": 8, "info": 7, "link": 1}
+
+        null = {"name": "", "shndx": 0, "value": 0, "size": 0, "info": 0}
+        local_target = {"name": "local_target", "shndx": 2, "value": 0,
+                        "size": 4, "info": 0x12}
+        external_target = {"name": "ext_target", "shndx": 0, "value": 0,
+                           "size": 0, "info": 0x10}
+        table_high = {"name": "@high", "shndx": 3, "value": 0, "size": 8, "info": 1}
+        table_low = {"name": "@low", "shndx": 7, "value": 0, "size": 8, "info": 1}
+        obj = mock.Mock()
+        obj.data = bytes(data)
+        obj.sh = sh
+        obj.sections = sh
+        obj.symtabs = {1: [null, local_target, external_target]}
+        obj.symbols = [null, local_target, external_target, table_high, table_low]
+
+        def reference(symbol, base):
+            body = struct.pack("<II", 0, 0)
+            relocations = [
+                {"offset": 0, "r_type": 5, "symbol": symbol},
+                {"offset": 4, "r_type": 6, "symbol": symbol},
+            ]
+            retail_body = struct.pack("<II", (base >> 16) & 0xFFFF, base & 0xFFFF)
+            return body, relocations, retail_body
+
+        high_body, high_relocs, retail_high_ref = reference("@high", high_base)
+        low_body, low_relocs, retail_low_ref = reference("@low", low_base)
+        if missing_low_base:
+            low_relocs = []
+            retail_low_ref = low_body
+        functions = {
+            "ref_high": (high_body, high_relocs),
+            "ref_low": (low_body, low_relocs),
+            "local_target": (b"", []),
+        }
+        obj.function.side_effect = lambda name: functions[name]
+        real = [
+            {"name": "ref_high", "addr": 0x1000},
+            {"name": "ref_low", "addr": 0x1100},
+            {"name": "local_target", "addr": 0x1200},
+        ]
+        if ambiguous_local:
+            real.append({"name": "local_target", "addr": 0x1300})
+        high_payload = struct.pack("<II", 0x1204, 0x120C)
+        if wrong_word:
+            high_payload = struct.pack("<II", 0x1204, 0x1210)
+        memory = {
+            0x1000: retail_high_ref,
+            0x1100: retail_low_ref,
+            0x1200: b"",
+            0x1300: b"",
+            high_base: high_payload,
+            low_base: struct.pack("<II", 0x2200, 0x2208),
+        }
+        retail = mock.Mock()
+        retail.bytes_at.side_effect = lambda address, size: memory[address][:size]
+        return obj, real, retail
+
+    def test_gapped_reversed_rodata_tables_are_independently_proven(self) -> None:
+        obj, real, retail = self._fixture()
+        self.assertEqual(
+            build.plan_data_sections(obj, real, retail, 0x5000, {"ext_target"}),
+            (False, {}),
+        )
+        self.assertEqual(
+            build.plan_data_sections(obj, real, retail, 0x5000, {"ext_target"},
+                                     independent_literals=True),
+            (False, {}),
+        )
+        self.assertEqual(
+            build.plan_data_sections(
+                obj, real, retail, 0x5000, {"ext_target"}, independent_rodata=True,
+                symbol_addresses={"ext_target": 0x2200}),
+            (True, {".rodata.p4_3": (0x4040, 8), ".rodata.p4_7": (0x4000, 8)}),
+        )
+
+    def test_independent_rodata_rejects_unproven_or_conflicting_tables(self) -> None:
+        cases = [
+            ("wrong word", {"wrong_word": True}, {"ext_target": 0x2200}),
+            ("unknown external", {}, {}),
+            ("rename collision", {"collision": True}, {"ext_target": 0x2200}),
+            ("overlap", {"high_base": 0x4000, "low_base": 0x4000}, {"ext_target": 0x2200}),
+            ("ambiguous local", {"ambiguous_local": True}, {"ext_target": 0x2200}),
+            ("conflicting local map", {}, {"ext_target": 0x2200, "local_target": 0x1300}),
+            ("unsupported relocation", {"unsupported_reloc": True}, {"ext_target": 0x2200}),
+            ("duplicate relocation", {"duplicate_reloc": True}, {"ext_target": 0x2200}),
+            ("missing relocation", {"missing_reloc": True}, {"ext_target": 0x2200}),
+        ]
+        for label, fixture_options, addresses in cases:
+            with self.subTest(label=label):
+                obj, real, retail = self._fixture(**fixture_options)
+                self.assertEqual(
+                    build.plan_data_sections(
+                        obj, real, retail, 0x5000, set(addresses), independent_rodata=True,
+                        symbol_addresses=addresses),
+                    (False, {}),
+                )
+
+        obj, real, retail = self._fixture(missing_low_base=True)
+        with mock.patch.object(build, "recover_concatenated_layout", return_value=None):
+            self.assertEqual(
+                build.plan_data_sections(
+                    obj, real, retail, 0x5000, {"ext_target"}, independent_rodata=True,
+                    symbol_addresses={"ext_target": 0x2200}),
+                (False, {}),
+            )
+
+    def test_prepare_link_objects_only_renames_validated_rodata_shape(self) -> None:
+        obj, _real, _retail = self._fixture()
+        owner = {"ranges": [], "funcs": [], "sections": {".rodata.p4_3": (0x4040, 8)},
+                 "text_run_count": 1}
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "unit.o"
+            path.write_bytes(b"native")
+            renamed = []
+            with (
+                mock.patch.object(build, "rename_text_sections"),
+                mock.patch.object(build, "rename_sections",
+                                  side_effect=lambda _path, names, **_kwargs: renamed.append(names)),
+                mock.patch.object(build.V, "ObjectFile", return_value=obj),
+            ):
+                objects, entries = build.prepare_link_objects(path, owner, "gnu")
+        self.assertEqual(objects, [path])
+        self.assertEqual(entries, [(0x4040, path, ".rodata.p4_3")])
+        self.assertEqual(renamed, [{3: ".rodata.p4_3"}])
+
+        obj.sh[4]["type"] = 4
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "unit.o"
+            path.write_bytes(b"native")
+            with (
+                mock.patch.object(build, "rename_text_sections"),
+                mock.patch.object(build, "rename_sections"),
+                mock.patch.object(build.V, "ObjectFile", return_value=obj),
+            ):
+                with self.assertRaisesRegex(ValueError, "shape changed"):
+                    build.prepare_link_objects(path, owner, "gnu")
+
+
 class MissingDefinitionTests(unittest.TestCase):
     def test_defines_only_referenced_unexported_known_symbols(self) -> None:
         definitions = {"already_defined": 0x1000}
@@ -392,6 +565,109 @@ class SonySdkLinkingTests(unittest.TestCase):
                 "// FUN_001014b0\nvoid game_func(void) {}\n"
             )
             self.assertFalse(build.is_pure_sdk_source(mixed_path))
+
+
+class CarvedCodeBuildTests(unittest.TestCase):
+    @staticmethod
+    def _instruction(address: int) -> str:
+        return f"    /* {address - 0x1000:06X} {address:08X} 00000000 */ nop\n"
+
+    def test_carves_interval_union_across_partial_blocks_and_boundaries(self) -> None:
+        """Overlapping/nested ranges carve their union while gaps and exact end
+        boundaries remain in the same chunk indices defined by range starts.
+
+        The zero-length range at 0x1038 does not carve its address, but it still
+        advances the chunk index, preserving the existing placement convention.
+        """
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            asm_dir = root / "asm"
+            obj_dir = root / "obj"
+            asm_dir.mkdir()
+            obj_dir.mkdir()
+            image = root / "image.bin"
+            image.write_bytes(b"\0" * 0x100)
+            source = asm_dir / "code_probe.s"
+            source.write_text(
+                ".section .text\n"
+                ".set noreorder\n"
+                "nonmatching probe\n"
+                "glabel probe\n"
+                + self._instruction(0x100C)
+                + "leaked_label:\n"
+                + self._instruction(0x1010)
+                + self._instruction(0x101C)
+                + self._instruction(0x102F)
+                + "gap_label:\n"
+                + self._instruction(0x1030)
+                + self._instruction(0x1038)
+                + self._instruction(0x103C)
+                + self._instruction(0x1040)
+                + self._instruction(0x104F)
+                + self._instruction(0x1050)
+                + "endlabel probe\n"
+            )
+            owner = {
+                "ranges": [
+                    (0x1010, 0x1014),       # nested, duplicate start
+                    (0x1010, 0x1020),
+                    (0x1018, 0x1030),       # overlapping continuation
+                    (0x1038, 0x1038),       # zero length
+                    (0x1040, 0x1050),
+                ]
+            }
+            assembled = {}
+
+            def fake_assemble(path, obj, *_args, **_kwargs):
+                lines = path.read_text().splitlines(keepends=True)
+                assembled[path.name] = "".join(lines)
+                obj.write_bytes(b"object")
+                return True, "", lines
+
+            entries = []
+            with (
+                mock.patch.object(build, "ASM", asm_dir),
+                mock.patch.object(build, "OBJ", obj_dir),
+                mock.patch.object(build, "IMAGE", image),
+                mock.patch.object(build, "VRAM", 0x1000),
+                mock.patch.object(build.V, "code_origin", return_value="main"),
+                mock.patch.object(build, "build_sony_sdk_objects", return_value=[]),
+                mock.patch.object(build.A, "assemble", side_effect=fake_assemble),
+                mock.patch.object(build, "patch_align1"),
+            ):
+                result = build.build_code_carved({}, "code_probe", 0, 0x100, [owner], entries, {})
+
+            self.assertEqual(result, [])
+            self.assertEqual([address for address, _obj, _section in entries],
+                             [0x100C, 0x1030, 0x1038, 0x1050])
+            self.assertEqual(sorted(assembled),
+                             ["code_probe_0.s", "code_probe_3.s", "code_probe_4.s", "code_probe_5.s"])
+            retained = []
+            for text in assembled.values():
+                retained.extend(int(match.group(1), 16) for match in build.BYTES_RE.finditer(text))
+            self.assertEqual(sorted(retained), [0x100C, 0x1030, 0x1038, 0x103C, 0x1050])
+            self.assertNotIn("leaked_label:", "".join(assembled.values()))
+            self.assertIn("gap_label:", assembled["code_probe_3.s"])
+            self.assertIn("endlabel probe", assembled["code_probe_5.s"])
+
+    def test_sdk_overlap_with_c_range_is_still_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            asm_dir = root / "asm"
+            asm_dir.mkdir()
+            (asm_dir / "code_probe.s").write_text(
+                "nonmatching probe\n" + self._instruction(0x1010)
+            )
+            sdk_objects = [{"start": 0x1018, "end": 0x1028, "funcs": []}]
+            owner = {"ranges": [(0x1010, 0x1020)]}
+            with (
+                mock.patch.object(build, "ASM", asm_dir),
+                mock.patch.object(build, "VRAM", 0x1000),
+                mock.patch.object(build.V, "code_origin", return_value="main"),
+                mock.patch.object(build, "build_sony_sdk_objects", return_value=sdk_objects),
+            ):
+                with self.assertRaisesRegex(ValueError, "overlaps a linked C object"):
+                    build.build_code_carved({}, "code_probe", 0, 0x100, [owner], [], {})
 
 
 if __name__ == "__main__":
