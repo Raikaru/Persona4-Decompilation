@@ -105,6 +105,23 @@ donor-port matches were excluded from boundary inference. The generated
 owner files retain the old function bodies, declarations and pragma order;
 they do not claim that their inferred filenames are recovered debug data.
 
+A donor cross-check finds 52 former grouped addresses whose proven PS2
+function name has a unique translation unit in the TWEWY source map: 51
+agree with the assigned owner. The exception is `ADXF_Init` at `004c6d10`:
+the Nintendo DS tree places that name in `adx_f.c`, while Persona 4's
+adjacent `ADXF_Ocbi` (`004c6cf0`) and the current split place it in
+`adx_fcch.c`. A cross-platform name-to-unit lookup cannot settle that
+boundary, so neither filename is asserted as a recovered Persona 4 TU.
+
+The separate `src/middleware/gcc_ee_grouped.c` has 47 toolchain-classified
+markers. Masked-exact PS2 donor matches for 13 addresses in the
+`004e3dc8`–`004e4648` neighbourhood carry SRD-family names in at least
+three reference binaries. Two short bodies match multiple SRD names;
+another tiny tail jump at `004460f0` matches unrelated functions, while
+33 markers have no exact donor name in those references. This supports an
+SRD subsystem neighbourhood, not original vendor/TU boundaries. Leave
+the GCC group intact rather than promoting an inferred source filename.
+
 The scoped before/after verifier compares all 2,476 original CRI rows
 (including the five untouched wrappers): status and `normalized_diff` did
 not change. The full linker build separately checks both retail SHA-1s.

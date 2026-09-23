@@ -4,10 +4,10 @@
 Every recovered name maps one canonical function address to a real identifier
 (``Name = 0xADDRESS; // type:func  evidence: ...``, the same curated line
 contract that ``tools/reconcile_function_boundaries.py`` enforces).  The
-placeholder identifier ``func_<address>`` is renamed to that name in every code
-context of every ``src/**/*.c`` file (excluding ``src/generated``): function
-definitions, forward declarations, extern prototypes, call sites, and
-function-pointer references.
+placeholder identifier ``func_<address>`` is renamed in C definitions,
+declarations, call sites, and function-pointer references. The second argument
+of ``INCLUDE_ASM`` is a filename and linker symbol, not a renameable C call;
+renaming an address still referenced by any fallback or assembly is refused.
 
 Renames are whole identifiers only (``func_001a1100`` never touches
 ``func_001a11001``) and are restricted to code: comments and string/char
@@ -17,8 +17,9 @@ not on the C function name below it).  Files are written in BINARY mode with
 their original line endings, so a run is byte-preserving apart from the
 identifier swaps themselves.
 
-``--check`` reports every rename that *would* happen and exits non-zero, so CI
-can assert the tree is fully applied; a fully applied tree exits 0.
+``--check`` reports pending C renames without changing files, including
+addresses that cannot yet be applied safely because assembly still links by
+their placeholder names. It exits non-zero until the backlog is resolved.
 """
 
 from __future__ import annotations
@@ -60,6 +61,13 @@ EMBEDDED_PLACEHOLDER = re.compile(
 # be either case in hand-written sources, so both are mapped through the
 # address.  Both sides are word-boundary-checked: no substring renames.
 CODE_IDENT = re.compile(r"(?<![A-Za-z0-9_])func_([0-9a-fA-F]{8})(?![A-Za-z0-9_])")
+# The second INCLUDE_ASM argument names an on-disk .s file. Match on sanitized
+# source so comments/strings cannot masquerade as macro syntax; allow multiline
+# macro invocations without swallowing any other identifier on that line.
+ASM_ARG = re.compile(
+    r"\bINCLUDE_ASM\s*\(\s*[^,()]*,\s*(func_[0-9a-fA-F]{8})\s*\)"
+)
+
 
 
 def canonical_addresses(root: Path) -> set[int]:
@@ -124,13 +132,19 @@ def plan_file(path: Path, names: dict[int, str]) -> list[tuple[int, int, int, st
     text = path.read_bytes().decode("utf-8")
     lines = text.split("\n")
     sanitized = sanitize_c_lines(lines)
+    clean_text = "\n".join(sanitized)
+    asm_args = {match.start(1) for match in ASM_ARG.finditer(clean_text)}
     changes: list[tuple[int, int, int, str, str]] = []
-    for index, (original, clean) in enumerate(zip(lines, sanitized), 1):
+    offset = 0
+    for index, clean in enumerate(sanitized, 1):
         for match in CODE_IDENT.finditer(clean):
+            if offset + match.start() in asm_args:
+                continue
             address = int(match.group(1), 16)
             name = names.get(address)
             if name is not None and match.group(0) != name:
                 changes.append((index, match.start(), match.end(), match.group(0), name))
+        offset += len(clean) + 1
     return changes
 
 
@@ -159,6 +173,31 @@ def rewrite(path: Path, changes: list[tuple[int, int, int, str, str]]) -> int:
         lines[index - 1] = "".join(out)
     path.write_bytes("\n".join(lines).encode("utf-8"))
     return len(changes)
+
+
+def assembly_names(root: Path) -> set[int]:
+    """Addresses whose old linker symbols still occur in assembly or fallbacks."""
+    addresses: set[int] = set()
+    manifest = root / "config" / "generated_asm.json"
+    if manifest.is_file():
+        # A partial generated fallback tree cannot prove that an assembly
+        # caller is absent. Fail closed before rewriting any C source.
+        generated = json.loads(manifest.read_text(encoding="utf-8"))["generated"]
+        missing = next(
+            (item["path"] for item in generated if not (root / item["path"]).is_file()),
+            None,
+        )
+        if missing is not None:
+            raise RuntimeError(f"assembly inventory incomplete ({missing}); regenerate it before renaming")
+    for path in source_files(root):
+        clean = "\n".join(sanitize_c_lines(path.read_text(encoding="utf-8").split("\n")))
+        addresses.update(int(match.group(1)[5:], 16) for match in ASM_ARG.finditer(clean))
+    for path in (root / "asm").rglob("*.s"):
+        addresses.update(
+            int(match.group(1), 16)
+            for match in CODE_IDENT.finditer(path.read_text(encoding="utf-8"))
+        )
+    return addresses
 
 
 def run(root: Path, paths: list[str], check: bool) -> int:
@@ -197,6 +236,16 @@ def run(root: Path, paths: list[str], check: bool) -> int:
             return 1
         print("all curated names are applied; nothing to do")
         return 0
+    pending = {int(old[5:], 16) for changes in planned.values()
+               for _line, _start, _end, old, _new in changes}
+    unsafe = pending & assembly_names(root)
+    if unsafe:
+        examples = ", ".join(f"func_{addr:08x}" for addr in sorted(unsafe)[:8])
+        raise RuntimeError(
+            f"cannot rename assembly-linked addresses ({examples}); "
+            "INCLUDE_ASM filenames and assembly call targets still use their original names"
+        )
+
 
     for path in sorted(planned):
         count = rewrite(path, planned[path])
