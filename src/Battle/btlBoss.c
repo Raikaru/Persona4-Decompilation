@@ -50,8 +50,10 @@ extern char D_00635668[];
 
 
 
+/* Full-word zero/one predicate, shared with formation placement.
+ * Both provider and caller retain their original native code. */
 // FUN_0022FB90
-u8 func_0022fb90(BtlUnit* first, BtlUnit* second)
+s32 func_0022fb90(BtlUnit* first, BtlUnit* second)
 {
     if ((*(u32*)(DAT_0076449c + 0xc) & 0x200000) == 0)
     {

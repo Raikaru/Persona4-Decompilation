@@ -141,82 +141,119 @@ void func_001d1eb0(u32 param_1, u32 param_2, float param_3, u16 param_4)
 
 
 
-/* measured: base 819wd via probe_variants (retail 916 instrs/window 3680B, object 900 instrs; fnalign 916/900). De-noised m2c.c (436 lines, 11 M2C_ERROR VU adda/msub/madd) + rw.c (371) + rw_raw (340) + IDA (499) + Ghidra (445) into file idiom (u8 plus offsets, f32 vectors, D_0076449C + fGpffff809c, truthful u8-ptr/f32-ptr/void-ptr callees per btlUnit/btlBoss/code1_001f, MACs as plain C with +0.0f). Levers: defer count6A/flag loads 844->819, drop unused cand tie, lh->lhu tie, dispatch swap tie. Frame -0x170 vs retail -0x160 (16B over). Honest stack, no volatile/asm. Banked floor; production stays ASM. */
-/* 2026-09-18, handoff 7o eight probes on unitB/other pair (both bare decls, no initialisers); function-scope BO/BO 819 (tie, this body), BO/OB 820, OB/BO 820, OB/OB 820; outer-block-scope BO/BO 820, BO/OB 820, OB/BO 820, OB/OB 820. Reversal +1, decl swap +1, block scope +1; order already retail's, exchange survives (residual 819 not pair-driven). Floor stands; production stays ASM. */
-/* kind-swap 2026-09-19: retail puts kind==0 first at 0x001d1f98 and kind==1 last at 0x001d2a80; source had them reversed. Swapping the arms collapses four runs of 678/555/182/65 into 170 scattered runs of at most 11. Words did not move at all - 819 before and after - while edits fell 1575->425 (-1150). Cleanest demonstration that relocation must be judged on edits (handoff 7y/7aq). Residual now readable: 900/916 (16 short, deletes 11+4+4+1+1=21 minus inserts 3+1+1=5), largest delete 11 at retail[259:270] (func_001951f0 t2=1 arm). */
-/* measured 001d1f30 (owner, 2026-09-19): fnalign **416 -> 399 edits** by writing the `tmp`
-   dispatch as a `switch` with the OR-ed equalities as fallthrough cases.  A plain
-   chain-to-switch conversion that treats `(tmp == a) || (tmp == b)` as one compound
-   condition only reaches 413; recognising it as two cases sharing a body is worth the
-   other 14. */
-// FUN_001D1F30 NONMATCHING
-#ifdef NON_MATCHING
-u32 func_001d1f30(u32 *work) {
-    extern void func_00195850(u8 *arg0, f32 *arg1);
-    extern void func_00195aa0(u8 *arg0, u8 *arg1, f32 *arg2);
-    extern void func_001958f0(u8 *arg0, f32 *arg1);
-    extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, void *outCenter, void *outTop, void *outBottom, u32 options);
-    extern s32 func_00199d00(s32 unused, u8 *arg1, s64 arg2, s32 arg3);
-    extern s32 func_001f1210(u8 *arg0, s64 arg1, s32 arg2);
-    extern void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, f32 *arg4, f32 *arg5, s32 arg6);
-    extern u16 func_001eb440(void *arg0);
-    extern void func_001ec1c0(void *out, void *first, void *second);
-    extern f32 func_001ec3d0(void *first, void *second, void *point, void *out);
-    extern void func_003dcb40(void *out, const void *in, s32 count, const void *rot);
-    extern f32 func_003e4180(f32 *value);
-    extern f32 func_003e41b0(f32 *value);
-    extern s32 func_001f0ff0(u32 arg0);
-    extern s32 func_001f11e0(s64 arg0);
-    extern s32 func_0022fb90(void *first, void *second);
-    extern s32 func_0022fc00(void *arg0);
-    extern u32 func_0022fce0(void *first, void *second);
+struct BtlUnit;
+struct BtlTarget;
+struct RwV3d;
+struct RtQuat;
+
+static inline f32 formationRadius(const u8 *unit)
+{
+    f32 scale = *(const f32 *)(unit + 0x2C);
+    return *(const f32 *)(unit + 0x90) * scale;
+}
+/* Native b210 O2: 3668/3680 bytes, 73 resolved relocations and
+ * twelve zero alignment bytes. Preserve the original target/companion
+ * geometry and phase-specific vector lifetimes. See
+ * docs/probe_archive/Formation_001d1f30_20260923.md. */
+#pragma push
+#pragma opt_propagation off
+#pragma opt_lifetimes on
+// FUN_001D1F30
+u32 func_001d1f30(u32 *work)
+{
+    extern void func_00194ee0(struct BtlUnit *, const struct RwV3d *);
+    extern void func_00194f10(struct BtlUnit *, const struct RtQuat *);
+    extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
+    extern void func_00195850(struct BtlUnit *, struct RwV3d *);
+    extern void func_00195aa0(struct BtlUnit *, struct BtlUnit *, struct RwV3d *);
+    extern void func_001958f0(struct BtlUnit *, struct RwV3d *);
+    extern f32 func_00196040(u32, u32, struct RwV3d *, f32 *, f32 *, u32);
+    extern s32 func_00199d00(s32, u8 *, s64, s32);
+    extern s32 func_001f1210(u8 *unit, s64 action, s32 paired);
+    extern void func_001951f0(u8 *unit, u8 *target, u8 *partner, s32 category,
+                            f32 *position, f32 *rotation, s32 options);
+    extern u16 func_001eb440(struct BtlTarget *);
+    extern void func_001ec1c0(u8 *, u8 *, u8 *);
+    extern f32 func_001ec3d0(u8 *, u8 *, u8 *, u8 *);
+    extern struct RwV3d *func_003dcb40(struct RwV3d *, const struct RwV3d *, s32, const struct RtQuat *);
+    extern f32 func_003e4180(f32 *vector);
+    extern f32 func_003e41b0(f32 *vector);
+    extern s32 func_001f0ff0(u32 action);
+    extern s32 func_001f11e0(s64 action);
+    extern s32 func_0022fb90(struct BtlUnit *, struct BtlUnit *);
+    extern s32 func_0022fc00(u8 *);
+    extern u32 func_0022fce0(s32, s32);
+    extern u8 *iGpffffb3ac;
     extern f32 fGpffff809c;
+    typedef struct { f32 v[3]; } Vec3;
     u8 *base;
     u8 *unitA;
     u8 *unitB;
     u8 *other;
-    u8 *node;
+    u8 *nearestNode;
+    u8 *spacingNode;
+    u8 *groupNode;
+    u8 *actionTarget;
+    u8 *groupTarget;
+    s32 found;
+    u8 *groupUnit;
     u8 *entry;
-    s16 h6E;
+    u16 h6E;
     u8 kind;
     s32 tmp;
     s32 sel;
     s32 isClose;
-    s32 found;
+    s32 companionNeedsMove;
     s32 bestFlag;
+    u32 targetCount;
     u16 i;
-    f32 quat[4];
     f32 centerA[3];
-    f32 centerB[3];
-    f32 tmpF0[3];
+    Vec3 centerB;
+    Vec3 best;
     f32 diff[3];
     f32 dest[3];
-    f32 best[3];
-    f32 tmpC8[2];
-    f32 tmpB0[4];
     f32 tmp100[3];
+    Vec3 tmpF0;
+    Vec3 tmpE0;
     f32 tmpD0[3];
-    f32 tmpC0[3];
-    f32 tmpE0[3];
+    f32 query[2];
+    f32 delta[2];
+    f32 line[2];
+    f32 projection[2];
+    f32 quat[4];
     f32 len;
-    f32 adj;
-    f32 bestLen;
     f32 radiusA;
+    f32 extraDistance;
+    f32 adj;
     f32 radiusB;
+    f32 companionScale;
+    f32 bestLen;
     f32 scale;
+    f32 centerX;
     f32 extent;
     f32 dist2;
+    f32 minimumSpacing;
+    f32 projectedY;
+    f32 projectedZ;
+    f32 otherRadius;
+    f32 offsetDistance;
+    f32 targetScale;
+    f32 groupRadius;
+    f32 farthestDistance;
+    f32 groupDistance;
+
     base = *(u8 **)work;
-    h6E = *(s16 *)(base + 0x6E);
-    kind = *(u8 *)(*(u32 *)(base + 0x30) + 0xA2);
-    if (kind == 0) {
-        func_001f11e0((s64)h6E);
+    h6E = *(u16 *)(base + 0x6E);
+    kind = *(u8 *)(*(u8 **)(base + 0x30) + 0xA2);
+    switch (kind) {
+    case 0:
+        func_001f11e0((s64)(s16)h6E);
         if (func_001f0ff0((u32)base) == 1) {
             unitA = *(u8 **)(base + 0x38);
             if (base == unitA) {
                 return 1;
             }
-            if ((*(u32 *)(D_0076449C + 0x10) & 0x1000000) != 0) {
+            if ((*(u32 *)(iGpffffb3ac + 0x10) & 0x1000000) != 0) {
                 return 1;
             }
             if (func_0022fc00(base) == 0) {
@@ -225,287 +262,304 @@ u32 func_001d1f30(u32 *work) {
             unitB = *(u8 **)(base + 0x30);
             other = *(u8 **)(unitA + 0x30);
             entry = *(u8 **)(unitB + 0xA0C);
-            if (func_0022fb90(unitB, other) != 0) {
-                *(u32 *)(D_0076449C + 0xC) = *(u32 *)(D_0076449C + 0xC) | 0x400000;
-                *(u16 *)(D_0076449C + 0x18) = *(u16 *)(D_0076449C + 0x18) | 0xE;
+            if (func_0022fb90((struct BtlUnit *)(unitB), (struct BtlUnit *)(other)) != 0) {
+                *(u32 *)(iGpffffb3ac + 0xC) |= 0x400000;
+                *(u16 *)(iGpffffb3ac + 0x18) |= 0xE;
             }
-            func_00195850(unitB, centerA);
-            func_00195aa0(other, unitB, centerB);
-            centerB[1] = *(f32 *)(unitB + 8);
-            tmpF0[2] = centerB[2];
-            if ((work[2] == 1) && (other != unitB) && (func_0022fce0(unitB, other) != 0)) {
-                if ((*(u32 *)(D_0076449C + 0xC) & 0x200000) == 0) {
-                    func_00195850(other, tmpC0);
-                    func_001ec1c0(quat, tmpC0, centerA);
+            func_00195850((struct BtlUnit *)(unitB), (struct RwV3d *)(centerA));
+            func_00195aa0((struct BtlUnit *)(other), (struct BtlUnit *)(unitB), (struct RwV3d *)((f32 *)&centerB));
+            centerB.v[1] = *(f32 *)(unitB + 8);
+            centerA[1] = centerB.v[1];
+            if (work[2] == 1 && other != unitB && func_0022fce0((s32)(unitB), (s32)(other)) != 0) {
+                if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
+                    func_00195850((struct BtlUnit *)(other), (struct RwV3d *)((f32 *)&tmpF0));
+                    func_001ec1c0((u8 *)(quat), (u8 *)((f32 *)&tmpF0), (u8 *)(centerA));
+                    centerX = *(f32 *)(other + 0x80);
                     scale = *(f32 *)(other + 0x2C);
-                    tmp100[0] = *(f32 *)(other + 0x80) * scale;
-                    tmp100[1] = *(f32 *)(other + 0x84) * scale;
-                    tmp100[2] = *(f32 *)(other + 0x88) * scale;
-                    func_003dcb40(diff, tmp100, 1, quat);
-                    dest[0] = tmpC0[0] - diff[0];
-                    dest[1] = tmpC0[1] - diff[1];
-                    dest[2] = tmpC0[2] - diff[2];
-                    tmpC0[1] = *(f32 *)(other + 8);
-                    dest[1] = tmpC0[1];
-                    func_00194ee0(other, dest);
-                    func_001ec1c0(quat, dest, unitB + 4);
-                    func_00194f10(other, quat);
-                    centerB[0] = tmpC0[0];
-                    centerB[1] = tmpC0[1];
-                    centerB[2] = tmpC0[2];
+                    dest[0] = centerX * scale;
+                    dest[1] = *(f32 *)(other + 0x84) * scale;
+                    dest[2] = *(f32 *)(other + 0x88) * scale;
+                    func_003dcb40((struct RwV3d *)(diff), (const struct RwV3d *)(dest), 1, (const struct RtQuat *)(quat));
+                    dest[0] = tmpF0.v[0] - diff[0];
+                    dest[1] = tmpF0.v[1] - diff[1];
+                    dest[2] = tmpF0.v[2] - diff[2];
+                    tmpF0.v[1] = *(f32 *)(other + 8);
+                    dest[1] = tmpF0.v[1];
+                    func_00194ee0((struct BtlUnit *)(other), (const struct RwV3d *)(dest));
+                    func_001ec1c0((u8 *)(quat), (u8 *)(dest), (u8 *)(unitB + 4));
+                    func_00194f10((struct BtlUnit *)(other), (const struct RtQuat *)(quat));
+                    centerB = tmpF0;
                 } else {
-                    func_001ec1c0(quat, centerB, centerA);
-                    func_00194f10(other, quat);
+                    func_001ec1c0((u8 *)(quat), (u8 *)((f32 *)&centerB), (u8 *)(centerA));
+                    func_00194f10((struct BtlUnit *)(other), (const struct RtQuat *)(quat));
                 }
                 func_00196ba0(other);
                 func_0019dea0(other);
             }
             if (work[1] == 1) {
-                diff[0] = centerA[0] - centerB[0];
-                diff[1] = centerA[1] - centerB[1];
-                diff[2] = centerA[2] - centerB[2];
+                diff[0] = centerA[0] - centerB.v[0];
+                diff[1] = centerA[1] - centerB.v[1];
+                diff[2] = centerA[2] - centerB.v[2];
                 diff[1] = 0.0f;
                 len = func_003e40b0(diff, diff);
                 radiusA = *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
-                bestLen = 0.0f;
-                if (entry != 0) {
-                    isClose = func_001f1210(entry, (s64)h6E, 1);
-                    sel = func_00199d00((s32)entry, unitB, (s64)h6E, 1);
-                    adj = (len + 0.0f) - radiusA;
+                extraDistance = 0.0f;
+                /* The null-companion path supplies no isClose value in
+                 * retail; only the later distance clamp may set it. */
+                if (entry != NULL) {
+                    isClose = func_001f1210(entry, (s64)(s16)h6E, 1);
+                    sel = (s16)func_00199d00((s32)((s32)entry), unitB, (s64)(s16)h6E, 1);
+                    len = (0.0f + len) - *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
                     if (isClose == 0) {
-                        tmp = func_00199d00((s32)entry, unitB, (s64)h6E, 1);
+                        tmp = (s16)func_00199d00((s32)((s32)entry), unitB, (s64)(s16)h6E, 1);
                         switch (tmp) {
                         case 0:
                         case 2:
-                            func_001951f0(entry, unitB, other, sel, dest, 0, 0);
+                            func_001951f0(entry, unitB, other, sel, dest, NULL, 0);
                             break;
                         case 1:
                         case 3:
-                            func_001951f0(entry, unitB, other, sel, dest, 0, 1);
+                            func_001951f0(entry, unitB, other, sel, dest, NULL, 1);
                             break;
                         }
                     } else {
-                        func_001951f0(entry, unitB, other, sel, dest, 0, 2);
+                        func_001951f0(entry, unitB, other, sel, dest, NULL, 2);
                     }
-                    diff[0] = centerB[0] - centerA[0];
-                    diff[1] = centerB[1] - centerA[1];
-                    diff[2] = centerB[2] - centerA[2];
+                    diff[0] = centerB.v[0] - centerA[0];
+                    diff[1] = centerB.v[1] - centerA[1];
+                    diff[2] = centerB.v[2] - centerA[2];
                     diff[1] = 0.0f;
                     func_003e40b0(diff, diff);
-                    tmp100[0] = centerB[0] + diff[0] * 1000.0f;
-                    tmp100[1] = centerB[1] + diff[1] * 1000.0f;
-                    tmp100[2] = centerB[2] + diff[2] * 1000.0f;
-                    diff[0] = dest[0] - tmp100[0];
-                    diff[1] = dest[1] - tmp100[1];
-                    diff[2] = dest[2] - tmp100[2];
+                    diff[0] *= 1000.0f;
+                    diff[1] *= 1000.0f;
+                    diff[2] *= 1000.0f;
+                    tmpD0[0] = centerB.v[0] + diff[0];
+                    tmpD0[1] = centerB.v[1] + diff[1];
+                    tmpD0[2] = centerB.v[2] + diff[2];
+                    diff[0] = dest[0] - tmpD0[0];
+                    diff[1] = dest[1] - tmpD0[1];
+                    diff[2] = dest[2] - tmpD0[2];
                     diff[1] = 0.0f;
                     func_003e40b0(diff, diff);
-                    tmpD0[0] = dest[0] - centerB[0];
-                    tmpD0[1] = dest[1] - centerB[1];
-                    tmpD0[2] = dest[2] - centerB[2];
+                    tmpD0[0] = dest[0] - centerB.v[0];
+                    tmpD0[1] = dest[1] - centerB.v[1];
+                    tmpD0[2] = dest[2] - centerB.v[2];
                     tmpD0[1] = 0.0f;
                     extent = func_003e4180(tmpD0);
-                    radiusB = *(f32 *)(entry + 0x90) * *(f32 *)(entry + 0x2C);
+                    companionScale = *(f32 *)(entry + 0x2C);
+                    radiusB = *(f32 *)(entry + 0x90) * companionScale;
                     adj = extent - radiusB;
-                    if (isClose == 0) {
-                        len = (len + 0.0f) - radiusA;
-                        if (adj + radiusB <= (*(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C)) + len + 0.0f) {
+                    companionNeedsMove = isClose;
+                    if (companionNeedsMove == 0) {
+                        if ((0.0f + len) + *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C) < adj + radiusB) {
+                            isClose = companionNeedsMove;
+                        } else {
+                            len = adj;
+                            radiusA = radiusB;
                             tmp100[0] = centerA[0] - dest[0];
                             tmp100[1] = centerA[1] - dest[1];
                             tmp100[2] = centerA[2] - dest[2];
                             tmp100[1] = 0.0f;
-                            bestLen = func_003e40b0(tmp100, tmp100);
-                            radiusA = radiusB;
-                            len = adj;
+                            extraDistance = func_003e40b0(tmp100, tmp100);
                         }
                     } else {
                         radiusA = radiusB;
-                        func_001951f0(entry, unitB, 0, -1, dest, 0, 0);
+                        func_001951f0(entry, unitB, NULL, -1, dest, NULL, 0);
                         dest[0] = centerA[0];
                         dest[1] = centerA[1];
-                        tmp100[0] = centerA[0] - centerA[0];
-                        tmp100[1] = centerA[1] - centerA[1];
+                        tmp100[0] = dest[0] - centerA[0];
+                        tmp100[1] = dest[1] - centerA[1];
                         tmp100[2] = dest[2] - centerA[2];
-                        bestLen = func_003e4180(tmp100);
-                        len = adj;
-                        if (bestLen + adj + radiusB <= (len + 0.0f)) {
-                            bestLen = 0.0f;
-                            len = (len + 0.0f);
+                        extraDistance = func_003e4180(tmp100);
+                        if (extraDistance + (adj + radiusB) <= len) {
+                            extraDistance = 0.0f;
+                        } else {
+                            len = adj;
                         }
                     }
                 }
-                radiusB = *(f32 *)(other + 0x90) * *(f32 *)(other + 0x2C);
-                len = len - radiusB;
+                otherRadius = formationRadius(other);
+                len -= otherRadius;
                 if (len < 300.0f) {
-                    isClose = 1;
                     len = 300.0f;
+                    isClose = 1;
                 }
                 if (isClose != 0) {
-                    scale = *(f32 *)(other + 0x88) * *(f32 *)(other + 0x2C) + len + radiusA + radiusB + bestLen + 0.0f;
-                    diff[0] = diff[0] * scale;
-                    diff[1] = diff[1] * scale;
-                    diff[2] = diff[2] * scale;
-                    dest[0] = centerB[0] + diff[0];
-                    dest[1] = centerB[1] + diff[1];
-                    dest[2] = centerB[2] + diff[2];
-                    func_00194ee0(unitB, dest);
+                    offsetDistance = len + radiusA;
+                    targetScale = *(f32 *)(other + 0x2C);
+                    offsetDistance += otherRadius;
+                    offsetDistance += extraDistance;
+                    scale = (0.0f + offsetDistance) +
+                            *(f32 *)(other + 0x88) * targetScale;
+                    diff[0] *= scale;
+                    diff[1] *= scale;
+                    diff[2] *= scale;
+                    dest[0] = centerB.v[0] + diff[0];
+                    dest[1] = centerB.v[1] + diff[1];
+                    dest[2] = centerB.v[2] + diff[2];
+                    func_00194ee0((struct BtlUnit *)(unitB), (const struct RwV3d *)(dest));
                 }
             }
         } else {
-            if ((*(u32 *)(D_0076449C + 0xC) & 0x200000) == 0) {
+            if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
                 unitB = *(u8 **)(base + 0x30);
                 if (work[2] == 1) {
                     for (i = 0; i < *(u16 *)(base + 0x6A); i++) {
-                        entry = *(u8 **)(base + i * 4 + 0x38);
-                        if (((*(u16 *)(entry + 0x1A) & 1) != 0) && (entry != base)) {
-                            func_001ec1c0(quat, *(u8 **)(entry + 0x30) + 4, unitB + 4);
-                            func_00194f10(*(u8 **)(entry + 0x30), quat);
-                            func_00196ba0(*(u8 **)(entry + 0x30));
-                            func_0019dea0(*(u8 **)(entry + 0x30));
+                        actionTarget = *(u8 **)(base + (u32)i * 4 + 0x38);
+                        if ((*(u16 *)(actionTarget + 0x1A) & 1) != 0 && actionTarget != base) {
+                            func_001ec1c0((u8 *)(quat), (u8 *)(*(u8 **)(actionTarget + 0x30) + 4), (u8 *)(unitB + 4));
+                            func_00194f10((struct BtlUnit *)(*(u8 **)(actionTarget + 0x30)), (const struct RtQuat *)(quat));
+                            func_00196ba0(*(u8 **)(actionTarget + 0x30));
+                            func_0019dea0(*(u8 **)(actionTarget + 0x30));
                         }
                     }
                 }
-                func_00195850(unitB, centerA);
-                func_00196040(2, 0, centerB, 0, 0, 1);
-                centerB[1] = *(f32 *)(unitB + 8);
-                tmpF0[2] = centerB[2];
-                tmpE0[0] = centerB[0];
-                tmpE0[1] = centerB[1];
-                tmpE0[2] = centerB[2];
+                func_00195850((struct BtlUnit *)(unitB), (struct RwV3d *)(centerA));
+                /* An empty filtered group leaves X/Z unwritten, as in
+                 * retail. Only Y is replaced before using the center. */
+                func_00196040(2, 0, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
+                centerB.v[1] = *(f32 *)(unitB + 8);
+                centerA[1] = centerB.v[1];
+                tmpE0 = centerB;
                 bestLen = 0.0f;
                 bestFlag = 1;
-                tmpC8[0] = centerA[0];
-                tmpC8[1] = centerA[2];
-                tmpB0[0] = centerB[0];
-                tmpB0[1] = centerB[2];
-                for (node = *(u8 **)(D_0076449C + 0x184); node != 0; node = *(u8 **)(node + 0xA68)) {
-                    if ((*(u32 *)(node + 0x9C) & 8) != 0) {
-                        func_00195aa0(node, unitB, tmpC0);
-                        tmpB0[2] = tmpC0[0];
-                        tmpB0[3] = tmpC0[2];
-                        func_001ec3d0(tmpC8, tmpB0, tmpB0 + 2, tmpB0);
-                        tmpC0[0] = tmpC8[0] - tmpB0[0];
-                        tmpC0[1] = tmpC8[1] - tmpB0[1];
-                        dist2 = func_003e41b0(tmpC0);
-                        if ((dist2 < bestLen) || (bestFlag != 0)) {
-                            tmpE0[0] = tmpB0[0];
-                            tmpE0[1] = centerB[1];
-                            tmpE0[2] = tmpB0[1];
+                query[0] = centerA[0];
+                query[1] = centerA[2];
+                line[0] = centerB.v[0];
+                line[1] = centerB.v[2];
+                for (nearestNode = *(u8 **)(iGpffffb3ac + 0x184); nearestNode != NULL; nearestNode = *(u8 **)(nearestNode + 0xA68)) {
+                    if ((*(u32 *)(nearestNode + 0x9C) & 8) != 0) {
+                        func_00195aa0((struct BtlUnit *)(nearestNode), (struct BtlUnit *)(unitB), (struct RwV3d *)((f32 *)&tmpF0));
+                        delta[0] = tmpF0.v[0];
+                        delta[1] = tmpF0.v[2];
+                        func_001ec3d0((u8 *)(query), (u8 *)(line), (u8 *)(delta), (u8 *)(projection));
+                        delta[0] = query[0] - projection[0];
+                        delta[1] = query[1] - projection[1];
+                        dist2 = func_003e41b0(delta);
+                        if (dist2 < bestLen || bestFlag == 1) {
+                            tmpE0.v[0] = projection[0];
+                            tmpE0.v[1] = centerA[1];
+                            tmpE0.v[2] = projection[1];
                             bestLen = dist2;
                             bestFlag = 0;
                         }
                     }
                 }
-                if ((bestLen + 0.0f) - (*(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C)) < 450.0f) {
-                    diff[0] = centerA[0] - tmpE0[0];
-                    diff[1] = centerA[1] - tmpE0[1];
-                    diff[2] = centerA[2] - tmpE0[2];
+                adj = (0.0f + bestLen) - *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
+                minimumSpacing = 450.0f;
+                if (adj < minimumSpacing) {
+                    diff[0] = centerA[0] - tmpE0.v[0];
+                    projectedY = tmpE0.v[1];
+                    diff[1] = centerA[1] - projectedY;
+                    projectedZ = tmpE0.v[2];
+                    diff[2] = centerA[2] - projectedZ;
                     diff[1] = 0.0f;
-                    scale = tmpE0[1];
                     func_003e40b0(diff, diff);
-                    adj = *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C) + 450.0f;
-                    diff[0] = diff[0] * adj;
-                    diff[1] = diff[1] * adj;
-                    diff[2] = diff[2] * adj;
-                    dest[0] = tmpE0[0] + diff[0];
-                    dest[1] = scale + diff[1];
-                    dest[2] = len + diff[2];
-                    func_00194ee0(unitB, dest);
+                    adj = (0.0f + minimumSpacing) + *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
+                    diff[0] *= adj;
+                    diff[1] *= adj;
+                    diff[2] *= adj;
+                    dest[0] = tmpE0.v[0] + diff[0];
+                    dest[1] = projectedY + diff[1];
+                    dest[2] = projectedZ + diff[2];
+                    func_00194ee0((struct BtlUnit *)(unitB), (const struct RwV3d *)(dest));
                 }
-            } else if ((*(u32 *)(D_0076449C + 0x10) & 0x80) != 0) {
-                func_00196040(2, 0, centerB, 0, 0, 1);
-                for (node = *(u8 **)(D_0076449C + 0x17C); node != 0; node = *(u8 **)(node + 0xA68)) {
-                    if ((*(u32 *)(node + 0x9C) & 8) != 0) {
-                        func_00195850(node, centerA);
-                        diff[0] = centerA[0] - centerB[0];
-                        diff[1] = centerA[1] - centerB[1];
-                        diff[2] = centerA[2] - centerB[2];
+            } else if ((*(u32 *)(iGpffffb3ac + 0x10) & 0x80) != 0) {
+                func_00196040(2, 0, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
+                for (spacingNode = *(u8 **)(iGpffffb3ac + 0x17C); spacingNode != NULL; spacingNode = *(u8 **)(spacingNode + 0xA68)) {
+                    if ((*(u32 *)(spacingNode + 0x9C) & 8) != 0) {
+                        func_00195850((struct BtlUnit *)(spacingNode), (struct RwV3d *)(centerA));
+                        diff[0] = centerA[0] - centerB.v[0];
+                        diff[1] = centerA[1] - centerB.v[1];
+                        diff[2] = centerA[2] - centerB.v[2];
                         diff[1] = 0.0f;
                         func_003e40b0(diff, diff);
-                        diff[0] = diff[0] * 200.0f;
-                        diff[1] = diff[1] * 200.0f;
-                        diff[2] = diff[2] * 200.0f;
-                        func_00194ff0(node, dest, 0, 0);
-                        dest[0] = dest[0] + diff[0];
-                        dest[1] = dest[1] + diff[1];
-                        dest[2] = dest[2] + diff[2];
-                        func_00194ee0(node, dest);
+                        diff[0] *= 200.0f;
+                        diff[1] *= 200.0f;
+                        diff[2] *= 200.0f;
+                        func_00194ff0((u8 *)(spacingNode), (u8 *)(dest), (f32 *)(NULL), (f32 *)(NULL));
+                        dest[0] += diff[0];
+                        dest[1] += diff[1];
+                        dest[2] += diff[2];
+                        func_00194ee0((struct BtlUnit *)(spacingNode), (const struct RwV3d *)(dest));
                     }
                 }
-                *(u32 *)(D_0076449C + 0xC) = *(u32 *)(D_0076449C + 0xC) | 0x400000;
-                *(u16 *)(D_0076449C + 0x18) = *(u16 *)(D_0076449C + 0x18) | 6;
+                *(u32 *)(iGpffffb3ac + 0xC) |= 0x400000;
+                *(u16 *)(iGpffffb3ac + 0x18) |= 6;
             }
         }
-    } else if (kind == 1) {
+        break;
+    case 1:
         if (*(u16 *)(base + 0x6A) == 1) {
-            return 1;
+            break;
         }
-        if ((*(u32 *)(D_0076449C + 0xC) & 0x200000) != 0) {
-            return 1;
+        if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
+            break;
         }
-        if ((func_001eb440(base + 0x38) & 0xFFFF) != 1) {
-            return 1;
+        targetCount = func_001eb440((struct BtlTarget *)(base + 0x38)) & 0xFFFF;
+        if (targetCount != 1) {
+            break;
         }
         found = 0;
-        unitA = *(u8 **)(base + 0x30);
-        func_00195850(unitA, centerA);
-        radiusA = *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C);
+        groupUnit = *(u8 **)(base + 0x30);
+        func_00195850((struct BtlUnit *)(groupUnit), (struct RwV3d *)(centerA));
+        groupRadius = *(f32 *)(groupUnit + 0x90) * *(f32 *)(groupUnit + 0x2C);
         if (work[2] == 1) {
-            func_00196040(1, 1, tmpF0, 0, 0, 1);
-            bestLen = 0.0f;
+            func_00196040(targetCount, 1, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
+            /* best is written only for a qualifying farther target.
+             * Retail still consumes its stack slot after an empty scan. */
+            farthestDistance = 0.0f;
             for (i = 0; i < *(u16 *)(base + 0x6A); i++) {
-                entry = *(u8 **)(base + i * 4 + 0x38);
-                if ((*(u16 *)(entry + 0x1A) & 1) != 0) {
-                    func_001958f0(*(u8 **)(entry + 0x30), tmpC0);
-                    diff[0] = tmpF0[0] - tmpC0[0];
-                    diff[1] = tmpF0[1] - tmpC0[1];
-                    diff[2] = tmpF0[2] - tmpC0[2];
+                groupTarget = *(u8 **)(base + (u32)i * 4 + 0x38);
+                if ((*(u16 *)(groupTarget + 0x1A) & 1) != 0) {
+                    func_001958f0((struct BtlUnit *)(*(u8 **)(groupTarget + 0x30)), (struct RwV3d *)((f32 *)&tmpF0));
+                    diff[0] = centerB.v[0] - tmpF0.v[0];
+                    diff[1] = centerB.v[1] - tmpF0.v[1];
+                    diff[2] = centerB.v[2] - tmpF0.v[2];
                     extent = func_003e4180(diff);
-                    if (bestLen < extent) {
-                        best[0] = tmpC0[0];
-                        best[1] = tmpC0[1];
-                        best[2] = tmpC0[2];
-                        bestLen = extent;
+                    if (!(extent <= farthestDistance)) {
+                        best = tmpF0;
+                        farthestDistance = extent;
                     }
                 }
             }
-            func_001ec1c0(quat, centerA, best);
-            func_00194f10(unitA, quat);
-            func_00196ba0(unitA);
-            func_0019dea0(unitA);
+            func_001ec1c0((u8 *)(quat), (u8 *)(centerA), (u8 *)((f32 *)&best));
+            func_00194f10((struct BtlUnit *)(groupUnit), (const struct RtQuat *)(quat));
+            func_00196ba0(groupUnit);
+            func_0019dea0(groupUnit);
         }
-        for (node = *(u8 **)(D_0076449C + 0x17C); node != 0; node = *(u8 **)(node + 0xA68)) {
-            if ((*(u32 *)(node + 0x9C) & 8) != 0) {
-                func_00195aa0(node, unitA, tmpF0);
-                diff[0] = tmpF0[0] - centerA[0];
-                diff[1] = tmpF0[1] - centerA[1];
-                diff[2] = tmpF0[2] - centerA[2];
+        for (groupNode = *(u8 **)(iGpffffb3ac + 0x17C); groupNode != NULL; groupNode = *(u8 **)(groupNode + 0xA68)) {
+            if ((*(u32 *)(groupNode + 0x9C) & 8) != 0) {
+                func_00195aa0((struct BtlUnit *)(groupNode), (struct BtlUnit *)(groupUnit), (struct RwV3d *)((f32 *)&centerB));
+                diff[0] = centerB.v[0] - centerA[0];
+                diff[1] = centerB.v[1] - centerA[1];
+                diff[2] = centerB.v[2] - centerA[2];
                 diff[1] = 0.0f;
-                len = func_003e40b0(diff, diff);
-                scale = fGpffff809c * (len - radiusA) + radiusA + 0.0f;
-                if ((scale < len) && (scale > 300.0f)) {
-                    diff[0] = diff[0] * scale;
-                    diff[1] = diff[1] * scale;
-                    diff[2] = diff[2] * scale;
+                groupDistance = func_003e40b0(diff, diff);
+                scale = (0.0f + groupRadius) + fGpffff809c * (groupDistance - groupRadius);
+                if (scale < groupDistance && !(scale <= 300.0f)) {
+                    diff[0] *= scale;
+                    diff[1] *= scale;
+                    diff[2] *= scale;
                     dest[0] = centerA[0] + diff[0];
                     dest[1] = centerA[1] + diff[1];
                     dest[2] = centerA[2] + diff[2];
                     dest[1] = 0.0f;
-                    func_00194ee0(node, dest);
+                    func_00194ee0((struct BtlUnit *)(groupNode), (const struct RwV3d *)(dest));
                     found = 1;
                 }
             }
         }
         if (found != 0) {
-            *(u32 *)(D_0076449C + 0xC) = *(u32 *)(D_0076449C + 0xC) | 0x400000;
-            *(u16 *)(D_0076449C + 0x18) = *(u16 *)(D_0076449C + 0x18) | 0x1E;
+            *(u32 *)(iGpffffb3ac + 0xC) |= 0x400000;
+            *(u16 *)(iGpffffb3ac + 0x18) |= 0x1E;
         }
+        break;
     }
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d1f30);
-#endif
+
+#pragma pop
 // FUN_001D2D90
 BtlPacket* func_001d2d90(u32 param_1, u32 param_2, u32 param_3)
 {
