@@ -1347,12 +1347,8 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d1e58);
 // FUN_004D1EC8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d1ec8);
 
-// FUN_004D1F00
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d1f00);
 
 
-// FUN_004D1F70
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d1f70);
 
 // FUN_004D1FF0
 s8 func_004d1ff0(int object)
@@ -1434,12 +1430,8 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d21a0);
 // FUN_004D21E8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d21e8);
 
-// FUN_004D2230
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d2230);
 
 
-// FUN_004D22C8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d22c8);
 
 // FUN_004D22F8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d22f8);

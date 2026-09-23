@@ -301,6 +301,7 @@ Sint32 MWSFSVR_VsyncThrdProc(void *obj)
 
 // Starts the file stream controller on the handle's file range (name, device, ofst, nsct) and points
 // the decoder input at the file joint; -1 if the controller is still running or refuses.
+// FUN_005115F0
 static Sint32 mwsfd_StartStm(MWPLY mwply)
 {
 	if (MWSTM_GetStat(mwply->stm) == ADXSTM_STAT_EXEC) {
