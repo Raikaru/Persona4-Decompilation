@@ -705,7 +705,7 @@ void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
 {
     extern s64 iGpffffabe8;
     extern const s32 D_0064E320[36];
-    extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+    extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
     extern void func_0045e8e0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
     PrimPointRow v[18];
     u8 col[0x48];
@@ -713,6 +713,7 @@ void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
     const s32 *src;
     PrimPointRow *dst;
     s32 cnt, centerY;
+    s16 queuedOffsetX;
     s32 t1;
     s32 t2;
     f32 h;
@@ -759,7 +760,7 @@ void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
     v[14].point.v[1] = v[9].point.v[1] + 4.0f;
     v[15].point.v[1] = v[9].point.v[1] + 2.0f;
     v[16].point.v[1] = v[9].point.v[1];
-    arg7 = (s32)(s16)(s32)((f32)arg7 - v[0].point.v[0]);
+    arg7 = (queuedOffsetX = (s16)(s32)((f32)arg7 - v[0].point.v[0]));
     centerY = (arg8 = (s16)(s32)((f32)arg8 - v[0].point.v[1]));
     i = 0;
     rgba = ((u32)arg4 << 8) | (u32)arg5;
@@ -782,7 +783,7 @@ void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
     }
     if (arg9 != 0) {
         if (arg5 == 0xFF) {
-            func_0045eb20(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
+            func_0045eb20(col, v, fparg0, 18, 5, arg6, queuedOffsetX, arg8, fparg1, fparg2, fparg3, arg9);
         } else {
             func_0045e8e0(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
         }
@@ -801,7 +802,7 @@ void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
  */
 void func_00366670(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s16 arg8, void *arg9, f32 fparg1, f32 fparg2, f32 fparg3) { extern s64 iGpffffabe8;
 extern const s32 D_0064E3B0[36];
-extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
 extern void func_0045e8e0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
 PrimPointRow v[18];
 u8 col[0x48];
@@ -809,6 +810,7 @@ f32 w;
 const s32 *src;
 PrimPointRow *dst;
 s32 cnt, centerY;
+    s16 queuedOffsetX;
 s32 t1;
 s32 t2;
 f32 h;
@@ -855,7 +857,7 @@ v[13].point.v[1] = v[9].point.v[1] + 5.0f;
 v[14].point.v[1] = v[9].point.v[1] + 4.0f;
 v[15].point.v[1] = v[9].point.v[1] + 3.0f;
 v[16].point.v[1] = v[9].point.v[1];
-arg7 = (s32)(s16)(s32)((f32)arg7 - v[0].point.v[0]);
+arg7 = (queuedOffsetX = (s16)(s32)((f32)arg7 - v[0].point.v[0]));
 centerY = (arg8 = (s16)(s32)((f32)arg8 - v[0].point.v[1]));
 i = 0;
 rgba = ((u32)arg4 << 8) | (u32)arg5;
@@ -878,7 +880,7 @@ while (i < 18) {
 }
 if (arg9 != 0) {
     if (arg5 == 0xFF) {
-        func_0045eb20(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
+        func_0045eb20(col, v, fparg0, 18, 5, arg6, queuedOffsetX, arg8, fparg1, fparg2, fparg3, arg9);
     } else {
         func_0045e8e0(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
     }
@@ -899,7 +901,7 @@ void func_00366960(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                    const struct RwMatrixTag *matrix, void *queue)
 {
     extern s64 iGpffffabe8;
-    extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s32, s16, f32, f32, f32, void *);
+    extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s16, s16, f32, f32, f32, void *);
     extern void func_0045e8e0(void *, void *, f32, s32, s32, s32, s32, s16, f32, f32, f32, void *);
     PrimFloat2 points[4] = { 0.0f };
     u8 colors[16];
