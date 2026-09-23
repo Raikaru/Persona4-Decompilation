@@ -593,9 +593,10 @@ SFD SFD_Create(SFD_CREPRM *prm, Sint32 x)
 }
 
 /* a stream or buffer reached its end */
+// FUN_00522350
 static Bool sfply_IsTermAny(SFD sfd)
 {
-	Sint32 i;
+	Uint32 i;
 
 	if (SFSET_GetCond(sfd, 5) && SFTRN_GetTermFlg(sfd, 6)) {
 		return 1;
