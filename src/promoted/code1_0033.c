@@ -89,7 +89,7 @@ extern s32 func_00122720(void);
 extern s32 func_0033de90(u8 *arg0, s32 arg1);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_007955C0[];
-extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s32, s16,
+extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s16, s16,
                          f32, f32, f32, void *);
 extern u8 D_00794A80[];
 extern u8 D_00794AB0[];
