@@ -2851,7 +2851,8 @@ void func_002aa2b0(void *arg0) {
     D_008873EC[0](work);
 }
 // FUN_002AA300
-void func_002aa300(s32 arg0, s32 arg1) {
+/* The caller retains the task handle returned by registration. */
+s32 func_002aa300(u8 *parent, s32 arg1) {
     u8 *work;
 
     D_00764634 = 0;
@@ -2867,5 +2868,5 @@ void func_002aa300(s32 arg0, s32 arg1) {
     if (arg1 == 1) {
         *(u32 *)(work + 4) |= 2;
     }
-    (s32)func_00451fc0((void *)((u8 *)arg0), (const void *)(&D_00763918), 0xF, 0, 0, func_002a4b10, func_002a4cb0, (u8 *)(work));
+    return (s32)func_00451fc0(parent, (const void *)(&D_00763918), 0xF, 0, 0, func_002a4b10, func_002a4cb0, work);
 }
