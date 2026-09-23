@@ -4240,7 +4240,7 @@ f32 func_0014b4d0(void) {
     return var_f0;
 }
 // FUN_0014B510
-s32 func_0014b510(s32 arg0)
+u16 func_0014b510(s32 arg0)
 {
     s32 var_17;
     s32 temp_16;

@@ -34,7 +34,7 @@ extern void* func_00174c00(void);
 extern void* func_00174c10(void);
 extern u8* func_00145270(u16 arg0);
 extern u8* func_001452b0(s32 arg0);
-extern u16 func_00145780(s32 arg0, u16 arg1, s32 arg2);
+extern s32 func_00145780(u16 arg0, s32 arg1, s32 arg2);
 extern void func_0016f130(s32 a, s32 b, s32 c);
 extern void func_0016f3b0(s32 a, s32 b, s32 c);
 extern s32 func_004782b0(void* arg0);
@@ -573,7 +573,7 @@ s32 func_00177b30(void)
             func_0029cf50(0);
             return 1;
         }
-        flag = func_00145ac0(w & 0xFFFF, (Model*)v) & 0xFFFF;
+        flag = func_00145ac0(w & 0xFFFF, v) & 0xFFFF;
         while (*(s32*)(D_00762EA0 + 0x24) > 0)
         {
             p2 = (u8*)func_00151580(*(s32*)(D_00762EA0 + 0x28), w, &tmp);
@@ -613,7 +613,7 @@ u32 func_00177d10()
     created = 0;
     if (func_004782b0(model) == true)
     {
-        resourceId = (u16)func_00145ac0(func_0014b510(10), model);
+        resourceId = (u16)func_00145ac0(func_0014b510(10), (s32)model);
         created = 1;
     }
     func_0029cf50(resourceId);
@@ -669,7 +669,7 @@ s32 func_00177e80(void)
     if (func_004782b0((void*)type) == 1)
     {
         u8* p;
-        res = func_00145780(func_0014b510(3), id, type);
+        res = (u16)func_00145780(func_0014b510(3), (u16)id, type);
         p = func_00145270(res);
         *(s32*)(p + 0x22C) = (s32)func_00478750(D_00764364);
         created = 1;

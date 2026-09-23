@@ -86,7 +86,7 @@ extern u32 func_00106330(s32 arg0);
 extern s32 func_00106390(s32 arg0, s32 arg1);
 extern s32 func_00159a60(u8 *arg0);
 extern void func_00159d50(u8 *task);
-extern void func_001587d0(u16 arg0, u16 arg1, u16 arg2);
+extern void func_001587d0(u16 arg0, u32 arg1, u32 arg2);
 extern s32 func_0014a160(void);
 extern void func_0016e540(s32 arg0, s32 arg1);
 extern void func_003642a0(s32 arg0);
@@ -1545,24 +1545,69 @@ border_rows_test:
 }
 
 #pragma pop
-/* measured: func_001587d0 (retail 1152 words/4608B, 1148 instrs). Baseline romwright-cleaned s32-int arithmetic + absolute log (lui/addiu for D_005F05E8) 1009 nd, 1107 vs 1148 (-41, frame -0x130 vs -0x150, lbu/lb, addu order, slti $at). Log-context scalar N/A (log already absolute). Step1 free pragma probes first: loop_invariants/schedule tie 1009, propagation 1005, common_subs 991 best (-18), dead 995, strength/unroll tie, peephole 1094 fail; full sweep pair (common+loop) tie 991, levels L0 1435/L1 1073/L3 1019 fail. Step2 subscript: swap (temp_v7+temp_v9) tie 991, row (u8 *row) tie 991 (same codegen). Step3 never hoist what retail reloads: hoist board before outer 991->1017 fail (reload kept). R2 decl-order (temp_v3/temp_v4 swap) tie 991. R3 pair tie 991. Truthful (s32-ptr/u8-ptr/void-ptr with (s32)/(void*) casts, (f32)(u32) for unsigned, mula/madd two-product 1200*arg+600*(byte-1) and 300*(s8), unaligned *(s32*)(ptr+4) for lwr/lwl pair) tie 991 (same codegen, faithful). Residuals (fnalign 840 edits +6 reloc-only, obj 1143 vs 1148 -5, 0.4% within 3% gate): FPR-color ($f20 vs $f3), addu order, slti $at vs $v0, spills (andi+sw), unaligned lwr/lwl (2 sites), arg-order for 00145d60/003e0870. Correct-logic base (truthful+reload+row tie) parked. Production guarded. */
-/* 2026-09-18 fix signals 1+2 (cheap/unambiguous): ten board bytes s8->u8 (0x54, 0x58==6, eight 0x59 incl. 001534a0 arg) + six angle loops 360.0f<temp->temp>360.0f. fndiff 991->990 (-1), fnalign 840->847 (+7 cascade from remaining signal-3 lwc1/swc1), opclass lb/lbu (was -10/+10) and c.ole/c.olt+bc1t/bc1f (was -6/+6/+6/-6) deltas gone. Rejected: temp_v1->u8 overshoots to lbu+1/lb-1/andi+1 (fndiff 1015); negated !(temp<=360) 1046 (+55, handoff 7l: change comparison not negation, keep non-negated); 360<=temp ties 991; temp>=360 ties 991. temp_v1 stays s8 for D_005F0592 (retail lb correct); 0x59 line199 reuses dead u8 temp_v0 to keep lbu without overshoot. 0x5d and D_005F0592 stay s8 (retail lb). Remaining census (signal 3): lwc1 -38, swc1 -26, lui +22, andi +19, move -16, mtc1 +13, bgez -8, srl +7, cvt.s.w +7, beqz -7, bltz +7, or +7, b +6, add.s -5. Object still 1143 vs 1148 retail (-5). */
-/* measured 2026-09-19 V4 lui-0 (reload 7x puVar16[5]=puVar16[10]/*puVar16=puVar16[10] + per-block {f32 f360=360.0f; for(...>f360...-f360)} 6x + u32 c10000/01/02 hoist for ==0x1000x/<0x1000x + opt_propagation off): lui +22->0 (72->50, delta 0), fnalign 1148/1139 (-9, -0.8% inside 1113-1182 gate), words 990->1013 (+23), edits 847+6->830+6 (-17). Banked (zero lui, inside gate, confined to FUN_001587D0 + scoped pragmas; other funcs 0015d310/001561a0/0015b3e0 untouched; not promoted, not MATCH, guard kept, NONMATCHING kept). Remaining: lwc1 -37, swc1 -25, etc.; V2 (+2, 1138/1011/816+6) is closest gate-passing with words+11 if V4 words+23 unacceptable. */
-// FUN_001587D0 NONMATCHING
-#ifdef NON_MATCHING
+#include "Kosaka/k_fldFrame_internal.h"
+#include "scene_event_internal.h"
+/* Serialized light records occupy 32 bytes. Creators convert their legacy
+ * f32 pointer argument back to SVec3 and copy the complete object. Pass
+ * complete SVec3 addresses, never an address of one scalar member. */
+typedef struct FieldSerializedLightRecord {
+    u8 header[4];
+    FieldRgba8 color;
+    SVec3 position;
+    f32 parameters[3];
+} FieldSerializedLightRecord;
+/* Complete clone and child layouts from the field resource provider. */
+typedef struct {
+    u16 type;
+    u16 flags;
+    s32 field_4;
+    s32 field_8;
+    s32 field_c;
+    s32 field_10;
+    s32 field_14;
+} k_fldSubEntry;
+
+typedef struct {
+    u32 flags;
+    s16 field_04;
+    s16 field_06;
+    s32 field_08;
+    s32 field_0c;
+    s32 field_10;
+    s32 field_14;
+    u32 count1;
+    s32 arr1[32];
+    s32 arr2[32];
+    u32 count2;
+    k_fldSubEntry entries[96];
+    s32 field_a20;
+    RwV3d scale;
+} k_fldResource;
+
+typedef struct RuntimeVec3 { f32 x; f32 y; f32 z; } RuntimeVec3;
+typedef struct Resrc Resrc;
+/* Recovered placement uses full coordinate words for world conversion and
+ * their low halfwords for grid addressing. Each serialized group retains its
+ * original mode checks, record stride, vector transform and creation call.
+ * Native b210 -O2 with this scoped level-1 model emits 4596 exact bytes;
+ * the remaining 12 retail bytes are zero alignment. Plain coordinate words
+ * preserve the actual snapshot stores and complete 0x150-byte frame. */
+#pragma push
+#pragma optimization_level 1
+#pragma opt_loop_invariants off
 #pragma opt_common_subs off
 #pragma opt_propagation off
-void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
+// FUN_001587D0
+void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
 {
     extern u8 D_005F0590[];
     extern u8 D_005F0591[];
-    extern u8 D_005F0592[];
     extern u8 D_005F05E8[];
     extern u8 D_00756510[];
     extern s32 D_0076432C;
     extern u8 *iGpffff9db0;
     extern s32 *func_00155280(void);
-    extern void *func_001534a0(void *src, void *arg1, u32 arg2);
+    extern k_fldResource *func_001534a0(k_fldResource *src, void *arg1, u32 arg2);
     extern s32 func_00145ac0(u16 arg0, s32 arg1);
     extern s32 func_00145ba0(u16 arg0, s32 arg1);
     extern s32 func_00145c80(u16 arg0, s32 arg1);
@@ -1572,440 +1617,430 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
     extern s32 func_00146200(u16 arg0, f32 *arg1, f32 fparg0);
     extern s32 func_001462c0(u16 arg0, f32 *arg1, f32 fparg0);
     extern void func_00149ea0(void);
-    extern void func_0014a0f0(u16 arg0, s32 arg1);
+    extern void func_0014a0f0(u16 arg0, u32 arg1);
     extern s32 func_0014a200(void);
     extern s32 func_0014a270(void);
-    extern s32 func_0014b510(s32 arg0);
-    extern u8 *func_00145270(s32 arg0);
-    extern void func_0015f720(u8 *arg0, const u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
-    extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 fparg0);
-    extern void func_003e42a0(void *arg0, void *arg1, void *arg2);
+    extern u16 func_0014b510(s32 arg0);
+    extern Resrc *MT_Scene_GetRes(u16 resTypeId);
+    extern void func_0015f720(RuntimeVec3 *vertices, const RuntimeVec3 *translation, f32 width, f32 depth, f32 angle);
+    extern void *func_003e0870(void *matrix, const void *axis, f32 angle, s32 combine);
+    extern void *func_003e42a0(void *out, const void *in, const void *matrix);
     extern void *func_003e0f80(void);
-    extern void func_003e0f40(void *arg0);
-    extern void func_0046d730();
-  u8 temp_v0;
-  s8 temp_v1;
-  u16 temp_v2;
-  s32 temp_v3;
-  s32 temp_v4;
-  u32 temp_v5;
-  u32 temp_v6;
-  s32 temp_v7;
-  u32 temp_v8;
-  s32 temp_v9;
-  u32 temp_v10;
-  u8 *temp_v11;
-  u32 temp_v14;
-  s32 temp_v15;
-  s32 temp_v16;
-  u32 *puVar16;
-  s32 temp_v17;
-  s32 temp_v18;
-  f32 temp_v19;
-  f32 temp_v20;
-  f32 fStack_78;
-  f32 fStack_74;
-  f32 fStack_70;
-  u16 temp_v21 [4];
-  f32 fStack_60;
-  f32 fStack_5c;
-  f32 fStack_58;
-  f32 fStack_50;
-  f32 fStack_4c;
-  f32 fStack_48;
-  f32 fStack_40;
-  f32 fStack_3c;
-  f32 fStack_38;
-  f32 fStack_30;
-  f32 fStack_2c;
-  f32 fStack_28;
-  f32 fStack_20;
-  f32 fStack_1c;
-  f32 fStack_18;
-  f32 fStack_10;
-  f32 fStack_c;
-  f32 fStack_8;
-  u32 c10000 = 0x10000;
-  u32 c10001 = 0x10001;
-  u32 c10002 = 0x10002;
+    extern s32 func_003e0f40(void *matrix);
+    extern void func_0046d730(const void *file, s32 line);
+  s32 templateKind;
+  s32 volumeId;
+  u32 templateCount;
+  s32 checkedY;
+  s32 checkedX;
+  u8 *grid;
+  s32 validExtent;
+  s32 validTemplate;
+  s32 cloneRow;
+  s32 cloneColumn;
+  u32 rotation;
+  u32 childType;
+  u16 resourceId;
+  u16 *resourceSlot;
+  f32 worldScale;
+  k_fldResource *clonedModel;
+  s32 columnIndex;
+  u8 *parentUnit;
+  u32 templateIndex;
+  s32 occupiedRowOffset;
+  u32 childIndex;
+  u32 volumeIndex;
+  u32 recordIndex;
+  u8 *record;
+  s32 rowIndex;
+  s32 worldColumnOffset;
+  s32 templateOffset;
+  s32 occupiedColumnOffset;
+  f32 worldCoordinate;
+  f32 angle;
+  RwV3d worldPosition;
+  SVec3 point_20;
+  SVec3 point_30;
+  SVec3 point_40;
+  SVec3 point_50;
+  SVec3 point_60;
+  u16 placedResourceIds [4];
+  SVec3 point_78;
+  enum { c10000 = 0x10000, c10001 = 0x10001, c10002 = 0x10002 };
   
-  temp_v14 = (u32)arg2;
-  temp_v16 = (temp_v14 & 0xffff) * 0x100;
-  temp_v10 = (u32)arg1;
-  temp_v15 = (temp_v10 & 0xffff) * 0x10;
-  temp_v3 = (s32)func_00155280();
-  if ((*(u8 *)(temp_v3 + temp_v16 + temp_v15 + 0x54) == '\x01') &&
-     (temp_v3 = (s32)func_00155280(), (*(u8 *)(temp_v3 + temp_v16 + temp_v15 + 0x55) & 0xf) != 0)) {
-    temp_v3 = (s32)func_00155280();
-    if (0xf < (s32)(((temp_v10 & 0xffff) + (u32)*(u8 *)(temp_v3 + temp_v16 + temp_v15 + 0x5a)) - 1)) {
+  /* These values belong to the placement operation. templateScan first
+   * carries the world-row displacement, then the template-list index.
+   * gridOffset gains rowOffset once and survives all record groups. */
+  {
+  s32 rowOffset;
+  s32 gridOffset;
+  u32 placementX;
+  u32 placementY;
+  u32 templateScan;
+  placementX = arg1;
+  placementY = arg2;
+  templateIndex = 0xffffffff;
+  rowOffset = (placementY & 0xffff) * 0x100;
+  gridOffset = (placementX & 0xffff) * 0x10;
+  grid = (u8 *)func_00155280();
+  if ((*(u8 *)(grid + rowOffset + gridOffset + 0x54) == '\x01') &&
+     (grid = (u8 *)func_00155280(), (*(u8 *)(grid + rowOffset + gridOffset + 0x55) & 0xf) != 0)) {
+    checkedX = (s32)(placementX & 0xffff);
+    grid = (u8 *)func_00155280();
+    validExtent = (s32)(checkedX + *(u8 *)(grid + rowOffset + gridOffset + 0x5a) - 1) < 0x10;
+    if (!validExtent) {
       func_0046d730(D_005F05E8,0x40d);
     }
-    temp_v3 = (s32)func_00155280();
-    if (0x17 < (s32)(((temp_v14 & 0xffff) + (u32)*(u8 *)(temp_v3 + temp_v16 + temp_v15 + 0x5b)) - 1)) {
+    checkedY = (s32)(placementY & 0xffff);
+    grid = (u8 *)func_00155280();
+    validExtent = (s32)(checkedY + *(u8 *)(grid + rowOffset + gridOffset + 0x5b) - 1) < 0x18;
+    if (!validExtent) {
       func_0046d730(D_005F05E8,0x40e);
     }
-    temp_v3 = (temp_v14 & 0xffff) * 0x100;
-    temp_v17 = (temp_v10 & 0xffff) * 0x10;
-    temp_v20 = 1200.0f;
-    temp_v19 = (f32)(u32)arg1;
-    temp_v4 = (s32)func_00155280();
-    fStack_10 = temp_v20 * temp_v19 + (f32)(s32)(*(u8 *)(temp_v4 + temp_v3 + temp_v17 + 0x5a) - 1) * 600.0f
+    templateScan = (placementY & 0xffff) * 0x100;
+    worldColumnOffset = (placementX & 0xffff) * 0x10;
+    worldScale = 1200.0f;
+    worldCoordinate = (f32)(u32)placementX;
+    grid = (u8 *)func_00155280();
+    worldPosition.x = worldScale * worldCoordinate + (f32)(s32)(*(u8 *)(grid + templateScan + worldColumnOffset + 0x5a) - 1) * 600.0f
     ;
-    temp_v4 = (s32)func_00155280();
-    fStack_c = (f32)(s32)*(s8 *)(temp_v4 + temp_v3 + temp_v17 + 0x5d) * 300.0f;
-    temp_v20 = 1200.0f;
-    temp_v19 = (f32)(u32)arg2;
-    temp_v4 = (s32)func_00155280();
-    fStack_8 = temp_v20 * temp_v19 + (f32)(s32)(*(u8 *)(temp_v4 + temp_v3 + temp_v17 + 0x5b) - 1) * 600.0f;
-    temp_v0 = *(u8 *)(D_0076432C * 0xc + (s32)D_005F0590);
-    temp_v3 = func_0014a270();
-    if (temp_v3 != 0) {
-      temp_v0 = *(u8 *)(D_0076432C * 0xc + (s32)D_005F0591);
+    grid = (u8 *)func_00155280();
+    worldPosition.y = (f32)(s32)*(s8 *)(grid + templateScan + worldColumnOffset + 0x5d) * 300.0f;
+    worldScale = 1200.0f;
+    worldCoordinate = (f32)(u32)placementY;
+    grid = (u8 *)func_00155280();
+    worldPosition.z = worldScale * worldCoordinate + (f32)(s32)(*(u8 *)(grid + templateScan + worldColumnOffset + 0x5b) - 1) * 600.0f;
+    templateCount = D_005F0590[D_0076432C * 0xc];
+    if (func_0014a270() != 0) {
+      templateCount = D_005F0591[D_0076432C * 0xc];
     }
-    temp_v5 = 0;
-    temp_v16 = temp_v16 + temp_v15;
-    while ((temp_v8 = 0xffffffff, temp_v5 < temp_v0 &&
-           (temp_v1 = *(s8 *)(temp_v5 + D_0076432C * 0xc + (s32)D_005F0592), temp_v3 = (s32)func_00155280(),
-           temp_v8 = temp_v5, (long)temp_v1 != (unsigned long long)*(u8 *)(temp_v16 + temp_v3 + 0x58)))) {
-      temp_v5 = temp_v5 + 1;
+    templateScan = 0;
+    gridOffset = wg0035_add_offset((u32)rowOffset, (u32)gridOffset);
+    while (templateScan < templateCount) {
+      templateKind = *(s8 *)(D_005F0590 + D_0076432C * 0xc + templateScan + 2);
+      grid = (u8 *)func_00155280();
+      if (templateKind == *(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x58)) {
+        templateIndex = templateScan;
+        break;
+      }
+      templateScan = templateScan + 1;
     }
-    if (temp_v0 <= temp_v8) {
+    validTemplate = templateIndex < templateCount;
+    if (!validTemplate) {
       func_0046d730(D_005F05E8,0x42a);
     }
-    temp_v17 = temp_v8 * 4;
-    temp_v3 = (s32)func_00155280();
-    temp_v3 = (s32)func_001534a0((void *)(s32)*(u32 *)(temp_v17 + iGpffff9db0 + 0x28), &fStack_10,
-                         (*(u8 *)(temp_v3 + (temp_v14 & 0xffff) * 0x100 + (temp_v10 & 0xffff) * 0x10 +
-                                   0x59) + 4U) & 3);
-    temp_v5 = func_00145c80(arg0,temp_v3);
-    temp_v8 = temp_v5 & 0xffff;
-    temp_v6 = (s32)func_00145270(temp_v8);
-    func_0014a0f0((u16)temp_v5,1);
+    cloneRow = (u16)placementY * 0x100;
+    cloneColumn = (u16)placementX * 0x10;
+    templateOffset = templateIndex * 4;
+    grid = (u8 *)func_00155280();
+    rotation = (u16)((*(u8 *)(grid + cloneRow + cloneColumn + 0x59) + 4) % 4);
+    clonedModel = func_001534a0((k_fldResource *)(s32)*(u32 *)(wg0035_add_offset((u32)templateOffset, (u32)iGpffff9db0) + 0x28), &worldPosition, rotation);
+    resourceId = (u16)func_00145c80(arg0,(s32)clonedModel);
+    parentUnit = (u8 *)MT_Scene_GetRes(resourceId);
+    func_0014a0f0((u16)resourceId,1);
     func_00149ea0();
-    for (temp_v15 = 0; temp_v4 = (s32)func_00155280(), temp_v15 < (s32)(u32)*(u8 *)(temp_v16 + temp_v4 + 0x5b);
-        temp_v15 = temp_v15 + 1) {
-      temp_v9 = ((temp_v14 & 0xffff) + temp_v15) * 0x100;
-      for (temp_v4 = 0; temp_v7 = (s32)func_00155280(), temp_v4 < (s32)(u32)*(u8 *)(temp_v16 + temp_v7 + 0x5a);
-          temp_v4 = temp_v4 + 1) {
-        temp_v18 = ((temp_v10 & 0xffff) + temp_v4) * 0x10;
-        temp_v7 = (s32)func_00155280();
-        *(u16 *)(temp_v9 + temp_v7 + temp_v18 + 0x56) = (u16)temp_v5;
-        temp_v7 = (s32)func_00155280();
-        *(u8 *)(temp_v9 + temp_v7 + temp_v18 + 0x5c) = 1;
-      }
-    }
-    for (temp_v14 = 0; temp_v14 < *(u32 *)(temp_v3 + 0x11c); temp_v14 = temp_v14 + 1) {
-      temp_v15 = temp_v3 + temp_v14 * 0x18;
-      if (*(short *)(temp_v15 + 0x120) == 0) {
-        temp_v4 = func_0014b510(10);
-        temp_v8 = func_00145ac0((u16)temp_v4,*(s32 *)(temp_v15 + 300));
-        temp_v8 = temp_v8 & 0xffff;
-        temp_v4 = (s32)func_00145270(temp_v8);
-        *(u32 *)(temp_v4 + 0x140) = temp_v6;
-        if ((*(u16 *)(temp_v15 + 0x122) & 2) != 0) {
-          *(u32 *)(temp_v4 + 0x150) = 1;
+    for (rowIndex = 0; grid = (u8 *)func_00155280(), rowIndex < (s32)(u32)*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x5b);
+        rowIndex = rowIndex + 1) {
+      columnIndex = 0;
+      occupiedRowOffset = (checkedY + rowIndex) * 0x100;
+      for (; grid = (u8 *)func_00155280(), columnIndex < (s32)(u32)*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x5a);
+          columnIndex = columnIndex + 1) {
+        occupiedColumnOffset = (checkedX + columnIndex) * 0x10;
+        grid = (u8 *)func_00155280();
+        *(u16 *)((u8 *)wg0035_add_offset((u32)occupiedRowOffset, (u32)grid) + occupiedColumnOffset + 0x56) = (u16)resourceId;
+        grid = (u8 *)func_00155280();
+        {
+          u8 *cell = (u8 *)wg0035_add_offset((u32)occupiedRowOffset, (u32)grid) + occupiedColumnOffset;
+          cell[0x5c] = 1;
         }
       }
-      else if (*(short *)(temp_v15 + 0x120) == 1) {
-        temp_v4 = func_0014b510(0xb);
-        temp_v8 = func_00145ba0((u16)temp_v4,*(s32 *)(temp_v15 + 0x130));
-        temp_v8 = temp_v8 & 0xffff;
-        temp_v15 = (s32)func_00145270(temp_v8);
-        *(u32 *)(temp_v15 + 0x140) = temp_v6;
-      }
-      func_0014a0f0((u16)temp_v8,1);
     }
-    *(u32 *)(temp_v3 + 0x11c) = 0;
-    if (*(s32 *)(*(s32 *)(temp_v17 + iGpffff9db0 + 0x28) + 0xa40) != 0) {
-      temp_v11 = func_003e0f80();
-      temp_v3 = *(s32 *)(*(s32 *)(temp_v17 + iGpffff9db0 + 0x28) + 0xa40);
-      temp_v15 = *(s32 *)(temp_v3 + 4);
-      if (temp_v15 == (s32)c10000) {
-        temp_v15 = temp_v3 + 0x28;
+    /* For unrecognized child kinds, retail retains the preceding resource ID. */
+    for (childIndex = 0; childIndex < clonedModel->count2; childIndex = childIndex + 1) {
+      u8 *child = (u8 *)clonedModel + childIndex * 0x18;
+      childType = ((k_fldSubEntry *)(child + 0x120))->type;
+      if (childType == 0) {
+        u8 *unit;
+        resourceId = func_00145ac0(func_0014b510(10),((k_fldSubEntry *)(child + 0x120))->field_c);
+        unit = (u8 *)MT_Scene_GetRes(resourceId);
+        *(u32 *)(unit + 0x140) = (u32)parentUnit;
+        if ((((k_fldSubEntry *)(child + 0x120))->flags & 2) != 0) {
+          *(u32 *)(unit + 0x150) = 1;
+        }
       }
-      else if (temp_v15 == (s32)c10001) {
-        temp_v15 = temp_v3 + 0x30;
+      else if (childType == 1) {
+        resourceId = func_00145ba0(func_0014b510(0xb),((k_fldSubEntry *)(child + 0x120))->field_10);
+        child = (u8 *)MT_Scene_GetRes(resourceId);
+        *(u32 *)(child + 0x140) = (u32)parentUnit;
       }
-      else if (temp_v15 == (s32)c10002) {
-        temp_v15 = temp_v3 + 0x38;
+      func_0014a0f0((u16)resourceId,1);
+    }
+    clonedModel->count2 = 0;
+    if (*(s32 *)(*(s32 *)(wg0035_add_offset((u32)templateOffset, (u32)iGpffff9db0) + 0x28) + 0xa40) != 0) {
+      u32 *matrix;
+      s32 cornerIndex;
+      u8 *data;
+      u32 format;
+      u32 versionBase;
+      matrix = (u32 *)func_003e0f80();
+      data = (u8 *)*(s32 *)(*(s32 *)(wg0035_add_offset((u32)templateOffset, (u32)iGpffff9db0) + 0x28) + 0xa40);
+      format = *(u32 *)(data + 4);
+      versionBase = 0x10000;
+      if (format == versionBase) {
+        record = data + 0x28;
+      }
+      else if (format == (versionBase | 1)) {
+        record = data + 0x30;
+      }
+      else if (format == (versionBase | 2)) {
+        record = data + 0x38;
       }
       else {
-        temp_v15 = temp_v3 + 0x48;
+        record = data + 0x48;
       }
-      for (temp_v14 = 0; puVar16 = (u32 *)temp_v11, temp_v14 < *(u32 *)(temp_v3 + 8);
-          temp_v14 = temp_v14 + 1) {
-        temp_v17 = func_0014a200();
-        if ((temp_v17 == 1) || (temp_v17 = func_0014a270(), temp_v17 == 1)) {
-          temp_v17 = (s32)func_00155280();
-          if (*(u8 *)(temp_v16 + temp_v17 + 0x58) == '\x06') {
-            temp_v2 = 0x3fe;
+      for (volumeIndex = 0; volumeIndex < *(u32 *)(data + 8);
+          volumeIndex = volumeIndex + 1, record = record + 0x20) {
+        u8 *volumeUnit;
+        if ((func_0014a200() == 1) || (func_0014a270() == 1)) {
+          grid = (u8 *)func_00155280();
+          if (*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x58) == '\x06') {
+            volumeId = 0x3fe;
           }
           else {
-            temp_v2 = 0x3ff;
+            volumeId = 0x3ff;
           }
-          temp_v10 = func_00145d60(temp_v2, (f32 *)(temp_v15 + 8), *(f32 *)(temp_v15 + 0x14),
-                                 *(f32 *)(temp_v15 + 0x18), *(f32 *)(temp_v15 + 0x1c), *(FieldRgba8 *)(temp_v15 + 4));
-          temp_v17 = (s32)func_00145270(temp_v10 & 0xffff);
-          func_0015f720((void *)(temp_v17 + 0x15c),(void *)(temp_v17 + 0x144),*(f32 *)(temp_v17 + 0x150)
-                        ,*(f32 *)(temp_v17 + 0x154),*(f32 *)(temp_v17 + 0x158));
-          for (temp_v4 = 0; temp_v4 < 4; temp_v4 = temp_v4 + 1) {
-            temp_v9 = (s32)func_00155280();
-            temp_v0 = *(u8 *)(temp_v16 + temp_v9 + 0x59);
-            puVar16[10] = 0x3f800000;
-            puVar16[5] = puVar16[10];
-            *puVar16 = puVar16[10];
-            puVar16[4] = 0;
-            puVar16[2] = 0;
-            puVar16[1] = 0;
-            puVar16[9] = 0;
-            puVar16[8] = 0;
-            puVar16[6] = 0;
-            puVar16[0xe] = 0;
-            puVar16[0xd] = 0;
-            puVar16[0xc] = 0;
-            puVar16[3] = puVar16[3] | 0x20003;
-            func_003e0870(temp_v11, D_00756510, 2, (f32)((temp_v0 + 4U) & 3) * 90.0f);
-            temp_v9 = temp_v17 + temp_v4 * 0xc;
-            func_003e42a0((void *)(temp_v9 + 0x15c), (void *)(temp_v9 + 0x15c), (void *)temp_v11);
-            *(f32 *)(temp_v9 + 0x15c) = *(f32 *)(temp_v9 + 0x15c) + fStack_10;
-            *(f32 *)(temp_v9 + 0x160) = *(f32 *)(temp_v9 + 0x160) + fStack_c;
-            *(f32 *)(temp_v9 + 0x164) = *(f32 *)(temp_v9 + 0x164) + fStack_8;
+          volumeUnit = (u8 *)MT_Scene_GetRes((u16)func_00145d60(volumeId, (f32 *)&((FieldSerializedLightRecord *)record)->position, ((FieldSerializedLightRecord *)record)->parameters[0],
+                                 ((FieldSerializedLightRecord *)record)->parameters[1], ((FieldSerializedLightRecord *)record)->parameters[2], ((FieldSerializedLightRecord *)record)->color));
+          func_0015f720((RuntimeVec3 *)(volumeUnit + 0x15c),(const RuntimeVec3 *)(volumeUnit + 0x144),*(f32 *)(volumeUnit + 0x150)
+                        ,*(f32 *)(volumeUnit + 0x154),*(f32 *)(volumeUnit + 0x158));
+          for (cornerIndex = 0; cornerIndex < 4; cornerIndex = cornerIndex + 1) {
+            f32 cornerAngle;
+            u8 *cornerBase;
+            grid = (u8 *)func_00155280();
+            cornerAngle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+            *matrix = matrix[5] = matrix[10] = 0x3f800000;
+            matrix[4] = 0;
+            matrix[2] = 0;
+            matrix[1] = 0;
+            matrix[9] = 0;
+            matrix[8] = 0;
+            matrix[6] = 0;
+            matrix[0xe] = 0;
+            matrix[0xd] = 0;
+            matrix[0xc] = 0;
+            matrix[3] = matrix[3] | 0x20003;
+            func_003e0870(matrix, D_00756510, cornerAngle, 2);
+            cornerBase = volumeUnit + cornerIndex * 0xc;
+            {
+              RwV3d *corner = (RwV3d *)(cornerBase + 0x15c);
+              func_003e42a0(corner, corner, matrix);
+            }
+            *(f32 *)(cornerBase + 0x15c) = *(f32 *)(cornerBase + 0x15c) + worldPosition.x;
+            *(f32 *)(cornerBase + 0x160) = *(f32 *)(cornerBase + 0x160) + worldPosition.y;
+            *(f32 *)(cornerBase + 0x164) = *(f32 *)(cornerBase + 0x164) + worldPosition.z;
           }
         }
-        temp_v15 = temp_v15 + 0x20;
       }
-      for (temp_v14 = 0; temp_v14 < *(u32 *)(temp_v3 + 0x10); temp_v14 = temp_v14 + 1) {
-        temp_v17 = func_0014a200();
-        if ((temp_v17 == 1) || (temp_v17 = func_0014a270(), temp_v17 == 1)) {
-          fStack_20 = *(f32 *)(temp_v15 + 4);
-          fStack_1c = *(f32 *)(temp_v15 + 8);
-          fStack_18 = *(f32 *)(temp_v15 + 0xc);
-          temp_v17 = (s32)func_00155280();
-          temp_v20 = (f32)((*(u8 *)(temp_v16 + temp_v17 + 0x59) + 4U) & 3) * 90.0f;
-          puVar16[10] = 0x3f800000;
-          puVar16[5] = puVar16[10];
-          *puVar16 = puVar16[10];
-          puVar16[4] = 0;
-          puVar16[2] = 0;
-          puVar16[1] = 0;
-          puVar16[9] = 0;
-          puVar16[8] = 0;
-          puVar16[6] = 0;
-          puVar16[0xe] = 0;
-          puVar16[0xd] = 0;
-          puVar16[0xc] = 0;
-          puVar16[3] = puVar16[3] | 0x20003;
-          func_003e0870(temp_v11, D_00756510, 2, temp_v20);
-          func_003e42a0(&fStack_20,&fStack_20,temp_v11);
-          fStack_20 = fStack_20 + fStack_10;
-          fStack_1c = fStack_1c + fStack_c;
-          fStack_18 = fStack_18 + fStack_8;
+      for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x10); recordIndex = recordIndex + 1, record = record + 0x14) {
+        if ((func_0014a200() == 1) || (func_0014a270() == 1)) {
+          point_20 = *(SVec3 *)(record + 4);
+          grid = (u8 *)func_00155280();
+          angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+          *matrix = matrix[5] = matrix[10] = 0x3f800000;
+          matrix[4] = 0;
+          matrix[2] = 0;
+          matrix[1] = 0;
+          matrix[9] = 0;
+          matrix[8] = 0;
+          matrix[6] = 0;
+          matrix[0xe] = 0;
+          matrix[0xd] = 0;
+          matrix[0xc] = 0;
+          matrix[3] = matrix[3] | 0x20003;
+          func_003e0870(matrix, D_00756510, angle, 2);
+          { SVec3 *position = &point_20; func_003e42a0(position, position, matrix); }
+          point_20.x = point_20.x + worldPosition.x;
+          point_20.y = point_20.y + worldPosition.y;
+          point_20.z = point_20.z + worldPosition.z;
+          angle = angle + *(f32 *)(record + 0x10);
           { f32 f360 = 360.0f;
-          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > f360; temp_v20 = temp_v20 - f360)
+          for (; angle > f360; angle = angle - f360)
           {
           }
           }
-          func_00145fc0(0x3ff,&fStack_20,temp_v20);
+          func_00145fc0(0x3ff,(f32 *)&point_20,angle);
         }
-        temp_v15 = temp_v15 + 0x14;
       }
-      for (temp_v14 = 0; temp_v14 < *(u32 *)(temp_v3 + 0x18); temp_v14 = temp_v14 + 1) {
-        temp_v17 = func_0014a200();
-        if (temp_v17 == 1) {
-          fStack_30 = *(f32 *)(temp_v15 + 4);
-          fStack_2c = *(f32 *)(temp_v15 + 8);
-          fStack_28 = *(f32 *)(temp_v15 + 0xc);
-          temp_v17 = (s32)func_00155280();
-          temp_v20 = (f32)((*(u8 *)(temp_v16 + temp_v17 + 0x59) + 4U) & 3) * 90.0f;
-          puVar16[10] = 0x3f800000;
-          puVar16[5] = puVar16[10];
-          *puVar16 = puVar16[10];
-          puVar16[4] = 0;
-          puVar16[2] = 0;
-          puVar16[1] = 0;
-          puVar16[9] = 0;
-          puVar16[8] = 0;
-          puVar16[6] = 0;
-          puVar16[0xe] = 0;
-          puVar16[0xd] = 0;
-          puVar16[0xc] = 0;
-          puVar16[3] = puVar16[3] | 0x20003;
-          func_003e0870(temp_v11, D_00756510, 2, temp_v20);
-          func_003e42a0(&fStack_30,&fStack_30,temp_v11);
-          fStack_30 = fStack_30 + fStack_10;
-          fStack_2c = fStack_2c + fStack_c;
-          fStack_28 = fStack_28 + fStack_8;
+      for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x18); recordIndex = recordIndex + 1, record = record + 0x14) {
+        if (func_0014a200() == 1) {
+          point_30 = *(SVec3 *)(record + 4);
+          grid = (u8 *)func_00155280();
+          angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+          *matrix = matrix[5] = matrix[10] = 0x3f800000;
+          matrix[4] = 0;
+          matrix[2] = 0;
+          matrix[1] = 0;
+          matrix[9] = 0;
+          matrix[8] = 0;
+          matrix[6] = 0;
+          matrix[0xe] = 0;
+          matrix[0xd] = 0;
+          matrix[0xc] = 0;
+          matrix[3] = matrix[3] | 0x20003;
+          func_003e0870(matrix, D_00756510, angle, 2);
+          { SVec3 *position = &point_30; func_003e42a0(position, position, matrix); }
+          point_30.x = point_30.x + worldPosition.x;
+          point_30.y = point_30.y + worldPosition.y;
+          point_30.z = point_30.z + worldPosition.z;
+          angle = angle + *(f32 *)(record + 0x10);
           { f32 f360 = 360.0f;
-          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > f360; temp_v20 = temp_v20 - f360)
+          for (; angle > f360; angle = angle - f360)
           {
           }
           }
-          temp_v17 = func_0014b510(0xf);
-          func_00146080((u16)temp_v17,&fStack_30,temp_v20);
+          func_00146080(func_0014b510(0xf),(f32 *)&point_30,angle);
         }
-        temp_v15 = temp_v15 + 0x14;
       }
-      for (temp_v14 = 0; temp_v14 < *(u32 *)(temp_v3 + 0x20); temp_v14 = temp_v14 + 1) {
-        temp_v17 = func_0014a200();
-        if (temp_v17 == 1) {
-          fStack_40 = *(f32 *)(temp_v15 + 4);
-          fStack_3c = *(f32 *)(temp_v15 + 8);
-          fStack_38 = *(f32 *)(temp_v15 + 0xc);
-          temp_v17 = (s32)func_00155280();
-          temp_v20 = (f32)((*(u8 *)(temp_v16 + temp_v17 + 0x59) + 4U) & 3) * 90.0f;
-          puVar16[10] = 0x3f800000;
-          puVar16[5] = puVar16[10];
-          *puVar16 = puVar16[10];
-          puVar16[4] = 0;
-          puVar16[2] = 0;
-          puVar16[1] = 0;
-          puVar16[9] = 0;
-          puVar16[8] = 0;
-          puVar16[6] = 0;
-          puVar16[0xe] = 0;
-          puVar16[0xd] = 0;
-          puVar16[0xc] = 0;
-          puVar16[3] = puVar16[3] | 0x20003;
-          func_003e0870(temp_v11, D_00756510, 2, temp_v20);
-          func_003e42a0(&fStack_40,&fStack_40,temp_v11);
-          fStack_40 = fStack_40 + fStack_10;
-          fStack_3c = fStack_3c + fStack_c;
-          fStack_38 = fStack_38 + fStack_8;
+      for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x20); recordIndex = recordIndex + 1, record = record + 0x14) {
+        if (func_0014a200() == 1) {
+          point_40 = *(SVec3 *)(record + 4);
+          grid = (u8 *)func_00155280();
+          angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+          *matrix = matrix[5] = matrix[10] = 0x3f800000;
+          matrix[4] = 0;
+          matrix[2] = 0;
+          matrix[1] = 0;
+          matrix[9] = 0;
+          matrix[8] = 0;
+          matrix[6] = 0;
+          matrix[0xe] = 0;
+          matrix[0xd] = 0;
+          matrix[0xc] = 0;
+          matrix[3] = matrix[3] | 0x20003;
+          func_003e0870(matrix, D_00756510, angle, 2);
+          { SVec3 *position = &point_40; func_003e42a0(position, position, matrix); }
+          point_40.x = point_40.x + worldPosition.x;
+          point_40.y = point_40.y + worldPosition.y;
+          point_40.z = point_40.z + worldPosition.z;
+          angle = angle + *(f32 *)(record + 0x10);
           { f32 f360 = 360.0f;
-          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > f360; temp_v20 = temp_v20 - f360)
+          for (; angle > f360; angle = angle - f360)
           {
           }
           }
-          temp_v17 = func_0014b510(0x10);
-          func_00146140((u16)temp_v17,&fStack_40,temp_v20);
+          func_00146140(func_0014b510(0x10),(f32 *)&point_40,angle);
         }
-        temp_v15 = temp_v15 + 0x14;
       }
-      if (c10000 < *(u32 *)(temp_v3 + 4)) {
-        for (temp_v14 = 0; temp_v14 < *(u32 *)(temp_v3 + 0x28); temp_v14 = temp_v14 + 1) {
-          temp_v17 = func_0014a200();
-          if (temp_v17 == 1) {
-            fStack_50 = *(f32 *)(temp_v15 + 4);
-            fStack_4c = *(f32 *)(temp_v15 + 8);
-            fStack_48 = *(f32 *)(temp_v15 + 0xc);
-            temp_v17 = (s32)func_00155280();
-            temp_v20 = (f32)((*(u8 *)(temp_v16 + temp_v17 + 0x59) + 4U) & 3) * 90.0f;
-            puVar16[10] = 0x3f800000;
-            puVar16[5] = puVar16[10];
-            *puVar16 = puVar16[10];
-            puVar16[4] = 0;
-            puVar16[2] = 0;
-            puVar16[1] = 0;
-            puVar16[9] = 0;
-            puVar16[8] = 0;
-            puVar16[6] = 0;
-            puVar16[0xe] = 0;
-            puVar16[0xd] = 0;
-            puVar16[0xc] = 0;
-            puVar16[3] = puVar16[3] | 0x20003;
-            func_003e0870(temp_v11, D_00756510, 2, temp_v20);
-            func_003e42a0(&fStack_50,&fStack_50,temp_v11);
-            fStack_50 = fStack_50 + fStack_10;
-            fStack_4c = fStack_4c + fStack_c;
-            fStack_48 = fStack_48 + fStack_8;
+      if (c10000 < *(u32 *)(data + 4)) {
+        for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x28); recordIndex = recordIndex + 1, record = record + 0x14) {
+          if (func_0014a200() == 1) {
+            point_50 = *(SVec3 *)(record + 4);
+            grid = (u8 *)func_00155280();
+            angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+            *matrix = matrix[5] = matrix[10] = 0x3f800000;
+            matrix[4] = 0;
+            matrix[2] = 0;
+            matrix[1] = 0;
+            matrix[9] = 0;
+            matrix[8] = 0;
+            matrix[6] = 0;
+            matrix[0xe] = 0;
+            matrix[0xd] = 0;
+            matrix[0xc] = 0;
+            matrix[3] = matrix[3] | 0x20003;
+            func_003e0870(matrix, D_00756510, angle, 2);
+            { SVec3 *position = &point_50; func_003e42a0(position, position, matrix); }
+            point_50.x = point_50.x + worldPosition.x;
+            point_50.y = point_50.y + worldPosition.y;
+            point_50.z = point_50.z + worldPosition.z;
+            angle = angle + *(f32 *)(record + 0x10);
             { f32 f360 = 360.0f;
-            for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > f360;
-                temp_v20 = temp_v20 - f360) {
+            for (; angle > f360;
+                angle = angle - f360) {
             }
             }
-            temp_v17 = func_0014b510(0x11);
-            func_00146200((u16)temp_v17,&fStack_50,temp_v20);
+            func_00146200(func_0014b510(0x11),(f32 *)&point_50,angle);
           }
-          temp_v15 = temp_v15 + 0x14;
         }
       }
-      if (c10001 < *(u32 *)(temp_v3 + 4)) {
-        for (temp_v14 = 0; temp_v14 < *(u32 *)(temp_v3 + 0x30); temp_v14 = temp_v14 + 1) {
-          fStack_60 = *(f32 *)(temp_v15 + 8);
-          fStack_5c = *(f32 *)(temp_v15 + 0xc);
-          fStack_58 = *(f32 *)(temp_v15 + 0x10);
-          temp_v17 = (s32)func_00155280();
-          temp_v20 = (f32)((*(u8 *)(temp_v16 + temp_v17 + 0x59) + 4U) & 3) * 90.0f;
-          puVar16[10] = 0x3f800000;
-          puVar16[5] = puVar16[10];
-          *puVar16 = puVar16[10];
-          puVar16[4] = 0;
-          puVar16[2] = 0;
-          puVar16[1] = 0;
-          puVar16[9] = 0;
-          puVar16[8] = 0;
-          puVar16[6] = 0;
-          puVar16[0xe] = 0;
-          puVar16[0xd] = 0;
-          puVar16[0xc] = 0;
-          puVar16[3] = puVar16[3] | 0x20003;
-          func_003e0870(temp_v11, D_00756510, 2, temp_v20);
-          func_003e42a0(&fStack_60,&fStack_60,temp_v11);
-          fStack_60 = fStack_60 + fStack_10;
-          fStack_5c = fStack_5c + fStack_c;
-          fStack_58 = fStack_58 + fStack_8;
+      if (c10001 < *(u32 *)(data + 4)) {
+        for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x30); recordIndex = recordIndex + 1, record = record + 0x20) {
+          u8 *lightUnit;
+          point_60 = ((FieldSerializedLightRecord *)record)->position;
+          grid = (u8 *)func_00155280();
+          angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+          *matrix = matrix[5] = matrix[10] = 0x3f800000;
+          matrix[4] = 0;
+          matrix[2] = 0;
+          matrix[1] = 0;
+          matrix[9] = 0;
+          matrix[8] = 0;
+          matrix[6] = 0;
+          matrix[0xe] = 0;
+          matrix[0xd] = 0;
+          matrix[0xc] = 0;
+          matrix[3] = matrix[3] | 0x20003;
+          func_003e0870(matrix, D_00756510, angle, 2);
+          { SVec3 *position = &point_60; func_003e42a0(position, position, matrix); }
+          point_60.x = point_60.x + worldPosition.x;
+          point_60.y = point_60.y + worldPosition.y;
+          point_60.z = point_60.z + worldPosition.z;
+          angle = angle + ((FieldSerializedLightRecord *)record)->parameters[2];
           { f32 f360 = 360.0f;
-          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x1c); temp_v20 > f360; temp_v20 = temp_v20 - f360)
+          for (; angle > f360; angle = angle - f360)
           {
           }
           }
-          temp_v17 = func_0014b510(0x15);
-          temp_v10 = func_00145e90((u16)temp_v17, &fStack_60, *(f32 *)(temp_v15 + 0x14),
-                                 *(f32 *)(temp_v15 + 0x18), temp_v20, *(FieldRgba8 *)(temp_v15 + 4));
-          temp_v17 = (s32)func_00145270(temp_v10 & 0xffff);
-          *(u32 *)(temp_v17 + 0x18c) = (u32)*(u16 *)(temp_v15 + 2);
-          temp_v15 = temp_v15 + 0x20;
+          lightUnit = (u8 *)MT_Scene_GetRes((u16)func_00145e90(func_0014b510(0x15), (f32 *)&point_60, ((FieldSerializedLightRecord *)record)->parameters[0],
+                                 ((FieldSerializedLightRecord *)record)->parameters[1], angle, ((FieldSerializedLightRecord *)record)->color));
+          *(u32 *)(lightUnit + 0x18c) = (u32)*(u16 *)(record + 2);
         }
       }
-      if (c10002 < *(u32 *)(temp_v3 + 4)) {
-        if (4 < *(u32 *)(temp_v3 + 0x38)) {
+      if (c10002 < *(u32 *)(data + 4)) {
+        if (4 < *(u32 *)(data + 0x38)) {
           func_0046d730(D_005F05E8,0x541);
         }
-        for (temp_v14 = 0; temp_v14 < *(u32 *)(temp_v3 + 0x38); temp_v14 = temp_v14 + 1) {
-          fStack_78 = *(f32 *)(temp_v15 + 4);
-          fStack_74 = *(f32 *)(temp_v15 + 8);
-          fStack_70 = *(f32 *)(temp_v15 + 0xc);
-          temp_v17 = (s32)func_00155280();
-          temp_v20 = (f32)((*(u8 *)(temp_v16 + temp_v17 + 0x59) + 4U) & 3) * 90.0f;
-          puVar16[10] = 0x3f800000;
-          puVar16[5] = puVar16[10];
-          *puVar16 = puVar16[10];
-          puVar16[4] = 0;
-          puVar16[2] = 0;
-          puVar16[1] = 0;
-          puVar16[9] = 0;
-          puVar16[8] = 0;
-          puVar16[6] = 0;
-          puVar16[0xe] = 0;
-          puVar16[0xd] = 0;
-          puVar16[0xc] = 0;
-          puVar16[3] = puVar16[3] | 0x20003;
-          func_003e0870(temp_v11, D_00756510, 2, temp_v20);
-          func_003e42a0(&fStack_78,&fStack_78,temp_v11);
-          fStack_78 = fStack_78 + fStack_10;
-          fStack_74 = fStack_74 + fStack_c;
-          fStack_70 = fStack_70 + fStack_8;
+        for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x38); recordIndex = recordIndex + 1, record = record + 0x14) {
+          point_78 = *(SVec3 *)(record + 4);
+          grid = (u8 *)func_00155280();
+          angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+          *matrix = matrix[5] = matrix[10] = 0x3f800000;
+          matrix[4] = 0;
+          matrix[2] = 0;
+          matrix[1] = 0;
+          matrix[9] = 0;
+          matrix[8] = 0;
+          matrix[6] = 0;
+          matrix[0xe] = 0;
+          matrix[0xd] = 0;
+          matrix[0xc] = 0;
+          matrix[3] = matrix[3] | 0x20003;
+          func_003e0870(matrix, D_00756510, angle, 2);
+          { SVec3 *position = &point_78; func_003e42a0(position, position, matrix); }
+          point_78.x = point_78.x + worldPosition.x;
+          point_78.y = point_78.y + worldPosition.y;
+          point_78.z = point_78.z + worldPosition.z;
+          angle = angle + *(f32 *)(record + 0x10);
           { f32 f360 = 360.0f;
-          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > f360; temp_v20 = temp_v20 - f360)
+          for (; angle > f360; angle = angle - f360)
           {
           }
           }
-          temp_v17 = func_0014b510(0x12);
-          temp_v21[temp_v14] = (u16)temp_v17;
-          func_001462c0(temp_v21[temp_v14],&fStack_78,temp_v20);
-          temp_v15 = temp_v15 + 0x14;
+          resourceSlot = &placedResourceIds[recordIndex];
+          *resourceSlot = func_0014b510(0x12);
+          func_001462c0(*resourceSlot,(f32 *)&point_78,angle);
         }
       }
-      func_003e0f40(temp_v11);
+      func_003e0f40(matrix);
     }
+  }
   }
   return;
 }
 #pragma opt_propagation on
 #pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001587d0);
-#endif
+
+#pragma pop
 /* measured: opt_propagation off probe for func_001599d0. */
 #pragma opt_propagation off
 /* measured: loop-invariant callback masks remain at call site in func_001599d0. */
