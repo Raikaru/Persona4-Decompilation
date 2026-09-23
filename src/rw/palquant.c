@@ -249,12 +249,30 @@ extern void func_003efda0(u8 *arg0); /* P4: ported verbatim into src/renderware 
 #pragma no_branch_likely off
 // FUN_003F07D0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f07d0);
+// FUN_003F0C10
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f0c10);
+// FUN_003F0DE0
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f0de0);
+// FUN_003F1030
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f1030);
+// FUN_003F1240
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f1240);
+// FUN_003F13B0
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f13b0);
+// FUN_003F1520
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f1520);
+// FUN_003F1600
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f1600);
+// FUN_003F1700
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f1700);
 // FUN_003F17E0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f17e0);
 // FUN_003F1CE0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f1ce0);
 // FUN_003F24A0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f24a0);
+// FUN_003F25C0
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f25c0);
 // FUN_003F26C0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f26c0);
 /* measured: closes no_branch_likely around func_003f4be0. */

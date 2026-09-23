@@ -87,3 +87,25 @@ Ballers is right 31 times out of 42 and Burnout once. `ballers_names.json`
 carries per-entry agreement, and `REPORT.md` has the full numbers, the
 failure analysis, and nine hand-checked pairs. Same rule as above: hints,
 not `src/` edits.
+
+## Residual translation-unit split
+
+`rw_unit_attribution.json` now accounts for all 285 markers previously
+held in the RenderWare and skin-plugin grouped sources: 147 Ballers
+name-to-CU attributions and 138 additional placements.
+`rt2d_grouped.c` held RtAnim and UV-animation functions, **not** Rt2d;
+they now reside in `rtanim.c` and `rpuvanim.c`. Despite its name,
+`src/rprandom/rprandom_grouped.c` held skin, clump, light, world-object
+and plugin-registry functions, not the random-number plugin; those 40
+entries now belong to six corresponding owners under `src/rw/`.
+The small user-data, world, animation and platform groups were likewise
+merged into their owners. `QueryIntrContext` is EE runtime code and moved
+to `src/sce/query_intr_context.c`, rather than another RenderWare unit.
+
+The residual placements use neighboring named functions, source APIs and
+link order; they are not all recovered original filenames. Three late
+`0x0041fxxx` functions have no defensible narrower attribution and remain
+in `src/rw/rwcore.c`. Each moved marker retains its function body and
+compiler-control context. Scoped verification reports all 292 RW-region
+rows with unchanged status and `normalized_diff`; both linked image hashes
+are checked separately by `make build`.

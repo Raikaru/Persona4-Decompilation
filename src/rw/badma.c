@@ -269,6 +269,8 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f38d0);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f39c0);
 // FUN_003F3EB0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f3eb0);
+// FUN_003F4370
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f4370);
 // FUN_003F44C0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f44c0);
 // FUN_003F4730
