@@ -9,7 +9,7 @@ extern void func_00161500(s32 arg0);
 extern s16 func_001060b0(void);
 extern u8 func_001060c0(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
-extern s32 func_00154720(u16 arg0, u16 arg1, s64 arg2);
+extern s32 func_00154720(u16 arg0, u16 arg1, s32 arg2);
 extern u32 func_00106330(s32 arg0);
 extern s32 func_0015a0c0(void);
 extern s32 func_0014a160(void);
@@ -455,7 +455,7 @@ static inline s32 fldEnvironmentEventState(s32 state)
 }
 
 // FUN_00154720
-s32 func_00154720(u16 fieldKind, u16 baseState, s64 condition)
+s32 func_00154720(u16 fieldKind, u16 baseState, s32 condition)
 {
     s32 environmentState;
     s32 period;

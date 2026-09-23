@@ -78,11 +78,8 @@ extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_0025ec10(s32 arg0, u8 *arg1);
 extern void func_0025ec50(s32 arg0, u8 *arg1);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2,
-                  s32 arg0, s32 arg1, s32 arg2, void *arg3,
-                  s32 arg4, s32 arg5, s32 arg6,
-                  f32 farg3, f32 farg4, f32 farg5);
-extern s64 func_00248760(u16 arg0);
+s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
+extern s64 func_00248760(s32 arg0);
 extern s32 func_0025ef20(u8 *arg0);
 extern s32 func_0025f110(s32 arg0);
 extern s32 func_0035adc0(s32 arg0, s64 arg1, s32 arg2);
@@ -138,7 +135,7 @@ extern void func_0045ee00(s32 arg0, s32 arg1, void *arg2, s32 arg3,
 #ifdef NON_MATCHING
 s32 func_00250ad0(s32 *arg0, u8 *arg1)
 {
-    extern s32 func_0025f430(s32 a0, s32 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s32 a6, s32 a7, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5);
+    extern s32 func_0025f430(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 * a4, s32 a5, s16 a6, s16 a7, f32 f3, f32 f4, f32 f5);
     extern u32 func_003b7060(void);
     extern f32 func_0044b7b0(f32 arg0);
     extern f32 fGpffff8094;
@@ -206,17 +203,17 @@ s32 func_00250ad0(s32 *arg0, u8 *arg1)
         scaled1 = 255.0f * madd1 * f22;
         a1_1 = (u8)scaled1;
         s16_1 = (s16)(s32)f20;
-        func_0025f430(0xFFFFFF, a1_1, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_1, s16_1, *(f32 *)(arg0 + 1) - f20, *(f32 *)(arg0 + 2) - f20, 0.0f, 0.0f, f21, f21);
+        func_0025f430(*(f32 *)(arg0 + 1) - f20, *(f32 *)(arg0 + 2) - f20, 0.0f, 0xFFFFFF, a1_1, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_1, s16_1, 0.0f, f21, f21);
         frand1 = (f32)func_003b7060();
         madd2 = p4_0025_mul_add(fGpffff813c, frand1 / 2.1474836e9f, fGpffff8030);
         scaled2 = 255.0f * madd2 * f22;
         a1_2 = (u8)scaled2;
-        func_0025f430(0xFFFFFF, a1_2, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_1, s16_1, *(f32 *)(arg0 + 1) - f20, *(f32 *)(arg0 + 2) - f20, 0.0f, 0.0f, f21, f21);
+        func_0025f430(*(f32 *)(arg0 + 1) - f20, *(f32 *)(arg0 + 2) - f20, 0.0f, 0xFFFFFF, a1_2, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_1, s16_1, 0.0f, f21, f21);
         f20b = (1.0f + func_0044b7b0(D_007612CC + (fGpffff81e0 * (f32)arg0[5]) / (f32)arg0[6])) / 2.0f;
         scaled3 = 255.0f * (fGpffff8198 * f20b) * f22;
         a1_3 = (u8)scaled3;
         s16_2 = (s16)(s32)fGpffff82a8;
-        func_0025f430(0xFFFFFF, a1_3, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_2, s16_2, *(f32 *)(arg0 + 1) - fGpffff82a8, *(f32 *)(arg0 + 2) - fGpffff82a8, 0.0f, (360.0f * (f32)arg0[3]) / 120.0f, fGpffff8170, fGpffff8170);
+        func_0025f430(*(f32 *)(arg0 + 1) - fGpffff82a8, *(f32 *)(arg0 + 2) - fGpffff82a8, 0.0f, 0xFFFFFF, a1_3, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_2, s16_2, (360.0f * (f32)arg0[3]) / 120.0f, fGpffff8170, fGpffff8170);
         frand2 = (f32)func_003b7060();
         f20c = f20b + (fGpffff8218 * (frand2 / 2.1474836e9f) - fGpffff8030);
         if (f20c < 0.0f) {
@@ -226,7 +223,7 @@ s32 func_00250ad0(s32 *arg0, u8 *arg1)
         }
         scaled4 = 255.0f * (fGpffff8198 * f20c) * f22;
         a1_4 = (u8)scaled4;
-        func_0025f430(0xFFFFFF, a1_4, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_2, s16_2, *(f32 *)(arg0 + 1) - fGpffff82a8, *(f32 *)(arg0 + 2) - fGpffff82a8, 0.0f, (360.0f * (f32)arg0[3]) / 120.0f, fGpffff8170, fGpffff8170);
+        func_0025f430(*(f32 *)(arg0 + 1) - fGpffff82a8, *(f32 *)(arg0 + 2) - fGpffff82a8, 0.0f, 0xFFFFFF, a1_4, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_2, s16_2, (360.0f * (f32)arg0[3]) / 120.0f, fGpffff8170, fGpffff8170);
         tmp14 = arg0[5] + 1;
         arg0[5] = tmp14;
         if (tmp14 >= arg0[6]) {
@@ -268,7 +265,7 @@ s32 func_00250ad0(s32 *arg0, u8 *arg1)
         scaledS = fsmall20 * (2.0f * (f32)(((u32)(tmpC2 + 128) >> 1) | ((tmpC2 + 128) & 1)));
     }
     a1_s = (u8)(scaledS * 1.0f);
-    func_0025f430(0xFFFFFF, a1_s, 0x2F, 0, *(u8 **)(arg1 + 0x10), 1, 0, 0, (*(f32 *)(arg0 + 1) + fconv1) - 19.0f * fsmall21, (*(f32 *)(arg0 + 2) + fconv2) - 19.0f * fsmall21, 0.0f, 0.0f, fsmall21, fsmall21);
+    func_0025f430((*(f32 *)(arg0 + 1) + fconv1) - 19.0f * fsmall21, (*(f32 *)(arg0 + 2) + fconv2) - 19.0f * fsmall21, 0.0f, 0xFFFFFF, a1_s, 0x2F, 0, *(u8 **)(arg1 + 0x10), 1, 0, 0, 0.0f, fsmall21, fsmall21);
     tmpC3 = arg0[3] + 1;
     arg0[3] = tmpC3;
     if (tmpC3 >= 0x1E) {
@@ -1114,24 +1111,19 @@ loop_test:
     func_00364c70();
 }
 // FUN_0025E9E0
-void func_0025e9e0(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4,
-                   f32 farg0, f32 farg1, f32 farg2) {
-    func_0025ea20(farg0, farg1, farg2, arg0, arg1, arg2, arg3, arg4,
-                  0, 0, 0.0f, 1.0f, 1.0f);
+void func_0025e9e0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4) {
+    func_0025ea20(farg0, farg1, farg2, arg0, arg1, arg2, arg3, arg4, 0, 0, 0.0f, 1.0f, 1.0f);
 }
 /* measured: plain `(u16)(4096.0f * farg4)` and `(u16)(4096.0f * farg5)` casts reproduce both compiler-generated float-to-unsigned conversion paths; MATCH object 484B/window 496B. Each retail site begins `lui 0x4580; mtc1; mul.s; lui 0x4F00; mtc1; c.ole.s`, then uses low `cvt.w.s; mfc1; andi` or high `sub.s; cvt.w.s; mfc1; lui 0x8000; or; andi` before `sh`. The `or` is after `mfc1`, and the 4096.0f `mul.s` is genuine scaling. */
 // FUN_0025EA20
-s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2,
-                  s32 arg0, s32 arg1, s32 arg2, void *arg3,
-                  s32 arg4, s32 arg5, s32 arg6,
-                  f32 farg3, f32 farg4, f32 farg5) {
+s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5) {
     u8 *temp_2;
 
     temp_2 = func_0046d200((u32)arg3, arg2);
     *(f32 *)(temp_2 + 8) = farg0;
     *(f32 *)(temp_2 + 0xC) = farg1;
     *(f32 *)(temp_2 + 0x24) = farg2;
-    *(s8 *)(temp_2 + 0x11) = (s8)(0xFF - (arg1 & 0xFF));
+    *(s8 *)(temp_2 + 0x11) = (s8)(0xFF - arg1);
     *(s8 *)(temp_2 + 0x28) = (s8)((u32)arg0 >> 0x10);
     *(s8 *)(temp_2 + 0x29) = (s8)((u32)arg0 >> 8);
     *(u8 *)(temp_2 + 0x2A) = (u8)arg0;

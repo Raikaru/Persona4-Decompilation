@@ -209,8 +209,8 @@ void func_0046d280(void *);
 void func_0046b0d0(void *);
 void func_00454bd0(void *);
 void func_002e29a0(void);
-s8 func_002bab80(void *);
-void func_002bbd80(s32, s32, void *);
+s64 func_002bab80(void *);
+void func_002bbd80(s8, s32, void *);
 void func_002badc0(s32, s16);
 void func_002bafc0(s32, s32);
 void func_002bb0a0(s32, s32);
@@ -9755,13 +9755,15 @@ void func_002dfe00(void *arg0) {
 
 // FUN_002DFEC0
 s32 func_002dfec0(void *arg0, s32 arg1, void *arg2, s8 arg3) {
+    s8 handle;
     s32 v;
     void *t;
 
     t = *(void **)((u8 *)*(void **)((u8 *)arg0 + 0x38) + 0xF2C);
-    v = func_002bab80(*(void **)((u8 *)t + 0x110));
+    handle = (s8)func_002bab80(*(void **)((u8 *)t + 0x110));
+    v = handle;
     if (arg2 != 0) {
-        func_002bbd80(v, 0, arg2);
+        func_002bbd80(handle, 0, arg2);
     }
     func_002badc0(v, arg1);
     if (arg3 == 1) {
@@ -9774,13 +9776,15 @@ s32 func_002dfec0(void *arg0, s32 arg1, void *arg2, s8 arg3) {
 
 // FUN_002DFF90
 s32 func_002dff90(void *arg0, s32 arg1, void *arg2, void *arg3, s8 arg4) {
+    s8 handle;
     s32 v;
     void *t;
 
     t = *(void **)((u8 *)*(void **)((u8 *)arg0 + 0x38) + 0xF2C);
-    v = func_002bab80(*(void **)((u8 *)t + 0x110));
-    func_002bbd80(v, 0, arg2);
-    func_002bbd80(v, 1, arg3);
+    handle = (s8)func_002bab80(*(void **)((u8 *)t + 0x110));
+    v = handle;
+    func_002bbd80(handle, 0, arg2);
+    func_002bbd80(handle, 1, arg3);
     func_002badc0(v, arg1);
     if (arg4 == 1) {
         func_002bafc0(v, 0);

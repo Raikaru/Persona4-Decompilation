@@ -113,7 +113,7 @@ typedef struct DungeonInWork {
 extern void func_0045d6e0(u8 *, f32 *, f32, s32);
 extern void func_001228a0(s32, s32, s32);
 extern void func_00267b20(f32, f32, f32, s32, s32, s32, s32, s32, s32, f32, f32, f32);
-extern s32 func_0025ea20(f32, f32, f32, s32, s32, s32, void *, s32, s32, s32, f32, f32, f32);
+extern s32 func_0025ea20(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32);
 extern u8 *func_0046a770(char *);
 extern u8 *func_002e2170(u8 *, u8 *, s32);
 extern void func_0046d730(const void *, s32);
@@ -197,9 +197,7 @@ void func_00268230(void *unused, void *task)
         } else if (work->frame < 131) {
             alpha = (s32)(255.0f * (1.0f - (f32)(work->frame - 120) / 10.0f));
         }
-        func_0025ea20(28.0f, -38.0f, 0.0f, 0xFFFFFF, (u8)alpha, 75,
-                      func_0046a770((char *)D_005E5810), 1, 0, 0, 0.0f,
-                      15.999990f, 15.999f);
+        func_0025ea20(28.0f, -38.0f, 0.0f, 0xFFFFFF, (u8)alpha, 75, func_0046a770((char *)D_005E5810), 1, 0, 0, 0.0f, 15.999990f, 15.999f);
         if (work->frame == 17) {
             DungeonInEntry entries[19] = {
                 {18, 30.0f, 0, {0.0f, 0.0f, 60.0f, 0.0f}, {0.0f, 0.0f, 60.0f, 0.100000001f}, {0.0f, 0.0f, 60.0f, 0.100000001f}, {0.0f, 0.0f, 60.0f, 7.0f}},

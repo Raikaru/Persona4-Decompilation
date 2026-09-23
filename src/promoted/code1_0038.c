@@ -72,9 +72,9 @@ extern void func_00389e10();
 extern void func_0038a940();
 extern void func_0038b1c0();
 extern void func_0034f460(s32 resource, s32 slot, f32 x, f32 y,
-                          u8 r, u8 g, u8 b, u32 alpha);
+                          u8 r, u8 g, u8 b, u8 alpha);
 extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
-                          f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5,
+                          f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                           u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0,
                           s16 arg_sp8);
 static inline u32 add_offset_first_0038(u32 offset, u32 base)
@@ -656,7 +656,7 @@ void func_00385380(u8 *arg0)
     extern s32 func_003f6440(s32 state, void *value);
     typedef struct { f32 x; f32 y; } Vec2f_5380;
     extern void func_00364c90(Vec2f_5380 pos, f32 depth, s32 color, f32 width, f32 height, f32 angle, s32 mode);
-    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     extern f32 func_0044b7b0(f32 fparg0);
     extern f32 func_0044b610(f32 fparg0);
     extern f32 DAT_007613F8;
@@ -731,7 +731,7 @@ void func_00385970(u8 *arg0)
     typedef struct { f32 x; f32 y; } Vec2f_5970;
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 func_003f6440(s32 state, void *value);
-    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     extern u32 func_003b7060(void);
     extern f32 func_0044b7b0(f32 fparg0);
     extern f32 fGpffff8374;
@@ -1007,7 +1007,7 @@ void func_00386c00(u8 *arg0)
 {
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 func_003f6440(s32 state, void *value);
-    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     extern f32 func_0044b7b0(f32 fparg0);
     extern f32 fGpffff812c;
     extern f32 fGpffff83d0;
@@ -1989,9 +1989,11 @@ void func_00389370(u8 **arg0)
                       0.0f, (s16)size0, (s16)size1);
     }
 }
-/* measured: honest first reconstruction per func_00389370 idiom (u8** tick at +0x6C plus 12B entries at +0x70, (f32)(u16)/(u8)/(u32) bltz idioms, plain (u8)/(u16)/(s16) clamps, sequential <= guard, block-scoped counters, plain arithmetic no COP1 exemption; probe_variants v1 387w/67e, v2 tickp idiom 387w tie adopted (-4 edits to 63e), v3 0.0f+ prefix 387w tie unproductive, pragma sweep sched 371w but fnalign 364/409 short +304e worse and prop-off 375w but 126e worse not adopted per 3%+fnalign; fnalign v2 retail 412/object 415 (+0.7% within 3%, 63 edits +5 reloc-only, frame 0x70->0x90, s1->s2 rotation, COP1 adda/madd floor); providers verified (3b7060 u32() per btlResultSimple.c:13, 44b7b0 f32 per btlShuffleCalc.c:27, 34f4a0 per this file:73, 3f6440/46d730/D_0064F0E0/D_00761470 file-scope, D_007613EC pi, fGp82cc/8170/8218 0.4/0.6/0.2 per image.bin); Ghidra/IDA agree on CFG/call order, differ on float-global naming (used file idiom); lever 4 exclusive <4 already $at; lbu correct; double-def offset remains + COP1 chains; re-derived, no fabrications; archive P038_00389640_body.c stale empty. Banked guarded floor. */
-// FUN_00389640 NONMATCHING
-#ifdef NON_MATCHING
+/* Animate four sprites with interpolated colors and rotated pixel offsets.
+   The timer and random samples are snapshots; angle division precedes
+   multiplication, and the second sine result is converted to a signed
+   pixel offset after scaling. Opacity crosses the sprite API as a byte. */
+// FUN_00389640
 void func_00389640(u8 **arg0)
 {
     extern u32 func_003b7060(void);
@@ -2021,10 +2023,10 @@ void func_00389640(u8 **arg0)
             *(u16 *)entry = 0;
             rnd = func_003b7060() & 0xFFF;
             ratio = (f32)rnd / 4096.0f;
-            *(u16 *)(entry + 2) = (u16)(200.0f * (fGpffff8170 + fGpffff82cc * ratio));
+            *(u16 *)(entry + 2) = (u16)(200.0f * ((0.0f + fGpffff8170) + fGpffff82cc * ratio));
             rnd = func_003b7060() & 0xFFF;
             ratio = (f32)rnd / 4096.0f;
-            *(u8 *)(entry + 4) = (u8)(255.0f * (fGpffff8218 + fGpffff8218 * ratio));
+            *(u8 *)(entry + 4) = (u8)(255.0f * ((0.0f + fGpffff8218) + fGpffff8218 * ratio));
             rnd = func_003b7060() & 0xFFF;
             ratio = (f32)rnd / 4096.0f;
             *(f32 *)(entry + 8) = 40.0f * ratio - 20.0f;
@@ -2041,10 +2043,9 @@ void func_00389640(u8 **arg0)
         u16 counter;
         u16 limit;
         entry = base + i * 12 + 4;
-        counter = *(u16 *)entry;
         limit = *(u16 *)(entry + 2);
+        counter = *(u16 *)entry;
         if (counter <= limit) {
-            u16 next;
             f32 fnext;
             f32 flimit;
             f32 s;
@@ -2053,42 +2054,28 @@ void func_00389640(u8 **arg0)
             f32 q1;
             f32 size0_f;
             f32 size1_f;
-            s32 size0;
-            s32 size1;
             f32 eased;
-            u8 alpha;
-            u16 w0;
-            u16 w1;
-            next = counter + 1;
-            *(u16 *)entry = next;
-            fnext = (f32)next;
+            fnext = (f32)(u32)(++*(u16 *)entry);
             flimit = (f32)limit;
-            s = func_0044b7b0((D_00761470 * fnext) / flimit);
+            s = func_0044b7b0(D_00761470 * (fnext / flimit));
             inv = 1.0f - s;
-            q0 = (992.0f + 1218.0f * inv) / 254.0f;
-            q1 = (696.0f + 854.0f * inv) / 254.0f;
+            q0 = ((0.0f + 992.0f) + (f32)1218 * inv) / 254.0f;
+            q1 = ((0.0f + 696.0f) + (f32)854 * inv) / 254.0f;
             size0_f = 127.0f * q0;
             size1_f = 127.0f * q1;
-            size0 = (s32)size0_f;
-            size1 = (s32)size1_f;
             eased = func_0044b7b0(D_007613EC * inv);
             if (eased < 0.0f) {
                 eased = 0.0f;
             }
-            alpha = (u8)((f32)*(u8 *)(entry + 4) * eased);
-            w0 = (u16)(4096.0f * q0);
-            w1 = (u16)(4096.0f * q1);
             func_0034f4a0(palette, 1, 320.0f - size0_f, 224.0f - size1_f, 0.0f,
-                          0xFF, 0xAE, 0x49, alpha, w0, w1,
-                          *(f32 *)(entry + 8), (s16)size0, (s16)size1);
+                          0xFF, 0xAE, 0x49, (u8)((f32)(u32)*(u8 *)(entry + 4) * eased),
+                          (u16)(4096.0f * q0), (u16)(4096.0f * q1),
+                          *(f32 *)(entry + 8), (s16)(s32)size0_f, (s16)(s32)size1_f);
         }
     }
     func_003f6440(3, (void *)0x717FB);
     func_003f6440(2, (void *)0x44);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389640);
-#endif
 /* measured: opt_loop_invariants on hoists the conversion constants into the retail preheader. */
 #pragma opt_loop_invariants on
 // FUN_00389CB0
@@ -2591,7 +2578,7 @@ void func_0038b1c0(u8 *arg0)
     u16 *counter;
     f32 alpha;
     f32 scaled;
-    u32 alpha_byte;
+    u8 alpha_byte;
     u8 red;
     u8 green;
     u8 blue;
@@ -2943,9 +2930,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038bab0);
 #pragma opt_common_subs off
 void func_0038c100(u8 *arg0)
 {
-    extern void func_0034f460(s32 h, s32 id, s32 a, s32 b, s32 c, s32 alpha, f32 x, f32 y);
-    extern void func_0034f4a0(s32 h, s32 id, s32 a, s32 b, s32 c, s32 alpha, s32 sx, s32 sy,
-                              f32 x, f32 y, s32 d, f32 z, s32 e, s32 f);
+    extern void func_0034f460(s32, s32, f32, f32, u8, u8, u8, u8);
+    extern void func_0034f4a0(s32, s32, f32, f32, f32, u8, u8, u8, u8, u16, u16, f32, s16, s16);
     extern f32 func_00373cb0(s32 mode, f32 t, f32 a, f32 b);
     u8 *ctx;
     u8 *state;

@@ -1026,11 +1026,9 @@ loop7_check:
 }
 #pragma opt_propagation on
 // FUN_00112300
-#pragma opt_propagation off
-void func_00112300(f32 inputDepth, u64 arg0, s32 inputAlpha, u8 *inputEntry)
+void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
 {
     f32 fparg0;
-    s32 arg1;
     u8 *arg2;
     u8 buf[256];
     s32 temp16;
@@ -1047,9 +1045,9 @@ void func_00112300(f32 inputDepth, u64 arg0, s32 inputAlpha, u8 *inputEntry)
     void func_00442088(void *, void *, s32);
     s32 func_0046a770(void *);
     void func_0046d730(void *, s32);
-    void func_00112610(Vec2f, f32, s32, u8 *, s32, s32);
-    void func_00112830(s64, f32, s32, u8 *, s32);
-    void func_001130c0(Vec2f, f32, s32, u8 *, s32);
+    void func_00112610(Vec2f, f32, u8, u8 *, s32, s32);
+    void func_00112830(s64, f32, u8, u8 *, s32);
+    void func_001130c0(Vec2f, f32, u8, u8 *, s32);
     extern f32 D_005E4790[];
     extern f32 D_005E4794[];
     extern f32 D_005E479C[];
@@ -1060,7 +1058,6 @@ void func_00112300(f32 inputDepth, u64 arg0, s32 inputAlpha, u8 *inputEntry)
     extern u8 iGpffff9be8;
 
     fparg0 = inputDepth;
-    arg1 = inputAlpha;
     arg2 = inputEntry;
     temp16 = func_0046a770(D_005E5830);
     temp19 = func_0046a770(D_005E5850);
@@ -1071,15 +1068,15 @@ void func_00112300(f32 inputDepth, u64 arg0, s32 inputAlpha, u8 *inputEntry)
         func_0046d730(&iGpffff9be0, 0x94);
     }
     if (*(u16 *)(arg2 + 0x14) != 0) {
-        func_00112610(*(Vec2f *)&arg0, fparg0, arg1, arg2, temp16, temp19);
-        *(f32 *)&arg0 = *(f32 *)&arg0 + 45.0f;
+        func_00112610(arg0, fparg0, arg1, arg2, temp16, temp19);
+        arg0.x = arg0.x + 45.0f;
     }
     if (*(s32 *)(arg2 + 0xC) != 0) {
         temp19 = arg1 & 0xFF;
         temp_2 = (s32)func_001067f0(*(s16 *)arg2);
         func_00275020(
-            *(f32 *)&arg0,
-            *(f32 *)((u8 *)&arg0 + 4),
+            arg0.x,
+            arg0.y,
             fparg0,
             temp19 | ~0xFF,
             *(s8 *)(&iGpffff9bd8 + *(s16 *)(arg2 + 0x16)),
@@ -1089,25 +1086,25 @@ void func_00112300(f32 inputDepth, u64 arg0, s32 inputAlpha, u8 *inputEntry)
             -1);
     }
     if (*(s32 *)(arg2 + 0x10) != 0) {
-        xy.values[0] = *(f32 *)&arg0 +
+        xy.values[0] = arg0.x +
                        D_005E4790[*(s16 *)(arg2 + 0x18) * 4];
         temp_1 = 9.0f;
-        temp_1 += *(f32 *)((u8 *)&arg0 + 4);
+        temp_1 += arg0.y;
         xy.values[1] = temp_1;
         func_00112830(xy.whole, fparg0, arg1, arg2, temp16);
     }
     if (*(s16 *)(arg2 + 2) != -1) {
-        xy.position.x = *(f32 *)&arg0 +
+        xy.position.x = arg0.x +
                         D_005E4794[*(s16 *)(arg2 + 0x18) * 4];
         temp_1 = 12.0f;
-        temp_1 += *(f32 *)((u8 *)&arg0 + 4);
+        temp_1 += arg0.y;
         xy.position.y = temp_1;
         func_001130c0(xy.position, fparg0, arg1, arg2, temp16);
     }
     if (*(s32 *)(arg2 + 8) != -1) {
-        xy.values[0] = *(f32 *)&arg0 +
+        xy.values[0] = arg0.x +
                        D_005E479C[*(s16 *)(arg2 + 0x18) * 4];
-        xy.values[1] = *(f32 *)((u8 *)&arg0 + 4);
+        xy.values[1] = arg0.y;
         temp16 = ((arg1 & 0xFF) * 0xFF) / 255U;
         func_00442088(buf, &iGpffff9be8,
                       func_00106a90(*(s16 *)arg2));
@@ -1143,7 +1140,7 @@ void func_001125d0(u8 *arg0) {
     *(s16 *)(arg0 + 0x16) = 0;
 }
 // FUN_00112610
-void func_00112610(Vec2f arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4)
+void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4)
 {
     typedef struct {
         u8 b[4];
@@ -1223,7 +1220,7 @@ void func_00112610(Vec2f arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg
 /* 494->480; sb -5->+15 and swc1/lwc1 -8/-8 remain for the word-copy hole). */
 // FUN_00112830 NONMATCHING
 #ifdef NON_MATCHING
-void func_00112830(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
+void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
 {
     extern u8 D_005E4750[];
 
@@ -1448,7 +1445,7 @@ static inline s32 fontDrawLeadingGlyph(const Vec2f *position, f32 depth, u8 opac
  * and eight retail alignment zeros. The leading draw keeps inverse
  * opacity live while the loop retains its blue and green snapshots. */
 // FUN_001130C0
-void func_001130c0(Vec2f arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
+void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
 {
     struct {
         s8 text[0x4C];

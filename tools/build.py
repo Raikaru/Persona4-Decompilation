@@ -6,10 +6,12 @@ Pipeline:
   matched src/*.c --mwccgap (locally configured MWCC + GNU R5900 assembler)--> objects
   unmatched ranges --GNU R5900 assembler--> objects, carved around linked C
   data ranges --.incbin image.bin--> objects
-  all objects --mwldps2--> a loadable image, then byte/hash checked against retail.
+  all objects --selected linker--> a loadable image, then byte/hash checked against retail.
 
 Machine-specific paths belong in tools/build_config.local.json (gitignored) or
-the P4_MWCC, P4_RETAIL_ELF, P4_AS, and P4_OBJCOPY environment variables.  The
+the P4_MWCC, P4_RETAIL_ELF, P4_AS, and P4_OBJCOPY environment variables. Select
+the GNU linker explicitly with --linker-backend gnu or P4_LINKER_BACKEND=gnu;
+P4_LD overrides its executable using the existing GNU tool discovery. The
 retail target identity and memory layout come from config/target.json.
 """
 import argparse
@@ -32,6 +34,9 @@ sys.path.insert(0, str(REPO / "tools"))
 import verify as V  # noqa: E402
 import asm as A  # noqa: E402
 import build_cache as BC  # noqa: E402
+from elf_text_runs import (Placement, SplitError, split_object, text_runs, localize_private_bridges,
+                           validate_whole_object)  # noqa: E402
+import gnu_link as G  # noqa: E402
 
 
 def parse_int(value):
@@ -130,6 +135,9 @@ def cfg():
     if not isinstance(c["cflags"], list) or not all(isinstance(flag, str) for flag in c["cflags"]):
         sys.exit("build: cflags in tools/build_config*.json must be a JSON string list")
     c["compile_flags"] = [*c["cflags"], "-Iinclude"]
+    c["linker_backend"] = os.environ.get("P4_LINKER_BACKEND", c.get("linker_backend", "mwld"))
+    if c["linker_backend"] not in ("mwld", "gnu"):
+        sys.exit("build: linker_backend must be mwld or gnu")
     return c
 
 
@@ -286,14 +294,41 @@ def rename_text_sections(path, addresses):
     if not owner:
         return
 
-    # The new strings are appended at the end of the file, so their shstrtab
-    # offsets are relative to the table's own file offset, not to its size.
+    rename_sections(path, {index: '.text.' + name for index, (name, _size) in owner.items()},
+                    alignments={index: 1 for index in owner})
+
+
+def rename_sections(path, names, *, alignments=None):
+    """Change section names and requested alignment metadata, preserving payloads.
+
+    Relocations refer to section and symbol indices, which remain unchanged.
+    Literal pools retain their compiler alignment; only text callers request 1.
+    """
+    if not names:
+        return
+    obj = V.ObjectFile(path)
+    data = bytearray(obj.data)
+    shoff = struct.unpack_from('<I', data, 0x20)[0]
+    entsize, count, stridx = struct.unpack_from('<HHH', data, 0x2e)
+    str_off = struct.unpack_from('<I', data, shoff + stridx * entsize + 0x10)[0]
+    if (len(set(names.values())) != len(names)
+            or any(index <= 0 or index >= count or index == stridx for index in names)
+            or any(not name or '\0' in name for name in names.values())
+            or any(section['name'] in names.values() for section in obj.sections
+                   if section['idx'] not in names)):
+        raise ValueError('Section rename would collide with existing names or metadata')
+    alignments = alignments or {}
+    if any(index not in names or alignment < 1 or alignment & (alignment - 1)
+           for index, alignment in alignments.items()):
+        raise ValueError('Invalid section alignment override')
+    # New strings live after the existing file, so offsets are relative to the
+    # original table's file position rather than its former size.
     appended = bytearray()
     offsets = {}
     append_base = len(data) - str_off
-    for shndx, (name, _size) in sorted(owner.items()):
+    for shndx, name in sorted(names.items()):
         offsets[shndx] = append_base + len(appended)
-        appended += f".text.{name}".encode() + b"\0"
+        appended += name.encode() + b"\0"
     if appended:
         data += appended
         # The table now spans from its original offset to the end of the file,
@@ -303,7 +338,8 @@ def rename_text_sections(path, addresses):
         for shndx, nameoff in offsets.items():
             header = shoff + shndx * entsize
             struct.pack_into("<I", data, header, nameoff)     # sh_name
-            struct.pack_into("<I", data, header + 0x20, 1)    # sh_addralign
+            if shndx in alignments:
+                struct.pack_into("<I", data, header + 0x20, alignments[shndx])
     path.write_bytes(data)
 
 
@@ -375,25 +411,43 @@ def load_symbol_names():
     return names
 
 
-def source_marker_names():
-    """Function names defined by C sources anywhere in the tree.
+def source_marker_locations():
+    """Candidate addresses of function names in authoritative source markers.
 
-    These are link-resolvable by definition: whichever object owns the marker
-    emits the symbol. Collected across all of src/ because a translation unit
-    may legitimately call into a sibling unit.
+    A provider excluded from the C link is still emitted by the assembly
+    fallback, possibly under its numeric name. Keep its source name available
+    for the existing unresolved-symbol completion step, without adding duplicate
+    addresses to splat's input symbol table.
     """
-    names = set()
+    addresses = {}
     for path in (REPO / "src").rglob("*.c"):
         if V.is_generated(path):
             continue
         for marker in V.scan_markers(path):
             if marker.get("name"):
-                names.add(marker["name"])
-    return names
+                name, address = marker["name"], marker["addr"]
+                addresses.setdefault(name, set()).add(address)
+    return addresses
+
+
+def source_marker_addresses():
+    """Resolve only unique source names; duplicate library names are not aliases.
+
+    Different archived library versions can define the same C name at different
+    retail addresses. An absent configuration entry must not choose one of them.
+    Such a name remains unresolved unless an actual linked object exports it.
+    """
+    return {name: next(iter(addresses))
+            for name, addresses in source_marker_locations().items() if len(addresses) == 1}
+
+
+def source_marker_names():
+    """Names eligible for linkage through their C owner or retail fallback."""
+    return set(source_marker_locations())
 
 
 def load_symbol_addr_map():
-    """name -> address for every entry in config/symbol_addrs.txt."""
+    """Addresses from the split configuration and authoritative source markers."""
     out = {}
     p = REPO / "config" / "symbol_addrs.txt"
     if p.is_file():
@@ -401,6 +455,10 @@ def load_symbol_addr_map():
             m = re.match(r"\s*([A-Za-z_.$][\w.$]*)\s*=\s*(0[xX][0-9A-Fa-f]+|\d+)\s*;", line)
             if m:
                 out[m.group(1)] = int(m.group(2), 0)
+    for name, address in source_marker_addresses().items():
+        if name in out and out[name] != address:
+            raise ValueError(f"source/configuration address disagreement for {name}")
+        out[name] = address
     return out
 
 
@@ -554,7 +612,7 @@ def recover_concatenated_layout(sections, recovered_bases):
     return valid[0] if len(valid) == 1 else None
 
 
-def plan_data_sections(obj, real, retail, gp, resolvable):
+def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literals=False):
     """Decide whether all of a TU's owned data sections can be placed byte-exact.
     Returns (ok, {section_name: (base, size)}).
 
@@ -564,7 +622,13 @@ def plan_data_sections(obj, real, retail, gp, resolvable):
     an array out of bounds). The region base comes from the first section whose
     address is reliably recovered; each section is then checked at base+offset:
     reloc-free PROGBITS must byte-match retail, reloc-bearing sections need every
-    target resolvable, and NOBITS regions must be zero in retail."""
+    target resolvable, and NOBITS regions must be zero in retail.
+
+    GNU can select separately named literal sections in retail-address order.
+    When requested, an otherwise invalid same-name literal concatenation may use
+    that path, provided every pool has its own consistent relocation-derived
+    address, original alignment, and byte-exact payload. No pool is duplicated.
+    """
     import collections
     local_syms = {s["name"] for s in obj.symbols if s["name"] and s.get("shndx", 0) != 0}
     bases = recover_section_bases(obj, real, retail, gp)
@@ -576,6 +640,27 @@ def plan_data_sections(obj, real, retail, gp, resolvable):
     for name, secs in by_name.items():
         secs.sort(key=lambda s: s["idx"])  # mwld concatenates same-name sections in shndx order
         layout = recover_concatenated_layout(secs, bases)
+        if layout is None and independent_literals and name in ('.lit4', '.lit8'):
+            individual = {}
+            intervals = []
+            for section in secs:
+                index = section['idx']
+                address = bases.get(index)
+                renamed = f'{name}.p4_{index:x}'
+                if (address is None or address % max(section['addralign'], 1)
+                        or section['type'] != 1 or not section['flags'] & 2
+                        or section_relocs(obj, index)
+                        or any(s['name'] == renamed for s in obj.sh)
+                        or obj.data[section['offset']:section['offset'] + section['size']]
+                           != retail.bytes_at(address, section['size'])):
+                    return False, {}
+                individual[renamed] = (address, section['size'])
+                intervals.append((address, address + section['size']))
+            intervals.sort()
+            if any(end > following for (_, end), (following, _) in zip(intervals, intervals[1:])):
+                return False, {}
+            per_name.update(individual)
+            continue
         if layout is None:
             return False, {}
         base, offsets, total = layout
@@ -602,42 +687,17 @@ def plan_data_sections(obj, real, retail, gp, resolvable):
 
 
 def object_layout_is_placeable(addrs):
-    """Can this object's functions land at their retail addresses?
+    """Validate whole-function windows, allowing gaps through separate objects.
 
-    ``addrs`` is ``(address, window, emitted_size, section_index)`` sorted by
-    address. Every function is now placed individually: rename_text_sections
-    gives each one a unique .text section name and the LCF emits one
-    `. = <address>; obj (.text.<name>)` directive per function, so the linker
-    expresses any inter-function gap directly and zero-fills it. Only genuinely
-    impossible shapes remain:
-
-    * a function whose body is longer than its retail window would run into the
-      following function's bytes;
-    * an object whose windows are not contiguous has some other function living
-      between two of its own -- the code-carving step would drop that function's
-      bytes from the splat asm without any object emitting them;
-    * two functions sharing one .text section cannot be split apart, because the
-      rename gives the whole section a single name.
-
-    Measured 2026-09-03: carving per function window and placing the splat
-    chunk BETWEEN two sections of the same object is well-formed in the LCF
-    (`. = a; obj(.text.f1)` / `. = b; chunk.o(.text)` / `. = c; obj(.text.f2)`)
-    but mwldps2 segfaults on it, even for a single such object. Lifting the
-    gap rule therefore needs the object split into one file per contiguous
-    run first (objcopy -j on the renamed .text sections); 125 units with
-    matches wait on that.
+    Contiguous windows form one text run. Gaps are left to the existing per-window
+    assembly carver. Shared sections, overlong functions and overlapping windows
+    remain rejected. The eligibility path additionally validates the actual ELF
+    splitter before admitting a gapped first-party owner.
     """
-    sections = {section for _address, _window, _size, section in addrs}
-    if len(sections) != len(addrs):
+    try:
+        return bool(text_runs(addrs))
+    except SplitError:
         return False
-    previous_end = None
-    for address, window, size, _section in addrs:
-        if size > window:
-            return False
-        if previous_end is not None and address != previous_end:
-            return False
-        previous_end = address + window
-    return True
 
 
 def merge_symbol_sections(symbols):
@@ -798,7 +858,28 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
                    and s["shndx"] not in (0, 0xFFF1)]
         if unowned:
             continue
-        data_ok, sections = plan_data_sections(obj, real, retail, gp, resolvable)
+        relative = cpath.relative_to(REPO).as_posix()
+        has_first_party = any(V.code_origin(relative, marker["addr"]) == "main" for marker in real)
+        run_count = len(text_runs(addrs))
+        if run_count > 1:
+            # Mixed owners retain their native object and per-function origins.
+            # A vendor tail must not strand the first-party functions before it.
+            # Entirely third-party gapped owners keep their previous restriction.
+            if not has_first_party:
+                continue
+            windows_by_address = {address: window for address, window, _size, _section in addrs}
+            try:
+                placements = [Placement(marker["name"], marker["addr"],
+                    windows_by_address[marker["addr"]]) for marker in real]
+                if c.get("linker_backend", "mwld") == "gnu":
+                    validate_whole_object(obj.data, placements)
+                else:
+                    split_object(obj.data, placements, relative)
+            except SplitError:
+                continue
+        independent_literals = c.get('linker_backend', 'mwld') == 'gnu' and has_first_party
+        data_ok, sections = plan_data_sections(obj, real, retail, gp, resolvable,
+                                              independent_literals=independent_literals)
         if not data_ok:
             continue
         out.append(dict(
@@ -808,6 +889,7 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
             ranges=[(address, address + window) for address, window, _size, _section in addrs],
             funcs=real,
             sections=sections,
+            text_run_count=run_count,
         ))
     out.sort(key=lambda d: d["start"])
     return out
@@ -1191,6 +1273,83 @@ def compile_c(c, src, obj, cache):
         sys.exit(f"build: failed to compile {src.relative_to(REPO)}")
 
 
+def prepare_link_objects(cobj, owner, linker_backend="mwld"):
+    """Materialize a linked owner's real object fragments and placement entries.
+
+    The original owner remains one progress-record source. Only its physical
+    MWLD link inputs multiply. GNU keeps the original owner whole. A data-only
+    fragment is returned even without an
+    allocated placement, so any original ABS/COMMON definitions are retained.
+    """
+    if linker_backend not in ("mwld", "gnu"):
+        raise ValueError(f"unknown linker backend: {linker_backend}")
+    windows = {start: end - start for start, end in owner["ranges"]}
+    placements = [Placement(marker["name"],
+        marker["addr"] if isinstance(marker["addr"], int) else int(marker["addr"], 16),
+        windows[marker["addr"] if isinstance(marker["addr"], int) else int(marker["addr"], 16)])
+        for marker in owner["funcs"]]
+    entries = []
+    owner["private_bridges"] = []
+    if owner.get("text_run_count", 1) > 1 and linker_backend == "mwld":
+        relative = owner["src"].relative_to(REPO).as_posix()
+        result = split_object(cobj.read_bytes(), placements, relative)
+        owner["private_bridges"] = [bridge["name"] for bridge in result.bridges]
+        objects = []
+        data_object = None
+        for fragment in result.fragments:
+            path = cobj.with_name(cobj.stem + "." + fragment.label + ".o")
+            temporary = path.with_suffix(".tmp")
+            temporary.write_bytes(fragment.data)
+            temporary.replace(path)
+            objects.append(path)
+            for placement in fragment.placements:
+                entries.append((placement.address, path, ".text." + placement.name))
+            if fragment.label == "data":
+                data_object = path
+        if data_object is None:
+            raise ValueError("split object has no data/metadata fragment")
+    else:
+        if owner.get("text_run_count", 1) > 1:
+            validate_whole_object(cobj.read_bytes(), placements)
+        rename_text_sections(cobj, {p.name: p.address for p in placements})
+        if linker_backend == 'gnu':
+            native = V.ObjectFile(cobj)
+            literal_names = {}
+            for name, (address, size) in owner['sections'].items():
+                match = re.fullmatch(r'(\.lit[48])\.p4_([0-9a-f]+)', name)
+                if match:
+                    index = int(match[2], 16)
+                    if not 0 < index < len(native.sections):
+                        raise ValueError('Literal section index changed after eligibility')
+                    section = native.sections[index]
+                    if (section['name'] != match[1] or section['size'] != size
+                            or address % max(section['addralign'], 1)):
+                        raise ValueError('Literal section layout changed after eligibility')
+                    literal_names[index] = name
+            rename_sections(cobj, literal_names)
+        leftover = [s for s in V.ObjectFile(cobj).sections if s["name"] == ".text" and s["size"]]
+        if leftover:
+            sys.exit(f"build: {cobj.name} has .text sections no placed marker owns; "
+                     "cannot lay it out per function")
+        objects = [cobj]
+        data_object = cobj
+        entries.extend((p.address, cobj, ".text." + p.name) for p in placements)
+    for name, (base, _size) in owner["sections"].items():
+        entries.append((base, data_object, name))
+    return objects, entries
+
+
+def finalize_private_symbols(linked, names):
+    """MWLD drops hidden visibility; restore only the generated aliases to local."""
+    if not names:
+        return
+    original = linked.read_bytes()
+    localized = localize_private_bridges(original, names)
+    temporary = linked.with_suffix(".symbols.tmp")
+    temporary.write_bytes(localized)
+    temporary.replace(linked)
+
+
 # ---------------------------------------------------------------- link
 
 def lcf_placements(entries):
@@ -1220,9 +1379,18 @@ def write_lcf(entries, gp, defs):
     (BUILD / "slus21782.lcf").write_text(lcf)
 
 
-def link(c, entries):
+def link(c, entries, additional_objects=(), *, gp=None, defs=None):
+    if c.get("linker_backend", "mwld") == "gnu":
+        tool = c.get("gnu_ld_tool") or A.find_gnu_tool("mipsel-linux-gnu-ld", "P4_LD")
+        entry_symbol = ELF_TARGET.get("entry_symbol", f"func_{parse_int(ELF_TARGET['entry']):08x}")
+        return G.link(tool, entries, additional_objects, BUILD, VRAM, IMAGE_SIZE,
+                      entry_symbol, parse_int(ELF_TARGET["entry"]), gp, defs or {})
     objs, seen = [], set()
     for _a, obj, _s in sorted(entries, key=lambda e: e[0]):
+        if str(obj) not in seen:
+            seen.add(str(obj))
+            objs.append(str(obj))
+    for obj in additional_objects:
         if str(obj) not in seen:
             seen.add(str(obj))
             objs.append(str(obj))
@@ -1360,11 +1528,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--progress-report", type=Path, metavar="PATH")
     parser.add_argument("--setup-only", action="store_true")
+    parser.add_argument("--linker-backend", choices=("mwld", "gnu"),
+                        help="override the configured GNU ld or MWLD backend; compilation is unchanged")
     parser.add_argument("--include-generated", action="store_true",
                         help="also evaluate src/generated candidate units for placement "
                              "(off by default: ~12,000 extra units, dominates build time)")
     args, _unknown = parser.parse_known_args()
     c = cfg()
+    if args.linker_backend:
+        c["linker_backend"] = args.linker_backend
     BUILD.mkdir(exist_ok=True)
     OBJ.mkdir(parents=True, exist_ok=True)
     ASM.mkdir(exist_ok=True)
@@ -1381,7 +1553,9 @@ def main():
     for name, kind, lo, hi in SEGMENTS:
         if kind == "code" and not (ASM / f"{name}.s").is_file():
             sys.exit(f"build: {name}.s missing; run `make split` first")
-    if not c.get("ld_exe"):
+    if c["linker_backend"] == "gnu":
+        c["gnu_ld_tool"] = A.find_gnu_tool("mipsel-linux-gnu-ld", "P4_LD")
+    elif not c.get("ld_exe"):
         sys.exit("build: set mwcc/ld_exe in tools/build_config.local.json or P4_MWCC")
     source_files = list((REPO / "src").rglob("*.c"))
     if source_files and not c.get("mwcc"):
@@ -1430,28 +1604,11 @@ def main():
             + ".o"
         )
         compile_c(c, o["src"], cobj, cache)
-        rename_text_sections(cobj, {
-            marker["name"]: (
-                marker["addr"] if isinstance(marker["addr"], int) else int(marker["addr"], 16)
-            )
-            for marker in o["funcs"] if marker.get("name")
-        })
-        # ee-gcc always emits an empty `.text` even under -ffunction-sections;
-        # it contributes no bytes, so it cannot displace a placed function.
-        leftover = [s for s in V.ObjectFile(cobj).sections
-                    if s["name"] == ".text" and s["size"]]
-        if leftover:
-            sys.exit(f"build: {cobj.name} has .text sections no placed marker owns; "
-                     "cannot lay it out per function")
         o["obj"] = cobj
-        for marker in o["funcs"]:
-            address = marker["addr"]
-            if isinstance(address, str):
-                address = int(address, 16)
-            entries.append((address, cobj, f".text.{marker['name']}"))
+        o["objects"], object_entries = prepare_link_objects(cobj, o, c["linker_backend"])
+        entries.extend(object_entries)
         c_text_ranges.extend((s, e, o) for s, e in o["ranges"])
-        for sname, (base, size) in o["sections"].items():
-            entries.append((base, cobj, sname))
+        for _name, (base, size) in o["sections"].items():
             data_carves.append((base, base + size))
     print(cache.summary(("eligibility", "link")))
 
@@ -1468,7 +1625,8 @@ def main():
     if c_text_ranges:
         c_exports = set()
         for o in cobjs:
-            c_exports |= c_object_exports(o["obj"])
+            for obj in o["objects"]:
+                c_exports |= c_object_exports(obj)
         for nm, addr in symbol_addresses.items():
             if nm in c_exports or nm in defs:
                 continue
@@ -1500,7 +1658,8 @@ def main():
 
     unresolved = set()
     for o in cobjs:
-        unresolved |= c_object_undefineds(o["obj"])
+        for obj in o["objects"]:
+            unresolved |= c_object_undefineds(obj)
     exported = set()
     seen_objects = set()
     for _address, obj, _section in entries:
@@ -1508,9 +1667,17 @@ def main():
             continue
         seen_objects.add(obj)
         exported |= c_object_exports(obj)
+    for o in cobjs:
+        for obj in o["objects"]:
+            if obj not in seen_objects:
+                seen_objects.add(obj)
+                exported |= c_object_exports(obj)
     complete_missing_definitions(defs, unresolved, exported, symbol_addresses)
-    write_lcf(entries, gp, defs)
-    link(c, entries)
+    if c["linker_backend"] == "mwld":
+        write_lcf(entries, gp, defs)
+    link(c, entries, [obj for owner in cobjs for obj in owner["objects"]], gp=gp, defs=defs)
+    finalize_private_symbols(BUILD / "slus21782.elf",
+        [name for owner in cobjs for name in owner.get("private_bridges", [])])
     status = build_matching_elf(c, len(cobjs), len(all_sdk_objects))
     if status == 0 and args.progress_report is not None:
         all_linked_functions = list(linked_functions)

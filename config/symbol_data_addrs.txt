@@ -1,3 +1,44 @@
+// Current first-party panel and rank-up constants; native relocations resolve from GP 0x007690F0.
+fGpffff8488 = 0x00761578; // type:data evidence: func_00203930 lwc1 gp-0x7B78 at 0x00203984
+fGpffff848c = 0x0076157c; // type:data evidence: func_00203930 lwc1 gp-0x7B74 at 0x0020398C
+fGpffff8490 = 0x00761580; // type:data evidence: func_00203930 lwc1 gp-0x7B70 at 0x00203994
+fGpffff8494 = 0x00761584; // type:data evidence: func_00203930 lwc1 gp-0x7B6C at 0x002039A0
+fGpffffa66c = 0x0076375c; // type:data evidence: func_00257900 lwc1 gp-0x5994 at 0x0025A9CC
+fGpffffa670 = 0x00763760; // type:data evidence: func_00257900 lwc1 gp-0x5990 at 0x0025AD0C
+fGpffffa674 = 0x00763764; // type:data evidence: func_00257900 lwc1 gp-0x598C at 0x0025AD80
+fGpffffa678 = 0x00763768; // type:data evidence: func_00257900 lwc1 gp-0x5988 at 0x0025AE38
+
+// Additional installed first-party dispatcher, effect and message references.
+cGpffffa680 = 0x00763770; // type:data evidence: func_0025b240 addiu gp-0x5980 at 0x0025b2dc; GP base 0x007690F0; 1 authenticated native reference(s)
+cGpffffa688 = 0x00763778; // type:data evidence: func_0025b240 addiu gp-0x5978 at 0x0025bb10; GP base 0x007690F0; 1 authenticated native reference(s)
+fGpffff82a4 = 0x00761394; // type:data evidence: func_0025b240 lwc1 gp-0x7D5C at 0x0025b5d8; GP base 0x007690F0; 1 authenticated native reference(s)
+fGpffff84a8 = 0x00761598; // type:data evidence: func_0020ff00 lwc1 gp-0x7B58 at 0x002103e4; GP base 0x007690F0; 1 authenticated native reference(s)
+iGpffff8198 = 0x00761288; // type:data evidence: func_0027cae0 lwc1 gp-0x7E68 at 0x0027d094; GP base 0x007690F0; 1 authenticated native reference(s)
+iGpffffa664 = 0x00763754; // type:data evidence: func_0025b240 lw gp-0x599C at 0x0025b350; GP base 0x007690F0; 3 authenticated native reference(s)
+iGpffffa668 = 0x00763758; // type:data evidence: func_0025b240 lw gp-0x5998 at 0x0025b390; GP base 0x007690F0; 3 authenticated native reference(s)
+iGpffffb4d8 = 0x007645c8; // type:data evidence: func_0027cae0 lw gp-0x4B28 at 0x0027d1c8; GP base 0x007690F0; 1 authenticated native reference(s)
+iGpffffb4dc = 0x007645cc; // type:data evidence: func_0027cae0 lw gp-0x4B24 at 0x0027ce88; GP base 0x007690F0; 1 authenticated native reference(s)
+
+// First-party rank-up and battle references, resolved against all current native owners.
+D_0076118C = 0x0076118c; // type:data evidence: func_00253850 lwc1 gp-0x7F64 at 0x002547D0; GP base 0x007690F0; two consistent native references
+D_00761308 = 0x00761308; // type:data evidence: func_00253850 lwc1 gp-0x7DE8 at 0x00254930; GP base 0x007690F0
+D_0076132C = 0x0076132c; // type:data evidence: func_00253850 lwc1 gp-0x7DC4 at 0x002549D4; GP base 0x007690F0
+D_0076139C = 0x0076139c; // type:data evidence: func_00253850 lwc1 gp-0x7D54 at 0x00254948; GP base 0x007690F0
+D_007615A4 = 0x007615a4; // type:data evidence: func_00215c10 lwc1 gp-0x7B4C at 0x00215DB0; GP base 0x007690F0; two consistent native references
+D_007615A8 = 0x007615a8; // type:data evidence: func_00215c10 lwc1 gp-0x7B48 at 0x00215E00; GP base 0x007690F0; two consistent native references
+D_007615AC = 0x007615ac; // type:data evidence: func_002161d0 lwc1 gp-0x7B44 at 0x002162F8; GP base 0x007690F0
+D_007615B0 = 0x007615b0; // type:data evidence: func_002161d0 lwc1 gp-0x7B40 at 0x00216388; GP base 0x007690F0
+D_00887314_abs = 0x00887314; // type:data evidence: func_0021a7b0 absolute HI16/LO16 reference ending at 0x0021ACC0; native addends resolve to the retail callback table
+fGpffff8210 = 0x00761300; // type:data evidence: func_0020f730 lwc1 gp-0x7DF0 at 0x0020F80C; GP base 0x007690F0; three consistent native references
+fGpffff827c = 0x0076136c; // type:data evidence: func_00210c70 lwc1 gp-0x7D84 at 0x00210E78; GP base 0x007690F0
+fGpffff8370 = 0x00761460; // type:data evidence: func_00212270 lwc1 gp-0x7C90 at 0x00212AE8; GP base 0x007690F0
+fGpffff8374 = 0x00761464; // type:data evidence: func_00212270 lwc1 gp-0x7C8C at 0x00212CE4; GP base 0x007690F0; two consistent native references
+fGpffff84b4 = 0x007615a4; // type:data evidence: func_002142b0 lwc1 gp-0x7B4C at 0x00214444; GP base 0x007690F0; two consistent native references
+fGpffff84b8 = 0x007615a8; // type:data evidence: func_002142b0 lwc1 gp-0x7B48 at 0x00214494; GP base 0x007690F0; two consistent native references
+fGpffffb47c = 0x0076456c; // type:data evidence: func_00216e60 lwc1 gp-0x4B84 at 0x00217B1C; GP base 0x007690F0; four consistent native references
+iGpffffa590 = 0x00763680; // type:data evidence: func_00216e60 address reference gp-0x5A70 at 0x00217FD8; GP base 0x007690F0
+iGpffffa594 = 0x00763684; // type:data evidence: func_00216e60 address reference gp-0x5A6C at 0x00218020; GP base 0x007690F0
+
 D_0063EB30 = 0x0063eb30; // type:data evidence: retail func_002a9100 3x copy loops (lh s16 pairs, 6 iterations) at 0x2A922C/0x2A93F4/0x2A94D0; absolute lui/addiu base
 iGpffffb668 = 0x00764758; // type:data evidence: retail func_003bcf10 lw $3,-0x4998($28) (0x00764758) as the code1_003b per-slot table base; gp base 0x007690F0
 iGpffffb708 = 0x007647f8; // type:data evidence: retail func_003ca890/func_003cbc10 lw $2,-0x48F8($28) (0x007647F8) as the code1_003c node-array byte offset; gp base 0x007690F0

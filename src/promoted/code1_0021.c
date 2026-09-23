@@ -14,7 +14,7 @@ extern u8 *iGpffffb3ac;
 extern s32 iGpffffb470;
 extern f32 D_008872F8[];
 extern f32 fGpffff84a4;
-extern void (*D_00887300[])(s32 arg0, s32 arg1);
+extern BtlShuffleRenderStateSet D_00887300[];
 extern u8 D_00628FA0[];
 extern f32 D_007615B4;
 extern f32 D_007615B8;
@@ -68,7 +68,7 @@ extern void *func_0043f9c8(void *dst, s32 value, u32 size);
 extern s32 func_0046aea0(void *arg0);
 extern u8 D_00626C30[];
 extern u8 D_00626CA0[];
-extern void func_00212270(u8 *arg0, u8 *arg1);
+extern void func_00212270(u8 *drawPayload, s32 workAddress, void *callback);
 
 
 
@@ -97,7 +97,7 @@ extern void func_002016e0(u8 *arg0, s16 arg1, s16 arg2, f32 arg3);
 extern void func_002019d0(u8 *arg0, f32 arg1, f32 arg2);
 extern s32 func_00243e90(u8 *arg0);
 extern s32 func_001b1540(void);
-extern void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1);
+extern void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
 extern void func_002161d0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
 extern void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
 extern f32 fGpffff84a0;
@@ -130,176 +130,179 @@ static inline f32 ws14_sub(f32 left, f32 right)
 
 
 
-/* Floor: 367 differing words over 205 edits, 377 emitted against retail's
-   400, from a first reconstruction.  Two m2c blanks were recovered from
-   the image: the `adda.s`/`msub.s` pair is `2.2f - 1.2f * x`, whose two
-   operands are gp-relative pool constants at gp-0x7EF0 and gp-0x7D84
-   (1.2f and 2.2f read out of orig/SLUS_217.82), and the 0x432C0000
-   immediates are 172.0f.  The out-parameter block that func_0020e690 and
-   func_0020ea60 fill is one 0x18-byte struct at sp+0xA0 - m2c splits it
-   into spA0/spA4/spA8/spAC/spB0 - with the position pair separate at
-   sp+0xB8.
-   WALL: 23 instructions short and one saved FPU register light (retail
-   spills $f22).  Eighteen of them are the second float-to-u8 conversion
-   of `255.0f * rate`: retail converts the same value twice where this
-   build folds the two into one, and opt_common_subs off costs more
-   elsewhere than it recovers (370 words, 341 edits).  The other four are
-   retail keeping `20.0f * (1.0f - rate)` as a separate multiply where
-   this build contracts the add into a madd; staging the product,
-   opt_treetransformation, opt_movepostops, opt_propagation, lifetimes,
-   dead-assignments, size and strength-reduction were all measured. */
-/* measured 00210c70: `schedule on` inside the guard is worth 5 words (367 -> 362). */
-/* measured 00210c70: `opt_propagation off` on top of `schedule on` is worth 1 word (362 -> 361). */
-/* 2026-09-18: func_0020e420 and func_0020e690 now carry the parameter order
-   of their live definitions in src/promoted/code1_0020.c (floats second and
-   third, and fourth and fifth, respectively); the ints-first spelling here
-   was a lie.  Measured neutral at 361 words - the EABI keeps integer and
-   float arguments in separate register files - but the order is what b210
-   emits argument setup in, so it has to be right before the rest of this
-   floor can be read. */
-/* 361 -> 359 (2026-09-18): func_00201650's in-body prototype now matches the
-   live definition in src/promoted/code1_0020.c (floats fourth and fifth). */
-// FUN_00210C70 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct BtlUnit BtlUnit;
+typedef struct RwV3d RwV3d;
+typedef struct {
+    f32 offset;
+    u8 alpha;
+    s32 drawGauge;
+    f32 gaugeX;
+    f32 gaugeY;
+} DamageDrawInfo;
+
+/* Retail-exact: 1604 bytes, resolved calls/globals and twelve zero alignment
+ * bytes. HP/SP amount and color locals have independent row lifetimes. The
+ * flag compound-clear preserves the expiration reload; the gauge provider
+ * takes X/Y before color in the independent EE integer/float argument banks.
+ * See docs/probe_archive/Battle_damage_panel_00210c70_20260922.md. */
+// FUN_00210C70
 void func_00210c70(u8 *arg0, u8 *arg1)
 {
-    extern s32 func_001ec4a0(f32 *arg0, f32 *arg1);
+    extern s32 func_001ec4a0(s32 arg0, u8 *arg1);
     extern f32 func_0020e5c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-    extern void func_00195ea0(u8 *arg0, u8 *arg1);
-    extern void func_00201650(s32 *arg0, s32 a, s32 b, f32 x, f32 y, u32 r, u32 g, u32 bl, u32 al);
-    extern void func_0020ea60(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-    extern void func_0020ef10(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+    extern void func_00195ea0(BtlUnit *unit, RwV3d *position);
+    extern void func_0020ea60(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+    extern void func_0020ef10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
     extern void func_0020f4d0(u8 *arg0, u8 *arg1, f32 x, f32 y);
-    extern void func_0020e690(u8 *arg0, u8 *arg1, u8 *arg2, f32 x, f32 y, s32 a, f32 *out);
-    extern void func_0020e420(s32 *arg0, f32 x, f32 y, s32 a, s32 b, s32 c);
-    extern void func_0021aeb0(s32 a, u8 *b, s32 c, f32 d, f32 e, f32 f);
-    u8 info[0x18];
-    f32 pos[2];
+    extern void func_0020e690(u8 *arg0, u8 *arg1, u8 *arg2, f32 x, f32 y, s32 a, u8 *out);
+    extern void func_0020e420(u8 *arg0, f32 x, f32 y, s32 a, s32 b, u32 c);
+    extern f32 fGpffff8110;
+    extern f32 fGpffff827c;
     s32 *panel;
-    s32 *icon;
+    u8 *task;
+    u8 *transition;
     u8 *work;
-    u8 *unit;
+    s32 numeralMode;
     s32 stage;
-    s32 value;
-    s32 colour;
-    s32 drew;
     s32 first;
+    s32 *icon;
+    DamageDrawInfo info;
+    f32 pos[2];
+    u8 *unit;
+    s32 drew;
     s32 alive;
-    f32 rate;
+    f32 shift;
+    f32 rowX;
     f32 alpha;
+    f32 base;
+    f32 height;
+    f32 rate;
     f32 fade;
     f32 scale;
-    f32 height;
-    f32 base;
-    f32 shift;
 
-    panel = (s32 *)func_00452560(*(void **)(arg0 + 4));
-    if (((*(u16 *)(arg1 + 0x14) & 2) && (*(s32 *)(arg1 + 0x10) >= 6)) || (*(s32 *)(arg1 + 0x10) >= 0x19)) {
-        *(u16 *)(arg1 + 0x14) = *(u16 *)(arg1 + 0x14) & 0xFFFE;
+    task = arg0;
+    transition = arg1;
+    panel = (s32 *)func_00452560(*(void **)(task + 4));
+    if (((*(u16 *)(transition + 0x14) & 2) && (*(s32 *)(transition + 0x10) >= 6)) || (*(s32 *)(transition + 0x10) >= 0x19)) {
+        *(u16 *)(transition + 0x14) &= ~1U;
         alive = 0;
     } else {
         alive = 1;
     }
     if (alive != 0) {
-        if (*(u16 *)(arg1 + 0x14) & 8) {
-            func_00195ea0(*(u8 **)arg1, arg1 + 4);
+        if (*(u16 *)(transition + 0x14) & 8) {
+            func_00195ea0((BtlUnit *)*(u8 **)transition, (RwV3d *)(transition + 4));
         }
-        if (func_001ec4a0((f32 *)(arg1 + 4), pos) != 0) {
-            work = *(u8 **)arg1 + 0xA3C;
-            *(s32 *)(info + 8) = 0;
+        if (func_001ec4a0((s32)(transition + 4), (u8 *)pos) != 0) {
+            work = *(u8 **)transition + 0xA3C;
+            info.drawGauge = 0;
             func_00201300(panel, pos[0] - 86.0f, pos[1] - 86.0f, 172.0f, 172.0f);
             drew = 0;
-            if (*(u16 *)(arg1 + 0x20) & 1) {
-                func_0020ea60(arg0, arg1, work, (f32 *)info);
+            if (*(u16 *)(transition + 0x20) & 1) {
+                func_0020ea60(task, transition, work, (u8 *)&info);
                 drew = 1;
             }
-            if (*(u16 *)(arg1 + 0x20) & 2) {
-                func_0020ef10(arg0, arg1, work, (f32 *)info);
+            if (*(u16 *)(transition + 0x20) & 2) {
+                func_0020ef10(task, transition, work, (u8 *)&info);
                 drew = 1;
             }
-            if (*(u16 *)(arg1 + 0x20) & 4) {
-                func_0020f4d0(arg0, arg1, pos[0] - 86.0f, pos[1] - 86.0f);
+            if (*(u16 *)(transition + 0x20) & 4) {
+                func_0020f4d0(task, transition, pos[0] - 86.0f, pos[1] - 86.0f);
                 drew = 1;
             }
-            if (*(u16 *)(arg1 + 0x20) & 8) {
-                icon = (s32 *)func_00452560(*(void **)(arg0 + 4));
-                stage = *(s32 *)(arg1 + 0x10);
-                if (!(func_0020e5c0(stage, 0, 4, 0) <= 0.0f)) {
-                    scale = 2.2f - 1.2f * func_0020e5c0(stage, 0, 4, 0);
+            if (*(u16 *)(transition + 0x20) & 8) {
+                icon = (s32 *)func_00452560(*(void **)(task + 4));
+                stage = *(s32 *)(transition + 0x10);
+                rate = func_0020e5c0(stage, 0, 4, 0);
+                scale = 0.0f;
+                if (!(rate <= scale)) {
+                    scale = fGpffff827c - fGpffff8110 * rate;
                     func_002019d0((u8 *)icon, scale, scale);
-                    func_00201650(icon, 0xA, 0xF, 57.0f, 63.0f, 0x15U, 0x15U, 0x15U, 0xFFU);
-                    func_00201650(icon, 0xA, 0x10, 86.0f, 63.0f, 0x15U, 0x15U, 0x15U, 0xFFU);
+                    func_00201650((u8 *)icon, 0xA, 0xF, 57.0f, 63.0f, 0x15U, 0x15U, 0x15U, 0xFFU);
+                    func_00201650((u8 *)icon, 0xA, 0x10, 86.0f, 63.0f, 0x15U, 0x15U, 0x15U, 0xFFU);
                     func_002019d0((u8 *)icon, 1.0f, 1.0f);
                 }
                 rate = func_0020e5c0(stage, 5, 7, 0);
                 if (!(rate <= 0.0f)) {
                     alpha = 255.0f * rate;
-                    fade = 20.0f * (1.0f - rate);
-                    height = 75.0f + fade;
-                    func_00201650(icon, 0xA, 0xA, 47.0f, height, 0x15U, 0x15U, 0x15U, (u8)(u32)alpha);
-                    alpha = 255.0f * rate;
-                    func_00201650(icon, 0xA, 9, 47.0f, height, 0xFFU, 0xFU, 2U, (u8)(u32)alpha);
+                    fade = ws14_mul(20.0f, ws14_sub(1.0f, rate));
+                    height = ws14_add(75.0f, fade);
+                    func_00201650((u8 *)icon, 0xA, 0xA, 47.0f, height, 0x15U, 0x15U, 0x15U, (u8)alpha);
+                    func_00201650((u8 *)icon, 0xA, 9, 47.0f, height, 0xFFU, 0xFU, 2U, (u8)alpha);
                 }
                 drew = 1;
             }
             if (drew != 0) {
+                rowX = 86.0f;
                 base = 83.0f;
+                numeralMode = 1;
                 first = 0;
                 shift = 0.0f;
             } else {
+                rowX = 86.0f;
                 base = 83.0f;
-                first = 1;
-                if ((*(u16 *)(arg1 + 0x20) & 0x30) == 0x30) {
+                numeralMode = 1;
+                first = numeralMode;
+                if ((*(u16 *)(transition + 0x20) & 0x30) == 0x30) {
                     shift = -10.0f;
                 } else {
                     shift = 0.0f;
                 }
             }
-            if (*(u16 *)(arg1 + 0x20) & 0x10) {
-                value = *(s32 *)(arg1 + 0x18);
-                if (value < 0) {
-                    value = -value;
-                    colour = -0x100;
+            if (*(u16 *)(transition + 0x20) & 0x10) {
+                s32 hpAmount;
+                s32 hpColor;
+                s32 hpBackground;
+                hpAmount = *(s32 *)(transition + 0x18);
+                if (hpAmount < 0) {
+                    hpAmount = -hpAmount;
+                    hpBackground = 0xFF;
+                    hpColor = -0x100;
                 } else {
-                    colour = 0xFFD92F00;
+                    hpBackground = 0xFF;
+                    hpColor = 0xFFD92F00;
                 }
                 if (first != 0) {
-                    func_0020e690(arg0, arg1, work, pos[0] - 86.0f, pos[1] - 86.0f, 0xFF, (f32 *)info);
+                    func_0020e690(task, transition, work, pos[0] - 86.0f, pos[1] - 86.0f, hpBackground, (u8 *)&info);
                     first = 0;
                 }
-                if (info[4] > 0) {
-                    func_0020e420(panel, 86.0f, shift + (83.0f + *(f32 *)info),
-                                  value, 1, colour | info[4]);
+                if (info.alpha > 0) {
+                    hpColor |= info.alpha;
+                    func_0020e420((u8 *)panel, rowX, shift + (base + info.offset),
+                                  hpAmount, numeralMode, hpColor);
                 }
-                if (*(s32 *)(info + 8) != 0) {
-                    unit = *(u8 **)arg1;
-                    func_0021aeb0(*(s32 *)(arg0 + 4), unit, 0xFF, *(f32 *)(info + 0xC),
-                                  *(f32 *)(info + 0x10) + shift, *(f32 *)(unit + 0xA2C));
+                if (info.drawGauge != 0) {
+                    unit = *(u8 **)transition;
+                    func_0021aeb0(*(s32 *)(task + 4), unit, info.gaugeX,
+                                  info.gaugeY + shift, 0xFF, *(f32 *)(unit + 0xA2C));
                 }
-                base = 83.0f + 27.0f;
+                base += 27.0f;
             }
-            if (*(u16 *)(arg1 + 0x20) & 0x20) {
-                value = *(s32 *)(arg1 + 0x1C);
-                if (value < 0) {
-                    value = -value;
-                    colour = 0x67F1FF00;
+            if (*(u16 *)(transition + 0x20) & 0x20) {
+                s32 spAmount;
+                s32 spColor;
+                s32 spBackground;
+                spAmount = *(s32 *)(transition + 0x1C);
+                if (spAmount < 0) {
+                    spAmount = -spAmount;
+                    spBackground = 0xFF;
+                    spColor = 0x67F1FF00;
                 } else {
-                    colour = 0xB7FF3600;
+                    spBackground = 0xFF;
+                    spColor = 0xB7FF3600;
                 }
                 if (first != 0) {
-                    func_0020e690(arg0, arg1, work, pos[0] - 86.0f, pos[1] - 86.0f, 0xFF, (f32 *)info);
+                    func_0020e690(task, transition, work, pos[0] - 86.0f, pos[1] - 86.0f, spBackground, (u8 *)&info);
                 }
-                if (info[4] > 0) {
-                    func_0020e420(panel, 86.0f, shift + (base + *(f32 *)info),
-                                  value, 1, colour | info[4]);
+                if (info.alpha > 0) {
+                    spColor |= info.alpha;
+                    func_0020e420((u8 *)panel, rowX, shift + (base + info.offset),
+                                  spAmount, numeralMode, spColor);
                 }
             }
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00210c70);
-#endif
 #pragma push
 #pragma opt_loop_invariants on
 /* Exact: 912/912 bytes, no relocations. Loop extraction retains the
@@ -402,7 +405,7 @@ union ColorWord {
 // FUN_00211650
 void func_00211650(u8 *arg0, u8 *arg1)
 {
-    extern void (*D_00887300[])(s32 arg0, s32 arg1);
+    extern BtlShuffleRenderStateSet D_00887300[];
     extern void func_00201820(s32 arg0);
     extern s32 func_0021be60(void);
     extern void func_0021b630(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
@@ -416,7 +419,7 @@ void func_00211650(u8 *arg0, u8 *arg1)
     s32 temp_16;
     s32 var_17;
 
-    D_00887300[0](1, func_0021be60());
+    D_00887300[0](rwRENDERSTATETEXTURERASTER, (void *)func_0021be60());
     func_00201820(2);
     frame.bytes[0] = 0x52;
     frame.bytes[1] = 0xF3;
@@ -722,431 +725,432 @@ void func_00212240(u8 *arg0, s32 arg1) {
 
 
 
-/* measured 00212270: object 5164B vs retail window 5248B; retail 1311 instrs vs object 1291 instrs (-1.5%, INSIDE gate 1272-1350); differing words 1183 reloc-masked (GUARDED_SCORE), fnalign 496 edits (was 3864B/966 instrs/-26.3%/1165 words/1052 edits). Fix 2026-09-20 closes the three deficit_scan ABSENT runs (287 at 0x2124ac-0x212928, 56 at 0x212efc-0x212fdc, 45 at 0x213260-0x213314): 6-vert fan is (640,0)/(221,0)/(640,418)/(0,448)/(418,448)/(0,29) with per-vert unsigned RGBA from 0xFF7B0000|alpha (a=0 except verts 0,3), not the collapsed 640/320/0 packets; bars are two full quads (0,92)-(640,224) top-transparent and (0,224)-(640,356) top-opaque with RGB 255,100,0 and per-vert (s32)(204*smooth)&0xFF alpha, which makes the 15.0/8.0 smooth live. Frame still object 0x3C0 vs retail 0x3A0 (32B over). */
-// FUN_00212270 NONMATCHING
-#ifdef NON_MATCHING
-void func_00212270(u8 *arg0, u8 *arg1)
+/* Encounter-transition geometry uses the actual sky-vertex, UV and matrix
+ * layouts. Each direction owns its frame ratio; vertex opacity is narrowed
+ * independently. See docs/probe_archive/Battle_transition_00212270_20260922.md. */
+static inline f32 btlTransitionExitCurve(f32 coefficient, f32 fraction)
 {
-    typedef struct {
-        f32 x;
-        f32 y;
-        f32 z;
-        u32 pad0[3];
-        f32 w;
-        u32 pad1;
-        f32 r;
-        f32 g;
-        f32 b;
-        f32 a;
-        u32 pad2[4];
-    } Vert;
-    typedef struct {
-        Vert fan[6];
-        s32 uv[8];
-        u8 params[0x40];
-        Vert bars[4];
-        u8 pad1[0x10];
-    } Local;
-    extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
-    extern f32 D_008872F8[];
-    extern u8 D_0060A0E0[];
-    extern u8 D_0060A0F0[];
-    extern f32 fGpffff8370;
-    extern void func_00201350(void);
-    extern void func_00201820(s32 arg0);
-    extern void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1);
-    extern void func_00201410(u8 *arg0, s32 arg1, s32 arg2,
-                               f32 fparg0, f32 fparg1);
-    extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
-                               f32 fparg1, s32 arg5, s32 arg6, s32 arg7,
-                               s32 arg8);
-    extern void func_00201720(u8 *arg0, f32 fparg0, f32 fparg1);
-    extern s32 func_002340c0(s32 arg0, s32 arg1);
-    extern void func_00271b70(s32 arg0);
-    extern s32 func_002724d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-    extern void func_00272860(s32 arg0, s32 arg1);
-    extern void func_00272950(s32 arg0, s32 arg1, s32 arg2);
-    extern void func_00272ba0(s32 arg0, s32 arg1);
-    extern void func_00272c60(s32 arg0);
-    extern void func_00272c80(s32 arg0);
-    extern void func_00273170(s32 arg0, s32 arg1, s32 arg2);
-    extern s32 func_002738d0(s32 arg0);
-    extern void func_00274a20(s32 arg0, f32 fparg0);
-    extern void func_00274ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                               s32 arg4, s32 arg5, f32 fparg0, f32 fparg1,
-                               s32 arg8);
-    extern void func_002778c0(s32 arg0, s32 arg1, s32 arg2);
-    extern void func_00277ad0(s32 arg0, s32 arg1);
-    extern void func_00278090(s32 arg0, s32 arg1, s32 arg2);
-    extern void func_00278170(s32 arg0, s32 arg1);
-    extern void func_00278450(u8 *arg0, s32 arg1, u8 *arg2);
-    extern s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-    extern void func_00278ef0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-    extern void func_002791f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                               s32 arg4, s32 arg5, f32 fparg0, f32 fparg1,
-                               s32 arg8);
-    extern void func_00279690(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-    extern u8 *func_00457120();
-    extern u8 *func_00452560();
-    extern u8 *func_0019f050(u8 *arg0);
-    extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 fparg0);
-    extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 fparg0);
-    extern s32 func_0034f460(s32 arg0, s32 arg1, s8 arg2, s8 arg3, s8 arg4,
-                             s64 arg5, f32 fparg0, f32 fparg1);
-    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
-                              f32 fparg2, s8 arg2, s8 arg3, s8 arg4,
-                              s64 arg5, s64 arg6, s32 arg7, f32 fparg3,
-                              s16 arg_sp0, s16 arg_sp8);
-    extern s32 func_00366c70(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                             s32 arg4, s32 arg5, s32 arg6, s16 arg7,
-                             f32 fparg0, s16 arg_sp0, s32 *arg_sp8,
-                             s32 arg_sp10, s32 *arg_sp18);
-    extern s32 func_0046d5f0(u8 *arg0, s32 arg1);
-    extern u16 D_008C024E;
-    extern f32 fGpffff8374;
-    Vec2f draw_position;
-    Local local;
-    u8 *temp;
-    s32 mode;
-    s32 special;
-    s32 alpha;
-    s32 i;
-    s32 flags;
-    s32 value;
-    s32 color;
-    f32 scale;
-    f32 t;
-    f32 smooth;
-    f32 offset;
-    f32 inv;
-    f32 inv2;
-    u32 b0;
-    u32 b1;
-    u32 b2;
-    u32 b3;
+    f32 eased = coefficient * fraction - fraction * fraction;
+    return 1.0f + eased;
+}
 
-    (void)arg0;
-    temp = func_00457120();
-    inv = 1.0f / *(f32 *)(temp + 0x80);
-    mode = *(s32 *)(arg1 + 0x38);
-    if (mode == 0) {
+// FUN_00212270
+void func_00212270(u8 *drawPayload, s32 workAddress, void *callback)
+{
+    extern BtlShuffleRenderPrimitive D_00887310[];
+    extern BtlShuffleVec3 D_0060A0E0[];
+    extern BtlShuffleVec3 D_0060A0F0[];
+    extern f32 fGpffff8370;
+    extern f32 fGpffff8374;
+    extern void func_00201820(s32 mode);
+    extern s32 func_00457120(void);
+    extern BtlShuffleMatrix *func_003e0870(BtlShuffleMatrix *matrix,
+        const BtlShuffleVec3 *axis, f32 angle, BtlShuffleCombine combine);
+    extern void func_0034f460(s32 file, s32 tile, f32 x, f32 y,
+        u8 red, u8 green, u8 blue, u8 alpha);
+    extern void func_0034f4a0(s32 file, s32 tile, f32 x, f32 y, f32 z,
+        u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX, u16 scaleY,
+        f32 angle, s16 centerX, s16 centerY);
+    extern s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height,
+        s32 rgb, s32 alpha, s32 mode, s16 centerX, s16 centerY,
+        BtlShuffleMatrix *matrix, s32 texture, f32 (*uv)[2]);
+    extern s32 func_0046d5f0(u8 *file, s32 tile);
+    /* Four render objects and the position reproduce the retail 0x3A0 frame. */
+    Vec2f drawPosition;
+    BtlShuffleSkyVertex bars[4];
+    BtlShuffleMatrix matrix;
+    f32 uv[4][2];
+    BtlShuffleSkyVertex fan[6];
+    u8 *work;
+    u8 *camera;
+    s32 animationFrame;
+    s32 entering;
+    u8 alpha;
+    u32 packedColor;
+    f32 barReciprocalZ;
+    f32 angle;
+    f32 easeCoefficient;
+    f32 fanDepth;
+    f32 slideOffset;
+    f32 eased;
+    f32 barOpacity;
+    f32 fanReciprocalZ;
+    u8 *renderTable;
+    u32 red;
+    u32 green;
+    u32 blue;
+    u32 opacity;
+
+    (void)drawPayload;
+    (void)callback;
+    work = (u8 *)(u32)workAddress;
+    camera = (u8 *)(u32)func_00457120();
+    barReciprocalZ = 1.0f / *(f32 *)(camera + 0x80);
+    animationFrame = *(s32 *)(work + 0x38);
+    if (animationFrame == 0) {
         return;
     }
-    if (mode < 0x25) {
-        special = 1;
+    if (animationFrame < 0x25) {
+        entering = 1;
     } else {
-        special = 0;
-        mode -= 0x24;
+        entering = 0;
+        animationFrame -= 0x24;
     }
     func_00201350();
     func_00201820(2);
-    if (special) {
-        if (mode < 6) {
-            t = 0.0f;
-        } else {
-            t = (f32)(mode - 5);
-            if (t >= 21.0f) {
-                t = 1.0f;
+    {
+        if (entering) {
+            f32 ratio;
+            if (animationFrame < 6) {
+                ratio = 0.0f;
             } else {
-                t /= 21.0f;
+                f32 frame = (f32)(animationFrame - 5);
+                if (21.0f <= frame) {
+                    ratio = 1.0f;
+                } else {
+                    ratio = frame / 21.0f;
+                }
             }
-        }
-    } else {
-        if (mode <= 0) {
-            t = 0.0f;
-        } else if ((f32)mode >= 14.0f) {
-            t = 1.0f;
+            easeCoefficient = 2.0f;
+            eased = easeCoefficient * ratio - ratio * ratio;
         } else {
-            t = (f32)mode / 14.0f;
+            f32 ratio;
+            if (animationFrame <= 0) {
+                ratio = 0.0f;
+            } else {
+                f32 frame = (f32)animationFrame;
+                if (14.0f <= frame) {
+                    ratio = 1.0f;
+                } else {
+                    ratio = frame / 14.0f;
+                }
+            }
+            ratio = 1.0f - ratio;
+            easeCoefficient = 2.0f;
+            eased = easeCoefficient * ratio - ratio * ratio;
         }
     }
-    smooth = 2.0f * t - t * t;
-    alpha = (s32)(204.0f * smooth) & 0xFF;
-    color = 0xFF7B0000 | alpha;
-    scale = D_008872F8[0];
-    b0 = ((u32)color >> 24) & 0xFF;
-    b1 = ((u32)color >> 16) & 0xFF;
-    b2 = ((u32)color >> 8) & 0xFF;
-    b3 = (u32)color & 0xFF;
-    temp = func_00457120();
-    inv2 = 1.0f / *(f32 *)(temp + 0x80);
-    local.fan[0].x = 640.0f;
-    local.fan[0].y = 0.0f;
-    local.fan[0].z = scale;
-    local.fan[0].w = inv2;
-    local.fan[0].r = (f32)b0;
-    local.fan[0].g = (f32)b1;
-    local.fan[0].b = (f32)b2;
-    local.fan[0].a = (f32)b3;
-    local.fan[1].x = 221.0f;
-    local.fan[1].y = 0.0f;
-    local.fan[1].z = scale;
-    local.fan[1].w = inv2;
-    local.fan[1].r = (f32)b0;
-    local.fan[1].g = (f32)b1;
-    local.fan[1].b = (f32)b2;
-    local.fan[1].a = 0.0f;
-    local.fan[2].x = 640.0f;
-    local.fan[2].y = 418.0f;
-    local.fan[2].z = scale;
-    local.fan[2].w = inv2;
-    local.fan[2].r = (f32)b0;
-    local.fan[2].g = (f32)b1;
-    local.fan[2].b = (f32)b2;
-    local.fan[2].a = 0.0f;
-    local.fan[3].x = 0.0f;
-    local.fan[3].y = 448.0f;
-    local.fan[3].z = scale;
-    local.fan[3].w = inv2;
-    local.fan[3].r = (f32)b0;
-    local.fan[3].g = (f32)b1;
-    local.fan[3].b = (f32)b2;
-    local.fan[3].a = (f32)b3;
-    local.fan[4].x = 418.0f;
-    local.fan[4].y = 448.0f;
-    local.fan[4].z = scale;
-    local.fan[4].w = inv2;
-    local.fan[4].r = (f32)b0;
-    local.fan[4].g = (f32)b1;
-    local.fan[4].b = (f32)b2;
-    local.fan[4].a = 0.0f;
-    local.fan[5].x = 0.0f;
-    local.fan[5].y = 29.0f;
-    local.fan[5].z = scale;
-    local.fan[5].w = inv2;
-    local.fan[5].r = (f32)b0;
-    local.fan[5].g = (f32)b1;
-    local.fan[5].b = (f32)b2;
-    local.fan[5].a = 0.0f;
-    D_00887310[0](3, local.fan, 6);
-    if (special) {
-        *(s32 *)(arg1 + 0x3C) += 1;
-        if (*(s32 *)(arg1 + 0x3C) == 0x15) {
-            *(s32 *)(arg1 + 0x3C) = 0;
-        }
-        offset = 90.0f - (360.0f * (f32)*(s32 *)(arg1 + 0x3C)) / 21.0f;
+    alpha = (u8)(204.0f * eased);
+    packedColor = 0xFF7B0000 | alpha;
+    red = ((u32)packedColor >> 24) & 0xFF;
+    green = ((u32)packedColor >> 16) & 0xFF;
+    blue = ((u32)packedColor >> 8) & 0xFF;
+    opacity = (u32)packedColor & 0xFF;
+    fanDepth = D_008872F8[0];
+    camera = (u8 *)(u32)func_00457120();
+    fanReciprocalZ = 1.0f / *(f32 *)(camera + 0x80);
+    fan[0].u.els.scrVertex.x = 640.0f;
+    fan[0].u.els.scrVertex.y = 0.0f;
+    fan[0].u.els.scrVertex.z = fanDepth;
+    fan[0].u.els.recipZ = fanReciprocalZ;
+    fan[0].u.els.color.r = (f32)red;
+    fan[0].u.els.color.g = (f32)green;
+    fan[0].u.els.color.b = (f32)blue;
+    fan[0].u.els.color.a = (f32)opacity;
+    fan[1].u.els.scrVertex.x = 221.0f;
+    fan[1].u.els.scrVertex.y = 0.0f;
+    fan[1].u.els.scrVertex.z = fanDepth;
+    fan[1].u.els.recipZ = fanReciprocalZ;
+    fan[1].u.els.color.r = (f32)red;
+    fan[1].u.els.color.g = (f32)green;
+    fan[1].u.els.color.b = (f32)blue;
+    fan[1].u.els.color.a = 0.0f;
+    fan[2].u.els.scrVertex.x = 640.0f;
+    fan[2].u.els.scrVertex.y = 418.0f;
+    fan[2].u.els.scrVertex.z = fanDepth;
+    fan[2].u.els.recipZ = fanReciprocalZ;
+    fan[2].u.els.color.r = (f32)red;
+    fan[2].u.els.color.g = (f32)green;
+    fan[2].u.els.color.b = (f32)blue;
+    fan[2].u.els.color.a = 0.0f;
+    fan[3].u.els.scrVertex.x = 0.0f;
+    fan[3].u.els.scrVertex.y = 448.0f;
+    fan[3].u.els.scrVertex.z = fanDepth;
+    fan[3].u.els.recipZ = fanReciprocalZ;
+    fan[3].u.els.color.r = (f32)red;
+    fan[3].u.els.color.g = (f32)green;
+    fan[3].u.els.color.b = (f32)blue;
+    fan[3].u.els.color.a = (f32)opacity;
+    fan[4].u.els.scrVertex.x = 418.0f;
+    fan[4].u.els.scrVertex.y = 448.0f;
+    fan[4].u.els.scrVertex.z = fanDepth;
+    fan[4].u.els.recipZ = fanReciprocalZ;
+    fan[4].u.els.color.r = (f32)red;
+    fan[4].u.els.color.g = (f32)green;
+    fan[4].u.els.color.b = (f32)blue;
+    fan[4].u.els.color.a = 0.0f;
+    fan[5].u.els.scrVertex.x = 0.0f;
+    fan[5].u.els.scrVertex.y = 29.0f;
+    fan[5].u.els.scrVertex.z = fanDepth;
+    fan[5].u.els.recipZ = fanReciprocalZ;
+    fan[5].u.els.color.r = (f32)red;
+    fan[5].u.els.color.g = (f32)green;
+    fan[5].u.els.color.b = (f32)blue;
+    fan[5].u.els.color.a = 0.0f;
+    renderTable = (u8 *)D_00887310;
+    (*(BtlShuffleRenderPrimitive *)renderTable)(rwPRIMTYPETRILIST, fan, 6);
+    if (entering) {
         alpha = 0xFF;
-    } else if (*(s32 *)(arg1 + 0x3C) < 0xC) {
-        *(s32 *)(arg1 + 0x3C) += 1;
-        t = (f32)*(s32 *)(arg1 + 0x3C) / 12.0f;
-        smooth = 2.0f * t - t * t;
-        offset = 90.0f + 180.0f * (1.0f - smooth);
+        *(s32 *)(work + 0x3C) += 1;
+        if (*(s32 *)(work + 0x3C) == 0x15) {
+            *(s32 *)(work + 0x3C) = 0;
+        }
+        angle = 90.0f - (360.0f * (f32)*(s32 *)(work + 0x3C)) / 21.0f;
+    } else if (*(s32 *)(work + 0x3C) < 0xC) {
+        f32 ratio;
+        *(s32 *)(work + 0x3C) += 1;
+        ratio = (f32)*(s32 *)(work + 0x3C) / 12.0f;
+        eased = easeCoefficient * ratio - ratio * ratio;
+        angle = 90.0f - 180.0f * eased;
         alpha = 0xFF;
     } else {
-        offset = 0.0f;
         alpha = 0;
     }
-    if (alpha != 0) {
-        func_003e0870(local.params, D_0060A0F0, 0, fGpffff8370);
-        func_003e0870(local.params, D_0060A0E0, 2, offset);
-        local.uv[0] = 0x3F1E0000;
-        local.uv[1] = 0x3EE00000;
-        local.uv[2] = 0x3F1E0000;
-        local.uv[3] = 0x3F6C0000;
-        local.uv[4] = 0x3B800000;
-        local.uv[5] = 0x3EE00000;
-        local.uv[6] = 0x3B800000;
-        local.uv[7] = 0x3F6C0000;
-        func_00366c70(0x13F, 0xE0, 0x78, 0x98, 0xFFFF761E, alpha,
-                      0, 0x3C, 0, 0x4C, (s32 *)local.params,
-                      func_0046d5f0((u8 *)*(s32 *)(arg1 + 4), 2),
-                      local.uv);
+    if (alpha > 0) {
+        func_003e0870(&matrix, D_0060A0F0, fGpffff8370, rwCOMBINEREPLACE);
+        func_003e0870(&matrix, D_0060A0E0, angle, rwCOMBINEPOSTCONCAT);
+        uv[0][0] = 0.6171875f;
+        uv[0][1] = 0.4375f;
+        uv[1][0] = 0.6171875f;
+        uv[1][1] = 0.921875f;
+        uv[2][0] = 0.00390625f;
+        uv[2][1] = 0.4375f;
+        uv[3][0] = 0.00390625f;
+        uv[3][1] = 0.921875f;
+        func_00366c70(0x13F, 0xE0, 0.0f, 0x78, 0x98, 0xFFFF761E, alpha,
+            0, 0x3C, 0x4C, &matrix,
+            func_0046d5f0((u8 *)*(s32 *)(work + 4), 2),
+            uv);
     }
     func_00201820(0);
-    if (special) {
-        if (mode < 0xB) {
-            t = 0.0f;
-        } else {
-            t = (f32)(mode - 0xA);
-            if (t >= 13.0f) {
-                t = 1.0f;
+    {
+        if (entering) {
+            f32 ratio;
+            if (animationFrame < 0xB) {
+                ratio = 0.0f;
             } else {
-                t /= 13.0f;
+                f32 frame = (f32)(animationFrame - 0xA);
+                if (13.0f <= frame) {
+                    ratio = 1.0f;
+                } else {
+                    ratio = frame / 13.0f;
+                }
             }
-        }
-        smooth = 2.0f * t - t * t;
-        offset = 300.0f * smooth;
-    } else {
-        if (mode <= 0) {
-            t = 0.0f;
-        } else if ((f32)mode >= 14.0f) {
-            t = 1.0f;
+            ratio = 1.0f - ratio;
+            eased = easeCoefficient * ratio - ratio * ratio;
+            slideOffset = 300.0f * eased;
         } else {
-            t = (f32)mode / 14.0f;
+            f32 ratio;
+            if (animationFrame <= 0) {
+                ratio = 0.0f;
+            } else {
+                f32 frame = (f32)animationFrame;
+                if (14.0f <= frame) {
+                    ratio = 1.0f;
+                } else {
+                    ratio = frame / 14.0f;
+                }
+            }
+            eased = easeCoefficient * ratio - ratio * ratio;
+            slideOffset = -600.0f * eased;
         }
-        smooth = 2.0f * t - t * t;
-        offset = -600.0f * smooth;
     }
-    draw_position.x = 563.0f - offset;
-    draw_position.y = 224.0f - offset;
-    func_00364fb0(draw_position, 0.0f, 0xFF,
-                  fGpffff8374, 0, 1);
-    draw_position.x = 76.0f + offset;
-    draw_position.y = 224.0f + offset;
-    func_00364fb0(draw_position, 0.0f, 0xFF,
-                  fGpffff8378, 0, 1);
+    drawPosition.x = (f32)563 - slideOffset;
+    drawPosition.y = 224.0f - slideOffset;
+    func_00364fb0(drawPosition, 0.0f, 0xFF,
+        fGpffff8374, 0, 1);
+    drawPosition.x = 76.0f + slideOffset;
+    drawPosition.y = 224.0f + slideOffset;
+    func_00364fb0(drawPosition, 0.0f, 0xFF,
+        fGpffff8378, 0, 1);
     func_00201820(2);
-    if (special) {
-        if (mode < 0xD) {
-            t = 0.0f;
-        } else {
-            t = (f32)(mode - 0xC);
-            if (t >= 14.0f) {
-                t = 1.0f;
+    {
+        if (entering) {
+            f32 ratio;
+            if (animationFrame < 0xD) {
+                ratio = 0.0f;
             } else {
-                t /= 14.0f;
+                f32 frame = (f32)(animationFrame - 0xC);
+                if (14.0f <= frame) {
+                    ratio = 1.0f;
+                } else {
+                    ratio = frame / 14.0f;
+                }
             }
-        }
-        smooth = 2.0f * t - t * t;
-        offset = 300.0f * (1.0f - smooth);
-    } else {
-        if (mode <= 0) {
-            t = 0.0f;
-        } else if ((f32)mode >= 14.0f) {
-            t = 1.0f;
+            eased = easeCoefficient * ratio - ratio * ratio;
+            eased = 1.0f - eased;
+            slideOffset = 300.0f * eased;
         } else {
-            t = (f32)mode / 14.0f;
-        }
-        smooth = 2.0f * t - t * t;
-        offset = -300.0f * (1.0f + smooth);
-    }
-    draw_position.x = 182.0f - offset;
-    draw_position.y = 331.0f - offset;
-    func_00364fb0(draw_position, 0.0f, 0xFF6400FF,
-                  fGpffff8374, 0, 0);
-    draw_position.x = 457.0f + offset;
-    draw_position.y = 117.0f + offset;
-    func_00364fb0(draw_position, 0.0f, 0xFF6400FF,
-                  fGpffff8378, 0, 0);
-    if (special) {
-        if (mode < 0xB) {
-            t = 0.0f;
-        } else {
-            t = (f32)(mode - 0xA);
-            if (t >= 15.0f) {
-                t = 1.0f;
+            f32 ratio;
+            if (animationFrame <= 0) {
+                ratio = 0.0f;
             } else {
-                t /= 15.0f;
+                f32 frame = (f32)animationFrame;
+                if (14.0f <= frame) {
+                    ratio = 1.0f;
+                } else {
+                    ratio = frame / 14.0f;
+                }
             }
+            eased = btlTransitionExitCurve(easeCoefficient, ratio);
+            slideOffset = -300.0f * eased;
         }
-        smooth = 2.0f * t - t * t;
-    } else {
-        if (mode <= 0) {
-            t = 0.0f;
-        } else if ((f32)mode >= 8.0f) {
-            t = 1.0f;
-        } else {
-            t = (f32)mode / 8.0f;
-        }
-        smooth = 2.0f * (1.0f - t) - (1.0f - t) * (1.0f - t);
     }
-    local.bars[0].x = 0.0f;
-    local.bars[0].y = 92.0f;
-    local.bars[0].z = 0.0f;
-    local.bars[0].w = inv;
-    local.bars[0].r = 255.0f;
-    local.bars[0].g = 100.0f;
-    local.bars[0].b = 0.0f;
-    local.bars[0].a = 0.0f;
-    local.bars[1].x = 640.0f;
-    local.bars[1].y = 92.0f;
-    local.bars[1].z = 0.0f;
-    local.bars[1].w = inv;
-    local.bars[1].r = 255.0f;
-    local.bars[1].g = 100.0f;
-    local.bars[1].b = 0.0f;
-    local.bars[1].a = 0.0f;
-    local.bars[2].x = 0.0f;
-    local.bars[2].y = 224.0f;
-    local.bars[2].z = 0.0f;
-    local.bars[2].w = inv;
-    local.bars[2].r = 255.0f;
-    local.bars[2].g = 100.0f;
-    local.bars[2].b = 0.0f;
-    local.bars[2].a = (f32)(u32)((s32)(204.0f * smooth) & 0xFF);
-    local.bars[3].x = 640.0f;
-    local.bars[3].y = 224.0f;
-    local.bars[3].z = 0.0f;
-    local.bars[3].w = inv;
-    local.bars[3].r = 255.0f;
-    local.bars[3].g = 100.0f;
-    local.bars[3].b = 0.0f;
-    local.bars[3].a = (f32)(u32)((s32)(204.0f * smooth) & 0xFF);
-    D_00887310[0](4, local.bars, 4);
-    local.bars[0].x = 0.0f;
-    local.bars[0].y = 224.0f;
-    local.bars[0].z = 0.0f;
-    local.bars[0].w = inv;
-    local.bars[0].r = 255.0f;
-    local.bars[0].g = 100.0f;
-    local.bars[0].b = 0.0f;
-    local.bars[0].a = (f32)(u32)((s32)(204.0f * smooth) & 0xFF);
-    local.bars[1].x = 640.0f;
-    local.bars[1].y = 224.0f;
-    local.bars[1].z = 0.0f;
-    local.bars[1].w = inv;
-    local.bars[1].r = 255.0f;
-    local.bars[1].g = 100.0f;
-    local.bars[1].b = 0.0f;
-    local.bars[1].a = (f32)(u32)((s32)(204.0f * smooth) & 0xFF);
-    local.bars[2].x = 0.0f;
-    local.bars[2].y = 356.0f;
-    local.bars[2].z = 0.0f;
-    local.bars[2].w = inv;
-    local.bars[2].r = 255.0f;
-    local.bars[2].g = 100.0f;
-    local.bars[2].b = 0.0f;
-    local.bars[2].a = 0.0f;
-    local.bars[3].x = 640.0f;
-    local.bars[3].y = 356.0f;
-    local.bars[3].z = 0.0f;
-    local.bars[3].w = inv;
-    local.bars[3].r = 255.0f;
-    local.bars[3].g = 100.0f;
-    local.bars[3].b = 0.0f;
-    local.bars[3].a = 0.0f;
-    D_00887310[0](4, local.bars, 4);
+    drawPosition.x = 182.0f - slideOffset;
+    drawPosition.y = (f32)331 - slideOffset;
+    func_00364fb0(drawPosition, 0.0f, 0xFF6400FF,
+        fGpffff8374, 0, 0);
+    drawPosition.x = (f32)457 + slideOffset;
+    drawPosition.y = 117.0f + slideOffset;
+    func_00364fb0(drawPosition, 0.0f, 0xFF6400FF,
+        fGpffff8378, 0, 0);
+    {
+        if (entering) {
+            f32 ratio;
+            if (animationFrame < 0xB) {
+                ratio = 0.0f;
+            } else {
+                f32 frame = (f32)(animationFrame - 0xA);
+                if (15.0f <= frame) {
+                    ratio = 1.0f;
+                } else {
+                    ratio = frame / 15.0f;
+                }
+            }
+            eased = easeCoefficient * ratio - ratio * ratio;
+        } else {
+            f32 ratio;
+            if (animationFrame <= 0) {
+                ratio = 0.0f;
+            } else {
+                f32 frame = (f32)animationFrame;
+                if (8.0f <= frame) {
+                    ratio = 1.0f;
+                } else {
+                    ratio = frame / 8.0f;
+                }
+            }
+            eased = easeCoefficient * (1.0f - ratio) - (1.0f - ratio) * (1.0f - ratio);
+        }
+    }
+    bars[0].u.els.scrVertex.x = 0.0f;
+    bars[0].u.els.scrVertex.y = 92.0f;
+    bars[0].u.els.scrVertex.z = 0.0f;
+    bars[0].u.els.recipZ = barReciprocalZ;
+    bars[0].u.els.color.r = 255.0f;
+    bars[0].u.els.color.g = 100.0f;
+    bars[0].u.els.color.b = 0.0f;
+    bars[0].u.els.color.a = 0.0f;
+    bars[1].u.els.scrVertex.x = 640.0f;
+    bars[1].u.els.scrVertex.y = 92.0f;
+    bars[1].u.els.scrVertex.z = 0.0f;
+    bars[1].u.els.recipZ = barReciprocalZ;
+    bars[1].u.els.color.r = 255.0f;
+    bars[1].u.els.color.g = 100.0f;
+    bars[1].u.els.color.b = 0.0f;
+    bars[1].u.els.color.a = 0.0f;
+    bars[2].u.els.scrVertex.x = 0.0f;
+    bars[2].u.els.scrVertex.y = 224.0f;
+    bars[2].u.els.scrVertex.z = 0.0f;
+    bars[2].u.els.recipZ = barReciprocalZ;
+    bars[2].u.els.color.r = 255.0f;
+    bars[2].u.els.color.g = 100.0f;
+    bars[2].u.els.color.b = 0.0f;
+    /* Keep the floating opacity; each vertex applies the unsigned byte conversion. */
+    barOpacity = 204.0f * eased;
+    bars[2].u.els.color.a = (f32)(u8)barOpacity;
+    bars[3].u.els.scrVertex.x = 640.0f;
+    bars[3].u.els.scrVertex.y = 224.0f;
+    bars[3].u.els.scrVertex.z = 0.0f;
+    bars[3].u.els.recipZ = barReciprocalZ;
+    bars[3].u.els.color.r = 255.0f;
+    bars[3].u.els.color.g = 100.0f;
+    bars[3].u.els.color.b = 0.0f;
+    bars[3].u.els.color.a = (f32)(u8)barOpacity;
+    renderTable = (u8 *)D_00887310;
+    (*(BtlShuffleRenderPrimitive *)renderTable)(rwPRIMTYPETRISTRIP, bars, 4);
+    bars[0].u.els.scrVertex.x = 0.0f;
+    bars[0].u.els.scrVertex.y = 224.0f;
+    bars[0].u.els.scrVertex.z = 0.0f;
+    bars[0].u.els.recipZ = barReciprocalZ;
+    bars[0].u.els.color.r = 255.0f;
+    bars[0].u.els.color.g = 100.0f;
+    bars[0].u.els.color.b = 0.0f;
+    bars[0].u.els.color.a = (f32)(u8)barOpacity;
+    bars[1].u.els.scrVertex.x = 640.0f;
+    bars[1].u.els.scrVertex.y = 224.0f;
+    bars[1].u.els.scrVertex.z = 0.0f;
+    bars[1].u.els.recipZ = barReciprocalZ;
+    bars[1].u.els.color.r = 255.0f;
+    bars[1].u.els.color.g = 100.0f;
+    bars[1].u.els.color.b = 0.0f;
+    bars[1].u.els.color.a = (f32)(u8)barOpacity;
+    bars[2].u.els.scrVertex.x = 0.0f;
+    bars[2].u.els.scrVertex.y = 356.0f;
+    bars[2].u.els.scrVertex.z = 0.0f;
+    bars[2].u.els.recipZ = barReciprocalZ;
+    bars[2].u.els.color.r = 255.0f;
+    bars[2].u.els.color.g = 100.0f;
+    bars[2].u.els.color.b = 0.0f;
+    bars[2].u.els.color.a = 0.0f;
+    bars[3].u.els.scrVertex.x = 640.0f;
+    bars[3].u.els.scrVertex.y = 356.0f;
+    bars[3].u.els.scrVertex.z = 0.0f;
+    bars[3].u.els.recipZ = barReciprocalZ;
+    bars[3].u.els.color.r = 255.0f;
+    bars[3].u.els.color.g = 100.0f;
+    bars[3].u.els.color.b = 0.0f;
+    bars[3].u.els.color.a = 0.0f;
+    (*(BtlShuffleRenderPrimitive *)renderTable)(rwPRIMTYPETRISTRIP, bars, 4);
     func_00201820(0);
-    if (special) {
-        if (mode < 0xF) {
-            t = 0.0f;
+    if (entering) {
+        f32 ratio;
+        u8 labelAlpha;
+        if (animationFrame < 0xF) {
+            ratio = 0.0f;
         } else {
-            t = (f32)(mode - 0xE);
-            if (t >= 8.0f) {
-                t = 1.0f;
+            f32 frame = (f32)(animationFrame - 0xE);
+            if (8.0f <= frame) {
+                ratio = 1.0f;
             } else {
-                t /= 8.0f;
+                ratio = frame / 8.0f;
             }
         }
-        smooth = 2.0f * t - t * t;
-        alpha = (s32)(255.0f * (1.0f - smooth)) & 0xFF;
-        offset = 400.0f * (1.0f - (1.0f - smooth));
-        func_0034f460(*(s32 *)(arg1 + 4), 0, 0, 0, 0, alpha,
-                      165.0f + offset, 170.0f);
-        func_0034f460(*(s32 *)(arg1 + 4), 1, 0, 0, 0, alpha,
-                      313.0f - offset, 224.0f);
+        ratio = 1.0f - ratio;
+        eased = easeCoefficient * ratio - ratio * ratio;
+        labelAlpha = (u8)(255.0f * (1.0f - eased));
+        slideOffset = 400.0f * (1.0f - (1.0f - eased));
+        func_0034f460(*(s32 *)(work + 4), 0, 165.0f + slideOffset, 170.0f,
+            0, 0, 0, labelAlpha);
+        func_0034f460(*(s32 *)(work + 4), 1, (f32)313 - slideOffset, 224.0f,
+            0, 0, 0, labelAlpha);
         return;
     }
-    if (mode <= 0) {
-        t = 0.0f;
-    } else if ((f32)mode >= 8.0f) {
-        t = 1.0f;
-    } else {
-        t = (f32)mode / 8.0f;
+    {
+        f32 labelScale;
+        f32 labelProgress;
+        f32 ratio;
+        if (animationFrame <= 0) {
+            ratio = 0.0f;
+        } else {
+            f32 frame = (f32)animationFrame;
+            if (8.0f <= frame) {
+                ratio = 1.0f;
+            } else {
+                ratio = frame / 8.0f;
+            }
+        }
+        ratio = 1.0f - ratio;
+        labelScale = 4096.0f * ratio;
+        labelProgress = 1.0f - ratio;
+        func_0034f4a0(*(s32 *)(work + 4), 0, 165.0f,
+            170.0f + 28.0f * labelProgress, 0.0f, 0, 0, 0,
+            0xFF, 0x1000, (u16)labelScale, 0.0f, 0, 0);
+        func_0034f4a0(*(s32 *)(work + 4), 1, (f32)313,
+            224.0f + 26.5f * labelProgress, 0.0f, 0, 0, 0,
+            0xFF, 0x1000, (u16)labelScale, 0.0f, 0, 0);
     }
-    offset = 4096.0f * (1.0f - t);
-    value = (s32)offset & 0xFFFF;
-    func_0034f4a0(*(s32 *)(arg1 + 4), 0, 165.0f,
-                  42.0f + 28.0f * t, 0.0f, 0, 0, 0,
-                  0xFF, 0x1000, value, 0.0f, 0, 0);
-    value = (s32)offset & 0xFFFF;
-    func_0034f4a0(*(s32 *)(arg1 + 4), 1, 313.0f,
-                  224.0f + 26.5f * t, 0.0f, 0, 0, 0,
-                  0xFF, 0x1000, value, 0.0f, 0, 0);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00212270);
-#endif
 // FUN_002136F0
 s32 func_002136f0(u8 *sdkTaskBytes)
 {
@@ -1602,88 +1606,72 @@ void func_00213e20(u8 *arg0, u8 *arg1)
         return;
     }
 }
-/* measured 002142b0: retail 1624 instrs (6496B window), object 1636 instrs (6544B), 809 edits +4 reloc-only via `python3 -E -s tools/fnalign.py src/promoted/code1_0021.c func_002142b0 --candidate docs/probe_archive/Lane0021Full_002142b0_body.c` (was 1155 +4/object 1816). Truthful fixes: 00201650 floats-middle + u8 colors, 00201300 136.0f, 002016b0 s32, 0043f9c8 void*, 85.0*(f32)arg2. CFG hoist regresses 809->911 so kept. Frame -0x180 vs -0x170 + parks/coloring residual. Floor banked in Lane0021Full_002142b0_body.c (428 lines); production stays ASM. */
-/* installed 2026-09-19 from docs/probe_archive/Lane0021Full_002142b0_body.c (428 lines, single-function, zero markers): compiles clean with no fixes, fresh 6544B/6496B (1636 vs 1624, +0.7% inside gate), 1468 words. Kept as floor. */
-/* measured 002142b0 (owner, 2026-09-19): fnalign **809 -> 807 edits**, count
-   1636 -> 1634 against retail 1624, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all. */
-// FUN_002142B0 NONMATCHING
-#ifdef NON_MATCHING
-void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
+/* The portrait owns four three-layer position arrays and the color/status
+ * output. The slide's duration, coefficient, curve and mutable frame have
+ * one phase lifetime; the per-direction ratio temporaries stay local.
+ * See docs/probe_archive/Battle_portrait_002142b0_20260922.md. */
+// FUN_002142B0
+#pragma push
+#pragma opt_loop_invariants on
+void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 {
-    typedef struct {
-        s32 stat0[4];
-        s32 stat1[4];
-        u8 color[0x14];
-        s32 status;
-        f32 unused[2];
-        f32 x[8];
-        f32 y[8];
-        f32 offset[8];
-        f32 effect[8];
-    } Work;
+    typedef struct DatUnit DatUnit;
     extern void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1);
     extern void func_00201300(s32 *arg0, f32 fparg0, f32 fparg1,
-                              f32 fparg2, f32 fparg3);
+        f32 fparg2, f32 fparg3);
     extern void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
-                              f32 fparg1);
+        f32 fparg1);
     extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
-                              f32 fparg1, u8 arg5, u8 arg6, u8 arg7,
-                              u8 arg8);
+        f32 fparg1, u8 arg5, u8 arg6, u8 arg7,
+        u8 arg8);
     extern void func_002016b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void func_00201820(s32 arg0);
     extern void func_002019d0(u8 *arg0, f32 fparg0, f32 fparg1);
-    extern s32 func_00231ed0(s32 arg0);
-    extern s32 func_00231ee0(s32 arg0);
-    extern s32 func_00231f80(s32 arg0);
-    extern s32 func_00232290(s32 arg0);
-    extern s32 func_00366c70(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                             s32 arg4, s32 arg5, s32 arg6, s16 arg7,
-                             f32 fparg0, s16 arg_sp0, s32 *arg_sp8,
-                             s32 arg_sp10, s32 *arg_sp18);
+    extern u16 func_00231ed0(s32 arg0);
+    extern u16 func_00231ee0(s32 arg0);
+    extern u16 func_00231f80(DatUnit *arg0);
+    extern u16 func_00232290(DatUnit *arg0);
     extern void *func_0043f9c8(void *dst, s32 value, u32 size);
     extern f32 fGpffff815c;
     extern f32 fGpffff8218;
     extern f32 fGpffff84b4;
     extern f32 fGpffff84b8;
-    extern u8 D_00626CC0[];
-    extern u8 D_00626DE0[];
-    extern u8 D_00626F00[];
-    extern u8 D_00626F60[];
-    extern u8 D_00626FC0[];
-    extern u8 D_00626FD0[];
-    Work work;
+    extern f32 D_00626CC0[][24];
+    extern f32 D_00626DE0[][24];
+    extern f32 D_00626F00[];
+    extern f32 D_00626F60[];
+    extern f32 D_00626FC0[];
+    extern f32 D_00626FD0[];
+    Vec2f effect[3];
+    Vec2f offset[3];
+    Vec2f y[3];
+    Vec2f x[3];
+    struct {
+        u8 rgba[20];
+        s32 status;
+    } colors;
+    s32 maxHp;
+    s32 maxSp;
     u8 *context;
     s32 hp;
     s32 sp;
+    u32 row;
     s32 state;
-    s32 frame;
-    s32 i;
-    s32 alpha;
-    s32 alpha2;
+    s16 frame;
+    u8 alpha;
+    u8 alpha2;
     s32 tile;
-    f32 t;
-    f32 smooth;
-    f32 fade;
-    f32 value;
-    f32 value2;
     f32 baseX;
     f32 baseY;
     f32 temp;
 
+    row = arg2;
     context = (u8 *)arg0 + 0x80C;
-    func_00213e20(arg1, work.color);
+    func_00213e20(arg1, (u8 *)&colors);
     hp = func_00231ed0(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
     sp = func_00231ee0(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
-    work.stat0[0] = func_00231f80(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
-    work.stat1[0] = func_00232290(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
+    maxHp = func_00231f80(*(DatUnit **)(arg1 + 0xA64)) & 0xFFFF;
+    maxSp = func_00232290(*(DatUnit **)(arg1 + 0xA64)) & 0xFFFF;
     tile = *(u16 *)(arg1 + 0xA4);
     if (tile < 9) {
         tile -= 1;
@@ -1691,354 +1679,400 @@ void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
         tile = 0;
     }
     frame = *(s16 *)(arg1 + 0xA16);
-    if (frame < -1) {
+    if (frame <= -2) {
         return;
     }
     if (frame < 0x19) {
-        frame = (s16)(frame - (s16)(arg2 * 2));
-        state = *(s16 *)(arg1 + 0xA14);
-        if (state > 0 && state < 9) {
-            t = (f32)state;
-            if (t <= 6.0f) {
-                t = 1.0f;
-            } else {
-                t /= 6.0f;
-            }
-            smooth = 2.0f * t - t * t;
-            fparg0 = fparg0 + smooth * (fGpffff84b4 - fparg0);
-            t = (f32)arg2;
-            fparg1 = fparg1 + smooth * (fGpffff84b8 + 85.0f * t - fparg1);
-            fade = fGpffff8218 - fGpffff8218 * smooth;
-            func_002019d0((u8 *)arg0, fade, fade);
-            value = (f32)frame;
-            for (i = 0; i < 3; i++) {
-                if (value <= 8.0f) {
-                    if (value < 0.0f) {
-                        temp = 0.0f;
-                    } else {
-                        temp = value / 8.0f;
-                    }
-                } else {
-                    temp = 1.0f;
-                }
-                smooth = 1.0f - (2.0f * temp - temp * temp);
-                work.offset[i * 2] = 180.0f * smooth;
-                work.offset[i * 2 + 1] = 80.0f * smooth;
-                if (*(s32 *)context & 1) {
-                    value += 0.75f;
-                } else {
-                    value -= 0.75f;
-                }
-            }
-            value = (f32)(frame - 3);
-            if (value <= 8.0f) {
-                if (value < 0.0f) {
-                    temp = 0.0f;
-                } else {
-                    temp = value / 8.0f;
-                }
-            } else {
-                temp = 1.0f;
-            }
-            smooth = 1.0f - (2.0f * temp - temp * temp);
-            baseX = 180.0f * smooth;
-            baseY = -(80.0f * smooth);
-            value = (f32)frame;
-            for (i = 0; i < 3; i++) {
-                temp = value - 5.0f;
-                if (temp <= 8.0f) {
-                    if (temp < 0.0f) {
-                        fade = 0.0f;
-                    } else {
-                        fade = temp / 8.0f;
-                    }
-                } else {
-                    fade = 1.0f;
-                }
-                smooth = 1.0f - (2.0f * fade - fade * fade);
-                work.y[i * 2] = 180.0f * smooth;
-                work.y[i * 2 + 1] = -(80.0f * smooth);
-                temp = value - 7.0f;
-                if (temp <= 8.0f) {
-                    if (temp < 0.0f) {
-                        fade = 0.0f;
-                    } else {
-                        fade = temp / 8.0f;
-                    }
-                } else {
-                    fade = 1.0f;
-                }
-                smooth = 1.0f - (2.0f * fade - fade * fade);
-                work.x[i * 2] = 180.0f * smooth;
-                work.x[i * 2 + 1] = -(80.0f * smooth);
-                value += 1.0f;
-            }
-        } else {
+        frame = (s16)(frame - (s16)((row & 0xFFFF) * 2));
+        {
+            f32 transitionScale;
             state = *(s16 *)(arg1 + 0xA14);
             if (state > 0 && state < 9) {
-                if (*(s32 *)(context + 8) != (s32)arg1 &&
-                    (*(s32 *)context & 2)) {
-                    state -= 2;
-                }
-                t = (f32)state;
-                if (t <= 6.0f) {
-                    t = 1.0f;
+                f32 scaleFrame;
+                f32 scaleRatio;
+                f32 scaleCurve;
+                f32 scaleRowY;
+                scaleFrame = (f32)state;
+                if (scaleFrame > 6.0f) {
+                    scaleRatio = 1.0f;
+                } else if (scaleFrame < 0.0f) {
+                    scaleRatio = 0.0f;
                 } else {
-                    t /= 6.0f;
+                    scaleRatio = scaleFrame / 6.0f;
                 }
-                smooth = 2.0f * t - t * t;
-                fparg0 = fparg0 + smooth * (fGpffff84b4 - fparg0);
-                t = (f32)arg2;
-                fparg1 = fparg1 + smooth * (fGpffff84b8 + 85.0f * t - fparg1);
-                fade = fGpffff8218 - fGpffff8218 * smooth;
-                func_002019d0((u8 *)arg0, fade, fade);
-                func_0043f9c8(work.offset, 0, 0x18);
-                func_0043f9c8(work.y, 0, 0x18);
-                func_0043f9c8(work.x, 0, 0x18);
-                baseX = 0.0f;
-                baseY = 0.0f;
+                scaleCurve = 2.0f * scaleRatio - scaleRatio * scaleRatio;
+                fparg0 = fparg0 + scaleCurve * (fGpffff84b4 - fparg0);
+                scaleRowY = fGpffff84b8 + 85.0f * (f32)row;
+                scaleRowY = scaleRowY - fparg1;
+                fparg1 = fparg1 + scaleCurve * scaleRowY;
+                transitionScale = 1.0f - fGpffff8218 * scaleCurve;
             } else {
-                func_002012d0((u8 *)arg0, fparg0, fparg1);
-                func_0043f9c8(work.offset, 0, 0x18);
-                func_0043f9c8(work.y, 0, 0x18);
-                func_0043f9c8(work.x, 0, 0x18);
-                baseX = 0.0f;
-                baseY = 0.0f;
+                transitionScale = 1.0f;
+            }
+            func_002019d0((u8 *)arg0, transitionScale, transitionScale);
+        }
+        {
+            u16 layerIndex;
+            f32 layerFrame;
+            layerFrame = (f32)frame;
+            for (layerIndex = 0; layerIndex < 3U; layerIndex++) {
+                f32 layerRatio;
+                f32 layerCurve;
+                if (layerFrame > 8.0f) {
+                    layerRatio = 1.0f;
+                } else if (layerFrame < 0.0f) {
+                    layerRatio = 0.0f;
+                } else {
+                    layerRatio = layerFrame / 8.0f;
+                }
+                layerCurve = 1.0f - (2.0f * layerRatio - layerRatio * layerRatio);
+                offset[layerIndex].x = 180.0f * layerCurve;
+                offset[layerIndex].y = 80.0f * layerCurve;
+                if (*(s32 *)context & 1) {
+                    layerFrame += 0.75f;
+                } else {
+                    layerFrame -= 0.75f;
+                }
             }
         }
-        state = *(s16 *)(context + 4);
-        if (state > 0) {
-            if (*(s32 *)context & 4) {
-                value = (f32)state;
+        {
+            u16 digitIndex;
+            f32 digitFrame;
+            f32 digitRatio;
+            f32 digitCurve;
+            f32 digitPhaseRatio;
+            digitFrame = (f32)(frame - 3);
+            if (digitFrame > 8.0f) {
+                digitRatio = 1.0f;
+            } else if (digitFrame < 0.0f) {
+                digitRatio = 0.0f;
             } else {
-                value = (f32)state - 2.5f;
+                digitRatio = digitFrame / 8.0f;
             }
-            if (*(s32 *)context & 4) {
-                if (value <= 10.0f) {
-                    if (value < 0.0f) {
-                        t = 0.0f;
-                    } else {
-                        t = value / 10.0f;
-                    }
+            digitCurve = 1.0f - (2.0f * digitRatio - digitRatio * digitRatio);
+            baseX = 180.0f * digitCurve;
+            baseY = -(80.0f * digitCurve);
+            digitFrame = (f32)frame;
+            for (digitIndex = 0; digitIndex < 3U; digitIndex++) {
+                digitRatio = digitFrame - 5.0f;
+                if (digitRatio > 8.0f) {
+                    digitPhaseRatio = 1.0f;
+                } else if (digitRatio < 0.0f) {
+                    digitPhaseRatio = 0.0f;
                 } else {
-                    t = 1.0f;
+                    digitPhaseRatio = digitRatio / 8.0f;
                 }
-                smooth = 2.0f * t - t * t;
-            } else {
-                if (value <= 10.0f) {
-                    if (value < 0.0f) {
-                        t = 0.0f;
-                    } else {
-                        t = value / 10.0f;
-                    }
+                digitCurve = 1.0f - (2.0f * digitPhaseRatio - digitPhaseRatio * digitPhaseRatio);
+                y[digitIndex].x = 180.0f * digitCurve;
+                y[digitIndex].y = -(80.0f * digitCurve);
+                digitRatio = digitFrame - 7.0f;
+                if (digitRatio > 8.0f) {
+                    digitPhaseRatio = 1.0f;
+                } else if (digitRatio < 0.0f) {
+                    digitPhaseRatio = 0.0f;
                 } else {
-                    t = 1.0f;
+                    digitPhaseRatio = digitRatio / 8.0f;
                 }
-                smooth = 1.0f - (2.0f * t - t * t);
-            }
-            fade = 180.0f * smooth;
-            baseX += fade;
-            for (i = 0; i < 3; i++) {
-                if (*(s32 *)context & 4) {
-                    if (value <= 10.0f) {
-                        if (value < 0.0f) {
-                            t = 0.0f;
-                        } else {
-                            t = value / 10.0f;
-                        }
-                    } else {
-                        t = 1.0f;
-                    }
-                    smooth = 2.0f * t - t * t;
-                    value -= 1.25f;
-                } else {
-                    if (value <= 10.0f) {
-                        if (value < 0.0f) {
-                            t = 0.0f;
-                        } else {
-                            t = value / 10.0f;
-                        }
-                    } else {
-                        t = 1.0f;
-                    }
-                    smooth = 1.0f - (2.0f * t - t * t);
-                    value += 1.25f;
-                }
-                work.effect[i * 2] += 102.0f * smooth;
+                digitCurve = 1.0f - (2.0f * digitPhaseRatio - digitPhaseRatio * digitPhaseRatio);
+                x[digitIndex].x = 180.0f * digitCurve;
+                x[digitIndex].y = -(80.0f * digitCurve);
+                digitFrame += 1.0f;
             }
         }
-        if (*(s32 *)(arg1 + 0xA10) & 1) {
-            tile = *(u16 *)(arg1 + 0xA18);
-            value = func_0044b610(state) * fGpffff815c;
-            value2 = func_0044b7b0(fGpffff815c);
-            i = 0;
-            do {
-                temp = (f32)D_00626FC0[i] *
-                       (f32)D_00626CC0[tile * 24 + i * 24];
-                work.effect[i * 2] = temp * value;
-                work.effect[i * 2 + 1] = -temp * value2;
-                work.effect[i * 2 + 1] -=
-                    (f32)D_00626FD0[i] *
-                    (f32)D_00626CC0[tile * 24 + i * 24];
-                i++;
-            } while (i < 3);
-            alpha = (s32)(64.0f * (f32)D_00626F00[tile]) & 0xFF;
-            tile = (s16)tile + 1;
-            *(u16 *)(arg1 + 0xA18) = (u16)tile;
-            if ((s16)tile >= 0x18) {
-                *(s32 *)(arg1 + 0xA10) &= ~1;
+    } else {
+        state = *(s16 *)(arg1 + 0xA14);
+        if (state > 0 && state < 9) {
+            f32 selectionFrame;
+            f32 selectionRatio;
+            f32 selectionCurve;
+            f32 selectionY;
+            f32 selectionScale;
+            if (*(s32 *)(context + 8) != (s32)arg1 && (*(s32 *)context & 2)) {
+                state = (s16)(state - 2);
             }
+            selectionFrame = (f32)state;
+            if (selectionFrame > 6.0f) {
+                selectionRatio = 1.0f;
+            } else if (selectionFrame < 0.0f) {
+                selectionRatio = 0.0f;
+            } else {
+                selectionRatio = selectionFrame / 6.0f;
+            }
+            selectionCurve = 2.0f * selectionRatio - selectionRatio * selectionRatio;
+            fparg0 = fparg0 + selectionCurve * (fGpffff84b4 - fparg0);
+            selectionY = fGpffff84b8 + 85.0f * (f32)row;
+            selectionY = selectionY - fparg1;
+            fparg1 = fparg1 + selectionCurve * selectionY;
+            selectionScale = 1.0f - fGpffff8218 * selectionCurve;
+            func_002019d0((u8 *)arg0, selectionScale, selectionScale);
+            func_0043f9c8(offset, 0, 0x18);
+            func_0043f9c8(y, 0, 0x18);
+            func_0043f9c8(x, 0, 0x18);
+            baseX = 0.0f;
+            baseY = 0.0f;
         } else {
-            func_0043f9c8(work.effect, 0, 0x18);
-        }
-        func_00201300(arg0, fparg0, fparg1, 136.0f, 136.0f);
-        if (*(s32 *)(arg1 + 0xA10) & 0x200) {
-            func_00201650((u8 *)arg0, 8, 0xE, 29.0f, 27.0f, 0x9D, 0xFF,
-                          0x22, 0xFF);
-        }
-        if (*(s32 *)(arg1 + 0xA10) & 2) {
-            temp = (f32)D_00626F60[(*(s16 *)(arg1 + 0xA1A)) * 4];
-            alpha = (s32)(160.0f * temp) & 0xFF;
-            alpha2 = (s32)(255.0f * temp) & 0xFF;
-            func_00201650((u8 *)arg0, 8, 0xE, 29.0f, 27.0f, 0x9D, 0xFF,
-                          0x22, alpha);
-            *(s16 *)(arg1 + 0xA1A) += 1;
-            if (*(s16 *)(arg1 + 0xA1A) >= 0x18) {
-                *(s32 *)(arg1 + 0xA10) &= ~2;
-            }
-        }
-        if (work.status != 0) {
-            func_00201650((u8 *)arg0, 0xB, 0,
-                          29.0f + work.effect[0] + work.offset[0],
-                          27.0f + work.effect[1] + work.offset[1],
-                          work.color[0xC], work.color[0xD],
-                          work.color[0xE], 0xFF);
-        }
-        func_00201650((u8 *)arg0, tile, 1,
-                      27.0f + work.effect[6] + work.y[6],
-                      16.0f + work.effect[7] + work.y[7], work.color[4],
-                      work.color[5], work.color[6], 0xFF);
-        func_00201650((u8 *)arg0, tile, 1,
-                      20.0f + work.effect[4] + work.y[4],
-                      20.0f + work.effect[5] + work.y[5], work.color[0],
-                      work.color[1], work.color[2], 0xFF);
-        func_00201410((u8 *)arg0, tile, 0,
-                      20.0f + work.effect[0] + work.offset[0],
-                      20.0f + work.effect[1] + work.offset[1]);
-        if (work.status != 0) {
-            func_00201820(2);
-            func_00201650((u8 *)arg0, tile, 0,
-                          20.0f + work.effect[0] + work.offset[0],
-                          20.0f + work.effect[1] + work.offset[1],
-                          work.color[8], work.color[9], work.color[0xA],
-                          0xFF);
-            func_00201820(0);
-        }
-        if (*(s32 *)(arg1 + 0xA10) & 3) {
-            func_00201820(2);
-            func_00201650((u8 *)arg0, tile, 0, 20.0f + work.effect[0],
-                          20.0f + work.effect[1], 0xFF, 0xFF, 0xFF,
-                          alpha);
-            func_00201820(0);
-        }
-        if (work.status != 0) {
-            baseX = work.effect[0] + work.offset[0];
-            baseY = work.effect[1] + work.offset[1];
-            switch (work.status) {
-            case 2:
-                func_00201410((u8 *)arg0, 0xB, 0xA, 89.0f + baseX, 25.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 0xC, 66.0f + baseX, 53.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 0xB, 48.0f + baseX, 22.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 9, 27.0f + baseX, 86.0f + baseY);
-                break;
-            case 4:
-                func_00201410((u8 *)arg0, 0xB, 0xE, 59.0f + baseX, 18.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 0xF, 46.0f + baseX, 77.0f + baseY);
-                break;
-            case 8:
-                func_00201410((u8 *)arg0, 0xB, 0xD, 73.0f + baseX, 25.0f + baseY);
-                break;
-            case 0x10:
-                func_00201410((u8 *)arg0, 0xB, 5, 36.0f + baseX, 27.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 6, 87.0f + baseX, 27.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 8, 32.0f + baseX, 88.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 7, 65.0f + baseX, 67.0f + baseY);
-                break;
-            case 1:
-                func_00201410((u8 *)arg0, 0xB, 0x10, 59.0f + baseX, 21.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 0x12, 109.0f + baseX, 38.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 0x14, 46.0f + baseX, 27.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 0x11, 23.0f + baseX, 76.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 0x13, 38.0f + baseX, 99.0f + baseY);
-                break;
-            case 0x20:
-                func_00201410((u8 *)arg0, 0xB, 1, 82.0f + baseX, 22.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 2, 47.0f + baseX, 23.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 3, 31.0f + baseX, 91.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 4, 31.0f + baseX, 44.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 4, 65.0f + baseX, 84.0f + baseY);
-                break;
-            case 0x40:
-                func_00201410((u8 *)arg0, 0xB, 0x15, 73.0f + baseX, 22.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 0x16, 60.0f + baseX, 51.0f + baseY);
-                break;
-            case 0x80:
-                func_00201410((u8 *)arg0, 0xB, 0x17, 83.0f + baseX, 30.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 0x18, 62.0f + baseX, 50.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 0x19, 78.0f + baseX, 26.0f + baseY);
-                func_00201410((u8 *)arg0, 0xB, 0x1A, 32.0f + baseX, 88.0f + baseY);
-                break;
-            case 0x80000:
-                func_00201410((u8 *)arg0, 0xB, 0x1B, 29.0f + baseX, 27.0f + baseY);
-                break;
-            }
-        }
-        func_00201650((u8 *)arg0, 8, 0xA, 63.0f + baseX, 82.0f + baseY,
-                      work.color[0x10], work.color[0x11],
-                      work.color[0x12], 0xFF);
-        func_00201650((u8 *)arg0, 8, 0xB, 66.0f + baseX, 85.0f + baseY,
-                      0x26, 0x26, 0x26, 0xFF);
-        value = (f32)work.stat0[0];
-        temp = 54.0f * (f32)hp / value;
-        if (temp < 5.0f) {
-            value = 0.0f;
-        }
-        func_002016b0((s32)arg0, 8, 0xC, (s32)value);
-        func_00201650((u8 *)arg0, 8, 0xC, 70.0f + baseX, 88.0f + baseY,
-                      0xFF, 0xE0, 0x51, 0xFF);
-        value2 = (f32)work.stat1[0];
-        temp = 54.0f * (f32)sp / value2;
-        if (temp < 5.0f) {
-            value2 = 0.0f;
-        }
-        func_002016b0((s32)arg0, 8, 0xC, (s32)value2);
-        func_00201650((u8 *)arg0, 8, 0xC, 70.0f + baseX, 94.0f + baseY,
-                      0xB7, 0xFF, 0x54, 0xFF);
-        func_00201410((u8 *)arg0, 8, sp % 10,
-                      121.0f + work.x[0], 64.0f + work.x[1]);
-        if (sp / 10 != 0) {
-            func_00201410((u8 *)arg0, 8, (sp / 10) % 10,
-                          108.0f + work.x[2], 69.0f + work.x[3]);
-        }
-        if (sp / 100 != 0) {
-            func_00201410((u8 *)arg0, 8, (sp / 100) % 10,
-                          95.0f + work.x[4], 74.0f + work.x[5]);
-        }
-        func_00201410((u8 *)arg0, 8, hp % 10,
-                      122.0f + work.y[0], 47.0f + work.y[1]);
-        if (hp / 10 != 0) {
-            func_00201410((u8 *)arg0, 8, (hp / 10) % 10,
-                          109.0f + work.y[2], 52.0f + work.y[3]);
-        }
-        if (hp / 100 != 0) {
-            func_00201410((u8 *)arg0, 8, (hp / 100) % 10,
-                          96.0f + work.y[4], 57.0f + work.y[5]);
+            func_002012d0((u8 *)arg0, fparg0, fparg1);
+            func_0043f9c8(offset, 0, 0x18);
+            func_0043f9c8(y, 0, 0x18);
+            func_0043f9c8(x, 0, 0x18);
+            baseX = 0.0f;
+            baseY = 0.0f;
         }
     }
+    state = *(s16 *)(context + 4);
+    if (state > 0) {
+        f32 slideDuration;
+        f32 slideCoefficient;
+        f32 slideCurve;
+        f32 slideFrame;
+        f32 slideOffset;
+        if (*(s32 *)context & 4) {
+            slideFrame = (f32)state;
+        } else {
+            slideFrame = (f32)state - 2.5f;
+        }
+        {
+            f32 groupRatio;
+            f32 groupCurve;
+            if (*(s32 *)context & 4) {
+                slideDuration = 10.0f;
+                if (slideFrame > slideDuration) {
+                    groupRatio = 1.0f;
+                } else if (slideFrame < 0.0f) {
+                    groupRatio = 0.0f;
+                } else {
+                    groupRatio = slideFrame / slideDuration;
+                }
+                slideCoefficient = 2.0f;
+                groupCurve = slideCoefficient * groupRatio - groupRatio * groupRatio;
+            } else {
+                slideDuration = 10.0f;
+                if (slideFrame > slideDuration) {
+                    groupRatio = 1.0f;
+                } else if (slideFrame < 0.0f) {
+                    groupRatio = 0.0f;
+                } else {
+                    groupRatio = slideFrame / slideDuration;
+                }
+                groupRatio = 1.0f - groupRatio;
+                slideCoefficient = 2.0f;
+                groupCurve = 1.0f - (slideCoefficient * groupRatio - groupRatio * groupRatio);
+            }
+            slideOffset = 180.0f * groupCurve;
+            baseX += slideOffset;
+        }
+        {
+            u16 digitShiftIndex;
+            for (digitShiftIndex = 0; digitShiftIndex < 3U; digitShiftIndex++) {
+                y[digitShiftIndex].x += slideOffset;
+                x[digitShiftIndex].x += slideOffset;
+            }
+        }
+        {
+            u16 layerShiftIndex;
+            for (layerShiftIndex = 0; layerShiftIndex < 3U; layerShiftIndex++) {
+                f32 slideRatio;
+                if (*(s32 *)context & 4) {
+                    if (slideFrame > slideDuration) {
+                        slideRatio = 1.0f;
+                    } else if (slideFrame < 0.0f) {
+                        slideRatio = 0.0f;
+                    } else {
+                        slideRatio = slideFrame / slideDuration;
+                    }
+                    slideCurve = slideCoefficient * slideRatio - slideRatio * slideRatio;
+                    slideFrame -= 1.25f;
+                } else {
+                    if (slideFrame > slideDuration) {
+                        slideRatio = 1.0f;
+                    } else if (slideFrame < 0.0f) {
+                        slideRatio = 0.0f;
+                    } else {
+                        slideRatio = slideFrame / slideDuration;
+                    }
+                    slideRatio = 1.0f - slideRatio;
+                    slideCurve = 1.0f - (slideCoefficient * slideRatio - slideRatio * slideRatio);
+                    slideFrame += 1.25f;
+                }
+                offset[layerShiftIndex].x += 180.0f * slideCurve;
+            }
+        }
+    }
+    if (*(s32 *)(arg1 + 0xA10) & 1) {
+        f32 effectCos;
+        f32 effectSin;
+        f32 amplitude;
+        u16 effectIndex;
+        u16 effectFrame;
+        effectFrame = *(u16 *)(arg1 + 0xA18);
+        effectCos = func_0044b610(fGpffff815c);
+        effectSin = func_0044b7b0(fGpffff815c);
+        for (effectIndex = 0; effectIndex < 3U; effectIndex++) {
+            amplitude = D_00626FC0[effectIndex] * D_00626CC0[effectIndex][effectFrame];
+            effect[effectIndex].x = amplitude * effectCos;
+            effect[effectIndex].y = -amplitude * effectSin;
+            effect[effectIndex].y -= D_00626FD0[effectIndex] * D_00626DE0[effectIndex][effectFrame];
+        }
+        alpha = (u8)(64.0f * D_00626F00[effectFrame]);
+        *(s16 *)(arg1 + 0xA18) += 1;
+        if (*(s16 *)(arg1 + 0xA18) >= 0x18) {
+            *(s32 *)(arg1 + 0xA10) &= ~1;
+        }
+    } else {
+        func_0043f9c8(effect, 0, 0x18);
+    }
+    func_00201300(arg0, fparg0, fparg1, 136.0f, 136.0f);
+    if (*(s32 *)(arg1 + 0xA10) & 0x200) {
+        func_00201650((u8 *)arg0, 8, 0xE, 29.0f, 27.0f, 0x9D, 0xFF,
+            0x22, 0xFF);
+    }
+    if (*(s32 *)(arg1 + 0xA10) & 2) {
+        temp = D_00626F60[*(s16 *)(arg1 + 0xA1A)];
+        alpha = (u8)(160.0f * temp);
+        alpha2 = (u8)(255.0f * temp);
+        func_00201650((u8 *)arg0, 8, 0xE, 29.0f, 27.0f, 0x9D, 0xFF,
+            0x22, alpha2);
+        *(s16 *)(arg1 + 0xA1A) += 1;
+        if (*(s16 *)(arg1 + 0xA1A) >= 0x18) {
+            *(s32 *)(arg1 + 0xA10) &= ~2;
+        }
+    }
+    if (colors.status != 0) {
+        func_00201650((u8 *)arg0, 0xB, 0,
+            29.0f + effect[0].x + offset[0].x,
+            27.0f + effect[0].y + offset[0].y,
+            colors.rgba[0xC], colors.rgba[0xD],
+            colors.rgba[0xE], 0xFF);
+    }
+    func_00201650((u8 *)arg0, tile, 1,
+        27.0f + effect[2].x + offset[2].x,
+        16.0f + effect[2].y + offset[2].y, colors.rgba[4],
+        colors.rgba[5], colors.rgba[6], 0xFF);
+    func_00201650((u8 *)arg0, tile, 1,
+        20.0f + effect[1].x + offset[1].x,
+        20.0f + effect[1].y + offset[1].y, colors.rgba[0],
+        colors.rgba[1], colors.rgba[2], 0xFF);
+    func_00201410((u8 *)arg0, tile, 0,
+        20.0f + effect[0].x + offset[0].x,
+        20.0f + effect[0].y + offset[0].y);
+    if (colors.status != 0) {
+        func_00201820(2);
+        func_00201650((u8 *)arg0, tile, 0,
+            20.0f + effect[0].x + offset[0].x,
+            20.0f + effect[0].y + offset[0].y,
+            colors.rgba[8], colors.rgba[9], colors.rgba[0xA],
+            0xFF);
+        func_00201820(0);
+    }
+    if (*(s32 *)(arg1 + 0xA10) & 3) {
+        func_00201820(2);
+        func_00201650((u8 *)arg0, tile, 0, 20.0f + effect[0].x,
+            20.0f + effect[0].y, 0xFF, 0xFF, 0xFF,
+            alpha);
+        func_00201820(0);
+    }
+    if (colors.status != 0) {
+        f32 statusX;
+        f32 statusY;
+        statusX = effect[0].x + offset[0].x;
+        statusY = effect[0].y + offset[0].y;
+        switch (colors.status) {
+        case 2:
+            func_00201410((u8 *)arg0, 0xB, 0xA, 89.0f + statusX, 25.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 0xC, 66.0f + statusX, 53.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 0xB, 48.0f + statusX, 22.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 9, 27.0f + statusX, 86.0f + statusY);
+            break;
+        case 4:
+            func_00201410((u8 *)arg0, 0xB, 0xE, 59.0f + statusX, 18.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 0xF, 46.0f + statusX, 77.0f + statusY);
+            break;
+        case 8:
+            func_00201410((u8 *)arg0, 0xB, 0xD, 73.0f + statusX, 25.0f + statusY);
+            break;
+        case 0x10:
+            func_00201410((u8 *)arg0, 0xB, 5, 36.0f + statusX, 27.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 6, 87.0f + statusX, 27.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 8, 32.0f + statusX, 88.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 7, 65.0f + statusX, 67.0f + statusY);
+            break;
+        case 1:
+            func_00201410((u8 *)arg0, 0xB, 0x10, 59.0f + statusX, 21.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 0x12, 109.0f + statusX, 38.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 0x14, 46.0f + statusX, 27.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 0x11, 23.0f + statusX, 76.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 0x13, 38.0f + statusX, 99.0f + statusY);
+            break;
+        case 0x20:
+            func_00201410((u8 *)arg0, 0xB, 1, 82.0f + statusX, 22.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 2, 47.0f + statusX, 23.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 3, 31.0f + statusX, 91.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 4, 31.0f + statusX, 44.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 4, 65.0f + statusX, 84.0f + statusY);
+            break;
+        case 0x40:
+            func_00201410((u8 *)arg0, 0xB, 0x15, 73.0f + statusX, 22.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 0x16, 60.0f + statusX, 51.0f + statusY);
+            break;
+        case 0x80:
+            func_00201410((u8 *)arg0, 0xB, 0x17, 83.0f + statusX, 30.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 0x18, 62.0f + statusX, 50.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 0x19, 78.0f + statusX, 26.0f + statusY);
+            func_00201410((u8 *)arg0, 0xB, 0x1A, 32.0f + statusX, 88.0f + statusY);
+            break;
+        case 0x80000:
+            func_00201410((u8 *)arg0, 0xB, 0x1B, 29.0f + statusX, 27.0f + statusY);
+            break;
+        }
+    }
+    func_00201650((u8 *)arg0, 8, 0xA, 63.0f + baseX, 82.0f + baseY,
+        colors.rgba[0x10], colors.rgba[0x11],
+        colors.rgba[0x12], 0xFF);
+    func_00201650((u8 *)arg0, 8, 0xB, 66.0f + baseX, 85.0f + baseY,
+        0x26, 0x26, 0x26, 0xFF);
+    {
+        f32 hpWidth;
+        hpWidth = 54.0f * (f32)hp / (f32)maxHp;
+        if (hpWidth < 5.0f && hpWidth > 0.0f) {
+            hpWidth = 5.0f;
+        }
+        func_002016b0((s32)arg0, 8, 0xC, (s32)hpWidth);
+    }
+    func_00201650((u8 *)arg0, 8, 0xC, 70.0f + baseX, 88.0f + baseY,
+        0xFF, 0xE0, 0x51, 0xFF);
+    {
+        f32 spWidth;
+        spWidth = 54.0f * (f32)sp / (f32)maxSp;
+        if (spWidth < 5.0f && spWidth > 0.0f) {
+            spWidth = 5.0f;
+        }
+        func_002016b0((s32)arg0, 8, 0xC, (s32)spWidth);
+    }
+    func_00201650((u8 *)arg0, 8, 0xC, 70.0f + baseX, 94.0f + baseY,
+        0xB7, 0xFF, 0x54, 0xFF);
+    func_00201410((u8 *)arg0, 8, sp % 10,
+        121.0f + x[0].x, 64.0f + x[0].y);
+    if (sp / 10 != 0) {
+        func_00201410((u8 *)arg0, 8, (sp / 10) % 10,
+            108.0f + x[1].x, 69.0f + x[1].y);
+    }
+    if (sp / 100 != 0) {
+        func_00201410((u8 *)arg0, 8, (sp / 100) % 10,
+            95.0f + x[2].x, 74.0f + x[2].y);
+    }
+    func_00201410((u8 *)arg0, 8, hp % 10,
+        122.0f + y[0].x, 47.0f + y[0].y);
+    if (hp / 10 != 0) {
+        func_00201410((u8 *)arg0, 8, (hp / 10) % 10,
+            109.0f + y[1].x, 52.0f + y[1].y);
+    }
+    if (hp / 100 != 0) {
+        func_00201410((u8 *)arg0, 8, (hp / 100) % 10,
+            96.0f + y[2].x, 57.0f + y[2].y);
+    }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002142b0);
-#endif
+
+#pragma pop
 // FUN_00215C10
 void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 {
@@ -2386,7 +2420,7 @@ void func_002167f0(u8 *arg0, u8 *arg1)
             old = *(u8 **)(local + 0x20 + j * 4);
             x = *(f32 *)(local + j * 8);
             y = *(f32 *)(local + 4 + j * 8);
-            func_002142b0(work, old, j & 0xFFFF, x, y);
+            func_002142b0(work, old, x, y, j & 0xFFFF);
             j += 1;
         }
         func_002019d0((u8 *)work, 1.0f, 1.0f);
@@ -2501,41 +2535,30 @@ void func_00216e50(void)
 {
 }
 
-/* measured 00216e60: retail 1213 instrs (4864B window), object 1181 instrs (4724B, -2.6%) via `python3 -E -s tools/fnalign.py src/promoted/code1_0021.c func_00216e60 --candidate /tmp/prod_16e60.c` (was 1119, 424 edits +10 reloc-only; now 385 +11). Truthful fixes: D_00887300[0](1,0)+(8,1) before box, 103.0f-(f32)box3 for 83 (retail 103-20 split, cf. func_00215c10 85.0f hoist where ten of twelve diffs trace to one sunk constant), two func_00201720(1,1) after flag8 arms, extra func_002012d0(94,81) inside colour guard, (u8) pulse clamp, (s8)index/n/half compare. Frame 0x140 correct; residual prologue park order, FPU colouring, branch polarity. Inside gate 1177-1249, kept as floor. */
-// FUN_00216E60 NONMATCHING
-#ifdef NON_MATCHING
+/* Retail-exact: 4856 bytes, complete resolved relocations and eight zero
+ * alignment bytes. Status icon/color locals have separate typed lifetimes;
+ * timed messages share the render path, and rectangles use rounded integer
+ * coordinates. Render-state scopes retain the table address while reloading
+ * its callback. See Battle_message_panel_00216e60_20260922.md. */
+// FUN_00216E60
 void func_00216e60(u8 *arg0, u8 *arg1)
 {
-    typedef struct {
-        u8 cB0[0x10];
-        u8 cC0[0x10];
-        u8 cD0[0x10];
-        u8 cE0[0x10];
-        u8 cF0[0x10];
-        s32 flag100;
-        s32 flag110;
-        s32 box0;
-        s32 box1;
-        s32 box2;
-        s32 box3;
-        u8 c13c[4];
-    } Work;
     extern s32 func_0019f050(u8 *arg0);
     extern void func_002012d0(u8 *arg0, f32 x, f32 y);
     extern void func_00201410(u8 *arg0, s32 font, s32 id, f32 x, f32 y);
     extern void func_00201820(s32 mode);
     extern s32 func_002340c0(s32 arg0, s32 mask);
-    extern u8 *func_002724d0(u8 *text, s64 style, s32 mode, s32 arg3, u8 *arg4);
+    extern u8 *func_002724d0(u8 *text, s32 style, s8 mode, s32 arg3, u8 *arg4);
     extern void func_00272860(s32 arg0, s32 arg1);
     extern void func_00272950(s32 arg0, s32 arg1, s32 arg2);
     extern void func_00272ba0(s32 arg0, s32 arg1);
     extern void func_00272c60(s32 arg0);
     extern void func_00272c80(s32 arg0);
-    extern void func_00273170(s32 arg0, s32 arg1, s32 arg2);
+    extern s32 func_00273170(void *arg0, u32 arg1, u32 arg2);
     extern s32 func_002738d0(s32 arg0);
     extern void func_00274a20(s32 arg0, f32 width);
-    extern void func_00274ed0(s32 color, s32 font, s32 mode, s32 glyph,
-                               s32 arg4, s32 arg5, f32 x, f32 y, f32 scale);
+    extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s8 mode,
+                               s32 font, const char *text, s32 flags, s32 extra);
     extern void func_002778c0(s32 arg0, s32 arg1, s32 arg2);
     extern void func_00278090(s32 arg0, s32 arg1, s32 arg2);
     extern void func_00278170(s32 arg0, s32 arg1);
@@ -2543,36 +2566,35 @@ void func_00216e60(u8 *arg0, u8 *arg1)
     extern s32 func_002791f0(f32 x, f32 y, f32 scale, s32 color, s32 arg4,
                              s32 arg5, s32 arg6, s32 arg7, s32 arg8);
     extern s32 func_00279690(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-    extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 arg3);
+    extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 state);
     extern void func_00201350(void);
     extern s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void func_00201650(u8 *work, s32 mode, s32 tile, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
     extern void func_00201720(void *arg0, f32 arg1, f32 arg2);
-    extern u16 D_008C024E;
-    extern void (*D_00887300[])(s32 arg0, s32 arg1);
+    extern u16 D_008C024E[];
+    extern BtlShuffleRenderStateSet D_00887300[];
     extern s32 iGpffffb4b0;
     extern f32 fGpffff8478;
     extern f32 fGpffff847c;
     extern f32 fGpffff8218;
     extern f32 fGpffffb47c;
-    Work work;
+    struct { s32 x, y, width, height; } box;
+    u8 colorBytes[4];
+    s32 animated;
+    f32 boxOffset;
+    f32 firstBoxY;
+    f32 secondBoxY;
+    extern const char *iGpffffa590;
+    extern const char *iGpffffa594;
     u8 *ctx;
     u8 *subctx;
     s32 *p;
-    s32 n;
-    s32 half;
-    s32 old;
-    s32 index;
-    s32 color;
-    s32 color2;
-    s32 color3;
-    s32 all;
-    s32 pulse;
     s16 key;
     u16 count;
     f32 t;
     f32 fade;
     f32 pulsef;
+    f32 statusX;
 
     (void)arg0;
     ctx = (u8 *)func_00452560(*(void **)(arg1 + 0x3C));
@@ -2582,8 +2604,13 @@ void func_00216e60(u8 *arg0, u8 *arg1)
     }
     func_00201350();
     func_002012d0((u8 *)p, 0.0f, 0.0f);
-    index = *(u16 *)(arg1 + 0x14);
-    if (index == 1) {
+    switch (*(u16 *)(arg1 + 0x14)) {
+    case 0:
+        break;
+    case 1: {
+        s32 n;
+        s32 half;
+        s32 old;
         if (*(s32 *)arg1 != 0) {
             func_00271b70(*(s32 *)arg1);
             *(s32 *)arg1 = 0;
@@ -2601,21 +2628,12 @@ void func_00216e60(u8 *arg0, u8 *arg1)
             func_00278ef0(*(s32 *)(arg1 + 0x18), 2, 0, 0xFF, 0xFF);
             func_00278170(*(s32 *)(arg1 + 0x18), 0x800000);
             n = func_002787d0(*(s32 *)(arg1 + 0x18), *(s32 *)(arg1 + 0x1C), 0, 2);
-            half = n >> 4;
-            if (n < 0) {
-                half = (n + 0xF) >> 4;
-            }
+            half = n / 16;
             if (*(u16 *)(arg1 + 0x10) & 4) {
-                old = half >> 1;
-                if (half < 0) {
-                    old = (half + 1) >> 1;
-                }
+                old = half / 2;
                 func_00278090(*(s32 *)(arg1 + 0x18), (0xD0 - old) << 4, 0x2A0);
             } else {
-                old = half >> 1;
-                if (half < 0) {
-                    old = (half + 1) >> 1;
-                }
+                old = half / 2;
                 func_00278090(*(s32 *)(arg1 + 0x18), (0x12F - old) << 4, 0x2B0);
             }
         } else {
@@ -2627,15 +2645,11 @@ void func_00216e60(u8 *arg0, u8 *arg1)
             func_00272860(*(s32 *)arg1, -1);
             func_00272c80(1);
             func_00272c60(2);
-            n = func_002738d0(*(s32 *)arg1);
-            half = n >> 1;
-            if (n < 0) {
-                half = (n + 1) >> 1;
-            }
+            half = func_002738d0(*(s32 *)arg1);
             if (*(u16 *)(arg1 + 0x10) & 4) {
-                func_00272950(*(s32 *)arg1, (0xD1 - half) << 4, 0x2A0);
+                func_00272950(*(s32 *)arg1, (0xD1 - half / 2) << 4, 0x2A0);
             } else {
-                func_00272950(*(s32 *)arg1, (0x130 - half) << 4, 0x2A0);
+                func_00272950(*(s32 *)arg1, (0x130 - half / 2) << 4, 0x2A0);
             }
             func_00274a20(*(s32 *)arg1, 50.0f);
             func_00272ba0(*(s32 *)arg1, -1);
@@ -2644,58 +2658,59 @@ void func_00216e60(u8 *arg0, u8 *arg1)
         *(s32 *)(arg1 + 8) = 0;
         *(u16 *)(arg1 + 0x14) = 2;
         *(u16 *)(arg1 + 0x10) |= 2;
-        index = 2;
     }
-    if (index == 2) {
-        if ((*(u16 *)(arg1 + 0x10) & 1) == 0) {
-            old = *(s32 *)(arg1 + 8);
-            *(s32 *)(arg1 + 8) = old + 1;
-            if (old >= *(s32 *)(arg1 + 4)) {
-                subctx = (u8 *)func_00452560(*(void **)(arg1 + 0x3C)) + 0x84C;
-                if (*(s32 *)subctx != 0) {
-                    func_00271b70(*(s32 *)subctx);
-                    *(s32 *)subctx = 0;
-                }
-                func_00277ad0(*(s32 *)(subctx + 0x18), 0);
-                *(u16 *)(subctx + 0x10) &= (u16)~2;
-                *(u16 *)(subctx + 0x16) = 0;
-                *(s32 *)(subctx + 8) = *(s32 *)(subctx + 4);
-                *(u16 *)(arg1 + 0x14) = 0;
+    /* Fall through: initialize and draw the message in the same update. */
+    case 2: {
+        if ((*(u16 *)(arg1 + 0x10) & 1) == 0 &&
+            (*(s32 *)(arg1 + 8))++ >= *(s32 *)(arg1 + 4)) {
+            subctx = (u8 *)func_00452560(*(void **)(arg1 + 0x3C)) + 0x84C;
+            if (*(s32 *)subctx != 0) {
+                func_00271b70(*(s32 *)subctx);
+                *(s32 *)subctx = 0;
             }
+            func_00277ad0(*(s32 *)(subctx + 0x18), 0);
+            *(u16 *)(subctx + 0x10) &= (u16)~2;
+            *(u16 *)(subctx + 0x16) = 0;
+            *(s32 *)(subctx + 8) = *(s32 *)(subctx + 4);
+            *(u16 *)(arg1 + 0x14) = 0;
         } else if (*(u16 *)(arg1 + 0x10) & 2) {
             count = *(u16 *)(arg1 + 0x16);
             if (count < 4) {
-                count++;
-                *(u16 *)(arg1 + 0x16) = count;
-                t = (f32)count / 4.0f;
+                t = (f32)(u32)++*(u16 *)(arg1 + 0x16) / 4.0f;
                 fade = 2.0f * t - t * t;
                 if (*(u16 *)(arg1 + 0x12) != 1) {
-                    D_00887300[0](1, 0);
-                    D_00887300[0](8, 1);
-                    work.c13c[0] = 0;
-                    work.c13c[1] = 0;
-                    work.c13c[2] = 0xFF;
-                    work.c13c[3] = 0;
-                    work.box0 = 104;
-                    work.box1 = (s32)(103.0f - (f32)work.box3 - 16.0f * fade);
-                    work.box2 = 400;
-                    work.box3 = 20;
-                    func_0045d6e0(work.c13c, &work.box0, 0, 0.0f);
-                    work.box1 = (s32)(99.0f + 16.0f * fade);
-                    func_0045d6e0(work.c13c, &work.box0, 0, 0.0f);
-                    work.box1 = (s32)(83.0f - 16.0f * fade);
-                    work.box3 = (s32)(99.0f + 16.0f * fade - (f32)work.box1);
-                    func_0045d6e0(work.c13c, &work.box0, 0, 51.0f);
-                    D_00887300[0](8, 0);
+                    void *renderStates = (void *)D_00887300;
+                    (*(BtlShuffleRenderStateSet *)renderStates)(rwRENDERSTATETEXTURERASTER, 0);
+                    (*(BtlShuffleRenderStateSet *)renderStates)(rwRENDERSTATEZWRITEENABLE, (void *)1);
+                    colorBytes[0] = 0;
+                    colorBytes[1] = 0;
+                    colorBytes[2] = 0xFF;
+                    colorBytes[3] = 0;
+                    box.x = 104;
+                    box.width = 400;
+                    box.height = 20;
+                    boxOffset = ws14_mul(16.0f, fade);
+                    box.y = (s32)(103.0f - (f32)box.height - boxOffset);
+                    firstBoxY = (f32)box.y;
+                    func_0045d6e0(colorBytes, (f32 *)&box, 0.0f, 0);
+                    box.y = (s32)(99.0f + boxOffset);
+                    secondBoxY = (f32)box.y;
+                    func_0045d6e0(colorBytes, (f32 *)&box, 0.0f, 0);
+                    box.y = (s32)(firstBoxY + (f32)box.height);
+                    box.height = (s32)(secondBoxY - (f32)box.y);
+                    func_0045d6e0(colorBytes, (f32 *)&box, 51.0f, 0);
+                    (*(BtlShuffleRenderStateSet *)renderStates)(rwRENDERSTATEZWRITEENABLE, 0);
                 }
                 func_00201720((u8 *)p, 1.0f, fade);
                 fade = 18.5f * (1.0f - fade);
-                work.c13c[3] = 0;
-                work.flag110 = 1;
+                statusX = 0.0f;
+                colorBytes[3] = 0;
+                animated = 1;
             } else {
                 fade = 0.0f;
-                work.c13c[3] = 0xFF;
-                work.flag110 = 0;
+                statusX = 0.0f;
+                colorBytes[3] = 0xFF;
+                animated = 0;
             }
             if (*(u16 *)(arg1 + 0x10) & 8) {
                 func_002012d0((u8 *)p, 0.0f, 81.0f);
@@ -2707,82 +2722,126 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                 func_00201410((u8 *)p, 10, 40, 0.0f, fade);
                 func_00201410((u8 *)p, 10, 41, 400.0f, fade);
                 func_00201720((u8 *)p, 1.0f, 1.0f);
-                if ((*(u16 *)(arg1 + 0x10) & 4) && work.c13c[3] != 0) {
+                if ((*(u16 *)(arg1 + 0x10) & 4) && colorBytes[3] > 0) {
                     s32 bits;
-                    func_002012d0((u8 *)p, 94.0f, 81.0f);
+                    s32 allAttacks;
+                    s8 attackSprite;
+                    s8 defenseSprite;
+                    s8 speedSprite;
+                    u8 attackRed;
+                    u8 attackGreen;
+                    u8 attackBlue;
+                    u8 defenseRed;
+                    u8 defenseGreen;
+                    u8 defenseBlue;
+                    u8 speedRed;
+                    u8 speedGreen;
+                    u8 speedBlue;
+                    func_002012d0((u8 *)p, 94.0f + statusX, 81.0f);
                     bits = *(s32 *)(*(s32 *)(arg1 + 0x20) + 0xA64);
-                    all = (func_002340c0(bits, 0x400) != 0 ||
-                           func_002340c0(bits, 0x800) != 0);
+                    if (func_002340c0(bits, 0x400) || func_002340c0(bits, 0x800)) {
+                        allAttacks = 1;
+                    } else {
+                        allAttacks = 0;
+                    }
                     if (func_002340c0(bits, 1) != 0 ||
                         func_002340c0(bits, 4) != 0) {
-                        index = 0x25; color = 0xFF; color2 = 0x65; color3 = 0x74;
+                        attackSprite = 0x25;
+                        attackRed = 0xFF;
+                        attackGreen = 0x65;
+                        attackBlue = 0x74;
                     } else if (func_002340c0(bits, 2) != 0 ||
                                func_002340c0(bits, 8) != 0) {
-                        index = 0x26; color = 0x79; color2 = 0xA1; color3 = 0xFF;
+                        attackSprite = 0x26;
+                        attackRed = 0x79;
+                        attackGreen = 0xA1;
+                        attackBlue = 0xFF;
                     } else {
-                        index = 0x27; color = 0x66; color2 = 0x66; color3 = 0x66;
+                        attackSprite = 0x27;
+                        attackRed = 0x66;
+                        attackGreen = 0x66;
+                        attackBlue = 0x66;
                     }
                     if (func_002340c0(bits, 0x40) != 0) {
-                        n = 0x25; old = 0xFF; work.cD0[0] = 0x65; work.cC0[0] = 0x74;
+                        defenseSprite = 0x25;
+                        defenseRed = 0xFF;
+                        defenseGreen = 0x65;
+                        defenseBlue = 0x74;
                     } else if (func_002340c0(bits, 0x80) != 0) {
-                        n = 0x26; old = 0x79; work.cD0[0] = 0xA1; work.cC0[0] = 0xFF;
+                        defenseSprite = 0x26;
+                        defenseRed = 0x79;
+                        defenseGreen = 0xA1;
+                        defenseBlue = 0xFF;
                     } else {
-                        n = 0x27; old = 0x66; work.cD0[0] = 0x66; work.cC0[0] = 0x66;
+                        defenseSprite = 0x27;
+                        defenseRed = 0x66;
+                        defenseGreen = 0x66;
+                        defenseBlue = 0x66;
                     }
                     if (func_002340c0(bits, 0x100) != 0 ||
                         func_002340c0(bits, 0x10) != 0) {
-                        half = 0x25; pulse = 0xFF; work.cB0[0] = 0x65; work.cB0[1] = 0x74;
+                        speedSprite = 0x25;
+                        speedRed = 0xFF;
+                        speedGreen = 0x65;
+                        speedBlue = 0x74;
                     } else if (func_002340c0(bits, 0x200) != 0 ||
                                func_002340c0(bits, 0x20) != 0) {
-                        half = 0x26; pulse = 0x79; work.cB0[0] = 0xA1; work.cB0[1] = 0xFF;
+                        speedSprite = 0x26;
+                        speedRed = 0x79;
+                        speedGreen = 0xA1;
+                        speedBlue = 0xFF;
                     } else {
-                        half = 0x27; pulse = 0x66; work.cB0[0] = 0x66; work.cB0[1] = 0x66;
+                        speedSprite = 0x27;
+                        speedRed = 0x66;
+                        speedGreen = 0x66;
+                        speedBlue = 0x66;
                     }
-                    if ((s8)index == 0x27 && (s8)n == 0x27 && (s8)half == 0x27 && !all) {
-                        work.c13c[0] = 0x66;
-                        work.c13c[1] = 0x66;
-                        work.c13c[2] = 0x66;
+                    if (attackSprite == 0x27 && defenseSprite == 0x27 && speedSprite == 0x27 && !allAttacks) {
+                        colorBytes[0] = 0x66;
+                        colorBytes[1] = 0x66;
+                        colorBytes[2] = 0x66;
                     } else {
-                        work.c13c[0] = 0xFF;
-                        work.c13c[1] = 0xFF;
-                        work.c13c[2] = 0xFF;
+                        colorBytes[0] = 0xFF;
+                        colorBytes[1] = 0xFF;
+                        colorBytes[2] = 0xFF;
                     }
                     func_00201650((u8 *)p, 10, 42, 222.0f, 6.0f,
-                                  work.c13c[0], work.c13c[1], work.c13c[2], work.c13c[3]);
+                                  colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
                     func_00201650((u8 *)p, 10, 43, 384.0f, 6.0f,
-                                  work.c13c[0], work.c13c[1], work.c13c[2], work.c13c[3]);
+                                  colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
                     func_00201650((u8 *)p, 10, 34, 233.0f, 8.0f,
-                                  work.c13c[0], work.c13c[1], work.c13c[2], work.c13c[3]);
+                                  colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
                     func_00201650((u8 *)p, 10, 35, 285.0f, 8.0f,
-                                  work.c13c[0], work.c13c[1], work.c13c[2], work.c13c[3]);
+                                  colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
                     func_00201650((u8 *)p, 10, 36, 337.0f, 8.0f,
-                                  work.c13c[0], work.c13c[1], work.c13c[2], work.c13c[3]);
-                    func_00201650((u8 *)p, 10, n, 313.0f, 10.0f,
-                                  old, work.cD0[0], work.cC0[0], work.c13c[3]);
-                    func_00201650((u8 *)p, 10, half, 365.0f, 10.0f,
-                                  pulse, work.cB0[0], work.cB0[1], work.c13c[3]);
-                    if (!all) {
-                        func_00201650((u8 *)p, 10, index, 261.0f, 10.0f,
-                                      color, color2, color3, work.c13c[3]);
+                                  colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
+                    func_00201650((u8 *)p, 10, defenseSprite, 313.0f, 10.0f,
+                                  defenseRed, defenseGreen, defenseBlue, colorBytes[3]);
+                    func_00201650((u8 *)p, 10, speedSprite, 365.0f, 10.0f,
+                                  speedRed, speedGreen, speedBlue, colorBytes[3]);
+                    if (!allAttacks) {
+                        func_00201650((u8 *)p, 10, attackSprite, 261.0f, 10.0f,
+                                      attackRed, attackGreen, attackBlue, colorBytes[3]);
                     } else {
                         func_00201650((u8 *)p, 10, 0x56, 262.0f, -8.0f,
-                                      work.c13c[0], work.c13c[1], work.c13c[2], work.c13c[3]);
+                                      colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
                         func_00201650((u8 *)p, 10, 0x57, 252.0f, 26.0f,
-                                      work.c13c[0], work.c13c[1], work.c13c[2], work.c13c[3]);
+                                      colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
                         func_00201650((u8 *)p, 10, 0x25, 261.0f, 4.0f,
-                                      0xFF, 0x65, 0x74, work.c13c[3]);
+                                      0xFF, 0x65, 0x74, colorBytes[3]);
                         func_00201650((u8 *)p, 10, 0x25, 261.0f, 15.0f,
-                                      0xFF, 0x65, 0x74, work.c13c[3]);
-                        if (index == 0x25) {
+                                      0xFF, 0x65, 0x74, colorBytes[3]);
+                        if (attackSprite == 0x25) {
+                            u8 pulseAlpha;
                             pulsef = func_0044b7b0(fGpffff8478 * fGpffffb47c);
-                            pulse = (u8)(255.0f * (fGpffff847c + fGpffff8218 * pulsef));
+                            pulseAlpha = (u8)(255.0f * ((fGpffff8218 + 0.0f) + fGpffff847c * pulsef));
                             fGpffffb47c += 12.0f;
                             if (fGpffffb47c >= 180.0f) {
                                 fGpffffb47c -= 180.0f;
                             }
                             func_00201820(2);
                             func_00201650((u8 *)p, 10, 0x58, 256.0f, -1.0f,
-                                          0xFC, 0x30, 0x30, pulse & 0xFF);
+                                          0xFC, 0x30, 0x30, pulseAlpha);
                             func_00201820(0);
                         }
                     }
@@ -2790,34 +2849,40 @@ void func_00216e60(u8 *arg0, u8 *arg1)
             }
             if (*(s32 *)arg1 != 0) {
                 func_00272c60(0x40);
-                if (work.flag110 != 0) {
-                    D_00887300[0](6, 1);
-                    func_00273170(*(s32 *)arg1, 1, 0);
-                    D_00887300[0](6, 0);
+                if (animated != 0) {
+                    void *renderStates = (void *)D_00887300;
+                    (*(BtlShuffleRenderStateSet *)renderStates)(rwRENDERSTATEZTESTENABLE, (void *)1);
+                    func_00273170(*(void **)arg1, 1, 0);
+                    (*(BtlShuffleRenderStateSet *)renderStates)(rwRENDERSTATEZTESTENABLE, 0);
                 } else {
-                    func_00273170(*(s32 *)arg1, 1, 0);
+                    func_00273170(*(void **)arg1, 1, 0);
                 }
                 func_00272c80(0x40);
             }
         }
+        break;
+    }
     }
     if (*(u16 *)(arg1 + 0x10) & 0x10) {
         t = (f32)*(s32 *)(arg1 + 0x34) / 8.0f;
-        fade = 1.0f;
-        if (t <= 1.0f && t >= 0.0f) {
+        if (t > 1.0f) {
+            fade = 1.0f;
+        } else if (t < 0.0f) {
+            fade = 0.0f;
+        } else {
             fade = 2.0f * t - t * t;
         }
-        func_002012d0((u8 *)p, 0.0f, -24.0f);
+        func_002012d0((u8 *)p, 0.0f, -8.0f);
         func_00201720((u8 *)p, 1.0f, 1.0f);
-        func_00201650((u8 *)p, 9, 0x52, 379.0f - 400.0f * (1.0f - fade),
+        func_00201650((u8 *)p, 9, 0x52, ws14_add(379.0f, ws14_mul(-400.0f, 1.0f - fade)),
                       303.0f, 0x21, 0x21, 0x21, 0xFF);
         t = (f32)(*(s32 *)(arg1 + 0x34) - 4) / 6.0f;
-        fade = 1.0f;
-        if (t <= 1.0f) {
+        if (t > 1.0f) {
+            fade = 1.0f;
+        } else if (t < 0.0f) {
             fade = 0.0f;
-            if (t >= 0.0f) {
-                fade = 2.0f * t - t * t;
-            }
+        } else {
+            fade = 2.0f * t - t * t;
         }
         if (fade > 0.0f) {
             func_00201720((u8 *)p, 1.0f, fade);
@@ -2832,23 +2897,22 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                           0xFF, 0xFF, 0xFF, 0xFF);
             func_00201650((u8 *)p, 9, 0x54, 328.0f, 371.0f,
                           0xFF, 0xFF, 0xFF, 0xFF);
-            func_00274ed0(0x212121FF, 5, 0, (s32)iGpffffa598, 0, 0,
-                          244.0f, 359.0f, 0.0f);
-            func_00274ed0(0x212121FF, 5, 0, (s32)iGpffffa598, 0, 0,
-                          361.0f, 359.0f, 0.0f);
+            func_00274ed0(244.0f, 359.0f, 0.0f, 0x212121FF, 5, 0, iGpffffa590, 0, 0);
+            func_00274ed0(361.0f, 359.0f, 0.0f, 0x212121FF, 5, 0, iGpffffa594, 0, 0);
+        }
+        if (fade == 1.0f) {
             if (*(s32 *)(arg1 + 0x38) == 0) {
                 func_00279690(*(s32 *)(arg1 + 0x2C), *(s32 *)(arg1 + 0x30), 1, 0xF561);
                 *(s32 *)(arg1 + 0x38) = 1;
             }
-            func_002791f0(-1.0f, 0.0f, 0.0f, 0, 0,
-                          *(s32 *)(arg1 + 0x2C), *(s32 *)(arg1 + 0x30),
-                          0x41F80000, 0x43960000);
+            func_002791f0(31.0f, 300.0f, 0.0f, -1, 0, 0, 0,
+                          *(s32 *)(arg1 + 0x2C), *(s32 *)(arg1 + 0x30));
             key = *(s16 *)(arg1 + 0x2A);
             if (key == 0) {
                 if (*(s16 *)(arg1 + 0x28) == -1) {
-                    if (D_008C024E & 0x40) {
+                    if (D_008C024E[0] & 0x40) {
                         *(s16 *)(arg1 + 0x28) = 0;
-                    } else if (D_008C024E & 0x20) {
+                    } else if (D_008C024E[0] & 0x20) {
                         *(s16 *)(arg1 + 0x28) = 1;
                     }
                 }
@@ -2856,12 +2920,9 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                 *(s16 *)(arg1 + 0x2A) = key - 1;
             }
         }
-    (*(s32 *)(arg1 + 0x34))++;
+        (*(s32 *)(arg1 + 0x34))++;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00216e60);
-#endif
 // FUN_00218160
 void func_00218160(u8 *arg0, u8 *arg1)
 {
@@ -3195,7 +3256,7 @@ void func_0021a7b0(u8 *task, u8 *state)
                 vertex->u.els.color.b = 0;
                 vertex->u.els.color.a = 0;
             }
-            D_00887300[0](1, 0);
+            D_00887300[0](rwRENDERSTATETEXTURERASTER, 0);
             D_00887314_abs[0](3, vertices, 6, indexBytes, 12);
         }
         effectPosition.xy.x = 502.0f;
@@ -3246,7 +3307,7 @@ void func_0021ae80(s32 arg0)
     func_0021b310(arg0 + 0xA3C);
 }
 // FUN_0021AEB0
-void func_0021aeb0(s32 arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fparg2)
+void func_0021aeb0(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2, f32 fparg2)
 {
     f32 temp_f0;
     f32 var_f20;
@@ -3446,8 +3507,8 @@ void func_0021b330(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2)
     }
 }
 // FUN_0021B500
-void func_0021b500(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
-                   f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5)
+static void func_0021b500(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+                   f32 fparg3, f32 fparg4, f32 fparg5, s32 arg1)
 {
     union {
         s32 word;
@@ -3558,7 +3619,7 @@ void func_0021b630(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
 // FUN_0021BBB0
 void func_0021bbb0(s32 arg0, u16 arg1)
 {
-    extern void (*D_00887300[])(s32 arg0, s32 arg1);
+    extern BtlShuffleRenderStateSet D_00887300[];
     extern void func_003f6440(s32 arg0, s32 arg1);
     extern void func_0045c870(u8 *arg0, s32 arg1);
     extern void func_00489f80(void);
@@ -3588,7 +3649,7 @@ void func_0021bbb0(s32 arg0, u16 arg1)
 
     coords.raw.low = 0x43A00000;
     coords.raw.high = 0x43640000;
-    D_00887300[0](1, 0);
+    D_00887300[0](rwRENDERSTATETEXTURERASTER, 0);
     arg1 = arg1 & 0xFFFF;
     if ((arg1 >= 0x21) && (arg1 < 0x30)) {
         color.bytes[0] = 0;
@@ -3643,511 +3704,233 @@ s32 func_0021be60(void)
 void func_0021be70(void)
 {
 }
-/* measured 0021be80: object 3236B vs retail window 5568B; retail 1392 instrs vs object 809 instrs (-41.9%, gate needs 1350-1433); differing words 1248 reloc-masked (GUARDED_SCORE), fnalign 1353 edits +9 reloc-only. Archive claimed object 3228B vs 5568B nd 2356 (sizes ~match +8B from truthful D_008872F8[0]/ctx casts, score disagrees, not copied). Frame object 0x180 vs retail 0x2F0 (368B short). JAL retail 53 (1x452560,1x201350,8x21b500,18x21b630,2x21bbb0,3x3b7060,4x3f6440,2x457120,2x45af60,8x46d730,4x indirect) vs object ~31 (missing 6x21b500 static,7x21b630,2x457120 inv,7x46d730). */
-/* shortfall clusters: largest retail[320:670] 351 vs object[240:243] 4, next retail[989:1138] 150 vs 3, plus dozens of 5-35 replaces for (s32)(4.0f/2.0f scaled)&mask clamps and fGpffff84cc sign mul chains. Excluded: dropped else (mode&1/frame<0x30/==1 arms present), off-by-one (0x30/0xC/4/12/6 intact), folded switch (none), omitted-call as sole cause (22 missing jal ~300 instrs, not 583), unsigned/narrow/field bloat (signed, no s16, per-field). Truthful compile fixes (D_008872F8[0], (u8*)ctx casts) kept for measure; lying 21b500 (7 vs 8 args)/21b630 (s32 vs union)/21bbb0 (s32 vs u16) noted, production stays ASM. */
-/* gate: func_0021be80 is FAR OUTSIDE the +-3% band - object 809 against retail 1389, -41.8%,
-   where the band is 1350-1433.  Two fifths of the function is simply not written.
-   It is kept installed only because the missing code is localised and named: retail[320:670] 351 against 4 and retail[989:1138] 150 against 3.
-   Everything else measured against this body is meaningless - the 1248 differing
-   words and 1353 fnalign edits are scores against a body of the wrong length
-   (handoff 7y), and they must not be quoted as progress or compared with any floor
-   inside the gate.  The only work that counts here is writing the missing blocks:
-   disassemble each retail range named above, describe what it computes, write it,
-   measure.  Do not tune expressions in the part that exists. */
-// FUN_0021BE80 NONMATCHING
-#ifdef NON_MATCHING
-void func_0021be80(u8 *arg0, u8 *arg1)
-{
-    extern void func_0021bbb0(s32 color, s32 frame);
-    extern void func_0021b500(void *dst, f32 x, f32 y, f32 z, f32 u, f32 v,
-                              s32 color);
-    extern u32 func_003b7060(void);
-    extern void func_003f6440(s32 arg0, s32 arg1);
-    extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-    extern u8 *func_00457120(void);
-    extern void func_0046d730(void *file, s32 line);
-    extern void (*D_00887300[])(s32 arg0, s32 arg1);
-    extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
-    extern void func_0021b630(f32 f0, f32 f1, f32 f2, f32 f3, f32 f4,
-                              f32 f5, f32 f6, f32 f7, s32 color, f32 f8);
-    extern f32 D_00628FD0[];
-    extern f32 D_00628FE8[];
-    extern f32 D_00629000[];
-    extern f32 D_00629018[];
-    extern f32 D_00629030[];
-    extern f32 D_006290B0;
-    extern f32 D_006290B4;
-    extern f32 D_006290B8;
-    extern f32 D_006290BC;
-    extern f32 D_008872F8[];
-    extern f32 fGpffff84cc;
-    extern f32 fGpffff84d0;
-    u8 quad[0x100];
-    u8 quadB[0x100];
-    u8 color0[4];
-    u8 *ctx;
-    f32 *tile;
-    f32 *tex;
-    f32 x0;
-    f32 y0;
-    f32 x1;
-    f32 y1;
-    f32 u0;
-    f32 v0;
-    f32 du;
-    f32 dv;
-    f32 scale;
-    f32 z;
-    f32 randomf;
-    f32 edge;
-    f32 width;
-    f32 height;
-    f32 texw;
-    f32 texh;
-    s32 mode;
-    s32 frame;
-    s32 i;
-    s32 j;
-    s32 bit;
-    s32 id;
-    s32 row;
-    s32 group;
-    s32 side;
-    s32 signx;
-    s32 signy;
-    s32 value;
-    s32 flags;
-    s32 color;
-    s32 base;
-    u16 index;
-    f32 t0[4];
-    f32 t1[4];
-    f32 t2[4];
-    f32 t3[4];
-    s32 id0;
-    s32 id1;
-    s32 id2;
-    s32 id3;
-    s32 row0;
-    s32 row1;
-    s32 row2;
-    s32 row3;
-    s32 group0;
-    s32 group1;
-    s32 group2;
-    s32 group3;
-    s32 side0;
-    s32 side1;
-    s32 side2;
-    s32 side3;
-    s32 signx0;
-    s32 signx1;
-    s32 signx2;
-    s32 signx3;
-    s32 signy0;
-    s32 signy1;
-    s32 signy2;
-    s32 signy3;
-    s32 q60;
-    s32 q61;
-    s32 q62;
-    s32 q63;
-    s32 q30;
-    s32 q31;
-    s32 q32;
-    s32 q33;
-    s32 r60;
-    s32 r61;
-    s32 r62;
-    s32 r63;
-    s32 r30;
-    s32 r31;
-    s32 r32;
-    s32 r33;
-    s32 nxt;
-    f32 sx0;
-    f32 sy0;
-    f32 sx1;
-    f32 sy1;
-    f32 sx2;
-    f32 sy2;
-    f32 sx3;
-    f32 sy3;
-    f32 f120;
-    f32 f130;
-    f32 f150;
-    f32 f160;
-    f32 f121;
-    f32 f131;
-    f32 f151;
-    f32 f161;
-    f32 f122;
-    f32 f132;
-    f32 f152;
-    f32 f162;
-    f32 f123;
-    f32 f133;
-    f32 f153;
-    f32 f163;
-    f32 *tile0;
-    f32 *tile1;
-    f32 *tile2;
-    f32 *tile3;
-    f32 tR[4];
-    f32 tF[4];
-    s32 rowR;
-    s32 rowF;
-    s32 groupR;
-    s32 groupF;
-    s32 sideR;
-    s32 sideF;
-    s32 signxR;
-    s32 signxF;
-    s32 signyR;
-    s32 signyF;
-    s32 q6R;
-    s32 q6F;
-    s32 q3R;
-    s32 q3F;
-    s32 r6R;
-    s32 r6F;
-    s32 r3R;
-    s32 r3F;
-    f32 sxR;
-    f32 syR;
-    f32 sxF;
-    f32 syF;
-    f32 f12R;
-    f32 f13R;
-    f32 f15R;
-    f32 f16R;
-    f32 f12F;
-    f32 f13F;
-    f32 f15F;
-    f32 f16F;
-    f32 *tileR;
-    f32 *tileF;
-    u8 *pA;
-    u8 *pB;
-    f32 invA;
-    f32 invB;
+/* Advantage-panel geometry uses complete tile, anchor and sky-vertex objects.
+ * The final selector owns both random samples and returns the selected bits.
+ * See docs/probe_archive/Battle_advantage_0021be80_20260922.md. */
+/* Platform render-state domain from rw/sky2/rwcore.h. */
+enum RpSkyRenderState {
+    rpSKYRENDERSTATENARENDERSTATE = 0,
+    rpSKYRENDERSTATEDITHER,
+    rpSKYRENDERSTATEALPHA_1,
+    rpSKYRENDERSTATEATEST_1,
+    rpSKYRENDERSTATEFARFOGPLANE,
+    rpSKYRENDERSTATEMAXMIPLEVELS,
+    rpSKYRENDERSTATEFORCEENUMSIZEINT = 0x7FFFFFFF
+};
 
-    (void)arg0;
-    ctx = (u8 *)func_00452560(*(void **)(arg1 + 8));
+typedef struct { f32 x, y, width, height, u, v; } BtlAdvantageTile;
+extern BtlAdvantageTile D_00628FD0[];
+typedef struct { Vec2f position[2]; } BtlAdvantageAnchors;
+extern BtlAdvantageAnchors D_006290B0[];
+extern u8 D_00629090[];
+extern f32 fGpffff84cc;
+extern f32 fGpffff84d0;
+extern f32 D_008872F8[];
+extern BtlShuffleRenderPrimitive D_00887310[];
+extern void func_0046d730(void *file, s32 line);
+extern s32 func_00457120(void);
+
+static inline void btlAdvantageTile(s32 index, union ColorWord color)
+{
+    BtlAdvantageTile *tile = &D_00628FD0[index];
+    func_0021b630(tile->x, tile->y, 0.0f, tile->width, tile->height,
+        tile->u, tile->v, tile->u + tile->width, tile->v + tile->height, color);
+}
+
+static inline void btlAdvantageMirror(f32 horizontal, f32 vertical,
+    union ColorWord color)
+{
+    BtlAdvantageTile *tile = &D_00628FD0[4];
+    func_0021b630(tile->x, tile->y, 0.0f,
+        fGpffff84cc * (horizontal * tile->width), vertical * tile->height,
+        tile->u + tile->width, tile->v + tile->height, tile->u, tile->v, color);
+}
+
+static inline void btlAdvantageBackground(void)
+{
+    union ColorWord color;
+    color.bytes[0] = 0x14;
+    color.bytes[1] = 0x14;
+    color.bytes[2] = 0x14;
+    color.bytes[3] = 0xFF;
+    btlAdvantageTile(0, color);
+    btlAdvantageTile(1, color);
+    btlAdvantageMirror(-1.0f, -1.0f, color);
+    btlAdvantageMirror(1.0f, -1.0f, color);
+    btlAdvantageMirror(-1.0f, 1.0f, color);
+    btlAdvantageMirror(1.0f, 1.0f, color);
+}
+
+static inline void btlAdvantageSegment(s32 index, union ColorWord color)
+{
+    BtlAdvantageAnchors anchors;
+    s32 group, side, tileIndex, signX, signY;
+    f32 x, y, width, height, u0, v0;
+    f32 relativeX, relativeY, horizontalScale, verticalCenter;
+    BtlAdvantageTile *tile;
+
+    anchors = D_006290B0[0];
+    if (index < 0 || index >= 12) {
+        func_0046d730(D_00629090, 198);
+    }
+    group = index / 6;
+    side = (index / 3 + group) & 1;
+    if (index % 6 < 3) {
+        tileIndex = index % 3;
+    } else {
+        tileIndex = ~(index % 3) + 3;
+    }
+    tile = &D_00628FD0[tileIndex + 5];
+    signX = (side == 0) ? 1 : -1;
+    signY = (group == 0) ? 1 : -1;
+    height = tile->height;
+    v0 = tile->v;
+    width = tile->width;
+    u0 = tile->u;
+    relativeX = (anchors.position[side].x - (f32)319) + (f32)signX * tile->x;
+    horizontalScale = 1.05f;
+    x = (f32)319 - horizontalScale * relativeX;
+    verticalCenter = 228.5f;
+    relativeY = (anchors.position[group].y - verticalCenter) + (f32)signY * tile->y;
+    y = verticalCenter - relativeY;
+    func_0021b630(x, y, 0.0f, horizontalScale * ((f32)-signX * width),
+        (f32)-signY * height, u0, v0, u0 + width, v0 + height, color);
+}
+
+static inline void btlAdvantageBuildQuad(f32 x, f32 y, f32 z,
+    f32 width, f32 height, f32 u0, f32 v0, f32 u1, f32 v1,
+    union ColorWord color)
+{
+    BtlShuffleSkyVertex vertices[4];
+    s32 count = 0;
+    f32 depth = D_008872F8[0] - z;
+    f32 reciprocalZ = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    u0 /= 256.0f;
+    v0 /= 256.0f;
+    u1 /= 256.0f;
+    v1 /= 256.0f;
+    func_0021b500((u8 *)&vertices[count++], x, y, depth, u0, v0, reciprocalZ, color.word);
+    func_0021b500((u8 *)&vertices[count++], x + width, y, depth, u1, v0, reciprocalZ, color.word);
+    func_0021b500((u8 *)&vertices[count++], x, y + height, depth, u0, v1, reciprocalZ, color.word);
+    func_0021b500((u8 *)&vertices[count++], x + width, y + height, depth, u1, v1, reciprocalZ, color.word);
+    if (count > 4) {
+        func_0046d730(D_00629090, 122);
+    }
+    D_00887310[0](rwPRIMTYPETRISTRIP, vertices, count);
+}
+
+
+/* Advance the random stream once for the alternating pattern's phase and
+   once for the selected segments. The caller owns the halfword result. */
+static inline u16 btlAdvantageChooseSegments(void)
+{
+    extern u32 func_003b7060(void);
+    s32 eligible = 0xAAAAA >>
+        (s32)(2.0f * ((f32)func_003b7060() / 2147483648.0f));
+    u32 selected = func_003b7060();
+    return selected & eligible;
+}
+
+// FUN_0021BE80
+void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
+{
+    extern BtlShuffleRenderStateSet D_00887300[];
+    extern u32 func_003b7060(void);
+    extern s32 func_003f6440(enum RpSkyRenderState state, void *value);
+    union ColorWord color;
+    u8 *work;
+    s32 index;
+    s32 bit;
+
+    (void)drawPayload;
+    (void)callback;
+    work = (u8 *)(u32)workAddress;
+    func_00452560(*(void **)(work + 8));
     func_00201350();
-    mode = *(u16 *)arg1;
-    if (mode & 1) {
-        frame = *(u16 *)(arg1 + 2);
-        if (frame < 0x30) {
+    if (*(u16 *)work & 1) {
+        if (*(u16 *)(work + 2) < 48) {
             if (*(u16 *)(iGpffffb3ac + 0x1A) == 1) {
-                if (frame == 4) {
+                if (*(u16 *)(work + 2) == 4) {
                     func_0045af60(1, 14, 2, 0);
                 }
-                color = 0xFFFF9F2D;
-                func_0021bbb0(color, frame);
-                D_00887300[0](1, iGpffffb470);
-                func_0021b630(D_00628FD0[0], D_00628FD0[1], 0.0f,
-                              D_00628FD0[2], D_00628FD0[3], D_00628FD0[4],
-                              D_00628FD0[5], D_00628FD0[4] + D_00628FD0[2],
-                              color, D_00628FD0[5] + D_00628FD0[3]);
-                func_0021b630(D_00628FE8[0], D_00628FE8[1], 0.0f,
-                              D_00628FE8[2], D_00628FE8[3], D_00628FE8[4],
-                              D_00628FE8[5], D_00628FE8[4] + D_00628FE8[2],
-                              color, D_00628FE8[5] + D_00628FE8[3]);
-                func_0021b630(D_00629030[0], D_00629030[1], 0.0f,
-                              -fGpffff84cc * D_00629030[2], -D_00629030[3],
-                              D_00629030[4] + D_00629030[2],
-                              D_00629030[5] + D_00629030[3], D_00629030[4],
-                              color, D_00629030[5]);
-                func_0021b630(D_00629030[0], D_00629030[1], 0.0f,
-                              fGpffff84cc * D_00629030[2], -D_00629030[3],
-                              D_00629030[4] + D_00629030[2],
-                              D_00629030[5] + D_00629030[3], D_00629030[4],
-                              color, D_00629030[5]);
-                func_0021b630(D_00629030[0], D_00629030[1], 0.0f,
-                              -fGpffff84cc * D_00629030[2], D_00629030[3],
-                              D_00629030[4] + D_00629030[2],
-                              D_00629030[5] + D_00629030[3], D_00629030[4],
-                              color, D_00629030[5]);
-                func_0021b630(D_00629030[0], D_00629030[1], 0.0f,
-                              fGpffff84cc * D_00629030[2], D_00629030[3],
-                              D_00629030[4] + D_00629030[2],
-                              D_00629030[5] + D_00629030[3], D_00629030[4],
-                              color, D_00629030[5]);
-                func_003f6440(2, 0x48);
-                color = 0xFF6B9EFF;
-                index = *(u16 *)(arg1 + 4);
-                if (index >= 0xC) {
-                    func_0046d730((void *)&D_00629030[0], 0xC6);
+                color.bytes[0] = 0x2D;
+                color.bytes[1] = 0x9F;
+                color.bytes[2] = 0xFF;
+                color.bytes[3] = 0xFF;
+                func_0021bbb0(color.word, *(u16 *)(work + 2));
+                D_00887300[0](rwRENDERSTATETEXTURERASTER, (void *)iGpffffb470);
+                btlAdvantageBackground();
+                func_003f6440(rpSKYRENDERSTATEALPHA_1, (void *)0x48);
+                color.bytes[0] = 0x6B;
+                color.bytes[1] = 0x9E;
+                color.bytes[2] = 0xFF;
+                color.bytes[3] = 0xFF;
+                index = *(u16 *)(work + 4);
+                btlAdvantageSegment(index, color);
+                btlAdvantageSegment(index + 6, color);
+                index = (*(u16 *)(work + 4) + 1) % 6;
+                btlAdvantageSegment(index, color);
+                btlAdvantageSegment(index + 6, color);
+                func_003f6440(rpSKYRENDERSTATEALPHA_1, (void *)0x44);
+                color.bytes[0] = 0x14;
+                color.bytes[1] = 0x14;
+                color.bytes[2] = 0x14;
+                color.bytes[3] = 0xFF;
+                {
+                    BtlAdvantageTile *tile = &D_00628FD0[2];
+                    btlAdvantageBuildQuad(tile->x, tile->y, 0.0f, tile->width, tile->height,
+                        tile->u, tile->v, tile->u + tile->width, tile->v + tile->height, color);
                 }
-                id0 = (s32)index;
-                t0[0] = D_006290B0;
-                t0[1] = D_006290B4;
-                t0[2] = D_006290B8;
-                t0[3] = D_006290BC;
-                if (id0 < 0 || id0 >= 0xC) {
-                    func_0046d730((void *)&D_00629030[0], 0xC6);
+                if (++*(u16 *)(work + 4) >= 6) {
+                    *(u16 *)(work + 4) = 0;
                 }
-                q60 = id0 / 6;
-                q30 = id0 / 3;
-                side0 = (q30 + q60) & 1;
-                r60 = id0 % 6;
-                r30 = id0 % 3;
-                row0 = (r60 < 3) ? r30 : (2 - r30);
-                tile0 = &D_00628FD0[(row0 + 5) * 6];
-                group0 = id0 / 6;
-                signx0 = (side0 == 0) ? 1 : -1;
-                signy0 = (group0 == 0) ? 1 : -1;
-                sx0 = (f32)signx0;
-                sy0 = (f32)signy0;
-                f120 = (f32)0x13F - fGpffff84cc * ((t0[side0 * 2] - (f32)0x13F) + sx0 * tile0[0]);
-                f130 = fGpffff84d0 - ((t0[group0 * 2 + 1] - fGpffff84d0) + sy0 * tile0[1]);
-                f150 = fGpffff84cc * ((f32)(-signx0) * tile0[2]);
-                f160 = (f32)(-signy0) * tile0[3];
-                func_0021b630(f120, f130, 0.0f, f150, f160, tile0[4], tile0[5], tile0[4] + tile0[2], color, tile0[5] + tile0[3]);
-                id1 = (s32)index + 6;
-                t1[0] = D_006290B0;
-                t1[1] = D_006290B4;
-                t1[2] = D_006290B8;
-                t1[3] = D_006290BC;
-                if (id1 < 0 || id1 >= 0xC) {
-                    func_0046d730((void *)&D_00629030[0], 0xC6);
-                }
-                q61 = id1 / 6;
-                q31 = id1 / 3;
-                side1 = (q31 + q61) & 1;
-                r61 = id1 % 6;
-                r31 = id1 % 3;
-                row1 = (r61 < 3) ? r31 : (2 - r31);
-                tile1 = &D_00628FD0[(row1 + 5) * 6];
-                group1 = id1 / 6;
-                signx1 = (side1 == 0) ? 1 : -1;
-                signy1 = (group1 == 0) ? 1 : -1;
-                sx1 = (f32)signx1;
-                sy1 = (f32)signy1;
-                f121 = (f32)0x13F - fGpffff84cc * ((t1[side1 * 2] - (f32)0x13F) + sx1 * tile1[0]);
-                f131 = fGpffff84d0 - ((t1[group1 * 2 + 1] - fGpffff84d0) + sy1 * tile1[1]);
-                f151 = fGpffff84cc * ((f32)(-signx1) * tile1[2]);
-                f161 = (f32)(-signy1) * tile1[3];
-                func_0021b630(f121, f131, 0.0f, f151, f161, tile1[4], tile1[5], tile1[4] + tile1[2], color, tile1[5] + tile1[3]);
-                nxt = ((s32)index + 1) % 6;
-                id2 = nxt;
-                t2[0] = D_006290B0;
-                t2[1] = D_006290B4;
-                t2[2] = D_006290B8;
-                t2[3] = D_006290BC;
-                if (id2 < 0 || id2 >= 0xC) {
-                    func_0046d730((void *)&D_00629030[0], 0xC6);
-                }
-                q62 = id2 / 6;
-                q32 = id2 / 3;
-                side2 = (q32 + q62) & 1;
-                r62 = id2 % 6;
-                r32 = id2 % 3;
-                row2 = (r62 < 3) ? r32 : (2 - r32);
-                tile2 = &D_00628FD0[(row2 + 5) * 6];
-                group2 = id2 / 6;
-                signx2 = (side2 == 0) ? 1 : -1;
-                signy2 = (group2 == 0) ? 1 : -1;
-                sx2 = (f32)signx2;
-                sy2 = (f32)signy2;
-                f122 = (f32)0x13F - fGpffff84cc * ((t2[side2 * 2] - (f32)0x13F) + sx2 * tile2[0]);
-                f132 = fGpffff84d0 - ((t2[group2 * 2 + 1] - fGpffff84d0) + sy2 * tile2[1]);
-                f152 = fGpffff84cc * ((f32)(-signx2) * tile2[2]);
-                f162 = (f32)(-signy2) * tile2[3];
-                func_0021b630(f122, f132, 0.0f, f152, f162, tile2[4], tile2[5], tile2[4] + tile2[2], color, tile2[5] + tile2[3]);
-                id3 = nxt + 6;
-                t3[0] = D_006290B0;
-                t3[1] = D_006290B4;
-                t3[2] = D_006290B8;
-                t3[3] = D_006290BC;
-                if (id3 < 0 || id3 >= 0xC) {
-                    func_0046d730((void *)&D_00629030[0], 0xC6);
-                }
-                q63 = id3 / 6;
-                q33 = id3 / 3;
-                side3 = (q33 + q63) & 1;
-                r63 = id3 % 6;
-                r33 = id3 % 3;
-                row3 = (r63 < 3) ? r33 : (2 - r33);
-                tile3 = &D_00628FD0[(row3 + 5) * 6];
-                group3 = id3 / 6;
-                signx3 = (side3 == 0) ? 1 : -1;
-                signy3 = (group3 == 0) ? 1 : -1;
-                sx3 = (f32)signx3;
-                sy3 = (f32)signy3;
-                f123 = (f32)0x13F - fGpffff84cc * ((t3[side3 * 2] - (f32)0x13F) + sx3 * tile3[0]);
-                f133 = fGpffff84d0 - ((t3[group3 * 2 + 1] - fGpffff84d0) + sy3 * tile3[1]);
-                f153 = fGpffff84cc * ((f32)(-signx3) * tile3[2]);
-                f163 = (f32)(-signy3) * tile3[3];
-                func_0021b630(f123, f133, 0.0f, f153, f163, tile3[4], tile3[5], tile3[4] + tile3[2], color, tile3[5] + tile3[3]);
-                func_003f6440(2, 0x44);
-                color0[0] = 0x14;
-                color0[1] = 0x14;
-                color0[2] = 0x14;
-                color0[3] = 0xFF;
-                tex = D_00629000;
-                x0 = tex[0];
-                y0 = tex[1];
-                u0 = tex[2];
-                v0 = tex[3];
-                width = tex[4];
-                height = tex[5];
-                z = D_008872F8[0] - 0.0f;
-                pA = func_00457120();
-                invA = 1.0f / *(f32 *)(pA + 0x80);
-                z += invA - invA;
-                for (i = 0; i < 4; i++) {
-                    func_0021b500(quad + i * 0x40,
-                                  x0 + ((i == 1 || i == 3) ? width : 0.0f),
-                                  y0 + ((i >= 2) ? height : 0.0f), z,
-                                  (i == 1 || i == 3) ? width / 256.0f : 0.0f,
-                                  (i >= 2) ? height / 256.0f : 0.0f,
-                                  *(s32 *)color0);
-                }
-                D_00887310[0](4, quad, 4);
-                index = *(u16 *)(arg1 + 4) + 1;
-                *(u16 *)(arg1 + 4) = (index >= 6) ? 0 : index;
             } else {
-                if (frame == 4) {
+                if (*(u16 *)(work + 2) == 4) {
                     func_0045af60(1, 14, 2, 1);
                 }
-                color = 0xFF2324FF;
-                func_0021bbb0(color, frame);
-                D_00887300[0](1, iGpffffb470);
-                func_0021b630(D_00628FD0[0], D_00628FD0[1], 0.0f,
-                              D_00628FD0[2], D_00628FD0[3], D_00628FD0[4],
-                              D_00628FD0[5], D_00628FD0[4] + D_00628FD0[2],
-                              color, D_00628FD0[5] + D_00628FD0[3]);
-                func_0021b630(D_00628FE8[0], D_00628FE8[1], 0.0f,
-                              D_00628FE8[2], D_00628FE8[3], D_00628FE8[4],
-                              D_00628FE8[5], D_00628FE8[4] + D_00628FE8[2],
-                              color, D_00628FE8[5] + D_00628FE8[3]);
-                func_0021b630(D_00629030[0], D_00629030[1], 0.0f,
-                              -fGpffff84cc * D_00629030[2], -D_00629030[3],
-                              D_00629030[4] + D_00629030[2],
-                              D_00629030[5] + D_00629030[3], D_00629030[4],
-                              color, D_00629030[5]);
-                func_0021b630(D_00629030[0], D_00629030[1], 0.0f,
-                              fGpffff84cc * D_00629030[2], -D_00629030[3],
-                              D_00629030[4] + D_00629030[2],
-                              D_00629030[5] + D_00629030[3], D_00629030[4],
-                              color, D_00629030[5]);
-                func_0021b630(D_00629030[0], D_00629030[1], 0.0f,
-                              -fGpffff84cc * D_00629030[2], D_00629030[3],
-                              D_00629030[4] + D_00629030[2],
-                              D_00629030[5] + D_00629030[3], D_00629030[4],
-                              color, D_00629030[5]);
-                func_0021b630(D_00629030[0], D_00629030[1], 0.0f,
-                              fGpffff84cc * D_00629030[2], D_00629030[3],
-                              D_00629030[4] + D_00629030[2],
-                              D_00629030[5] + D_00629030[3], D_00629030[4],
-                              color, D_00629030[5]);
-                func_003f6440(2, 0x48);
-                color = 0xFF2727FF;
-                for (i = 0; i < 12; i++) {
-                    bit = 1 << i;
+                color.bytes[0] = 0xFF;
+                color.bytes[1] = 0x24;
+                color.bytes[2] = 0x23;
+                color.bytes[3] = 0xFF;
+                func_0021bbb0(color.word, *(u16 *)(work + 2));
+                D_00887300[0](rwRENDERSTATETEXTURERASTER, (void *)iGpffffb470);
+                btlAdvantageBackground();
+                func_003f6440(rpSKYRENDERSTATEALPHA_1, (void *)0x48);
+                color.bytes[0] = 0xFF;
+                color.bytes[1] = 0x27;
+                color.bytes[2] = 0x27;
+                color.bytes[3] = 0xFF;
+                for (index = 0; index < 12; ++index) {
+                    bit = 1 << index;
                     if (bit & 0xC61) {
-                        value = func_003b7060();
-                        randomf = (value < 0) ? (f32)(2 * (((u32)value >> 1) | (value & 1))) :
-                            (f32)value;
-                        if ((s32)(4.0f * (randomf / 2147483600.0f)) == 0) {
-                            tR[0] = D_006290B0;
-                            tR[1] = D_006290B4;
-                            tR[2] = D_006290B8;
-                            tR[3] = D_006290BC;
-                            if (i < 0 || i >= 0xC) {
-                                func_0046d730((void *)&D_00629030[0], 0xC6);
-                            }
-                            q6R = i / 6;
-                            q3R = i / 3;
-                            sideR = (q3R + q6R) & 1;
-                            r6R = i % 6;
-                            r3R = i % 3;
-                            rowR = (r6R < 3) ? r3R : ((r3R == 2) ? 0 : ((r3R == 1) ? 1 : 2));
-                            tileR = &D_00628FD0[(rowR + 5) * 6];
-                            groupR = i / 6;
-                            signxR = (sideR == 0) ? 1 : -1;
-                            signyR = (groupR == 0) ? 1 : -1;
-                            sxR = (f32)signxR;
-                            syR = (f32)signyR;
-                            f12R = (f32)0x13F - fGpffff84cc * ((tR[sideR * 2] - (f32)0x13F) + sxR * tileR[0]);
-                            f13R = fGpffff84d0 - ((tR[groupR * 2 + 1] - fGpffff84d0) + syR * tileR[1]);
-                            f15R = fGpffff84cc * ((f32)(-signxR) * tileR[2]);
-                            f16R = (f32)(-signyR) * tileR[3];
-                            func_0021b630(f12R, f13R, 0.0f, f15R, f16R, tileR[4], tileR[5], tileR[4] + tileR[2], color, tileR[5] + tileR[3]);
+                        if ((s32)(4.0f * ((f32)func_003b7060() / 2147483648.0f)) == 0) {
+                            btlAdvantageSegment(index, color);
                         }
                     }
-                    if (*(u16 *)(arg1 + 4) & bit) {
-                        tF[0] = D_006290B0;
-                        tF[1] = D_006290B4;
-                        tF[2] = D_006290B8;
-                        tF[3] = D_006290BC;
-                        if (i < 0 || i >= 0xC) {
-                            func_0046d730((void *)&D_00629030[0], 0xC6);
-                        }
-                        r6F = i % 6;
-                        r3F = i % 3;
-                        q6F = (i - r6F) / 6;
-                        q3F = (i - r3F) / 3;
-                        sideF = (q3F + q6F) & 1;
-                        rowF = (r6F < 3) ? r3F : ((r3F == 0) ? 2 : ((r3F == 1) ? 1 : 0));
-                        tileF = &D_00628FD0[(rowF + 5) * 6];
-                        groupF = (i - r6F) / 6;
-                        signxF = (sideF == 0) ? 1 : -1;
-                        signyF = (groupF == 0) ? 1 : -1;
-                        sxF = (f32)signxF;
-                        syF = (f32)signyF;
-                        f12F = -((fGpffff84cc * ((tF[sideF * 2] - (f32)0x13F) + sxF * tileF[0])) - (f32)0x13F);
-                        f13F = -(((tF[groupF * 2 + 1] - fGpffff84d0) + syF * tileF[1]) - fGpffff84d0);
-                        f15F = -((fGpffff84cc * ((f32)signxF * tileF[2])));
-                        f16F = (f32)(-signyF) * tileF[3];
-                        func_0021b630(f12F, f13F, 0.0f, f15F, f16F, tileF[4], tileF[5], tileF[4] + tileF[2], color, tileF[5] + tileF[3]);
+                    if (*(u16 *)(work + 4) & bit) {
+                        btlAdvantageSegment(index, color);
                     }
                 }
-                func_003f6440(2, 0x44);
-                color0[0] = 0x14;
-                color0[1] = 0x14;
-                color0[2] = 0x14;
-                color0[3] = 0xFF;
-                tex = D_00629018;
-                x0 = tex[0];
-                y0 = tex[1];
-                u0 = tex[2];
-                v0 = tex[3];
-                width = tex[4];
-                height = tex[5];
-                z = D_008872F8[0] - 0.0f;
-                pB = func_00457120();
-                invB = 1.0f / *(f32 *)(pB + 0x80);
-                z += invB - invB;
-                for (i = 0; i < 4; i++) {
-                    func_0021b500(quadB + i * 0x40,
-                                  x0 + ((i == 1 || i == 3) ? width : 0.0f),
-                                  y0 + ((i >= 2) ? height : 0.0f), z,
-                                  (i == 1 || i == 3) ? width / 256.0f : 0.0f,
-                                  (i >= 2) ? height / 256.0f : 0.0f,
-                                  *(s32 *)color0);
+                func_003f6440(rpSKYRENDERSTATEALPHA_1, (void *)0x44);
+                color.bytes[0] = 0x14;
+                color.bytes[1] = 0x14;
+                color.bytes[2] = 0x14;
+                color.bytes[3] = 0xFF;
+                {
+                    BtlAdvantageTile *tile = &D_00628FD0[3];
+                    btlAdvantageBuildQuad(tile->x, tile->y, 0.0f, tile->width, tile->height,
+                        tile->u, tile->v, tile->u + tile->width, tile->v + tile->height, color);
                 }
-                D_00887310[0](4, quadB, 4);
-                index = *(u16 *)(arg1 + 2);
-                if ((index & 1) == 0) {
-                    value = func_003b7060();
-                    randomf = (value < 0) ? (f32)(2 * (((u32)value >> 1) | (value & 1))) :
-                        (f32)value;
-                    value = (s32)(2.0f * (randomf / 2147483600.0f));
-                    *(u16 *)(arg1 + 4) = (u16)(func_003b7060() & (0xAAAAA >> value));
+                if (*(u16 *)(work + 2) % 2 == 0) {
+                    *(u16 *)(work + 4) = btlAdvantageChooseSegments();
                 }
             }
-            (*(u16 *)(arg1 + 2))++;
-            return;
+            ++*(u16 *)(work + 2);
+        } else {
+            *(u16 *)work &= (u16)~1;
         }
-        *(u16 *)arg1 &= (u16)~1;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021be80);
-#endif
 // FUN_0021D440
 void func_0021d440(s32 task)
 {
