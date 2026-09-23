@@ -3452,8 +3452,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00521fd8);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00522040);
 // FUN_005220F0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005220f0);
-// FUN_00522270
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00522270);
 // FUN_005224A8
 asm u8 func_005224a8(int param_1)
 {
