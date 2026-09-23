@@ -1567,11 +1567,27 @@ extern u32 DAT_00724e70[];
 
 #pragma optimization_level 2
 
+// FUN_004D6D00
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6d00);
+// FUN_004D6D18
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6d18);
 // FUN_004D6D68
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6d68);
+// FUN_004D6E60
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6e60);
 // FUN_004D6EC0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6ec0);
+// FUN_004D6F78
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6f78);
+// FUN_004D6FB8
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6fb8);
+// FUN_004D6FD8
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d6fd8);
+// FUN_004D7030
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d7030);
 // FUN_004D7080
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d7080);
+// FUN_004D7160
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d7160);
 // FUN_004D71B0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d71b0);

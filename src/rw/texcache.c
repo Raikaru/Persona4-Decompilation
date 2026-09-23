@@ -293,10 +293,16 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040d720);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040da90);
 // FUN_0040DCC0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040dcc0);
+// FUN_0040DF40
+void func_0040df40(void)
+{
+}
 // FUN_0040DF50
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040df50);
 // FUN_0040E830
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040e830);
+// FUN_0040EEE0
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040eee0);
 // FUN_0040F020
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040f020);
 // FUN_0040F1B0
@@ -315,6 +321,11 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040fa90);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040fcd0);
 // FUN_00410080
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410080);
+// FUN_00410360
+s32 func_00410360(void)
+{
+    return D_0070C35C[0];
+}
 // FUN_00410370
 s32 func_00410370(s32 arg0, s32 *arg1, s32 *arg2)
 {

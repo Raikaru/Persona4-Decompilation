@@ -263,6 +263,8 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f5070);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f5d90);
 // FUN_003F6440
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6440);
+// FUN_003F6690
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6690);
 /* measured: retail emits plain bnez/beqz branches with the zero-return block last. */
 #pragma no_branch_likely on
 // FUN_003F6780
@@ -288,6 +290,20 @@ done_zero:
 }
 /* measured: closes no_branch_likely around func_003f6780. */
 #pragma no_branch_likely off
+// FUN_003F67E0
+s32 func_003f67e0(s32 arg0)
+{
+    iGpffffb994 = arg0;
+    return 1;
+}
+// FUN_003F67F0
+s32 func_003f67f0(s32 arg0)
+{
+    iGpffffac10 = arg0;
+    return 1;
+}
+// FUN_003F6800
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6800);
 /* measured: retail uses plain bnez/beqz branches in func_003f68a0. */
 #pragma no_branch_likely on
 // FUN_003F68A0
@@ -340,6 +356,12 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f73d0);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f7490);
 // FUN_003F79B0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f79b0);
+// FUN_003F7A60
+s32 func_003f7a60(s32 *arg0, s32 arg1)
+{
+    *arg0 = arg1;
+    return 1;
+}
 // FUN_003F7A70
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f7a70);
 // FUN_003F8110
@@ -348,6 +370,8 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f8110);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f9750);
 // FUN_003F98A0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f98a0);
+// FUN_003FB3F0
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fb3f0);
 // FUN_003FB830
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fb830);
 // FUN_003FB9D0
@@ -366,6 +390,8 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fd230);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fd460);
 // FUN_003FD520
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fd520);
+// FUN_003FD630
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fd630);
 // FUN_003FD690
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fd690);
 // FUN_003FD940
@@ -374,8 +400,24 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fd940);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fdd10);
 // FUN_003FDDC0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fddc0);
+// FUN_003FDF20
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fdf20);
+// FUN_003FE1F0
+s32 func_003fe1f0(void)
+{
+    return 1;
+}
+// FUN_003FE200
+s32 func_003fe200(void)
+{
+    return 0;
+}
+// FUN_003FE210
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fe210);
 // FUN_003FE320
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fe320);
+// FUN_003FE470
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fe470);
 // FUN_003FE630
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fe630);
 // FUN_003FE700
@@ -384,6 +426,8 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fe700);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fea90);
 // FUN_003FF160
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ff160);
+// FUN_003FF5B0
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ff5b0);
 // FUN_004010C0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004010c0);
 // FUN_00401450
@@ -429,6 +473,11 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401650);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401870);
 // FUN_00401AA0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401aa0);
+// FUN_00401B80
+s32 func_00401b80(void)
+{
+    return iGpffffb900;
+}
 // FUN_00401B90
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401b90);
 /* measured: no_branch_likely preserves the two retail plain null branches. */

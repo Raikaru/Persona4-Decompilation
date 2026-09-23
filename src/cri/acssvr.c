@@ -785,12 +785,214 @@ void func_0052d980(u64 *param_1);
 
 /* Source unit: src/cri/cri_adx_004c0658.c (1 function markers) */
 
+// FUN_004C03B8
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c03b8);
+// FUN_004C0450
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c0450);
+// FUN_004C0518
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c0518);
+// FUN_004C05F0
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c05f0);
+// FUN_004C0658
+asm void func_004c0658(long param_1)
+{
+  .set noreorder
+  .word 0x27bdfff0
+  .word 0x0080102d
+  .word 0x10400006
+  .word 0xffbf0000
+  .word 0x8c4200cc
+  .word 0x50400004
+  .word 0xdfbf0000
+  .word 0x0040f809
+  .word 0x00000000
+  .word 0xdfbf0000
+  .word 0x03e00008
+  .word 0x27bd0010
+}
 
 /* Source unit: src/cri/cri_adx_004c0ab8.c (1 function markers) */
 
+// FUN_004C0688
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c0688);
+// FUN_004C06F0
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c06f0);
 // FUN_004C0718
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c0718);
 // FUN_004C07F0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c07f0);
+// FUN_004C08E8
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c08e8);
 // FUN_004C0928
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c0928);
+// FUN_004C0A40
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c0a40);
+// FUN_004C0AB8
+asm int func_004c0ab8(u64 param_1,int *param_2)
+{
+  .set noreorder
+  .word 0x00a0482d
+  .word 0x8d2a001c
+  .word 0x1140003d
+  .word 0x8d220024
+  .word 0x1040001b
+  .word 0x240203e8
+  .word 0x8d230008
+  .word 0x240661a8
+  .word 0x2405002c
+  .word 0x0062001a
+  .word 0x50400001
+  .word 0x000001cd
+  .word 0x8d240000
+  .word 0x8d27000c
+  .word 0x24840001
+  .word 0x00001812
+  .word 0x00661818
+  .word 0x7065001a
+  .word 0x70001812
+  .word 0x00641818
+  .word 0x24620800
+  .word 0x24630fff
+  .word 0x28440000
+  .word 0x0064100b
+  .word 0x000212c3
+  .word 0x000212c0
+  .word 0x340185a4
+  .word 0x00221021
+  .word 0x00471018
+  .word 0x1000005d
+  .word 0x24450050
+  .word 0x00000000
+  .word 0x8d260008
+  .word 0x50400001
+  .word 0x000001cd
+  .word 0x8d230004
+  .word 0x00c2001a
+  .word 0x2402002c
+  .word 0x00032980
+  .word 0x240761a8
+  .word 0x00a32821
+  .word 0x00052880
+  .word 0x8d240000
+  .word 0x00a32823
+  .word 0x8d28000c
+  .word 0x24840001
+  .word 0x00052980
+  .word 0x00003012
+  .word 0x00661818
+  .word 0x70671818
+  .word 0x0062001a
+  .word 0x00001812
+  .word 0x00641818
+  .word 0x24620800
+  .word 0x24630fff
+  .word 0x28440000
+  .word 0x0064100b
+  .word 0x000212c3
+  .word 0x000212c0
+  .word 0x00451021
+  .word 0x24420024
+  .word 0x00481018
+  .word 0x1000003c
+  .word 0x24450050
+  .word 0x1040001b
+  .word 0x240203e8
+  .word 0x8d230008
+  .word 0x240661a8
+  .word 0x2405002c
+  .word 0x0062001a
+  .word 0x50400001
+  .word 0x000001cd
+  .word 0x8d240000
+  .word 0x8d270010
+  .word 0x24840001
+  .word 0x00001812
+  .word 0x00661818
+  .word 0x7065001a
+  .word 0x70001812
+  .word 0x00641818
+  .word 0x24620800
+  .word 0x24630fff
+  .word 0x28440000
+  .word 0x0064100b
+  .word 0x000212c3
+  .word 0x000212c0
+  .word 0x24420024
+  .word 0x00471018
+  .word 0x340585cc
+  .word 0x00a22821
+  .word 0x10000021
+  .word 0x8d230020
+  .word 0x8d260008
+  .word 0x50400001
+  .word 0x000001cd
+  .word 0x8d230004
+  .word 0x00c2001a
+  .word 0x2402002c
+  .word 0x00032980
+  .word 0x240761a8
+  .word 0x00a32821
+  .word 0x00052880
+  .word 0x8d240000
+  .word 0x00a32823
+  .word 0x8d280010
+  .word 0x24840001
+  .word 0x00052980
+  .word 0x00003012
+  .word 0x00661818
+  .word 0x70671818
+  .word 0x0062001a
+  .word 0x00001812
+  .word 0x00641818
+  .word 0x24620800
+  .word 0x24630fff
+  .word 0x28440000
+  .word 0x0064100b
+  .word 0x000212c3
+  .word 0x000212c0
+  .word 0x24420024
+  .word 0x00481018
+  .word 0x00451021
+  .word 0x2445004c
+  .word 0x8d230020
+  .word 0x24a23000
+  .word 0x8d240018
+  .word 0x0043280b
+  .word 0x24a50044
+  .word 0x00051040
+  .word 0x0044280b
+  .word 0x11400004
+  .word 0x24a301d0
+  .word 0x8d22000c
+  .word 0x00021080
+  .word 0x00621821
+  .word 0x03e00008
+  .word 0x0060102d
+  .word 0x00000000
+}
+
+/* Source unit: src/cri/cri_adx_004c0e08.c (1 function markers) */
+
+// FUN_004C0CE0
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c0ce0);
+// FUN_004C0D60
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c0d60);
+// FUN_004C0E08
+asm void func_004c0e08(int param_1)
+{
+  .set noreorder
+  .word 0x2403000f
+  .word 0x2482003c
+  .word 0x2463ffff
+  .word 0xac400000
+  .word 0x00000000
+  .word 0x00000000
+  .word 0x00000000
+  .word 0x0461fffa
+  .word 0x2442fffc
+  .word 0xac8000ac
+  .word 0xac8000a4
+  .word 0x03e00008
+  .word 0xac8000a8
+  .word 0x00000000
+}

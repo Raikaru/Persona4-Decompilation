@@ -194,6 +194,10 @@ extern s32 func_003ea370(u8 *arg0); /* P4: ported verbatim into src/renderware *
 extern u8 *func_003ea510(u8 *arg0); /* P4: ported verbatim into src/renderware */
 // FUN_003EAB70
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eab70);
+// FUN_003EB700
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eb700);
+// FUN_003EBBF0
+INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ebbf0);
 // FUN_003EBFF0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ebff0);
 /* measured: retail callback and flag branches are plain beqz/bnez. */
