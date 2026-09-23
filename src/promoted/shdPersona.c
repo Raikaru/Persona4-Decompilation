@@ -48,16 +48,16 @@ extern char D_005E5850[];
 extern char D_005E57F0[];
 
 void func_0046d730(void *file, s32 line);
-void func_0043f9c8(void *dst, s32 value, s32 size);
+void memset(void *dst, s32 value, s32 size);
 s32 func_0010cc20(u8 *, u16);
 void func_00115420(u16, u8 *);
 void func_00115940();
 u32 func_0010c750(void *persona, u16 level);
-s32 func_00109430();
+s32 datPersonaGetNextExp();
 s32 func_0010cd70(u8 *, s32, u16);
 void func_00115500(u16, u16, u8 *);
 s32 func_0011dfc0(s32, s32, char *);
-void func_00454bd0();
+void H_Cdvd_Destroy();
 void func_003ef3a0();
 void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -74,7 +74,7 @@ void func_0011d3c0(u8 *);
 u8 *func_0011d460(s32, s32, f32, s32, s32);
 void func_0011e390(u8 *, Vec2f);
 void func_00364680(f32, s32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
-s32 func_003f6440(s32, void *);
+s32 RpSkyRenderStateSet(s32, void *);
 s32 func_0011f5a0(u8 *);
 void func_0011fb90(u8 *);
 extern s32 D_005E4850[];
@@ -85,9 +85,9 @@ extern u8 D_005E4A20[];
 extern u8 D_005E4AF0[];
 extern u8 D_005E4BC0[];
 extern u8 D_005E4C90[];
-void func_00442830(void *dst, s32 value);
+void strcpy(void *dst, s32 value);
 void func_002bbd20(s32 param, void *text);
-void func_00442088(void *dst, void *fmt, s32 value);
+void sprintf(void *dst, void *fmt, s32 value);
 s32 func_002bad10(s32 param);
 s32 func_002baf40(s32 a);
 void func_002bb050(u8 a);
@@ -98,8 +98,8 @@ void func_0011c6e0(u8 *, s32);
 void func_0011b480(u8 *, s32, u32, s32);
 void func_0011d5b0(f32, s32, s32, f32, f32, s32, s32, s32);
 u32 func_0011e3e0(u8 *);
-f32 func_0044b7b0(f32 arg0);
-f32 func_0044b610(f32 arg0);
+f32 sinf(f32 arg0);
+f32 cosf(f32 arg0);
 extern f32 D_007613EC;
 extern f32 D_00761184;
 s32 func_004669d0();
@@ -132,7 +132,7 @@ s32 func_00115890(u8 *arg0, s32 arg1)
         func_0046d730(D_005E4868, 0x65);
     }
     s17 = func_0010c750(arg0, (u16)(s17 + 1));
-    r = s17 - func_00109430(arg0);
+    r = s17 - datPersonaGetNextExp(arg0);
     if (r < 0) {
         return 0;
     }
@@ -141,7 +141,7 @@ s32 func_00115890(u8 *arg0, s32 arg1)
 
 
 
-s8 func_00109390(u8 *arg0);
+s8 datPersonaGetLevel(u8 *arg0);
 s8 func_00109920(u8 *arg0, s32 arg1);
 s8 func_001099f0(u8 *arg0, s32 arg1);
 s8 func_00109ad0(u8 *arg0, s32 arg1);
@@ -158,7 +158,7 @@ void func_00115940(u8 *arg0, u8 *arg1, s32 arg2)
         func_0046d730(D_005E4868, 0x76);
     }
     *(u16 *)(arg1 + 2) = *(u16 *)(arg0 + 2);
-    *(s8 *)(arg1 + 4) = func_00109390(arg0);
+    *(s8 *)(arg1 + 4) = datPersonaGetLevel(arg0);
     b4 = *(u8 *)(arg0 + 4);
     if (b4 == 0x63) {
         v2 = 0;
@@ -166,7 +166,7 @@ void func_00115940(u8 *arg0, u8 *arg1, s32 arg2)
         if ((s32)b4 > 0x63) {
             func_0046d730(D_005E4868, 0x65);
         }
-        v2 = func_0010c750(arg0, (b4 + 1) & 0xFFFF) - func_00109430(arg0);
+        v2 = func_0010c750(arg0, (b4 + 1) & 0xFFFF) - datPersonaGetNextExp(arg0);
         if (v2 < 0) {
             v2 = 0;
         }
@@ -257,11 +257,11 @@ void func_00115cb0(Vec2f arg0, f32 farg3, s32 arg1, s16 *arg2)
     switch (arg2[1]) {
     case 0:
         var_16 = 6;
-        func_00442088(&sp60[0], &iGpffff9c08, temp_2);
+        sprintf(&sp60[0], &iGpffff9c08, temp_2);
         break;
     case 1:
         var_16 = 7;
-        func_00442088(&sp60[0], &iGpffff9c08, temp_2);
+        sprintf(&sp60[0], &iGpffff9c08, temp_2);
         break;
     }
     func_00275020((f32)(s32)arg0.x, (f32)(s32)arg0.y, farg3, color, var_16, 1, (const char *)sp60, 0, -1);
@@ -339,8 +339,8 @@ void func_00115e90(Vec2f arg0, f32 farg3, s32 arg1, s16 *arg2)
     ((s32 (**)(s32, void *))base)[0](0xB, (void *)6);
     ((s32 (**)(s32, void *))base)[0](0xA, (void *)5);
     ((s32 (**)(s32, void *))base)[0](2, (void *)4);
-    func_003f6440(2, (void *)0x44);
-    func_003f6440(3, (void *)0x717FB);
+    RpSkyRenderStateSet(2, (void *)0x44);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
     position.xy.x = arg0.x;
     position.xy.y = 43.0f + y;
     func_00116190(position.packed, farg3, arg1, (u8 *)arg2 + 8, resources);
@@ -536,7 +536,7 @@ void func_00116610(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
     sp19c[3] = arg1;
     func_00117310(sp190, fparg0, *(s32 *)sp19c, *(u32 *)(arg2 + 0x38), id1, 1);
     temp = (s32)func_00109220(*(u16 *)(arg2 + 2));
-    func_00442088(&sp90[0], (void *)&iGpffff9c0c, temp);
+    sprintf(&sp90[0], (void *)&iGpffff9c0c, temp);
     func_00275020((f32)((s32)*(f32 *)&arg0 + 0x86), (f32)((s32)high + 3), fparg0, color | -0x100, 7, 1, (const char *)sp90, 0, -1);
 }
 
@@ -678,7 +678,7 @@ void func_00116d40(Vec2f position, f32 depth, s32 alpha, u8 filled, u8 added,
         colors[0].rgba[0] = 0xFF;
         colors[0].rgba[1] = 0xFF;
         colors[0].rgba[2] = 0xFF;
-        rate = (3.0f + func_0044b610((iGpffff82fc * (f32)phase) / 30.0f)) / 4.0f;
+        rate = (3.0f + cosf((iGpffff82fc * (f32)phase) / 30.0f)) / 4.0f;
         colors[0].rgba[3] = (u8)((f32)(u32)alpha * rate);
     } else {
         colors[1].rgba[0] = 0xFF;
@@ -846,10 +846,10 @@ f32 func_001174a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         case 0:
             break;
         case 1:
-            f = func_0044b7b0(D_00761184 * f);
+            f = sinf(D_00761184 * f);
             break;
         case 2:
-            f = 1.0f - func_0044b610(D_00761184 * f);
+            f = 1.0f - cosf(D_00761184 * f);
             break;
         }
         return f;
@@ -897,7 +897,7 @@ void func_001175e0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     *(s32 *)(b + 0x52C) = -1;
     *(s32 *)(b + 0x538) = 0;
     *(s32 *)(b + 0x534) = 0;
-    func_0043f9c8(b + 0x540, 0, 0x30);
+    memset(b + 0x540, 0, 0x30);
     *(void (**)(u8 *))(b + 0x548) = (void (*)(u8 *))func_00119e10;
     *(u8 **)(b + 0x550) = b;
     *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x570) = 0xB1;
@@ -995,7 +995,7 @@ extern f32 D_005E4D84;
 extern f32 D_005E4D88;
 extern u8 D_005E4D90[];
 extern s16 D_005E4D58[];
-u32 func_003b7060(void);
+u32 RpRandom(void);
 void func_0045dfd0(u8 *, u8 *, f32, s32, s32, s32);
 void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5,
@@ -1083,7 +1083,7 @@ void func_00117980(u8 *arg0)
             if ((s32)cnt < 0) {
                 f21 = 0.0f;
             } else if ((s32)cnt < 4) {
-                t0 = func_0044b610(iGpffff8094 * ((f32)(s32)cnt / 4.0f));
+                t0 = cosf(iGpffff8094 * ((f32)(s32)cnt / 4.0f));
                 f21 = 1.0f - t0;
             } else {
                 f21 = 1.0f;
@@ -1092,7 +1092,7 @@ void func_00117980(u8 *arg0)
             if ((s32)cnt < 4) {
                 t1 = 0.0f;
             } else if ((s32)cnt < 5) {
-                t1 = func_0044b7b0(iGpffff8094 * ((f32)(s32)(cnt - 4) / 1.0f));
+                t1 = sinf(iGpffff8094 * ((f32)(s32)(cnt - 4) / 1.0f));
             } else {
                 t1 = 1.0f;
             }
@@ -1171,8 +1171,8 @@ void func_00117980(u8 *arg0)
     *(s16 *)(b + 0x45C) = (s16)(((s32)(*(u16 *)(b + 0x45C) + 1)) % 400);
     cnt = *(u16 *)(b + 0x45C);
     f22 = (iGpffff81e0 * (f32)(s32)cnt) / 400.0f;
-    func_003f6440(3, (void *)0x71801);
-    func_003f6440(2, (void *)0x48);
+    RpSkyRenderStateSet(3, (void *)0x71801);
+    RpSkyRenderStateSet(2, (void *)0x48);
     tblbase = (u32)D_00887300;
     ((s32 (**)(s32, void *))tblbase)[0](1, (void *)0);
     spE0[0] = 340.0f;
@@ -1230,7 +1230,7 @@ void func_00117980(u8 *arg0)
             sp134 = 0.0f + 91.0f + x * a * spB0[k * 2 + 1] * spD0[qq];
         }
         colorHoist = (k == 0) ? (s32)0xB34DFF00 : (s32)0x1353FF00;
-        r0 = func_0044b7b0(D_007613EC * a);
+        r0 = sinf(D_007613EC * a);
         {
             f32 fc = (f32)col;
             af = (x / 30.0f) * ((fc * r0 * 255.0f) / 255.0f);
@@ -1248,7 +1248,7 @@ void func_00117980(u8 *arg0)
         }
         if ((s32)(*cntp & 0xFFFF) >= (s32)(*limp & 0xFFFF)) {
             *cntp = 0;
-            *limp = (u16)(((u32)func_003b7060() % 0x14) + 0xF);
+            *limp = (u16)(((u32)RpRandom() % 0x14) + 0xF);
         }
         i += 1;
     }
@@ -1280,8 +1280,8 @@ void func_00117980(u8 *arg0)
         pos.y = 91.0f;
         func_003657d0(pos, 0.0f, (col & 0xFF) | 0xB34DFF00, 41.0f, f22, 0);
     }
-    func_003f6440(3, (void *)0x717FB);
-    func_003f6440(2, (void *)0x44);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
+    RpSkyRenderStateSet(2, (void *)0x44);
     *(s16 *)(b + 0x45E) = (s16)(((s32)(*(u16 *)(b + 0x45E) + 1)) % 100);
     sp130 = 523.0f;
     sp134 = 91.0f - f20 * 30.0f;
@@ -1312,7 +1312,7 @@ void func_00117980(u8 *arg0)
             break;
         }
         if (((u32)sp100[q] < (u32)cnt) && ((u32)cnt <= (u32)(sp100[q] + 5))) {
-            af = 1.0f - func_0044b7b0((D_007613EC * (f32)(s32)((u32)cnt - (u32)sp100[q])) / 5.0f);
+            af = 1.0f - sinf((D_007613EC * (f32)(s32)((u32)cnt - (u32)sp100[q])) / 5.0f);
             break;
         }
         q += 1;
@@ -1454,7 +1454,7 @@ void func_00118a20(u8 *arg0)
         if (v < 0) {
             x = 0.0f;
         } else if (v < 6) {
-            x = func_0044b7b0(iGpffff8094 * ((f32)v / 6.0f));
+            x = sinf(iGpffff8094 * ((f32)v / 6.0f));
         } else {
             x = 1.0f;
         }
@@ -1463,7 +1463,7 @@ void func_00118a20(u8 *arg0)
         if (v < 3) {
             x = 0.0f;
         } else if (v < 9) {
-            x = func_0044b7b0(iGpffff8094 * ((f32)(v - 3) / 6.0f));
+            x = sinf(iGpffff8094 * ((f32)(v - 3) / 6.0f));
         } else {
             x = 1.0f;
         }
@@ -1472,7 +1472,7 @@ void func_00118a20(u8 *arg0)
         if (v < 7) {
             x = 0.0f;
         } else if (v < 0x11) {
-            x = func_0044b7b0(iGpffff8094 * ((f32)(v - 7) / 10.0f));
+            x = sinf(iGpffff8094 * ((f32)(v - 7) / 10.0f));
         } else {
             x = 1.0f;
         }
@@ -1481,7 +1481,7 @@ void func_00118a20(u8 *arg0)
         if (v < 9) {
             x = 0.0f;
         } else if (v < 0x13) {
-            x = func_0044b7b0(iGpffff8094 * ((f32)(v - 9) / 10.0f));
+            x = sinf(iGpffff8094 * ((f32)(v - 9) / 10.0f));
         } else {
             x = 1.0f;
         }
@@ -1685,8 +1685,8 @@ void func_00119210(u8 *work)
             *(u16 *)animation = 0;
         }
     }
-    func_003f6440(3, (void *)0x71801);
-    func_003f6440(2, (void *)0x48);
+    RpSkyRenderStateSet(3, (void *)0x71801);
+    RpSkyRenderStateSet(2, (void *)0x48);
     D_00887300[0](1, 0);
     alphaWord = (u32)alpha & 0xFFU;
     positions[0].x = -200.0f;
@@ -1744,7 +1744,7 @@ void func_00119210(u8 *work)
             }
             *(u16 *)particle = 0;
             *(u16 *)(particle + 2) = (u16)((f32)(u32)definitions.row[index].period *
-                (1.0f + 0.5f * ((f32)(func_003b7060() & 0xFFFU) / 4096.0f)));
+                (1.0f + 0.5f * ((f32)(RpRandom() & 0xFFFU) / 4096.0f)));
     skip_reset:
             point.x = definitions.row[index].x;
             point.y = 448.0f - (f32)0x382 * func_001174a0(*(u16 *)particle, 0, *(u16 *)(particle + 2), 0);
@@ -1752,8 +1752,8 @@ void func_00119210(u8 *work)
             index++;
         }
     }
-    func_003f6440(3, (void *)0x717FB);
-    func_003f6440(2, (void *)0x44);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
+    RpSkyRenderStateSet(2, (void *)0x44);
     inverseAlpha = 0xFF - (alpha & 0xFF);
     {
         func_0046d2b0(0, *(s32 *)(work + 0x2C8), 0, 322.0f, 176.0f, inverseAlpha, 0.0f, 0);
@@ -1813,7 +1813,7 @@ void func_00119810(u8 *work)
         if ((s32)frame < 0) {
             progress = 0.0f;
         } else if ((s32)frame < 8) {
-            progress = 1.0f - func_0044b610(iGpffff8094 * ((f32)frame / 8.0f));
+            progress = 1.0f - cosf(iGpffff8094 * ((f32)frame / 8.0f));
         } else {
             progress = 1.0f;
         }
@@ -1823,7 +1823,7 @@ void func_00119810(u8 *work)
         if ((s32)frame < 8) {
             progress = 0.0f;
         } else if ((s32)frame < 0xF) {
-            progress = func_0044b7b0(iGpffff8094 * ((f32)(frame - 8) / 7.0f));
+            progress = sinf(iGpffff8094 * ((f32)(frame - 8) / 7.0f));
         } else {
             progress = maximum;
         }
@@ -1832,7 +1832,7 @@ void func_00119810(u8 *work)
         if ((s32)frame < 8) {
             progress = 0.0f;
         } else if ((s32)frame < 0x28) {
-            progress = func_0044b7b0(iGpffff8094 * ((f32)(frame - 8) / 32.0f));
+            progress = sinf(iGpffff8094 * ((f32)(frame - 8) / 32.0f));
         } else {
             progress = maximum;
         }
@@ -1862,12 +1862,12 @@ void func_00119810(u8 *work)
         floatAlpha = (f32)(u32)alpha;
         glowOpacity = 0.5f * floatAlpha * (maximum - glowProgress);
         glowAlpha = (u8)glowOpacity;
-        func_003f6440(3, (void *)0x71801);
-        func_003f6440(2, (void *)0x48);
+        RpSkyRenderStateSet(3, (void *)0x71801);
+        RpSkyRenderStateSet(2, (void *)0x48);
         func_0034f4a0(*(s32 *)(work + 0x2C8), 0xB, (f32)0x19B, 296.0f, 0.0f,
                    0xFF, 0xFF, 0xFF, glowAlpha, 0x1000, 0x1000, angle, (s16)0x12E, (s16)0x21);
-        func_003f6440(3, (void *)0x717FB);
-        func_003f6440(2, (void *)0x44);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
+        RpSkyRenderStateSet(2, (void *)0x44);
     }
     if (*(s8 *)(work + 0x88) == 8) {
         s32 inverseAlpha;
@@ -2014,8 +2014,8 @@ void func_00119e10(u8 *arg0, u8 *arg1)
     ((s32 (**)(s32, void *))tblbase)[0](0xA, (void *)5);
     ((s32 (**)(s32, void *))tblbase)[0](2, (void *)4);
     ((s32 (**)(s32, void *))tblbase)[0](0xE, (void *)0);
-    func_003f6440(3, (void *)0x717FB);
-    func_003f6440(2, (void *)0x44);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
+    RpSkyRenderStateSet(2, (void *)0x44);
     if ((*(s32 *)(b + 0x534) & 0x10) != 0) {
         func_0011b110(b);
     }
@@ -2044,8 +2044,8 @@ void func_00119e10(u8 *arg0, u8 *arg1)
                 packed = ((u8)t & 0xFF) | 0xFF8C3200;
                 id = func_0011e460(work2);
                 func_00364680(0.0f, packed, e400buf[0], e400buf[1], e400buf[0], e400buf[1], 512.0f, 512.0f, id, 0, 1);
-                func_003f6440(3, (void *)0x717FB);
-                func_003f6440(2, (void *)0x44);
+                RpSkyRenderStateSet(3, (void *)0x717FB);
+                RpSkyRenderStateSet(2, (void *)0x44);
             }
         }
         if ((*(s32 *)(b + 0x534) & 0x100) != 0) {
@@ -2057,7 +2057,7 @@ void func_00119e10(u8 *arg0, u8 *arg1)
                 func_00117980(b);
             } else if ((*(u16 *)*(u32 *)b & 4) != 0) {
                 *(s32 *)(b + 0x534) = flags | 0x80000;
-                func_0043f9c8(b + 0x458, 0, 0x68);
+                memset(b + 0x458, 0, 0x68);
             }
         }
         if ((*(s32 *)(b + 0x534) & 0x400) != 0) {
@@ -2333,7 +2333,7 @@ void func_0011ac70(u8 *arg0)
                 if ((f32)raw > *(f32 *)(arg0 + i * 36 + 0x2EC)) {
                     ratio = 1.0f;
                 } else {
-                    ratio = func_0044b7b0(iGpffff8094 * (((f32)raw - *(f32 *)(arg0 + i * 36 + 0x2E8)) / (*(f32 *)(arg0 + i * 36 + 0x2EC) - *(f32 *)(arg0 + i * 36 + 0x2E8))));
+                    ratio = sinf(iGpffff8094 * (((f32)raw - *(f32 *)(arg0 + i * 36 + 0x2E8)) / (*(f32 *)(arg0 + i * 36 + 0x2EC) - *(f32 *)(arg0 + i * 36 + 0x2E8))));
                 }
             }
         }
@@ -2411,7 +2411,7 @@ void func_0011ae90(u8 *arg0)
                 if ((f32)raw > *(f32 *)(arg0 + i * 36 + 0x2EC)) {
                     ratio = 1.0f;
                 } else {
-                    ratio = func_0044b7b0(iGpffff8094 * (((f32)raw - *(f32 *)(arg0 + i * 36 + 0x2E8)) / (*(f32 *)(arg0 + i * 36 + 0x2EC) - *(f32 *)(arg0 + i * 36 + 0x2E8))));
+                    ratio = sinf(iGpffff8094 * (((f32)raw - *(f32 *)(arg0 + i * 36 + 0x2E8)) / (*(f32 *)(arg0 + i * 36 + 0x2EC) - *(f32 *)(arg0 + i * 36 + 0x2E8))));
                 }
             }
         }
@@ -2605,8 +2605,8 @@ void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s32 arg3)
     *(s16 *)(work + 0xC) = (s16)arg1;
     func_00113610((s32)arg2, work + 0x8C);
     *(s8 *)(work + 0xEE) = (s8)arg3;
-    func_0043f9c8(work + 0x4C0, 0, 0x30);
-    func_0043f9c8(work + 0x4F0, 0, 6);
+    memset(work + 0x4C0, 0, 0x30);
+    memset(work + 0x4F0, 0, 6);
     if (!(**(u16 **)(work + 0) & 4)) {
         t4 = *(s32 *)(work + 0x534);
         if (t4 & 0x80000) {
@@ -2623,7 +2623,7 @@ void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s32 arg3)
     }
     if (**(u16 **)(work + 0) & 4) {
         *(s32 *)(work + 0x534) |= 0x80000;
-        func_0043f9c8(work + 0x458, 0, 0x68);
+        memset(work + 0x458, 0, 0x68);
     }
     func_0011e0c0(*(u8 **)(work + 0x4F8), *(u16 *)((u8 *)arg2 + 2), t17);
     func_0011c6e0(arg0, 0);
@@ -2810,7 +2810,7 @@ void func_0011ba40(u8 *arg0)
     p = *(u16 **)(arg0 + 0);
     if (p != NULL && (*p & 4)) {
         *(s32 *)(arg0 + 0x534) |= 0x80000;
-        func_0043f9c8(arg0 + 0x458, 0, 0x68);
+        memset(arg0 + 0x458, 0, 0x68);
     } else {
         *(s32 *)(arg0 + 0x534) &= 0xFFF7FFFF;
     }
@@ -3431,7 +3431,7 @@ void func_0011c780(u8 *arg0)
     lo = *(f32 *)(arg0 + 0x450);
     ratio = (f32)raw;
     if (ratio < lo) ratio = 0.0f;
-    else { hi = *(f32 *)(arg0 + 0x454); if (ratio > hi) ratio = 1.0f; else ratio = func_0044b7b0(iGpffff8094 * ((ratio - lo) / (hi - lo))); }
+    else { hi = *(f32 *)(arg0 + 0x454); if (ratio > hi) ratio = 1.0f; else ratio = sinf(iGpffff8094 * ((ratio - lo) / (hi - lo))); }
     base = *(f32 *)(arg0 + 0x434); delta = *(f32 *)(arg0 + 0x43C) - base; *(f32 *)(arg0 + 0x444) = base + ratio * delta;
     base = *(f32 *)(arg0 + 0x438); delta = *(f32 *)(arg0 + 0x440) - base; *(f32 *)(arg0 + 0x448) = base + ratio * delta;
     a = *(u8 *)(arg0 + 0x44C); b = *(u8 *)(arg0 + 0x44D); diff = (f32)(b - a); f_abs = (f32)(u32)a;
@@ -3483,7 +3483,7 @@ void func_0011c780(u8 *arg0)
 void func_0011c930(u8 *arg0)
 { s32 a; s32 b; s16 raw; f32 diff; f32 f_abs; f32 acc; f32 ratio; f32 lo; f32 hi; f32 base; f32 delta;
     raw = *(s16 *)(arg0 + 0x514); lo = *(f32 *)(arg0 + 0x450); ratio = (f32)raw;
-    if (ratio < lo) ratio = 0.0f; else { hi = *(f32 *)(arg0 + 0x454); if (ratio > hi) ratio = 1.0f; else ratio = func_0044b7b0(iGpffff8094 * ((ratio - lo) / (hi - lo))); }
+    if (ratio < lo) ratio = 0.0f; else { hi = *(f32 *)(arg0 + 0x454); if (ratio > hi) ratio = 1.0f; else ratio = sinf(iGpffff8094 * ((ratio - lo) / (hi - lo))); }
     base = *(f32 *)(arg0 + 0x434); delta = *(f32 *)(arg0 + 0x43C) - base; *(f32 *)(arg0 + 0x444) = base + ratio * delta;
     base = *(f32 *)(arg0 + 0x438); delta = *(f32 *)(arg0 + 0x440) - base; *(f32 *)(arg0 + 0x448) = base + ratio * delta;
     a = *(u8 *)(arg0 + 0x44C); b = *(u8 *)(arg0 + 0x44D); diff = (f32)(b - a); f_abs = (f32)(u32)a; acc = f_abs + ratio * diff;
@@ -3566,7 +3566,7 @@ void func_0011cd20(u8 *arg0)
     } else if (f1 > 25.0f) {
         f1 = 25.0f;
     }
-    *(f32 *)(arg0 + 0x51C) = func_0044b7b0(D_007613EC * f1 / 25.0f);
+    *(f32 *)(arg0 + 0x51C) = sinf(D_007613EC * f1 / 25.0f);
 }
 
 
@@ -3576,7 +3576,7 @@ void func_0011cdd0(u8 *arg0, s32 arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     *(s32 *)(b + 0x534) |= 0x100000;
-    func_0043f9c8(b + 0x4F0, 0, 6);
+    memset(b + 0x4F0, 0, 6);
     *(u16 *)(b + 0x4F4) = arg1;
 }
 
@@ -3753,7 +3753,7 @@ s32 func_0011d1e0(u8 *arg0)
 
 
 s32 func_00452380(void *arg0);
-s32 func_004553c0(s32 arg0);
+s32 H_Cdvd_IsFileLoaded(s32 arg0);
 s32 func_00454a60(u8 *arg0, s32 arg1);
 s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern char D_005E4E60[];
@@ -3775,7 +3775,7 @@ s32 func_0011d1f0(u8 *arg0)
             if (func_00452380(D_005E4E40) != 0) {
                 func_00440b68(D_005E4E60);
             } else {
-                func_00442088(work + 0x54, D_005E4E90, *(s32 *)(work + 4));
+                sprintf(work + 0x54, D_005E4E90, *(s32 *)(work + 4));
                 func_00440b68(&iGpffff9c18, D_005E4868, 0x1046);
                 temp_2 = func_00454a60(work + 0x54, 0);
                 *(s32 *)(work + 0x4C) = temp_2;
@@ -3790,7 +3790,7 @@ s32 func_0011d1f0(u8 *arg0)
         }
         break;
     case 1:
-        if (func_004553c0(*(s32 *)(work + 0x4C)) != 0) {
+        if (H_Cdvd_IsFileLoaded(*(s32 *)(work + 0x4C)) != 0) {
             *(s32 *)(work + 0x48) = func_004667d0(0, (const char *)(work + 0x54), 0, 0, 0, 0, 0, 0, 0, 0);
             *(s32 *)(work + 0) = 2;
         }
@@ -3799,7 +3799,7 @@ s32 func_0011d1f0(u8 *arg0)
         *(s32 *)(work + 0x50) = func_004669d0(*(s32 *)(work + 0x48), &sp4C, 0);
         if (sp4C != 0) {
             *(s32 *)(work + 0x48) = 0;
-            func_00454bd0(*(s32 *)(work + 0x4C));
+            H_Cdvd_Destroy(*(s32 *)(work + 0x4C));
             *(s32 *)(work + 0x4C) = 0;
             *(s32 *)(work + 0) = 3;
         }
@@ -3823,7 +3823,7 @@ void func_0011d3c0(u8 *arg0)
         *(s32 *)(b + 0x50) = 0;
     } else {
         if (*(s32 *)(b + 0x4C) != 0) {
-            func_00454bd0(*(s32 *)(b + 0x4C));
+            H_Cdvd_Destroy(*(s32 *)(b + 0x4C));
             *(s32 *)(b + 0x4C) = 0;
         }
         if (*(s32 *)(b + 0x50) != 0) {
@@ -3915,8 +3915,8 @@ void func_0011d5b0(f32 depth, s32 color, s32 edgeAlpha, f32 x, f32 y, s32 width,
     ((s32 (**)(s32, void *))callbackTable)[0](0xB, (void *)6);
     ((s32 (**)(s32, void *))callbackTable)[0](0xA, (void *)5);
     ((s32 (**)(s32, void *))callbackTable)[0](2, (void *)4);
-    func_003f6440(2, (void *)0x44);
-    func_003f6440(3, (void *)0x717FB);
+    RpSkyRenderStateSet(2, (void *)0x44);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
     positions[0] = x;
     positions[1] = y;
     middleX = 256.0f + x;
@@ -4021,7 +4021,7 @@ void func_0011dc50(u8 *arg0)
         if (t < 10.0f) {
             *(s32 *)(work + 0x10) += 1;
             f20 = *(f32 *)(work + 0x20);
-            t = func_0044b7b0(iGpffff8094 * (f32)*(s32 *)(work + 0x10) / 10.0f);
+            t = sinf(iGpffff8094 * (f32)*(s32 *)(work + 0x10) / 10.0f);
             d = *(f32 *)(work + 0x30) - f20;
             *(f32 *)(work + 0x28) = f20 + d * t;
         } else {
@@ -4062,8 +4062,8 @@ void func_0011dd50(u8 *arg0)
                       *(f32 *)(work + 0x44) + *(f32 *)(work + 0x3C),
                       *(f32 *)(work + 0x28), *(f32 *)(work + 0x2C),
                       512.0f, 512.0f, *(s32 *)(work + 0x50), 1, 0);
-        func_003f6440(3, (void *)0x717FB);
-        func_003f6440(2, (void *)0x44);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
+        RpSkyRenderStateSet(2, (void *)0x44);
     }
 }
 
@@ -4123,7 +4123,7 @@ s32 func_0011ded0(u8 *arg0)
             func_003ef3a0(r);
         }
         if (*(s32 *)(w + 4) != 0) {
-            func_00454bd0(*(s32 *)(w + 4));
+            H_Cdvd_Destroy(*(s32 *)(w + 4));
         }
         return -1;
     }
@@ -4193,7 +4193,7 @@ void func_0011e0c0(u8 *arg0, s32 arg1, s32 arg2)
         } else {
             p4c = *(s32 *)(w + 0x4C);
             if (p4c != 0) {
-                func_00454bd0(p4c);
+                H_Cdvd_Destroy(p4c);
                 *(s32 *)(w + 0x4C) = 0;
             }
             p4c = *(s32 *)(w + 0x50);
@@ -4326,8 +4326,8 @@ s32 func_0011e460(u8 *arg0)
 
 
 
-u32 func_003b7060(void);
-u16 *func_001094d0(s32 arg0);
+u32 RpRandom(void);
+u16 *datPersonaGetSkills(s32 arg0);
 extern u16 *iGpffffb3ec;
 /* measured: the explicit `bltz`/negative conversion path for
    `func_003b7060() & 0x1000` is required for retail's COP1 sequence. */
@@ -4364,13 +4364,13 @@ s32 func_0011e490(u8 *arg0)
     if (!(*(u16 *)p16 & 4)) {
         return 0;
     }
-    t = func_003b7060() & 0x1000;
+    t = RpRandom() & 0x1000;
     f = (f32)(u32)t;
     f = 100.0f * f / 4096.0f;
     if (!(f < 0.0f)) {
         return 0;
     }
-    work = (u16 *)func_001094d0((s32)p16);
+    work = (u16 *)datPersonaGetSkills((s32)p16);
     i = 0;
     count = 0;
     for (; (first = iGpffffb3ec[2 * i]) != 0; i++) {
@@ -4401,7 +4401,7 @@ s32 func_0011e490(u8 *arg0)
         count++;
     }
     if (count > 0) {
-        t = func_003b7060() & 0xFFF;
+        t = RpRandom() & 0xFFF;
         f = (f32)(u32)t;
         f = (f32)count * f / 4096.0f;
         idx = (s32)f;
@@ -4435,9 +4435,9 @@ void func_0011e740(u8 *arg0)
         *(s32 *)(arg0 + 0xC) += 1;
     }
     if (idx < 5) {
-        func_00442830(buf, D_005E4850[idx]);
+        strcpy(buf, D_005E4850[idx]);
         func_002bbd20(0, buf);
-        func_00442088(buf, &iGpffff9c20, base[*(s32 *)(arg0 + 0xC) + 0x82]);
+        sprintf(buf, &iGpffff9c20, base[*(s32 *)(arg0 + 0xC) + 0x82]);
         func_002bbd20(1, buf);
         func_002bad10(*(s32 *)(arg0 + 0x34));
         *(s16 *)(arg0 + 2) = 0;

@@ -28,20 +28,20 @@ BtlPacket* func_00194470(u32 type, u32 workSize);
 u32 func_002303e0(void* work);
 u32 func_00230450(void* work);
 extern s32 func_001f0ff0();
-extern u32 func_00232710(s32 arg0, u32 arg1);
+extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern s32 func_0019fc70();
 extern s32 func_001ef9a0();
-extern s32 func_002428f0(s32 arg0, s32 arg1);
+extern s32 datCalcIsDead(s32 arg0, s32 arg1);
 extern s32 func_001b1540();
 extern void func_001b0fa0(s32 arg0);
 extern void func_001b11c0(s32 arg0);
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern u8 *iGpffffb414;
 void func_0022c430(void);
 void func_00440b68();
-void func_00442088();
+void sprintf();
 extern u8* func_00454a60(u8* param, s32 mode);
-s32 func_004553c0(u8* ptr);
+s32 H_Cdvd_IsFileLoaded(u8* ptr);
 extern char iGpffffa5e8;
 extern char D_00635620[];
 extern char D_00635638[];
@@ -104,7 +104,7 @@ s32 func_0022fc00(u8* arg0)
         return 1;
     }
     temp_4_2 = *(u8**)(temp_5 + 0xa64);
-    if ((temp_4_2 != NULL) && (func_00232710((s32)temp_4_2, 0x100) != 0))
+    if ((temp_4_2 != NULL) && (datCalcChkBadStatus((s32)temp_4_2, 0x100) != 0))
     {
         return 1;
     }
@@ -165,7 +165,7 @@ void func_0022fdc0(u8 *arg0)
     {
         temp_16 = (s32 *)(iGpffffb414 +
                           (func_001ef9a0(temp_4) * 0x18));
-        func_0043f9c8(DAT_0076449c + 0x29C, 0, 0x30);
+        memset(DAT_0076449c + 0x29C, 0, 0x30);
         temp_3 = DAT_0076449c;
         var_18 = (u8 **)(temp_3 + 0x29C);
         var_17 = *(u8 **)(temp_3 + 0x174);
@@ -179,7 +179,7 @@ loop_2:
 loop_4:
         if (((*(u16 *)(var_17 + 0x1A) & 1) != 0) ^ 1)
             goto loop_4_next;
-        if (func_002428f0(
+        if (datCalcIsDead(
                 *(s32 *)(*(u8 **)(var_17 + 0x30) + 0xA64), 0) != 0)
             goto loop_4_next;
         {
@@ -213,7 +213,7 @@ loop_4_done:
         if ((*temp_16 & 0x10) != 0)
             func_001b11c0(1);
         if ((arg0 != NULL) &&
-            (func_002428f0(
+            (datCalcIsDead(
                  *(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0) == 0))
         {
 loop_16:
@@ -419,7 +419,7 @@ u32 func_002303e0(void* work)
 {
     u8 buf[0x80];
 
-    func_00442088(buf, D_00635620, func_001ef9a0());
+    sprintf(buf, D_00635620, func_001ef9a0());
     func_00440b68(&iGpffffa5e8, D_00635638, 0x997);
     *(u32*)(DAT_0076449c + 0xB90) = (u32)func_00454a60(buf, 1);
 }
@@ -436,7 +436,7 @@ u32 func_00230450(void* work)
     {
         return 1;
     }
-    if (func_004553c0((u8*)handle) != 0)
+    if (H_Cdvd_IsFileLoaded((u8*)handle) != 0)
     {
         func_0022c430();
         return 1;
@@ -471,13 +471,13 @@ u32 func_00230500(BtlBossEndBgmWork* work)
 
     if (work->loaded == 0)
     {
-        func_00442088(buf, D_00635650, D_00635668, work->encountId);
+        sprintf(buf, D_00635650, D_00635668, work->encountId);
         func_00440b68(&iGpffffa5e8, D_00635638, 0x9C6);
         *(u32*)(DAT_0076449c + 0xB94) = (u32)func_00454a60(buf, 0);
         work->loaded = 1;
         goto done;
     }
-    if (func_004553c0((u8*)*(u32*)(DAT_0076449c + 0xB94)) != 0)
+    if (H_Cdvd_IsFileLoaded((u8*)*(u32*)(DAT_0076449c + 0xB94)) != 0)
     {
         return 1;
     }

@@ -6,7 +6,7 @@
 extern void func_0046d730(u8 *file, s32 line);
 extern u8 *iGpffffba98;   /* gp - 0x4568 = 0x00764b88 */
 extern u8 *(*D_008873F8[])(u8 *, s32);
-extern void func_0043f9c8(void *, s32, s32);
+extern void memset(void *, s32, s32);
 extern u8 iGpffffaf70;   /* gp - 0x5090 = 0x00764060 */
 extern void func_004614b0(void);
 
@@ -42,7 +42,7 @@ u8 *func_00460b60(u8 *list, s32 arg1, s32 arg2)
     u8 *tail;
 
     node = D_008873F8[0](iGpffffba98, 0x41002);
-    func_0043f9c8(node, 0, 0x30);
+    memset(node, 0, 0x30);
     if (node == 0) {
         func_0046d730(&iGpffffaf70, 0xDD);
     }
@@ -76,7 +76,7 @@ u8 *func_00460c70(u8 *list, s32 arg1, s32 arg2)
     u8 *tail;
 
     node = D_008873F8[0](iGpffffba98, 0x41002);
-    func_0043f9c8(node, 0, 0x30);
+    memset(node, 0, 0x30);
     if (node == 0) {
         func_0046d730(&iGpffffaf70, 0xE7);
     }
@@ -110,7 +110,7 @@ u8 *func_00460d80(u8 *list, s32 arg1)
     u8 *tail;
 
     node = D_008873F8[0](iGpffffba98, 0x41002);
-    func_0043f9c8(node, 0, 0x30);
+    memset(node, 0, 0x30);
     if (node == 0) {
         func_0046d730(&iGpffffaf70, 0xF1);
     }
@@ -143,7 +143,7 @@ u8 *func_00460e80(u8 *list, s32 arg1)
     u8 *tail;
 
     node = D_008873F8[0](iGpffffba98, 0x41002);
-    func_0043f9c8(node, 0, 0x30);
+    memset(node, 0, 0x30);
     if (node == 0) {
         func_0046d730(&iGpffffaf70, 0x106);
     }
@@ -176,7 +176,7 @@ u8 *func_00460f80(u8 *list, s32 arg1)
     u8 *tail;
 
     node = D_008873F8[0](iGpffffba98, 0x41002);
-    func_0043f9c8(node, 0, 0x30);
+    memset(node, 0, 0x30);
     if (node == 0) {
         func_0046d730(&iGpffffaf70, 0x111);
     }
@@ -209,7 +209,7 @@ u8 *func_00461080(u8 *list, s32 arg1)
     u8 *tail;
 
     node = D_008873F8[0](iGpffffba98, 0x41002);
-    func_0043f9c8(node, 0, 0x30);
+    memset(node, 0, 0x30);
     if (node == 0) {
         func_0046d730(&iGpffffaf70, 0x11C);
     }
@@ -242,7 +242,7 @@ u8 *func_00461180(u8 *list, s32 arg1)
     u8 *tail;
 
     node = D_008873F8[0](iGpffffba98, 0x41002);
-    func_0043f9c8(node, 0, 0x30);
+    memset(node, 0, 0x30);
     if (node == 0) {
         func_0046d730(&iGpffffaf70, 0x127);
     }
@@ -277,7 +277,7 @@ u8 *func_00461290(u8 *list, s32 arg1)
     u8 *tail;
 
     node = D_008873F8[0](iGpffffba98, 0x41002);
-    func_0043f9c8(node, 0, 0x30);
+    memset(node, 0, 0x30);
     if (node == 0) {
         func_0046d730(&iGpffffaf70, 0x131);
     }
@@ -331,7 +331,7 @@ u8 *func_00461390(void *inputList, s32 primitive, void *vertices, s32 count)
     OtPrimitiveNode *list;
 
     node = (OtPrimitiveNode *)D_008873F8[0](iGpffffba98, 0x41002);
-    func_0043f9c8(node, 0, 0x30);
+    memset(node, 0, 0x30);
     if (node == 0) {
         func_0046d730(&iGpffffaf70, 0x13B);
     }

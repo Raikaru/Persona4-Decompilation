@@ -26,7 +26,7 @@ extern s32 func_003ef6d0(void);
 extern void *func_003ef650(s32 owner, const void *name);
 extern void func_00440b68(const void *file, const void *message, s32 line);
 extern void *func_00454a60(const char *path, s32 flags);
-extern void func_00454bd0(void *handle);
+extern void H_Cdvd_Destroy(void *handle);
 extern s32 func_004667d0(s32, const void *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern void func_004669d0(s32 task, s32 *result, s32 flags);
 extern s32 iGpffffa030;
@@ -81,16 +81,16 @@ s32 func_001901d0(u8 *arg0)
         state->state += 1;
         /* fall through */
     case 1:
-        if (func_004553c0(state->handles[0]) == 0) {
+        if (H_Cdvd_IsFileLoaded(state->handles[0]) == 0) {
             return 0;
         }
-        if (func_004553c0(state->handles[1]) == 0) {
+        if (H_Cdvd_IsFileLoaded(state->handles[1]) == 0) {
             return 0;
         }
-        if (func_004553c0(state->handles[2]) == 0) {
+        if (H_Cdvd_IsFileLoaded(state->handles[2]) == 0) {
             return 0;
         }
-        if (func_004553c0(state->handles[3]) == 0) {
+        if (H_Cdvd_IsFileLoaded(state->handles[3]) == 0) {
             return 0;
         }
         state->tasks[0] = func_004667d0(0, D_005F6040, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -111,10 +111,10 @@ s32 func_001901d0(u8 *arg0)
                 return 0;
             }
         }
-        func_00454bd0(state->handles[0]);
-        func_00454bd0(state->handles[1]);
-        func_00454bd0(state->handles[2]);
-        func_00454bd0(state->handles[3]);
+        H_Cdvd_Destroy(state->handles[0]);
+        H_Cdvd_Destroy(state->handles[1]);
+        H_Cdvd_Destroy(state->handles[2]);
+        H_Cdvd_Destroy(state->handles[3]);
         return -1;
     default:
         return 0;

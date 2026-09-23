@@ -6,12 +6,12 @@ extern u8 *iGpffffb3ac;
 extern void func_00485b20();
 extern u8 *func_00194470();
 extern s32 func_001fa370();
-extern void func_0043f810();
+extern void memcpy();
 extern void func_001f9cf0(u8 *arg0);
 extern s32 func_001f9fa0();
-extern s32 func_004553c0();
+extern s32 H_Cdvd_IsFileLoaded();
 extern s32 func_00484bb0();
-extern void func_00454bd0();
+extern void H_Cdvd_Destroy();
 extern s32 func_004b1520();
 extern void func_00485630();
 extern void func_00485870();
@@ -27,7 +27,7 @@ extern s16 func_001060b0(void);
 extern s32 func_00110d60(s32 arg0);
 extern u32 datGetFlag(s32 bit);
 extern s32 func_00120e20();
-extern s32 func_00442088(char *dst, const char *format, ...);
+extern s32 sprintf(char *dst, const char *format, ...);
 extern s32 func_00440b68(const char *format, ...);
 extern u8 *func_00454a60(u8 *path, s32 flags);
 extern const char *iGpffffa520[2];
@@ -56,33 +56,33 @@ void func_001f9cf0(u8 *arg0) {
         const char **suffix;
         s32 count;
         count = *(s16 *)(arg0 + 8);
-        func_00442088(sp60, D_00625060, count + 1, count + 1, iGpffffa520[temp_5]);
+        sprintf(sp60, D_00625060, count + 1, count + 1, iGpffffa520[temp_5]);
         suffix = &iGpffffa520[temp_5];
         func_00440b68(iGpffffa528, D_00625090, 0x26);
         *(s32 *)(iGpffffb3ac + 0xB6C) = (u32)func_00454a60((u8 *)sp60, 0);
         var_19 = 0;
         while (var_19 < count) {
             temp_16 = var_19 * 4;
-            func_00442088(sp60, D_006250A0, count + 1, count + 1,
+            sprintf(sp60, D_006250A0, count + 1, count + 1,
                           D_00625050[var_19],
                           *(s16 *)(arg0 + var_19 * 2 + 2), *suffix);
             func_00440b68(iGpffffa528, D_00625090, 0x2C);
             *(s32 *)(iGpffffb3ac + temp_16 + 0xB70) = (u32)func_00454a60((u8 *)sp60, 0);
             var_19++;
         }
-        func_00442088(sp60, D_006250D0, count + 1, count + 1);
+        sprintf(sp60, D_006250D0, count + 1, count + 1);
         func_00440b68(iGpffffa528, D_00625090, 0x2F);
         *(s32 *)(iGpffffb3ac + 0xB58) = (u32)func_00454a60((u8 *)sp60, 0);
         break;
     }
     case 2:
-        func_00442088(sp60, D_00625100, *(s16 *)(arg0 + 2), iGpffffa520[temp_5]);
+        sprintf(sp60, D_00625100, *(s16 *)(arg0 + 2), iGpffffa520[temp_5]);
         func_00440b68(iGpffffa528, D_00625090, 0x35);
         *(s32 *)(iGpffffb3ac + 0xB58) = (u32)func_00454a60((u8 *)sp60, 0);
         break;
     case 4:
-        if (*(s16 *)(arg0 + 2) < 0xB) func_00442088(sp60, D_00625130, *(s16 *)(arg0 + 2));
-        else func_00442088(sp60, D_00625160, *(s16 *)(arg0 + 2));
+        if (*(s16 *)(arg0 + 2) < 0xB) sprintf(sp60, D_00625130, *(s16 *)(arg0 + 2));
+        else sprintf(sp60, D_00625160, *(s16 *)(arg0 + 2));
         func_00440b68(iGpffffa528, D_00625090, 0x40);
         *(s32 *)(iGpffffb3ac + 0xB58) = (u32)func_00454a60((u8 *)sp60, 0);
         break;
@@ -102,27 +102,27 @@ s32 func_001f9fa0(void) {
     for (var_18 = 0; var_18 < 4; var_18++) {
         u8 *temp_4 = *(u8 **)((u32)var_18 * 4 + (u32)iGpffffb3ac + 0xB6C);
         if (temp_4 != NULL) {
-            if (func_004553c0(temp_4) != 0) {
+            if (H_Cdvd_IsFileLoaded(temp_4) != 0) {
                 if (!(*(s32 *)(iGpffffb3ac + 0xB4C) & 1)) {
                     temp_16 = var_18 * 4;
                     *(s32 *)(iGpffffb3ac + temp_16 + 0xB5C) = func_00484bb0(*(s32 *)(*(u8 **)(iGpffffb3ac + temp_16 + 0xB6C) + 0x110));
                 }
                 temp_16 = var_18 * 4;
-                func_00454bd0(*(u8 **)(iGpffffb3ac + temp_16 + 0xB6C));
+                H_Cdvd_Destroy(*(u8 **)(iGpffffb3ac + temp_16 + 0xB6C));
                 *(u8 **)(iGpffffb3ac + temp_16 + 0xB6C) = 0;
             } else {
                 var_17 = 0;
             }
         }
     }
-    if (var_17 != 0 && func_004553c0(*(u8 **)(iGpffffb3ac + 0xB58)) != 0) {
+    if (var_17 != 0 && H_Cdvd_IsFileLoaded(*(u8 **)(iGpffffb3ac + 0xB58)) != 0) {
         s32 temp_3_2 = *(s32 *)(iGpffffb3ac + 0xB4C);
         if (!(temp_3_2 & 1)) {
             *(s32 *)(iGpffffb3ac + 0xB54) = func_00484bb0(*(s32 *)(*(u8 **)(iGpffffb3ac + 0xB58) + 0x110));
         } else {
             *(s32 *)(iGpffffb3ac + 0xB4C) = temp_3_2 & ~1;
         }
-        func_00454bd0(*(u8 **)(iGpffffb3ac + 0xB58));
+        H_Cdvd_Destroy(*(u8 **)(iGpffffb3ac + 0xB58));
         *(u8 **)(iGpffffb3ac + 0xB58) = 0;
         return 1;
     }
@@ -136,7 +136,7 @@ u8 *func_001fa110(u8 *arg0) {
     *(u8 *)(p + 0x47) &= 0xEE;
     *(void **)(p + 0x68) = (void *)func_001f9cf0;
     *(void **)(p + 0x6C) = (void *)func_001f9fa0;
-    func_0043f810(*(s32 **)(p + 0x78), arg0, 0xA);
+    memcpy(*(s32 **)(p + 0x78), arg0, 0xA);
     return p;
 }
 
@@ -246,12 +246,12 @@ void func_001fa490(u8 *arg0) {
     temp_4 = *(u16 *)arg0;
     switch (temp_4) {
     case 1:
-        func_00442088(sp20, D_00625190, *(s16 *)(arg0 + 2), iGpffffa530[temp_5]);
+        sprintf(sp20, D_00625190, *(s16 *)(arg0 + 2), iGpffffa530[temp_5]);
         func_00440b68(iGpffffa528, D_00625090, 0x152);
         *(s32 *)(iGpffffb3ac + 0xB84) = (u32)func_00454a60((u8 *)sp20, 0);
         break;
     case 3:
-        func_00442088(sp20, D_006251C0, *(s16 *)(arg0 + 2), iGpffffa530[temp_5]);
+        sprintf(sp20, D_006251C0, *(s16 *)(arg0 + 2), iGpffffa530[temp_5]);
         func_00440b68(iGpffffa528, D_00625090, 0x158);
         *(s32 *)(iGpffffb3ac + 0xB84) = (u32)func_00454a60((u8 *)sp20, 0);
         break;

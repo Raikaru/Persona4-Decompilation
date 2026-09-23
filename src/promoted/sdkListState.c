@@ -6,7 +6,7 @@
 extern void func_0046d730(void* message, u32 code);
 extern s32 func_00453eb0(u8* obj, s32 value);
 extern void func_00453ce0(u8* arg0, s32 arg1);
-extern void func_0043f9c8(void* dst, s32 value, u32 size);
+extern void memset(void* dst, s32 value, u32 size);
 extern void func_00453670(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00453760(u8* arg0, s32 arg1);
 extern void func_004537e0(u8* arg0, s32 arg1);
@@ -35,7 +35,7 @@ void func_004535c0(u8* arg0, s32 arg1, s32 arg2)
     if (arg1 <= 0) {
         func_0046d730(D_007105E8, 0x46);
     }
-    func_0043f9c8(arg0, 0, 0x2C);
+    memset(arg0, 0, 0x2C);
     func_00453670(arg0, arg1, arg2, 0, 0);
 }
 
@@ -48,7 +48,7 @@ void func_00453670(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     if (arg1 <= 0) {
         func_0046d730(D_007105E8, 0x50);
     }
-    func_0043f9c8(arg0, 0, 0x2C);
+    memset(arg0, 0, 0x2C);
     *(s32*)(arg0 + 0x14) = arg1;
     *(s32*)(arg0 + 0x18) = 2;
     *(s32*)(arg0 + 0x20) = arg2;

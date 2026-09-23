@@ -21,7 +21,7 @@ extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
 extern void func_0019dea0(void *unit);
 extern f32 func_003e41e0(f32 *out, f32 *in);
-extern f32 func_003e41b0(f32 *value);
+extern f32 RwV2dLength(f32 *value);
 extern s32 func_0044dcd8(f32 value);
 extern s32 func_0044b310(s32 value);
 extern f32 func_0044e7d8(s32 value);
@@ -182,12 +182,11 @@ u8* func_0019eda0(u8* unit, s32 id);
 
 BtlPacket* func_00194470(u32 id, s32 workDataSize);
 RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
-                     s32 numPoints, const RtQuat* quat);
+                     s32 numPoints, const void* quat);
 void func_001ec1c0(RwV3d* dst, const RwV3d* from, const RwV3d* to);
-extern void func_003dcb40(RwV3d *dst, RwV3d *src, s32 mode, RwV3d *rot);
-extern s32 func_002428f0(void *arg0, s32 arg1);
-extern u32 func_00232710(s32 arg0, u32 arg1);
-extern f32 func_003e4180(RwV3d *value);
+extern s32 datCalcIsDead(void *arg0, s32 arg1);
+extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern f32 RwV3dLength(RwV3d *value);
 extern u8 *iGpffffb3ac;
 extern RwV3d D_00881430;
 void func_00196ce0(BtlUnitPacketMove* work);
@@ -221,7 +220,7 @@ void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2)
     work.scaled.x = centerX * *(f32 *)(arg0 + 0x2C);
     work.scaled.y = centerY * *(f32 *)(arg0 + 0x2C);
     work.scaled.z = centerZ * *(f32 *)(arg0 + 0x2C);
-    func_003dcb40(&work.transformed, &work.scaled, 1, &work.rotation);
+    RtQuatTransformVectors(&work.transformed, &work.scaled, 1, &work.rotation);
     out = (RwV3d *)arg2;
     out->x = work.transformed.x + *(f32 *)(arg0 + 4);
     out->y = work.transformed.y + *(f32 *)(arg0 + 8);
@@ -251,7 +250,7 @@ void func_00195d50(u8 *arg0, u8 *arg1)
         work.firstScaled.x = *(f32 *)(arg0 + 0x80) * *(f32 *)(arg0 + 0x2C);
         work.firstScaled.y = *(f32 *)(arg0 + 0x84) * *(f32 *)(arg0 + 0x2C);
         work.firstScaled.z = *(f32 *)(arg0 + 0x88) * *(f32 *)(arg0 + 0x2C);
-        func_003dcb40(&work.firstOut, &work.firstScaled, 1,
+        RtQuatTransformVectors(&work.firstOut, &work.firstScaled, 1,
                       (RwV3d *)(arg0 + 0x1C));
         out->x = work.firstOut.x + *(f32 *)(arg0 + 4);
         out->y = work.firstOut.y + *(f32 *)(arg0 + 8);
@@ -263,7 +262,7 @@ void func_00195d50(u8 *arg0, u8 *arg1)
         work.secondScaled.x = *(f32 *)(arg0 + 0x80) * *(f32 *)(arg0 + 0x2C);
         work.secondScaled.y = *(f32 *)(arg0 + 0x84) * *(f32 *)(arg0 + 0x2C);
         work.secondScaled.z = *(f32 *)(arg0 + 0x88) * *(f32 *)(arg0 + 0x2C);
-        func_003dcb40(&work.secondOut, &work.secondScaled, 1,
+        RtQuatTransformVectors(&work.secondOut, &work.secondScaled, 1,
                       (RwV3d *)(arg0 + 0x1C));
         out->x = work.secondOut.x + *(f32 *)(arg0 + 4);
         out->y = work.secondOut.y + *(f32 *)(arg0 + 8);
@@ -317,8 +316,8 @@ f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                     !(flags & excludedFlags) &&
                     (!*(s32 *)(filters + 0x10) ||
                      group != 0 ||
-                     (func_002428f0(*(void **)(firstUnit + 0xA64), 0) == 0 &&
-                      func_00232710(*(s32 *)(firstUnit + 0xA64), 0x100117) == 0)))
+                     (datCalcIsDead(*(void **)(firstUnit + 0xA64), 0) == 0 &&
+                      datCalcChkBadStatus(*(s32 *)(firstUnit + 0xA64), 0x100117) == 0)))
                 {
                     f32 x;
                     f32 y;
@@ -335,7 +334,7 @@ f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                         firstScaled.z =
                             *(f32 *)(firstUnit + 0x88) *
                                 *(f32 *)(firstUnit + 0x2C);
-                        func_003dcb40(&firstRotated, &firstScaled, 1,
+                        RtQuatTransformVectors(&firstRotated, &firstScaled, 1,
                                       (RwV3d *)(firstUnit + 0x1C));
                         x = firstRotated.x + *(f32 *)(firstUnit + 4);
                         y = firstRotated.y + *(f32 *)(firstUnit + 8);
@@ -413,8 +412,8 @@ f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                         !(flags & excludedFlags) &&
                         (!*(s32 *)(filters + 0x10) ||
                          secondGroup != 0 ||
-                         (func_002428f0(*(void **)(unit + 0xA64), 0) == 0 &&
-                          func_00232710(*(s32 *)(unit + 0xA64), 0x100117) == 0)))
+                         (datCalcIsDead(*(void **)(unit + 0xA64), 0) == 0 &&
+                          datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100117) == 0)))
                     {
                         f32 x;
                         f32 z;
@@ -427,7 +426,7 @@ f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                                 *(f32 *)(unit + 0x84) * *(f32 *)(unit + 0x2C);
                             secondScaled.z =
                                 *(f32 *)(unit + 0x88) * *(f32 *)(unit + 0x2C);
-                            func_003dcb40(&secondRotated, &secondScaled, 1,
+                            RtQuatTransformVectors(&secondRotated, &secondScaled, 1,
                                           (RwV3d *)(unit + 0x1C));
                             x = secondRotated.x + *(f32 *)(unit + 4);
                             z = secondRotated.z + *(f32 *)(unit + 0xC);
@@ -440,7 +439,7 @@ f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                         delta.x = x - center.x;
                         delta.y = centerY - centerY;
                         delta.z = z - centerZ;
-                        extent = func_003e4180(&delta);
+                        extent = RwV3dLength(&delta);
                         extent += *(f32 *)(unit + 0x90) *
                                   *(f32 *)(unit + 0x2C);
                         if (extent > radius)
@@ -537,7 +536,7 @@ u32 func_00196610(u8 *arg0)
             point = (u8 *)(pointOffset + (u32)entry);
             frame.nextDeltaX = frame.currentX - *(f32 *)(point - 8);
             frame.nextDeltaZ = currentZ - *(f32 *)(point - 4);
-            lastDistance = func_003e41b0(&frame.nextDeltaX);
+            lastDistance = RwV2dLength(&frame.nextDeltaX);
             if (lastDistance < *(f32 *)(arg0 + 0xE8))
             {
                 lastDistance = (lastDistance + pathLength) -
@@ -593,7 +592,7 @@ u32 func_00196610(u8 *arg0)
         {
             turn = fGpffff8048 *
                    func_0044b950(targetPos.x, targetPos.z);
-            func_003dcb40(&targetPos, &D_0060A0F0, 1,
+            RtQuatTransformVectors(&targetPos, &D_0060A0F0, 1,
                           (RwV3d *)(arg0 + 0x1C));
             angle = fGpffff8048 *
                     func_0044b950(targetPos.x, targetPos.z);
@@ -696,7 +695,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
                 frame.scaleA.x = target->sphereCenter.x * target->scale;
                 frame.scaleA.y = target->sphereCenter.y * target->scale;
                 frame.scaleA.z = target->sphereCenter.z * target->scale;
-                func_003dcb40(&frame.transformedA, &frame.scaleA, 1,
+                RtQuatTransformVectors(&frame.transformedA, &frame.scaleA, 1,
                               &frame.rotateA);
                 frame.positionA.x = frame.transformedA.x + target->pos.x;
                 frame.positionA.y = frame.transformedA.y + target->pos.y;
@@ -712,7 +711,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
                 frame.scaleB.x = centerX * target->scale;
                 frame.scaleB.y = centerY * target->scale;
                 frame.scaleB.z = centerZ * target->scale;
-                func_003dcb40(&frame.transformedB, &frame.scaleB, 1,
+                RtQuatTransformVectors(&frame.transformedB, &frame.scaleB, 1,
                               &frame.rotateB);
                 frame.positionA.x = frame.transformedB.x + target->pos.x;
                 frame.positionA.y = frame.transformedB.y + target->pos.y;
@@ -727,7 +726,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
             frame.scaleC.x = target->sphereCenter.x * target->scale;
             frame.scaleC.y = target->sphereCenter.y * target->scale;
             frame.scaleC.z = target->sphereCenter.z * target->scale;
-            func_003dcb40(&frame.transformedC, &frame.scaleC, 1,
+            RtQuatTransformVectors(&frame.transformedC, &frame.scaleC, 1,
                           (RwV3d *)((u8 *)target + 0x1c));
             frame.positionA.x = frame.transformedC.x + target->pos.x;
             frame.positionA.y = frame.transformedC.y + target->pos.y;
@@ -742,7 +741,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
             frame.scaleD.x = centerX * target->scale;
             frame.scaleD.y = centerY * target->scale;
             frame.scaleD.z = centerZ * target->scale;
-            func_003dcb40(&frame.transformedD, &frame.scaleD, 1,
+            RtQuatTransformVectors(&frame.transformedD, &frame.scaleD, 1,
                           (RwV3d *)((u8 *)target + 0x1c));
             frame.positionA.x = frame.transformedD.x + target->pos.x;
             frame.positionA.y = frame.transformedD.y + target->pos.y;
@@ -755,7 +754,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
             frame.scaleE.x = target->sphereCenter.x * target->scale;
             frame.scaleE.y = target->sphereCenter.y * target->scale;
             frame.scaleE.z = target->sphereCenter.z * target->scale;
-            func_003dcb40(&frame.transformedE, &frame.scaleE, 1,
+            RtQuatTransformVectors(&frame.transformedE, &frame.scaleE, 1,
                           (RwV3d *)((u8 *)target + 0x1c));
             frame.positionB.x = frame.transformedE.x + target->pos.x;
             frame.positionB.y = frame.transformedE.y + target->pos.y;
@@ -771,7 +770,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
             frame.scaleF.x = centerX * target->scale;
             frame.scaleF.y = centerY * target->scale;
             frame.scaleF.z = centerZ * target->scale;
-            func_003dcb40(&frame.transformedF, &frame.scaleF, 1,
+            RtQuatTransformVectors(&frame.transformedF, &frame.scaleF, 1,
                           (RwV3d *)((u8 *)target + 0x1c));
             frame.positionB.x = frame.transformedF.x + target->pos.x;
             frame.positionB.y = frame.transformedF.y + target->pos.y;
@@ -779,7 +778,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
         }
 
         func_001ec1c0(&frame.rotate, &frame.positionA, &frame.positionB);
-        func_003dcb40(&frame.finalRotation, &D_0060A0F0, 1, &frame.rotate);
+        RtQuatTransformVectors(&frame.finalRotation, &D_0060A0F0, 1, &frame.rotate);
         frame.finalRotation.x *= packet->unk_1c;
         frame.finalRotation.y *= packet->unk_1c;
         frame.finalRotation.z *= packet->unk_1c;
@@ -905,7 +904,7 @@ s32 func_00198050(u8 *arg0)
                 work.scaled.x = *(f32 *)(temp_16 + 0x80) * *(f32 *)(temp_16 + 0x2C);
                 work.scaled.y = *(f32 *)(temp_16 + 0x84) * *(f32 *)(temp_16 + 0x2C);
                 work.scaled.z = *(f32 *)(temp_16 + 0x88) * *(f32 *)(temp_16 + 0x2C);
-                func_003dcb40(&work.transformed, &work.scaled, 1,
+                RtQuatTransformVectors(&work.transformed, &work.scaled, 1,
                               (void *)(temp_16 + 0x1C));
                 var_f12 = work.transformed.x
                     + (f32)((*(s16 *)(temp_16 + 0x94) * 0x19) - 0x6D6)
@@ -1098,7 +1097,7 @@ s32 func_0019ae20(u8 *arg0) {
     }
     t4 = *(u8 **)(t17 + 0xA00);
     if (t4 == NULL) {
-        if (func_004553c0(*(s32 *)(arg0 + 0xC)) != 0) {
+        if (H_Cdvd_IsFileLoaded(*(s32 *)(arg0 + 0xC)) != 0) {
             t4 = (u8 *)func_00477fb0(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), *(s32 *)(arg0 + 0xC), 0);
             *(u8 **)(t17 + 0xA00) = t4;
             func_002311a0((void *)t4);
@@ -1114,10 +1113,10 @@ s32 func_0019ae20(u8 *arg0) {
                 *(u16 *)(t17 + 0x9FE) = func_00145510(*(u16 *)(t17 + 0xA4), *(u8 **)(t17 + 0xA00));
                 func_0014a460(*(u16 *)(t17 + 0x9FE), 1);
                 *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x400;
-                func_004774e0(func_0047a310(*(u8 **)(t17 + 0xA00)));
+                func_004774e0(mdlGetClump(*(u8 **)(t17 + 0xA00)));
             } break;
             case 1: {
-                *(u16 *)(t17 + 0x9FE) = func_00145510(func_001925b0(), *(u8 **)(t17 + 0xA00));
+                *(u16 *)(t17 + 0x9FE) = func_00145510(btlFindFreeCharResId(), *(u8 **)(t17 + 0xA00));
                 func_0014a460(*(u16 *)(t17 + 0x9FE), 1);
                 t16_flags = *(u16 *)((*(u16 *)(t17 + 0xA4) * 0xE8) + iGpffffb3cc + 0x18);
                 if (t16_flags & 2) {
@@ -1193,7 +1192,7 @@ s32 func_0019ae20(u8 *arg0) {
             }
         }
         if (*(s32 *)(arg0 + 0xC) != 0) {
-            func_00454bd0(*(s32 *)(arg0 + 0xC));
+            H_Cdvd_Destroy(*(s32 *)(arg0 + 0xC));
         }
         t3 = *(u8 *)(t17 + 0xA2);
         if (t3 == 1 || t3 == 0) {
@@ -1216,7 +1215,7 @@ s32 func_0019ae20(u8 *arg0) {
             mat.flags = 3;
             func_0047a1c0(*(u8 **)(t17 + 0xA00), &mat, 0);
             sp100[0] = sp100[1] = sp100[2] = *(f32 *)(t17 + 0x2C);
-            func_0047a1e0(*(u8 **)(t17 + 0xA00), sp100, 2);
+            mdlScale(*(u8 **)(t17 + 0xA00), sp100, 2);
             sp100[0] = *(f32 *)(t17 + 4) + *(f32 *)(t17 + 0x10);
             sp100[1] = *(f32 *)(t17 + 8) + *(f32 *)(t17 + 0x14);
             sp100[2] = *(f32 *)(t17 + 0xC) + *(f32 *)(t17 + 0x18);

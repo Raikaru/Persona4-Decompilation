@@ -3,7 +3,7 @@
 #include "type.h"
 
 extern void func_0046d730(const void *file, u32 line);
-extern void *func_0043f9c8(void *dest, s32 value, s32 size);
+extern void *memset(void *dest, s32 value, s32 size);
 extern s32 func_0023a620(s32 arg0, u16 arg1);
 extern char D_005E4318[];
 extern s16 D_00797F88[];
@@ -26,7 +26,7 @@ static inline s32 datPersonaOrFlag(s32 flags, s32 mask)
     return flags | mask;
 }
 
-extern void func_0043f810(void *dst, void *src, u32 size);
+extern void memcpy(void *dst, void *src, u32 size);
 extern void func_0010c9e0(u8 *arg0);
 extern void func_0010fde0(u8 *arg0);
 
@@ -712,11 +712,11 @@ s32 func_0010ae30(s32 arg0)
     }
     selected = func_0010b460();
     for (i = (s16)arg0; (s32)i < 0xB; i++) {
-        func_0043f810((u8 *)D_007973A0 + (s32)i * 0x30 + 0xBEC,
+        memcpy((u8 *)D_007973A0 + (s32)i * 0x30 + 0xBEC,
                       (u8 *)D_007973A0 + ((s32)i + 1) * 0x30 + 0xBEC,
                       0x30);
     }
-    func_0043f9c8(D_0079819C, 0, 0x30);
+    memset(D_0079819C, 0, 0x30);
     count = func_0010b5b0() & 0xFFFF;
     j = 0;
     selected32 = selected;
@@ -801,7 +801,7 @@ done:
         return 0;
     }
     entry = (u8 *)D_007973A0 + found * 0x30 + 0xBEC;
-    func_0043f810(entry, arg0, 0x30);
+    memcpy(entry, arg0, 0x30);
     *(u16 *)((u8 *)D_00797F8C + found * 0x30) &= 0xC;
     *(u16 *)((u8 *)D_00797F8C + found * 0x30) |= 1;
     func_0010fde0(entry);
@@ -963,7 +963,7 @@ u16 func_0010b6f0(void)
 // FUN_0010B7C0
 void func_0010b7c0(void)
 {
-    func_0043f9c8((void *)D_00797F8C, 0, 0x240);
+    memset((void *)D_00797F8C, 0, 0x240);
 }
 
 /* measured: retail loads the count-select constants with daddiu (the
@@ -1005,15 +1005,15 @@ valid_index:
         func_0046d730(D_005E4318, 0x50C);
     }
     if (index != 0) {
-        func_0043f810(sp30, (u8 *)D_007973A0 + temp_off + 0xBEC, 0x30);
+        memcpy(sp30, (u8 *)D_007973A0 + temp_off + 0xBEC, 0x30);
         i = (s16)index;
         while (i > 0) {
-            func_0043f810((u8 *)D_007973A0 + i * 0x30 + 0xBEC,
+            memcpy((u8 *)D_007973A0 + i * 0x30 + 0xBEC,
                           (u8 *)D_007973A0 + (i - 1) * 0x30 + 0xBEC,
                           0x30);
             i--;
         }
-        func_0043f810((void *)D_00797F8C, sp30, 0x30);
+        memcpy((void *)D_00797F8C, sp30, 0x30);
         D_00797F88[0] = 0;
     }
 }
@@ -1142,9 +1142,9 @@ void func_0010bd90(s16 arg0)
 
     if (v == 1) {
         D_00797F88[0] = -1;
-        func_0043f9c8((void *)D_00797F8C, 0, 0x240);
+        memset((void *)D_00797F8C, 0, 0x240);
     } else {
-        func_0043f9c8((void *)((u8 *)D_00796E50 + (v - 2) * 0x88 + 0x54), 0, 0x30);
+        memset((void *)((u8 *)D_00796E50 + (v - 2) * 0x88 + 0x54), 0, 0x30);
     }
 }
 
@@ -1244,7 +1244,7 @@ void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2)
     if (pid == 0 || pid >= 0x100) {
         func_0046d730(D_005E4318, 0x56D);
     }
-    func_0043f9c8(arg1, 0, 0x88);
+    memset(arg1, 0, 0x88);
     for (statIndex = 0; (statIndex & 0xFFFF) < 5; statIndex = (statIndex + 1) & 0xFFFF) {
         if ((statIndex & 0xFFFF) >= 5) {
             func_0046d730(D_005E4318, 0x1DE);
@@ -1571,10 +1571,10 @@ void func_0010cad0(u8 *arg0, u16 arg1)
         *(s32 *)(arg0 + 8) = func_0010c750(arg0, entry[3]);
     }
     *(s32 *)(arg0 + 0x2C) = 0;
-    func_0043f810(arg0 + 0x1C, iGpffffb3d4 + offset + 4, 5);
-    func_0043f9c8(arg0 + 0x21, 0, 5);
-    func_0043f9c8(arg0 + 0x26, 0, 5);
-    func_0043f9c8(arg0 + 0xC, 0, 0x10);
+    memcpy(arg0 + 0x1C, iGpffffb3d4 + offset + 4, 5);
+    memset(arg0 + 0x21, 0, 5);
+    memset(arg0 + 0x26, 0, 5);
+    memset(arg0 + 0xC, 0, 0x10);
     func_0010be60(arg0, buf, 0);
     func_0010c5a0(arg0, buf);
     func_0010d150(arg0);

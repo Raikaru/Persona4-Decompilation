@@ -35,18 +35,18 @@ extern u8 D_00609498[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *D_0076449C;
 extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
-extern void func_00194ee0(void *arg0, void *arg1);
-extern void func_00194f10(void *arg0, void *arg1);
-extern s32 func_00196b50(void *arg0);
+extern void btlUnitSetPos(void *arg0, void *arg1);
+extern void btlUnitSetRot(void *arg0, void *arg1);
+extern s32 btlUnitIsMoving(void *arg0);
 extern void func_00196b70(void *arg0);
 extern void func_00196ba0(void *arg0);
 extern void func_0019dea0(void *arg0);
 extern void func_001ee490(void *arg0);
 extern u8 *func_001b1510(void);
 extern void func_001d1680(s32 arg0, s32 arg1);
-extern u32 func_00232710(s32 arg0, u32 arg1);
-extern s32 func_002428f0(u32 arg0, u32 arg1);
-extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
+extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern s32 datCalcIsDead(u32 arg0, u32 arg1);
+extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 
 typedef struct BtlFormationState
 {
@@ -161,10 +161,10 @@ static inline f32 formationRadius(const u8 *unit)
 // FUN_001D1F30
 u32 func_001d1f30(u32 *work)
 {
-    extern void func_00194ee0(struct BtlUnit *, const struct RwV3d *);
-    extern void func_00194f10(struct BtlUnit *, const struct RtQuat *);
+    extern void btlUnitSetPos(struct BtlUnit *, const struct RwV3d *);
+    extern void btlUnitSetRot(struct BtlUnit *, const struct RtQuat *);
     extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
-    extern void func_00195850(struct BtlUnit *, struct RwV3d *);
+    extern void btlUnitGetSphereWorldCenter(struct BtlUnit *, struct RwV3d *);
     extern void func_00195aa0(struct BtlUnit *, struct BtlUnit *, struct RwV3d *);
     extern void func_001958f0(struct BtlUnit *, struct RwV3d *);
     extern f32 func_00196040(u32, u32, struct RwV3d *, f32 *, f32 *, u32);
@@ -175,9 +175,9 @@ u32 func_001d1f30(u32 *work)
     extern u16 func_001eb440(struct BtlTarget *);
     extern void func_001ec1c0(u8 *, u8 *, u8 *);
     extern f32 func_001ec3d0(u8 *, u8 *, u8 *, u8 *);
-    extern struct RwV3d *func_003dcb40(struct RwV3d *, const struct RwV3d *, s32, const struct RtQuat *);
-    extern f32 func_003e4180(f32 *vector);
-    extern f32 func_003e41b0(f32 *vector);
+    extern struct RwV3d *RtQuatTransformVectors(struct RwV3d *, const struct RwV3d *, s32, const struct RtQuat *);
+    extern f32 RwV3dLength(f32 *vector);
+    extern f32 RwV2dLength(f32 *vector);
     extern s32 func_001f0ff0(u32 action);
     extern s32 func_001f11e0(s64 action);
     extern s32 func_0022fb90(struct BtlUnit *, struct BtlUnit *);
@@ -266,32 +266,32 @@ u32 func_001d1f30(u32 *work)
                 *(u32 *)(iGpffffb3ac + 0xC) |= 0x400000;
                 *(u16 *)(iGpffffb3ac + 0x18) |= 0xE;
             }
-            func_00195850((struct BtlUnit *)(unitB), (struct RwV3d *)(centerA));
+            btlUnitGetSphereWorldCenter((struct BtlUnit *)(unitB), (struct RwV3d *)(centerA));
             func_00195aa0((struct BtlUnit *)(other), (struct BtlUnit *)(unitB), (struct RwV3d *)((f32 *)&centerB));
             centerB.v[1] = *(f32 *)(unitB + 8);
             centerA[1] = centerB.v[1];
             if (work[2] == 1 && other != unitB && func_0022fce0((s32)(unitB), (s32)(other)) != 0) {
                 if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
-                    func_00195850((struct BtlUnit *)(other), (struct RwV3d *)((f32 *)&tmpF0));
+                    btlUnitGetSphereWorldCenter((struct BtlUnit *)(other), (struct RwV3d *)((f32 *)&tmpF0));
                     func_001ec1c0((u8 *)(quat), (u8 *)((f32 *)&tmpF0), (u8 *)(centerA));
                     centerX = *(f32 *)(other + 0x80);
                     scale = *(f32 *)(other + 0x2C);
                     dest[0] = centerX * scale;
                     dest[1] = *(f32 *)(other + 0x84) * scale;
                     dest[2] = *(f32 *)(other + 0x88) * scale;
-                    func_003dcb40((struct RwV3d *)(diff), (const struct RwV3d *)(dest), 1, (const struct RtQuat *)(quat));
+                    RtQuatTransformVectors((struct RwV3d *)(diff), (const struct RwV3d *)(dest), 1, (const struct RtQuat *)(quat));
                     dest[0] = tmpF0.v[0] - diff[0];
                     dest[1] = tmpF0.v[1] - diff[1];
                     dest[2] = tmpF0.v[2] - diff[2];
                     tmpF0.v[1] = *(f32 *)(other + 8);
                     dest[1] = tmpF0.v[1];
-                    func_00194ee0((struct BtlUnit *)(other), (const struct RwV3d *)(dest));
+                    btlUnitSetPos((struct BtlUnit *)(other), (const struct RwV3d *)(dest));
                     func_001ec1c0((u8 *)(quat), (u8 *)(dest), (u8 *)(unitB + 4));
-                    func_00194f10((struct BtlUnit *)(other), (const struct RtQuat *)(quat));
+                    btlUnitSetRot((struct BtlUnit *)(other), (const struct RtQuat *)(quat));
                     centerB = tmpF0;
                 } else {
                     func_001ec1c0((u8 *)(quat), (u8 *)((f32 *)&centerB), (u8 *)(centerA));
-                    func_00194f10((struct BtlUnit *)(other), (const struct RtQuat *)(quat));
+                    btlUnitSetRot((struct BtlUnit *)(other), (const struct RtQuat *)(quat));
                 }
                 func_00196ba0(other);
                 func_0019dea0(other);
@@ -301,7 +301,7 @@ u32 func_001d1f30(u32 *work)
                 diff[1] = centerA[1] - centerB.v[1];
                 diff[2] = centerA[2] - centerB.v[2];
                 diff[1] = 0.0f;
-                len = func_003e40b0(diff, diff);
+                len = RwV3dNormalize(diff, diff);
                 radiusA = *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
                 extraDistance = 0.0f;
                 /* The null-companion path supplies no isClose value in
@@ -329,7 +329,7 @@ u32 func_001d1f30(u32 *work)
                     diff[1] = centerB.v[1] - centerA[1];
                     diff[2] = centerB.v[2] - centerA[2];
                     diff[1] = 0.0f;
-                    func_003e40b0(diff, diff);
+                    RwV3dNormalize(diff, diff);
                     diff[0] *= 1000.0f;
                     diff[1] *= 1000.0f;
                     diff[2] *= 1000.0f;
@@ -340,12 +340,12 @@ u32 func_001d1f30(u32 *work)
                     diff[1] = dest[1] - tmpD0[1];
                     diff[2] = dest[2] - tmpD0[2];
                     diff[1] = 0.0f;
-                    func_003e40b0(diff, diff);
+                    RwV3dNormalize(diff, diff);
                     tmpD0[0] = dest[0] - centerB.v[0];
                     tmpD0[1] = dest[1] - centerB.v[1];
                     tmpD0[2] = dest[2] - centerB.v[2];
                     tmpD0[1] = 0.0f;
-                    extent = func_003e4180(tmpD0);
+                    extent = RwV3dLength(tmpD0);
                     companionScale = *(f32 *)(entry + 0x2C);
                     radiusB = *(f32 *)(entry + 0x90) * companionScale;
                     adj = extent - radiusB;
@@ -360,7 +360,7 @@ u32 func_001d1f30(u32 *work)
                             tmp100[1] = centerA[1] - dest[1];
                             tmp100[2] = centerA[2] - dest[2];
                             tmp100[1] = 0.0f;
-                            extraDistance = func_003e40b0(tmp100, tmp100);
+                            extraDistance = RwV3dNormalize(tmp100, tmp100);
                         }
                     } else {
                         radiusA = radiusB;
@@ -370,7 +370,7 @@ u32 func_001d1f30(u32 *work)
                         tmp100[0] = dest[0] - centerA[0];
                         tmp100[1] = dest[1] - centerA[1];
                         tmp100[2] = dest[2] - centerA[2];
-                        extraDistance = func_003e4180(tmp100);
+                        extraDistance = RwV3dLength(tmp100);
                         if (extraDistance + (adj + radiusB) <= len) {
                             extraDistance = 0.0f;
                         } else {
@@ -397,7 +397,7 @@ u32 func_001d1f30(u32 *work)
                     dest[0] = centerB.v[0] + diff[0];
                     dest[1] = centerB.v[1] + diff[1];
                     dest[2] = centerB.v[2] + diff[2];
-                    func_00194ee0((struct BtlUnit *)(unitB), (const struct RwV3d *)(dest));
+                    btlUnitSetPos((struct BtlUnit *)(unitB), (const struct RwV3d *)(dest));
                 }
             }
         } else {
@@ -408,13 +408,13 @@ u32 func_001d1f30(u32 *work)
                         actionTarget = *(u8 **)(base + (u32)i * 4 + 0x38);
                         if ((*(u16 *)(actionTarget + 0x1A) & 1) != 0 && actionTarget != base) {
                             func_001ec1c0((u8 *)(quat), (u8 *)(*(u8 **)(actionTarget + 0x30) + 4), (u8 *)(unitB + 4));
-                            func_00194f10((struct BtlUnit *)(*(u8 **)(actionTarget + 0x30)), (const struct RtQuat *)(quat));
+                            btlUnitSetRot((struct BtlUnit *)(*(u8 **)(actionTarget + 0x30)), (const struct RtQuat *)(quat));
                             func_00196ba0(*(u8 **)(actionTarget + 0x30));
                             func_0019dea0(*(u8 **)(actionTarget + 0x30));
                         }
                     }
                 }
-                func_00195850((struct BtlUnit *)(unitB), (struct RwV3d *)(centerA));
+                btlUnitGetSphereWorldCenter((struct BtlUnit *)(unitB), (struct RwV3d *)(centerA));
                 /* An empty filtered group leaves X/Z unwritten, as in
                  * retail. Only Y is replaced before using the center. */
                 func_00196040(2, 0, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
@@ -435,7 +435,7 @@ u32 func_001d1f30(u32 *work)
                         func_001ec3d0((u8 *)(query), (u8 *)(line), (u8 *)(delta), (u8 *)(projection));
                         delta[0] = query[0] - projection[0];
                         delta[1] = query[1] - projection[1];
-                        dist2 = func_003e41b0(delta);
+                        dist2 = RwV2dLength(delta);
                         if (dist2 < bestLen || bestFlag == 1) {
                             tmpE0.v[0] = projection[0];
                             tmpE0.v[1] = centerA[1];
@@ -454,7 +454,7 @@ u32 func_001d1f30(u32 *work)
                     projectedZ = tmpE0.v[2];
                     diff[2] = centerA[2] - projectedZ;
                     diff[1] = 0.0f;
-                    func_003e40b0(diff, diff);
+                    RwV3dNormalize(diff, diff);
                     adj = (0.0f + minimumSpacing) + *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
                     diff[0] *= adj;
                     diff[1] *= adj;
@@ -462,18 +462,18 @@ u32 func_001d1f30(u32 *work)
                     dest[0] = tmpE0.v[0] + diff[0];
                     dest[1] = projectedY + diff[1];
                     dest[2] = projectedZ + diff[2];
-                    func_00194ee0((struct BtlUnit *)(unitB), (const struct RwV3d *)(dest));
+                    btlUnitSetPos((struct BtlUnit *)(unitB), (const struct RwV3d *)(dest));
                 }
             } else if ((*(u32 *)(iGpffffb3ac + 0x10) & 0x80) != 0) {
                 func_00196040(2, 0, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
                 for (spacingNode = *(u8 **)(iGpffffb3ac + 0x17C); spacingNode != NULL; spacingNode = *(u8 **)(spacingNode + 0xA68)) {
                     if ((*(u32 *)(spacingNode + 0x9C) & 8) != 0) {
-                        func_00195850((struct BtlUnit *)(spacingNode), (struct RwV3d *)(centerA));
+                        btlUnitGetSphereWorldCenter((struct BtlUnit *)(spacingNode), (struct RwV3d *)(centerA));
                         diff[0] = centerA[0] - centerB.v[0];
                         diff[1] = centerA[1] - centerB.v[1];
                         diff[2] = centerA[2] - centerB.v[2];
                         diff[1] = 0.0f;
-                        func_003e40b0(diff, diff);
+                        RwV3dNormalize(diff, diff);
                         diff[0] *= 200.0f;
                         diff[1] *= 200.0f;
                         diff[2] *= 200.0f;
@@ -481,7 +481,7 @@ u32 func_001d1f30(u32 *work)
                         dest[0] += diff[0];
                         dest[1] += diff[1];
                         dest[2] += diff[2];
-                        func_00194ee0((struct BtlUnit *)(spacingNode), (const struct RwV3d *)(dest));
+                        btlUnitSetPos((struct BtlUnit *)(spacingNode), (const struct RwV3d *)(dest));
                     }
                 }
                 *(u32 *)(iGpffffb3ac + 0xC) |= 0x400000;
@@ -502,7 +502,7 @@ u32 func_001d1f30(u32 *work)
         }
         found = 0;
         groupUnit = *(u8 **)(base + 0x30);
-        func_00195850((struct BtlUnit *)(groupUnit), (struct RwV3d *)(centerA));
+        btlUnitGetSphereWorldCenter((struct BtlUnit *)(groupUnit), (struct RwV3d *)(centerA));
         groupRadius = *(f32 *)(groupUnit + 0x90) * *(f32 *)(groupUnit + 0x2C);
         if (work[2] == 1) {
             func_00196040(targetCount, 1, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
@@ -516,7 +516,7 @@ u32 func_001d1f30(u32 *work)
                     diff[0] = centerB.v[0] - tmpF0.v[0];
                     diff[1] = centerB.v[1] - tmpF0.v[1];
                     diff[2] = centerB.v[2] - tmpF0.v[2];
-                    extent = func_003e4180(diff);
+                    extent = RwV3dLength(diff);
                     if (!(extent <= farthestDistance)) {
                         best = tmpF0;
                         farthestDistance = extent;
@@ -524,7 +524,7 @@ u32 func_001d1f30(u32 *work)
                 }
             }
             func_001ec1c0((u8 *)(quat), (u8 *)(centerA), (u8 *)((f32 *)&best));
-            func_00194f10((struct BtlUnit *)(groupUnit), (const struct RtQuat *)(quat));
+            btlUnitSetRot((struct BtlUnit *)(groupUnit), (const struct RtQuat *)(quat));
             func_00196ba0(groupUnit);
             func_0019dea0(groupUnit);
         }
@@ -535,7 +535,7 @@ u32 func_001d1f30(u32 *work)
                 diff[1] = centerB.v[1] - centerA[1];
                 diff[2] = centerB.v[2] - centerA[2];
                 diff[1] = 0.0f;
-                groupDistance = func_003e40b0(diff, diff);
+                groupDistance = RwV3dNormalize(diff, diff);
                 scale = (0.0f + groupRadius) + fGpffff809c * (groupDistance - groupRadius);
                 if (scale < groupDistance && !(scale <= 300.0f)) {
                     diff[0] *= scale;
@@ -545,7 +545,7 @@ u32 func_001d1f30(u32 *work)
                     dest[1] = centerA[1] + diff[1];
                     dest[2] = centerA[2] + diff[2];
                     dest[1] = 0.0f;
-                    func_00194ee0((struct BtlUnit *)(groupNode), (const struct RwV3d *)(dest));
+                    btlUnitSetPos((struct BtlUnit *)(groupNode), (const struct RwV3d *)(dest));
                     found = 1;
                 }
             }
@@ -628,13 +628,13 @@ static inline u32 placeFormation(BtlFormationPlacementWork *work, u8 *node, u8 *
             func_001951f0(node, unit, NULL, category, frame.position, frame.rotation, 1);
             break;
         }
-        func_00194f10(node, frame.rotation);
-        func_00194ee0(node, frame.position);
+        btlUnitSetRot(node, frame.rotation);
+        btlUnitSetPos(node, frame.position);
     } else {
         func_001951f0(node, unit, *(u8 **)(work->partnerAction + 0x30),
                       category, frame.position, frame.rotation, 2);
-        func_00194f10(node, frame.rotation);
-        func_00194ee0(node, frame.position);
+        btlUnitSetRot(node, frame.rotation);
+        btlUnitSetPos(node, frame.position);
     }
     return 1;
 }
@@ -691,7 +691,7 @@ u32 func_001d3090(u32 *work)
     extern void func_00195590(void *arg0, void *arg1);
     extern f32 func_00196bd0(void *arg0, void *arg1, s32 arg2);
     extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
-    extern void func_003dcb40(void *out, const void *in, s32 count, const void *rot);
+    extern void RtQuatTransformVectors(void *out, const void *in, s32 count, const void *rot);
     extern f32 D_0060A0E0[3];
     extern f32 D_0060A0F0[3];
 
@@ -712,14 +712,14 @@ u32 func_001d3090(u32 *work)
         diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
         diff[2] = *(f32 *)((u8 *)work[0] + 0xc) - *(f32 *)((u8 *)work[1] + 0xc);
         diff[1] = 0.0f;
-        func_003e40b0(diff, diff);
+        RwV3dNormalize(diff, diff);
         diff[0] *= 100.0f;
         diff[1] *= 100.0f;
         diff[2] *= 100.0f;
         dest[0] = *(f32 *)((u8 *)work[1] + 4) + diff[0];
         dest[1] = *(f32 *)((u8 *)work[1] + 8) + diff[1];
         dest[2] = *(f32 *)((u8 *)work[1] + 0xc) + diff[2];
-        func_00194ee0((void *)work[0], dest);
+        btlUnitSetPos((void *)work[0], dest);
         break;
     case 1:
         func_00196b70((void *)work[0]);
@@ -730,18 +730,18 @@ u32 func_001d3090(u32 *work)
         diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
         diff[2] = *(f32 *)((u8 *)work[0] + 0xc) - *(f32 *)((u8 *)work[1] + 0xc);
         diff[1] = 0.0f;
-        func_003e40b0(diff, diff);
+        RwV3dNormalize(diff, diff);
         diff[0] *= 150.0f;
         diff[1] *= 150.0f;
         diff[2] *= 150.0f;
         dest[0] = *(f32 *)((u8 *)work[1] + 4) + diff[0];
         dest[1] = *(f32 *)((u8 *)work[1] + 8) + diff[1];
         dest[2] = *(f32 *)((u8 *)work[1] + 0xc) + diff[2];
-        func_00194ee0((void *)work[0], dest);
+        btlUnitSetPos((void *)work[0], dest);
         break;
     case 2:
-        func_00194ee0((void *)work[0], (u8 *)work[1] + 4);
-        func_00194f10((void *)work[0], (u8 *)work[1] + 0x1c);
+        btlUnitSetPos((void *)work[0], (u8 *)work[1] + 4);
+        btlUnitSetRot((void *)work[0], (u8 *)work[1] + 0x1c);
         break;
     case 3:
         rotation = *(RtQuat *)((u8 *)work[1] + 0x1c);
@@ -750,14 +750,14 @@ u32 func_001d3090(u32 *work)
         } else {
             func_003dc740(&rotation, D_0060A0E0, 2, 130.0f);
         }
-        func_003dcb40(diff, D_0060A0F0, 1, &rotation);
+        RtQuatTransformVectors(diff, D_0060A0F0, 1, &rotation);
         diff[0] *= 250.0f;
         diff[1] *= 250.0f;
         diff[2] *= 250.0f;
         dest[0] = *(f32 *)((u8 *)work[0] + 4) + diff[0];
         dest[1] = *(f32 *)((u8 *)work[0] + 8) + diff[1];
         dest[2] = *(f32 *)((u8 *)work[0] + 0xc) + diff[2];
-        func_00194ee0((void *)work[1], dest);
+        btlUnitSetPos((void *)work[1], dest);
         break;
     case 4:
         func_00196b70((void *)work[0]);
@@ -769,14 +769,14 @@ u32 func_001d3090(u32 *work)
         diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
         diff[2] = *(f32 *)((u8 *)work[0] + 0xc) - *(f32 *)((u8 *)work[1] + 0xc);
         diff[1] = 0.0f;
-        func_003e40b0(diff, diff);
+        RwV3dNormalize(diff, diff);
         diff[0] *= scale;
         diff[1] *= scale;
         diff[2] *= scale;
         dest[0] = *(f32 *)((u8 *)work[1] + 4) + diff[0];
         dest[1] = *(f32 *)((u8 *)work[1] + 8) + diff[1];
         dest[2] = *(f32 *)((u8 *)work[1] + 0xc) + diff[2];
-        func_00194ee0((void *)work[0], dest);
+        btlUnitSetPos((void *)work[0], dest);
         break;
     }
     return 1;
@@ -818,15 +818,15 @@ u32 func_001d35a0(u16 *arg0)
             var_20 = *(u8 **)(D_0076449C + var_19 * 8 + 0x178);
             while (var_20 != NULL) {
                 if (((*(u32 *)(var_20 + 0x9c) & 4) != 0) &&
-                    ((temp_17 == 0) || (func_00196b50(var_20) == 0))) {
+                    ((temp_17 == 0) || (btlUnitIsMoving(var_20) == 0))) {
                     func_00194ff0(var_20, sp80, sp70, NULL);
                     if (temp_16 != 0) {
-                        func_00194ee0(var_20, sp80);
+                        btlUnitSetPos(var_20, sp80);
                         func_00196b70(var_20);
                         func_001ee490(var_20);
                     }
                     if (temp_21 != 0) {
-                        func_00194f10(var_20, sp70);
+                        btlUnitSetRot(var_20, sp70);
                         func_00196ba0(var_20);
                         func_0019dea0(var_20);
                     }
@@ -869,8 +869,8 @@ u32 func_001d3760(u16 *arg0)
     if ((*arg0 & 1) != 0) {
         var_17 = *(u8 **)(D_0076449C + 0x178);
         while (var_17 != NULL) {
-            if ((func_00232710((s32)*(u32 *)(var_17 + 0xa64), 0x180017) == 0) &&
-                (func_002428f0(*(u32 *)(var_17 + 0xa64), 0) == 0)) {
+            if ((datCalcChkBadStatus((s32)*(u32 *)(var_17 + 0xa64), 0x180017) == 0) &&
+                (datCalcIsDead(*(u32 *)(var_17 + 0xa64), 0) == 0)) {
                 if (*(u8 **)(temp_16 + 0x30) == var_17) {
                     var_f20 = 250.0f;
                 } else {
@@ -881,7 +881,7 @@ u32 func_001d3760(u16 *arg0)
                 sp40[0] = sp60[0] - sp50[0];
                 sp40[1] = sp60[1] - sp60[1];
                 sp40[2] = sp60[2] - sp50[2];
-                func_003e40b0(&sp40[0], &sp40[0]);
+                RwV3dNormalize(&sp40[0], &sp40[0]);
                 temp_f3 = sp40[0] * var_f20;
                 sp40[0] = temp_f3;
                 temp_f2 = sp40[1] * var_f20;
@@ -891,7 +891,7 @@ u32 func_001d3760(u16 *arg0)
                 sp60[0] += temp_f3;
                 sp60[1] += temp_f2;
                 sp60[2] += temp_f1;
-                func_00194ee0(var_17, sp60);
+                btlUnitSetPos(var_17, sp60);
             }
             var_17 = *(u8 **)(var_17 + 0xa6c);
         }
@@ -950,7 +950,7 @@ u32 func_001d3950(u8 **param_1)
     current = *(u8 **)(D_0076449C + 0x17c);
     while (current != NULL) {
         if (((*(u32 *)(current + 0x9c) & 8) != 0) &&
-            (func_002428f0(*(u32 *)(current + 0xa64), 0) == 0)) {
+            (datCalcIsDead(*(u32 *)(current + 0xa64), 0) == 0)) {
             if (*(u8 **)(*param_1 + 0x30) == current) {
                 {
                     u64 default_pair = D_00881430.whole;
@@ -971,7 +971,7 @@ u32 func_001d3950(u8 **param_1)
             scratch.position_z =
                 (f32)((s32)*(s16 *)(current + 0x96) * 25 - 1750);
             if (*(u8 **)(*param_1 + 0x30) != current) {
-                func_003e40b0(scratch.delta, scratch.position.values);
+                RwV3dNormalize(scratch.delta, scratch.position.values);
                 {
                     f32 scale;
                     scale = D_00609458[index & 0xffff];
@@ -984,8 +984,8 @@ u32 func_001d3950(u8 **param_1)
                 }
                 index++;
             }
-            func_00194ee0(current, scratch.position.values);
-            func_00194f10(current, D_0060A110);
+            btlUnitSetPos(current, scratch.position.values);
+            btlUnitSetRot(current, D_0060A110);
         }
         current = *(u8 **)(current + 0xa68);
     }
@@ -1023,15 +1023,15 @@ u32 func_001d3ba0(void)
     u8 *node;
     f32 *offset;
     extern u8 D_00609470[];
-    extern void func_003dcb40(void *out, const void *in, s32 count, const void *rot);
+    extern void RtQuatTransformVectors(void *out, const void *in, s32 count, const void *rot);
 
     node = *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30);
     func_00194ff0(node, vectors.base, vectors.offsets, NULL);
     func_00196b70(node);
     func_00196ba0(node);
-    func_00194ee0(node, vectors.base);
-    func_00194f10(node, vectors.offsets);
-    func_003dcb40(vectors.transformed, D_00609470, 3, vectors.offsets);
+    btlUnitSetPos(node, vectors.base);
+    btlUnitSetRot(node, vectors.offsets);
+    RtQuatTransformVectors(vectors.transformed, D_00609470, 3, vectors.offsets);
     index = 0;
     while (index < *(u16 *)(D_0076449C + 0xc58)) {
         {
@@ -1046,8 +1046,8 @@ u32 func_001d3ba0(void)
         vectors.result[2] = vectors.base[2] + offset[2];
         func_00196b70(node);
         func_00196ba0(node);
-        func_00194ee0(node, vectors.result);
-        func_00194f10(node, vectors.offsets);
+        btlUnitSetPos(node, vectors.result);
+        btlUnitSetRot(node, vectors.offsets);
         index++;
     }
     return 1;

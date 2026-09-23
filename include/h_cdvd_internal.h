@@ -88,18 +88,18 @@ extern u32 D_008873ec[];
 
 extern void func_004244c8(const char* message, ...);
 extern s32 func_00440b68(const char* message, ...);
-extern s32 func_004426e8(const char* left, const char* right);
+extern s32 strcmp(const char* left, const char* right);
 extern void func_00454640(void);
-extern void func_00454d20(const char* source, char* destination);
+extern void H_Cdvd_BuildPathUppercase(const char* source, char* destination);
 extern void func_00454e10(const char* path, char* fileName, char* directory);
-extern void func_00455100(const char* source, char* destination);
+extern void H_Cdvd_NormalizePath(const char* source, char* destination);
 extern void func_00455230(const char* directory);
-extern u32 func_004553c0(HCdvd* cdvd);
+extern u32 H_Cdvd_IsFileLoaded(HCdvd* cdvd);
 extern ADXF func_004c85a0(const char* path, s32 mode);
 extern void func_004c8a60(ADXF adxf);
 extern void func_004d6f78(void* stream, const char* fileName);
 extern void* func_004d9020(void);
 extern void func_0050c008(void* handle, const char* fileName);
-extern void func_0050ff20(void* handle, const char* fileName);
+extern void mwPlyStartFnameLp(void* handle, const char* fileName);
 
 #endif

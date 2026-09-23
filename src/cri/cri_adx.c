@@ -1,7 +1,7 @@
 /* Source unit: src/cri/cri_adx_004e7798.c (1 function markers) */
 #include "type.h"
 
-int func_004e77c0(void);
+int htCiGetFileSize(void);
 
 u64 func_004e8058(void);
 
@@ -17,7 +17,7 @@ u32 func_00527960(int param_1,int param_2);
 // FUN_004E7798
 long func_004e7798(void)
 {
-    return func_004e77c0();
+    return htCiGetFileSize();
 }
 #pragma optimization_level 2
 

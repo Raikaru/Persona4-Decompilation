@@ -5,7 +5,7 @@
 
 void func_0044ea90(const void *msg, s32 id);
 void func_0046d730(const void *file, s32 line);
-void func_0043f9c8(void *dst, s32 value, u32 size);
+void memset(void *dst, s32 value, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern char D_0063FC38[];
@@ -45,7 +45,7 @@ u8 *func_002e1d00(s32 arg0) {
     if (node == NULL) {
         func_0046d730(&D_0063FC38, 0x5E);
     }
-    func_0043f9c8(node, 0, size);
+    memset(node, 0, size);
     if (arg0 != 0) {
         *(u8 **)(node + 0x14) = node + 0x18;
     }
@@ -68,7 +68,7 @@ u8 *func_002e1db0(s32 arg0, code arg1, code arg2, code arg3) {
     if (node == NULL) {
         func_0046d730(&D_0063FC38, 0x35);
     }
-    func_0043f9c8(node, 0, size);
+    memset(node, 0, size);
     if (arg0 != 0) {
         *(u8 **)(node + 0x24) = node + 0x28;
     }
@@ -97,7 +97,7 @@ void func_002e1ef0(u8 *arg0) {
     if (arg0 == NULL) {
         func_0046d730(&D_0063FC38, 0x49);
     }
-    func_0043f9c8(arg0, 0, ((NmlistManager *)arg0)->size);
+    memset(arg0, 0, ((NmlistManager *)arg0)->size);
     (*jtbl_008873EC)(arg0);
 }
 

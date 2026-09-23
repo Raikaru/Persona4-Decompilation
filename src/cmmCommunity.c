@@ -5,7 +5,7 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 
-extern void *func_0043f9c8(void *dest, s32 value, s32 size);
+extern void *memset(void *dest, s32 value, s32 size);
 extern s32 func_00452380(void *path);
 extern u32 func_00452560(s32 task);
 extern void func_0046d730(const void *file, u32 line);
@@ -152,7 +152,7 @@ void func_00106f40(s32 arg0) {
 // FUN_001070B0
 void func_001070b0(void)
 {
-    func_0043f9c8(D_0079740C, 0, 0x158);
+    memset(D_0079740C, 0, 0x158);
 }
 
 // FUN_001070E0
@@ -344,7 +344,7 @@ ret:
     if ((arg0 & 0xFFFF) == 0) {
         func_0046d730(D_005E42C8, 0x108);
     }
-    func_0043f9c8(r, 0, 0x10);
+    memset(r, 0, 0x10);
     *(s32 *)r = 0;
     *(s16 *)(r + 4) = arg0;
     *(s16 *)(r + 6) = 1;
@@ -404,7 +404,7 @@ void func_001076e0(s32 arg0) {
     r = NULL;
 ret:
     if (r != NULL) {
-        func_0043f9c8(r, 0, 0x10);
+        memset(r, 0, 0x10);
         if (id <= 0) {
             func_0046d730(D_005E42C8, 0x27);
         }

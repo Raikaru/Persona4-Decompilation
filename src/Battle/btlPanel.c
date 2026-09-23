@@ -15,9 +15,9 @@ struct BtlPanel
 
 void func_00440b68();
 extern u8* func_00454a60(u8* param, s32 mode);
-void func_00454bd0(u8* ptr);
-s32 func_004553c0(u8* ptr);
-s32 func_00106330(s32 id);
+void H_Cdvd_Destroy(u8* ptr);
+s32 H_Cdvd_IsFileLoaded(u8* ptr);
+s32 datGetFlag(s32 id);
 s32 func_0019ef90(s32 a, s32 b);
 s32 func_0046b000(u32 param);
 s32 func_0046a750(s32 param);
@@ -30,8 +30,8 @@ extern u8 D_00626790[];
 extern u8 D_006267B0[];
 extern u32 D_00626720[];
 extern u8* func_00194470(u32 type, u32 workSize);
-void func_0043f9c8(void* dst, s32 value, u32 size);
-void func_00456150(u8* ptr);
+void memset(void* dst, s32 value, u32 size);
+void H_Cdvd_ReadSync(u8* ptr);
 s32 func_00481360(s32 param);
 extern s32 iGpffffb470;
 extern u8 D_006267D0[];
@@ -59,7 +59,7 @@ s32 func_00202890(void* param)
     case 0:
         rec = panel->records;
         if (rec == NULL) {
-            if (func_00106330(0x1438) == 0) {
+            if (datGetFlag(0x1438) == 0) {
                 func_00440b68(&iGpffffa578, D_00626780, 0x532);
                 panel->records = func_00454a60(D_00626790, 1);
             } else {
@@ -68,14 +68,14 @@ s32 func_00202890(void* param)
             }
             goto check;
         }
-        if (func_004553c0(rec) != 0) {
+        if (H_Cdvd_IsFileLoaded(rec) != 0) {
             panel->state = 1;
         case 1:
             idx = panel->index;
             if (recs->resources[panel->index] == 0) {
                 if (idx < 8) {
                     if (func_0019ef90(0, (idx + 1) & 0xFFFF) != 0) {
-                        if (func_00106330(0x1438) == 0 || idx != 0) {
+                        if (datGetFlag(0x1438) == 0 || idx != 0) {
                             recs->resources[idx] = func_0046b000(D_00626720[idx]);
                         } else {
                             recs->resources[idx] = func_0046b000(iGpffffa570);
@@ -89,7 +89,7 @@ s32 func_00202890(void* param)
                 }
             } else if (func_0046a750(recs->resources[panel->index]) != 0) {
                 if (++panel->index == 0xC) {
-                    func_00454bd0(panel->records);
+                    H_Cdvd_Destroy(panel->records);
                     panel->records = NULL;
                     done = 0xC;
                 }
@@ -123,7 +123,7 @@ u8* func_00202b60(s32 param)
     p[0x47] &= 0xFE;
     *(u32*)(p + 0x6C) = (u32)func_00202890;
     rec = *(u8**)(p + 0x78);
-    func_0043f9c8(rec, 0, 0x40);
+    memset(rec, 0, 0x40);
     *(s32*)(rec + 0x34) = param;
     return p;
 }
@@ -137,7 +137,7 @@ void func_00202be0(void)
 
     func_00440b68(&iGpffffa578, D_00626780, 0x5FB);
     t = func_00454a60(D_006267D0, 0);
-    func_00456150(t);
+    H_Cdvd_ReadSync(t);
     iGpffffb470 = func_00481360(*(s32*)(t + 0x110));
-    func_00454bd0(t);
+    H_Cdvd_Destroy(t);
 }

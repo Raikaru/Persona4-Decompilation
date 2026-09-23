@@ -4,7 +4,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 
-extern void func_00454bd0(void *arg0);
+extern void H_Cdvd_Destroy(void *arg0);
 extern void func_003e0f40(void *arg0);
 extern void func_00145080(void);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -23,7 +23,7 @@ extern void *func_003e0f80(void);
 extern void func_00144c90(s32 arg0, s32 arg1);
 extern void func_00144ed0(s64 arg0);
 extern s64 func_001546a0(s32 arg0, s32 arg1);
-extern s32 func_0014bdb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00144f60(void);
 extern s32 func_0015f660(void);
 extern s64 func_001060b0(void);
@@ -33,7 +33,7 @@ extern u8 *func_0014b490(void);
 extern u8 *func_0014b450(void);
 extern u8 *func_00457120(void);
 extern f32 func_0014b4d0(void);
-extern void func_004577d0(u8 *arg0, f32 arg1);
+extern void K_View_SetFov(u8 *arg0, f32 arg1);
 extern void func_003e9cb0(s32 arg0, u8 *arg1, s32 arg2);
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00452490(s32 arg0);
@@ -67,10 +67,10 @@ s32 func_0018d950(u8 *arg0) {
         *(u8 **)(temp_16 + 4) = (u8 *)func_003e0f80();
         func_00144c90(9, 1);
         func_00144ed0((s64)(s16)func_001546a0(9, 1));
-        if (func_0014bdb0(4, 1, 7, 0x1F) == 1) {
+        if (clndIsDateInRange(4, 1, 7, 0x1F) == 1) {
             func_00440b68(&iGpffff9f90, D_005F5450, 0x58);
             *(u8 **)(temp_16 + 8) = (u8 *)func_00454a60(D_005F5470, 0);
-        } else if (func_0014bdb0(8, 1, 0xB, 0x1E) == 1) {
+        } else if (clndIsDateInRange(8, 1, 0xB, 0x1E) == 1) {
             func_00440b68(&iGpffff9f90, D_005F5450, 0x5C);
             *(u8 **)(temp_16 + 8) = (u8 *)func_00454a60(D_005F5490, 0);
         } else {
@@ -80,7 +80,7 @@ s32 func_0018d950(u8 *arg0) {
         *(s32 *)temp_16 += 1;
     case 1:
         if (func_00144f60() != 0) {
-            if (func_004553c0(*(u8 **)(temp_16 + 8)) == 0) {
+            if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_16 + 8)) == 0) {
                 return 0;
             }
             if (func_0015f660() == 0) {
@@ -115,7 +115,7 @@ s32 func_0018d950(u8 *arg0) {
                 } while (var_5 > 0);
             }
             temp_17_2 = (u8 *)func_00457120();
-            func_004577d0(temp_17_2, func_0014b4d0());
+            K_View_SetFov(temp_17_2, func_0014b4d0());
             temp_17_2 = (u8 *)func_00457120();
             func_003e9cb0(*(s32 *)(temp_17_2 + 4), *(u8 **)(temp_16 + 4), 0);
             temp_2_2 = *(u8 **)(temp_16 + 8);
@@ -158,7 +158,7 @@ void func_0018dcd0(u8 *arg0)
     u8 *work;
 
     work = *(u8 **)(arg0 + 0x38);
-    func_00454bd0(*(void **)(work + 8));
+    H_Cdvd_Destroy(*(void **)(work + 8));
     func_003e0f40(*(void **)(work + 4));
     func_00145080();
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));

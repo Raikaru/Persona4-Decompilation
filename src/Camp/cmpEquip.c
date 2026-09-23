@@ -11,7 +11,7 @@ s32 func_00106600(s16 id);
 s32 func_00106c30(s16 arg0, s16 arg1);
 s32 func_00106c80(s16 arg0);
 s16 func_00353ce0(void *arg0);
-void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+void memset(void *arg0, s32 arg1, s32 arg2);
 void *func_0046a770(void *arg0);
 s32 func_0046d200(void *arg0, s8 arg1);
 void func_0046d730(void *arg0, s32 arg1);
@@ -57,7 +57,7 @@ void func_001312b0(u8 *arg0)
     f32 float_value;
     s8 byte;
 
-    func_0043f9c8(arg0, 0, 0x1598);
+    memset(arg0, 0, 0x1598);
     base = arg0;
     *(s32 *)(base + 4) = 0;
     *(s32 *)(base + 8) = 0;

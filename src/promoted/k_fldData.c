@@ -61,15 +61,15 @@ extern char D_005F1030[];
 extern u8 D_005F1050[];
 
 extern u8 *func_00454a60(u8 *path, s32 mode);
-extern void func_00456150(HCdvd *file);
+extern void H_Cdvd_ReadSync(HCdvd *file);
 extern void *func_00477f10(void *kind, void *id, s32 memory, s32 size, u32 flags);
-extern s32 func_00442088(char *buf, const char *fmt, ...);
+extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 func_0015cf70(void);
 extern s32 func_00161510(void);
 extern s32 func_004782b0(u8 *model);
 
-extern void *func_0043f810(void *destination, const void *source, u32 size);
-extern u32 func_00454bd0(HCdvd *file);
+extern void *memcpy(void *destination, const void *source, u32 size);
+extern u32 H_Cdvd_Destroy(HCdvd *file);
 extern s32 func_0015d000(u8 *arg0);
 extern s32 func_001615a0(u8 *file);
 extern s32 func_0045b1c0(void *parent, s32 kind, s32 buffer, void *name);
@@ -168,18 +168,18 @@ s32 func_0015d730(u8 *task)
     case 0:
         func_00440b68(&D_00762FC8, D_005F0A88, 0xE6);
         baseModelFile = (HCdvd *)func_00454a60((u8 *)D_005F0AF8, 0);
-        func_00456150(baseModelFile);
+        H_Cdvd_ReadSync(baseModelFile);
         baseModelKind = (void *)4;
         baseModelId = (void *)0x7D0;
         D_00764364 = (s32)func_00477f10(baseModelKind, baseModelId,
                                       (s32)baseModelFile->fileMemory, (s32)baseModelFile->fileSize, 0);
-        func_00442088(mapPath, D_005F0A70);
+        sprintf(mapPath, D_005F0A70);
         func_00440b68(&D_00762FC8, D_005F0A88, 0x6B);
         work->mapFile = (HCdvd *)func_00454a60((u8 *)mapPath, 1);
-        func_00442088(scriptPath, D_005F0AA0);
+        sprintf(scriptPath, D_005F0AA0);
         func_00440b68(&D_00762FC8, D_005F0A88, 0x89);
         work->fieldScript = (HCdvd *)func_00454a60((u8 *)scriptPath, 0);
-        func_00442088(dungeonPath, D_005F0AC0);
+        sprintf(dungeonPath, D_005F0AC0);
         func_00440b68(&D_00762FC8, D_005F0A88, 0xA9);
         work->dungeonTable = (HCdvd *)func_00454a60((u8 *)dungeonPath, 0);
         work->npcTable = (HCdvd *)func_0015cf70();
@@ -208,21 +208,21 @@ s32 func_0015d730(u8 *task)
         /* Start polling after queuing the first-stage resources. */
     case 1:
         if (fldDataModelReady()) {
-            if (func_004553c0(work->mapFile) == 0) {
+            if (H_Cdvd_IsFileLoaded(work->mapFile) == 0) {
                 return 0;
             }
             scriptFile = work->fieldScript;
             if (scriptFile == NULL) {
                 scriptReady = 1;
-            } else if (func_004553c0(scriptFile) != 0) {
+            } else if (H_Cdvd_IsFileLoaded(scriptFile) != 0) {
                 func_0044ea90(D_005F0A88, 0x94);
                 scriptAllocationSize = scriptFile->fileSize;
                 scriptMemory = (u16 *)D_008873F4[0](1, scriptAllocationSize, 0x40000);
                 iGpffffb284 = (s32)scriptMemory;
                 iGpffffb280 = (s32)scriptFile->fileSize;
                 scriptCopySize = scriptFile->fileSize;
-                func_0043f810(scriptMemory, scriptFile->fileMemory, scriptCopySize);
-                func_00454bd0(scriptFile);
+                memcpy(scriptMemory, scriptFile->fileMemory, scriptCopySize);
+                H_Cdvd_Destroy(scriptFile);
                 scriptReady = 1;
             } else {
                 scriptReady = 0;
@@ -234,15 +234,15 @@ s32 func_0015d730(u8 *task)
             dungeonFile = work->dungeonTable;
             if (dungeonFile == NULL) {
                 dungeonReady = 1;
-            } else if (func_004553c0(dungeonFile) == 0) {
+            } else if (H_Cdvd_IsFileLoaded(dungeonFile) == 0) {
                 dungeonReady = 0;
             } else {
                 if (dungeonFile->fileSize >= 0xC00U) {
                     func_0046d730(D_005F0A88, 0xB3);
                 }
                 dungeonCopySize = dungeonFile->fileSize;
-                func_0043f810(D_007E3720, dungeonFile->fileMemory, dungeonCopySize);
-                func_00454bd0(dungeonFile);
+                memcpy(D_007E3720, dungeonFile->fileMemory, dungeonCopySize);
+                H_Cdvd_Destroy(dungeonFile);
                 dungeonReady = 1;
             }
             if (dungeonReady == 0) {
@@ -257,28 +257,28 @@ s32 func_0015d730(u8 *task)
                 return 0;
             }
             work->unitTable = NULL;
-            if (func_004553c0(work->rainModels[0]) == 0) {
+            if (H_Cdvd_IsFileLoaded(work->rainModels[0]) == 0) {
                 return 0;
             }
-            if (func_004553c0(work->rainModels[1]) == 0) {
+            if (H_Cdvd_IsFileLoaded(work->rainModels[1]) == 0) {
                 return 0;
             }
-            if (func_004553c0(work->televisionModels[0]) == 0) {
+            if (H_Cdvd_IsFileLoaded(work->televisionModels[0]) == 0) {
                 return 0;
             }
-            if (func_004553c0(work->televisionModels[1]) == 0) {
+            if (H_Cdvd_IsFileLoaded(work->televisionModels[1]) == 0) {
                 return 0;
             }
-            if (func_004553c0(work->supportScript) == 0) {
+            if (H_Cdvd_IsFileLoaded(work->supportScript) == 0) {
                 return 0;
             }
-            if (func_004553c0((HCdvd *)((u8 *)D_007E3710[0])) == 0) {
+            if (H_Cdvd_IsFileLoaded((HCdvd *)((u8 *)D_007E3710[0])) == 0) {
                 return 0;
             }
-            if (func_004553c0((HCdvd *)((u8 *)D_007E3714[0])) == 0) {
+            if (H_Cdvd_IsFileLoaded((HCdvd *)((u8 *)D_007E3714[0])) == 0) {
                 return 0;
             }
-            if (func_004553c0((HCdvd *)((u8 *)D_007E3718[0])) == 0) {
+            if (H_Cdvd_IsFileLoaded((HCdvd *)((u8 *)D_007E3718[0])) == 0) {
                 return 0;
             }
             soundRequest = iGpffffb26c;
@@ -393,14 +393,14 @@ television_texture_test:
         iGpffffb27c = (s32)supportMemory;
         supportFile = work->supportScript;
         supportCopySize = supportFile->fileSize;
-        func_0043f810(supportMemory, supportFile->fileMemory, supportCopySize);
+        memcpy(supportMemory, supportFile->fileMemory, supportCopySize);
         iGpffffb278 = (s32)work->supportScript->fileSize;
-        func_00454bd0(work->mapFile);
-        func_00454bd0(work->rainModels[0]);
-        func_00454bd0(work->rainModels[1]);
-        func_00454bd0(work->televisionModels[0]);
-        func_00454bd0(work->televisionModels[1]);
-        func_00454bd0(work->supportScript);
+        H_Cdvd_Destroy(work->mapFile);
+        H_Cdvd_Destroy(work->rainModels[0]);
+        H_Cdvd_Destroy(work->rainModels[1]);
+        H_Cdvd_Destroy(work->televisionModels[0]);
+        H_Cdvd_Destroy(work->televisionModels[1]);
+        H_Cdvd_Destroy(work->supportScript);
         work->mipmapTask = func_0018c580(task);
         work->state = work->state + 1;
         break;

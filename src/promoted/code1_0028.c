@@ -55,7 +55,7 @@ extern s32 func_00285dd0(u8 *task);
 extern void func_0028ad90(u8 *arg0, s32 arg1);
 extern void func_002865e0(UnkStruct_002865E0 *arg0);
 extern u8 *func_00457120(void);
-extern f32 func_00457850(u8 *arg0);
+extern f32 K_View_GetFov(u8 *arg0);
 extern s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00293fc0(s32 arg0);
 extern u8 *func_00294040(s32 arg0);
@@ -73,7 +73,7 @@ extern void func_00298100(s32 arg0);
 extern void func_0028b7b0(u8 *arg0);
 extern void func_0028b320(u8 *arg0, s32 arg1);
 extern void func_0028b550(u8 *arg0);
-extern void func_00442088(void *arg0, ...);
+extern void sprintf(void *arg0, ...);
 extern s32 func_0045b170(s32 arg0);
 extern s32 func_0045b1c0(s32 arg0, s32 arg1, s32 arg2, void *arg3);
 extern char D_0063C340[];
@@ -95,7 +95,7 @@ static inline s32 func_0028_sum(u16 arg0, s16 arg1) {
 }
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 *func_001452b0(s32 arg0);
-extern s32 func_00145300(s32 arg0);
+extern s32 MT_Scene_GetTotalResInList(s32 arg0);
 
 extern u8 iGpffffa790;
 
@@ -105,7 +105,7 @@ extern void func_0014a300(u16 resTypeId, u32 customLight);
 extern void *func_0014b000(void);
 extern void *func_0014b040(void);
 extern void *func_0014b080(void);
-extern void func_003e0870(void *dst, void *src, f32 angle, s32 mode);
+extern void RwMatrixRotate(void *dst, void *src, f32 angle, s32 mode);
 extern u8 D_005EFA10[];
 extern u8 D_005EFA20[];
 extern void func_0028c580(u8 *arg0, u8 *arg1, u8 *arg2);
@@ -248,7 +248,7 @@ s32 func_00285dd0(u8 *sdkTaskBytes) {
             func_0028ad90(data, (*(u32 *)data & 0x80000000) != 0);
             func_002865e0((UnkStruct_002865E0 *)data);
             *(u32 *)data |= 1;
-            *(f32 *)(data + 0x750) = func_00457850(func_00457120());
+            *(f32 *)(data + 0x750) = K_View_GetFov(func_00457120());
             *(s32 *)(data + 0x77C) =
                 func_00293ed0(*(s32 *)(data + 0x78C),
                               *(s32 *)(data + 0x790),
@@ -322,10 +322,10 @@ func_00285dd0_loop_check:
         *(s32 *)(data + 0x76C) = 13;
         if (*(s8 *)(data + 0x44) & 1) {
             if (*(s32 *)(data + 0x78C) >= 500) {
-                func_00442088(path, D_0063C340,
+                sprintf(path, D_0063C340,
                               *(s32 *)(data + 0x78C));
             } else {
-                func_00442088(path, D_0063C350,
+                sprintf(path, D_0063C350,
                               *(s32 *)(data + 0x78C),
                               *(s32 *)(data + 0x790));
             }
@@ -456,10 +456,10 @@ s32 func_00286430(u8 *arg0) {
             break;
         }
         if (*(s16 *)(arg0 + 0xA) == 0) {
-            case_zero = func_00106330(*(s16 *)(arg0 + 8) + a1) == 0;
+            case_zero = datGetFlag(*(s16 *)(arg0 + 8) + a1) == 0;
             return case_zero;
         }
-        val = func_00106330(*(s16 *)(arg0 + 8) + a1) == 1;
+        val = datGetFlag(*(s16 *)(arg0 + 8) + a1) == 1;
         return val;
     case 3:
         val = func_00286350();
@@ -472,7 +472,7 @@ s32 func_00286430(u8 *arg0) {
         goto fail;
     default:
         func_00440b68(D_0063C380, *(s32 *)(arg0 + 0x38));
-        func_0043f9c8(arg0 + 8, 0, 8);
+        memset(arg0 + 8, 0, 8);
         return 1;
     }
 fail:
@@ -1214,9 +1214,9 @@ void func_0028c3f0(u8 *arg0)
 
     count = 0;
     i = 0;
-    count += func_00145300(3);
-    count += func_00145300(1);
-    count += func_00145300(0xC);
+    count += MT_Scene_GetTotalResInList(3);
+    count += MT_Scene_GetTotalResInList(1);
+    count += MT_Scene_GetTotalResInList(0xC);
     if (count < 0x33) {
         node1 = func_001452b0(3);
         while (node1 != NULL) {
@@ -1435,8 +1435,8 @@ void func_0028c580(u8 *arg0, u8 *arg1, u8 *arg2) {
         matA[13] = 0.0f;
         matA[14] = 0.0f;
         *(s32 *)&matA[3] |= 0x20003;
-        func_003e0870(matA, D_005EFA20, ang2c, 1);
-        func_003e0870(matA, D_005EFA10, ang28, 1);
+        RwMatrixRotate(matA, D_005EFA20, ang2c, 1);
+        RwMatrixRotate(matA, D_005EFA10, ang28, 1);
         src = (s32 *)matA;
         dst = (s32 *)(arg1 + 0x190);
         n = 8;
@@ -1495,8 +1495,8 @@ void func_0028c580(u8 *arg0, u8 *arg1, u8 *arg2) {
         matB[13] = 0.0f;
         matB[14] = 0.0f;
         *(s32 *)&matB[3] |= 0x20003;
-        func_003e0870(matB, D_005EFA20, ang2c, 1);
-        func_003e0870(matB, D_005EFA10, ang28, 1);
+        RwMatrixRotate(matB, D_005EFA20, ang2c, 1);
+        RwMatrixRotate(matB, D_005EFA10, ang28, 1);
         src = (s32 *)matB;
         dst = (s32 *)(arg1 + 0x190);
         n = 8;
@@ -1532,8 +1532,8 @@ void func_0028c580(u8 *arg0, u8 *arg1, u8 *arg2) {
         matC[13] = 0.0f;
         matC[14] = 0.0f;
         *(s32 *)&matC[3] |= 0x20003;
-        func_003e0870(matC, D_005EFA20, ang2c, 1);
-        func_003e0870(matC, D_005EFA10, ang28, 1);
+        RwMatrixRotate(matC, D_005EFA20, ang2c, 1);
+        RwMatrixRotate(matC, D_005EFA10, ang28, 1);
         src = (s32 *)matC;
         dst = (s32 *)(arg1 + 0x160);
         n = 8;

@@ -6,10 +6,10 @@ extern u8 D_008C0680[];
 extern u8 D_008C0780[];
 extern u8 D_008C0880[];
 extern u8 D_005BC790[];
-void func_00454d20(void* a0, void* a1);
+void H_Cdvd_BuildPathUppercase(void* a0, void* a1);
 void func_00454e10(void* a0, void* a1, void* a2);
 s32 func_004c74f8(void* a0, void* a1, void* a2, void* a3);
-void func_0043f810(void* dst, void* src, u32 size);
+void memcpy(void* dst, void* src, u32 size);
 typedef void *ADXF;
 
 typedef struct HCdvd {
@@ -48,12 +48,12 @@ extern char D_007116D0[];
 extern char D_00710870[];
 void func_0046d740(const void* file, const void* file2, u32 line);
 void func_0044ea90(const void* file, s32 line);
-void func_00455100(void* a0, void* a1);
-s32 func_004426e8(void* a0, void* a1);
-void func_004504f0(void* a0, void* a1);
+void H_Cdvd_NormalizePath(void* a0, void* a1);
+s32 strcmp(void* a0, void* a1);
+void H_Dbprt_FmtLog(void* a0, void* a1);
 void func_00440b68();
 s16 func_0044ec40(void);
-void func_00454f50(void* a0, void* a1, void* a2);
+void H_Cdvd_BuildVolumePaths(void* a0, void* a1, void* a2);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_008D1B80[];
 extern u8* D_008D1B84[];
@@ -232,13 +232,13 @@ u8* func_00454a60(u8* arg0, s32 arg1) {
     u8* node;
     u8* newnode;
 
-    func_004504f0(D_00710900, arg0);
+    H_Dbprt_FmtLog(D_00710900, arg0);
     node = D_008D1B80;
-    func_00454d20(arg0, buf);
+    H_Cdvd_BuildPathUppercase(arg0, buf);
     func_00440b68(D_00710910, arg0);
     if (D_008D1B84[0] != NULL) {
         while (1) {
-            if (func_004426e8(buf, node + 0x10) == 0) {
+            if (strcmp(buf, node + 0x10) == 0) {
                 *(s16*)(node + 0x35A) = (s16)(*(s16*)(node + 0x35A) + 1);
                 return node;
             }
@@ -250,8 +250,8 @@ u8* func_00454a60(u8* arg0, s32 arg1) {
     }
     func_0044ea90(D_00710870, 0x198);
     newnode = D_008873F4[0](1, 0x364, 0x40000);
-    func_00454d20(arg0, newnode + 0x10);
-    func_00454f50(newnode + 0x10, newnode + 0x158, newnode + 0x258);
+    H_Cdvd_BuildPathUppercase(arg0, newnode + 0x10);
+    H_Cdvd_BuildVolumePaths(newnode + 0x10, newnode + 0x158, newnode + 0x258);
     *(s32*)(newnode + 0xC) = 0;
     *(u8**)(node + 4) = newnode;
     *(u8**)(newnode + 0) = node;
@@ -463,7 +463,7 @@ void func_00455d70(u8* arg0, u8* arg1, u8* arg2, u8* arg3) {
             *(s32*)(D_008C8808 + i * 0x94) = (s32)arg1;
             *(s32*)(D_008C880C + i * 0x94) = (s32)arg2;
             *(s32*)(D_008C8810 + i * 0x94) = 0;
-            func_0043f810((u8*)D_008C8780 + i * 0x94 + 8, arg3, 0x80);
+            memcpy((u8*)D_008C8780 + i * 0x94 + 8, arg3, 0x80);
             return;
         }
         if (i == 0xFF) {
@@ -488,11 +488,11 @@ u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2) {
     }
     entry = *(u8 **)(arg0 + 0x110);
     for (i = 0; i < arg1; i++) {
-        func_0043f810(header, entry, 0x100);
+        memcpy(header, entry, 0x100);
         entry += 0x100;
         entry += ((*(s32 *)(header + 0xFC) + 0x3F) / 64) * 64;
     }
-    func_0043f810(header, entry, 0x100);
+    memcpy(header, entry, 0x100);
     *arg2 = *(s32 *)(header + 0xFC);
     return entry + 0x100;
 }
@@ -510,12 +510,12 @@ s32 func_00455f70(s32 arg0, s32* arg1) {
     if (arg0 == 1) {
         return 0;
     }
-    func_00454d20((void*)arg0, buf1);
-    func_00455100(buf1, buf2);
+    H_Cdvd_BuildPathUppercase((void*)arg0, buf1);
+    H_Cdvd_NormalizePath(buf1, buf2);
     for (i = 0; i < 0x100; i++) {
         if (*(s32*)((u8*)D_008C8780 + i * 0x94) != 0) {
-            func_00455100((u8*)D_008C8780 + i * 0x94 + 8, buf3);
-            if (func_004426e8(buf3, buf2) == 0) {
+            H_Cdvd_NormalizePath((u8*)D_008C8780 + i * 0x94 + 8, buf3);
+            if (strcmp(buf3, buf2) == 0) {
                 *arg1 = *(s32*)(D_008C880C + i * 0x94);
                 return *(s32*)(D_008C8808 + i * 0x94);
             }
@@ -526,7 +526,7 @@ s32 func_00455f70(s32 arg0, s32* arg1) {
 
 // FUN_00456250
 s32 func_00456250(s32 arg0, void* arg1, s32 arg2, void* arg3) {
-    func_00454d20(arg1, D_008C0680);
+    H_Cdvd_BuildPathUppercase(arg1, D_008C0680);
     func_00454e10(D_008C0680, D_008C0780, D_008C0880);
     func_004c74f8((void*)arg0, D_008C0780, D_005BC790, arg3);
     return 0;
@@ -543,7 +543,7 @@ void func_00456400(s32 arg0, s32 arg1, s32 arg2, u8* arg3) {
             *(s32*)(D_008C8808 + i * 0x94) = arg1;
             *(s32*)(D_008C880C + i * 0x94) = arg2;
             *(s32*)(D_008C8810 + i * 0x94) = 0;
-            func_0043f810((u8*)D_008C8780 + i * 0x94 + 8, arg3, 0x80);
+            memcpy((u8*)D_008C8780 + i * 0x94 + 8, arg3, 0x80);
             return;
         }
         if (i == 0xFF) {

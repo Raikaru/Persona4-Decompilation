@@ -19,9 +19,9 @@ extern void func_003e9390();
 extern void func_003c4220();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_0048a150();
-extern void func_003e0a90(void *arg0, f32 *arg1, s32 arg2);
-extern void func_003e0c90(void *arg0, void *arg1, s32 arg2);
-extern void func_003e05f0(void *arg0, void *arg1, void *arg2);
+extern void RwMatrixScale(void *arg0, f32 *arg1, s32 arg2);
+extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
+extern void RwMatrixMultiply(void *arg0, void *arg1, void *arg2);
 extern void func_003a2950();
 extern void func_0046d730(void *file, s32 line);
 extern u8 D_00713448[];
@@ -30,19 +30,19 @@ extern RwFrame *func_003e9320(void);
 extern RpAtomic *func_003c00e0(void);
 extern RpMaterial *func_003c4140(void);
 extern RpGeometry *func_003c2630(s32 arg0, s32 arg1, u32 arg2);
-extern RpAtomic *func_003c1b90(RpAtomic *atomic, RwFrame *frame);
+extern RpAtomic *RpAtomicSetFrame(RpAtomic *atomic, RwFrame *frame);
 extern RpAtomic *func_003c0210(RpAtomic *atomic, RpGeometry *geometry, u32 flags);
 extern s32 func_003c2a80(RpGeometry *geometry);
-extern void *func_0043f9c8(void *dst, s32 value, u32 size);
+extern void *memset(void *dst, s32 value, u32 size);
 extern void func_0044ea90(const void *file, s32 line);
 extern f32 fGpffff8078;
 extern s32 iGpffffb610;
 extern s32 func_003a2340();
 extern u8 D_00713460[];
-extern void func_0043f810(void *dst, const void *src, u32 size);
+extern void memcpy(void *dst, const void *src, u32 size);
 extern s32 func_003c2130(void *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
-extern u8 *func_003c2290(u8 *arg0, s32 arg1);
+extern u8 *RpGeometryLock(u8 *arg0, s32 arg1);
 extern void func_003c22f0(void *arg0);
 
 typedef struct RwV3d
@@ -90,7 +90,7 @@ u8 *func_00482c40(s32 arg0, s32 arg1, s32 arg2) {
     t16 = (s32)func_003c00e0();
     t23 = (s32)func_003c4140();
     obj = func_003c2630(arg0, arg1, arg2);
-    func_003c1b90((RpAtomic *)t16, (RwFrame *)t22);
+    RpAtomicSetFrame((RpAtomic *)t16, (RwFrame *)t22);
     vec.x = 0.0f;
     vec.y = 0.0f;
     vec.z = 0.0f;
@@ -108,7 +108,7 @@ u8 *func_00482c40(s32 arg0, s32 arg1, s32 arg2) {
     *(s32 *)((u8 *)p + 0xC) = t22;
     *(s32 *)((u8 *)p + 0x10) = t16;
     *(s32 *)((u8 *)p + 0x14) = t23;
-    func_0043f9c8((u8 *)p + 0x18, 0, 0x30);
+    memset((u8 *)p + 0x18, 0, 0x30);
     *(s16 *)((u8 *)p + 0x30) = 0x15;
     *(void **)((u8 *)p + 0x34) = p;
     return p;
@@ -228,15 +228,15 @@ u8 *func_004830f0(u16 arg0, s32 arg1) {
     *(s32 *)(p + 0x10) = func_003a2340(arg0 & 0xFFFF, arg1, 2);
     t = (s32)func_003e9320();
     *(s32 *)(p + 0xC) = t;
-    func_003c1b90(*(RpAtomic **)(p + 0x10), (RwFrame *)t);
+    RpAtomicSetFrame(*(RpAtomic **)(p + 0x10), (RwFrame *)t);
     *(s32 *)(*(u8 **)(*(u8 **)(p + 0x10) + iGpffffb610) + 0xB4) = 1;
     if (arg1 & 0x80000) {
-        func_0043f810(*(u8 **)(*(u8 **)(p + 0x10) + iGpffffb610) + 0xE0, D_00713460, 0x10);
+        memcpy(*(u8 **)(*(u8 **)(p + 0x10) + iGpffffb610) + 0xE0, D_00713460, 0x10);
         *(s32 *)(*(u8 **)(*(u8 **)(p + 0x10) + iGpffffb610) + 0x40) |= 0x80000;
     }
     *(s32 *)(*(u8 **)(*(u8 **)(p + 0x10) + iGpffffb610) + 0x40) |= 0x800000;
     *(s32 *)(*(u8 **)(*(u8 **)(p + 0x10) + iGpffffb610) + 4) = 0;
-    func_0043f9c8(p + 0x18, 0, 0x30);
+    memset(p + 0x18, 0, 0x30);
     *(s16 *)(p + 0x30) = 0x15;
     *(u8 **)(p + 0x34) = p;
     return p;
@@ -245,7 +245,7 @@ u8 *func_004830f0(u16 arg0, s32 arg1) {
 // FUN_00483270
 u8 *func_00483270(u8 *arg0) {
     extern u8 *func_003c42b0(void *arg0, s32 arg1);
-    extern u8 *func_003c2290(u8 *arg0, s32 arg1);
+    extern u8 *RpGeometryLock(u8 *arg0, s32 arg1);
     extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
     extern void func_003c22f0(void *arg0);
     u8 *self;
@@ -277,7 +277,7 @@ u8 *func_00483270(u8 *arg0) {
         if (temp_5_2 != 0) {
             func_003c42b0((void *)(u32)temp_16, temp_5_2);
         }
-        func_003c2290(temp_21, 1);
+        RpGeometryLock(temp_21, 1);
         var_20 = *(u8 **)(temp_21 + 0x2C);
         var_19 = *(u8 **)(temp_23 + 0x2C);
         var_22 = 0;
@@ -407,13 +407,13 @@ void func_00483700(RwMatrix *arg0, RwV3d *arg1, void *arg2, f32 fparg0) {
         v[2] = fparg0;
         v[1] = fparg0;
         v[0] = fparg0;
-        func_003e0a90(arg0, v, 2);
+        RwMatrixScale(arg0, v, 2);
     }
     if (arg1 != 0) {
         v[0] = arg1->x;
         v[1] = arg1->y;
         v[2] = arg1->z;
-        func_003e0c90(arg0, v, 2);
+        RwMatrixTranslate(arg0, v, 2);
     }
 }
 
@@ -427,7 +427,7 @@ void func_00483810(RwMatrix *arg0, RwV3d *arg1, void *arg2, RwV3d *arg3) {
         v[0] = arg3->x;
         v[1] = arg3->y;
         v[2] = arg3->z;
-        func_003e0a90(&m, v, 0);
+        RwMatrixScale(&m, v, 0);
     } else {
         m.at.z = 1.0f;
         m.up.y = 1.0f;
@@ -445,7 +445,7 @@ void func_00483810(RwMatrix *arg0, RwV3d *arg1, void *arg2, RwV3d *arg3) {
     }
     if (arg2 != 0) {
         func_0048a150(&out, arg2);
-        func_003e05f0(arg0, &m, &out);
+        RwMatrixMultiply(arg0, &m, &out);
     } else {
         s32 *sp = (s32 *)&m;
         s32 *dp;
@@ -466,7 +466,7 @@ void func_00483810(RwMatrix *arg0, RwV3d *arg1, void *arg2, RwV3d *arg3) {
         v[0] = arg1->x;
         v[1] = arg1->y;
         v[2] = arg1->z;
-        func_003e0c90(arg0, v, 2);
+        RwMatrixTranslate(arg0, v, 2);
     }
 }
 
@@ -527,7 +527,7 @@ u8 *func_00483a00(s32 partCount, s32 verticesPerPart, s32 trianglesPerPart, s32 
             materials[index] = func_003c4140();
             index++;
         }
-        func_003c1b90(atomic, frame);
+        RpAtomicSetFrame(atomic, frame);
         sphere.center.x = 0.0f;
         sphere.center.y = 0.0f;
         sphere.center.z = 0.0f;
@@ -551,7 +551,7 @@ u8 *func_00483a00(s32 partCount, s32 verticesPerPart, s32 trianglesPerPart, s32 
         *(RpMaterial ***)(effect + 0x54) = materials;
         *(u8 *)(effect + 0x51) = *(u8 *)(effect + 0x50) =
             *(u8 *)(effect + 0x4F) = *(u8 *)(effect + 0x4E) = 0xFF;
-        func_0043f9c8(effect + 0x18, 0, 0x30);
+        memset(effect + 0x18, 0, 0x30);
         *(s16 *)(effect + 0x30) = 0x15;
         *(u8 **)(effect + 0x34) = effect;
         return effect;

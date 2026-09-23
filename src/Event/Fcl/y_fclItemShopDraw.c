@@ -56,7 +56,7 @@ extern s32 func_0033cc40(u8 *task);
 void func_0044ea90(const void *, u32);
 
 void func_002e29a0(void);
-void func_00454bd0(void *);
+void H_Cdvd_Destroy(void *);
 void func_0046b0d0(void *);
 s32 func_00106a90(s64);
 void *func_0046d200(void *, s32, ...);
@@ -72,7 +72,7 @@ extern s32 func_00275520(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 a
 extern s16 func_002e2740(s32 arg0);
 extern u32 func_001067f0(s16 arg0);
 extern s32 func_00106600(s16 arg0);
-extern s32 func_00110830(s32 arg0);
+extern s32 clndGetMoonPhase(s32 arg0);
 extern s32 func_002caa10(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern void func_002bc7f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
 extern s16 func_002e2670(void);
@@ -85,7 +85,7 @@ extern u8 D_00795E60[];
 extern u32 func_0033cbc0(void *arg0, s64 arg1);
 s16 func_002b2cb0(s32, s32, s32, s32, s32);
 s16 func_002b2d00(s32, s32, s32, s32, s32);
-void func_0043f810(void *, s32, s32);
+void memcpy(void *, s32, s32);
 s32 func_002b89a0(void *);
 void *func_00460990(void);
 void func_00460ac0(void *, void *);
@@ -99,7 +99,7 @@ extern s32 func_0046aea0(void *);
 extern void func_00440b68(void *, void *, s32);
 extern void *func_00454a60(void *, s32);
 extern s32 func_0046a750(s32);
-extern s32 func_004553c0(void *);
+extern s32 H_Cdvd_IsFileLoaded(void *);
 extern u8 *func_0033d130(void *, s32, s32);
 extern s32 func_00122720(void);
 extern s32 func_002bb680(s8 arg0);
@@ -135,7 +135,7 @@ extern f32 D_0064A330[];
 extern u16 D_008C027A[];
 extern u8 D_007950B0[];
 extern char iGpffffa930;
-extern void func_00442088(void *dst, void *fmt, s32 val);
+extern void sprintf(void *dst, void *fmt, s32 val);
 extern void func_002bbd80(s8 arg0, s32 arg1, void *arg2);
 extern void func_002bafc0(s8 arg0, s32 arg1);
 extern void func_002bb0a0(s8 arg0, s32 arg1);
@@ -270,7 +270,7 @@ s32 func_00332bb0(u8 *arg0) {
         *(s8 *)(work + 0) = 1;
         /* fallthrough */
     case 1:
-        if (func_0046a750(*(s32 *)(work + 0xC)) != 0 && func_004553c0(*(void **)(work + 0x428)) != 0) {
+        if (func_0046a750(*(s32 *)(work + 0xC)) != 0 && H_Cdvd_IsFileLoaded(*(void **)(work + 0x428)) != 0) {
             *(s8 *)(work + 0) = 2;
             g = 0;
             while (((s64)(g << 0x30) >> 0x30) < 0x5A) {
@@ -966,9 +966,9 @@ s32 func_00332bb0(u8 *arg0) {
             if (D_008C024E[0] & 0x40) {
                 func_0045af60(0, 0, 0, 1);
                 *(s8 *)(work + 8) = func_002bab80(*(s32 *)(*(s32 *)(work + 0x428) + 0x110));
-                func_00442088(fbuf, &iGpffffa930, *(s8 *)(work + 3));
+                sprintf(fbuf, &iGpffffa930, *(s8 *)(work + 3));
                 func_002bbd80(*(s8 *)(work + 8), 1, fbuf);
-                func_00442088(fbuf, &iGpffffa930, *(s8 *)(work + 3) * func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))));
+                sprintf(fbuf, &iGpffffa930, *(s8 *)(work + 3) * func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))));
                 func_002bbd80(*(s8 *)(work + 8), 2, fbuf);
                 func_002badc0((s32)*(s8 *)(work + 8), 1);
                 func_002bafc0(*(s8 *)(work + 8), 0);
@@ -1300,7 +1300,7 @@ void func_0033bdc0(u8 *arg0) {
 
     func_002e29a0();
     if (*(s32 *)(work + 0x428) != 0) {
-        func_00454bd0((void *)*(s32 *)(work + 0x428));
+        H_Cdvd_Destroy((void *)*(s32 *)(work + 0x428));
     }
     if (*(s32 *)(work + 0xC) != 0) {
         func_0046b0d0((void *)*(s32 *)(work + 0xC));
@@ -1537,7 +1537,7 @@ void func_0033c490(u8 *arg0)
                                 c19 = 0;
                             } else {
                                 s32 t6 = func_002e2740(w);
-                                if (((u8)func_00110830(t6)) & 1) {
+                                if (((u8)clndGetMoonPhase(t6)) & 1) {
                                     c20 = 0x9F;
                                     c18 = 0x2F;
                                 }
@@ -1592,7 +1592,7 @@ s32 func_0033cc40(u8 *arg0) {
     u8 *callback_work;
 
     callback_work = *(u8 **)((u8 *)arg0 + 0x38);
-    func_0043f810(callback_work + 4, func_002b89a0(callback_work + 4), 0xF0);
+    memcpy(callback_work + 4, func_002b89a0(callback_work + 4), 0xF0);
     if (func_0033d390((u8 *)arg0, 0xA) == 1) {
         temp_4 = *(s16 *)(callback_work + 0x38);
         if (temp_4 == 0) {

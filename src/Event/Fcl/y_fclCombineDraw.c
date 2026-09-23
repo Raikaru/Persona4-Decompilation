@@ -45,12 +45,12 @@ static inline void fclZero8(u8 *p)
    build/continuation-20260921/fcl-worker3/closure-003212e0/stage-final/
    historical-conventions.txt and the recovery notes in docs/probe_archive. */
 extern void func_0044ea90(const void *arg0, u32 arg1);
-extern void *func_0043f9c8(void *dest, s32 value, s32 size);
+extern void *memset(void *dest, s32 value, s32 size);
 
 extern u8 *func_00117780(s32, s32, s32, s32, s32);
 extern s32 func_00314010(u8 *task);
 extern void func_003142f0(u8 *arg0);
-extern s32 func_00106330(s32);
+extern s32 datGetFlag(s32);
 extern s32 func_00452490(void *);
 extern void func_0011b9e0(u8 *arg0);
 extern void func_0011d100(u8 *arg0, f32 *arg1);
@@ -110,7 +110,7 @@ extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32
 extern void func_0046b0d0(u8 *arg0);
 extern void func_003ef3a0(u8 *arg0);
 extern void func_002777f0(s32 arg0);
-extern void func_00454bd0(u8 *arg0);
+extern void H_Cdvd_Destroy(u8 *arg0);
 extern void (*D_008873EC[])(void *);
 extern char D_00644D30[];
 extern char D_00644D50[];
@@ -173,7 +173,7 @@ s32 func_00314320(s32 arg0) {
 
     func_0044ea90(D_00644D30, 0x16D);
     p = (u8 *)D_008873F4[0](1, 0x14, 0x40000);
-    func_0043f9c8(p, 0, 0x14);
+    memset(p, 0, 0x14);
     ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_00644D50), 0xF, 0, 0, func_00314010, func_003142f0, (u8 *)(p));
     *(s8 *)p = 7;
     *(s32 *)(p + 4) = (s32)func_00117780(ret, 0xF, 3, 5, 5);
@@ -453,7 +453,7 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s32 arg4, s32 arg5
         }
         return;
     }
-    if ((func_00106330(0x1305) != 0) && (v21 == 0x160)) {
+    if ((datGetFlag(0x1305) != 0) && (v21 == 0x160)) {
         v20 = v20 + 4;
         f21 = 4.0f + f20;
         f20 = 6.0f + arg2.x;
@@ -601,7 +601,7 @@ void func_00315310(u8 *arg0, s64 arg1) {
     *(s16 *)(t + 0xB8) = 0x15D;
     *(s16 *)(t + 0xBA) = 0x15E;
     *(s16 *)(t + 0xBC) = 0x15F;
-    if (func_00106330(0x1305) != 0) {
+    if (datGetFlag(0x1305) != 0) {
         *(s16 *)(t + 0xBA) = 0x160;
     }
     i = 0;
@@ -621,7 +621,7 @@ void func_00315310(u8 *arg0, s64 arg1) {
     p = func_002b6150((s16)*(s16 *)(addOff(*(s8 *)(t + 0xB3) * 2, (u32)t) + 0xB8));
     *(FclByte4 *)(p + 0x85) = c74;
     if (*(s8 *)(t + 0xB3) == 1) {
-        if (func_00106330(0x1305) != 0) {
+        if (datGetFlag(0x1305) != 0) {
         c70 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
         p = func_002b6150(0x2EB);
         *(FclByte4 *)(p + 0x85) = c70;
@@ -1185,7 +1185,7 @@ void func_00317410(u8 *arg0, s8 arg1) {
     p = func_002b6150((s16)*(s16 *)(v + (s32)t + 0xB8));
     *(FclByte4 *)(p + 0x85) = sp68;
     if (*(s8 *)(t + 0xB3) == 1) {
-        if (func_00106330(0x1305) != 0) {
+        if (datGetFlag(0x1305) != 0) {
             sp64 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
             p = func_002b6150(0x2EB);
             *(FclByte4 *)(p + 0x85) = sp64;
@@ -1223,7 +1223,7 @@ void func_00317410(u8 *arg0, s8 arg1) {
     p = func_002b6150((s16)*(s16 *)(v + (s32)t + 0xB8));
     *(FclByte4 *)(p + 0x85) = sp50;
     if (*(s8 *)(t + 0xB3) == 1) {
-        if (func_00106330(0x1305) != 0) {
+        if (datGetFlag(0x1305) != 0) {
             sp4C = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
             p = func_002b6150(0x2EB);
             *(FclByte4 *)(p + 0x85) = sp4C;
@@ -6902,8 +6902,8 @@ void func_0032e570(u8 *arg0) {
     extern char *D_00644D20;
     extern s32 iGpffffb44c;
     extern int func_00275520(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int unused, void *param);
-    extern void func_00442830(char *dst, const char *src);
-    extern void func_00442428(char *dst, char *src);
+    extern void strcpy(char *dst, const char *src);
+    extern void strcat(char *dst, char *src);
     extern void func_00275980(char *src, char *dst, s32 maxlen);
     extern u8 *func_002b32d0(u8 *arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4);
     extern u8 *func_00243840(s32 arg0);
@@ -6958,10 +6958,10 @@ void func_0032e570(u8 *arg0) {
                 if (id == 0xA) {
                     u16 w = *(u16 *)(e + 2);
                     u8 *s = func_00243840(w);
-                    func_00442830(sp130, (const char *)s);
-                    func_00442830(spB0, D_00644D20);
+                    strcpy(sp130, (const char *)s);
+                    strcpy(spB0, D_00644D20);
                     func_00275980(spB0, spF0, 0x40);
-                    func_00442428(sp130, spF0);
+                    strcat(sp130, spF0);
                     func_00275520(153.0f, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, sp130, 0, 0, D_00795E60);
                 } else {
                     func_00275520(153.0f, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_006430B0[id], 0, 0, D_00795E60);
@@ -6989,7 +6989,7 @@ void func_0032e570(u8 *arg0) {
                 s16 v6 = *(s16 *)(ent + 6);
                 s16 v4 = *(s16 *)(ent + 4);
                 u8 *s;
-                func_00442830(sp130, str0);
+                strcpy(sp130, str0);
                 s = func_002b32d0((u8 *)sp130, (s32)(b440 + v4 * 0x11), (u8 *)(b440 + v6 * 0x11), (u8 *)(b44c + v4 * 0x15), (u8 *)(b44c + v6 * 0x15));
                 func_00275520(153.0f, (f32)((s16)k * 0x19 + 0x56), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, (const char *)s, 0, 0, D_00795E60);
             }
@@ -7005,10 +7005,10 @@ void func_0032e570(u8 *arg0) {
                 if (id == 0xA) {
                     u16 w = *(u16 *)(e + 10);
                     u8 *s = func_00243840(w);
-                    func_00442830(sp130, (const char *)s);
-                    func_00442830(spB0, D_00644D20);
+                    strcpy(sp130, (const char *)s);
+                    strcpy(spB0, D_00644D20);
                     func_00275980(spB0, spF0, 0x40);
-                    func_00442428(sp130, spF0);
+                    strcat(sp130, spF0);
                     func_00275520(153.0f, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, sp130, 0, 0, D_00795E60);
                 } else {
                     func_00275520(153.0f, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_006430B0[id], 0, 0, D_00795E60);
@@ -7140,13 +7140,13 @@ void func_0032f4d0(u8 *arg0) {
     slot = *(s8 *)(t + 0xB7);
     tbl[slot] = sp98;
     *(s8 *)(t + 0xB7) = slot + 1;
-    if (func_00106330(0x1305) != 0) {
+    if (datGetFlag(0x1305) != 0) {
         fclStoreId0032f4d0(0x16B, *(s8 *)(t + 0xB7) * 2, t);
         func_002b2970((u8 *)&sp90, 26.0f, (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
         slot = *(s8 *)(t + 0xB7);
         tbl[slot] = sp90;
         *(s8 *)(t + 0xB7) = slot + 1;
-        if (func_00106330(0x1306) != 0) {
+        if (datGetFlag(0x1306) != 0) {
             fclStoreId0032f4d0(0x16C, *(s8 *)(t + 0xB7) * 2, t);
             func_002b2970((u8 *)&sp88, 26.0f, 20.0f + (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
             slot = *(s8 *)(t + 0xB7);
@@ -7175,7 +7175,7 @@ void func_0032f4d0(u8 *arg0) {
     cB8.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
     cB4.channels = func_002b2a60(0x92, 0xC8, 7, 0xFF);
     func_0032fa30(arg0, r, cBC.bits, cB8.bits, cB4.bits);
-    if (func_00106330(0x1306) != 0) {
+    if (datGetFlag(0x1306) != 0) {
         cB0 = func_002b2a60(0x29, 0x29, 0x29, 0xFF);
         p1 = func_002b6150(0x201);
         *(FclByte4 *)(p1 + 0x85) = cB0;
@@ -7210,7 +7210,7 @@ void func_0032fa30(u8 *arg0, s16 arg1, u32 arg2, u32 arg3, u32 arg4) {
 }
 // FUN_0032FB60
 s8 func_0032fb60(s8 arg0) {
-    if (func_00106330(0x1306)) {
+    if (datGetFlag(0x1306)) {
         arg0 = (s8)(D_00749530[arg0] - 4);
     }
     return arg0;
@@ -7549,16 +7549,16 @@ s32 func_00330f20(u8 *arg0) {
     }
     switch (*(s8 *)(t + 0)) {
     case 0:
-        if (func_004553c0(*(u32 *)(t + 0xC)) == 0) {
+        if (H_Cdvd_IsFileLoaded(*(u32 *)(t + 0xC)) == 0) {
             return 0;
         }
-        if (func_004553c0(*(u32 *)(t + 0x10)) == 0) {
+        if (H_Cdvd_IsFileLoaded(*(u32 *)(t + 0x10)) == 0) {
             return 0;
         }
-        if (func_004553c0(*(u32 *)(t + 0x14)) == 0) {
+        if (H_Cdvd_IsFileLoaded(*(u32 *)(t + 0x14)) == 0) {
             return 0;
         }
-        if (func_004553c0(*(u32 *)(t + 0x18)) == 0) {
+        if (H_Cdvd_IsFileLoaded(*(u32 *)(t + 0x18)) == 0) {
             return 0;
         }
         *(u32 *)(t + 4) = func_0046aea0(D_00644D70);
@@ -7572,7 +7572,7 @@ s32 func_00330f20(u8 *arg0) {
         if (func_0046a750(*(u32 *)(t + 4)) != 0 && func_0046a750(*(u32 *)(t + 8)) != 0) {
             *(u32 *)(t + 0x24) = func_004669d0(*(u32 *)(t + 0x34), &sp3C, 0);
             if (sp3C != 0) {
-                func_00454bd0((u8 *)*(u32 *)(t + 0xC));
+                H_Cdvd_Destroy((u8 *)*(u32 *)(t + 0xC));
                 *(u32 *)(t + 0xC) = 0;
                 *(u32 *)(t + 0x34) = 0;
                 *(s8 *)(t + 0) = (s8)(*(s8 *)(t + 0) + 1);
@@ -7582,7 +7582,7 @@ s32 func_00330f20(u8 *arg0) {
     case 2:
         *(u32 *)(t + 0x28) = func_004669d0(*(u32 *)(t + 0x38), &sp38, 0);
         if (sp38 != 0) {
-            func_00454bd0((u8 *)*(u32 *)(t + 0x10));
+            H_Cdvd_Destroy((u8 *)*(u32 *)(t + 0x10));
             *(u32 *)(t + 0x10) = 0;
             *(u32 *)(t + 0x38) = 0;
             *(s8 *)(t + 0) = (s8)(*(s8 *)(t + 0) + 1);
@@ -7591,7 +7591,7 @@ s32 func_00330f20(u8 *arg0) {
     case 3:
         *(u32 *)(t + 0x2C) = func_004669d0(*(u32 *)(t + 0x3C), &sp34, 0);
         if (sp34 != 0) {
-            func_00454bd0((u8 *)*(u32 *)(t + 0x14));
+            H_Cdvd_Destroy((u8 *)*(u32 *)(t + 0x14));
             *(u32 *)(t + 0x14) = 0;
             *(u32 *)(t + 0x3C) = 0;
             *(s8 *)(t + 0) = (s8)(*(s8 *)(t + 0) + 1);
@@ -7600,14 +7600,14 @@ s32 func_00330f20(u8 *arg0) {
     case 4:
         *(u32 *)(t + 0x30) = func_004669d0(*(u32 *)(t + 0x40), &sp30, 0);
         if (sp30 != 0) {
-            func_00454bd0((u8 *)*(u32 *)(t + 0x18));
+            H_Cdvd_Destroy((u8 *)*(u32 *)(t + 0x18));
             *(u32 *)(t + 0x18) = 0;
             *(u32 *)(t + 0x40) = 0;
             *(s8 *)(t + 0) = (s8)(*(s8 *)(t + 0) + 1);
         }
         break;
     case 5:
-        if (func_004553c0(*(u32 *)(t + 0x1C)) != 0 && func_004553c0(*(u32 *)(t + 0x20)) != 0) {
+        if (H_Cdvd_IsFileLoaded(*(u32 *)(t + 0x1C)) != 0 && H_Cdvd_IsFileLoaded(*(u32 *)(t + 0x20)) != 0) {
             *(s8 *)(t + 0x44) = func_002774d0(func_00455f70(D_00644E30, 0));
             *(s8 *)(t + 0) = (s8)(*(s8 *)(t + 0) + 1);
         }
@@ -7630,8 +7630,8 @@ void func_003312e0(u8 *arg0) {
     func_003ef3a0((u8 *)*(u32 *)(t + 0x2C));
     func_003ef3a0((u8 *)*(u32 *)(t + 0x30));
     func_002777f0(*(s8 *)(t + 0x44));
-    func_00454bd0((u8 *)*(u32 *)(t + 0x1C));
-    func_00454bd0((u8 *)*(u32 *)(t + 0x20));
+    H_Cdvd_Destroy((u8 *)*(u32 *)(t + 0x1C));
+    H_Cdvd_Destroy((u8 *)*(u32 *)(t + 0x20));
     D_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 

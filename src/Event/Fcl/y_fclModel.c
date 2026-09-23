@@ -31,17 +31,17 @@ extern void func_004787e0(u8 *arg0);
 extern void func_00104a00(u8 *arg0);
 extern s32 func_004782b0(u8 *arg0);
 extern void *func_00457120(void);
-extern void func_004577d0(void *arg0, f32 arg1);
+extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void *func_004571a0(void);
 extern void func_003c38b0(void *arg0, void *arg1);
 extern void *func_004571b0(void);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
 extern u8 *func_00104900(s8 arg0);
-extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 arg3);
-extern void func_003e0c90(void *arg0, void *arg1, s32 arg2);
+extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 arg3);
+extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
 extern s32 func_00349c50(u8 *arg0);
 extern u8 *func_00478140(s32, u16, s32);
-extern s32 func_00106330(s32);
+extern s32 datGetFlag(s32);
 extern s32 func_00348be0(u8 *);
 extern s32 func_00348c10(u8 *);
 extern u8 *func_001102f0(u8 *, s32, s32, f32);
@@ -91,16 +91,16 @@ void func_00349440(u8 *arg0, u8 *arg1)
     extern void *func_00457120(void);
     extern void *func_004571a0(void);
     extern void *func_004571b0(void);
-    extern f32 func_00457850(void *a);
-    extern void func_004577d0(void *a, f32 b);
+    extern f32 K_View_GetFov(void *a);
+    extern void K_View_SetFov(void *a, f32 b);
     extern void func_003c38b0(void *a, void *b);
     extern void func_003e9cb0(s32 a, void *b, s32 c);
-    extern void func_003e0870(void *a, void *b, s32 c, f32 d);
-    extern void func_003e0c90(void *a, void *b, s32 c);
-    extern void *func_003e05f0(void *a, void *b, void *c);
+    extern void RwMatrixRotate(void *a, void *b, s32 c, f32 d);
+    extern void RwMatrixTranslate(void *a, void *b, s32 c);
+    extern void *RwMatrixMultiply(void *a, void *b, void *c);
     extern void func_0047a1c0(void *a, void *b, s32 c);
-    extern void func_0047a1e0(void *a, void *b, s32 c);
-    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void mdlScale(void *a, void *b, s32 c);
+    extern void memcpy(void *dst, void *src, u32 size);
     extern s32 func_00457190(void);
     extern s32 func_004571c0(void);
     extern void func_003cbf30(s32 a, s32 b);
@@ -194,13 +194,13 @@ void func_00349440(u8 *arg0, u8 *arg1)
                 dp += 2;
             } while (cnt > 0);
         }
-        func_003e0870(mat, axisY, 1, *(f32 *)(entry + 0xC));
+        RwMatrixRotate(mat, axisY, 1, *(f32 *)(entry + 0xC));
     }
-    func_003e0c90(mat, trans, 2);
-    func_003e05f0(tmpA, mat, parent);
+    RwMatrixTranslate(mat, trans, 2);
+    RwMatrixMultiply(tmpA, mat, parent);
     *(M64 *)mat = *(M64 *)tmpA;
     func_0047a1c0(*(u8 **)(obj + 0xC), mat, 0);
-    func_0047a1e0(*(u8 **)(obj + 0xC), scale, 1);
+    mdlScale(*(u8 **)(obj + 0xC), scale, 1);
     {
         u16 idx = *(u16 *)(obj + 8);
         if (idx == 0x1B) {
@@ -229,7 +229,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
         }
     }
     parent = *(u8 **)((u8 *)func_00457120() + 4) + 0x10;
-    *(f32 *)(obj + 0x70) = func_00457850(func_00457120());
+    *(f32 *)(obj + 0x70) = K_View_GetFov(func_00457120());
     {
         u8 *cam = (u8 *)func_004571a0();
         *(f32 *)(obj + 0x74) = *(f32 *)(cam + 0x18);
@@ -281,7 +281,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
         win[0] = (f32)*(s16 *)(entry + 0x1C) / 640.0f;
         win[1] = (f32)*(s16 *)(entry + 0x1E) / 448.0f;
     }
-    func_004577d0(func_00457120(), 40.0f);
+    K_View_SetFov(func_00457120(), 40.0f);
     func_003c38b0((u8 *)func_004571a0(), (u8 *)&colA);
     func_003c38b0((u8 *)func_004571b0(), (u8 *)&colB);
     {
@@ -290,13 +290,13 @@ void func_00349440(u8 *arg0, u8 *arg1)
         u8 *entry2 = base + ((s32)idx2 << 5);
         s16 qidx = *(s16 *)(entry2 + 0x12);
         if (qidx == -1) {
-            func_0043f810((u8 *)&quat, obj + 0x18, 16);
+            memcpy((u8 *)&quat, obj + 0x18, 16);
         } else {
             u8 *tbl = *(u8 **)(obj + 0x14);
             if (qidx < *(s32 *)(tbl + 4)) {
-                func_0043f810((u8 *)&quat, *(u8 **)(tbl + 0xC) + ((s32)qidx * 16), 16);
+                memcpy((u8 *)&quat, *(u8 **)(tbl + 0xC) + ((s32)qidx * 16), 16);
             } else {
-                func_0043f810((u8 *)&quat, *(u8 **)(tbl + 0xC), 16);
+                memcpy((u8 *)&quat, *(u8 **)(tbl + 0xC), 16);
             }
         }
     }
@@ -324,7 +324,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
         *(s32 *)&matQ[0x38] = 0;
         *(s32 *)&matQ[0x0C] = 3;
     }
-    func_003e05f0(matB, matQ, parent);
+    RwMatrixMultiply(matB, matQ, parent);
     *(M64 *)matQ = *(M64 *)matB;
     func_003e9cb0(*(s32 *)((u8 *)func_004571b0() + 4), matQ, 0);
     *(u8 *)((u8 *)func_004571b0() + 2) = 3;
@@ -343,7 +343,7 @@ void func_00349b90(u8 *arg0, u8 *arg1)
 
     temp_4 = *(u8 **)(arg1 + 0xC);
     if ((temp_4 != NULL) && (func_004782b0(temp_4) != 0)) {
-        func_004577d0(func_00457120(), *(f32 *)(arg1 + 0x70));
+        K_View_SetFov(func_00457120(), *(f32 *)(arg1 + 0x70));
         func_003c38b0(func_004571a0(), arg1 + 0x74);
         func_003c38b0(func_004571b0(), arg1 + 0x84);
         func_003e9cb0(*(s32 *)((u8 *)func_004571b0() + 4), arg1 + 0xA0, 0);
@@ -410,7 +410,7 @@ s32 func_00349c50(u8 *arg0)
         }
         if (*(s8 *)(obj + 0x28) == 0) {
             *(s32 *)(obj + 0xE8) = 0x29;
-            if (func_00106330(0x1450) == 0) {
+            if (datGetFlag(0x1450) == 0) {
                 return 0;
             }
             switch (*(s8 *)(obj + 4)) {
@@ -674,8 +674,8 @@ s32 func_0034a4f0(s32 arg0, s32 arg1)
     *(u8 **)(mem + 0x14) = entry;
     *(s32 *)(mem + 0x10) = *(s32 *)(entry + 8);
     *(s32 *)(mem + 0xE8) = 0xB3;
-    func_003e0870(mem + 0x30, &sp40[0], 0, 180.0f);
-    func_003e0c90(mem + 0x30, &sp50[0], 2);
+    RwMatrixRotate(mem + 0x30, &sp40[0], 0, 180.0f);
+    RwMatrixTranslate(mem + 0x30, &sp50[0], 2);
     return handle;
 }
 /* measured: closes the optimization_level 1 + tailcall scope opened above for

@@ -8,7 +8,7 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef struct RwFrame RwFrame;
 typedef struct RwMatrixTag RwMatrix;
 extern u8* iGpffff9db0;
-extern s32 func_00145270(s32 arg0);
+extern s32 MT_Scene_GetRes(s32 arg0);
 extern u8* func_001452b0(s32 arg0);
 extern s32 func_0014a160(void);
 extern s32 func_0014a200(void);
@@ -71,8 +71,8 @@ typedef RpCollisionTriangle *(*FldFrameWorldTriangleCallback)(
 
 extern RpWorld *func_00394d70(RpWorld *world, RpIntersection *intersection,
                               FldFrameWorldTriangleCallback callback, void *data);
-extern f32 func_003e40b0(f32* dst, const f32* src);
-extern void* func_0043f9c8(void* dst, s32 value, u32 size);
+extern f32 RwV3dNormalize(f32* dst, const f32* src);
+extern void* memset(void* dst, s32 value, u32 size);
 
 typedef RpCollisionTriangle *(*FldFrameGeometryTriangleCallback)(
     RpIntersection *, RpCollisionTriangle *, f32, void *);
@@ -179,8 +179,8 @@ RpCollisionTriangle *func_00169320(RpIntersection *intersection, RpWorldSector *
     RwV3d *triangle = &collision->normal;
     u8 *context = data;
     extern f32 fabsf(f32 x);
-    extern s32 func_00168ec0(f32 *arg0, f32 **arg1, f32 *arg2);
-    extern f32 func_003e4180(f32 *vec);
+    extern s32 K_FldFrame_IsPointInTriangle(f32 *arg0, f32 **arg1, f32 *arg2);
+    extern f32 RwV3dLength(f32 *vec);
 
     RwV3d projected;
     RwV3d edgePoint;
@@ -204,7 +204,7 @@ RpCollisionTriangle *func_00169320(RpIntersection *intersection, RpWorldSector *
     projected.x += point->x;
     projected.y += point->y;
     projected.z += point->z;
-    if (func_00168ec0(&projected.x, (f32 **)((u8 *)collision + 0x1C), &triangle->x) != 0)
+    if (K_FldFrame_IsPointInTriangle(&projected.x, (f32 **)((u8 *)collision + 0x1C), &triangle->x) != 0)
     {
         distance = fabsf(projection);
         {
@@ -249,7 +249,7 @@ RpCollisionTriangle *func_00169320(RpIntersection *intersection, RpWorldSector *
             delta.x = point->x - edgePoint.x;
             delta.y = point->y - edgePoint.y;
             delta.z = point->z - edgePoint.z;
-            edgeDistance = func_003e4180((f32*)&delta);
+            edgeDistance = RwV3dLength((f32*)&delta);
             {
             s32 index;
             s32 count;
@@ -342,8 +342,8 @@ s32 func_00169780(void* collisionWorld, f32* origin, f32* vector, f32 radius)
     for (i = 0; i < 64; i++)
     {
         u8* record = (u8*)&work + sizeof(RwV3d) * i;
-        func_0043f9c8(record, 0, 12);
-        func_0043f9c8(record + sizeof(work.collector.points), 0, 12);
+        memset(record, 0, 12);
+        memset(record + sizeof(work.collector.points), 0, 12);
         work.collector.distances[i] = fGpffff82b4;
     }
     work.collector.count = 0;
@@ -371,7 +371,7 @@ s32 func_00169780(void* collisionWorld, f32* origin, f32* vector, f32 radius)
             work.delta.vector.y = work.query.intersection.t.sphere.center.y - point->y;
             work.delta.vector.z = work.query.intersection.t.sphere.center.z - point->z;
             direction = work.delta.components;
-            func_003e40b0(direction, direction);
+            RwV3dNormalize(direction, direction);
             /* The signed contact displacement is recomputed after normalization. */
             distanceEntry = (const u8*)&work + i * (s32)sizeof(f32);
             correction = work.query.intersection.t.sphere.radius - *(const f32*)(distanceEntry + 0x600);
@@ -463,8 +463,8 @@ RpCollisionTriangle *func_00169a30(RpIntersection *intersection,
     RpCollisionTriangle *triangle, f32 callbackDistance, void *data)
 {
     extern f32 fabsf(f32 value);
-    extern s32 func_00168ec0(f32 *point, f32 **vertices, f32 *normal);
-    extern f32 func_003e4180(f32 *vector);
+    extern s32 K_FldFrame_IsPointInTriangle(f32 *point, f32 **vertices, f32 *normal);
+    extern f32 RwV3dLength(f32 *vector);
     extern RwV3d *func_003e4360(RwV3d *dst, const RwV3d *src, s32 count, const void *matrix);
     extern RwV3d *func_003e42e0(RwV3d *dst, const RwV3d *src, s32 count, const void *matrix);
     extern f32 D_0076122C;
@@ -493,7 +493,7 @@ RpCollisionTriangle *func_00169a30(RpIntersection *intersection,
     normal = triangle->normal;
     matrix = func_003e9700(*(RwFrame **)((u8 *)collector->atomic + 4));
     func_003e4360(&normal, &triangle->normal, 1, matrix);
-    func_003e40b0(&normal.x, &normal.x);
+    RwV3dNormalize(&normal.x, &normal.x);
     for (i = 0; i < 3; i++)
     {
         func_003e42e0(&vertices[i].vector, triangle->vertices[i], 1, matrix);
@@ -524,7 +524,7 @@ RpCollisionTriangle *func_00169a30(RpIntersection *intersection,
     projected.x += point->x;
     projected.y += point->y;
     projected.z += point->z;
-    if (func_00168ec0(&projected.x, vertexPointers, &normal.x) != 0)
+    if (K_FldFrame_IsPointInTriangle(&projected.x, vertexPointers, &normal.x) != 0)
     {
         s32 index;
         s32 count;
@@ -597,7 +597,7 @@ RpCollisionTriangle *func_00169a30(RpIntersection *intersection,
             delta.x = point->x - edgePoint.x;
             delta.y = point->y - edgePoint.y;
             delta.z = point->z - edgePoint.z;
-            edgeDistance = func_003e4180(&delta.x);
+            edgeDistance = RwV3dLength(&delta.x);
             index = fldFrameFindLocalPlane(collector, &normal);
             count = collector->count;
             if (index >= 0)
@@ -667,8 +667,8 @@ void* func_0016a0c0(void* collisionWorld, void* state)
 #pragma opt_loop_invariants on
 s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s32 fieldId)
 {
-    extern void *func_0047a310(void *model);
-    extern f32 func_003e4180(f32 *vec);
+    extern void *mdlGetClump(void *model);
+    extern f32 RwV3dLength(f32 *vec);
     extern u8 D_007E8020[];
     extern f32 fGpffff82b8;
     extern u32 func_0016b480(void *cw, const RwV3d *line, RwV3d *hit);
@@ -726,8 +726,8 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
     work.copy.bits = *(u_long128 *)work.input;
     for (i = 0; i < 64; i++)
     {
-        func_0043f9c8(&work.points[i], 0, 12);
-        func_0043f9c8(&work.normals[i], 0, 12);
+        memset(&work.points[i], 0, 12);
+        memset(&work.normals[i], 0, 12);
         work.fracs[i] = fGpffff82b4;
         work.flags[i] = 0;
     }
@@ -746,8 +746,8 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
             dst++;
         } while (cnt > 0);
     }
-    func_003e40b0((f32 *)&work.normDir, (const f32 *)vector);
-    func_0043f9c8(work.zero, 0, 12);
+    RwV3dNormalize((f32 *)&work.normDir, (const f32 *)vector);
+    memset(work.zero, 0, 12);
     if (collisionWorld == 0)
     {
         return 0;
@@ -758,7 +758,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
     {
         if (((*(s32 *)(list10 + 0x28) & 2) != 0) && (*(s32 *)(list10 + 0x150) == 1))
         {
-            void *target = func_0047a310(*(void **)(list10 + 0x144));
+            void *target = mdlGetClump(*(void **)(list10 + 0x144));
             func_003bff30(target, func_0016a0c0, work.points);
             line[1].x = origin[0];
             line[1].y = origin[1];
@@ -766,7 +766,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
             line[0] = line[1];
             line[0].y += 400.0f;
             line[1].y -= 600.0f;
-            target = func_0047a310(*(void **)(list10 + 0x144));
+            target = mdlGetClump(*(void **)(list10 + 0x144));
             if (func_0016b480(target, line, &hit) == 1)
             {
                 vector[1] = -((origin[1] - fraction) - hit.y);
@@ -802,7 +802,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
                         void *id = *(void **)(other + 0x228);
                         if (id != 0)
                         {
-                            void *target = func_0047a310(id);
+                            void *target = mdlGetClump(id);
                             func_003bff30(target, func_0016a0c0, work.points);
                         }
                     }
@@ -815,7 +815,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
     {
         if (((*(s32 *)(list3 + 0x28) & 2) != 0) && (*(s32 *)(list3 + 0x22c) != 0))
         {
-            void *target = func_0047a310(*(void **)(list3 + 0x22c));
+            void *target = mdlGetClump(*(void **)(list3 + 0x22c));
             func_003bff30(target, func_0016a0c0, work.points);
         }
         list3 = *(u8 **)(list3 + 0x138);
@@ -832,7 +832,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
             void *id = *(void **)(entry + 0x164);
             if (id != 0)
             {
-                void *target = func_0047a310(id);
+                void *target = mdlGetClump(id);
                 func_003bff30(target, func_0016a0c0, work.points);
             }
         }
@@ -858,7 +858,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
             delta.x = work.copy.f[0] - work.points[i].x;
             delta.y = qy - work.points[i].y;
             delta.z = qz - work.points[i].z;
-            func_003e40b0((f32 *)&delta, (const f32 *)&delta);
+            RwV3dNormalize((f32 *)&delta, (const f32 *)&delta);
             scale = qfrac - work.fracs[i];
             scaled.x = delta.x * scale;
             scaled.y = delta.y * scale;
@@ -907,7 +907,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
     }
     if (allHit == 0 && work.count >= 2)
     {
-        func_003e4180((f32 *)vector);
+        RwV3dLength((f32 *)vector);
         for (n = 0; n < work.count - 1; n++)
         {
             for (m = n + 1; m < work.count; m++)
@@ -955,7 +955,7 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
     s32 fieldY;
         s32 fieldFlags;
         entry = (u8*)func_001452b0(0xc);
-        field = (u8*)func_00145270(fieldId);
+        field = (u8*)MT_Scene_GetRes(fieldId);
         fieldFlags = fieldId & 0xffff;
         if (fieldFlags == 0xffff)
         {
@@ -1015,14 +1015,14 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
 s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
 {
     extern u8* func_001452b0(s32 arg0);
-    extern void* func_0043f9c8(void* dst, s32 value, u32 size);
+    extern void* memset(void* dst, s32 value, u32 size);
     extern s32 func_0014a200(void);
     extern s32 func_0014a270(void);
     extern s32 func_00457120(void);
     extern RwMatrix* func_003e9700(RwFrame* frame);
     extern s32* func_00155280(void);
-    extern void* func_0047a310(void* model);
-    extern f32 func_003e40b0(f32* dst, const f32* src);
+    extern void* mdlGetClump(void* model);
+    extern f32 RwV3dNormalize(f32* dst, const f32* src);
     extern f32 D_007615DC;
     extern s32 D_005F1650[];
     typedef struct FldFrameQueryWork
@@ -1064,8 +1064,8 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
     for (i = 0; i < 64; i++)
     {
         u8* rec = ((u8 *)&work.collector) + 12 * i;
-        func_0043f9c8(rec, 0, 12);
-        func_0043f9c8(rec + 0x300, 0, 12);
+        memset(rec, 0, 12);
+        memset(rec + 0x300, 0, 12);
         *(f32*)(((u8 *)&work.collector) + 0x600 + 4 * i) = D_007615DC;
         *(s32*)(((u8 *)&work.collector) + 0xa00 + 4 * i) = 0;
     }
@@ -1073,7 +1073,7 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
     work.collector.count = 0;
     /* The retail seven-word copy includes two unused payload words. */
     work.collector.intersection = work.query.intersection;
-    func_0043f9c8(&work.zero, 0, 12);
+    memset(&work.zero, 0, 12);
     if (collisionWorld == 0)
         return 0;
     work.collector.mode = 1;
@@ -1124,7 +1124,7 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
         {
             if ((*(s32*)(list + 0x28) & 2) != 0 && *(s32*)(list + 0x150) == 1)
             {
-                func_003bff30(func_0047a310(*(void**)(list + 0x144)),
+                func_003bff30(mdlGetClump(*(void**)(list + 0x144)),
                               func_0016a0c0, &work.collector);
             }
             list = *(u8**)(list + 0x138);
@@ -1164,7 +1164,7 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
     }
     if (result == 1)
     {
-        func_003e40b0(&normal->x, &normal->x);
+        RwV3dNormalize(&normal->x, &normal->x);
         threshold = (f32)foundCount;
         vector->x /= threshold;
         vector->y /= threshold;

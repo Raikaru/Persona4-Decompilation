@@ -24,22 +24,23 @@
   },
   "recipe_notes": {
     "slice": "Pinned fresh splat glabel slice, extractor clean_slice and header, canonical size directive. No assembly copied into metadata.",
-    "slice-canonical": "Same slice with recovered function names mapped back to func_<address> using tracked symbol_addrs and canonical windows, preserving historical extraction naming.",
+    "slice-canonical": "Same slice with recovered function names mapped back to func_<address> using the pinned fallback symbol map and canonical windows, preserving historical extraction naming.",
     "synthesis": "Existing extractor synthesise semantics: retail little-endian words with canonical JAL R_MIPS_26 relocation annotations. Explicit choice preserves earlier boundary-repair extractions even where current splat could slice.",
     "corrections": "33 path-local historical differences: eight adjacent-nullsub spans, eighteen symbol spelling sets, six glabel spellings, one GNU-as retail-word repair. Reasons reside with each correction; these are not arbitrary text patches.",
     "retained": "Hand-maintained relocation fixture and hand-carried jump table remain tracked, checked, never regenerated or removed.",
-    "inputs-verify.py": "tools/verify.py supplies retail-byte helpers and source filtering. The earlier fdc4ce4edc38 -> a646226c6bb9 bump excluded staged probe copies. Audited 2026-09-20: a646226c6bb9 -> 2c53a185f171 changes only the is_generated AST node, broadening that filter to every dot-prefixed temporary source. Both predicates select the same 394 clean source paths; all other verifier AST nodes are identical. Fresh isolated generation and a second comparison reproduce all 11152 generated files and both retained files, 62635980 bytes, with every existing output hash unchanged. See docs/probe_archive/Recovered_upstream_20260920.md.",
-    "inputs-requirements-python.txt": "Audited 2026-09-22: 8e0d2cd27bc3 -> a710c34702b6 adds the exact PyYAML 6.0.3 pin required by CI's direct yaml import. regenerate_asm.py --check reproduced all 11152 generated files and left both retained files unchanged."
+    "inputs-verify.py": "tools/verify.py supplies retail-byte helpers and source filtering. The earlier fdc4ce4edc38 -> a646226c6bb9 bump excluded staged probe copies. Audited 2026-09-20: a646226c6bb9 -> 2c53a185f171 changes only the is_generated AST node, broadening that filter to every dot-prefixed temporary source. Both predicates select the same 394 clean source paths; all other verifier AST nodes are identical. Fresh isolated generation and a second comparison reproduce all 11152 generated files and both retained files, 62635980 bytes, with every existing output hash unchanged. See docs/probe_archive/Recovered_upstream_20260920.md. Audited 2026-09-23: marker scanning now discards preceding extern declarations without discarding semicolons in single-line bodies or K&R parameter declarations. Source filtering and retail-byte extraction are unchanged; regenerate_asm.py --check reproduces the pinned fallback bytes.",
+    "inputs-requirements-python.txt": "Audited 2026-09-22: 8e0d2cd27bc3 -> a710c34702b6 adds the exact PyYAML 6.0.3 pin required by CI's direct yaml import. regenerate_asm.py --check reproduced all 11152 generated files and left both retained files unchanged.",
+    "inputs-asm_symbol_baseline.txt": "Verbatim pre-migration symbol map (13,099 boundaries, 287 curated names) used only by the pinned fallback generator. The live symbol_addrs.txt now has 13,102 boundaries and 570 curated names; feeding it to splat would change audited assembly text. The pinned fallback bytes and filenames remain unchanged."
   },
   "inputs": {
     "requirements-python.txt": "a710c34702b69ee5205eb6ac742f13bec6fe871f6f01abcdfdf296453aa530af",
     "config/target.json": "cb4fffeb0f711f8d97efb9d08776659e9a32b013043f3b59a9ea5bc582c5a85d",
     "config/slus21782.yaml": "99fc10b794b6ae5edfc9b6da828a5a5c29036050101c0f1ebd78326e4e08bc9b",
-    "config/symbol_addrs.txt": "0c3524c648feaebe852f2b0221acae604de53f77f02e997ea425e368692bab52",
+    "config/asm_symbol_baseline.txt": "0c3524c648feaebe852f2b0221acae604de53f77f02e997ea425e368692bab52",
     "tools/slus21782_functions.json": "43d17bf206f4c878e34ed335aa8a715e09b94a6060321f32c22e04ad72284b5a",
     "tools/extract_nonmatching_asm.py": "78cde4a7fded07dff5fd8151ebdcef2aa903d864e8a217669e04d78f27bd40eb",
     "tools/asm.py": "75670b3a6ddfa7761a0734b5a4d4b2692f365eaf04f8f8a5a2d6d8802ac5ab70",
-    "tools/verify.py": "6728a0931244436c15a80053a6566f623901a119aae13cf5a6b6d839ea7d3fe9"
+    "tools/verify.py": "50977424676cc195bb3018b66961f65d131b6ddfc7bb70454c75823baa9eebf5"
   },
   "generated": [
     {

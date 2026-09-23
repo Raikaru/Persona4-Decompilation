@@ -39,8 +39,8 @@ extern s32 iGpffffb5d8;
 extern s32 iGpffffb5f0;
 extern s32 iGpffffb5c8;
 extern void (*jtbl_008873EC[])(void *);
-extern u8 *func_0039aa50(u8 *arg0);
-u8 *func_0039aab0(u8 *arg0);
+extern u8 *_rpMatFXPipelineWorldSectorSetup(u8 *arg0);
+u8 *_rpMatFXPipelineAtomicSetup(u8 *arg0);
 extern void func_003ef3a0(void *arg0, s32 arg1);
 extern s32 func_0039a7e0(u8 *arg0, s32 arg1);
 extern void func_0039a910(s32 arg0);
@@ -107,7 +107,7 @@ extern s32 func_003c2b70(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)(), s32 (
 extern s32 func_003c2ba0(s32 arg0, s32 (*arg1)(), s32 (*arg2)(), s32 (*arg3)());
 extern s32 func_0038fb20(u8 *arg0);
 extern s32 func_003df240(s32 arg0, s32 *arg1, s32 arg2);
-extern f32 func_0039b250(s32 arg0, f32 arg1);
+extern f32 DefaultGeomAnimCB(s32 arg0, f32 arg1);
 extern u8 *func_004115d0(void);
 extern s32 *func_00412ca0(s32 *arg0);
 extern s32 *func_003cfa70(void);
@@ -352,7 +352,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396750);
 /* measured: no_branch_likely on selects retail's plain beqz. */
 #pragma no_branch_likely on
 // FUN_00396830
-s32 func_00396830(s32 arg0)
+s32 HAnimClose(s32 arg0)
 {
     s32 temp;
 
@@ -371,7 +371,7 @@ s32 func_00396830(s32 arg0)
 /* measured: schedule on reproduces the retail setter's return move and delay-slot stores. */
 #pragma schedule on
 // FUN_00396870
-s32 func_00396870(s32 arg0)
+s32 HAnimConstructor(s32 arg0)
 {
     u8 *temp;
 
@@ -484,10 +484,10 @@ s32 func_00396f00(void)
 {
     s32 var_2;
 
-    if (func_003e8930(0, 0x11E, func_00396750, func_00396830) < 0) {
+    if (func_003e8930(0, 0x11E, func_00396750, HAnimClose) < 0) {
         return 0;
     }
-    iGpffffb5d8 = func_003e9eb0(8, 0x11E, func_00396870, func_00396890, func_00396940);
+    iGpffffb5d8 = func_003e9eb0(8, 0x11E, HAnimConstructor, func_00396890, func_00396940);
     var_2 = func_003e5520(0x11E, func_00396c00, func_00396a40, func_00396e80) >= 0;
     if (var_2 != 0) {
         var_2 = iGpffffb5d8 >= 0;
@@ -952,7 +952,7 @@ s32 func_00399b10(s32 arg0)
 retarg:
     return arg0;
 call:
-    if (func_0039aab0((u8 *)arg0) == NULL) {
+    if (_rpMatFXPipelineAtomicSetup((u8 *)arg0) == NULL) {
         goto ret0;
     }
     *p = 1;
@@ -981,7 +981,7 @@ s32 func_00399b80(s32 arg0)
 retarg:
     return arg0;
 call:
-    if (func_0039aa50((u8 *)arg0) == NULL) {
+    if (_rpMatFXPipelineWorldSectorSetup((u8 *)arg0) == NULL) {
         goto ret0;
     }
     *p = 1;
@@ -1011,7 +1011,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399bf0);
 #pragma schedule on
 #pragma no_branch_likely on
 // FUN_00399D80
-s32 func_00399d80(s32 arg0)
+s32 RpMatFXMaterialGetEffects(s32 arg0)
 {
     u8 *p;
 
@@ -1940,7 +1940,7 @@ s32 func_0039aa40(void)
 #pragma schedule on
 /* measured: no_branch_likely on preserves the plain branch dispatch for func_0039aa50. */
 #pragma no_branch_likely on
-u8 *func_0039aa50(u8 *arg0) {
+u8 *_rpMatFXPipelineWorldSectorSetup(u8 *arg0) {
     s32 var_2;
 
     if (*(s32 *)((u8 *)(func_003c9c20()) + 8) & 0x80) {
@@ -1961,7 +1961,7 @@ u8 *func_0039aa50(u8 *arg0) {
    reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
 // FUN_0039AAB0
-u8 *func_0039aab0(u8 *arg0) {
+u8 *_rpMatFXPipelineAtomicSetup(u8 *arg0) {
     s32 var_2;
 
     if (*(s32 *)((u8 *)(*(u8 **)(arg0 + 0x18)) + 8) & 0x80) {
@@ -2094,7 +2094,7 @@ s32 func_0039ae30(s32 arg0)
 #ifdef NON_MATCHING
 s32 func_0039ae90(s32 arg0, s32 arg1)
 {
-    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void memcpy(void *dst, void *src, u32 size);
     s32 temp_18;
     s32 temp_2;
     s32 temp_4;
@@ -2120,7 +2120,7 @@ alloc:
         return 0;
     }
     *(s32 *)temp_17 = temp_20;
-    func_0043f810(*(u8 **)(temp_17 + 8), temp_19, temp_18);
+    memcpy(*(u8 **)(temp_17 + 8), temp_19, temp_18);
     goto ret_stub;
 }
 #else
@@ -2145,7 +2145,7 @@ s32 func_0039b210(u8 *arg0)
     return 0;
 }
 // FUN_0039B250
-f32 func_0039b250(s32 arg0, f32 fparg0)
+f32 DefaultGeomAnimCB(s32 arg0, f32 fparg0)
 {
     f32 result;
     u8 **temp_3;
@@ -2161,14 +2161,14 @@ f32 func_0039b250(s32 arg0, f32 fparg0)
     return result;
 }
 // FUN_0039B290
-s32 func_0039b290(s32 arg0)
+s32 GeomAnimCtor(s32 arg0)
 {
     u8 *p;
 
     p = (u8 *)(arg0 + iGpffffb5f0);
     *(s32 *)(p + 0) = 0;
     *(s32 *)(p + 8) = 0;
-    *(s32 *)(p + 4) = (s32)func_0039b250;
+    *(s32 *)(p + 4) = (s32)DefaultGeomAnimCB;
     return arg0;
 }
 /* measured: func_0039b2c0 floor -- probe_archive P390_0039b2c0_body.c: obj 176B/window 192B/26 reloc-masked differing words (fresh); fnalign 20 edits (saved-register colouring/source-order near-miss; no slt/slti $at, no trailing dead-arm chain). */
@@ -2181,7 +2181,7 @@ s32 func_0039b2c0(s32 arg0, s32 arg1)
     s32 temp_17;
     u8 *temp_16;
     u8 *temp_4;
-    extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+    extern void memset(void *arg0, s32 arg1, s32 arg2);
     result = arg0;
     temp_16 = (u8 *)(result + iGpffffb5e0);
     temp_4 = *(u8 **)(temp_16 + 8);
@@ -2197,7 +2197,7 @@ s32 func_0039b2c0(s32 arg0, s32 arg1)
         return 0;
     }
     *(s32 *)temp_16 = arg1;
-    func_0043f9c8(*(u8 **)(temp_16 + 8), 0, temp_17);
+    memset(*(u8 **)(temp_16 + 8), 0, temp_17);
     return result;
 }
 #else
@@ -2218,7 +2218,7 @@ s32 func_0039b380(void)
     if (temp_2 < 0) {
         return 0;
     }
-    temp_2_2 = func_003c2b70(0xC, 0x105, func_0039b290, func_0039ae30, func_0039ae90);
+    temp_2_2 = func_003c2b70(0xC, 0x105, GeomAnimCtor, func_0039ae30, func_0039ae90);
     iGpffffb5f0 = temp_2_2;
     if (temp_2_2 < 0) {
         return 0;
@@ -2292,7 +2292,7 @@ s32 func_0039b510(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
    reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
 // FUN_0039B540
-s32 func_0039b540(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+s32 _rpTeamDictionaryAtomicRights(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     *(s32 *)(arg0 + 0x6C) = func_0039b6e0(arg3);
     return 1;
@@ -2342,7 +2342,7 @@ s32 func_0039b5a0(s32 arg0) {
     func_003c1ab0(0, 0x131, 0, 0, 0);
     func_003c8d00(0, 0x131, 0, 0, 0);
     func_003c4370(0x131, (s32)func_0039b510);
-    func_003c1b60(0x131, (s32)func_0039b540);
+    func_003c1b60(0x131, (s32)_rpTeamDictionaryAtomicRights);
     func_003c8d80(0x131, (s32)func_0039b570);
     return 1;
 }

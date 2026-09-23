@@ -34,14 +34,14 @@ void func_0045dfd0(void *arg0, void *arg1, f32 fparg0, s32 arg2, s32 arg3,
                    s32 arg4);
 extern f32 iGpffff84a4;
 extern f32 iGpffff84a4;
-extern f32 func_0044b610(f32 fparg0);
-extern f32 func_0044b7b0(f32 fparg0);
+extern f32 cosf(f32 fparg0);
+extern f32 sinf(f32 fparg0);
 void func_00266050(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3);
 void func_00265110(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u32 arg3,
                    s32 arg4);
 void func_00265f40(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3,
                    u8 *arg4, s32 arg5, f32 fparg1, f32 fparg2);
-s32 func_00442088(char *buf, const char *fmt, ...);
+s32 sprintf(char *buf, const char *fmt, ...);
 u8 *func_00455f70(void *arg0, u32 *arg1);
 u8 *func_0046aea0(const char *name);
 s32 func_0046a750(s32 param);
@@ -71,7 +71,7 @@ void func_00264d90(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 void func_00264e70(void)
 {
     func_00440b68(&iGpffffa6c8, D_006376B0, 0x464);
-    func_00456150(func_00454a60(D_006376D0, 1));
+    H_Cdvd_ReadSync(func_00454a60(D_006376D0, 1));
 }
 
 // FUN_00264EC0
@@ -101,7 +101,7 @@ s32 func_00264ec0(u8 *arg0) {
             p[2] = 0;
             p[1] &= ~4;
         }
-        func_00442088((char *)buf, (const char *)D_006376F0, p[4]);
+        sprintf((char *)buf, (const char *)D_006376F0, p[4]);
         s = func_00455f70(buf, &tmp);
         if (s == 0) {
             p[2] = (s32)func_0046aea0((const char *)buf);
@@ -640,8 +640,8 @@ void func_00266690(s32 arg0, s32 arg1)
 {
     extern void func_00266050(s32, s32, f32, s32, s32);
     extern void func_00265110(s32, s32, f32, s32, u32, s32);
-    extern f32 func_0044b610(f32);
-    extern f32 func_0044b7b0(f32);
+    extern f32 cosf(f32);
+    extern f32 sinf(f32);
     extern f32 iGpffff84a4;
     u8 *p;
     s32 state;
@@ -656,7 +656,7 @@ void func_00266690(s32 arg0, s32 arg1)
     case 1:
         ratio = (f32)*(s32 *)(p + 0x18) / 7.0f;
         alpha = (s32)(255.0f * ratio);
-        value = 336.0f + 128.0f * func_0044b610(iGpffff84a4 * ratio);
+        value = 336.0f + 128.0f * cosf(iGpffff84a4 * ratio);
         func_00266050((s32)value, 0, 0.0f, alpha, *(s32 *)(p + 0x10));
         func_00265110(0x150, 0, 0.0f, alpha, *(u32 *)(p + 0x10),
                       *(s32 *)(p + 0x1C));
@@ -671,7 +671,7 @@ void func_00266690(s32 arg0, s32 arg1)
     case 5:
         ratio = (f32)*(s32 *)(p + 0x18) / 10.0f;
         alpha = (s32)(255.0f * (1.0f - ratio));
-        value = 336.0f - 192.0f * func_0044b7b0(iGpffff84a4 * ratio);
+        value = 336.0f - 192.0f * sinf(iGpffff84a4 * ratio);
         func_00266050((s32)value, 0, 0.0f, alpha, *(s32 *)(p + 0x10));
         func_00265110(0x150, 0, 0.0f, alpha, *(u32 *)(p + 0x10),
                       *(s32 *)(p + 0x1C));

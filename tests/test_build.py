@@ -396,6 +396,24 @@ class IndependentRodataTests(unittest.TestCase):
 
 
 class MissingDefinitionTests(unittest.TestCase):
+    def test_audited_fallback_relocation_resolves_after_c_name_migration(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "config").mkdir()
+            (root / "config" / "symbol_addrs.txt").write_text(
+                "btlLevelFromExp = 0x001059E0; // type:func\n"
+            )
+            with mock.patch.object(build, "REPO", root):
+                addresses = build.load_symbol_addr_map()
+            definitions = {}
+            build.complete_missing_definitions(
+                definitions,
+                unresolved={"func_001059e0"},
+                exported={"btlLevelFromExp"},
+                addresses=addresses,
+            )
+            self.assertEqual(definitions, {"func_001059e0": 0x001059E0})
+
     def test_defines_only_referenced_unexported_known_symbols(self) -> None:
         definitions = {"already_defined": 0x1000}
         build.complete_missing_definitions(

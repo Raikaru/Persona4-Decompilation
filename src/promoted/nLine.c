@@ -69,16 +69,16 @@ s16 func_0034e290(u8 *arg0, s32 arg1);
 s32 func_0034e360(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 void func_0034ee90(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
 void func_0034f0d0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7);
-u32 func_003b7060(void);
+u32 RpRandom(void);
 void func_00364c50(void);
 void func_00364c70(void);
-void func_003f6440(s32 arg0, s32 arg1);
+void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 u8 *func_00457120(void);
-f32 func_0044b7b0(f32 arg0);
-f32 func_0044b610(f32 arg0);
+f32 sinf(f32 arg0);
+f32 cosf(f32 arg0);
 
 void func_0046d730(void *file, s32 line);
-void func_0043f9c8(void *dest, s32 value, s32 size);
+void memset(void *dest, s32 value, s32 size);
 void func_0034edc0(void);
 
 void func_0034e0b0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
@@ -102,7 +102,7 @@ s32 func_0034b970(void) {
     if (temp_2 == 0) {
         func_0046d730(&iGpffffa950, 0x168);
     }
-    func_0043f9c8(D_00882FC0, 0, 0x30);
+    memset(D_00882FC0, 0, 0x30);
     D_00882FC8[0] = func_0034b950;
     D_00882FD0[0] = 0;
     func_0034ba20();
@@ -334,16 +334,16 @@ void func_0034bea0(void) {
             temp_f0 = *(f32 *)(temp_17 + 0x50) - temp_f2;
             temp_f21 = temp_f1 / temp_f0;
             temp_f22 = fGpffff84a4 * temp_f21;
-            temp_f20 = func_0044b7b0(temp_f22);
+            temp_f20 = sinf(temp_f22);
             if (temp_f21 < 0.5f) {
-                temp_f0 = func_0044b7b0(2.0f * temp_f22);
+                temp_f0 = sinf(2.0f * temp_f22);
             } else {
                 if (*(s32 *)(temp_17 + 0x44) == 0) {
                     *(f32 *)(temp_17 + 0x3C) = *(f32 *)(temp_17 + 0x40);
                     *(f32 *)(temp_17 + 0x38) = *(f32 *)(temp_17 + 0x30) - *(f32 *)(temp_17 + 0x40);
                     *(s32 *)(temp_17 + 0x44) = 1;
                 }
-                temp_f0 = func_0044b7b0(2.0f * temp_f22 - fGpffff84a4);
+                temp_f0 = sinf(2.0f * temp_f22 - fGpffff84a4);
             }
         } else {
             temp_f20 = 1.0f;
@@ -436,7 +436,7 @@ void func_0034c270(Vec2f arg0, s32 arg1, s32 arg2, f32 fparg0) {
     b = arg1;
     srcBase = (f32 *)(D_00749CC0 + arg2 * 0x3C0);
     D_0088467C[0] = fparg0;
-    func_0043f9c8(sp50, 0, 0x16A0);
+    memset(sp50, 0, 0x16A0);
     if ((arg2 <= 0) || (arg2 >= 0x24)) {
         func_0046d730(&iGpffffa950, 0x2B8);
     }
@@ -666,7 +666,7 @@ void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2) {
             start = *(f32 *)(arg0 + 0x4C);
             elapsed = (f32)*(s16 *)(arg0 + 0x1684);
             if (!(elapsed <= start)) {
-                width3 = 840.0f * func_0044b610((iGpffff8094 * (elapsed - start)) / (*(f32 *)(arg0 + 0x50) - start));
+                width3 = 840.0f * cosf((iGpffff8094 * (elapsed - start)) / (*(f32 *)(arg0 + 0x50) - start));
             } else {
                 width3 = 840.0f;
             }
@@ -706,11 +706,11 @@ void func_0034cef0(u8 *arg0) {
     f = (void (**)(s32, void *, s32))(u32)D_00887310;
     f[0](5, arg0, 4);
     if (*(s32 *)(arg0 + 0x300) != 0) {
-        func_003f6440(3, 0x71801);
-        func_003f6440(2, 0x48);
+        RpSkyRenderStateSet(3, 0x71801);
+        RpSkyRenderStateSet(2, 0x48);
         f[0](5, arg0 + 0x100, 3);
-        func_003f6440(3, 0x717FB);
-        func_003f6440(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
     }
     if (*(s16 *)(arg0 + 0x306) != 0) {
         f[0](5, arg0 + 0x200, 4);
@@ -1001,7 +1001,7 @@ void func_0034d890(u8 *arg0, s32 arg1) {
     if (*(s32 *)(arg0 + 0x1690) == 0) {
         temp_f1 = (f32)*(s16 *)(arg0 + 0x1684);
         if (temp_f1 < temp_f2) {
-            temp_f0 = func_0044b7b0((iGpffff8094 * temp_f1) / temp_f2);
+            temp_f0 = sinf((iGpffff8094 * temp_f1) / temp_f2);
         } else {
             temp_f0 = 1.0f;
         }
@@ -1055,7 +1055,7 @@ void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1) {
     if (*(s32 *)(arg0 + 0x1690) == 0) {
         elapsed = (f32)*(s16 *)(arg0 + 0x1684);
         if (elapsed < duration) {
-            amount = func_0044b7b0((iGpffff8094 * elapsed) / duration);
+            amount = sinf((iGpffff8094 * elapsed) / duration);
         } else {
             amount = 1.0f;
         }
@@ -1146,7 +1146,7 @@ void func_0034ddf0(u8 *arg0, s32 arg1) {
     if (*(s32 *)(arg0 + 0x1690) == 0) {
         temp_f1 = (f32)*(s16 *)(arg0 + 0x1684);
         if (temp_f1 < temp_f2) {
-            var_f0 = func_0044b7b0((iGpffff8094 * temp_f1) / temp_f2);
+            var_f0 = sinf((iGpffff8094 * temp_f1) / temp_f2);
         } else {
             var_f0 = 1.0f;
         }
@@ -1217,7 +1217,7 @@ s16 func_0034e290(u8 *arg0, s32 arg1) {
     case 2:
     case 3:
     case 4:
-        r = func_003b7060() & 0xFFF;
+        r = RpRandom() & 0xFFF;
         t = *(s16 *)(D_007525D4 + val * 0x2C) + 1;
         *(s16 *)(arg0 + 0x99A) = (s16)((u32)(t * r) >> 12);
         return val;

@@ -102,9 +102,9 @@ s32 func_00440b68(const char *format, ...);
 u8 *func_00454a60(u8 *arg0, s32 arg1);
 s32 func_00348330(u8 *arg0);
 s32 func_00348c40(u8 *arg0);
-u32 func_004553c0(struct HCdvd *ptr);
+u32 H_Cdvd_IsFileLoaded(struct HCdvd *ptr);
 void func_004b1150(u32 arg0);
-u32 func_00454bd0(struct HCdvd *ptr);
+u32 H_Cdvd_Destroy(struct HCdvd *ptr);
 void func_0036d940(void *arg0);
 void func_0036d860(u8 *arg0, s32 arg1);
 void func_0036d230(u8 *arg0);
@@ -118,7 +118,7 @@ void func_003482d0(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3);
 void func_003489c0(u8 *arg0, CmbVec3f *src, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA col, u16 arg3, u32 arg4);
 void func_00348a90(u8 *arg0, CmbVec3f *src1, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f *src2, CmbRGBA arg6, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5, f32 f6, f32 f7);
 s32 *func_00331620(void);
-void func_003f6440(u32 arg0, u32 arg1);
+void RpSkyRenderStateSet(u32 arg0, u32 arg1);
 struct RtQuat;
 struct RwV3d;
 struct RtQuat *func_003dc740(struct RtQuat *rotation, const struct RwV3d *axis,
@@ -135,7 +135,7 @@ extern f32 iGpffff8508;
 extern f32 iGpffff850c;
 extern f32 D_008872F8[];
 extern u8 D_00794F00[];
-s32 func_00106330(s32 id);
+s32 datGetFlag(s32 id);
 void func_00106390(s32, s32);
 void func_002b2970(u8 *out, f32 x, f32 y);
 void func_002b29a0(u8 *arg0, f32 f0, f32 f1, f32 f2);
@@ -220,9 +220,9 @@ s32 func_0033e5c0(u8 *arg0) {
             obj->state += 1;
             break;
         case 1:
-            if (func_004553c0((struct HCdvd *)obj->file) != 0) {
+            if (H_Cdvd_IsFileLoaded((struct HCdvd *)obj->file) != 0) {
                 func_0036d230(*(u8 **)(obj->file + 0x110));
-                func_00454bd0((struct HCdvd *)obj->file);
+                H_Cdvd_Destroy((struct HCdvd *)obj->file);
                 obj->state += 1;
             }
             break;
@@ -641,7 +641,7 @@ s32 func_0033fc80(u8 *arg0) {
     if (*(s8 *)(obj + 0xC) != 0 || *(s8 *)(obj + 0x90) != 0) {
         return 0;
     }
-    if (func_00106330(0x58) != 0) {
+    if (datGetFlag(0x58) != 0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i0 = 0;
         while (i0 < 2) {
@@ -861,7 +861,7 @@ s32 func_003407f0(u8 *arg0) {
         *(s8 *)(obj + 0x114) != 0) {
         return 0;
     }
-    if (func_00106330(0x58) != 0) {
+    if (datGetFlag(0x58) != 0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i0 = 0;
         while (i0 < 3) {
@@ -1165,7 +1165,7 @@ s32 func_00341640(u8 *arg0) {
         *(s8 *)(obj + 0x114) != 0 || *(s8 *)(obj + 0x198) != 0) {
         return 0;
     }
-    if (func_00106330(0x58) != 0) {
+    if (datGetFlag(0x58) != 0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i0 = 0;
         while (i0 < 4) {
@@ -1527,7 +1527,7 @@ s32 func_003427a0(u8 *arg0) {
         *(s8 *)(obj + 0x21C) != 0) {
         return 0;
     }
-    if (func_00106330(0x58) != 0) {
+    if (datGetFlag(0x58) != 0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i0 = 0;
         while (i0 < 5) {
@@ -1993,7 +1993,7 @@ s32 func_00343cf0(u8 *arg0) {
         *(s8 *)(obj + 0x21C) != 0 || *(s8 *)(obj + 0x2A0) != 0) {
         return 0;
     }
-    if (func_00106330(0x58) != 0) {
+    if (datGetFlag(0x58) != 0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i0 = 0;
         while (i0 < 6) {
@@ -2599,7 +2599,7 @@ s32 func_00345700(u8 *arg0) {
     if (*(s8 *)(obj + 0xC) != 0 || *(s8 *)(obj + 0x90) != 0 || *(s8 *)(obj + 0x114) != 0 || *(s8 *)(obj + 0x198) != 0 || *(s8 *)(obj + 0x21C) != 0 || *(s8 *)(obj + 0x2A0) != 0 || *(s8 *)(obj + 0x324) != 0 || *(s8 *)(obj + 0x3A8) != 0 || *(s8 *)(obj + 0x42C) != 0 || *(s8 *)(obj + 0x4B0) != 0 || *(s8 *)(obj + 0x534) != 0 || *(s8 *)(obj + 0x5B8) != 0) {
         return 0;
     }
-    if (func_00106330(0x58) != 0) {
+    if (datGetFlag(0x58) != 0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i0 = 0;
         while (i0 < 12) {
@@ -3419,8 +3419,8 @@ void func_00347b30(u8 *arg0, u8 *arg1) {
     ((void (*)(s32, s32))*(u32 *)base)(2, 3);
     ((void (*)(s32, s32))*(u32 *)base)(0xB, 6);
     ((void (*)(s32, s32))*(u32 *)base)(0xA, 5);
-    func_003f6440(2, 0x48);
-    func_003f6440(3, 0x71801);
+    RpSkyRenderStateSet(2, 0x48);
+    RpSkyRenderStateSet(3, 0x71801);
     *(s32 *)(arg1 + 0x20) = 0;
     *(s32 *)(arg1 + 0x24) = 0;
     *(u32 *)(arg1 + 0x60) = 0x3F800000;
@@ -3617,7 +3617,7 @@ s32 func_00348330(u8 *arg0) {
     case 0:
         break;
     case 1: {
-        if (func_004553c0(*(struct HCdvd **)(obj + 0)) == 0) {
+        if (H_Cdvd_IsFileLoaded(*(struct HCdvd **)(obj + 0)) == 0) {
             return 0;
         }
         {
@@ -3727,7 +3727,7 @@ void func_00348840(u8 *arg0) {
             *(u32 *)(obj + 0x44) = 0;
         }
     }
-    func_00454bd0(*(struct HCdvd **)obj);
+    H_Cdvd_Destroy(*(struct HCdvd **)obj);
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
@@ -3793,7 +3793,7 @@ void func_00348a90(u8 *arg0, CmbVec3f *src1, CmbRGBA arg2, u16 arg3, u32 arg4, C
 
 // FUN_00348BE0
 s32 func_00348be0(u8 *arg0) {
-    return func_004553c0(*(struct HCdvd **)(*(u8 **)(arg0 + 0x38))) != 0;
+    return H_Cdvd_IsFileLoaded(*(struct HCdvd **)(*(u8 **)(arg0 + 0x38))) != 0;
 }
 
 // FUN_00348C10

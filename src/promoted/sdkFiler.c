@@ -15,7 +15,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00712A40[];
 extern u8 D_00712A50[];
 extern u8 D_00712AB0[];
-extern s32 func_00442088(char *buf, const char *fmt, ...);
+extern s32 sprintf(char *buf, const char *fmt, ...);
 extern char iGpffffb01c;
 typedef struct { f32 a; f32 b; } F2;
 s32 func_00468260(u8 *arg0);
@@ -47,7 +47,7 @@ u8 *func_00468170(void *arg0, const char *arg1) {
     if (temp == NULL) {
         return NULL;
     }
-    func_00442088((char *)work, &iGpffffb01c, arg1);
+    sprintf((char *)work, &iGpffffb01c, arg1);
     return temp;
 }
 

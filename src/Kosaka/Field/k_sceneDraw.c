@@ -13,7 +13,7 @@ typedef struct Resrc
 
 extern Resrc* MT_Scene_GetRes(u16 resTypeId);
 extern u8* func_001452b0(s32 arg0);
-extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 arg3);
+extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 arg3);
 extern f32 fGpffff809c;
 extern f32 fGpffff838c;
 
@@ -357,11 +357,11 @@ void func_0014aa80(u16 resTypeId)
     sp[0] = 0;
     sp[1] = one;
     sp[2] = 0;
-    func_003e0870(temp_19, &sp[0], 2, -180.0f);
+    RwMatrixRotate(temp_19, &sp[0], 2, -180.0f);
     sp[0] = one;
     sp[1] = 0;
     sp[2] = 0;
-    func_003e0870(temp_19, &sp[0], 2, -45.0f);
+    RwMatrixRotate(temp_19, &sp[0], 2, -45.0f);
     *(s32 *)(temp_18 + 0x28) = one;
     *(s32 *)(temp_18 + 0x14) = one;
     *(s32 *)(temp_18 + 0x0) = one;
@@ -378,11 +378,11 @@ void func_0014aa80(u16 resTypeId)
     sp[0] = 0;
     sp[1] = one;
     sp[2] = 0;
-    func_003e0870(temp_18, &sp[0], 2, -180.0f);
+    RwMatrixRotate(temp_18, &sp[0], 2, -180.0f);
     sp[0] = one;
     sp[1] = 0;
     sp[2] = 0;
-    func_003e0870(temp_18, &sp[0], 2, -45.0f);
+    RwMatrixRotate(temp_18, &sp[0], 2, -45.0f);
     type = RESRC_GET_TYPE(resTypeId);
     if (type == RESRC_TYPE_MODELCHAR || type == RESRC_TYPE_MODELNPC)
     {
@@ -519,11 +519,11 @@ void func_0014ad90(void)
     sp[0] = 0;
     sp[1] = one;
     sp[2] = 0;
-    func_003e0870(var_17, &sp[0], 2, -180.0f);
+    RwMatrixRotate(var_17, &sp[0], 2, -180.0f);
     sp[0] = one;
     sp[1] = 0;
     sp[2] = 0;
-    func_003e0870(var_17, &sp[0], 2, -45.0f);
+    RwMatrixRotate(var_17, &sp[0], 2, -45.0f);
     *(s32 *)(var_16 + 0x28) = one;
     *(s32 *)(var_16 + 0x14) = one;
     *(s32 *)(var_16 + 0x0) = one;
@@ -540,11 +540,11 @@ void func_0014ad90(void)
     sp[0] = 0;
     sp[1] = one;
     sp[2] = 0;
-    func_003e0870(var_16, &sp[0], 2, -180.0f);
+    RwMatrixRotate(var_16, &sp[0], 2, -180.0f);
     sp[0] = one;
     sp[1] = 0;
     sp[2] = 0;
-    func_003e0870(var_16, &sp[0], 2, -45.0f);
+    RwMatrixRotate(var_16, &sp[0], 2, -45.0f);
 }
 // FUN_0014B000
 void* func_0014b000(void)

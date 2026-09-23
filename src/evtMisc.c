@@ -15,10 +15,10 @@ extern void (*jtbl_008873EC[])(void *);
 void func_0044ea90(const void *msg, s32 id);
 void func_0046d730(const void *file, s32 line);
 s32 func_00452490(s32 buf);
-s32 func_004553c0(s32 arg0);
-void func_00454bd0(s32 arg0);
-s32 func_004426e8(s32 *arg0, s32 arg1);
-s32 func_00442830(s32 *arg0, s32 arg1);
+s32 H_Cdvd_IsFileLoaded(s32 arg0);
+void H_Cdvd_Destroy(s32 arg0);
+s32 strcmp(s32 *arg0, s32 arg1);
+s32 strcpy(s32 *arg0, s32 arg1);
 s32 func_002852a0(s32 arg0, s32 arg1);
 void func_00440b68(const void *arg0, const void *arg1, s32 arg2);
 s32 func_00454a60(void *arg0, s32 arg1);
@@ -1030,14 +1030,14 @@ s32 func_0028f540(u8 *arg0) {
     switch (p[0]) {
     case 0:
         if (p[0x43] != 0) {
-            func_00454bd0(p[0x43]);
+            H_Cdvd_Destroy(p[0x43]);
             p[0x43] = 0;
         }
         func_00440b68(&D_007638A0, D_0063C638, 0x1344);
         p[0x43] = func_00454a60(&p[3], 0);
         p[0] = 1;
     case 1:
-        if (func_004553c0(p[0x43]) != 0) {
+        if (H_Cdvd_IsFileLoaded(p[0x43]) != 0) {
             p[0] = 2;
         }
         break;
@@ -1073,10 +1073,10 @@ void func_0028f6c0(u8 *arg0) {
         func_00452080(temp_2[0x44]);
     }
     if (temp_2[0x43] != 0) {
-        if (func_004553c0(temp_2[0x43]) == 0) {
+        if (H_Cdvd_IsFileLoaded(temp_2[0x43]) == 0) {
             func_0046d730(D_0063C638, 0x1364);
         }
-        func_00454bd0(temp_2[0x43]);
+        H_Cdvd_Destroy(temp_2[0x43]);
     }
     jtbl_008873EC[0](temp_2);
 }
@@ -1102,10 +1102,10 @@ s32 func_0028f800(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     if (temp_2[0] == 4) {
         temp_2[2] = arg1;
         temp_2[1] = arg3;
-        if (func_004426e8(&temp_2[3], arg2) == 0) {
+        if (strcmp(&temp_2[3], arg2) == 0) {
             temp_2[0] = 2;
         } else {
-            func_00442830(&temp_2[3], arg2);
+            strcpy(&temp_2[3], arg2);
             temp_2[0] = 0;
         }
         return 1;

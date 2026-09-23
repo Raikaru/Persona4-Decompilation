@@ -443,7 +443,7 @@ def scan_markers(cpath: Path) -> list[dict]:
         marker = MARKER_RE.match(lines[index])
         if not marker:
             index += 1; continue
-        address, name, cursor, header = int(marker.group(2), 16), None, index + 1, ""
+        address, name, cursor, header, knr_header = int(marker.group(2), 16), None, index + 1, "", ""
         if index + 1 < len(lines):
             asm_line = lines[index + 1].split("//", 1)[0].rstrip()
             asm_marker = INCLUDE_MARKER_RE.match(asm_line)
@@ -500,8 +500,21 @@ def scan_markers(cpath: Path) -> list[dict]:
             if MARKER_RE.match(lines[cursor]): break
             code = code_lines[cursor].strip()
             if not code.startswith("#"):
+                # Old-style definitions put typed parameter declarations
+                # between the function signature and its opening brace. Keep
+                # that signature while discarding the declarations' semicolons.
+                if (not knr_header and ";" in code and "(" not in code
+                        and code.strip() != ";" and header.rstrip().endswith(")")
+                        and NAME_RE.search(header)):
+                    knr_header = header
                 header += " " + code
-                if "{" in header: break
+                opening = header.find("{")
+                if opening >= 0:
+                    header = (knr_header or header[:opening].rsplit(";", 1)[-1]) + header[opening:]
+                    break
+                header = header.rsplit(";", 1)[-1]
+                if knr_header:
+                    header = knr_header + header
             cursor += 1
         address_name = re.search(
             rf"\b(?:func|FUN)_{address:08x}\s*\(", header, flags=re.IGNORECASE

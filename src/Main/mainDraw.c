@@ -6,14 +6,14 @@
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*D_00887300[])(u32, u32);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_00481430(void *arg0);
 extern void func_003e8110(s32 arg0);
 extern s32 func_003e8120(s32 arg0);
-extern void func_003e82a0(s32 arg0, s32 arg1, s32 arg2);
+extern void RwCameraClear(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00457120(void);
 extern s32 func_00457130(void);
-extern void func_0044f6b0(void);
+extern void H_Dbprt_Flush(void);
 extern void func_00460a80(void *arg0, s32 arg1);
 extern void func_00460ac0(void *arg0, void *arg1);
 extern void func_004623a0(s32 arg0);
@@ -223,13 +223,13 @@ void func_001014b0(void) {
 
     func_003e8110(func_00457120());
     temp_16 = func_00457120();
-    func_003e82a0(temp_16, func_00457130(), 2);
+    RwCameraClear(temp_16, func_00457130(), 2);
     if (func_003e8120(func_00457120()) != 0) {
         base = D_00887300;
         base[0](6, 1);
         base[0](8, 1);
-        func_003f6440(3, 0x717FB);
-        func_003f6440(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
         base[0](0xE, 0);
         return;
     }
@@ -245,8 +245,8 @@ void func_001014b0(void) {
 void func_001015c0(void) {
     void (**base)(u32, u32);
 
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(3, 0x717FB);
+    RpSkyRenderStateSet(2, 0x44);
     base = D_00887300;
     base[0](0xE, 0);
     base[0](0xC, 1);
@@ -269,8 +269,8 @@ void func_001015c0(void) {
 void func_001016f0(void) {
     void (**base)(u32, u32);
 
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(3, 0x71801);
+    RpSkyRenderStateSet(2, 0x44);
     base = D_00887300;
     base[0](0xE, 0);
     base[0](0xC, 1);
@@ -293,8 +293,8 @@ void func_001016f0(void) {
 void func_00101820(void) {
     void (**base)(u32, u32);
 
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 0x48);
+    RpSkyRenderStateSet(3, 0x71801);
+    RpSkyRenderStateSet(2, 0x48);
     base = D_00887300;
     base[0](0xE, 0);
     base[0](0xC, 1);
@@ -317,8 +317,8 @@ void func_00101820(void) {
 void func_00101950(void) {
     void (**base)(u32, u32);
 
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 0x42);
+    RpSkyRenderStateSet(3, 0x71801);
+    RpSkyRenderStateSet(2, 0x42);
     base = D_00887300;
     base[0](0xE, 0);
     base[0](0xC, 1);
@@ -341,8 +341,8 @@ void func_00101950(void) {
 void func_00101a80(void) {
     void (**base)(u32, u32);
 
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 6);
+    RpSkyRenderStateSet(3, 0x71801);
+    RpSkyRenderStateSet(2, 6);
     base = D_00887300;
     base[0](0xE, 0);
     base[0](0xC, 1);
@@ -365,9 +365,9 @@ s32 func_00101bb0(u8 *arg0) {
     s32 temp_16;
 
     temp_17 = *(u8 **)(arg0 + 0x38);
-    func_0044f6b0();
+    H_Dbprt_Flush();
     temp_16 = func_00457120();
-    func_003e82a0(temp_16, func_00457130(), 3);
+    RwCameraClear(temp_16, func_00457130(), 3);
     func_00460a80(&D_00793E80, 0xD8);
     *(s32 *)temp_17 = 0;
     *(s32 *)(temp_17 + 4) = 0;

@@ -27,11 +27,11 @@ extern void func_004baea0(void* arg0, void* arg1);
 extern void func_004baed0(void* arg0, void* arg1);
 extern void func_00440b68(const void* msg, const void* file, s32 line);
 extern u8* func_00454a60(u8* param, s32 mode);
-extern void func_00456150(void* handle);
+extern void H_Cdvd_ReadSync(void* handle);
 extern s32 func_003ef740(u8* param, s32 mode);
-extern void func_00454bd0(u8* ptr);
+extern void H_Cdvd_Destroy(u8* ptr);
 
-extern void func_0043f9c8(void* dst, s32 value, u32 size);
+extern void memset(void* dst, s32 value, u32 size);
 extern u8 D_00764210;
 extern s32 D_00764CA4;
 extern s32 D_00764CA8;
@@ -57,7 +57,7 @@ extern u8* func_004b8350(void* a, void* b);
 extern s32 func_003c00e0(void);
 extern void func_003c0210(void* a, void* b, s32 c);
 extern s32 func_003e9320(void);
-extern void func_003c1b90(void* a, void* b);
+extern void RpAtomicSetFrame(void* a, void* b);
 extern void func_003c2a80(void* a);
 extern void func_004bccf0(void* a, void* b);
 extern void func_003c22f0(void* a);
@@ -91,7 +91,7 @@ extern void func_003c22f0(void* a);
 #pragma opt_common_subs off
 u8* func_004b6030(u8* arg0)
 {
-    extern void func_0043f810(void* dst, void* src, u32 size);
+    extern void memcpy(void* dst, void* src, u32 size);
     u8* aTmp[16];
     u8* cTmp1[16];
     u8* cTmp2[16];
@@ -292,9 +292,9 @@ u8* func_004b6030(u8* arg0)
                     *(s32*)(*(u8**)(node + 0x18) + i7 * 8 + 4) = *(s32*)(src + 0xC);
                 }
                 if (*(s32*)arg0 == 0x65) {
-                    func_0043f810(*(u8**)(*(u8**)(node + 0x1C) + i7 * 4), bTmp2[i7], *(s32*)(src + 0x1C));
+                    memcpy(*(u8**)(*(u8**)(node + 0x1C) + i7 * 4), bTmp2[i7], *(s32*)(src + 0x1C));
                 } else if (*(s32*)arg0 == 0x64) {
-                    func_0043f810(*(u8**)(*(u8**)(node + 0x1C) + i7 * 4), bTmp2[i7], *(s32*)(src + 0x14));
+                    memcpy(*(u8**)(*(u8**)(node + 0x1C) + i7 * 4), bTmp2[i7], *(s32*)(src + 0x14));
                 }
             }
         }
@@ -372,7 +372,7 @@ u8* func_004b6900(u8* arg0)
                                  *(u8**)(*(u8**)(node + 0xC) + i * 8 + 4));
             *(s32*)(*(u8**)(node + 0xC) + i * 8) = func_003c00e0();
             func_003c0210(*(u8**)(*(u8**)(node + 0xC) + i * 8), temp, 0);
-            func_003c1b90(*(u8**)(*(u8**)(node + 0xC) + i * 8),
+            RpAtomicSetFrame(*(u8**)(*(u8**)(node + 0xC) + i * 8),
                           (void*)func_003e9320());
             func_003c2a80(temp);
             func_004bccf0(*(u8**)(node + 8) + i * 0x3C, temp);
@@ -419,13 +419,13 @@ void func_004b6c90(s32 arg0, s32 arg1)
 
     func_00440b68(&D_00764210, D_007146B0, 0x2DA);
     temp_2 = (s32)func_00454a60(D_007146C0, 0);
-    func_00456150((void*)temp_2);
+    H_Cdvd_ReadSync((void*)temp_2);
     D_00764CA8 = (s32)func_003ef740(D_007146C0, 0);
-    func_00454bd0((u8*)temp_2);
+    H_Cdvd_Destroy((u8*)temp_2);
     D_00764CA0 = NULL;
     D_00764C9C = NULL;
     D_00764CA4 = (s32)func_00451de0((const void *)(D_007146D0), arg1, 0, 0, func_004b6e40, 0, (u8 *)(NULL));
-    func_0043f9c8(D_00922DB0, 0, 0x30);
+    memset(D_00922DB0, 0, 0x30);
     D_00922DB8[0] = (void*)func_004b6e80;
     D_00922DC0[0] = 0;
     D_00764C98 = (void*)arg0;

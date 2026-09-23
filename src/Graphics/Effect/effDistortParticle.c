@@ -10,8 +10,8 @@ extern char D_00714550[];
 
 extern void func_0046d730(const char *file, s32 line);
 extern void func_0044ea90(const char *file, s32 line);
-extern void *func_0043f9c8(void *dest, s32 value, s32 size);
-extern void func_0043f810(void *dst, const void *src, u32 size);
+extern void *memset(void *dest, s32 value, s32 size);
+extern void memcpy(void *dst, const void *src, u32 size);
 extern void func_003ef3a0(void *ptr);
 extern void func_00492cd0(void *ptr);
 extern u8 *func_00484490(void);
@@ -21,11 +21,11 @@ extern void func_00492d10(void *ptr);
 extern s32 func_00481300(u16 param);
 extern void func_00492df0(void *arg0, void *arg1);
 extern void func_00492db0(void *arg0, void *arg1);
-extern s32 func_004bd050(s32 arg0);
+extern s32 effMiscRand(s32 arg0);
 extern s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7);
 extern void func_004bceb0(void);
 extern void (*D_00887300[])(u32 state, u32 value);
-extern f32 func_004bd0b0(u32 arg0);
+extern f32 effMiscRandFloat(u32 arg0);
 extern f32 fGpffff8080;
 extern f32 fGpffff8098;
 extern f32 fGpffff809c;
@@ -42,7 +42,7 @@ u8 *func_004af680(u32 arg0) {
 
     func_0044ea90(D_00714538, 0x171);
     temp = (u8 *)(*jtbl_008873E8)(0x9C, 0x40000);
-    func_0043f9c8(temp, 0, 0x9C);
+    memset(temp, 0, 0x9C);
     if (temp == NULL) {
         func_0046d730(D_00714550, 0x2F);
     }
@@ -81,7 +81,7 @@ u8 *func_004af740(u8 *arg0) {
     if (temp_2 == NULL) {
         func_0046d730(D_00714550, 0x6B);
     }
-    func_0043f810(temp_2 + 0xC, temp_2_2, 0x48);
+    memcpy(temp_2 + 0xC, temp_2_2, 0x48);
     func_004afb10(temp_2, *(u16 *)(arg0 + 0xC), temp_2_2 + 0x48);
     if (*(s32 *)(*(u8 **)(temp_2 + 0x5C) + 8) == 0) {
         return temp_2;
@@ -146,7 +146,7 @@ u8 *func_004af920(u8 *arg0) {
     if (temp_2 == NULL) {
         func_0046d730(D_00714550, 0xB7);
     }
-    func_0043f810(temp_2 + 0xC, arg0 + 0xC, 0x48);
+    memcpy(temp_2 + 0xC, arg0 + 0xC, 0x48);
     func_004afb10(temp_2, *(u16 *)(*(u8 **)(arg0 + 0x5C) + 0), temp_16);
     if (*(s32 *)(*(u8 **)(temp_2 + 0x5C) + 8) == 0) {
         return temp_2;
@@ -224,15 +224,15 @@ void func_004afc80(u8 *arg0, u8 *arg1) {
     f32 temp_f20_3;
 
     temp_f20 = *(f32 *)(arg0 + 0xC);
-    temp_f20_2 = (1.0f - temp_f20) + temp_f20 * func_004bd0b0(0);
-    *(f32 *)(arg1 + 0) = fGpffff8080 * func_004bd0b0(0);
-    *(f32 *)(arg1 + 0xC) = fGpffff8080 * func_004bd0b0(0);
-    *(f32 *)(arg1 + 4) = *(f32 *)(arg0 + 0x18) * (0.5f + 0.5f * func_004bd0b0(0));
-    *(f32 *)(arg1 + 0x10) = *(f32 *)(arg0 + 0x18) * (0.5f + 0.5f * func_004bd0b0(0));
-    *(f32 *)(arg1 + 8) = temp_f20_2 * (*(f32 *)(arg0 + 0x10) * (fGpffff809c + fGpffff8098 * func_004bd0b0(0)));
-    *(f32 *)(arg1 + 0x14) = temp_f20_2 * (*(f32 *)(arg0 + 0x14) * (fGpffff809c + fGpffff8098 * func_004bd0b0(0)));
+    temp_f20_2 = (1.0f - temp_f20) + temp_f20 * effMiscRandFloat(0);
+    *(f32 *)(arg1 + 0) = fGpffff8080 * effMiscRandFloat(0);
+    *(f32 *)(arg1 + 0xC) = fGpffff8080 * effMiscRandFloat(0);
+    *(f32 *)(arg1 + 4) = *(f32 *)(arg0 + 0x18) * (0.5f + 0.5f * effMiscRandFloat(0));
+    *(f32 *)(arg1 + 0x10) = *(f32 *)(arg0 + 0x18) * (0.5f + 0.5f * effMiscRandFloat(0));
+    *(f32 *)(arg1 + 8) = temp_f20_2 * (*(f32 *)(arg0 + 0x10) * (fGpffff809c + fGpffff8098 * effMiscRandFloat(0)));
+    *(f32 *)(arg1 + 0x14) = temp_f20_2 * (*(f32 *)(arg0 + 0x14) * (fGpffff809c + fGpffff8098 * effMiscRandFloat(0)));
     temp_f20_3 = *(f32 *)(arg0 + 0x24);
-    *(f32 *)(arg1 + 0x18) = (1.0f - temp_f20_3) + temp_f20_3 * func_004bd0b0(0);
+    *(f32 *)(arg1 + 0x18) = (1.0f - temp_f20_3) + temp_f20_3 * effMiscRandFloat(0);
 }
 
 /* measured GUARDED_SCORE 725: retail 792 vs object 796 (+4, +0.5% inside 3% gate), probe 725 words, fnalign 884 edits (+2 reloc-only). Priced casts via micro_codegen (u8->f32 14 vs s32 mask 4, u32 14 vs s32 3, srl+andi long 17 vs sra short 6); kept per-channel unsigned (lbu+bltz) to match retail long. Free pragmas tie (loopinv/unrolloff/schedoff 746, comsuboff 824 worse); subscript byte-offset wins 746->725 (-21), direct ties; colours tie (both 725). Branch order alpha-first 746 wins vs unpack-first 755. Frame -0x1E0 vs -0x1D0 (+16) with extra f25, UV single-base vs 8 separate lui, FPR $f24 vs $f21 and saved-reg perm. Verify 0 MISMATCH (11 MATCH/1 ASM), lint 0 errors. Banked as guarded floor. Remeasure 2026-09-19: sink t0/t1 into arms worsens 886->930 (+44, 796->813) so retail hoists; keep hoisted. Duplicate ang at uses (recompute *(arg2+0x1C)+8084 for s0/c0b) kills $f25, 886->884 (-2); per-arm packed_copy=packed (early check uses packed, reload after cam/in mode0) kills $s7, 884->666 (-218, frame 0x1E0->0x1D0 match, no spare GPR/FPR). New: retail 792 vs object 798 (+6), words 744, fnalign 666 edits. */
@@ -241,9 +241,9 @@ void func_004afc80(u8 *arg0, u8 *arg1) {
 s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7)
 {
     extern void func_003f6690(s32 param, void *out);
-    extern void func_003f6440(s32 param, s32 value);
-    extern f32 func_0044b610(f32 param);
-    extern f32 func_0044b7b0(f32 param);
+    extern void RpSkyRenderStateSet(s32 param, s32 value);
+    extern f32 cosf(f32 param);
+    extern f32 sinf(f32 param);
     extern u8 *func_00457120(void);
     extern void func_003e42a0(void *a, void *b, void *c);
     extern void func_00489f80(void);
@@ -318,10 +318,10 @@ s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *
     base = *(f32 *)((u8 *)arg2 + 0x18);
     c0 = *(f32 *)(arg1 + 0x0);
     v0 = *(f32 *)(arg1 + 0x8);
-    t0 = base + v0 * func_0044b610(c0);
+    t0 = base + v0 * cosf(c0);
     c1 = *(f32 *)(arg1 + 0xC);
     v1 = *(f32 *)(arg1 + 0x14);
-    t1 = base + v1 * func_0044b610(c1);
+    t1 = base + v1 * cosf(c1);
     mode = arg6 & 0xFF;
     if (mode == 1) {
         u32 denom;
@@ -413,8 +413,8 @@ s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *
             depth = 0.0f;
         }
         inv = 1.0f / depth;
-        s0 = func_0044b610(*(f32 *)((u8 *)arg2 + 0x1C) + fGpffff8084);
-        c0b = func_0044b7b0(*(f32 *)((u8 *)arg2 + 0x1C) + fGpffff8084);
+        s0 = cosf(*(f32 *)((u8 *)arg2 + 0x1C) + fGpffff8084);
+        c0b = sinf(*(f32 *)((u8 *)arg2 + 0x1C) + fGpffff8084);
         f8 = f23 * s0;
         f7 = f22 * s0;
         f6 = f23 * c0b;
@@ -444,19 +444,19 @@ s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *
         verts[3*16+2] = depth;
         verts[3*16+6] = inv;
         if (mode == 1) {
-            func_003f6440(2, 0x42);
+            RpSkyRenderStateSet(2, 0x42);
             D_00887310[0](4, verts, 4);
         } else if (mode == 0) {
             u8 *tbl;
             tbl = (u8 *)func_00481300(0x15);
             D_00887300[0](1, *(u32 *)tbl);
             func_00489f80();
-            func_003f6440(2, 0x44);
-            func_003f6440(3, 0x31001);
+            RpSkyRenderStateSet(2, 0x44);
+            RpSkyRenderStateSet(3, 0x31001);
             D_00887310[0](4, verts, 4);
             func_0048a000();
             D_00887300[0](1, *(u32 *)(arg0 + 0x60));
-            func_003f6440(2, st2 | 0x10);
+            RpSkyRenderStateSet(2, st2 | 0x10);
             uv_off = (arg7 & 0xFF) << 5;
             verts[0*16+4] = *(f32 *)((u8 *)D_00714570 + uv_off + 0);
             verts[0*16+5] = *(f32 *)((u8 *)D_00714570 + uv_off + 4);
@@ -469,8 +469,8 @@ s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *
             D_00887310[0](4, verts, 4);
             func_0048a0e0();
         }
-        func_003f6440(2, st2);
-        func_003f6440(3, st3);
+        RpSkyRenderStateSet(2, st2);
+        RpSkyRenderStateSet(3, st3);
         return 0;
     }
 }
@@ -501,15 +501,15 @@ void func_004b0a80(u8 *arg0) {
         while (var_17 < temp_16) {
             if (*(s32 *)(var_19 + 0x10) == 0) {
                 temp_f20 = *(f32 *)(arg0 + 0xC);
-                temp_f20_2 = (1.0f - temp_f20) + temp_f20 * func_004bd0b0(0);
-                *(f32 *)(var_18 + 0) = fGpffff8080 * func_004bd0b0(0);
-                *(f32 *)(var_18 + 0xC) = fGpffff8080 * func_004bd0b0(0);
-                *(f32 *)(var_18 + 4) = *(f32 *)(arg0 + 0x18) * (0.5f + 0.5f * func_004bd0b0(0));
-                *(f32 *)(var_18 + 0x10) = *(f32 *)(arg0 + 0x18) * (0.5f + 0.5f * func_004bd0b0(0));
-                *(f32 *)(var_18 + 8) = temp_f20_2 * (*(f32 *)(arg0 + 0x10) * (fGpffff809c + fGpffff8098 * func_004bd0b0(0)));
-                *(f32 *)(var_18 + 0x14) = temp_f20_2 * (*(f32 *)(arg0 + 0x14) * (fGpffff809c + fGpffff8098 * func_004bd0b0(0)));
+                temp_f20_2 = (1.0f - temp_f20) + temp_f20 * effMiscRandFloat(0);
+                *(f32 *)(var_18 + 0) = fGpffff8080 * effMiscRandFloat(0);
+                *(f32 *)(var_18 + 0xC) = fGpffff8080 * effMiscRandFloat(0);
+                *(f32 *)(var_18 + 4) = *(f32 *)(arg0 + 0x18) * (0.5f + 0.5f * effMiscRandFloat(0));
+                *(f32 *)(var_18 + 0x10) = *(f32 *)(arg0 + 0x18) * (0.5f + 0.5f * effMiscRandFloat(0));
+                *(f32 *)(var_18 + 8) = temp_f20_2 * (*(f32 *)(arg0 + 0x10) * (fGpffff809c + fGpffff8098 * effMiscRandFloat(0)));
+                *(f32 *)(var_18 + 0x14) = temp_f20_2 * (*(f32 *)(arg0 + 0x14) * (fGpffff809c + fGpffff8098 * effMiscRandFloat(0)));
                 temp_f20_3 = *(f32 *)(arg0 + 0x24);
-                *(f32 *)(var_18 + 0x18) = (1.0f - temp_f20_3) + temp_f20_3 * func_004bd0b0(0);
+                *(f32 *)(var_18 + 0x18) = (1.0f - temp_f20_3) + temp_f20_3 * effMiscRandFloat(0);
             }
             if (*(s32 *)(var_19 + 0x10) >= 0) {
                 *(f32 *)(var_18 + 0) = *(f32 *)(var_18 + 0) + *(f32 *)(var_18 + 4);
@@ -577,7 +577,7 @@ void func_004b0ce0(u8 *arg0, s32 arg1) {
             var_21 = 0;
             while (var_21 < temp_16) {
                 if (*(s32 *)(var_18 + 0x10) >= 0) {
-                    func_004afe20(arg0, var_17, var_18, var_18, spE0, spF0, arg1, func_004bd050(0) & 3);
+                    func_004afe20(arg0, var_17, var_18, var_18, spE0, spF0, arg1, effMiscRand(0) & 3);
                 }
                 var_21 += 1;
                 var_18 += 0x20;
@@ -614,7 +614,7 @@ void func_004b0ce0(u8 *arg0, s32 arg1) {
                         : "r"(sp70), "r"(var_18)
                         : "$vf28", "$vf29", "$vf30", "$vf31", "$vf10", "ACC", "memory");
                     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(spD0) : "$vf10", "memory");
-                    func_004afe20(arg0, var_17, var_18, spD0, spE0, spF0, arg1, func_004bd050(0) & 3);
+                    func_004afe20(arg0, var_17, var_18, spD0, spE0, spF0, arg1, effMiscRand(0) & 3);
                 }
                 var_21_2 += 1;
                 var_18 += 0x20;

@@ -8,8 +8,8 @@ extern void func_00440b68(...);
 extern void func_0044ea90(const void *file, u32 line);
 extern void func_0046d730(const void *file, u32 line);
 extern void *func_00454a60(const char *path, s32 flags);
-extern void func_00454bd0(void *handle);
-extern s32 func_004553c0(void *handle);
+extern void H_Cdvd_Destroy(void *handle);
+extern s32 H_Cdvd_IsFileLoaded(void *handle);
 
 extern s32 func_00452490(s32);
 extern void func_00452080(s32 handle);
@@ -79,7 +79,7 @@ s32 func_0012bbb0(u8 *sdkTaskBytes)
         func_00440b68(&D_00762D88, &D_005E5730, 0xB5);
         temp_2->handle = (s32)func_00454a60(D_005E5760, 1);
     case 2:
-        if (func_004553c0((void *)temp_2->handle) != 0) {
+        if (H_Cdvd_IsFileLoaded((void *)temp_2->handle) != 0) {
             temp_2->state = 3;
             func_0044ea90(&D_005E5730, 0x4D);
             allocator = (u32)D_008873F4;
@@ -214,7 +214,7 @@ void func_0012bfb0(u8 *unusedTask)
     }
     func_00452080(temp_2->task10);
     func_00452080(temp_2->task14);
-    func_00454bd0(temp_2->handle);
+    H_Cdvd_Destroy(temp_2->handle);
     jtbl_008873EC[0](temp_2);
 }
 

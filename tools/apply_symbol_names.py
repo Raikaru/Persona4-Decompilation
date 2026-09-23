@@ -1,25 +1,28 @@
 #!/usr/bin/env python3
-"""Apply evidence-backed function names from ``config/symbol_names*.txt`` into C sources.
+"""Apply evidence-backed function names from ``config/symbol_names*.txt`` to C.
 
 Every recovered name maps one canonical function address to a real identifier
-(``Name = 0xADDRESS; // type:func  evidence: ...``, the same curated line
-contract that ``tools/reconcile_function_boundaries.py`` enforces).  The
-placeholder identifier ``func_<address>`` is renamed in C definitions,
-declarations, call sites, and function-pointer references. The second argument
-of ``INCLUDE_ASM`` is a filename and linker symbol, not a renameable C call;
-renaming an address still referenced by any fallback or assembly is refused.
+(``Name = 0xADDRESS; // type:func  evidence: ...``), the same curated line
+contract that ``tools/reconcile_function_boundaries.py`` enforces. The
+placeholder ``func_<address>`` is renamed in C definitions, declarations,
+call sites, function-pointer references, and headers.
 
-Renames are whole identifiers only (``func_001a1100`` never touches
-``func_001a11001``) and are restricted to code: comments and string/char
-literals are left byte-for-byte alone, so a ``// FUN_XXXXXXXX`` marker line
-keeps its address form no matter what (verify.py keys on the marker address,
-not on the C function name below it).  Files are written in BINARY mode with
-their original line endings, so a run is byte-preserving apart from the
-identifier swaps themselves.
+The second argument of ``INCLUDE_ASM`` and the right-hand symbol in
+``#define alias func_<address>`` are linker spellings, not C calls. Audited
+fallback assembly and explicit preprocessor aliases keep their address-form
+symbols. The build resolves those spellings to the same canonical addresses
+as the curated names; a whole-tree rename requires the reconciled
+``config/symbol_addrs.txt`` to supply those names. Scoped renames still
+refuse assembly linkage and references outside their C-file scope.
 
-``--check`` reports pending C renames without changing files, labelling
-addresses blocked by assembly linkage, out-of-scope C references, or headers.
-It exits non-zero until the backlog is resolved.
+Only whole code identifiers change: comments and string/char literals stay
+byte-for-byte intact, including ``// FUN_XXXXXXXX`` verifier markers. Files
+are written in binary mode with their original line endings; legacy headers
+may contain non-UTF-8 bytes and are scanned and rewritten as Latin-1 (a
+byte-preserving mapping). C source planning and rewriting remain strict UTF-8.
+
+``--check`` reports pending C and header renames without changing files and
+exits non-zero until the backlog is resolved.
 """
 
 from __future__ import annotations
@@ -69,6 +72,13 @@ CODE_IDENT = re.compile(r"(?<![A-Za-z0-9_])func_([0-9a-fA-F]{8})(?![A-Za-z0-9_])
 ASM_ARG = re.compile(
     r"\bINCLUDE_ASM\s*\(\s*[^,()]*,\s*(func_[0-9a-fA-F]{8})\s*\)"
 )
+# Explicit preprocessor aliases intentionally bind a differently typed C API
+# to the audited address-form linker symbol. Replacing the target can collide
+# with a different prototype (e.g. RwMatrixTranslate -> RwMatrixRotate).
+MACRO_ALIAS = re.compile(
+    r"(?m)^[ \t]*#[ \t]*define[ \t]+[A-Za-z_]\w*(?:\([^\n)]*\))?[ \t]+"
+    r"(func_[0-9a-fA-F]{8})(?![A-Za-z0-9_])"
+)
 
 
 
@@ -78,6 +88,18 @@ def canonical_addresses(root: Path) -> set[int]:
         (root / "tools" / "slus21782_functions.json").read_text(encoding="utf-8")
     )
     return {int(address, 16) for address in windows["windows"]}
+
+
+SYMBOL_LINE = re.compile(r"^\s*([A-Za-z_.$][\w.$]*)\s*=\s*0x([0-9A-Fa-f]+)\s*;", re.M)
+
+
+def symbol_map_names(root: Path) -> dict[int, str]:
+    """Canonical address -> linker spelling emitted by reconciliation."""
+    path = root / "config" / "symbol_addrs.txt"
+    if not path.is_file():
+        return {}
+    return {int(match[2], 16): match[1]
+            for match in SYMBOL_LINE.finditer(path.read_text(encoding="utf-8"))}
 
 
 def load_names(files: list[Path], canonical: set[int]) -> dict[int, str]:
@@ -140,20 +162,20 @@ def plan_file(
     """Locate renames in one file: (1-based line, start, end, old, new).
 
     Matches are found on the comment/string-sanitized copy of each line, so
-    only code-context occurrences qualify. Latin-1 is for inventory scans of
-    legacy headers: ASCII identifiers survive byte-for-byte, and those spans
-    are never passed to rewrite().
+    only code-context occurrences qualify. Latin-1 preserves non-UTF-8 bytes
+    in legacy headers through both planning and rewriting.
     """
     text = path.read_bytes().decode(encoding)
     lines = text.split("\n")
     sanitized = sanitize_c_lines(lines)
     clean_text = "\n".join(sanitized)
-    asm_args = {match.start(1) for match in ASM_ARG.finditer(clean_text)}
+    aliases = {match.start(1) for pattern in (ASM_ARG, MACRO_ALIAS)
+               for match in pattern.finditer(clean_text)}
     changes: list[tuple[int, int, int, str, str]] = []
     offset = 0
     for index, clean in enumerate(sanitized, 1):
         for match in CODE_IDENT.finditer(clean):
-            if offset + match.start() in asm_args:
+            if offset + match.start() in aliases:
                 continue
             address = int(match.group(1), 16)
             name = names.get(address)
@@ -163,16 +185,18 @@ def plan_file(
     return changes
 
 
-def rewrite(path: Path, changes: list[tuple[int, int, int, str, str]]) -> int:
+def rewrite(
+    path: Path, changes: list[tuple[int, int, int, str, str]], *, encoding: str = "utf-8"
+) -> int:
     """Apply the planned renames, writing back in binary mode.
 
     Each change splices exactly its own span, so a placeholder that also
     appears in a comment or string on the same line is left alone.  Only the
     identifier spans change; line endings and every other byte are preserved
-    exactly (the file is decoded/re-encoded as UTF-8 and written with
-    ``write_bytes``, never through a text-mode ``write_text``).
+    exactly. C remains strict UTF-8; Latin-1 on legacy headers preserves each
+    untouched byte while still allowing ASCII identifier substitutions.
     """
-    text = path.read_bytes().decode("utf-8")
+    text = path.read_bytes().decode(encoding)
     lines = text.split("\n")
     by_line: dict[int, list[tuple[int, int, str]]] = {}
     for index, start, end, _old, new in changes:
@@ -186,7 +210,7 @@ def rewrite(path: Path, changes: list[tuple[int, int, int, str, str]]) -> int:
             position = end
         out.append(line[position:])
         lines[index - 1] = "".join(out)
-    path.write_bytes("\n".join(lines).encode("utf-8"))
+    path.write_bytes("\n".join(lines).encode(encoding))
     return len(changes)
 
 
@@ -227,28 +251,30 @@ def unplanned_references(files: Iterable[Path], names: dict[int, str]) -> dict[i
 
 
 def run(root: Path, paths: list[str], check: bool) -> int:
-    """Plan C renames and reject partial C/header/assembly symbol migrations."""
+    """Plan complete C/header renames or reject partial scoped migrations."""
     canonical = canonical_addresses(root)
     sources = source_files(root)
+    headers = header_files(root)
     if paths:
         files = []
         for name in paths:
             path = Path(name)
             files.append(path if path.is_absolute() else root / path)
     else:
-        files = sources
+        files = [*sources, *headers]
     names = load_names(sorted((root / "config").glob("symbol_names*.txt")), canonical)
-    source_set = set(sources)
+    source_set, header_set = set(sources), set(headers)
 
     planned: dict[Path, list[tuple[int, int, int, str, str]]] = {}
     total = 0
     for path in files:
-        if path.suffix != ".c" or is_generated(path):
+        if path.suffix not in (".c", ".h") or is_generated(path):
             continue
-        if path not in source_set:
-            raise RuntimeError(f"{path}: not a source under src/")
+        if path not in source_set and path not in header_set:
+            raise RuntimeError(f"{path}: not a source under src/ or header under src/ or include/")
+        encoding = "latin-1" if path.suffix == ".h" else "utf-8"
         try:
-            changes = plan_file(path, names)
+            changes = plan_file(path, names, encoding=encoding)
         except UnicodeDecodeError as error:
             raise RuntimeError(f"{path}: not valid UTF-8 ({error})") from error
         if changes:
@@ -265,13 +291,16 @@ def run(root: Path, paths: list[str], check: bool) -> int:
     pending = {int(old[5:], 16) for changes in planned.values()
                for _line, _start, _end, old, _new in changes}
     pending_names = {addr: names[addr] for addr in pending}
-    assembly = pending & assembly_names(root)
+    linked = assembly_names(root)  # Includes the generated-fallback completeness guard.
+    assembly = pending & linked if paths else set()
     scope = set(files)
     outside = unplanned_references(
         (path for path in sources if path not in scope), pending_names
     ) if paths else {}
-    headers = unplanned_references(header_files(root), pending_names)
-    blocked = assembly | set(outside) | set(headers)
+    other_headers = unplanned_references(headers, pending_names) if paths else {}
+    symbol_map = symbol_map_names(root)
+    unmapped = {address for address in pending if symbol_map.get(address) != names[address]}
+    blocked = assembly | set(outside) | set(other_headers) | unmapped
 
     def shown(path: Path) -> str:
         try:
@@ -288,8 +317,10 @@ def run(root: Path, paths: list[str], check: bool) -> int:
                     reasons.append("assembly-linked")
                 if address in outside:
                     reasons.append(f"out-of-scope C: {shown(outside[address])}")
-                if address in headers:
-                    reasons.append(f"header: {shown(headers[address])}")
+                if address in other_headers:
+                    reasons.append(f"header: {shown(other_headers[address])}")
+                if address in unmapped:
+                    reasons.append("symbol map stale; run make reconcile")
                 suffix = f" [blocked: {', '.join(reasons)}]" if reasons else " [ready]"
                 print(f"{shown(path)}:{line}: {old} -> {new}{suffix}")
         print(f"{total} pending occurrence(s) in {len(planned)} file(s); "
@@ -300,16 +331,19 @@ def run(root: Path, paths: list[str], check: bool) -> int:
         examples = ", ".join(
             f"func_{addr:08x}"
             + (f" (C: {shown(outside[addr])})" if addr in outside else "")
-            + (f" (header: {shown(headers[addr])})" if addr in headers else "")
+            + (f" (header: {shown(other_headers[addr])})" if addr in other_headers else "")
+            + (" (symbol map stale)" if addr in unmapped else "")
             for addr in sorted(blocked)[:8]
         )
         raise RuntimeError(
             f"cannot rename assembly-linked or partially scoped addresses ({examples}); "
-            "all C uses and headers must migrate with their linker symbols"
+            "reconcile the symbol map and migrate all C uses and headers together"
         )
 
     for path in sorted(planned):
-        count = rewrite(path, planned[path])
+        count = rewrite(
+            path, planned[path], encoding="latin-1" if path.suffix == ".h" else "utf-8"
+        )
         print(f"{shown(path)}: renamed {count} occurrence(s)")
     print(f"renamed {total} occurrence(s) in {len(planned)} file(s)")
     return 0
@@ -325,7 +359,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "paths",
         nargs="*",
-        help="specific .c files to consider (default: all of src/ minus src/generated)",
+        help="specific .c files to consider (default: all C and headers minus generated files)",
     )
     args = parser.parse_args(argv)
     try:

@@ -16,7 +16,7 @@ extern s32 D_00744164;
 extern s32 D_00744168;
 
 extern void func_0050cd00(s32 arg0);
-extern void func_0043f810(s32 arg0, s32 arg1, s32 arg2);
+extern void memcpy(s32 arg0, s32 arg1, s32 arg2);
 
 extern s32 D_0074586C[];
 
@@ -387,7 +387,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cb28);
 // FUN_0050CB68
 s32 func_0050cb68(s32 arg0, s32 arg1, s32 arg2)
 {
-    func_0043f810(arg2, arg0 + 0x70000000, arg1);
+    memcpy(arg2, arg0 + 0x70000000, arg1);
     return 0;
 }
 // FUN_0050CBA0
@@ -397,7 +397,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cc08);
 // FUN_0050CC48
 s32 func_0050cc48(s32 arg0, s32 arg1, s32 arg2)
 {
-    func_0043f810(arg2 + 0x70000000, arg0, arg1);
+    memcpy(arg2 + 0x70000000, arg0, arg1);
     return 0;
 }
 // FUN_0050CC78

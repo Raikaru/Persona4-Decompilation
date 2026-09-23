@@ -11,9 +11,9 @@ void *func_00481460(u16 arg0);
 void *func_00481540(u16 arg0);
 void func_00460ac0(void *arg0, void *arg1);
 u8 *func_00484490(u8 *obj);
-void func_0043f810(void *dst, const void *src, u32 size);
+void memcpy(void *dst, const void *src, u32 size);
 void func_004b4430(u8 *arg0, u8 *arg1);
-f32 func_004bd0b0(u32 param);
+f32 effMiscRandFloat(u32 param);
 
 extern u8 D_00713310[];
 extern u8 D_00714628[];
@@ -130,11 +130,11 @@ void func_004b3470(u8 *arg0) {
             f21 = 1.0f - f25;
             f20 = 1.0f - f23;
             while (i < count) {
-                r = 65535.0f * func_004bd0b0(0);
+                r = 65535.0f * effMiscRandFloat(0);
                 *(u16 *)dst = (u16)r;
-                r = 255.0f * (f22 + f24 * func_004bd0b0(0));
+                r = 255.0f * (f22 + f24 * effMiscRandFloat(0));
                 *(u8 *)(dst + 1) = (u8)r;
-                r = f21 + f25 * func_004bd0b0(0);
+                r = f21 + f25 * effMiscRandFloat(0);
                 *(f32 *)((u8 *)dst + 4) =
                     f23 + f20 * (1.0f - r);
                 i++;
@@ -163,7 +163,7 @@ void func_004b36b0(u8 *arg0, u8 *arg1)
     extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
     extern u8 *func_00457120(void);
     extern void func_003e42a0(u8 *a, u8 *b, u8 *c);
-    extern void func_003c2290(u8 *a, s32 b);
+    extern void RpGeometryLock(u8 *a, s32 b);
     extern void func_003c22f0(u8 *a);
     extern void func_003e9700(u8 *a);
     extern void func_003e9cb0(u8 *a, u8 *b, s32 c);
@@ -330,7 +330,7 @@ void func_004b36b0(u8 *arg0, u8 *arg1)
     arr = *(u8 **)tmp19;
     aPtr = *(u8 **)(tmp16 + 0x10);
     bPtr = *(u8 **)(aPtr + 0x18);
-    func_003c2290(bPtr, 2);
+    RpGeometryLock(bPtr, 2);
     cPtr = *(u8 **)(bPtr + 0x5C);
     verts = *(u8 **)(cPtr + 0x14);
     b2 = *(arr + 2);
@@ -597,11 +597,11 @@ void func_004b41c0(u8 *arg0) {
             f21 = 1.0f - f23;
             f20 = 1.0f - f22;
             while (i < count) {
-                r = 65535.0f * (f21 + f23 * func_004bd0b0(0));
+                r = 65535.0f * (f21 + f23 * effMiscRandFloat(0));
                 *(u16 *)dst = (u16)r;
-                r = 65535.0f * func_004bd0b0(0);
+                r = 65535.0f * effMiscRandFloat(0);
                 *(u16 *)(dst + 1) = (u16)r;
-                r = 65535.0f * (f20 + f22 * func_004bd0b0(0));
+                r = 65535.0f * (f20 + f22 * effMiscRandFloat(0));
                 *(u16 *)(dst + 2) = (u16)r;
                 i++;
                 dst = (u16 *)((u8 *)dst + 6);
@@ -632,11 +632,11 @@ void func_004b4430(u8 *arg0, u8 *arg1)
 {
     extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
     extern u8 *func_00457120(void);
-    extern void func_003c2290(u8 *a, s32 b);
+    extern void RpGeometryLock(u8 *a, s32 b);
     extern void func_003c22f0(u8 *a);
     extern s32 func_003e9700(s32 a);
-    extern void func_003e0870(u8 *a, u8 *b, s32 c, f32 d);
-    extern void func_003e05f0(u8 *a, u8 *b, u8 *c);
+    extern void RwMatrixRotate(u8 *a, u8 *b, s32 c, f32 d);
+    extern void RwMatrixMultiply(u8 *a, u8 *b, u8 *c);
     extern s32 func_003e9cb0(u8 *a, u8 *b, s32 c);
     extern f32 fGpffff8044;
     extern u8 D_00713CF0[];
@@ -797,7 +797,7 @@ void func_004b4430(u8 *arg0, u8 *arg1)
         cfg = *(u8 **)(tmp16 + 0x10);
         out = *(u8 **)(*(u8 **)(*(u8 **)(cfg + 0x18) + 0x5C) + 0x14);
         list = *(u8 **)tmp19;
-        func_003c2290(*(u8 **)(cfg + 0x18), 2);
+        RpGeometryLock(*(u8 **)(cfg + 0x18), 2);
         f5 = *(f32 *)(tmp18 + 0x5C) / 10.0f;
         f4 = *(f32 *)(tmp18 + 0x60) / 10.0f;
         f0 = (f32)0xFFFF;
@@ -883,10 +883,10 @@ void func_004b4430(u8 *arg0, u8 *arg1)
             s32 h = func_003e9700(*(s32 *)(pC + 4));
             s16 hv = *(s16 *)(tmp18 + 0x90);
             f32 fv = (f32)hv;
-            func_003e0870(stkC0, stk120, 0, fv);
+            RwMatrixRotate(stkC0, stk120, 0, fv);
             *(f32 *)(stkC0 + 0x30) = *(f32 *)(stkC0 + 0x30) + (320.0f - f24) * (2.0f * *(f32 *)(tmpA + 0) * f22) / 640.0f;
             *(f32 *)(stkC0 + 0x34) = *(f32 *)(stkC0 + 0x34) + (224.0f - f23) * (2.0f * *(f32 *)(tmpA + 4) * f22) / 448.0f;
-            func_003e05f0(stk80, stkC0, (u8 *)h);
+            RwMatrixMultiply(stk80, stkC0, (u8 *)h);
             func_003e9cb0(*(u8 **)(tmp16 + 0x0C), stk80, 0);
         }
     }
@@ -950,7 +950,7 @@ u8 *func_004b4cb0(s32 arg0, u8 *arg1) {
     *(s32 *)(w + 0x10) = -1;
     *(s32 *)(w + 0x1C) = 0;
     __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(w) : "memory");
-    func_0043f810(*(void **)(w + 0x24), arg1, size);
+    memcpy(*(void **)(w + 0x24), arg1, size);
     idx2 = (u16)arg0 * 0x18;
     *(s32 *)(w + 0x20) = (*(s32 (**)(u8 *))(&D_00714654[0] + idx2))(arg1);
     (*(void (**)(u8 *))(&D_00714650[0] + idx2))(w);

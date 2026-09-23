@@ -2,17 +2,17 @@
 #include "include_asm.h"
 #include "type.h"
 
-extern u32 func_003b7060(void);
+extern u32 RpRandom(void);
 
 
 extern void func_00440b68(const char *fmt, const char *file, s32 line);
 extern void *func_00454a60(const char *path, s32 flags);
-extern void func_00456150(void *handle);
+extern void H_Cdvd_ReadSync(void *handle);
 extern u8 *func_00455ea0(u8 *handle, s32 index, s32 *out);
 extern void func_0046d730(void *file, s32 line);
 extern void func_0046d700(const char *file, s32 line, char *fmt, s32 value);
 extern s32 func_001060b0(void);
-extern u32 func_00106330(s32 flag);
+extern u32 datGetFlag(s32 flag);
 extern void func_00106390(s32 id, s32 flag);
 extern u32 func_001064f0(s32 idx);
 extern s32 func_00106550(s32 id, s32 value);
@@ -99,7 +99,7 @@ void func_00246700(void) {
     void *handle;
 
     func_00440b68(&D_007636F0, D_006359D0, 0x3F);
-    func_00456150(handle = func_00454a60(D_006359E0, 1));
+    H_Cdvd_ReadSync(handle = func_00454a60(D_006359E0, 1));
     for (i = 0; i < 0x1C; i++) {
         D_00881480[i] = func_00455ea0(handle, i, &sp3C);
     }
@@ -351,25 +351,25 @@ s32 func_00246f10(s32 arg0) {
 }
 // FUN_00247020
 s32 func_00247020(void) {
-    if ((func_00106330(0x11) == 0) && (func_001106f0((s16)func_001060b0(), 4, 0x12, 4, 0x1D) != 0)) {
+    if ((datGetFlag(0x11) == 0) && (func_001106f0((s16)func_001060b0(), 4, 0x12, 4, 0x1D) != 0)) {
         return 1;
     }
-    if ((func_00106330(0x12) == 0) && (func_001106f0((s16)func_001060b0(), 5, 0x12, 6, 4) != 0)) {
+    if ((datGetFlag(0x12) == 0) && (func_001106f0((s16)func_001060b0(), 5, 0x12, 6, 4) != 0)) {
         return 1;
     }
-    if ((func_00106330(0x13) == 0) && (func_001106f0((s16)func_001060b0(), 6, 0x18, 7, 9) != 0)) {
+    if ((datGetFlag(0x13) == 0) && (func_001106f0((s16)func_001060b0(), 6, 0x18, 7, 9) != 0)) {
         return 1;
     }
-    if ((func_00106330(0x14) == 0) && (func_001106f0((s16)func_001060b0(), 7, 0x1B, 8, 0xC) != 0)) {
+    if ((datGetFlag(0x14) == 0) && (func_001106f0((s16)func_001060b0(), 7, 0x1B, 8, 0xC) != 0)) {
         return 1;
     }
-    if ((func_00106330(0x15) == 0) && (func_001106f0((s16)func_001060b0(), 9, 0x10, 0xA, 5) != 0)) {
+    if ((datGetFlag(0x15) == 0) && (func_001106f0((s16)func_001060b0(), 9, 0x10, 0xA, 5) != 0)) {
         return 1;
     }
-    if ((func_00106330(0x16) == 0) && (func_001106f0((s16)func_001060b0(), 0xB, 6, 0xB, 0x14) != 0)) {
+    if ((datGetFlag(0x16) == 0) && (func_001106f0((s16)func_001060b0(), 0xB, 6, 0xB, 0x14) != 0)) {
         return 1;
     }
-    if ((func_00106330(0x17) == 0) && (func_001106f0((s16)func_001060b0(), 0xC, 8, 0xC, 0x18) != 0)) {
+    if ((datGetFlag(0x17) == 0) && (func_001106f0((s16)func_001060b0(), 0xC, 8, 0xC, 0x18) != 0)) {
         return 1;
     }
     return 0;
@@ -400,10 +400,10 @@ s32 func_00247270(void) {
             if (temp_18 == 0) {
                 func_0046d730(D_006359D0, 0x1B3);
             }
-            if (func_00106330(temp_18 + 0x5BF) != 0) {
-                if ((temp_18 == 0xA) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 9) && (func_00106330(0x34) == 0)) {
+            if (datGetFlag(temp_18 + 0x5BF) != 0) {
+                if ((temp_18 == 0xA) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 9) && (datGetFlag(0x34) == 0)) {
                     var_2 = 0;
-                } else if ((temp_18 == 3) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 6) && (func_00106330(0x615) == 0)) {
+                } else if ((temp_18 == 3) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 6) && (datGetFlag(0x615) == 0)) {
                     var_2 = 0;
                 } else {
                     var_2 = 1;
@@ -461,10 +461,10 @@ s32 func_002474f0(void) {
             if (temp_18 == 0) {
                 func_0046d730(D_006359D0, 0x1B3);
             }
-            if (func_00106330(temp_18 + 0x5BF) != 0) {
-                if ((temp_18 == 0xA) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 9) && (func_00106330(0x34) == 0)) {
+            if (datGetFlag(temp_18 + 0x5BF) != 0) {
+                if ((temp_18 == 0xA) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 9) && (datGetFlag(0x34) == 0)) {
                     var_2 = 0;
-                } else if ((temp_18 == 3) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 6) && (func_00106330(0x615) == 0)) {
+                } else if ((temp_18 == 3) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 6) && (datGetFlag(0x615) == 0)) {
                     var_2 = 0;
                 } else {
                     var_2 = 1;
@@ -1108,7 +1108,7 @@ u8 *func_002485e0(s32 arg0, s32 arg1) {
     temp_18 = *(u32 *)(D_0088148C[0] + 4);
     var_20 = 0;
     while (var_20 < temp_18) {
-        if ((*(u16 *)var_19 == (arg1 & 0xFFFF)) && (*(u8 *)(var_19 + 2) == (var_4 & 0xFFFF)) && ((temp_16 = *(u8 *)(var_19 + 3), temp_16 == 0) || ((temp_16 != 0) && (temp_16 == (func_00107ac0(arg1) & 0xFFFF)))) && ((temp_4 = *(u32 *)(var_19 + 0xC), temp_4 == 0) || (func_00106330(temp_4) != 0))) {
+        if ((*(u16 *)var_19 == (arg1 & 0xFFFF)) && (*(u8 *)(var_19 + 2) == (var_4 & 0xFFFF)) && ((temp_16 = *(u8 *)(var_19 + 3), temp_16 == 0) || ((temp_16 != 0) && (temp_16 == (func_00107ac0(arg1) & 0xFFFF)))) && ((temp_4 = *(u32 *)(var_19 + 0xC), temp_4 == 0) || (datGetFlag(temp_4) != 0))) {
             return var_19;
         }
         var_19 += 0x10;
@@ -1154,7 +1154,7 @@ s8 func_002487e0(s32 arg0, s8 arg1) {
         q = (u8 *)(p + 0x28);
         if (*(u32 *)(p + 0x28) != 0) {
             v = *(u32 *)(p + 0x24);
-            if ((v == 0) || (func_00106330(v) != 0)) {
+            if ((v == 0) || (datGetFlag(v) != 0)) {
                 return *(s8 *)q;
             }
         }
@@ -1376,7 +1376,7 @@ s32 func_00248e20(s32 arg0, s32 arg1, s32 arg2) {
     var_17 = 0;
     while (var_17 < temp_16) {
         temp_4 = *(s32 *)var_18;
-        if (temp_4 == 0 || func_00106330(temp_4) != 0) {
+        if (temp_4 == 0 || datGetFlag(temp_4) != 0) {
             temp_3 = *(s32 *)(var_18 + 4);
             if (((u32)(temp_3 & 0xFFFF0000) >> 0x10) == arg0 && (temp_3 & 0xFFFF) == arg1 && (*(u16 *)(var_18 + 8) == 0xFFFF || *(u16 *)(var_18 + 8) == arg2)) {
                 temp_2 = *(u16 *)(var_18 + 0xA);
@@ -1481,7 +1481,7 @@ u8 *func_00249180(u32 arg0) {
     u8 *temp_17 = D_008814D0[0] + 8;
 
     func_001104d0(arg0, &sp3C, &sp38);
-    if (func_00106330(0xA61) != 0) {
+    if (datGetFlag(0xA61) != 0) {
         temp_17 += func_001064f0(0x6D) * 0x24;
         if (arg0 >= func_00110600(temp_17[2], temp_17[3])) {
             return temp_17;
@@ -1519,7 +1519,7 @@ s32 func_002492b0(u32 arg0) {
 
     p = D_008814D0[0] + 8;
     func_001104d0(arg0, &sp3C, &sp38);
-    if (func_00106330(0xA61) == 0) {
+    if (datGetFlag(0xA61) == 0) {
         goto null_p;
     }
     p += func_001064f0(0x6D) * 0x24;
@@ -1562,7 +1562,7 @@ s32 func_00249370(s32 special, s32 date, s32 column)
     } else {
         record = D_008814D0[0] + 8;
         func_001104d0(date, &month, &day);
-        if (func_00106330(0xA61) == 0) goto null_record;
+        if (datGetFlag(0xA61) == 0) goto null_record;
         record += func_001064f0(0x6D) * 36;
         if ((u32)date < func_00110600(record[2], record[3])) goto null_record;
         selected = record;
@@ -1600,7 +1600,7 @@ s32 func_002494c0(s32 date, s32 column)
 
     base = D_008814D0[0] + 8;
     func_001104d0(date, &month, &day);
-    if (func_00106330(0xA61) == 0) goto null_record;
+    if (datGetFlag(0xA61) == 0) goto null_record;
     record = base + func_001064f0(0x6D) * 36;
     if ((u32)date < (u32)func_00110600(record[2], record[3])) goto null_record;
     selected = record;
@@ -1717,12 +1717,12 @@ s32 func_00249770(s32 arg0, s32 arg1, s32 arg2) {
         }
         switch (arg1) {
         case 0:
-            if (func_00106330(var_16 + 0x9B0) != 0) {
+            if (datGetFlag(var_16 + 0x9B0) != 0) {
                 var_20 += 1;
             }
             break;
         case 1:
-            if (((func_00106600((s16)(var_16 + 0x4EB)) & 0xFF) > 0) && (func_00106330(var_16 + 0x9B0) == 0)) {
+            if (((func_00106600((s16)(var_16 + 0x4EB)) & 0xFF) > 0) && (datGetFlag(var_16 + 0x9B0) == 0)) {
                 var_20 += 1;
             }
             break;
@@ -1780,7 +1780,7 @@ s32 func_00249960(s32 index)
   offset = ((u16) index) * 14;
   record = (u8 *) ((offset + ((u32) base)) + 8);
   base_value = *((s16 *) ((offset + ((u32) base)) + 8));
-  random_value = func_003b7060();
+  random_value = RpRandom();
   if (random_value >= 0)
   {
     random_float = (f32) random_value;

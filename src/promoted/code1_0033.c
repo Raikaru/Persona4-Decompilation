@@ -10,7 +10,7 @@ extern void (*jtbl_008873EC[])(void *);
 extern int iGpffffb598;
 extern u16 D_008C024E[];
 extern s32 func_0029cc00(s32 arg0);
-extern s32 func_00106330(s32 arg0);
+extern s32 datGetFlag(s32 arg0);
 extern void func_00106390(s32 arg0, s32 arg1);
 extern u32 func_002e7a60(void);
 
@@ -42,7 +42,7 @@ typedef struct {
 extern void func_002bdea0(void);
 extern void func_00308f40(void);
 extern void (*D_00887300[])(s32, s32);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_002b8270(u8 *arg0, F2_0033 arg1, F2_0033 arg2,
                            u32 arg3, s32 arg4, s32 arg5);
 
@@ -81,7 +81,7 @@ extern s32 func_00144f60(void);
 extern void func_00452080(s32 arg0);
 extern s32 func_00452490(s32 arg0);
 extern u8 *func_00457120(void);
-extern void func_004577d0(u8 *arg0, f32 arg1);
+extern void K_View_SetFov(u8 *arg0, f32 arg1);
 extern f32 func_0014b4d0(void);
 extern s32 func_0014b450(void);
 extern void func_003e9cb0(s32 arg0, s32 arg1, s32 arg2);
@@ -266,7 +266,7 @@ s32 func_00331950(void)
 // FUN_00331980
 s32 func_00331980(void)
 {
-    return func_00106330(func_0029cc00(0)) != 0;
+    return datGetFlag(func_0029cc00(0)) != 0;
 }
 // FUN_003319C0
 s32 func_003319c0(void) {
@@ -340,7 +340,7 @@ s32 func_00331a20(u8 *arg0)
         goto done;
     }
 state_zero:
-    if (func_00106330(0x1C0) == 0) {
+    if (datGetFlag(0x1C0) == 0) {
         work[1] = func_002bab80(D_00645240);
         func_002badc0(work[1], 0);
         (*work)++;
@@ -351,7 +351,7 @@ state_zero:
         u8 *e;
 
         e = D_00645090 + ((func_00107ac0(0x13) & 0xFFFF) - 6) * 0x10;
-        if (func_00106330(*(s32 *)(e + 12)) != 0 || *(s32 *)(e + 12) == 0) {
+        if (datGetFlag(*(s32 *)(e + 12)) != 0 || *(s32 *)(e + 12) == 0) {
             work[1] = func_002bab80(D_00645240);
             func_002badc0(work[1], *(s16 *)e);
             func_00106620(*(s16 *)(e + 2), ((func_00106600(*(s16 *)(e + 2)) & 0xFF) + 1) & 0xFF);
@@ -370,10 +370,10 @@ state_zero:
         if (*(s16 *)entry == -1) {
             goto scan_next;
         }
-        if (func_00106330(*(s32 *)(entry + 12)) != 0) {
+        if (datGetFlag(*(s32 *)(entry + 12)) != 0) {
             goto scan_next;
         }
-        if (func_00106330(*(s32 *)(entry + 4)) == 0 && *(s32 *)(entry + 4) != 0) {
+        if (datGetFlag(*(s32 *)(entry + 4)) == 0 && *(s32 *)(entry + 4) != 0) {
             goto scan_next;
         }
         if (min > level) {
@@ -390,7 +390,7 @@ state_zero:
 scan_next:
         i++;
     } while (*(s16 *)entry != -1);
-    if (func_00106330(0x1324) != 0) {
+    if (datGetFlag(0x1324) != 0) {
         *work = 2;
         func_003329e0(arg0);
         return 0;
@@ -403,7 +403,7 @@ scan_next:
         if (*(s16 *)entry2 == -1) {
             goto scan_next2;
         }
-        if (func_00106330(*(s32 *)(entry2 + 4)) == 0 && *(s32 *)(entry2 + 4) != 0) {
+        if (datGetFlag(*(s32 *)(entry2 + 4)) == 0 && *(s32 *)(entry2 + 4) != 0) {
             goto scan_next2;
         }
         if (min > level) {
@@ -456,8 +456,8 @@ void func_00332a80(void)
     tbl[0](9, 2);
     tbl[0](2, 4);
     tbl[0](0xE, 0);
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x7100D);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x7100D);
 }
 // FUN_00332B60
 void func_00332b60(u8 *arg0, u8 *arg1)
@@ -707,7 +707,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, s32 alpha, s8 hig
              goto out;
          }
          temp_17 = func_00457120();
-         func_004577d0(temp_17, func_0014b4d0());
+         K_View_SetFov(temp_17, func_0014b4d0());
          temp_17_2 = func_00457120();
          func_003e9cb0(*(s32 *)(temp_17_2 + 4), func_0014b450(), 0);
          func_00122640(1, 0xA);

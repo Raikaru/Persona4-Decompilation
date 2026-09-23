@@ -29,7 +29,7 @@ extern void func_0038dd90(u8 *arg0);
 /* Window / effect / scripting helpers. */
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
-extern s32 func_00106330(s32 id);
+extern s32 datGetFlag(s32 id);
 extern s32 func_00122720(void);
 extern s32 func_001227a0(void);
 extern void func_00122520(s32 a, s32 b);
@@ -77,7 +77,7 @@ void func_0038ee40(void) {
             break;
         case 2:
             *(s32 *)(p + 0x1254) += 1;
-            if (func_00106330(0x1472) != 0) {
+            if (datGetFlag(0x1472) != 0) {
                 if (func_0046a2c0() == 0xCC6) {
                     func_0038de90();
                 }
@@ -88,7 +88,7 @@ void func_0038ee40(void) {
             if ((func_0038df10() == 0) && (func_00452490(*(s32 *)(p + 0x1250)) == 0)) {
                 func_00122520(func_001227a0(), 0xA);
                 *(s32 *)(p + 0x124C) = 3;
-                if (func_00106330(0x1472) == 0) {
+                if (datGetFlag(0x1472) == 0) {
                     func_004598e0(0x3C);
                 }
             }
@@ -113,7 +113,7 @@ void func_0038f010(void) {
         func_0046d730(&iGpffffa9f0, 0x64);
     }
     p = iGpffffb5b8;
-    if (func_00106330(0x1472) != 0) {
+    if (datGetFlag(0x1472) != 0) {
         v = 0x11;
     } else {
         v = 0;

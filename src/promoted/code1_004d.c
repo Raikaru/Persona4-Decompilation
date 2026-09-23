@@ -494,7 +494,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df260);
 /* measured: optimization level 3 reproduces the null-accessor branch shape. */
 #pragma optimization_level 3
 // FUN_004DF2E8
-s32 func_004df2e8(u8 *arg0)
+s32 AIXP_GetStatPause(u8 *arg0)
 {
     if (arg0 == NULL) {
         func_004de2c0(D_00759A10);

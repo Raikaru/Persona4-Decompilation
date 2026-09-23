@@ -8,7 +8,7 @@ extern void func_0046d730(u8 *file, s32 line);
 extern void func_0044ea90(u8 *file, s32 line);
 
 extern s32 func_00102780(u8 *task);
-extern void func_0043f810(void *dst, const void *src, s32 size);
+extern void memcpy(void *dst, const void *src, s32 size);
 extern u8 D_005DCC64[];
 extern u8 D_005DCC68[];
 extern u8 D_005DCC6C[];
@@ -67,7 +67,7 @@ void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
             func_0044ea90(D_005DCB28, 0x10A);
             temp = D_008873F4[0](1, arg2, 0x40000);
             *(u8 **)(work + 0x14) = temp;
-            func_0043f810(temp, (const void *)arg1, arg2);
+            memcpy(temp, (const void *)arg1, arg2);
         } else {
             *(u8 **)(work + 0x14) = NULL;
         }

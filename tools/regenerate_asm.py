@@ -232,8 +232,11 @@ def regenerate(root: Path, manifest: dict, retail_path: Path, *, check: bool, fr
     with tempfile.TemporaryDirectory(prefix="p4-regenerate-asm-") as temporary:
         scratch = Path(temporary)
         (scratch / "config").mkdir()
-        for relative in ("config/slus21782.yaml", "config/symbol_addrs.txt"):
-            shutil.copyfile(root / relative, scratch / relative)
+        # Fallbacks are pinned to the symbol spellings at extraction time.
+        # The live linker map gains curated names and new boundaries; feeding
+        # it to splat would silently change thousands of audited .s files.
+        shutil.copyfile(root / "config/slus21782.yaml", scratch / "config/slus21782.yaml")
+        shutil.copyfile(root / "config/asm_symbol_baseline.txt", scratch / "config/symbol_addrs.txt")
         (scratch / "image.bin").write_bytes(image)
         process = subprocess.run(
             [sys.executable, "-m", "splat", "split", "config/slus21782.yaml"],

@@ -10,7 +10,7 @@ extern MdlSetupCallback iGpffffbb38;
 extern void (*iGpffffbb3c)();
 extern void func_00470d70(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 iGpffffbb28;
 extern void *D_00922BE0[];
 extern void func_004b5800(u8 *arg0);
@@ -54,10 +54,10 @@ extern s32 func_0045a890(s16 arg0);
 extern s32 func_0045af90(s16 arg0);
 extern s32 func_003e2e40(s32 arg0, s32 *arg1);
 extern s32 func_003e2f60(s32 arg0, s32 arg1, s32 *arg2);
-extern void func_00454bd0(u8 *arg0);
-extern s32 func_004553c0(u8 *arg0);
+extern void H_Cdvd_Destroy(u8 *arg0);
+extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
-extern void func_00456150(u8 *arg0);
+extern void H_Cdvd_ReadSync(u8 *arg0);
 extern void func_00463250(void *arg0);
 extern s32 func_0047b0c0(u8 *arg0);
 extern s32 func_0047c660(u8 *arg0);
@@ -264,9 +264,9 @@ s32 func_0047ce00(u8 *arg0)
     case 0:
         if (*(u8 **)(obj + 0x38) != NULL) {
             if ((*(s32 *)(arg0 + 0xD8) & 0x4000) != 0) {
-                func_00456150(*(u8 **)(obj + 0x38));
+                H_Cdvd_ReadSync(*(u8 **)(obj + 0x38));
             }
-            if (func_004553c0(*(u8 **)(obj + 0x38)) == 0) {
+            if (H_Cdvd_IsFileLoaded(*(u8 **)(obj + 0x38)) == 0) {
                 goto ret_label;
             }
             if (*(s32 *)(obj + 0x40) == 0) {
@@ -318,7 +318,7 @@ L_after_c3:
         }
         func_003e2e40(*(s32 *)(obj + 0), (s32 *)(obj + 0x2C));
         if (*(u8 **)(obj + 0x38) != NULL) {
-            func_00454bd0(*(u8 **)(obj + 0x38));
+            H_Cdvd_Destroy(*(u8 **)(obj + 0x38));
         }
         *(u8 *)(obj + 0x3C) = 5;
     case 5:
@@ -331,7 +331,7 @@ L_after_c3:
 // FUN_0047D050
 void func_0047d050(s32 arg0)
 {
-    func_0043f9c8(D_00922BE0, 0, 0x30);
+    memset(D_00922BE0, 0, 0x30);
     iGpffffbb28 = arg0;
 }
 // FUN_0047D090

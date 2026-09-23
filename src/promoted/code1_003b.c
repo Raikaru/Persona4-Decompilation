@@ -6,9 +6,9 @@ extern u8 D_00885A90[];
 extern s32 iGpffffb680;
 extern s32 iGpffffb618;
 extern s32 func_003b6e70(s32 arg0);
-extern u32 func_003b7060(void);
+extern u32 RpRandom(void);
 extern s32 func_003b6e00(s32 arg0);
-extern void func_003b6f00(s32 arg0, u8 *arg1);
+extern void RpRandomSeed(s32 arg0, u8 *arg1);
 extern s32 iGpffffb6c0;
 extern s32 iGpffffb6c4;
 extern void func_003e18c0(u8 *arg0, void *arg1, s32 arg2);
@@ -459,7 +459,7 @@ s32 func_003b6e70(s32 arg0) {
         base[1] = *base + 0xC;
         base[2] = *base;
         base[3] = *base + 0x7C;
-        func_003b6f00(0x9A319039, (u8 *)base);
+        RpRandomSeed(0x9A319039, (u8 *)base);
         return arg0;
     }
     return 0;
@@ -479,7 +479,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6f00);
    Evidence: build/first-party-finish-20260920/random-provider/func_003b7060/unsigned-state-and-return. */
 // FUN_003B7060 NONMATCHING
 #ifdef NON_MATCHING
-u32 func_003b7060(void) {
+u32 RpRandom(void) {
     u32 *temp_8;
     u32 *temp_4;
     u32 *temp_3_2;
@@ -574,7 +574,7 @@ static inline s32 add003b(s32 left, s32 right) {
 #pragma optimization_level 3
 /* measured: opt_propagation off probe around func_003b7450. */
 #pragma opt_propagation off
-s32 func_003b7450(s32 *arg0) {
+s32 _rpSkinSplitDataStreamGetSize(s32 *arg0) {
     s32 temp_3;
     s32 var_2;
     s32 field34;
@@ -772,7 +772,7 @@ s32 func_003b88d0(s32 arg0) {
     sum = base + (*(s32 *)(temp_4 + 0) << 6);
     temp_16 = add003b(sum, *(s32 *)(temp_4 + 4));
     temp_16 += 0x10;
-    result = func_003b7450((s32 *)temp_4);
+    result = _rpSkinSplitDataStreamGetSize((s32 *)temp_4);
     return temp_16 + result;
 }
 /* measured: close opt_propagation off probe for func_003b88d0. */
@@ -1067,7 +1067,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bc9c0);
 // FUN_003BCBC0
 /* measured: schedule fills the second zero store in the jr delay slot. */
 #pragma schedule on
-s32 func_003bcbc0(s32 arg0, s32 arg1) {
+s32 UserDataObjectConstruct(s32 arg0, s32 arg1) {
     u8 *temp_3;
 
     temp_3 = (u8 *)(arg0 + arg1);
@@ -1163,7 +1163,7 @@ done:
 // FUN_003BCE20
 /* measured: schedule on is required for func_003bce20's callback delay slot. */
 #pragma schedule on
-s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+s32 UserDataObjectStreamWrite(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_003bc880(arg2 + arg3, arg0);
     return arg0;
 }

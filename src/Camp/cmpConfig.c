@@ -14,12 +14,12 @@ void func_00106390(s32 a, s32 b);
 s32 func_0035f0c0(u32* arg0, s32* arg1, u8* arg2);
 s32 func_0034c210(void);
 void func_0044ea90(void* file, s32 line);
-void func_0043f9c8(void* dest, s32 value, s32 size);
+void memset(void* dest, s32 value, s32 size);
 
 void func_0034c260(s32 arg0);
 void* func_0046a770(char* arg0);
 s32 func_0046d200();
-s32 func_00106330(s32 arg0);
+s32 datGetFlag(s32 arg0);
 void func_00113480(s32 a, s32 b, s32 c, s32 d);
 void func_001437b0(void* arg0, s32 arg1, s32 arg2);
 void func_0034f8f0(void* arg0);
@@ -29,13 +29,13 @@ void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3
 void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg1, u8 arg2, u8 arg3, u8 arg4,
                    u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-f32 func_0044b7b0(f32 arg0);
+f32 sinf(f32 arg0);
 
 void func_0034f9d0(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
 void func_00489f80(void);
 void func_0045c870(void* arg0, s32 arg1);
 void func_0048a000(void);
-void func_003f6440(s32 a, s32 b);
+void RpSkyRenderStateSet(s32 a, s32 b);
 void func_0035e820(u8* arg0);
 s32 func_0035e720(u8* arg0);
 s32 func_0035ce10(u8* arg0, s32 mode);
@@ -76,7 +76,7 @@ s32 func_0035c690(void* arg0, s32 arg1) {
         func_0046d730(D_0064D3C8, 0xC6);
     }
     r = (s32)func_00451fc0((void *)((s32)arg0), (const void *)(D_0064D3D8), 0xC7, 0, 0, func_0035e720, func_0035e820, (u8 *)(work));
-    func_0043f9c8(work + 0x47C, 0, 0x30);
+    memset(work + 0x47C, 0, 0x30);
     *(s32 *)(work + 0x484) = (s32)func_0035d000;
     *(u8 **)(work + 0x48C) = work;
     *(u16 *)(work + 0x4AC) = 0xB1;
@@ -157,7 +157,7 @@ void func_0035c830(u8* arg0) {
     }
     for (m = 0; m < 6; m++) {
         *(u16 *)(arg0 + m * 2 + 0x3A) = 5;
-        result = func_00106330(D_0064D3A0[m]);
+        result = datGetFlag(D_0064D3A0[m]);
         if (result != 0) {
             *(s32 *)(arg0 + m * 4 + 0x60) = 0;
             *(s32 *)(arg0 + m * 4 + 0x48) = 1;
@@ -221,7 +221,7 @@ apply:
     scaled2 = idx * 2;
     *(u16 *)(scaled2 + (int)arg0 + 0x3A) = 0;
     if ((idx == 0) && (*state_ptr == 1)) {
-        temp = func_00106330(D_0064D3A0[0]);
+        temp = datGetFlag(D_0064D3A0[0]);
         func_00106390(D_0064D3A0[0], 1);
         func_00113480(0xA, 0x96, 0xA, 0);
         func_00106390(D_0064D3A0[0], temp);
@@ -267,7 +267,7 @@ block_9:
     *(s32 *)((u8 *)(arg1 * 4) + (u32)arg0 + 0x48) = arg2;
     *(s16 *)((u8 *)(arg1 * 2) + (u32)arg0 + 0x3A) = 0;
     if ((arg1 == 0) && (*(s32 *)temp_2 == 1)) {
-        temp_16 = func_00106330(D_0064D3A0[0]);
+        temp_16 = datGetFlag(D_0064D3A0[0]);
         func_00106390(D_0064D3A0[0], 1);
         func_00113480(0xA, 0x96, 0xA, 0);
         func_00106390(D_0064D3A0[0], temp_16);
@@ -616,7 +616,7 @@ void func_0035dfb0(u8 *arg0, s32 arg1, s32 arg2)
         counterAddress += (u32)arg0;
         counter = *(u16 *)(counterAddress + 0x3A);
         if ((s32)counter < 5)
-            phase = func_0044b7b0((iGpffff8094 * (f32)counter) / 5.0f);
+            phase = sinf((iGpffff8094 * (f32)counter) / 5.0f);
         else
             phase = 1.0f;
         if (((s32 *)(arg0 + 0x48))[arg1] != 0)
@@ -638,7 +638,7 @@ void func_0035dfb0(u8 *arg0, s32 arg1, s32 arg2)
         counterAddress += (u32)arg0;
         counter = *(u16 *)(counterAddress + 0x3A);
         if ((s32)counter < 5)
-            phase = func_0044b7b0((iGpffff8094 * (f32)counter) / 5.0f);
+            phase = sinf((iGpffff8094 * (f32)counter) / 5.0f);
         else
             phase = 1.0f;
         if (((s32 *)(arg0 + 0x48))[arg1] != 0)
@@ -648,8 +648,8 @@ void func_0035dfb0(u8 *arg0, s32 arg1, s32 arg2)
         func_0034f320(sprite, x, y, 0.0f, 0xFF, 0xFF, 0xFF, 0xFF,
                       0x1000, 0x1000, 0x11, angle, 0x11);
         func_0048a000();
-        func_003f6440(3, 0x2D801);
-        func_003f6440(2, 0x44);
+        RpSkyRenderStateSet(3, 0x2D801);
+        RpSkyRenderStateSet(2, 0x44);
     }
     rowOpacity = (f32)arg0[arg1 * 0x30 + 0xC2];
     rowOpacity *= opacity;
@@ -680,8 +680,8 @@ void func_0035dfb0(u8 *arg0, s32 arg1, s32 arg2)
                   rowY + (131.0f + (baseY + *rowYField)),
                   otherColor, otherColor, otherColor, alpha);
     if (arg2 == 2) {
-        func_003f6440(3, 0x717FB);
-        func_003f6440(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
     }
 }
 

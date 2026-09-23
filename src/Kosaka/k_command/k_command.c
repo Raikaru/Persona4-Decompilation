@@ -30,7 +30,7 @@ extern void func_0046d730(const char* file, s32 line);
 extern s32 func_00457120(void);
 extern void* func_00174c00(void);
 extern void* func_00174c10(void);
-extern u8* func_00145270(u16 arg0);
+extern u8* MT_Scene_GetRes(u16 arg0);
 extern u8* func_001452b0(s32 arg0);
 extern s32 func_00145780(u16 arg0, s32 arg1, s32 arg2);
 extern void func_0016f130(s32 a, s32 b, s32 c);
@@ -43,14 +43,14 @@ extern void func_00479e60(s32 a, s32 b, f32 c);
 extern void func_0047a1c0(s32 a, void* b, s32 c);
 extern f32 func_0047a080(s32 arg0, s32 arg1);
 extern void func_0047a0e0(s32 arg0, s32 arg1, f32 arg2);
-extern void* func_0047a2f0(u32 arg0);
-extern void func_0047a1e0(s32 arg0, void* arg1, s32 arg2);
+extern void* mdlGetMatrix(u32 arg0);
+extern void mdlScale(s32 arg0, void* arg1, s32 arg2);
 extern f32 func_0014b660(u8* arg0);
 extern f32 func_0014b5d0(u8* arg0);
 extern f32 func_0014b6f0(u8* arg0);
 extern s32 func_00151580(s32 a, s32 b, s32* c);
 extern s32 func_003e9700(s32 arg0);
-extern void func_003e40b0(f32* a, f32* b);
+extern void RwV3dNormalize(f32* a, f32* b);
 /* Layout and return types from the matrix API used by the field command. */
 typedef struct RwMatrixTolerance {
     f32 Normal;
@@ -58,10 +58,10 @@ typedef struct RwMatrixTolerance {
     f32 Identity;
 } RwMatrixTolerance;
 struct RwMatrixTag;
-extern s32 func_003e0380(RwMatrixTolerance *tolerance);
-extern struct RwMatrixTag *func_003e03e0(struct RwMatrixTag *matrix,
+extern s32 RwEngineGetMatrixTolerances(RwMatrixTolerance *tolerance);
+extern struct RwMatrixTag *RwMatrixOptimize(struct RwMatrixTag *matrix,
                                       const RwMatrixTolerance *tolerance);
-extern struct RwMatrixTag *func_003e05d0(struct RwMatrixTag *matrix);
+extern struct RwMatrixTag *RwMatrixUpdate(struct RwMatrixTag *matrix);
 extern s32 func_00168780(s32 arg0, f32 arg1);
 extern f32 func_00168770(s32 arg0);
 extern void func_00168c00(s32 arg0);
@@ -112,7 +112,7 @@ s32 func_00176c70(void)
     {
     case 1:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
             if (x != 0)
@@ -129,7 +129,7 @@ s32 func_00176c70(void)
     }
     case 3:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
             if (x != 0)
@@ -146,7 +146,7 @@ s32 func_00176c70(void)
     }
     case 10:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
             if (x != 0)
@@ -179,7 +179,7 @@ s32 func_00176ef0(void)
     {
     case 1:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
             return *(u8*)(*(s32*)(p + 0x164) + 0xEE) == 1;
@@ -188,7 +188,7 @@ s32 func_00176ef0(void)
     }
     case 3:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
             return *(u8*)(*(s32*)(p + 0x164) + 0xEE) == 1;
@@ -197,7 +197,7 @@ s32 func_00176ef0(void)
     }
     case 10:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
             return *(u8*)(*(s32*)(p + 0x144) + 0xEE) == 1;
@@ -223,7 +223,7 @@ s32 func_00176ff0(void)
     {
     case 1:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
             func_00479e60(*(s32*)(p + 0x164), 0, f);
@@ -232,7 +232,7 @@ s32 func_00176ff0(void)
     }
     case 3:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
             func_00479e60(*(s32*)(p + 0x164), 0, f);
@@ -241,7 +241,7 @@ s32 func_00176ff0(void)
     }
     case 10:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
             func_00479e60(*(s32*)(p + 0x144), 0, f);
@@ -269,20 +269,20 @@ s32 func_00177120(void)
     switch (k)
     {
     case 1:
-        p = func_00145270(v & 0xFFFF);
+        p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
             threshold = func_0047a080(*(s32*)(p + 0x164), 0);
         }
         break;
     case 3:
-        if (func_00145270(v & 0xFFFF) != 0)
+        if (MT_Scene_GetRes(v & 0xFFFF) != 0)
         {
             threshold = func_0047a080(*(s32*)(p + 0x164), 0);
         }
         break;
     case 10:
-        if (func_00145270(v & 0xFFFF) != 0)
+        if (MT_Scene_GetRes(v & 0xFFFF) != 0)
         {
             threshold = func_0047a080(*(s32*)(p + 0x164), 0);
         }
@@ -310,28 +310,28 @@ s32 func_00177280(void)
     {
     case 1:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
-            func_0047a1e0(*(s32*)(p + 0x164), pos, 2);
+            mdlScale(*(s32*)(p + 0x164), pos, 2);
         }
         break;
     }
     case 3:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
-            func_0047a1e0(*(s32*)(p + 0x164), pos, 2);
+            mdlScale(*(s32*)(p + 0x164), pos, 2);
         }
         break;
     }
     case 10:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
-            func_0047a1e0(*(s32*)(p + 0x144), pos, 2);
+            mdlScale(*(s32*)(p + 0x144), pos, 2);
         }
         break;
     }
@@ -355,7 +355,7 @@ s32 func_001773d0(void)
         break;
     case 3:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0 && *(s32*)(p + 0x230) != 0)
         {
             f32 f = func_0029cd50(1);
@@ -417,9 +417,9 @@ s32 func_001774a0(void)
             u32 hasWork;
             u8 *entry;
             u8 *fieldState;
-            resource = func_00145270(resourceId & 0xFFFF);
+            resource = MT_Scene_GetRes(resourceId & 0xFFFF);
             if (resource != 0) {
-                matrix = func_0047a2f0(*(s32 *)(resource + 0x164));
+                matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
                 *(Vec3f *)translation = *(Vec3f *)(matrix + 0x30);
                 negativeTranslation[0] = -1.0f * translation[0];
                 negativeTranslation[1] = -1.0f * translation[1];
@@ -427,11 +427,11 @@ s32 func_001774a0(void)
                 func_0047a180(*(s32 *)(resource + 0x164), negativeTranslation, 2);
                 func_0047a1a0((void *)(u32)*(s32 *)(resource + 0x164), &rotationAxis, *(f32 *)(placement + 0x14C), 0);
                 func_0047a180(*(s32 *)(resource + 0x164), translation, 2);
-                matrix = func_0047a2f0(*(s32 *)(resource + 0x164));
+                matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
                 *(Vec3f *)(matrix + 0x30) = *(Vec3f *)(placement + 0x140);
-                func_003e0380(&tolerance);
-                func_003e03e0(func_0047a2f0(*(s32 *)(resource + 0x164)), &tolerance);
-                func_003e05d0(func_0047a2f0(*(s32 *)(resource + 0x164)));
+                RwEngineGetMatrixTolerances(&tolerance);
+                RwMatrixOptimize(mdlGetMatrix(*(s32 *)(resource + 0x164)), &tolerance);
+                RwMatrixUpdate(mdlGetMatrix(*(s32 *)(resource + 0x164)));
                 func_00168c00(*(s32 *)(resource + 0x220));
                 func_0015bae0();
                 for (i = 0; i < 3; i++) {
@@ -460,9 +460,9 @@ s32 func_001774a0(void)
             RwMatrixTolerance tolerance;
             f32 uniformScale;
             f32 scale[3];
-            resource = func_00145270(resourceId & 0xFFFF);
+            resource = MT_Scene_GetRes(resourceId & 0xFFFF);
             if (resource != 0) {
-                matrix = func_0047a2f0(*(s32 *)(resource + 0x164));
+                matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
                 *(Vec3f *)translation = *(Vec3f *)(matrix + 0x30);
                 negativeTranslation[0] = -1.0f * translation[0];
                 negativeTranslation[1] = -1.0f * translation[1];
@@ -470,18 +470,18 @@ s32 func_001774a0(void)
                 func_0047a180(*(s32 *)(resource + 0x164), negativeTranslation, 2);
                 func_0047a1a0((void *)(u32)*(s32 *)(resource + 0x164), &rotationAxis, *(f32 *)(placement + 0x14C), 2);
                 func_0047a180(*(s32 *)(resource + 0x164), translation, 2);
-                matrix = func_0047a2f0(*(s32 *)(resource + 0x164));
+                matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
                 *(Vec3f *)(matrix + 0x30) = *(Vec3f *)(placement + 0x140);
-                func_003e0380(&tolerance);
-                func_003e03e0(func_0047a2f0(*(s32 *)(resource + 0x164)), &tolerance);
-                func_003e05d0(func_0047a2f0(*(s32 *)(resource + 0x164)));
+                RwEngineGetMatrixTolerances(&tolerance);
+                RwMatrixOptimize(mdlGetMatrix(*(s32 *)(resource + 0x164)), &tolerance);
+                RwMatrixUpdate(mdlGetMatrix(*(s32 *)(resource + 0x164)));
                 if (*(s32 *)(resource + 0x22C) != 0) {
                     uniformScale = func_00168770(*(s32 *)(resource + 0x228));
                     scale[2] = uniformScale;
                     scale[1] = uniformScale;
                     scale[0] = uniformScale;
                     func_0047a1a0((void *)(u32)*(s32 *)(resource + 0x22C), &rotationAxis, *(f32 *)(placement + 0x14C), 2);
-                    func_0047a1e0(*(s32 *)(resource + 0x22C), scale, 2);
+                    mdlScale(*(s32 *)(resource + 0x22C), scale, 2);
                     func_0047a180(*(s32 *)(resource + 0x22C), placement + 0x140, 2);
                     func_00478e70(*(s32 *)(resource + 0x22C));
                 }
@@ -493,9 +493,9 @@ s32 func_001774a0(void)
             u8 *resource;
             u8 *matrix;
             RwMatrixTolerance tolerance;
-            resource = func_00145270(resourceId & 0xFFFF);
+            resource = MT_Scene_GetRes(resourceId & 0xFFFF);
             if (resource != 0) {
-                matrix = func_0047a2f0(*(s32 *)(resource + 0x144));
+                matrix = mdlGetMatrix(*(s32 *)(resource + 0x144));
                 *(Vec3f *)translation = *(Vec3f *)(matrix + 0x30);
                 negativeTranslation[0] = -1.0f * translation[0];
                 negativeTranslation[1] = -1.0f * translation[1];
@@ -503,11 +503,11 @@ s32 func_001774a0(void)
                 func_0047a180(*(s32 *)(resource + 0x144), negativeTranslation, 2);
                 func_0047a1a0((void *)(u32)*(s32 *)(resource + 0x144), &rotationAxis, *(f32 *)(placement + 0x14C), 0);
                 func_0047a180(*(s32 *)(resource + 0x144), translation, 2);
-                matrix = func_0047a2f0(*(s32 *)(resource + 0x144));
+                matrix = mdlGetMatrix(*(s32 *)(resource + 0x144));
                 *(Vec3f *)(matrix + 0x30) = *(Vec3f *)(placement + 0x140);
-                func_003e0380(&tolerance);
-                func_003e03e0(func_0047a2f0(*(s32 *)(resource + 0x144)), &tolerance);
-                func_003e05d0(func_0047a2f0(*(s32 *)(resource + 0x144)));
+                RwEngineGetMatrixTolerances(&tolerance);
+                RwMatrixOptimize(mdlGetMatrix(*(s32 *)(resource + 0x144)), &tolerance);
+                RwMatrixUpdate(mdlGetMatrix(*(s32 *)(resource + 0x144)));
             }
             break;
         }
@@ -569,7 +569,7 @@ s32 func_00177b30(void)
     s32 tmp;
     if (func_004782b0((void*)v) == 1)
     {
-        u8* p = func_00145270((w & 0x3FF) | 0x2800);
+        u8* p = MT_Scene_GetRes((w & 0x3FF) | 0x2800);
         if (p != 0)
         {
             func_004787e0(v);
@@ -595,7 +595,7 @@ s32 func_00177b30(void)
         }
         if (tmp == 1)
         {
-            u8* r = func_00145270(flag & 0xFFFF);
+            u8* r = MT_Scene_GetRes(flag & 0xFFFF);
             *(s32*)(r + 0x150) = 1;
         }
         created = 1;
@@ -633,7 +633,7 @@ s32 func_00177db0(void)
 {
     s32 a = func_0029cc00(0);
     s32 b = func_0029cc00(1);
-    u8* p = func_00145270(a);
+    u8* p = MT_Scene_GetRes(a);
     if (p != 0)
     {
         *(s32*)(p + 0x150) = b;
@@ -673,7 +673,7 @@ s32 func_00177e80(void)
     {
         u8* p;
         res = (u16)func_00145780(func_0014b510(3), (u16)id, type);
-        p = func_00145270(res);
+        p = MT_Scene_GetRes(res);
         *(s32*)(p + 0x22C) = (s32)func_00478750(D_00764364);
         created = 1;
     }
@@ -693,7 +693,7 @@ s32 func_00177f50(void)
     {
     case 1:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
             func_00168780(*(s32*)(p + 0x220), f);
@@ -702,7 +702,7 @@ s32 func_00177f50(void)
     }
     case 3:
     {
-        u8* p = func_00145270(v & 0xFFFF);
+        u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
             func_00168780(*(s32*)(p + 0x228), f);
@@ -712,7 +712,7 @@ s32 func_00177f50(void)
                 vec[2] = f;
                 vec[1] = f;
                 vec[0] = f;
-                func_0047a1e0(*(s32*)(p + 0x22C), vec, 2);
+                mdlScale(*(s32*)(p + 0x22C), vec, 2);
                 func_00478e70(*(s32*)(p + 0x22C));
             }
         }
@@ -761,15 +761,15 @@ s32 func_00178130(void)
     f32 dot;
     if (p != 0)
     {
-        v1 = *(Vec3f*)((u8*)func_0047a2f0(*(s32*)(p + 0x144)) + 0x20);
-        v2x = ((Vec3f*)((u8*)func_0047a2f0(*(s32*)(p + 0x144)) + 0x30))->x;
-        diff.x = v2x - ((Vec3f*)((u8*)func_0047a2f0(D_007EFA00[0]) + 0x30))->x;
-        v2x = ((Vec3f*)((u8*)func_0047a2f0(*(s32*)(p + 0x144)) + 0x30))->y;
-        diff.y = v2x - ((Vec3f*)((u8*)func_0047a2f0(D_007EFA00[0]) + 0x30))->y;
-        v2x = ((Vec3f*)((u8*)func_0047a2f0(*(s32*)(p + 0x144)) + 0x30))->z;
-        diff.z = v2x - ((Vec3f*)((u8*)func_0047a2f0(D_007EFA00[0]) + 0x30))->z;
-        func_003e40b0(&diff.x, &diff.x);
-        func_003e40b0(&v1.x, &v1.x);
+        v1 = *(Vec3f*)((u8*)mdlGetMatrix(*(s32*)(p + 0x144)) + 0x20);
+        v2x = ((Vec3f*)((u8*)mdlGetMatrix(*(s32*)(p + 0x144)) + 0x30))->x;
+        diff.x = v2x - ((Vec3f*)((u8*)mdlGetMatrix(D_007EFA00[0]) + 0x30))->x;
+        v2x = ((Vec3f*)((u8*)mdlGetMatrix(*(s32*)(p + 0x144)) + 0x30))->y;
+        diff.y = v2x - ((Vec3f*)((u8*)mdlGetMatrix(D_007EFA00[0]) + 0x30))->y;
+        v2x = ((Vec3f*)((u8*)mdlGetMatrix(*(s32*)(p + 0x144)) + 0x30))->z;
+        diff.z = v2x - ((Vec3f*)((u8*)mdlGetMatrix(D_007EFA00[0]) + 0x30))->z;
+        RwV3dNormalize(&diff.x, &diff.x);
+        RwV3dNormalize(&v1.x, &v1.x);
         func_0014b5d0((u8*)func_003e9700(*(s32*)((u8*)func_00457120() + 4)));
         dot = diff.x * v1.x + diff.y * v1.y + diff.z * v1.z;
         if (dot < 0.0f)

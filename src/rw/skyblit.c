@@ -96,7 +96,7 @@ extern s32 func_0040c0f0(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_0040d0a0(s32 arg0, s32 arg1);
 extern void func_0040aa60(void (*arg0)(void));
 extern s32 func_00402d50(void *arg0, s32 *arg1);
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 iGpffffb9b0;
 extern s32 iGpffffb9ac;
 extern void func_00415920(void *arg0);
@@ -302,7 +302,7 @@ fail_second:
 /* measured: no_branch_likely preserves the two retail plain null branches. */
 #pragma no_branch_likely on
 // FUN_00402680
-void func_00402680(void)
+void _rwSkyRasterInitiateStop(void)
 {
     u8 *temp_4;
     u8 *temp_4_2;
@@ -340,7 +340,7 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402fe0);
 // FUN_00403170
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00403170);
 // FUN_00403390
-s32 func_00403390(void)
+s32 _rwSkyRasterClear(void)
 {
     s32 sp10[4];
     s32 var_2;

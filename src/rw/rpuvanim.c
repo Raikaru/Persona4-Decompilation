@@ -23,7 +23,7 @@ extern void func_003d5000(u8 *value);
 extern void func_003d5fb0(u8 *value);
 extern void func_003e12f0(s32 value);
 extern u8 *RpUVAnimLinearKeyFrameDataInitFromMatrix(u8 *dst, u8 *src);
-extern u8 *func_003e05d0(u8 *value);
+extern u8 *RwMatrixUpdate(u8 *value);
 extern u8 *func_003d6fb0(u8 *dst, u8 *src);
 extern void *(*D_008873F8[])(s32, s32);
 extern s32 (*D_008873C8[])(s32, s32);
@@ -48,7 +48,7 @@ extern s32 func_003d8150(void);
 extern s32 func_003e8930(s32, s32, s32 (*)(s32), s32 (*)(s32));
 extern s32 func_003c4310(s32, s32, s32 (*)(s32), s32 (*)(s32), s32 (*)(s32, s32));
 extern s32 func_003c4340(s32, s32 (*)(s32, s32), s32 (*)(s32, s32), s32 (*)(s32));
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void memset(void *dst, s32 value, u32 size);
 extern void func_003d7c50(void *value);
 extern void *func_003d7a20(s32 value);
 
@@ -100,7 +100,7 @@ void RpUVAnimLinearKeyFrameApply(u8 *arg0, u8 *arg1)
     *(s32 *)(arg0 + 0x28) = 0;
     *(f32 *)(arg0 + 0x30) = *(f32 *)(arg1 + 0x18);
     *(f32 *)(arg0 + 0x34) = *(f32 *)(arg1 + 0x1C);
-    func_003e05d0((u8 *)((*(s32 *)(arg0 + 0x38) = 0), arg0));
+    RwMatrixUpdate((u8 *)((*(s32 *)(arg0 + 0x38) = 0), arg0));
 }
 /* measured: close schedule on for func_003d6900. */
 #pragma schedule off
@@ -301,7 +301,7 @@ s32 RpUVAnimPluginAttach(void)
 // FUN_003D7260
 s32 UVAnimConstructor(s32 arg0)
 {
-    func_0043f9c8((void *)(arg0 + _rpUVAnimMaterialExtOffset), 0, 0x30);
+    memset((void *)(arg0 + _rpUVAnimMaterialExtOffset), 0, 0x30);
     return arg0;
 }
 /* measured: close schedule on probe for func_003d7260. */

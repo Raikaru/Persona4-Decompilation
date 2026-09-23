@@ -13,8 +13,8 @@ typedef struct ShuffleUnit {
 } ShuffleUnit;
 
 extern void func_0046d730(const void *file, u32 line);
-extern u32 func_003b7060();
-extern s32 func_00106330(s32 a);
+extern u32 RpRandom();
+extern s32 datGetFlag(s32 a);
 extern s32 func_00375970(u8 *a);
 extern s32 func_00375a00(u8 *a);
 extern s32 func_00375a50(u8 *a);
@@ -58,13 +58,13 @@ extern s32 func_002bb600(void);
 extern void func_002bb1e0(s32 a);
 extern void func_002bb4e0(void);
 extern s32 func_002bb140(void);
-extern void func_0043f9c8(void *dst, s32 c, s32 n);
+extern void memset(void *dst, s32 c, s32 n);
 extern u8 func_002baac0(u8 *message);
 extern void func_002baf40(s32 a);
 extern void func_002bb050(s32 a);
 extern void func_002bbf60(void);
 extern void func_002bad10(s32 a);
-extern void func_00442830(char *dst, s32 value);
+extern void strcpy(char *dst, s32 value);
 extern char *func_002438b0(s32 a);
 extern void func_002bbd20(s32 a, void *b);
 extern void func_00389200(s32 a, s32 b, s32 c, s32 d);
@@ -282,10 +282,10 @@ join3:
 u16 func_00378bf0(void) {
     f32 x;
 
-    if (func_00106330(0x1431) == 0) {
+    if (datGetFlag(0x1431) == 0) {
         return 0x1A;
     }
-    func_003b7060();
+    RpRandom();
     x = 0.0f;
     return (u16)x;
 }
@@ -467,11 +467,11 @@ s32 func_00379240(u8 *arg0) {
     char *text;
 
     base = arg0 + 0x1F210;
-    if (func_00106330(0x1403) == 0) {
+    if (datGetFlag(0x1403) == 0) {
         return 0;
     }
 
-    func_0043f9c8(base, 0, 0x2C);
+    memset(base, 0, 0x2C);
     i = 0;
     type = 2;
     while (i < *(s32 *)(arg0 + 0x1F304)) {
@@ -484,8 +484,8 @@ s32 func_00379240(u8 *arg0) {
     }
 
     if (*(s32 *)(base + 0x24) > 0) {
-        if (func_00106330(0x142A) != 0) {
-            func_00442830(sp30, D_00763AD0);
+        if (datGetFlag(0x142A) != 0) {
+            strcpy(sp30, D_00763AD0);
             func_002baac0((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
             text = func_002438b0(0x14);
             func_002bbd20(0, text);
@@ -494,8 +494,8 @@ s32 func_00379240(u8 *arg0) {
             *(s32 *)base = 0;
             return 1;
         }
-        if (func_00106330(0x142B) != 0) {
-            func_00442830(sp30, D_00763AD4);
+        if (datGetFlag(0x142B) != 0) {
+            strcpy(sp30, D_00763AD4);
             func_002baac0((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
             text = func_002438b0(0x14);
             func_002bbd20(0, text);
@@ -562,7 +562,7 @@ s32 func_00379420(u8 *arg0) {
             source = arg0 + 0x1F304;
             do {
                 f32 scale;
-                random = func_003b7060() & 0xFFF;
+                random = RpRandom() & 0xFFF;
                 fraction = (f32)random / 4096.0f;
                 fraction = (scale = fraction, (f32)*(s32 *)source * scale);
                 index = (s32)fraction;
@@ -675,7 +675,7 @@ s32 func_00379920(u8 *arg0) {
 
 // FUN_003799D0
 void func_003799d0(u8 *arg0) {
-    func_0043f9c8(arg0 + 0x1F244, 0, 8);
+    memset(arg0 + 0x1F244, 0, 8);
     func_002baac0((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
     func_002baf40(0x14);
     func_002bb050(0);

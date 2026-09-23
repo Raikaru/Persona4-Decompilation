@@ -57,8 +57,8 @@ extern char D_00710598[];
 extern char D_007105B0[];
 extern char D_007105D0[];
 extern void func_00440b68();
-extern void func_0043f9c8(void* a0, s32 a1, s32 a2);
-extern void func_0043f810(void* a0, void* a1, s32 a2);
+extern void memset(void* a0, s32 a1, s32 a2);
+extern void memcpy(void* a0, void* a1, s32 a2);
 extern u8 D_008BFF70[];
 extern u8 D_008BFF74[];
 extern u8 D_008C0240[];
@@ -330,7 +330,7 @@ s32 func_00451430(KwlnTask* task)
     iGpffffba10 = task;
     if (task->flags & 0x10)
     {
-        func_0043f9c8(D_008C0240, 0, 0x94);
+        memset(D_008C0240, 0, 0x94);
         for (i = 0; i < 2; i++)
         {
             ptr = (u8*)D_008C0240 + i * 0x4A;
@@ -345,7 +345,7 @@ s32 func_00451430(KwlnTask* task)
     }
     else
     {
-        func_0043f810(D_008C0240, D_008C02E0, 0x94);
+        memcpy(D_008C0240, D_008C02E0, 0x94);
     }
     fn = task->unk30;
     if (fn != 0 && fn != (SdkTaskUpdate)-1)
