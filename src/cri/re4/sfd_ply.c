@@ -910,26 +910,23 @@ Sint32 sfply_StatPlay(SFD sfd)
 }
 
 /* both selected streams are prepared (or ended) */
+// FUN_00521BE8
 static Bool sfply_IsPrepared(SFD sfd)
 {
 	Bool vprep;
 	Bool aprep;
-	Bool prep;
-	Bool term;
 
 	if (SFSET_GetCond(sfd, 5) == 0) {
 		vprep = 1;
 	} else {
-		prep = SFTRN_GetPrepFlg(sfd, 6);
-		term = SFTRN_GetTermFlg(sfd, 6);
-		vprep = prep | term;
+		vprep = SFTRN_GetPrepFlg(sfd, 6);
+		vprep |= SFTRN_GetTermFlg(sfd, 6);
 	}
 	if (SFSET_GetCond(sfd, 6) == 0) {
 		aprep = 1;
 	} else {
-		prep = SFTRN_GetPrepFlg(sfd, 7);
-		term = SFTRN_GetTermFlg(sfd, 7);
-		aprep = prep | term;
+		aprep = SFTRN_GetPrepFlg(sfd, 7);
+		aprep |= SFTRN_GetTermFlg(sfd, 7);
 	}
 	if (vprep == 0 || aprep == 0) {
 		return 0;
