@@ -17,9 +17,9 @@ not on the C function name below it).  Files are written in BINARY mode with
 their original line endings, so a run is byte-preserving apart from the
 identifier swaps themselves.
 
-``--check`` reports pending C renames without changing files, including
-addresses that cannot yet be applied safely because assembly still links by
-their placeholder names. It exits non-zero until the backlog is resolved.
+``--check`` reports pending C renames without changing files, labelling
+addresses blocked by assembly linkage, out-of-scope C references, or headers.
+It exits non-zero until the backlog is resolved.
 """
 
 from __future__ import annotations
@@ -28,6 +28,8 @@ import argparse
 import json
 import re
 import sys
+from collections.abc import Iterable
+from itertools import chain
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -122,14 +124,27 @@ def source_files(root: Path) -> list[Path]:
     )
 
 
-def plan_file(path: Path, names: dict[int, str]) -> list[tuple[int, int, int, str, str]]:
+def header_files(root: Path) -> list[Path]:
+    """Headers outside the C rewrite set may still declare or call old names."""
+    return sorted(
+        path
+        for parent in (root / "src", root / "include")
+        for path in parent.rglob("*.h")
+        if not is_generated(path)
+    )
+
+
+def plan_file(
+    path: Path, names: dict[int, str], *, encoding: str = "utf-8"
+) -> list[tuple[int, int, int, str, str]]:
     """Locate renames in one file: (1-based line, start, end, old, new).
 
     Matches are found on the comment/string-sanitized copy of each line, so
-    only code-context occurrences qualify; the spans map 1:1 onto the original
-    line because sanitization pads, never reflows.
+    only code-context occurrences qualify. Latin-1 is for inventory scans of
+    legacy headers: ASCII identifiers survive byte-for-byte, and those spans
+    are never passed to rewrite().
     """
-    text = path.read_bytes().decode("utf-8")
+    text = path.read_bytes().decode(encoding)
     lines = text.split("\n")
     sanitized = sanitize_c_lines(lines)
     clean_text = "\n".join(sanitized)
@@ -189,8 +204,8 @@ def assembly_names(root: Path) -> set[int]:
         )
         if missing is not None:
             raise RuntimeError(f"assembly inventory incomplete ({missing}); regenerate it before renaming")
-    for path in source_files(root):
-        clean = "\n".join(sanitize_c_lines(path.read_text(encoding="utf-8").split("\n")))
+    for path in chain(source_files(root), header_files(root)):
+        clean = "\n".join(sanitize_c_lines(path.read_bytes().decode("latin-1").split("\n")))
         addresses.update(int(match.group(1)[5:], 16) for match in ASM_ARG.finditer(clean))
     for path in (root / "asm").rglob("*.s"):
         addresses.update(
@@ -199,22 +214,37 @@ def assembly_names(root: Path) -> set[int]:
         )
     return addresses
 
+def unplanned_references(files: Iterable[Path], names: dict[int, str]) -> dict[int, Path]:
+    """First code-context occurrence of each name outside the rewrite scope."""
+    found: dict[int, Path] = {}
+    for path in files:
+        changes = plan_file(path, names, encoding="latin-1")
+        for _line, _start, _end, old, _new in changes:
+            found.setdefault(int(old[5:], 16), path)
+    return found
+
 
 def run(root: Path, paths: list[str], check: bool) -> int:
-    """Plan (and optionally apply) every pending rename under ``root``.
-
-    Returns an exit code: 0 when nothing is pending (or everything was
-    applied), 1 from ``--check`` when renames are pending.
-    """
+    """Plan C renames and reject partial C/header/assembly symbol migrations."""
     canonical = canonical_addresses(root)
-    files = [Path(path) for path in paths] if paths else source_files(root)
+    sources = source_files(root)
+    if paths:
+        files = []
+        for name in paths:
+            path = Path(name)
+            files.append(path if path.is_absolute() else root / path)
+    else:
+        files = sources
     names = load_names(sorted((root / "config").glob("symbol_names*.txt")), canonical)
+    source_set = set(sources)
 
     planned: dict[Path, list[tuple[int, int, int, str, str]]] = {}
     total = 0
     for path in files:
         if path.suffix != ".c" or is_generated(path):
             continue
+        if path not in source_set:
+            raise RuntimeError(f"{path}: not a source under src/")
         try:
             changes = plan_file(path, names)
         except UnicodeDecodeError as error:
@@ -223,37 +253,62 @@ def run(root: Path, paths: list[str], check: bool) -> int:
             planned[path] = changes
             total += len(changes)
 
-    if check:
-        if planned:
-            for path in sorted(planned):
-                try:
-                    relative = path.relative_to(root).as_posix()
-                except ValueError:
-                    relative = str(path)
-                for line, _start, _end, old, new in planned[path]:
-                    print(f"{relative}:{line}: {old} -> {new}")
-            print(f"{total} occurrence(s) in {len(planned)} file(s) would change")
-            return 1
-        print("all curated names are applied; nothing to do")
+    if not planned:
+        if check:
+            print("all curated names are applied; nothing to do")
+        else:
+            print("renamed 0 occurrence(s) in 0 file(s)")
         return 0
+
     pending = {int(old[5:], 16) for changes in planned.values()
                for _line, _start, _end, old, _new in changes}
-    unsafe = pending & assembly_names(root)
-    if unsafe:
-        examples = ", ".join(f"func_{addr:08x}" for addr in sorted(unsafe)[:8])
-        raise RuntimeError(
-            f"cannot rename assembly-linked addresses ({examples}); "
-            "INCLUDE_ASM filenames and assembly call targets still use their original names"
-        )
+    pending_names = {addr: names[addr] for addr in pending}
+    assembly = pending & assembly_names(root)
+    scope = set(files)
+    outside = unplanned_references(
+        (path for path in sources if path not in scope), pending_names
+    ) if paths else {}
+    headers = unplanned_references(header_files(root), pending_names)
+    blocked = assembly | set(outside) | set(headers)
 
+    def shown(path: Path) -> str:
+        try:
+            return path.relative_to(root).as_posix()
+        except ValueError:
+            return str(path)
+
+    if check:
+        for path in sorted(planned):
+            for line, _start, _end, old, new in planned[path]:
+                address = int(old[5:], 16)
+                reasons = []
+                if address in assembly:
+                    reasons.append("assembly-linked")
+                if address in outside:
+                    reasons.append(f"out-of-scope C: {shown(outside[address])}")
+                if address in headers:
+                    reasons.append(f"header: {shown(headers[address])}")
+                suffix = f" [blocked: {', '.join(reasons)}]" if reasons else " [ready]"
+                print(f"{shown(path)}:{line}: {old} -> {new}{suffix}")
+        print(f"{total} pending occurrence(s) in {len(planned)} file(s); "
+              f"{len(blocked)} address(es) blocked")
+        return 1
+
+    if blocked:
+        examples = ", ".join(
+            f"func_{addr:08x}"
+            + (f" (C: {shown(outside[addr])})" if addr in outside else "")
+            + (f" (header: {shown(headers[addr])})" if addr in headers else "")
+            for addr in sorted(blocked)[:8]
+        )
+        raise RuntimeError(
+            f"cannot rename assembly-linked or partially scoped addresses ({examples}); "
+            "all C uses and headers must migrate with their linker symbols"
+        )
 
     for path in sorted(planned):
         count = rewrite(path, planned[path])
-        try:
-            shown = path.relative_to(root).as_posix()
-        except ValueError:
-            shown = str(path)
-        print(f"{shown}: renamed {count} occurrence(s)")
+        print(f"{shown(path)}: renamed {count} occurrence(s)")
     print(f"renamed {total} occurrence(s) in {len(planned)} file(s)")
     return 0
 
