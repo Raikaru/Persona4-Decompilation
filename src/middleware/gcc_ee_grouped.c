@@ -23,9 +23,13 @@
    are flanked by genuine third-party code on both sides, and none lies inside a
    first-party run. The 29 here are the scanned subset still filed as first-party.
 
-   Vendor of the tail-jump/getter groups is deliberately not claimed: 18 sit between CRI ADX functions, one between
-   Sony ROFS functions, and the 0x00446-0x0044b block sits between Sony libmc2 and
-   CRI ADX with no way to tell which owns it. Filed by toolchain, not vendor.
+   Vendor of most tail-jump/getter groups is deliberately not claimed.
+   Masked-exact donor matches identify an SRD-family neighbourhood at
+   0x004e3dc8 through 0x004e4648 (13 markers share SRD names in at least three
+   reference binaries), but short shared bodies and the original unit
+   boundaries remain ambiguous. One tail jump is between Sony ROFS functions;
+   the 0x00446-0x0044b block is between Sony libmc2 and CRI ADX.
+   They remain filed by toolchain, not by an unproven vendor or unit name.
 
    This changes no bytes. None of the files these came from is linked, only markers
    moved, and the image and SLUS sha1s are unchanged.
