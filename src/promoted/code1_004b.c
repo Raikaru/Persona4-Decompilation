@@ -1567,6 +1567,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd6a0);
 // FUN_004BD6B8
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd6b8);
 
+// FUN_004BD720
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd720);
 // FUN_004BD750
 /* measured: schedule on fills func_004bd750's retail jr delay-slot load. */
 #pragma schedule on
