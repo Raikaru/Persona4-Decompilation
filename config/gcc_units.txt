@@ -51,6 +51,25 @@ src/promoted/code2_0070.c
 
 # Isolated fp-bit runtime conversion; do not switch its mixed original unit.
 src/middleware/gcc_fp.c
+# EE-GCC vendor wrappers split by contiguous retail function windows for source linkage.
+src/middleware/gcc_ee_wrappers.c
+src/middleware/gcc_ee_004460f0.c
+src/middleware/gcc_ee_004c3410.c
+src/middleware/gcc_ee_004cc1e0.c
+src/middleware/gcc_ee_004d3190.c
+src/middleware/gcc_ee_004d3688.c
+src/middleware/gcc_ee_004e3da8.c
+src/middleware/gcc_ee_004e4180.c
+src/middleware/gcc_ee_004e4280.c
+src/middleware/gcc_ee_004e4688.c
+src/middleware/gcc_ee_004f54b0.c
+src/middleware/gcc_ee_0050bca0.c
+src/middleware/gcc_ee_0050ca80.c
+src/middleware/gcc_ee_00510e40.c
+src/middleware/gcc_ee_00513790.c
+src/middleware/gcc_ee_005230c8.c
+src/middleware/gcc_ee_0052b9f0.c
+src/middleware/gcc_ee_0052ba10.c
 src/cri/libadxe/adx_amp.c
 src/cri/libadxe/adx_baif.c
 src/cri/libadxe/adx_bau.c
