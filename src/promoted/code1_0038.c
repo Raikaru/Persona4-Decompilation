@@ -2252,146 +2252,103 @@ void func_0038a3e0(u8 *arg0)
     *(u8 *)(temp_16 + 0x22) = 0x15;
     *(u8 *)(temp_16 + 0x23) = 0xFF;
 }
-/* measured: honest double-entry reconstruction (Vertex[130] 64B at sp+0x70, 65x2 outer/inner, exclusive i<0x41/j<0x83 already $at) with full tail; probe_variants 290 differing words (obj 1232B/window 1216B, 16B over), fnalign retail 304/object 308 instrs (4 over, 1.3% within 3%), edits 237 (+3 reloc-only) via `python3 tools/probe_variants.py src/promoted/code1_0038.c func_0038a480 --candidate v1=/tmp/a480_auth_v1.c` + `python3 tools/fnalign.py src/promoted/code1_0038.c func_0038a480 --candidate /tmp/a480_auth_v1.c --quiet` + guarded `python3 tools/measure_guarded.py src/promoted/code1_0038.c func_0038a480`. Retail shape: daddu arg save, lui D_008872F8+lwc1 f23, call 00457120, 1.0f/ *(+0x80) div f22, zero triple+1.0f at sp+20F0/F4/F8, pre-loop mula+msub single expr (z*x-y*x) with adda 0.0f/1.0f seed and (1.0f-x*x) operand-order literal building f21, call 003e0f80, 003e0870(*(arg+0xC),handle,sp+20F0,0), per-iter one 0044b7b0/0044b610 pair on (iGpffff81e0*i/64.0f scalar, not array per 0036e140 lever) with neg+muls into sp+2100/2104 triple, 003e42a0, lbu colors as (f32)(u32), (0.0f+prev)+tmp*mult adda/madd second-addend-first with second-entry f21-sub (sub.s), swc1+f23 depth, 4x bltz/cvt/add.s-double unsigned colors, f22 scale+0x18, tail slti j<0x83 sequential < guard (not >=) with 0046d730(D_0064F0E0,0x21E), 003e0f40, (DAT_00887300)(1,0), 00364c50, (DAT_00887310)(4,batch,count), 00364c70. Block-scope i/j, exclusive bounds, (u8*)(u32)/(s16)/(s64)/(f32) casts fixed, no asm/volatile. Prior single-entry honest (plain a+b*c) was 264w/172vs300 (128 short) from missing second entry; this adds both entries+tail to land 295-313. Banked as guarded floor per 3% rule. */
-// FUN_0038A480 NONMATCHING
-#ifdef NON_MATCHING
+/* Ring samples use complete three-component vectors and two vertices per
+ * sample. The 65 samples occupy the entire 130-vertex buffer. */
+typedef struct Code38RingVertex {
+    f32 x, y, z;
+    u32 pad0, pad1, pad2;
+    f32 reciprocalZ;
+    u32 pad3;
+    f32 color[4];
+    u32 tail[4];
+} Code38RingVertex;
+
+static inline void code38RingVertex(Code38RingVertex *vertex,
+    f32 x, f32 y, f32 depth, f32 reciprocalZ, u32 r, u32 g, u32 b, u32 a)
+{
+    vertex->x = x;
+    vertex->y = y;
+    vertex->z = depth;
+    vertex->color[0] = (f32)r;
+    vertex->color[1] = (f32)g;
+    vertex->color[2] = (f32)b;
+    vertex->color[3] = (f32)a;
+    vertex->reciprocalZ = reciprocalZ;
+}
+
+/* Native b210 O2: 1204/1216 bytes, 19 resolved relocations, 12 zero tail bytes. */
+// FUN_0038A480
 void func_0038a480(u8 *arg0)
 {
-    extern f32 D_008872F8[];
-    extern u8 *func_00457120(void);
-    extern s32 func_003e0f80(void);
-    extern void func_003e0870(f32 fparg0, s32 a1, void *a2, s32 a3);
-    extern f32 func_0044b7b0(f32 fparg0);
-    extern f32 func_0044b610(f32 fparg0);
-    extern void func_003e42a0(void *a0, void *a1, void *a2);
-    extern void func_003e0f40(void *a0);
-    extern void func_00364c50(void);
-    extern void func_00364c70(void);
-    extern void func_0046d730(void *file, s32 line);
-    extern u8 D_0064F0E0[];
+    extern BtlShuffleMatrix *func_003e0f80(void);
+    extern BtlShuffleMatrix *func_003e0870(BtlShuffleMatrix *, const BtlShuffleVec3 *, f32, BtlShuffleCombine);
+    extern BtlShuffleVec3 *func_003e42a0(BtlShuffleVec3 *, const BtlShuffleVec3 *, const BtlShuffleMatrix *);
+    extern s32 func_003e0f40(BtlShuffleMatrix *);
+    extern f32 func_0044b7b0(f32);
+    extern f32 func_0044b610(f32);
     extern f32 iGpffff81e0;
-    extern s32 (*D_00887300[])(RwRenderState state, void *value);
-    extern s32 (*D_00887310[])(s32 kind, void *base, s32 count);
-    typedef struct {
-        f32 x;
-        f32 y;
-        f32 z;
-        u32 pad0;
-        u32 pad1;
-        u32 pad2;
-        f32 scale;
-        u32 pad3;
-        f32 color[4];
-        u32 tail[4];
-    } Vertex;
-    Vertex work[130];
-    s32 sp20;
-    s32 sp1c;
-    s32 sp18;
-    f32 tmpX;
-    f32 tmpY;
-    s32 tmpZ;
+    Code38RingVertex vertices[130];
+    BtlShuffleVec3 position;
+    BtlShuffleVec3 axis;
+    f32 angle;
     f32 depth;
-    f32 scale;
-    f32 chain;
-    f32 x;
-    f32 y;
-    f32 z;
-    s32 handle;
+    f32 reciprocalZ;
+    f32 displacement;
+    f32 blend;
+    f32 nearRadius;
+    f32 farRadius;
+    BtlShuffleMatrix *matrix;
+    s32 i;
+    s32 count;
+
     depth = D_008872F8[0];
-    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
-    sp20 = 0;
-    sp1c = 0;
-    sp18 = 0x3F800000;
-    x = *(f32 *)(arg0 + 0x1C);
-    y = *(f32 *)(arg0 + 0x4);
-    z = *(f32 *)(arg0 + 0x8);
-    chain = (1.0f - x * x) * (z * x - y * x);
-    handle = func_003e0f80();
-    func_003e0870(*(f32 *)(arg0 + 0xC), handle, &sp20, 0);
-    {
-        s32 i;
-        s32 j;
-        j = 0;
-        for (i = 0; i < 0x41; i++) {
-            f32 ang;
-            f32 s;
-            f32 c;
-            ang = (iGpffff81e0 * (f32)i) / 64.0f;
-            s = func_0044b7b0(ang);
-            c = func_0044b610(ang);
-            tmpX = -s * *(f32 *)(arg0 + 0x18);
-            tmpY = c * *(f32 *)(arg0 + 0x1C);
-            tmpZ = 0;
-            func_003e42a0(&tmpX, &tmpX, (void *)handle);
-            {
-                u8 b0;
-                u8 b1;
-                u8 b2;
-                u8 b3;
-                f32 prevX;
-                f32 prevY;
-                f32 mult;
-                b0 = *(u8 *)(arg0 + 0x20);
-                b1 = *(u8 *)(arg0 + 0x21);
-                b2 = *(u8 *)(arg0 + 0x22);
-                b3 = *(u8 *)(arg0 + 0x23);
-                mult = *(f32 *)(arg0 + 0x8);
-                prevX = *(f32 *)(arg0 + 0x10);
-                prevY = *(f32 *)(arg0 + 0x14);
-                work[j].x = (0.0f + prevX) + tmpX * mult;
-                work[j].y = (0.0f + prevY) + tmpY * mult;
-                work[j].z = depth;
-                work[j].color[0] = (f32)(u32)b0;
-                work[j].color[1] = (f32)(u32)b1;
-                work[j].color[2] = (f32)(u32)b2;
-                work[j].color[3] = (f32)(u32)b3;
-                work[j].scale = scale;
-            }
-            tmpX = -s * *(f32 *)(arg0 + 0x18);
-            tmpY = c * *(f32 *)(arg0 + 0x1C);
-            tmpZ = 0;
-            func_003e42a0(&tmpX, &tmpX, (void *)handle);
-            {
-                u8 b0;
-                u8 b1;
-                u8 b2;
-                u8 b3;
-                f32 prevX;
-                f32 prevY;
-                f32 mult;
-                b0 = *(u8 *)(arg0 + 0x20);
-                b1 = *(u8 *)(arg0 + 0x21);
-                b2 = *(u8 *)(arg0 + 0x22);
-                b3 = *(u8 *)(arg0 + 0x23);
-                mult = *(f32 *)(arg0 + 0x4);
-                prevX = *(f32 *)(arg0 + 0x10);
-                prevY = *(f32 *)(arg0 + 0x14);
-                work[j + 1].x = (0.0f + prevX) + tmpX * mult;
-                work[j + 1].y = ((0.0f + prevY) + tmpY * mult) - chain;
-                work[j + 1].z = depth;
-                work[j + 1].color[0] = (f32)(u32)b0;
-                work[j + 1].color[1] = (f32)(u32)b1;
-                work[j + 1].color[2] = (f32)(u32)b2;
-                work[j + 1].color[3] = (f32)(u32)b3;
-                work[j + 1].scale = scale;
-            }
-            j += 2;
-        }
-        if (j < 0x83) {
-        } else {
-            func_0046d730(D_0064F0E0, 0x21E);
-        }
-        func_003e0f40((void *)handle);
-        D_00887300[0]((RwRenderState)1, (void *)0);
-        func_00364c50();
-        D_00887310[0](4, work, j);
-        func_00364c70();
+    reciprocalZ = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    axis.x = 0.0f;
+    axis.y = 0.0f;
+    axis.z = 1.0f;
+    blend = *(f32 *)(arg0 + 0x1C);
+    nearRadius = *(f32 *)(arg0 + 4);
+    farRadius = *(f32 *)(arg0 + 8);
+    displacement = (1.0f - blend * blend) * (farRadius * blend - nearRadius * blend);
+    matrix = func_003e0f80();
+    func_003e0870(matrix, &axis, *(f32 *)(arg0 + 0xC), rwCOMBINEREPLACE);
+    i = 0;
+    count = 0;
+    for (; i <= 64; i++) {
+        f32 negativeSine;
+        angle = (iGpffff81e0 * (f32)i) / 64.0f;
+        negativeSine = func_0044b7b0(angle);
+        angle = func_0044b610(angle);
+        negativeSine = -negativeSine;
+        position.x = negativeSine * *(f32 *)(arg0 + 0x18);
+        position.y = angle * *(f32 *)(arg0 + 0x1C);
+        position.z = 0.0f;
+        func_003e42a0(&position, &position, matrix);
+        code38RingVertex(&vertices[count++],
+            (0.0f + *(f32 *)(arg0 + 0x10)) + position.x * *(f32 *)(arg0 + 8),
+            (0.0f + *(f32 *)(arg0 + 0x14)) + position.y * *(f32 *)(arg0 + 8),
+            depth, reciprocalZ, *(u8 *)(arg0 + 0x20), *(u8 *)(arg0 + 0x21),
+            *(u8 *)(arg0 + 0x22), *(u8 *)(arg0 + 0x23));
+        position.x = negativeSine * *(f32 *)(arg0 + 0x18);
+        position.y = angle * *(f32 *)(arg0 + 0x1C);
+        position.z = 0.0f;
+        func_003e42a0(&position, &position, matrix);
+        code38RingVertex(&vertices[count++],
+            (0.0f + *(f32 *)(arg0 + 0x10)) + position.x * *(f32 *)(arg0 + 4),
+            ((0.0f + *(f32 *)(arg0 + 0x14)) + position.y * *(f32 *)(arg0 + 4)) - displacement,
+            depth, reciprocalZ, *(u8 *)(arg0 + 0x20), *(u8 *)(arg0 + 0x21),
+            *(u8 *)(arg0 + 0x22), *(u8 *)(arg0 + 0x23));
     }
+    if (count <= 130) {
+    } else {
+        func_0046d730(D_0064F0E0, 0x21E);
+    }
+    func_003e0f40(matrix);
+    D_00887300[0]((RwRenderState)1, (void *)0);
+    func_00364c50();
+    D_00887310[0](4, vertices, count);
+    func_00364c70();
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038a480);
-#endif
 /* Measured: 904/912 bytes, eleven resolved relocations and eight zero
  * alignment bytes. D_00761490 is the retail scalar 0xBD872B00, not the
  * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
@@ -2829,37 +2786,27 @@ void func_0038bab0(u8 *arg0)
         }
     }
 }
-/* Floor: 361 differing words over 97 edit instructions, 397 emitted against
-   retail's 409, from a first reconstruction.  arg0 is a `u8 *`: m2c types it
-   `u8 **` and then scales `arg0 + 0x1A4` by four, while retail's `$s1` is
-   `arg0 + 0x1A4` in bytes and every field read here is relative to it.
-   The window animation carries TWO scale factors, not one - retail saves
-   both $f20 and $f21 across the calls and multiplies 4096.0f by each - and
-   the second is 1.0f in every arm of this function; writing it as the
-   literal folds the whole conversion away and costs 22 instructions, so it
-   is assigned in each arm (371 words to 361).
-   WALL: twelve instructions still missing, spread over eight sites of one
-   or two, plus register colour in the prologue.  The unsigned-to-float
-   conversions are already exact - `(f32)(u32)*(u16 *)state` reproduces
-   retail's bltz/srl/or sequence - and opt_propagation, dead-assignment,
-   lifetimes, common-subexpression and tree-transformation were measured. */
-/* measured 0038c100: `opt_common_subs off` inside the guard is worth 1 words (361 -> 360); retail rematerialises what b210 hoists. */
-// FUN_0038C100 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
+/* Eight-frame count transition; five-frame fade-out. Extent and remainder
+ * values preserve the two independently scaled sprite coordinates. */
+/* Native b210 O2: 1640/1648 bytes, 12 resolved relocations, eight zero tail bytes. */
+// FUN_0038C100
 void func_0038c100(u8 *arg0)
 {
-    extern void func_0034f460(s32, s32, f32, f32, u8, u8, u8, u8);
-    extern void func_0034f4a0(s32, s32, f32, f32, f32, u8, u8, u8, u8, u16, u16, f32, s16, s16);
-    extern f32 func_00373cb0(s32 mode, f32 t, f32 a, f32 b);
+    extern f32 func_00373cb0(f32, f32, f32, s32);
     u8 *ctx;
     u8 *state;
     u8 *info;
+    u8 alpha;
     s32 handle;
-    s32 alpha;
     f32 scale;
     f32 first;
     f32 scaleY;
+    f32 remainderX;
+    f32 remainderY;
+    f32 extentX;
+    f32 extentY;
+    f32 drawX;
+    f32 drawY;
     u16 flags;
     u16 step;
 
@@ -2872,31 +2819,29 @@ void func_0038c100(u8 *arg0)
     info = ctx + 0x1F1D0;
     flags = *(u16 *)(state + 2);
     if (!(flags & 1)) {
+        scale = func_00373cb0((f32)(u32)*(u16 *)state, 4.0f, 8.0f, 0);
         scaleY = 1.0f;
-        scale = func_00373cb0(0, (f32)(u32)*(u16 *)state, 4.0f, 8.0f);
-        alpha = (u8)(u32)(255.0f * func_00373cb0(1, (f32)(u32)*(u16 *)state, 0.0f, 8.0f));
-        step = *(u16 *)state + 1;
-        *(u16 *)state = step;
+        alpha = (u8)(255.0f * func_00373cb0((f32)(u32)*(u16 *)state, 0.0f, 8.0f, 1));
+        step = ++*(u16 *)state;
         if (step >= 8) {
             *(u16 *)(state + 2) = *(u16 *)(state + 2) | 1;
             *(u16 *)state = 0;
         }
     } else if (flags & 2) {
-        scaleY = 1.0f;
         scale = 1.0f;
-        alpha = (u8)(u32)(255.0f * (1.0f - func_00373cb0(1, (f32)(u32)*(u16 *)state, 0.0f, 5.0f)));
-        step = *(u16 *)state + 1;
-        *(u16 *)state = step;
+        scaleY = scale;
+        alpha = (u8)(255.0f * (1.0f - func_00373cb0((f32)(u32)*(u16 *)state, 0.0f, 5.0f, 1)));
+        step = ++*(u16 *)state;
         if (step >= 5) {
-            *(u16 *)(state + 4) = *(u16 *)(state + 4) & 0xFFFD;
+            *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFD;
         }
     } else if (flags & 4) {
+        first = func_00373cb0((f32)(u32)*(u16 *)state, 4.0f, 8.0f, 0);
+        first = first - func_00373cb0((f32)(u32)*(u16 *)state, 0.0f, 4.0f, 0);
         scaleY = 1.0f;
-        first = func_00373cb0(0, (f32)(u32)*(u16 *)state, 4.0f, 8.0f);
-        scale = 1.0f + (first - func_00373cb0(0, (f32)(u32)*(u16 *)state, 0.0f, 4.0f));
-        alpha = 0xFF;
-        step = *(u16 *)state + 1;
-        *(u16 *)state = step;
+        scale = scaleY + first;
+        alpha = (u8)255.0f;
+        step = ++*(u16 *)state;
         if (step >= 8) {
             *(u16 *)(state + 2) = *(u16 *)(state + 2) & 0xFFFB;
             *(u16 *)state = 0;
@@ -2904,25 +2849,24 @@ void func_0038c100(u8 *arg0)
             *(u16 *)(state + 4) = *(u16 *)(info + 8);
         }
     } else {
-        scaleY = 1.0f;
         scale = 1.0f;
-        alpha = 0xFF;
+        scaleY = scale;
+        alpha = (u8)255.0f;
         if (*(u16 *)(info + 8) != *(u16 *)(state + 4)) {
             *(u16 *)(state + 2) = flags | 4;
         }
     }
-    func_0034f460(handle, 0x2B, 0x8E, 0x31, 0, alpha, 578.0f, 417.0f);
-    func_0034f460(handle, 0x2A, 0x8E, 0x31, 0, alpha, 543.0f, 408.0f);
-    func_0034f460(handle, *(u16 *)(info + 0xA) + 0x1F, 0x8E, 0x31, 0, alpha, 559.0f, 414.0f);
-    func_0034f4a0(handle, (*(u16 *)(info + 0xA) + 0x2D) - *(u16 *)(state + 4), 0, 0, 0, alpha,
-                  (u16)(u32)(4096.0f * scale), (u16)(u32)(4096.0f * scaleY),
-                  515.0f + (((1.0f - scale) * 29.0f) / 2.0f),
-                  407.0f + (((1.0f - scaleY) * 26.0f) / 2.0f), 0, 0.0f, 0, 0);
+    func_0034f460(handle, 0x2B, (f32)578, (f32)417, 0x8E, 0x31, 0, alpha);
+    func_0034f460(handle, 0x2A, (f32)543, 408.0f, 0x8E, 0x31, 0, alpha);
+    func_0034f460(handle, *(u16 *)(info + 0xA) + 0x1F, (f32)559, 414.0f, 0x8E, 0x31, 0, alpha);
+    remainderX = 1.0f - scale;
+    extentX = 29.0f;
+    drawX = (f32)515 + (remainderX * extentX) / 2.0f;
+    remainderY = 1.0f - scaleY;
+    extentY = 26.0f;
+    drawY = (f32)407 + (remainderY * extentY) / 2.0f;
+    func_0034f4a0(handle, (*(u16 *)(info + 0xA) + 0x2D) - *(u16 *)(state + 4), drawX, drawY, 0, 0, 0, 0, alpha, (u16)(4096.0f * scale), (u16)(4096.0f * scaleY), 0.0f, 0, 0);
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038c100);
-#endif
 // FUN_0038C770
 void func_0038c770(u8 *arg0)
 {
