@@ -888,8 +888,8 @@ s32 func_00172e00(u8 *arg0)
     void func_00144c90(s32, s32);
     void func_00144e10(s64);
     void func_00144ed0(s64);
-    s32 func_00145ac0(s32, s32);
-    s32 func_0014b510(s32);
+    s32 func_00145ac0(u16, s32);
+    u16 func_0014b510(s32);
     void func_0014a0f0(s32, s32);
     void func_0015a350(void *);
     void func_0047a180(s32, void *, s32);

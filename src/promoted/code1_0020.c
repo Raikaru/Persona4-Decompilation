@@ -174,7 +174,8 @@ extern void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
 extern u16 func_00243920(s64 arg0);
 extern void func_00207140(u16 *flags, u8 *work);
 extern s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel);
-extern void func_00207b00();
+extern void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState);
+extern void func_00204dc0(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend);
 extern void func_002089e0();
 extern void func_00208870(u8 *unused, u8 *arg1, f32 *arg2);
 extern void func_001bc660(s32 state, BtlAction *action, u32 param_3);
@@ -3322,227 +3323,261 @@ s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
     return 1;
 }
 #pragma pop
-/* measured: GUARDED_SCORE 760 -> 746 differing words via tbl-base hoist (probe_variants), retail 860 vs object 863 -> 855 instrs (+3 -> -5, within gate); fnalign 532 -> 517 edits (+1 reloc-only). Lui per symbol retail 65 vs object 91 surplus 26 (D_00887300 6 hoisted vs 14 per-site, D_00626BD0 2/2 tie); hoisted D_00887300 to tbl at first use (void (**tbl)(u32,u32) = D_00887300, 14 -> 3 bases, lui 91->80 surplus 15, -11): 760->746 words (-14). Prologue init 767 ties-worse, last-site direct 755 worse, px-reuse 779 worse. Remaining: saved-reg rotation (retail s8/s1/s4 vs build s7/s2), FPR colouring (retail f26/f25/f24 vs build f22/f21/f20), frame -0xD0 vs -0xB0, stack pos 0xC0 vs 0xA8, residual float constants (0xc120 +4, 0x3f80 +2). Banked floor; production stays ASM. */
-/* measured 00207b00 (owner, 2026-09-19): fnalign edits **517 -> 470**, frame 0xC0 -> 0xD0
-   **exactly retail's**, and the saved float set now matches: $f23/$f24/$f25/$f26 against
-   retail's same four, where the body previously saved only $f23.
-   `block_move_scan` called the largest pair RECOLOUR at 0.908 - same code, different
-   registers - and `regsave_scan` said retail saves $f24, $f25 and $f26 that the body did
-   not.  Reading retail: `lui 0xc120; mtc1 $f25` and `lui 0x41e0; mtc1 $f24` at R47-R50
-   put the literals **-10.0f** and **28.0f** into callee-saved registers once and keep
-   them for 12 and 15 uses; the third, $f26, is the `/ 6.0f` division at R46, which the
-   body already held in a local.  The body was spelling the two literals inline at every
-   use, so MWCC rematerialised `lui`/`mtc1` each time instead of allocating a register.
-   Hoisting them into named locals initialised once is the whole change.
-   General form: a float literal used a dozen times is a *variable* in the original
-   source, not a constant - retail's saved-float count tells you how many. */
-// FUN_00207B00 NONMATCHING
-#ifdef NON_MATCHING
-void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
+/* Draw the growing command circles, enabled command rows and mode hints.
+ * The extended strip acquires its own renderer view at phase entry and
+ * reloads the mutable state-setter slot before each indirect call.
+ * Native b210 -O2: 3440/3440 exact bytes, 57 resolved code
+ * relocations, no zero tail; all 145 sibling functions and data unchanged. */
+static inline void battleMenuExtendedStrip(BattleRenderDispatch *renderer,
+                                          f32 x, f32 y, f32 progress)
 {
-    extern s32 func_001f0620(u8 *arg0, s32 arg1);
-    extern s32 func_001eb860(void);
-    extern s32 func_0044dcd8(f32 value);
-    extern s32 func_0044b310(s32 value);
-    extern s16 D_00626BD0[];
-    u8 *pb;
-    u32 bits;
-    s32 isAlt;
-    f32 f26;
-    f32 offX;
-    f32 offY;
-    f32 f1;
-    f32 f20;
-    s16 s19;
-    s32 idx;
-    s32 val;
-    s32 tmp;
-    u32 raw;
-    u8 alpha;
-    u8 c1;
-    u8 c2;
-    u8 c3;
-    Vec2f pos;
-    void (**tbl)(u32, u32);
-    f32 px;
-    f32 py;
-    f32 t;
-    f32 u;
-    f32 v;
+    void (**setState)(u32, u32);
+    setState = &renderer->setState;
+    (*setState)(6, 1);
+    func_00204dc0(3, x, y, 110.0f, progress * 90.0f, 1);
+    (*setState)(6, 0);
+}
 
-    pb = (u8 *)func_00452560(*(s32 *)(arg1 + 0x5B0));
-    bits = *(u32 *)(iGpffffb3ac + 0xC) & 0x10000;
-    if (*(u8 **)(arg1 + 0x38) != arg1 + 0x40 || (isAlt = 1, *(u16 *)arg1 != 1) || bits != 0) {
-        offX = -10.0f;
-    offY = offY;
-    f26 = (f32)*(s16 *)(arg1 + 0x12) / 6.0f;
-        isAlt = 0;
+// FUN_00207B00
+void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
+{
+    extern u32 func_00452560(void *task);
+    extern s32 func_001f0620(u8 *selection, s64 work);
+    extern s32 func_001eb860(void);
+    extern f64 func_0044dcd8(f32 value);
+    extern f64 func_0044b310(f64 value);
+    extern s16 D_00626BD0[];
+    u8 *work;
+    f32 *origin;
+    u8 *glyphs;
+    u32 menuFlags;
+    s32 showCommands;
+    f32 rotationProgress;
+    f32 offsetX;
+    f32 offsetY;
+    f32 completeProgress;
+    s16 selectedCommand;
+    s32 row;
+    s16 command;
+    s32 available;
+    u32 opacity;
+    Vec2f position;
+    union {
+        Color4 bytes;
+        s32 word;
+    } color;
+    BattleRenderDispatch *renderer;
+    f32 translationX;
+    struct {
+        Vec2f center;
+        f32 progress;
+    } circle;
+
+    work = (u8 *)(u32)workAddress;
+    origin = (f32 *)drawState;
+    glyphs = (u8 *)func_00452560(*(void **)(work + 0x5B0));
+    menuFlags = *(u32 *)(iGpffffb3ac + 0xC) & 0x10000;
+    if (*(u8 **)(work + 0x38) != work + 0x40 || *(u16 *)work != 1 || menuFlags != 0) {
+        rotationProgress = (f32)*(s16 *)(work + 0x12) / 6.0f;
+        offsetX = -10.0f;
+        offsetY = 28.0f;
+        showCommands = 0;
+    } else {
+        showCommands = 1;
+        offsetX = -10.0f;
+        offsetY = 28.0f;
     }
-    px = offX;
-    func_002012d0(pb, arg2[0] + offX, arg2[1] + offY);
-    tbl = D_00887300;
-    tbl[0](8, 1);
-    tbl[0](1, 0);
-    if ((s16)(*(s16 *)(arg1 + 0xC) - 2) < 2) {
-        t = (f32)(s16)(*(s16 *)(arg1 + 0xC) - 2) / 2.0f;
-        if (t > 1.0f) {
-            u = 1.0f;
+    translationX = offsetX;
+    func_002012d0(glyphs, origin[0] + offsetX, origin[1] + offsetY);
+    renderer = (BattleRenderDispatch *)D_00887300;
+    renderer->setState(8, 1);
+    renderer->setState(1, 0);
+    {
+        f32 outlineGrowth;
+        f32 t;
+        f32 u;
+        if ((s16)(*(s16 *)(work + 0xC) - 2) < 2) {
+            t = (f32)(s16)(*(s16 *)(work + 0xC) - 2) / 2.0f;
+            completeProgress = 1.0f;
+            if (t > completeProgress) {
+                u = completeProgress;
+            } else if (t < 0.0f) {
+                u = 0.0f;
+            } else {
+                u = t;
+            }
+            outlineGrowth = u * 2.0f - u * u;
+        } else {
+            completeProgress = 1.0f;
+            outlineGrowth = completeProgress;
+        }
+        circle.center.x = 96.0f + translationX;
+        position.x = circle.center.x;
+        circle.center.y = 318.0f + offsetY;
+        position.y = circle.center.y;
+        color.bytes.c0 = 0x1B;
+        color.bytes.c1 = 0x1B;
+        color.bytes.c2 = 0x1B;
+        color.bytes.c3 = 0xFF;
+        func_00365f00(position, 150.0f, color.word, color.word, outlineGrowth * 81.0f, 0.0f, 0x30, 1.0f, 1.0f, 1);
+    }
+    if (*(s16 *)(work + 0xC) < 2) {
+        f32 t;
+        f32 u;
+        t = (f32)*(s16 *)(work + 0xC) / 2.0f;
+        if (t > completeProgress) {
+            u = completeProgress;
         } else if (t < 0.0f) {
             u = 0.0f;
         } else {
             u = t;
         }
-        f1 = u * 2.0f - u * u;
+        circle.progress = u * 2.0f - u * u;
     } else {
-        f1 = 1.0f;
+        circle.progress = completeProgress;
     }
-    py = px + 96.0f;
-    pos.x = py;
-    pos.y = 346.0f;
-    func_00365f00(pos, 150.0f, 0xFF1B1B1B, 0xFF1B1B1B, f1 * 81.0f, 0.0f, 0x30, 1.0f, 1.0f, 1);
-    f1 = 1.0f;
-    if (*(s16 *)(arg1 + 0xC) < 2) {
-        t = (f32)*(s16 *)(arg1 + 0xC) / 2.0f;
-        u = 0.0f;
-        if (t <= 1.0f) {
-            if (t >= 0.0f) {
-                u = t;
-            }
-        } else {
-            u = 1.0f;
-        }
-        f1 = u * 2.0f - u * u;
+    position.x = circle.center.x;
+    position.y = circle.center.y;
+    color.bytes.c0 = 0xFE;
+    color.bytes.c1 = 0xFF;
+    color.bytes.c2 = 0x22;
+    color.bytes.c3 = 0xFF;
+    {
+        f32 radius;
+        radius = circle.progress * 78.0f;
+        func_00365f00(position, 150.0f, color.word, color.word, radius, 0.0f, 0x30, 1.0f, 1.0f, 1);
+        color.bytes.c3 = 0;
+        func_00365f00(position, 150.0f, color.word, color.word, radius + 1.0f, 0.0f, 0x30, 1.0f, 1.0f, 1);
     }
-    f20 = f1;
-    v = f20 * 78.0f;
-    pos.x = py;
-    pos.y = 346.0f;
-    func_00365f00(pos, 150.0f, 0xFF22FFFE, 0xFF22FFFE, v, 0.0f, 0x30, 1.0f, 1.0f, 1);
-    pos.x = py;
-    pos.y = 346.0f;
-    func_00365f00(pos, 150.0f, 0x0022FFFE, 0x0022FFFE, v + 1.0f, 0.0f, 0x30, 1.0f, 1.0f, 1);
-    tbl[0](8, 0);
-    tbl[0](6, 0);
-    func_002019e0(pb, 0.0f);
-    if (isAlt != 0) {
-        t = (f32)*(s16 *)(arg1 + 0xE) / 2.0f;
-        u = 1.0f;
-        if (t <= 1.0f) {
-            u = 0.0f;
-            if (t >= 0.0f) {
-                u = t;
-            }
-        }
-        f20 = u;
-        t = f20 * 255.0f;
-        if (t >= 2.1474836e9f) {
-            t = t - 2.1474836e9f;
-        }
-        raw = (u32)t;
-        alpha = raw & 0xFF;
-        if (alpha == 0) {
-            tbl[0](6, 1);
-            func_00204dc0(3, px, offY, 110.0f, (1.0f - f20) * 45.0f, 0);
-            tbl[0](6, 0);
+    renderer = (BattleRenderDispatch *)D_00887300;
+    renderer->setState(8, 0);
+    renderer->setState(6, 0);
+    func_002019e0(glyphs, 0.0f);
+    if (showCommands != 0) {
+        f32 t;
+        u8 drawOpacity;
+        t = (f32)*(s16 *)(work + 0xE) / 2.0f;
+        if (t > completeProgress) {
+            circle.progress = completeProgress;
+        } else if (t < 0.0f) {
+            circle.progress = 0.0f;
         } else {
-            v = 259.0f;
-            val = 0;
-            idx = 0;
-            for (; idx < 8; idx++) {
-                tmp = func_001f0620(*(u8 **)(arg1 + 0x178), D_00626BD0[val]);
-                if (tmp == 0 || (val == 6 && *(s16 *)(arg1 + 0x5A6) <= 0)) {
-                    c1 = 0x96;
+            circle.progress = t;
+        }
+        opacity = (u8)(255.0f * circle.progress);
+        drawOpacity = (u8)opacity;
+        if (drawOpacity != 0) {
+            f32 rowY;
+            rowY = 259.0f;
+            command = 0;
+            row = 0;
+            for (; row < 8; row++, command++) {
+                u8 tone;
+                available = func_001f0620(*(u8 **)(work + 0x178), D_00626BD0[command]);
+                if (available != 0 && (command != 6 || *(s16 *)(work + 0x5A6) > 0)) {
+                    tone = 0x1B;
                 } else {
-                    c1 = 0x1B;
+                    tone = 0x96;
                 }
-                tmp = func_0044dcd8((f32)*(s16 *)(arg1 + 0x14) / 3.0f);
-                func_0044b310(tmp);
-                func_00201650(pb, 9, val + 8, 52.0f, v - 1.0f, c1, c1, c1, alpha);
-                v += 15.0f;
-                val++;
+                func_0044b310(func_0044dcd8((f32)*(s16 *)(work + 0x14) / 3.0f));
+                func_00201650(glyphs, 9, command + 8, 52.0f, rowY - completeProgress, tone, tone, tone, drawOpacity);
+                rowY += 15.0f;
             }
-            s19 = *(s16 *)(arg0 + 4);
-            tbl[0](6, 1);
-            func_00204dc0(3, px, ((f32)s19 - 3.0f) * 15.0f + offY, 110.0f, 0.0f, 0);
-            tbl[0](6, 0);
-            if (alpha == 0xFF) {
-                tmp = func_001f0620(*(u8 **)(arg1 + 0x178), D_00626BD0[s19]);
-                if (tmp == 0 || (s19 == 6 && *(s16 *)(arg1 + 0x5A6) <= 0)) {
-                    c1 = 0x62;
-                    c2 = 0x62;
-                    c3 = 0x62;
-                } else {
+            selectedCommand = *(s16 *)(selection + 4);
+            renderer = (BattleRenderDispatch *)D_00887300;
+            renderer->setState(6, 1);
+            func_00204dc0(3, translationX, ((f32)selectedCommand - 3.0f) * 15.0f + offsetY, 110.0f, 0.0f, 0);
+            renderer->setState(6, 0);
+            if ((u8)opacity == 0xFF) {
+                u8 c1;
+                u8 c2;
+                u8 c3;
+                available = func_001f0620(*(u8 **)(work + 0x178), D_00626BD0[selectedCommand]);
+                if (available != 0 && (selectedCommand != 6 || *(s16 *)(work + 0x5A6) > 0)) {
                     c1 = 0xFE;
                     c2 = 0xFF;
                     c3 = 0x22;
+                } else {
+                    c1 = 0x62;
+                    c2 = 0x62;
+                    c3 = 0x62;
                 }
-                func_00201650(pb, 9, s19, 33.0f, (f32)s19 * 15.0f + 258.0f, c1, c2, c3, 0xFF);
-                func_00201410(pb, 9, s19 + 0x10, 196.0f - px, 383.0f - 1.0f);
+                func_00201650(glyphs, 9, selectedCommand, 33.0f, (f32)selectedCommand * 15.0f + 258.0f, c1, c2, c3, 0xFF);
+                func_00201410(glyphs, 9, selectedCommand + 0x10, 196.0f - translationX, ((f32)0x19B - offsetY) - completeProgress);
             }
+        } else {
+            renderer = (BattleRenderDispatch *)D_00887300;
+            renderer->setState(6, 1);
+            func_00204dc0(3, translationX, offsetY, 110.0f, (completeProgress - circle.progress) * 45.0f, 0);
+            renderer->setState(6, 0);
         }
-        if (f20 >= 1.0f && bits == 0 && func_001eb860() != 0) {
-            func_00201650(pb, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-            func_00201410(pb, 9, 0x1C, 110.0f, 383.0f);
-            func_00201650(pb, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-            func_00201410(pb, 9, 0x19, 129.0f, 383.0f);
+        if (circle.progress >= completeProgress && menuFlags == 0 && func_001eb860() != 0) {
+            func_00201650(glyphs, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+            func_00201410(glyphs, 9, 0x1C, 110.0f, 383.0f);
+            func_00201650(glyphs, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+            func_00201410(glyphs, 9, 0x19, 129.0f, 383.0f);
         }
     } else {
-        tbl[0](6, 1);
-        func_00204dc0(3, px, offY, 110.0f, f26 * 90.0f, 1);
-        tbl[0](6, 0);
-        if (bits == 0) {
-            if (*(u16 *)arg1 == 2 && *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) == 10) {
-                s19 = 0;
+        BattleRenderDispatch *modeRenderer;
+        /* This phase acquires the table independently of earlier circle draws. */
+        modeRenderer = (BattleRenderDispatch *)D_00887300;
+        battleMenuExtendedStrip(modeRenderer, translationX, offsetY, rotationProgress);
+        if (menuFlags == 0) {
+            s32 showHints;
+            if (*(u16 *)work == 2 && *(u16 *)(*(u8 **)(work + 0x178) + 0x6C) == 10) {
+                selectedCommand = 0;
             } else {
-                s19 = *(s16 *)(arg0 + 4);
+                selectedCommand = *(s16 *)(selection + 4);
             }
-            if (s19 == 0) {
-                func_002012d0(pb, arg2[0], arg2[1]);
-                func_00201650(pb, 9, 0x1E, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                tbl[0](6, 1);
-                func_002019e0(pb, 120.0f);
-                func_00201650(pb, 9, 0x34, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                tbl[0](6, 0);
-                func_002012d0(pb, arg2[0] + px, arg2[1] + offY);
-                isAlt = 1;
-            } else if (s19 == 3) {
-                func_002012d0(pb, arg2[0], arg2[1]);
-                func_00201650(pb, 9, 0x20, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                tbl[0](6, 1);
-                func_002019e0(pb, 120.0f);
-                func_00201650(pb, 9, 0x36, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                tbl[0](6, 0);
-                func_002019e0(pb, 0.0f);
-                func_002012d0(pb, arg2[0] + px, arg2[1] + offY);
-                isAlt = 1;
-            } else {
-                isAlt = 0;
+            switch (selectedCommand) {
+            case 3:
+                func_002012d0(glyphs, origin[0], origin[1]);
+                func_00201650(glyphs, 9, 0x20, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                renderer = (BattleRenderDispatch *)D_00887300;
+                renderer->setState(6, 1);
+                func_002019e0(glyphs, 120.0f);
+                func_00201650(glyphs, 9, 0x36, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                renderer->setState(6, 0);
+                func_002019e0(glyphs, 0.0f);
+                func_002012d0(glyphs, origin[0] + translationX, origin[1] + offsetY);
+                showHints = 1;
+                break;
+            case 0:
+                func_002012d0(glyphs, origin[0], origin[1]);
+                func_00201650(glyphs, 9, 0x1E, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                renderer = (BattleRenderDispatch *)D_00887300;
+                renderer->setState(6, 1);
+                func_002019e0(glyphs, 120.0f);
+                func_00201650(glyphs, 9, 0x34, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                renderer->setState(6, 0);
+                func_002012d0(glyphs, origin[0] + translationX, origin[1] + offsetY);
+                showHints = 1;
+                break;
+            default:
+                showHints = 0;
             }
-            if (isAlt != 0) {
-                func_00201410(pb, 9, 0x32, 215.0f - px, 384.0f);
-                func_00201410(pb, 9, 0x33, 193.0f - px, 384.0f);
-                func_00201410(pb, 9, 0x33, 413.0f - px, 384.0f);
-                if (f20 >= 1.0f && func_001eb860() != 0) {
-                    func_00201650(pb, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                    func_00201410(pb, 9, 0x1C, 110.0f, 383.0f);
-                    func_00201650(pb, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                    func_00201410(pb, 9, 0x19, 129.0f, 383.0f);
+            if (showHints != 0) {
+                func_00201410(glyphs, 9, 0x32, 215.0f - translationX, 412.0f - offsetY);
+                func_00201410(glyphs, 9, 0x33, 193.0f - translationX, 412.0f - offsetY);
+                func_00201410(glyphs, 9, 0x33, 413.0f - translationX, 412.0f - offsetY);
+                if (circle.progress >= completeProgress && menuFlags == 0 && func_001eb860() != 0) {
+                    func_00201650(glyphs, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                    func_00201410(glyphs, 9, 0x1C, 110.0f, 383.0f);
+                    func_00201650(glyphs, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                    func_00201410(glyphs, 9, 0x19, 129.0f, 383.0f);
                 }
             }
         }
     }
-    tmp = *(s16 *)(arg1 + 0x14);
-    if (tmp > 0) {
-        *(s16 *)(arg1 + 0x14) = tmp - 1;
+    available = *(s16 *)(work + 0x14);
+    if (available > 0) {
+        *(s16 *)(work + 0x14) = available - 1;
         return;
     }
-    if (tmp < 0) {
-        *(s16 *)(arg1 + 0x14) = tmp + 1;
+    if (available < 0) {
+        *(s16 *)(work + 0x14) = available + 1;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00207b00);
-#endif
 /* measured: the float argument to func_0045d6e0 is 0.0f - retail only ever clears
    $f12, and that hoisted zero is also the `<= 0.0f` compare operand and the
    accumulator seed of the adda.s/madd.s (the old archive passed temp_f4, nd10). */

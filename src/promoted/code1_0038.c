@@ -525,127 +525,123 @@ void func_00383f80(u8 *arg0)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00383f80);
 #endif
-/* measured: honest first reconstruction per func_0038bab0/89640 idiom (u8* state at +0x24, Vec2f point, (f32)(u16) bltz, plain (u8) clamps, sequential <13 mask, block-scoped next, plain arithmetic; probe_variants v1 381w/44e, R1 v_s32 360w/39e win (-21/-5, s32 quad/icon for $s allocation adopted), v_loop 407w regress, R2 v_prop 348w/56e words-win but fnalign worse not adopted per 85380 precedent, v_reorder 364w regress; stop after two rounds (R1 productive, R2 unproductive after fnalign gate) per batch; fnalign v_s32 retail 429/object 428 (39 edits +4 reloc-only, within 3%, frame 0xB0, sh/andi order + $s0/$s4 + GP offsets + COP1 floor remain); providers verified (373cb0 f32,f32,f32,s32 per btlShuffleCalc.c:43, 64c90 Vec2f per shdMisc.c:351, 34f460 s32,s32,f32,f32,u8,u8,u8,u32 per this file:73, 3f6440/46d730/D_0064EEB0 file-scope, D_0064ECC0 + fGp83c0/83c4 block-scope, 5.0/3.0/5.0-10.0 constants per retail immediates, quad $20/icon1 $19/icon2 $18 per retail $s map); Ghidra/IDA agree on CFG/call order, differ on 34f460/373cb0 prototypes and GP naming (used file idiom); lever 4 exclusive <13 already $at; lhu correct; double-def offset remains + FPR color; re-derived, no fabrications; archive P038_00384cc0_body.c stale (swapped quad/icon + doubled constants). Banked guarded floor. */
-// FUN_00384CC0 NONMATCHING
-#ifdef NON_MATCHING
-void func_00384cc0(u8 *arg0)
+/* Line and icon fade for the selected shuffle pattern.
+ * The halfword frame increment wraps before the phase test; byte
+ * opacities and the shared point preserve the native call boundaries. */
+// FUN_00384CC0
+void func_00384cc0(u8 *work)
 {
-    typedef struct { f32 x; f32 y; } Vec2f_4cc0;
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
-    extern void func_00364c90(Vec2f_4cc0 pos, f32 depth, s32 color, f32 width, f32 height, f32 angle, s32 mode);
+    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 work);
     extern f32 fGpffff83c0;
     extern f32 fGpffff83c4;
-    extern u8 D_0064ECC0[];
-    u8 *state;
+    extern const Vec2f D_0064ECC0[13];
+    struct LineAnimation { u16 flags; u16 frame; } *state;
     u8 *base;
-    u8 *info;
-    s32 resource;
-    Vec2f_4cc0 point;
+    u16 *patternFlags;
+    s32 texture;
+    Vec2f point;
     u16 flags;
-    u16 next;
+    u16 nextFrame;
     f32 progress;
-    s32 quad;
-    s32 icon1;
-    s32 icon2;
+    u8 lineAlpha;
+    u8 iconAlpha;
+    u8 overlayAlpha;
     s32 packed;
-    s32 mask;
+    u16 mask;
+    u32 selectedMask;
+    u32 drawOverlay;
     s32 i;
-    u8 *entry;
-    f32 x;
-    f32 y;
-    state = arg0 + 0x24;
-    base = *(u8 **)arg0;
-    info = base + 0x1F1D0;
-    resource = *(s32 *)(base + 0x1F2AC);
+    const Vec2f *entry;
+    state = (struct LineAnimation *)(work + 0x24);
+    base = *(u8 **)work;
+    patternFlags = (u16 *)(base + 0x1F1D0);
+    texture = *(s32 *)(base + 0x1F2AC);
     mask = 0;
     if (*(s32 *)(base + 0x1F2FC) != 4) {
         func_0046d730(D_0064EEB0, 459);
     }
-    flags = *(u16 *)state;
+    flags = state->flags;
     if ((flags & 1) == 0) {
-        quad = 0;
-        progress = (f32)*(u16 *)(state + 2);
-        icon1 = (u8)(255.0f * func_00373cb0(progress, 0.0f, 5.0f, 1));
-        icon2 = 0;
-        next = *(u16 *)(state + 2) + 1;
-        *(u16 *)(state + 2) = next;
-        if ((next & 0xFFFF) >= 5) {
-            *(u16 *)state = *(u16 *)state | 1;
-            *(u16 *)state = *(u16 *)state | 2;
-            *(u16 *)(state + 2) = 0;
+        lineAlpha = 0;
+        progress = (f32)state->frame;
+        iconAlpha = (u8)(255.0f * func_00373cb0(progress, 0.0f, 5.0f, 1));
+        overlayAlpha = 0;
+        nextFrame = ++state->frame;
+        if ((nextFrame & 0xFFFF) >= 5) {
+            state->flags = state->flags | 1;
+            state->flags = state->flags | 2;
+            state->frame = 0;
         }
     } else if (flags & 2) {
-        progress = (f32)*(u16 *)(state + 2);
-        quad = (u8)(255.0f * func_00373cb0(progress, 0.0f, 3.0f, 1));
-        icon1 = 0xFF;
-        progress = (f32)*(u16 *)(state + 2);
-        icon2 = (u8)(255.0f * (1.0f - func_00373cb0(progress, 5.0f, 10.0f, 1)));
-        next = *(u16 *)(state + 2) + 1;
-        *(u16 *)(state + 2) = next;
-        if ((next & 0xFFFF) >= 10) {
-            *(u16 *)state = *(u16 *)state & 0xFFFD;
-            *(u16 *)(state + 2) = 0;
+        progress = (f32)state->frame;
+        lineAlpha = (u8)(255.0f * func_00373cb0(progress, 0.0f, 3.0f, 1));
+        iconAlpha = 0xFF;
+        progress = (f32)state->frame;
+        overlayAlpha = (u8)(255.0f * (1.0f - func_00373cb0(progress, 5.0f, 10.0f, 1)));
+        nextFrame = ++state->frame;
+        if ((nextFrame & 0xFFFF) >= 10) {
+            state->flags = state->flags & 0xFFFD;
+            state->frame = 0;
         }
     } else if (flags & 4) {
-        progress = (f32)*(u16 *)(state + 2);
-        quad = (u8)(255.0f * (1.0f - func_00373cb0(progress, 0.0f, 5.0f, 1)));
-        icon2 = quad;
-        icon1 = quad;
-        next = *(u16 *)(state + 2) + 1;
-        *(u16 *)(state + 2) = next;
-        if ((next & 0xFFFF) >= 10) {
-            *(u16 *)(arg0 + 0x4C) = *(u16 *)(arg0 + 0x4C) & 0xFFBF;
-            *(u16 *)(state + 2) = 0;
+        progress = (f32)state->frame;
+        lineAlpha = (u8)(255.0f * (1.0f - func_00373cb0(progress, 0.0f, 5.0f, 1)));
+        overlayAlpha = lineAlpha;
+        iconAlpha = lineAlpha;
+        nextFrame = ++state->frame;
+        if ((nextFrame & 0xFFFF) >= 10) {
+            *(u16 *)(work + 0x4C) = *(u16 *)(work + 0x4C) & 0xFFBF;
+            state->frame = 0;
         }
     } else {
-        quad = 0xFF;
-        icon1 = 0xFF;
-        icon2 = 0;
+        lineAlpha = 0xFF;
+        iconAlpha = lineAlpha;
+        overlayAlpha = 0;
     }
     point.x = 314.0f;
     point.y = 237.0f;
-    packed = (quad & 0xFF) | 0x3767FF00;
+    packed = (lineAlpha & 0xFF) | 0x3767FF00;
     func_003f6440(3, (void *)0x71801);
     func_003f6440(2, (void *)0x48);
-    if (*(u16 *)info & 0x20) {
-        if (quad != 0) {
+    if (*patternFlags & 0x20) {
+        if (lineAlpha != 0) {
             func_00364c90(point, 0.0f, packed, 403.0f, 2.0f, 0.0f, 1);
         }
-        mask = (mask | 0x1F) & 0xFFFF;
+        mask |= 0x1F;
     }
     point.x = 314.0f;
     point.y = 236.0f;
-    if (*(u16 *)info & 0x10) {
-        if (quad != 0) {
+    if (*patternFlags & 0x10) {
+        if (lineAlpha != 0) {
             func_00364c90(point, 0.0f, packed, 485.0f, 2.0f, fGpffff83c0, 1);
         }
-        mask = (mask | 0x1E1) & 0xFFFF;
+        mask |= 0x1E1;
     }
     point.x = 316.0f;
     point.y = 236.0f;
-    if (*(u16 *)info & 0x40) {
-        if (quad != 0) {
+    if (*patternFlags & 0x40) {
+        if (lineAlpha != 0) {
             func_00364c90(point, 0.0f, packed, 485.0f, 2.0f, fGpffff83c4, 1);
         }
-        mask = (mask | 0x1E01) & 0xFFFF;
+        mask |= 0x1E01;
     }
-    for (i = 0; i < 13; i++) {
-        if (mask & (1 << i)) {
-            entry = D_0064ECC0 + i * 8;
-            x = *(f32 *)entry;
-            y = *(f32 *)(entry + 4);
-            func_0034f460(resource, 55, x, y, 0xFF, 0xFF, 0xFF, icon1);
-            if (icon2 != 0) {
-                func_0034f460(resource, 55, x, y, 0xFF, 0xFF, 0xFF, icon2);
+    i = 0;
+    selectedMask = (u16)mask;
+    drawOverlay = (u8)overlayAlpha;
+    for (; i < 13; i++) {
+        if (selectedMask & (1 << i)) {
+            entry = D_0064ECC0 + i;
+            point.x = entry->x;
+            point.y = entry->y;
+            func_0034f460(texture, 55, point.x, point.y, 0xFF, 0xFF, 0xFF, iconAlpha);
+            if (drawOverlay != 0) {
+                func_0034f460(texture, 55, point.x, point.y, 0xFF, 0xFF, 0xFF, overlayAlpha);
             }
         }
     }
     func_003f6440(3, (void *)0x717FB);
     func_003f6440(2, (void *)0x44);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00384cc0);
-#endif
 /* measured: probe_variants func_00385380 base 336wd honest (exclusive <0x12, Vec2f{318,231}, plain accumulators, (u8)/(u16) clamps), inclusive (>0x12/slti 0x13) 336wd tie (no $at site, lever N/A beyond exclusivity), pragma_schedule 335wd (-1 churn, fnalign 411 vs 193 edits worse, not adopted); fnalign base retail 377/object 320 (193 edits +1 reloc-only; frame 0x90->0x80, s3->s2, accumulator madd chains); providers verified (373cb0, 3f6440, 64c90, 34f4a0, 44b7b0/610, DAT_007613F8/fGp82cc/80bc/83c8 per Draft5380); Ghidra/IDA agree; archive docs/probe_archive/P038_00385380_body.c (COP1 floor note, consistent); lever 4 tie; banked guarded floor for opclass measurability (object 320/377, 15% short noted plainly, stays out per 3% rule for MATCH but in as floor for triage). */
 /* measured this batch: hoisting N/A (no D_00887310/global-pointer call, no loop; DAT_007613F8/fGp globals read straight-line only); direct (u8)/(u16) casts (was (u8)(s32)/(u16)(s32)) recover retail clamping chains: fnalign retail 377/object 366 (-2.9% inside gate, was 320/-15.1%), edits 194+1 reloc-only (was 193+1), max hole 49@0x385818 -> 4@0x3854F0, max lump 30 retained, guarded 342wd (was 336wd outside gate, not comparable per handoff 7y), opclass 29 -> 8 (lui -4, mtc1 -4 remain); remaining deletes 0x3854F0(4, Vec 318/231 lui/sw), 0x3858EC(2, x/y reload), 0x385900(1, move t1,s2 idx). */
 // FUN_00385380 NONMATCHING
@@ -2648,7 +2644,7 @@ void func_0038b490(s32 arg0, u8 **arg1)
 // measured: restore propagation default
 #pragma opt_propagation on
 // FUN_0038B530
-void func_0038b530(u8 *arg0, s32 arg1, f32 *arg2)
+void func_0038b530(u8 *arg0, s32 arg1, const Vec2f *arg2)
 {
     s32 handle;
     f32 x;
@@ -2657,52 +2653,52 @@ void func_0038b530(u8 *arg0, s32 arg1, f32 *arg2)
     handle = *(s32 *)(*(u8 **)arg0 + 0x1F2AC);
     switch (arg1) {
     case 1:
-        func_0034f460(handle, 0x40, 492.0f + arg2[0],
-                      407.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
-        x = 507.0f + arg2[0];
-        y = 403.0f + arg2[1];
+        func_0034f460(handle, 0x40, 492.0f + arg2->x,
+                      407.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
+        x = 507.0f + arg2->x;
+        y = 403.0f + arg2->y;
         func_0034f4a0(handle, 0x41, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
-        func_0034f460(handle, 6, 528.0f + arg2[0],
-                      416.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
-        x = 541.0f + arg2[0];
-        y = 414.0f + arg2[1];
+        func_0034f460(handle, 6, 528.0f + arg2->x,
+                      416.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
+        x = 541.0f + arg2->x;
+        y = 414.0f + arg2->y;
         func_0034f4a0(handle, 1, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     case 2:
-        func_0034f460(handle, 6, 528.0f + arg2[0],
-                      417.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
-        x = 541.0f + arg2[0];
-        y = 414.0f + arg2[1];
+        func_0034f460(handle, 6, 528.0f + arg2->x,
+                      417.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
+        x = 541.0f + arg2->x;
+        y = 414.0f + arg2->y;
         func_0034f4a0(handle, 3, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     case 3:
-        func_0034f460(handle, 7, 493.0f + arg2[0],
-                      361.0f + arg2[1], 0xB4, 0xB4, 0xB4, 0xFF);
-        x = 504.0f + arg2[0];
-        y = 358.0f + arg2[1];
+        func_0034f460(handle, 7, 493.0f + arg2->x,
+                      361.0f + arg2->y, 0xB4, 0xB4, 0xB4, 0xFF);
+        x = 504.0f + arg2->x;
+        y = 358.0f + arg2->y;
         func_0034f4a0(handle, 4, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
-        func_0034f460(handle, 6, 479.0f + arg2[0],
-                      397.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
-        x = 492.0f + arg2[0];
-        y = 394.0f + arg2[1];
+        func_0034f460(handle, 6, 479.0f + arg2->x,
+                      397.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
+        x = 492.0f + arg2->x;
+        y = 394.0f + arg2->y;
         func_0034f4a0(handle, 5, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     case 4:
-        func_0034f460(handle, 0x14, 483.0f + arg2[0],
-                      413.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
-        x = 498.0f + arg2[0];
-        y = 410.0f + arg2[1];
+        func_0034f460(handle, 0x14, 483.0f + arg2->x,
+                      413.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
+        x = 498.0f + arg2->x;
+        y = 410.0f + arg2->y;
         func_0034f4a0(handle, 0x1D, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
-        func_0034f460(handle, 6, 528.0f + arg2[0],
-                      414.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
-        x = 542.0f + arg2[0];
-        y = 414.0f + arg2[1];
+        func_0034f460(handle, 6, 528.0f + arg2->x,
+                      414.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
+        x = 542.0f + arg2->x;
+        y = 414.0f + arg2->y;
         func_0034f4a0(handle, 0x13, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
@@ -2711,15 +2707,14 @@ void func_0038b530(u8 *arg0, s32 arg1, f32 *arg2)
         break;
     }
 }
-/* measured: port from hardware-asm mirror honest reconstruction per func_0038a480 levers (scalar fGpffff83a8/ac/b0/b4/b8, (f32)(u16) counters bltz/srl/cvt/add.s double, sequential < guards empty else, block-scoped u16, shift/or s64 packing, plain ADDA+MADD arithmetic no COP1 exemption; cold38bab0 R1 v_ld 368w/324o/190e v_reload 382w/406o/198e unproductive, R2 v_ge 353w/405o/182e v_s32next 356w/404-exact/197e unproductive stop after two rounds; decls reused here (373cb0 f32,f32,f32,s32 per btlShuffleCalc.c:1179, 64c90 s64,s32,s32,f32*4 per generated/code1_0036.c:1812, b530 u8*,s32,f32* per this file:1621); real-tree measure_guarded 350 via `python3 -E -s tools/measure_guarded.py src/promoted/code1_0038.c func_0038bab0`, verify 0 MISMATCH (95 scanned 79 MATCH 16 ASM; first-party 90 scanned 77 MATCH 13 ASM) via `python3 -E -s tools/verify.py src/promoted/code1_0038.c --show-mismatches`, lint 0 errors via `python3 -E -s tools/decomp_lint.py src/promoted/code1_0038.c`. */
-// FUN_0038BAB0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_propagation off
+/* Native b210 O2: 1608/1616 bytes with eight zero alignment bytes.
+ * The complete point owns the centered X coordinate before it is retained
+ * for the second strip. The detail renderer consumes the same two-float point.
+ * See docs/probe_archive/First_party_field_menu_shuffle_20260923.md. */
+// FUN_0038BAB0
 void func_0038bab0(u8 *arg0)
 {
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
-    extern void func_00364c90(s64 pos, s32 color, s32 mode, f32 rotation, f32 width, f32 height, f32 alpha);
-    extern void func_0038b530(u8 *arg0, s32 arg1, f32 *arg2);
+    extern f32 func_00373cb0(f32, f32, f32, s32);
     extern f32 fGpffff83a8;
     extern f32 fGpffff83ac;
     extern f32 fGpffff83b0;
@@ -2727,189 +2722,113 @@ void func_0038bab0(u8 *arg0)
     extern f32 fGpffff83b8;
     u8 *state;
     u16 flags;
-    f32 var_f28;
-    f32 var_f21;
-    f32 var_f27;
-    f32 var_f26;
-    f32 var_f22;
-    f32 var_f20;
-    f32 var_f25;
-    f32 var_f24;
-    f32 var_f23;
-    f32 sp68;
-    f32 sp6C;
-    f32 var_f12;
+    f32 mainFactor;
+    f32 detailEnter;
+    f32 detailExit;
+    f32 verticalTravel;
+    f32 detailX;
+    f32 detailY;
+    f32 verticalOffset;
+    f32 trailingFactor;
+    f32 horizontalOffset;
+    f32 centerX;
+    f32 shiftedY;
+    f32 displacement;
+    Vec2f point;
+
     state = arg0 + 0x190;
     flags = *(u16 *)(arg0 + 0x194);
-    if ((flags & 1) == 0) {
-        u16 c0;
-        u16 c1;
-        c0 = *(u16 *)state;
-        var_f12 = (f32)c0;
-        var_f28 = func_00373cb0(var_f12, 0.0f, 8.0f, 2);
-        c1 = *(u16 *)state;
-        var_f12 = (f32)c1;
-        var_f21 = func_00373cb0(var_f12, 2.0f, 10.0f, 2);
-        {
-            u16 next;
-            next = *(u16 *)state + 1;
-            *(u16 *)state = next;
-            if ((next & 0xFFFF) < 0xA) {
-                if (next == 8) {
-                    *(u16 *)(state + 4) = (u16)(*(u16 *)(state + 4) | 0x10);
-                }
-            } else {
-                *(u16 *)(state + 4) = (u16)(*(u16 *)(state + 4) | 1);
-                *(u16 *)state = 0;
-            }
+    if (!(flags & 1)) {
+        mainFactor = func_00373cb0((f32)(u32)*(u16 *)state, 0.0f, 8.0f, 2);
+        trailingFactor = func_00373cb0((f32)(u32)*(u16 *)state, 2.0f, 10.0f, 2);
+        if (++*(u16 *)state >= 10) {
+            *(u16 *)(state + 4) |= 1;
+            *(u16 *)state = 0;
+        } else if (*(u16 *)state == 8) {
+            *(u16 *)(state + 4) |= 0x10;
+        }
+    } else if (!(flags & 0x20) && (flags & 4)) {
+        mainFactor = 1.0f - func_00373cb0((f32)(u32)*(u16 *)state, 0.0f, 5.0f, 2);
+        trailingFactor = 1.0f - func_00373cb0((f32)(u32)*(u16 *)state, 2.0f, 7.0f, 2);
+        if (++*(u16 *)state >= 7) {
+            *(u16 *)(arg0 + 4) &= 0xFFFE;
         }
     } else {
-        if ((flags & 0x20) != 0) {
-            var_f28 = 1.0f;
-            var_f21 = var_f28;
-        } else if ((flags & 4) == 0) {
-            var_f28 = 1.0f;
-            var_f21 = var_f28;
-        } else {
-            u16 c0;
-            u16 c1;
-            c0 = *(u16 *)state;
-            var_f12 = (f32)c0;
-            var_f28 = 1.0f - func_00373cb0(var_f12, 0.0f, 5.0f, 2);
-            c1 = *(u16 *)state;
-            var_f12 = (f32)c1;
-            var_f21 = 1.0f - func_00373cb0(var_f12, 2.0f, 7.0f, 2);
-            {
-                u16 next;
-                next = *(u16 *)state + 1;
-                *(u16 *)state = next;
-                if ((next & 0xFFFF) < 7) {
-                } else {
-                    *(u16 *)(arg0 + 4) = (u16)(*(u16 *)(arg0 + 4) & 0xFFFE);
-                }
-            }
-        }
+        mainFactor = 1.0f;
+        trailingFactor = mainFactor;
     }
-    {
-        u16 sflags;
-        sflags = *(u16 *)(state + 4);
-        if ((sflags & 0x10) == 0) {
-            var_f27 = 0.0f;
-            var_f26 = 0.0f;
+
+    flags = *(u16 *)(state + 4);
+    if (flags & 0x10) {
+        if (!(flags & 8)) {
+            detailEnter = func_00373cb0((f32)(u32)*(u16 *)(state + 2), 0.0f, 5.0f, 1);
+            if (++*(u16 *)(state + 2) >= 5) {
+                *(u16 *)(state + 4) |= 8;
+                *(u16 *)(state + 2) = 0;
+            }
         } else {
-            if ((sflags & 8) == 0) {
-                u16 c2;
-                c2 = *(u16 *)(state + 2);
-                var_f12 = (f32)c2;
-                var_f27 = func_00373cb0(var_f12, 0.0f, 5.0f, 1);
-                {
-                    u16 next;
-                    next = *(u16 *)(state + 2) + 1;
-                    *(u16 *)(state + 2) = next;
-                    if ((next & 0xFFFF) < 5) {
-                    } else {
-                        *(u16 *)(state + 4) = (u16)(*(u16 *)(state + 4) | 8);
-                        *(u16 *)(state + 2) = 0;
-                    }
-                }
-            } else {
-                var_f27 = 1.0f;
-            }
-            if ((*(u16 *)(state + 4) & 0x20) == 0) {
-                var_f26 = 0.0f;
-            } else {
-                u16 c3;
-                c3 = *(u16 *)(state + 2);
-                var_f12 = (f32)c3;
-                var_f26 = func_00373cb0(var_f12, 0.0f, 5.0f, 1);
-                {
-                    u16 next;
-                    next = *(u16 *)(state + 2) + 1;
-                    *(u16 *)(state + 2) = next;
-                    if ((next & 0xFFFF) < 5) {
-                    } else {
-                        *(u16 *)(state + 4) = (u16)(*(u16 *)(state + 4) & 0xFFDF);
-                        *(u16 *)(state + 4) = (u16)(*(u16 *)(state + 4) & 0xFFEF);
-                        *(u16 *)(state + 2) = 0;
-                    }
-                }
-            }
+            detailEnter = 1.0f;
         }
+        if (*(u16 *)(state + 4) & 0x20) {
+            detailExit = func_00373cb0((f32)(u32)*(u16 *)(state + 2), 0.0f, 5.0f, 1);
+            if (++*(u16 *)(state + 2) >= 5) {
+                *(u16 *)(state + 4) &= 0xFFDF;
+                *(u16 *)(state + 4) &= 0xFFEF;
+                *(u16 *)(state + 2) = 0;
+            }
+        } else {
+            detailExit = 0.0f;
+        }
+    } else {
+        detailEnter = 0.0f;
+        detailExit = detailEnter;
     }
     if (*(s32 *)(state + 8) == 3) {
-        var_f22 = -48.0f;
+        horizontalOffset = 0.0f;
+        verticalOffset = -48.0f;
     } else {
-        var_f22 = 0.0f;
+        horizontalOffset = 0.0f;
+        verticalOffset = horizontalOffset;
     }
-    if ((*(u16 *)(state + 4) & 2) != 0) {
-        var_f25 = 130.0f;
-        var_f24 = 170.0f;
-        var_f23 = -100.0f;
+    if (*(u16 *)(state + 4) & 2) {
+        verticalTravel = 130.0f;
+        detailX = 170.0f;
+        detailY = -100.0f;
     } else {
-        var_f25 = 100.0f;
-        var_f24 = 120.0f;
-        var_f23 = -70.0f;
+        verticalTravel = 100.0f;
+        detailX = 120.0f;
+        detailY = -70.0f;
     }
-    var_f20 = 0.0f;
-    sp68 = fGpffff83a8 + (410.0f + var_f20);
+    point.x = fGpffff83a8 + (410.0f + horizontalOffset);
     {
-        f32 base;
-        f32 add;
-        base = fGpffff83ac + (517.0f + var_f22);
-        add = var_f25 * (1.0f - var_f21);
-        sp6C = base + add;
+        f32 remainder = 1.0f - trailingFactor;
+        f32 base = fGpffff83ac + ((f32)517 + verticalOffset);
+        point.y = (0.0f + base) + verticalTravel * remainder;
     }
-    {
-        s64 pos;
-        pos = ((s64)(*(u32 *)&sp68) << 32) | (u32)(*(u32 *)&sp6C);
-        func_00364c90(pos, 0xFF0000FF, 1, 0.0f, 430.0f, 5.0f, fGpffff83b0);
-    }
-    {
-        f32 t21;
-        t21 = fGpffff83b4 + (300.0f + var_f20);
-        sp68 = t21;
-        var_f21 = t21;
-    }
-    {
-        f32 sub;
-        f32 prod;
-        f32 base;
-        sub = 1.0f - var_f28;
-        prod = var_f25 * sub;
-        var_f20 = prod;
-        base = fGpffff83b8 + ((553.0f + var_f22) + prod);
-        sp6C = base;
+    func_00364c90(point, 0.0f, 0xFF0000FF, 430.0f, 5.0f, fGpffff83b0, 1);
+    centerX = 300.0f + horizontalOffset;
+    point.x = fGpffff83b4 + centerX;
+    centerX = point.x;
+    displacement = verticalTravel * (1.0f - mainFactor);
+    shiftedY = fGpffff83b8 + ((f32)553 + verticalOffset);
+    point.y = shiftedY + displacement;
+    func_00364c90(point, 0.0f, 0xFF, 430.0f, 21.0f, fGpffff83b0, 1);
+    if (*(u16 *)(state + 4) & 2) {
+        point.x = centerX;
+        shiftedY = fGpffff83b8 + (524.0f + verticalOffset);
+        point.y = shiftedY + displacement;
+        func_00364c90(point, 0.0f, 0xFF, 430.0f, 21.0f, fGpffff83b0, 1);
     }
     {
-        s64 pos;
-        pos = ((s64)(*(u32 *)&sp68) << 32) | (u32)(*(u32 *)&sp6C);
-        func_00364c90(pos, 0xFF, 1, 0.0f, 430.0f, 21.0f, fGpffff83b0);
-    }
-    if ((*(u16 *)(state + 4) & 2) != 0) {
-        sp68 = var_f21;
-        sp6C = fGpffff83b8 + ((524.0f + var_f22) + var_f20);
-        {
-            s64 pos;
-            pos = ((s64)(*(u32 *)&sp68) << 32) | (u32)(*(u32 *)&sp6C);
-            func_00364c90(pos, 0xFF, 1, 0.0f, 430.0f, 21.0f, fGpffff83b0);
-        }
-    }
-    {
-        s32 mode;
-        mode = *(s32 *)(state + 8);
-        if (mode != 0) {
-            f32 t;
-            t = (1.0f - var_f27) - var_f26;
-            sp68 = var_f24 * t;
-            sp6C = var_f23 * t;
-            func_0038b530(arg0, mode, &sp68);
+        s32 mode = *(s32 *)(state + 8);
+        if (mode) {
+            f32 t = (1.0f - detailEnter) - detailExit;
+            point.x = detailX * t;
+            point.y = detailY * t;
+            func_0038b530(arg0, mode, &point);
         }
     }
 }
-#pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038bab0);
-#endif
 /* Floor: 361 differing words over 97 edit instructions, 397 emitted against
    retail's 409, from a first reconstruction.  arg0 is a `u8 *`: m2c types it
    `u8 **` and then scales `arg0 + 0x1A4` by four, while retail's `$s1` is
