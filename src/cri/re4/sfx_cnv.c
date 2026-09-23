@@ -25,7 +25,8 @@ void SFX_MakeTblZ16(SFX_OBJ *sfx, SFX_FRM *frm)
 	SFXZ_MakeCnvZTbl(sfx->sfxz, frm->tblsrc, sfx->buf[0]);
 }
 
-/* the luminance table: 0 below 16, 1.164 * (Y - 16) up to 235, saturated above */
+/* the luminance table: 0 below 16, 0.582 * (Y - 16) up to 235, saturated above */
+// FUN_0052AAE0
 static void sfxcnv_MakeLumiTbl(Uint8 *tbl)
 {
 	Sint32 i;
@@ -34,10 +35,10 @@ static void sfxcnv_MakeLumiTbl(Uint8 *tbl)
 		tbl[i] = 0;
 	}
 	for (i = 16; i <= 235; i++) {
-		tbl[i] = (Uint8)(1.164f * (Float32)(i - 16));
+		tbl[i] = (Uint8)(0.582f * (Float32)(i - 16));
 	}
 	for (i = 236; i <= 255; i++) {
-		tbl[i] = 0xFF;
+		tbl[i] = 0x80;
 	}
 }
 

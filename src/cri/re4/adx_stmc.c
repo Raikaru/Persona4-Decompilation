@@ -16,6 +16,8 @@ extern void SVM_Unlock(void);
 extern Sint32 SVM_TestAndSet(Sint32 *flg);
 extern void ADXCRS_Lock(void);
 extern void ADXCRS_Unlock(void);
+extern void func_004d18c8(void);
+extern void func_004d18d0(void);
 extern void ADXERR_CallErrFunc2(const Char8 *msg1, const Char8 *msg2);
 extern void *cvFsOpen(const Char8 *fname, void *dir, void *prm);
 extern void cvFsClose(void *fs);
@@ -399,15 +401,21 @@ static void adxstm_release(ADXSTM stm)
 }
 
 // Blocking stop (adxstm_stop).
+// FUN_004D22C8
 void ADXSTM_Stop(ADXSTM stm)
 {
+	func_004d18c8();
 	adxstm_stop(stm);
+	func_004d18d0();
 }
 
 // Non-blocking stop (adxstm_stop_nw).
+// FUN_004D2230
 void ADXSTM_StopNw(ADXSTM stm)
 {
+	func_004d18c8();
 	adxstm_stop_nw(stm);
+	func_004d18d0();
 }
 
 // Starts streaming the bound range: clears the byte/retry counters and the read limit, EXEC (or END
@@ -457,15 +465,21 @@ Sint32 ADXSTM_GetStat(ADXSTM stm)
 }
 
 // Blocking unbind of the file (adxstm_release).
+// FUN_004D1F70
 void ADXSTM_ReleaseFile(ADXSTM stm)
 {
+	func_004d18c8();
 	adxstm_release(stm);
+	func_004d18d0();
 }
 
 // Non-blocking unbind (adxstm_release_nw).
+// FUN_004D1F00
 void ADXSTM_ReleaseFileNw(ADXSTM stm)
 {
+	func_004d18c8();
 	adxstm_release_nw(stm);
+	func_004d18d0();
 }
 
 // Records the file to stream (`fname` on CVFS device `dir`, `ofst`/`nsct` in sectors; nsct 0xFFFFF =

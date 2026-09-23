@@ -6,19 +6,25 @@
 #include "mwsfd.h"
 
 extern void SFD_SetElementOutSj(void *sfd, void *buf, SJ sj, Sint32 a, Sint32 b);
+extern MWSST_IF *func_00510e40(void);
 
 MWSST_MNG mwsstmng = {0};
 
-/* every interface call is guarded: mwsstmng.ifc and the function pointer may be NULL */
+/* Read the registered interface through the library's shared accessor. */
 #define MWSST_CALL(func, args) \
-	if (mwsstmng.ifc != NULL && mwsstmng.ifc->func != NULL) { \
-		mwsstmng.ifc->func args; \
-	}
+	do { \
+		MWSST_IF *ifc = func_00510e40(); \
+		MWSST hn = sst->hn; \
+		if (ifc != NULL && ifc->func != NULL) { \
+			ifc->func args; \
+		} \
+	} while (0)
 
 // A side stream exists only when a core library is registered and the object has a core handle.
+// FUN_00510E60
 static Bool mwsst_IsValid(MWSST sst)
 {
-	if (mwsstmng.ifc == NULL) {
+	if (func_00510e40() == NULL) {
 		return FALSE;
 	}
 	if (sst->used != 1) {
@@ -31,12 +37,10 @@ static Bool mwsst_IsValid(MWSST sst)
 }
 
 // Stops the core handle.
+// FUN_00510968
 static void mwsst_Stop(MWSST sst)
 {
-	MWSST hn;
-
 	if (mwsst_IsValid(sst) == TRUE) {
-		hn = sst->hn;
 		MWSST_CALL(Stop, (hn));
 	}
 }
@@ -136,55 +140,57 @@ void MWSST_Reset(MWPLY mwply)
 }
 
 // Volume of the side stream (0 without a core library).
+// FUN_005109C0
 Sint32 MWSST_GetOutVol(MWSST sst)
 {
 	Sint32 vol = 0;
 	MWSST hn;
+	MWSST_IF *ifc;
 
 	if (mwsst_IsValid(sst) != TRUE) {
 		return 0;
 	}
+	ifc = func_00510e40();
 	hn = sst->hn;
-	if (mwsstmng.ifc != NULL && mwsstmng.ifc->GetOutVol != NULL) {
-		vol = mwsstmng.ifc->GetOutVol(hn);
+	if (ifc != NULL && ifc->GetOutVol != NULL) {
+		vol = ifc->GetOutVol(hn);
 	}
 	return vol;
 }
 
 // Volume of the side stream.
+// FUN_00510AF8
 void MWSST_SetOutVol(MWSST sst, Sint32 vol)
 {
-	MWSST hn;
-
 	if (mwsst_IsValid(sst) == TRUE) {
-		hn = sst->hn;
 		MWSST_CALL(SetOutVol, (hn, vol));
 	}
 }
 
 // Pause/resume of the side stream.
+// FUN_00510A98
 void MWSST_Pause(MWSST sst, Sint32 sw)
 {
-	MWSST hn;
-
 	if (mwsst_IsValid(sst) == TRUE) {
-		hn = sst->hn;
 		MWSST_CALL(Pause, (hn, sw));
 	}
 }
 
 // State of the side stream (0 without a core library).
+// FUN_00510B58
 Sint32 MWSST_GetStat(MWSST sst)
 {
 	Sint32 stat = 0;
 	MWSST hn;
+	MWSST_IF *ifc;
 
 	if (mwsst_IsValid(sst) != TRUE) {
 		return 0;
 	}
+	ifc = func_00510e40();
 	hn = sst->hn;
-	if (mwsstmng.ifc != NULL && mwsstmng.ifc->GetStat != NULL) {
-		stat = mwsstmng.ifc->GetStat(hn);
+	if (ifc != NULL && ifc->GetStat != NULL) {
+		stat = ifc->GetStat(hn);
 	}
 	return stat;
 }
@@ -196,14 +202,15 @@ void MWSST_Stop(MWSST sst)
 }
 
 // Starts the side stream on its ring buffer joint.
+// FUN_00510910
 void MWSST_StartSj(MWSST sst)
 {
-	MWSST hn;
-	SJ sj;
-
 	if (mwsst_IsValid(sst) == TRUE) {
-		hn = sst->hn;
-		sj = sst->sj;
-		MWSST_CALL(StartSj, (hn, sj));
+		MWSST_IF *ifc = func_00510e40();
+		MWSST hn = sst->hn;
+		SJ sj = sst->sj;
+		if (ifc != NULL && ifc->StartSj != NULL) {
+			ifc->StartSj(hn, sj);
+		}
 	}
 }

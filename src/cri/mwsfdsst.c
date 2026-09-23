@@ -2886,8 +2886,3 @@ u32 func_00510e50(u32 value)
 }
 #pragma schedule off
 
-/* Source unit: src/cri/cri_adx_00511dc0.c (1 function markers) */
-#pragma optimization_level 3
-
-// FUN_00510E60
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00510e60);

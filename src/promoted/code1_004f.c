@@ -221,6 +221,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1f80);
 #endif
 // FUN_004F1FB0
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1fb0);
+// FUN_004F2370
+INCLUDE_ASM("asm/nonmatchings/rofs_if", func_004f2370);
 // FUN_004F2BC0
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f2bc0);
 // FUN_004F2C08
@@ -289,6 +291,8 @@ void func_004f54a0(void) {
 
 
 
+// FUN_004F54C0
+INCLUDE_ASM("asm/nonmatchings/rofs_mai", func_004f54c0);
 /* measured: scalar D_00743A50 declaration and field store produce normalized_diff 0. */
 // FUN_004F5BD0
 void func_004f5bd0(s32 arg0) {

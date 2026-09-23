@@ -70,8 +70,9 @@ STAGE_WSL = "/mnt/" + str(STAGE_WIN).replace(":", "").replace("\\", "/").lower()
 # -ffunction-sections mirrors MWCC's one-section-per-function output, which
 # build.py's per-function placement depends on.
 GCC_FLAGS = ["-O2", "-G0", "-ffunction-sections"]
-# EABI keeps the EE's 64-bit sd/ld operations intact in fallback assembly.
-ASSEMBLER_FLAGS = ["-EL", "-march=r5900", "-mabi=eabi"]
+# Preserve GCC's -G0 when assembling separately: without it, GNU as turns
+# large floating constants into $gp-relative .lit4 loads instead of immediates.
+ASSEMBLER_FLAGS = ["-EL", "-march=r5900", "-mabi=eabi", "-G0"]
 DROP_PREFIXES = ("-lang", "-msgstyle", "-maxerrors", "-enum", "-char", "-str")
 INCLUDE_REGEX = re.compile(r'\s*(INCLUDE_ASM|INCLUDE_RODATA)\("([^"]+)",\s*([^)]+)\)')
 

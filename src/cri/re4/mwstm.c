@@ -11,7 +11,7 @@ Sint32 MWSTM_GetStat(ADXSTM stm)
 }
 
 // Non-blocking stop and unbind.
-// FUN_004F2370
+// FUN_00512250
 void MWSTM_ReqStop(ADXSTM stm)
 {
 	ADXSTM_StopNw(stm);
@@ -19,10 +19,18 @@ void MWSTM_ReqStop(ADXSTM stm)
 }
 
 // Starts streaming the bound range.
-// FUN_004F54C0
-void MWSTM_ReqStart(ADXSTM stm)
+// FUN_00512238
+Sint32 MWSTM_ReqStart(ADXSTM stm)
 {
-	ADXSTM_Start(stm);
+	return ADXSTM_Start(stm);
+}
+
+// Stops the movie file and releases its binding before returning.
+// FUN_00512278
+void func_00512278(ADXSTM stm)
+{
+	ADXSTM_Stop(stm);
+	ADXSTM_ReleaseFile(stm);
 }
 
 // Unbinds, binds the new file range (no-wait) and sets the end-of-stream at its length.
@@ -48,7 +56,6 @@ ADXSTM MWSTM_Create(void *sj)
 }
 
 // Refill policy in bytes (min = refill when below, max = request size).
-// FUN_004BD720
 void MWSTM_SetFlowLimit(ADXSTM stm, Sint32 min_nsct, Sint32 max_nsct)
 {
 	if (stm != NULL) {

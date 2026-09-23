@@ -57,11 +57,11 @@ typedef struct {
 	void (*Destroy)(MWSST hn);                     /* 0x10 */
 	void (*StartSj)(MWSST hn, SJ sj);              /* 0x14 */
 	void (*Stop)(MWSST hn);                        /* 0x18 */
-	Sint32 (*GetStat)(MWSST hn);                   /* 0x1C */
+	Sint32 (*GetOutVol)(MWSST hn);                 /* 0x1C */
 	void *x20;
 	void (*Pause)(MWSST hn, Sint32 sw);            /* 0x24 */
 	void (*SetOutVol)(MWSST hn, Sint32 vol);       /* 0x28 */
-	Sint32 (*GetOutVol)(MWSST hn);                 /* 0x2C */
+	Sint32 (*GetStat)(MWSST hn);                   /* 0x2C */
 } MWSST_IF;
 
 /* MWPLY_OBJ.stat */
@@ -147,8 +147,8 @@ typedef struct {
 /* player object (0x2B8 bytes; only the fields the matched units use are named) */
 struct MWPLY_OBJ {
 	MWPLY_IF *ifc;             /* 0x00 (&mwsfd_if) */
-	Sint32 used;               /* 0x04 */
-	Sint32 stat;               /* 0x08 */
+	Sint32 stat;               /* 0x04 */
+	Sint32 used;               /* 0x08 */
 	MWSFD_CRPRM prm;           /* 0x0C */
 	/* P4: 9.44 has no field here. Retail reads `sfd` at 0x3C and `stm` at
 	 * 0x40 - mwPlyChkSupply at 0x0050C5F4 - where this 9.31 header puts
