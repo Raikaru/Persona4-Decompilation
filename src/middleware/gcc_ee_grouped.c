@@ -1,9 +1,8 @@
 #include "include_asm.h"
 #include "type.h"
 
-/* Unrecovered EE-GCC vendor functions from mixed translation units.
- * The verified getter and tail-call wrappers live in gcc_ee_wrappers.c.
- * Original vendor ownership of the remaining bodies is not established. */
+/* Remaining unmatched CRI SRD/PS2EE routines. The retail-verified SRD history
+ * and counter functions now live in src/cri/libadxe/cri_srd.c. */
 
 
 // FUN_004E3DC8
@@ -34,14 +33,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004e4438);
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004e44d8);
 // FUN_004E4528
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004e4528);
-// FUN_004E45F8
-INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004e45f8);
-// FUN_004E4608
-INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004e4608);
-// FUN_004E4618
-INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004e4618);
-// FUN_004E4638
-INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004e4638);
 // FUN_004E4648
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004e4648);
 
