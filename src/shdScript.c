@@ -20,7 +20,7 @@ extern Resrc *func_00145270(u16 arg0);
 extern void func_0026bc10(s32 arg0, s32 arg1);
 extern s64 func_002bab80(void *arg0);
 extern void func_00442830(u8 *arg0, u8 *arg1);
-extern void func_002bbd80(s8 arg0, s32 arg1, u8 *arg2);
+extern void func_002bbd80(s8 arg0, s32 arg1, void *arg2);
 extern s32 func_00248f20(s32 arg0, s32 arg1);
 extern void func_0046d730(u8 *arg0, s32 arg1);
 extern void func_002badc0(s8 arg0, s32 arg1);

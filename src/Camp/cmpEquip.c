@@ -251,24 +251,26 @@ s32 func_00131910(u8 *arg0) {
 void func_00131a00(u8 *arg0)
 
 {
+    typedef struct { f32 x, y; } Vec2f;
+    typedef union { Vec2f xy; s64 packed; } PackedVec2f;
+    PackedVec2f drawPosition;
     extern void func_0034f1e0(void);
     extern void func_0034c270(u64 arg0, s32 arg1, s32 arg2, f32 arg3);
-    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u32 arg4);
-    extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-    extern void func_00112300(f32 fparg0, u64 arg0, s32 arg1, u8 *arg2);
+    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+    extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+    extern void func_00112300(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
     extern void func_001125d0(u8 *arg0);
     extern s32 func_00106880(s16 arg0);
     extern s16 func_00106cd0(s16 arg0, s16 arg1);
     extern s32 func_0010d6d0(s16 arg0);
     extern s64 func_00134da0(s32 arg0);
-    extern void func_00134e50(u8 *arg0, s64 arg1, s64 arg2, s8 arg3);
-    extern void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, s8 arg3);
-    extern void func_00135130(u8 *arg0, s64 arg1, s32 arg2, u8 *arg3);
-    extern void func_00135520(u8 *arg0, s64 arg1, u8 arg2, s32 arg3);
+    extern void func_00134e50(u8 *arg0, s64 arg1, s64 arg2, u8 arg3);
+    extern void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, u8 arg3);
+    extern void func_00135130(u8 *arg0, s64 arg1, u8 arg2, u8 *arg3);
+    extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, s32 arg3);
     extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
-    extern void func_0034f9d0(u64 arg0, f32 fparg0, u32 arg1, s32 arg2, s32 arg3);
+    extern void func_0034f9d0(Vec2f arg0, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
     extern void func_0046d730(void *arg0, s32 arg1);
-    typedef struct { f32 x, y; } Vec2f;
 /* irregular: 41 native warning(s); review required */
   s16 temp_v2;
   s16 unaff_s3_lo;
@@ -482,7 +484,9 @@ void func_00131a00(u8 *arg0)
           temp_v9 = temp_v9 - 2.1474836e9f;
         }
         temp_v0 = *(s16 *)(pbVar8 + 0x2a) == temp_v8;
-        func_00134e50(pbVar8,((u64)*(u32*)&fStack_8<<32|*(u32*)&fStack_4),(u64)temp_v0,(s32)temp_v9 & 0xff);
+        drawPosition.xy.x = fStack_8;
+        drawPosition.xy.y = fStack_4;
+        func_00134e50(pbVar8, drawPosition.packed, (u64)temp_v0, (u8)((s32)temp_v9 & 0xff));
       }
       fStack_8 = temp_v15 + *(f32 *)(pbVar8 + temp_v8 * 0x30 + 0xf00) + 253.0f;
       fStack_4 = temp_v16 + *(f32 *)(pbVar8 + temp_v8 * 0x30 + 0xf04) + 190.0f +
@@ -589,7 +593,9 @@ void func_00131a00(u8 *arg0)
       e0._20 = 0;
       e0._1c = 0;
       e0._18 = 3;
-      func_00112300(0.0f,CONCAT44(fStack_4,fStack_8),temp_v11,(u8 *)&e0);
+      drawPosition.xy.x = fStack_8;
+      drawPosition.xy.y = fStack_4;
+      func_00112300(drawPosition.xy, 0.0f, temp_v11, (u8 *)&e0);
     }
   }
   if ((*(u32 *)(pbVar8 + 0x1c) & 8) != 0) {
@@ -732,7 +738,9 @@ void func_00131a00(u8 *arg0)
     e0._1a = 4;
     e0._18 = 3;
     e0.s30 = sStack_40;
-    func_00112300(0.0f,CONCAT44(fStack_4,fStack_8),temp_v11,(u8 *)&e0);
+    drawPosition.xy.x = fStack_8;
+    drawPosition.xy.y = fStack_4;
+    func_00112300(drawPosition.xy, 0.0f, temp_v11, (u8 *)&e0);
     fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1380) + 122.0f;
     fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1384) + 94.0f;
     temp_v9 = (f32)pbVar8[0x138a] * temp_v17;
@@ -743,7 +751,9 @@ void func_00131a00(u8 *arg0)
       temp_v11 = (u8)(s32)(temp_v9 - 2.1474836e9f);
     }
     e0.s30 = *(s16 *)(pbVar8 + 0xc7a);
-    func_00112300(0.0f,CONCAT44(fStack_4,fStack_8),temp_v11,(u8 *)&e0);
+    drawPosition.xy.x = fStack_8;
+    drawPosition.xy.y = fStack_4;
+    func_00112300(drawPosition.xy, 0.0f, temp_v11, (u8 *)&e0);
   }
   if ((*(u32 *)(pbVar8 + 0x1c) & 0x2000) != 0) {
     temp_v10 = *(f32 *)(pbVar8 + 0x1474) + temp_v16 + *(f32 *)(pbVar8 + 0xe14);
@@ -776,7 +786,9 @@ void func_00131a00(u8 *arg0)
     if (pbVar8[0x144a] != 0) {
       fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1440);
       fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1444);
-      func_00134f40(pbVar8,CONCAT44(fStack_4,fStack_8),0,(u32)pbVar8[0x144a]);
+      drawPosition.xy.x = fStack_8;
+      drawPosition.xy.y = fStack_4;
+      func_00134f40(pbVar8, drawPosition.packed, 0, (u8)((u32)pbVar8[0x144a]));
     }
     for (temp_v6 = 0; temp_v6 < 5; temp_v6 = temp_v6 + 1) {
       if ((s32)((s32)temp_v6 + (s32)*(s16 *)(pbVar8 + 0x2c)) < (s32)*(s16 *)(pbVar8 + 0xc46)) {
@@ -794,11 +806,15 @@ void func_00131a00(u8 *arg0)
         func_001125d0((u8 *)&e0);
         if (*(s16 *)(pbVar8 + 0x2e) == temp_v6) {
           e0._1a = 3;
-          func_00134f40(pbVar8,CONCAT44(fStack_4,fStack_8),1,temp_v3);
+          drawPosition.xy.x = fStack_8;
+          drawPosition.xy.y = fStack_4;
+          func_00134f40(pbVar8, drawPosition.packed, 1, (u8)(temp_v3));
         }
         else {
           e0._1a = 5;
-          func_00134f40(pbVar8,CONCAT44(fStack_4,fStack_8),0,temp_v3);
+          drawPosition.xy.x = fStack_8;
+          drawPosition.xy.y = fStack_4;
+          func_00134f40(pbVar8, drawPosition.packed, 0, (u8)(temp_v3));
         }
         e0._28 = 0xffffffff;
         e0._24 = 1;
@@ -808,7 +824,9 @@ void func_00131a00(u8 *arg0)
         e0._18 = 3;
         e0.s30 = temp_v8;
         e0._2e = temp_v1;
-        func_00112300(0.0f,CONCAT44(fStack_4,fStack_8),(u8)(s32)temp_v9,(u8 *)&e0);
+        drawPosition.xy.x = fStack_8;
+        drawPosition.xy.y = fStack_4;
+        func_00112300(drawPosition.xy, 0.0f, (u8)(s32)temp_v9, (u8 *)&e0);
       }
     }
   }
@@ -827,7 +845,9 @@ void func_00131a00(u8 *arg0)
     else if (0.0f < *(f32 *)(pbVar8 + 0x149c)) {
       temp_v5 = 2;
     }
-    func_00135520(arg0,CONCAT44(fStack_4,fStack_8),pbVar8[0x14aa],temp_v5);
+    drawPosition.xy.x = fStack_8;
+    drawPosition.xy.y = fStack_4;
+    func_00135520(arg0, drawPosition, pbVar8[0x14aa], temp_v5);
     fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0xe40) + 124.0f;
     fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0xe44) + 147.0f;
     e0.s30 = *(s16 *)(pbVar8 + ((s32)*(s16 *)(pbVar8 + 0x2c) + (s32)*(s16 *)(pbVar8 + 0x2e)
@@ -846,7 +866,9 @@ void func_00131a00(u8 *arg0)
     if (2.1474836e9f <= temp_v9) {
       temp_v9 = temp_v9 - 2.1474836e9f;
     }
-    func_00135130(arg0,CONCAT44(fStack_4,fStack_8),(s32)temp_v9 & 0xff,(u8 *)&e0);
+    drawPosition.xy.x = fStack_8;
+    drawPosition.xy.y = fStack_4;
+    func_00135130(arg0, drawPosition.packed, (u8)((s32)temp_v9 & 0xff), (u8 *)&e0);
   }
   fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1350) + 640.0f;
   fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1354) + 400.0f;
@@ -854,8 +876,9 @@ void func_00131a00(u8 *arg0)
   if (2.1474836e9f <= temp_v17) {
     temp_v17 = temp_v17 - 2.1474836e9f;
   }
-  func_0034f9d0(CONCAT44(fStack_4,fStack_8),0.0f,(s32)temp_v17 & 0xff,*(u16 *)(pbVar8 + 0xc78),
-                *(u32 *)(pbVar8 + 0x1590));
+  drawPosition.xy.x = fStack_8;
+  drawPosition.xy.y = fStack_4;
+  func_0034f9d0(drawPosition.xy, 0.0f, (u8)((s32)temp_v17 & 0xff), *(u16 *)(pbVar8 + 0xc78), *(u32 *)(pbVar8 + 0x1590));
   return;
 }
 #pragma opt_dead_assignments on

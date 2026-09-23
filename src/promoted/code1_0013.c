@@ -61,12 +61,12 @@ extern void func_00106620(s32 arg0, s32 arg1);
 extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 extern void func_00134990(u8 *arg0, s16 arg1, s16 arg2);
 extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
-                          u8 arg1, u8 arg2, u8 arg3, u32 arg4);
+                          u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5,
+                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                           u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-extern void func_00135520(u8 *arg0, PackedVec2f arg1, u32 arg2, s32 arg3);
-extern void func_00112300(f32 fparg0, u64 arg0, s32 arg1, u8 *arg2);
+extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, s32 arg3);
+extern void func_00112300(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
 extern void func_002bc4b0(f32 fparg0, s32 arg0, s32 arg1, s32 arg2,
                           s32 arg3, s32 arg4, s32 arg5);
 extern void func_0011fd30(s16 *arg0);
@@ -448,7 +448,7 @@ void func_00130c30(u8 *arg0, s64 arg1, s32 arg2)
 {
     f32 c0;
     s32 p;
-    u32 c1;
+    u8 c1;
     u8 c2;
     u8 c3;
 
@@ -509,7 +509,7 @@ void func_00130ce0(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16 *ent
     position.xy.y = inputPosition.xy.y;
     {
         f32 y;
-        u32 alpha;
+        u8 alpha;
         u8 blue;
         u8 green;
         sprite = *(u8 **)(work + 0x1BD4);
@@ -545,7 +545,7 @@ void func_00130ce0(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16 *ent
     colors.current.b[3] = scaledInputAlpha;
     {
         f32 y;
-        u32 alpha;
+        u8 alpha;
         u8 blue;
         u8 green;
         sprite = *(u8 **)(work + 0x1BCC);
@@ -570,7 +570,7 @@ void func_00130ce0(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16 *ent
     palettePosition.packed = position.packed;
     {
         f32 y;
-        u32 alpha;
+        u8 alpha;
         u8 blue;
         u8 green;
         sprite = *(u8 **)(work + 0x1B60);
@@ -585,7 +585,7 @@ void func_00130ce0(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16 *ent
                       y, colors.copy.b[0], green, blue, alpha);
     }
     position.xy.x = position.xy.x - 2.0f;
-    func_00112300(0.0f, position.packed, colors.current.b[3], (u8 *)entry);
+    func_00112300(position.xy, 0.0f, colors.current.b[3], (u8 *)entry);
     position.xy.x = 22.0f + inputPosition.xy.x;
     position.xy.y = 54.0f + originalY;
     labelAlpha = (u8)scaledInputAlpha;
@@ -823,7 +823,7 @@ done:
 // FUN_00134E50
 /* measured: reconstructing the mixed-ABI palette draw pair from the matching 00130C30 shape. */
 #pragma opt_propagation off
-void func_00134e50(u8 *arg0, s64 arg1, s64 arg2, u32 arg3)
+void func_00134e50(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
 {
     f32 temp_f20;
     s32 p;
@@ -851,7 +851,7 @@ void func_00134e50(u8 *arg0, s64 arg1, s64 arg2, u32 arg3)
 // FUN_00134F40
 /* measured: transfer the neighboring mixed-ABI palette branch shape. */
 #pragma opt_propagation off
-void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, u32 arg3)
+void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
 {
     f32 temp_f20;
     s32 p;
@@ -895,7 +895,7 @@ void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, u32 arg3)
 /* measured: close neighboring mixed-ABI palette branch pragma. */
 #pragma opt_propagation on
 // FUN_00135130
-void func_00135130(u8 *work, s64 inputPosition, s32 inputAlpha, u8 *entry)
+void func_00135130(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
 {
     extern u16 func_001069d0(s16 item);
     extern void func_0045d6e0(u8 *color, f32 *rect, f32 depth, s32 flags);
@@ -914,6 +914,7 @@ void func_00135130(u8 *work, s64 inputPosition, s32 inputAlpha, u8 *entry)
     f32 bottomY;
     f32 rightX;
     s32 itemValue;
+    s32 labelColor;
     void *sprite;
 
     originalY = ((f32 *)&inputPosition)[1];
@@ -964,7 +965,7 @@ void func_00135130(u8 *work, s64 inputPosition, s32 inputAlpha, u8 *entry)
     func_00135520(work, position, inputAlpha, 3);
     position.xy.x = ((f32 *)&inputPosition)[0] - 2.0f;
     position.xy.y = originalY;
-    func_00112300(0.0f, position.packed, inputAlpha, entry);
+    func_00112300(position.xy, 0.0f, inputAlpha, entry);
     position.xy.x = 128.0f + ((f32 *)&inputPosition)[0];
     position.xy.y = 32.0f + originalY;
     if ((func_00106880(*(s16 *)entry) & 0x8000) != 0) {
@@ -972,20 +973,20 @@ void func_00135130(u8 *work, s64 inputPosition, s32 inputAlpha, u8 *entry)
     } else {
         itemValue = func_001069d0(*(s16 *)entry) & 0xFFFF;
     }
-    inputAlpha = (inputAlpha & 0xFF) | ~0xFF;
+    labelColor = (inputAlpha & 0xFF) | ~0xFF;
     func_002bc7a0(itemValue, (f32)(s32)position.xy.x,
-                  (f32)(s32)position.xy.y, 0.0f, inputAlpha, 1, 6, 3);
+                  (f32)(s32)position.xy.y, 0.0f, labelColor, 1, 6, 3);
     position.xy.x = 131.0f + ((f32 *)&inputPosition)[0];
     position.xy.y = 81.0f + originalY;
     func_002bc4b0(0.0f, *(s16 *)entry, (s32)position.xy.x,
-                  (s32)position.xy.y, inputAlpha, 1, 6);
+                  (s32)position.xy.y, labelColor, 1, 6);
 }
 /* measured: the 130.0f sum is assigned to a different (dead) variable, so mwcc
    emits the constant as the first add.s operand like retail; `temp_f21 +=
    130.0f` keeps the variable first. The 467.0f sum is recomputed for the last
    call, as retail does. */
 // FUN_00135520
-void func_00135520(u8 *arg0, PackedVec2f arg1, u32 arg2, s32 arg3)
+void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, s32 arg3)
 {
     f32 temp_f21;
     f32 temp_f20;
@@ -1194,7 +1195,7 @@ void func_0013b370(u8 *arg0, s64 arg1, s32 arg2)
 {
     f32 c0;
     s32 p;
-    u32 c1;
+    u8 c1;
     u8 c2;
     u8 c3;
 
@@ -1257,7 +1258,7 @@ void func_0013b420(void *context, Vec2f inputPosition, s32 inputAlpha, void *ent
     position.xy.y = inputPosition.y;
     {
         f32 y;
-        u32 alpha;
+        u8 alpha;
         u8 blue;
         u8 green;
         sprite = *(u8 **)(work + 0x1324);
@@ -1293,7 +1294,7 @@ void func_0013b420(void *context, Vec2f inputPosition, s32 inputAlpha, void *ent
     colors.current.b[3] = scaledInputAlpha;
     {
         f32 y;
-        u32 alpha;
+        u8 alpha;
         u8 blue;
         u8 green;
         sprite = *(u8 **)(work + 0x131C);
@@ -1318,7 +1319,7 @@ void func_0013b420(void *context, Vec2f inputPosition, s32 inputAlpha, void *ent
     palettePosition.packed = position.packed;
     {
         f32 y;
-        u32 alpha;
+        u8 alpha;
         u8 blue;
         u8 green;
         sprite = *(u8 **)(work + 0x1288);

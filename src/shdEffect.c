@@ -53,7 +53,7 @@ extern char D_006372A0[];
 extern char D_00763798;
 
 // FUN_0025FAB0
-void func_0025fab0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
+s32 func_0025fab0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderContext)
 {
     u8 *buf;
 
@@ -69,8 +69,8 @@ void func_0025fab0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
         *(s32 *)(buf + 4) = func_004ab420(arg1 & 0xFFFF, arg3);
     }
     *(s32 *)(buf + 0xC) = *(s32 *)(arg3 + 0xB8);
-    *(s32 *)(buf + 0x10) = arg4;
-    (s32)func_00451fc0((void *)(arg0), (const void *)((u8 *)D_006372A0), 0xF, 0, 0, func_0025f960, func_0025fa30, (u8 *)(buf));
+    *(void **)(buf + 0x10) = renderContext;
+    return (s32)func_00451fc0((void *)(arg0), (const void *)((u8 *)D_006372A0), 0xF, 0, 0, func_0025f960, func_0025fa30, (u8 *)(buf));
 }
 
 // FUN_0025FBB0

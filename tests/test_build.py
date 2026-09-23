@@ -45,9 +45,8 @@ class LinkResponseFileTests(unittest.TestCase):
 class ObjectLayoutTests(unittest.TestCase):
     """One `. = addr; obj (.text.<func>)` per function places each function
     individually, so any inter-function gap is expressible and zero-filled.
-    Only overlong bodies, non-contiguous windows (a foreign function between
-    two of this object's own), and two functions sharing one section are
-    genuinely impossible.
+    Overlong bodies, overlapping windows and shared text sections are rejected.
+    Non-contiguous windows require validated, separate contiguous-run objects.
     """
 
     def test_gap_no_alignment_can_express_is_now_placeable(self) -> None:
@@ -66,13 +65,11 @@ class ObjectLayoutTests(unittest.TestCase):
             build.object_layout_is_placeable([(0x1000, 0x20, 0x28, 1), (0x1020, 0x30, 0x30, 2)])
         )
 
-    def test_non_contiguous_windows_are_rejected(self) -> None:
-        """A window start between two of this object's functions belongs to a
-        foreign function; the code-carving step would drop its bytes from the
-        splat asm without any object emitting them."""
-        self.assertFalse(
-            build.object_layout_is_placeable([(0x1000, 0x20, 0x20, 1), (0x1040, 0x30, 0x30, 2)])
-        )
+    def test_non_contiguous_windows_are_placeable_through_separate_runs(self) -> None:
+        """Foreign windows remain outside the separate contiguous text runs."""
+        rows = [(0x1000, 0x20, 0x20, 1), (0x1040, 0x30, 0x30, 2)]
+        self.assertTrue(build.object_layout_is_placeable(rows))
+        self.assertEqual(build.text_runs(rows), [[rows[0]], [rows[1]]])
 
     def test_two_functions_sharing_a_section_are_rejected(self) -> None:
         """rename_text_sections gives a whole .text section one name; two
@@ -271,6 +268,62 @@ class MissingDefinitionTests(unittest.TestCase):
                         definitions, {"helper"}, build.c_object_exports(path),
                         {"helper": 0x1000})
                     self.assertEqual(definitions, {"helper": 0x1000} if binding == 0 else {})
+
+
+class SourceAliasTests(unittest.TestCase):
+    def test_source_name_resolves_to_existing_numeric_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "config").mkdir()
+            (root / "src/generated").mkdir(parents=True)
+            (root / "config/symbol_addrs.txt").write_text(
+                "func_00100000 = 0x00100000; // type:func\n")
+            (root / "src/provider.c").write_text(
+                "// FUN_00100000\nvoid NamedProvider(void) {}\n")
+            (root / "src/generated/stale.c").write_text(
+                "// FUN_00200000\nvoid NamedProvider(void) {}\n")
+            with mock.patch.object(build, "REPO", root):
+                addresses = build.load_symbol_addr_map()
+                self.assertEqual(build.source_marker_names(), {"NamedProvider"})
+            self.assertEqual(addresses,
+                {"func_00100000": 0x100000, "NamedProvider": 0x100000})
+            definitions = {}
+            build.complete_missing_definitions(definitions,
+                {"NamedProvider", "UnknownProvider"}, {"func_00100000"}, addresses)
+            self.assertEqual(definitions, {"NamedProvider": 0x100000})
+            definitions = {}
+            build.complete_missing_definitions(definitions,
+                {"NamedProvider"}, {"NamedProvider"}, addresses)
+            self.assertEqual(definitions, {})
+
+    def test_source_alias_cannot_override_a_conflicting_configured_address(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "config").mkdir()
+            (root / "src").mkdir()
+            (root / "config/symbol_addrs.txt").write_text(
+                "NamedProvider = 0x00200000; // type:func\n")
+            (root / "src/provider.c").write_text(
+                "// FUN_00100000\nvoid NamedProvider(void) {}\n")
+            with mock.patch.object(build, "REPO", root):
+                with self.assertRaisesRegex(ValueError, "disagreement for NamedProvider"):
+                    build.load_symbol_addr_map()
+
+    def test_ambiguous_source_name_is_not_given_an_arbitrary_address(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "src").mkdir()
+            (root / "src/first.c").write_text(
+                "// FUN_00100000\nvoid NamedProvider(void) {}\n")
+            (root / "src/second.c").write_text(
+                "// FUN_00200000\nvoid NamedProvider(void) {}\n")
+            with mock.patch.object(build, "REPO", root):
+                self.assertEqual(build.source_marker_names(), {"NamedProvider"})
+                self.assertEqual(build.source_marker_addresses(), {})
+                self.assertEqual(build.load_symbol_addr_map(), {})
+            definitions = {}
+            build.complete_missing_definitions(definitions, {"NamedProvider"}, set(), {})
+            self.assertEqual(definitions, {})
 
 
 class CompileCacheIntegrationTests(unittest.TestCase):

@@ -1,6 +1,7 @@
 #include "model_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
+#include "sdktask.h"
 #include "type.h"
 #include "field_light_internal.h"
 typedef struct RwRGBA
@@ -80,7 +81,7 @@ extern s32 func_004553c0();
 extern void func_003642e0(s32 arg0, s32 arg1);
 extern u8 D_007E31E4[];
 extern u8 D_005F0650[];
-extern s32 func_00106330(s32 arg0);
+extern u32 func_00106330(s32 arg0);
 
 extern s32 func_00106390(s32 arg0, s32 arg1);
 extern s32 func_00159a60(u8 *arg0);
@@ -374,200 +375,186 @@ u16 func_00156190(u8 *arg0)
     return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x20);
 }
 
-/* Field-init floor (1168B window). First probe nd 173 (obj 1208B, 40B overrun)
-   to nd 171 via slti inclusive (temp_2<3 -> <=2 fixes slti $at,$v0,3 vs
-   $v0,$v0,3; fnalign 123->121 edits, 302 vs 292 10-long); honest s16/s64/s32
-   decls + (s64)/(s64)(s8)/(s16) extends give 163wd / 54 edits (296 vs 292
-   4-long, installed); extra was dsll32/dsra32 0 pairs from shift idioms +
-   s64->s32 truncs; frame/prologue verified incl DSP words. Open: $at/$v0 temp
-   homes, lhu/lw order, scheduler ordering. Reloc-column rows are retail-side
-   display (obj addend-0). Measured: seven dsll32/dsra32 pairs (incl. two
-   <<0>>0 s64-holding-32) and the +4 over-count are independent - all-s32
-   moves words 163->153 but blows edits 83->139 and flips size to -1 short. */
-// FUN_001561A0 NONMATCHING
-#ifdef NON_MATCHING
-/* Closest non-MATCH candidate archived before reverting; lverify report had MISMATCH. */
-s32 func_001561a0(u8 *arg0)
+typedef struct FldLoadWork {
+    s32 state;
+    s32 mode;
+    u16 fieldId;
+    u16 roomId;
+    s16 mapState;
+    s16 environmentState;
+    s32 storyGroup;
+    s32 storyEntry;
+    u8 *file;
+    s32 scriptTask;
+} FldLoadWork;
+typedef char FldLoadWorkSizeCheck[sizeof(FldLoadWork) == 0x20 ? 1 : -1];
+
+/* Measured: all 1168 code bytes and the nine-entry state table match retail.
+ * Scoped propagation control preserves file and script argument snapshots. */
+#pragma push
+#pragma opt_propagation off
+// FUN_001561A0
+s32 func_001561a0(u8 *task)
 {
     extern s16 func_001060b0(void);
-    extern s64 func_00110960(s32 arg0, u32 arg1);
-    extern s32 func_00248e20(s32 arg0, s32 arg1, s32 arg2);
-    extern void func_00123aa0(s16 arg0);
+    extern u8 func_001060c0(void);
+    extern s64 func_00110960(s32 day, u32 period);
+    extern s32 func_00248e20(s32 group, s32 entry, s32 condition);
+    extern void func_00123aa0(s16 selection);
+    extern void func_002aaa80(void);
+    extern s32 func_0014ef40(void);
+    extern s32 func_0014a230(s32 fieldId, s32 roomId);
+    extern u8 *func_001601e0(s32 fieldId);
+    extern s32 func_001602a0(u8 *file, s32 fieldId);
+    extern s32 func_0029db50(s32 priority, s32 memory, s32 bytes, s32 procedure);
+    extern s32 func_00452490(void *task);
+    extern u8 *func_0015ff20(u16 fieldId, s32 roomId);
+    extern void func_00144c90(s32 fieldId, s32 roomId);
+    extern void func_00144e10(s64 mapState);
+    extern void func_00144ed0(s64 environmentState);
+    extern s32 func_00154720(u16 fieldId, u16 roomId, s32 condition);
+    extern s32 func_00160000(u8 *file);
+    extern s32 func_00144f60(void);
+    extern s32 func_0014a190(s32 fieldId, s32 roomId);
+    extern s32 func_0014e5e0(u8 *parent, u8 *path, s32 index, s32 file);
+    extern s32 func_0014e710(u8 *task);
+    extern s32 func_0016e2e0(s32 parent);
     extern s32 D_007D3D64[];
     extern s32 D_007D3D68[];
     extern s32 iGpffffb268;
     extern s32 iGpffffb20c;
     extern s32 D_007D2544[];
-    extern s32 D_005EFF80;
-    extern s32 D_005EFFA0;
-    extern s32 D_005EFFC0;
+    extern u8 D_005EFF80[];
+    extern u8 D_005EFFA0[];
+    extern u8 D_005EFFC0[];
     extern s32 D_007D2514[];
     extern s32 D_007D2548[];
     extern s32 D_007D254C[];
     extern s32 D_007E3710[];
     extern s32 D_007E3714[];
     extern s32 D_007E3718[];
+    s32 selection;
+    s32 selectedEnvironment;
+    s32 day;
+    s32 initialDay;
+    s32 condition;
+    s32 script;
+    s32 scriptSize;
+    u8 *file;
+    s32 fieldId;
+    FldLoadWork *work;
 
-    s16 temp_4_2;
-    s16 var_18;
-    s32 temp_2;
-    s32 temp_4;
-    s32 temp_4_3;
-    s64 temp_17;
-    s64 temp_18;
-    s64 var_17;
-    u8 *temp_16;
-
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_2 = *(s32 *)(temp_16 + 0);
-    if (temp_2 <= 2) {
-        goto after_check;
+    work = (FldLoadWork *)((SdkTask *)task)->work;
+    if (work->state > 2 && func_00106330(0x1470) == 0) {
+        func_002aaa80();
     }
-    if (func_00106330(0x1470) != 0) {
-        goto after_check;
-    }
-    func_002aaa80();
-after_check:
-    temp_2 = *(s32 *)(temp_16 + 0);
-    switch (temp_2) {
+    switch (work->state) {
     case 0:
-        if (func_0014ef40() != 0) {
-            if (func_0014a230(*(u16 *)(temp_16 + 8),
-                              *(u16 *)(temp_16 + 0xA)) == 0) {
-                *(s32 *)(temp_16 + 0x18) =
-                    (s32)func_001601e0(*(u16 *)(temp_16 + 8));
-            }
-            *(s32 *)(temp_16 + 0) = 1;
-    case 1:
-            if (func_001602a0(*(s32 *)(temp_16 + 0x18),
-                              *(u16 *)(temp_16 + 8)) != 0) {
-                *(s32 *)(temp_16 + 0x18) = 0;
-                iGpffffb210 = 0;
-                if ((*(s32 *)(temp_16 + 4) == 0) &&
-                    (D_007D3D64[0] != 0) &&
-                    (iGpffffb268 == 0)) {
-                    *(s32 *)(temp_16 + 0x1C) =
-                        func_0029db50(0xF, D_007D3D64[0], D_007D3D68[0],
-                                       *(u16 *)(temp_16 + 0xA) - 1);
-                }
-                *(s32 *)(temp_16 + 0) += 1;
-        case 2:
-                if ((*(s32 *)(temp_16 + 4) != 0) ||
-                    ((temp_4 = *(s32 *)(temp_16 + 0x1C),
-                      (temp_4 == 0)) ||
-                     (func_00452490(temp_4) != 1))) {
-                    *(s32 *)(temp_16 + 0x18) =
-                        (s32)func_0015ff20(*(u16 *)(temp_16 + 8),
-                                           *(u16 *)(temp_16 + 0xA));
-                    func_00144c90(*(u16 *)(temp_16 + 8),
-                                  *(u16 *)(temp_16 + 0xA));
-                    func_00144e10(*(s16 *)(temp_16 + 0xC));
-                    temp_4_2 = *(s16 *)(temp_16 + 0xE);
-                    if (temp_4_2 != 0) {
-                        func_00144ed0(temp_4_2);
-                    } else {
-                        var_17 = -1;
-                        var_18 = 0;
-                        if (*(s32 *)(temp_16 + 4) == 1) {
-                            temp_18 = (s64)func_001060b0();
-                            var_17 =
-                                (s64)(s32)func_00248e20(
-                                    *(s32 *)(temp_16 + 0x10),
-                                    *(s32 *)(temp_16 + 0x14),
-                                    (s64)(s8)func_00110960(
-                                              temp_18,
-                                              func_001060c0() & 0xFF));
-                            if (var_17 != -1) {
-                                if (var_17 & 0x8000) {
-                                    var_18 = var_17 & 0x7FF;
-                                } else {
-                                    iGpffffb20c = 1;
-                                    func_00123aa0(
-                                        (s16)var_17);
-                                }
-                            }
-                        }
-                        if (var_18 == 0) {
-                            if (var_17 == -1) {
-                                temp_17 =
-                                    (s64)func_001060b0();
-                                var_17 =
-                                    (s64)(s8)func_00110960(
-                                              temp_17,
-                                              func_001060c0() & 0xFF);
-                            }
-                            *(s16 *)(temp_16 + 0xE) =
-                                func_00154720(*(u16 *)(temp_16 + 8),
-                                              *(u16 *)(temp_16 + 0xA), var_17);
-                        } else {
-                            *(s16 *)(temp_16 + 0xE) = var_18;
-                        }
-                        func_00144ed0(*(s16 *)(temp_16 + 0xE));
-                    }
-                    *(s32 *)(temp_16 + 0) += 1;
-            case 3:
-                    if (func_00160000(*(u8 **)(temp_16 + 0x18)) != 0) {
-                        *(s32 *)(temp_16 + 0x18) = 0;
-                        if (func_00144f60() != 0) {
-                            iGpffffb210 = 1;
-                            if (D_007D3D64[0] != 0) {
-                                *(s32 *)(temp_16 + 0x1C) =
-                                    func_0029db50(
-                                        0xF, D_007D3D64[0], D_007D3D68[0],
-                                        *(u16 *)(temp_16 + 0xA) - 1);
-                            }
-                            *(s32 *)(temp_16 + 0) += 1;
-                    case 4:
-                            temp_4 = *(s32 *)(temp_16 + 0x1C);
-                            if ((temp_4 == 0) ||
-                                (func_00452490(temp_4) != 1)) {
-                                if (func_0014a190(
-                                        *(u16 *)(temp_16 + 8),
-                                        *(u16 *)(temp_16 + 0xA)) == 0) {
-                                    D_007D2544[0] =
-                                        func_0014e5e0(0, D_005EFF80, -1,
-                                                      D_007E3710[0]);
-                                    D_007D2548[0] =
-                                        func_0014e5e0(0, D_005EFFA0, -1,
-                                                      D_007E3714[0]);
-                                    D_007D254C[0] =
-                                        func_0014e5e0(0, D_005EFFC0, -1,
-                                                      D_007E3718[0]);
-                                }
-                                *(s32 *)(temp_16 + 0) += 1;
-                        case 5:
-                                if ((func_0014a190(
-                                         *(u16 *)(temp_16 + 8),
-                                         *(u16 *)(temp_16 + 0xA)) != 0) ||
-                                    ((func_0014e710(D_007D2544[0]) != 0) &&
-                                     (func_0014e710(D_007D2548[0]) != 0) &&
-                                     (func_0014e710(D_007D254C[0]) != 0))) {
-                                    D_007D2514[0] =
-                                        func_0016e2e0((s32)D_007D2510);
-                                    func_00155070();
-                                    *(s32 *)(temp_16 + 0) = 8;
-                            case 8:
-                                    return -1;
-                                }
-                                goto block_48;
-                            }
-                            goto block_48;
-                        }
-                    }
-                    goto block_48;
-                }
-                goto block_48;
-            }
-            goto block_48;
+        if (func_0014ef40() == 0) {
+            break;
         }
+        if (func_0014a230(work->fieldId, work->roomId) == 0) {
+            work->file = func_001601e0(work->fieldId);
+        }
+        work->state = 1;
+        /* Begin polling the request submitted above. */
+    case 1:
+        file = work->file;
+        if (func_001602a0(file, work->fieldId) == 0) {
+            break;
+        }
+        work->file = NULL;
+        iGpffffb210 = 0;
+        if (work->mode == 0 && D_007D3D64[0] != 0 && iGpffffb268 == 0) {
+            scriptSize = D_007D3D68[0];
+            work->scriptTask = func_0029db50(0xF, D_007D3D64[0], scriptSize, work->roomId - 1);
+        }
+        work->state++;
+    case 2:
+        if (work->mode == 0) {
+            script = work->scriptTask;
+            if (script != 0 && func_00452490((void *)script) == 1) {
+                break;
+            }
+        }
+        fieldId = work->fieldId;
+        work->file = func_0015ff20(fieldId, work->roomId);
+        func_00144c90(work->fieldId, work->roomId);
+        func_00144e10(work->mapState);
+        if (work->environmentState != 0) {
+            func_00144ed0(work->environmentState);
+        } else {
+            selection = -1;
+            selectedEnvironment = 0;
+            if (work->mode == 1) {
+                initialDay = (s16)func_001060b0();
+                condition = (s8)func_00110960(initialDay, func_001060c0() & 0xFF);
+                selection = func_00248e20(work->storyGroup, work->storyEntry, condition);
+                if (selection != -1) {
+                    if ((selection & 0x8000) != 0) {
+                        selectedEnvironment = selection & 0x7FF;
+                    } else {
+                        iGpffffb20c = 1;
+                        func_00123aa0((s16)selection);
+                    }
+                }
+            }
+            if (selectedEnvironment == 0) {
+                if (selection == -1) {
+                    day = (s16)func_001060b0();
+                    selection = (s8)func_00110960(day, func_001060c0() & 0xFF);
+                }
+                work->environmentState = func_00154720(work->fieldId, work->roomId, selection);
+            } else {
+                work->environmentState = selectedEnvironment;
+            }
+            func_00144ed0(work->environmentState);
+        }
+        work->state++;
+    case 3:
+        if (func_00160000(work->file) == 0) {
+            break;
+        }
+        work->file = NULL;
+        if (func_00144f60() == 0) {
+            break;
+        }
+        iGpffffb210 = 1;
+        if (D_007D3D64[0] != 0) {
+            scriptSize = D_007D3D68[0];
+            work->scriptTask = func_0029db50(0xF, D_007D3D64[0], scriptSize, work->roomId - 1);
+        }
+        work->state++;
+    case 4:
+        script = work->scriptTask;
+        if (script != 0 && func_00452490((void *)script) == 1) {
+            break;
+        }
+        if (func_0014a190(work->fieldId, work->roomId) == 0) {
+            D_007D2544[0] = func_0014e5e0(NULL, D_005EFF80, -1, D_007E3710[0]);
+            D_007D2548[0] = func_0014e5e0(NULL, D_005EFFA0, -1, D_007E3714[0]);
+            D_007D254C[0] = func_0014e5e0(NULL, D_005EFFC0, -1, D_007E3718[0]);
+        }
+        work->state++;
+    case 5:
+        if (func_0014a190(work->fieldId, work->roomId) == 0 &&
+            (func_0014e710((u8 *)D_007D2544[0]) == 0 ||
+             func_0014e710((u8 *)D_007D2548[0]) == 0 ||
+             func_0014e710((u8 *)D_007D254C[0]) == 0)) {
+            break;
+        }
+        /* The camera task is parented to the active field task. */
+        D_007D2514[0] = func_0016e2e0(D_007D2510[0]);
+        func_00155070();
+        work->state = 8;
+    case 8:
+        return -1;
     default:
-block_48:
-        return 0;
+        break;
     }
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001561a0);
-#endif
+#pragma pop
 // FUN_00156630
 void func_00156630(u8 *unusedTask)
 {
@@ -616,235 +603,184 @@ void func_00156750(u8 *arg0)
 
 
 
-/* Tile-shuffle draft (1264B window). Re-measured 2026-09-17 via `python3
-   tools/measure_guarded.py src/promoted/code1_0015.c func_00156800`: 302wd
-   before and after (259 edits after, 300 vs 315 instrs, 15 short, obj 1200B,
-   5.1% short, still >3% so a draft not a floor — clearing lhu did NOT close
-   the gap). s16 rotation temps clear the signedness delta (opclass lh -26
-   -> -2, lhu +24 -> 0, score 54 -> 6; remaining sh -4, lbu -4, lh -2 are frame
-   spills/byte reloads). Frameless leaf vs retail -0x10 (rotation-temp spills
-   at 0x8/0xA and 0xC/0xE unreproduced). csuboff 318 regresses (+16). Prior
-   note claiming u16->s16 moved nothing and IDA word-widths refuted is
-   superseded: s16 throughout (temps + *(s16 *)(arg0+...)) is correct. */
-/* measured 00156800 (owner, 2026-09-19): fnalign **259 -> 187 edits** with the count
-   unchanged at 300 against retail 315.  deficit_scan pointed at a retail-only run of 71
-   instructions at 0x00156980-0x00156a9c, and reading it settled what was wrong: the two
-   rotation arms are EMITTED in the wrong order, not assigned to the wrong conditions.
-   Retail tests 1, then 2, then 3, and emits the bodies in that same order - the four-way
-   rotate for kind 2 first at 0x001568fc (0x32/0x34 <- 0x36/0x38 <- 0x42/0x44 <-
-   0x3E/0x40, with the 0xD/0xE/0x11/0x10 byte cycle), then the eight-way rotate for kind 3
-   at 0x001569a8.  m2c had written it as nested `if (b1 != 2 || b2 != 2) { if (b1 != 3 ...)
-   {} else { eight-way } } else { four-way }`, which inverts the emission order of the two
-   arms even though each body was attached to the right condition.
-   Flattening to `if (b1 == 2 && b2 == 2) ... else if (b1 == 3 && b2 == 3) ...` inside the
-   existing `!= 1` guard is the 187.  Two variants measured against it: the same flattening
-   WITHOUT the outer guard is 191 at count 294, and simply swapping the two bodies between
-   the existing arms is 233 but collapses the count to 240 (-23.8%, far outside) and is
-   rejected on that alone.
-   gate: still OUTSIDE at 300 against 315 (-4.8%, band 306-324); 15 instructions short and
-   the 187 is not comparable to an in-band score until they are found (handoff 7y). */
-/* measured 00156800 (owner, 2026-09-20): deficit_scan on the 300-body showed
-   retail 315 object 300 deficit 15 with runs 51 CROSS at 0x001569a8 (51>15, so
-   re-sync spills not missing code), 12 ABSENT at 0x00156bb0 and 5 ABSENT at
-   0x00156b98 (net 11+4=15 with their paired singles). Batch method: one large
-   ABSENT does not exist, the 15 is the v2 tail plus spills. Two faithful +6 to
-   306 INSIDE (band 306-324, -2.9%): (1) `if (v2==3)...else if...` to
-   `switch (v2) {case 3,2,1,0,default}` keeps the 3,2,1 arms and adds the
-   retail 0+default `beqz+b` (300->304, fnalign 187->169 edits, fndiff 300->301);
-   (2) `((v27 &0xF)<<v2)&0xF` to `((((v27 &0xF)<<v2)>>v2<<v2)&0xF)` is a no-op
-   for nibbles 0..15 with v2 0..3 but keeps `srl+sllv` the optimizer cannot fold
-   (304->306, edits 169 unchanged, fndiff 301->303). Final `measure_guarded`
-   303wd, `fnalign` 169 edits 306 vs 315, `deficit_scan` 51 CROSS at 0x001569a8
-   plus 4 ABSENT at 0x00156b78 and 1 ABSENT at 0x00156ce4 (sh+4/lbu+4/lh+2/addiu+2
-   spills+frame+reloads, 9 short). No unmeasurable floors, lint 0 errors. */
-// FUN_00156800 NONMATCHING
-#ifdef NON_MATCHING
-void func_00156800(void *arg0_v, u32 arg1)
+typedef struct FldTileAttributePair {
+    s16 directions;
+    s16 attributes;
+} FldTileAttributePair;
+
+typedef char FldTileAttributePairSizeCheck[sizeof(FldTileAttributePair) == 4 ? 1 : -1];
+
+static inline u32 fldTileRotateNibble(u32 bits, s32 turns)
+{
+    u32 shifted = (bits & 0xF) << turns;
+    return (shifted & 0xF) | (shifted >> 4);
+}
+
+/* Measured with configured b210 -O2: all 1264 bytes match retail.
+ * Each saved pair is the actual record displaced by its rotation cycle. */
+// FUN_00156800
+void func_00156800(void *templateData, u32 directionMask)
 {
     extern u8 D_005F0000[];
-    u8 *arg0;
-    s32 i;
-    s32 j;
-    s32 k;
-    s32 m;
-    s32 n;
-    s32 ii;
-    s32 jj;
-    s32 kk;
-    s32 mm;
-    s32 v2;
-    u8 b1;
-    u8 b2;
-    u8 *t;
-    u8 b;
-    u8 *v26;
-    u8 v27;
-    u8 v28;
-    u8 v30;
-    u8 v32;
+    FldTileAttributePair savedSmall;
+    FldTileAttributePair savedLarge;
+    s32 turnCount;
+    u8 *tile;
+    s32 sourceRow;
+    s32 sourceColumn;
+    s32 direction;
+    s32 smallStep;
+    s32 largeStep;
+    s32 attributeRow;
+    s32 attributeColumn;
+    s32 outerStep;
+    s32 innerStep;
+    u8 width;
+    u8 *attribute;
+    u8 attributeId;
+    u8 *cell;
+    u8 firstDirections;
+    u8 secondDirections;
+    u8 outerCorner;
+    u8 innerCorner;
 
-    arg0 = (u8 *)arg0_v;
-    for (i = 0; i < 3; i = i + 1) {
-        for (j = 0; j < 3; j = j + 1) {
-            b = *(arg0 + i * 3 + j + 4);
-            t = D_005F0000 + b * 4;
-            *(s16 *)(arg0 + i * 12 + j * 4 + 0x32) = *(s16 *)t;
-            *(s16 *)(arg0 + i * 12 + j * 4 + 0x34) = *(s16 *)(t + 2);
+    tile = (u8 *)templateData;
+    turnCount = 0;
+    for (sourceRow = 0; sourceRow < 3; sourceRow = sourceRow + 1) {
+        for (sourceColumn = 0; sourceColumn < 3; sourceColumn = sourceColumn + 1) {
+            attributeId = *(tile + sourceRow * 3 + sourceColumn + 4);
+            attribute = D_005F0000 + attributeId * 4;
+            *(FldTileAttributePair *)(tile + sourceRow * 12 + sourceColumn * 4 + 0x32) = *(FldTileAttributePair *)attribute;
         }
     }
-    v2 = 0;
-    for (k = 0; k < 4; k = k + 1) {
-        if ((1 << k) == arg1) {
-            v2 = k;
+    for (direction = 0; direction < 4; direction = direction + 1) {
+        if ((1U << direction) == directionMask) {
+            turnCount = direction;
             break;
         }
     }
-    b1 = *(arg0 + 1);
-    b2 = *(arg0 + 2);
-    if (b1 != 1 || b2 != 1) {
-        if (b1 == 2 && b2 == 2) {
-            for (m = 0; m < v2; m = m + 1) {
-                s16 h0;
-                s16 h1;
-                s16 w0;
-                s16 w1;
-                u8 wb;
-                h0 = *(s16 *)(arg0 + 0x32);
-                h1 = *(s16 *)(arg0 + 0x34);
-                w0 = *(s16 *)(arg0 + 0x36);
-                w1 = *(s16 *)(arg0 + 0x38);
-                *(s16 *)(arg0 + 0x32) = w0;
-                *(s16 *)(arg0 + 0x34) = w1;
-                w0 = *(s16 *)(arg0 + 0x42);
-                w1 = *(s16 *)(arg0 + 0x44);
-                *(s16 *)(arg0 + 0x36) = w0;
-                *(s16 *)(arg0 + 0x38) = w1;
-                w0 = *(s16 *)(arg0 + 0x3E);
-                w1 = *(s16 *)(arg0 + 0x40);
-                *(s16 *)(arg0 + 0x42) = w0;
-                *(s16 *)(arg0 + 0x44) = w1;
-                *(s16 *)(arg0 + 0x3E) = h0;
-                *(s16 *)(arg0 + 0x40) = h1;
-                wb = *(arg0 + 0xD);
-                *(arg0 + 0xD) = *(arg0 + 0xE);
-                *(arg0 + 0xE) = *(arg0 + 0x11);
-                *(arg0 + 0x11) = *(arg0 + 0x10);
-                *(arg0 + 0x10) = wb;
+    width = *(tile + 1);
+    if (width != 1 || *(tile + 2) != 1) {
+        if (width == 2 && *(tile + 2) == 2) {
+            for (smallStep = 0; smallStep < turnCount; smallStep = smallStep + 1) {
+                u8 savedFlags;
+                savedSmall = *(FldTileAttributePair *)(tile + 0x32);
+                *(FldTileAttributePair *)(tile + 0x32) =
+                    *(FldTileAttributePair *)(tile + 0x36);
+                *(FldTileAttributePair *)(tile + 0x36) =
+                    *(FldTileAttributePair *)(tile + 0x42);
+                *(FldTileAttributePair *)(tile + 0x42) =
+                    *(FldTileAttributePair *)(tile + 0x3E);
+                *(FldTileAttributePair *)(tile + 0x3E) = savedSmall;
+                savedFlags = *(tile + 0xD);
+                *(tile + 0xD) = *(tile + 0xE);
+                *(tile + 0xE) = *(tile + 0x11);
+                *(tile + 0x11) = *(tile + 0x10);
+                *(tile + 0x10) = savedFlags;
             }
-        } else if (b1 == 3 && b2 == 3) {
-                for (n = 0; n < v2 * 2; n = n + 1) {
-                    s16 h0;
-                    s16 h1;
-                    s16 w0;
-                    s16 w1;
-                    u8 wb;
-                    h0 = *(s16 *)(arg0 + 0x32);
-                    h1 = *(s16 *)(arg0 + 0x34);
-                    w0 = *(s16 *)(arg0 + 0x36);
-                    w1 = *(s16 *)(arg0 + 0x38);
-                    *(s16 *)(arg0 + 0x32) = w0;
-                    *(s16 *)(arg0 + 0x34) = w1;
-                    w0 = *(s16 *)(arg0 + 0x3A);
-                    w1 = *(s16 *)(arg0 + 0x3C);
-                    *(s16 *)(arg0 + 0x36) = w0;
-                    *(s16 *)(arg0 + 0x38) = w1;
-                    w0 = *(s16 *)(arg0 + 0x46);
-                    w1 = *(s16 *)(arg0 + 0x48);
-                    *(s16 *)(arg0 + 0x3A) = w0;
-                    *(s16 *)(arg0 + 0x3C) = w1;
-                    w0 = *(s16 *)(arg0 + 0x52);
-                    w1 = *(s16 *)(arg0 + 0x54);
-                    *(s16 *)(arg0 + 0x46) = w0;
-                    *(s16 *)(arg0 + 0x48) = w1;
-                    w0 = *(s16 *)(arg0 + 0x4E);
-                    w1 = *(s16 *)(arg0 + 0x50);
-                    *(s16 *)(arg0 + 0x52) = w0;
-                    *(s16 *)(arg0 + 0x54) = w1;
-                    w0 = *(s16 *)(arg0 + 0x4A);
-                    w1 = *(s16 *)(arg0 + 0x4C);
-                    *(s16 *)(arg0 + 0x4E) = w0;
-                    *(s16 *)(arg0 + 0x50) = w1;
-                    w0 = *(s16 *)(arg0 + 0x3E);
-                    w1 = *(s16 *)(arg0 + 0x40);
-                    *(s16 *)(arg0 + 0x4A) = w0;
-                    *(s16 *)(arg0 + 0x4C) = w1;
-                    *(s16 *)(arg0 + 0x3E) = h0;
-                    *(s16 *)(arg0 + 0x40) = h1;
-                    wb = *(arg0 + 0xD);
-                    *(arg0 + 0xD) = *(arg0 + 0xE);
-                    *(arg0 + 0xE) = *(arg0 + 0xF);
-                    *(arg0 + 0xF) = *(arg0 + 0x12);
-                    *(arg0 + 0x12) = *(arg0 + 0x15);
-                    *(arg0 + 0x15) = *(arg0 + 0x14);
-                    *(arg0 + 0x14) = *(arg0 + 0x13);
-                    *(arg0 + 0x13) = *(arg0 + 0x10);
-                    *(arg0 + 0x10) = wb;
-                }
+        } else if (width == 3 && *(tile + 2) == 3) {
+            for (largeStep = 0; largeStep < turnCount * 2; largeStep = largeStep + 1) {
+                u8 savedFlags;
+                savedLarge = *(FldTileAttributePair *)(tile + 0x32);
+                *(FldTileAttributePair *)(tile + 0x32) =
+                    *(FldTileAttributePair *)(tile + 0x36);
+                *(FldTileAttributePair *)(tile + 0x36) =
+                    *(FldTileAttributePair *)(tile + 0x3A);
+                *(FldTileAttributePair *)(tile + 0x3A) =
+                    *(FldTileAttributePair *)(tile + 0x46);
+                *(FldTileAttributePair *)(tile + 0x46) =
+                    *(FldTileAttributePair *)(tile + 0x52);
+                *(FldTileAttributePair *)(tile + 0x52) =
+                    *(FldTileAttributePair *)(tile + 0x4E);
+                *(FldTileAttributePair *)(tile + 0x4E) =
+                    *(FldTileAttributePair *)(tile + 0x4A);
+                *(FldTileAttributePair *)(tile + 0x4A) =
+                    *(FldTileAttributePair *)(tile + 0x3E);
+                *(FldTileAttributePair *)(tile + 0x3E) = savedLarge;
+                savedFlags = *(tile + 0xD);
+                *(tile + 0xD) = *(tile + 0xE);
+                *(tile + 0xE) = *(tile + 0xF);
+                *(tile + 0xF) = *(tile + 0x12);
+                *(tile + 0x12) = *(tile + 0x15);
+                *(tile + 0x15) = *(tile + 0x14);
+                *(tile + 0x14) = *(tile + 0x13);
+                *(tile + 0x13) = *(tile + 0x10);
+                *(tile + 0x10) = savedFlags;
+            }
         }
     }
-    for (ii = 0; ii < 3; ii = ii + 1) {
-        for (jj = 0; jj < 3; jj = jj + 1) {
-            v26 = arg0 + ii * 12 + jj * 4;
-            v27 = *(v26 + 50);
-            *(v26 + 50) = ((((v27 & 0xF) << v2) >> v2 << v2) & 0xF) | ((v27 & 0xFu) << v2 >> 4) | (16 * (((v27 & 0xF0) >> 4 << v2) & 0xF | ((unsigned int)((v27 & 0xF0) >> 4 << v2) >> 4)));
-            v28 = *(v26 + 51);
-            *(v26 + 51) = ((v28 & 0xF) << v2) & 0xF | ((v28 & 0xFu) << v2 >> 4) | (16 * (((v28 & 0xF0) >> 4 << v2) & 0xF | ((unsigned int)((v28 & 0xF0) >> 4 << v2) >> 4)));
+    /* Rotate both independent direction nibbles for every attribute pair. */
+    for (attributeRow = 0; attributeRow < 3; attributeRow = attributeRow + 1) {
+        for (attributeColumn = 0; attributeColumn < 3; attributeColumn = attributeColumn + 1) {
+            cell = tile + attributeRow * 12 + attributeColumn * 4;
+            firstDirections = *(cell + 0x32);
+            {
+                u32 low;
+                u32 high;
+                low = fldTileRotateNibble(firstDirections & 0xF, turnCount);
+                high = fldTileRotateNibble((firstDirections & 0xF0) >> 4, turnCount);
+                *(cell + 0x32) = low | (high << 4);
+            }
+            secondDirections = *(cell + 0x33);
+            {
+                u32 low;
+                u32 high;
+                low = fldTileRotateNibble(secondDirections & 0xF, turnCount);
+                high = fldTileRotateNibble((secondDirections & 0xF0) >> 4, turnCount);
+                *(cell + 0x33) = low | (high << 4);
+            }
         }
     }
-    if (b1 == 2 && b2 == 2) {
-        switch (v2) {
-        case 3:
-            *(arg0 + 0x16) = -1;
-            *(arg0 + 0x17) = -2;
-            break;
-        case 2:
-            *(arg0 + 0x16) = -1;
-            *(arg0 + 0x17) = -1;
-            break;
-        case 1:
-            *(arg0 + 0x16) = -2;
-            *(arg0 + 0x17) = -1;
-            break;
+    if (*(tile + 1) == 2 && *(tile + 2) == 2) {
+        switch (turnCount) {
         case 0:
             break;
-        default:
+        case 1:
+            *(s8 *)(tile + 0x16) = -2;
+            *(s8 *)(tile + 0x17) = -1;
+            break;
+        case 2:
+            *(s8 *)(tile + 0x16) = -1;
+            *(s8 *)(tile + 0x17) = -1;
+            break;
+        case 3:
+            *(s8 *)(tile + 0x16) = -1;
+            *(s8 *)(tile + 0x17) = -2;
             break;
         }
     }
-    for (kk = 0; kk < v2 * 4; kk = kk + 1) {
-        v30 = *(arg0 + 24);
-        *(arg0 + 24) = *(arg0 + 25);
-        *(arg0 + 25) = *(arg0 + 26);
-        *(arg0 + 26) = *(arg0 + 27);
-        *(arg0 + 27) = *(arg0 + 28);
-        *(arg0 + 28) = *(arg0 + 33);
-        *(arg0 + 33) = *(arg0 + 38);
-        *(arg0 + 38) = *(arg0 + 43);
-        *(arg0 + 43) = *(arg0 + 48);
-        *(arg0 + 48) = *(arg0 + 47);
-        *(arg0 + 47) = *(arg0 + 46);
-        *(arg0 + 46) = *(arg0 + 45);
-        *(arg0 + 45) = *(arg0 + 44);
-        *(arg0 + 44) = *(arg0 + 39);
-        *(arg0 + 39) = *(arg0 + 34);
-        *(arg0 + 34) = *(arg0 + 29);
-        *(arg0 + 29) = v30;
+    /* A quarter turn advances the outer ring four cells and the inner ring two. */
+    for (outerStep = 0; outerStep < turnCount * 4; outerStep = outerStep + 1) {
+        outerCorner = *(tile + 24);
+        *(tile + 24) = *(tile + 25);
+        *(tile + 25) = *(tile + 26);
+        *(tile + 26) = *(tile + 27);
+        *(tile + 27) = *(tile + 28);
+        *(tile + 28) = *(tile + 33);
+        *(tile + 33) = *(tile + 38);
+        *(tile + 38) = *(tile + 43);
+        *(tile + 43) = *(tile + 48);
+        *(tile + 48) = *(tile + 47);
+        *(tile + 47) = *(tile + 46);
+        *(tile + 46) = *(tile + 45);
+        *(tile + 45) = *(tile + 44);
+        *(tile + 44) = *(tile + 39);
+        *(tile + 39) = *(tile + 34);
+        *(tile + 34) = *(tile + 29);
+        *(tile + 29) = outerCorner;
     }
-    for (mm = 0; mm < v2 * 2; mm = mm + 1) {
-        v32 = *(arg0 + 30);
-        *(arg0 + 30) = *(arg0 + 31);
-        *(arg0 + 31) = *(arg0 + 32);
-        *(arg0 + 32) = *(arg0 + 37);
-        *(arg0 + 37) = *(arg0 + 42);
-        *(arg0 + 42) = *(arg0 + 41);
-        *(arg0 + 41) = *(arg0 + 40);
-        *(arg0 + 40) = *(arg0 + 35);
-        *(arg0 + 35) = v32;
+    for (innerStep = 0; innerStep < turnCount * 2; innerStep = innerStep + 1) {
+        innerCorner = *(tile + 30);
+        *(tile + 30) = *(tile + 31);
+        *(tile + 31) = *(tile + 32);
+        *(tile + 32) = *(tile + 37);
+        *(tile + 37) = *(tile + 42);
+        *(tile + 42) = *(tile + 41);
+        *(tile + 41) = *(tile + 40);
+        *(tile + 40) = *(tile + 35);
+        *(tile + 35) = innerCorner;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00156800);
-#endif
 /* MATCHED: the m2c draft typed arg0 as s16 *, which turned retail's
    row stride of 5 into 10 and the rule stride of 0xC into 0x18; it is a
    u8 *.  Three layout facts finished it: the success half is reached by
@@ -980,40 +916,14 @@ fits:
     *arg2 = saved_y;
     return 1;
 }
-/* Floor: 221 differing words over 26 edits, 246 emitted against retail's
-   250, frame 0xD0 exact with the two row pointers spilled through sq/lq
-   as retail does.  Built from func_00156cf0 above: the same
-   `(u8 *)func_00155280() + (by << 8) + (bx * 0x10)` cell addressing, the
-   5-wide shape rows at +0x18, the 3-wide flag rows at +0xD and the
-   0xC-stride rule rows at +0x32.  Both loop pairs match once the outer
-   counter is declared before the inner one (y then x, c then r), which is
-   what gives the inner index the lower saved register; each store's value
-   is read into a saved register before the func_00155280 call that
-   produces its address.  px/py as s32 copies of the u16 parameters give
-   the two early promotions and the frame; u16 copies cost 0x60 of stack.
-   WALL: retail keeps the raw x0/y0 parameters in $s1/$s0 and promotes
-   them afresh for the first cell store (`andi` after the call) and
-   recomputes (px + x) * 0x10 before the first store inside the if; this
-   build folds both into the earlier promotions.  Shift/multiply/index
-   spellings, u32 casts and moving the store ahead of the copies were all
-   measured (221 to 184-208 words with worse structure). */
-/* measured this session: fresh probe 221wd / fnalign 26 edits (250 vs 246
-   instrs, 4 short) confirms note (no stale); dead-arm duplicate tail probe
-   190wd regresses (+8, no trailing dead arm, shortfall early at move $s1/$a1
-   + addu/sll recompute per top-down fnalign); slti $at inclusive checked (no
-   convertible <N range dispatch in this window); x_save/y_save raw keeps +
-   opt_common_subs off give 86wd / 39 edits (251 vs 251 exact, installed). */
-/* measured 00157310: `opt_common_subs off` inside the guard is worth 39 words
-   on the old body (221 -> 182, 31 edits 252 vs 254); with x_save/y_save raw
-   keeps it is 221 -> 86 (39 edits 251 vs 251 exact); retail rematerialises
-   what b210 hoists. */
-/* re-measured 00157310: `python3 -E -s tools/measure_guarded.py src/promoted/code1_0015.c func_00157310`
-   reports 86 differing words today.  The figures in the note above are
-   from earlier bodies and no longer describe what is banked here; they
-   are kept only as history.  Flagged by `tools/floorboard.py --audit`. */
-// FUN_00157310 NONMATCHING
-#ifdef NON_MATCHING
+/* Measured with configured b210 -O2: 1004 code bytes and four zero tail
+ * bytes match retail. Scoped propagation/common-subexpression controls
+ * preserve coordinate reloads and the mask load before occupancy tests.
+ * The signed-byte occupied value converts to the board's unsigned byte. */
+#pragma push
 #pragma opt_common_subs off
+#pragma opt_propagation off
+// FUN_00157310
 void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)
 {
     extern s32 iGpffffb230;
@@ -1023,41 +933,42 @@ void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)
     s32 placed;
     s32 px;
     s32 py;
-    s32 x_save;
-    s32 y_save;
     s32 y;
     s32 x;
     s32 rowbase;
+    s32 rowSpan;
     s32 colofs;
+    s8 occupied;
     u8 *flags;
     u8 *rule;
     u8 *entry;
-    s32 c;
     s32 r;
+    s32 c;
     s32 by;
     s32 bx;
     u8 *row;
+    u32 maskValue;
 
     placed = 0;
-    x_save = x0;
-    px = x_save & 0xFFFF;
+    px = x0 & 0xFFFF;
     if (px + shape[1] - 1 >= 0x10) {
         func_0046d730(D_005F05E8, 0x20B);
     }
-    y_save = y0;
-    py = y_save & 0xFFFF;
+    py = y0 & 0xFFFF;
     if (py + shape[2] - 1 >= 0x18) {
         func_0046d730(D_005F05E8, 0x20C);
     }
-    *((u8 *)func_00155280() + (y_save << 8) + (x_save * 0x10) + 0x55) = 1;
+    *((u8 *)func_00155280() + (y0 << 8) + (x0 * 0x10) + 0x55) = 1;
     for (y = 0; y < shape[2]; y++) {
-        for (x = 0, rowbase = (py + y) << 8, flags = shape + y * 3, rule = shape + y * 0xC; x < shape[1]; x++) {
+        for (x = 0, rowbase = (py + y) << 8, rowSpan = y * 3, flags = shape + rowSpan, rule = shape + rowSpan * 4; x < shape[1]; x++) {
             colofs = (px + x) * 0x10;
             if (*((u8 *)func_00155280() + rowbase + colofs + 0x54) == 0) {
                 row = shape + (y - *(s8 *)(shape + 0x17)) * 5;
-                if (row[(x - *(s8 *)(shape + 0x16)) + 0x18] == 1) {
+                maskValue = row[(x - *(s8 *)(shape + 0x16)) + 0x18];
+                occupied = 1;
+                if (maskValue == occupied) {
                     colofs = (px + x) * 0x10;
-                    *((u8 *)func_00155280() + rowbase + colofs + 0x54) = 1;
+                    *((u8 *)func_00155280() + rowbase + colofs + 0x54) = occupied;
                     *((u8 *)func_00155280() + rowbase + colofs + 0x55) |= flags[x + 0xD];
                     entry = rule + x * 4;
                     *((u8 *)func_00155280() + rowbase + colofs + 0x5E) = entry[0x32];
@@ -1095,10 +1006,7 @@ void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)
     }
     iGpffffb224 += shape[1] * shape[2];
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00157310);
-#endif
+#pragma pop
 /* Measured: 684/688 bytes, 12 resolved call relocations and four zero tail bytes.
  * Capture exits before output writes; reload categories after earlier recursion. */
 // FUN_00157700
@@ -1445,18 +1353,19 @@ y_test:
 }
 /* measured: closes the opt_propagation bracket for func_001579b0. */
 #pragma opt_propagation on
-/* Mapgen floor (1248B window). First probe nd 209 (obj 1264B, 16B overrun;
-   re-measured 209wd / 118 edits 312 vs 316 4-long); honest u32 i/j + u32 byte
-   compares give 209wd / 114 edits (all slt/slti now sltu/sltiu, only coloring
-   left; installed); frame/prologue verified. Model: pure-integer fn (no FP
-   saves/fusion), 8 int-saves, 24 fresh 155280 calls, all-int call classes,
-   divu mods, vestigial 3rd param. Open: saved-reg coloring ($s0-home), branch
-   cascade, scheduler ordering. GPREL relocs verified present (.rel.text).
-   Triple-built, retail-arbitrated. */
-// FUN_001582F0 NONMATCHING
-#ifdef NON_MATCHING
+/* Configured b210 -O2: 1240 exact code bytes and eight zero-tail bytes.
+ * The room list supplies its own count and following start-template ID.
+ * Copy all 43 signed halfwords before rotating the complete template.
+ * Tail-tested border passes retain each word-valued wall state across
+ * both board lookups. Scoped propagation preserves byte-coordinate
+ * snapshots and the fresh area-count reads in the retry checks. */
+#pragma push
+#pragma opt_propagation off
+// FUN_001582F0
 void func_001582f0(s32 arg0, s32 arg1, s32 arg2)
 {
+    extern void func_003b6f00(s32 seed);
+    extern s32 func_0043c6a0(s32 value);
     extern u8 D_005F05B8[];
     extern u8 D_005F0600[];
     extern u8 D_005F0620[];
@@ -1470,22 +1379,29 @@ void func_001582f0(s32 arg0, s32 arg1, s32 arg2)
     extern s32 iGpffffb228;
     extern s32 iGpffffb224;
     extern s32 iGpffffb23c;
-    u16 buf[44];
+    s16 buf[43];
     u32 u4;
     u32 u8v;
     u8 *t;
-    u16 *tab;
-    u16 *dst;
+    s16 *tab;
+    u8 *roomSet;
+    s16 *dst;
     s32 n;
     u32 i;
+    u32 borderIndex;
+    s32 bestx;
+    s32 besty;
+    u32 maxv;
     u32 j;
     s32 r1;
     s32 r2;
-    u32 maxv;
-    s32 bestx;
-    s32 besty;
     u8 b0;
-    s32 r;
+    u8 r;
+    s32 border;
+    s32 offset;
+    s16 copyValue;
+    s32 startX;
+    u32 areaCount;
 
     if (arg1 == 0) {
         iGpffffb240 = iGpffffb1a0;
@@ -1512,17 +1428,33 @@ void func_001582f0(s32 arg0, s32 arg1, s32 arg2)
         iGpffffb23c = D_005F05B8[arg0];
         t = (u8 *)func_00155280();
         func_0043f9c8(t + 0x54, 0, 6144);
-        for (i = 0; i < 0x10; i = i + 1) {
-            t = (u8 *)func_00155280();
-            *(t + i * 0x10 + 0x54) = 2;
-            t = (u8 *)func_00155280();
-            *(t + i * 0x10 + 0x1754) = 2;
+        borderIndex = 0;
+        goto border_columns_test;
+border_columns_body:
+        offset = borderIndex * 0x10;
+        border = 2;
+        t = (u8 *)func_00155280();
+        *(t + offset + 0x54) = border;
+        t = (u8 *)func_00155280();
+        *(t + offset + 0x1754) = border;
+        borderIndex += 1;
+border_columns_test:
+        if (borderIndex < 0x10) {
+            goto border_columns_body;
         }
-        for (j = 0; j < 0x18; j = j + 1) {
-            t = (u8 *)func_00155280();
-            *(t + j * 0x100 + 0x54) = 2;
-            t = (u8 *)func_00155280();
-            *(t + j * 0x100 + 0x144) = 2;
+        borderIndex = 0;
+        goto border_rows_test;
+border_rows_body:
+        offset = borderIndex * 0x100;
+        border = 2;
+        t = (u8 *)func_00155280();
+        *(t + offset + 0x54) = border;
+        t = (u8 *)func_00155280();
+        *(t + offset + 0x144) = border;
+        borderIndex += 1;
+border_rows_test:
+        if (borderIndex < 0x18) {
+            goto border_rows_body;
         }
         do {
             r = (func_003b7060() % 0xB) + 2;
@@ -1536,67 +1468,73 @@ void func_001582f0(s32 arg0, s32 arg1, s32 arg2)
             b0 = (u8)(func_003b7060() & 3);
             t = (u8 *)func_00155280();
             *(t + 0x49) = b0;
-            tab = (u16 *)(D_005F0080 + (s8)D_005F0590[iGpffffb23c * 12 + D_005F05B8[iGpffffb23c * 12] + 1] * 0x56);
+            roomSet = D_005F0590 + iGpffffb23c * 12;
+            tab = (s16 *)(D_005F0080 + *(s8 *)(roomSet + roomSet[0] + 1) * 0x56);
             dst = buf;
             n = 43;
             do {
-                *dst = *tab;
+                copyValue = *tab;
                 tab = tab + 1;
                 n = n - 1;
+                *dst = copyValue;
                 dst = dst + 1;
             } while (n > 0);
             t = (u8 *)func_00155280();
-            func_00156800(buf, 1 << ((*(t + 0x49)) & 0x1F));
+            func_00156800(buf, 1U << *(t + 0x49));
         } while (func_00156cf0(buf, &u4, &u8v) == 0);
+        b0 = (u8)u4;
         t = (u8 *)func_00155280();
-        *(t + 0x46) = (u8)u4;
+        *(t + 0x46) = b0;
+        b0 = (u8)u8v;
         t = (u8 *)func_00155280();
-        *(t + 0x47) = (u8)u8v;
+        *(t + 0x47) = b0;
         t = (u8 *)func_00155280();
-        b0 = *(t + 0x46);
+        startX = *(t + 0x46);
         t = (u8 *)func_00155280();
-        func_001579b0(b0, *(t + 0x47), 0, 0);
+        func_001579b0(startX, *(t + 0x47), 0, 0);
         maxv = 0;
         for (j = 0; j < 0x18; j = j + 1) {
             for (i = 0; i < 0x10; i = i + 1) {
+                offset = i * 0x10;
                 t = (u8 *)func_00155280();
-                if (*(t + j * 0x100 + i * 0x10 + 0x54) == 1) {
+                if (*(t + j * 0x100 + offset + 0x54) == 1) {
                     t = (u8 *)func_00155280();
-                    if (*(t + j * 0x100 + i * 0x10 + 0x58) == 5) {
+                    if (*(t + j * 0x100 + offset + 0x58) == 5) {
                         t = (u8 *)func_00155280();
                         r1 = func_0043c6a0(*(t + 0x46) - i);
                         t = (u8 *)func_00155280();
                         r2 = func_0043c6a0(*(t + 0x47) - j);
                         if (maxv < (u32)(r1 + r2)) {
-                            maxv = r1 + r2;
                             bestx = i;
                             besty = j;
+                            maxv = r1 + r2;
                         }
                     }
                 }
             }
         }
-        if (maxv == 0) {
-            iGpffffb238 = 1;
+        if (maxv != 0) {
+            b0 = (u8)bestx;
+            t = (u8 *)func_00155280();
+            *(t + 0x44) = b0;
+            b0 = (u8)besty;
+            t = (u8 *)func_00155280();
+            *(t + 0x45) = b0;
+            border = 6;
+            t = (u8 *)func_00155280();
+            *(t + besty * 0x100 + bestx * 0x10 + 0x58) = border;
         } else {
-            t = (u8 *)func_00155280();
-            *(t + 0x44) = (u8)bestx;
-            t = (u8 *)func_00155280();
-            *(t + 0x45) = (u8)besty;
-            t = (u8 *)func_00155280();
-            *(t + besty * 0x100 + bestx * 0x10 + 0x58) = 6;
+            iGpffffb238 = 1;
         }
         if (iGpffffb228 == 0) {
             iGpffffb238 = 1;
         }
+        areaCount = iGpffffb224;
         t = (u8 *)func_00155280();
-        if ((u32)*(t + 0x4B) < (u32)iGpffffb224) {
+        if ((areaCount > *(t + 0x4B)) ||
+            (areaCount = iGpffffb224, t = (u8 *)func_00155280(),
+             areaCount < (u32)*(t + 0x4A))) {
             iGpffffb238 = 1;
-        } else {
-            t = (u8 *)func_00155280();
-            if ((u32)iGpffffb224 < (u32)*(t + 0x4A)) {
-                iGpffffb238 = 1;
-            }
         }
         if ((u32)iGpffffb22c < 2U) {
             iGpffffb238 = 1;
@@ -1605,9 +1543,8 @@ void func_001582f0(s32 arg0, s32 arg1, s32 arg2)
     func_00440b68(D_005F0600, iGpffffb224, iGpffffb230, iGpffffb220);
     func_00440b68(D_005F0620, iGpffffb22c, iGpffffb228, iGpffffb224);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001582f0);
-#endif
+
+#pragma pop
 /* measured: func_001587d0 (retail 1152 words/4608B, 1148 instrs). Baseline romwright-cleaned s32-int arithmetic + absolute log (lui/addiu for D_005F05E8) 1009 nd, 1107 vs 1148 (-41, frame -0x130 vs -0x150, lbu/lb, addu order, slti $at). Log-context scalar N/A (log already absolute). Step1 free pragma probes first: loop_invariants/schedule tie 1009, propagation 1005, common_subs 991 best (-18), dead 995, strength/unroll tie, peephole 1094 fail; full sweep pair (common+loop) tie 991, levels L0 1435/L1 1073/L3 1019 fail. Step2 subscript: swap (temp_v7+temp_v9) tie 991, row (u8 *row) tie 991 (same codegen). Step3 never hoist what retail reloads: hoist board before outer 991->1017 fail (reload kept). R2 decl-order (temp_v3/temp_v4 swap) tie 991. R3 pair tie 991. Truthful (s32-ptr/u8-ptr/void-ptr with (s32)/(void*) casts, (f32)(u32) for unsigned, mula/madd two-product 1200*arg+600*(byte-1) and 300*(s8), unaligned *(s32*)(ptr+4) for lwr/lwl pair) tie 991 (same codegen, faithful). Residuals (fnalign 840 edits +6 reloc-only, obj 1143 vs 1148 -5, 0.4% within 3% gate): FPR-color ($f20 vs $f3), addu order, slti $at vs $v0, spills (andi+sw), unaligned lwr/lwl (2 sites), arg-order for 00145d60/003e0870. Correct-logic base (truthful+reload+row tie) parked. Production guarded. */
 /* 2026-09-18 fix signals 1+2 (cheap/unambiguous): ten board bytes s8->u8 (0x54, 0x58==6, eight 0x59 incl. 001534a0 arg) + six angle loops 360.0f<temp->temp>360.0f. fndiff 991->990 (-1), fnalign 840->847 (+7 cascade from remaining signal-3 lwc1/swc1), opclass lb/lbu (was -10/+10) and c.ole/c.olt+bc1t/bc1f (was -6/+6/+6/-6) deltas gone. Rejected: temp_v1->u8 overshoots to lbu+1/lb-1/andi+1 (fndiff 1015); negated !(temp<=360) 1046 (+55, handoff 7l: change comparison not negation, keep non-negated); 360<=temp ties 991; temp>=360 ties 991. temp_v1 stays s8 for D_005F0592 (retail lb correct); 0x59 line199 reuses dead u8 temp_v0 to keep lbu without overshoot. 0x5d and D_005F0592 stay s8 (retail lb). Remaining census (signal 3): lwc1 -38, swc1 -26, lui +22, andi +19, move -16, mtc1 +13, bgez -8, srl +7, cvt.s.w +7, beqz -7, bltz +7, or +7, b +6, add.s -5. Object still 1143 vs 1148 retail (-5). */
 /* measured 2026-09-19 V4 lui-0 (reload 7x puVar16[5]=puVar16[10]/*puVar16=puVar16[10] + per-block {f32 f360=360.0f; for(...>f360...-f360)} 6x + u32 c10000/01/02 hoist for ==0x1000x/<0x1000x + opt_propagation off): lui +22->0 (72->50, delta 0), fnalign 1148/1139 (-9, -0.8% inside 1113-1182 gate), words 990->1013 (+23), edits 847+6->830+6 (-17). Banked (zero lui, inside gate, confined to FUN_001587D0 + scoped pragmas; other funcs 0015d310/001561a0/0015b3e0 untouched; not promoted, not MATCH, guard kept, NONMATCHING kept). Remaining: lwc1 -37, swc1 -25, etc.; V2 (+2, 1138/1011/816+6) is closest gate-passing with words+11 if V4 words+23 unacceptable. */
@@ -2962,93 +2899,73 @@ body:
             entry = *(u8 **)(entry + 0x138);
         }
 }
-/* measured floor: 284 differing words (reloc-masked), obj 1780B/window 1792B, */
-/* fnalign 445/445 instrs with 71 edits +4 reloc-only. Frame exact (0x120), */
-/* prologue exact through the counter spill, epilogue exact. Four-direction */
-/* flood over func_00155280() board, cell base+(row<<8)+(col*0x10) (row arg1, */
-/* col arg0), fields 0x54/0x55/0x56 u16 id/0x58/0x5E; guard (arg5&0xFF)<(arg6&0xFF); */
-/* exits (~arg2&walls)&0xFF with incomings 4/8/1/2; u16 north/west/south limits */
-/* (east reuses limit_low, retail $s5); keep via (u8)arg5, inc via (depth+1)&0xFF; */
-/* north/south 7/8 +0xA/depth0 increments limit leaving next_depth stale (retail */
-/* no $s2, preserved); west/east 7/8 limit4 and type-3 bits keep depth; gp mode */
-/* via existing iGpffff9db0 (0x2C/0x40). All-direct board loads (no row/col cache), */
-/* matching sibling func_00157700. Decisive: s32 limits -4, (u8) keep -11, */
-/* all-direct -61, u16 limits -16 (376->284; re-measured 284wd / 71 edits */
-/* 445 vs 445 exact length). Levers regress: a4-hoist 399/402, u8 limits 331, */
-/* csuboff 389 (no width/dsll pairs, no slti $at, exact length so no dead arm). */
-/* Residual is double-andi (6 sites), limit sh/lhu/daddiu vs sb/lbu/addiu, */
-/* call-setup extra move, scheduling/colour. */
-/* Body at docs/probe_archive/Flood_0015B3E0_body.c. Production stays INCLUDE_ASM. */
-/* Non-goals func_00156cf0/func_001561a0 untouched. */
-// FUN_0015B3E0 NONMATCHING
-#ifdef NON_MATCHING
+/* Configured b210 -O2 matches 1780 code bytes and the 12-byte zero tail.
+ * For kinds 7/8, axis mask 0xA and depth zero, retail extends the north
+ * or south limit without writing next_depth (0015B5DC and 0015B8C0).
+ * Calls at 0015B654/0015B938 consume that retained or unwritten value.
+ * Preserve this original omission; no default depth or unreachable-path
+ * claim is introduced. This is configured-native reconstruction, not a
+ * claim of portable defined behavior on the omitted-assignment path. */
+// FUN_0015B3E0
 void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 arg6, s32 *arg7)
 {
+    extern void func_0014a0f0(u16 resTypeId, u32 visible);
     s32 depth_low;
     s32 limit_low;
-    u16 north_limit;
-    u16 west_limit;
-    u16 south_limit;
+    u8 north_limit;
+    u8 south_limit;
+    u8 west_limit;
     s32 east_tmp;
+    /* Retail leaves this unwritten on the limit-extension paths below. */
     s32 next_depth;
     s32 mode;
     s32 exits;
 
-    depth_low = arg5 & 0xFF;
     limit_low = arg6 & 0xFF;
+    depth_low = arg5 & 0xFF;
     if (depth_low < limit_low) {
         if (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x54] == 1) {
             func_0014a0f0(*(u16 *)(((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10)) + 0x56), 1);
             *arg7 += 1;
             exits = (~arg2 & ((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x5E]) & 0xFF;
             if (exits & 1) {
-                if (arg3 & 1) {
-                    north_limit = 3;
-                } else {
-                    north_limit = (u16)limit_low;
-                }
+                north_limit = (arg3 & 1) ? 3 : limit_low;
                 if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
                     next_depth = (u8)arg5;
-                } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (((arg4 & 0xFF) & 0xA) != 0) && (depth_low == 0)) {
+                } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (((u8)arg4 & 0xA) != 0) && (depth_low == 0)) {
+                    /* 0015B5DC..0015B5E8: no next_depth assignment. */
                     north_limit += 1;
-                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((arg4 & 0xFF) & 1) != 0)) {
+                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 1) != 0)) {
                     next_depth = (u8)arg5;
                 } else {
-                    next_depth = (depth_low + 1) & 0xFF;
+                    next_depth = (u8)(depth_low + 1);
                 }
                 func_0015b3e0(arg0, arg1 - 1, 4, 0, arg4, next_depth, north_limit, arg7);
             }
             if (exits & 2) {
-                if (arg3 & 2) {
-                    west_limit = 3;
-                } else {
-                    west_limit = (u16)limit_low;
-                }
+                west_limit = (arg3 & 2) ? 3 : limit_low;
                 if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
                     next_depth = (u8)arg5;
                 } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (limit_low == 4)) {
                     next_depth = (u8)arg5;
-                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((arg4 & 0xFF) & 2) != 0)) {
+                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 2) != 0)) {
                     next_depth = (u8)arg5;
                 } else {
-                    next_depth = (depth_low + 1) & 0xFF;
+                    next_depth = (u8)(depth_low + 1);
                 }
                 func_0015b3e0(arg0 - 1, arg1, 8, 0, arg4, next_depth, west_limit, arg7);
             }
             if (exits & 4) {
-                if (arg3 & 4) {
-                    south_limit = 3;
-                } else {
-                    south_limit = (u16)limit_low;
-                }
+                south_limit = (arg3 & 4) ? 3 : limit_low;
                 if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
                     next_depth = (u8)arg5;
-                } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (((arg4 & 0xFF) & 0xA) != 0) && (depth_low == 0)) {
+                } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (((u8)arg4 & 0xA) != 0) && (depth_low == 0)) {
+                    /* 0015B8C0..0015B8CC: retain the prior next_depth. */
                     south_limit += 1;
-                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((arg4 & 0xFF) & 4) != 0)) {
+                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 4) != 0)) {
                     next_depth = (u8)arg5;
                 } else {
-                    next_depth = (depth_low + 1) & 0xFF;
+                    next_depth = (u8)(depth_low + 1);
                 }
                 func_0015b3e0(arg0, arg1 + 1, 1, 0, arg4, next_depth, south_limit, arg7);
             }
@@ -3058,22 +2975,21 @@ void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 
                     next_depth = (u8)arg5;
                 } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (limit_low == 4)) {
                     next_depth = (u8)arg5;
-                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((arg4 & 0xFF) & 8) != 0)) {
+                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 8) != 0)) {
                     next_depth = (u8)arg5;
                 } else {
-                    next_depth = (depth_low + 1) & 0xFF;
+                    next_depth = (u8)(depth_low + 1);
                 }
                 if (east_tmp != 0) {
                     limit_low = 3;
                 }
-                func_0015b3e0(arg0 + 1, arg1, 2, 0, arg4, next_depth, limit_low & 0xFF, arg7);
+                arg6 = (u8)limit_low;
+                arg0 = arg0 + 1;
+                func_0015b3e0(arg0, arg1, 2, 0, arg4, next_depth, arg6, arg7);
             }
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015b3e0);
-#endif
 // FUN_0015BAE0
 void func_0015bae0(void)
 {

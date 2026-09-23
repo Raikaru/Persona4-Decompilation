@@ -257,10 +257,10 @@ void func_00135dc0(u8* arg0)
     typedef struct { f32 x, y; } Vec2f;
     extern void func_0034f1e0(void);
     extern void func_0034c270(Vec2f arg0, s32 arg1, s32 arg2, f32 fparg0);
-    extern void func_0034f2e0(void* arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u32 arg4);
-    extern void func_0034f320(u8* arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+    extern void func_0034f2e0(void* arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+    extern void func_0034f320(u8* arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern f32 func_0034f720(u8* arg0, f32 fparg0, f32 fparg1, f32 fparg2);
-    extern void func_0034f9d0(Vec2f arg0, f32 fparg0, u32 arg1, s32 arg2, s32 arg3);
+    extern void func_0034f9d0(Vec2f arg0, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
     extern void func_003f6440(s32 arg0, s32 arg1);
     extern void func_00355410(u8 *arg0, u32 arg1);
     extern void func_00354ba0(void* arg0);
@@ -860,7 +860,7 @@ void func_00137890(u8 *arg0, s32 arg1)
     extern void func_00115830(u8 *panel);
     extern void func_00115940(u8 *persona, u8 *record, s32 mode);
     extern void func_0034f2e0(void *sprite, f32 x, f32 y,
-                            u8 red, u8 green, u8 blue, u32 alpha);
+                            u8 red, u8 green, u8 blue, u8 alpha);
     extern s32 func_00105330(s32 character);
     extern void func_00115c40(Vec2f position, s32 alpha, s16 *panel, f32 depth);
     extern u8 D_0064B2E8[];
@@ -877,6 +877,7 @@ void func_00137890(u8 *arg0, s32 arg1)
     u32 entry_alpha;
     u32 base_alpha;
     u32 alpha;
+    u8 spriteOpacity;
     s32 selected;
     u8 red;
     u8 green;
@@ -884,7 +885,7 @@ void func_00137890(u8 *arg0, s32 arg1)
     u8 digit_red;
     u8 digit_green;
     u8 digit_blue;
-    u32 sprite_alpha;
+    u8 sprite_alpha;
     u8 level;
     CmpPersonaPanel panel;
     Vec2f position;
@@ -899,16 +900,16 @@ void func_00137890(u8 *arg0, s32 arg1)
     entry_alpha = menu->rows[arg1].alpha;
     base_alpha = menu->alpha;
     opacity = (f32)entry_alpha * ((f32)base_alpha / 255.0f);
-    alpha = (u8)opacity;
+    alpha = spriteOpacity = (u8)opacity;
     if (arg1 >= *(s16 *)(arg0 + 0x4E)) {
         position.x = x - 40.0f;
         position.y = y + 21.0f;
         func_0034f2e0(*(void **)(arg0 + 0x1C64), position.x, position.y,
-                      0xFF, 0xE9, 0x2C, alpha);
+                      0xFF, 0xE9, 0x2C, spriteOpacity);
         position.x = x + 89.0f;
         position.y = y + 21.0f;
         func_0034f2e0(*(void **)(arg0 + 0x1C68), position.x, position.y,
-                      0xFF, 0xE9, 0x2C, alpha);
+                      0xFF, 0xE9, 0x2C, spriteOpacity);
     } else {
         func_00115830(panel.bytes);
         if (arg1 == *(s16 *)(arg0 + 0x52)) {
