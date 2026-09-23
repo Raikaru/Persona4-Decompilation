@@ -4,6 +4,8 @@ import importlib.util
 import json
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -301,6 +303,76 @@ class RunTests(unittest.TestCase):
             self.assertEqual(apply_names.run(root, [], check=False), 0)
             self.assertEqual(apply_names.run(root, [], check=True), 0)
 
+    def test_scoped_run_refuses_out_of_scope_c_callers(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = make_root(Path(temporary))
+            write_curated(
+                root,
+                "btlLevelFromExp = 0x001059E0; // type:func  evidence: fixture\n",
+            )
+            owner = root / "src" / "owner.c"
+            caller = root / "src" / "caller.c"
+            owner.write_bytes(b"u8 func_001059e0(void) { return 1; }\n")
+            caller.write_bytes(b"u8 caller(void) { return func_001059e0(); }\n")
+            report = StringIO()
+            with redirect_stdout(report):
+                self.assertEqual(apply_names.run(root, ["src/owner.c"], check=True), 1)
+            self.assertIn("[blocked: out-of-scope C: src/caller.c]", report.getvalue())
+            with self.assertRaisesRegex(RuntimeError, "src/caller.c"):
+                apply_names.run(root, ["src/owner.c"], check=False)
+            self.assertEqual(owner.read_bytes(), b"u8 func_001059e0(void) { return 1; }\n")
+            self.assertEqual(caller.read_bytes(), b"u8 caller(void) { return func_001059e0(); }\n")
+
+    def test_header_inline_call_refuses_even_whole_tree_rename(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = make_root(Path(temporary))
+            write_curated(
+                root,
+                "btlLevelFromExp = 0x001059E0; // type:func  evidence: fixture\n",
+            )
+            target = root / "src" / "owner.c"
+            target.write_bytes(b"u8 func_001059e0(void) { return 1; }\n")
+            (root / "src" / "internal.h").write_text("u8 func_001059e0(void);\n")
+            public = root / "include" / "public.h"
+            public.parent.mkdir(exist_ok=True)
+            public.write_bytes(
+                b"// vendor encoding: \x92\n"
+                b"static inline u8 call(void) { return func_001059e0(); }\n"
+            )
+            report = StringIO()
+            with redirect_stdout(report):
+                self.assertEqual(apply_names.run(root, [], check=True), 1)
+            self.assertIn("[blocked: header: include/public.h]", report.getvalue())
+            with self.assertRaisesRegex(RuntimeError, "header: include/public.h"):
+                apply_names.run(root, [], check=False)
+            self.assertIn(b"func_001059e0", target.read_bytes())
+            self.assertIn(b"func_001059e0", public.read_bytes())
+
+    def test_scoped_run_allows_complete_c_scope_without_header_or_asm(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = make_root(Path(temporary))
+            write_curated(
+                root,
+                "btlLevelFromExp = 0x001059E0; // type:func  evidence: fixture\n",
+            )
+            owner = root / "src" / "owner.c"
+            unrelated = root / "src" / "unrelated.c"
+            owner.write_text("u8 func_001059e0(void) { return 1; }\n")
+            unrelated.write_bytes(b'const char *note = "func_001059e0"; // func_001059e0\n')
+            legacy = root / "include" / "legacy.h"
+            legacy.parent.mkdir(exist_ok=True)
+            legacy.write_bytes(b"// \x92 func_001059e0 occurs only in a comment\n")
+            report = StringIO()
+            with redirect_stdout(report):
+                self.assertEqual(apply_names.run(root, ["src/owner.c"], check=True), 1)
+            self.assertIn("[ready]", report.getvalue())
+            self.assertEqual(apply_names.run(root, ["src/owner.c"], check=False), 0)
+            self.assertIn("btlLevelFromExp", owner.read_text())
+            self.assertEqual(
+                unrelated.read_bytes(),
+                b'const char *note = "func_001059e0"; // func_001059e0\n',
+            )
+
     def test_assembly_linkage_prevents_partial_rename(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = make_root(Path(temporary))
@@ -312,6 +384,10 @@ class RunTests(unittest.TestCase):
             caller = root / "src" / "caller.c"
             fallback.write_text('INCLUDE_ASM("asm/nonmatchings/g_data", func_001059e0);\n')
             caller.write_text("u8 caller(void) { return func_001059e0(1); }\n")
+            report = StringIO()
+            with redirect_stdout(report):
+                self.assertEqual(apply_names.run(root, [str(caller)], check=True), 1)
+            self.assertIn("[blocked: assembly-linked]", report.getvalue())
             with self.assertRaisesRegex(RuntimeError, "cannot rename assembly-linked"):
                 apply_names.run(root, [str(caller)], check=False)
             self.assertIn("func_001059e0", caller.read_text())
