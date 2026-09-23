@@ -705,12 +705,14 @@ term_end:
 }
 
 /* end a buffering pause? */
+// FUN_00522270
 static Bool sfply_IsBpaOff(SFD sfd)
 {
 	Sint32 t;
 	Sint32 u;
 	Sint32 a;
 	Sint32 b;
+	SFTIM tim;
 
 	if (sfply_IsTermAny(sfd)) {
 		return 1;
@@ -726,8 +728,9 @@ static Bool sfply_IsBpaOff(SFD sfd)
 		}
 	}
 	SFTIM_GetTime(sfd, &t, &u);
-	a = SFD_TIM(sfd)->x284;
-	b = SFD_TIM(sfd)->x288;
+	tim = SFD_TIM(sfd);
+	a = tim->x284;
+	b = tim->x288;
 	a -= UTY_MulDiv(SFSET_GetCond(sfd, 0x45), b, 1000000);
 	if (SFD_CmpTime(t, u, a, b)) {
 		return 1;
