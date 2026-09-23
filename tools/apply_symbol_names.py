@@ -207,10 +207,12 @@ def assembly_names(root: Path) -> set[int]:
     for path in chain(source_files(root), header_files(root)):
         clean = "\n".join(sanitize_c_lines(path.read_bytes().decode("latin-1").split("\n")))
         addresses.update(int(match.group(1)[5:], 16) for match in ASM_ARG.finditer(clean))
+    # Assembly inventory is read-only; its symbol identifiers are ASCII even
+    # when a vendor comment contains bytes outside UTF-8.
     for path in (root / "asm").rglob("*.s"):
         addresses.update(
             int(match.group(1), 16)
-            for match in CODE_IDENT.finditer(path.read_text(encoding="utf-8"))
+            for match in CODE_IDENT.finditer(path.read_bytes().decode("latin-1"))
         )
     return addresses
 

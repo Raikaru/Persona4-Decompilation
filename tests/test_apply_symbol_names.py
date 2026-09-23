@@ -404,10 +404,33 @@ class RunTests(unittest.TestCase):
             target.write_text("u8 func_001059e0(void) { return 0; }\n")
             asm = root / "asm" / "nonmatchings" / "caller.s"
             asm.parent.mkdir(parents=True)
-            asm.write_text("jal func_001059e0\n.reloc .L1, R_MIPS_26, func_001059e0\n")
+            original = b"# vendor note \x92\njal func_001059e0\n.reloc .L1, R_MIPS_26, func_001059e0\n"
+            asm.write_bytes(original)
+            report = StringIO()
+            with redirect_stdout(report):
+                self.assertEqual(apply_names.run(root, [], check=True), 1)
+            self.assertIn("[blocked: assembly-linked]", report.getvalue())
             with self.assertRaisesRegex(RuntimeError, "cannot rename assembly-linked"):
                 apply_names.run(root, [], check=False)
             self.assertIn("func_001059e0", target.read_text())
+            self.assertEqual(asm.read_bytes(), original)
+
+    def test_non_utf8_assembly_without_target_reference_allows_c_rename(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = make_root(Path(temporary))
+            write_curated(
+                root,
+                "btlLevelFromExp = 0x001059E0; // type:func  evidence: fixture\n",
+            )
+            target = root / "src" / "g_data.c"
+            target.write_text("u8 func_001059e0(void) { return 0; }\n")
+            asm = root / "asm" / "nonmatchings" / "unrelated.s"
+            asm.parent.mkdir(parents=True)
+            original = b"# vendor note \x92\njal func_002e2080\n"
+            asm.write_bytes(original)
+            self.assertEqual(apply_names.run(root, [], check=False), 0)
+            self.assertIn("btlLevelFromExp", target.read_text())
+            self.assertEqual(asm.read_bytes(), original)
 
     def test_incomplete_generated_assembly_aborts_before_rename(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
