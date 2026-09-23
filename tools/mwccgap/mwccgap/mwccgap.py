@@ -1,4 +1,5 @@
 import copy
+import re
 import tempfile
 
 from pathlib import Path
@@ -33,6 +34,7 @@ def process_c_file(
     macro_inc_path: Optional[Path] = None,
     c_file_encoding: Optional[str] = None,
     skip_asm: bool = False,
+    symbol_map_path: Optional[Path] = None,
 ):
     # 1. compile file as-is, any INCLUDE_ASM'd functions will be missing from the object
     # Scratch sources must not appear as extra owners in source-tree scans.
@@ -70,8 +72,19 @@ def process_c_file(
     with c_file.open("r", encoding="utf-8") as f:
         out_lines, asm_files = Preprocessor(asm_dir_prefix).preprocess_c_file(f)
 
-    # filter out functions that can be found in the compiled c object
-    asm_files = [(x, y) for (x, y) in asm_files if x.stem not in c_functions]
+    # The C definition may now use its curated spelling while INCLUDE_ASM
+    # deliberately retains the address-form file stem. Both name the same
+    # function; never splice retail assembly on top of compiled C.
+    compiled_stems = set(c_functions)
+    if symbol_map_path is not None and c_functions and asm_files:
+        for line in symbol_map_path.read_text(encoding="utf-8").splitlines():
+            name, separator, value = line.partition("=")
+            if separator and name.strip() in c_functions:
+                address = re.match(r"\s*0x([0-9A-Fa-f]{8})\s*;", value)
+                if address is not None:
+                    compiled_stems.add(f"func_{int(address.group(1), 16):08x}")
+    asm_files = [(path, count) for path, count in asm_files
+                 if path.stem not in compiled_stems]
 
     # if there's nothing to do, write out the bytes from the precompiled object
     if len(asm_files) == 0:

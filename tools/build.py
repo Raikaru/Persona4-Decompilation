@@ -1234,6 +1234,7 @@ def _mwccgap_flags(c, src=None):
     flags = [
         "--mwcc-path", V.unit_compiler(Path(src), c) if src is not None else c["mwcc"],
         "--asm-dir-prefix", str(REPO),
+        "--symbol-map", str(REPO / "config" / "symbol_addrs.txt"),
         "--macro-inc-path", str(ASM / "macro.inc"),
         "--as-march", "r5900", "--as-mabi", "eabi",
         *(V.unit_compile_flags(Path(src), c["cflags"]) if src is not None else c["cflags"]),

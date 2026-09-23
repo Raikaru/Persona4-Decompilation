@@ -30,7 +30,8 @@
     "retained": "Hand-maintained relocation fixture and hand-carried jump table remain tracked, checked, never regenerated or removed.",
     "inputs-verify.py": "tools/verify.py supplies retail-byte helpers and source filtering. The earlier fdc4ce4edc38 -> a646226c6bb9 bump excluded staged probe copies. Audited 2026-09-20: a646226c6bb9 -> 2c53a185f171 changes only the is_generated AST node, broadening that filter to every dot-prefixed temporary source. Both predicates select the same 394 clean source paths; all other verifier AST nodes are identical. Fresh isolated generation and a second comparison reproduce all 11152 generated files and both retained files, 62635980 bytes, with every existing output hash unchanged. See docs/probe_archive/Recovered_upstream_20260920.md. Audited 2026-09-23: marker scanning now discards preceding extern declarations without discarding semicolons in single-line bodies or K&R parameter declarations. Source filtering and retail-byte extraction are unchanged; regenerate_asm.py --check reproduces the pinned fallback bytes.",
     "inputs-requirements-python.txt": "Audited 2026-09-22: 8e0d2cd27bc3 -> a710c34702b6 adds the exact PyYAML 6.0.3 pin required by CI's direct yaml import. regenerate_asm.py --check reproduced all 11152 generated files and left both retained files unchanged.",
-    "inputs-asm_symbol_baseline.txt": "Verbatim pre-migration symbol map (13,099 boundaries, 287 curated names) used only by the pinned fallback generator. The live symbol_addrs.txt now has 13,102 boundaries and 570 curated names; feeding it to splat would change audited assembly text. The pinned fallback bytes and filenames remain unchanged."
+    "inputs-asm_symbol_baseline.txt": "Verbatim pre-migration symbol map (13,099 boundaries, 287 curated names) used only by the pinned fallback generator. The live symbol_addrs.txt now has 13,102 boundaries and 570 curated names; feeding it to splat would change audited assembly text. The pinned fallback bytes and filenames remain unchanged.",
+    "inputs-verify.py-named-asm": "Audited 2026-09-23: verifier now passes the canonical symbol map to MWCCGap so compiled curated C definitions supersede address-form INCLUDE_ASM fallbacks. This changes the compiler wrapper command, not retail input filtering or generated assembly extraction; regenerate_asm.py --check verifies pinned outputs."
   },
   "inputs": {
     "requirements-python.txt": "a710c34702b69ee5205eb6ac742f13bec6fe871f6f01abcdfdf296453aa530af",
@@ -40,7 +41,7 @@
     "tools/slus21782_functions.json": "43d17bf206f4c878e34ed335aa8a715e09b94a6060321f32c22e04ad72284b5a",
     "tools/extract_nonmatching_asm.py": "78cde4a7fded07dff5fd8151ebdcef2aa903d864e8a217669e04d78f27bd40eb",
     "tools/asm.py": "75670b3a6ddfa7761a0734b5a4d4b2692f365eaf04f8f8a5a2d6d8802ac5ab70",
-    "tools/verify.py": "50977424676cc195bb3018b66961f65d131b6ddfc7bb70454c75823baa9eebf5"
+    "tools/verify.py": "975128e8646e6ed6effc8ed25923e5a1b857a2eee63f7b6ccb5200e60b93cbc9"
   },
   "generated": [
     {

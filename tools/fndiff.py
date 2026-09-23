@@ -73,8 +73,12 @@ def main() -> None:
     else:
         marker = next((item for item in scan_markers(source) if item["name"] == args.function), None)
         if marker is None:
-            _die(f"no // FUN_ marker found for {args.function} in {args.file}; use --addr to override")
-        address = marker["addr"]
+            import probe_variants as probe
+            address = int(probe.address_of(args.function, source)[4:], 16)
+            if not any(item["addr"] == address for item in scan_markers(source)):
+                _die(f"no // FUN_ marker found for {args.function} in {args.file}; use --addr")
+        else:
+            address = marker["addr"]
 
     boundaries = {int(item, 16) for item in windows["windows"]}
     boundaries.update(int(item, 16) + size for item, size in windows["windows"].items() if size)

@@ -51,6 +51,8 @@ def main() -> None:
     add_argument("--wibo-path", type=Path, default=Path("wibo"))
     add_argument("--asm-dir-prefix", type=Path)
     add_argument("--macro-inc-path", type=Path)
+    add_argument("--symbol-map", type=Path,
+                 help="canonical function names for address-form assembly fallbacks")
     add_argument("--target-encoding", type=str)
     add_argument("--src-dir", type=Path)
     add_argument("--skip-asm", action="store_true",
@@ -82,6 +84,7 @@ def main() -> None:
                 macro_inc_path=args.macro_inc_path,
                 c_file_encoding=args.target_encoding,
                 skip_asm=args.skip_asm,
+                symbol_map_path=args.symbol_map,
             )
 
     except Exception as e:

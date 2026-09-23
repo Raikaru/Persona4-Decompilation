@@ -28,6 +28,15 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246970);
 """
 
 
+CURATED_DUAL_ARM = """\
+// FUN_003B7060 NONMATCHING
+#ifdef NON_MATCHING
+int RpRandom(void) { return 1; }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7060);
+#endif
+"""
+
 class RegionTests(unittest.TestCase):
     def test_region_is_only_the_target_definition(self) -> None:
         source = """\
@@ -52,6 +61,11 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246970);
         start, end = probe.region_for(source, "FUN_00246940")
         self.assertEqual(source[start:end], "int func_00246940(void) { return 2; }")
         self.assertEqual(source[end:], " int next;\n")
+
+    def test_curated_name_owns_entire_legacy_fallback_guard(self) -> None:
+        start, end = probe.region_for(CURATED_DUAL_ARM, "FUN_003B7060", "RpRandom")
+        self.assertEqual(CURATED_DUAL_ARM[start:end],
+                         CURATED_DUAL_ARM[CURATED_DUAL_ARM.index("#ifdef"):])
 
     def test_last_fallback_span_reaches_end_of_file_only_when_needed(self) -> None:
         row = 'INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246970);\n'
@@ -152,6 +166,39 @@ class IsolationTests(unittest.TestCase):
             [[line for line in expected.splitlines() if line.strip()]],
         )
         self.assertEqual(self.path.read_bytes(), self.original)
+
+    def test_curated_candidate_cannot_score_inactive_guarded_body(self) -> None:
+        import sys
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "config").mkdir()
+            (root / "config" / "symbol_addrs.txt").write_text(
+                "RpRandom = 0x003B7060; // type:func\n"
+            )
+            source = root / "owner.c"
+            source.write_text(CURATED_DUAL_ARM)
+            candidate = root / "candidate.c"
+            candidate.write_text("int RpRandom(void) { return 9; }\n")
+            inspected = []
+
+            def score(scratch: Path, function: str) -> int:
+                text = scratch.read_text()
+                inspected.append(text)
+                return 0 if "INCLUDE_ASM" in text else 13
+
+            with patch.object(probe, "REPO", root), patch.object(
+                probe, "differing_words", score
+            ), patch.object(
+                sys, "argv", ["probe_variants.py", str(source), "RpRandom",
+                              "--candidate", f"candidate={candidate}"]
+            ):
+                self.assertEqual(probe.main(), 1)
+            self.assertEqual(len(inspected), 1)
+            self.assertNotIn("INCLUDE_ASM", inspected[0])
+            self.assertIn("return 9", inspected[0])
+            self.assertEqual(source.read_text(), CURATED_DUAL_ARM)
 
     def test_interrupt_does_not_restore_over_concurrent_source_edit(self) -> None:
         import sys

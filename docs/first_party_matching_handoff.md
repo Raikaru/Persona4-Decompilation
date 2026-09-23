@@ -471,6 +471,10 @@ recognised `NON_MATCHING`, which is why twenty `SKIP_ASM` floors reported
 `STALE_NONMATCHING` with a phantom "already matches"), and
 `probe_variants.py` replaces the whole guard with the candidate, so a
 candidate score is the real residual and the tracked file is never written.
+When the C arm has a curated name, pass that name as `FUNCTION`. The probe
+resolves its marker from the symbol map and recognises the old `func_<address>`
+fallback in the other arm; otherwise a fallback-only baseline can look like
+a zero-difference C match.
 Extract the body between `#ifdef` and `#else`, pass it as a candidate, and
 read the score. Diff rows for a guarded floor come the same way — splice the
 candidate into `probe_variants.scratch_source` and call `run_fndiff`.

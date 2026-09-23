@@ -145,7 +145,8 @@ def region_for(
 
     code_lines = verify.sanitize_c_lines(lines)
     name = _target_name(address, function)
-    name_re = re.compile(r"\b" + re.escape(name) + r"\b")
+    spellings = {name, _target_name(address, None)}
+    name_re = re.compile(r"\b(?:" + "|".join(map(re.escape, sorted(spellings))) + r")\b")
     guard_line: int | None = None
     open_line: int | None = None
     name_line: int | None = None
@@ -167,7 +168,7 @@ def region_for(
             block_end = _matching_endif(lines, code_lines, index)
             fallback = any(
                 (match := INCLUDE_CODE_RE.match(code_lines[row])) is not None
-                and match.group("name") == name
+                and match.group("name") in spellings
                 for row in range(index, block_end + 1)
             )
             if fallback:
@@ -175,7 +176,7 @@ def region_for(
                 break
             continue
         include = INCLUDE_CODE_RE.match(code)
-        if include is not None and include.group("name") == name:
+        if include is not None and include.group("name") in spellings:
             return offsets[index], offsets[index] + len(lines[index])
         if name_re.search(code.split("{", 1)[0]) and ";" not in code.split("{", 1)[0]:
             name_line = index
@@ -281,10 +282,11 @@ def splice_region(text: str, start: int, end: int, body: str, newline: str) -> s
     return text[:start] + body + suffix
 
 
-def _has_include_fallback(text: str, function: str) -> bool:
+def _has_include_fallback(text: str, marker: str, function: str) -> bool:
+    spellings = {function, _target_name(marker, None)}
     for line in verify.sanitize_c_lines(text.splitlines(keepends=True)):
         match = INCLUDE_CODE_RE.match(line)
-        if match is not None and match.group("name") == function:
+        if match is not None and match.group("name") in spellings:
             return True
     return False
 
@@ -418,11 +420,21 @@ def differing_words(source: Path, function: str) -> int | None:
     return score
 
 
-def address_of(function: str) -> str:
+def address_of(function: str, source: Path | None = None) -> str:
     digits = re.search(r"([0-9A-Fa-f]{8})", function)
-    if not digits:
-        raise SystemExit(f"cannot derive an address from {function!r}")
-    return "FUN_" + digits.group(1).upper()
+    if digits:
+        return "FUN_" + digits.group(1).upper()
+    if source is not None:
+        for marker in verify.scan_markers(source):
+            if marker["name"] == function:
+                return f"FUN_{marker['addr']:08X}"
+        symbols = REPO / "config" / "symbol_addrs.txt"
+        if symbols.is_file():
+            for line in symbols.read_text(encoding="utf-8").splitlines():
+                match = re.match(r"\s*([A-Za-z_]\w*)\s*=\s*0x([0-9A-Fa-f]{8})\s*;", line)
+                if match and match.group(1) == function:
+                    return "FUN_" + match.group(2).upper()
+    raise SystemExit(f"cannot derive an address from {function!r}")
 
 
 def main() -> int:
@@ -442,7 +454,7 @@ def main() -> int:
     source = Path(args.file).resolve()
     if not source.is_file():
         parser.error(f"source file does not exist: {args.file}")
-    marker = args.marker or address_of(args.function)
+    marker = args.marker or address_of(args.function, source)
     original = source.read_bytes()
     text = original.decode("utf-8", errors="surrogateescape")
     start, end = region_for(text, marker, args.function)
@@ -460,7 +472,7 @@ def main() -> int:
             raise SystemExit(f"cannot read candidate {path}: {error}") from error
         candidates.append((name, _normalise_candidate(body, newline)))
 
-    if not _has_include_fallback(candidates[0][1], args.function):
+    if not _has_include_fallback(candidates[0][1], marker, args.function):
         print(
             f"  NOTE: {source} does not currently hold an INCLUDE_ASM fallback for\n"
             f"        {args.function}; the baseline and candidates are measured in\n"
@@ -481,7 +493,7 @@ def main() -> int:
                             "utf-8", errors="surrogateescape"
                         )
                     )
-                    if _has_include_fallback(body, args.function):
+                    if _has_include_fallback(body, marker, args.function):
                         results.append((name, None))
                         print(
                             f"  {name:<18}     -- "

@@ -67,7 +67,7 @@ class Evaluator:
         if windows.get("program") != "SLUS_217.82" or windows.get("sha1") != target["elf"]["sha1"]:
             verify._die("slus21782_functions.json does not describe the configured target")
         retail = verify.RetailElf(self.cfg["retail_elf"], target, windows["sha1"])
-        self.marker = probe.address_of(function)
+        self.marker = probe.address_of(function, self.source)
         self.address = int(self.marker[4:], 16)
         boundaries = {int(item, 16) for item in windows["windows"]}
         boundaries.update(int(item, 16) + size

@@ -50,10 +50,7 @@ def main() -> int:
     args = parser.parse_args()
 
     source = Path(args.source)
-    match = re.search(r"([0-9a-fA-F]{8})", args.function)
-    if match is None:
-        parser.error(f"cannot read an address out of {args.function!r}")
-    marker = "FUN_" + match.group(1).upper()
+    marker = probe.address_of(args.function, source)
 
     text = probe._read_text(source)
     body = extract_guarded_body(text, marker, args.function)

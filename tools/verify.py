@@ -655,6 +655,7 @@ def _mwccgap_command(cpath: Path, cfg: dict, output: Path) -> list[str]:
     flags = [
         "--mwcc-path", unit_compiler(cpath, cfg),
         "--asm-dir-prefix", str(REPO),
+        "--symbol-map", str(REPO / "config" / "symbol_addrs.txt"),
         "--macro-inc-path", str(REPO / "asm" / "macro.inc"),
         "--as-march", "r5900", "--as-mabi", "eabi",
         *unit_compile_flags(cpath, cfg["compile_flags"]),
