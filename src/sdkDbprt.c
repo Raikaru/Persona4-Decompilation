@@ -43,13 +43,12 @@ extern char D_008BF720[];
 /* library / file helpers */
 extern void func_00440b68(const char *fmt, ...);
 extern u8 *func_00454a60(u8 *param, s32 mode);
-extern void func_00456150(void *handle);
-extern void func_00454bd0(u8 *ptr);
+extern void H_Cdvd_ReadSync(void *handle);
+extern void H_Cdvd_Destroy(u8 *ptr);
 extern u8 *func_003eaf60(u8 *arg0);
 extern s32 *func_003ec590(s32 width, s32 height, s32 depth, s32 flags);
 extern u8 *func_003ec180(u8 *arg0, s32 *arg1);
 extern s32 func_003ea370(s32 *arg0);
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
 
 
 /* text3d helpers */
@@ -73,20 +72,20 @@ void func_0044f570(s32 arg0) {
 
     func_00440b68(iGpffffac38, D_00710500, 0x4F);
     h1 = func_00454a60((u8 *)D_00710510, 0);
-    func_00456150(h1);
+    H_Cdvd_ReadSync(h1);
     func_00440b68(iGpffffac38, D_00710500, 0x52);
     h2 = func_00454a60((u8 *)D_00710530, 0);
-    func_00456150(h2);
-    func_00454bd0(h2);
+    H_Cdvd_ReadSync(h2);
+    H_Cdvd_Destroy(h2);
     iGpffffb9e4 = func_003eaf60((u8 *)D_00710510);
     iGpffffb9e0 = (void *)arg0;
-    func_00454bd0(h1);
+    H_Cdvd_Destroy(h1);
     raster = func_003ec590(*(s32 *)(iGpffffb9e4 + 4), *(s32 *)(iGpffffb9e4 + 8), 4, 0x4504);
     iGpffffb9e8 = raster;
     func_003ec180((u8 *)raster, (s32 *)iGpffffb9e4);
     func_003ea370((s32 *)iGpffffb9e4);
     iGpffffb9e4 = NULL;
-    func_0043f9c8(D_008BF720, 0x20, 0x848);
+    memset(D_008BF720, 0x20, 0x848);
     iGpffffb9dc = NULL;
 }
 
@@ -429,7 +428,7 @@ void func_0044fa90(void) {
    order/width choice. Converting the pointer through a named s32 local emits
    retail's addu $v1,$s3,$sp; addiu $v1,$v1,0x60 pair before lb $a1,0($v1). */
 // FUN_00450050
-void func_00450050(s64 arg0, const char* arg1, ...) {
+void H_Dbprt_FmtAt(s64 arg0, const char* arg1, ...) {
     va_list args;
     s8 sp60[0x100];
     f32 arg0hi;

@@ -24,11 +24,11 @@ extern void *func_003ef650(void *arg0, const void *arg1);
 extern void func_003ef3a0(void *arg0);
 extern void func_00440b68(void *arg0, const void *arg1, s32 arg2);
 extern void *func_00454a60(void *arg0, s32 arg1);
-extern s32 func_004553c0(void *arg0);
+extern s32 H_Cdvd_IsFileLoaded(void *arg0);
 extern s32 func_004667d0(s32, const void *, s32, s32, s32, s32, s32, s32, s32, s32);
 extern void *func_003ec590(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
-extern void func_00454bd0(void *arg0);
+extern void H_Cdvd_Destroy(void *arg0);
 extern void func_003ec6a0(void *arg0, s32 arg1, s32 arg2);
 extern void func_003ec180(void *arg0, void *arg1);
 extern void func_003ec2a0(void *arg0);
@@ -72,11 +72,11 @@ s32 func_0018bfb0(u8 *arg0)
         *(s32 *)work += 1;
         break;
     case 1:
-        if (func_004553c0(*(u8 **)(work + 0x4)) != 0 &&
-            func_004553c0(*(u8 **)(work + 0x8)) != 0 &&
-            func_004553c0(*(u8 **)(work + 0xC)) != 0 &&
-            func_004553c0(*(u8 **)(work + 0x10)) != 0 &&
-            func_004553c0(*(u8 **)(work + 0x14)) != 0) {
+        if (H_Cdvd_IsFileLoaded(*(u8 **)(work + 0x4)) != 0 &&
+            H_Cdvd_IsFileLoaded(*(u8 **)(work + 0x8)) != 0 &&
+            H_Cdvd_IsFileLoaded(*(u8 **)(work + 0xC)) != 0 &&
+            H_Cdvd_IsFileLoaded(*(u8 **)(work + 0x10)) != 0 &&
+            H_Cdvd_IsFileLoaded(*(u8 **)(work + 0x14)) != 0) {
             *(u8 **)(work + 0x34) =
                 (u8 *)func_004667d0(0xA, D_005F5380, 0, 0, 0, 0, 0, 0, 0, 0);
             *(u8 **)(work + 0x38) =
@@ -137,11 +137,11 @@ s32 func_0018bfb0(u8 *arg0)
         func_003ea370(*(u8 **)(work + 0x20));
         func_003ea370(*(u8 **)(work + 0x24));
         func_003ea370(*(u8 **)(work + 0x28));
-        func_00454bd0(*(u8 **)(work + 0x4));
-        func_00454bd0(*(u8 **)(work + 0x8));
-        func_00454bd0(*(u8 **)(work + 0xC));
-        func_00454bd0(*(u8 **)(work + 0x10));
-        func_00454bd0(*(u8 **)(work + 0x14));
+        H_Cdvd_Destroy(*(u8 **)(work + 0x4));
+        H_Cdvd_Destroy(*(u8 **)(work + 0x8));
+        H_Cdvd_Destroy(*(u8 **)(work + 0xC));
+        H_Cdvd_Destroy(*(u8 **)(work + 0x10));
+        H_Cdvd_Destroy(*(u8 **)(work + 0x14));
         return -1;
     default:
         break;

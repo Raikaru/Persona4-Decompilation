@@ -60,9 +60,9 @@ extern s32 D_00635B38[];
 extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00452490(s32 arg0);
 extern void func_0046b0d0(u8* arg0);
-extern void func_00454bd0(u8* arg0);
+extern void H_Cdvd_Destroy(u8* arg0);
 extern u8* func_00454a60(void* arg0, s32 arg1);
-extern s32 func_004553c0(u8* arg0);
+extern s32 H_Cdvd_IsFileLoaded(u8* arg0);
 extern s32 func_00455f70(void* arg0, u32* arg1);
 extern s32 func_0046a750(s32 arg0);
 extern void func_00440b68(void* arg0, void* arg1, u32 arg2);
@@ -91,8 +91,8 @@ extern s32 func_00246c90(s32 arg0);
 extern s32 func_00246d50(s32 arg0);
 extern s32 func_001060c0(void);
 extern s8 func_00110960(s32 arg0, s32 arg1);
-extern s32 func_00106330(s32 arg0);
-extern u32 func_003b7060(void);
+extern s32 datGetFlag(s32 arg0);
+extern u32 RpRandom(void);
 
 
 extern u8 D_00635A88[];
@@ -108,7 +108,7 @@ extern u8* func_00246e90(s32 arg0);
 extern s32 func_00249960(s32 arg0);
 extern void func_00249a60(s32 arg0);
 extern void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern f32 func_0044b7b0(f32 arg0);
+extern f32 sinf(f32 arg0);
 extern void func_004b14f0(s32 arg0, void* arg1);
 extern void func_004b1420(s32 arg0, void* arg1);
 extern void func_004b13f0(s32 arg0, void* arg1);
@@ -875,7 +875,7 @@ s32 func_0024b870(u8 *task)
         func_00440b68(&iGpffffa658, D_006359F0, 0x35D);
         s0[2] = (s32)func_00454a60(D_00635A40, 1);
     case 2:
-        if (func_004553c0((u8*)s0[2]) != 0) {
+        if (H_Cdvd_IsFileLoaded((u8*)s0[2]) != 0) {
             s0[1] = 3;
             s0[0] |= 1;
         }
@@ -920,7 +920,7 @@ void func_0024b990(u8 *task)
         func_0046b0d0((u8*)x);
         *(s32*)(p + 0x24) = 0;
     }
-    func_00454bd0((u8*)*(s32*)(p + 0x8));
+    H_Cdvd_Destroy((u8*)*(s32*)(p + 0x8));
     DAT_008873ec_abs[0](p);
 }
 // FUN_0024BA60
@@ -1108,12 +1108,12 @@ s32 func_0024be40(void)
     {
         found = base + index * 6;
         while (j < 6) {
-            if ((j != 0) || (func_00106330(2703) != 0)) {
+            if ((j != 0) || (datGetFlag(2703) != 0)) {
                 sum += *(s8*)(found + j);
             }
             j++;
         }
-        random_f = (f32)(u32)func_003b7060();
+        random_f = (f32)(u32)RpRandom();
         random_f /= 2147483648.0f;
         sum_f = (f32)(u32)sum;
         product = sum_f * random_f;
@@ -1121,7 +1121,7 @@ s32 func_0024be40(void)
         sum2 = 0;
         i = 0;
         while (i < 6) {
-            if ((i != 0) || (func_00106330(2703) != 0)) {
+            if ((i != 0) || (datGetFlag(2703) != 0)) {
                 sum2 += *(s8*)(found + i);
                 if ((s32)sum < (s32)sum2) {
                     sum = i;
@@ -1173,7 +1173,7 @@ block_1:
         if (temp_2_2 < 10) {
             temp_f1 = (f32)temp_2_2;
             temp_f1 = (iGpffff8094 * temp_f1) / 10.0f;
-            var_f0 = func_0044b7b0(temp_f1);
+            var_f0 = sinf(temp_f1);
         } else {
             var_f0 = 1.0f;
         }
@@ -1194,7 +1194,7 @@ block_1:
         if (temp_2_4 < 10) {
             temp_f1 = (f32)temp_2_4;
             temp_f1 = (iGpffff8094 * temp_f1) / 10.0f;
-            var_f0 = func_0044b7b0(temp_f1);
+            var_f0 = sinf(temp_f1);
         } else {
             var_f0 = 1.0f;
         }
@@ -1251,7 +1251,7 @@ s32 func_0024c460(u8 *arg0, u8 *work)
     if ((flags & 2) != 0) {
         frame = *(s32 *)(work + 8);
         if (frame < 5) {
-            sine = func_0044b7b0((iGpffff8094 * (f32)frame) / 5.0f);
+            sine = sinf((iGpffff8094 * (f32)frame) / 5.0f);
         } else {
             sine = 1.0f;
         }
@@ -1284,7 +1284,7 @@ s32 func_0024c460(u8 *arg0, u8 *work)
     if ((flags & 4) != 0) {
         frame = *(s32 *)(work + 8);
         if (frame < 5) {
-            sine = func_0044b7b0((iGpffff8094 * (f32)frame) / 5.0f);
+            sine = sinf((iGpffff8094 * (f32)frame) / 5.0f);
         } else {
             sine = 1.0f;
         }
@@ -1321,7 +1321,7 @@ s32 func_0024c460(u8 *arg0, u8 *work)
         f32 steadyY;
         frame = *(s32 *)(work + 8);
         if (frame < 5) {
-            steadySine = func_0044b7b0((iGpffff8094 * (f32)frame) / 5.0f);
+            steadySine = sinf((iGpffff8094 * (f32)frame) / 5.0f);
         } else {
             steadySine = 1.0f;
         }
@@ -1352,14 +1352,14 @@ s32 func_0024c460(u8 *arg0, u8 *work)
     if (*(s32 *)(work + 0x10) > 0) {
         frame = *(s16 *)(work + 0xC);
         if (frame < 5) {
-            sine = func_0044b7b0((iGpffff8094 * (f32)frame) / 5.0f);
+            sine = sinf((iGpffff8094 * (f32)frame) / 5.0f);
             alpha = (s32)(255.0f * sine);
         } else if (frame < 20) {
             alpha = 255;
         } else if (frame < 30) {
             frame -= 20;
             sine = (f32)frame;
-            sine = func_0044b7b0(iGpffff8094 + (iGpffff8094 * sine) / 10.0f);
+            sine = sinf(iGpffff8094 + (iGpffff8094 * sine) / 10.0f);
             alpha = (s32)(255.0f * sine);
         }
         sprite = *(s32 *)(work + 0x10) + 0xD;
@@ -1370,7 +1370,7 @@ s32 func_0024c460(u8 *arg0, u8 *work)
             pulse = *(s16 *)(work + 0xE);
             pulseScale = 1.0f + (iGpffff809c * (f32)pulse) / 10.0f;
             sprite = *(s32 *)(work + 0x10) + 0x10;
-            sine = func_0044b7b0(iGpffff8094 + (iGpffff8094 * (f32)pulse) / 10.0f);
+            sine = sinf(iGpffff8094 + (iGpffff8094 * (f32)pulse) / 10.0f);
             alpha = (s32)(127.5f * sine);
             func_0025ecd0(448.0f - 32.0f * pulseScale, 177.0f - 29.0f * pulseScale, 0.0f,
                            0xFFFFFF, alpha, sprite, atlas, 1, 0, 0, 0.0f, pulseScale, pulseScale, D_00794E70);
@@ -1447,7 +1447,7 @@ static inline f32 cmmScoreDisplacement(f32 phase, f32 negative, f32 positive)
 // FUN_0024D1F0
 s32 func_0024d1f0(u8 *parent, u8 *work)
 {
-    extern f32 func_0044b7b0(f32);
+    extern f32 sinf(f32);
     extern u8 *func_0046a770(char *name);
     extern s32 func_00106600(s16);
     extern u8 D_005E5850[];
@@ -1473,9 +1473,9 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         } else {
             phaseFrame = 10;
         }
-        fadePhase = func_0044b7b0((iGpffff8094 * (f32)phaseFrame) / 10.0f);
+        fadePhase = sinf((iGpffff8094 * (f32)phaseFrame) / 10.0f);
         fade = (s32)(fadePhase * 255.0f);
-        bounceHeight = func_0044b7b0(iGpffff8084 * fadePhase + iGpffff8094);
+        bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 60.0f, 50.0f);
         func_0025ecd0(44.0f, bounceHeight + 10.0f, 0.0f, 0x6EB3, fade, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
@@ -1486,16 +1486,16 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         } else {
             phaseFrame = 10;
         }
-        fadePhase = func_0044b7b0((iGpffff8094 * (f32)phaseFrame) / 10.0f);
+        fadePhase = sinf((iGpffff8094 * (f32)phaseFrame) / 10.0f);
         fade = (s32)(fadePhase * 255.0f);
-        bounceHeight = func_0044b7b0(iGpffff8084 * fadePhase + iGpffff8094);
+        bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 20.0f, 10.0f);
         func_0025ecd0(26.0f, bounceHeight + 135.0f, 0.0f, 0x50B6, fade, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         frame = cmmScoreClamp(frame, 0, 10);
-        fadePhase = func_0044b7b0((iGpffff8094 * (f32)frame) / 10.0f);
+        fadePhase = sinf((iGpffff8094 * (f32)frame) / 10.0f);
         fade = (s32)(fadePhase * 255.0f);
-        bounceHeight = func_0044b7b0(iGpffff8084 * fadePhase + iGpffff8094);
+        bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 30.0f, 20.0f);
         func_0025ecd0(15.0f, bounceHeight + 199.0f, 0.0f, 0x63B3, fade, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
@@ -1506,18 +1506,18 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         } else {
             phaseFrame = 10;
         }
-        fadePhase = func_0044b7b0((iGpffff8094 * (f32)phaseFrame) / 10.0f);
+        fadePhase = sinf((iGpffff8094 * (f32)phaseFrame) / 10.0f);
         fade = (s32)(fadePhase * 255.0f);
-        bounceHeight = func_0044b7b0(iGpffff8084 * fadePhase + iGpffff8094);
+        bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 20.0f, 10.0f);
         func_0025ecd0(132.0f, bounceHeight + 12.0f, 0.0f, 0x6CB3, fade, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         func_0025ecd0(91.0f, bounceHeight + 32.0f, 0.0f, 0x57B3, fade, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         func_0025ecd0(34.0f, bounceHeight + 161.0f, 0.0f, 0x2BB3, fade, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         frame = cmmScoreClamp(frame, 0, 0x14);
-        fadePhase = func_0044b7b0((iGpffff8094 * (f32)frame) / 20.0f);
+        fadePhase = sinf((iGpffff8094 * (f32)frame) / 20.0f);
         fade = (s32)(fadePhase * 255.0f);
-        bounceHeight = func_0044b7b0(iGpffff8084 * fadePhase + iGpffff8094);
+        bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 30.0f, 20.0f);
         func_0025ecd0(11.0f, bounceHeight + 27.0f, 0.0f, 0x6AB3, fade, 7, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
@@ -1528,30 +1528,30 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         } else {
             phaseFrame = 0xF;
         }
-        fadePhase = func_0044b7b0((iGpffff8094 * (f32)phaseFrame) / 15.0f);
+        fadePhase = sinf((iGpffff8094 * (f32)phaseFrame) / 15.0f);
         fade = (s32)(fadePhase * 255.0f);
-        bounceHeight = func_0044b7b0(iGpffff8084 * fadePhase + iGpffff8094);
+        bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 30.0f, 20.0f);
         func_0025ecd0(67.0f, bounceHeight + 11.0f, 0.0f, 0x2078, fade, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         frame = cmmScoreClamp(frame, 0, 0xF);
-        fadePhase = func_0044b7b0((iGpffff8094 * (f32)frame) / 15.0f);
+        fadePhase = sinf((iGpffff8094 * (f32)frame) / 15.0f);
         fade = (s32)(fadePhase * 255.0f);
-        bounceHeight = func_0044b7b0(iGpffff8084 * fadePhase + iGpffff8094);
+        bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 20.0f, 10.0f);
         func_0025ecd0(8.0f, bounceHeight + 52.0f, 0.0f, 0x2346, fade, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         frame = cmmScoreClamp(frame, 3, 0x11);
-        fadePhase = func_0044b7b0((iGpffff8094 * (f32)frame) / 17.0f);
+        fadePhase = sinf((iGpffff8094 * (f32)frame) / 17.0f);
         fade = (s32)(fadePhase * 255.0f);
-        bounceHeight = func_0044b7b0(iGpffff8084 * fadePhase + iGpffff8094);
+        bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 40.0f, 30.0f);
         func_0025ecd0(59.0f, bounceHeight + 121.0f, 0.0f, 0xC52, fade, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         if (frame < 10) {
             fadePhase = 0.0f;
         } else if (frame < 0xF) {
-            fadePhase = func_0044b7b0((iGpffff8094 * ((f32)frame - 10.0f)) / 5.0f);
+            fadePhase = sinf((iGpffff8094 * ((f32)frame - 10.0f)) / 5.0f);
         } else {
             fadePhase = 1.0f;
         }
@@ -1560,7 +1560,7 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         if (frame < 10) {
             fadePhase = 0.0f;
         } else {
-            fadePhase = func_0044b7b0((iGpffff8094 * (f32)(frame - 10)) / 10.0f);
+            fadePhase = sinf((iGpffff8094 * (f32)(frame - 10)) / 10.0f);
         }
         fade = (s32)(fadePhase * 255.0f);
         score = func_00106600(0x3F8) & 0xFF;
@@ -1576,11 +1576,11 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         {
             f32 result;
 
-            fadePhase = func_0044b7b0(iGpffff8094 + (iGpffff8084 * (f32)frame) / 20.0f);
+            fadePhase = sinf(iGpffff8094 + (iGpffff8084 * (f32)frame) / 20.0f);
             if (fadePhase > 0.0f) {
                 result = -150.0f + 170.0f * (1.0f - fadePhase);
             } else {
-                bounceHeight = func_0044b7b0(iGpffff8084 * -fadePhase + iGpffff8094);
+                bounceHeight = sinf(iGpffff8084 * -fadePhase + iGpffff8094);
                 if (bounceHeight > 0.0f) {
                     result = 20.0f - (1.0f - bounceHeight) * 24.0f;
                 } else {
@@ -1598,7 +1598,7 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
     } else if ((*(u32 *)work & 4) != 0) {
         frame = *(u32 *)(work + 8);
         if (frame < 10) {
-            fadePhase = func_0044b7b0((iGpffff8094 * (f32)frame) / 10.0f);
+            fadePhase = sinf((iGpffff8094 * (f32)frame) / 10.0f);
         } else {
             fadePhase = 1.0f;
         }
@@ -1622,23 +1622,23 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         }
     } else {
         f32 phase;
-        phase = func_0044b7b0(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 60)) / 60.0f);
+        phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 60)) / 60.0f);
         phase = (phase + 1.0f) / 2.0f;
         func_0025ecd0(44.0f, 10.0f + cmmScoreDisplacement(phase, 2.0f, 5.0f), 0.0f, 0x6EB3, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         func_0025ecd0(26.0f, 135.0f + cmmScoreProduct(phase, 5.0f), 0.0f, 0x50B6, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         func_0025ecd0(15.0f, 199.0f + cmmScoreDisplacement(phase, 6.0f, 3.0f), 0.0f, 0x63B3, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        phase = func_0044b7b0(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 80)) / 80.0f);
+        phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 80)) / 80.0f);
         phase = (phase + 1.0f) / 2.0f;
         func_0025ecd0(132.0f, 12.0f + cmmScoreDisplacement(phase, 5.0f, 3.0f), 0.0f, 0x6CB3, 0xFF, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         func_0025ecd0(91.0f, 32.0f + cmmScoreDisplacement(phase, 2.0f, 5.0f), 0.0f, 0x57B3, 0xFF, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         func_0025ecd0(34.0f, 161.0f + cmmScoreDisplacement(phase, 4.0f, 2.0f), 0.0f, 0x2BB3, 0xFF, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        phase = func_0044b7b0(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 100)) / 100.0f);
+        phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 100)) / 100.0f);
         phase = (phase + 1.0f) / 2.0f;
         func_0025ecd0(11.0f, 27.0f + cmmScoreDisplacement(phase, 4.0f, 10.0f), 0.0f, 0x6AB3, 0xFF, 7, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        phase = func_0044b7b0(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 100)) / 100.0f);
+        phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 100)) / 100.0f);
         phase = (phase + 1.0f) / 2.0f;
         func_0025ecd0(67.0f, 11.0f + cmmScoreDisplacement(phase, 10.0f, 4.0f), 0.0f, 0x2078, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        phase = func_0044b7b0(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 120)) / 100.0f);
+        phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 120)) / 100.0f);
         phase = (phase + 1.0f) / 2.0f;
         func_0025ecd0(8.0f, 52.0f + cmmScoreDisplacement(phase, 8.0f, 2.0f), 0.0f, 0x2346, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         func_0025ecd0(59.0f, 121.0f + cmmScoreDisplacement(phase, 10.0f, 6.0f), 0.0f, 0xC52, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
@@ -1789,7 +1789,7 @@ s32 func_0024f160(u8 *arg0)
         state = *(s16 *)(arg0 + 0x10);
         if (state >= 3) {
             if (state >= 10 ||
-                (random = (u32)func_003b7060(),
+                (random = (u32)RpRandom(),
                  (f32)random / 2147483648.0f > iGpffff809c)) {
                 *(s32 *)arg0 |= 0x40;
                 *(s16 *)(arg0 + 0x12) = 0;
@@ -1824,7 +1824,7 @@ s32 func_0024f160(u8 *arg0)
         if (resource != 0) {
             func_004b14f0(resource, color);
             func_004b1420(resource, pos);
-            value = func_0044b7b0((iGpffff8084 * (f32)state) /
+            value = sinf((iGpffff8084 * (f32)state) /
                                   (f32)*(s16 *)(entry + 4));
             *(f32 *)(pos + 4) = -55.0f - (20.0f * value);
             color[3] = (u8)(255.0f * (1.0f - value));
@@ -1925,7 +1925,7 @@ s32 func_0024f790(u8 *work)
         }
         func_0024bb00(0);
         func_0024f080(1, 1);
-        random = func_003b7060();
+        random = RpRandom();
         randomFloat = (f32)random;
         scaledRandom = 360.0f * (randomFloat / 2147483648.0f);
         scaledCount = (u32)scaledRandom;
@@ -1949,12 +1949,12 @@ s32 func_0024f790(u8 *work)
         func_00113480(1, 0x50, 1, 0);
     }
     if (*(s16 *)(work + 0x1C) == 0) {
-        random = func_003b7060();
+        random = RpRandom();
         randomFloat = (f32)random;
         scaledRandom = 360.0f * (randomFloat / 2147483648.0f);
         scaledCount = (u32)scaledRandom;
         *(s16 *)(work + 0x1C) = (s16)(scaledCount + 90);
-        random = func_003b7060();
+        random = RpRandom();
         randomFloat = (f32)random;
         scaledRandom = 3.0f * (randomFloat / 2147483648.0f);
         scaledCount = (u32)scaledRandom;

@@ -193,10 +193,12 @@ spimdisasm, and rabbitizer). Public R5900 binutils and the proprietary
 compilers are needed for the subsequent build/verification, not regeneration.
 The generator does not consume machine-local build/verify configurations,
 existing split outputs, or existing fallback assembly as generation inputs.
-Tracked inputs include `config/slus21782.yaml`, target and symbol metadata,
+Tracked inputs include `config/slus21782.yaml`, target metadata,
+`config/asm_symbol_baseline.txt` (the pinned pre-migration symbol map),
 the canonical function map, the extraction tools, and
 `config/generated_asm.json` with expected paths/hashes, recipes, corrections,
-and explicit retained exceptions.
+and explicit retained exceptions. The live `config/symbol_addrs.txt` is
+reconciled for C builds; it is not an input to the pinned fallback generator.
 
 The **11,152 reproducibly generated fallbacks are ignored**, but remain
 necessary locally for `INCLUDE_ASM`. Their untracking followed exact
@@ -214,6 +216,22 @@ The proprietary CI job runs setup, `make split`, and `make regenerate-asm`
 before its existing full build and verifier, with no local configuration files.
 It requires the private inputs and approval described in
 `.github/workflows/ci.yml`; a skipped proprietary job is not regeneration proof.
+
+### Applying curated function names
+
+Add evidence-backed names to `config/symbol_names*.txt`, then run
+`make reconcile` and `python tools/apply_symbol_names.py`. The default migration
+updates all non-generated C sources and headers together. `make names-check`
+must report no remaining C/header identifiers; `make verify` and `make build`
+then check the source objects and both retail hashes. A scoped file rename is
+refused when other C sources, headers, or fallback assembly still reference
+the address.
+
+The `INCLUDE_ASM` filenames, generated assembly symbols, and explicit
+`#define API func_<address>` linker aliases retain their historical address-form
+spellings. The build resolves those spellings and the new C names to the same
+canonical address. Do not rename generated assembly to make a C migration pass;
+`python tools/regenerate_asm.py --check` validates its pinned bytes.
 
 ## Matching a function
 

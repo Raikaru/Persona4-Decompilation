@@ -31,7 +31,7 @@ extern u32 DAT_0088152C_abs[];
 extern u32 DAT_0088179C_abs[];
 extern u32 func_00271bd0(int param_1);
 extern u32 func_00272cb0(int param_1);
-extern void *func_0043f9c8(void *dst, s32 value, u32 size);
+extern void *memset(void *dst, s32 value, u32 size);
 extern int func_0045af90(int param_1);
 extern void func_002baa20(void);
 extern int func_002e0d60(void);
@@ -92,13 +92,13 @@ extern u32 DAT_008817B0_abs[];
 extern char D_0063BB00[];
 extern char D_0063BC10[];
 extern s32 func_00454a60(const void *arg0, s32 arg1);
-extern void func_00456150(s32 arg0);
+extern void H_Cdvd_ReadSync(s32 arg0);
 extern u8 *func_00455f70(void *arg0, void *arg1);
 extern void func_0026e170(int param_1);
 extern void func_00275bd0(void);
 extern void func_00271a40(void);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
-extern void func_00454bd0();
+extern void H_Cdvd_Destroy();
 extern void func_00440b68();
 extern char D_0063BBB0[];
 extern char D_0063BBF0[];
@@ -483,7 +483,7 @@ void func_00271860(void)
         func_00440b68(&D_00763830, D_0063BAE8, 0x265);
         temp_2 = func_00454a60(D_0063BC10, 0);
         DAT_008817B0_abs[0] = temp_2;
-        func_00456150(temp_2);
+        H_Cdvd_ReadSync(temp_2);
         func_002716b0(0, NULL, func_00455f70(D_0063BC10, &sp1C));
     }
     var_7 = (u8 *)gFrFontManagerData_abs;
@@ -594,7 +594,7 @@ void func_00271a40(void)
         if (tmp == 0)
             continue;
         pslot = (u32 *)((u8 *)DAT_00881630_abs + (u32)(u8)i * 4 + 0x180);
-        func_00454bd0((u8 *)tmp);
+        H_Cdvd_Destroy((u8 *)tmp);
         *pslot = 0;
         func_00440b68(D_0063BBF0, mask);
         *(u32 *)slot = 0;
@@ -1046,7 +1046,7 @@ u8 *func_002724d0(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, u8 *arg4) {
         return NULL;
     }
     if (arg0 != NULL) {
-        var21 = func_00442948(arg0);
+        var21 = strlen(arg0);
     }
     if (var19 == NULL) {
         var19 = func_0026e0e0(*(u32 *)DAT_00881760_abs);
@@ -1054,7 +1054,7 @@ u8 *func_002724d0(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, u8 *arg4) {
         if (var19 == NULL) {
             func_0046d730(&D_0063BAE8, 0x665);
         }
-        func_0043f9c8(var19, 0, 0x44);
+        memset(var19, 0, 0x44);
         *(u8 *)(var19 + 2) = 0xFF;
         *(s16 *)(var19 + 0) = 0x20;
         *(u8 **)(var19 + 0x2C) = var19;
@@ -1515,7 +1515,7 @@ void func_00273140(void *param_1, u32 param_2)
 
 
 extern s32 D_0076459C;
-extern void func_003f6440(s32 param_1, s32 param_2);
+extern void RpSkyRenderStateSet(s32 param_1, s32 param_2);
 extern s32 func_00272e10(u8 *param_1, u8 *param_2, u8 param_3, u8 param_4);
 /* Raster dimensions use full unsigned words; the glyph stores their byte
  * source values. Depth precedes the glyph in the shared mixed-ABI contract. */
@@ -1566,8 +1566,8 @@ s32 func_00273170(void *arg0, u32 arg1, u32 arg2)
         ((code)*(u32 *)states)(11, 6);
         ((code)*(u32 *)states)(2, 4);
         ((code)*(u32 *)states)(14, 0);
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x5100D);
+        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, 0x5100D);
     }
     if (node == 0) {
         return 0;
@@ -1971,7 +1971,7 @@ int func_00273970(int node)
 void func_002739e0(u8 index, u8 *context)
 {
     s8 character;
-    extern s32 func_00442948(const void *param_1);
+    extern s32 strlen(const void *param_1);
     extern s8 iGpffffa748;
     extern s8 D_0076380C;
     /* A two-byte glyph plus its NUL terminator. */
@@ -2006,7 +2006,7 @@ void func_002739e0(u8 index, u8 *context)
         } while (remaining != 0);
     }
     if (text != NULL) {
-        length = func_00442948(text);
+        length = strlen(text);
         if (length <= 0) {
             func_0046d730(D_0063BAE8, 0xB63);
         }
@@ -2104,7 +2104,7 @@ text_test:
 #pragma pop
 
 extern s8 D_0076380C;
-extern s32 func_00442948(const void *param_1);
+extern s32 strlen(const void *param_1);
 
 
 
@@ -2118,7 +2118,7 @@ extern s32 func_00442948(const void *param_1);
 void func_00273cc0(u8 *arg0, u8 *arg1)
 {
     s8 character;
-    extern s32 func_00442948(const void *param_1);
+    extern s32 strlen(const void *param_1);
     extern s8 iGpffffa748;
     struct FrFontNode3 {
         u8 unknown_00[0x1C];
@@ -2162,7 +2162,7 @@ void func_00273cc0(u8 *arg0, u8 *arg1)
         } while (var_3 != 0);
     }
     if (arg0 != NULL) {
-        temp_22 = func_00442948(arg0);
+        temp_22 = strlen(arg0);
         var_16 = *(s8 *)(arg1 + 0xC);
         var_18 = 0;
         goto loop_test_30;
@@ -2682,7 +2682,7 @@ s8 func_002748e0(int param_1, int param_2, int param_3)
     u32 old;
     s8 result;
 
-    func_0043f9c8(&data, 0, 0x20);
+    memset(&data, 0, 0x20);
     data.f10 = param_1;
     data.f18 = 0;
     data.f1c = 1;

@@ -12,7 +12,7 @@ s32 func_001b5fd0(void);
 void func_0025cbc0(void *arg0, s32 arg1, s32 arg2);
 s32 func_0025cc70(void);
 u8 *func_0046d200(u32 arg0, u32 arg1);
-u32 func_003b7060(void);
+u32 RpRandom(void);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern s32 D_00629380[];
@@ -20,13 +20,13 @@ extern s32 D_006291A0[];
 extern s8 D_00629170[];
 extern s32 D_00629560[];
 extern s32 D_006295F0[];
-void func_00454bd0(u8 *ptr);
+void H_Cdvd_Destroy(u8 *ptr);
 void func_0046b0d0(void *ptr);
 void func_0046d280(void *node);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 void func_0044ea90(const void *msg, s32 id);
-void func_0043f9c8(void *dst, s32 value, u32 size);
+void memset(void *dst, s32 value, u32 size);
 
 extern char D_00629628[];
 extern char D_006290F0[];
@@ -37,13 +37,13 @@ void func_00440b68(void *msg, const void *file, s32 line);
 extern u8 *func_00454a60(u8 *param, s32 mode);
 void func_0046d730(const void *file, s32 line);
 s32 func_0046a770(u32 param);
-s32 func_004553c0(u8 *ptr);
+s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 u8 *func_00455ea0(u8 *param, s32 a, s32 *b);
 s32 func_0046a750(s32 param);
 void func_0021fea0(u8 *arg0, u8 *work);
 void func_002214d0(u8 *task);
 void func_0034f2e0(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6);
-extern s32 func_00442088(void *dst, const void *fmt, ...);
+extern s32 sprintf(void *dst, const void *fmt, ...);
 void func_00460ac0(void *param, void *work);
 extern u32 D_00795F20[];
 s32 func_0021f520(u8 *arg0);
@@ -142,7 +142,7 @@ void func_0021ed10(u8 *arg0, f32 *arg1, s32 arg2, u32 arg3, s32 arg4, f32 arg5)
             }
             rev[n] = 0;
         } else {
-            func_00442088(rev, &iGpffffa5b4, (s32)arg3);
+            sprintf(rev, &iGpffffa5b4, (s32)arg3);
         }
         i = 0;
         while (rev[i] != 0) {
@@ -240,15 +240,15 @@ void func_0021ef70(BtlResultWork *work)
         row = p + 0x4C0;
         *(f32 *)(p + 0x4D0) = *(f32 *)(p + 0x4C8);
         *(f32 *)(row + 0x18) =
-            (f32)((func_003b7060() & 0xFFF) * 214) / 4096.0f;
+            (f32)((RpRandom() & 0xFFF) * 214) / 4096.0f;
         src = (u8 *)D_00629560 + k * 0x1C;
         base_value = *(f32 *)(src + 0x14);
         *(f32 *)(row + 4) = base_value +
             ((*(f32 *)(src + 0x18) - base_value) *
-             (f32)(func_003b7060() & 0xFFF)) / 4096.0f;
+             (f32)(RpRandom() & 0xFFF)) / 4096.0f;
         *(s16 *)(row + 0) = 0;
         *(s16 *)(row + 2) =
-            *(s32 *)(src + 8) + func_003b7060() % *(u32 *)(src + 0xC);
+            *(s32 *)(src + 8) + RpRandom() % *(u32 *)(src + 0xC);
     }
     for (m = 0; m < 2; m++) {
         row = base + m * 8;
@@ -288,7 +288,7 @@ s32 func_0021f340(BtlResultWork *work)
     arg0 = (u8 *)work;
     if (!(*(u16 *)(arg0 + 0) & 0x100)) {
         if (*(s32 *)(arg0 + 0x4BC) != 0 &&
-            func_004553c0((u8 *)*(s32 *)(arg0 + 0x4BC)) != 0) {
+            H_Cdvd_IsFileLoaded((u8 *)*(s32 *)(arg0 + 0x4BC)) != 0) {
             var_18 = 0;
             while (var_18 < 3) {
                 dest = (s32 *)(arg0 + var_18 * 4 + 0x400);
@@ -317,14 +317,14 @@ s32 func_0021f340(BtlResultWork *work)
             *(u16 *)(arg0 + 0) |= 0x20;
             temp_4_3 = *(s32 *)(arg0 + 0x4BC);
             if (temp_4_3 != 0) {
-                func_00454bd0((u8 *)temp_4_3);
+                H_Cdvd_Destroy((u8 *)temp_4_3);
                 *(s32 *)(arg0 + 0x4BC) = 0;
             }
         }
     }
     if (!(*(u16 *)(arg0 + 0) & 0x40)) {
         temp_4_4 = *(s32 *)(*(u8 **)(arg0 + 0x570) + 0x934);
-        if (temp_4_4 != 0 && func_004553c0((u8 *)temp_4_4) != 0) {
+        if (temp_4_4 != 0 && H_Cdvd_IsFileLoaded((u8 *)temp_4_4) != 0) {
             *(u16 *)(arg0 + 0) |= 0x40;
         }
     }
@@ -533,7 +533,7 @@ void func_0021fa40(u8 *work)
 {
     extern void func_00364c50(void);
     extern void func_00364c70(void);
-    extern f32 func_0044b7b0(f32 angle);
+    extern f32 sinf(f32 angle);
     extern f32 iGpffff83d8;
     extern f32 fGpffff81e0;
     u8 opacity;
@@ -556,17 +556,17 @@ void func_0021fa40(u8 *work)
             nextAge = (particle->age += 1);
             if (nextAge >= particle->duration) {
                 particle->previous[0] = particle->position[0];
-                random = func_003b7060();
+                random = RpRandom();
                 particle->next[0] = (f32)((random & 0xFFF) * 214U) / 4096.0f;
                 style = (const ResultParticleStyle *)((u8 *)D_00629560 + i * sizeof(ResultParticleStyle));
                 minimum = style->minimumAmplitude;
-                random = func_003b7060();
+                random = RpRandom();
                 amount = (f32)(random & 0xFFF);
                 amount = resultParticleProduct(style->maximumAmplitude - minimum, amount);
                 /* The low twelve random bits select a fraction in [0, 1). */
                 particle->amplitude = minimum + amount / 4096.0f;
                 particle->age = 0;
-                random = func_003b7060();
+                random = RpRandom();
                 particle->duration = style->minimumDuration + random % style->durationRange;
             }
         }
@@ -578,14 +578,14 @@ void func_0021fa40(u8 *work)
         resource = *(void **)(work + 0x414 + style->resource * 4);
         switch (style->motion) {
         case 0:
-            amount = func_0044b7b0((iGpffff83d8 * (f32)(u32)particle->age) / (f32)(u32)particle->duration);
+            amount = sinf((iGpffff83d8 * (f32)(u32)particle->age) / (f32)(u32)particle->duration);
             particle->position[0] = 0.0f + particle->previous[0] + amount * (particle->next[0] - particle->previous[0]);
             particle->position[1] = 0.0f + particle->previous[1] + amount * (particle->next[1] - particle->previous[1]);
             x += (f32)0x19F + particle->position[0];
             y += particle->position[1];
             break;
         case 1:
-            amount = func_0044b7b0((fGpffff81e0 * (f32)(u32)particle->age) / (f32)(u32)particle->duration);
+            amount = sinf((fGpffff81e0 * (f32)(u32)particle->age) / (f32)(u32)particle->duration);
             amount = -amount;
             x += 0.0f + style->originX + particle->amplitude * amount;
             break;
@@ -738,7 +738,7 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
     void func_0034f320(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
     void func_0045db40(u8 *, u8 *, f32, s32, s32, s32, f32, f32, f32);
     void func_0045d6e0(u8 *, u8 *, f32, s32);
-    s32 func_003f6440(s32, s32);
+    s32 RpSkyRenderStateSet(s32, s32);
     void func_00364c50(void);
     void func_00364c70(void);
     s32 func_00104c70(s32);
@@ -764,8 +764,8 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         ((void (*)(u32, u32))*(u32 *)vt)(0xE, 0);
         ((void (*)(u32, u32))*(u32 *)vt)(3, 1);
         ((void (*)(u32, u32))*(u32 *)vt)(4, 1);
-        func_003f6440(3, 0x717FB);
-        func_003f6440(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
         sC[0] = (s32)(-224.0f + (*(f32 *)(w + 0x1D0)));
         sC[1] = (s32)(224.0f + (*(f32 *)(w + 0x1D4)));
         sC[2] = 0x30C;
@@ -813,7 +813,7 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         c11[3] = 0xFF;
         func_0045d6e0(&c11[0], (u8 *)&sC[0], 0, 0.0f);
         func_0021fa40(w);
-        func_003f6440(3, 0x32801);
+        RpSkyRenderStateSet(3, 0x32801);
         ((void (*)(u32, u32))*(u32 *)vt)(8, 1);
         sC[0] = 0;
         sC[1] = 0;
@@ -833,7 +833,7 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         c11[2] = 0xFF;
         c11[3] = 0;
         func_0045d6e0(&c11[0], (u8 *)&sC[0], 0, 0.0f);
-        func_003f6440(3, 0x717FB);
+        RpSkyRenderStateSet(3, 0x717FB);
         ((void (*)(u32, u32))*(u32 *)vt)(8, 0);
         ((void (*)(u32, u32))*(u32 *)vt)(6, 1);
         b18 = (*(u8 *)(w + 0x17A));
@@ -859,7 +859,7 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         }
         f110[0] =(1.0f + (117.0f + (*(f32 *)(w + 0x170))));
         f110[1] = (f32) 0x175 + (*(f32 *)(w + 0x174));
-        func_00442088(uD0.str, &iGpffffa5b4 - 0xDF8, func_00104c70(1) & 0xFF);
+        sprintf(uD0.str, &iGpffffa5b4 - 0xDF8, func_00104c70(1) & 0xFF);
         s19 = 0;
         while (uD0.str[s19] != 0) {
             sidx = uD0.str[s19];
@@ -1110,7 +1110,7 @@ void func_002214d0(u8 *unusedTask) {
 
     p = (BtlResultWork *)func_00452560();
     if (p->field4BC != 0) {
-        func_00454bd0((void *)p->field4BC);
+        H_Cdvd_Destroy((void *)p->field4BC);
         p->field4BC = 0;
     }
     for (i = 0; i < 3; i++) {
@@ -1137,12 +1137,12 @@ s32 func_002215c0(s32 arg0) {
 
     func_0044ea90(&D_00629628, 0x3A);
     buf = (u8 *)(*jtbl_008873E8)(0x578, 0x40000);
-    func_0043f9c8(buf, 0, 0x578);
+    memset(buf, 0, 0x578);
     r = (s32)func_00451fc0((void *)(arg0), (const void *)(D_006290F0), 0xF, 0, 0, func_0021f790, func_002214d0, (u8 *)(buf));
     q = func_00452560(arg0);
     *(s32 *)(buf + 4) = 0;
     *(u16 **)(buf + 0x570) = q;
-    func_0043f9c8(buf + 8, 0, 0x30);
+    memset(buf + 8, 0, 0x30);
     *(void (**)(u8 *, u8 *))(buf + 0x10) = func_0021fea0;
     *(u8 **)(buf + 0x18) = buf;
     return r;

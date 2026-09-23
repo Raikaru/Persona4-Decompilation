@@ -7,12 +7,12 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 /* FUN_004833F0 is a texture release helper shared by the eff* units. */
 extern void func_004833f0(void *arg0);
-extern u32 func_004bd050(u32 arg0);
-extern f32 func_004bd0b0(u32 arg0);
+extern u32 effMiscRand(u32 arg0);
+extern f32 effMiscRandFloat(u32 arg0);
 extern void func_0046d730(const char *file, s32 line);
 extern void func_0044ea90(const char *file, s32 line);
 extern u8 *func_00484490(u8 *obj);
-extern void func_0043f810(void *dst, void *src, u32 size);
+extern void memcpy(void *dst, void *src, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *);
 extern char D_00713E50[];
@@ -199,14 +199,14 @@ void func_004956b0(u8 *arg0)
 {
     extern void func_0048a1f0(u8 *arg0);
     extern void func_004bceb0(void);
-    extern u32 func_004bd050(u32 arg0);
-    extern f32 func_004bd0b0(u32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern u32 effMiscRand(u32 arg0);
+    extern f32 effMiscRandFloat(u32 arg0);
+    extern f32 sinf(f32 arg0);
     extern f32 func_0044b938(f32 arg0);
-    extern f32 func_0044b610(f32 arg0);
+    extern f32 cosf(f32 arg0);
     extern f32 sqrtf(f32 arg0);
     extern void func_004bd380(u8 *axis, f32 angle);
-    extern void func_003c2290(u8 *a, s32 b);
+    extern void RpGeometryLock(u8 *a, s32 b);
     extern void func_003c22f0(u8 *a);
     extern f32 fGpffff8084;
     extern f32 fGpffff80e4;
@@ -314,10 +314,10 @@ void func_004956b0(u8 *arg0)
             f32 r;
             u32 rnd;
             s32 timer;
-            r = func_004bd0b0(0);
+            r = effMiscRandFloat(0);
             f22 = (f54 * (f58 * r + (c10 - f58))) / f30;
             f27 = f50;
-            rnd = func_004bd050(0);
+            rnd = effMiscRand(0);
             if ((rnd & 1) != 0) {
                 f22 = f22 * cNeg1;
             }
@@ -330,18 +330,18 @@ void func_004956b0(u8 *arg0)
                 *(s32 *)(list + 8) = timer + 0xC0000000;
                 e0 = *(u8 **)list;
                 segs = *(s16 *)(e0 + 8) / 5;
-                func_003c2290(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18), 2);
+                RpGeometryLock(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18), 2);
                 vtx = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18) + 0x5C) + 0x14);
-                rnd = func_004bd050(0);
+                rnd = effMiscRand(0);
                 if ((rnd & 1) != 0) {
                     f27 = f27 * cNeg1;
                 }
-                f29 = gp8084 * func_004bd0b0(0);
-                r = func_004bd0b0(0);
+                f29 = gp8084 * effMiscRandFloat(0);
+                r = effMiscRandFloat(0);
                 f28 = f27 * (gp80e8 * r + gp80ec);
-                f24 = f28 * func_0044b7b0(f29);
+                f24 = f28 * sinf(f29);
                 f29 = f29 + f10c;
-                f28 = f28 * func_0044b7b0(f29);
+                f28 = f28 * sinf(f29);
                 f24 = f28 - f24;
                 {
                     f32 len = f24 * f24 + f84div * f84div;
@@ -412,9 +412,9 @@ void func_004956b0(u8 *arg0)
                     f32 curB = f28;
                     f32 curC = f23;
                     while (it < segs) {
-                        f32 rr = func_004bd0b0(0);
+                        f32 rr = effMiscRandFloat(0);
                         f32 sc = gp80e4 * (rr * c075 + c025);
-                        rnd = func_004bd050(0);
+                        rnd = effMiscRand(0);
                         if ((rnd & 1) != 0) {
                             gp80e4 = gp80e4 * cNeg1;
                         }
@@ -422,10 +422,10 @@ void func_004956b0(u8 *arg0)
                         if (!(f29 < gp8084)) {
                             f29 = f29 - gp8084;
                             f27 = f27 * cNeg1;
-                            r = func_004bd0b0(0);
+                            r = effMiscRandFloat(0);
                             f28 = f27 * (gp80e8 * r + gp80ec);
                         }
-                        curB = f28 * func_0044b7b0(f29) - curB;
+                        curB = f28 * sinf(f29) - curB;
                         {
                             f32 l2 = curB * curB + f84div * f84div;
                             f32 sq2 = sqrtf(l2);
@@ -435,8 +435,8 @@ void func_004956b0(u8 *arg0)
                         func_004bd380((u8 *)sp110, curA);
                         {
                             f32 d = (curA - f24) * c05;
-                            f32 s0 = func_0044b7b0(d);
-                            f32 c0 = func_0044b610(d);
+                            f32 s0 = sinf(d);
+                            f32 c0 = cosf(d);
                             f22 = f22 + f23;
                             for (k = 0; k < 5; k++) {
                                 f32 w = (s0 / c0) * af40[k];
@@ -458,7 +458,7 @@ void func_004956b0(u8 *arg0)
                                 af20[k] = w;
                             }
                             f24 = curA;
-                            curB = f28 * func_0044b7b0(f29);
+                            curB = f28 * sinf(f29);
                         }
                         it++;
                         nxt += 0x3C;
@@ -633,11 +633,11 @@ void func_004961f0(u8 *arg0)
     p = *(u32 **)obj0;
     count = *(s32 *)(obj1 + 0x34);
     a = *(f32 *)(obj1 + 0x90);
-    v = *(f32 *)(obj1 + 0x8C) * (a * func_004bd0b0(0) + (1.0f - a));
+    v = *(f32 *)(obj1 + 0x8C) * (a * effMiscRandFloat(0) + (1.0f - a));
     if (count > 0)
     {
         f32 b = *(f32 *)(obj1 + 0x98);
-        f32 w = *(f32 *)(obj1 + 0x94) * (b * func_004bd0b0(0) + (1.0f - b));
+        f32 w = *(f32 *)(obj1 + 0x94) * (b * effMiscRandFloat(0) + (1.0f - b));
         *(f32 *)(obj0 + 4) = v;
         *(f32 *)(obj0 + 8) = (w - v) / (f32)count;
     }
@@ -650,7 +650,7 @@ void func_004961f0(u8 *arg0)
     i = 0;
     while (i < (u32)count)
     {
-        p[5] = -1 - (func_004bd050(0) & 7);
+        p[5] = -1 - (effMiscRand(0) & 7);
         i++;
         p += 0xC;
     }
@@ -820,10 +820,10 @@ void func_00496810(u8 *arg0)
 void func_004968a0(u8 *arg0)
 {
     extern void func_0048a1f0(u8 *arg0);
-    extern u32 func_004bd050(u32 arg0);
-    extern f32 func_004bd0b0(u32 arg0);
-    extern f32 func_0044b610(f32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern u32 effMiscRand(u32 arg0);
+    extern f32 effMiscRandFloat(u32 arg0);
+    extern f32 cosf(f32 arg0);
+    extern f32 sinf(f32 arg0);
     extern f32 func_0044b938(f32 arg0);
     extern f32 func_0044b340(f32 arg0);
     extern f32 sqrtf(f32 arg0);
@@ -831,7 +831,7 @@ void func_004968a0(u8 *arg0)
     extern void func_004bd3c0(f32 arg0);
     extern void func_004bd450(void);
     extern void func_004bd380(u8 *axis, f32 angle);
-    extern void func_003c2290(u8 *a, s32 b);
+    extern void RpGeometryLock(u8 *a, s32 b);
     extern void func_003c22f0(u8 *a);
     extern f32 fGpffff804c;
     extern f32 fGpffff8084;
@@ -948,28 +948,28 @@ void func_004968a0(u8 *arg0)
             f32 r;
             f32 a4;
             a4 = *(f32 *)(ctrl + 0xA4);
-            r = func_004bd0b0(0);
+            r = effMiscRandFloat(0);
             *(f32 *)(list + 0x24) = *(f32 *)(ctrl + 0xA0) * (a4 * r + (c10 - a4));
             *(f32 *)(list + 0x28) = 0.0f;
             if (mode88 == 0) {
-                r = func_004bd0b0(0);
+                r = effMiscRandFloat(0);
                 *(f32 *)(list + 0x1C) = gp8084 * (c20 * (r - c05));
                 *(f32 *)(list + 0x2C) = 0.0f;
             } else {
-                r = func_004bd0b0(0);
+                r = effMiscRandFloat(0);
                 *(f32 *)(list + 0x1C) = gp80dc * (c20 * (r - c05));
-                r = func_004bd0b0(0);
+                r = effMiscRandFloat(0);
                 *(f32 *)(list + 0x2C) = *(f32 *)(ctrl + 0x9C) * r;
             }
-            r = func_004bd0b0(0);
+            r = effMiscRandFloat(0);
             *(f32 *)(list + 0x20) = gp8084 * (c20 * (r - c05));
             func_004bd1a0(*(f32 *)(list + 0x1C));
             func_004bd3c0(*(f32 *)(list + 0x20));
             func_004bd450();
             {
                 f32 ang = *(f32 *)(list + 0x28);
-                f32 cx = hdr4 * func_0044b610(ang);
-                f32 sx = hdr4 * func_0044b7b0(ang);
+                f32 cx = hdr4 * cosf(ang);
+                f32 sx = hdr4 * sinf(ang);
                 sp150[0] = cx;
                 sp150[1] = 0.0f;
                 sp150[2] = sx;
@@ -994,24 +994,24 @@ void func_004968a0(u8 *arg0)
                 *(s32 *)(list + 0x18) = timer + 0xC0000000;
                 e0 = *(u8 **)list;
                 segs = *(s16 *)(e0 + 8) / 5;
-                func_003c2290(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18), 2);
+                RpGeometryLock(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18), 2);
                 vtx = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18) + 0x5C) + 0x14);
                 {
-                    u32 rnd = func_004bd050(0);
+                    u32 rnd = effMiscRand(0);
                     if ((rnd & 1) != 0) {
                         f50 = f50 * cNeg1;
                     }
                 }
                 f27 = f50;
-                f29 = gp8084 * func_004bd0b0(0);
+                f29 = gp8084 * effMiscRandFloat(0);
                 {
-                    f32 r = func_004bd0b0(0);
+                    f32 r = effMiscRandFloat(0);
                     f28 = f27 * (gp80d4 * r + gp80e0);
                 }
                 {
-                    f32 s1 = f28 * func_0044b7b0(f29);
+                    f32 s1 = f28 * sinf(f29);
                     f29 = f29 + f10c;
-                    f28 = f28 * func_0044b7b0(f29);
+                    f28 = f28 * sinf(f29);
                     f22 = s1;
                     f23 = f28 - s1;
                     {
@@ -1024,15 +1024,15 @@ void func_004968a0(u8 *arg0)
                         f32 r;
                         f32 sc;
                         f32 ang2;
-                        r = func_004bd0b0(0);
+                        r = effMiscRandFloat(0);
                         sc = sp108s * (gp809c * r + gp8098);
                         ang2 = ((f32)(*(s32 *)(list + 0x14) + 1) * (fA8 * (f32)(*(s32 *)(list + 0x14) + 1) * c05 + *(f32 *)(list + 0x24))) + *(f32 *)(list + 0x28);
                         func_004bd1a0(*(f32 *)(list + 0x1C));
                         func_004bd3c0(*(f32 *)(list + 0x20));
                         func_004bd450();
                         {
-                            f32 cx = hdr4 * func_0044b610(ang2);
-                            f32 sx = hdr4 * func_0044b7b0(ang2);
+                            f32 cx = hdr4 * cosf(ang2);
+                            f32 sx = hdr4 * sinf(ang2);
                             sp150[0] = cx;
                             sp150[1] = 0.0f;
                             sp150[2] = sx;
@@ -1155,9 +1155,9 @@ void func_004968a0(u8 *arg0)
                                 f32 curA = f30loc;
                                 f32 curB = f28;
                                 while (it < segs) {
-                                    f32 rr = func_004bd0b0(0);
+                                    f32 rr = effMiscRandFloat(0);
                                     f32 sc2 = gp80d8 * (rr * c075 + c025);
-                                    u32 rnd2 = func_004bd050(0);
+                                    u32 rnd2 = effMiscRand(0);
                                     if ((rnd2 & 1) != 0) {
                                         gp80d8 = gp80d8 * cNeg1;
                                     }
@@ -1165,13 +1165,13 @@ void func_004968a0(u8 *arg0)
                                     if (!(f29 < gp8084)) {
                                         f29 = f29 - gp8084;
                                         f27 = f27 * cNeg1;
-                                        r = func_004bd0b0(0);
+                                        r = effMiscRandFloat(0);
                                         f28 = f27 * (gp80d4 * r + gp80e0);
-                                        r = func_004bd0b0(0);
+                                        r = effMiscRandFloat(0);
                                         sc = sp108s * (gp809c * r + gp8098);
                                     }
                                     {
-                                        f32 nb = f28 * func_0044b7b0(f29);
+                                        f32 nb = f28 * sinf(f29);
                                         f32 l2 = nb * nb + f84div * f84div;
                                         f32 sq2 = sqrtf(l2);
                                         nb = func_0044b938(nb / sq2);
@@ -1216,7 +1216,7 @@ void func_004968a0(u8 *arg0)
                                             af20[k] = ww;
                                         }
                                         f30loc = curA;
-                                        curB = f28 * func_0044b7b0(f29);
+                                        curB = f28 * sinf(f29);
                                     }
                                     it++;
                                     nxt += 0x3C;
@@ -1233,7 +1233,7 @@ void func_004968a0(u8 *arg0)
             } else {
                 *(s32 *)(list + 0x14) = -1;
                 if (divisor > 0) {
-                    *(s32 *)(list + 0x14) -= func_004bd050(0) % (u32)divisor;
+                    *(s32 *)(list + 0x14) -= effMiscRand(0) % (u32)divisor;
                 }
             }
         }
@@ -1395,7 +1395,7 @@ void func_004976d0(u8 *arg0)
     i = 0;
     while (i < count)
     {
-        p[1] = -1 - (func_004bd050(0) & 3);
+        p[1] = -1 - (effMiscRand(0) & 3);
         i++;
         p += 3;
     }
@@ -1565,11 +1565,11 @@ void func_00497ce0(u8 *arg0)
 {
     extern void func_0048a1f0(u8 *arg0);
     extern void func_004bceb0(void);
-    extern u32 func_004bd050(u32 arg0);
-    extern f32 func_004bd0b0(u32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern u32 effMiscRand(u32 arg0);
+    extern f32 effMiscRandFloat(u32 arg0);
+    extern f32 sinf(f32 arg0);
     extern void func_004bd380(u8 *axis, f32 angle);
-    extern void func_003c2290(u8 *a, s32 b);
+    extern void RpGeometryLock(u8 *a, s32 b);
     extern void func_003c22f0(u8 *a);
     extern f32 fGpffff8084;
     extern f32 fGpffff80d0;
@@ -1722,7 +1722,7 @@ void func_00497ce0(u8 *arg0)
                     *(s32 *)(list + 8) = timer + 0xC0000000;
                     e0 = *(u8 **)list;
                     segs = (*(s16 *)(e0 + 8) / 5) >> 1;
-                    func_003c2290(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18), 2);
+                    RpGeometryLock(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18), 2);
                     vtx = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18) + 0x5C) + 0x14);
                     __asm__ volatile(
                         "lqc2 $vf10, 0(%0)\n"
@@ -1738,9 +1738,9 @@ void func_00497ce0(u8 *arg0)
                         "vmulq.xyz $vf10, $vf10, $Q\n"
                         "sqc2 $vf10, 0(%2)\n"
                         : : "r"(sp100), "r"(sp160), "r"(sp150) : "$vf10", "$vf11", "$vf2", "memory");
-                    f30loc = gp80d0 * func_004bd0b0(0);
+                    f30loc = gp80d0 * effMiscRandFloat(0);
                     f29loc = f30loc - gp80d0;
-                    f28loc = f27loc * func_0044b7b0(f30loc);
+                    f28loc = f27loc * sinf(f30loc);
                     {
                         __asm__ volatile(
                             "lqc2 $vf10, 0(%0)\n"
@@ -1749,7 +1749,7 @@ void func_00497ce0(u8 *arg0)
                             "sqc2 $vf10, 0(%2)\n"
                             : : "r"(sp150), "r"(*(u32 *)&f28loc), "r"(sp120) : "$vf10", "$vf2", "memory");
                     }
-                    f20loc = f27loc * func_0044b7b0(f30loc);
+                    f20loc = f27loc * sinf(f30loc);
                     {
                         f32 d = f20loc - f28loc;
                         __asm__ volatile(
@@ -1918,12 +1918,12 @@ void func_00497ce0(u8 *arg0)
                             if (!(f29loc <= gp8084)) {
                                 f32 r;
                                 f29loc = f29loc - gp8084;
-                                r = func_004bd0b0(0);
+                                r = effMiscRandFloat(0);
                                 f27loc = f44 * (stkEC - gp80d4 * r);
                                 (void)stkE0; (void)stkE4; (void)stkE8;
                             }
                             spillDC = f20loc;
-                            f20loc = f27loc * func_0044b7b0(f30loc);
+                            f20loc = f27loc * sinf(f30loc);
                             {
                                 f32 d2 = f20loc - f28loc;
                                 __asm__ volatile(
@@ -1941,7 +1941,7 @@ void func_00497ce0(u8 *arg0)
                                     : : "r"(sp150), "r"(*(u32 *)&d2), "r"(spF0) : "$vf10", "$vf12", "$vf2", "memory");
                             }
                             {
-                                f32 r2 = func_004bd0b0(0);
+                                f32 r2 = effMiscRandFloat(0);
                                 f32 ang = stkE4 * (c20 * (r2 - stkE8));
                                 func_004bd380((u8 *)sp100, ang);
                             }
@@ -2031,7 +2031,7 @@ void func_00497ce0(u8 *arg0)
                 } else {
                     *(s32 *)(list + 4) = -1;
                     if (divisor > 0) {
-                        u32 rnd = func_004bd050(0);
+                        u32 rnd = effMiscRand(0);
                         *(s32 *)(list + 4) -= (s32)(rnd % (u32)divisor);
                     }
                     goto outer_next;
@@ -2212,7 +2212,7 @@ u8 *func_004988c0(u16 arg0, u8 *arg1)
     *(u32 *)(p + 0x20) = 0x3F800000;
     __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(p) : "memory");
     __asm__ volatile("sqc2 vf0, 0x10(%0)" : : "r"(p) : "memory");
-    func_0043f810(*(void **)(p + 0x34), arg1, size);
+    memcpy(*(void **)(p + 0x34), arg1, size);
     *(u32 *)(p + 0x30) = ((u32 (*)(u8 *))D_00713E74[arg0 * 6])(arg1);
     ((void (*)(u8 *))D_00713E70[arg0 * 6])(p);
     return p;

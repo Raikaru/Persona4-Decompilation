@@ -22,8 +22,8 @@ extern s32 iGpffffa9ec;
 
 extern u32 func_0038ee10(void);
 extern u32 func_0038f950(void);
-extern s32 func_00442948(const char *text);
-extern void func_00442de8(void *dst, const void *src, s32 size);
+extern s32 strlen(const char *text);
+extern void strncpy(void *dst, const void *src, s32 size);
 extern void func_00272c60(s32 mode);
 extern void func_00272c80(s32 mode);
 extern s32 func_002738d0(u32 handle);
@@ -347,7 +347,7 @@ void func_0038e810(u32 *work, char *text, s32 align)
 
     cursor = text;
     start = text;
-    length = func_00442948(text);
+    length = strlen(text);
     count = 0;
     func_00272c60(1);
     func_00272c80(2);
@@ -361,7 +361,7 @@ void func_0038e810(u32 *work, char *text, s32 align)
         case '\t':
             if (inToken != 0) {
                 tokenLength = (s32)(cursor - start);
-                func_00442de8(token, start, tokenLength);
+                strncpy(token, start, tokenLength);
                 token[tokenLength] = 0;
                 switch (align) {
                 case 0:

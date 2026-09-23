@@ -32,7 +32,7 @@ extern u32 func_001475c0(ResrcManager* resManager, u8 resType);
 #define RESRC_MAKE_TYPEID(resId, resType) (((resId) & RESRC_ID_MASK) | ((resType) << 10))
 #define RESRC_TYPE_LIGHTCHAR 4
 extern int func_00440b68(const char* format, ...);
-extern Resrc* func_00147190(ResrcManager* resManager, u16 resTypeId);
+extern Resrc* resrcMngCreateRes(ResrcManager* resManager, u16 resTypeId);
 #define RESRC_TYPE_LIGHTNPC 5
 
 /* Ported from P3FES src/Scene/mt_scene.c FUN_003b79a0 (verified MATCH there).
@@ -114,7 +114,7 @@ u16 MT_Scene_CreateResLightChar(u16 resId)
         return 0;
     }
 
-    if (func_00147190(resManager, resTypeId) == NULL)
+    if (resrcMngCreateRes(resManager, resTypeId) == NULL)
     {
         return 0;
     }
@@ -139,7 +139,7 @@ u16 MT_Scene_CreateResLightNpc(u16 resId)
         return 0;
     }
 
-    if (func_00147190(resManager, resTypeId) == NULL)
+    if (resrcMngCreateRes(resManager, resTypeId) == NULL)
     {
         return 0;
     }

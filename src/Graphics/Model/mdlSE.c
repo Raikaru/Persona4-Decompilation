@@ -4,7 +4,7 @@
 #include "type.h"
 
 extern void func_0044ea90();
-extern void func_0043f9c8(void *dest, s32 value, s32 size);
+extern void memset(void *dest, s32 value, s32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007241D8;
 extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
@@ -12,13 +12,13 @@ extern s32 iGpffffbb40;
 extern u8 D_00922C10[];
 extern u8 D_00922C14[];
 extern u8 D_00922C16[];
-extern void func_0043f810(void *dst, const void *src, u32 size);
+extern void memcpy(void *dst, const void *src, u32 size);
 extern s32 func_0045a570(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, void *arg5, u32 arg6);
-extern s32 func_004553c0(void *arg0);
-extern void func_00454bd0(void *arg0);
+extern s32 H_Cdvd_IsFileLoaded(void *arg0);
+extern void H_Cdvd_Destroy(void *arg0);
 extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 extern s32 func_0045a890(s16 arg0);
-extern u32 func_003b7060(void);
+extern u32 RpRandom(void);
 extern s32 func_0047df40(s32 arg0, s32 arg1);
 
 
@@ -30,7 +30,7 @@ void *func_0047dea0(s16 arg0, s16 arg1, s16 arg2)
 
     func_0044ea90(&D_007241D8, 0x2B);
     temp_2 = jtbl_008873E8[0](0x28, 0x40000);
-    func_0043f9c8(temp_2, 0, 0x28);
+    memset(temp_2, 0, 0x28);
     *(s32 *)((u8 *)temp_2 + 8) = 1;
     *(s16 *)((u8 *)temp_2 + 0xC) = arg0;
     *(s16 *)((u8 *)temp_2 + 0xE) = arg1;
@@ -182,7 +182,7 @@ s32 func_0047e0f0(u8 *arg0, s32 arg1, s32 arg2, u16 arg3)
         *(s16 *)(arg0 + 18) = mode;
         *(s16 *)(arg0 + 22) = val;
         if ((*(u16 *)(arg0 + 16) & 0x40) == 0 || first == neg1) {
-            *(s16 *)(arg0 + 20) = sb[(u32)func_003b7060() % (u32)count];
+            *(s16 *)(arg0 + 20) = sb[(u32)RpRandom() % (u32)count];
         } else {
             *(s16 *)(arg0 + 20) = first;
         }
@@ -274,7 +274,7 @@ void func_0047e450(void **arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4)
             if (temp_5 == NULL) {
                 func_0044ea90(&D_007241D8, 0x2B);
                 temp_2 = jtbl_008873E8[0](0x28, 0x40000);
-                func_0043f9c8(temp_2, 0, 0x28);
+                memset(temp_2, 0, 0x28);
                 *(s32 *)((u8 *)temp_2 + 8) = 1;
                 *(s16 *)((u8 *)temp_2 + 0xC) = (s16)arg1;
                 *(s16 *)((u8 *)temp_2 + 0xE) = (s16)arg2;
@@ -285,7 +285,7 @@ void func_0047e450(void **arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4)
             func_0044ea90(&D_007241D8, 0x49);
             temp_2_2 = jtbl_008873E8[0](arg4, 0x40000);
             *(void **)((u8 *)temp_16 + 0) = temp_2_2;
-            func_0043f810(temp_2_2, (void *)var_17, arg4);
+            memcpy(temp_2_2, (void *)var_17, arg4);
             temp_4_2 = *arg0_p;
             *(u16 *)((u8 *)temp_4_2 + 0x12) &= 0xFFFD;
             temp_4_3 = *arg0_p;
@@ -295,7 +295,7 @@ void func_0047e450(void **arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4)
             if (temp_5 == NULL) {
                 func_0044ea90(&D_007241D8, 0x2B);
                 temp_2_3 = jtbl_008873E8[0](0x28, 0x40000);
-                func_0043f9c8(temp_2_3, 0, 0x28);
+                memset(temp_2_3, 0, 0x28);
                 *(s32 *)((u8 *)temp_2_3 + 8) = 1;
                 *(s16 *)((u8 *)temp_2_3 + 0xC) = (s16)arg1;
                 *(s16 *)((u8 *)temp_2_3 + 0xE) = (s16)arg2;
@@ -306,7 +306,7 @@ void func_0047e450(void **arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4)
             *(s32 *)((u8 *)(*arg0_p) + 4) = func_0047df40(arg1, arg2);
             var_16 = 0;
             while (var_16 < 3) {
-                func_0043f810(sp70, (void *)var_17, 0x100);
+                memcpy(sp70, (void *)var_17, 0x100);
                 temp_4_4 = var_17 + 0x100;
                 sp180[var_16] = (void *)temp_4_4;
                 sp16C = *(s32 *)(sp70 + 0xFC);
@@ -344,7 +344,7 @@ static inline void copyLoadedRequest(void **owner, s32 requestOffset)
     func_0044ea90(&D_007241D8, 0x49);
     memory = jtbl_008873E8[0](fileSize, 0x40000);
     *(void **)node = memory;
-    func_0043f810(memory, source, fileSize);
+    memcpy(memory, source, fileSize);
 }
 
 // FUN_0047E6F0
@@ -375,11 +375,11 @@ s32 func_0047e6f0(void **owner)
     mode = *(u16 *)((u8 *)current + 0xC);
     switch (mode) {
     case 1:
-        if (func_004553c0(*(void **)((u8 *)current + 0x14)) != 0) {
+        if (H_Cdvd_IsFileLoaded(*(void **)((u8 *)current + 0x14)) != 0) {
             copyLoadedRequest(owner, 0x14);
             request = *(void **)((u8 *)*owner + 0x14);
             if (request != NULL) {
-                func_00454bd0(request);
+                H_Cdvd_Destroy(request);
                 *(void **)((u8 *)*owner + 0x14) = NULL;
             }
             *(u16 *)((u8 *)*owner + 0x12) |= 1;
@@ -390,16 +390,16 @@ s32 func_0047e6f0(void **owner)
     case 2:
         request = *(void **)((u8 *)current + 0x18);
         if (request != NULL) {
-            if (func_004553c0(request) == 0) {
+            if (H_Cdvd_IsFileLoaded(request) == 0) {
                 return 0;
             }
             copyLoadedRequest(owner, 0x18);
-            func_00454bd0(*(void **)((u8 *)*owner + 0x18));
+            H_Cdvd_Destroy(*(void **)((u8 *)*owner + 0x18));
             *(void **)((u8 *)*owner + 0x18) = NULL;
         }
         current = *owner;
         if ((*(u16 *)((u8 *)current + 0x12) & 8) == 0) {
-            if (func_004553c0(*(void **)((u8 *)current + 0x14)) == 0) {
+            if (H_Cdvd_IsFileLoaded(*(void **)((u8 *)current + 0x14)) == 0) {
                 return 0;
             }
             record0 = (void *)func_00455ea0(*(void **)((u8 *)*owner + 0x14), 0, (s32 *)&size0);
@@ -414,7 +414,7 @@ s32 func_0047e6f0(void **owner)
         }
         request = *(void **)((u8 *)*owner + 0x14);
         if (request != NULL) {
-            func_00454bd0(request);
+            H_Cdvd_Destroy(request);
             *(void **)((u8 *)*owner + 0x14) = NULL;
         }
         *(u16 *)((u8 *)*owner + 0x12) |= 1;

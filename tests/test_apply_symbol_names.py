@@ -46,6 +46,14 @@ def make_root(base: Path) -> Path:
 
 def write_curated(root: Path, lines: str) -> None:
     (root / "config" / "symbol_names.txt").write_text(lines, encoding="utf-8")
+    names = apply_names.load_names([root / "config" / "symbol_names.txt"], CANONICAL)
+    (root / "config" / "symbol_addrs.txt").write_text(
+        "".join(
+            f"{names.get(address, f'func_{address:08x}')} = 0x{address:08X}; // type:func\n"
+            for address in sorted(CANONICAL)
+        ),
+        encoding="utf-8",
+    )
 
 
 CANONICAL = {0x001059E0, 0x0028F960, 0x002E2080, 0x0043F9C8}
@@ -230,6 +238,25 @@ class PlanAndRewriteTests(unittest.TestCase):
             self.assertEqual(len(changes), 1)
             self.assertEqual(changes[0][0], 6)
 
+    def test_explicit_macro_linker_alias_keeps_address_form(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "aliases.c"
+            path.write_bytes(
+                b"#define btlLevelFromExp func_001059e0\n"
+                b"#define UNUSED(x) func_001059e0(x)\n"
+                b"u8 caller(void) { return func_001059e0(1); }\n"
+            )
+            changes = apply_names.plan_file(path, self.names)
+            self.assertEqual([(line, old) for line, _, _, old, _ in changes],
+                             [(3, "func_001059e0")])
+            apply_names.rewrite(path, changes)
+            self.assertEqual(
+                path.read_bytes(),
+                b"#define btlLevelFromExp func_001059e0\n"
+                b"#define UNUSED(x) func_001059e0(x)\n"
+                b"u8 caller(void) { return btlLevelFromExp(1); }\n",
+            )
+
     def test_crlf_line_endings_preserved(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "crlf.c"
@@ -323,7 +350,7 @@ class RunTests(unittest.TestCase):
             self.assertEqual(owner.read_bytes(), b"u8 func_001059e0(void) { return 1; }\n")
             self.assertEqual(caller.read_bytes(), b"u8 caller(void) { return func_001059e0(); }\n")
 
-    def test_header_inline_call_refuses_even_whole_tree_rename(self) -> None:
+    def test_whole_tree_renames_utf8_c_and_legacy_byte_headers(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = make_root(Path(temporary))
             write_curated(
@@ -342,11 +369,31 @@ class RunTests(unittest.TestCase):
             report = StringIO()
             with redirect_stdout(report):
                 self.assertEqual(apply_names.run(root, [], check=True), 1)
-            self.assertIn("[blocked: header: include/public.h]", report.getvalue())
+            self.assertIn("include/public.h", report.getvalue())
+            self.assertIn("[ready]", report.getvalue())
+            self.assertEqual(apply_names.run(root, [], check=False), 0)
+            self.assertEqual(target.read_bytes(), b"u8 btlLevelFromExp(void) { return 1; }\n")
+            self.assertEqual((root / "src" / "internal.h").read_bytes(), b"u8 btlLevelFromExp(void);\n")
+            self.assertEqual(
+                public.read_bytes(),
+                b"// vendor encoding: \x92\n"
+                b"static inline u8 call(void) { return btlLevelFromExp(); }\n",
+            )
+            self.assertEqual(apply_names.run(root, [], check=True), 0)
+
+    def test_scoped_run_refuses_header_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = make_root(Path(temporary))
+            write_curated(root, "btlLevelFromExp = 0x001059E0; // type:func  evidence: fixture\n")
+            target = root / "src" / "owner.c"
+            target.write_bytes(b"u8 func_001059e0(void) { return 1; }\n")
+            header = root / "include" / "public.h"
+            header.parent.mkdir()
+            header.write_bytes(b"// \x92\nu8 func_001059e0(void);\n")
             with self.assertRaisesRegex(RuntimeError, "header: include/public.h"):
-                apply_names.run(root, [], check=False)
+                apply_names.run(root, ["src/owner.c"], check=False)
             self.assertIn(b"func_001059e0", target.read_bytes())
-            self.assertIn(b"func_001059e0", public.read_bytes())
+            self.assertIn(b"func_001059e0", header.read_bytes())
 
     def test_scoped_run_allows_complete_c_scope_without_header_or_asm(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -393,7 +440,7 @@ class RunTests(unittest.TestCase):
             self.assertIn("func_001059e0", caller.read_text())
             self.assertIn("func_001059e0", fallback.read_text())
 
-    def test_assembly_call_to_c_body_prevents_rename(self) -> None:
+    def test_whole_tree_renames_c_body_with_assembly_caller_unchanged(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = make_root(Path(temporary))
             write_curated(
@@ -409,10 +456,9 @@ class RunTests(unittest.TestCase):
             report = StringIO()
             with redirect_stdout(report):
                 self.assertEqual(apply_names.run(root, [], check=True), 1)
-            self.assertIn("[blocked: assembly-linked]", report.getvalue())
-            with self.assertRaisesRegex(RuntimeError, "cannot rename assembly-linked"):
-                apply_names.run(root, [], check=False)
-            self.assertIn("func_001059e0", target.read_text())
+            self.assertIn("[ready]", report.getvalue())
+            self.assertEqual(apply_names.run(root, [], check=False), 0)
+            self.assertIn("btlLevelFromExp", target.read_text())
             self.assertEqual(asm.read_bytes(), original)
 
     def test_non_utf8_assembly_without_target_reference_allows_c_rename(self) -> None:
@@ -431,6 +477,40 @@ class RunTests(unittest.TestCase):
             self.assertEqual(apply_names.run(root, [], check=False), 0)
             self.assertIn("btlLevelFromExp", target.read_text())
             self.assertEqual(asm.read_bytes(), original)
+
+    def test_whole_tree_checks_headers_without_pending_c_names(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = make_root(Path(temporary))
+            write_curated(root, "btlLevelFromExp = 0x001059E0; // type:func  evidence: fixture\n")
+            (root / "src" / "owner.c").write_text("u8 btlLevelFromExp(void) { return 0; }\n")
+            header = root / "include" / "public.h"
+            header.parent.mkdir()
+            header.write_bytes(b"// \x92 func_001059e0\nu8 func_001059e0(void);\n")
+            self.assertEqual(apply_names.run(root, [], check=True), 1)
+            self.assertEqual(apply_names.run(root, [], check=False), 0)
+            self.assertEqual(header.read_bytes(), b"// \x92 func_001059e0\nu8 btlLevelFromExp(void);\n")
+            self.assertEqual(apply_names.run(root, [], check=True), 0)
+
+    def test_stale_symbol_map_refuses_c_and_header_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = make_root(Path(temporary))
+            write_curated(root, "btlLevelFromExp = 0x001059E0; // type:func  evidence: fixture\n")
+            target = root / "src" / "owner.c"
+            target.write_bytes(b"u8 func_001059e0(void) { return 0; }\n")
+            header = root / "include" / "public.h"
+            header.parent.mkdir()
+            header.write_bytes(b"// \x92\nu8 func_001059e0(void);\n")
+            (root / "config" / "symbol_addrs.txt").write_text(
+                "func_001059e0 = 0x001059E0; // type:func\n"
+            )
+            report = StringIO()
+            with redirect_stdout(report):
+                self.assertEqual(apply_names.run(root, [], check=True), 1)
+            self.assertIn("symbol map stale", report.getvalue())
+            with self.assertRaisesRegex(RuntimeError, "symbol map stale"):
+                apply_names.run(root, [], check=False)
+            self.assertEqual(target.read_bytes(), b"u8 func_001059e0(void) { return 0; }\n")
+            self.assertEqual(header.read_bytes(), b"// \x92\nu8 func_001059e0(void);\n")
 
     def test_incomplete_generated_assembly_aborts_before_rename(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

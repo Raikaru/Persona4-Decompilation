@@ -19,7 +19,7 @@ typedef struct {
     u32 field_C;
 } MdlFrameDispatch;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void func_0043f9c8(void *dest, s32 value, s32 size);
+extern void memset(void *dest, s32 value, s32 size);
 extern s32 func_003bd0b0(u8 *userData, s32 index);
 extern s32 strcmp(const char *left, const char *right);
 extern void func_00480910(int *param_1,u32 param_2);
@@ -42,7 +42,7 @@ s32 *func_0047f9f0(void)
 
     func_0044ea90(D_00713260, 0x22C);
     anim = (s32 *)jtbl_008873E8[0](4, 0x40000);
-    func_0043f9c8(anim, 0, 4);
+    memset(anim, 0, 4);
     *anim = 0;
     return anim;
 }
@@ -374,7 +374,7 @@ found:
     if (node == NULL) {
         func_0044ea90(D_00713260, 0x19C);
         node = jtbl_008873E8[0](0x58, 0x40000);
-        func_0043f9c8(node, 0, 0x58);
+        memset(node, 0, 0x58);
         i = 0;
         goto looptest2;
 loop2:

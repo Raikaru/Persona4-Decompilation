@@ -21,7 +21,6 @@ extern u32 func_004b11b0();
 
 extern void func_004824a0(int *param_1, u8 *param_2, float *param_3);
 
-extern u64 memcpy();
 
 extern void func_00487fb0(float param_1, int param_2);
 extern void func_00487fb0_evt(float param_1);
@@ -41,14 +40,14 @@ extern void func_0047d310(u32 *param_1);
 extern s32 func_00457120(void);
 extern u8 *func_003e9700(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void func_0043f810(void *dst, const void *src, u32 size);
-extern void func_0043f9c8(void *dest, s32 value, s32 size);
+extern void memcpy(void *dst, const void *src, u32 size);
+extern void memset(void *dest, s32 value, s32 size);
 extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
 extern void func_003e0670(void *matrixOut, void *matrixIn);
-extern void func_003dc610(void *arg0, void *arg1);
+extern void RtQuatConvertFromMatrix(void *arg0, void *arg1);
 extern void func_004b12e0(s32 arg0, void *arg1);
 
-extern void func_004bce80(void);
+extern void effMiscNormalizeVU(void);
 extern void func_004bceb0(void);
 typedef struct RwV3d { f32 x, y, z; } RwV3d;
 typedef struct RwMatrixTag RwMatrix;
@@ -67,8 +66,8 @@ extern RwV3d *func_003e42a0(RwV3d *out, const RwV3d *in, const RwMatrix *matrix)
 extern f32 D_00713D10[];
 extern f32 D_00713D14[];
 extern f32 D_00713D18[];
-extern f32 func_0044b610(void);
-extern f32 func_0044b7b0(f32 param_1);
+extern f32 cosf(void);
+extern f32 sinf(f32 param_1);
 static inline u8 *mdlEffect_camera_matrix(u8 *base)
 {
     return base + 0x20;
@@ -147,10 +146,10 @@ u32 *func_0047d320(u32 **arg0, s32 arg1, u32 arg2, u16 arg3, u32 arg4)
     data[1] = 0;
     data[3] = arg4;
     data[2] = 1;
-    func_0043f810((void *)data[0], (const void *)arg1, arg2);
+    memcpy((void *)data[0], (const void *)arg1, arg2);
     func_0044ea90(D_007131E8, 0x66);
     node = (u32 *)((void *(*)(u32, u32))*(u32 *)base)(0x14, 0x40000);
-    func_0043f9c8(node, 0, 0x14);
+    memset(node, 0, 0x14);
     node[3] = 0;
     head = (u32)*arg0;
     if (head != 0) {
@@ -175,7 +174,7 @@ u32 *func_0047d460(u32 *list, u32 *arg1, u16 arg2)
 
     func_0044ea90(D_007131E8, 0x66);
     node = (u32 *)(*jtbl_008873E8)(0x14, 0x40000);
-    func_0043f9c8(node, 0, 0x14);
+    memset(node, 0, 0x14);
     node[3] = 0;
     head = *list;
     if (head != 0) {
@@ -272,7 +271,7 @@ void func_0047d540(u8 **arg0, u8 *arg1)
                 *(struct Vec3 *)&out[3] = *(struct Vec3 *)&in[12];
             } else {
                 func_003e0670(in, in);
-                func_003dc610(quat, in);
+                RtQuatConvertFromMatrix(quat, in);
                 length = sqrtf(quat[0] * quat[0] + quat[1] * quat[1] +
                                 quat[2] * quat[2] + quat[3] * quat[3]);
                 if (length != 0.0f) {
@@ -478,10 +477,10 @@ u32 *func_0047db50(s32 arg0, s32 arg1)
                    ((void *(*)(u32, u32))*(u32 *)base)(arg1 + 0x10, 0x40000));
     node[0] = (u32)((u8 *)node + 0x10);
     node[1] = 1;
-    func_0043f810((void *)node[0], (void *)arg0, (u32)arg1);
+    memcpy((void *)node[0], (void *)arg0, (u32)arg1);
     func_0044ea90(D_007131E8, 0x17C);
     wrap = (u32 *)((void *(*)(u32, u32))*(u32 *)base)(8, 0x40000);
-    func_0043f9c8(wrap, 0, 8);
+    memset(wrap, 0, 8);
     wrap[0] = (u32)node;
     return wrap;
 }
@@ -493,7 +492,7 @@ u32 *func_0047dc30(u32 **arg0)
 
     func_0044ea90(D_007131E8, 0x17C);
     temp = (u32 *)(*jtbl_008873E8)(8, 0x40000);
-    func_0043f9c8(temp, 0, 8);
+    memset(temp, 0, 8);
     obj = *arg0;
     temp[0] = (u32)obj;
     obj[1] = obj[1] + 1;
@@ -587,6 +586,8 @@ done:
 // FUN_00486710
 void func_00486710(u64 param_1, u64 param_2)
 {
+  /* This retail-matched call passes two 64-bit address values. */
+  extern u64 memcpy();
   memcpy(param_1, param_2, 0x90);
   return;
 }
@@ -727,7 +728,7 @@ void func_0048a150(u8 *arg0, u8 *arg1)
         :
         : "r"(arg1)
         : "$vf10", "memory");
-    func_004bce80();
+    effMiscNormalizeVU();
     func_004bceb0();
     base = (u8 *)work;
     __asm__ volatile(
@@ -835,8 +836,8 @@ void func_0048a340(f32 param_1)
     u8 raw[0x50];
 
     temp_f21 = param_1;
-    temp_f20 = func_0044b610();
-    temp_f0 = func_0044b7b0(temp_f21);
+    temp_f20 = cosf();
+    temp_f0 = sinf(temp_f21);
     __asm__ volatile(
         "sqc2 $vf10, 0(%0) \n"
         :
@@ -1281,7 +1282,7 @@ void func_004a6e50(int param_1)
 void func_004a6e70(u8 *arg0)
 {
     extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
-    extern u8 *func_003c2290(u8 *a, s32 b);
+    extern u8 *RpGeometryLock(u8 *a, s32 b);
     extern RpGeometry *func_003c22f0(RpGeometry *geometry);
     extern RpMaterial *RpMaterialSetTexture(RpMaterial *material, RwTexture *texture);
     extern s32 func_00481300(u16 b);
@@ -1392,7 +1393,7 @@ void func_004a6e70(u8 *arg0)
     {
         u8 *p = *(u8 **)(listBase + 0x10);
         u8 *q = *(u8 **)(p + 0x18);
-        func_003c2290(q, 0xFF2);
+        RpGeometryLock(q, 0xFF2);
         vtxCur = *(u8 **)(*(u8 **)(*(u8 **)(listBase + 0x10) + 0x18) + 0x5C);
         vtxCur = *(u8 **)(vtxCur + 0x14);
         vtxBase = vtxCur;

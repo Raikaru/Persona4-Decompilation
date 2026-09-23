@@ -13,7 +13,7 @@ extern void func_0011d100(s32 arg0, void *arg1);
 extern void func_0011bb90(s32 arg0);
 extern void func_00117580(s32 arg0, s32 arg1);
 extern u16 *func_0010a900(u16 arg0);
-extern s32 func_00106330(s32 arg0);
+extern s32 datGetFlag(s32 arg0);
 extern void func_00106390(s32 arg0, s32 arg1);
 extern void func_0011b480(s32 a0, u16 a1, u8 *a2, s32 a3);
 extern s32 func_00455ea0(s32 arg0, s32 arg1, s32 arg2);
@@ -151,12 +151,12 @@ s32 func_002239a0(u8 *sdkTaskBytes)
                     break;
                 }
                 if (sid == 0x112) {
-                    if (func_00106330(0x1012) != 0) {
+                    if (datGetFlag(0x1012) != 0) {
                         func_0046d730(D_00629720, 158);
                     }
                     func_00106390(0x1012, 1);
                 } else if (sid == 0x113) {
-                    if (func_00106330(0x1013) != 0) {
+                    if (datGetFlag(0x1013) != 0) {
                         func_0046d730(D_00629720, 163);
                     }
                     func_00106390(0x1013, 1);

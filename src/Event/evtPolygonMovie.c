@@ -13,11 +13,11 @@ typedef struct {
 extern void func_0044ea90(u8 *file, s32 line);
 extern void func_0046d730(u8 *file, s32 line);
 extern void func_002852a0(s32 arg0, s32 arg1);
-extern void func_0043f810(void *dst, void *src, u32 size);
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void memcpy(void *dst, void *src, u32 size);
+extern void memset(void *dst, s32 value, u32 size);
 extern s32 func_002909a0(s32 arg0);
 extern void func_00290940(s32 arg0);
-extern void func_00442088();
+extern void sprintf();
 extern void func_0026c770(f32 *param_1, f32 *param_2, f32 *param_3);
 extern void func_0026c680(f32 *param_1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -119,7 +119,7 @@ u8 *func_0028fb90(void)
         func_0046d730(D_0063C6A0, 0x12D);
         return NULL;
     }
-    func_0043f9c8(work, 0, 0x114);
+    memset(work, 0, 0x114);
     return work;
 }
 
@@ -404,7 +404,7 @@ s32 *func_002904f0(s32 **arg0)
     func_0044ea90(D_00748340, 0x52);
     temp = (s32 *)D_008873F4[0](1, 0x20, 0x40000);
     func_002852a0(4, 0x20);
-    func_0043f810(temp, &sp30, 0x20);
+    memcpy(temp, &sp30, 0x20);
     *arg0 = temp;
     return temp;
 }
@@ -434,7 +434,7 @@ s32 *func_002905a0(s32 **arg0)
     func_0044ea90(D_00748340, 0x52);
     temp = (s32 *)D_008873F4[0](1, 0x54, 0x40000);
     func_002852a0(5, 0x54);
-    func_0043f810(temp, &sp30[0], 0x54);
+    memcpy(temp, &sp30[0], 0x54);
     *arg0 = temp;
     return temp;
 }
@@ -449,7 +449,7 @@ s32 *func_00290660(s32 **arg0)
     func_0044ea90(D_00748340, 0x52);
     temp = (s32 *)D_008873F4[0](1, 0x20, 0x40000);
     func_002852a0(6, 0x20);
-    func_0043f810(temp, &sp30, 0x20);
+    memcpy(temp, &sp30, 0x20);
     *arg0 = temp;
     return temp;
 }
@@ -472,8 +472,8 @@ void func_00290710(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5)
         func_0046d730(D_0063C6A0, 0x36E);
     }
     temp = (arg0 / 10) * 10;
-    func_00442088(arg2, D_0063C7A0, temp, arg0, arg1);
-    func_00442088(arg3, D_0063C7C0, temp, arg0, arg1);
-    func_00442088(arg4, D_0063C7E0, temp, arg0, arg1);
-    func_00442088(arg5, D_0063C800, temp, arg0, arg1);
+    sprintf(arg2, D_0063C7A0, temp, arg0, arg1);
+    sprintf(arg3, D_0063C7C0, temp, arg0, arg1);
+    sprintf(arg4, D_0063C7E0, temp, arg0, arg1);
+    sprintf(arg5, D_0063C800, temp, arg0, arg1);
 }

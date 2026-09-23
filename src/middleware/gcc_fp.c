@@ -58,7 +58,7 @@ Boston, MA 02111-1307, USA.  */
 
 #include "include_asm.h"
 #include "type.h"
-extern void func_0044ddf0(u32 *, u32 *);
+extern void __unpack_d(u32 *, u32 *);
 typedef enum { SNAN, QNAN, ZERO, NUMBER, INFINITY } FloatClass;
 typedef struct { FloatClass kind; u32 sign; s32 exponent; u64 fraction; } FloatParts;
 static __inline__ int iszero(FloatParts *p) { return p->kind == 2; }
@@ -70,7 +70,7 @@ static __inline__ int isinf(FloatParts *p) { return p->kind == 4; }
 u32 func_0044e830(f64 arg0)
 {
     FloatParts parts;
-    func_0044ddf0((u32 *)&arg0, (u32 *)&parts);
+    __unpack_d((u32 *)&arg0, (u32 *)&parts);
     if (iszero(&parts)) return 0;
     if (isnan(&parts)) return 0;
     if (parts.sign) return 0;

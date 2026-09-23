@@ -484,7 +484,7 @@ u32 func_00462e80(const u32* state)
 void func_00462eb0(s8* arg0)
 {
     extern u8* func_00455f70(void*, u32*);
-    extern void func_00442428();
+    extern void strcat();
     extern s32 func_003e2f60(s32, s32, void*);
     extern s32 func_003df3c0(s32, s32*);
     extern void func_003e2ce0(s32, u32);
@@ -524,7 +524,7 @@ void func_00462eb0(s8* arg0)
     var_23 = 0;
     var_16 = arg0;
     func_00455f70(arg0, &work.output);
-    func_00442830(work.buffer, (const char*)&iGpffffaf80);
+    strcpy(work.buffer, (const char*)&iGpffffaf80);
     var_4 = 0;
     delimiter = 0x3A;
     goto scan_cond;
@@ -546,7 +546,7 @@ scan_cond:
         goto scan;
     }
 scan_found:
-    func_00442428(work.buffer, (const char*)var_16);
+    strcat(work.buffer, (const char*)var_16);
     temp_2 = func_003e2f60(2, 1, arg0);
     if (temp_2 != 0)
     {
@@ -612,7 +612,7 @@ struct RwTexture *func_00463100(struct RwTexture *texture, void *list)
     func_00440b68(D_00712620, resource + 0x10, *(u8*)(resource + 0x50), *(u32*)(resource + 0x54));
     func_0044ea90(D_00712640, 0x97);
     work = (char*)D_008873F4[0](1, 0x44, 0x40000);
-    func_00442830(work, (const char*)(arg0 + 0x10));
+    strcpy(work, (const char*)(arg0 + 0x10));
     if (*arg1 == NULL)
     {
         *arg1 = (u32*)work;

@@ -17,7 +17,7 @@ static inline s32 func_0031_ne(s32 value, s32 target)
 }
 
 extern u32 func_0010c750(void *persona, u16 level);
-extern s32 func_00106330(s32 arg0);
+extern s32 datGetFlag(s32 arg0);
 extern s32 func_00106600(s16 id);
 extern u16 func_00107ac0(u16 arg0);
 extern u8 D_006432B0[];
@@ -207,7 +207,7 @@ loop_body:
     }
     temp_3 = *(s16 *)(temp_4 + 6);
     if (temp_3 & 1) {
-        if (func_00106330(*(s32 *)temp_4) == 0) {
+        if (datGetFlag(*(s32 *)temp_4) == 0) {
             result = 0;
             goto done;
         }
@@ -216,7 +216,7 @@ loop_body:
             goto block_8;
         }
         var_17 = 0;
-        if (func_00106330(*(s32 *)temp_4) == 1) {
+        if (datGetFlag(*(s32 *)temp_4) == 1) {
             result = 1;
             goto done;
         }
@@ -285,7 +285,7 @@ s32 func_003136b0(u16 arg0)
         if ((func_00107ac0(0x1E) & 0xFFFF) == 0xA) {
             result = 1;
         } else {
-            result = func_00106330(0x1DD) != 0;
+            result = datGetFlag(0x1DD) != 0;
         }
         goto done;
     }

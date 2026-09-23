@@ -80,7 +80,7 @@ extern s32 func_003c2bd0(u8 *arg0);
 extern s32 func_003c4c00(u8 *arg0);
 extern s32 func_003c4a80(u8 *arg0, s32 arg1);
 extern s32 func_003c4bc0(u8 *arg0, s32 arg1);
-extern u8 *func_003c2290(u8 *arg0, s32 arg1);
+extern u8 *RpGeometryLock(u8 *arg0, s32 arg1);
 extern u8 *func_003c49a0(u8 *arg0);
 extern s32 func_003ce2e0(u8 *arg0);
 extern s32 func_003c2c90(u8 *arg0);
@@ -166,7 +166,7 @@ extern void func_003c38a0(void);
 extern s32 D_007647EC;
 extern s32 iGpffffb700;
 extern s32 iGpffffb704;
-extern void func_003cc130(void);
+extern void _rpWorldPipelineClose(void);
 extern u8 D_008872E4[];
 extern s32 D_0070B110[];
 extern s32 func_003cc170(void);
@@ -263,7 +263,7 @@ u8 *func_003c4140(void) {
 #pragma schedule on
 u8 *func_003c00e0(void) {
     extern void func_003e3b70();
-    extern u8 *func_003c1b90();
+    extern u8 *RpAtomicSetFrame();
     extern u8 func_003be9a0[];
     extern u8 func_003be9f0[];
     u8 *obj;
@@ -280,7 +280,7 @@ u8 *func_003c00e0(void) {
         *(s32 *)(obj + 0x14) = 0;
         *(u8 *)(obj + 2) = 5;
         *(u8 *)(obj + 3) = 1;
-        func_003c1b90(obj, NULL, 1);
+        RpAtomicSetFrame(obj, NULL, 1);
         *(s32 *)(obj + 0x18) = 0;
         *(s32 *)(obj + 0x28) = 0;
         *(s32 *)(obj + 0x1C) = 0;

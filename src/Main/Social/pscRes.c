@@ -10,7 +10,7 @@ extern s32 func_0036cd70(s32 arg0);
 extern void func_0036cf80(s32 arg0);
 extern s32 func_0036cee0(void);
 extern u32 *func_0036d060(void);
-extern s32 func_00442088(char *buf, char *fmt, ...);
+extern s32 sprintf(char *buf, char *fmt, ...);
 extern void func_00440b68(char *fmt, ...);
 extern s32 func_00454a60(void *msg, s32 kind);
 extern char D_00723A78;
@@ -24,7 +24,7 @@ extern char D_00723A98;
 extern s32 func_0036ca20(s32 arg0, s32 arg1);
 extern void func_0036cbc0(s32 arg0, s32 arg1);
 extern s32 func_0036ccc0(void);
-extern void func_00442830(char *dst, char *src);
+extern void strcpy(char *dst, char *src);
 extern char D_0064E550[];
 extern char D_0064E570[];
 extern s32 func_0036d3e0(const void *input);
@@ -36,8 +36,8 @@ extern u8 *func_003ec6a0(RwRaster *raster, u8 level, s32 lockMode);
 extern RwRaster *func_003ec2a0(RwRaster *raster);
 extern const u8 D_0064E4E0[];
 extern void *D_0072469C;
-extern s32 func_004553c0(void *arg0);
-extern void func_00454bd0(void *arg0);
+extern s32 H_Cdvd_IsFileLoaded(void *arg0);
+extern void H_Cdvd_Destroy(void *arg0);
 
 
 // FUN_0036B650
@@ -92,7 +92,7 @@ void func_0036b750(void) {
                 func_0046d730(D_0064E4E0, 0xBF);
                 break;
             case 1:
-                if (func_004553c0(*(void **)(e + 8)) != 0) {
+                if (H_Cdvd_IsFileLoaded(*(void **)(e + 8)) != 0) {
                     t2 = *(s32 *)(e + 0x110);
                     switch (t2) {
                     case 2:
@@ -103,7 +103,7 @@ void func_0036b750(void) {
                             }
                             *(s32 *)((u8 *)p + 4) = func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
                             *(u32 *)((u32)p + 0x10) |= 1;
-                            func_00454bd0(*(void **)(e + 8));
+                            H_Cdvd_Destroy(*(void **)(e + 8));
                             *(u32 *)e &= ~1;
                             break;
                         case 1:
@@ -113,7 +113,7 @@ void func_0036b750(void) {
                             *(s32 *)((u8 *)p + 8) = func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
                             *(u32 *)((u32 *)p + 4) |= 2;
                             *(u32 *)((u8 *)p + 0) &= ~4;
-                            func_00454bd0(*(void **)(e + 8));
+                            H_Cdvd_Destroy(*(void **)(e + 8));
                             *(u32 *)e &= ~1;
                             break;
                         case 2:
@@ -123,7 +123,7 @@ void func_0036b750(void) {
                             *(s32 *)((u8 *)p + 0xC) = func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
                             *(u32 *)((u16 *)p + 8) |= 0x10;
                             *(u32 *)((u8 *)p + 0) &= ~0x10;
-                            func_00454bd0(*(void **)(e + 8));
+                            H_Cdvd_Destroy(*(void **)(e + 8));
                             *(u32 *)e &= ~1;
                             break;
                         }
@@ -135,7 +135,7 @@ void func_0036b750(void) {
                         *(s32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x14 + 0x60) =
                             func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
                         *(u32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x14 + 0x54) |= 2;
-                        func_00454bd0(*(void **)(e + 8));
+                        H_Cdvd_Destroy(*(void **)(e + 8));
                         *(u32 *)e &= ~1;
                         break;
                     case 1:
@@ -145,7 +145,7 @@ void func_0036b750(void) {
                         *(s32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x10 + 0x19C) =
                             func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
                         *(u32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x10 + 0x194) |= 2;
-                        func_00454bd0(*(void **)(e + 8));
+                        H_Cdvd_Destroy(*(void **)(e + 8));
                         *(u32 *)e &= ~1;
                         break;
                     }
@@ -481,21 +481,21 @@ void func_0036c570(s32 arg0, s32 arg1) {
     *(s32 *)((u8 *)q + 0x114) = i;
     switch (arg0) {
     case 0:
-        func_00442830(buf1, &D_00723A80);
+        strcpy(buf1, &D_00723A80);
         break;
     case 1:
-        func_00442830(buf1, &D_00723A88);
+        strcpy(buf1, &D_00723A88);
         break;
     case 2:
-        func_00442830(buf1, &D_00723A90);
+        strcpy(buf1, &D_00723A90);
         break;
     case 3:
-        func_00442830(buf1, &D_00723A98);
+        strcpy(buf1, &D_00723A98);
         break;
     }
     s = *(s32 *)(e + 8);
     if (s < 11) {
-        func_00442088(buf2, D_0064E510, buf1, s);
+        sprintf(buf2, D_0064E510, buf1, s);
     } else {
         switch (s) {
         case 11:
@@ -511,7 +511,7 @@ void func_0036c570(s32 arg0, s32 arg1) {
             v = 0x6B;
             break;
         }
-        func_00442088(buf2, D_0064E530, buf1, v);
+        sprintf(buf2, D_0064E530, buf1, v);
     }
     func_00440b68(&D_00723A78, D_0064E4E0, 0x260);
     *(s32 *)((u8 *)q + 8) = func_00454a60(buf2, 0);
@@ -541,7 +541,7 @@ void func_0036c7e0(s32 arg0) {
     q = func_0036d060();
     *(s32 *)((u8 *)q + 0x110) = 1;
     *(s32 *)((u8 *)q + 0x114) = i;
-    func_00442088(buf, D_0064E550, arg0 & 0xFFFF);
+    sprintf(buf, D_0064E550, arg0 & 0xFFFF);
     func_00440b68(&D_00723A78, D_0064E4E0, 0x285);
     *(s32 *)((u8 *)q + 8) = func_00454a60(buf, 0);
     *(s32 *)((u8 *)q + 4) = 1;

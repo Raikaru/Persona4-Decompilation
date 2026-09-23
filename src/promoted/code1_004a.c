@@ -33,7 +33,7 @@ extern void func_00460ac0();
 extern void func_004aec80();
 struct EffRandState;
 extern f32 effMiscRandFloat(struct EffRandState *state);
-extern u32 func_004bd050(u32 arg0);
+extern u32 effMiscRand(u32 arg0);
 extern f32 iGpffff8080;
 extern void func_004787e0();
 
@@ -74,9 +74,9 @@ extern void func_004a7c00(u8 *arg0, s32 arg1);
 extern void func_00479e60(u8 *arg0, s32 arg1, f32 arg2);
 
 extern void func_0044ea90(const void *msg, s32 id);
-extern void func_0043f810(void *dst, void *src, u32 size);
+extern void memcpy(void *dst, void *src, u32 size);
 extern void func_003f6690(s32 param, void *out);
-extern void func_003f6440(s32 param, s32 value);
+extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern void (*D_00887314[])(s32, void *, s32, void *, s32);
 extern u8 D_00714368[];
@@ -87,19 +87,19 @@ extern void func_0048a000(void);
 extern u8 *func_00484490();
 extern f32 D_008872F8[];
  
-extern void func_0045f0b0(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
-extern void func_0045fa00(f32 *arg0, s32 arg1, f32 arg2);
+extern void primQuad3D(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
+extern void primAxisLine3D(f32 *arg0, s32 arg1, f32 arg2);
 extern s32 func_0047a510(u8 *arg0, s32 arg1, u8 *arg2);
 extern void func_00485870(s32 arg0);
-extern u32 func_004bd050(u32 arg0);
+extern u32 effMiscRand(u32 arg0);
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void memset(void *dst, s32 value, u32 size);
 extern void func_003c22f0();
 extern u16 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           void *arg4, s32 arg5);
-extern void func_003c2290(void *arg0, s32 arg1);
+extern void RpGeometryLock(void *arg0, s32 arg1);
 extern void func_003c42b0(void *arg0, s32 arg1);
 extern void func_004a5ef0(u8 *arg0, u8 *arg1);
 extern u8 *func_00483270(s32 arg0);
@@ -286,7 +286,7 @@ void func_004a1d70(u8 *arg0, u8 *arg1)
     meshCount = *(u32 *)(arg1 + 0x38);
     if (meshCount != 0) {
         geometry = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18);
-        func_003c2290(geometry, 0xFF8);
+        RpGeometryLock(geometry, 0xFF8);
         geometry = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18);
         colorsBase = *(u8 **)(geometry + 0x30);
         colors = colorsBase;
@@ -323,9 +323,9 @@ void func_004a1d70(u8 *arg0, u8 *arg1)
         colorBytes = wordCount * 4;
         vertexBytes = wordCount * 8;
         while (copies < meshCount) {
-            func_0043f810(colors, colorsBase, colorBytes);
+            memcpy(colors, colorsBase, colorBytes);
             colors += colorBytes;
-            func_0043f810(vertices, verticesBase, vertexBytes);
+            memcpy(vertices, verticesBase, vertexBytes);
             vertices += vertexBytes;
             copies += 1;
         }
@@ -476,7 +476,7 @@ u8 *func_004a5bb0(u8 *arg0)
     if (temp_2 == NULL) {
         func_0046d730(D_007141A0, 0x1D);
     }
-    func_0043f9c8(temp_2, 0, 0xD4);
+    memset(temp_2, 0, 0xD4);
     __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(temp_2) : "memory");
     __asm__ volatile ("sqc2 vf0, 0x10(%0)" : : "r"(temp_2) : "memory");
     *(s32 *)(temp_2 + 0x24) = -1;
@@ -496,7 +496,7 @@ u8 *func_004a5bb0(u8 *arg0)
     if (temp_2_3 == NULL) {
         func_0046d730(D_007141A0, 0x47);
     }
-    func_0043f810(temp_2 + 0x30, temp_2_3, 0x98);
+    memcpy(temp_2 + 0x30, temp_2_3, 0x98);
     temp_2_4 = func_004844d0(arg0);
     if (temp_2_4 != NULL) {
         temp_4 = *(u16 *)(arg0 + 0x1C);
@@ -555,7 +555,7 @@ u8 *func_004a5e50(u8 *arg0)
     *(s32 *)(temp_3 + 4) = -1;
     *(s32 *)(temp_3 + 8) = -1;
     *(s32 *)(temp_3 + 0xC) = -1;
-    func_0043f810(temp_16 + 0x30, arg0 + 0x30, 0x98);
+    memcpy(temp_16 + 0x30, arg0 + 0x30, 0x98);
     func_004a5ef0(temp_16, arg0);
     return temp_16;
 }
@@ -668,11 +668,11 @@ void func_004a5fc0(u8 *arg0)
     extern void func_00482ad0(void *arg0, s32 arg1, f32 *arg2);
     extern void func_004839d0(void *arg0, u32 *arg1);
     extern void func_00483490(void *arg0, u16 arg1);
-    extern void func_003c2290(void *arg0, s32 arg1);
+    extern void RpGeometryLock(void *arg0, s32 arg1);
     extern void func_003c22f0(void *arg0);
     extern void func_003c42b0(void *arg0, s32 arg1);
-    extern f32 func_0044b610(f32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 cosf(f32 arg0);
+    extern f32 sinf(f32 arg0);
     extern f32 D_00761134;
     s32 sp11C;
     s32 sp118;
@@ -846,7 +846,7 @@ main_body:
             sp80 = blk100[0];
             sp84 = blk100[1];
         }
-        func_003c2290(*(u8 **)(*(u8 **)(objs + 0x10) + 0x18), 0xFF2);
+        RpGeometryLock(*(u8 **)(*(u8 **)(objs + 0x10) + 0x18), 0xFF2);
         {
             u8 *tmp = *(u8 **)(*(u8 **)(objs + 0x10) + 0x18);
             mat = *(f32 **)(*(u8 **)(tmp + 0x5C) + 0x14);
@@ -856,8 +856,8 @@ main_body:
         b = sp74 * scale20;
         e0 = sp78 * scale20;
         e1 = sp7C * scale20;
-        c = func_0044b610(scale21);
-        s = func_0044b7b0(scale21);
+        c = cosf(scale21);
+        s = sinf(scale21);
         f1 = a + e0;
         f2 = b + e1;
         t1 = f2 * s;
@@ -956,15 +956,15 @@ u8 *func_004a6c00(u8 *arg0)
     if (temp_2 == NULL) {
         func_0046d730(D_00714350, 0x79);
     }
-    func_0043f9c8(temp_2, 0, 0x5C);
+    memset(temp_2, 0, 0x5C);
     __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(temp_2) : "memory");
-    func_0043f810(temp_2 + 0x18, arg0, 0x40);
+    memcpy(temp_2 + 0x18, arg0, 0x40);
     temp_2_2 = func_00483c40(0xD, 4, 2, 4, D_00713408, 0x4C);
     *(u16 **)(temp_2 + 0x58) = temp_2_2;
     *temp_2_2 = *temp_2_2 & 0xFFFE;
     temp_3 = *(u16 **)(temp_2 + 0x58);
     *temp_3 = *temp_3 & 0xFFFB;
-    func_003c2290(
+    RpGeometryLock(
         *(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x58) + 0x10) + 0x18), 8);
     var_5 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x58) + 0x10) + 0x18) + 0x30);
     temp_3 = (u16 *)(s32)-1;
@@ -1148,7 +1148,7 @@ void *func_004a7a90(void)
     func_0044ea90(D_00714350, 0x249);
     dst = jtbl_008873E8[0](0x14, 0x40000);
     *(u32 *)dst = 0;
-    func_0043f810((u8 *)dst + 4, src, 0x10);
+    memcpy((u8 *)dst + 4, src, 0x10);
     return dst;
 }
 
@@ -1171,7 +1171,7 @@ void *func_004a7b70(void *arg0)
     func_0044ea90(D_00714350, 0x249);
     dst = jtbl_008873E8[0](0x14, 0x40000);
     *(u32 *)dst = 0;
-    func_0043f810((u8 *)dst + 4, src + 4, 0x10);
+    memcpy((u8 *)dst + 4, src + 4, 0x10);
     return dst;
 }
 
@@ -1262,8 +1262,8 @@ void func_004a7df0(s32 *arg0) {
 // FUN_004A7E30
 s32 func_004a7e30(u8 *arg0, u8 *arg1)
 {
-    extern f32 func_0044b610(f32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 cosf(f32 arg0);
+    extern f32 sinf(f32 arg0);
     extern f32 fabsf(f32 arg0);
     f32 temp_f0;
     f32 temp_f0_2;
@@ -1370,8 +1370,8 @@ loop_004a7e30_check:
         *(f32 *)(arg1 + 0xD0) = temp_f2;
         *(f32 *)(arg1 + 0xD4) = temp_f1;
     } else {
-        temp_f20 = func_0044b610(*(f32 *)(arg0 + 8));
-        temp_f0_2 = func_0044b7b0(*(f32 *)(arg0 + 8));
+        temp_f20 = cosf(*(f32 *)(arg0 + 8));
+        temp_f0_2 = sinf(*(f32 *)(arg0 + 8));
         temp_f6 = temp_f23 * temp_f0_2;
         temp_f3 = temp_f24 * temp_f20;
         temp_f1 = temp_f3 - temp_f6;
@@ -1461,8 +1461,8 @@ loop_004a8250_check:
 void func_004a8440(u8 *arg0, u8 *arg1)
 {
     extern f32 fGpffff8090;
-    extern f32 func_0044b7b0(f32 arg0);
-    extern f32 func_0044b610(f32 arg0);
+    extern f32 sinf(f32 arg0);
+    extern f32 cosf(f32 arg0);
     f32 temp_f0;
     f32 temp_f1;
     f32 temp_f21;
@@ -1489,8 +1489,8 @@ void func_004a8440(u8 *arg0, u8 *arg1)
     temp_21 = *(u8 *)(arg0 + 3);
     temp_f22 = fGpffff8090 * *(f32 *)(arg0 + 8);
     temp_f20 = *(f32 *)(arg0 + 0xC);
-    temp_f21 = temp_f20 * func_0044b7b0(temp_f22);
-    temp_f20 = temp_f20 * func_0044b610(temp_f22);
+    temp_f21 = temp_f20 * sinf(temp_f22);
+    temp_f20 = temp_f20 * cosf(temp_f22);
     temp_f6 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     temp_f5 = D_008872F8[0];
     var_9 = 0;
@@ -1595,23 +1595,23 @@ void func_004a8890(u8 *arg0, s32 *arg1) {
     setState = (void (**)(u32, u32))D_00887300;
     (*setState)((u32)1, *(u32 *)temp_16);
     func_00489f80();
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x31001);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x31001);
     func_004a8250(arg0 + 4, sp140);
     sendPacket = (void (**)(s32, void *, s32, void *, s32))D_00887314;
     (*sendPacket)(3, sp140, 4, D_00714368, 6);
     func_0048a000();
-    func_003f6440(2, sp24C | 0x10);
+    RpSkyRenderStateSet(2, sp24C | 0x10);
     if (func_004a7e30(arg0 + 4, sp40) != 0) {
         (*setState)(1, D_00922D90[0]);
-        func_003f6440(3, 0x31001);
+        RpSkyRenderStateSet(3, 0x31001);
         func_0048a070(0x9FC00A | ((s64)0x6FC << 0x20));
         (*sendPacket)(3, sp40, 4, D_00714368, 6);
         func_0048a0e0();
     }
     (*setState)(1, 0);
-    func_003f6440(3, sp248);
-    func_003f6440(2, sp24C);
+    RpSkyRenderStateSet(3, sp248);
+    RpSkyRenderStateSet(2, sp24C);
 }
 // FUN_004A8A50
 void func_004a8a50(u8 *arg0, u8 *arg1)
@@ -1622,7 +1622,7 @@ void func_004a8a50(u8 *arg0, u8 *arg1)
     f32 temp_f22;
     u8 *temp_16;
 
-    *(u32 *)arg1 = func_004bd050(0) % (u32)(*(s32 *)(arg0 + 4) + 1);
+    *(u32 *)arg1 = effMiscRand(0) % (u32)(*(s32 *)(arg0 + 4) + 1);
     *(f32 *)(arg1 + 4) = fGpffff80f4;
     temp_16 = arg1 + 8;
     *(s32 *)(arg1 + 0x10) = *(s32 *)(arg0 + 0x10);
@@ -1763,10 +1763,10 @@ void func_004accc0(u8 *arg0)
     extern f32 func_0047a080(s32 arg0, s32 arg1);
     extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
     extern u8 *func_003e9700(s32 arg0);
-    extern u8 *func_0047a2f0(s32 arg0);
-    extern u8 *func_003e05f0(void *arg0, void *arg1, void *arg2);
-    extern void func_003e0870(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-    extern void func_003e0a90(void *arg0, void *arg1, s32 arg2);
+    extern u8 *mdlGetMatrix(s32 arg0);
+    extern u8 *RwMatrixMultiply(void *arg0, void *arg1, void *arg2);
+    extern void RwMatrixRotate(void *arg0, void *arg1, f32 fparg0, s32 arg2);
+    extern void RwMatrixScale(void *arg0, void *arg1, s32 arg2);
     extern void func_003e4320(void *arg0, void *arg1, void *arg2);
     extern void func_004789c0(s32 arg0);
     extern void func_0047a320(s32 arg0);
@@ -1802,23 +1802,23 @@ void func_004accc0(u8 *arg0)
         near_height = 2.0f * (*(f32 *)(node + 4) * depth);
         camera = ((u8 *)(u32)func_00457120());
         matrix = func_003e9700(*(s32 *)(camera + 4));
-        func_003e0870(frame.matrix, &basis1,
+        RwMatrixRotate(frame.matrix, &basis1,
                       *(f32 *)(arg0 + 0x90), 0);
         if (*(f32 *)(arg0 + 0x94) != 0.0f) {
-            func_003e0870(frame.matrix, &basis2,
+            RwMatrixRotate(frame.matrix, &basis2,
                           *(f32 *)(arg0 + 0x94), 2);
         }
         if (*(f32 *)(arg0 + 0x98) != 0.0f) {
-            func_003e0870(frame.matrix, &basis3,
+            RwMatrixRotate(frame.matrix, &basis3,
                           *(f32 *)(arg0 + 0x98), 2);
         }
         temp = (width / 640.0f) * scale;
         frame.scale.z = temp;
         frame.scale.y = temp;
         frame.scale.x = temp;
-        func_003e0a90(frame.matrix, &frame.scale, 2);
-        object = func_0047a2f0(*(s32 *)(arg0 + 0xB4));
-        func_003e05f0(object, frame.matrix, matrix);
+        RwMatrixScale(frame.matrix, &frame.scale, 2);
+        object = mdlGetMatrix(*(s32 *)(arg0 + 0xB4));
+        RwMatrixMultiply(object, frame.matrix, matrix);
         frame.scale.x =
             width * (0.5f + (-(f32)(*(f32 *)(arg0 + 0) +
                                     *(f32 *)(arg0 + 0x84)) /
@@ -1830,13 +1830,13 @@ void func_004accc0(u8 *arg0)
         frame.scale.z = *(f32 *)(arg0 + 0x8C) + depth;
         func_003e4320(&frame.transformed, &frame.scale, matrix);
         scale = *(f32 *)(matrix + 0x30) + frame.transformed.x;
-        object = func_0047a2f0(*(s32 *)(arg0 + 0xB4));
+        object = mdlGetMatrix(*(s32 *)(arg0 + 0xB4));
         *(f32 *)(object + 0x30) = scale;
         scale = *(f32 *)(matrix + 0x34) + frame.transformed.y;
-        object = func_0047a2f0(*(s32 *)(arg0 + 0xB4));
+        object = mdlGetMatrix(*(s32 *)(arg0 + 0xB4));
         *(f32 *)(object + 0x34) = scale;
         scale = *(f32 *)(matrix + 0x38) + frame.transformed.z;
-        object = func_0047a2f0(*(s32 *)(arg0 + 0xB4));
+        object = mdlGetMatrix(*(s32 *)(arg0 + 0xB4));
         *(f32 *)(object + 0x38) = scale;
         func_004789c0(*(s32 *)(arg0 + 0xB4));
         func_0047a320(*(s32 *)(arg0 + 0xB4));
@@ -1853,7 +1853,7 @@ void func_004ad030(s32 arg0, u8 *arg1)
 {
     extern f32 func_0047a080(s32 arg0, s32 arg1);
     extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-    extern void func_0047a220(void *arg0, s32 *arg1);
+    extern void mdlSetColor(void *arg0, s32 *arg1);
     extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
     extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
     extern s32 func_00481450(void);
@@ -1913,7 +1913,7 @@ void func_004ad030(s32 arg0, u8 *arg1)
             : "r"(&sp54), "f"(D_00761134)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp5C = *(s32 *)&sp50;
-        func_0047a220(*(u8 **)(arg1 + 0xB4), &sp5C);
+        mdlSetColor(*(u8 **)(arg1 + 0xB4), &sp5C);
         func_0048aff0(arg1 + 0x44, frame_index, frame_count);
         *(s32 *)(*(u8 **)(arg1 + 0xB4) + 0xD8) &= ~0x100;
         if ((*(u8 *)(arg1 + 0xA1) != 0) && (*(s32 *)(arg1 + 0xA4) == 0)) {
@@ -2029,7 +2029,7 @@ u8 *arg0;
 {
     extern void func_0048a150(void *arg0, void *arg1);
     extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
-    extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
+    extern void mdlScale(void *arg0, void *arg1, s32 arg2);
     extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
     extern void func_00478e70(void *arg0);
     extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
@@ -2073,7 +2073,7 @@ u8 *arg0;
         vec[2] = temp_f0;
         vec[1] = temp_f0;
         vec[0] = temp_f0;
-        func_0047a1e0(*(void **)(arg0 + 0xA0), vec, 2);
+        mdlScale(*(void **)(arg0 + 0xA0), vec, 2);
         vec[0] = *(f32 *)(arg0 + 0);
         vec[1] = *(f32 *)(arg0 + 4);
         vec[2] = *(f32 *)(arg0 + 8);
@@ -2188,8 +2188,8 @@ void func_004ade80(u8 *arg0)
         goto loop_004ade80_a_check;
 loop_004ade80_a_body:
         if (func_0047a510(*(u8 **)(arg0 + 0xA0), var_16, frame) != 0) {
-            func_0045f0b0((f32 *)(frame + 0x30), frame + 0x4C, 1, 4.0f);
-            func_0045fa00((f32 *)frame, 1, 30.0f);
+            primQuad3D((f32 *)(frame + 0x30), frame + 0x4C, 1, 4.0f);
+            primAxisLine3D((f32 *)frame, 1, 30.0f);
         }
         var_16 += 1;
 loop_004ade80_a_check:
@@ -2300,7 +2300,7 @@ normalized_done:
     temp_4 = *(s32 *)(arg0 + 0x34);
     switch (temp_4) {
     case 1:
-        *(u8 *)(arg1 + 0x14) = (u8)(func_004bd050(0) % 6);
+        *(u8 *)(arg1 + 0x14) = (u8)(effMiscRand(0) % 6);
         break;
     case 2:
         *(u8 *)(arg1 + 0x14) =

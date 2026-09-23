@@ -628,7 +628,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c5e8);
 #ifdef NON_MATCHING
 /* measured: schedule on fills the call and return delay slots. */
 #pragma schedule on
-s32 func_0043c6b0(s32 arg0) {
+s32 atoi(s32 arg0) {
     return (s32)func_00444210(arg0, 0, 0xA);
 }
 /* measured: closes the schedule bracket at the file baseline. */
@@ -684,8 +684,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dce8);
 // FUN_0043DDF8 NONMATCHING
 #ifdef NON_MATCHING
 void func_0043ddf8(u8 *arg0, s16 arg1, s16 arg2, s32 arg3) {
-    extern void func_00442220();
-    extern void func_00442300();
+    extern void __stream_write_callback();
+    extern void __stream_read_callback();
     extern u8 D_00442280[];
     extern u8 D_00442368[];
     typedef void (*Ddf8Func)(void);
@@ -703,12 +703,12 @@ void func_0043ddf8(u8 *arg0, s16 arg1, s16 arg2, s32 arg3) {
     p->f54 = arg3;
     p->fC = arg1;
     p->fE = arg2;
-    p->f20 = (Ddf8Func)func_00442220;
+    p->f20 = (Ddf8Func)__stream_write_callback;
     p->f24 = D_00442280;
     p->f0 = 0;
     p->f4 = 0;
     p->f8 = 0;
-    p->f28 = (Ddf8Func)func_00442300;
+    p->f28 = (Ddf8Func)__stream_read_callback;
     p->f2C = D_00442368;
     p->f10 = 0;
     p->f14 = 0;

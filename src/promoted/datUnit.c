@@ -69,9 +69,9 @@ extern char D_00635928[];
 extern void func_0044ea90(const char* file, s32 line);
 extern void func_0046d730(const char* file, s32 line);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
-extern void func_0043f9c8(void* dest, s32 value, s32 size);
+extern void memset(void* dest, s32 value, s32 size);
 extern u8* func_00105510(s16 arg0);
-extern s32 func_002428f0(DatUnit* unit, s32 arg1);
+extern s32 datCalcIsDead(DatUnit* unit, s32 arg1);
 extern void func_00233880(DatUnit* unit, u8 index);
 extern u8* iGpffffb3c4;              /* 0x007644B4 (gp-0x4C3C): enemy data table */
 extern u8* iGpffffb414;              /* 0x00764504 (gp-0x4BEC) */
@@ -85,7 +85,7 @@ DatUnitPc* func_00231580(u16 pcId)
 
     func_0044ea90(D_00635928, 0x1B);
     pc = (DatUnitPc*)(*jtbl_008873E8)(sizeof(DatUnitPc), 0x40000);
-    func_0043f9c8(pc, 0, sizeof(DatUnitPc));
+    memset(pc, 0, sizeof(DatUnitPc));
 
     pc->base.genus = UNIT_GENUS_PC;
     pc->base.count = 1;
@@ -128,7 +128,7 @@ DatUnitEc* func_00231630(u16 encountId)
 
     func_0044ea90(D_00635928, 0x3F);
     ec = (DatUnitEc*)(*jtbl_008873E8)(0x12C, 0x40000);
-    func_0043f9c8(ec, 0, 0x12C);
+    memset(ec, 0, 0x12C);
 
     ec->base.genus = UNIT_GENUS_EC;
     ec->base.count = count;
@@ -213,7 +213,7 @@ u32 func_002319f0(DatUnitGenusBase* genusBase)
             DatUnit* unit = genusBase->unit;
             unit += i;
 
-            if (unit->id != 0 && func_002428f0(unit, 0) == 0)
+            if (unit->id != 0 && datCalcIsDead(unit, 0) == 0)
             {
                 return 0;
             }
@@ -223,7 +223,7 @@ u32 func_002319f0(DatUnitGenusBase* genusBase)
     {
         if (genusBase->count != 1) func_0046d730(D_00635928, 0xB9);
 
-        if (func_002428f0(genusBase->unit, 0) == 0)
+        if (datCalcIsDead(genusBase->unit, 0) == 0)
         {
             return 0;
         }

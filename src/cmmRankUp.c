@@ -41,12 +41,12 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 void func_0044ea90(void *msg, s32 id);
 void func_0046d730(const void *file, s32 line);
-extern u8 *func_00145270(s32 size);
+extern u8 *MT_Scene_GetRes(s32 size);
 extern void func_0047a6d0(s32 arg0, s32 arg1, void *arg2);
 extern void func_00189ec0();
 extern void func_00268bd0(s32 arg0, s32 arg1);
 extern void func_003ef3a0(s32 arg0);
-extern void func_00454bd0(s32 arg0);
+extern void H_Cdvd_Destroy(s32 arg0);
 extern void func_0047a0e0(u8 *arg0, s32 arg1, f32 arg2);
 extern void *memset(void *destination, s32 value, size_t count);
 
@@ -81,17 +81,17 @@ extern u_long128 D_00636730;
 extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
 static void func_00252230(Sp120 *arg0, Sp120 *arg1, Sp120 *arg2, f32 fparg0);
 
-extern struct RwMatrixTag *func_003e0870(struct RwMatrixTag *matrix,
+extern struct RwMatrixTag *RwMatrixRotate(struct RwMatrixTag *matrix,
         const struct RwV3d *axis, f32 angle, s32 combine);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern u8 *func_00251570(s32 arg0, s32 arg1);
 extern void func_00251850(u8 *arg0);
 extern s32 func_0025f360(s32 arg0, s32 arg1, u8 *arg2);
 extern s32 func_0035afa0(s32 arg0);
-extern u32 func_003b7060(void);
-extern u8 *func_003e05f0(u8 *arg0, u8 *arg1, u8 *arg2);
-extern f32 func_0044b610(f32 fparg0);
-extern f32 func_0044b7b0(f32 fparg0);
+extern u32 RpRandom(void);
+extern u8 *RwMatrixMultiply(u8 *arg0, u8 *arg1, u8 *arg2);
+extern f32 cosf(f32 fparg0);
+extern f32 sinf(f32 fparg0);
 extern void func_00489f80(void);
 extern void func_0048a000(void);
 extern void func_0045db40(u8 *color, u8 *rectangle, f32 depth,
@@ -266,10 +266,10 @@ extern f32 D_00635D30[];
 extern u8 D_00635D40[];
 extern u8 D_00636180[];
 extern u8 *func_00251d30(u8 *arg0);
-extern void *func_0043f9c8(void *dst, s32 value, u32 size);
-extern void *func_0043f810(void *dst, const void *src, u32 size);
+extern void *memset(void *dst, s32 value, u32 size);
+extern void *memcpy(void *dst, const void *src, u32 size);
 extern u8 *func_002467b0(s32 arg0);
-extern s32 func_00106330(s32 flag);
+extern s32 datGetFlag(s32 flag);
 extern s64 func_00248d80(s16 arg0);
 extern void func_00279d40(s32 arg0);
 extern u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0,
@@ -363,11 +363,11 @@ void func_00252050(s32 arg0, s32 arg1, s32 arg2) {
     if (p == NULL) {
         func_0046d730(D_00635CF8, 0x2A5);
     }
-    func_0043f9c8(p, 0, 0x78);
+    memset(p, 0, 0x78);
     *(u32 *)p |= 1;
     *(s32 *)(p + 8) = temp_18;
     if (src != NULL) {
-        func_0043f810(p + 0xC, src, 0x6C);
+        memcpy(p + 0xC, src, 0x6C);
     }
 }
 /* measured: closes opt_propagation-off bracket for func_00252050. */
@@ -493,7 +493,7 @@ s32 func_00252710(s32 unused, u8 *work, u8 *context)
         destinationBytes += 8;
     } while (pairs > 0);
     texture = func_0025f360(0x18, 0, *(u8 **)(context + 0x10));
-    func_003e0870(&matrix, &state.axis, state.f1C, 0);
+    RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
     if (*(s32 *)(work + 0xC) == 1) {
         work = (u8 *)D_00887300;
         (*(void (**)(u32, u32))work)(7, 2);
@@ -503,8 +503,8 @@ s32 func_00252710(s32 unused, u8 *work, u8 *context)
         (*(void (**)(u32, u32))work)(0xC, 1);
         (*(void (**)(u32, u32))work)(2, 4);
         (*(void (**)(u32, u32))work)(0xE, 0);
-        func_003f6440(3, 0x7000D);
-        func_003f6440(2, 0x48);
+        RpSkyRenderStateSet(3, 0x7000D);
+        RpSkyRenderStateSet(2, 0x48);
         func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22, (u32)state.f18 >> 8,
                       state.f18 & 0xFF, 0, (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, texture,
                       uvBlock.coordinates);
@@ -570,7 +570,7 @@ s32 func_00252a60(s32 root, u8 *work, u8 *context)
             (f32)(*(s32 *)(work + 4) - 30) / 30.0f);
     } else {
         func_00252230(&state, (Sp120 *)(work + 0xC), (Sp120 *)(work + 0x30),
-            func_0044b7b0(D_00761184 * (f32)*(s32 *)(work + 4) / 30.0f));
+            sinf(D_00761184 * (f32)*(s32 *)(work + 4) / 30.0f));
     }
     {
         const u8 *source;
@@ -611,13 +611,13 @@ s32 func_00252a60(s32 root, u8 *work, u8 *context)
         } while (count > 0);
     }
     if (*(s32 *)(work + 4) < 31) {
-        func_003e0870(&matrix, &state.axis, state.f1C, 0);
+        RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
     } else {
         frame = *(s32 *)(work + 4) - 30;
         axisTemplate.vector = D_00636250;
         axis = axisTemplate;
-        func_003e0870(&matrix, &state.axis, state.f1C, 0);
-        func_003e0870(&matrix, &axis.vector, -90.0f * (f32)frame / 30.0f, 2);
+        RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
+        RwMatrixRotate(&matrix, &axis.vector, -90.0f * (f32)frame / 30.0f, 2);
     }
     textureA = func_0035afa0(*(s32 *)(context + 0x14));
     textureB = func_0035afa0(*(s32 *)(context + 0x18));
@@ -634,8 +634,8 @@ s32 func_00252a60(s32 root, u8 *work, u8 *context)
                 factor = 0.0f;
             }
         }
-        func_003e0870(&effectMatrix, &state.axis, D_007613A0 * factor, 0);
-        func_003e05f0((u8 *)&product, (u8 *)&effectMatrix, (u8 *)&matrix);
+        RwMatrixRotate(&effectMatrix, &state.axis, D_007613A0 * factor, 0);
+        RwMatrixMultiply((u8 *)&product, (u8 *)&effectMatrix, (u8 *)&matrix);
         {
             u_long128 *source;
             u_long128 *destination;
@@ -676,13 +676,13 @@ s32 func_00252a60(s32 root, u8 *work, u8 *context)
     (*(void (**)(u32, u32))renderState)(12, 1);
     (*(void (**)(u32, u32))renderState)(2, 4);
     (*(void (**)(u32, u32))renderState)(14, 0);
-    func_003f6440(3, 0x30003);
-    func_003f6440(2, 0x48);
+    RpSkyRenderStateSet(3, 0x30003);
+    RpSkyRenderStateSet(2, 0x48);
     *(s16 *)(context + 0x3C) += 1;
     if (*(s16 *)(context + 0x3C) >= 120) {
         *(s16 *)(context + 0x3C) = 0;
     }
-    pulse = func_0044b7b0(D_007612CC + D_007612D0 * (f32)*(s16 *)(context + 0x3C) / 120.0f);
+    pulse = sinf(D_007612CC + D_007612D0 * (f32)*(s16 *)(context + 0x3C) / 120.0f);
     pulse = (1.0f + pulse) / 2.0f;
     func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22,
         (u32)state.f18 >> 8, (s32)(0.8f * (f32)((u32)state.f18 & 255) * pulse), 2,
@@ -691,14 +691,14 @@ s32 func_00252a60(s32 root, u8 *work, u8 *context)
         (u32)state.f18 >> 8, (s32)(0.8f * (f32)((u32)state.f18 & 255) * pulse), 4,
         (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, textureB, uv.coordinates);
 
-    angle = D_007612D0 * ((f32)func_003b7060() / 2147483648.0f);
-    if ((f32)func_003b7060() / 2147483648.0f < D_00761288) {
-        radius = (f32)((u32)(46.0f * ((f32)func_003b7060() / 2147483648.0f)) + 70U);
+    angle = D_007612D0 * ((f32)RpRandom() / 2147483648.0f);
+    if ((f32)RpRandom() / 2147483648.0f < D_00761288) {
+        radius = (f32)((u32)(46.0f * ((f32)RpRandom() / 2147483648.0f)) + 70U);
     } else {
-        radius = (f32)((u32)(40.0f * ((f32)func_003b7060() / 2147483648.0f)) + 30U);
+        radius = (f32)((u32)(40.0f * ((f32)RpRandom() / 2147483648.0f)) + 30U);
     }
-    displacement.v[0] = radius * func_0044b610(angle);
-    displacement.v[1] = -radius * func_0044b7b0(angle);
+    displacement.v[0] = radius * cosf(angle);
+    displacement.v[1] = -radius * sinf(angle);
     if (*(s32 *)(work + 4) < 41) {
         RankUpParticlePrefix *particle;
         f32 y = state.f8 + displacement.v[1];
@@ -727,12 +727,12 @@ s32 func_00252a60(s32 root, u8 *work, u8 *context)
                 destination += 8;
             } while (count > 0);
         }
-        frame = (s32)(5.0f * ((f32)func_003b7060() / 2147483648.0f));
+        frame = (s32)(5.0f * ((f32)RpRandom() / 2147483648.0f));
         displacement = positions.points[frame];
         y = displacement.v[1];
         particle = (RankUpParticlePrefix *)func_00251570(root, 3);
         if (particle != NULL) {
-            particle->timer = (s32)(100.0f * ((f32)func_003b7060() / 2147483648.0f));
+            particle->timer = (s32)(100.0f * ((f32)RpRandom() / 2147483648.0f));
             particle->x = displacement.v[0];
             particle->y = y;
         }
@@ -741,14 +741,14 @@ s32 func_00252a60(s32 root, u8 *work, u8 *context)
         RankUpParticlePrefix *particle = (RankUpParticlePrefix *)func_00251570(root, 1);
         if (particle != NULL) {
             particle->flags |= 2;
-            particle->timer = (s32)(100.0f * ((f32)func_003b7060() / 2147483648.0f));
+            particle->timer = (s32)(100.0f * ((f32)RpRandom() / 2147483648.0f));
             particle->x = 123.0f;
             particle->y = 272.0f;
         }
         particle = (RankUpParticlePrefix *)func_00251570(root, 2);
         if (particle != NULL) {
             particle->flags |= 4;
-            particle->timer = (s32)(100.0f * ((f32)func_003b7060() / 2147483648.0f));
+            particle->timer = (s32)(100.0f * ((f32)RpRandom() / 2147483648.0f));
             particle->x = 68.0f;
             particle->y = 419.0f;
         }
@@ -820,7 +820,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
                 s32 elapsed = *(s32 *)(work + 4) - 15;
                 if (!(elapsed < i)) {
                     if (elapsed - i < 9) {
-                        f32 value = func_0044b7b0(D_00761174 * (f32)(elapsed - i) / 8.0f);
+                        f32 value = sinf(D_00761174 * (f32)(elapsed - i) / 8.0f);
                         func_0025f3f0(
                             positions[i].v[0], (0.0f + positions[i].v[1]) - 40.0f * value, 0.0f, 0xFFFFFF, 255,
                             i + 13, 0, *(u8 **)(context + 0x10), 1);
@@ -851,7 +851,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
         }
     }
     if (*(s32 *)(work + 4) < 16) {
-        f32 value = func_0044b7b0(D_00761184 * (f32)*(s32 *)(work + 4) / 15.0f);
+        f32 value = sinf(D_00761184 * (f32)*(s32 *)(work + 4) / 15.0f);
         white = 0xFFFFFF;
         bannerY = 375.0f;
         func_0025f3f0(
@@ -864,7 +864,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
     }
     if (*(s32 *)(work + 4) > 7) {
         if (*(s32 *)(work + 4) < 16) {
-            f32 value = func_0044b7b0(D_00761184 * ((f32)*(s32 *)(work + 4) - 7.0f) / 8.0f);
+            f32 value = sinf(D_00761184 * ((f32)*(s32 *)(work + 4) - 7.0f) / 8.0f);
             func_0025f430(
                 0.0f, (0.0f + 380.0f) + 10.0f * (1.0f - value), 0.0f, white, 255, special + 42, 0,
                 *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, value);
@@ -890,7 +890,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
             u8 *font;
             s32 offset;
             s32 width;
-            value = func_0044b7b0(D_00761184 * (f32)(*(s32 *)(work + 4) - 18) / 8.0f);
+            value = sinf(D_00761184 * (f32)(*(s32 *)(work + 4) - 18) / 8.0f);
             if (special == 0) {
                 displacement = 1.0f - value;
                 distance = 450.0f;
@@ -1000,7 +1000,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
     }
     if (*(s32 *)(work + 4) > 30) {
         if (*(s32 *)(work + 4) < 39) {
-            f32 value = func_0044b7b0(D_00761174 * (f32)(*(s32 *)(work + 4) - 30) / 8.0f);
+            f32 value = sinf(D_00761174 * (f32)(*(s32 *)(work + 4) - 30) / 8.0f);
             if (special == 0) {
                 func_0025f3f0(
                     277.0f, (0.0f + 350.0f) - 17.0f * value, 0.0f, white, 255, *(s32 *)(context + 8) + 1, 0,
@@ -1026,7 +1026,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
                     }
                     value = (f32)(elapsed - i);
                     if (value < 5.0f) {
-                        value = func_0044b7b0(D_00761184 * value / 5.0f);
+                        value = sinf(D_00761184 * value / 5.0f);
                         func_0025f3f0(
                             (0.0f + (f32)(i * 23 + 354)) + 400.0f * (1.0f - value), 381.0f, 0.0f, color, 255,
                             21, 0, *(u8 **)(context + 0x10), 1);
@@ -1056,7 +1056,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
             *(s16 *)(context + 0x3E) = 0;
         }
         index = *(s32 *)(context + 8) - 1;
-        pulse = func_0044b7b0(D_007612CC + D_007612D0 * (f32)*(s16 *)(context + 0x3E) / 45.0f);
+        pulse = sinf(D_007612CC + D_007612D0 * (f32)*(s16 *)(context + 0x3E) / 45.0f);
         pulse = (0.0f + D_00761288) + D_0076118C * ((1.0f + pulse) / 2.0f);
         progress = 1.0f;
         if (*(s32 *)(work + 4) < 61) {
@@ -1191,15 +1191,15 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         (*(void (**)(u32, u32))renderState)(20, 1);
         (*(void (**)(u32, u32))renderState)(6, 0);
         (*(void (**)(u32, u32))renderState)(8, 1);
-        func_003f6440(3, 0x31003);
-        func_003f6440(2, 0x44);
+        RpSkyRenderStateSet(3, 0x31003);
+        RpSkyRenderStateSet(2, 0x44);
         func_00489f80();
         func_0045d6e0((u8 *)(&clipColor), (f32 *)(&clipRect), 5.0f, 0);
         func_0048a000();
         for (i = 0; i < 8; i++) {
             if (!(elapsed < i)) {
                 if (elapsed - i < 9) {
-                    value = func_0044b7b0(D_00761184 * (f32)(elapsed - i) / 8.0f);
+                    value = sinf(D_00761184 * (f32)(elapsed - i) / 8.0f);
                     func_0025f3f0(positions[i].v[0], (0.0f + positions[i].v[1]) + 50.0f * value, 10.0f, 0xFFFFFF, 255, i + 13, 0, *(u8 **)(context + 0x10), 1);
                 }
             } else {
@@ -1244,8 +1244,8 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         (*(void (**)(u32, u32))renderState)(20, 1);
         (*(void (**)(u32, u32))renderState)(6, 0);
         (*(void (**)(u32, u32))renderState)(8, 1);
-        func_003f6440(3, 0x31003);
-        func_003f6440(2, 0x44);
+        RpSkyRenderStateSet(3, 0x31003);
+        RpSkyRenderStateSet(2, 0x44);
         func_00489f80();
         func_0045d6e0((u8 *)(&resetColor), (f32 *)(&resetRect), 0.0f, 0);
         func_0048a000();
@@ -1253,13 +1253,13 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
     if (elapsed < 25) {
         func_0025f3f0(0.0f, 375.0f, 0.0f, 0xFFFFFF, 255, 41, 0, *(u8 **)(context + 0x10), 1);
     } else if (elapsed < 36) {
-        value = func_0044b7b0(D_00761184 * (f32)(elapsed - 25) / 10.0f);
+        value = sinf(D_00761184 * (f32)(elapsed - 25) / 10.0f);
         func_0025f3f0(640.0f * value, 375.0f, 0.0f, 0xFFFFFF, 255, 41, 0, *(u8 **)(context + 0x10), 1);
     }
     if (elapsed < 30) {
         func_0025f3f0(0.0f, 380.0f, 0.0f, 0xFFFFFF, 255, special + 42, 0, *(u8 **)(context + 0x10), 1);
     } else if (elapsed < 36) {
-        value = func_0044b7b0(D_00761184 * (f32)(elapsed - 30) / 5.0f);
+        value = sinf(D_00761184 * (f32)(elapsed - 30) / 5.0f);
         func_0025f430(0.0f, (0.0f + 380.0f) + 10.0f * value, 0.0f, 0xFFFFFF, 255, special + 42, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, 1.0f - value);
     }
     if (elapsed < 20) {
@@ -1276,7 +1276,7 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         }
     } else if (elapsed < 26) {
         s32 color;
-        value = func_0044b7b0(D_00761184 * (f32)(elapsed - 20) / 5.0f);
+        value = sinf(D_00761184 * (f32)(elapsed - 20) / 5.0f);
         if (special == 0) {
             scale = 1.0f - value;
             color = 0xFFFFFF;
@@ -1349,7 +1349,7 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         if (*(s16 *)(context + 0x3E) >= 45) {
             *(s16 *)(context + 0x3E) = 0;
         }
-        value = func_0044b7b0(D_007612CC + D_007612D0 * (f32)*(s16 *)(context + 0x3E) / 45.0f);
+        value = sinf(D_007612CC + D_007612D0 * (f32)*(s16 *)(context + 0x3E) / 45.0f);
         value = (0.0f + D_00761288) + D_0076118C * ((1.0f + value) / 2.0f);
         value *= 1.0f - (f32)elapsed / 5.0f;
         func_0025f3f0((f32)((*(s32 *)(context + 8) - 1) * 23 + 349), 376.0f, 0.0f, color, (u8)(255.0f * value), 28, 0, *(u8 **)(context + 0x10), 1);
@@ -1366,7 +1366,7 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         s32 width;
         s32 offset;
         u32 vertex;
-        value = func_0044b7b0(D_00761184 * (f32)(elapsed - 5) / 15.0f);
+        value = sinf(D_00761184 * (f32)(elapsed - 5) / 15.0f);
         source = D_00635CC0;
         destination = (u8 *)movingPoints;
         count = 4;
@@ -1531,7 +1531,7 @@ u8 *func_00255b90(void) {
 // FUN_00255ED0
 s32 func_00255ed0(s64 arg0, s32 arg1) {
     if ((*(s32 *)((u8 *)func_002467b0((u16)arg0) + 4) & 0x10) != 0 &&
-        (arg0 != 0x18 || func_00106330(0x38) != 0)) {
+        (arg0 != 0x18 || datGetFlag(0x38) != 0)) {
         if ((s16)func_00248d80(arg0) == 3 ||
             (s16)func_00248d80(arg0) == 4) {
             if (arg1 == 3) {
@@ -1921,7 +1921,7 @@ void func_002566d0(f32 unusedX, f32 unusedY, f32 unusedZ,
     opacity = (f32)alpha / 255.0f;
     growth = 0.25f * effect;
     func_00252230(&state, &keys.states[0], &keys.states[1], interpolation);
-    func_003e0870(&matrix, &state.axis, state.f1C, 0);
+    RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
     func_00366c70((s32)state.f4, (s32)state.f8, 0.0f,
                   state.f20, state.f22, (u32)state.f18 >> 8,
                   (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 3,
@@ -1935,8 +1935,8 @@ void func_002566d0(f32 unusedX, f32 unusedY, f32 unusedZ,
     renderState = (u8 *)D_00887300;
     (*(void (**)(u32, u32))renderState)(6, 0);
     (*(void (**)(u32, u32))renderState)(8, 1);
-    func_003f6440(3, 0x31003);
-    func_003f6440(2, 0x48);
+    RpSkyRenderStateSet(3, 0x31003);
+    RpSkyRenderStateSet(2, 0x48);
 
     effect = D_0076122C * (1.0f - effect);
     effect = effect * opacity;
@@ -2014,7 +2014,7 @@ void func_00256be0(f32 unusedX, f32 unusedY, f32 unusedZ,
     opacity = (f32)alpha / 255.0f;
     growth = 0.25f * effect;
     func_00252230(&state, &keys.states[0], &keys.states[1], interpolation);
-    func_003e0870(&matrix, &state.axis, state.f1C, 0);
+    RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
     func_00366c70((s32)state.f4, (s32)state.f8, 0.0f,
                   state.f20, state.f22, (u32)state.f18 >> 8,
                   (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 3,
@@ -2028,8 +2028,8 @@ void func_00256be0(f32 unusedX, f32 unusedY, f32 unusedZ,
     renderState = (u8 *)D_00887300;
     (*(void (**)(u32, u32))renderState)(6, 0);
     (*(void (**)(u32, u32))renderState)(8, 1);
-    func_003f6440(3, 0x31003);
-    func_003f6440(2, 0x48);
+    RpSkyRenderStateSet(3, 0x31003);
+    RpSkyRenderStateSet(2, 0x48);
 
     effect = D_0076122C * (1.0f - effect);
     effect = effect * opacity;
@@ -2134,7 +2134,7 @@ void func_002570f0(f32 unusedX, f32 unusedY, f32 unusedZ,
     }
     opacity = (f32)alpha / 255.0f;
     func_00252230(&state, &keys.states[0], &keys.states[1], 0.0f);
-    func_003e0870(&matrix, &state.axis, state.f1C, 0);
+    RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
     deltaX = 80.0f * progress;
     deltaY = -80.0f * progress;
     {
@@ -2169,8 +2169,8 @@ void func_002570f0(f32 unusedX, f32 unusedY, f32 unusedZ,
     (*(void (**)(u32, u32))renderState)(20, 1);
     (*(void (**)(u32, u32))renderState)(6, 0);
     (*(void (**)(u32, u32))renderState)(8, 1);
-    func_003f6440(3, 0x31003);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(3, 0x31003);
+    RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
     func_0045d6e0((u8 *)(&firstColorCopy), (f32 *)(&firstScreenCopy), 10.0f, 0);
     func_0048a000();
@@ -2182,8 +2182,8 @@ void func_002570f0(f32 unusedX, f32 unusedY, f32 unusedZ,
     rectangle.fields.y = (s32)((f32)rectangle.fields.y + deltaY);
     (*(void (**)(u32, u32))renderState)(6, 1);
     (*(void (**)(u32, u32))renderState)(8, 1);
-    func_003f6440(3, 0x71003);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(3, 0x71003);
+    RpSkyRenderStateSet(2, 0x44);
     func_0045db40((u8 *)&wipeColor, (u8 *)&rectangle, 0.0f, 0, 200, 0,
                   45.0f, 1.0f, 1.0f);
     func_00366c70((s32)(state.f4 + deltaX), (s32)(state.f8 + deltaY), 5.0f,
@@ -2222,8 +2222,8 @@ void func_002570f0(f32 unusedX, f32 unusedY, f32 unusedZ,
     (*(void (**)(u32, u32))renderState)(20, 1);
     (*(void (**)(u32, u32))renderState)(6, 0);
     (*(void (**)(u32, u32))renderState)(8, 1);
-    func_003f6440(3, 0x31003);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(3, 0x31003);
+    RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
     func_0045d6e0((u8 *)(&secondColorCopy), (f32 *)(&secondScreenCopy), 10.0f, 0);
     func_0048a000();
@@ -2233,8 +2233,8 @@ void func_002570f0(f32 unusedX, f32 unusedY, f32 unusedZ,
     rectangle.fields.y = (s32)((f32)rectangle.fields.y + (-deltaY - 200.0f));
     (*(void (**)(u32, u32))renderState)(6, 1);
     (*(void (**)(u32, u32))renderState)(8, 1);
-    func_003f6440(3, 0x71003);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(3, 0x71003);
+    RpSkyRenderStateSet(2, 0x44);
     func_0045db40((u8 *)&wipeColor, (u8 *)&rectangle, 0.0f, 0, 200, 200,
                   45.0f, 1.0f, 1.0f);
     func_00366c70((s32)(state.f4 - deltaX), (s32)(state.f8 - deltaY), 5.0f,
@@ -2250,10 +2250,10 @@ s32 func_00257820(s32 arg0, void *arg1) {
     u16 var_17;
 
     var_17 = 0x400;
-    var_2 = func_00145270(0x400);
+    var_2 = MT_Scene_GetRes(0x400);
     if (var_2 == NULL) {
         var_17 = ((arg0 & 0x3FF) | 0xC00) & 0xFFFF;
-        var_2 = func_00145270(var_17);
+        var_2 = MT_Scene_GetRes(var_17);
     }
     if (var_2 != NULL) {
         var_4 = 0;
@@ -2918,12 +2918,12 @@ s32 func_00257900(u8 *task) {
             enteringKeys.states[1].f18 = 0xFF0000FF;
             enteringUv = *(const RankUpRenderUV *)D_006365D0;
             func_00252230(&enteringSprite, &enteringKeys.states[0], &enteringKeys.states[1], spritePhase);
-            func_003e0870(&enteringMatrix, &enteringSprite.axis, enteringSprite.f1C, 0);
+            RwMatrixRotate(&enteringMatrix, &enteringSprite.axis, enteringSprite.f1C, 0);
             renderStateTable = (u8 *)D_00887300;
             (*(void (**)(u32, u32))renderStateTable)(6, 0);
             (*(void (**)(u32, u32))renderStateTable)(8, 1);
-            func_003f6440(3, 0x31003);
-            func_003f6440(2, 0x48);
+            RpSkyRenderStateSet(3, 0x31003);
+            RpSkyRenderStateSet(2, 0x48);
             func_00366c70((s32)enteringSprite.f4, (s32)enteringSprite.f8, 0, enteringSprite.f20, enteringSprite.f22, (u32)enteringSprite.f18 >> 8,
                           (s32)( ((f32)((u32)enteringSprite.f18 & 0xFF) * ((f32)(s32)(255.0f * spritePhase) / 255.0f))), 0,
                           (s16)(enteringSprite.f20 >> 1), (s16)(enteringSprite.f22 >> 1), &enteringMatrix,
@@ -2935,12 +2935,12 @@ s32 func_00257900(u8 *task) {
             steadyKeys.states[1].f18 = 0xFF0000FF;
             steadyUv = *(const RankUpRenderUV *)D_006365D0;
             func_00252230(&steadySprite, &steadyKeys.states[0], &steadyKeys.states[1], 1.0f);
-            func_003e0870(&steadyMatrix, &steadySprite.axis, steadySprite.f1C, 0);
+            RwMatrixRotate(&steadyMatrix, &steadySprite.axis, steadySprite.f1C, 0);
             renderStateTable = (u8 *)D_00887300;
             (*(void (**)(u32, u32))renderStateTable)(6, 0);
             (*(void (**)(u32, u32))renderStateTable)(8, 1);
-            func_003f6440(3, 0x31003);
-            func_003f6440(2, 0x48);
+            RpSkyRenderStateSet(3, 0x31003);
+            RpSkyRenderStateSet(2, 0x48);
             rankUpDrawSpriteState(&steadySprite, &steadyMatrix, spriteTexture, steadyUv.coordinates, 1.0f);
         } else if (mode11Frame < 0xD3) {
             temp_f0_11 = 255.0f * (1.0f - ((f32) (mode11Frame - 0xAA) / 40.0f));
@@ -2950,12 +2950,12 @@ s32 func_00257900(u8 *task) {
             leavingKeys.states[1].f18 = 0xFF0000FF;
             leavingUv = *(const RankUpRenderUV *)D_006365D0;
             func_00252230(&leavingSprite, &leavingKeys.states[0], &leavingKeys.states[1], 1.0f);
-            func_003e0870(&leavingMatrix, &leavingSprite.axis, leavingSprite.f1C, 0);
+            RwMatrixRotate(&leavingMatrix, &leavingSprite.axis, leavingSprite.f1C, 0);
             renderStateTable = (u8 *)D_00887300;
             (*(void (**)(u32, u32))renderStateTable)(6, 0);
             (*(void (**)(u32, u32))renderStateTable)(8, 1);
-            func_003f6440(3, 0x31003);
-            func_003f6440(2, 0x48);
+            RpSkyRenderStateSet(3, 0x31003);
+            RpSkyRenderStateSet(2, 0x48);
             func_00366c70((s32)leavingSprite.f4, (s32)leavingSprite.f8, 0, leavingSprite.f20, leavingSprite.f22, (u32)leavingSprite.f18 >> 8,
                           (s32)( ((f32)((u32)leavingSprite.f18 & 0xFF) * ((f32)(s32)temp_f0_11 / 255.0f))), 0, (s16)(leavingSprite.f20 >> 1),
                           (s16)(leavingSprite.f22 >> 1), &leavingMatrix, spriteTexture,
@@ -3088,8 +3088,8 @@ s32 func_00257900(u8 *task) {
     (*(void (**)(u32, u32))renderStateTable)(0x14, 1);
     (*(void (**)(u32, u32))renderStateTable)(6, 0);
     (*(void (**)(u32, u32))renderStateTable)(8, 1);
-    func_003f6440(3, 0x31003);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(3, 0x31003);
+    RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
     func_0045d6e0((u8 *)(&overlayColor), (f32 *)(&overlayRectangle), (f32) 0xFFFF, 0);
     func_0048a000();
@@ -3199,10 +3199,10 @@ extern char cGpffffa688;
 extern u8 *func_0035adc0(s32 parent, s64 id, s32 flags);
 extern void func_00440b68();
 extern u8 *func_00454a60();
-extern s32 func_004553c0();
+extern s32 H_Cdvd_IsFileLoaded();
 extern u8 *func_004667d0(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName, s32 resultKind, s32 memoryKind);
-extern void *func_0043f810(void *destination, const void *source, u32 size);
-extern void *func_0043f9c8(void *destination, s32 value, u32 size);
+extern void *memcpy(void *destination, const void *source, u32 size);
+extern void *memset(void *destination, s32 value, u32 size);
 extern u8 *func_004669d0(u8 *request, s32 *complete, s32 *result);
 extern s32 func_00459760();
 extern s32 func_0045b400();
@@ -3233,10 +3233,10 @@ extern u8 *func_00246830(u32);
 extern u8 *func_002468a0();
 extern u8 *func_00246d90();
 extern u8 *func_00109220(s32 personaId);
-extern char *func_00442830(char *destination, const char *source);
+extern char *strcpy(char *destination, const char *source);
 extern void func_00275980(char *source, char *destination, s32 capacity);
 extern void func_002bbd80(s8 handle, s32 variable, void *text);
-extern s32 func_00106330();
+extern s32 datGetFlag();
 extern void func_00106390();
 extern u16 *func_0010a900(u16 character);
 extern s32 func_0010cc20(u8 *character, u16 skill);
@@ -3325,7 +3325,7 @@ s32 func_0025b240(u8 *arg0) {
         if (func_0035af60(*(s32 *)(ctx + 0x30)) == 0) {
             goto tail;
         }
-        if (func_004553c0(*(u8 **)(ctx + 0x34)) == 0) {
+        if (H_Cdvd_IsFileLoaded(*(u8 **)(ctx + 0x34)) == 0) {
             goto tail;
         }
         *(s32 *)(ctx + 4) = 4;
@@ -3343,7 +3343,7 @@ s32 func_0025b240(u8 *arg0) {
         func_0044ea90(D_00635CF8, 0xAF8);
         paletteCopy = D_008873F4[0](1, 0x400, 0x40000);
         *(u8 **)(ctx + 0x58) = paletteCopy;
-        func_0043f810(paletteCopy, palette, 0x400);
+        memcpy(paletteCopy, palette, 0x400);
         func_003ec2e0((void *)raster);
         }
         goto tail;
@@ -3362,7 +3362,7 @@ s32 func_0025b240(u8 *arg0) {
         func_0045aac0(3, 0, 10);
         *(s32 *)(ctx + 4) = 6;
         *(s32 *)(ctx + 8) = 0;
-        func_0043f9c8(sp80, 0, 0xD8);
+        memset(sp80, 0, 0xD8);
         func_0025fd70(sp80, 0x35, 0);
         func_0025fbb0(sp80, 0, 0xFFFFFFFF, 0xFFFFFFFF, 0, 0, 0.0f, 0.0f);
         func_0025fd00(sp80, 0xFF, 0, fGpffff82a4, 0.25f);
@@ -3457,7 +3457,7 @@ s32 func_0025b240(u8 *arg0) {
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (char *)func_002438b0((u8)func_00248760(*(u16 *)(ctx + 0x18))));
             func_00275980((char *)func_00246d90((s8)func_00248760(*(u16 *)(ctx + 0x18))), (char *)sp160, 0x20);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 2, sp160);
-            func_00442830((char *)sp160, (char *)func_00109220(*(u16 *)(func_00246d90((s8)func_00248760(*(u16 *)(ctx + 0x18))) + 0x40)));
+            strcpy((char *)sp160, (char *)func_00109220(*(u16 *)(func_00246d90((s8)func_00248760(*(u16 *)(ctx + 0x18))) + 0x40)));
             func_002bbd80(*(s8 *)(ctx + 0x3C), 3, sp160);
             func_002badc0(*(s8 *)(ctx + 0x3C), 4);
         } else if (tmp4 == 11) {
@@ -3478,7 +3478,7 @@ s32 func_0025b240(u8 *arg0) {
             }
             func_00275980((char *)func_00246830(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);
-            func_00442088(sp160, &cGpffffa688, *(s32 *)(ctx + 0x1C));
+            sprintf(sp160, &cGpffffa688, *(s32 *)(ctx + 0x1C));
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, sp160);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 2, (char *)func_002438b0((u8)func_00248760(*(u16 *)(ctx + 0x18))));
             func_002badc0(*(s8 *)(ctx + 0x3C), 3);
@@ -3532,7 +3532,7 @@ s32 func_0025b240(u8 *arg0) {
             *(s32 *)ctx &= ~0x20;
             goto case16tail;
         }
-        if (c >= 2 && c < 7 && func_00106330(unlockFlags.values[c - 2]) == 0) {
+        if (c >= 2 && c < 7 && datGetFlag(unlockFlags.values[c - 2]) == 0) {
             *(s32 *)ctx |= 0x20;
         }
         func_00275980((char *)func_002468a0(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
@@ -3659,7 +3659,7 @@ void func_0025c100(u8 *unusedTask) {
     if (*(u32 *)(p + 0x54) != 0) {
         func_003ef3a0(*(u32 *)(p + 0x54));
     }
-    func_00454bd0(*(u32 *)(p + 0x34));
+    H_Cdvd_Destroy(*(u32 *)(p + 0x34));
     (*fp)(p);
 }
 // FUN_0025C230

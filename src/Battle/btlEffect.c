@@ -54,12 +54,12 @@ extern u32 func_00201f60(int param_1);
 
 extern void func_00440b68();
 extern u8* func_00454a60(u8* param, s32 mode);
-extern s32 func_004553c0(u8* ptr);
+extern s32 H_Cdvd_IsFileLoaded(u8* ptr);
 extern u8* func_00455ea0(u8* handle, s32 index, s32* out);
-extern void func_00456150(void* handle);
+extern void H_Cdvd_ReadSync(void* handle);
 extern void func_0044ea90(void* msg, s32 id);
-extern void func_0043f810(void* dst, void* src, u32 size);
-extern void func_00454bd0(u8* ptr);
+extern void memcpy(void* dst, void* src, u32 size);
+extern void H_Cdvd_Destroy(u8* ptr);
 extern s32 func_001d3d50(u32 param_1);
 extern void func_001d4490(int param_1, u32 param_2);
 extern u32 func_001d94d0(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
@@ -188,7 +188,7 @@ u32 func_001d7760(void)
   if (*(int *)(D_0076449C + 0xDC4) == 0) {
     func_00440b68(&iGpffffa290, D_00609548, 0x4AB);
     *(u32 *)(D_0076449C + 0xDC4) = (u32)func_00454a60((u8 *)D_006095C0, 1);
-  } else if (func_004553c0(*(u8 **)(D_0076449C + 0xDC4)) != 0) {
+  } else if (H_Cdvd_IsFileLoaded(*(u8 **)(D_0076449C + 0xDC4)) != 0) {
     for (firstIndex = 0; firstIndex < 0x30; firstIndex++) {
       firstValue = (u32)func_00455ea0(*(void **)(D_0076449C + 0xDC4), firstIndex, &auStack_4);
       firstOffset = firstIndex * 4;
@@ -230,15 +230,15 @@ void func_001d78d0(void) {
         func_00440b68(&iGpffffa290, D_00609548, 0x559);
         offset = i * 4;
         work = func_00454a60(*(u8 **)((u8 *)&iGpffffa2a0 + offset), 0);
-        func_00456150(work);
+        H_Cdvd_ReadSync(work);
         out = (s32 *)((u8 *)&iGpffffb450 + offset);
         *out = func_001d3d50(2);
         temp19 = *(s32 *)(work + 0x118);
         func_0044ea90(D_00609558, 0x3A);
         work2 = jtbl_008873E8[0](temp19, 0x40000);
-        func_0043f810(work2, (void *)*(s32 *)(work + 0x110), *(s32 *)(work + 0x118));
+        memcpy(work2, (void *)*(s32 *)(work + 0x110), *(s32 *)(work + 0x118));
         func_001d4490(*out, (u32)work2);
-        func_00454bd0(work);
+        H_Cdvd_Destroy(work);
         i += 1;
     }
 }
@@ -405,14 +405,14 @@ bool btlCond_MYUSESKIL(int param_1, int param_2)
 
 
 // FUN_001DA730
-void func_001da730(int param_1, u32 param_2)
+void btlCond_FRUSESKIL(int param_1, u32 param_2)
 {
     func_001d94d0(param_1, param_2, 1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000, 0, (code *)&btlCond_MYUSESKIL);
 }
 /* measured: opt_rebuildconditionals off is required for the retail branch shape. */
 #pragma opt_rebuildconditionals off
 // FUN_001DA780
-void func_001da780(int param_1, u32 param_2)
+void btlCond_ENUSESKIL(int param_1, u32 param_2)
 {
     u32 shift;
 
@@ -445,14 +445,14 @@ u32 btlCond_MYGROUP(int param_1)
 
 
 // FUN_001DA840
-void func_001da840(int param_1, u32 param_2)
+void btlCond_FRGROUP(int param_1, u32 param_2)
 {
     func_001d94d0(param_1, param_2, 1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000, 0, (code *)&btlCond_MYGROUP);
 }
 /* measured: opt_rebuildconditionals off is required for the retail branch shape. */
 #pragma opt_rebuildconditionals off
 // FUN_001DA890
-void func_001da890(int param_1, u32 param_2)
+void btlCond_ENGROUP(int param_1, u32 param_2)
 {
     u32 shift;
 

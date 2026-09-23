@@ -23,9 +23,9 @@ struct BtlResultWork
     u8 field58;         // 0x58
 };
 
-s16 func_00105ee0(s32 index);
+s16 datGetPartyId(s32 index);
 u32 func_00105610(s16 param);
-s32 func_00106330(s32 id);
+s32 datGetFlag(s32 id);
 void func_001f8690(u16 param);
 void func_001f86d0(void);
 void func_001f9a50(u16 param, s32 mode);
@@ -39,7 +39,7 @@ void func_002bad10(s32 param);
 void func_002bb4e0(void);
 void func_002bbd20(s32 param, void* text);
 s32 func_00353f50(s32 param);
-void func_00442088(void* dst, void* fmt, s32 value);
+void sprintf(void* dst, void* fmt, s32 value);
 u8* func_00455ea0(u8* param, s32 a, s32* b);
 s32 func_00104c70(s32 param);
 extern u16 D_008C024C[];
@@ -66,7 +66,7 @@ void func_00221ab0(void)
     s32 val;
 
     for (; i < 4; i++) {
-        s16 v = func_00105ee0(i);
+        s16 v = datGetPartyId(i);
 
         if (v != 0 && func_00105610(v) == 0) {
             list[count++] = v;
@@ -111,7 +111,7 @@ void func_00221ab0(void)
         return;
     }
     {
-        s16 v = (func_00106330(0x38) != 0) ? 5 : 8;
+        s16 v = (datGetFlag(0x38) != 0) ? 5 : 8;
 
         switch (v) {
         case 5:
@@ -150,7 +150,7 @@ s32 func_00221cf0(BtlResultWork* work)
         if ((work->flags & 8) || (D_008C024E[0] & 0x50) ||
             ((D_008C024C[0] & 0x10) && ((work->count = work_p->count + 1) > 4))) {
             func_002baac0((u8 *)((s32)func_00455ea0(*(u8**)(work_p->field3C + 0x934), 0, 0)));
-            func_00442088(sp30, &iGpffffa5C8, func_00104c70(1) & 0xFF);
+            sprintf(sp30, &iGpffffa5C8, func_00104c70(1) & 0xFF);
             func_002bbd20(0, sp30);
             func_002bad10(3);
             work->state40 = 1;
@@ -169,7 +169,7 @@ s32 func_00221cf0(BtlResultWork* work)
     case 2:
         if (func_00353f50(1) == 0) {
             func_0045af60(1, 0, 3, 0);
-            func_00442088(sp20, &iGpffffa5C8, work->field44);
+            sprintf(sp20, &iGpffffa5C8, work->field44);
             func_002bbd20(0, sp20);
             func_002bad10(5);
             work->state40 = 3;

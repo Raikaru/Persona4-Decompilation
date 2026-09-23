@@ -31,7 +31,7 @@ void func_003e9cb0(void *frame, void *matrix, u32 flags);
 extern void func_004823e0(u8 *arg0);
 extern void func_00481f30(u8 *arg0, s32 arg1);
 extern s32 func_004861f0(u8 *arg0, f32 *arg1);
-extern void func_004bce50(void);
+extern void effMiscQuatMultiplyVU(void);
 extern void func_0048a2b0(u8 *arg0, u8 *arg1);
 extern f32 func_0044b920(f32 arg0);
 extern f32 func_0044b950(f32 arg0, f32 arg1);
@@ -47,7 +47,7 @@ s32 func_00481460(s32 arg0);
 extern void func_00460ac0(s32 arg0, void *arg1);
 extern void func_003c42b0(void *arg0, s32 arg1);
 extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
-extern u8 *func_003c2290(u8 *arg0, s32 arg1);
+extern u8 *RpGeometryLock(u8 *arg0, s32 arg1);
 extern u8 *func_003c22f0(u8 *arg0);
 extern u8 *func_00483a00(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00481390(s32 arg0);
@@ -66,7 +66,7 @@ extern u8 D_0071348C[];
 extern u8 D_00713480[];
 extern u8 D_00713494[];
 extern u8 D_00713490[];
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void memset(void *dst, s32 value, u32 size);
 extern u8 D_0071349C[];
 extern u8 D_007134A0[];
 extern u8 D_007134A8[];
@@ -261,7 +261,7 @@ u8 *func_00482230(s32 *arg0)
     u8 *temp_4;
     s32 temp_3;
     u8 *scratch;
-    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void memcpy(void *dst, void *src, u32 size);
     {
         s32 offset;
         s32 *temp_2_2;
@@ -276,7 +276,7 @@ u8 *func_00482230(s32 *arg0)
     temp_2 = (u8 *)jtbl_008873E8[0](temp_17, 0x40000);
     *(u8 **)(temp_2 + 0x18) = temp_2;
     temp_17_2 = temp_2 + 0x1C;
-    func_0043f810(temp_17_2, arg0, *arg0);
+    memcpy(temp_17_2, arg0, *arg0);
     *(u8 **)(temp_2 + 0) = temp_17_2;
     *(u8 **)(temp_2 + 4) = temp_17_2 + 8;
     *(s32 *)(temp_2 + 0xC) = temp_16;
@@ -476,7 +476,7 @@ u8 *func_00484010(u8 *arg0)
         var_16 += 1;
     }
 
-    func_003c2290(temp_19, 1);
+    RpGeometryLock(temp_19, 1);
 
     {
         u8 *src;
@@ -653,7 +653,7 @@ code1_0048_84570_after_check:
     if (temp_2 == NULL) {
         func_0046d730(D_00713470, 0x22);
     }
-    func_0043f9c8(temp_2, 0, 0x2C);
+    memset(temp_2, 0, 0x2C);
     *(s32 *)(temp_2 + 0) = 0xD2;
     *(u16 *)(temp_2 + 4) = temp_18;
     *(u16 *)(temp_2 + 0xC) = *(u16 *)(arg0 + 0xC);
@@ -737,7 +737,7 @@ code1_0048_after_check:
     if (temp_2 == NULL) {
         func_0046d730(D_00713470, 0x22);
     }
-    func_0043f9c8(temp_2, 0, 0x2C);
+    memset(temp_2, 0, 0x2C);
     *(s32 *)(temp_2 + 0) = 0xD2;
     *(u16 *)(temp_2 + 4) = temp_18;
     *(u16 *)(temp_2 + 0xC) = *(u16 *)(arg0 + 0xC);
@@ -825,7 +825,7 @@ u_long128 func_00484b30(u8 *arg0)
     const u_long128 *quadSource;
     u_long128 quad;
 
-    func_0043f9c8(state, 0, sizeof(*state));
+    memset(state, 0, sizeof(*state));
     __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(state) : "memory");
     __asm__ volatile("sqc2 vf0, 16(%0)" : : "r"(state) : "memory");
     __asm__ volatile("sqc2 vf0, 64(%0)" : : "r"(state) : "memory");
@@ -854,7 +854,7 @@ u8 *func_00484bb0(u8 *arg0)
     extern void func_00486400(u8 *arg0, f32 arg1);
     extern void func_004865c0(u8 *arg0, s32 arg1);
     extern void func_00486710(u8 *arg0, u8 *arg1);
-    extern void func_00442830(u8 *arg0, u8 *arg1);
+    extern void strcpy(u8 *arg0, u8 *arg1);
     u8 *func_00486740(u8 *arg0, s32 arg1);
     s32 func_004867e0(u8 *arg0, u8 *arg1);
     u8 *func_00486780(u8 *arg0, s32 arg1);
@@ -886,7 +886,7 @@ u8 *func_00484bb0(u8 *arg0)
     if (clone == NULL) {
         func_0046d730(D_00713470, 0x547);
     }
-    func_0043f9c8(clone, 0, 0x90);
+    memset(clone, 0, 0x90);
     *(s32 *)(clone + 0x80) = 0;
     *(s32 *)(clone + 0x84) = 0;
     func_00484b30(clone);
@@ -901,8 +901,8 @@ u8 *func_00484bb0(u8 *arg0)
             if (nodeClone == NULL) {
                 func_0046d730(D_00713470, 0x55A);
             }
-            func_0043f9c8(nodeClone, 0, 0xC0);
-            func_0043f9c8(nodeClone, 0, 0x90);
+            memset(nodeClone, 0, 0xC0);
+            memset(nodeClone, 0, 0x90);
             *(s32 *)(nodeClone + 0x84) = 1;
             *(u8 *)(nodeClone + 0x88) = 8;
             *(u8 *)(nodeClone + 0x89) = 0;
@@ -919,7 +919,7 @@ u8 *func_00484bb0(u8 *arg0)
                 if (prim == NULL) {
                     func_0046d730(D_00713470, 0x22);
                 }
-                func_0043f9c8(prim, 0, 0x2C);
+                memset(prim, 0, 0x2C);
                 *(s32 *)prim = 0xD2;
                 *(u16 *)(prim + 4) = kind;
                 *(u16 *)(prim + 0xC) = *(u16 *)(src + 0xC);
@@ -946,7 +946,7 @@ u8 *func_00484bb0(u8 *arg0)
                 if (prim == NULL) {
                     func_0046d730(D_00713470, 0x22);
                 }
-                func_0043f9c8(prim, 0, 0x2C);
+                memset(prim, 0, 0x2C);
                 *(s32 *)prim = 0xD2;
                 *(u16 *)(prim + 4) = kind;
                 *(u16 *)(prim + 0xC) = *(u16 *)(csrc + 0xC);
@@ -959,7 +959,7 @@ u8 *func_00484bb0(u8 *arg0)
                 *(u8 **)(nodeClone + 0x90) = prim;
             }
             func_00486710(nodeClone, node);
-            func_00442830(nodeClone + 0x9C, node + 0x9C);
+            strcpy(nodeClone + 0x9C, node + 0x9C);
             *(s32 *)(nodeClone + 0xAC) = 0;
             if (*(u8 **)(clone + 0x88) != NULL) {
                 *(u8 **)(*(u8 **)(clone + 0x88) + 0xAC) = nodeClone;
@@ -983,8 +983,8 @@ indexed_body:
         if (nodeClone == NULL) {
             func_0046d730(D_00713470, 0x55A);
         }
-        func_0043f9c8(nodeClone, 0, 0xC0);
-        func_0043f9c8(nodeClone, 0, 0x90);
+        memset(nodeClone, 0, 0xC0);
+        memset(nodeClone, 0, 0x90);
         *(s32 *)(nodeClone + 0x84) = 1;
         *(u8 *)(nodeClone + 0x88) = 8;
         *(u8 *)(nodeClone + 0x89) = 0;
@@ -1026,7 +1026,7 @@ indexed_body:
                 if (prim == NULL) {
                     func_0046d730(D_00713470, 0x22);
                 }
-                func_0043f9c8(prim, 0, 0x2C);
+                memset(prim, 0, 0x2C);
                 *(s32 *)prim = 0xD2;
                 *(u16 *)(prim + 4) = kind;
                 *(u16 *)(prim + 0xC) = *(u16 *)(src + 0xC);
@@ -1052,7 +1052,7 @@ indexed_body:
                 if (prim == NULL) {
                     func_0046d730(D_00713470, 0x22);
                 }
-                func_0043f9c8(prim, 0, 0x2C);
+                memset(prim, 0, 0x2C);
                 *(s32 *)prim = 0xD2;
                 *(u16 *)(prim + 4) = kind;
                 *(u16 *)(prim + 0xC) = *(u16 *)(src + 0xC);
@@ -1078,7 +1078,7 @@ indexed_body:
             if (prim == NULL) {
                 func_0046d730(D_00713470, 0x22);
             }
-            func_0043f9c8(prim, 0, 0x2C);
+            memset(prim, 0, 0x2C);
             *(s32 *)prim = 0xD2;
             *(u16 *)(prim + 4) = kind;
             *(u16 *)(prim + 0xC) = *(u16 *)(csrc + 0xC);
@@ -1091,7 +1091,7 @@ indexed_body:
             *(u8 **)(nodeClone + 0x90) = prim;
         }
         func_00486710(nodeClone, cur);
-        func_00442830(nodeClone + 0x9C, cur + 0x9C);
+        strcpy(nodeClone + 0x9C, cur + 0x9C);
         *(s32 *)(nodeClone + 0xAC) = 0;
         if (*(u8 **)(clone + 0x88) != NULL) {
             *(u8 **)(*(u8 **)(clone + 0x88) + 0xAC) = nodeClone;
@@ -1517,7 +1517,7 @@ u8 *func_00485c80(u8 *arg0)
     if (clone == NULL) {
         func_0046d730(D_00713470, 0x547);
     }
-    func_0043f9c8(clone, 0, 0x90);
+    memset(clone, 0, 0x90);
     *(s32 *)(clone + 0x80) = 0;
     *(s32 *)(clone + 0x84) = 0;
     func_00484b30(clone);
@@ -1531,8 +1531,8 @@ u8 *func_00485c80(u8 *arg0)
         if (nodeClone == NULL) {
             func_0046d730(D_00713470, 0x55A);
         }
-        func_0043f9c8(nodeClone, 0, 0xC0);
-        func_0043f9c8(nodeClone, 0, 0x90);
+        memset(nodeClone, 0, 0xC0);
+        memset(nodeClone, 0, 0x90);
         *(s32 *)(nodeClone + 0x84) = 1;
         *(u8 *)(nodeClone + 0x88) = 8;
         *(u8 *)(nodeClone + 0x89) = 0;
@@ -1548,7 +1548,7 @@ u8 *func_00485c80(u8 *arg0)
         if (prim == NULL) {
             func_0046d730(D_00713470, 0x22);
         }
-        func_0043f9c8(prim, 0, 0x2C);
+        memset(prim, 0, 0x2C);
         *(s32 *)prim = 0xD2;
         *(u16 *)(prim + 4) = kind;
         *(u16 *)(prim + 0xC) = *(u16 *)(src + 0xC);
@@ -1779,7 +1779,7 @@ void func_00486330(u8 *arg0, u8 *arg1)
 loop_00486330_body:
     __asm__ volatile("lqc2 $vf10, 0x50(%0)" : : "r"(var_16) : "$vf10", "memory");
     __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(scratch + 1) : "$vf11", "memory");
-    func_004bce50();
+    effMiscQuatMultiplyVU();
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(scratch) : "$vf10", "memory");
     temp_4 = *(u8 **)(var_16 + 0x90);
     temp_2 = *(s32 (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x24);
@@ -2153,7 +2153,7 @@ u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2)
             :
             : "r"(arg0)
             : "$vf10", "$vf11", "memory");
-        func_004bce50();
+        effMiscQuatMultiplyVU();
     }
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(arg2) : "$vf10", "memory");
 }
@@ -2630,7 +2630,7 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
 #ifdef NON_MATCHING
 void func_0048b340(u8 *arg0, u8 *arg1)
 {
-    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048a810(f32 t, void *quads);
     extern f32 fGpffff8044;
     u_long128 quadF0[4];
@@ -2684,7 +2684,7 @@ void func_0048b340(u8 *arg0, u8 *arg1)
     count = *(u32 *)(arg0 + 4);
     clear = nodesBase + 32 * (count + ((u32)(arg1 - nodesBase) >> 5) * nmult);
     if (node10 == 0) {
-        func_0043f810(clear, arg1, 0x20);
+        memcpy(clear, arg1, 0x20);
         dst1 = clear;
         i = 0;
         goto loop0_check;
@@ -2709,7 +2709,7 @@ loop0_check:
     j = 0;
     goto loop1_check;
 loop1_body:
-    func_0043f810(dst1, src1, 0x20);
+    memcpy(dst1, src1, 0x20);
     ftmp = scaleTop * acc;
     alpha = (u32)ftmp;
     *(u32 *)(dst1 + 0x14) = (*(u32 *)(src1 + 0x14) & 0xFFFFFF) | (alpha << 24);
@@ -2721,7 +2721,7 @@ loop1_check:
     if (j < boundC0) {
         goto loop1_body;
     }
-    func_0043f810(clear, arg1, 0x20);
+    memcpy(clear, arg1, 0x20);
     *(s32 *)(clear + 0x10) = -1;
     if ((c4 == 1) || (c0 < 2)) {
         return;
@@ -2953,11 +2953,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048b340);
 void func_0048b9e0(u8 *arg0)
 {
     extern s32 func_004bceb0(void);
-    extern f32 func_004bd0b0(s32 arg0);
-    extern s32 func_004bd050(s32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 effMiscRandFloat(s32 arg0);
+    extern s32 effMiscRand(s32 arg0);
+    extern f32 sinf(f32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
-    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
@@ -3021,7 +3021,7 @@ void func_0048b9e0(u8 *arg0)
             ftmp1 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
         } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
@@ -3041,7 +3041,7 @@ void func_0048b9e0(u8 *arg0)
         if (*(f32 *)(config + 40) <= 0.0f) {
             v15 = (s32)count;
         } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             ftmp2 = (f32)(u32)count;
             v15 = (s32)(ftmp2 * ftmp1);
         }
@@ -3096,10 +3096,10 @@ skip_clear:
         out[1] = 1.0f;
         out[2] = 0.0f;
     }
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     tmp130[0] = 2.0f * (b - 0.5f);
     tmp130[1] = 0.0f;
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     tmp130[2] = 2.0f * (b - 0.5f);
     tmp130[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp130), "m"(*(u_long128 *)tmp130) : "$vf10", "memory");
@@ -3124,22 +3124,22 @@ skip_clear:
     out[4] = tmp130[1];
     out[5] = tmp130[2];
     a = *(f32 *)(config + 208);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[11] = *(f32 *)(config + 204) * ((1.0f - a) + a * b);
     a = *(f32 *)(config + 220);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     c = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
     out[8] = c;
     a = *(f32 *)(config + 228);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[9] = (*(f32 *)(config + 224) * ((1.0f - a) + a * b) - c) / (f32)limitB8;
     a = *(f32 *)(config + 236);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[10] = *(f32 *)(config + 232) * ((1.0f - a) + a * b);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[6] = fGpffff8080 * b;
-    out[7] = func_0044b7b0(out[6]);
-    b = func_004bd0b0(0);
+    out[7] = sinf(out[6]);
+    b = effMiscRandFloat(0);
     c = *(f32 *)(config + 200) * (2.0f * (b - 0.5f));
     tmp120[0] = c;
     tmp120[1] = c;
@@ -3157,19 +3157,19 @@ skip_clear:
     }
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
     a = *(f32 *)(config + 108);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[12] = (1.0f - a) + a * b;
     if (mode9C == 2) {
         out[13] = 0.0f;
         out[14] = 1.0f;
     } else {
         a = *(f32 *)(config + 152);
-        b = func_004bd0b0(0);
+        b = effMiscRandFloat(0);
         out[14] = (1.0f - a) + a * b;
         if (mode9C == 1) {
-            b = func_004bd0b0(0);
+            b = effMiscRandFloat(0);
             out[13] = fGpffff8080 * b;
-            if ((func_004bd050(0) & 1) != 0) {
+            if ((effMiscRand(0) & 1) != 0) {
                 out[14] = out[14] * -1.0f;
             }
         } else {
@@ -3179,7 +3179,7 @@ skip_clear:
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = func_004bd050(0) % limitB8;
+        tmp = effMiscRand(0) % limitB8;
         ftmp1 = (f32)(u32)tmp;
         ftmp2 = out[11] * ftmp1 - ftmp1 * d4val * ftmp1 * 0.5f;
         *(f32 *)(nodes + 0) = *(f32 *)(nodes + 0) + out[0] * ftmp2;
@@ -3187,7 +3187,7 @@ skip_clear:
         *(f32 *)(nodes + 8) = *(f32 *)(nodes + 8) + out[2] * ftmp2;
         out[6] = out[6] + out[10] * ftmp1;
         out[8] = out[8] + out[9] * ftmp1;
-        a = func_0044b7b0(out[6]);
+        a = sinf(out[6]);
         c = out[8] * a;
         *(f32 *)(nodes + 0) = *(f32 *)(nodes + 0) + out[3] * c;
         *(f32 *)(nodes + 4) = *(f32 *)(nodes + 4) + out[4] * c;
@@ -3203,7 +3203,7 @@ skip_clear:
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[13];
     if (v14 != 0) {
         if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            func_0043f810(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
+            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
             *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
@@ -3212,7 +3212,7 @@ skip_clear:
     goto next_iter2;
 else_branch:
     b220buf = *(u_long128 *)nodes;
-    ftmp1 = func_0044b7b0(out[6]);
+    ftmp1 = sinf(out[6]);
     ftmp2 = out[8] * (ftmp1 - out[7]);
     *(f32 *)(nodes + 0) = *(f32 *)(nodes + 0) + out[3] * ftmp2;
     *(f32 *)(nodes + 4) = *(f32 *)(nodes + 4) + out[4] * ftmp2;
@@ -3279,10 +3279,10 @@ loop_0048c440_check:
 void func_0048c4e0(u8 *arg0)
 {
     extern s32 func_004bceb0(void);
-    extern f32 func_004bd0b0(s32 arg0);
-    extern s32 func_004bd050(s32 arg0);
+    extern f32 effMiscRandFloat(s32 arg0);
+    extern s32 effMiscRand(s32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
-    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
@@ -3352,7 +3352,7 @@ void func_0048c4e0(u8 *arg0)
             ftmp1 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
         } else {
-            ftmp1 = (g7c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (g7c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
@@ -3369,7 +3369,7 @@ void func_0048c4e0(u8 *arg0)
         if (*(f32 *)(config + 40) <= 0.0f) {
             v15 = (s32)count;
         } else {
-            ftmp1 = (g7c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (g7c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             ftmp2 = (f32)(u32)count;
             v15 = (s32)(ftmp2 * ftmp1);
         }
@@ -3421,9 +3421,9 @@ skip_clear:
     if (v15 == 0) {
         goto next_iter;
     }
-    vec130[0] = (func_004bd0b0(0) - half) * two;
-    vec130[1] = (func_004bd0b0(0) - half) * two;
-    vec130[2] = (func_004bd0b0(0) - half) * two;
+    vec130[0] = (effMiscRandFloat(0) - half) * two;
+    vec130[1] = (effMiscRandFloat(0) - half) * two;
+    vec130[2] = (effMiscRandFloat(0) - half) * two;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
     __asm__ volatile(
         "vmul.xyz $vf2, $vf10, $vf10 \n"
@@ -3439,13 +3439,13 @@ skip_clear:
     out[1] = vec130[1];
     out[2] = vec130[2];
     a = *(f32 *)(config + 212);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[3] = *(f32 *)(config + 208) * ((one - a) + a * b);
     if (out[3] < zero) {
         out[3] = -out[3];
     }
     a = *(f32 *)(config + 204);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     vec120[0] = *(f32 *)(config + 200) * ((one - a) + a * b);
     vec120[1] = vec120[0];
     vec120[2] = vec120[0];
@@ -3465,19 +3465,19 @@ skip_clear:
     }
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
     a = *(f32 *)(config + 108);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[4] = (one - a) + a * b;
     if (mode9C == 2) {
         out[5] = zero;
         out[6] = one;
     } else {
         a = *(f32 *)(config + 152);
-        b = func_004bd0b0(0);
+        b = effMiscRandFloat(0);
         out[6] = (one - a) + a * b;
         if (mode9C == 1) {
-            b = func_004bd0b0(0);
+            b = effMiscRandFloat(0);
             out[5] = g80 * b;
-            if ((func_004bd050(0) & 1) != 0) {
+            if ((effMiscRand(0) & 1) != 0) {
                 out[6] = out[6] * negone;
             }
         } else {
@@ -3487,7 +3487,7 @@ skip_clear:
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = func_004bd050(0) % limitB8;
+        tmp = effMiscRand(0) % limitB8;
         ftmp1 = (f32)(u32)tmp;
         __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
         ftmp2 = out[3] * ftmp1 + half * (e0val * ftmp1 * ftmp1);
@@ -3509,7 +3509,7 @@ skip_clear:
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
     if (v14 != 0) {
         if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            func_0043f810(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
+            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
             *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
@@ -3584,12 +3584,12 @@ loop_0048cd60_check:
 #pragma opt_loop_invariants on
 void func_0048cdf0(u8 *arg0)
 {
-    extern f32 func_004bd0b0(s32 arg0);
-    extern s32 func_004bd050(s32 arg0);
-    extern f32 func_0044b610(f32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 effMiscRandFloat(s32 arg0);
+    extern s32 effMiscRand(s32 arg0);
+    extern f32 cosf(f32 arg0);
+    extern f32 sinf(f32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
-    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern s32 func_004bceb0(void);
     extern f32 fGpffff807c;
@@ -3656,7 +3656,7 @@ void func_0048cdf0(u8 *arg0)
             ftmp1 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
         } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
@@ -3676,7 +3676,7 @@ void func_0048cdf0(u8 *arg0)
         if (*(f32 *)(config + 40) <= 0.0f) {
             v15 = (s32)count;
         } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             ftmp2 = (f32)(u32)count;
             v15 = (s32)(ftmp2 * ftmp1);
         }
@@ -3720,25 +3720,25 @@ skip_clear:
         goto next_iter;
     }
     a = *(f32 *)(config + 208);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     c = *(f32 *)(config + 204) * ((1.0f - a) + a * b);
     out[8] = c;
     a = *(f32 *)(config + 216);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[9] = (*(f32 *)(config + 212) * ((1.0f - a) + a * b) - c) / (f32)limitB8;
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[10] = fGpffff8080 * b;
     a = *(f32 *)(config + 224);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[11] = *(f32 *)(config + 220) * ((1.0f - a) + a * b);
     a = *(f32 *)(config + 232);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[12] = *(f32 *)(config + 228) * ((1.0f - a) + a * b);
-    tmp170[0] = func_0044b610(out[10]);
+    tmp170[0] = cosf(out[10]);
     tmp170[1] = 0.0f;
-    tmp170[2] = func_0044b7b0(out[10]);
+    tmp170[2] = sinf(out[10]);
     tmp170[3] = 0.0f;
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[7] = *(f32 *)(config + 200) * b;
     tmp160[0] = c;
     tmp160[1] = c;
@@ -3771,19 +3771,19 @@ skip_clear:
     }
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
     a = *(f32 *)(config + 108);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[13] = (1.0f - a) + a * b;
     if (mode9C == 2) {
         out[14] = 0.0f;
         out[15] = 1.0f;
     } else {
         a = *(f32 *)(config + 152);
-        b = func_004bd0b0(0);
+        b = effMiscRandFloat(0);
         out[15] = (1.0f - a) + a * b;
         if (mode9C == 1) {
-            b = func_004bd0b0(0);
+            b = effMiscRandFloat(0);
             out[14] = fGpffff8080 * b;
-            if ((func_004bd050(0) & 1) != 0) {
+            if ((effMiscRand(0) & 1) != 0) {
                 out[15] = out[15] * -1.0f;
             }
         } else {
@@ -3793,14 +3793,14 @@ skip_clear:
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = func_004bd050(0) % limitB8;
+        tmp = effMiscRand(0) % limitB8;
         ftmp1 = (f32)(u32)tmp;
         out[7] = out[7] + out[12] * ftmp1;
         out[7] = out[7] - ftmp1 * eF0val * ftmp1 * 0.5f;
         out[8] = out[8] + out[9] * ftmp1;
-        tmp130[0] = out[8] * func_0044b610(out[10]);
+        tmp130[0] = out[8] * cosf(out[10]);
         tmp130[1] = out[7];
-        tmp130[2] = out[8] * func_0044b7b0(out[10]);
+        tmp130[2] = out[8] * sinf(out[10]);
         tmp130[3] = 0.0f;
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&cfg10), "m"(cfg10) : "$vf10", "memory");
         func_004bceb0();
@@ -3818,7 +3818,7 @@ skip_clear:
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[14];
     if (v14 != 0) {
         if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            func_0043f810(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
+            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
             *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
@@ -3833,9 +3833,9 @@ else_branch:
     out[7] = out[7] - eF0val * ftmp1;
     out[8] = out[8] + out[9];
     c = out[8];
-    tmp130[0] = c * func_0044b610(ftmp2);
+    tmp130[0] = c * cosf(ftmp2);
     tmp130[1] = out[7];
-    tmp130[2] = c * func_0044b7b0(ftmp2);
+    tmp130[2] = c * sinf(ftmp2);
     tmp130[3] = 0.0f;
     tmp150[0] = out[3];
     tmp150[1] = out[4];
@@ -3910,12 +3910,12 @@ loop_0048d820_check:
 #pragma opt_loop_invariants on
 void func_0048d8c0(u8 *arg0)
 {
-    extern f32 func_004bd0b0(s32 arg0);
-    extern s32 func_004bd050(s32 arg0);
-    extern f32 func_0044b610(f32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 effMiscRandFloat(s32 arg0);
+    extern s32 effMiscRand(s32 arg0);
+    extern f32 cosf(f32 arg0);
+    extern f32 sinf(f32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
-    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern void func_004bd1a0(f32 arg0);
     extern void func_004bd3c0(f32 arg0);
@@ -3982,7 +3982,7 @@ void func_0048d8c0(u8 *arg0)
             ftmp1 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
         } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
@@ -4002,7 +4002,7 @@ void func_0048d8c0(u8 *arg0)
         if (*(f32 *)(config + 40) <= 0.0f) {
             v15 = (s32)count;
         } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             ftmp2 = (f32)(u32)count;
             v15 = (s32)(ftmp2 * ftmp1);
         }
@@ -4045,30 +4045,30 @@ skip_clear:
     if (v15 == 0) {
         goto next_iter;
     }
-    func_004bd0b0(0);
+    effMiscRandFloat(0);
     a = *(f32 *)(config + 204);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     c = *(f32 *)(config + 200) * ((1.0f - a) + a * b);
     out[5] = c;
     a = *(f32 *)(config + 212);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[6] = (*(f32 *)(config + 208) * ((1.0f - a) + a * b) - c) / (f32)limitB8;
     a = *(f32 *)(config + 220);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[7] = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[8] = fGpffff8094 * b;
     out[9] = 0.0f;
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[3] = fGpffff8084 * (2.0f * (b - 0.5f));
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[4] = fGpffff8084 * (2.0f * (b - 0.5f));
     func_004bd1a0(out[3]);
     func_004bd3c0(out[4]);
     func_004bd450();
-    sp150[0] = out[5] * func_0044b610(out[8]);
+    sp150[0] = out[5] * cosf(out[8]);
     sp150[1] = 0.0f;
-    sp150[2] = out[5] * func_0044b7b0(out[8]);
+    sp150[2] = out[5] * sinf(out[8]);
     sp150[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp150), "m"(*(u_long128 *)sp150) : "$vf10", "memory");
     __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
@@ -4081,19 +4081,19 @@ skip_clear:
     }
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
     a = *(f32 *)(config + 108);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[10] = (1.0f - a) + a * b;
     if (mode9C == 2) {
         out[11] = 0.0f;
         out[12] = 1.0f;
     } else {
         a = *(f32 *)(config + 152);
-        b = func_004bd0b0(0);
+        b = effMiscRandFloat(0);
         out[12] = (1.0f - a) + a * b;
         if (mode9C == 1) {
-            b = func_004bd0b0(0);
+            b = effMiscRandFloat(0);
             out[11] = fGpffff8080 * b;
-            if ((func_004bd050(0) & 1) != 0) {
+            if ((effMiscRand(0) & 1) != 0) {
                 out[12] = out[12] * -1.0f;
             }
         } else {
@@ -4103,13 +4103,13 @@ skip_clear:
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = func_004bd050(0) % limitB8;
+        tmp = effMiscRand(0) % limitB8;
         ftmp1 = (f32)(u32)tmp;
         out[9] = out[9] - ftmp1 * e4val * ftmp1 * 0.5f;
         out[5] = out[6] * ftmp1 + out[5];
-        sp150[0] = out[5] * func_0044b610(out[8]);
+        sp150[0] = out[5] * cosf(out[8]);
         sp150[1] = 0.0f;
-        sp150[2] = out[5] * func_0044b7b0(out[8]);
+        sp150[2] = out[5] * sinf(out[8]);
         sp150[3] = 0.0f;
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp150), "m"(*(u_long128 *)sp150) : "$vf10", "memory");
         __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
@@ -4128,7 +4128,7 @@ skip_clear:
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[11];
     if (v14 != 0) {
         if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            func_0043f810(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
+            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
             *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
@@ -4145,9 +4145,9 @@ else_branch:
     func_004bd3c0(out[4]);
     func_004bd450();
     c = out[5];
-    sp150[0] = c * func_0044b610(ftmp2);
+    sp150[0] = c * cosf(ftmp2);
     sp150[1] = 0.0f;
-    sp150[2] = c * func_0044b7b0(ftmp2);
+    sp150[2] = c * sinf(ftmp2);
     sp150[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp150), "m"(*(u_long128 *)sp150) : "$vf10", "memory");
     __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
@@ -4212,12 +4212,12 @@ loop_0048e270_check:
 void func_0048e2f0(u8 *arg0)
 {
     extern s32 func_004bceb0(void);
-    extern f32 func_004bd0b0(s32 arg0);
-    extern s32 func_004bd050(s32 arg0);
-    extern f32 func_0044b610(f32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 effMiscRandFloat(s32 arg0);
+    extern s32 effMiscRand(s32 arg0);
+    extern f32 cosf(f32 arg0);
+    extern f32 sinf(f32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
-    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
@@ -4285,7 +4285,7 @@ void func_0048e2f0(u8 *arg0)
             ftmp1 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
         } else {
-            ftmp1 = (g7c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (g7c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
@@ -4305,7 +4305,7 @@ void func_0048e2f0(u8 *arg0)
         if (*(f32 *)(config + 40) <= 0.0f) {
             v15 = (s32)count;
         } else {
-            ftmp1 = (g7c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (g7c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             ftmp2 = (f32)(u32)count;
             v15 = (s32)(ftmp2 * ftmp1);
         }
@@ -4348,13 +4348,13 @@ skip_clear:
     if (v15 == 0) {
         goto next_iter;
     }
-    func_004bd0b0(0);
+    effMiscRandFloat(0);
     a = *(f32 *)(config + 212);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     c = *(f32 *)(config + 208) * ((1.0f - a) + a * b);
-    vec130[0] = c * func_0044b610(c);
+    vec130[0] = c * cosf(c);
     vec130[1] = -(1.0f - c);
-    vec130[2] = c * func_0044b7b0(c);
+    vec130[2] = c * sinf(c);
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
     __asm__ volatile(
         "vmul.xyz $vf2, $vf10, $vf10 \n"
@@ -4377,13 +4377,13 @@ skip_clear:
     out[1] = vec130[1];
     out[2] = vec130[2];
     a = *(f32 *)(config + 220);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[3] = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
     if (out[3] < 0.0f) {
         out[3] = -out[3];
     }
     a = *(f32 *)(config + 204);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     vec120[0] = *(f32 *)(config + 200) * ((1.0f - a) + a * b);
     vec120[1] = vec120[0];
     vec120[2] = vec120[0];
@@ -4403,19 +4403,19 @@ skip_clear:
     }
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
     a = *(f32 *)(config + 108);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[4] = (1.0f - a) + a * b;
     if (mode9C == 2) {
         out[5] = 0.0f;
         out[6] = 1.0f;
     } else {
         a = *(f32 *)(config + 152);
-        b = func_004bd0b0(0);
+        b = effMiscRandFloat(0);
         out[6] = (1.0f - a) + a * b;
         if (mode9C == 1) {
-            b = func_004bd0b0(0);
+            b = effMiscRandFloat(0);
             out[5] = g80 * b;
-            if ((func_004bd050(0) & 1) != 0) {
+            if ((effMiscRand(0) & 1) != 0) {
                 out[6] = out[6] * -1.0f;
             }
         } else {
@@ -4425,7 +4425,7 @@ skip_clear:
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = func_004bd050(0) % limitB8;
+        tmp = effMiscRand(0) % limitB8;
         ftmp1 = (f32)(u32)tmp;
         __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
         ftmp2 = out[3] * ftmp1 + e0val * (ftmp1 * (e4val * ftmp1));
@@ -4447,7 +4447,7 @@ skip_clear:
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
     if (v14 != 0) {
         if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            func_0043f810(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
+            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
             *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
@@ -4533,12 +4533,12 @@ loop_0048ebc0_check:
 void func_0048ec50(u8 *arg0)
 {
     extern s32 func_004bceb0(void);
-    extern f32 func_004bd0b0(s32 arg0);
-    extern s32 func_004bd050(s32 arg0);
-    extern f32 func_0044b610(f32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 effMiscRandFloat(s32 arg0);
+    extern s32 effMiscRand(s32 arg0);
+    extern f32 cosf(f32 arg0);
+    extern f32 sinf(f32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
-    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
@@ -4606,7 +4606,7 @@ void func_0048ec50(u8 *arg0)
             ftmp1 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
         } else {
-            ftmp1 = (g7c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (g7c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
@@ -4626,7 +4626,7 @@ void func_0048ec50(u8 *arg0)
         if (*(f32 *)(config + 40) <= 0.0f) {
             v15 = (s32)count;
         } else {
-            ftmp1 = (g7c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (g7c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             ftmp2 = (f32)(u32)count;
             v15 = (s32)(ftmp2 * ftmp1);
         }
@@ -4669,13 +4669,13 @@ skip_clear:
     if (v15 == 0) {
         goto next_iter;
     }
-    func_004bd0b0(0);
+    effMiscRandFloat(0);
     a = *(f32 *)(config + 212);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     c = *(f32 *)(config + 208) * ((1.0f - a) + a * b);
-    vec130[0] = c * func_0044b610(c);
+    vec130[0] = c * cosf(c);
     vec130[1] = -(1.0f - c);
-    vec130[2] = c * func_0044b7b0(c);
+    vec130[2] = c * sinf(c);
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
     __asm__ volatile(
         "vmul.xyz $vf2, $vf10, $vf10 \n"
@@ -4698,13 +4698,13 @@ skip_clear:
     out[1] = vec130[1];
     out[2] = vec130[2];
     a = *(f32 *)(config + 220);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[3] = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
     if (out[3] < 0.0f) {
         out[3] = -out[3];
     }
     a = *(f32 *)(config + 204);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     vec120[0] = *(f32 *)(config + 200) * ((1.0f - a) + a * b);
     vec120[1] = vec120[0];
     vec120[2] = vec120[0];
@@ -4724,19 +4724,19 @@ skip_clear:
     }
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
     a = *(f32 *)(config + 108);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     out[4] = (1.0f - a) + a * b;
     if (mode9C == 2) {
         out[5] = 0.0f;
         out[6] = 1.0f;
     } else {
         a = *(f32 *)(config + 152);
-        b = func_004bd0b0(0);
+        b = effMiscRandFloat(0);
         out[6] = (1.0f - a) + a * b;
         if (mode9C == 1) {
-            b = func_004bd0b0(0);
+            b = effMiscRandFloat(0);
             out[5] = g80 * b;
-            if ((func_004bd050(0) & 1) != 0) {
+            if ((effMiscRand(0) & 1) != 0) {
                 out[6] = out[6] * -1.0f;
             }
         } else {
@@ -4746,7 +4746,7 @@ skip_clear:
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = func_004bd050(0) % limitB8;
+        tmp = effMiscRand(0) % limitB8;
         ftmp1 = (f32)(u32)tmp;
         __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
         ftmp2 = out[3] * ftmp1 + e0val * (ftmp1 * (e4val * ftmp1));
@@ -4768,7 +4768,7 @@ skip_clear:
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
     if (v14 != 0) {
         if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            func_0043f810(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
+            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
             *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
@@ -4855,13 +4855,13 @@ loop_0048f560_check:
 void func_0048f5f0(u8 *arg0)
 {
     extern s32 func_004bceb0(void);
-    extern f32 func_004bd0b0(s32 arg0);
-    extern s32 func_004bd050(s32 arg0);
-    extern f32 func_0044b610(f32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 effMiscRandFloat(s32 arg0);
+    extern s32 effMiscRand(s32 arg0);
+    extern f32 cosf(f32 arg0);
+    extern f32 sinf(f32 arg0);
     extern void func_004bd380(void *arg0, f32 arg1);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
-    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
@@ -4973,7 +4973,7 @@ void func_0048f5f0(u8 *arg0)
             ftmp1 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
         } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             if (tmp < 0) {
                 half = ((u32)tmp >> 1) | (tmp & 1);
@@ -4995,7 +4995,7 @@ void func_0048f5f0(u8 *arg0)
         if (*(f32 *)(config + 40) <= 0.0f) {
             v15 = (s32)count;
         } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = (s32)count;
             if (tmp < 0) {
                 half = ((u32)tmp >> 1) | (tmp & 1);
@@ -5044,14 +5044,14 @@ skip_clear:
     if (v15 == 0) {
         goto next_iter;
     }
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     c = 2.0f * (b - 0.5f);
     {
         f32 arg8084 = fGpffff8084 * c;
-        a = *(f32 *)(config + 284) * func_0044b610(arg8084);
+        a = *(f32 *)(config + 284) * cosf(arg8084);
         ((f32 *)out)[9] = a;
         ((f32 *)out)[10] = -*(f32 *)(config + 288);
-        a = *(f32 *)(config + 284) * func_0044b7b0(arg8084);
+        a = *(f32 *)(config + 284) * sinf(arg8084);
         ((f32 *)out)[11] = a;
     }
     vecA[0] = *(f32 *)(config + 264) + ((f32 *)out)[9];
@@ -5094,7 +5094,7 @@ skip_clear:
     {
         s16 hE0 = *(s16 *)(config + 224);
         f32 fE0 = (f32)hE0;
-        b = func_004bd0b0(0);
+        b = effMiscRandFloat(0);
         c = 2.0f * (b - 0.5f);
         fE0 = fE0 * c;
         ftmp1 = 0.5f * fE0;
@@ -5111,7 +5111,7 @@ skip_clear:
     }
     {
         ftmp1 = *(f32 *)(config + 208);
-        b = func_004bd0b0(0);
+        b = effMiscRandFloat(0);
         {
             f32 blend208 = (1.0f - ftmp1) + ftmp1 * b;
             f32 scale204 = *(f32 *)(config + 204) * blend208;
@@ -5130,7 +5130,7 @@ skip_clear:
     }
     {
         ftmp1 = *(f32 *)(config + 220);
-        b = func_004bd0b0(0);
+        b = effMiscRandFloat(0);
         {
             f32 blend220 = (1.0f - ftmp1) + ftmp1 * b;
             f32 scale216 = *(f32 *)(config + 216) * blend220;
@@ -5147,27 +5147,27 @@ skip_clear:
         }
     }
     ftmp1 = *(f32 *)(config + 244);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     ((f32 *)out)[13] = *(f32 *)(config + 240) * ((1.0f - ftmp1) + ftmp1 * b);
     ftmp1 = *(f32 *)(config + 232);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     ((f32 *)out)[12] = *(f32 *)(config + 228) * ((1.0f - ftmp1) + ftmp1 * b);
     ((f32 *)out)[15] = 0.0f;
     *(u_long128 *)nodes = *(u_long128 *)stack1A0;
     ftmp1 = *(f32 *)(config + 108);
-    b = func_004bd0b0(0);
+    b = effMiscRandFloat(0);
     ((f32 *)out)[16] = (1.0f - ftmp1) + ftmp1 * b;
     if (mode9C == 2) {
         ((f32 *)out)[17] = 0.0f;
         ((f32 *)out)[18] = 1.0f;
     } else {
         ftmp1 = *(f32 *)(config + 152);
-        b = func_004bd0b0(0);
+        b = effMiscRandFloat(0);
         ((f32 *)out)[18] = (1.0f - ftmp1) + ftmp1 * b;
         if (mode9C == 1) {
-            b = func_004bd0b0(0);
+            b = effMiscRandFloat(0);
             ((f32 *)out)[17] = fGpffff8080 * b;
-            if ((func_004bd050(0) & 1) != 0) {
+            if ((effMiscRand(0) & 1) != 0) {
                 ((f32 *)out)[18] = ((f32 *)out)[18] * -1.0f;
             }
         } else {
@@ -5177,7 +5177,7 @@ skip_clear:
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = func_004bd050(0) % limitB8;
+        tmp = effMiscRand(0) % limitB8;
         if (tmp < 0) {
             half = ((u32)tmp >> 1) | (tmp & 1);
             ftmp1 = 2.0f * (f32)half;
@@ -5272,7 +5272,7 @@ skip_clear:
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + ((f32 *)out)[17];
     if (v14 != 0) {
         if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            func_0043f810(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
+            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
             *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;

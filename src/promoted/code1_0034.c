@@ -5,11 +5,11 @@
 #include "rw/plcore/barenderstate.h"
 extern void func_0034c4a0();
 extern s32 (*D_00887300[])(RwRenderState, void *);
-extern s32 func_003f6440(s32 command, void *value);
+extern s32 RpSkyRenderStateSet(s32 command, void *value);
 extern void func_0046b380(u8 *arg0, s32 arg1);
 extern void func_0046d730(const void *file, s32 line);
 extern char D_0064B310[];
-extern u32 func_003b7060();
+extern u32 RpRandom();
 
 extern void (*jtbl_008873EC[])(void *);
 
@@ -23,7 +23,7 @@ extern s32 D_00884684[];
 extern u16 iGpffffb5a4;
 extern u8 *func_0046d200(s32 arg0, s32 arg1);
 extern s32 func_002b89a0(void *arg0);
-extern void func_0043f810(void *arg0, s32 arg1, s32 arg2);
+extern void memcpy(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_00457120(void);
 extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern u8 D_00793E80[];
@@ -111,8 +111,8 @@ void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
     extern void func_004787e0(void *arg0);
     extern void func_00104a00(void *arg0);
     extern u8 *func_00104900(s8 arg0);
-    extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 fparg0);
-    extern void func_003e0c90(void *arg0, void *arg1, s32 arg2);
+    extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+    extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
     extern void func_00452080(void *arg0);
     extern u8 *func_003488d0(void *arg0, void *arg1, s32 arg2);
     extern u8 D_0064A700[];
@@ -151,8 +151,8 @@ void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
         *(s8 *)(obj + 6) = 0;
         *(u8 **)(obj + 0x14) = func_00104900(*(s8 *)(obj + 0x28));
         *(s32 *)(obj + 0x10) = *(s32 *)(*(u8 **)(obj + 0x14) + 8);
-        func_003e0870(obj + 0x30, &sp60, 0, 180.0f);
-        func_003e0c90(obj + 0x30, &sp50, 2);
+        RwMatrixRotate(obj + 0x30, &sp60, 0, 180.0f);
+        RwMatrixTranslate(obj + 0x30, &sp50, 2);
         iGpffffb5a0 = 0;
         if (*(s8 *)(obj + 0x28) == 0) {
             if (*(u8 **)(obj + 0xEC) != NULL) {
@@ -223,8 +223,8 @@ void func_0034a8b0(u8 *packet, s32 data, void *callback)
     state[0](2, (void *)3);
     state[0](0xB, (void *)6);
     state[0](0xA, (void *)5);
-    func_003f6440(2, (void *)0x44);
-    func_003f6440(3, (void *)0x717FB);
+    RpSkyRenderStateSet(2, (void *)0x44);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
     *(s32 *)((u8 *)data + 0x10) = 0;
     *(s32 *)((u8 *)data + 0x14) = 0;
     *(s32 *)((u8 *)data + 0x50) = 0x3F800000;
@@ -285,7 +285,7 @@ s32 func_0034ac00(u8 *arg0)
     while ((s64)(s16)counter < *(u8 *)(base + 0x1800)) {
         entry = base + ((s32)(s64)(s16)(s64)counter << 9);
         sub = entry + 0x104;
-        func_0043f810(sub, func_002b89a0(sub), 0xF0);
+        memcpy(sub, func_002b89a0(sub), 0xF0);
         if ((*(s16 *)(entry + 0x104) & 1) == 1) {
             f32 field;
             f32 global;
@@ -466,8 +466,8 @@ void func_0034f1e0(void)
     base[0](0xA, (void *)5);
     base[0](2, (void *)4);
     base[0](0xE, (void *)0);
-    func_003f6440(3, (void *)0x717FB);
-    func_003f6440(2, (void *)0x44);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
+    RpSkyRenderStateSet(2, (void *)0x44);
 }
 /* measured: closing opt_propagation bracket for func_0034f1e0. */
 #pragma opt_propagation on
@@ -547,7 +547,7 @@ void func_0034f5d0(u8 *arg0)
 
     if (--*(s16 *)(arg0 + 2) <= 0) {
         extent = *(s32 *)(arg0 + 12);
-        random = func_003b7060();
+        random = RpRandom();
         remainder = random % (u32)(extent / 2 + 1);
         distance = (s32)(extent - *(s32 *)(arg0 + 4) - remainder);
         if (distance < 0) distance = 0;
@@ -555,19 +555,19 @@ void func_0034f5d0(u8 *arg0)
         if (distance <= half) {
             span = 20 - half * 2 - distance;
             if (span > 0) {
-                choice = func_003b7060() % (u32)span;
+                choice = RpRandom() % (u32)span;
                 if (choice < 9U) {
                     *(s16 *)(arg0 + 0) = (s16)(choice % 3U);
                 } else {
                     *(s16 *)(arg0 + 0) = -1;
                 }
             } else {
-                *(s16 *)(arg0 + 0) = (s16)(func_003b7060() % 3U);
+                *(s16 *)(arg0 + 0) = (s16)(RpRandom() % 3U);
             }
         } else {
             *(s16 *)(arg0 + 0) = -1;
         }
-        *(s16 *)(arg0 + 2) = (s16)(func_003b7060() % 5U + 2);
+        *(s16 *)(arg0 + 2) = (s16)(RpRandom() % 5U + 2);
     }
 }
 /* measured: restore propagation after the exact countdown update. */
@@ -618,7 +618,7 @@ void func_0034f8f0(u8 *arg0)
       }
       *((s16 *) (arg0 + 6)) += (s16) (temp_3_2 / var_2);
     }
-    func_003b7060();
+    RpRandom();
     temp_3_2 = 8;
     *((s16 *) (arg0 + temp_3_2)) = 2;
   }

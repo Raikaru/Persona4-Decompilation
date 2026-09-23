@@ -39,7 +39,7 @@ void func_00488d70(u8 *arg0);
 s32 func_004b0f70(void *arg0);
 s32 func_004b0fa0(void *arg0);
 s32 func_004aed70(void *arg0);
-void func_003f6440(s32 arg0, s32 arg1);
+void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 void func_004b1600(void);
 void func_004a7830(void);
 void *func_004571a0(void);
@@ -48,11 +48,11 @@ void func_003c38b0(void *arg0, void *arg1);
 void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 void func_00440b68(const void *arg0, const void *arg1, s32 arg2);
 u8 *func_00454a60(const void *arg0, s32 arg1);
-void func_00454bd0(void *arg0);
-void func_00456150(void *arg0);
-void func_00442088(void *arg0, const void *arg1, s32 arg2);
+void H_Cdvd_Destroy(void *arg0);
+void H_Cdvd_ReadSync(void *arg0);
+void sprintf(void *arg0, const void *arg1, s32 arg2);
 u8 *func_003ef740(void *arg0, s32 arg1);
-void func_004bd130(s32 arg0, s32 arg1);
+void effMiscRandInit(s32 arg0, s32 arg1);
 void func_004abb60(void);
 void func_004a77b0(void);
 void func_004b3180(s32 arg0);
@@ -222,7 +222,7 @@ void func_00481740(void *arg0) {
     }
     if (*(s32 *)(obj + 0x54) == 0) {
         (*tbl)(8, 1);
-        func_003f6440(3, 0x70003);
+        RpSkyRenderStateSet(3, 0x70003);
     }
     tbl2 = (TNFunc *)D_00887300_abs;
     (*tbl2)(0x14, 2);
@@ -230,7 +230,7 @@ void func_00481740(void *arg0) {
     (*tbl2)(0x14, 1);
     if (*(s32 *)(obj + 0x54) == 0) {
         (*tbl)(8, 0);
-        func_003f6440(3, 0x717FB);
+        RpSkyRenderStateSet(3, 0x717FB);
     }
     if (!(*(u8 *)((u8 *)arg0 + 0x32) & 1)) {
         (*tbl)(6, 1);
@@ -307,11 +307,11 @@ void func_00481a20(s32 arg0)
     color1 = D_007132E0;
     func_00440b68(sStr_7641E8, D_00713270, 0x35);
     handle = func_00454a60(D_00713280, 1);
-    func_00456150(handle);
+    H_Cdvd_ReadSync(handle);
     index = 0;
     while (index < 0x16)
     {
-        func_00442088(buffer, D_007132A0, index + 1);
+        sprintf(buffer, D_007132A0, index + 1);
         slot = &D_00922D10[index];
         obj = func_003ef740(buffer, 0);
         *slot = obj;
@@ -320,8 +320,8 @@ void func_00481a20(s32 arg0)
         *(s32 *)(slotObj + 0x50) = (*(s32 *)(slotObj + 0x50) & 0xFFFF00FF) | 0x1100;
         index++;
     }
-    func_00454bd0(handle);
-    func_004bd130(0, 0x12345678);
+    H_Cdvd_Destroy(handle);
+    effMiscRandInit(0, 0x12345678);
     D_00922CC0[0] = 1;
     temp_f3 = ((f32 *)&color0)[0];
     temp_f2 = ((f32 *)&color0)[1];

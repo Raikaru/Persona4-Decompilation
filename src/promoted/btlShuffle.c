@@ -27,7 +27,7 @@ extern void func_0044ea90(const void *file, s32 line);
 
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern void memset(void *dst, s32 value, s32 size);
 
 
 
@@ -49,7 +49,7 @@ extern void func_001056e0(s16 character, s16 value);
 
 extern u32 func_00105610(s16 param);
 
-extern s32 func_00105ee0();
+extern s32 datGetPartyId();
 
 extern u16 func_00104e30(s16 character);
 
@@ -61,7 +61,7 @@ extern u8 D_0064E5F0[];
 
 extern u8 D_0064E5F1[];
 
-extern u32 func_003b7060();
+extern u32 RpRandom();
 
 extern s32 func_0010b5b0();
 
@@ -73,7 +73,7 @@ extern s32 func_0010aa80();
 
 extern u8 *func_0010ace0();
 
-extern s32 func_00109390();
+extern s32 datPersonaGetLevel();
 
 extern void func_0010ad80();
 
@@ -84,7 +84,7 @@ extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3f0;
 extern u8 *iGpffffb3e0;
 extern u8 *iGpffffb3ec;
-extern s32 func_001094d0(u32 arg0);
+extern s32 datPersonaGetSkills(u32 arg0);
 extern s32 func_0010cd70(u8 *arg0, s32 arg1, u16 arg2);
 
 extern s32 D_0064E7B0[];
@@ -97,7 +97,7 @@ extern s32 D_0064E7B8[];
 
 extern void func_00106550(s32 arg0, u32 arg1);
 
-extern s32 func_00106330(s32 id);
+extern s32 datGetFlag(s32 id);
 
 extern void func_00106390(s32 a, s32 b);
 
@@ -221,7 +221,7 @@ case2_body:
     case 3:
         func_00374730(work + 0x70);
         *(u16 *)work |= 2;
-        if (func_00106330(0x1430) == 0) {
+        if (datGetFlag(0x1430) == 0) {
             *(s32 *)(work + 4) = 0;
             *(s32 *)(work + 8) = 7;
             break;
@@ -318,7 +318,7 @@ void func_0036e600(u8 *unusedTask)
 {
     u8 *work = (u8 *)func_00452560();
 
-    if (func_00106330(0x1430) == 0) {
+    if (datGetFlag(0x1430) == 0) {
         func_00106390(0x1430, 1);
     }
     func_0036d940(work + 0x1F384);
@@ -335,7 +335,7 @@ s32 func_0036e690(u8 *arg0, u8 *arg1)
 
     func_0044ea90(D_0064E7A0, 0x3A);
     work = (u8 *)(*jtbl_008873E8)(0x21ABC, 0x40000);
-    func_0043f9c8(work, 0, 0x21ABC);
+    memset(work, 0, 0x21ABC);
     handle = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064E780), 0x12, 0, 0, func_0036e140, func_0036e600, (u8 *)(work));
     tmp = (s32)func_00452560(arg0);
     *(s32 *)(work + 8) = 0;
@@ -519,7 +519,7 @@ s32 func_0036eb50(s32 arg0, s32 arg1)
     case 0:
     case 1:
     case 2:
-        if (func_00106330(0x1431) != 0) {
+        if (datGetFlag(0x1431) != 0) {
             while (i < 3) {
                 sum += D_0064E650[q * 3 + i];
                 if (limit < sum) {
@@ -533,7 +533,7 @@ s32 func_0036eb50(s32 arg0, s32 arg1)
         }
         break;
     case 3:
-        if (func_00106330(0x1432) != 0) {
+        if (datGetFlag(0x1432) != 0) {
             while (i < 4) {
                 sum += D_0064E670[q * 4 + i];
                 if (limit < sum) {
@@ -547,7 +547,7 @@ s32 func_0036eb50(s32 arg0, s32 arg1)
         }
         break;
     case 4:
-        if (func_00106330(0x1433) != 0) {
+        if (datGetFlag(0x1433) != 0) {
             while (i < 3) {
                 sum += D_0064E6A0[q * 3 + i];
                 if (limit < sum) {
@@ -781,7 +781,7 @@ void func_0036f410(u8 *arg0, u8 *arg1)
             *(u16 *)(arg0 + i * 8 + 4) = *(u16 *)(arg1 + i * 2);
             *(u16 *)(arg0 + i * 8 + 6) = 0;
         } else {
-            v = func_003b7060() & 0xFFF;
+            v = RpRandom() & 0xFFF;
             f = (f32)v;
             if (100.0f * (f / 4096.0f) < 30.0f) {
                 *(s32 *)(arg0 + i * 8) = 3;
@@ -793,7 +793,7 @@ void func_0036f410(u8 *arg0, u8 *arg1)
         }
     }
     for (i = *(s32 *)(arg1 + 0xC) - 1; i > 0; i--) {
-        v = func_003b7060() & 0xFFF;
+        v = RpRandom() & 0xFFF;
         f = (f32)v / 4096.0f;
         idx = (s32)((f32)i * f);
         tmp = ((ShuffleCard2 *)arg0)[i];
@@ -821,13 +821,13 @@ s32 func_0036f640(s32 arg0, s32 *arg1)
     u8 *p;
     s32 (*fn)(s32, s32 *);
 
-    func_0043f9c8(arg1, 0, 0xC);
-    if (func_00106330(0x1403) != 0) {
+    memset(arg1, 0, 0xC);
+    if (datGetFlag(0x1403) != 0) {
         a = 0;
         b = 0;
         for (idx = 0; idx < 0x2C; idx++) {
             p = (u8 *)D_0064E7B0 + idx * 12;
-            if (func_00106330(*(s32 *)p) != 0) {
+            if (datGetFlag(*(s32 *)p) != 0) {
                 a = *(u16 *)((u8 *)D_0064E7B4 + idx * 12);
                 b = *(u16 *)((u8 *)D_0064E7B6 + idx * 12);
                 func_00106390(*(s32 *)p, 0);
@@ -912,7 +912,7 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
         return 0;
     }
     pick = (u8 *)w1[func_00231d70(cnt)];
-    t2 = func_001094d0((u32)pick);
+    t2 = datPersonaGetSkills((u32)pick);
     a = 0;
     b = 0;
     tbl = iGpffffb3ec;
@@ -1017,7 +1017,7 @@ s32 func_0036fbe0(s32 arg0)
     }
     i = 0;
     for (; i < 4; i++) {
-        r = (u16)func_00105ee0(i);
+        r = (u16)datGetPartyId(i);
         if (r != 0) {
             s = (s16)r;
             if (func_00105610(s) == 0) {
@@ -1056,9 +1056,9 @@ s32 func_0036fd00(s32 arg0, u8 *arg1)
         } else {
             t = *(u16 *)((u8 *)iGpffffb3f0 + *(u16 *)(p + 2) * 4);
         }
-        if (t != 0 && (s16)func_0010aa80((s16)t) == -1 && (func_00109390(p) & 0xFF) < min) {
+        if (t != 0 && (s16)func_0010aa80((s16)t) == -1 && (datPersonaGetLevel(p) & 0xFF) < min) {
             best = p;
-            min = func_00109390(p) & 0xFF;
+            min = datPersonaGetLevel(p) & 0xFF;
             bestFlag = t & 0xFFFF;
         }
     }
@@ -1085,7 +1085,7 @@ s32 func_0036fed0(s32 arg0)
         func_00105730(1, (s16)((u32)((u16)func_00104d50(1)) >> 1));
     }
     for (i = 0; i < 4; i++) {
-        r = (u16)func_00105ee0(i);
+        r = (u16)datGetPartyId(i);
         if (r != 0 && func_00105610((s16)r) == 0) {
             if (flag != 0) {
                 func_00105730((s16)r, (s16)func_00104e30((s16)r));

@@ -5,7 +5,7 @@
 #include "type.h"
 
 /* Canonical grouped function declarations. */
-u32 func_00397460(s32 object);
+u32 RpHAnimFrameGetHierarchy(s32 object);
 
 /* Source unit: src/rw/rtanim_00397460.c (1 function markers) */
 #pragma optimization_level 3
@@ -13,7 +13,7 @@ u32 func_00397460(s32 object);
 static u32 iGpffffb5d8;
 
 // FUN_00397460
-u32 func_00397460(s32 object)
+u32 RpHAnimFrameGetHierarchy(s32 object)
 {
     return *(u32*)(object + iGpffffb5d8 + 4);
 }

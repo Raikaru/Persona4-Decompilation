@@ -16,7 +16,7 @@ s32 func_0010abd0(s16 arg0);
 s32 func_0034c210(void);
 void func_001437b0(void* arg0, s32 arg1, s32 arg2);
 void func_0034f5d0(void* arg0);
-u32 func_003b7060(void);
+u32 RpRandom(void);
 void func_0046d280(void *node);
 void func_00452080(s32 arg0);
 void func_002bb4e0(void);
@@ -55,7 +55,7 @@ void func_003552d0(s32 arg0, CmpPair arg1);
 void func_001356d0(u8* arg0) {
  extern void func_00135c10(u8* arg0);
  extern s16 func_00353c10(s16* arg0);
- extern void* func_0043f9c8(void* dst, s32 value, u32 size);
+ extern void* memset(void* dst, s32 value, u32 size);
  extern u8* func_0046a770(char* arg0);
  extern u8* func_0046d200(u32 arg0, u32 arg1);
  extern u8 func_002baac0(u8* arg0);
@@ -76,7 +76,7 @@ void func_001356d0(u8* arg0) {
  u8* p;
  u8* src;
 
- func_0043f9c8(arg0, 0, 0x1CC4);
+ memset(arg0, 0, 0x1CC4);
  *(s32*)(arg0 + 4) = 0;
  *(s32*)(arg0 + 8) = 0;
  *(u8*)arg0 = 0xFF;
@@ -261,7 +261,7 @@ void func_00135dc0(u8* arg0)
     extern void func_0034f320(u8* arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern f32 func_0034f720(u8* arg0, f32 fparg0, f32 fparg1, f32 fparg2);
     extern void func_0034f9d0(Vec2f arg0, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
-    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
     extern void func_00355410(u8 *arg0, u32 arg1);
     extern void func_00354ba0(void* arg0);
     extern void func_00137890(u8* arg0, s32 arg1);
@@ -274,7 +274,7 @@ void func_00135dc0(u8* arg0)
     extern void func_0011de40(void* arg0, s32 arg1);
     extern void func_0011e400(void* arg0, void* arg1);
     extern s32 func_0011e460(void* arg0);
-    extern f32 func_0044b610(f32 arg0);
+    extern f32 cosf(f32 arg0);
     extern void func_00364680(f32 depth, s32 color, f32 x, f32 y, f32 sx, f32 sy, f32 w, f32 h, s32 tex, s32 mode, s32 flag);
     extern void func_0046d730(void* arg0, s32 arg1);
     extern u8 D_005EB540[];
@@ -346,16 +346,16 @@ void func_00135dc0(u8* arg0)
         fA0 = 227.0f + (baseX + *(f32*)(arg0 + 0x14B4));
         fA4 = 9.0f + (baseY + *(f32*)(arg0 + 0x14B8));
         spr = *(void**)(arg0 + 0x1C74);
-        func_003f6440(3, 0x71801);
-        func_003f6440(2, 0x48);
+        RpSkyRenderStateSet(3, 0x71801);
+        RpSkyRenderStateSet(2, 0x48);
         fa = 190.0f * alphaBase;
         alpha = (u8)fa;
         for (i = 0; i < 0x24; i++) {
             entry = arg0 + i * 0x30;
             func_0034f2e0(spr, fA0 + *(f32*)(entry + 0x15A4), fA4 + *(f32*)(entry + 0x15A8), 0, 0xFF, 0x64, alpha);
         }
-        func_003f6440(3, 0x717FB);
-        func_003f6440(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
         fa = (f32)*(u8*)(arg0 + 0x14BE) * alphaBase;
         alpha = (u8)fa;
         t1 = 255.0f * alphaBase;
@@ -428,14 +428,14 @@ void func_00135dc0(u8* arg0)
                     if (fr < 5) {
                         pulse = 0xCC;
                     } else if (fr < 0x19) {
-                        fa = 204.0f * func_0044b610((fGpffff84a4 * (f32)(fr - 5)) / 20.0f);
+                        fa = 204.0f * cosf((fGpffff84a4 * (f32)(fr - 5)) / 20.0f);
                         pulse = (u8)fa;
                     } else {
                         pulse = 0;
                     }
                     func_00364680(0.0f, (pulse & 0xFF) | 0xDCDCDC00, fA0, fA4, fA0, fA4, 512.0f, 512.0f, t, 0, 1);
-                    func_003f6440(3, 0x717FB);
-                    func_003f6440(2, 0x44);
+                    RpSkyRenderStateSet(3, 0x717FB);
+                    RpSkyRenderStateSet(2, 0x44);
                 }
             }
         }
@@ -541,7 +541,7 @@ void func_001370e0(u8* arg0) {
         idx = *value;
         p = arg0 + idx * 0x14;
         *(s16*)(p + 0x9C4) = 3;
-        *(s16*)(p + 0x9C6) = (s16)(func_003b7060() % 0x19 + 0xF);
+        *(s16*)(p + 0x9C6) = (s16)(RpRandom() % 0x19 + 0xF);
     }
 }
 #pragma opt_propagation on
@@ -731,9 +731,9 @@ void func_001375f0(u8 *arg0)
     u32 *q;
 
     for (i = 0; i < 0x24; i++) {
-        if (func_003b7060() & 3) {
+        if (RpRandom() & 3) {
             p = arg0 + i * 0x30;
-            val = (func_003b7060() % 7U) * 0x2C;
+            val = (RpRandom() % 7U) * 0x2C;
             if (val >= 0) {
                 f = (f32)val;
             } else {
@@ -747,7 +747,7 @@ void func_001375f0(u8 *arg0)
             *(f32 *)(p + 0x15A8) = *(f32 *)(p + 0x1598);
             *(s32 *)(p + 0x15A0) = 0xC2C80000;
             q = (u32 *)(p + 0x15BC);
-            random = func_003b7060() % 10U;
+            random = RpRandom() % 10U;
             *q = random;
             *(s32 *)(p + 0x15C0) = random + 0xA;
         } else {

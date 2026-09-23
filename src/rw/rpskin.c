@@ -31,7 +31,7 @@ extern s32 func_003e8930(s32 arg0, s32 arg1, void *arg2, void *arg3);
 extern s32 func_003c1ab0(s32 arg0, s32 arg1, void *arg2, void *arg3, void *arg4);
 extern s32 func_003c1b10(s32 arg0, void *arg1, void *arg2, void *arg3);
 extern s32 func_003c1b40(s32 arg0, void *arg1);
-extern s32 func_003b7450(s32 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 _rpSkinSplitDataStreamGetSize(s32 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_003b88d0(s32 arg0);
 extern s32 func_003c1b60(s32 arg0, void *arg1);
 extern s32 func_003c2b70(s32 arg0, s32 arg1, void *arg2, void *arg3, void *arg4);
@@ -57,7 +57,7 @@ extern s32 iGpffffb6b0;
 extern u8 D_008872E0[];
 extern s32 iGpffffb710;
 extern s32 iGpffffb718;
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern void memset(void *dst, s32 value, s32 size);
 extern void func_003b7480(u8 *arg0, s32 arg1);
 extern void func_003b7150(u8 *arg0);
 extern void (*jtbl_008873EC[])(u8 *arg0);
@@ -102,7 +102,7 @@ u64 func_003b7a80(u64 value) { return value; }
 // FUN_003B7A90
 s32 func_003b7a90(s32 arg0)
 {
-    func_0043f9c8((void *)(arg0 + D_00886494[0]), 0, 4);
+    memset((void *)(arg0 + D_00886494[0]), 0, 4);
     return arg0;
 }
 
@@ -202,7 +202,7 @@ s32 func_003b7c10(u8 *arg0)
     temp_16 = temp_5_2;
     temp_16 += temp_7 * 0x10;
     temp_16 += *(s32 *)(temp_5 + 0) << 6;
-    var_2 = temp_16 + func_003b7450((s32 *)temp_5, temp_5_2, temp_6, temp_7);
+    var_2 = temp_16 + _rpSkinSplitDataStreamGetSize((s32 *)temp_5, temp_5_2, temp_6, temp_7);
     goto done;
 special:
     var_2 = func_003b88d0((s32)arg0);
@@ -253,7 +253,7 @@ parse_body:
     temp_18 = (value >> 16) & 0xFF;
     sp188 = temp_19;
     var_17 = D_008873F8[0](D_008864A8[0], 0x30116);
-    func_0043f9c8(var_17, 0, 0x48);
+    memset(var_17, 0, 0x48);
     if (temp_18 == 0) {
         goto fill_count;
     }

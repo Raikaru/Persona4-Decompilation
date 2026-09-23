@@ -27,12 +27,12 @@ s32 func_0010ace0(s16);
 void func_0010b3b0(s16);
 s32 func_00113520(s32, s32, s32, void *);
 u16 *func_0010a900(u16);
-u16 *func_001094d0(s32);
+u16 *datPersonaGetSkills(s32);
 void func_0010fa80(s32, s32, u16, s32, s32 *, s32, s32);
 void func_001437b0(void *, s32, s32);
 void func_0046d280(void *);
 s32 func_0034c210(void);
-u32 func_003b7060(void);
+u32 RpRandom(void);
 s32 func_0023d8e0(u8 *, u16);
 void func_0034f1e0(void);
 void func_0034c270(Vec2f, u8, f32);
@@ -56,7 +56,7 @@ void *func_0046a770(char *);
 s32 func_0046d200(void *, u8);
 s16 func_00353b50(void *);
 void func_0046d730(char *, s32);
-void func_0043f9c8(void *, s32, s32);
+void memset(void *, s32, s32);
 s32 func_0013a040(s16 *, s32, s32);
 void func_0013a060(void *);
 void func_0013a4a0(void *);
@@ -108,7 +108,7 @@ void func_00137fb0(u8 *arg0)
         s32 half : 16;
     } narrow;
 
-    func_0043f9c8(arg0, 0, 0x1338);
+    memset(arg0, 0, 0x1338);
     *(s32 *)(arg0 + 4) = 0;
     *(s32 *)(arg0 + 8) = 0;
     *arg0 = 0xFF;
@@ -296,7 +296,7 @@ void func_00138490(void *arg0)
             if (cur == key) {
                 if (cur < 0x1B8 && sel != -1) {
                     v = func_0010ace0(*(s16 *)(p + 0x100));
-                    a = (s32)func_001094d0(v);
+                    a = (s32)datPersonaGetSkills(v);
                     res = 0;
                     for (k = 0; k < 8; k++) {
                         if (*(u16 *)(a + k * 2) == 0x20A) {
@@ -306,7 +306,7 @@ void func_00138490(void *arg0)
                     }
                     if (res == 0) {
                         v = func_0010ace0(*(s16 *)(q + 0x100));
-                        bv = (s32)func_001094d0(v);
+                        bv = (s32)datPersonaGetSkills(v);
                         res = 0;
                         for (k = 0; k < 8; k++) {
                             if (*(u16 *)(bv + k * 2) == 0x20A) {
@@ -784,10 +784,10 @@ void func_0013a060(void *arg0)
                 } else {
                     p = (u8 *)arg0 + i * 0x30;
                     x = (f32 *)(p + 0xCA4);
-                    random = (u32)func_003b7060() % 0x28 - 0x14;
+                    random = (u32)RpRandom() % 0x28 - 0x14;
                     *x = (f32)random;
                     y = (f32 *)(p + 0xCA8);
-                    random = (u32)func_003b7060() % 0x28 - 0x14;
+                    random = (u32)RpRandom() % 0x28 - 0x14;
                     *y = (f32)random;
                     *(f32 *)(p + 0xCAC) = *x;
                     *(f32 *)(p + 0xCB0) = *y;
@@ -809,10 +809,10 @@ void func_0013a060(void *arg0)
                     *statep = 4;
                 } else {
                     x = (f32 *)(row + 0xCA4);
-                    random = (u32)func_003b7060() % 0x28 - 0x14;
+                    random = (u32)RpRandom() % 0x28 - 0x14;
                     *x = (f32)random;
                     y = (f32 *)(row + 0xCA8);
-                    random = (u32)func_003b7060() % 0x28 - 0x14;
+                    random = (u32)RpRandom() % 0x28 - 0x14;
                     *y = (f32)random;
                     table = (f32 *)(D_005ED790 + i * 0x14);
                     temp = table[2];
@@ -1079,7 +1079,7 @@ void func_0013aa90(void *arg0)
 {
     s32 i;
     for (i = 0; i < 6; i++) {
-        if (!(func_003b7060() & 1)) {
+        if (!(RpRandom() & 1)) {
             u8 *q = (u8 *)arg0 + i * 0x30;
             *(s16 *)(q + 0xCC2) = 0xFA;
             *(s16 *)(q + 0xCC8) = 0x190;

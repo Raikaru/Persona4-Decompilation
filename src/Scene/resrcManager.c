@@ -63,7 +63,7 @@ extern code DAT_008873ec_abs[];
 extern void func_0044ea90(const char* file, s32 line);
 extern void func_0046d730(const char* file, s32 line);
 extern void func_00440b68(const char* fmt, ...);
-extern void func_0043f9c8(void* dst, s32 value, u32 size);
+extern void memset(void* dst, s32 value, u32 size);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void* ptr);
 extern char D_005EFA40[];
@@ -86,7 +86,7 @@ ResrcManager* resrcMngCreate()
 
     func_0044ea90(D_005EFA40, 0x29);
     resMgr = (ResrcManager*)(*jtbl_008873E8)(sizeof(ResrcManager), 0x40000);
-    func_0043f9c8(resMgr, 0, sizeof(ResrcManager));
+    memset(resMgr, 0, sizeof(ResrcManager));
 
     return resMgr;
 }
@@ -194,7 +194,7 @@ Resrc* resrcMngCreateRes(ResrcManager* resManager, u16 resTypeId)
 
     func_0044ea90(D_005EFA40, 0x92);
     res = (Resrc*)(*jtbl_008873E8)(resSize, 0x40000);
-    func_0043f9c8(res, 0, resSize);
+    memset(res, 0, resSize);
     res->resTypeId = resTypeId;
     res->unk_24 = 1.0f;
     res->unk_20 = 1.0f;

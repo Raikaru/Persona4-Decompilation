@@ -13,14 +13,14 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_004535c0(u8 *a, s32 b, s32 c);
 extern void func_00453860(u8 *a, s32 b, s32 c, s32 d, s32 e);
 extern u8 D_00713118[];
-extern void func_00442830(u8 *dst, u8 *src);
+extern void strcpy(u8 *dst, u8 *src);
 extern void func_00453c80(u8 *arg0);
 extern s32 func_00453e10(u8 *arg0);
 extern u8 D_00713128[];
 extern s32 func_0046f2b0(u8 *task);
 extern void func_00470210(u8 *arg0);
-extern void func_00442088(void *buf, const void *fmt, ...);
-extern s32 func_00442948(const void *str);
+extern void sprintf(void *buf, const void *fmt, ...);
+extern s32 strlen(const void *str);
 extern s32 func_0044dcd8(f32 value);
 extern u8 iGpffffb06c;
 extern u8 iGpffffb070;
@@ -132,23 +132,23 @@ loop_29_body:
         case 0:
             break;
         case 1:
-            func_00442088(sp60, &iGpffffb06c, var20 + 0x108);
+            sprintf(sp60, &iGpffffb06c, var20 + 0x108);
             var18 += *(s32 *)(temp17 + 0x28) +
                      (*(s32 (**)(u8 *))(temp17 + 0x158))(sp60);
             break;
         case 2:
-            func_00442830(sp60, &iGpffffb070);
+            strcpy(sp60, &iGpffffb070);
             var18 += *(s32 *)(temp17 + 0x28) +
                      (*(s32 (**)(u8 *))(temp17 + 0x158))(sp60);
             break;
         case 3:
             if (*(s32 *)(var20 + 0x218) == 0) {
-                func_00442088(sp60, &iGpffffb0c0,
+                sprintf(sp60, &iGpffffb0c0,
                               *(u8 **)(var20 + 0x208));
                 var18 += *(s32 *)(temp17 + 0x28) +
                          (*(s32 (**)(u8 *))(temp17 + 0x158))(sp60);
             } else {
-                func_00442088(sp60, &iGpffffb090,
+                sprintf(sp60, &iGpffffb090,
                               *(u8 **)(var20 + 0x208));
                 var18 += *(s32 *)(temp17 + 0x28) +
                          (*(s32 (**)(u8 *))(temp17 + 0x158))(sp60);
@@ -156,25 +156,25 @@ loop_29_body:
             break;
         case 4:
             temp16 = func_0044dcd8(*(f32 *)(var20 + 0x20C));
-            func_00442088(sp60, &iGpffffb0c8, temp16);
+            sprintf(sp60, &iGpffffb0c8, temp16);
             var18 += *(s32 *)(temp17 + 0x28) +
                      (*(s32 (**)(u8 *))(temp17 + 0x158))(sp60);
             break;
         }
     } else {
         temp16 = *(s32 *)(temp17 + 0x28);
-        var18 = temp16 * func_00442948(var20 + 8);
+        var18 = temp16 * strlen(var20 + 8);
         temp4_2 = *(s32 *)(var20 + 4);
         switch (temp4_2) {
         case 0:
             break;
         case 1:
             var18 += *(s32 *)(temp17 + 0x28) *
-                     (func_00442948(var20 + 0x108) + 1);
+                     (strlen(var20 + 0x108) + 1);
             break;
         case 2:
             var18 += *(s32 *)(temp17 + 0x28) *
-                     (func_00442948(&iGpffffb0a8) + 1);
+                     (strlen(&iGpffffb0a8) + 1);
             break;
         case 3:
             if (*(s32 *)(var20 + 0x218) == 0) {
@@ -245,7 +245,7 @@ s32 func_00470970(u8 *arg0, u8 *arg1)
     if (node == NULL) {
         func_0046d730(D_00713118, 0x37F);
     }
-    func_00442830(node + 8, arg1);
+    strcpy(node + 8, arg1);
     *(s32 *)(node + 4) = 0;
     *(s32 *)node = *(s32 *)(work + 0x148);
     *(s32 *)(work + 0x148) = *(s32 *)(work + 0x148) + 1;

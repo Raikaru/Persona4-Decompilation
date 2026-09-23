@@ -17,7 +17,6 @@ extern f32 D_005F6D20[];
 
 void btlActionSetState(BtlAction *action, u16 state);
 u8 *func_00193bf0(u64 arg0, u64 arg1);
-void func_001b0800();
 static inline s32 func_001a_add_offset(s32 offset, s32 base)
 {
     return offset + base;
@@ -45,7 +44,7 @@ s64 func_00194590(u8 *arg0, u32 arg1);
 extern void func_0022db90(u8 *arg0);
 extern void func_001f0a40(void *arg0);
 extern void func_00212070(u8 *arg0, u8 *arg1);
-extern void func_001b0850(u8 *arg0, s32 arg1, s32 arg2);
+extern void btlActionSetStateWithDelay(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
 extern void func_001eb4a0(u8 *arg0, u8 *arg1, s64 arg2);
@@ -91,16 +90,15 @@ void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3);
 extern void func_00212010(s32 task);
 void func_0019faf0(u8 *arg0);
 s32 func_0023e1f0();
-u8 *func_0019e550(u8 *arg0, u8 *arg1, s32 arg2);
-u8 *func_001bc920(u8 *arg0, s32 arg1);
+u8 *btlUnitCreateLookAtUnitPacket(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *func_0019a0c0(u8 *arg0, s16 arg1);
-u8 *func_0019e7c0(s32 arg0, s32 arg1);
+u8 *btlUnitCreateLookAtDeactivatePacket(s32 arg0, s32 arg1);
 extern s16 func_00196bd0(u8 *arg0, u8 *arg1, s32 arg2);
 extern void func_001eb410(u8 *arg0);
-extern u8 *func_001979e0(u8 *arg0, u8 *arg1, s32 arg2, f32 arg3, f32 arg4);
+extern u8 *btlUnitCreateMoveToUnitPacket(u8 *arg0, u8 *arg1, s32 arg2, f32 arg3, f32 arg4);
 extern u8 *func_001d3530(u8 *arg0, u8 *arg1, s32 arg2);
 extern f32 fGpffff811c;
-extern s32 func_002326e0(s32 arg0);
+extern s32 datCalcGetBadStatus(s32 arg0);
 extern s16 func_001f6d60(u8 *arg0);
 extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
 extern void func_001f0a10(u8 *arg0);
@@ -114,7 +112,7 @@ extern BtlPacket *func_001d3d00(u32 action);
 BtlPacket *func_001ba090(s32 arg0);
 u8 *func_001d7a10(u16 arg0);
 u8 *func_00201f20(void);
-s32 func_002428f0(u8 *arg0, s32 arg1);
+s32 datCalcIsDead(u8 *arg0, s32 arg1);
 u8 *func_001fa720(const void *data);
 s32 func_001eb860(void);
 extern void func_00218420(s32 task, u8 *arg1);
@@ -136,7 +134,7 @@ u32 func_00193cd0(u32 arg0);
 u8 *func_001fa110(u8 *arg0);
 u8 *func_00202850(void);
 extern void func_002182c0(u8 *arg0, u8 *arg1);
-u8 *func_00198300(u8 *arg0, u8 *arg1, s32 arg2);
+u8 *btlUnitCreateRotateTowardUnitPacket(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *func_00194c90(s32 arg0, s32 arg1);
 u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
 extern s32 func_00218360(s32 task);
@@ -153,7 +151,7 @@ s16 func_001d15a0(void);
 void func_001eb7f0(void);
 s32 func_001ef720(s32 arg0, s32 arg1);
 s32 func_001fabe0(u8 *arg0);
-u32 func_00232710(s32 arg0, u32 arg1);
+u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 s32 func_00232d80(u8 *arg0);
 s64 func_00235320(u8 *arg0);
 s32 func_00243e30(u16 *arg0);
@@ -162,11 +160,11 @@ s32 func_001fac30(void);
 s32 func_001a3de0(u8 *arg0);
 
 u8 *func_002022e0(u32 arg0, u16 arg1);
-extern u8 *func_00199ee0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
+extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
 s32 func_0010b300(s32 arg0);
 extern void func_0019ef30(u8 *arg0, u16 arg1);
 extern void func_0010b7f0(void);
-extern s32 func_00106330(s32 arg0);
+extern s32 datGetFlag(s32 arg0);
 BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
 extern f32 D_0076144C;
@@ -321,7 +319,7 @@ void func_001a03b0(s64 *arg0)
     temp_5 = D_0076449C;
     if (*(s32 *)(temp_5 + 0xC) & 0x400000) {
         if (*(u16 *)(temp_5 + 0x18) & 0x20) {
-            temp_2 = func_0019e7c0(0, 3);
+            temp_2 = btlUnitCreateLookAtDeactivatePacket(0, 3);
             *(s64 *)(temp_2 + 0x60) = *arg0;
             func_00194590(temp_2, 1);
         }
@@ -336,7 +334,7 @@ void func_001a03b0(s64 *arg0)
             goto loop_test;
 loop_body:
             if ((*(u16 *)(var_16 + 0x1A) & 1) &&
-                func_002428f0(*(u8 **)(*(u8 **)(var_16 + 0x30) + 0xA64), 0) == 0) {
+                datCalcIsDead(*(u8 **)(*(u8 **)(var_16 + 0x30) + 0xA64), 0) == 0) {
                 temp_2_3 = func_0019a0c0(*(u8 **)(var_16 + 0x30), 0);
                 *(s64 *)(temp_2_3 + 0x60) = *arg0;
                 func_00194590(temp_2_3, 0);
@@ -358,7 +356,7 @@ loop_test:
             func_00194590(temp_2_5, 1);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 4) {
-            temp_2_6 = func_001bc920((u8 *)arg0, 0x24);
+            temp_2_6 = btlCameraCreateSetStatePacket((u8 *)arg0, 0x24);
             *(s64 *)(temp_2_6 + 0x60) = *arg0;
             func_00194590(temp_2_6, 0);
         }
@@ -428,7 +426,7 @@ void func_001a0670(u8 *arg0) {
 
 // FUN_001A06D0
 void func_001a06d0(u8 *arg0) {
-    extern void func_001b0800(u8 *arg0, u16 arg1);
+    extern void btlActionSetState(u8 *arg0, u16 arg1);
     u8 *var_17;
     s32 var_16;
     u32 temp_4;
@@ -438,13 +436,13 @@ void func_001a06d0(u8 *arg0) {
     var_16 = 1;
     if (*(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) & 0x10) {
         *(s16 *)(arg0 + 0x430) = 2;
-        func_001b0800(arg0, 0x18);
+        btlActionSetState(arg0, 0x18);
         return;
     }
     var_17 = *(u8 **)(D_0076449C + 0x174);
     while (var_17 != NULL) {
         if ((arg0 != var_17) && (*(u16 *)(var_17 + 0x1A) & 1) &&
-            (func_002428f0(*(u8 **)(*(u8 **)(var_17 + 0x30) + 0xA64), 0) == 0) &&
+            (datCalcIsDead(*(u8 **)(*(u8 **)(var_17 + 0x30) + 0xA64), 0) == 0) &&
             (*(s32 *)(*(u8 **)(var_17 + 0x30) + 0x9C) & 0x10)) {
             var_16 = 0;
             break;
@@ -453,14 +451,14 @@ void func_001a06d0(u8 *arg0) {
     }
     func_0022db90(arg0);
     if (*(u16 *)(arg0 + 0x18) & 0x8000) {
-        func_001b0800(arg0, 0x21);
+        btlActionSetState(arg0, 0x21);
         return;
     }
     func_001f0a40(arg0 + 0xD8);
     if (func_001fabe0(arg0) != 0) {
         *(void **)(arg0 + 0x440) = (void *)&func_001fac30;
         *(s16 *)(arg0 + 0x43C) = 2;
-        func_001b0800(arg0, 0x16);
+        btlActionSetState(arg0, 0x16);
         return;
     }
     if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
@@ -474,8 +472,8 @@ void func_001a06d0(u8 *arg0) {
         var_2 = 0;
     }
     if ((var_2 != 0) &&
-        (func_00232710((s32)*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), 0x180001) == 0)) {
-        func_001b0850(arg0, 4, 1);
+        (datCalcChkBadStatus((s32)*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), 0x180001) == 0)) {
+        btlActionSetStateWithDelay(arg0, 4, 1);
         return;
     }
     if (*(s32 *)(iGpffffb3ac + 0xC) & 0x80000) {
@@ -512,14 +510,14 @@ void func_001a06d0(u8 *arg0) {
             *(s32 *)(iGpffffb3ac + 0x20) += 1;
         }
         if ((s8)func_00235320(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)) >= 0) {
-            func_001b0800(arg0, 0xA);
+            btlActionSetState(arg0, 0xA);
             return;
         }
         if (func_001f6770(arg0) != 0) {
-            func_001b0800(arg0, 0xB);
+            btlActionSetState(arg0, 0xB);
             return;
         }
-        func_001b0800(arg0, *(u16 *)(arg0 + 0x14));
+        btlActionSetState(arg0, *(u16 *)(arg0 + 0x14));
     }
 }
 /* P4 initializes and copies the complete 0x20-byte target result. The P3FES
@@ -551,7 +549,7 @@ void func_001a0b00(s64 *arg0) {
     extern u16 func_00231f80(DatUnit *arg0);
     extern u16 func_00232290(DatUnit *arg0);
     extern BtlPacket *func_001f7c20(u16 channel, u16 cue, u16 variant);
-    extern void func_001b0800(s64 *arg0, u16 arg1);
+    extern void btlActionSetState(s64 *arg0, u16 arg1);
     typedef struct ActionResult {
         s32 hpDelta;
         s32 spDelta;
@@ -638,11 +636,11 @@ void func_001a0b00(s64 *arg0) {
             }
         }
         if ((s8)func_00235320((u8 *)action->unit->data) >= 0) {
-            func_001b0800(arg0, 0xA);
+            btlActionSetState(arg0, 0xA);
         } else if (func_001f6770((u8 *)arg0) != 0) {
-            func_001b0800(arg0, 0xB);
+            btlActionSetState(arg0, 0xB);
         } else {
-            func_001b0800(arg0, 3);
+            btlActionSetState(arg0, 3);
         }
     }
 }
@@ -655,7 +653,7 @@ void func_001a0b00(s64 *arg0) {
 // FUN_001A0F40
 void func_001a0f40(s64 *arg0)
 {
-    extern void func_001b0800(s64 *arg0, u16 arg1);
+    extern void btlActionSetState(s64 *arg0, u16 arg1);
     RwV3d sp30;
     s32 temp_7;
     u16 var_5;
@@ -675,7 +673,7 @@ void func_001a0f40(s64 *arg0)
         *(u16 *)((u8 *)arg0 + 0x14) = 9;
     }
     if (func_001b0e90(arg0) != 0) {
-        func_001b0800(arg0, *(u16 *)((u8 *)arg0 + 0x14));
+        btlActionSetState(arg0, *(u16 *)((u8 *)arg0 + 0x14));
         return;
     }
     func_00194ff0(temp_16, (u8 *)&sp30, 0, NULL);
@@ -702,7 +700,7 @@ void func_001a0f40(s64 *arg0)
         func_00194590(temp_2, 1);
         return;
     }
-    func_001b0800(arg0, *(u16 *)((u8 *)arg0 + 0x14));
+    btlActionSetState(arg0, *(u16 *)((u8 *)arg0 + 0x14));
 }
 /* measured: restore propagation for the rest of the unit. */
 #pragma opt_propagation on
@@ -728,8 +726,8 @@ void func_001a1450(s64 *arg0)
     u8 *var_16_2;
 
     extern void func_001958f0(u8 *arg0, f32 *arg1);
-    extern s32 func_00196b50(u8 *arg0);
-    extern u8 *func_00197f50(u8 *arg0, void *arg1, s32 arg2);
+    extern s32 btlUnitIsMoving(u8 *arg0);
+    extern u8 *btlUnitCreateRotatePacket(u8 *arg0, void *arg1, s32 arg2);
     extern void func_00194590(u8 *arg0, s32 arg1);
     extern void func_00203670(s32 arg0, u8 *arg1);
     extern void func_00213c10(s32 task);
@@ -737,7 +735,7 @@ void func_001a1450(s64 *arg0)
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) &&
         (*(u16 *)((u8 *)arg0 + 0x1A) & 1) &&
         (*(u8 **)((u8 *)arg0 + 0x30))[0xA2] == 0) {
-        func_001b0800(arg0, 9);
+        btlActionSetState(arg0, 9);
         return;
     }
     func_001a03b0(arg0);
@@ -749,14 +747,14 @@ void func_001a1450(s64 *arg0)
         var_16 = *(u8 **)(iGpffffb3ac + 0x17C);
         goto loop_14_test;
 loop_14_body:
-        if (func_00232710((s32)*(u8 **)(var_16 + 0xA64), 0x100) != 0) {
+        if (datCalcChkBadStatus((s32)*(u8 **)(var_16 + 0xA64), 0x100) != 0) {
             func_001958f0(
                 *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
                 (f32 *)&sp30);
         } else {
             sp30 = sp40;
         }
-        temp_2 = func_00197f50(var_16, &sp30, 2);
+        temp_2 = btlUnitCreateRotatePacket(var_16, &sp30, 2);
         *(s64 *)(temp_2 + 0x60) = *arg0;
         func_00194590(temp_2, 0);
         var_16 = *(u8 **)(var_16 + 0xA68);
@@ -767,9 +765,9 @@ loop_14_test:
         var_16_2 = *(u8 **)(iGpffffb3ac + 0x184);
         goto loop_19_test;
 loop_19_body:
-        if (func_00196b50(var_16_2) == 0) {
+        if (btlUnitIsMoving(var_16_2) == 0) {
             func_00194ff0(var_16_2, NULL, 0, (f32 *)&sp40);
-            temp_2_2 = func_00197f50(var_16_2, &sp40, 2);
+            temp_2_2 = btlUnitCreateRotatePacket(var_16_2, &sp40, 2);
             *(s64 *)(temp_2_2 + 0x60) = *arg0;
             func_00194590(temp_2_2, 0);
         }
@@ -792,20 +790,20 @@ loop_19_test:
 
         temp_5 = *(u8 **)((u8 *)arg0 + 0x30);
         if (temp_5[0xA2] == 0) {
-            temp_2_5 = func_0019e550(NULL, temp_5, 2);
+            temp_2_5 = btlUnitCreateLookAtUnitPacket(NULL, temp_5, 2);
             *(s64 *)(temp_2_5 + 0x60) = *arg0;
             func_00194590(temp_2_5, 1);
         } else {
-            temp_2_6 = func_0019e7c0(0, 2);
+            temp_2_6 = btlUnitCreateLookAtDeactivatePacket(0, 2);
             *(s64 *)(temp_2_6 + 0x60) = *arg0;
             func_00194590(temp_2_6, 1);
         }
     }
     func_00194590(
-        func_0019e7c0(
+        btlUnitCreateLookAtDeactivatePacket(
             *(s32 *)(u8 *)func_001a_add_offset(0x30, (s32)arg0), 0),
         1);
-    temp_2_7 = func_001bc920((u8 *)arg0, 0x21);
+    temp_2_7 = btlCameraCreateSetStatePacket((u8 *)arg0, 0x21);
     *(s64 *)(temp_2_7 + 0x60) = *arg0;
     func_00194590(temp_2_7, 0);
     func_001eb3b0((u8 *)arg0 + 0x38);
@@ -823,7 +821,7 @@ loop_19_test:
 // FUN_001A17D0
 void func_001a17d0(u8 *arg0)
 {
-    extern u8 *func_001bc920(u8 *arg0, s32 arg1);
+    extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
     extern u16 D_008C024C[];
     s32 v4;
     u16 t;
@@ -857,7 +855,7 @@ void func_001a17d0(u8 *arg0)
                         *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) | 0x10000;
                         func_00213b80(*(s32 *)(iGpffffb3ac + 0xDD4));
                         func_00204d90(*(s32 *)(iGpffffb3ac + 0xDD4));
-                        w = func_001bc920(arg0, 40);
+                        w = btlCameraCreateSetStatePacket(arg0, 40);
                         *(s64 *)(w + 0x60) = *(s64 *)arg0;
                         func_00194590(w, 0);
                     }
@@ -871,7 +869,7 @@ void func_001a17d0(u8 *arg0)
             *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) & ~0x10000;
             func_00213b50(*(s32 *)(iGpffffb3ac + 0xDD4));
             func_00204d50(*(s32 *)(iGpffffb3ac + 0xDD4));
-            w = func_001bc920(arg0, 33);
+            w = btlCameraCreateSetStatePacket(arg0, 33);
             *(s64 *)(w + 0x60) = *(s64 *)arg0;
             func_00194590(w, 0);
         }
@@ -910,7 +908,7 @@ void func_001a17d0(u8 *arg0)
             } else {
                 func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
                 func_00204d90(*(s32 *)(iGpffffb3ac + 0xDD4));
-                func_001b0800(arg0, 6);
+                btlActionSetState(arg0, 6);
                 return;
             }
         }
@@ -929,7 +927,7 @@ tail:
     func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
     for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
     }
-    func_001b0800(arg0, 15);
+    btlActionSetState(arg0, 15);
     return;
 check9:
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) != 0) {
@@ -939,7 +937,7 @@ check9:
         func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
         for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
         }
-        func_001b0800(arg0, 9);
+        btlActionSetState(arg0, 9);
     }
     return;
 }
@@ -1004,15 +1002,15 @@ after_type_1c80:
         arg0,
         arg0 + 0x98,
         (s64)(s16)var_16);
-    temp_2 = func_001bc920(arg0, 0x22);
+    temp_2 = btlCameraCreateSetStatePacket(arg0, 0x22);
     *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
     func_00194590(temp_2, 0);
     func_00212010(*(s32 *)(D_0076449C + 0xDD4));
     func_0019faf0(arg0);
     if (var_17 != NULL) {
-        temp_2 = func_0019e550(NULL, *(u8 **)(var_17 + 0x30), 1);
+        temp_2 = btlUnitCreateLookAtUnitPacket(NULL, *(u8 **)(var_17 + 0x30), 1);
         func_00194590(temp_2, 1);
-        temp_2 = func_0019e7c0(*(s32 *)(var_17 + 0x30), 0);
+        temp_2 = btlUnitCreateLookAtDeactivatePacket(*(s32 *)(var_17 + 0x30), 0);
         func_00194590(temp_2, 1);
     }
 }
@@ -1031,8 +1029,8 @@ after_type_1c80:
 #pragma opt_common_subs off
 void func_001a1ea0(u8 *arg0) {
     extern u16 D_008C024C;
-    extern s32 func_0019e550();
-    extern s32 func_0019e7c0();
+    extern s32 btlUnitCreateLookAtUnitPacket();
+    extern s32 btlUnitCreateLookAtDeactivatePacket();
     extern s32 func_0019fa40();
     extern s32 func_0019fc60();
     extern s32 func_001d8be0();
@@ -1082,7 +1080,7 @@ void func_001a1ea0(u8 *arg0) {
                 temp_4_2 = iGpffffb3ac;
                 (*(s32*)(temp_4_2 + 0xC)) = (s32) ((*(s32*)(temp_4_2 + 0xC)) | 0x10000);
                 func_00213b80((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-                temp_2 = func_001bc920(arg0, 0x28);
+                temp_2 = btlCameraCreateSetStatePacket(arg0, 0x28);
                 (*(s64*)(temp_2 + 0x60)) = (s64) (*(s64*)arg0);
                 func_00194590(temp_2, 0U);
             }
@@ -1096,7 +1094,7 @@ void func_001a1ea0(u8 *arg0) {
         temp_4_3 = iGpffffb3ac;
         (*(s32*)(temp_4_3 + 0xC)) = (s32) ((*(s32*)(temp_4_3 + 0xC)) & 0xFFFEFFFF);
         func_00213b50((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-        temp_2_2 = func_001bc920(arg0, 0x22);
+        temp_2_2 = btlCameraCreateSetStatePacket(arg0, 0x22);
         (*(s64*)(temp_2_2 + 0x60)) = (s64) (*(s64*)arg0);
         func_00194590(temp_2_2, 0U);
     }
@@ -1115,20 +1113,20 @@ block_9:
 do {
                     var_2 = (*(u8**)(var_2 + 0x450));
 } while (var_2 != NULL);
-            func_001b0800(arg0, 9);
-            func_00194590((u8*)func_0019e7c0(0, 1), 1U);
+            btlActionSetState(arg0, 9);
+            func_00194590((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
             return;
         }
         temp_2_3 = func_0020ba90((s32)(*(u8**)(temp_3 + 0xDD4)), 2, temp_6);
         if (temp_2_3 != NULL) {
             temp_5_2 = (*(u8**)(temp_2_3 + 0x30));
             if ((*(u8*)(temp_5_2 + 0xA2)) == 1) {
-                func_00194590((u8*)func_0019e550(NULL, temp_5_2, 1), 1U);
-                func_00194590((u8*)func_0019e7c0((s32) (*(u8**)(temp_2_3 + 0x30)), 0), 1U);
+                func_00194590((u8*)btlUnitCreateLookAtUnitPacket(NULL, temp_5_2, 1), 1U);
+                func_00194590((u8*)btlUnitCreateLookAtDeactivatePacket((s32) (*(u8**)(temp_2_3 + 0x30)), 0), 1U);
                 return;
             }
         }
-        func_00194590((u8*)func_0019e7c0(0, 3), 1U);
+        func_00194590((u8*)btlUnitCreateLookAtDeactivatePacket(0, 3), 1U);
         return;
     case 1:                                         /* switch 1 */
         temp_2_4 = (*(u8*)(((*(u16*)(arg0 + 0x6E)) * 0x28) + iGpffffb3b8 + 0x8));
@@ -1182,20 +1180,20 @@ loop_45:
                 var_2_2 = (*(u8**)(var_2_2 + 0x450));
                 goto loop_45;
             }
-            func_001b0800(arg0, 0xF);
+            btlActionSetState(arg0, 0xF);
             return;
         }
         func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         func_00203880((s32)(*(u8**)(iGpffffb3ac + 0xDD4)), (s32)(*(u8**)(arg0 + 0x38)));
-        func_001b0800(arg0, 5);
+        btlActionSetState(arg0, 5);
         return;
     case 2:                                         /* switch 1 */
-        func_00194590((u8*)func_0019e7c0(0, 1), 1U);
+        func_00194590((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
         func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         func_00213c10((*(u8**)(iGpffffb3ac + 0xDD4)));
         func_00204d50((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         func_002037b0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-        func_001b0800(arg0, 5);
+        btlActionSetState(arg0, 5);
         /* fallthrough */
     case 3:                                         /* switch 1 */
         return;
@@ -1269,7 +1267,7 @@ void func_001a24b0(u8 *arg0)
                 func_00218730(*(s32 *)(D_0076449C + 0xDD4));
             }
             func_001a03b0((s64 *)arg0);
-            temp_2 = func_001bc920(base38, 1);
+            temp_2 = btlCameraCreateSetStatePacket(base38, 1);
             *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
             func_00194590(temp_2, 0);
             func_001f62b0();
@@ -1385,7 +1383,7 @@ void func_001a24b0(u8 *arg0)
         }
         func_00213bb0(*(s32 *)(D_0076449C + 0xDD4));
         func_00218700(*(s32 *)(D_0076449C + 0xDD4));
-        func_001b0800(arg0, *(u16 *)(arg0 + 0x14));
+        btlActionSetState(arg0, *(u16 *)(arg0 + 0x14));
         *(s32 *)(arg0 + 0x41C) = 0;
         return;
     }
@@ -1405,7 +1403,7 @@ void func_001a2ad0(u8 *arg0) {
     if (*(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
         return;
     }
-    func_001b0800(arg0, 9);
+    btlActionSetState(arg0, 9);
 }
 
 // FUN_001A2B50
@@ -1424,7 +1422,7 @@ void func_001a2b50(u8 *arg0)
             *(u16 *)(arg0 + 0x18) |= 0x4000;
         }
         *(u16 *)(arg0 + 0x18) |= 2;
-        func_001b0800(arg0, 0xF);
+        btlActionSetState(arg0, 0xF);
     }
 }
 // FUN_001A2C10
@@ -1455,7 +1453,7 @@ void func_001a2c70(u8 *arg0)
         *(u16 *)(arg0 + 0x18) |= 0x4000;
     }
     *(u16 *)(arg0 + 0x18) |= 2;
-    func_001b0800(arg0, 0xF);
+    btlActionSetState(arg0, 0xF);
 }
 // FUN_001A2D60
 void func_001a2d60(void)
@@ -1474,8 +1472,8 @@ void func_001a2d60(void)
 #pragma opt_common_subs off
 #pragma opt_propagation off
 void func_001a2d70(u8 *arg0) {
-    extern void func_001b0800(u8 *, u16);
-    extern u8 *func_001bc920(u8 *, u16);
+    extern void btlActionSetState(u8 *, u16);
+    extern u8 *btlCameraCreateSetStatePacket(u8 *, u16);
 
     s32 state;
     s32 kind;
@@ -1614,7 +1612,7 @@ void func_001a2d70(u8 *arg0) {
         }
         if (state != 0) {
             func_001a03b0((s64 *)arg0);
-            packet = func_001bc920((u8 *)arg0, 10);
+            packet = btlCameraCreateSetStatePacket((u8 *)arg0, 10);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
             func_00194590(packet, 0);
             packet = func_00202400(*(s32 *)((u8 *)arg0 + 0x30), (s32)state);
@@ -1623,9 +1621,9 @@ void func_001a2d70(u8 *arg0) {
         } else {
 fallback:
             if (func_001f6770((u8 *)arg0) != 0) {
-                func_001b0800((u8 *)arg0, 11);
+                btlActionSetState((u8 *)arg0, 11);
             } else {
-                func_001b0800((u8 *)arg0, 3);
+                btlActionSetState((u8 *)arg0, 3);
             }
         }
     }
@@ -1654,20 +1652,20 @@ void func_001a31e0(u8 *arg0) {
 
     if ((func_00193cd0(0x506) == 0) && (func_00193cd0(0x105) == 0)) {
         func_001a03b0((s64 *)arg0);
-        temp_17 = func_002326e0(*(s32 *)(*(u8 **)arg0 + 0xA64));
-        if ((func_00232710(*(s32 *)(*(u8 **)arg0 + 0xA64), 0x100000) != 0) && (*(s32 *)(arg0 + 0x420) == 0)) {
+        temp_17 = datCalcGetBadStatus(*(s32 *)(*(u8 **)arg0 + 0xA64));
+        if ((datCalcChkBadStatus(*(s32 *)(*(u8 **)arg0 + 0xA64), 0x100000) != 0) && (*(s32 *)(arg0 + 0x420) == 0)) {
             var_17 = 1;
-            if ((func_00232710(*(s32 *)(*(u8 **)arg0 + 0xA64), 1) != 0) && (func_001f6bf0(arg0) == 0)) {
+            if ((datCalcChkBadStatus(*(s32 *)(*(u8 **)arg0 + 0xA64), 1) != 0) && (func_001f6bf0(arg0) == 0)) {
                 var_17 = 0;
             }
             if (var_17 != 0) {
-                temp_2 = (u8 *)func_001bc920(arg0, 0x31);
+                temp_2 = (u8 *)btlCameraCreateSetStatePacket(arg0, 0x31);
                 *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
                 func_00194590(temp_2, 0);
                 if (*(s32 *)(*(u8 **)iGpffffb3ac + 0x0C) & 0x200000) {
                     u8 *t22;
                     func_00194ff0(*(u8 **)arg0, NULL, 0, (f32 *)&sp60);
-                    t22 = (u8 *)func_00197f50(*(u8 **)arg0, (u8 *)&sp60, 2);
+                    t22 = (u8 *)btlUnitCreateRotatePacket(*(u8 **)arg0, (u8 *)&sp60, 2);
                     *(s64 *)(t22 + 0x60) = *(s64 *)arg0;
                     func_00194590(t22, 0);
                 }
@@ -1685,7 +1683,7 @@ void func_001a31e0(u8 *arg0) {
                         v18 = 0x1E;
                         v172 = 8;
                     }
-                    temp_2 = (u8 *)func_00199ee0(*(u8 **)arg0, 0x0B, 0, 0, *(f32 *)&f12v);
+                    temp_2 = (u8 *)btlUnitCreateAnimPacket(*(u8 **)arg0, 0x0B, 0, 0, *(f32 *)&f12v);
                     *(temp_2 + 0) = 4;
                     *(s64 *)(temp_2 + 8) = *(s64 *)temp_2;
                     *(s16 *)(temp_2 + 0x48) = v18;
@@ -1716,7 +1714,7 @@ void func_001a31e0(u8 *arg0) {
                     *(s32 *)(arg0 + 0x41C) = 1;
                 }
             } else {
-                temp_2 = (u8 *)func_001bc920(arg0, 0x0A);
+                temp_2 = (u8 *)btlCameraCreateSetStatePacket(arg0, 0x0A);
                 *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
                 func_00194590(temp_2, 0);
                 temp_2 = (u8 *)func_001f5f70(arg0, 0x12, 0, 0, 0);
@@ -1735,8 +1733,8 @@ void func_001a31e0(u8 *arg0) {
                     *(s32 *)(arg0 + 0x41C) = 0;
                 }
             }
-            func_00194590(func_0019e550(NULL, *(u8 **)arg0, 1), 1);
-            func_00194590(func_0019e7c0((s32)*(u8 **)arg0, 0), 1);
+            func_00194590(btlUnitCreateLookAtUnitPacket(NULL, *(u8 **)arg0, 1), 1);
+            func_00194590(btlUnitCreateLookAtDeactivatePacket((s32)*(u8 **)arg0, 0), 1);
             *(u16 *)(arg0 + 0x18) |= 0x200;
             *(s32 *)(arg0 + 0x420) = 1;
             return;
@@ -1744,7 +1742,7 @@ void func_001a31e0(u8 *arg0) {
         {
             s32 t211 = func_001f6930(arg0);
             if (t211 != 0) {
-                temp_2 = (u8 *)func_001bc920(arg0, 0x0A);
+                temp_2 = (u8 *)btlCameraCreateSetStatePacket(arg0, 0x0A);
                 *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
                 func_00194590(temp_2, 0);
                 func_001f0a10((u8 *)&sp60);
@@ -1770,7 +1768,7 @@ void func_001a31e0(u8 *arg0) {
                 {
                     s16 t216 = (s16)func_001f6f60(arg0);
                     if (t216 > 0) {
-                        temp_2 = (u8 *)func_001bc920(arg0, 0x0A);
+                        temp_2 = (u8 *)btlCameraCreateSetStatePacket(arg0, 0x0A);
                         *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
                         func_00194590(temp_2, 0);
                         temp_2 = (u8 *)func_00202400((s32)*(u8 **)arg0, t216);
@@ -1782,19 +1780,19 @@ void func_001a31e0(u8 *arg0) {
                 *(s16 *)(temp_2 + 0x48) = 0x18;
                 *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
                 func_00194590(temp_2, 1);
-                func_001b0800(arg0, 0x0F);
+                btlActionSetState(arg0, 0x0F);
                 return;
             }
-            func_001b0850(arg0, 3, 1);
+            btlActionSetStateWithDelay(arg0, 3, 1);
             return;
         }
         func_001eb3b0(arg0 + 0x38);
         *(u16 *)(arg0 + 0x18) &= 0xFFF7;
         if (func_001f68e0(arg0) != 0) {
-            func_001b0800(arg0, 0x1B);
+            btlActionSetState(arg0, 0x1B);
             return;
         }
-        func_001b0800(arg0, 0x20);
+        btlActionSetState(arg0, 0x20);
     }
 }
 #pragma opt_common_subs on
@@ -1862,10 +1860,10 @@ void func_001a3840(u8 *arg0)
         func_00194590(pkt, 1);
     }
     if ((*(s32 *)(iGpffffb3ac + 12) & 0x200000) == 0) {
-        pkt = func_001bc920(arg0, 25);
+        pkt = btlCameraCreateSetStatePacket(arg0, 25);
         *(s64 *)(pkt + 96) = *(s64 *)arg0;
         func_00194590(pkt, 0);
-        pkt = func_001979e0(*(u8 **)(arg0 + 48), *(u8 **)(t20 + 48), 10, f20, fGpffff811c);
+        pkt = btlUnitCreateMoveToUnitPacket(*(u8 **)(arg0 + 48), *(u8 **)(t20 + 48), 10, f20, fGpffff811c);
         *(s64 *)(pkt + 96) = *(s64 *)arg0;
         func_00194590(pkt, 0);
     } else {
@@ -1883,7 +1881,7 @@ void func_001a3840(u8 *arg0)
     *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
     *(s64 *)(pkt + 96) = *(s64 *)arg0;
     func_00194590(pkt, 0);
-    pkt = func_001bc920(arg0, 42);
+    pkt = btlCameraCreateSetStatePacket(arg0, 42);
     *(pkt + 0) = 4;
     *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
     *(s64 *)(pkt + 96) = *(s64 *)arg0;
@@ -1895,13 +1893,13 @@ void func_001a3840(u8 *arg0)
         *(s64 *)(pkt + 96) = *(s64 *)arg0;
         func_00194590(pkt, 1);
     }
-    pkt = func_00199ee0(*(u8 **)(arg0 + 48), v18, 0, 0, 1.0f);
+    pkt = btlUnitCreateAnimPacket(*(u8 **)(arg0 + 48), v18, 0, 0, 1.0f);
     *(pkt + 0) = 4;
     *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
     *(s64 *)(pkt + 96) = *(s64 *)arg0;
     *(s16 *)(pkt + 74) = func_00199500(*(u8 **)(arg0 + 48), v18, 1.0f);
     func_00194590(pkt, 0);
-    pkt = func_00199ee0(*(u8 **)(t20 + 48), v19, 0, 0, 1.0f);
+    pkt = btlUnitCreateAnimPacket(*(u8 **)(t20 + 48), v19, 0, 0, 1.0f);
     *(pkt + 0) = 4;
     *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
     *(s64 *)(pkt + 96) = *(s64 *)arg0;
@@ -1935,7 +1933,7 @@ void func_001a3d50(s64 *arg0)
         *(s16 *)((u8 *)arg0 + 0x448) = -1;
         *(s32 *)(D_0076449C + 0xC) |= 0x400000;
         *(u16 *)(D_0076449C + 0x18) |= 7;
-        func_001b0800(arg0, 0x20);
+        btlActionSetState(arg0, 0x20);
     }
 }
 // FUN_001A3DE0
@@ -1983,7 +1981,7 @@ loop_test:
         temp = func_001fa9c0();
         *(s64 *)(temp + 0x60) = *(s64 *)arg0;
         func_00194590(temp, 1);
-        func_001b0800(arg0, 0x20);
+        btlActionSetState(arg0, 0x20);
         return;
     }
     if (func_001eb860() == 1) {
@@ -2020,21 +2018,21 @@ void func_001a3f90(u8 *arg0)
             func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
             temp_2 = (void *)func_001b1540();
             func_00194590(
-                func_00198300((u8 *)temp_2->field_30,
+                btlUnitCreateRotateTowardUnitPacket((u8 *)temp_2->field_30,
                               *(u8 **)(arg0 + 0x30), 2),
                 0);
             func_00194590(
-                func_00198300(*(u8 **)(arg0 + 0x30),
+                btlUnitCreateRotateTowardUnitPacket(*(u8 **)(arg0 + 0x30),
                               (u8 *)temp_2->field_30, 2),
                 0);
             func_00194590(
-                func_0019e7c0(temp_2->field_30, 0),
+                btlUnitCreateLookAtDeactivatePacket(temp_2->field_30, 0),
                 1);
             func_00194590(
-                func_0019e550(*(u8 **)(arg0 + 0x30),
+                btlUnitCreateLookAtUnitPacket(*(u8 **)(arg0 + 0x30),
                               (u8 *)temp_2->field_30, 0),
                 1);
-            func_00194590(func_001bc920((u8 *)arg0, 0x30), 0);
+            func_00194590(btlCameraCreateSetStatePacket((u8 *)arg0, 0x30), 0);
             temp_2_2 = func_00194c90((s32)func_001a3de0, (s32)arg0);
             func_00194590(temp_2_2, 1);
             func_00194590(
@@ -2066,14 +2064,14 @@ void func_001a3f90(u8 *arg0)
     } else {
         temp_3_2 = *(u16 *)(arg0 + 0x424);
         if (temp_3_2 == 0) {
-            func_00194590(func_0019e7c0(0, 3), 1);
+            func_00194590(btlUnitCreateLookAtDeactivatePacket(0, 3), 1);
             if (func_00218390(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
                 temp_2_4 = func_001b1540();
                 func_00194590(func_001f3870((u8 *)temp_2_4, 2), 1);
                 *(u16 *)((u8 *)temp_2_4 + 0x18) |= 0x8000;
-                func_001b0800((u8 *)arg0, 0xE);
+                btlActionSetState((u8 *)arg0, 0xE);
             } else {
-                func_001b0800((u8 *)arg0, 0x20);
+                btlActionSetState((u8 *)arg0, 0x20);
             }
             func_002183c0(*(s32 *)(D_0076449C + 0xDD4));
             return;
@@ -2138,10 +2136,10 @@ void func_001a43a0(u8 *arg0) {
             temp_16 = *(u8 **)(arg0 + ((var_20 & 0xFFFF) * 4) + 0x98);
             if (*(u16 *)(temp_16 + 0x1A) & 1) {
                 temp_22 = *(u8 **)(temp_16 + 0x30);
-                if (func_002428f0(*(u8 **)(temp_22 + 0xA64), 0) == 0 &&
+                if (datCalcIsDead(*(u8 **)(temp_22 + 0xA64), 0) == 0 &&
                     (s8)func_00233a90(*(u8 **)(temp_22 + 0xA64), 0x10) <= 0 &&
                     !(func_00242800(*(u8 **)(temp_22 + 0xA64), spB0) & 0x7000000)) {
-                    if (func_00232710((s32)*(u8 **)(temp_22 + 0xA64), 0x100000) == 0) {
+                    if (datCalcChkBadStatus((s32)*(u8 **)(temp_22 + 0xA64), 0x100000) == 0) {
                         spC0[var_18 & 0xFFFF] = (s32)temp_16;
                         var_18 = (var_18 + 1) & 0xFFFF;
                     }
@@ -2214,7 +2212,7 @@ void func_001a43a0(u8 *arg0) {
         *(s8 *)(temp_2_6 + 0) = 4;
         *(s64 *)(temp_2_6 + 0x58) = *(s64 *)(temp_2_5 + 0x58);
         func_00194590(temp_2_6, 1);
-        func_001b0800(arg0, 0xF);
+        btlActionSetState(arg0, 0xF);
     }
 }
 #pragma opt_loop_invariants off
@@ -2269,7 +2267,7 @@ void func_001a4800(u8 *arg0)
             if (!((*(u16 *)((u8 *)(temp_17) + 0x1A)) & 1)) {
                 goto incr;
             }
-            if (((s32)(func_002428f0((*(u8 **)((u8 *)((*(s32 *)((u8 *)(temp_17) + 0x30))) + 0xA64)), 0)) != (s32)(0))) {
+            if (((s32)(datCalcIsDead((*(u8 **)((u8 *)((*(s32 *)((u8 *)(temp_17) + 0x30))) + 0xA64)), 0)) != (s32)(0))) {
                 goto incr;
             }
             if ((*(u16 *)((u8 *)(temp_17) + 0xC)) != 1) {
@@ -2295,56 +2293,56 @@ donecheck:
             case 9:
                 func_001f14f0(arg0);
                 if ((*( u8*)((u8 *)(func_001a_add_offset(*(u16 *)(arg0 + 0x6E) * 0x28, (s32)iGpffffb3b8)) + 0x24)) == 5) {
-                    func_001b0800(arg0, 0x20U);
+                    btlActionSetState(arg0, 0x20U);
                 } else if ((*( s32*)((u8 *)(arg0) + 0xE8)) == 1) {
-                    func_001b0800(arg0, 0x17U);
+                    btlActionSetState(arg0, 0x17U);
                 } else if ((s32)(func_0019fc70(arg0)) != (s32)(0)) {
                     (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) & 0xFFEF));
-                    func_001b0800(arg0, 0x10U);
+                    btlActionSetState(arg0, 0x10U);
                 } else {
                     (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) | 0x10));
-                    func_001b0800(arg0, 0x11U);
+                    btlActionSetState(arg0, 0x11U);
                 }
                 break;
             case 7:
             case 8:
             case 11:
-                func_001b0800(arg0, 0x19U);
+                btlActionSetState(arg0, 0x19U);
                 break;
             case 6:
                 if ((s32)((*( u8*)((*( u8**)((u8 *)(arg0) + 0x30)) + 0xA2))) == (s32)(0)) {
-                    if ((s32)(func_00106330(0x38)) != (s32)(0)) {
+                    if ((s32)(datGetFlag(0x38)) != (s32)(0)) {
                         var_2 = 5;
                     } else {
                         var_2 = 8;
                     }
                     if (((s32)(func_0010ce10((u8 *)func_0010a900(var_2 & 0xFFFF), 0x114)) != (s32)(-1)) || ((temp_4 = (ActionState001a4800 *)iGpffffb3ac)->kind == 1 && (temp_4->flags & 2))) {
                         func_00194590(func_001f5f70(arg0, 8, 0, 0, 3), 1);
-                        func_00194590(func_001bc920(arg0, 8), 0);
-                        func_001b0850(arg0, 0x1D, 0xC);
+                        func_00194590(btlCameraCreateSetStatePacket(arg0, 8), 0);
+                        btlActionSetStateWithDelay(arg0, 0x1D, 0xC);
                     } else {
                         func_001f5bd0(0);
                         func_00194590(func_001f5f70(arg0, 3, 0, 0, 2), 1);
                         func_00194590(func_001f3870(arg0, 0U), 1);
-                        func_00194590(func_001bc920(arg0, 1), 0);
+                        func_00194590(btlCameraCreateSetStatePacket(arg0, 1), 0);
                         if ((s32)(func_001f68e0(arg0)) != (s32)(0)) {
-                            func_001b0850(arg0, 0x1B, 0xC);
+                            btlActionSetStateWithDelay(arg0, 0x1B, 0xC);
                         } else {
-                            func_001b0850(arg0, 0x20, 0xC);
+                            btlActionSetStateWithDelay(arg0, 0x20, 0xC);
                         }
                     }
                 } else {
-                    func_001b0800(arg0, 0x1DU);
+                    btlActionSetState(arg0, 0x1DU);
                 }
                 break;
             case 12:
-                func_001b0800(arg0, 0x1DU);
+                btlActionSetState(arg0, 0x1DU);
                 break;
             case 5:
-                func_001b0800(arg0, 0x1AU);
+                btlActionSetState(arg0, 0x1AU);
                 break;
             case 10:
-                func_001b0800(arg0, 7U);
+                btlActionSetState(arg0, 7U);
                 break;
             }
             if ((var_16 != 0) && ((s32)(func_001a0140(arg0)) != (s32)(0))) {
@@ -2367,15 +2365,15 @@ donecheck:
 #ifdef NON_MATCHING
 void func_001a4c80(u8 *arg0)
 {
-    extern void func_00195850(u8 *arg0, f32 *arg1);
+    extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
     extern void func_00195c50(u8 *arg0, u8 *arg1, RwV3d *arg2);
     extern s32 func_00199d00(s32 unused, u8 *arg1, s64 arg2, s32 arg3);
     extern s32 func_001f1210(u8 *arg0, s64 arg1, s32 arg2);
     extern void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, f32 *arg4, f32 *arg5, s32 arg6);
     extern u8 *func_00195730(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3);
     extern void func_001ec1c0(u8 *arg0, u8 *arg1, u8 *arg2);
-    extern f32 func_003e4180(f32 *arg0);
-    extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
+    extern f32 RwV3dLength(f32 *arg0);
+    extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
     extern s32 func_00243d80(u8 *arg0);
     extern s32 func_001f0a50(u8 *arg0);
     extern s32 func_001f0bf0(u8 *arg0);
@@ -2423,10 +2421,10 @@ void func_001a4c80(u8 *arg0)
     var_18 = 1;
     var_23 = 0;
     var_22 = 0;
-    tmp_pkt = func_0019e550(NULL, *(u8 **)((u8 *)arg0 + 0x30), 3);
+    tmp_pkt = btlUnitCreateLookAtUnitPacket(NULL, *(u8 **)((u8 *)arg0 + 0x30), 3);
     *(s64 *)(tmp_pkt + 0x60) = *(s64 *)arg0;
     func_00194590(tmp_pkt, 1);
-    tmp_pkt = (u8 *)func_0019e7c0(*(s32 *)((u8 *)arg0 + 0x30), 0);
+    tmp_pkt = (u8 *)btlUnitCreateLookAtDeactivatePacket(*(s32 *)((u8 *)arg0 + 0x30), 0);
     *(s64 *)(tmp_pkt + 0x60) = *(s64 *)arg0;
     func_00194590(tmp_pkt, 1);
     *(u16 *)((u8 *)arg0 + 0x18) = (u16)(*(u16 *)((u8 *)arg0 + 0x18) | 0x200);
@@ -2468,7 +2466,7 @@ first_var6_zero:
             if (((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) && (*(u8 *)(unit30 + 0xA2) != *(u8 *)(other30 + 0xA2))) {
                 var_18 = 0;
             } else {
-                func_00195850(unit30, (f32 *)&spE0);
+                btlUnitGetSphereWorldCenter(unit30, (f32 *)&spE0);
                 func_00195c50(other30, unit30, &spD0);
                 tmp_dist = func_001ec250(&spE0, &spD0);
                 if (tmp_dist < 500.0f) {
@@ -2524,7 +2522,7 @@ first_a2_nonzero:
             tmp_pkt = (u8 *)func_001f0ff0(arg0);
             spB0 = func_00199d00((s32)tmp_a64_ptr, unit30, (s64)(s16)idx, (s32)tmp_pkt) & 0xFFFF;
             tmp_1210 = func_001f1210(tmp_a64_ptr, (s64)(s16)idx, (s32)tmp_pkt);
-            func_00195850(unit30, (f32 *)&spE0);
+            btlUnitGetSphereWorldCenter(unit30, (f32 *)&spE0);
             func_00195c50(other30, unit30, &spD0);
             tmp_dist = func_001ec250(&spE0, &spD0);
             var_f20 = tmp_dist - *(f32 *)(unit30 + 0x90) * *(f32 *)(unit30 + 0x2C) - *(f32 *)(other30 + 0x90) * *(f32 *)(other30 + 0x2C);
@@ -2544,7 +2542,7 @@ first_a2_nonzero:
                 spF0[0] = sp110.x - spE0.x;
                 spF0[2] = sp110.z - spE0.z;
                 spF0[1] = 0.0f;
-                tmp_len = func_003e4180(spF0);
+                tmp_len = RwV3dLength(spF0);
                 var_f21 = var_f21 + tmp_len;
                 if (var_f20 < var_f21) {
                     *(u16 *)((u8 *)arg0 + 0x18) = (u16)(*(u16 *)((u8 *)arg0 + 0x18) | 0x10);
@@ -2581,12 +2579,12 @@ first_a2_nonzero:
                 f20 = f20 * 1.25f;
             } else {
                 o30 = *(u8 **)(*(u8 **)((u8 *)arg0 + 0x38) + 0x30);
-                func_00195850(u30, (f32 *)&spE0);
+                btlUnitGetSphereWorldCenter(u30, (f32 *)&spE0);
                 func_00195c50(o30, u30, &spD0);
                 sp100[0] = spE0.x - spD0.x;
                 sp100[2] = spE0.z - spD0.z;
                 sp100[1] = 0.0f;
-                func_003e40b0(sp100, sp100);
+                RwV3dNormalize(sp100, sp100);
                 tmp_dist = (*(f32 *)(u30 + 0x90) * *(f32 *)(u30 + 0x2C) + *(f32 *)(o30 + 0x90) * *(f32 *)(o30 + 0x2C)) + var_f21 + 50.0f;
                 sp100[0] = sp100[0] * tmp_dist;
                 sp100[1] = sp100[1] * tmp_dist;
@@ -2606,16 +2604,16 @@ first_a2_nonzero:
         if (func_00243d80(*(u8 **)(*(u8 **)(*(u8 **)((u8 *)arg0 + 0x38) + 0x30) + 0xA64)) == 0) {
             pktFlags = pktFlags | 0x40;
         }
-        tmp_pkt = func_001979e0(*(u8 **)((u8 *)arg0 + 0x30), *(u8 **)(*(u8 **)((u8 *)arg0 + 0x38) + 0x30), pktFlags, var_f21, f20);
+        tmp_pkt = btlUnitCreateMoveToUnitPacket(*(u8 **)((u8 *)arg0 + 0x30), *(u8 **)(*(u8 **)((u8 *)arg0 + 0x38) + 0x30), pktFlags, var_f21, f20);
         *(s64 *)(tmp_pkt + 0x60) = *(s64 *)arg0;
         func_00194590(tmp_pkt, 0);
         if ((tmp_pkt != NULL) && (var_23 == 0)) {
             if (var_22 != 0) {
-                tmp_pkt = func_001bc920(arg0, 0x17);
+                tmp_pkt = btlCameraCreateSetStatePacket(arg0, 0x17);
                 *(s64 *)(tmp_pkt + 0x60) = *(s64 *)arg0;
                 func_00194590(tmp_pkt, 0);
             } else {
-                tmp_pkt = func_001bc920(arg0, 0x16);
+                tmp_pkt = btlCameraCreateSetStatePacket(arg0, 0x16);
                 *(s64 *)(tmp_pkt + 0x60) = *(s64 *)arg0;
                 func_00194590(tmp_pkt, 0);
             }
@@ -2726,7 +2724,7 @@ void func_001a5650(s64 *arg0)
             speed * scale, 0);
         *(s64 *)(temp_2 + 0x60) = *arg0;
         func_00194590(temp_2, 1);
-        temp_2_2 = func_001bc920((u8 *)arg0, 0x18);
+        temp_2_2 = btlCameraCreateSetStatePacket((u8 *)arg0, 0x18);
         *(s64 *)(temp_2_2 + 0x60) = *arg0;
         func_00194590(temp_2_2, 0);
         return;
@@ -2791,17 +2789,17 @@ void func_001a59a0(s64 *arg0) {
     extern s32 func_00194590();
     extern s32 func_00196040();
     extern u8 *func_00197cc0();
-    extern u8 *func_00197f50();
-    extern u8 *func_00198300();
+    extern u8 *btlUnitCreateRotatePacket();
+    extern u8 *btlUnitCreateRotateTowardUnitPacket();
     extern s32 func_001991c0();
     extern s32 func_00199350();
     extern s16 func_00199500();
     extern s32 func_001999f0();
-    extern u8 *func_00199ee0();
+    extern u8 *btlUnitCreateAnimPacket();
     extern s32 func_001a0290();
     extern s32 func_001a03b0();
-    extern s32 func_001b0800();
-    extern u8 *func_001bc920();
+    extern s32 btlActionSetState();
+    extern u8 *btlCameraCreateSetStatePacket();
     extern u8 *func_001bccc0();
     extern u8 *func_001d1eb0();
     extern u8 *func_001d3530();
@@ -3019,12 +3017,12 @@ void func_001a59a0(s64 *arg0) {
     func_00194590(func_00202010(temp_19, (*(u16 *)((u8 *)(arg0) + (0x6E)))), 3);
     func_001a0290(arg0, (*(u16 *)((u8 *)(arg0) + (0x6E))), &sp328);
     if ((*(u16 *)((u8 *)(arg0) + (0x6A))) == 1) {
-        temp_2_2 = (u8 *)(func_00198300((*(u8 **)((u8 *)(arg0) + (0x30))), (*(u8 **)((u8 *)((*(u8 **)((u8 *)(arg0) + (0x38)))) + (0x30))), 0));
+        temp_2_2 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)((u8 *)(arg0) + (0x30))), (*(u8 **)((u8 *)((*(u8 **)((u8 *)(arg0) + (0x38)))) + (0x30))), 0));
         (*(s64 *)((u8 *)(temp_2_2) + (0x60))) = temp_17;
         func_00194590(temp_2_2, 0);
     } else {
         func_00196040(func_001eb440((u8 *)arg0 + 0x38) & 0xFFFF, 1, &sp308, 0, 0, 1);
-        temp_2_3 = (u8 *)(func_00197f50((*(u8 **)((u8 *)(arg0) + (0x30))), &sp308, 0));
+        temp_2_3 = (u8 *)(btlUnitCreateRotatePacket((*(u8 **)((u8 *)(arg0) + (0x30))), &sp308, 0));
         (*(s64 *)((u8 *)(temp_2_3) + (0x60))) = temp_17;
         func_00194590(temp_2_3, 0);
     }
@@ -3109,7 +3107,7 @@ loop_13:
         sp280 = 0;
         sp270 = 0;
     }
-    temp_2_6 = (u8 *)(func_00199ee0(temp_19, (s64) (var_30 << 0x30) >> 0x30, 0, var_16 & 0xFFFF, var_f20));
+    temp_2_6 = (u8 *)(btlUnitCreateAnimPacket(temp_19, (s64) (var_30 << 0x30) >> 0x30, 0, var_16 & 0xFFFF, var_f20));
     sp2D8 = (u8 *)(temp_2_6);
     (*(s16 *)((u8 *)(temp_2_6) + (0x48))) = (s16) sp280;
     (*(s64 *)((u8 *)(temp_2_6) + (0x60))) = temp_17;
@@ -3145,12 +3143,12 @@ block_69:
                         break;
                     }
                     if (var_5 != 0) {
-                        var_2_2 = (u8 *)(func_001bc920(arg0, 0xC));
+                        var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xC));
                     } else {
-                        var_2_2 = (u8 *)(func_001bc920(arg0, 0xB));
+                        var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xB));
                     }
                 } else {
-                    var_2_2 = (u8 *)(func_001bc920(arg0, 0x10));
+                    var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x10));
                 }
             } else if ((var_22 == 0) || (sp1C0 == 1)) {
                 temp_2_9 = (u8 *)((*(u8 **)((u8 *)(arg0) + (0x30))));
@@ -3179,15 +3177,15 @@ block_87:
                     break;
                 }
                 if (var_5_2 != 0) {
-                    var_2_2 = (u8 *)(func_001bc920(arg0, 0xC));
+                    var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xC));
                 } else {
-                    var_2_2 = (u8 *)(func_001bc920(arg0, 0xB));
+                    var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xB));
                 }
             } else {
-                var_2_2 = (u8 *)(func_001bc920(arg0, 0xD));
+                var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xD));
             }
         } else {
-            var_2_2 = (u8 *)(func_001bc920(arg0, 0x2C));
+            var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x2C));
         }
         (*(s8 *)((u8 *)(var_2_2) + (0))) = 5;
         (*(s64 *)((u8 *)(var_2_2) + (8))) = temp_16;
@@ -3202,7 +3200,7 @@ block_87:
         }
         sp190 = (s32) ((s64) (func_00199350(temp_19, var_30 & 0xFFFF, var_f20) << 0x30) >> 0x30);
         if ((*(u8 *)((u8 *)(temp_19) + (0xA2))) == 0) {
-            temp_2_11 = (u8 *)(func_001bc920(arg0, 0xE));
+            temp_2_11 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xE));
             (*(s8 *)((u8 *)(temp_2_11) + (0))) = 4;
             (*(s64 *)((u8 *)(temp_2_11) + (8))) = (s64) (*(s64 *)((u8 *)(sp2D8) + (0x58)));
             (*(s16 *)((u8 *)(temp_2_11) + (0x48))) = var_22_2;
@@ -3271,7 +3269,7 @@ loop_242:
             var_21 = 0;
         }
         if (sp1B0 == 0) {
-            temp_2_18 = (u8 *)(func_00198300((*(u8 **)((u8 *)(temp_18) + (0x30))), temp_19, 2));
+            temp_2_18 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)((u8 *)(temp_18) + (0x30))), temp_19, 2));
             (*(s8 *)((u8 *)(temp_2_18) + (0))) = 5;
             (*(s64 *)((u8 *)(temp_2_18) + (8))) = temp_16;
             (*(s16 *)((u8 *)(temp_2_18) + (0x48))) = var_21;
@@ -3289,11 +3287,11 @@ loop_242:
             (*(s16 *)((u8 *)(temp_2_19) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_19) + (0x60))) = temp_17;
             func_00194590(temp_2_19, 1);
-            temp_2_20 = (u8 *)(func_00198300((*(u8 **)((u8 *)(temp_18) + (0x30))), temp_19, 2));
+            temp_2_20 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)((u8 *)(temp_18) + (0x30))), temp_19, 2));
             (*(s16 *)((u8 *)(temp_2_20) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_20) + (0x60))) = temp_17;
             func_00194590(temp_2_20, 0);
-            temp_2_21 = (u8 *)(func_001bc920(arg0, 0x11));
+            temp_2_21 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x11));
             (*(s16 *)((u8 *)(temp_2_21) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_21) + (0x60))) = temp_17;
             (*(s16 *)((u8 *)(temp_2_21) + (0x4A))) = (s16) sp170;
@@ -3302,11 +3300,11 @@ loop_242:
             (*(s16 *)((u8 *)(temp_2_22) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_22) + (0x60))) = temp_17;
             func_00194590(temp_2_22, 0);
-            temp_2_23 = (u8 *)(func_00199ee0((*(u8 **)((u8 *)(var_22_3) + (0x30))), 0x1A, 0, 0, 0x3F800000));
+            temp_2_23 = (u8 *)(btlUnitCreateAnimPacket((*(u8 **)((u8 *)(var_22_3) + (0x30))), 0x1A, 0, 0, 0x3F800000));
             (*(s16 *)((u8 *)(temp_2_23) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_23) + (0x60))) = temp_17;
             func_00194590(temp_2_23, 0);
-            temp_2_24 = (u8 *)(func_00199ee0((*(u8 **)((u8 *)(temp_18) + (0x30))), 0x1A, 0, 2, 0x3F800000));
+            temp_2_24 = (u8 *)(btlUnitCreateAnimPacket((*(u8 **)((u8 *)(temp_18) + (0x30))), 0x1A, 0, 2, 0x3F800000));
             (*(s16 *)((u8 *)(temp_2_24) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_24) + (0x60))) = temp_17;
             func_00194590(temp_2_24, 0);
@@ -3359,7 +3357,7 @@ loop_196:
                 } else {
                     sp240 = 1;
                 }
-                temp_2_28 = (u8 *)(func_00199ee0((*(u8 **)((u8 *)(var_22_3) + (0x30))), (s64) (s16) sp2A0, 0, 0, 0x3F800000));
+                temp_2_28 = (u8 *)(btlUnitCreateAnimPacket((*(u8 **)((u8 *)(var_22_3) + (0x30))), (s64) (s16) sp2A0, 0, 0, 0x3F800000));
                 sp2DC = (u8 *)(temp_2_28);
                 (*(s8 *)((u8 *)(temp_2_28) + (0))) = 5;
                 (*(s64 *)((u8 *)(temp_2_28) + (8))) = temp_16;
@@ -3696,14 +3694,14 @@ block_224:
         func_00194590(func_001fa720(&sp318), 1);
     }
     if (func_001f68e0(arg0) != 0) {
-        func_001b0800(arg0, 0x1BU);
+        btlActionSetState(arg0, 0x1BU);
         return;
     }
     temp_3_8 = (u16)((*(u16 *)((u8 *)(arg0) + (0x6C))));
     if ((temp_3_8 != 2) && (temp_3_8 != 3) && (temp_3_8 != 1)) {
 
     }
-    func_001b0800(arg0, 0x20U);
+    btlActionSetState(arg0, 0x20U);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a59a0);
@@ -3760,7 +3758,7 @@ void func_001a7710(void)
 #ifdef NON_MATCHING
 void func_001a7720(u8 *arg0) {
 
-    extern s32 func_00193770();
+    extern s32 btlCreateSetFlagsPacket();
     extern s32 func_00194590();
     extern s32 func_00194b60();
     extern s32 func_00194c90();
@@ -3768,26 +3766,26 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001958f0();
     extern s32 func_00196040();
     extern s32 func_00197cc0();
-    extern s32 func_00197f50();
-    extern s32 func_00198300();
+    extern s32 btlUnitCreateRotatePacket();
+    extern s32 btlUnitCreateRotateTowardUnitPacket();
     extern s32 func_00198810();
     extern s32 func_001991c0(u8 *arg0, s32 arg1, f32 arg2);
     extern s32 func_00199350(u8 *arg0, s32 arg1, f32 arg2);
     extern s32 func_00199500(u8 *arg0, s32 arg1, f32 arg2);
     extern s32 func_001996d0();
     extern s32 func_00199d00();
-    extern s32 func_00199ee0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
+    extern s32 btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
     extern s32 func_0019a0c0();
     extern s32 func_0019a980();
     extern s32 func_0019aa70();
     extern s32 func_0019ac40();
     extern s32 func_0019b550();
     extern s32 func_0019bbe0();
-    extern s32 func_0019e150();
-    extern s32 func_0019e550();
-    extern s32 func_0019e7c0();
+    extern s32 btlUnitCreateLookAtPacket();
+    extern s32 btlUnitCreateLookAtUnitPacket();
+    extern s32 btlUnitCreateLookAtDeactivatePacket();
     extern s32 func_001a03b0();
-    extern s32 func_001b0800();
+    extern s32 btlActionSetState();
     extern s32 func_001b7060();
     extern s32 func_001b7080();
     extern s32 func_001b7090();
@@ -3800,7 +3798,7 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001b99a0();
     extern s32 func_001b9de0();
     extern s32 func_001ba090();
-    extern s32 func_001bc920();
+    extern s32 btlCameraCreateSetStatePacket();
     extern s32 func_001bccc0();
     extern s32 func_001d2d90();
     extern s32 func_001d3000();
@@ -3832,7 +3830,7 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001f5f70();
     extern s32 func_001f68e0();
     extern s32 func_001f7c20();
-    extern s32 func_001f8000();
+    extern s32 btlSoundCreateSkillSEPacket();
     extern s32 func_001f8140();
     extern s32 func_001f82b0();
     extern s32 func_001f8330();
@@ -3859,11 +3857,11 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_0022fa90();
     extern s32 func_0022fd30();
     extern s32 func_00230020();
-    extern s32 func_00231ed0();
-    extern s32 func_00232710();
+    extern s32 datCalcGetHp();
+    extern s32 datCalcChkBadStatus();
     extern s32 func_0023df70();
     extern s32 func_0043c6a0();
-    extern s32 func_004bd050();
+    extern s32 effMiscRand();
     extern u8 *iGpffffb3ac;
     extern u8 *iGpffffb3b8;
     extern u8 *iGpffffb3cc;
@@ -4283,32 +4281,32 @@ void func_001a7720(u8 *arg0) {
             var_30 = 0;
         }
         if (sp33C != 0) {
-            temp_2_4 = (u8 *)(func_00198300((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), (*( u8 ** )((u8 *)((*( s32 ** )((u8 *)((u8 *)arg0) + (0x38)))) + (0x30))), var_30));
+            temp_2_4 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), (*( u8 ** )((u8 *)((*( s32 ** )((u8 *)((u8 *)arg0) + (0x38)))) + (0x30))), var_30));
             (*( s64 * )((u8 *)(temp_2_4) + (0x60))) = temp_16;
             func_00194590(temp_2_4, 0);
         } else if (temp_23_2 == 0) {
             func_00196040(func_001eb440((s32)(arg0) + 0x38) & 0xFFFF, 1, (u8 *)&sp578, 0, 0, 1);
-            temp_2_5 = (u8 *)(func_00197f50((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), (u8 *)&sp578, var_30));
+            temp_2_5 = (u8 *)(btlUnitCreateRotatePacket((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), (u8 *)&sp578, var_30));
             (*( s64 * )((u8 *)(temp_2_5) + (0x60))) = temp_16;
             func_00194590(temp_2_5, 0);
         } else {
             temp_4_2 = (u8 *)(iGpffffb3ac);
             if ((*( s32 * )((u8 *)(temp_4_2) + (0xC))) & 0x200000) {
                 func_001958f0((*( s32 * )((u8 *)((*( u8 ** )((u8 *)(temp_4_2) + (0x170)))) + (0x30))), (u8 *)&sp578);
-                temp_2_6 = (u8 *)(func_00197f50((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), (u8 *)&sp578, var_30));
+                temp_2_6 = (u8 *)(btlUnitCreateRotatePacket((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), (u8 *)&sp578, var_30));
                 (*( s64 * )((u8 *)(temp_2_6) + (0x60))) = temp_16;
                 func_00194590(temp_2_6, 0);
             }
         }
         if ((s32)(s32)sp1C0 != 0) {
-            temp_2_7 = (u8 *)(func_0019e550(0, (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 3));
+            temp_2_7 = (u8 *)(btlUnitCreateLookAtUnitPacket(0, (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 3));
             (*( s32 * )((u8 *)(temp_2_7) + (0x60))) = (s32)((s32) (*( s32 * )((u8 *)((u8 *)arg0) + (0))));
             func_00194590(temp_2_7, 1);
-            temp_2_8 = (u8 *)(func_0019e7c0((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0));
+            temp_2_8 = (u8 *)(btlUnitCreateLookAtDeactivatePacket((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0));
             (*( s32 * )((u8 *)(temp_2_8) + (0x60))) = (s32)((s32) (*( s32 * )((u8 *)((u8 *)arg0) + (0))));
             func_00194590(temp_2_8, 1);
         } else {
-            temp_2_9 = (u8 *)(func_0019e7c0(0, 3));
+            temp_2_9 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
             (*( s32 * )((u8 *)(temp_2_9) + (0x60))) = (s32)((s32) (*( s32 * )((u8 *)((u8 *)arg0) + (0))));
             func_00194590(temp_2_9, 1);
         }
@@ -4365,7 +4363,7 @@ void func_001a7720(u8 *arg0) {
             if (((s32)(func_001f11e0(sp450)) == (s32)(0)) && ((s32)(func_001f0b90((u8 *)arg0)) == (s32)(0))) {
                 temp_4_4 = (s32)((s32)(func_001eb440((s32)(arg0) + 0x38) & 0xFFFF));
                 if ((temp_23_2 == 0) && ((temp_4_4 & 0xFFFF) == 2)) {
-                    sp320 = (s32)((s32)((func_004bd050(0) & 1)) != (s32)(0));
+                    sp320 = (s32)((s32)((effMiscRand(0) & 1)) != (s32)(0));
                 } else if ((temp_23_2 == 1) && ((temp_4_4 & 0xFFFF) == 1)) {
                     sp320 = 1;
                 }
@@ -4381,7 +4379,7 @@ void func_001a7720(u8 *arg0) {
                 sp2D0 = 1;
                 sp320 = 1;
                 var_21 = 0;
-                temp_2_13 = (u8 *)(func_0019e7c0(0, 3));
+                temp_2_13 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
                 (*( s32 * )((u8 *)(temp_2_13) + (0x60))) = (s32)((s32) (*( s32 * )((u8 *)((u8 *)arg0) + (0))));
                 func_00194590(temp_2_13, 1);
                 temp_4_5 = (u8 *)(iGpffffb3ac);
@@ -4403,7 +4401,7 @@ void func_001a7720(u8 *arg0) {
             if (sp2B0 != 0) {
                 var_17_2 = (u8 *)(func_00194b60());
             } else {
-                var_17_2 = (u8 *)(func_00199ee0((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0xD, var_18_2 & 0xFFFF, 4, 1.0f));
+                var_17_2 = (u8 *)(btlUnitCreateAnimPacket((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0xD, var_18_2 & 0xFFFF, 4, 1.0f));
             }
             (*( s64 * )((u8 *)(var_17_2) + (0x60))) = temp_16;
             func_00194590(var_17_2, 0);
@@ -4421,7 +4419,7 @@ void func_001a7720(u8 *arg0) {
                 } else {
                     var_2_3 = 0x15;
                 }
-                var_19_2 = (u8 *)(func_001bc920((u8 *)arg0, var_2_3 & 0xFFFF));
+                var_19_2 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, var_2_3 & 0xFFFF));
             }
             (*( s64 * )((u8 *)(var_19_2) + (0x60))) = temp_16;
             func_00194590(var_19_2, 0);
@@ -4515,7 +4513,7 @@ void func_001a7720(u8 *arg0) {
             } else {
                 var_17 = 0;
             }
-            temp_2_27 = (u8 *)(func_00199ee0((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0xF, 0, 5, 1.0f));
+            temp_2_27 = (u8 *)(btlUnitCreateAnimPacket((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0xF, 0, 5, 1.0f));
             (*( s8 * )((u8 *)(temp_2_27) + (0))) = 4;
             (*( s64 * )((u8 *)(temp_2_27) + (8))) = var_18;
             (*( s64 * )((u8 *)(temp_2_27) + (0x60))) = temp_16;
@@ -4556,7 +4554,7 @@ void func_001a7720(u8 *arg0) {
             (*( s64 * )((u8 *)(temp_2_33) + (8))) = var_18;
             (*( s64 * )((u8 *)(temp_2_33) + (0x60))) = temp_16;
             func_00194590(temp_2_33, 1);
-            temp_2_34 = (u8 *)(func_00199ee0(sp4D0, temp_22, 0, 2, 1.0f));
+            temp_2_34 = (u8 *)(btlUnitCreateAnimPacket(sp4D0, temp_22, 0, 2, 1.0f));
             var_19 = (u8 *)(temp_2_34);
             (*( s8 * )((u8 *)(temp_2_34) + (0))) = 4;
             (*( s64 * )((u8 *)(temp_2_34) + (8))) = var_18;
@@ -4579,7 +4577,7 @@ void func_001a7720(u8 *arg0) {
                 } else {
                     var_2_4 = 0x1A;
                 }
-                temp_2_37 = (u8 *)(func_001bc920((u8 *)arg0, var_2_4 & 0xFFFF));
+                temp_2_37 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, var_2_4 & 0xFFFF));
                 (*( s8 * )((u8 *)(temp_2_37) + (0))) = 4;
                 (*( s32 * )((u8 *)(temp_2_37) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_19) + (0x58))));
                 if (sp400 >= sp3F0) {
@@ -4596,7 +4594,7 @@ void func_001a7720(u8 *arg0) {
             if ((temp_23_2 == 0) && ((s64)(func_001f1030((u8 *)arg0)) != (s64)(0)) && (temp_2_2 != 0xF4)) {
                 sp2D0 = 1;
                 sp320 = 1;
-                temp_2_38 = (u8 *)(func_0019e7c0(0, 3));
+                temp_2_38 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
                 (*( s32 * )((u8 *)(temp_2_38) + (0x60))) = (s32)((s32) (*( s32 * )((u8 *)((u8 *)arg0) + (0))));
                 func_00194590(temp_2_38, 1);
                 temp_4_6 = (u8 *)(iGpffffb3ac);
@@ -4604,7 +4602,7 @@ void func_001a7720(u8 *arg0) {
                 temp_3_7 = (u8 *)(iGpffffb3ac);
                 (*( u16 * )((u8 *)(temp_3_7) + (0x18))) = (u16)((u16) ((*( u16 * )((u8 *)(temp_3_7) + (0x18))) | 6));
             }
-            temp_2_39 = (u8 *)(func_00199ee0((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0x16, 6, 0, 1.0f));
+            temp_2_39 = (u8 *)(btlUnitCreateAnimPacket((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0x16, 6, 0, 1.0f));
             var_19 = (u8 *)(temp_2_39);
             (*( s64 * )((u8 *)(temp_2_39) + (0x60))) = temp_16;
             func_00194590(var_19, 0);
@@ -4619,13 +4617,13 @@ void func_001a7720(u8 *arg0) {
                     func_00194590(temp_2_40, 0);
                 }
                 if (sp320 == 0) {
-                    temp_2_41 = (u8 *)(func_001bc920((u8 *)arg0, 0x19));
+                    temp_2_41 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, 0x19));
                     (*( s8 * )((u8 *)(temp_2_41) + (0))) = 4;
                     (*( s32 * )((u8 *)(temp_2_41) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_19) + (0x58))));
                     (*( s64 * )((u8 *)(temp_2_41) + (0x60))) = temp_16;
                     func_00194590(temp_2_41, 0);
                 } else {
-                    temp_2_42 = (u8 *)(func_001bc920((u8 *)arg0, 0x1B));
+                    temp_2_42 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, 0x1B));
                     (*( s8 * )((u8 *)(temp_2_42) + (0))) = 4;
                     (*( s32 * )((u8 *)(temp_2_42) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_19) + (0x58))));
                     (*( s64 * )((u8 *)(temp_2_42) + (0x60))) = temp_16;
@@ -4644,7 +4642,7 @@ void func_001a7720(u8 *arg0) {
         if ((s32)(func_0022f8b0((u8 *)arg0, temp_2_2)) != (s32)(0)) {
             sp2D0 = 1;
             var_21 = 0;
-            temp_2_44 = (u8 *)(func_0019e7c0(0, 3));
+            temp_2_44 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
             (*( s32 * )((u8 *)(temp_2_44) + (0x60))) = (s32)((s32) (*( s32 * )((u8 *)((u8 *)arg0) + (0))));
             func_00194590(temp_2_44, 1);
             temp_4_7 = (u8 *)(iGpffffb3ac);
@@ -4686,7 +4684,7 @@ void func_001a7720(u8 *arg0) {
         }
         if (!((*( u16 * )(temp_30_ptr + (2))) & 0x100)) {
             if ((s32)(func_0022fa90((u8 *)arg0, sp430)) != (s32)(0)) {
-                temp_2_45 = (u8 *)(func_00199ee0((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), (s32) sp430, 6, var_17_5, var_f20));
+                temp_2_45 = (u8 *)(btlUnitCreateAnimPacket((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), (s32) sp430, 6, var_17_5, var_f20));
                 var_19 = (u8 *)(temp_2_45);
                 (*( s64 * )((u8 *)(temp_2_45) + (0x60))) = temp_16;
                 func_00194590(var_19, 0);
@@ -4697,7 +4695,7 @@ void func_001a7720(u8 *arg0) {
                 func_00194590(var_19, 0);
             }
             if ((sp340 == 0) && ((s32)(func_0022fd30((u8 *)arg0, temp_2_2)) != (s32)(0))) {
-                temp_2_47 = (u8 *)(func_001bc920((u8 *)arg0, 0x15));
+                temp_2_47 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, 0x15));
                 (*( s8 * )((u8 *)(temp_2_47) + (0))) = 4;
                 (*( s32 * )((u8 *)(temp_2_47) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_19) + (0x58))));
                 (*( s64 * )((u8 *)(temp_2_47) + (0x60))) = temp_16;
@@ -4726,7 +4724,7 @@ void func_001a7720(u8 *arg0) {
             (*( s64 * )((u8 *)(temp_2_49) + (0x60))) = temp_16;
             func_00194590(temp_2_49, 0);
             sp470 = (s64)((s64)(s64)((*( s64 * )((u8 *)(temp_2_49) + (0x58)))));
-            temp_2_50 = (u8 *)(func_001bc920((u8 *)arg0, 0x1A));
+            temp_2_50 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, 0x1A));
             (*( s8 * )((u8 *)(temp_2_50) + (0))) = 4;
             (*( s64 * )((u8 *)(temp_2_50) + (8))) = sp470;
             (*( s64 * )((u8 *)(temp_2_50) + (0x60))) = temp_16;
@@ -4751,7 +4749,7 @@ void func_001a7720(u8 *arg0) {
         temp_2_53 = (u8 *)(func_001d65d0((*( s32 * )((u8 *)(iGpffffb3ac) + (0xDB8))), (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0, 0, 0x100));
         (*( s64 * )((u8 *)(temp_2_53) + (0x60))) = temp_16;
         func_00194590(temp_2_53, 2);
-        temp_17 = (u8 *)(func_00199ee0((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 6, 0, 2, 1.0f));
+        temp_17 = (u8 *)(btlUnitCreateAnimPacket((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 6, 0, 2, 1.0f));
         (*( s16 * )((u8 *)(temp_17) + (0x4A))) = (s16)(func_00199500((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 6, 1.0f));
         (*( s64 * )((u8 *)(temp_17) + (0x60))) = temp_16;
         func_00194590(temp_17, 0);
@@ -4759,10 +4757,10 @@ void func_001a7720(u8 *arg0) {
         (*( s16 * )((u8 *)(temp_2_54) + (0x48))) = 1;
         (*( s64 * )((u8 *)(temp_2_54) + (0x60))) = temp_16;
         func_00194590(temp_2_54, 1);
-        temp_2_55 = (u8 *)(func_001bc920((u8 *)arg0, 0x12));
+        temp_2_55 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, 0x12));
         (*( s64 * )((u8 *)(temp_2_55) + (0x60))) = temp_16;
         func_00194590(temp_2_55, 0);
-        temp_2_56 = (u8 *)(func_00199ee0((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 7, 6, 2, 1.0f));
+        temp_2_56 = (u8 *)(btlUnitCreateAnimPacket((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 7, 6, 2, 1.0f));
         var_19 = (u8 *)(temp_2_56);
         (*( s8 * )((u8 *)(temp_2_56) + (0))) = 4;
         (*( s32 * )((u8 *)(temp_2_56) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(temp_17) + (0x58))));
@@ -4781,7 +4779,7 @@ void func_001a7720(u8 *arg0) {
                 func_00194590(temp_2_58, 0);
             }
         }
-        temp_2_59 = (u8 *)(func_001bc920((u8 *)arg0, 0x13));
+        temp_2_59 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, 0x13));
         (*( s8 * )((u8 *)(temp_2_59) + (0))) = 4;
         (*( s64 * )((u8 *)(temp_2_59) + (8))) = var_18;
         (*( s64 * )((u8 *)(temp_2_59) + (0x60))) = temp_16;
@@ -4827,7 +4825,7 @@ void func_001a7720(u8 *arg0) {
         (*( s16 * )((u8 *)(temp_2_65) + (0x4A))) = (s16)((s16) (((s32) (func_00199500((*( u8 ** )((u8 *)(temp_22_3) + (0x30))), 0x1A, 1.0f) << 0x30) >> 0x30) - 1));
         (*( s64 * )((u8 *)(temp_2_65) + (0x60))) = temp_16;
         func_00194590(temp_2_65, 0);
-        temp_2_66 = (u8 *)(func_001bc920((u8 *)arg0, 0x1E));
+        temp_2_66 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, 0x1E));
         (*( s8 * )((u8 *)(temp_2_66) + (0))) = 4;
         (*( s64 * )((u8 *)(temp_2_66) + (8))) = var_18;
         (*( s16 * )((u8 *)(temp_2_66) + (0x48))) = var_17;
@@ -4839,13 +4837,13 @@ void func_001a7720(u8 *arg0) {
         (*( s16 * )((u8 *)(temp_2_67) + (0x48))) = var_17;
         (*( s64 * )((u8 *)(temp_2_67) + (0x60))) = temp_16;
         func_00194590(temp_2_67, 1);
-        temp_2_68 = (u8 *)(func_00199ee0((*( u8 ** )((u8 *)(temp_22_3) + (0x30))), 0x1A, 0, 0, 1.0f));
+        temp_2_68 = (u8 *)(btlUnitCreateAnimPacket((*( u8 ** )((u8 *)(temp_22_3) + (0x30))), 0x1A, 0, 0, 1.0f));
         (*( s8 * )((u8 *)(temp_2_68) + (0))) = 4;
         (*( s64 * )((u8 *)(temp_2_68) + (8))) = var_18;
         (*( s16 * )((u8 *)(temp_2_68) + (0x48))) = var_17;
         (*( s64 * )((u8 *)(temp_2_68) + (0x60))) = temp_16;
         func_00194590(temp_2_68, 0);
-        temp_2_69 = (u8 *)(func_00199ee0((*( u8 ** )((u8 *)(temp_2_64) + (0x30))), 0x1A, 0, 2, 1.0f));
+        temp_2_69 = (u8 *)(btlUnitCreateAnimPacket((*( u8 ** )((u8 *)(temp_2_64) + (0x30))), 0x1A, 0, 2, 1.0f));
         (*( s8 * )((u8 *)(temp_2_69) + (0))) = 4;
         (*( s64 * )((u8 *)(temp_2_69) + (8))) = var_18;
         (*( s16 * )((u8 *)(temp_2_69) + (0x48))) = var_17;
@@ -4853,7 +4851,7 @@ void func_001a7720(u8 *arg0) {
         func_00194590(temp_2_69, 0);
         var_18 = (s64)((s64)(s64)((*( s64 * )((u8 *)(temp_2_65) + (0x58)))));
         var_17 = 0;
-        temp_2_70 = (u8 *)(func_001bc920((u8 *)arg0, 0x1A));
+        temp_2_70 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, 0x1A));
         (*( s8 * )((u8 *)(temp_2_70) + (0))) = 4;
         (*( s64 * )((u8 *)(temp_2_70) + (8))) = var_18;
         (*( s16 * )((u8 *)(temp_2_70) + (0x48))) = 0;
@@ -4865,19 +4863,19 @@ void func_001a7720(u8 *arg0) {
         (*( s16 * )((u8 *)(temp_2_71) + (0x48))) = 0;
         (*( s64 * )((u8 *)(temp_2_71) + (0x60))) = temp_16;
         func_00194590(temp_2_71, 0);
-        temp_2_72 = (u8 *)(func_00198300((*( u8 ** )((u8 *)(temp_2_64) + (0x30))), (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 2));
+        temp_2_72 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )((u8 *)(temp_2_64) + (0x30))), (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 2));
         (*( s8 * )((u8 *)(temp_2_72) + (0))) = 4;
         (*( s64 * )((u8 *)(temp_2_72) + (8))) = var_18;
         (*( s16 * )((u8 *)(temp_2_72) + (0x48))) = 0;
         (*( s64 * )((u8 *)(temp_2_72) + (0x60))) = temp_16;
         func_00194590(temp_2_72, 1);
-        temp_2_73 = (u8 *)(func_00199ee0((*( u8 ** )((u8 *)(temp_2_64) + (0x30))), 0xA, 0, 1, 1.0f));
+        temp_2_73 = (u8 *)(btlUnitCreateAnimPacket((*( u8 ** )((u8 *)(temp_2_64) + (0x30))), 0xA, 0, 1, 1.0f));
         (*( s8 * )((u8 *)(temp_2_73) + (0))) = 4;
         (*( s64 * )((u8 *)(temp_2_73) + (8))) = var_18;
         (*( s16 * )((u8 *)(temp_2_73) + (0x48))) = 0;
         (*( s64 * )((u8 *)(temp_2_73) + (0x60))) = temp_16;
         func_00194590(temp_2_73, 0);
-        temp_2_74 = (u8 *)(func_00198300((*( u8 ** )((u8 *)(temp_22_3) + (0x30))), (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 2));
+        temp_2_74 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )((u8 *)(temp_22_3) + (0x30))), (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 2));
         (*( s8 * )((u8 *)(temp_2_74) + (0))) = 4;
         (*( s64 * )((u8 *)(temp_2_74) + (8))) = var_18;
         (*( s16 * )((u8 *)(temp_2_74) + (0x48))) = 0;
@@ -4908,7 +4906,7 @@ void func_001a7720(u8 *arg0) {
         (*( s64 * )((u8 *)(var_22) + (0x60))) = temp_16;
         func_00194590(var_22, 1);
         if (sp340 == 0) {
-            sp4CC = (u8 *)(func_001f8000((u16) sp270, 1));
+            sp4CC = (u8 *)(btlSoundCreateSkillSEPacket((u16) sp270, 1));
         } else {
             sp4CC = (u8 *)(func_00194b60());
         }
@@ -4927,7 +4925,7 @@ void func_001a7720(u8 *arg0) {
         (*( s64 * )((u8 *)(var_22) + (0x60))) = temp_16;
         func_00194590(var_22, 1);
         if (sp340 == 0) {
-            sp4CC = (u8 *)(func_001f8000((u16) sp270, 0));
+            sp4CC = (u8 *)(btlSoundCreateSkillSEPacket((u16) sp270, 0));
         } else {
             sp4CC = (u8 *)(func_00194b60());
         }
@@ -5081,19 +5079,19 @@ do {
             }
             if (sp33C != 0) {
                 if ((s32)(s32)sp1C0 != 0) {
-                    temp_2_84 = (u8 *)(func_0019e550(0, (*( u8 ** )((u8 *)(var_21_2) + (0x30))), 3));
+                    temp_2_84 = (u8 *)(btlUnitCreateLookAtUnitPacket(0, (*( u8 ** )((u8 *)(var_21_2) + (0x30))), 3));
                     (*( s8 * )((u8 *)(temp_2_84) + (0))) = 5;
                     (*( s32 * )((u8 *)(temp_2_84) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_17_6) + (0x58))));
                     (*( s32 * )((u8 *)(temp_2_84) + (0x60))) = (s32)((s32) (*( s32 * )((u8 *)((u8 *)arg0) + (0))));
                     func_00194590(temp_2_84, 1);
                     if ((s32)(var_21_2) != (s32)(arg0)) {
-                        temp_2_85 = (u8 *)(func_0019e550((*( u8 ** )((u8 *)(var_21_2) + (0x30))), (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0));
+                        temp_2_85 = (u8 *)(btlUnitCreateLookAtUnitPacket((*( u8 ** )((u8 *)(var_21_2) + (0x30))), (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0));
                         (*( s8 * )((u8 *)(temp_2_85) + (0))) = 5;
                         (*( s32 * )((u8 *)(temp_2_85) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_17_6) + (0x58))));
                         (*( s32 * )((u8 *)(temp_2_85) + (0x60))) = (s32)((s32) (*( s32 * )((u8 *)((u8 *)arg0) + (0))));
                         func_00194590(temp_2_85, 1);
                     } else {
-                        temp_2_86 = (u8 *)(func_0019e7c0((*( u8 ** )((u8 *)(var_21_2) + (0x30))), 0));
+                        temp_2_86 = (u8 *)(btlUnitCreateLookAtDeactivatePacket((*( u8 ** )((u8 *)(var_21_2) + (0x30))), 0));
                         (*( s8 * )((u8 *)(temp_2_86) + (0))) = 5;
                         (*( s32 * )((u8 *)(temp_2_86) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_17_6) + (0x58))));
                         (*( s32 * )((u8 *)(temp_2_86) + (0x60))) = (s32)((s32) (*( s32 * )((u8 *)((u8 *)arg0) + (0))));
@@ -5105,7 +5103,7 @@ do {
                 temp_4_13 = (s32)((s32)(func_001eb440((s32)(arg0) + 0x38) & 0xFFFF));
                 if (temp_4_13 == 2) {
                     func_00196040(temp_4_13, 1, (u8 *)&sp578, 0, 0, 1);
-                    temp_2_87 = (u8 *)(func_0019e150(0, (u8 *)&sp578, 1));
+                    temp_2_87 = (u8 *)(btlUnitCreateLookAtPacket(0, (u8 *)&sp578, 1));
                     (*( s8 * )((u8 *)(temp_2_87) + (0))) = 5;
                     (*( s32 * )((u8 *)(temp_2_87) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_17_6) + (0x58))));
                     (*( s32 * )((u8 *)(temp_2_87) + (0x60))) = (s32)((s32) (*( s32 * )((u8 *)((u8 *)arg0) + (0))));
@@ -5139,7 +5137,7 @@ do {
                     func_00194590(temp_2_89, 1);
                 }
                 if ((s32)(var_21_2) != (s32)(arg0)) {
-                    temp_2_90 = (u8 *)(func_00198300((*( u8 ** )((u8 *)(var_21_2) + (0x30))), (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 2));
+                    temp_2_90 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )((u8 *)(var_21_2) + (0x30))), (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 2));
                     (*( s8 * )((u8 *)(temp_2_90) + (0))) = 5;
                     (*( s32 * )((u8 *)(temp_2_90) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_17_6) + (0x58))));
                     (*( s64 * )((u8 *)(temp_2_90) + (0x60))) = temp_16;
@@ -5150,7 +5148,7 @@ do {
                 (*( s32 * )((u8 *)(temp_2_91) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_17_6) + (0x58))));
                 (*( s64 * )((u8 *)(temp_2_91) + (0x60))) = temp_16;
                 func_00194590(temp_2_91, 0);
-                temp_2_92 = (u8 *)(func_001bc920(var_21_2, 0x1C));
+                temp_2_92 = (u8 *)(btlCameraCreateSetStatePacket(var_21_2, 0x1C));
                 sp4C8 = (u8 *)(temp_2_92);
                 (*( s8 * )((u8 *)(temp_2_92) + (0))) = 5;
                 (*( s32 * )((u8 *)(temp_2_92) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_17_6) + (0x58))));
@@ -5218,7 +5216,7 @@ do {
                         sp360 = 0xA;
                     }
                 }
-                temp_2_98 = (u8 *)(func_00199ee0((*( u8 ** )((u8 *)(var_21_2) + (0x30))), (s32) *((u8 *)(s32)(sp100)), 0, 0, var_f20_2));
+                temp_2_98 = (u8 *)(btlUnitCreateAnimPacket((*( u8 ** )((u8 *)(var_21_2) + (0x30))), (s32) *((u8 *)(s32)(sp100)), 0, 0, var_f20_2));
                 var_19 = (u8 *)(temp_2_98);
                 (*( s8 * )((u8 *)(temp_2_98) + (0))) = 0xB;
                 (*( s32 * )((u8 *)(temp_2_98) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_17_6) + (0x58))));
@@ -5306,8 +5304,8 @@ do {
                     (*( s64 * )((u8 *)(temp_2_105) + (0x60))) = temp_16;
                     func_00194590(temp_2_105, 0);
                 }
-                if ((sp2D0 == 0) && (((s32)(sp100) != -1) || ((s32)((*( u8 * )((u8 *)((*( u8 ** )((u8 *)(temp_18) + (0x30)))) + (0xA2)))) != (s32)((*( u8 * )((u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))) + (0xA2)))))) && ((s32)(func_00232710((*( u8 ** )((u8 *)((*( u8 ** )((u8 *)(temp_18) + (0x30)))) + (0xA64))), 0x180001)) == (s32)(0))) {
-                    temp_2_106 = (u8 *)(func_00198300((*( u8 ** )((u8 *)(temp_18) + (0x30))), (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 2));
+                if ((sp2D0 == 0) && (((s32)(sp100) != -1) || ((s32)((*( u8 * )((u8 *)((*( u8 ** )((u8 *)(temp_18) + (0x30)))) + (0xA2)))) != (s32)((*( u8 * )((u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))) + (0xA2)))))) && ((s32)(datCalcChkBadStatus((*( u8 ** )((u8 *)((*( u8 ** )((u8 *)(temp_18) + (0x30)))) + (0xA64))), 0x180001)) == (s32)(0))) {
+                    temp_2_106 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )((u8 *)(temp_18) + (0x30))), (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 2));
                     if (((*( s32 * )((u8 *)(temp_18) + (0xE4))) != 0) && ((s32)(sp4C4) != (s32)(0))) {
                         (*( s8 * )((u8 *)(temp_2_106) + (0))) = 5;
                         (*( s32 * )((u8 *)(temp_2_106) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(sp4C4) + (0x58))));
@@ -5553,7 +5551,7 @@ block_408:
     }
     if (sp2E0 != 0) {
         if (sp2D0 == 1) {
-            temp_2_131 = (u8 *)(func_001bc920((u8 *)arg0, 0x1B));
+            temp_2_131 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, 0x1B));
             sp4C8 = (u8 *)(temp_2_131);
             (*( s8 * )((u8 *)(temp_2_131) + (0))) = 0xB;
             (*( s32 * )((u8 *)(temp_2_131) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_17_6) + (0x58))));
@@ -5563,7 +5561,7 @@ block_408:
         }
         if ((s32)((*( u8 * )((u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))) + (0xA2)))) == (s32)(0)) {
             func_001f0a10((u8 *)&sp550);
-            sp550 = (s32)((s32)(-((func_00231ed0((*( s32 * )((u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))) + (0xA64)))) & 0xFFFF) - 1)));
+            sp550 = (s32)((s32)(-((datCalcGetHp((*( s32 * )((u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))) + (0xA64)))) & 0xFFFF) - 1)));
             var_18_4 = (u8 *)(func_001f36e0((s32)((u8 *)arg0), (s32)((u8 *)arg0), (u8 *)&sp550, 1U, 1U));
             if (sp2D0 == 1) {
                 (*( s8 * )((u8 *)(var_18_4) + (0))) = 4;
@@ -5718,14 +5716,14 @@ block_408:
                 } else {
                     var_2_16 = 0x1A;
                 }
-                temp_2_144 = (u8 *)(func_001bc920((u8 *)arg0, var_2_16 & 0xFFFF));
+                temp_2_144 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, var_2_16 & 0xFFFF));
                 (*( s8 * )((u8 *)(temp_2_144) + (0))) = 5;
                 (*( s64 * )((u8 *)(temp_2_144) + (8))) = sp470;
                 (*( s64 * )((u8 *)(temp_2_144) + (0x60))) = temp_16;
                 func_00194590(temp_2_144, 0);
             }
         } else {
-            temp_2_145 = (u8 *)(func_001bc920((u8 *)arg0, 0x1D));
+            temp_2_145 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, 0x1D));
             (*( s8 * )((u8 *)(temp_2_145) + (0))) = 5;
             (*( s64 * )((u8 *)(temp_2_145) + (8))) = sp470;
             (*( s64 * )((u8 *)(temp_2_145) + (0x60))) = temp_16;
@@ -5760,7 +5758,7 @@ block_481:
         func_00194590(temp_2_148, 2);
     }
     if (sp310 == 1) {
-        temp_2_149 = (u8 *)(func_00193770(0x80));
+        temp_2_149 = (u8 *)(btlCreateSetFlagsPacket(0x80));
         (*( s8 * )((u8 *)(temp_2_149) + (0))) = 4;
         (*( s32 * )((u8 *)(temp_2_149) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_17_6) + (0x58))));
         (*( s16 * )((u8 *)(temp_2_149) + (0x48))) = 0xC;
@@ -5782,14 +5780,14 @@ block_481:
         func_00194590(func_001fa720((u8 *)&sp588), 1);
     }
     if ((s32)(func_001f68e0((u8 *)arg0)) != (s32)(0)) {
-        func_001b0800((u8 *)arg0, 0x1BU);
+        btlActionSetState((u8 *)arg0, 0x1BU);
         return;
     }
     temp_3_21 = (u16)((u16)((*( u16 * )((u8 *)((u8 *)arg0) + (0x6C)))));
     if ((temp_3_21 != 2) && (temp_3_21 != 3) && (temp_3_21 != 1)) {
 
     }
-    func_001b0800((u8 *)arg0, 0x20U);
+    btlActionSetState((u8 *)arg0, 0x20U);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a7720);
@@ -5837,7 +5835,7 @@ void func_001abbb0(s64 *arg0) {
     extern u8 *func_001b9de0(u8 *arg0, u16 arg1, s32 arg2);
     extern void func_001d69f0(s32 arg0, void *arg1);
     extern u8 *func_001d5eb0(s32 arg0, void *arg1, s32 arg2);
-    extern u8 *func_001f8000(s32 arg0, s32 arg1);
+    extern u8 *btlSoundCreateSkillSEPacket(s32 arg0, s32 arg1);
     extern u8 *func_00194b60(void);
     extern u8 *func_001f8140(s32 arg0);
     extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2);
@@ -5849,7 +5847,7 @@ void func_001abbb0(s64 *arg0) {
     extern u8 *func_001b9360(s32 arg0, s32 arg1);
     extern u8 *func_001b99a0(s32 arg0);
     extern s32 func_001f68e0(u8 *arg0);
-    extern void func_001b0800(u8 *arg0, u16 arg1);
+    extern void btlActionSetState(u8 *arg0, u16 arg1);
     extern u8 *iGpffffb3ac;
     extern u8 *iGpffffb3bc;
     extern s32 func_002317a0(u8 *arg0, u16 arg1);
@@ -5886,10 +5884,10 @@ void func_001abbb0(s64 *arg0) {
     tmp = func_001f3870((u8 *)arg0, 0);
     *(s64 *)(tmp + 0x60) = uid;
     func_00194590(tmp, 1);
-    evPkt = func_00199ee0(*(u8 **)((u8 *)arg0 + 0x30), 8, 6, 0, 1.0f);
+    evPkt = btlUnitCreateAnimPacket(*(u8 **)((u8 *)arg0 + 0x30), 8, 6, 0, 1.0f);
     *(s64 *)(evPkt + 0x60) = uid;
     func_00194590(evPkt, 0);
-    tmp = func_001bc920((u8 *)arg0, 0x15);
+    tmp = btlCameraCreateSetStatePacket((u8 *)arg0, 0x15);
     *(tmp + 0) = 4;
     *(s64 *)(tmp + 8) = *(s64 *)(evPkt + 0x58);
     *(s64 *)(tmp + 0x60) = uid;
@@ -5926,7 +5924,7 @@ void func_001abbb0(s64 *arg0) {
     *(s16 *)(pktI_save + 0x48) = (s16)(scaleTmp + 6);
     *(s64 *)(pktI_save + 0x60) = uid;
     func_00194590(pktI_save, 1);
-    holdJ = func_001f8000(aux, 0);
+    holdJ = btlSoundCreateSkillSEPacket(aux, 0);
     *(holdJ + 0) = 4;
     *(s64 *)(holdJ + 8) = *(s64 *)(pktI_save + 0x58);
     func_00194590(holdJ, 1);
@@ -6010,7 +6008,7 @@ loop_body:
                 *(s64 *)(r3 + 8) = cur58;
                 *(s64 *)(r3 + 0x60) = uid;
                 func_00194590(r3, 0);
-                r4 = func_001bc920((u8 *)arg0, 0x2D);
+                r4 = btlCameraCreateSetStatePacket((u8 *)arg0, 0x2D);
                 *(r4 + 0) = 4;
                 *(s64 *)(r4 + 8) = cur58;
                 *(s64 *)(r4 + 0x60) = uid;
@@ -6111,13 +6109,13 @@ loop_end:;
     }
     func_001d3e00(handle);
     if (func_001f68e0((u8 *)arg0) != 0) {
-        func_001b0800((u8 *)arg0, 0x1B);
+        btlActionSetState((u8 *)arg0, 0x1B);
         return;
     }
     tailId = *(u16 *)((u8 *)arg0 + 0x6C);
     if ((tailId != 2) && (tailId != 3) && (tailId != 1)) {
     }
-    func_001b0800((u8 *)arg0, 0x20);
+    btlActionSetState((u8 *)arg0, 0x20);
 }
 #pragma pop
 #else
@@ -6147,7 +6145,7 @@ void func_001ac500(s64 *arg0) {
 void func_001ac5b0(s64 *arg0) {
     if ((func_00193cd0(0x506) == 0) && (func_00193cd0(0x800) == 0)) {
         *(u16 *)((u8 *)(arg0) + 0x18) = (u16) (*(u16 *)((u8 *)(arg0) + 0x18) | 0x100);
-        func_001b0800(arg0, 0xFU);
+        btlActionSetState(arg0, 0xFU);
     }
 }
 
@@ -6375,7 +6373,7 @@ void func_001acb10(u8 *arg0)
     if (*(u16 *)(arg0 + 0x3F4) == 0) {
         temp_5_4 = *(u8 **)(arg0 + 0x30);
         *(s32 *)(temp_5_4 + 0x9C) = *(s32 *)(temp_5_4 + 0x9C) & ~0x10;
-        func_001b0800(arg0, *(u16 *)(arg0 + 0x430));
+        btlActionSetState(arg0, *(u16 *)(arg0 + 0x430));
     }
 }
 // FUN_001ACBB0
@@ -6401,16 +6399,16 @@ void func_001acbb0(u8 *arg0) {
 
     s32 func_00106600(s16 id);
     void func_00106620(s32 arg0, s32 arg1);
-    u8 *func_001937f0(s32 arg0);
+    u8 *btlCreateRemoveFlagsPacket(s32 arg0);
     u8 *func_00194b60(void);
     void func_001f0a10(u8 *arg0);
     extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
     extern u8 *func_00201de0(s32 source, s32 target, s32 id, s16 effect, s16 targetFlags, s16 value, s16 enabled, void *result, u16 flags);
     u8 *func_00202400(s32 arg0, s32 arg1);
     extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
-    void func_001b0800(u8 *arg0, u16 arg1);
+    void btlActionSetState(u8 *arg0, u16 arg1);
     u8 *func_00202740(u8 *arg0);
-    u32 func_00231ed0(u8 *arg0);
+    u32 datCalcGetHp(u8 *arg0);
     u32 func_00231f80(u8 *arg0);
 
     temp_16 = *(u8 **)((u8 *)arg0 + 0x30);
@@ -6472,7 +6470,7 @@ void func_001acbb0(u8 *arg0) {
         if (*(u16 *)(arg0 + 0x3F4) == 0x210) {
             func_001f0a10((u8 *)&sp80);
             temp_19 = func_00231f80(*(u8 **)(temp_16 + 0xA64)) & 0xFFFF;
-            sp80[0] = temp_19 - (func_00231ed0(*(u8 **)(temp_16 + 0xA64)) & 0xFFFF);
+            sp80[0] = temp_19 - (datCalcGetHp(*(u8 **)(temp_16 + 0xA64)) & 0xFFFF);
             temp_2_5 = (u8 *)func_001f36e0((s32)arg0, (s32)arg0,
                                      &sp80, 1, 1);
             *(s8 *)(temp_2_5 + 0) = 4;
@@ -6497,13 +6495,13 @@ void func_001acbb0(u8 *arg0) {
             func_00194590(temp_2_8, 3);
         }
         if (var_17 != 0) {
-            temp_2_9 = func_001937f0(0x80000);
+            temp_2_9 = btlCreateRemoveFlagsPacket(0x80000);
             *(s8 *)(temp_2_9 + 0) = 4;
             *(s64 *)(temp_2_9 + 8) = temp_21;
             *(s64 *)(temp_2_9 + 0x60) = *(s64 *)arg0;
             func_00194590(temp_2_9, 0);
         }
-        func_001b0800(arg0, *(u16 *)(arg0 + 0x430));
+        btlActionSetState(arg0, *(u16 *)(arg0 + 0x430));
     }
 }
 // FUN_001ACF40
@@ -6533,7 +6531,7 @@ void func_001acf50(u8 *arg0) {
     switch (*(u16 *)(arg0 + 0x6C)) {
     case 7:
         func_001a03b0();
-        temp_2 = func_0019e7c0(0, 3);
+        temp_2 = btlUnitCreateLookAtDeactivatePacket(0, 3);
         *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
         func_00194590(temp_2, 0);
         if (*(s16 *)(arg0 + 0xEC) != 0) {
@@ -6555,7 +6553,7 @@ void func_001acf50(u8 *arg0) {
         *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
         func_00194590(temp_2, 1);
         if ((*(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) & 0x4000) != 0) {
-            temp_2 = func_001bc920(arg0, 0x32);
+            temp_2 = btlCameraCreateSetStatePacket(arg0, 0x32);
             *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
             func_00194590(temp_2, 0);
             if ((s16)func_00198810(*(u8 **)(arg0 + 0x30)) != 0x11) {
@@ -6574,13 +6572,13 @@ void func_001acf50(u8 *arg0) {
             *(s64 *)(temp_2 + 8) = *(s64 *)(var_16 + 0x58);
             *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
             func_00194590(temp_2, 1);
-            temp_2 = func_00199ee0(*(u8 **)(arg0 + 0x30), 0x18, 6, 1, 1.0f);
+            temp_2 = btlUnitCreateAnimPacket(*(u8 **)(arg0 + 0x30), 0x18, 6, 1, 1.0f);
             *(s8 *)(temp_2 + 0) = 4;
             *(s64 *)(temp_2 + 8) = *(s64 *)(var_16 + 0x58);
             *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
             func_00194590(temp_2, 0);
         } else {
-            temp_2 = func_001bc920(arg0, 0xA);
+            temp_2 = btlCameraCreateSetStatePacket(arg0, 0xA);
             *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
             func_00194590(temp_2, 0);
         }
@@ -6591,10 +6589,10 @@ void func_001acf50(u8 *arg0) {
     }
     func_00194590(func_001f3870(arg0, 0), 1);
     if ((func_001f68e0(arg0) != 0) && (*(u16 *)(arg0 + 0x6C) != 8)) {
-        func_001b0800(arg0, 0x1B);
+        btlActionSetState(arg0, 0x1B);
         return;
     }
-    func_001b0800(arg0, 0x20);
+    btlActionSetState(arg0, 0x20);
 }
 // FUN_001AD280
 void func_001ad280(u8 *arg0)
@@ -6603,13 +6601,13 @@ void func_001ad280(u8 *arg0)
     u8 *temp_2;
 
     func_001a03b0((s64 *)arg0);
-    temp_2 = func_0019e550(
+    temp_2 = btlUnitCreateLookAtUnitPacket(
         *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30),
         *(u8 **)(arg0 + 0x30),
         0);
     *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
     func_00194590(temp_2, 1);
-    temp_2 = func_0019e550(
+    temp_2 = btlUnitCreateLookAtUnitPacket(
         *(u8 **)(arg0 + 0x30),
         *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30),
         0);
@@ -6619,7 +6617,7 @@ void func_001ad280(u8 *arg0)
     temp_2 = (u8 *)func_001d3700(3, 0xFFF);
     *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
     func_00194590(temp_2, 0);
-    temp_2 = func_001bc920(arg0, 9);
+    temp_2 = btlCameraCreateSetStatePacket(arg0, 9);
     *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
     func_00194590(temp_2, 0);
     sp20[0] = 5;
@@ -6661,10 +6659,10 @@ after_flag:
     if (func_002184d0(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
         goto alternate;
     }
-    func_001b0800(arg0, 0x1D);
+    btlActionSetState(arg0, 0x1D);
     goto after_state;
 alternate:
-    func_001b0800(arg0, 0x20);
+    btlActionSetState(arg0, 0x20);
 after_state:
     temp = func_001faa60();
     *(s64 *)(temp + 0x60) = *(s64 *)arg0;
@@ -6683,10 +6681,10 @@ void func_001ad540(void)
 #pragma peephole off
 void func_001ad550(s64 *arg0)
 {
-    extern void func_00195850(u8 *arg0, f32 *arg1);
-    extern void func_003dcb40(void *out, const void *in, s32 count, const void *quat);
-    extern u8 *func_001973f0(u8 *arg0, f32 *arg1, s32 arg2, f32 arg3);
-    extern u8 *func_00193770(s32 arg0);
+    extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
+    extern void RtQuatTransformVectors(void *out, const void *in, s32 count, const void *quat);
+    extern u8 *btlUnitCreateMovePacket(u8 *arg0, f32 *arg1, s32 arg2, f32 arg3);
+    extern u8 *btlCreateSetFlagsPacket(s32 arg0);
     extern u8 *func_001f7d10(s32 arg0, s32 arg1, s32 arg2);
     extern RwV3d D_0060A100;
     extern f32 fGpffff8218;
@@ -6733,8 +6731,8 @@ loop_body:
     if ((*(u16 *)(iter + 0x1A) & 1) != 0) {
         u8 *u = *(u8 **)(iter + 0x30);
         if (*(u8 *)(u + 0xA2) == 0) {
-            if (func_002428f0(*(u8 **)(u + 0xA64), 0) == 0) {
-                if (func_00232710((s32)*(u8 **)(u + 0xA64), 0x100001) == 0) {
+            if (datCalcIsDead(*(u8 **)(u + 0xA64), 0) == 0) {
+                if (datCalcChkBadStatus((s32)*(u8 **)(u + 0xA64), 0x100001) == 0) {
                     collected[(var16 & 0xFFFF)] = iter;
                     var16 = (var16 + 1) & 0xFFFF;
                 }
@@ -6755,7 +6753,7 @@ case_one:
     *(u16 *)((u8 *)arg0 + 0x1A) &= 0xFFF7;
 after_switch:
     if (var5 == 0) {
-        u8 *q = func_001bc920(collected[0], 0xA);
+        u8 *q = btlCameraCreateSetStatePacket(collected[0], 0xA);
         *(s64 *)(q + 0x60) = *arg0;
         func_00194590(q, 0);
     }
@@ -6800,9 +6798,9 @@ second_body:
         u8 *cur = collected[(idx & 0xFFFF)];
         u8 *u30 = *(u8 **)(cur + 0x30);
         u8 *qpkt;
-        func_00195850(u30, posD0);
+        btlUnitGetSphereWorldCenter(u30, posD0);
         func_00194ff0(u30, NULL, quat80, NULL);
-        func_003dcb40(vecC0, &D_0060A100, 1, quat80);
+        RtQuatTransformVectors(vecC0, &D_0060A100, 1, quat80);
         unit30 = *(u8 **)((u8 *)arg0 + 0x30);
         if (*(u8 *)(unit30 + 0xA2) == 0) {
             vecC0[0] = vecC0[0] * 500.0f;
@@ -6811,7 +6809,7 @@ second_body:
             outE0[0] = posD0[0] + vecC0[0];
             outE0[1] = posD0[1] + vecC0[1];
             outE0[2] = posD0[2] + vecC0[2];
-            qpkt = func_001973f0(u30, outE0, 0, 0.5f);
+            qpkt = btlUnitCreateMovePacket(u30, outE0, 0, 0.5f);
             goto qpkt_done;
         } else {
             u8 *u2 = *(u8 **)(cur + 0x30);
@@ -6835,7 +6833,7 @@ second_body:
                     outE0[2] = posD0[2];
                 }
             }
-            qpkt = func_001973f0(u30, outE0, 4, fGpffff8218);
+            qpkt = btlUnitCreateMovePacket(u30, outE0, 4, fGpffff8218);
         }
 qpkt_done:
         *qpkt = 5;
@@ -6859,7 +6857,7 @@ second_check:
         goto second_body;
     }
     if (var21 != 0) {
-        u8 *z = func_00193770(0x80);
+        u8 *z = btlCreateSetFlagsPacket(0x80);
         *z = 4;
         *(s64 *)(z + 8) = var18;
         *(z + 0x10) = 0xA;
@@ -6873,7 +6871,7 @@ second_check:
         *(s64 *)(f + 0x60) = *arg0;
         func_00194590(f, 1);
     }
-    func_001b0800((u8 *)arg0, 0x20);
+    btlActionSetState((u8 *)arg0, 0x20);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001ad550);
@@ -6928,10 +6926,10 @@ void func_001adb80(s64 *arg0)
         *(u16 *)((u8 *)arg0 + 0x6C));
     *(s64 *)(temp_2_2 + 0x60) = *(s64 *)arg0;
     func_00194590(temp_2_2, 3);
-    temp_2_3 = func_001bc920((u8 *)arg0, 0x1F);
+    temp_2_3 = btlCameraCreateSetStatePacket((u8 *)arg0, 0x1F);
     *(s64 *)(temp_2_3 + 0x60) = *(s64 *)arg0;
     func_00194590(temp_2_3, 0);
-    temp_2_4 = func_00199ee0(*(u8 **)((u8 *)arg0 + 0x30),
+    temp_2_4 = btlUnitCreateAnimPacket(*(u8 **)((u8 *)arg0 + 0x30),
                              0x19, 0, 0, 1.0f);
     *(s64 *)(temp_2_4 + 0x60) = *(s64 *)arg0;
     func_00194590(temp_2_4, 0);
@@ -6943,7 +6941,7 @@ void func_001adb80(s64 *arg0)
         person = *(u16 *)((u8 *)arg0 + 0x74);
         func_0019ef30(*(u8 **)((u8 *)arg0 + 0x30), person);
         func_0010b7f0();
-        if (func_00106330(0x3C) != 0) {
+        if (datGetFlag(0x3C) != 0) {
             temp_2_6 = *(u8 **)((u8 *)arg0 + 0x3F0);
             if (temp_2_6 != NULL) {
                 *(s16 *)(temp_2_6 + 6) = 0;
@@ -6972,13 +6970,13 @@ void func_001adb80(s64 *arg0)
 // FUN_001ADE10
 void func_001ade10(s64 *arg0)
 {
-    void func_001b0800(u8 *arg0, u16 arg1);
+    void btlActionSetState(u8 *arg0, u16 arg1);
 
     if (func_00193bf0(*arg0, 0x3FFFFFFFFFFFFFFFLL) == 0) {
         if (*(u8 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA2) == 0) {
             *(u16 *)((u8 *)arg0 + 0x18) &= 0xFBFF;
         }
-        func_001b0800((u8 *)arg0, *(u16 *)((u8 *)arg0 + 0x14));
+        btlActionSetState((u8 *)arg0, *(u16 *)((u8 *)arg0 + 0x14));
     }
 }
 // FUN_001ADE90
@@ -7374,7 +7372,7 @@ void func_001ae800(u8 *arg0)
         packet1 = func_001faa60();
         *(u64 *)(packet1 + 0x60) = *(u64 *)arg0;
         func_00194590(packet1, 1);
-        packet2 = func_0019e7c0(0, 1);
+        packet2 = btlUnitCreateLookAtDeactivatePacket(0, 1);
         *(u64 *)(packet2 + 0x60) = *(u64 *)arg0;
         func_00194590(packet2, 1);
         *(u16 *)(arg0 + 0x18) &= 0xFFF7;
@@ -7391,7 +7389,7 @@ void func_001ae800(u8 *arg0)
         func_00218260(*(s32 *)(D_0076449C + 0xDD4));
         *(s32 *)(D_0076449C + 0xC) |= 0x400000;
         *(u16 *)(D_0076449C + 0x18) |= 7;
-        func_001b0800(arg0, 0x20);
+        btlActionSetState(arg0, 0x20);
         return;
     }
     *(u16 *)(arg0 + 0x42E) = *(u16 *)(arg0 + 0x42E) - 1;
@@ -7464,8 +7462,8 @@ void func_001aed50(u8 *arg0)
     extern u8 *func_001f3950(u8 *arg0);
     extern s32 func_001ef4a0(s32 arg0);
     extern void func_00230340(u8 *arg0);
-    extern u32 func_00232710(s32 arg0, u32 arg1);
-    extern s32 func_002428f0(s32 arg0, s32 arg1);
+    extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+    extern s32 datCalcIsDead(s32 arg0, s32 arg1);
     extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
     extern s32 func_001b7080(s32 arg0);
     extern s32 func_001b7090(s32 arg0);
@@ -7477,7 +7475,7 @@ void func_001aed50(u8 *arg0)
     extern u8 *func_001b7e20(s32 arg0);
     extern u8 *func_001b9360(s32 arg0, s32 arg1);
     extern u8 *func_001b99a0(s32 arg0);
-    extern void func_001b0800(u8 *arg0, u16 arg1);
+    extern void btlActionSetState(u8 *arg0, u16 arg1);
     extern u8 *func_001f81f0(s32 arg0, u8 *arg1);
     extern u8 *func_0019a980(u8 *arg0);
     extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
@@ -7633,7 +7631,7 @@ loop_10:
     unit17 = *(u8 **)(iGpffffb3ac + 0x178);
 loop_16:
     if (unit17 != NULL) {
-        if ((func_00232710(*(s32 *)(unit17 + 0xA64), 0x100117) != 0) || (func_002428f0(*(s32 *)(unit17 + 0xA64), 0) != 0)) {
+        if ((datCalcChkBadStatus(*(s32 *)(unit17 + 0xA64), 0x100117) != 0) || (datCalcIsDead(*(s32 *)(unit17 + 0xA64), 0) != 0)) {
             t10 = func_0019bbe0(unit17, 0xFFFFFF, 0, 0, 4, 0);
             *(t10 + 0) = 4;
             *(s64 *)(t10 + 8) = *(s64 *)(pkt12C + 0x58);
@@ -7704,13 +7702,13 @@ loop_44:
 loop_42:
         if ((var22 & 0xFFFF) < (s32)*(u8 *)(unit17 + 0xD9)) {
             unit30 = unit17 + ((var22 & 0xFFFF) << 5);
-            t20 = func_00199ee0(*(u8 **)(unit19 + 0x30), (s32)*(s8 *)(unit30 + 0x10C), 0, 0, 1.0f);
+            t20 = btlUnitCreateAnimPacket(*(u8 **)(unit19 + 0x30), (s32)*(s8 *)(unit30 + 0x10C), 0, 0, 1.0f);
             pkt = t20;
             *(t20 + 0) = 0xB;
             *(s64 *)(t20 + 8) = *(s64 *)(unit30 + 0x58);
             *(s64 *)(t20 + 0x60) = uid;
             func_00194590(t20, 0);
-            t21 = func_00198300(*(u8 **)(unit17 + 0x30), *(u8 **)(arg0 + 0x30), 2);
+            t21 = btlUnitCreateRotateTowardUnitPacket(*(u8 **)(unit17 + 0x30), *(u8 **)(arg0 + 0x30), 2);
             *(t21 + 0) = 5;
             *(s64 *)(t21 + 8) = *(s64 *)(pkt + 0x58);
             *(t21 + 0x47) &= (u8)~0x20;
@@ -7750,7 +7748,7 @@ loop_42:
                 *(s64 *)(t26 + 0x60) = uid;
                 func_00194590(t26, 1);
                 if ((*(u16 *)(unit30 + 0x10E) & 2) != 0) {
-                    t27 = func_00199ee0(*(u8 **)(unit17 + 0x30), 0xB, 0, 0, 1.0f);
+                    t27 = btlUnitCreateAnimPacket(*(u8 **)(unit17 + 0x30), 0xB, 0, 0, 1.0f);
                     *(t27 + 0) = 4;
                     *(s64 *)(t27 + 8) = *(s64 *)(pkt + 0x58);
                     *(s64 *)(t27 + 0x60) = uid;
@@ -7778,7 +7776,7 @@ loop_42:
     unit17 = *(u8 **)(iGpffffb3ac + 0x178);
 loop_50:
     if (unit17 != NULL) {
-        if ((func_00232710(*(s32 *)(unit17 + 0xA64), 0x100117) != 0) || (func_002428f0(*(s32 *)(unit17 + 0xA64), 0) != 0)) {
+        if ((datCalcChkBadStatus(*(s32 *)(unit17 + 0xA64), 0x100117) != 0) || (datCalcIsDead(*(s32 *)(unit17 + 0xA64), 0) != 0)) {
             t30 = func_0019bbe0(unit17, (u32)-1, 0xC, 0, 3, 0);
             *(t30 + 0) = 0xB;
             *(s64 *)(t30 + 8) = *(s64 *)(unit30 + 0x58);
@@ -7821,7 +7819,7 @@ loop_50:
     *(s64 *)(t35 + 0x60) = uid;
     func_00194590(t35, 1);
     func_001d3e00((u32)handle);
-    func_001b0800(arg0, 0x20);
+    btlActionSetState(arg0, 0x20);
 }
 #pragma opt_loop_invariants off
 #else
@@ -7835,7 +7833,7 @@ void func_001af9d0(void)
 void func_001af9e0(s64 *arg0)
 {
     if (func_00193bf0(*arg0, 0x3FFFFFFFFFFFFFFFLL) == 0) {
-        func_001b0800(arg0, 0x21U);
+        btlActionSetState(arg0, 0x21U);
     }
 }
 // FUN_001AFA50
@@ -7855,7 +7853,7 @@ void func_001afa50(u8 *arg0)
     if (func_001fac80(arg0) != 0) {
         *(void (**)(void))(arg0 + 0x440) = func_001fad10;
         *(s16 *)(arg0 + 0x43C) = 0x21;
-        func_001b0800(arg0, 0x16);
+        btlActionSetState(arg0, 0x16);
         return;
     }
     *(u16 *)(arg0 + 0x18) &= 0xC7FF;
@@ -7980,6 +7978,7 @@ void func_001afb50(u8 *action)
             }
         } else {
             *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) | 0x80;
+
         }
         if (specialOrder == 0) {
             *(u16 *)(action + 0x18) = *(u16 *)(action + 0x18) & 0x7FFF;

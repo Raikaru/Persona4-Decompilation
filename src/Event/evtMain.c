@@ -8,14 +8,14 @@
 extern u32 DAT_007645D8;
 void func_00285260(void);
 void func_002871a0();
-u8 *func_00145270(s32 arg0);
+u8 *MT_Scene_GetRes(s32 arg0);
 extern void func_0046d730(void *file, s32 line);
 extern void *func_00457120(void);
 extern u8 *func_00457130(void);
 void func_003e8180(void *, float);
 void func_003e81c0(void *, float);
 extern u8 D_0063C3B0[];
-void func_0043f9c8(void *dst, s32 c, s32 n);
+void memset(void *dst, s32 c, s32 n);
 s32 func_00286350(void);
 extern s32 D_008821E0[];
 void func_0028ad90(u8 *arg0, s32 arg1);
@@ -48,7 +48,7 @@ void func_00288020();
 void func_00287d90();
 void func_0028f4f0(void);
 void func_00293270(void);
-void func_004577d0(void *arg0, f32 arg1);
+void K_View_SetFov(void *arg0, f32 arg1);
 void func_0028be70();
 void func_0028b230(int param_1);
 void func_002e0dd0(void);
@@ -105,7 +105,7 @@ void func_00286d80(u32 *, u32 *);
 s32 func_002853f0(s32 arg0);
 extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 extern u8 D_0063C5C0[];
-void func_00442088();
+void sprintf();
 s32 func_0028f770(s32 arg0);
 void func_0028f800();
 void func_0026d810(void);
@@ -138,7 +138,7 @@ extern s8 D_00763888[8];
 s32 func_00122520(s32 arg0, s32 arg1);
 s32 func_00122640(s32 arg0, s32 arg1);
 s32 func_001227a0(void);
-void func_001228a0(u8 arg0, u8 arg1, u8 arg2);
+void H_Fade_SetCustomColor(u8 arg0, u8 arg1, u8 arg2);
 void func_0028f990(s32 arg0, f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3);
 void func_0028ced0(s32 arg0, s32 arg1, s32 arg2, f32 *arg3, f32 *arg4, f32 *arg5);
 void func_0028b270(int param_1);
@@ -184,7 +184,7 @@ u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
     if (temp_17 == NULL) {
         func_0046d730(D_0063C3B0, 0x198);
     }
-    func_0043f9c8(temp_17, 0, 0x54);
+    memset(temp_17, 0, 0x54);
     *(u16 *)(temp_17 + 0) = arg1;
     *(u32 *)(temp_17 + 4) = -1;
     *(u32 *)(temp_17 + 0x40) = 0;
@@ -271,7 +271,7 @@ u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
         break;
     }
     case 0x18:
-        func_0043f9c8(sp60, 0, 0x20);
+        memset(sp60, 0, 0x20);
         *(u8 *)(temp_17 + 0x10) = *(s32 *)(sp60 + 0x14);
         *(u8 *)(temp_17 + 0x11) = *(s32 *)(sp60 + 0x18);
         *(u16 *)(temp_17 + 0x14) = *(s32 *)(sp60 + 0);
@@ -472,7 +472,7 @@ void *func_00286f00(int param_1, int param_2) {
     if (r == 0) {
         return NULL;
     }
-    func_0043f9c8(r, 0, 0x98);
+    memset(r, 0, 0x98);
     *(u32 *)((u8 *)r + 0) = param_1;
     *(u32 *)((u8 *)r + 8) = -1;
     *(u16 *)((u8 *)r + 0xC) = 0;
@@ -491,7 +491,7 @@ void func_00286ff0(int param_1, int param_2, int param_3) {
     u8 *r;
     if (param_1 != 0) {
         *(u16 *)(param_1 + 0xC) = param_2;
-        r = func_00145270(*(u16 *)(param_1 + 0xC));
+        r = MT_Scene_GetRes(*(u16 *)(param_1 + 0xC));
         if (r != 0) {
             *(u32 *)(param_1 + 0x54) = *(u32 *)(r + 0x28);
         } else {
@@ -512,7 +512,7 @@ void *func_00287060(s32 arg0, u8 *arg1, u16 arg2, s32 arg3) {
     if (r == NULL) {
         r = NULL;
     } else {
-        func_0043f9c8(r, 0, 0x98);
+        memset(r, 0, 0x98);
         *(s32 *)((u8 *)r + 0) = arg0;
         *(s32 *)((u8 *)r + 8) = -1;
         *(s16 *)((u8 *)r + 0xC) = 0;
@@ -526,7 +526,7 @@ void *func_00287060(s32 arg0, u8 *arg1, u16 arg2, s32 arg3) {
     }
     if ((r != NULL) && (r != NULL)) {
         *(u16 *)((u8 *)r + 0xC) = arg2;
-        t = func_00145270(*(u16 *)((u8 *)r + 0xC));
+        t = MT_Scene_GetRes(*(u16 *)((u8 *)r + 0xC));
         if (t != NULL) {
             *(s32 *)((u8 *)r + 0x54) = *(s32 *)(t + 0x28);
         } else {
@@ -599,9 +599,8 @@ void func_00287310(u8 *arg0) {
 }
 
 /* The earlier duration-gate experiments remain in the Event recovery archives.
-   This owner uses the actual typed Scene lookup and native packed cut-in values. */
+   This owner uses native packed cut-in values. */
 struct Resrc;
-extern struct Resrc *MT_Scene_GetRes(u16 resourceId);
 
 #pragma push
 #pragma opt_propagation off
@@ -708,7 +707,7 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                             } while (var_4_2 > 0);
                             func_00122520(temp_19, *(u16 *)(arg2 + 2));
                             if ((temp_18 != 0) && ((u32)temp_18 < 3U)) {
-                                func_001228a0((u8)sp58[temp_18 * 4 - 4],
+                                H_Fade_SetCustomColor((u8)sp58[temp_18 * 4 - 4],
                                     (u8)sp58[temp_18 * 4 - 3], (u8)sp58[temp_18 * 4 - 2]);
                             }
                         }
@@ -1140,7 +1139,7 @@ typedef union EvtDirectionMatrix {
 #pragma opt_propagation off
 s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
 {
-    extern u8 *func_00145270(s32);
+    extern u8 *MT_Scene_GetRes(s32);
     extern void func_00146a10(u8 *, u8 *, u8 *, u8 *);
     extern u32 func_00268e30(float *, float *, float *);
     extern s32 func_00268e60(u32, u8 *, f32);
@@ -1200,7 +1199,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
             return 0;
         }
         {
-            u8 *r = func_00145270(*(u16 *)(resource + 0xC));
+            u8 *r = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
             if (r == NULL) {
                 return 1;
             }
@@ -1259,7 +1258,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                                 }
                             }
                             if (*(s8 *)(command + 0x26) == 1) {
-                                u8 *res2 = func_00145270(*(u16 *)(resource + 0xC));
+                                u8 *res2 = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
                                 if (func_00268e30((float *)(res2 + 4), (f32 *)&target, &heading) == 1) {
                                     rotation.y = heading;
                                     func_00269340(*(u16 *)(resource + 0xC), &rotation, 0xF, 0);
@@ -1293,7 +1292,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                     break;
                 }
                 case 2: {
-                    u8 *res = func_00145270(*(u16 *)(resource + 0xC));
+                    u8 *res = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
                     if (res != NULL) {
                         position.x = *(f32 *)(command + 0x18);
                         position.y = *(f32 *)(command + 0x1C);
@@ -1366,12 +1365,12 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                 s32 t = (*(u16 *)(resource + 0xC) & 0xFFC00) >> 10;
                 switch (t) {
                 case 3: {
-                    u8 *r = func_00145270(*(u16 *)(resource + 0xC));
+                    u8 *r = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
                     if (r != NULL) modelData = *(u8 **)(r + 0x164);
                     break;
                 }
                 case 1: {
-                    u8 *r = func_00145270(*(u16 *)(resource + 0xC));
+                    u8 *r = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
                     if (r != NULL) modelData = *(u8 **)(r + 0x164);
                     break;
                 }
@@ -1426,12 +1425,12 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                 s32 t = (*(u16 *)(resource + 0xC) & 0xFFC00) >> 10;
                 switch (t) {
                 case 3: {
-                    u8 *r = func_00145270(*(u16 *)(resource + 0xC));
+                    u8 *r = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
                     if (r != NULL) modelData = *(u8 **)(r + 0x164);
                     break;
                 }
                 case 1: {
-                    u8 *r = func_00145270(*(u16 *)(resource + 0xC));
+                    u8 *r = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
                     if (r != NULL) modelData = *(u8 **)(r + 0x164);
                     break;
                 }
@@ -1548,7 +1547,7 @@ s32 func_00288af0(s32 action, s32 frame, u8 *event, u8 *resourceBytes, u8 *comma
             func_00146e60(resource->id, (u8 *)&resource->position,
                          (u8 *)&resource->angles);
             func_00269740(resource->id);
-            camera = func_00145270(0x1E58);
+            camera = MT_Scene_GetRes(0x1E58);
             if (camera != NULL) {
                 *(f32 *)(camera + 0x140) = *(f32 *)(event + 0x750);
             }
@@ -1558,7 +1557,7 @@ s32 func_00288af0(s32 action, s32 frame, u8 *event, u8 *resourceBytes, u8 *comma
         return 1;
     case 2:
         if (command->frame == frame) {
-            if (func_00145270(resource->id) == NULL) {
+            if (MT_Scene_GetRes(resource->id) == NULL) {
                 return 1;
             }
             resource->longArc = command->longArc;
@@ -1656,7 +1655,7 @@ s32 func_00288f20(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
         return 1;
     case 2:
         if (*(u16 *)arg4 == arg1) {
-            t = func_00145270(*(u16 *)(arg4 + 0x12));
+            t = MT_Scene_GetRes(*(u16 *)(arg4 + 0x12));
             if (t == 0) {
                 return 1;
             }
@@ -1709,7 +1708,7 @@ s32 func_002890b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
     case 2:
         if (*(u16 *)arg4 == arg1) {
             t = *(u16 *)(arg4 + 0x12);
-            if (func_00145270(t) == 0) {
+            if (MT_Scene_GetRes(t) == 0) {
                 return 1;
             }
             if (*(u16 *)arg4 == arg1) {
@@ -1798,7 +1797,7 @@ s32 func_002891d0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                     func_00269620(func_00291360(*(u32 *)(arg2 + 0x5D0), v16) & 0xFFFF, *(u8 *)(arg4 + 0x12), *(s16 *)(arg4 + 0x14), 0);
                     break;
                 case 4:
-                    p = func_00145270(func_00291360(*(u32 *)(arg2 + 0x5D0), v16));
+                    p = MT_Scene_GetRes(func_00291360(*(u32 *)(arg2 + 0x5D0), v16));
                     if (p != NULL) {
                         func_004b13d0(*(u32 *)(p + 0x144), (f32)*(s16 *)(arg4 + 0x34) / 100.0f);
                     }
@@ -1926,7 +1925,7 @@ s32 func_00289780(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             s32 t41;
             *(u32 *)arg2 |= 0x80000;
             t41 = *(s16 *)(arg4 + 0x14) + 0x41;
-            func_00442088(sp30, D_0063C5C0, *(u32 *)(arg2 + 0x78C), *(u32 *)(arg2 + 0x790), t41);
+            sprintf(sp30, D_0063C5C0, *(u32 *)(arg2 + 0x78C), *(u32 *)(arg2 + 0x790), t41);
             if (*(u32 *)(arg2 + 0x760) == 0) {
                 *(u32 *)(arg2 + 0x760) = func_0028f770(func_00286350());
             }
@@ -2043,7 +2042,7 @@ s32 func_00289b10(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
         if (*(u16 *)arg4 != arg1) {
             goto ret;
         }
-        func_0043f9c8(sp60, 0, 0x14);
+        memset(sp60, 0, 0x14);
         if (*(u8 *)(arg4 + 0x10) != 0) {
             *(u32 *)sp60 |= 1;
         }
@@ -2491,7 +2490,7 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
     func_00288020(arg0, arg1);
     var_18 = *(u8 **)(arg1 + 0x4C);
     while (var_18 != NULL) {
-        func_0043f9c8(D_008821E0, 0, 0x28);
+        memset(D_008821E0, 0, 0x28);
         *(u32 *)D_00882204 = (u32)D_0063C420;
         D_008821E0[0] = 1;
         func_0028a970(arg0, (s32)arg1, var_18);
@@ -2499,7 +2498,7 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
     }
     var_18_2 = *(u8 **)(arg1 + 0x4C);
     while (var_18_2 != NULL) {
-        func_0043f9c8(D_008821E0, 0, 0x28);
+        memset(D_008821E0, 0, 0x28);
         *(u32 *)D_00882204 = (u32)D_0063C420;
         D_008821E0[0] = 2;
         func_0028a970(arg0, (s32)arg1, var_18_2);
@@ -2657,7 +2656,7 @@ u8 *func_0028afe0(void) {
     func_0044ea90(D_00748340, 0x52);
     p = D_008873F4[0](1, 0x7B0, 0x40000);
     func_002852a0(0, 0x7B0);
-    func_0043f9c8(p, 0, 0x7B0);
+    memset(p, 0, 0x7B0);
     func_0028b230((s32)p);
     src = (u32 *)(p + 0x76C);
     dst = sp30;
@@ -2670,7 +2669,7 @@ u8 *func_0028afe0(void) {
         dst++;
     } while (i > 0);
     v = *(u32 *)p;
-    func_0043f9c8(p, 0, 0x7B0);
+    memset(p, 0, 0x7B0);
     src = sp30;
     dst = (u32 *)(p + 0x76C);
     i = 15;
@@ -2689,7 +2688,7 @@ u8 *func_0028afe0(void) {
     if (*(u32 *)p & 0x80000000) {
         *(u32 *)(p + 0x54) = 1;
     }
-    func_004577d0(func_00457120(), 35.0f);
+    K_View_SetFov(func_00457120(), 35.0f);
     func_0014a2f0(1);
     func_0028be70(p, 0);
     return p;
@@ -2746,7 +2745,7 @@ void func_0028b320(s32 arg0, s32 arg1) {
         func_0046d730(D_0063C3B0, 0x10B7);
     }
     p = (u8 *)(arg0 + arg1 * 20 + 0x68);
-    func_0043f9c8(p, 0, 0x14);
+    memset(p, 0, 0x14);
     if (DAT_00764B38 != 0) {
         *(u32 *)p |= 1;
     }
@@ -2792,7 +2791,7 @@ void func_0028b550(int param_1) {
         func_0046d730(D_0063C3B0, 0x110D);
     }
     p = (f32 *)(param_1 + 0x98);
-    func_0043f9c8(p, 0, 8);
+    memset(p, 0, 8);
     cam = func_00457120();
     p[0] = *(f32 *)((u8 *)cam + 0x80);
     cam = func_00457120();

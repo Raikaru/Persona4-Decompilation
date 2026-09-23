@@ -28,7 +28,7 @@ extern s32 func_00102980(void);
 extern void func_001622d0(void);
 extern void func_00164170(void);
 extern void func_001641d0(void);
-extern void func_0043f9c8(void *, s32, s32);
+extern void memset(void *, s32, s32);
 extern void func_00156750(u8 *);
 extern u8 *func_00457120(void);
 extern void func_003e9df0(s32);
@@ -76,7 +76,7 @@ extern s32 D_007D252C[];
 extern s32 D_007D2530[];
 extern s32 D_007D253C[];
 extern u16 *D_007EFA04[];
-extern s32 func_00106330(s32);
+extern s32 datGetFlag(s32);
 extern void func_002aaa80(void);
 extern void func_002aaaa0(void);
 extern s32 func_00293fc0(s32);
@@ -94,7 +94,7 @@ extern s32 func_001614d0(void);
 extern void func_00162e10(void);
 extern void func_001658b0(void);
 extern s32 func_0014a160(void);
-extern s32 func_00442088(char *, const void *, ...);
+extern s32 sprintf(char *, const void *, ...);
 extern s32 func_00477e80(s32, s32, const char *, s32);
 extern s32 func_00165be0(void);
 extern s32 func_004782b0(s32);
@@ -107,7 +107,7 @@ extern s32 func_00145ac0(u16, s32);
 extern void func_0014a0f0(u16, s32);
 extern void func_0015a350(f32 *);
 extern void func_0047a180(s32, f32 *, s32);
-extern u8 *func_00145270(u16);
+extern u8 *MT_Scene_GetRes(u16);
 extern s32 func_0029da90(s32, u8 *, s32);
 extern s32 func_0014a200(void);
 extern u8 *func_0015a0c0(void);
@@ -129,7 +129,7 @@ extern s32 func_00166c30(s32);
 extern void func_00122640(s32, s32);
 extern s32 func_00122720(void);
 extern s32 func_0029db50(s32, u8 *, s32, s32);
-extern void func_00454bd0(u8 *);
+extern void H_Cdvd_Destroy(u8 *);
 extern void func_001552a0(u16, u16);
 extern s32 func_0018df60(u8 *);
 extern s32 func_00174ad0(u8 *);
@@ -157,7 +157,7 @@ s32 func_00155360(u8 *task)
     KFieldStateWork *work;
 
     work = *(KFieldStateWork **)(task + 0x38);
-    if (work->state > 2 && work->state < 11 && func_00106330(0x1470) == 0) {
+    if (work->state > 2 && work->state < 11 && datGetFlag(0x1470) == 0) {
         func_002aaa80();
     }
     switch (work->state) {
@@ -213,7 +213,7 @@ s32 func_00155360(u8 *task)
                 if (modelField == 0x2C || modelField == 0x2E || modelField == 0x2F ||
                     modelField == 0x30 || modelField == 0x40 || modelField == 0x42 ||
                     modelField == 0x43 || modelField == 0x44) {
-                    func_00442088(filename, D_005EFF20,
+                    sprintf(filename, D_005EFF20,
                         modelField < 0x32 ? modelField : modelField - 0x14);
                     work->model = func_00477e80(4, 0xFFFD, filename, 0);
                 }
@@ -240,7 +240,7 @@ s32 func_00155360(u8 *task)
                 func_0014a0f0(modelId, 1);
                 func_0015a350(position);
                 func_0047a180(work->model, position, 2);
-                object = func_00145270(modelId);
+                object = MT_Scene_GetRes(modelId);
                 *(u32 *)(object + 0x28) |= 0x02000000;
             }
             work->state++;
@@ -312,7 +312,7 @@ s32 func_00155360(u8 *task)
         if (work->scriptTask != 0) {
             if (func_00452490(work->scriptTask) == 1) break;
             if (work->roomData != NULL) {
-                func_00454bd0(work->roomData);
+                H_Cdvd_Destroy(work->roomData);
                 work->roomData = NULL;
             }
         }
@@ -410,7 +410,7 @@ field_call:
 field_done:
     func_00164170();
     func_001641d0();
-    func_0043f9c8(KFIELD_D_007E80A0, 0, 0xB40);
+    memset(KFIELD_D_007E80A0, 0, 0xB40);
     iGpffffb2e4 = 0;
     func_00156750(arg0);
     temp_16 = 0;
@@ -444,8 +444,8 @@ extern s32 D_007D255C[];
 typedef struct { f32 x; f32 y; f32 z; } KFieldVec3;
 extern s64 D_005EFF38[];
 extern f32 D_005EFF40[];
-extern void func_003e0380(f32 *arg0);
-extern void func_003e03e0(void *arg0, f32 *arg1);
+extern void RwEngineGetMatrixTolerances(f32 *arg0);
+extern void RwMatrixOptimize(void *arg0, f32 *arg1);
 extern void func_003e9680(void *arg0);
 extern s32 func_00155360(u8 *arg0);
 /* measured: object 648B/window 656B, nd 0. The six stack parameters are s64
@@ -478,7 +478,7 @@ s32 func_00155e10(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s3
     if (D_007D3D64[0] != NULL) {
         KFIELD_JTBL_008873EC((s32)D_007D3D64[0]);
     }
-    func_0043f9c8(D_007D2510, 0, 0x18DC);
+    memset(D_007D2510, 0, 0x18DC);
     func_0044ea90(D_005EFF10, 0x2AF);
     work = D_008873F4[0](1, 0xF4, 0x40000);
     if (work == NULL) {
@@ -514,8 +514,8 @@ s32 func_00155e10(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s3
     func_003e9df0(*(s32 *)(func_00457120() + 4));
     cam = *(u8 **)(func_00457120() + 4);
     *(KFieldVec3 *)(cam + 0x40) = pos;
-    func_003e0380(matrix);
-    func_003e03e0(*(u8 **)(func_00457120() + 4) + 0x10, matrix);
+    RwEngineGetMatrixTolerances(matrix);
+    RwMatrixOptimize(*(u8 **)(func_00457120() + 4) + 0x10, matrix);
     func_003e9680(*(u8 **)(func_00457120() + 4));
     return handle;
 }

@@ -15,8 +15,8 @@ extern void (*jtbl_008873EC[])(void *);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_0044ea90(const void *file, u32 line);
 extern void func_0046d730(const void *file, s32 line);
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
-extern void func_0043f810(void *dst, const void *src, u32 size);
+extern void memset(void *dst, s32 value, u32 size);
+extern void memcpy(void *dst, const void *src, u32 size);
 extern char D_00713E20[];
 extern char D_00713E30[];
 extern u8 *func_00484490(u8 *obj);
@@ -79,7 +79,7 @@ void *func_00492e70(u32 arg0)
 
     func_0044ea90(&D_00713E20, 0x171);
     w = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
-    func_0043f9c8(w, 0, 0x38);
+    memset(w, 0, 0x38);
     if (w == NULL) {
         func_0046d730(&D_00713E30, 0x32);
     }
@@ -116,7 +116,7 @@ u8 *func_00492f20(u8 *arg0)
     }
     func_0044ea90(&D_00713E20, 0x171);
     t2 = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
-    func_0043f9c8(t2, 0, 0x38);
+    memset(t2, 0, 0x38);
     if (t2 == NULL) {
         func_0046d730(D_00713E30, 0x32);
     }
@@ -270,7 +270,7 @@ u8 *func_004933a0(u8 *arg0)
     }
     func_0044ea90(&D_00713E20, 0x171);
     t2 = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
-    func_0043f9c8(t2, 0, 0x38);
+    memset(t2, 0, 0x38);
     if (t2 == NULL) {
         func_0046d730(D_00713E30, 0x32);
     }
@@ -316,7 +316,7 @@ u8 *func_00493530(u8 *arg0)
     }
     func_0044ea90(&D_00713E20, 0x171);
     t2 = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
-    func_0043f9c8(t2, 0, 0x38);
+    memset(t2, 0, 0x38);
     if (t2 == NULL) {
         func_0046d730(D_00713E30, 0x32);
     }
@@ -365,7 +365,7 @@ void func_00493790(u8 *arg0, u16 arg1, u8 *arg2)
 {
     u8 *v;
 
-    func_0043f810(arg0 + 0xC, arg2, 0x1C);
+    memcpy(arg0 + 0xC, arg2, 0x1C);
     if (*(u32 *)(arg0 + 0) != 0) {
         if (*(u32 *)(arg0 + 0x28) != 0) {
             func_00494680((void *)*(u32 *)(arg0 + 0x28));
@@ -654,7 +654,7 @@ u8 *func_00493e60(u16 count, u16 segments) {
     if (track == NULL) {
         func_0046d730(&D_00713E30, 0x20B);
     }
-    func_0043f9c8(track, 0, size);
+    memset(track, 0, size);
     *(u8 **)(track + 0x18) = track + 0x1C;
     geometry = (u16 *)func_00483e10(count, segments, (void *)D_00713310, 3, 0x48);
     *(u16 **)(track + 0x10) = geometry;

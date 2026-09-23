@@ -50,7 +50,7 @@ typedef struct KWindowEntry
 } KWindowEntry;
 
 extern KWindowEntry* func_00470d10(KwlnTask* task, s32 id);
-extern void func_00442830(void* destination, const char* source);
+extern void strcpy(void* destination, const char* source);
 extern void func_004704d0(KwlnTask* task);
 
 
@@ -111,7 +111,7 @@ void func_00470ad0(KwlnTask* task, u32 id, const char* text)
         entry->type = 1;
         if (text != NULL)
         {
-            func_00442830(entry->text, text);
+            strcpy(entry->text, text);
         }
         func_004704d0(task);
     }

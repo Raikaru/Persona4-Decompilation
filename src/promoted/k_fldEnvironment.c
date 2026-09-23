@@ -10,7 +10,7 @@ extern s16 func_001060b0(void);
 extern u8 func_001060c0(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
 extern s32 func_00154720(u16 arg0, u16 arg1, s32 arg2);
-extern u32 func_00106330(s32 arg0);
+extern u32 datGetFlag(s32 arg0);
 extern s32 func_0015a0c0(void);
 extern s32 func_0014a160(void);
 
@@ -23,9 +23,9 @@ extern void func_00153a30(u8 *task);
 
 
 extern s32 func_0014eec0(void);
-extern void func_00442830(void *arg0, const char *arg1);
-extern void func_00442088();
-extern s32 func_00454570(void *arg0);
+extern void strcpy(void *arg0, const char *arg1);
+extern void sprintf();
+extern s32 H_Cdvd_FileExists(void *arg0);
 extern void func_00440b68(char *arg0, const char *arg1, s32 arg2);
 extern u8 *func_00454a60(void *arg0, s32 arg1);
 extern char D_005EFE78[];
@@ -35,12 +35,12 @@ extern s32 func_0014a2a0();
 extern u8 *iGpffff9db0;
 extern char iGpffff9e18;
 extern char iGpffff9e20;
-extern s32 func_004553c0(u8 *arg0);
+extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern u8 *func_00455f70(void *arg0, void *arg1);
-extern void func_0043f810(void *arg0, void *arg1, u32 arg2);
-extern void func_0043f9c8(void *arg0, s32 arg1, u32 arg2);
+extern void memcpy(void *arg0, void *arg1, u32 arg2);
+extern void memset(void *arg0, s32 arg1, u32 arg2);
 extern u8 *func_00457120(void);
-extern void func_004577d0(void *arg0, f32 arg1);
+extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern s32 *func_00155280(void);
 extern void func_0016e590();
@@ -51,7 +51,7 @@ extern void func_0016eaa0(s32 arg0, s32 arg1, void *arg2);
 extern u8 *func_0016eaf0(s32 arg0);
 extern void func_0016eb00(s32 arg0);
 extern void func_0046d700(const char *arg0, s32 arg1, void *arg2, void *arg3);
-extern void func_00454bd0(u8 *arg0);
+extern void H_Cdvd_Destroy(u8 *arg0);
 extern char D_005EFEF0[];
 
 typedef struct CmrVec3 {
@@ -127,17 +127,17 @@ s32 func_00153c00(s32 arg0) {
         return 0;
     }
     if (func_0014eec0() == 0) {
-        func_00442830(&spA0, D_005EFE78);
+        strcpy(&spA0, D_005EFE78);
         if (func_0014a2a0(*(u16 *)iGpffff9db0, arg0 & 0xFFFF) != 0) {
-            func_00442088(&sp20, D_005EFE90, *(s32 *)iGpffff9db0 - 0x14, arg0);
+            sprintf(&sp20, D_005EFE90, *(s32 *)iGpffff9db0 - 0x14, arg0);
         } else {
-            func_00442088(&sp20, D_005EFE90, *(s32 *)iGpffff9db0, arg0);
+            sprintf(&sp20, D_005EFE90, *(s32 *)iGpffff9db0, arg0);
         }
         g = *(s32 *)iGpffff9db0;
         if ((g >= 0x33) && (g < 0x3B)) {
-            func_00442088(&sp20, D_005EFE90, g - 0x1E, 0);
+            sprintf(&sp20, D_005EFE90, g - 0x1E, 0);
         }
-        if (func_00454570(&sp20) == 0) {
+        if (H_Cdvd_FileExists(&sp20) == 0) {
             return 0;
         }
         func_00440b68(&iGpffff9e18, D_005EFE50, 0x1A1);
@@ -171,7 +171,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
     extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
     extern void func_00457170(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
     extern void func_00458f40(void *arg0, void *arg1);
-    extern void *func_0047a310(s32 arg0);
+    extern void *mdlGetClump(s32 arg0);
     extern char D_005EFEB0[];
     extern s32 iGpffffba48;
     extern u8 iGpffffba4c;
@@ -194,20 +194,20 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
     if (arg0 == NULL) {
         return 1;
     }
-    if ((func_0014eec0() == 0) && (func_004553c0(arg0) == 0)) {
+    if ((func_0014eec0() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0)) {
         return 0;
     }
     if (func_0014eec0() == 0) {
         data = *(u8 **)(arg0 + 0x110);
     } else {
-        func_00442088(&sp60, D_005EFEB0, *(s32 *)iGpffff9db0, arg1);
+        sprintf(&sp60, D_005EFEB0, *(s32 *)iGpffff9db0, arg1);
         if (func_0014a2a0(*(u16 *)iGpffff9db0, arg1 & 0xFFFF) != 0) {
-            func_00442088(&sp60, D_005EFEB0, *(s32 *)iGpffff9db0 - 0x14, arg1);
+            sprintf(&sp60, D_005EFEB0, *(s32 *)iGpffff9db0 - 0x14, arg1);
         }
         {
             s32 g = *(s32 *)iGpffff9db0;
             if ((g >= 0x33) && (g < 0x3B)) {
-                func_00442088(&sp60, D_005EFEB0, g - 0x1E, 0);
+                sprintf(&sp60, D_005EFEB0, g - 0x1E, 0);
             }
         }
         data = func_00455f70(&sp60, &spAC);
@@ -380,12 +380,12 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
             *(CmrVec3 *)(base + 0xA30) = *(CmrVec3 *)(data + 0x1F0);
         }
         while (tmp1 != NULL) {
-            func_00458f40(func_0047a310(*(s32 *)(tmp1 + 0x164)), data + 0x1F0);
+            func_00458f40(mdlGetClump(*(s32 *)(tmp1 + 0x164)), data + 0x1F0);
             tmp1 = *(u8 **)(tmp1 + 0x138);
         }
         while (tmp3 != NULL) {
             if ((*(u32 *)(tmp3 + 0x28) & 0x10000000) != 0) {
-                func_00458f40(func_0047a310(*(s32 *)(tmp3 + 0x164)), data + 0x1F0);
+                func_00458f40(mdlGetClump(*(s32 *)(tmp3 + 0x164)), data + 0x1F0);
             }
             tmp3 = *(u8 **)(tmp3 + 0x138);
         }
@@ -425,7 +425,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
         func_0018c750(*(f32 *)(data + 0x378));
     }
     if (func_0014eec0() == 0) {
-        func_00454bd0(arg0);
+        H_Cdvd_Destroy(arg0);
     }
     return 1;
 }
@@ -469,7 +469,7 @@ s32 func_00154720(u16 fieldKind, u16 baseState, s32 condition)
     currentPeriod = func_001060c0() & 0xFF;
     kind = fieldKind;
     if (kind == 0x1C && state == 2) {
-        if (func_00106330(0xF52) == 1) {
+        if (datGetFlag(0xF52) == 1) {
             result = 3;
         } else {
             result = 2;
@@ -541,7 +541,7 @@ s32 func_00154720(u16 fieldKind, u16 baseState, s32 condition)
     default:
         break;
     }
-    if (func_00106330(0x8A) == 1 &&
+    if (datGetFlag(0x8A) == 1 &&
         (((kind != 7 || state != 2) && (kind != 7 || state != 3)) ||
          (currentPeriod & 0xFF) != 5)) {
         switch (condition) {
@@ -599,9 +599,9 @@ s32 func_00154b10(void) {
         return 0;
     }
     if (func_0014eec0() == 0) {
-        func_00442830(&sp90, D_005EFE78);
-        func_00442088(&sp10, D_005EFED0, *(s32 *)(iGpffff9db0 + 0), *(s32 *)(iGpffff9db0 + 4));
-        if (func_00454570(&sp10) == 0) {
+        strcpy(&sp90, D_005EFE78);
+        sprintf(&sp10, D_005EFED0, *(s32 *)(iGpffff9db0 + 0), *(s32 *)(iGpffff9db0 + 4));
+        if (H_Cdvd_FileExists(&sp10) == 0) {
             return 0;
         }
         func_00440b68(&iGpffff9e18, D_005EFE50, 0x571);
@@ -632,13 +632,13 @@ s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
     if (arg0 == 0) {
         return 1;
     }
-    if ((func_0014eec0() == 0) && (func_004553c0(arg0) == 0)) {
+    if ((func_0014eec0() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0)) {
         return 0;
     }
     if (func_0014eec0() == 0) {
         data = *(u8 **)(arg0 + 0x110);
     } else {
-        func_00442088(&spA0, D_005EFEF0,
+        sprintf(&spA0, D_005EFEF0,
                       *(s32 *)iGpffff9db0, *(s32 *)(iGpffff9db0 + 4));
         data = func_00455f70(&spA0, &spEC);
         if (data == 0) {
@@ -671,11 +671,11 @@ s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
         *arg6 = *(f32 *)(data + 0x60);
         *arg7 = *(f32 *)(data + 0x64);
         if (*(u32 *)(data + 4) > 0x10000U) {
-            func_0043f810(arg_sp0, data + 0x68, 0x20);
-            func_0043f810(arg_sp8, data + 0x88, 0x180);
+            memcpy(arg_sp0, data + 0x68, 0x20);
+            memcpy(arg_sp8, data + 0x88, 0x180);
         } else {
-            func_0043f9c8(arg_sp0, 0, 0x20);
-            func_0043f9c8(arg_sp8, 0, 0x180);
+            memset(arg_sp0, 0, 0x20);
+            memset(arg_sp8, 0, 0x180);
         }
         if (*(u32 *)(data + 4) > 0x10001U) {
             src = (s32 *)(data + 0x210);
@@ -713,7 +713,7 @@ s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
         s32 first;
         s32 second;
 
-        func_004577d0(func_00457120(), *(f32 *)(data + 8));
+        K_View_SetFov(func_00457120(), *(f32 *)(data + 8));
         func_003e9cb0((void *)*(s32 *)(func_00457120() + 4),
                       data + 0x10, 0);
         func_0016e590(func_00155280()[1], *(u16 *)(data + 0x50));
@@ -760,7 +760,7 @@ CMR_loop_skip:
         func_0016eb00(func_00155280()[1]);
     }
     if (func_0014eec0() == 0) {
-        func_00454bd0(arg0);
+        H_Cdvd_Destroy(arg0);
     }
     return 1;
 }

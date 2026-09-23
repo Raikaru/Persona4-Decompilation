@@ -11,7 +11,7 @@ extern s32 func_003c2bd0(u8 *arg0);
 extern s32 func_003c4c00(u8 *arg0);
 extern s32 func_003c4a80(u8 *arg0, s32 arg1);
 extern s32 func_003c4bc0(u8 *arg0, s32 arg1);
-extern u8 *func_003c2290(u8 *arg0, s32 arg1);
+extern u8 *RpGeometryLock(u8 *arg0, s32 arg1);
 extern u8 *func_003c49a0(u8 *arg0);
 extern s32 func_003ce2e0(u8 *arg0);
 extern s32 func_003c2c90(u8 *arg0);
@@ -324,7 +324,7 @@ s32 func_003c1b80(s32 arg0) {
 // FUN_003C1B90
 /* measured: schedule moves the saved object into the call delay slot. */
 #pragma schedule on
-u8 *func_003c1b90(u8 *arg0, u8 *arg1, s32 arg2) {
+u8 *RpAtomicSetFrame(u8 *arg0, u8 *arg1, s32 arg2) {
     u8 *p;
     u8 flag;
     p = arg0;
@@ -390,7 +390,7 @@ s32 func_003c1c70(u8 *arg0) {
 
     self = arg0;
     *(s16 *)(arg0 + 0xE) += 1;
-    func_003c2290(arg0, 0xFFF);
+    RpGeometryLock(arg0, 0xFFF);
     func_003e3c20(D_0070AFB0, self);
     temp = *(u8 **)(self + 0x5C);
     if (temp != NULL) {
@@ -456,7 +456,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1ea0);
 // FUN_003C2290
 #pragma schedule on
 #pragma no_branch_likely on
-u8 *func_003c2290(u8 *arg0, s32 arg1) {
+u8 *RpGeometryLock(u8 *arg0, s32 arg1) {
     u8 *temp;
 
     *(u16 *)(arg0 + 0xC) |= (u16)(arg1 & 0xFFFF);
@@ -1167,7 +1167,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9300);
 // FUN_003C9530
 extern s32 iGpffffb700;
 extern s32 iGpffffb704;
-extern void func_003cc130(void);
+extern void _rpWorldPipelineClose(void);
 /* measured: probe schedule */
 #pragma schedule on
 s32 func_003c9530(s32 arg0) {
@@ -1178,7 +1178,7 @@ s32 func_003c9530(s32 arg0) {
         func_003e12f0(p);
         *(u8 **)(D_008872E0 + iGpffffb700) = NULL;
     }
-    func_003cc130();
+    _rpWorldPipelineClose();
     iGpffffb704 -= 1;
     return arg0;
 }
@@ -1958,7 +1958,7 @@ u8 *func_003cbcf0(u8 *arg0, u8 *arg1) {
     func_003c0050(arg1, (void *)func_003cb6a0, arg0);
     func_003bffc0(arg1, (void *)func_003cb6d0, arg0);
     if (old != NULL) {
-        func_003e03e0(old + 0x10, 0);
+        RwMatrixOptimize(old + 0x10, 0);
         func_003e9680(old);
     }
     *(s32 *)(base + 4) = *(s32 *)(D_008872E0 + (s32)iGpffffb718 + 8);
@@ -2117,7 +2117,7 @@ setnull:
    unfilled: MISMATCH nd 6, object 56 bytes in a 64-byte window. */
 // FUN_003CC130
 #pragma schedule on
-void func_003cc130(void) {
+void _rpWorldPipelineClose(void) {
     func_003cc460();
     func_003d4e00();
     func_003d4e90();

@@ -15,10 +15,10 @@ typedef void (*shd_cb)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 // exactly as in the P3 donor FUN_0040e580): a typed prototype makes mwcc
 // emit andi zero-extensions the retail never has.
 
-s32 func_00442948(const char *text);
+s32 strlen(const char *text);
 void func_0044ea90(const void *msg, s32 id);
-void func_0043f810(void *dst, const void *src, u32 size);
-void func_0043f9c8(void *dst, s32 value, u32 size);
+void memcpy(void *dst, const void *src, u32 size);
+void memset(void *dst, s32 value, u32 size);
 s32 func_00455f70(s32 arg0, s32 *arg1);
 u8 *func_0046aea0(const char *name);
 u32 func_0046a750(s16 *param);
@@ -54,7 +54,7 @@ u8 *func_0025ef20(u8 *arg0)
     i = 0;
     for (; i < *(s32 *)(arg0 + 4); i += 1) {
         offset = i * 4;
-        size += func_00442948(
+        size += strlen(
             *(const char **)((u8 *)(u32)(*(s32 *)arg0) + offset)) + 1;
     }
     totalSize = size + (size & 1);
@@ -68,16 +68,16 @@ u8 *func_0025ef20(u8 *arg0)
     data = result + 0x14;
     *(u8 **)(result + 4) = data;
     *(u8 **)(result + 8) = data + 0x10;
-    func_0043f810(*(void **)(result + 4), arg0, 0x10);
+    memcpy(*(void **)(result + 4), arg0, 0x10);
     cursor = *(u8 **)(result + 8) + *(s32 *)(arg0 + 4) * 4;
     *(u8 **)(*(u8 **)(result + 4)) = cursor;
     cursor += *(s32 *)(arg0 + 4) * 4;
     j = 0;
     for (; j < *(s32 *)(arg0 + 4); j += 1) {
         offset = j * 4;
-        length = func_00442948(
+        length = strlen(
             *(const char **)((u8 *)(u32)(*(s32 *)arg0) + offset)) + 1;
-        func_0043f810(
+        memcpy(
             cursor,
             *(const void **)((u8 *)(u32)(*(s32 *)arg0) + offset),
             length);
@@ -88,7 +88,7 @@ u8 *func_0025ef20(u8 *arg0)
         cursor += 1;
     }
     if (*(u8 **)(arg0 + 8) != NULL) {
-        func_0043f810(
+        memcpy(
             cursor,
             *(u8 **)(arg0 + 8),
             *(s32 *)(arg0 + 0xC) * 8);
@@ -297,8 +297,8 @@ u32 func_0025f6b0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, s16 *a4
     s32 flag8;
 
     off = 0;
-    func_0043f9c8(buf, 0, 0x20);
-    len = (u32)func_00442948((const char *)a2);
+    memset(buf, 0, 0x20);
+    len = (u32)strlen((const char *)a2);
     width = 0;
     i = 0;
     j = 0;

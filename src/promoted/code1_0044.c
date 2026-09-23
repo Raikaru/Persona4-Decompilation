@@ -307,15 +307,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444570);
 /* measured: 15 differing words, object 17 instrs / retail 17, exact count (third-party unit, so floorboard/opclass skip it). Control shape matches (delay-slot move, shared epilogue); residual is frame/saves and lw/sw register picks. Tried: loc/tag-hoist respelling (16 edits, neutral), all 8 singles + all 28 pragma pairs (all 15; peephole off 17). Retail saves $s0 with sd, b210 emits sq (file-top toolchain note): ~6 save/frame words permanently blocked. */
 // FUN_00444700 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_00444700(u8 *arg0, u8 *arg1) {
-    extern s32 func_0043e608(u8 *arg0, u8 *arg1);
+s32 __sprint(u8 *arg0, u8 *arg1) {
+    extern s32 __sfvwrite(u8 *arg0, u8 *arg1);
     s32 result;
 
     if (*(s32 *)(arg1 + 8) == 0) {
         *(s32 *)(arg1 + 4) = 0;
         return 0;
     }
-    result = func_0043e608(arg0, arg1);
+    result = __sfvwrite(arg0, arg1);
     *(s32 *)(arg1 + 4) = 0;
     *(s32 *)(arg1 + 8) = 0;
     return result;
@@ -592,7 +592,7 @@ f32 func_00449938(f32 arg0, f32 arg1);
 #pragma pop
 
 
-f32 func_0044a4d0(f32 arg0);
+f32 __ieee754_sqrtf(f32 arg0);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
  * ld $ra / j func_0044a4d0 / addiu $sp,0x10 in the delay slot). b210's

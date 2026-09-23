@@ -16,7 +16,7 @@ extern s32 D_00882F20[];
 extern s32 D_00763918;
 extern s32 D_00764634;
 extern u8 D_0063EE40[];
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void memset(void *dst, s32 value, u32 size);
 
 extern s32 func_002aa890(u8 *arg0);
 extern void func_002aa450(void);
@@ -27,7 +27,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern s32 func_002abf70(u8 *arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_003f6690(s32 arg0, s32 *arg1);
 extern void func_00364c50(void);
 extern void func_00364c70(void);
@@ -105,8 +105,8 @@ struct RwMatrixTag;
 extern void func_00366960(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
                           const struct RwMatrixTag *matrix, void *queue);
-extern void func_003e0870(void *arg0, void *arg1, f32 farg0, s32 arg2);
-extern void func_003e0a90(void *arg0, void *arg1, s32 arg2);
+extern void RwMatrixRotate(void *arg0, void *arg1, f32 farg0, s32 arg2);
+extern void RwMatrixScale(void *arg0, void *arg1, s32 arg2);
 extern void func_003e4320(void *arg0, void *arg1, void *arg2);
 extern f32 fGpffff855c;
 extern u8 D_0063EDF0[];
@@ -134,7 +134,7 @@ extern void func_00122640(s32 arg0, s32 arg1);
 extern void func_0029ebf0(u8 *arg0, s32 arg1);
 extern void func_0029f070(u8 *arg0);
 extern void func_002a12e0(u8 *arg0, s32 arg1);
-extern s32 func_00442c30(void *arg0, void *arg1, s32 arg2);
+extern s32 strncmp(void *arg0, void *arg1, s32 arg2);
 
 
 
@@ -177,8 +177,8 @@ void func_002a03b0(u8 *arg0) {
     extern u8 iGpffffb528[];
     extern s32 iGpffffb538;
     extern s32 func_0029f790(u8 *arg0);
-    extern s32 func_00442948(const void *arg0);
-    extern void func_00442de8(void *arg0, const void *arg1, s32 arg2);
+    extern s32 strlen(const void *arg0);
+    extern void strncpy(void *arg0, const void *arg1, s32 arg2);
     extern s32 func_00274ed0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, void *arg6, s32 arg7, s32 arg8);
     f32 sp9c;
     f32 sp98;
@@ -405,26 +405,26 @@ void func_002a03b0(u8 *arg0) {
         (*(s32 *)(temp_19 + 8) == 0)) {
         func_0025e9e0(0.0f, 102.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAC, iGpffffb540, 1);
     }
-    if ((func_00442948(D_00882EF0) >> 1) != 0) {
-        temp_16 = (u32)(func_00442948(D_00882EF0) >> 1);
+    if ((strlen(D_00882EF0) >> 1) != 0) {
+        temp_16 = (u32)(strlen(D_00882EF0) >> 1);
         var_18_3 = 0xE7;
         var_19 = 0;
         sum = 0;
         while (var_19 < temp_16) {
-            func_00442de8(iGpffffb528, D_00882EF0 + (var_19 * 2), 2);
+            strncpy(iGpffffb528, D_00882EF0 + (var_19 * 2), 2);
             sum += func_00274ed0((f32)var_18_3, 121.0f, 0.0f,
                                  0xCCFFFFFF, 0, 0, iGpffffb528, 0, 0);
             var_18_3 += 0x1C;
             var_19 += 1;
         }
     }
-    if ((func_00442948(D_00882ED0) >> 1) != 0) {
-        temp_16_2 = (u32)(func_00442948(D_00882ED0) >> 1);
+    if ((strlen(D_00882ED0) >> 1) != 0) {
+        temp_16_2 = (u32)(strlen(D_00882ED0) >> 1);
         var_18_4 = 0xE7;
         var_19_2 = 0;
         sum = 0;
         while (var_19_2 < temp_16_2) {
-            func_00442de8(iGpffffb528, D_00882ED0 + (var_19_2 * 2), 2);
+            strncpy(iGpffffb528, D_00882ED0 + (var_19_2 * 2), 2);
             sum += func_00274ed0((f32)var_18_4, 153.0f, 0.0f,
                                  0xCCFFFFFF, 0, 0, iGpffffb528, 0, 0);
             var_18_4 += 0x1C;
@@ -843,7 +843,7 @@ loop_25_body:
                         goto loop_28_init;
                     }
 loop_25_cond:
-                    if (func_00442c30(&iGpffffa7e8,
+                    if (strncmp(&iGpffffa7e8,
                                       D_00882EF0 + var_17, 2) == 0) {
                         goto loop_25_body;
                     }
@@ -858,7 +858,7 @@ loop_28_body:
                         goto clear_done;
                     }
 loop_28_cond:
-                    if (func_00442c30(&iGpffffa7e8,
+                    if (strncmp(&iGpffffa7e8,
                                       D_00882ED0 + var_17_2, 2) == 0) {
                         goto loop_28_body;
                     }
@@ -994,32 +994,32 @@ void func_002aa450(void) {
     offset = 1.0f - ratio;
     offset = p4_002aa450_mul(scale, offset);
     offset = -80.0f - offset;
-    func_003e0870(work.matrix, &work.pair0, offset, 0);
+    RwMatrixRotate(work.matrix, &work.pair0, offset, 0);
     func_003e4320(&work.pair3, &work.pair3, work.matrix);
     angle = 360.0f * phase;
-    func_003e0870(work.matrix, &work.pair3, angle, 2);
-    func_003e0a90(work.matrix, &work.pair4, 2);
+    RwMatrixRotate(work.matrix, &work.pair3, angle, 2);
+    RwMatrixScale(work.matrix, &work.pair4, 2);
     color_x = (f32)0x1A3;
     color_y = (f32)0x242;
     color_value = 397;
     func_00366960((s32)color_y, (s32)color_x, 0.0f, 0x18, 0x1F, 0xFF00, 0xFF, 1, 0,
                   0, (const struct RwMatrixTag *)work.matrix, 0);
-    func_003e0870(work.matrix, &work.pair0, offset, 0);
-    func_003e0870(work.matrix, &work.pair3, 120.0f + angle, 2);
-    func_003e0a90(work.matrix, &work.pair4, 2);
+    RwMatrixRotate(work.matrix, &work.pair0, offset, 0);
+    RwMatrixRotate(work.matrix, &work.pair3, 120.0f + angle, 2);
+    RwMatrixScale(work.matrix, &work.pair4, 2);
     func_00366960((s32)color_y, (s32)color_x, 0.0f, 0x18, 0x1F, 0xFFFF00, 0xFF, 1, 0,
                   0, (const struct RwMatrixTag *)work.matrix, 0);
-    func_003e0870(work.matrix, &work.pair0, offset, 0);
-    func_003e0870(work.matrix, &work.pair3, 240.0f + angle, 2);
-    func_003e0a90(work.matrix, &work.pair4, 2);
+    RwMatrixRotate(work.matrix, &work.pair0, offset, 0);
+    RwMatrixRotate(work.matrix, &work.pair3, 240.0f + angle, 2);
+    RwMatrixScale(work.matrix, &work.pair4, 2);
     func_00366960((s32)color_y, (s32)color_x, 0.0f, 0x18, 0x1F, 0xFF0000, 0xFF, 1, 0,
                   0, (const struct RwMatrixTag *)work.matrix, 0);
-    func_003e0870(work.matrix, &work.pair1, fGpffff855c, 0);
-    func_003e0870(work.matrix, &work.pair2, 357.0f * phase + 3.0f, 2);
+    RwMatrixRotate(work.matrix, &work.pair1, fGpffff855c, 0);
+    RwMatrixRotate(work.matrix, &work.pair2, 357.0f * phase + 3.0f, 2);
     ((f32 *)&work.pair4)[0] *= ratio;
     ((f32 *)&work.pair4)[1] *= ratio;
     ((f32 *)&work.pair4)[2] *= ratio;
-    func_003e0a90(work.matrix, &work.pair4, 2);
+    RwMatrixScale(work.matrix, &work.pair4, 2);
     func_00366960((s32)color_y, (s32)(color_value - ratio * 2.0f), 0.0f, 0x22, 0x2C,
                   0xE6E6E6, 0xFF, 1, 0x11, 0x16,
                   (const struct RwMatrixTag *)work.matrix, 0);
@@ -1075,7 +1075,7 @@ void func_002aaa00(u8 *unusedTask)
 
 // FUN_002AAA10
 void func_002aaa10(void) {
-    func_0043f9c8(D_00882F20, 0, 0x10);
+    memset(D_00882F20, 0, 0x10);
     (s32)func_00451fc0((void *)(NULL), (const void *)(D_0063EE40), 0xF, 0, 0, func_002aa890, func_002aaa00, (u8 *)(NULL));
 }
 
@@ -1107,8 +1107,8 @@ void func_002aaac0(void) {
     base[0](0x14, 1);
     base[0](6, 0);
     base[0](8, 0);
-    func_003f6440(3, 0x50003);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(3, 0x50003);
+    RpSkyRenderStateSet(2, 0x44);
     base[0](1, 0);
 }
 /* measured: closes the opt_propagation bracket for func_002aaac0. */
@@ -1176,14 +1176,14 @@ void func_002aabf0(void *arg0, u8 *arg1) {
     base[0](0x14, 1);
     base[0](6, 0);
     base[0](8, 0);
-    func_003f6440(3, 0x50003);
-    func_003f6440(2, 0x44);
+    RpSkyRenderStateSet(3, 0x50003);
+    RpSkyRenderStateSet(2, 0x44);
     base[0](1, 0);
     if (temp_18 != 0) {
-        func_003f6440(3, work.sp88);
+        RpSkyRenderStateSet(3, work.sp88);
     }
     if (temp_17 != 0) {
-        func_003f6440(2, work.sp84);
+        RpSkyRenderStateSet(2, work.sp84);
     }
     if (temp_19 & 1) {
         base[0](6, 1);
@@ -1192,13 +1192,13 @@ void func_002aabf0(void *arg0, u8 *arg1) {
         base[0](8, 1);
     }
     if (temp_19 & 4) {
-        func_003f6440(3, 0x5000D);
+        RpSkyRenderStateSet(3, 0x5000D);
     }
     if (temp_19 & 8) {
-        func_003f6440(2, 0x54);
+        RpSkyRenderStateSet(2, 0x54);
     }
     if (temp_19 & 0x20) {
-        func_003f6440(2, 0x58);
+        RpSkyRenderStateSet(2, 0x58);
     }
     temp_17_2 = temp_19 & 0x40;
     if (temp_17_2 != 0) {

@@ -9,13 +9,13 @@ typedef struct RwMatrix RwMatrix;
 
 extern s32 iGpffff9ef8;
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
-extern void func_004577d0(void *arg0, f32 arg1);
+extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_0016e590();
 extern s32 iGpffff9f08;
 
 extern s32* func_00155280(void);
 extern void (*DAT_008873EC[])(void *);
-extern u8 *func_00145270(u16 arg0);
+extern u8 *MT_Scene_GetRes(u16 arg0);
 extern u8 D_007EF9B0[];
 extern u8 D_007F16F0[];
 extern u8 D_007E4320[];
@@ -23,15 +23,15 @@ extern u8 D_007F16F2[];
 extern u8 D_007F16F4[];
 extern void func_004787e0();
 extern u8 D_007E8C00[];
-extern void func_00442830(void *arg0, const char *arg1);
-extern s32 func_00442088(char *buf, const char *fmt, ...);
-extern s32 func_00454570(void *arg0);
+extern void strcpy(void *arg0, const char *arg1);
+extern s32 sprintf(char *buf, const char *fmt, ...);
+extern s32 H_Cdvd_FileExists(void *arg0);
 extern void func_00440b68(char *arg0, const char *arg1, s32 arg2, ...);
 extern u8 *func_00454a60(void *arg0, s32 arg1);
 extern char D_005F1218[];
 extern char D_005F1230[];
 extern char D_005F1248[];
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void memset(void *dst, s32 value, u32 size);
 extern s32 iGpffffb2e8;
 extern s32 iGpffffb2e4;
 extern s32 iGpffffb2e0;
@@ -56,18 +56,18 @@ extern u8 iGpffffba50;
 extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern void (*D_00887300[])(u32, u32);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_0044ea90(const void *msg, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_00456150(void *arg0);
-extern void func_0043f810(void *dst, void *src, u32 size);
-extern void func_00454bd0(void *arg0);
+extern void H_Cdvd_ReadSync(void *arg0);
+extern void memcpy(void *dst, void *src, u32 size);
+extern void H_Cdvd_Destroy(void *arg0);
 extern u8 *func_00457120();
 extern void func_003e9d50(u8 *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void func_00457630(u8 *arg0, void *arg1, void *arg2, s32 arg3);
-extern void func_003e0c90(void *arg0, void *arg1, s32 arg2);
+extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
 extern void func_003e0e20(void *arg0, void *arg1, s32 arg2);
-extern f32 func_003e40b0(RwV3d *out, const RwV3d *in);
+extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
 extern u8 *func_003e9700(s32 arg0);
 extern f32 D_007F1730[];
 
@@ -90,14 +90,14 @@ extern s32 func_0014d910(s32 arg0, void *arg1);
 extern void func_0014d800(void *arg0, void *arg1);
 extern f32 fabsf(f32 x);
 extern f32 func_0014b5d0(u8 *arg0);
-extern f32 func_00457850(u8 *arg0);
-extern void func_001604a0(u8 *arg0);
-extern s32 func_004553c0(u8 *arg0);
+extern f32 K_View_GetFov(u8 *arg0);
+extern void K_FldFilter_InitQuads(u8 *arg0);
+extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern u8 *iGpffffb2c8;
 extern u8 *iGpffffb2cc;
 extern u8 D_007E7B20[];
-extern u8 *func_0047a2f0();
-extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
+extern u8 *mdlGetMatrix();
+extern void mdlScale(void *arg0, void *arg1, s32 arg2);
 extern u8 D_005F12E0[];
 extern u8 D_005F15F8[];
 extern u8 D_005F1630[];
@@ -116,11 +116,11 @@ extern char D_005F11E8[];
 extern char D_005F1200[];
 extern s32 iGpffff9f08;
 extern u8 *iGpffff9db0;
-extern s32 func_00106330();
+extern s32 datGetFlag();
 extern s32 func_0015a160();
 extern s32 func_001623f0();
 extern s32 func_00162510(u16 arg0, u16 arg1);
-extern s16 func_00105ee0(s32 arg0);
+extern s16 datGetPartyId(s32 arg0);
 extern s64 func_001060b0(void);
 extern s32 func_00110d60(s32 arg0);
 extern s32 func_00110680(s32 arg0, s32 arg1, s32 arg2);
@@ -128,7 +128,7 @@ extern s32 func_001060c0(void);
 extern s32 func_00110960(s16 arg0, s32 arg1);
 extern s32 D_005F1350[];
 extern void *func_00478140(u32 arg0, u32 arg1, u32 arg2);
-extern void func_0047a220(void *arg0, void *arg1);
+extern void mdlSetColor(void *arg0, void *arg1);
 extern void func_0047a990(void *arg0);
 extern void func_0047aaa0(void *arg0, s32 arg1, void *arg2, void *arg3,
                            void *arg4, u32 arg5);
@@ -180,12 +180,12 @@ typedef struct EEE0Frame
     u8 pad8c[4];
     RwV3d sp90;
 } EEE0Frame;
-extern f32 func_0044b7b0(f32 arg0);
+extern f32 sinf(f32 arg0);
 extern f32 iGpffff8094;
 
-extern s32 func_003e0380(RwV3d *arg0);
-extern void func_003e03e0(u8 *arg0, RwV3d *arg1);
-extern void func_003e05d0(u8 *arg0);
+extern s32 RwEngineGetMatrixTolerances(RwV3d *arg0);
+extern void RwMatrixOptimize(u8 *arg0, RwV3d *arg1);
+extern void RwMatrixUpdate(u8 *arg0);
 
 
 typedef signed __int128 s128;
@@ -227,7 +227,7 @@ void func_00160440(void)
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 // FUN_001604A0
-void func_001604a0(u8 *arg0)
+void K_FldFilter_InitQuads(u8 *arg0)
 {
     f32 depth = *(f32 *)(arg0 + 0x80);
     f32 inv = 1.0f / depth;
@@ -289,10 +289,10 @@ void func_001605a0(void)
     }
     func_00440b68((char *)&iGpffff9f00, D_005F11E8, 0xF4);
     temp_2 = func_00454a60(D_005F1200, 0);
-    func_00456150(temp_2);
-    func_0043f810(iGpffffb2b0, *(void **)(temp_2 + 0x110), 0x12400);
-    func_00454bd0(temp_2);
-    func_001604a0(func_00457120());
+    H_Cdvd_ReadSync(temp_2);
+    memcpy(iGpffffb2b0, *(void **)(temp_2 + 0x110), 0x12400);
+    H_Cdvd_Destroy(temp_2);
+    K_FldFilter_InitQuads(func_00457120());
 }
 /* measured: retail hoists the D_00887300 base into a saved local across
    five indirect calls; opt_propagation off preserves that address materialization. */
@@ -310,20 +310,20 @@ void func_00160680(void)
     base[0](1, 0);
     base[0](0xC, 1);
     base[0](0xE, 0);
-    func_003f6440(3, 0x71801);
+    RpSkyRenderStateSet(3, 0x71801);
     temp_5 = *(s32 *)(iGpffffb2b0 + iGpffffb2b8 * 0x124);
     switch (temp_5) {
     case 0:
-        func_003f6440(2, 0x44);
+        RpSkyRenderStateSet(2, 0x44);
         break;
     case 1:
-        func_003f6440(2, 0x48);
+        RpSkyRenderStateSet(2, 0x48);
         break;
     case 2:
-        func_003f6440(2, 0x42);
+        RpSkyRenderStateSet(2, 0x42);
         break;
     case 3:
-        func_003f6440(2, 6);
+        RpSkyRenderStateSet(2, 6);
         break;
     }
 }
@@ -625,9 +625,9 @@ s32 func_00161510(void)
     char sp90[0x80];
     char sp10[0x80];
 
-    func_00442830(sp90, D_005F1218);
-    func_00442088(sp10, D_005F1230);
-    if (func_00454570(sp10) == 0) {
+    strcpy(sp90, D_005F1218);
+    sprintf(sp10, D_005F1230);
+    if (H_Cdvd_FileExists(sp10) == 0) {
         return 0;
     }
     func_00440b68((char *)&iGpffff9f08, D_005F1248, 0x69);
@@ -645,15 +645,15 @@ s32 func_001615a0(u8 *arg0)
     if (arg0 == NULL) {
         return 1;
     }
-    if (func_004553c0(arg0) == 0) {
+    if (H_Cdvd_IsFileLoaded(arg0) == 0) {
         return 0;
     }
     iGpffffb2c8 = D_007E7B20;
     size = *(u32 *)(arg0 + 0x118);
     src = *(void **)(((u8 *)arg0 + size) - size + 0x110);
-    func_0043f810(iGpffffb2c8, src, size);
+    memcpy(iGpffffb2c8, src, size);
     iGpffffb2cc = iGpffffb2c8 + 0x300;
-    func_00454bd0(arg0);
+    H_Cdvd_Destroy(arg0);
     return 1;
 }
 /* measured: opt_propagation on closes the func_001615a0 load-order probe */
@@ -661,18 +661,18 @@ s32 func_001615a0(u8 *arg0)
 // FUN_00162120
 void func_00162120(void)
 {
-    func_0043f9c8(D_007F16F0, 0, 0x20);
-    func_0043f9c8(D_007EF9B0, 0, 0x1D40);
-    func_0043f9c8(D_007E8C00, 0, 0x6DB0);
+    memset(D_007F16F0, 0, 0x20);
+    memset(D_007EF9B0, 0, 0x1D40);
+    memset(D_007E8C00, 0, 0x6DB0);
     iGpffffb2e8 = 0;
-    func_0043f9c8(D_007E8BE0, 0, 0x20);
+    memset(D_007E8BE0, 0, 0x20);
     *(s32 *)D_007E8BE8 = -1;
     *(s32 *)D_007E8BF8 = -1;
-    func_0043f9c8(D_007E80A0, 0, 0xB40);
+    memset(D_007E80A0, 0, 0xB40);
     iGpffffb2e4 = 0;
     iGpffffb2e0 = 0;
-    func_0043f9c8(D_007E8060, 0, 0x40);
-    func_0043f9c8(D_007E8020, 0, 0x40);
+    memset(D_007E8060, 0, 0x40);
+    memset(D_007E8020, 0, 0x40);
 }
 
 /* measured: opt_propagation off preserves the retail recomputed index and live register set in func_00162200. */
@@ -943,7 +943,7 @@ u8 *func_00162680(u16 arg0, u16 arg1, s32 arg2)
     var_16 = 0;
     goto loop_test;
 loop_body:
-    if (arg2 == (s32)(s16)func_00105ee0(var_16)) {
+    if (arg2 == (s32)(s16)datGetPartyId(var_16)) {
         var_19 = var_16 + 1;
         goto loop_done;
     }
@@ -1052,7 +1052,7 @@ loop_53:
             *(u8 *)(D_007F16F2 + temp_4_2) =
                 *(u8 *)(*temp_3_4 + 0xD6);
         } else {
-            func_0047a220(var_20, &iGpffff9f10);
+            mdlSetColor(var_20, &iGpffff9f10);
             func_0047a990(var_20);
         }
     } else {
@@ -1095,7 +1095,7 @@ loop_65:
             *(u8 *)(D_007F16F2 + temp_4) =
                 *(u8 *)(*temp_3_2 + 0xD6);
         } else {
-            func_0047a220(var_20, &iGpffff9f10);
+            mdlSetColor(var_20, &iGpffff9f10);
             func_0047a990(var_20);
         }
     }
@@ -1124,12 +1124,12 @@ s32 func_00167f00(u8 *arg0)
         temp_3 = (temp_4 & 0xFFC00) >> 0xA;
         switch (temp_3) {
         case 1:
-            temp_2 = func_00145270(temp_4);
+            temp_2 = MT_Scene_GetRes(temp_4);
             *(s32 *)(temp_16 + 8) = *(s32 *)(temp_2 + 0x164);
             *(s32 *)(temp_16 + 0xC) = *(s32 *)(temp_2 + 0x228);
             break;
         case 3:
-            temp_2_2 = func_00145270(temp_4);
+            temp_2_2 = MT_Scene_GetRes(temp_4);
             if ((*(s32 *)(temp_2_2 + 0x28) & 0x10000000) != 0) {
                 *(s32 *)(temp_16 + 8) = *(s32 *)(temp_2_2 + 0x164);
                 *(s32 *)(temp_16 + 0xC) = *(s32 *)(temp_2_2 + 0x22C);
@@ -1141,8 +1141,8 @@ s32 func_00167f00(u8 *arg0)
     if ((temp_4_2 != 0) &&
         (*(s32 *)(temp_16 + 0xC) != 0) &&
         (((*(u16 *)(temp_16 + 4) & 0xFFC00) >> 0xA) == 3)) {
-        temp_17 = (u8 *)func_0047a2f0(temp_4_2);
-        temp_2_3 = (u8 *)func_0047a2f0(*(s32 *)(temp_16 + 0xC));
+        temp_17 = (u8 *)mdlGetMatrix(temp_4_2);
+        temp_2_3 = (u8 *)mdlGetMatrix(*(s32 *)(temp_16 + 0xC));
         *(RwV3d *)(temp_2_3 + 0x30) =
             *(RwV3d *)(temp_17 + 0x30);
         func_00478e70(*(s32 *)(temp_16 + 0xC));
@@ -1179,7 +1179,7 @@ s32 func_00168060(u8 *arg0)
     state = *(s32 *)work;
     switch (state) {
     case 0:
-        object = func_0047a2f0(*(s32 *)(work + 0x10));
+        object = mdlGetMatrix(*(s32 *)(work + 0x10));
         stack.sp70 = *(RwV3d *)(object + 0x30);
 
         if (((*(u32 *)(work + 4) & 0x40000000) != 0) &&
@@ -1201,7 +1201,7 @@ s32 func_00168060(u8 *arg0)
             stack.sp80.x = *(f32 *)(work + 0x18) / 3.0f;
             stack.sp80.y = *(f32 *)(work + 0x1C) / 3.0f;
             stack.sp80.z = *(f32 *)(work + 0x20) / 3.0f;
-            source = func_0047a2f0(*(s32 *)(work + 0x10));
+            source = mdlGetMatrix(*(s32 *)(work + 0x10));
             stack.sp70 = *(RwV3d *)(source + 0x30);
             stack.sp70.y += *(f32 *)(work + 0x24);
             if ((*(u32 *)(work + 4) & 0x10000000) == 0) {
@@ -1210,8 +1210,8 @@ s32 func_00168060(u8 *arg0)
             }
             func_0047a180((RwMatrix *)*(s32 *)(work + 0x10), &stack.sp80, 2);
             if (*(s32 *)(work + 0x14) != 0) {
-                source = func_0047a2f0(*(s32 *)(work + 0x10));
-                target = func_0047a2f0(*(s32 *)(work + 0x14));
+                source = mdlGetMatrix(*(s32 *)(work + 0x10));
+                target = mdlGetMatrix(*(s32 *)(work + 0x14));
                 *(RwV3d *)(target + 0x30) =
                     *(RwV3d *)(source + 0x30);
                 func_00478e70(*(s32 *)(work + 0x14));
@@ -1314,7 +1314,7 @@ s32 func_001684a0(s32 arg0, s32 arg1, f32 fparg0)
     *(s32 *)(temp_2 + 0x28) = 0;
     temp_3 = (u32)(arg1 & 0xFFC00) >> 0xA;
     if (temp_3 == 1) {
-        temp_2_2 = func_00145270(temp_4);
+        temp_2_2 = MT_Scene_GetRes(temp_4);
         if (temp_2_2 != NULL) {
             *(s32 *)(temp_2 + 0x10) = *(s32 *)(temp_2_2 + 0x164);
         }
@@ -1343,7 +1343,7 @@ s32 func_001684a0(s32 arg0, s32 arg1, f32 fparg0)
             var_9_2 += 1;
         }
     } else if (temp_3 == 3) {
-        temp_2_3 = func_00145270(temp_4);
+        temp_2_3 = MT_Scene_GetRes(temp_4);
         if (temp_2_3 != NULL) {
             *(s32 *)(temp_2 + 0x10) = *(s32 *)(temp_2_3 + 0x164);
         }
@@ -1422,7 +1422,7 @@ void func_001687f0(u8 *arg0, u8 *arg1)
     }
     temp_4 = *(s32 *)(temp_5 + 0x10);
     if (temp_4 != 0) {
-        temp_2 = func_0047a2f0(temp_4, temp_5);
+        temp_2 = mdlGetMatrix(temp_4, temp_5);
         sp20 = *(RwV3d *)(temp_2 + 0x30);
     }
     *(RwV3d *)arg0 = sp20;
@@ -1454,41 +1454,41 @@ void func_00168890(u8 *arg0, u8 *arg1)
     }
     temp_4 = *(s32 *)(temp_16 + 0x10);
     if (temp_4 != 0) {
-        temp_2 = func_0047a2f0(temp_4);
+        temp_2 = mdlGetMatrix(temp_4);
         sp70 = *(RwV3d *)(temp_2 + 0x30);
-        temp_2 = func_0047a2f0(*(s32 *)(temp_16 + 0x10));
+        temp_2 = mdlGetMatrix(*(s32 *)(temp_16 + 0x10));
         *(RwV3d *)(temp_2 + 0x30) = sp60;
-        func_003e0380(&sp50);
-        func_003e03e0(
-            func_0047a2f0(*(s32 *)(temp_16 + 0x10)),
+        RwEngineGetMatrixTolerances(&sp50);
+        RwMatrixOptimize(
+            mdlGetMatrix(*(s32 *)(temp_16 + 0x10)),
             &sp50);
-        func_003e05d0(func_0047a2f0(*(s32 *)(temp_16 + 0x10)));
-        temp_2 = func_0047a2f0(*(s32 *)(temp_16 + 0x10));
+        RwMatrixUpdate(mdlGetMatrix(*(s32 *)(temp_16 + 0x10)));
+        temp_2 = mdlGetMatrix(*(s32 *)(temp_16 + 0x10));
         *(RwV3d *)temp_2 = *(RwV3d *)arg1;
-        temp_2 = func_0047a2f0(*(s32 *)(temp_16 + 0x10));
+        temp_2 = mdlGetMatrix(*(s32 *)(temp_16 + 0x10));
         *(RwV3d *)(temp_2 + 0x10) = *(RwV3d *)(arg1 + 0x10);
-        temp_2 = func_0047a2f0(*(s32 *)(temp_16 + 0x10));
+        temp_2 = mdlGetMatrix(*(s32 *)(temp_16 + 0x10));
         *(RwV3d *)(temp_2 + 0x20) = *(RwV3d *)(arg1 + 0x20);
-        func_003e0380(&sp40);
-        func_003e03e0(
-            func_0047a2f0(*(s32 *)(temp_16 + 0x10)),
+        RwEngineGetMatrixTolerances(&sp40);
+        RwMatrixOptimize(
+            mdlGetMatrix(*(s32 *)(temp_16 + 0x10)),
             &sp40);
-        func_003e05d0(func_0047a2f0(*(s32 *)(temp_16 + 0x10)));
+        RwMatrixUpdate(mdlGetMatrix(*(s32 *)(temp_16 + 0x10)));
         temp_5 = *(u8 **)(temp_16 + 0xC);
         if (temp_5 != NULL) {
-            func_0047a1e0(
+            mdlScale(
                 *(void **)(temp_16 + 0x10),
                 D_005F12E0 + *(u8 *)(temp_5 + 0x1CA) * 0x30 +
                     *(u8 *)(temp_5 + 0x1CB) * 0xC,
                 2);
         }
-        temp_2 = func_0047a2f0(*(s32 *)(temp_16 + 0x10));
+        temp_2 = mdlGetMatrix(*(s32 *)(temp_16 + 0x10));
         *(RwV3d *)(temp_2 + 0x30) = sp70;
-        func_003e0380(&sp30);
-        func_003e03e0(
-            func_0047a2f0(*(s32 *)(temp_16 + 0x10)),
+        RwEngineGetMatrixTolerances(&sp30);
+        RwMatrixOptimize(
+            mdlGetMatrix(*(s32 *)(temp_16 + 0x10)),
             &sp30);
-        func_003e05d0(func_0047a2f0(*(s32 *)(temp_16 + 0x10)));
+        RwMatrixUpdate(mdlGetMatrix(*(s32 *)(temp_16 + 0x10)));
     }
 }
 // FUN_00168AE0
@@ -1502,23 +1502,23 @@ void func_00168ae0(u8 *arg0, u8 *arg1)
     temp_16 = *(u8 **)(arg0 + 0x38);
     temp_4 = *(s32 *)(temp_16 + 0x10);
     if (temp_4 != 0) {
-        temp_2 = (u8 *)func_0047a2f0(temp_4);
+        temp_2 = (u8 *)mdlGetMatrix(temp_4);
         *(RwV3d *)(temp_2 + 0x30) =
             *(RwV3d *)(arg1 + 0x00);
-        func_003e0380(&sp30);
-        func_003e03e0(
-            (u8 *)func_0047a2f0(*(s32 *)(temp_16 + 0x10)),
+        RwEngineGetMatrixTolerances(&sp30);
+        RwMatrixOptimize(
+            (u8 *)mdlGetMatrix(*(s32 *)(temp_16 + 0x10)),
             &sp30);
-        func_003e05d0(
-            (u8 *)func_0047a2f0(*(s32 *)(temp_16 + 0x10)));
+        RwMatrixUpdate(
+            (u8 *)mdlGetMatrix(*(s32 *)(temp_16 + 0x10)));
         *(s32 *)(temp_16 + 0x40) =
             (s32)((600.0f +
-                   *(f32 *)(func_0047a2f0(*(s32 *)(temp_16 + 0x10)) +
+                   *(f32 *)(mdlGetMatrix(*(s32 *)(temp_16 + 0x10)) +
                             0x30)) /
                   1200.0f);
         *(s32 *)(temp_16 + 0x44) =
             (s32)((600.0f +
-                   *(f32 *)(func_0047a2f0(*(s32 *)(temp_16 + 0x10)) +
+                   *(f32 *)(mdlGetMatrix(*(s32 *)(temp_16 + 0x10)) +
                             0x38)) /
                   1200.0f);
     }
@@ -1529,10 +1529,10 @@ void func_00168c00(u8 *arg0) {
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     *(s32 *)(temp_16 + 0x40) =
-        (s32)((600.0f + *(f32 *)(func_0047a2f0(*(s32 *)(temp_16 + 0x10)) + 0x30)) /
+        (s32)((600.0f + *(f32 *)(mdlGetMatrix(*(s32 *)(temp_16 + 0x10)) + 0x30)) /
               1200.0f);
     *(s32 *)(temp_16 + 0x44) =
-        (s32)((600.0f + *(f32 *)(func_0047a2f0(*(s32 *)(temp_16 + 0x10)) + 0x38)) /
+        (s32)((600.0f + *(f32 *)(mdlGetMatrix(*(s32 *)(temp_16 + 0x10)) + 0x38)) /
               1200.0f);
 }
 // FUN_00168CB0
@@ -1556,9 +1556,9 @@ void func_00168cb0(u8 *arg0, f32 fparg0)
         } while (var_3 != 0);
     }
     if (*(s32 *)temp_16 == 1) {
-        temp_2 = func_0047a2f0(*(s32 *)(temp_16 + 0x10));
+        temp_2 = mdlGetMatrix(*(s32 *)(temp_16 + 0x10));
         sp30 = *(RwV3d *)(temp_2 + 0x20);
-        func_003e40b0(&sp30, &sp30);
+        RwV3dNormalize(&sp30, &sp30);
         sp30.x *= fparg0;
         sp30.y *= fparg0;
         sp30.z *= fparg0;
@@ -1584,7 +1584,7 @@ void func_00168de0(u8 *arg0, s32 arg1, f32 fparg0) {
     temp_16 = *(u8 **)(arg0 + 0x38);
     temp_4 = *(s32 *)(temp_16 + 0x10);
     if (temp_4 != 0) {
-        temp_2 = func_0047a2f0(temp_4);
+        temp_2 = mdlGetMatrix(temp_4);
         sp50 = *(RwV3d *)(temp_2 + 0x30);
         sp40.x = -1.0f * sp50.x;
         sp40.y = -1.0f * sp50.y;
@@ -1595,7 +1595,7 @@ void func_00168de0(u8 *arg0, s32 arg1, f32 fparg0) {
     }
 }
 // FUN_00168EC0
-s32 func_00168ec0(f32 *arg0, f32 **arg1, f32 *arg2)
+s32 K_FldFrame_IsPointInTriangle(f32 *arg0, f32 **arg1, f32 *arg2)
 {
     f32 abs_x;
     f32 abs_y;
@@ -1738,7 +1738,7 @@ s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst)
     extern s32* func_00155280(void);
     extern void *func_0016b850(void *collisionWorld, void *ray);
     extern void *func_003bff30(void *collisionWorld, void *(*cb)(void *, void *), void *ray);
-    extern void *func_0047a310(void *model);
+    extern void *mdlGetClump(void *model);
     extern f32 fGpffff82b4;
     extern u8 *iGpffff9db0;
     extern s32 D_005F1670[];
@@ -1794,7 +1794,7 @@ s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst)
             while (modelNode != NULL) {
                 u16 *modelId = *(u16 **)(modelNode + 0x140);
                 if (modelId != NULL && *modelId == key && (*(s32 *)(modelNode + 0x28) & 2) != 0 && *(s32 *)(modelNode + 0x150) == 1) {
-                    selectedWorld = func_0047a310(*(void **)(modelNode + 0x144));
+                    selectedWorld = mdlGetClump(*(void **)(modelNode + 0x144));
                     modelRay.dst = hitPointDst;
                     modelRay.hit = 0;
                     modelRay.nearest = fGpffff82b4;
@@ -1866,7 +1866,7 @@ next_cell:
         node = func_001452b0(0xA);
         while (node != NULL) {
             if ((*(s32 *)(node + 0x28) & 2) != 0 && *(s32 *)(node + 0x150) == 1) {
-                void *modelWorld = func_0047a310(*(void **)(node + 0x144));
+                void *modelWorld = mdlGetClump(*(void **)(node + 0x144));
                 fallbackRay.dst = hitPointDst;
                 fallbackRay.hit = 0;
                 fallbackRay.nearest = fGpffff82b4;
@@ -3159,7 +3159,7 @@ void func_0016e590(u8 *arg0, s32 arg1)
     extern s32 func_003bb330(u8 *arg0);
     extern void func_003bb3a0(u8 *arg0, s32 arg1, void *arg2);
     extern void func_003bb5b0(u8 *curve, s32 mode, f32 time, void *dst, void *aux);
-    extern f32 func_003e4180(void *arg0);
+    extern f32 RwV3dLength(void *arg0);
     extern void func_0046d730(const void *arg0, s32 arg1);
     RwV3d diff;
     RwV3d prev;
@@ -3197,7 +3197,7 @@ body:
                 diff.x = cur.x - prev.x;
                 diff.y = cur.y - prev.y;
                 diff.z = cur.z - prev.z;
-                *(f32 *)(work + i * 4 + 0x34) = func_003e4180(&diff);
+                *(f32 *)(work + i * 4 + 0x34) = RwV3dLength(&diff);
                 prev = cur;
             }
             t = 1.0f / (f32)(*(s32 *)(work + 0x34) - 1);
@@ -3205,7 +3205,7 @@ body:
             *(f32 *)(work + 0xC0) = t;
             *(f32 *)(work + 0xB8) = 0.5f;
             func_003bb5b0(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20), 0xA, *(f32 *)(work + 0xB8), work + 0xC4, work + 0xD0);
-            func_003e40b0((RwV3d *)(work + 0xD0), (const RwV3d *)(work + 0xD0));
+            RwV3dNormalize((RwV3d *)(work + 0xD0), (const RwV3d *)(work + 0xD0));
             if (*(s32 *)(*(u8 **)(func_00457120() + 4) + 4) != 0) {
                 func_003e99a0(*(void **)(func_00457120() + 4));
             }
@@ -3229,7 +3229,7 @@ skip:
             *(s32 *)(dst + 4) = t2;
             dst += 8;
         } while (n > 0);
-        t = func_003e4180(mat6 + 0x30);
+        t = RwV3dLength(mat6 + 0x30);
         *(f32 *)(work + 0x28C) = t;
         *(f32 *)(work + 0x294) = t;
         *(RwV3d *)(work + 0x29C) = *(RwV3d *)(mat6 + 0x30);
@@ -3248,7 +3248,7 @@ skip:
         } while (n > 0);
         *(RwV3d *)(work + 0x29C) = *(RwV3d *)(mat7 + 0x30);
         *(f32 *)(mat7 + 0x34) = 0.0f;
-        t = func_003e4180(mat7 + 0x30);
+        t = RwV3dLength(mat7 + 0x30);
         *(f32 *)(work + 0x28C) = t;
         *(f32 *)(work + 0x294) = t;
     }
@@ -3341,7 +3341,7 @@ void func_0016ea40(u8 *arg0, u16 arg1)
     temp_16 = *(u8 **)(arg0 + 0x38);
     type = (arg1 & 0xFFC00) >> 10;
     if (type == 1)
-        *(u8 **)(temp_16 + 0x288) = func_00145270(arg1);
+        *(u8 **)(temp_16 + 0x288) = MT_Scene_GetRes(arg1);
 }
 
 // FUN_0016EAA0
@@ -3470,7 +3470,7 @@ void func_0016ec90(u8 *arg0)
         } while (var_4 > 0);
         temp_2_2 = *(u8 **)(temp_16 + 0x2C0);
         *(RwV3d *)&sp40[0] = *(RwV3d *)(temp_2_2 + 0x20);
-        func_003e40b0((RwV3d *)&sp40[0], (const RwV3d *)&sp40[0]);
+        RwV3dNormalize((RwV3d *)&sp40[0], (const RwV3d *)&sp40[0]);
         temp_f4 = -sp40[0];
         sp40[0] = temp_f4;
         temp_f3 = -sp40[1];
@@ -3482,7 +3482,7 @@ void func_0016ec90(u8 *arg0)
         sp40[1] = temp_f3 * temp_f1;
         sp40[2] = temp_f2 * temp_f1;
         *(f32 *)(temp_16 + 0x294) = temp_f1;
-        func_003e0c90(*(u8 **)(temp_16 + 0x2C0), &sp40[0], 0);
+        RwMatrixTranslate(*(u8 **)(temp_16 + 0x2C0), &sp40[0], 0);
         temp_2_3 = *(u8 **)(temp_16 + 0x2C0);
         *(RwV3d *)&sp50[0] = *(RwV3d *)(temp_2_3 + 0x30);
         func_003e0e20(*(u8 **)(temp_16 + 0x2C0), temp_17, 2);
@@ -3555,7 +3555,7 @@ skip_process0:
         temp_3_3 = *(s32 *)(temp_16 + 8);
         if (temp_3_3 < *(s32 *)(temp_16 + 4)) {
             *(s32 *)(temp_16 + 8) = temp_3_3 + 1;
-            temp_f21 = func_0044b7b0((iGpffff8094 *
+            temp_f21 = sinf((iGpffff8094 *
                                       (f32)*(s32 *)(temp_16 + 8)) /
                                      (f32)*(s32 *)(temp_16 + 4));
             if (*(s32 *)(((u8*)func_00155280()) + 4) != 0) {
@@ -3637,7 +3637,7 @@ u8 *func_0016f130(u8 *arg0, s32 arg1, s32 arg2)
             result = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, func_0016f100, (u8 *)(temp_2));
             *(s32 *)(temp_2 + 4) = arg1;
             temp_f20 = func_0014b5d0(
-                func_0047a2f0(*(s32 *)D_007EFA00));
+                mdlGetMatrix(*(s32 *)D_007EFA00));
             if (temp_f20 < 0.0f) {
                 temp_f20 += 360.0f;
             }
@@ -3697,7 +3697,7 @@ u8 *func_0016f3b0(u8 *arg0, s32 arg1, s32 arg2)
         }
         result = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, func_0016f100, (u8 *)(temp_2));
         *(s32 *)(temp_2 + 4) = arg1;
-        func_0014b5d0(func_0047a2f0(*(s32 *)D_007EFA00));
+        func_0014b5d0(mdlGetMatrix(*(s32 *)D_007EFA00));
         temp_f0 = func_0014b5d0(
             func_003e9700(*(s32 *)(func_00457120() + 4)));
         if (temp_f0 < 0.0f) {
@@ -3756,8 +3756,8 @@ void func_0016f630(s128 *arg0, u8 *arg1)
     var_17 = arg0;
     temp_16 = *(u8 **)(arg1 + 0x38);
     temp_18 = *(u8 **)(func_00457120() + 4);
-    func_0043f9c8((void *)&sp.work[0], 0, 0x70);
-    sp.sp80 = func_00457850(func_00457120());
+    memset((void *)&sp.work[0], 0, 0x70);
+    sp.sp80 = K_View_GetFov(func_00457120());
     var_7 = (u8 *)(temp_18 + 0x10);
     var_6 = &sp.work[0];
     var_5 = 8;
@@ -3812,7 +3812,7 @@ void func_0016f750(u8 *arg0, u8 *arg1)
     u16 temp_18;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
-    func_004577d0(func_00457120(), *(f32 *)(arg1 + 0x40));
+    K_View_SetFov(func_00457120(), *(f32 *)(arg1 + 0x40));
     func_003e9cb0(*(void **)(func_00457120() + 4), arg1, 0);
     temp_18 = *(u16 *)(arg1 + 0x44);
     func_0016e590(arg0, temp_18);
@@ -3920,7 +3920,7 @@ f32 func_0016f8b0(s32 arg0, s32 arg1)
 
     if ((input.z < -48.0f) || !(input.z <= 48.0f) ||
         (input.x < -48.0f) || !(input.x <= 48.0f)) {
-        func_003e40b0(&normalized, &input);
+        RwV3dNormalize(&normalized, &input);
         comp_z = normalized.z;
         comp_x = normalized.x;
         result = func_0044b920(comp_z /
@@ -3949,7 +3949,7 @@ s32 func_0016fd00(s32 arg0)
             if (func_001623f0() == 1) {
                 return 9;
             }
-            if (func_00106330(0xC01) != 0) {
+            if (datGetFlag(0xC01) != 0) {
                 goto ret0_a;
             }
             goto ret1_a;
@@ -3961,7 +3961,7 @@ ret1_a:
         temp_4 = iGpffff9db0;
         if ((*(s32 *)(temp_4 + 0) == 0x44) &&
             (*(s32 *)(temp_4 + 4) == 1)) {
-            if (func_00106330(0xC01, 1) != 0) {
+            if (datGetFlag(0xC01, 1) != 0) {
                 goto ret0_b;
             }
             goto ret1_b;
@@ -3976,7 +3976,7 @@ ret1_b:
         if (func_001623f0() == 1) {
             return 9;
         }
-        if (func_00106330(0xC01) != 0) {
+        if (datGetFlag(0xC01) != 0) {
             goto ret0_c;
         }
         goto ret1_c;
@@ -4004,7 +4004,7 @@ s32 func_0016fe80(s32 arg0)
             result = 3;
             if (func_001623f0() == 1) {
                 result = 0xA;
-            } else if (func_00106330(0xC01) != 0) {
+            } else if (datGetFlag(0xC01) != 0) {
                 result--;
             }
         } else {
@@ -4012,7 +4012,7 @@ s32 func_0016fe80(s32 arg0)
             if ((*(s32 *)(temp + 0) == 0x44) &&
                 (*(s32 *)(temp + 4) == 1)) {
                 result = 3;
-                if (func_00106330(0xC01, 1) != 0) {
+                if (datGetFlag(0xC01, 1) != 0) {
                     result--;
                 }
             } else if (func_0015a160() != 0) {
@@ -4021,7 +4021,7 @@ s32 func_0016fe80(s32 arg0)
                 result = 3;
                 if (func_001623f0() == 1) {
                     result = 0xA;
-                } else if (func_00106330(0xC01) != 0) {
+                } else if (datGetFlag(0xC01) != 0) {
                     result--;
                 }
             }
@@ -4046,7 +4046,7 @@ s32 func_0016ffd0(s32 arg0)
             result = 5;
             if (func_001623f0() == 1) {
                 result = 0xB;
-            } else if (func_00106330(0xC01) != 0) {
+            } else if (datGetFlag(0xC01) != 0) {
                 result--;
             }
         } else {
@@ -4054,7 +4054,7 @@ s32 func_0016ffd0(s32 arg0)
             if ((*(s32 *)(temp + 0) == 0x44) &&
                 (*(s32 *)(temp + 4) == 1)) {
                 result = 5;
-                if (func_00106330(0xC01, 1) != 0) {
+                if (datGetFlag(0xC01, 1) != 0) {
                     result--;
                 }
             } else if (func_0015a160() != 0) {
@@ -4063,7 +4063,7 @@ s32 func_0016ffd0(s32 arg0)
                 result = 5;
                 if (func_001623f0() == 1) {
                     result = 0xB;
-                } else if (func_00106330(0xC01) != 0) {
+                } else if (datGetFlag(0xC01) != 0) {
                     result--;
                 }
             }

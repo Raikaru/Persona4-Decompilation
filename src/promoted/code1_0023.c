@@ -9,17 +9,17 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffa5f0;
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern u8 *func_00194470(s32 type, s32 workSize);
-extern void func_00454bd0(u8 *ptr);
+extern void H_Cdvd_Destroy(u8 *ptr);
 extern void func_0045ac90(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00230500(u8 *work);
 
 extern void func_00231380(s32 *arg0, s32 arg1);
 extern s32 func_001ef9a0(void);
 extern s64 func_001060b0(void);
-extern s32 func_00106330(s32 arg0);
+extern s32 datGetFlag(s32 arg0);
 extern s32 func_00106cd0(s32 arg0, s32 arg1);
 extern s32 func_00110d60(s16 arg0);
-extern s32 func_00442088(char *buf, char *fmt, ...);
+extern s32 sprintf(char *buf, char *fmt, ...);
 extern void func_00231550(s32 arg0, s32 arg1);
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
 extern char D_007636e0;
@@ -39,7 +39,7 @@ extern char D_00635790[];
 extern char D_006357B0[];
 extern s32 func_0047d0e0(void);
 extern s32 func_0047d0b0(s32 arg0, s32 arg1, void *arg2);
-extern s32 func_00442948(const void *arg0);
+extern s32 strlen(const void *arg0);
 extern char D_006357C8[];
 extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
 extern void func_0047aaa0(void *arg0, s32 arg1, s32 arg2, s32 arg3,
@@ -72,7 +72,7 @@ s32 func_00230610(void)
 
     p = *(u8 **)(iGpffffb3ac + 0xB94);
     if (p != NULL) {
-        func_00454bd0(p);
+        H_Cdvd_Destroy(p);
         *(u8 **)(iGpffffb3ac + 0xB94) = NULL;
     }
     return 1;
@@ -181,12 +181,12 @@ s32 func_002308a0(s32 arg0, s32 arg1, char *arg2)
         temp_16 = arg1 & 0xFFFF;
         if (temp_16 != 3)
         {
-            if (func_00106330(0x1438) != 0 && temp_16 == 1)
-                func_00442088(arg2, D_00635690, &D_007636e0, temp_16);
+            if (datGetFlag(0x1438) != 0 && temp_16 == 1)
+                sprintf(arg2, D_00635690, &D_007636e0, temp_16);
             else if (func_00110d60((s16)func_001060b0()) & 1)
-                func_00442088(arg2, D_006356B0, &D_007636e0, temp_16);
+                sprintf(arg2, D_006356B0, &D_007636e0, temp_16);
             else
-                func_00442088(arg2, D_006356D0, &D_007636e0, temp_16);
+                sprintf(arg2, D_006356D0, &D_007636e0, temp_16);
         }
         else
         {
@@ -194,39 +194,39 @@ s32 func_002308a0(s32 arg0, s32 arg1, char *arg2)
             if (temp_18 >= 0x70 && temp_18 < 0x96)
             {
                 if (func_00110d60((s16)func_001060b0()) & 1)
-                    func_00442088(arg2, D_006356F0, &D_007636e0, temp_18);
+                    sprintf(arg2, D_006356F0, &D_007636e0, temp_18);
                 else
-                    func_00442088(arg2, D_00635710, &D_007636e0, temp_18);
+                    sprintf(arg2, D_00635710, &D_007636e0, temp_18);
             }
             else if (func_00110d60((s16)func_001060b0()) & 1)
-                func_00442088(arg2, D_006356B0, &D_007636e0, temp_16);
+                sprintf(arg2, D_006356B0, &D_007636e0, temp_16);
             else
-                func_00442088(arg2, D_006356D0, &D_007636e0, temp_16);
+                sprintf(arg2, D_006356D0, &D_007636e0, temp_16);
         }
         break;
     case 2:
-        func_00442088(arg2, D_00635730, D_00635678, arg1 & 0xFFFF);
+        sprintf(arg2, D_00635730, D_00635678, arg1 & 0xFFFF);
         break;
     case 3:
-        func_00442088(arg2, D_00635750, D_00635678, arg1 & 0xFFFF);
+        sprintf(arg2, D_00635750, D_00635678, arg1 & 0xFFFF);
         break;
     case 7:
     case 10:
-        func_00442088(arg2, D_006356F0, &D_007636e0, arg1 & 0xFFFF);
+        sprintf(arg2, D_006356F0, &D_007636e0, arg1 & 0xFFFF);
         break;
     case 8:
-        func_00442088(arg2, D_00635770, &D_007636e0, arg1 & 0xFFFF);
+        sprintf(arg2, D_00635770, &D_007636e0, arg1 & 0xFFFF);
         break;
     case 9:
         temp_20 = (u8)((arg1 & 0xFFFF) >> 8);
-        func_00442088(arg2, D_00635790, &D_007636e0,
+        sprintf(arg2, D_00635790, &D_007636e0,
                       temp_20, arg1 & 0xFF);
         break;
     case 5:
         func_00231550((s32)arg2, arg1);
         break;
     case 11:
-        func_00442088(arg2, D_006357B0, &D_007636e0, arg1 & 0xFFFF);
+        sprintf(arg2, D_006357B0, &D_007636e0, arg1 & 0xFFFF);
         break;
     }
     return 1;
@@ -243,7 +243,7 @@ s32 func_00230c00(s32 arg0, s32 arg1, char *arg2)
         return func_0047d0b0(arg0, arg1, arg2);
     }
     func_0047d0b0(arg0, arg1, sp40);
-    var_2 = func_00442948(sp40);
+    var_2 = strlen(sp40);
     sp40[var_2 - 3] = 'p';
     sp40[var_2 - 2] = 'a';
     sp40[var_2 - 1] = 'c';
@@ -252,10 +252,10 @@ s32 func_00230c00(s32 arg0, s32 arg1, char *arg2)
     }
     switch (arg0 & 0xFFFF) {
     case 2:
-        func_00442088(arg2, D_006357C8, D_00635678, sp40 + var_2);
+        sprintf(arg2, D_006357C8, D_00635678, sp40 + var_2);
         break;
     default:
-        func_00442088(arg2, D_006357C8, &D_007636e0, sp40 + var_2);
+        sprintf(arg2, D_006357C8, &D_007636e0, sp40 + var_2);
         break;
     }
     return 1;
@@ -283,7 +283,7 @@ s32 func_00230d30(void *arg0)
     switch (*(u16 *)((s8 *)arg0 + 0xD6)) {
     case 2:
         if (func_00477c40(7, temp_16, 0) == 0) {
-            func_00442088((char *)sp40, D_006357E0,
+            sprintf((char *)sp40, D_006357E0,
                           (char *)&iGpffffa5f0, temp_16 & 0xFFFF);
             func_0047aaa0(arg0, 0, (void *)7, (void *)temp_16,
                           sp40, 0);
@@ -292,7 +292,7 @@ s32 func_00230d30(void *arg0)
         }
         temp_18 = (temp_16 & 0xFFFF) + 0x3E8;
         if (func_00477c40(7, temp_18 & 0xFFFF, 0) == 0) {
-            func_00442088((char *)sp40, D_00635800,
+            sprintf((char *)sp40, D_00635800,
                           (char *)&iGpffffa5f0, temp_16 & 0xFFFF);
             func_0047aaa0(arg0, 1, (void *)7,
                           (void *)(temp_18 & 0xFFFF),
@@ -377,10 +377,10 @@ void func_00231380(s32 *arg0, s32 arg1)
             var_19 = (var_4 * 2) + 2;
     }
     if (temp_18 < 0xC50)
-        func_00442088((char *)arg0, D_006358F0, &D_007636e0,
+        sprintf((char *)arg0, D_006358F0, &D_007636e0,
                       temp_18, var_19);
     else
-        func_00442088((char *)arg0, D_00635910, &D_007636e0,
+        sprintf((char *)arg0, D_00635910, &D_007636e0,
                       temp_18, var_19);
 }
 // FUN_00231550

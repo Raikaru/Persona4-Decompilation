@@ -3,7 +3,7 @@
 #include "type.h"
 
 typedef struct RwImage RwImage;
-extern void func_00442830(void *dst, void *src);
+extern void strcpy(void *dst, void *src);
 
 extern u8 *D_00764298;
 extern void func_00440b68();
@@ -74,12 +74,12 @@ extern u8 iGpffffba50;
 extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern f32 iGpffffba6c;
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_00100350(void);
 extern void func_00100670(void);
 extern void func_00100e60(void);
-extern void func_003b6f00(s32 arg0);
-extern void func_003b6da0(s32 arg0);
+extern void RpRandomSeed(s32 arg0);
+extern void RpRandomSeedMT(s32 arg0);
 extern s32 func_001036d0(u8 *arg0);
 extern void func_00103980(u8 *arg0);
 extern s32 func_00100e30(void);
@@ -109,7 +109,7 @@ extern void func_0034b970(void);
 extern void func_003f67e0(s32 arg0);
 extern void func_003f67f0(s32 arg0);
 extern void func_00418b18(s32 arg0);
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void func_0044f570(s32 arg0);
 extern void func_00451ca0(s32 arg0);
 extern void func_004544b0(void);
@@ -171,7 +171,7 @@ extern void func_004ca720(void);
 extern void func_004cc200(s32 arg0, s32 arg1);
 extern void func_004cc218(s32 arg0);
 extern void func_004cd470(s32 arg0, s32 arg1);
-extern void func_0050b3f8(void *arg0);
+extern void mwPlyInitSfdFx(void *arg0);
 extern void func_004d8c78(void);
 extern void func_004f2798(s32 arg0, s32 arg1);
 extern void func_004f34b0(s32 arg0);
@@ -297,8 +297,8 @@ void func_00100350(void)
     extern void func_00424f28(s32 arg0);
     extern void func_00429c18(void);
     extern void func_0042eae0(s32 arg0);
-    extern void func_0042f600(s32 arg0);
-    extern void func_00442088(u8 *dst, const u8 *fmt, ...);
+    extern void sceCdMmode(s32 arg0);
+    extern void sprintf(u8 *dst, const u8 *fmt, ...);
     extern s32 func_0042b098(u8 *arg0);
     extern s32 func_0042b048(void);
     extern void func_004214c0(s32 arg0, s32 (*cb)(s32), s32 arg2);
@@ -334,8 +334,8 @@ void func_00100350(void)
     func_00424f28(0);
     func_00429c18();
     func_0042eae0(0);
-    func_0042f600(2);
-    func_00442088(resetPath, D_005DC530, D_005DC548);
+    sceCdMmode(2);
+    sprintf(resetPath, D_005DC530, D_005DC548);
     do {
         retry = !func_0042b098(resetPath);
     } while (retry);
@@ -345,7 +345,7 @@ void func_00100350(void)
     func_00424f28(0);
     func_00429c18();
     func_0042eae0(0);
-    func_0042f600(2);
+    sceCdMmode(2);
     func_004214c0(9, func_00100310, 0);
     *(volatile u32 *)0x10000000 = 0;
     *(volatile u32 *)0x10000020 = 0;
@@ -393,7 +393,7 @@ void func_00100350(void)
 void func_00100670(void)
 {
     extern s32 func_0044f510(void);
-    extern s32 func_003e8c60(s32 arg0, s32 arg1, s32 arg2);
+    extern s32 RwEngineInit(s32 arg0, s32 arg1, s32 arg2);
     extern s32 func_0039b5a0(s32 arg0);
     extern s32 func_0039b680(s32 arg0);
     extern s32 func_003ca430(void);
@@ -491,7 +491,7 @@ void func_00100670(void)
     s32 ok;
 
 
-    func_003e8c60((s32)func_0044f510(), 0, 0x800000);
+    RwEngineInit((s32)func_0044f510(), 0, 0x800000);
     func_0039b5a0(7);
 
     v32[0] = (s32)D_0064F2F0;
@@ -733,7 +733,7 @@ void func_00100e60(void)
     func_0010d7b0();
     func_0045b430();
     func_00458fa0();
-    func_0043f9c8(&D_00764D10[0], 0, 0x14);
+    memset(&D_00764D10[0], 0, 0x14);
     D_00764D10[0] = (s32)((u8 *)&D_00761690 + 4);
     D_00764D14[0] = 0;
     func_004d32f8((s32)&D_00764D10[0]);
@@ -768,13 +768,13 @@ void func_00100e60(void)
     func_004f2798((s32)((u8 *)&D_00761690 + 16), (s32)&D_005C6350);
     func_004f2798((s32)((u8 *)&D_00761690 + 20), (s32)&D_005DB850);
     func_004c7188((s32)((u8 *)&D_00761690 + 8));
-    func_0043f9c8(&D_00764D30[0], 0, 0x20);
+    memset(&D_00764D30[0], 0, 0x20);
     D_00764D30[0] = *(f32 *)((u8 *)&fGpffff8030 + 8);
     one = 1;
     D_00764D34[0] = one;
     D_00764D38[0] = one;
     D_00764D3C[0] = 0;
-    func_0050b3f8(&D_00764D30[0]);
+    mwPlyInitSfdFx(&D_00764D30[0]);
     func_004cc200((s32)&func_00100dd0, 0);
     func_0045a730(0, 1);
     func_0045a730(1, 2);
@@ -854,8 +854,8 @@ void func_00101350(void)
     func_00100350();
     func_00100670();
     func_00100e60();
-    func_003b6f00(*(u32 *)0x10000000);
-    func_003b6da0(*(u32 *)0x10000000);
+    RpRandomSeed(*(u32 *)0x10000000);
+    RpRandomSeedMT(*(u32 *)0x10000000);
 loop_1:
     func_00101270();
     goto loop_1;
@@ -882,11 +882,11 @@ void func_001013a0(void)
         base[0](0x10, 1);
         kind = 4;
         data = (s32)&iGpffffba6c;
-        func_003f6440(kind, data);
+        RpSkyRenderStateSet(kind, data);
         base[0](6, 1);
         base[0](8, 1);
-        func_003f6440(3, 0x717FB);
-        func_003f6440(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
+        RpSkyRenderStateSet(2, 0x44);
     }
 }
 /* measured: opt_propagation on closes the bracket after the exact-match body. */
@@ -962,8 +962,8 @@ void func_00103590(void) {}
 // FUN_001035A0
 void func_001035a0(void) {
     D_00887300[0](1, 0);
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x717FB);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x717FB);
 }
 // FUN_00103600
 void func_00103600(void)
@@ -977,8 +977,8 @@ void func_00103600(void)
     (*(void (**)(s32, s32))temp_16)(0xC, 1);
     (*(void (**)(s32, s32))temp_16)(7, 2);
     (*(void (**)(s32, s32))temp_16)(1, iGpffffb9e8);
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x717FB);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x717FB);
 }
 // FUN_001036D0
 s32 func_001036d0(u8 *arg0) {
@@ -1166,7 +1166,7 @@ void func_00103c40(u8 *slot)
     extern u8 D_005DD630[];
     extern u8 D_005DD640[];
     extern u8 D_005DD670[];
-    extern u32 func_004553c0(struct HCdvd *archive);
+    extern u32 H_Cdvd_IsFileLoaded(struct HCdvd *archive);
     extern const char *func_00456090(struct HCdvd *archive, s32 index);
     extern u8 *func_004667d0(s32 kind, const char *name, const char *path,
                             s32 flags, s32 source, s32 buffer, s32 byteCount,
@@ -1174,10 +1174,10 @@ void func_00103c40(u8 *slot)
     extern u8 *func_004669d0(u8 *request, s32 *complete, s32 *size);
     extern s32 func_004672c0(s32 request, u8 *archive);
     extern u8 *func_00454a60(u8 *path, s32 mode);
-    extern u32 func_00454bd0(struct HCdvd *archive);
+    extern u32 H_Cdvd_Destroy(struct HCdvd *archive);
     extern s32 func_003ef3a0(struct RwTexture *texture);
     extern void func_00103f00(u8 *slot);
-    extern s32 func_00442088(u8 *destination, const u8 *format, ...);
+    extern s32 sprintf(u8 *destination, const u8 *format, ...);
     s32 complete;
     s16 state;
     u8 *texture;
@@ -1191,12 +1191,12 @@ void func_00103c40(u8 *slot)
     switch (state) {
     case 1:
         *(s32 *)(slot + 0x36C) = *(s32 *)(slot + 0x36C) + 1;
-        if (func_004553c0(*(struct HCdvd **)(slot + 0x24)) == 0) {
+        if (H_Cdvd_IsFileLoaded(*(struct HCdvd **)(slot + 0x24)) == 0) {
             break;
         }
         if (func_00456090(*(struct HCdvd **)(slot + 0x24),
                           *(s32 *)(slot + 0x4C)) != NULL) {
-            func_00442088(slot + 0x60, D_005DD630,
+            sprintf(slot + 0x60, D_005DD630,
                            func_00456090(*(struct HCdvd **)(slot + 0x24),
                                           *(s32 *)(slot + 0x4C)));
             *(u8 **)(slot + 0x48) =
@@ -1205,7 +1205,7 @@ void func_00103c40(u8 *slot)
             *(s16 *)slot = 2;
             break;
         }
-        func_00454bd0(*(struct HCdvd **)(slot + 0x24));
+        H_Cdvd_Destroy(*(struct HCdvd **)(slot + 0x24));
         *(u8 **)(slot + 0x24) = NULL;
         *(s16 *)slot = 3;
         func_00440b68(D_005DD640, *(s16 *)(slot + 4),
@@ -1243,7 +1243,7 @@ void func_00103c40(u8 *slot)
         } else {
             archive = *(u8 **)(slot + 0x24);
             if (archive != NULL) {
-                func_00454bd0((struct HCdvd *)archive);
+                H_Cdvd_Destroy((struct HCdvd *)archive);
                 *(u8 **)(slot + 0x24) = NULL;
             }
         }
@@ -1466,9 +1466,9 @@ void func_00104510(s16 arg0, s16 arg1, s16 arg2, s16 arg3)
     *(s16 *)(D_00796704 + offset) = arg1;
     *(s16 *)(D_00796706 + offset) = arg2;
     *(s16 *)(D_00796708 + offset) = arg3;
-    func_00442088(buf, D_005DD6C0,
+    sprintf(buf, D_005DD6C0,
                   (s32)arg1, (s32)arg2, (s32)arg3);
-    func_00442830(D_00796700 + offset + 0x60, buf);
+    strcpy(D_00796700 + offset + 0x60, buf);
     *(s16 *)(D_00796700 + offset) = 6;
     *(s32 *)(D_00796A64 + offset) = 0;
     *(s32 *)(D_00796A68 + offset) = 0;

@@ -25,15 +25,15 @@ typedef struct MdlAppBc
 extern s32 func_0047e440(u16 id, u16 subId);
 extern void *func_0047dea0(u16 id, u16 subId, s32 kind);
 extern s32 func_0047df40(u16 id, u16 subId);
-extern s32 func_00106330(s32 id);
+extern s32 datGetFlag(s32 id);
 extern s64 func_001060b0(void);
 extern s32 func_00110d60(s16 value);
-extern s32 func_00442088(char *buf, char *fmt, ...);
+extern s32 sprintf(char *buf, char *fmt, ...);
 extern void func_00440b68(char *fmt, ...);
 extern s32 func_00454a60(void *msg, s32 kind);
-extern void func_00456150(s32 handle);
+extern void H_Cdvd_ReadSync(s32 handle);
 extern s32 func_002308a0(s32 type, s32 id, char *name);
-extern u8 func_00230bc0(u16 type);
+extern u8 mdlFileIsTypePac(u16 type);
 extern s32 func_00230c00(s32 type, s32 id, char *path);
 extern s32 func_00230d30(void *model);
 extern void func_002311a0(MdlAppObj *obj);
@@ -66,12 +66,12 @@ s32 func_00230f20(MdlAppObj *obj)
     case 1:
         if (*bcp == 0)
             *bcp = func_0047dea0(id, subId, 1);
-        if (func_00106330(0x1438) != 0 && (subId & 0xFFFF) == 1)
-            func_00442088(buf, D_00635820, &D_007636e0, subId & 0xFFFF);
+        if (datGetFlag(0x1438) != 0 && (subId & 0xFFFF) == 1)
+            sprintf(buf, D_00635820, &D_007636e0, subId & 0xFFFF);
         else if (func_00110d60((s16)func_001060b0()) & 1)
-            func_00442088(buf, D_00635840, &D_007636e0, subId & 0xFFFF);
+            sprintf(buf, D_00635840, &D_007636e0, subId & 0xFFFF);
         else
-            func_00442088(buf, D_00635860, &D_007636e0, subId & 0xFFFF);
+            sprintf(buf, D_00635860, &D_007636e0, subId & 0xFFFF);
         func_00440b68(&D_007636e8, D_00635878, 0x10F);
         *(s32 *)((u8 *)*bcp + 0x14) = func_00454a60(buf, 0);
         *(u16 *)((u8 *)*bcp + 0x12) |= 2;
@@ -81,7 +81,7 @@ s32 func_00230f20(MdlAppObj *obj)
             *bcp = func_0047dea0(id, subId, 2);
         func_002311a0(obj);
         *(s32 *)((u8 *)*bcp + 0x04) = func_0047df40(id, subId);
-        func_00442088(buf, D_00635890, D_00635678, subId & 0xFFFF);
+        sprintf(buf, D_00635890, D_00635678, subId & 0xFFFF);
         func_00440b68(&D_007636e8, D_00635878, 0x12F);
         *(s32 *)((u8 *)*bcp + 0x14) = func_00454a60(buf, 1);
         *(u16 *)((u8 *)*bcp + 0x12) |= 2;
@@ -129,7 +129,7 @@ void func_002311a0(MdlAppObj *obj)
         case 0x10B:
         case 0x10E:
         case 0x112:
-            func_00442088(buf, D_006358B0, D_00635678, subId & 0xFFFF);
+            sprintf(buf, D_006358B0, D_00635678, subId & 0xFFFF);
             func_00440b68(&D_007636e8, D_00635878, 0x16E);
             *(s32 *)((u8 *)*bcp + 0x18) = func_00454a60(buf, 0);
             break;
@@ -146,7 +146,7 @@ void func_002311a0(MdlAppObj *obj)
 // FUN_002312E0
 void func_002312e0(void)
 {
-    func_0047d090(func_002308a0, func_00230bc0, func_00230c00,
+    func_0047d090(func_002308a0, mdlFileIsTypePac, func_00230c00,
                   func_00230d30, func_00230f20);
 }
 
@@ -154,5 +154,5 @@ void func_002312e0(void)
 void func_00231330(void)
 {
     func_00440b68(&D_007636e8, D_00635878, 0x1A2);
-    func_00456150(func_00454a60(D_006358D0, 0));
+    H_Cdvd_ReadSync(func_00454a60(D_006358D0, 0));
 }

@@ -5,7 +5,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-extern void *func_0043f9c8(void *dst, s32 value, s32 size);
+extern void *memset(void *dst, s32 value, s32 size);
 extern u8 D_0063E8E0[];
 extern u8 D_0063E918[];
 extern void func_002a2340(void);
@@ -53,7 +53,7 @@ s32 func_002a2420(u8 *arg0) {
         if (mem == NULL) {
             r = 0;
         } else {
-            func_0043f9c8(mem, 0, 0x1C6C);
+            memset(mem, 0, 0x1C6C);
             r = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063E8F0), 0xF, 0, 0, func_002a1f20, func_002a2310, (u8 *)(mem));
         }
         *(s32 *)(st + 0x10) = r;
@@ -102,7 +102,7 @@ s32 func_002a2650(u8 *arg0)
     if (mem == NULL) {
         return 0;
     }
-    func_0043f9c8(mem, 0, 0x18);
+    memset(mem, 0, 0x18);
     return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063E918), 0xF, 0, 0, func_002a2420, func_002a2600, (u8 *)(mem));
 }
 

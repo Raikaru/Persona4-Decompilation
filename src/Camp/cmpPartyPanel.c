@@ -8,7 +8,7 @@ void func_0046d730(void* arg0, s32 arg1);
 void func_0046b0d0(void* ptr);
 void func_0044ea90(void* file, s32 line);
 
-void func_0043f9c8(void* dest, s32 value, s32 size);
+void memset(void* dest, s32 value, s32 size);
 void func_00363540(u8* arg0, u8* arg1);
 s32 func_00363610(u8* arg0);
 void func_003640f0(u8* arg0);
@@ -24,7 +24,7 @@ u16 func_00104e30(s16 arg0);
 u8* func_00457120(void);
 s16 func_00353b50(s16* dst);
 s32 func_0046aea0(void* arg0);
-void func_00442088(void* dst, void* src, s64 idx);
+void sprintf(void* dst, void* src, s64 idx);
 s32 func_0046a750(void* arg0);
 void func_00460ac0(void* param, void* work);
 extern u8 D_0064E2A0[];
@@ -316,7 +316,7 @@ s32 func_00363610(u8* arg0)
             *(s16*)(obj + i * 0x28 + 0x34) = id;
             *(s32*)(obj + i * 0x28 + 0x30) = 0;
             if (id != 0) {
-                func_00442088(b2, D_0064E2A0, (s64)id);
+                sprintf(b2, D_0064E2A0, (s64)id);
                 h = func_0046aea0(b2);
                 *(s32*)(obj + i * 0x28 + 0x2C) = h;
                 if (h == 0) {
@@ -407,7 +407,7 @@ s32 func_00363610(u8* arg0)
                 *(s16*)(obj + m * 0x28 + 0x34) = id;
                 *(s32*)(obj + m * 0x28 + 0x30) = 0;
                 if (id != 0) {
-                    func_00442088(b1, D_0064E2A0, (s64)id);
+                    sprintf(b1, D_0064E2A0, (s64)id);
                     h = func_0046aea0(b1);
                     *(s32*)(obj + m * 0x28 + 0x2C) = h;
                     if (h == 0) {
@@ -521,7 +521,7 @@ s32 func_00363610(u8* arg0)
             *(s16*)(obj + n * 0x28 + 0x34) = id;
             *(s32*)(obj + n * 0x28 + 0x30) = 0;
             if (id != 0) {
-                func_00442088(b0, D_0064E2A0, (s64)id);
+                sprintf(b0, D_0064E2A0, (s64)id);
                 h = func_0046aea0(b0);
                 *(s32*)(obj + n * 0x28 + 0x2C) = h;
                 if (h == 0) {
@@ -583,7 +583,7 @@ s32 func_003641a0(s32 arg0) {
         func_0046d730(D_0064E290, 0x25E);
     }
     *(s32 *)(work + 0x4) = 0;
-    func_0043f9c8(work + 0xB0, 0, 0x30);
+    memset(work + 0xB0, 0, 0x30);
     *(u8 **)(work + 0xB8) = (u8 *)func_00363540;
     *(u8 **)(work + 0xC0) = work;
     return r;
