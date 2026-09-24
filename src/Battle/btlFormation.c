@@ -899,7 +899,7 @@ u32 func_001d3760(u16 *arg0)
     return 1;
 }
 // FUN_001D3900
-void func_001d3900(u16 param_1)
+BtlPacket *func_001d3900(u16 param_1)
 {
     u32 *work;
     u32 packet;
@@ -908,6 +908,7 @@ void func_001d3900(u16 param_1)
     *(code **)(packet + 0x6c) = (code *)func_001d3760;
     work = *(u32 **)(packet + 0x78);
     *(u16 *)(work + 0) = param_1;
+    return (BtlPacket *)packet;
 }
 /* measured: opt_propagation off required for func_001d3950 (nd 0; default nd 7). */
 #pragma push
@@ -1052,7 +1053,7 @@ u32 func_001d3ba0(void)
     return 1;
 }
 // FUN_001D3D00
-void func_001d3d00(u32 param_1)
+BtlPacket *func_001d3d00(u32 param_1)
 {
     u32 *work;
     u32 packet;
@@ -1061,6 +1062,7 @@ void func_001d3d00(u32 param_1)
     *(code **)(packet + 0x6c) = (code *)func_001d3ba0;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
+    return (BtlPacket *)packet;
 }
 // FUN_001D3D50
 s32 func_001d3d50(u32 param_1)
