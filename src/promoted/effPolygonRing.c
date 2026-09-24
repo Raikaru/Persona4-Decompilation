@@ -41,7 +41,7 @@ extern void func_00483490(int arg0, int arg1);
 extern f32 iGpffff8044;
 extern f32 fGpffff8044;
 extern void func_0049a610(void *arg0);
-extern u8 *func_00482dc0();
+extern u8 *func_00482dc0(u16 copies, void *indices, s32 vertices, s32 flags);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00713330[];
 extern LineNovaColor iGpffffbb64;
