@@ -2230,7 +2230,7 @@ void func_001b4880(u8 *arg0) {
     extern u8 *func_001f99c0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern u8 *btlUnitCreateMovePacket(u8 *arg0, void *arg1, f32 arg2, s32 arg3);
     extern u8 *func_0019bdd0(u8 *arg0);
-    extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
+    extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrames, f32 speed, u16 mode);
     extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
     extern u8 *func_001f5f70(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern u32 func_002428f0(s32 arg0, s32 arg1);
@@ -2331,7 +2331,7 @@ void func_001b4880(u8 *arg0) {
         }
         node = *(u8 **)(node + 0x450);
     }
-    pkt = btlUnitCreateAnimPacket(*(u8 **)(base + 0x30), 0x15, 0, 2, 1.0f);
+    pkt = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(base + 0x30), 0x15, 0, 1.0f, 2);
     *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
     *(s64 *)(pkt + 0x60) = *(s64 *)base;
     func_00194590(pkt, 0);
@@ -2423,7 +2423,7 @@ void func_001b4880(u8 *arg0) {
                     *(s64 *)(pkt2 + 8) = *(s64 *)(pkt + 0x58);
                     *(s64 *)(pkt2 + 0x60) = *(s64 *)base;
                     func_00194590(pkt2, 0);
-                    pkt3 = btlUnitCreateAnimPacket(node, 0x15, 0, 2, 1.0f);
+                    pkt3 = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)node, 0x15, 0, 1.0f, 2);
                     *(u8 *)(pkt3 + 0) = 4;
                     *(s64 *)(pkt3 + 8) = *(s64 *)(pkt2 + 0x58);
                     *(s64 *)(pkt3 + 0x60) = *(s64 *)base;
