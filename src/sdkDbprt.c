@@ -15,7 +15,13 @@ struct HDbText3D
 typedef struct { u8 b0, b1, b2, b3; } RGBA8;
 
 static char sGrid[HDBPRT_GRID_HEIGHT][HDBPRT_GRID_WIDTH];
-static HDbText3D* iGpffffb9dc; /* gp -0x4624 (0x00764ACC) */
+/* b210 emits these private small-data objects in reverse declaration order.
+ * This sequence places the queue, camera, image and raster at retail's four
+ * consecutive words 0x00764ACC through 0x00764AD8. */
+static s32 *iGpffffb9e8;    /* gp -0x4618 (0x00764AD8), font raster */
+static u8 *iGpffffb9e4;     /* gp -0x461C (0x00764AD4), loaded image */
+static void *iGpffffb9e0;   /* gp -0x4620 (0x00764AD0), camera */
+static HDbText3D* iGpffffb9dc; /* gp -0x4624 (0x00764ACC), queued text */
 
 extern void* memset(void* destination, s32 value, size_t count);
 /* rwGlobals.memFuncs.RwFree slot: indirect call through data. */
@@ -39,9 +45,6 @@ extern u8 *func_003ec180(u8 *arg0, s32 *arg1);
 extern s32 func_003ea370(s32 *arg0);
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
 
-static void *iGpffffb9e0;   /* gp -0x4620 (0x00764AD0) */
-static u8 *iGpffffb9e4;     /* gp -0x461C (0x00764AD4) */
-static s32 *iGpffffb9e8;      /* gp -0x4618 (0x00764AD8) */
 
 /* text3d helpers */
 extern void func_0044ec50(s32 arg0);
@@ -103,134 +106,149 @@ void H_Dbprt_Flush()
         curr = next;
     }
 }
-/* Floor (measured 2026-09-17, source-repo only): quad-base hoist (qf/qi locals over quads[i*16]) 163 -> 124 words, fnalign 218/218/74; the +10-instr over-emission is gone (was 230 obj vs 220 retail: the four qi stores each recomputed (i*16+k)*4, the sll+5/addu+4/addiu+3 opclass surplus). Singles sweep on the 163 body: opt_unroll_loops off, opt_strength_reduction off, opt_dead_assignments off all neutral (genuinely inert, verified byte-identical objects; b210 ignores them here), peephole off 166, cse 192, sched 196, prop 211, loop-inv 219. Re-sweep on the 124 body: same three neutral, cse 173, loop-inv 171, peephole 140, sched 198, prop 199. Tried: f878/white const hoists (125, white rematerialises per-iter), block-scoped row/col counters (neutral at 124). Prior: w2 163 best (w1 202, w3 s64 230, loop 219, sched 196, prop 211). Frame MATCH, vtBase hoist restores 7+1 jalr, dead low branch kept. Banked as guarded floor; production stays ASM. */
-/* measured 0044f720 (owner, 2026-09-19): fnalign **74 -> 72 edits**, count
-   218 -> 216 against retail 218, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all. */
-// FUN_0044F720 NONMATCHING
-#ifdef NON_MATCHING
+/* Native b210 O2: 876/880 bytes, 17 resolved relocations and four zero
+ * alignment bytes. The near-depth field belongs to the complete device
+ * record; keeping that ownership reproduces the vertex-loop preheader.
+ * See docs/probe_archive/Debug_grid_0044f720_20260924.md. */
+#pragma push
+#pragma opt_loop_invariants on
+/* The glyph atlas has sixteen columns. Keep this conversion signed so
+ * its remainder operation also describes negative input values. */
+static inline s32 debugGlyphColumn(s32 value)
+{
+    return value % 16;
+}
+
+// FUN_0044F720
 void func_0044f720(void)
 {
-    extern s32 func_003e8120(s32 arg0);
-    extern void func_003e8110(s32 arg0);
+    extern u32 func_003e8120(u32 camera);
+    extern u32 func_003e8110(u32 camera);
     extern void func_0044fa90(void);
     extern void func_00450630(void);
-    extern void (*D_00887300[])(u32, u32);
-    extern void (*D_00887304[])(s32, s32 *);
+    extern s32 (*D_00887300[])(s32 state, void *value);
+    extern s32 (*D_00887304[])(s32 state, void *value);
     extern s32 (*D_00887310[])(s32, void *, s32);
-    extern f32 D_008872F8[];
-    f32 uv[8];
-    f32 quads[64];
-    s32 save;
-    f32 inv;
-    f32 rowY;
-    f32 rowY1;
+    typedef struct DebugRenderDevice {
+        f32 gamma;
+        s32 (*system)(s32, void *, void *, s32);
+        f32 nearDepth;
+        f32 farDepth;
+        s32 (*setState)(s32, void *);
+        s32 (*getState)(s32, void *);
+        /* The eight remaining immediate-mode callbacks occupy address words. */
+        u32 renderCallbackAddresses[8];
+    } DebugRenderDevice;
+    extern DebugRenderDevice D_008872F0;
+    f32 textureCoordinates[8];
+    typedef struct DebugGlyphVertex {
+        f32 position[3];
+        f32 cameraZ;
+        f32 texcoord[2];
+        f32 reciprocal;
+        f32 pad1;
+        f32 color[4];
+        f32 normal[3];
+        f32 pad2;
+    } DebugGlyphVertex;
+    DebugGlyphVertex vertices[4];
+    s32 savedFog;
+    f32 reciprocalDepth;
+    f32 topY;
+    f32 bottomY;
+    s32 column;
     s32 row;
-    s32 col;
-    u32 vtBase;
-    u8 *gridRow;
+    struct { s32 (*setState)(s32, void *); } *renderer;
+    u8 *characters;
 
-    inv = 1.0f / *(f32 *)((u8 *)iGpffffb9e0 + 0x80);
-    if (func_003e8120((s32)iGpffffb9e0) != 0) {
-        D_00887304[0](14, &save);
-        vtBase = (u32)D_00887300;
-        ((void (*)(u32, u32))*(u32 *)vtBase)(14, 0);
-        ((void (*)(u32, u32))*(u32 *)vtBase)(6, 1);
-        ((void (*)(u32, u32))*(u32 *)vtBase)(7, 2);
-        ((void (*)(u32, u32))*(u32 *)vtBase)(8, 1);
-        ((void (*)(u32, u32))*(u32 *)vtBase)(9, 1);
-        ((void (*)(u32, u32))*(u32 *)vtBase)(12, 1);
-        ((void (*)(u32, u32))*(u32 *)vtBase)(1, (u32)iGpffffb9e8);
+    reciprocalDepth = 1.0f / *(f32 *)((u8 *)iGpffffb9e0 + 0x80);
+    if (func_003e8120((u32)iGpffffb9e0) != 0) {
+        D_00887304[0](14, &savedFog);
+        renderer = (void *)D_00887300;
+        renderer->setState(14, (void *)0);
+        renderer->setState(6, (void *)1);
+        renderer->setState(7, (void *)2);
+        renderer->setState(8, (void *)1);
+        renderer->setState(9, (void *)1);
+        renderer->setState(12, (void *)1);
+        renderer->setState(1, iGpffffb9e8);
         {
-            s32 i;
-            for (i = 0; i < 4; i++) {
-                f32 *qf = &quads[i * 16];
-                s32 *qi = (s32 *)qf;
-                qf[6] = inv;
-                qi[8] = 0x437F0000;
-                qi[9] = 0x437F0000;
-                qi[10] = 0x437F0000;
-                qi[11] = 0x437F0000;
-                qf[2] = D_008872F8[0];
+            s32 vertexIndex;
+            vertexIndex = 0;
+            for (; vertexIndex < 4; vertexIndex++) {
+                DebugGlyphVertex *vertex = &vertices[vertexIndex];
+                vertex->reciprocal = reciprocalDepth;
+                vertex->color[0] = 255.0f;
+                vertex->color[1] = 255.0f;
+                vertex->color[2] = 255.0f;
+                vertex->color[3] = 255.0f;
+                vertex->position[2] = D_008872F0.nearDepth;
             }
         }
         row = 0;
-        do {
-            gridRow = (u8 *)((u32)D_008BF720 + (u32)(row * 0x35));
-            rowY = 12.0f * (f32)row;
-            rowY1 = 11.0f + rowY;
-            for (col = 0; col < 0x35; col++) {
-                u8 ch;
-                ch = *(u8 *)((u8 *)gridRow + col);
-                if (ch != 0x20) {
-                    u32 v;
-                    f32 x0;
-                    f32 x1;
-                    s32 low;
-                    s32 tmp;
-                    f32 u0;
-                    f32 vv0;
-                    s32 k;
-                    v = (ch - 0x20) & 0xFF;
-                    if ((s32)v >= 0x80) {
-                        v = (v - 0x20) & 0xFF;
+        while (row < 0x28) {
+            column = 0;
+            characters = (u8 *)sGrid[row];
+            topY = 12.0f * (f32)row;
+            bottomY = 11.0f + topY;
+            for (; column < 0x35; column++) {
+                u8 character;
+                character = *(u8 *)((u8 *)characters + column);
+                if (character != 0x20) {
+                    u8 glyphIndex;
+                    f32 leftX;
+                    f32 rightX;
+                    s32 tileColumn;
+                    f32 leftU;
+                    f32 topV;
+                    s32 vertexIndex;
+                    glyphIndex = character - 0x20;
+                    if ((s32)glyphIndex >= 0x80) {
+                        glyphIndex = glyphIndex - 0x20;
                     }
-                    x0 = 12.0f * (f32)col;
-                    x1 = 11.0f + x0;
-                    quads[0] = x0;
-                    quads[1] = rowY;
-                    quads[16] = x1;
-                    quads[17] = rowY;
-                    quads[32] = x0;
-                    quads[33] = rowY1;
-                    quads[48] = x1;
-                    quads[49] = rowY1;
-                    low = (s32)((v & 0xFF) & 0xF);
-                    tmp = (s32)(v & 0xFF);
-                    if (tmp < 0 && low != 0) {
-                        low -= 0x10;
+                    leftX = 12.0f * (f32)column;
+                    vertices[0].position[0] = leftX;
+                    vertices[0].position[1] = topY;
+                    rightX = 11.0f + leftX;
+                    vertices[1].position[0] = rightX;
+                    vertices[1].position[1] = topY;
+                    vertices[2].position[0] = leftX;
+                    vertices[2].position[1] = bottomY;
+                    vertices[3].position[0] = rightX;
+                    vertices[3].position[1] = bottomY;
+                    tileColumn = debugGlyphColumn((s32)glyphIndex);
+                    leftU = 0.0625f * (f32)tileColumn;
+                    textureCoordinates[0] = leftU;
+                    topV = 0.0625f * (f32)(s32)((u32)glyphIndex >> 4);
+                    textureCoordinates[1] = topV;
+                    textureCoordinates[2] = 0.046875f + leftU;
+                    textureCoordinates[3] = topV;
+                    textureCoordinates[4] = leftU;
+                    textureCoordinates[5] = 0.046875f + topV;
+                    textureCoordinates[6] = 0.046875f + leftU;
+                    textureCoordinates[7] = 0.046875f + topV;
+                    vertexIndex = 0;
+                    while (vertexIndex < 4) {
+                        DebugGlyphVertex *vertex;
+                        f32 *texcoord;
+                        texcoord = &textureCoordinates[vertexIndex * 2];
+                        vertex = &vertices[vertexIndex];
+                        vertex->texcoord[0] = texcoord[0];
+                        vertex->texcoord[1] = texcoord[1];
+                        vertexIndex += 1;
                     }
-                    u0 = 0.0625f * (f32)low;
-                    vv0 = 0.0625f * (f32)(s32)((v & 0xFF) >> 4);
-                    uv[0] = u0;
-                    uv[1] = vv0;
-                    uv[2] = 0.046875f + u0;
-                    uv[3] = vv0;
-                    uv[4] = u0;
-                    uv[5] = 0.046875f + vv0;
-                    uv[6] = 0.046875f + u0;
-                    uv[7] = 0.046875f + vv0;
-                    k = 0;
-                    while (k < 4) {
-                        f32 *quad;
-                        f32 *uvp;
-                        quad = &quads[k * 16];
-                        uvp = &uv[k * 2];
-                        quad[4] = uvp[0];
-                        quad[5] = uvp[1];
-                        k += 1;
-                    }
-                    D_00887310[0](4, quads, 4);
+                    D_00887310[0](4, vertices, 4);
                 }
             }
             row++;
-        } while (row < 0x28);
+        }
         func_0044fa90();
         func_00450630();
-        ((void (*)(u32, u32))*(u32 *)vtBase)(14, save);
-        func_003e8110((s32)iGpffffb9e0);
+        renderer->setState(14, (void *)savedFog);
+        func_003e8110((u32)iGpffffb9e0);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044f720);
-#endif
+#pragma pop
 
 /* Floor (measured 2026-09-17, source-repo only): probe_variants s_best 314 words / 132 edits / 366 vs 367 BEST faithful (bare 353/464, levers unfaithful despite words wins), fnalign 367/366/132 (+5), emitted 1464B/window 1472B (99.5%). Four-pragma sweep: bare wins (loop +1w/-6ed noted, cse/sched catastrophic, nobl neutral). Eight-singles re-sweep 2026-09-17: dead/prop/strength/unroll neutral at 314, loop-inv 315, sched 337, peephole 341, cse 377. Object-longer blocks are float spills (9x swc1 f3-f7); residual is coloring/scheduling/orientation + daddu. Re-derived sibling v8 floor; production stays ASM. Banked as guarded floor. */
 /* measured 0044fa90 (owner, 2026-09-20): fnalign **132 -> 101 edits**, count 366 -> 364
