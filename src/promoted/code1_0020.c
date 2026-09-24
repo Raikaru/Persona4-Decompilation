@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+typedef struct BtlPacket BtlPacket;
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
@@ -1031,7 +1032,7 @@ s32 func_00202070(u8 *arg0)
 /* measured: restore conditional rebuilding after callback completion. */
 #pragma opt_rebuildconditionals on
 // FUN_00202120
-void func_00202120(u32 param_1, u16 param_2)
+BtlPacket *func_00202120(u32 param_1, u16 param_2)
 {
   u32 *puVar1;
   int iVar2 = 0;
@@ -1042,7 +1043,7 @@ void func_00202120(u32 param_1, u16 param_2)
   *puVar1 = param_1;
   *(u16 *)(puVar1 + 1) = param_2;
   puVar1[2] = 0;
-  return;
+  return (BtlPacket *)iVar2;
 }
 
 // FUN_00202180
@@ -1126,7 +1127,7 @@ s32 func_00202340(u8 *arg0)
     return temp_2 >= 0x21U;
 }
 // FUN_00202400
-void func_00202400(s32 arg0, s32 arg1)
+BtlPacket *func_00202400(s32 arg0, s32 arg1)
 {
     u8 *temp_2;
     u8 *temp_3;
@@ -1137,6 +1138,7 @@ void func_00202400(s32 arg0, s32 arg1)
     *(s32 *)(temp_3 + 0) = arg0;
     *(s32 *)(temp_3 + 4) = arg1;
     *(s32 *)(temp_3 + 8) = 0;
+    return (BtlPacket *)temp_2;
 }
 
 // FUN_00202460

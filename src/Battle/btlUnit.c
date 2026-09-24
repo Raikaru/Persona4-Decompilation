@@ -964,7 +964,7 @@ void func_00199e50(BtlUnitPacketCountRef* work);
 void func_00199ec0(BtlUnitPacketCountRef* work);
 
 // FUN_00199EE0
-BtlPacket* btlUnitCreateAnimPacket(BtlUnit* unit, u16 id, u16 blendFrameCount, f32 speed, u16 mode)
+BtlPacket* btlUnitCreateAnimPacket(BtlUnit* unit, s16 id, u16 blendFrameCount, f32 speed, u16 mode)
 {
     BtlPacket* packet;
     BtlUnitPacketAnim* work;
