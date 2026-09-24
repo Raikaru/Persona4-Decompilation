@@ -6306,6 +6306,7 @@ fGpffff83c4 = 0x007614b4; // type:data evidence: func_00384cc0 lwc1 at 0x0038525
 D_007614c0 = 0x007614c0; // type:data
 fGpffff83d0 = 0x007614c0; // type:data
 iGpffff83d4 = 0x007614c4; // type:data
+iGpffff83d8 = 0x007614c8; // type:data evidence: func_0021fa40 scalar load at GP 0x007690F0 minus 0x7C28
 iGpffff83e0 = 0x007614d0; // type:data
 fGpffff83e4 = 0x007614d4; // type:data
 iGpffff83e8 = 0x007614d8; // type:data

@@ -401,6 +401,7 @@ D_0063F560 = 0x0063f560; // type:data evidence: retail func_002e09e0 lui %hi(D_0
 D_007F16F0 = 0x007f16f0; // type:data evidence: retail func_001622d0 lui %hi(D_007F16F0) at 0x622E4; 8-byte record array
 D_007E8C00 = 0x007e8c00; // type:data evidence: retail func_00162390 lui %hi(D_007E8C00) at 0x6239C; 0x750-byte record array
 iGpffff83d4 = 0x007614c4; // type:data evidence: retail func_003561d0 lwc1 $f0,-0x7C2C($28) (0x007614C4) float divisor; gp base 0x007690F0
+iGpffff83d8 = 0x007614c8; // type:data evidence: retail func_0021fa40 lwc1 at GP -0x7C28; GP 0x007690F0; native scalar GPREL16 relocation has zero addend
 iGpffff8544 = 0x00761634; // type:data evidence: retail func_003561d0 lwc1 $f0,-0x7ABC($28) (0x00761634) float addend; gp base 0x007690F0
 D_00763C54 = 0x00763c54; // type:data evidence: retail func_003e2570 lw $5,-0x549C($28) (0x00763C54); gp base 0x007690F0
 D_00763C58 = 0x00763c58; // type:data evidence: retail func_003e2570 lw $7,-0x5498($28) (0x00763C58); gp base 0x007690F0

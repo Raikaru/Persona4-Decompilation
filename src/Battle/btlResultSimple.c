@@ -497,107 +497,106 @@ s32 func_0021f790(u8 *arg0) {
         return 0;
     }
 }
-/* Floor: 222 words via measure_guarded / 130 edits via fnalign (280 retail vs
-   292 obj instrs, 12 long). wscan dsll32/dsra32 1 vs 0 retail (one spurious
-   0x10 pair); the remaining 10 come from table-address rematerialization
-   (lui +6, addu +5, addiu +4) plus float/div/branch scheduling (lw/sw vs
-   lwc1/swc1, div vs divu, slt $v0 vs $at). Pragma sweep all same/worse
-   (common_subs 261, sched 254, loopinv 222 same, prop 242). Width probes all
-   flat (float-copy 222, divu 222, no-(s16)-cast 222; branch <= to <+1 worse at
-   254). nd>25: spelling will not close this; banked as floor.
-*/
-/* gate: object 292 against retail 280, +4.3% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
-/* measured 2026-09-19: object 277 instrs against retail 277, exact, 188
-   differing words, 102 edits.  Was 292 against 280 - +4.3% and outside the
-   gate - at 222 words.
-   The surplus was address materialisation, the shape handoff 7ao names: the
-   body named six separate symbols into the same 0x1C-stride record table
-   (`D_00629564`, `D_00629568`, `D_0062956C`, `D_00629570`, `D_00629574`,
-   `D_00629578`) and b210 emitted a `lui`/`addiu` pair for each, eleven `lui`
-   against retail's five.  Retail computes one base - `lui $v0, 0x63` /
-   `addiu $v0, $v0, -0x6aa0` / `addu $s0, $v0, $v1` - and reads the fields at
-   0x00/0x04/0x08/0x0C/0x10/0x14/0x18 from it.  Writing a single `u8 *rec =
-   (u8 *)D_00629560 + i * 0x1C` and offsetting from it removes fifteen
-   instructions and takes the count exact.
-   Measured and rejected: hoisting `rec` to the top of the loop body instead
-   of computing it at each of the two use sites scores 247, because retail
-   recomputes it in both places. */
-// FUN_0021FA40 NONMATCHING
-#ifdef NON_MATCHING
-void func_0021fa40(u8 *arg0) {
-    extern u32 func_003b7060(void);
-    extern f32 func_0044b7b0(f32 a);
-    extern f32 iGpffff83d4[];
+/* Five 32-byte animation records begin at work+0x4C0. The initializer
+ * in func_0021ef70 writes the same timer and coordinate fields. */
+typedef struct ResultParticleState {
+    u16 age;
+    u16 duration;
+    f32 amplitude;
+    f32 position[2];
+    f32 previous[2];
+    f32 next[2];
+} ResultParticleState;
+
+typedef struct ResultParticleStyle {
+    f32 originX;
+    s32 resource;
+    u32 minimumDuration;
+    u32 durationRange;
+    s32 motion;
+    f32 minimumAmplitude;
+    f32 maximumAmplitude;
+} ResultParticleStyle;
+
+/* Preserve the range-then-sample operand order of the native product. */
+static inline f32 resultParticleProduct(f32 range, f32 sample)
+{
+    return range * sample;
+}
+
+/* Native b210 O2: 1108/1120 bytes, seventeen resolved relocations and
+ * twelve zero alignment bytes. Update and draw the five result-screen
+ * sprites using their individual motion and random-duration styles.
+ * See docs/probe_archive/Result_particles_0021fa40_20260924.md. */
+// FUN_0021FA40
+void func_0021fa40(u8 *work)
+{
+    extern void func_00364c50(void);
+    extern void func_00364c70(void);
+    extern f32 func_0044b7b0(f32 angle);
+    extern f32 iGpffff83d8;
     extern f32 fGpffff81e0;
+    u8 opacity;
+    ResultParticleState *particle;
+    const ResultParticleStyle *style;
     s32 i;
-    s32 i4;
-    u8 *e;
-    u16 *pu;
-    u16 u2;
-    u32 u5;
-    s32 i7;
-    u8 *rec;
-    s32 i6;
-    f32 f11;
-    f32 f12;
-    f32 f10;
-    u8 u1;
+    void *resource;
+    f32 x;
+    f32 y;
+    f32 amount;
+    f32 minimum;
+    u32 random;
+    s32 nextAge;
 
     func_00364c50();
     for (i = 0; i < 5; i++) {
-        e = arg0 + i * 0x20;
-        pu = (u16 *)(e + 0x4C0);
-        if (((*(u16 *)(*(u32 *)(arg0 + 0x570) + 8) & 4) == 0) && (*(s32 *)(arg0 + 0x38) != 0)) {
-            u2 = *pu;
-            *pu = u2 + 1;
-            if (*(u16 *)(e + 0x4C2) <= (u16)(u2 + 1)) {
-                *(u32 *)(e + 0x4D0) = *(u32 *)(e + 0x4C8);
-                u5 = func_003b7060();
-                *(f32 *)(e + 0x4D8) = (f32)((u5 & 0xFFF) * 0xD6) / 4096.0f;
-                i7 = i * 0x1C;
-                rec = (u8 *)D_00629560 + i7;
-                f11 = *(f32 *)(rec + 0x14);
-                u5 = func_003b7060();
-                *(f32 *)(e + 0x4C4) = f11 + ((*(f32 *)(rec + 0x18) - f11) * (f32)(u5 & 0xFFF)) / 4096.0f;
-                *pu = 0;
-                i6 = func_003b7060();
-                *(s16 *)(e + 0x4C2) = *(s32 *)(rec + 8) + (s16)(i6 % *(s32 *)(rec + 0xC));
+        particle = (ResultParticleState *)(work + 0x4C0 + i * sizeof(ResultParticleState));
+        if ((*(u16 *)(*(u8 **)(work + 0x570) + 8) & 4) == 0 && *(s32 *)(work + 0x38) != 0) {
+            /* Use the stored halfword result, including its wrap at 65535. */
+            nextAge = (particle->age += 1);
+            if (nextAge >= particle->duration) {
+                particle->previous[0] = particle->position[0];
+                random = func_003b7060();
+                particle->next[0] = (f32)((random & 0xFFF) * 214U) / 4096.0f;
+                style = (const ResultParticleStyle *)((u8 *)D_00629560 + i * sizeof(ResultParticleStyle));
+                minimum = style->minimumAmplitude;
+                random = func_003b7060();
+                amount = (f32)(random & 0xFFF);
+                amount = resultParticleProduct(style->maximumAmplitude - minimum, amount);
+                /* The low twelve random bits select a fraction in [0, 1). */
+                particle->amplitude = minimum + amount / 4096.0f;
+                particle->age = 0;
+                random = func_003b7060();
+                particle->duration = style->minimumDuration + random % style->durationRange;
             }
         }
-        f11 = *(f32 *)(arg0 + 0x2F0) + *(f32 *)(arg0 + 0x290) + *(f32 *)(arg0 + 0x2C0);
-        f12 = *(f32 *)(arg0 + 0x294) + *(f32 *)(arg0 + 0x2C4);
-        u1 = *(u8 *)(arg0 + 0x29A);
-        i6 = i * 0x1C;
-        rec = (u8 *)D_00629560 + i6;
-        i4 = *(u32 *)(rec + 4);
-        if (*(u32 *)(rec + 0x10) == 1) {
-            f10 = func_0044b7b0((fGpffff81e0 * (f32)*pu) / (f32)*(u16 *)(e + 0x4C2));
-            f11 = f11 + *(f32 *)(e + 0x4C4) * -f10 + *(f32 *)rec + 0.0f;
-        } else if (*(u32 *)(rec + 0x10) == 0) {
-            f10 = func_0044b7b0((iGpffff83d4[1] * (f32)*pu) / (f32)*(u16 *)(e + 0x4C2));
-            *(f32 *)(e + 0x4C8) = f10 * (*(f32 *)(e + 0x4D8) - *(f32 *)(e + 0x4D0)) + *(f32 *)(e + 0x4D0) + 0.0f;
-            *(f32 *)(e + 0x4CC) = f10 * (*(f32 *)(e + 0x4DC) - *(f32 *)(e + 0x4D4)) + *(f32 *)(e + 0x4D4) + 0.0f;
-            f11 = f11 + *(f32 *)(e + 0x4C8) + 415.0f;
-            f12 = f12 + *(f32 *)(e + 0x4CC);
-        } else {
-            func_0046d730((void *)0x629610, 0x2AD);
+        x = *(f32 *)(work + 0x2F0) + (*(f32 *)(work + 0x290) + *(f32 *)(work + 0x2C0));
+        y = *(f32 *)(work + 0x294) + *(f32 *)(work + 0x2C4);
+        opacity = *(u8 *)(work + 0x29A);
+        style = (const ResultParticleStyle *)((u8 *)D_00629560 + i * sizeof(ResultParticleStyle));
+        /* The sprite and opacity are captured before either motion callback. */
+        resource = *(void **)(work + 0x414 + style->resource * 4);
+        switch (style->motion) {
+        case 0:
+            amount = func_0044b7b0((iGpffff83d8 * (f32)(u32)particle->age) / (f32)(u32)particle->duration);
+            particle->position[0] = 0.0f + particle->previous[0] + amount * (particle->next[0] - particle->previous[0]);
+            particle->position[1] = 0.0f + particle->previous[1] + amount * (particle->next[1] - particle->previous[1]);
+            x += (f32)0x19F + particle->position[0];
+            y += particle->position[1];
+            break;
+        case 1:
+            amount = func_0044b7b0((fGpffff81e0 * (f32)(u32)particle->age) / (f32)(u32)particle->duration);
+            amount = -amount;
+            x += 0.0f + style->originX + particle->amplitude * amount;
+            break;
+        default:
+            func_0046d730(D_00629610, 0x2AD);
+            break;
         }
-        i4 = *(u32 *)(arg0 + *(s32 *)(rec + 4) * 4 + 0x414);
-        func_0034f2e0((void *)i4, f11, f12, 0xFF, 0xFF, 0xFF, u1);
+        func_0034f2e0(resource, x, y, 0xFF, 0xFF, 0xFF, opacity);
     }
     func_00364c70();
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021fa40);
-#endif
-/* measured 2026-08-07: a full C reconstruction of the five-entry update
-   loop reached nd 1051 but emitted 1420B for the 1120B window. The remaining
-   retail path uses COP1 adda.s/madd.s interpolation, the EE three-operand
-   mult form, and b210's signed-range conversion/float-register schedule
-   differs throughout; discarded rather than leaving an oversized body bare. */
 
 /* measured: 5680B retail window; m2c cannot lower the FPU multiply-accumulate
    idiom (adda.s $f0,$f3 / madd.s $f1,$f2,$f1 fused lerp in the loop_26
