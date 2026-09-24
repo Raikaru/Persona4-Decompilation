@@ -101,7 +101,7 @@ extern u8 *func_001979e0(u8 *arg0, u8 *arg1, s32 arg2, f32 arg3, f32 arg4);
 extern u8 *func_001d3530(u8 *arg0, u8 *arg1, s32 arg2);
 extern f32 fGpffff811c;
 extern s32 func_002326e0(s32 arg0);
-extern s32 func_001f6d60(u8 *arg0);
+extern s16 func_001f6d60(u8 *arg0);
 extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
 extern void func_001f0a10(u8 *arg0);
 extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
@@ -6985,156 +6985,168 @@ void func_001ade10(s64 *arg0)
 void func_001ade90(void)
 {
 }
-/* measured 001adea0: 325/327 (-2, -0.6%) inside 317-337 band; guarded 163 words, fnalign 49 edits (was schedule-on 237/337/270 and honest nosched 277/189/271). Switch on 0x20/0x40/default in numeric order (compiler checks 0x40 first, matching retail layout); u8 stk[32] for the f0a10 32B memset (was s32 sp60/sp64/u16 sp7E, frame 0x60->0x70 vs retail 0x80); pkt1-6 with pkt1+88 sources (was pkt reuse losing the s1 live range for 0x58->8 copies); (s16)f6d60 (was s32, adds dsll32/dsra32); &0xFFFFF mask (was <<20>>20 12-bit); nested f==2/3/1 tails (was empty ifs eliminated and && dropping the third compare). Removed schedule pragmas (1-word win outside gate, -40 count). Jal 35 both sides. Production stays ASM. */
-// FUN_001ADEA0 NONMATCHING
-#ifdef SKIP_ASM
-void func_001adea0(u8 *arg0)
+
+/* Queue the status-damage result and dependent display, animation and sound.
+ * Native b210 O2: all 1312 bytes and every relocation match retail.
+ * The result is a complete 32-byte object; the ID snapshot follows the
+ * status query. See docs/probe_archive/Action_status_response_001adea0_20260924.md. */
+// FUN_001ADEA0
+void func_001adea0(u8 *action)
 {
-    u8 *t18;
-    s64 t16;
-    u32 sw;
-    u8 stk[32];
-    s32 t2;
-    u8 *pkt1;
-    u8 *pkt2;
-    u8 *pkt3;
-    u8 *pkt4;
-    u8 *pkt5;
-    u8 *pkt6;
+    u32 datCalcGetBadStatus(s32 unit);
+    u8 *unit;
+    s64 packetIdentity;
+    u32 statusKind;
+    u32 badStatus;
+    struct {
+        s32 hpDelta;
+        s32 spDelta;
+        u8 otherResults[22];
+        u16 flags;
+    } result;
+    s32 delta;
+    u8 *resultPacket;
+    u8 *healthPacket;
+    u8 *displayPacket;
+    u8 *gaugePacket;
+    u8 *animationPacket;
+    u8 *soundPacket;
 
     if (func_00193cd0(0x700) == 0 && func_00193cd0(0x506) == 0 && func_00193cd0(0x507) == 0) {
-        t18 = *(u8 **)(arg0 + 48);
-        t16 = *(s64 *)arg0;
-        sw = (u32)(func_002326e0(*(s32 *)(t18 + 2660)) & 0xFFFFF);
-        switch (sw) {
+        unit = *(u8 **)(action + 48);
+        badStatus = datCalcGetBadStatus(*(s32 *)(unit + 2660));
+        packetIdentity = *(s64 *)action;
+        statusKind = badStatus & 0xFFFFF;
+        switch (statusKind) {
         case 0x20:
             {
-                func_001f0a10(stk);
-                *(u16 *)(stk + 30) = *(u16 *)(stk + 30) | 0x100;
-                t2 = (s16)func_001f6d60(arg0);
-                *(s32 *)stk = t2;
-                if (t2 < 0) {
-                    pkt1 = (u8 *)func_001f36e0((s32)arg0, (s32)arg0, stk, 1, 1);
-                    *(s16 *)(pkt1 + 72) = 12;
-                    func_00194590(pkt1, 1);
-                    pkt2 = func_00202740(t18);
-                    *(pkt2 + 0) = 4;
-                    *(s64 *)(pkt2 + 8) = *(s64 *)(pkt1 + 88);
-                    func_00194590(pkt2, 1);
-                    pkt3 = func_00201de0((s32)t18, (s32)t18, -1, 0, 0, 0, 1, stk, 0);
-                    *(pkt3 + 0) = 4;
-                    *(s64 *)(pkt3 + 8) = *(s64 *)(pkt1 + 88);
-                    *(pkt3 + 71) = *(pkt3 + 71) & 0xDF;
-                    func_00194590(pkt3, 3);
-                    pkt4 = func_00202590((s32)t18, 0, 0);
-                    *(pkt4 + 0) = 4;
-                    *(s64 *)(pkt4 + 8) = *(s64 *)(pkt1 + 88);
-                    *(pkt4 + 71) = *(pkt4 + 71) & 0xDF;
-                    func_00194590(pkt4, 3);
-                    pkt5 = func_00199ee0(*(u8 **)(arg0 + 48), -2, 0, 0, 1.0f);
-                    *(pkt5 + 0) = 4;
-                    *(s64 *)(pkt5 + 8) = *(s64 *)(pkt1 + 88);
-                    *(pkt5 + 32) = 10;
-                    *(s16 *)(pkt5 + 40) = 769;
-                    *(s64 *)(pkt5 + 96) = t16;
-                    func_00194590(pkt5, 0);
-                    pkt6 = (u8 *)func_001f7c20(10, 2, 24);
-                    *(pkt6 + 0) = 4;
-                    *(s64 *)(pkt6 + 8) = *(s64 *)(pkt1 + 88);
-                    func_00194590(pkt6, 1);
+                func_001f0a10((u8 *)&result);
+                result.flags = result.flags | 0x100;
+                delta = (s16)func_001f6d60(action);
+                result.hpDelta = delta;
+                if (delta < 0) {
+                    resultPacket = (u8 *)func_001f36e0((s32)action, (s32)action, &result, 1, 1);
+                    *(s16 *)(resultPacket + 72) = 12;
+                    func_00194590(resultPacket, 1);
+                    healthPacket = func_00202740(unit);
+                    *(healthPacket + 0) = 4;
+                    *(s64 *)(healthPacket + 8) = *(s64 *)(resultPacket + 88);
+                    func_00194590(healthPacket, 1);
+                    displayPacket = func_00201de0((s32)unit, (s32)unit, -1, 0, 0, 0, 1, &result, 0);
+                    *(displayPacket + 0) = 4;
+                    *(s64 *)(displayPacket + 8) = *(s64 *)(resultPacket + 88);
+                    *(displayPacket + 71) = *(displayPacket + 71) & 0xDF;
+                    func_00194590(displayPacket, 3);
+                    gaugePacket = func_00202590((s32)unit, 0, 0);
+                    *(gaugePacket + 0) = 4;
+                    *(s64 *)(gaugePacket + 8) = *(s64 *)(resultPacket + 88);
+                    *(gaugePacket + 71) = *(gaugePacket + 71) & 0xDF;
+                    func_00194590(gaugePacket, 3);
+                    animationPacket = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(action + 48), -2, 0, 1.0f, 0);
+                    *(animationPacket + 0) = 4;
+                    *(s64 *)(animationPacket + 8) = *(s64 *)(resultPacket + 88);
+                    *(animationPacket + 32) = 10;
+                    *(s16 *)(animationPacket + 40) = 769;
+                    *(s64 *)(animationPacket + 96) = packetIdentity;
+                    func_00194590(animationPacket, 0);
+                    soundPacket = (u8 *)func_001f7c20(10, 2, 24);
+                    *(soundPacket + 0) = 4;
+                    *(s64 *)(soundPacket + 8) = *(s64 *)(resultPacket + 88);
+                    func_00194590(soundPacket, 1);
                 }
                 {
-                    u16 f = *(u16 *)(arg0 + 108);
-                    u16 v;
-                    if (f == 2) {
-                        v = 32;
-                    } else if (f == 3) {
-                        v = 32;
-                    } else if (f == 1) {
-                        v = 32;
-                    } else {
-                        v = 32;
+                    u16 actionKind = *(u16 *)(action + 108);
+                    u16 nextState;
+                    switch (actionKind) {
+                    case 1:
+                    case 3:
+                    case 2:
+                        nextState = 32;
+                        break;
+                    default:
+                        nextState = 32;
+                        break;
                     }
-                    func_001b0800(arg0, v);
+                    btlActionSetState((BtlAction *)action, nextState);
                 }
                 return;
             }
             break;
         case 0x40:
             {
-                func_001f0a10(stk);
-                *(u16 *)(stk + 30) = *(u16 *)(stk + 30) | 0x100;
-                t2 = (s16)func_001f6d60(arg0);
-                *(s32 *)(stk + 4) = t2;
-                if (t2 < 0) {
-                    pkt1 = (u8 *)func_001f36e0((s32)arg0, (s32)arg0, stk, 1, 1);
-                    *(s16 *)(pkt1 + 72) = 12;
-                    func_00194590(pkt1, 1);
-                    pkt2 = func_00202740(t18);
-                    *(pkt2 + 0) = 4;
-                    *(s64 *)(pkt2 + 8) = *(s64 *)(pkt1 + 88);
-                    func_00194590(pkt2, 1);
-                    pkt3 = func_00201de0((s32)t18, (s32)t18, -1, 0, 0, 0, 1, stk, 0);
-                    *(pkt3 + 0) = 4;
-                    *(s64 *)(pkt3 + 8) = *(s64 *)(pkt1 + 88);
-                    *(pkt3 + 71) = *(pkt3 + 71) & 0xDF;
-                    func_00194590(pkt3, 3);
-                    pkt4 = func_00202590((s32)t18, 1, 0);
-                    *(pkt4 + 0) = 4;
-                    *(s64 *)(pkt4 + 8) = *(s64 *)(pkt1 + 88);
-                    *(pkt4 + 71) = *(pkt4 + 71) & 0xDF;
-                    func_00194590(pkt4, 3);
-                    pkt5 = func_00199ee0(*(u8 **)(arg0 + 48), -2, 0, 0, 1.0f);
-                    *(pkt5 + 0) = 4;
-                    *(s64 *)(pkt5 + 8) = *(s64 *)(pkt1 + 88);
-                    *(pkt5 + 32) = 10;
-                    *(s16 *)(pkt5 + 40) = 769;
-                    *(s64 *)(pkt5 + 96) = t16;
-                    func_00194590(pkt5, 0);
-                    pkt6 = (u8 *)func_001f7c20(10, 2, 24);
-                    *(pkt6 + 0) = 4;
-                    *(s64 *)(pkt6 + 8) = *(s64 *)(pkt1 + 88);
-                    func_00194590(pkt6, 1);
+                func_001f0a10((u8 *)&result);
+                result.flags = result.flags | 0x100;
+                delta = (s16)func_001f6d60(action);
+                result.spDelta = delta;
+                if (delta < 0) {
+                    resultPacket = (u8 *)func_001f36e0((s32)action, (s32)action, &result, 1, 1);
+                    *(s16 *)(resultPacket + 72) = 12;
+                    func_00194590(resultPacket, 1);
+                    healthPacket = func_00202740(unit);
+                    *(healthPacket + 0) = 4;
+                    *(s64 *)(healthPacket + 8) = *(s64 *)(resultPacket + 88);
+                    func_00194590(healthPacket, 1);
+                    displayPacket = func_00201de0((s32)unit, (s32)unit, -1, 0, 0, 0, 1, &result, 0);
+                    *(displayPacket + 0) = 4;
+                    *(s64 *)(displayPacket + 8) = *(s64 *)(resultPacket + 88);
+                    *(displayPacket + 71) = *(displayPacket + 71) & 0xDF;
+                    func_00194590(displayPacket, 3);
+                    gaugePacket = func_00202590((s32)unit, 1, 0);
+                    *(gaugePacket + 0) = 4;
+                    *(s64 *)(gaugePacket + 8) = *(s64 *)(resultPacket + 88);
+                    *(gaugePacket + 71) = *(gaugePacket + 71) & 0xDF;
+                    func_00194590(gaugePacket, 3);
+                    animationPacket = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(action + 48), -2, 0, 1.0f, 0);
+                    *(animationPacket + 0) = 4;
+                    *(s64 *)(animationPacket + 8) = *(s64 *)(resultPacket + 88);
+                    *(animationPacket + 32) = 10;
+                    *(s16 *)(animationPacket + 40) = 769;
+                    *(s64 *)(animationPacket + 96) = packetIdentity;
+                    func_00194590(animationPacket, 0);
+                    soundPacket = (u8 *)func_001f7c20(10, 2, 24);
+                    *(soundPacket + 0) = 4;
+                    *(s64 *)(soundPacket + 8) = *(s64 *)(resultPacket + 88);
+                    func_00194590(soundPacket, 1);
                 }
                 {
-                    u16 f = *(u16 *)(arg0 + 108);
-                    u16 v;
-                    if (f == 2) {
-                        v = 32;
-                    } else if (f == 3) {
-                        v = 32;
-                    } else if (f == 1) {
-                        v = 32;
-                    } else {
-                        v = 32;
+                    u16 actionKind = *(u16 *)(action + 108);
+                    u16 nextState;
+                    switch (actionKind) {
+                    case 1:
+                    case 3:
+                    case 2:
+                        nextState = 32;
+                        break;
+                    default:
+                        nextState = 32;
+                        break;
                     }
-                    func_001b0800(arg0, v);
+                    btlActionSetState((BtlAction *)action, nextState);
                 }
                 return;
             }
             break;
         default:
             {
-                u16 f = *(u16 *)(arg0 + 108);
-                u16 v;
-                if (f == 2) {
-                    v = 32;
-                } else if (f == 3) {
-                    v = 32;
-                } else if (f == 1) {
-                    v = 32;
-                } else {
-                    v = 32;
+                u16 actionKind = *(u16 *)(action + 108);
+                u16 nextState;
+                switch (actionKind) {
+                case 1:
+                case 3:
+                case 2:
+                    nextState = 32;
+                    break;
+                default:
+                    nextState = 32;
+                    break;
                 }
-                func_001b0800(arg0, v);
+                btlActionSetState((BtlAction *)action, nextState);
             }
             break;
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001adea0);
-#endif
+
 // FUN_001AE3C0
 s32 func_001ae3c0(u8 *arg0)
 {
@@ -7848,132 +7860,163 @@ void func_001afa50(u8 *arg0)
     }
     *(u16 *)(arg0 + 0x18) &= 0xC7FF;
 }
-/* Battle-state floor (1232B window). Measured nd 208 (guard below; obj 1236B, 4B overrun; fnalign 308/309 instrs, 139 edits +3 reloc-only, 1 long; prior nd219 note at 1240B). Frame/prologue verified. Open: branch-target cascade (layout inversion at retail bnez-far pair vs inline 40-instr arm needs reconstruction), scheduler ordering. Array-free; mask-literal 0xFFF7 measured better than ~8; no width/slti/dead-arm pattern in residual. Triple-built. */
-// FUN_001AFB50 NONMATCHING
-#ifdef NON_MATCHING
-void func_001afb50(u8 *arg0)
+
+/* Finish readiness, queued-order and status processing for this action.
+ * Native b210 O2: 1228 executable bytes and four zero alignment bytes.
+ * This paired recovery preserves the other 69 functions and allocated data.
+ * See docs/probe_archive/Action_readiness_001afb50_20260924.md. */
+// FUN_001AFB50
+void func_001afb50(u8 *action)
 {
-    u16 t3;
-    s32 v4;
-    s32 v5;
-    s32 v6;
-    s32 bVar2;
-    u8 *w;
+    s32 func_0019ff60(u8 *action);
+    s32 func_00193060(void);
+    s32 func_001b0e30(s32 action);
+    s32 func_001b0dd0(u8 *action);
+    void func_001b13c0(u8 *action);
+    void func_001b1450(u8 *action);
+    void func_001f5a00(s32 advance);
+    void func_00235110(u8 *unit);
+    void func_001f2cc0(u8 *action);
+    void datCalcSetHp(s32 unit, u16 hp);
+    u32 datCalcSetBadStatus(s32 unit, u32 badStatus);
+    u32 datCalcIsDead(s32 unit, s32 hpDelta);
+
+    u16 entryFlags;
+    s32 specialOrder;
+    s32 restart;
+    s32 dead;
+    s32 resetUnit;
+    u8 *packet;
 
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x80) == 0) {
-        t3 = *(u16 *)(arg0 + 0x18);
-        v4 = (t3 & 4) != 0;
-        if ((t3 & 8) != 0 && func_0019ff60(arg0) != 0) {
+        entryFlags = *(u16 *)(action + 0x18);
+        specialOrder = (entryFlags & 4) != 0;
+        if ((entryFlags & 8) != 0 && func_0019ff60(action) != 0) {
             if (func_00193cd0(0x504) != 0) {
                 return;
             }
             if (func_00193cd0(0x506) != 0) {
                 return;
             }
-            *(s16 *)(arg0 + 0x16) = 30;
-            func_001b0e30(arg0);
-            v5 = 1;
+            *(s16 *)(action + 0x16) = 30;
+            func_001b0e30((s32)action);
+            restart = 1;
         } else {
-            *(u16 *)(arg0 + 0x18) = *(u16 *)(arg0 + 0x18) & 0xFFF7;
-            v5 = 0;
+            *(u16 *)(action + 0x18) = *(u16 *)(action + 0x18) & 0xFFF7;
+            restart = 0;
         }
-        if ((*(u16 *)(arg0 + 0x18) & 0x8000) == 0 && v4 == 0) {
-            *(s32 *)(arg0 + 0x20) = *(s32 *)(arg0 + 0x20) + 1;
+        if ((*(u16 *)(action + 0x18) & 0x8000) == 0 && specialOrder == 0) {
+            *(s32 *)(action + 0x20) = *(s32 *)(action + 0x20) + 1;
         }
-        if (func_00193060() != 0) {
+        if (func_00193060() == 0) {
+            if ((*(u16 *)(action + 0x18) & 0x8000) == 0 && specialOrder == 0) {
+                if (*(action + 0x29) > 0) {
+                    if (*(action + 0x28) == 0 && datCalcIsDead(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0) == 0) {
+                        *(action + 0x29) = *(action + 0x29) - 1;
+                    } else {
+                        *(action + 0x29) = 0;
+                    }
+                }
+                dead = datCalcIsDead(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0);
+                if ((*(action + 0x28) == 0 && *(action + 0x29) == 0) || dead != 0) {
+                    if (dead != 0) {
+                        *(action + 0x28) = 0;
+                        *(action + 0x29) = 0;
+                        func_001b0dd0(action);
+                    }
+                    {
+                        u16 unitFlags = *(u16 *)(action + 0x1A);
+                        if ((unitFlags & 1) == 0) {
+                            resetUnit = 0;
+                        } else {
+                            u8 *unit = *(u8 **)(*(u8 **)(action + 0x30) + 0xA0C);
+                            if ((unitFlags & 0x10) == 0) {
+                                resetUnit = 0;
+                            } else {
+                                if ((*(u32 *)(unit + 0x98) & 2) != 0) {
+                                    resetUnit = 1;
+                                } else {
+                                    resetUnit = 0;
+                                }
+                            }
+                        }
+                    }
+                    if (resetUnit != 0) {
+                        packet = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(action + 0x30) + 0xA0C));
+                        *(s64 *)(packet + 0x60) = *(s64 *)action;
+                        func_00194590(packet, 1);
+                    }
+                    func_00235110(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64));
+                    func_001f5a00(1);
+                    func_001b13c0(action);
+                } else {
+                    func_001b1450(action);
+                    func_001f5a00(0);
+                }
+            } else {
+                {
+                    u16 unitFlags = *(u16 *)(action + 0x1A);
+                    if ((unitFlags & 1) == 0) {
+                        resetUnit = 0;
+                    } else {
+                        u8 *unit = *(u8 **)(*(u8 **)(action + 0x30) + 0xA0C);
+                        if ((unitFlags & 0x10) == 0) {
+                            resetUnit = 0;
+                        } else {
+                            if ((*(u32 *)(unit + 0x98) & 2) != 0) {
+                                resetUnit = 1;
+                            } else {
+                                resetUnit = 0;
+                            }
+                        }
+                    }
+                }
+                if (resetUnit != 0) {
+                    packet = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(action + 0x30) + 0xA0C));
+                    *(s64 *)(packet + 0x60) = *(s64 *)action;
+                    func_00194590(packet, 1);
+                }
+                func_001b13c0(action);
+            }
+        } else {
             *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) | 0x80;
-        } else if ((*(u16 *)(arg0 + 0x18) & 0x8000) != 0 || v4 != 0) {
-            if ((*(u16 *)(arg0 + 0x1A) & 1) == 0) {
-                bVar2 = 0;
-            } else if ((*(u16 *)(arg0 + 0x1A) & 0x10) == 0) {
-                bVar2 = 0;
-            } else if ((*(u32 *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA0C) + 0x98) & 2) == 0) {
-                bVar2 = 0;
-            } else {
-                bVar2 = 1;
-            }
-            if (bVar2 != 0) {
-                w = func_0019b6a0((s32)(*(u8 **)(arg0 + 0x30) + 0xA0C));
-                *(s64 *)(w + 0x60) = *(s64 *)arg0;
-                func_00194590(w, 1);
-            }
-            func_001b13c0(arg0);
-        } else {
-            if (*(arg0 + 0x29) != 0) {
-                if (*(arg0 + 0x28) == 0 && func_002428f0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), 0) == 0) {
-                    *(arg0 + 0x29) = *(arg0 + 0x29) - 1;
-                } else {
-                    *(arg0 + 0x29) = 0;
-                }
-            }
-            v6 = func_002428f0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), 0);
-            if ((*(arg0 + 0x28) != 0 || *(arg0 + 0x29) != 0) && v6 == 0) {
-                func_001b1450(arg0);
-                func_001f5a00(0);
-            } else {
-                if (v6 != 0) {
-                    *(arg0 + 0x28) = 0;
-                    *(arg0 + 0x29) = 0;
-                    func_001b0dd0(arg0);
-                }
-                if ((*(u16 *)(arg0 + 0x1A) & 1) == 0) {
-                    bVar2 = 0;
-                } else if ((*(u16 *)(arg0 + 0x1A) & 0x10) == 0) {
-                    bVar2 = 0;
-                } else if ((*(u32 *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA0C) + 0x98) & 2) == 0) {
-                    bVar2 = 0;
-                } else {
-                    bVar2 = 1;
-                }
-                if (bVar2 != 0) {
-                    w = func_0019b6a0((s32)(*(u8 **)(arg0 + 0x30) + 0xA0C));
-                    *(s64 *)(w + 0x60) = *(s64 *)arg0;
-                    func_00194590(w, 1);
-                }
-                func_00235110(*(u8 **)(arg0 + 0x30) + 0xA64);
-                func_001f5a00(1);
-                func_001b13c0(arg0);
-            }
         }
-        if (v4 == 0) {
-            *(u16 *)(arg0 + 0x18) = *(u16 *)(arg0 + 0x18) & ~0x8000;
+        if (specialOrder == 0) {
+            *(u16 *)(action + 0x18) = *(u16 *)(action + 0x18) & 0x7FFF;
         }
         if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x80) == 0) {
-            if (v5 != 0) {
-                func_001b0800(arg0, 1);
+            if (restart != 0) {
+                btlActionSetState((BtlAction *)action, 1);
                 return;
             }
-            if ((*(u16 *)(arg0 + 0x18) & 0x20) == 0) {
-                func_001b0800(arg0, 0x22);
+            if ((*(u16 *)(action + 0x18) & 0x20) == 0) {
+                btlActionSetState((BtlAction *)action, 0x22);
                 return;
             }
-            func_001b0dd0(arg0);
-            if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1) {
-                func_00232680(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0x80000);
-                func_00231f20(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0);
+            func_001b0dd0(action);
+            if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 1) {
+                datCalcSetBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0x80000);
+                datCalcSetHp(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0);
             }
             if (func_00193060() != 0) {
                 *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) | 0x80;
             }
-            func_001b0800(arg0, 0x24);
+            btlActionSetState((BtlAction *)action, 0x24);
             return;
         }
-        if ((*(u16 *)(arg0 + 0x18) & 0x20) != 0) {
-            func_001b0dd0(arg0);
-            if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1) {
-                func_00232680(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0x80000);
-                func_00231f20(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0);
+        if ((*(u16 *)(action + 0x18) & 0x20) != 0) {
+            func_001b0dd0(action);
+            if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 1) {
+                datCalcSetBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0x80000);
+                datCalcSetHp(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0);
             }
-            func_001b0800(arg0, 0x24);
+            btlActionSetState((BtlAction *)action, 0x24);
             return;
         }
-        if (func_002428f0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), 0) != 0) {
-            func_001f2cc0(arg0);
-            func_001b0800(arg0, 1);
+        if (datCalcIsDead(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0) != 0) {
+            func_001f2cc0(action);
+            btlActionSetState((BtlAction *)action, 1);
         }
         return;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001afb50);
-#endif
