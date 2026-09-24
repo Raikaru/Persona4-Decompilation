@@ -115,7 +115,7 @@ u8 *func_00482c40(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 // FUN_00482DC0
-u8 *func_00482dc0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+u8 *func_00482dc0(u16 arg0, void *arg1, s32 arg2, s32 arg3) {
     s32 temp_2;
     u16 temp_22;
     s32 temp_23;
@@ -151,7 +151,7 @@ u8 *func_00482dc0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
         var_17 = 0;
         temp_23 = var_16 & 0xFFFF;
         while (var_17 < spA0) {
-            temp_3 = (u8 *)(arg1 + (var_17 * 2));
+            temp_3 = (u8 *)arg1 + (var_17 * 2);
             func_003c2130(temp_20, var_19,
                           (temp_23 + *(u16 *)(temp_3 + 0)) & 0xFFFF,
                           (temp_23 + *(u16 *)(temp_3 + 2)) & 0xFFFF,
