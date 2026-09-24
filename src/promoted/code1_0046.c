@@ -148,7 +148,14 @@ extern f32 fGpffff84f0;
 extern f32 func_0044b610(f32 arg0);
 extern f32 func_0044b7b0(f32 arg0);
 extern void func_0045f790(void *arg0, void *arg1, void *arg2, s32 arg3);
-extern void func_0045fbe0(f32 *position, f32 radius, u8 *color, f32 *matrix, s32 setStates);
+/* Same RwV3d tag and fields as the ring provider and RenderWare. */
+typedef struct RwV3d {
+    f32 x;
+    f32 y;
+    f32 z;
+} Code46RingPoint;
+extern void func_0045fbe0(const Code46RingPoint *position, f32 radius,
+                         u8 *color, f32 *matrix, s32 setStates);
 struct Data_00712508 {
     f32 field_0;
     f32 field_4;
@@ -180,7 +187,7 @@ extern f32 fGpffff81cc;
 // FUN_004601C0
 void func_004601c0(u8 *arg0, f32 fparg0, u8 *arg1, s32 arg2) {
     struct Data_00712508 spE __attribute__((aligned(16)));
-    f32 spF0[3];
+    Code46RingPoint spF0;
     f32 spA0[4][4];
     s32 sp80[6];
     f32 sp70[4];
@@ -228,10 +235,10 @@ void func_004601c0(u8 *arg0, f32 fparg0, u8 *arg1, s32 arg2) {
             var_f21 += fGpffff81f0;
             temp_f22 = fparg0 * func_0044b610(var_f21);
             temp_f12 = fparg0 * func_0044b7b0(var_f21);
-            spF0[0] = *(f32 *)(arg0 + 0);
-            spF0[1] = *(f32 *)(arg0 + 4) + temp_f22;
-            spF0[2] = *(f32 *)(arg0 + 8);
-            func_0045fbe0(&spF0[0], temp_f12, arg1, &spA0[0][0], 0);
+            spF0.x = *(f32 *)(arg0 + 0);
+            spF0.y = *(f32 *)(arg0 + 4) + temp_f22;
+            spF0.z = *(f32 *)(arg0 + 8);
+            func_0045fbe0(&spF0, temp_f12, arg1, &spA0[0][0], 0);
         }
         func_003e0870(&spA0[0][0], &spE, 2, 90.0f);
         temp_f22 = 0.0f;
@@ -239,10 +246,10 @@ void func_004601c0(u8 *arg0, f32 fparg0, u8 *arg1, s32 arg2) {
             temp_f22 += fGpffff81f0;
             var_f21 = fparg0 * func_0044b610(temp_f22);
             temp_f12_2 = fparg0 * func_0044b7b0(temp_f22);
-            spF0[0] = *(f32 *)(arg0 + 0);
-            spF0[1] = *(f32 *)(arg0 + 4);
-            spF0[2] = *(f32 *)(arg0 + 8) + var_f21;
-            func_0045fbe0(&spF0[0], temp_f12_2, arg1, &spA0[0][0], 0);
+            spF0.x = *(f32 *)(arg0 + 0);
+            spF0.y = *(f32 *)(arg0 + 4);
+            spF0.z = *(f32 *)(arg0 + 8) + var_f21;
+            func_0045fbe0(&spF0, temp_f12_2, arg1, &spA0[0][0], 0);
         }
         if (arg2 != 0) {
             for (var_16_3 = 0; var_16_3 < 6U; var_16_3++) {
@@ -263,7 +270,7 @@ void func_004601c0(u8 *arg0, f32 fparg0, u8 *arg1, s32 arg2) {
  * See docs/Window_render_contract_recovery_20260920.md for the resolved proof. */
 // FUN_004604D0
 void func_004604d0(f32 *position, f32 radius, f32 height, u8 *color, s32 setStates) {
-    f32 circlePosition[3];
+    Code46RingPoint circlePosition;
     f32 endpoints[2][3];
     s32 savedStates[6];
     f32 sphere[4];
@@ -305,14 +312,14 @@ void func_004604d0(f32 *position, f32 radius, f32 height, u8 *color, s32 setStat
             func_003f6440(3, (void *)(0x71801));
         }
         verticalOffset = height / 7.0f;
-        circlePosition[0] = position[0];
+        circlePosition.x = position[0];
         halfHeight = 0.5f * height;
-        circlePosition[1] = position[1] - halfHeight;
-        circlePosition[2] = position[2];
+        circlePosition.y = position[1] - halfHeight;
+        circlePosition.z = position[2];
         segmentIndex = 0;
         for (; segmentIndex < 8U; segmentIndex++) {
-            func_0045fbe0(&circlePosition[0], radius, color, 0, 0);
-            circlePosition[1] += verticalOffset;
+            func_0045fbe0(&circlePosition, radius, color, 0, 0);
+            circlePosition.y += verticalOffset;
         }
         sideAngle = 0.0f;
         segmentIndex = 0;

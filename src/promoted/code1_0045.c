@@ -12,9 +12,28 @@ extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0, s32 arg2, s32 arg3,
 extern void func_00446ed8(void *buf, const void *fmt, void *va);
 extern void func_00450a50(PackedColor4 color, PackedVec2f position, f32 depth, void *characters);
 extern s32 iGpffffb9e8;
-extern s32 func_003e8200(u32 arg0, void *arg1);
-extern void func_003e42a0(void *arg0, void *arg1, void *arg2);
-extern u32 D_008872E0;
+struct RwCamera;
+struct RwSphere;
+enum RwFrustumTestResult {
+    rwSPHEREOUTSIDE = 0,
+    rwSPHEREBOUNDARY = 1,
+    rwSPHEREINSIDE = 2,
+    rwFRUSTUMTESTRESULTFORCEENUMSIZEINT = 0x7fffffff
+};
+extern enum RwFrustumTestResult func_003e8200(const struct RwCamera *camera,
+                                           const struct RwSphere *sphere);
+struct RwV3d;
+struct RwMatrixTag;
+extern struct RwV3d *func_003e42a0(struct RwV3d *out, const struct RwV3d *in,
+                                  const struct RwMatrixTag *matrix);
+typedef struct Code45CurrentEntities {
+    const struct RwCamera *camera;
+    void *world;
+    u16 renderFrame;
+    u16 lightFrame;
+    u16 pad[2];
+} Code45CurrentEntities;
+extern Code45CurrentEntities D_008872E0;
 extern void (*D_00887300[])();
 extern s32 (*D_00887310[])(s32, void *, s32);
 extern void func_003e05d0(void *arg0);
@@ -34,20 +53,37 @@ extern u8 D_007124C0[];
 typedef struct {
     f32 v[4];
 } Code45Float4;
-typedef struct {
+typedef struct RwV3d {
     f32 x;
     f32 y;
     f32 z;
 } Code45Vec3;
+
+typedef struct RwMatrixTag {
+    Code45Vec3 right;
+    u32 flags;
+    Code45Vec3 up;
+    u32 pad1;
+    Code45Vec3 at;
+    u32 pad2;
+    Code45Vec3 pos;
+    u32 pad3;
+} Code45Matrix;
+
+typedef struct RwSphere {
+    Code45Vec3 center;
+    f32 radius;
+} Code45Sphere;
 typedef struct {
     u8 red, green, blue, alpha;
 } Code45RGBA;
 extern u32 func_00457a90(const RpMaterial *material, const char *name);
 extern s32 func_0045ce40(f32 *out, u8 *colors, s32 *pos, f32 z);
-extern struct {
+typedef struct Code45RenderState {
     s32 state;
     s32 val;
-} D_00712490[6];
+} Code45RenderState;
+extern Code45RenderState D_00712490[6];
 extern s32 iGpffffac74;
 extern s32 iGpffffad88;
 extern s16 iGpffffba1c;
@@ -2243,236 +2279,147 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
     colors[11] = color3;
     func_0045dfd0(colors, coords, fparg1, 3, 3, (s32)arg4);
 }
-/* Floor for FUN_0045FBE0 (retail 375 instrs via fnalign, window 1504B): live with `opt_common_subs off`
- * measures probe 268 words via `tools/probe_variants.py --candidate`, fnalign retail 375/object 375 (exact)
- * with 146 edits (+8 reloc-only) via `tools/fnalign.py --candidate`. Tail cascade is a register-color shift
- * ($s4->$s3, $s1->$s2, $f20/$f24) from the head arg-setup through the 20-iter loop tail plus the home-move
- * order wall (retail move $s1/$s2/$s0 vs object move $s2/$s3/$s1, invariant). History: Shape B dead-arm
- * (redundant triple W32 0xC8/W32 0xC4/W8 0xC0 in NULL else removed, overwritten after the if) took probe
- * 333->311 words (-22) at 369 instrs (6 short, 132+4 edits); sweep then took 311->268 (-43, nopragma 311
- * reproduced) to exact size. Shape A skipped: no paired signed-slti $at replace row appears (only sltiu
- * $at/b insert-delete pairs at 6 and 0x14), so >=K to >K-1 rewrite N/A. Ruled out live: float-copy W32
- * 0x84/0x88 to W8 float (268 tie) and direct-float second block W8 0xC0/0xC4/0xC8 (309, worse). Banked. */
-/* measured 0045fbe0: `opt_common_subs off` inside the guard is worth 43 words (311 -> 268); retail rematerialises what b210 hoists. */
-/* measured 0045fbe0 (owner, 2026-09-19): fnalign **146 -> 144 edits**, count
-   375 -> 373 against retail 375, by writing m2c's top-tested `loop_N:` /
-   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
-   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
-   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
-   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
-   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
-   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
-   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
-// FUN_0045FBE0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
-void func_0045fbe0(f32 *arg0, f32 fparg0, u8 *arg1, f32 *arg2, s32 arg3) {
-    u8 work[0x5E0];
-    f32 temp_f23;
-    f32 temp_f20;
-    f32 temp_f21;
-    f32 temp_f22;
-    f32 *temp_19;
-    f32 *var_18;
-    u32 var_20;
-    u32 var_18_2;
-    u32 var_16;
-    u8 *temp_18;
+/* Draw a closed, twenty-segment ring after a sphere/frustum test. The
+ * optional matrix supplies orientation; its translation becomes center.
+ * Native b210 -O2: 1504/1504 bytes, 31 fully resolved relocations, no tail.
+ * Source value/scoping order preserves the measured projection operations;
+ * no per-function optimization overrides or arithmetic assembly are needed.
+ * See docs/probe_archive/Projected_ring_0045fbe0_20260924.md. */
+// FUN_0045FBE0
+void func_0045fbe0(const Code45Vec3 *center, f32 radius, u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState)
+{
+    typedef union RingMatrix {
+        Code45Matrix fields;
+        s32 pairs[8][2];
+    } RingMatrix;
+    Code45Vec3 localPoint;
+    Code45Vec3 worldPoint;
+    Code45Vec3 cameraPoint;
+    Code45Im2DVertex vertices[21];
+    s32 savedStates[6];
+    RingMatrix matrix;
+    Code45Sphere sphere;
+    u8 *colors;
+    f32 *sourceMatrix;
+    s32 preserveState;
+    f32 angle;
+    f32 farDepth;
+    f32 nearPlane;
+    f32 farPlane;
+    f32 depthScale;
+    u32 stateIndex;
+    u32 restoreIndex;
+    Code45Im2DVertex *vertex;
 
-#define W8(off) (*(f32 *)(work + ((off) - 0x80)))
-#define W32(off) (*(s32 *)(work + ((off) - 0x80)))
-#define WU32(off) (*(u32 *)(work + ((off) - 0x80)))
-
-    var_18 = arg2;
-    W8(0x8C) = fparg0;
-    W8(0x80) = (f32)*(s32 *)(arg0 + 0);
-    W32(0x84) = *(s32 *)(arg0 + 4);
-    W32(0x88) = *(s32 *)(arg0 + 8);
-    if (func_003e8200(D_008872E0, work + 0) != 0) {
-        temp_f23 = D_008872FC_abs[0];
-        temp_f20 = D_008872F8_abs[0];
-        temp_f21 = *(f32 *)((u8 *)(u32)func_00457120() + 0x84);
-        temp_f22 = *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
-        temp_19 = (f32 *)((u8 *)(u32)func_00457120() + 0x20);
-        if (var_18 != NULL) {
-            f32 *dst = (f32 *)(work + (0x90 - 0x80));
-            s32 n = 8;
+    colors = inputColors;
+    sourceMatrix = inputMatrix;
+    preserveState = inputPreserveState;
+    sphere.radius = radius;
+    sphere.center.x = center->x;
+    sphere.center.y = center->y;
+    sphere.center.z = center->z;
+    if (func_003e8200(D_008872E0.camera, &sphere) != 0) {
+        const void *view;
+        farDepth = D_008872FC_abs[0];
+        depthScale = D_008872F8_abs[0];
+        farPlane = *(f32 *)((u8 *)(u32)func_00457120() + 0x84);
+        nearPlane = *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+        view = (u8 *)(u32)func_00457120() + 0x20;
+        if (sourceMatrix != NULL) {
+            const s32 (*source)[2];
+            s32 (*destination)[2];
+            s32 remaining;
+            source = (const s32 (*)[2])sourceMatrix;
+            destination = matrix.pairs;
+            remaining = 8;
             do {
-                f32 t0 = (f32)*(s32 *)var_18;
-                s32 t1 = *(s32 *)((u8 *)var_18 + 4);
-                var_18 += 8;
-                n -= 1;
-                dst[0] = t0;
-                *(s32 *)(dst + 1) = t1;
-                dst += 8;
-            } while (n > 0);
+                s32 first = (*source)[0];
+                s32 second = (*source)[1];
+                source++;
+                remaining--;
+                (*destination)[0] = first;
+                (*destination)[1] = second;
+                destination++;
+            } while (remaining > 0);
         } else {
-            W32(0xB8) = 0x3F800000;
-            W32(0xA4) = 0x3F800000;
-            W8(0x90) = 1.0f;
-            W32(0xA0) = 0;
-            W32(0x98) = 0;
-            W32(0x94) = 0;
-            W32(0xB4) = 0;
-            W32(0xB0) = 0;
-            W32(0xA8) = 0;
-            W32(0x9C) |= 0x20003;
+            matrix.fields.at.z = 1.0f;
+            matrix.fields.up.y = 1.0f;
+            matrix.fields.right.x = 1.0f;
+            matrix.fields.up.x = 0.0f;
+            matrix.fields.right.z = 0.0f;
+            matrix.fields.right.y = 0.0f;
+            matrix.fields.at.y = 0.0f;
+            matrix.fields.at.x = 0.0f;
+            matrix.fields.up.z = 0.0f;
+            matrix.fields.pos.z = 0.0f;
+            matrix.fields.pos.y = 0.0f;
+            matrix.fields.pos.x = 0.0f;
+            /* Retail expands RwMatrixSetIdentityMacro here, including its
+             * read/OR/write of flags without a preceding local initialization.
+             * Preserve that original defect; do not invent a flags-zero store. */
+            matrix.fields.flags |= 0x20003;
         }
-        W8(0xC0) = (f32)*(s32 *)(arg0 + 0);
-        W32(0xC4) = *(s32 *)(arg0 + 4);
-        W32(0xC8) = *(s32 *)(arg0 + 8);
-        if (arg3 != 0) {
-            s32 *p;
-            var_20 = 0;
-do {
-                    p = (s32 *)&D_00712490[var_20];
-                    D_00887304[0](p[0], work + (0xD0 - 0x80) + var_20 * 4);
-                    D_00887300[0](p[0], p[1]);
-                    var_20 += 1;
-} while (var_20 < 6);
+        matrix.fields.pos = *center;
+        if (preserveState != 0) {
+            for (stateIndex = 0; stateIndex < 6; stateIndex++) {
+                const Code45RenderState *state = &D_00712490[stateIndex];
+                D_00887304[0](state->state, &savedStates[stateIndex]);
+                D_00887300[0](state->state, state->val);
+            }
             D_00887300[0](1, 0);
             func_003f6440(2, 0x48);
             func_003f6440(3, 0x71801);
         }
         {
-            f32 *out = (f32 *)(work + (0xF0 - 0x80));
-            f32 f24 = 0.0f;
-            var_18_2 = 0;
-loop_25:
-            if (var_18_2 < 20) {
-                f32 f3;
-                W8(0x650) = fparg0 * func_0044b610(f24);
-                W8(0x658) = fparg0 * func_0044b7b0(f24);
-                func_003e42a0(work + (0x640 - 0x80), work + (0x650 - 0x80), work + (0x90 - 0x80));
-                func_003e42a0(work + (0x630 - 0x80), work + (0x640 - 0x80), temp_19);
-                f3 = ((temp_f22 / W8(0x638)) * ((W8(0x638) - temp_f21) * temp_f20)) + temp_f23;
-                W8(0x630) = 640.0f * (W8(0x630) / W8(0x638));
-                W8(0x634) = 448.0f * (W8(0x634) / W8(0x638));
-                out[0] = W8(0x630);
-                out[1] = W8(0x634);
-                out[2] = f3;
-                out[6] = 1.0f / f3;
-                {
-                    s32 b0 = *(arg1 + 0);
-                    f32 g0;
-                    if (b0 >= 0) {
-                        g0 = (f32)b0;
-                    } else {
-                        s32 q0 = ((u32)b0 >> 1) | (b0 & 1);
-                        g0 = (f32)q0;
-                        g0 += g0;
-                    }
-                    out[8] = g0;
-                }
-                {
-                    s32 b1 = *(arg1 + 1);
-                    f32 g1;
-                    if (b1 >= 0) {
-                        g1 = (f32)b1;
-                    } else {
-                        s32 q1 = ((u32)b1 >> 1) | (b1 & 1);
-                        g1 = (f32)q1;
-                        g1 += g1;
-                    }
-                    out[9] = g1;
-                }
-                {
-                    s32 b2 = *(arg1 + 2);
-                    f32 g2;
-                    if (b2 >= 0) {
-                        g2 = (f32)b2;
-                    } else {
-                        s32 q2 = ((u32)b2 >> 1) | (b2 & 1);
-                        g2 = (f32)q2;
-                        g2 += g2;
-                    }
-                    out[10] = g2;
-                }
-                {
-                    s32 b3 = *(arg1 + 3);
-                    f32 g3;
-                    if (b3 >= 0) {
-                        g3 = (f32)b3;
-                    } else {
-                        s32 q3 = ((u32)b3 >> 1) | (b3 & 1);
-                        g3 = (f32)q3;
-                        g3 += g3;
-                    }
-                    out[11] = g3;
-                }
-                out += 16;
-                f24 += fGpffff81f0;
-                var_18_2 += 1;
-                goto loop_25;
+            u32 vertexIndex;
+            vertex = vertices;
+            angle = 0.0f;
+            localPoint.y = 0.0f;
+            vertexIndex = 0;
+            /* Convert the saved screen-near value to the projection slope. */
+            depthScale = (depthScale - farDepth) / (nearPlane - farPlane);
+            while (vertexIndex < 20) {
+                f32 screenDepth;
+                f32 ratio;
+                f32 distance;
+                f32 scaledDistance;
+                localPoint.x = radius * func_0044b610(angle);
+                localPoint.z = radius * func_0044b7b0(angle);
+                func_003e42a0(&worldPoint, &localPoint, &matrix.fields);
+                func_003e42a0(&cameraPoint, &worldPoint, (const Code45Matrix *)view);
+                ratio = nearPlane / cameraPoint.z;
+                distance = cameraPoint.z - farPlane;
+                scaledDistance = distance * depthScale;
+                screenDepth = farDepth + ratio * scaledDistance;
+                cameraPoint.x = 640.0f * (cameraPoint.x / cameraPoint.z);
+                cameraPoint.y = 448.0f * (cameraPoint.y / cameraPoint.z);
+                vertex->position[0] = cameraPoint.x;
+                vertex->position[1] = cameraPoint.y;
+                vertex->position[2] = screenDepth;
+                vertex->reciprocal = 1.0f / screenDepth;
+                vertex->color[0] = (f32)(u32)colors[0];
+                vertex->color[1] = (f32)(u32)colors[1];
+                vertex->color[2] = (f32)(u32)colors[2];
+                vertex->color[3] = (f32)(u32)colors[3];
+                vertex++;
+                angle += fGpffff81f0;
+                vertexIndex++;
             }
-            out[0] = W8(0xF0);
-            out[1] = W8(0xF4);
-            out[2] = W8(0xF8);
-            out[6] = W8(0x108);
-            {
-                s32 c0 = *(arg1 + 0);
-                f32 h0;
-                if (c0 >= 0) {
-                    h0 = (f32)c0;
-                } else {
-                    s32 r0 = ((u32)c0 >> 1) | (c0 & 1);
-                    h0 = (f32)r0;
-                    h0 += h0;
-                }
-                out[8] = h0;
-            }
-            {
-                s32 c1 = *(arg1 + 1);
-                f32 h1;
-                if (c1 >= 0) {
-                    h1 = (f32)c1;
-                } else {
-                    s32 r1 = ((u32)c1 >> 1) | (c1 & 1);
-                    h1 = (f32)r1;
-                    h1 += h1;
-                }
-                out[9] = h1;
-            }
-            {
-                s32 c2 = *(arg1 + 2);
-                f32 h2;
-                if (c2 >= 0) {
-                    h2 = (f32)c2;
-                } else {
-                    s32 r2 = ((u32)c2 >> 1) | (c2 & 1);
-                    h2 = (f32)r2;
-                    h2 += h2;
-                }
-                out[10] = h2;
-            }
-            {
-                s32 c3 = *(arg1 + 3);
-                f32 h3;
-                if (c3 >= 0) {
-                    h3 = (f32)c3;
-                } else {
-                    s32 r3 = ((u32)c3 >> 1) | (c3 & 1);
-                    h3 = (f32)r3;
-                    h3 += h3;
-                }
-                out[11] = h3;
-            }
-            D_00887310[0](2, work + (0xF0 - 0x80), 21);
-            if (arg3 != 0) {
-                s32 *q;
-                var_16 = 0;
-loop_41:
-                if (var_16 < 6) {
-                    q = (s32 *)&D_00712490[var_16];
-                    D_00887300[0](*(u8 *)q, *(s32 *)(work + (0xD0 - 0x80) + var_16 * 4));
-                    var_16 += 1;
-                    goto loop_41;
-                }
+            vertex->position[0] = vertices[0].position[0];
+            vertex->position[1] = vertices[0].position[1];
+            vertex->position[2] = vertices[0].position[2];
+            vertex->reciprocal = vertices[0].reciprocal;
+            vertex->color[0] = (f32)(u32)colors[0];
+            vertex->color[1] = (f32)(u32)colors[1];
+            vertex->color[2] = (f32)(u32)colors[2];
+            vertex->color[3] = (f32)(u32)colors[3];
+            D_00887310[0](2, vertices, 21);
+        }
+        if (preserveState != 0) {
+            for (restoreIndex = 0; restoreIndex < 6; restoreIndex++) {
+                const Code45RenderState *state = &D_00712490[restoreIndex];
+                D_00887300[0](state->state, savedStates[restoreIndex]);
             }
         }
     }
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045fbe0);
-#endif
