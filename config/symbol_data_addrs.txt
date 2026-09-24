@@ -924,3 +924,13 @@ fGpffff83b4 = 0x007614a4; // type:data evidence: func_0038bab0 retail lwc1 at 0x
 fGpffff83b8 = 0x007614a8; // type:data evidence: func_0038bab0 retail lwc1 at 0x0038BFE0 and 0x0038C030, GP minus 0x7C48; native GPREL16 relocations have zero addends
 fGpffff83c0 = 0x007614b0; // type:data evidence: func_00384cc0 retail lwc1 at 0x003851F8, GP minus 0x7C40; native GPREL16 relocation has zero addend
 fGpffff83c4 = 0x007614b4; // type:data evidence: func_00384cc0 retail lwc1 at 0x0038525C, GP minus 0x7C3C; native GPREL16 relocation has zero addend
+
+iGpffff8570 = 0x00761660; // type:data evidence: func_00266050 native relocation at 0x00266618; retail GP 0x007690F0; all 1 native references resolve to this address
+
+iGpffffa7cc = 0x007638bc; // type:data evidence: func_0029e040 native relocation at 0x0029E3F4; retail GP 0x007690F0; all 1 native references resolve to this address
+
+iGpffffa7d0 = 0x007638c0; // type:data evidence: func_0029e040 native relocation at 0x0029E0EC; retail GP 0x007690F0; all 1 native references resolve to this address
+
+iGpffffa7d8 = 0x007638c8; // type:data evidence: func_0029e040 native relocation at 0x0029E3C8; retail GP 0x007690F0; all 1 native references resolve to this address
+
+iGpffffac78 = 0x00763d68; // type:data evidence: func_00452870 native relocation at 0x00452A90; retail GP 0x007690F0; all 1 native references resolve to this address
