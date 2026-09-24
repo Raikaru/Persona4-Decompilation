@@ -38,112 +38,121 @@ extern void func_00483490(void *a, u16 b);
 u8 *func_004988c0(u16 arg0, u8 *arg1);
 
 
-/* measured: fresh simple-cast (not inherited). Transferable lever: write `(f32)(u32)x` and let b210 emit the bltz/srl/andi/or/mtc1/cvt/add.s block itself; hand-written halving/doubling emits ten extra copies (opclass mtc1+12/cvt+10/srl+10/andi+10/or+10/add.s+10/b+10/bltz+10). Fade-signed/color-unsigned. */
-// FUN_00495160 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_00495160(u8 *arg0)
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_lifetimes on
+/* Native b210 O2: 1216/1216 bytes, eleven resolved relocations,
+ * 0 zero alignment bytes. Recompute each sample fade and
+ * copy complete four-byte colors into the five-color row.
+ * See docs/probe_archive/Thunder_constructors_20260924.md. */
+// FUN_00495160
+u8 *func_00495160(u8 *parameters)
 {
-    u_long128 spD0;
-    u_long128 spC0;
-    u_long128 spB0;
-    u_long128 spA0;
-    u8 *alloc;
-    u8 *innerBase;
-    u32 outerCount;
-    u32 outerIdx;
-    u32 c0;
-    u32 c1;
-    u32 c2;
-    u32 b0;
-    u32 b1;
-    u32 b2;
-    s32 first;
-    f32 f1;
-    u8 *p;
-    s32 innerCount;
-    u8 *dst;
-    u32 innerIdx;
-    s32 second;
-    s32 tmp7;
-    f32 f0;
+    u32 rgb0;
+    u32 rgb1;
+    u32 rgb2;
+    u32 fadeEnd;
+    u8 *list;
+    u8 *entry;
+    u32 copyCount;
+    u32 copyIndex;
+    u32 color0;
+    u32 color1;
+    u32 color2;
+    u32 alpha0;
+    u32 alpha1;
+    u32 alpha2;
+    s32 fadeStart;
+    f32 sampleTotal;
+    u8 *geometry;
+    s32 sampleCount;
+    s32 endIndex;
+    s32 fadeOutCount;
+    f32 scaledAlpha;
     f32 fade;
-    u32 iv;
+    u32 alpha;
 
-    outerCount = *(u32 *)(arg0 + 0x38);
+    copyCount = *(u32 *)(parameters + 0x38);
     func_0044ea90(D_00713E50, 0x50);
-    alloc = (*jtbl_008873E8)(outerCount * 0x10 + 4, 0x40000);
-    if (alloc == 0) {
+    list = (*jtbl_008873E8)(copyCount * 0x10 + 4, 0x40000);
+    if (list == 0) {
         func_0046d730(D_00713E50, 0x51);
     }
-    *(u8 **)(alloc + 0) = alloc + 4;
-    if (*(u32 *)(arg0 + 0x3C) < 3) {
-        *(u32 *)(arg0 + 0x3C) = 3;
+    *(u8 **)(list + 0) = list + 4;
+    if (*(u32 *)(parameters + 0x3C) < 3) {
+        *(u32 *)(parameters + 0x3C) = 3;
     }
-    c0 = *(u32 *)(arg0 + 0x70);
-    spD0 = (u_long128)(c0 & 0xFFFFFF);
-    c1 = *(u32 *)(arg0 + 0x74);
-    spC0 = (u_long128)(c1 & 0xFFFFFF);
-    c2 = *(u32 *)(arg0 + 0x78);
-    spB0 = (u_long128)(c2 & 0xFFFFFF);
-    b0 = c0 >> 24;
-    b1 = c1 >> 24;
-    b2 = c2 >> 24;
-    innerBase = *(u8 **)alloc;
-    f1 = (f32)(*(s32 *)(arg0 + 0x3C) + 1);
-    first = (s32)(*(f32 *)(arg0 + 0x68) * f1);
-    second = (s32)(*(f32 *)(arg0 + 0x6C) * f1);
-    spA0 = (u_long128)second;
-    outerIdx = 0;
-    while (outerIdx < outerCount) {
-        p = func_00482dc0(*(u16 *)(arg0 + 0x3C), D_00713360, 5, 0x48);
-        *(u8 **)innerBase = p;
-        innerCount = *(s16 *)(p + 8) / 5;
-        dst = *(u8 **)(*(u8 **)(*(u8 **)(p + 0x10) + 0x18) + 0x30);
-        innerIdx = 0;
-        second = (s32)spA0;
-        tmp7 = innerCount - second;
-        while (innerIdx < (u32)innerCount) {
-            if (innerIdx < (u32)first) {
-                f0 = (f32)innerIdx;
-                fade = f0 / (f32)first;
-            } else if ((u32)second < innerIdx) {
-                s32 d1 = innerCount - (s32)innerIdx;
-                f32 v1 = (f32)d1;
-                f32 v0 = (f32)tmp7;
-                fade = v1 / v0;
-            } else {
-                fade = 1.0f;
+    color0 = *(u32 *)(parameters + 0x70);
+    rgb0 = color0 & 0xFFFFFF;
+    color1 = *(u32 *)(parameters + 0x74);
+    rgb1 = color1 & 0xFFFFFF;
+    color2 = *(u32 *)(parameters + 0x78);
+    rgb2 = color2 & 0xFFFFFF;
+    alpha0 = color0 >> 24;
+    alpha1 = color1 >> 24;
+    alpha2 = color2 >> 24;
+    entry = *(u8 **)list;
+    sampleTotal = (f32)(*(s32 *)(parameters + 0x3C) + 1);
+    fadeStart = (s32)(*(f32 *)(parameters + 0x68) * sampleTotal);
+    endIndex = (s32)(*(f32 *)(parameters + 0x6C) * sampleTotal);
+    fadeEnd = (u32)endIndex;
+    copyIndex = 0;
+    while (copyIndex < copyCount) {
+        geometry = func_00482dc0(*(u16 *)(parameters + 0x3C), D_00713360, 5, 0x48);
+        *(u8 **)entry = geometry;
+        sampleCount = *(s16 *)(geometry + 8) / 5;
+        {
+            u32 sampleIndex;
+            u8 *colors;
+
+            colors = *(u8 **)(*(u8 **)(*(u8 **)(geometry + 0x10) + 0x18) + 0x30);
+            sampleIndex = 0;
+            fadeOutCount = sampleCount - (s32)fadeEnd;
+            while (sampleIndex < (u32)sampleCount) {
+                if (sampleIndex < (u32)fadeStart) {
+                    scaledAlpha = (f32)sampleIndex;
+                    fade = scaledAlpha / (f32)fadeStart;
+                } else if (fadeEnd < sampleIndex) {
+                    s32 d1 = sampleCount - (s32)sampleIndex;
+                    f32 v1 = (f32)(u32)d1;
+                    f32 v0 = (f32)(u32)fadeOutCount;
+                    fade = v1 / v0;
+                } else {
+                    fade = 1.0f;
+                }
+                scaledAlpha = (f32)alpha2 * fade;
+                alpha = (u32)scaledAlpha;
+                *(u32 *)colors = rgb2 | ((u32)alpha << 24);
+                scaledAlpha = (f32)alpha1 * fade;
+                alpha = (u32)scaledAlpha;
+                *(u32 *)(colors + 4) = rgb1 | ((u32)alpha << 24);
+                scaledAlpha = (f32)alpha0 * fade;
+                alpha = (u32)scaledAlpha;
+                *(u32 *)(colors + 8) = rgb0 | ((u32)alpha << 24);
+                {
+                    Color4 color1;
+                    Color4 color0;
+                    color1 = *(Color4 *)(colors + 4);
+                    *(Color4 *)(colors + 12) = color1;
+                    color0 = *(Color4 *)colors;
+                    *(Color4 *)(colors + 16) = color0;
+                }
+                sampleIndex += 1;
+                colors += 0x14;
             }
-            f0 = (f32)b2 * fade;
-            iv = (u32)f0;
-            *(u32 *)dst = (u32)spB0 | ((u32)iv << 24);
-            f0 = (f32)b1 * fade;
-            iv = (u32)f0;
-            *(u32 *)(dst + 4) = (u32)spC0 | ((u32)iv << 24);
-            f0 = (f32)b0 * fade;
-            iv = (u32)f0;
-            *(u32 *)(dst + 8) = (u32)spD0 | ((u32)iv << 24);
-            dst[12] = dst[4];
-            dst[13] = dst[5];
-            dst[14] = dst[6];
-            dst[15] = dst[7];
-            dst[16] = dst[0];
-            dst[17] = dst[1];
-            dst[18] = dst[2];
-            dst[19] = dst[3];
-            innerIdx += 1;
-            dst += 0x14;
         }
-        *(s32 *)(innerBase + 4) = -1 - (s32)(outerIdx * 4);
-        *(s32 *)(innerBase + 0xC) = 0;
-        outerIdx += 1;
-        innerBase += 0x10;
+        {
+            s32 value = -1;
+            value -= (s32)(copyIndex * 4);
+            *(s32 *)(entry + 4) = value;
+        }
+        *(s32 *)(entry + 0xC) = 0;
+        copyIndex += 1;
+        entry += 0x10;
     }
-    return alloc;
+    return list;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_00495160);
-#endif
+#pragma pop
 
 
 // FUN_00495620
@@ -648,114 +657,121 @@ void func_004961f0(u8 *arg0)
 }
 
 
-/* measured: fresh simple-cast ported from 495160 fade-signed/color-unsigned. Transferable lever: write `(f32)(u32)x` and let b210 emit block itself. Base 1192/1232 fails gate by 3B; with opt_propagation off 1212/1232 passes. */
-// FUN_00496340 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_propagation off
-u8 *func_00496340(u8 *arg0)
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_lifetimes on
+/* Native b210 O2: 1224/1232 bytes, eleven resolved relocations,
+ * 8 zero alignment bytes. Recompute each sample fade and
+ * copy complete four-byte colors into the five-color row.
+ * See docs/probe_archive/Thunder_constructors_20260924.md. */
+// FUN_00496340
+u8 *func_00496340(u8 *parameters)
 {
-    u_long128 spD0;
-    u_long128 spC0;
-    u_long128 spB0;
-    u_long128 spA0;
-    u8 *alloc;
-    u8 *innerBase;
-    u32 outerCount;
-    u32 outerIdx;
-    u32 c0;
-    u32 c1;
-    u32 c2;
-    u32 b0;
-    u32 b1;
-    u32 b2;
-    s32 first;
-    f32 f1;
-    u8 *p;
-    s32 innerCount;
-    u8 *dst;
-    u32 innerIdx;
-    s32 second;
-    s32 tmp7;
-    f32 f0;
+    u32 rgb0;
+    u32 rgb1;
+    u32 rgb2;
+    u32 fadeEnd;
+    u8 *list;
+    u8 *entry;
+    u32 copyCount;
+    u32 copyIndex;
+    u32 color0;
+    u32 color1;
+    u32 color2;
+    u32 alpha0;
+    u32 alpha1;
+    u32 alpha2;
+    s32 fadeStart;
+    f32 sampleTotal;
+    u8 *geometry;
+    s32 sampleCount;
+    s32 endIndex;
+    s32 fadeOutCount;
+    f32 scaledAlpha;
     f32 fade;
-    u32 iv;
+    u32 alpha;
 
-    outerCount = *(u32 *)(arg0 + 0x38);
+    copyCount = *(u32 *)(parameters + 0x38);
     func_0044ea90(D_00713E50, 0x2B5);
-    alloc = (*jtbl_008873E8)(outerCount * 0x30 + 0x10, 0x40000);
-    if (alloc == 0) {
+    list = (*jtbl_008873E8)(copyCount * 0x30 + 0x10, 0x40000);
+    if (list == 0) {
         func_0046d730(D_00713E50, 0x2B6);
     }
-    *(u8 **)(alloc + 0) = alloc + 0x10;
-    *(u8 **)(alloc + 0x0C) = alloc;
-    if (*(u32 *)(arg0 + 0x3C) < 3) {
-        *(u32 *)(arg0 + 0x3C) = 3;
+    *(u8 **)(list + 0) = list + 0x10;
+    *(u8 **)(list + 0x0C) = list;
+    if (*(u32 *)(parameters + 0x3C) < 3) {
+        *(u32 *)(parameters + 0x3C) = 3;
     }
-    c0 = *(u32 *)(arg0 + 0x70);
-    spD0 = (u_long128)(c0 & 0xFFFFFF);
-    c1 = *(u32 *)(arg0 + 0x74);
-    spC0 = (u_long128)(c1 & 0xFFFFFF);
-    c2 = *(u32 *)(arg0 + 0x78);
-    spB0 = (u_long128)(c2 & 0xFFFFFF);
-    b0 = c0 >> 24;
-    b1 = c1 >> 24;
-    b2 = c2 >> 24;
-    innerBase = *(u8 **)alloc;
-    f1 = (f32)(*(s32 *)(arg0 + 0x3C) + 1);
-    first = (s32)(*(f32 *)(arg0 + 0x68) * f1);
-    second = (s32)(*(f32 *)(arg0 + 0x6C) * f1);
-    spA0 = (u_long128)second;
-    outerIdx = 0;
-    while (outerIdx < outerCount) {
-        p = func_00482dc0(*(u16 *)(arg0 + 0x3C), D_00713360, 5, 0x48);
-        *(u8 **)innerBase = p;
-        innerCount = *(s16 *)(p + 8) / 5;
-        dst = *(u8 **)(*(u8 **)(*(u8 **)(p + 0x10) + 0x18) + 0x30);
-        innerIdx = 0;
-        second = (s32)spA0;
-        tmp7 = innerCount - second;
-        while (innerIdx < (u32)innerCount) {
-            if (innerIdx < (u32)first) {
-                f0 = (f32)innerIdx;
-                fade = f0 / (f32)first;
-            } else if ((u32)second < innerIdx) {
-                s32 d1 = innerCount - (s32)innerIdx;
-                f32 v1 = (f32)d1;
-                f32 v0 = (f32)tmp7;
-                fade = v1 / v0;
-            } else {
-                fade = 1.0f;
+    color0 = *(u32 *)(parameters + 0x70);
+    rgb0 = color0 & 0xFFFFFF;
+    color1 = *(u32 *)(parameters + 0x74);
+    rgb1 = color1 & 0xFFFFFF;
+    color2 = *(u32 *)(parameters + 0x78);
+    rgb2 = color2 & 0xFFFFFF;
+    alpha0 = color0 >> 24;
+    alpha1 = color1 >> 24;
+    alpha2 = color2 >> 24;
+    entry = *(u8 **)list;
+    sampleTotal = (f32)(*(s32 *)(parameters + 0x3C) + 1);
+    fadeStart = (s32)(*(f32 *)(parameters + 0x68) * sampleTotal);
+    endIndex = (s32)(*(f32 *)(parameters + 0x6C) * sampleTotal);
+    fadeEnd = (u32)endIndex;
+    copyIndex = 0;
+    while (copyIndex < copyCount) {
+        geometry = func_00482dc0(*(u16 *)(parameters + 0x3C), D_00713360, 5, 0x48);
+        *(u8 **)entry = geometry;
+        sampleCount = *(s16 *)(geometry + 8) / 5;
+        {
+            u32 sampleIndex;
+            u8 *colors;
+
+            colors = *(u8 **)(*(u8 **)(*(u8 **)(geometry + 0x10) + 0x18) + 0x30);
+            sampleIndex = 0;
+            fadeOutCount = sampleCount - (s32)fadeEnd;
+            while (sampleIndex < (u32)sampleCount) {
+                if (sampleIndex < (u32)fadeStart) {
+                    scaledAlpha = (f32)sampleIndex;
+                    fade = scaledAlpha / (f32)fadeStart;
+                } else if (fadeEnd < sampleIndex) {
+                    s32 d1 = sampleCount - (s32)sampleIndex;
+                    f32 v1 = (f32)(u32)d1;
+                    f32 v0 = (f32)(u32)fadeOutCount;
+                    fade = v1 / v0;
+                } else {
+                    fade = 1.0f;
+                }
+                scaledAlpha = (f32)alpha2 * fade;
+                alpha = (u32)scaledAlpha;
+                *(u32 *)colors = rgb2 | ((u32)alpha << 24);
+                scaledAlpha = (f32)alpha1 * fade;
+                alpha = (u32)scaledAlpha;
+                *(u32 *)(colors + 4) = rgb1 | ((u32)alpha << 24);
+                scaledAlpha = (f32)alpha0 * fade;
+                alpha = (u32)scaledAlpha;
+                *(u32 *)(colors + 8) = rgb0 | ((u32)alpha << 24);
+                {
+                    Color4 color1;
+                    Color4 color0;
+                    color1 = *(Color4 *)(colors + 4);
+                    *(Color4 *)(colors + 12) = color1;
+                    color0 = *(Color4 *)colors;
+                    *(Color4 *)(colors + 16) = color0;
+                }
+                sampleIndex += 1;
+                colors += 0x14;
             }
-            f0 = (f32)b2 * fade;
-            iv = (u32)f0;
-            *(u32 *)dst = (u32)spB0 | ((u32)iv << 24);
-            f0 = (f32)b1 * fade;
-            iv = (u32)f0;
-            *(u32 *)(dst + 4) = (u32)spC0 | ((u32)iv << 24);
-            f0 = (f32)b0 * fade;
-            iv = (u32)f0;
-            *(u32 *)(dst + 8) = (u32)spD0 | ((u32)iv << 24);
-            dst[12] = dst[4];
-            dst[13] = dst[5];
-            dst[14] = dst[6];
-            dst[15] = dst[7];
-            dst[16] = dst[0];
-            dst[17] = dst[1];
-            dst[18] = dst[2];
-            dst[19] = dst[3];
-            innerIdx += 1;
-            dst += 0x14;
         }
-        *(s32 *)(innerBase + 0x14) = -1 - (s32)(outerIdx * 4);
-        outerIdx += 1;
-        innerBase += 0x30;
+        {
+            s32 value = -1;
+            value -= (s32)(copyIndex * 4);
+            *(s32 *)(entry + 0x14) = value;
+        }
+        copyIndex += 1;
+        entry += 0x30;
     }
-    return alloc;
+    return list;
 }
-#pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_00496340);
-#endif
+#pragma pop
 
 
 // FUN_00496810
