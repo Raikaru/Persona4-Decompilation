@@ -114,13 +114,7 @@ typedef struct ScrTaskData
     f32 unk_220;      // 0x220
     s32 unk_224;      // 0x224
 } ScrTaskData;
-typedef struct
-{
-    s32 a;
-    s32 b;
-    s32 c;
-    s32 d;
-} ScrE040Vec4;
+typedef unsigned int ScrE040U128 __attribute__((mode(TI)));
 
 extern f32 iGpffffa7cc;
 extern char iGpffffa7d0;
@@ -155,7 +149,7 @@ extern char D_0063E580[];
 extern char D_0063E5A0[];
 extern char D_0063E5B8[];
 extern char D_0063E5C8[];
-extern ScrE040Vec4 D_0063E5E0[];
+extern ScrE040U128 D_0063E5E0;
 extern char D_0063E5F0[];
 extern char D_0063E600[];
 extern char D_0063E618[];
@@ -195,8 +189,8 @@ s32 func_004553c0(s32 arg0);
 s32 func_00454a60(void* arg0, s32 arg1);
 s32 func_004680f0(u8* task, s8* text);
 void func_00442830(void* arg0, void* arg1);
-u8* func_00455f70(void* arg0, void* arg1);
-void func_0045d6e0(void* arg0, void* arg1, f32 fparg0, s32 arg2);
+s32 func_00455f70(s32 arg0, s32 *arg1);
+void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
 static inline u8 *scrAddOff(u32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);
@@ -757,156 +751,188 @@ void func_0029dfe0(void* arg0, u8* proc)
     work->proc = proc;
 }
 
-/* Measured floor: 282 reloc-masked differing words (obj 1264B/window 1296B, 2.5% short, within 3% 1257-1335B; fnalign 124 edits +10 reloc-only, retail 320I/object 316I) via probe_variants + measure_guarded + fnalign. */
-/* Commands (pwd source/Persona4-Decompilation): python3 -E -s tools/probe_variants.py src/Script/scrScriptProcess.c func_0029e040 --candidate base=/tmp/auth_array_candidate.c --candidate AltGuard=/tmp/auth_A_ltguard.c --candidate clampLt=/tmp/auth_B_clampLt.c --candidate fltFirst=/tmp/auth_D_fltFirst.c --candidate ifchain=/tmp/auth_E_ifchain.c; python3 -E -s tools/measure_guarded.py src/Script/scrScriptProcess.c func_0029e040; python3 -E -s tools/fnalign.py src/Script/.probe_array_test.c func_0029e040 --addr 0029e040 */
-/* Re-derived line-by-line against rabbitizer dis (frame 0x60, task=*(arg0+0x38), func_004680f0 2-arg then beq chain 4->2E4A0/3->2E454/2->2E174/1->2E128/0->2E0B0/else->2E528). case0: lb s8 0x10 + func_00442948 1-arg/func_00442830 2-arg/func_00440b68 3-arg/func_00454a60 2-arg storing unk_210/state=1. case1: func_004553c0 1-arg then func_00455f70 2-arg + 30.0f/8.0f via lui. case2: D_008C0256 0x1000/0x4000 on 0x220 (2.0/30.0 via c.lt.s+bc1t/bc1f + sub/add 1.0f) + 0x8000/0x2000 on 0x21C (2.0/45.0), D_008C0252 0x4000 inc/0x1000 dec on 0x218, D_008C024E 0x40->state3/0x20->ret2, entry+0x20 stride-16 search (*(entry+0x10) count, slt loop, found=entry+*(e+0xC) on zero word, count=*(q+i*16+8)), 0x218 clamp (bgez/slt, count-1), func_0029df30 2-arg + s64 ldr/ldl 0x21C + func_00450050 s64+ptr+s32+ptr + lq D_0063E5E0 + 12.0f muls + cvt.w.s pair + func_0045d6e0 ptr+ptr+f32+s32. case3: func_0029d660 2-arg + func_0046d730 2-arg + state4/flags|=1. case4: func_0029cb00 1-arg dispatch (2->clear+ret1, 1->break, 0->log+clear+ret1 via func_0046d740 3-arg). */
-/* Idioms measured authoritative (pwd source/Persona4-Decompilation, no hardware-asm): absolute D_008C/D_0063E5E0[0] (retail lui+lhu/lq; scalar GPREL 1216B/289wd vs array 1264B/282wd, +48B/-7wd, header scalar->array preserves 21 MATCH via scratch verify 21 MATCH+1 MISMATCH); scalar &iGpffffa7d0/&iGpffffa7d8/iGpffffa7cc gp-relative (array would cost extra lui per 0036e140 lever); s8 lb (retail lb, casts fixed first: (s8*)text, pointer unk_214 without (s32)); 30/8/2/1/45/12 via lui; lq+cvt pair; s64 ldr/ldl; mul-before-flt kept (flt-first neutral 282 vs 282, kept retail order); block-scope q/n/e; switch kept (base 282 vs ifchain descending 289, +7); AltGuard empty-else sequential-< neutral 282, clampLt sequential-< neutral 282, kept readable >= per honesty and 0036e140 <guard preference measured neutral; task->unk_218++/-- single-register form per 0036e140 cnt lever; opt_common_subs off not adopted (retail rematerialises 0256 4x lui vs single lhu CSE, needs waiver, not measured beneficial); q+i*16 kept honest (L378 offset-first vs L330 base-first is scheduling). Prior MIRROR 1216B scalar, MMisc3 nd858 not reproducing (current 282/289). No pragma/volatile/asm. */
-// FUN_0029E040 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0029e040(u8 *arg0)
+/* The preview passes complete color and rectangle values. Returning these
+ * small objects preserves the two argument-copy lifetimes measured in the
+ * retail frame; the helpers perform no additional arithmetic or side effects.
+ * The color is transported as four bytes through its existing float-sized
+ * storage. The rectangle has complete packed, integer and transport views. */
+typedef struct ScrPreviewColor { f32 value; } ScrPreviewColor;
+typedef union ScrPreviewRectangle {
+    ScrE040U128 packed;
+    s32 coordinates[4];
+    f32 transport[4];
+} ScrPreviewRectangle;
+
+static inline ScrPreviewColor scrPreviewColorValue(f32 bits)
+{
+    ScrPreviewColor value;
+    value.value = bits;
+    return value;
+}
+
+static inline ScrPreviewRectangle scrPreviewRectangleValue(const ScrPreviewRectangle *source)
+{
+    ScrPreviewRectangle value = *source;
+    return value;
+}
+
+/* Native b210 O2: 1284/1296 bytes, 41 resolved relocations and
+ * twelve zero alignment bytes. See
+ * docs/probe_archive/Script_selection_0029e040_20260924.md. */
+// FUN_0029E040
+s32 func_0029e040(u8 *sdkTask)
 {
     ScrTaskData *task;
-    u8 *entry;
-    u8 *found;
-    u8 *ptr;
-    s32 count;
-    s32 i;
-    f32 f;
-    ScrE040Vec4 v0;
-    ScrE040Vec4 v1;
-    f32 flt;
-    s32 out;
+    u8 *scriptBytes;
+    u8 *procedureBytes;
+    u8 *procedureRecord;
+    s32 procedureCount;
+    s32 entryIndex;
+    f32 coordinate;
+    ScrPreviewRectangle drawRectangle;
+    ScrPreviewRectangle rectangle;
+    s32 loadedSize;
+    ScrPreviewColor color;
+    f32 pixelX;
+    f32 pixelY;
+    s8 *selectionText;
+    char *prefix;
 
-    task = *(ScrTaskData **)(arg0 + 0x38);
-    if (func_004680f0(task->unk_04, (s8 *)task->text) != 1) {
-        return 0;
-    }
-    switch (task->state) {
-    case 0:
-        if (*(s8 *)task->text == 0) {
-            return 1;
-        }
-        func_00442830(task->text + 0x100, task->text + func_00442948(D_0063E5F0));
-        func_00440b68(&iGpffffa7d0, D_0063E3D0, 0x417);
-        task->unk_210 = func_00454a60(task->text + 0x100, 0);
-        task->state = 1;
-        break;
-    case 1:
-        if (func_004553c0(task->unk_210) != 0) {
-            task->unk_224 = (s32)func_00455f70(task->text + 0x100, &out);
-            task->state = 2;
-            task->unk_218 = 0;
-            task->unk_21C = 30.0f;
-            task->unk_220 = 8.0f;
-        }
-        break;
-    case 2:
-        if (D_008C0256[0] & 0x1000) {
-            f = task->unk_220;
-            if (f >= 2.0f) {
-                task->unk_220 = f - 1.0f;
+    task = *(ScrTaskData **)(sdkTask + 0x38);
+    if (func_004680f0(task->unk_04, (s8 *)task->text) == 1) {
+        switch (task->state) {
+        case 0:
+            selectionText = (s8 *)task->text;
+            prefix = D_0063E5F0;
+            if (*selectionText == 0) {
+                return 1;
             }
-        }
-        if (D_008C0256[0] & 0x4000) {
-            f = task->unk_220;
-            if (f < 30.0f) {
-                task->unk_220 = f + 1.0f;
+            func_00442830(task->text + 0x100, (u8 *)selectionText + func_00442948(prefix));
+            func_00440b68(&iGpffffa7d0, D_0063E3D0, 0x417);
+            task->unk_210 = func_00454a60(task->text + 0x100, 0);
+            task->state = 1;
+            break;
+        case 1:
+            if (func_004553c0(task->unk_210) != 0) {
+                task->unk_224 = func_00455f70((s32)(task->text + 0x100), &loadedSize);
+                task->state = 2;
+                task->unk_218 = 0;
+                task->unk_21C = 30.0f;
+                task->unk_220 = 8.0f;
             }
-        }
-        if (D_008C0256[0] & 0x8000) {
-            f = task->unk_21C;
-            if (f >= 2.0f) {
-                task->unk_21C = f - 1.0f;
-            }
-        }
-        if (D_008C0256[0] & 0x2000) {
-            f = task->unk_21C;
-            if (f < 45.0f) {
-                task->unk_21C = f + 1.0f;
-            }
-        }
-        if (D_008C0252[0] & 0x4000) {
-            task->unk_218++;
-        } else if (D_008C0252[0] & 0x1000) {
-            task->unk_218--;
-        }
-        if (D_008C024E[0] & 0x40) {
-            task->state = 3;
-        } else if (D_008C024E[0] & 0x20) {
-            return 2;
-        }
-        entry = (u8 *)task->unk_224;
-        found = NULL;
-        count = 0;
-        if (entry != NULL) {
-            u8 *q;
-            s32 n;
-
-            q = entry + 0x20;
-            n = *(s32 *)(entry + 0x10);
-            i = 0;
-            while (i < n) {
-                u8 *e;
-
-                e = q + i * 16;
-                if (*(s32 *)e == 0) {
-                    found = entry + *(s32 *)(e + 0xC);
-                    break;
+            break;
+        case 2:
+            if (*(u16 *)&D_008C0256[0] & 0x1000) {
+                coordinate = task->unk_220;
+                if (coordinate >= 2.0f) {
+                    task->unk_220 = coordinate - 1.0f;
                 }
-                i++;
             }
-            if (found != NULL) {
-                count = *(s32 *)(q + i * 16 + 8);
+            if (*(u16 *)((u8 *)D_008C0256 + 0) & 0x4000) {
+                coordinate = task->unk_220;
+                if (coordinate < 30.0f) {
+                    coordinate += 1.0f;
+                    task->unk_220 = coordinate;
+                }
             }
-        }
-        if (task->unk_218 < 0) {
-            task->unk_218 = 0;
-        } else if (task->unk_218 >= count) {
-            task->unk_218 = count - 1;
-        }
-        ptr = func_0029df30(entry, task->unk_218);
-        func_00450050(*(s64 *)&task->unk_21C, &iGpffffa7d8, task->unk_218, ptr);
-        v0 = D_0063E5E0[0];
-        v0.a = (s32)(12.0f * task->unk_21C);
-        v0.b = (s32)(12.0f * task->unk_220);
-        flt = iGpffffa7cc;
-        v1 = v0;
-        func_0045d6e0(&flt, &v1, 0.0f, 1);
-        break;
-    case 3:
-        task->unk_214 = func_0029d660((ScrHeader *)(void *)task->unk_224, task->unk_218);
-        if (task->unk_214 == NULL) {
-            func_0046d730(D_0063E3D0, 0x44C);
-        }
-        task->state = 4;
-        task->flags |= 1;
-        break;
-    case 4:
-        {
-            s32 ret;
+            if (*(u16 *)((u32)&D_008C0256[0]) & 0x8000) {
+                coordinate = task->unk_21C;
+                if (coordinate >= 2.0f) {
+                    task->unk_21C = coordinate - 1.0f;
+                }
+            }
+            if (*(u16 *)((s32)&D_008C0256[0]) & 0x2000) {
+                coordinate = task->unk_21C;
+                if (coordinate < 45.0f) {
+                    coordinate += 1.0f;
+                    task->unk_21C = coordinate;
+                }
+            }
+            if (D_008C0252[0] & 0x4000) {
+                task->unk_218++;
+            } else if (D_008C0252[0] & 0x1000) {
+                task->unk_218--;
+            }
+            if (D_008C024E[0] & 0x40) {
+                task->state = 3;
+            } else if (D_008C024E[0] & 0x20) {
+                return 2;
+            }
+            scriptBytes = (u8 *)task->unk_224;
+            procedureBytes = NULL;
+            if (scriptBytes == NULL) {
+                procedureCount = 0;
+            } else {
+                u8 *entries;
+                s32 entryCount;
+                u32 entryOffset;
 
-            ret = func_0029cb00((void *)task->unk_214);
-            if (ret == 2) {
-                task->flags &= ~1;
-                return 1;
+                entries = scriptBytes + 0x20;
+                entryIndex = 0;
+                entryCount = *(s32 *)(scriptBytes + 0x10);
+                while (entryIndex < entryCount) {
+                    u8 *entry;
+
+                    entry = entries + entryIndex * 16;
+                    if (*(s32 *)entry == 0) {
+                        procedureBytes = scriptBytes + *(s32 *)(entry + 0xC);
+                        break;
+                    }
+                    entryIndex++;
+                }
+                if (procedureBytes == NULL) {
+                    procedureCount = 0;
+                } else {
+                    entryOffset = (u32)(entryIndex * 16);
+                    procedureCount = *(s32 *)(entryOffset + (u32)entries + 8);
+                }
             }
-            if (ret == 1) {
-                break;
+            if (task->unk_218 < 0) {
+                task->unk_218 = 0;
+            } else if (task->unk_218 >= procedureCount) {
+                task->unk_218 = procedureCount - 1;
             }
-            if (ret == 0) {
-                func_0046d740(D_0063E520, D_0063E3D0, 0x457);
-                task->flags &= ~1;
-                return 1;
+            procedureRecord = func_0029df30((u8 *)task->unk_224, task->unk_218);
+            func_00450050(*(s64 *)((u8 *)task + 0x21C), &iGpffffa7d8, task->unk_218, procedureRecord);
+            pixelX = 12.0f * task->unk_21C;
+            pixelY = 12.0f * task->unk_220;
+            color = scrPreviewColorValue(iGpffffa7cc);
+            rectangle.packed = D_0063E5E0;
+            rectangle.coordinates[0] = (s32)pixelX;
+            rectangle.coordinates[1] = (s32)pixelY;
+            drawRectangle = scrPreviewRectangleValue(&rectangle);
+            func_0045d6e0((u8 *)&color, drawRectangle.transport, 0.0f, 1);
+            break;
+        case 3:
+            task->unk_214 = func_0029d660((ScrHeader *)(void *)task->unk_224, task->unk_218);
+            if (task->unk_214 == NULL) {
+                func_0046d730(D_0063E3D0, 0x44C);
             }
+            task->state = 4;
+            task->flags |= 1;
+            break;
+        case 4:
+            {
+                s32 ret;
+
+                ret = func_0029cb00((void *)task->unk_214);
+                switch (ret) {
+                case 0:
+                    func_0046d740(D_0063E520, D_0063E3D0, 0x457);
+                    task->flags &= ~1;
+                    return 1;
+                case 1:
+                    break;
+                case 2:
+                    task->flags &= ~1;
+                    return 1;
+                }
+            }
+            break;
         }
-        break;
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029e040);
-#endif
-
 /* Measured: all 608 bytes and 35 resolved relocations match retail.
  * Loop invariants hoist the slash constant. */
 #pragma opt_loop_invariants on
