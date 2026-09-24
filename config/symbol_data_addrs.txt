@@ -942,3 +942,5 @@ iGpffffac50 = 0x00763d40; // type:data evidence: func_00450630 retail instructio
 iGpffffb9d4 = 0x00764ac4; // type:data evidence: func_00450630 retail instruction 0x0045066C, native GPREL16 decoded by recover_symbols.py against GP 0x007690F0
 
 iGpffffb9d8 = 0x00764ac8; // type:data evidence: func_00450630 retail instruction 0x00450A0C, native GPREL16 decoded by recover_symbols.py against GP 0x007690F0
+
+fGpffff84f0 = 0x007615e0; // type:data evidence: func_004604d0 retail instruction 0x00460740; all 2 native GPREL16 references decoded by recover_symbols.py agree; GP 0x007690F0

@@ -6366,6 +6366,7 @@ D_007615B4 = 0x007615b4; // type:data
 D_007615B8 = 0x007615b8; // type:data
 fGpffff84cc = 0x007615bc; // type:data
 D_007615DC = 0x007615dc; // type:data
+fGpffff84f0 = 0x007615e0; // type:data
 fGpffff84f4 = 0x007615e4; // type:data
 iGpffff84f4 = 0x007615e4; // type:data
 fGpffff84fc = 0x007615ec; // type:data
