@@ -81,7 +81,7 @@ extern void func_002b2bd0(f32 *, s64, f32, f32, f32, f32);
 extern s32 func_00106330(s32);
 extern u8 *func_00155280(void);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern void func_002b0b10(u8 *arg0, YVec2f arg1, f32 fparg0, f32 fparg1, u8 arg2, f32 fparg2, f32 fparg3, s32 arg3, s8 arg4, s32 arg5);
+extern void func_002b0b10(u8 *arg0, YVec2f arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, f32 fparg3, s32 arg3, s8 arg4, s32 arg5);
 extern u8 D_00794DB0[];
 extern u8 D_00794CF0[];
 extern u8 D_0076465C;   /* gp-relative, -0x4A94 */
@@ -1531,7 +1531,7 @@ s32 func_002afbc0(u8 *arg0) {
                 func_0025ecd0(cell->position.x + cell->iconOffset.x, cell->position.y + cell->iconOffset.y, 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (void *)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
             }
         }
-        func_002b0b10(task, cell->position, cell->width, cell->height, cell->origin, 60008.0f, cell->scale, color, cell->orientation, 0x50);
+        func_002b0b10(task, cell->position, cell->width, cell->height, 60008.0f, cell->origin, cell->scale, color, cell->orientation, 0x50);
         cell->pendingDraw = 0;
     } else if (cell->mode == 1) {
         if (func_00106330(0x1416) == 0) {
@@ -1553,7 +1553,7 @@ s32 func_002afbc0(u8 *arg0) {
                 func_0025ecd0(cell->position.x + cell->iconOffset.x, cell->position.y + cell->iconOffset.y, 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (void *)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
             }
         }
-        func_002b0b10(task, cell->position, cell->width, cell->height, cell->origin, 60008.0f, cell->scale, color, cell->orientation, 0x4C);
+        func_002b0b10(task, cell->position, cell->width, cell->height, 60008.0f, cell->origin, cell->scale, color, cell->orientation, 0x4C);
     }
     return 0;
 }
@@ -1810,230 +1810,210 @@ void func_002b07a0(u8 *arg0, u8 *arg1) {
     ((void (**)(s32, s32))fp)[0](1, *(s32 *)func_003ef650(func_003ef6d0(), buf));
 }
 
-/* measured: full structure matches (nd 345 -> 99): the 4-case switch, all
-   mode sub-cases, the mask-first byte extraction, the byte-to-float idiom
-   loop, and the final func_00461390 call. Residuals: (1) the documented
-   D_008872F8 lui-hoist floor (retail hoists to the preheader, b210 keeps it
-   in the loop); (2) arg3/arg4 saved-register order swapped ($s2/$s3) with the
-   prologue move order (GPRs-then-FPs vs retail's interleave), which cascades
-   register names through the loop body. Tried param types u32/s32/s8 and
-   statement orders — all nd 99. Register-allocation + invariant-hoist floor. */
 extern u8 D_00793E80[];
-/* measured: YS clean 322 differing words (obj 940B/window 1424B under-484, frame -144 vs -192); pragma sweep schedule on 329 (+7), common off 328 (+6), loop on 324 (+2) — all regress, keep base; condensed switches/loop, frame under; inferior to prior documented 99-floor (YVec2f+s8/s32, 4-arg 461390, D_008872F8-hoist + s2/s3 walls) whose body is lost; TU explicit (u8 *)(u32)/(s16)/(s64)/(f32) casts applied, compiles; production stays ASM. */
-/* measured: Tri-array + y-split + if-chain restores the missing third (probe_variants 322 -> 123; fnalign retail 356 obj 358, 97 edits +4 reloc-only, 0.6% over, bankable; task band 341-363 for retail 352 holds at 358). Root causes: (1) `&sp90 + v6*12` over 12 separate f32/s32 locals is UB, so b210 DCE'd 11 stores/arm (88 stores, 117 instrs, frame 0x90 vs 0xC0, 235 vs 352); struct Tri {f32 a; s32 b; f32 c;} t[4] with t[v6].a/c makes the 8 floats + 4 zeros observable and holds the frame at 0xC0 with 5 FPU saves. (2) switch conflated YVec2f.y (f20, 0x8C stack) with fparg2 (f14, DAT-60008 loop term); by = arg1.y split, arg1.x reloaded per arm like retail lwc1 0x88. (3) inner switch codegen is descending (beq 2,1,0) vs retail ascending (bnez 0, bne 1, bne 2); if (v==0)/else if (v==1)/else if (v==2) in ascending order matches. jal counts equal (00457120 + 00461390 both sides), so missing code holds no calls. m2c succeeds on this unit (no jr/jtbl; sibling 2ae630 note does not apply) but its loop drops the bltz sign-fixup else arms; romwright likewise warns away 4 unreachable blocks and simplifies to plain (f32) casts. Residuals: prologue GPR-then-FP move order vs retail interleave; byte-setup regs ($t1/$t0/$a3/$a2 vs $a1/$a0/$v1/$v0, missing mtc1/lui hoist); loop t13/offset/counter regs ($v0/$t3/$t2 vs $t5/$t0/$a2); D_008872F8 lui-hoist floor. TU-strict YVec2f-by-value/(u8 *)(u32)/(f32) casts, compiles -DNON_MATCHING, verify ASM, lint clean. */
-// FUN_002B0B10 NONMATCHING
-#ifdef NON_MATCHING
-void func_002b0b10(u8 *arg0, YVec2f arg1, f32 fparg0, f32 fparg1, u8 arg2, f32 fparg2, f32 fparg3, s32 arg3, s8 arg4, s32 arg5) {
-    struct Tri { f32 a; s32 b; f32 c; };
-    struct Tri t[4];
-    f32 temp_f0;
-    f32 temp_f6;
-    f32 temp_f5;
-    f32 by;
-    u8 *temp_16;
-    s32 temp_5;
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_f0 = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
-    *(f32 *)(temp_16 + 0x38) = temp_f0;
-    temp_f6 = fparg0 * fparg3;
-    temp_f5 = fparg1 * fparg3;
-    temp_5 = arg2 & 0xFF;
-    by = arg1.y;
-    switch (temp_5) {
+
+#pragma push
+#pragma opt_loop_invariants on
+/* Four map-cell corners are stored as complete X/Y/Z vectors, then copied
+ * into the existing 0x40-byte screen-vertex records. Unsigned color conversion
+ * and the render-device depth field preserve the original invariant placement.
+ * Native b210 -O2: 1412/1424 bytes; all relocations and twelve zero tail bytes.
+ * See docs/probe_archive/Map_shape_002b0b10_20260924.md. */
+// FUN_002B0B10
+void func_002b0b10(u8 *task, YVec2f position, f32 width, f32 height, f32 depth, u8 origin, f32 scale, s32 color, s8 orientation, s32 layer) {
+    YVec3f corners[4];
+    typedef struct SMapRenderDevice {
+        f32 gamma;
+        s32 (*system)(s32, void *, void *, s32);
+        f32 nearDepth;
+        f32 farDepth;
+        s32 (*setState)(s32, void *);
+        s32 (*getState)(s32, void *);
+        u32 renderCallbacks[8];
+    } SMapRenderDevice;
+    extern SMapRenderDevice D_008872F0;
+    f32 reciprocalZ;
+    f32 scaledWidth;
+    f32 scaledHeight;
+    f32 baseY;
+    u8 *cell;
+    s32 cornerMode;
+    cell = *(u8 **)(task + 0x38);
+    reciprocalZ = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+    *(f32 *)(cell + 0x38) = reciprocalZ;
+    scaledWidth = width * scale;
+    scaledHeight = height * scale;
+    cornerMode = origin & 0xFF;
+    baseY = position.y;
+    switch (cornerMode) {
     case 0:
-        t[0].a = arg1.x;
-        t[0].b = 0;
-        t[0].c = by;
-        t[1].a = arg1.x + temp_f6;
-        t[1].b = 0;
-        t[1].c = by;
-        t[2].a = arg1.x;
-        t[2].b = 0;
-        t[2].c = by + temp_f5;
-        t[3].a = arg1.x + temp_f6;
-        t[3].b = 0;
-        t[3].c = by + temp_f5;
+        corners[0].x = position.x;
+        corners[0].y = 0.0f;
+        corners[0].z = baseY;
+        corners[1].x = position.x + scaledWidth;
+        corners[1].y = 0.0f;
+        corners[1].z = baseY;
+        corners[2].x = position.x;
+        corners[2].y = 0.0f;
+        corners[2].z = baseY + scaledHeight;
+        corners[3].x = position.x + scaledWidth;
+        corners[3].y = 0.0f;
+        corners[3].z = baseY + scaledHeight;
         break;
     case 1: {
-        s32 v = arg4;
+        s32 v = orientation;
         if (v == 0) {
-            t[0].a = arg1.x;
-            t[0].b = 0;
-            t[0].c = by + temp_f5;
-            t[1].a = arg1.x;
-            t[1].b = 0;
-            t[1].c = by;
-            t[2].a = arg1.x + temp_f6;
-            t[2].b = 0;
-            t[2].c = by + temp_f5;
-            t[3].a = arg1.x + temp_f6;
-            t[3].b = 0;
-            t[3].c = by;
+            corners[0].x = position.x;
+            corners[0].y = 0.0f;
+            corners[0].z = baseY + scaledHeight;
+            corners[1].x = position.x;
+            corners[1].y = 0.0f;
+            corners[1].z = baseY;
+            corners[2].x = position.x + scaledWidth;
+            corners[2].y = 0.0f;
+            corners[2].z = baseY + scaledHeight;
+            corners[3].x = position.x + scaledWidth;
+            corners[3].y = 0.0f;
+            corners[3].z = baseY;
         } else if (v == 1) {
-            t[0].a = arg1.x;
-            t[0].b = 0;
-            t[0].c = by + temp_f6;
-            t[1].a = arg1.x;
-            t[1].b = 0;
-            t[1].c = by;
-            t[2].a = arg1.x + temp_f5;
-            t[2].b = 0;
-            t[2].c = by + temp_f6;
-            t[3].a = arg1.x + temp_f5;
-            t[3].b = 0;
-            t[3].c = by;
+            corners[0].x = position.x;
+            corners[0].y = 0.0f;
+            corners[0].z = baseY + scaledWidth;
+            corners[1].x = position.x;
+            corners[1].y = 0.0f;
+            corners[1].z = baseY;
+            corners[2].x = position.x + scaledHeight;
+            corners[2].y = 0.0f;
+            corners[2].z = baseY + scaledWidth;
+            corners[3].x = position.x + scaledHeight;
+            corners[3].y = 0.0f;
+            corners[3].z = baseY;
         } else if (v == 2) {
-            t[1].a = arg1.x;
-            t[1].b = 0;
-            t[1].c = by - 18.0f;
-            t[3].a = (arg1.x + temp_f6);
-            t[3].b = 0;
-            t[3].c = by - 18.0f;
-            t[0].a = arg1.x;
-            t[0].b = 0;
-            t[0].c = (by + temp_f5) - 18.0f;
-            t[2].a = arg1.x + temp_f6;
-            t[2].b = 0;
-            t[2].c = (by + temp_f5) - 18.0f;
+            corners[1].x = position.x;
+            corners[1].y = 0.0f;
+            corners[1].z = baseY - 18.0f;
+            corners[3].x = (position.x + scaledWidth);
+            corners[3].y = 0.0f;
+            corners[3].z = baseY - 18.0f;
+            corners[0].x = position.x;
+            corners[0].y = 0.0f;
+            corners[0].z = (baseY + scaledHeight) - 18.0f;
+            corners[2].x = position.x + scaledWidth;
+            corners[2].y = 0.0f;
+            corners[2].z = (baseY + scaledHeight) - 18.0f;
         }
         break;
     }
     case 2: {
-        s32 v = arg4;
+        s32 v = orientation;
         if (v == 0) {
-            t[3].a = arg1.x;
-            t[3].b = 0;
-            t[3].c = by;
-            t[2].a = arg1.x + temp_f6;
-            t[2].b = 0;
-            t[2].c = by;
-            t[1].a = arg1.x;
-            t[1].b = 0;
-            t[1].c = by + temp_f5;
-            t[0].a = arg1.x + temp_f6;
-            t[0].b = 0;
-            t[0].c = by + temp_f5;
+            corners[3].x = position.x;
+            corners[3].y = 0.0f;
+            corners[3].z = baseY;
+            corners[2].x = position.x + scaledWidth;
+            corners[2].y = 0.0f;
+            corners[2].z = baseY;
+            corners[1].x = position.x;
+            corners[1].y = 0.0f;
+            corners[1].z = baseY + scaledHeight;
+            corners[0].x = position.x + scaledWidth;
+            corners[0].y = 0.0f;
+            corners[0].z = baseY + scaledHeight;
         } else if (v == 1) {
-            t[3].a = arg1.x;
-            t[3].b = 0;
-            t[3].c = by;
-            t[2].a = arg1.x + temp_f6;
-            t[2].b = 0;
-            t[2].c = by;
-            t[1].a = arg1.x;
-            t[1].b = 0;
-            t[1].c = by + temp_f5;
-            t[0].a = arg1.x + temp_f6;
-            t[0].b = 0;
-            t[0].c = by + temp_f5;
+            corners[3].x = position.x;
+            corners[3].y = 0.0f;
+            corners[3].z = baseY;
+            corners[2].x = position.x + scaledWidth;
+            corners[2].y = 0.0f;
+            corners[2].z = baseY;
+            corners[1].x = position.x;
+            corners[1].y = 0.0f;
+            corners[1].z = baseY + scaledHeight;
+            corners[0].x = position.x + scaledWidth;
+            corners[0].y = 0.0f;
+            corners[0].z = baseY + scaledHeight;
         } else if (v == 2) {
-            t[3].a = arg1.x - 18.0f;
-            t[3].b = 0;
-            t[3].c = by;
-            t[2].a = (arg1.x + temp_f6) - 18.0f;
-            t[2].b = 0;
-            t[2].c = by;
-            t[1].a = arg1.x - 18.0f;
-            t[1].b = 0;
-            t[1].c = by + temp_f5;
-            t[0].a = (arg1.x + temp_f6) - 18.0f;
-            t[0].b = 0;
-            t[0].c = by + temp_f5;
+            corners[3].x = position.x - 18.0f;
+            corners[3].y = 0.0f;
+            corners[3].z = baseY;
+            corners[2].x = (position.x + scaledWidth) - 18.0f;
+            corners[2].y = 0.0f;
+            corners[2].z = baseY;
+            corners[1].x = position.x - 18.0f;
+            corners[1].y = 0.0f;
+            corners[1].z = baseY + scaledHeight;
+            corners[0].x = (position.x + scaledWidth) - 18.0f;
+            corners[0].y = 0.0f;
+            corners[0].z = baseY + scaledHeight;
         }
         break;
     }
     case 3: {
-        s32 v = arg4;
+        s32 v = orientation;
         if (v == 0) {
-            t[2].a = arg1.x;
-            t[2].b = 0;
-            t[2].c = by;
-            t[0].a = arg1.x + temp_f6;
-            t[0].b = 0;
-            t[0].c = by;
-            t[3].a = arg1.x;
-            t[3].b = 0;
-            t[3].c = by + temp_f5;
-            t[1].a = arg1.x + temp_f6;
-            t[1].b = 0;
-            t[1].c = by + temp_f5;
+            corners[2].x = position.x;
+            corners[2].y = 0.0f;
+            corners[2].z = baseY;
+            corners[0].x = position.x + scaledWidth;
+            corners[0].y = 0.0f;
+            corners[0].z = baseY;
+            corners[3].x = position.x;
+            corners[3].y = 0.0f;
+            corners[3].z = baseY + scaledHeight;
+            corners[1].x = position.x + scaledWidth;
+            corners[1].y = 0.0f;
+            corners[1].z = baseY + scaledHeight;
         } else if (v == 1) {
-            t[3].a = arg1.x;
-            t[3].b = 0;
-            t[3].c = by + temp_f6;
-            t[2].a = arg1.x;
-            t[2].b = 0;
-            t[2].c = by;
-            t[1].a = arg1.x + temp_f5;
-            t[1].b = 0;
-            t[1].c = by + temp_f6;
-            t[0].a = arg1.x + temp_f5;
-            t[0].b = 0;
-            t[0].c = by;
+            corners[3].x = position.x;
+            corners[3].y = 0.0f;
+            corners[3].z = baseY + scaledWidth;
+            corners[2].x = position.x;
+            corners[2].y = 0.0f;
+            corners[2].z = baseY;
+            corners[1].x = position.x + scaledHeight;
+            corners[1].y = 0.0f;
+            corners[1].z = baseY + scaledWidth;
+            corners[0].x = position.x + scaledHeight;
+            corners[0].y = 0.0f;
+            corners[0].z = baseY;
         }
         break;
     }
     }
     {
-        s32 t52 = ((u32)(arg3 & 0xFF000000) >> 24) & 0xFF;
-        s32 t4 = ((u32)(arg3 & 0xFF0000) >> 16) & 0xFF;
-        s32 t33 = ((u32)(arg3 & 0xFF00) >> 8) & 0xFF;
-        s32 t22 = arg3 & 0xFF;
-        s32 v6 = 0;
-        s32 tt11 = t4 & 1;
-        s32 tt10 = t33 & 1;
-        s32 tt9 = t22 & 1;
-        while (v6 < 4) {
-            u8 *t13 = temp_16 + (v6 << 6);
-            *(f32 *)(t13 + 0x48) = D_008872F8[0] - fparg2;
-            *(f32 *)(t13 + 0x58) = temp_f0;
-            if (t52 >= 0) {
-                *(f32 *)(t13 + 0x60) = (f32)t52;
-            } else {
-                s32 q52 = ((u32)t52 >> 1) | (t52 & 1);
-                f32 g52 = (f32)q52;
-                g52 += g52;
-                *(f32 *)(t13 + 0x60) = g52;
-            }
-            if (t4 >= 0) {
-                *(f32 *)(t13 + 0x64) = (f32)t4;
-            } else {
-                s32 q4 = ((u32)t4 >> 1) | tt11;
-                f32 g4 = (f32)q4;
-                g4 += g4;
-                *(f32 *)(t13 + 0x64) = g4;
-            }
-            if (t33 >= 0) {
-                *(f32 *)(t13 + 0x68) = (f32)t33;
-            } else {
-                s32 q33 = ((u32)t33 >> 1) | tt10;
-                f32 g33 = (f32)q33;
-                g33 += g33;
-                *(f32 *)(t13 + 0x68) = g33;
-            }
-            if (t22 >= 0) {
-                *(f32 *)(t13 + 0x6C) = (f32)t22;
-            } else {
-                s32 q22 = ((u32)t22 >> 1) | tt9;
-                f32 g22 = (f32)q22;
-                g22 += g22;
-                *(f32 *)(t13 + 0x6C) = g22;
-            }
-            *(f32 *)(t13 + 0x40) = t[v6].a;
-            *(f32 *)(t13 + 0x44) = t[v6].c;
-            v6 += 1;
+        u32 red;
+        u32 green;
+        u32 blue;
+        u32 alpha;
+        s32 i;
+        red = ((u32)(color & 0xFF000000) >> 24) & 0xFF;
+        green = ((u32)(color & 0xFF0000) >> 16) & 0xFF;
+        blue = ((u32)(color & 0xFF00) >> 8) & 0xFF;
+        alpha = color & 0xFF;
+        i = 0;
+        while (i < 4) {
+            u8 *record = cell + (i << 6);
+            YVec3f *point;
+            *(f32 *)(record + 0x48) = D_008872F0.nearDepth - depth;
+            *(f32 *)(record + 0x58) = reciprocalZ;
+            *(f32 *)(record + 0x60) = (f32)red;
+            *(f32 *)(record + 0x64) = (f32)green;
+            *(f32 *)(record + 0x68) = (f32)blue;
+            *(f32 *)(record + 0x6C) = (f32)alpha;
+            point = &corners[i];
+            *(f32 *)(record + 0x40) = point->x;
+            *(f32 *)(record + 0x44) = point->z;
+            i++;
         }
     }
     {
-        u8 *t23 = (u8 *)func_00461390((u8 *)&D_00793E80 + (arg5 * 0x30), 4, temp_16 + 0x40, 4);
-        *(void (**)())(t23 + 8) = (void (*)())func_002b07a0;
-        *(u8 **)(t23 + 0x10) = temp_16;
+        u8 *packet = (u8 *)func_00461390((u8 *)&D_00793E80 + ((s16)layer * 0x30), 4, cell + 0x40, 4);
+        *(void (**)(u8 *, u8 *))(packet + 8) = func_002b07a0;
+        *(u8 **)(packet + 0x10) = cell;
     }
 }
+#pragma pop
 
-#else
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b0b10);
-#endif
 
 // FUN_002B10A0
 void func_002b10a0(u8 *arg0, YVec2f arg1) {

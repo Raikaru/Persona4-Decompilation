@@ -79,7 +79,7 @@ extern u8 *func_00457120(void);
 extern void func_0043f810(void *, s32, s32);
 extern void *func_00460990(void);
 extern void func_00460ac0(void *, void *);
-extern u8 *func_00461390(u8 *list, s32 arg1, void *arg2, s32 arg3);
+extern u8 *func_00461390(void *list, s32 arg1, void *arg2, s32 arg3);
 extern f32 fGpffff8504;
 extern f32 iGpffff84f4;
 extern f32 D_008872F8[];
