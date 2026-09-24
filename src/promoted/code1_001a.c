@@ -7,7 +7,7 @@ typedef struct BtlUnit BtlUnit;
 u32 func_00231d70(u32 bound);
 typedef struct BtlAction BtlAction;
 extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
-extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, u16 id, u16 blendFrames, f32 speed, u16 mode);
+extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrames, f32 speed, u16 mode);
 typedef struct RwV3d { f32 x, y, z; } RwV3d;
 extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
 extern f32 func_001ec250(const RwV3d *, const RwV3d *);
@@ -15,7 +15,7 @@ extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *, const RwV3d *, f32, u32);
 extern u8 *iGpffffb3cc;
 extern f32 D_005F6D20[];
 
-void btlActionSetState(u8 *arg0, u16 arg1);
+void btlActionSetState(BtlAction *action, u16 state);
 u8 *func_00193bf0(u64 arg0, u64 arg1);
 void func_001b0800();
 static inline s32 func_001a_add_offset(s32 offset, s32 base)
@@ -416,11 +416,11 @@ void func_001a0670(u8 *arg0) {
     temp_5 = *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C);
     if (temp_5 & 0x10) {
         *(s16 *)(arg0 + 0x430) = 1;
-        btlActionSetState(arg0, 0x18);
+        btlActionSetState((BtlAction *)arg0, 0x18);
         return;
     }
     if (temp_5 & 1) {
-        btlActionSetState(arg0, 0x23);
+        btlActionSetState((BtlAction *)arg0, 0x23);
     }
 }
 
@@ -2646,7 +2646,7 @@ void func_001a55a0(s64 *arg0) {
             var_5 = 0;
             break;
         }
-        btlActionSetState((u8 *)arg0, var_5);
+        btlActionSetState((BtlAction *)arg0, var_5);
     }
 }
 
@@ -2696,7 +2696,7 @@ void func_001a5650(s64 *arg0)
             var_5 = 0;
             break;
         }
-        btlActionSetState((u8 *)arg0, var_5);
+        btlActionSetState((BtlAction *)arg0, var_5);
         return;
     }
     func_00194ff0(temp_16, (u8 *)&sp30, NULL, NULL);
@@ -2747,7 +2747,7 @@ void func_001a5650(s64 *arg0)
         var_5_3 = 0;
         break;
     }
-    btlActionSetState((u8 *)arg0, var_5_3);
+    btlActionSetState((BtlAction *)arg0, var_5_3);
 }
 #pragma pop
 
@@ -2771,7 +2771,7 @@ void func_001a58e0(s64 *arg0) {
             var_5 = 0;
             break;
         }
-        btlActionSetState((u8 *)arg0, var_5);
+        btlActionSetState((BtlAction *)arg0, var_5);
     }
 }
 
@@ -6169,7 +6169,7 @@ void func_001ac620(void) {
 // FUN_001AC6A0
 void func_001ac6a0(u8 *arg0) {
     if ((*(s32 (**)(void))(arg0 + 0x440))() == 0) {
-        btlActionSetState(arg0, *(u16 *)(arg0 + 0x43C));
+        btlActionSetState((BtlAction *)arg0, *(u16 *)(arg0 + 0x43C));
     }
 }
 
@@ -6177,170 +6177,184 @@ void func_001ac6a0(u8 *arg0) {
 void func_001ac6f0(void)
 {
 }
-/* measured: live object 1040B/window 1040B, normalized_diff 155 (installed guard below completes the tail; prior nd154 draft note was 52B short). Tail completed per retail: f68e0 != 0 calls 0x1B and returns, else the 0x6C ==2/==3/==1 chain assigns 0x20 twice and calls once. Both chain arms load the same 0x20, so the dispatch is vestigial but reproduced. Open walls: s-reg rotation (self-consistent, banked), addiu-vs-daddiu small-const loads (s64/u64/O-level/propagation all give addiu), 2nd/3rd beq forms (braced == gives bne-over, unbraced gotos merge the last test to bne). Ruled out today: goto-diamond (155), unbraced-goto (155, beq+beq+bne), u64 cmd (155). Banked as floor. */
-// FUN_001AC700 NONMATCHING
-#ifdef NON_MATCHING
-void func_001ac700(u8 *arg0) {
-    s64 temp_17;
-    s64 temp_18;
-    s64 var_19;
-    s64 var_20;
-    u16 var_21;
-    s32 var_2;
-    f32 var_f20;
-    u16 temp_3;
-    u8 *event_packet;
 
-    u8 *func_00202010(s32 arg0, u16 arg1);
-    u8 *func_00202120(s32 arg0, u16 arg1);
-    s16 func_001991c0(u8 *arg0, s64 arg1, f32 arg2);
-    s16 func_00199500(u8 *arg0, s64 arg1, f32 arg2);
-    u8 *func_001b9360(s32 arg0, s32 arg1);
-    u8 *func_001b7e20(s32 arg0);
-    u8 *func_001b99a0(s32 arg0);
-    s32 func_001f11e0(s16 arg0);
-    u8 *func_00202400(s32 arg0, s16 arg1);
+/* This view covers every resource slot used by this action (through 0x21). */
+typedef struct ActionResourcePrefix {
+    u8 beforeResources[0xD04];
+    s32 resources[0x22];
+} ActionResourcePrefix;
+static inline s32 actionResourceAt(ActionResourcePrefix *table, u16 index)
+{
+    return table->resources[index];
+}
+/* Queue this action's animation, effect, camera and dependent state changes.
+ * Native b210 O2: 1036 executable bytes and four zero alignment bytes;
+ * all neighboring functions and allocated data remain unchanged.
+ * See docs/probe_archive/Action_animation_sequence_001ac700_20260924.md. */
+// FUN_001AC700
+void func_001ac700(u8 *action) {
+    s64 packetIdentity;
+    s32 alternateAction;
+    s32 animationChoice;
+    f32 speed;
+    u16 actionKind;
+    u8 *animationPacket;
 
-    func_001a03b0((s64 *)arg0);
-    temp_18 = (*(u16 *)(arg0 + 0x6C) == 3);
-    temp_17 = *(s64 *)arg0;
-    if (temp_18 == 0) {
+    BtlPacket *func_00202010(u32 action, u16 arg1);
+    BtlPacket *func_00202120(u32 action, u16 arg1);
+    s16 func_001991c0(u8 *action, u16 arg1, f32 arg2);
+    s16 func_00199500(u8 *action, u16 arg1, f32 arg2);
+    BtlPacket *func_001b9360(s32 action, s16 mode);
+    BtlPacket *func_001b7e20(u32 value);
+    BtlPacket *func_001b99a0(s32 action);
+    s32 func_001f11e0(s64 action);
+    BtlPacket *func_00202400(s32 action, s32 arg1);
+
+    struct {
+        u16 resource;
+        u16 animation;
+        u16 frames;
+        u16 cameraState;
+    } selection;
+
+    func_001a03b0((s64 *)action);
+    alternateAction = (*(u16 *)(action + 0x6C) == 3);
+    packetIdentity = *(s64 *)action;
+    if (alternateAction == 0) {
         u8 *packet;
-        packet = func_00202010(*(s32 *)(arg0 + 0x30),
-                               *(u16 *)(arg0 + 0x6E));
-        *(s64 *)(packet + 0x60) = temp_17;
+        packet = (u8 *)func_00202010(*(s32 *)(action + 0x30),
+                               *(u16 *)(action + 0x6E));
+        *(s64 *)(packet + 0x60) = packetIdentity;
         func_00194590(packet, 3);
     } else {
         u8 *packet;
-        packet = func_00202120(*(s32 *)(arg0 + 0x30),
-                               *(u16 *)(arg0 + 0x70));
-        *(s64 *)(packet + 0x60) = temp_17;
+        packet = (u8 *)func_00202120(*(s32 *)(action + 0x30),
+                               *(u16 *)(action + 0x70));
+        *(s64 *)(packet + 0x60) = packetIdentity;
         func_00194590(packet, 3);
     }
-    if ((*(u8 **)(arg0 + 0x30))[0xA2] == 0) {
-        if (temp_18 == 0) {
-            var_20 = (s64)0xD;
-            var_19 = (s64)0xB;
+    if ((*(u8 **)(action + 0x30))[0xA2] == 0) {
+        if (alternateAction == 0) {
+            selection.animation = (s64)0xD;
+            selection.resource = (s64)0xB;
         } else {
-            var_20 = (s64)0x16;
-            var_19 = (s64)0x21;
+            selection.animation = (s64)0x16;
+            selection.resource = (s64)0x21;
         }
-        temp_18 = (s64)0x14;
-        var_21 = func_00199500(*(u8 **)(arg0 + 0x30),
-                               var_20, 1.0f);
-        var_f20 = 1.0f;
+        selection.cameraState = 0x14;
+        selection.frames = func_00199500(*(u8 **)(action + 0x30),
+                               selection.animation, 1.0f);
+        speed = 1.0f;
     } else {
-        if (func_001f11e0(*(s16 *)(arg0 + 0x6E)) != 0) {
-            var_2 = 4;
+        if (func_001f11e0(*(s16 *)(action + 0x6E)) != 0) {
+            animationChoice = 4;
         } else {
-            var_2 = 8;
+            animationChoice = 8;
         }
-        var_20 = (u16)var_2;
-        var_19 = (s64)0xF;
-        temp_18 = (s64)0x15;
-        if (*(u16 *)(arg0 + 0x18) & 0x4000) {
-            var_f20 = 2.0f;
+        selection.animation = (u16)animationChoice;
+        selection.resource = (s64)0xF;
+        selection.cameraState = 0x15;
+        if (*(u16 *)(action + 0x18) & 0x4000) {
+            speed = 2.0f;
         } else {
-            var_f20 = 1.0f;
+            speed = 1.0f;
         }
-        var_21 = func_001991c0(*(u8 **)(arg0 + 0x30),
-                               var_20, var_f20);
+        selection.frames = func_001991c0(*(u8 **)(action + 0x30),
+                               selection.animation, speed);
     }
-    event_packet = func_00199ee0(*(u8 **)(arg0 + 0x30),
-                                 (s16)var_20, 6, 0, var_f20);
-    *(s64 *)(event_packet + 0x60) = temp_17;
-    *(s16 *)(event_packet + 0x4A) = (s16)((var_21 & 0xFFFF) + 6);
-    func_00194590(event_packet, 0);
+    animationPacket = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(action + 0x30),
+                                 (s16)selection.animation, 6, speed, 0);
+    *(s64 *)(animationPacket + 0x60) = packetIdentity;
+    *(s16 *)(animationPacket + 0x4A) = (s16)((selection.frames & 0xFFFF) + 6);
+    func_00194590(animationPacket, 0);
     {
         u8 *packet;
         packet = func_001d65d0(
-            *(s32 *)(D_0076449C + ((var_19 & 0xFFFF) * 4) + 0xD04),
-            *(s32 *)(arg0 + 0x30), 0,
-            *(s64 *)(event_packet + 0x58), 0x100);
-        *(s64 *)(packet + 0x60) = temp_17;
+            actionResourceAt((ActionResourcePrefix *)D_0076449C, (u16)selection.resource),
+            *(s32 *)(action + 0x30), 0,
+            *(s64 *)(animationPacket + 0x58), 0x100);
+        *(s64 *)(packet + 0x60) = packetIdentity;
         func_00194590(packet, 2);
     }
     {
         u8 *packet;
-        packet = func_001bc920((u8 *)arg0, temp_18);
-        *(s64 *)(packet + 0x60) = temp_17;
+        packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, selection.cameraState);
+        *(s64 *)(packet + 0x60) = packetIdentity;
         func_00194590(packet, 0);
     }
     {
         u8 *packet;
-        packet = func_00202400(*(s32 *)(arg0 + 0x30),
-                               *(s16 *)(arg0 + 0xEC));
+        packet = (u8 *)func_00202400(*(s32 *)(action + 0x30),
+                               *(s16 *)(action + 0xEC));
         *(s8 *)(packet + 0) = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(event_packet + 0x58);
-        *(s64 *)(packet + 0x60) = temp_17;
+        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
+        *(s64 *)(packet + 0x60) = packetIdentity;
         func_00194590(packet, 3);
     }
     {
         u8 *packet;
-        packet = func_001f3870(arg0, 0);
+        packet = func_001f3870(action, 0);
         *(s8 *)(packet + 0) = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(event_packet + 0x58);
-        *(s64 *)(packet + 0x60) = temp_17;
+        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
+        *(s64 *)(packet + 0x60) = packetIdentity;
         func_00194590(packet, 1);
     }
     {
         u8 *packet;
-        packet = func_001b7e20(0x10);
+        packet = (u8 *)func_001b7e20(0x10);
         *(s8 *)(packet + 0) = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(event_packet + 0x58);
+        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(u8 *)(packet + 0x47) &= ~0x20;
-        *(s64 *)(packet + 0x60) = temp_17;
+        *(s64 *)(packet + 0x60) = packetIdentity;
         func_00194590(packet, 1);
     }
     {
         u8 *packet;
-        packet = func_001b9360(0x10, 0);
+        packet = (u8 *)func_001b9360(0x10, 0);
         *(s8 *)(packet + 0) = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(event_packet + 0x58);
+        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(u8 *)(packet + 0x47) &= ~0x20;
-        *(s64 *)(packet + 0x60) = temp_17;
+        *(s64 *)(packet + 0x60) = packetIdentity;
         func_00194590(packet, 1);
     }
     {
         u8 *packet;
-        packet = func_001b99a0(0x10);
+        packet = (u8 *)func_001b99a0(0x10);
         *(s8 *)(packet + 0) = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(event_packet + 0x58);
+        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(u8 *)(packet + 0x47) &= ~0x20;
-        *(s64 *)(packet + 0x60) = temp_17;
+        *(s64 *)(packet + 0x60) = packetIdentity;
         func_00194590(packet, 1);
     }
     {
         u8 *packet;
         packet = (u8 *)func_001ba090(8);
         *(s8 *)(packet + 0) = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(event_packet + 0x58);
+        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(u8 *)(packet + 0x47) &= ~0x20;
-        *(s64 *)(packet + 0x60) = temp_17;
+        *(s64 *)(packet + 0x60) = packetIdentity;
         func_00194590(packet, 0);
     }
-    if (func_001f68e0(arg0) != 0) {
-        func_001b0800(arg0, 0x1B);
+    if (func_001f68e0(action) != 0) {
+        btlActionSetState((BtlAction *)action, 0x1B);
         return;
     }
-    temp_3 = *(u16 *)(arg0 + 0x6C);
+    actionKind = *(u16 *)(action + 0x6C);
     {
-        s64 cmd;
-        if (temp_3 == 2) {
-            cmd = 0x20;
-        } else if (temp_3 == 3) {
-            cmd = 0x20;
-        } else if (temp_3 == 1) {
-            cmd = 0x20;
-        } else {
-            cmd = 0x20;
+        u16 nextState;
+        switch (actionKind) {
+        case 1:
+        case 3:
+        case 2:
+            nextState = 0x20;
+            break;
+        default:
+            nextState = 0x20;
+            break;
         }
-        func_001b0800(arg0, cmd);
+        btlActionSetState((BtlAction *)action, nextState);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001ac700);
-#endif
 // FUN_001ACB10
 void func_001acb10(u8 *arg0)
 {

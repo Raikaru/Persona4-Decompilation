@@ -2154,7 +2154,7 @@ void func_00197f30(u8 *arg0)
 extern s32 func_00198810(u8 *arg0);
 extern u32 func_00198840(u8 *arg0);
 extern u32 func_001988b0(u8 *arg0);
-extern s16 func_001991c0(u8 *arg0, s32 arg1, f32 fparg0);
+extern s16 func_001991c0(u8 *arg0, u16 arg1, f32 fparg0);
 extern s64 func_00199830(u8 *arg0);
 static inline u32 p4_add_index_base(u32 offset, u32 base)
 {
@@ -2596,7 +2596,7 @@ s64 func_001990d0(u8 *arg0, s32 arg1)
 /* measured: closes opt_propagation around func_001990d0. */
 #pragma opt_propagation on
 // FUN_001991C0
-s16 func_001991c0(u8 *arg0, s32 arg1, f32 fparg0)
+s16 func_001991c0(u8 *arg0, u16 arg1, f32 fparg0)
 {
     extern s64 func_0022cb90(void);
     u8 *table;
@@ -2707,7 +2707,7 @@ finish:
 return 0;
 }
 // FUN_00199500
-s16 func_00199500(u8 *arg0, s32 arg1, f32 fparg0)
+s16 func_00199500(u8 *arg0, u16 arg1, f32 fparg0)
 {
     extern f32 func_0047a000(s32 arg0, s32 arg1, s64 arg2);
     u8 *table;
