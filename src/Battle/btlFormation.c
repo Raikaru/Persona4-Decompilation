@@ -582,58 +582,76 @@ void func_001d2e00(u32 *work)
 {
     *(u16 *)(work[0] + 0xa0) = *(u16 *)(work[0] + 0xa0) + 1;
 }
-/* measured: cur guard 89wd (obj448B/window448B, fnalign 49 edits: $s0-3 + sp70/sp80 $sp+0x70/0x80 swaps) improved to 87wd via temp_19/temp_18 decl swap (u8*temp_19 before u8*temp_18 to match retail $s3/$s2). No slti $at range, no dead-arm chain, no loop hoist, no s64 guard to convert. Dispatch 3/1->1,2/0->0,else JOIN matches retail beq chain. Honest allocator/stack floor; banked improved. No volatile/asm. */
-// FUN_001D2E20 NONMATCHING
-#ifdef NON_MATCHING
-u32 func_001d2e20(u8 *arg0) {
-    extern s32 func_00199d00(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
-    extern s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2);
-    extern void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s16 arg3, f32 *arg4, f32 *arg5, s32 arg6);
-    f32 sp70[4];
-    f32 sp80[4];
-    s16 temp_3;
-    s32 temp_16;
-    s16 temp_17;
-    s32 temp_3_2;
-    u8 *temp_19;
-    u8 *temp_18;
+/* Native b210 O2: 444/448 bytes, ten resolved calls and four zero
+ * alignment bytes. Packet storage remains unsigned; the action helpers
+ * receive its signed interpretation. See
+ * docs/probe_archive/Formation_callback_001d2e20_20260924.md. */
+#pragma push
+#pragma opt_propagation off
+extern s32 func_00199d00(s32, u8 *, s64, s32);
+extern s32 func_001f1210(u8 *, s64, s32);
+extern void func_001951f0(u8 *, u8 *, u8 *, s32, f32 *, f32 *, s32);
 
-    temp_19 = *(u8 **)arg0;
-    temp_18 = *(u8 **)(*(u8 **)(arg0 + 4) + 0x30);
-    temp_3 = *(s16 *)(arg0 + 0xC);
-    temp_16 = ((u32)*(u8 **)(arg0 + 8) > 0U);
-    temp_17 = (s16)func_00199d00(temp_19, temp_18, temp_3, temp_16);
-    if (func_001f1210(temp_19, temp_3, temp_16) == 0) {
-        temp_3_2 = (s16)func_00199d00(temp_19, temp_18, temp_3, temp_16);
-        if (temp_3_2 == 3) {
-            goto DO1;
-        } else if (temp_3_2 == 1) {
-            goto DO1;
-        } else if (temp_3_2 == 2) {
-            goto DO0;
-        } else if (temp_3_2 == 0) {
-            goto DO0;
-        } else {
-            goto JOIN;
+typedef struct BtlFormationPlacementWork
+{
+    u8 *actor;
+    u8 *targetAction;
+    u8 *partnerAction;
+    u16 action;
+} BtlFormationPlacementWork;
+
+static inline u32 placeFormation(BtlFormationPlacementWork *work, u8 *node, u8 *unit)
+{
+    /* Complete quaternion and position outputs of the placement helper. */
+    struct { f32 rotation[4]; f32 position[3]; } frame;
+    s32 category;
+    s32 kind;
+    u16 actionBits;
+    s32 paired;
+    s64 mode;
+
+    /* Capture the stored halfword before querying the partner, then
+     * interpret those same bits as the signed action identifier. */
+    actionBits = work->action;
+    paired = work->partnerAction != NULL;
+    mode = (s16)actionBits;
+    category = (s16)func_00199d00((s32)node, unit, mode, paired);
+    if (func_001f1210(node, mode, paired) == 0) {
+        kind = (s16)func_00199d00((s32)node, unit, mode, paired);
+        switch (kind) {
+        case 0:
+        case 2:
+            func_001951f0(node, unit, NULL, category, frame.position, frame.rotation, 0);
+            break;
+        case 1:
+        case 3:
+            func_001951f0(node, unit, NULL, category, frame.position, frame.rotation, 1);
+            break;
         }
-DO1:
-        func_001951f0(temp_19, temp_18, 0, temp_17, sp80, sp70, 1);
-        goto JOIN;
-DO0:
-        func_001951f0(temp_19, temp_18, 0, temp_17, sp80, sp70, 0);
-JOIN: ;
-        func_00194f10(temp_19, sp70);
-        func_00194ee0(temp_19, sp80);
+        func_00194f10(node, frame.rotation);
+        func_00194ee0(node, frame.position);
     } else {
-        func_001951f0(temp_19, temp_18, *(u8 **)(*(u8 **)(arg0 + 8) + 0x30), temp_17, sp80, sp70, 2);
-        func_00194f10(temp_19, sp70);
-        func_00194ee0(temp_19, sp80);
+        func_001951f0(node, unit, *(u8 **)(work->partnerAction + 0x30),
+                      category, frame.position, frame.rotation, 2);
+        func_00194f10(node, frame.rotation);
+        func_00194ee0(node, frame.position);
     }
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d2e20);
-#endif
+
+// FUN_001D2E20
+u32 func_001d2e20(u8 *raw)
+{
+    BtlFormationPlacementWork *work;
+    u8 *node;
+    u8 *unit;
+
+    work = (BtlFormationPlacementWork *)raw;
+    node = work->actor;
+    unit = *(u8 **)(work->targetAction + 0x30);
+    return placeFormation(work, node, unit);
+}
+#pragma pop
 
 // FUN_001D2FE0
 void func_001d2fe0(u32 *work)
