@@ -10,7 +10,13 @@
 typedef struct HDbText3D HDbText3D;
 struct HDbText3D
 {
-    HDbText3D* next; // 0x00
+    HDbText3D* next;
+    f32 x;
+    f32 y;
+    f32 cameraDepth;
+    u8 text[256];
+    f32 depthOffset;
+    u8 color[4];
 };
 typedef struct { u8 b0, b1, b2, b3; } RGBA8;
 
@@ -250,187 +256,171 @@ void func_0044f720(void)
 }
 #pragma pop
 
-/* Floor (measured 2026-09-17, source-repo only): probe_variants s_best 314 words / 132 edits / 366 vs 367 BEST faithful (bare 353/464, levers unfaithful despite words wins), fnalign 367/366/132 (+5), emitted 1464B/window 1472B (99.5%). Four-pragma sweep: bare wins (loop +1w/-6ed noted, cse/sched catastrophic, nobl neutral). Eight-singles re-sweep 2026-09-17: dead/prop/strength/unroll neutral at 314, loop-inv 315, sched 337, peephole 341, cse 377. Object-longer blocks are float spills (9x swc1 f3-f7); residual is coloring/scheduling/orientation + daddu. Re-derived sibling v8 floor; production stays ASM. Banked as guarded floor. */
-/* measured 0044fa90 (owner, 2026-09-20): fnalign **132 -> 101 edits**, count 366 -> 364
-   against retail 367 (-0.8%, inside).  Its three 11-14 instruction runs are all CROSS -
-   the deficit is 1 - so nothing was written; both fixes are desync repairs.
-   (a) Retail HOISTS the global `D_008872F8[0] - node->unk110` out of the j-loop: at
-       retail[106] it loads `lwc1 $f1, 0x72f8($v0)` before the `b` into the loop, while
-       the object reloaded it every iteration.  Hoisting it into a local is worth 2.
-   (b) The object computed a second address for the uv array each iteration -
-       `sll $v0, $a2, 3; addu $v0, $v0, $sp; addiu $a0, $v0, 0x140` - because the body
-       kept a `uvp = &uv[j * 2]` pointer.  Indexing `uv[j * 2]` directly at the two uses
-       drops that address computation and is worth the other 29.
-   Note (a) and (b) point in OPPOSITE directions on the same loop: hoist the float the
-   body reloaded, un-hoist the pointer the body cached.  Doing the same to the `quad`
-   pointer as well is much worse - 190 edits and the object grows to 370 - so the third
-   pointer stays.  Hoisting is a per-variable measurement, never a policy. */
-// FUN_0044FA90 NONMATCHING
-#ifdef NON_MATCHING
-/* Target: func_0044fa90 -- source-repo faithful floor (banked, production stays ASM).
- * Owner: src/sdkDbprt.c (source/Persona4-Decompilation, CRLF; candidates LF, probe normalises).
- * Retail: 0x0044FA90, window 1472B (0x5C0), 368 words / 367 instrs after padding strip.
- * Measured (source): probe_variants 314 words (reloc-masked), fnalign 132 edits (+5 reloc-only), obj 366 vs retail 367 (1464B/1472B).
- * Shape: uv[8] then quads[64] (reverse-alloc bases sp+0x140/sp+0x40), mixed scale forms (field outer / byte inner, 0x160 frame), split x0 (mul+add), byte text, dead low-nibble branch kept, unsigned colors, (s32) high, (s32)v>=0x80.
- * No owner edits; no pragma (bare wins words+edits jointly). See report.md for full sweep.
- */
+/* Native b210 O2: all 1472 retail bytes and every relocation match.
+ * Copy the computed character advance before translation so its
+ * multiply and add retain the original separate evaluation.
+ * See docs/probe_archive/Debug_queued_text_0044fa90_20260924.md. */
+// FUN_0044FA90
 void func_0044fa90(void) {
-    extern void (*D_00887300[])(u32, u32);
+    extern s32 (*D_00887300[])(s32 state, void *value);
     extern s32 (*D_00887310[])(s32, void *, s32);
     extern f32 D_008872F8[];
     extern f32 func_00450490(f32);
-    typedef struct Ext Ext;
-    struct Ext { HDbText3D *next; f32 x; f32 y; f32 scale; u8 text[256]; f32 unk110; u8 col[4]; };
     HDbText3D *node;
-    s32 idx;
-    f32 invW;
-    f32 scaled;
-    f32 uv[8];
-    f32 quads[64];
-    f32 depth;
-    invW = 1.0f / *(f32 *)((u8 *)iGpffffb9e0 + 0x80);
+    s32 characterIndex;
+    f32 reciprocalDepth;
+    f32 projectedDepth;
+    f32 textureCoordinates[8];
+    typedef struct QueueGlyphVertex {
+        f32 position[3];
+        f32 cameraZ;
+        f32 textureCoordinates[2];
+        f32 reciprocal;
+        f32 pad1;
+        f32 color[4];
+        f32 normal[3];
+        f32 pad2;
+    } QueueGlyphVertex;
+    QueueGlyphVertex vertices[4];
+    f32 nearDepth;
+    reciprocalDepth = 1.0f / *(f32 *)((u8 *)iGpffffb9e0 + 0x80);
     node = iGpffffb9dc;
-    D_00887300[0](1, (u32)iGpffffb9e8);
-    while (node != NULL) {
-        if (((Ext *)node)->scale != 0.0f) {
-            scaled = func_00450490(((Ext *)node)->scale);
+    D_00887300[0](1, iGpffffb9e8);
+    while (1) {
+        if (node == NULL) break;
+        if (node->cameraDepth != 0.0f) {
+            projectedDepth = func_00450490(node->cameraDepth);
         }
-        idx = 0;
-        while (idx < 0x100) {
-            u8 ch;
-            ch = *(u8 *)((u8 *)node + 0x10 + idx);
-            if (ch == 0) {
+        characterIndex = 0;
+        while (characterIndex < 0x100) {
+            u8 glyph;
+            glyph = *(u8 *)((u8 *)node + 0x10 + characterIndex);
+            if (glyph == 0) {
                 break;
             }
-            if (ch != 0x20) {
-                if (*(f32 *)((u8 *)node + 0xC) == 0.0f) {
-                    u32 v;
-                    f32 x0;
-                    f32 y0;
-                    f32 x1;
-                    f32 y1;
-                    s32 low;
-                    s32 tmp;
-                    f32 u0;
-                    f32 vv0;
-                    s32 j;
-                    v = (ch - 0x20) & 0xFF;
-                    if ((s32)v >= 0x80) {
-                        v = (v - 0x20) & 0xFF;
+            if (glyph != 0x20) {
+                if (node->cameraDepth == 0.0f) {
+                    f32 leftX;
+                    f32 advance;
+                    f32 horizontalOffset;
+                    f32 topY;
+                    f32 rightX;
+                    f32 bottomY;
+                    s32 atlasColumn;
+                    f32 leftU;
+                    f32 topV;
+                    s32 vertexIndex;
+                    glyph = glyph - 0x20;
+                    if ((s32)glyph >= 0x80) {
+                        glyph = glyph - 0x20;
                     }
-                    x0 = 12.0f * (f32)idx;
-                    x0 += ((Ext *)node)->x;
-                    y0 = ((Ext *)node)->y;
-                    x1 = 11.0f + x0;
-                    y1 = 11.0f + y0;
-                    low = (s32)((v & 0xFF) & 0xF);
-                    tmp = (s32)(v & 0xFF);
-                    if (tmp < 0 && low != 0) {
-                        low -= 0x10;
+                    advance = 12.0f * (f32)characterIndex;
+                    horizontalOffset = advance;
+                    leftX = node->x + horizontalOffset;
+                    vertices[0].position[0] = leftX;
+                    topY = node->y;
+                    vertices[0].position[1] = topY;
+                    rightX = 11.0f + leftX;
+                    vertices[1].position[0] = rightX;
+                    vertices[1].position[1] = topY;
+                    vertices[2].position[0] = leftX;
+                    bottomY = 11.0f + topY;
+                    vertices[2].position[1] = bottomY;
+                    vertices[3].position[0] = rightX;
+                    vertices[3].position[1] = bottomY;
+                    atlasColumn = debugGlyphColumn((s32)(glyph & 0xFF));
+                    leftU = 0.0625f * (f32)atlasColumn;
+                    textureCoordinates[0] = leftU;
+                    topV = 0.0625f * (f32)(s32)((u32)glyph >> 4);
+                    textureCoordinates[1] = topV;
+                    textureCoordinates[2] = 0.046875f + leftU;
+                    textureCoordinates[3] = topV;
+                    textureCoordinates[4] = leftU;
+                    textureCoordinates[5] = 0.046875f + topV;
+                    textureCoordinates[6] = 0.046875f + leftU;
+                    textureCoordinates[7] = 0.046875f + topV;
+                    vertexIndex = 0;
+                    nearDepth = D_008872F8[0];
+                    while (vertexIndex < 4) {
+                        QueueGlyphVertex *vertex;
+                        f32 *texcoord;
+                        vertex = &vertices[vertexIndex];
+                        vertex->position[2] = nearDepth - node->depthOffset;
+                        vertex->color[0] = (f32)(u32)node->color[0];
+                        vertex->color[1] = (f32)(u32)node->color[1];
+                        vertex->color[2] = (f32)(u32)node->color[2];
+                        vertex->color[3] = (f32)(u32)node->color[3];
+                        vertex->reciprocal = reciprocalDepth;
+                        texcoord = &textureCoordinates[vertexIndex * 2];
+                        vertex->textureCoordinates[0] = texcoord[0];
+                        vertex->textureCoordinates[1] = texcoord[1];
+                        vertexIndex += 1;
                     }
-                    u0 = 0.0625f * (f32)low;
-                    vv0 = 0.0625f * (f32)(s32)((v & 0xFF) >> 4);
-                    quads[0] = x0;
-                    quads[1] = y0;
-                    quads[16] = x1;
-                    quads[17] = y0;
-                    quads[32] = x0;
-                    quads[33] = y1;
-                    quads[48] = x1;
-                    quads[49] = y1;
-                    uv[0] = u0;
-                    uv[1] = vv0;
-                    uv[2] = 0.046875f + u0;
-                    uv[3] = vv0;
-                    uv[4] = u0;
-                    uv[5] = 0.046875f + vv0;
-                    uv[6] = 0.046875f + u0;
-                    uv[7] = 0.046875f + vv0;
-                    depth = D_008872F8[0] - ((Ext *)node)->unk110;
-                    j = 0;
-                    while (j < 4) {
-                        f32 *quad;
-                        quad = &quads[j * 16];
-                        quad[2] = depth;
-                        quad[8] = (f32)(u32)((Ext *)node)->col[0];
-                        quad[9] = (f32)(u32)((Ext *)node)->col[1];
-                        quad[10] = (f32)(u32)((Ext *)node)->col[2];
-                        quad[11] = (f32)(u32)((Ext *)node)->col[3];
-                        quad[6] = invW;
-                        quad[4] = uv[j * 2];
-                        quad[5] = uv[j * 2 + 1];
-                        j += 1;
-                    }
-                    D_00887310[0](4, quads, 4);
+                    D_00887310[0](4, vertices, 4);
                 } else {
-                    u32 v;
-                    f32 x0;
-                    f32 y0;
-                    f32 x1;
-                    f32 y1;
-                    s32 low;
-                    s32 tmp;
-                    f32 u0;
-                    f32 vv0;
-                    s32 j;
-                    v = (ch - 0x20) & 0xFF;
-                    if ((s32)v >= 0x80) {
-                        v = (v - 0x20) & 0xFF;
+                    f32 leftX;
+                    f32 advance;
+                    f32 horizontalOffset;
+                    f32 topY;
+                    f32 rightX;
+                    f32 bottomY;
+                    s32 atlasColumn;
+                    f32 leftU;
+                    f32 topV;
+                    s32 vertexIndex;
+                    glyph = glyph - 0x20;
+                    if ((s32)glyph >= 0x80) {
+                        glyph = glyph - 0x20;
                     }
-                    x0 = 12.0f * (f32)idx;
-                    x0 += ((Ext *)node)->x;
-                    y0 = ((Ext *)node)->y;
-                    x1 = 11.0f + x0;
-                    y1 = 11.0f + y0;
-                    low = (s32)((v & 0xFF) & 0xF);
-                    tmp = (s32)(v & 0xFF);
-                    if (tmp < 0 && low != 0) {
-                        low -= 0x10;
+                    advance = 12.0f * (f32)characterIndex;
+                    horizontalOffset = advance;
+                    leftX = node->x + horizontalOffset;
+                    vertices[0].position[0] = leftX;
+                    topY = node->y;
+                    vertices[0].position[1] = topY;
+                    rightX = 11.0f + leftX;
+                    vertices[1].position[0] = rightX;
+                    vertices[1].position[1] = topY;
+                    vertices[2].position[0] = leftX;
+                    bottomY = 11.0f + topY;
+                    vertices[2].position[1] = bottomY;
+                    vertices[3].position[0] = rightX;
+                    vertices[3].position[1] = bottomY;
+                    atlasColumn = debugGlyphColumn((s32)(glyph & 0xFF));
+                    leftU = 0.0625f * (f32)atlasColumn;
+                    textureCoordinates[0] = leftU;
+                    topV = 0.0625f * (f32)(s32)((u32)glyph >> 4);
+                    textureCoordinates[1] = topV;
+                    textureCoordinates[2] = 0.046875f + leftU;
+                    textureCoordinates[3] = topV;
+                    textureCoordinates[4] = leftU;
+                    textureCoordinates[5] = 0.046875f + topV;
+                    textureCoordinates[6] = 0.046875f + leftU;
+                    textureCoordinates[7] = 0.046875f + topV;
+                    vertexIndex = 0;
+                    while (vertexIndex < 4) {
+                        QueueGlyphVertex *vertex;
+                        f32 *texcoord;
+                        vertex = &vertices[vertexIndex];
+                        vertex->position[2] = projectedDepth;
+                        vertex->color[0] = (f32)(u32)node->color[0];
+                        vertex->color[1] = (f32)(u32)node->color[1];
+                        vertex->color[2] = (f32)(u32)node->color[2];
+                        vertex->color[3] = (f32)(u32)node->color[3];
+                        vertex->reciprocal = reciprocalDepth;
+                        texcoord = &textureCoordinates[vertexIndex * 2];
+                        vertex->textureCoordinates[0] = texcoord[0];
+                        vertex->textureCoordinates[1] = texcoord[1];
+                        vertexIndex += 1;
                     }
-                    u0 = 0.0625f * (f32)low;
-                    vv0 = 0.0625f * (f32)(s32)((v & 0xFF) >> 4);
-                    quads[0] = x0;
-                    quads[1] = y0;
-                    quads[16] = x1;
-                    quads[17] = y0;
-                    quads[32] = x0;
-                    quads[33] = y1;
-                    quads[48] = x1;
-                    quads[49] = y1;
-                    uv[0] = u0;
-                    uv[1] = vv0;
-                    uv[2] = 0.046875f + u0;
-                    uv[3] = vv0;
-                    uv[4] = u0;
-                    uv[5] = 0.046875f + vv0;
-                    uv[6] = 0.046875f + u0;
-                    uv[7] = 0.046875f + vv0;
-                    j = 0;
-                    while (j < 4) {
-                        f32 *quad;
-                        quad = &quads[j * 16];
-                        quad[2] = scaled;
-                        quad[8] = (f32)(u32)((Ext *)node)->col[0];
-                        quad[9] = (f32)(u32)((Ext *)node)->col[1];
-                        quad[10] = (f32)(u32)((Ext *)node)->col[2];
-                        quad[11] = (f32)(u32)((Ext *)node)->col[3];
-                        quad[6] = invW;
-                        quad[4] = uv[j * 2];
-                        quad[5] = uv[j * 2 + 1];
-                        j += 1;
-                    }
-                    D_00887310[0](4, quads, 4);
+                    D_00887310[0](4, vertices, 4);
                 }
             }
-            idx += 1;
+            characterIndex += 1;
         }
         node = node->next;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044fa90);
-#endif
-
 /* measured: declaration order maps temp_16/var_17/var_18/var_19 to retail
    $s0/$s1/$s2/$s3; integer-domain grid indexing and the stack-base expression
    reproduce the retail post-multiply address order. Object 416B/window 416B,
