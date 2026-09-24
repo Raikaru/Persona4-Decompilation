@@ -525,10 +525,24 @@ def section_relocs(obj, target_idx):
                 out.append((ro, ri & 0xFF, nm))
     return out
 
+def live_rodata_size(obj, section, relocations):
+    """Exclude only assembler alignment zeros after the last live table entry."""
+    size = section["size"]
+    if section["name"] != ".rodata" or not relocations:
+        return size
+    end = max((offset + 4 for offset, _kind, _name in relocations), default=0)
+    end = max((s["value"] + s["size"] for s in obj.symbols
+               if s.get("shndx") == section["idx"] and s.get("size")),
+              default=end)
+    if end and end < size and not any(obj.data[section["offset"] + end:
+                                             section["offset"] + size]):
+        return end
+    return size
+
 
 def recover_section_bases(obj, real, retail, gp):
-    """shndx -> recovered base address (from matched functions' relocs to the
-    object's own data symbols). Only sections with a single consistent vote."""
+    """shndx -> recovered base from matched references to owned data, including
+    the unnamed section relocations ee-gcc uses for local jump tables."""
     import collections
     sym = {}
     for s in obj.symbols:
@@ -545,9 +559,14 @@ def recover_section_bases(obj, real, retail, gp):
         pend = collections.defaultdict(list)
         for r in rels:
             off, t, nm = r["offset"], r["r_type"], r["symbol"]
-            if not nm or nm not in sym or off + 4 > len(win):
+            if off + 4 > len(win):
                 continue
-            shndx, stval = sym[nm]
+            if nm in sym:
+                shndx, stval = sym[nm]
+            elif r.get("target_section") is not None:
+                shndx, stval = r["target_section"], r["target_value"]
+            else:
+                continue
             if shndx == 0 or secname.get(shndx) not in DATA_SECTIONS:
                 continue
             wc, wr = struct.unpack_from("<I", body, off)[0], struct.unpack_from("<I", win, off)[0]
@@ -555,12 +574,12 @@ def recover_section_bases(obj, real, retail, gp):
                 a = (((wr & 0x03FFFFFF) << 2) | ((m["addr"] + off) & 0xF0000000)) - ((wc & 0x03FFFFFF) << 2)
                 votes[shndx][a - stval] += 1
             elif t == 5:
-                pend[nm].append((wc, wr))
+                pend[(shndx, stval)].append((wc, wr))
             elif t == 6:
-                for hc, hr in pend[nm]:
+                for hc, hr in pend[(shndx, stval)]:
                     a = (((hr & 0xFFFF) << 16) + _s16(wr)) - (((hc & 0xFFFF) << 16) + _s16(wc))
                     votes[shndx][a - stval] += 1
-                pend[nm] = []
+                pend[(shndx, stval)] = []
             elif t == 7:
                 votes[shndx][gp + (_s16(wr) - _s16(wc))] += 1
             elif t == 8:
@@ -713,6 +732,11 @@ def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literal
     per_name = {}
     independent_rodata_names = set()
     for name, secs in by_name.items():
+        if name == ".rodata" and len(secs) == 1:
+            section = secs[0]
+            size = live_rodata_size(obj, section, section_relocs(obj, section["idx"]))
+            if size != section["size"]:
+                secs = [dict(section, size=size)]
         secs.sort(key=lambda s: s["idx"])  # mwld concatenates same-name sections in shndx order
         layout = recover_concatenated_layout(secs, bases)
         if layout is None and independent_literals and name in ('.lit4', '.lit8'):
@@ -787,6 +811,34 @@ def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literal
                for other_start, other_end, _other_name in other_intervals):
             return False, {}
     return True, per_name
+
+def trim_placed_rodata(path, sections):
+    """Trim proven-unused jump-table alignment bytes so retail strings survive.
+
+    GNU as rounds ee-gcc jump-table sections up to their 16-byte alignment.
+    Eligibility measured the live extent; the linked object must use the same
+    extent rather than overwriting adjacent retail strings.
+    """
+    planned = sections.get(".rodata")
+    if planned is None:
+        return
+    obj = V.ObjectFile(path)
+    candidates = [s for s in obj.sh if s["name"] == ".rodata" and s["size"]]
+    if len(candidates) != 1:
+        return
+    section = candidates[0]
+    size = planned[1]
+    if size == section["size"]:
+        return
+    if size > section["size"] or live_rodata_size(
+        obj, section, section_relocs(obj, section["idx"])
+    ) != size:
+        sys.exit(f"build: unsafe .rodata extent for {path.name}")
+    data = bytearray(obj.data)
+    shoff = struct.unpack_from("<I", data, 0x20)[0]
+    entsize = struct.unpack_from("<H", data, 0x2e)[0]
+    struct.pack_into("<I", data, shoff + section["idx"] * entsize + 0x14, size)
+    path.write_bytes(data)
 
 
 def object_layout_is_placeable(addrs):
@@ -1401,6 +1453,7 @@ def prepare_link_objects(cobj, owner, linker_backend="mwld"):
         for marker in owner["funcs"]]
     entries = []
     owner["private_bridges"] = []
+    trim_placed_rodata(cobj, owner["sections"])
     if owner.get("text_run_count", 1) > 1 and linker_backend == "mwld":
         relative = owner["src"].relative_to(REPO).as_posix()
         result = split_object(cobj.read_bytes(), placements, relative)
@@ -1730,6 +1783,7 @@ def main():
             + ".o"
         )
         compile_c(c, o["src"], cobj, cache)
+
         o["obj"] = cobj
         o["objects"], object_entries = prepare_link_objects(cobj, o, c["linker_backend"])
         entries.extend(object_entries)

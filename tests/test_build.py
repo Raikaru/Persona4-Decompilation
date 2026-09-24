@@ -160,6 +160,38 @@ class SectionLayoutTests(unittest.TestCase):
             )
         )
 
+    def test_local_jump_table_does_not_carve_the_following_retail_string(self) -> None:
+        obj = mock.Mock(
+            data=bytes(48),
+            sh=[{"idx": 7, "name": ".rodata", "type": 1, "size": 48,
+                 "offset": 0, "addralign": 16}],
+            symbols=[{"name": "", "shndx": 7, "value": 0, "size": 0}],
+        )
+        obj.function.return_value = (
+            (0x3C030000).to_bytes(4, "little") + (0x8C630000).to_bytes(4, "little"),
+            [
+                {"offset": 0, "r_type": 5, "symbol": "",
+                 "target_section": 7, "target_value": 0},
+                {"offset": 4, "r_type": 6, "symbol": "",
+                 "target_section": 7, "target_value": 0},
+            ],
+        )
+        retail = mock.Mock()
+        retail.bytes_at.return_value = (
+            (0x3C030076).to_bytes(4, "little") +
+            (0x8C63ABA0).to_bytes(4, "little")
+        )
+        with mock.patch.object(
+            build, "section_relocs",
+            return_value=[(offset, 2, "") for offset in range(0, 40, 4)],
+        ):
+            self.assertEqual(
+                build.plan_data_sections(
+                    obj, [{"name": "host", "addr": 0x004E3FB0}], retail, 0, set()
+                ),
+                (True, {".rodata": (0x0075ABA0, 40)}),
+            )
+
     def test_lcf_places_unaligned_functions_at_exact_addresses(self) -> None:
         entries = [
             (0x004C1000, Path("first.o"), ".text"),

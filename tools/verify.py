@@ -78,9 +78,8 @@ def is_generated(path: Path) -> bool:
 # Middleware and platform code we did not write: RenderWare, CRI, the Sony SDK,
 # and the C runtime. It is tracked because it occupies retail windows, but it is
 # not the decompilation's goal, so progress is reported separately for it.
-# "middleware/" holds code proven to be ee-gcc output rather than MWCCPS2 (see
-# src/middleware/gcc_ee_grouped.c for the per-signature evidence); the vendor is
-# unknown so it is filed by toolchain instead of under cri/ or sce/.
+# "middleware/" holds unnamed ee-gcc wrappers; identified SRD routines now
+# live under "cri/". Both are reported as third-party rather than game code.
 # renderware/ is RenderWare Graphics 3.7 recovered from its source; it is the
 # same middleware as rw/, not Atlus's code, and leaves the first-party count as
 # it is ported out of the promoted code1_003x units.
@@ -346,9 +345,14 @@ class ObjectFile:
                 offset, info = struct.unpack_from(self.endian + "II", self.data, relsec["offset"] + index * entries)
                 if symbol["value"] <= offset < symbol["value"] + symbol["size"]:
                     rtype, symidx = info & 0xff, info >> 8
-                    relocations.append(dict(offset=offset - symbol["value"], r_type=rtype,
-                        type=R_MIPS_NAMES.get(rtype, str(rtype)),
-                        symbol=symtab[symidx]["name"] if symidx < len(symtab) else None))
+                    target = symtab[symidx] if symidx < len(symtab) else None
+                    record = dict(offset=offset - symbol["value"], r_type=rtype,
+                                  type=R_MIPS_NAMES.get(rtype, str(rtype)),
+                                  symbol=target["name"] if target else None)
+                    if target and not target["name"] and (target["info"] & 0xF) == 3:
+                        record["target_section"] = target["shndx"]
+                        record["target_value"] = target["value"]
+                    relocations.append(record)
         return self.data[start:end], relocations
 
 
