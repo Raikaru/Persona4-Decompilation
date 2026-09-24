@@ -934,3 +934,11 @@ iGpffffa7d0 = 0x007638c0; // type:data evidence: func_0029e040 native relocation
 iGpffffa7d8 = 0x007638c8; // type:data evidence: func_0029e040 native relocation at 0x0029E3C8; retail GP 0x007690F0; all 1 native references resolve to this address
 
 iGpffffac78 = 0x00763d68; // type:data evidence: func_00452870 native relocation at 0x00452A90; retail GP 0x007690F0; all 1 native references resolve to this address
+
+iGpffffac48 = 0x00763d38; // type:data evidence: func_00450630 retail instruction 0x004506E4, native GPREL16 decoded by recover_symbols.py against GP 0x007690F0
+
+iGpffffac50 = 0x00763d40; // type:data evidence: func_00450630 retail instruction 0x0045087C, native GPREL16 decoded by recover_symbols.py against GP 0x007690F0
+
+iGpffffb9d4 = 0x00764ac4; // type:data evidence: func_00450630 retail instruction 0x0045066C, native GPREL16 decoded by recover_symbols.py against GP 0x007690F0
+
+iGpffffb9d8 = 0x00764ac8; // type:data evidence: func_00450630 retail instruction 0x00450A0C, native GPREL16 decoded by recover_symbols.py against GP 0x007690F0
