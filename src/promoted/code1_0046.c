@@ -73,14 +73,14 @@ extern void func_00460ac0(char *name, u8 *task);
 extern u8 D_00712670[];
 extern s32 D_00724BF4;
 extern u8 D_00800000[];
-extern u16 D_008C0276;
-extern u8 iGpffffb020[];
-extern u8 iGpffffb024[];
-extern u8 iGpffffb028[];
+extern u16 D_008C0276[];
+extern char iGpffffb020[3];
+extern char iGpffffb024[2];
+extern char iGpffffb028[6];
 extern u8 *func_00468940(u8 *arg0, s64 arg1);
-extern void func_00453670(void *arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4);
-extern void func_00453860(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_00453960(void *arg0);
+extern void func_00453670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void func_00453860(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_00453960(u8 *arg0);
 extern s32 func_004688d0(u8 *arg0, s8 *arg1);
 extern s32 func_004426e8(const char *a, const char *b);
 extern s32 uGpffffb230;
@@ -1704,189 +1704,154 @@ void func_00467880(u8 *arg0)
         func_003e8110((u32)func_00457120());
     }
 }
-/* measured: base 277wd (reloc-masked) / fnalign 344 edits, obj 976B/window 1264B (-288B), retail 312/object 244 instrs (-68); */
-/* census 48 (opclass, unusually clean): addu -40, lui -27, addiu +7, sll -6, move +5, lbu +4, lh -4, lb -4, bne +3, andi -2, mtc1 +1 (jal +1 from __fixsfdi, sw/lw -2). */
-/* 2026-09-19 addressing pass (7k/7p) following func_0045b7c0 template (slot_cast 439, both_cast 257, decl 228, hoist 523 rejected): */
-/* slot_cast (25 D_00800000+w+off to (char*)D+...) 277 tie, census 48; both_cast (w-based (char*)w+...) 277 tie; subscript (2 u8** to &D[w+...]) 277 tie, census 47 (addu+2/lui+1/addiu+3); fullsub (all 25) 282 regress; */
-/* parens D+(w+off) 282 regress (addu+10/addiu+11); swap/u32w ties; noehoist (e hoist removed) 276 (-1); hoistbase (D+w hoisted) 280 regress, census 50; hoiststr (string base) 277 tie; */
-/* inline_h (h1/h2 inlined for e+3 sites) 282 (+5) but census 40 (-8: addu+9/sll+6/lh+6, sll fixed, lh +2 over) / edits 297 (-47) / 268 instrs (+24); selective 1-site 280/280/277 census 44, 2-site 284/279/279 census 40 (lh 0 exact), 3-site 282 census 40 (lh+2 over); */
-/* best inline_23_sub (sites 2+3 inlined for both 442088 + 2 u8** subscript) 268 (-9) / edits 330 (-14) / 267 instrs (+23) / 1068B (+92) / census 39 (-9: addu -32, lui -26, addiu +13, sll -2, move +3, lbu+4/lb-4, lh 0, bne+3, andi-2, mtc1+1); tie inline_13_sub 268/342 edits; full23sub 285 regress; */
-/* decl placement ties at 277 (6 orders) and at 268 (3 orders on best); pragma ties (loopinv/unroll/sched) and comsubs_off 328 (+51) / inline+comsubs 335 regress; solve_signedness mismatch 12, all flips reject/free (tmp free, st/i/k count moves, h1/h2 +2, flag constrained); slti $at + short-by-N hunts from prior note carry (neutral); */
-/* remaining wall: D_00800000+w hoist (retail rematerializes lui/addu per access, b210 CSEs to saved regs; 25-use respell neutral per archive), frame 0xA0 vs 0x170 (fewer spills; tmp[64] only), __fixsfdi/mtc1+1 + jal+1 from (s64)f1 float pack vs retail lui/sw/ld, iGp HI/LO-vs-GPREL phantoms, st==4/3 empty-arm branch layout; production stays ASM. */
-/* gate 2026-09-19: missing (D_008C0276 & 0x10)!=0 arm (retail 0x467eec bnez */
-/* to shared truncation block at 0x467ce8, 0x467cf4-0x467d90 i/k loops + st=1): */
-/* object 267 vs retail 312 (-45) before; duplicate i/k loops + st=1 return as */
-/* else of the 0x10 check -> object 311 vs retail 312 (-1, inside 303-321 gate). */
-/* Prior addressing/inline/decl/pragma/signedness hunts above carry (do not redo). */
-/* measured 00467bd0 (owner, this session): five source corrections found by reading retail's
-   frame and call setup.  309/312 (inside), words 276 -> 284, edits 370 -> 368.
-   (a) the body declared a bare `u8 flag` where retail passes a 256-byte stack buffer:
-       R273 and R296 both do `addiu $a1/$a3, $sp, 0x30` and R278 reads it back with
-       `lb $v0, 0x30($sp)`, and the frame runs 0x30..0x130 before the 64-byte block at 0x130.
-   (b) `func_004688d0` was declared here as `(u8 *, u8 *, s16)` - a lying prototype.  Its real
-       definition in src/promoted/sdkFiler.c is `(u8 *arg0, s8 *arg1)`, and retail's call at
-       R272-R274 sets only $a0 and $a1.  Corrected, and the third argument dropped.
-   (c) that call's first argument is `D_00800000[w + 4240]`, not `[w + 3984]` - R272 is
-       `lw $a0, 0x1090($v0)`.
-   (d) the two results read back from the 64-byte block are 32-bit at +36 and +40
-       (`lw $v1, 0x154($sp)` / `lw $v1, 0x158($sp)` at R257/R261), not 16-bit at +24 and +28.
-   (e) the chain had `st == 4` twice - once empty at the top to force the branch order and once
-       with the real arm further down, which is dead code.  Retail compares 4, 3, 2, 1, 0 and
-       then lays the arms out in ascending case order, so the real arm 4 belongs first and the
-       duplicate is gone.  A `switch` spelling of the same chain was measured and is worse (382).
-   Remaining wall is register pressure in the other direction from 001400f0: the body saves
-   $s2/$s3/$s4 that retail does not, so the frame is 0x1A0 against retail's 0x170 - exactly the
-   three extra 16-byte slots.  Retail recomputes `lui $v0, 8; addu $v0, $s0, $v0` at every single
-   field access instead of holding a base.  Inlining h1/h2/e/v at their uses was measured and is
-   worse (387), so the surplus liveness is elsewhere. */
-/* measured 00467bd0 (owner, 2026-09-19): fnalign edits **368 -> 328** by writing the
-   `if (st == c) ... else if` chain as a `switch (st)` with the cases ascending and the
-   trailing `else` as `default`.  Swept with a brace-aware converter over the 26
-   highest-edit first-party floors that carry a chain; seven improved, six got worse and
-   the rest have no convertible chain, so this is measured per function. */
-/* measured 00467bd0 (__fixsfdi +0x2ac O171): object lui 0x4240/mtc1 $f12/jal __fixsfdi (R_MIPS_26 at +0x2ac) + move $a0/$a1 + jal 468940 from (s64)f1 (48.0f->48, f2 dead, store D+3984) vs retail R204-R208 lui 0x4240/sw 0x168($sp)/lui 0x4378/sw 0x16c($sp)/ld $a1,0x168($sp) + jal 0x0c11a250 at 0x467f14 -> 0x468940 (no helper among 13 retail jals, all to 44/45/46; no cvt/mfc1/mtc1/trunc in retail) + $a0 reused + sw $v0,0x1090 (R213 store to 0x81090); fix prototype (s64,s16)->(u8*,s64) per sdkFiler.c:240 + pack via s32 bits[2]={0x42400000,0x43780000} + *(s64*)bits (ld, aligned, lo-hi matching retail order) + first &D+3984 (0xF90, retail $a0 low) + store D+4240 (0x1090, retail store low, 256 apart as retail 0x80F90 vs 0x81090) + f2 now used; census 1->0, count 311->312 exact (inside 303-321), words 280->282, edits 328->343. Edit count went UP while count went 311->312 against retail 312: +15 is frame 0x1A0->0x1B0 against retail 0x170, stack 0x1A8 against 0x168, plus $a0 addiu/addu and hi-half lui/sw; remaining gap is believed frame/addressing wall rather than conversion, stated as open question, production stays ASM. Transient BROKEN: new header plus old body gave `illegal implicit conversion from long long to unsigned char *` at the call, and because tools/build.py never compiles a guarded body the tree kept building and linting clean around a floor that did not compile. Next person: re-run measure_guarded immediately after any prototype change in this file. */
-// FUN_00467BD0 NONMATCHING
-#ifdef SKIP_ASM
-s32 func_00467bd0(u8 *arg0)
+/* Measured: 1252/1264 native bytes, 20 resolved relocations and twelve
+ * zero alignment bytes; 57 neighboring functions and data preserved.
+ * See docs/probe_archive/Filer_navigation_00467bd0_20260924.md. */
+#pragma push
+/* measured: share the checked path index and hoist the slash constant. */
+#pragma opt_loop_invariants on
+// FUN_00467BD0
+s32 func_00467bd0(u8 *task)
 {
-    s32 w;
-    s16 st;
-    u16 i;
-    u16 k;
-    s16 h1;
-    s16 h2;
-    s32 e;
-    s32 v;
+    /* Allocated as 0x81094 bytes by func_00468170. */
+    typedef struct FilerWork {
+        s8 path[256];
+        FilerEntry entries[2000];
+        s16 state;
+        s16 row;
+        s16 page;
+        s16 count;
+        s32 accepted;
+        u32 reserved;
+        s8 result[256];
+        u8 *chooser;
+    } FilerWork;
+    /* The list-state providers initialize and access 0x2C bytes. */
+    typedef struct FilerNavigation {
+        u32 flags;
+        u16 buttons[8];
+        s32 pageSize;
+        s32 scrollMargin;
+        s32 visibleRows;
+        s32 count;
+        s32 row;
+        s32 page;
+    } FilerNavigation;
+    union { f32 xy[2]; s64 packed; } position;
+    FilerNavigation navigation;
+    s8 typedName[256];
+    u16 length;
+    FilerWork *work;
 
-    w = *(s32 *)(arg0 + 56);
-    st = *(s16 *)(D_00800000 + w + 3968);
-    switch (st) {
+    work = *(FilerWork **)(task + 0x38);
+    switch (work->state) {
     case 0:
-        *(s16 *)(D_00800000 + w + 3968) = 1;
+        work->state = 1;
         break;
     case 1:
-        func_004673c0((u8 *)w);
-        *(s16 *)(D_00800000 + w + 3972) = 0;
-        *(s16 *)(D_00800000 + w + 3970) = 0;
-        *(s16 *)(D_00800000 + w + 3968) = 2;
+        func_004673c0((u8 *)work);
+        work->page = 0;
+        work->row = 0;
+        work->state = 2;
         break;
     case 2:
-        if ((D_008C0276 & 0x40) != 0) {
-            h1 = *(s16 *)(D_00800000 + w + 3970);
-            h2 = *(s16 *)(D_00800000 + w + 3972);
-            e = w + (h1 + h2) * 264;
-            v = *(s32 *)(e + 512);
-            if (v == 1) {
-                if (func_004426e8((const char *)iGpffffb020, (const char *)(e + 256)) != 0) {
-                    if (func_004426e8((const char *)iGpffffb024, (const char *)(w + (h1 + h2) * 264 + 256)) == 0) {
-                        *(s16 *)(D_00800000 + w + 3968) = 1;
+        if ((D_008C0276[0] & 0x40) != 0) {
+            s32 kind;
+            kind = work->entries[work->row + work->page].type;
+            if (kind == 1) {
+                if (func_004426e8((const char *)iGpffffb020,
+                                 (const char *)work->entries[work->row + work->page].name) == 0) {
+parentDirectory:
+                    {
+                        u16 scan;
+                        u16 cursor;
+                        s32 checked;
+                        /* path is the NUL-terminated directory string. */
+                        scan = 0;
+                        while (scan < 256) {
+                            if (work->path[scan] == 0) {
+                                length = scan;
+                                break;
+                            }
+                            scan++;
+                        }
+                        cursor = length;
+                        /* Reuse the signed index validated by this test. */
+                        while ((checked = cursor) >= 2) {
+                            s8 *current;
+                            current = &work->path[checked];
+                            if (*current == '/') {
+                                if (current[-1] != ':') {
+                                    work->path[cursor] = 0;
+                                } else {
+                                    current[1] = 0;
+                                }
+                                break;
+                            }
+                            cursor--;
+                        }
+                        work->state = 1;
                         return 0;
                     }
-                    func_00442088((char *)w, (const char *)iGpffffb028, (char *)w, (char *)(w + (*(s16 *)(D_00800000 + w + 3970) + *(s16 *)(D_00800000 + w + 3972)) * 264 + 256));
-                    *(s16 *)(D_00800000 + w + 3968) = 1;
+                }
+                if (func_004426e8((const char *)iGpffffb024,
+                                 (const char *)work->entries[work->row + work->page].name) == 0) {
+                    work->state = 1;
                     return 0;
                 }
-                i = 0;
-                while (((i & 0xFFFF)) < 256) {
-                    if (*(u8 *)(w + (i & 0xFFFF)) == 0) {
-                        break;
-                    }
-                    i = (i + 1) & 0xFFFF;
-                }
-                k = i & 0xFFFF;
-                while (((k & 0xFFFF)) >= 2) {
-                    u8 *p = (u8 *)(w + (k & 0xFFFF));
-                    if (*p == 47) {
-                        if (*(p - 1) != 58) {
-                            *(u8 *)(w + (k & 0xFFFF)) = 0;
-                        } else {
-                            *(p + 1) = 0;
-                        }
-                        break;
-                    }
-                    k = (k - 1) & 0xFFFF;
-                }
-                *(s16 *)(D_00800000 + w + 3968) = 1;
+                func_00442088((char *)work->path, (const char *)iGpffffb028,
+                              (char *)work->path, (char *)work->entries[work->row + work->page].name);
+                work->state = 1;
                 return 0;
             }
-            if (v == 0) {
-                *(s32 *)(D_00800000 + w + 3976) = 1;
-                func_00442088((char *)(w + 3984), (const char *)iGpffffb028, (char *)w, (char *)(w + (*(s16 *)(D_00800000 + w + 3970) + *(s16 *)(D_00800000 + w + 3972)) * 264 + 256));
-                *(s16 *)(D_00800000 + w + 3968) = 3;
+            if (kind == 0) {
+                work->accepted = 1;
+                func_00442088((char *)work->result, (const char *)iGpffffb028,
+                              (char *)work->path, (char *)work->entries[work->row + work->page].name);
+                work->state = 3;
                 return 0;
             }
-        } else if ((D_008C0276 & 0x10) == 0) {
-            if ((D_008C0276 & 0x80) != 0) {
-                {
-                    s32 bits[2] = {0x42400000, 0x43780000};
-                    s64 pack = *(s64 *)bits;
-                    *(u8 * *)&D_00800000[w + 4240] = func_00468940((u8 *)&D_00800000[w + 3984], pack);
-                    *(s16 *)(D_00800000 + w + 3968) = 4;
-                }
-            } else if ((D_008C0276 & 0x20) != 0) {
-                *(s32 *)(D_00800000 + w + 3976) = 0;
-                *(s16 *)(D_00800000 + w + 3968) = 3;
-                return 0;
-            } else {
-                {
-                    u8 tmp[64];
-                    func_00453670(tmp, 10, *(s16 *)(D_00800000 + w + 3974), *(s16 *)(D_00800000 + w + 3970), *(s16 *)(D_00800000 + w + 3972));
-                    func_00453860(tmp, 0x4000, 0x1000, 0x2000, 0x8000);
-                    if (func_00453960(tmp) != 0) {
-                        *(s16 *)(D_00800000 + w + 3970) = *(s32 *)(tmp + 36);
-                        *(s16 *)(D_00800000 + w + 3972) = *(s32 *)(tmp + 40);
-                    }
-                }
-            }
-        } else {
-            i = 0;
-            while (((i & 0xFFFF)) < 256) {
-                if (*(u8 *)(w + (i & 0xFFFF)) == 0) {
-                    break;
-                }
-                i = (i + 1) & 0xFFFF;
-            }
-            k = i & 0xFFFF;
-            while (((k & 0xFFFF)) >= 2) {
-                u8 *p = (u8 *)(w + (k & 0xFFFF));
-                if (*p == 47) {
-                    if (*(p - 1) != 58) {
-                        *(u8 *)(w + (k & 0xFFFF)) = 0;
-                    } else {
-                        *(p + 1) = 0;
-                    }
-                    break;
-                }
-                k = (k - 1) & 0xFFFF;
-            }
-            *(s16 *)(D_00800000 + w + 3968) = 1;
+        } else if ((D_008C0276[0] & 0x10) != 0) {
+            goto parentDirectory;
+        } else if ((D_008C0276[0] & 0x80) != 0) {
+            position.xy[0] = 48.0f;
+            position.xy[1] = 248.0f;
+            work->chooser = func_00468940(task, position.packed);
+            work->state = 4;
+        } else if ((D_008C0276[0] & 0x20) != 0) {
+            work->accepted = 0;
+            work->state = 3;
             return 0;
+        } else {
+            func_00453670((u8 *)&navigation, 10, work->count, work->row, work->page);
+            func_00453860((u8 *)&navigation, 0x4000, 0x1000, 0x2000, 0x8000);
+            if (func_00453960((u8 *)&navigation) != 0) {
+                work->row = navigation.row;
+                work->page = navigation.page;
+            }
         }
-        func_00467880((u8 *)w);
+        func_00467880((u8 *)work);
         break;
     case 3:
         break;
     case 4:
-        {
-            s8 buf[256];
-            if (func_004688d0(*(u8 * *)&D_00800000[w + 4240], buf) != 0) {
-                if (buf[0] == 0) {
-                    *(s16 *)(D_00800000 + w + 3968) = 2;
-                } else {
-                    *(s32 *)(D_00800000 + w + 3976) = 1;
-                    func_00442088((char *)&D_00800000[w + 3984], (const char *)iGpffffb028, (char *)w, (char *)buf);
-                    *(s16 *)(D_00800000 + w + 3968) = 3;
-                }
+        if (func_004688d0(work->chooser, typedName) != 0) {
+            if (typedName[0] == 0) {
+                work->state = 2;
+            } else {
+                work->accepted = 1;
+                func_00442088((char *)work->result, (const char *)iGpffffb028,
+                              (char *)work->path, (char *)typedName);
+                work->state = 3;
             }
-            func_00467880((u8 *)w);
         }
+        func_00467880((u8 *)work);
         break;
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00467bd0);
-#endif
+
+#pragma pop
 // FUN_004680C0
 void func_004680c0(u8 *arg0)
 {
@@ -3691,7 +3656,7 @@ s32 func_0046f2b0(u8 *arg0)
     extern u32 func_003e8120(u32 camera);
     extern u32 func_003e8110(u32 camera);
     extern s32 func_003f6440(s32 state, void *value);
-    extern s32 func_00453960(void *arg0);
+    extern s32 func_00453960(u8 *arg0);
     extern s32 func_00453d70(void *arg0);
     extern s32 func_00453dc0(void *arg0);
     extern u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg);
