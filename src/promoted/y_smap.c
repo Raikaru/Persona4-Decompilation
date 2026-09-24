@@ -1077,8 +1077,8 @@ u8 *func_002ae630(u8 *arg0) {
     extern u8 *func_002b0250(u8 *, u8, u8, u8, s8, u8, u8, u8);
     extern void func_002b2830(u8 *, YVec2f, f32, f32, u32);
     extern void func_002B1100(void *, u32, u32);
-    extern f32 func_002b13e0(YVec3f *, f32);
-    extern f32 func_002b1480(YVec3f *, f32);
+    extern f32 func_002b13e0(f32, YVec3f *);
+    extern f32 func_002b1480(f32, YVec3f *);
     extern s32 func_002b3990(s32);
     extern s32 func_002b4140(s32, s8, u8 *);
     extern s32 func_002b4fe0(s32, s64, s32);
@@ -1252,11 +1252,11 @@ u8 *func_002ae630(u8 *arg0) {
             p = (YVec3f *)(e + 0x150);
             ti = func_002B11C0(*(RwV3d *)p);
             fbase = (f32)ti * 18.0f + 172.0f;
-            tf = func_002b13e0(p, 18.0f);
+            tf = func_002b13e0(18.0f, p);
             fv.v.x = (fbase - tf) - 2.0f;
             ti = func_002B1210(*(RwV3d *)p);
             fbase = (f32)ti * 18.0f + 9.0f;
-            tf = func_002b1480(p, 18.0f);
+            tf = func_002b1480(18.0f, p);
             fv.v.y = (fbase - tf) - 2.0f;
             *(s32 *)(blk + m * 4 + 0x114) = func_002b4fe0((s32)res, fv.s, (m & 0xFF));
         }
@@ -2126,7 +2126,7 @@ f32 func_002b1320(u8 *arg0, f32 arg1) {
     return arg1 / 2.0f - p * q;
 }
 // FUN_002B13E0
-f32 func_002b13e0(YVec3f *arg0, f32 arg1) {
+f32 func_002b13e0(f32 arg1, YVec3f *arg0) {
     YVec3f v1, v2;
     f32 t, p, q;
 
@@ -2139,7 +2139,7 @@ f32 func_002b13e0(YVec3f *arg0, f32 arg1) {
 }
 
 // FUN_002B1480
-f32 func_002b1480(YVec3f *arg0, f32 arg1) {
+f32 func_002b1480(f32 arg1, YVec3f *arg0) {
     YVec3f v2, v3, v1;
     f32 t, p, q;
 
