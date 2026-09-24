@@ -77,11 +77,11 @@ typedef struct YRGBA { u8 a, b, c, d; } YRGBA;
 
 /* func_002afbc0 callees */
 extern s32 func_002b2a30(u8, u8, u8, u8);
-extern void func_002b2bd0(f32 *, s32, f32, f32, f32, f32);
+extern void func_002b2bd0(f32 *, s64, f32, f32, f32, f32);
 extern s32 func_00106330(s32);
 extern u8 *func_00155280(void);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern void func_002b0b10(u8 *, YVec2f, u8, s32, s8, s32, f32, f32, f32, f32);
+extern void func_002b0b10(u8 *arg0, YVec2f arg1, f32 fparg0, f32 fparg1, u8 arg2, f32 fparg2, f32 fparg3, s32 arg3, s8 arg4, s32 arg5);
 extern u8 D_00794DB0[];
 extern u8 D_00794CF0[];
 extern u8 D_0076465C;   /* gp-relative, -0x4A94 */
@@ -1449,85 +1449,114 @@ void func_002afb70(u8 *arg0, s8 arg1) {
 
 
 
-/* measured: re-derived if-chain variant (probe_variants v2 nd 199; measure_guarded obj 1640B/window 1632B nd 199 within 3% 1583-1681B; fnalign 46 edits +9 reloc-only retail 408 obj 410). ldr/ldl via YVec2f-by-value at disp 0x8, frame 0x70, bltz guard; prior note nd349/obj1644 retained as history, re-derived same shape without permuting spellings. Residuals: buf copy load-store vs load-load; doubled-arm $v0/$f0 vs $v1/$f3; if-chain move $v1,$v0; t3 before mov.s f17; GPR-grouped vs interleaved FP args. Repro: `python3 tools/probe_variants.py src/promoted/y_smap.c func_002afbc0 --candidate v2=/tmp/cand_afbc0_v2.c` -> 199; `python3 tools/measure_guarded.py src/promoted/y_smap.c func_002afbc0` -> obj 1640B/window 1632B GUARDED_SCORE 199; `python3 tools/fnalign.py src/promoted/y_smap.c func_002afbc0 --candidate /tmp/guarded_afbc0.c --quiet` -> 46 edits; `python3 tools/verify.py src/promoted/y_smap.c` -> 28 MATCH/8 ASM unchanged (production stays ASM via #else INCLUDE_ASM, no pragma); `python3 tools/decomp_lint.py src/promoted/y_smap.c` -> clean. */
-// FUN_002AFBC0 NONMATCHING
-#ifdef NON_MATCHING
+/* The cell constructor allocates 0x160 bytes. The renderer owns the
+ * position, visibility and icon fields below; the four queued vertices
+ * occupy the existing 0x100-byte region beginning at 0x40. */
+typedef struct SMapCell {
+    void *self;
+    u8 type;
+    s8 variant;
+    u8 reserved06[2];
+    YVec2f position;
+    YVec2f offset;
+    u8 origin;
+    u8 reserved19[3];
+    f32 textureBounds[4];
+    f32 width;
+    f32 height;
+    f32 scale;
+    f32 reciprocalZ;
+    u8 reserved3C[4];
+    u8 renderVertices[0x100];
+    u8 column;
+    u8 row;
+    s8 orientation;
+    s8 visible;
+    s8 mode;
+    u8 reserved145[7];
+    s8 hasIcon;
+    u8 reserved14D[3];
+    YVec2f iconOffset;
+    s8 visibilityColumnOffset;
+    s8 visibilityRowOffset;
+    s8 pendingDraw;
+    u8 reserved15B[5];
+} SMapCell;
+typedef char SMapCellStorageSize[(sizeof(SMapCell) == 0x160) ? 1 : -1];
+
+/* Draw a visible map cell and its optional icon in scrolling or fixed mode.
+ * The scrolling draw request is consumed after rendering. Native b210 -O2:
+ * 1624/1632 bytes with all 28 relocations resolved and eight zero tail bytes.
+ * See docs/probe_archive/Small_map_cell_002afbc0_20260924.md. */
+// FUN_002AFBC0
 s32 func_002afbc0(u8 *arg0) {
-    u8 *s3;
-    u8 *s1;
-    s32 s2;
-    s32 s0;
-    s32 s4;
-    f32 buf[4];
-    s32 flag;
-    s3 = arg0;
-    s1 = *(u8 **)(arg0 + 0x38);
-    s2 = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
-    func_002b2bd0(buf, 0, 126.0f, 126.0f, 21.0f, 22.0f);
-    buf[2] = buf[0];
-    buf[3] = buf[1];
+    u8 *task;
+    SMapCell *cell;
+    s32 color;
+    s32 visibilityRow;
+    s32 visibilityColumn;
+    YVec2f origin[2];
+    s32 showIcon;
+    task = arg0;
+    cell = *(SMapCell **)(arg0 + 0x38);
+    color = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
+    func_002b2bd0((f32 *)&origin[0], 0, 126.0f, 126.0f, 21.0f, 22.0f);
+    origin[1] = origin[0];
     if (D_0076464C == 0) {
         return 0;
     }
     if (func_00106330(0x1417) != 0) {
         return 0;
     }
-    if (*(s8 *)(s1 + 0x144) == 0) {
+    if (cell->mode == 0) {
         if (func_00106330(0x1416) == 0) {
-            if (*(s8 *)(s1 + 0x143) == 0) {
+            if (cell->visible == 0) {
                 return 0;
             }
         }
-        if (*(s8 *)(s1 + 0x15A) == 0) {
+        if (cell->pendingDraw == 0) {
             return 0;
         }
-        *(f32 *)(s1 + 8) = 7.0f + 18.0f * (f32)(u32)*(u8 *)(s1 + 0x140) + buf[2] - (f32)(D_00764660 * 18) + 15.0f + *(f32 *)(s1 + 0x10) - 10.0f;
-        *(f32 *)(s1 + 0xC) = 227.0f + 18.0f * (f32)(u32)*(u8 *)(s1 + 0x141) + buf[3] - (f32)(D_0076465C * 18) + 15.0f + *(f32 *)(s1 + 0x14) + 16.0f;
-        if (*(s8 *)(s1 + 0x14C) == 1) {
-            s0 = ((*(u8 *)(func_00155280() + 0x47) + *(s8 *)(s1 + 0x159)) & 0xFF);
-            s4 = ((*(u8 *)(func_00155280() + 0x46) + *(s8 *)(s1 + 0x158)) & 0xFF);
-            if (func_00106330(0x1416) != 0) {
-                flag = 1;
+        cell->position.x = 7.0f + 18.0f * (f32)(u32)cell->column + origin[1].x - (f32)(D_00764660 * 18) + 15.0f + cell->offset.x - 10.0f;
+        cell->position.y = 227.0f + 18.0f * (f32)(u32)cell->row + origin[1].y - (f32)(D_0076465C * 18) + 15.0f + cell->offset.y + 16.0f;
+        if (cell->hasIcon == 1) {
+            visibilityRow = ((*(u8 *)(func_00155280() + 0x47) + cell->visibilityRowOffset) & 0xFF);
+            visibilityColumn = ((*(u8 *)(func_00155280() + 0x46) + cell->visibilityColumnOffset) & 0xFF);
+            if (func_00106330(0x1416) == 0) {
+                showIcon = (s8)(((1 << (visibilityColumn & 0xFF)) & 0xFFFF & ((u16 *)D_00764658)[visibilityRow & 0xFF]) >> (visibilityColumn & 0xFF));
             } else {
-                flag = (s8)(((1 << (s4 & 0xFF)) & 0xFFFF & ((u16 *)D_00764658)[s0 & 0xFF]) >> (s4 & 0xFF));
+                showIcon = 1;
             }
-            if ((s8)flag == 1) {
-                func_0025ecd0(*(f32 *)(s1 + 8) + *(f32 *)(s1 + 0x150), *(f32 *)(s1 + 0xC) + *(f32 *)(s1 + 0x154), 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (u8 *)(u32)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
+            if ((s8)showIcon == 1) {
+                func_0025ecd0(cell->position.x + cell->iconOffset.x, cell->position.y + cell->iconOffset.y, 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (void *)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
             }
         }
-        func_002b0b10(s3, *(YVec2f *)(s1 + 8), *(u8 *)(s1 + 0x18), s2, *(s8 *)(s1 + 0x142), 0x50, *(f32 *)(s1 + 0x2C), *(f32 *)(s1 + 0x30), 60008.0f, *(f32 *)(s1 + 0x34));
-        *(u8 *)(s1 + 0x15A) = 0;
-        return 0;
-    } else {
-        if (*(s8 *)(s1 + 0x144) != 1) {
-            return 0;
-        }
+        func_002b0b10(task, cell->position, cell->width, cell->height, cell->origin, 60008.0f, cell->scale, color, cell->orientation, 0x50);
+        cell->pendingDraw = 0;
+    } else if (cell->mode == 1) {
         if (func_00106330(0x1416) == 0) {
-            if (*(s8 *)(s1 + 0x143) == 0) {
+            if (cell->visible == 0) {
                 return 0;
             }
         }
-        *(f32 *)(s1 + 8) = 172.0f + 18.0f * (f32)(u32)*(u8 *)(s1 + 0x140);
-        *(f32 *)(s1 + 0xC) = 9.0f + 18.0f * (f32)(u32)*(u8 *)(s1 + 0x141);
-        if (*(s8 *)(s1 + 0x14C) == 1) {
-            s0 = ((*(u8 *)(func_00155280() + 0x47) + *(s8 *)(s1 + 0x159)) & 0xFF);
-            s4 = ((*(u8 *)(func_00155280() + 0x46) + *(s8 *)(s1 + 0x158)) & 0xFF);
-            if (func_00106330(0x1416) != 0) {
-                flag = 1;
+        cell->position.x = 172.0f + 18.0f * (f32)(u32)cell->column;
+        cell->position.y = 9.0f + 18.0f * (f32)(u32)cell->row;
+        if (cell->hasIcon == 1) {
+            visibilityRow = ((*(u8 *)(func_00155280() + 0x47) + cell->visibilityRowOffset) & 0xFF);
+            visibilityColumn = ((*(u8 *)(func_00155280() + 0x46) + cell->visibilityColumnOffset) & 0xFF);
+            if (func_00106330(0x1416) == 0) {
+                showIcon = (s8)(((1 << (visibilityColumn & 0xFF)) & 0xFFFF & ((u16 *)D_00764658)[visibilityRow & 0xFF]) >> (visibilityColumn & 0xFF));
             } else {
-                flag = (s8)(((1 << (s4 & 0xFF)) & 0xFFFF & ((u16 *)D_00764658)[s0 & 0xFF]) >> (s4 & 0xFF));
+                showIcon = 1;
             }
-            if ((s8)flag == 1) {
-                func_0025ecd0(*(f32 *)(s1 + 8) + *(f32 *)(s1 + 0x150), *(f32 *)(s1 + 0xC) + *(f32 *)(s1 + 0x154), 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (u8 *)(u32)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
+            if ((s8)showIcon == 1) {
+                func_0025ecd0(cell->position.x + cell->iconOffset.x, cell->position.y + cell->iconOffset.y, 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (void *)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
             }
         }
-        func_002b0b10(s3, *(YVec2f *)(s1 + 8), *(u8 *)(s1 + 0x18), s2, *(s8 *)(s1 + 0x142), 0x4C, *(f32 *)(s1 + 0x2C), *(f32 *)(s1 + 0x30), 60008.0f, *(f32 *)(s1 + 0x34));
-        return 0;
+        func_002b0b10(task, cell->position, cell->width, cell->height, cell->origin, 60008.0f, cell->scale, color, cell->orientation, 0x4C);
     }
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002afbc0);
-#endif
 
 // FUN_002B0220
 void func_002b0220(u8 *arg0) {
@@ -1794,7 +1823,7 @@ extern u8 D_00793E80[];
 /* measured: Tri-array + y-split + if-chain restores the missing third (probe_variants 322 -> 123; fnalign retail 356 obj 358, 97 edits +4 reloc-only, 0.6% over, bankable; task band 341-363 for retail 352 holds at 358). Root causes: (1) `&sp90 + v6*12` over 12 separate f32/s32 locals is UB, so b210 DCE'd 11 stores/arm (88 stores, 117 instrs, frame 0x90 vs 0xC0, 235 vs 352); struct Tri {f32 a; s32 b; f32 c;} t[4] with t[v6].a/c makes the 8 floats + 4 zeros observable and holds the frame at 0xC0 with 5 FPU saves. (2) switch conflated YVec2f.y (f20, 0x8C stack) with fparg2 (f14, DAT-60008 loop term); by = arg1.y split, arg1.x reloaded per arm like retail lwc1 0x88. (3) inner switch codegen is descending (beq 2,1,0) vs retail ascending (bnez 0, bne 1, bne 2); if (v==0)/else if (v==1)/else if (v==2) in ascending order matches. jal counts equal (00457120 + 00461390 both sides), so missing code holds no calls. m2c succeeds on this unit (no jr/jtbl; sibling 2ae630 note does not apply) but its loop drops the bltz sign-fixup else arms; romwright likewise warns away 4 unreachable blocks and simplifies to plain (f32) casts. Residuals: prologue GPR-then-FP move order vs retail interleave; byte-setup regs ($t1/$t0/$a3/$a2 vs $a1/$a0/$v1/$v0, missing mtc1/lui hoist); loop t13/offset/counter regs ($v0/$t3/$t2 vs $t5/$t0/$a2); D_008872F8 lui-hoist floor. TU-strict YVec2f-by-value/(u8 *)(u32)/(f32) casts, compiles -DNON_MATCHING, verify ASM, lint clean. */
 // FUN_002B0B10 NONMATCHING
 #ifdef NON_MATCHING
-void func_002b0b10(u8 *arg0, YVec2f arg1, u8 arg2, s32 arg3, s8 arg4, s32 arg5, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
+void func_002b0b10(u8 *arg0, YVec2f arg1, f32 fparg0, f32 fparg1, u8 arg2, f32 fparg2, f32 fparg3, s32 arg3, s8 arg4, s32 arg5) {
     struct Tri { f32 a; s32 b; f32 c; };
     struct Tri t[4];
     f32 temp_f0;
