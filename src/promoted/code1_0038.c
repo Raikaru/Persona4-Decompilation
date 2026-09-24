@@ -1198,19 +1198,13 @@ void func_003874c0(s32 arg0, u8 *arg1)
         func_00386c00(arg1);
     }
 }
-/* measured: honest first reconstruction per func_0038bab0/89640/84cc0 idiom (u8* state at +0x46 plus base, (f32)(u16) counters bltz double, plain (u8) clamps, sequential <15/<35/<4 guards empty else, block-scoped next/i/j, plain arithmetic no COP1 exemption, Vertex[4] 64B work at sp+0x60 with scale/color idiom per 0038a480; probe_variants v1 262w base honest, R1 v_u32 264w (+2) but fnalign 431->454 exact and v_u32b 264w/453o/257e adopted for 3% gate (v1 431o 5% short unbankable), R2 inclusive 266w/262e regress, aiu32/reorder 264w/257e ties unproductive; stop after two rounds (R1 productive for count, R2 unproductive after fnalign gate) per batch; fnalign v_u32b retail 454/object 453 (1 short 0.2% within 3%, 257 edits +2 reloc-only, sh/andi order + $s/$f color + GP offsets + COP1 adda/madd floor remain); providers verified (373cb0 f32,f32,f32,s32 per btlShuffleCalc.c:43, 44b7b0/610 f32 per btlShuffleCalc.c:27/26, 457120 u8* per btlShuffleCalc.c:9, 377930 u8*,s32,s32,u8*,s32 per this file:24, 3f6440 s32,s32 per this file:25, 45c870 void*,s32 per this file:796, 489f80/48a000 void per cmpConfig.c:35/37, 89180 u8* per this file:14, D_008872F8 f32[] per this file:56, D_00887310 s32,void*,s32 per this file:58, fGp82fc pi/82cc 0.4/83d8 pi/2 per image.bin, 15.0/28.0/30.0/10.0/255.0/192.0/211.0/316.0 per retail immediates); Ghidra/IDA agree on CFG/call order, differ on 373cb0 arg order and GP naming (used file idiom); lever 4 exclusive <15/<35/<4 already $v0 (inclusive regresses); lhu correct; double-def offset remains + COP1 chains; re-derived, no fabrications; archive P038_00387750_body.c stale COP1-floor note. Banked guarded floor. */
-/* measured 00387750 (owner, 2026-09-19): fnalign **259 -> 257 edits**, count
-   451 -> 449 against retail 454, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits - no guard before the first iteration, one compare
-   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
-/* measured 00387750 (owner, 2026-09-19): fnalign **257 -> 255 edits**, count
-   449 -> 447 against retail 454, converting a SECOND constant-bound `for` loop
-   to `do { } while` after the first conversion was already banked.
-   The lever is iterative, which the first sweep hid: it converts the single best loop
-   per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
-// FUN_00387750 NONMATCHING
-#ifdef NON_MATCHING
+static inline f32 code38QuarterTurnOffset(s32 index)
+{
+    extern f32 fGpffff83d8;
+    return fGpffff83d8 * (f32)index;
+}
+
+// FUN_00387750
 void func_00387750(u8 *arg0)
 {
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
@@ -1221,63 +1215,45 @@ void func_00387750(u8 *arg0)
     extern f32 fGpffff82cc;
     extern f32 fGpffff82fc;
     extern f32 fGpffff83d8;
-    typedef struct {
-        f32 x;
-        f32 y;
-        f32 z;
-        u32 pad0;
-        u32 pad1;
-        u32 pad2;
-        f32 scale;
-        u32 pad3;
-        f32 color[4];
-        u32 tail[4];
-    } Vertex_7750;
     u8 *base;
     u8 *state;
-    f32 depth;
-    f32 scale;
-    f32 spin;
+    struct { f32 depth; f32 recipZ; f32 phase; } view;
     f32 blend0;
     f32 blend1;
     u8 colors[4];
-    Vertex_7750 work[4];
-    s32 (*draw)(s32 arg0, void *arg1, s32 arg2);
+    BtlShuffleSkyVertex work[4];
+    typedef struct {
+        s32 (*draw)(s32 primitive, void *vertices, s32 count);
+    } Code38PrimitiveDispatch;
+    Code38PrimitiveDispatch *dispatch;
+    s32 alpha;
     base = *(u8 **)arg0;
     state = arg0 + 0x46;
-    depth = D_008872F8[0];
-    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    view.depth = D_008872F8[0];
+    view.recipZ = 1.0f / *(f32 *)(func_00457120() + 0x80);
     *(u16 *)(state + 2) = (*(u16 *)(state + 2) + 1) % 10;
-    spin = (fGpffff82fc * (f32)*(u16 *)(state + 2)) / 10.0f;
+    view.phase = (fGpffff82fc * (f32)*(u16 *)(state + 2)) / 10.0f;
     if ((*(u16 *)(state + 4) & 1) == 0) {
         blend0 = func_00373cb0((f32)*(u16 *)state, 0.0f, 15.0f, 0);
         blend1 = 0.0f;
         {
-            u16 next;
-            next = *(u16 *)state + 1;
-            *(u16 *)state = next;
-            if ((next & 0xFFFF) < 0xF) {
-            } else {
+            if (++*(u16 *)state >= 0xF) {
                 *(u16 *)state = 0;
                 *(u16 *)(state + 4) = *(u16 *)(state + 4) | 1;
             }
         }
-    } else if ((*(u16 *)(state + 4) & 2) == 0) {
-        blend0 = 1.0f;
-        blend1 = 0.0f;
-    } else {
+    } else if (*(u16 *)(state + 4) & 2) {
         blend0 = 1.0f - func_00373cb0((f32)*(u16 *)state, 0.0f, 28.0f, 0);
         blend1 = func_00373cb0((f32)*(u16 *)state, 0.0f, 30.0f, 0);
         {
-            u16 next;
-            next = *(u16 *)state + 1;
-            *(u16 *)state = next;
-            if ((next & 0xFFFF) < 0x23) {
-            } else {
+            if (++*(u16 *)state >= 0x23) {
                 *(u16 *)(arg0 + 0x4C) = *(u16 *)(arg0 + 0x4C) & 0xFBFF;
                 func_00389180(*(u8 **)(base + 0x1F294));
             }
         }
+    } else {
+        blend0 = 1.0f;
+        blend1 = 0.0f;
     }
     colors[0] = 0xFF;
     colors[1] = 0;
@@ -1296,61 +1272,67 @@ void func_00387750(u8 *arg0)
     func_0048a000();
     func_003f6440(3, (void *)0x3F801);
     func_003f6440(2, (void *)0x48);
-    draw = D_00887310[0];
     {
         s32 i;
-        i = 0;
-        do {
-            s32 ai;
+        for (i = 0; i < 4; i++) {
             f32 ang;
-            f32 s;
-            f32 c;
-            ai = (u8)(255.0f * ((f32)(i & 1) * blend0));
-            ang = spin + fGpffff83d8 * (f32)i;
-            s = func_0044b7b0(ang);
-            c = func_0044b610(ang);
-            work[i].x = 316.0f + 192.0f * c;
-            work[i].y = 211.0f + 192.0f * s;
-            work[i].z = depth;
-            work[i].scale = scale;
-            work[i].color[0] = 255.0f;
-            work[i].color[1] = 0.0f;
-            work[i].color[2] = 0.0f;
-            work[i].color[3] = (f32)(u32)ai;
-            i++;
-        } while (i < 4);
+            f32 y;
+            f32 x;
+            BtlShuffleSkyVertex *vertex;
+            alpha = (u8)(255.0f * ((f32)(i & 1) * blend0));
+            {
+                f32 offset;
+                offset = code38QuarterTurnOffset(i);
+                ang = view.phase + offset;
+            }
+            y = (0.0f + 211.0f) + 192.0f * func_0044b7b0(ang);
+            x = (0.0f + 316.0f) + 192.0f * func_0044b610(ang);
+            vertex = &work[i];
+            vertex->u.els.scrVertex.x = x;
+            vertex->u.els.scrVertex.y = y;
+            vertex->u.els.scrVertex.z = view.depth;
+            vertex->u.els.color.r = 255.0f;
+            vertex->u.els.color.g = 0.0f;
+            vertex->u.els.color.b = 0.0f;
+            vertex->u.els.color.a = (f32)(u32)alpha;
+            vertex->u.els.recipZ = view.recipZ;
+        }
     }
-    draw(5, work, 4);
+    dispatch = (Code38PrimitiveDispatch *)D_00887310;
+    dispatch->draw(5, work, 4);
     {
         s32 j;
-        j = 0;
-        do {
-            s32 ai;
+        for (j = 0; j < 4; j++) {
             f32 ang;
-            f32 s;
-            f32 c;
-            ai = (u8)(255.0f * (fGpffff82cc * (f32)(j & 1) * blend0));
-            ang = spin + fGpffff83d8 * (f32)j;
-            s = func_0044b7b0(ang);
-            c = func_0044b610(ang);
-            work[j].x = 316.0f + 192.0f * c;
-            work[j].y = 211.0f + 192.0f * s;
-            work[j].z = depth;
-            work[j].scale = scale;
-            work[j].color[0] = 255.0f;
-            work[j].color[1] = 0.0f;
-            work[j].color[2] = 0.0f;
-            work[j].color[3] = (f32)(u32)ai;
-            j++;
-        } while (j < 4);
+            f32 y;
+            f32 x;
+            BtlShuffleSkyVertex *vertex;
+            f32 edgeAlpha;
+            edgeAlpha = fGpffff82cc * (f32)(j & 1);
+            edgeAlpha *= blend0;
+            alpha = (u8)(255.0f * edgeAlpha);
+            {
+                f32 offset;
+                offset = code38QuarterTurnOffset(j);
+                ang = view.phase + offset;
+            }
+            y = (0.0f + 211.0f) + 192.0f * func_0044b7b0(ang);
+            x = (0.0f + 316.0f) + 192.0f * func_0044b610(ang);
+            vertex = &work[j];
+            vertex->u.els.scrVertex.x = x;
+            vertex->u.els.scrVertex.y = y;
+            vertex->u.els.scrVertex.z = view.depth;
+            vertex->u.els.color.r = 255.0f;
+            vertex->u.els.color.g = 0.0f;
+            vertex->u.els.color.b = 0.0f;
+            vertex->u.els.color.a = (f32)(u32)alpha;
+            vertex->u.els.recipZ = view.recipZ;
+        }
     }
-    draw(5, work, 4);
+    dispatch->draw(5, work, 4);
     func_003f6440(3, (void *)0x717FB);
     func_003f6440(2, (void *)0x44);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00387750);
-#endif
 /* measured: honest first reconstruction per func_0038bab0/89640/84cc0/87750 idiom (u8* base/outer/state at +0x18, s32 resource/han0/han1, (f32)(s32) counters, plain (u8) clamps, sequential guards empty else, block-scoped idx/yoff, plain arithmetic no COP1 exemption, s64 pos via sp68/sp6C packing per bab0; m2c+romwright into /var/tmp/cold387e70 (m2c 248 lines + rom 210 lines + raw 192 lines, arity 1 pointer trusted); probe_variants v1 667 base, v2 649 (-18 &han0==0 per micro_addr), v3 644 (-5 secX stacking), pragmas tie, v_sub 653 regress, v_swap tie, v4 s32 colors 643 but 693 outside gate not adopted, v5 switch 660 regress, v6 branch flip 656 regress, v7 for tie; stop after two non-improving rounds per batch; fnalign v3c retail 719/object 698 (21 short 2.9% within 3%, 626 edits +6 reloc-only, frame 0x100, $s/$f color + GP offsets + COP1 mula/msub/adda/madd + sq/lq floor remain); providers verified (46a770 s32(void*) per cmpSystem, 10b5b0 s32(void) per cmpPersona, 109220 u8*(u16) per this file:19, 109280 u8(s32) per code1_0010, 109390 s32(s32) per datCalc, 275020 per frFontEx, 364c90 s64 per bab0, 34f460/34f4a0/46d730/D_0064EEB0 file-scope, D_005E5810/5850 u8[] per cmpMain, fGp83dc/83b0 f32 per image, jal 22==22); Ghidra/IDA agree on CFG/switch/call order, differ on 364c90/275020 prototypes and GP naming (used file idiom); lever 4 N/A (float, no slti); lhu correct; double-def offset remains + COP1 chains; re-derived, no fabrications; archive P038_00387e70_body.c stale placeholder. Banked guarded floor. */
 /* 2026-09-20 deficit probe: baseline 654w/626e retail 719/object 698 (2.9% 21 short, frame 0x100 vs 0x110); 7o grep: no `Type x =` inits, already bare decls + statement assigns so exchange-8 skipped per 7o (perm 18/other 62, 7o N/A); float-cascade 12 vars: v1 eased1 explicit-else 650 (-4), v2 eased1 t1>1 648 (-6), v3 eased1 !(<=) 654 tie, v4 slot goto-shared 658 (+4), v5 conv direct (u8)m 654 tie, v6 conv recompute (u8)(fGp*eased1)x2 638 (-16 best, 717ins 2 short but 645e), v7 eased0 !(<=) 654 tie, v8 v1+v4+v5 648 (-6), v9 sec array 654 tie, v10 addr-taken 654 tie, v11 ternary 648 (-6), v12 recompute+array 638 tie-best; retail 95:330 (0x387fec-0x388398, 235) vs obj 95:96 = eased1 hoisted (obj bc1f to slot, 1.0 kept in f22) vs explicit-else (retail bc1t to <0-check + mov f21,f2 + b to slot) + slot beq-shared single 0x19 at 880b4 vs bne-duplicate two 0x19 + 1mul+2conv via t1 (m in f22 survives) vs 1mul+1conv via s1 CSE (m in f1 dies) + sec/yoff stack spill (sw/swc1/lwc1+f12) vs regs (f21/f20+mov); delta sw+8/nop+8/b+7/bc1t+5/beq+4/swc1+3/lwc1+3/mfc1+2 matches; pairing not unlocked, floor stays. */
 // FUN_00387E70 NONMATCHING
@@ -2467,16 +2449,19 @@ void func_0038a940(u8 **arg0)
     func_0038a480(work);
 }
 #pragma opt_propagation on
-/* measured: probe_variants func_0038acd0 archived 276wd, base 159wd, inclusive (i<5 -> <=4) 161wd regress (+2, exclusive correct), reorder (declaration order per handoff 7a reverse) 154wd best (-5), schedule 293wd regress (not justified); fnalign base 59 edits +4 reloc-only 316/316 instrs, reorder 43 edits +6 reloc-only (best, -16 edits); lever 4 exclusive correct (i<5 keeps $at? actually i<5 vs <=4 regress confirms exclusive); schedule off (unit baseline) correct; providers verified per DraftAcd0 (373cb0, 64c90, etc.); Ghidra/IDA agree; archive docs/probe_archive/P038_0038a480_body.c? No, P038_0038acd0_body.c (stale 276). Banked guarded floor (no pragmas). */
-/* 2026-09-19 (this lane): live body re-measures 154wd / 43 edits +6 reloc-only, 316/316. Two fresh levers, both rejected: q25 (name the 0.25f const before half, both tail arms) ties at 154 with byte-identical fnalign - propagation folds the temp, const-mat timing is pure scheduler choice; fac-late (sum before fac-load in the k-loop) regresses to 160 / 55 edits, exploding the entry/factors address induction - the loop-head order is load-bearing. Residual: twin 0.25f const-mat timing + float-reg colour cascade + 0x70 fold. */
-// FUN_0038ACD0 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct Code38RevealWeight {
+    f32 value;
+} Code38RevealWeight;
+
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_0038ACD0
 void func_0038acd0(u8 *arg0)
 {
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern f32 fGpffff83a4;
     extern u8 D_0064F090[];
-    f32 factors[5];
+    Code38RevealWeight factors[5];
     Vec2f point;
     u8 *state;
     u8 *entry;
@@ -2487,13 +2472,15 @@ void func_0038acd0(u8 *arg0)
     s32 type;
     u16 flags;
     u16 counter;
-    f32 upper;
-    f32 lower;
     f32 tail;
-    f32 half;
+    f32 lower;
+    f32 upper;
+    f32 elapsed;
     f32 width;
     f32 off;
+    f32 half;
     f32 fac;
+    f32 distance;
 
     state = arg0 + 0x1B4;
     type = *(s32 *)(*(u8 **)arg0 + 0x1F2FC);
@@ -2513,13 +2500,11 @@ void func_0038acd0(u8 *arg0)
     if ((flags & 1) == 0) {
         for (i = 0; i < 5; i++) {
             entry = D_0064F090 + i * 0x10;
-            tail = (f32)(u32)*(u16 *)state;
-            half = (f32)span;
-            factors[i] = func_00373cb0(tail, half * *(f32 *)(entry + 8), half * *(f32 *)(entry + 0xC), 1);
+            elapsed = (f32)(u32)*(u16 *)state;
+            factors[i].value = func_00373cb0(elapsed, (f32)span * *(f32 *)(entry + 8), (f32)span * *(f32 *)(entry + 0xC), 1);
         }
-        tail = (f32)(u32)*(u16 *)state;
-        half = (f32)span;
-        tail = func_00373cb0(tail, 0.25f * half, half, 1);
+        elapsed = (f32)(u32)*(u16 *)state;
+        tail = func_00373cb0(elapsed, 0.25f * (f32)span, (f32)span, 1);
         counter = ++*(u16 *)state;
         if (counter >= span) {
             *(u16 *)(state + 2) |= 1;
@@ -2528,45 +2513,48 @@ void func_0038acd0(u8 *arg0)
     } else if (flags & 2) {
         for (i = 0; i < 5; i++) {
             entry = D_0064F090 + i * 0x10;
-            tail = (f32)(u32)*(u16 *)state;
-            half = (f32)span;
-            factors[i] = 1.0f - func_00373cb0(tail, half * *(f32 *)(entry + 8), half * *(f32 *)(entry + 0xC), 1);
+            elapsed = (f32)(u32)*(u16 *)state;
+            factors[i].value = 1.0f - func_00373cb0(elapsed, (f32)span * *(f32 *)(entry + 8), (f32)span * *(f32 *)(entry + 0xC), 1);
         }
-        tail = (f32)(u32)*(u16 *)state;
-        half = (f32)span;
-        tail = 1.0f - func_00373cb0(tail, 0.25f * half, half, 1);
+        elapsed = (f32)(u32)*(u16 *)state;
+        tail = 1.0f - func_00373cb0(elapsed, 0.25f * (f32)span, (f32)span, 1);
         counter = ++*(u16 *)state;
         if (counter >= span) {
             *(u16 *)(arg0 + 4) &= (u16)0xFFDF;
         }
     } else {
-        for (j = 0; j < 5; j++) {
-            factors[j] = 1.0f;
+        j = 0;
+        for (; j < 5; j++) {
+            factors[j].value = 1.0f;
         }
         tail = 1.0f;
     }
     func_003f6440(3, (void *)0x71801);
     func_003f6440(2, (void *)0x48);
     point.y = 224.0f;
+    k = 0;
     half = lower / 2.0f;
-    for (k = 0; k < 5; k++) {
-        fac = factors[k];
+    for (; k < 5; k++) {
+        entry = (u8 *)&factors[k];
+        fac = ((Code38RevealWeight *)entry)->value;
         entry = D_0064F090 + k * 0x10;
         width = *(f32 *)(entry + 4) * fac;
-        off = (half + *(f32 *)entry) * fac;
+        distance = half + *(f32 *)entry;
+        off = distance * fac;
         point.x = upper + off;
         func_00364c90(point, 0.0f, 0xFF403DFF, width, 448.0f, 0.0f, 0);
         point.x = upper - off;
         func_00364c90(point, 0.0f, 0xFF403DFF, width, 448.0f, 0.0f, 0);
     }
+    width = lower * tail;
     point.x = upper;
-    func_00364c90(point, 0.0f, 0xFF403DFF, lower * tail, 448.0f, 0.0f, 0);
+    func_00364c90(point, 0.0f, 0xFF403DFF, width, 448.0f, 0.0f, 0);
     func_003f6440(3, (void *)0x717FB);
     func_003f6440(2, (void *)0x44);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038acd0);
-#endif
+
+#pragma pop
+
 // FUN_0038B1C0
 void func_0038b1c0(u8 *arg0)
 {

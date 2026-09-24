@@ -129,7 +129,7 @@ s32 func_00285b30(void);
 f32 func_002b2aa0(s64, f32, f32, f32, f32);
 s32 func_002b2cb0(s32, s32, s32, s32, s8);
 s32 func_00457120(void);
-u8 *func_00461390(u8 *list, s32 primitive, s32 vertices, s32 count);
+u8 *func_00461390(void *list, s32 primitive, void *vertices, s32 count);
 extern f32 iGpffff8360;
 extern f32 iGpffff8508;
 extern f32 iGpffff850c;
@@ -3485,12 +3485,12 @@ s32 func_00347c70(u8 *task)
         if (func_00285b30() < 0x208) {
             u8 *list;
             s32 primitive;
-            s32 vertices;
+            void *vertices;
             s32 count;
             u8 *alloc;
             list = D_00794F00;
             primitive = 4;
-            vertices = (s32)(u32)(work + 0x10);
+            vertices = work + 0x10;
             count = primitive;
             alloc = func_00461390(list, primitive, vertices, count);
             *(u32 *)(alloc + 8) = (u32)func_00347b30;

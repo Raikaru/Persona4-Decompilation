@@ -303,36 +303,59 @@ u8 *func_00461290(u8 *list, s32 arg1)
 }
 
 
-// FUN_00461390
-u8 *func_00461390(u8 *list, s32 arg1, s32 arg2, s32 arg3)
-{
-    u8 *node;
-    u8 *tail;
+typedef struct OtPrimitiveNode OtPrimitiveNode;
+struct OtPrimitiveNode {
+    OtPrimitiveNode *next;
+    OtPrimitiveNode *tail;
+    void (*callback)(void *, void *);
+    u32 reserved0C;
+    void *callbackData;
+    u32 reserved14;
+    u16 command;
+    u16 reserved1A;
+    s32 primitive;
+    void *vertices;
+    s32 count;
+    u32 reserved28[2];
+};
+typedef char OtPrimitiveNodeSize[(sizeof(OtPrimitiveNode) == 0x30) ? 1 : -1];
 
-    node = D_008873F8[0](iGpffffba98, 0x41002);
+/* The vertex buffer is a pointer, matching all source callers. The complete
+ * 0x30-byte node and late list view preserve the existing 284 native bytes.
+ * See docs/probe_archive/Map_shape_002b0b10_20260924.md. */
+// FUN_00461390
+u8 *func_00461390(void *inputList, s32 primitive, void *vertices, s32 count)
+{
+    OtPrimitiveNode *node;
+    OtPrimitiveNode *tail;
+    OtPrimitiveNode *list;
+
+    node = (OtPrimitiveNode *)D_008873F8[0](iGpffffba98, 0x41002);
     func_0043f9c8(node, 0, 0x30);
     if (node == 0) {
         func_0046d730(&iGpffffaf70, 0x13B);
     }
-    *(u16 *)(node + 0x18) = 0xB;
-    *(u32 *)(node + 0x1C) = arg1;
-    *(u32 *)(node + 0x20) = arg2;
-    *(u32 *)(node + 0x24) = arg3;
+    node->command = 0xB;
+    node->primitive = primitive;
+    node->vertices = vertices;
+    node->count = count;
+    /* Interpret the queue links after constructing the primitive payload. */
+    list = (OtPrimitiveNode *)inputList;
     tail = list;
     if (list == 0) {
         func_0046d730(&iGpffffaf70, 0xBE);
     }
-    if (*(u8 **)(list + 4) != 0) {
-        tail = *(u8 **)(list + 4);
+    if (list->tail != 0) {
+        tail = list->tail;
     }
-    if (*(u8 **)(tail + 4) != 0) {
+    if (tail->tail != 0) {
         func_0046d730(&iGpffffaf70, 0xC2);
     }
-    *(u8 **)tail = node;
-    if (*(u8 **)(node + 4) != 0) {
-        *(u8 **)(list + 4) = *(u8 **)(node + 4);
+    tail->next = node;
+    if (node->tail != 0) {
+        list->tail = node->tail;
     } else {
-        *(u8 **)(list + 4) = node;
+        list->tail = node;
     }
-    return node;
+    return (u8 *)node;
 }
