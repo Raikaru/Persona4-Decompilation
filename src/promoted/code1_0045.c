@@ -10,7 +10,7 @@ extern f32 func_0044b610(f32 fparg0);
 extern f32 func_0044b7b0(f32 fparg0);
 extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00446ed8(void *buf, const void *fmt, void *va);
-extern void func_00450a50(s32 arg0, s64 arg1, f32 fparg0, void *arg2);
+extern void func_00450a50(PackedColor4 color, PackedVec2f position, f32 depth, void *characters);
 extern s32 iGpffffb9e8;
 extern s32 func_003e8200(u32 arg0, void *arg1);
 extern void func_003e42a0(void *arg0, void *arg1, void *arg2);
@@ -253,102 +253,148 @@ extern f32 D_008872F8;
 extern u8 D_008BE320[][256];
 
 
-/* measured: func_00450630 live banked floor with `opt_loop_invariants on` inside guard measures probe 174 words via `tools/probe_variants.py --candidate`, fnalign retail 261/object 261 (exact) with 108 edits (+4 reloc-only) via `tools/fnalign.py --candidate` (object 1044B/window 1056B, 12B short, 1.1% within gate). History: archive FreshSdkOverlay_00450630_body.c claimed 1044/1056 nd441 (stale; live re-measure with same body and pragma gives 174 words, 261/261, 108+4); initial 1028/nd745 without pragma per archive. Residual is frame (retail -0x190 vs object -0x180, one 16B slot) plus saved-register color and stack offsets with executable extent complete; slti rows already match ($v0 vs $v0, $v1 vs $v1) so inclusive-bound N/A, exact size so dead-arm N/A. Banked guarded floor. */
-// FUN_00450630 NONMATCHING
-#ifdef NON_MATCHING
+/* RwDevice's near-screen depth and callback slots are one real object.
+ * The complete Sky immediate-mode vertex has a 64-byte stride. */
+typedef struct Code45RenderDevice {
+    f32 gamma;
+    s32 (*system)(s32, void *, void *, s32);
+    f32 nearDepth;
+    f32 farDepth;
+    s32 (*setState)(s32, void *);
+    s32 (*getState)(s32, void *);
+    u32 renderCallbackAddresses[8];
+} Code45RenderDevice;
+extern Code45RenderDevice D_008872F0;
+
+typedef struct Code45Im2DVertex {
+    f32 position[3];
+    f32 cameraZ;
+    f32 uv[2];
+    f32 reciprocal;
+    f32 pad1;
+    f32 color[4];
+    f32 normal[3];
+    f32 pad2;
+} Code45Im2DVertex;
+
+#pragma push
 #pragma opt_loop_invariants on
+static inline s32 overlayAtlasColumn(s32 value)
+{
+    return value % 16;
+}
+
+/* Native b210 O2: 1044/1056 bytes, sixteen resolved relocations and
+ * twelve zero alignment bytes. Preserve the explicit vertex pointer
+ * in each initialization loop and copy the panel extent before adding
+ * its border. See docs/probe_archive/Debug_overlay_00450630_20260924.md. */
+// FUN_00450630
 void func_00450630(void)
 {
-    f32 vertices[4][16];
+    typedef Code45Im2DVertex OverlayVertex;
     Code45TexCoords uvs[4];
-    Code45Vec2 text_pos;
-    Code45Vec2 box_pos;
-    f32 recipZ;
-    f32 row_y_base;
-    f32 row_y;
-    f32 col_x;
-    u8 *line;
+    OverlayVertex vertices[4];
+    Code45Vec2 panelOrigin;
+    Code45Vec2 textOrigin;
+    struct { s32 (*setState)(s32, void *); } *state;
+    struct { s32 (*draw)(s32, void *, s32); } *renderer;
+    f32 reciprocalDepth;
+    f32 rowTop;
+    f32 rowBottom;
+    f32 columnOffset;
+    f32 panelRight;
+    f32 right;
+    const u8 *line;
+    s32 column;
     s32 row;
-    s32 col;
-    s32 i;
-    s32 j;
-    u8 ch;
+    s32 vertexIndex;
+    s32 uvIndex;
+    u8 glyph;
+    s32 atlasColumn;
 
-    recipZ = 1.0f / *(f32 *)(iGpffffb9e0 + 0x80);
+    reciprocalDepth = 1.0f / *(f32 *)(iGpffffb9e0 + 0x80);
     if (iGpffffb9d4 == 0) {
         return;
     }
 
-    D_00887300[0](6, 1);
-    D_00887300[0](7, 2);
-    D_00887300[0](8, 1);
-    D_00887300[0](9, 1);
-    D_00887300[0](12, 1);
-    box_pos = iGpffffac48;
-    D_00887300[0](1, 0);
+    state = (void *)D_00887300;
+    state->setState(6, (void *)1);
+    state->setState(7, (void *)2);
+    state->setState(8, (void *)1);
+    state->setState(9, (void *)1);
+    state->setState(12, (void *)1);
+    panelOrigin = iGpffffac48;
+    state->setState(1, 0);
 
-    for (i = 0; i < 4; i++) {
-        vertices[i][6] = recipZ;
-        vertices[i][8] = 64.0f;
-        vertices[i][9] = 64.0f;
-        vertices[i][10] = 64.0f;
-        vertices[i][11] = 128.0f;
-        vertices[i][2] = D_008872F8;
+    for (vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
+        OverlayVertex *vertex = &vertices[vertexIndex];
+        vertex->reciprocal = reciprocalDepth;
+        vertex->color[0] = 64.0f;
+        vertex->color[1] = 64.0f;
+        vertex->color[2] = 64.0f;
+        vertex->color[3] = 128.0f;
+        vertex->position[2] = D_008872F0.nearDepth;
     }
 
-    vertices[0][0] = box_pos.x;
-    vertices[0][1] = box_pos.y;
-    vertices[1][0] = 16.0f + (480.0f + box_pos.x);
-    vertices[1][1] = box_pos.y;
-    vertices[2][0] = box_pos.x;
-    vertices[2][1] = 16.0f + (180.0f + box_pos.y);
-    vertices[3][0] = vertices[1][0];
-    vertices[3][1] = vertices[2][1];
+    vertices[0].position[0] = panelOrigin.x;
+    vertices[0].position[1] = panelOrigin.y;
+    panelRight = 480.0f + panelOrigin.x;
+    right = panelRight;
+    vertices[1].position[0] = 16.0f + right;
+    vertices[1].position[1] = panelOrigin.y;
+    vertices[2].position[0] = panelOrigin.x;
+    vertices[2].position[1] = 16.0f + (180.0f + panelOrigin.y);
+    vertices[3].position[0] = vertices[1].position[0];
+    vertices[3].position[1] = vertices[2].position[1];
 
-    D_00887310[0](4, vertices, 4);
-    D_00887300[0](1, iGpffffb9e8);
+    renderer = (void *)D_00887310;
+    renderer->draw(4, vertices, 4);
+    state->setState(1, (void *)iGpffffb9e8);
 
-    for (i = 0; i < 4; i++) {
-        vertices[i][6] = recipZ;
-        vertices[i][8] = 255.0f;
-        vertices[i][9] = 255.0f;
-        vertices[i][10] = 255.0f;
-        vertices[i][11] = 255.0f;
-        vertices[i][2] = D_008872F8;
+    for (vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
+        OverlayVertex *vertex = &vertices[vertexIndex];
+        vertex->reciprocal = reciprocalDepth;
+        vertex->color[0] = 255.0f;
+        vertex->color[1] = 255.0f;
+        vertex->color[2] = 255.0f;
+        vertex->color[3] = 255.0f;
+        vertex->position[2] = D_008872F0.nearDepth;
     }
 
     for (row = 0; row < iGpffffb9d8; row++) {
         line = D_008BE320[row];
-        row_y_base = 12.0f * (f32)row;
-        row_y = 11.0f + row_y_base;
+        column = 0;
+        rowTop = 12.0f * (f32)row;
+        rowBottom = 11.0f + rowTop;
 
-        for (col = 0; col < 53; col++) {
-            text_pos = iGpffffac50;
-            ch = line[col];
-            if (ch == 0) {
+        for (; column < 53; column++) {
+            textOrigin = iGpffffac50;
+            glyph = line[column];
+            if (glyph == 0) {
                 break;
             }
-            if (ch == ' ') {
+            if (glyph == ' ') {
                 continue;
             }
 
-            ch -= 0x20;
-            if (ch >= 0x80) {
-                ch -= 0x20;
+            glyph -= 0x20;
+            if (glyph >= 0x80) {
+                glyph -= 0x20;
             }
 
-            col_x = 12.0f * (f32)col;
-            vertices[0][0] = col_x + text_pos.x;
-            vertices[0][1] = row_y_base + text_pos.y;
-            vertices[1][0] = (11.0f + col_x) + text_pos.x;
-            vertices[1][1] = vertices[0][1];
-            vertices[2][0] = vertices[0][0];
-            vertices[2][1] = row_y + text_pos.y;
-            vertices[3][0] = vertices[1][0];
-            vertices[3][1] = vertices[2][1];
+            columnOffset = 12.0f * (f32)column;
+            vertices[0].position[0] = columnOffset + textOrigin.x;
+            vertices[0].position[1] = rowTop + textOrigin.y;
+            vertices[1].position[0] = (11.0f + columnOffset) + textOrigin.x;
+            vertices[1].position[1] = vertices[0].position[1];
+            vertices[2].position[0] = vertices[0].position[0];
+            vertices[2].position[1] = rowBottom + textOrigin.y;
+            vertices[3].position[0] = vertices[1].position[0];
+            vertices[3].position[1] = vertices[2].position[1];
 
-            uvs[0].u = 0.0625f * (f32)(ch % 16);
-            uvs[0].v = 0.0625f * (f32)(ch >> 4);
+            atlasColumn = overlayAtlasColumn((s32)glyph);
+            uvs[0].u = 0.0625f * (f32)atlasColumn;
+            uvs[0].v = 0.0625f * (f32)(s32)((u32)glyph >> 4);
             uvs[1].u = 0.046875f + uvs[0].u;
             uvs[1].v = uvs[0].v;
             uvs[2].u = uvs[0].u;
@@ -356,121 +402,125 @@ void func_00450630(void)
             uvs[3].u = uvs[1].u;
             uvs[3].v = uvs[2].v;
 
-            for (j = 0; j < 4; j++) {
-                vertices[j][4] = uvs[j].u;
-                vertices[j][5] = uvs[j].v;
+            for (uvIndex = 0; uvIndex < 4; uvIndex++) {
+                Code45TexCoords *uv = &uvs[uvIndex];
+                OverlayVertex *vertex = &vertices[uvIndex];
+                vertex->uv[0] = uv->u;
+                vertex->uv[1] = uv->v;
             }
 
-            D_00887310[0](4, vertices, 4);
+            renderer->draw(4, vertices, 4);
         }
     }
 }
 
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450630);
-#endif
-/* Floor (measured 2026-09-17, source-repo only): probe_variants s1 204 words (s2 214, arch 185 oversized, l_abs 214, l_signed neutral, l_s64 221, l_chs32 209), fnalign 224/224/194 (+4, exact size), emitted 896B/window 896B. Four-pragma sweep: s1 wins balanced (loop 210w/142e short, prop 200w/321e words-best edits-worst, sched inert, O1 catastrophic). wscan daddu 0 vs 5 shortfall (width floor, s64 adds dsll32+3). Residual is frame/saves + coloring + daddu. Banked as guarded floor; production stays ASM. */
-/* measured 00450a50 (owner, 2026-09-19): fnalign **194 -> 191 edits**, count
-   224 -> 222 against retail 224, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits - no guard before the first iteration, one compare
-   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
-// FUN_00450A50 NONMATCHING
-#ifdef NON_MATCHING
-void func_00450a50(s32 arg0, s64 arg1, f32 fparg0, void *arg2)
+#pragma pop
+#pragma push
+#pragma opt_loop_invariants on
+/* Character codes are normalized as bytes; the atlas column retains
+ * the signed remainder operation used by the original renderer. */
+static inline s32 fontAtlasColumn(s32 value)
 {
-    f32 vertices[4][16];
-    Code45TexCoords uvs[4];
-    PackedColor4 color;
-    PackedVec2f pos;
-    f32 farg;
-    u8 *str;
-    f32 inv;
-    f32 fsub;
-    s32 flag;
-    s32 i;
-    s32 j;
-    s32 k;
-    f32 fx;
-    f32 fy;
-    f32 fz;
-    f32 fw;
+    return value % 16;
+}
 
-    color.packed = arg0;
-    pos.packed = arg1;
-    farg = fparg0;
-    str = (u8 *)arg2;
-    inv = 1.0f / *(f32 *)(iGpffffb9e0 + 0x80);
-    flag = iGpffffb9e8;
-    if (flag == 0) {
+/* Native b210 O2: 884/896 bytes, eight fully resolved relocations and
+ * twelve zero alignment bytes. Color and position use their complete
+ * packed-value ABI; both variadic callers retain identical native code.
+ * See docs/probe_archive/Debug_immediate_text_00450a50_20260924.md. */
+// FUN_00450A50
+void func_00450a50(PackedColor4 color, PackedVec2f position, f32 depth, void *characters)
+{
+    Code45TexCoords uvs[4];
+    typedef Code45Im2DVertex FontVertex;
+    FontVertex vertices[4];
+    const u8 *text;
+    f32 originX;
+    f32 originY;
+    u32 alpha;
+    u32 blue;
+    u32 green;
+    u32 red;
+    f32 reciprocal;
+    f32 bottom;
+    s32 font;
+    s32 vertexIndex;
+    s32 characterIndex;
+    s32 uvIndex;
+
+    text = (const u8 *)characters;
+    originY = position.xy.y;
+    originX = position.xy.x;
+    alpha = color.rgba[3];
+    blue = color.rgba[2];
+    green = color.rgba[1];
+    red = color.rgba[0];
+    reciprocal = 1.0f / *(f32 *)(iGpffffb9e0 + 0x80);
+    font = iGpffffb9e8;
+    if (font == 0) {
         return;
     }
-    D_00887300[0](1, flag);
-    fsub = D_008872F8 - farg;
-    for (i = 0; i < 4; i++) {
-        vertices[i][6] = inv;
-        vertices[i][8] = (f32)(u32)color.rgba[0];
-        vertices[i][9] = (f32)(u32)color.rgba[1];
-        vertices[i][10] = (f32)(u32)color.rgba[2];
-        vertices[i][11] = (f32)(u32)color.rgba[3];
-        vertices[i][2] = fsub;
+    D_00887300[0](1, font);
+    vertexIndex = 0;
+    while (vertexIndex < 4) {
+        FontVertex *vertex = &vertices[vertexIndex];
+        vertex->reciprocal = reciprocal;
+        vertex->color[0] = (f32)red;
+        vertex->color[1] = (f32)green;
+        vertex->color[2] = (f32)blue;
+        vertex->color[3] = (f32)alpha;
+        vertex->position[2] = D_008872F0.nearDepth - depth;
+        vertexIndex++;
     }
-    fw = 11.0f + pos.xy.y;
-    for (j = 0; j < 256; j++) {
-        u8 ch;
-        ch = str[j];
-        if (ch == 0) {
+    characterIndex = 0;
+    bottom = 11.0f + originY;
+    for (; characterIndex < 256; characterIndex++) {
+        s32 character;
+        s32 atlasColumn;
+        f32 column;
+        f32 left;
+        f32 right;
+        character = text[characterIndex];
+        if (character == 0) {
             return;
         }
-        if (ch == 0x20) {
+        if (character == 32) {
             continue;
         }
-        ch -= 0x20;
-        if (ch >= 0x80) {
-            ch -= 0x20;
+        character = (u8)(character - 32);
+        if (character >= 128) {
+            character = (u8)(character - 32);
         }
-        fx = 12.0f * (f32)j;
-        fy = fx + pos.xy.x;
-        fz = 11.0f + fx + pos.xy.x;
-        vertices[0][0] = fy;
-        vertices[0][1] = pos.xy.y;
-        vertices[1][0] = fz;
-        vertices[1][1] = pos.xy.y;
-        vertices[2][0] = fy;
-        vertices[2][1] = fw;
-        vertices[3][0] = fz;
-        vertices[3][1] = fw;
-        {
-            s32 lo;
-            s32 hi;
-            lo = ch & 0xFF;
-            hi = lo & 0xF;
-            if (lo < 0) {
-                if (hi != 0) {
-                    hi -= 0x10;
-                }
-            }
-            uvs[0].u = 0.0625f * (f32)hi;
-            uvs[0].v = 0.0625f * (f32)(u32)((ch & 0xFF) >> 4);
-            uvs[1].u = 0.046875f + uvs[0].u;
-            uvs[1].v = uvs[0].v;
-            uvs[2].u = uvs[0].u;
-            uvs[2].v = 0.046875f + uvs[0].v;
-            uvs[3].u = uvs[1].u;
-            uvs[3].v = uvs[2].v;
+        column = 12.0f * (f32)characterIndex;
+        left = column + originX;
+        vertices[0].position[0] = left;
+        vertices[0].position[1] = originY;
+        right = 11.0f + column + originX;
+        vertices[1].position[0] = right;
+        vertices[1].position[1] = originY;
+        vertices[2].position[0] = left;
+        vertices[2].position[1] = bottom;
+        vertices[3].position[0] = right;
+        vertices[3].position[1] = bottom;
+        atlasColumn = fontAtlasColumn((s32)(u8)character);
+        uvs[0].u = 0.0625f * (f32)atlasColumn;
+        uvs[0].v = 0.0625f * (f32)(s32)((u32)(u8)character >> 4);
+        uvs[1].u = 0.046875f + uvs[0].u;
+        uvs[1].v = uvs[0].v;
+        uvs[2].u = uvs[0].u;
+        uvs[2].v = 0.046875f + uvs[0].v;
+        uvs[3].u = uvs[1].u;
+        uvs[3].v = uvs[2].v;
+        for (uvIndex = 0; uvIndex < 4; uvIndex++) {
+            Code45TexCoords *uv = &uvs[uvIndex];
+            FontVertex *vertex = &vertices[uvIndex];
+            vertex->uv[0] = uv->u;
+            vertex->uv[1] = uv->v;
         }
-        k = 0;
-        do {
-            vertices[k][4] = uvs[k].u;
-            vertices[k][5] = uvs[k].v;
-            k++;
-        } while (k < 4);
         D_00887310[0](4, vertices, 4);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450a50);
-#endif
+#pragma pop
 /* Measured: 164/176 bytes, three resolved relocations and 12 zero tail bytes.
  * O1 preserves the compiler-reported variadic argument-count branch. */
 #pragma optimization_level 1
@@ -478,7 +528,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450a50);
 void func_00450dd0(PackedVec2f position, f32 z, const void *format, ...)
 {
     char buffer[0x100];
-    union { f32 f; s32 bits; } scale;
+    union { f32 f; s32 bits; PackedColor4 color; } scale;
     char *args;
     s32 count;
     extern f32 fGpffffac58;
@@ -488,7 +538,7 @@ void func_00450dd0(PackedVec2f position, f32 z, const void *format, ...)
     if (count >= 8) count = 0; else count = (8 - count) * 8;
     args = (char *)__builtin_next_arg(format) - count;
     func_00446ed8(buffer, format, args);
-    func_00450a50(scale.bits, position.packed, z, buffer);
+    func_00450a50(scale.color, position, z, buffer);
 }
 /* measured: restore O2 after func_00450dd0. */
 #pragma optimization_level 2
@@ -513,7 +563,7 @@ void func_00450e80(PackedColor4 color, PackedVec2f position, f32 z,
     }
     args = (char *)__builtin_next_arg(format) - count;
     func_00446ed8(buffer, format, args);
-    func_00450a50(color.packed, position.packed, z, buffer);
+    func_00450a50(color, position, z, buffer);
 }
 /* measured: restore O2 after func_00450e80. */
 #pragma optimization_level 2
