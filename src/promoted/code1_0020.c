@@ -718,8 +718,10 @@ void func_002016b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     temp_4 = (u8 *)(offset + (u32)base);
     *(s32 *)(temp_4 + 0x5C) = arg3 + *(s32 *)(temp_4 + 0x54);
 }
+/* The tile offset is converted from its full signed word for drawing;
+ * only the stored halfword truncates it. Shared with cursor segments. */
 // FUN_002016E0
-void func_002016e0(u8 *arg0, s16 arg1, s16 arg2, f32 fparg0)
+void func_002016e0(u8 *arg0, s16 arg1, s32 arg2, f32 fparg0)
 {
     *(s16 *)(arg0 + 0x88) = arg1;
     *(s16 *)(arg0 + 0x8A) = arg2;

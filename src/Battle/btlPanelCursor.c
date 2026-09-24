@@ -5,7 +5,7 @@
 #include "shd_misc_internal.h"
 #include "btl_panel_internal.h"
 
-extern u8 *func_00452560(s32 task);
+extern u32 func_00452560(void *task);
 extern void func_002016e0(u8 *work, s16 mode, s32 tile, f32 angle);
 extern void func_00201820(s32 mode);
 extern void func_0021ae80(u8 *work, s32 unused);
@@ -53,7 +53,7 @@ void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
     s32 count;
     s32 i;
 
-    work = func_00452560(task);
+    work = (u8 *)func_00452560((void *)task);
     control = work + 0x710;
     switch (*(u16 *)(cursor + 2)) {
     case 1:
@@ -174,7 +174,7 @@ void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
     s32 count;
     s32 i;
 
-    work = func_00452560(task);
+    work = (u8 *)func_00452560((void *)task);
     control = work + 0x710;
     switch (*(u16 *)(cursor + 2)) {
     case 1:
@@ -305,7 +305,7 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
     s32 i;
     u32 packed;
 
-    work = func_00452560(task);
+    work = (u8 *)func_00452560((void *)task);
     control = work + 0x710;
     switch (*(u16 *)(cursor + 2)) {
     case 1:
@@ -422,30 +422,34 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
         func_0021aeb0(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
     }
 }
-/* measured triage: no real C body was produced for the 2416B retail window;
-   prior ring/MAC probes were discarded rather than parked because object-size
-   closeness was not established. */
-/* measured 0020d6a0: rebuilt on the ce60 template (switch/control hoist, alpha/t/length/delta, CursorColor+drawCursorSegment, % mods, duplicated TAIL, cached cnt with redundant >= checks) to fix the packed-struct field-by-field defect (union col bytes in regs vs retail word copy+lbu/sb); object 600/600 (0.0%) inside the 582-618 band, 68 edits (+4 reloc-only) via `tools/fnalign.py --candidate`, words 272 via `tools/probe_variants.py` (was 522/600 -13.0% 547 edits 526 words). */
-/* gate: object 600 against retail 600, +0.0% - INSIDE the +-3% band. */
-// FUN_0020D6A0 NONMATCHING
-#ifdef NON_MATCHING
-void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position) {
+/* Native b210 O2: 2404/2416 bytes, 32 resolved relocations and twelve
+ * zero alignment bytes. The lifetime pass retains task on the stack
+ * while the loop keeps its repeated color components in registers.
+ * See docs/probe_archive/Battle_cursor_0020d6a0_20260923.md. */
+#pragma push
+#pragma opt_lifetimes on
+// FUN_0020D6A0
+void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position)
+{
     extern void func_00201720(u8 *work, f32 arg1, f32 arg2);
     extern f32 D_00626C20[];
     extern f32 fGpffff84a4;
+    typedef struct { f32 values[4]; } CursorDirections;
     CursorColor color;
     Vec2f point;
     f32 delta[2];
-    f32 dir[4];
+    CursorDirections dir;
     u8 *work;
     u8 *control;
+    /* Reset paths leave alpha unwritten in retail, just as in the three
+     * sibling cursors. Keep that original initialization omission. */
     f32 alpha;
     f32 t;
     f32 length;
     s32 i;
     u16 cnt;
 
-    work = func_00452560(task);
+    work = (u8 *)func_00452560((void *)task);
     control = work + 0x710;
     switch (*(u16 *)(cursor + 2)) {
     case 1:
@@ -537,8 +541,10 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position) {
         color.g = 255;
         color.b = 2;
         color.a = (u8)(200.0f * alpha);
+        /* Four segments use the even indices of the eight-slot ring. */
         for (i = 0; i < 4; i++) {
-            drawCursorSegment(work, color, position[0], position[1], i, 45.0f, *(f32 *)(cursor + 0x14));
+            drawCursorSegment(work, color, position[0], position[1], i * 2,
+                              45.0f, *(f32 *)(cursor + 0x14));
         }
         func_00201820(0);
     }
@@ -548,17 +554,20 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position) {
         func_003657d0(point, 0.0f, 255, 22.0f, fGpffff84a4 * alpha, 1);
     }
     if (*(u16 *)(cursor + 0x10) & 8) {
-        dir[0] = D_00626C20[0];
-        dir[1] = D_00626C20[1];
-        dir[2] = D_00626C20[2];
-        dir[3] = D_00626C20[3];
+        /* Snapshot all four direction components before publishing
+         * them to the bounded ring-coordinate workspace. */
+        dir = *(const CursorDirections *)D_00626C20;
         func_00201820(2);
         for (i = 0; i < 4; i++) {
-            length = *(f32 *)(cursor + 0x18);
-            t = 21.0f * length;
-            point.x = position[0] + t * dir[(i + 1) % 4];
-            point.y = position[1] + t * dir[i % 4];
-            func_00364c90(point, 0.0f, 0x0EFF02FF, 3.0f * length, 26.0f * length, fGpffff84a4 * (f32)i, 1);
+            /* Separate these from the earlier interpolation values. */
+            f32 ringScale;
+            f32 ringRadius;
+            ringScale = *(f32 *)(cursor + 0x18);
+            ringRadius = 21.0f * ringScale;
+            point.x = position[0] + ringRadius * dir.values[(i + 1) % 4];
+            point.y = position[1] + ringRadius * dir.values[i % 4];
+            func_00364c90(point, 0.0f, 0x0EFF02FF, 3.0f * ringScale,
+                          26.0f * ringScale, fGpffff84a4 * (f32)i, 1);
         }
         t = *(f32 *)(cursor + 0x18);
         point.x = position[0] - 11.0f * t;
@@ -577,6 +586,4 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position) {
         func_0021aeb0(task, panel, position[0] - 9.0f, position[1] + 5.0f, 255, t);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlPanelCursor", func_0020d6a0);
-#endif
+#pragma pop

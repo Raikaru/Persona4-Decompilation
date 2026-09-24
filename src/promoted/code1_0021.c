@@ -93,7 +93,7 @@ extern void func_0010c5a0(u8 *arg0, u8 *arg1);
 extern u16 *func_0010a900(u16 arg0);
 extern void func_00201720(void *arg0, f32 arg1, f32 arg2);
 extern void func_00201300(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
-extern void func_002016e0(u8 *arg0, s16 arg1, s16 arg2, f32 arg3);
+extern void func_002016e0(u8 *arg0, s16 arg1, s32 arg2, f32 arg3);
 extern void func_002019d0(u8 *arg0, f32 arg1, f32 arg2);
 extern s32 func_00243e90(u8 *arg0);
 extern s32 func_001b1540(void);
