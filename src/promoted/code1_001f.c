@@ -4964,7 +4964,7 @@ s32 func_001fa660(void)
     return 0;
 }
 // FUN_001FA720
-u8 *func_001fa720(s32 arg0) {
+u8 *func_001fa720(const void *arg0) {
     u8 *temp_2;
 
     temp_2 = (u8 *)func_00194470(0xC04, 0xA);

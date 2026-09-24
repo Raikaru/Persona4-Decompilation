@@ -4,6 +4,10 @@
 #include "btl_target_state_packet_internal.h"
 typedef struct BtlPacket BtlPacket;
 typedef struct BtlUnit BtlUnit;
+u32 func_00231d70(u32 bound);
+typedef struct BtlAction BtlAction;
+extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
+extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, u16 id, u16 blendFrames, f32 speed, u16 mode);
 typedef struct RwV3d { f32 x, y, z; } RwV3d;
 extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
 extern f32 func_001ec250(const RwV3d *, const RwV3d *);
@@ -72,8 +76,8 @@ extern s32 func_0020ba60(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_001faf70(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0020ba30(s32 arg0);
 extern void func_00203880(s32 arg0, s32 arg1);
-extern u8 *func_0019b6a0(s32 arg0);
-u8 *btlCameraCreateSetStatePacket(void *arg0, s32 arg1);
+extern BtlPacket *func_0019b6a0(BtlUnit *unit);
+BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 u32 func_001deeb0(void *arg0);
 void func_001ded30();
 u32 func_001deee0();
@@ -105,13 +109,13 @@ extern u8 *func_00202740(u8 *arg0);
 extern u8 *func_00201de0(s32 source, s32 target, s32 id, s16 effect, s16 targetFlags, s16 value, s16 enabled, void *result, u16 flags);
 u8 *func_00194b60(void);
 extern BtlPacket *func_001d3900(u16 arg0);
-extern u8 *func_0019e9f0();
-extern u8 *func_001d3d00();
+extern u8 *func_0019e9f0(u8 *unit, s16 value);
+extern BtlPacket *func_001d3d00(u32 action);
 BtlPacket *func_001ba090(s32 arg0);
 u8 *func_001d7a10(u16 arg0);
 u8 *func_00201f20(void);
 s32 func_002428f0(u8 *arg0, s32 arg1);
-u8 *func_001fa720(u8 *arg0);
+u8 *func_001fa720(const void *data);
 s32 func_001eb860(void);
 extern void func_00218420(s32 task, u8 *arg1);
 u8 *func_001fa8f0(void);
@@ -145,7 +149,7 @@ extern void func_00218160(u8 *task, u8 *unit);
 extern s32 func_00218200(s32 task);
 extern s32 func_00218230(s32 task);
 extern void func_00218260(s32 task);
-s64 func_001d15a0(s32 arg0);
+s16 func_001d15a0(void);
 void func_001eb7f0(void);
 s32 func_001ef720(s32 arg0, s32 arg1);
 s32 func_001fabe0(u8 *arg0);
@@ -464,7 +468,7 @@ void func_001a06d0(u8 *arg0) {
     } else if ((*(s16 *)(iGpffffb3ac + 0xA70) != -1) &&
                (temp_4 = func_001ef720(2, 0x80000) & 0xFFFF,
                 (u32)(*(s16 *)(iGpffffb3ac + 0xA72) >> 1) >= temp_4) &&
-               ((temp_17 = *(s16 *)(iGpffffb3ac + 0xA70)) != (s16)func_001d15a0(temp_4))) {
+               ((temp_17 = *(s16 *)(iGpffffb3ac + 0xA70)) != (s16)func_001d15a0())) {
         var_2 = 1;
     } else {
         var_2 = 0;
@@ -1952,7 +1956,7 @@ void func_001a3df0(u8 *arg0)
     goto loop_test;
 loop_body:
     if (func_001a05f0(iter) != 0) {
-        temp = func_0019b6a0((s32)*(u8 **)(*(u8 **)(iter + 0x30) + 0xA0C));
+        temp = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(iter + 0x30) + 0xA0C));
         *(s64 *)(temp + 0x60) = *(s64 *)iter;
         func_00194590(temp, 1);
     }
@@ -2799,7 +2803,6 @@ void func_001a59a0(s64 *arg0) {
     extern s32 func_001b0800();
     extern u8 *func_001bc920();
     extern u8 *func_001bccc0();
-    extern s32 func_001d15a0();
     extern u8 *func_001d1eb0();
     extern u8 *func_001d3530();
     extern u8 *func_001d6240();
@@ -2818,12 +2821,10 @@ void func_001a59a0(s64 *arg0) {
     extern s32 func_001f7910();
     extern u8 *func_001f7c20();
     extern u8 *func_001f99c0();
-    extern u8 *func_001fa720();
     extern u8 *func_00201de0(s32 source, s32 target, s32 id, s16 effect, s16 targetFlags, s16 value, s16 enabled, void *result, u16 flags);
     extern u8 *func_00202010();
     extern u8 *func_00202400();
     extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
-    extern u32 func_00231d70();
     extern s32 func_0023e1f0();
     extern u8 *iGpffffb3ac;
     extern u8 *iGpffffb3bc;
@@ -3584,7 +3585,7 @@ loop_196:
                                     if (temp_3_4 <= 0) {
                                         temp_4_7 = func_001ef720(2, 0x80000) & 0xFFFF;
                                         temp_3_5 = (u8 *)(iGpffffb3ac);
-                                        if (((u32) ((s16) (*(s16 *)((u8 *)(temp_3_5) + (0xA72))) >> 1) >= temp_4_7) && (temp_2_53 = (*(s16 *)((u8 *)(temp_3_5) + (0xA70))), spE0 = (s32) temp_2_53, (temp_2_53 != ((s64) (func_001d15a0(temp_4_7) << 0x30) >> 0x30)))) {
+                                        if (((u32) ((s16) (*(s16 *)((u8 *)(temp_3_5) + (0xA72))) >> 1) >= temp_4_7) && (temp_2_53 = (*(s16 *)((u8 *)(temp_3_5) + (0xA70))), spE0 = (s32) temp_2_53, (temp_2_53 != ((s64) (func_001d15a0() << 0x30) >> 0x30)))) {
                                             var_2_8 = 1;
                                         } else {
                                             goto block_222;
@@ -3801,7 +3802,6 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001ba090();
     extern s32 func_001bc920();
     extern s32 func_001bccc0();
-    extern s32 func_001d15a0();
     extern s32 func_001d2d90();
     extern s32 func_001d3000();
     extern s32 func_001d3530();
@@ -3841,7 +3841,6 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001f99c0();
     extern s32 func_001fa110();
     extern s32 func_001fa320();
-    extern s32 func_001fa720();
     extern u8 *func_00201de0(s32 source, s32 target, s32 id, s16 effect, s16 targetFlags, s16 value, s16 enabled, void *result, u16 flags);
     extern s32 func_00201f20();
     extern s32 func_00202010();
@@ -3860,7 +3859,6 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_0022fa90();
     extern s32 func_0022fd30();
     extern s32 func_00230020();
-    extern s32 func_00231d70();
     extern s32 func_00231ed0();
     extern s32 func_00232710();
     extern s32 func_0023df70();
@@ -5492,7 +5490,7 @@ do {
                         if (temp_3_17 <= 0) {
                             temp_4_18 = (u32)(func_001ef720(2, 0x80000) & 0xFFFF);
                             temp_3_18 = (u8 *)(iGpffffb3ac);
-                            if (((s64)((u32) ((s16) (*( s16 * )((u8 *)(temp_3_18) + (0xA72))) >> 1)) >= (s64)(temp_4_18)) && (temp_21_2 = (*( s16 * )((u8 *)(temp_3_18) + (0xA70))), ((s64)(temp_21_2) != (s64)(((s64) (func_001d15a0(temp_4_18) << 0x30) >> 0x30))))) {
+                            if (((s64)((u32) ((s16) (*( s16 * )((u8 *)(temp_3_18) + (0xA72))) >> 1)) >= (s64)(temp_4_18)) && (temp_21_2 = (*( s16 * )((u8 *)(temp_3_18) + (0xA70))), ((s64)(temp_21_2) != (s64)(((s64) (func_001d15a0() << 0x30) >> 0x30))))) {
                                 var_2_13 = 1;
                             } else {
                                 goto block_406;
@@ -6137,7 +6135,7 @@ void func_001ac500(s64 *arg0) {
     temp_2 = (u8 *)func_001d3700(3, 0xFFF);
     *(s64 *)(temp_2 + 0x60) = *arg0;
     func_00194590(temp_2, 0);
-    temp_2_2 = btlCameraCreateSetStatePacket(arg0, 0x2C);
+    temp_2_2 = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x2C);
     *(s64 *)(temp_2_2 + 0x60) = *arg0;
     func_00194590(temp_2_2, 0);
     *(u16 *)((u8 *)arg0 + 0x18) |= 2;
@@ -6160,7 +6158,7 @@ void func_001ac620(void) {
 
     while (p != NULL) {
         if (func_001a05f0(p) != 0) {
-            o = func_0019b6a0(*(s32 *)(*(u8 **)(p + 0x30) + 0xA0C));
+            o = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(p + 0x30) + 0xA0C));
             *(s64 *)(o + 0x60) = *(s64 *)p;
             func_00194590(o, 1);
         }
@@ -6905,8 +6903,8 @@ void func_001adb80(s64 *arg0)
         }
     }
     if (var_2 != 0) {
-        temp_2 = func_0019b6a0(
-            *(s32 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA0C));
+        temp_2 = (u8 *)func_0019b6a0(
+            *(BtlUnit **)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA0C));
         *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
         func_00194590(temp_2, 1);
     }
@@ -7128,126 +7126,137 @@ s32 func_001ae3c0(u8 *arg0)
 {
     return *(s32 *)(arg0 + 0x428);
 }
-// FUN_001AE3D0 NONMATCHING
-/* measured: live object 1076B/window 1072B, normalized_diff 123 (installed guard below; first real floor, replaces the SKIP_ASM stub; object exceeds window by 4B). Recovery from docs/probe_archive/L1A_001ae3d0_body.c: list-node packet fill, ==0/arg-first arm swap, v=0-first structure, u32 sel. Open walls: s3-hoist of the 2672-half before the 1d15a0 call, deep-lookahead temp coloring, pr-stack-slot layout, bne-operand canonicalization; the (s16)-cast extend pair is load-bearing. Banked as floor. */
-#ifdef NON_MATCHING
-void func_001ae3d0(u8 *arg0)
-{
-    u8 *lst;
-    u8 *found;
-    u32 entry;
-    u8 *entryp;
-    u8 *pkt;
-    u16 pr[2];
-    u32 sel;
-    s32 v;
-    u32 t;
-    s16 h2;
-    s32 cu;
 
-    lst = *(u8 **)(iGpffffb3ac + 372);
-    while (lst != NULL) {
-        if (func_001a05f0(lst) != 0) {
-            pkt = func_0019b6a0((s32)*(u8 **)(*(u8 **)(lst + 48) + 2572));
-            *(s64 *)(pkt + 96) = *(s64 *)lst;
-            func_00194590(pkt, 1);
+typedef struct ActionTargetTable {
+    u8 beforeTargets[0xC48];
+    u8 *targets[4];
+    u16 count;
+} ActionTargetTable;
+static inline u8 *actionTargetAt(ActionTargetTable *table, u16 index)
+{
+    return table->targets[index];
+}
+/* Build the return-to-action packet sequence and select an available target.
+ * Native b210 O2: 1072/1072 bytes, every relocation resolved; all other
+ * owner functions and data preserved. See the 001ae3d0 recovery note. */
+// FUN_001AE3D0
+void func_001ae3d0(u8 *action)
+{
+    u8 *currentAction;
+    u8 *target;
+    u32 flags;
+    u8 *targetAction;
+    u8 *packet;
+    /* The cut-in constructor copies ten bytes. Mode 1 uses only the
+     * leading mode and unit ID; the remaining representation is opaque. */
+    struct { u16 mode, unitId; u8 reserved[6]; } cutin;
+    u32 selectedAction;
+    s32 changeFormation;
+    u32 enemyCount;
+    s16 previousFormation;
+    u16 targetIndex;
+
+    currentAction = *(u8 **)(iGpffffb3ac + 372);
+    while (currentAction != NULL) {
+        if (func_001a05f0(currentAction) != 0) {
+            packet = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(currentAction + 48) + 2572));
+            *(s64 *)(packet + 96) = *(s64 *)currentAction;
+            func_00194590(packet, 1);
         }
-        lst = *(u8 **)(lst + 1104);
+        currentAction = *(u8 **)(currentAction + 1104);
     }
-    found = NULL;
-    if (*(u8 *)(*(u8 **)(arg0 + 48) + 162) == 0) {
-        sel = (u32)arg0;
+    target = NULL;
+    if (*(u8 *)(*(u8 **)(action + 48) + 162) == 0) {
+        selectedAction = (u32)action;
     } else {
-        sel = (u32)*(u8 **)(arg0 + 56);
+        selectedAction = (u32)*(u8 **)(action + 56);
     }
-    if (sel != 0) {
-        u32 n = *(u16 *)(iGpffffb3ac + 3160);
-        u16 i = 0;
-        while (((i & 0xFFFF)) < n) {
-            if (*(u32 *)(iGpffffb3ac + ((i & 0xFFFF) * 4) + 3144) == sel) {
-                found = (u8 *)sel;
+    if (selectedAction != 0) {
+        u16 i;
+        u8 *tableBase;
+        s32 count;
+        u32 current;
+        i = 0;
+        tableBase = iGpffffb3ac;
+        count = *(u16 *)(tableBase + 3160);
+        while ((s32)i < count) {
+            current = *(u32 *)(tableBase + (u32)i * 4 + 3144);
+            if (current == selectedAction) {
+                target = (u8 *)selectedAction;
                 break;
             }
-            i = (i + 1) & 0xFFFF;
+            i++;
         }
     }
-    if (found == NULL) {
-        found = *(u8 **)(iGpffffb3ac + (func_00231d70(*(u16 *)(iGpffffb3ac + 3160)) & 0xFFFF) * 4 + 3144);
+    if (target == NULL) {
+        target = actionTargetAt((ActionTargetTable *)iGpffffb3ac, (func_00231d70(*(u16 *)(iGpffffb3ac + 3160)) & 0xFFFF));
     }
-    pr[0] = 1;
-    pr[1] = *(u16 *)(*(u8 **)(found + 48) + 164);
-    pkt = func_001fa720((u8 *)pr);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    func_00194590(pkt, 1);
-    v = 0;
-    if (*(u8 *)(*(u8 **)(arg0 + 48) + 162) == 0) {
-        if (*(s16 *)(iGpffffb3ac + 2672) != -1) {
-            t = func_001ef720(2, 0x80000) & 0xFFFF;
-            if ((u32)((s16)(*(s16 *)(iGpffffb3ac + 2674) >> 1)) < t) {
-                v = 0;
-            } else {
-                h2 = *(s16 *)(iGpffffb3ac + 2672);
-                if (h2 == (s16)func_001d15a0((s32)t)) {
-                    v = 0;
-                } else {
-                    v = 1;
-                }
-            }
-        }
+    cutin.mode = 1;
+    cutin.unitId = *(u16 *)(*(u8 **)(target + 48) + 164);
+    packet = func_001fa720(&cutin);
+    *(s64 *)(packet + 96) = *(s64 *)action;
+    func_00194590(packet, 1);
+    if (*(u8 *)(*(u8 **)(action + 48) + 162) != 0) {
+        changeFormation = 0;
+    } else if ((*(s16 *)(iGpffffb3ac + 2672) != -1) &&
+               (enemyCount = func_001ef720(2, 0x80000) & 0xFFFF,
+                (u32)(*(s16 *)(iGpffffb3ac + 2674) >> 1) >= enemyCount) &&
+               (previousFormation = *(s16 *)(iGpffffb3ac + 2672),
+                previousFormation != (s16)func_001d15a0())) {
+        changeFormation = 1;
+    } else {
+        changeFormation = 0;
     }
-    if (v != 0) {
-        pkt = (u8 *)func_001d3900(1);
-        *(s64 *)(pkt + 96) = *(s64 *)arg0;
-        func_00194590(pkt, 0);
+    if (changeFormation != 0) {
+        packet = (u8 *)func_001d3900(1);
+        *(s64 *)(packet + 96) = *(s64 *)action;
+        func_00194590(packet, 0);
     }
-    pkt = func_00199ee0(*(u8 **)(*(u8 **)(iGpffffb3ac + 368) + 48), 0, 0, 1, 1.0f);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    func_00194590(pkt, 0);
-    cu = 0;
-    while (((cu & 0xFFFF)) < *(u16 *)(iGpffffb3ac + 3160)) {
-        entryp = *(u8 **)(iGpffffb3ac + ((cu & 0xFFFF) * 4) + 3144);
-        pkt = func_00199ee0(*(u8 **)(entryp + 48), 0, 0, 1, 1.0f);
-        *(s64 *)(pkt + 96) = *(s64 *)arg0;
-        func_00194590(pkt, 0);
-        cu = (cu + 1) & 0xFFFF;
+    packet = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(*(u8 **)(iGpffffb3ac + 368) + 48), 0, 0, 1.0f, 1);
+    *(s64 *)(packet + 96) = *(s64 *)action;
+    func_00194590(packet, 0);
+    targetIndex = 0;
+    while ((s32)targetIndex < *(u16 *)(iGpffffb3ac + 3160)) {
+        targetAction = *(u8 **)(iGpffffb3ac + ((u32)targetIndex * 4) + 3144);
+        packet = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(targetAction + 48), 0, 0, 1.0f, 1);
+        *(s64 *)(packet + 96) = *(s64 *)action;
+        func_00194590(packet, 0);
+        targetIndex++;
     }
-    pkt = (u8 *)func_001d3700(3, 0xFFF);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    func_00194590(pkt, 0);
-    pkt = func_0019e9f0(0, 3);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    func_00194590(pkt, 1);
-    pkt = func_0019e7c0(0, 3);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    func_00194590(pkt, 1);
-    pkt = func_001d3d00(arg0);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    func_00194590(pkt, 0);
-    pkt = (u8 *)func_001ba090(0);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    func_00194590(pkt, 0);
-    pkt = func_001bc920(arg0, 7);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    func_00194590(pkt, 0);
-    entry = *(u32 *)(iGpffffb3ac + 12);
-    entry = entry & 0xFFBFFFFF;
-    *(u32 *)(iGpffffb3ac + 12) = entry;
+    packet = (u8 *)func_001d3700(3, 0xFFF);
+    *(s64 *)(packet + 96) = *(s64 *)action;
+    func_00194590(packet, 0);
+    packet = func_0019e9f0(0, 3);
+    *(s64 *)(packet + 96) = *(s64 *)action;
+    func_00194590(packet, 1);
+    packet = (u8 *)btlUnitCreateLookAtDeactivatePacket(NULL, 3);
+    *(s64 *)(packet + 96) = *(s64 *)action;
+    func_00194590(packet, 1);
+    packet = (u8 *)func_001d3d00((u32)action);
+    *(s64 *)(packet + 96) = *(s64 *)action;
+    func_00194590(packet, 0);
+    packet = (u8 *)func_001ba090(0);
+    *(s64 *)(packet + 96) = *(s64 *)action;
+    func_00194590(packet, 0);
+    packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 7);
+    *(s64 *)(packet + 96) = *(s64 *)action;
+    func_00194590(packet, 0);
+    flags = *(u32 *)(iGpffffb3ac + 12);
+    flags = flags & 0xFFBFFFFF;
+    *(u32 *)(iGpffffb3ac + 12) = flags;
     *(u16 *)(iGpffffb3ac + 24) = 0;
     if (func_001eb860() == 1) {
-        entry = *(u32 *)(iGpffffb3ac + 12);
-        entry = entry & ~0x2000;
-        *(u32 *)(iGpffffb3ac + 12) = entry;
+        flags = *(u32 *)(iGpffffb3ac + 12);
+        flags = flags & ~0x2000;
+        *(u32 *)(iGpffffb3ac + 12) = flags;
         func_00212240(*(u8 **)(iGpffffb3ac + 3540), 0);
     }
-    *(u8 **)(arg0 + 1052) = found;
-    *(s32 *)(arg0 + 1056) = 0;
-    *(s32 *)(arg0 + 1060) = 0;
-    *(s32 *)(arg0 + 1064) = 0;
-    *(u16 *)(arg0 + 1068) = 12;
+    *(u8 **)(action + 1052) = target;
+    *(s32 *)(action + 1056) = 0;
+    *(s32 *)(action + 1060) = 0;
+    *(s32 *)(action + 1064) = 0;
+    *(u16 *)(action + 1068) = 12;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001ae3d0);
-#endif
 // FUN_001AE800
 void func_001ae800(u8 *arg0)
 {
