@@ -7768,6 +7768,7 @@ iGpffffa840 = 0x00763930; // type:data
 iGpffffa848 = 0x00763938; // type:data
 iGpffffa870 = 0x00763960; // type:data
 iGpffffa884 = 0x00763974; // type:data
+uGpffffa888 = 0x00763978; // type:data
 iGpffffa890 = 0x00763980; // type:data
 iGpffffa898 = 0x00763988; // type:data
 iGpffffa8a0 = 0x00763990; // type:data
