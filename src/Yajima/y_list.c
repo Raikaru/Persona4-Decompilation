@@ -163,7 +163,7 @@ s16 func_002e2740(s32 arg0) {
 }
 
 // FUN_002E2830
-s16 func_002e2830(u8 *arg0, s32 arg1) {
+s32 func_002e2830(u8 *arg0, s32 arg1) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     if (*(s16 *)(p + 2) < arg1) {
