@@ -301,7 +301,7 @@ extern u8 D_0063FA68[];
 extern u16 D_008C024E[];
 extern u16 D_008C0276[];
 extern u16 D_008C027A[];
-extern f32 fGpffff7ad4;
+extern f32 fGpffff852c;
 
 /* measured: rule 1 is NOT VU0 here - retail ldr 0x2C/ldl 0x33 (12 sites, all
    on the func_002e04e0 result, e.g. 0x002C134C) is *(u64 *)(p + 0x2C): the
@@ -5111,7 +5111,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
         sp170 = func_002b2970(b->x, b->y);
         func_002e0620(work->fD60, *(u64 *)&sp178, *(u64 *)&sp170, 2, 4, 0);
         ((ShopWork *)func_002e04e0(work->fD60))->field_100 = ((ShopWork *)func_002e04e0(work->fD60))->field_102 = 0;
-        func_002e0940(work->fD60, -5.0f, fGpffff7ad4, 2, 2, 2);
+        func_002e0940(work->fD60, -5.0f, fGpffff852c, 2, 2, 2);
         c210 = func_002b2a60(0xFF, 0x96, 0, 0xFF);
         t = (u8 *)func_002e04e0(work->fD60);
         *(FclDrawColor *)(t + 0x79) = c210;
@@ -5122,7 +5122,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
         func_002e0620(work->fD64, *(u64 *)&sp168, *(u64 *)&sp160, 2, 4, 0);
         ((ShopWork *)func_002e04e0(work->fD64))->field_100 = -0x32;
         ((ShopWork *)func_002e04e0(work->fD64))->field_102 = -0xDB;
-        func_002e0940(work->fD64, -5.0f, fGpffff7ad4, 2, 2, 2);
+        func_002e0940(work->fD64, -5.0f, fGpffff852c, 2, 2, 2);
         b = (Vec2f *)D_0063F8C0;
         func_002e09e0(work->fDE8, 0x41, 46.0f);
         func_002e0660(work->fDE8, 0, 0xFF, 0, 6, 0);
@@ -5248,7 +5248,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
         spF0 = func_002b2970(b->x, b->y);
         func_002e0620(work->fD60, *(u64 *)&spF8, *(u64 *)&spF0, 2, 4, 0);
         ((ShopWork *)func_002e04e0(work->fD60))->field_100 = ((ShopWork *)func_002e04e0(work->fD60))->field_102 = 0;
-        func_002e0940(work->fD60, -5.0f, fGpffff7ad4, 2, 2, 2);
+        func_002e0940(work->fD60, -5.0f, fGpffff852c, 2, 2, 2);
         c1F4 = func_002b2a60(0xFF, 0x96, 0, 0xFF);
         t = (u8 *)func_002e04e0(work->fD60);
         *(FclDrawColor *)(t + 0x79) = c1F4;
@@ -5259,7 +5259,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
         func_002e0620(work->fD64, *(u64 *)&spE8, *(u64 *)&spE0, 2, 4, 0);
         ((ShopWork *)func_002e04e0(work->fD64))->field_100 = -0x32;
         ((ShopWork *)func_002e04e0(work->fD64))->field_102 = -0xDB;
-        func_002e0940(work->fD64, -5.0f, fGpffff7ad4, 2, 2, 2);
+        func_002e0940(work->fD64, -5.0f, fGpffff852c, 2, 2, 2);
         work->state = 0x15;
     }
     work->f14 = 0;
@@ -6217,14 +6217,14 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002cdf80);
    stat deltas computed once into `d`; func_001069d0 takes s16 and the
    second-switch stat reads widen func_00106cd0's s16 result with (s32), as
    retail re-extends only there; the E60 handle loaded before the shared
-   fGpffff7ad0 argument. */
+   fGpffff8530 argument. */
 // FUN_002D1590
 s32 func_002d1590(void *arg0)
 {
     extern s32 func_002e2740(s32 arg0);
     extern s64 func_00106b80(s32 arg0);
     extern s8 func_002e05a0(void *);
-    extern f32 fGpffff7ad0;
+    extern f32 fGpffff8530;
     extern f32 D_0063F620[];
     extern f32 D_0063F628[];
     extern f32 D_0063F630[];
@@ -6479,7 +6479,7 @@ s32 func_002d1590(void *arg0)
         t = (u8 *)func_002e04e0(work->fE60);
         *(Vec2f *)(t + 0x2C) = sp1C8;
         t = (u8 *)work->fE60;
-        func_002e0940(t, fGpffff7ad0, fGpffff7ad0, 0, 0, 0);
+        func_002e0940(t, fGpffff8530, fGpffff8530, 0, 0, 0);
         for (mark = 0; mark < 3; mark++) {
             func_002e09e0(*(void **)((u8 *)work + mark * 4 + 0xDBC), 0x41, 95.0f);
             c290 = func_002b2a60(0xFF, 0xEF, 0x80, 0xFF);
@@ -8012,7 +8012,7 @@ void func_002d8a60(void *arg0, s8 arg1, f32 x, f32 y) {
    retail[209:220] (the ED4 func_002e04e0 + RGBA byte store the archived body never had); one
    4-instruction object lump at object[173:177] (signed s8-to-float scheduling at the 35.0f
    sites). Adapted from build/W8ShopRGBA_func_002da0a0_highnd.c (296-line body, 5032B/window
-   4960, nd 3080): the only change is fGpffff7afc to the owner's fGpffff7ad4, matching retail's
+   4960, nd 3080): the only change is fGpffff7afc to the owner's fGpffff852c, matching retail's
    lwc1 -0x7AD4($gp) at both 002e0940 sites (0x1DA808/0x1DA918) and already used the same way at
    line 956; the archived symbol was a mislabel as the file's own notes warn. Residuals stay as
    archived: D_0063F5B8/F65x base hoist into $s1 and (s64)(s32) width casts on 46b260/46b2f0. */
@@ -8171,7 +8171,7 @@ void func_002da0a0(register u8 *root) {
     func_002e0620(*(void **)(work + 0xD60), spE8, spE0, 2, 4, 0);
     *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD60)) + 0x102) = 0;
     *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD60)) + 0x100) = 0;
-    func_002e0940(*(void **)(work + 0xD60), -5.0f, fGpffff7ad4, 2, 2, 2);
+    func_002e0940(*(void **)(work + 0xD60), -5.0f, fGpffff852c, 2, 2, 2);
     fclWriteColorBytes(&c4, 0xFF, 0x96, 0, 0xFF);
     t = (u8 *)func_002e04e0(*(void **)(work + 0xD60));
     *(RGBA *)(t + 0x79) = c4;
@@ -8183,7 +8183,7 @@ void func_002da0a0(register u8 *root) {
     func_002e0620(*(void **)(work + 0xD64), spD8, spD0, 2, 4, 0);
     *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD64)) + 0x100) = -50;
     *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD64)) + 0x102) = -219;
-    func_002e0940(*(void **)(work + 0xD64), -5.0f, fGpffff7ad4, 2, 2, 2);
+    func_002e0940(*(void **)(work + 0xD64), -5.0f, fGpffff852c, 2, 2, 2);
     fclWriteColorBytes(&c5, 0xE4, 0xFF, 0, 0xFF);
     t = (u8 *)func_002e04e0(*(void **)(work + 0xD64));
     *(RGBA *)(t + 0x79) = c5;
