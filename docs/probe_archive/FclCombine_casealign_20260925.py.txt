@@ -1,0 +1,119 @@
+"""Per-switch-case alignment of a candidate against retail.
+
+usage: casealign.py FUNC CANDIDATE.c RETAIL_JTBL_ADDR NCASES [--show CASEIDX]
+Run from repo root with the toolchain env.
+"""
+import struct, sys, tempfile
+from pathlib import Path
+sys.path.insert(0, "tools")
+import fnalign as fa
+from verify import (FUNCTION_WINDOWS, TARGET, ObjectFile, RetailElf, _read_json,
+                    load_config, window_for, scan_markers)
+import probe_variants as probe
+
+func, cand, jaddr, ncases = sys.argv[1], Path(sys.argv[2]), int(sys.argv[3], 16), int(sys.argv[4])
+show = None
+if "--show" in sys.argv:
+    show = sys.argv[sys.argv.index("--show") + 1]
+source = Path("src/Event/Fcl/y_fclCombine.c").resolve()
+cfg = load_config()
+target = _read_json(TARGET)
+windows = _read_json(FUNCTION_WINDOWS)
+retail_elf = RetailElf(cfg["retail_elf"], target, windows["sha1"])
+
+with tempfile.TemporaryDirectory() as d:
+    out = Path(d) / "out.o"
+    text = probe._read_text(source)
+    newline = probe._newline_for(source.read_bytes())
+    start, end = probe.region_for(text, probe.address_of(func, source), func)
+    body = probe._normalise_candidate(cand.read_text(), newline)
+    patched = probe.splice_region(text, start, end, body, newline)
+    with probe.scratch_source(source) as scratch:
+        scratch.write_text(patched)
+        ok, log = probe._compile_in_context(scratch, source, cfg, out)
+        if not ok:
+            print(log)
+            sys.exit(1)
+    obj = ObjectFile(out)
+    data, relocs = obj.function(func)
+    sym = [s for s in obj.symbols if s["name"] == func and s["size"]][0]
+    textsec = sym["shndx"]
+    r_hi = relocs[0]
+    jsym = [x for x in obj.symbols if x["name"] == r_hi["symbol"]][0]
+    rsec = jsym["shndx"]
+    base = jsym["value"]
+    rs = obj.sections[rsec]
+    ocases = []
+    for i in range(ncases):
+        w = struct.unpack_from("<I", obj.data, rs["offset"] + base + 4 * i)[0]
+        ocases.append((w - sym["value"]) // 4)
+
+# retail
+addr = int(func[-8:], 16)
+rsize = int(sys.argv[5], 0)
+elf = retail_elf.data
+phoff = struct.unpack_from("<I", elf, 0x1C)[0]
+phnum = struct.unpack_from("<H", elf, 0x2C)[0]
+segs = []
+for i in range(phnum):
+    t, off, va, pa, fs, ms, fl, al = struct.unpack_from("<8I", elf, phoff + i * 32)
+    segs.append((va, off, fs))
+def rd(a, n):
+    for va, off, fs in segs:
+        if va <= a < va + fs:
+            return elf[off + a - va: off + a - va + n]
+rcases = [(struct.unpack("<I", rd(jaddr + 4 * i, 4))[0] - addr) // 4 for i in range(ncases)]
+rdata = rd(addr, rsize)
+retail = fa.decode(rdata, addr)
+objs = fa.decode(data, 0)
+relocated = {r["offset"] // 4 for r in relocs}
+rorder = sorted(range(ncases), key=lambda i: rcases[i])
+tot = 0
+rb = [0] + [rcases[i] for i in rorder] + [len(retail)]
+ob = [0] + [ocases[i] for i in rorder] + [len(objs)]
+names = ["pre"] + ["c%d" % i for i in rorder]
+print(f"retail {len(retail)} object {len(objs)}")
+for k, n in enumerate(names):
+    r = retail[rb[k]:rb[k + 1]]
+    o = objs[ob[k]:ob[k + 1]]
+    rel = {x - ob[k] for x in relocated if ob[k] <= x < ob[k + 1]}
+    import difflib
+    rm = [x.split(" ")[0] for x in r]
+    om = [x.split(" ")[0] for x in o]
+    sm = difflib.SequenceMatcher(None, rm, om, autojunk=False)
+    script = []
+    edits = 0
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+        if tag == "equal":
+            for q in range(i2 - i1):
+                a_, b_ = r[i1 + q], o[j1 + q]
+                if a_ != b_ and not ((j1 + q) in rel and fa.strip_immediates(a_) == fa.strip_immediates(b_)):
+                    edits += 1
+                    script.append(("repl", i1 + q, i1 + q + 1, j1 + q, j1 + q + 1))
+        else:
+            edits += max(i2 - i1, j2 - j1)
+            script.append((tag, i1, i2, j1, j2))
+    if len(r) == len(o):
+        pos = sum(1 for i in range(len(r)) if r[i] != o[i] and not (i in rel and fa.strip_immediates(r[i]) == fa.strip_immediates(o[i])))
+        if pos < edits:
+            edits = pos
+            script = [("pos", i, i + 1, i, i + 1) for i in range(len(r)) if r[i] != o[i] and not (i in rel and fa.strip_immediates(r[i]) == fa.strip_immediates(o[i]))]
+    tot += edits
+    print(f"{n:5s} retail {len(r):5d} object {len(o):5d} edits {edits}")
+    if "--dumpall" in sys.argv or ("--dump" in sys.argv and sys.argv[sys.argv.index("--dump") + 1] == n):
+        for tag, i1, i2, j1, j2 in sm.get_opcodes():
+            for q in range(max(i2 - i1, j2 - j1)):
+                a_ = r[i1 + q] if i1 + q < i2 else ""
+                b_ = o[j1 + q] if j1 + q < j2 else ""
+                mark = " " if a_ == b_ else "*"
+                print(f"{mark} {rb[k] + i1 + q:5d} {a_:34s} | {b_}")
+    if show == n:
+        for tag, i1, i2, j1, j2 in script:
+            if tag == "reloc":
+                continue
+            print(f"{tag:8s} r[{i1 + rb[k]}:{i2 + rb[k]}] o[{j1 + ob[k]}:{j2 + ob[k]}]")
+            for x in r[i1:i2]:
+                print("   R ", x)
+            for x in o[j1:j2]:
+                print("   O ", x)
+print("total", tot)
