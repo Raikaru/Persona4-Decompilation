@@ -221,7 +221,7 @@ class CommittedReadmeTests(unittest.TestCase):
         for label, count in (
             ("Canonical function windows", metrics["total"]),
             ("Byte-identical functions", metrics["matching"]["count"]),
-            ("In byte-exact linked C objects", metrics["linked"]["count"]),
+            ("Fully linked ASM-free C files", metrics["linked"]["count"]),
         ):
             self.assertEqual(re.match(r"[\d,]+", rows[label]).group(), f"{count:,}", label)
 
@@ -251,10 +251,9 @@ class ReadmeBadgeTests(unittest.TestCase):
         "complete_code_percent",
         "complete_units",
     }
-    # Only `fuzzy_match_percent` gives partial credit now. tools/gen_decomp_report.py
-    # computes the report itself and defines `matched_*` as strictly byte-exact and
-    # `complete_*` as shipped-in-the-linked-image, so the matched family is no
-    # longer fuzzy-weighted the way objdiff-cli's derived report made it.
+    # Only `fuzzy_match_percent` gives partial credit. tools/gen_decomp_report.py
+    # defines `matched_*` as strictly byte-exact and `complete_*` as complete
+    # ASM-free C files present in the byte-exact linked image.
     FUZZY = {"fuzzy_match_percent"}
 
     @classmethod

@@ -91,6 +91,7 @@ WATCH_PATTERNS = [
 ]
 IGNORE_PATTERNS = ["build/**/*"]
 CONFIG_UNIT_KEYS = ("name", "target_path", "base_path", "metadata")
+ASSEMBLY_C_RE = re.compile(r"\b(?:asm|__asm|__asm__|INCLUDE_ASM|INCLUDE_RODATA)\b")
 
 
 def _align(value: int, alignment: int) -> int:
@@ -180,8 +181,8 @@ PROGRESS_CATEGORIES = [
     {"id": "sony_sdk", "name": "Sony PS2 SDK (black-box linkage)"},
     {"id": "third_party", "name": "Other third-party and vendor code"},
     {"id": "unclassified", "name": "Not yet attributed to a source file"},
-    # Cross-cutting linkage evidence, separate from C-source matching.
-    # SDK retail objects can be fully linked without contributing a C MATCH.
+    # Interactive objdiff tracks physical linkage; decomp.dev's complete_code
+    # additionally requires whole ASM-free C files (fully_linked_c_addresses).
     {"id": "linked", "name": "Linked into the byte-exact image"},
 ]
 
@@ -227,6 +228,41 @@ def linked_addresses(path: str | None) -> frozenset[int]:
             out.add(int(address, 16))
         return frozenset(out)
     return frozenset()
+
+def fully_linked_c_addresses(results: list[dict],
+                             linked: dict[int, str] | frozenset[int] | set[int]) -> frozenset[int]:
+    """Credit only whole matching C files actually linked from their own source.
+
+    The verifier marks INCLUDE_ASM fallbacks separately, and the source scan
+    excludes inline assembly as well. A link report names the actual input for
+    each window, so a retail-backed SDK object cannot take credit for an
+    independently matching C body. The committed metrics fallback contains
+    already-vetted C addresses. Check the whole file before origin categories.
+    """
+    by_file: dict[str, list[dict]] = {}
+    for row in results:
+        file_rel = row.get("file")
+        if not isinstance(file_rel, str):
+            continue
+        file_rel = file_rel.replace("\\", "/")
+        if file_rel.startswith("src/") and file_rel.endswith(".c"):
+            by_file.setdefault(file_rel, []).append(row)
+    complete = set()
+    for file_rel, rows in by_file.items():
+        addresses = [int(row["addr"], 16) if isinstance(row["addr"], str) else int(row["addr"])
+                     for row in rows]
+        if not all(row.get("status") == "MATCH" and address in linked
+                   and (not isinstance(linked, dict) or linked[address].replace("\\", "/") == file_rel)
+                   for row, address in zip(rows, addresses)):
+            continue
+        source = REPO / file_rel
+        if not source.is_file():
+            continue
+        code = _verify().sanitize_c_lines(source.read_text(errors="replace").splitlines())
+        if any(ASSEMBLY_C_RE.search(line) for line in code):
+            continue
+        complete.update(addresses)
+    return frozenset(complete)
 
 
 def progress_category(file_rel: str | None, tu_name: str | None = None,

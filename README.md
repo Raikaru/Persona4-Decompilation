@@ -2,11 +2,11 @@
 
 [![perfect match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=perfect%20match&measure=code)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![fuzzy match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=fuzzy%20match&measure=fuzzy_match_percent)](https://decomp.dev/Raikaru/Persona4-Decompilation)
-[![linked code](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=linked%20code&measure=complete_code)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![fully C-linked](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=fully%20C-linked&measure=complete_code)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![first-party functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=first-party%20functions&measure=matched_functions&category=main)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![all functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20functions&measure=matched_functions)](https://decomp.dev/Raikaru/Persona4-Decompilation)
-[![byte-exact linked C](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Flinked.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/linked.json)
-[![Sony SDK linked](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=Sony%20SDK%20linked&measure=complete_code&category=sony_sdk)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![ASM-free linked C](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Flinked.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/linked.json)
+[![Sony SDK fully C-linked](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=Sony%20SDK%20fully%20C-linked&measure=complete_code&category=sony_sdk)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 
 A matching decompilation of **Shin Megami Tensei: Persona 4** for the
 PlayStation 2 (USA, v1.00, `SLUS_217.82`). Recovered C functions are compiled
@@ -35,18 +35,19 @@ version.
 | Byte-identical functions | 9,402 (71.76% of windows) |
 | Under test (a `// FUN_` marker scores them) | 13,102 (100.0% of windows) |
 | Not yet under test, supplied as retail bytes | 0 (0.0% of windows) |
-| In byte-exact linked C objects | 7,280 (55.564% of windows), with 568 assembly fallbacks still inside those objects |
-| Atlus game/engine | 6,861 functions; 6,582 C-matched (95.934%); 6,718 linked (97.916%) |
-| Proven Sony PS2 SDK | 491 functions; 152 C-matched (30.957%); 491 linked (100.0%) |
-| Other third-party/vendor | 5,750 functions; 2,668 C-matched (46.4%); 1,130 linked (19.652%) |
-| Unattributed | 0 functions; 0 C-matched (0.0%); 0 linked (0.0%) |
+| Fully linked ASM-free C files | 3,218 (24.561% of windows) |
+| Assembly fallbacks inside other linked objects | 568 |
+| Atlus game/engine | 6,861 functions; 6,582 C-matched (95.934%); 6,718 physically linked, including retail ASM (97.916%) |
+| Proven Sony PS2 SDK | 491 functions; 152 C-matched (30.957%); 491 physically linked, including retail ASM (100.0%) |
+| Other third-party/vendor | 5,750 functions; 2,668 C-matched (46.4%); 1,130 physically linked, including retail ASM (19.652%) |
+| Unattributed | 0 functions; 0 C-matched (0.0%); 0 physically linked, including retail ASM (0.0%) |
 | First-party matched, scored for recovery | 6,581 |
 | — NAMED (not a `func_<address>` placeholder) | 227 (3.449%) |
 | — TYPED (no raw-offset or `M2C_` access) | 1,814 (27.564%) |
 | — DOCUMENTED (prose, or trivially self-evident) | 4,556 (69.23%) |
 | — still carrying decompiler local names | 1,965 (29.859%) |
 
-Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. Sony SDK linkage includes verified C source and residual retail-backed black-box objects; linked is not a source-recovery count. `tools/recovery_quality.py --worst 20` ranks the game files needing work.
+Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. Fully linked counts only files whose every function is matching C and linked from that same source file; physical linkage also includes retail assembly and SDK black boxes. `tools/recovery_quality.py --worst 20` ranks the game files needing work.
 <!-- STATUS:END -->
 
 "First-party" means Atlus's game and engine code. Progress is partitioned by
@@ -67,9 +68,12 @@ assembled from the user's extracted retail assembly. Those residual objects are
 **retail-backed black boxes**, not copies of original Sony archive members or
 recovered C. No proprietary SDK objects or archives are committed.
 
-The SDK's decomp.dev **Linked Code** measure (`complete_code`) can therefore
-reach 100% while its C-matching percentage remains lower. That percentage covers
-the proven manifest, not an assertion that every Sony function has been found.
+The decomp.dev **fully linked C** measure (`complete_code`) credits a source
+file only when every function is matching C, the file has no inline assembly or
+`INCLUDE_ASM` fallback, and that C file is used in the verified link. It does
+not count residual Sony SDK black boxes; their physical linkage is tracked
+separately in `progress/sony-sdk-linked.json`. The proven SDK manifest does not
+assert that every Sony function has been found.
 Recovery queues, batch m2c promotion, and naming passes exclude SDK/vendor
 targets. Atlus wrappers such as `sdkTask.c`, `sdkOt.c`, and `sdkCdvd.c` stay
 in game scope: an `sdk` filename is not authorship evidence.

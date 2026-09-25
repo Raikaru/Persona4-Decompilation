@@ -271,6 +271,8 @@ jobs:
           canonical = json.load(open('tools/slus21782_functions.json'))['function_count']
           assert m['total_functions'] == canonical, (m['total_functions'], canonical)
           assert m['matched_functions'] > 0, m
+          # Fully linked credits only C, never retail ASM or SDK black boxes.
+          assert 0 <= int(m['complete_code']) <= int(m['matched_code']) <= int(m['total_code']), m
           print('published %s/%s byte-exact, fuzzy %.2f%%'
                 % (m['matched_functions'], m['total_functions'], m['fuzzy_match_percent']))
           PY
