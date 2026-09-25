@@ -15,24 +15,28 @@ Sint32 SFAOAP_Seek(void)
 }
 
 // Not supported: error 0xFF000A01.
+// FUN_00514328
 Sint32 SFAOAP_AddRead(SFD sfd)
 {
 	return SFLIB_SetErr(sfd, 0xFF000A01);
 }
 
 // Not supported: error 0xFF000A01.
+// FUN_00514348
 Sint32 SFAOAP_GetRead(SFD sfd)
 {
 	return SFLIB_SetErr(sfd, 0xFF000A01);
 }
 
 // Not supported: error 0xFF000A01.
+// FUN_00514368
 Sint32 SFAOAP_AddWrite(SFD sfd)
 {
 	return SFLIB_SetErr(sfd, 0xFF000A01);
 }
 
 // Not supported: error 0xFF000A01.
+// FUN_00514388
 Sint32 SFAOAP_GetWrite(SFD sfd)
 {
 	return SFLIB_SetErr(sfd, 0xFF000A01);

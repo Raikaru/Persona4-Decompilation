@@ -256,7 +256,17 @@ extern void func_003efda0(u8 *arg0); /* P4: ported verbatim into src/renderware 
 /* measured: closes no_branch_likely around func_003f4f90. */
 #pragma no_branch_likely off
 // FUN_003F5040
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f5040);
+s32 func_003f5040(u32 value)
+{
+    s32 highest_bit = -1;
+    if (value != 0) {
+        do {
+            value >>= 1;
+            ++highest_bit;
+        } while (value != 0);
+    }
+    return highest_bit;
+}
 // FUN_003F5070
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f5070);
 // FUN_003F5D90

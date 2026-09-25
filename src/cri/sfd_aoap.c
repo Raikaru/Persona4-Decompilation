@@ -2940,8 +2940,6 @@ extern u32 DAT_00744160[];
 
 /* Source unit: src/cri/cri_adx_00513dc8.c (1 function markers) */
 
-// FUN_00513D18
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00513d18);
 // FUN_00513D38
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00513d38);
 // FUN_00513DC8
@@ -3003,8 +3001,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00514138);
 // FUN_005141A8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005141a8);
 
-// FUN_005141E8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005141e8);
 // FUN_005141F0
 int func_005141f0(void)
 {

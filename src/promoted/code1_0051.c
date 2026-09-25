@@ -263,12 +263,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517c28);
 // FUN_00517CF0
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517cf0);
 
-// FUN_00517D18
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517d18);
-
-// FUN_00517D30
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517d30);
-
 // FUN_00517D48
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517d48);
 
@@ -285,17 +279,9 @@ void func_00517d88() {
 
 
 
-// FUN_00519CC0
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519cc0);
 
-// FUN_00519CE0
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519ce0);
 
-// FUN_00519D00
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519d00);
 
-// FUN_00519D20
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519d20);
 
 // FUN_00519D40
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519d40);
@@ -309,20 +295,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519df0);
 
 // FUN_00519E90
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519e90);
-/* measured: object 12B/window 16B/normalized_diff 2 (2 differing words, first diffs 2,10). */
-/* measured: schedule on places second lw in jr delay slot (was 3 words off-schedule, now 2); s32/u32 local variants stay at 3. */
-/* measured: remaining is tiny-accessor coloring ($v0 vs $v1, same floor as func_0051f5e8); no slti range, no chain shortfall, loop N/A. Updated from 3 to 2. */
-// FUN_00519EE0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma schedule on
-s32 func_00519ee0(u8 *arg0) {
-    u8 *p = *(u8 **)(arg0 + 0x1F7C);
-    return *(s32 *)(p + 0x20);
-}
-#pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519ee0);
-#endif
 
 
 /* measured: exhaustive C spellings (direct chain; u8/s32/u32/void pointer locals;

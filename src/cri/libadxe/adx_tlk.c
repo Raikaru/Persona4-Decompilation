@@ -291,12 +291,6 @@ void ADXT_DestroyAll(void)
     }
 }
 
-// 100% matching! 
-// FUN_004D3528
-void ADXT_CloseAllHandles(void)
-{
-    ADXT_DestroyAll();
-}
 
 // 100% matching! 
 void adxt_start_sj(ADXT adxt, SJ sj)
@@ -953,8 +947,6 @@ void ADXT_EntryFltFunc(ADXT adxt, void (*f)(), void *obj)
     ADXSJD_EntryFltFunc(adxt->sjd, f, obj);
 }
 
-// 100% matching! 
-// FUN_004D65A0
 Sint32 ADXT_GetDecNumSmpl(ADXT adxt)
 {
     return ADXSJD_GetDecNumSmpl(adxt->sjd);
@@ -1076,7 +1068,6 @@ Sint32 ADXT_InsertSilence(ADXT adxt, Sint32 nch, Sint32 nsmpl)
 // outbal/mono-flag in ADX_TALK (0xA4 bytes vs 0xC8) and centralises mono in the
 // decoder via ADX_SetDecodeSteAsMonoSw, so porting the 0xC8 loop here would use
 // the wrong stride and break the 8.30 layout. Re4's 184B loop is exact there.
-// FUN_004D6C68
 void ADXT_SetOutputMono(Sint32 flag)
 {
     ADX_SetDecodeSteAsMonoSw(flag);

@@ -1028,10 +1028,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c7130);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c7188);
 // FUN_004C71B8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c71b8);
-// FUN_004C7228
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c7228);
-// FUN_004C7230
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c7230);
 // FUN_004C7238
 asm int func_004c7238(int param_1)
 {

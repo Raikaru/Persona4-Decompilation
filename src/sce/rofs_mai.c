@@ -72,8 +72,6 @@ INCLUDE_ASM("asm/nonmatchings/rofs_mai", func_004f5020);
 // FUN_004F50B0
 INCLUDE_ASM("asm/nonmatchings/rofs_mai", func_004f50b0);
 
-// FUN_004F51A8
-INCLUDE_ASM("asm/nonmatchings/rofs_mai", func_004f51a8);
 
 // FUN_004F51C8
 INCLUDE_ASM("asm/nonmatchings/rofs_mai", func_004f51c8);
@@ -88,8 +86,6 @@ INCLUDE_ASM("asm/nonmatchings/rofs_mai", func_004f54d8);
 // FUN_004F5540
 INCLUDE_ASM("asm/nonmatchings/rofs_mai", func_004f5540);
 
-// FUN_004F55E0
-INCLUDE_ASM("asm/nonmatchings/rofs_mai", func_004f55e0);
 
 // FUN_004F55F0
 INCLUDE_ASM("asm/nonmatchings/rofs_mai", func_004f55f0);

@@ -33,10 +33,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e01c0);
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0268);
 // FUN_004E0308
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0308);
-// FUN_004E0380
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0380);
-// FUN_004E0398
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0398);
 /* measured: ee-gcc 2.96 -O2 -G0, object 92B/window 88B, normalized_diff 19; archived body keeps the retail global/address staging. Baseline typed body, volatile-qualified value, and hoisted-load variants left the sd $s1 frame and $s1-address coloring unchanged. No loop entry-guard (slt $at) or constant-bound slti $at pattern in this function, so the parent (s64)0 and <= levers do not apply. Body at docs/probe_archive/GA4E_004e03b0_body.c. */
 // FUN_004E03B0 NONMATCHING
 #ifdef NON_MATCHING

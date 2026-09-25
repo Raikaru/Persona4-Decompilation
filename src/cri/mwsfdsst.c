@@ -2803,10 +2803,6 @@ extern u32 DAT_00744160[];
 
 /* Source unit: src/cri/cri_adx_00510630.c (1 function markers) */
 
-// FUN_005105E0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005105e0);
-// FUN_00510608
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00510608);
 // FUN_00510630
 asm int func_00510630(int *param_1,int *param_2,u32 *param_3)
 {

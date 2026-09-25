@@ -2191,9 +2191,3 @@ u32 func_004ed3d0(void)
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ed3e8);
 // FUN_004ED420
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ed420);
-// FUN_004ED450
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ed450);
-// FUN_004ED468
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ed468);
-// FUN_004ED480
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004ed480);

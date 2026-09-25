@@ -2023,8 +2023,6 @@ extern u32 D_00733F60[];
 
 
 
-// FUN_004E8EA0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e8ea0);
 // FUN_004E8EB0
 u32 func_004e8eb0(u32 value)
 {
@@ -2038,8 +2036,6 @@ u32 func_004e8eb0(u32 value)
 /* Source unit: src/cri/cri_adx_004e9088.c (1 function markers) */
 #pragma optimization_level 3
 
-// FUN_004E8EC0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e8ec0);
 
 
 

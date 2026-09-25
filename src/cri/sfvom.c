@@ -3613,17 +3613,6 @@ extern u32 DAT_00745b28_abs[];
 
 
 
-// FUN_00528900
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00528900);
-
-// FUN_00528920
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00528920);
-
-// FUN_00528940
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00528940);
-
-// FUN_00528960
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00528960);
 // FUN_00528980
 u64 func_00528980(void)
 {
@@ -3651,8 +3640,6 @@ u64 func_00528990(void)
 }
 #pragma optimization_level 2
 
-/* Source unit: src/cri/cri_adx_00528b48.c (1 function markers) */
-
 #pragma schedule on
 
 // FUN_00528998
@@ -3668,65 +3655,54 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00528a70);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00528ab8);
 
 // FUN_00528B38
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00528b38);
+u64 func_00528b38(void)
+{
+    return 1;
+}
 
 // FUN_00528B40
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00528b40);
+u64 func_00528b40(void)
+{
+    return 0;
+}
+
 // FUN_00528B48
 u64 func_00528b48(void)
 {
-  return 0;
+    return 0;
 }
-#pragma schedule off
 
-/* Source unit: src/cri/cri_adx_00528b50.c (1 function markers) */
-
-#pragma schedule on
 // FUN_00528B50
 u64 func_00528b50(void)
 {
-  return 0;
+    return 0;
 }
-#pragma schedule off
 
-/* Source unit: src/cri/cri_adx_00528b58.c (1 function markers) */
-
-#pragma schedule on
 // FUN_00528B58
 u64 func_00528b58(void)
 {
-  return 0;
+    return 0;
 }
-#pragma schedule off
 
-/* Source unit: src/cri/cri_adx_00528b60.c (1 function markers) */
-
-#pragma schedule on
 // FUN_00528B60
 u64 func_00528b60(void)
 {
-  return 0;
+    return 0;
 }
-#pragma schedule off
 
-/* Source unit: src/cri/cri_adx_00528b68.c (1 function markers) */
-
-#pragma schedule on
 // FUN_00528B68
 u64 func_00528b68(void)
 {
-  return 0;
+    return 0;
 }
-#pragma schedule off
 
-/* Source unit: src/cri/cri_adx_00528b70.c (1 function markers) */
-
-#pragma schedule on
 // FUN_00528B70
 u64 func_00528b70(void)
 {
-  return 0;
+    return 0;
 }
+
+
 #pragma schedule off
 
 /* Source unit: src/cri/cri_adx_00528c28.c (1 function markers) */

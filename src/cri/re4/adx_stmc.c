@@ -11,8 +11,9 @@
 #include "adx_t.h"
 #include <string.h>
 
-extern void SVM_Lock(void);
-extern void SVM_Unlock(void);
+// ADXSTM's private lock pair forwards to SVM but is a distinct retail call target.
+extern void func_004d1880(void);
+extern void func_004d1898(void);
 extern Sint32 SVM_TestAndSet(Sint32 *flg);
 extern void ADXCRS_Lock(void);
 extern void ADXCRS_Unlock(void);
@@ -151,10 +152,10 @@ void ADXSTMF_ExecHndl(ADXSTM stm)
 			stm->release_req = 0;
 			stm->bound = 0;
 		}
-		SVM_Lock();
+		func_004d1880();
 		if (stm->bind_req == 1) {
 			stm->bound = 1;
-			SVM_Unlock();
+			func_004d1898();
 			if (stm->fs == NULL) {
 				fs = cvFsOpen(stm->fname, stm->dir, NULL);
 				stm->fs = fs;
@@ -192,7 +193,7 @@ void ADXSTMF_ExecHndl(ADXSTM stm)
 				stm->bind_req = 0;
 			}
 		} else {
-			SVM_Unlock();
+			func_004d1898();
 		}
 		if (stm->start_req == 1) {
 			stm->start_req = 0;
@@ -235,11 +236,11 @@ void adxstmf_stat_exec(ADXSTM stm)
 
 	sj = stm->sj;
 	fstat = cvFsGetStat(stm->fs);
-	SVM_Lock();
+	func_004d1880();
 	if (stm->rd_flg == 1) {
 		if (fstat == CVFS_STAT_COMPLETE) {
 			stm->rd_flg = 0;
-			SVM_Unlock();
+			func_004d1898();
 			nbyte = stm->rd_nsct << ADXSTM_SCT_SHIFT;
 			SJ_SplitChunk(&stm->ck, nbyte, &ck1, &ck2);
 			SJ_PutChunk(sj, SJ_CK_DATA, &ck1);
@@ -261,20 +262,20 @@ void adxstmf_stat_exec(ADXSTM stm)
 			stm->rtry_cnt = 0;
 		} else if (fstat == CVFS_STAT_ERROR) {
 			stm->rd_flg = 0;
-			SVM_Unlock();
+			func_004d1898();
 			SJ_UngetChunk(sj, SJ_CK_FREE, &stm->ck);
 			stm->ck.data = NULL;
 			stm->ck.len = 0;
 			adxstmf_retry(stm);
 		} else {
-			SVM_Unlock();
+			func_004d1898();
 		}
 		return;
 	}
 	stm->rd_flg = 1;
 	stm->ck.data = NULL;
 	stm->ck.len = 0;
-	SVM_Unlock();
+	func_004d1898();
 	if (stm->x44 == 1 || stm->stop_req == 1) {
 		stm->rd_flg = 0;
 		return;
@@ -343,7 +344,7 @@ void ADXSTM_EntryEosFunc(ADXSTM stm, void (*func)(void *obj), void *obj)
 // FUN_004D2260
 static void adxstm_stop_nw(ADXSTM stm)
 {
-	SVM_Lock();
+	func_004d1880();
 	if (stm->stat == ADXSTM_STAT_EXEC && stm->rd_flg == 1) {
 		stm->stop_req = 1;
 		if (stm->start_req == 1) {
@@ -352,7 +353,7 @@ static void adxstm_stop_nw(ADXSTM stm)
 	} else {
 		stm->stat = ADXSTM_STAT_PREP;
 	}
-	SVM_Unlock();
+	func_004d1898();
 }
 
 // Blocking stop: cancels the CVFS transfer, forces PREP and pumps ADXT_ExecFsSvr until the controller
@@ -362,11 +363,11 @@ static void adxstm_stop(ADXSTM stm)
 	if (stm->fs != NULL && stm->release_req == 0) {
 		cvFsStopTr(stm->fs);
 	}
-	SVM_Lock();
+	func_004d1880();
 	stm->stat = ADXSTM_STAT_PREP;
 	stm->rd_flg = 0;
 	stm->ck.data = NULL;
-	SVM_Unlock();
+	func_004d1898();
 	adxstm_stop_nw(stm);
 	do {
 		ADXT_ExecFsSvr();
@@ -378,12 +379,12 @@ static void adxstm_stop(ADXSTM stm)
 static void adxstm_release_nw(ADXSTM stm)
 {
 	adxstm_stop_nw(stm);
-	SVM_Lock();
+	func_004d1880();
 	if (stm->bound == 1) {
 		stm->release_req = 1;
 	}
 	stm->bind_req = 0;
-	SVM_Unlock();
+	func_004d1898();
 }
 
 // Blocking unbind: stop, request the release and pump the file server until `bound` clears.
@@ -483,30 +484,30 @@ void ADXSTM_ReleaseFileNw(ADXSTM stm)
 }
 
 // Records the file to stream (`fname` on CVFS device `dir`, `ofst`/`nsct` in sectors; nsct 0xFFFFF =
-// whole file) and asks the server to open it (bind_req). Inner worker (retail 0x4D1DE0, 120B with
-// trailing nop; ours 116B): `jal SVM_Lock` at 0x4D1E0C (`sw s1,12` fofst at 0x0C etc.).
+// whole file) and asks the server to open it (bind_req). The inner worker at 0x4D1DE0 calls
+// the private ADX stream lock adapter 0x4D1880 at 0x4D1E0C.
 // FUN_004D1DE0
 static void adxstm_BindFileNw(ADXSTM stm, const Char8 *fname, void *dir, Sint32 ofst, Sint32 nsct)
 {
-	SVM_Lock();
+	func_004d1880();
 	stm->ofst = ofst;
 	stm->fsize = nsct << ADXSTM_SCT_SHIFT;
 	stm->nsct = nsct;
 	stm->fname = fname;
 	stm->dir = dir;
 	stm->bind_req = 1;
-	SVM_Unlock();
+	func_004d1898();
 }
 
 // Public wrapper (retail 0x4D1D70, 112B): saves the 5 args across the outer lock
 // (`move s4,t0` in the delay of `jal 0x4D18C8`, `move t0,s4` for the inner call, `j 0x4D18D0`
-// tail). Jal targets are linker-owned and masked, so any lock shape matches.
+// tail). The decoded call targets distinguish the public bind locks from the private adapters.
 // FUN_004D1D70
 void ADXSTM_BindFileNw(ADXSTM stm, const Char8 *fname, void *dir, Sint32 ofst, Sint32 nsct)
 {
-	SVM_Lock();
+	func_004d18c8();
 	adxstm_BindFileNw(stm, fname, dir, ofst, nsct);
-	SVM_Unlock();
+	func_004d18d0();
 }
 
 // Stops and unbinds the controller (blocking) and clears the slot.

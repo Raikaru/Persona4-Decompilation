@@ -85,15 +85,6 @@ SEGMENTS = [(name, kind, start - VRAM, end - VRAM)
             for name, kind, start, end in TARGET_SEGMENTS]
 BYTES_RE = re.compile(r"/\*\s*[0-9A-Fa-f]+\s+([0-9A-Fa-f]+)\s+[0-9A-Fa-f]{8}")
 
-def is_pure_sdk_source(cpath: Path) -> bool:
-    markers = [m for m in V.scan_markers(cpath) if m.get("name")]
-    if not markers:
-        return False
-    try:
-        rel = cpath.relative_to(REPO).as_posix()
-    except ValueError:
-        rel = cpath.name
-    return all(V.code_origin(rel, m["addr"]) == "sony_sdk" for m in markers)
 
 def get_glabel(blk: list[str]) -> str | None:
     for line in blk:
@@ -950,7 +941,6 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
     # these through tools/eegcc_shim.py.
     sources = sorted(p for p in (REPO / "src").rglob("*.c")
                      if (include_generated or not V.is_generated(p))
-                     and not is_pure_sdk_source(p)
                      and (not V.is_gcc_unit(p) or _gcc_unit_has_c(p)))
     for cpath in sources:
         markers = V.scan_markers(cpath)
@@ -1132,18 +1122,21 @@ def build_sony_sdk_objects(preamble, sdk_runs, entries, window_sizes):
 
 
 def build_code_carved(c, name, lo, hi, cobjs, entries, window_sizes):
-    """Assemble the splat asm for a code region, split into chunk objects around
-    the C-owned ranges and Sony SDK ranges, and register each chunk + C/SDK object
-    as a link entry."""
+    """Assemble a code region around matching C bodies and residual SDK/retail ASM."""
     src = ASM / f"{name}.s"
     preamble, blocks = split_blocks(src.read_text())
     seg_lo, seg_hi = VRAM + lo, VRAM + hi
+    c_ranges = [(s, e, o) for o in cobjs for s, e in o["ranges"] if seg_lo <= s < seg_hi]
+    c_starts = {s for s, _e, _o in c_ranges}
 
-    # Group consecutive Sony SDK blocks
+    # Source-linked Sony functions take precedence; assemble only the residual
+    # SDK windows, splitting their archived run at each reconstructed C body.
     sdk_runs = []
     cur_run = []
     for addr, blk in blocks:
-        if addr is not None and seg_lo <= addr < seg_hi and V.code_origin(None, addr) == "sony_sdk":
+        if (addr is not None and seg_lo <= addr < seg_hi
+                and V.code_origin(None, addr) == "sony_sdk"
+                and addr not in c_starts):
             cur_run.append((addr, blk))
         else:
             if cur_run:
@@ -1155,7 +1148,6 @@ def build_code_carved(c, name, lo, hi, cobjs, entries, window_sizes):
     # Build and register Sony SDK objects
     sdk_objects = build_sony_sdk_objects(preamble, sdk_runs, entries, window_sizes)
 
-    c_ranges = [(s, e, o) for o in cobjs for s, e in o["ranges"] if seg_lo <= s < seg_hi]
     sdk_ranges = [(o["start"], o["end"], o) for o in sdk_objects]
     for sdk_start, sdk_end, _ in sdk_ranges:
         if any(start < sdk_end and sdk_start < end for start, end, _ in c_ranges):

@@ -3451,8 +3451,6 @@ void func_00525488(u32 *output, u32 value)
 
 #pragma optimization_level 3
 
-// FUN_00525498
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00525498);
 
 // FUN_005254A0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005254a0);
@@ -3719,14 +3717,6 @@ asm void func_005265a0(int param_1,int param_2,int *param_3,int *param_4)
 /* Source unit: src/cri/cri_adx_00527028.c (1 function markers) */
 #pragma optimization_level 3
 
-// FUN_00526630
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00526630);
-
-// FUN_00526668
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00526668);
-
-// FUN_005266A0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005266a0);
 
 // FUN_005266D8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005266d8);

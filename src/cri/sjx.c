@@ -2259,8 +2259,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004f0350);
 
 
 
-// FUN_004F0508
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004f0508);
 
 // FUN_004F0518
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004f0518);
@@ -2268,8 +2266,4 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004f0518);
 // FUN_004F0578
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004f0578);
 
-// FUN_004F0608
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004f0608);
 
-// FUN_004F0620
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004f0620);

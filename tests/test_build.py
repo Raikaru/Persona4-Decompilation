@@ -719,6 +719,5 @@ class CarvedCodeBuildTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "overlaps a linked C object"):
                     build.build_code_carved({}, "code_probe", 0, 0x100, [owner], [], {})
 
-
 if __name__ == "__main__":
     unittest.main()
