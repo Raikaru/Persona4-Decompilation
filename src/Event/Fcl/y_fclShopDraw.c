@@ -7083,219 +7083,104 @@ s32 func_002d4f30(s16 arg0) {
     return 0;
 }
 
-/* measured: probe_variants 924 differing words reloc-masked (V5 workFirst with opt_propagation off; bare V1 964, V4 handle 926, V6 tmpLast 924 tie); fnalign retail 1105 vs object 1090 instrs (-15, -1.36% PASS, 691 edits +32 reloc-only via --candidate v5_workFirst.c --quiet); verify/lint clean. Count-first PASS (within 3%). */
-/* Repro: `python3 -E -s tools/m2c_decompile.py src/Event/Fcl/y_fclShopDraw.c func_002d5040 -o /var/tmp/cold2d5040/m2c.c` (193 lines, void(void*) + s64 homes) + `python3 -E -s tools/romwright_decompile.py func_002d5040 -o /var/tmp/cold2d5040/rom.c` (277 lines, (void*) arity confirmed, CONCAT44/stack extents confirmed); `python3 -E -s tools/probe_variants.py src/Event/Fcl/y_fclShopDraw.c func_002d5040 --candidate V5=/var/tmp/cold2d5040/v5_workFirst.c` (924) + `python3 -E -s tools/fnalign.py src/Event/Fcl/y_fclShopDraw.c func_002d5040 --candidate /var/tmp/cold2d5040/v5_workFirst.c --quiet` (1105/1090) + `python3 -E -s tools/measure_guarded.py src/Event/Fcl/y_fclShopDraw.c func_002d5040`. */
-/* Rounds in batch order (count first): v1 964 (m2c+rom de-noise, Vec2f/u64/RGBA homes, s32 c16=(s16)2740/106cd0 locals for dsll32/dsra32, byte-first addu (*(s8*)((u8*)(*(s8*)(work+8)+(u32)work)+0xF73)), 1153/1108 +45 FAIL); v1 propOff 927 (-37, 1090/1105 -15 PASS) <-- family convention (31fa20 needs propOff; 315600 deadOff 762->755; 302770 peephole 787->728); v1 deadOff 973 worse, peephole 1141 worse; v2 dual-04e0 999 worse (1165 +57 FAIL); v3 u16-mask 931 worse; v4 h0-handle 926 (-1, s32 h0=(s32)46a770 first-call save to $s2); v5 workFirst 924 (-2, best PASS) + v6 tmpLast 924 tie; v5 schedOn 923 (-1) but 942/1105 -163 FAIL unbankable; v7 noDoubleExt 927 worse. Step3 subscript tie (Vec2f/u64/RGBA already retail ld/lw forms); Step4 decl-order tie (workFirst/tmpLast). Stopped after three non-improving rounds above 60. Banked v5+propOff as guarded floor. */
-/* Walls (same float-hoist+scheduling as sibling de5a0, now at 924): retail f20 hoisted vs object f12 rematerialised per 2970 pair (lui+lwc1 hoist vs interleaved lwc1/lui); retail lwc1/swc1 Vec2f copy vs object ld/sd; retail andi vs object ori/and under propOff (&0xFFFF); $s0/$s1 colouring (work/tmp/h0/dA/dB) persists -- body already in 7o form (bare decls, statement assigns in retail order) so eight probes are ties per handoff 7o; all logic matches: 2a30/0b20/75680 chain + three-case switch on work[7] (68b0/68e0 vs 6940/6970) + eight cacd0 digits (22.0f/0xF/0/0x1E/0x7B/h0/h1/0xA9) + blez/bgez tail pair (360+87/245/23). Prior nd-814 note superseded (sign-extension locals now in place via s32 cA/cB/c16); lever-1 audit void(void*) kept, cacd0 11-arg file decl kept (12-arg claim was wrong: 8 int regs + 2 stack + 1 float = 11). */
-/* 2026-09-18 opcode census; floor stands at 924.  `tools/opclass.py` ranks
-   this the largest opcode-class surplus on the board: `dsra32 +37`,
-   `dsll32 +37` against `mtc1 -37` and `lui -35`.  Thirty-seven
-   sign-extension pairs is the textbook too-narrow-local signature, but the
-   `(s16)` casts in this body are not the cause - dropping the redundant
-   `(s16)` on values that are already narrow ties at 924, declaring `cA`,
-   `cB` and `c16` as `s16` and removing the casts ties at 924, and dropping
-   every `(s16)` result cast costs 936.  The paired `mtc1`/`lui` deficit says
-   retail materialises 35 constants this body does not, so the two halves are
-   probably one phenomenon: retail keeps wide constants where this body
-   narrows and re-extends.  That is the thread for the next pass. */
-/* thread resolved 2026-09-19: retail `mtc1` spans are two families -- float-bit `lui+mtc1` for 37.0/35.0/31.0/79.0/34.0/296.0/51.0/87.0/22.0/149.0/360.0/245.0/23.0 (each `lwc1`-then-`lui/mtc1/add.s`, interleaved with dual `04e0` calls per `2970`) plus int-path `mtc1+cvt.s.w` for 263 (`addiu 0x107`) and `(nA-1)*8` (`sll 3`); body round-trips three values narrow: (1) `0046a770` handle via wrong file-scope `s64` (def returns `u8*`, sibs use `voidptr/s32`) -- `(s32)` narrows `s64->s32` as `dsll32 0/dsra32 0` (16 pairs, `daddu` in retail); (2) `002b3170` via wrong file-scope `s16` (def/promoted/sib return `s32`) -- `nA=(s16)` extends before `-1` (8 pairs, retail extends after only); (3) `c16` s32 store vs retail `daddu` for `06cd0->068x` chains. `and+17/andi-13` is mask `0xFFFF` hoisted to `$s3` (`ori+and`) under `propOff` via `cB/tmp` reuse across 8 arms vs retail per-use `andi`. */
-/* banked 2026-09-19 at 907 words (-17): file-scope `0046a770 s64->void*` + `002b3170 s16->s32` (match defs/sibs, verify 26 MATCH no regress) + split 6 two-load `2970`s to dual `04e0` calls (`*(p+0x2C/0x30)` -> `*((u8*)04e0+0x2C/0x30)` each, 20->26 occ, fixes `jal/lw -4`, counts 1105/1074 PASS) + `cB8/cB0` struct->field assigns (`ld/sd` -> `lwc1/swc1`, edits 691->436). `measure_guarded` 907, `fnalign --candidate` 1105/1074 +44 reloc-only, `opclass` `dsll/dsra 13` (was 37: -16 handle, -8 nA), `mtc1/lui` + `and/andi` + `mov.s` walls stand (floats hoisted to `$f21-$f27`, mask to `$s3`). Rejected: wide-`u16` (drop `(s16)` on `68b0/e0/6940/6970`, 930/936 worse -- narrow matches retail `andi` sites); `c16`-inline (925, -43 FAIL); `commonSubs off` (908 tie, 1141 FAIL, 1530 edits). */
-// FUN_002D5040 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_propagation off
+/* Draws an item label in the D_00795E30 font.  The inlined call binds its
+   arguments right to left: colour, the position constructor (copied into
+   the parameter slot), the name lookup, and finally the size. */
+static inline void shopDrawLabel(f32 size, const char *text, Vec2f pos, s32 color)
+{
+    func_00275680(pos.x, pos.y, size, color, 0, 1, text, 0, 0, D_00795E30, -1);
+}
+
+static inline s16 shopStatDelta(u32 item, u32 cur)
+{
+    return item - cur;
+}
+
+/* One stat number (22.0f, right-aligned by its digit count). */
+static inline void shopDrawStat(u32 value, f32 x, f32 y)
+{
+    func_002cacd0(func_002b2970(x + (f32)((s16)(func_002b3170(value) - 1) * 8), y), 22.0f, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF), 0xF, 0, value, 0x1E, 0x7B, (s32)func_0046a770(D_0063FB50), (s32)func_0046a770(D_0063FB50), 0xA9);
+}
+
+/* measured: MATCH, window 1108 words/4432B (1106 code words + 2 alignment).
+   Built on the func_002df020/func_002de5a0 levers: a switch on work[7]
+   written 0, 1, 2; Vec2f-returning func_002b2970 and the colour calls used
+   directly as arguments; labels through the inlined shopDrawLabel.  The
+   stat numbers go through the inlined shopDrawStat, which puts their
+   func_002b2970 temporaries below the label parameter copies as in retail,
+   but each stat's x base and value are assigned to the function locals `x`
+   and `value` first (x before value, as retail evaluates them).  Passing
+   the expressions straight to the helper is instruction-exact but colours
+   `work` into $s0 below the short-lived values (95 words, every one the
+   $s0/$s1 swap); writing the draws without the helper fixes the registers
+   but lays the temporaries out in call order (38 words).  (s32) on the
+   stat ids gives retail's dsll32/dsra32 before func_001068b0; the deltas
+   evaluate `cur` first through shopStatDelta; case 2 zeroes with
+   `dB = dA = 0`. */
+// FUN_002D5040
 void func_002d5040(void *arg0) {
     extern s16 func_002e2740(s32 arg0);
-    Vec2f sp108;
-    Vec2f sp100;
-    Vec2f spF8;
-    Vec2f spF0;
-    Vec2f spE8;
-    Vec2f spE0;
-    Vec2f spD8;
-    Vec2f spD0;
-    Vec2f spC8;
-    Vec2f spC0;
-    u64 spA8;
-    u64 spA0;
-    u64 sp98;
-    u64 sp90;
-    u64 sp88;
-    u64 sp80;
-    u64 sp78;
-    u64 sp70;
-    RGBA sp12C;
-    RGBA sp128;
-    RGBA sp124;
-    RGBA sp120;
-    RGBA sp11C;
-    RGBA sp118;
-    RGBA sp114;
-    RGBA sp110;
-    Vec2f cB8;
-    Vec2f cB0;
+    s16 dB;
+    s16 dA;
     u8 *work;
-    s32 tmp;
-    s32 t0;
-    s32 t1;
-    s32 c16;
-    s32 cA;
-    s32 cB;
-    s32 nA;
-    s32 h0;
-    s32 dA;
-    s32 dB;
-    u8 *pCE4;
-    u8 *pEDC;
+    u32 value;
+    f32 x;
+
     work = *(u8 **)((u8 *)arg0 + 0x38);
-    cA = (s16)func_002e2740(*(s16 *)(work + 2));
-    cB = (s16)func_00106880((s16)cA);
-    tmp = func_002d4f30((s16)cB) & 0xFFFF;
-    *(Vec2f *)&sp108 = func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30));
-    pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
-    func_002e0b20(tmp, sp108, 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-    t0 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
-    *(Vec2f *)&sp100 = func_002b2970(79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30));
-    cB8.x = sp100.x; cB8.y = sp100.y;
-    cA = (s16)func_002e2740(*(s16 *)(work + 2));
-    func_00275680(cB8.x, cB8.y, 31.0f, t0, 0, 1, (const char *)func_001067f0(cA), 0, 0, D_00795E30, -1);
-    t1 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
-    *(Vec2f *)&spF8 = func_002b2970(79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30));
-    cB0.x = spF8.x; cB0.y = spF8.y;
-    c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), *(s8 *)(work + 7));
-    func_00275680(cB0.x, cB0.y, 31.0f, t1, 0, 1, (const char *)func_001067f0(c16), 0, 0, D_00795E30, -1);
-    if (*(s8 *)(work + 7) == 0) {
-        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
-        cA = (s16)func_002e2740(*(s16 *)(work + 2));
-        cB = (s16)func_001068b0((s16)cA);
-        tmp = cB & 0xFFFF;
-        nA = func_002b3170(tmp);
-        *(Vec2f *)&spA8 = func_002b2970(51.0f + (296.0f + *(f32 *)(pCE4 + 0x2C)) + (f32)((s16)(nA - 1) * 8), 263.0f);
-        fclWriteColorBytes(&sp12C, 0x2D, 0x2D, 0x2D, 0xFF);
-        h0 = (s32)func_0046a770(D_0063FB50);
-        func_002cacd0(*(Vec2f *)&spA8, 22.0f, *(FclDrawColor *)&sp12C, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
-        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
-        cA = (s16)func_002e2740(*(s16 *)(work + 2));
-        cB = (s16)func_001068e0((s16)cA);
-        tmp = cB & 0xFFFF;
-        nA = func_002b3170(tmp);
-        *(Vec2f *)&spA0 = func_002b2970(87.0f + (51.0f + (296.0f + *(f32 *)(pCE4 + 0x2C))) + (f32)((s16)(nA - 1) * 8), 263.0f);
-        fclWriteColorBytes(&sp128, 0x2D, 0x2D, 0x2D, 0xFF);
-        h0 = (s32)func_0046a770(D_0063FB50);
-        func_002cacd0(*(Vec2f *)&spA0, 22.0f, *(FclDrawColor *)&sp128, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
-        *(Vec2f *)&spF0 = func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30));
-        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
-        func_002e0b20(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF7C), spF0, 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
-        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0);
-        cB = (s16)func_001068b0(c16);
-        tmp = cB & 0xFFFF;
-        nA = func_002b3170(tmp);
-        *(Vec2f *)&sp98 = func_002b2970(51.0f + (296.0f + *(f32 *)(pEDC + 0x2C)) + (f32)((s16)(nA - 1) * 8), 149.0f);
-        fclWriteColorBytes(&sp124, 0x2D, 0x2D, 0x2D, 0xFF);
-        h0 = (s32)func_0046a770(D_0063FB50);
-        func_002cacd0(*(Vec2f *)&sp98, 22.0f, *(FclDrawColor *)&sp124, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
-        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
-        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0);
-        cB = (s16)func_001068e0(c16);
-        tmp = cB & 0xFFFF;
-        nA = func_002b3170(tmp);
-        *(Vec2f *)&sp90 = func_002b2970(87.0f + (51.0f + (296.0f + *(f32 *)(pEDC + 0x2C))) + (f32)((s16)(nA - 1) * 8), 149.0f);
-        fclWriteColorBytes(&sp120, 0x2D, 0x2D, 0x2D, 0xFF);
-        h0 = (s32)func_0046a770(D_0063FB50);
-        func_002cacd0(*(Vec2f *)&sp90, 22.0f, *(FclDrawColor *)&sp120, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
-        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0);
-        tmp = func_001068b0(c16) & 0xFFFF;
-        cA = (s16)func_002e2740(*(s16 *)(work + 2));
-        cB = (s16)func_001068b0((s16)cA);
-        dB = (s16)((cB & 0xFFFF) - tmp);
-        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0);
-        tmp = func_001068e0(c16) & 0xFFFF;
-        cA = (s16)func_002e2740(*(s16 *)(work + 2));
-        cB = (s16)func_001068e0((s16)cA);
-        dA = (s16)((cB & 0xFFFF) - tmp);
-    } else if (*(s8 *)(work + 7) == 1) {
-        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
-        cA = (s16)func_002e2740(*(s16 *)(work + 2));
-        cB = (s16)func_00106940((s16)cA);
-        tmp = cB & 0xFFFF;
-        nA = func_002b3170(tmp);
-        *(Vec2f *)&sp88 = func_002b2970(51.0f + (296.0f + *(f32 *)(pCE4 + 0x2C)) + (f32)((s16)(nA - 1) * 8), 263.0f);
-        fclWriteColorBytes(&sp11C, 0x2D, 0x2D, 0x2D, 0xFF);
-        h0 = (s32)func_0046a770(D_0063FB50);
-        func_002cacd0(*(Vec2f *)&sp88, 22.0f, *(FclDrawColor *)&sp11C, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
-        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
-        cA = (s16)func_002e2740(*(s16 *)(work + 2));
-        cB = (s16)func_00106970((s16)cA);
-        tmp = cB & 0xFFFF;
-        nA = func_002b3170(tmp);
-        *(Vec2f *)&sp80 = func_002b2970(87.0f + (51.0f + (296.0f + *(f32 *)(pCE4 + 0x2C))) + (f32)((s16)(nA - 1) * 8), 263.0f);
-        fclWriteColorBytes(&sp118, 0x2D, 0x2D, 0x2D, 0xFF);
-        h0 = (s32)func_0046a770(D_0063FB50);
-        func_002cacd0(*(Vec2f *)&sp80, 22.0f, *(FclDrawColor *)&sp118, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
-        *(Vec2f *)&spE8 = func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30));
-        func_002e0b20(0x1B, spE8, 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
-        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1);
-        cB = (s16)func_00106940(c16);
-        tmp = cB & 0xFFFF;
-        nA = func_002b3170(tmp);
-        *(Vec2f *)&sp78 = func_002b2970(51.0f + (296.0f + *(f32 *)(pEDC + 0x2C)) + (f32)((s16)(nA - 1) * 8), 149.0f);
-        fclWriteColorBytes(&sp114, 0x2D, 0x2D, 0x2D, 0xFF);
-        h0 = (s32)func_0046a770(D_0063FB50);
-        func_002cacd0(*(Vec2f *)&sp78, 22.0f, *(FclDrawColor *)&sp114, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
-        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
-        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1);
-        cB = (s16)func_00106970(c16);
-        tmp = cB & 0xFFFF;
-        nA = func_002b3170(tmp);
-        *(Vec2f *)&sp70 = func_002b2970(87.0f + (51.0f + (296.0f + *(f32 *)(pEDC + 0x2C))) + (f32)((s16)(nA - 1) * 8), 149.0f);
-        fclWriteColorBytes(&sp110, 0x2D, 0x2D, 0x2D, 0xFF);
-        h0 = (s32)func_0046a770(D_0063FB50);
-        func_002cacd0(*(Vec2f *)&sp70, 22.0f, *(FclDrawColor *)&sp110, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
-        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1);
-        tmp = func_00106940(c16) & 0xFFFF;
-        cA = (s16)func_002e2740(*(s16 *)(work + 2));
-        cB = (s16)func_00106940((s16)cA);
-        dB = (s16)((cB & 0xFFFF) - tmp);
-        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1);
-        tmp = func_00106970(c16) & 0xFFFF;
-        cA = (s16)func_002e2740(*(s16 *)(work + 2));
-        cB = (s16)func_00106970((s16)cA);
-        dA = (s16)((cB & 0xFFFF) - tmp);
-    } else if (*(s8 *)(work + 7) == 2) {
-        *(Vec2f *)&spE0 = func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30));
-        func_002e0b20(0x1C, spE0, 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        dA = 0;
-        dB = 0;
-    } else {
-        dA = 0;
-        dB = 0;
+    func_002e0b20(func_002d4f30((s16)func_00106880(func_002e2740(*(s16 *)(work + 2)))) & 0xFFFF, func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30)), 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+    shopDrawLabel(31.0f, (const char *)func_001067f0(func_002e2740(*(s16 *)(work + 2))), func_002b2970(79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+    shopDrawLabel(31.0f, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), *(s8 *)(work + 7))), func_002b2970(79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+    switch (*(s8 *)(work + 7)) {
+    case 0:
+        x = 51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C));
+        value = func_001068b0((s32)func_002e2740(*(s16 *)(work + 2))) & 0xFFFF;
+        shopDrawStat(value, x, (f32)0x107);
+        x = 87.0f + (51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C)));
+        value = func_001068e0((s32)func_002e2740(*(s16 *)(work + 2))) & 0xFFFF;
+        shopDrawStat(value, x, (f32)0x107);
+        func_002e0b20(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF7C), func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30)), 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        x = 51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C));
+        value = func_001068b0((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF;
+        shopDrawStat(value, x, 149.0f);
+        x = 87.0f + (51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C)));
+        value = func_001068e0((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF;
+        shopDrawStat(value, x, 149.0f);
+        dB = shopStatDelta((func_001068b0((s32)func_002e2740(*(s16 *)(work + 2))) & 0xFFFF), func_001068b0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF);
+        dA = shopStatDelta((func_001068e0((s32)func_002e2740(*(s16 *)(work + 2))) & 0xFFFF), func_001068e0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF);
+        break;
+    case 1:
+        x = 51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C));
+        value = func_00106940((s32)func_002e2740(*(s16 *)(work + 2))) & 0xFFFF;
+        shopDrawStat(value, x, (f32)0x107);
+        x = 87.0f + (51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C)));
+        value = func_00106970((s32)func_002e2740(*(s16 *)(work + 2))) & 0xFFFF;
+        shopDrawStat(value, x, (f32)0x107);
+        func_002e0b20(0x1B, func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30)), 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        x = 51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C));
+        value = func_00106940((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF;
+        shopDrawStat(value, x, 149.0f);
+        x = 87.0f + (51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C)));
+        value = func_00106970((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF;
+        shopDrawStat(value, x, 149.0f);
+        dB = shopStatDelta((func_00106940((s32)func_002e2740(*(s16 *)(work + 2))) & 0xFFFF), func_00106940(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF);
+        dA = shopStatDelta((func_00106970((s32)func_002e2740(*(s16 *)(work + 2))) & 0xFFFF), func_00106970(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF);
+        break;
+    case 2:
+        func_002e0b20(0x1C, func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30)), 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        dB = dA = 0;
+        break;
     }
     if (dB > 0) {
-        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
-        *(Vec2f *)&spD8 = func_002b2970(360.0f + *(f32 *)(pCE4 + 0x2C), 245.0f);
-        func_002e0b20(0x28, spD8, 23.0f, func_002b2a30(0, 0xFA, 0x22, 0x3A), 0xFF, 0, D_00795E60);
+        func_002e0b20(0x28, func_002b2970(360.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 245.0f), 23.0f, func_002b2a30(0, 0xFA, 0x22, 0x3A), 0xFF, 0, D_00795E60);
     } else if (dB < 0) {
-        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
-        *(Vec2f *)&spD0 = func_002b2970(360.0f + *(f32 *)(pCE4 + 0x2C), 245.0f);
-        func_002e0b20(0x29, spD0, 23.0f, func_002b2a30(0, 0x67, 0x67, 0x67), 0xFF, 0, D_00795E60);
+        func_002e0b20(0x29, func_002b2970(360.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 245.0f), 23.0f, func_002b2a30(0, 0x67, 0x67, 0x67), 0xFF, 0, D_00795E60);
     }
     if (dA > 0) {
-        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
-        *(Vec2f *)&spC8 = func_002b2970(87.0f + (360.0f + *(f32 *)(pCE4 + 0x2C)), 245.0f);
-        func_002e0b20(0x28, spC8, 23.0f, func_002b2a30(0, 0xFA, 0x22, 0x3A), 0xFF, 0, D_00795E60);
-        return;
-    }
-    if (dA < 0) {
-        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
-        *(Vec2f *)&spC0 = func_002b2970(87.0f + (360.0f + *(f32 *)(pCE4 + 0x2C)), 245.0f);
-        func_002e0b20(0x29, spC0, 23.0f, func_002b2a30(0, 0x67, 0x67, 0x67), 0xFF, 0, D_00795E60);
+        func_002e0b20(0x28, func_002b2970(87.0f + (360.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C)), 245.0f), 23.0f, func_002b2a30(0, 0xFA, 0x22, 0x3A), 0xFF, 0, D_00795E60);
+    } else if (dA < 0) {
+        func_002e0b20(0x29, func_002b2970(87.0f + (360.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C)), 245.0f), 23.0f, func_002b2a30(0, 0x67, 0x67, 0x67), 0xFF, 0, D_00795E60);
     }
 }
-#pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d5040);
-#endif
 
 /* measured: full body reconstructed (19 RGBA color groups + 0a60/2a60/04e0/
    2970/0620 chains, 48 u64 slots, 2 ifs + 3-case switch); frame 0x200 and all
@@ -9389,14 +9274,6 @@ void func_002dd3b0(void *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd3b0);
 #endif
-
-/* Draws an item label in the D_00795E30 font.  The inlined call binds its
-   arguments right to left: colour, the position constructor (copied into
-   the parameter slot), the name lookup, and finally the size. */
-static inline void shopDrawLabel(f32 size, const char *text, Vec2f pos, s32 color)
-{
-    func_00275680(pos.x, pos.y, size, color, 0, 1, text, 0, 0, D_00795E30, -1);
-}
 
 /* measured: MATCH, window 672 words/2688B.  Built on the func_002df020
    levers (Vec2f-returning func_002b2970 used as an argument, colour calls
