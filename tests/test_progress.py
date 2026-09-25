@@ -14,6 +14,7 @@ assert SPEC is not None and SPEC.loader is not None
 progress = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(progress)
 
+MATCHING_SOURCE = "src/Battle/btlBED.c"
 WINDOWS = {0x00100008: 16, 0x00100018: 16}
 LINKED_REPORT = {
     "schema_version": 1,
@@ -23,7 +24,7 @@ LINKED_REPORT = {
     "function_total": 2,
     "linked_tu_count": 1,
     "linked_function_count": 1,
-    "linked_functions": [{"address": "00100008", "name": "first", "file": "src/first.c"}],
+    "linked_functions": [{"address": "00100008", "name": "first", "file": MATCHING_SOURCE}],
 }
 
 
@@ -72,30 +73,37 @@ class ProgressTests(unittest.TestCase):
         self.assertEqual(metrics["total"], 2)
         self.assertEqual(metrics["matching"]["percent"], 50.0)
 
-    def test_linked_asm_fallback_is_counted_separately_not_as_progress(self) -> None:
-        """A TU links as one object even when some members are INCLUDE_ASM.
-
-        Those bytes are identical to what the assembly carve path would place,
-        so counting them as linked progress would credit work nobody has done.
-        They are excluded from the linked set and reported on their own.
-        """
-        report = {"results": [{"addr": "00100008", "status": "MATCH", "object_size": 8}]}
+    def test_mixed_source_with_asm_does_not_earn_fully_linked_credit(self) -> None:
+        report = {"results": [
+            {"addr": "00100008", "file": MATCHING_SOURCE, "status": "MATCH", "object_size": 8},
+            {"addr": "00100018", "file": MATCHING_SOURCE, "status": "ASM"},
+        ]}
         linked = copy.deepcopy(LINKED_REPORT)
         linked["linked_functions"].append(
-            {"address": "00100018", "name": "fallback", "file": "src/first.c"}
+            {"address": "00100018", "name": "fallback", "file": MATCHING_SOURCE}
         )
         linked["linked_function_count"] = 2
         linked = progress.validate_linked_report(linked, WINDOWS)
-        metrics, _matching, linked_badge = progress.make_metrics(
+        metrics, _matching, _linked_badge = progress.make_metrics(
             report, WINDOWS, linked, "verify.json", "build.json")
-        self.assertEqual(metrics["linked"]["addresses"], ["00100008"])
-        self.assertEqual(metrics["linked"]["count"], 1)
+        self.assertEqual(metrics["matching"]["addresses"], ["00100008"])
+        self.assertEqual(metrics["linked"]["addresses"], [])
         self.assertEqual(metrics["linked"]["asm_fallbacks_in_linked_objects"], 1)
+
+    def test_partial_file_linkage_does_not_earn_fully_linked_credit(self) -> None:
+        report = {"results": [
+            {"addr": "00100008", "file": MATCHING_SOURCE, "status": "MATCH"},
+            {"addr": "00100018", "file": MATCHING_SOURCE, "status": "MATCH"},
+        ]}
+        linked = progress.validate_linked_report(copy.deepcopy(LINKED_REPORT), WINDOWS)
+        metrics, _matching, _badge = progress.make_metrics(
+            report, WINDOWS, linked, "verify.json", "build.json")
+        self.assertEqual(metrics["linked"]["addresses"], [])
 
     def test_sdk_black_boxes_link_without_claiming_c_recovery(self) -> None:
         windows = {0x00100008: 16, 0x004213c0: 16, 0x004213d0: 16}
         report = {"results": [
-            {"addr": "00100008", "file": "src/game.c", "status": "MATCH", "object_size": 16},
+            {"addr": "00100008", "file": MATCHING_SOURCE, "status": "MATCH", "object_size": 16},
             {"addr": "004213c0", "file": "src/promoted/code1_0042.c", "status": "ASM"},
             {"addr": "004213d0", "file": "src/promoted/code1_0042.c", "status": "MATCH", "object_size": 16},
         ]}
@@ -122,7 +130,8 @@ class ProgressTests(unittest.TestCase):
         self.assertEqual(without_build["categories"]["sony_sdk"]["linked_count"], 0)
 
     def test_validates_generated_endpoints_and_rejects_non_subset(self) -> None:
-        report = {"results": [{"addr": "00100008", "status": "MATCH", "object_size": 8}]}
+        report = {"results": [{"addr": "00100008", "file": MATCHING_SOURCE,
+                               "status": "MATCH", "object_size": 8}]}
         linked = progress.validate_linked_report(copy.deepcopy(LINKED_REPORT), WINDOWS)
         metrics, matching, linked_badge = progress.make_metrics(report, WINDOWS, linked, "verify.json", "build.json")
         with tempfile.TemporaryDirectory() as temporary:

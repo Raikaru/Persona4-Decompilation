@@ -234,12 +234,15 @@ def make_metrics(report: Any, windows: dict[int, int | None], linked_report: dic
     asm_fallback_linked = 0
     all_linked: set[int] = set()
     if linked_report is not None:
-        all_linked = {canonical_linked_address(row["address"]) for row in linked_report["linked_functions"]}
+        linked_sources = {canonical_linked_address(row["address"]): row["file"]
+                          for row in linked_report["linked_functions"]}
+        all_linked = set(linked_sources)
         sdk_linked = {a for a in all_linked if gen_objdiff.progress_category(None, address=a) == "sony_sdk"}
-        # This endpoint remains C-source linkage. SDK black boxes have separate
-        # build-proven category measures, including when old SDK C already MATCHes.
+        # Physical linkage includes retail ASM and black-box SDK objects. Only
+        # whole C files with no fallback and their own linked C objects earn the
+        # C-linked badge; the separate SDK category retains physical evidence.
         asm_fallback_linked = len(all_linked - sdk_linked - matched)
-        linked = (all_linked & matched) - sdk_linked
+        linked = gen_objdiff.fully_linked_c_addresses(results, linked_sources)
         linked_addresses = [f"{address:08x}" for address in sorted(linked)]
         hashes = {"retail_sha1": linked_report["retail_sha1"], "image_sha1": linked_report["image_sha1"]}
         build_succeeded = True
@@ -377,8 +380,8 @@ def validate_endpoints(directory: Path, windows: dict[int, int | None]) -> None:
     if sdk_members != expected_sdk:
         raise ProgressError("invalid metrics endpoint: Sony SDK membership disagrees with provenance")
     all_linked = {a for group in categories.values() for a in group["linked_addresses"]}
-    if (all_linked & address_sets["matching"]) - sdk_members != address_sets["linked"]:
-        raise ProgressError("invalid metrics endpoint: linked C includes SDK or disagrees with origin linkage")
+    if not address_sets["linked"] <= all_linked & address_sets["matching"]:
+        raise ProgressError("invalid metrics endpoint: fully linked C must match and occur in the image")
     if len(all_linked - sdk_members - address_sets["matching"]) != metrics["linked"]["asm_fallbacks_in_linked_objects"]:
         raise ProgressError("invalid metrics endpoint: assembly fallback linkage count")
     if all_linked and metrics["build_succeeded"] is not True:
@@ -416,8 +419,8 @@ def render_status(metrics: dict, recovery: dict | None) -> str:
         f"({metrics['coverage']['scanned_percent']}% of windows) |",
         f"| Not yet under test, supplied as retail bytes | {metrics['coverage']['unscanned']:,} "
         f"({metrics['coverage']['unscanned_percent']}% of windows) |",
-        f"| In byte-exact linked C objects | {linked['count']:,} ({linked['percent']}% of windows), "
-        f"with {linked['asm_fallbacks_in_linked_objects']:,} assembly fallbacks still inside those objects |",
+        f"| Fully linked ASM-free C files | {linked['count']:,} ({linked['percent']}% of windows) |",
+        f"| Assembly fallbacks inside other linked objects | {linked['asm_fallbacks_in_linked_objects']:,} |",
     ]
     labels = {"main": "Atlus game/engine", "sony_sdk": "Proven Sony PS2 SDK",
               "third_party": "Other third-party/vendor", "unclassified": "Unattributed"}
@@ -426,7 +429,8 @@ def render_status(metrics: dict, recovery: dict | None) -> str:
         rows.append(
             f"| {label} | {group['total']:,} functions; "
             f"{group['matching_count']:,} C-matched ({group['matching_percent']}%); "
-            f"{group['linked_count']:,} linked ({group['linked_percent']}%) |"
+            f"{group['linked_count']:,} physically linked, including retail ASM "
+            f"({group['linked_percent']}%) |"
         )
     if recovery:
         scored = recovery["matched_first_party"]
@@ -444,8 +448,9 @@ def render_status(metrics: dict, recovery: dict | None) -> str:
     note = (
         "\nByte-identical is not recovered: a matching function can still have an "
         "address for a name and raw field offsets. "
-        "Sony SDK linkage includes verified C source and residual retail-backed "
-        "black-box objects; linked is not a source-recovery count. "
+        "Fully linked counts only files whose every function is matching C and "
+        "linked from that same source file; physical linkage also includes "
+        "retail assembly and SDK black boxes. "
         "`tools/recovery_quality.py --worst 20` ranks the game files needing work.\n"
     )
     return "\n".join(rows) + "\n" + note
