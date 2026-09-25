@@ -9454,15 +9454,6 @@ void func_002de5a0(void *arg0) {
     }
 }
 
-/* Draws a shop name at 13pt in the D_00795E30 font.  Retail evaluates the
-   caller's arguments right to left (colour, then the position constructor and
-   its float copy into the parameter slot, then the name lookup), which is the
-   b210 order for an inlined call written text-first. */
-static inline void shopDrawName(const char *text, Vec2f pos, s32 color)
-{
-    func_00275680(pos.x, pos.y, 13.0f, color, 0, 1, text, 0, 0, D_00795E30, -1);
-}
-
 /* measured: MATCH, window 296 words/1184B.  The levers that closed the old
    219-word floor: (1) the three-way dispatch is a switch written 0,1,2 (b210
    tests the last-written case first, giving retail's beq 2 / beq 1 / beqz 0
@@ -9473,7 +9464,9 @@ static inline void shopDrawName(const char *text, Vec2f pos, s32 color)
    u8-parameter func_002b2a60 as FclDrawColor values (no byte copy), which
    also keeps the lbu 0x62 alpha load in argument-slot order; (4) the
    second counter's base position is the 8-byte gp object uGpffffa888
-   (0x00763978).
+   (0x00763978); (5) the name goes through the inlined shopDrawLabel, whose
+   right-to-left argument binding gives retail's colour / constructor copy /
+   name order.
    arg1 is an int item id: it is passed unchanged to func_00106880 and
    func_001067f0 (int parameters in this unit) and narrowed for
    func_00106a90. */
@@ -9497,7 +9490,7 @@ void func_002df020(void *arg0, s32 arg1, s32 arg2) {
         func_002e0ca0(0x1B, func_002b2970(97.0f, 178.0f), 13.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         break;
     }
-    shopDrawName((const char *)func_001067f0(arg1), func_002b2970(140.0f, 178.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+    shopDrawLabel(13.0f, (const char *)func_001067f0(arg1), func_002b2970(140.0f, 178.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
     count = func_00106a90((s16)arg1) / 5U;
     func_002cacd0(func_002b2970(448.0f, 185.0f), 13.0f, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, count, 9, 0x7B, (s32)func_0046a770(D_0063FB50), *(s32 *)(work + 0xF28), 0xA9);
     func_002e0b20(0x47, func_002b2970(476.0f, 187.0f), 13.0f, func_002b2a30(0x2D, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E60);
