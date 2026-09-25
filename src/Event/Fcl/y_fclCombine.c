@@ -1730,7 +1730,13 @@ void func_002ed430(u8 *arg0) {
     extern s32 func_002b2d00(s32, s32, s32, s32, s8);
     extern void func_002ba970(s32, s8, s32);
     extern void func_00310960(u8 *, s32, s32);
-    /* The caller passes the zero-extended class id unmasked, as a u16. */
+    /* STYLE exception, measured: narrower than the s32 definition. Retail passes
+       the lhu class id in one register unmasked to both func_00105f50 and this
+       callee. That needs a u16 value into a u16 parameter here; any 32-bit form
+       (s32/u32 temp, casts, unprototyped) adds an andi at one of the two calls.
+       A u16 definition renormalises arg1 in place (5 words). Making the whole
+       contract 32-bit (105f50 and 34a640 s32) breaks func_003097e0 or
+       y_fclCombineDraw func_0032c480. See FclCombine_002ed430_recovery_20260925.md. */
     extern void func_00310a10(u8 *, u16);
     extern s32 func_00311930(s32, u8 *, s8);
     extern s32 func_00312bc0(s32);
