@@ -1057,14 +1057,6 @@ u64 func_004cb778(void)
 
 /* Source unit: src/cri/cri_adx_004cd908.c (1 function markers) */
 
-// FUN_004CD750
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd750);
-// FUN_004CD768
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd768);
-// FUN_004CD8D8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd8d8);
-// FUN_004CD8F0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd8f0);
 // FUN_004CD908
 asm void func_004cd908(void)
 {
@@ -1080,12 +1072,6 @@ asm void func_004cd908(void)
 extern u32 DAT_007212d8[];
 
 #pragma schedule on
-
-// FUN_004CD918
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd918);
-
-// FUN_004CD930
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd930);
 
 // FUN_004CD948
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd948);

@@ -911,14 +911,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c2c20);
 
 
 
-// FUN_004C3120
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3120);
-
-// FUN_004C3128
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3128);
-
-// FUN_004C3140
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3140);
 // FUN_004C3178
 u64 func_004c3178(void)
 {

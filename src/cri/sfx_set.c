@@ -3812,8 +3812,6 @@ extern u32 DAT_00745c78[];
 #pragma optimization_level 3
 
 
-// FUN_0052BA78
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0052ba78);
 
 // FUN_0052BA80
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0052ba80);

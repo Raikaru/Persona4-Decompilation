@@ -227,28 +227,6 @@ Sint32 ADXSJD_GetFormat(ADXSJD sjd)
 	return ADXB_GetFormat(sjd->adxb);
 }
 
-// Presets the input-byte counter of the trap (used by ADXT to align the loop-end trap to a file position).
-// FUN_004CED68
-void ADXSJD_SetTrapDtLen(ADXSJD sjd, Sint32 len)
-{
-	sjd->trap_dtlen = len;
-}
-
-// Presets the trap's decoded-sample counter.
-// FUN_004CED58
-void ADXSJD_SetTrapCnt(ADXSJD sjd, Sint32 cnt)
-{
-	sjd->trap_cnt = cnt;
-}
-
-// Sets the sample count at which the trap callback fires before the next block starts (-1: no trap).
-// ADXT uses it for the loop end and for the linked-file boundary.
-// FUN_004CED48
-void ADXSJD_SetTrapNumSmpl(ADXSJD sjd, Sint32 nsmpl)
-{
-	sjd->trap_nsmpl = nsmpl;
-}
-
 // Registers the trap callback (`fn(obj)`) run by adxsjd_decexec_start when trap_cnt reaches trap_nsmpl.
 // FUN_004CED38
 void ADXSJD_EntryTrapFunc(ADXSJD sjd, void (*fn)(void *obj), void *obj)

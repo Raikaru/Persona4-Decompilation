@@ -30,10 +30,11 @@ typedef struct {
 	Sint32 unit;               /* 0x28 ring buffer 0 alignment */
 } SFBUF_PRM;
 
-static const SJUUID *sfbuf_sjmem_uuid;
-static const SJUUID *sfbuf_sjrbf_uuid;
+extern const SJUUID *sfbuf_sjmem_uuid;
+extern const SJUUID *sfbuf_sjrbf_uuid;
 
 // The stream joint is a memory joint (UUID compare).
+// FUN_00515B90
 static Bool sfbuf_IsSjmem(SJ sj)
 {
 	if (SJ_GetUuid(sj) == sfbuf_sjmem_uuid) {
@@ -43,6 +44,7 @@ static Bool sfbuf_IsSjmem(SJ sj)
 }
 
 // The stream joint is a ring-buffer joint.
+// FUN_00515B58
 static Bool sfbuf_IsSjrbf(SJ sj)
 {
 	if (SJ_GetUuid(sj) == sfbuf_sjrbf_uuid) {
@@ -269,170 +271,6 @@ void SFBUF_RingGetDlm(SFD sfd, Sint32 n, Uint8 **pos, Sint32 *len)
 	*pos = hn->w.u.ring.dlm_pos;
 	*len = hn->w.u.ring.dlm_len;
 	SFLIB_UnlockCs(&cs);
-}
-
-/* AddRead/AddWrite: the bodies are inlined helpers so that the first arm's `ret = 0` is a helper
- * temporary (the backend CSE turns it into the entry zero and the arm empties: `bne body; b end`);
- * the helper locals are declared in reverse of the target's register order. `ring` is reached in two
- * steps through `wk` (an own local with its own uses): add-propagation folds `addi wk` into
- * `addi ring, wk, 0x10` but never propagates the addi it has just rewritten, so `ring` stays a node
- * (`addi rR, hn, 0x1318`) while the sj/used reads through wk fold into hn. The delimiter check reads
- * `ring->dlm_pos` inline (a `pos` local would outrank the ck.data CSE temporaries). */
-static inline Sint32 sfbuf_RingAddReadSub(SFD sfd, Sint32 n, Sint32 nbyte)
-{
-	SJCK ck1;
-	SJCK ckw;
-	Sint32 ret = 0;
-	Sint32 rest;
-	SJCK ck2;
-	SJCK ck;
-	SJ sj2;
-	SJ sj;
-	SFBUF_RING *ring;
-	SFBUF_WORK *wk;
-	SFBUF_HN *hn;
-
-	hn = SFBUF_GET_HN(sfd, n);
-	wk = &hn->w;
-	ring = &wk->u.ring;
-	sj = hn->w.u.ring.sup.sj;
-	if (nbyte == 0) {
-		ret = 0;
-	} else if (wk->used == 0 || sj == NULL) {
-		ret = 0;
-	} else {
-		SJ_GetChunk(sj, 1, nbyte, &ck);
-		SJ_PutChunk(sj, 0, &ck);
-		if (ck.len < nbyte) {
-			rest = nbyte - ck.len;
-			SJ_GetChunk(sj, 1, rest, &ck2);
-			SJ_PutChunk(sj, 0, &ck2);
-			if (ck2.len < rest) {
-				ret = SFLIB_SetErr(sfd, 0xFF00040B);
-			}
-		}
-		if (n == 1) {
-			sj2 = ring->sup.sj;
-			sfbuf_RingGetCk(sj2, 1, &ck1, &ckw);
-			if ((ring->dlm_pos < ck1.data || ring->dlm_pos >= ck1.data + ck1.len) && (ring->dlm_pos < ckw.data || ring->dlm_pos >= ckw.data + ckw.len)) {
-				ring->dlm_pos = NULL;
-				ring->dlm_len = 0;
-			}
-		}
-		sfbuf_AddTot(&ring->rtot, nbyte);
-		sfd->chg_flg = 1;
-	}
-	return ret;
-}
-
-// Consumes `nbyte` bytes of ring n (DATA -> FREE, in up to two chunks around the wrap); on the video
-// ring (1) forgets the delimiter if it was consumed; adds to rtot and flags a change. Error
-// 0xFF00040B on underflow.
-Sint32 SFBUF_RingAddRead(SFD sfd, Sint32 n, Sint32 nbyte)
-{
-	return sfbuf_RingAddReadSub(sfd, n, nbyte);
-}
-
-// Commits `nbyte` bytes written into ring n (FREE -> DATA, two chunks around the wrap), adds to wtot
-// and flags a change; error 0xFF00040B on overflow.
-static inline Sint32 sfbuf_RingAddWriteSub(SFD sfd, Sint32 n, Sint32 nbyte)
-{
-	Sint32 rest;
-	Sint32 ret = 0;
-	SJCK ck2;
-	SJCK ck;
-	SFBUF_RING *ring;
-	SJ sj;
-	SFBUF_WORK *wk;
-	SFBUF_HN *hn;
-
-	hn = SFBUF_GET_HN(sfd, n);
-	wk = &hn->w;
-	ring = &wk->u.ring;
-	sj = hn->w.u.ring.sup.sj;
-	if (nbyte == 0) {
-		ret = 0;
-	} else if (wk->used == 0 || sj == NULL) {
-		ret = 0;
-	} else {
-		SJ_GetChunk(sj, 0, nbyte, &ck);
-		SJ_PutChunk(sj, 1, &ck);
-		if (ck.len < nbyte) {
-			rest = nbyte - ck.len;
-			SJ_GetChunk(sj, 0, rest, &ck2);
-			SJ_PutChunk(sj, 1, &ck2);
-			if (ck2.len < rest) {
-				ret = SFLIB_SetErr(sfd, 0xFF00040B);
-			}
-		}
-		sfbuf_AddTot(&ring->wtot, nbyte);
-		sfd->chg_flg = 1;
-	}
-	return ret;
-}
-
-// Public wrapper of sfbuf_RingAddWriteSub (the memory input driver's AddWrite).
-Sint32 SFBUF_RingAddWrite(SFD sfd, Sint32 n, Sint32 nbyte, Sint32 rsv)
-{
-	return sfbuf_RingAddWriteSub(sfd, n, nbyte);
-}
-
-/* the handle address is computed AFTER the inf clear (in both Get functions): the n*0x74 product is
- * then the younger temporary and takes r0 while the zero takes the dying r5, and inf lives in r31
- * from the top */
-Sint32 SFBUF_RingGetRead(SFD sfd, Sint32 n, SFBUF_RINF *inf)
-{
-	SFBUF_HN *hn;
-	SJ sj;
-	SJCK ck2;
-	SJCK ck1;
-
-	inf->ck1.data = NULL;
-	inf->ck1.len = 0;
-	inf->ck2.data = NULL;
-	inf->ck2.len = 0;
-	inf->rsv[0] = 0;
-	inf->rsv[1] = 0;
-	inf->rsv[2] = 0;
-	hn = SFBUF_GET_HN(sfd, n);
-	sj = hn->w.u.ring.sup.sj;
-	if (hn->w.used == 0 || sj == NULL) {
-		return 0;
-	}
-	sfbuf_RingGetCk(sj, 1, &ck1, &ck2);
-	inf->ck1.data = ck1.data;
-	inf->ck1.len = ck1.len;
-	inf->ck2.data = ck2.data;
-	inf->ck2.len = ck2.len;
-	return 0;
-}
-
-// Writable region of ring n as two chunks (before / after the wrap) in `inf`.
-Sint32 SFBUF_RingGetWrite(SFD sfd, Sint32 n, SFBUF_RINF *inf)
-{
-	SFBUF_HN *hn;
-	SJ sj;
-	SJCK ck2;
-	SJCK ck1;
-
-	inf->ck1.data = NULL;
-	inf->ck1.len = 0;
-	inf->ck2.data = NULL;
-	inf->ck2.len = 0;
-	inf->rsv[0] = 0;
-	inf->rsv[1] = 0;
-	inf->rsv[2] = 0;
-	hn = SFBUF_GET_HN(sfd, n);
-	sj = hn->w.u.ring.sup.sj;
-	if (hn->w.used == 0 || sj == NULL) {
-		return 0;
-	}
-	sfbuf_RingGetCk(sj, 0, &ck1, &ck2);
-	inf->ck1.data = ck1.data;
-	inf->ck1.len = ck1.len;
-	inf->ck2.data = ck2.data;
-	inf->ck2.len = ck2.len;
-	return 0;
 }
 
 // Copies user-output channel `chno` of buffer n.

@@ -2977,17 +2977,9 @@ extern u32 DAT_00744160[];
 // FUN_005142D0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005142d0);
 
-// FUN_00514328
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00514328);
 
-// FUN_00514348
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00514348);
 
-// FUN_00514368
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00514368);
 
-// FUN_00514388
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00514388);
 // FUN_005143A8
 u64 func_005143a8(void)
 {
@@ -2999,8 +2991,6 @@ u64 func_005143a8(void)
 
 // FUN_005143B0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005143b0);
-// FUN_005143C8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005143c8);
 // FUN_005143D0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005143d0);
 // FUN_00514508
@@ -3185,16 +3175,8 @@ asm void func_00514bd8(int param_1,int param_2,int param_3,u64 *param_4)
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00514c20);
 // FUN_00514C68
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00514c68);
-// FUN_00514C90
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00514c90);
-// FUN_00514CA8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00514ca8);
 // FUN_00514CC0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00514cc0);
-// FUN_00514D68
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00514d68);
-// FUN_00514D80
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00514d80);
 // FUN_00514D98
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00514d98);
 // FUN_00514EE8
@@ -3445,14 +3427,6 @@ asm u32 func_005159a0(int param_1,int param_2)
 
 /* Source unit: src/cri/cri_adx_00515bc8.c (1 function markers) */
 
-// FUN_005159C0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005159c0);
-// FUN_005159E8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005159e8);
-// FUN_00515B58
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00515b58);
-// FUN_00515B90
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00515b90);
 // FUN_00515BC8
 asm u32 func_00515bc8(long param_1,u32 param_2)
 {

@@ -312,12 +312,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f5fd8);
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f60f8);
 // FUN_004F6188
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f6188);
-// FUN_004F6870
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f6870);
-// FUN_004F6888
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f6888);
-// FUN_004F68A0
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f68a0);
 // FUN_004F68B8
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f68b8);
 // FUN_004F6948
@@ -778,10 +772,6 @@ void func_004f9978(u8 *a0, u8 *a1, u8 *a2) {
 #pragma schedule off
 /* measured: restore optimization level 2 after the isolated function. */
 #pragma optimization_level 2
-// FUN_004F99E0
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f99e0);
-// FUN_004F99F8
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f99f8);
 // FUN_004F9A10
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9a10);
 // FUN_004F9A58

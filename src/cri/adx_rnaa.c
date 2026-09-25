@@ -1049,5 +1049,3 @@ extern u64 DAT_007199f0[];
 
 // FUN_004CD5F0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd5f0);
-// FUN_004CD680
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004cd680);

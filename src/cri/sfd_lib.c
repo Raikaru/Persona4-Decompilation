@@ -3151,8 +3151,6 @@ u64 func_00517dc8(void)
 
 #pragma schedule on
 
-// FUN_00517DD0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00517dd0);
 // FUN_00517DF8
 u64 func_00517df8(void)
 {

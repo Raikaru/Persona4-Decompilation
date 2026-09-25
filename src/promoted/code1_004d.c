@@ -27,33 +27,18 @@ void func_004d12a0(u8 *arg0, s32 arg1)
 
 
 
-/* Framed tail-jump floor (measured): the 24-byte ASM tier has three retail
- * variants. Plain: 004D1880, 004D1898, 004D18B0, 004D3528, 004D3540,
- * 004D3558, 004D3570, 004D36E8, 004D3738, 004D3F90, 004DE2C0.
- * Load-then-tail: 004DE168, 004DE180, 004DE198, 004DE1B0, 004DE1C8,
- * 004DE218, 004DE230, 004DE248, 004DE260, 004DE278, 004DE290.
- * Move-arg: 004D32E0. b210 emits 8, 28, or 32 bytes for these spellings;
- * leave all 23 INCLUDE_ASM fallbacks bare. */
+/* MWCC b210 still cannot reproduce these framed GCC tail-jump fallbacks:
+ * plain 004D36E8, 004D3738, 004D3F90, 004DE2C0;
+ * load-then-tail 004DE168, 004DE180, 004DE198, 004DE1B0, 004DE1C8,
+ * 004DE218, 004DE230, 004DE248, 004DE260, 004DE278, 004DE290;
+ * move-arg 004D32E0. The ADXT close-all and three adjacent delegates are
+ * implemented with ee-gcc in src/cri/re4/adx_tlk_forward.c. */
 // FUN_004D15D8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d15d8);
 // FUN_004D1748
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d1748);
 // FUN_004D17E0
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d17e0);
-// FUN_004D1880
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d1880);
-// FUN_004D1898
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d1898);
-// FUN_004D18B0
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d18b0);
-// FUN_004D18C8
-void func_004d18c8(void)
-{
-}
-// FUN_004D18D0
-void func_004d18d0(void)
-{
-}
 /* measured: #pragma schedule on is load-bearing (delay-slot fill, nd 3
  * without it); retail's $v0 base is the live return value, so the store
  * must return the zero-lo segment base: a void store colors the address
@@ -142,12 +127,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d33f8);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3458);
 // FUN_004D34C0
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d34c0);
-// FUN_004D3540
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3540);
-// FUN_004D3558
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3558);
-// FUN_004D3570
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3570);
 // FUN_004D3588
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3588);
 // FUN_004D35D8
@@ -274,16 +253,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d44c8);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d45e0);
 // FUN_004D4630
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d4630);
-// FUN_004DE168
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de168);
-// FUN_004DE180
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de180);
-// FUN_004DE198
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de198);
-// FUN_004DE1B0
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de1b0);
-// FUN_004DE1C8
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de1c8);
 /* measured: schedule on preserves the retail zero-return delay-slot fill. */
 #pragma schedule on
 // FUN_004DE1E0
@@ -347,18 +316,6 @@ s32 func_004de210(void)
 }
 /* measured: close schedule-on bracket after func_004de210. */
 #pragma schedule off
-// FUN_004DE218
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de218);
-// FUN_004DE230
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de230);
-// FUN_004DE248
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de248);
-// FUN_004DE260
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de260);
-// FUN_004DE278
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de278);
-// FUN_004DE290
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de290);
 /* measured: schedule on preserves the retail store/return delay-slot fill. */
 #pragma schedule on
 // FUN_004DE2A8

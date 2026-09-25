@@ -1716,12 +1716,6 @@ s32 func_00421f90(void)
 {
     return 1;
 }
-/* measured: end of the function-local scheduling override. */
-#pragma schedule off
-// FUN_00421F98
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421f98);
-/* measured: schedule on places the constant return in the jr delay slot. */
-#pragma schedule on
 // FUN_00421FB0
 s32 func_00421fb0(void)
 {
@@ -1950,8 +1944,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00424458);
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004244c8);
 // FUN_00424548
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00424548);
-// FUN_004245C8
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004245c8);
 /* measured: schedule on places the copied value store in the jr delay slot. */
 #pragma schedule on
 // FUN_004245E8
@@ -2267,8 +2259,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042a740);
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042a7d0);
 // FUN_0042A870
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042a870);
-// FUN_0042A900
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042a900);
 /* measured: schedule on places the stack restore in the jr delay slot. */
 #pragma schedule on
 // FUN_0042A920
@@ -2280,8 +2270,6 @@ void func_0042a920(void)
 #pragma schedule off
 // FUN_0042A940
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042a940);
-// FUN_0042AB68
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042ab68);
 /* measured: schedule on moves the zero fifth argument into the jal delay slot. */
 #pragma schedule on
 // FUN_0042AB88

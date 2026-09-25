@@ -32,28 +32,28 @@ version.
 | Retail executable | `SLUS_217.82`; SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` |
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,102; all mapped to C or owned retail assembly |
-| Byte-identical functions | 7,927 (60.502% of windows) |
-| Under test (a `// FUN_` marker scores them) | 12,720 (97.084% of windows) |
-| Not yet under test, supplied as retail bytes | 382 (2.916% of windows) |
-| In byte-exact linked C objects | 1,607 (12.265% of windows), with 202 assembly fallbacks still inside those objects |
-| Atlus game/engine | 6,860 functions; 6,297 C-matched (91.793%); 1,768 linked (25.773%) |
-| Proven Sony PS2 SDK | 491 functions; 148 C-matched (30.143%); 491 linked (100.0%) |
-| Other third-party/vendor | 5,749 functions; 1,482 C-matched (25.778%); 41 linked (0.713%) |
-| Unattributed | 2 functions; 0 C-matched (0.0%); 0 linked (0.0%) |
-| First-party matched, scored for recovery | 6,297 |
-| — NAMED (not a `func_<address>` placeholder) | 154 (2.446%) |
-| — TYPED (no raw-offset or `M2C_` access) | 1,788 (28.394%) |
-| — DOCUMENTED (prose, or trivially self-evident) | 4,318 (68.572%) |
-| — still carrying decompiler local names | 1,924 (30.554%) |
+| Byte-identical functions | 9,334 (71.241% of windows) |
+| Under test (a `// FUN_` marker scores them) | 13,102 (100.0% of windows) |
+| Not yet under test, supplied as retail bytes | 0 (0.0% of windows) |
+| In byte-exact linked C objects | 2,501 (19.089% of windows), with 426 assembly fallbacks still inside those objects |
+| Atlus game/engine | 6,861 functions; 6,514 C-matched (94.942%); 1,814 linked (26.439%) |
+| Proven Sony PS2 SDK | 491 functions; 152 C-matched (30.957%); 491 linked (100.0%) |
+| Other third-party/vendor | 5,750 functions; 2,668 C-matched (46.4%); 1,113 linked (19.357%) |
+| Unattributed | 0 functions; 0 C-matched (0.0%); 0 linked (0.0%) |
+| First-party matched, scored for recovery | 6,513 |
+| — NAMED (not a `func_<address>` placeholder) | 226 (3.47%) |
+| — TYPED (no raw-offset or `M2C_` access) | 1,810 (27.791%) |
+| — DOCUMENTED (prose, or trivially self-evident) | 4,490 (68.939%) |
+| — still carrying decompiler local names | 1,961 (30.109%) |
 
-Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. Sony SDK linkage is black-box reuse, not decompiled source. `tools/recovery_quality.py --worst 20` ranks the game files needing work.
+Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. Sony SDK linkage includes verified C source and residual retail-backed black-box objects; linked is not a source-recovery count. `tools/recovery_quality.py --worst 20` ranks the game files needing work.
 <!-- STATUS:END -->
 
 "First-party" means Atlus's game and engine code. Progress is partitioned by
 **function address**, not whole source file, because some promoted files mix
 game functions with vendor libraries:
 
-- **Atlus game and engine** (`main`): the source-recovery target.
+- **Atlus game and engine** (`main`): first-party game-source recovery.
 - **Sony PS2 SDK** (`sony_sdk`): only functions recorded with archive, member,
   address, size, and canonical hash in
   [`config/sdk_symbol_provenance.txt`](config/sdk_symbol_provenance.txt).
@@ -61,10 +61,11 @@ game functions with vendor libraries:
   and vendor code without enough evidence to call it Sony SDK.
 - **Unattributed** (`unclassified`): functions without an established owner.
 
-The proven SDK functions link as generated objects under `build/obj/sony_sdk/`,
-assembled from the user's extracted retail assembly. These are **retail-backed
-black boxes**, not copies of original Sony archive members or recovered C.
-No proprietary SDK objects or archives are committed.
+SDK functions with byte-exact, link-eligible C replace their own retail windows.
+The remaining SDK functions link as generated objects under `build/obj/sony_sdk/`,
+assembled from the user's extracted retail assembly. Those residual objects are
+**retail-backed black boxes**, not copies of original Sony archive members or
+recovered C. No proprietary SDK objects or archives are committed.
 
 The SDK's decomp.dev **Linked Code** measure (`complete_code`) can therefore
 reach 100% while its C-matching percentage remains lower. That percentage covers
@@ -110,12 +111,12 @@ to reproduce it:
 | Atlus game code (most of `src/`) | MWCCPS2 3.0.1 build 210 | `-O2` | `tools/verify_config.json` |
 | RenderWare Graphics 3.7 (`src/renderware/`) | MWCCPS2 3.0.1 build 119 | `-O4,p -inline auto` | `config/compiler_units.txt`, `config/version_flags.txt` |
 | A few speed-tuned units | build 210 | `-O2,p` | `config/speed_units.txt` |
-| Five units of GCC-built code | ee-gcc 2.96 | `-O2 -G0` | `config/gcc_units.txt` |
-| Archive-proven Sony PS2 SDK | Retail-backed objects, not recompiled C | Fixed-address link | `config/sdk_symbol_provenance.txt` |
+| CRI and other GCC-built vendor units (`src/cri/`) | ee-gcc 2.96 | `-O2 -G0` | `config/gcc_units.txt`, `config/compiler_units.txt` |
+| Archive-proven Sony PS2 SDK | Matched, link-eligible C where available; residual fixed-address retail assembly | Per-unit source settings or fixed-address link | `config/sdk_symbol_provenance.txt` |
 
 Existing RenderWare recoveries use the RenderWare 3.7.0.2 source and vendored
-headers in `include/rw/`; `src/renderware/` mirrors the original tree. They
-remain tracked separately; active source recovery targets Atlus code.
+headers in `include/rw/`; `src/renderware/` mirrors the original tree. RenderWare,
+CRI, and Sony recovery are measured separately from first-party functions.
 
 ## Setup
 

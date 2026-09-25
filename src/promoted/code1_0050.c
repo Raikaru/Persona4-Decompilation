@@ -142,12 +142,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005073a0);
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005074a8);
 // FUN_005074C0
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005074c0);
-// FUN_005074F0
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005074f0);
-// FUN_00507508
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00507508);
-// FUN_00507520
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00507520);
 // FUN_00507538
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00507538);
 // FUN_00507560
@@ -341,18 +335,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050c728);
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050c7a0);
 // FUN_0050C7F0
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050c7f0);
-// FUN_0050C8B0
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050c8b0);
-// FUN_0050C8C8
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050c8c8);
-// FUN_0050C8E0
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050c8e0);
-// FUN_0050C8F8
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050c8f8);
-// FUN_0050C910
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050c910);
-// FUN_0050C928
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050c928);
 // FUN_0050C940
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050c940);
 // FUN_0050C9D0
@@ -419,12 +401,6 @@ s32 func_0050ccf0(void)
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cd00);
 // FUN_0050CD48
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cd48);
-// FUN_0050CD80
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cd80);
-// FUN_0050CD98
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cd98);
-// FUN_0050CDB0
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cdb0);
 /* measured: 0050CDC8 has a 16-byte window containing two jr $ra/nop pairs; the second pair is unreferenced and not registrable, so this boundary is unmatchable in C. */
 // FUN_0050CDC8
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cdc8);

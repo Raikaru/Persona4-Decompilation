@@ -3586,10 +3586,16 @@ extern u32 DAT_00745b28_abs[];
 
 
 // FUN_00528680
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00528680);
+u32 func_00528680(void)
+{
+    return 0;
+}
 
 // FUN_00528688
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00528688);
+u32 func_00528688(void)
+{
+    return 0;
+}
 
 // FUN_00528690
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00528690);
@@ -3632,33 +3638,46 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005287f0);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00528820);
 // FUN_00528898
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00528898);
-/* Source unit: src/cri/cri_adx_005288c0.c (1 function markers) */
-// FUN_005288C0
+
 #pragma schedule on
+// FUN_005288C0
 void func_005288c0(u32 *output, u32 value_0, u32 value_4, u32 value_8, u32 value_c)
 {
-  output[3] = value_c;
-  output[0] = value_0;
-  output[1] = value_4;
-  output[2] = value_8;
+    output[3] = value_c;
+    output[0] = value_0;
+    output[1] = value_4;
+    output[2] = value_8;
 }
 #pragma schedule off
-
-/* Source unit: src/cri/cri_adx_00528980.c (1 function markers) */
 
 #pragma optimization_level 3
 
 // FUN_005288D8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005288d8);
+u32 func_005288d8(void)
+{
+    return 0;
+}
 
 // FUN_005288E0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005288e0);
+u32 func_005288e0(void)
+{
+    return 0;
+}
 
 // FUN_005288E8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005288e8);
+u32 func_005288e8(void)
+{
+    return 0;
+}
 
 // FUN_005288F0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005288f0);
+u32 func_005288f0(void)
+{
+    return 0;
+}
 
 // FUN_005288F8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005288f8);
+u32 func_005288f8(void)
+{
+    return 0;
+}

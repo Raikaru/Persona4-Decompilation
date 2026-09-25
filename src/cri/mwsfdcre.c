@@ -2995,5 +2995,3 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00509dd8);
 // FUN_00509E10
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00509e10);
 
-// FUN_00509E60
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00509e60);

@@ -1841,8 +1841,6 @@ void func_004e05d8(int object, u32 value)
 /* Source unit: src/cri/cri_adx_004e05e8.c (1 function markers) */
 #pragma optimization_level 3
 
-// FUN_004E05E0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e05e0);
 // FUN_004E05E8
 void func_004e05e8(int object, u8 value) { *(u8 *)(object + 3) = value; }
 #pragma optimization_level 2

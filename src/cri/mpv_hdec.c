@@ -2474,8 +2474,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004fbad0);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004fbb50);
 // FUN_004FBCC0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004fbcc0);
-// FUN_004FBED0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004fbed0);
 // FUN_004FBED8
 asm void func_004fbed8(int param_1)
 {
@@ -2563,8 +2561,6 @@ extern char s_CRI_M2V_PS2EE_Ver_1_958_Build_Ma_0076dd38[];
 // FUN_004FBFD8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004fbfd8);
 
-// FUN_004FC048
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004fc048);
 
 // FUN_004FC050
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004fc050);
@@ -2645,8 +2641,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00504ba0);
 // FUN_00504C50
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00504c50);
 
-// FUN_00504D00
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00504d00);
 // FUN_00504D08
 u32 func_00504d08(void)
 {
@@ -2666,8 +2660,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00504ed0);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00504f30);
 // FUN_00504FF8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00504ff8);
-// FUN_00505070
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00505070);
 // FUN_00505078
 asm void func_00505078(int param_1,int param_2,u32 param_3,u32 param_4,u32 param_5)
 {

@@ -3161,17 +3161,9 @@ u64 func_00517e20(void)
 
 #pragma schedule on
 
-// FUN_00517E28
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00517e28);
 
-// FUN_00517E48
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00517e48);
 
-// FUN_00517E70
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00517e70);
 
-// FUN_00517E90
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00517e90);
 // FUN_00517EB0
 u64 func_00517eb0(void)
 {
@@ -3376,8 +3368,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00519798);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00519848);
 // FUN_005198E0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005198e0);
-// FUN_00519990
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00519990);
 // FUN_00519998
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00519998);
 // FUN_00519A50

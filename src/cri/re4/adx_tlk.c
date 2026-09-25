@@ -942,12 +942,6 @@ void ADXT_GetTranspose(ADXT adxt, Sint32 *oct, Sint32 *cent)
 {
 }
 
-// Tells the decoder that no more input data will arrive (end of a memory / stream-joint source).
-// FUN_004D6340
-void ADXT_TermSupply(ADXT adxt)
-{
-	ADXSJD_TermSupply(adxt->sjd);
-}
 
 /* drop nsmpl samples of renderer data (while paused); the server is run once so the decoder
  * refills, then the time position is resynchronised */
@@ -983,7 +977,6 @@ Sint32 ADXT_GetDecNumSmpl(ADXT adxt)
 }
 
 /* (dead-stripped) */
-// FUN_004D6710
 Sint32 ADXT_GetDecDtLen(ADXT adxt)
 {
 	if (adxt == NULL) {
@@ -1139,7 +1132,6 @@ void ADXT_SetOutputMono(Sint32 flag)
 }
 
 /* (dead-stripped) */
-// FUN_004D6808
 void ADXT_SetKeyString(ADXT adxt, Char8 *str)
 {
 	if (adxt == NULL) {

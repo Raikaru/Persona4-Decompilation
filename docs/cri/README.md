@@ -113,15 +113,6 @@ adjacent `ADXF_Ocbi` (`004c6cf0`) and the current split place it in
 `adx_fcch.c`. A cross-platform name-to-unit lookup cannot settle that
 boundary, so neither filename is asserted as a recovered Persona 4 TU.
 
-The separate `src/middleware/gcc_ee_grouped.c` has 47 toolchain-classified
-markers. Masked-exact PS2 donor matches for 13 addresses in the
-`004e3dc8`–`004e4648` neighbourhood carry SRD-family names in at least
-three reference binaries. Two short bodies match multiple SRD names;
-another tiny tail jump at `004460f0` matches unrelated functions, while
-33 markers have no exact donor name in those references. This supports an
-SRD subsystem neighbourhood, not original vendor/TU boundaries. Leave
-the GCC group intact rather than promoting an inferred source filename.
-
 The scoped before/after verifier compares all 2,476 original CRI rows
 (including the five untouched wrappers): status and `normalized_diff` did
 not change. The full linker build separately checks both retail SHA-1s.

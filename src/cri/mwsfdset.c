@@ -2678,15 +2678,6 @@ u32 func_0050d378(int object)
 #pragma optimization_level 3
 
 
-// FUN_0050D3C0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0050d3c0);
-
-// FUN_0050D3D8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0050d3d8);
-
-// FUN_0050D3F0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0050d3f0);
-
 // FUN_0050D408
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0050d408);
 
@@ -2806,20 +2797,4 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0050e0d0);
 // FUN_0050E140
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0050e140);
 
-// FUN_0050E1E8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0050e1e8);
 
-// FUN_0050E208
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0050e208);
-
-// FUN_0050E228
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0050e228);
-
-// FUN_0050E248
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0050e248);
-
-// FUN_0050E268
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0050e268);
-
-// FUN_0050E288
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0050e288);

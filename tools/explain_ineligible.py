@@ -8,7 +8,7 @@ retail bytes. The usual cause is a newly referenced data symbol that exists in
 no symbol config, which is invisible to `verify.py` (it masks relocations).
 
     python tools/explain_ineligible.py                 # summary by reason
-    python tools/explain_ineligible.py --reason symbol # list the unresolved names
+    python tools/explain_ineligible.py --reason unresolved # list the unresolved names
 
 Reasons reported:
   no-markers       nothing the verifier tracks in this file
@@ -81,7 +81,7 @@ def main() -> int:
     cache = B.BC.ObjectCache(B.BUILD / "cache" / "c", REPO)
     retail = V.RetailElf(c["retail_elf"], B.TARGET, B.RETAIL_SHA1)
     gp, defs = B.load_lcf_symbols()
-    resolvable = set(defs) | B.load_symbol_names() | B.source_marker_names()
+    resolvable = set(defs) | set(B.load_symbol_addr_map()) | B.source_marker_names()
     boundaries = B.load_windows()
     window_sizes = B.load_window_sizes()
     counts: collections.Counter[str] = collections.Counter()

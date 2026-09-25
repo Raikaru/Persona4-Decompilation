@@ -2483,8 +2483,3 @@ u8 *func_004f8548(void)
 
 #pragma schedule on
 
-// FUN_004F8558
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004f8558);
-
-// FUN_004F8570
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004f8570);

@@ -2466,20 +2466,3 @@ extern char s_CRI_M2V_PS2EE_Ver_1_958_Build_Ma_0076dd38[];
 /* Source unit: src/cri/cri_adx_00500dc8.c (1 function markers) */
 
 #pragma schedule on
-
-
-
-
-
-#pragma schedule off
-
-/* Source unit: src/cri/cri_adx_00501160.c (1 function markers) */
-
-// FUN_005010B8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005010b8);
-// FUN_005010D0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005010d0);
-// FUN_005010E8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005010e8);
-// FUN_00501100
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00501100);

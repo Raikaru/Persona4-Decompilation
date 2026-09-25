@@ -2475,12 +2475,6 @@ extern char s_CRI_M2V_PS2EE_Ver_1_958_Build_Ma_0076dd38[];
 
 /* Source unit: src/cri/cri_adx_00501160.c (1 function markers) */
 
-// FUN_00501118
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00501118);
-// FUN_00501130
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00501130);
-// FUN_00501148
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00501148);
 // FUN_00501160
 asm void func_00501160(u8 *param_1,u8 *param_2,u32 param_3)
 {

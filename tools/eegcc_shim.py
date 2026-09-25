@@ -70,6 +70,7 @@ STAGE_WSL = "/mnt/" + str(STAGE_WIN).replace(":", "").replace("\\", "/").lower()
 # -ffunction-sections mirrors MWCC's one-section-per-function output, which
 # build.py's per-function placement depends on.
 GCC_FLAGS = ["-O2", "-G0", "-ffunction-sections"]
+
 # Preserve GCC's -G0 when assembling separately: without it, GNU as turns
 # large floating constants into $gp-relative .lit4 loads instead of immediates.
 ASSEMBLER_FLAGS = ["-EL", "-march=r5900", "-mabi=eabi", "-G0"]

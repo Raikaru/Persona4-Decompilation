@@ -18,8 +18,8 @@ import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from verify import (FUNCTION_WINDOWS, REPO, TARGET, ObjectFile, RetailElf,
-                    _compile, _die, _read_json, load_config, mask_bytes,
-                    scan_markers, window_for)
+                    _compile, _compile_gcc, _die, _read_json, is_gcc_unit,
+                    load_config, mask_bytes, scan_markers, window_for)
 
 import eedis
 
@@ -98,7 +98,7 @@ def main() -> None:
 
     with tempfile.TemporaryDirectory(prefix="p4fndiff_") as directory:
         output = Path(directory) / "out.o"
-        compiled, log = _compile(source, cfg, output)
+        compiled, log = (_compile_gcc if is_gcc_unit(source) else _compile)(source, cfg, output)
         if not compiled:
             _die(log.strip() or "compiler did not produce an object")
         try:

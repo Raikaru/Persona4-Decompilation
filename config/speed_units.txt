@@ -87,3 +87,5 @@ src/renderware/plcore/baimmedi.c
 src/renderware/plcore/rpdbgerr.c
 src/renderware/plcore/rwdbgerr.c
 src/renderware/worldp2/bapipew.c
+# 003f5040: -O3,p aligns the post-loop return target; 11 other basky C bodies still match.
+src/rw/basky.c

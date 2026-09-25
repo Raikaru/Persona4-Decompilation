@@ -2032,6 +2032,11 @@ extern u32 D_00738CF8[];
 // FUN_004E9878
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9878);
 // FUN_004E9908
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9908);
+void func_004e9908(void)
+{
+}
+
 // FUN_004E9910
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9910);
+void func_004e9910(void)
+{
+}
