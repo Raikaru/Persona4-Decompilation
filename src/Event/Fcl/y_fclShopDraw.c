@@ -573,7 +573,7 @@ extern void func_002e02d0(u8 *task);
     extern void func_002d8200(void *arg0, s8 arg1);
     extern void func_002d83c0(void *arg0);
     extern void func_002d8600(void *arg0);
-    extern void func_002da0a0(register u8 *root);
+    extern void func_002da0a0(void *arg0);
     extern void func_002db400(void *arg0);
     extern void func_002dd230(void *arg0);
     extern void func_002de5a0(void *arg0);
@@ -7593,8 +7593,9 @@ void func_002d8200(void *arg0, s8 arg1) {
 }
 
 
-// FUN_002D83C0
-void func_002d83c0(void *arg0) {
+/* func_002d83c0's body; func_002da0a0 inlines it (retail re-reads the work
+   pointer from the kept arg0 there). */
+static inline void shopSwingCursor(void *arg0) {
     ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
     s32 r;
     s16 v2;
@@ -7621,6 +7622,11 @@ void func_002d83c0(void *arg0) {
     func_002e0940(work->field_ED4, 0.0f, f20, 0, 0, 0);
     func_002e0940(work->field_ED8, 0.0f, f20, 0, 0, 0);
     func_0046d280((u8 *)r);
+}
+
+// FUN_002D83C0
+void func_002d83c0(void *arg0) {
+    shopSwingCursor(arg0);
 }
 
 // FUN_002D8600
@@ -8003,331 +8009,200 @@ void func_002d8a60(void *arg0, s8 arg1, f32 x, f32 y) {
 }
 #pragma pop
 
-/* Archived C reconstruction: build/W8ShopRGBA_func_002da0a0_highnd.c.
-   Best measured candidate object 5032/window 4960, normalized_diff 3080;
-   bare INCLUDE_ASM restored after ruled-out source-shape probes. */
-/* measured 002da0a0 (owner, installing archived high-nd body adapted): 1260 against retail's 1240
-   (+1.6%, band 1203-1277), 1199 edits (+2 reloc-only), 1060 differing words. Frame -0x170
-   against retail -0x160; calls 150 against 151, the gap a single 11-instruction hole at
-   retail[209:220] (the ED4 func_002e04e0 + RGBA byte store the archived body never had); one
-   4-instruction object lump at object[173:177] (signed s8-to-float scheduling at the 35.0f
-   sites). Adapted from build/W8ShopRGBA_func_002da0a0_highnd.c (296-line body, 5032B/window
-   4960, nd 3080): the only change is fGpffff7afc to the owner's fGpffff852c, matching retail's
-   lwc1 -0x7AD4($gp) at both 002e0940 sites (0x1DA808/0x1DA918) and already used the same way at
-   line 956; the archived symbol was a mislabel as the file's own notes warn. Residuals stay as
-   archived: D_0063F5B8/F65x base hoist into $s1 and (s64)(s32) width casts on 46b260/46b2f0. */
-/* measured 002da0a0 (owner, 2026-09-20): narrow s64 width0/width1 to s16. The census */
-/*   (3 object-side __fixsfdi) was the lead only; retail evidence is the narrow shape at */
-/*   each site - cvt.w.s + mfc1 + dsll32 16/dsra32 16 + sh: width0 jal 46b260 0x002DA544 */
-/*   with cvt 0x002DA56C/mfc1 0x002DA570/dsll 0x002DA578/dsra 0x002DA57C/sh 0x002DA58C, */
-/*   width1 jal 46b2f0 0x002DA594 with cvt 0x002DA5AC/mfc1 0x002DA5B0/dsll 0x002DA5B8/ */
-/*   dsra 0x002DA5BC/sh 0x002DA5CC, reuse dsll 0x002DA5D0/dsra 0x002DA5D4 + addiu -0x4F */
-/*   0x002DA5D8 + dsll 0x002DA5DC/dsra 0x002DA5E0/sh 0x002DA5F0 (integer -79 on the kept */
-/*   $17, no second float call), width1 again jal 0x002DA5F8/cvt 0x002DA610/mfc1 0x002DA614/ */
-/*   dsll 0x002DA61C/dsra 0x002DA620/sh 0x002DA630. (s16)(float) reproduces it; the s64 */
-/*   temp does not. Amendment case: object LONGER than retail (1260 vs 1240), so the */
-/*   count check applies - and it passes: object 1260 -> 1255 (-5, toward retail, no */
-/*   away-move to explain). Both gates improve: libcall_scan 3 -> 0 object helpers; */
-/*   fnalign retail 1240 object 1260 -> 1255 (+1.6% -> +1.2%, band 1203-1277 PASS), */
-/*   edits 1199 -> 1180 (+2 reloc-only); guarded 1060 -> 1059 words (-1). Repro: */
-/*   libcall_scan via stdin row + measure_guarded --save-candidate + fnalign */
-/*   --candidate <path> --quiet. deficit_scan after: object not short (deficit -15), */
-/*   CROSS runs 218/111/60 remain. */
-// FUN_002DA0A0 NONMATCHING
-#ifdef NON_MATCHING
-void func_002da0a0(register u8 *root) {
-    RGBA c0;
-    RGBA c1;
-    RGBA c2;
-    RGBA c3;
-    RGBA c4;
-    RGBA c5;
-    RGBA c6;
-    RGBA c7;
-    RGBA c8;
-    RGBA c9;
-    RGBA c10;
-    RGBA c11;
-    u64 sp128;
-    u64 sp120;
-    u64 sp118;
-    u64 sp110;
-    u64 sp108;
-    u64 sp100;
-    u64 spF8;
-    u64 spF0;
-    u64 spE8;
-    u64 spE0;
-    u64 spD8;
-    u64 spD0;
-    u64 spC8;
-    u64 spC0;
-    u64 spB8;
-    u64 spB0;
-    u64 spA8;
-    u64 spA0;
-    u64 sp98;
-    u64 sp90;
-    u64 sp88;
-    u64 sp80;
-    u64 sp78;
-    u64 sp70;
-    f32 temp_f20;
-    f32 temp_f20_2;
-    f32 f1;
-    f32 f20;
-    s16 width0;
-    s16 width1;
-    s64 i;
-    s32 hi;
-    register u8 *work;
-    void *r;
+// FUN_002DA0A0
+void func_002da0a0(void *arg0) {
+    u8 *work;
     Vec2f *base;
-    u8 *t;
-    work = *(u8 **)(root + 0x38);
+    ShopSpinParam *fa;
+    void *r;
+    s16 i;
+    void *r0;
+    void *r1;
+    void *r2;
+    void *r3;
+    void *r4;
+    void *r5;
+    s32 row;
+    Vec2f p0;
+    Vec2f p1;
+    Vec2f p2;
+    Vec2f p3;
+    Vec2f p4;
+    Vec2f p5;
+    Vec2f p6;
+    Vec2f p7;
+    Vec2f p8;
+    Vec2f p9;
+    Vec2f p10;
+    Vec2f p11;
+    Vec2f p12;
+    Vec2f p13;
+    Vec2f p14;
+    Vec2f p15;
+    Vec2f p16;
+    Vec2f p17;
+    Vec2f p18;
+    Vec2f p19;
+    Vec2f p20;
+    Vec2f p21;
+    Vec2f p22;
+    Vec2f p23;
+
+    work = *(u8 **)((u32)arg0 + 0x38);
     func_002e04f0(*(void **)(work + 0xDEC), 0, 1);
 
     base = (Vec2f *)D_0063F5A0;
     func_002e09e0(*(void **)(work + 0xC58), 0x41, 162.0f);
-    *(Vec2f *)&sp128 = func_002b2970(base->x, base->y - 450.0f);
-    *(Vec2f *)&sp120 = func_002b2970(base->x, base->y);
-    func_002e0620(*(void **)(work + 0xC58), sp128, sp120, 0, 4, 0);
+    p0 = func_002b2970(base->x, base->y - 450.0f);
+    p1 = func_002b2970(base->x, base->y);
+    func_002e0620(*(void **)(work + 0xC58), *(u64 *)&p0, *(u64 *)&p1, 0, 4, 0);
     func_002e0660(*(void **)(work + 0xC58), 0, 0xCC, 0, 2, 0);
-    fclWriteColorBytes(&c0, 0, 0, 0, 0xFF);
-    t = (u8 *)func_002e04e0(*(void **)(work + 0xC58));
-    *(RGBA *)(t + 0x79) = c0;
+    *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xC58)) + 0x79) = func_002b2a60(0, 0, 0, 0xFF);
 
     base = (Vec2f *)D_0063F5A8;
     func_002e09e0(*(void **)(work + 0xC5C), 0x41, 163.0f);
-    *(Vec2f *)&sp118 = func_002b2970(base->x, base->y - 450.0f);
-    *(Vec2f *)&sp110 = func_002b2970(base->x, base->y);
-    func_002e0620(*(void **)(work + 0xC5C), sp118, sp110, 0, 4, 0);
+    p2 = func_002b2970(base->x, base->y - 450.0f);
+    p3 = func_002b2970(base->x, base->y);
+    func_002e0620(*(void **)(work + 0xC5C), *(u64 *)&p2, *(u64 *)&p3, 0, 4, 0);
     func_002e0660(*(void **)(work + 0xC5C), 0, 0xCC, 0, 2, 0);
-    fclWriteColorBytes(&c1, 0, 0, 0, 0xFF);
-    t = (u8 *)func_002e04e0(*(void **)(work + 0xC5C));
-    *(RGBA *)(t + 0x79) = c1;
+    *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xC5C)) + 0x79) = func_002b2a60(0, 0, 0, 0xFF);
 
-    i = 0;
-    while ((s16)i < *(s8 *)(work + 9)) {
-        *(s16 *)((u8 *)work + ((s16)i * 2) + 0xF46) = 0;
-        *(s16 *)((u8 *)work + ((s16)i * 2) + 0xF58) = 0;
-        *(s8 *)((u8 *)work + (s16)i + 0xF6A) = 0;
-        i++;
+    for (i = 0; i < *(s8 *)(work + 9); i++) {
+        *(s16 *)(work + i * 2 + 0xF46) = 0;
+        *(s16 *)(work + i * 2 + 0xF58) = 0;
+        *(s8 *)(work + i + 0xF6A) = 0;
     }
 
     func_002e09e0(*(void **)(work + 0xED4), 0x41, 126.0f);
-    *(Vec2f *)&sp108 = func_002b2970(47.0f,
-                  (78.0f + 35.0f * (f32)*(s8 *)(work + 8)) - 450.0f);
-    *(Vec2f *)&sp100 = func_002b2970(47.0f,
-                  78.0f + 35.0f * (f32)*(s8 *)(work + 8));
-    func_002e0620(*(void **)(work + 0xED4), sp108, sp100, 0, 6,
-                  *(s16 *)((u8 *)work + ((s32)(s8)*(s8 *)(work + 8) * 2) + 0xF46));
-    fclWriteColorBytes(&c2, 0xFE, 0xC6, 0x31, 0xFF);
+    row = *(s8 *)(work + 8);
+    p4 = func_002b2970(47.0f, (78.0f + 35.0f * (f32)(s32)row) - 450.0f);
+    p5 = func_002b2970(47.0f, 78.0f + 35.0f * (f32)row);
+    func_002e0620(*(void **)(work + 0xED4), *(u64 *)&p4, *(u64 *)&p5, 0, 6, ((s16 *)(work + 0xF46))[(s8)row]);
+    *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xED4)) + 0x79) = func_002b2a60(0xFE, 0xC6, 0x31, 0xFF);
     func_002e09e0(*(void **)(work + 0xED8), 0x41, 127.0f);
-    fclWriteColorBytes(&c3, 0xFE, 0xC6, 0x31, 0xFF);
-    t = (u8 *)func_002e04e0(*(void **)(work + 0xED8));
-    *(RGBA *)(t + 0x79) = c3;
-    *(Vec2f *)&spF8 = func_002b2970(126.0f,
-                  (78.0f + 35.0f * (f32)*(s8 *)(work + 8)) - 450.0f);
-    *(Vec2f *)&spF0 = func_002b2970(126.0f,
-                  78.0f + 35.0f * (f32)*(s8 *)(work + 8));
-    func_002e0620(*(void **)(work + 0xED8), spF8, spF0, 0, 6, 0);
-    root = *(u8 **)(root + 0x38);
-    r = func_0046d200(*(void **)((u8 *)root + 0xF28), 4);
-    width0 = (s16)((79.0f + func_0046b260(r)) / 2.0f);
-    *(s16 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED4)) + 0x100) =
-        (s16)width0;
-    width1 = (s16)(func_0046b2f0(r) / 2.0f);
-    *(s16 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED4)) + 0x102) =
-        (s16)width1;
-    width0 = width0 - 79;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED8)) + 0x100) =
-        (s16)width0;
-    width1 = (s16)(func_0046b2f0(r) / 2.0f);
-    *(s16 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED8)) + 0x102) =
-        (s16)width1;
-
-    hi = (s32)(RpRandom() % 20U);
-    if (hi >= 0) {
-        f1 = (f32)hi;
-    } else {
-        f1 = 2.0f * (f32)((hi >> 1) | (hi & 1));
-    }
-    f20 = shopAdd(f1 / 10.0f, 1.0f);
-    if (*(f32 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED4)) + 0xC4) > 0.0f) {
-        f20 = f20 * -1.0f;
-    }
-    func_002e0940(*(void **)((u8 *)root + 0xED4), 0.0f, f20, 0, 0, 0);
-    func_002e0940(*(void **)((u8 *)root + 0xED8), 0.0f, f20, 0, 0, 0);
-    func_0046d280(r);
+    *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xED8)) + 0x79) = func_002b2a60(0xFE, 0xC6, 0x31, 0xFF);
+    p6 = func_002b2970(126.0f, (78.0f + 35.0f * (f32)*(s8 *)(work + 8)) - 450.0f);
+    p7 = func_002b2970(126.0f, 78.0f + 35.0f * (f32)*(s8 *)(work + 8));
+    func_002e0620(*(void **)(work + 0xED8), *(u64 *)&p6, *(u64 *)&p7, 0, 6, 0);
+    shopSwingCursor(arg0);
 
     func_002e09e0(*(void **)(work + 0xD3C), 0x41, 128.0f);
     func_002e0660(*(void **)(work + 0xD3C), 0, 0xFF, 0, 0xA, 0);
 
     base = (Vec2f *)D_0063F7B0;
     func_002e09e0(*(void **)(work + 0xD60), 0x41, 78.0f);
-    *(Vec2f *)&spE8 = func_002b2970(base->x, base->y - 550.0f);
-    *(Vec2f *)&spE0 = func_002b2970(base->x, base->y);
-    func_002e0620(*(void **)(work + 0xD60), spE8, spE0, 2, 4, 0);
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD60)) + 0x102) = 0;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD60)) + 0x100) = 0;
+    p8 = func_002b2970(base->x, base->y - (f32)0x226);
+    p9 = func_002b2970(base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD60), *(u64 *)&p8, *(u64 *)&p9, 2, 4, 0);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD60)) + 0x100) = *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD60)) + 0x102) = 0;
     func_002e0940(*(void **)(work + 0xD60), -5.0f, fGpffff852c, 2, 2, 2);
-    fclWriteColorBytes(&c4, 0xFF, 0x96, 0, 0xFF);
-    t = (u8 *)func_002e04e0(*(void **)(work + 0xD60));
-    *(RGBA *)(t + 0x79) = c4;
+    *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xD60)) + 0x79) = func_002b2a60(0xFF, 0x96, 0, 0xFF);
 
     base = (Vec2f *)D_0063F7B8;
     func_002e09e0(*(void **)(work + 0xD64), 0x41, 78.0f);
-    *(Vec2f *)&spD8 = func_002b2970(base->x, base->y - 550.0f);
-    *(Vec2f *)&spD0 = func_002b2970(base->x, base->y);
-    func_002e0620(*(void **)(work + 0xD64), spD8, spD0, 2, 4, 0);
+    p10 = func_002b2970(base->x, base->y - (f32)0x226);
+    p11 = func_002b2970(base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD64), *(u64 *)&p10, *(u64 *)&p11, 2, 4, 0);
     *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD64)) + 0x100) = -50;
     *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD64)) + 0x102) = -219;
     func_002e0940(*(void **)(work + 0xD64), -5.0f, fGpffff852c, 2, 2, 2);
-    fclWriteColorBytes(&c5, 0xE4, 0xFF, 0, 0xFF);
-    t = (u8 *)func_002e04e0(*(void **)(work + 0xD64));
-    *(RGBA *)(t + 0x79) = c5;
 
+    base = (Vec2f *)D_0063F8C0;
     func_002e09e0(*(void **)(work + 0xDE8), 0x41, 46.0f);
     func_002e0660(*(void **)(work + 0xDE8), 0, 0xFF, 0, 6, 0);
-    base = (Vec2f *)D_0063F8C0;
-    temp_f20 = base->x;
-    t = (u8 *)func_002e04e0(*(void **)(work + 0xDE8));
-    *(f32 *)(t + 0x2C) = temp_f20;
-    temp_f20_2 = base->y;
-    t = (u8 *)func_002e04e0(*(void **)(work + 0xDE8));
-    *(f32 *)(t + 0x30) = temp_f20_2;
+    *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xDE8)) + 0x2C) = base->x;
+    *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xDE8)) + 0x30) = base->y;
 
     func_002e09e0(*(void **)(work + 0xDF0), 0x41, 47.0f);
     func_002e0660(*(void **)(work + 0xDF0), 0, 0xFF, 0, 6, 0);
 
-    r = func_0046d200(*(void **)(work + 0xF28), 0x44);
+    r0 = func_0046d200(*(void **)(work + 0xF28), 0x44);
     base = (Vec2f *)D_0063F780;
     func_002e09e0(*(void **)(work + 0xD48), 0x56, 53.0f);
-    *(Vec2f *)&spC8 = func_002b2970(base->x, -130.0f);
-    *(Vec2f *)&spC0 = func_002b2970(base->x, base->y);
-    func_002e0620(*(void **)(work + 0xD48), spC8, spC0, 2, 5, 0);
-    fclWriteColorBytes(&c6, 0xE4, 0xFF, 0, 0xFF);
-    t = (u8 *)func_002e04e0(*(void **)(work + 0xD48));
-    *(RGBA *)(t + 0x79) = c6;
-    temp_f20 = (func_0046b260(r)) / 2.0f;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD48)) + 0x100) =
-        (s16)temp_f20;
-    temp_f20 = (func_0046b2f0(r)) / 2.0f;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD48)) + 0x102) =
-        (s16)temp_f20;
+    p12 = func_002b2970(base->x, -130.0f);
+    p13 = func_002b2970(base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD48), *(u64 *)&p12, *(u64 *)&p13, 2, 5, 0);
+    *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xD48)) + 0x79) = func_002b2a60(0xE4, 0xFF, 0, 0xFF);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD48)) + 0x100) = (s16)(func_0046b260(r0) / 2.0f);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD48)) + 0x102) = (s16)(func_0046b2f0(r0) / 2.0f);
     func_002e09b0(*(void **)(work + 0xD48), (f32)D_0063FA44[0], D_0063FA46[0]);
-    func_002e0940(*(void **)(work + 0xD48), D_0063FA40[0], 0.0f,
-                  2, D_0063FA46[0] + 5, 0);
-    func_0046d280(r);
+    func_002e0940(*(void **)(work + 0xD48), D_0063FA40[0], 0.0f, 2, D_0063FA46[0] + 5, 0);
+    func_0046d280(r0);
 
-    r = func_0046d200(*(void **)(work + 0xF28), 0x43);
+    r1 = func_0046d200(*(void **)(work + 0xF28), 0x43);
     base = (Vec2f *)D_0063F778;
+    fa = (ShopSpinParam *)D_0063FA48;
     func_002e09e0(*(void **)(work + 0xD44), 0x56, 54.0f);
-    *(Vec2f *)&spB8 = func_002b2970(base->x, -189.0f);
-    *(Vec2f *)&spB0 = func_002b2970(base->x, base->y);
-    func_002e0620(*(void **)(work + 0xD44), spB8, spB0, 2, 5, 3);
-    fclWriteColorBytes(&c7, 0xE4, 0xFF, 0, 0xFF);
-    t = (u8 *)func_002e04e0(*(void **)(work + 0xD44));
-    *(RGBA *)(t + 0x79) = c7;
-    temp_f20 = func_0046b260(r) / 2.0f;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD44)) + 0x100) =
-        (s16)temp_f20;
-    temp_f20 = func_0046b2f0(r) / 2.0f;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD44)) + 0x102) =
-        (s16)temp_f20;
-    func_002e09b0(*(void **)(work + 0xD44), (f32)*(s16 *)(D_0063FA48 + 4), *(s16 *)(D_0063FA48 + 6));
-    func_002e0940(*(void **)(work + 0xD44), *(f32 *)D_0063FA48, 0.0f,
-                  2, *(s16 *)(D_0063FA48 + 6) + 5, 3);
-    func_0046d280(r);
+    p14 = func_002b2970(base->x, -189.0f);
+    p15 = func_002b2970(base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD44), *(u64 *)&p14, *(u64 *)&p15, 2, 5, 3);
+    *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xD44)) + 0x79) = func_002b2a60(0xE4, 0xFF, 0, 0xFF);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD44)) + 0x100) = (s16)(func_0046b260(r1) / 2.0f);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD44)) + 0x102) = (s16)(func_0046b2f0(r1) / 2.0f);
+    func_002e09b0(*(void **)(work + 0xD44), (f32)fa->speed, fa->frames);
+    func_002e0940(*(void **)(work + 0xD44), fa->angle, 0.0f, 2, fa->frames + 5, 3);
+    func_0046d280(r1);
 
-    r = func_0046d200(*(void **)(work + 0xF28), 0x45);
+    r2 = func_0046d200(*(void **)(work + 0xF28), 0x45);
     base = (Vec2f *)D_0063F788;
+    fa = (ShopSpinParam *)D_0063FA48 + 1;
     func_002e09e0(*(void **)(work + 0xD4C), 0x56, 55.0f);
-    *(Vec2f *)&spA8 = func_002b2970(base->x, -75.0f);
-    *(Vec2f *)&spA0 = func_002b2970(base->x, base->y);
-    func_002e0620(*(void **)(work + 0xD4C), spA8, spA0, 2, 5, 1);
-    fclWriteColorBytes(&c8, 0xE4, 0xFF, 0, 0xFF);
-    t = (u8 *)func_002e04e0(*(void **)(work + 0xD4C));
-    *(RGBA *)(t + 0x79) = c8;
-    temp_f20 = func_0046b260(r) / 2.0f;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD4C)) + 0x100) =
-        (s16)temp_f20;
-    temp_f20 = func_0046b2f0(r) / 2.0f;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD4C)) + 0x102) =
-        (s16)temp_f20;
-    func_002e09b0(*(void **)(work + 0xD4C), (f32)*(s16 *)(D_0063FA50 + 4), *(s16 *)(D_0063FA50 + 6));
-    func_002e0940(*(void **)(work + 0xD4C), *(f32 *)D_0063FA50, 0.0f,
-                  2, *(s16 *)(D_0063FA50 + 6) + 5, 1);
-    func_0046d280(r);
+    p16 = func_002b2970(base->x, -75.0f);
+    p17 = func_002b2970(base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD4C), *(u64 *)&p16, *(u64 *)&p17, 2, 5, 1);
+    *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xD4C)) + 0x79) = func_002b2a60(0xE4, 0xFF, 0, 0xFF);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD4C)) + 0x100) = (s16)(func_0046b260(r2) / 2.0f);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD4C)) + 0x102) = (s16)(func_0046b2f0(r2) / 2.0f);
+    func_002e09b0(*(void **)(work + 0xD4C), (f32)fa->speed, fa->frames);
+    func_002e0940(*(void **)(work + 0xD4C), fa->angle, 0.0f, 2, fa->frames + 5, 1);
+    func_0046d280(r2);
 
-    r = func_0046d200(*(void **)(work + 0xF28), 0x46);
+    r3 = func_0046d200(*(void **)(work + 0xF28), 0x46);
     base = (Vec2f *)D_0063F790;
+    fa = (ShopSpinParam *)D_0063FA48 + 2;
     func_002e09e0(*(void **)(work + 0xD50), 0x56, 56.0f);
-    *(Vec2f *)&sp98 = func_002b2970(base->x, -165.0f);
-    *(Vec2f *)&sp90 = func_002b2970(base->x, base->y);
-    func_002e0620(*(void **)(work + 0xD50), sp98, sp90, 2, 5, 4);
-    fclWriteColorBytes(&c9, 0xE4, 0xFF, 0, 0xFF);
-    t = (u8 *)func_002e04e0(*(void **)(work + 0xD50));
-    *(RGBA *)(t + 0x79) = c9;
-    temp_f20 = func_0046b260(r) / 2.0f;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD50)) + 0x100) =
-        (s16)temp_f20;
-    temp_f20 = func_0046b2f0(r) / 2.0f;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD50)) + 0x102) =
-        (s16)temp_f20;
+    p18 = func_002b2970(base->x, -165.0f);
+    p19 = func_002b2970(base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD50), *(u64 *)&p18, *(u64 *)&p19, 2, 5, 4);
+    *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xD50)) + 0x79) = func_002b2a60(0xE4, 0xFF, 0, 0xFF);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD50)) + 0x100) = (s16)(func_0046b260(r3) / 2.0f);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD50)) + 0x102) = (s16)(func_0046b2f0(r3) / 2.0f);
     *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xD50)) + 0xC4) = 0.0f;
-    func_002e09b0(*(void **)(work + 0xD50), (f32)*(s16 *)(D_0063FA58 + 4), *(s16 *)(D_0063FA58 + 6));
-    func_002e0940(*(void **)(work + 0xD50), *(f32 *)D_0063FA58, 0.0f,
-                  2, *(s16 *)(D_0063FA58 + 6) + 5, 4);
-    func_0046d280(r);
+    func_002e09b0(*(void **)(work + 0xD50), (f32)fa->speed, fa->frames);
+    func_002e0940(*(void **)(work + 0xD50), fa->angle, 0.0f, 2, fa->frames + 5, 4);
+    func_0046d280(r3);
 
-    r = func_0046d200(*(void **)(work + 0xF28), 0x47);
+    r4 = func_0046d200(*(void **)(work + 0xF28), 0x47);
     base = (Vec2f *)D_0063F798;
+    fa = (ShopSpinParam *)D_0063FA48 + 3;
     func_002e09e0(*(void **)(work + 0xD54), 0x56, 57.0f);
-    *(Vec2f *)&sp88 = func_002b2970(base->x, -126.0f);
-    *(Vec2f *)&sp80 = func_002b2970(base->x, base->y);
-    func_002e0620(*(void **)(work + 0xD54), sp88, sp80, 2, 5, 2);
-    fclWriteColorBytes(&c10, 0xE4, 0xFF, 0, 0xFF);
-    t = (u8 *)func_002e04e0(*(void **)(work + 0xD54));
-    *(RGBA *)(t + 0x79) = c10;
-    temp_f20 = func_0046b260(r) / 2.0f;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD54)) + 0x100) =
-        (s16)temp_f20;
-    temp_f20 = func_0046b2f0(r) / 2.0f;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD54)) + 0x102) =
-        (s16)temp_f20;
+    p20 = func_002b2970(base->x, -126.0f);
+    p21 = func_002b2970(base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD54), *(u64 *)&p20, *(u64 *)&p21, 2, 5, 2);
+    *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xD54)) + 0x79) = func_002b2a60(0xE4, 0xFF, 0, 0xFF);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD54)) + 0x100) = (s16)(func_0046b260(r4) / 2.0f);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD54)) + 0x102) = (s16)(func_0046b2f0(r4) / 2.0f);
     *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xD54)) + 0xC4) = 0.0f;
-    func_002e09b0(*(void **)(work + 0xD54), (f32)*(s16 *)(D_0063FA60 + 4), *(s16 *)(D_0063FA60 + 6));
-    func_002e0940(*(void **)(work + 0xD54), *(f32 *)D_0063FA60, 0.0f,
-                  1, *(s16 *)(D_0063FA60 + 6) + 5, 2);
-    func_0046d280(r);
+    func_002e09b0(*(void **)(work + 0xD54), (f32)fa->speed, fa->frames);
+    func_002e0940(*(void **)(work + 0xD54), fa->angle, 0.0f, 1, fa->frames + 5, 2);
+    func_0046d280(r4);
 
-    r = func_0046d200(*(void **)(work + 0xF28), 0x48);
+    r5 = func_0046d200(*(void **)(work + 0xF28), 0x48);
     base = (Vec2f *)D_0063F7A0;
+    fa = (ShopSpinParam *)D_0063FA48 + 4;
     func_002e09e0(*(void **)(work + 0xD58), 0x56, 58.0f);
-    *(Vec2f *)&sp78 = func_002b2970(base->x, -197.0f);
-    *(Vec2f *)&sp70 = func_002b2970(base->x, base->y);
-    func_002e0620(*(void **)(work + 0xD58), sp78, sp70, 2, 5, 5);
-    fclWriteColorBytes(&c11, 0xE4, 0xFF, 0, 0xFF);
-    t = (u8 *)func_002e04e0(*(void **)(work + 0xD58));
-    *(RGBA *)(t + 0x79) = c11;
-    temp_f20 = func_0046b260(r) / 2.0f;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD58)) + 0x100) =
-        (s16)temp_f20;
-    temp_f20 = func_0046b2f0(r) / 2.0f;
-    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD58)) + 0x102) =
-        (s16)temp_f20;
+    p22 = func_002b2970(base->x, -197.0f);
+    p23 = func_002b2970(base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD58), *(u64 *)&p22, *(u64 *)&p23, 2, 5, 5);
+    *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xD58)) + 0x79) = func_002b2a60(0xE4, 0xFF, 0, 0xFF);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD58)) + 0x100) = (s16)(func_0046b260(r5) / 2.0f);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD58)) + 0x102) = (s16)(func_0046b2f0(r5) / 2.0f);
     *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xD58)) + 0xC4) = 0.0f;
-    func_002e09b0(*(void **)(work + 0xD58), (f32)*(s16 *)(D_0063FA68 + 4), *(s16 *)(D_0063FA68 + 6));
-    func_002e0940(*(void **)(work + 0xD58), *(f32 *)D_0063FA68, 0.0f,
-                  2, *(s16 *)(D_0063FA68 + 6) + 5, 5);
-    func_0046d280(r);
+    func_002e09b0(*(void **)(work + 0xD58), (f32)fa->speed, fa->frames);
+    func_002e0940(*(void **)(work + 0xD58), fa->angle, 0.0f, 2, fa->frames + 5, 5);
+    func_0046d280(r5);
     *(s8 *)work = 0x14;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002da0a0);
-#endif
 
 /* MATCHED func_002db400: FclDrawColor results stored whole, Vec2f slots
    passed to func_002e0620 as *(u64 *)&, the six spin tables read through a
