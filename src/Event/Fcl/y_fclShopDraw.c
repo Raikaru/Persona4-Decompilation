@@ -9390,164 +9390,69 @@ void func_002dd3b0(void *arg0) {
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd3b0);
 #endif
 
-/* measured: func_002de5a0's full body was reconstructed (all six 2a30/0b20
-   groups, the three if/else dispatch pairs on work[7], the func_00275680
-   calls with the Vec2f copies) and compiles; nd 586 across four variants,
-   dominated by two mwcc b210 allocation gaps: (1) retail hoists the shared
-   constants (f32)0x177 and 70.0f into callee-saved f21/f22 at the first-if
-   branch tops for reuse in the second/third groups' 2970/0b20 calls, while
-   mwcc rematerialises them per call site, so the candidate saves only f20
-   (prologue 0x10 shorter, whole stream shifts 2 words); (2) work lands in
-   $s1 instead of $s0 once the byte-index sum is written as (u32) pointer
-   arithmetic. The byte-first addu ($v1,$v1,$s0) IS reproducible with
-   `*(s8 *)((u8 *)(*(s8 *)(w+8) + (u32)w) + 0xF7C)`. FP-constant-hoist +
-   register-coloring floor. */
-/* measured: recipe B re-test 2026-08-03: full draft re-adapted; the
-   f21/f22 constant hoist IS reproducible with named locals `f32 c375 =
-   (f32)0x177; f32 c70 = 70.5f;` (retail hoists both at the first-if top;
-   without the locals mwcc rematerialises per site), the (s32)-local c16 =
-   (s16)func_00106cd0 emits retail's dsll32/dsra32 before func_001067f0, and
-   the 75680/0b20 shapes match: nd 586 -> 572, frame 0x110 vs retail 0x120.
-   Residual: mwcc b210 CSE-hoists `(u8 *)work + 8` and `(u8 *)work + 7` into
-   saved regs $s1/$s0 (7 and 3 uses across calls; every spelling of the
-   byte-index expr tried - (u32) cast, plain pointer add, reordered sum - and
-   the struct-field read all fold to the same IR and hoist), so the candidate
-   saves s0-s3 + f20-f22 vs retail s0-s1 + f20-f22, the frame stays 0x110 and
-   every slot shifts 0x10; per-site the candidate is identical except
-   lb ($s1) vs retail lb 8($s0). CSE-of-invariant-address floor. */
-/* measured: bank 2026-09-17 S1 002de5a0 — object 2632B/window 2688B (2.1% short), normalized_diff 1925 MISMATCH via `python3 tools/try_bodies.py src/Event/Fcl/y_fclShopDraw.c func_002de5a0 /tmp/v_de5a0.json` (pwd source/Persona4-Decompilation); GUARDED_SCORE 583 via `python3 tools/measure_guarded.py src/Event/Fcl/y_fclShopDraw.c func_002de5a0` (differing words 583). Vec2f slots + Vec2f copies + s32 c16=(s16)106cd0 local + byte-first addu (*(s8*)((u8*)(*(s8*)(work+8)+(u32)work)+0xF7C/F73)); FP-hoist + CSE floor as prior note. */
-/* measured 002de5a0 (owner, 2026-09-19): 658 against retail 671 (-1.9%, inside), **71
-   edits**, and the deficit is unusually legible: the only opcodes retail has more of are
-   `swc1 +14`, `lwc1 +14` and `mov.s +10`, and regsave_scan says retail additionally saves
-   $f21 and $f22.  Reading the disassembly names all three saved floats: $f20 is 70.0f
-   (`mtc1 $3, $f20` at 0x002de784, then `mov.s $f14, $f20` at every func_00275680 call),
-   $f21 is `(f32)0x177` (`cvt.s.w $f21, $f0` at 0x002de648), and $f22 is 420.0f
-   (`mtc1 $2, $f22` at 0x002de638).  So retail held exactly those three as variables,
-   which is what handoff 7bb predicts from the saved-float count.
-   Hoisting them into locals reproduces the `mov.s` shape and DOES cut edits, but it is
-   rejected because every variant leaves the 3% band by shortening the object - b210 then
-   materialises each literal once where the current body materialises it at each of the
-   twelve sites, and the object is already 13 instructions short:
-     70.0f alone            51 edits, 648 instrs (-3.4%, OUTSIDE)
-     70.0f + (f32)0x177     67 edits, 638 instrs (-4.9%, OUTSIDE)
-     70.0f + 420.0f         87 edits, 636 instrs (OUTSIDE)
-     all three              103 edits, 626 instrs (OUTSIDE)
-     420.0f + (f32)0x177   117 edits, 638 instrs (OUTSIDE)
-     70.0f + 420.0f + 69.0f 114 edits, 627 instrs (OUTSIDE)
-   The `mov.s` shape and the instruction count pull in opposite directions here, and the
-   gate decides.  Find the 13 missing instructions first; then the hoist becomes free. */
-// FUN_002DE5A0 NONMATCHING
-#ifdef NON_MATCHING
-void func_002de5a0(void *arg0) {
-    Vec2f sp118;
-    Vec2f sp110;
-    Vec2f sp108;
-    Vec2f sp100;
-    Vec2f spF8;
-    Vec2f spF0;
-    Vec2f spE8;
-    Vec2f spE0;
-    Vec2f spD8;
-    Vec2f spD0;
-    Vec2f spC8;
-    Vec2f spC0;
-    Vec2f spB8;
-    Vec2f spB0;
-    Vec2f spA8;
-    Vec2f spA0;
-    Vec2f sp98;
-    Vec2f sp90;
-    Vec2f sp88;
-    Vec2f sp80;
-    Vec2f sp78;
-    Vec2f c100;
-    Vec2f cE8;
-    Vec2f cC8;
-    Vec2f cB0;
-    Vec2f c90;
-    Vec2f c78;
-    s32 t0;
-    s32 t1;
-    s32 t2;
-    s32 t3;
-    s32 t4;
-    s32 t5;
-    s32 c16;
-    u8 *work;
-    work = *(u8 **)((u8 *)arg0 + 0x38);
-    *(Vec2f *)&sp118 = func_002b2970(378.0f, 245.0f);
-    func_002e0b20(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF7C), sp118, 69.0f, func_002b2a30(0, 0xFF, 0x96, 0), 0xFF, 0, D_00795E60);
-    if (*(s8 *)(work + 7) == 0) {
-        *(Vec2f *)&sp110 = func_002b2970((f32)0x177, 243.0f);
-        func_002e0b20(2, sp110, 70.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        *(Vec2f *)&sp108 = func_002b2970(420.0f, 246.0f);
-        func_002e0b20(5, sp108, 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        t0 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
-        *(Vec2f *)&sp100 = func_002b2970(420.0f, (f32)0x10F);
-        c100 = sp100;
-        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0);
-        func_00275680(c100.x, c100.y, 70.0f, t0, 0, 1, (const char *)func_001067f0(c16), 0, 0, D_00795E30, -1);
-    } else {
-        *(Vec2f *)&spF8 = func_002b2970((f32)0x177, 243.0f);
-        func_002e0b20(2, spF8, 70.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-        *(Vec2f *)&spF0 = func_002b2970(420.0f, 246.0f);
-        func_002e0b20(5, spF0, 69.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-        t1 = func_002b2a30(0xFF, 0xEF, 0x81, 0xFF);
-        *(Vec2f *)&spE8 = func_002b2970(420.0f, (f32)0x10F);
-        cE8 = spE8;
-        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0);
-        func_00275680(cE8.x, cE8.y, 70.0f, t1, 0, 1, (const char *)func_001067f0(c16), 0, 0, D_00795E30, -1);
-    }
-    *(Vec2f *)&spE0 = func_002b2970(378.0f, (f32)0x12F);
-    func_002e0b20(0x1B, spE0, 69.0f, func_002b2a30(0, 0xFF, 0x96, 0), 0xFF, 0, D_00795E60);
-    if (*(s8 *)(work + 7) == 1) {
-        *(Vec2f *)&spD8 = func_002b2970((f32)0x177, (f32)0x12D);
-        func_002e0b20(3, spD8, 70.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        *(Vec2f *)&spD0 = func_002b2970(420.0f, (f32)0x131);
-        func_002e0b20(6, spD0, 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        t2 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
-        *(Vec2f *)&spC8 = func_002b2970(420.0f, 330.0f);
-        cC8 = spC8;
-        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1);
-        func_00275680(cC8.x, cC8.y, 70.0f, t2, 0, 1, (const char *)func_001067f0(c16), 0, 0, D_00795E30, -1);
-    } else {
-        *(Vec2f *)&spC0 = func_002b2970((f32)0x177, (f32)0x12D);
-        func_002e0b20(3, spC0, 70.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-        *(Vec2f *)&spB8 = func_002b2970(420.0f, (f32)0x131);
-        func_002e0b20(6, spB8, 69.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-        t3 = func_002b2a30(0xFF, 0xEF, 0x81, 0xFF);
-        *(Vec2f *)&spB0 = func_002b2970(420.0f, 330.0f);
-        cB0 = spB0;
-        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1);
-        func_00275680(cB0.x, cB0.y, 70.0f, t3, 0, 1, (const char *)func_001067f0(c16), 0, 0, D_00795E30, -1);
-    }
-    *(Vec2f *)&spA8 = func_002b2970(378.0f, 368.0f);
-    func_002e0b20(0x1C, spA8, 69.0f, func_002b2a30(0, 0xFF, 0x96, 0), 0xFF, 0, D_00795E60);
-    if (*(s8 *)(work + 7) == 2) {
-        *(Vec2f *)&spA0 = func_002b2970((f32)0x177, 366.0f);
-        func_002e0b20(3, spA0, 70.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        *(Vec2f *)&sp98 = func_002b2970(420.0f, (f32)0x171);
-        func_002e0b20(7, sp98, 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        t4 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
-        *(Vec2f *)&sp90 = func_002b2970(420.0f, 394.0f);
-        c90 = sp90;
-        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2);
-        func_00275680(c90.x, c90.y, 70.0f, t4, 0, 1, (const char *)func_001067f0(c16), 0, 0, D_00795E30, -1);
-        return;
-    }
-    *(Vec2f *)&sp88 = func_002b2970((f32)0x177, 366.0f);
-    func_002e0b20(3, sp88, 70.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-    *(Vec2f *)&sp80 = func_002b2970(420.0f, (f32)0x171);
-    func_002e0b20(7, sp80, 69.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-    t5 = func_002b2a30(0xFF, 0xEF, 0x81, 0xFF);
-    *(Vec2f *)&sp78 = func_002b2970(420.0f, 394.0f);
-    c78 = sp78;
-    c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2);
-    func_00275680(c78.x, c78.y, 70.0f, t5, 0, 1, (const char *)func_001067f0(c16), 0, 0, D_00795E30, -1);
+/* Draws an item label in the D_00795E30 font.  The inlined call binds its
+   arguments right to left: colour, the position constructor (copied into
+   the parameter slot), the name lookup, and finally the size. */
+static inline void shopDrawLabel(f32 size, const char *text, Vec2f pos, s32 color)
+{
+    func_00275680(pos.x, pos.y, size, color, 0, 1, text, 0, 0, D_00795E30, -1);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002de5a0);
-#endif
+
+/* measured: MATCH, window 672 words/2688B.  Built on the func_002df020
+   levers (Vec2f-returning func_002b2970 used as an argument, colour calls
+   as arguments, an inlined label call).  What remained was b210's float
+   register choice: `size` (70.0f, $f22) and `x` ((f32)0x177, $f21) are
+   assigned in both arms of the first dispatch -- two reaching definitions,
+   so they are not propagated and survive into the later groups -- and
+   `labelSize` ($f20) is set at the first group's label call itself, as the
+   last-bound inline argument, then reused by the later groups' labels.
+   Written as plain literals, b210 merges the label and `size` 70.0f values
+   and keeps neither in a register (567 words); with `labelSize` assigned as
+   a statement before the call it loads $f20 before the colour and name
+   calls instead of after them (517). */
+// FUN_002DE5A0
+void func_002de5a0(void *arg0) {
+    u8 *work;
+    f32 size;
+    f32 x;
+    f32 labelSize;
+
+    work = *(u8 **)((u8 *)arg0 + 0x38);
+    func_002e0b20(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF7C), func_002b2970(378.0f, 245.0f), 69.0f, func_002b2a30(0, 0xFF, 0x96, 0), 0xFF, 0, D_00795E60);
+    if (*(s8 *)(work + 7) == 0) {
+        size = 70.0f;
+        x = (f32)0x177;
+        func_002e0b20(2, func_002b2970(x, 243.0f), 70.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        func_002e0b20(5, func_002b2970(420.0f, 246.0f), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        shopDrawLabel(labelSize = 70.0f, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)), func_002b2970(420.0f, (f32)0x10F), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+    } else {
+        size = 70.0f;
+        x = (f32)0x177;
+        func_002e0b20(2, func_002b2970(x, 243.0f), 70.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
+        func_002e0b20(5, func_002b2970(420.0f, 246.0f), 69.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
+        shopDrawLabel(labelSize = 70.0f, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)), func_002b2970(420.0f, (f32)0x10F), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
+    }
+    func_002e0b20(0x1B, func_002b2970(378.0f, (f32)0x12F), 69.0f, func_002b2a30(0, 0xFF, 0x96, 0), 0xFF, 0, D_00795E60);
+    if (*(s8 *)(work + 7) == 1) {
+        func_002e0b20(3, func_002b2970(x, (f32)0x12D), size, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        func_002e0b20(6, func_002b2970(420.0f, (f32)0x131), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        shopDrawLabel(labelSize, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)), func_002b2970(420.0f, 330.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+    } else {
+        func_002e0b20(3, func_002b2970(x, (f32)0x12D), size, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
+        func_002e0b20(6, func_002b2970(420.0f, (f32)0x131), 69.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
+        shopDrawLabel(labelSize, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)), func_002b2970(420.0f, 330.0f), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
+    }
+    func_002e0b20(0x1C, func_002b2970(378.0f, 368.0f), 69.0f, func_002b2a30(0, 0xFF, 0x96, 0), 0xFF, 0, D_00795E60);
+    if (*(s8 *)(work + 7) == 2) {
+        func_002e0b20(3, func_002b2970(x, 366.0f), size, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        func_002e0b20(7, func_002b2970(420.0f, (f32)0x171), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        shopDrawLabel(labelSize, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2)), func_002b2970(420.0f, 394.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+    } else {
+        func_002e0b20(3, func_002b2970(x, 366.0f), size, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
+        func_002e0b20(7, func_002b2970(420.0f, (f32)0x171), 69.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
+        shopDrawLabel(labelSize, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2)), func_002b2970(420.0f, 394.0f), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
+    }
+}
 
 /* Draws a shop name at 13pt in the D_00795E30 font.  Retail evaluates the
    caller's arguments right to left (colour, then the position constructor and
