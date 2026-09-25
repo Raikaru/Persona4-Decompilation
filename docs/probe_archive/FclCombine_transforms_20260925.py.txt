@@ -1,0 +1,139 @@
+# Source-transform helpers used on the y_fclCombine drafts, 2026-09-25 (research only).
+# Each section is a separate script; run with the casealign tool (FclCombine_casealign_20260925.py.txt).
+
+# ===== greedy_types.py =====
+#!/usr/bin/env python3
+"""usage: greedy_types.py BASE.c OUT.c FUNC JTBL NCASES SIZE TYPES VAR1 VAR2 ...
+For each var, try retyping its declaration `    <old> VAR;` to each TYPE; keep the best
+if it lowers the casealign total. Writes the best body to OUT.c as it goes."""
+import sys, subprocess, re
+S = '/tmp/claude-0/-home-user-Persona4-Decompilation/da01f670-04d9-5390-8d67-ea7f3f83ee9b/scratchpad'
+base, out, func, jt, nc, size, types = sys.argv[1:8]
+vars_ = sys.argv[8:]
+types = types.split(',')
+def score(src):
+    p = S + '/greedy_tmp.c'
+    open(p, 'w').write(src)
+    r = subprocess.run([S + '/wt_fcl.sh', 'python', S + '/casealign.py', func, p, jt, nc, size],
+                       capture_output=True, text=True)
+    for l in r.stdout.split('\n'):
+        if l.startswith('total'):
+            return int(l.split()[1])
+    return 10**9
+src = open(base).read()
+best = score(src)
+print('start', best, flush=True)
+for v in vars_:
+    m = re.search(r'^    ([A-Za-z0-9_ ]+?\**) ?%s;$' % re.escape(v), src, re.M)
+    if not m:
+        print('no decl', v); continue
+    old = m.group(0)
+    cur_best = None
+    for t in types:
+        new = '    %s %s;' % (t, v)
+        if new == old:
+            continue
+        s2 = src.replace(old, new, 1)
+        sc = score(s2)
+        print('  ', v, t, sc, flush=True)
+        if sc < best:
+            best = sc; cur_best = s2
+    if cur_best is not None:
+        src = cur_best
+        open(out, 'w').write(src)
+        print('KEEP', v, best, flush=True)
+open(out, 'w').write(src)
+print('final', best)
+
+# ===== ved/rownorm.py =====
+"""Generic row-draw normalizer for the Fcl state machines.
+Applies inside FUNC only. Controlled by env ROWSK (comma list of steps to skip)."""
+import os, re
+FUNC = os.environ.get('FUNC', 'func_002f0f00')
+ROWSK = os.environ.get('ROWSK', '').split(',')
+
+def _func_bounds(src):
+    a = src.index('void %s(u8 *arg0) {' % FUNC)
+    return a
+
+def apply(src):
+    a = _func_bounds(src)
+    head, body = src[:a], src[a:]
+    # 1. packet wrappers around named stack points and colours
+    if 'pos' not in ROWSK:
+        body = re.sub(r'fclDrawPositionValue\(fclPacketPosition\((sp[0-9A-F]+)\)\)', r'*(FclDrawPosition *)&\1', body)
+    if 'col' not in ROWSK:
+        body = re.sub(r'fclPacketColor\(\(u32\)\(\*\(s32 \*\)&(sp[0-9A-F]+|col[0-9A-F]+)\)\)', r'\1', body)
+        body = re.sub(r'fclPacketColor\(\(u32\)\(\(\*\(s32 \*\)&(sp[0-9A-F]+|col[0-9A-F]+)\)\)\)', r'\1', body)
+        # colour read from an entry: m2c's (s32 at 0x78) is really the 4 bytes at 0x75
+        body = re.sub(r'fclPacketColor\(\(u32\)\(\(\(\*\((?:s32|u8) \*\)\(\(u8 \*\)\((\w+)\)\+\(0x78\)\)\)\)\)\)',
+                      r'*(FclDrawColor *)((u8 *)\1 + 0x75)', body)
+    # 2. row-list pointer: (u8 *)((s32)(temp_17) + (X * 4)) -> typed
+    if 'rl' not in ROWSK:
+        rows = re.findall(r'(\w+) = \(u8 \*\)\(\(s32\)\(temp_17\) \+ \((\w+) \* 4\)\);', body)
+        for v, x in rows:
+            body = body.replace('%s = (u8 *)((s32)(temp_17) + (%s * 4));' % (v, x),
+                                '%s = (FclRowList *)((u8 *)temp_17 + %s * 4);' % (v, x))
+            body = body.replace('(u8 *)((*(s32 *)((u8 *)(%s)+(0x154))))' % v, '%s->list' % v)
+            body = re.sub(r'(\n    )u8 \*%s;\n' % v, r'\1FclRowList *%s;\n' % v, body, count=1)
+    # 3. discarded 2nd lookup is the position source
+    if 'possrc' not in ROWSK:
+        n = [0]
+        def fix(m):
+            n[0] += 1
+            return '%sposSrc = %s' % (m.group(1), m.group(2))
+        body = re.sub(r'(\n\s+)(func_0034ae50\(\w+->list,\s+\(s8\)\(\w+\)\);)', fix, body)
+        body = body.replace('fclDrawPositionValue(fclPacketPosition(0))', '*(FclDrawPosition *)(posSrc + 0x28)')
+        if n[0]:
+            body = body.replace('    u8 *arg0) {\n', '    u8 *arg0) {\n', 1)
+            k = body.index('{\n') + 2
+            body = body[:k] + '    u8 *posSrc;\n' + body[k:]
+    src = head + body
+    if 'rl' not in ROWSK and 'FclRowList;' not in src:
+        src = src[:a] + 'typedef struct {\n    u8 pad0[0x154];\n    u8 *list;\n} FclRowList;\n\n' + src[a:]
+    return src
+
+# ===== ved/bcol.py =====
+"""Convert byte-wise colour code in 002fbea0 draft to FclDrawColor struct form."""
+import re, os
+BSK = os.environ.get('BSK', '').split(',')
+def apply(src):
+    newcols = []
+    # fclWriteColorBytes(w4E0, ...) / (&w4D8, ...) / (&colW5, ...)
+    def wcb(m):
+        ind, name, args = m.group(1), m.group(2), m.group(3)
+        cname = 'fc_' + name
+        if cname not in newcols:
+            newcols.append(cname)
+        return '%s%s = func_002b2a60(%s);' % (ind, cname, args)
+    src = re.sub(r'(\n\s+)fclWriteColorBytes\(&?(\w+), ([^;]*)\);', wcb, src)
+    # d0..d3 = NAME[0..3]; stores *(rX + 0x85..0x88) = d0..d3
+    pat_arr = re.compile(r'(\n\s+)d0 = (\w+)\[0\];\s+d1 = \2\[1\];\s+d2 = \2\[2\];\s+d3 = \2\[3\];\s+\*\((\w+) \+ 0x85\) = d0;\s+\*\(\3 \+ 0x86\) = d1;\s+\*\(\3 \+ 0x87\) = d2;\s+\*\(\3 \+ 0x88\) = d3;')
+    src = pat_arr.sub(lambda m: '%s*(FclDrawColor *)(%s + 0x85) = fc_%s;' % (m.group(1), m.group(3), m.group(2)), src)
+    pat_cp = re.compile(r'(\n\s+)d0 = \*\((\w+) \+ 0x85\);\s+d1 = \*\(\2 \+ 0x86\);\s+d2 = \*\(\2 \+ 0x87\);\s+d3 = \*\(\2 \+ 0x88\);\s+\*\((\w+) \+ 0x85\) = d0;\s+\*\(\3 \+ 0x86\) = d1;\s+\*\(\3 \+ 0x87\) = d2;\s+\*\(\3 \+ 0x88\) = d3;')
+    src = pat_cp.sub(lambda m: '%s*(FclDrawColor *)(%s + 0x85) = *(FclDrawColor *)(%s + 0x85);' % (m.group(1), m.group(3), m.group(2)), src)
+    # func_002ba970(p->f2BC, X, w4D8) -> *(s32 *)&fc_w4D8
+    for c in newcols:
+        n = c[3:]
+        src = re.sub(r'(func_002ba970\([^;]*, )%s\);' % n, r'\1*(s32 *)&%s);' % c, src)
+    # ba5d0 colour arg (colW5)
+    for c in newcols:
+        n = c[3:]
+        src = re.sub(r'(func_002ba5d0\([^;]*, )%s(, 0x59, 46\.0f\);)' % n, r'\1*(s32 *)&%s\2' % c, src)
+    # declare
+    k = src.index('    s16 var_16;\n')
+    src = src[:k] + ''.join('    FclDrawColor %s;\n' % c for c in newcols) + src[k:]
+    if 'f2u8' not in BSK:
+        # float -> u8 conversion block
+        pat = re.compile(r'(\n\s+)(\w+) = func_002b2aa0\(([^;]*)\);\s+if \(!\(\2 >= 2\.1474836e9f\)\) \{\s+(\w+) = \(\(s32\)\(\2\)\) & 0xFF;\s+\} else \{\s+\4 = \(\(\(s32\)\(\(\2 - 2\.1474836e9f\)\)\) \| 0x80000000\) & 0xFF;\s+\}\s+(\w+) = \4 & 0xFF;')
+        src = pat.sub(lambda m: '%s%s = (u8)func_002b2aa0(%s);' % (m.group(1), m.group(5), m.group(3)), src)
+    if 'sh' not in BSK:
+        src = re.sub(r'\(s64\)\(\((\w+) \+ 1\) << 0x30\) >> 0x30', r'(s16)(\1 + 1)', src)
+    return src
+
+# ===== ved/bsh.py =====
+import re
+def apply(src):
+    src = re.sub(r'\(s64\)\(\((\w+) \+ 1\) << 0x30\) >> 0x30', r'(s16)(\1 + 1)', src)
+    src = re.sub(r'\(s64\)\(\(([^()]+)\) << 0x30\) >> 0x30', r'(s16)(\1)', src)
+    return src
