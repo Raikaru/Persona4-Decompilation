@@ -70,13 +70,13 @@ extern u8 *func_002e48a0(s8 arg0, s16 arg1);
 extern void func_002ba970(u8 *, s16, u32);
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern s32 func_0010b5b0(void);
-extern void func_0031e5b0(u8 *, s64, s32, s32, s32, s32, s32);
+extern void func_0031e5b0(u8 *, s64, s32, s8, s32, s32, s32);
 extern void func_002b6b90(s16, s32, s32, s32, s32, s32);
 extern void func_002b8370(u8 *, FclByte4, FclByte4, u8, s16, s32);
 extern void func_0032fa30(u8 *, s16, u32, u32, u32);
 extern s8 func_0032fb60(s8);
-extern void func_003297f0(f32, f32, u8 *, s64, s32);
-extern void func_0031ac10(u8 *, s64, s8, u16, u16, s32, s32, s32, s8, u8);
+extern void func_003297f0(f32, f32, u8 *, s64, s8);
+extern void func_0031ac10(u8 *, FclVec2, s8, s8, s32, u16, s16, s8, s8, u8);
 extern f32 D_006440F0[];
 extern f32 D_006440F8[];
 extern f32 D_00644290[];
@@ -2090,7 +2090,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003191c0);
 /* probe 1212w; fnalign retail 1446 vs object 1437 (-9, -0.62% PASS, 843 edits); frame object 0x240 vs retail 0x280 (-0x40: distinct-handles probe 1209w/849e is a wash, MWCC reuses disjoint slots — gap is live-volume, next lever). Banked as in-gate first draft. */
 // FUN_0031AC10 NONMATCHING
 #ifdef NON_MATCHING
-void func_0031ac10(u8 *arg0, s64 arg1, s8 arg2, u16 arg3, u16 arg4, s32 arg5, s32 arg6, s32 arg7, s8 arg8, u8 arg9) {
+void func_0031ac10(u8 *arg0, FclVec2 arg1, s8 arg2, s8 arg3, s32 arg4, u16 arg5, s16 arg6, s8 arg7, s8 arg8, u8 arg9) {
     extern void func_002ba080(u8 *, s16, s16, s64, s32, s32, s64, s32, s64);
     u8 c0[4];
     u8 c1[4];
@@ -2820,7 +2820,7 @@ void func_0031e320(u8 *arg0, s8 arg1) {
 /* v2 (frame-first): blocks 0/1 pass live sp148 to 6c30 instead of copying to sp140/sp118 (as blocks 2+ already did) — two dead s64 (16B) leave the frame: object 0x180 -> 0x170 exact, words 1126 -> 1118, edits 1561 -> 489 (cascade misalignment resolved), count 1287 -> 1277 (-30, -2.30% PASS). Probed DIRECT beats V1 on all three numbers; installed. */
 // FUN_0031E5B0 NONMATCHING
 #ifdef NON_MATCHING
-void func_0031e5b0(u8 *arg0, s64 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
+void func_0031e5b0(u8 *arg0, s64 arg1, s32 arg2, s8 arg3, s32 arg4, s32 arg5, s32 arg6) {
     u8 c0[4];
     u8 c1[4];
     u8 c2[4];
@@ -4546,7 +4546,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00324680);
 #endif
 
 // FUN_00324F80
-void func_00324f80(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3) {
+void func_00324f80(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
     FclByte4 sp8C, sp88, sp84, sp80, sp7C;
     FclPackedPosition sp70, sp68, sp60, sp58, sp50, sp48;
     s16 v17;
@@ -5311,7 +5311,7 @@ void func_00329310(u8 *arg0, s16 arg1, s8 arg2) {
    Evidence: build/first-party-finish-20260920/fcl-worker5. */
 // FUN_003297F0
 #pragma opt_propagation off
-void func_003297f0(f32 fparg0, f32 fparg1, u8 *arg0, s64 arg1, s32 arg2) {
+void func_003297f0(f32 fparg0, f32 fparg1, u8 *arg0, s64 arg1, s8 arg2) {
     FclByte4 cDC;
     FclByte4 cD8;
     FclVec2 spD0;
@@ -5633,7 +5633,7 @@ void func_0032a960(u8 *arg0, s8 arg1) {
 // FUN_0032B000
 #pragma push
 #pragma opt_propagation off
-void func_0032b000(u8 *arg0, s32 arg1) {
+void func_0032b000(u8 *arg0, s8 arg1) {
     FclByte4 cDC;
     FclVec2 origin;
     FclVec2 spC8;
@@ -5750,7 +5750,7 @@ void func_0032b000(u8 *arg0, s32 arg1) {
    inserts two normalization instructions. Removing the unused expression that
    read new_var/f20/f21 before initialization preserves every emitted word. */
 // FUN_0032B770
-void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
 {
   float new_var5;
   f32 *new_var4;
@@ -5787,7 +5787,7 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     func_002b2970((u8 *)&spC0, 162.0f, 111.0);
     ;
     ;
-    func_0031ac10(arg0, spC0, -1, (s8) i, (*((u16 *) (func_002e48a0(0, i) + 2))) & 0xFFFFu, *((u8 *) (func_002e48a0(0, i) + 4)), (s16) (((s16) i) * v1), arg3, 0, 0x99);
+    func_0031ac10(arg0, *(FclVec2 *) (&spC0), -1, (s8) i, (*((u16 *) (func_002e48a0(0, i) + 2))) & 0xFFFFu, *((u8 *) (func_002e48a0(0, i) + 4)), (s16) (((s16) i) * v1), arg3, 0, 0x99);
     i++;
   }
 
@@ -5808,99 +5808,94 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
   *((f32 *) (func_002b6150(0xB5) + 0x3C)) = (f20 = new_var5);
 }
 
-/* measured (FclDrawB 2026-09-17): probe_variants 289 differing words reloc-masked via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_0032b9d0 --candidate V1=/var/tmp/drawB/c2b9d0_v1.c`; fnalign retail 440 vs object 433 instrs (189 edits) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_0032b9d0 --candidate /var/tmp/drawB/c2b9d0_v1.c --quiet`; 7 short (1.6% within 3% rule). Replaces adda/madd with plain mul+add (same 2-instr count); block-scope loop counters per Main 001679d0 lever; u8[4] colours; FclVec2 for 24f80. Prior best 1154; this 289 is new best. Wall remains COP1 accumulator + rotation per preserved note. */
-// FUN_0032B9D0 NONMATCHING
-#ifdef NON_MATCHING
-void func_0032b9d0(u8 *arg0, s16 arg1, s16 arg2, s32 arg3) {
-    u8 c13C[4];
-    u8 c138[4];
-    u8 c134[4];
-    u8 c130[4];
-    u8 c12C[4];
-    u8 c124[4];
-    u8 c128[4];
-    s64 sp118;
-    s64 sp110;
-    s64 sp108;
-    s64 spF8;
-    s64 spF0;
-    s64 spE8;
-    s64 spE0;
-    s64 spD8;
-    s64 spC8;
-    s64 spC0;
-    f32 f100;
-    f32 f104;
+/* The mode byte is passed unconverted to every callee, so each callee takes it as s8.
+   See docs/probe_archive/FclDraw_0032b9d0_20260925.md for the recipe. */
+// FUN_0032B9D0
+void func_0032b9d0(u8 *arg0, s16 arg1, s16 arg2, s8 arg3) {
+    FclByte4 c13C;
+    FclByte4 c138;
+    FclByte4 c134;
+    FclByte4 c130;
+    FclByte4 c12C;
+    FclDrawColor c128;
+    FclDrawColor c124;
+    FclPackedPosition sp118;
+    FclVec2 sp110;
+    FclPackedPosition sp108;
+    FclVec2 origin;
+    FclVec2 spF8;
+    FclPackedPosition spF0;
+    FclPackedPosition spE8;
+    FclPackedPosition spE0;
+    FclPackedPosition spD8;
+    FclVec2 cell;
+    FclVec2 spC8;
+    FclPackedPosition spC0;
     u8 *t;
+    u8 *t2;
+    s16 entry;
+    s16 row;
+    s32 end;
+    s32 step;
+    f32 y;
+    f32 y9;
+
     t = *(u8 **)(arg0 + 0x38);
     func_002b2970((u8 *)&sp118, 88.0f, 127.0f);
-    func_0031e5b0(arg0, sp118, 0, arg3, 0, 1, 3);
-    func_002b2970((u8 *)&spF8, 386.0f, 127.0f);
-    f100 = *(f32 *)&spF8;
-    f104 = *((f32 *)&spF8 + 1);
-    fclWriteColorBytes(c13C, 0, 0, 0x99, 0xFF);
-    func_002b77d0(0x21E, fclPacketPosition(spF8), 0x193, fclPacketColor((u32)(*(s32 *)c13C)), 191.0f, 0x41, arg3, 6, 3, 0, func_00331560());
-    func_002b2970((u8 *)&spF0, 151.0f + f100, f104);
-    fclWriteColorBytes(c138, 0, 0, 0x99, 0xFF);
-    func_002b77d0(0x19D, fclPacketPosition(spF0), 0x19D, fclPacketColor((u32)(*(s32 *)c138)), 191.0f, 0x41, arg3, 6, 3, 0, func_00331560());
-    func_002b2970((u8 *)&spE8, 24.0f + f100, 9.0f + f104);
-    fclWriteColorBytes(c134, 0x49, 0x72, 0xFF, 0xFF);
-    func_002b77d0(0x2AF, fclPacketPosition(spE8), 0x73, fclPacketColor((u32)(*(s32 *)c134)), 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
-    func_002b2970((u8 *)&spE0, 65.0f + f100, 9.0f + f104);
-    fclWriteColorBytes(c130, 0x49, 0x72, 0xFF, 0xFF);
-    func_002b77d0(0x2B0, fclPacketPosition(spE0), 0x73, fclPacketColor((u32)(*(s32 *)c130)), 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
-    func_002b2970((u8 *)&spD8, 119.0f + f100, 5.0f + f104);
-    fclWriteColorBytes(c12C, 0x33, 0xCD, 0xFF, 0xFF);
-    func_002b77d0(0x11D, fclPacketPosition(spD8), 0x11D, fclPacketColor((u32)(*(s32 *)c12C)), 191.0f, 0x56, arg3, 6, 3, 0, func_00331560());
-    func_00329e40(arg0, 0, (s8)arg3);
-    {
-        s32 k = *(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120);
-        s32 j = 0;
-        s32 end = (s32)arg2 + k;
-        while (k < end) {
-            func_002b2970((u8 *)&sp110, 404.0f, 151.0f);
-            {
-                u16 w = *(u16 *)(func_002e48a0(0, k) + 2);
-                func_0031ac10(arg0, sp110, -1, (s8)j, w, *(u8 *)(func_002e48a0(0, k) + 4), (s16)(j * arg1), arg3, 0, 0x99);
-            }
-            func_002b2970((u8 *)&spC8, 386.0f, 151.0f);
-            {
-                f32 d0 = *(f32 *)&spC8;
-                f32 d1 = *((f32 *)&spC8 + 1);
-                fclWriteColorBytes(c124, 0, 0, 0x99, 0x80);
-                c128[0] = c124[0];
-                c128[1] = c124[1];
-                c128[2] = c124[2];
-                c128[3] = c124[3];
-                d1 += (f32)((s8)j * 23);
-                if (*(s16 *)(t + 0x120) == (s8)j) {
-                    fclWriteColorBytes(c128, 0xCC, 0xFF, 0x33, 0xFF);
-                }
-                func_002b77d0((s16)((s8)j + 0x21F), fclPacketPosition(spC8), 0x193, fclPacketColor((u32)(*(s32 *)c128)), 191.0f, 0x41, arg3, 6, 3, (s16)(j * arg1), func_00331560());
-                func_002b2970((u8 *)&spC0, 132.0f + d0, d1);
-                func_002b77d0((s16)((s8)j + 0x2C5), fclPacketPosition(spC0), 0x19E, fclPacketColor((u32)(*(s32 *)c128)), 191.0f, 0x41, arg3, 6, 3, (s16)(j * arg1), func_00331560());
-            }
-            k++;
-            j++;
+    func_0031e5b0(arg0, sp118.bits, 0, arg3, 0, 1, 3);
+    func_002b2970((u8 *)&spF8, 390.0f, 127.0f);
+    origin = *(FclVec2 *)&spF8;
+    c13C = func_002b2a60(0, 0, 0x99, 0xFF);
+    func_002b77d0(0x21E, origin, 0x193, c13C, 191.0f, 0x41, arg3, 6, 3, 0, func_00331560());
+    y = origin.y;
+    func_002b2970((u8 *)&spF0, 151.0f + origin.x, y);
+    c138 = func_002b2a60(0, 0, 0x99, 0xFF);
+    func_002b77d0(0x19D, spF0.position, 0x19D, c138, 191.0f, 0x41, arg3, 6, 3, 0, func_00331560());
+    y9 = 9.0f + y;
+    func_002b2970((u8 *)&spE8, 24.0f + origin.x, y9);
+    c134 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+    func_002b77d0(0x2AF, spE8.position, 0x73, c134, 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
+    func_002b2970((u8 *)&spE0, 65.0f + origin.x, y9);
+    c130 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+    func_002b77d0(0x2B0, spE0.position, 0x73, c130, 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
+    func_002b2970((u8 *)&spD8, 119.0f + origin.x, 5.0f + y);
+    c12C = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
+    func_002b77d0(0x11D, spD8.position, 0x11D, c12C, 191.0f, 0x56, arg3, 6, 3, 0, func_00331560());
+    func_00329e40(arg0, 0, arg3);
+    entry = *(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120);
+    row = 0;
+    step = arg1;
+    end = arg2 + entry;
+    for (; entry < end; entry++, row++) {
+        {
+            /* The label point is returned by value into its named slot while
+               the row offset is evaluated ahead of the constructor call. */
+            extern FclVec2 func_002b2970(f32, f32);
+
+            func_0031ac10(arg0, sp110 = func_002b2970(90.0f, 151.0f), -1, row,
+                          *(u16 *)(func_002e48a0(0, entry) + 2), *(u8 *)(func_002e48a0(0, entry) + 4),
+                          (s16)(row * step), arg3, 0, 0x99);
         }
+        t2 = *(u8 **)(arg0 + 0x38);
+        func_002b2970((u8 *)&spC8, 390.0f, 151.0f);
+        cell = *(FclVec2 *)&spC8;
+        c124 = func_002b2a60(0, 0, 0x99, 0x80);
+        *(FclDrawColor *)&c128 = c124;
+        cell.y += (s8)row * 23;
+        if (*(s16 *)(t2 + 0x120) == (s8)row) {
+            c128 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
+        }
+        func_002b77d0((s8)row + 0x21F, cell, 0x193, c128, 191.0f, 0x41, arg3, 6, 3, row * step, func_00331560());
+        func_002b2970((u8 *)&spC0, 132.0f + cell.x, cell.y);
+        func_002b77d0((s8)row + 0x2C5, spC0.position, 0x19E, c128, 191.0f, 0x41, arg3, 6, 3, row * step, func_00331560());
     }
-    func_002b2970((u8 *)&sp108, 535.0f, 154.0f);
-    func_00324f80(arg0, *(FclVec2 *)&sp108, 0, arg3);
-    {
-        s16 d = *(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120);
-        f32 f21 = (f32)d;
-        f32 f20 = *(f32 *)(t + 0x124);
-        f32 mem = *(f32 *)(func_002b6150(0xAA) + 0x3C);
-        f32 res = f20 * f21 + mem;
-        *(f32 *)(func_002b6150(0xB1) + 0x3C) = res;
-        *(f32 *)(func_002b6150(0xB5) + 0x3C) = res + 52.0f;
-    }
-    func_003297f0(359.0f, 417.0f, arg0, 1, arg3);
+    func_002b2970((u8 *)&sp108, 535, 154.0f);
+    func_00324f80(arg0, sp108.position, 0, arg3);
+    *(f32 *)(func_002b6150(0xB1) + 0x3C) = *(f32 *)(t + 0x124) * (*(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120)) + *(f32 *)(func_002b6150(0xAA) + 0x3C);
+    *(f32 *)(func_002b6150(0xB5) + 0x3C) = 52.0f + *(f32 *)(func_002b6150(0xB1) + 0x3C);
+    func_003297f0(359, 300.0f, arg0, 1, arg3);
     func_0032b000(arg0, arg3);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b9d0);
-#endif
 
 /* Measured: this C body is byte-exact under scoped verify.py (obj 956/window
    960, nd 0), but its switch emits one additional anonymous .rodata jump
