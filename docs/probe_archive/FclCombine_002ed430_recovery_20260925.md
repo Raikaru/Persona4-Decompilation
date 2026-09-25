@@ -85,3 +85,16 @@ s32 <-> u32. So:
 
 No single set of prototypes reproduces all four functions. The narrow local
 declaration is the smallest deviation measured.
+
+## Parked (2026-09-25)
+
+The byte-exact body is kept in `src/Event/Fcl/y_fclCombine.c` under
+`#ifdef NON_MATCHING`, with `INCLUDE_ASM` as the active build. It depends on a
+block-scope `func_00310a10(u8 *, u16)` declaration that conflicts with the `s32`
+definition in the same translation unit. Standard C rejects that, so the
+original source could not have had it, and docs/STYLE.md forbids it. The
+exception above is therefore evidence that part of the model is still wrong,
+not a finished recovery. Retail reads the class id once with `lhu` and passes it
+unmasked to a `u16` callee and an `int` callee; the likely missing piece is the
+type or read form of the field it comes from. Restore the body once a shape
+that uses the real prototypes is found.

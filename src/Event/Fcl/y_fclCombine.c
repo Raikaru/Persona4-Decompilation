@@ -1691,7 +1691,14 @@ typedef struct {
     s8 f2E4;
 } FclPartySlot;
 
-// FUN_002ED430
+/* Byte-exact (15048/15056, 0 per-case edits) but parked: it needs a local
+   `func_00310a10(u8 *, u16)` declaration narrower than that function's s32
+   definition in this file, which docs/STYLE.md forbids and the original source
+   cannot have contained. The class-id source shape (field type / read form) that
+   lets one lhu value reach both u16 and int callees unmasked is still unknown.
+   See docs/probe_archive/FclCombine_002ed430_recovery_20260925.md. */
+// FUN_002ED430 NONMATCHING
+#ifdef NON_MATCHING
 void func_002ed430(u8 *arg0) {
     extern s32 func_00104c70(s32);
     extern s32 func_0010b5b0(void);
@@ -2655,6 +2662,9 @@ void func_002ed430(u8 *arg0) {
         break;
     }
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ed430);
+#endif
 
 /* measured: func_002f0f00 recon + jump-table recovery + guarded body installed (see below). */
 /* Retail 24048B = 6012 instrs, band 5832-6192 (+-3%: 6012*0.97=5831.64, 6012*1.03=6192.36). Frame 0x400 */
