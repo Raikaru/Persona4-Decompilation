@@ -173,7 +173,7 @@ extern f32 D_0063F5F0[];
 extern f32 D_0063F5F8[];
 extern f32 D_0063F880[];
 extern f32 D_0063F890[];
-extern s8 D_00748908[];
+extern const s8 D_00748908[];
 extern u8 D_00795E30[];
 extern u8 D_00794EA0[];
 extern u8 D_00794ED0[];
@@ -6811,9 +6811,7 @@ void func_002d3ee0(void *arg0) {
     func_002e04f0(work->field_DE4, 0, 0);
 }
 
-/* measured: MWCC -O2 plain, object 1948B/window 2000B, normalized_diff 389 (VSHD baseline 399/2044B -> s32-i -10, s32+(s16)cast -8). Shape u8 colorA/B[3][4], s16 primary/secondary/y/thirdY, s8 ret/i-d, u8 *work, frame 0x100 matches. Levers: s32/u32/int, switch/ifelse, derived/void/work/decl/d/ret/indexed/forward/reload/y/primary/RGBA as reported. Remaining work $s4-vs-$s3, init $v0-vs-$v1, 0x2D scheduling, D swap, second-loop temps. Combine RGBA transfer fails (+5/+15), u8[3][4] optimal. No volatile/asm. Staged /tmp/push_4760_full.c via NearGA.Fcl4760. */
-// FUN_002D4760 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_002D4760
 s8 func_002d4760(void *arg0, s8 arg1) {
     u8 colorA[3][4];
     u8 colorB[3][4];
@@ -6821,35 +6819,33 @@ s8 func_002d4760(void *arg0, s8 arg1) {
     s16 secondary[3];
     s16 y[3][2];
     s16 thirdY[3];
-    s8 ret;
-    s32 i;
-    s8 d;
+    s16 i;
+    s16 j;
+    s32 sel;
     u8 *work;
+    s16 *yr;
+    u8 *ca;
+    u8 *cb;
+    u8 r;
+    u8 g;
+    u8 bl;
+    u8 *ga;
+    u8 *ba;
+    u8 *gb;
+    u8 *bb;
 
-    ret = arg1;
     work = *(u8 **)((u8 *)arg0 + 0x38);
-    colorA[2][0] = 0xBD;
-    colorA[0][0] = 0xBD;
-    colorA[2][1] = 0x68;
-    colorA[0][1] = 0x68;
-    colorA[2][2] = 3;
-    colorA[0][2] = 3;
-    primary[2] = 0x56;
-    primary[0] = 0x56;
-    y[2][0] = 0x86;
-    y[0][0] = 0x86;
-    y[2][1] = 0x87;
-    y[0][1] = 0x87;
-    colorB[2][0] = 0x2D;
-    colorB[0][0] = 0x2D;
-    colorB[2][1] = 0x2D;
-    colorB[0][1] = 0x2D;
-    colorB[2][2] = 0x2D;
-    colorB[0][2] = 0x2D;
-    secondary[2] = 0x57;
-    secondary[0] = 0x57;
-    thirdY[2] = 0x85;
-    thirdY[0] = 0x85;
+    colorA[0][0] = colorA[2][0] = 0xBD;
+    colorA[0][1] = colorA[2][1] = 0x68;
+    colorA[0][2] = colorA[2][2] = 3;
+    primary[0] = primary[2] = 0x56;
+    y[0][0] = y[2][0] = 0x86;
+    y[0][1] = y[2][1] = 0x87;
+    colorB[0][0] = colorB[2][0] = 0x2D;
+    colorB[0][1] = colorB[2][1] = 0x2D;
+    colorB[0][2] = colorB[2][2] = 0x2D;
+    secondary[0] = secondary[2] = primary[0] + 1;
+    thirdY[0] = thirdY[2] = 0x85;
     colorA[1][0] = 0x90;
     colorA[1][1] = 0x4F;
     colorA[1][2] = 1;
@@ -6859,110 +6855,115 @@ s8 func_002d4760(void *arg0, s8 arg1) {
     colorB[1][0] = 0x2D;
     colorB[1][1] = 0x2D;
     colorB[1][2] = 0x2D;
-    secondary[1] = 0x42;
+    secondary[1] = primary[1] + 1;
     thirdY[1] = 0x88;
-    for (i = 0; i < 3; i++) {
-        d = D_00748908[i];
-        if (d >= func_002e26f0(*(void **)(work + 0xF18 + i * 4))) {
-            colorA[i][2] = 0x2D;
-            colorA[i][1] = 0x2D;
-            colorA[i][0] = 0x2D;
+    i = 0;
+    sel = arg1;
+    for (; i < 3; i++) {
+        if (func_002e26f0(*(void **)(work + 0xF18 + i * 4)) <= D_00748908[i]) {
+            u8 *a2p = &colorA[i][2];
+            u8 *a1p = &colorA[i][1];
+            colorA[i][0] = *a1p = *a2p = 0x2D;
             if (i == 1) {
-                colorA[i][2] = 0;
-                colorA[i][1] = 0;
-                colorA[i][0] = 0;
+                colorA[i][0] = *a1p = *a2p = 0;
             }
-            colorB[i][2] = 0x6F;
-            colorB[i][1] = 0x6F;
-            colorB[i][0] = 0x6F;
+            {
+                u8 *b2p = &colorB[i][2];
+                u8 *b1p = &colorB[i][1];
+                colorB[i][0] = *b1p = *b2p = 0x6F;
+            }
         }
-        if (i == arg1) {
+        if (i == sel) {
             colorA[i][0] = 0xFF;
-            colorA[i][1] = 0x96;
-            colorA[i][2] = 1;
+            ga = colorA[i] + 1;
+            *ga = 0x96;
+            ba = colorA[i] + 2;
+            *ba = 1;
             primary[i] = 0x57;
-            y[i][0] = 0x83;
-            y[i][1] = 0x84;
+            yr = y[i];
+            yr[0] = 0x83;
+            yr[1] = 0x84;
             colorB[i][0] = 0xFF;
-            colorB[i][1] = 0xF2;
-            colorB[i][2] = 0x95;
+            gb = colorB[i] + 1;
+            *gb = 0xF2;
+            bb = colorB[i] + 2;
+            *bb = 0x95;
             secondary[i] = primary[i] + 1;
             thirdY[i] = 0x82;
-            if (d >= func_002e26f0(*(void **)(work + 0xF18 + i * 4))) {
-                ((u8 *)colorA)[i * 4 + 2] = 0x9C;
-                ((u8 *)colorA)[i * 4 + 1] = 0x9C;
-                ((u8 *)colorA)[i * 4 + 0] = 0x9C;
-                ((u8 *)colorB)[i * 4 + 2] = 0xFF;
-                ((u8 *)colorB)[i * 4 + 1] = 0xFF;
-                ((u8 *)colorB)[i * 4 + 0] = 0xFF;
+            if (func_002e26f0(*(void **)(work + 0xF18 + i * 4)) <= D_00748908[i]) {
+                ca = (u8 *)colorA + i * 4;
+                *ca = *ga = *ba = 0x9C;
+                cb = (u8 *)colorB + i * 4;
+                *cb = *gb = *bb = 0xFF;
             }
         }
     }
-    for (i = 0; i < 3; i++) {
-        if (i == 2) {
-            goto L2;
+    for (j = 0; j < 3; j++) {
+        switch (j) {
+        case 0:
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0xFC) = primary[j];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x8) = (f32)(yr = y[j])[0];
+            r = (ca = colorA[j])[0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x79) = r;
+            g = ca[1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x7A) = g;
+            bl = ca[2];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x7B) = bl;
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0xFC) = primary[j];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x8) = (f32)yr[1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x79) = r;
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x7A) = g;
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x7B) = bl;
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0xFC) = secondary[j];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x8) = (f32)thirdY[j];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x79) = (cb = colorB[j])[0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x7A) = cb[1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x7B) = cb[2];
+            break;
+        case 1:
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0xFC) = primary[j];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x8) = (f32)(yr = y[j])[0];
+            r = (ca = colorA[j])[0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x79) = r;
+            g = ca[1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x7A) = g;
+            bl = ca[2];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x7B) = bl;
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0xFC) = primary[j];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x8) = (f32)yr[1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x79) = r;
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x7A) = g;
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x7B) = bl;
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0xFC) = secondary[j];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x8) = (f32)thirdY[j];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x79) = (cb = colorB[j])[0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x7A) = cb[1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x7B) = cb[2];
+            break;
+        case 2:
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0xFC) = primary[j];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x8) = (f32)(yr = y[j])[0];
+            r = (ca = colorA[j])[0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x79) = r;
+            g = ca[1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x7A) = g;
+            bl = ca[2];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x7B) = bl;
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0xFC) = primary[j];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x8) = (f32)yr[1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x79) = r;
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x7A) = g;
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x7B) = bl;
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0xFC) = secondary[j];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x8) = (f32)thirdY[j];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x79) = (cb = colorB[j])[0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x7A) = cb[1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x7B) = cb[2];
+            break;
         }
-        if (i == 1) {
-            goto L1;
-        }
-        if (i == 0) {
-            goto L0;
-        }
-        goto Lend;
-L0: *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0xFC) = primary[i];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 8) = (f32)y[i][0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x79) = colorA[i][0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x7A) = colorA[i][1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x7B) = colorA[i][2];
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0xFC) = primary[i];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 8) = (f32)y[i][1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x79) = colorA[i][0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x7A) = colorA[i][1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x7B) = colorA[i][2];
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0xFC) = secondary[i];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 8) = (f32)thirdY[i];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x79) = colorB[i][0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x7A) = colorB[i][1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x7B) = colorB[i][2];
-        goto Lend;
-L1: *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0xFC) = primary[i];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 8) = (f32)y[i][0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x79) = colorA[i][0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x7A) = colorA[i][1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x7B) = colorA[i][2];
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0xFC) = primary[i];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 8) = (f32)y[i][1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x79) = colorA[i][0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x7A) = colorA[i][1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x7B) = colorA[i][2];
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0xFC) = secondary[i];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 8) = (f32)thirdY[i];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x79) = colorB[i][0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x7A) = colorB[i][1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x7B) = colorB[i][2];
-        goto Lend;
-L2: *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0xFC) = primary[i];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 8) = (f32)y[i][0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x79) = colorA[i][0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x7A) = colorA[i][1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x7B) = colorA[i][2];
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0xFC) = primary[i];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 8) = (f32)y[i][1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x79) = colorA[i][0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x7A) = colorA[i][1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x7B) = colorA[i][2];
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0xFC) = secondary[i];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 8) = (f32)thirdY[i];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x79) = colorB[i][0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x7A) = colorB[i][1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x7B) = colorB[i][2];
-Lend: ;
     }
-    return ret;
+    return arg1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d4760);
-#endif
 
 // FUN_002D4F30
 s32 func_002d4f30(s16 arg0) {
