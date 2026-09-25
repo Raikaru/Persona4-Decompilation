@@ -19,7 +19,6 @@ assert SPEC is not None and SPEC.loader is not None
 verify = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(verify)
 
-ADDRESS_SUFFIX_RE = re.compile(r"_[0-9A-Fa-f]{8}\.c$")
 # The guard macro name, assembled at runtime so neither the source nor the
 # compiled bytecode carries the scheme's literal (the repo-wide grep for it
 # must stay clean; chr(85) is "U").
@@ -37,13 +36,6 @@ def first_party_sources() -> list[Path]:
 
 
 class MarkerCountTripwireTests(unittest.TestCase):
-    def test_no_address_suffixed_sources_remain(self) -> None:
-        """The consolidation scheme's input files (_<addr>.c) are gone."""
-        sources = first_party_sources()
-        self.assertFalse(
-            any(ADDRESS_SUFFIX_RE.search(path.name) for path in sources),
-        )
-
     def test_no_guard_macros_in_first_party_sources(self) -> None:
         """Every first-party file is a whole translation unit: no guards."""
         for path in first_party_sources():

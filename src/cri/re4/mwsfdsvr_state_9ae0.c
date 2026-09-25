@@ -57,7 +57,7 @@ void func_004f9b60(Uint32 value)
 }
 
 // FUN_004F9B88
-Uint32 func_004f9b88(void)
+Uint32 __cp_eh_info(void)
 {
 	return *(Uint32 *)func_004f9b50();
 }

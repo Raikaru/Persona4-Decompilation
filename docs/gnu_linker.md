@@ -76,6 +76,13 @@ combines retail code and writable data in one segment, so GNU ld may print its
 RWX-segment warning. Linker diagnostics remain visible. No ABI-warning suppression,
 input ABI-flag edits or relocation-type substitutions are used.
 
+The GNU link strips nonallocated compiler debug sections with `--strip-debug`.
+ee-gcc's ECOFF `.mdebug` carries invalid external-string offsets that crash BFD
+during final linking. This does not strip `.symtab` or `.mwcats`: the linked
+function definitions and both retail hashes are still checked. The CI image
+installs Debian's `binutils-mipsel-linux-gnu` for the linker; its decompals
+assembler and objcopy remain selected from `/usr/local/bin`.
+
 ## Regression checks
 
 ```sh

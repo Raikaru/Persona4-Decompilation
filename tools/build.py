@@ -1746,7 +1746,7 @@ def main():
     symbol_addresses = load_symbol_addr_map()
     # Whole-file TUs may reference sibling C objects or immutable fallback ASM
     # spellings; both canonical names and address-form aliases must resolve.
-    resolvable = set(defs) | set(symbol_addresses) | load_symbol_names() | source_marker_names()
+    resolvable = set(defs) | set(symbol_addresses) | source_marker_names()
     for name, address in defs.items():
         if name in symbol_addresses and symbol_addresses[name] != address:
             raise ValueError(f'configured symbol address disagreement for {name}')

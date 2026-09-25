@@ -305,7 +305,6 @@ mwPlyStartFnameRangeLp = 0x00510270; // type:func  evidence: string:"E407024: mw
 mwPlyGetSlFname = 0x00510310; // type:func  evidence: string:"E1122637: mwPlyGetSlFname: handle is invalid."
 mwPlyLinkStm = 0x005104C0; // type:func  evidence: string:"E1122642: mwPlyLinkStm: handle is invalid."
 MWSST_Create = 0x00510BC0; // type:func  evidence: string:"E303111: MWSST_Create: worksize is short."
-MWSTM_ReqStart = 0x005115F0; // type:func  evidence: string:"E211141 MWSTM_ReqStart: can't start '%s'"
 mwlSfdExecDecSvrPlaying = 0x005116B0; // type:func  evidence: string:"E99072102 mwlSfdExecDecSvrPlaying: can't term"
 mwPlyExecSvrHndl = 0x00511BE0; // type:func  evidence: string:"E1071901 mwPlyExecSvrHndl: NULL handle."
 MWSFSVR_IsSvrBdrHndl = 0x00511DE0; // type:func  evidence: string:"E2011101: MWSFSVR_IsSvrBdrHndl: handle is invalid."

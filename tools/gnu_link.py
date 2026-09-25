@@ -344,7 +344,9 @@ def link(tool: A.Tool, entries, additional_objects, build_dir: Path, vram: int,
     paths = map_paths(tool, [*objects, script, response, output, map_file])
     script.write_text(render_script(entries, paths, vram, image_size, entry_symbol, gp, definitions, pools),
                       encoding="utf-8", newline="\n")
-    arguments = ["-EL", "--no-gc-sections", "-T", paths[script], "-Map", paths[map_file],
+    # ee-gcc emits nonalloc ECOFF .mdebug with invalid external-string offsets;
+    # BFD crashes while merging it. Drop debug only; keep symbols and load bytes.
+    arguments = ["-EL", "--strip-debug", "--no-gc-sections", "-T", paths[script], "-Map", paths[map_file],
                  "-o", paths[output], *(paths[path] for path in objects)]
     response.write_text("\n".join(quote(argument) for argument in arguments) + "\n",
                         encoding="utf-8", newline="\n")

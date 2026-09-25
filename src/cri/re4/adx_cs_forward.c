@@ -1,22 +1,22 @@
 /* ADX sound adapters: pass the four incoming ABI words unchanged to the underlying sound object. */
 #include "cri_xpt.h"
 
-extern Uint32 func_004beaa0();
-extern Uint32 func_004beb00();
-extern Uint32 func_004beb50();
-extern Uint32 func_004beba0();
-extern Uint32 func_004bebf0();
-extern Uint32 func_004bed38();
-extern Uint32 func_004bedf0();
-extern Uint32 func_004bee38();
-extern Uint32 func_004bee80();
+extern Uint32 ACSSND_StartFname();
+extern Uint32 ACSSND_StartAfs();
+extern Uint32 ACSSND_StartMem();
+extern Uint32 ACSSND_StartMemIdx();
+extern Uint32 ACSSND_Stop();
+extern Uint32 ACSSND_Pause();
+extern Uint32 ACSSND_GetStatPause();
+extern Uint32 ACSSND_GetStat();
+extern Uint32 ACSSND_GetCprm();
 extern void func_004beeb8(Uint32 object, Uint32 value);
 extern Sint32 func_004beec0(Uint32 object);
-extern Uint32 func_004beec8();
+extern Uint32 ACSSND_SetOutVol();
 extern Uint32 func_004bf0e0(Uint32 object);
-extern Uint32 func_004befd0();
+extern Uint32 ACSSND_SetTrackVol();
 extern Uint32 func_004bf0e8();
-extern Uint32 func_004bf138();
+extern Uint32 ACSSND_SetLpFlg();
 extern void func_004bf1e8(Uint32 object, Uint32 value);
 extern void func_004bf1f0(Uint32 object, Uint32 value);
 extern void func_004bf1f8(Uint32 object, Uint32 value);
@@ -31,55 +31,55 @@ extern Uint32 func_004bf230(Uint32 object);
 // FUN_004D8D30
 Uint32 func_004d8d30(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004beaa0(a0, a1, a2, a3);
+	return ACSSND_StartFname(a0, a1, a2, a3);
 }
 
 // FUN_004D8D48
 Uint32 func_004d8d48(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004beb00(a0, a1, a2, a3);
+	return ACSSND_StartAfs(a0, a1, a2, a3);
 }
 
 // FUN_004D8D60
 Uint32 func_004d8d60(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004beb50(a0, a1, a2, a3);
+	return ACSSND_StartMem(a0, a1, a2, a3);
 }
 
 // FUN_004D8D78
 Uint32 func_004d8d78(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004beba0(a0, a1, a2, a3);
+	return ACSSND_StartMemIdx(a0, a1, a2, a3);
 }
 
 // FUN_004D8D90
 Uint32 func_004d8d90(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bebf0(a0, a1, a2, a3);
+	return ACSSND_Stop(a0, a1, a2, a3);
 }
 
 // FUN_004D8DA8
 Uint32 func_004d8da8(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bed38(a0, a1, a2, a3);
+	return ACSSND_Pause(a0, a1, a2, a3);
 }
 
 // FUN_004D8DC0
 Uint32 func_004d8dc0(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bedf0(a0, a1, a2, a3);
+	return ACSSND_GetStatPause(a0, a1, a2, a3);
 }
 
 // FUN_004D8DD8
 Uint32 func_004d8dd8(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bee38(a0, a1, a2, a3);
+	return ACSSND_GetStat(a0, a1, a2, a3);
 }
 
 // FUN_004D8DF0
 Uint32 func_004d8df0(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bee80(a0, a1, a2, a3);
+	return ACSSND_GetCprm(a0, a1, a2, a3);
 }
 
 // FUN_004D8E08
@@ -97,7 +97,7 @@ Sint32 func_004d8e20(Uint32 object)
 // FUN_004D8E38
 Uint32 func_004d8e38(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004beec8(a0, a1, a2, a3);
+	return ACSSND_SetOutVol(a0, a1, a2, a3);
 }
 
 // FUN_004D8E50
@@ -109,7 +109,7 @@ Uint32 func_004d8e50(Uint32 object)
 // FUN_004D8E68
 Uint32 func_004d8e68(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004befd0(a0, a1, a2, a3);
+	return ACSSND_SetTrackVol(a0, a1, a2, a3);
 }
 
 // FUN_004D8E80
@@ -121,7 +121,7 @@ Uint32 func_004d8e80(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 // FUN_004D8E98
 Uint32 func_004d8e98(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bf138(a0, a1, a2, a3);
+	return ACSSND_SetLpFlg(a0, a1, a2, a3);
 }
 
 // FUN_004D8EB0

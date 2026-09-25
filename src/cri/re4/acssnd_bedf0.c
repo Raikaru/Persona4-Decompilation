@@ -9,7 +9,7 @@ extern void func_004bd6a0(const void *message);
 typedef Uint32 (*ACSSND_StatusOperation)(Uint32 handle);
 
 // FUN_004BEDF0
-Uint32 func_004bedf0(Uint32 *object)
+Uint32 ACSSND_GetStatPause(Uint32 *object)
 {
 	Uint32 handle;
 
@@ -22,7 +22,7 @@ Uint32 func_004bedf0(Uint32 *object)
 }
 
 // FUN_004BEE38
-Uint32 func_004bee38(Uint32 *object)
+Uint32 ACSSND_GetStat(Uint32 *object)
 {
 	Uint32 handle;
 
@@ -35,7 +35,7 @@ Uint32 func_004bee38(Uint32 *object)
 }
 
 // FUN_004BEE80
-Uint32 *func_004bee80(Uint32 *object)
+Uint32 *ACSSND_GetCprm(Uint32 *object)
 {
 	if (object[0x50 / 4] == 0) {
 		func_004bd6a0(D_00756F18);
