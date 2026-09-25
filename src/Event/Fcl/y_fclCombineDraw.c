@@ -3996,286 +3996,162 @@ void func_00324f80(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
     func_002b6a70(0xB5, 0, 0xFF, 0, 6, 0);
 }
 
-// measured: nd N/A (largest, 16064 B; draw-family + 12 M2C_ERROR). Heavy 2970/6c30/6a70/69f0 + unaligned/vector opcodes; s64-arg normalization floor. s64-param + misc-opcode floor.
-/* measured 00325450 (owner, 2026-09-20): fnalign **681 -> 669 edits**, count unchanged at
-   3932 against retail 4012 (-2.0%, inside).  deficit_scan classifies three 8-instruction
-   retail-only runs at 0x003268f4, 0x00326e18 and 0x00327528 as ABSENT, and all three are
-   the same eight instructions:
-     lui 0x4000 / mtc1 / add.s $f21  -> `2.0f + <prev>`
-     lui 0x42ae / mtc1 / lwc1 0xD0($sp) / add.s $f20  -> `87.0f + spD0`
-   Retail MATERIALISES both constants and redoes both adds at every site; the body hoists
-   each into a temporary once and reuses it, which is what the `lui +16, mtc1 +16,
-   add.s +16` opcode delta is counting.
-   Un-hoisting is measured per temporary and only one of them pays:
-     recompute `87.0f + spD0` at all 14 uses   -> **669**
-     recompute `2.0f + spD4` at all 15 uses    -> 689, worse
-     recompute both                            -> 679, worse than either alone
-   So the two temporaries are not interchangeable even though they have identical shape
-   and sit on adjacent lines.  Recompute-do-not-hoist is a per-variable measurement, not a
-   rule about the function. */
-// FUN_00325450 NONMATCHING
-#ifdef NON_MATCHING
-void func_00325450(u8 *arg0, s64 arg1, s64 arg2) {
-    extern f32 D_00644C90[];
-    u8 sp12C[4];
-    u8 sp128[4];
-    u8 sp124[4];
-    u8 sp120[4];
-    u8 sp11C[4];
-    u8 sp118[4];
-    u8 sp114[4];
-    u8 sp110[4];
-    u8 sp10C[4];
-    u8 sp108[4];
-    u8 sp104[4];
-    u8 sp100[4];
-    s32 spFC;
-    s32 spF8;
-    s32 spF4;
-    s32 spF0;
-    s32 spEC;
-    s32 spE8;
-    s32 spE4;
-    s32 spE0;
-    s32 spDC;
-    f32 spD4;
-    f32 spD0;
-    s64 spC8;
-    f32 spC4;
-    f32 spC0;
-    FclPackedPosition spB8;
-    FclPackedPosition spB0;
-    FclPackedPosition spA8;
-    f32 temp_f20;
-    f32 temp_f20_10;
-    f32 temp_f20_11;
-    f32 temp_f20_2;
-    f32 temp_f20_3;
-    f32 temp_f20_4;
-    f32 temp_f20_5;
-    f32 temp_f20_6;
-    f32 temp_f20_7;
-    f32 temp_f20_8;
-    f32 temp_f20_9;
-    f32 temp_f21;
-    f32 temp_f21_10;
-    f32 temp_f21_11;
-    f32 temp_f21_12;
-    f32 temp_f21_13;
-    f32 temp_f21_14;
-    f32 temp_f21_15;
-    f32 temp_f21_2;
-    f32 temp_f21_3;
-    f32 temp_f21_4;
-    f32 temp_f21_5;
-    f32 temp_f21_6;
-    f32 temp_f21_7;
-    f32 temp_f21_8;
-    f32 temp_f21_9;
-    f32 temp_f22;
-    f32 temp_f22_2;
-    f32 temp_f22_3;
-    f32 temp_f22_4;
-    f32 temp_f22_5;
-    f32 temp_f22_6;
-    f32 temp_f22_7;
-    f32 temp_f23_2;
-    f32 temp_f23_3;
-    f32 temp_f24;
-    f32 temp_f24_2;
-    f32 temp_f24_3;
-    f32 temp_f25;
-    f32 temp_f25_2;
-    f32 temp_f25_3;
-    f32 temp_f26;
-    f32 temp_f26_2;
-    f32 temp_f26_3;
-    f32 temp_f26_4;
-    f32 temp_f27;
-    s64 temp_16;
-    s64 temp_17_2;
-    u8 *temp_17;
+/* The cursor arrow at x 358 is func_00317320 with a zero offset. Retail
+   inlines it here, and it loads D_00644C90 before testing the flag. */
+static inline void fclShowCursorArrow(s32 flag)
+{
+    extern FclVec2 func_002b2970(f32, f32);
+    f32 *b = D_00644C90;
 
-    temp_17 = *(u8 **)(arg0 + 0x38);
-    func_002b2970((u8 *)&spC0, 18.0f, 14.0f);
-    spD0 = spC0;
-    spD4 = spC4;
-    fclWriteColorBytes(sp114, 0, 0, 0x99, 0xFF);
-    sp12C[0] = sp114[0];
-    sp12C[1] = sp114[1];
-    sp12C[2] = sp114[2];
-    sp12C[3] = sp114[3];
-    fclWriteColorBytes(sp110, 0x49, 0x72, 0xFF, 0xFF);
-    sp128[0] = sp110[0];
-    sp128[1] = sp110[1];
-    sp128[2] = sp110[2];
-    sp128[3] = sp110[3];
-    fclWriteColorBytes(sp10C, 0xCC, 0xFF, 0x33, 0xFF);
-    sp124[0] = sp10C[0];
-    sp124[1] = sp10C[1];
-    sp124[2] = sp10C[2];
-    sp124[3] = sp10C[3];
-    fclWriteColorBytes(sp108, 0x8A, 0xCC, 0xFF, 0xFF);
-    sp120[0] = sp108[0];
-    sp120[1] = sp108[1];
-    sp120[2] = sp108[2];
-    sp120[3] = sp108[3];
-    fclWriteColorBytes(sp104, 0x2D, 0x2D, 0x2D, 0xFF);
-    sp11C[0] = sp104[0];
-    sp11C[1] = sp104[1];
-    sp11C[2] = sp104[2];
-    sp11C[3] = sp104[3];
-    fclWriteColorBytes(sp100, 0xCC, 0xFF, 0x33, 0xFF);
-    sp118[0] = sp100[0];
-    sp118[1] = sp100[1];
-    sp118[2] = sp100[2];
-    sp118[3] = sp100[3];
-    temp_16 = (s64) (arg1 << 0x38) >> 0x38;
-    if (temp_16 != 2) {
-        fclWriteColorBytes(sp12C, 0xFF, 0xFF, 0x81, 0xFF);
-        fclWriteColorBytes(sp128, 0x31, 0x31, 0x31, 0xFF);
-        fclWriteColorBytes(sp124, 0x2D, 0x2D, 0x2D, 0xFF);
-        fclWriteColorBytes(sp120, 0x2D, 0x2D, 0x2D, 0xFF);
-        fclWriteColorBytes(sp11C, 0xFF, 0xFF, 0xFF, 0xFF);
-        fclWriteColorBytes(sp118, 0x2D, 0x2D, 0x2D, 0xFF);
+    if ((s8)flag == 0) {
+        func_002b6c30(0x1E4, func_002b2970(358.0f, b[1]), 103.0f, 0xBC);
+        func_002b6a70(0x1E4, 0, 0xFF, 0, 0xA, 0);
+        func_002b6b40(0x1E4, 0, 0, 0, 0.0f, 90.0f);
+        return;
     }
-    func_002b2970((u8 *)&spC8, 13.0f + spD0, spD4);
-    func_002b77d0(0x12E, fclPacketPosition(spC8), 0x12E, fclPacketColor((u32)(*(s32 *)sp12C)), 37.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-    func_002b2970((u8 *)&spC8, (f32) 0x23D + spD0, spD4);
-    func_002b77d0(0x12F, fclPacketPosition(spC8), 0x12F, fclPacketColor((u32)(*(s32 *)sp12C)), 38.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-    temp_f20 = spD4 - 14.0f;
-    func_002b2970((u8 *)&spC8, spD0 - 5.0f, temp_f20);
-    func_002b77d0(0x12C, fclPacketPosition(spC8), 0x12C, fclPacketColor((u32)(*(s32 *)sp128)), 31.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-    func_002b2970((u8 *)&spC8, (f32) 0x22F + spD0, temp_f20);
-    func_002b77d0(0x12A, fclPacketPosition(spC8), 0x12A, fclPacketColor((u32)(*(s32 *)sp128)), 32.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-    temp_f21 = 13.0f + spD4;
-    temp_f22 = 40.0f + spD0;
-    func_002b2970((u8 *)&spC8, temp_f22, temp_f21);
-    func_002b77d0(0x13A, fclPacketPosition(spC8), 0x13A, fclPacketColor((u32)(*(s32 *)sp124)), 33.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-    func_002b2970((u8 *)&spC8, 24.0f + spD0, temp_f21);
-    func_002b77d0(0x13C, fclPacketPosition(spC8), 0x13C, fclPacketColor((u32)(*(s32 *)sp124)), 33.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-    temp_f20_2 = (f32) 0x20A + spD0;
-    func_002b2970((u8 *)&spC8, temp_f20_2, temp_f21);
-    func_002b77d0(0x13B, fclPacketPosition(spC8), 0x13B, fclPacketColor((u32)(*(s32 *)sp124)), 34.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-    func_002b2970((u8 *)&spC8, (f32) 0x232 + spD0, temp_f21);
-    func_002b77d0(0x13D, fclPacketPosition(spC8), 0x13D, fclPacketColor((u32)(*(s32 *)sp124)), 33.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-    temp_f24 = 2.0f + spD4;
-    func_002b2970((u8 *)&spC8, (87.0f + spD0), temp_f24);
-    func_002b77d0(0x14F, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp128)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-    func_002b2970((u8 *)&spC8, (428.0f + (87.0f + spD0)) - 1.0f, temp_f24);
-    func_002b77d0(0x2C2, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp128)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-    switch (temp_16) {                              /* switch 1 */
-    case 0:                                         /* switch 1 */
+    func_002b6a70(0x1E4, *(u8 *)(func_002b6150(0x1E4) + 0x6E), 0, 0, 0xA, 0);
+}
+
+/* Every colour starts as a declaration initializer (temporary plus copy)
+   and is reassigned in place outside mode 2. One named point takes each
+   func_002b2970 result, and every other value is left to b210's CSE
+   (docs/probe_archive/FclDraw_00325450_20260925.md). */
+// FUN_00325450
+void func_00325450(u8 *arg0, s32 arg1, s32 arg2) {
+    extern FclVec2 func_002b2970(f32, f32);
+    extern void func_002b77d0(s16, FclVec2, s16, FclDrawColor, f32, s16, s32, s16, s16, s16, u32);
+    extern void func_00329310(u8 *, s16, s32);
+    u8 *t = *(u8 **)(arg0 + 0x38);
+    FclVec2 pos = func_002b2970(18.0f, 14.0f);
+    FclByte4 c12C = func_002b2a60(0, 0, 0x99, 0xFF);
+    FclByte4 c128 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+    FclByte4 c124 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
+    FclByte4 c120 = func_002b2a60(0x8A, 0xCC, 0xFF, 0xFF);
+    FclByte4 c11C = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+    FclByte4 c118 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
+    FclVec2 pt;
+
+    if ((s8)arg1 != 2) {
+        c12C = func_002b2a60(0xFF, 0xFF, 0x81, 0xFF);
+        c128 = func_002b2a60(0x31, 0x31, 0x31, 0xFF);
+        c124 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+        c120 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+        c11C = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
+        c118 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+    }
+    pt = func_002b2970(13.0f + pos.x, pos.y);
+    func_002b77d0(0x12E, pt, 0x12E, c12C, 37.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+    pt = func_002b2970(573 + pos.x, pos.y);
+    func_002b77d0(0x12F, pt, 0x12F, c12C, 38.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+    pt = func_002b2970(pos.x - 5.0f, (pos.y - 14.0f));
+    func_002b77d0(0x12C, pt, 0x12C, c128, 31.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    pt = func_002b2970(559 + pos.x, (pos.y - 14.0f));
+    func_002b77d0(0x12A, pt, 0x12A, c128, 32.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    pt = func_002b2970((40.0f + pos.x), (13.0f + pos.y));
+    func_002b77d0(0x13A, pt, 0x13A, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    pt = func_002b2970(24.0f + pos.x, (13.0f + pos.y));
+    func_002b77d0(0x13C, pt, 0x13C, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    pt = func_002b2970((522 + pos.x), (13.0f + pos.y));
+    func_002b77d0(0x13B, pt, 0x13B, c124, 34.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    pt = func_002b2970(562 + pos.x, (13.0f + pos.y));
+    func_002b77d0(0x13D, pt, 0x13D, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    pt = func_002b2970((87.0f + pos.x), (2.0f + pos.y));
+    func_002b77d0(0x14F, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+    pt = func_002b2970((428.0f + (87.0f + pos.x)) - 1.0f, (2.0f + pos.y));
+    func_002b77d0(0x2C2, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+    switch ((s8)arg1) {
+    case 0:
         func_002b7750(0x2DE, 0x126);
         func_002b7750(0x2DF, 0x125);
-        temp_f21_2 = 13.0f + spD4;
-        func_002b2970((u8 *)&spC8, 113.0f + spD0, temp_f21_2);
-        func_002b77d0(0x126, fclPacketPosition(spC8), 0x126, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2DE, fclPacketPosition(spC8), 0x126, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 320.0f + spD0, temp_f21_2);
-        func_002b77d0(0x125, fclPacketPosition(spC8), 0x125, fclPacketColor((u32)(*(s32 *)sp11C)), 30.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2DF, fclPacketPosition(spC8), 0x125, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f21_3 = 87.0f + spD0;
-        func_002b2970((u8 *)&spC8, 214.0f + temp_f21_3, temp_f24);
-        func_002b77d0(0x2C1, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp128)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, (216.0f + temp_f21_3) - (f32) (*(s8 *)(temp_17 + 0x122) * 0xD6), 4.0f + spD4);
-        func_002b77d0(0x150, fclPacketPosition(spC8), 0x150, fclPacketColor((u32)(*(s32 *)sp118)), 36.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970(113.0f + pos.x, (13.0f + pos.y));
+        func_002b77d0(0x126, pt, 0x126, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2DE, pt, 0x126, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(320.0f + pos.x, (13.0f + pos.y));
+        func_002b77d0(0x125, pt, 0x125, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2DF, pt, 0x125, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(214.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(t + 0x122) * 0xD6), 4.0f + pos.y);
+        func_002b77d0(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         func_002b7750(0x2E0, 0x150);
-        fclWriteColorBytes(&spFC, 0x8A, 0xCC, 0xFF, 0);
-        func_002b77d0(0x2E0, fclPacketPosition(spC8), 0x150, fclPacketColor((u32)(spFC)), 24.0f, 0xBE, arg2, 6, 3, (s16)0, func_00331560());
+        func_002b77d0(0x2E0, pt, 0x150, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         func_002b68d0(0x2E0, 0xD, 0);
         break;
-    case 1:                                         /* switch 1 */
+    case 1:
         func_002b7750(0x2DE, 0x128);
         func_002b7750(0x2DF, 0x127);
-        temp_f22_2 = 12.0f + spD4;
-        temp_f21_4 = 171.0f + spD0;
-        func_002b2970((u8 *)&spC8, temp_f21_4, temp_f22_2);
-        func_002b77d0(0x128, fclPacketPosition(spC8), 0x128, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f21_4, temp_f22_2);
-        func_002b77d0(0x2DE, fclPacketPosition(spC8), 0x128, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f22_3 = 14.0f + spD4;
-        temp_f21_5 = 354.0f + spD0;
-        func_002b2970((u8 *)&spC8, temp_f21_5, temp_f22_3);
-        func_002b77d0(0x127, fclPacketPosition(spC8), 0x127, fclPacketColor((u32)(*(s32 *)sp11C)), 30.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f21_5, temp_f22_3);
-        func_002b77d0(0x2DF, fclPacketPosition(spC8), 0x127, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f21_6 = 87.0f + spD0;
-        func_002b2970((u8 *)&spC8, 214.0f + temp_f21_6, temp_f24);
-        func_002b77d0(0x2C1, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp128)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, (216.0f + temp_f21_6) - (f32) (*(s8 *)(temp_17 + 0x122) * 0xD6), 4.0f + spD4);
-        func_002b77d0(0x150, fclPacketPosition(spC8), 0x150, fclPacketColor((u32)(*(s32 *)sp118)), 36.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970((171.0f + pos.x), (12.0f + pos.y));
+        func_002b77d0(0x128, pt, 0x128, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((171.0f + pos.x), (12.0f + pos.y));
+        func_002b77d0(0x2DE, pt, 0x128, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((354.0f + pos.x), (14.0f + pos.y));
+        func_002b77d0(0x127, pt, 0x127, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((354.0f + pos.x), (14.0f + pos.y));
+        func_002b77d0(0x2DF, pt, 0x127, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(214.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(t + 0x122) * 0xD6), 4.0f + pos.y);
+        func_002b77d0(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         func_002b7750(0x2E0, 0x150);
-        fclWriteColorBytes(&spF8, 0x8A, 0xCC, 0xFF, 0);
-        func_002b77d0(0x2E0, fclPacketPosition(spC8), 0x150, fclPacketColor((u32)(spF8)), 24.0f, 0xBE, arg2, 6, 3, (s16)0, func_00331560());
+        func_002b77d0(0x2E0, pt, 0x150, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         func_002b68d0(0x2E0, 0xD, 0);
         break;
-    case 2:                                         /* switch 1 */
-        temp_f26 = 13.0f + spD4;
-        func_002b2970((u8 *)&spC8, temp_f22, temp_f26);
-        func_002b77d0(0x13A, fclPacketPosition(spC8), 0x13A, fclPacketColor((u32)(*(s32 *)sp124)), 33.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f20_2, temp_f26);
-        func_002b77d0(0x13B, fclPacketPosition(spC8), 0x13B, fclPacketColor((u32)(*(s32 *)sp124)), 34.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
+    case 2:
+        pt = func_002b2970((40.0f + pos.x), (13.0f + pos.y));
+        func_002b77d0(0x13A, pt, 0x13A, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((522 + pos.x), (13.0f + pos.y));
+        func_002b77d0(0x13B, pt, 0x13B, c124, 34.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
         func_002b7750(0x2DE, 0x1D4);
         func_002b7750(0x2DF, 0x1D5);
-        temp_f22_4 = 12.0f + spD4;
-        temp_f20_3 = 140.0f + spD0;
-        func_002b2970((u8 *)&spC8, temp_f20_3, temp_f22_4);
-        func_002b77d0(0x1D4, fclPacketPosition(spC8), 0x1D4, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f20_3, temp_f22_4);
-        func_002b77d0(0x2DE, fclPacketPosition(spC8), 0x1D4, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f21_7 = 14.0f + spD4;
-        temp_f20_4 = (f32) 0x163 + spD0;
-        func_002b2970((u8 *)&spC8, temp_f20_4, temp_f21_7);
-        func_002b77d0(0x1D5, fclPacketPosition(spC8), 0x1D5, fclPacketColor((u32)(*(s32 *)sp11C)), 30.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f20_4, temp_f21_7);
-        func_002b77d0(0x2DF, fclPacketPosition(spC8), 0x1D5, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 214.0f + (87.0f + spD0), temp_f24);
-        func_002b77d0(0x2C1, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp128)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        if (((s64) (arg2 << 0x38) >> 0x38) == 0) {
-            *(s8 *)(temp_17 + 0x122) = 1;
+        pt = func_002b2970((140.0f + pos.x), (12.0f + pos.y));
+        func_002b77d0(0x1D4, pt, 0x1D4, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((140.0f + pos.x), (12.0f + pos.y));
+        func_002b77d0(0x2DE, pt, 0x1D4, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((355 + pos.x), (14.0f + pos.y));
+        func_002b77d0(0x1D5, pt, 0x1D5, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((355 + pos.x), (14.0f + pos.y));
+        func_002b77d0(0x2DF, pt, 0x1D5, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(214.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        if ((s8)arg2 == 0) {
+            *(s8 *)(t + 0x122) = 1;
         }
-        func_002b2970((u8 *)&spC8, (216.0f + (87.0f + spD0)) - (f32) (*(s8 *)(temp_17 + 0x122) * 0xD6), 4.0f + spD4);
-        func_002b77d0(0x150, fclPacketPosition(spC8), 0x150, fclPacketColor((u32)(*(s32 *)sp118)), 36.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(t + 0x122) * 0xD6), 4.0f + pos.y);
+        func_002b77d0(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         func_002b7750(0x2E0, 0x150);
-        fclWriteColorBytes(&spF4, 0x8A, 0xCC, 0xFF, 0);
-        func_002b77d0(0x2E0, fclPacketPosition(spC8), 0x150, fclPacketColor((u32)(spF4)), 24.0f, 0xBE, arg2, 6, 3, (s16)0, func_00331560());
+        func_002b77d0(0x2E0, pt, 0x150, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         func_002b68d0(0x2E0, 0xD, 0);
         break;
-    case 3:                                         /* switch 1 */
+    case 3:
         func_002b7750(0x2DE, 0x13F);
         func_002b7750(0x2DF, 0x140);
         func_002b7750(0x2E0, 0x151);
         func_002b7750(0x2E1, 0x14C);
         func_002b7750(0x2E2, 0x14F);
-        if (((s64) (arg2 << 0x38) >> 0x38) == 0) {
-            func_002b6140(*(u8 **)(temp_17 + 0x28C), 1U);
-            func_002b6140(*(u8 **)(temp_17 + 0x290), 1U);
-            *(s8 *)(temp_17 + 0x122) = 2;
+        if ((s8)arg2 == 0) {
+            func_002b6140(*(u8 **)(t + 0x28C), 1);
+            func_002b6140(*(u8 **)(t + 0x290), 1);
+            *(s8 *)(t + 0x122) = 2;
         }
-        temp_f21_8 = 9.0f + spD4;
-        func_002b2970((u8 *)&spC8, 138.0f + spD0, temp_f21_8);
-        func_002b77d0(0x13F, fclPacketPosition(spC8), 0x13F, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2DE, fclPacketPosition(spC8), 0x13F, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, (f32) 0x115 + spD0, temp_f21_8);
-        func_002b77d0(0x140, fclPacketPosition(spC8), 0x140, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2DF, fclPacketPosition(spC8), 0x140, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 416.0f + spD0, temp_f21_8);
-        func_002b77d0(0x14C, fclPacketPosition(spC8), 0x14C, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E1, fclPacketPosition(spC8), 0x14C, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 88.0f + spD0 + (f32) (*(s8 *)(temp_17 + 0x122) * 0x8E), 4.0f + spD4);
-        func_002b77d0(0x151, fclPacketPosition(spC8), 0x151, fclPacketColor((u32)(*(s32 *)sp118)), 36.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        fclWriteColorBytes(&spF0, 0x8A, 0xCC, 0xFF, 0);
-        func_002b77d0(0x2E0, fclPacketPosition(spC8), 0x151, fclPacketColor((u32)(spF0)), 24.0f, 0xBE, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970(138.0f + pos.x, (9.0f + pos.y));
+        func_002b77d0(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(277 + pos.x, (9.0f + pos.y));
+        func_002b77d0(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(416.0f + pos.x, (9.0f + pos.y));
+        func_002b77d0(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(88.0f + pos.x + (f32)(*(s8 *)(t + 0x122) * 0x8E), 4.0f + pos.y);
+        func_002b77d0(0x151, pt, 0x151, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E0, pt, 0x151, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         func_002b68d0(0x2E0, 0xD, 0);
-        temp_f21_9 = 2.0f + spD4;
-        temp_f20_5 = 87.0f + spD0;
-        func_002b2970((u8 *)&spC8, 142.0f + temp_f20_5, temp_f21_9);
-        func_002b77d0(0x2C1, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 284.0f + temp_f20_5, temp_f21_9);
-        func_002b77d0(0x2E2, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970(142.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(284.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
-    case 4:                                         /* switch 1 */
+    case 4:
         func_002b7750(0x2DE, 0x13F);
         func_002b7750(0x2DF, 0x140);
         func_002b7750(0x2E0, 0x152);
@@ -4283,39 +4159,35 @@ void func_00325450(u8 *arg0, s64 arg1, s64 arg2) {
         func_002b7750(0x2E2, 0x14F);
         func_002b7750(0x2E3, 0x141);
         func_002b7750(0x2E4, 0x14F);
-        if (((s64) (arg2 << 0x38) >> 0x38) == 0) {
-            func_002b6140(*(u8 **)(temp_17 + 0x28C), 1U);
-            func_002b6140(*(u8 **)(temp_17 + 0x290), 1U);
-            *(s8 *)(temp_17 + 0x122) = 3;
+        if ((s8)arg2 == 0) {
+            func_002b6140(*(u8 **)(t + 0x28C), 1);
+            func_002b6140(*(u8 **)(t + 0x290), 1);
+            *(s8 *)(t + 0x122) = 3;
         }
-        temp_f21_10 = 9.0f + spD4;
-        func_002b2970((u8 *)&spC8, 127.0f + spD0, temp_f21_10);
-        func_002b77d0(0x13F, fclPacketPosition(spC8), 0x13F, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2DE, fclPacketPosition(spC8), 0x13F, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 229.0f + spD0, temp_f21_10);
-        func_002b77d0(0x140, fclPacketPosition(spC8), 0x140, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2DF, fclPacketPosition(spC8), 0x140, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 334.0f + spD0, temp_f21_10);
-        func_002b77d0(0x141, fclPacketPosition(spC8), 0x141, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E3, fclPacketPosition(spC8), 0x141, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, (f32) 0x1B3 + spD0, temp_f21_10);
-        func_002b77d0(0x14C, fclPacketPosition(spC8), 0x14C, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E1, fclPacketPosition(spC8), 0x14C, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 88.0f + spD0 + (f32) (*(s8 *)(temp_17 + 0x122) * 0x6B), 4.0f + spD4);
-        func_002b77d0(0x152, fclPacketPosition(spC8), 0x152, fclPacketColor((u32)(*(s32 *)sp118)), 36.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        fclWriteColorBytes(&spEC, 0x8A, 0xCC, 0xFF, 0);
-        func_002b77d0(0x2E0, fclPacketPosition(spC8), 0x152, fclPacketColor((u32)(spEC)), 24.0f, 0xBE, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970(127.0f + pos.x, (9.0f + pos.y));
+        func_002b77d0(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(229.0f + pos.x, (9.0f + pos.y));
+        func_002b77d0(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(334.0f + pos.x, (9.0f + pos.y));
+        func_002b77d0(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(435 + pos.x, (9.0f + pos.y));
+        func_002b77d0(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(88.0f + pos.x + (f32)(*(s8 *)(t + 0x122) * 0x6B), 4.0f + pos.y);
+        func_002b77d0(0x152, pt, 0x152, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E0, pt, 0x152, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         func_002b68d0(0x2E0, 0xD, 0);
-        temp_f21_11 = 2.0f + spD4;
-        temp_f20_6 = 87.0f + spD0;
-        func_002b2970((u8 *)&spC8, 107.0f + temp_f20_6, temp_f21_11);
-        func_002b77d0(0x2C1, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 214.0f + temp_f20_6, temp_f21_11);
-        func_002b77d0(0x2E2, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, (f32) 0x141 + temp_f20_6, temp_f21_11);
-        func_002b77d0(0x2E4, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970(107.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(214.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(321 + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
-    case 5:                                         /* switch 1 */
+    case 5:
         func_002b7750(0x2DE, 0x13F);
         func_002b7750(0x2DF, 0x140);
         func_002b7750(0x2E0, 0x153);
@@ -4326,48 +4198,43 @@ void func_00325450(u8 *arg0, s64 arg1, s64 arg2) {
         func_002b7750(0x2E5, 0x142);
         func_002b7750(0x2E6, 0x14F);
         func_002b7750(0x2E7, 0x14B);
-        if (((s64) (arg2 << 0x38) >> 0x38) == 0) {
-            func_002b6140(*(u8 **)(temp_17 + 0x28C), 1U);
-            func_002b6140(*(u8 **)(temp_17 + 0x290), 1U);
-            *(s8 *)(temp_17 + 0x122) = 4;
+        if ((s8)arg2 == 0) {
+            func_002b6140(*(u8 **)(t + 0x28C), 1);
+            func_002b6140(*(u8 **)(t + 0x290), 1);
+            *(s8 *)(t + 0x122) = 4;
         }
-        temp_f20_7 = 9.0f + spD4;
-        func_002b2970((u8 *)&spC8, 114.0f + spD0, temp_f20_7);
-        func_002b77d0(0x13F, fclPacketPosition(spC8), 0x13F, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2DE, fclPacketPosition(spC8), 0x13F, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 199.0f + spD0, temp_f20_7);
-        func_002b77d0(0x140, fclPacketPosition(spC8), 0x140, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2DF, fclPacketPosition(spC8), 0x140, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 284.0f + spD0, temp_f20_7);
-        func_002b77d0(0x141, fclPacketPosition(spC8), 0x141, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E3, fclPacketPosition(spC8), 0x141, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f22_5 = (f32) 0x171 + spD0;
-        func_002b2970((u8 *)&spC8, temp_f22_5, temp_f20_7);
-        func_002b77d0(0x142, fclPacketPosition(spC8), 0x142, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E5, fclPacketPosition(spC8), 0x142, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 24.0f + temp_f22_5, 15.0f + temp_f20_7);
-        func_002b77d0(0x14B, fclPacketPosition(spC8), 0x14B, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E7, fclPacketPosition(spC8), 0x14B, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 446.0f + spD0, temp_f20_7);
-        func_002b77d0(0x14C, fclPacketPosition(spC8), 0x14C, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E1, fclPacketPosition(spC8), 0x14C, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 88.0f + spD0 + (f32) (*(s8 *)(temp_17 + 0x122) * 0x55), 4.0f + spD4);
-        func_002b77d0(0x153, fclPacketPosition(spC8), 0x153, fclPacketColor((u32)(*(s32 *)sp118)), 36.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        fclWriteColorBytes(&spE8, 0x8A, 0xCC, 0xFF, 0);
-        func_002b77d0(0x2E0, fclPacketPosition(spC8), 0x153, fclPacketColor((u32)(spE8)), 24.0f, 0xBE, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970(114.0f + pos.x, (9.0f + pos.y));
+        func_002b77d0(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(199.0f + pos.x, (9.0f + pos.y));
+        func_002b77d0(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(284.0f + pos.x, (9.0f + pos.y));
+        func_002b77d0(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((369 + pos.x), (9.0f + pos.y));
+        func_002b77d0(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(24.0f + (369 + pos.x), 15.0f + (9.0f + pos.y));
+        func_002b77d0(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(446.0f + pos.x, (9.0f + pos.y));
+        func_002b77d0(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(88.0f + pos.x + (f32)(*(s8 *)(t + 0x122) * 0x55), 4.0f + pos.y);
+        func_002b77d0(0x153, pt, 0x153, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E0, pt, 0x153, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         func_002b68d0(0x2E0, 0xD, 0);
-        temp_f21_12 = 2.0f + spD4;
-        temp_f20_8 = 87.0f + spD0;
-        func_002b2970((u8 *)&spC8, 85.0f + temp_f20_8, temp_f21_12);
-        func_002b77d0(0x2C1, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 170.0f + temp_f20_8, temp_f21_12);
-        func_002b77d0(0x2E2, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 255.0f + temp_f20_8, temp_f21_12);
-        func_002b77d0(0x2E4, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 340.0f + temp_f20_8, temp_f21_12);
-        func_002b77d0(0x2E6, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970(85.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(170.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(255.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(340.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
-    case 6:                                         /* switch 1 */
+    case 6:
         func_002b7750(0x2DE, 0x13F);
         func_002b7750(0x2DF, 0x140);
         func_002b7750(0x2E0, 0x154);
@@ -4382,60 +4249,51 @@ void func_00325450(u8 *arg0, s64 arg1, s64 arg2) {
         func_002b7750(0x2E9, 0x14F);
         func_002b7750(0x2EA, 0x14B);
         func_002b7750(0x2EB, 0x14B);
-        if (((s64) (arg2 << 0x38) >> 0x38) == 0) {
-            func_002b6140(*(u8 **)(temp_17 + 0x28C), 1U);
-            func_002b6140(*(u8 **)(temp_17 + 0x290), 1U);
-            *(s8 *)(temp_17 + 0x122) = 5;
+        if ((s8)arg2 == 0) {
+            func_002b6140(*(u8 **)(t + 0x28C), 1);
+            func_002b6140(*(u8 **)(t + 0x290), 1);
+            *(s8 *)(t + 0x122) = 5;
         }
-        temp_f26_2 = 9.0f + spD4;
-        temp_f25 = 87.0f + spD0;
-        func_002b2970((u8 *)&spC8, 20.0f + temp_f25, temp_f26_2);
-        func_002b77d0(0x13F, fclPacketPosition(spC8), 0x13F, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2DE, fclPacketPosition(spC8), 0x13F, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f24_2 = 71.0f + temp_f25;
-        func_002b2970((u8 *)&spC8, 15.0f + temp_f24_2, temp_f26_2);
-        func_002b77d0(0x140, fclPacketPosition(spC8), 0x140, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2DF, fclPacketPosition(spC8), 0x140, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f23_2 = 142.0f + temp_f25;
-        func_002b2970((u8 *)&spC8, 16.0f + temp_f23_2, temp_f26_2);
-        func_002b77d0(0x141, fclPacketPosition(spC8), 0x141, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E3, fclPacketPosition(spC8), 0x141, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f22_6 = 213.0f + temp_f25;
-        func_002b2970((u8 *)&spC8, 16.0f + temp_f22_6, temp_f26_2);
-        func_002b77d0(0x142, fclPacketPosition(spC8), 0x142, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E5, fclPacketPosition(spC8), 0x142, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 24.0f + *(f32 *)&spC8, 15.0f + (*((f32 *)&spC8 + 1)));
-        func_002b77d0(0x14B, fclPacketPosition(spC8), 0x14B, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E7, fclPacketPosition(spC8), 0x14B, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f21_13 = 284.0f + temp_f25;
-        func_002b2970((u8 *)&spC8, 15.0f + temp_f21_13, temp_f26_2);
-        func_002b77d0(0x143, fclPacketPosition(spC8), 0x143, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E8, fclPacketPosition(spC8), 0x143, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 25.0f + *(f32 *)&spC8, 15.0f + (*((f32 *)&spC8 + 1)));
-        func_002b77d0(0x2EA, fclPacketPosition(spC8), 0x14B, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2EB, fclPacketPosition(spC8), 0x14B, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f20_9 = (f32) 0x163 + temp_f25;
-        func_002b2970((u8 *)&spC8, 11.0f + temp_f20_9, temp_f26_2);
-        func_002b77d0(0x14C, fclPacketPosition(spC8), 0x14C, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E1, fclPacketPosition(spC8), 0x14C, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f25 + (f32) (*(s8 *)(temp_17 + 0x122) * 0x47), 4.0f + spD4);
-        func_002b77d0(0x154, fclPacketPosition(spC8), 0x154, fclPacketColor((u32)(*(s32 *)sp118)), 36.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        fclWriteColorBytes(&spE4, 0x8A, 0xCC, 0xFF, 0);
-        func_002b77d0(0x2E0, fclPacketPosition(spC8), 0x154, fclPacketColor((u32)(spE4)), 24.0f, 0xBE, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970(20.0f + (87.0f + pos.x), (9.0f + pos.y));
+        func_002b77d0(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(15.0f + (71.0f + (87.0f + pos.x)), (9.0f + pos.y));
+        func_002b77d0(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(16.0f + (142.0f + (87.0f + pos.x)), (9.0f + pos.y));
+        func_002b77d0(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(16.0f + (213.0f + (87.0f + pos.x)), (9.0f + pos.y));
+        func_002b77d0(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(24.0f + pt.x, 15.0f + pt.y);
+        func_002b77d0(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(15.0f + (284.0f + (87.0f + pos.x)), (9.0f + pos.y));
+        func_002b77d0(0x143, pt, 0x143, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E8, pt, 0x143, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(25.0f + pt.x, 15.0f + pt.y);
+        func_002b77d0(0x2EA, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2EB, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(11.0f + (355 + (87.0f + pos.x)), (9.0f + pos.y));
+        func_002b77d0(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((87.0f + pos.x) + (f32)(*(s8 *)(t + 0x122) * 0x47), 4.0f + pos.y);
+        func_002b77d0(0x154, pt, 0x154, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E0, pt, 0x154, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         func_002b68d0(0x2E0, 0xD, 0);
-        temp_f25_2 = 2.0f + spD4;
-        func_002b2970((u8 *)&spC8, temp_f24_2, temp_f25_2);
-        func_002b77d0(0x2C1, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f23_2, temp_f25_2);
-        func_002b77d0(0x2E2, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f22_6, temp_f25_2);
-        func_002b77d0(0x2E4, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f21_13, temp_f25_2);
-        func_002b77d0(0x2E6, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f20_9, temp_f25_2);
-        func_002b77d0(0x2E9, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970((71.0f + (87.0f + pos.x)), (2.0f + pos.y));
+        func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((142.0f + (87.0f + pos.x)), (2.0f + pos.y));
+        func_002b77d0(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((213.0f + (87.0f + pos.x)), (2.0f + pos.y));
+        func_002b77d0(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((284.0f + (87.0f + pos.x)), (2.0f + pos.y));
+        func_002b77d0(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((355 + (87.0f + pos.x)), (2.0f + pos.y));
+        func_002b77d0(0x2E9, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
-    case 7:                                         /* switch 1 */
+    case 7:
         func_002b7750(0x2DE, 0x13F);
         func_002b7750(0x2DF, 0x140);
         func_002b7750(0x2E0, 0x155);
@@ -4454,151 +4312,107 @@ void func_00325450(u8 *arg0, s64 arg1, s64 arg2) {
         func_002b7750(0x2ED, 0x14F);
         func_002b7750(0x2EE, 0x14B);
         func_002b7750(0x2EF, 0x14B);
-        if (((s64) (arg2 << 0x38) >> 0x38) == 0) {
-            func_002b6140(*(u8 **)(temp_17 + 0x28C), 1U);
-            func_002b6140(*(u8 **)(temp_17 + 0x290), 1U);
-            *(s8 *)(temp_17 + 0x122) = 6;
+        if ((s8)arg2 == 0) {
+            func_002b6140(*(u8 **)(t + 0x28C), 1);
+            func_002b6140(*(u8 **)(t + 0x290), 1);
+            *(s8 *)(t + 0x122) = 6;
         }
-        temp_f27 = 9.0f + spD4;
-        temp_f26_3 = 87.0f + spD0;
-        func_002b2970((u8 *)&spC8, 13.0f + temp_f26_3, temp_f27);
-        func_002b77d0(0x13F, fclPacketPosition(spC8), 0x13F, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2DE, fclPacketPosition(spC8), 0x13F, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f25_3 = 61.0f + temp_f26_3;
-        func_002b2970((u8 *)&spC8, 12.0f + temp_f25_3, temp_f27);
-        func_002b77d0(0x140, fclPacketPosition(spC8), 0x140, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2DF, fclPacketPosition(spC8), 0x140, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f24_3 = 122.0f + temp_f26_3;
-        func_002b2970((u8 *)&spC8, 10.0f + temp_f24_3, temp_f27);
-        func_002b77d0(0x141, fclPacketPosition(spC8), 0x141, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E3, fclPacketPosition(spC8), 0x141, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f23_3 = 183.0f + temp_f26_3;
-        func_002b2970((u8 *)&spC8, 10.0f + temp_f23_3, temp_f27);
-        func_002b77d0(0x142, fclPacketPosition(spC8), 0x142, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E5, fclPacketPosition(spC8), 0x142, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 24.0f + *(f32 *)&spC8, 15.0f + (*((f32 *)&spC8 + 1)));
-        func_002b77d0(0x14B, fclPacketPosition(spC8), 0x14B, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E7, fclPacketPosition(spC8), 0x14B, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f22_7 = 244.0f + temp_f26_3;
-        func_002b2970((u8 *)&spC8, 10.0f + temp_f22_7, temp_f27);
-        func_002b77d0(0x143, fclPacketPosition(spC8), 0x143, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E8, fclPacketPosition(spC8), 0x143, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 25.0f + *(f32 *)&spC8, 15.0f + (*((f32 *)&spC8 + 1)));
-        func_002b77d0(0x2EA, fclPacketPosition(spC8), 0x14B, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2EB, fclPacketPosition(spC8), 0x14B, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f21_14 = (f32) 0x131 + temp_f26_3;
-        func_002b2970((u8 *)&spC8, 10.0f + temp_f21_14, temp_f27);
-        func_002b77d0(0x144, fclPacketPosition(spC8), 0x144, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2EC, fclPacketPosition(spC8), 0x144, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 25.0f + *(f32 *)&spC8, 15.0f + (*((f32 *)&spC8 + 1)));
-        func_002b77d0(0x2EE, fclPacketPosition(spC8), 0x14B, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2EF, fclPacketPosition(spC8), 0x14B, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        temp_f20_10 = 366.0f + temp_f26_3;
-        func_002b2970((u8 *)&spC8, 6.0f + temp_f20_10, temp_f27);
-        func_002b77d0(0x14C, fclPacketPosition(spC8), 0x14C, fclPacketColor((u32)(*(s32 *)sp11C)), 29.0f, 0xBD, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b77d0(0x2E1, fclPacketPosition(spC8), 0x14C, fclPacketColor((u32)(*(s32 *)sp120)), 25.0f, 0xBF, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f26_3 + (f32) (*(s8 *)(temp_17 + 0x122) * 0x3D), 4.0f + spD4);
-        func_002b77d0(0x155, fclPacketPosition(spC8), 0x155, fclPacketColor((u32)(*(s32 *)sp118)), 36.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        fclWriteColorBytes(&spE0, 0x8A, 0xCC, 0xFF, 0);
-        func_002b77d0(0x2E0, fclPacketPosition(spC8), 0x155, fclPacketColor((u32)(spE0)), 24.0f, 0xBE, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970(13.0f + (87.0f + pos.x), (9.0f + pos.y));
+        func_002b77d0(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(12.0f + (61.0f + (87.0f + pos.x)), (9.0f + pos.y));
+        func_002b77d0(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(10.0f + (122.0f + (87.0f + pos.x)), (9.0f + pos.y));
+        func_002b77d0(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(10.0f + (183.0f + (87.0f + pos.x)), (9.0f + pos.y));
+        func_002b77d0(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(24.0f + pt.x, 15.0f + pt.y);
+        func_002b77d0(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(10.0f + (244.0f + (87.0f + pos.x)), (9.0f + pos.y));
+        func_002b77d0(0x143, pt, 0x143, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E8, pt, 0x143, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(25.0f + pt.x, 15.0f + pt.y);
+        func_002b77d0(0x2EA, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2EB, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(10.0f + (305 + (87.0f + pos.x)), (9.0f + pos.y));
+        func_002b77d0(0x144, pt, 0x144, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2EC, pt, 0x144, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(25.0f + pt.x, 15.0f + pt.y);
+        func_002b77d0(0x2EE, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2EF, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(6.0f + (366.0f + (87.0f + pos.x)), (9.0f + pos.y));
+        func_002b77d0(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((87.0f + pos.x) + (f32)(*(s8 *)(t + 0x122) * 0x3D), 4.0f + pos.y);
+        func_002b77d0(0x155, pt, 0x155, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E0, pt, 0x155, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         func_002b68d0(0x2E0, 0xD, 0);
-        temp_f26_4 = 2.0f + spD4;
-        func_002b2970((u8 *)&spC8, temp_f25_3, temp_f26_4);
-        func_002b77d0(0x2C1, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f24_3, temp_f26_4);
-        func_002b77d0(0x2E2, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f23_3, temp_f26_4);
-        func_002b77d0(0x2E4, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f22_7, temp_f26_4);
-        func_002b77d0(0x2E6, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f21_14, temp_f26_4);
-        func_002b77d0(0x2E9, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, temp_f20_10, temp_f26_4);
-        func_002b77d0(0x2ED, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970((61.0f + (87.0f + pos.x)), (2.0f + pos.y));
+        func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((122.0f + (87.0f + pos.x)), (2.0f + pos.y));
+        func_002b77d0(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((183.0f + (87.0f + pos.x)), (2.0f + pos.y));
+        func_002b77d0(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((244.0f + (87.0f + pos.x)), (2.0f + pos.y));
+        func_002b77d0(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((305 + (87.0f + pos.x)), (2.0f + pos.y));
+        func_002b77d0(0x2E9, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970((366.0f + (87.0f + pos.x)), (2.0f + pos.y));
+        func_002b77d0(0x2ED, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
-    case 8:                                         /* switch 1 */
+    case 8:
         func_002b7750(0x2DE, 0x14F);
         func_002b7750(0x2DF, 0x14F);
         func_002b7750(0x2E0, 0x155);
         func_002b7750(0x2E1, 0x14F);
         func_002b7750(0x2E2, 0x14F);
         func_002b7750(0x2E3, 0x14F);
-        if (((s64) (arg2 << 0x38) >> 0x38) == 0) {
-            func_002b6140(*(u8 **)(temp_17 + 0x28C), 1U);
-            func_002b6140(*(u8 **)(temp_17 + 0x290), 1U);
-            *(s8 *)(temp_17 + 0x122) = 0xC;
-            *(s16 *)(temp_17 + 0x120) = 6;
+        if ((s8)arg2 == 0) {
+            func_002b6140(*(u8 **)(t + 0x28C), 1);
+            func_002b6140(*(u8 **)(t + 0x290), 1);
+            *(s8 *)(t + 0x122) = 0xC;
+            *(s16 *)(t + 0x120) = 6;
         }
         func_00329310(arg0, 6, arg2);
-        temp_f20_11 = 87.0f + spD0;
-        func_002b2970((u8 *)&spC8, temp_f20_11 + (f32) (*(s16 *)(temp_17 + 0x120) * 0x3D), 4.0f + spD4);
-        func_002b77d0(0x155, fclPacketPosition(spC8), 0x155, fclPacketColor((u32)(*(s32 *)sp118)), 36.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        fclWriteColorBytes(&spDC, 0x8A, 0xCC, 0xFF, 0);
-        func_002b77d0(0x2E0, fclPacketPosition(spC8), 0x155, fclPacketColor((u32)(spDC)), 24.0f, 0xBE, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970((87.0f + pos.x) + (f32)(*(s16 *)(t + 0x120) * 0x3D), 4.0f + pos.y);
+        func_002b77d0(0x155, pt, 0x155, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        func_002b77d0(0x2E0, pt, 0x155, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         func_002b68d0(0x2E0, 0xD, 0);
-        temp_f21_15 = 2.0f + spD4;
-        func_002b2970((u8 *)&spC8, 61.0f + temp_f20_11, temp_f21_15);
-        func_002b77d0(0x2C1, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 122.0f + temp_f20_11, temp_f21_15);
-        func_002b77d0(0x2DE, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 183.0f + temp_f20_11, temp_f21_15);
-        func_002b77d0(0x2DF, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 244.0f + temp_f20_11, temp_f21_15);
-        func_002b77d0(0x2E1, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, (f32) 0x131 + temp_f20_11, temp_f21_15);
-        func_002b77d0(0x2E2, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 366.0f + temp_f20_11, temp_f21_15);
-        func_002b77d0(0x2E3, fclPacketPosition(spC8), 0x14F, fclPacketColor((u32)(*(s32 *)sp118)), 35.0f, 0xBC, arg2, 6, 3, (s16)0, func_00331560());
+        pt = func_002b2970(61.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(122.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2DE, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(183.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2DF, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(244.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2E1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(305 + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        pt = func_002b2970(366.0f + (87.0f + pos.x), (2.0f + pos.y));
+        func_002b77d0(0x2E3, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
     }
-    temp_17_2 = (s64) (arg2 << 0x38) >> 0x38;
-    if (temp_17_2 == 0) {
-        switch (temp_16) {                          /* switch 2; irregular */
-        case 0:                                     /* switch 2 */
-            func_00316e80(arg0, 1, 1, 0, 0, 0, 0, 0, (s8) 0, (s8) 1, /* extra? */ 0);
-            if (temp_17_2 == 0) {
-                func_002b2970((u8 *)&spB8.bits, 358.0f, D_00644C90[1]);
-                func_002b6c30(0x1E4, spB8.position, 103.0f, 0xBC);
-                func_002b6a70(0x1E4, 0U, 0xFFU, 0, 0xA, 0);
-                func_002b6b40(0x1E4, 0, 0, 0, 0.0f, 90.0f);
-                return;
-            }
-            func_002b6a70(0x1E4, *(u8 *)(func_002b6150(0x1E4) + 0x6E), 0U, 0, 0xA, 0);
-            return;
-        case 1:                                     /* switch 2 */
-            func_00316e80(arg0, 1, 1, 0, 0, 0, 0, 1, (s8) 0, (s8) 0, /* extra? */ 0);
-            if (temp_17_2 == 0) {
-                func_002b2970((u8 *)&spB0.bits, 358.0f, D_00644C90[1]);
-                func_002b6c30(0x1E4, spB0.position, 103.0f, 0xBC);
-                func_002b6a70(0x1E4, 0U, 0xFFU, 0, 0xA, 0);
-                func_002b6b40(0x1E4, 0, 0, 0, 0.0f, 90.0f);
-                return;
-            }
-            func_002b6a70(0x1E4, *(u8 *)(func_002b6150(0x1E4) + 0x6E), 0U, 0, 0xA, 0);
-            return;
+    if ((s8)arg2 == 0) {
+        if ((s8)arg1 == 0) {
+            func_00316e80(arg0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0);
+            fclShowCursorArrow(arg2);
+        } else if ((s8)arg1 == 1) {
+            func_00316e80(arg0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0);
+            fclShowCursorArrow(arg2);
         }
     } else {
-        switch (temp_16) {                          /* switch 3; irregular */
-        case 0:                                     /* switch 3 */
-            func_00316e80(arg0, 1, 0, 0, 0, 0, 0, 0, (s8) 0, (s8) 1, /* extra? */ 1);
-            if (temp_17_2 == 0) {
-                func_002b2970((u8 *)&spA8.bits, 358.0f, D_00644C90[1]);
-                func_002b6c30(0x1E4, spA8.position, 103.0f, 0xBC);
-                func_002b6a70(0x1E4, 0U, 0xFFU, 0, 0xA, 0);
-                func_002b6b40(0x1E4, 0, 0, 0, 0.0f, 90.0f);
-                return;
-            }
-            func_002b6a70(0x1E4, *(u8 *)(func_002b6150(0x1E4) + 0x6E), 0U, 0, 0xA, 0);
-            return;
-        case 1:                                     /* switch 3 */
-            func_00316e80(arg0, 1, 0, 0, 0, 0, 0, 1, (s8) 1, (s8) 0, /* extra? */ 0);
-            return;
+        if ((s8)arg1 == 0) {
+            func_00316e80(arg0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1);
+            fclShowCursorArrow(arg2);
+        } else if ((s8)arg1 == 1) {
+            func_00316e80(arg0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0);
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00325450);
-#endif
 
 /* Measured: keep the current x value loaded before its table adjustment.
    The scoped propagation setting preserves retail floating-point load order.
