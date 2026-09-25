@@ -237,20 +237,20 @@ s32 func_002e26f0(void *);
 void func_002e06d0(void *, f32, f32, f32, f32, s32, s32, s32);
 void func_002e0b20(s32, Vec2f, f32, s32, u8, s32, u8 *);
 void *func_001067f0(s32);
-s16 func_00106cd0(s16, s16);
+s32 func_00106cd0(s16, s16);
 /* measured: int parameter in this unit -- func_002df020 passes its item id
    unextended here and to func_001067f0, but sign-extends it for func_00106a90. */
 u32 func_00106880(s32);
-u16 func_001068b0(s16);
-u16 func_001068e0(s16);
-u16 func_00106940(s16);
-u16 func_00106970(s16);
+u16 func_001068b0(s32);
+u16 func_001068e0(s32);
+u16 func_00106940(s32);
+u16 func_00106970(s32);
 s32 func_002b3170(s32);
 void func_002cacd0(Vec2f, f32, FclDrawColor, s32, s16, u32, s32, s32, s32, s32, s32);
 void *func_0046a770(void *);
 s16 func_002e2830(void *, s32);
-s32 func_00106600(s16 id);
-u16 func_001069d0(s64);
+s32 func_00106600(s32 id);
+u16 func_001069d0(s32);
 void func_002bc7f0(s32, s32, s32, s32, s32, s32, f32, f32, f32);
 void func_002e0ca0(s32, Vec2f, f32, s32, u8, s32, u8 *);
 void func_002e0a60(void *, s32, f32);
@@ -7113,8 +7113,9 @@ static inline void shopDrawStat(u32 value, f32 x, f32 y)
    the expressions straight to the helper is instruction-exact but colours
    `work` into $s0 below the short-lived values (95 words, every one the
    $s0/$s1 swap); writing the draws without the helper fixes the registers
-   but lays the temporaries out in call order (38 words).  (s32) on the
-   stat ids gives retail's dsll32/dsra32 before func_001068b0; the deltas
+   but lays the temporaries out in call order (38 words).  The (s32) and
+   (s16) casts on the stat ids give retail's dsll32/dsra32 before the int
+   getters (the deltas pass the func_00106cd0 result unextended); the deltas
    evaluate `cur` first through shopStatDelta; case 2 zeroes with
    `dB = dA = 0`. */
 // FUN_002D5040
@@ -7129,7 +7130,7 @@ void func_002d5040(void *arg0) {
     work = *(u8 **)((u8 *)arg0 + 0x38);
     func_002e0b20(func_002d4f30((s16)func_00106880(func_002e2740(*(s16 *)(work + 2)))) & 0xFFFF, func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30)), 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
     shopDrawLabel(31.0f, (const char *)func_001067f0(func_002e2740(*(s16 *)(work + 2))), func_002b2970(79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
-    shopDrawLabel(31.0f, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), *(s8 *)(work + 7))), func_002b2970(79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+    shopDrawLabel(31.0f, (const char *)func_001067f0((s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), *(s8 *)(work + 7))), func_002b2970(79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
     switch (*(s8 *)(work + 7)) {
     case 0:
         x = 51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C));
@@ -7140,10 +7141,10 @@ void func_002d5040(void *arg0) {
         shopDrawStat(value, x, (f32)0x107);
         func_002e0b20(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF7C), func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30)), 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         x = 51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C));
-        value = func_001068b0((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF;
+        value = func_001068b0((s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF;
         shopDrawStat(value, x, 149.0f);
         x = 87.0f + (51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C)));
-        value = func_001068e0((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF;
+        value = func_001068e0((s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF;
         shopDrawStat(value, x, 149.0f);
         dB = shopStatDelta((func_001068b0((s32)func_002e2740(*(s16 *)(work + 2))) & 0xFFFF), func_001068b0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF);
         dA = shopStatDelta((func_001068e0((s32)func_002e2740(*(s16 *)(work + 2))) & 0xFFFF), func_001068e0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF);
@@ -7157,10 +7158,10 @@ void func_002d5040(void *arg0) {
         shopDrawStat(value, x, (f32)0x107);
         func_002e0b20(0x1B, func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30)), 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         x = 51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C));
-        value = func_00106940((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF;
+        value = func_00106940((s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF;
         shopDrawStat(value, x, 149.0f);
         x = 87.0f + (51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C)));
-        value = func_00106970((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF;
+        value = func_00106970((s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF;
         shopDrawStat(value, x, 149.0f);
         dB = shopStatDelta((func_00106940((s32)func_002e2740(*(s16 *)(work + 2))) & 0xFFFF), func_00106940(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF);
         dA = shopStatDelta((func_00106970((s32)func_002e2740(*(s16 *)(work + 2))) & 0xFFFF), func_00106970(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF);
@@ -9005,275 +9006,134 @@ void func_002dd230(void *arg0) {
     func_002e04f0(work->field_D8C, 6, 0);
 }
 
-/* measured: func_002dd3b0's best reconstructed C body is archived verbatim at
-   build/WBFclShopDraw_func_002dd3b0_archive.txt. Its scoped result was object
-   4816B against a 4592B retail window, normalized_diff 3543, MISMATCH. The
-   archive records the candidate/retail prologue and saved-register facts, the
-   exact fndiff prologue rows, the two-call func_0046a770 findings for all four
-   branch groups, the two regular work->field_F28 calls, and ruled-out probes. */
-/* measured: probe_variants 895 differing words reloc-masked (V9loop with opt_propagation off + opt_common_subs off + opt_loop_invariants on; bare V1 1028, V2 swap 1025, V3prop 969, V7 cached 958, V8common 902); fnalign retail 1148 vs object 1163 instrs (+15, +1.31% PASS, 378 edits +26 reloc-only via --candidate v9_loop.c --quiet); verify/lint clean. Count-first PASS (within 3%). */
-/* Repro: `python3 -E -s tools/m2c_decompile.py src/Event/Fcl/y_fclShopDraw.c func_002dd3b0 -o /var/tmp/cold2dd3b0/m2c.c` (jr/jtbl failure, no output) + `python3 -E -s tools/romwright_decompile.py func_002dd3b0 -o /var/tmp/cold2dd3b0/rom.c` (356 lines, (void*) arity, stack extents) + `python3 -E -s tools/probe_variants.py src/Event/Fcl/y_fclShopDraw.c func_002dd3b0 --candidate V9=/var/tmp/cold2dd3b0/v9_loop.c` (895) + `python3 -E -s tools/fnalign.py src/Event/Fcl/y_fclShopDraw.c func_002dd3b0 --candidate /var/tmp/cold2dd3b0/v9_loop.c --quiet` (1148/1163) + `python3 -E -s tools/measure_guarded.py src/Event/Fcl/y_fclShopDraw.c func_002dd3b0`. */
-/* Rounds in batch order (count first): v1 1028 (m2c+rom de-noise, Vec2f/u64/RGBA homes, correct 0b20/cacd0/75680 orders per file header + fr_font_internal.h, 1209/1148 +61 FAIL); v2 swap 1025 (-3, outer dispatch 1-first to match retail L002DD960 layout 1-near/0-2-far, edits 1344->498); v3 propOff 969 (-56, family convention as 2d5040) + v3 commonOff 1002 (-23) vs loop/unroll/sched ties; v4 subscript ties (F18 P[i] vs off); v5 colouring ties (work/tmp swaps); v6 f32 ties (micro shows (f32)0x246 and 582.0f both emit addiu+cvt); v7 cached 958 (-11, 04e0 result caching 37->17 calls matching retail 17, 1146/1147 -1 PASS); v8 common 902 (-56, propOff+commonOff) + v8 loop 949 (-9) vs unroll/sched/sub ties; v9 loop 895 (-7, triple propOff+commonOff+loopInvOn) vs unroll/sched/col/sub ties; v10 sweep ties (dead/str/sched/unroll) + peep 1062 worse; v11 width worse (loop s16 970, c16 s16 984) + workLast tie. Step3/Step4 ties per handoff 7o (bare decls, assigns in retail order). */
-/* Walls (same float-hoist+scheduling as sibling 2d5040, now at 895): retail f20 hoisted vs object f12 rematerialised per 2970 pair; retail lwc1/swc1 Vec2f copy vs object ld/sd; retail andi vs object ori/and under propOff (&0xFFFF); $s0/$s1/$s2 colouring (work/tmp/h0/pT) persists -- body already in 7o form so subscript/colouring probes are ties; all logic matches: 0b20/cacd0/75680 chains with correct 11-arg signatures + outer C24 + inner 26f0 + 069d0 loop/bc7f0 + three-case work[7] dispatch (0/2 far, 1 near with 20-28 jump table) + eight 04e0 groups cached. Prior nd-3543 archive superseded (helper orders + caching + dispatch layout fixed). */
-// FUN_002DD3B0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_propagation off
-#pragma opt_common_subs off
-#pragma opt_loop_invariants on
+/* A stat number drawn at a precomputed position.  Retail calls the stat
+   getter twice per number and uses only the second result (masked); `raw`
+   keeps the first call.  Nesting shopDrawStat puts its func_002b2970 and
+   colour temporaries below all four position-parameter copies, as in
+   retail. */
+static inline void shopDrawStatAt(u32 raw, u32 value, Vec2f pos)
+{
+    shopDrawStat(value, pos.x, pos.y);
+}
+
+/* measured: MATCH, window 1148 words/4592B.  Written with the
+   func_002d5040/func_002de5a0 levers (Vec2f constructor and colour calls as
+   arguments, inlined label and stat helpers).  The prototype set this needs
+   is one consistent contract: the item-table getters (func_001068b0,
+   func_001068e0, func_00106940, func_00106970, func_00106600, func_001069d0)
+   take int, as retail passes the int item id to them unextended, and
+   func_00106cd0 returns int; call sites that retail narrows (the
+   func_00106a90 argument here, the func_00106cd0 results in
+   func_002d5040/func_002de5a0) carry an explicit (s16).  The slot pointer is
+   indexed as ((void **)(work + 0xF18))[kind], which gives retail's
+   `addu idx, idx, work`.  The outer dispatch is a switch written 1, 2, 0
+   (retail tests 0, 2, 1); the inner one owns jtbl_007489F0 (cases 20-28). */
+// FUN_002DD3B0
 void func_002dd3b0(void *arg0) {
-    extern s16 func_002e2740(s32 arg0);
     extern s64 func_00106b80(s32 arg0);
-    Vec2f sp140;
-    Vec2f sp138;
-    Vec2f sp128;
-    Vec2f sp118;
-    Vec2f sp110;
-    Vec2f sp108;
-    Vec2f sp100;
-    Vec2f spF8;
-    Vec2f spE8;
-    Vec2f spE0;
-    Vec2f spD8;
-    Vec2f spD0;
-    Vec2f spC8;
-    Vec2f spC0;
-    Vec2f spB8;
-    Vec2f spB0;
-    Vec2f spA8;
-    Vec2f spA0;
-    Vec2f sp70;
-    Vec2f sp68;
-    Vec2f sp60;
-    Vec2f sp58;
-    u64 sp130;
-    u64 sp120;
-    RGBA sp16C;
-    RGBA sp168;
-    RGBA sp154;
-    RGBA sp150;
-    RGBA sp14C;
-    RGBA sp148;
-    RGBA rCA0;
-    RGBA rCA8;
-    RGBA rC9C;
-    RGBA rCA4;
-    Vec2f c138;
-    Vec2f cF8;
-    Vec2f cD8;
-    Vec2f cD0;
     u8 *work;
-    u8 *pT;
-    s32 tmp;
-    s32 col;
-    s32 c16;
-    s32 div5;
-    s32 msk;
-    s32 nA;
-    s32 h0;
-    s32 h1;
-    s32 sw;
-    s32 sw2;
-    s32 i;
-    f32 var;
+    s32 id;
+    s16 j;
+    u32 count;
+    f32 y;
+
     work = *(u8 **)((u8 *)arg0 + 0x38);
-    if (*(s8 *)(work + 0xC24) != 0) {
-        if (func_002e26f0(*(void **)((u8 *)work + (*(s8 *)(work + 0x11) * 4) + 0xF18)) >= 2) {
-            if (*(s8 *)(work + 0x11) == 0) {
-                if (func_002e26f0(*(void **)((u8 *)work + 0xF18)) >= 3) {
-                    *(f32 *)(work + 0xC) = 91.0f / (f32)(func_002e26f0(*(void **)((u8 *)work + (*(s8 *)(work + 0x11) * 4) + 0xF18)) - 2);
-                } else {
-                    *(f32 *)(work + 0xC) = 91.0f;
-                }
-                var = 146.0f + *(f32 *)(work + 0xC) * (f32)(*(s16 *)(work + 2) - 1);
+    if (*(s8 *)(work + 0xC24) == 0) {
+        return;
+    }
+    if (func_002e26f0(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)]) >= 2) {
+        if (*(s8 *)(work + 0x11) == 0) {
+            if (func_002e26f0(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)]) >= 3) {
+                *(f32 *)(work + 0xC) = 91.0f / (f32)(func_002e26f0(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)]) - 2);
             } else {
-                *(f32 *)(work + 0xC) = 91.0f / (f32)(func_002e26f0(*(void **)((u8 *)work + (*(s8 *)(work + 0x11) * 4) + 0xF18)) - 1);
-                var = 146.0f + *(f32 *)(work + 0xC) * (f32)*(s16 *)(work + 2);
+                *(f32 *)(work + 0xC) = 91.0f;
             }
-            *(Vec2f *)&sp140 = func_002b2970(582.0f, var);
-            tmp = func_002b2a30(0xFF, 0xFF, 0x6D, 0x31);
-            func_002e0b20(0x36, sp140, 88.0f, tmp, *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xC94)) + 0x62), 0, D_00794EA0);
-            func_002e04f0(*(void **)(work + 0xC94), 0, 0);
-            func_002e04f0(*(void **)(work + 0xC98), 0, 0);
+            y = 146.0f + *(f32 *)(work + 0xC) * (f32)(*(s16 *)(work + 2) - 1);
         } else {
-            func_002e04f0(*(void **)(work + 0xC94), 0, 1);
-            func_002e04f0(*(void **)(work + 0xC98), 0, 1);
+            *(f32 *)(work + 0xC) = 91.0f / (f32)(func_002e26f0(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)]) - 1);
+            y = 146.0f + *(f32 *)(work + 0xC) * (f32)*(s16 *)(work + 2);
         }
-        c16 = (s16)func_002e2830(*(void **)((u8 *)work + (*(s8 *)(work + 0x11) * 4) + 0xF18), *(s16 *)(work + 2));
-        col = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
-        *(Vec2f *)&sp138 = func_002b2970(129.0f, 134.0f);
-        c138 = sp138;
-        func_00275680(c138.x, c138.y, 70.0f, col, 0, 1, (const char *)func_001067f0(c16), 0, 0, D_00795E30, -1);
-        div5 = func_00106a90((s16)c16) / 5;
-        *(Vec2f *)&sp130 = func_002b2970(486.0f, 145.0f);
-        fclWriteColorBytes(&sp16C, 0x2D, 0x2D, 0x2D, 0xFF);
-        h0 = (s32)func_0046a770(D_0063FB50);
-        func_002cacd0(*(Vec2f *)&sp130, 70.0f, *(FclDrawColor *)&sp16C, 0x10, 5, (u32)div5, 9, 0x7B, h0, (s32)*(void **)(work + 0xF28), 0xA9);
-        *(Vec2f *)&sp128 = func_002b2970(514.0f, 147.0f);
-        func_002e0b20(0x47, sp128, 70.0f, func_002b2a30(0x2D, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E60);
-        *(Vec2f *)&sp120 = func_002b2970(545.0f, 145.0f);
-        fclWriteColorBytes(&sp168, 0x2D, 0x2D, 0x2D, 0xFF);
-        msk = func_00106600((s16)c16) & 0xFF;
-        h0 = (s32)func_0046a770(D_0063FB50);
-        func_002cacd0(*(Vec2f *)&sp120, 70.0f, *(FclDrawColor *)&sp168, 0x10, 5, (u32)msk, 9, 0x7B, h0, (s32)*(void **)(work + 0xF28), 0xA9);
-        if ((func_001069d0((s64)c16) & 0xFFFF) == 0) {
-            for (i = 0; i < 0xF; i++) {
-                *(Vec2f *)&sp118 = func_002b2970((f32)(i * 0x16 + 0x6F), 178.0f);
-                func_002e0b20(0x3C, sp118, 86.0f, func_002b2a30(0xFF, 0xFF, 0xC7, 0x31), 0xFF, 0, D_00794ED0);
-            }
-        } else {
-            tmp = func_001069d0((s64)c16) & 0xFFFF;
-            func_002bc7f0(tmp, func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0x57, 109.0f, 169.0f, 70.0f);
+        func_002e0b20(0x36, func_002b2970((f32)0x246, y), 88.0f, func_002b2a30(0xFF, 0xFF, 0x6D, 0x31), *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xC94)) + 0x62), 0, D_00794EA0);
+        func_002e04f0(*(void **)(work + 0xC94), 0, 0);
+        func_002e04f0(*(void **)(work + 0xC98), 0, 0);
+    } else {
+        func_002e04f0(*(void **)(work + 0xC94), 0, 1);
+        func_002e04f0(*(void **)(work + 0xC98), 0, 1);
+    }
+    id = func_002e2830(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)], *(s16 *)(work + 2));
+    shopDrawLabel(70.0f, (const char *)func_001067f0(id), func_002b2970(129.0f, 134.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+    count = func_00106a90((s16)id) / 5U;
+    func_002cacd0(func_002b2970(486.0f, 145.0f), 70.0f, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, count, 9, 0x7B, (s32)func_0046a770(D_0063FB50), *(s32 *)(work + 0xF28), 0xA9);
+    func_002e0b20(0x47, func_002b2970((f32)0x202, 147.0f), 70.0f, func_002b2a30(0x2D, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E60);
+    func_002cacd0(func_002b2970((f32)0x221, 145.0f), 70.0f, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, func_00106600(id) & 0xFF, 9, 0x7B, (s32)func_0046a770(D_0063FB50), *(s32 *)(work + 0xF28), 0xA9);
+    if (func_001069d0(id) == 0) {
+        for (j = 0; j < 15; j++) {
+            func_002e0b20(0x3C, func_002b2970((f32)(j * 22 + 111), 178.0f), 86.0f, func_002b2a30(0xFF, 0xFF, 0xC7, 0x31), 0xFF, 0, D_00794ED0);
         }
-        if (*(s8 *)(work + 0x11) == 1) {
-            tmp = func_002d4f30((s16)func_00106880((s16)c16)) & 0xFFFF;
-            *(Vec2f *)&sp110 = func_002b2970(86.0f, 135.0f);
-            func_002e0b20(tmp, sp110, 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-            sw = func_002d4f30((s16)func_00106880((s16)c16));
-            switch (sw) {
-            case 20:
-            case 21:
-            case 22:
-            case 23:
-            case 24:
-            case 25:
-            case 26:
-                tmp = (s16)func_00106b80(c16);
-                func_002bc7f0(tmp, func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 0, 0x57, 109.0f, 201.0f, 70.0f);
-                func_002e09e0(*(void **)(work + 0xCA0), 0x57, 83.0f);
-                fclWriteColorBytes(&rCA0, 0xFE, 0xEF, 0x80, 0xFF);
-                pT = func_002e04e0(*(void **)(work + 0xCA0));
-                *(u8 *)(pT + 0x79) = rCA0.r;
-                *(u8 *)(pT + 0x7A) = rCA0.g;
-                *(u8 *)(pT + 0x7B) = rCA0.b;
-                *(u8 *)(pT + 0x7C) = rCA0.a;
-                *(Vec2f *)&sp108 = func_002b2970(481.0f, 174.0f);
-                pT = func_002e04e0(*(void **)(work + 0xCA0));
-                *(f32 *)(pT + 0x2C) = sp108.x;
-                *(f32 *)(pT + 0x30) = sp108.y;
-                func_002e09e0(*(void **)(work + 0xCA8), 0x57, 82.0f);
-                fclWriteColorBytes(&rCA8, 0xFE, 0xEF, 0x80, 0xFF);
-                pT = func_002e04e0(*(void **)(work + 0xCA8));
-                *(u8 *)(pT + 0x79) = rCA8.r;
-                *(u8 *)(pT + 0x7A) = rCA8.g;
-                *(u8 *)(pT + 0x7B) = rCA8.b;
-                *(u8 *)(pT + 0x7C) = rCA8.a;
-                *(Vec2f *)&sp100 = func_002b2970(481.0f, 224.0f);
-                pT = func_002e04e0(*(void **)(work + 0xCA8));
-                *(f32 *)(pT + 0x2C) = sp100.x;
-                *(f32 *)(pT + 0x30) = sp100.y;
-                *(Vec2f *)&spF8 = func_002b2970(526.0f, 202.0f);
-                cF8 = spF8;
-                tmp = func_001068b0((s16)c16) & 0xFFFF;
-                nA = func_002b3170(tmp);
-                *(Vec2f *)&sp70 = func_002b2970(cF8.x + (f32)((s16)(nA - 1) * 8), cF8.y);
-                fclWriteColorBytes(&sp154, 0x2D, 0x2D, 0x2D, 0xFF);
-                h0 = (s32)func_0046a770(D_0063FB50);
-                h1 = (s32)func_0046a770(D_0063FB50);
-                func_002cacd0(*(Vec2f *)&sp70, 22.0f, *(FclDrawColor *)&sp154, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, h1, 0xA9);
-                *(Vec2f *)&spE8 = func_002b2970(526.0f, 252.0f);
-                cF8 = spE8;
-                tmp = func_001068e0((s16)c16) & 0xFFFF;
-                nA = func_002b3170(tmp);
-                *(Vec2f *)&sp68 = func_002b2970(cF8.x + (f32)((s16)(nA - 1) * 8), cF8.y);
-                fclWriteColorBytes(&sp150, 0x2D, 0x2D, 0x2D, 0xFF);
-                h0 = (s32)func_0046a770(D_0063FB50);
-                h1 = (s32)func_0046a770(D_0063FB50);
-                func_002cacd0(*(Vec2f *)&sp68, 22.0f, *(FclDrawColor *)&sp150, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, h1, 0xA9);
-                return;
-            case 27:
-                tmp = (s16)func_00106b80(c16);
-                func_002bc7f0(tmp, func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 1, 0x57, 109.0f, 201.0f, 70.0f);
-                func_002e09e0(*(void **)(work + 0xC9C), 0x57, 81.0f);
-                fclWriteColorBytes(&rC9C, 0xFE, 0xEF, 0x80, 0xFF);
-                pT = func_002e04e0(*(void **)(work + 0xC9C));
-                *(u8 *)(pT + 0x79) = rC9C.r;
-                *(u8 *)(pT + 0x7A) = rC9C.g;
-                *(u8 *)(pT + 0x7B) = rC9C.b;
-                *(u8 *)(pT + 0x7C) = rC9C.a;
-                *(Vec2f *)&spE8 = func_002b2970(481.0f, 174.0f);
-                pT = func_002e04e0(*(void **)(work + 0xC9C));
-                *(f32 *)(pT + 0x2C) = spE8.x;
-                *(f32 *)(pT + 0x30) = spE8.y;
-                func_002e09e0(*(void **)(work + 0xCA4), 0x57, 80.0f);
-                fclWriteColorBytes(&rCA4, 0xFE, 0xEF, 0x80, 0xFF);
-                pT = func_002e04e0(*(void **)(work + 0xCA4));
-                *(u8 *)(pT + 0x79) = rCA4.r;
-                *(u8 *)(pT + 0x7A) = rCA4.g;
-                *(u8 *)(pT + 0x7B) = rCA4.b;
-                *(u8 *)(pT + 0x7C) = rCA4.a;
-                *(Vec2f *)&spE0 = func_002b2970(481.0f, 224.0f);
-                pT = func_002e04e0(*(void **)(work + 0xCA4));
-                *(f32 *)(pT + 0x2C) = spE0.x;
-                *(f32 *)(pT + 0x30) = spE0.y;
-                *(Vec2f *)&spD8 = func_002b2970(526.0f, 202.0f);
-                cD8 = spD8;
-                tmp = func_00106940((s16)c16) & 0xFFFF;
-                nA = func_002b3170(tmp);
-                *(Vec2f *)&sp60 = func_002b2970(cD8.x + (f32)((s16)(nA - 1) * 8), cD8.y);
-                fclWriteColorBytes(&sp14C, 0x2D, 0x2D, 0x2D, 0xFF);
-                h0 = (s32)func_0046a770(D_0063FB50);
-                h1 = (s32)func_0046a770(D_0063FB50);
-                func_002cacd0(*(Vec2f *)&sp60, 22.0f, *(FclDrawColor *)&sp14C, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, h1, 0xA9);
-                *(Vec2f *)&spD0 = func_002b2970(526.0f, 252.0f);
-                cD0 = spD0;
-                tmp = func_00106970((s16)c16) & 0xFFFF;
-                nA = func_002b3170(tmp);
-                *(Vec2f *)&sp58 = func_002b2970(cD0.x + (f32)((s16)(nA - 1) * 8), cD0.y);
-                fclWriteColorBytes(&sp148, 0x2D, 0x2D, 0x2D, 0xFF);
-                h0 = (s32)func_0046a770(D_0063FB50);
-                h1 = (s32)func_0046a770(D_0063FB50);
-                func_002cacd0(*(Vec2f *)&sp58, 22.0f, *(FclDrawColor *)&sp148, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, h1, 0xA9);
-                return;
-            case 28:
-                tmp = (s16)func_00106b80(c16);
-                func_002bc7f0(tmp, func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 2, 0x57, 109.0f, 201.0f, 70.0f);
-                func_002e09e0(*(void **)(work + 0xCB8), 0x57, 84.0f);
-                *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCB8)) + 0x62) = 0x7F;
-                *(Vec2f *)&spC8 = func_002b2970(478.0f, 166.0f);
-                pT = func_002e04e0(*(void **)(work + 0xCB8));
-                *(f32 *)(pT + 0x2C) = spC8.x;
-                *(f32 *)(pT + 0x30) = spC8.y;
-                func_002e09e0(*(void **)(work + 0xEAC), 0x57, 84.0f);
-                *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEAC)) + 0x62) = 0x7F;
-                *(Vec2f *)&spC0 = func_002b2970(477.0f, 216.0f);
-                pT = func_002e04e0(*(void **)(work + 0xEAC));
-                *(f32 *)(pT + 0x2C) = spC0.x;
-                *(f32 *)(pT + 0x30) = spC0.y;
-                return;
-            }
-        } else if (*(s8 *)(work + 0x11) == 0 || *(s8 *)(work + 0x11) == 2) {
-            if (*(s8 *)(work + 0x11) == 2) {
-                *(Vec2f *)&spB8 = func_002b2970(86.0f, 135.0f);
-                func_002e0ca0(0x1B, spB8, 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-                tmp = (s16)func_00106b80(c16);
-                func_002bc7f0(tmp, func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 4, 0x57, 109.0f, 201.0f, 70.0f);
-            } else {
-                *(Vec2f *)&spB0 = func_002b2970(86.0f, 135.0f);
-                func_002e0ca0(0x1A, spB0, 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-                tmp = (s16)func_00106b80(c16);
-                func_002bc7f0(tmp, func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 7, 0x57, 109.0f, 201.0f, 70.0f);
-            }
-            func_002e09e0(*(void **)(work + 0xCB8), 0x56, 84.0f);
+    } else {
+        func_002bc7f0(func_001069d0(id), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0x57, 109.0f, 169.0f, 70.0f);
+    }
+    switch (*(s8 *)(work + 0x11)) {
+    case 1:
+        func_002e0b20(func_002d4f30((s16)func_00106880(id)) & 0xFFFF, func_002b2970(86.0f, 135.0f), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        switch ((s16)func_002d4f30((s16)func_00106880(id))) {
+        case 20:
+        case 21:
+        case 22:
+        case 23:
+        case 24:
+        case 25:
+        case 26:
+            func_002bc7f0((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 0, 0x57, 109.0f, 201.0f, 70.0f);
+            func_002e09e0(*(void **)(work + 0xCA0), 0x57, 83.0f);
+            *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xCA0)) + 0x79) = func_002b2a60(0xFE, 0xEF, 0x80, 0xFF);
+            *(Vec2f *)((u8 *)func_002e04e0(*(void **)(work + 0xCA0)) + 0x2C) = func_002b2970((f32)0x1E1, 174.0f);
+            func_002e09e0(*(void **)(work + 0xCA8), 0x57, 82.0f);
+            *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xCA8)) + 0x79) = func_002b2a60(0xFE, 0xEF, 0x80, 0xFF);
+            *(Vec2f *)((u8 *)func_002e04e0(*(void **)(work + 0xCA8)) + 0x2C) = func_002b2970((f32)0x1E1, 224.0f);
+            shopDrawStatAt(func_001068b0(id), func_001068b0(id) & 0xFFFF, func_002b2970((f32)0x20E, 202.0f));
+            shopDrawStatAt(func_001068e0(id), func_001068e0(id) & 0xFFFF, func_002b2970((f32)0x20E, 252.0f));
+            break;
+        case 27:
+            func_002bc7f0((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 1, 0x57, 109.0f, 201.0f, 70.0f);
+            func_002e09e0(*(void **)(work + 0xC9C), 0x57, 81.0f);
+            *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xC9C)) + 0x79) = func_002b2a60(0xFE, 0xEF, 0x80, 0xFF);
+            *(Vec2f *)((u8 *)func_002e04e0(*(void **)(work + 0xC9C)) + 0x2C) = func_002b2970((f32)0x1E1, 174.0f);
+            func_002e09e0(*(void **)(work + 0xCA4), 0x57, 80.0f);
+            *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xCA4)) + 0x79) = func_002b2a60(0xFE, 0xEF, 0x80, 0xFF);
+            *(Vec2f *)((u8 *)func_002e04e0(*(void **)(work + 0xCA4)) + 0x2C) = func_002b2970((f32)0x1E1, 224.0f);
+            shopDrawStatAt(func_00106940(id), func_00106940(id) & 0xFFFF, func_002b2970((f32)0x20E, 202.0f));
+            shopDrawStatAt(func_00106970(id), func_00106970(id) & 0xFFFF, func_002b2970((f32)0x20E, 252.0f));
+            break;
+        case 28:
+            func_002bc7f0((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 2, 0x57, 109.0f, 201.0f, 70.0f);
+            func_002e09e0(*(void **)(work + 0xCB8), 0x57, 84.0f);
             *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCB8)) + 0x62) = 0x7F;
-            *(Vec2f *)&spC8 = func_002b2970(478.0f, 166.0f);
-            pT = func_002e04e0(*(void **)(work + 0xCB8));
-            *(f32 *)(pT + 0x2C) = spC8.x;
-            *(f32 *)(pT + 0x30) = spC8.y;
-            func_002e09e0(*(void **)(work + 0xEAC), 0x56, 84.0f);
+            *(Vec2f *)((u8 *)func_002e04e0(*(void **)(work + 0xCB8)) + 0x2C) = func_002b2970(478.0f, 166.0f);
+            func_002e09e0(*(void **)(work + 0xEAC), 0x57, 84.0f);
             *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEAC)) + 0x62) = 0x7F;
-            *(Vec2f *)&spC0 = func_002b2970(477.0f, 216.0f);
-            pT = func_002e04e0(*(void **)(work + 0xEAC));
-            *(f32 *)(pT + 0x2C) = spC0.x;
-            *(f32 *)(pT + 0x30) = spC0.y;
+            *(Vec2f *)((u8 *)func_002e04e0(*(void **)(work + 0xEAC)) + 0x2C) = func_002b2970((f32)0x1DD, 216.0f);
+            break;
         }
+        break;
+    case 2:
+    case 0:
+        if (*(s8 *)(work + 0x11) == 2) {
+            func_002e0ca0(0x1B, func_002b2970(86.0f, 135.0f), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+            func_002bc7f0((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 4, 0x57, 109.0f, 201.0f, 70.0f);
+        } else {
+            func_002e0ca0(0x1A, func_002b2970(86.0f, 135.0f), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+            func_002bc7f0((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 7, 0x57, 109.0f, 201.0f, 70.0f);
+        }
+        func_002e09e0(*(void **)(work + 0xCB8), 0x56, 84.0f);
+        *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCB8)) + 0x62) = 0x7F;
+        *(Vec2f *)((u8 *)func_002e04e0(*(void **)(work + 0xCB8)) + 0x2C) = func_002b2970(478.0f, 166.0f);
+        func_002e09e0(*(void **)(work + 0xEAC), 0x56, 84.0f);
+        *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEAC)) + 0x62) = 0x7F;
+        *(Vec2f *)((u8 *)func_002e04e0(*(void **)(work + 0xEAC)) + 0x2C) = func_002b2970((f32)0x1DD, 216.0f);
+        break;
     }
 }
-#pragma opt_loop_invariants off
-#pragma opt_common_subs on
-#pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd3b0);
-#endif
 
 /* measured: MATCH, window 672 words/2688B.  Built on the func_002df020
    levers (Vec2f-returning func_002b2970 used as an argument, colour calls
@@ -9301,33 +9161,33 @@ void func_002de5a0(void *arg0) {
         x = (f32)0x177;
         func_002e0b20(2, func_002b2970(x, 243.0f), 70.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         func_002e0b20(5, func_002b2970(420.0f, 246.0f), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize = 70.0f, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)), func_002b2970(420.0f, (f32)0x10F), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+        shopDrawLabel(labelSize = 70.0f, (const char *)func_001067f0((s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)), func_002b2970(420.0f, (f32)0x10F), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
     } else {
         size = 70.0f;
         x = (f32)0x177;
         func_002e0b20(2, func_002b2970(x, 243.0f), 70.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
         func_002e0b20(5, func_002b2970(420.0f, 246.0f), 69.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize = 70.0f, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)), func_002b2970(420.0f, (f32)0x10F), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
+        shopDrawLabel(labelSize = 70.0f, (const char *)func_001067f0((s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)), func_002b2970(420.0f, (f32)0x10F), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
     }
     func_002e0b20(0x1B, func_002b2970(378.0f, (f32)0x12F), 69.0f, func_002b2a30(0, 0xFF, 0x96, 0), 0xFF, 0, D_00795E60);
     if (*(s8 *)(work + 7) == 1) {
         func_002e0b20(3, func_002b2970(x, (f32)0x12D), size, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         func_002e0b20(6, func_002b2970(420.0f, (f32)0x131), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)), func_002b2970(420.0f, 330.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+        shopDrawLabel(labelSize, (const char *)func_001067f0((s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)), func_002b2970(420.0f, 330.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
     } else {
         func_002e0b20(3, func_002b2970(x, (f32)0x12D), size, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
         func_002e0b20(6, func_002b2970(420.0f, (f32)0x131), 69.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)), func_002b2970(420.0f, 330.0f), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
+        shopDrawLabel(labelSize, (const char *)func_001067f0((s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)), func_002b2970(420.0f, 330.0f), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
     }
     func_002e0b20(0x1C, func_002b2970(378.0f, 368.0f), 69.0f, func_002b2a30(0, 0xFF, 0x96, 0), 0xFF, 0, D_00795E60);
     if (*(s8 *)(work + 7) == 2) {
         func_002e0b20(3, func_002b2970(x, 366.0f), size, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         func_002e0b20(7, func_002b2970(420.0f, (f32)0x171), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2)), func_002b2970(420.0f, 394.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+        shopDrawLabel(labelSize, (const char *)func_001067f0((s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2)), func_002b2970(420.0f, 394.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
     } else {
         func_002e0b20(3, func_002b2970(x, 366.0f), size, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
         func_002e0b20(7, func_002b2970(420.0f, (f32)0x171), 69.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize, (const char *)func_001067f0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2)), func_002b2970(420.0f, 394.0f), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
+        shopDrawLabel(labelSize, (const char *)func_001067f0((s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2)), func_002b2970(420.0f, 394.0f), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
     }
 }
 
