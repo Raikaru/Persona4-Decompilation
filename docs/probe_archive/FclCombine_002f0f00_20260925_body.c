@@ -1,6 +1,6 @@
 /* Research only; production func_002f0f00 remains INCLUDE_ASM (see
- * FclCombine_002f0f00_20260925.md). Object 6094 vs retail 6012 instrs;
- * fnalign 1751 edits (guarded draft 3249); per-case aligned edits 1461. */
+ * FclCombine_002f0f00_20260925.md). Object 6009 vs retail 6012 instrs;
+ * per-case aligned edits 865 (earlier archive 1461). */
 typedef struct {
     s8 f0;
     u8 f1;
@@ -31,7 +31,14 @@ typedef struct {
     u8 pad2FB[0x5];
 } FclCombineCtl;
 
+typedef struct {
+    u8 pad0[0x154];
+    u8 *list;
+} FclRowList;
+
 void func_002f0f00(u8 *arg0) {
+    u8 *posSrc;
+    extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
     extern s32 func_00104c70(s32);
     extern void func_002e4610(s32, s8);
     extern void func_00315600(u8 *, s32);
@@ -43,10 +50,10 @@ void func_002f0f00(u8 *arg0) {
     extern void func_00316470(u8 *, s64, s64);
     extern void func_00316e80(u8 *, s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
     extern s32 func_002b2a30(u8, u8, u8, u8);
-    extern void func_00275820(s32, s32, s32, s32, s32, s32, const char *, s32, f32, f32, f32);
+    extern int func_00275820(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
     extern void func_002b2970(void *, f32, f32);
     extern s32 func_0046d200(s32, s32);
-    extern s64 func_00331560(void);
+    extern s32 func_00331560(void);
     extern f32 func_0046b260(s32);
     extern f32 func_0046b2f0(s32);
     extern void func_0046d280(s32);
@@ -101,8 +108,8 @@ void func_002f0f00(u8 *arg0) {
     extern s32 func_00312bc0(s32);
     extern void func_003144d0(u8 *,  u16 *,  s32,  s32,  s32);
     extern s32 func_00311930(s32,  u8 *,  s8);
-    extern s32 func_002b2cb0(u8, s32, s32, s32, s32);
-    extern s32 func_002b2d00(u8, s32, s32, s32, s32);
+    extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
+    extern s32 func_002b2d00(s32, s32, s32, s32, s8);
     extern f32 D_00640C10[];
     extern f32 D_00640C18[];
     extern u8 D_00795E60[];
@@ -130,10 +137,9 @@ void func_002f0f00(u8 *arg0) {
     FclDrawColor sp3E0;
     FclDrawColor sp3DC;
     FclDrawColor sp3D8;
-    f32 sp3D4;
-    f32 sp3D0;
-    s64 sp3C8;
-    FclPackedPosition sp3C0;
+    FclVec2f base3A;
+    FclVec2f sp3C8;
+    FclVec2f sp3C0;
     s64 sp3B8;
     s64 sp3B0;
     s64 sp3A8;
@@ -228,8 +234,8 @@ void func_002f0f00(u8 *arg0) {
     f32 temp_f20_2;
     f32 temp_f20_3;
     f32 temp_f20_4;
-    f32 temp_f21;
     f32 temp_f22;
+    f32 temp_f21;
     f32 var_f1;
     s16 *temp_16_20;
     s16 *temp_16_6;
@@ -348,7 +354,7 @@ void func_002f0f00(u8 *arg0) {
     s32 temp_21_11;
     s32 temp_21_6;
     s32 temp_3_3;
-    s32 var_16;
+    s16 var_16;
     s16 var_16_11;
     s16 var_16_12;
     s16 var_16_2;
@@ -452,16 +458,16 @@ void func_002f0f00(u8 *arg0) {
     u8 temp_7_2;
     u8 temp_7_3;
     u8 *temp_16;
-    u8 *temp_16_12;
-    u8 *temp_16_16;
+    FclRowList *temp_16_12;
+    FclRowList *temp_16_16;
     u8 *temp_16_47;
     u8 *temp_16_62;
     u8 *temp_16_70;
     FclCombineCtl *temp_17;
     u8 slotByte;
     s8 partyCount;
-    u8 *temp_18_19;
-    u8 *temp_18_21;
+    FclRowList *temp_18_19;
+    FclRowList *temp_18_21;
     FclCombineCtl *temp_18_23;
     FclCombineCtl *temp_18_24;
     FclCombineCtl *temp_18_25;
@@ -472,7 +478,7 @@ void func_002f0f00(u8 *arg0) {
     FclCombineCtl *temp_18_33;
     FclCombineCtl *temp_18_36;
     FclCombineCtl *temp_18_37;
-    u8 *temp_18_6;
+    FclRowList *temp_18_6;
     FclCombineCtl *temp_18_8;
     u8 *temp_2_12;
     u8 *temp_2_13;
@@ -512,94 +518,68 @@ void func_002f0f00(u8 *arg0) {
         temp_17->f1 = 0x39U;
         return;
     case 0x39:                                      /* switch 1 */
-        if ((s32)((s32)(func_003190d0(arg0))) != (s32)((s32)(1))) {
-            var_4 = (s8)((s8)(*func_002e4870(0)));
-            if (var_4 == 1) {
-                var_16 = 0;
-do {
-                        sp3FC = func_002b2a60(0, 0, 0x99, 0xFF);
-                        temp_2 = (s16 *)(func_0034ae50((u8 *)(temp_17->f188),  (s8)(var_16)));
-                        var_4 = (s8) sp3FC.c2;
-                        (*(u8 *)((u8 *)(temp_2)+(0x75))) = sp3FC.c0;
-                        (*(u8 *)((u8 *)(temp_2)+(0x76))) = sp3FC.c1;
-                        (*(s8 *)((u8 *)(temp_2)+(0x77))) = var_4;
-                        (*(u8 *)((u8 *)(temp_2)+(0x78))) = sp3FC.c3;
-                        var_16 = (s16)((var_16 + 1));
-} while ((s32)((s32)(((s16)(var_16)))) < (s32)((s32)((func_0010b5b0() & 0xFFFF))));
-                func_003205f0(arg0, 0x93, 0x96);
-                func_00320b80(arg0, 1);
-                func_00316470(arg0, 1, 0);
-                func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
-                temp_17->f1 = 0x3AU;
-                return;
+        if (func_003190d0(arg0) != 1 && *(s8 *)func_002e4870(0) == 1) {
+            for (var_16 = 0; var_16 < (func_0010b5b0() & 0xFFFF); var_16++) {
+                sp3FC = func_002b2a60(0, 0, 0x99, 0xFF);
+                *(FclDrawColor *)(func_0034ae50((u8 *)temp_17->f188, var_16) + 0x75) = sp3FC;
             }
+            func_003205f0(arg0, 0x93, 0x96);
+            func_00320b80(arg0, 1);
+            func_00316470(arg0, 1, 0);
+            func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+            temp_17->f1 = 0x3AU;
+            return;
         }
+        break;
     case 0x3A:                                      /* switch 1 */
         for (var_16_2 = 0; var_16_2 < (func_0010b5b0() & 0xFFFF); var_16_2++) {
-            temp_18 = (s16)(var_16_2);
-            temp_20 = (s16)(var_16_2);
-            temp_19 = temp_20 + 0x21C;
-            temp_f20 = ((f32)((f32) (*((s16 *)((u8 *)(func_002b6150((s16)(temp_19))) + (0x42))))));
-            temp_f0 = ((f32)(func_002b2aa0(0, 0, 255.0f, temp_f20, (f32) (*((s16 *)((u8 *)(func_002b6150((s16)(temp_19))) + (0x40)))))));
-            if (!(temp_f0 >= 2.1474836e9f)) {
-                var_3 = ((s32)(temp_f0)) & 0xFF;
+            temp_f20 = (f32)*(s16 *)(func_002b6150(var_16_2 + 0x21C) + 0x42);
+            temp_7 = (u8)func_002b2aa0(0, 0, 255.0f, temp_f20, (f32)*(s16 *)(func_002b6150(var_16_2 + 0x21C) + 0x40));
+            if (temp_17->f11E == var_16_2) {
+                var_19 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
             } else {
-                var_3 = (((s32)((temp_f0 - 2.1474836e9f))) | 0x80000000) & 0xFF;
+                var_19 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
             }
-            temp_7 = var_3 & 0xFF;
-            if (temp_17->f11E == temp_20) {
-                var_19 = (s32)((s32)(func_002b2a30(0x2D, 0x2D, 0x2D, temp_7)));
-            } else {
-                var_19 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_7)));
-            }
-            if (temp_18 < (*((s32 *)((u8 *)(func_002e4870(0)) + (8))))) {
-                temp_f20 = (f32)((temp_18 * 0x17) + 0x80);
-                func_00275820(var_19, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, var_16_2)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 113.0f, temp_f20, 43.0f);
+            if (var_16_2 < *(s32 *)(func_002e4870(0) + 8)) {
+                temp_f20 = (f32)(var_16_2 * 0x17 + 0x80);
+                func_00275820(113.0f, temp_f20, 43.0f, var_19, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, var_16_2)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
             }
         }
-        temp_16 = (u8 *)(((func_0010b5b0() & 0xFFFF) * 4) + (s32)(temp_17));
-        if ((s32)((s32)(((s32) (*func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x150)))),  (s8)(((func_0010b5b0() & 0xFFFF) - 1))) & 4) >> 2))) == (s32)((s32)(0))) {
-            temp_2_2 = (s32)((s32)(func_0010b5b0()));
-            if (temp_2_2 >= 0) {
-                var_f1 = (f32) temp_2_2;
-            } else {
-                var_f1 = 2.0f * (f32)(((u32) temp_2_2 >> 1) | (temp_2_2 & 1));
-            }
-            temp_f20_2 = var_f1 / 12.0f;
-            func_002b2970(&sp3B8, (f32) 0x149, 128.0f);
-            sp3D0 = *(f32 *)&sp3B8;
-            sp3D4 = unksp3BC;
-            temp_f1 = (((f32)((func_0010b5b0() & 0xFFFF) * 0x17) / 2.0f));
-            func_002b2970(&sp3C8, sp3D0 + temp_f1, unksp3BC + temp_f1);
-            temp_2_3 = (s32)((s32)(func_0046d200(func_00331560(), 0x7E)));
-            temp_f22 = ((f32)((temp_f20_2 * func_0046b260(temp_2_3)) / 2.0f));
-            temp_f21 = ((f32)((temp_f20_2 * func_0046b2f0(temp_2_3)) / 2.0f));
+        temp_16 = (func_0010b5b0() & 0xFFFF) * 4 + (u8 *)temp_17;
+        if (((*(s16 *)func_0034ae50(*(u8 **)(temp_16 + 0x150), (func_0010b5b0() & 0xFFFF) - 1) & 4) >> 2) == 0) {
+            temp_f20_2 = (f32)(u32)func_0010b5b0() / 12.0f;
+            func_002b2970(&sp3B8, (f32)0x149, 128.0f);
+            base3A = *(FclVec2f *)&sp3B8;
+            temp_f1 = (f32)((func_0010b5b0() & 0xFFFF) * 0x17) / 2.0f;
+            func_002b2970(&sp3C8, base3A.x + temp_f1, base3A.y + temp_f1);
+            temp_2_3 = func_0046d200(func_00331560(), 0x7E);
+            temp_f22 = temp_f20_2 * func_0046b260(temp_2_3) / 2.0f;
+            temp_f21 = temp_f20_2 * func_0046b2f0(temp_2_3) / 2.0f;
             func_0046d280(temp_2_3);
-            func_002b2970(&sp3C0.bits, *(f32 *)&sp3C8 - temp_f22, unksp3CC - temp_f21);
-            func_002b6c30(0x7E, sp3C0.position, 156.0f, 0x56);
-            func_002b6a70(0x7E, 0U, 0xFF, 0, 2, 0);
-            (*((f32 *)((u8 *)(func_002b6150(0x7E)) + (0xAC)))) = temp_f20_2;
-            (*((f32 *)((u8 *)(func_002b6150(0x7E)) + (0xA0)))) = temp_f20_2;
-            temp_3_2 = (s32)((s32)(func_0010b5b0() & 0xFFFF));
-            switch (temp_3_2) {                     /* switch 2; irregular */
-            case 12:                                /* switch 2 */
-                func_002b2970(&sp3B0, sp3C0.position.x, unksp3C4 - 20.0f);
-                func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0.bits), (*(FclVec2f *)&sp3B0),  1,  8,  0);
+            func_002b2970(&sp3C0, sp3C8.x - temp_f22, sp3C8.y - temp_f21);
+            func_002b6c30(0x7E, sp3C0, 156.0f, 0x56);
+            func_002b6a70(0x7E, 0, 0xFF, 0, 2, 0);
+            *(f32 *)(func_002b6150(0x7E) + 0xAC) = temp_f20_2;
+            *(f32 *)(func_002b6150(0x7E) + 0xA0) = temp_f20_2;
+            switch (func_0010b5b0() & 0xFFFF) {
+            case 12:
+                func_002b2970(&sp3B0, sp3C0.x, sp3C0.y - 20.0f);
+                func_002b69f0(0x7E, sp3C0, *(FclVec2f *)&sp3B0, 1, 8, 0);
                 break;
-            case 10:                                /* switch 2 */
-                func_002b2970(&sp3A8, sp3C0.position.x, unksp3C4 - 16.0f);
-                func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0.bits), (*(FclVec2f *)&sp3A8),  1,  8,  0);
+            case 10:
+                func_002b2970(&sp3A8, sp3C0.x, sp3C0.y - 16.0f);
+                func_002b69f0(0x7E, sp3C0, *(FclVec2f *)&sp3A8, 1, 8, 0);
                 break;
-            case 8:                                 /* switch 2 */
-                func_002b2970(&sp3A0, sp3C0.position.x, unksp3C4 - 13.0f);
-                func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0.bits), (*(FclVec2f *)&sp3A0),  1,  8,  0);
+            case 8:
+                func_002b2970(&sp3A0, sp3C0.x, sp3C0.y - 13.0f);
+                func_002b69f0(0x7E, sp3C0, *(FclVec2f *)&sp3A0, 1, 8, 0);
                 break;
-            case 6:                                 /* switch 2 */
-                func_002b2970(&sp398, sp3C0.position.x, unksp3C4 - 10.0f);
-                func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0.bits), (*(FclVec2f *)&sp398),  1,  8,  0);
+            case 6:
+                func_002b2970(&sp398, sp3C0.x, sp3C0.y - 10.0f);
+                func_002b69f0(0x7E, sp3C0, *(FclVec2f *)&sp398, 1, 8, 0);
                 break;
             }
-            (*((s8 *)((u8 *)(func_002b6150(0x7E)) + (0x47)))) = 1;
+            *(s8 *)(func_002b6150(0x7E) + 0x47) = 1;
             func_002b6af0(0x7E, temp_f20_2, temp_f20_2, temp_f20_2 - iGpffff8504, temp_f20_2, 0, 4, 4);
             if (temp_17->f128 == -1) {
                 temp_17->f11E = 0;
@@ -610,25 +590,16 @@ do {
         break;
     case 0x3B:                                      /* switch 1 */
         for (var_19_2 = 0; var_19_2 < (func_0010b5b0() & 0xFFFF); var_19_2++) {
-            temp_16_2 = (s16)(var_19_2);
-            temp_18_2 = (s16)(var_19_2);
-            temp_21 = temp_18_2 + 0x21C;
-            temp_f20_3 = ((f32)((f32) (*((s16 *)((u8 *)(func_002b6150((s16)(temp_21))) + (0x42))))));
-            temp_f0_2 = ((f32)(func_002b2aa0(0, 255.0f, 0, temp_f20_3, (f32) (*((s16 *)((u8 *)(func_002b6150((s16)(temp_21))) + (0x40)))))));
-            if (!(temp_f0_2 >= 2.1474836e9f)) {
-                var_3_2 = ((s32)(temp_f0_2)) & 0xFF;
+            temp_f20_3 = (f32)*(s16 *)(func_002b6150(var_19_2 + 0x21C) + 0x42);
+            temp_7_2 = (u8)func_002b2aa0(0, 255.0f, 0.0f, temp_f20_3, (f32)*(s16 *)(func_002b6150(var_19_2 + 0x21C) + 0x40));
+            if (temp_17->f11E == var_19_2) {
+                var_18 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7_2);
             } else {
-                var_3_2 = (((s32)((temp_f0_2 - 2.1474836e9f))) | 0x80000000) & 0xFF;
+                var_18 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7_2);
             }
-            temp_7_2 = var_3_2 & 0xFF;
-            if (temp_17->f11E == temp_18_2) {
-                var_18 = (s32)((s32)(func_002b2a30(0x2D, 0x2D, 0x2D, temp_7_2)));
-            } else {
-                var_18 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_7_2)));
-            }
-            if (temp_16_2 < (*((s32 *)((u8 *)(func_002e4870(0)) + (8))))) {
-                temp_f20 = (f32)((temp_16_2 * 0x17) + 0x80);
-                func_00275820(var_18, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, var_19_2)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 113.0f, temp_f20, 43.0f);
+            if (var_19_2 < *(s32 *)(func_002e4870(0) + 8)) {
+                temp_f20 = (f32)(var_19_2 * 0x17 + 0x80);
+                func_00275820(113.0f, temp_f20, 43.0f, var_18, 0, 2, (const char *)(iGpffffb440 + func_002e48a0(0, var_19_2)[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
         if (((s32)((s32)(((s32) (*func_0034ae50((u8 *)(temp_17->f154),  0) & 4) >> 2))) == (s32)((s32)(0))) && ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) == (s32)((s32)(0)))) {
@@ -643,28 +614,19 @@ do {
     case 0x3D:                                      /* switch 1 */
         var_21 = -1;
         for (var_16_3 = 0; var_16_3 < (func_0010b5b0() & 0xFFFF); var_16_3++) {
-            temp_18_3 = (s16)(var_16_3);
-            temp_19_2 = (s16)(var_16_3);
-            temp_20_2 = temp_19_2 + 0x21C;
-            temp_f20_4 = ((f32)((f32) (*((s16 *)((u8 *)(func_002b6150((s16)(temp_20_2))) + (0x42))))));
-            temp_f0_3 = ((f32)(func_002b2aa0(0, 0, 255.0f, temp_f20_4, (f32) (*((s16 *)((u8 *)(func_002b6150((s16)(temp_20_2))) + (0x40)))))));
-            if (!(temp_f0_3 >= 2.1474836e9f)) {
-                var_3_3 = ((s32)(temp_f0_3)) & 0xFF;
+            temp_f20_4 = (f32)*(s16 *)(func_002b6150(var_16_3 + 0x21C) + 0x42);
+            temp_7_3 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20_4, (f32)*(s16 *)(func_002b6150(var_16_3 + 0x21C) + 0x40));
+            if (temp_17->f11E == var_16_3) {
+                var_19_3 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7_3);
             } else {
-                var_3_3 = (((s32)((temp_f0_3 - 2.1474836e9f))) | 0x80000000) & 0xFF;
+                var_19_3 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7_3);
             }
-            temp_7_3 = var_3_3 & 0xFF;
-            if (temp_17->f11E == temp_19_2) {
-                var_19_3 = (s32)((s32)(func_002b2a30(0x2D, 0x2D, 0x2D, temp_7_3)));
-            } else {
-                var_19_3 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_7_3)));
+            if (var_16_3 < *(s32 *)(func_002e4870(0) + 8)) {
+                temp_f20 = (f32)(var_16_3 * 0x17 + 0x80);
+                func_00275820(113.0f, temp_f20, 43.0f, var_19_3, 0, 2, (const char *)(iGpffffb440 + func_002e48a0(0, var_16_3)[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
-            if (temp_18_3 < (*((s32 *)((u8 *)(func_002e4870(0)) + (8))))) {
-                temp_f20 = (f32)((temp_18_3 * 0x17) + 0x80);
-                func_00275820(var_19_3, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, var_16_3)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 113.0f, temp_f20, 43.0f);
-            }
-            if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150((s16)(temp_20_2))) + (0x10)))), 1))))) == (s32)((s32)(1))) {
-                var_21 = (s16)(1);
+            if ((s16)func_002b6970(*(s16 *)(func_002b6150(var_16_3 + 0x21C) + 0x10), 1) == 1) {
+                var_21 = 1;
             }
         }
         if (((s16)(var_21)) == -1) {
@@ -673,7 +635,7 @@ do {
         }
         break;
     case 0x3C:                                      /* switch 1 */
-        if (((s32)((s32)(func_00314660((u8 *)(temp_17->f148)))) < (s32)((s32)(0))) || ((s32)((s32)(func_00314660((u8 *)(temp_17->f148)))) >= (s32)((s32)(6)))) {
+        if ((s8)func_00314660((u8 *)temp_17->f148) < 0 || (s8)func_00314660((u8 *)temp_17->f148) > 5) {
             func_00321e60(arg0, 1, 0x40, 0x3B);
             return;
         }
@@ -722,7 +684,7 @@ do {
             }
         } else {
 block_83:
-            if (((s32)((s32)(func_00314660((u8 *)(temp_17->f148)))) < (s32)((s32)(0))) || ((s32)((s32)(func_00314660((u8 *)(temp_17->f148)))) >= (s32)((s32)(6)))) {
+            if ((s8)func_00314660((u8 *)temp_17->f148) < 0 || (s8)func_00314660((u8 *)temp_17->f148) > 5) {
                 for (var_16_4 = 0; var_16_4 < (func_0010b5b0() & 0xFFFF); var_16_4++) {
                     func_002b2970(&sp390, 16.0f, 128.0f);
                     temp_19_3 = (*((u16 *)((u8 *)(func_002e48a0(0, var_16_4)) + (2))));
@@ -740,18 +702,18 @@ block_83:
                     func_002b2970(&sp380, (f32) (temp_16_4 + 0x149), 104.0f);
                     sp3F8 = func_002b2a60(0, 0, 0x99, 0xFF);
                     sp3F4 = func_002b2a60(0, 0, 0x99, 0xFF);
-                    func_002b83e0((u8 *)temp_20_3, fclDrawPositionValue(fclPacketPosition(sp380)), fclPacketColor((u32)(*(s32 *)&sp3F8)), fclPacketColor((u32)(*(s32 *)&sp3F4)), 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 0, 0);
+                    func_002b83e0((u8 *)temp_20_3, *(FclDrawPosition *)&sp380, sp3F8, sp3F4, 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 0, 0);
                     var_20 = 0;
-                    temp_18_6 = (u8 *)((s32)(temp_17) + (temp_18_5 * 4));
+                    temp_18_6 = (FclRowList *)((u8 *)temp_17 + temp_18_5 * 4);
                     for (; (s32)((s32)(((s16)(var_20)))) < (s32)((s32)((func_0010b5b0() & 0xFFFF)));) {
                     temp_16_5 = (s16)(var_20);
-                        sp120 = (u8*)((u8*)((u8*)(s32)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_6)+(0x154)))),  (s8)(var_20)))));
+                        sp120 = (u8*)((u8*)((u8*)(s32)(func_0034ae50(temp_18_6->list,  (s8)(var_20)))));
                         func_002b2970(&sp378, (f32)((temp_16_5 * 0x17) + 0x149), (f32) (temp_16_4 + 0x7F));
-                        temp_16_6 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_6)+(0x154)))),  (s8)(var_20)));
-                        temp_21_2 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_6)+(0x154)))),  (s8)(var_20)));
-                        temp_22 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_6)+(0x154)))),  (s8)(var_20)));
-                        temp_23 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_6)+(0x154)))),  (s8)(var_20)));
-                        func_002b83e0((u8 *)((s16 *) sp120), fclDrawPositionValue(fclPacketPosition(sp378)), fclPacketColor((u32)(((*(s32 *)((u8 *)(temp_16_6)+(0x78)))))), fclPacketColor((u32)(((*(s32 *)((u8 *)(temp_21_2)+(0x78)))))), (*(u8 *)((u8 *)(temp_22)+(0x5E))), (*(u8 *)((u8 *)(temp_23)+(0x5E))), 32.0f, (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_6)+(0x154)))),  (s8)(var_20))) + (4)))), 3, 0, 0, 0);
+                        temp_16_6 = (s16 *)(func_0034ae50(temp_18_6->list,  (s8)(var_20)));
+                        temp_21_2 = (s16 *)(func_0034ae50(temp_18_6->list,  (s8)(var_20)));
+                        temp_22 = (s16 *)(func_0034ae50(temp_18_6->list,  (s8)(var_20)));
+                        temp_23 = (s16 *)(func_0034ae50(temp_18_6->list,  (s8)(var_20)));
+                        func_002b83e0((u8 *)((s16 *) sp120), *(FclDrawPosition *)&sp378, *(FclDrawColor *)((u8 *)temp_16_6 + 0x75), *(FclDrawColor *)((u8 *)temp_21_2 + 0x75), (*(u8 *)((u8 *)(temp_22)+(0x5E))), (*(u8 *)((u8 *)(temp_23)+(0x5E))), 32.0f, (*((f32 *)((u8 *)(func_0034ae50(temp_18_6->list,  (s8)(var_20))) + (4)))), 3, 0, 0, 0);
                         var_20 = (s16)((var_20 + 1));
                     }
                     temp_20_4 = (s16)(var_19_4);
@@ -782,15 +744,15 @@ block_83:
         temp_2_4 = (u8 *)(func_002b6150(0x7C));
         sp1E8 = *(FclVec2f *)(temp_2_4 + 0x38);
         temp_16_9 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_8)));
-        func_00275820(temp_16_9, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_8->f128)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp1E8.x, sp1E8.y, 43.0f);
-        if (((s32)((s32)(func_00314660((u8 *)(temp_17->f148)))) < (s32)((s32)(0))) || ((s32)((s32)(func_00314660((u8 *)(temp_17->f148)))) >= (s32)((s32)(6)))) {
+        func_00275820(111.0f + sp1E8.x, sp1E8.y, 43.0f, temp_16_9, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_8->f128)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        if ((s8)func_00314660((u8 *)temp_17->f148) < 0 || (s8)func_00314660((u8 *)temp_17->f148) > 5) {
             if (D_008C027A[0] & 0x1000) {
-                temp_17->f11E = (s16)((s16)(func_002b2d00((s8) temp_17->f11E, 1, 0, (s16)(((*((s32 *)((u8 *)(func_002e4870(0)) + (8)))) - 1)), 2)));
+                temp_17->f11E = (s16)((s16)(func_002b2d00(temp_17->f11E, 1, 0, (s16)(((*((s32 *)((u8 *)(func_002e4870(0)) + (8)))) - 1)), 2)));
                 func_0045af60(0, 0, 0, 0);
                 return;
             }
             if (D_008C027A[0] & 0x4000) {
-                temp_17->f11E = (s16)((s16)(func_002b2cb0((u8) temp_17->f11E, 1, (s16)(((*((s32 *)((u8 *)(func_002e4870(0)) + (8)))) - 1)), 0, 2)));
+                temp_17->f11E = (s16)((s16)(func_002b2cb0(temp_17->f11E, 1, (s16)(((*((s32 *)((u8 *)(func_002e4870(0)) + (8)))) - 1)), 0, 2)));
                 func_0045af60(0, 0, 0, 0);
                 return;
             }
@@ -814,18 +776,18 @@ block_83:
                         func_002b2970(&sp350, (f32)((temp_16_11 * 0x17) + 0x149), 104.0f);
                         sp3F0 = func_002b2a60(0, 0, 0x99, 0xFF);
                         sp3EC = func_002b2a60(0, 0, 0x99, 0xFF);
-                        func_002b83e0((u8 *)temp_21_3, fclDrawPositionValue(fclPacketPosition(sp350)), fclPacketColor((u32)(*(s32 *)&sp3F0)), fclPacketColor((u32)(*(s32 *)&sp3EC)), 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 1, 0);
+                        func_002b83e0((u8 *)temp_21_3, *(FclDrawPosition *)&sp350, sp3F0, sp3EC, 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 1, 0);
                         var_18_2 = 0;
-                        temp_16_12 = (u8 *)((s32)(temp_17) + (temp_16_11 * 4));
+                        temp_16_12 = (FclRowList *)((u8 *)temp_17 + temp_16_11 * 4);
                         for (; (s32)((s32)(((s16)(var_18_2)))) < (s32)((s32)((func_0010b5b0() & 0xFFFF)));) {
-                            temp_30 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16_12)+(0x154)))),  (s8)(var_18_2)));
-                            func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16_12)+(0x154)))),  (s8)(var_18_2));
-                            temp_22_2 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16_12)+(0x154)))),  (s8)(var_18_2)));
-                            temp_23_2 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16_12)+(0x154)))),  (s8)(var_18_2)));
-                            sp110 = (u8*)((u8*)((u8*)(s32)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16_12)+(0x154)))),  (s8)(var_18_2)))));
-                            sp100 = (u8*)((u8*)((u8*)(s32)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16_12)+(0x154)))),  (s8)(var_18_2)))));
+                            temp_30 = (s16 *)(func_0034ae50(temp_16_12->list,  (s8)(var_18_2)));
+                            posSrc = func_0034ae50(temp_16_12->list,  (s8)(var_18_2));
+                            temp_22_2 = (s16 *)(func_0034ae50(temp_16_12->list,  (s8)(var_18_2)));
+                            temp_23_2 = (s16 *)(func_0034ae50(temp_16_12->list,  (s8)(var_18_2)));
+                            sp110 = (u8*)((u8*)((u8*)(s32)(func_0034ae50(temp_16_12->list,  (s8)(var_18_2)))));
+                            sp100 = (u8*)((u8*)((u8*)(s32)(func_0034ae50(temp_16_12->list,  (s8)(var_18_2)))));
                             0;
-                            func_002b83e0((u8 *)temp_30, fclDrawPositionValue(fclPacketPosition(0)), fclPacketColor((u32)(((*(s32 *)((u8 *)(temp_22_2)+(0x78)))))), fclPacketColor((u32)(((*(s32 *)((u8 *)(temp_23_2)+(0x78)))))), (*(u8 *)((u8 *)(sp110)+(0x5E))), (*(u8 *)((u8 *)(sp100)+(0x5E))), 32.0f, (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16_12)+(0x154)))),  (s8)(var_18_2))) + (4)))), 3, 0, 1, 0);
+                            func_002b83e0((u8 *)temp_30, *(FclDrawPosition *)(posSrc + 0x28), *(FclDrawColor *)((u8 *)temp_22_2 + 0x75), *(FclDrawColor *)((u8 *)temp_23_2 + 0x75), (*(u8 *)((u8 *)(sp110)+(0x5E))), (*(u8 *)((u8 *)(sp100)+(0x5E))), 32.0f, (*((f32 *)((u8 *)(func_0034ae50(temp_16_12->list,  (s8)(var_18_2))) + (4)))), 3, 0, 1, 0);
                             var_18_2 = (s16)((var_18_2 + 1));
                         }
                         temp_18_10 = (s16)(var_19_5);
@@ -869,19 +831,19 @@ block_83:
                             func_002b2970(&sp320, (f32) (temp_21_5 + 0x149), 104.0f);
                             sp3E8 = func_002b2a60(0, 0, 0x99, 0xFF);
                             sp3E4 = func_002b2a60(0, 0, 0x99, 0xFF);
-                            func_002b83e0((u8 *)temp_18_14, fclDrawPositionValue(fclPacketPosition(sp320)), fclPacketColor((u32)(*(s32 *)&sp3E8)), fclPacketColor((u32)(*(s32 *)&sp3E4)), 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 1, 0);
+                            func_002b83e0((u8 *)temp_18_14, *(FclDrawPosition *)&sp320, sp3E8, sp3E4, 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 1, 0);
                             var_18_3 = 0;
-                            temp_16_16 = (u8 *)((s32)(temp_17) + (temp_16_15 * 4));
+                            temp_16_16 = (FclRowList *)((u8 *)temp_17 + temp_16_15 * 4);
                             spF0 = temp_21_5 + 0x7F;
                             for (; (s32)((s32)(((s16)(var_18_3)))) < (s32)((s32)((func_0010b5b0() & 0xFFFF)));) {
                             temp_21_6 = (s16)(var_18_3);
-                                spE0 = (u8*)((u8*)((u8*)(s32)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16_16)+(0x154)))),  (s8)(var_18_3)))));
+                                spE0 = (u8*)((u8*)((u8*)(s32)(func_0034ae50(temp_16_16->list,  (s8)(var_18_3)))));
                                 func_002b2970(&sp318, (f32)((temp_21_6 * 0x17) + 0x149), (f32) spF0);
-                                temp_21_7 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16_16)+(0x154)))),  (s8)(var_18_3)));
-                                temp_22_3 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16_16)+(0x154)))),  (s8)(var_18_3)));
-                                temp_23_3 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16_16)+(0x154)))),  (s8)(var_18_3)));
-                                temp_30_2 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16_16)+(0x154)))),  (s8)(var_18_3)));
-                                func_002b83e0((u8 *)((s16 *) spE0), fclDrawPositionValue(fclPacketPosition(sp318)), fclPacketColor((u32)(((*(s32 *)((u8 *)(temp_21_7)+(0x78)))))), fclPacketColor((u32)(((*(s32 *)((u8 *)(temp_22_3)+(0x78)))))), (*(u8 *)((u8 *)(temp_23_3)+(0x5E))), (*(u8 *)((u8 *)(temp_30_2)+(0x5E))), 32.0f, (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_16_16)+(0x154)))),  (s8)(var_18_3))) + (4)))), 3, 0, 1, 0);
+                                temp_21_7 = (s16 *)(func_0034ae50(temp_16_16->list,  (s8)(var_18_3)));
+                                temp_22_3 = (s16 *)(func_0034ae50(temp_16_16->list,  (s8)(var_18_3)));
+                                temp_23_3 = (s16 *)(func_0034ae50(temp_16_16->list,  (s8)(var_18_3)));
+                                temp_30_2 = (s16 *)(func_0034ae50(temp_16_16->list,  (s8)(var_18_3)));
+                                func_002b83e0((u8 *)((s16 *) spE0), *(FclDrawPosition *)&sp318, *(FclDrawColor *)((u8 *)temp_21_7 + 0x75), *(FclDrawColor *)((u8 *)temp_22_3 + 0x75), (*(u8 *)((u8 *)(temp_23_3)+(0x5E))), (*(u8 *)((u8 *)(temp_30_2)+(0x5E))), 32.0f, (*((f32 *)((u8 *)(func_0034ae50(temp_16_16->list,  (s8)(var_18_3))) + (4)))), 3, 0, 1, 0);
                                 var_18_3 = (s16)((var_18_3 + 1));
                             }
                             temp_16_17 = (s16)(var_19_6);
@@ -931,18 +893,18 @@ block_83:
                             func_002b2970(&sp2E8, (f32)((temp_18_18 * 0x17) + 0x149), 104.0f);
                             sp3E0 = func_002b2a60(0, 0, 0x99, 0xFF);
                             sp3DC = func_002b2a60(0, 0, 0x99, 0xFF);
-                            func_002b83e0((u8 *)temp_16_20, fclDrawPositionValue(fclPacketPosition(sp2E8)), fclPacketColor((u32)(*(s32 *)&sp3E0)), fclPacketColor((u32)(*(s32 *)&sp3DC)), 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 1, 0);
+                            func_002b83e0((u8 *)temp_16_20, *(FclDrawPosition *)&sp2E8, sp3E0, sp3DC, 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 1, 0);
                             var_19_7 = 0;
-                            temp_18_19 = (u8 *)((s32)(temp_17) + (temp_18_18 * 4));
+                            temp_18_19 = (FclRowList *)((u8 *)temp_17 + temp_18_18 * 4);
                             for (; (s32)((s32)(((s16)(var_19_7)))) < (s32)((s32)((func_0010b5b0() & 0xFFFF)));) {
-                                temp_23_4 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_19)+(0x154)))),  (s8)(var_19_7)));
-                                func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_19)+(0x154)))),  (s8)(var_19_7));
-                                temp_21_10 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_19)+(0x154)))),  (s8)(var_19_7)));
-                                temp_22_6 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_19)+(0x154)))),  (s8)(var_19_7)));
-                                temp_30_3 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_19)+(0x154)))),  (s8)(var_19_7)));
-                                spD0 = (u8*)((u8*)((u8*)(s32)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_19)+(0x154)))),  (s8)(var_19_7)))));
+                                temp_23_4 = (s16 *)(func_0034ae50(temp_18_19->list,  (s8)(var_19_7)));
+                                posSrc = func_0034ae50(temp_18_19->list,  (s8)(var_19_7));
+                                temp_21_10 = (s16 *)(func_0034ae50(temp_18_19->list,  (s8)(var_19_7)));
+                                temp_22_6 = (s16 *)(func_0034ae50(temp_18_19->list,  (s8)(var_19_7)));
+                                temp_30_3 = (s16 *)(func_0034ae50(temp_18_19->list,  (s8)(var_19_7)));
+                                spD0 = (u8*)((u8*)((u8*)(s32)(func_0034ae50(temp_18_19->list,  (s8)(var_19_7)))));
                                 0;
-                                func_002b83e0((u8 *)temp_23_4, fclDrawPositionValue(fclPacketPosition(0)), fclPacketColor((u32)(((*(s32 *)((u8 *)(temp_21_10)+(0x78)))))), fclPacketColor((u32)(((*(s32 *)((u8 *)(temp_22_6)+(0x78)))))), (*(u8 *)((u8 *)(temp_30_3)+(0x5E))), (*((u8 *)((u8 *)(spD0) + (0x5E)))), 32.0f, (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_19)+(0x154)))),  (s8)(var_19_7))) + (4)))), 3, 0, 1, 0);
+                                func_002b83e0((u8 *)temp_23_4, *(FclDrawPosition *)(posSrc + 0x28), *(FclDrawColor *)((u8 *)temp_21_10 + 0x75), *(FclDrawColor *)((u8 *)temp_22_6 + 0x75), (*(u8 *)((u8 *)(temp_30_3)+(0x5E))), (*((u8 *)((u8 *)(spD0) + (0x5E)))), 32.0f, (*((f32 *)((u8 *)(func_0034ae50(temp_18_19->list,  (s8)(var_19_7))) + (4)))), 3, 0, 1, 0);
                                 var_19_7 = (s16)((var_19_7 + 1));
                             }
                             temp_19_6 = (s16)(var_20_2);
@@ -973,14 +935,14 @@ block_83:
                     for (var_20_3 = 0; var_20_3 < (func_0010b5b0() & 0xFFFF); var_20_3++) {
                         var_19_8 = 0;
                         temp_3_3 = (s16)(var_20_3);
-                        temp_18_21 = (u8 *)((s32)(temp_17) + (temp_3_3 * 4));
+                        temp_18_21 = (FclRowList *)((u8 *)temp_17 + temp_3_3 * 4);
                         for (; (s32)((s32)(((s16)(var_19_8)))) < (s32)((s32)((func_0010b5b0() & 0xFFFF)));) {
                         temp_21_11 = (s16)(var_19_8);
-                            temp_22_7 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_21)+(0x154)))),  (s8)(var_19_8)));
+                            temp_22_7 = (s16 *)(func_0034ae50(temp_18_21->list,  (s8)(var_19_8)));
                             func_002b2970(&sp2C0, (f32)((temp_21_11 * 0x17) + 0x149), (f32)((temp_3_3 * 0x17) + 0x7F));
-                            temp_21_12 = (s16 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_21)+(0x154)))),  (s8)(var_19_8)));
+                            temp_21_12 = (s16 *)(func_0034ae50(temp_18_21->list,  (s8)(var_19_8)));
                             sp3D8 = func_002b2a60(0, 0, 0x99, 0xA5);
-                            func_002b83e0((u8 *)temp_22_7, fclDrawPositionValue(fclPacketPosition(sp2C0)), fclPacketColor((u32)(((*(s32 *)((u8 *)(temp_21_12)+(0x78)))))), fclPacketColor((u32)(*(s32 *)&sp3D8)), 0xA5U, 0xA5U, 32.0f, (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*(s32 *)((u8 *)(temp_18_21)+(0x154)))),  (s8)(var_19_8))) + (4)))), 6, 0, 1, 1);
+                            func_002b83e0((u8 *)temp_22_7, *(FclDrawPosition *)&sp2C0, *(FclDrawColor *)((u8 *)temp_21_12 + 0x75), sp3D8, 0xA5U, 0xA5U, 32.0f, (*((f32 *)((u8 *)(func_0034ae50(temp_18_21->list,  (s8)(var_19_8))) + (4)))), 6, 0, 1, 1);
                             var_19_8 = (s16)((var_19_8 + 1));
                         }
                     }
@@ -996,7 +958,7 @@ block_83:
         temp_2_6 = (u8 *)(func_002b6150(0x7C));
         sp1E0 = *(FclVec2f *)(temp_2_6 + 0x38);
         temp_16_22 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        func_00275820(temp_16_22, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_17->f128)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp1E0.x, sp1E0.y, 43.0f);
+        func_00275820(111.0f + sp1E0.x, sp1E0.y, 43.0f, temp_16_22, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_17->f128)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             func_00314450((u8 *)(temp_17->f148),  func_002e48a0(0, temp_17->f11E),  0,  0);
             func_0011c6e0(func_003147d0((u8 *)(temp_17->f148)), 1);
@@ -1010,7 +972,7 @@ block_83:
         temp_2_7 = (u8 *)(func_002b6150(0x7C));
         sp1D8 = *(FclVec2f *)(temp_2_7 + 0x38);
         temp_16_24 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        func_00275820(temp_16_24, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_17->f128)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp1D8.x, sp1D8.y, 43.0f);
+        func_00275820(111.0f + sp1D8.x, sp1D8.y, 43.0f, temp_16_24, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_17->f128)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (func_00314660((u8 *)(temp_17->f148)) == (s32)(5)) {
             if ((s32)((s32)(func_0011c610(func_003147d0((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
                 func_0011caf0(func_003147d0((u8 *)(temp_17->f148)));
@@ -1044,7 +1006,7 @@ block_83:
             }
         } else {
 block_166:
-            if (((s32)((s32)(func_00314660((u8 *)(temp_17->f148)))) < (s32)((s32)(0))) || ((s32)((s32)(func_00314660((u8 *)(temp_17->f148)))) >= (s32)((s32)(6)))) {
+            if ((s8)func_00314660((u8 *)temp_17->f148) < 0 || (s8)func_00314660((u8 *)temp_17->f148) > 5) {
                 for (var_16_8 = 0; var_16_8 < (func_0010b5b0() & 0xFFFF); var_16_8++) {
                     func_002b2970(&sp2B8, 16.0f, 128.0f);
                     temp_19_8 = (*((u16 *)((u8 *)(func_002e48a0(0, var_16_8)) + (2))));
@@ -1070,25 +1032,25 @@ block_166:
         temp_2_8 = (u8 *)(func_002b6150(0x7C));
         sp1D0 = *(FclVec2f *)(temp_2_8 + 0x38);
         temp_16_26 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_25)));
-        func_00275820(temp_16_26, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_23->f128)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp1D0.x, sp1D0.y, 43.0f);
+        func_00275820(111.0f + sp1D0.x, sp1D0.y, 43.0f, temp_16_26, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_23->f128)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_16_27 = (*((u8 *)((u8 *)(func_002b6150(0x7D)) + (0x6E))));
         temp_18_24 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_9 = (u8 *)(func_002b6150(0x7D));
         sp1C8 = *(FclVec2f *)(temp_2_9 + 0x38);
         temp_16_28 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_27)));
-        func_00275820(temp_16_28, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_24->f129)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp1C8.x, sp1C8.y, 43.0f);
-        if (((s32)((s32)(func_00314660((u8 *)(temp_17->f148)))) < (s32)((s32)(0))) || ((s32)((s32)(func_00314660((u8 *)(temp_17->f148)))) >= (s32)((s32)(6)))) {
+        func_00275820(111.0f + sp1C8.x, sp1C8.y, 43.0f, temp_16_28, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_24->f129)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        if ((s8)func_00314660((u8 *)temp_17->f148) < 0 || (s8)func_00314660((u8 *)temp_17->f148) > 5) {
             if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x1C7)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
                 func_00324410(arg0, 0x1C7, 0);
                 func_00324410(arg0, 0x2E8, 1);
             }
             if (D_008C027A[0] & 0x1000) {
-                temp_17->f11E = (s16)((s16)(func_002b2d00((s8) temp_17->f11E, 1, 0, (s16)(((*((s32 *)((u8 *)(func_002e4870(0)) + (8)))) - 1)), 2)));
+                temp_17->f11E = (s16)((s16)(func_002b2d00(temp_17->f11E, 1, 0, (s16)(((*((s32 *)((u8 *)(func_002e4870(0)) + (8)))) - 1)), 2)));
                 func_0045af60(0, 0, 0, 0);
                 return;
             }
             if (D_008C027A[0] & 0x4000) {
-                temp_17->f11E = (s16)((s16)(func_002b2cb0((u8) temp_17->f11E, 1, (s16)(((*((s32 *)((u8 *)(func_002e4870(0)) + (8)))) - 1)), 0, 2)));
+                temp_17->f11E = (s16)((s16)(func_002b2cb0(temp_17->f11E, 1, (s16)(((*((s32 *)((u8 *)(func_002e4870(0)) + (8)))) - 1)), 0, 2)));
                 func_0045af60(0, 0, 0, 0);
                 return;
             }
@@ -1182,12 +1144,12 @@ block_166:
         temp_2_12 = (u8 *)(func_002b6150(0x7C));
         sp1C0 = *(FclVec2f *)(temp_2_12 + 0x38);
         temp_16_35 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        func_00275820(temp_16_35, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_17->f128)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp1C0.x, sp1C0.y, 43.0f);
+        func_00275820(111.0f + sp1C0.x, sp1C0.y, 43.0f, temp_16_35, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_17->f128)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_18_25 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_13 = (u8 *)(func_002b6150(0x7D));
         sp1B8 = *(FclVec2f *)(temp_2_13 + 0x38);
         temp_16_36 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        func_00275820(temp_16_36, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_25->f129)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp1B8.x, sp1B8.y, 43.0f);
+        func_00275820(111.0f + sp1B8.x, sp1B8.y, 43.0f, temp_16_36, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_25->f129)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             func_00314450((u8 *)(temp_17->f148),  func_002e48a0(0, temp_17->f11E),  0,  0);
             func_0011c6e0(func_003147d0((u8 *)(temp_17->f148)), 1);
@@ -1201,12 +1163,12 @@ block_166:
         temp_2_14 = (u8 *)(func_002b6150(0x7C));
         sp1B0 = *(FclVec2f *)(temp_2_14 + 0x38);
         temp_16_38 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        func_00275820(temp_16_38, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_17->f128)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp1B0.x, sp1B0.y, 43.0f);
+        func_00275820(111.0f + sp1B0.x, sp1B0.y, 43.0f, temp_16_38, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_17->f128)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_18_26 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_15 = (u8 *)(func_002b6150(0x7D));
         sp1A8 = *(FclVec2f *)(temp_2_15 + 0x38);
         temp_16_39 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        func_00275820(temp_16_39, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_26->f129)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp1A8.x, sp1A8.y, 43.0f);
+        func_00275820(111.0f + sp1A8.x, sp1A8.y, 43.0f, temp_16_39, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_26->f129)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (func_00314660((u8 *)(temp_17->f148)) == (s32)(5)) {
             if ((s32)((s32)(func_0011c610(func_003147d0((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
                 func_0011caf0(func_003147d0((u8 *)(temp_17->f148)));
@@ -1240,7 +1202,7 @@ block_166:
             }
         } else {
 block_215:
-            if (((s32)((s32)(func_00314660((u8 *)(temp_17->f148)))) < (s32)((s32)(0))) || ((s32)((s32)(func_00314660((u8 *)(temp_17->f148)))) >= (s32)((s32)(6)))) {
+            if ((s8)func_00314660((u8 *)temp_17->f148) < 0 || (s8)func_00314660((u8 *)temp_17->f148) > 5) {
                 func_00316470(arg0, 1, 0);
                 func_00316e80(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 for (var_19_9 = 0; var_19_9 < (func_0010b5b0() & 0xFFFF); var_19_9++) {
@@ -1274,14 +1236,14 @@ block_215:
         sp1A0 = *((f32 *)((u8 *)(temp_2_16) + (0x38)));
         sp1A4 = *((f32 *)((u8 *)(temp_2_16) + (0x3C)));
         temp_16_43 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_42)));
-        func_00275820(temp_16_43, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_29->f128)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp1A0, sp1A4, 43.0f);
+        func_00275820(111.0f + sp1A0, sp1A4, 43.0f, temp_16_43, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_29->f128)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_16_44 = (*((u8 *)((u8 *)(func_002b6150(0x7D)) + (0x6E))));
         temp_18_30 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_17 = (u8 *)(func_002b6150(0x7D));
         sp198 = *((f32 *)((u8 *)(temp_2_17) + (0x38)));
         sp19C = *((f32 *)((u8 *)(temp_2_17) + (0x3C)));
         temp_16_45 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_44)));
-        func_00275820(temp_16_45, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_30->f129)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp198, sp19C, 43.0f);
+        func_00275820(111.0f + sp198, sp19C, 43.0f, temp_16_45, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_30->f129)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             temp_17->f2F9 = (s8)((s8)((s8) (temp_17->f129 + 1)));
             temp_2_18 = (s16)((s16)((s16)(temp_17->f11E)));
@@ -1311,14 +1273,14 @@ block_215:
         sp190 = *((f32 *)((u8 *)(temp_2_19) + (0x38)));
         sp194 = *((f32 *)((u8 *)(temp_2_19) + (0x3C)));
         temp_16_52 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_51)));
-        func_00275820(temp_16_52, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_32->f128)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp190, sp194, 43.0f);
+        func_00275820(111.0f + sp190, sp194, 43.0f, temp_16_52, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_32->f128)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_16_53 = (*((u8 *)((u8 *)(func_002b6150(0x7D)) + (0x6E))));
         temp_18_33 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_20 = (u8 *)(func_002b6150(0x7D));
         sp188 = *((f32 *)((u8 *)(temp_2_20) + (0x38)));
         sp18C = *((f32 *)((u8 *)(temp_2_20) + (0x3C)));
         temp_16_54 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_53)));
-        func_00275820(temp_16_54, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_33->f129)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp188, sp18C, 43.0f);
+        func_00275820(111.0f + sp188, sp18C, 43.0f, temp_16_54, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_33->f129)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s8)func_00314660((u8 *)(temp_17->f148))) == (s32)(0xD)) {
             if ((s32)((s32)(func_0011c610(func_003147d0((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
                 func_0011caf0(func_003147d0((u8 *)(temp_17->f148)));
@@ -1451,13 +1413,13 @@ block_215:
         temp_2_21 = (u8 *)(func_002b6150(0x7C));
         sp180 = *(FclVec2f *)(temp_2_21 + 0x38);
         temp_16_72 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_71)));
-        func_00275820(temp_16_72, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_36->f128)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp180.x, sp180.y, 43.0f);
+        func_00275820(111.0f + sp180.x, sp180.y, 43.0f, temp_16_72, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_36->f128)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_16_73 = (*((u8 *)((u8 *)(func_002b6150(0x7D)) + (0x6E))));
         temp_18_37 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_22 = (u8 *)(func_002b6150(0x7D));
         sp178 = *(FclVec2f *)(temp_2_22 + 0x38);
         temp_16_74 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_73)));
-        func_00275820(temp_16_74, 0, 2, ((s32)iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_37->f129)) + (2)))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp178.x, sp178.y, 43.0f);
+        func_00275820(111.0f + sp178.x, sp178.y, 43.0f, temp_16_74, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(func_002e48a0(0, temp_18_37->f129)) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (func_00314660((u8 *)(temp_17->f148)) == (s32)(0xE)) {
             func_00316470(arg0, 1, 0);
             func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
