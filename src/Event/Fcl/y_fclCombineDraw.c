@@ -1478,140 +1478,78 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s32 arg5, s
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00317900);
 #endif
 
-/* measured: nd 427 — the FP-saved-register allocation differs and nothing
-   source-shaped moves it. Retail spills the sp108 f32 local to its stack slot
-   (swc1 0x108) and assigns FP saved regs in def order to [sp10C->$f23, v2->$f22,
-   v1->$f21, v20->$f20, v24->$f24]; mwcc b210 keeps BOTH sp108/sp10C in saved FP
-   regs ($f24/$f25, frame 0x110 vs retail 0x120, one extra swc1) and assigns
-   [sp10C->$f25, sp108->$f24, v1->$f23, v2->$f22, v20->$f21, v24->$f20].
-   Tried: declaration-order permutations of the f32 locals (sp108/sp10C/v1/v2/
-   v20/v24 in all plausible orders), and fully inlining the 6.0f+sp108 /
-   62.0f+sp10C / 33.0f+sp108 / 20.0f+sp108 / sp10C-44.0f expressions at the six
-   2970 calls (mwcc CSEs them into the identical allocation) — all nd 427. The
-   rest of the function (if/else chains, 6150/2970/68d0/6c30 chains, the
-   adda.s/msub.s FPU-fusion expression (5.0f+sp108)-2.0f*(46b260(h)/10.0f), the
-   FclByte4 copies) matches. FP saved-register rotation floor. */
-/* measured (even lane 2026-09-17): 394 differing words via `python3 -E -s tools/measure_guarded.py src/Event/Fcl/y_fclCombineDraw.c func_00318840` (GUARDED_SCORE func_00318840: 394); banked as guarded floor per 3% rule -- probe 394w via docs/probe_archive/EVEN_00318840_body.c, fnalign 194 edits, retail 444 vs object 457 (+13, +2.93% PASS). */
-// FUN_00318840 NONMATCHING
-#ifdef NON_MATCHING
-void func_00318840(u8 *arg0, s64 arg1, s64 arg2, s32 arg3, s64 arg4) {
+/* Each point is built inside the store that consumes it (func_002b2970 returns
+   by value), which gives retail's float saved-register order. See
+   docs/probe_archive/FclDraw_00318840_20260925.md. */
+// FUN_00318840
+void func_00318840(u8 *arg0, s8 arg1, s8 arg2, s16 arg3, s16 arg4) {
+    extern FclVec2 func_002b2970(f32, f32);
     FclByte4 c11C;
     FclByte4 c118;
     FclByte4 c114;
     FclByte4 c110;
-    f32 sp10C;
-    f32 sp108;
-    s64 sp100;
-    s64 spF8;
-    s64 spF0;
-    s64 spE8;
-    s64 spE0;
-    s64 spD8;
-    s64 spD0;
-    FclPackedPosition spC8;
-    FclPackedPosition spC0;
-    s64 spB8;
-    f32 f20;
-    f32 f21;
-    f32 f22;
-    f32 f24;
-    s32 t16;
-    s32 t17;
-    s32 v18;
+    FclVec2 pos;
     u8 *t;
-    u8 *p;
     u8 *h;
-    f32 hval;
-    f32 fmsub;
+    s32 resource;
+    s16 icon;
+    f32 scale;
+
     t = *(u8 **)(arg0 + 0x38);
-    t17 = (s8)arg2;
-    t16 = t17 + 0x20D;
-    p = func_002b6150((s16)t16);
-    sp108 = *(f32 *)(p + 0x38);
-    sp10C = *(f32 *)(p + 0x3C);
-    v18 = (s16)(t17 * 2 + 0xDF);
-    if ((s8)t17 == 6) {
-        v18 = 0xEF;
-    } else if ((s8)t17 == 7) {
-        v18 = 0xEB;
-    } else if ((s8)t17 == 8) {
-        v18 = 0xED;
+    resource = arg2 + 0x20D;
+    pos = *(FclVec2 *)(func_002b6150(resource) + 0x38);
+    icon = arg2 * 2 + 0xDF;
+    if (arg2 == 6) {
+        icon = 0xEF;
+    } else if (arg2 == 7) {
+        icon = 0xEB;
+    } else if (arg2 == 8) {
+        icon = 0xED;
     }
-    if (((s64)(arg1 << 0x38) >> 0x38) == *(s8 *)(t + 0xB4)) {
-        p = func_002b6150(0x1DC);
-        *(FclVec2 *)(p + 0x38) = (FclVec2){sp108, sp10C};
-        f22 = 62.0f + sp10C;
-        f21 = 6.0f + sp108;
-        func_002b2970((u8 *)&sp100, f21, f22);
-        p = func_002b6150(0x216);
-        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&sp100;
-        f20 = 33.0f + sp108;
-        func_002b2970((u8 *)&spF8, f20, f22);
-        p = func_002b6150(0x217);
-        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spF8;
-        f24 = 20.0f + sp108;
-        func_002b2970((u8 *)&spF0, f24, f22);
-        p = func_002b6150(0x218);
-        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spF0;
-        f22 = sp10C - 44.0f;
-        func_002b2970((u8 *)&spE8, f21, f22);
-        p = func_002b6150(0x219);
-        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spE8;
-        func_002b2970((u8 *)&spE0, f20, f22);
-        p = func_002b6150(0x21A);
-        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spE0;
-        func_002b2970((u8 *)&spD8, f24, f22);
-        p = func_002b6150(0x21B);
-        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spD8;
-        f20 = iGpffff8360;
-        *(f32 *)(func_002b6150((s16)v18) + 0xA0) = f20;
-        *(f32 *)(func_002b6150((s16)v18) + 0xAC) = f20;
-        *(f32 *)(func_002b6150((s16)v18) + 0x14) = 59.0f;
-        *(s32 *)(func_002b6150((s16)v18) + 0x8) = 0xAB;
-        h = func_0046d200(func_00331560(), (u32)v18);
-        hval = func_0046b260(h);
-        fmsub = (5.0f + sp108) - 2.0f * (hval / 10.0f);
-        func_002b2970((u8 *)&spD0, fmsub, sp10C - 3.0f);
-        p = func_002b6150((s16)v18);
-        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spD0;
+    if (arg1 == *(s8 *)(t + 0xB4)) {
+        *(FclVec2 *)(func_002b6150(0x1DC) + 0x38) = pos;
+        *(FclVec2 *)(func_002b6150(0x216) + 0x38) = func_002b2970(6.0f + pos.x, 62.0f + pos.y);
+        *(FclVec2 *)(func_002b6150(0x217) + 0x38) = func_002b2970(33.0f + pos.x, 62.0f + pos.y);
+        *(FclVec2 *)(func_002b6150(0x218) + 0x38) = func_002b2970(20.0f + pos.x, 62.0f + pos.y);
+        *(FclVec2 *)(func_002b6150(0x219) + 0x38) = func_002b2970(6.0f + pos.x, pos.y - 44.0f);
+        *(FclVec2 *)(func_002b6150(0x21A) + 0x38) = func_002b2970(33.0f + pos.x, pos.y - 44.0f);
+        *(FclVec2 *)(func_002b6150(0x21B) + 0x38) = func_002b2970(20.0f + pos.x, pos.y - 44.0f);
+        scale = iGpffff8360;
+        *(f32 *)(func_002b6150(icon) + 0xA0) = scale;
+        *(f32 *)(func_002b6150(icon) + 0xAC) = scale;
+        *(f32 *)(func_002b6150(icon) + 0x14) = 59.0f;
+        *(s32 *)(func_002b6150(icon) + 0x8) = 0xAB;
+        h = func_0046d200(func_00331560(), icon);
+        *(FclVec2 *)(func_002b6150(icon) + 0x38) = func_002b2970((5.0f + pos.x) - 2.0f * (func_0046b260(h) / 10.0f), pos.y - 3.0f);
         func_0046d280(h);
         c11C = func_002b2a60(0xE0, 0xFF, 0x33, 0xFF);
-        *(FclByte4 *)(func_002b6150((s16)v18) + 0x85) = c11C;
-        /* reuse t17 */
-        func_002b68d0((s16)t16, 0, 1);
-        func_002b68d0((s16)(t17 + 0xF2), 0, 1);
-        func_002b2970((u8 *)&spC8.bits, sp108 - 12.0f, 104.0f + sp10C);
-        func_002b6c30((s16)((s16)(t17 + 0xFD)), spC8.position, 59.0f, 0xAC);
-        if (t17 < 6) {
-            func_002b2970((u8 *)&spC0.bits, sp108 - 12.0f, 123.0f + sp10C);
-            func_002b6c30(0xFC, spC0.position, 59.0f, 0xAC);
+        *(FclDrawColor *)(func_002b6150(icon) + 0x85) = c11C;
+        func_002b68d0(arg2 + 0x20D, 0, 1);
+        func_002b68d0(arg2 + 0xF2, 0, 1);
+        func_002b6c30((s16)(arg2 + 0xFD), func_002b2970(pos.x - 12.0f, 104.0f + pos.y), 59.0f, 0xAC);
+        if (arg2 < 6) {
+            func_002b6c30(0xFC, func_002b2970(pos.x - 12.0f, 123.0f + pos.y), 59.0f, 0xAC);
             c118 = func_002b2a60(0xE0, 0xFF, 0x33, 0xFF);
-            *(FclByte4 *)(func_002b6150(0xFC) + 0x85) = c118;
+            *(FclDrawColor *)(func_002b6150(0xFC) + 0x85) = c118;
             return;
         }
         func_002b68d0(0xFC, 0, 1);
         return;
     }
-    /* reuse t17 */
-    func_002b68d0((s16)(t17 + 0xFD), 0, 1);
-    func_002b68d0((s16)t16, 0, 0);
-    t16 = t17 + 0xF2;
-    func_002b68d0((s16)t16, 0, 0);
+    func_002b68d0(arg2 + 0xFD, 0, 1);
+    func_002b68d0(resource, 0, 0);
+    resource = arg2 + 0xF2;
+    func_002b68d0(resource, 0, 0);
     c114 = func_002b2a60(0x42, 0x6E, 0xFF, 0xFF);
-    *(FclByte4 *)(func_002b6150((s16)t16) + 0x85) = c114;
-    *(f32 *)(func_002b6150((s16)v18) + 0xA0) = 1.0f;
-    *(f32 *)(func_002b6150((s16)v18) + 0xAC) = 1.0f;
-    *(f32 *)(func_002b6150((s16)v18) + 0x14) = (f32)arg3;
-    *(s32 *)(func_002b6150((s16)v18) + 0x8) = (s32)arg4 + 1;
-    func_002b2970((u8 *)&spB8, 6.0f + sp108, 4.0f + sp10C);
-    p = func_002b6150((s16)v18);
-    *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spB8;
+    *(FclDrawColor *)(func_002b6150(resource) + 0x85) = c114;
+    *(f32 *)(func_002b6150(icon) + 0xA0) = 1.0f;
+    *(f32 *)(func_002b6150(icon) + 0xAC) = 1.0f;
+    *(f32 *)(func_002b6150(icon) + 0x14) = arg3;
+    *(s32 *)(func_002b6150(icon) + 0x8) = arg4 + 1;
+    *(FclVec2 *)(func_002b6150(icon) + 0x38) = func_002b2970(6.0f + pos.x, 4.0f + pos.y);
     c110 = func_002b2a60(0x42, 0x6E, 0xFF, 0xFF);
-    *(FclByte4 *)(func_002b6150((s16)v18) + 0x85) = c110;
+    *(FclDrawColor *)(func_002b6150(icon) + 0x85) = c110;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00318840);
-#endif
 
 // FUN_00318F30
 void func_00318f30(s16 arg0) {
