@@ -7,8 +7,17 @@ typedef struct {
     u8 c0, c1, c2, c3;
 } FclDrawColor;
 
-/* The EE aggregate return uses the caller's four-byte output object. */
-FclDrawColor func_002b2a60(s32 red, s32 green, s32 blue, s32 alpha);
+/* The EE aggregate return uses the caller's four-byte output object.
+ * The retail units did not share one prototype: most pass int values with
+ * no narrowing, while y_fclShopDraw passes byte lvalues in argument-slot
+ * order, which b210 only emits for u8 parameters (an int parameter hoists
+ * the lbu ahead of the constant arguments).  A unit selects its declaration
+ * by defining FCL_COLOR_ARG before including this header. */
+#ifndef FCL_COLOR_ARG
+#define FCL_COLOR_ARG s32
+#endif
+FclDrawColor func_002b2a60(FCL_COLOR_ARG red, FCL_COLOR_ARG green,
+                           FCL_COLOR_ARG blue, FCL_COLOR_ARG alpha);
 
 static inline void fclConstructColor(FclDrawColor *out, s32 red, s32 green,
                                     s32 blue, s32 alpha)
