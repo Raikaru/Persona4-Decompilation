@@ -462,8 +462,10 @@ def _rewrite_eabi_pseudos(asm: Path) -> None:
 # MWCC objects carry none of these, and mwldps2 rejects an object whose
 # sections the linker command file does not place.  GCC's own metadata is
 # dropped unconditionally so a GCC unit presents the same shape to the linker
-# as a Metrowerks one.
-GCC_METADATA_SECTIONS = (".reginfo", ".MIPS.abiflags", ".pdr",
+# as a Metrowerks one.  The Sony EE assembler emits ECOFF debug as a plain
+# `.mdebug` rather than `.mdebug.eabi64`; GNU ld's MIPS final link crashes
+# while merging it, so both spellings go.
+GCC_METADATA_SECTIONS = (".reginfo", ".MIPS.abiflags", ".pdr", ".mdebug",
                          ".mdebug.eabi64", ".gnu.attributes")
 # `.text`, `.data` and `.bss` are only placeholders in a unit whose code all
 # arrives through INCLUDE_ASM, which every GCC unit was until the CRI sources
