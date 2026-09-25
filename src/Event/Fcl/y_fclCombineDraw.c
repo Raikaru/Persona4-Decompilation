@@ -73,7 +73,7 @@ extern s32 func_0010b5b0(void);
 extern void func_0031e5b0(u8 *, s64, s32, s8, s32, s32, s32);
 extern void func_002b6b90(s16, s32, s32, s32, s32, s32);
 extern void func_002b8370(u8 *, FclByte4, FclByte4, u8, s16, s32);
-extern void func_0032fa30(u8 *, s16, u32, u32, u32);
+extern void func_0032fa30(u8 *, s16, FclDrawColor, FclDrawColor, FclDrawColor);
 extern s8 func_0032fb60(s8);
 extern void func_003297f0(f32, f32, u8 *, s64, s8);
 extern void func_0031ac10(u8 *, FclVec2, s8, s8, s32, u16, s16, s8, s8, u8);
@@ -6087,7 +6087,7 @@ void func_0032f4d0(u8 *arg0) {
     cBC.channels = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
     cB8.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
     cB4.channels = func_002b2a60(0x92, 0xC8, 7, 0xFF);
-    func_0032fa30(arg0, r, cBC.bits, cB8.bits, cB4.bits);
+    func_0032fa30(arg0, r, cBC.channels, cB8.channels, cB4.channels);
     if (datGetFlag(0x1306) != 0) {
         cB0 = func_002b2a60(0x29, 0x29, 0x29, 0xFF);
         p1 = func_002b6150(0x201);
@@ -6102,7 +6102,7 @@ void func_0032f4d0(u8 *arg0) {
 }
 
 // FUN_0032FA30
-void func_0032fa30(u8 *arg0, s16 arg1, u32 arg2, u32 arg3, u32 arg4) {
+void func_0032fa30(u8 *arg0, s16 arg1, FclDrawColor arg2, FclDrawColor arg3, FclDrawColor arg4) {
     u8 *t;
     u8 *p1;
     u8 *p2;
@@ -6112,14 +6112,14 @@ void func_0032fa30(u8 *arg0, s16 arg1, u32 arg2, u32 arg3, u32 arg4) {
 
     t = *(u8 **)(arg0 + 0x38);
     p1 = func_002b6150((s16)((arg1 + 4) * 2 + 0x1F5));
-    *(FclByte4 *)(p1 + 0x85) = *(FclByte4 *)&arg2;
+    *(FclByte4 *)(p1 + 0x85) = arg2;
     p2 = func_002b6150((s16)((arg1 + 4) * 2 + 0x1F4));
     *(FclByte4 *)(p2 + 0x85) = *(FclByte4 *)(p1 + 0x85);
     idx = arg1 * 2;
     p3 = func_002b6150(*(s16 *)(idx + (s32)t + 0xB8));
-    *(FclByte4 *)(p3 + 0x85) = *(FclByte4 *)&arg3;
+    *(FclByte4 *)(p3 + 0x85) = arg3;
     p4 = func_002b6150((s16)(arg1 + 0x2FF));
-    *(FclByte4 *)(p4 + 0x85) = *(FclByte4 *)&arg4;
+    *(FclByte4 *)(p4 + 0x85) = arg4;
 }
 // FUN_0032FB60
 s8 func_0032fb60(s8 arg0) {
