@@ -80,8 +80,10 @@ The GNU link strips nonallocated compiler debug sections with `--strip-debug`.
 ee-gcc's ECOFF `.mdebug` carries invalid external-string offsets that crash BFD
 during final linking. This does not strip `.symtab` or `.mwcats`: the linked
 function definitions and both retail hashes are still checked. The CI image
-installs Debian's `binutils-mipsel-linux-gnu` for the linker; its decompals
-assembler and objcopy remain selected from `/usr/local/bin`.
+installs Debian's `binutils-mipsel-linux-gnu` for the linker and objcopy, while
+using the decompals assembler for PS2 R5900 instructions. Decompals v0.7
+objcopy can write an invalid `.symtab sh_info` when an assembly-local label
+follows global labels; Debian objcopy preserves the symbol order correctly.
 
 ## Regression checks
 

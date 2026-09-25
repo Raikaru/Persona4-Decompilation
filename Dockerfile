@@ -30,7 +30,7 @@ ENV P4_MWCC=/usr/local/bin/mwccps2.exe \
     P4_MWLD_BINARY=/opt/p4/mwldps2.exe \
     P4_RETAIL_ELF=/opt/p4/SLUS_217.82 \
     P4_AS=/usr/local/bin/mipsel-linux-gnu-as \
-    P4_OBJCOPY=/usr/local/bin/mipsel-linux-gnu-objcopy \
+    P4_OBJCOPY=/usr/bin/mipsel-linux-gnu-objcopy \
     P4_EEGCC_ROOT=/opt/p4/ee-gcc-2.96 \
     P4_EEGCC_AS=/opt/p4/ee-binutils/bin/as \
     PYTHONUNBUFFERED=1
@@ -45,9 +45,9 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends $(cat /tmp/requirements-debian.txt) libc6:i386; \
     rm -rf /var/lib/apt/lists/* /tmp/requirements-debian.txt
 
-# Install the PS2-aware decompals binutils build.  The project tools retain the
-# conventional mipsel-linux-gnu-* names, so expose the decompals binaries under
-# those names as well as their upstream names.
+# Use the PS2-aware decompals assembler for R5900 instructions. Debian's
+# objcopy handles its objects: decompals v0.7 objcopy can leave a local
+# assembly label after global symbols with an invalid .symtab sh_info.
 RUN set -eux; \
     wget -q -O /tmp/binutils.tar.gz \
       "https://github.com/decompals/binutils-mips-ps2-decompals/releases/download/v${BINUTILS_VERSION}/binutils-mips-ps2-decompals-linux-x86-64.tar.gz"; \
@@ -57,7 +57,6 @@ RUN set -eux; \
       install -m 0755 "$tool" "/usr/local/bin/$(basename "$tool")"; \
     done; \
     ln -s /usr/local/bin/mips-ps2-decompals-as /usr/local/bin/mipsel-linux-gnu-as; \
-    ln -s /usr/local/bin/mips-ps2-decompals-objcopy /usr/local/bin/mipsel-linux-gnu-objcopy; \
     rm -rf /tmp/binutils /tmp/binutils.tar.gz
 
 # Fail the image build if the assembler does not accept the PS2 ISA/ABI used by
