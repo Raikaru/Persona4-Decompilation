@@ -51,3 +51,37 @@ Casealign totals, then fndiff words once the function was size-exact.
    because a `u16` parameter re-normalises `arg1` in place there (5 words)
    and an unprototyped call still masks. This is the one prototype that is
    narrower than its definition. It is commented at the declaration.
+
+## Why the func_00310a10 declaration stays u16 (STYLE exception, measured)
+In state 0x2F, retail loads the class id once (`lhu $s0`). It then passes
+`$s0` unmasked to `func_00105f50` and to `func_00310a10`. MWCC masks on
+every type change between u16 and a 32-bit type, but not on u16 -> u16 or
+s32 <-> u32. So:
+- The caller cannot use one honest type for both calls. Each probe below
+  left 2 words (one `andi`):
+  - u16 temp with `func_00310a10(u8 *, s32)`;
+  - s32 temp with `func_00105f50(u16)`;
+  - u32 temp;
+  - `(u16)` casts;
+  - an unprototyped `func_00310a10()` declaration.
+- Callee definitions (fndiff):
+  - `func_00310a10` matches only with a 32-bit parameter. A u16 parameter
+    renormalises arg1 in place (5 words). It passes arg1 raw to
+    `func_00109280`, whose definition is also 32-bit (u16 gives 20 words with
+    three different bodies).
+  - `func_00105f50` and `func_0034a640` match as u16, s32 or u32.
+- An all-32-bit contract fixes 002ed430:
+  - `func_00105f50(s32)`, `func_0034a640(u8 *, s32, s64)`,
+    `func_00310a10(s32)`, an s32 temp;
+  - `func_003097e0`'s `cls` becomes s32 with `(u16)cls` at the index uses;
+  - with those, g_data, code1_0034 and y_fclCombine all keep their status.
+
+  But y_fclCombineDraw `func_0032c480` regresses (MATCH -> 2 words). Its
+  `lhu` argument is scheduled in argument order only when `func_0034a640`'s
+  parameter is u16. So u16 is the contract that TU's bytes support.
+- `func_003097e0` itself needs `cls` to reach both `func_0034a640` and
+  `func_00105f50` unmasked. That fixes those two as u16 in this TU, so
+  `func_00105f50` cannot be 32-bit here.
+
+No single set of prototypes reproduces all four functions. The narrow local
+declaration is the smallest deviation measured.
