@@ -11321,46 +11321,32 @@ loop_176:
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_003097e0);
 #endif
 
-/* wave 14: signature re-checked via the m2c oracle (void func_0030b060(u8 *
-   arg0) — correct). All wave-14 levers checked: the function has no global
-   base, no jtbl reload, no addu-order site; residuals are the frame-size/saved-
-   reg map (retail 0xB0 with a never-used $s6 vs mwcc 0xA0 six-save) and the
-   switch/loop register schedule. opt_propagation off not applicable
-   (multi-store switch). Best nd 90 edits / 139 words (switch; was ~N/A unmeasured). */
-/* measured: retail's frame is 0xB0 with 7 saved GPR slots ($s6 saved but
-   never used) while mwcc b210 allocates 6 saved regs (frame 0xA0), and the
-   whole saved-register map rotates (mine arg0=$s1,p=$s0 vs retail
-   arg0=$s5,p=$s2). Structure verified: switch 0xC2/0xC3/0xC4 with
-   reversed tests, 4 separate s64 vector locals + 4 FclByte4 color locals,
-   26.0f/cvt.s.w int-to-float args, per-call lbu/sb color copies, the
-   6-way func_002b6970 guard, bit-flag dispatch chain, e/lim/k loop.
-   measured: switch (C2,C3,C4 source order) vs if-chain fixes the dispatch layout
-   (386 -> 139 words, 583 -> 90 edits [+6 reloc]; fnalign retail 468 / object 470
-   instrs, window 1872B / object 1880B). Residual WALL is frame-size + rotation plus
-   the 4-byte colour load-all-store-all vs interleaved lbu/sb schedule and 8B size shift. */
-/* measured 0030b060: `opt_loop_invariants on` inside the guard is worth 4 words (139 -> 135). */
-// FUN_0030B060 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_loop_invariants on
+/* MATCHED: switch on the state byte (C2/C3/C4) with s16 loop counters;
+   colours are FclDrawColor struct returns copied whole to te+0x85 (lbu x4,
+   sb x4); the D_00640D78 pair is read through a named FclVec2f base (lui/
+   addiu base then lwc1 0/4); the flag at p+0x13A is s8; the scroll loop
+   declares k before e and keeps lim as s32; the 0xD store is re-read as
+   *(s8 *)(p + 0xD) for func_002badc0 (b210 forwards it after the lh). */
+// FUN_0030B060
 void func_0030b060(u8 *arg0)
 {
     u8 *p;
     u8 kind;
     s16 i;
     s16 j;
-    s16 e;
     s16 k;
-    s16 lim;
+    s16 e;
+    s32 lim;
     FclPackedPosition v0;
     s64 v1;
     s64 v2;
     FclPackedPosition v3;
-    FclByte4 c0;
-    FclByte4 c1;
-    FclByte4 c2;
-    FclByte4 c3;
+    FclDrawColor c0;
+    FclDrawColor c1;
+    FclDrawColor c2;
+    FclDrawColor c3;
     u8 *te;
-    s8 t;
+    FclVec2f *base;
 
     p = *(u8 **)(arg0 + 0x38);
     kind = *(p + 1);
@@ -11376,31 +11362,20 @@ void func_0030b060(u8 *arg0)
             func_002b2970((u8 *)&v0.bits, 26.0f, (f32)(j * 0x22 + 0x57));
             func_003147e0(arg0, (s8)j, v0.position, (s16)(j + 0x179), (s16)(j * 2 + 2), 0);
         }
-        fclWriteColorBytes((u8 *)(&c0), 0xC6, 0xEE, 1, 0xFF);
+        c0 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
         te = func_002b6150((s16)(*(s16 *)(p + 0x11E) * 2 + 500));
-        *(te + 0x85) = c0.b0;
-        *(te + 0x86) = c0.b1;
-        *(te + 0x87) = c0.b2;
-        *(te + 0x88) = c0.b3;
-        fclWriteColorBytes((u8 *)(&c1), 0xC6, 0xEE, 1, 0xFF);
+        *(FclDrawColor *)(te + 0x85) = c0;
+        c1 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
         te = func_002b6150((s16)(*(s16 *)(p + 0x11E) * 2 + 501));
-        *(te + 0x85) = c1.b0;
-        *(te + 0x86) = c1.b1;
-        *(te + 0x87) = c1.b2;
-        *(te + 0x88) = c1.b3;
-        fclWriteColorBytes((u8 *)(&c2), 0x2D, 0x2D, 0x2D, 0xFF);
+        *(FclDrawColor *)(te + 0x85) = c1;
+        c2 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
         te = func_002b6150((s16)(*(s16 *)(p + 0x11E) + 0x179));
-        *(te + 0x85) = c2.b0;
-        *(te + 0x86) = c2.b1;
-        *(te + 0x87) = c2.b2;
-        *(te + 0x88) = c2.b3;
-        fclWriteColorBytes((u8 *)(&c3), 0x92, 0xC8, 7, 0xFF);
+        *(FclDrawColor *)(te + 0x85) = c2;
+        c3 = func_002b2a60(0x92, 0xC8, 7, 0xFF);
         te = func_002b6150((s16)(*(s16 *)(p + 0x120) + 0x2FB));
-        *(te + 0x85) = c3.b0;
-        *(te + 0x86) = c3.b1;
-        *(te + 0x87) = c3.b2;
-        *(te + 0x88) = c3.b3;
-        func_002b2970((u8 *)&v1, D_00640D78[0], D_00640D78[1]);
+        *(FclDrawColor *)(te + 0x85) = c3;
+        base = (FclVec2f *)D_00640D78;
+        func_002b2970((u8 *)&v1, base->x, base->y);
         func_00324f80(arg0, v1, 1, 0);
         *(s32 *)(p + 0x124) = 0x428F0000;
         *(p + 1) = 0xC3;
@@ -11412,7 +11387,7 @@ void func_0030b060(u8 *arg0)
                     if ((s16)func_002b6970(*(s16 *)(func_002b6150(506) + 0x10), 1) != 1) {
                         if ((s16)func_002b6970(*(s16 *)(func_002b6150(508) + 0x10), 1) != 1) {
                             if ((s16)func_002b6970(*(s16 *)(func_002b6150(510) + 0x10), 1) != 1) {
-                                if ((D_008C0276[0] & 0x1000) && (*(p + 0x13A) == 0)) {
+                                if ((D_008C0276[0] & 0x1000) && (*(s8 *)(p + 0x13A) == 0)) {
                                     func_00330060(arg0, 5);
                                     return;
                                 }
@@ -11420,7 +11395,7 @@ void func_0030b060(u8 *arg0)
                                     func_00330060(arg0, 1);
                                     return;
                                 }
-                                if ((D_008C0276[0] & 0x4000) && (*(p + 0x13A) == 0)) {
+                                if ((D_008C0276[0] & 0x4000) && (*(s8 *)(p + 0x13A) == 0)) {
                                     func_00330060(arg0, 4);
                                     return;
                                 }
@@ -11438,21 +11413,22 @@ void func_0030b060(u8 *arg0)
                                 }
                                 if (D_008C024E[0] & 0x40) {
                                     func_0045af60(0, 0, 0, 1);
-                                    t = func_002bab80((void *)func_00331660());
-                                    *(p + 0xD) = t;
-                                    func_002badc0(t, *(s16 *)(p + 0x11E) + 0x58);
+*(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
+                                    func_002badc0(*(s8 *)(p + 0xD), *(s16 *)(p + 0x11E) + 0x58);
                                     *(p + 1) = 0xC4;
                                 } else if (D_008C024E[0] & 0x20) {
                                     func_0045af60(0, 0, 0, 2);
                                     func_003205f0(arg0, 0x96, 0x97);
-                                    func_002b2970((u8 *)&v2, D_00640D78[0], D_00640D78[1]);
+                                    base = (FclVec2f *)D_00640D78;
+                                    func_002b2970((u8 *)&v2, base->x, base->y);
                                     func_00324f80(arg0, v2, 1, 1);
                                     e = *(s16 *)(p + 0x11E) - *(s16 *)(p + 0x120);
                                     k = 0;
                                     lim = e + 6;
                                     for (; e < lim; e++, k++) {
                                         func_002b2970((u8 *)&v3.bits, 26.0f, (f32)(k * 0x22 + 0x57));
-                                        func_003147e0(arg0, (s8)k, v3.position, (s16)(e + 0x179), (s16)((5 - k) * 2), 1);
+                                        func_003147e0(arg0, (s8)k, v3.position, (s16)(e + 0x179),
+                                                      (s16)((5 - k) * 2), 1);
                                     }
                                     func_002eb270(arg0, 0);
                                     *p = 0;
@@ -11477,10 +11453,6 @@ void func_0030b060(u8 *arg0)
         break;
     }
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b060);
-#endif
 
 /* wave 14: signature re-checked via the m2c oracle (void func_0030b7b0(u8 *
    arg0) — correct). All wave-14 levers checked: no global base, no jtbl
