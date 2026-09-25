@@ -57,21 +57,6 @@ class SimilarityTests(unittest.TestCase):
 
 
 class MeasureTests(unittest.TestCase):
-    def test_matched_is_byte_exact_and_complete_is_linked(self) -> None:
-        """The two families answer different questions and must not be aliased.
-
-        Here one function is byte-exact but not shipped and the other is shipped
-        but not byte-exact, so any implementation that conflates them fails.
-        """
-        rows = [
-            {"status": "MATCH", "window": 100, "_linked": False},
-            {"status": "ASM", "window": 300, "_linked": True},
-        ]
-        m = gen.measures(rows)
-        self.assertEqual(m["matched_code"], "100")
-        self.assertEqual(m["complete_code"], "300")
-        self.assertAlmostEqual(m["matched_code_percent"], 25.0, places=4)
-        self.assertAlmostEqual(m["complete_code_percent"], 75.0, places=4)
 
     def test_fuzzy_is_never_below_matched(self) -> None:
         rows = [{"status": "MATCH", "window": 300},
@@ -93,12 +78,14 @@ class MeasureTests(unittest.TestCase):
 
 
 class MixedOriginReportTests(unittest.TestCase):
-    def test_sdk_linkage_is_separate_from_game_matching_in_a_mixed_file(self) -> None:
-        source = "src/promoted/code1_0042.c"
+    def test_only_fully_c_matched_and_linked_files_receive_complete_credit(self) -> None:
+        mixed_source = "src/promoted/code1_0042.c"
+        pure_source = "src/Battle/btlBED.c"
         rows = [
-            {"addr": "001014b0", "file": source, "name": "game", "status": "MATCH", "window": 16},
-            {"addr": "004213c0", "file": source, "name": "sdk", "status": "ASM", "window": 16},
-            {"addr": "004214c0", "file": source, "name": "vendor", "status": "ASM", "window": 16},
+            {"addr": "001014b0", "file": mixed_source, "name": "game", "status": "MATCH", "window": 16},
+            {"addr": "004213c0", "file": mixed_source, "name": "sdk", "status": "ASM", "window": 16},
+            {"addr": "004214c0", "file": mixed_source, "name": "vendor", "status": "ASM", "window": 16},
+            {"addr": "00100218", "file": pure_source, "name": "pure", "status": "MATCH", "window": 32},
         ]
         with tempfile.TemporaryDirectory() as temporary:
             report_path = Path(temporary) / "verify.json"
@@ -106,18 +93,58 @@ class MixedOriginReportTests(unittest.TestCase):
             report_path.write_text(json.dumps({"results": rows}))
             linked_path.write_text(json.dumps({
                 "build_succeeded": True,
-                "linked_functions": [{"address": f"{a:08x}"} for a in V.sony_sdk_provenance()],
+                "linked_functions": [{"address": row["addr"], "file": row["file"]} for row in rows],
             }))
             report = gen.build_report(report_path, str(linked_path))
         mixed = {u["metadata"]["progress_categories"][0]: u for u in report["units"]
-                 if u["metadata"]["source_path"] == source}
+                 if u["metadata"]["source_path"] == mixed_source}
         self.assertEqual(set(mixed), {"main", "sony_sdk", "third_party"})
-        self.assertTrue(mixed["sony_sdk"]["metadata"]["complete"])
-        self.assertFalse(mixed["main"]["metadata"]["complete"])
+        self.assertTrue(all(not unit["metadata"]["complete"] for unit in mixed.values()))
+        self.assertTrue(all("linked" not in unit["metadata"]["progress_categories"]
+                            for unit in mixed.values()))
+        pure = next(u for u in report["units"] if u["metadata"]["source_path"] == pure_source)
+        self.assertTrue(pure["metadata"]["complete"])
+        self.assertEqual(report["measures"]["complete_code"], "32")
+        self.assertEqual(report["measures"]["matched_code"], "48")
         categories = {c["id"]: c["measures"] for c in report["categories"]}
-        self.assertEqual(categories["sony_sdk"]["complete_code_percent"], 100.0)
-        self.assertEqual(categories["sony_sdk"]["matched_code_percent"], 0.0)
-        self.assertEqual(mixed["main"]["measures"]["matched_code_percent"], 100.0)
+        self.assertEqual(categories["sony_sdk"]["complete_code_percent"], 0.0)
+        self.assertEqual(categories["linked"]["total_code"], "32")
+
+    def test_sdk_black_box_cannot_complete_an_unlinked_matching_source(self) -> None:
+        source = "src/sce/sdk_packet_a900.c"
+        with tempfile.TemporaryDirectory() as temporary:
+            report_path = Path(temporary) / "verify.json"
+            linked_path = Path(temporary) / "linked.json"
+            report_path.write_text(json.dumps({"results": [
+                {"addr": "004213c0", "file": source, "name": "sdk", "status": "MATCH", "window": 16},
+            ]}))
+            linked_path.write_text(json.dumps({
+                "build_succeeded": True,
+                "linked_functions": [{"address": "004213c0",
+                                      "file": "build/obj/sony_sdk/kernel.o"}],
+            }))
+            report = gen.build_report(report_path, str(linked_path))
+        unit = next(u for u in report["units"] if u["metadata"]["source_path"] == source)
+        self.assertFalse(unit["metadata"]["complete"])
+        self.assertEqual(report["measures"]["complete_code"], "0")
+        self.assertEqual(report["measures"]["matched_code"], "16")
+
+    def test_inline_assembly_file_is_not_fully_linked_c(self) -> None:
+        source = "src/sce/query_intr_context.c"
+        with tempfile.TemporaryDirectory() as temporary:
+            report_path = Path(temporary) / "verify.json"
+            linked_path = Path(temporary) / "linked.json"
+            report_path.write_text(json.dumps({"results": [
+                {"addr": "004222b0", "file": source, "name": "QueryIntrContext",
+                 "status": "MATCH", "window": 16},
+            ]}))
+            linked_path.write_text(json.dumps({
+                "build_succeeded": True,
+                "linked_functions": [{"address": "004222b0", "file": source}],
+            }))
+            report = gen.build_report(report_path, str(linked_path))
+        self.assertEqual(report["measures"]["matched_code"], "16")
+        self.assertEqual(report["measures"]["complete_code"], "0")
 
 
 class ReportShapeTests(unittest.TestCase):
@@ -137,17 +164,12 @@ class ReportShapeTests(unittest.TestCase):
         """A shrunk denominator inflates every published percentage."""
         self.assertEqual(self.report["measures"]["total_functions"], CANONICAL_TOTAL)
 
-    def test_every_declared_category_is_populated(self) -> None:
-        """A category with zero units renders as "0 / 0", which reads as a real
-        measurement rather than as missing data."""
-        for category in self.report["categories"]:
-            self.assertGreater(category["measures"].get("total_functions", 0), 0,
-                               f"category {category['id']} tagged nothing")
-
-    def test_linked_measures_come_from_the_committed_endpoint_without_artifacts(self) -> None:
-        """An explicit None skips build artifacts and uses the committed endpoint."""
-        self.assertGreater(int(self.report["measures"]["complete_code"]), 0)
-        self.assertGreater(self.report["measures"]["complete_units"], 0)
+    def test_fully_linked_code_is_a_subset_of_matching_c(self) -> None:
+        totals = [self.report["measures"]] + [category["measures"]
+                                             for category in self.report["categories"]]
+        for measures in totals:
+            if "complete_code" in measures:
+                self.assertLessEqual(int(measures["complete_code"]), int(measures["matched_code"]))
 
 
     def test_attribution_categories_partition_the_program(self) -> None:

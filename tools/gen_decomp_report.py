@@ -14,9 +14,9 @@ path has three problems this tool exists to remove.
 2. It was fragile. The config, the emitted objects and the report had to agree;
    a unit whose object failed to emit silently dropped out, and one such failure
    took CI down entirely.
-3. It could not express what this project actually claims. The strongest claim
-   here is a byte-exact LINKED image, which is a property of the build, not
-   something recoverable by diffing isolated objects.
+3. It could not express what this project actually claims. A byte-exact linked
+   image proves the build, but a file counts as fully linked C only when every
+   function in that file is matching C and present in that build.
 
 `tools/verify.py` already computes, per function, the retail window, the
 compiled object size and a reloc-masked byte difference against retail. That is
@@ -26,11 +26,13 @@ the objdiff GUI; it is no longer on the publishing path.
 
 Grouping: source-file units are split by function origin where an owner mixes
 game code, Sony SDK and other vendor code. Attribution categories are `main`,
-`sony_sdk`, `third_party` and `unclassified`; `linked` is additive.
+`sony_sdk`, `third_party` and `unclassified`; `linked` is additive and contains
+only functions from complete C files. Completion is checked against the WHOLE
+source file before splitting it into categories.
 
-`matched_*` measures compiled C matching retail. `complete_*` measures proven
-linkage. A retail-backed SDK object can be 100% linked and 0% C-matched; it
-never contributes invented decompilation progress.
+`matched_*` measures compiled C matching retail. `complete_*` measures C files
+with no assembly fallbacks whose functions all link in the verified image.
+Retail-backed SDK assembly is neither matching C nor fully linked C.
 
     python tools/gen_decomp_report.py --report build/verify_report.json \
         --output build/report.json
@@ -82,21 +84,16 @@ def similarity(row: dict) -> float:
 def measures(rows: list[dict], total_units: int = 1, complete_units: int = 0) -> dict:
     """Aggregate one population of functions into decomp.dev's measure set.
 
-    The `matched_*` and `complete_*` families mean DIFFERENT things, following the
-    convention every other decomp.dev project uses and objdiff's own schema, where
-    `complete` is documented as "complete (or linked)":
+    The `matched_*` and `complete_*` families answer separate questions:
 
-      matched_*   byte-exact against retail. This is the "perfect match" figure,
-                  and `measure=code` on a badge is an alias for
-                  matched_code_percent.
-      complete_*  shipped in the byte-exact linked image. Gauntlet: Dark Legacy
-                  labels `measure=complete_code` "Linked Code" for exactly this.
+      matched_*   byte-exact compiled C against retail. This is the "perfect
+                  match" figure; `measure=code` aliases matched_code_percent.
+      complete_*  whole C files with no ASM fallback, entirely byte-exact and
+                  linked from that C file into the verified image.
       fuzzy_*     size-weighted partial credit, so it is always >= matched.
 
-    Conflating the two is what produced a badge reading "0 / 0" here: the repo had
-    `complete` meaning byte-exact-in-isolation, so the standard linked measure had
-    nothing behind it and a nonstandard category had to be invented to carry it.
-    A row is linked when it carries `_linked`, set by the caller.
+    Physical linkage of extracted retail ASM is not completion. `_linked` is
+    assigned only after checking every verifier row in the source file.
     """
     total_code = sum(row.get("window") or 0 for row in rows)
     matched = [row for row in rows if row.get("status") == "MATCH"]
@@ -135,7 +132,21 @@ def unit_name(file_rel: str) -> str:
 
 def build_report(report_path: Path, linked_report: str | None) -> dict:
     results = json.loads(report_path.read_text(encoding="utf-8"))["results"]
-    linked = gen_objdiff.linked_addresses(linked_report)
+    if linked_report is not None:
+        # Validate physical linkage, but count only windows whose actual link
+        # input is the same C file whose verifier rows are all MATCH.
+        gen_objdiff.linked_addresses(linked_report)
+        linked_sources = {
+            int(row["address"], 16): row["file"]
+            for row in json.loads(Path(linked_report).read_text(encoding="utf-8"))["linked_functions"]
+        }
+    else:
+        # A checkout without build artifacts uses the committed, already-vetted
+        # C-only endpoint; the raw category linkage also includes retail ASM.
+        committed = gen_objdiff.LINKED_METRICS
+        linked_sources = (frozenset(int(address, 16) for address in
+                                   json.loads(committed.read_text(encoding="utf-8"))["linked"]["addresses"])
+                          if committed.is_file() else frozenset())
 
     # The verifier only reports functions a source file claims. Every OTHER
     # canonical function still occupies a retail window, so leaving them out
@@ -161,6 +172,8 @@ def build_report(report_path: Path, linked_report: str | None) -> dict:
             "_tu": tu,
         })
 
+    fully_linked = gen_objdiff.fully_linked_c_addresses(results, linked_sources)
+
     by_file: dict[tuple[str, str], list[dict]] = defaultdict(list)
     file_categories: dict[str, set[str]] = defaultdict(set)
     for row in results:
@@ -176,12 +189,12 @@ def build_report(report_path: Path, linked_report: str | None) -> dict:
     for (file_rel, category), rows in sorted(by_file.items()):
         rows = sorted(rows, key=lambda r: r.get("line") or 0)
         for row in rows:
-            row["_linked"] = _address(row) in linked
+            row["_linked"] = _address(row) in fully_linked
         complete = all(row["_linked"] for row in rows)
         categories = [category]
-        if any(row["_linked"] for row in rows):
+        if complete:
             categories.append("linked")
-            per_category["linked"].extend(row for row in rows if row["_linked"])
+            per_category["linked"].extend(rows)
         per_category[category].extend(rows)
         units.append({
             "name": unit_name(file_rel) + (f":{category}" if len(file_categories[file_rel]) > 1 else ""),
