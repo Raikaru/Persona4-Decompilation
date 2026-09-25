@@ -17,7 +17,7 @@ void func_004be3f8(volatile Uint32 *object)
 }
 
 // FUN_004BE418
-Uint32 *func_004be418(Uint32 *object, Uint32 size)
+Uint32 *ACSSND_Create(Uint32 *object, Uint32 size)
 {
 	if (object == NULL) {
 		func_004bd6a0(D_00756B78);

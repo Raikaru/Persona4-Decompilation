@@ -32,19 +32,19 @@ version.
 | Retail executable | `SLUS_217.82`; SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` |
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,102; all mapped to C or owned retail assembly |
-| Byte-identical functions | 9,334 (71.241% of windows) |
+| Byte-identical functions | 9,402 (71.76% of windows) |
 | Under test (a `// FUN_` marker scores them) | 13,102 (100.0% of windows) |
 | Not yet under test, supplied as retail bytes | 0 (0.0% of windows) |
-| In byte-exact linked C objects | 2,501 (19.089% of windows), with 426 assembly fallbacks still inside those objects |
-| Atlus game/engine | 6,861 functions; 6,514 C-matched (94.942%); 1,814 linked (26.439%) |
+| In byte-exact linked C objects | 7,280 (55.564% of windows), with 568 assembly fallbacks still inside those objects |
+| Atlus game/engine | 6,861 functions; 6,582 C-matched (95.934%); 6,718 linked (97.916%) |
 | Proven Sony PS2 SDK | 491 functions; 152 C-matched (30.957%); 491 linked (100.0%) |
-| Other third-party/vendor | 5,750 functions; 2,668 C-matched (46.4%); 1,113 linked (19.357%) |
+| Other third-party/vendor | 5,750 functions; 2,668 C-matched (46.4%); 1,130 linked (19.652%) |
 | Unattributed | 0 functions; 0 C-matched (0.0%); 0 linked (0.0%) |
-| First-party matched, scored for recovery | 6,513 |
-| — NAMED (not a `func_<address>` placeholder) | 226 (3.47%) |
-| — TYPED (no raw-offset or `M2C_` access) | 1,810 (27.791%) |
-| — DOCUMENTED (prose, or trivially self-evident) | 4,490 (68.939%) |
-| — still carrying decompiler local names | 1,961 (30.109%) |
+| First-party matched, scored for recovery | 6,581 |
+| — NAMED (not a `func_<address>` placeholder) | 227 (3.449%) |
+| — TYPED (no raw-offset or `M2C_` access) | 1,814 (27.564%) |
+| — DOCUMENTED (prose, or trivially self-evident) | 4,556 (69.23%) |
+| — still carrying decompiler local names | 1,965 (29.859%) |
 
 Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. Sony SDK linkage includes verified C source and residual retail-backed black-box objects; linked is not a source-recovery count. `tools/recovery_quality.py --worst 20` ranks the game files needing work.
 <!-- STATUS:END -->

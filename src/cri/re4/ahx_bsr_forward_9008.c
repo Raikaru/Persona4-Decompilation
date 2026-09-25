@@ -2,15 +2,15 @@
 #include "cri_xpt.h"
 #include <string.h>
 
-extern Uint32 func_004bf438();
-extern Uint32 func_004bf498();
-extern Uint32 func_004bf510();
-extern Uint32 func_004bf590();
-extern Uint32 func_004bf5e0();
-extern Uint32 func_004bf638();
-extern Uint32 func_004bf6a8();
-extern Uint32 func_004bf718();
-extern Uint32 func_004bf758();
+extern Uint32 ACSSND_GetActiveAdxt();
+extern Uint32 ACSSND_GetNextAdxt();
+extern Uint32 ACSSND_GetAdxt();
+extern Uint32 ACSSND_GetNumAdxt();
+extern Uint32 ACSSND_GetActiveAixp();
+extern Uint32 ACSSND_GetNextAixp();
+extern Uint32 ACSSND_GetAixp();
+extern Uint32 ACSSND_GetNumAixp();
+extern Uint32 ACSSND_CancelFading();
 extern Uint32 func_004bf930();
 extern Uint32 D_00725294;
 extern Uint32 func_004c0e00();
@@ -30,55 +30,55 @@ extern Uint8 D_00728330[];
 // FUN_004D9008
 Uint32 func_004d9008(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bf438(a0, a1, a2, a3);
+	return ACSSND_GetActiveAdxt(a0, a1, a2, a3);
 }
 
 // FUN_004D9020
 Uint32 func_004d9020(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bf498(a0, a1, a2, a3);
+	return ACSSND_GetNextAdxt(a0, a1, a2, a3);
 }
 
 // FUN_004D9038
 Uint32 func_004d9038(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bf510(a0, a1, a2, a3);
+	return ACSSND_GetAdxt(a0, a1, a2, a3);
 }
 
 // FUN_004D9050
 Uint32 func_004d9050(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bf590(a0, a1, a2, a3);
+	return ACSSND_GetNumAdxt(a0, a1, a2, a3);
 }
 
 // FUN_004D9068
 Uint32 func_004d9068(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bf5e0(a0, a1, a2, a3);
+	return ACSSND_GetActiveAixp(a0, a1, a2, a3);
 }
 
 // FUN_004D9080
 Uint32 func_004d9080(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bf638(a0, a1, a2, a3);
+	return ACSSND_GetNextAixp(a0, a1, a2, a3);
 }
 
 // FUN_004D9098
 Uint32 func_004d9098(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bf6a8(a0, a1, a2, a3);
+	return ACSSND_GetAixp(a0, a1, a2, a3);
 }
 
 // FUN_004D90B0
 Uint32 func_004d90b0(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bf718(a0, a1, a2, a3);
+	return ACSSND_GetNumAixp(a0, a1, a2, a3);
 }
 
 // FUN_004D90C8
 Uint32 func_004d90c8(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004bf758(a0, a1, a2, a3);
+	return ACSSND_CancelFading(a0, a1, a2, a3);
 }
 
 // FUN_004D90E0

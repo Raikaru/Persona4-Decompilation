@@ -8,7 +8,7 @@ extern void func_004bd670(void);
 typedef void (*ACSSND_PauseOperation)(Uint32 handle, Sint32 paused);
 
 // FUN_004BED38
-void func_004bed38(Uint32 *object, Sint32 paused)
+void ACSSND_Pause(Uint32 *object, Sint32 paused)
 {
 	Uint32 *channel;
 	Uint32 handle;
