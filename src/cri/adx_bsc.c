@@ -963,8 +963,6 @@ asm u64 func_004c33e0(short *param_1,short *param_2,short *param_3)
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c34e8);
 // FUN_004C3520
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3520);
-// FUN_004C3978
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3978);
 
 /* Source unit: src/cri/cri_adx_004c3b98.c (1 function markers) */
 #pragma optimization_level 3

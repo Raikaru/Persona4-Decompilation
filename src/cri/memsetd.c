@@ -2543,6 +2543,11 @@ asm void func_00501510(int param_1,u32 param_2,u32 param_3)
 /* Source unit: src/cri/cri_adx_00503340.c (1 function markers) */
 
 // FUN_005015D8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005015d8);
+void func_005015d8(void)
+{
+}
+
 // FUN_005015E0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005015e0);
+void func_005015e0(void)
+{
+}

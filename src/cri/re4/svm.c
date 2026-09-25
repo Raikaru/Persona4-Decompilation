@@ -243,13 +243,6 @@ static Sint32 svm_exec_svr(Sint32 svtype)
 	return ret;
 }
 
-// Runs the main server type (5): what ADXM_ExecMain calls each frame.
-// FUN_004F0680
-Sint32 SVM_ExecSvrMain(void)
-{
-	return svm_exec_svr(SVM_SVTYPE_MAIN);
-}
-
 // Installs the error callback (ADXM_SetCbErr).
 // FUN_004F0E80
 void SVM_SetCbErr(void (*func)(void *obj, Char8 *msg), void *obj)
@@ -381,14 +374,3 @@ void SVM_ItoA2(Sint32 a, Sint32 b, Char8 *str, Sint32 len)
 	svm_itoa(b, str + strlen(str), len - strlen(str));
 }
 
-// Public unlock (ADXCRS_Unlock / SJCRS_Unlock / LSC_UnlockCrs map here).
-void SVM_Unlock(void)
-{
-	svm_unlock();
-}
-
-// Public lock.
-void SVM_Lock(void)
-{
-	svm_lock();
-}

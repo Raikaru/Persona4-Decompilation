@@ -1017,5 +1017,3 @@ extern u32 DAT_00714c1c[];
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c5448);
 // FUN_004C5478
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c5478);
-// FUN_004C54D8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c54d8);

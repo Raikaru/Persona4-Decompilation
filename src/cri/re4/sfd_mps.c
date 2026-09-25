@@ -126,6 +126,7 @@ const SFD_TR_IF SFD_tr_sd_mps = {
 };
 
 // Program end codes passed so far in concatenated play (0 in a single-file movie).
+// FUN_00519EE0
 Sint32 SFMPS_GetConcatCnt(SFD sfd)
 {
 	return SFMPS_WK(sfd)->concat_cnt;
@@ -185,25 +186,29 @@ static Sint32 SFMPS_Seek(SFD sfd)
 	return 0;
 }
 
-// Not supported: error 0xFF000B03.
+// Not supported: error 0xFF000D0B.
+// FUN_00519CC0
 Sint32 SFMPS_AddRead(SFD sfd)
 {
 	return SFLIB_SetErr(sfd, SFMPS_ERR_NOTSUPPORTED);
 }
 
-// Not supported: error 0xFF000B03.
+// Not supported: error 0xFF000D0B.
+// FUN_00519CE0
 Sint32 SFMPS_GetRead(SFD sfd)
 {
 	return SFLIB_SetErr(sfd, SFMPS_ERR_NOTSUPPORTED);
 }
 
-// Not supported: error 0xFF000B03.
+// Not supported: error 0xFF000D0B.
+// FUN_00519D00
 Sint32 SFMPS_AddWrite(SFD sfd)
 {
 	return SFLIB_SetErr(sfd, SFMPS_ERR_NOTSUPPORTED);
 }
 
-// Not supported: error 0xFF000B03.
+// Not supported: error 0xFF000D0B.
+// FUN_00519D20
 Sint32 SFMPS_GetWrite(SFD sfd)
 {
 	return SFLIB_SetErr(sfd, SFMPS_ERR_NOTSUPPORTED);

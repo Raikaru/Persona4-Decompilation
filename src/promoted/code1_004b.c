@@ -1551,18 +1551,6 @@ f32 func_004bd4a0(u8 *arg0, u8 *arg1)
     }
     return dot;
 }
-// FUN_004BD628
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd628);
-// FUN_004BD640
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd640);
-// FUN_004BD658
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd658);
-// FUN_004BD670
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd670);
-// FUN_004BD688
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd688);
-// FUN_004BD6A0
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd6a0);
 // Archived C body: build/WBHygiene_func_004bd6b8_archive.txt; no current park body remains.
 // FUN_004BD6B8
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd6b8);

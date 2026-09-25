@@ -76,10 +76,10 @@ def is_generated(path: Path) -> bool:
 
 
 # Middleware and platform code we did not write: RenderWare, CRI, the Sony SDK,
-# and the C runtime. It is tracked because it occupies retail windows, but it is
-# not the decompilation's goal, so progress is reported separately for it.
+# and the C runtime. Track their recovery separately from Atlus code even when
+# a promoted translation unit mixes vendor and game functions.
 # "middleware/" holds unnamed ee-gcc wrappers; identified SRD routines now
-# live under "cri/". Both are reported as third-party rather than game code.
+# live under "cri/".
 # renderware/ is RenderWare Graphics 3.7 recovered from its source; it is the
 # same middleware as rw/, not Atlus's code, and leaves the first-party count as
 # it is ported out of the promoted code1_003x units.

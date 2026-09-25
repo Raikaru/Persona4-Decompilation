@@ -2951,25 +2951,3 @@ u64 func_00511f90(void)
 
 /* Source unit: src/cri/cri_adx_00512730.c (1 function markers) */
 
-// FUN_00511F98
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00511f98);
-// FUN_00511FC0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00511fc0);
-// FUN_00511FC8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00511fc8);
-// FUN_00512068
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00512068);
-// FUN_005120B0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005120b0);
-// FUN_005120B8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005120b8);
-// FUN_005120E0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005120e0);
-// FUN_005120F8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005120f8);
-// FUN_00512120
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00512120);
-// FUN_00512150
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00512150);
-// FUN_00512168
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00512168);

@@ -444,7 +444,8 @@ def render_status(metrics: dict, recovery: dict | None) -> str:
     note = (
         "\nByte-identical is not recovered: a matching function can still have an "
         "address for a name and raw field offsets. "
-        "Sony SDK linkage is black-box reuse, not decompiled source. "
+        "Sony SDK linkage includes verified C source and residual retail-backed "
+        "black-box objects; linked is not a source-recovery count. "
         "`tools/recovery_quality.py --worst 20` ranks the game files needing work.\n"
     )
     return "\n".join(rows) + "\n" + note
