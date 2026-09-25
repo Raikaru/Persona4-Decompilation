@@ -118,8 +118,8 @@ s16 func_002e26f0(void *arg0) {
 }
 
 // FUN_002E2700
-void func_002e2700(void *arg0) {
-    func_002b2d00(*(s16 *)(*(u8 **)((u8 *)arg0 + 0x38) + 2), 1, 0, 0, 1);
+s32 func_002e2700(void *arg0) {
+    return func_002b2d00(*(s16 *)(*(u8 **)((u8 *)arg0 + 0x38) + 2), 1, 0, 0, 1);
 }
 
 // FUN_002E2740

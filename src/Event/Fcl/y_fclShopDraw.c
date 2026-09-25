@@ -273,7 +273,7 @@ u32 func_00106a90(s16);
 s32 clndGetMoonPhase(s32);
 s8 func_002e29d0(void);
 f32 func_002b2aa0(s32, f32, f32, f32, f32);
-void func_002e2700(void *);
+s32 func_002e2700(void *);
 extern f32 D_0063F9C0[];
 extern f32 D_0063F9C8[];
 extern f32 D_0063F9D0[];
