@@ -397,68 +397,98 @@ s32 func_00312bc0(s8 arg0) {
 }
 #pragma opt_rebuildconditionals on
 
-/* Floor: 221 differing words via measure_guarded (reproduces) / 170 edits via
-   fnalign (288 retail vs 297 obj instrs, 9 long); wscan dsll32/dsra32 20 vs 16
-   retail (0x10 pairs 13 vs 13 equal; 0x18 excess 7 vs 3). Pragma sweep all
-   same/worse (common_subs 285, sched 261, loopinv 221 same, prop 221 same).
-   What closed most of it (from 924 with a 0xB0 frame): the third parameter is
-   s32 with a single hoisted `(s8)` cast - retail sign-extends it once into $s4
-   rather than per iteration - the deck row and the u16 cell are pointer locals
-   so the inner accesses reuse retail's $s5/$s7, the inner index is zeroed
-   before the row is computed, and the frame is retail's 0xA0 again.
-   `opt_loop_invariants on` carries the rest; the residual is the saved- and
-   temporary-register map through the weighted pick loop. */
-// FUN_00312C60 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct {
+    s8 minCount;
+    s8 picks;
+} FclSkillPickTier;
+
+extern u32 func_0010ceb0(void *arg0);
+extern u8 *func_002e6f00(void);
+extern void func_002e6f90(u8 *arg0, s16 arg1);
+extern void func_002e7010(u8 *arg0, s16 arg1);
+extern void func_002e7190(u8 *arg0);
+extern void func_00440b68(const void *arg0);
+extern void func_0044ea90(const void *arg0, s32 arg1);
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+extern void (*jtbl_008873EC[])(void *ptr);
+extern u8 *iGpffffb3b4;
+extern FclSkillPickTier D_00641C20[];
+extern s16 D_00641C40[][19];
+extern s8 D_00641E60[];
+extern char D_00642F50[];
+
+static inline s32 fclSkillPickCount(s16 count)
+{
+    s32 step;
+
+    for (step = 8; step >= 0; step--) {
+        if (D_00641C20[step].minCount <= count) {
+            return D_00641C20[step].picks;
+        }
+    }
+    return 0;
+}
+
+static inline s32 fclSkillWeight(u16 *arg0, s32 id)
+{
+    s32 arcana;
+    s32 base;
+    s8 rate;
+
+    if (arg0 == NULL) {
+        func_0046d730(D_00642F30, 0x327);
+    }
+    arcana = (s8)iGpffffb3b4[id * 2];
+    if (arcana == -1) {
+        arcana = 0x12;
+    }
+    base = D_00641C40[*(u16 *)(iGpffffb3d4 + arg0[1] * 0xE + 0xA)][arcana];
+    rate = D_00641E60[id];
+    if (rate == 0) {
+        return 0;
+    }
+    return base * 10 / rate;
+}
+
+/* Fusion skill picker: pools the deck skills the persona lacks, looks up how
+   many to grant from the pool-size tier table, then draws that many weighted
+   picks into free skill slots. Shaping that matters: the per-pick weight is
+   stored first and then re-read for the running total, the pick loop bound is
+   the byte view of the pool count captured after the roll, the pool entries
+   and deck cells are passed through their signed-halfword views, and the tier
+   test reads table <= count.
+   measured: without `opt_loop_invariants on` the body grows to 1164 bytes
+   (250 differing words); retail hoists the deck-count sign extension and the
+   tier-table base out of their loops. */
 #pragma push
 #pragma opt_loop_invariants on
+// FUN_00312C60
 s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
 {
-    extern u32 func_0010ceb0(void *arg0);
-    extern u8 *func_002e6f00(void);
-    extern void func_002e6f90(u8 *arg0, s16 arg1);
-    extern void func_002e7010(u8 *arg0, s16 arg1);
-    extern void func_002e7190(u8 *arg0);
-    extern void func_00440b68(const void *arg0);
-    extern void func_0044ea90(const void *arg0, s32 arg1);
-    extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-    extern void (*jtbl_008873EC[])(void *ptr);
-    extern u8 *iGpffffb3b4;
-    extern s8 D_00641C20[];
-    extern u8 D_00641C40[];
-    extern s8 D_00641E60[];
-    extern char D_00642F50[];
-    s32 total;
-    s16 free_slots;
-    s8 taken;
-    s16 pick_index;
-    u32 roll;
-    s32 limit;
-    s32 arcana;
-    u16 *slot;
-    u16 *cell;
-    s32 running;
-
-    s16 scan;
-    s16 id;
     u8 *pool;
-    s32 weight;
+    s32 *weights;
+    s32 remaining;
+    s32 total;
+    s8 taken;
+    s32 roll;
+    u8 n;
+    s16 k;
     s16 i;
     u8 *row;
-    s16 count;
-    s8 remaining;
-    s32 step;
-    u8 *weights;
-    s8 rate;
+    s16 scan;
+    s32 running;
+    u16 *cell;
+    s32 id;
     s16 j;
+    s16 freeSlots;
+    s16 pick;
 
     taken = 0;
     if (arg0 == NULL) {
         func_0046d730(D_00642F30, 0x3AF);
     }
     pool = func_002e6f00();
-    limit = (s8)arg2;
-    for (i = 0; i < limit; i++) {
+    for (i = 0; i < (s8)arg2; i++) {
         j = 0;
         row = arg1 + i * 0x30;
         for (; j < 8; j++) {
@@ -468,68 +498,42 @@ s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
             }
         }
     }
-    count = *(s16 *)(pool + 0x60);
-    step = 8;
-    while (1) {
-        if (step < 0) {
-            remaining = 0;
-            break;
-        }
-        if (count >= D_00641C20[step * 2]) {
-            remaining = (s8)D_00641C20[step * 2 + 1];
-            break;
-        }
-        step--;
-    }
-    free_slots = (s16)(8 - func_0010ceb0(arg0));
-    if (free_slots == 0) {
+    remaining = fclSkillPickCount(*(s16 *)(pool + 0x60));
+    freeSlots = 8 - func_0010ceb0(arg0);
+    if (freeSlots == 0) {
         func_00440b68(D_00642F50);
         func_002e7190(pool);
         return 0;
     }
-    if (free_slots < remaining) {
-        remaining = (s8)free_slots;
+    if (freeSlots < remaining) {
+        remaining = freeSlots;
     }
     func_0044ea90(D_00642F30, 0x3CC);
-    weights = (u8 *)(*jtbl_008873E8)(*(s16 *)(pool + 0x60) * 4, 0x40000);
+    weights = (*jtbl_008873E8)(*(s16 *)(pool + 0x60) * 4, 0x40000);
     while (remaining != 0) {
         total = 0;
-        for (i = 0; i < *(s16 *)(pool + 0x60); i++) {
-            id = *(u8 *)(pool + i * 2);
-            if (arg0 == NULL) {
-                func_0046d730(D_00642F30, 0x327);
-            }
-            arcana = (s8)iGpffffb3b4[id * 2];
-            if (arcana == -1) {
-                arcana = 0x12;
-            }
-            rate = D_00641E60[id];
-            if (rate == 0) {
-                weight = 0;
-            } else {
-                weight = *(u8 *)(arcana * 2 + (D_00641C40 +
-                             *(u16 *)(iGpffffb3d4 + *(u16 *)(arg0 + 1) * 0xE + 0xA) * 0x26)) * 0xA / rate;
-            }
-            weights[i * 4] = (u8)weight;
-            total += weight;
+        for (k = 0; k < *(s16 *)(pool + 0x60); k++) {
+            id = ((s16 *)pool)[k];
+            weights[k] = fclSkillWeight(arg0, id);
+            total += weights[k];
         }
         if (total == 0) {
             break;
         }
         running = 0;
         roll = RpRandom() % total;
-        for (pick_index = 0; pick_index < (s32)(u8)*(s16 *)(pool + 0x60); pick_index++) {
-            running += weights[pick_index * 4];
-            if ((s32)roll < running) {
+        n = pool[0x60];
+        for (pick = 0; pick < n; pick++) {
+            running += weights[pick];
+            if (roll < running) {
                 for (scan = 0; scan < 8; scan++) {
-                    if (*(u16 *)(arg0 + scan * 1 + 6) == 0) {
-                        taken = (s8)(taken | (1 << scan));
+                    if (arg0[scan + 6] == 0) {
+                        taken |= (s8)(1 << scan);
                         break;
                     }
                 }
-                slot = (u16 *)(pool + pick_index * 2);
-                func_0010cc20((u8 *)arg0, *slot);
-                func_002e7010(pool, (s16)*slot);
+                func_0010cc20((u8 *)arg0, ((s16 *)pool)[pick]);
+                func_002e7010(pool, ((s16 *)pool)[pick]);
                 remaining--;
                 break;
             }
@@ -540,9 +544,6 @@ s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
     return taken;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00312c60);
-#endif
 
 /* measured: retail sq's arg0&0xFF into spA0 (0xA0) and lq's it back in the
    0xC0 i-loop, comparing via raw bne (lq $2,0xA0 / bne $2,$3). The old
