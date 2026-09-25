@@ -25,7 +25,8 @@ export P4_MWCC=/opt/mwcc-wrapper.sh          # a script that execs wibo mwccps2.
 export P4_MWCC_CW3_0_1B119=/opt/mwcc-b119-wrapper.sh
 export P4_RETAIL_ELF=/path/to/SLUS_217.82
 export P4_AS=/usr/local/bin/mipsel-linux-gnu-as
-export P4_OBJCOPY=/usr/local/bin/mipsel-linux-gnu-objcopy
+export P4_OBJCOPY=/usr/bin/mipsel-linux-gnu-objcopy   # stock binutils-mipsel-linux-gnu
+export P4_LD=/usr/bin/mipsel-linux-gnu-ld             # stock binutils-mipsel-linux-gnu
 ```
 
 or the git-ignored `tools/verify_config.local.json` and
