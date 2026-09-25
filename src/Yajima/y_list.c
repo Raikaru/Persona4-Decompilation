@@ -123,7 +123,7 @@ void func_002e2700(void *arg0) {
 }
 
 // FUN_002E2740
-s16 func_002e2740(s32 arg0) {
+s32 func_002e2740(s32 arg0) {
     u8 *g = iGpffffb58c;
     u8 *p;
     s32 count;
