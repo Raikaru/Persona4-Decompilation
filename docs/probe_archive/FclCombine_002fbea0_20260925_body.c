@@ -1,7 +1,6 @@
 /* Research only; production func_002fbea0 remains INCLUDE_ASM (see
- * FclCombine_002fbea0_20260925.md). The guarded draft did not compile;
- * this body compiles and its cases are in retail layout order. Object 7079
- * vs retail 6580 instrs; per-case aligned edits 2963. */
+ * FclCombine_002fbea0_20260925.md). Object 6537 vs retail 6580 instrs;
+ * per-case aligned edits 1465 (earlier archive 2963). */
 typedef struct {
     u8 f0;
     u8 f1;
@@ -76,7 +75,7 @@ void func_002fbea0(u8 *arg0) {
     extern void func_0010fd40(void *);
     extern void func_00314750(u8 *, s32);
     extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
-    extern s32 func_00275820(s32, s32, s32, s32, s32, s32, const char *, s32, f32, f32, f32);
+    extern int func_00275820(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
     extern u8 *iGpffffb440;
     extern u8 D_00795E60[];
     extern s32 func_0010b190(u8 *);
@@ -122,12 +121,61 @@ void func_002fbea0(u8 *arg0) {
 
     FclCombineSel *p;
     u8 slotByte;
-    s8 partyCount;
     u8 state;
+    FclDrawColor colA;
+    FclDrawColor colB;
+    FclDrawColor colC;
+    FclDrawColor fc_colW5;
+    FclDrawColor fc_w4E0;
+    FclDrawColor fc_w4DC;
+    FclDrawColor fc_w4D8;
+    FclDrawColor fc_w4D4;
+    FclDrawColor fc_w4D0;
+    FclDrawColor fc_w4CC;
+    FclDrawColor fc_w4C8;
+    FclDrawColor fc_colW6;
+    FclDrawColor fc_colW7;
+    FclDrawColor fc_w4C0;
+    FclDrawColor fc_w4BC;
+    FclDrawColor fc_w4B8;
+    FclDrawColor fc_w4B4;
+    FclDrawColor fc_w4B0;
+    FclDrawColor fc_w4AC;
+    FclDrawColor fc_w4A8;
+    FclDrawColor fc_w4A4;
+    FclDrawColor fc_w4A0;
+    FclDrawColor fc_colW3;
+    FclDrawColor fc_colW4;
+    FclDrawColor fc_w498;
+    FclDrawColor fc_w494;
+    FclDrawColor fc_w490;
+    FclDrawColor fc_w48C;
+    FclDrawColor fc_w488;
+    FclDrawColor fc_w484;
+    FclDrawColor fc_w480;
+    FclDrawColor fc_w47C;
+    FclDrawColor fc_w478;
+    FclDrawColor fc_colW1;
+    FclDrawColor fc_colW2;
+    FclVec2f mvP0;
+    FclVec2f mvP1;
+    FclVec2f mvP2;
+    FclVec2f mvP3;
+    FclVec2f mvP4;
+    FclVec2f mvP5;
+    FclVec2f mvP6;
+    FclVec2f mvP7;
+    s64 mvS0;
+    s64 mvS1;
+    s64 mvS2;
+    s64 mvS3;
+    s64 mvS4;
+    s64 mvS5;
+    s64 mvS6;
+    s64 mvS7;
     s16 var_16;
     s16 var_16_2;
     s16 var_16_5;
-    s16 base;
     s8 tmp8;
     u8 *r2;
     u8 *r3;
@@ -135,31 +183,15 @@ void func_002fbea0(u8 *arg0) {
     u8 *r5;
     u8 *r6;
     u8 *ps;
-    u8 col0;
-    u8 col1;
-    u8 col2;
-    u8 col3;
-    u8 colB0;
-    u8 colB1;
-    u8 colB2;
-    u8 colB3;
-    u8 colC0;
-    u8 colC1;
-    u8 colC2;
-    u8 colC3;
-    u8 c0;
-    u8 c1;
     s64 sp440;
     s64 sp438;
     s64 var_16_6;
     s16 var_18;
-    s16 var_19;
-    s64 var_22;
-    s64 temp_16;
-    s64 temp_21;
+    s32 var_19;
+    s32 var_22;
+    s32 temp_16;
+    s32 temp_21;
     f32 temp_f20;
-    f32 temp_f0;
-    s32 var_3;
     s32 temp_7;
     s32 var_21;
     s32 sumA;
@@ -173,35 +205,14 @@ void func_002fbea0(u8 *arg0) {
     s32 colW2;
     s32 tmpe;
     s32 tmpv;
-    s64 tmp22;
-    s64 tmp21F;
-    u8 d0;
-    u8 d1;
-    u8 d2;
-    u8 d3;
+    s32 tmp22;
+    s32 tmp21F;
     s64 sp318;
     s32 colW3;
     s64 sp310;
     s32 colW4;
-    u8 w498[4];
-    u8 w494[4];
-    s32 w490;
-    u8 w48C[4];
-    u8 w488[4];
-    u8 w484[4];
-    s32 w480;
-    u8 w47C[4];
-    u8 w478[4];
     s64 sp460;
-    s32 colW5;
     s32 tmpu8;
-    u8 w4E0[4];
-    u8 w4DC[4];
-    s32 w4D8;
-    u8 w4D4[4];
-    u8 w4D0[4];
-    u8 w4CC[4];
-    s32 w4C8;
     s64 sp458;
     s64 sp450;
     s64 sp448;
@@ -244,19 +255,6 @@ void func_002fbea0(u8 *arg0) {
     s32 colW7;
     s64 sp410;
     s16 sp1B0;
-    u8 w4C0[4];
-    u8 w4BC[4];
-    s32 w4B8;
-    u8 w4B4[4];
-    u8 w4B0[4];
-    u8 w4AC[4];
-    s32 w4A8;
-    u8 w4A4[4];
-    u8 w4A0[4];
-    s64 sp3E8;
-    s64 sp3E0;
-    s64 sp3D8;
-    s64 sp3D0;
     p = *(FclCombineSel **)(arg0 + 0x38);
     state = p->f1;
     switch (state) {
@@ -282,12 +280,10 @@ void func_002fbea0(u8 *arg0) {
         if (*(s8 *)func_002e4870(0) == 0) {
             return;
         }
-        var_16 = 0;
-        while ((s16)(var_16) < (s64)(p->fB7)) {
-            if (func_002b6970(*(s16 *)(func_002b6150((s16)(var_16 * 2 + 0x1F8)) + 0x10), 1) == 1) {
+        for (var_16 = 0; var_16 < p->fB7; var_16++) {
+            if ((s16)func_002b6970(*(s16 *)(func_002b6150(var_16 * 2 + 0x1F8) + 0x10), 1) == 1) {
                 return;
             }
-            var_16 = (s64)((var_16 + 1) << 0x30) >> 0x30;
         }
         var_16_2 = *(s16 *)(func_002e4870(0) + 8);
         if (*(s32 *)(func_002e4870(0) + 8) >= 9) {
@@ -296,9 +292,8 @@ void func_002fbea0(u8 *arg0) {
         }
         if (p->f0 == 0x10) {
             if (*(s32 *)(func_002e4870(0) + 8) == 0) {
-                tmp8 = func_002bab80((void *)func_00331660());
-                p->fD = tmp8;
-                func_002badc0(tmp8, 0xE);
+                p->fD = func_002bab80((void *)func_00331660());
+                func_002badc0(p->fD, 0xE);
                 p->f1 = 0x93;
             } else {
                 func_0032b770(arg0, 2, var_16_2, 0);
@@ -312,44 +307,21 @@ void func_002fbea0(u8 *arg0) {
             func_0032b9d0(arg0, 2, var_16_2, 0);
             p->f1 = 0x98;
         }
-        base = p->f11E;
-        *(s8 *)(func_002b6150((s16)(base + 0x27D)) + 0x6E) = -1;
-        *(s8 *)(func_002b6150((s16)(base + 0x270)) + 0x6E) = -1;
+        *(u8 *)(func_002b6150(p->f11E + 0x270) + 0x6E) = *(u8 *)(func_002b6150(p->f11E + 0x27D) + 0x6E) = 0xFF;
         func_002b68d0(0x270, 2, 1);
         func_002b68d0(0x27D, 2, 1);
-        fclWriteColorBytes((u8 *)(&col0), 0xCC, 0xFF, 0x33, 0xFF);
-        r2 = func_002b6150((s16)(base + 0x297));
-        *(r2 + 0x85) = col0;
-        *(r2 + 0x86) = col1;
-        *(r2 + 0x87) = col2;
-        *(r2 + 0x88) = col3;
-        r3 = func_002b6150((s16)(base + 0x28B));
-        c0 = *(r2 + 0x85);
-        c1 = *(r2 + 0x86);
-        *(r3 + 0x85) = c0;
-        *(r3 + 0x86) = c1;
-        *(r3 + 0x87) = *(r2 + 0x87);
-        *(r3 + 0x88) = *(r2 + 0x88);
-        r4 = func_002b6150((s16)(base + 0x27D));
-        c0 = *(r3 + 0x85);
-        c1 = *(r3 + 0x86);
-        *(r4 + 0x85) = c0;
-        *(r4 + 0x86) = c1;
-        *(r4 + 0x87) = *(r3 + 0x87);
-        *(r4 + 0x88) = *(r3 + 0x88);
-        r5 = func_002b6150((s16)(base + 0x270));
-        *(r5 + 0x85) = *(r4 + 0x85);
-        *(r5 + 0x86) = *(r4 + 0x86);
-        *(r5 + 0x87) = *(r4 + 0x87);
-        *(r5 + 0x88) = *(r4 + 0x88);
-        fclWriteColorBytes((u8 *)(&colB0), 0x2D, 0x2D, 0x2D, 0xFF);
-        r6 = func_002b6150((s16)(base + 0x2A3));
-        *(r6 + 0x85) = colB0;
-        *(r6 + 0x86) = colB1;
-        *(r6 + 0x87) = colB2;
-        *(r6 + 0x88) = colB3;
-        fclWriteColorBytes((u8 *)(&colC0), 0x2D, 0x2D, 0x2D, 0xFF);
-        func_002ba970(p->f2BC, (s8)(base + 0xC), (s32)colC0);
+        colA = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
+        r2 = func_002b6150(p->f11E + 0x297);
+        *(FclDrawColor *)(r2 + 0x85) = colA;
+        r3 = func_002b6150(p->f11E + 0x28B);
+        *(FclDrawColor *)(r3 + 0x85) = *(FclDrawColor *)(r2 + 0x85);
+        r4 = func_002b6150(p->f11E + 0x27D);
+        *(FclDrawColor *)(r4 + 0x85) = *(FclDrawColor *)(r3 + 0x85);
+        *(FclDrawColor *)(func_002b6150(p->f11E + 0x270) + 0x85) = *(FclDrawColor *)(r4 + 0x85);
+        colB = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+        *(FclDrawColor *)(func_002b6150(p->f11E + 0x2A3) + 0x85) = colB;
+        colC = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+        func_002ba970(p->f2BC, p->f11E + 0xC, *(s32 *)&colC);
         return;
     case 0x8D:
         var_16_6 = *(s16 *)(func_002e4870(0) + 8);
@@ -363,24 +335,18 @@ void func_002fbea0(u8 *arg0) {
             temp_16 = (s16)(var_18);
             temp_21 = temp_16 + 0x270;
             temp_f20 = (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x42));
-            temp_f0 = func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x40)));
-            if (!(temp_f0 >= 2.1474836e9f)) {
-                var_3 = ((s32)(temp_f0)) & 0xFF;
-            } else {
-                var_3 = (((s32)((temp_f0 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-            }
-            temp_7 = var_3 & 0xFF;
+            temp_7 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x40)));
             if (p->f11E == var_19) {
                 var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
-                fclWriteColorBytes(&colW5, 0x2D, 0x2D, 0x2D, temp_7);
+                fc_colW5 = func_002b2a60(0x2D, 0x2D, 0x2D, temp_7);
             } else {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
-                fclWriteColorBytes(&colW5, 0xCC, 0xFF, 0xFF, temp_7);
+                fc_colW5 = func_002b2a60(0xCC, 0xFF, 0xFF, temp_7);
             }
-            func_00275820(var_21, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 244.0f, (f32)(s32)((temp_16 * 0x17) + 0x6E), 43.0f);
+            func_00275820(244.0f, (f32)(s32)((temp_16 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             tmpu8 = *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4);
             func_002b2970(&sp460, 146.0f, 111.0f + 23.0f * (f32)var_19);
-            func_002ba5d0((u8 *)p->f2BC, (s8)(temp_16 + 0xC), tmpu8, sp460, colW5, 0x59, 46.0f);
+            func_002ba5d0((u8 *)p->f2BC, (s8)(temp_16 + 0xC), tmpu8, sp460, *(s32 *)&fc_colW5, 0x59, 46.0f);
             tmp22 = temp_16 + 0x2A3;
             if (func_002b6970(*(s16 *)(func_002b6150((s16)(tmp22)) + 0x10), 1) == 0) {
                 *(s16 *)(func_002b6150((s16)(tmp22)) + 4) = (s16)((func_00109280(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
@@ -389,111 +355,41 @@ void func_002fbea0(u8 *arg0) {
                 if (p->f11E == var_19) {
                     *(s8 *)(func_002b6150((s16)((temp_16 + 0x27D))) + 0x6E) = -1;
                     *(s8 *)(func_002b6150((s16)(temp_21)) + 0x6E) = -1;
-                    fclWriteColorBytes(w4E0, 0xCC, 0xFF, 0x33, 0xFF);
+                    fc_w4E0 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
                     r2 = func_002b6150((s16)((temp_16 + 0x297)));
-                    d0 = w4E0[0];
-                    d1 = w4E0[1];
-                    d2 = w4E0[2];
-                    d3 = w4E0[3];
-                    *(r2 + 0x85) = d0;
-                    *(r2 + 0x86) = d1;
-                    *(r2 + 0x87) = d2;
-                    *(r2 + 0x88) = d3;
+                    *(FclDrawColor *)(r2 + 0x85) = fc_w4E0;
                     r3 = func_002b6150((s16)((temp_16 + 0x28B)));
-                    d0 = *(r2 + 0x85);
-                    d1 = *(r2 + 0x86);
-                    d2 = *(r2 + 0x87);
-                    d3 = *(r2 + 0x88);
-                    *(r3 + 0x85) = d0;
-                    *(r3 + 0x86) = d1;
-                    *(r3 + 0x87) = d2;
-                    *(r3 + 0x88) = d3;
+                    *(FclDrawColor *)(r3 + 0x85) = *(FclDrawColor *)(r2 + 0x85);
                     r4 = func_002b6150((s16)((temp_16 + 0x27D)));
-                    d0 = *(r3 + 0x85);
-                    d1 = *(r3 + 0x86);
-                    d2 = *(r3 + 0x87);
-                    d3 = *(r3 + 0x88);
-                    *(r4 + 0x85) = d0;
-                    *(r4 + 0x86) = d1;
-                    *(r4 + 0x87) = d2;
-                    *(r4 + 0x88) = d3;
+                    *(FclDrawColor *)(r4 + 0x85) = *(FclDrawColor *)(r3 + 0x85);
                     r5 = func_002b6150((s16)(temp_21));
-                    d0 = *(r4 + 0x85);
-                    d1 = *(r4 + 0x86);
-                    d2 = *(r4 + 0x87);
-                    d3 = *(r4 + 0x88);
-                    *(r5 + 0x85) = d0;
-                    *(r5 + 0x86) = d1;
-                    *(r5 + 0x87) = d2;
-                    *(r5 + 0x88) = d3;
-                    fclWriteColorBytes(w4DC, 0x2D, 0x2D, 0x2D, 0xFF);
+                    *(FclDrawColor *)(r5 + 0x85) = *(FclDrawColor *)(r4 + 0x85);
+                    fc_w4DC = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                     r6 = func_002b6150((s16)(tmp22));
-                    d0 = w4DC[0];
-                    d1 = w4DC[1];
-                    d2 = w4DC[2];
-                    d3 = w4DC[3];
-                    *(r6 + 0x85) = d0;
-                    *(r6 + 0x86) = d1;
-                    *(r6 + 0x87) = d2;
-                    *(r6 + 0x88) = d3;
-                    fclWriteColorBytes(&w4D8, 0x2D, 0x2D, 0x2D, 0xFF);
-                    func_002ba970(p->f2BC, (s8)(temp_16 + 0xC), w4D8);
+                    *(FclDrawColor *)(r6 + 0x85) = fc_w4DC;
+                    fc_w4D8 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+                    func_002ba970(p->f2BC, (s8)(temp_16 + 0xC), *(s32 *)&fc_w4D8);
                 } else {
                     *(s8 *)(func_002b6150((s16)(temp_21)) + 0x6E) = -128;
-                    fclWriteColorBytes(w4D4, 0x49, 0x72, 0xFF, 0xFF);
+                    fc_w4D4 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                     r2 = func_002b6150((s16)((temp_16 + 0x27D)));
-                    d0 = w4D4[0];
-                    d1 = w4D4[1];
-                    d2 = w4D4[2];
-                    d3 = w4D4[3];
-                    *(r2 + 0x85) = d0;
-                    *(r2 + 0x86) = d1;
-                    *(r2 + 0x87) = d2;
-                    *(r2 + 0x88) = d3;
+                    *(FclDrawColor *)(r2 + 0x85) = fc_w4D4;
                     r3 = func_002b6150((s16)(temp_21));
-                    d0 = *(r2 + 0x85);
-                    d1 = *(r2 + 0x86);
-                    d2 = *(r2 + 0x87);
-                    d3 = *(r2 + 0x88);
-                    *(r3 + 0x85) = d0;
-                    *(r3 + 0x86) = d1;
-                    *(r3 + 0x87) = d2;
-                    *(r3 + 0x88) = d3;
-                    fclWriteColorBytes(w4D0, 0x49, 0x72, 0xFF, 0xFF);
+                    *(FclDrawColor *)(r3 + 0x85) = *(FclDrawColor *)(r2 + 0x85);
+                    fc_w4D0 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                     r4 = func_002b6150((s16)((temp_16 + 0x297)));
-                    d0 = w4D0[0];
-                    d1 = w4D0[1];
-                    d2 = w4D0[2];
-                    d3 = w4D0[3];
-                    *(r4 + 0x85) = d0;
-                    *(r4 + 0x86) = d1;
-                    *(r4 + 0x87) = d2;
-                    *(r4 + 0x88) = d3;
+                    *(FclDrawColor *)(r4 + 0x85) = fc_w4D0;
                     r5 = func_002b6150((s16)((temp_16 + 0x28B)));
-                    d0 = *(r4 + 0x85);
-                    d1 = *(r4 + 0x86);
-                    d2 = *(r4 + 0x87);
-                    d3 = *(r4 + 0x88);
-                    *(r5 + 0x85) = d0;
-                    *(r5 + 0x86) = d1;
-                    *(r5 + 0x87) = d2;
-                    *(r5 + 0x88) = d3;
-                    fclWriteColorBytes(w4CC, 0, 0, 0x66, 0xFF);
+                    *(FclDrawColor *)(r5 + 0x85) = *(FclDrawColor *)(r4 + 0x85);
+                    fc_w4CC = func_002b2a60(0, 0, 0x66, 0xFF);
                     r6 = func_002b6150((s16)(tmp22));
-                    d0 = w4CC[0];
-                    d1 = w4CC[1];
-                    d2 = w4CC[2];
-                    d3 = w4CC[3];
-                    *(r6 + 0x85) = d0;
-                    *(r6 + 0x86) = d1;
-                    *(r6 + 0x87) = d2;
-                    *(r6 + 0x88) = d3;
-                    fclWriteColorBytes(&w4C8, 0xCC, 0xFF, 0xFF, 0xFF);
-                    func_002ba970(p->f2BC, (s8)(temp_16 + 0xC), w4C8);
+                    *(FclDrawColor *)(r6 + 0x85) = fc_w4CC;
+                    fc_w4C8 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
+                    func_002ba970(p->f2BC, (s8)(temp_16 + 0xC), *(s32 *)&fc_w4C8);
                 }
             }
-            var_19 = (s64)((var_19 + 1) << 0x30) >> 0x30;
-            var_18 = (s64)((var_18 + 1) << 0x30) >> 0x30;
+            var_19 = (s16)(var_19 + 1);
+            var_18 = (s16)(var_18 + 1);
         }
         if (func_002b6970(*(s16 *)(func_002b6150((s16)((var_16_6 + 0x26F))) + 0x10), 1) == 1) {
             break;
@@ -584,8 +480,8 @@ void func_002fbea0(u8 *arg0) {
                 func_002b2970(&sp458, 162.0f, 111.0f);
                 slotByte = *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4);
                 func_0031ac10(arg0, sp458, -1, var_18, *(u16 *)((u8 *)func_002e48a0(0, var_19) + 2), slotByte, 0, 1, 0, 0xCC);
-                var_19 = (s64)((var_19 + 1) << 0x30) >> 0x30;
-                var_18 = (s64)((var_18 + 1) << 0x30) >> 0x30;
+                var_19 = (s16)(var_19 + 1);
+                var_18 = (s16)(var_18 + 1);
             }
             func_002b2970(&sp450, 156.0f, 87.0f);
             func_0031e5b0(arg0, sp450, 0, 1, 0, 1, 1);
@@ -634,21 +530,15 @@ void func_002fbea0(u8 *arg0) {
             temp_16 = (s16)(var_18);
             temp_21 = temp_16 + 0x270;
             temp_f20 = (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x42));
-            temp_f0 = func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x40)));
-            if (!(temp_f0 >= 2.1474836e9f)) {
-                var_3 = ((s32)(temp_f0)) & 0xFF;
-            } else {
-                var_3 = (((s32)((temp_f0 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-            }
-            temp_7 = var_3 & 0xFF;
+            temp_7 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x40)));
             if (p->f11E == var_19) {
                 var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
             } else {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
             }
-            func_00275820(var_21, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 244.0f, (f32)(s32)((temp_16 * 0x17) + 0x6E), 43.0f);
-            var_19 = (s64)((var_19 + 1) << 0x30) >> 0x30;
-            var_18 = (s64)((var_18 + 1) << 0x30) >> 0x30;
+            func_00275820(244.0f, (f32)(s32)((temp_16 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            var_19 = (s16)(var_19 + 1);
+            var_18 = (s16)(var_18 + 1);
         }
         if (func_002bb680(p->fD) != 0) {
             func_002bbcf0(p->fD);
@@ -666,7 +556,7 @@ void func_002fbea0(u8 *arg0) {
                 } else {
                     func_0010fd40(func_002e48a0(0, var_18));
                 }
-                var_18 = (s64)((var_18 + 1) << 0x30) >> 0x30;
+                var_18 = (s16)(var_18 + 1);
             }
             func_002bb550(p->fD);
             tmp8 = func_002bab80((void *)func_00331660());
@@ -951,21 +841,15 @@ void func_002fbea0(u8 *arg0) {
             temp_16 = (s16)(var_18);
             temp_21 = temp_16 + 0x270;
             temp_f20 = (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x42));
-            temp_f0 = func_002b2aa0(0, 255.0f, 0.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x40)));
-            if (!(temp_f0 >= 2.1474836e9f)) {
-                var_3 = ((s32)(temp_f0)) & 0xFF;
-            } else {
-                var_3 = (((s32)((temp_f0 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-            }
-            temp_7 = var_3 & 0xFF;
+            temp_7 = (u8)func_002b2aa0(0, 255.0f, 0.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x40)));
             if (p->f11E == temp_16) {
                 var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
             } else {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
             }
-            func_00275820(var_21, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 244.0f, (f32)(s32)((temp_16 * 0x17) + 0x6E), 43.0f);
-            var_19 = (s64)((var_19 + 1) << 0x30) >> 0x30;
-            var_18 = (s64)((var_18 + 1) << 0x30) >> 0x30;
+            func_00275820(244.0f, (f32)(s32)((temp_16 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            var_19 = (s16)(var_19 + 1);
+            var_18 = (s16)(var_18 + 1);
         }
         if (func_002b6970(*(s16 *)(func_002b6150(0x193) + 0x10), 1) == 0) {
             func_0032f4d0(arg0);
@@ -978,7 +862,7 @@ void func_002fbea0(u8 *arg0) {
         break;
     case 0x98:
         func_002b2970(&sp420, 250.0f + *(f32 *)(func_002b6150(0x69) + 0x38), 46.0f);
-        fclWriteColorBytes(&colW6, 0xFF, 0xFF, 0xFF, 0xFF);
+        fc_colW6 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
         tmpe = func_002e7a60();
         tmpv = (s32)func_0046a770(&D_00641B30);
         func_002cacd0(sp420, colW6, 0x10, 5, tmpe, 9, 0x37, tmpv, 47.0f, func_00331560(), 0x56);
@@ -993,21 +877,15 @@ void func_002fbea0(u8 *arg0) {
             temp_16 = (s16)(var_18);
             temp_21 = temp_16 + 0x270;
             temp_f20 = (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x42));
-            temp_f0 = func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x40)));
-            if (!(temp_f0 >= 2.1474836e9f)) {
-                var_3 = ((s32)(temp_f0)) & 0xFF;
-            } else {
-                var_3 = (((s32)((temp_f0 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-            }
-            temp_7 = var_3 & 0xFF;
+            temp_7 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x40)));
             if (p->f11E == var_19) {
                 var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
-                fclWriteColorBytes(&colW7, 0x2D, 0x2D, 0x2D, temp_7);
+                fc_colW7 = func_002b2a60(0x2D, 0x2D, 0x2D, temp_7);
             } else {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
-                fclWriteColorBytes(&colW7, 0xCC, 0xFF, 0xFF, temp_7);
+                fc_colW7 = func_002b2a60(0xCC, 0xFF, 0xFF, temp_7);
             }
-            func_00275820(var_21, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 172.0f, (f32)(s32)((temp_16 * 0x17) + 0x96), 43.0f);
+            func_00275820(172.0f, (f32)(s32)((temp_16 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             tmp22 = temp_16 + 0x2A3;
             if (func_002b6970(*(s16 *)(func_002b6150((s16)(tmp22)) + 0x10), 1) == 0) {
                 *(s16 *)(func_002b6150((s16)(tmp22)) + 4) = (s16)((func_00109280(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
@@ -1015,7 +893,7 @@ void func_002fbea0(u8 *arg0) {
             sp1B0 = (s8)(temp_16 + 0xC);
             tmpu8 = *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4);
             func_002b2970(&sp418, 74.0f, 151.0f + 23.0f * (f32)var_18);
-            func_002ba5d0((u8 *)p->f2BC, sp1B0, tmpu8, sp418, colW7, 0x59, 46.0f);
+            func_002ba5d0((u8 *)p->f2BC, sp1B0, tmpu8, sp418, *(s32 *)&fc_colW7, 0x59, 46.0f);
             sumA = func_001099f0(func_002e48a0(0, var_19), 0) & 0xFF;
             sumA += func_001099f0(func_002e48a0(0, var_19), 1) & 0xFF;
             sumA += func_001099f0(func_002e48a0(0, var_19), 2) & 0xFF;
@@ -1034,108 +912,38 @@ void func_002fbea0(u8 *arg0) {
                 if (p->f11E == var_19) {
                     *(s8 *)(func_002b6150((s16)((temp_16 + 0x27D))) + 0x6E) = -1;
                     *(s8 *)(func_002b6150((s16)(temp_21)) + 0x6E) = -1;
-                    fclWriteColorBytes(w4C0, 0xCC, 0xFF, 0x33, 0xFF);
+                    fc_w4C0 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
                     r2 = func_002b6150((s16)((temp_16 + 0x297)));
-                    d0 = w4C0[0];
-                    d1 = w4C0[1];
-                    d2 = w4C0[2];
-                    d3 = w4C0[3];
-                    *(r2 + 0x85) = d0;
-                    *(r2 + 0x86) = d1;
-                    *(r2 + 0x87) = d2;
-                    *(r2 + 0x88) = d3;
+                    *(FclDrawColor *)(r2 + 0x85) = fc_w4C0;
                     r3 = func_002b6150((s16)((temp_16 + 0x28B)));
-                    d0 = *(r2 + 0x85);
-                    d1 = *(r2 + 0x86);
-                    d2 = *(r2 + 0x87);
-                    d3 = *(r2 + 0x88);
-                    *(r3 + 0x85) = d0;
-                    *(r3 + 0x86) = d1;
-                    *(r3 + 0x87) = d2;
-                    *(r3 + 0x88) = d3;
+                    *(FclDrawColor *)(r3 + 0x85) = *(FclDrawColor *)(r2 + 0x85);
                     r4 = func_002b6150((s16)((temp_16 + 0x27D)));
-                    d0 = *(r3 + 0x85);
-                    d1 = *(r3 + 0x86);
-                    d2 = *(r3 + 0x87);
-                    d3 = *(r3 + 0x88);
-                    *(r4 + 0x85) = d0;
-                    *(r4 + 0x86) = d1;
-                    *(r4 + 0x87) = d2;
-                    *(r4 + 0x88) = d3;
+                    *(FclDrawColor *)(r4 + 0x85) = *(FclDrawColor *)(r3 + 0x85);
                     r5 = func_002b6150((s16)(temp_21));
-                    d0 = *(r4 + 0x85);
-                    d1 = *(r4 + 0x86);
-                    d2 = *(r4 + 0x87);
-                    d3 = *(r4 + 0x88);
-                    *(r5 + 0x85) = d0;
-                    *(r5 + 0x86) = d1;
-                    *(r5 + 0x87) = d2;
-                    *(r5 + 0x88) = d3;
-                    fclWriteColorBytes(w4BC, 0x2D, 0x2D, 0x2D, 0xFF);
+                    *(FclDrawColor *)(r5 + 0x85) = *(FclDrawColor *)(r4 + 0x85);
+                    fc_w4BC = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                     r6 = func_002b6150((s16)(tmp22));
-                    d0 = w4BC[0];
-                    d1 = w4BC[1];
-                    d2 = w4BC[2];
-                    d3 = w4BC[3];
-                    *(r6 + 0x85) = d0;
-                    *(r6 + 0x86) = d1;
-                    *(r6 + 0x87) = d2;
-                    *(r6 + 0x88) = d3;
-                    fclWriteColorBytes(&w4B8, 0x2D, 0x2D, 0x2D, 0xFF);
-                    func_002ba970(p->f2BC, (s8)(temp_16 + 0xC), w4B8);
+                    *(FclDrawColor *)(r6 + 0x85) = fc_w4BC;
+                    fc_w4B8 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+                    func_002ba970(p->f2BC, (s8)(temp_16 + 0xC), *(s32 *)&fc_w4B8);
                 } else {
                     *(s8 *)(func_002b6150((s16)((temp_16 + 0x27D))) + 0x6E) = -128;
                     *(s8 *)(func_002b6150((s16)(temp_21)) + 0x6E) = -128;
-                    fclWriteColorBytes(w4B4, 0x49, 0x72, 0xFF, 0xFF);
+                    fc_w4B4 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                     r2 = func_002b6150((s16)((temp_16 + 0x27D)));
-                    d0 = w4B4[0];
-                    d1 = w4B4[1];
-                    d2 = w4B4[2];
-                    d3 = w4B4[3];
-                    *(r2 + 0x85) = d0;
-                    *(r2 + 0x86) = d1;
-                    *(r2 + 0x87) = d2;
-                    *(r2 + 0x88) = d3;
+                    *(FclDrawColor *)(r2 + 0x85) = fc_w4B4;
                     r3 = func_002b6150((s16)(temp_21));
-                    d0 = *(r2 + 0x85);
-                    d1 = *(r2 + 0x86);
-                    d2 = *(r2 + 0x87);
-                    d3 = *(r2 + 0x88);
-                    *(r3 + 0x85) = d0;
-                    *(r3 + 0x86) = d1;
-                    *(r3 + 0x87) = d2;
-                    *(r3 + 0x88) = d3;
-                    fclWriteColorBytes(w4B0, 0x49, 0x72, 0xFF, 0xFF);
+                    *(FclDrawColor *)(r3 + 0x85) = *(FclDrawColor *)(r2 + 0x85);
+                    fc_w4B0 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                     r4 = func_002b6150((s16)((temp_16 + 0x297)));
-                    d0 = w4B0[0];
-                    d1 = w4B0[1];
-                    d2 = w4B0[2];
-                    d3 = w4B0[3];
-                    *(r4 + 0x85) = d0;
-                    *(r4 + 0x86) = d1;
-                    *(r4 + 0x87) = d2;
-                    *(r4 + 0x88) = d3;
+                    *(FclDrawColor *)(r4 + 0x85) = fc_w4B0;
                     r5 = func_002b6150((s16)((temp_16 + 0x28B)));
-                    d0 = *(r4 + 0x85);
-                    d1 = *(r4 + 0x86);
-                    d2 = *(r4 + 0x87);
-                    d3 = *(r4 + 0x88);
-                    *(r5 + 0x85) = d0;
-                    *(r5 + 0x86) = d1;
-                    *(r5 + 0x87) = d2;
-                    *(r5 + 0x88) = d3;
-                    fclWriteColorBytes(w4AC, 0, 0, 0x66, 0xFF);
+                    *(FclDrawColor *)(r5 + 0x85) = *(FclDrawColor *)(r4 + 0x85);
+                    fc_w4AC = func_002b2a60(0, 0, 0x66, 0xFF);
                     r6 = func_002b6150((s16)(tmp22));
-                    d0 = w4AC[0];
-                    d1 = w4AC[1];
-                    d2 = w4AC[2];
-                    d3 = w4AC[3];
-                    *(r6 + 0x85) = d0;
-                    *(r6 + 0x86) = d1;
-                    *(r6 + 0x87) = d2;
-                    *(r6 + 0x88) = d3;
-                    fclWriteColorBytes(&w4A8, 0xCC, 0xFF, 0xFF, 0xFF);
-                    func_002ba970(p->f2BC, (s8)(temp_16 + 0xC), w4A8);
+                    *(FclDrawColor *)(r6 + 0x85) = fc_w4AC;
+                    fc_w4A8 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
+                    func_002ba970(p->f2BC, (s8)(temp_16 + 0xC), *(s32 *)&fc_w4A8);
                 }
             }
             tmp21F = temp_16 + 0x21F;
@@ -1143,51 +951,23 @@ void func_002fbea0(u8 *arg0) {
                 if (p->f11E == var_19) {
                     *(s8 *)(func_002b6150((s16)((temp_16 + 0x2C5))) + 0x6E) = -1;
                     *(s8 *)(func_002b6150((s16)(tmp21F)) + 0x6E) = -1;
-                    fclWriteColorBytes(w4A4, 0xCC, 0xFF, 0x33, 0xFF);
+                    fc_w4A4 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
                     r2 = func_002b6150((s16)((temp_16 + 0x2C5)));
-                    d0 = w4A4[0];
-                    d1 = w4A4[1];
-                    d2 = w4A4[2];
-                    d3 = w4A4[3];
-                    *(r2 + 0x85) = d0;
-                    *(r2 + 0x86) = d1;
-                    *(r2 + 0x87) = d2;
-                    *(r2 + 0x88) = d3;
+                    *(FclDrawColor *)(r2 + 0x85) = fc_w4A4;
                     r3 = func_002b6150((s16)(tmp21F));
-                    d0 = *(r2 + 0x85);
-                    d1 = *(r2 + 0x86);
-                    d2 = *(r2 + 0x87);
-                    d3 = *(r2 + 0x88);
-                    *(r3 + 0x85) = d0;
-                    *(r3 + 0x86) = d1;
-                    *(r3 + 0x87) = d2;
-                    *(r3 + 0x88) = d3;
+                    *(FclDrawColor *)(r3 + 0x85) = *(FclDrawColor *)(r2 + 0x85);
                 } else {
                     *(s8 *)(func_002b6150((s16)((temp_16 + 0x2C5))) + 0x6E) = -128;
                     *(s8 *)(func_002b6150((s16)(tmp21F)) + 0x6E) = -128;
-                    fclWriteColorBytes(w4A0, 0, 0, 0x99, 0xFF);
+                    fc_w4A0 = func_002b2a60(0, 0, 0x99, 0xFF);
                     r2 = func_002b6150((s16)((temp_16 + 0x2C5)));
-                    d0 = w4A0[0];
-                    d1 = w4A0[1];
-                    d2 = w4A0[2];
-                    d3 = w4A0[3];
-                    *(r2 + 0x85) = d0;
-                    *(r2 + 0x86) = d1;
-                    *(r2 + 0x87) = d2;
-                    *(r2 + 0x88) = d3;
+                    *(FclDrawColor *)(r2 + 0x85) = fc_w4A0;
                     r3 = func_002b6150((s16)(tmp21F));
-                    d0 = *(r2 + 0x85);
-                    d1 = *(r2 + 0x86);
-                    d2 = *(r2 + 0x87);
-                    d3 = *(r2 + 0x88);
-                    *(r3 + 0x85) = d0;
-                    *(r3 + 0x86) = d1;
-                    *(r3 + 0x87) = d2;
-                    *(r3 + 0x88) = d3;
+                    *(FclDrawColor *)(r3 + 0x85) = *(FclDrawColor *)(r2 + 0x85);
                 }
             }
-            var_19 = (s64)((var_19 + 1) << 0x30) >> 0x30;
-            var_18 = (s64)((var_18 + 1) << 0x30) >> 0x30;
+            var_19 = (s16)(var_19 + 1);
+            var_18 = (s16)(var_18 + 1);
         }
         if (func_002b6970(*(s16 *)(func_002b6150((s16)((var_16_6 + 0x26F))) + 0x10), 1) != 1) {
             if ((D_008C0276[0] & 0x1000) && (p->f13A == 0)) {
@@ -1228,6 +1008,18 @@ void func_002fbea0(u8 *arg0) {
                         func_002e68b0(0);
                     }
                     p->f123 = 1;
+                    mvP0 = *(FclVec2f *)(func_002b6150(0x2EA) + 0x38);
+                    func_002b2970(&mvS0, 336.0f, mvP0.y);
+                    func_002b69f0(0x2EA, mvP0, *(FclVec2f *)&mvS0, 1, 8, 0);
+                    mvP1 = *(FclVec2f *)(func_002b6150(0x2EB) + 0x38);
+                    func_002b2970(&mvS1, 556.0f, mvP1.y);
+                    func_002b69f0(0x2EB, mvP1, *(FclVec2f *)&mvS1, 1, 8, 0);
+                    mvP2 = *(FclVec2f *)(func_002b6150(0x2E2) + 0x38);
+                    func_002b2970(&mvS2, 336.0f, mvP2.y);
+                    func_002b69f0(0x2E2, mvP2, *(FclVec2f *)&mvS2, 1, 8, 0);
+                    mvP3 = *(FclVec2f *)(func_002b6150(0x2E3) + 0x38);
+                    func_002b2970(&mvS3, 556.0f, mvP3.y);
+                    func_002b69f0(0x2E3, mvP3, *(FclVec2f *)&mvS3, 1, 8, 0);
                     func_0045af60(0, 0, 0, 5);
                 }
                 return;
@@ -1237,18 +1029,18 @@ void func_002fbea0(u8 *arg0) {
                         func_002e68b0(0);
                     }
                     p->f123 = 0;
-                    ps = func_002b6150(0x2EA);
-                    func_002b2970(&sp458, 79.0f, *(f32 *)(func_002b6150(0x2EA) + 0x3C));
-                    func_002b69f0(0x2EA, *(FclVec2f *)(ps + 0x38), *(FclVec2f *)&sp458, 1, 8, 0);
-                    ps = func_002b6150(0x2EB);
-                    func_002b2970(&sp450, (f32)0x12B, *(f32 *)(func_002b6150(0x2EB) + 0x3C));
-                    func_002b69f0(0x2EB, *(FclVec2f *)(ps + 0x38), *(FclVec2f *)&sp450, 1, 8, 0);
-                    ps = func_002b6150(0x2E2);
-                    func_002b2970(&sp448, 79.0f, *(f32 *)(func_002b6150(0x2E2) + 0x3C));
-                    func_002b69f0(0x2E2, *(FclVec2f *)(ps + 0x38), *(FclVec2f *)&sp448, 1, 8, 0);
-                    ps = func_002b6150(0x2E3);
-                    func_002b2970(&sp3D8, (f32)0x12B, *(f32 *)(func_002b6150(0x2E3) + 0x3C));
-                    func_002b69f0(0x2E3, *(FclVec2f *)(ps + 0x38), *(FclVec2f *)&sp3D8, 1, 8, 0);
+                    mvP4 = *(FclVec2f *)(func_002b6150(0x2EA) + 0x38);
+                    func_002b2970(&mvS4, 79.0f, mvP4.y);
+                    func_002b69f0(0x2EA, mvP4, *(FclVec2f *)&mvS4, 1, 8, 0);
+                    mvP5 = *(FclVec2f *)(func_002b6150(0x2EB) + 0x38);
+                    func_002b2970(&mvS5, (f32)0x12B, mvP5.y);
+                    func_002b69f0(0x2EB, mvP5, *(FclVec2f *)&mvS5, 1, 8, 0);
+                    mvP6 = *(FclVec2f *)(func_002b6150(0x2E2) + 0x38);
+                    func_002b2970(&mvS6, 79.0f, mvP6.y);
+                    func_002b69f0(0x2E2, mvP6, *(FclVec2f *)&mvS6, 1, 8, 0);
+                    mvP7 = *(FclVec2f *)(func_002b6150(0x2E3) + 0x38);
+                    func_002b2970(&mvS7, (f32)0x12B, mvP7.y);
+                    func_002b69f0(0x2E3, mvP7, *(FclVec2f *)&mvS7, 1, 8, 0);
                     func_0045af60(0, 0, 0, 5);
                 }
                 return;
@@ -1580,7 +1372,7 @@ void func_002fbea0(u8 *arg0) {
         return;
     case 0x9B:
         func_002b2970(&sp318, 250.0f + *(f32 *)(func_002b6150(0x69) + 0x38), 46.0f);
-        fclWriteColorBytes(&colW3, 0xFF, 0xFF, 0xFF, 0xFF);
+        fc_colW3 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
         tmpe = func_002e7a60();
         tmpv = (s32)func_0046a770(&D_00641B30);
         func_002cacd0(sp318, colW3, 0x10, 5, tmpe, 9, 0x37, tmpv, 47.0f, func_00331560(), 0x56);
@@ -1595,21 +1387,15 @@ void func_002fbea0(u8 *arg0) {
             temp_16 = (s16)(var_18);
             temp_21 = temp_16 + 0x270;
             temp_f20 = (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x42));
-            temp_f0 = func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x40)));
-            if (!(temp_f0 >= 2.1474836e9f)) {
-                var_3 = ((s32)(temp_f0)) & 0xFF;
-            } else {
-                var_3 = (((s32)((temp_f0 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-            }
-            temp_7 = var_3 & 0xFF;
+            temp_7 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x40)));
             if (p->f11E == var_19) {
                 var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
-                fclWriteColorBytes(&colW4, 0x2D, 0x2D, 0x2D, temp_7);
+                fc_colW4 = func_002b2a60(0x2D, 0x2D, 0x2D, temp_7);
             } else {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
-                fclWriteColorBytes(&colW4, 0xCC, 0xFF, 0xFF, temp_7);
+                fc_colW4 = func_002b2a60(0xCC, 0xFF, 0xFF, temp_7);
             }
-            func_00275820(var_21, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 172.0f, (f32)(s32)((temp_16 * 0x17) + 0x96), 43.0f);
+            func_00275820(172.0f, (f32)(s32)((temp_16 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             tmp22 = temp_16 + 0x2A3;
             if (func_002b6970(*(s16 *)(func_002b6150((s16)(tmp22)) + 0x10), 1) == 0) {
                 *(s16 *)(func_002b6150((s16)(tmp22)) + 4) = (s16)((func_00109280(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
@@ -1632,108 +1418,38 @@ void func_002fbea0(u8 *arg0) {
                 if (p->f11E == var_19) {
                     *(s8 *)(func_002b6150((s16)((temp_16 + 0x27D))) + 0x6E) = -1;
                     *(s8 *)(func_002b6150((s16)(temp_21)) + 0x6E) = -1;
-                    fclWriteColorBytes(w498, 0xCC, 0xFF, 0x33, 0xFF);
+                    fc_w498 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
                     r2 = func_002b6150((s16)((temp_16 + 0x297)));
-                    d0 = w498[0];
-                    d1 = w498[1];
-                    d2 = w498[2];
-                    d3 = w498[3];
-                    *(r2 + 0x85) = d0;
-                    *(r2 + 0x86) = d1;
-                    *(r2 + 0x87) = d2;
-                    *(r2 + 0x88) = d3;
+                    *(FclDrawColor *)(r2 + 0x85) = fc_w498;
                     r3 = func_002b6150((s16)((temp_16 + 0x28B)));
-                    d0 = *(r2 + 0x85);
-                    d1 = *(r2 + 0x86);
-                    d2 = *(r2 + 0x87);
-                    d3 = *(r2 + 0x88);
-                    *(r3 + 0x85) = d0;
-                    *(r3 + 0x86) = d1;
-                    *(r3 + 0x87) = d2;
-                    *(r3 + 0x88) = d3;
+                    *(FclDrawColor *)(r3 + 0x85) = *(FclDrawColor *)(r2 + 0x85);
                     r4 = func_002b6150((s16)((temp_16 + 0x27D)));
-                    d0 = *(r3 + 0x85);
-                    d1 = *(r3 + 0x86);
-                    d2 = *(r3 + 0x87);
-                    d3 = *(r3 + 0x88);
-                    *(r4 + 0x85) = d0;
-                    *(r4 + 0x86) = d1;
-                    *(r4 + 0x87) = d2;
-                    *(r4 + 0x88) = d3;
+                    *(FclDrawColor *)(r4 + 0x85) = *(FclDrawColor *)(r3 + 0x85);
                     r5 = func_002b6150((s16)(temp_21));
-                    d0 = *(r4 + 0x85);
-                    d1 = *(r4 + 0x86);
-                    d2 = *(r4 + 0x87);
-                    d3 = *(r4 + 0x88);
-                    *(r5 + 0x85) = d0;
-                    *(r5 + 0x86) = d1;
-                    *(r5 + 0x87) = d2;
-                    *(r5 + 0x88) = d3;
-                    fclWriteColorBytes(w494, 0x2D, 0x2D, 0x2D, 0xFF);
+                    *(FclDrawColor *)(r5 + 0x85) = *(FclDrawColor *)(r4 + 0x85);
+                    fc_w494 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                     r6 = func_002b6150((s16)(tmp22));
-                    d0 = w494[0];
-                    d1 = w494[1];
-                    d2 = w494[2];
-                    d3 = w494[3];
-                    *(r6 + 0x85) = d0;
-                    *(r6 + 0x86) = d1;
-                    *(r6 + 0x87) = d2;
-                    *(r6 + 0x88) = d3;
-                    fclWriteColorBytes(&w490, 0x2D, 0x2D, 0x2D, 0xFF);
-                    func_002ba970(p->f2BC, (s8)(temp_16 + 0xC), w490);
+                    *(FclDrawColor *)(r6 + 0x85) = fc_w494;
+                    fc_w490 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+                    func_002ba970(p->f2BC, (s8)(temp_16 + 0xC), *(s32 *)&fc_w490);
                 } else {
                     *(s8 *)(func_002b6150((s16)((temp_16 + 0x27D))) + 0x6E) = -128;
                     *(s8 *)(func_002b6150((s16)(temp_21)) + 0x6E) = -128;
-                    fclWriteColorBytes(w48C, 0x49, 0x72, 0xFF, 0xFF);
+                    fc_w48C = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                     r2 = func_002b6150((s16)((temp_16 + 0x27D)));
-                    d0 = w48C[0];
-                    d1 = w48C[1];
-                    d2 = w48C[2];
-                    d3 = w48C[3];
-                    *(r2 + 0x85) = d0;
-                    *(r2 + 0x86) = d1;
-                    *(r2 + 0x87) = d2;
-                    *(r2 + 0x88) = d3;
+                    *(FclDrawColor *)(r2 + 0x85) = fc_w48C;
                     r3 = func_002b6150((s16)(temp_21));
-                    d0 = *(r2 + 0x85);
-                    d1 = *(r2 + 0x86);
-                    d2 = *(r2 + 0x87);
-                    d3 = *(r2 + 0x88);
-                    *(r3 + 0x85) = d0;
-                    *(r3 + 0x86) = d1;
-                    *(r3 + 0x87) = d2;
-                    *(r3 + 0x88) = d3;
-                    fclWriteColorBytes(w488, 0x49, 0x72, 0xFF, 0xFF);
+                    *(FclDrawColor *)(r3 + 0x85) = *(FclDrawColor *)(r2 + 0x85);
+                    fc_w488 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                     r4 = func_002b6150((s16)((temp_16 + 0x297)));
-                    d0 = w488[0];
-                    d1 = w488[1];
-                    d2 = w488[2];
-                    d3 = w488[3];
-                    *(r4 + 0x85) = d0;
-                    *(r4 + 0x86) = d1;
-                    *(r4 + 0x87) = d2;
-                    *(r4 + 0x88) = d3;
+                    *(FclDrawColor *)(r4 + 0x85) = fc_w488;
                     r5 = func_002b6150((s16)((temp_16 + 0x28B)));
-                    d0 = *(r4 + 0x85);
-                    d1 = *(r4 + 0x86);
-                    d2 = *(r4 + 0x87);
-                    d3 = *(r4 + 0x88);
-                    *(r5 + 0x85) = d0;
-                    *(r5 + 0x86) = d1;
-                    *(r5 + 0x87) = d2;
-                    *(r5 + 0x88) = d3;
-                    fclWriteColorBytes(w484, 0, 0, 0x66, 0xFF);
+                    *(FclDrawColor *)(r5 + 0x85) = *(FclDrawColor *)(r4 + 0x85);
+                    fc_w484 = func_002b2a60(0, 0, 0x66, 0xFF);
                     r6 = func_002b6150((s16)(tmp22));
-                    d0 = w484[0];
-                    d1 = w484[1];
-                    d2 = w484[2];
-                    d3 = w484[3];
-                    *(r6 + 0x85) = d0;
-                    *(r6 + 0x86) = d1;
-                    *(r6 + 0x87) = d2;
-                    *(r6 + 0x88) = d3;
-                    fclWriteColorBytes(&w480, 0xCC, 0xFF, 0xFF, 0xFF);
-                    func_002ba970(p->f2BC, (s8)(temp_16 + 0xC), w480);
+                    *(FclDrawColor *)(r6 + 0x85) = fc_w484;
+                    fc_w480 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
+                    func_002ba970(p->f2BC, (s8)(temp_16 + 0xC), *(s32 *)&fc_w480);
                 }
             }
             tmp21F = temp_16 + 0x21F;
@@ -1741,51 +1457,23 @@ void func_002fbea0(u8 *arg0) {
                 if (p->f11E == var_19) {
                     *(s8 *)(func_002b6150((s16)((temp_16 + 0x2C5))) + 0x6E) = -1;
                     *(s8 *)(func_002b6150((s16)(tmp21F)) + 0x6E) = -1;
-                    fclWriteColorBytes(w47C, 0xCC, 0xFF, 0x33, 0xFF);
+                    fc_w47C = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
                     r2 = func_002b6150((s16)((temp_16 + 0x2C5)));
-                    d0 = w47C[0];
-                    d1 = w47C[1];
-                    d2 = w47C[2];
-                    d3 = w47C[3];
-                    *(r2 + 0x85) = d0;
-                    *(r2 + 0x86) = d1;
-                    *(r2 + 0x87) = d2;
-                    *(r2 + 0x88) = d3;
+                    *(FclDrawColor *)(r2 + 0x85) = fc_w47C;
                     r3 = func_002b6150((s16)(tmp21F));
-                    d0 = *(r2 + 0x85);
-                    d1 = *(r2 + 0x86);
-                    d2 = *(r2 + 0x87);
-                    d3 = *(r2 + 0x88);
-                    *(r3 + 0x85) = d0;
-                    *(r3 + 0x86) = d1;
-                    *(r3 + 0x87) = d2;
-                    *(r3 + 0x88) = d3;
+                    *(FclDrawColor *)(r3 + 0x85) = *(FclDrawColor *)(r2 + 0x85);
                 } else {
                     *(s8 *)(func_002b6150((s16)((temp_16 + 0x2C5))) + 0x6E) = -128;
                     *(s8 *)(func_002b6150((s16)(tmp21F)) + 0x6E) = -128;
-                    fclWriteColorBytes(w478, 0, 0, 0x99, 0xFF);
+                    fc_w478 = func_002b2a60(0, 0, 0x99, 0xFF);
                     r2 = func_002b6150((s16)((temp_16 + 0x2C5)));
-                    d0 = w478[0];
-                    d1 = w478[1];
-                    d2 = w478[2];
-                    d3 = w478[3];
-                    *(r2 + 0x85) = d0;
-                    *(r2 + 0x86) = d1;
-                    *(r2 + 0x87) = d2;
-                    *(r2 + 0x88) = d3;
+                    *(FclDrawColor *)(r2 + 0x85) = fc_w478;
                     r3 = func_002b6150((s16)(tmp21F));
-                    d0 = *(r2 + 0x85);
-                    d1 = *(r2 + 0x86);
-                    d2 = *(r2 + 0x87);
-                    d3 = *(r2 + 0x88);
-                    *(r3 + 0x85) = d0;
-                    *(r3 + 0x86) = d1;
-                    *(r3 + 0x87) = d2;
-                    *(r3 + 0x88) = d3;
+                    *(FclDrawColor *)(r3 + 0x85) = *(FclDrawColor *)(r2 + 0x85);
                 }
             }
-            var_19 = (s64)((var_19 + 1) << 0x30) >> 0x30;
-            var_18 = (s64)((var_18 + 1) << 0x30) >> 0x30;
+            var_19 = (s16)(var_19 + 1);
+            var_18 = (s16)(var_18 + 1);
         }
         if ((s8)func_00314660(p->f148) == 6) {
             func_0011d1d0(func_003147d0(p->f148), 0.0f);
@@ -1800,7 +1488,7 @@ void func_002fbea0(u8 *arg0) {
         }
         var_19 = (s64)(p->f11E - p->f120);
         func_002b2970(&sp308, 254.0f + *(f32 *)(func_002b6150(0x69) + 0x38), 46.0f);
-        fclWriteColorBytes(&colW1, 0xFF, 0xFF, 0xFF, 0xFF);
+        fc_colW1 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
         tmpe = func_002e7a60();
         tmpv = (s32)func_0046a770(&D_00641B30);
         func_002cacd0(sp308, colW1, 0x10, 5, tmpe, 9, 0x37, tmpv, 47.0f, func_00331560(), 0x56);
@@ -1810,21 +1498,15 @@ void func_002fbea0(u8 *arg0) {
             temp_16 = (s16)(var_18);
             temp_21 = temp_16 + 0x270;
             temp_f20 = (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x42));
-            temp_f0 = func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x40)));
-            if (!(temp_f0 >= 2.1474836e9f)) {
-                var_3 = ((s32)(temp_f0)) & 0xFF;
-            } else {
-                var_3 = (((s32)((temp_f0 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-            }
-            temp_7 = var_3 & 0xFF;
+            temp_7 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s16)(temp_21)) + 0x40)));
             if (p->f11E == var_19) {
                 var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
-                fclWriteColorBytes(&colW2, 0x2D, 0x2D, 0x2D, temp_7);
+                fc_colW2 = func_002b2a60(0x2D, 0x2D, 0x2D, temp_7);
             } else {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
-                fclWriteColorBytes(&colW2, 0xCC, 0xFF, 0xFF, temp_7);
+                fc_colW2 = func_002b2a60(0xCC, 0xFF, 0xFF, temp_7);
             }
-            func_00275820(var_21, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 172.0f, (f32)(s32)((temp_16 * 0x17) + 0x96), 43.0f);
+            func_00275820(172.0f, (f32)(s32)((temp_16 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             sumA = func_001099f0(func_002e48a0(0, var_19), 0) & 0xFF;
             sumA += func_001099f0(func_002e48a0(0, var_19), 1) & 0xFF;
             sumA += func_001099f0(func_002e48a0(0, var_19), 2) & 0xFF;
@@ -1839,8 +1521,8 @@ void func_002fbea0(u8 *arg0) {
             saved = func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total);
             tmpv = (s32)func_0046a770(&D_00641B30);
             func_002cacd0(sp300, colW2, 0x10, 5, saved, 9, 0x37, tmpv, 47.0f, func_00331560(), 0xAA);
-            var_19 = (s64)((var_19 + 1) << 0x30) >> 0x30;
-            var_18 = (s64)((var_18 + 1) << 0x30) >> 0x30;
+            var_19 = (s16)(var_19 + 1);
+            var_18 = (s16)(var_18 + 1);
         }
         if (func_002b6970(*(s16 *)(func_002b6150(0x193) + 0x10), 1) == 0) {
             func_0032f4d0(arg0);

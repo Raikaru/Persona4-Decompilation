@@ -27,3 +27,34 @@ Oversized cases (retail/object): 0x8B 243/278, 0x8D 836/972, 0x98 1231/1329,
 0x9B 741/924, 0x9C 359/407. These still carry m2c temporaries (`s64`
 counters, duplicated `func_0034ae50` lookups) and need the same rewrite that
 002ed430 got.
+
+## Second pass (2026-09-25): 2963 -> 1465 (object 6537 / retail 6580)
+
+Each lever is listed with its casealign total afterwards.
+- `func_00275820`'s real float-first signature (2908).
+- **0x8B rewritten from the retail listing** (2773):
+  - an s16 `for` loop over `fB7`;
+  - `f11E` re-read at every use (retail `lh 0x11e` each time, with no `base`
+    temp);
+  - a chained `= 0xFF` alpha store;
+  - `FclDrawColor` values from `func_002b2a60` and struct copies.
+- **Byte-wise colour code converted to struct form by script** (2056):
+  - `fclWriteColorBytes(&wNNN, ...)` -> `FclDrawColor fc_wNNN =
+    func_002b2a60(...)`;
+  - `d0..d3` byte copies -> `*(FclDrawColor *)(e + 0x85) = ...`;
+  - the m2c float -> u8 saturation block -> `(u8)func_002b2aa0(...)`.
+- A greedy retype of the m2c `s64` temps to s16/s32 (1930).
+- Then `(s64)((x + 1) << 0x30) >> 0x30` -> `(s16)(x + 1)` (1547). Before the
+  retype this rewrite made things worse, because the variables were still
+  s64.
+- **Missing code restored in 0x98** (1465). The `D_008C0276 & 8` branch
+  (`f123 = 1`) moves sprites 0x2EA/0x2EB/0x2E2/0x2E3 to x = 336/556/336/556;
+  the draft had dropped all 84 of its instructions. Both the `& 8` and `& 4`
+  branches copy the sprite position into a local `FclVec2f` (retail
+  `swc1`/`swc1` then `ld`) rather than re-reading `ps + 0x38`.
+
+Largest remaining cases:
+- 0x98 (~349): `s64` temps still present (`dsll32 x, 0` pairs), `sq` spill
+  slots, colouring.
+- 0x8D (~259) and 0x9B (~239): the same shapes.
+- The frame: 0x430 against retail 0x500.
