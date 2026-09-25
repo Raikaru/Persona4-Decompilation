@@ -341,139 +341,117 @@ u32 func_003147d0(u8 *arg0) {
     return *(u32 *)(*(u8 **)(arg0 + 0x38) + 4);
 }
 
-/* measured (C147E0 lane 2026-09-17): probe_variants 367 differing words reloc-masked with `#pragma optimization_level 1` wrapper (bare O2 body 369w via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_003147e0 --candidate C147E0=docs/probe_archive/C147E0_003147e0_body.c`); fnalign retail 452 vs object 465 instrs (+13, +2.88% PASS) via fnalign --candidate /tmp/b147e0_o1.c --quiet; full pragma_sweep on banked floor: O1 367 <-- better, bare 369, O3/O4 393, schedule-on 394, peephole-off 413, O0 494. Signature (u8*,s8,s64,s16,s32,s32) per retail daddu/dsll24/dsra24 + 14ef0 addiu $7; local extern for 002b77d0(s16,s64,s16,s32,s64,s32,s64,s64,f32,s16,s32) inside body (no shared-top edit); s32 colours with lw; f32 spF0[4] for 29e0. Prior nd-156 body lost (bare INCLUDE_ASM, m2c seed does not compile); this is first compilable floor since. O3 wrapper measured 389w / 417 vs 449 (-7.1% short, FAIL, not banked). Wall remains rotation + normalization-placement per preserved note. */
-/* The position is the two-float value supplied by all callers. Its incoming
-   aggregate home replaces the old scalar snapshot; this provider remains
-   guarded (1860 bytes, 366 positional words in the 0ec5899 measurement). */
-// FUN_003147E0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma optimization_level 1
-void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s32 arg4, s32 arg5) {
-
-
-    s32 c15C;
-    s32 c158;
-    s32 c154;
-    s32 c150;
-    s32 c14C;
-    s32 c148;
-    s32 c144;
-    s64 sp138;
-    s64 sp130;
-    s64 sp128;
-    s64 sp120;
-    s64 sp118;
-    s64 sp110;
-    s64 sp108;
-    s64 sp100;
+/* measured: nd 0 (1800-byte object in the 1808-byte window, zero tail).
+   Recipe: the 14ef0 contract (s16 argument, s8 mode forwarded unconverted);
+   an s16 `base` spilled at 0xC0 with an s32 `order` copy in $s4; the 0x160
+   branch builds its points and colours inside the 77d0 arguments
+   (struct-return 2970). In the 0x174 row loop retail counts in the register
+   of the early resource id and carries each row resource in `base`'s web:
+   `for (id = 0, o2 = order + 4; ...) { r = id + 0x174; base = r; ... }`.
+   A fresh loop counter or resource local leaves a three-register rotation
+   (13 words) or is propagated away. opt_loop_invariants hoists the row
+   floats to the preheader. The row colour locals are assigned inside the
+   77d0 arguments only to give the colour temporaries their retail stack
+   homes (dropping them costs 8 words). */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_003147E0
+void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5) {
+    FclByte4 c15C;
+    FclByte4 c158;
+    FclByte4 c154;
+    FclByte4 c150;
+    FclByte4 c14C;
+    FclByte4 c148;
+    FclByte4 c144;
+    FclPackedPosition sp138;
+    FclPackedPosition sp130;
+    FclPackedPosition sp128;
+    FclPackedPosition sp120;
+    FclPackedPosition sp118;
+    FclPackedPosition sp110;
+    FclPackedPosition sp108;
+    FclPackedPosition sp100;
     FclBoundsPacket spF0;
-    s64 c0;
     u8 *t;
     u8 *h;
-    u8 *q;
-    u8 *q2;
-    u8 *q3;
-    u8 *q4;
-    u8 *q5;
     u8 **slot;
-    s64 v19;
-    s64 v23;
-    s64 v21;
-    s64 v20;
-    s64 v30;
-    s16 temp_16;
-    s16 temp_16_2;
-    s16 temp_16_3;
-    f32 f20;
-    f32 f21;
-    s32 i;
-    s32 li;
-    s32 lia;
+    s16 base;
+    s32 order;
+    s16 id;
+    s16 kind;
+    s32 r;
+    s32 two;
+    s32 o2;
+    f32 x;
+
     t = *(u8 **)(arg0 + 0x38);
-    v19 = (s8)arg1;
-    c0 = (s16)(v19 * 5 + 0x66);
-    v21 = (s16)arg3;
-    if (v21 == 0x16C) {
+    kind = arg3;
+    base = arg1 * 5 + 0x66;
+    if (kind == 0x16C) {
         func_002b2970((u8 *)&sp128, 67.0f, 175.0f);
-        func_00314ef0(arg0, v19, sp128, 0x16C, arg4, arg5);
+        func_00314ef0(arg0, arg1, sp128.position, 0x16C, arg4, arg5);
         return;
     }
-    v23 = v19 * 2;
-    temp_16 = (s16)(v23 + 0x1F4);
-    func_002b7750(temp_16, 0x1AC);
-    v20 = (s16)c0;
-    v30 = v20 + 2;
-    f20 = arg2.y;
-    func_002b2970((u8 *)&sp120, arg2.x, f20);
-    fclWriteColorBytes(&c15C, 0, 0, 0x66, 0xFF);
-    func_002b77d0(temp_16, fclPacketPosition(sp120), 0x1AC, fclPacketColor((u32)(c15C)), 154.0f, (s16)v30, arg5, 3, 3, arg4, func_00331560());
-    temp_16_2 = (s16)(v23 + 0x1F5);
-    func_002b7750(temp_16_2, 0x1AF);
-    func_002b2970((u8 *)&sp130, 258.0f + arg2.x, f20);
-    fclWriteColorBytes(&c158, 0, 0, 0x66, 0xFF);
-    func_002b77d0(temp_16_2, fclPacketPosition(sp130), 0x1AF, fclPacketColor((u32)(c158)), 154.0f, (s16)v30, arg5, 3, 3, arg4, func_00331560());
-    func_002b2970((u8 *)&sp138, *(f32 *)&sp130 - 28.0f, *((f32 *)&sp130 + 1));
-    temp_16_3 = (s16)(v19 + 0x2FB);
-    func_002b7750(temp_16_3, 0x131);
-    func_002b2970((u8 *)&sp130, 266.0f + arg2.x, f20);
-    fclWriteColorBytes(&c154, 0x25, 0x2F, 0x94, 0xFF);
-    func_002b77d0(temp_16_3, fclPacketPosition(sp138), 0x131, fclPacketColor((u32)(c154)), 153.0f, (s16)(v20 + 3), arg5, 3, 3, arg4, func_00331560());
-    func_002b68d0(temp_16_3, 0xE, 0);
+    two = arg1 * 2;
+    id = two + 0x1F4;
+    func_002b7750(id, 0x1AC);
+    order = base;
+    o2 = order + 2;
+    func_002b2970((u8 *)&sp120, arg2.x, arg2.y);
+    c15C = func_002b2a60(0, 0, 0x66, 0xFF);
+    func_002b77d0(id, sp120.position, 0x1AC, c15C, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    id = two + 0x1F5;
+    func_002b7750(id, 0x1AF);
+    func_002b2970((u8 *)&sp130, 258.0f + arg2.x, arg2.y);
+    c158 = func_002b2a60(0, 0, 0x66, 0xFF);
+    func_002b77d0(id, sp130.position, 0x1AF, c158, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    func_002b2970((u8 *)&sp138, sp130.position.x - 28.0f, sp130.position.y);
+    id = arg1 + 0x2FB;
+    func_002b7750(id, 0x131);
+    func_002b2970((u8 *)&sp130, 266.0f + arg2.x, arg2.y);
+    c154 = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
+    func_002b77d0(id, sp138.position, 0x131, c154, 153.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
+    func_002b68d0(id, 0xE, 0);
     h = func_0046d200(func_00331560(), 0x131);
-    slot = (u8 **)(t + v19 * 4 + 0x258);
-    q = func_002b81f0(*slot);
-    *(f32 *)(q + 0) = *(f32 *)&sp138;
-    *(f32 *)(q + 4) = *((f32 *)&sp138 + 1);
-    f21 = func_0046b260(h);
-    func_002b29e0((u8 *)&spF0, f21, func_0046b2f0(h));
-    q2 = func_002b81f0(*slot);
-    ((FclBoundsPacket *)(q2 + 8))->representation = spF0.representation;
-    q3 = func_002b81f0(*slot);
-    *(s32 *)(q3 + 0x120) = (s32)v20;
-    q4 = func_002b81f0(*slot);
-    *(f32 *)(q4 + 0x18) = 152.0f;
-    q5 = func_002b81f0(*slot);
-    *(u8 *)(q5 + 0x124) = 0;
+    slot = (u8 **)(t + 0x258) + arg1;
+    *(FclVec2 *)func_002b81f0(*slot) = sp138.position;
+    x = func_0046b260(h);
+    func_002b29e0((u8 *)&spF0, x, func_0046b2f0(h));
+    ((FclBoundsPacket *)(func_002b81f0(*slot) + 8))->representation = spF0.representation;
+    *(s32 *)(func_002b81f0(*slot) + 0x120) = order;
+    *(f32 *)(func_002b81f0(*slot) + 0x18) = 152.0f;
+    *(u8 *)(func_002b81f0(*slot) + 0x124) = 0;
     func_0046d280(h);
-    if (v21 == -1) {
+    if (kind == -1) {
         return;
     }
-    if (v21 == 0x174) {
-        v20 = v20 + 4;
-        f21 = 4.0f + f20;
-        f20 = 6.0f + arg2.x;
-        i = 0;
-        while ((s16)i < 2) {
-            li = (s16)i;
-            lia = (s16)(li + 0x174);
-            func_002b2970((u8 *)&sp118, f20 + (f32)(li * 0x67), f21);
-            fclWriteColorBytes(&c150, 0xCC, 0xFF, 0xFF, 0xFF);
-            func_002b77d0((s16)lia, fclPacketPosition(sp118), (s16)lia, fclPacketColor((u32)(c150)), 152.0f, (s16)v20, arg5, 3, 3, arg4, func_00331560());
-            i = (s16)(i + 1);
+    if (kind == 0x174) {
+        extern FclVec2 func_002b2970(f32, f32);
+
+        for (id = 0, o2 = order + 4; id < 2; id++) {
+            r = id + 0x174;
+            base = r;
+            func_002b77d0(base, sp118.position = func_002b2970(6.0f + arg2.x + (f32)(id * 0x67), 4.0f + arg2.y), r,
+                          c150 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, o2, arg5, 3, 3, arg4, func_00331560());
         }
         return;
     }
-    if ((datGetFlag(0x1305) != 0) && (v21 == 0x160)) {
-        v20 = v20 + 4;
-        f21 = 4.0f + f20;
-        f20 = 6.0f + arg2.x;
-        func_002b2970((u8 *)&sp110, f20, f21);
-        fclWriteColorBytes(&c14C, 0xCC, 0xFF, 0xFF, 0xFF);
-        func_002b77d0(0x160, fclPacketPosition(sp110), 0x160, fclPacketColor((u32)(c14C)), 152.0f, (s16)v20, arg5, 3, 3, arg4, func_00331560());
+    if (datGetFlag(0x1305) != 0 && kind == 0x160) {
+        extern FclVec2 func_002b2970(f32, f32);
+
+        func_002b77d0(0x160, sp110.position = func_002b2970(6.0f + arg2.x, 4.0f + arg2.y), 0x160,
+                      c14C = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, base + 4, arg5, 3, 3, arg4, func_00331560());
         func_002b7750(0x2EB, 0x16F);
-        func_002b2970((u8 *)&sp108, 100.0f + f20, f21);
-        fclWriteColorBytes(&c148, 0xCC, 0xFF, 0xFF, 0xFF);
-        func_002b77d0(0x2EB, fclPacketPosition(sp108), 0x16F, fclPacketColor((u32)(c148)), 152.0f, (s16)v20, arg5, 3, 3, arg4, func_00331560());
+        func_002b77d0(0x2EB, sp108.position = func_002b2970(100.0f + (6.0f + arg2.x), 4.0f + arg2.y), 0x16F,
+                      c148 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, base + 4, arg5, 3, 3, arg4, func_00331560());
         return;
     }
-    func_002b2970((u8 *)&sp100, 6.0f + arg2.x, 4.0f + f20);
-    fclWriteColorBytes(&c144, 0xCC, 0xFF, 0xFF, 0xFF);
-    func_002b77d0((s16)v21, fclPacketPosition(sp100), (s16)v21, fclPacketColor((u32)(c144)), 152.0f, (s16)(v20 + 4), arg5, 3, 3, arg4, func_00331560());
+    func_002b2970((u8 *)&sp100, 6.0f + arg2.x, 4.0f + arg2.y);
+    c144 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
+    func_002b77d0(arg3, sp100.position, arg3, c144, 152.0f, order + 4, arg5, 3, 3, arg4, func_00331560());
 }
-#pragma optimization_level 2
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003147e0);
-#endif
+#pragma pop
 /* measured: nd 0. Exact recipe: FclVec2 position parameter (spilled to 0xC8)
    with s8 slot, s16 resource/argument and s8 mode parameters; `o2 = order + 2`
    staged right after the first 7750 call; slot pointer spelled
