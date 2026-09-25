@@ -1,6 +1,6 @@
 /* Research only; production func_00304580 remains INCLUDE_ASM (see
- * FclCombine_00304580_20260925.md). Object 4623 vs retail 4560 instrs;
- * fnalign 892 edits (guarded draft 3065); per-case aligned edits 796. */
+ * FclCombine_00304580_20260925.md). Object 4595 vs retail 4560 instrs;
+ * per-case aligned edits 706 (previous archive 796). */
 typedef struct {
     s8 f0;
     u8 f1;
@@ -39,6 +39,11 @@ typedef struct {
     u8 pad311[0xF];
 } FclCombineMenu;
 
+typedef struct {
+    u8 pad0[0x154];
+    u8 *list;
+} FclRowList;
+
 void func_00304580(u8 *arg0) {
     FclDrawColor col2FC;
     FclDrawColor col2F8;
@@ -67,7 +72,7 @@ void func_00304580(u8 *arg0) {
     extern void func_0011d140(u8 *, s32);
     extern void *func_00243840(u16);
     extern s32 func_00275520(s32, s32, s32, s32, s32, s32, const char *, f32, f32, f32);
-    extern s32 func_00275820(s32, s32, s32, s32, s32, s32, const char *, s32, f32, f32, f32);
+    extern int func_00275820(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
     extern void func_002b2970(s64 *, f32, f32);
     extern s32 func_002b2a30(u8, u8, u8, u8);
     extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
@@ -290,13 +295,15 @@ void func_00304580(u8 *arg0) {
     s16 var_16_4;
     s16 var_16_5;
     s16 var_18;
-    s32 var_18_2;
+    s16 var_18_2;
     s16 var_18_5;
     s16 var_18_6;
     s16 var_18_7;
     s16 var_18_8;
     s16 var_18_9;
-    s32 var_19;
+    s16 var_19;
+    u8 *posSrc;
+    s32 rowX;
     s16 var_19_2;
     s16 var_19_3;
     s16 var_19_4;
@@ -378,9 +385,9 @@ void func_00304580(u8 *arg0) {
     u8 temp_6;
     u8 temp_6_2;
     u8 temp_7;
-    u8 *temp_16_3;
+    FclRowList *temp_16_3;
     u8 *temp_16_40;
-    u8 *temp_16_8;
+    FclRowList *temp_16_8;
     FclCombineMenu *temp_17;
     u8 slotByte;
     s8 partyCount;
@@ -540,7 +547,7 @@ void func_00304580(u8 *arg0) {
         for (var_16_2 = 0; var_16_2 < (func_0010b5b0() & 0xFFFF); var_16_2++) {
             func_0031d630(arg0, (s8)(var_16_2), -1, -1, 0);
         }
-        if ((((s8)(func_00314660((u8 *)temp_17->f148))) < 0) || (((s8)(func_00314660((u8 *)temp_17->f148))) >= 6)) {
+        if ((((s8)(func_00314660((u8 *)temp_17->f148))) < 0) || (((s8)(func_00314660((u8 *)temp_17->f148))) > 5)) {
             if (D_008C027A[0] & 0x1000) {
                 temp_17->f11E = func_002b2d00((s8) temp_17->f11E, 1, 0, (func_0010b5b0() & 0xFFFF) - 1, 2);
                 func_0045af60(0, 0, 0, 0);
@@ -565,24 +572,21 @@ void func_00304580(u8 *arg0) {
                 for (var_18 = 0; var_18 < (func_0010b5b0() & 0xFFFF); var_18++) {
                     sp11C = func_0046d200(func_00331560(), 0x77);
                     temp_16_2 = (s16)var_18;
+                    rowX = temp_16_2 * 0x17;
                     temp_21 = (s16 *)(func_0034ae50((u8 *)temp_17->f184, (s8)(var_18)));
-                    func_002b2970(&sp288, (f32) ((temp_16_2 * 0x17) + 0x149), 104.0f);
+                    func_002b2970(&sp288, (f32) (rowX + 0x149), 104.0f);
                     col2F8 = func_002b2a60(0, 0, 0x99, 0xFF);
                     col2F4 = func_002b2a60(0, 0, 0x99, 0xFF);
-                    func_002b83e0((u8 *)temp_21, fclDrawPositionValue(fclPacketPosition(sp288)), fclPacketColor((u32)((*(s32 *)&col2F8))), fclPacketColor((u32)((*(s32 *)&col2F4))), 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 1, 0);
-                    var_19 = 0;
-                    temp_16_3 = (u8 *)(temp_17 + (temp_16_2 * 4));
-loop_64:
-                    if (((s16)(var_19)) < (func_0010b5b0() & 0xFFFF)) {
-                        temp_30 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_3)+(0x154))), (s8)(var_19)));
-                        func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_3)+(0x154))), (s8)(var_19));
-                        temp_22 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_3)+(0x154))), (s8)(var_19)));
-                        temp_23 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_3)+(0x154))), (s8)(var_19)));
-                        sp100 = func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_3)+(0x154))), (s8)(var_19));
-                        spF0 = func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_3)+(0x154))), (s8)(var_19));
-                        func_002b83e0((u8 *)temp_30, fclDrawPositionValue(fclPacketPosition(0)), fclPacketColor((u32)(((*(u8 *)((u8 *)(temp_22)+(0x78)))))), fclPacketColor((u32)(((*(u8 *)((u8 *)(temp_23)+(0x78)))))), (*(u8 *)(sp100+0x5E)), (*(u8 *)(spF0+0x5E)), 32.0f, (*(f32 *)((u8 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_3)+(0x154))), (s8)(var_19)))+(4))), 3, 0, 1, 0);
-                        var_19 = (s16)((var_19 + 1));
-                        goto loop_64;
+                    func_002b83e0((u8 *)temp_21, *(FclDrawPosition *)&sp288, col2F8, col2F4, 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 1, 0);
+                    temp_16_3 = (FclRowList *)((u8 *)temp_17 + temp_16_2 * 4);
+                    for (var_19 = 0; var_19 < (func_0010b5b0() & 0xFFFF); var_19++) {
+                        temp_30 = (s16 *)(func_0034ae50(temp_16_3->list, (s8)(var_19)));
+                        posSrc = func_0034ae50(temp_16_3->list, (s8)(var_19));
+                        temp_22 = (s16 *)(func_0034ae50(temp_16_3->list, (s8)(var_19)));
+                        temp_23 = (s16 *)(func_0034ae50(temp_16_3->list, (s8)(var_19)));
+                        sp100 = func_0034ae50(temp_16_3->list, (s8)(var_19));
+                        spF0 = func_0034ae50(temp_16_3->list, (s8)(var_19));
+                        func_002b83e0((u8 *)temp_30, *(FclDrawPosition *)(posSrc + 0x28), *(FclDrawColor *)((u8 *)temp_22 + 0x75), *(FclDrawColor *)((u8 *)temp_23 + 0x75), (*(u8 *)(sp100+0x5E)), (*(u8 *)(spF0+0x5E)), 32.0f, (*(f32 *)((u8 *)(func_0034ae50(temp_16_3->list, (s8)(var_19)))+(4))), 3, 0, 1, 0);
                     }
                     func_0046d280(sp11C);
                     temp_19_2 = (s16)(var_18);
@@ -622,22 +626,18 @@ loop_64:
                         func_002b2970(&sp258, (f32) (temp_21_3 + 0x149), 104.0f);
                         col2F0 = func_002b2a60(0, 0, 0x99, 0xFF);
                         col2EC = func_002b2a60(0, 0, 0x99, 0xFF);
-                        func_002b83e0((u8 *)temp_18_2, fclDrawPositionValue(fclPacketPosition(sp258)), fclPacketColor((u32)((*(s32 *)&col2F0))), fclPacketColor((u32)((*(s32 *)&col2EC))), 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 1, 0);
-                        var_18_2 = 0;
-                        temp_16_8 = (u8 *)(temp_17 + (temp_16_7 * 4));
+                        func_002b83e0((u8 *)temp_18_2, *(FclDrawPosition *)&sp258, col2F0, col2EC, 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 1, 0);
+                        temp_16_8 = (FclRowList *)((u8 *)temp_17 + temp_16_7 * 4);
                         spE0 = temp_21_3 + 0x7F;
-loop_73:
-                        temp_21_4 = (s16)var_18_2;
-                        if (temp_21_4 < (func_0010b5b0() & 0xFFFF)) {
-                            spD0 = func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_8)+(0x154))), (s8)(var_18_2));
+                        for (var_18_2 = 0; var_18_2 < (func_0010b5b0() & 0xFFFF); var_18_2++) {
+                            temp_21_4 = var_18_2;
+                            spD0 = func_0034ae50(temp_16_8->list, (s8)(var_18_2));
                             func_002b2970(&sp250, (f32) ((temp_21_4 * 0x17) + 0x149), (f32) spE0);
-                            temp_21_5 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_8)+(0x154))), (s8)(var_18_2)));
-                            temp_22_2 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_8)+(0x154))), (s8)(var_18_2)));
-                            temp_23_2 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_8)+(0x154))), (s8)(var_18_2)));
-                            temp_30_2 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_8)+(0x154))), (s8)(var_18_2)));
-                            func_002b83e0(spD0, fclDrawPositionValue(fclPacketPosition(sp250)), fclPacketColor((u32)(((*(u8 *)((u8 *)(temp_21_5)+(0x78)))))), fclPacketColor((u32)(((*(u8 *)((u8 *)(temp_22_2)+(0x78)))))), (*(u8 *)((u8 *)(temp_23_2)+(0x5E))), (*(u8 *)((u8 *)(temp_30_2)+(0x5E))), 32.0f, (*(f32 *)((u8 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_8)+(0x154))), (s8)(var_18_2)))+(4))), 3, 0, 1, 0);
-                            var_18_2 = (s16)((var_18_2 + 1));
-                            goto loop_73;
+                            temp_21_5 = (s16 *)(func_0034ae50(temp_16_8->list, (s8)(var_18_2)));
+                            temp_22_2 = (s16 *)(func_0034ae50(temp_16_8->list, (s8)(var_18_2)));
+                            temp_23_2 = (s16 *)(func_0034ae50(temp_16_8->list, (s8)(var_18_2)));
+                            temp_30_2 = (s16 *)(func_0034ae50(temp_16_8->list, (s8)(var_18_2)));
+                            func_002b83e0(spD0, *(FclDrawPosition *)&sp250, *(FclDrawColor *)((u8 *)temp_21_5 + 0x75), *(FclDrawColor *)((u8 *)temp_22_2 + 0x75), (*(u8 *)((u8 *)(temp_23_2)+(0x5E))), (*(u8 *)((u8 *)(temp_30_2)+(0x5E))), 32.0f, (*(f32 *)((u8 *)(func_0034ae50(temp_16_8->list, (s8)(var_18_2)))+(4))), 3, 0, 1, 0);
                         }
                         temp_18_3 = (s16)(var_19_2);
                         temp_16_9 = (s16)((temp_18_3 + 0x25E));
@@ -679,7 +679,7 @@ loop_73:
         }
         break;
     case 0x7D:                                      /* switch 1 */
-        if ((((s8)(func_00314660((u8 *)temp_17->f148))) < 0) || (((s8)(func_00314660((u8 *)temp_17->f148))) >= 6)) {
+        if ((((s8)(func_00314660((u8 *)temp_17->f148))) < 0) || (((s8)(func_00314660((u8 *)temp_17->f148))) > 5)) {
             for (var_16_4 = 0; var_16_4 < (func_0010b5b0() & 0xFFFF); var_16_4++) {
                 func_002b2970(&sp230, 16.0f, 128.0f);
                 temp_19_4 = (*(u16 *)((u8 *)(func_002e48a0(0, var_16_4))+(2)));
@@ -726,14 +726,14 @@ loop_73:
         temp_2_4 = (u8 *)(func_002b6150(0x7C));
         sp160 = *(FclVec2f *)(temp_2_4 + 0x38);
         temp_16_13 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_12);
-        func_00275820(temp_16_13, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_7->f128))+(2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp160.x, sp160.y, 43.0f);
+        func_00275820(111.0f + sp160.x, sp160.y, 43.0f, temp_16_13, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_7->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_4 = 0; var_19_4 < (func_0010b5b0() & 0xFFFF); var_19_4++) {
             func_0031d630(arg0, (s8)(var_19_4), temp_17->f128, temp_17->f129, 0);
             if ((((s16)(func_002b6970((*(s16 *)((u8 *)(func_002b6150((s16)((var_19_4 + 0x270))))+(0x10))), 1))) == 0) && (temp_17->f128 != var_19_4) && ((*(s8 *)((u8 *)((func_002e4870(0) + (temp_17->f128 * 0xC) + var_19_4))+(0x14))) > 0)) {
                 if (var_19_4 == temp_17->f11E) {
                     temp_18_8 = (s16)(var_19_4);
                     temp_23_3 = temp_18_8 + 0x27D;
-                    temp_30_3 = temp_18_8 + 0x270;
+                    temp_30_3 = temp_18_8 + 0x270U;
                     (*(s8 *)((u8 *)(func_002b6150((s16)(temp_23_3)))+(0x6E))) = 0xFF;
                     (*(s8 *)((u8 *)(func_002b6150((s16)(temp_30_3)))+(0x6E))) = (s8) (0xFF & 0xFF);
                     col2E8 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
@@ -767,7 +767,7 @@ loop_73:
                 } else {
                     temp_18_9 = (s16)(var_19_4);
                     temp_21_8 = temp_18_9 + 0x27D;
-                    temp_22_3 = temp_18_9 + 0x270;
+                    temp_22_3 = temp_18_9 + 0x270U;
                     (*(s8 *)((u8 *)(func_002b6150((s16)(temp_21_8)))+(0x6E))) = 0xCC;
                     (*(s8 *)((u8 *)(func_002b6150((s16)(temp_22_3)))+(0x6E))) = (s8) (0xCC & 0xFF);
                     col2DC = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
@@ -797,7 +797,7 @@ loop_73:
                 func_00275520(var_18_4, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0((s8)((temp_17->f128 + 1)), var_19_4))+(2))) * 0x11), 0, 0, (const char *)D_00795E60, (f32) 0x195, temp_f20, 43.0f);
             }
         }
-        if ((((s8)(func_00314660((u8 *)temp_17->f148))) < 0) || (((s8)(func_00314660((u8 *)temp_17->f148))) >= 6)) {
+        if ((((s8)(func_00314660((u8 *)temp_17->f148))) < 0) || (((s8)(func_00314660((u8 *)temp_17->f148))) > 5)) {
             if (D_008C027A[0] & 0x1000) {
                 temp_17->f11E = func_002b2d00((s8) temp_17->f11E, 1, 0, (*(s32 *)((u8 *)(func_002e4870(0))+(8))) - 1, 2);
                 func_0045af60(0, 0, 0, 0);
@@ -938,7 +938,7 @@ loop_73:
         temp_2_24 = (u8 *)(func_002b6150(0x7C));
         sp158 = *(FclVec2f *)(temp_2_24 + 0x38);
         temp_16_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_20);
-        func_00275820(temp_16_21, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_11->f128))+(2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp158.x, sp158.y, 43.0f);
+        func_00275820(111.0f + sp158.x, sp158.y, 43.0f, temp_16_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_11->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (((s16)(func_002b6970((*(s16 *)((u8 *)(func_002b6150(0x270))+(0x10))), 1))) != 1) {
             func_00314450((u8 *)temp_17->f148, func_002e48a0(0, temp_17->f11E), 0, 0);
             temp_16_22 = (s32)(func_003147d0((u8 *)temp_17->f148));
@@ -954,8 +954,8 @@ loop_73:
         temp_2_25 = (u8 *)(func_002b6150(0x7C));
         sp150 = *(FclVec2f *)(temp_2_25 + 0x38);
         temp_16_24 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_23);
-        func_00275820(temp_16_24, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_12->f128))+(2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp150.x, sp150.y, 43.0f);
-        if ((((s8)(func_00314660((u8 *)temp_17->f148))) < 0) || (((s8)(func_00314660((u8 *)temp_17->f148))) >= 6)) {
+        func_00275820(111.0f + sp150.x, sp150.y, 43.0f, temp_16_24, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_12->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        if ((((s8)(func_00314660((u8 *)temp_17->f148))) < 0) || (((s8)(func_00314660((u8 *)temp_17->f148))) > 5)) {
             for (var_18_8 = 0; var_18_8 < (func_0010b5b0() & 0xFFFF); var_18_8++) {
                 func_002b2970(&sp1C0, (f32) 0x149, 128.0f);
                 temp_16_25 = (u16)((*(u16 *)((u8 *)(func_002e48a0((s8)((temp_17->f128 + 1)), var_18_8))+(2))));
@@ -983,7 +983,7 @@ loop_73:
         temp_2_26 = (u8 *)(func_002b6150(0x7C));
         sp148 = *(FclVec2f *)(temp_2_26 + 0x38);
         temp_16_28 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_27);
-        func_00275820(temp_16_28, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_13->f128))+(2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp148.x, sp148.y, 43.0f);
+        func_00275820(111.0f + sp148.x, sp148.y, 43.0f, temp_16_28, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_13->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_5 = 0; var_19_5 < (func_0010b5b0() & 0xFFFF); var_19_5++) {
             func_0031d630(arg0, (s8)(var_19_5), temp_17->f128, temp_17->f129, 0);
             if (var_19_5 == temp_17->f11E) {
@@ -1156,7 +1156,7 @@ loop_73:
         temp_2_36 = (u8 *)(func_002b6150(0x7C));
         sp140 = *(FclVec2f *)(temp_2_36 + 0x38);
         temp_16_35 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_34);
-        func_00275820(temp_16_35, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_15->f128))+(2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp140.x, sp140.y, 43.0f);
+        func_00275820(111.0f + sp140.x, sp140.y, 43.0f, temp_16_35, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_15->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_6 = 0; var_19_6 < (func_0010b5b0() & 0xFFFF); var_19_6++) {
             func_0031d630(arg0, (s8)(var_19_6), temp_17->f128, temp_17->f129, 0);
             if (((s16)(func_002b6970((*(s16 *)((u8 *)(func_002b6150((s16)((var_19_6 + 0x270))))+(0x10))), 1))) == 0) {
