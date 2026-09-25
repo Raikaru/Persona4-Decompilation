@@ -3211,119 +3211,95 @@ void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
         }
     }
 }
-/* No banked body archived (docs/probe_archive/P01C_003218a0_body.c is a 1-line placeholder); retained as bare */
-/* INCLUDE_ASM. Prior best-of-3 references a missing preserved body and is not currently reproducible with */
-/* --candidate. WALL per prior shape work (preserved here for reuse): lwr/lwl 0x75/0x78 are */
-/* plain *(u32 *)(p + 0x75) on heap func_0034ae50 results; sq/lq 0x120..0xC0 are mwcc spills of s32 */
-/* loop-invariant locals (not source u_long128); residuals are loop-CSE of (s16)i normalize, m2 spill to 0x110 */
-/* (frame 0x160 vs 0x170), and saved-reg rotation (arg1->$s6/t->$fp/v->$s7/i->$s5 vs $s5/$s7/$s6/$s2). */
-/* Shapes that match: s32 v = (s16)arg1 raw to 6af0/69f0, sp16C..sp158 s32, 2a60 FclByte4 chains, inner if/else */
-/* with 2e4870(0)+sp100+(s16)j+0x14 lb test, 83e0 6-call block, for(i=0;(s16)i<(u16)func_0010b5b0();i=(s16)(i+1)) */
-/* with m=n*23, 25E/14E/7F constants, sq'd sp120 = v+3 reloaded as (s16) for 6a70. */
-/* Fresh 2026-09-17 (this lane, last in order after 004941f0/00347c70/003212e0): no new source probing -- prior best-of-3 body still missing so no --candidate re-measurement possible (P01C placeholder still 1-line, verified). 3212e0 PTR lever in this same file applies verbatim here per the sq/lq spill line above: use s32/u8* locals, never source u_long128, for the 0x120..0xC0 slots (u_long128 would widen frame 0x170 further, same family as 3212e0 0xF0->0x100); lwr/lwl stay plain *(u32*)(p+0x75) per preserved shapes (do not re-try u8-byte or s32-index forms); guarded (u8)(s32)f where present uses the shared 2.1474836e9f idiom per conventions. Production stays INCLUDE_ASM; wall stands as documented (heap unaligned-load + loop-CSE/spill/saved-reg rotation). */
-/* measured (FclDrawB 2026-09-17): probe_variants 264 differing words reloc-masked via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_003218a0 --candidate V1=/var/tmp/drawB/c218a0_v1.c`; fnalign retail 366 vs object 357 instrs (206 edits) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_003218a0 --candidate /var/tmp/drawB/c218a0_v1.c --quiet`; 9 short (2.5% within 3% rule). Ports 003212e0 PTR lever (plain u8* for sq slots, never u_long128; u8[4] per-byte colours for lbu/sb; s32 v=(s16)arg1 raw to 6af0/69f0; iGpffff8504 for 6af0 7th arg). Prior best 273; this 264 is new best. Wall remains loop-CSE/spill/rotation per preserved note. */
-// FUN_003218A0 NONMATCHING
-#ifdef NON_MATCHING
-void func_003218a0(u8 *arg0, s64 arg1) {
-    u8 c16C[4];
-    u8 c168[4];
-    u8 c164[4];
-    u8 c160[4];
-    u8 c15C[4];
-    u8 c158[4];
-    s64 sp150;
-    s64 sp148;
-    s64 sp140;
-    s64 sp138;
-    s32 sp120;
-    s32 sp110;
-    s32 sp100;
-    s32 spF0;
-    u8 *spE0;
-    u8 *spD0;
-    u8 *spC0;
+/* measured: nd 0 (1468-byte object in the 1472-byte window, zero tail).
+   Recipe: opt_loop_invariants hoists the inner-loop row offset (i * 12) and
+   spills it; the 6a70 delay is `order + 3` through the s16 prototype, so the
+   invariant sum is spilled raw and narrowed at each call. Points come from
+   the struct-return 2970 inside the consuming 83e0/69f0 calls; `r` is kept
+   alive into 69f0 so it takes $fp. Both loop counters are zeroed before the
+   statements that follow them (`i = 0` before `order`, `j = 0` before the
+   row pointer), which gives retail's saved-register assignment. The table
+   test reads `((s8 *)func_002e4870(0))[row + j + 0x14]` for row-first
+   addressing. The first two colours are named inside the 83e0 arguments
+   only to give their temporaries retail's stack homes (24 words without). */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_003218A0
+void func_003218a0(u8 *arg0, s32 arg1) {
+    extern FclDrawPosition func_002b2970(f32, f32);
+    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s32);
+    extern void func_002b6a70(s16, u8, u8, s32, s32, s16);
+    FclDrawColor c16C;
+    FclDrawColor c168;
+    FclDrawColor c164;
+    FclDrawColor c160;
+    FclDrawColor c15C;
+    FclDrawColor c158;
     u8 *t;
-    s32 v;
-    s32 i;
-    s32 j;
-    s32 m;
-    s16 m2;
-    u8 *h;
     u8 *e;
+    u8 *h;
+    s16 order;
+    s16 i;
+    s16 j;
+    s16 res;
+    s32 r;
+    s32 x;
+    s32 xx;
+    s32 row;
+    s32 y;
     u8 *p;
+
     t = *(u8 **)(arg0 + 0x38);
-    v = (s16)arg1;
-    sp120 = v + 3;
     i = 0;
-    while ((s16)i < (s16)(u16)func_0010b5b0()) {
-        m = (s16)i * 23;
-        e = func_0034ae50(*(u8 **)(t + 0x184), (s8)i);
-        func_002b2970((u8 *)&sp150, (f32)(m + 0x149), 104.0f);
-        fclWriteColorBytes(c16C, 0, 0, 0x99, 0xFF);
-        fclWriteColorBytes(c168, 0, 0, 0x99, 0xFF);
-        func_002b83e0(e, fclDrawPositionValue(fclPacketPosition(sp150)), fclPacketColor((u32)(*(s32 *)c16C)), fclPacketColor((u32)(*(s32 *)c168)), 0xFF, 0xFF, 32.0f, 159.0f, 2, v, 0, 0);
-        m2 = (s16)((s16)i + 0x25E);
+    order = arg1;
+    for (; i < (u16)func_0010b5b0(); i++) {
+        x = i * 23;
+        e = func_0034ae50(*(u8 **)(t + 0x184), i);
+        func_002b83e0(e, func_002b2970(x + 0x149, 104.0f),
+                      c16C = func_002b2a60(0, 0, 0x99, 0xFF), c168 = func_002b2a60(0, 0, 0x99, 0xFF),
+                      0xFF, 0xFF, 32.0f, 159.0f, 2, order, 0, 0);
+        r = i + 0x25E;
+        res = r;
         h = func_0046d200(func_00331560(), 0x39);
-        func_002b6a70(m2, 0, 0xFF, 0, 0, (s16)sp120);
-        func_002b6af0(m2, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg1);
-        sp110 = m + 0x14E;
-        func_002b2970((u8 *)&sp148, (f32)sp110, 110.0f + func_0046b2f0(h) / 2.0f);
-        func_002b2970((u8 *)&sp140, (f32)sp110, 110.0f);
-        func_002b69f0(m2, *(FclVec2 *)&sp148, *(FclVec2 *)&sp140, 0, 3, arg1);
-        func_002b68d0(m2, 0, 0);
+        func_002b6a70(res, 0, 0xFF, 0, 0, order + 3);
+        func_002b6af0(res, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg1);
+        xx = x + 0x14E;
+        func_002b69f0(r, func_002b2970(xx, 110.0f + func_0046b2f0(h) / 2.0f).position, func_002b2970(xx, 110.0f).position, 0, 3, arg1);
+        func_002b68d0(res, 0, 0);
         func_0046d280(h);
         j = 0;
-        p = t + (s16)i * 4;
-        sp100 = (s16)i * 12;
-        spF0 = m + 0x7F;
-        while ((s16)j < (s16)(u16)func_0010b5b0()) {
-            if (*(s16 *)(t + 0x11E) == (s16)i) {
-                fclWriteColorBytes(c164, 0x2D, 0x2D, 0x2D, 0xFF);
-                e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-                e[0x75] = c164[0];
-                e[0x76] = c164[1];
-                e[0x77] = c164[2];
-                e[0x78] = c164[3];
-                if (*(s8 *)(func_002e4870(0) + sp100 + (s16)j + 0x14) > 0) {
-                    fclWriteColorBytes(c160, 0xCC, 0xFF, 0x33, 0xFF);
-                    e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-                    e[0x75] = c160[0];
-                    e[0x76] = c160[1];
-                    e[0x77] = c160[2];
-                    e[0x78] = c160[3];
+        p = t + i * 4;
+        row = i * 12;
+        y = x + 0x7F;
+        for (; j < (u16)func_0010b5b0(); j++) {
+            if (*(s16 *)(t + 0x11E) == i) {
+                c164 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+                *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x75) = c164;
+                if (((s8 *)func_002e4870(0))[row + j + 0x14] > 0) {
+                    c160 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
+                    *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x75) = c160;
                 }
             } else {
-                fclWriteColorBytes(c15C, 0, 0, 0x99, 0xA5);
-                e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-                e[0x75] = c15C[0];
-                e[0x76] = c15C[1];
-                e[0x77] = c15C[2];
-                e[0x78] = c15C[3];
-                if (*(s8 *)(func_002e4870(0) + sp100 + (s16)j + 0x14) > 0) {
-                    fclWriteColorBytes(c158, 0x49, 0x72, 0xFF, 0xCC);
-                    e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-                    e[0x75] = c158[0];
-                    e[0x76] = c158[1];
-                    e[0x77] = c158[2];
-                    e[0x78] = c158[3];
+                c15C = func_002b2a60(0, 0, 0x99, 0xA5);
+                *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x75) = c15C;
+                if (((s8 *)func_002e4870(0))[row + j + 0x14] > 0) {
+                    c158 = func_002b2a60(0x49, 0x72, 0xFF, 0xCC);
+                    *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x75) = c158;
                 }
             }
-            spE0 = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-            func_002b2970((u8 *)&sp138, (f32)((s16)j * 23 + 0x149), (f32)spF0);
-            e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-            spD0 = e;
-            e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-            spC0 = e;
-            e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-            func_002b83e0(spE0, fclDrawPositionValue(fclPacketPosition(sp138)), fclPacketColor((u32)(*(u32 *)(spD0 + 0x75))), fclPacketColor((u32)(*(u32 *)(spC0 + 0x75))), *(u8 *)(spD0 + 0x78), *(u8 *)(spC0 + 0x78), 32.0f, *(f32 *)(e + 4), 3, v, 0, 0);
-            j = (s16)(j + 1);
+            func_002b83e0(func_0034ae50(*(u8 **)(p + 0x154), j),
+                          func_002b2970(j * 23 + 0x149, y),
+                          *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x75),
+                          *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x75),
+                          *(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x78),
+                          *(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x78),
+                          32.0f,
+                          *(f32 *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 4),
+                          3, order, 0, 0);
         }
-        i = (s16)(i + 1);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003218a0);
-#endif
+#pragma pop
 
 // measured: nd N/A (ldr/ldl unaligned 8B loads + draw-family). M2C_ERROR on ldr/ldl at 0x28/0x2f; the 6c30/69f0/6a70 s64-arg normalization floor also applies. Unaligned-load + s64-param floor.
 /* v1 dispatcher floor (00321e60): m2c + romwright agree on (u8*,s64,u8,u8), D_008C flag arms with early 45af60 returns, 10b5b0-bound s16-counter loops, 34ae50+83e0/46d-mini blocks in 00323d00/003218a0 idiom (s32 colour words, *(s64*)(p+0x28) ldr/ldl pair, global f32 callees, block-scope externs for 2f9c30/2e4ac0/45af60 + u16 D_008C + f32 D_00644150). */
