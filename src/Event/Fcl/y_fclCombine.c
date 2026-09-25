@@ -188,8 +188,9 @@ extern u8 D_006407C0[];
 extern u16 func_001102d0(void);
 extern u16 func_00109470(u16);
 extern void func_00110270(u8 *, u16);
-extern void func_001102c0(s16);
+extern void func_001102c0(u16);
 extern u8 D_00749350[];
+extern u16 func_003095f0(void);
 
 
 
@@ -8998,12 +8999,12 @@ void func_00304580(u8 *arg0) {
     extern u16 *func_00308cc0(u8 *);
     extern s32 func_00308dc0(u8 *);
     extern s32 func_00308e50(u8 *);
-    extern s32 func_003095f0(void);
+    extern u16 func_003095f0(void);
     extern s32 func_00309630(u16);
     extern s32 func_003096d0(u8 *);
     extern s32 func_0010cd70(u8 *, s32, u16);
     extern void func_00110270(u8 *, u16);
-    extern void func_001102c0(s16);
+    extern void func_001102c0(u16);
     extern s32 func_001102d0(void);
     extern u16 *func_001102e0(void);
     extern u16 *func_0010ace0(s16);
@@ -10456,172 +10457,124 @@ s32 func_00308e50(u8 *arg0) {
    sequence sll/addu(sp)/addiu(0x48) vs mwcc's sll/addiu/addu with swapped
    $v0/$v1 coloring — probed array, pointer, named-temp, separate-locals,
    byte-offset forms and schedule/opt_* pragmas; best nd 4 (scheduling). */
-/* measured (wave C retest): full body adapted from the m2c draft — best
-   nd 182, obj 1712B == window, every residual row is a saved-register
-   swap except one: b210 drops the andi 0xF on the (s8)((x >> 0xC) & 0xF)
-   nibble extract (sra 12; dsll32/dsra32, no mask; the other three nibbles
-   keep theirs; two-statement and use-site-cast spellings both drop it —
-   recorded as a fold floor). Key spellings that DID land: func_00109470
-   declared u16-returning so b210 emits the andi 0xFFFF result mask before
-   the user's bit-test andi (s32 return folds the chain to one andi); u16
-   parameter so the var_20 & 0xFFFF arg mask lands at each call site (an
-   explicit & 0xFFFF arg gets CSE-hoisted into a saved register and grows
-   the frame to 0x80); (u8) store slots kill the (s8) sign-extension pair
-   after the 2b2cb0 andi. Residual rotation: mine temp_17=$s3,temp_16=$s2,
-   temp_19=$s0,var_18=$s4,var_20=$s1 vs retail temp_17=$s1,temp_16=$s0,
-   temp_19=$s3,var_18=$s2,var_20=$s4 — declaration orders probed, no
-   change. The earlier "best nd 4" note was wrong or belonged to another
-   source shape; the previous agent's note was inaccurate about the 0x48
-   stack table (none exists in this function). */
-/* wave 14: re-checked the signature via the m2c oracle
-   (void func_00308f40(void) — no args, correct); the nibble-extract fold
-   and every residual row are saved-register swaps that resist decl order
-   (all probed). No wave-14 lever applies (no global base, no jtbl reload,
-   no addu-order site). Best measured nd 182 unchanged. */
-/* measured: `s32 raw` (retail sra, not dsra) + reuse first-block nibbles in the 1307/1306 arm
-   (raw is saved across the flag loop, so the 4-line recompute is redundant and made the first
-   block dead; retail reuses). Words 372 -> 356, edits 179 -> 171 (fnalign retail 428 / object 449-450
-   instrs, window 1712B); frame 0x70 vs 0x60 + saved-reg rotation remain the WALL. */
-/* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
-/* measured 00308f40: `schedule on` inside the guard is worth 15 words (356 -> 341). */
-/* measured 00308f40: `opt_propagation off` inside the guard is worth 10 words (341 -> 331). */
-/* measured 00308f40 narrow-locals (19 lines: s64 n3->s32 n3, delete dead s64 k, total (s8)*->*(u8*), 8x store dest *(s8*)->*(u8*) + value (s8)func->(u8)func + arg *(s8*)->*(u8*)): dsll32/dsra32 +15->-1, lbu/lb fixed to 0, words 331->328, fnalign edits 357->323 (retail 428/obj 379, window 1712B). Remaining: nop -53, andi +6, beql/bnel, daddiu, dsll/sll packing, move rotation. Store-side u8 is the missing piece: reads-only flips score 333, reads+total+k 333, +s32 n3 335; adding 8x store dest/value/arg u8 reaches 328. */
-/* measured 00308f40 (owner, this session): `#pragma schedule on` was the whole 48-instruction
-   deficit and it is gone.  Retail is unscheduled - `beqz $v0, .+78` followed by a bare `nop` at
-   R35, R42, R79 and forty more - while `schedule on` filled those delay slots and turned the
-   branches into `beql`, removing 53 nops.  The pragma bought 15 differing words (356 -> 341) and
-   cost 48 instructions, which is the trap handoff 7y describes: a word score measured against a
-   body of the wrong length is not comparable to one measured inside the gate.
-   Without it: object 431 against retail 428 (+0.7%, inside), fnalign edits 323 -> 102.
-   `opt_propagation off` is kept and justified by measurement: with it 102 edits, without it 115
-   (and the count moves 431 -> 426 against 427, also inside, so the pragma is not holding the
-   count up - it is removing 13 real differences). */
-// FUN_00308F40 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_propagation off
+/* MATCHED: the four nibbles are s8 locals (retail re-extends each at use)
+   extracted in n1, n2, n0, n3 order; the flag walk counter is s32 against a
+   (u16) count; total is s16; packed is u16 built n0-first with no nibble
+   masks; the switch is on n0, not n2.  func_003095f0 returns u16 and
+   func_001102c0 takes u16 (no mask / sign-extension at either call site).
+   The byte sum reads ((u8 *)&func_001102e0()[0x13])[j] (addu, lbu 0x26)
+   and packed is declared before j (register rotation). */
+// FUN_00308F40
 void func_00308f40(void) {
-    s32 raw;
-    s64 n0;
-    s64 n1;
-    s64 n2;
-    s32 n3;
-    s64 i;
-    s64 j;
-    s64 total;
-    s64 packed;
-    u16 *p;
+    u16 raw;
+    s8 n0;
+    s8 n1;
+    s8 n2;
+    s8 n3;
+    s16 total;
+    s32 i;
+    u16 packed;
+    s32 j;
+    u8 *p;
 
-    raw = (s32)func_001102d0() & 0xFFFF;
-    n0 = (s8)((raw & 0xF));
-    n1 = (s8)(((raw >> 4) & 0xF));
-    n2 = (s8)(((raw >> 8) & 0xF));
-    n3 = (s8)(((raw >> 0xC) & 0xF));
+    raw = func_001102d0();
+    n1 = (raw >> 4) & 0xF;
+    n2 = (raw >> 8) & 0xF;
+    n0 = raw & 0xF;
+    n3 = (raw >> 12) & 0xF;
     total = 0;
-    i = 0;
-    while (i < (func_0010b6f0() & 0xFFFF)) {
-        if ((func_00109470((u16)i) & 4) != 0) {
-            if ((func_00109470((u16)i) & 0x80) != 0) {
-                *(u16 *)func_0010ace0((s16)i) ^= 4;
-                *(u16 *)func_0010ace0((s16)i) ^= 0x20;
-                *(u16 *)func_0010ace0((s16)i) ^= 0x40;
-                *(u16 *)func_0010ace0((s16)i) ^= 0x80;
-            } else if ((func_00109470((u16)i) & 0x40) != 0) {
-                *(u16 *)func_0010ace0((s16)i) |= 0x80;
-            } else if ((func_00109470((u16)i) & 0x20) != 0) {
-                *(u16 *)func_0010ace0((s16)i) |= 0x40;
+    for (i = 0; i < (u16)func_0010b6f0(); i++) {
+        if (func_00109470(i) & 4) {
+            if (func_00109470(i) & 0x80) {
+                *func_0010ace0(i) ^= 4;
+                *func_0010ace0(i) ^= 0x20;
+                *func_0010ace0(i) ^= 0x40;
+                *func_0010ace0(i) ^= 0x80;
+            } else if (func_00109470(i) & 0x40) {
+                *func_0010ace0(i) |= 0x80;
+            } else if (func_00109470(i) & 0x20) {
+                *func_0010ace0(i) |= 0x40;
             } else {
-                *(u16 *)func_0010ace0((s16)i) |= 0x20;
+                *func_0010ace0(i) |= 0x20;
             }
         }
-        i++;
     }
-    if ((datGetFlag(0x1307) == 0) && (datGetFlag(0x1306) != 0)) {
-        n3 = (s8)func_002b2cb0((s32)n3, 1, 6, 0, 1);
-        packed = ((n3 & 0xF) << 0xC) | ((n2 & 0xF) << 8) |
-                 ((n1 & 0xF) << 4) | (n0 & 0xF);
-        j = 0;
-        total = 0;
-        while (j < 5) {
-            total += *(u8 *)((u8 *)func_001102e0() + j + 0x26);
-            j++;
+    if (datGetFlag(0x1307) == 0 && datGetFlag(0x1306) != 0) {
+        n3 = func_002b2cb0(n3, 1, 6, 0, 1);
+        packed = n0 | (n1 << 4) | (n2 << 8) | (n3 << 12);
+        for (j = 0; j < 5; j++) {
+            total += ((u8 *)&func_001102e0()[0x13])[j];
         }
-        if ((n3 >= n2) || (n3 == 6)) {
-            p = func_001102e0();
-            func_0010cad0((u8 *)p, func_003095f0());
-            func_00110270((u8 *)func_001102e0(), (u16)packed);
+        if (n3 >= n2 || n3 == 6) {
+            p = (u8 *)func_001102e0();
+            func_0010cad0(p, func_003095f0());
+            func_00110270((u8 *)func_001102e0(), packed);
             func_00106390(0x1307, 1);
             return;
         }
         if (total >= 0x1E) {
-            p = func_001102e0();
-            func_0010cad0((u8 *)p, func_003095f0());
-            func_00110270((u8 *)func_001102e0(), (u16)packed);
+            p = (u8 *)func_001102e0();
+            func_0010cad0(p, func_003095f0());
+            func_00110270((u8 *)func_001102e0(), packed);
             func_00106390(0x1307, 1);
             return;
         }
-        func_001102c0((s16)packed);
-        switch ((s8)n2) {
+        func_001102c0(packed);
+        switch (n0) {
         case 0:
-            if (*(u8 *)((u8 *)func_001102e0() + 0x1C) != 0x63) {
-                *(u8 *)((u8 *)func_001102e0() + 0x26) =
-                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x26),
-                                      *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
+            if (((u8 *)func_001102e0())[0x1C] != 0x63) {
+                ((u8 *)func_001102e0())[0x26] =
+                    func_002b2cb0(((u8 *)func_001102e0())[0x26],
+                                 D_00749350[n3], 0x63, 0, 1);
             }
-            if (*(u8 *)((u8 *)func_001102e0() + 0x1D) != 0x63) {
-                *(u8 *)((u8 *)func_001102e0() + 0x27) =
-                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x27),
-                                      *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
-                return;
+            if (((u8 *)func_001102e0())[0x1D] != 0x63) {
+                ((u8 *)func_001102e0())[0x27] =
+                    func_002b2cb0(((u8 *)func_001102e0())[0x27],
+                                 D_00749350[n3], 0x63, 0, 1);
             }
             break;
         case 1:
-            if (*(u8 *)((u8 *)func_001102e0() + 0x1E) != 0x63) {
-                *(u8 *)((u8 *)func_001102e0() + 0x28) =
-                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x28),
-                                      *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
+            if (((u8 *)func_001102e0())[0x1E] != 0x63) {
+                ((u8 *)func_001102e0())[0x28] =
+                    func_002b2cb0(((u8 *)func_001102e0())[0x28],
+                                 D_00749350[n3], 0x63, 0, 1);
             }
-            if (*(u8 *)((u8 *)func_001102e0() + 0x1F) != 0x63) {
-                *(u8 *)((u8 *)func_001102e0() + 0x29) =
-                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x29),
-                                      *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
-                return;
+            if (((u8 *)func_001102e0())[0x1F] != 0x63) {
+                ((u8 *)func_001102e0())[0x29] =
+                    func_002b2cb0(((u8 *)func_001102e0())[0x29],
+                                 D_00749350[n3], 0x63, 0, 1);
             }
             break;
         case 2:
-            if (*(u8 *)((u8 *)func_001102e0() + 0x20) != 0x63) {
-                *(u8 *)((u8 *)func_001102e0() + 0x2A) =
-                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x2A),
-                                      *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
+            if (((u8 *)func_001102e0())[0x20] != 0x63) {
+                ((u8 *)func_001102e0())[0x2A] =
+                    func_002b2cb0(((u8 *)func_001102e0())[0x2A],
+                                 D_00749350[n3], 0x63, 0, 1);
             }
-            if (*(u8 *)((u8 *)func_001102e0() + 0x1C) != 0x63) {
-                *(u8 *)((u8 *)func_001102e0() + 0x26) =
-                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x26),
-                                      *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
-                return;
+            if (((u8 *)func_001102e0())[0x1C] != 0x63) {
+                ((u8 *)func_001102e0())[0x26] =
+                    func_002b2cb0(((u8 *)func_001102e0())[0x26],
+                                 D_00749350[n3], 0x63, 0, 1);
             }
             break;
         case 3:
-            if (*(u8 *)((u8 *)func_001102e0() + 0x1D) != 0x63) {
-                *(u8 *)((u8 *)func_001102e0() + 0x27) =
-                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x27),
-                                      *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
+            if (((u8 *)func_001102e0())[0x1D] != 0x63) {
+                ((u8 *)func_001102e0())[0x27] =
+                    func_002b2cb0(((u8 *)func_001102e0())[0x27],
+                                 D_00749350[n3], 0x63, 0, 1);
             }
-            if (*(u8 *)((u8 *)func_001102e0() + 0x1E) != 0x63) {
-                *(u8 *)((u8 *)func_001102e0() + 0x28) =
-                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x28),
-                                      *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
+            if (((u8 *)func_001102e0())[0x1E] != 0x63) {
+                ((u8 *)func_001102e0())[0x28] =
+                    func_002b2cb0(((u8 *)func_001102e0())[0x28],
+                                 D_00749350[n3], 0x63, 0, 1);
             }
             break;
         }
     }
 }
-#pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00308f40);
-#endif
 
 // FUN_003095F0
-s32 func_003095f0(void)
+u16 func_003095f0(void)
 {
     if (func_001102e0()[1] == 0xB3) {
         return 0xBA;
