@@ -87,7 +87,6 @@ class WholeObjectTests(unittest.TestCase):
                 by_address = {p.address: origin for p, origin in zip(placements, origins)}
                 with self.subTest(backend=backend, origins=origins), \
                         mock.patch.object(build, "REPO", root), \
-                        mock.patch.object(build, "is_pure_sdk_source", return_value=False), \
                         mock.patch.object(build.V, "is_gcc_unit", return_value=False), \
                         mock.patch.object(build.V, "scan_markers", return_value=markers), \
                         mock.patch.object(build.V, "RetailElf", return_value=retail), \

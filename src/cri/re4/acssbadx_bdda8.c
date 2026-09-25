@@ -11,7 +11,7 @@ extern Uint32 func_004d3bc0(Uint32 size, Uint32 limit);
 extern void func_004d3cd8(Uint32 handle);
 
 // FUN_004BDDA8
-Uint32 *func_004bdda8(Uint32 *object, Uint32 size)
+Uint32 *ACSSBADX_Create(Uint32 *object, Uint32 size)
 {
 	if (object == NULL) {
 		func_004bd6a0(D_00756980);
@@ -34,7 +34,7 @@ void func_004bde10(Uint32 *object)
 }
 
 // FUN_004BDE38
-Uint32 func_004bde38(Uint32 *object, const Uint32 *source, Uint32 size, Uint32 limit)
+Uint32 ACSSBADX_CreateHndl(Uint32 *object, const Uint32 *source, Uint32 size, Uint32 limit)
 {
 	if (source[2] != 0) {
 		object[1] = func_004d3bc0(size, limit - 12);
