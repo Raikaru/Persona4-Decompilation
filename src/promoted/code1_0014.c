@@ -275,7 +275,7 @@ extern u8 D_005EFAA0[];
 extern u8 *func_00155280(void);
 extern u8 D_007E80A0[];
 extern u8 D_007E8C00[];
-extern u8 D_007D24B0[];
+extern u16 D_007D24B0[];
 extern void func_0034f5d0(u8 *arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void func_0044ea90(const void *file, s32 line);
@@ -4506,150 +4506,136 @@ void func_0014c920(void) {
     iGpffffb1fc = 0;
     memset(&D_007D24B0, 0, 0x30);
 }
-/* measured 0014c960: `opt_loop_invariants on` inside the guard is worth 5 words (283 -> 278), the loop-preheader constant hoist. */
-// FUN_0014C960 NONMATCHING
-#ifdef SKIP_ASM
+static inline void fldGridMark(s32 x, s32 y)
+{
+    D_007D24B0[y] |= (u16)(1U << x);
+    D_007D24B0[y] |= (u16)(1U << (x + 1));
+    D_007D24B0[y + 1] |= (u16)(1U << x);
+    D_007D24B0[y + 1] |= (u16)(1U << (x + 1));
+}
+
+#define FLD_GRID_HITS(cellX, cellY, x, y)                                                                \
+    (((cellX) == (x) && (cellY) == (y)) || ((cellX) == (x) + 1 && (cellY) == (y)) ||                      \
+     ((cellX) == (x) && (cellY) == (y) + 1) || ((cellX) == (x) + 1 && (cellY) == (y) + 1))
+
+#pragma push
+/* measured: byte-exact (354/354 instructions, 0 differing words).  The three
+   occupancy scans are block-scoped so each `clear` flag lives where retail
+   keeps it ($v0 reusing the test's 1, $s6 across the list walk's calls, $t2).
+   The grid is a u16 row array: `D_007D24B0[y + 1]` folds to the symbol+2
+   base retail uses for the final mark.  The mark's bits are `(u16)(1U << x)`
+   so they are not CSE'd with the signed occupancy test's `1 << x`.
+   opt_loop_invariants hoists 600.0f/1200.0f, x+1/y+1 and the table bases. */
+#pragma opt_loop_invariants on
+// FUN_0014C960
 s32 func_0014c960(s32 *arg0, s32 *arg1)
 {
-    s32 var_20;
-    s32 var_19;
-    u8 *temp_16;
-    s32 temp_17;
-    s32 temp_18;
-    s32 var_3;
-    s32 var_2;
-    u8 *var_18;
-    s32 var_22;
-    s32 var_9;
-    s32 var_10;
-    s32 stride;
-    u8 *temp_8;
-    s32 f0a;
-    s32 f0b;
-    u8 *t0e;
-    s32 t21;
-    s32 t32;
-    s32 b0;
-    s32 b1;
-    s32 a1t;
-    s32 a2t;
-    s32 b1t;
-    s32 o2;
-    u8 *ae;
+    s32 y;
+    s32 x;
+    s32 rowOffset;
+    u16 *row;
+    s32 cellOffset;
 
-    var_20 = iGpffffb1fc;
-    while (var_20 < 0x18) {
-        var_19 = iGpffffb1f8;
-        temp_17 = (u16)(var_20 << 8);
-        temp_16 = D_007D24B0 + (u16)(var_20 * 2);
-        for (; var_19 < 0x10; var_19++) {
-            temp_18 = (u16)(var_19 * 0x10);
-            if (*(u8 *)(temp_17 + func_00155280() + temp_18 + 84) != 1) {
+    for (y = iGpffffb1fc; y < 0x18; y++) {
+        x = iGpffffb1f8;
+        rowOffset = y << 8;
+        row = &D_007D24B0[y];
+        for (; x < 0x10; x++) {
+            cellOffset = x << 4;
+            if (*(func_00155280() + rowOffset + cellOffset + 0x54) != 1) {
                 continue;
             }
-            if (*(u8 *)(temp_17 + func_00155280() + temp_18 + 88) == 9) {
-            } else if (*(u8 *)(temp_17 + func_00155280() + temp_18 + 88) == 11) {
-            } else if (*(u8 *)(temp_17 + func_00155280() + temp_18 + 88) != 13) {
+            if (*(func_00155280() + rowOffset + cellOffset + 0x58) != 9 &&
+                *(func_00155280() + rowOffset + cellOffset + 0x58) != 11 &&
+                *(func_00155280() + rowOffset + cellOffset + 0x58) != 13) {
                 continue;
             }
-            if ((*(u8 *)(temp_17 + func_00155280() + temp_18 + 85) & 0xF0) != 0x20) {
+            if ((*(func_00155280() + rowOffset + cellOffset + 0x55) & 0xF0) != 0x20) {
                 continue;
             }
-            if (((1 << var_19) & *(u16 *)temp_16) != 0) {
+            if (((1 << x) & row[0]) != 0) {
                 continue;
             }
             {
-                s32 t6 = (u16)(var_19 + 1);
-                s32 t5 = (u16)(var_20 + 1);
-                var_3 = 0;
-                while (var_3 < 8) {
-                temp_8 = D_007E80A0 + var_3 * 0x168;
-                if (*(s32 *)temp_8 != 0) {
-                    f0a = (s32)(((600.0f + *(f32 *)(temp_8 + 336)) / 1200.0f));
-                    f0b = (s32)(((600.0f + *(f32 *)(temp_8 + 344)) / 1200.0f));
-                    if ((f0a == var_19 && f0b == var_20) || (f0a == t6 && f0b == var_20) || (f0a == var_19 && f0b == t5) || (f0a == t6 && f0b == t5)) {
-                        *(u16 *)temp_16 |= (1 << var_19) & 0xFFFF;
-                        *(u16 *)temp_16 |= (1 << (var_19 + 1)) & 0xFFFF;
-                        *(u16 *)(temp_16 + 2) |= (1 << var_19) & 0xFFFF;
-                        *(u16 *)(temp_16 + 2) |= (1 << (var_19 + 1)) & 0xFFFF;
-                        var_2 = 0;
-                        break;
-                    }
-                }
-                var_3++;
-            }
-            }
-            if (var_2 != 0) {
-                var_22 = 1;
-                var_18 = func_001452b0(3);
-                while (var_18 != NULL) {
-                    t21 = (s32)(((600.0f + *(f32 *)(*(s32 *)(var_18 + 356) + 48)) / 1200.0f));
-                    t32 = (s32)(((600.0f + *(f32 *)(*(s32 *)(var_18 + 356) + 56)) / 1200.0f));
-                    {
-                        s32 t6 = var_19 + 1;
-                        s32 t5 = var_20 + 1;
-                    if ((t21 == var_19 && t32 == var_20) || (t21 == t6 && t32 == var_20) || (t21 == var_19 && t32 == t5) || (t21 == t6 && t32 == t5)) {
-                        *(u16 *)temp_16 |= (1 << var_19) & 0xFFFF;
-                        *(u16 *)temp_16 |= (1 << (var_19 + 1)) & 0xFFFF;
-                        *(u16 *)(temp_16 + 2) |= (1 << var_19) & 0xFFFF;
-                        *(u16 *)(temp_16 + 2) |= (1 << (var_19 + 1)) & 0xFFFF;
-                        var_22 = 0;
-                        break;
-                    }
-                    }
-                    var_18 = *(u8 **)(var_18 + 312);
-                }
-                if (var_22 != 0) {
-                    var_10 = 1;
-                    var_9 = 0;
-                    stride = 1872;
-                    while (var_9 < 15) {
-                        t0e = D_007E8C00 + var_9 * stride;
-                        if (*(s32 *)t0e != 0) {
-                            f0a = (s32)(((600.0f + *(f32 *)(t0e + 412)) / 1200.0f));
-                            f0b = (s32)(((600.0f + *(f32 *)(t0e + 420)) / 1200.0f));
-                            {
-                                s32 t6 = var_19 + 1;
-                                s32 t5 = var_20 + 1;
-                            if ((f0a == var_19 && f0b == var_20) || (f0a == t6 && f0b == var_20) || (f0a == var_19 && f0b == t5) || (f0a == t6 && f0b == t5)) {
-                                *(u16 *)temp_16 |= (1 << var_19) & 0xFFFF;
-                                *(u16 *)temp_16 |= (1 << (var_19 + 1)) & 0xFFFF;
-                                *(u16 *)(temp_16 + 2) |= (1 << var_19) & 0xFFFF;
-                                *(u16 *)(temp_16 + 2) |= (1 << (var_19 + 1)) & 0xFFFF;
-                                var_10 = 0;
-                                break;
-                            }
-                            }
+                s32 i;
+                s32 clear;
+                u8 *entry;
+                s32 cellX;
+                s32 cellY;
+
+                clear = 1;
+                for (i = 0; i < 8; i++) {
+                    entry = D_007E80A0 + i * 0x168;
+                    if (*(s32 *)entry != 0) {
+                        cellX = (s32)((600.0f + *(f32 *)(entry + 0x150)) / 1200.0f);
+                        cellY = (s32)((600.0f + *(f32 *)(entry + 0x158)) / 1200.0f);
+                        if (FLD_GRID_HITS(cellX, cellY, x, y)) {
+                            fldGridMark(x, y);
+                            clear = 0;
+                            break;
                         }
-                        var_9++;
-                    }
-                    if (var_10 != 0) {
-                        *arg0 = var_19;
-                        *arg1 = var_20;
-                        a1t = (u16)(1 << var_19);
-                        o2 = (u16)(var_20 * 2);
-                        ae = D_007D24B0 + o2;
-                        a2t = a1t & 0xFFFF;
-                        *(u16 *)(D_007D24B0 + o2) |= a2t;
-                        b1t = (1 << (var_19 + 1)) & 0xFFFF;
-                        *(u16 *)(D_007D24B0 + o2) |= b1t;
-                        *(u16 *)(D_007D24B0 + o2 + 2) |= a2t;
-                        *(u16 *)(D_007D24B0 + o2 + 2) |= b1t;
-                        iGpffffb1fc = var_20;
-                        iGpffffb1f8 = var_19;
-                        return 1;
                     }
                 }
+                if (clear == 0) {
+                    continue;
+                }
             }
+            {
+                s32 clear;
+                u8 *obj;
+                s32 cellX;
+                s32 cellY;
+
+                clear = 1;
+                for (obj = func_001452b0(3); obj != NULL; obj = *(u8 **)(obj + 0x138)) {
+                    cellX = (s32)((600.0f + *(f32 *)(mdlGetMatrix(*(s32 *)(obj + 0x164)) + 0x30)) / 1200.0f);
+                    cellY = (s32)((600.0f + *(f32 *)(mdlGetMatrix(*(s32 *)(obj + 0x164)) + 0x38)) / 1200.0f);
+                    if (FLD_GRID_HITS(cellX, cellY, x, y)) {
+                        fldGridMark(x, y);
+                        clear = 0;
+                        break;
+                    }
+                }
+                if (clear == 0) {
+                    continue;
+                }
+            }
+            {
+                s32 clear;
+                s32 i;
+                u8 *entry;
+                s32 cellX;
+                s32 cellY;
+
+                clear = 1;
+                for (i = 0; i < 15; i++) {
+                    entry = D_007E8C00 + i * 0x750;
+                    if (*(s32 *)(entry + 0x48) != 0) {
+                        cellX = (s32)((600.0f + *(f32 *)(entry + 0x19C)) / 1200.0f);
+                        cellY = (s32)((600.0f + *(f32 *)(entry + 0x1A4)) / 1200.0f);
+                        if (FLD_GRID_HITS(cellX, cellY, x, y)) {
+                            fldGridMark(x, y);
+                            clear = 0;
+                            break;
+                        }
+                    }
+                }
+                if (clear == 0) {
+                    continue;
+                }
+            }
+            *arg0 = x;
+            *arg1 = y;
+            fldGridMark(x, y);
+            iGpffffb1fc = y;
+            iGpffffb1f8 = x;
+            return 1;
         }
         iGpffffb1f8 = 0;
-        var_20++;
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014c960);
-#endif
+#pragma pop
 /* measured probe: opt_loop_invariants on hoists the 600.0f/1200.0f constants. */
 #pragma opt_loop_invariants on
 // FUN_0014CEF0
