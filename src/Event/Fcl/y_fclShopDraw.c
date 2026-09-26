@@ -2681,10 +2681,10 @@ void func_002ca770(u8 *arg0) {
 
 // FUN_002CA830
 s32 func_002ca830(s32 arg0) {
-    FclPackedPosition sp48;
-    FclPackedPosition sp40;
-    FclPackedPosition sp38;
-    FclPackedPosition sp30;
+    FclVec2 sp48;
+    FclVec2 sp40;
+    FclVec2 sp38;
+    FclVec2 sp30;
     s32 temp_17;
     u8 *temp_2;
 
@@ -2692,15 +2692,15 @@ s32 func_002ca830(s32 arg0) {
     temp_2 = D_008873F4[0](1, 0x1174, 0x40000);
     temp_17 = (s32)func_00451fc0((void *)(arg0), (const void *)((char *)&D_0063FB30), 0xF, 0, 0, func_002be530, func_002ca770, (u8 *)(temp_2));
     *(s8 *)(temp_2 + 0) = 9;
-    sp48.position = func_002b2970(240.0f, 20.0f);
-    *(void **)(temp_2 + 0xC28) = (void *)func_002b5c90(temp_17, sp48.position);
+    sp48 = func_002b2970(240.0f, 20.0f);
+    *(void **)(temp_2 + 0xC28) = (void *)func_002b5c90(temp_17, sp48);
     *(s8 *)(temp_2 + 0xC24) = 0;
-    sp40.position = func_002b2970(50.0f, 30.0f);
-    *(void **)(temp_2 + 0xC2C) = (void *)func_002b5c90(temp_17, sp40.position);
-    sp38.position = func_002b2970(50.0f, 30.0f);
-    *(void **)(temp_2 + 0xC30) = (void *)func_002b5c90(temp_17, sp38.position);
-    sp30.position = func_002b2970(50.0f, 30.0f);
-    *(void **)(temp_2 + 0xC34) = (void *)func_002b5c90(temp_17, sp30.position);
+    sp40 = func_002b2970(50.0f, 30.0f);
+    *(void **)(temp_2 + 0xC2C) = (void *)func_002b5c90(temp_17, sp40);
+    sp38 = func_002b2970(50.0f, 30.0f);
+    *(void **)(temp_2 + 0xC30) = (void *)func_002b5c90(temp_17, sp38);
+    sp30 = func_002b2970(50.0f, 30.0f);
+    *(void **)(temp_2 + 0xC34) = (void *)func_002b5c90(temp_17, sp30);
     *(u32 *)(temp_2 + 0xF28) = 0;
     *(s8 *)(temp_2 + 0xF30) = 0;
     *(void **)(temp_2 + 0xF18) = func_002e2590((void *)temp_17, 0x40000, 0, 4, 0);
