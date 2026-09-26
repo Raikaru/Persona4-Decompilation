@@ -2430,95 +2430,54 @@ void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
     func_0045e6a0(sp70, sp40, fparg2, 6, 4, 0, 0, 0,
                   -20.0f, 1.0f, 1.0f);
 }
-/* Floor (1296B window; obj 1288B fndiff 155 verify 465 fnalign 32 plus 15 reloc-only
-   retail 322/object 322 exact; width check 2026-09-17: no dsll/dsra pairs, clean.
-   Open: stack-address scheduling (sp+0x7c/0x74/0x60 ordering), gp-relative immediates
-   are reloc-only phantoms. Triple-built m2c+IDA+Ghidra; frame exact. */
-/* 155 -> 148 (2026-09-18): the three scratch-slot addresses retail
-   materialises before the statement that fills the slot are pointer locals
-   (`q7C`, `q74`, `q60`), not argument expressions - b210 emits argument
-   setup at the call, so `func_002aaf20(sp7C, ...)` put `addiu $a0, $sp,
-   0x7c` seven slots after retail's.  Measured and rejected: assigning the
-   pointer but storing through the array instead (155 - the pointer folds
-   away), pointer locals only for the func_0045d6e0 pair (155). */
-/* 148 -> 112 (2026-09-19): the eight func_0025f430 calls stage their s16
-   radius arguments early - retail loads each (s16)fGp const well before its
-   call, so the inline `(s16)fGpXXXX, (s16)fGpXXXX` pairs are hoisted s16
-   temps (`r40`..`r90`, extending the existing `radius` idiom), six sites,
-   25 fnalign edits (plus 21 reloc-only).  Measured and rejected: hoisting
-   the trailing (Fy, Fy) float pairs the same way (112 - the compiler had
-   already commoned the duplicate loads, identical codegen); scoped
-   `#pragma opt_common_subs off` around the function (303 - retail is not
-   rematerialising here, the whole function depends on load CSE; reverted).
-   Residual is the MMI s128-copy shape plus the f16 load-order pairs. */
-// FUN_00126090 NONMATCHING
-#ifdef NON_MATCHING
-void func_00126090(s32 arg0, u8 *arg1)
-{
-extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
+extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5);
+extern s32 func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5,
+                         s16 arg6, s16 arg7, f32 farg3, f32 farg5, f32 farg4);
+extern void func_002aaf20(void *arg0, f32 farg0, f32 farg1, f32 farg2,
+                          f32 farg3, f32 farg4, s32 arg1, s32 arg2);
 extern void func_002aaac0(void);
 extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_00489f80(void);
 extern void func_0048a000(void);
-extern f32 fGpffff8230;
-extern f32 fGpffff8234;
-extern f32 fGpffff8238;
-extern f32 fGpffff823c;
-extern f32 fGpffff8240;
-extern f32 fGpffff8244;
-extern f32 fGpffff8248;
-extern f32 fGpffff824c;
-extern f32 fGpffff8250;
-extern f32 fGpffff8254;
-extern f32 fGpffff8258;
-extern f32 fGpffff825c;
-extern f32 fGpffff8260;
-extern f32 fGpffff8264;
-extern f32 fGpffff8268;
-extern f32 fGpffff826c;
-extern f32 fGpffff8270;
-extern f32 fGpffff8274;
-extern f32 fGpffff8278;
-extern f32 fGpffff827c;
-extern f32 fGpffff8280;
-extern f32 fGpffff8284;
-extern f32 fGpffff8288;
-extern f32 fGpffff828c;
-extern f32 fGpffff8290;
-extern f32 fGpffff8294;
-extern f32 fGpffff8298;
-extern f32 fGpffff829c;
-extern s128 D_005E5590;
-extern s128 D_005E55A0;
-extern void func_002aaf20(void *arg0, f32 farg0, f32 farg1, f32 farg2,
-                          f32 farg3, f32 farg4, s32 arg1, s32 arg2);
-extern s32 func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5, s16 arg6, s16 arg7, f32 farg3, f32 farg5, f32 farg4);
+typedef struct { u8 c0, c1, c2, c3; } __attribute__((aligned(4))) TitleColor;
+typedef struct { s128 bits; } TitleRect;
+extern TitleRect D_005E5590;
+extern TitleRect D_005E55A0;
 
-    u8 sp7C[4];
-    u8 sp78[4];
-    u8 sp74[4];
-    u8 sp70[4];
-    s32 sp60[4];
-    s32 sp50[4];
-    s32 sp40[4];
+static inline void titleRing(f32 x, f32 y, s32 color, f32 scale, f32 angle, u8 *texture)
+{
+    f32 size = 64.0f * scale;
+
+    func_0025f430(x - size, y - size, 0.0f, color, 0x80, 0x1000F, 0, texture, 0, (s16)size, (s16)size, angle,
+                  scale, scale);
+}
+
+/* 1288/1296 bytes (two words of padding); relocations: D_005E5590,
+   D_005E55A0, this function's literal pool at gp-0x7DD0..-0x7D64, and the
+   called functions.  The eight rings share one inline shape: size is
+   64 * scale, the position is the centre minus size, and b210 folds each
+   product and difference into the pool (radius, x, y, scale per ring) while
+   still converting the radius at run time.  The screen colour and the two
+   rectangles are copied into scratch locals declared ahead of their
+   sources, which is what fixes retail's frame slots (0x7C/0x60 above
+   0x78/0x74/0x70 and 0x50/0x40). */
+// FUN_00126090
+void func_00126090(s32 arg0, u8 *arg1)
+{
+    TitleColor fillColor;
+    TitleColor black;
+    TitleColor shade;
+    TitleColor clear;
+    TitleRect rect;
+    TitleRect upper;
+    TitleRect lower;
+    s32 frame;
+    f32 phase;
+    f32 angle;
     u8 *p;
     s32 n;
-    s32 temp_2;
-    f32 temp_f20;
-    f32 *q7C;
-    u8 *q74;
-    s32 *q60;
-    f32 temp_f21;
-    s16 radius;
-    s16 r40;
-    s16 r50;
-    s16 r60;
-    s16 r70;
-    s16 r80;
-    s16 r90;
-    f32 r64;
 
-    p = sp78;
+    p = (u8 *)&black;
     n = 4;
     if (p != NULL) {
         do {
@@ -2527,14 +2486,13 @@ extern s32 func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32
             n--;
         } while (n != 0);
     }
-    q7C = (f32 *)sp7C;
-    *q7C = *(f32 *)sp78;
-    func_002aaf20(q7C, 0.0f, 0.0f, 0.0f, 640.0f, 480.0f, 0x12, 0);
+    fillColor = black;
+    func_002aaf20(&fillColor, 0.0f, 0.0f, 0.0f, 640.0f, 480.0f, 0x12, 0);
     func_00489f80();
     func_0025f3f0(0.0f, 0.0f, 0.0f, 0xFFFFFF, arg0 & 0xFF, 0x1000C, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 1);
     func_0048a000();
     func_00489f80();
-    p = sp70;
+    p = (u8 *)&clear;
     n = 4;
     if (p != NULL) {
         do {
@@ -2543,49 +2501,35 @@ extern s32 func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32
             n--;
         } while (n != 0);
     }
-    sp70[3] = 0;
-    q74 = sp74;
-    *(f32 *)q74 = *(f32 *)sp70;
-    *(s128 *)sp50 = D_005E5590;
-    q60 = sp60;
-    *(s128 *)q60 = D_005E5590;
-    func_0045d6e0(q74, q60, 0.0f, 0);
-    *(s128 *)sp40 = D_005E55A0;
-    q60 = sp60;
-    *(s128 *)q60 = D_005E55A0;
-    func_0045d6e0(q74, q60, 0.0f, 0);
+    clear.c3 = 0;
+    shade = clear;
+    upper.bits = D_005E5590.bits;
+    rect = upper;
+    func_0045d6e0(&shade, &rect, 0.0f, 0);
+    lower.bits = D_005E55A0.bits;
+    rect = lower;
+    func_0045d6e0(&shade, &rect, 0.0f, 0);
     func_0048a000();
-    temp_2 = *(s32 *)(arg1 + 0x80) + 1;
-    *(s32 *)(arg1 + 0x80) = temp_2;
-    if (temp_2 >= 0xC8) {
+    frame = *(s32 *)(arg1 + 0x80) + 1;
+    *(s32 *)(arg1 + 0x80) = frame;
+    if (frame >= 200) {
         *(s32 *)(arg1 + 0x80) = 0;
     }
-    temp_f21 = (f32)*(s32 *)(arg1 + 0x80) / 200.0f;
+    phase = (f32)*(s32 *)(arg1 + 0x80) / 200.0f;
     func_002aaac0();
     RpSkyRenderStateSet(3, 0x53001);
     RpSkyRenderStateSet(2, 0x58);
-    temp_f20 = 360.0f * temp_f21;
-    r64 = 64.0f;
-    radius = (s16)fGpffff8230;
-    func_0025f430(fGpffff8234, fGpffff8238, 0.0f, 0x202020, 0x80, 0x1000F, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 0, radius, radius, temp_f20, fGpffff823c, fGpffff823c);
-    r40 = (s16)fGpffff8240;
-    func_0025f430(fGpffff8244, fGpffff8248, 0.0f, 0x808080, 0x80, 0x1000F, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 0, r40, r40, temp_f20, fGpffff824c, fGpffff824c);
-    r50 = (s16)fGpffff8250;
-    func_0025f430(fGpffff8254, fGpffff8258, 0.0f, 0x808080, 0x80, 0x1000F, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 0, r50, r50, temp_f20, fGpffff825c, fGpffff825c);
-    r60 = (s16)fGpffff8260;
-    func_0025f430(fGpffff8264, fGpffff8268, 0.0f, 0x808080, 0x80, 0x1000F, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 0, r60, r60, temp_f20, fGpffff826c, fGpffff826c);
-    temp_f20 = -360.0f * temp_f21;
-    r70 = (s16)fGpffff8270;
-    func_0025f430(fGpffff8274, fGpffff8278, 0.0f, 0x808080, 0x80, 0x1000F, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 0, r70, r70, temp_f20, fGpffff827c, fGpffff827c);
-    r80 = (s16)fGpffff8280;
-    func_0025f430(fGpffff8284, fGpffff8288, 0.0f, 0x808080, 0x80, 0x1000F, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 0, r80, r80, temp_f20, fGpffff828c, fGpffff828c);
-    func_0025f430(313.0f, 29.0f, 0.0f, 0x808080, 0x80, 0x1000F, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 0, (s16)r64, (s16)r64, temp_f20, 1.0f, 1.0f);
-    r90 = (s16)fGpffff8290;
-    func_0025f430(fGpffff8294, fGpffff8298, 0.0f, 0x808080, 0x80, 0x1000F, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 0, r90, r90, temp_f20, fGpffff829c, fGpffff829c);
+    angle = 360.0f * phase;
+    titleRing(35.0f, 152.0f, 0x202020, 2.4f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
+    titleRing(233.0f, 102.0f, 0x808080, 1.8f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
+    titleRing(377.0f, 93.0f, 0x808080, 1.4f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
+    titleRing(626.0f, 110.0f, 0x808080, 1.1f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
+    angle = -360.0f * phase;
+    titleRing(35.0f, 152.0f, 0x808080, 2.2f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
+    titleRing(233.0f, 102.0f, 0x808080, 1.45f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
+    titleRing(377.0f, 93.0f, 0x808080, 1.0f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
+    titleRing(626.0f, 110.0f, 0x808080, 1.55f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00126090);
-#endif
 /* measured: archived build/func_001265a0_floor_v1.c (1791L m2c) + jtbl-bound fix cases 10-15 to tail per ELF jtbl_00746730 dump at file-off 0x6467B0 (16 entries 0:26660,1-2:26664,3:26688,4-5:2679C,6-7:29778,8-9:2A024,10-15:2A948 tail; sltiu 0xa->0x10 exact). Installed fnalign retail 4404/object 4404 (exact, 0.0%, 80 edits +124 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_0012.c func_001265a0`; probe 3842 words via measure_guarded. Candidate-method fnalign (--candidate floor) reports retail 4400/object 3779 (-14.1%, 6325 edits) due to scratch-vs-real TU compilation difference (header/guard placement), not body quality; installed is exact. Call census: all 202 retail jals +14 jalr have counterparts (30x0045d6e0,22x0025f3f0,17x0044b7b0,14x003f6440/002aaf20/002aaac0,11x0048a000/00489f80,etc.). Loops: 40 retail backward branches (30x6-instr zeroing +8x8-instr bgtz copy +3 large 414/240/240 at 0x126D9C/0x12742C/0x129B0C) all present as draft loop_93/loop_128/loop_351 + 4-word do-whiles. Frame -0x6C0 exact, sltiu 0x10 exact. Residual 80 edits are lui symbol materialization (0x5e vs 0) + MMI lq/add_a.w vs plain + VU0 adda/madd + scheduling, no missing regions by address (no deletes in installed alignment). */
 /* gate: func_001265a0 is INSIDE the +-3% band at 4404 against retail 4404 (+0.0%, band
    4272-4536), deficit 0, via --candidate measurement 2026-09-20.  Filled the 46-run
