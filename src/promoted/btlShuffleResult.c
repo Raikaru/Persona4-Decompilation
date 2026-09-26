@@ -88,7 +88,7 @@ extern u32 RpRandom(void);
 extern s32 func_00380bd0(u8 *a);
 extern u8 D_0064E6E0[][2];
 extern u8 D_0064E700[][2];
-extern u8 iGpffffa9B8;
+extern u8 iGpffffa9B8[5]; /* per-rate bonus thresholds: 5, 5, 5, 10, 10 */
 extern u8 D_0064E72E[];
 extern s64 D_0064EC88;
 extern f32 D_0064EC90;
@@ -938,12 +938,10 @@ static inline s32 shuffleBonusRoll(u8 *work, s32 rate)
         return 0;
     }
     flag = shuffleBonusColumn();
-    /* measured: indexing from the scalar's address keeps retail's saved-register
-       order; declaring iGpffffa9B8 as an array rotates the prologue copies. */
     if (*(u8 *)(work + 0x12) == 0) {
-        thresh = (u8)(D_0064E6E0[0][flag] + (&iGpffffa9B8)[rate]);
+        thresh = (u8)(D_0064E6E0[0][flag] + iGpffffa9B8[rate]);
     } else {
-        thresh = (u8)(D_0064E6E0[(u8)func_00107890(*(u8 *)(work + 0x12))][flag] + (&iGpffffa9B8)[rate]);
+        thresh = (u8)(D_0064E6E0[(u8)func_00107890(*(u8 *)(work + 0x12))][flag] + iGpffffa9B8[rate]);
     }
     chance = (u8)(100.0f * ((f32)(RpRandom() & 0xFFF) / 4096.0f));
     if ((u8)chance < (u8)thresh) {
