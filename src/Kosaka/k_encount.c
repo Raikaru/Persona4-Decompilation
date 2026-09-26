@@ -15,6 +15,7 @@
 extern s32 func_0014a230(s32 field, s32 room);
 extern s32 func_0014a2a0(s32 field, s32 room);
 extern s32 func_0015a740();
+extern s32 func_00106600(s16 id);
 extern s16 func_001060b0(void);
 extern u8 func_001060c0(void);
 extern s64 func_00110960(s32 day, u32 time);
@@ -246,120 +247,148 @@ s32 func_00161630(s32 field, s32 room, s32 encounter, s32 level)
 }
 
 #pragma pop
-/* measured: cold reconstruction from the m2c draft + matched sibling 61bb0 idioms reaches probe/fndiff reloc-masked nd 243 (verify nd ~730), object ~1132B/window 1184B, fnalign 295 vs ~283 instrs. Banked in docs/probe_archive/KEn80_00161c80_body.c (guarded v1 spelling in owner). Scale note: probe/fndiff and verify normalized_diff run ~3x apart on this body (243 vs ~730); compare like with like. Flat across hoist/mask/narrow/color variants; loop_invariants and propagation pragmas catastrophic; literal table addresses neutral. Open walls: base-spill/found-reg coloring, sunk base loads, saved-register rotation. Production stays ASM. */
-// FUN_00161C80 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_00161c80(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+/* 10-byte entry of the iGpffffb41c encounter table; `table` selects the
+   0x15C-byte record block in iGpffffb424. */
+typedef struct EncEntry {
+    u16 id;
+    u8 rate2;
+    u8 rate3;
+    u8 rate4;
+    u8 pad5;
+    u16 table;
+    u16 pad8;
+} EncEntry;
+
+// FUN_00161C80
+/* Pick a weighted record (0x1D records of 0xC bytes) from the block of the
+   given encounter. A record is skipped when its id is in the D_005F1260 list
+   with a nonzero func_00106600 count, or when func_00161bb0 or the D_007E80A0
+   slot scan finds it already present; bit 0 of byte 7 selects which modes
+   count it. The first pass sums the weights, the second draws against it. */
+/* measured: opt_loop_invariants on hoists the D_005F1260/D_007E80A0 bases and
+   the constants ahead of both loops, as retail does. */
+#pragma push
+#pragma opt_loop_invariants on
+u8 *func_00161c80(s32 field, s32 room, u16 index, u16 mode)
 {
-    extern s32 func_00106600(s16 id);
     u8 *base;
-    u8 *rec;
-    u8 *slot;
-    u8 *cand;
     u8 *found;
-    u32 rnd;
-    u32 total;
-    s32 cond;
     s32 i;
-    s32 j;
-    s32 k;
-    s32 t;
-    s32 lim;
+    s32 total;
     s32 acc;
-    s32 hit;
-    s32 present;
-    u16 code;
-    u16 idx;
+    s32 rnd;
 
     found = NULL;
-    if ((func_0014a230(arg0, arg1) == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
-        idx = (u16)(arg2 & 0xFFFF);
-        base = iGpffffb424 + *(u16 *)(iGpffffb41c + idx * 10 + 6) * 0x15C;
-        if (idx == 0) {
-            return NULL;
-        }
-        total = 0;
-        cond = arg3 & 0xFFFF;
-        for (i = 0; i < 0x1D; i++) {
-            rec = base + i * 0xC;
-            code = *(u16 *)(rec + 2);
-            if (code != 0) {
-                hit = 0;
-                for (j = 0; ((s16 *)D_005F1260)[j] != -1; j++) {
-                    if ((s32)(s16)code == ((s16 *)D_005F1260)[j] && ((func_00106600((s16)code) & 0xFF) > 0)) {
-                        hit = 1;
-                        break;
-                    }
+    if ((func_0014a230(field, room) == 1) || (func_0014a2a0(field, room) == 1)) {
+        EncEntry *entry = (EncEntry *)iGpffffb41c;
+        base = iGpffffb424 + entry[index].table * 0x15C;
+    } else {
+        return NULL;
+    }
+    if (index == 0) {
+        return NULL;
+    }
+    i = 0;
+    total = 0;
+    for (; i < 0x1D; i++) {
+        u8 *rec = base + i * 0xC;
+        s16 *pid = (s16 *)(rec + 2);
+        if (*(u16 *)(rec + 2) != 0) {
+            s16 id = *(u16 *)(rec + 2);
+            s32 hit = 0;
+            s32 j;
+            for (j = 0; ((s16 *)D_005F1260)[j] != -1; j++) {
+                if (id == ((s16 *)D_005F1260)[j] && (func_00106600(id) & 0xFF) > 0) {
+                    hit = 1;
+                    break;
                 }
-                if (hit == 0 && func_00161bb0((s16)code) == 0) {
-                    present = 0;
-                    for (k = 0; k < 8; k++) {
-                        slot = D_007E80A0 + k * 0x168;
-                        cand = *(u8 **)(slot + 0x160);
-                        if (*(s32 *)(slot + 0) != 0 && cand != NULL && *(s32 *)(slot + 8) != 1 && (s16)code == *(u16 *)(cand + 2)) {
+            }
+            if (hit == 0 && func_00161bb0(*pid) == 0) {
+                s16 fieldId = *pid;
+                s32 present = 0;
+                s32 k;
+                for (k = 0; k < 8; k++) {
+                    u8 *p = D_007E80A0 + k * 0x168;
+                    if (*(s32 *)(p + 0) != 0) {
+                        u8 *q = *(u8 **)(p + 0x160);
+                        if (q != NULL && *(s32 *)(p + 8) != 1 && fieldId == *(u16 *)(q + 2)) {
                             present = 1;
                             break;
                         }
                     }
-                    if (present == 0) {
-                        if (*(u8 *)(rec + 7) & 1) {
-                            if (cond == 1 || cond == 2) {
-                                total += *(u16 *)(rec + 0);
-                            }
-                        } else if (cond == 0 || cond == 2) {
+                }
+                if (present == 0) {
+                    if (*(u8 *)(rec + 7) & 1) {
+                        if (mode == 1 || mode == 2) {
                             total += *(u16 *)(rec + 0);
                         }
+                    } else if (mode == 0 || mode == 2) {
+                        total += *(u16 *)(rec + 0);
                     }
                 }
             }
         }
-        if (total == 0) {
-            func_0046d730(D_005F12C8, 0x166);
-        }
-        rnd = RpRandom() % total;
+    }
+    if (total == 0) {
+        func_0046d730(D_005F12C8, 0x166);
+    }
+    rnd = RpRandom() % total;
+    /* measured: the draw loop's locals live in their own block, id first and
+       the counter last; that ranks the counter in $s0 and the id in $s4 as
+       retail does (other orders leave the two swapped). */
+    {
+        s16 id;
+        s16 *pid;
+        s32 j;
+        u8 *rec;
+        s32 hit;
+        s32 n;
+
+        n = 0;
         acc = 0;
-        for (i = 0; i < 0x1D; i++) {
-            rec = base + i * 0xC;
-            code = *(u16 *)(rec + 2);
-            if (code != 0) {
+        for (; n < 0x1D; n++) {
+            rec = base + n * 0xC;
+            pid = (s16 *)(rec + 2);
+            if (*(u16 *)(rec + 2) != 0) {
+                id = *(u16 *)(rec + 2);
                 hit = 0;
                 for (j = 0; ((s16 *)D_005F1260)[j] != -1; j++) {
-                    if ((s32)(s16)code == ((s16 *)D_005F1260)[j] && ((func_00106600((s16)code) & 0xFF) > 0)) {
+                    if (id == ((s16 *)D_005F1260)[j] && (func_00106600(id) & 0xFF) > 0) {
                         hit = 1;
                         break;
                     }
                 }
-                if (hit == 0 && func_00161bb0((s16)code) == 0) {
-                    present = 0;
+                if (hit == 0 && func_00161bb0(*pid) == 0) {
+                    s16 fieldId = *pid;
+                    s32 present = 0;
+                    s32 k;
                     for (k = 0; k < 8; k++) {
-                        slot = D_007E80A0 + k * 0x168;
-                        cand = *(u8 **)(slot + 0x160);
-                        if (*(s32 *)(slot + 0) != 0 && cand != NULL && *(s32 *)(slot + 8) != 1 && (s16)code == *(u16 *)(cand + 2)) {
-                            present = 1;
-                            break;
+                        u8 *p = D_007E80A0 + k * 0x168;
+                        if (*(s32 *)(p + 0) != 0) {
+                            u8 *q = *(u8 **)(p + 0x160);
+                            if (q != NULL && *(s32 *)(p + 8) != 1 && fieldId == *(u16 *)(q + 2)) {
+                                present = 1;
+                                break;
+                            }
                         }
                     }
                     if (present == 0) {
                         if (*(u8 *)(rec + 7) & 1) {
-                            if (cond == 1 || cond == 2) {
+                            if (mode == 1 || mode == 2) {
                                 acc += *(u16 *)(rec + 0);
                             }
-                        } else if (cond == 0 || cond == 2) {
+                        } else if (mode == 0 || mode == 2) {
                             acc += *(u16 *)(rec + 0);
                         }
                         if (rnd < acc) {
                             found = rec;
-                        } else {
-                            continue;
+                            break;
                         }
                     }
                 }
             }
         }
-        return found;
     }
-    return NULL;
+    return found;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161c80);
-#endif
+#pragma pop
