@@ -3,6 +3,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "shd_misc_internal.h"
+#include "fcl_combine_internal.h"
 extern void (*jtbl_008873EC[])(void *);
 
 // P4 retail reaches the battle-data object pointer at gp-0x4A68,
@@ -23,10 +24,7 @@ extern void func_002b8300(u8 *arg0, s8 arg1, s16 arg2, s16 arg3,
  f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 extern void func_0046b0d0(void *ptr);
 
-typedef struct {
-    f32 x;
-    f32 y;
-} F2_0033;
+typedef FclVec2 F2_0033;
 
 /* Same four byte channels as the color constructor's output. */
 typedef FclDrawColor Color_0033;
