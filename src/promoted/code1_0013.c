@@ -945,168 +945,124 @@ void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, s32 arg3)
         func_00134f40(arg0, arg1.packed, 1, arg2);
     }
 }
-/* measured 0013ad40 (banked honest body: palette-table dispatch with ptab, 67/24/60/21/2/27/43/25/37/53 float chains cast-free per 13b420, recipe-A u8->float with f+f doubling, (u8)(u32) checked colour conversions, 11fd50 s64-tail, %10//10 digit loop, 1330 tail): measure_guarded 419 words obj 1836B/window 1584B; opclass mfc1/mtc1/lui/cvt.w.s +8 with c.ole/bc1t/sub +4. Verified against retail: plain lwc1 float loads (not int-convert), col conversion is the checked (u8)(u32) lowering with call-site re-andi, recipe-A uses srl + add.s doubling. Standing questions are per-site checked-vs-plain conversion mix plus frame/scheduling across 1584B. Production stays ASM. */
-/* 2026-09-19 gate repair, installed by the lead from Gb0013ad40's isolated
-   work (its file was owned by another agent, so it handed over the body and
-   the numbers rather than writing - handoff 7w).
-   Was object 459 against retail 396, +15.9%, OUTSIDE the 384-408 band, 419
-   words, 517 fnalign edits.  Now 401 against 396, +1.3%, inside, 361 words,
-   201 edits, and the frame matches retail at -0xE0 with `sd $ra, 0xb0($sp)`.
-   The overshoot was two swapped `func_0034f2e0` calls: the 0x4C-flag block
-   and the digit-loop block passed palettes as floats and floats as ints,
-   forcing eight int-to-float and eight float-to-int conversions.  Fixing the
-   argument order alone was worth 94 instructions, 459 -> 365, and collapsed
-   the whole `cvt.w.s +8 / mfc1 +8 / mtc1 +8 / lui +8` census surplus to zero.
-   Also restored: the separate `t0/255` and gp divisors instead of one 1.0f,
-   `((u32)x >> 1)` per sibling func_00130680, the 2147483648.0f triple-mask
-   for checked colours, and precomputed `e2+0x594`/`e2+0x598` so the frame
-   grows 0xC0 -> 0xE0 the way retail keeps those registers live. */
-// FUN_0013AD40 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
-void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 spd[12];
-    f32 spC8;
-    f32 spCC;
-    f32 f22;
-    f32 f21;
-    f32 f20;
-    f32 fA;
-    f32 fB;
-    f32 fDiv;
-    f32 fDiv2;
-    f32 fProd;
-    s32 t0;
-    s32 c0;
-    s32 c1;
-    s32 col;
-    s32 colB;
-    s32 col8;
-    s16 idx0;
-    s32 k;
-    s32 s3v;
-    s32 dc;
-    u8 *pal;
-    u8 *palB;
-    u8 *ptab;
-    u8 *e;
-    u8 *e2;
-    u8 *pp;
-    u8 *pp2;
-    s32 flag;
-    s32 cnt;
-    s32 cntB;
-    flag = 0;
-    fDiv2 = 1.0f;
-    idx0 = *(s16 *)(arg0 + arg1 * 2 + 0xF4);
-    f22 = *(f32 *)(arg0 + 4);
-    f21 = *(f32 *)(arg0 + 8);
-    t0 = *(u8 *)(arg0 + 0);
-    if (t0 >= 0) {
-        fDiv = (f32)t0;
-    } else {
-        t0 = ((u32)t0 >> 1) | (t0 & 1);
-        fDiv = (f32)t0;
-        fDiv = fDiv + fDiv;
-    }
-    fDiv = fDiv / 255.0f;
-    func_0011fd30(spd);
-    *(s32 *)(spd + 8) = 1;
-    *(s16 *)spd = idx0;
-    if (*(s16 *)(arg0 + arg2 * 2 + 0x5C) == arg1 || (*(s32 *)(arg0 + 0x1C) & 0x100) != 0) {
+/* measured: 1580B in the 1584B window.  Built from the matched twin
+   func_00130680 (same slot views, same sprite-pointer local under
+   opt_propagation off); the selected entry is a local so the compare keeps
+   retail's operand order. */
+#pragma push
+#pragma opt_propagation off
+// FUN_0013AD40
+void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2)
+{
+    typedef struct
+    {
+        s16 id;
+        s16 pad2;
+        s16 unk4;
+        s16 highlight;
+        s32 mode;
+    } LabelParam;
+    typedef struct
+    {
+        f32 x;
+        f32 y;
+        u8 pad8[2];
+        u8 alpha;
+        u8 padB[0x25];
+    } LabelSlot;
+    s32 id;
+    s32 highlight;
+    u8 *color0;
+    u8 *color1;
+    u8 *color2;
+    s16 n;
+    u8 alpha;
+    f32 dim;
+    f32 fade;
+    f32 x;
+    f32 y;
+    f32 yoff;
+    f32 ty;
+    s32 slot;
+    s32 slot2;
+    LabelParam param;
+    Vec2f pos;
+    void *spr;
+    s32 selected;
+
+    highlight = 0;
+    dim = 1.0f;
+    id = ((s16 *)(arg0 + 0xF4))[arg1];
+    x = *(f32 *)(arg0 + 4);
+    y = *(f32 *)(arg0 + 8);
+    fade = (f32)*(u8 *)arg0 / 255.0f;
+    func_0011fd30((u8 *)&param);
+    param.mode = 1;
+    param.id = id;
+    selected = ((s16 *)(arg0 + 0x5C))[arg2];
+    if (selected == arg1 || (*(s32 *)(arg0 + 0x1C) & 0x100) != 0) {
         if (arg2 == 0 && (*(s32 *)(arg0 + 0x1C) & 0x10) != 0) {
-            *(s16 *)(spd + 6) = 2;
-            pal = D_0064B2F4;
-            palB = D_0064B2F0;
-            ptab = D_0064B30C;
+            param.highlight = 2;
+            color0 = D_0064B2F4;
+            color1 = D_0064B2F0;
+            color2 = D_0064B30C;
         } else {
-            flag = 1;
-            *(s16 *)(spd + 6) = 1;
-            pal = D_0064B2E8;
-            palB = D_0064B2EC;
-            ptab = D_0064B2FC;
+            highlight = 1;
+            param.highlight = highlight;
+            color0 = D_0064B2E8;
+            color1 = D_0064B2EC;
+            color2 = D_0064B2FC;
         }
     } else {
-        *(s16 *)(spd + 6) = 0;
-        pal = D_0064B2E0;
-        palB = D_0064B2F0;
-        ptab = D_0064B308;
-        fDiv2 = fGpffff82cc;
+        param.highlight = 0;
+        color0 = D_0064B2E0;
+        color1 = D_0064B2F0;
+        color2 = D_0064B308;
+        dim = fGpffff82cc;
     }
-    if (arg2 == 0) { cnt = 5; cntB = 1; } else { cnt = 0x1C; cntB = 0x18; }
-    e = arg0 + (cnt + arg1) * 0x30;
-    spC8 = 67.0f + (f22 + *(f32 *)(e + 0x594));
-    f20 = 75.0f * (f32)arg1;
-    spCC = 24.0f + (f21 + *(f32 *)(e + 0x598)) + f20;
-    c0 = e[0x59E];
-    if (c0 >= 0) { fProd = (f32)c0; } else { c0 = ((u32)c0 >> 1) | (c0 & 1); fProd = (f32)c0; fProd = fProd + fProd; }
-    fProd = fProd * fDiv;
-    if (!(2147483648.0f <= fProd)) {
-        col = (s32)fProd & 0xFF;
+    if (arg2 == 0) {
+        slot = 5;
+        slot2 = 1;
     } else {
-        col = ((s32)(fProd - 2147483648.0f)) | 0x80000000;
-        col &= 0xFF;
+        slot = 0x1C;
+        slot2 = 0x18;
     }
-    col = col & 0xFF;
-    func_0011fd50(*(Vec2f *)&spC8, 0.0f, col & 0xFF, spd, 0);
-    e2 = arg0 + (cntB + arg1) * 0x30;
-    c1 = e2[0x59E];
-    if (c1 >= 0) { fProd = (f32)c1; } else { c1 = ((u32)c1 >> 1) | (c1 & 1); fProd = (f32)c1; fProd = fProd + fProd; }
-    fProd = fProd * fDiv;
-    if (!(2147483648.0f <= fProd)) {
-        colB = (s32)fProd & 0xFF;
-    } else {
-        colB = ((s32)(fProd - 2147483648.0f)) | 0x80000000;
-        colB &= 0xFF;
+    pos.x = 67.0f + (x + ((LabelSlot *)(arg0 + 0x594))[slot + arg1].x);
+    yoff = 75.0f * (f32)arg1;
+    ty = 24.0f + (y + ((LabelSlot *)(arg0 + 0x594))[slot + arg1].y);
+    pos.y = ty + yoff;
+    ty = ((LabelSlot *)(arg0 + 0x594))[slot + arg1].alpha;
+    func_0011fd50(pos, 0.0f, (u8)(ty * fade), (u8 *)&param, 0);
+    alpha = (f32)(arg0 + 0x59E)[(slot2 + arg1) * 0x30] * fade;
+    pos.x = 60.0f + (x + ((f32 *)(arg0 + 0x594))[(slot2 + arg1) * 12]);
+    ty = y + ((f32 *)(arg0 + 0x598))[(slot2 + arg1) * 12];
+    pos.y = 21.0f + (ty + yoff);
+    func_0034f2e0(*(void **)(arg0 + 0x12BC), pos.x, pos.y, color0[0], color0[1], color0[2], alpha);
+    if (highlight != 0) {
+        pos.x = 2.0f + (x + ((f32 *)(arg0 + 0x594))[(slot2 + arg1) * 12]);
+        ty = y + ((f32 *)(arg0 + 0x598))[(slot2 + arg1) * 12];
+        pos.y = 27.0f + (ty + yoff);
+        func_0034f2e0(*(void **)(arg0 + 0x12C0), pos.x, pos.y, 0x4C, 0x4C, 0x4C, alpha);
     }
-    colB = colB & 0xFF;
-    k = colB & 0xFF;
-    s3v = k & 0xFF;
-    k = s3v;
-    pp = e2 + 0x594;
-    pp2 = e2 + 0x598;
-    fA = 60.0f + (f22 + *(f32 *)(e2 + 0x594));
-    spC8 = fA;
-    fB = 21.0f + (f21 + *(f32 *)(e2 + 0x598)) + f20;
-    spCC = fB;
-    func_0034f2e0(*(void **)(arg0 + 0x12BC), fA, fB, pal[0], pal[1], pal[2], s3v);
-    if (flag != 0) {
-        fA = 2.0f + (f22 + *(f32 *)(pp + 0));
-        spC8 = fA;
-        fB = 27.0f + (f21 + *(f32 *)(pp2 + 0)) + f20;
-        spCC = fB;
-        func_0034f2e0(*(void **)(arg0 + 0x12C0), fA, fB, 0x4C, 0x4C, 0x4C, s3v);
+    n = (u8)func_00104c70(id);
+    pos.x = 43.0f + (x + ((f32 *)(arg0 + 0x594))[(slot2 + arg1) * 12]);
+    ty = y + ((f32 *)(arg0 + 0x598))[(slot2 + arg1) * 12];
+    pos.y = 25.0f + (ty + yoff);
+    if (n < 10) {
+        pos.x -= 11.0f;
     }
-    fA = 43.0f + (f22 + *(f32 *)(pp + 0));
-    spC8 = fA;
-    spCC = 25.0f + (f21 + *(f32 *)(pp2 + 0)) + f20;
-    dc = func_00104c70(idx0) & 0xFF;
-    dc = (s32)(s16)dc;
-    if (dc < 0xA) { spC8 = fA - 11.0f; }
-    while ((dc & 0xFF) > 0) {
-        func_0034f2e0(*(void **)(arg0 + ((dc % 10) * 4) + 0x12C4), spC8, spCC, palB[0], palB[1], palB[2], s3v);
-        spC8 = spC8 - 22.0f;
-        dc = ((dc & 0xFF) / 10) & 0xFF;
+    while (n > 0) {
+        func_0034f2e0(*(void **)(arg0 + (n % 10) * 4 + 0x12C4), pos.x, pos.y, color1[0], color1[1], color1[2], alpha);
+        pos.x -= 22.0f;
+        n /= 10;
     }
-    fA = 37.0f + (f22 + *(f32 *)(pp + 0));
-    spC8 = fA;
-    spCC = 53.0f + (f21 + *(f32 *)(pp2 + 0)) + f20;
-    if (s3v >= 0) { fB = (f32)s3v; } else { s3v = ((u32)s3v >> 1) | (s3v & 1); fB = (f32)s3v; fB = fB + fB; }
-    fB = fB * fDiv2;
-    if (!(2147483648.0f <= fB)) {
-        col8 = (s32)fB & 0xFF;
-    } else {
-        col8 = ((s32)(fB - 2147483648.0f)) | 0x80000000;
-        col8 &= 0xFF;
-    }
-    col8 = col8 & 0xFF;
-    func_0034f2e0(*(void **)(arg0 + 0x1330), spC8, spCC, ptab[0], ptab[1], ptab[2], col8 & 0xFF);
+    pos.x = 37.0f + (x + ((f32 *)(arg0 + 0x594))[(slot2 + arg1) * 12]);
+    ty = y + ((f32 *)(arg0 + 0x598))[(slot2 + arg1) * 12];
+    pos.y = 53.0f + (ty + yoff);
+    spr = *(void **)(arg0 + 0x1330);
+    func_0034f2e0(spr, pos.x, pos.y, color2[0], color2[1], color2[2], (u8)((f32)alpha * dim));
 }
-
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013ad40);
-#endif
+#pragma pop
 // FUN_0013B370
 /* measured: family substitution reuses the exact 176-byte byte-color shape. */
 #pragma opt_propagation off
