@@ -72,8 +72,8 @@ s32 func_0018bea0();
 void func_0018bc20(s32);
 void func_0018bed0(s32, s32);
 void func_0018bdd0(s32);
-void func_0047a0e0(s32, s32, f32);
-void func_001560a0(s32, s32, s32, s32);
+void func_0047a0e0(u8 *, s32, f32);
+void func_001560a0(u8 *, u16, u16, u16);
 
 extern u32 D_005F17D0[];
 extern u32 D_005F17D4[];
@@ -606,127 +606,88 @@ s32 func_00172360(u8 *arg0)
 }
 /* measured: restore loop-invariant optimization after func_00172360. */
 #pragma opt_loop_invariants off
-/* measured: retail loads the 0x18DC map base before the index multiply, keeps
-   the loop head and bottom-test loads of h[0x1C] separate, and shares one
-   return-1 block; mwcc b210 inverts the base/index order, CSEs the loop loads,
-   and splits the return blocks. Tried base locals, break-to-shared-return, and
-   3 declaration orders, best nd 152. Load-sinking/coalescing floor. */
-/* measured: archived candidate object_size=944 bytes, retail_window=944 bytes,
-   normalized_diff=577; first differing offsets 0,4,8,10,12,14,16,18,20,22,24,26,27,28,30,31.
-   Corrected declarations in archived body: func_001452b0(s32) -> u8 *,
-   func_00452490(void *), func_0018e030(u8 *, s32),
-   func_0029db50(s32, s32, s32, s32), func_00182310(s32),
-   func_001560a0(u8 *, s16, s16, s16), func_0047a0e0(u8 *, s32, f32). */
-/* Re-measured 2026-09-17: E172 body compiles in this TU only with a (u8 *) cast on func_00479940's first arg (TU decl takes u8* model); then probe/fndiff nd 197 at 236/236 instrs (same size). Residual is frame shape (object 0x70 vs retail 0x50) plus switch-dispatch/branch polarity, not missing logic. Production stays ASM. */
-// FUN_001727F0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: object_size=944 bytes, retail_window=944 bytes, normalized_diff=577, first differing offsets=0,4,8,10,12,14,16,18,20,22,24,26,27,28,30,31; declarations corrected in candidate: func_001452b0(s32) -> u8 *, func_00452490(void *), func_0018e030(u8 *, s32), func_0029db50(s32,s32,s32,s32), func_00182310(s32), func_001560a0(u8 *,s16,s16,s16), func_0047a0e0(u8 *,s32,f32); body retained for future reconstruction. */
-/* func_001727F0 candidate declarations */
-typedef s32 P4_UNK;
-typedef s8 P4_UNK8;
-typedef s16 P4_UNK16;
-typedef s32 P4_UNK32;
-typedef s64 P4_UNK64;
-#define P4_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
-#define P4_BITWISE(type, expr) ((type)(expr))
-#define P4_LWL(expr) (expr)
-#define P4_FIRST3BYTES(expr) (expr)
-#define P4_UNALIGNED32(expr) (expr)
-#define P4_CARRY 0
-#define P4_OVERFLOW(a) (0)
-#define MULT_HI(a, b) (0)
-#define MULTU_HI(a, b) (0)
-#define P4_55280() ((u8 *)(u32)func_00155280())
+/* Field event record (0x2C bytes) in the table at func_00155280() + 0x18DC. */
+typedef struct
+{
+    u8 pad0[0x10];
+    u16 unk10;
+    u16 unk12;
+    u16 unk14;
+    u16 unk16;
+    u16 unk18;
+    u16 unk1A;
+    u8 pad1C[0x10];
+} FldEvtEntry;
+#define FLD_EVT_TABLE() (*(FldEvtEntry **)((u8 *)func_00155280() + 0x18DC))
+#define FLD_EVT_ENTRY(h) (&FLD_EVT_TABLE()[*(u16 *)((h) + 0x2C) & 0x3FF])
+/* measured: retail reloads the event index after every func_00155280() call. */
+#pragma push
+#pragma opt_common_subs off
+// FUN_001727F0
+s32 func_001727f0(u8 *arg0)
+{
+    u8 *node;
+    u16 id;
+    u8 *h;
 
-void func_002bd3c0(void);
-void func_002bd410(void);
-
-s32 func_001727f0(u8 *arg0) {
-    u8 *func_001452b0(s32);
-    void func_001560a0(u8 *, s16, s16, s16);
-    void func_00182310(s32);
-    void func_0018e030(u8 *, s32);
-    s32 func_0029db50(s32, s32, s32, s32);
-    s32 func_00452490(void *);
-    void func_0047a0e0(u8 *, s32, f32);
-    u8 *temp_4;
-    u8 *temp_4_2;
-    u8 *temp_4_3;
-    s32 *temp_18;
-    s32 *temp_19;
-    s32 temp_17_2;
-    s32 temp_3;
-    u16 temp_17;
-    u8 *temp_16;
-    u8 *temp_17_3;
-    u8 *temp_18_2;
-    u8 *var_18;
-
-    temp_16 = (u8 *)(P4_FIELD(arg0, u8 **, 0x38));
-    temp_3 = (s32)(P4_FIELD(temp_16, s32 *, 4));
-    switch (temp_3) {                               /* irregular */
+    h = *(u8 **)(arg0 + 0x38);
+    switch (*(s32 *)(h + 4)) {
     case 0:
-        temp_4 = (u8 *)(P4_FIELD(P4_55280(), u8 **, 0x18DC));
-        if (P4_FIELD((((P4_FIELD(temp_16, u16 *, 0x2C) & 0x3FF) * 0x2C) + temp_4), u16 *, 0x10) == 0xFFFF) {
-            P4_FIELD(temp_16, u8 **, 0x1C) = NULL;
-            if (P4_FIELD((((P4_FIELD(temp_16, u16 *, 0x2C) & 0x3FF) * 0x2C) + P4_FIELD(P4_55280(), s32 *, 0x18DC)), u16 *, 0x18) != 0) {
-                P4_FIELD(temp_16, u8 **, 0x1C) = (u8 *)(func_001452b0(0xA));
-loop_11:
-                var_18 = (u8 *)(P4_FIELD(temp_16, u8 **, 0x1C));
-                if (var_18 != NULL) {
-                    var_18 = (u8 *)(P4_FIELD(temp_16, u8 **, 0x1C));
-                    temp_17 = (u16)(P4_FIELD(var_18, u16 *, 0));
-                    if (temp_17 != P4_FIELD((P4_FIELD(P4_55280(), s32 *, 0x18DC) + ((P4_FIELD(temp_16, u16 *, 0x2C) & 0x3FF) * 0x2C)), u16 *, 0x18)) {
-                        P4_FIELD(temp_16, u8 **, 0x1C) = (u8 *) P4_FIELD(var_18, u8 **, 0x138);
-                        goto loop_11;
+        if (FLD_EVT_ENTRY(h)->unk10 == 0xFFFF) {
+            *(u8 **)(h + 0x1C) = NULL;
+            if (FLD_EVT_ENTRY(h)->unk18 != 0) {
+                *(u8 **)(h + 0x1C) = (u8 *)func_001452b0(0xA);
+                while ((node = *(u8 **)(h + 0x1C)) != NULL) {
+                    node = *(u8 **)(h + 0x1C);
+                    id = *(u16 *)node;
+                    if (id == *(u16 *)((*(u16 *)(h + 0x2C) & 0x3FF) * sizeof(FldEvtEntry) + (u8 *)FLD_EVT_TABLE() + 0x18)) {
+                        break;
                     }
+                    *(u8 **)(h + 0x1C) = *(u8 **)(node + 0x138);
                 }
-                if (var_18 != NULL) {
-                    func_0047a0e0(P4_FIELD(var_18, u8 **, 0x144), 0, 0x3F800000);
-                    func_00479940((u8 *)P4_FIELD(P4_FIELD(temp_16, u8 **, 0x1C), s32 *, 0x144), 0, P4_FIELD((((P4_FIELD(temp_16, u16 *, 0x2C) & 0x3FF) * 0x2C) + P4_FIELD(P4_55280(), s32 *, 0x18DC)), s16 *, 0x1A), 0U, 0);
+                if (node != NULL) {
+                    func_0047a0e0(*(u8 **)(node + 0x144), 0, 1.0f);
+                    func_00479940(*(u8 **)(*(u8 **)(h + 0x1C) + 0x144), 0, FLD_EVT_ENTRY(h)->unk1A, 0, 0);
                 }
             } else {
-                P4_FIELD(temp_16, u8 **, 0x1C) = NULL;
+                *(u8 **)(h + 0x1C) = NULL;
             }
-            P4_FIELD(temp_16, s32 *, 4) = 1;
+            *(s32 *)(h + 4) = 1;
         } else {
             func_002bd410();
             func_002bd3c0();
-            func_0018e030(P4_FIELD(P4_55280(), u8 **, 0x1C), 1);
-            temp_18 = (s32 *)P4_55280();
-            temp_17_2 = P4_FIELD(P4_55280(), s32 *, 0x1858);
-            P4_FIELD(temp_16, s32 *, 0x10) = func_0029db50(0xF, P4_FIELD(temp_18, s32 *, 0x1854), temp_17_2, (s32) P4_FIELD((((P4_FIELD(temp_16, u16 *, 0x2C) & 0x3FF) * 0x2C) + P4_FIELD(P4_55280(), s32 *, 0x18DC)), u16 *, 0x10));
-            P4_FIELD(temp_16, s32 *, 4) = 3;
+            func_0018e030(*(s32 *)((u8 *)func_00155280() + 0x1C), 1);
+            *(s32 *)(h + 0x10) = func_0029db50(0xF, *(s32 *)((u8 *)func_00155280() + 0x1854),
+                                               *(u32 *)((u8 *)func_00155280() + 0x1858), FLD_EVT_ENTRY(h)->unk10);
+            *(s32 *)(h + 4) = 3;
         }
         func_00182310(1);
-block_22:
-    default:
-        return 1;
+        break;
     case 1:
-        temp_19 = (s32 *)P4_55280();
-        temp_4_2 = (u8 *)(P4_FIELD(P4_55280(), u8 **, 0x18DC));
-        temp_18_2 = (u8 *)(((P4_FIELD(temp_16, u16 *, 0x2C) & 0x3FF) * 0x2C) + temp_4_2);
-        temp_4_3 = (u8 *)(P4_FIELD(P4_55280(), u8 **, 0x18DC));
-        temp_17_3 = (u8 *)(((P4_FIELD(temp_16, u16 *, 0x2C) & 0x3FF) * 0x2C) + temp_4_3);
-        func_001560a0((u8 *)(u32)*temp_19, P4_FIELD(temp_18_2, u16 *, 0x12), P4_FIELD(temp_17_3, u16 *, 0x14), P4_FIELD((((P4_FIELD(temp_16, u16 *, 0x2C) & 0x3FF) * 0x2C) + P4_FIELD(P4_55280(), s32 *, 0x18DC)), u16 *, 0x16));
-        P4_FIELD(temp_16, s32 *, 0x10) = 0;
-        P4_FIELD(temp_16, s32 *, 4) = 2;
-        goto block_22;
+        func_001560a0(*(u8 **)func_00155280(), FLD_EVT_ENTRY(h)->unk12, FLD_EVT_ENTRY(h)->unk14,
+                      FLD_EVT_ENTRY(h)->unk16);
+        *(s32 *)(h + 0x10) = 0;
+        *(s32 *)(h + 4) = 2;
+        break;
+    case 2:
+        break;
     case 3:
-        if (func_00452490((void *)(u32)P4_FIELD(temp_16, s32 *, 0x10)) != 1) {
-            func_0018e030(P4_FIELD(P4_55280(), u8 **, 0x1C), 0);
-            func_00182310(0);
-            P4_FIELD(temp_16, s32 *, 0x10) = 0;
-            P4_FIELD(temp_16, s32 *, 4) = 4;
-        case 4:
-            return 0;
+        if (func_00452490(*(s32 *)(h + 0x10)) == 1) {
+            break;
         }
-        goto block_22;
+        func_0018e030(*(s32 *)((u8 *)func_00155280() + 0x1C), 0);
+        func_00182310(0);
+        *(s32 *)(h + 0x10) = 0;
+        *(s32 *)(h + 4) = 4;
+        /* fall through */
+    case 4:
+        return 0;
     }
+    return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_001727f0);
-#endif
+#pragma pop
+#undef FLD_EVT_ENTRY
+#undef FLD_EVT_TABLE
 // FUN_00172BA0
 s32 func_00172ba0(void)
 {
