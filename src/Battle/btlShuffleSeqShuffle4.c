@@ -666,8 +666,8 @@ s32 func_0037da60(u8 *arg0)
             break;
         }
         *(u32 *)(arg0 + 0x1F2F8) = 9;
-        *(u16 *)(sbase + 8) = 0;
     case 9:
+        *(u16 *)(sbase + 8) = 0;
         func_00389110(*(u8 **)(arg0 + 0x1F294));
         *(u32 *)(arg0 + 0x1F2F8) = 0xA;
     case 10:
