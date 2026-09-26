@@ -431,21 +431,21 @@ void func_002e90d0(u8 *arg0)
     FclVec2 slotPos0;
     s32 msgArgs0[2];
     s32 msgArgs1[2];
-    FclPackedPosition pos0;
-    FclPackedPosition pos1;
-    FclPackedPosition pos2;
-    FclPackedPosition pos3;
-    FclPackedPosition pos4;
-    FclPackedPosition pos5;
-    FclPackedPosition pos6;
-    FclPackedPosition pos7;
-    FclPackedPosition pos8;
-    FclPackedPosition pos9;
-    FclPackedPosition pos10;
-    FclPackedPosition pos11;
-    FclPackedPosition pos12;
-    FclPackedPosition pos13;
-    FclPackedPosition pos14;
+    FclVec2 pos0;
+    FclVec2 pos1;
+    FclVec2 pos2;
+    FclVec2 pos3;
+    FclVec2 pos4;
+    FclVec2 pos5;
+    FclVec2 pos6;
+    FclVec2 pos7;
+    FclVec2 pos8;
+    FclVec2 pos9;
+    FclVec2 pos10;
+    FclVec2 pos11;
+    FclVec2 pos12;
+    FclVec2 pos13;
+    FclVec2 pos14;
     FclVec2 slotPos1;
     FclVec2 slotPos2;
     char text[0x88];
@@ -562,41 +562,41 @@ void func_002e90d0(u8 *arg0)
         *(s32 *)(p + 0x148) = func_00314320(arg0);
         func_00320970(arg0, 0);
         func_00315310(arg0, 0);
-        pos0.position = func_002b2970(-78.0f, -82.0f);
-        func_002b6c30(0x80, pos0.position, 220.0f, 0x3F);
+        pos0 = func_002b2970(-78.0f, -82.0f);
+        func_002b6c30(0x80, pos0, 220.0f, 0x3F);
         color0 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
         *(FclDrawColor *)(func_002b6150(0x80) + 0x85) = color0;
         func_002b6b40(0x80, 0, 0x5A0, 0, 0.0f, -360.0f);
         func_002b68d0(0x80, 6, 0);
         func_002b6150(0x80)[0xDB] = 1;
-        pos1.position = func_002b2970(2.0f, -2.0f);
-        pos2.position = func_002b2970(-78.0f, -82.0f);
-        func_002b69f0(0x80, pos1.position, pos2.position, 1, 0xA, 0);
+        pos1 = func_002b2970(2.0f, -2.0f);
+        pos2 = func_002b2970(-78.0f, -82.0f);
+        func_002b69f0(0x80, pos1, pos2, 1, 0xA, 0);
         func_002b6a70(0x80, 0, 0xFF, 2, 0xA, 0);
-        pos3.position = func_002b2970(540.0f, (f32)0x15B);
-        func_002b6c30(0x20C, pos3.position, 220.0f, 0x3F);
+        pos3 = func_002b2970(540.0f, (f32)0x15B);
+        func_002b6c30(0x20C, pos3, 220.0f, 0x3F);
         color1 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
         *(FclDrawColor *)(func_002b6150(0x20C) + 0x85) = color1;
         func_002b6b40(0x20C, 0, 0x5A0, 0, 0.0f, -360.0f);
         func_002b68d0(0x20C, 6, 0);
         func_002b6150(0x20C)[0xDB] = 1;
-        pos4.position = func_002b2970(460.0f, (f32)0x10B);
-        pos5.position = func_002b2970(540.0f, (f32)0x15B);
-        func_002b69f0(0x20C, pos4.position, pos5.position, 1, 0xA, 0);
+        pos4 = func_002b2970(460.0f, (f32)0x10B);
+        pos5 = func_002b2970(540.0f, (f32)0x15B);
+        func_002b69f0(0x20C, pos4, pos5, 1, 0xA, 0);
         func_002b6a70(0x20C, 0, 0xFF, 2, 0xA, 0);
-        pos6.position = func_002b2970(-190.0f, 200.0f);
-        func_002b6c30(0x81, pos6.position, 215.0f, 0x56);
+        pos6 = func_002b2970(-190.0f, 200.0f);
+        func_002b6c30(0x81, pos6, 215.0f, 0x56);
         color2 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
         *(FclDrawColor *)(func_002b6150(0x81) + 0x85) = color2;
         func_002b6a70(0x81, 0, 0xFF, 0, 0xA, 0);
         *(f32 *)(func_002b6150(0x81) + 0xD0) = 90.0f;
         vec = (FclVec2 *)D_00640C50;
-        pos7.position = func_002b2970(vec->x, vec->y);
-        func_002b6c30(0x84, pos7.position, 217.0f, 0x40);
+        pos7 = func_002b2970(vec->x, vec->y);
+        func_002b6c30(0x84, pos7, 217.0f, 0x40);
         func_002b6a70(0x84, 0, 0xFF, 0, 0xA, 0);
         vec = (FclVec2 *)D_00640C58;
-        pos8.position = func_002b2970(vec->x, vec->y);
-        func_002b6c30(0x85, pos8.position, 218.0f, 0x40);
+        pos8 = func_002b2970(vec->x, vec->y);
+        func_002b6c30(0x85, pos8, 218.0f, 0x40);
         func_002b6a70(0x85, 0, 0xFF, 0, 0xA, 0);
         func_00315600(arg0, 0);
         func_003205f0(arg0, 0x92, 0);
@@ -639,8 +639,8 @@ void func_002e90d0(u8 *arg0)
             func_0045af60(0, 0, 0, 1);
             for (n = 0; n < 3; n++) {
                 off = n * 2;
-                pos9.position = func_002b2970(26.0f, (f32)(n * 34 + 87));
-                func_003147e0(arg0, n, pos9.position, *(s16 *)(p + off + 0xB8), (s16)off, 1);
+                pos9 = func_002b2970(26.0f, (f32)(n * 34 + 87));
+                func_003147e0(arg0, n, pos9, *(s16 *)(p + off + 0xB8), (s16)off, 1);
             }
             switch (p[0xB3]) {
             case 0:
@@ -661,8 +661,8 @@ void func_002e90d0(u8 *arg0)
                     p[1] = 0x21;
                 } else {
                     vec = (FclVec2 *)D_00641660;
-                    pos10.position = func_002b2970(vec->x, vec->y);
-                    func_002b6c30(0x1C6, pos10.position, 242.0f, 0x3D);
+                    pos10 = func_002b2970(vec->x, vec->y);
+                    func_002b6c30(0x1C6, pos10, 242.0f, 0x3D);
                     func_002b6a70(0x1C6, 0, 0x64, 0, 0xA, 0);
                     p[0xB6] = 0;
                     func_0032f4d0(arg0);
@@ -681,8 +681,8 @@ void func_002e90d0(u8 *arg0)
                 func_002b6a70(0x84, 0xFF, 0, 0, 6, 0);
                 func_002b6a70(0x85, 0xFF, 0, 0, 6, 0);
                 for (n = 0; n < 3; n++) {
-                    pos11.position = func_002b2970(26.0f, (f32)(n * 34 + 87));
-                    func_003147e0(arg0, n, pos11.position, *(s16 *)(p + n * 2 + 0xB8), 0, 1);
+                    pos11 = func_002b2970(26.0f, (f32)(n * 34 + 87));
+                    func_003147e0(arg0, n, pos11, *(s16 *)(p + n * 2 + 0xB8), 0, 1);
                 }
                 p[1] = 0x19;
                 break;
@@ -698,8 +698,8 @@ void func_002e90d0(u8 *arg0)
             func_002b6a70(0x84, 0xFF, 0, 0, 6, 0);
             func_002b6a70(0x85, 0xFF, 0, 0, 6, 0);
             for (n = 0; n < 3; n++) {
-                pos12.position = func_002b2970(26.0f, (f32)(n * 34 + 87));
-                func_003147e0(arg0, n, pos12.position, *(s16 *)(p + n * 2 + 0xB8), 0, 1);
+                pos12 = func_002b2970(26.0f, (f32)(n * 34 + 87));
+                func_003147e0(arg0, n, pos12, *(s16 *)(p + n * 2 + 0xB8), 0, 1);
             }
             p[1] = 0x19;
             func_0045af60(0, 0, 0, 2);
@@ -720,8 +720,8 @@ void func_002e90d0(u8 *arg0)
         }
         func_002bb550(p[0xD]);
         vec = (FclVec2 *)D_00641660;
-        pos13.position = func_002b2970(vec->x, vec->y);
-        func_002b6c30(0x1C6, pos13.position, 242.0f, 0x3D);
+        pos13 = func_002b2970(vec->x, vec->y);
+        func_002b6c30(0x1C6, pos13, 242.0f, 0x3D);
         func_002b6a70(0x1C6, 0, 0x64, 0, 0xA, 0);
         p[0xB6] = 0;
         func_0032f4d0(arg0);
@@ -929,8 +929,8 @@ void func_002e90d0(u8 *arg0)
         func_002bb550(p[0xD]);
         for (j = 0; j < p[0xB7]; j++) {
             off = j * 2;
-            pos14.position = func_002b2970(26.0f, (f32)(j * 34 + 87));
-            func_003147e0(arg0, j + 4, pos14.position, *(s16 *)(p + off + 0xB8), (s16)off, 0);
+            pos14 = func_002b2970(26.0f, (f32)(j * 34 + 87));
+            func_003147e0(arg0, j + 4, pos14, *(s16 *)(p + off + 0xB8), (s16)off, 0);
         }
         color15 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
         te = func_002b6150((p[0xB6] + 4) * 2 + 0x1F5);
@@ -1356,14 +1356,14 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002eb270);
    preserve retail's store-before-next-index schedule. */
 // FUN_002ECFC0
 void func_002ecfc0(u8 *arg0) {
-    FclPackedPosition sp38;
+    FclVec2 sp38;
     u8 *temp_16;
     FclVec2f *base;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     base = (FclVec2f *)D_00641660;
-    sp38.position = func_002b2970(base->x, base->y);
-    func_002b6c30(0x1C6, sp38.position, 242.0f, 0x3D);
+    sp38 = func_002b2970(base->x, base->y);
+    func_002b6c30(0x1C6, sp38, 242.0f, 0x3D);
     func_002b6a70(0x1C6, 0, 0x64, 0, 0xA, 0);
     *(s8 *)(temp_16 + 0xB4) = 0;
     *(s8 *)(temp_16 + 0xB5) = 0;
@@ -5027,13 +5027,13 @@ void func_002f9d90(u8 *arg0) {
     FclDrawColor slotColor;
     FclDrawColor rowColor;
     FclDrawColor color0C;
-    FclPackedPosition pos0;
-    FclPackedPosition pos1;
-    FclPackedPosition pos2;
-    FclPackedPosition pos3;
-    FclPackedPosition pos4;
-    FclPackedPosition pos5;
-    FclPackedPosition pos6;
+    FclVec2 pos0;
+    FclVec2 pos1;
+    FclVec2 pos2;
+    FclVec2 pos3;
+    FclVec2 pos4;
+    FclVec2 pos5;
+    FclVec2 pos6;
     s16 j;
     u8 shade;
     s32 alpha;
@@ -5098,12 +5098,12 @@ void func_002f9d90(u8 *arg0) {
             *(f32 *)(ps + 0x38) += 60.0f;
         }
         base = (FclVec2 *)D_00640E70;
-        pos0.position = func_002b2970(base->x, base->y);
-        func_002b6c30(0xC8, pos0.position, 42.0f, 0x5A);
+        pos0 = func_002b2970(base->x, base->y);
+        func_002b6c30(0xC8, pos0, 42.0f, 0x5A);
         func_002b6a70(0xC8, 0xFF, 0, 0, 0xA, 0xA);
-        pos1.position = func_002b2970((f32)0x28A + base->x, base->y);
-        pos2.position = func_002b2970(base->x - 50.0f, base->y);
-        func_002b69f0(0xC8, pos1.position, pos2.position, 0, 0x14, 0);
+        pos1 = func_002b2970((f32)0x28A + base->x, base->y);
+        pos2 = func_002b2970(base->x - 50.0f, base->y);
+        func_002b69f0(0xC8, pos1, pos2, 0, 0x14, 0);
         func_003205f0(arg0, 0x98, 0x96);
         p[1] = 0x65;
         break;
@@ -5328,11 +5328,11 @@ void func_002f9d90(u8 *arg0) {
             p[0x122] = func_002b2cb0(p[0x122], 1, 0xC, 0, 1);
             *(s16 *)(p + 0x120) = func_002b2d50(p[0x122], *(s16 *)(p + 0x120), 0xC, 7, 1);
             ps = func_002b6150(0x155);
-            pos3.position = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
-            func_002b69f0(0x155, *(FclVec2 *)(ps + 0x38), pos3.position, 1, 4, 0);
+            pos3 = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
+            func_002b69f0(0x155, *(FclVec2 *)(ps + 0x38), pos3, 1, 4, 0);
             ps = func_002b6150(0x2E0);
-            pos4.position = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
-            func_002b69f0(0x2E0, *(FclVec2 *)(ps + 0x38), pos4.position, 1, 4, 0);
+            pos4 = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
+            func_002b69f0(0x2E0, *(FclVec2 *)(ps + 0x38), pos4, 1, 4, 0);
             func_00329310(arg0, 0, 0);
             if (p[0x122] < 0xC) {
                 func_0011d140(func_003147d0(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
@@ -5353,11 +5353,11 @@ void func_002f9d90(u8 *arg0) {
             p[0x122] = func_002b2d00(p[0x122], 1, 0, 0, 1);
             *(s16 *)(p + 0x120) = func_002b2d50(p[0x122], *(s16 *)(p + 0x120), 0xC, 7, -1);
             ps = func_002b6150(0x155);
-            pos5.position = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
-            func_002b69f0(0x155, *(FclVec2 *)(ps + 0x38), pos5.position, 1, 4, 0);
+            pos5 = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
+            func_002b69f0(0x155, *(FclVec2 *)(ps + 0x38), pos5, 1, 4, 0);
             ps = func_002b6150(0x2E0);
-            pos6.position = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
-            func_002b69f0(0x2E0, *(FclVec2 *)(ps + 0x38), pos6.position, 1, 4, 0);
+            pos6 = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
+            func_002b69f0(0x2E0, *(FclVec2 *)(ps + 0x38), pos6, 1, 4, 0);
             func_00329310(arg0, 0, 0);
             if (p[0x122] < 0xC) {
                 func_0011d140(func_003147d0(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
@@ -10339,12 +10339,12 @@ void func_0030b7b0(u8 *arg0) {
     u8 kind;
     s16 i;
     s16 j;
-    FclPackedPosition v0;
-    FclPackedPosition v1;
-    FclPackedPosition v2;
-    FclPackedPosition v3;
-    FclPackedPosition v4;
-    FclPackedPosition v5;
+    FclVec2 v0;
+    FclVec2 v1;
+    FclVec2 v2;
+    FclVec2 v3;
+    FclVec2 v4;
+    FclVec2 v5;
     FclDrawColor c0;
     FclDrawColor c1;
     FclDrawColor c2;
@@ -10367,29 +10367,29 @@ void func_0030b7b0(u8 *arg0) {
         func_003205f0(arg0, 0x97, 0x96);
         *(s16 *)(p + 0x11E) = 0;
         *(p + 0x139) = 0;
-        v0.position = func_002b2970(26.0f, 87.0f);
-        func_003147e0(arg0, 0, v0.position, 0x168, 2, 0);
+        v0 = func_002b2970(26.0f, 87.0f);
+        func_003147e0(arg0, 0, v0, 0x168, 2, 0);
         D_00882FB0[*(s8 *)(p + 0x139) * 2] = 0;
         D_00882FB1[*(s8 *)(p + 0x139) * 2] = 0;
         *(s8 *)(p + 0x139) += 1;
-        v1.position = func_002b2970(26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
-        func_003147e0(arg0, 1, v1.position, 0x174, 4, 0);
+        v1 = func_002b2970(26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
+        func_003147e0(arg0, 1, v1, 0x174, 4, 0);
         D_00882FB0[*(s8 *)(p + 0x139) * 2] = 1;
         D_00882FB1[*(s8 *)(p + 0x139) * 2] = 0xC;
         *(s8 *)(p + 0x139) += 1;
-        v2.position = func_002b2970(26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
-        func_003147e0(arg0, 2, v2.position, 0x170, 6, 0);
+        v2 = func_002b2970(26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
+        func_003147e0(arg0, 2, v2, 0x170, 6, 0);
         D_00882FB0[*(s8 *)(p + 0x139) * 2] = 2;
         D_00882FB1[*(s8 *)(p + 0x139) * 2] = 8;
         *(s8 *)(p + 0x139) += 1;
-        v3.position = func_002b2970(26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
-        func_003147e0(arg0, 3, v3.position, 0x171, 8, 0);
+        v3 = func_002b2970(26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
+        func_003147e0(arg0, 3, v3, 0x171, 8, 0);
         D_00882FB0[*(s8 *)(p + 0x139) * 2] = 3;
         D_00882FB1[*(s8 *)(p + 0x139) * 2] = 9;
         *(s8 *)(p + 0x139) += 1;
         if (datGetFlag(0x1305) != 0) {
-            v4.position = func_002b2970(26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
-            func_003147e0(arg0, 0xB, v4.position, 0x173, 0xA, 0);
+            v4 = func_002b2970(26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
+            func_003147e0(arg0, 0xB, v4, 0x173, 0xA, 0);
             D_00882FB0[*(s8 *)(p + 0x139) * 2] = 0xB;
             D_00882FB1[*(s8 *)(p + 0x139) * 2] = 0xB;
             *(s8 *)(p + 0x139) += 1;
@@ -10491,8 +10491,8 @@ void func_0030b7b0(u8 *arg0) {
                 func_0045af60(0, 0, 0, 2);
                 for (i = 0; i < *(s8 *)(p + 0x139); i++) {
                     te = &D_00882FB0[i * 2];
-                    v5.position = func_002b2970(26.0f, (f32)(i * 0x22 + 0x57));
-                    func_003147e0(arg0, *(s8 *)te, v5.position, (s16)(*(s8 *)(te + 1) + 0x168), (s16)(i * 2 + 2), 1);
+                    v5 = func_002b2970(26.0f, (f32)(i * 0x22 + 0x57));
+                    func_003147e0(arg0, *(s8 *)te, v5, (s16)(*(s8 *)(te + 1) + 0x168), (s16)(i * 2 + 2), 1);
                 }
                 if (*(s8 *)(p + 0x138) > 0) {
                     func_0032f060(arg0, 1);
