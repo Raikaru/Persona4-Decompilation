@@ -325,7 +325,7 @@ void func_001552a0(u16 arg0, u16 arg1) {
     iGpffffb288 = 0x40400000;
 }
 // FUN_001560A0
-void func_001560a0(u8 *arg0, s16 arg1, s16 arg2, s16 arg3) {
+void func_001560a0(u8 *arg0, u16 arg1, u16 arg2, u16 arg3) {
     u8 *temp_16;
 
     temp_16 = (u8 *)(*(u8 **)(arg0 + 0x38));
