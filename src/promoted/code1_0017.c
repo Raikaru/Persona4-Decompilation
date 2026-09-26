@@ -88,7 +88,7 @@ extern s32 func_0012d000(s32 arg0, s32 arg1);
 extern void func_00106390(s32 arg0, s32 arg1);
 s32 func_0017c930(u8 *arg0);
 void func_0017cc90(u8 *arg0);
-void func_0017d240(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
                     s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
 extern s32 func_0017cd60(u8 *arg0);
 extern void func_0044ea90(const void *msg, s32 id);
@@ -146,7 +146,7 @@ extern void sprintf(void *dst, const void *src);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern s32 func_003ef6d0(void);
 extern s32 func_003ef650(s32 arg0, void *arg1);
-extern void func_0014def0(s32 arg0, s32 arg1,
+extern void func_0014def0(u8 *arg0, u8 *arg1,
                            f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6,
                            void *arg7, s32 arg8,
                            f32 arg9, f32 arg10, f32 arg11,
@@ -2742,8 +2742,8 @@ void func_0017d100(u8 *arg0)
     *(s16 *)(temp_16 + 0xE) = *(s32 *)((u8 *)D_005F1934 + temp_4);
 }
 // FUN_0017D1F0
-void func_0017d1f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
-                   f32 arg5, f32 arg6, f32 arg7)
+void func_0017d1f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
+                   f32 arg5, f32 arg6, f32 arg7, s32 arg4)
 {
     s32 temp_3;
 
@@ -2756,15 +2756,15 @@ void func_0017d1f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
 /* measured: optimization_level 1 is required for func_0017d240 codegen. */
 #pragma optimization_level 1
 // FUN_0017D240
-void func_0017d240(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
                    s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9)
 {
     struct {
         u8 data[0x10];
         u8 tail[0x10];
     } spA0;
-    s32 local_0;
-    u32 local_1;
+    u8 *local_0;
+    u8 *local_1;
     s32 local_2;
     s32 local_6;
     s32 local_5;
