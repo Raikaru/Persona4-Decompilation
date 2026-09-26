@@ -1,41 +1,30 @@
-/* func_00162680 (code1_0016, window 1456B) -- best draft 2026-09-26, 12 words.
- * Measured with tools/probe_variants.py in src/promoted/code1_0016.c:
- * 1456B/1456B, 12 reloc-masked differing words (guarded owner draft: 282).
- * Requires the owner's local extern to read
+/* func_00162680 (code1_0016, window 1456B) -- best draft 2026-09-26, 1 word.
+ * Supersedes F162_00162680_20260926_body.c (12 words). Needs the owner's
  *     extern void *func_00478140(u16 arg0, u16 arg1, s32 arg2);
- * instead of (u32, u32, u32): retail passes the u16 type/id straight through
- * (`move $a0,$s2` / `move $a1,$s1`) and the callee masks both of its own
- * parameters with 0xFFFF, so they are u16 (mdlManager.c still defines them as
- * u32 with explicit masks; effModel.c/effHelper.c/evtScript.c/k_fldFBN.c
- * already say u16). With u32 the draft is 46.
- * Structure: slot scan over datGetPartyId, then a switch whose two arms each
- * expand an inline slot-cache helper (retail has two copies; the default arm
- * has type 1 folded). The default arm's `u16 m = member;` block local is
- * load-bearing: retail masks member once into $a1 and reuses it for both the
- * cache compare and the func_00478140 argument (46/44 -> 12; passing member
- * directly re-masks per use, an outer `id = member` lands in $s1: 76).
- * Residual (12): (a) +0x408 the first arm's cache-miss tail branches to the
- * shared `b` at +0x42c instead of straight to the epilogue 0x162c00; (b) in
- * the default arm expansion the slot*8 CSE temp and the entry pointer swap
- * ($s1/$s0 vs retail $s0/$s1: +0x438..+0x540, 11 words).
- * Flat or worse on this body: helper local permutations (12), function-scope
- * `u16 m` in all six positions (12), no entry local (12), explicit `off`
- * local (339), direct returns from the arms (141), inverted helper if (125),
- * default-first switch or if/else forms (300+), (u16)member argument (44),
- * s32 id helper parameter (111). The previous agent's ~370 declaration-order
- * permutations on the older body (q/s/r series) were flat at 46. */
+ * (the callee masks its own two parameters; see the older note).
+ * New lever: the slot-cache lookup is its own static inline helper returning
+ * the cached object or NULL, called before `entry` is computed; that fixes the
+ * default arm's slot*8/entry register swap (12 -> 1).
+ * Residual (+0x408): the first arm's cache-miss tail branches to the arm's
+ * shared `b 0x162c00` at +0x42c instead of straight to 0x162c00 (retail
+ * chains it). Flat or worse: early return of the hit path in the helper (1),
+ * inverted hit-first if (120), `return helper()` from the arms (141). */
+static inline u8 *fldPartyModelCached(s32 slot, u16 type, u16 id)
+{
+    if (type == *(u16 *)(D_007F16F0 + slot * 8) && id == *(u16 *)(D_007F16F2 + slot * 8)) {
+        return *(u8 **)(D_007F16F4 + slot * 8);
+    }
+    return NULL;
+}
+
 static inline u8 *fldPartyModelGet(s32 slot, u16 type, u16 id)
 {
     u8 *entry;
     u8 *obj;
     s32 i;
 
+    obj = fldPartyModelCached(slot, type, id);
     entry = D_007F16F0 + slot * 8;
-    if (type == *(u16 *)entry && id == *(u16 *)(D_007F16F2 + slot * 8)) {
-        obj = *(u8 **)(D_007F16F4 + slot * 8);
-    } else {
-        obj = NULL;
-    }
     if (obj == NULL) {
         obj = func_00478140(type, id, 0);
         if (type == 1) {
