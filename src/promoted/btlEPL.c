@@ -34,7 +34,6 @@ extern void RtQuatConvertFromMatrix(void *arg0, void *arg1);
 extern void func_001ec350(void *arg0, void *arg1);
 extern u32 func_0047a7c0(u32 arg0);
 extern u32 effMiscRand(s32 arg0);
-extern s32 func_001fc300(void *arg0, void *arg1);
 extern void func_0019d990(void *arg0, s32 arg1);
 extern void func_00199890(void *arg0, s32 arg1);
 extern void func_0019d7a0(void *arg0, s32 arg1);
@@ -73,9 +72,124 @@ typedef struct BtlEplEplWork
     s16 pattern;  // 0x04
 } BtlEplEplWork; // 0x08
 
+typedef union BtlEplRgba
+{
+    u32 rgba;
+    u8 c[4]; // r, g, b, a
+} BtlEplRgba; // 0x04
+
+typedef struct BtlEplFadeParam
+{
+    u32 total;        // 0x00
+    u16 fadeIn;       // 0x04
+    u16 fadeOut;      // 0x06
+    BtlEplRgba color; // 0x08
+} BtlEplFadeParam;
+
+static inline void btlEplRgbaToV4(V4 *out, const u8 *rgba)
+{
+    out->v[0] = (1.0f / 255.0f) * (f32)(u32)rgba[0];
+    out->v[1] = (1.0f / 255.0f) * (f32)(u32)rgba[1];
+    out->v[2] = (1.0f / 255.0f) * (f32)(u32)rgba[2];
+    out->v[3] = (1.0f / 255.0f) * (f32)(u32)rgba[3];
+}
 
 
 
+
+
+/* measured: opt_loop_invariants on keeps the table base and the constant 1 hoisted above the
+   scan loop as retail; the mode-1 blocks are `var = 1; if (slot == arg0) { t = var; } else
+   { var = 0; t = var; } return (s8)t;` - the copy at the join keeps the then-branch as
+   retail's `b join` trampoline (the plain if/else folds to xor/sltiu under rebuildconditionals,
+   which must stay off for these two blocks). */
+// FUN_001FC300
+#pragma opt_loop_invariants on
+#pragma opt_rebuildconditionals off
+static s64 func_001fc300(u8 *arg0, u8 *arg1)
+{
+    extern s32 D_00881440_abs[];
+    u8 *table;
+    s32 temp_8;
+    s32 var_10;
+    s32 one;
+    s64 var_2;
+    s64 t;
+    s64 var_2_2;
+    u32 temp_6;
+    u8 temp_3;
+    u8 temp_3_2;
+
+    if (*(u8 *)(arg1 + 3) != 0) {
+        return 1;
+    }
+    var_10 = 0;
+    table = (u8 *)D_00881440_abs;
+    one = 1;
+    goto loop_test;
+loop_body:
+    temp_8 = *(s32 *)(table + ((u16)var_10 * 4) + 8);
+    if (temp_8 != 0) {
+        if ((*(u8 *)(arg1 + 2) & (one << temp_6)) &&
+            ((u8 *)temp_8 == arg0)) {
+            return 1;
+        }
+        var_10 = (var_10 + 1) & 0xFFFF;
+        goto loop_test;
+    }
+    goto block_9;
+loop_test:
+    temp_6 = var_10 & 0xFFFF;
+    if (temp_6 < 3U) {
+        goto loop_body;
+    }
+block_9:
+    if ((D_00881440_abs[0] != 0) &&
+        (*(u8 *)(arg0 + 0xA2) ==
+         *(u8 *)(D_00881440_abs[0] + 0xA2))) {
+        temp_3 = *(u8 *)(arg1 + 0);
+        switch (temp_3) {
+        case 0:
+            return 0;
+        case 1:
+            var_2_2 = 1;
+            if (D_00881440_abs[0] == (s32)arg0) {
+                t = var_2_2;
+            } else {
+                var_2_2 = 0;
+                t = var_2_2;
+            }
+            return (s64)(t << 0x38) >> 0x38;
+        case 2:
+            return 1;
+        }
+    }
+    if ((D_00881440_abs[1] != 0) &&
+        (*(u8 *)(arg0 + 0xA2) ==
+         *(u8 *)(D_00881440_abs[1] + 0xA2))) {
+        temp_3_2 = *(u8 *)(arg1 + 1);
+        switch (temp_3_2) {
+        case 0:
+            return 0;
+        case 1:
+            var_2 = 1;
+            if (D_00881440_abs[1] == (s32)arg0) {
+                t = var_2;
+            } else {
+                var_2 = 0;
+                t = var_2;
+            }
+            return (s64)(t << 0x38) >> 0x38;
+        case 2:
+            return 1;
+        }
+    }
+    return 0;
+}
+/* measured: restore rebuildconditionals after func_001fc300. */
+#pragma opt_rebuildconditionals on
+/* measured: restore the unit default after func_001fc300. */
+#pragma opt_loop_invariants off
 // FUN_001FC4A0
 s32 *func_001fc4a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *result;
@@ -117,319 +231,172 @@ void func_001fc5e0(s32 *arg0) {
 
 
 
-// measured: retail keeps node/i/f0/v11 in $4/$12/$0/$11 across the
-// func_001fc300 jal (the original TU knew its clobber set); b210 treats the
-// extern callee as clobbering all caller-saved regs, forcing 8 saved ints +
-// f21 (frame 0x100 vs 0xF0) and a move $a0 before every call. reg_clobber
-// pragma is silently ignored; node-in-$4 is structurally unreachable.
-// Same-TU-callee-knowledge floor; nd ~468.
-// measured: see floor note above; nd recorded there.
-// measured: first C reconstruction (m2c de-noised, file idiom: D_0072449C list walk + mode dispatch 2/1/0 + V4 copies + (u32)b>>1/(s32)-first/h+h byte idiom); retail 512 object 512
-// 2026-09-19 hoisted-vs-interleaved confirmation on func_001fc630 (same lever as func_001fd790): block_move_scan object[190:290]@0x001fc91c shape nopx19/lwc1x9/mtc1x9/swc1x8/cvt.s.wx8; scoping each s32 b load with its convert takes fnalign 525->446 (-79) and guarded 471->473wd (+2 neutral); pattern confirmed, banked. (exact, 0.0% in 3% gate) edit 531 via `python3 tools/fnalign.py src/promoted/btlEPL.c func_001fc630 --candidate /var/tmp/cold1fc630/cand_v1.c`; probe 477 via `python3 tools/probe_variants.py src/promoted/btlEPL.c func_001fc630 --candidate v1=/var/tmp/cold1fc630/cand_v1.c`; decl-order v2-v4 neutral (477/477/477); residual is Same-TU-callee-knowledge floor (node in $4, 0x100 vs 0xF0, f21) + mula/madd FP-scheduling floor as predicted (nd ~468).
-/* measured 001fc630 (owner, 2026-09-19): fnalign edits **446 -> 311** by writing the
-   short `if (modeM == c) ... else if` dispatch as a `switch`.  Short chains had never been
-   swept - the switch lever was built for long dispatch tables - but retail's shape here is
-   the same three-way with a default that `func_001441e0`'s outer dispatch turned out to be,
-   and a two or three arm chain cannot produce it.
-   The sweep that found this probed eight short chains and only two moved, so it is measured
-   per function like every other spelling. */
-// FUN_001FC630 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct BtlEplUnitParam
+{
+    u8 select[4];          // 0x00, read by func_001fc300
+    u8 pad04[8];           // 0x04
+    BtlEplFadeParam fade;  // 0x0C
+    f32 rotate;            // 0x18
+    f32 scale;             // 0x1C
+} BtlEplUnitParam;
+
+typedef struct BtlEplV3
+{
+    f32 x;
+    f32 y;
+    f32 z;
+} BtlEplV3;
+
+typedef struct BtlEplUnit
+{
+    u8 pad00[0x54];
+    BtlEplV3 pos;    // 0x54
+    V4 startColor;   // 0x60
+    V4 color;        // 0x70
+    u8 pad80[0x9EC];
+    struct BtlEplUnit *next; // 0xA6C
+} BtlEplUnit;
+
+/* measured: opt_dead_assignments off keeps the four colour conversions ahead of
+   the blend products (217 words without it); opt_loop_invariants on hoists the
+   mode byte and 1 - scale above the unit loop in retail order. */
+// FUN_001FC630
+#pragma opt_dead_assignments off
+#pragma opt_loop_invariants on
 void func_001fc630(u8 *arg0)
 {
-    s32 s0;
-    s32 count;
-    u8 *param;
-    u8 *matBase;
+    u32 count;
+    BtlEplUnitParam *param;
+    u8 **model;
+    u32 total;
     u8 mode;
     f32 scale;
-    f32 inv;
-    s32 flag;
+    s32 hasPos;
     u32 i;
-    u8 *node;
-    u8 sp90[0x40];
-    f32 spD0[4];
-    f32 spE0[3];
-    u8 spEC[4];
+    BtlEplUnit *node;
+    BtlEplRgba rgba;
+    BtlEplV3 pos;
+    f32 vec[3];
+    u8 matrix[0x40];
 
-    count = *(s32 *)(arg0 + 0x28);
-    param = *(u8 **)(arg0 + 0x38);
-    matBase = *(u8 **)(arg0 + 0x30);
-    s0 = *(s32 *)(param + 0x0C);
-    if ((u32)s0 < (u32)count) {
-        if (s0 != 0) {
-            return;
-        }
+    model = *(u8 ***)(arg0 + 0x30);
+    param = *(BtlEplUnitParam **)(arg0 + 0x38);
+    count = *(u32 *)(arg0 + 0x28);
+    total = param->fade.total;
+    if (total < count && total != 0) {
+        return;
     }
     mode = 0;
-    if (s0 != 0) {
-        s32 a4;
-        a4 = *(u16 *)(param + 0x10);
-        if ((u32)a4 >= (u32)count) {
-            if (a4 > 0) {
-                f32 fc;
-                f32 fa;
-                if (count >= 0) {
-                    fc = (f32)(s32)count;
-                } else {
-                    u32 t = ((u32)count >> 1) | ((u32)count & 1);
-                    fc = (f32)(s32)t;
-                    fc = fc + fc;
-                }
-                if (a4 >= 0) {
-                    fa = (f32)(s32)a4;
-                } else {
-                    u32 t = ((u32)a4 >> 1) | ((u32)a4 & 1);
-                    fa = (f32)(s32)t;
-                    fa = fa + fa;
-                }
-                scale = fc / fa;
-                mode = 1;
+    if (total != 0) {
+        if (count <= param->fade.fadeIn) {
+            if (param->fade.fadeIn > 0) {
+                scale = (f32)count / (f32)param->fade.fadeIn;
             } else {
                 scale = 1.0f;
-                mode = 1;
             }
-        } else {
-            s32 a6;
-            s32 diff1;
-            a6 = *(u16 *)(param + 0x12);
-            diff1 = s0 - a6;
-            if ((u32)count >= (u32)diff1) {
-                if (a6 > 0) {
-                    s32 diff2;
-                    f32 fc;
-                    f32 fa;
-                    diff2 = s0 - count;
-                    if (diff2 >= 0) {
-                        fc = (f32)(s32)diff2;
-                    } else {
-                        u32 t = ((u32)diff2 >> 1) | ((u32)diff2 & 1);
-                        fc = (f32)(s32)t;
-                        fc = fc + fc;
-                    }
-                    if (a6 >= 0) {
-                        fa = (f32)(s32)a6;
-                    } else {
-                        u32 t = ((u32)a6 >> 1) | ((u32)a6 & 1);
-                        fa = (f32)(s32)t;
-                        fa = fa + fa;
-                    }
-                    scale = fc / fa;
-                    mode = 2;
-                } else {
-                    scale = 0.0f;
-                    mode = 2;
-                }
+            mode = 1;
+        } else if (count >= total - param->fade.fadeOut) {
+            if (param->fade.fadeOut > 0) {
+                scale = (f32)(total - count) / (f32)param->fade.fadeOut;
+            } else {
+                scale = 0.0f;
             }
+            mode = 2;
         }
     }
-    flag = 0;
-    if (*(u8 **)matBase != NULL) {
-        func_0048a150(sp90, arg0 + 0x10);
-        func_0047a1c0(*(u8 **)matBase, sp90, 0);
-        {
-            f32 tmp = *(f32 *)(arg0 + 0x20) * *(f32 *)(param + 0x1C);
-            spD0[0] = tmp;
-            spD0[1] = tmp;
-            spD0[2] = tmp;
-        }
-        mdlScale(*(u8 **)matBase, spD0, 2);
-        spD0[0] = *(f32 *)(arg0 + 0x00);
-        spD0[1] = *(f32 *)(arg0 + 0x04);
-        spD0[2] = *(f32 *)(arg0 + 0x08);
-        func_0047a180((RwMatrix *)*(u8 **)matBase, (const RwV3d *)spD0, 2);
-        func_0047a0e0(*(u8 **)matBase, 0, *(f32 *)(param + 0x18));
-        func_00478e70(*(u8 **)matBase);
-        if (func_0047a6d0(*(u8 **)matBase, 0, spE0) != 0) {
-            flag = 1;
+    hasPos = 0;
+    if (*model != NULL) {
+        func_0048a150(matrix, arg0 + 0x10);
+        func_0047a1c0(*model, matrix, 0);
+        vec[0] = vec[1] = vec[2] = *(f32 *)(arg0 + 0x20) * param->scale;
+        mdlScale(*model, vec, 2);
+        vec[0] = ((f32 *)arg0)[0];
+        vec[1] = ((f32 *)arg0)[1];
+        vec[2] = ((f32 *)arg0)[2];
+        func_0047a180((RwMatrix *)*model, (const RwV3d *)vec, 2);
+        func_0047a0e0(*model, 0, param->rotate);
+        func_00478e70(*model);
+        if (func_0047a6d0(*model, 0, &pos) != 0) {
+            hasPos = 1;
         }
     }
     {
-        s32 modeM = mode & 0xFF;
-        inv = 1.0f - scale;
+
         for (i = 0; i < 4; i++) {
-            node = *(u8 **)(D_0072449C + i * 8 + 0x178);
-            while (node != NULL) {
-                if (func_001fc300(node, param) != 0) {
-                    switch (modeM) {
-                    case 0:
-                        if (count == 0) {
-                            *(s32 *)spEC = *(s32 *)(param + 0x14);
-                            {
-                                s32 b0 = spEC[0];
-                                f32 h0;
-                                if (b0 >= 0) {
-                                    h0 = (f32)(s32)b0;
-                                } else {
-                                    u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
-                                    h0 = (f32)(s32)t;
-                                    h0 = h0 + h0;
-                                }
-                                ((f32 *)(node + 0x70))[0] = D_0076129C * h0;
-                            }
-                            {
-                                s32 b1 = spEC[1];
-                                f32 h1;
-                                if (b1 >= 0) {
-                                    h1 = (f32)(s32)b1;
-                                } else {
-                                    u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
-                                    h1 = (f32)(s32)t;
-                                    h1 = h1 + h1;
-                                }
-                                ((f32 *)(node + 0x70))[1] = D_0076129C * h1;
-                            }
-                            {
-                                s32 b2 = spEC[2];
-                                f32 h2;
-                                if (b2 >= 0) {
-                                    h2 = (f32)(s32)b2;
-                                } else {
-                                    u32 t = ((u32)b2 >> 1) | ((u32)b2 & 1);
-                                    h2 = (f32)(s32)t;
-                                    h2 = h2 + h2;
-                                }
-                                ((f32 *)(node + 0x70))[2] = D_0076129C * h2;
-                            }
-                            {
-                                s32 b3 = spEC[3];
-                                f32 h3;
-                                if (b3 >= 0) {
-                                    h3 = (f32)(s32)b3;
-                                } else {
-                                    u32 t = ((u32)b3 >> 1) | ((u32)b3 & 1);
-                                    h3 = (f32)(s32)t;
-                                    h3 = h3 + h3;
-                                }
-                                ((f32 *)(node + 0x70))[3] = D_0076129C * h3;
-                            }
-                        }
-                        break;
-                    case 1:
-                        if (count == 0) {
-                            *(V4 *)(node + 0x60) = *(V4 *)(node + 0x70);
-                        }
-                        *(s32 *)spEC = *(s32 *)(param + 0x14);
-                        {
-                            f32 s0f; f32 s1f; f32 s2f; f32 s3f;
-                            f32 t0; f32 t1; f32 t2;
-                            { s32 b0 = spEC[0]; f32 h0;
-                            if (b0 >= 0) {
-                                h0 = (f32)(s32)b0;
-                            } else {
-                                u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
-                                h0 = (f32)(s32)t;
-                                h0 = h0 + h0;
-                            }
-                            s0f = D_0076129C * h0; }
-                            { s32 b1 = spEC[1]; f32 h1;
-                            if (b1 >= 0) {
-                                h1 = (f32)(s32)b1;
-                            } else {
-                                u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
-                                h1 = (f32)(s32)t;
-                                h1 = h1 + h1;
-                            }
-                            s1f = D_0076129C * h1; }
-                            { s32 b2 = spEC[2]; f32 h2;
-                            if (b2 >= 0) {
-                                h2 = (f32)(s32)b2;
-                            } else {
-                                u32 t = ((u32)b2 >> 1) | ((u32)b2 & 1);
-                                h2 = (f32)(s32)t;
-                                h2 = h2 + h2;
-                            }
-                            s2f = D_0076129C * h2; }
-                            { s32 b3 = spEC[3]; f32 h3;
-                            if (b3 >= 0) {
-                                h3 = (f32)(s32)b3;
-                            } else {
-                                u32 t = ((u32)b3 >> 1) | ((u32)b3 & 1);
-                                h3 = (f32)(s32)t;
-                                h3 = h3 + h3;
-                            }
-                            s3f = D_0076129C * h3; }
-                            t0 = ((f32 *)(node + 0x60))[0] * inv;
-                            t1 = ((f32 *)(node + 0x60))[1] * inv;
-                            t2 = ((f32 *)(node + 0x60))[2] * inv;
-                            ((f32 *)(node + 0x70))[0] = t0 + s0f * scale;
-                            ((f32 *)(node + 0x70))[1] = t1 + s1f * scale;
-                            ((f32 *)(node + 0x70))[2] = t2 + s2f * scale;
-                            ((f32 *)(node + 0x70))[3] = ((f32 *)(node + 0x60))[3] * inv + s3f * scale;
-                        }
-                        break;
-                    case 2:
-                        if (count == (s0 - *(u16 *)(param + 0x12))) {
-                            *(V4 *)(node + 0x60) = *(V4 *)(node + 0x70);
-                        }
-                        {
-                            f32 s0f; f32 s1f; f32 s2f; f32 s3f;
-                            f32 t0; f32 t1; f32 t2;
-                            { s32 b0 = D_00764C54[0]; f32 h0;
-                            if (b0 >= 0) {
-                                h0 = (f32)(s32)b0;
-                            } else {
-                                u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
-                                h0 = (f32)(s32)t;
-                                h0 = h0 + h0;
-                            }
-                            s0f = D_0076129C * h0; }
-                            { s32 b1 = D_00764C54[1]; f32 h1;
-                            if (b1 >= 0) {
-                                h1 = (f32)(s32)b1;
-                            } else {
-                                u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
-                                h1 = (f32)(s32)t;
-                                h1 = h1 + h1;
-                            }
-                            s1f = D_0076129C * h1; }
-                            { s32 b2 = D_00764C54[2]; f32 h2;
-                            if (b2 >= 0) {
-                                h2 = (f32)(s32)b2;
-                            } else {
-                                u32 t = ((u32)b2 >> 1) | ((u32)b2 & 1);
-                                h2 = (f32)(s32)t;
-                                h2 = h2 + h2;
-                            }
-                            s2f = D_0076129C * h2; }
-                            { s32 b3 = D_00764C54[3]; f32 h3;
-                            if (b3 >= 0) {
-                                h3 = (f32)(s32)b3;
-                            } else {
-                                u32 t = ((u32)b3 >> 1) | ((u32)b3 & 1);
-                                h3 = (f32)(s32)t;
-                                h3 = h3 + h3;
-                            }
-                            s3f = D_0076129C * h3; }
-                            t0 = ((f32 *)(node + 0x60))[0] * scale;
-                            t1 = ((f32 *)(node + 0x60))[1] * scale;
-                            t2 = ((f32 *)(node + 0x60))[2] * scale;
-                            ((f32 *)(node + 0x70))[0] = s0f * inv + t0;
-                            ((f32 *)(node + 0x70))[1] = s1f * inv + t1;
-                            ((f32 *)(node + 0x70))[2] = s2f * inv + t2;
-                            ((f32 *)(node + 0x70))[3] = ((f32 *)(node + 0x60))[3] * inv + s3f * scale;
-                            /* keep 0x6C*inv + s3f*scale shape explicit for mula/madd */
-                        }
-                        break;
-                    }
-                    if (flag != 0) {
-                        ((f32 *)(node + 0x54))[0] = spE0[0];
-                        ((f32 *)(node + 0x54))[1] = spE0[1];
-                        ((f32 *)(node + 0x54))[2] = spE0[2];
-                    } else {
-                        ((f32 *)(node + 0x54))[0] = *(f32 *)(arg0 + 0x00);
-                        ((f32 *)(node + 0x54))[1] = *(f32 *)(arg0 + 0x04);
-                        ((f32 *)(node + 0x54))[2] = *(f32 *)(arg0 + 0x08);
-                    }
+            for (node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178); node != NULL; node = node->next) {
+                if (func_001fc300((u8 *)node, (u8 *)param) == 0) {
+                    continue;
                 }
-                node = *(u8 **)(node + 0xA6C);
+                switch (mode) {
+                case 0:
+                    if (count == 0) {
+                        rgba.rgba = param->fade.color.rgba;
+                        btlEplRgbaToV4(&node->color, rgba.c);
+                    }
+                    break;
+                case 1:
+                    if (count == 0) {
+                        node->startColor = node->color;
+                    }
+                    rgba.rgba = param->fade.color.rgba;
+                    {
+                        V4 color;
+                        f32 a0, a1, a2, a3;
+                        f32 b0, b1, b2, b3;
+
+                        btlEplRgbaToV4(&color, rgba.c);
+                        a0 = node->startColor.v[0] * (1.0f - scale);
+                        a1 = node->startColor.v[1] * (1.0f - scale);
+                        a2 = node->startColor.v[2] * (1.0f - scale);
+                        a3 = node->startColor.v[3] * (1.0f - scale);
+                        b0 = color.v[0] * scale;
+                        b1 = color.v[1] * scale;
+                        b2 = color.v[2] * scale;
+                        b3 = color.v[3];
+                        node->color.v[0] = a0 + b0;
+                        node->color.v[1] = a1 + b1;
+                        node->color.v[2] = a2 + b2;
+                        node->color.v[3] = a3 + b3 * scale;
+                    }
+                    break;
+                case 2:
+                    if (count == total - param->fade.fadeOut) {
+                        node->startColor = node->color;
+                    }
+                    {
+                        V4 color;
+                        f32 a0, a1, a2, a3;
+                        f32 b0, b1, b2, b3;
+
+                        btlEplRgbaToV4(&color, D_00764C54);
+                        a0 = color.v[0] * (1.0f - scale);
+                        a1 = color.v[1] * (1.0f - scale);
+                        a2 = color.v[2] * (1.0f - scale);
+                        a3 = color.v[3] * (1.0f - scale);
+                        b0 = node->startColor.v[0] * scale;
+                        b1 = node->startColor.v[1] * scale;
+                        b2 = node->startColor.v[2] * scale;
+                        b3 = node->startColor.v[3];
+                        node->color.v[0] = a0 + b0;
+                        node->color.v[1] = a1 + b1;
+                        node->color.v[2] = a2 + b2;
+                        node->color.v[3] = a3 + b3 * scale;
+                    }
+                    break;
+                }
+                if (hasPos) {
+                    node->pos = pos;
+                } else {
+                    node->pos.x = ((f32 *)arg0)[0];
+                    node->pos.y = ((f32 *)arg0)[1];
+                    node->pos.z = ((f32 *)arg0)[2];
+                }
             }
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlEPL", func_001fc630);
-#endif
+#pragma opt_dead_assignments on
+#pragma opt_loop_invariants off
 
 // FUN_001FCE30
 void func_001fce30(void) {
@@ -1613,28 +1580,6 @@ void func_001feb80(void) {
 // FUN_001FEBD0
 void func_001febd0(void *arg0) {
     jtbl_008873EC[0](arg0);
-}
-
-typedef union BtlEplRgba
-{
-    u32 rgba;
-    u8 c[4]; // r, g, b, a
-} BtlEplRgba; // 0x04
-
-typedef struct BtlEplFadeParam
-{
-    u32 total;        // 0x00
-    u16 fadeIn;       // 0x04
-    u16 fadeOut;      // 0x06
-    BtlEplRgba color; // 0x08
-} BtlEplFadeParam;
-
-static inline void btlEplRgbaToV4(V4 *out, const u8 *rgba)
-{
-    out->v[0] = (1.0f / 255.0f) * (f32)(u32)rgba[0];
-    out->v[1] = (1.0f / 255.0f) * (f32)(u32)rgba[1];
-    out->v[2] = (1.0f / 255.0f) * (f32)(u32)rgba[2];
-    out->v[3] = (1.0f / 255.0f) * (f32)(u32)rgba[3];
 }
 
 // FUN_001FEC00
