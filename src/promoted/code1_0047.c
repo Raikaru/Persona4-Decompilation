@@ -370,9 +370,9 @@ void func_0047d140(void *model)
 }
 
 // FUN_0047D170
-void func_0047d170(void)
+void func_0047d170(void *model)
 {
-    iGpffffbb3c();
+    iGpffffbb3c(model);
 }
 
 // FUN_0047DD40
