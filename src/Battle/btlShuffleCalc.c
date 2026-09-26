@@ -451,26 +451,10 @@ s32 func_00372200(u8 *arg0) {
     return 0;
 }
 // FUN_003723A0
-void func_003723a0(u8 *arg0, u32 arg1, u32 arg2, u8 *arg3, u8 *arg4, f32 fparg0) {
-    f32 f0;
-
+void func_003723a0(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, f32 fparg0) {
     *(s16 *)(arg0 + 0) = 0;
-    if (arg2 >= 0) {
-        f0 = (f32)arg2;
-    } else {
-        arg2 = (arg2 >> 1) | (arg2 & 1);
-        f0 = (f32)(s32)arg2;
-        f0 += f0;
-    }
-    *(f32 *)(arg0 + 4) = f0;
-    if (arg1 >= 0) {
-        f0 = (f32)arg1;
-    } else {
-        arg1 = (arg1 >> 1) | (arg1 & 1);
-        f0 = (f32)(s32)arg1;
-        f0 += f0;
-    }
-    *(f32 *)(arg0 + 8) = f0;
+    *(f32 *)(arg0 + 4) = arg2;
+    *(f32 *)(arg0 + 8) = arg1;
     if (arg3 != NULL) {
         *(ShuffleVec3 *)(arg0 + 0x18) = *(ShuffleVec3 *)(arg3 + 0);
         *(ShuffleVec3 *)(arg0 + 0xC) = *(ShuffleVec3 *)(arg3 + 0);
@@ -618,7 +602,7 @@ s32 func_003726b0(ShuffleCalcUnit *unit) {
    normal propagation before the next function. */
 #pragma opt_propagation on
 // FUN_00372870
-void func_00372870(u8 *arg0, s16 a1, s16 a2, u8 *arg3, ShuffleVec4 *arg4) {
+void func_00372870(u8 *arg0, u16 a1, u16 a2, u8 *arg3, ShuffleVec4 *arg4) {
     *(s16 *)(arg0 + 0) = 0;
     *(s16 *)(arg0 + 2) = a2;
     *(s16 *)(arg0 + 4) = a1;
@@ -739,7 +723,7 @@ s32 func_00372960(u8 *arg0) {
 }
 
 // FUN_00372C30
-void func_00372c30(u8 *arg0, s16 arg1, s16 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {
+void func_00372c30(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {
     *(s16 *)(arg0 + 0) = 0;
     *(s16 *)(arg0 + 2) = arg2;
     *(s16 *)(arg0 + 4) = arg1;

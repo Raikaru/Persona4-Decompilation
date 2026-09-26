@@ -22,7 +22,7 @@ extern void func_0036dc60(u8 *unit, f32 *src, f32 *dst, f32 scale);
 extern void func_00375d50(u8 *ctx, s32 idx, f32 c, f32 d, f32 *a, f32 *b);
 extern void func_00375dd0(u8 *ctx, s32 idx, f32 *a, f32 *b, f32 c, f32 d);
 extern void func_00375fa0(u8 *a, s32 b, s32 c, f32 *d, f32 *e, f32 *f, f32 g, f32 h);
-extern void func_003760f0(u8 *ctx, s32 a, s32 b, s32 c, f32 *d, f32 *e);
+extern void func_003760f0(u8 *ctx, s32 a, u16 b, u16 c, f32 *d, f32 *e);
 extern void func_00376290(u8 *ctx, s32 a, s32 b, s32 c, s32 d);
 extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
 extern s32 func_0036de60(u8 *a);
@@ -386,7 +386,7 @@ void func_00378f90(u8 *arg0, s32 arg1, s32 arg2) {
 /* reconstructed from the retail disassembly and Ghidra decompile; scoped
    lverify reports an exact byte match for the 192-byte function window. */
 // FUN_00379090
-void func_00379090(u8 *ctx, s32 idx, s32 mode, s32 arg3) {
+void func_00379090(u8 *ctx, s32 idx, u16 mode, s32 arg3) {
     struct S {
         u64 pair;
         u32 pad;
