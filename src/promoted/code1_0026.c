@@ -1815,114 +1815,83 @@ s32 func_00266ba0(u8 *arg0)
     func_002674b0((s32)arg0, (u8 *)*(s32 *)(work + 8));
     return 0;
 }
-/* measured (2026-09-18): probe_variants 429 differing words reloc-masked via `python3 tools/probe_variants.py src/promoted/code1_0026.c func_00266cc0 --candidate FIX2=/tmp/cand66cc_fix2.c`; fnalign retail 506 vs object 495 instrs (273 edits +3 reloc) via `python3 tools/fnalign.py src/promoted/code1_0026.c func_00266cc0 --candidate /tmp/cand66cc_fix2.c --quiet`; -11 short (2.2% within 3% rule). Signature (s32,s32) per top extern (u8*->s32 cast for 00452560); s16 temp_date dsll16/dsra16 per prologue; fGpffff84a4 mul/div + 0044b7b0 sin chains; 255/5.0f/15.0f/20.0f scales; float-to-int overflow c.le/bc1t checks per retail (direct (s32) omits 21, 455->495); local externs for 0025f430 (s32 x8+f32 x6)/0025f2c0/0044b7b0 fix 416B-style overrun. Wall remains call/setup + FPU scheduling. No volatile/asm. */
-/* 2026-09-18: the three hand-written float-to-unsigned conversions replaced by
-   plain `(u32)` casts.  Measured a tie at 429 words but the edit-group count
-   drops 273 -> 263, so the remaining residual is elsewhere; the expanded form
-   was an m2c artifact, not evidence. */
-// FUN_00266CC0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00266CC0
 void func_00266cc0(s32 arg0, s32 arg1)
 {
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
-    extern s32 func_0025f2c0(s32, s32, u8 *);
     extern f32 sinf(f32);
-    u8 *temp_2;
-    u8 *temp_4;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f16;
-    f32 temp_f1;
-    f32 temp_f1_2;
-    f32 temp_f20;
-    f32 temp_f20_2;
-    f32 temp_f21;
-    f32 temp_f21_2;
-    f32 temp_f2;
-    s32 temp_3;
-    s32 temp_3_2;
-    s32 temp_3_3;
-    s32 var_17;
-    s32 var_18;
-    s32 var_3;
-    s32 var_3_2;
-    s32 var_3_3;
-    s16 temp_date;
+    extern s16 func_001060b0(void);
+    s32 first;
+    s32 second;
+    u8 *work;
+    s32 t;
+    s32 alpha;
 
-    temp_2 = func_00452560((u8 *)arg1);
-    var_18 = *(s32 *)(temp_2 + 0xC);
-    var_17 = *(s32 *)(temp_2 + 0x10);
-    temp_date = (s16)func_001060b0();
-    if (func_00110d30(temp_date) != 0) {
-        if (*(s32 *)(temp_2 + 0xC) == 3) {
-            var_18 = 6;
+    work = func_00452560(arg1);
+    first = *(s32 *)(work + 0xC);
+    second = *(s32 *)(work + 0x10);
+    if (func_00110d30(func_001060b0()) != 0) {
+        if (*(s32 *)(work + 0xC) == 3) {
+            first = 6;
         }
-        if (*(s32 *)(temp_2 + 0x10) == 3) {
-            var_17 = 6;
+        if (*(s32 *)(work + 0x10) == 3) {
+            second = 6;
         }
     }
-    if (*(s32 *)temp_2 != 2) {
-        return;
-    }
-    temp_3 = *(s32 *)(temp_2 + 0x14);
-    if (temp_3 < 0xF) {
-        temp_f20 = sinf((fGpffff84a4 * (f32)temp_3) / 15.0f);
-        func_0025f430(200.0f * (1.0f - temp_f20), 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f20, 1.0f);
-        temp_3_2 = *(s32 *)(temp_2 + 0x14);
-        if (temp_3_2 >= 0xB) {
-            temp_f1 = 255.0f * ((f32)(temp_3_2 - 0xA) / 5.0f);
-            var_3 = (u32)temp_f1;
-            func_0025f430(0.0f, 0.0f, 0.0f, 0, var_3 & 0xFF, var_18 + 1, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+    switch (*(s32 *)work) {
+    case 2:
+        t = *(s32 *)(work + 0x14);
+        if (t < 15) {
+            f32 s = sinf((fGpffff84a4 * (f32)t) / 15.0f);
+
+            func_0025f430(200.0f * (1.0f - s), 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, s, 1.0f);
+            t = *(s32 *)(work + 0x14);
+            if (t > 10) {
+                alpha = (u8)(255.0f * ((f32)(t - 10) / 5.0f));
+                func_0025f430(0.0f, 0.0f, 0.0f, 0, alpha, first + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            }
+        } else if (t < 20) {
+            func_0025f430(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            func_0025f430(0.0f, 0.0f, 0.0f, 0, 0xFF, first + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        } else if (t < 25) {
+            f32 s = sinf((fGpffff84a4 * (f32)(t - 20)) / 5.0f);
+            s32 w = func_0025f2c0(0, 0, *(u8 **)(work + 4));
+            f32 r = 1.0f - s;
+
+            func_0025f430(((f32)w / 2.0f) * s, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
+            w = func_0025f2c0(first + 1, 0, *(u8 **)(work + 4));
+            func_0025f430(((f32)w / 2.0f) * s, 0.0f, 0.0f, 0, 0xFF, first + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
+        } else if (t < 30) {
+            f32 r;
+            s32 w;
+            f32 s;
+
+            s = 1.0f - sinf((fGpffff84a4 * (f32)(t - 25)) / 5.0f);
+            w = func_0025f2c0(0, 0, *(u8 **)(work + 4));
+            r = 1.0f - s;
+
+            func_0025f430(((f32)w / 2.0f) * s, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
+            w = func_0025f2c0(second + 1, 0, *(u8 **)(work + 4));
+            func_0025f430(((f32)w / 2.0f) * s, 0.0f, 0.0f, 0, 0xFF, second + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
+        } else if (t < 40) {
+            func_0025f430(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            func_0025f430(0.0f, 0.0f, 0.0f, 0, 0xFF, second + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        } else if (t < 60) {
+            f32 s = sinf((fGpffff84a4 * (f32)(t - 40)) / 20.0f);
+            f32 r = 1.0f - s;
+
+            alpha = (u8)(255.0f * r);
+            func_0025f430(-200.0f * s, 0.0f, 0.0f, 0xFFFFFF, alpha, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
+            t = *(s32 *)(work + 0x14);
+            if (t < 45) {
+                r = (f32)(t - 40) / 5.0f;
+                alpha = (u8)(255.0f * (1.0f - r));
+                func_0025f430(0.0f, 0.0f, 0.0f, 0, alpha, second + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            }
         }
-        return;
-    }
-    if (temp_3 < 0x14) {
-        func_0025f430(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-        func_0025f430(0.0f, 0.0f, 0.0f, 0, 0xFF, var_18 + 1, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-        return;
-    }
-    if (temp_3 < 0x19) {
-        temp_f20 = sinf((fGpffff84a4 * (f32)(temp_3 - 0x14)) / 5.0f);
-        temp_f21 = 1.0f - temp_f20;
-        temp_3_2 = func_0025f2c0(0, 0, *(u8 **)(temp_2 + 4));
-        func_0025f430(((f32)temp_3_2 / 2.0f) * temp_f20, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f21, 1.0f);
-        temp_3_2 = func_0025f2c0(var_18 + 1, 0, *(u8 **)(temp_2 + 4));
-        func_0025f430(((f32)temp_3_2 / 2.0f) * temp_f20, 0.0f, 0.0f, 0, 0xFF, var_18 + 1, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f21, 1.0f);
-        return;
-    }
-    if (temp_3 < 0x1E) {
-        temp_f20_2 = 1.0f -
-                     sinf((fGpffff84a4 * (f32)(temp_3 - 0x19)) / 5.0f);
-        temp_f21_2 = 1.0f - temp_f20_2;
-        temp_3_2 = func_0025f2c0(0, 0, *(u8 **)(temp_2 + 4));
-        func_0025f430(((f32)temp_3_2 / 2.0f) * temp_f20_2, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f21_2, 1.0f);
-        temp_3_2 = func_0025f2c0(var_17 + 1, 0, *(u8 **)(temp_2 + 4));
-        func_0025f430(((f32)temp_3_2 / 2.0f) * temp_f20_2, 0.0f, 0.0f, 0, 0xFF, var_17 + 1, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f21_2, 1.0f);
-        return;
-    }
-    if (temp_3 < 0x28) {
-        func_0025f430(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-        func_0025f430(0.0f, 0.0f, 0.0f, 0, 0xFF, var_17 + 1, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-        return;
-    }
-    if (temp_3 < 0x3C) {
-        temp_f0_2 = sinf((fGpffff84a4 * (f32)(temp_3 - 0x28)) / 20.0f);
-        temp_f16 = 1.0f - temp_f0_2;
-        temp_f2 = 255.0f * temp_f16;
-        var_3_2 = (u32)temp_f2;
-        func_0025f430(-200.0f * temp_f0_2, 0.0f, 0.0f, 0xFFFFFF, var_3_2 & 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f16, 1.0f);
-        temp_3_3 = *(s32 *)(temp_2 + 0x14);
-        if (temp_3_3 < 0x2D) {
-            temp_f1_2 = 255.0f *
-                        (1.0f - (f32)(temp_3_3 - 0x28) / 5.0f);
-            var_3_3 = (u32)temp_f1_2;
-            func_0025f430(0.0f, 0.0f, 0.0f, 0, var_3_3 & 0xFF, var_17 + 1, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-        }
+        break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00266cc0);
-#endif
 // FUN_002674B0
 void func_002674b0(s32 arg0, u8 *arg1) {
     u8 *p;
