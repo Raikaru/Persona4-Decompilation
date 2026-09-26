@@ -3329,7 +3329,7 @@ s32 func_0015c5f0(s32 arg0)
     return H_Cdvd_IsFileLoaded() != 0;
 }
 // FUN_0015C630
-s32 func_0015c630(void)
+s32 func_0015c630(u8 *arg0)
 {
     return 1;
 }
@@ -3348,17 +3348,17 @@ u8 *func_0015c640(s32 arg0, s32 arg1) {
     return (u8 *)func_00454a60(sp30, 0);
 }
 // FUN_0015C6F0
-s32 func_0015c6f0(s32 arg0)
+s32 func_0015c6f0(u8 *arg0)
 {
-    if (arg0 == 0) {
+    if (arg0 == NULL) {
         return 1;
     }
-    return H_Cdvd_IsFileLoaded() != 0;
+    return H_Cdvd_IsFileLoaded(arg0) != 0;
 }
 // FUN_0015C730
-void func_0015c730(void)
+void func_0015c730(u8 *arg0)
 {
-    H_Cdvd_Destroy();
+    H_Cdvd_Destroy(arg0);
 }
 
 // FUN_0015D270
