@@ -75,7 +75,7 @@ extern f32 iGpffff8218;
 extern f32 iGpffff821c;
 extern f32 iGpffff8030;
 extern s32 func_0043c6a0(u32 arg0);
-extern void func_002a7920(s8, u8 *, s32, s32, u8 *, f32, f32, f32, f32);
+extern void func_002a7920(u8, u8 *, s32, s32, u8 *, f32, f32, f32, f32);
 extern void func_002a9f50(f32, f32, f32, s32, u8 *, s32, s32, u8 *);
 extern void func_002a6b10(s32, s32, s32, void *);
 extern void func_002a7710(s32, u8 *);
@@ -2130,7 +2130,7 @@ void func_002a7710(s32 arg0, u8 *arg1) {
 #pragma opt_common_subs off
 // FUN_002A7920 NONMATCHING
 #ifdef NON_MATCHING
-void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
+void func_002a7920(u8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
     extern f32 D_00761184;
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     u8 spEF;
