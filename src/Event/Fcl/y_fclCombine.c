@@ -5549,7 +5549,7 @@ void func_002f9d90(u8 *arg0) {
     extern s32 func_002bb1c0(s8);
     extern s32 func_00104c70(s32);
     extern s16 func_00247770(s32);
-    extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
+    extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
     extern s32 func_0011c610(u8 *);
     extern void func_0011c630(u8 *);
     extern void func_0011c6e0(u8 *, s32);
