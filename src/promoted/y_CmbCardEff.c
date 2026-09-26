@@ -6,6 +6,7 @@
 #include "fcl_bounds_packet.h"
 #include "sdk_task_registration.h"
 #include "fcl_draw_task.h"
+#include "cmb_card_eff.h"
 #include "include_asm.h"
 
 extern void (*jtbl_008873EC[])(void *);
@@ -35,7 +36,6 @@ u8 *func_00348160(u8 *arg0, s32 *arg1);
 void *func_00348290(u8 *arg0);
 void func_003482a0(u8 *arg0, u8 arg1, u8 arg2, u16 arg3);
 void func_003482d0(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3);
-void func_003489c0(u8 *arg0, CmbVec3f src, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA col, u16 arg3, u32 arg4);
 void func_00348a90(u8 *arg0, CmbVec3f *src1, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f *src2, CmbRGBA arg6, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5, f32 f6, f32 f7);
 s32 *func_00331620(void);
 void RpSkyRenderStateSet(u32 arg0, u32 arg1);
@@ -2581,7 +2581,6 @@ s32 func_00348c40(u8 *task) {
     u8 *handleSlot;
     u8 *updatedHandleSlot;
     u8 *work;
-    extern s32 func_002b5c90(s32, FclVec2);
     FclDrawColor gradientColor;
     FclDrawColor lastGradientColor;
     FclDrawColor solidColor;

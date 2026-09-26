@@ -19,6 +19,7 @@ typedef struct {
 } FclByte4;
 
 #include "fcl_combine_internal.h"
+#include "cmb_card_eff.h"
 
 typedef FclVec2 FclVec2f;
 extern void func_00313b50(u8 *task);
@@ -9783,13 +9784,12 @@ static inline s32 fclCombineHasEntry(u8 *task, s8 id)
 static inline void fclCombineStartFade(u8 *task)
 {
     extern u8 *func_001102f0(u8 *, s32, s32, f32);
-    extern void func_003489c0(u8 *, u8 *, f32, f32, f32, f32, FclDrawColor, u16, u32);
     extern void func_00348c30(s32, s32);
     u8 *w = *(u8 **)(task + 0x38);
-    u8 pos[12];
+    FclVec3 pos;
     FclDrawColor color;
 
-    func_001102f0(pos, 0x140, 0xA5, 300.0f);
+    func_001102f0((u8 *)&pos, 0x140, 0xA5, 300.0f);
     color = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
     func_003489c0(*(u8 **)(w + 0x308), pos, 0.0f, 0.0f, 0.0f, 1.0f, color, 0, -1);
     func_00348c30(*(s32 *)(w + 0x308), 0x14);
