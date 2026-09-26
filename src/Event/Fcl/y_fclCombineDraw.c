@@ -363,14 +363,14 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
     FclByte4 c14C;
     FclByte4 c148;
     FclByte4 c144;
-    FclPackedPosition sp138;
-    FclPackedPosition sp130;
-    FclPackedPosition sp128;
-    FclPackedPosition sp120;
-    FclPackedPosition sp118;
-    FclPackedPosition sp110;
-    FclPackedPosition sp108;
-    FclPackedPosition sp100;
+    FclVec2 sp138;
+    FclVec2 sp130;
+    FclVec2 sp128;
+    FclVec2 sp120;
+    FclVec2 sp118;
+    FclVec2 sp110;
+    FclVec2 sp108;
+    FclVec2 sp100;
     FclBoundsPacket spF0;
     u8 *t;
     u8 *h;
@@ -388,8 +388,8 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
     kind = arg3;
     base = arg1 * 5 + 0x66;
     if (kind == 0x16C) {
-        sp128.position = func_002b2970(67.0f, 175.0f);
-        func_00314ef0(arg0, arg1, sp128.position, 0x16C, arg4, arg5);
+        sp128 = func_002b2970(67.0f, 175.0f);
+        func_00314ef0(arg0, arg1, sp128, 0x16C, arg4, arg5);
         return;
     }
     two = arg1 * 2;
@@ -397,24 +397,24 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
     func_002b7750(id, 0x1AC);
     order = base;
     o2 = order + 2;
-    sp120.position = func_002b2970(arg2.x, arg2.y);
+    sp120 = func_002b2970(arg2.x, arg2.y);
     c15C = func_002b2a60(0, 0, 0x66, 0xFF);
-    func_002b77d0(id, sp120.position, 0x1AC, c15C, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    func_002b77d0(id, sp120, 0x1AC, c15C, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
     id = two + 0x1F5;
     func_002b7750(id, 0x1AF);
-    sp130.position = func_002b2970(258.0f + arg2.x, arg2.y);
+    sp130 = func_002b2970(258.0f + arg2.x, arg2.y);
     c158 = func_002b2a60(0, 0, 0x66, 0xFF);
-    func_002b77d0(id, sp130.position, 0x1AF, c158, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
-    sp138.position = func_002b2970(sp130.position.x - 28.0f, sp130.position.y);
+    func_002b77d0(id, sp130, 0x1AF, c158, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    sp138 = func_002b2970(sp130.x - 28.0f, sp130.y);
     id = arg1 + 0x2FB;
     func_002b7750(id, 0x131);
-    sp130.position = func_002b2970(266.0f + arg2.x, arg2.y);
+    sp130 = func_002b2970(266.0f + arg2.x, arg2.y);
     c154 = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
-    func_002b77d0(id, sp138.position, 0x131, c154, 153.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
+    func_002b77d0(id, sp138, 0x131, c154, 153.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
     func_002b68d0(id, 0xE, 0);
     h = func_0046d200(func_00331560(), 0x131);
     slot = (u8 **)(t + 0x258) + arg1;
-    *(FclVec2 *)func_002b81f0(*slot) = sp138.position;
+    *(FclVec2 *)func_002b81f0(*slot) = sp138;
     x = func_0046b260(h);
     spF0 = func_002b29e0(x, func_0046b2f0(h));
     ((FclBoundsPacket *)(func_002b81f0(*slot) + 8))->representation = spF0.representation;
@@ -430,23 +430,23 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
         for (id = 0, o2 = order + 4; id < 2; id++) {
             r = id + 0x174;
             base = r;
-            func_002b77d0(base, sp118.position = func_002b2970(6.0f + arg2.x + (f32)(id * 0x67), 4.0f + arg2.y), r,
+            func_002b77d0(base, sp118 = func_002b2970(6.0f + arg2.x + (f32)(id * 0x67), 4.0f + arg2.y), r,
                           c150 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, o2, arg5, 3, 3, arg4, func_00331560());
         }
         return;
     }
     if (datGetFlag(0x1305) != 0 && kind == 0x160) {
 
-        func_002b77d0(0x160, sp110.position = func_002b2970(6.0f + arg2.x, 4.0f + arg2.y), 0x160,
+        func_002b77d0(0x160, sp110 = func_002b2970(6.0f + arg2.x, 4.0f + arg2.y), 0x160,
                       c14C = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, base + 4, arg5, 3, 3, arg4, func_00331560());
         func_002b7750(0x2EB, 0x16F);
-        func_002b77d0(0x2EB, sp108.position = func_002b2970(100.0f + (6.0f + arg2.x), 4.0f + arg2.y), 0x16F,
+        func_002b77d0(0x2EB, sp108 = func_002b2970(100.0f + (6.0f + arg2.x), 4.0f + arg2.y), 0x16F,
                       c148 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, base + 4, arg5, 3, 3, arg4, func_00331560());
         return;
     }
-    sp100.position = func_002b2970(6.0f + arg2.x, 4.0f + arg2.y);
+    sp100 = func_002b2970(6.0f + arg2.x, 4.0f + arg2.y);
     c144 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-    func_002b77d0(arg3, sp100.position, arg3, c144, 152.0f, order + 4, arg5, 3, 3, arg4, func_00331560());
+    func_002b77d0(arg3, sp100, arg3, c144, 152.0f, order + 4, arg5, 3, 3, arg4, func_00331560());
 }
 #pragma pop
 /* measured: nd 0. Exact recipe: FclVec2 position parameter (spilled to 0xC8)
@@ -461,10 +461,10 @@ void func_00314ef0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
     FclByte4 c108;
     FclByte4 c104;
     FclByte4 c100;
-    FclPackedPosition spF8;
-    FclPackedPosition spF0;
-    FclPackedPosition spE8;
-    FclPackedPosition spE0;
+    FclVec2 spF8;
+    FclVec2 spF0;
+    FclVec2 spE8;
+    FclVec2 spE0;
     FclBoundsPacket spD0;
     u8 *t;
     u8 *h;
@@ -482,24 +482,24 @@ void func_00314ef0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
     res = two + 0x1F4;
     func_002b7750(res, 0x1AC);
     o2 = order + 2;
-    spF0.position = func_002b2970(arg2.x, arg2.y);
+    spF0 = func_002b2970(arg2.x, arg2.y);
     c10C = func_002b2a60(0, 0, 0x66, 0xFF);
-    func_002b77d0(res, spF0.position, 0x1AC, c10C, 151.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    func_002b77d0(res, spF0, 0x1AC, c10C, 151.0f, o2, arg5, 3, 3, arg4, func_00331560());
     res = two + 0x1F5;
     func_002b7750(res, 0x1B3);
     x = 217.0f + arg2.x;
-    spE8.position = func_002b2970(x, arg2.y);
+    spE8 = func_002b2970(x, arg2.y);
     c108 = func_002b2a60(0, 0, 0x66, 0xFF);
-    func_002b77d0(res, spE8.position, 0x1B3, c108, 151.0f, o2, arg5, 3, 3, arg4, func_00331560());
-    spF8.position = func_002b2970(x - 28.0f, arg2.y);
+    func_002b77d0(res, spE8, 0x1B3, c108, 151.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    spF8 = func_002b2970(x - 28.0f, arg2.y);
     res = arg1 + 0x2FB;
     func_002b7750(res, 0x131);
     c104 = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
-    func_002b77d0(res, spF8.position, 0x131, c104, 150.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
+    func_002b77d0(res, spF8, 0x131, c104, 150.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
     func_002b68d0(res, 0xE, 0);
     h = func_0046d200(func_00331560(), 0x131);
     slot = (u8 **)(t + 0x258) + arg1;
-    *(FclVec2 *)func_002b81f0(*slot) = spF8.position;
+    *(FclVec2 *)func_002b81f0(*slot) = spF8;
     x = func_0046b260(h);
     spD0 = func_002b29e0(x, func_0046b2f0(h));
     ((FclBoundsPacket *)(func_002b81f0(*slot) + 8))->representation = spD0.representation;
@@ -508,9 +508,9 @@ void func_00314ef0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
     *(u8 *)(func_002b81f0(*slot) + 0x124) = 0;
     func_0046d280(h);
     func_002b7750(arg3, arg3);
-    spE0.position = func_002b2970(6.0f + arg2.x, 8.0f + arg2.y);
+    spE0 = func_002b2970(6.0f + arg2.x, 8.0f + arg2.y);
     c100 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-    func_002b77d0(arg3, spE0.position, arg3, c100, 148.0f, order + 4, arg5, 3, 3, arg4, func_00331560());
+    func_002b77d0(arg3, spE0, arg3, c100, 148.0f, order + 4, arg5, 3, 3, arg4, func_00331560());
 }
 
 /* measured: nd 0, object 740/window 752 (the final 12 retail bytes are zero
@@ -525,7 +525,7 @@ void func_00315310(u8 *arg0, s64 arg1) {
     FclByte4 c74;
     FclByte4 c70;
     FclByte4 c6C;
-    FclPackedPosition sp60;
+    FclVec2 sp60;
     s32 i;
     u8 *t;
     u32 base;
@@ -545,8 +545,8 @@ void func_00315310(u8 *arg0, s64 arg1) {
     base = (s16)raw;
     for (; (s16)i < 3; i = (s16)(i + 1)) {
         off = (s16)i * 2;
-        sp60.position = func_002b2970(26.0f, (f32)((s16)i * 34 + 0x57));
-        func_003147e0(arg0, (s8)(s16)i, sp60.position, *(s16 *)(t + off + 0xB8), (s16)(base + off), 0);
+        sp60 = func_002b2970(26.0f, (f32)((s16)i * 34 + 0x57));
+        func_003147e0(arg0, (s8)(s16)i, sp60, *(s16 *)(t + off + 0xB8), (s16)(base + off), 0);
     }
     c7C = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
     p = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F4));
@@ -859,11 +859,11 @@ void func_00316470(u8 *arg0, s64 arg1, s64 arg2) {
 }
 // FUN_00316E80
 void func_00316e80(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s64 arg6, s64 arg7, s8 arg8, s8 arg9, s8 arg10) {
-    FclPackedPosition sp88;
-    FclPackedPosition sp80;
-    FclPackedPosition sp78;
-    FclPackedPosition sp70;
-    FclPackedPosition sp68;
+    FclVec2 sp88;
+    FclVec2 sp80;
+    FclVec2 sp78;
+    FclVec2 sp70;
+    FclVec2 sp68;
     f32 *b1;
     f32 *b2;
     f32 *b3;
@@ -873,8 +873,8 @@ void func_00316e80(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
     if ((s8)arg1 == 1) {
         b1 = D_006441C8;
         if ((s8)arg2 == 0) {
-            sp88.position = func_002b2970(b1[0], b1[1]);
-            func_002b6c30(0x8B, sp88.position, 103.0f, 0xBC);
+            sp88 = func_002b2970(b1[0], b1[1]);
+            func_002b6c30(0x8B, sp88, 103.0f, 0xBC);
             func_002b6a70(0x8B, 0, 0xFF, 0, 0xA, 0);
         } else {
             func_002b6a70(0x8B, *(u8 *)(func_002b6150(0x8B) + 0x6E), 0, 0, 0xA, 0);
@@ -883,8 +883,8 @@ void func_00316e80(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
     if ((s8)arg3 == 1) {
         b2 = D_006441D0;
         if ((s8)arg4 == 0) {
-            sp80.position = func_002b2970(b2[0], b2[1]);
-            func_002b6c30(0x8C, sp80.position, 103.0f, 0xBC);
+            sp80 = func_002b2970(b2[0], b2[1]);
+            func_002b6c30(0x8C, sp80, 103.0f, 0xBC);
             func_002b6a70(0x8C, 0, 0xFF, 0, 0xA, 0);
         } else {
             func_002b6a70(0x8C, *(u8 *)(func_002b6150(0x8C) + 0x6E), 0, 0, 0xA, 0);
@@ -893,8 +893,8 @@ void func_00316e80(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
     if ((s8)arg5 == 1) {
         b3 = D_006441C0;
         if ((s8)arg6 == 0) {
-            sp78.position = func_002b2970(b3[0], b3[1]);
-            func_002b6c30(0x8A, sp78.position, 103.0f, 0xBC);
+            sp78 = func_002b2970(b3[0], b3[1]);
+            func_002b6c30(0x8A, sp78, 103.0f, 0xBC);
             func_002b6a70(0x8A, 0, 0xFF, 0, 0xA, 0);
         } else {
             func_002b6a70(0x8A, *(u8 *)(func_002b6150(0x8A) + 0x6E), 0, 0, 0xA, 0);
@@ -903,8 +903,8 @@ void func_00316e80(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
     if ((s8)arg7 == 1) {
         b4 = D_006441E0;
         if (arg8 == 0) {
-            sp70.position = func_002b2970(b4[0], b4[1]);
-            func_002b6c30(0x8E, sp70.position, 103.0f, 0xBC);
+            sp70 = func_002b2970(b4[0], b4[1]);
+            func_002b6c30(0x8E, sp70, 103.0f, 0xBC);
             func_002b6a70(0x8E, 0, 0xFF, 0, 0xA, 0);
         } else {
             func_002b6a70(0x8E, *(u8 *)(func_002b6150(0x8E) + 0x6E), 0, 0, 0xA, 0);
@@ -913,8 +913,8 @@ void func_00316e80(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
     if (arg9 == 1) {
         b5 = D_006441D8;
         if (arg10 == 0) {
-            sp68.position = func_002b2970(b5[0], b5[1]);
-            func_002b6c30(0x8D, sp68.position, 103.0f, 0xBC);
+            sp68 = func_002b2970(b5[0], b5[1]);
+            func_002b6c30(0x8D, sp68, 103.0f, 0xBC);
             func_002b6a70(0x8D, 0, 0xFF, 0, 0xA, 0);
             return;
         }
@@ -924,13 +924,13 @@ void func_00316e80(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
 
 // FUN_00317240
 void func_00317240(u8 *arg0, s64 arg1, f32 fparg0) {
-    FclPackedPosition sp18;
+    FclVec2 sp18;
     f32 *b;
 
     b = D_00644C90;
     if (((s64)(arg1 << 0x38) >> 0x38) == 0) {
-        sp18.position = func_002b2970(b[0] + fparg0, b[1]);
-        func_002b6c30(0x1E4, sp18.position, 103.0f, 0xBC);
+        sp18 = func_002b2970(b[0] + fparg0, b[1]);
+        func_002b6c30(0x1E4, sp18, 103.0f, 0xBC);
         func_002b6a70(0x1E4, 0, 0xFF, 0, 0xA, 0);
         func_002b6b40(0x1E4, 0, 0, 0, 0.0f, 90.0f);
         return;
@@ -940,13 +940,13 @@ void func_00317240(u8 *arg0, s64 arg1, f32 fparg0) {
 
 // FUN_00317320
 void func_00317320(u8 *arg0, s64 arg1, f32 fparg0) {
-    FclPackedPosition sp18;
+    FclVec2 sp18;
     f32 *b;
 
     b = D_00644C90;
     if (((s64)(arg1 << 0x38) >> 0x38) == 0) {
-        sp18.position = func_002b2970(358.0f + fparg0, b[1]);
-        func_002b6c30(0x1E4, sp18.position, 103.0f, 0xBC);
+        sp18 = func_002b2970(358.0f + fparg0, b[1]);
+        func_002b6c30(0x1E4, sp18, 103.0f, 0xBC);
         func_002b6a70(0x1E4, 0, 0xFF, 0, 0xA, 0);
         func_002b6b40(0x1E4, 0, 0, 0, 0.0f, 90.0f);
         return;
@@ -1252,7 +1252,7 @@ void func_00318f30(s16 arg0) {
     f32 fv;
     FclVec2 sp40;
     FclByte4 sp4C;
-    FclPackedPosition sp38;
+    FclVec2 sp38;
 
     var = (s16)(arg0 * 2 + 0xDF);
     if (arg0 == 6) {
@@ -1265,8 +1265,8 @@ void func_00318f30(s16 arg0) {
     func_002b7750(0x2F2, (s16)(var + 1));
     p = func_002b6150(var);
     sp40 = *(FclVec2 *)(p + 0x38);
-    sp38.position = func_002b2970(sp40.x - 15.0f, sp40.y - 7.0f);
-    func_002b6c30(0x2F2, sp38.position, 58.0f, 0xAB);
+    sp38 = func_002b2970(sp40.x - 15.0f, sp40.y - 7.0f);
+    func_002b6c30(0x2F2, sp38, 58.0f, 0xAB);
     func_002b6a70(0x2F2, 0xFF, 0, 0, 0xF, 0);
     fv = iGpffff8360;
     *(f32 *)(func_002b6150(0x2F2) + 0xA0) = fv;
@@ -2812,28 +2812,28 @@ void func_00320970(u8 *arg0, s8 arg1) {
     FclByte4 sp58;
     FclByte4 sp54;
     FclByte4 sp50;
-    FclPackedPosition sp48;
-    FclPackedPosition sp40;
-    FclPackedPosition sp38;
-    FclPackedPosition sp30;
+    FclVec2 sp48;
+    FclVec2 sp40;
+    FclVec2 sp38;
+    FclVec2 sp30;
     FclVec2 *p;
 
     p = (FclVec2 *)D_00644020;
-    sp48.position = func_002b2970(p->x, p->y);
+    sp48 = func_002b2970(p->x, p->y);
     sp5C = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    func_002b77d0(0x56, sp48.position, 0x56, sp5C, 55.0f, 0xAA, arg1, 6, 6, 0, func_00331560());
+    func_002b77d0(0x56, sp48, 0x56, sp5C, 55.0f, 0xAA, arg1, 6, 6, 0, func_00331560());
     p = (FclVec2 *)D_00644098;
-    sp40.position = func_002b2970(p->x, p->y);
+    sp40 = func_002b2970(p->x, p->y);
     sp58 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    func_002b77d0(0x65, sp40.position, 0x65, sp58, 56.0f, 0xAA, arg1, 6, 6, 0, func_00331560());
+    func_002b77d0(0x65, sp40, 0x65, sp58, 56.0f, 0xAA, arg1, 6, 6, 0, func_00331560());
     p = (FclVec2 *)D_00644AD0;
-    sp38.position = func_002b2970(p->x, p->y);
+    sp38 = func_002b2970(p->x, p->y);
     sp54 = func_002b2a60(0xE, 0x17, 0x49, 0x80);
-    func_002b77d0(0x1AC, sp38.position, 0x1AC, sp54, 57.0f, 0xA9, arg1, 6, 6, 0, func_00331560());
+    func_002b77d0(0x1AC, sp38, 0x1AC, sp54, 57.0f, 0xA9, arg1, 6, 6, 0, func_00331560());
     p = (FclVec2 *)D_00644B00;
-    sp30.position = func_002b2970(p->x, p->y);
+    sp30 = func_002b2970(p->x, p->y);
     sp50 = func_002b2a60(0xE, 0x17, 0x49, 0x80);
-    func_002b77d0(0x1B2, sp30.position, 0x1B2, sp50, 58.0f, 0xA9, arg1, 6, 6, 0, func_00331560());
+    func_002b77d0(0x1B2, sp30, 0x1B2, sp50, 58.0f, 0xA9, arg1, 6, 6, 0, func_00331560());
 }
 
 // measured: nd N/A (draw-family, s64-param floor). 2b2970/6c30/6a70/6af0/69f0/83e0 + 191c0/e5b0/ac10 calls with s64 args: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
@@ -4619,23 +4619,23 @@ void func_00329e40(u8 *task, s16 delay, s8 mode) {
 
     FclVec2 origin;
     FclVec2 constructed;
-    FclPackedPosition spD8;
-    FclPackedPosition spD0;
-    FclPackedPosition spC8;
-    FclPackedPosition spC0;
-    FclPackedPosition spB8;
-    FclPackedPosition spB0;
-    FclPackedPosition spA8;
-    FclPackedPosition spA0;
-    FclPackedPosition sp98;
-    FclPackedPosition sp90;
-    FclPackedPosition sp88;
-    FclPackedPosition sp80;
-    FclPackedPosition sp78;
-    FclPackedPosition sp70;
-    FclPackedPosition sp68;
-    FclPackedPosition sp60;
-    FclPackedPosition sp58;
+    FclVec2 spD8;
+    FclVec2 spD0;
+    FclVec2 spC8;
+    FclVec2 spC0;
+    FclVec2 spB8;
+    FclVec2 spB0;
+    FclVec2 spA8;
+    FclVec2 spA0;
+    FclVec2 sp98;
+    FclVec2 sp90;
+    FclVec2 sp88;
+    FclVec2 sp80;
+    FclVec2 sp78;
+    FclVec2 sp70;
+    FclVec2 sp68;
+    FclVec2 sp60;
+    FclVec2 sp58;
     u8 *work;
     work = *(u8 **)(task + 0x38);
     constructed = func_002b2970(79.0f, 97.0f);
@@ -4645,60 +4645,60 @@ void func_00329e40(u8 *task, s16 delay, s8 mode) {
         FclDrawColor textColor = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
         textColor = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
         func_002b77d0(0x21C, origin, 0x193, panelColor, 191.0f, 0x41, mode, 6, 3, delay, func_00331560());
-        spD8.position = func_002b2970((f32)0x1DF + origin.x, origin.y);
-        func_002b77d0(0x1A3, spD8.position, 0x1A3, panelColor, 191.0f, 0x41, mode, 6, 3, delay, func_00331560());
-        spD0.position = func_002b2970(20.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x120, spD0.position, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        spD8 = func_002b2970((f32)0x1DF + origin.x, origin.y);
+        func_002b77d0(0x1A3, spD8, 0x1A3, panelColor, 191.0f, 0x41, mode, 6, 3, delay, func_00331560());
+        spD0 = func_002b2970(20.0f + origin.x, 3.0f + origin.y);
+        func_002b77d0(0x120, spD0, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, func_00331560());
         func_002b7750(0x2E8, 0x120);
-        spC8.position = func_002b2970(30.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E8, spC8.position, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, func_00331560());
-        spC0.position = func_002b2970(47.0f + origin.x, 2.0f + origin.y);
-        func_002b77d0(0x11F, spC0.position, 0x11F, textColor, 183.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        spC8 = func_002b2970(30.0f + origin.x, 3.0f + origin.y);
+        func_002b77d0(0x2E8, spC8, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        spC0 = func_002b2970(47.0f + origin.x, 2.0f + origin.y);
+        func_002b77d0(0x11F, spC0, 0x11F, textColor, 183.0f, 0x56, mode, 6, 3, delay, func_00331560());
         origin = func_002b2970(314.0f, 97.0f);
-        spB8.position = func_002b2970(214.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x121, spB8.position, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        spB8 = func_002b2970(214.0f + origin.x, 3.0f + origin.y);
+        func_002b77d0(0x121, spB8, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, func_00331560());
         func_002b7750(0x2E9, 0x121);
-        spB0.position = func_002b2970(224.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E9, spB0.position, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, func_00331560());
-        spA8.position = func_002b2970(97.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x11E, spA8.position, 0x11E, textColor, 182.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        spB0 = func_002b2970(224.0f + origin.x, 3.0f + origin.y);
+        func_002b77d0(0x2E9, spB0, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        spA8 = func_002b2970(97.0f + origin.x, 3.0f + origin.y);
+        func_002b77d0(0x11E, spA8, 0x11E, textColor, 182.0f, 0x56, mode, 6, 3, delay, func_00331560());
         panelColor = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
         origin = func_002b2970(79.0f, 97.0f);
         func_002b7750(0x2EA, 0x193);
-        spA0.position = func_002b2970(origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
-        func_002b77d0(0x2EA, spA0.position, 0x193, panelColor, 187.0f, 0x41, mode, 6, 3, delay, func_00331560());
+        spA0 = func_002b2970(origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
+        func_002b77d0(0x2EA, spA0, 0x193, panelColor, 187.0f, 0x41, mode, 6, 3, delay, func_00331560());
         func_002b7750(0x2EB, 0x19C);
-        sp98.position = func_002b2970(220.0f + origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
-        func_002b77d0(0x2EB, sp98.position, 0x19C, panelColor, 187.0f, 0x41, mode, 6, 3, delay, func_00331560());
+        sp98 = func_002b2970(220.0f + origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
+        func_002b77d0(0x2EB, sp98, 0x19C, panelColor, 187.0f, 0x41, mode, 6, 3, delay, func_00331560());
         origin = func_002b2970(79.0f, 97.0f);
         func_002b7750(0x2EC, 0x11F);
-        sp90.position = func_002b2970(47.0f + origin.x, 2.0f + origin.y);
-        func_002b77d0(0x2EC, sp90.position, 0x11F, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        sp90 = func_002b2970(47.0f + origin.x, 2.0f + origin.y);
+        func_002b77d0(0x2EC, sp90, 0x11F, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         func_002b7750(0x2E4, 0x120);
-        sp88.position = func_002b2970(20.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E4, sp88.position, 0x120, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        sp88 = func_002b2970(20.0f + origin.x, 3.0f + origin.y);
+        func_002b77d0(0x2E4, sp88, 0x120, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         func_002b7750(0x2E5, 0x120);
-        sp80.position = func_002b2970(30.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E5, sp80.position, 0x120, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        sp80 = func_002b2970(30.0f + origin.x, 3.0f + origin.y);
+        func_002b77d0(0x2E5, sp80, 0x120, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         origin = func_002b2970(314.0f, 97.0f);
         func_002b7750(0x2E1, 0x11E);
-        sp78.position = func_002b2970(97.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E1, sp78.position, 0x11E, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        sp78 = func_002b2970(97.0f + origin.x, 3.0f + origin.y);
+        func_002b77d0(0x2E1, sp78, 0x11E, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         func_002b7750(0x2E6, 0x121);
-        sp70.position = func_002b2970(214.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E6, sp70.position, 0x121, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        sp70 = func_002b2970(214.0f + origin.x, 3.0f + origin.y);
+        func_002b77d0(0x2E6, sp70, 0x121, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         func_002b7750(0x2E7, 0x121);
-        sp68.position = func_002b2970(224.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E7, sp68.position, 0x121, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        sp68 = func_002b2970(224.0f + origin.x, 3.0f + origin.y);
+        func_002b77d0(0x2E7, sp68, 0x121, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         panelColor = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
         origin = func_002b2970(79.0f, 97.0f);
         func_002b7750(0x2E2, 0x193);
-        sp60.position = func_002b2970(origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
-        func_002b77d0(0x2E2, sp60.position, 0x193, func_002b2a60(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, func_00331560());
+        sp60 = func_002b2970(origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
+        func_002b77d0(0x2E2, sp60, 0x193, func_002b2a60(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, func_00331560());
         func_002b68d0(0x2E2, 0xD, 0);
         func_002b7750(0x2E3, 0x19C);
-        sp58.position = func_002b2970(220.0f + origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
-        func_002b77d0(0x2E3, sp58.position, 0x19C, func_002b2a60(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, func_00331560());
+        sp58 = func_002b2970(220.0f + origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
+        func_002b77d0(0x2E3, sp58, 0x19C, func_002b2a60(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, func_00331560());
         func_002b68d0(0x2E3, 0xD, 0);
     }
 }
@@ -5005,18 +5005,18 @@ void func_0032b9d0(u8 *arg0, s16 arg1, s16 arg2, s8 arg3) {
     FclByte4 c12C;
     FclDrawColor c128;
     FclDrawColor c124;
-    FclPackedPosition sp118;
+    FclVec2 sp118;
     FclVec2 sp110;
-    FclPackedPosition sp108;
+    FclVec2 sp108;
     FclVec2 origin;
     FclVec2 spF8;
-    FclPackedPosition spF0;
-    FclPackedPosition spE8;
-    FclPackedPosition spE0;
-    FclPackedPosition spD8;
+    FclVec2 spF0;
+    FclVec2 spE8;
+    FclVec2 spE0;
+    FclVec2 spD8;
     FclVec2 cell;
     FclVec2 spC8;
-    FclPackedPosition spC0;
+    FclVec2 spC0;
     u8 *t;
     u8 *t2;
     s16 entry;
@@ -5027,26 +5027,26 @@ void func_0032b9d0(u8 *arg0, s16 arg1, s16 arg2, s8 arg3) {
     f32 y9;
 
     t = *(u8 **)(arg0 + 0x38);
-    sp118.position = func_002b2970(88.0f, 127.0f);
-    func_0031e5b0(arg0, sp118.position, 0, arg3, 0, 1, 3);
+    sp118 = func_002b2970(88.0f, 127.0f);
+    func_0031e5b0(arg0, sp118, 0, arg3, 0, 1, 3);
     spF8 = func_002b2970(390.0f, 127.0f);
     origin = *(FclVec2 *)&spF8;
     c13C = func_002b2a60(0, 0, 0x99, 0xFF);
     func_002b77d0(0x21E, origin, 0x193, c13C, 191.0f, 0x41, arg3, 6, 3, 0, func_00331560());
     y = origin.y;
-    spF0.position = func_002b2970(151.0f + origin.x, y);
+    spF0 = func_002b2970(151.0f + origin.x, y);
     c138 = func_002b2a60(0, 0, 0x99, 0xFF);
-    func_002b77d0(0x19D, spF0.position, 0x19D, c138, 191.0f, 0x41, arg3, 6, 3, 0, func_00331560());
+    func_002b77d0(0x19D, spF0, 0x19D, c138, 191.0f, 0x41, arg3, 6, 3, 0, func_00331560());
     y9 = 9.0f + y;
-    spE8.position = func_002b2970(24.0f + origin.x, y9);
+    spE8 = func_002b2970(24.0f + origin.x, y9);
     c134 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    func_002b77d0(0x2AF, spE8.position, 0x73, c134, 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
-    spE0.position = func_002b2970(65.0f + origin.x, y9);
+    func_002b77d0(0x2AF, spE8, 0x73, c134, 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
+    spE0 = func_002b2970(65.0f + origin.x, y9);
     c130 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    func_002b77d0(0x2B0, spE0.position, 0x73, c130, 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
-    spD8.position = func_002b2970(119.0f + origin.x, 5.0f + y);
+    func_002b77d0(0x2B0, spE0, 0x73, c130, 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
+    spD8 = func_002b2970(119.0f + origin.x, 5.0f + y);
     c12C = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-    func_002b77d0(0x11D, spD8.position, 0x11D, c12C, 191.0f, 0x56, arg3, 6, 3, 0, func_00331560());
+    func_002b77d0(0x11D, spD8, 0x11D, c12C, 191.0f, 0x56, arg3, 6, 3, 0, func_00331560());
     func_00329e40(arg0, 0, arg3);
     entry = *(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120);
     row = 0;
@@ -5071,11 +5071,11 @@ void func_0032b9d0(u8 *arg0, s16 arg1, s16 arg2, s8 arg3) {
             c128 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
         }
         func_002b77d0((s8)row + 0x21F, cell, 0x193, c128, 191.0f, 0x41, arg3, 6, 3, row * step, func_00331560());
-        spC0.position = func_002b2970(132.0f + cell.x, cell.y);
-        func_002b77d0((s8)row + 0x2C5, spC0.position, 0x19E, c128, 191.0f, 0x41, arg3, 6, 3, row * step, func_00331560());
+        spC0 = func_002b2970(132.0f + cell.x, cell.y);
+        func_002b77d0((s8)row + 0x2C5, spC0, 0x19E, c128, 191.0f, 0x41, arg3, 6, 3, row * step, func_00331560());
     }
-    sp108.position = func_002b2970(535, 154.0f);
-    func_00324f80(arg0, sp108.position, 0, arg3);
+    sp108 = func_002b2970(535, 154.0f);
+    func_00324f80(arg0, sp108, 0, arg3);
     *(f32 *)(func_002b6150(0xB1) + 0x3C) = *(f32 *)(t + 0x124) * (*(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120)) + *(f32 *)(func_002b6150(0xAA) + 0x3C);
     *(f32 *)(func_002b6150(0xB5) + 0x3C) = 52.0f + *(f32 *)(func_002b6150(0xB1) + 0x3C);
     func_003297f0(359, 300.0f, arg0, 1, arg3);
@@ -5175,7 +5175,7 @@ static inline u8 *cdfPersona(u8 *draw)
 // FUN_0032C480
 void func_0032c480(u8 *arg0)
 {
-    union { FclVec2 xy; s64 whole; } sp38;
+    FclVec2 sp38;
     CdfCombineWork *obj;
     s32 n;
 
@@ -5184,8 +5184,8 @@ void func_0032c480(u8 *arg0)
         (const char *)((u8 *)iGpffffb440 + *(u16 *)(func_002e48a0(0, obj->selection) + 2) * 0x11),
         0, 0, D_00796310, 0x15);
     n = (s16)((func_00109280(*(u16 *)(func_002e48a0(0, obj->selection) + 2)) & 0xFF) + 0x1B);
-    sp38.xy = func_002b2970(54.0f, 103.0f);
-    func_00330e50(n, sp38.xy, 1.0f, 0xFF000000, 0xFF, 1, 1.0f, 1.0f, D_00796310);
+    sp38 = func_002b2970(54.0f, 103.0f);
+    func_00330e50(n, sp38, 1.0f, 0xFF000000, 0xFF, 1, 1.0f, 1.0f, D_00796310);
     n = (s16)func_00331640();
     func_00279350(54.0f, 138.0f, 1.0f, -1, 1, 0, 1, n,
         *(u16 *)(func_002e48a0(0, obj->selection) + 2), D_00796370);
@@ -6107,11 +6107,11 @@ s8 func_0032fb60(s8 arg0) {
 void func_0032fbc0(u8 *arg0) {
     FclByte4 c10C;
     FclByte4 c108;
-    FclPackedPosition sp100;
-    FclPackedPosition spF8;
-    FclPackedPosition spF0;
-    FclPackedPosition spE8;
-    FclPackedPosition spE0;
+    FclVec2 sp100;
+    FclVec2 spF8;
+    FclVec2 spF0;
+    FclVec2 spE8;
+    FclVec2 spE0;
     u8 *t;
     s16 i;
     s16 j;
@@ -6119,12 +6119,12 @@ void func_0032fbc0(u8 *arg0) {
     u8 *h;
 
     t = *(u8 **)(arg0 + 0x38);
-    sp100.position = func_002b2970(16.0f, 104.0f);
-    func_0031e5b0(arg0, sp100.position, 0, 1, 0, 0, 0);
+    sp100 = func_002b2970(16.0f, 104.0f);
+    func_0031e5b0(arg0, sp100, 0, 1, 0, 0, 0);
     i = 0;
     while ((s16)i < (u16)func_0010b5b0()) {
-        spF8.position = func_002b2970(16.0f, 128.0f);
-        func_003191c0(arg0, spF8.position, (s8)i, *(u16 *)(func_002e48a0(0, i) + 2),
+        spF8 = func_002b2970(16.0f, 128.0f);
+        func_003191c0(arg0, spF8, (s8)i, *(u16 *)(func_002e48a0(0, i) + 2),
                       *(u8 *)(func_002e48a0(0, i) + 4), 0, 1, (s8)*(u8 *)(func_002e4870(0) + 8));
         j = 0;
         p = t + (s16)i * 4;
@@ -6154,11 +6154,11 @@ void func_0032fbc0(u8 *arg0) {
             f32 spacing = 23.0f;
             f32 row = (f32)i;
             f32 startX = (f32)329;
-            spF0.position = func_002b2970(startX + spacing * row, 104.0f);
+            spF0 = func_002b2970(startX + spacing * row, 104.0f);
         }
         c10C = func_002b2a60(0, 0, 0x99, 0xFF);
         c108 = func_002b2a60(0, 0, 0x99, 0xFF);
-        func_002b83e0(p, spF0.position, c10C, c108, 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
+        func_002b83e0(p, spF0, c10C, c108, 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
         {
             s16 normalizedRow = i;
             s16 resource = (s16)(normalizedRow + 0x25E);
@@ -6168,10 +6168,10 @@ void func_0032fbc0(u8 *arg0) {
                 f32 unitScale = 1.0f;
                 func_002b6af0(resource, unitScale, unitScale, unitScale, iGpffff8504, 0, 3, 0);
             }
-            spE8.position = func_002b2970((f32)(normalizedRow * 23 + 0x14E), 110.0f);
-            spE0.position = func_002b2970((f32)(normalizedRow * 23 + 0x14E),
+            spE8 = func_002b2970((f32)(normalizedRow * 23 + 0x14E), 110.0f);
+            spE0 = func_002b2970((f32)(normalizedRow * 23 + 0x14E),
                          110.0f + func_0046b2f0(h) / 2.0f);
-            func_002b69f0(resource, spE8.position, spE0.position, 0, 3, 0);
+            func_002b69f0(resource, spE8, spE0, 0, 3, 0);
             func_0046d280(h);
         }
         ++i;
