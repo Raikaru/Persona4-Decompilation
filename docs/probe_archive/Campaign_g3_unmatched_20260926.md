@@ -139,7 +139,7 @@ datGetFlag (157). With one shared counter for both loops, both loops get the
 same register (20). `row = base; row += ...` coalesces `row` with `base`
 (16). The 8-word archive draft stays the frontier.
 
-### code1_0026.c `func_0026cef0`: 245 -> 60 words
+### code1_0026.c `func_0026cef0`: 245 -> 60 words -> MATCH
 
 Body: `Code0026Spline_0026cef0_body_r2_20260926.c` (1292 B of 1296 B, under
 `opt_loop_invariants on`).
@@ -162,3 +162,10 @@ Body: `Code0026Spline_0026cef0_body_r2_20260926.c` (1292 B of 1296 B, under
   control-point loops. Permuting the integer/pointer declarations (30), a
   block-scoped `k`, a `while` loop, testing `*arg0` directly, and dropping the
   `path` local all leave 60.
+- MATCH: declare the control-point counter `j` in block scope, once inside the
+  first branch and once inside the segment loop. The sampling counter `k` is then
+  coloured first (`$s0`), and the `j` loops take `$a1`. When one variable serves
+  all three loops, all three get `$s0` (11 words). When the first-branch loop
+  shares `k`, `k` goes to `$s0` but that loop is also in `$s0` (6 words).
+  Installed with the body as `Code0026Spline_0026cef0_body_r2_20260926.c` plus
+  that scoping change.
