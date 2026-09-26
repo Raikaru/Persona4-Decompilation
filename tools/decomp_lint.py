@@ -101,6 +101,8 @@ RULES = {
     "H009": ("error", "inline asm emitting ordinary instructions (not syscall/privileged/COP2/VU0); use honest C"),
     "H010": ("error", "`#pragma schedule on` inside a guarded body; retail's first-party build "
                       "is unscheduled, so this only deletes delay-slot nops to shrink the count"),
+    "H011": ("warn", "declaration disagrees with the function's definition; one function has "
+                     "one signature - fix the definition's real type or the caller's types"),
     # ---- M: marker hygiene -------------------------------------------------
     "M001": ("error", "marker hygiene: malformed FUN_ address or duplicate address in one file"),
     "M002": ("error", "NONMATCHING body with no INCLUDE_ASM fallback; drops the whole unit from the C link"),
@@ -926,7 +928,164 @@ def check_marker_adjacency(src):
                     break
 
 
+# ------------------------------------------------ H011: declaration contracts
+#
+# A recovered function has one signature. A declaration (file scope, block
+# scope or header) that disagrees with the function's active definition
+# describes a contract the original program could not have had, however well
+# it steers codegen. Types are compared by calling-convention class, so
+# spelling differences (int/s32, FclVec2/f2, char */u8 *) are not reported;
+# width, signedness, pointer-vs-value, aggregate-vs-scalar, arity and struct
+# returns are.
+
+_SCALAR_CLASS = {
+    "u8": "u8", "unsigned char": "u8", "s8": "s8", "char": "s8", "signed char": "s8",
+    "u16": "u16", "unsigned short": "u16", "s16": "s16", "short": "s16",
+    "signed short": "s16",
+    "u32": "u32", "unsigned int": "u32", "unsigned": "u32", "size_t": "u32",
+    "uintptr_t": "u32",
+    "s32": "s32", "int": "s32", "signed int": "s32", "signed": "s32", "intptr_t": "s32",
+    "u64": "u64", "unsigned long long": "u64", "s64": "s64", "long long": "s64",
+    "signed long long": "s64",
+    "f32": "f32", "float": "f32", "f64": "f64", "double": "f64", "void": "void",
+}
+_TYPE_WORDS = frozenset(("const", "volatile", "register", "struct", "union", "enum",
+                         "unsigned", "signed", "short", "long", "int", "char"))
+_NOT_A_TYPE = frozenset(("return", "else", "case", "goto", "do", "sizeof"))
+_FUNC_DECL_RE = re.compile(
+    r"^(?P<indent>\s*)(?:extern\s+)?(?:static\s+)?(?:inline\s+)?"
+    r"(?P<ret>[A-Za-z_][A-Za-z0-9_ ]*?[ \*]+)(?P<name>func_[0-9a-f]{8})\s*"
+    r"\((?P<args>[^()]*)\)\s*(?P<end>[;{])?\s*(?://.*|/\*.*)?$")
+_TYPEDEF_RE = re.compile(r"^\s*typedef\s+([^;{}()]+?)\s*(\**)\s*([A-Za-z_]\w*)\s*;")
+
+
+def _type_class(text, typedefs):
+    words = text.replace("*", " * ").split()
+    if "*" in words or "[" in text:
+        return "ptr"
+    words = [w for w in words if w not in ("const", "volatile", "register", "struct",
+                                           "union", "enum")]
+    name = " ".join(words)
+    seen = set()
+    while name in typedefs and name not in seen:
+        seen.add(name)
+        name = typedefs[name]
+    if name == "ptr":
+        return "ptr"
+    return _SCALAR_CLASS.get(name, "agg" if name else "?")
+
+
+def _param_classes(args, typedefs):
+    args = args.strip()
+    if not args:
+        return None  # unprototyped: no parameter contract to compare
+    if args == "void":
+        return ()
+    out = []
+    for param in args.split(","):
+        param = param.strip()
+        if param == "...":
+            out.append("...")
+            continue
+        words = param.replace("*", " * ").split()
+        if len(words) > 1 and words[-1] != "*" and words[-1] not in _TYPE_WORDS \
+                and words[-1] not in _SCALAR_CLASS and words[-1] not in typedefs:
+            param = param[:param.rindex(words[-1])]
+        out.append(_type_class(param, typedefs))
+    return tuple(out)
+
+
+def _typedefs_from(lines, typedefs):
+    for line in lines:
+        m = _TYPEDEF_RE.match(line)
+        if m:
+            base, stars, name = m.groups()
+            typedefs.setdefault(name, "ptr" if stars else " ".join(
+                w for w in base.split() if w not in ("const", "volatile")))
+
+
+@functools.lru_cache(maxsize=None)
+def _global_typedefs():
+    typedefs = {}
+    for header in sorted((ROOT / "include").rglob("*.h")):
+        try:
+            _typedefs_from(header.read_text(errors="replace").split("\n"), typedefs)
+        except OSError:
+            pass
+    return typedefs
+
+
+def _signatures(src, typedefs):
+    """Yield (index, name, ret_class, param_classes, is_definition) per line."""
+    for i, line in enumerate(src.code):
+        m = _FUNC_DECL_RE.match(line)
+        if not m:
+            continue
+        ret = m.group("ret").strip()
+        if not ret or ret.split()[0] in _NOT_A_TYPE:
+            continue
+        end = m.group("end")
+        if end is None:
+            nxt = next((l.strip() for l in src.code[i + 1:i + 3] if l.strip()), "")
+            if not nxt.startswith("{"):
+                continue
+            end = "{"
+        definition = end == "{" and not m.group("indent")
+        yield (i, m.group("name"), _type_class(ret, typedefs),
+               _param_classes(m.group("args"), typedefs), definition)
+
+
+@functools.lru_cache(maxsize=None)
+def _definition_index():
+    """name -> [(rel, line, ret, params)] for every active definition in src/."""
+    index = defaultdict(list)
+    for path in sorted((ROOT / "src").rglob("*.c")):
+        rel = path.relative_to(ROOT).as_posix()
+        if rel.startswith("src/generated/") or _is_tool_scratch(path.name):
+            continue
+        try:
+            src = Source(path, path.read_bytes())
+        except OSError:
+            continue
+        skip = non_matching_lines(src)
+        typedefs = dict(_global_typedefs())
+        _typedefs_from(src.code, typedefs)
+        for i, name, ret, params, definition in _signatures(src, typedefs):
+            if definition and i not in skip:
+                index[name].append((rel, i + 1, ret, params))
+    return index
+
+
+def _describe(ret, params):
+    return f"{ret}({', '.join(params) if params is not None else '?'})"
+
+
+def check_decl_contract(src):
+    """A func_ declaration whose contract disagrees with the active definition."""
+    typedefs = dict(_global_typedefs())
+    _typedefs_from(src.code, typedefs)
+    index = _definition_index()
+    for i, name, ret, params, definition in _signatures(src, typedefs):
+        if definition:
+            continue
+        defs = index.get(name)
+        if not defs:
+            continue
+        def agrees(d):
+            return d[2] == ret and (params is None or d[3] is None or d[3] == params)
+        if any(agrees(d) for d in defs):
+            continue
+        if waived(src, i, "H011"):
+            continue
+        rel, line, dret, dparams = defs[0]
+        yield Finding("H011", src.rel(), i + 1,
+                      f"{name} declared {_describe(ret, params)} but defined "
+                      f"{_describe(dret, dparams)} at {rel}:{line}",
+                      src.lines[i].strip())
+
+
 CHECKS = (
+    check_decl_contract,
     check_volatile,
     check_banned_pragma,
     check_guarded_schedule,
