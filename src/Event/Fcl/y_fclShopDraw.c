@@ -366,7 +366,7 @@ s32 func_002be530(u8 *arg0)
     extern s32 sprintf(char *, const char *, ...);
     extern s32 func_00452380(void *);
     extern u8 func_0045aeb0(s16, const char *);
-    extern void func_002e3560(void *, s32, s32, s32, s32);
+    extern void func_002e3560(void *, s32, s32, s8, s32);
     extern void func_002dfe00(void *arg0);
     extern s32 func_002dfd00(u16 arg0);
     extern void func_002e02d0(u8 *task);
@@ -3645,10 +3645,10 @@ void func_002cb6c0(void *arg0, s8 arg1) {
 #ifdef NON_MATCHING
 void func_002cdf80(void *arg0, s8 arg1) {
     extern u8 D_0063FAA0[];
-    s32 func_002e05a0(void *);
+    s8 func_002e05a0(void *);
     s8 func_002e2a00(void *);
-    void func_002e3560(void *, s32, s32, s32, s32);
-    void func_002b3050(s16, s16, s32, s32, s32, s16 *, s16 *);
+    void func_002e3560(void *, s32, s32, s8, s32);
+    void func_002b3050(s32, s32, s32, s64, s32, s16 *, s16 *);
     s8 func_002d4760(void *, s8);
     void func_002d7c10(void *, s16);
     void func_002dd230(void *);
@@ -6572,7 +6572,7 @@ void func_002db400(void *arg0) {
     extern u8 D_0063FA88[];
     extern u8 D_0063FA90[];
     extern u8 D_0063FA98[];
-    void func_002e3560(void *, s32, s32, s32, s32);
+    void func_002e3560(void *, s32, s32, s8, s32);
     FclDrawColor c0;
     FclDrawColor c1;
     FclDrawColor c2;
