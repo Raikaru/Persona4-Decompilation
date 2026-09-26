@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_fclModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "fcl_color.h"
+#include "cmb_card_eff.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -13,13 +14,6 @@ extern u8 D_0064A630[];
 extern u8 D_0064A6B0[];
 extern u8 D_0064A6C0[];
 
-/* The two 12-byte vectors retail copies global->stack as ld/sd for the first
-   eight bytes plus lwc1/swc1 for the last four. */
-typedef struct
-{
-    s64 xy;
-    f32 z;
-} FclVec3;
 extern u8 D_0064A6D0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -45,7 +39,6 @@ extern s32 datGetFlag(s32);
 extern s32 func_00348be0(u8 *);
 extern s32 func_00348c10(u8 *);
 extern u8 *func_001102f0(u8 *, s32, s32, f32);
-extern void func_003489c0(u8 *, void *, s32, s32, s32, f32, f32, f32, f32);
 extern s32 func_00285b30(void);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *, void *);
@@ -369,8 +362,8 @@ void func_00349b90(u8 *arg0, u8 *arg1)
 #ifdef NON_MATCHING
 s32 func_00349c50(u8 *arg0)
 {
-    u8 sp28[16];
-    u8 sp38[12];
+    FclVec3 sp28;
+    FclVec3 sp38;
     u8 sp44[4];
     s32 sp48;
     s32 sp4C;
@@ -437,9 +430,9 @@ s32 func_00349c50(u8 *arg0)
                 break;
             case 1:
                 if (func_00348c10(*(u8 **)(obj + 0xEC)) == 0) {
-                    func_001102f0(sp38, 0x140, 0xA5, 300.0f);
+                    func_001102f0((u8 *)&sp38, 0x140, 0xA5, 300.0f);
                     fclWriteColorBytes(&sp48, 0xFF, 0xFF, 0xFF, 0xFF);
-                    func_003489c0(*(u8 **)(obj + 0xEC), sp38, sp48, 0, -1, 0.0f, 0.0f, 0.0f, 1.0f);
+                    func_003489c0(*(u8 **)(obj + 0xEC), sp38, 0.0f, 0.0f, 0.0f, 1.0f, *(FclDrawColor *)&sp48, 0, -1);
                 }
                 if (func_00348c10(*(u8 **)(obj + 0xF0)) == 0) {
                     fclWriteColorBytes(sp44, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -447,7 +440,7 @@ s32 func_00349c50(u8 *arg0)
                     ((u8 *)&sp4C)[1] = sp44[1];
                     ((u8 *)&sp4C)[2] = sp44[2];
                     ((u8 *)&sp4C)[3] = sp44[3];
-                    func_001102f0(sp28, 0x140, 0xA5, 300.0f);
+                    func_001102f0((u8 *)&sp28, 0x140, 0xA5, 300.0f);
                     switch (*(u16 *)(obj + 8)) {
                     case 0x59:
                         fclWriteColorBytes(&sp4C, 0xFF, 0xFF, 0xFF, 0xCD);
@@ -461,7 +454,7 @@ s32 func_00349c50(u8 *arg0)
                     default:
                         break;
                     }
-                    func_003489c0(*(u8 **)(obj + 0xF0), sp28, sp4C, 0, -1, 0.0f, 0.0f, 0.0f, 1.0f);
+                    func_003489c0(*(u8 **)(obj + 0xF0), sp28, 0.0f, 0.0f, 0.0f, 1.0f, *(FclDrawColor *)&sp4C, 0, -1);
                 }
                 if (*(s8 *)(obj + 5) == 1) {
                     u16 v = *(u16 *)(obj + 8);
