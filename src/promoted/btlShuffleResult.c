@@ -86,8 +86,8 @@ extern s32 func_00377eb0(u8 *parent, s32 cardIndex);
 extern void func_0038d2a0(s32 a);
 extern u32 RpRandom(void);
 extern s32 func_00380bd0(u8 *a);
-extern u8 D_0064E6E0[];
-extern u8 D_0064E700[];
+extern u8 D_0064E6E0[][2];
+extern u8 D_0064E700[][2];
 extern u8 iGpffffa9B8;
 extern u8 D_0064E72E[];
 extern s64 D_0064EC88;
@@ -920,49 +920,65 @@ block_17:
 }
 
 
-/* measured: cold recovery from m2c+romwright+Ghidra/IDA (dispatch beq-chain */
-/* 3,2,0,-1 via ascending switch, 4 identical chance chains with plain */
-/* (u8)(100.0f*(f/4096.0f)) and (f32)(u32 & 0xFFF), D_0064E700 loop with */
-/* hoisted basep, block_68 unit loop, cases -1/2/3, iGpffffa9B8 GPREL via */
-/* *(&iGpffffa9B8+arg3) and D_0064E6E0/D_0064E700 absolute). Follows 80ea0 */
-/* idiom: frame 0x60, slot hoist, u16 flags at work+4/6/0x10 (no s32 win */
-/* trap), single shared return via block_68 goto (case -1 direct). Wins: u32 */
-/* rnd (497->541, -45 short to -1 inside 3%), loop chance mask drop */
-/* (445->434, 52->46 edits), opt_common_subs off (434->396). Neutral, do not */
-/* repeat: GPREL/table swap (430 nd but 60 edits, GPREL hoist), schedule / */
-/* loopinv singles and pairs tie, for vs while tie. Walls: sltu/andi */
-/* definition-site sunk (retail sltu $v0 + andi $sN vs mwcc sltu $sN) and */
-/* D_0064E6E0 sll/lui/addu/andi order (2 sites); prior or-fold/cvt-scratch */
-/* floors fixed by u32/plain casts. fnalign 72 edits +12 reloc-only, retail */
-/* 542 vs object 541 (-1, -0.2% inside 3% gate). Rule-3: no quadword reads. */
-// FUN_00382EA0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
+/* Column (0/1) of the two-column bonus tables D_0064E6E0 and D_0064E700. */
+static inline u8 shuffleBonusColumn(void)
+{
+    return func_0015a190() ? 1 : 0;
+}
+
+/* Roll for the shuffle bonus: nonzero when enabled and a 0-99 roll falls
+   under the table threshold for the current bonus level and rate. */
+static inline s32 shuffleBonusRoll(u8 *work, s32 rate)
+{
+    u8 flag;
+    s32 thresh;
+    s32 chance;
+
+    if (datGetFlag(0x1430) == 0 || datGetFlag(0x11) == 0) {
+        return 0;
+    }
+    flag = shuffleBonusColumn();
+    /* measured: indexing from the scalar's address keeps retail's saved-register
+       order; declaring iGpffffa9B8 as an array rotates the prologue copies. */
+    if (*(u8 *)(work + 0x12) == 0) {
+        thresh = (u8)(D_0064E6E0[0][flag] + (&iGpffffa9B8)[rate]);
+    } else {
+        thresh = (u8)(D_0064E6E0[(u8)func_00107890(*(u8 *)(work + 0x12))][flag] + (&iGpffffa9B8)[rate]);
+    }
+    chance = (u8)(100.0f * ((f32)(RpRandom() & 0xFFF) / 4096.0f));
+    if ((u8)chance < (u8)thresh) {
+        return 1;
+    }
+    return 0;
+}
+
+/* Pick the bonus level (0-based) from the cumulative D_0064E700 weights. */
+static inline s32 shuffleBonusPick(void)
+{
+    u8 flag;
+    s32 chance;
+    s32 sum;
+    s32 i;
+    u8 *weights;
+
+    flag = shuffleBonusColumn();
+    chance = (u8)(100.0f * ((f32)(RpRandom() & 0xFFF) / 4096.0f));
+    sum = 0;
+    i = 0;
+    weights = &D_0064E700[0][flag];
+    for (; i < 0x15; i++) {
+        sum = (u8)(sum + weights[i * 2]);
+        if (chance < sum) {
+            break;
+        }
+    }
+    return i;
+}
+
+// FUN_00382EA0
 s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
 {
     u8 *unit;
-    s32 flag0;
-    s32 thresh0;
-    u32 rnd0;
-    f32 f0;
-    s32 chance0;
-    s32 hit0;
-    s32 flag1;
-    s32 chance1;
-    s32 sum1;
-    s32 i1;
-    u8 *base1;
-    s32 flag2;
-    s32 thresh2;
-    u32 rnd2;
-    f32 f2;
-    s32 chance2;
-    s32 hit2;
-    s32 flag3;
-    s32 chance3;
-    s32 sum3;
-    s32 i3;
-    u8 *base3;
     s32 count;
     s32 i;
     u8 *u;
@@ -978,103 +994,42 @@ s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
         *(s32 *)(work + 8) = 8;
         return 0;
     case 0:
-        if ((datGetFlag(0x1430) == 0) || (datGetFlag(0x11) == 0)) {
-            hit0 = 0;
-        } else {
-            flag0 = (func_0015a190() != 0) & 0xFF;
-            if (*(u8 *)(work + 0x12) == 0) {
-                thresh0 = (D_0064E6E0[flag0 & 0xFF] + *(&iGpffffa9B8 + arg3)) & 0xFF;
-            } else {
-                thresh0 = (D_0064E6E0[(func_00107890(*(u8 *)(work + 0x12)) & 0xFF) * 2 + (flag0 & 0xFF)] + *(&iGpffffa9B8 + arg3)) & 0xFF;
-            }
-            rnd0 = RpRandom() & 0xFFF;
-            f0 = (f32)rnd0;
-            chance0 = (u8)(100.0f * (f0 / 4096.0f));
-            if ((chance0 & 0xFF) < (thresh0 & 0xFF)) {
-                hit0 = 1;
-            } else {
-                hit0 = 0;
-            }
-        }
-        if (hit0 != 0) {
-            flag1 = (func_0015a190() != 0) & 0xFF;
-            rnd0 = RpRandom() & 0xFFF;
-            f0 = (f32)rnd0;
-            chance1 = (u8)(100.0f * (f0 / 4096.0f));
-            sum1 = 0;
-            base1 = &D_0064E700[flag1 & 0xFF];
-            for (i1 = 0; i1 < 0x15; i1++) {
-                sum1 = (sum1 + base1[i1 * 2]) & 0xFF;
-                if (chance1 < sum1) {
-                    break;
-                }
-            }
-            *(u8 *)(work + 0x12) = (u8)(i1 + 1);
-            *(u16 *)(work + 4) = (u16)(*(u16 *)(work + 4) | 1);
-            *(s32 *)(unit + 0x1F2A0) = func_00377eb0(*(u8 **)(unit + 0x1F2A8), ((*(u8 *)(work + 0x12) - 1) & 0xFF));
+        if (shuffleBonusRoll(work, arg3) != 0) {
+            *(u8 *)(work + 0x12) = shuffleBonusPick() + 1;
+            *(u16 *)(work + 4) |= 1;
+            *(s32 *)(unit + 0x1F2A0) = func_00377eb0(*(u8 **)(unit + 0x1F2A8), (u8)(*(u8 *)(work + 0x12) - 1));
         }
         *(u16 *)(work + 6) = 0;
         func_002bbd20(0, func_00109220(arg2));
         func_002bad10(0);
         func_0038d2a0(*(s32 *)(unit + 0x1F298));
         *(s32 *)(work + 8) = 0;
-        goto block_68;
+        break;
     case 2:
-        if ((datGetFlag(0x1430) == 0) || (datGetFlag(0x11) == 0)) {
-            hit2 = 0;
-        } else {
-            flag2 = (func_0015a190() != 0) & 0xFF;
-            if (*(u8 *)(work + 0x12) == 0) {
-                thresh2 = (D_0064E6E0[flag2 & 0xFF] + *(&iGpffffa9B8 + arg3)) & 0xFF;
-            } else {
-                thresh2 = (D_0064E6E0[(func_00107890(*(u8 *)(work + 0x12)) & 0xFF) * 2 + (flag2 & 0xFF)] + *(&iGpffffa9B8 + arg3)) & 0xFF;
-            }
-            rnd2 = RpRandom() & 0xFFF;
-            f2 = (f32)rnd2;
-            chance2 = (u8)(100.0f * (f2 / 4096.0f));
-            if ((chance2 & 0xFF) < (thresh2 & 0xFF)) {
-                hit2 = 1;
-            } else {
-                hit2 = 0;
-            }
-        }
-        if (hit2 != 0) {
-            flag3 = (func_0015a190() != 0) & 0xFF;
-            rnd2 = RpRandom() & 0xFFF;
-            f2 = (f32)rnd2;
-            chance3 = (u8)(100.0f * (f2 / 4096.0f));
-            sum3 = 0;
-            base3 = &D_0064E700[flag3 & 0xFF];
-            for (i3 = 0; i3 < 0x15; i3++) {
-                sum3 = (sum3 + base3[i3 * 2]) & 0xFF;
-                if (chance3 < sum3) {
-                    break;
-                }
-            }
-            *(u8 *)(work + 0x12) = (u8)(i3 + 1);
-            *(u16 *)(work + 4) = (u16)(*(u16 *)(work + 4) | 1);
-            *(s32 *)(unit + 0x1F2A0) = func_00377eb0(*(u8 **)(unit + 0x1F2A8), ((*(u8 *)(work + 0x12) - 1) & 0xFF));
+        if (shuffleBonusRoll(work, arg3) != 0) {
+            *(u8 *)(work + 0x12) = shuffleBonusPick() + 1;
+            *(u16 *)(work + 4) |= 1;
+            *(s32 *)(unit + 0x1F2A0) = func_00377eb0(*(u8 **)(unit + 0x1F2A8), (u8)(*(u8 *)(work + 0x12) - 1));
         } else if (func_00380bd0(work) != 0) {
-            *(u16 *)(work + 4) = (u16)(*(u16 *)(work + 4) | 2);
+            *(u16 *)(work + 4) |= 2;
         }
         func_002bad10(7);
         func_0038d2a0(*(s32 *)(unit + 0x1F298));
         *(s32 *)(work + 8) = 2;
-        goto block_68;
+        break;
     case 3:
         if (func_00380bd0(work) != 0) {
-            *(u16 *)(work + 4) = (u16)(*(u16 *)(work + 4) | 2);
+            *(u16 *)(work + 4) |= 2;
         }
         *(u16 *)(work + 6) = 0;
         func_002bad10(9);
         func_0038d2a0(*(s32 *)(unit + 0x1F298));
         *(s32 *)(work + 8) = 3;
-        goto block_68;
+        break;
     default:
         func_0046d730(D_0064EC70, 0x6C7);
-        goto block_68;
+        break;
     }
-block_68:
     if ((*(u16 *)(work + 4) & 2) == 0) {
         u = *(u8 **)work;
         count = func_00378530(*(s32 *)(u + 0x1F304), *(s32 *)(u + 0x1F2FC));
@@ -1089,10 +1044,6 @@ block_68:
     }
     return 0;
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleResult", func_00382ea0);
-#endif
 
 // FUN_00383720
 s32 func_00383720(u8 *arg0) {
