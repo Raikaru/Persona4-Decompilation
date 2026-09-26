@@ -1,0 +1,34 @@
+diff --git a/src/Event/Fcl/y_fclShopDraw.c b/src/Event/Fcl/y_fclShopDraw.c
+index 2424e86..fe94a20 100644
+--- a/src/Event/Fcl/y_fclShopDraw.c
++++ b/src/Event/Fcl/y_fclShopDraw.c
+@@ -3599,6 +3599,14 @@ void func_002cb6c0(void *arg0, s8 arg1) {
+ }
+ #pragma pop
+ 
++/* Draws an item label in the D_00795E30 font.  The inlined call binds its
++   arguments right to left: colour, the position constructor (copied into
++   the parameter slot), the name lookup, and finally the size. */
++static inline void shopDrawLabel(f32 size, const char *text, Vec2f pos, s32 color)
++{
++    func_00275680(pos.x, pos.y, size, color, 0, 1, text, 0, 0, D_00795E30, -1);
++}
++
+ /* measured 002cdf80 (owner, width-selected from m2c-adapted V8): 3545 against retail 3460
+    (+2.5%, band 3356-3563 PASS, 18 of headroom), 2042 edits (+36 reloc-only), 3047 differing words.
+    regsave_scan: retail 3460 instrs, frame 0x220 vs object 0x290, body saves spare $f21 $f22.
+@@ -5313,14 +5321,6 @@ s32 func_002d4f30(s16 arg0) {
+     return 0;
+ }
+ 
+-/* Draws an item label in the D_00795E30 font.  The inlined call binds its
+-   arguments right to left: colour, the position constructor (copied into
+-   the parameter slot), the name lookup, and finally the size. */
+-static inline void shopDrawLabel(f32 size, const char *text, Vec2f pos, s32 color)
+-{
+-    func_00275680(pos.x, pos.y, size, color, 0, 1, text, 0, 0, D_00795E30, -1);
+-}
+-
+ static inline s16 shopStatDelta(u32 item, u32 cur)
+ {
+     return item - cur;
