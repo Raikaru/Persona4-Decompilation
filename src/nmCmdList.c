@@ -599,7 +599,7 @@ s32 func_002bbf80(s32 *arg0, s32 arg1)
     return 0;
 }
 // FUN_002BC010
-void func_002bc010(int param_1,u64 param_2)
+void func_002bc010(int param_1,u8 *param_2)
 
 {
 
