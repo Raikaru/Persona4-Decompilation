@@ -185,7 +185,7 @@ extern s32 D_007E8BF8[];
 void *memset(void *arg0, s32 arg1, u32 arg2);
 s32 func_00161b10(u16 arg0, u16 arg1, u16 arg2);
 s32 func_0015a320(void);
-u8 *func_00161c80(u16 arg0, u16 arg1, u16 arg2, s32 arg3);
+u8 *func_00161c80(s32 field, s32 room, u16 index, u16 mode);
 
 
 

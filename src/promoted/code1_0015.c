@@ -137,7 +137,7 @@ extern s32 D_0076432C;
 extern s32 iGpffffb2e4;
 extern void func_002ac360(void);
 extern u8 *func_002ac3b0(void);
-extern u8 *func_00161c80(u16 arg0, u16 arg1, u16 arg2, s32 arg3);
+extern u8 *func_00161c80(s32 field, s32 room, u16 index, u16 mode);
 extern u8 D_005F0080[];
 extern u8 D_005F0591[];
 extern u8 D_005F0592[];
