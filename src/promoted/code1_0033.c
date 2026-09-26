@@ -1,3 +1,4 @@
+#define FCL_COLOR_ARG u8
 #include "fcl_color.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -464,9 +465,9 @@ void func_00332b60(u8 *arg0, u8 *arg1)
 }
 
 // FUN_0033D310
-s32 func_0033d310(u8 *arg0)
+u8 *func_0033d310(u8 *arg0)
 {
-    return *(s32 *)(arg0 + 0x38);
+    return *(u8 **)(arg0 + 0x38);
 }
 
 // FUN_0033D320
@@ -521,13 +522,13 @@ void func_0033d4b0(u8 *arg0, u8 arg1, s8 arg2, s8 arg3, s16 arg4, s64 arg5)
 }
 
 // FUN_0033D4E0
-void func_0033d4e0(u8 *arg0, s8 arg1, s16 arg2, s64 arg3, f32 fparg0, f32 fparg1)
+void func_0033d4e0(u8 *arg0, f32 fparg0, f32 fparg1, s8 arg1, s16 arg2, s64 arg3)
 {
     func_002b8300(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3,
                    fparg0, fparg1, fparg0, fparg1);
 }
 // FUN_0033D520
-void func_0033d520(u8 *arg0, s8 arg1, s16 arg2, s64 arg3, f32 fparg0, f32 fparg1)
+void func_0033d520(u8 *arg0, f32 fparg0, f32 fparg1, s8 arg1, s16 arg2, s64 arg3)
 {
     func_002b8340(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, fparg0, fparg1);
 }
@@ -583,7 +584,7 @@ void func_0033d550(u8 *arg0)
  * Keep the input-Y snapshot and the real color/point object lifetimes.
  */
 // FUN_0033D630
-f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, s32 alpha, s8 highlight)
+f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 highlight)
 {
     Color_0033 baseColor;
     Color_0033 highlightColor;
