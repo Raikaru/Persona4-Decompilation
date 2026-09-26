@@ -1,53 +1,34 @@
-/* func_00162680 (code1_0016, window 1456B) -- best draft 2026-09-26, 1 word.
- * Supersedes F162_00162680_20260926_body.c (12 words). Needs the owner's
+/* func_00162680 (code1_0016, window 1456B) -- 2026-09-26: byte-exact (0 words)
+ * ONLY with the owner's local extern changed to
  *     extern void *func_00478140(u16 arg0, u16 arg1, s32 arg2);
- * (the callee masks its own two parameters; see the older note).
- * New lever: the slot-cache lookup is its own static inline helper returning
- * the cached object or NULL, called before `entry` is computed; that fixes the
- * default arm's slot*8/entry register swap (12 -> 1).
- * Residual (+0x408): the first arm's cache-miss tail branches to the arm's
- * shared `b 0x162c00` at +0x42c instead of straight to 0x162c00 (retail
- * chains it). Flat or worse: early return of the hit path in the helper (1),
- * inverted hit-first if (120), `return helper()` from the arms (141). */
+ * which is why it is NOT installed. With the tree's (u32, u32, u32) prototype
+ * (matching the mdlManager.c definition) the same body is 74 words: every u16
+ * type/id argument gains an `andi 0xffff`.
+ *
+ * Why the prototype cannot simply change: the definition's retail code keeps
+ * both parameters raw, masks them only for the D_00922BE0/id lookup, and
+ * passes them unmasked to func_0047d110/func_004779b0/func_0047d0e0. A u16
+ * definition (prototype or K&R) re-masks them for those unprototyped calls
+ * (verified: func_00478140 MATCH -> MISMATCH). k_fldUnit.c func_001658b0
+ * passes a u32 `modelCode` raw and also mismatches under a u16 prototype.
+ * Making it consistent would need u16-forwarding prototypes for the
+ * code1_0047.c trampolines func_0047d110/func_0047d0e0 (currently void(void)
+ * wrappers around iGpffffbb34/iGpffffbb30), a u16 definition in mdlManager.c,
+ * and a u16 modelCode in k_fldUnit.c: a cross-owner contract change left for
+ * the owners.
+ *
+ * Shape levers found here: the slot-cache lookup as a static inline helper
+ * returning the object or NULL (fixes the default arm's slot*8/entry swap);
+ * both switch arms carry their own copy of the refresh code with block-local
+ * `entry` and loop counter (an inline helper for it leaves the first copy's
+ * miss path jumping to the arm's `break`); the default arm's `u16 m = member`.
+ */
 static inline u8 *fldPartyModelCached(s32 slot, u16 type, u16 id)
 {
     if (type == *(u16 *)(D_007F16F0 + slot * 8) && id == *(u16 *)(D_007F16F2 + slot * 8)) {
         return *(u8 **)(D_007F16F4 + slot * 8);
     }
     return NULL;
-}
-
-static inline u8 *fldPartyModelGet(s32 slot, u16 type, u16 id)
-{
-    u8 *entry;
-    u8 *obj;
-    s32 i;
-
-    obj = fldPartyModelCached(slot, type, id);
-    entry = D_007F16F0 + slot * 8;
-    if (obj == NULL) {
-        obj = func_00478140(type, id, 0);
-        if (type == 1) {
-            func_0047d140(obj);
-        } else {
-            func_0047aaa0(obj, 0, (void *)9, (void *)0x163, D_005F13A0, 0);
-            func_0047adf0(obj, 0, 0x1F4);
-        }
-        if (*(u8 **)(D_007F16F4 + slot * 8) != NULL) {
-            for (i = 0; i < 5; i++) {
-                *(u8 *)(*(u8 **)(entry + 4) + i * 0xC + 0x28C) |= 1;
-            }
-            func_004787e0(*(u8 **)(D_007F16F4 + slot * 8));
-            *(u8 **)(D_007F16F4 + slot * 8) = NULL;
-        }
-        *(u8 **)(D_007F16F4 + slot * 8) = obj;
-        *(u16 *)entry = *(u16 *)(obj + 0xD4);
-        *(u16 *)(D_007F16F2 + slot * 8) = *(u16 *)(*(u8 **)(D_007F16F4 + slot * 8) + 0xD6);
-    } else {
-        mdlSetColor(obj, &iGpffff9f10);
-        func_0047a990(obj);
-    }
-    return obj;
 }
 
 u8 *func_00162680(u16 field, u16 room, s32 member)
@@ -67,7 +48,9 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
         }
     }
     switch (member) {
-    case 1:
+    case 1: {
+        u8 *entry;
+
         if (func_00162510(field, room) == 1) {
             type = 9;
             switch (func_00110d60((s16)func_001060b0())) {
@@ -119,11 +102,59 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
                 break;
             }
         }
-        obj = fldPartyModelGet(slot, type, id);
+        obj = fldPartyModelCached(slot, type, id);
+        entry = D_007F16F0 + slot * 8;
+        if (obj == NULL) {
+            obj = func_00478140(type, id, 0);
+            if (type == 1) {
+                func_0047d140(obj);
+            } else {
+                func_0047aaa0(obj, 0, (void *)9, (void *)0x163, D_005F13A0, 0);
+                func_0047adf0(obj, 0, 0x1F4);
+            }
+            if (*(u8 **)(D_007F16F4 + slot * 8) != NULL) {
+                s32 j;
+
+                for (j = 0; j < 5; j++) {
+                    *(u8 *)(*(u8 **)(entry + 4) + j * 0xC + 0x28C) |= 1;
+                }
+                func_004787e0(*(u8 **)(D_007F16F4 + slot * 8));
+                *(u8 **)(D_007F16F4 + slot * 8) = NULL;
+            }
+            *(u8 **)(D_007F16F4 + slot * 8) = obj;
+            *(u16 *)entry = *(u16 *)(obj + 0xD4);
+            *(u16 *)(D_007F16F2 + slot * 8) = *(u16 *)(*(u8 **)(D_007F16F4 + slot * 8) + 0xD6);
+        } else {
+            mdlSetColor(obj, &iGpffff9f10);
+            func_0047a990(obj);
+        }
         break;
+    }
     default: {
         u16 m = member;
-        obj = fldPartyModelGet(slot, 1, m);
+        u8 *entry;
+
+        obj = fldPartyModelCached(slot, 1, m);
+        entry = D_007F16F0 + slot * 8;
+        if (obj == NULL) {
+            obj = func_00478140(1, m, 0);
+            func_0047d140(obj);
+            if (*(u8 **)(D_007F16F4 + slot * 8) != NULL) {
+                s32 j;
+
+                for (j = 0; j < 5; j++) {
+                    *(u8 *)(*(u8 **)(entry + 4) + j * 0xC + 0x28C) |= 1;
+                }
+                func_004787e0(*(u8 **)(D_007F16F4 + slot * 8));
+                *(u8 **)(D_007F16F4 + slot * 8) = NULL;
+            }
+            *(u8 **)(D_007F16F4 + slot * 8) = obj;
+            *(u16 *)entry = *(u16 *)(obj + 0xD4);
+            *(u16 *)(D_007F16F2 + slot * 8) = *(u16 *)(*(u8 **)(D_007F16F4 + slot * 8) + 0xD6);
+        } else {
+            mdlSetColor(obj, &iGpffff9f10);
+            func_0047a990(obj);
+        }
         break;
     }
     }
