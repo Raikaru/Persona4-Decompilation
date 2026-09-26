@@ -1,35 +1,42 @@
-/* func_001b1d70 (src/promoted/code1_001b.c), 2026-09-26.
- * Measured with tools/fndiff.py: 4 reloc-masked differing words, object
- * 1548B in the 1552B window; fnalign 388/388 instructions. Previous floor
- * was 162 fnalign edits / 196 words.
+/* func_001b1d70 (src/promoted/code1_001b.c), 2026-09-26 (round 3 update).
+ * Measured with tools/fndiff.py: 1 reloc-masked differing word, object
+ * 1548B in the 1552B window (was 4 words in round 2).
  *
- * What closed it, all from the retail control flow:
- *  - the flag-0x100 block keeps a pointer to the 0x18-stride table entry and
- *    re-reads `*entry` at each test; bit 0x20 is the first branch, and the
- *    state dispatch is `switch (W->0x1A) { case 0: case 1: case 2: }`
- *    (retail compares 2, 1, 0) with func_001b1020(1) in case 0;
- *  - the two status rolls keep their func_0023d740 results as s32 locals
- *    declared `r1, r2, j` in that order (s16 locals re-extend at each use);
- *  - the reserve-slot read is integer arithmetic
- *    `*(s32 *)((u32)D_0076449C + i * 4 + 0xC74)` (base loaded first, then
- *    base + offset);
- *  - the party loop passes `*(s16 *)(list + 2)` to the u16 parameter, which
- *    puts retail's lhu ahead of the constant first argument.
+ * Round 2 levers (all kept): the flag-0x100 block keeps a pointer to the
+ * 0x18-stride table entry and re-reads `*entry` at each test; the state
+ * dispatch is `switch (W->0x1A) { case 0: case 1: case 2: }`; the two status
+ * rolls keep their func_0023d740 results as s32 locals; the reserve-slot read
+ * is `*(s32 *)((u32)D_0076449C + i * 4 + 0xC74)`; the party loop passes
+ * `*(s16 *)(list + 2)` to the u16 parameter.
  *
- * Residual (4 words) is a prototype contract, not codegen: retail passes the
- * u16 `id` to func_00477c40 and func_00145510 without masking, and calls
- * func_0047d170 with the model still in $a0. That needs u16 parameters on
- * func_00477c40 (its body masks both on entry) and func_00145510, and an
- * argument on func_0047d170. The repository definitions are
- * `void *func_00477c40(u32, u32, u32)` (mdlManager.c),
- * `void func_00145510(s32, s32)` (code1_0014.c) and `void func_0047d170(void)`
- * (code1_0047.c). Declaring func_00477c40 with u16 parameters everywhere
- * breaks six matched callers (mdlManager 121->120, mdlSE 6->5, effModel
- * 19->17, code1_0029 63->62, code1_004a 90->89, code1_0023 13->12), so the
- * retail units did not share one prototype. With the local declarations
- * written to agree with those definitions (the body below), the u32/int
- * widening adds `andi` at two calls and func_0047d170() lets the model load
- * go to $v0.
+ * Round 3 closed 3 of the 4 words by fixing callee contracts (landed in the
+ * same commit as this note, every affected file re-verified, no regressions):
+ *  - func_00145510 (code1_0014.c) is `s32 (u16, s32)`: retail passes arg0
+ *    straight to func_00145540's u16 parameter without masking and every
+ *    caller (btlUnit.c, here) reads the return value. The old definition
+ *    `void (s32, s32)` needed a block-scope extern that disagreed with
+ *    func_00145540's own definition.
+ *  - func_0047d170 (code1_0047.c) is `void (void *model)`: retail leaves $a0
+ *    untouched and calls the data callback, which takes the model (sibling
+ *    func_0047d140 already had this shape). code1_0019.c's two-argument call
+ *    was corrected to one argument (still MATCH; $a1 held that value only by
+ *    coincidence).
+ *
+ * Remaining word (offset 196): retail `move $a1,$s0` passes the u16 `id` to
+ * func_00477c40 unmasked; ours emits `andi $a1,$s0,0xffff`. It reaches 0 only
+ * with a u16 prototype for func_00477c40. The body of func_00477c40 masks all
+ * three parameters on entry, which suggests u16, BUT retyping its definition
+ * and every declaration to (u16, u16, u16) breaks seven matched callers:
+ * effModel func_004abe80/func_004ac640, code1_0029 func_002915f0, code1_004a
+ * func_004abc50 (constant 5/6 argument becomes `daddiu` instead of retail
+ * `addiu`), mdlManager func_0047ac90 and code1_0023 func_00230d30 (u32
+ * values gain `andi` masks), and mdlSE func_0047df40 (215 words). So those
+ * retail units saw a 32-bit prototype and this unit saw a 16-bit one; no
+ * single signature reproduces both. Also measured: unprototyped
+ * `extern void *func_00477c40();` (1 word, same andi), `u32 id`/`s32 id`
+ * (3 words: the masks move to the u16 parameters of func_0019b550 and
+ * func_00145510, both of which are genuinely u16). Left INCLUDE_ASM under the
+ * one-signature rule.
  */
 void func_001b1d70(void) {
     extern s32 iGpffffb414;
@@ -37,10 +44,11 @@ void func_001b1d70(void) {
     extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
     extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
     extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
+    extern s32 func_00145510(u16 arg0, s32 arg1);
     extern void func_0014a460(u16 arg0, u32 arg1);
     extern void func_0019d7a0(u8 *arg0, s32 arg1);
     extern void func_001987a0(u8 *arg0);
-    extern void func_0047d170(void);
+    extern void func_0047d170(void *model);
     extern u8 *mdlGetClump(u8 *arg0);
     extern void func_004774e0(u8 *arg0);
     extern s32 func_001ef8c0(void);
@@ -95,7 +103,7 @@ void func_001b1d70(void) {
                 f = *(s32 *)(unit + 0x98) | 2;
                 *(s32 *)(unit + 0x98) = f;
                 *(s32 *)(unit + 0x98) = f | 8;
-                *(u16 *)(unit + 0x9FE) = func_00145510(id, *(u8 **)(unit + 0xA00));
+                *(u16 *)(unit + 0x9FE) = func_00145510(id, *(s32 *)(unit + 0xA00));
                 func_0014a460(*(u16 *)(unit + 0x9FE), 1);
                 func_0019d7a0(unit, 1);
                 func_00198dd0(unit, 0);
@@ -103,7 +111,7 @@ void func_001b1d70(void) {
                 func_001987a0(unit);
                 tmp = *(u8 **)(unit + 0xA00);
                 if (*(s32 *)(tmp + 0x2D0) == 0) {
-                    func_0047d170();
+                    func_0047d170(tmp);
                 }
                 func_0019d7a0(unit, 4);
                 func_0019d040(unit);
