@@ -263,43 +263,20 @@ INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052cab0);
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052cc18);
 // FUN_0052CD18
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052cd18);
-/* Floor: 2 differing words.  This unit is ee-gcc 2.96 -O2 -G0, not MWCC.
-   The accumulator is a { s64 total; s64 min; s64 max; s32 count; } struct
-   and the body is 60 bytes of code against a 96-byte window whose tail is
-   36 zero bytes.  Retail schedules the conditional moves movn-max, daddu,
-   movn-min; this build emits movn-max, movn-min, daddu - one adjacent
-   swap.  All 24 source orders of min/max/total/count give the same NND
-   under 2.96; MWCC b210 and b119 produce branches rather than movn, and
-   ee-gcc 3.2 gives NND with different temp colours (14 words).  Body at
-   docs/probe_archive/GA52_0052d9a0_body.c. */
-// FUN_0052D9A0 NONMATCHING
-#ifdef NON_MATCHING
+/* ee-gcc 2.96 unit.  Running { total, min, max, count } accumulator; the
+   total is updated before the min/max conditional moves, which is what puts
+   retail's daddu between the two movn. */
 typedef struct {
     s64 total;
     s64 min;
     s64 max;
     s32 count;
 } StatAccum52;
-void func_0052d9a0(StatAccum52 *arg0, s64 arg1)
+// FUN_0052D9A0
+void func_0052d9a0(StatAccum52 *acc, s64 value)
 {
-    s64 total = arg0->total;
-    s64 mn = arg0->min;
-    s64 mx = arg0->max;
-    s32 count = arg0->count;
-
-    if (mx < arg1) {
-        mx = arg1;
-    }
-    if (arg1 < mn) {
-        mn = arg1;
-    }
-    total += arg1;
-    count += 1;
-    arg0->total = total;
-    arg0->min = mn;
-    arg0->max = mx;
-    arg0->count = count;
+    acc->total += value;
+    acc->min = (value < acc->min) ? value : acc->min;
+    acc->max = (acc->max < value) ? value : acc->max;
+    acc->count++;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052d9a0);
-#endif
