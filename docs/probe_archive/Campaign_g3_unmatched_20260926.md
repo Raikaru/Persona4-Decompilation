@@ -229,3 +229,44 @@ wrong: the sine scale at `-0x7F6C($gp)` is `D_00761184` (pi/2), and the
   hoisted `1.0f - slide` into the last block, which retail recomputes (one
   `sub.s`, part of the 12 B). Writing the loop term as `(1.0f - slide) * 350.0f`,
   as an `ofs` local, or with an `if` block instead of `continue` does not change it.
+
+## Round 3 (same day)
+
+`func_0036ae90` is MATCHED; see `Code0036Light_0036ae90_20260926.md`. The
+lever was scope, not order alone: with `inner` and `dst` at function scope,
+declaration order moves `cam`/`arg1`/`inner` (with them block-scoped, the r2
+permutations could not).
+
+### mc.c `func_002a5f00`: 58 (unchanged)
+
+- The ae90 lever does not carry over. A 150-step random hill-climb over all
+  eleven declarations (seed 11) and five hand orders built on "declared last
+  is coloured first" stay at 58 or go to 83.
+- Renaming so retail's register sharing is literal (one variable for
+  diff/cur, one for target/idx, a separate loop delta) is byte-identical to
+  58: b210 splits webs, so a shared name does not change the colouring.
+- Block-scoped `idx` in each loop 80; block-scoped top-of-function `delta` 58;
+  `target` in its own block 58.
+- `u8 *p` as the reassigned parameter (`p = func_00452560(p)`, with the extern
+  and caller adjusted for the probe only) 58.
+- The residual is unchanged: `p` `$s4` (retail `$s0`), and b210 colours the
+  hoisted `cur << 16` into target's `$s1` where retail gives it `$s4`.
+
+### code1_0031.c `func_00313d20`: 13 (unchanged)
+
+- 120-step hill-climb over the 12 declarations with `flag` at function scope:
+  13 throughout.
+- The retail count base is `m * 2 + work` with `0x2C0` left in the
+  displacements. Every spelling of the count that keeps the displacement
+  (`((s16 *)work + m)[0x160]`, `((s16 *)work)[0x160 + m]`,
+  `*(s16 *)(m * 2 + work + 0x2C0)`, `(m << 1)`, a `W31` struct view
+  `->count[m]`) still emits `work + m*2` (13). The forms that emit retail's
+  operand order (`((s16 *)(work + 0x2C0))[m]`, `*((s16 *)(work + 0x2C0) + m)`)
+  fold `0x2C0` into the CSE'd pointer (86). A `s16 *` count local 87.
+- The fully struct-typed flags/slot view is 120; `slot` through the struct is 14.
+
+### cmmScript.c `func_0024be40`: 8 (unchanged)
+
+Folding `index + found` into the pointer expression (three spellings)
+costs 155. The statement order `index = index + found;` before `sum = 0; j = 0;`
+is retail's.
