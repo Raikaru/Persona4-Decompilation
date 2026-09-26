@@ -1,0 +1,2787 @@
+diff --git a/src/Event/Fcl/y_fclCombine.c b/src/Event/Fcl/y_fclCombine.c
+index 070dc1d..dc93958 100644
+--- a/src/Event/Fcl/y_fclCombine.c
++++ b/src/Event/Fcl/y_fclCombine.c
+@@ -1537,7 +1537,7 @@ void func_002ed430(u8 *arg0) {
+     extern int func_00275820(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
+     extern s32 func_002b2a30(u8, u8, u8, u8);
+     extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
+-    extern void func_002b2970(void *, f32, f32);
++    extern FclVec2 func_002b2970(f32, f32);
+     extern void func_002b68d0(s16, s32, s32);
+     extern u8 *func_002b6150(s16);
+     extern s32 func_002b6970(s16, s32);
+@@ -1606,32 +1606,32 @@ void func_002ed430(u8 *arg0) {
+     FclDrawColor col23C;
+     FclDrawColor col238;
+     FclDrawColor col234;
+-    s64 sp228;
+-    s64 sp220;
+-    s64 sp218;
+-    s64 sp210;
+-    s64 sp208;
+-    s64 sp200;
+-    s64 sp1F8;
+-    s64 sp1F0;
+-    s64 sp1E8;
+-    s64 sp1E0;
+-    s64 sp1D8;
+-    s64 sp1D0;
+-    s64 sp1C8;
+-    s64 sp1C0;
+-    s64 sp1B8;
+-    s64 sp1B0;
+-    s64 sp1A8;
+-    s64 sp1A0;
+-    s64 sp198;
+-    s64 sp190;
+-    s64 sp188;
+-    s64 sp180;
+-    s64 sp178;
+-    s64 sp170;
+-    s64 sp168;
+-    s64 sp160;
++    FclPackedPosition sp228;
++    FclPackedPosition sp220;
++    FclPackedPosition sp218;
++    FclPackedPosition sp210;
++    FclPackedPosition sp208;
++    FclPackedPosition sp200;
++    FclPackedPosition sp1F8;
++    FclPackedPosition sp1F0;
++    FclPackedPosition sp1E8;
++    FclPackedPosition sp1E0;
++    FclPackedPosition sp1D8;
++    FclPackedPosition sp1D0;
++    FclPackedPosition sp1C8;
++    FclPackedPosition sp1C0;
++    FclPackedPosition sp1B8;
++    FclPackedPosition sp1B0;
++    FclPackedPosition sp1A8;
++    FclPackedPosition sp1A0;
++    FclPackedPosition sp198;
++    FclPackedPosition sp190;
++    FclPackedPosition sp188;
++    FclPackedPosition sp180;
++    FclPackedPosition sp178;
++    FclPackedPosition sp170;
++    FclPackedPosition sp168;
++    FclPackedPosition sp160;
+     FclVec2f sp158;
+     FclVec2f sp150;
+     FclVec2f sp148;
+@@ -1900,14 +1900,14 @@ void func_002ed430(u8 *arg0) {
+         }
+         if ((s8)func_00314660(temp_18->f148) < 0 || (s8)func_00314660(temp_18->f148) > 5) {
+             for (var_16_2 = 0; var_16_2 < (func_0010b5b0() & 0xFFFF); var_16_2++) {
+-                func_002b2970(&sp228, 16.0f, 128.0f);
++                sp228.position = func_002b2970(16.0f, 128.0f);
+                 temp_19 = func_002e48a0(0, var_16_2)[1];
+                 temp_17_2 = *(u8 *)((u8 *)func_002e48a0(0, var_16_2) + 4);
+                 partyCount = *(s8 *)(func_002e4870(0) + 8);
+-                func_003191c0(arg0, sp228, var_16_2, temp_19, temp_17_2, 0, 0, partyCount);
++                func_003191c0(arg0, sp228.bits, var_16_2, temp_19, temp_17_2, 0, 0, partyCount);
+             }
+-            func_002b2970(&sp220, 16.0f, 104.0f);
+-            func_0031e5b0(arg0, sp220, 0, 0, 0, 0, 0);
++            sp220.position = func_002b2970(16.0f, 104.0f);
++            func_0031e5b0(arg0, sp220.bits, 0, 0, 0, 0, 0);
+             func_00316e80((s32)arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+             func_003218a0(arg0, 0);
+             func_002b6140(temp_18->f28C, 0);
+@@ -2005,20 +2005,20 @@ void func_002ed430(u8 *arg0) {
+                 if (temp_18->f128 != temp_18->f11E && *(s8 *)(func_002e4870(0) + temp_18->f128 * 0xC + temp_18->f11E + 0x14) > 0) {
+                     func_0045af60(0, 0, 0, 1);
+                     for (var_17_2 = 0; var_17_2 < (func_0010b5b0() & 0xFFFF); var_17_2++) {
+-                        func_002b2970(&sp218, (f32)0x149, 128.0f);
++                        sp218.position = func_002b2970((f32)0x149, 128.0f);
+                         temp_16_6 = func_002e48a0(temp_18->f128 + 1, var_17_2)[1];
+                         slotByte = *(u8 *)((u8 *)func_002e48a0(temp_18->f128 + 1, var_17_2) + 4);
+-                        func_0031ac10(arg0, sp218, temp_18->f128, var_17_2, temp_16_6, slotByte, 0, 1, 1, 0xCC);
+-                        func_002b2970(&sp210, 16.0f, 128.0f);
++                        func_0031ac10(arg0, sp218.bits, temp_18->f128, var_17_2, temp_16_6, slotByte, 0, 1, 1, 0xCC);
++                        sp210.position = func_002b2970(16.0f, 128.0f);
+                         temp_19_2 = func_002e48a0(0, var_17_2)[1];
+                         temp_16_7 = *(u8 *)((u8 *)func_002e48a0(0, var_17_2) + 4);
+                         partyCount = *(s8 *)(func_002e4870(0) + 8);
+-                        func_003191c0(arg0, sp210, var_17_2, temp_19_2, temp_16_7, 0, 1, partyCount);
++                        func_003191c0(arg0, sp210.bits, var_17_2, temp_19_2, temp_16_7, 0, 1, partyCount);
+                     }
+-                    func_002b2970(&sp208, 16.0f, 104.0f);
+-                    func_0031e5b0(arg0, sp208, 0, 1, 0, 0, 0);
+-                    func_002b2970(&sp200, (f32)0x149, 104.0f);
+-                    func_0031fa20(arg0, sp200, 0, 1);
++                    sp208.position = func_002b2970(16.0f, 104.0f);
++                    func_0031e5b0(arg0, sp208.bits, 0, 1, 0, 0, 0);
++                    sp200.position = func_002b2970((f32)0x149, 104.0f);
++                    func_0031fa20(arg0, sp200.bits, 0, 1);
+                     func_00316470(arg0, 1, 1);
+                     func_00316e80((s32)arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
+                     func_00317240(arg0, 0, 0.0f);
+@@ -2032,20 +2032,20 @@ void func_002ed430(u8 *arg0) {
+                 if (temp_18->f11E < *(s32 *)(func_002e4870(0) + 8)) {
+                     func_0045af60(0, 1, 0, 3);
+                     for (var_17_3 = 0; var_17_3 < (func_0010b5b0() & 0xFFFF); var_17_3++) {
+-                        func_002b2970(&sp1F8, (f32)0x149, 128.0f);
++                        sp1F8.position = func_002b2970((f32)0x149, 128.0f);
+                         temp_16_9 = func_002e48a0(temp_18->f128 + 1, var_17_3)[1];
+                         slotByte = *(u8 *)((u8 *)func_002e48a0(temp_18->f128 + 1, var_17_3) + 4);
+-                        func_0031ac10(arg0, sp1F8, temp_18->f128, var_17_3, temp_16_9, slotByte, 0, 1, 1, 0xCC);
+-                        func_002b2970(&sp1F0, 16.0f, 128.0f);
++                        func_0031ac10(arg0, sp1F8.bits, temp_18->f128, var_17_3, temp_16_9, slotByte, 0, 1, 1, 0xCC);
++                        sp1F0.position = func_002b2970(16.0f, 128.0f);
+                         temp_19_3 = func_002e48a0(0, var_17_3)[1];
+                         temp_16_10 = *(u8 *)((u8 *)func_002e48a0(0, var_17_3) + 4);
+                         partyCount = *(s8 *)(func_002e4870(0) + 8);
+-                        func_003191c0(arg0, sp1F0, var_17_3, temp_19_3, temp_16_10, 0, 1, partyCount);
++                        func_003191c0(arg0, sp1F0.bits, var_17_3, temp_19_3, temp_16_10, 0, 1, partyCount);
+                     }
+-                    func_002b2970(&sp1E8, 16.0f, 104.0f);
+-                    func_0031e5b0(arg0, sp1E8, 0, 1, 0, 0, 0);
+-                    func_002b2970(&sp1E0, (f32)0x149, 104.0f);
+-                    func_0031fa20(arg0, sp1E0, 0, 1);
++                    sp1E8.position = func_002b2970(16.0f, 104.0f);
++                    func_0031e5b0(arg0, sp1E8.bits, 0, 1, 0, 0, 0);
++                    sp1E0.position = func_002b2970((f32)0x149, 104.0f);
++                    func_0031fa20(arg0, sp1E0.bits, 0, 1);
+                     func_00316470(arg0, 1, 1);
+                     func_00316e80((s32)arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
+                     func_00317240(arg0, 0, 60.0f);
+@@ -2060,16 +2060,16 @@ void func_002ed430(u8 *arg0) {
+                 func_0045af60(0, 0, 0, 2);
+                 func_003205f0(arg0, 0x93, 0x94);
+                 basePos = (FclVec2f *)D_00640C10;
+-                func_002b2970(&sp1D8, basePos->x, basePos->y);
+-                func_002b2970(&sp1D0, -380.0f, basePos->y);
+-                func_0031c2b0(arg0, temp_18->f128, sp1D8, sp1D0);
+-                func_002b2970(&sp1C8, (f32)0x149, 104.0f);
+-                func_0031fa20(arg0, sp1C8, 0, 1);
++                sp1D8.position = func_002b2970(basePos->x, basePos->y);
++                sp1D0.position = func_002b2970(-380.0f, basePos->y);
++                func_0031c2b0(arg0, temp_18->f128, sp1D8.bits, sp1D0.bits);
++                sp1C8.position = func_002b2970((f32)0x149, 104.0f);
++                func_0031fa20(arg0, sp1C8.bits, 0, 1);
+                 for (var_17_4 = 0; var_17_4 < (func_0010b5b0() & 0xFFFF); var_17_4++) {
+-                    func_002b2970(&sp1C0, (f32)0x149, 128.0f);
++                    sp1C0.position = func_002b2970((f32)0x149, 128.0f);
+                     temp_16_11 = func_002e48a0(temp_18->f128 + 1, var_17_4)[1];
+                     slotByte = *(u8 *)((u8 *)func_002e48a0(temp_18->f128 + 1, var_17_4) + 4);
+-                    func_0031ac10(arg0, sp1C0, temp_18->f128, var_17_4, temp_16_11, slotByte, 0, 1, 1, 0xCC);
++                    func_0031ac10(arg0, sp1C0.bits, temp_18->f128, var_17_4, temp_16_11, slotByte, 0, 1, 1, 0xCC);
+                 }
+                 func_003218a0(arg0, 3);
+                 temp_18->f1 = 0x27;
+@@ -2124,20 +2124,20 @@ void func_002ed430(u8 *arg0) {
+         }
+         if ((s8)func_00314660(temp_18->f148) < 0 || (s8)func_00314660(temp_18->f148) > 5) {
+             for (var_17_5 = 0; var_17_5 < (func_0010b5b0() & 0xFFFF); var_17_5++) {
+-                func_002b2970(&sp1B8, (f32)0x149, 128.0f);
++                sp1B8.position = func_002b2970((f32)0x149, 128.0f);
+                 temp_16_15 = func_002e48a0(temp_18->f128 + 1, var_17_5)[1];
+                 slotByte = *(u8 *)((u8 *)func_002e48a0(temp_18->f128 + 1, var_17_5) + 4);
+-                func_0031ac10(arg0, sp1B8, temp_18->f128, var_17_5, temp_16_15, slotByte, 0, 0, 1, 0xCC);
+-                func_002b2970(&sp1B0, 16.0f, 128.0f);
++                func_0031ac10(arg0, sp1B8.bits, temp_18->f128, var_17_5, temp_16_15, slotByte, 0, 0, 1, 0xCC);
++                sp1B0.position = func_002b2970(16.0f, 128.0f);
+                 temp_19_4 = func_002e48a0(0, var_17_5)[1];
+                 temp_16_16 = *(u8 *)((u8 *)func_002e48a0(0, var_17_5) + 4);
+                 partyCount = *(s8 *)(func_002e4870(0) + 8);
+-                func_003191c0(arg0, sp1B0, var_17_5, temp_19_4, temp_16_16, 0, 0, partyCount);
++                func_003191c0(arg0, sp1B0.bits, var_17_5, temp_19_4, temp_16_16, 0, 0, partyCount);
+             }
+-            func_002b2970(&sp1A8, 16.0f, 104.0f);
+-            func_0031e5b0(arg0, sp1A8, 0, 0, 0, 0, 0);
+-            func_002b2970(&sp1A0, (f32)0x149, 104.0f);
+-            func_0031fa20(arg0, sp1A0, 0, 0);
++            sp1A8.position = func_002b2970(16.0f, 104.0f);
++            func_0031e5b0(arg0, sp1A8.bits, 0, 0, 0, 0, 0);
++            sp1A0.position = func_002b2970((f32)0x149, 104.0f);
++            func_0031fa20(arg0, sp1A0.bits, 0, 0);
+             func_00316470(arg0, 1, 0);
+             func_00316e80((s32)arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+             func_002b6140(temp_18->f28C, 0);
+@@ -2212,11 +2212,11 @@ void func_002ed430(u8 *arg0) {
+                 }
+                 temp_18->f122 = (s8)((s8)(func_002b2cb0(temp_18->f122, 1, 2, 0, 1)));
+                 ps = func_002b6150(0x151);
+-                func_002b2970(&sp198, (f32)((temp_18->f122 * 0x8E) + 0x6A), 16.0f);
+-                func_002b69f0(0x151, (*(FclVec2f *)(ps + 0x38)), (*(FclVec2f *)&sp198), 1, 4, 0);
++                sp198.position = func_002b2970((f32)((temp_18->f122 * 0x8E) + 0x6A), 16.0f);
++                func_002b69f0(0x151, (*(FclVec2f *)(ps + 0x38)), sp198.position, 1, 4, 0);
+                 ps = func_002b6150(0x2E0);
+-                func_002b2970(&sp190, (f32)((temp_18->f122 * 0x8E) + 0x6A), 16.0f);
+-                func_002b69f0(0x2E0, (*(FclVec2f *)(ps + 0x38)), (*(FclVec2f *)&sp190), 1, 4, 0);
++                sp190.position = func_002b2970((f32)((temp_18->f122 * 0x8E) + 0x6A), 16.0f);
++                func_002b69f0(0x2E0, (*(FclVec2f *)(ps + 0x38)), sp190.position, 1, 4, 0);
+                 temp_4 = (s8)((s8)((s8)(temp_18->f122)));
+                 switch (temp_4) {                   /* switch 2; irregular */
+                 case 0:                             /* switch 2 */
+@@ -2251,11 +2251,11 @@ void func_002ed430(u8 *arg0) {
+                 }
+                 temp_18->f122 = (s8)((s8)(func_002b2d00(temp_18->f122, 1, 0, 2, 1)));
+                 ps = func_002b6150(0x151);
+-                func_002b2970(&sp188, (f32)((temp_18->f122 * 0x8E) + 0x6A), 16.0f);
+-                func_002b69f0(0x151, (*(FclVec2f *)(ps + 0x38)), (*(FclVec2f *)&sp188), 1, 4, 0);
++                sp188.position = func_002b2970((f32)((temp_18->f122 * 0x8E) + 0x6A), 16.0f);
++                func_002b69f0(0x151, (*(FclVec2f *)(ps + 0x38)), sp188.position, 1, 4, 0);
+                 ps = func_002b6150(0x2E0);
+-                func_002b2970(&sp180, (f32)((temp_18->f122 * 0x8E) + 0x6A), 16.0f);
+-                func_002b69f0(0x2E0, (*(FclVec2f *)(ps + 0x38)), (*(FclVec2f *)&sp180), 1, 4, 0);
++                sp180.position = func_002b2970((f32)((temp_18->f122 * 0x8E) + 0x6A), 16.0f);
++                func_002b69f0(0x2E0, (*(FclVec2f *)(ps + 0x38)), sp180.position, 1, 4, 0);
+                 temp_4_2 = (s8)((s8)((s8)(temp_18->f122)));
+                 switch (temp_4_2) {                 /* switch 3; irregular */
+                 case 0:                             /* switch 3 */
+@@ -2299,20 +2299,20 @@ void func_002ed430(u8 *arg0) {
+             func_00316e80((s32)arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+             temp_18->f129 = -1;
+             for (var_17_6 = 0; var_17_6 < (func_0010b5b0() & 0xFFFF); var_17_6++) {
+-                func_002b2970(&sp178, 16.0f, 128.0f);
++                sp178.position = func_002b2970(16.0f, 128.0f);
+                 temp_19_8 = func_002e48a0(0, var_17_6)[1];
+                 temp_16_40 = *(u8 *)((u8 *)func_002e48a0(0, var_17_6) + 4);
+                 partyCount = *(s8 *)(func_002e4870(0) + 8);
+-                func_003191c0(arg0, sp178, var_17_6, temp_19_8, temp_16_40, 0, 0, partyCount);
+-                func_002b2970(&sp170, (f32)0x149, 128.0f);
++                func_003191c0(arg0, sp178.bits, var_17_6, temp_19_8, temp_16_40, 0, 0, partyCount);
++                sp170.position = func_002b2970((f32)0x149, 128.0f);
+                 temp_16_41 = func_002e48a0(temp_18->f128 + 1, var_17_6)[1];
+                 slotByte = *(u8 *)((u8 *)func_002e48a0(temp_18->f128 + 1, var_17_6) + 4);
+-                func_0031ac10(arg0, sp170, temp_18->f128, var_17_6, temp_16_41, slotByte, 0, 0, 1, 0xCC);
++                func_0031ac10(arg0, sp170.bits, temp_18->f128, var_17_6, temp_16_41, slotByte, 0, 0, 1, 0xCC);
+             }
+-            func_002b2970(&sp168, 16.0f, 104.0f);
+-            func_0031e5b0(arg0, sp168, 0, 0, 0, 0, 0);
+-            func_002b2970(&sp160, (f32)0x149, 104.0f);
+-            func_0031fa20(arg0, sp160, 0, 0);
++            sp168.position = func_002b2970(16.0f, 104.0f);
++            func_0031e5b0(arg0, sp168.bits, 0, 0, 0, 0, 0);
++            sp160.position = func_002b2970((f32)0x149, 104.0f);
++            func_0031fa20(arg0, sp160.bits, 0, 0);
+             func_002b6140(temp_18->f28C, 0);
+             func_002b6140(temp_18->f290, 0);
+             temp_18->f1 = 0x2A;
+@@ -7389,6 +7389,7 @@ s32 func_003026c0(u16 arg0, s32 arg1)
+    s64 constructor homes, then fv7..fv1, then buf. */
+ // FUN_00302770
+ void func_00302770(u8 *arg0) {
++    extern FclVec2 func_002b2970(f32, f32);
+     extern u8 *func_002b81f0(u8 *arg0);
+     extern void func_00325450(u8 *arg0, s32 arg1, s32 arg2);
+     extern void func_0032c660(u8 *arg0, s32 arg1, s64 arg2, s64 arg3, s32 arg4, s32 arg5);
+@@ -7399,44 +7400,44 @@ void func_00302770(u8 *arg0) {
+     extern u16 D_008C024E[];
+     extern s32 iGpffffa8a0;
+     FclVec2f fv0;
+-    s64 sp250;
+-    s64 sp248;
+-    s64 sp240;
+-    s64 sp238;
+-    s64 sp230;
+-    s64 sp228;
+-    s64 sp220;
+-    s64 sp218;
+-    s64 sp210;
+-    s64 sp208;
+-    s64 sp200;
+-    s64 sp1F8;
+-    s64 sp1F0;
+-    s64 sp1E8;
+-    s64 sp1E0;
+-    s64 sp1D8;
+-    s64 sp1D0;
+-    s64 sp1C8;
+-    s64 sp1C0;
+-    s64 sp1B8;
+-    s64 sp1B0;
+-    s64 sp1A8;
+-    s64 sp1A0;
+-    s64 sp198;
+-    s64 sp190;
+-    s64 sp188;
+-    s64 sp180;
+-    s64 sp178;
+-    s64 sp170;
+-    s64 sp168;
+-    s64 sp160;
+-    s64 sp158;
+-    s64 sp150;
+-    s64 sp148;
+-    s64 sp140;
+-    s64 sp138;
+-    s64 sp130;
+-    s64 sp128;
++    FclPackedPosition sp250;
++    FclPackedPosition sp248;
++    FclPackedPosition sp240;
++    FclPackedPosition sp238;
++    FclPackedPosition sp230;
++    FclPackedPosition sp228;
++    FclPackedPosition sp220;
++    FclPackedPosition sp218;
++    FclPackedPosition sp210;
++    FclPackedPosition sp208;
++    FclPackedPosition sp200;
++    FclPackedPosition sp1F8;
++    FclPackedPosition sp1F0;
++    FclPackedPosition sp1E8;
++    FclPackedPosition sp1E0;
++    FclPackedPosition sp1D8;
++    FclPackedPosition sp1D0;
++    FclPackedPosition sp1C8;
++    FclPackedPosition sp1C0;
++    FclPackedPosition sp1B8;
++    FclPackedPosition sp1B0;
++    FclPackedPosition sp1A8;
++    FclPackedPosition sp1A0;
++    FclPackedPosition sp198;
++    FclPackedPosition sp190;
++    FclPackedPosition sp188;
++    FclPackedPosition sp180;
++    FclPackedPosition sp178;
++    FclPackedPosition sp170;
++    FclPackedPosition sp168;
++    FclPackedPosition sp160;
++    FclPackedPosition sp158;
++    FclPackedPosition sp150;
++    FclPackedPosition sp148;
++    FclPackedPosition sp140;
++    FclPackedPosition sp138;
++    FclPackedPosition sp130;
++    FclPackedPosition sp128;
+     FclVec2f fv7;
+     FclVec2f fv6;
+     FclVec2f fv5;
+@@ -7461,9 +7462,9 @@ void func_00302770(u8 *arg0) {
+             break;
+         }
+         p[1] = 0x70;
+-        func_002b2970((u8 *)&sp250, 640.0f, 98.0f);
+-        func_002b2970((u8 *)&sp248, (f32)413, 99.0f);
+-        func_0033e540(*(u8 **)(p + 0x250), sp250, sp248, 6, 0);
++        sp250.position = func_002b2970(640.0f, 98.0f);
++        sp248.position = func_002b2970((f32)413, 99.0f);
++        func_0033e540(*(u8 **)(p + 0x250), sp250.bits, sp248.bits, 6, 0);
+         func_00316e80((s32)arg0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
+     case 0x70:
+         func_00313b50(arg0);
+@@ -7484,12 +7485,12 @@ void func_00302770(u8 *arg0) {
+             *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
+             func_002badc0(*(s8 *)(p + 0xD), 0x4B);
+             func_00325450(arg0, 2, 0);
+-            func_002b2970((u8 *)&sp240, 57.0f, 72.0f);
+-            func_002b2970((u8 *)&sp238, -346.0f, 72.0f);
+-            func_0032c660(arg0, 0, sp240, sp238, 1, 0);
+-            func_002b2970((u8 *)&sp230, 460.0f, 72.0f);
+-            func_002b2970((u8 *)&sp228, 460.0f, 72.0f);
+-            func_0032c660(arg0, 1, sp230, sp228, 1, 0);
++            sp240.position = func_002b2970(57.0f, 72.0f);
++            sp238.position = func_002b2970(-346.0f, 72.0f);
++            func_0032c660(arg0, 0, sp240.bits, sp238.bits, 1, 0);
++            sp230.position = func_002b2970(460.0f, 72.0f);
++            sp228.position = func_002b2970(460.0f, 72.0f);
++            func_0032c660(arg0, 1, sp230.bits, sp228.bits, 1, 0);
+             func_002b6140((u8 *)(*(s32 *)(p + 0x28C)), 1);
+             func_002b6140((u8 *)(*(s32 *)(p + 0x290)), 1);
+             func_00315600(arg0, 1);
+@@ -7507,20 +7508,20 @@ void func_00302770(u8 *arg0) {
+         func_0032e570(arg0);
+         q = func_002b6150(0x2E3);
+         fv0 = *(FclVec2f *)(q + 0x38);
+-        func_002b2970((u8 *)&sp220, fv0.x - 50.0f, fv0.y - 50.0f);
+-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x258)) = *(FclVec2f *)&sp220;
++        sp220.position = func_002b2970(fv0.x - 50.0f, fv0.y - 50.0f);
++        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x258)) = sp220.position;
+         q = func_002b6150(0x2E2);
+         fv1 = *(FclVec2f *)(q + 0x38);
+-        func_002b2970((u8 *)&sp218, fv1.x - 50.0f, fv1.y - 50.0f);
+-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x25C)) = *(FclVec2f *)&sp218;
++        sp218.position = func_002b2970(fv1.x - 50.0f, fv1.y - 50.0f);
++        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x25C)) = sp218.position;
+         q = func_002b6150(0x2E9);
+         fv2 = *(FclVec2f *)(q + 0x38);
+-        func_002b2970((u8 *)&sp210, fv2.x - 50.0f, fv2.y - 50.0f);
+-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x260)) = *(FclVec2f *)&sp210;
++        sp210.position = func_002b2970(fv2.x - 50.0f, fv2.y - 50.0f);
++        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x260)) = sp210.position;
+         q = func_002b6150(0x2EF);
+         fv3 = *(FclVec2f *)(q + 0x38);
+-        func_002b2970((u8 *)&sp208, fv3.x - 50.0f, fv3.y - 50.0f);
+-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x264)) = *(FclVec2f *)&sp208;
++        sp208.position = func_002b2970(fv3.x - 50.0f, fv3.y - 50.0f);
++        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x264)) = sp208.position;
+         if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1CA) + 0x10), 1) != 1) {
+             if (D_008C024E[0] & 8) {
+                 if (*(s8 *)(p + 0x122) != 1) {
+@@ -7528,17 +7529,17 @@ void func_00302770(u8 *arg0) {
+                 }
+                 func_0045af60(0, 0, 0, 5);
+                 q = func_002b6150(0x150);
+-                func_002b2970((u8 *)&sp200, (f32)321, 16.0f);
+-                func_002b69f0(0x150, *(FclVec2f *)(q + 0x38), *(FclVec2f *)&sp200, 1, 4, 0);
++                sp200.position = func_002b2970((f32)321, 16.0f);
++                func_002b69f0(0x150, *(FclVec2f *)(q + 0x38), sp200.position, 1, 4, 0);
+                 q = func_002b6150(0x2E0);
+-                func_002b2970((u8 *)&sp1F8, (f32)321, 16.0f);
+-                func_002b69f0(0x2E0, *(FclVec2f *)(q + 0x38), *(FclVec2f *)&sp1F8, 1, 4, 0);
+-                func_002b2970((u8 *)&sp1F0, 57.0f, 72.0f);
+-                func_002b2970((u8 *)&sp1E8, -346.0f, 72.0f);
+-                func_0032c660(arg0, 0, sp1F0, sp1E8, 0, 1);
+-                func_002b2970((u8 *)&sp1E0, 460.0f, 72.0f);
+-                func_002b2970((u8 *)&sp1D8, 460.0f, 72.0f);
+-                func_0032c660(arg0, 1, sp1E0, sp1D8, 0, 0);
++                sp1F8.position = func_002b2970((f32)321, 16.0f);
++                func_002b69f0(0x2E0, *(FclVec2f *)(q + 0x38), sp1F8.position, 1, 4, 0);
++                sp1F0.position = func_002b2970(57.0f, 72.0f);
++                sp1E8.position = func_002b2970(-346.0f, 72.0f);
++                func_0032c660(arg0, 0, sp1F0.bits, sp1E8.bits, 0, 1);
++                sp1E0.position = func_002b2970(460.0f, 72.0f);
++                sp1D8.position = func_002b2970(460.0f, 72.0f);
++                func_0032c660(arg0, 1, sp1E0.bits, sp1D8.bits, 0, 0);
+                 *(s8 *)(p + 0x122) = 0;
+             } else if (D_008C024E[0] & 4) {
+                 if (*(s8 *)(p + 0x122) != 0) {
+@@ -7546,45 +7547,45 @@ void func_00302770(u8 *arg0) {
+                 }
+                 func_0045af60(0, 0, 0, 5);
+                 q = func_002b6150(0x150);
+-                func_002b2970((u8 *)&sp1D0, 107.0f, 16.0f);
+-                func_002b69f0(0x150, *(FclVec2f *)(q + 0x38), *(FclVec2f *)&sp1D0, 1, 4, 0);
++                sp1D0.position = func_002b2970(107.0f, 16.0f);
++                func_002b69f0(0x150, *(FclVec2f *)(q + 0x38), sp1D0.position, 1, 4, 0);
+                 q = func_002b6150(0x2E0);
+-                func_002b2970((u8 *)&sp1C8, 107.0f, 16.0f);
+-                func_002b69f0(0x2E0, *(FclVec2f *)(q + 0x38), *(FclVec2f *)&sp1C8, 1, 4, 0);
+-                func_002b2970((u8 *)&sp1C0, 57.0f, 72.0f);
+-                func_002b2970((u8 *)&sp1B8, -346.0f, 72.0f);
+-                func_0032c660(arg0, 0, sp1C0, sp1B8, 0, 0);
+-                func_002b2970((u8 *)&sp1B0, 460.0f, 72.0f);
+-                func_002b2970((u8 *)&sp1A8, 460.0f, 72.0f);
+-                func_0032c660(arg0, 1, sp1B0, sp1A8, 0, 1);
++                sp1C8.position = func_002b2970(107.0f, 16.0f);
++                func_002b69f0(0x2E0, *(FclVec2f *)(q + 0x38), sp1C8.position, 1, 4, 0);
++                sp1C0.position = func_002b2970(57.0f, 72.0f);
++                sp1B8.position = func_002b2970(-346.0f, 72.0f);
++                func_0032c660(arg0, 0, sp1C0.bits, sp1B8.bits, 0, 0);
++                sp1B0.position = func_002b2970(460.0f, 72.0f);
++                sp1A8.position = func_002b2970(460.0f, 72.0f);
++                func_0032c660(arg0, 1, sp1B0.bits, sp1A8.bits, 0, 1);
+                 *(s8 *)(p + 0x122) = 1;
+             } else if ((D_008C024E[0] & 0x20) && p[1] == 0x73) {
+                 func_002bb550(*(s8 *)(p + 0xD));
+                 func_0045af60(0, 0, 0, 2);
+                 func_00325450(arg0, 2, 1);
+                 if (*(s8 *)(p + 0x122) == 1) {
+-                    func_002b2970((u8 *)&sp1A0, 57.0f, 72.0f);
+-                    func_002b2970((u8 *)&sp198, 940.0f, 72.0f);
+-                    func_0032c660(arg0, 0, sp1A0, sp198, 0, 1);
+-                    func_002b2970((u8 *)&sp190, 460.0f, 72.0f);
+-                    func_002b2970((u8 *)&sp188, 940.0f, 72.0f);
+-                    func_0032c660(arg0, 1, sp190, sp188, 0, 1);
++                    sp1A0.position = func_002b2970(57.0f, 72.0f);
++                    sp198.position = func_002b2970(940.0f, 72.0f);
++                    func_0032c660(arg0, 0, sp1A0.bits, sp198.bits, 0, 1);
++                    sp190.position = func_002b2970(460.0f, 72.0f);
++                    sp188.position = func_002b2970(940.0f, 72.0f);
++                    func_0032c660(arg0, 1, sp190.bits, sp188.bits, 0, 1);
+                     func_002b68d0(0x2E8, 0, 1);
+                     func_002b68d0(0x2EE, 0, 1);
+                 } else if (*(s8 *)(p + 0x122) == 0) {
+-                    func_002b2970((u8 *)&sp180, 57.0f, 72.0f);
+-                    func_002b2970((u8 *)&sp178, -640.0f, 72.0f);
+-                    func_0032c660(arg0, 0, sp180, sp178, 0, 1);
+-                    func_002b2970((u8 *)&sp170, 460.0f, 72.0f);
+-                    func_002b2970((u8 *)&sp168, -640.0f, 72.0f);
+-                    func_0032c660(arg0, 1, sp170, sp168, 0, 1);
++                    sp180.position = func_002b2970(57.0f, 72.0f);
++                    sp178.position = func_002b2970(-640.0f, 72.0f);
++                    func_0032c660(arg0, 0, sp180.bits, sp178.bits, 0, 1);
++                    sp170.position = func_002b2970(460.0f, 72.0f);
++                    sp168.position = func_002b2970(-640.0f, 72.0f);
++                    func_0032c660(arg0, 1, sp170.bits, sp168.bits, 0, 1);
+                 }
+                 func_002eb270(arg0, 0);
+                 p[1] = 0x74;
+                 func_00316e80((s32)arg0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+-                func_002b2970((u8 *)&sp160, (f32)413, 99.0f);
+-                func_002b2970((u8 *)&sp158, 640.0f, 98.0f);
+-                func_0033e540(*(u8 **)(p + 0x250), sp160, sp158, 6, 0);
++                sp160.position = func_002b2970((f32)413, 99.0f);
++                sp158.position = func_002b2970(640.0f, 98.0f);
++                func_0033e540(*(u8 **)(p + 0x250), sp160.bits, sp158.bits, 6, 0);
+                 func_00315600(arg0, 0);
+                 func_00320970(arg0, 0);
+             }
+@@ -7593,20 +7594,20 @@ void func_00302770(u8 *arg0) {
+     case 0x74:
+         q = func_002b6150(0x2E3);
+         fv4 = *(FclVec2f *)(q + 0x38);
+-        func_002b2970((u8 *)&sp150, fv4.x - 50.0f, fv4.y - 50.0f);
+-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x258)) = *(FclVec2f *)&sp150;
++        sp150.position = func_002b2970(fv4.x - 50.0f, fv4.y - 50.0f);
++        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x258)) = sp150.position;
+         q = func_002b6150(0x2E2);
+         fv5 = *(FclVec2f *)(q + 0x38);
+-        func_002b2970((u8 *)&sp148, fv5.x - 50.0f, fv5.y - 50.0f);
+-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x25C)) = *(FclVec2f *)&sp148;
++        sp148.position = func_002b2970(fv5.x - 50.0f, fv5.y - 50.0f);
++        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x25C)) = sp148.position;
+         q = func_002b6150(0x2E9);
+         fv6 = *(FclVec2f *)(q + 0x38);
+-        func_002b2970((u8 *)&sp140, fv6.x - 50.0f, fv6.y - 50.0f);
+-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x260)) = *(FclVec2f *)&sp140;
++        sp140.position = func_002b2970(fv6.x - 50.0f, fv6.y - 50.0f);
++        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x260)) = sp140.position;
+         q = func_002b6150(0x2EF);
+         fv7 = *(FclVec2f *)(q + 0x38);
+-        func_002b2970((u8 *)&sp138, fv7.x - 50.0f, fv7.y - 50.0f);
+-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x264)) = *(FclVec2f *)&sp138;
++        sp138.position = func_002b2970(fv7.x - 50.0f, fv7.y - 50.0f);
++        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x264)) = sp138.position;
+         if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1CA) + 0x10), 1) != 1) {
+             for (i = 0; i < 4; i++) {
+                 *(u8 *)(func_002b81f0(*(u8 **)(p + i * 4 + 0x258)) + 0x124) = 1;
+@@ -7624,9 +7625,9 @@ void func_00302770(u8 *arg0) {
+         } else {
+             func_002bb550(*(s8 *)(p + 0xD));
+             p[1] = 0x70;
+-            func_002b2970((u8 *)&sp130, 640.0f, 98.0f);
+-            func_002b2970((u8 *)&sp128, (f32)413, 99.0f);
+-            func_0033e540(*(u8 **)(p + 0x250), sp130, sp128, 6, 0);
++            sp130.position = func_002b2970(640.0f, 98.0f);
++            sp128.position = func_002b2970((f32)413, 99.0f);
++            func_0033e540(*(u8 **)(p + 0x250), sp130.bits, sp128.bits, 6, 0);
+             func_00316e80((s32)arg0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
+         }
+         break;
+@@ -10265,16 +10266,18 @@ void func_0030b060(u8 *arg0)
+     s16 k;
+     s16 e;
+     s32 lim;
+-    FclPackedPosition v0;
+-    s64 v1;
+-    s64 v2;
+-    FclPackedPosition v3;
++    FclVec2 v0;
++    FclVec2 v1;
++    FclVec2 v2;
++    FclVec2 v3;
+     FclDrawColor c0;
+     FclDrawColor c1;
+     FclDrawColor c2;
+     FclDrawColor c3;
+     u8 *te;
+     FclVec2f *base;
++    extern FclVec2 func_002b2970(f32, f32);
++    extern void func_00324f80(u8 *, FclVec2, s32, s8);
+ 
+     p = *(u8 **)(arg0 + 0x38);
+     kind = *(p + 1);
+@@ -10287,8 +10290,8 @@ void func_0030b060(u8 *arg0)
+             func_002b68d0((s16)(i + 0x179), 0, 1);
+         }
+         for (j = 0; j < 6; j++) {
+-            func_002b2970((u8 *)&v0.bits, 26.0f, (f32)(j * 0x22 + 0x57));
+-            func_003147e0(arg0, (s8)j, v0.position, (s16)(j + 0x179), (s16)(j * 2 + 2), 0);
++            v0 = func_002b2970(26.0f, (f32)(j * 0x22 + 0x57));
++            func_003147e0(arg0, (s8)j, v0, (s16)(j + 0x179), (s16)(j * 2 + 2), 0);
+         }
+         c0 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
+         te = func_002b6150((s16)(*(s16 *)(p + 0x11E) * 2 + 500));
+@@ -10303,7 +10306,7 @@ void func_0030b060(u8 *arg0)
+         te = func_002b6150((s16)(*(s16 *)(p + 0x120) + 0x2FB));
+         *(FclDrawColor *)(te + 0x85) = c3;
+         base = (FclVec2f *)D_00640D78;
+-        func_002b2970((u8 *)&v1, base->x, base->y);
++        v1 = func_002b2970(base->x, base->y);
+         func_00324f80(arg0, v1, 1, 0);
+         *(s32 *)(p + 0x124) = 0x428F0000;
+         *(p + 1) = 0xC3;
+@@ -10348,14 +10351,14 @@ void func_0030b060(u8 *arg0)
+                                     func_0045af60(0, 0, 0, 2);
+                                     func_003205f0(arg0, 0x96, 0x97);
+                                     base = (FclVec2f *)D_00640D78;
+-                                    func_002b2970((u8 *)&v2, base->x, base->y);
++                                    v2 = func_002b2970(base->x, base->y);
+                                     func_00324f80(arg0, v2, 1, 1);
+                                     e = *(s16 *)(p + 0x11E) - *(s16 *)(p + 0x120);
+                                     k = 0;
+                                     lim = e + 6;
+                                     for (; e < lim; e++, k++) {
+-                                        func_002b2970((u8 *)&v3.bits, 26.0f, (f32)(k * 0x22 + 0x57));
+-                                        func_003147e0(arg0, (s8)k, v3.position, (s16)(e + 0x179),
++                                        v3 = func_002b2970(26.0f, (f32)(k * 0x22 + 0x57));
++                                        func_003147e0(arg0, (s8)k, v3, (s16)(e + 0x179),
+                                                       (s16)((5 - k) * 2), 1);
+                                     }
+                                     func_002eb270(arg0, 0);
+@@ -11546,20 +11549,21 @@ void func_0030f650(u8 *arg0) {
+     u8 *p;
+     u8 kind;
+     s16 mats[12];
+-    FclPackedPosition w0;
+-    s64 w1;
+-    s64 w2;
+-    FclPackedPosition w3;
+-    s64 w4;
+-    s64 w5;
+-    FclPackedPosition w6;
+-    FclPackedPosition w7;
+-    FclPackedPosition w8;
+-    FclPackedPosition w9;
++    FclVec2 w0;
++    FclVec2 w1;
++    FclVec2 w2;
++    FclVec2 w3;
++    FclVec2 w4;
++    FclVec2 w5;
++    FclVec2 w6;
++    FclVec2 w7;
++    FclVec2 w8;
++    FclVec2 w9;
+     FclDrawColor c0;
+     FclDrawColor c1;
+     FclDrawColor c2;
+     FclVec2f *base;
++    extern FclVec2 func_002b2970(f32, f32);
+ 
+     p = *(u8 **)(arg0 + 0x38);
+     cls = *(s16 *)(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 1);
+@@ -11662,44 +11666,44 @@ void func_0030f650(u8 *arg0) {
+             }
+             *(s32 *)(p + 0x148) = func_00314320(arg0);
+             func_00320970(arg0, 0);
+-            func_002b2970((u8 *)&w0.bits, -78.0f, -82.0f);
+-            func_002b6c30(0x80, w0.position, 220.0f, 0x3F);
++            w0 = func_002b2970(-78.0f, -82.0f);
++            func_002b6c30(0x80, w0, 220.0f, 0x3F);
+             c0 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+             *(FclDrawColor *)(func_002b6150(0x80) + 0x85) = c0;
+             func_002b6b40(0x80, 0, 0x5A0, 0, 0.0f, -360.0f);
+             func_002b68d0(0x80, 6, 0);
+             *(func_002b6150(0x80) + 0xDB) = 1;
+-            func_002b2970((u8 *)&w1, 2.0f, -2.0f);
+-            func_002b2970((u8 *)&w2, -78.0f, -82.0f);
+-            func_002b69f0(0x80, *(FclVec2f *)&w1, *(FclVec2f *)&w2, 1, 0xA, 0);
++            w1 = func_002b2970(2.0f, -2.0f);
++            w2 = func_002b2970(-78.0f, -82.0f);
++            func_002b69f0(0x80, w1, w2, 1, 0xA, 0);
+             func_002b6a70(0x80, 0, 0xFF, 2, 0xA, 0);
+-            func_002b2970((u8 *)&w3.bits, 540.0f, (f32)347);
+-            func_002b6c30(0x20C, w3.position, 220.0f, 0x3F);
++            w3 = func_002b2970(540.0f, (f32)347);
++            func_002b6c30(0x20C, w3, 220.0f, 0x3F);
+             c1 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+             *(FclDrawColor *)(func_002b6150(0x20C) + 0x85) = c1;
+             func_002b6b40(0x20C, 0, 0x5A0, 0, 0.0f, -360.0f);
+             func_002b68d0(0x20C, 6, 0);
+             *(func_002b6150(0x20C) + 0xDB) = 1;
+-            func_002b2970((u8 *)&w4, 460.0f, (f32)267);
+-            func_002b2970((u8 *)&w5, 540.0f, (f32)347);
+-            func_002b69f0(0x20C, *(FclVec2f *)&w4, *(FclVec2f *)&w5, 1, 0xA, 0);
++            w4 = func_002b2970(460.0f, (f32)267);
++            w5 = func_002b2970(540.0f, (f32)347);
++            func_002b69f0(0x20C, w4, w5, 1, 0xA, 0);
+             func_002b6a70(0x20C, 0, 0xFF, 2, 0xA, 0);
+-            func_002b2970((u8 *)&w6.bits, -190.0f, 200.0f);
+-            func_002b6c30(0x81, w6.position, 215.0f, 0x56);
++            w6 = func_002b2970(-190.0f, 200.0f);
++            func_002b6c30(0x81, w6, 215.0f, 0x56);
+             c2 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+             *(FclDrawColor *)(func_002b6150(0x81) + 0x85) = c2;
+             *(f32 *)(func_002b6150(0x81) + 0xD0) = 90.0f;
+             base = (FclVec2f *)D_00640C50;
+-            func_002b2970((u8 *)&w7.bits, base->x, base->y);
+-            func_002b6c30(0x84, w7.position, 217.0f, 0x40);
++            w7 = func_002b2970(base->x, base->y);
++            func_002b6c30(0x84, w7, 217.0f, 0x40);
+             base = (FclVec2f *)D_00640C58;
+-            func_002b2970((u8 *)&w8.bits, base->x, base->y);
+-            func_002b6c30(0x85, w8.position, 218.0f, 0x40);
++            w8 = func_002b2970(base->x, base->y);
++            func_002b6c30(0x85, w8, 218.0f, 0x40);
+             func_00315600(arg0, 0);
+             func_00316e80((s32)arg0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0);
+             base = (FclVec2f *)D_00641660;
+-            func_002b2970((u8 *)&w9.bits, base->x, base->y);
+-            func_002b6c30(0x1C6, w9.position, 242.0f, 0x3D);
++            w9 = func_002b2970(base->x, base->y);
++            func_002b6c30(0x1C6, w9, 242.0f, 0x3D);
+             func_002b6a70(0x1C6, 0, 0x64, 0, 0xA, 0);
+             *(s8 *)(p + 0xB4) = 0;
+             *(s8 *)(p + 0xB5) = 0;
+diff --git a/src/Event/Fcl/y_fclCombineDraw.c b/src/Event/Fcl/y_fclCombineDraw.c
+index a415f4d..f8dfee5 100644
+--- a/src/Event/Fcl/y_fclCombineDraw.c
++++ b/src/Event/Fcl/y_fclCombineDraw.c
+@@ -3068,7 +3068,8 @@ void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
+ #pragma opt_loop_invariants on
+ // FUN_003218A0
+ void func_003218a0(u8 *arg0, s32 arg1) {
+-    extern FclDrawPosition func_002b2970(f32, f32);
++    extern FclVec2 func_002b2970(f32, f32);
++    extern void func_002b83e0(u8 *, FclVec2, FclDrawColor, FclDrawColor, u8, u8, f32, f32, s32, s32, s8, s8);
+     extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s32);
+     extern void func_002b6a70(s16, u8, u8, s32, s32, s16);
+     FclDrawColor c16C;
+@@ -3106,7 +3107,7 @@ void func_003218a0(u8 *arg0, s32 arg1) {
+         func_002b6a70(res, 0, 0xFF, 0, 0, order + 3);
+         func_002b6af0(res, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg1);
+         xx = x + 0x14E;
+-        func_002b69f0(r, func_002b2970(xx, 110.0f + func_0046b2f0(h) / 2.0f).position, func_002b2970(xx, 110.0f).position, 0, 3, arg1);
++        func_002b69f0(r, func_002b2970(xx, 110.0f + func_0046b2f0(h) / 2.0f), func_002b2970(xx, 110.0f), 0, 3, arg1);
+         func_002b68d0(res, 0, 0);
+         func_0046d280(h);
+         j = 0;
+@@ -3703,14 +3704,15 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00323d00);
+ // FUN_00324410
+ void func_00324410(u8 *arg0, s16 arg1, s8 arg2) {
+     FclVec2 sp68;
+-    s64 sp60;
+-    s64 sp58;
+-    s64 sp50;
++    FclVec2 sp60;
++    FclVec2 sp58;
++    FclVec2 sp50;
+     f32 f20;
+     f32 y;
+     u8 *t;
+     s32 v17;
+-    extern void func_002b69f0(s16, s64, s64, u32, u32, s16);
++    extern FclVec2 func_002b2970(f32, f32);
++    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
+ 
+     t = *(u8 **)(arg0 + 0x38);
+     sp68 = *(FclVec2 *)(t + 0x298);
+@@ -3721,12 +3723,12 @@ void func_00324410(u8 *arg0, s16 arg1, s8 arg2) {
+         func_002b7750(arg1, 0x1C7);
+         func_002b68d0(arg1, 0, 0);
+         if (v17 == 0) {
+-            func_002b2970((u8 *)&sp60, 280.0f + sp68.x, sp68.y);
+-            func_002b69f0(arg1, *(s64 *)&sp68, sp60, 0, 0x32, 0);
++            sp60 = func_002b2970(280.0f + sp68.x, sp68.y);
++            func_002b69f0(arg1, sp68, sp60, 0, 0x32, 0);
+         } else if (v17 == 1) {
+             f20 = 20.0f + ((y = sp68.y), y);
+-            func_002b2970((u8 *)&sp58, 280.0f + sp68.x, f20);
+-            func_002b2970((u8 *)&sp50, sp68.x, f20);
++            sp58 = func_002b2970(280.0f + sp68.x, f20);
++            sp50 = func_002b2970(sp68.x, f20);
+             func_002b69f0(arg1, sp58, sp50, 0, 0x32, 0);
+         }
+         {
+@@ -6019,12 +6021,13 @@ static inline void fclStoreId0032f4d0(s16 id, s32 offset, u8 *work)
+ }
+ // FUN_0032F4D0
+ void func_0032f4d0(u8 *arg0) {
+-    FclVec2 tbl[6];
++    FclVec2 tbl[5];
+     FclVec2 spA0;
+     FclVec2 sp98;
+     FclVec2 sp90;
+     FclVec2 sp88;
+     FclVec2 sp80;
++    FclVec2 sp78;
+     FclColor0032f4d0 cBC;
+     FclColor0032f4d0 cB8;
+     FclColor0032f4d0 cB4;
+@@ -6040,28 +6043,30 @@ void func_0032f4d0(u8 *arg0) {
+     u8 *p1;
+     u8 *p2;
+ 
++    extern FclVec2 func_002b2970(f32, f32);
++
+     t = *(u8 **)(arg0 + 0x38);
+     f20 = 0.0f;
+     *(s8 *)(t + 0xB7) = 0;
+     fclStoreId0032f4d0(0x169, *(s8 *)(t + 0xB7) * 2, t);
+-    func_002b2970((u8 *)&spA0, 26.0f, (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
++    spA0 = func_002b2970(26.0f, (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
+     slot = *(s8 *)(t + 0xB7);
+     tbl[slot] = spA0;
+     *(s8 *)(t + 0xB7) = slot + 1;
+     fclStoreId0032f4d0(0x16A, *(s8 *)(t + 0xB7) * 2, t);
+-    func_002b2970((u8 *)&sp98, 26.0f, (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
++    sp98 = func_002b2970(26.0f, (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
+     slot = *(s8 *)(t + 0xB7);
+     tbl[slot] = sp98;
+     *(s8 *)(t + 0xB7) = slot + 1;
+     if (datGetFlag(0x1305) != 0) {
+         fclStoreId0032f4d0(0x16B, *(s8 *)(t + 0xB7) * 2, t);
+-        func_002b2970((u8 *)&sp90, 26.0f, (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
++        sp90 = func_002b2970(26.0f, (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
+         slot = *(s8 *)(t + 0xB7);
+         tbl[slot] = sp90;
+         *(s8 *)(t + 0xB7) = slot + 1;
+         if (datGetFlag(0x1306) != 0) {
+             fclStoreId0032f4d0(0x16C, *(s8 *)(t + 0xB7) * 2, t);
+-            func_002b2970((u8 *)&sp88, 26.0f, 20.0f + (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
++            sp88 = func_002b2970(26.0f, 20.0f + (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
+             slot = *(s8 *)(t + 0xB7);
+             tbl[slot] = sp88;
+             *(s8 *)(t + 0xB7) = slot + 1;
+@@ -6069,14 +6074,14 @@ void func_0032f4d0(u8 *arg0) {
+         }
+     }
+     fclStoreId0032f4d0(0x16D, *(s8 *)(t + 0xB7) * 2, t);
+-    func_002b2970((u8 *)&sp80, 26.0f, f20 + (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
++    sp80 = func_002b2970(26.0f, f20 + (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
+     slot = *(s8 *)(t + 0xB7);
+     tbl[slot] = sp80;
+     *(s8 *)(t + 0xB7) = slot + 1;
+     fclStoreId0032f4d0(0x16E, *(s8 *)(t + 0xB7) * 2, t);
+-    func_002b2970((u8 *)&tbl[5], 26.0f, f20 + (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
++    sp78 = func_002b2970(26.0f, f20 + (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
+     slot = *(s8 *)(t + 0xB7);
+-    tbl[slot] = tbl[5];
++    tbl[slot] = sp78;
+     *(s8 *)(t + 0xB7) = slot + 1;
+     i = 0;
+     for (; (s16)i < *(s8 *)(t + 0xB7); i = (s16)(i + 1)) {
+diff --git a/src/promoted/y_CmbCardEff.c b/src/promoted/y_CmbCardEff.c
+index bc8b609..27534fe 100644
+--- a/src/promoted/y_CmbCardEff.c
++++ b/src/promoted/y_CmbCardEff.c
+@@ -115,7 +115,7 @@ u8 *func_00348160(u8 *arg0, s32 *arg1);
+ void *func_00348290(u8 *arg0);
+ void func_003482a0(u8 *arg0, u8 arg1, u8 arg2, u16 arg3);
+ void func_003482d0(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3);
+-void func_003489c0(u8 *arg0, CmbVec3f *src, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA col, u16 arg3, u32 arg4);
++void func_003489c0(u8 *arg0, CmbVec3f src, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA col, u16 arg3, u32 arg4);
+ void func_00348a90(u8 *arg0, CmbVec3f *src1, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f *src2, CmbRGBA arg6, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5, f32 f6, f32 f7);
+ s32 *func_00331620(void);
+ void RpSkyRenderStateSet(u32 arg0, u32 arg1);
+@@ -618,6 +618,35 @@ void func_0033fc00(u8 *arg0, s8 arg1, CmbVec2f arg2, CmbVec2f arg3, u16 arg4) {
+     *(s8 *)(p + 0xC) |= 1;
+ }
+ #pragma opt_propagation on
++static inline void cmbSetMove(u8 *arg0, s8 arg1, CmbVec2f arg2, CmbVec2f arg3, u16 arg4) {
++    u8 *p = *(u8 **)(arg0 + 0x38);
++    p += (s32)arg1 * 0x84;
++    *(CmbVec2f *)(p + 0x20) = arg2;
++    *(CmbVec2f *)(p + 0x10) = *(CmbVec2f *)(p + 0x20);
++    *(CmbVec2f *)(p + 0x18) = arg3;
++    *(u16 *)(p + 0x2A) = 0;
++    *(u16 *)(p + 0x28) = arg4;
++    *(s8 *)(p + 0xC) |= 1;
++}
++static inline void cmbSetColor(u8 *arg0, s8 arg1, CmbRGBA start, CmbRGBA end, u16 n) {
++    u8 *p = *(u8 **)(arg0 + 0x38);
++    p += (s32)arg1 * 0x84;
++    *(CmbRGBA *)(p + 0x84) = start;
++    *(CmbRGBA *)(p + 0x7C) = *(CmbRGBA *)(p + 0x84);
++    *(CmbRGBA *)(p + 0x80) = end;
++    *(s16 *)(p + 0x88) = 0;
++    *(s16 *)(p + 0x8A) = n;
++    *(s8 *)(p + 0xC) |= 4;
++}
++static inline void cmbAddPath(u8 *arg0, s8 arg1, CmbVec2f pos, s16 n) {
++    u8 *slot = *(u8 **)(arg0 + 0x38);
++    s32 index = *(s8 *)(slot + arg1 * 0x84 + 0x68);
++    u8 *table = cmbAddPtrRev((u32)slot, (u32)(index * 0xC));
++    *(CmbVec2f *)(table + arg1 * 0x84 + 0x2C) = pos;
++    *(s16 *)(table + arg1 * 0x84 + 0x34) = n;
++    *(s8 *)(slot + arg1 * 0x84 + 0xC) |= 8;
++    *(s8 *)(slot + arg1 * 0x84 + 0x68) = func_002b2cb0(*(s8 *)(slot + arg1 * 0x84 + 0x68), 1, 5, 0, 1);
++}
+ // FUN_0033FC80
+ s32 func_0033fc80(u8 *arg0) {
+     u8 *ret;
+@@ -625,8 +654,8 @@ s32 func_0033fc80(u8 *arg0) {
+     u8 *table;
+     u8 *slot;
+     u8 *obj;
+-    CmbFc80Work work;
+-    FclDrawColor colorSource040, colorSource03C, colorSource038, colorSource034, colorSource030, colorSource02C, colorSource028, colorSource024, colorSource020;
++    extern FclVec2 func_002b2970(f32, f32);
++    extern CmbVec3f func_002b29a0(f32, f32, f32);
+     s16 state;
+     s8 i0;
+     s8 i6;
+@@ -645,18 +674,7 @@ s32 func_0033fc80(u8 *arg0) {
+         *(u8 *)(obj + 0x6B8) = 1;
+         i0 = 0;
+         while (i0 < 2) {
+-            colorSource03C = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c018 = colorSource03C;
+-            colorSource040 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c01C = colorSource040;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            slot += (s32)i0 * 0x84;
+-            *(CmbRGBA *)(slot + 0x84) = work.storage.colors.c01C;
+-            *(CmbRGBA *)(slot + 0x7C) = *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) = work.storage.colors.c018;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 0;
+-            *(s8 *)(slot + 0xC) |= 4;
++            cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+             table = obj + (s32)i0 * 4;
+             ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+             *(s32 *)(ret + 0x11C) &= 0xFFFD;
+@@ -671,59 +689,11 @@ s32 func_0033fc80(u8 *arg0) {
+     switch (state) {
+     case 0:
+         if (func_00285b30() >= 0x50) {
+-            func_002b2970((u8 *)(&work.d8), 230.0f, 212.0f);
+-            *(CmbVec2f *)&work.f90 = *(CmbVec2f *)&work.d8;
+-            func_002b2970((u8 *)(&work.e0), 10.0f, 212.0f);
+-            *(CmbVec2f *)&work.f98 = *(CmbVec2f *)&work.e0;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x20) = *(CmbVec2f *)&work.f98;
+-            *(CmbVec2f *)(slot + 0x10) = *(CmbVec2f *)(slot + 0x20);
+-            *(CmbVec2f *)(slot + 0x18) = *(CmbVec2f *)&work.f90;
+-            *(s16 *)(slot + 0x2A) = 0;
+-            *(s16 *)(slot + 0x28) = 5;
+-            *(s8 *)(slot + 0xC) |= 1;
+-            colorSource034 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c010 = colorSource034;
+-            colorSource038 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c014 = colorSource038;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x84) = work.storage.colors.c014;
+-            *(CmbRGBA *)(slot + 0x7C) = *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) = work.storage.colors.c010;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 5;
+-            *(s8 *)(slot + 0xC) |= 4;
+-            func_002b2970((u8 *)(&work.c8), 230.0f, 212.0f);
+-            *(CmbVec2f *)&work.f80 = *(CmbVec2f *)&work.c8;
+-            func_002b2970((u8 *)(&work.d0), 10.0f, 212.0f);
+-            *(CmbVec2f *)&work.f88 = *(CmbVec2f *)&work.d0;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0xA4) = *(CmbVec2f *)&work.f88;
+-            *(CmbVec2f *)(slot + 0x94) = *(CmbVec2f *)(slot + 0xA4);
+-            *(CmbVec2f *)(slot + 0x9C) = *(CmbVec2f *)&work.f80;
+-            *(s16 *)(slot + 0xAE) = 0;
+-            *(s16 *)(slot + 0xAC) = 5;
+-            *(s8 *)(slot + 0x90) |= 1;
+-            colorSource02C = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c008 = colorSource02C;
+-            colorSource030 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c00C = colorSource030;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x108) = work.storage.colors.c00C;
+-            *(CmbRGBA *)(slot + 0x100) = *(CmbRGBA *)(slot + 0x108);
+-            *(CmbRGBA *)(slot + 0x104) = work.storage.colors.c008;
+-            *(s16 *)(slot + 0x10C) = 0;
+-            *(s16 *)(slot + 0x10E) = 5;
+-            *(s8 *)(slot + 0x90) |= 4;
+-            func_002b2970((u8 *)(&work.c0), 0x19F, 212.0f);
+-            *(CmbVec2f *)&work.f78 = *(CmbVec2f *)&work.c0;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot + 0xEC);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0xB0) = *(CmbVec2f *)&work.f78;
+-            *(s16 *)(table + 0xB8) = 5;
+-            *(s8 *)(slot + 0x90) |= 8;
+-            *(s8 *)(slot + 0xEC) = func_002b2cb0(*(s8 *)(slot + 0xEC), 1, 5, 0, 1);
++            cmbSetMove(arg0, 0, func_002b2970(10.0f, 212.0f), func_002b2970(230.0f, 212.0f), 5);
++            cmbSetColor(arg0, 0, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbSetMove(arg0, 1, func_002b2970(10.0f, 212.0f), func_002b2970(230.0f, 212.0f), 5);
++            cmbSetColor(arg0, 1, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbAddPath(arg0, 1, func_002b2970(0x19F, 212.0f), 5);
+             *(s16 *)(obj + 0x63C) = 6;
+         }
+         break;
+@@ -756,11 +726,9 @@ s32 func_0033fc80(u8 *arg0) {
+         break;
+     case 7:
+         func_0045aeb0(2, D_0064A5B0);
+-        func_002b29a0((u8 *)&work.b0, 0.0f, 5.0f, 30.0f);
+-        colorSource028 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-        func_003489c0(*(u8 **)(obj + 0x64C), &work.b0,
++        func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, 5.0f, 30.0f),
+                       0.0f, 0.0f, 0.0f, 1.0f,
+-                      colorSource028, 0, 0x28);
++                      func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+         *(s16 *)(obj + 0x63C) = 8;
+     case 8:
+         if (func_00452490(*(s32 *)(obj + 0x64C)) != 1) {
+@@ -778,24 +746,13 @@ s32 func_0033fc80(u8 *arg0) {
+         if (func_00285b30() >= 0x1EA) {
+             i9 = 0;
+             while (i9 < 2) {
+-                func_002b2970((u8 *)(&work.a8), 323.0f, 217.0f);
+-                *(CmbVec2f *)&work.f70 = *(CmbVec2f *)&work.a8;
+-                slot = *(u8 **)(arg0 + 0x38);
+-                slot += (s32)i9 * 0x84;
+-                table = obj + (s32)i9 * 0x84;
+-                *(CmbVec2f *)(slot + 0x20) = *(CmbVec2f *)(table + 0x20);
+-                *(CmbVec2f *)(slot + 0x10) = *(CmbVec2f *)(slot + 0x20);
+-                *(CmbVec2f *)(slot + 0x18) = *(CmbVec2f *)&work.f70;
+-                *(s16 *)(slot + 0x2A) = 0;
+-                *(s16 *)(slot + 0x28) = 3;
+-                *(s8 *)(slot + 0xC) |= 1;
++                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
+                 table = obj + (s32)i9 * 4;
+                 slot = table + 0x658;
+                 ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+-                func_002b2970((u8 *)(&work.a0), 339.0f, 217.0f);
+                 func_003482d0(*(u8 **)slot,
+                               *(CmbVec2f *)(ret + 0x134),
+-                              *(CmbVec2f *)&work.a0, 3);
++                              func_002b2970(339.0f, 217.0f), 3);
+                 i9++;
+             }
+             *(s16 *)(obj + 0x63C) = 10;
+@@ -804,18 +761,7 @@ s32 func_0033fc80(u8 *arg0) {
+     case 10:
+         i10 = 0;
+         while (i10 < 2) {
+-            colorSource020 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c000 = colorSource020;
+-            colorSource024 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c004 = colorSource024;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            slot += (s32)i10 * 0x84;
+-            *(CmbRGBA *)(slot + 0x84) = work.storage.colors.c004;
+-            *(CmbRGBA *)(slot + 0x7C) = *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) = work.storage.colors.c000;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 0;
+-            *(s8 *)(slot + 0xC) |= 4;
++            cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+             table = obj + (s32)i10 * 4;
+             ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+             *(s32 *)(ret + 0x11C) &= 0xFFFD;
+@@ -844,8 +790,8 @@ s32 func_003407f0(u8 *arg0) {
+     u8 *slot;
+     u8 *slot2;
+     u8 *obj;
+-    Cmb407Work work;
+-    FclDrawColor colorSource054, colorSource050, colorSource04C, colorSource048, colorSource044, colorSource040, colorSource03C, colorSource038, colorSource034, colorSource030, colorSource02C;
++    extern FclVec2 func_002b2970(f32, f32);
++    extern CmbVec3f func_002b29a0(f32, f32, f32);
+     s16 state;
+     s8 i0;
+     s8 i6;
+@@ -857,38 +803,20 @@ s32 func_003407f0(u8 *arg0) {
+     f32 fvalue;
+ 
+     obj = *(u8 **)(arg0 + 0x38);
+-    if (*(s8 *)(obj + 0xC) != 0 || *(s8 *)(obj + 0x90) != 0 ||
+-        *(s8 *)(obj + 0x114) != 0) {
++    if (*(s8 *)(obj + 0xC) != 0 || *(s8 *)(obj + 0x90) != 0 || *(s8 *)(obj + 0x114) != 0) {
+         return 0;
+     }
+     if (datGetFlag(0x58) != 0) {
+         *(u8 *)(obj + 0x6B8) = 1;
+         i0 = 0;
+         while (i0 < 3) {
+-            colorSource050 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c024 =
+-                colorSource050;
+-            colorSource054 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c028 =
+-                colorSource054;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            slot += (s32)i0 * 0x84;
+-            *(CmbRGBA *)(slot + 0x84) =
+-                work.storage.colors.c028;
+-            *(CmbRGBA *)(slot + 0x7C) =
+-                *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) =
+-                work.storage.colors.c024;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 0;
+-            *(s8 *)(slot + 0xC) |= 4;
++            cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+             table = obj + (s32)i0 * 4;
+             ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+             *(s32 *)(ret + 0x11C) &= 0xFFFD;
+             i0++;
+         }
+-        if (func_00285b30() >= 0x208 &&
+-            func_00285b30() < 0x348) {
++        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+             func_00106390(0x1450, 1);
+         }
+         return 0;
+@@ -897,125 +825,15 @@ s32 func_003407f0(u8 *arg0) {
+     switch (state) {
+     case 0:
+         if (func_00285b30() >= 0x50) {
+-            func_002b2970((u8 *)(&work.p118), 185.0f, 297.0f);
+-            work.pB0 = work.p118;
+-            func_002b2970((u8 *)(&work.p120), -86.0f, 297.0f);
+-            work.pB8 = work.p120;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x20) = work.pB8;
+-            *(CmbVec2f *)(slot + 0x10) =
+-                *(CmbVec2f *)(slot + 0x20);
+-            *(CmbVec2f *)(slot + 0x18) = work.pB0;
+-            *(s16 *)(slot + 0x2A) = 0;
+-            *(s16 *)(slot + 0x28) = 5;
+-            *(s8 *)(slot + 0xC) |= 1;
+-            colorSource048 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c01C =
+-                colorSource048;
+-            colorSource04C = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c020 =
+-                colorSource04C;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x84) =
+-                work.storage.colors.c020;
+-            *(CmbRGBA *)(slot + 0x7C) =
+-                *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) =
+-                work.storage.colors.c01C;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 5;
+-            *(s8 *)(slot + 0xC) |= 4;
+-            func_002b2970((u8 *)(&work.p108), 185.0f, 297.0f);
+-            work.pA0 = work.p108;
+-            func_002b2970((u8 *)(&work.p110), -86.0f, 297.0f);
+-            work.pA8 = work.p110;
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot2 + 0xA4) = work.pA8;
+-            *(CmbVec2f *)(slot2 + 0x94) =
+-                *(CmbVec2f *)(slot2 + 0xA4);
+-            *(CmbVec2f *)(slot2 + 0x9C) = work.pA0;
+-            *(s16 *)(slot2 + 0xAE) = 0;
+-            *(s16 *)(slot2 + 0xAC) = 5;
+-            *(s8 *)(slot2 + 0x90) |= 1;
+-            colorSource040 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c014 =
+-                colorSource040;
+-            colorSource044 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c018 =
+-                colorSource044;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x108) =
+-                work.storage.colors.c018;
+-            *(CmbRGBA *)(slot + 0x100) =
+-                *(CmbRGBA *)(slot + 0x108);
+-            *(CmbRGBA *)(slot + 0x104) =
+-                work.storage.colors.c014;
+-            *(s16 *)(slot + 0x10C) = 0;
+-            *(s16 *)(slot + 0x10E) = 5;
+-            *(s8 *)(slot + 0x90) |= 4;
+-            func_002b2970((u8 *)(&work.p100), 456.0f, 297.0f);
+-            *(CmbVec2f *)&work.f98 = work.p100;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot + 0xEC);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0xB0) =
+-                *(CmbVec2f *)&work.f98;
+-            *(s16 *)(table + 0xB8) = 5;
+-            *(s8 *)(slot + 0x90) |= 8;
+-            *(s8 *)(slot + 0xEC) =
+-                func_002b2cb0(*(s8 *)(slot + 0xEC), 1, 5, 0, 1);
+-            func_002b2970((u8 *)(&work.pF0), 185.0f, 297.0f);
+-            *(CmbVec2f *)&work.f88 = work.pF0;
+-            func_002b2970((u8 *)(&work.pF8), -86.0f, 297.0f);
+-            *(CmbVec2f *)&work.f90 = work.pF8;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x128) =
+-                *(CmbVec2f *)&work.f90;
+-            *(CmbVec2f *)(slot + 0x118) =
+-                *(CmbVec2f *)(slot + 0x128);
+-            *(CmbVec2f *)(slot + 0x120) =
+-                *(CmbVec2f *)&work.f88;
+-            *(s16 *)(slot + 0x132) = 0;
+-            *(s16 *)(slot + 0x130) = 5;
+-            *(s8 *)(slot + 0x114) |= 1;
+-            colorSource038 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c00C =
+-                colorSource038;
+-            colorSource03C = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c010 =
+-                colorSource03C;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x18C) =
+-                work.storage.colors.c010;
+-            *(CmbRGBA *)(slot + 0x184) =
+-                *(CmbRGBA *)(slot + 0x18C);
+-            *(CmbRGBA *)(slot + 0x188) =
+-                work.storage.colors.c00C;
+-            *(s16 *)(slot + 0x190) = 0;
+-            *(s16 *)(slot + 0x192) = 5;
+-            *(s8 *)(slot + 0x114) |= 4;
+-            func_002b2970((u8 *)(&work.pE8), 456.0f, 297.0f);
+-            *(CmbVec2f *)&work.f80 = work.pE8;
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index2 = *(s8 *)(slot2 + 0x170);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index2 * 0xC));
+-            *(CmbVec2f *)(table + 0x134) =
+-                *(CmbVec2f *)&work.f80;
+-            *(s16 *)(table + 0x13C) = 5;
+-            *(s8 *)(slot2 + 0x114) |= 8;
+-            *(s8 *)(slot2 + 0x170) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x170), 1, 5, 0, 1);
+-            func_002b2970((u8 *)(&work.pE0), 320.0f, 104.0f);
+-            *(CmbVec2f *)&work.f78 = work.pE0;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index2 = *(s8 *)(slot + 0x170);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index2 * 0xC));
+-            *(CmbVec2f *)(table + 0x134) =
+-                *(CmbVec2f *)&work.f78;
+-            *(s16 *)(table + 0x13C) = 5;
+-            *(s8 *)(slot + 0x114) |= 8;
+-            *(s8 *)(slot + 0x170) =
+-                func_002b2cb0(*(s8 *)(slot + 0x170), 1, 5, 0, 1);
++            cmbSetMove(arg0, 0, func_002b2970(-86.0f, 297.0f), func_002b2970(185.0f, 297.0f), 5);
++            cmbSetColor(arg0, 0, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbSetMove(arg0, 1, func_002b2970(-86.0f, 297.0f), func_002b2970(185.0f, 297.0f), 5);
++            cmbSetColor(arg0, 1, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbAddPath(arg0, 1, func_002b2970(456.0f, 297.0f), 5);
++            cmbSetMove(arg0, 2, func_002b2970(-86.0f, 297.0f), func_002b2970(185.0f, 297.0f), 5);
++            cmbSetColor(arg0, 2, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbAddPath(arg0, 2, func_002b2970(456.0f, 297.0f), 5);
++            cmbAddPath(arg0, 2, func_002b2970(320.0f, 104.0f), 5);
+             *(s16 *)(obj + 0x63C) = 6;
+         }
+         break;
+@@ -1048,11 +866,7 @@ s32 func_003407f0(u8 *arg0) {
+         break;
+     case 7:
+         func_0045aeb0(2, D_0064A5B0);
+-        func_002b29a0((u8 *)&work.d0, 0.0f, -5.0f, 30.0f);
+-        colorSource034 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-        func_003489c0(*(u8 **)(obj + 0x64C), &work.d0,
+-                      0.0f, 0.0f, 0.0f, iGpffff8360,
+-                      colorSource034, 0, 0x28);
++        func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, -5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+         *(s16 *)(obj + 0x63C) = 8;
+         /* fallthrough */
+     case 8:
+@@ -1071,27 +885,11 @@ s32 func_003407f0(u8 *arg0) {
+         if (func_00285b30() >= 0x1EA) {
+             i9 = 0;
+             while (i9 < 3) {
+-                func_002b2970((u8 *)(&work.pC8), 323.0f, 217.0f);
+-                *(CmbVec2f *)&work.f70 = work.pC8;
+-                slot = *(u8 **)(arg0 + 0x38);
+-                slot += (s32)i9 * 0x84;
+-                table = obj + (s32)i9 * 0x84;
+-                *(CmbVec2f *)(slot + 0x20) =
+-                    *(CmbVec2f *)(table + 0x20);
+-                *(CmbVec2f *)(slot + 0x10) =
+-                    *(CmbVec2f *)(slot + 0x20);
+-                *(CmbVec2f *)(slot + 0x18) =
+-                    *(CmbVec2f *)&work.f70;
+-                *(s16 *)(slot + 0x2A) = 0;
+-                *(s16 *)(slot + 0x28) = 3;
+-                *(s8 *)(slot + 0xC) |= 1;
++                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
+                 table = obj + (s32)i9 * 4;
+                 slot = table + 0x658;
+                 ret = (u8 *)func_00348290(*(u8 **)slot);
+-                func_002b2970((u8 *)(&work.pC0), 339.0f, 217.0f);
+-                func_003482d0(*(u8 **)slot,
+-                              *(CmbVec2f *)(ret + 0x134),
+-                              work.pC0, 3);
++                func_003482d0(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
+                 i9++;
+             }
+             *(s16 *)(obj + 0x63C) = 10;
+@@ -1101,23 +899,7 @@ s32 func_003407f0(u8 *arg0) {
+         *(u8 *)(obj + 0x6B8) = 1;
+         i10 = 0;
+         while (i10 < 3) {
+-            colorSource02C = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c004 =
+-                colorSource02C;
+-            colorSource030 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c008 =
+-                colorSource030;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            slot += (s32)i10 * 0x84;
+-            *(CmbRGBA *)(slot + 0x84) =
+-                work.storage.colors.c008;
+-            *(CmbRGBA *)(slot + 0x7C) =
+-                *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) =
+-                work.storage.colors.c004;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 0;
+-            *(s8 *)(slot + 0xC) |= 4;
++            cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+             table = obj + (s32)i10 * 4;
+             ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+             *(s32 *)(ret + 0x11C) &= 0xFFFD;
+@@ -1127,8 +909,7 @@ s32 func_003407f0(u8 *arg0) {
+         *(s16 *)(obj + 0x63C) = 11;
+         break;
+     case 11:
+-        if (func_00285b30() >= 0x208 &&
+-            func_00285b30() < 0x348) {
++        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+             func_00106390(0x1450, 1);
+         }
+         break;
+@@ -1147,8 +928,8 @@ s32 func_00341640(u8 *arg0) {
+     u8 *slot;
+     u8 *slot2;
+     u8 *obj;
+-    Cmb416Work work;
+-    FclDrawColor colorSource064, colorSource060, colorSource05C, colorSource058, colorSource054, colorSource050, colorSource04C, colorSource048, colorSource044, colorSource040, colorSource03C, colorSource038, colorSource034;
++    extern FclVec2 func_002b2970(f32, f32);
++    extern CmbVec3f func_002b29a0(f32, f32, f32);
+     s16 state;
+     s8 i0;
+     s8 i6;
+@@ -1161,38 +942,20 @@ s32 func_00341640(u8 *arg0) {
+     f32 fvalue;
+ 
+     obj = *(u8 **)(arg0 + 0x38);
+-    if (*(s8 *)(obj + 0xC) != 0 || *(s8 *)(obj + 0x90) != 0 ||
+-        *(s8 *)(obj + 0x114) != 0 || *(s8 *)(obj + 0x198) != 0) {
++    if (*(s8 *)(obj + 0xC) != 0 || *(s8 *)(obj + 0x90) != 0 || *(s8 *)(obj + 0x114) != 0 || *(s8 *)(obj + 0x198) != 0) {
+         return 0;
+     }
+     if (datGetFlag(0x58) != 0) {
+         *(u8 *)(obj + 0x6B8) = 1;
+         i0 = 0;
+         while (i0 < 4) {
+-            colorSource060 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c02C =
+-                colorSource060;
+-            colorSource064 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c030 =
+-                colorSource064;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            slot += (s32)i0 * 0x84;
+-            *(CmbRGBA *)(slot + 0x84) =
+-                work.storage.colors.c030;
+-            *(CmbRGBA *)(slot + 0x7C) =
+-                *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) =
+-                work.storage.colors.c02C;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 0;
+-            *(s8 *)(slot + 0xC) |= 4;
++            cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+             table = obj + (s32)i0 * 4;
+             ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+             *(s32 *)(ret + 0x11C) &= 0xFFFD;
+             i0++;
+         }
+-        if (func_00285b30() >= 0x208 &&
+-            func_00285b30() < 0x348) {
++        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+             func_00106390(0x1450, 1);
+         }
+         return 0;
+@@ -1201,183 +964,20 @@ s32 func_00341640(u8 *arg0) {
+     switch (state) {
+     case 0:
+         if (func_00285b30() >= 0x50) {
+-            func_002b2970((u8 *)(&work.p168), 188.0f, 217.0f);
+-            work.pD8 = work.p168;
+-            func_002b2970((u8 *)(&work.p170), -82.0f, 217.0f);
+-            work.pE0 = work.p170;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x20) = work.pE0;
+-            *(CmbVec2f *)(slot + 0x10) =
+-                *(CmbVec2f *)(slot + 0x20);
+-            *(CmbVec2f *)(slot + 0x18) = work.pD8;
+-            *(s16 *)(slot + 0x2A) = 0;
+-            *(s16 *)(slot + 0x28) = 5;
+-            *(s8 *)(slot + 0xC) |= 1;
+-            colorSource058 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c024 =
+-                colorSource058;
+-            colorSource05C = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c028 =
+-                colorSource05C;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x84) =
+-                work.storage.colors.c028;
+-            *(CmbRGBA *)(slot + 0x7C) =
+-                *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) =
+-                work.storage.colors.c024;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 5;
+-            *(s8 *)(slot + 0xC) |= 4;
+-            func_002b2970((u8 *)(&work.p158), 188.0f, 217.0f);
+-            work.pC8 = work.p158;
+-            func_002b2970((u8 *)(&work.p160), -82.0f, 217.0f);
+-            work.pD0 = work.p160;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0xA4) = work.pD0;
+-            *(CmbVec2f *)(slot + 0x94) =
+-                *(CmbVec2f *)(slot + 0xA4);
+-            *(CmbVec2f *)(slot + 0x9C) = work.pC8;
+-            *(s16 *)(slot + 0xAE) = 0;
+-            *(s16 *)(slot + 0xAC) = 5;
+-            *(s8 *)(slot + 0x90) |= 1;
+-            colorSource050 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c01C =
+-                colorSource050;
+-            colorSource054 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c020 =
+-                colorSource054;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x108) =
+-                work.storage.colors.c020;
+-            *(CmbRGBA *)(slot + 0x100) =
+-                *(CmbRGBA *)(slot + 0x108);
+-            *(CmbRGBA *)(slot + 0x104) =
+-                work.storage.colors.c01C;
+-            *(s16 *)(slot + 0x10C) = 0;
+-            *(s16 *)(slot + 0x10E) = 5;
+-            *(s8 *)(slot + 0x90) |= 4;
+-            func_002b2970((u8 *)(&work.p150), 458.0f, 217.0f);
+-            work.pC0 = work.p150;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot + 0xEC);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0xB0) = work.pC0;
+-            *(s16 *)(table + 0xB8) = 5;
+-            *(s8 *)(slot + 0x90) |= 8;
+-            *(s8 *)(slot + 0xEC) =
+-                func_002b2cb0(*(s8 *)(slot + 0xEC), 1, 5, 0, 1);
+-            func_002b2970((u8 *)(&work.p140), 188.0f, 217.0f);
+-            work.pB0 = work.p140;
+-            func_002b2970((u8 *)(&work.p148), -82.0f, 217.0f);
+-            work.pB8 = work.p148;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x128) = work.pB8;
+-            *(CmbVec2f *)(slot + 0x118) =
+-                *(CmbVec2f *)(slot + 0x128);
+-            *(CmbVec2f *)(slot + 0x120) = work.pB0;
+-            *(s16 *)(slot + 0x132) = 0;
+-            *(s16 *)(slot + 0x130) = 5;
+-            *(s8 *)(slot + 0x114) |= 1;
+-            colorSource048 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c014 =
+-                colorSource048;
+-            colorSource04C = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c018 =
+-                colorSource04C;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x18C) =
+-                work.storage.colors.c018;
+-            *(CmbRGBA *)(slot + 0x184) =
+-                *(CmbRGBA *)(slot + 0x18C);
+-            *(CmbRGBA *)(slot + 0x188) =
+-                work.storage.colors.c014;
+-            *(s16 *)(slot + 0x190) = 0;
+-            *(s16 *)(slot + 0x192) = 5;
+-            *(s8 *)(slot + 0x114) |= 4;
+-            func_002b2970((u8 *)(&work.p138), 458.0f, 217.0f);
+-            work.pA8 = work.p138;
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index2 = *(s8 *)(slot2 + 0x170);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index2 * 0xC));
+-            *(CmbVec2f *)(table + 0x134) = work.pA8;
+-            *(s16 *)(table + 0x13C) = 5;
+-            *(s8 *)(slot2 + 0x114) |= 8;
+-            *(s8 *)(slot2 + 0x170) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x170), 1, 5, 0, 1);
+-            func_002b2970((u8 *)(&work.p130), 323.0f, 337.0f);
+-            work.pA0 = work.p130;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index2 = *(s8 *)(slot + 0x170);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index2 * 0xC));
+-            *(CmbVec2f *)(table + 0x134) = work.pA0;
+-            *(s16 *)(table + 0x13C) = 5;
+-            *(s8 *)(slot + 0x114) |= 8;
+-            *(s8 *)(slot + 0x170) =
+-                func_002b2cb0(*(s8 *)(slot + 0x170), 1, 5, 0, 1);
+-            func_002b2970((u8 *)(&work.p120), 188.0f, 217.0f);
+-            *(CmbVec2f *)&work.f90 = work.p120;
+-            func_002b2970((u8 *)(&work.p128), -82.0f, 217.0f);
+-            *(CmbVec2f *)&work.f98 = work.p128;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x1AC) =
+-                *(CmbVec2f *)&work.f98;
+-            *(CmbVec2f *)(slot + 0x19C) =
+-                *(CmbVec2f *)(slot + 0x1AC);
+-            *(CmbVec2f *)(slot + 0x1A4) =
+-                *(CmbVec2f *)&work.f90;
+-            *(s16 *)(slot + 0x1B6) = 0;
+-            *(s16 *)(slot + 0x1B4) = 5;
+-            *(s8 *)(slot + 0x198) |= 1;
+-            colorSource040 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c00C =
+-                colorSource040;
+-            colorSource044 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c010 =
+-                colorSource044;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x210) =
+-                work.storage.colors.c010;
+-            *(CmbRGBA *)(slot + 0x208) =
+-                *(CmbRGBA *)(slot + 0x210);
+-            *(CmbRGBA *)(slot + 0x20C) =
+-                work.storage.colors.c00C;
+-            *(s16 *)(slot + 0x214) = 0;
+-            *(s16 *)(slot + 0x216) = 5;
+-            *(s8 *)(slot + 0x198) |= 4;
+-            func_002b2970((u8 *)(&work.p118), 458.0f, 217.0f);
+-            *(CmbVec2f *)&work.f88 = work.p118;
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index3 = *(s8 *)(slot2 + 0x1F4);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index3 * 0xC));
+-            *(CmbVec2f *)(table + 0x1B8) =
+-                *(CmbVec2f *)&work.f88;
+-            *(s16 *)(table + 0x1C0) = 5;
+-            *(s8 *)(slot2 + 0x198) |= 8;
+-            *(s8 *)(slot2 + 0x1F4) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x1F4), 1, 5, 0, 1);
+-            func_002b2970((u8 *)(&work.p110), 323.0f, 337.0f);
+-            *(CmbVec2f *)&work.f80 = work.p110;
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index3 = *(s8 *)(slot2 + 0x1F4);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index3 * 0xC));
+-            *(CmbVec2f *)(table + 0x1B8) =
+-                *(CmbVec2f *)&work.f80;
+-            *(s16 *)(table + 0x1C0) = 5;
+-            *(s8 *)(slot2 + 0x198) |= 8;
+-            *(s8 *)(slot2 + 0x1F4) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x1F4), 1, 5, 0, 1);
+-            func_002b2970((u8 *)(&work.p108), 323.0f, 82.0f);
+-            *(CmbVec2f *)&work.f78 = work.p108;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index3 = *(s8 *)(slot + 0x1F4);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index3 * 0xC));
+-            *(CmbVec2f *)(table + 0x1B8) =
+-                *(CmbVec2f *)&work.f78;
+-            *(s16 *)(table + 0x1C0) = 5;
+-            *(s8 *)(slot + 0x198) |= 8;
+-            *(s8 *)(slot + 0x1F4) =
+-                func_002b2cb0(*(s8 *)(slot + 0x1F4), 1, 5, 0, 1);
++            cmbSetMove(arg0, 0, func_002b2970(-82.0f, 217.0f), func_002b2970(188.0f, 217.0f), 5);
++            cmbSetColor(arg0, 0, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbSetMove(arg0, 1, func_002b2970(-82.0f, 217.0f), func_002b2970(188.0f, 217.0f), 5);
++            cmbSetColor(arg0, 1, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbAddPath(arg0, 1, func_002b2970(458.0f, 217.0f), 5);
++            cmbSetMove(arg0, 2, func_002b2970(-82.0f, 217.0f), func_002b2970(188.0f, 217.0f), 5);
++            cmbSetColor(arg0, 2, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbAddPath(arg0, 2, func_002b2970(458.0f, 217.0f), 5);
++            cmbAddPath(arg0, 2, func_002b2970(323.0f, 337.0f), 5);
++            cmbSetMove(arg0, 3, func_002b2970(-82.0f, 217.0f), func_002b2970(188.0f, 217.0f), 5);
++            cmbSetColor(arg0, 3, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbAddPath(arg0, 3, func_002b2970(458.0f, 217.0f), 5);
++            cmbAddPath(arg0, 3, func_002b2970(323.0f, 337.0f), 5);
++            cmbAddPath(arg0, 3, func_002b2970(323.0f, 82.0f), 5);
+             *(s16 *)(obj + 0x63C) = 6;
+         }
+         break;
+@@ -1410,11 +1010,7 @@ s32 func_00341640(u8 *arg0) {
+         break;
+     case 7:
+         func_0045aeb0(2, D_0064A5B0);
+-        func_002b29a0((u8 *)&work.vecF8, 0.0f, 5.0f, 30.0f);
+-        colorSource03C = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-        func_003489c0(*(u8 **)(obj + 0x64C), &work.vecF8,
+-                      0.0f, 0.0f, 0.0f, iGpffff8360,
+-                      colorSource03C, 0, 0x28);
++        func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+         *(s16 *)(obj + 0x63C) = 8;
+         /* fallthrough */
+     case 8:
+@@ -1433,27 +1029,11 @@ s32 func_00341640(u8 *arg0) {
+         if (func_00285b30() >= 0x1EA) {
+             i9 = 0;
+             while (i9 < 4) {
+-                func_002b2970((u8 *)(&work.pF0), 323.0f, 217.0f);
+-                *(CmbVec2f *)&work.f70 = work.pF0;
+-                slot = *(u8 **)(arg0 + 0x38);
+-                slot += (s32)i9 * 0x84;
+-                table = obj + (s32)i9 * 0x84;
+-                *(CmbVec2f *)(slot + 0x20) =
+-                    *(CmbVec2f *)(table + 0x20);
+-                *(CmbVec2f *)(slot + 0x10) =
+-                    *(CmbVec2f *)(slot + 0x20);
+-                *(CmbVec2f *)(slot + 0x18) =
+-                    *(CmbVec2f *)&work.f70;
+-                *(s16 *)(slot + 0x2A) = 0;
+-                *(s16 *)(slot + 0x28) = 3;
+-                *(s8 *)(slot + 0xC) |= 1;
++                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
+                 table = obj + (s32)i9 * 4;
+                 slot = table + 0x658;
+                 ret = (u8 *)func_00348290(*(u8 **)slot);
+-                func_002b2970((u8 *)(&work.pE8), 339.0f, 217.0f);
+-                func_003482d0(*(u8 **)slot,
+-                              *(CmbVec2f *)(ret + 0x134),
+-                              work.pE8, 3);
++                func_003482d0(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
+                 i9++;
+             }
+             *(s16 *)(obj + 0x63C) = 10;
+@@ -1463,23 +1043,7 @@ s32 func_00341640(u8 *arg0) {
+         *(u8 *)(obj + 0x6B8) = 1;
+         i10 = 0;
+         while (i10 < 4) {
+-            colorSource034 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c004 =
+-                colorSource034;
+-            colorSource038 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c008 =
+-                colorSource038;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            slot += (s32)i10 * 0x84;
+-            *(CmbRGBA *)(slot + 0x84) =
+-                work.storage.colors.c008;
+-            *(CmbRGBA *)(slot + 0x7C) =
+-                *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) =
+-                work.storage.colors.c004;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 0;
+-            *(s8 *)(slot + 0xC) |= 4;
++            cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+             table = obj + (s32)i10 * 4;
+             ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+             *(s32 *)(ret + 0x11C) &= 0xFFFD;
+@@ -1488,8 +1052,7 @@ s32 func_00341640(u8 *arg0) {
+         *(s16 *)(obj + 0x63C) = 11;
+         break;
+     case 11:
+-        if (func_00285b30() >= 0x208 &&
+-            func_00285b30() < 0x348) {
++        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+             func_00106390(0x1450, 1);
+         }
+         break;
+@@ -1508,8 +1071,8 @@ s32 func_003427a0(u8 *arg0) {
+     u8 *slot;
+     u8 *slot2;
+     u8 *obj;
+-    Cmb427Work work;
+-    FclDrawColor colorSource1AC, colorSource1A8, colorSource1A4, colorSource1A0, colorSource19C, colorSource198, colorSource194, colorSource190, colorSource18C, colorSource188, colorSource184, colorSource180, colorSource17C, colorSource178, colorSource174;
++    extern FclVec2 func_002b2970(f32, f32);
++    extern CmbVec3f func_002b29a0(f32, f32, f32);
+     s16 state;
+     s8 i0;
+     s8 i6;
+@@ -1522,39 +1085,20 @@ s32 func_003427a0(u8 *arg0) {
+     f32 fvalue;
+ 
+     obj = *(u8 **)(arg0 + 0x38);
+-    if (*(s8 *)(obj + 0xC) != 0 || *(s8 *)(obj + 0x90) != 0 ||
+-        *(s8 *)(obj + 0x114) != 0 || *(s8 *)(obj + 0x198) != 0 ||
+-        *(s8 *)(obj + 0x21C) != 0) {
++    if (*(s8 *)(obj + 0xC) != 0 || *(s8 *)(obj + 0x90) != 0 || *(s8 *)(obj + 0x114) != 0 || *(s8 *)(obj + 0x198) != 0 || *(s8 *)(obj + 0x21C) != 0) {
+         return 0;
+     }
+     if (datGetFlag(0x58) != 0) {
+         *(u8 *)(obj + 0x6B8) = 1;
+         i0 = 0;
+         while (i0 < 5) {
+-            colorSource1A8 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c16C =
+-                colorSource1A8;
+-            colorSource1AC = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c170 =
+-                colorSource1AC;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            slot += (s32)i0 * 0x84;
+-            *(CmbRGBA *)(slot + 0x84) =
+-                work.storage.colors.c170;
+-            *(CmbRGBA *)(slot + 0x7C) =
+-                *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) =
+-                work.storage.colors.c16C;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 0;
+-            *(s8 *)(slot + 0xC) |= 4;
++            cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+             table = obj + (s32)i0 * 4;
+             ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+             *(s32 *)(ret + 0x11C) &= 0xFFFD;
+             i0++;
+         }
+-        if (func_00285b30() >= 0x208 &&
+-            func_00285b30() < 0x348) {
++        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+             func_00106390(0x1450, 1);
+         }
+         return 0;
+@@ -1563,286 +1107,26 @@ s32 func_003427a0(u8 *arg0) {
+     switch (state) {
+     case 0:
+         if (func_00285b30() >= 0x50) {
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x128)), 185.0f, 182.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x68) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x128);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x130)), -95.0f, 182.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x70) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x130);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x20) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x70);
+-            *(CmbVec2f *)(slot + 0x10) =
+-                *(CmbVec2f *)(slot + 0x20);
+-            *(CmbVec2f *)(slot + 0x18) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x68);
+-            *(s16 *)(slot + 0x2A) = 0;
+-            *(s16 *)(slot + 0x28) = 5;
+-            *(s8 *)(slot + 0xC) |= 1;
+-            colorSource1A0 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c164 =
+-                colorSource1A0;
+-            colorSource1A4 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c168 =
+-                colorSource1A4;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x84) =
+-                work.storage.colors.c168;
+-            *(CmbRGBA *)(slot + 0x7C) =
+-                *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) =
+-                work.storage.colors.c164;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 5;
+-            *(s8 *)(slot + 0xC) |= 4;
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x118)), 185.0f, 182.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x58) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x118);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x120)), -95.0f, 182.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x60) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x120);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0xA4) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x60);
+-            *(CmbVec2f *)(slot + 0x94) =
+-                *(CmbVec2f *)(slot + 0xA4);
+-            *(CmbVec2f *)(slot + 0x9C) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x58);
+-            *(s16 *)(slot + 0xAE) = 0;
+-            *(s16 *)(slot + 0xAC) = 5;
+-            *(s8 *)(slot + 0x90) |= 1;
+-            colorSource198 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c15C =
+-                colorSource198;
+-            colorSource19C = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c160 =
+-                colorSource19C;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x108) =
+-                work.storage.colors.c160;
+-            *(CmbRGBA *)(slot + 0x100) =
+-                *(CmbRGBA *)(slot + 0x108);
+-            *(CmbRGBA *)(slot + 0x104) =
+-                work.storage.colors.c15C;
+-            *(s16 *)(slot + 0x10C) = 0;
+-            *(s16 *)(slot + 0x10E) = 5;
+-            *(s8 *)(slot + 0x90) |= 4;
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x110)), 465.0f, 182.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x50) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x110);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot + 0xEC);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0xB0) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x50);
+-            *(s16 *)(table + 0xB8) = 5;
+-            *(s8 *)(slot + 0x90) |= 8;
+-            *(s8 *)(slot + 0xEC) =
+-                func_002b2cb0(*(s8 *)(slot + 0xEC), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x100)), 185.0f, 182.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x40) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x100);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x108)), -95.0f, 182.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x48) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x108);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x128) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x48);
+-            *(CmbVec2f *)(slot + 0x118) =
+-                *(CmbVec2f *)(slot + 0x128);
+-            *(CmbVec2f *)(slot + 0x120) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x40);
+-            *(s16 *)(slot + 0x132) = 0;
+-            *(s16 *)(slot + 0x130) = 5;
+-            *(s8 *)(slot + 0x114) |= 1;
+-            colorSource190 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c154 =
+-                colorSource190;
+-            colorSource194 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c158 =
+-                colorSource194;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x18C) =
+-                work.storage.colors.c158;
+-            *(CmbRGBA *)(slot + 0x184) =
+-                *(CmbRGBA *)(slot + 0x18C);
+-            *(CmbRGBA *)(slot + 0x188) =
+-                work.storage.colors.c154;
+-            *(s16 *)(slot + 0x190) = 0;
+-            *(s16 *)(slot + 0x192) = 5;
+-            *(s8 *)(slot + 0x114) |= 4;
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xF8)), 465.0f, 182.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x38) =
+-                *(CmbVec2f *)(work.storage.bytes + 0xF8);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index2 = *(s8 *)(slot2 + 0x170);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index2 * 0xC));
+-            *(CmbVec2f *)(table + 0x134) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x38);
+-            *(s16 *)(table + 0x13C) = 5;
+-            *(s8 *)(slot2 + 0x114) |= 8;
+-            *(s8 *)(slot2 + 0x170) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x170), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xF0)), 239.0f, 343.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x30) =
+-                *(CmbVec2f *)(work.storage.bytes + 0xF0);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index2 = *(s8 *)(slot2 + 0x170);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index2 * 0xC));
+-            *(CmbVec2f *)(table + 0x134) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x30);
+-            *(s16 *)(table + 0x13C) = 5;
+-            *(s8 *)(slot2 + 0x114) |= 8;
+-            *(s8 *)(slot2 + 0x170) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x170), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xE0)), 185.0f, 182.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x20) =
+-                *(CmbVec2f *)(work.storage.bytes + 0xE0);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xE8)), -95.0f, 182.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x28) =
+-                *(CmbVec2f *)(work.storage.bytes + 0xE8);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x1AC) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x28);
+-            *(CmbVec2f *)(slot + 0x19C) =
+-                *(CmbVec2f *)(slot + 0x1AC);
+-            *(CmbVec2f *)(slot + 0x1A4) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x20);
+-            *(s16 *)(slot + 0x1B6) = 0;
+-            *(s16 *)(slot + 0x1B4) = 5;
+-            *(s8 *)(slot + 0x198) |= 1;
+-            colorSource188 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c14C =
+-                colorSource188;
+-            colorSource18C = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c150 =
+-                colorSource18C;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x210) =
+-                work.storage.colors.c150;
+-            *(CmbRGBA *)(slot + 0x208) =
+-                *(CmbRGBA *)(slot + 0x210);
+-            *(CmbRGBA *)(slot + 0x20C) =
+-                work.storage.colors.c14C;
+-            *(s16 *)(slot + 0x214) = 0;
+-            *(s16 *)(slot + 0x216) = 5;
+-            *(s8 *)(slot + 0x198) |= 4;
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xD8)), 465.0f, 182.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x18) =
+-                *(CmbVec2f *)(work.storage.bytes + 0xD8);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index3 = *(s8 *)(slot2 + 0x1F4);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index3 * 0xC));
+-            *(CmbVec2f *)(table + 0x1B8) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x18);
+-            *(s16 *)(table + 0x1C0) = 5;
+-            *(s8 *)(slot2 + 0x198) |= 8;
+-            *(s8 *)(slot2 + 0x1F4) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x1F4), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xD0)), 239.0f, 343.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x10) =
+-                *(CmbVec2f *)(work.storage.bytes + 0xD0);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index3 = *(s8 *)(slot2 + 0x1F4);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index3 * 0xC));
+-            *(CmbVec2f *)(table + 0x1B8) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x10);
+-            *(s16 *)(table + 0x1C0) = 5;
+-            *(s8 *)(slot2 + 0x198) |= 8;
+-            *(s8 *)(slot2 + 0x1F4) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x1F4), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xC8)), 411.0f, 343.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x8) =
+-                *(CmbVec2f *)(work.storage.bytes + 0xC8);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index3 = *(s8 *)(slot + 0x1F4);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index3 * 0xC));
+-            *(CmbVec2f *)(table + 0x1B8) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x8);
+-            *(s16 *)(table + 0x1C0) = 5;
+-            *(s8 *)(slot + 0x198) |= 8;
+-            *(s8 *)(slot + 0x1F4) =
+-                func_002b2cb0(*(s8 *)(slot + 0x1F4), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xB8)), 185.0f, 182.0f);
+-            *(CmbVec2f *)&work.f98 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xB8);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xC0)), -95.0f, 182.0f);
+-            *(CmbVec2f *)(work.storage.bytes + 0x0) =
+-                *(CmbVec2f *)(work.storage.bytes + 0xC0);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x230) =
+-                *(CmbVec2f *)(work.storage.bytes + 0x0);
+-            *(CmbVec2f *)(slot + 0x220) =
+-                *(CmbVec2f *)(slot + 0x230);
+-            *(CmbVec2f *)(slot + 0x228) =
+-                *(CmbVec2f *)&work.f98;
+-            *(s16 *)(slot + 0x23A) = 0;
+-            *(s16 *)(slot + 0x238) = 5;
+-            *(s8 *)(slot + 0x21C) |= 1;
+-            colorSource180 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c144 =
+-                colorSource180;
+-            colorSource184 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c148 =
+-                colorSource184;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x294) =
+-                work.storage.colors.c148;
+-            *(CmbRGBA *)(slot + 0x28C) =
+-                *(CmbRGBA *)(slot + 0x294);
+-            *(CmbRGBA *)(slot + 0x290) =
+-                work.storage.colors.c144;
+-            *(s16 *)(slot + 0x298) = 0;
+-            *(s16 *)(slot + 0x29A) = 5;
+-            *(s8 *)(slot + 0x21C) |= 4;
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xB0)), 465.0f, 182.0f);
+-            *(CmbVec2f *)&work.f90 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xB0);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index2 = *(s8 *)(slot + 0x278);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index2 * 0xC));
+-            *(CmbVec2f *)(table + 0x23C) =
+-                *(CmbVec2f *)&work.f90;
+-            *(s16 *)(table + 0x244) = 5;
+-            *(s8 *)(slot + 0x21C) |= 8;
+-            *(s8 *)(slot + 0x278) =
+-                func_002b2cb0(*(s8 *)(slot + 0x278), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xA8)), 239.0f, 343.0f);
+-            *(CmbVec2f *)&work.f88 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xA8);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index2 = *(s8 *)(slot + 0x278);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index2 * 0xC));
+-            *(CmbVec2f *)(table + 0x23C) =
+-                *(CmbVec2f *)&work.f88;
+-            *(s16 *)(table + 0x244) = 5;
+-            *(s8 *)(slot + 0x21C) |= 8;
+-            *(s8 *)(slot + 0x278) =
+-                func_002b2cb0(*(s8 *)(slot + 0x278), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xA0)), 411.0f, 343.0f);
+-            *(CmbVec2f *)&work.f80 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xA0);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index2 = *(s8 *)(slot + 0x278);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index2 * 0xC));
+-            *(CmbVec2f *)(table + 0x23C) =
+-                *(CmbVec2f *)&work.f80;
+-            *(s16 *)(table + 0x244) = 5;
+-            *(s8 *)(slot + 0x21C) |= 8;
+-            *(s8 *)(slot + 0x278) =
+-                func_002b2cb0(*(s8 *)(slot + 0x278), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x98)), 325.0f, 83.0f);
+-            *(CmbVec2f *)&work.f78 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x98);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index2 = *(s8 *)(slot + 0x278);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index2 * 0xC));
+-            *(CmbVec2f *)(table + 0x23C) =
+-                *(CmbVec2f *)&work.f78;
+-            *(s16 *)(table + 0x244) = 5;
+-            *(s8 *)(slot + 0x21C) |= 8;
+-            *(s8 *)(slot + 0x278) =
+-                func_002b2cb0(*(s8 *)(slot + 0x278), 1, 5, 0, 1);
++            cmbSetMove(arg0, 0, func_002b2970(-95.0f, 182.0f), func_002b2970(185.0f, 182.0f), 5);
++            cmbSetColor(arg0, 0, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbSetMove(arg0, 1, func_002b2970(-95.0f, 182.0f), func_002b2970(185.0f, 182.0f), 5);
++            cmbSetColor(arg0, 1, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbAddPath(arg0, 1, func_002b2970(465.0f, 182.0f), 5);
++            cmbSetMove(arg0, 2, func_002b2970(-95.0f, 182.0f), func_002b2970(185.0f, 182.0f), 5);
++            cmbSetColor(arg0, 2, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbAddPath(arg0, 2, func_002b2970(465.0f, 182.0f), 5);
++            cmbAddPath(arg0, 2, func_002b2970(239.0f, 343.0f), 5);
++            cmbSetMove(arg0, 3, func_002b2970(-95.0f, 182.0f), func_002b2970(185.0f, 182.0f), 5);
++            cmbSetColor(arg0, 3, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbAddPath(arg0, 3, func_002b2970(465.0f, 182.0f), 5);
++            cmbAddPath(arg0, 3, func_002b2970(239.0f, 343.0f), 5);
++            cmbAddPath(arg0, 3, func_002b2970(411.0f, 343.0f), 5);
++            cmbSetMove(arg0, 4, func_002b2970(-95.0f, 182.0f), func_002b2970(185.0f, 182.0f), 5);
++            cmbSetColor(arg0, 4, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
++            cmbAddPath(arg0, 4, func_002b2970(465.0f, 182.0f), 5);
++            cmbAddPath(arg0, 4, func_002b2970(239.0f, 343.0f), 5);
++            cmbAddPath(arg0, 4, func_002b2970(411.0f, 343.0f), 5);
++            cmbAddPath(arg0, 4, func_002b2970(325.0f, 83.0f), 5);
+             *(s16 *)(obj + 0x63C) = 6;
+         }
+         break;
+@@ -1875,12 +1159,7 @@ s32 func_003427a0(u8 *arg0) {
+         break;
+     case 7:
+         func_0045aeb0(2, D_0064A5B0);
+-        func_002b29a0(work.storage.bytes + 0x88, 0.0f, 5.0f, 30.0f);
+-        colorSource17C = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-        func_003489c0(*(u8 **)(obj + 0x64C),
+-                      (CmbVec3f *)(work.storage.bytes + 0x88),
+-                      0.0f, 0.0f, 0.0f, iGpffff8360,
+-                      colorSource17C, 0, 0x28);
++        func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+         *(s16 *)(obj + 0x63C) = 8;
+         /* fallthrough */
+     case 8:
+@@ -1899,28 +1178,11 @@ s32 func_003427a0(u8 *arg0) {
+         if (func_00285b30() >= 0x1EA) {
+             i9 = 0;
+             while (i9 < 5) {
+-                func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x80)), 323.0f, 217.0f);
+-                *(CmbVec2f *)&work.f70 =
+-                    *(CmbVec2f *)(work.storage.bytes + 0x80);
+-                slot = *(u8 **)(arg0 + 0x38);
+-                slot += (s32)i9 * 0x84;
+-                table = obj + (s32)i9 * 0x84;
+-                *(CmbVec2f *)(slot + 0x20) =
+-                    *(CmbVec2f *)(table + 0x20);
+-                *(CmbVec2f *)(slot + 0x10) =
+-                    *(CmbVec2f *)(slot + 0x20);
+-                *(CmbVec2f *)(slot + 0x18) =
+-                    *(CmbVec2f *)&work.f70;
+-                *(s16 *)(slot + 0x2A) = 0;
+-                *(s16 *)(slot + 0x28) = 3;
+-                *(s8 *)(slot + 0xC) |= 1;
++                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
+                 table = obj + (s32)i9 * 4;
+                 slot2 = table + 0x658;
+                 ret = (u8 *)func_00348290(*(u8 **)slot2);
+-                func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x78)), 339.0f, 217.0f);
+-                func_003482d0(*(u8 **)slot2,
+-                              *(CmbVec2f *)(ret + 0x134),
+-                              *(CmbVec2f *)(work.storage.bytes + 0x78), 3);
++                func_003482d0(*(u8 **)slot2, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
+                 i9++;
+             }
+             *(s16 *)(obj + 0x63C) = 10;
+@@ -1930,23 +1192,7 @@ s32 func_003427a0(u8 *arg0) {
+         *(u8 *)(obj + 0x6B8) = 1;
+         i10 = 0;
+         while (i10 < 5) {
+-            colorSource174 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c13C =
+-                colorSource174;
+-            colorSource178 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c140 =
+-                colorSource178;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            slot += (s32)i10 * 0x84;
+-            *(CmbRGBA *)(slot + 0x84) =
+-                work.storage.colors.c140;
+-            *(CmbRGBA *)(slot + 0x7C) =
+-                *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) =
+-                work.storage.colors.c13C;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 0;
+-            *(s8 *)(slot + 0xC) |= 4;
++            cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+             table = obj + (s32)i10 * 4;
+             ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+             *(s32 *)(ret + 0x11C) &= 0xFFFD;
+@@ -1955,8 +1201,7 @@ s32 func_003427a0(u8 *arg0) {
+         *(s16 *)(obj + 0x63C) = 11;
+         break;
+     case 11:
+-        if (func_00285b30() >= 0x208 &&
+-            func_00285b30() < 0x348) {
++        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+             func_00106390(0x1450, 1);
+         }
+         break;
+@@ -1975,8 +1220,8 @@ s32 func_00343cf0(u8 *arg0) {
+     u8 *slot;
+     u8 *slot2;
+     u8 *obj;
+-    Cmb43Work work;
+-    FclDrawColor colorSource17C, colorSource178, colorSource174, colorSource170, colorSource16C, colorSource168, colorSource164, colorSource160, colorSource15C, colorSource158, colorSource154, colorSource150, colorSource14C, colorSource148, colorSource144, colorSource140, colorSource13C;
++    extern FclVec2 func_002b2970(f32, f32);
++    extern CmbVec3f func_002b29a0(f32, f32, f32);
+     s16 state;
+     s8 i0;
+     s8 i6;
+@@ -1988,39 +1233,20 @@ s32 func_00343cf0(u8 *arg0) {
+     f32 fvalue;
+ 
+     obj = *(u8 **)(arg0 + 0x38);
+-    if (*(s8 *)(obj + 0xC) != 0 || *(s8 *)(obj + 0x90) != 0 ||
+-        *(s8 *)(obj + 0x114) != 0 || *(s8 *)(obj + 0x198) != 0 ||
+-        *(s8 *)(obj + 0x21C) != 0 || *(s8 *)(obj + 0x2A0) != 0) {
++    if (*(s8 *)(obj + 0xC) != 0 || *(s8 *)(obj + 0x90) != 0 || *(s8 *)(obj + 0x114) != 0 || *(s8 *)(obj + 0x198) != 0 || *(s8 *)(obj + 0x21C) != 0 || *(s8 *)(obj + 0x2A0) != 0) {
+         return 0;
+     }
+     if (datGetFlag(0x58) != 0) {
+         *(u8 *)(obj + 0x6B8) = 1;
+         i0 = 0;
+         while (i0 < 6) {
+-            colorSource178 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c134 =
+-                colorSource178;
+-            colorSource17C = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c138 =
+-                colorSource17C;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            slot += (s32)i0 * 0x84;
+-            *(CmbRGBA *)(slot + 0x84) =
+-                work.storage.colors.c138;
+-            *(CmbRGBA *)(slot + 0x7C) =
+-                *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) =
+-                work.storage.colors.c134;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 0;
+-            *(s8 *)(slot + 0xC) |= 4;
++            cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+             table = obj + (s32)i0 * 4;
+             ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+             *(s32 *)(ret + 0x11C) &= 0xFFFD;
+             i0++;
+         }
+-        if (func_00285b30() >= 0x208 &&
+-            func_00285b30() < 0x348) {
++        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+             func_00106390(0x1450, 1);
+         }
+         return 0;
+@@ -2029,378 +1255,33 @@ s32 func_00343cf0(u8 *arg0) {
+     switch (state) {
+     case 0:
+         if (func_00285b30() >= 0x50) {
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xE8)), 321.0f, 70.0f);
+-            *(CmbVec2f *)&work.f140 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xE8);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xF0)), 421.0f, -43.0f);
+-            *(CmbVec2f *)&work.f148 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xF0);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x20) =
+-                *(CmbVec2f *)&work.f148;
+-            *(CmbVec2f *)(slot + 0x10) =
+-                *(CmbVec2f *)(slot + 0x20);
+-            *(CmbVec2f *)(slot + 0x18) =
+-                *(CmbVec2f *)&work.f140;
+-            *(s16 *)(slot + 0x2A) = 0;
+-            *(s16 *)(slot + 0x28) = 4;
+-            *(s8 *)(slot + 0xC) |= 1;
+-            colorSource170 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c12C =
+-                colorSource170;
+-            colorSource174 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c130 =
+-                colorSource174;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x84) =
+-                work.storage.colors.c130;
+-            *(CmbRGBA *)(slot + 0x7C) =
+-                *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) =
+-                work.storage.colors.c12C;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 4;
+-            *(s8 *)(slot + 0xC) |= 4;
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xD8)), 321.0f, 70.0f);
+-            *(CmbVec2f *)&work.f130 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xD8);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xE0)), 421.0f, -43.0f);
+-            *(CmbVec2f *)&work.f138 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xE0);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0xA4) =
+-                *(CmbVec2f *)&work.f138;
+-            *(CmbVec2f *)(slot + 0x94) =
+-                *(CmbVec2f *)(slot + 0xA4);
+-            *(CmbVec2f *)(slot + 0x9C) =
+-                *(CmbVec2f *)&work.f130;
+-            *(s16 *)(slot + 0xAE) = 0;
+-            *(s16 *)(slot + 0xAC) = 4;
+-            *(s8 *)(slot + 0x90) |= 1;
+-            colorSource168 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c124 =
+-                colorSource168;
+-            colorSource16C = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c128 =
+-                colorSource16C;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x108) =
+-                work.storage.colors.c128;
+-            *(CmbRGBA *)(slot + 0x100) =
+-                *(CmbRGBA *)(slot + 0x108);
+-            *(CmbRGBA *)(slot + 0x104) =
+-                work.storage.colors.c124;
+-            *(s16 *)(slot + 0x10C) = 0;
+-            *(s16 *)(slot + 0x10E) = 4;
+-            *(s8 *)(slot + 0x90) |= 4;
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xD0)), 186.0f, 143.0f);
+-            *(CmbVec2f *)&work.f128 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xD0);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot + 0xEC);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0xB0) =
+-                *(CmbVec2f *)&work.f128;
+-            *(s16 *)(table + 0xB8) = 4;
+-            *(s8 *)(slot + 0x90) |= 8;
+-            *(s8 *)(slot + 0xEC) =
+-                func_002b2cb0(*(s8 *)(slot + 0xEC), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xC0)), 321.0f, 70.0f);
+-            *(CmbVec2f *)&work.f118 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xC0);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xC8)), 421.0f, -43.0f);
+-            *(CmbVec2f *)&work.f120 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xC8);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x128) =
+-                *(CmbVec2f *)&work.f120;
+-            *(CmbVec2f *)(slot + 0x118) =
+-                *(CmbVec2f *)(slot + 0x128);
+-            *(CmbVec2f *)(slot + 0x120) =
+-                *(CmbVec2f *)&work.f118;
+-            *(s16 *)(slot + 0x132) = 0;
+-            *(s16 *)(slot + 0x130) = 4;
+-            *(s8 *)(slot + 0x114) |= 1;
+-            colorSource160 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c11C =
+-                colorSource160;
+-            colorSource164 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c120 =
+-                colorSource164;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x18C) =
+-                work.storage.colors.c120;
+-            *(CmbRGBA *)(slot + 0x184) =
+-                *(CmbRGBA *)(slot + 0x18C);
+-            *(CmbRGBA *)(slot + 0x188) =
+-                work.storage.colors.c11C;
+-            *(s16 *)(slot + 0x190) = 0;
+-            *(s16 *)(slot + 0x192) = 4;
+-            *(s8 *)(slot + 0x114) |= 4;
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xB8)), 186.0f, 143.0f);
+-            *(CmbVec2f *)&work.f110 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xB8);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot2 + 0x170);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x134) =
+-                *(CmbVec2f *)&work.f110;
+-            *(s16 *)(table + 0x13C) = 4;
+-            *(s8 *)(slot2 + 0x114) |= 8;
+-            *(s8 *)(slot2 + 0x170) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x170), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xB0)), 186.0f, 285.0f);
+-            *(CmbVec2f *)&work.f108 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xB0);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot2 + 0x170);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x134) =
+-                *(CmbVec2f *)&work.f108;
+-            *(s16 *)(table + 0x13C) = 4;
+-            *(s8 *)(slot2 + 0x114) |= 8;
+-            *(s8 *)(slot2 + 0x170) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x170), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xA0)), 321.0f, 70.0f);
+-            *(CmbVec2f *)&work.ff8 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xA0);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0xA8)), 421.0f, -43.0f);
+-            *(CmbVec2f *)&work.f100 =
+-                *(CmbVec2f *)(work.storage.bytes + 0xA8);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x1AC) =
+-                *(CmbVec2f *)&work.f100;
+-            *(CmbVec2f *)(slot + 0x19C) =
+-                *(CmbVec2f *)(slot + 0x1AC);
+-            *(CmbVec2f *)(slot + 0x1A4) =
+-                *(CmbVec2f *)&work.ff8;
+-            *(s16 *)(slot + 0x1B6) = 0;
+-            *(s16 *)(slot + 0x1B4) = 4;
+-            *(s8 *)(slot + 0x198) |= 1;
+-            colorSource158 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c114 =
+-                colorSource158;
+-            colorSource15C = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c118 =
+-                colorSource15C;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x210) =
+-                work.storage.colors.c118;
+-            *(CmbRGBA *)(slot + 0x208) =
+-                *(CmbRGBA *)(slot + 0x210);
+-            *(CmbRGBA *)(slot + 0x20C) =
+-                work.storage.colors.c114;
+-            *(s16 *)(slot + 0x214) = 0;
+-            *(s16 *)(slot + 0x216) = 4;
+-            *(s8 *)(slot + 0x198) |= 4;
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x98)), 186.0f, 143.0f);
+-            *(CmbVec2f *)&work.ff0 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x98);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot2 + 0x1F4);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x1B8) =
+-                *(CmbVec2f *)&work.ff0;
+-            *(s16 *)(table + 0x1C0) = 4;
+-            *(s8 *)(slot2 + 0x198) |= 8;
+-            *(s8 *)(slot2 + 0x1F4) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x1F4), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x90)), 186.0f, 285.0f);
+-            *(CmbVec2f *)&work.fe8 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x90);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot2 + 0x1F4);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x1B8) =
+-                *(CmbVec2f *)&work.fe8;
+-            *(s16 *)(table + 0x1C0) = 4;
+-            *(s8 *)(slot2 + 0x198) |= 8;
+-            *(s8 *)(slot2 + 0x1F4) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x1F4), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x88)), 321.0f, 348.0f);
+-            *(CmbVec2f *)&work.fe0 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x88);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot2 + 0x1F4);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x1B8) =
+-                *(CmbVec2f *)&work.fe0;
+-            *(s16 *)(table + 0x1C0) = 4;
+-            *(s8 *)(slot2 + 0x198) |= 8;
+-            *(s8 *)(slot2 + 0x1F4) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x1F4), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x78)), 321.0f, 70.0f);
+-            *(CmbVec2f *)&work.fd0 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x78);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x80)), 421.0f, -43.0f);
+-            *(CmbVec2f *)&work.fd8 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x80);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x230) =
+-                *(CmbVec2f *)&work.fd8;
+-            *(CmbVec2f *)(slot + 0x220) =
+-                *(CmbVec2f *)(slot + 0x230);
+-            *(CmbVec2f *)(slot + 0x228) =
+-                *(CmbVec2f *)&work.fd0;
+-            *(s16 *)(slot + 0x23A) = 0;
+-            *(s16 *)(slot + 0x238) = 4;
+-            *(s8 *)(slot + 0x21C) |= 1;
+-            colorSource150 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c10C =
+-                colorSource150;
+-            colorSource154 = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c110 =
+-                colorSource154;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x294) =
+-                work.storage.colors.c110;
+-            *(CmbRGBA *)(slot + 0x28C) =
+-                *(CmbRGBA *)(slot + 0x294);
+-            *(CmbRGBA *)(slot + 0x290) =
+-                work.storage.colors.c10C;
+-            *(s16 *)(slot + 0x298) = 0;
+-            *(s16 *)(slot + 0x29A) = 4;
+-            *(s8 *)(slot + 0x21C) |= 4;
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x70)), 186.0f, 143.0f);
+-            *(CmbVec2f *)&work.fc8 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x70);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot + 0x278);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x23C) =
+-                *(CmbVec2f *)&work.fc8;
+-            *(s16 *)(table + 0x244) = 4;
+-            *(s8 *)(slot + 0x21C) |= 8;
+-            *(s8 *)(slot + 0x278) =
+-                func_002b2cb0(*(s8 *)(slot + 0x278), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x68)), 186.0f, 285.0f);
+-            *(CmbVec2f *)&work.fc0 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x68);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot + 0x278);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x23C) =
+-                *(CmbVec2f *)&work.fc0;
+-            *(s16 *)(table + 0x244) = 4;
+-            *(s8 *)(slot + 0x21C) |= 8;
+-            *(s8 *)(slot + 0x278) =
+-                func_002b2cb0(*(s8 *)(slot + 0x278), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x60)), 321.0f, 348.0f);
+-            *(CmbVec2f *)&work.fb8 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x60);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot + 0x278);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x23C) =
+-                *(CmbVec2f *)&work.fb8;
+-            *(s16 *)(table + 0x244) = 4;
+-            *(s8 *)(slot + 0x21C) |= 8;
+-            *(s8 *)(slot + 0x278) =
+-                func_002b2cb0(*(s8 *)(slot + 0x278), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x58)), 456.0f, 285.0f);
+-            *(CmbVec2f *)&work.fb0 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x58);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot + 0x278);
+-            table = cmbAddPtrRev((u32)slot, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x23C) =
+-                *(CmbVec2f *)&work.fb0;
+-            *(s16 *)(table + 0x244) = 4;
+-            *(s8 *)(slot + 0x21C) |= 8;
+-            *(s8 *)(slot + 0x278) =
+-                func_002b2cb0(*(s8 *)(slot + 0x278), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x48)), 321.0f, 70.0f);
+-            *(CmbVec2f *)&work.fa0 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x48);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x50)), 421.0f, -43.0f);
+-            *(CmbVec2f *)&work.fa8 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x50);
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbVec2f *)(slot + 0x2B4) =
+-                *(CmbVec2f *)&work.fa8;
+-            *(CmbVec2f *)(slot + 0x2A4) =
+-                *(CmbVec2f *)(slot + 0x2B4);
+-            *(CmbVec2f *)(slot + 0x2AC) =
+-                *(CmbVec2f *)&work.fa0;
+-            *(s16 *)(slot + 0x2BE) = 0;
+-            *(s16 *)(slot + 0x2BC) = 4;
+-            *(s8 *)(slot + 0x2A0) |= 1;
+-            colorSource148 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c104 =
+-                colorSource148;
+-            colorSource14C = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c108 =
+-                colorSource14C;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            *(CmbRGBA *)(slot + 0x318) =
+-                work.storage.colors.c108;
+-            *(CmbRGBA *)(slot + 0x310) =
+-                *(CmbRGBA *)(slot + 0x318);
+-            *(CmbRGBA *)(slot + 0x314) =
+-                work.storage.colors.c104;
+-            *(s16 *)(slot + 0x31C) = 0;
+-            *(s16 *)(slot + 0x31E) = 4;
+-            *(s8 *)(slot + 0x2A0) |= 4;
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x40)), 186.0f, 143.0f);
+-            *(CmbVec2f *)&work.f98 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x40);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot2 + 0x2FC);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x2C0) =
+-                *(CmbVec2f *)&work.f98;
+-            *(s16 *)(table + 0x2C8) = 4;
+-            *(s8 *)(slot2 + 0x2A0) |= 8;
+-            *(s8 *)(slot2 + 0x2FC) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x2FC), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x38)), 186.0f, 285.0f);
+-            *(CmbVec2f *)&work.f90 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x38);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot2 + 0x2FC);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x2C0) =
+-                *(CmbVec2f *)&work.f90;
+-            *(s16 *)(table + 0x2C8) = 4;
+-            *(s8 *)(slot2 + 0x2A0) |= 8;
+-            *(s8 *)(slot2 + 0x2FC) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x2FC), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x30)), 321.0f, 348.0f);
+-            *(CmbVec2f *)&work.f88 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x30);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot2 + 0x2FC);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x2C0) =
+-                *(CmbVec2f *)&work.f88;
+-            *(s16 *)(table + 0x2C8) = 4;
+-            *(s8 *)(slot2 + 0x2A0) |= 8;
+-            *(s8 *)(slot2 + 0x2FC) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x2FC), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x28)), 456.0f, 285.0f);
+-            *(CmbVec2f *)&work.f80 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x28);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot2 + 0x2FC);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x2C0) =
+-                *(CmbVec2f *)&work.f80;
+-            *(s16 *)(table + 0x2C8) = 4;
+-            *(s8 *)(slot2 + 0x2A0) |= 8;
+-            *(s8 *)(slot2 + 0x2FC) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x2FC), 1, 5, 0, 1);
+-            func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x20)), 456.0f, 143.0f);
+-            *(CmbVec2f *)&work.f78 =
+-                *(CmbVec2f *)(work.storage.bytes + 0x20);
+-            slot2 = *(u8 **)(arg0 + 0x38);
+-            index = *(s8 *)(slot2 + 0x2FC);
+-            table = cmbAddPtrRev((u32)slot2, (u32)(index * 0xC));
+-            *(CmbVec2f *)(table + 0x2C0) =
+-                *(CmbVec2f *)&work.f78;
+-            *(s16 *)(table + 0x2C8) = 4;
+-            *(s8 *)(slot2 + 0x2A0) |= 8;
+-            *(s8 *)(slot2 + 0x2FC) =
+-                func_002b2cb0(*(s8 *)(slot2 + 0x2FC), 1, 5, 0, 1);
++            cmbSetMove(arg0, 0, func_002b2970(421.0f, -43.0f), func_002b2970(321.0f, 70.0f), 4);
++            cmbSetColor(arg0, 0, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 4);
++            cmbSetMove(arg0, 1, func_002b2970(421.0f, -43.0f), func_002b2970(321.0f, 70.0f), 4);
++            cmbSetColor(arg0, 1, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 4);
++            cmbAddPath(arg0, 1, func_002b2970(186.0f, 143.0f), 4);
++            cmbSetMove(arg0, 2, func_002b2970(421.0f, -43.0f), func_002b2970(321.0f, 70.0f), 4);
++            cmbSetColor(arg0, 2, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 4);
++            cmbAddPath(arg0, 2, func_002b2970(186.0f, 143.0f), 4);
++            cmbAddPath(arg0, 2, func_002b2970(186.0f, 285.0f), 4);
++            cmbSetMove(arg0, 3, func_002b2970(421.0f, -43.0f), func_002b2970(321.0f, 70.0f), 4);
++            cmbSetColor(arg0, 3, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 4);
++            cmbAddPath(arg0, 3, func_002b2970(186.0f, 143.0f), 4);
++            cmbAddPath(arg0, 3, func_002b2970(186.0f, 285.0f), 4);
++            cmbAddPath(arg0, 3, func_002b2970(321.0f, 348.0f), 4);
++            cmbSetMove(arg0, 4, func_002b2970(421.0f, -43.0f), func_002b2970(321.0f, 70.0f), 4);
++            cmbSetColor(arg0, 4, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 4);
++            cmbAddPath(arg0, 4, func_002b2970(186.0f, 143.0f), 4);
++            cmbAddPath(arg0, 4, func_002b2970(186.0f, 285.0f), 4);
++            cmbAddPath(arg0, 4, func_002b2970(321.0f, 348.0f), 4);
++            cmbAddPath(arg0, 4, func_002b2970(456.0f, 285.0f), 4);
++            cmbSetMove(arg0, 5, func_002b2970(421.0f, -43.0f), func_002b2970(321.0f, 70.0f), 4);
++            cmbSetColor(arg0, 5, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 4);
++            cmbAddPath(arg0, 5, func_002b2970(186.0f, 143.0f), 4);
++            cmbAddPath(arg0, 5, func_002b2970(186.0f, 285.0f), 4);
++            cmbAddPath(arg0, 5, func_002b2970(321.0f, 348.0f), 4);
++            cmbAddPath(arg0, 5, func_002b2970(456.0f, 285.0f), 4);
++            cmbAddPath(arg0, 5, func_002b2970(456.0f, 143.0f), 4);
+             *(s16 *)(obj + 0x63C) = 6;
+         }
+         break;
+@@ -2433,12 +1314,7 @@ s32 func_00343cf0(u8 *arg0) {
+         break;
+     case 7:
+         func_0045aeb0(2, D_0064A5B0);
+-        func_002b29a0(work.storage.bytes + 0x10, 0.0f, 5.0f, 30.0f);
+-        colorSource144 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-        func_003489c0(*(u8 **)(obj + 0x64C),
+-                      (CmbVec3f *)(work.storage.bytes + 0x10),
+-                      0.0f, 0.0f, 0.0f, 1.5f,
+-                      colorSource144, 0, 0x28);
++        func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, 1.5f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+         *(s16 *)(obj + 0x63C) = 8;
+         /* fallthrough */
+     case 8:
+@@ -2457,28 +1333,11 @@ s32 func_00343cf0(u8 *arg0) {
+         if (func_00285b30() >= 0x1EA) {
+             i9 = 0;
+             while (i9 < 6) {
+-                func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x8)), 323.0f, 217.0f);
+-                *(CmbVec2f *)&work.f70 =
+-                    *(CmbVec2f *)(work.storage.bytes + 0x8);
+-                slot = *(u8 **)(arg0 + 0x38);
+-                slot += (s32)i9 * 0x84;
+-                table = obj + (s32)i9 * 0x84;
+-                *(CmbVec2f *)(slot + 0x20) =
+-                    *(CmbVec2f *)(table + 0x20);
+-                *(CmbVec2f *)(slot + 0x10) =
+-                    *(CmbVec2f *)(slot + 0x20);
+-                *(CmbVec2f *)(slot + 0x18) =
+-                    *(CmbVec2f *)&work.f70;
+-                *(s16 *)(slot + 0x2A) = 0;
+-                *(s16 *)(slot + 0x28) = 3;
+-                *(s8 *)(slot + 0xC) |= 1;
++                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
+                 table = obj + (s32)i9 * 4;
+                 slot2 = table + 0x658;
+                 ret = (u8 *)func_00348290(*(u8 **)slot2);
+-                func_002b2970((u8 *)((s64 *)(work.storage.bytes + 0x0)), 339.0f, 217.0f);
+-                func_003482d0(*(u8 **)slot2,
+-                              *(CmbVec2f *)(ret + 0x134),
+-                              *(CmbVec2f *)(work.storage.bytes + 0x0), 3);
++                func_003482d0(*(u8 **)slot2, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
+                 i9++;
+             }
+             *(s16 *)(obj + 0x63C) = 10;
+@@ -2488,23 +1347,7 @@ s32 func_00343cf0(u8 *arg0) {
+         *(u8 *)(obj + 0x6B8) = 1;
+         i10 = 0;
+         while (i10 < 6) {
+-            colorSource13C = func_002b2a60(0xFF, 0xFF, 0xFF, 0U);
+-            work.storage.colors.c0FC =
+-                colorSource13C;
+-            colorSource140 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU);
+-            work.storage.colors.c100 =
+-                colorSource140;
+-            slot = *(u8 **)(arg0 + 0x38);
+-            slot += (s32)i10 * 0x84;
+-            *(CmbRGBA *)(slot + 0x84) =
+-                work.storage.colors.c100;
+-            *(CmbRGBA *)(slot + 0x7C) =
+-                *(CmbRGBA *)(slot + 0x84);
+-            *(CmbRGBA *)(slot + 0x80) =
+-                work.storage.colors.c0FC;
+-            *(s16 *)(slot + 0x88) = 0;
+-            *(s16 *)(slot + 0x8A) = 0;
+-            *(s8 *)(slot + 0xC) |= 4;
++            cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+             table = obj + (s32)i10 * 4;
+             ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+             *(s32 *)(ret + 0x11C) &= 0xFFFD;
+@@ -2513,8 +1356,7 @@ s32 func_00343cf0(u8 *arg0) {
+         *(s16 *)(obj + 0x63C) = 11;
+         break;
+     case 11:
+-        if (func_00285b30() >= 0x208 &&
+-            func_00285b30() < 0x348) {
++        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+             func_00106390(0x1450, 1);
+         }
+         break;
+@@ -3747,8 +2589,8 @@ u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2) {
+     return ret;
+ }
+ // FUN_003489C0
+-void func_003489c0(u8 *arg0, CmbVec3f *src, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA col, u16 arg3, u32 arg4) {
+-    CmbVec3f tmp = *src;
++void func_003489c0(u8 *arg0, CmbVec3f src, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA col, u16 arg3, u32 arg4) {
++    CmbVec3f tmp = src;
+     u8 *obj = *(u8 **)(arg0 + 0x38);
+     *(s8 *)(obj + 4) = 1;
+     *(CmbVec3f *)(obj + 0x18) = tmp;
+@@ -3831,7 +2673,11 @@ s32 func_00348c40(u8 *task) {
+     u8 *handleSlot;
+     u8 *updatedHandleSlot;
+     u8 *work;
+-    CmbFiveSpriteSetup setup;
++    extern FclVec2 func_002b2970(f32, f32);
++    extern FclBoundsPacket func_002b29e0(f32, f32);
++    extern s32 func_002b5c90(s32, FclVec2);
++    extern void func_002b5db0(u8 *, FclVec2, FclBoundsPacket);
++    extern void func_002b5fd0(u8 *, FclVec2, FclVec2, FclBoundsPacket, FclBoundsPacket, u32, s16);
+     FclDrawColor gradientColor;
+     FclDrawColor lastGradientColor;
+     FclDrawColor solidColor;
+@@ -3844,12 +2690,9 @@ s32 func_00348c40(u8 *task) {
+         while (index < 5) {
+             /* handle create: 465,0 -> 5c90 */
+             handleSlot = work + index * 4 + 4;
+-            func_002b2970((u8 *)(&setup.spawnPosition.bits), 0x1D1, 0.0f);
+-            *(s32 *)handleSlot = func_002b5c90((s32)task, setup.spawnPosition.position);
++            *(s32 *)handleSlot = func_002b5c90((s32)task, func_002b2970(0x1D1, 0.0f));
+             /* vec: 9.0,480.0 -> 5db0 */
+-            func_002b2970((u8 *)(&setup.initialPosition.bits), 0x1D1, 0.0f);
+-            func_002b29e0((u8 *)(&setup.initialBounds), 9.0f, 480.0f);
+-            func_002b5db0((u8 *)*(s32 *)handleSlot, setup.initialPosition.position, &setup.initialBounds);
++            func_002b5db0((u8 *)*(s32 *)handleSlot, func_002b2970(0x1D1, 0.0f), func_002b29e0(9.0f, 480.0f));
+             /* Mode one uses a gradient; other modes use solid blue. */
+             if (*(s8 *)work == 1) {
+                 gradientColor = cmbFiveSpriteColor((index + 2) * 10);
+@@ -3870,35 +2713,20 @@ s32 func_00348c40(u8 *task) {
+         }
+         /* --- five post-loop 5fd0 groups --- */
+         /* group offset 4: 465,275 + 8,480 + 380,480, last 0 */
+-        func_002b2970((u8 *)(&setup.firstStartPosition.bits), 0x1D1, 0.0f);
+-        func_002b2970((u8 *)(&setup.firstEndPosition.bits), 0x113, 0.0f);
+-        func_002b29e0((u8 *)(&setup.firstStartBounds), 8.0f, 480.0f);
+-        func_002b29e0((u8 *)(&setup.firstEndBounds), 380.0f, 480.0f);
+-        func_002b5fd0((u8 *)*(s32 *)(work + 4), setup.firstStartPosition.position, setup.firstEndPosition.position, &setup.firstStartBounds, &setup.firstEndBounds, 0xF, 0);
++        func_002b5fd0((u8 *)*(s32 *)(work + 4), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
++                      func_002b29e0(8.0f, 480.0f), func_002b29e0(380.0f, 480.0f), 0xF, 0);
+         /* group offset 8: same, last 2 */
+-        func_002b2970((u8 *)(&setup.secondStartPosition.bits), 0x1D1, 0.0f);
+-        func_002b2970((u8 *)(&setup.secondEndPosition.bits), 0x113, 0.0f);
+-        func_002b29e0((u8 *)(&setup.secondStartBounds), 8.0f, 480.0f);
+-        func_002b29e0((u8 *)(&setup.secondEndBounds), 380.0f, 480.0f);
+-        func_002b5fd0((u8 *)*(s32 *)(work + 8), setup.secondStartPosition.position, setup.secondEndPosition.position, &setup.secondStartBounds, &setup.secondEndBounds, 0xF, 2);
++        func_002b5fd0((u8 *)*(s32 *)(work + 8), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
++                      func_002b29e0(8.0f, 480.0f), func_002b29e0(380.0f, 480.0f), 0xF, 2);
+         /* group offset C: same, last 9 */
+-        func_002b2970((u8 *)(&setup.thirdStartPosition.bits), 0x1D1, 0.0f);
+-        func_002b2970((u8 *)(&setup.thirdEndPosition.bits), 0x113, 0.0f);
+-        func_002b29e0((u8 *)(&setup.thirdStartBounds), 8.0f, 480.0f);
+-        func_002b29e0((u8 *)(&setup.thirdEndBounds), 380.0f, 480.0f);
+-        func_002b5fd0((u8 *)*(s32 *)(work + 0xC), setup.thirdStartPosition.position, setup.thirdEndPosition.position, &setup.thirdStartBounds, &setup.thirdEndBounds, 0xF, 9);
++        func_002b5fd0((u8 *)*(s32 *)(work + 0xC), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
++                      func_002b29e0(8.0f, 480.0f), func_002b29e0(380.0f, 480.0f), 0xF, 9);
+         /* group offset 0x10: 8,480 + 8,480, last 9 */
+-        func_002b2970((u8 *)(&setup.fourthStartPosition.bits), 0x1D1, 0.0f);
+-        func_002b2970((u8 *)(&setup.fourthEndPosition.bits), 0x113, 0.0f);
+-        func_002b29e0((u8 *)(&setup.fourthStartBounds), 8.0f, 480.0f);
+-        func_002b29e0((u8 *)(&setup.fourthEndBounds), 8.0f, 480.0f);
+-        func_002b5fd0((u8 *)*(s32 *)(work + 0x10), setup.fourthStartPosition.position, setup.fourthEndPosition.position, &setup.fourthStartBounds, &setup.fourthEndBounds, 0xF, 9);
++        func_002b5fd0((u8 *)*(s32 *)(work + 0x10), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
++                      func_002b29e0(8.0f, 480.0f), func_002b29e0(8.0f, 480.0f), 0xF, 9);
+         /* group offset 0x14: 465,655 + 8,480 + 8,480, last 9 */
+-        func_002b2970((u8 *)(&setup.fifthStartPosition.bits), 0x1D1, 0.0f);
+-        func_002b2970((u8 *)(&setup.fifthEndPosition.bits), 0x28F, 0.0f);
+-        func_002b29e0((u8 *)(&setup.fifthStartBounds), 8.0f, 480.0f);
+-        func_002b29e0((u8 *)(&setup.fifthEndBounds), 8.0f, 480.0f);
+-        func_002b5fd0((u8 *)*(s32 *)(work + 0x14), setup.fifthStartPosition.position, setup.fifthEndPosition.position, &setup.fifthStartBounds, &setup.fifthEndBounds, 0xF, 9);
++        func_002b5fd0((u8 *)*(s32 *)(work + 0x14), func_002b2970(0x1D1, 0.0f), func_002b2970(0x28F, 0.0f),
++                      func_002b29e0(8.0f, 480.0f), func_002b29e0(8.0f, 480.0f), 0xF, 9);
+         *(s8 *)(work + 1) = 1;
+         break;
+     case 1:
+diff --git a/src/promoted/y_draw.c b/src/promoted/y_draw.c
+index c4ba362..da43df2 100644
+--- a/src/promoted/y_draw.c
++++ b/src/promoted/y_draw.c
+@@ -1202,14 +1202,14 @@ void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
+ 
+ /* Position snapshots are consumed by the inline transition setters.
+    Duration stays signed-word sized until each field is stored. */
+-static inline void fclStartPosition(u8 *arg0, const f2 *p1, const f2 *p2, u32 arg3, s32 arg4, s32 arg5) {
+-    f32 startX = p1->x;
++static inline void fclStartPosition(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5) {
++    f32 startX = p1.x;
+     f32 startY;
+     *(f32 *)(arg0 + 0x18) = startX;
+-    startY = p1->y;
++    startY = p1.y;
+     *(f32 *)(arg0 + 0x1C) = startY;
+-    *(f32 *)(arg0 + 0x20) = p2->x;
+-    *(f32 *)(arg0 + 0x24) = p2->y;
++    *(f32 *)(arg0 + 0x20) = p2.x;
++    *(f32 *)(arg0 + 0x24) = p2.y;
+     *(f32 *)(arg0 + 0x28) = startX;
+     *(f32 *)(arg0 + 0x2C) = startY;
+     *(s16 *)(arg0 + 0x32) = 0;
+@@ -1273,17 +1273,7 @@ static inline void fclStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4,
+ void func_002b83e0(u8 *arg0, FclDrawPosition p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5,
+                    f32 fparg0, f32 fparg1, s32 arg6, s32 arg7, s8 arg_sp0, s8 arg_sp8)
+ {
+-    struct {
+-        f2 end3;
+-        FclPackedPosition start3;
+-        f2 end2;
+-        FclPackedPosition start2;
+-        FclPackedPosition end1;
+-        f2 start1;
+-        FclPackedPosition end0;
+-        f2 start0;
+-        f2 source3, source2, source1, source0;
+-    } positions;
++    extern f2 func_002b2970(f32, f32);
+ 
+     arg0[0x37] = arg_sp8;
+     arg0[0xA3] = arg_sp8;
+@@ -1291,32 +1281,20 @@ void func_002b83e0(u8 *arg0, FclDrawPosition p1, u4 arg2, u4 arg3, u8 arg4, u8 a
+     if (arg_sp0 == 0) {
+         if (arg_sp8 == 0) {
+             fclStartRevealScale(arg0, 0, (s16)arg6, (s16)arg7, 0);
+-            positions.end0.bits = p1.bits;
+-            func_002b2970((u8 *)&positions.source0, p1.position.x, p1.position.y + fparg0 / 2.0f);
+-            positions.start0 = positions.source0;
+-            fclStartPosition(arg0, &positions.start0, &positions.end0.position, 0, arg6, arg7);
++            fclStartPosition(arg0, func_002b2970(p1.position.x, p1.position.y + fparg0 / 2.0f), p1.position, 0, arg6, arg7);
+             fclStartColor(arg0, arg2, arg3, 0, 0, 0);
+         } else {
+             fclStartRevealScale(arg0, 1, (s16)arg6, (s16)arg7, 0);
+-            positions.end1.bits = p1.bits;
+-            func_002b2970((u8 *)&positions.source1, p1.position.x, p1.position.y + fparg0 / 2.0f);
+-            positions.start1 = positions.source1;
+-            fclStartPosition(arg0, &positions.start1, &positions.end1.position, 1, arg6, arg7);
++            fclStartPosition(arg0, func_002b2970(p1.position.x, p1.position.y + fparg0 / 2.0f), p1.position, 1, arg6, arg7);
+             fclStartColor(arg0, arg2, arg3, 0, 0, arg6 / 2);
+         }
+     } else if (arg_sp8 == 0) {
+         fclStartRevealScale(arg0, 0, (s16)arg6, (s16)arg7, 1);
+-        func_002b2970((u8 *)&positions.source2, p1.position.x, p1.position.y + fparg0 / 2.0f);
+-        positions.end2 = positions.source2;
+-        positions.start2.bits = p1.bits;
+-        fclStartPosition(arg0, &positions.start2.position, &positions.end2, 0, arg6, arg7);
++        fclStartPosition(arg0, p1.position, func_002b2970(p1.position.x, p1.position.y + fparg0 / 2.0f), 0, arg6, arg7);
+         fclStartColor(arg0, arg2, arg3, 0, 0, 0);
+     } else {
+         fclStartRevealScale(arg0, 1, (s16)arg6, (s16)arg7, 1);
+-        func_002b2970((u8 *)&positions.source3, p1.position.x, p1.position.y + fparg0 / 2.0f);
+-        positions.end3 = positions.source3;
+-        positions.start3.bits = p1.bits;
+-        fclStartPosition(arg0, &positions.start3.position, &positions.end3, 1, arg6, arg7);
++        fclStartPosition(arg0, p1.position, func_002b2970(p1.position.x, p1.position.y + fparg0 / 2.0f), 1, arg6, arg7);
+         fclStartColor(arg0, arg2, arg3, 0, 0, arg6 / 2);
+     }
+     *(f32 *)(arg0 + 4) = fparg1;
