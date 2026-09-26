@@ -71,3 +71,53 @@ Four independent residuals:
    is still base-first, and the `off` copy is lost (40 edits);
 4. the `spCC` / `func_0014def0` argument scheduling (`addiu $a2`,
    `move $a3/$t0`).
+
+## Round 3 (same day)
+
+Matched: `func_001823d0` (`FldAreaSe_001823d0_20260926.md`) and
+`func_0018f950` (`FieldPanelEdit_0018f950_20260926.md`). Both were
+rewritten from the retail listing rather than from the guarded drafts.
+
+Two levers that transfer to other functions:
+
+- **An unsized `extern T X[]` is treated as unaliased by pointer stores.**
+  b210 CSEs or hoists its loads across stores. A struct member, or a
+  sized array too large for .sdata, is reloaded after each store, which
+  is the retail pattern whenever a global is re-read after stores
+  through a work pointer. The pad words are `PadStatus` records at
+  0x8C0240. D_008872F8 is the `nearZ` field of the render-state record
+  at D_008872E0.
+- **Pooled gp constants copied into stack slots are initialised statics
+  or aggregates.** Examples: the `ld`/`lwc1` from a pool entry followed
+  by a store to the frame, and an s64 float pair passed in $a0. They are
+  copied just before use. Declaration order sets which local gets the
+  higher slot: the earlier-declared local gets the higher address.
+
+| function | round 2 | round 3 | banked body / blocker |
+|---|---|---|---|
+| `func_0018e810` | 35 edits | 25 edits (452/452) | `L18B_0018e810_20260926_body.c`; y-loop preamble order and which CSE gets the $s7 copy |
+| `func_0034ae70` | 12 edits | 3 words | `FclBall_0034ae70_20260926_body.c`; nearZ loaded after the 0xE14 float |
+| `func_00485630` | 3 | 3 | restore colour, see below |
+| `func_0048a980` | 5 | 5 | 1.0f in $f3 vs $f1 |
+| `func_001dbf20` | 7 | 7 | last/k colour swap |
+| `func_001dd920` | 39 | 39 | result/count colour swap |
+| `func_0029fbb0` | 131-139 edits | 137 edits | copy-array init, spill and rotation wall |
+
+- **func_00485630.** The restore takes `$v1` in every shape. The save can
+  be removed, the address can come from a second pointer or an inline
+  helper, the slot can be a u8 pointer or a struct, or the callee's
+  return can feed the restore, and the restore still takes `$v1`. So the
+  colour does not depend on the save.
+- **func_0048a980.** The sqrt argument is inert in every spelling:
+  `d = sqrtf(..)`, `s = s * 2.0f`, a `trace` reuse, or the 1.0f split out.
+- **func_001dbf20.** The following are inert:
+  - block-scoping k, last, or both, including inside the else branch;
+  - `last` merged with `sum`;
+  - k merged with n or idx in the (u16)-masked s32 form;
+  - `k < num - 1` (22) and `k + 1 < num` (33) are worse.
+- **func_001dd920.** 40 random orders of all eleven locals score 39. An
+  inline classifier helper scores 371.
+- **func_0029fbb0.** An initialised `s32 copy[36]` after the `base`
+  initialiser reproduces the copy loop. A natural 2-D rewrite scores 218
+  edits. Retail mixes folded and unfolded table-row loads, which suggests
+  an unfolded row-pointer temp.
