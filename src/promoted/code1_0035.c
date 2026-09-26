@@ -1076,10 +1076,25 @@ ret0:
     return 0;
 }
 
-/* measured: object 2096B/window 2080B (+16B, +0.77%); probe_variants 306 differing words (reloc-masked); fnalign 520/524 instrs, 213 edits (+10 reloc-only). */
-/* Reconstructed from retail asm + m2c + IDA/Ghidra in this file's idiom (union s64/Vec2f xy, union w/b col, u32 base hoist, plain (u8)f casts). Two-arg ABI (arg0 unused in $4, struct in $5) matches retail daddu $19,$5; file-scope decl updated. Switches for 0/1/2+default (reverse 2,1,0), if/else for 0/1 pairs in retail order. GP fGp8504/-7AFC, fGp8540/-7AC0, fGp84A4, iGp8544/-7ABC, fGp8548/-7AB8. Residuals are call-arg-setup + scheduling + FPR-color floors; siblings 35c040/54ba0 untouched. Counted 520 retail instrs first. */
-// FUN_00355920 NONMATCHING
-#ifdef NON_MATCHING
+/* Whether the frame counter at +0x10 has passed the style's threshold of the
+   duration at +0xC (3/4 for style 0, 1/2 for style 1). */
+static inline s32 effect_timer_past_threshold(u8 *p)
+{
+    switch (*(s16 *)p) {
+    case 1:
+        if (*(s16 *)(p + 0x10) > *(s16 *)(p + 0xC) / 2) {
+            return 1;
+        }
+        break;
+    case 0:
+        if (*(s16 *)(p + 0x10) > *(s16 *)(p + 0xC) * 3 / 4) {
+            return 1;
+        }
+        break;
+    }
+    return 0;
+}
+// FUN_00355920
 void func_00355920(u8 *arg0, u8 *arg1) {
     extern u8 D_00887300[];
     extern void func_00489f80(void);
@@ -1087,15 +1102,15 @@ void func_00355920(u8 *arg0, u8 *arg1) {
     extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
     extern void func_0045c870(u8 *arg0, s32 arg1);
     extern f32 cosf(f32 arg0);
-    extern void func_00356170(s64 arg0, f32 f0, f32 f1, f32 f2, s32 arg1, s32 arg2, s32 arg3);
-    extern void func_003561d0(Vec2f arg0, s32 arg1, s32 arg2, s32 arg3, f32 dummy, f32 f0, f32 f1);
+    extern void func_00356170(s64 arg0, f32 f0, f32 f1, s32 arg1, f32 f2, s32 arg2, s32 arg3);
+    extern void func_003561d0(Vec2f arg0, s32 arg1, f32 dummy, f32 f0, f32 f1, s32 arg2);
     extern f32 fGpffff8504;
     extern f32 fGpffff8540;
     extern f32 fGpffff8548;
     u8 *p;
     s32 isZero;
     u8 alpha;
-    u32 base;
+    void (**tbl)(u32, u32);
     s32 i;
     f32 f20;
     f32 f21;
@@ -1105,14 +1120,14 @@ void func_00355920(u8 *arg0, u8 *arg1) {
     p = arg1;
     alpha = 0xFF;
     isZero = (*(s32 *)(p + 4) == 0);
-    base = (u32)D_00887300;
-    ((void (*)(u32, u32))*(u32 *)base)(7, 2);
-    ((void (*)(u32, u32))*(u32 *)base)(6, 0);
-    ((void (*)(u32, u32))*(u32 *)base)(8, 0);
-    ((void (*)(u32, u32))*(u32 *)base)(0xE, 0);
-    ((void (*)(u32, u32))*(u32 *)base)(9, 2);
-    ((void (*)(u32, u32))*(u32 *)base)(0xC, 1);
-    ((void (*)(u32, u32))*(u32 *)base)(1, 0);
+    tbl = (void (**)(u32, u32))D_00887300;
+    tbl[0](7, 2);
+    tbl[0](6, 0);
+    tbl[0](8, 0);
+    tbl[0](0xE, 0);
+    tbl[0](9, 2);
+    tbl[0](0xC, 1);
+    tbl[0](1, 0);
     if (isZero != 0) {
         func_00489f80();
         RpSkyRenderStateSet(2, 0x44);
@@ -1127,29 +1142,34 @@ void func_00355920(u8 *arg0, u8 *arg1) {
         *(s16 *)(p + 0x12) += 1;
         switch (*(s32 *)(p + 4)) {
         case 0: {
-            s16 cnt = *(s16 *)(p + 0x12);
             s16 limit = *(s16 *)(p + 0xE);
-            if (!((f32)cnt < fGpffff8504 * (f32)limit)) {
-                if ((s64)limit < (s64)cnt) {
-                    *(s32 *)(p + 8) |= 4;
-                } else {
-                    f32 ratio;
-                    f32 c;
-                    f32 s;
-                    xy.vec.x = 320.0f;
-                    xy.vec.y = 224.0f;
-                    col.b[3] = 0xFF;
-                    ratio = ((f32)cnt - fGpffff8504 * (f32)limit) / (fGpffff8540 * (f32)limit);
-                    f20 = fGpffff84a4 * ratio;
-                    c = cosf(f20);
-                    f21 = iGpffff8544 * (1.0f - c);
-                    s = sinf(f20);
-                    if (*(s16 *)p == 1) {
-                        func_003561d0(xy.vec, col.w, 0, 0, 0.0f, 800.0f * s, f21);
-                    } else if (*(s16 *)p == 0) {
-                        func_00356170(xy.bits, 0.0f, 800.0f * s, 0.0f, col.w, 0x30, 0);
-                    }
+            s16 cnt = *(s16 *)(p + 0x12);
+            f32 fcnt = (f32)cnt;
+            f32 flimit = (f32)limit;
+            f32 start = fGpffff8504;
+
+            if (fcnt < fGpffff8504 * flimit) {
+                break;
+            }
+            if (cnt <= limit) {
+                f32 s;
+
+                xy.vec.x = 320.0f;
+                xy.vec.y = 224.0f;
+                col.b[3] = 0xFF;
+                f20 = fGpffff84a4 * ((fcnt - start * flimit) / (fGpffff8540 * flimit));
+                f21 = iGpffff8544 * (1.0f - cosf(f20));
+                s = 800.0f * sinf(f20);
+                switch (*(s16 *)p) {
+                case 0:
+                    func_00356170(xy.bits, 0.0f, s, col.w, 0.0f, 0x30, 0);
+                    break;
+                case 1:
+                    func_003561d0(xy.vec, col.w, 0.0f, s, f21, 0);
+                    break;
                 }
+            } else {
+                *(s32 *)(p + 8) |= 4;
             }
             break;
         }
@@ -1182,56 +1202,29 @@ void func_00355920(u8 *arg0, u8 *arg1) {
         RpSkyRenderStateSet(2, 0x44);
     }
     if ((*(s32 *)(p + 8) & 1) != 0) {
-        s16 nw = *(s16 *)(p + 0x10) + 1;
-        s16 lim;
-        *(s16 *)(p + 0x10) = nw;
-        lim = *(s16 *)(p + 0xC);
-        if (lim < nw) {
-            u32 tmp = *(u32 *)(p + 8);
-            *(u32 *)(p + 8) = tmp & ~1u;
-            *(u32 *)(p + 8) = (tmp & ~1u) | 2u;
-        } else {
-            s32 mode = *(s32 *)(p + 4);
-            switch (mode) {
-            case 0: {
-                u32 fl = *(u32 *)(p + 8);
-                if (((fl & 2) == 0) && ((lim / 3) < nw)) {
+        *(s16 *)(p + 0x10) += 1;
+        if (*(s16 *)(p + 0x10) <= *(s16 *)(p + 0xC)) {
+            switch (*(s32 *)(p + 4)) {
+            case 0:
+                if ((*(s32 *)(p + 8) & 2) == 0 && *(s16 *)(p + 0xC) / 3 < *(s16 *)(p + 0x10)) {
                     *(s32 *)(p + 8) |= 2;
                 }
                 break;
-            }
             case 1:
-            case 2: {
+            case 2:
                 if ((*(s32 *)(p + 8) & 2) == 0) {
-                    s32 doSet;
-                    if (*(s16 *)p == 0) {
-                        s32 t = lim * 3;
-                        s32 q = t / 4;
-                        if (q < nw) {
-                            doSet = 1;
-                        } else {
-                            doSet = 0;
-                        }
-                    } else if (*(s16 *)p == 1) {
-                        s32 q = lim / 2;
-                        if (q < nw) {
-                            doSet = 1;
-                        } else {
-                            doSet = 0;
-                        }
-                    } else {
-                        doSet = 0;
-                    }
-                    if (doSet != 0) {
+                    if (effect_timer_past_threshold(p) != 0) {
                         *(s32 *)(p + 8) |= 2;
                     }
                 }
                 break;
-            }
             default:
                 func_0046d730(D_0064B310, 0x73A);
                 break;
             }
+        } else {
+            *(s32 *)(p + 8) &= ~1;
+            *(s32 *)(p + 8) |= 2;
         }
     }
     if ((*(s32 *)(p + 8) & 4) != 0) {
@@ -1241,30 +1234,9 @@ void func_00355920(u8 *arg0, u8 *arg1) {
     col.b[1] = *(u8 *)(p + 0x15);
     col.b[2] = *(u8 *)(p + 0x16);
     col.b[3] = alpha;
-    {
-        s32 doCall;
-        if (*(s16 *)p == 0) {
-            s32 t = *(s16 *)(p + 0xC) * 3;
-            s32 q = t / 4;
-            if (q < *(s16 *)(p + 0x10)) {
-                doCall = 1;
-            } else {
-                doCall = 0;
-            }
-        } else if (*(s16 *)p == 1) {
-            s32 q = *(s16 *)(p + 0xC) / 2;
-            if (q < *(s16 *)(p + 0x10)) {
-                doCall = 1;
-            } else {
-                doCall = 0;
-            }
-        } else {
-            doCall = 0;
-        }
-        if (doCall != 0) {
-            func_0045c870(col.b, 0);
-            return;
-        }
+    if (effect_timer_past_threshold(p) != 0) {
+        func_0045c870(col.b, 0);
+        return;
     }
     for (i = 0; i < 0xF; i++) {
         f32 e30;
@@ -1277,35 +1249,29 @@ void func_00355920(u8 *arg0, u8 *arg1) {
         e = p + (i << 5);
         e30 = *(f32 *)(e + 0x30);
         ctr = (f32)*(s16 *)(p + 0x10);
+        f13 = 0.0f;
         if (ctr < e30) {
-            f20 = 0.0f;
-            f13 = 0.0f;
+            f20 = f13;
         } else {
             e34 = *(f32 *)(e + 0x34);
             if (ctr < e34) {
-                f32 num = ctr - e30;
-                f32 den = e34 - e30;
-                f32 r = (fGpffff84a4 * num) / den;
-                f32 co = cosf(r);
                 f20 = iGpffff8544;
-                f13 = 280.0f * (1.0f - co);
-                /* keep r for f20? retail keeps f20 as GP, f13 as 280*(1-co) */
-                (void)r;
+                f13 = 280.0f * (1.0f - cosf((fGpffff84a4 * (ctr - e30)) / (e34 - e30)));
             } else {
                 f20 = fGpffff8548;
                 f13 = 280.0f;
             }
         }
-        if (*(s16 *)p == 1) {
-            func_00356170(xy.bits, 0.0f, f13, 0.0f, col.w, 0x30, 1);
-        } else if (*(s16 *)p == 0) {
-            func_003561d0(xy.vec, col.w, 1, 1, 0.0f, f13, f20);
+        switch (*(s16 *)p) {
+        case 0:
+            func_003561d0(xy.vec, col.w, 0.0f, f13, f20, 1);
+            break;
+        case 1:
+            func_00356170(xy.bits, 0.0f, f13, col.w, 0.0f, 0x30, 1);
+            break;
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00355920);
-#endif
 // FUN_00356140
 void func_00356140(u8 *arg0)
 {
@@ -1318,8 +1284,8 @@ void func_00356140(u8 *arg0)
 #pragma push
 #pragma opt_propagation off
 // FUN_00356170
-void func_00356170(s64 arg0, f32 f0, f32 f1, f32 f2,
-                   s32 arg1, s32 arg2, s32 arg3)
+void func_00356170(s64 arg0, f32 f0, f32 f1, s32 arg1,
+                   f32 f2, s32 arg2, s32 arg3)
 {
     union { s64 bits; Vec2f position; } saved0[1];
     s32 saved1[1];
@@ -1346,8 +1312,8 @@ void func_00356170(s64 arg0, f32 f0, f32 f1, f32 f2,
    locals preserve retail materialisation order under opt_propagation off; the
    12-byte tail is retail zero padding. */
 // FUN_003561D0
-void func_003561d0(Vec2f arg0, s32 arg1, s32 arg2, s32 arg3,
-                   f32 dummy, f32 f0, f32 f1)
+void func_003561d0(Vec2f arg0, s32 arg1, f32 dummy,
+                   f32 f0, f32 f1, s32 arg2)
 {
     struct Frame {
         union { s32 bits; f32 value; } saved1;
