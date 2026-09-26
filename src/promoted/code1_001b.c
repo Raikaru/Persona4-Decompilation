@@ -1840,146 +1840,131 @@ void func_001b39f0(void)
 {
 }
 
-/* measured: fnalign retail 318 instrs object 318 instrs 94 edits (+16 reloc-only) -> 86 edits (+16 reloc-only) after Shape A; slti $at vs $v0 row at retail[208:210] (clamp d >= 6) fixed by d >= 6 -> d > 5 earliest-first (only inclusive bound); probe_variants 259 words unchanged (positional); object still 318/318 (0 short) so Shape B skipped; banked guarded floor. */
-/* measured 001b3a00: `opt_propagation off` inside the guard is worth 4 words (259 -> 255). */
-// FUN_001B3A00 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_propagation off
+/* 1268/1280 bytes (retail ends in three words of padding); relocations:
+   iGpffffb3ac / D_0076449C (the same battle-work pointer under both of this
+   file's names), iGpffffb414, iGpffffb410 and the called functions.
+   Levers: the state switch falls from the 1/3 body into case 2 so the final
+   test reuses `state`; the "slot occupied" read goes through D_0076449C,
+   which is what makes retail reload the pointer there; the two unit loops
+   use separate cursors; the rank is taken before the CE0 load; the s32 at
+   0xCE4 is passed straight to the s16 parameter; the declaration order
+   pick/unit/alive/total/hurt gives retail's saved-register colouring. */
+// FUN_001B3A00
 s32 func_001b3a00(void)
 {
-    u16 st;
-    s64 *pp;
-    u16 fl;
-    u8 *lst;
-    u32 c1;
-    u32 c2;
-    u16 id;
-    u8 *u;
+    extern s32 iGpffffb414;
+    extern s32 iGpffffb410;
+    u16 state;
+    u8 *pick;
+    u8 *unit;
+    u16 alive;
+    u16 total;
+    s32 hurt;
+    u8 *member;
+    s32 status;
+    s16 diff;
+    s16 rank;
 
-    if ((*(s32 *)((u8 *)iGpffffb3ac +  12) & 0x80) != 0) {
+    if ((*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x80) != 0) {
         func_001b1830();
-        goto body;
-    } else {
-        return 0;
-    }
-body:
-    func_00213b80(*(u8 **)((u8 *)iGpffffb3ac +  3540));
-    func_00212240(*(u8 **)((u8 *)iGpffffb3ac +  3540), 0);
-    st = *(u16 *)((u8 *)iGpffffb3ac +  28);
-    if (st == 2) {
-        goto retsw;
-    } else if (st == 3) {
-        memset((u8 *)iGpffffb3ac +  3244, 0, 88);
-        *(s32 *)((u8 *)iGpffffb3ac +  12) = *(s32 *)((u8 *)iGpffffb3ac +  12) & 0xDFFFFFFF;
-    } else if (st == 1) {
-        id = *(u16 *)((u8 *)iGpffffb3ac +  3172);
-        if ((s32)id < 3) {
-            u32 present = *(u32 *)((u8 *)iGpffffb3ac +  (id & 0xFFFF) * 4 + 3204);
-            if (present != 0) {
-                *(s32 *)((u8 *)iGpffffb3ac +  12) = *(s32 *)((u8 *)iGpffffb3ac +  12) | 0x20000000;
-                return 11;
-            }
-        }
-        *(s32 *)((u8 *)iGpffffb3ac +  12) = *(s32 *)((u8 *)iGpffffb3ac +  12) & 0xDFFFFFFF;
-    } else {
-        return 0;
-    }
-st2:
-    pp = (s64 *)func_001b1510();
-    {
-        s32 has = 0;
-        if (pp != NULL) {
-            fl = *(u16 *)((u8 *)pp + 110);
-            if (fl == 0x102 || fl == 0x101 || fl == 0x100) {
-                *(u16 *)((u8 *)iGpffffb3ac +  3244) = *(u16 *)((u8 *)iGpffffb3ac +  3244) | 2;
-                has = 1;
-            }
-        }
-        c1 = 0;
-        c2 = 0;
-        lst = *(u8 **)((u8 *)iGpffffb3ac +  380);
-        while (lst != NULL) {
-            if (datCalcIsDead(*(s32 *)(lst + 2660), 0) != 0) {
-                c1 = (c1 + 1) & 0xFFFF;
+        func_00213b80(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4));
+        func_00212240(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4), 0);
+        state = *(u16 *)((u8 *)iGpffffb3ac + 0x1C);
+        switch (state) {
+        case 1:
+        case 3:
+            if (state == 3) {
+                memset((u8 *)iGpffffb3ac + 0xCAC, 0, 0x58);
+                *(s32 *)((u8 *)iGpffffb3ac + 0xC) &= 0xDFFFFFFF;
             } else {
-                *(u16 *)((u8 *)iGpffffb3ac +  (c2 & 0xFFFF) * 2 + 3262) = *(u16 *)(*(s32 *)(lst + 2660) + 2);
-                c2 = (c2 + 1) & 0xFFFF;
-                c1 = (c1 + 1) & 0xFFFF;
-            }
-            lst = *(u8 **)(lst + 2664);
-        }
-        *(s32 *)((u8 *)iGpffffb3ac +  3276) = c1 & 0xFFFF;
-        *(s32 *)((u8 *)iGpffffb3ac +  3272) = c2 & 0xFFFF;
-        {
-            u16 dv = *(u16 *)((u8 *)iGpffffb3ac +  3162);
-            *(s32 *)((u8 *)iGpffffb3ac +  3304) = dv;
-            if ((s32)*(u16 *)((u8 *)iGpffffb3ac +  3162) > 0) {
-                *(s32 *)((u8 *)iGpffffb3ac +  3300) = *(s32 *)((u8 *)iGpffffb3ac +  3300) / (s32)*(u16 *)((u8 *)iGpffffb3ac +  3162);
-            }
-        }
-        if (*(u16 *)((u8 *)iGpffffb3ac +  28) != 3 && func_001ef7e0((u8 *)pp) != 0) {
-            if (func_0036ee60((u8 *)iGpffffb3ac +  3316, *(s16 *)((u8 *)iGpffffb3ac +  3300), has) != 0) {
-                *(u16 *)((u8 *)iGpffffb3ac +  3244) = *(u16 *)((u8 *)iGpffffb3ac +  3244) | 1;
-            }
-        }
-        if (func_0022bd20() != 0) {
-            *(u16 *)((u8 *)iGpffffb3ac +  3244) = *(u16 *)((u8 *)iGpffffb3ac +  3244) | 8;
-        }
-        *(s32 *)((u8 *)iGpffffb3ac +  3256) = func_001ef9a0();
-        {
-            s32 ix = func_001ef9a0();
-            if ((*(u8 *)(*(s32 *)(iGpffffb3ac + -0x4BEC) + ix * 24) & 0x20) != 0) {
-                s16 d = *(s16 *)((u8 *)iGpffffb3ac +  3296) - (s16)func_00231e20(*(s32 *)(*(u8 **)(*(u8 **)((u8 *)iGpffffb3ac +  368) + 48) + 2660));
-                if (d < 0) {
-                    d = 0;
-                } else if (d > 5) {
-                    d = 5;
+                u16 id = *(u16 *)((u8 *)iGpffffb3ac + 0xC6C);
+
+                if (id < 3 && ((s32 *)(D_0076449C + 0xC84))[id] != 0) {
+                    *(s32 *)((u8 *)iGpffffb3ac + 0xC) |= 0x20000000;
+                    return 11;
                 }
-                *(s16 *)((u8 *)iGpffffb3ac +  3260) = *(u8 *)(*(s32 *)(iGpffffb3ac + -0x4BF0) + d);
+                *(s32 *)((u8 *)iGpffffb3ac + 0xC) &= 0xDFFFFFFF;
             }
-        }
-        lst = *(u8 **)((u8 *)iGpffffb3ac +  380);
-        while (lst != NULL) {
-            {
-                u16 *q = *(u16 **)(lst + 2660);
-                if (q != NULL) {
-                    s32 f = datCalcGetBadStatus((s32)q);
-                    datCalcClearBadStatus((s32)q, 0xFFF7FFFF);
-                    if ((f & 0x100000) == 0) {
-                        func_00198dd0(lst, 6);
+            pick = (u8 *)func_001b1510();
+            hurt = 0;
+            if (pick != NULL) {
+                switch (*(u16 *)(pick + 0x6E)) {
+                case 0x100:
+                case 0x101:
+                case 0x102:
+                    *(u16 *)((u8 *)iGpffffb3ac + 0xCAC) |= 2;
+                    hurt = 1;
+                    break;
+                }
+            }
+            total = 0;
+            alive = 0;
+            for (unit = *(u8 **)((u8 *)iGpffffb3ac + 0x17C); unit != NULL; unit = *(u8 **)(unit + 0xA68)) {
+                if (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) != 0) {
+                    total++;
+                } else {
+                    *(u16 *)((u8 *)iGpffffb3ac + alive * 2 + 0xCBE) = *(u16 *)(*(u8 **)(unit + 0xA64) + 2);
+                    alive++;
+                    total++;
+                }
+            }
+            *(s32 *)((u8 *)iGpffffb3ac + 0xCCC) = total;
+            *(s32 *)((u8 *)iGpffffb3ac + 0xCC8) = alive;
+            *(s32 *)((u8 *)iGpffffb3ac + 0xCE8) = *(u16 *)((u8 *)iGpffffb3ac + 0xC5A);
+            if (*(u16 *)((u8 *)iGpffffb3ac + 0xC5A) > 0) {
+                *(s32 *)((u8 *)iGpffffb3ac + 0xCE4) /= *(u16 *)((u8 *)iGpffffb3ac + 0xC5A);
+            }
+            if (*(u16 *)((u8 *)iGpffffb3ac + 0x1C) != 3 && func_001ef7e0(pick) != 0 &&
+                func_0036ee60((u8 *)iGpffffb3ac + 0xCEC, *(s32 *)((u8 *)iGpffffb3ac + 0xCE4), hurt) != 0) {
+                *(u16 *)((u8 *)iGpffffb3ac + 0xCAC) |= 1;
+            }
+            if (func_0022bd20() != 0) {
+                *(u16 *)((u8 *)iGpffffb3ac + 0xCAC) |= 8;
+            }
+            *(s32 *)((u8 *)iGpffffb3ac + 0xCB8) = func_001ef9a0();
+            if (*(s32 *)((u8 *)iGpffffb414 + func_001ef9a0() * 0x18) & 0x2000) {
+                rank = func_00231e20(*(s32 *)(*(u8 **)(*(u8 **)((u8 *)iGpffffb3ac + 0x170) + 0x30) + 0xA64)) & 0xFF;
+                diff = *(s16 *)((u8 *)iGpffffb3ac + 0xCE0) - rank;
+                if (diff < 0) {
+                    diff = 0;
+                } else if (diff > 5) {
+                    diff = 5;
+                }
+                *(u16 *)((u8 *)iGpffffb3ac + 0xCBC) = *(u8 *)((u8 *)iGpffffb410 + diff);
+            }
+            for (member = *(u8 **)((u8 *)iGpffffb3ac + 0x17C); member != NULL; member = *(u8 **)(member + 0xA68)) {
+                if (*(s32 *)(member + 0xA64) != 0) {
+                    status = datCalcGetBadStatus(*(s32 *)(member + 0xA64));
+                    datCalcClearBadStatus(*(s32 *)(member + 0xA64), 0xFFF7FFFF);
+                    if ((status & 0x100000) == 0) {
+                        func_00198dd0(member, 6);
                     }
                 }
             }
-            lst = *(u8 **)(lst + 2664);
-        }
-        if ((*(u16 *)((u8 *)iGpffffb3ac +  3244) & 1) != 0 && (*(s32 *)((u8 *)iGpffffb3ac +  12) & 0x20000000) == 0) {
-            func_002138a0(*(u8 **)((u8 *)iGpffffb3ac +  3540));
-        }
-        *(s32 *)((u8 *)iGpffffb3ac +  3536) = func_0021d980(*(s32 *)((u8 *)iGpffffb3ac +  3528), (u8 *)iGpffffb3ac + 3244);
-        func_0021dab0(*(s32 *)((u8 *)iGpffffb3ac +  3536));
-retsw:
-        st = *(u16 *)((u8 *)iGpffffb3ac +  28);
-        if (st == 1) {
-            if ((*(s32 *)((u8 *)iGpffffb3ac +  16) & 2) != 0) {
-                return 12;
+            if ((*(u16 *)((u8 *)iGpffffb3ac + 0xCAC) & 1) != 0 &&
+                (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x20000000) == 0) {
+                func_002138a0(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4));
             }
-            return 11;
-        } else if (st == 2) {
-            if ((*(s32 *)((u8 *)iGpffffb3ac +  16) & 0x20000000) != 0) {
-                return 12;
+            *(s32 *)((u8 *)iGpffffb3ac + 0xDD0) =
+                func_0021d980(*(s32 *)((u8 *)iGpffffb3ac + 0xDC8), (u8 *)iGpffffb3ac + 0xCAC);
+            func_0021dab0(*(s32 *)((u8 *)iGpffffb3ac + 0xDD0));
+            state = *(u16 *)((u8 *)iGpffffb3ac + 0x1C);
+            if (state == 1) {
+                return (*(s32 *)((u8 *)iGpffffb3ac + 0x10) & 2) ? 12 : 11;
             }
-            if (func_00193260((u8 *)iGpffffb3ac) != 0) {
-                return 9;
+            /* fallthrough */
+        case 2:
+            if (state == 2) {
+                if (*(s32 *)((u8 *)iGpffffb3ac + 0x10) & 0x20000000) {
+                    return 12;
+                }
+                return func_00193260((u8 *)iGpffffb3ac) ? 9 : 13;
             }
-            return 13;
+            return 14;
         }
-        return 14;
     }
+    return 0;
 }
-#pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b3a00);
-#endif
 // FUN_001B3F00
 void func_001b3f00(void) {
     s64 *p = *(s64 **)(D_0076449C + 0x170);
