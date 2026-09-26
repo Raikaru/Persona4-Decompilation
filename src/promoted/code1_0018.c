@@ -95,7 +95,7 @@ extern u8 D_005F5320[];
 extern u8 D_005F5330[];
 extern u8 *func_00457120(void);
 extern f32 fGpffff8218;
-extern s64 func_00479c30(s32 arg0, s32 arg1);
+extern s16 func_00479c30(s32 arg0, s32 arg1);
 extern u8 *mdlGetMatrix(u32 arg0);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 extern u8 *func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3);
@@ -200,209 +200,119 @@ u8 *func_001823c0(void)
 {
     return &iGpffffb310;
 }
-/* Floor: 342 differing words (reloc-masked) via measure_guarded.py, 210 fnalign
-   edits (+13 reloc-only), 481 emitted against retail's 476 (1.1% over, within
-   3%). Probes: v1 396, v2 408, v3 343, v4 342, v5 444 (probe_variants).
-   Levers that moved it: u8-array D_005F1D00/D_005F1D08 derefs via u64/f32
-   temporaries plus LocalFrame with padAC (retail ld+lwc1 with separate luis,
-   sd at 0xA0/swc1 at 0xA8, 4-byte gap to spB0 at 0xB0), s64 stat for the
-   func_00479c30 mask, u16-masked slot id with (s16) func_0045af60 args, and
-   mode==8-first if/else dispatch. Stopped after two unproductive rounds
-   (v4 -1 word/+1 instr, v5 +102). WALL: loop-preheader addiu $a2,$sp,0xA0
-   scheduling (retail before the D_005F1D00 loads, b210 after the stores),
-   lwc1-before-ld order, s64/s32 sign-extension residuals at the stat compares
-   (dsll32/dsra32), and saved-register recolouring across the five slot arms. */
-// FUN_001823D0 NONMATCHING
-#ifdef NON_MATCHING
-void func_001823d0(u8 *arg0, s32 arg1, s32 arg2)
+typedef struct {
+    f32 x, y, z;
+} FldAreaNormal;
+/* Plays the ambient cue for slot `id` and advances that slot's four-step
+   variation counter.  Inlined into every trigger arm of func_001823d0. */
+static inline void func_001823d0_play(u16 id, s16 bank, s32 base)
+{
+    extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
+    extern s32 D_007F1760[];
+    s32 *slot = &D_007F1760[id & 0x3FF];
+
+    func_0045af60(0, (id & 0x3FF) + 4, bank, base + *slot);
+    if (++*slot >= 4) {
+        *slot = 0;
+    }
+}
+// FUN_001823D0
+void func_001823d0(s32 arg0, u16 mode, u16 id)
 {
     extern u8 *func_001452b0(s32 arg0);
-    extern s32 K_FldFrame_IsPointInTriangle(void *arg0, void *arg1, void *arg2);
+    extern s32 K_FldFrame_IsPointInTriangle(f32 *point, f32 **vertices, f32 *normal);
     extern s32 func_0016fe80(s32 arg0);
     extern s32 func_0016ffd0(s32 arg0);
-    extern s32 K_FldEvent_ArePosWithinDist(u8 *arg0, u8 *arg1, f32 arg2);
-    extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern u32 K_FldEvent_ArePosWithinDist(const struct RwV3d *posA, const struct RwV3d *posB, f32 maxDist);
     extern f32 func_0047a080(s32 arg0, s32 arg1);
-    extern u32 D_005F08B0[];
-    extern u8 D_005F1D00[];
-    extern u8 D_005F1D08[];
-    extern s32 D_007F1760[];
-    typedef struct {
-        u64 spA0;
-        f32 spA8;
-        s32 padAC;
-        u8 *spB0;
-        u8 *spB4;
-        u8 *spB8;
-    } LocalFrame;
-    LocalFrame frame;
-    u64 xy;
-    f32 z;
-    f32 temp_f20;
-    f32 temp_f2;
-    f32 temp_f3;
-    s32 *slot;
-    s64 stat;
-    s32 mode;
+    extern u8 *D_005F08B0[];
+    s32 area;
+    f32 *pos;
+    u8 *node;
+    u16 stat;
+    u16 status;
+    f32 time;
     s32 index;
     s32 offset;
-    s32 entry;
-    s32 var_21;
-    s32 status;
-    u8 *pos;
-    u8 *node;
-    u8 *mat;
 
     status = *(u16 *)(arg0 + 0xD4);
-    stat = func_00479c30((s32)arg0, 0) & 0xFFFF;
-    temp_f20 = func_0047a080((s32)arg0, 0);
-    if (*(s32 *)iGpffff9db0 < 0xC8) {
-        pos = mdlGetMatrix((u32)arg0) + 0x30;
-        node = func_001452b0(0x15);
-        index = *(s32 *)iGpffff9db0;
-        offset = *(s32 *)(iGpffff9db0 + 4);
-        entry = *(s32 *)((u8 *)D_005F08B0 + index * 4);
-        if (entry == 0) {
-            var_21 = 0;
-        } else {
-            var_21 = *(u8 *)(entry + offset);
-        }
+    stat = func_00479c30(arg0, 0);
+    time = func_0047a080(arg0, 0);
+    if (((s32 *)iGpffff9db0)[0] >= 200) {
+        return;
+    }
+    pos = (f32 *)(mdlGetMatrix(arg0) + 0x30);
+    node = func_001452b0(0x15);
+    index = ((s32 *)iGpffff9db0)[0];
+    offset = ((s32 *)iGpffff9db0)[1];
+    if (D_005F08B0[index] == NULL) {
+        area = 0;
+    } else {
+        area = D_005F08B0[index][offset];
         for (; node != NULL; node = *(u8 **)(node + 0x138)) {
-            xy = *(u64 *)D_005F1D00;
-            z = *(f32 *)D_005F1D08;
-            frame.spA0 = xy;
-            frame.spA8 = z;
-            frame.spB0 = node + 0x15C;
-            frame.spB4 = node + 0x168;
-            frame.spB8 = node + 0x174;
-            if ((K_FldFrame_IsPointInTriangle(pos, &frame.spB0, &frame.spA0) == 1) &&
-                (temp_f3 = *(f32 *)(frame.spB0 + 4), temp_f2 = *(f32 *)(pos + 4),
-                 (temp_f2 < (100.0f + temp_f3))) &&
-                !(temp_f2 <= (temp_f3 - 100.0f))) {
-                var_21 = *(s32 *)(node + 0x18C);
+            f32 *tri[3];
+            FldAreaNormal normal = {0.0f, 1.0f, 0.0f};
+
+            tri[0] = (f32 *)(node + 0x15C);
+            tri[1] = (f32 *)(node + 0x168);
+            tri[2] = (f32 *)(node + 0x174);
+            if (K_FldFrame_IsPointInTriangle(pos, tri, &normal.x) == 1 &&
+                pos[1] < 100.0f + tri[0][1] && pos[1] > tri[0][1] - 100.0f) {
+                area = *(s32 *)(node + 0x18C);
                 break;
             }
-            frame.spB0 = node + 0x168;
-            frame.spB4 = node + 0x174;
-            frame.spB8 = node + 0x180;
-            if ((K_FldFrame_IsPointInTriangle(pos, &frame.spB0, &frame.spA0) == 1) &&
-                (temp_f3 = *(f32 *)(frame.spB0 + 4), temp_f2 = *(f32 *)(pos + 4),
-                 (temp_f2 < (100.0f + temp_f3))) &&
-                !(temp_f2 <= (temp_f3 - 100.0f))) {
-                var_21 = *(s32 *)(node + 0x18C);
+            tri[0] = (f32 *)(node + 0x168);
+            tri[1] = (f32 *)(node + 0x174);
+            tri[2] = (f32 *)(node + 0x180);
+            if (K_FldFrame_IsPointInTriangle(pos, tri, &normal.x) == 1 &&
+                pos[1] < 100.0f + tri[0][1] && pos[1] > tri[0][1] - 100.0f) {
+                area = *(s32 *)(node + 0x18C);
                 break;
-            }
-        }
-        mode = arg1 & 0xFFFF;
-        if (mode == 8) {
-            if ((status & 0xFFFF) == 1) {
-                mat = mdlGetMatrix((u32)arg0);
-                if ((K_FldEvent_ArePosWithinDist(mat + 0x30, mdlGetMatrix(D_007EFA00[0]) + 0x30, 1600.0f) != 0) &&
-                    ((stat & 0xFFFF) == func_0016ffd0(mode)) &&
-                    ((!(temp_f20 <= 8.0f) && (temp_f20 < 9.0f)) ||
-                     (!(temp_f20 <= 18.0f) && (temp_f20 < 19.0f)))) {
-                    {
-                        u16 masked = (u16)arg2;
-                        s32 id = masked & 0x3FF;
-                        s32 value;
-
-                        slot = &D_007F1760[id];
-                        func_0045af60(0, (s16)(id + 4), 2, (s16)(*slot + 0x18));
-                        value = *slot + 1;
-                        *slot = value;
-                        if (value >= 4) {
-                            *slot = 0;
-                            return;
-                        }
-                    }
-                }
-            }
-        } else if (mode == 1) {
-            if ((status & 0xFFFF) == 9) {
-                if ((stat & 0xFFFF) == func_0016fe80(mode)) {
-                    if ((!(temp_f20 <= 7.0f) && (temp_f20 < 8.0f)) ||
-                        (!(temp_f20 <= 21.0f) && (temp_f20 < 22.0f))) {
-                        {
-                            u16 masked = (u16)arg2;
-                            s32 id = masked & 0x3FF;
-                            s32 value;
-
-                            slot = &D_007F1760[id];
-                            func_0045af60(0, (s16)(id + 4), 1, (s16)(*slot + var_21 * 4));
-                            value = *slot + 1;
-                            *slot = value;
-                            if (value >= 4) {
-                                *slot = 0;
-                                return;
-                            }
-                        }
-                    }
-                } else if (((stat & 0xFFFF) == func_0016ffd0(mode)) &&
-                           ((!(temp_f20 <= 9.0f) && (temp_f20 < 10.0f)) ||
-                            (!(temp_f20 <= 19.0f) && (temp_f20 < 20.0f)))) {
-                    {
-                        u16 masked = (u16)arg2;
-                        s32 id = masked & 0x3FF;
-                        s32 value;
-
-                        slot = &D_007F1760[id];
-                        func_0045af60(0, (s16)(id + 4), 1, (s16)(*slot + var_21 * 4));
-                        value = *slot + 1;
-                        *slot = value;
-                        if (value >= 4) {
-                            *slot = 0;
-                            return;
-                        }
-                    }
-                }
-            } else if ((status & 0xFFFF) == 1) {
-                if (((stat & 0xFFFF) == func_0016ffd0(mode)) &&
-                    ((!(temp_f20 <= 9.0f) && (temp_f20 < 10.0f)) ||
-                     (!(temp_f20 <= 19.0f) && (temp_f20 < 20.0f)))) {
-                    {
-                        u16 masked = (u16)arg2;
-                        s32 id = masked & 0x3FF;
-                        s32 value;
-
-                        slot = &D_007F1760[id];
-                        func_0045af60(0, (s16)(id + 4), 1, (s16)(*slot + var_21 * 4));
-                        value = *slot + 1;
-                        *slot = value;
-                        if (value >= 4) {
-                            *slot = 0;
-                            return;
-                        }
-                    }
-                }
-            }
-        } else {
-            if ((status & 0xFFFF) == 1) {
-                mat = mdlGetMatrix((u32)arg0);
-                if ((K_FldEvent_ArePosWithinDist(mat + 0x30, mdlGetMatrix(D_007EFA00[0]) + 0x30, 1600.0f) != 0) &&
-                    ((stat & 0xFFFF) == func_0016ffd0(mode)) &&
-                    ((!(temp_f20 <= 8.0f) && (temp_f20 < 9.0f)) ||
-                     (!(temp_f20 <= 18.0f) && (temp_f20 < 19.0f)))) {
-                    {
-                        u16 masked = (u16)arg2;
-                        s32 id = masked & 0x3FF;
-                        s32 value;
-
-                        slot = &D_007F1760[id];
-                        func_0045af60(0, (s16)(id + 4), 2, (s16)(*slot + var_21 * 4));
-                        value = *slot + 1;
-                        *slot = value;
-                        if (value >= 4) {
-                            *slot = 0;
-                        }
-                    }
-                }
             }
         }
     }
+    switch (mode) {
+    case 1:
+        if (status == 9) {
+            if (stat == func_0016fe80(mode)) {
+                if ((time > 7.0f && time < 8.0f) || (time > 21.0f && time < 22.0f)) {
+                    func_001823d0_play(id, 1, area * 4);
+                }
+            } else if (stat == func_0016ffd0(mode)) {
+                if ((time > 9.0f && time < 10.0f) || (time > 19.0f && time < 20.0f)) {
+                    func_001823d0_play(id, 1, area * 4);
+                }
+            }
+        } else if (status == 1) {
+            if (stat == func_0016ffd0(mode)) {
+                if ((time > 9.0f && time < 10.0f) || (time > 19.0f && time < 20.0f)) {
+                    func_001823d0_play(id, 1, area * 4);
+                }
+            }
+        }
+        break;
+    case 8:
+        if (status == 1 &&
+            K_FldEvent_ArePosWithinDist((struct RwV3d *)(mdlGetMatrix(arg0) + 0x30),
+                                        (struct RwV3d *)(mdlGetMatrix(D_007EFA00[0]) + 0x30), 1600.0f) != 0 &&
+            stat == func_0016ffd0(mode)) {
+            if ((time > 8.0f && time < 9.0f) || (time > 18.0f && time < 19.0f)) {
+                func_001823d0_play(id, 2, 0x18);
+            }
+        }
+        break;
+    default:
+        if (status == 1 &&
+            K_FldEvent_ArePosWithinDist((struct RwV3d *)(mdlGetMatrix(arg0) + 0x30),
+                                        (struct RwV3d *)(mdlGetMatrix(D_007EFA00[0]) + 0x30), 1600.0f) != 0 &&
+            stat == func_0016ffd0(mode)) {
+            if ((time > 8.0f && time < 9.0f) || (time > 18.0f && time < 19.0f)) {
+                func_001823d0_play(id, 2, area * 4);
+            }
+        }
+        break;
+    }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001823d0);
-#endif
 /* measured probe: opt_propagation off tests caching the repeated render callback base. */
 #pragma opt_propagation off
 // FUN_00182B40
