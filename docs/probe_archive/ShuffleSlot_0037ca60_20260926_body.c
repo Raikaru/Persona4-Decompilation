@@ -18,10 +18,28 @@
  * int conversion, `(f32)(arg1 - 0)`, a spacing local (propagated back to the
  * literal), and every pragma except the ones that cost 431-564.
  */
+
+/* Round 2 (2026-09-26): 50 -> 25 words. In the five bare-column branches a
+ * float local assigned as its own statement (`col = arg1;` then
+ * `320.0f + 80.0f * (col - 1.5f)`) gives retail's register assignment
+ * (80.0f in $f3, the difference in $f2). The residual 5 words per branch are
+ * pure order: retail materialises 80.0f (lui/mtc1) BEFORE `mtc1 $s1; cvt`,
+ * i.e. evaluates `80.0f * ((f32)arg1 - k)` left operand first, while every
+ * source shape here converts first. Measured and tied/worse: `col` for the
+ * `arg1 - k` branches too (116), inline helpers taking s32 or f32 column (50),
+ * `(w = arg1) - k` (50), `col` hoisted above the switch or the call (428/498),
+ * `(f32)(arg1 + 0 | * 1 | | 0)` (50), operand swaps and `x*80 + 320` (25),
+ * function-scope `#pragma opt_propagation off` with or without a spacing
+ * local (510). btlShuffleCalc.c's matched sibling (the 100.0f table) shows
+ * the same bare/offset asymmetry and only matched with propagation off and
+ * register-shaped temps, so the order is likely a compiler weight quirk of
+ * `cvt(var)` vs `cvt(expr)`.
+ */
 typedef struct { f32 x; f32 y; } CardSlotPos;
 void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
     s32 n;
     CardSlotPos pos;
+    f32 col;
     if (*(s32 *)(arg0 + 0x1F2FC) != 3) {
         func_0046d730(&D_0064EB20[0], 0x5B);
     }
@@ -33,7 +51,8 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
         break;
     case 8:
         if (arg1 < 4) {
-            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.5f);
+            col = arg1;
+            pos.x = 320.0f + 80.0f * (col - 1.5f);
             pos.y = 174.0f;
         } else {
             pos.x = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.5f);
@@ -42,7 +61,8 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
         break;
     case 10:
         if (arg1 < 3) {
-            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.0f);
+            col = arg1;
+            pos.x = 320.0f + 80.0f * (col - 1.0f);
             pos.y = 74.0f;
         } else if (arg1 < 5) {
             pos.x = 320.0f + 80.0f * ((f32)(arg1 - 3) - 0.5f);
@@ -57,7 +77,8 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
         break;
     case 12:
         if (arg1 < 3) {
-            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.0f);
+            col = arg1;
+            pos.x = 320.0f + 80.0f * (col - 1.0f);
             pos.y = 74.0f;
         } else if (arg1 < 6) {
             pos.x = 320.0f + 80.0f * ((f32)(arg1 - 3) - 1.0f);
@@ -72,7 +93,8 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
         break;
     case 14:
         if (arg1 < 4) {
-            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.5f);
+            col = arg1;
+            pos.x = 320.0f + 80.0f * (col - 1.5f);
             pos.y = 74.0f;
         } else if (arg1 < 7) {
             pos.x = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.0f);
@@ -87,7 +109,8 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
         break;
     case 16:
         if (arg1 < 4) {
-            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.5f);
+            col = arg1;
+            pos.x = 320.0f + 80.0f * (col - 1.5f);
             pos.y = 74.0f;
         } else if (arg1 < 8) {
             pos.x = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.5f);
