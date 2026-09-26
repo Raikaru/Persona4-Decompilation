@@ -846,7 +846,7 @@ extern s32 func_00376590(u8 *arg0, u8 *arg1);
 extern void func_00388f40(u8 *arg0);
 extern void func_00389110(u8 *arg0);
 extern s32 func_00389160(u8 *arg0);
-extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 func_0045af60(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
 extern void func_0046d730(const void *file, u32 line);
 extern char D_0064EAE0[];
 extern char D_0064EB00[];
@@ -862,10 +862,12 @@ extern void func_003799d0(u8 *arg0);
 extern s32 func_00379a70(u8 *arg0);
 extern s32 func_00379c70(u8 *arg0, s32 arg1);
 extern s32 func_00379d70(u8 *arg0);
-// measured: shuffle-draw state machine fully recovered (16-state switch on *(u32*)(arg0+0x1F2F8) with 1->2 and 4->5->7->8->9 plus 10->11 and 12->13 fallthroughs, 0.6f/0.7f/0.8f pool at gp-0x7E90/-0x7F64/-0x7C74 confirmed at orig 0x761260/0x76118c/0x76147c, (f32)(u32) u16 at +2, 0.0f+(360/count)*(count-sel) adda/madd for func_00375fa0); floor object 2956B/window 2992B (36B short, 1.2%), normalized_diff 2343, frame 0xE0 vs retail 0xF0 (6 vs 7 saved, arg0 in $s4 vs $s1); remaining walls are saved-reg coloring and scheduling residuals. Keep ASM until coloring closes.
-/* measured 0037ad10: bare guard is the band floor: obj 2956B/window 2992B (739/745 instrs, inside 723-767), census andi -3, ?? -3, lhu +1, lui -1, fnalign edit 256; prop-off/sched-on gives 2552B/638 instrs (outside band), census nop -88, lui -34, beql +13/bnel +7 vs beqz -8/bnez -7, edit 744; schedule off fixes nop/likely, prop on fixes lui; positional 683 vs 680 is shift noise. */
-// FUN_0037AD10 NONMATCHING
-#ifdef NON_MATCHING
+/* Deal state machine for the second shuffle layout.  It is the twin of
+   func_00379f90: the deal loop spreads the cards 150 units left or right by
+   index parity and lifts them 100 units. */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_0037AD10
 s32 func_0037ad10(u8 *arg0) {
     struct Vec3 {
         f32 x;
@@ -877,30 +879,35 @@ s32 func_0037ad10(u8 *arg0) {
         struct Vec3 first;
         struct Vec3 second;
         struct Vec3 output;
-        struct Vec3 v0;
-        struct Vec3 v1;
-        struct Vec3 v2;
     } work;
+    struct Vec3 v2;
+    struct Vec3 v1;
+    struct Vec3 v0;
     f32 factor;
-    f32 f0;
-    f32 f1;
+    f32 base;
     u8 *sbase;
     u8 *sbase2;
     u8 *deck;
     s32 mod;
+    f32 dx;
+    f32 dy;
+    f32 dz;
     s32 i;
+    s32 j;
+    s32 offset;
+    f32 xOff;
+    f32 thirdY;
+    s32 k;
     s32 sel;
     s32 m;
-    s32 parity;
-    u16 dur;
     sbase = arg0 + 0x1F1D0;
-    mod = ((s32)*(u16 *)(sbase + 2) / *(s32 *)(arg0 + 0x1F304)) & 0xFFFF;
+    mod = (u16)(*(u16 *)(sbase + 2) / *(s32 *)(arg0 + 0x1F304));
     switch (*(u32 *)(arg0 + 0x1F2F8)) {
     case 0:
         if (func_00378a70(arg0, *(s32 *)(arg0 + 0x1F304)) == 0) {
             break;
         }
-        sbase2 = sbase;
+        sbase2 = arg0 + 0x1F1D0;
         switch (*(s32 *)(arg0 + 0x1F300)) {
         case 0:
             *(u16 *)(sbase2 + 2) = 0x1A;
@@ -918,12 +925,7 @@ s32 func_0037ad10(u8 *arg0) {
             func_0046d730(D_0064EAE0, 0x3A);
             break;
         }
-        dur = *(u16 *)(sbase2 + 2);
-        f0 = (f32)(u32)dur;
-        f1 = factor * (f32)(*(s32 *)(arg0 + 0x1F304) - 3) / 5.0f;
-        f1 = 1.0f + f1;
-        f1 = f0 * f1;
-        *(u16 *)(sbase2 + 2) = (u16)f1;
+        *(u16 *)(sbase2 + 2) = *(u16 *)(sbase2 + 2) * (1.0f + factor * (*(s32 *)(arg0 + 0x1F304) - 3) / 5.0f);
         *(s32 *)(sbase + 0xC) = -1;
         if (func_00379240(arg0) != 0) {
             *(u32 *)(arg0 + 0x1F2F8) = 1;
@@ -937,9 +939,7 @@ s32 func_0037ad10(u8 *arg0) {
         }
         *(u32 *)(arg0 + 0x1F2F8) = 2;
     case 2: {
-        u16 tmp = *(u16 *)(arg0 + 0x1F2F0) + 1;
-        *(u16 *)(arg0 + 0x1F2F0) = tmp;
-        if (((s32)(tmp & 0xFFFF) < 0)) {
+        if (++*(u16 *)(arg0 + 0x1F2F0) < 0) {
             break;
         }
         deck = *(u8 **)(arg0 + 0x1F298);
@@ -956,24 +956,24 @@ s32 func_0037ad10(u8 *arg0) {
             *(u32 *)(arg0 + 0x1F2F8) = 4;
             *(s32 *)(sbase + 8) = 0;
             for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
-                f32 x_off = 150.0f;
-                parity = i & 1;
-                if ((i < 0) && (parity != 0)) {
-                    parity -= 2;
-                }
-                if (parity == 0) {
-                    x_off = x_off * -1.0f;
-                }
+                xOff = 150.0f;
                 work.base = *(struct Vec3 *)(arg0 + i * 0xE8 + 0x1D6B8);
                 func_0037ab50(arg0, 0, &work.output.x);
-                work.first.x = x_off + (work.base.x + (work.output.x - work.base.x) / 3.0f);
-                work.first.y = 100.0f + (work.base.y + (work.output.y - work.base.y) / 3.0f);
-                work.first.z = work.base.z + (work.output.z - work.base.z);
-                work.second.x = x_off + (work.base.x + (2.0f * (work.output.x - work.base.x)) / 3.0f);
-                work.second.y = 100.0f + (work.base.y + (2.0f * (work.output.y - work.base.y)) / 3.0f);
+                if (i % 2 == 0) {
+                    xOff = xOff * -1.0f;
+                }
+                dx = work.output.x - work.base.x;
+                work.first.x = xOff + (work.base.x + dx / 3.0f);
+                dy = work.output.y - work.base.y;
+                thirdY = work.base.y + dy / 3.0f;
+                work.first.y = 100.0f + thirdY;
+                dz = work.output.z - work.base.z;
+                work.first.z = work.base.z + dz;
+                work.second.x = xOff + (work.base.x + (2.0f * dx) / 3.0f);
+                work.second.y = 100.0f + (work.base.y + (2.0f * dy) / 3.0f);
                 work.second.z = work.first.z;
-                m = (mod * i) & 0xFFFF;
-                func_00375e50(arg0, i, m & 0xFFFF, (m + 0x14) & 0xFFFF, &work.base.x);
+                m = (u16)mod * i;
+                func_00375e50(arg0, i, (u16)m, (u16)(m + 0x14), &work.base.x);
             }
             func_0045af60(0, 4, 0, 1);
         } else if ((D_008C024E[0] & 0x20) != 0) {
@@ -982,19 +982,20 @@ s32 func_0037ad10(u8 *arg0) {
         }
         break;
     case 4:
-        for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
-            if (func_00375970(arg0 + i * 0xE8 + 0x1D6A0) != 0) {
-                func_00375b40(arg0, i, 0, 0xA);
+        base = 0.0f;
+        for (k = 0; k < *(s32 *)(arg0 + 0x1F304); k++) {
+            if (func_00375970(arg0 + k * 0xE8 + 0x1D6A0) != 0) {
+                func_00375b40(arg0, k, 0, 0xA);
                 sel = *(s32 *)(sbase + 8);
-                m = (mod * (*(s32 *)(arg0 + 0x1F304) - sel)) & 0xFFFF;
+                offset = ((u16)mod * (*(s32 *)(arg0 + 0x1F304) - sel)) & 0xFFFF;
                 if (sel >= *(s32 *)(arg0 + 0x1F304)) {
                     func_0046d730(D_0064EAE0, 0x6B);
                 }
-                func_0037ab50(arg0, i, (f32 *)0);
-                work.v2 = *(struct Vec3 *)(arg0 + i * 0xE8 + 0x1D6CC);
-                work.v1 = *(struct Vec3 *)(arg0 + i * 0xE8 + 0x1D6D8);
-                work.v0 = *(struct Vec3 *)(arg0 + i * 0xE8 + 0x1D6E4);
-                func_00375fa0(arg0, i, m, &work.v2.x, &work.v1.x, &work.v0.x, 0.0f, 0.0f + (360.0f / (f32)*(s32 *)(arg0 + 0x1F304)) * (f32)(*(s32 *)(arg0 + 0x1F304) - sel));
+                func_0037ab50(arg0, k, (f32 *)0);
+                v2 = *(struct Vec3 *)(arg0 + k * 0xE8 + 0x1D6CC);
+                v1 = *(struct Vec3 *)(arg0 + k * 0xE8 + 0x1D6D8);
+                v0 = *(struct Vec3 *)(arg0 + k * 0xE8 + 0x1D6E4);
+                func_00375fa0(arg0, k, offset, &v2.x, &v1.x, &v0.x, base, base + (360.0f / (f32)*(s32 *)(arg0 + 0x1F304)) * (f32)(*(s32 *)(arg0 + 0x1F304) - sel));
                 (*(s32 *)(sbase + 8))++;
             }
         }
@@ -1007,9 +1008,7 @@ s32 func_0037ad10(u8 *arg0) {
         *(u16 *)(arg0 + 0x1F2F0) = 0;
         *(u16 *)(sbase + 4) = func_00378bf0();
     case 5: {
-        u16 tmp = *(u16 *)(arg0 + 0x1F2F0) + 1;
-        *(u16 *)(arg0 + 0x1F2F0) = tmp;
-        if ((tmp & 0xFFFF) < *(u16 *)(sbase + 4)) {
+        if (++*(u16 *)(arg0 + 0x1F2F0) < *(u16 *)(sbase + 4)) {
             break;
         }
         *(u32 *)(arg0 + 0x1F2F8) = 7;
@@ -1047,9 +1046,9 @@ s32 func_0037ad10(u8 *arg0) {
             break;
         }
         func_00378df0(arg0, *(s32 *)(sbase + 0xC));
-        for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
-            if (i != *(s32 *)(sbase + 0xC)) {
-                func_00376290(arg0, i, 0xF, 0xFF, 0);
+        for (j = 0; j < *(s32 *)(arg0 + 0x1F304); j++) {
+            if (j != *(s32 *)(sbase + 0xC)) {
+                func_00376290(arg0, j, 0xF, 0xFF, 0);
             }
         }
         func_0045af60(1, 0, 5, 1);
@@ -1058,9 +1057,9 @@ s32 func_0037ad10(u8 *arg0) {
         if (func_00375910(arg0 + (*(s32 *)(sbase + 0xC) * 0xE8) + 0x1D6A0) == 0) {
             break;
         }
-        for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
-            if (i != *(s32 *)(sbase + 0xC)) {
-                func_00375890(arg0, i, 0);
+        for (j = 0; j < *(s32 *)(arg0 + 0x1F304); j++) {
+            if (j != *(s32 *)(sbase + 0xC)) {
+                func_00375890(arg0, j, 0);
             }
         }
         *(u16 *)(sbase + 0) = *(u16 *)(sbase + 0) & 0xFFFE;
@@ -1091,8 +1090,7 @@ s32 func_0037ad10(u8 *arg0) {
         if (*(u16 *)(arg0 + 0x1F2F4) & 2) {
             *(u16 *)(arg0 + 0x1F2F4) = *(u16 *)(arg0 + 0x1F2F4) & 0xFFFD;
         }
-        *(u16 *)(arg0 + 0x1F2F0) = *(u16 *)(arg0 + 0x1F2F0) + 1;
-        if ((*(u16 *)(arg0 + 0x1F2F0) & 0xFFFF) < 0x1E) {
+        if (++*(u16 *)(arg0 + 0x1F2F0) < 0x1E) {
             break;
         }
         func_00106390(0x1431, 1);
@@ -1103,17 +1101,15 @@ s32 func_0037ad10(u8 *arg0) {
         break;
     }
     if (*(u16 *)(sbase + 0) & 1) {
-        for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
-            if (i != *(s32 *)(sbase + 0xC)) {
-                func_00378c80(arg0, i, mod);
+        for (j = 0; j < *(s32 *)(arg0 + 0x1F304); j++) {
+            if (j != *(s32 *)(sbase + 0xC)) {
+                func_00378c80(arg0, j, mod);
             }
         }
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0037", func_0037ad10);
-#endif
+#pragma pop
 // FUN_0037B8C0
 void func_0037b8c0(u8 *arg0, s32 arg1, f32 *arg2) {
     struct {
