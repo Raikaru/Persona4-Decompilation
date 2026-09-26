@@ -84,7 +84,7 @@ extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3f0;
 extern u8 *iGpffffb3e0;
 extern u8 *iGpffffb3ec;
-extern s32 datPersonaGetSkills(u32 arg0);
+extern u16 *datPersonaGetSkills(int persona);
 extern s32 func_0010cd70(u8 *arg0, s32 arg1, u16 arg2);
 
 extern s32 D_0064E7B0[];
@@ -411,7 +411,7 @@ void *func_0036e910(void *arg0)
  * table base (lui/addiu/addu) inside the loop instead of hoisting it (nd 21);
  * with it the preheader hoist matches retail. */
 #pragma opt_loop_invariants on
-s32 func_0036e920(u32 arg0)
+s32 func_0036e920(u8 arg0)
 {
     s32 x = arg0 & 0xFF;
     s32 q;
@@ -442,7 +442,7 @@ s32 func_0036e920(u32 arg0)
 #pragma opt_loop_invariants off
 
 // FUN_0036EA00
-s32 func_0036ea00(s32 arg0, s32 arg1)
+s32 func_0036ea00(s32 arg0, u8 arg1)
 {
     s32 x = arg1 & 0xFF;
     s32 q;
@@ -498,7 +498,7 @@ s32 func_0036ea00(s32 arg0, s32 arg1)
  * table base (lui/addiu/addu) inside the loop instead of hoisting it (nd 21);
  * with it the preheader hoist matches retail. */
 #pragma opt_loop_invariants on
-s32 func_0036eb50(s32 arg0, s32 arg1)
+s32 func_0036eb50(s32 arg0, u8 arg1)
 {
     s32 x = arg1 & 0xFF;
     s32 q;
@@ -604,39 +604,52 @@ s32 func_0036eda0(s32 arg0)
 /* python3 tools/measure_guarded.py src/promoted/btlShuffle.c func_0036ee60 (after install). */
 /* Prior archive note (2026-09-16, same 292/1448/1456/362-vs-363) retained at */
 /* docs/probe_archive/BtlShuffle_0036EE60_body.c; this floor is that body, banked. */
+extern s32 func_00104c70(s32 arg0);
+extern u8 D_0064E76F[];
+extern u8 *iGpffffb3d4;
+
+/* Round-2 rewrite from retail (2026-09-26): fnalign 90 edits (364/364 instrs),
+ * see docs/probe_archive/Campaign_g2r2_20260926.md.  Levers: u8 callee
+ * parameters (func_0036e920/ea00/eb50 mask their own argument), the always-false
+ * `rand < rate` (rate 0) arm keeps retail's dead listB draw block, lists declared
+ * C/B/A for retail's stack order, opt_loop_invariants on hoists the sign-extended
+ * hi/lo/cap into sq-spilled temporaries.  Residual: callee-saved colouring and
+ * which draw-loop value is spilled (retail spills cIdx, this spills nDraw). */
 // FUN_0036EE60 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_0036ee60(u8 *arg0, s16 arg1)
+#pragma opt_loop_invariants on
+s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
 {
-    extern s32 func_00104c70(s32);
-    extern u8 D_0064E76F[];
-    extern u8 *iGpffffb3d4;
-    s16 listA[256];
-    s16 listB[256];
     s16 listC[256];
-    s16 cap;
-    s16 hi;
-    s16 lo;
-    u16 nC;
-    u16 nB;
-    u16 nA;
-    s16 mlvl;
-    s32 i;
+    s16 listB[256];
+    s16 listA[256];
     s16 lvl;
+    s16 hi;
+    s16 cap;
+    s16 lo;
+    s16 mlvl;
+    u16 nA;
+    u16 nB;
+    s32 i;
+    u16 nC;
+    s32 aCount;
+    s32 bCount;
+    s32 cCount;
     s32 total;
-    s32 nDraw;
     s32 k;
     u16 r1;
     u16 r2;
     s16 tmp;
-    u16 cIdx;
+    s32 nDraw;
     u16 aIdx;
-    u16 e;
     u16 bIdx;
-    s32 w;
-    s32 i2;
-    lvl = (s16)(func_00104c70(1) & 0xFF);
-    if ((lvl > 0) && ((u32)lvl < 10)) {
+    u16 cIdx;
+    s32 e;
+    s16 item;
+    u32 rate = 0;
+
+    lvl = func_00104c70(1) & 0xFF;
+    if (lvl > 0 && (u32)lvl < 10) {
         hi = D_0064E76F[lvl];
         lo = 1;
     } else if (lvl >= arg1) {
@@ -659,104 +672,100 @@ s32 func_0036ee60(u8 *arg0, s16 arg1)
     nC = 0;
     nB = 0;
     nA = 0;
-    i = 0;
-    while (i < 256) {
-        u8 *rec = (u8 *)((s32)iGpffffb3d4 + i * 14);
-        if ((*(u16 *)rec & 0xDB) == 0) {
-            mlvl = *(u8 *)(rec + 3);
-            if ((cap >= mlvl) && ((lvl < mlvl) || ((hi >= mlvl) && (mlvl >= lo)))) {
-                if ((s16)func_0010aa80((s16)i) != -1) {
-                    listA[nA] = (s16)i;
-                    nA = (nA + 1) & 0xFFFF;
-                } else if (lvl < mlvl) {
-                    listB[nB] = (s16)i;
-                    nB = (nB + 1) & 0xFFFF;
-                } else {
-                    listC[nC] = (s16)i;
-                    nC = (nC + 1) & 0xFFFF;
-                }
-            }
+    for (i = 0; i < 256; i++) {
+        u8 *rec = iGpffffb3d4 + i * 14;
+
+        if ((*(u16 *)rec & 0xDB) != 0) {
+            continue;
         }
-        i++;
-    }
-    {
-        s32 bCount = nB & 0xFFFF;
-        s32 cCount = nC & 0xFFFF;
-        s32 aCount = nA & 0xFFFF;
-        total = aCount + (cCount + bCount);
-        if (total == 0) {
-            return 0;
+        mlvl = rec[3];
+        if (mlvl > cap) {
+            continue;
         }
-        if (cCount > 1) {
-            for (k = 0; k < cCount; k++) {
-                r1 = func_00231d70(cCount) & 0xFFFF;
-                r2 = func_00231d70(cCount) & 0xFFFF;
-                if (r1 != r2) {
-                    tmp = listC[r1];
-                    listC[r1] = listC[r2];
-                    listC[r2] = tmp;
-                }
-            }
-        }
-        if (bCount > 1) {
-            for (k = 0; k < bCount; k++) {
-                r1 = func_00231d70(bCount) & 0xFFFF;
-                r2 = func_00231d70(bCount) & 0xFFFF;
-                if (r1 != r2) {
-                    tmp = listB[r1];
-                    listB[r1] = listB[r2];
-                    listB[r2] = tmp;
-                }
-            }
-        }
-        if (aCount > 1) {
-            for (k = 0; k < aCount; k++) {
-                r1 = func_00231d70(aCount) & 0xFFFF;
-                r2 = func_00231d70(aCount) & 0xFFFF;
-                if (r1 != r2) {
-                    tmp = listA[r1];
-                    listA[r1] = listA[r2];
-                    listA[r2] = tmp;
-                }
-            }
-        }
-        *(s32 *)(arg0 + 0x10) = func_0036e920(arg1 & 0xFF);
-        *(s32 *)(arg0 + 0x14) = func_0036eb50(*(s32 *)(arg0 + 0x10), arg1 & 0xFF);
-        w = func_0036ea00(*(s32 *)(arg0 + 0x10), arg1 & 0xFF);
-        *(s32 *)(arg0 + 0xC) = w;
-        nDraw = func_0036eda0(w);
-        if (total < nDraw) {
-            nDraw = total;
-        }
-        cIdx = 0;
-        aIdx = 0;
-        e = 0;
-        bIdx = 0;
-        for (i2 = 0; i2 < nDraw; i2++) {
-            s16 item;
-            func_00231d70(0x64);
-            if (bIdx < bCount) {
-                item = listB[bIdx++];
-            } else if (cIdx < cCount) {
-                item = listC[cIdx++];
-            } else if (aIdx < aCount) {
-                item = listA[aIdx++];
+        if (lvl < mlvl || (mlvl <= hi && mlvl >= lo)) {
+            if ((s16)func_0010aa80((s16)i) != -1) {
+                listA[nA++] = i;
+            } else if (lvl < mlvl) {
+                listB[nB++] = i;
             } else {
-                continue;
+                listC[nC++] = i;
             }
-            *(s16 *)(arg0 + (s32)e * 2) = item;
-            e++;
         }
-        if (e == 0) {
-            return 0;
-        }
-        *(s32 *)(arg0 + 8) = e;
-        if ((aIdx != e) || (func_00231d70(0x64) < 0x14)) {
-            return 1;
-        }
+    }
+    bCount = nB;
+    cCount = nC;
+    aCount = nA;
+    total = aCount + (cCount + bCount);
+    if (total == 0) {
         return 0;
     }
+    if (cCount > 1) {
+        for (k = 0; k < cCount; k++) {
+            r1 = func_00231d70(cCount);
+            r2 = func_00231d70(cCount);
+            if (r1 != r2) {
+                tmp = listC[r1];
+                listC[r1] = listC[r2];
+                listC[r2] = tmp;
+            }
+        }
+    }
+    if (bCount > 1) {
+        for (k = 0; k < bCount; k++) {
+            r1 = func_00231d70(nB);
+            r2 = func_00231d70(nB);
+            if (r1 != r2) {
+                tmp = listB[r1];
+                listB[r1] = listB[r2];
+                listB[r2] = tmp;
+            }
+        }
+    }
+    if (aCount > 1) {
+        for (k = 0; k < aCount; k++) {
+            r1 = func_00231d70(nA);
+            r2 = func_00231d70(nA);
+            if (r1 != r2) {
+                tmp = listA[r1];
+                listA[r1] = listA[r2];
+                listA[r2] = tmp;
+            }
+        }
+    }
+    *(s32 *)(arg0 + 0x10) = func_0036e920(arg1);
+    *(s32 *)(arg0 + 0x14) = func_0036eb50(*(s32 *)(arg0 + 0x10), arg1);
+    *(s32 *)(arg0 + 0xC) = func_0036ea00(*(s32 *)(arg0 + 0x10), arg1);
+    nDraw = func_0036eda0(*(s32 *)(arg0 + 0xC));
+    if (total < nDraw) {
+        nDraw = total;
+    }
+    bIdx = 0;
+    cIdx = 0;
+    aIdx = 0;
+    e = 0;
+    for (i = 0; i < nDraw; i++) {
+        if (func_00231d70(100) < rate && bIdx < bCount) {
+            item = listB[bIdx++];
+        } else if (cIdx < cCount) {
+            item = listC[cIdx++];
+        } else if (aIdx < aCount) {
+            item = listA[aIdx++];
+        } else {
+            continue;
+        }
+        ((s16 *)arg0)[e] = item;
+        e++;
+    }
+    if (e == 0) {
+        return 0;
+    }
+    *(s32 *)(arg0 + 8) = e;
+    if (aIdx == e && func_00231d70(100) >= 20) {
+        return 0;
+    }
+    return 1;
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036ee60);
 #endif
@@ -861,136 +870,102 @@ s32 func_0036f640(s32 arg0, s32 *arg1)
     }
     return result;
 }
-/* measured: prototype s32/u8* + frame 0xC0/CFG from retail; MATCH neighbours */
-/* (fbe0/fd00/f640) give u16 counters + s32-masked flag + (s16) extends. */
-/* Baseline probe nd 139 / fnalign 144 edits, obj 213 instrs (852B) vs window */
-/* 216 (864B, 1.4% under). Levers: inclusive bounds (lim>12/a<=7/e<=7/e>7) */
-/* fix slti $at -> $v0 (1 row, nd 134/edits 143); idx-based trailing halves */
-/* (sp+112/114 -> h2+idx*4+0/2, correct addr) nd 133/edits 142; redundant */
-/* sw+or+sw kept (halfword sh+sh +22 worse); s32 flag +10 worse; unsigned */
-/* (<8U/==0-><1U) neutral. Walls: s-rotation ($s5 raw vs masked, $s2/$s3 vs */
-/* $s0), frame 0xB0 vs 0xC0 (16B tighter, no spill padding), inner while-1-break */
-/* vs beq+bnez. Saved-register + quadword floor; production stays ASM. */
+/* Round-2 rewrite from retail (2026-09-26): fnalign 22 edits (212/212 instrs).
+ * Levers: separate block-scoped k per branch (46 -> 24), byte-offset table reads,
+ * u32 candidate slots written through u16 halves, `m = 0; tbl = ...` before the
+ * loop.  Residual: first-loop $s0/$s1 swap (count vs (s16)i), else-branch
+ * $t3/$t4 swap, and retail's unfolded addiu 0x72/0x70 candidate reads. */
 // FUN_0036F880 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0036f880(s32 arg0, u8 *arg1)
 {
-    u32 w1[8];
-    u32 h2[8];
-    u16 lim;
-    u16 cnt;
+    u8 *list[12];
+    u32 cand[8];
+    s32 flag = arg0 & 0xFFFF;
+    s32 count = (u16)func_0010b5b0();
+    u8 *p;
+    u16 *skills;
     u16 i;
-    s16 v;
-    u8 *pick;
-    u32 t2;
+    u16 n;
+    u16 j;
+    u16 nc;
+    u16 m;
+    u16 r;
     u8 *tbl;
-    u16 s5v;
-    u16 a;
-    u16 b;
-    u16 c;
-    u16 d;
-    u16 e;
-    u16 f;
-    u16 sA;
-    u16 sB;
+    u16 first;
+    u16 second;
 
-    lim = func_0010b5b0() & 0xFFFF;
-    cnt = 0;
-    if (lim > 12) {
+    n = 0;
+    if (count > 12) {
         func_0046d730(D_0064E790, 1207);
     }
-    i = 0;
-    while (((i & 0xFFFF)) < lim) {
-        v = (s16)i;
-        if (func_0010abd0(v) != 0) {
-            w1[cnt] = (u32)func_0010ace0(v);
-            cnt = (cnt + 1) & 0xFFFF;
+    for (i = 0; i < count; i++) {
+        if (func_0010abd0((s16)i) != 0) {
+            list[n] = func_0010ace0((s16)i);
+            n++;
         }
-        i = (i + 1) & 0xFFFF;
     }
-    if ((cnt & 0xFFFF) == 0) {
+    if (n == 0) {
         return 0;
     }
-    pick = (u8 *)w1[func_00231d70(cnt)];
-    t2 = datPersonaGetSkills((u32)pick);
-    a = 0;
-    b = 0;
+    p = list[func_00231d70(n)];
+    skills = datPersonaGetSkills((int)p);
+    nc = 0;
+    m = 0;
     tbl = iGpffffb3ec;
-    s5v = arg0 & 0xFFFF;
-    while (((a & 0xFFFF)) <= 7) {
-        {
-            u16 cv = *(u16 *)(t2 + (a & 0xFFFF) * 2);
-            if (cv != 0) {
-                c = 0;
-                if (s5v != 0) {
-                    while (1) {
-                        d = *(u16 *)(tbl + (c & 0xFFFF) * 4);
-                        if (d == cv) {
-                            break;
-                        }
-                        if (d == 0) {
-                            break;
-                        }
-                        c = (c + 1) & 0xFFFF;
-                    }
-                    if (d != 0) {
-                        e = 0;
-                        while (((e & 0xFFFF)) <= 7) {
-                            f = *(u16 *)(t2 + (e & 0xFFFF) * 2);
-                            if (f == 0 || f == *(u16 *)(tbl + (c & 0xFFFF) * 4 + 2)) {
-                                break;
-                            }
-                            e = (e + 1) & 0xFFFF;
-                        }
-                        if (((e & 0xFFFF)) > 7) {
-                            h2[b] = d;
-                            h2[b] = (h2[b] & 0xFFFF) | ((u32)*(u16 *)(tbl + (c & 0xFFFF) * 4 + 2) << 16);
-                            b = (b + 1) & 0xFFFF;
-                        }
-                    }
-                } else {
-                    while (1) {
-                        d = *(u16 *)(tbl + (c & 0xFFFF) * 4 + 2);
-                        if (d == cv) {
-                            break;
-                        }
-                        if (d == 0) {
-                            break;
-                        }
-                        c = (c + 1) & 0xFFFF;
-                    }
-                    if (d != 0) {
-                        e = 0;
-                        while (((e & 0xFFFF)) <= 7) {
-                            f = *(u16 *)(t2 + (e & 0xFFFF) * 2);
-                            if (f == 0 || f == *(u16 *)(tbl + (c & 0xFFFF) * 4)) {
-                                break;
-                            }
-                            e = (e + 1) & 0xFFFF;
-                        }
-                        if (((e & 0xFFFF)) > 7) {
-                            h2[b] = d;
-                            h2[b] = (h2[b] & 0xFFFF) | ((u32)*(u16 *)(tbl + (c & 0xFFFF) * 4) << 16);
-                            b = (b + 1) & 0xFFFF;
-                        }
-                    }
+    for (; m < 8; m++) {
+        if (skills[m] == 0) {
+            continue;
+        }
+        j = 0;
+        if (flag != 0) {
+            u16 k;
+
+            for (; skills[m] != *(u16 *)(tbl + j * 4) && *(u16 *)(tbl + j * 4) != 0; j++) {
+            }
+            if (*(u16 *)(tbl + j * 4) == 0) {
+                continue;
+            }
+            for (k = 0; k < 8; k++) {
+                if (skills[k] != 0 && skills[k] == *(u16 *)(tbl + j * 4 + 2)) {
+                    break;
                 }
             }
+            if (k >= 8) {
+                ((u16 *)&cand[nc])[0] = *(u16 *)(tbl + j * 4);
+                ((u16 *)&cand[nc])[1] = *(u16 *)(tbl + j * 4 + 2);
+                nc++;
+            }
+        } else {
+            u16 k;
+
+            for (j = 0; skills[m] != *(u16 *)(tbl + j * 4 + 2) && *(u16 *)(tbl + j * 4 + 2) != 0; j++) {
+            }
+            if (*(u16 *)(tbl + j * 4 + 2) == 0) {
+                continue;
+            }
+            for (k = 0; k < 8; k++) {
+                if (skills[k] != 0 && skills[k] == *(u16 *)(tbl + j * 4)) {
+                    break;
+                }
+            }
+            if (k >= 8) {
+                ((u16 *)&cand[nc])[0] = *(u16 *)(tbl + j * 4 + 2);
+                ((u16 *)&cand[nc])[1] = *(u16 *)(tbl + j * 4);
+                nc++;
+            }
         }
-        a = (a + 1) & 0xFFFF;
     }
-    if ((b & 0xFFFF) == 0) {
+    if (nc == 0) {
         return 0;
     }
-    {
-        u32 idx = func_00231d70(b) & 0xFFFF;
-        sA = *(u16 *)((u8 *)h2 + idx * 4 + 2);
-        sB = *(u16 *)((u8 *)h2 + idx * 4);
-        func_0010cd70(pick, (s16)sB, sA);
-    }
-    *(u16 *)(arg1 + 4) = *(u16 *)(pick + 2);
-    *(u16 *)(arg1 + 8) = sB;
-    *(u16 *)(arg1 + 6) = sA;
+    r = func_00231d70(nc);
+    second = ((u16 *)&cand[r])[1];
+    first = ((u16 *)&cand[r])[0];
+    func_0010cd70(p, (s16)first, second);
+    *(u16 *)(arg1 + 4) = *(u16 *)(p + 2);
+    *(u16 *)(arg1 + 8) = first;
+    *(u16 *)(arg1 + 6) = second;
     return 1;
 }
 #else
