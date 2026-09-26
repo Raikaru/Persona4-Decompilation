@@ -45,7 +45,7 @@ void func_0013b370(void *, Vec2f, u32);
 void func_0013b420(void *, Vec2f, s32, void *);
 void func_00113730(void *);
 void func_00113790(Vec2f, u8, void *, s32, f32);
-void func_0013ad40(void *, s32, s32);
+void func_0013ad40(u8 *, s32, s32);
 extern u8 D_00762DC0[];
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E4[];
