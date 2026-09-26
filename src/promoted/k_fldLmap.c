@@ -102,8 +102,8 @@ extern f32 D_005F219C[];
 extern f32 D_005F21A0[];
 extern f32 D_005F21A4[];
 extern f32 D_005F1E20[];
-extern u16 D_008C024E;
-extern u16 D_008C0252;
+extern u16 D_008C024E[];
+extern u16 D_008C0252[];
 extern u8 D_00795E60[];
 extern char iGpffff9f68;
 extern char iGpffff9f70;
@@ -300,7 +300,7 @@ u8 *func_00186cc0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, u8 *arg2, u8 *arg3
  * constant 1 (addiu $a1, $zero, 1) inside the loop body at both store sites;
  * retail hoists it to the preheader. The pragma restores the hoist (nd 35 -> 0). */
 #pragma opt_loop_invariants on
-void func_00186e10(u8 *arg0)
+static void func_00186e10(u8 *arg0)
 {
     s32 var_7;
     u8 *var_6;
@@ -333,14 +333,20 @@ void func_00186e10(u8 *arg0)
 
 extern s32 func_00186eb0(u8 *arg0);
 
-/* measured cold reconstruction from retail+Ghidra+IDA (archive RFLD_00186eb0_body.c is 2-line stub, nothing to recover).
-   retail 3824B window (953 instrs per fnalign); candidate object 953/953 instrs exact (suffix is retail zero-alignment nops).
-   probe reloc-masked 697 words (old stub claimed nd 2871B, obj 3964/3824); fnalign 49 edits +34 reloc-only.
-   levers that landed: (u32)>4U for sltiu $at (was >=5U $v0), !x for sltu+xori toggle (was ==0 xor+sltiu), >= float branch for bc1t (was < bc1f), explicit case 10 for 0xB bound (was 0xA), hoisted case-0 constants + opt_loop_invariants on (78->49), if(p!=0) guard for sb loop + bare p/n assignments.
-   7o eight-probe on zeroing p/n (strip init, pn/np orders, func/block scopes): func_pn_pn 697, func_pn_np 699, func_np_pn 703, func_np_np 703, block_pn_pn 697, block_pn_np 699, block_np_pn 703, block_np_np 703. Retail order pn ties best; reverse regresses +2/+6; scope ties. Already in 7o bare form, no exchange pair (residual is diverse, not 7m class). Banked as floor. */
-// FUN_00186EB0 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct FldLmapMatrix {
+    s32 words[16];
+} FldLmapMatrix;
+
+#pragma push
+/* measured: byte-exact (953/953 instructions, 0 differing words).  The camera
+   matrix copy is a 64-byte struct assignment (retail's 8 x two-word loop), the
+   pad globals are arrays (absolute %hi/%lo, not gp), the local zeroing loop
+   counts an unsigned n (bnez, not bgtz), and func_00186e10 is static so the
+   caller keeps $a0 across it.  The two scroll updates address the panel slot
+   as `off + (s32)st` so the index is the first addu operand, as retail has it.
+   opt_loop_invariants hoists the case-0 constants. */
 #pragma opt_loop_invariants on
+// FUN_00186EB0
 s32 func_00186eb0(u8 *arg0)
 {
     u8 *arg_save;
@@ -348,14 +354,14 @@ s32 func_00186eb0(u8 *arg0)
     s32 i;
     u8 buf[12];
     s32 out;
-    extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
 
     arg_save = arg0;
     st = *(u8 **)(arg0 + 0x38);
     if (*(u32 *)st > 4U) {
         {
             u8 *p;
-            s32 n;
+            u32 n;
             p = buf;
             n = 12;
             if (p != 0) {
@@ -435,9 +441,6 @@ s32 func_00186eb0(u8 *arg0)
         *(s32 *)st = *(s32 *)st + 1;
     /* fallthrough */
     case 2: {
-        u8 *src;
-        s32 *dst;
-        s32 n;
         if (func_00144f60() == 0) {
             break;
         }
@@ -447,16 +450,7 @@ s32 func_00186eb0(u8 *arg0)
         if (H_Cdvd_IsFileLoaded(*(u8 **)(st + 0x20)) == 0) {
             break;
         }
-        src = func_0014b450();
-        dst = (s32 *)*(u8 **)(st + 0x18);
-        n = 8;
-        do {
-            dst[0] = ((s32 *)src)[0];
-            dst[1] = ((s32 *)src)[1];
-            src += 8;
-            dst += 2;
-            n--;
-        } while (n > 0);
+        *(FldLmapMatrix *)*(u8 **)(st + 0x18) = *(FldLmapMatrix *)func_0014b450();
         {
             u8 *tmp = func_00457120();
             K_View_SetFov(tmp, func_0014b4d0());
@@ -555,12 +549,12 @@ s32 func_00186eb0(u8 *arg0)
     /* fallthrough */
     case 7:
         if (*(s32 *)(st + 8) == 1) {
-            if (((D_008C024E & 4) != 0) || ((D_008C024E & 1) != 0) || ((D_008C024E & 8) != 0) || ((D_008C024E & 2) != 0)) {
+            if (((D_008C024E[0] & 4) != 0) || ((D_008C024E[0] & 1) != 0) || ((D_008C024E[0] & 8) != 0) || ((D_008C024E[0] & 2) != 0)) {
                 *(s32 *)(st + 0x74) = !(*(s32 *)(st + 0x78));
                 *(s32 *)(st + 0x78) = !(*(s32 *)(st + 0x78));
             }
         }
-        if ((D_008C024E & 0x40) != 0) {
+        if ((D_008C024E[0] & 0x40) != 0) {
             s32 k;
             for (k = 0; k < 5; k++) {
                 if (*(s32 *)(st + 0xC) == k) {
@@ -574,11 +568,11 @@ s32 func_00186eb0(u8 *arg0)
             func_0045af60(0, 0, 0, 1);
             break;
         } else {
-            if ((D_008C0252 & 0x1000) != 0) {
+            if ((D_008C0252[0] & 0x1000) != 0) {
                 func_0045af60(0, 0, 0, 0);
                 *(s32 *)(st + 0xC) = *(s32 *)(st + 0xC) - 1;
                 *(s32 *)(st + 0x14) = 0;
-            } else if ((D_008C0252 & 0x4000) != 0) {
+            } else if ((D_008C0252[0] & 0x4000) != 0) {
                 func_0045af60(0, 0, 0, 0);
                 *(s32 *)(st + 0xC) = *(s32 *)(st + 0xC) + 1;
                 *(s32 *)(st + 0x14) = 0;
@@ -594,13 +588,13 @@ s32 func_00186eb0(u8 *arg0)
             }
             func_00189060(*(u8 **)(st + 0x164), *(s32 *)(st + 0xC), 0.0f);
             if (*(s32 *)(st + 0x14) > 5) {
-                *(s32 *)(st + *(s32 *)(st + 0x7C) * 4 + 0x80) = *(s32 *)(st + 0xC);
+                ((s32 *)(st + 0x80))[*(s32 *)(st + 0x7C)] = *(s32 *)(st + 0xC);
                 {
                     s32 cur = *(s32 *)(st + 0x7C);
                     s32 nxt = !cur;
                     func_00186cc0(arg_save, st + cur * 12 + 0x114, -230.0f, 0.0f, st + nxt * 12 + 0x114, st + 0x170, 8, 0);
                 }
-                *(f32 *)(st + *(s32 *)(st + 0x7C) * 4 + 0x88) = -330.0f;
+                ((f32 *)(st + 0x88))[*(s32 *)(st + 0x7C)] = -330.0f;
                 *(s32 *)(st + 0x7C) = !(*(s32 *)(st + 0x7C));
                 func_00189600(*(u8 **)(st + 0x168), *(s32 *)(st + 0x10), *(s32 *)(st + 0xC), 3.0f);
                 *(s32 *)(st + 0x10) = *(s32 *)(st + 0xC);
@@ -608,20 +602,24 @@ s32 func_00186eb0(u8 *arg0)
                 *(f32 *)(st + 0x12C) = 0.0f;
             }
             if (*(s32 *)(st + 0x16C) == 0) {
-                s32 cur2 = !(*(s32 *)(st + 0x7C));
-                if (*(f32 *)(st + cur2 * 4 + 0x88) < 0.0f) {
+                s32 off = !(*(s32 *)(st + 0x7C)) * 4;
+                u8 *slot = (u8 *)(off + (s32)st);
+
+                if (*(f32 *)(slot + 0x88) < 0.0f) {
                     if (*(s32 *)(st + 0x174) == 0) {
-                        *(f32 *)(st + cur2 * 4 + 0x88) = *(f32 *)(st + cur2 * 4 + 0x88) + 1.0f;
+                        *(f32 *)(slot + 0x88) = *(f32 *)(slot + 0x88) + 1.0f;
                     }
                 } else {
                     *(s32 *)(st + 0x174) = 90;
                     *(s32 *)(st + 0x16C) = 1;
                 }
             } else {
-                s32 cur3 = !(*(s32 *)(st + 0x7C));
-                if (*(f32 *)(st + cur3 * 4 + 0x88) > -330.0f) {
+                s32 off = !(*(s32 *)(st + 0x7C)) * 4;
+                u8 *slot = (u8 *)(off + (s32)st);
+
+                if (*(f32 *)(slot + 0x88) > -330.0f) {
                     if (*(s32 *)(st + 0x174) == 0) {
-                        *(f32 *)(st + cur3 * 4 + 0x88) = *(f32 *)(st + cur3 * 4 + 0x88) - 1.0f;
+                        *(f32 *)(slot + 0x88) = *(f32 *)(slot + 0x88) - 1.0f;
                     }
                 } else {
                     *(s32 *)(st + 0x174) = 90;
@@ -639,7 +637,7 @@ s32 func_00186eb0(u8 *arg0)
             *(f32 *)(st + 0x12C) = *(f32 *)(st + 0x12C) - 2.0f;
             {
                 s32 cur4 = !(*(s32 *)(st + 0x7C));
-                s32 idx = *(s32 *)(st + cur4 * 4 + 0x80);
+                s32 idx = ((s32 *)(st + 0x80))[cur4];
                 if (*(f32 *)(st + 0x12C) < D_005F1E20[idx]) {
                     *(f32 *)(st + 0x12C) = 36.0f;
                 }
@@ -675,11 +673,7 @@ s32 func_00186eb0(u8 *arg0)
     }
     return 0;
 }
-
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00186eb0);
-#endif
+#pragma pop
 
 // FUN_00187DA0
 void func_00187da0(u8 *arg0)
