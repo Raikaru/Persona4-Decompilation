@@ -7630,6 +7630,7 @@ iGpffff9ef0 = 0x00762fe0; // type:data
 iGpffff9ef8 = 0x00762fe8; // type:data
 iGpffff9f00 = 0x00762ff0; // type:data
 iGpffff9f08 = 0x00762ff8; // type:data
+iGpffff9f10 = 0x00763000; // type:data
 D_00763008 = 0x00763008; // type:data
 D_00763010 = 0x00763010; // type:data
 iGpffff9f24 = 0x00763014; // type:data

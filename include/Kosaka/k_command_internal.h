@@ -2,6 +2,7 @@
 #define K_COMMAND_INTERNAL_H
 
 #include "type.h"
+#include "Kosaka/k_model_internal.h"
 #define false 0
 #define true 1
 
@@ -13,7 +14,6 @@ extern u16 func_0014b510(s32 type);
 extern void func_00106550(s32 arg0, s32 arg1);
 extern Model* func_00477e80(s32 type, u16 id, const char* path, s32 mode);
 extern s32 func_00145ac0(u16 resourceId, s32 model);
-extern Model* func_00478140(u16 type, u16 id, u32 mode);
 extern u32 func_002bd360(s32 resourceId, s32 value);
 extern s32 func_0029cc00(s32 index);
 extern void func_0029cf50(s32 value);

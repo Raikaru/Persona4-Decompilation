@@ -4,6 +4,7 @@
 #include "model_callbacks_internal.h"
 #include "model_matrix_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
+#include "Kosaka/k_model_internal.h"
 
 typedef struct RwMatrix RwMatrix;
 
@@ -127,7 +128,6 @@ extern s32 func_00110680(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_001060c0(void);
 extern s32 func_00110960(s16 arg0, s32 arg1);
 extern s32 D_005F1350[];
-extern void *func_00478140(u32 arg0, u32 arg1, u32 arg2);
 extern void mdlSetColor(void *arg0, void *arg1);
 extern void func_0047a990(void *arg0);
 extern void func_0047aaa0(void *arg0, s32 arg1, void *arg2, void *arg3,
@@ -895,217 +895,150 @@ success:
 done:
     return result;
 }
-/* measured: all six census declarations corrected; candidate object 1428B/window 1456B, normalized_diff 917. Residual is hundreds, so the body is archived in build/F162_00162680_body.c and the bare retail fallback is retained. */
-/* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
-/* The second switch's labels are written in reverse: MWCC emits a compare
-   chain in the reverse of the source order, which is worth 4 words here
-   (306 -> 302). */
-/* measured 00162680: `opt_common_subs off` inside the guard is worth 20 words
-   (302 -> 282, 302 is 160 edits 363 vs 357, 282 is 165 edits 364 vs 364 exact
-   length); reverse second switch 306 -> 302; var_16 <= 2 (283) and var_4 <= 4
-   (282) inclusive flips neutral, slti $at/$v0 + daddiu/addiu + coloring remain;
-   retail rematerialises what b210 hoists. */
-/* measured 00162680 2026-09-17 via `python3 tools/measure_guarded.py src/promoted/code1_0016.c func_00162680`: 282wd (obj 1456B, exact length 364 vs 364); opclass addiu +19, daddiu -16, lbu +6 (was +16 per assignment, now +19 with fixed opclass). Single-declaration s64 probes disprove one-declaration fix: s64 var_17/var_18 -> addiu +19/daddiu -16 unchanged (obj 1480B, +24B); s64 var_16 -> +17/-14 (clears 2, obj 1468B); s64 var_4 -> +18/-15 (clears 1). No single s32->s64 clears 16; remaining is scheduling/coloring + second-switch order, not one width. */
-// FUN_00162680 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
-u8 *func_00162680(u16 arg0, u16 arg1, s32 arg2)
+/* measured: MATCH (window 1456B). The slot-cache lookup is a static inline
+   helper returning the object or NULL; each switch arm keeps its own copy
+   of the refresh code with block-local `entry` and loop counter; the
+   default arm narrows `member` into a u16. The u16 type/id reach
+   func_00478140 unmasked through the Kosaka field prototype
+   (Kosaka/k_model_internal.h). */
+static inline u8 *fldPartyModelCached(s32 slot, u16 type, u16 id)
 {
-    extern void func_004787e0(u8 *arg0);
-    s32 temp_22;
-    s32 *temp_16_2;
-    s32 *temp_16_5;
-    s32 temp_16;
-    s32 temp_16_3;
-    s32 temp_16_4;
-    s32 temp_2;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 temp_4;
-    s32 temp_4_2;
-    s32 temp_5;
-    s32 var_16;
-    s32 var_17;
-    s32 var_18;
-    s32 var_19;
-    s32 var_4;
-    s32 var_4_2;
-    u8 **temp_3_2;
-    u8 **temp_3_4;
-    u8 *temp_17;
-    u8 *temp_21;
-    u8 *temp_3;
-    u8 *temp_3_3;
-    u8 *var_20;
+    if (type == *(u16 *)(D_007F16F0 + slot * 8) && id == *(u16 *)(D_007F16F2 + slot * 8)) {
+        return *(u8 **)(D_007F16F4 + slot * 8);
+    }
+    return NULL;
+}
 
-    var_19 = 0;
-    var_17 = 0;
-    var_16 = 0;
-    goto loop_test;
-loop_body:
-    if (arg2 == (s32)(s16)datGetPartyId(var_16)) {
-        var_19 = var_16 + 1;
-        goto loop_done;
+// FUN_00162680
+u8 *func_00162680(u16 field, u16 room, s32 member)
+{
+    s32 i;
+    u8 *obj;
+    s32 slot;
+    u16 type;
+    u16 id;
+
+    slot = 0;
+    id = 0;
+    for (i = 0; i < 3; i++) {
+        if (member == datGetPartyId(i)) {
+            slot = i + 1;
+            break;
+        }
     }
-    var_16 += 1;
-loop_test:
-    if (var_16 < 3) {
-        goto loop_body;
-    }
-loop_done:
-    if (arg2 == 1) {
-        if (func_00162510(arg0, arg1) == 1) {
-            var_18 = 9;
-            temp_2 = func_00110d60((s16)func_001060b0());
-            switch (temp_2) {
-            case 2:
+    switch (member) {
+    case 1: {
+        u8 *entry;
+
+        if (func_00162510(field, room) == 1) {
+            type = 9;
+            switch (func_00110d60((s16)func_001060b0())) {
             case 0:
-                var_17 = 0x103;
+            case 2:
+                id = 0x103;
+                break;
+            case 1:
+            case 3:
+                id = 0x102;
+                break;
+            }
+        } else if (field == 0x44 && room == 1) {
+            type = 9;
+            id = 0x100;
+        } else if (func_0015a160() != 0) {
+            type = 1;
+            id = member;
+        } else if ((field == 7 && room == 2) || (field == 7 && room == 3)) {
+            type = 9;
+            switch (func_00110d60((s16)func_001060b0())) {
+            case 0:
+                id = 0x10B;
+                break;
+            case 2:
+                id = 0x10D;
+                break;
+            case 1:
+                id = 0x10A;
                 break;
             case 3:
-            case 1:
-                var_17 = 0x102;
+                id = 0x10C;
                 break;
             }
         } else {
-            temp_16_3 = arg0 & 0xFFFF;
-            if ((temp_16_3 == 0x44) && ((arg1 & 0xFFFF) == 1)) {
-                var_18 = 9;
-                var_17 = 0x100;
-            } else if (func_0015a160() != 0) {
-                var_18 = 1;
-                var_17 = arg2 & 0xFFFF;
-            } else if (((temp_16_3 == 7) && ((arg1 & 0xFFFF) == 2)) ||
-                       ((temp_16_3 == 7) && ((arg1 & 0xFFFF) == 3))) {
-                var_18 = 9;
-                temp_2_2 = func_00110d60((s16)func_001060b0());
-                switch (temp_2_2) {                case 3:
-                    var_17 = 0x10C;
-                    break;
-                                case 1:
-                    var_17 = 0x10A;
-                    break;
-                case 2:
-                    var_17 = 0x10D;
-                    break;
+            type = 9;
+            switch (func_00110d60((s16)func_001060b0())) {
+            case 0:
+                id = 0x101;
+                break;
+            case 2:
+                id = 0x105;
+                break;
+            case 1:
+                id = 0x100;
+                break;
+            case 3:
+                id = 0x104;
+                break;
+            }
+        }
+        obj = fldPartyModelCached(slot, type, id);
+        entry = D_007F16F0 + slot * 8;
+        if (obj == NULL) {
+            obj = func_00478140(type, id, 0);
+            if (type == 1) {
+                func_0047d140(obj);
+            } else {
+                func_0047aaa0(obj, 0, (void *)9, (void *)0x163, D_005F13A0, 0);
+                func_0047adf0(obj, 0, 0x1F4);
+            }
+            if (*(u8 **)(D_007F16F4 + slot * 8) != NULL) {
+                s32 j;
 
-                case 0:
-                    var_17 = 0x10B;
-                    break;
-}
-            } else {
-                var_18 = 9;
-                temp_2_3 = func_00110d60((s16)func_001060b0());
-                switch (temp_2_3) {
-                case 0:
-                    var_17 = 0x101;
-                    break;
-                case 2:
-                    var_17 = 0x105;
-                    break;
-                case 1:
-                    var_17 = 0x100;
-                    break;
-                case 3:
-                    var_17 = 0x104;
-                    break;
+                for (j = 0; j < 5; j++) {
+                    *(u8 *)(*(u8 **)(entry + 4) + j * 0xC + 0x28C) |= 1;
                 }
+                func_004787e0(*(u8 **)(D_007F16F4 + slot * 8));
+                *(u8 **)(D_007F16F4 + slot * 8) = NULL;
             }
-        }
-        temp_16_4 = var_19 * 8;
-        temp_21 = D_007F16F0 + temp_16_4;
-        temp_22 = var_18 & 0xFFFF;
-        if ((temp_22 == *(u16 *)temp_21) &&
-            ((var_17 & 0xFFFF) ==
-             *(u8 *)(D_007F16F2 + temp_16_4))) {
-            var_20 = *(u8 **)(D_007F16F4 + temp_16_4);
+            *(u8 **)(D_007F16F4 + slot * 8) = obj;
+            *(u16 *)entry = *(u16 *)(obj + 0xD4);
+            *(u16 *)(D_007F16F2 + slot * 8) = *(u16 *)(*(u8 **)(D_007F16F4 + slot * 8) + 0xD6);
         } else {
-            var_20 = NULL;
+            mdlSetColor(obj, &iGpffff9f10);
+            func_0047a990(obj);
         }
-        if (var_20 == NULL) {
-            var_20 = func_00478140(var_18, var_17, 0);
-            if (temp_22 == 1) {
-                func_0047d140(var_20);
-            } else {
-                func_0047aaa0(var_20, 0, (void *)9, (void *)0x163, D_005F13A0, 0);
-                func_0047adf0(var_20, 0, 0x1F4);
-            }
-            if (*(u8 *)(D_007F16F4 + temp_16_4) != 0) {
-                var_4_2 = 0;
-loop_53:
-                if (var_4_2 < 5) {
-                    temp_3_3 =
-                        (u8 *)(*(s32 *)(temp_21 + 4) + var_4_2 * 0xC);
-                    *(u8 *)(temp_3_3 + 0x28C) =
-                        *(u8 *)(temp_3_3 + 0x28C) | 1;
-                    var_4_2 += 1;
-                    goto loop_53;
-                }
-                temp_16_5 = (s32 *)(D_007F16F4 + var_19 * 8);
-                func_004787e0((u8 *)*temp_16_5);
-                *temp_16_5 = 0;
-            }
-            temp_4_2 = var_19 * 8;
-            temp_3_4 = (u8 **)(D_007F16F4 + temp_4_2);
-            *temp_3_4 = var_20;
-            *(u16 *)temp_21 = *(u16 *)(var_20 + 0xD4);
-            *(u8 *)(D_007F16F2 + temp_4_2) =
-                *(u8 *)(*temp_3_4 + 0xD6);
-        } else {
-            mdlSetColor(var_20, &iGpffff9f10);
-            func_0047a990(var_20);
-        }
-    } else {
-        goto generic;
+        break;
     }
-    goto done;
-generic:
- 
-    if (arg2 != 1) {
-        temp_5 = arg2 & 0xFFFF;
-        temp_16 = var_19 * 8;
-        temp_17 = D_007F16F0 + temp_16;
-        if ((*(u16 *)temp_17 == 1) &&
-            (temp_5 == *(u8 *)(D_007F16F2 + temp_16))) {
-            var_20 = *(u8 **)(D_007F16F4 + temp_16);
-        } else {
-            var_20 = NULL;
-        }
-        if (var_20 == NULL) {
-            var_20 = func_00478140(1, temp_5, 0);
-            func_0047d140(var_20);
-            if (*(u8 *)(D_007F16F4 + temp_16) != 0) {
-                var_4 = 0;
-loop_65:
-                if (var_4 < 5) {
-                    temp_3 = (u8 *)(*(s32 *)(temp_17 + 4) + var_4 * 0xC);
-                    *(u8 *)(temp_3 + 0x28C) =
-                        *(u8 *)(temp_3 + 0x28C) | 1;
-                    var_4 += 1;
-                    goto loop_65;
+    default: {
+        u16 m = member;
+        u8 *entry;
+
+        obj = fldPartyModelCached(slot, 1, m);
+        entry = D_007F16F0 + slot * 8;
+        if (obj == NULL) {
+            obj = func_00478140(1, m, 0);
+            func_0047d140(obj);
+            if (*(u8 **)(D_007F16F4 + slot * 8) != NULL) {
+                s32 j;
+
+                for (j = 0; j < 5; j++) {
+                    *(u8 *)(*(u8 **)(entry + 4) + j * 0xC + 0x28C) |= 1;
                 }
-                temp_16_2 = (s32 *)(D_007F16F4 + var_19 * 8);
-                func_004787e0((u8 *)*temp_16_2);
-                *temp_16_2 = 0;
+                func_004787e0(*(u8 **)(D_007F16F4 + slot * 8));
+                *(u8 **)(D_007F16F4 + slot * 8) = NULL;
             }
-            temp_4 = var_19 * 8;
-            temp_3_2 = (u8 **)(D_007F16F4 + temp_4);
-            *temp_3_2 = var_20;
-            *(u16 *)temp_17 = *(u16 *)(var_20 + 0xD4);
-            *(u8 *)(D_007F16F2 + temp_4) =
-                *(u8 *)(*temp_3_2 + 0xD6);
+            *(u8 **)(D_007F16F4 + slot * 8) = obj;
+            *(u16 *)entry = *(u16 *)(obj + 0xD4);
+            *(u16 *)(D_007F16F2 + slot * 8) = *(u16 *)(*(u8 **)(D_007F16F4 + slot * 8) + 0xD6);
         } else {
-            mdlSetColor(var_20, &iGpffff9f10);
-            func_0047a990(var_20);
+            mdlSetColor(obj, &iGpffff9f10);
+            func_0047a990(obj);
         }
+        break;
     }
-done:
-    return var_20;
+    }
+    return obj;
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00162680);
-#endif
 // FUN_00167F00
 s32 func_00167f00(u8 *arg0)
 {
