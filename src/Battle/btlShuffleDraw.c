@@ -29,15 +29,15 @@ extern void func_00371990(u8 *arg0, u8 *arg1, u8 *arg2);
 extern void func_00371ba0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern void func_00370410(u8 *arg0);
 extern void func_00370a80(u8 *arg0);
-extern void func_003723a0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4);
-extern void func_00372870(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4);
-extern void func_00372c30(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5);
+extern void func_003723a0(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, f32 fparg0);
+extern void func_00372c30(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, u8 *arg5);
 extern void func_003730f0(u8 *arg0, s32 arg1, s32 arg2, void *arg3);
 extern void func_003733d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00373590(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 
 typedef BtlShuffleVec3 ShuffleVec3;
 typedef struct { f32 x, y, z, w; } ShuffleVec4;
+extern void func_00372870(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, ShuffleVec4 *arg4);
 typedef struct RtQuat { ShuffleVec3 imag; f32 real; } ShuffleQuaternion;
 typedef struct { s64 a; f32 b; } ShuffleVec2s;
 
@@ -104,7 +104,7 @@ extern void func_00376800(u8 **arg0, s32 arg1);
 extern void func_00374910(u8 *arg0);
 extern void func_00375d50(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 *arg2, f32 *arg3);
 extern void func_00375dd0(u8 *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 fparg0, f32 fparg1);
-extern void func_003760f0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 *arg4, f32 *arg5);
+extern void func_003760f0(u8 *arg0, s32 arg1, u16 arg2, u16 arg3, f32 *arg4, f32 *arg5);
 extern void func_00376290(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern f32 func_0036de70(u8 *arg0);
 extern f32 func_0036deb0(u8 *arg0);
@@ -874,7 +874,7 @@ typedef char ShuffleAxisSizeCheck[sizeof(ShuffleAxis) == 12 ? 1 : -1];
 typedef char ShuffleQuatSizeCheck[sizeof(ShuffleQuaternion) == 16 ? 1 : -1];
 extern s32 func_00378530(s32 count, s32 mode);
 // FUN_00375B40
-void func_00375b40(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
+void func_00375b40(u8 *arg0, s32 arg1, u16 arg2, u16 arg3) {
     ShuffleAxis axis;
     s64 bits;
     f32 value;
@@ -1078,31 +1078,31 @@ void func_00375fa0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {
 
 
 // FUN_00376070
-void func_00376070(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+void func_00376070(u8 *arg0, s32 arg1, u16 arg2, u16 arg3, f32 *arg4, f32 *arg5, f32 fparg0) {
     s32 idx = arg1 * 0xE8;
     u8 *p = (u8 *)idx + (u32)arg0;
 
-    func_003723a0((u8 *)(arg0 + idx + 0x1D6AC), (u8 *)arg2, (u8 *)arg3, (u8 *)arg4, (u8 *)arg5);
+    func_003723a0((u8 *)(arg0 + idx + 0x1D6AC), arg2, arg3, (u8 *)arg4, (u8 *)arg5, fparg0);
     *(s32 *)(p + 0x1D6A4) = 8;
 }
 
 
 // FUN_003760F0
-void func_003760f0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 *arg4, f32 *arg5) {
+void func_003760f0(u8 *arg0, s32 arg1, u16 arg2, u16 arg3, f32 *arg4, f32 *arg5) {
     s32 idx = arg1 * 0xE8;
     u8 *p = (u8 *)idx + (u32)arg0;
 
-    func_00372870((u8 *)(arg0 + idx + 0x1D70C), (u8 *)arg2, (u8 *)arg3, (u8 *)arg4, (u8 *)arg5);
+    func_00372870((u8 *)(arg0 + idx + 0x1D70C), arg2, arg3, (u8 *)arg4, (ShuffleVec4 *)arg5);
     *(s32 *)(p + 0x1D6A8) = 1;
 }
 
 
 // FUN_00376170
-void func_00376170(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
+void func_00376170(u8 *arg0, s32 arg1, u16 arg2, u16 arg3, f32 *arg4, f32 *arg5, f32 *arg6) {
     s32 idx = arg1 * 0xE8;
     u8 *p = (u8 *)idx + (u32)arg0;
 
-    func_00372c30((u8 *)(arg0 + idx + 0x1D70C), (u8 *)arg2, (u8 *)arg3, (u8 *)arg4, (u8 *)arg5, (u8 *)arg6);
+    func_00372c30((u8 *)(arg0 + idx + 0x1D70C), arg2, arg3, (u8 *)arg4, (u8 *)arg5, (u8 *)arg6);
     *(s32 *)(p + 0x1D6A8) = 2;
 }
 
