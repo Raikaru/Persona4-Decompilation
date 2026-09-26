@@ -1473,19 +1473,10 @@ void func_00368d30(u8 *arg0)
     *(u32 *)(arg0 + 0x1FC) = 0x3F230000;
 }
 
-/* measured: floor v4_switch MISMATCH nd430 obj1452/1472 (-20B -1.36%, >=1428 threshold, not draft); first 124 instrs exact, first residual off 496 FPU dest/coloring (div.s f1 vs f0, add/sub f0/f1 swap); rotation-loop angle f20 vs f24 + lwc1 scheduling + s-pointer materialization; tail flags &2/&1/&8 + jal 0036ae90 shape match; MAC staged intermediates (adda/madd/mula/msub) emittable, no asm. */
-/* measured 00368e80 (owner, 2026-09-19): fnalign **60 -> 58 edits**, count
-   363 -> 361 against retail 366, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits - no guard before the first iteration, one compare
-   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
-/* measured 00368e80 (owner, 2026-09-19): fnalign **58 -> 56 edits**, count
-   361 -> 359 against retail 366, converting a SECOND constant-bound `for` loop
-   to `do { } while` after the first conversion was already banked.
-   The lever is iterative, which the first sweep hid: it converts the single best loop
-   per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
-// FUN_00368E80 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: retail hoists the 0.5f loop constants out of the corner loops. */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_00368E80
 void func_00368e80(u8 *arg0)
 {
     extern f32 D_007612D0;
@@ -1551,10 +1542,10 @@ void func_00368e80(u8 *arg0)
     divv = acc / 100.0f;
     f1v = 0.5f + (0.38671875f / divv);
     *(f32 *)(base + 0x4F4) = f1v;
-    *(f32 *)(base + 0x560) = f1v;
     f0v = 0.5f - (0.38671875f / divv);
     *(f32 *)(base + 0x518) = f0v;
     *(f32 *)(base + 0x53C) = f0v;
+    *(f32 *)(base + 0x560) = f1v;
     f0v = 0.5f - (0.41015625f / divv);
     *(f32 *)(base + 0x4F8) = f0v;
     *(f32 *)(base + 0x51C) = f0v;
@@ -1576,10 +1567,10 @@ void func_00368e80(u8 *arg0)
     divv = acc / 100.0f;
     f1v = 0.5f + (0.38671875f / divv);
     *(f32 *)(base + 0x2B4) = f1v;
-    *(f32 *)(base + 0x320) = f1v;
     f0v = 0.5f - (0.38671875f / divv);
     *(f32 *)(base + 0x2D8) = f0v;
     *(f32 *)(base + 0x2FC) = f0v;
+    *(f32 *)(base + 0x320) = f1v;
     f0v = 0.5f - (0.41015625f / divv);
     *(f32 *)(base + 0x2B8) = f0v;
     *(f32 *)(base + 0x2DC) = f0v;
@@ -1588,15 +1579,13 @@ void func_00368e80(u8 *arg0)
     *(f32 *)(base + 0x324) = f0v;
         break;
     }
-done:
     if (((*(s32 *)base) & 2) != 0) {
-        if (*(s32 *)(base + 4) == 0) {
+        switch (*(s32 *)(base + 4)) {
+        case 0: {
             f32 *pa;
             f32 *pb;
-            f32 x;
             f32 y;
-            f32 c;
-            f32 s;
+            f32 x;
             f32 nx;
             f32 ny;
             stack[0] = 1.0f;
@@ -1608,32 +1597,26 @@ done:
             stack[6] = 1.0f;
             stack[7] = 0.0f;
             angle = D_007612D0 * (*(f32 *)(base + 0x3C) / 4.0f);
-            i = 0;
-            do {
-                stack[i * 2] -= 0.5f;
-                stack[i * 2 + 1] -= 0.5f;
-                i++;
-            } while (i < 4);
+            for (i = 0; i < 4; i++) {
+                pa = &stack[i * 2];
+                pa[0] -= 0.5f;
+                pa[1] -= 0.5f;
+            }
             for (j = 0; j < 4; j++) {
                 pa = &stack[j * 2];
                 pb = pa + 1;
-                x = pa[0];
                 y = pb[0];
-                c = sinf(angle);
-                s = cosf(angle);
-                nx = x * s - y * c;
-                c = sinf(angle);
-                s = cosf(angle);
-                ny = y * s + x * c;
+                x = pa[0];
+                nx = x * cosf(angle) - y * sinf(angle);
+                ny = x * sinf(angle) + y * cosf(angle);
                 pa[0] = nx;
                 pb[0] = ny;
             }
-            k = 0;
-            do {
-                stack[k * 2] += 0.5f;
-                stack[k * 2 + 1] += 0.5f;
-                k++;
-            } while (k < 4);
+            for (k = 0; k < 4; k++) {
+                pa = &stack[k * 2];
+                pa[0] += 0.5f;
+                pa[1] += 0.5f;
+            }
             *(f32 *)(base + 0x584) = stack[0];
             *(f32 *)(base + 0x588) = stack[1];
             *(f32 *)(base + 0x5A8) = stack[2];
@@ -1642,25 +1625,27 @@ done:
             *(f32 *)(base + 0x5D0) = stack[5];
             *(f32 *)(base + 0x5F0) = stack[6];
             *(f32 *)(base + 0x5F4) = stack[7];
+            break;
+        }
         }
     }
     if (((*(s32 *)base) & 1) != 0) {
         *(s32 *)(base + 0x44) += 0x10000;
-        if (*(s32 *)(base + 0x48) != 1) {
-            if (*(s32 *)(base + 0x48) == 0) {
-                if ((u32)*(s32 *)(base + 0x44) >= 0x1E0000U) {
-                    *(s32 *)base &= ~1;
-                }
+        switch (*(s32 *)(base + 0x48)) {
+        case 0:
+            if ((u32)*(s32 *)(base + 0x44) >= 0x1E0000U) {
+                *(s32 *)base &= ~1;
             }
+            break;
+        case 1:
+            break;
         }
     }
     if (((*(s32 *)base) & 8) != 0) {
         func_0036ae90(*(u8 **)(base + 0xDC), base);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00368e80);
-#endif
+#pragma pop
 // FUN_00369470
 void func_00369470(s32 arg0, u8 *arg1) {
     u8 *p;
