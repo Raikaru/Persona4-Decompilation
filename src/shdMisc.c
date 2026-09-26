@@ -139,165 +139,134 @@ s32 func_003645c0(char *out, s32 value)
 
 
 
-/* measured (mwcc b210 -O2): guarded body scores 411 differing words via
-   `python3 tools/probe_variants.py src/shdMisc.c func_00364680
-   --candidate v3=/var/tmp/cand_00364680_v3.c` (replay with
-   `python3 tools/measure_guarded.py src/shdMisc.c func_00364680`).
-   Fully decoded 3-pass quad renderer (white pre-pass + white/alpha main +
-   full-color final, 4x64B structs at sp+0xC0); ABI (s32 color + u8 ptr +
-   s32 arg2/arg3 + f32 depth + f32x6), CFG (NULL assert, early flag, base-
-   hoisted sw/draw tables, arg3 switch testing ==1 then ==0, redundant
-   refills), bltz color idiom with f+f doubling, and all call sequences
-   verify. Supersedes the 1840B struct-array attempt. WALL is the same
-   integer-allocation family as 365ac0: candidate frame 0x1B0 (one sq short
-   of retail 0x1C0, so every struct offset shifts), bytes land s3-s0 not
-   s5-s2, args rotate s4/s7/s6 not s6/fp/s7, moves come out addu-grouped.
-   Seven declaration-order variants all tie or regress (411-462); bases-
-   first does not recover the fp save; drawbase hoist timing still off;
-   switch (1,0,default) tests in retail order but arms lay out (0,1).
-   No dsll32/dsra32, no volatile/asm. Complete source and probe evidence:
-   docs/probe_archive/LaneShdMisc_00364680_v3_body.c. Production stays ASM. */
-/* 411 -> 402 (2026-09-18): the parameter list is
-   (f32, s32, f32, f32, f32, f32, f32, f32, u8 *, s32, s32), proved by the two
-   callers this order MATCHed - func_0035c040 and func_00354ba0 in
-   src/promoted/code1_0035.c - not the ints-first spelling m2c produced.
-   The six float parameters are also used directly instead of through
-   temp_f2x copies, which b210 propagates away (that alone is a tie at 411;
-   the order is what moves it). */
-/* 402 -> 276 words, 499 -> 383 instrs (2026-09-19, inside the 361-383 gate):
-   write `(f32)(u32)x` and let b210 emit its bltz/srl/andi/or/mtc1/cvt/add.s
-   idiom - the hand-written halving/doubling (`if (t >= 0) f=(f32)(u32)t else
-   { hh=(f32)(((u32)t>>1)|bit); f=hh+hh; }`) compiles to ten extra copies of
-   that idiom (opclass mtc1/cvt/srl/or/add.s/b/bltz +10 each, andi +9,
-   nop +35; fnalign 499 vs retail 372). Plain unsigned is 288 words at 384
-   instrs; dropping the dead swbase local (drawbase cached early, swbase via
-   direct `D_00887300[0]`, 7+1 sites) is 276 words at 383 instrs with 160
-   edits - the banked floor. Both directions measured: the signed spelling
-   `(f32)t` on the same body is 334 words at 325 instrs (outside the gate,
-   short), so unsigned is retail's own shape. Replay with
-   `python3 tools/measure_guarded.py src/shdMisc.c func_00364680` and
-   `python3 tools/fnalign.py src/shdMisc.c func_00364680 --candidate
-   docs/probe_archive/LaneShdMisc_00364680_v3_body.c --quiet`. Residual is lui +6, nop +5, addu +1 with
-   bytes in s4-s1 (retail s5-s2) and the swbase loads absolute where retail
-   caches - saved-register coloring/scheduling floor. Production stays ASM. */
-/* measured 00364680 (owner, 2026-09-19): fnalign **160 -> 157 edits**, count
-   383 -> 381 against retail 372, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all. */
-/* measured 00364680 (owner, 2026-09-19): fnalign **157 -> 155 edits**, count
-   381 -> 379 against retail 372, converting a SECOND constant-bound `for` loop
-   to `do { } while` after the first conversion was already banked.
-   The lever is iterative, which the first sweep hid: it converts the single best loop
-   per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
-/* measured 00364680 (owner, 2026-09-19): fnalign **155 -> 138 edits**, count
-   379 -> 379 against retail 372, by putting one switch's arms in REVERSED
-   order.  Case order is EMISSION order and the right one is whatever retail emitted:
-   a chain converted to a switch wants ascending, a jump table wants the table's own
-   layout, and a `beq` chain with no table can want the reverse of the source order.
-   All three orderings were measured on every switch in this body and this is the
-   only one that improved it; swept across the 167 first-party floors carrying a
-   switch, just four responded at all. */
-// FUN_00364680 NONMATCHING
-#ifdef NON_MATCHING
-void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, f32 fparg6, u8 *ptr, s32 arg2, s32 arg3) {
-    s32 (**drawbase)(s32, void *, s32);
-    f32 verts[4][16];
-    f32 temp_f26;
-    f32 temp_f25;
-    s32 temp_21;
-    s32 temp_20;
-    s32 temp_19;
-    s32 temp_18;
+typedef struct ShdQuadVertex {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 unknown0C;
+    f32 u;
+    f32 v;
+    f32 q;
+    f32 unknown1C;
+    f32 r;
+    f32 g;
+    f32 b;
+    f32 a;
+    f32 unknown30[4];
+} ShdQuadVertex;
+
+#pragma push
+/* measured: byte-exact (372/372 instructions, 0 differing words, 1488-byte
+   window).  opt_loop_invariants hoists the 255.0f bit pattern and the
+   unsigned-conversion pieces out of the three vertex loops.  Each loop owns
+   its counter in a block scope; a function-scope `i` takes $v0 ahead of the
+   hoisted invariants and costs 55 edits.  The render-state and draw tables
+   go through `(void *)`-cast locals, which keeps retail's $s0/$s6 bases
+   (the direct `D_00887300[0]` spelling is folded to lui/lw at every call).
+   The colour channels are s32, which gives retail's $s5-$s2 colouring. */
+#pragma opt_loop_invariants on
+// FUN_00364680
+void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, f32 fparg6, u8 *ptr, s32 arg2, s32 arg3)
+{
+    ShdQuadVertex verts[4];
+    f32 z;
+    f32 q;
+    s32 alpha;
+    s32 red;
+    s32 green;
+    s32 blue;
     s32 flag;
-    s32 i;
-    temp_f26 = D_008872F8[0] - depth;
-    temp_f25 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    void (**renderState)(u32 state, u32 value);
+    s32 (**draw)(s32, void *, s32);
+
+    z = D_008872F8[0] - depth;
+    q = 1.0f / *(f32 *)((u8 *)func_00457120() + 0x80);
     if (ptr == NULL) {
         func_0046d730(D_0064E2F8, 153);
     }
-    temp_21 = (s32)(u8)(((u32)color & 0xFF000000) >> 24);
-    temp_20 = (s32)(u8)(((u32)color & 0x00FF0000) >> 16);
-    temp_19 = (s32)(u8)(((u32)color & 0x0000FF00) >> 8);
-    temp_18 = color & 0xFF;
-    flag = (temp_18 ^ 0xFF) != 0;
+    alpha = (u8)(((u32)color & 0xFF000000) >> 24);
+    red = (u8)(((u32)color & 0x00FF0000) >> 16);
+    green = (u8)(((u32)color & 0x0000FF00) >> 8);
+    blue = color & 0xFF;
+    flag = (blue ^ 0xFF) != 0;
     if (flag) {
         flag = arg2 != 0;
     }
-    verts[0][2] = temp_f26;
-    verts[1][2] = temp_f26;
-    verts[2][2] = temp_f26;
-    verts[3][2] = temp_f26;
-    verts[0][6] = temp_f25;
-    verts[1][6] = temp_f25;
-    verts[2][6] = temp_f25;
-    verts[3][6] = temp_f25;
-    ((u32 *)verts)[4] = 0;
-    ((u32 *)verts)[5] = 0;
-    ((u32 *)verts)[1 * 16 + 4] = 0x3F800000;
-    ((u32 *)verts)[1 * 16 + 5] = 0;
-    ((u32 *)verts)[2 * 16 + 4] = 0x3F800000;
-    ((u32 *)verts)[2 * 16 + 5] = 0x3F800000;
-    ((u32 *)verts)[3 * 16 + 4] = 0;
-    ((u32 *)verts)[3 * 16 + 5] = 0x3F800000;
-    drawbase = D_00887310;
-    D_00887300[0](7, 2);
-    D_00887300[0](6, 0);
-    D_00887300[0](8, 0);
-    D_00887300[0](0xE, 0);
-    D_00887300[0](9, 2);
-    D_00887300[0](0xC, 1);
-    D_00887300[0](1, *(s32 *)ptr);
+    verts[0].z = z;
+    verts[1].z = z;
+    verts[2].z = z;
+    verts[3].z = z;
+    verts[0].q = q;
+    verts[1].q = q;
+    verts[2].q = q;
+    verts[3].q = q;
+    verts[0].u = 0.0f;
+    verts[0].v = 0.0f;
+    verts[1].u = 1.0f;
+    verts[1].v = 0.0f;
+    verts[2].u = 1.0f;
+    verts[2].v = 1.0f;
+    verts[3].u = 0.0f;
+    verts[3].v = 1.0f;
+    renderState = (void *)D_00887300;
+    renderState[0](7, 2);
+    renderState[0](6, 0);
+    renderState[0](8, 0);
+    renderState[0](0xE, 0);
+    renderState[0](9, 2);
+    renderState[0](0xC, 1);
+    renderState[0](1, *(u32 *)ptr);
     RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
     if (flag) {
-        verts[0][0] = fparg3;
-        verts[0][1] = fparg4;
-        verts[1][0] = fparg3 + fparg5;
-        verts[1][1] = fparg4;
-        verts[2][0] = fparg3 + fparg5;
-        verts[2][1] = fparg4 + fparg6;
-        verts[3][0] = fparg3;
-        verts[3][1] = fparg4 + fparg6;
-        i = 0;
-        do {
-            ((u32 *)verts)[i * 16 + 8] = 0x437F0000;
-            ((u32 *)verts)[i * 16 + 9] = 0x437F0000;
-            ((u32 *)verts)[i * 16 + 10] = 0x437F0000;
-            ((u32 *)verts)[i * 16 + 11] = 0x437F0000;
-            i++;
-        } while (i < 4);
+        verts[0].x = fparg3;
+        verts[0].y = fparg4;
+        verts[1].x = fparg3 + fparg5;
+        verts[1].y = fparg4;
+        verts[2].x = fparg3 + fparg5;
+        verts[2].y = fparg4 + fparg6;
+        verts[3].x = fparg3;
+        verts[3].y = fparg4 + fparg6;
+        {
+            s32 i;
+
+            for (i = 0; i < 4; i++) {
+                verts[i].r = 255.0f;
+                verts[i].g = 255.0f;
+                verts[i].b = 255.0f;
+                verts[i].a = 255.0f;
+            }
+        }
         RpSkyRenderStateSet(3, 0x31801);
-        drawbase[0](5, verts, 4);
+        D_00887310[0](5, verts, 4);
     }
-    verts[0][0] = fparg1;
-    verts[0][1] = fparg2;
-    verts[1][0] = fparg1 + fparg5;
-    verts[1][1] = fparg2;
-    verts[2][0] = fparg1 + fparg5;
-    verts[2][1] = fparg2 + fparg6;
-    verts[3][0] = fparg1;
-    verts[3][1] = fparg2 + fparg6;
-    for (i = 0; i < 4; i++) {
-        ((u32 *)verts)[i * 16 + 8] = 0x437F0000;
-        ((u32 *)verts)[i * 16 + 9] = 0x437F0000;
-        ((u32 *)verts)[i * 16 + 10] = 0x437F0000;
-        verts[i][11] = (f32)(u32)temp_18;
+    verts[0].x = fparg1;
+    verts[0].y = fparg2;
+    verts[1].x = fparg1 + fparg5;
+    verts[1].y = fparg2;
+    verts[2].x = fparg1 + fparg5;
+    verts[2].y = fparg2 + fparg6;
+    verts[3].x = fparg1;
+    verts[3].y = fparg2 + fparg6;
+    {
+        s32 i;
+
+        for (i = 0; i < 4; i++) {
+            verts[i].r = 255.0f;
+            verts[i].g = 255.0f;
+            verts[i].b = 255.0f;
+            verts[i].a = (f32)(u32)blue;
+        }
     }
     if (flag) {
         RpSkyRenderStateSet(3, 0x35801);
     } else {
         RpSkyRenderStateSet(3, 0x31801);
     }
-    drawbase[0](5, verts, 4);
+    draw = (void *)D_00887310;
+    draw[0](5, verts, 4);
     func_0048a000();
-    D_00887300[0](1, 0);
+    renderState[0](1, 0);
     switch (arg3) {
     case 0:
         RpSkyRenderStateSet(2, 0x54);
@@ -314,28 +283,27 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
     } else {
         RpSkyRenderStateSet(3, 0x31801);
     }
-    verts[0][0] = fparg1;
-    verts[0][1] = fparg2;
-    verts[1][0] = fparg1 + fparg5;
-    verts[1][1] = fparg2;
-    verts[2][0] = fparg1 + fparg5;
-    verts[2][1] = fparg2 + fparg6;
-    verts[3][0] = fparg1;
-    verts[3][1] = fparg2 + fparg6;
-    i = 0;
-    do {
-        f32 *row = &verts[i][0];
-        row[8] = (f32)(u32)temp_21;
-        row[9] = (f32)(u32)temp_20;
-        row[10] = (f32)(u32)temp_19;
-        row[11] = (f32)(u32)temp_18;
-        i++;
-    } while (i < 4);
-    drawbase[0](4, verts, 4);
+    verts[0].x = fparg1;
+    verts[0].y = fparg2;
+    verts[1].x = fparg1 + fparg5;
+    verts[1].y = fparg2;
+    verts[2].x = fparg1;
+    verts[2].y = fparg2 + fparg6;
+    verts[3].x = fparg1 + fparg5;
+    verts[3].y = fparg2 + fparg6;
+    {
+        s32 i;
+
+        for (i = 0; i < 4; i++) {
+            verts[i].r = (f32)(u32)alpha;
+            verts[i].g = (f32)(u32)red;
+            verts[i].b = (f32)(u32)green;
+            verts[i].a = (f32)(u32)blue;
+        }
+    }
+    draw[0](4, verts, 4);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364680);
-#endif
+#pragma pop
 
 // FUN_00364C50
 void func_00364c50(void) {
