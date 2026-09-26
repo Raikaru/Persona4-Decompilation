@@ -34,6 +34,14 @@ review aid, not proof of semantic equivalence.
   incompatible local declaration merely to force sign-extension or register
   allocation; fix the definition and all callers together when evidence
   establishes a different contract.
+  `tools/decomp_lint.py` rule H011 reports any `func_` declaration (file scope,
+  block scope or header) whose calling-convention contract - integer width and
+  signedness, pointer vs value, aggregate vs scalar, arity, struct return -
+  disagrees with the function's active definition. Spelling differences such as
+  `int`/`s32` or two names for the same struct are not reported. A callee that
+  masks or extends its own parameter on entry (`arg1 & 0xFFFF`,
+  `arg1 = (u16)arg1`) is usually evidence that the definition's real type is
+  the narrow one.
 
 ## Integrity checks and advisories
 

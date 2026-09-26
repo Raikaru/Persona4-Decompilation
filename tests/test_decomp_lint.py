@@ -1131,5 +1131,52 @@ class TagWithoutBody(unittest.TestCase):
 
 
 
+class DeclarationContractTests(unittest.TestCase):
+    """H011 compares declarations with the function's active definition."""
+
+    def run_with_defs(self, text, defs):
+        index = {name: [("src/def.c", 1, ret, params)] for name, (ret, params) in defs.items()}
+        with mock.patch.object(lint, "_definition_index", lambda: index):
+            return codes(lint_text(text))
+
+    def test_fires_on_narrower_local_extern(self) -> None:
+        text = ("void f(void) {\n"
+                "    extern void func_00310a10(u8 *, u16);\n"
+                "    func_00310a10(0, 1);\n"
+                "}\n")
+        self.assertIn("H011", self.run_with_defs(text, {"func_00310a10": ("void", ("ptr", "s32"))}))
+
+    def test_fires_on_struct_return_against_out_pointer_definition(self) -> None:
+        text = "typedef struct { f32 x, y; } FclVec2;\nextern FclVec2 func_002b2970(f32, f32);\n"
+        self.assertIn("H011", self.run_with_defs(text, {"func_002b2970": ("void", ("ptr", "f32", "f32"))}))
+
+    def test_type_spellings_are_not_reported(self) -> None:
+        text = ("typedef struct { f32 x, y; } f2;\n"
+                "extern int func_00100000(char *name, float scale, f2 pos);\n")
+        self.assertNotIn("H011", self.run_with_defs(text, {"func_00100000": ("s32", ("ptr", "f32", "agg"))}))
+
+    def test_unprototyped_declaration_is_not_compared(self) -> None:
+        text = "extern s32 func_00100000();\n"
+        self.assertNotIn("H011", self.run_with_defs(text, {"func_00100000": ("s32", ("s16",))}))
+
+    def test_calls_and_definitions_are_not_declarations(self) -> None:
+        text = ("s32 func_00100000(s16 id) {\n"
+                "    return func_00100000(id);\n"
+                "}\n")
+        self.assertNotIn("H011", self.run_with_defs(text, {"func_00100000": ("s32", ("s32",))}))
+
+    def test_guarded_reference_declarations_are_ignored(self) -> None:
+        text = ("// FUN_00100010 NONMATCHING\n"
+                "#ifdef NON_MATCHING\n"
+                "void func_00100010(void) {\n"
+                "    extern void func_00310a10(u8 *, u16);\n"
+                "}\n"
+                "#else\n"
+                'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+                "#endif\n")
+        self.assertNotIn("H011", self.run_with_defs(text, {"func_00310a10": ("void", ("ptr", "s32"))}))
+
+
+
 if __name__ == "__main__":
     unittest.main()
