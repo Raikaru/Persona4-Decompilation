@@ -1056,11 +1056,21 @@ void func_0019acd0(u8 *arg0)
         *(s32 *)(p + 0x98) = *(s32 *)(p + 0x98) & ~2;
     }
 }
-/* measured 0019ae20: gate 445/448 (-0.7%, inside 435-461 band); words 174, fnalign edits 67+3reloc. */
-/* measured 0019ae20: fixes vs 385 baseline (edits 641->67, words 390->174): float inline (fptodp+2x__fixsfdi -> cvt/mfc1, jal 39->36), t4 reload for D8/stores (lw 32->42), RwMatrix mat for flags/pos (sw 13->17, dead poly/sp40 live), switch 0,1,2 numeric order, GP direct iGpffffb3cc (lw+1 fixed), s8 0x9F4 / u16 0x18 / t16_sts+t16_flags split. No schedule/no_branch_likely (schedule on gives 397, off gives 445). */
-/* gate: object 445 against retail 448, -0.7% - INSIDE the +-3% band (435-461). */
-// FUN_0019AE20 NONMATCHING
-#ifdef NON_MATCHING
+static inline u8 *btlUnitOffsetAdd(u32 offset, u8 *base)
+{
+    return (u8 *)(offset + (u32)base);
+}
+/* Ten-byte motion table entries; the second halfword is a percentage. */
+typedef struct { s16 unk0; s16 rate; s16 unk4; s16 unk6; s16 unk8; } BtlMotionRate;
+/* 1796/1808 bytes (three words of padding). The unit's model is loaded or
+   adopted, its resource ids and material flags are applied, then its motion
+   frame, scale and quaternion rotation are pushed to the model. Levers: the
+   rotation is RtQuatUnitConvertToMatrix written out (all nine products
+   first); the frame argument is `(u16)(cond ? frame : 0)` so the mask sits
+   at the merge; the percentage scale goes through a `speed` local set to
+   1.0f, which keeps retail's `mul.s` by one; the character table offset goes
+   through the offset-first add helper; both tail switches are switches. */
+// FUN_0019AE20
 s32 func_0019ae20(u8 *arg0) {
     extern f32 func_0047a000(void *a, s32 b, s64 c);
     extern u8 *iGpffffb3cc;
@@ -1070,7 +1080,8 @@ s32 func_0019ae20(u8 *arg0) {
     u8 *t4;
     u8 *made;
     s32 t2;
-    s16 v2;
+    s32 v2;
+    f32 speed;
     s16 v2_2;
     s16 s5;
     f32 f0;
@@ -1118,7 +1129,7 @@ s32 func_0019ae20(u8 *arg0) {
             case 1: {
                 *(u16 *)(t17 + 0x9FE) = func_00145510(btlFindFreeCharResId(), *(u8 **)(t17 + 0xA00));
                 func_0014a460(*(u16 *)(t17 + 0x9FE), 1);
-                t16_flags = *(u16 *)((*(u16 *)(t17 + 0xA4) * 0xE8) + iGpffffb3cc + 0x18);
+                t16_flags = *(u16 *)(btlUnitOffsetAdd(*(u16 *)(t17 + 0xA4) * 0xE8, iGpffffb3cc) + 0x18);
                 if (t16_flags & 2) {
                     *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x200;
                 }
@@ -1170,18 +1181,15 @@ s32 func_0019ae20(u8 *arg0) {
             func_00198dd0(t17, 0);
             func_00198920(t17, *(s16 *)(t17 + 0x9EC), 0, *(f32 *)(t17 + 0x9F0), *(s8 *)(t17 + 0x9F4));
             t3_8 = *(s32 *)(t17 + 0x98) & 2;
-            if (t3_8 != 0) {
-                v2 = *(s16 *)(t17 + 0x9DA);
-            } else {
-                v2 = 0;
-            }
+            v2 = (u16)((t3_8 != 0) ? *(s16 *)(t17 + 0x9DA) : 0);
             if (t3_8 == 0) {
                 v2_2 = 0;
             } else {
-                s5 = func_001990d0(t17, (u16)v2);
+                speed = 1.0f;
+                s5 = func_001990d0(t17, v2);
                 f0 = func_0047a000(*(u8 **)(t17 + 0xA00), 0, s5);
                 if (s5 < *(u16 *)(t17 + 0x9E4)) {
-                    v2_2 = (s16)(s32)(f0 / (1.0f * ((f32)(*(s16 *)(s5 * 10 + *(s32 *)(t17 + 0x9F8) + 2)) / 100.0f)));
+                    v2_2 = (s16)(s32)(f0 / (speed * ((f32)(*(BtlMotionRate **)(t17 + 0x9F8))[s5].rate / 100.0f)));
                 } else {
                     v2_2 = (s16)(s32)f0;
                 }
@@ -1195,20 +1203,35 @@ s32 func_0019ae20(u8 *arg0) {
             H_Cdvd_Destroy(*(s32 *)(arg0 + 0xC));
         }
         t3 = *(u8 *)(t17 + 0xA2);
-        if (t3 == 1 || t3 == 0) {
-            f32 f14 = *(f32 *)(t17 + 0x1C);
-            f32 f15 = *(f32 *)(t17 + 0x20);
-            f32 f12 = *(f32 *)(t17 + 0x24);
-            f32 f13 = *(f32 *)(t17 + 0x28);
-            mat.right.x = 1.0f - (f15 * f15 + f12 * f12) * 2.0f;
-            mat.right.y = (f14 * f15 + f13 * f12) * 2.0f;
-            mat.right.z = (f12 * f14 - f13 * f15) * 2.0f;
-            mat.up.x = (f14 * f15 - f13 * f12) * 2.0f;
-            mat.up.y = 1.0f - (f14 * f14 + f12 * f12) * 2.0f;
-            mat.up.z = (f15 * f12 + f13 * f14) * 2.0f;
-            mat.at.x = (f12 * f14 + f13 * f15) * 2.0f;
-            mat.at.y = (f15 * f12 - f13 * f14) * 2.0f;
-            mat.at.z = 1.0f - (f14 * f14 + f15 * f15) * 2.0f;
+        switch (t3) {
+        case 0:
+        case 1: {
+            f32 x = *(f32 *)(t17 + 0x1C);
+            f32 y = *(f32 *)(t17 + 0x20);
+            f32 z = *(f32 *)(t17 + 0x24);
+            f32 w = *(f32 *)(t17 + 0x28);
+            RwV3d square;
+            RwV3d cross;
+            RwV3d wimag;
+
+            square.x = x * x;
+            square.y = y * y;
+            square.z = z * z;
+            cross.x = y * z;
+            cross.y = z * x;
+            cross.z = x * y;
+            wimag.x = w * x;
+            wimag.y = w * y;
+            wimag.z = w * z;
+            mat.right.x = 1 - 2 * (square.y + square.z);
+            mat.right.y = 2 * (cross.z + wimag.z);
+            mat.right.z = 2 * (cross.y - wimag.y);
+            mat.up.x = 2 * (cross.z - wimag.z);
+            mat.up.y = 1 - 2 * (square.x + square.z);
+            mat.up.z = 2 * (cross.x + wimag.x);
+            mat.at.x = 2 * (cross.y + wimag.y);
+            mat.at.y = 2 * (cross.x - wimag.x);
+            mat.at.z = 1 - 2 * (square.x + square.y);
             mat.pos.x = 0;
             mat.pos.y = 0;
             mat.pos.z = 0;
@@ -1222,14 +1245,12 @@ s32 func_0019ae20(u8 *arg0) {
             func_0047a180(*(u8 **)(t17 + 0xA00), sp100, 2);
             func_004789c0(*(u8 **)(t17 + 0xA00));
             func_0047a320(*(u8 **)(t17 + 0xA00));
+        } break;
         }
         return 1;
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlUnit", func_0019ae20);
-#endif
 // FUN_0019E150
 BtlPacket* btlUnitCreateLookAtPacket(BtlUnit* unit, const RwV3d* targetPos, u16 flags)
 {
