@@ -2,11 +2,10 @@
 #define SHD_MISC_INTERNAL_H
 
 #include "type.h"
+#include "fcl_draw_types.h"
 
-typedef struct {
-    f32 x;
-    f32 y;
-} Vec2f;
+/* Screen positions share the Fcl draw library's two-float type. */
+typedef FclVec2 Vec2f;
 
 typedef union {
     Vec2f xy;

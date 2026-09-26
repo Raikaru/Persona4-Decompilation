@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "fcl_draw_types.h"
 extern void (*jtbl_008873EC[])(void *ptr);
 /* Row colours reach the packer as bytes in this unit: retail passes the u8
    locals through with no zero-extension, so this view of func_002b2a60
@@ -15,10 +16,7 @@ typedef struct {
 FclDrawColor func_002b2a60(u8 red, u8 green, u8 blue, u8 alpha);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-typedef struct {
-    f32 x;
-    f32 y;
-} F2_0033;
+typedef FclVec2 F2_0033;
 
 extern void func_002b2970(F2_0033 *out, f32 x, f32 y);
 extern u32 func_002e7a60(void);
