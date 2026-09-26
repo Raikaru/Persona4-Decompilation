@@ -1,4 +1,4 @@
-# Item shop state machine `00332bb0`: MATCH, parked until the declaration cleanup lands, 2026-09-26
+# Item shop state machine `00332bb0`: MATCH (landed), 2026-09-26
 
 `src/Event/Fcl/y_fclItemShopDraw.c` `func_00332bb0` (37392-byte window: object 37380 B,
 then 3 zero pad words) now matches. The source is not committed yet because a
@@ -71,3 +71,16 @@ cleanup), `func_002b2a60`, and `func_0033d4b0`. Changing the `func_0033d4b0`
 definition to `u8, u8, u8` breaks it, through `code1_0033`'s `s8` view of
 `func_002b82d0`. There are also 25 findings from before this work
 (`func_0045af60`, `func_002bab80`, `func_0046d200` and others).
+
+## Landed on the func_002b2970 contract (ec0dd40)
+
+The patch was three-way merged onto ec0dd40, taking the patch side for the
+function body. The only adaptation was dropping its local
+`extern F2_0033 func_002b2970(f32, f32)`: `F2_0033` is now `FclVec2`, and the
+single prototype comes from `fcl_draw_types.h`. The patch file above is kept
+for history. The source now carries the same body.
+
+- `verify.py y_fclItemShopDraw.c code1_0033.c`: 47 MATCH, 1 ASM. Before, it was
+  46 and 2; only 00332bb0 changed, and y_fclItemShopDraw is now ASM-free.
+- Lint on the two files: H011 drops from 50 to 44 (002b2cb0, 002b2d00, 002caa10,
+  0033d310, 0033d320 and 0033d630 now agree), and nothing new appears.
