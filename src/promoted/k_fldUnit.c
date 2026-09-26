@@ -6,6 +6,7 @@
 #include "model_matrix_internal.h"
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
+#include "Kosaka/k_model_internal.h"
 
 typedef struct HCdvd HCdvd;
 typedef struct Model Model;
@@ -153,7 +154,6 @@ s32 func_00163c90(s32 arg0);
 void func_00164020(u8 *arg0);
 void func_00164fa0(s32 arg0);
 void func_00165670(u8 *arg0, s32 arg1);
-void *func_00478140(u32 arg0, u32 arg1, u32 arg2);
 s32 func_004782b0(u8 *arg0);
 s32 func_00440b68(const char *fmt, ...);
 u8 *func_00454a60(u8 *arg0, s32 arg1);
@@ -1682,7 +1682,6 @@ void func_001658b0(void)
     s32 i;
     s32 j;
     u16 code;
-    u32 modelCode;
     s32 value;
     s32 count;
 
@@ -1717,12 +1716,12 @@ loop:
             }
             if (i < 6) {
                 value = i + 2;
-                modelCode = code = (u16)((value << 8) | base);
+                code = (u16)((value << 8) | base);
             } else if (i == 6) {
-                modelCode = code = 0x80A;
+                code = 0x80A;
                 value = i + 2;
             } else {
-                modelCode = code = 0x120A;
+                code = 0x120A;
                 value = 9;
             }
             if (count >= 2) {
@@ -1731,7 +1730,7 @@ loop:
             if (D_007643C8[count] != 0) {
                 func_0046d730(D_005F1500, 0x917);
             }
-            D_007643C8[count] = (s32)func_00478140(9, modelCode, 0);
+            D_007643C8[count] = (s32)func_00478140(9, code, 0);
             func_00440b68((const char *)D_00763008, D_005F1500, 0x91C);
             D_007643C0[count] =
                 (s32)func_00454a60(D_005F13C0 + value * 0x20, 0);

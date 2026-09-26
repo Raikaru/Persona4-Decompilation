@@ -37,12 +37,13 @@ The accepted source had to be plausibly what the original developers wrote:
 
 ## Open decisions
 
-- `func_00478140`: two byte-exact drafts (`func_00162680`, `func_0015e960`) need
-  u16 parameters, but its definition and other matched callers only match with
-  u32. Needs one cross-owner signature decision.
-- `func_00477c40`: `func_001b1d70` is 1 word off and needs a u16 prototype that
-  seven matched callers in other units contradict — the original units appear to
-  have disagreed. Kept as ASM under the one-signature rule.
+- `func_00478140` / `func_00477c40`: resolved or narrowed in
+  `Prototype_mismatch_00477c40_00478140_20260926.md`. The Kosaka field code
+  was compiled against a u16-type `func_00478140` (waived module prototype in
+  `include/Kosaka/k_model_internal.h`; `func_00162680` now MATCH). For
+  `func_00477c40`, retail proves no mismatch: the single signature
+  `(u32 type, u16 id, u32 flags)` needs mdlManager's id plumbing typed first,
+  so `func_001b1d70` stays ASM.
 - `func_00100008` is the crt0 `_start` entry, not C; it should not count as a
   first-party C target.
 - `func_00225ec0` reads an uninitialised stack slot in retail; any matching C
