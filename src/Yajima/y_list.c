@@ -542,7 +542,7 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e2a10);
    improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 // FUN_002E3560 NONMATCHING
 #ifdef NON_MATCHING
-void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
+void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
     s32 reorder[0x600];
     s32 sortbuf[0x600];
     s32 out_count;

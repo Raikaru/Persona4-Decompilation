@@ -1,6 +1,7 @@
 /* func_002cdf80 (shop buy list: draw + input) best draft, 2026-09-26.
    fnalign: retail 3459 vs object 3459 instrs, 2 edits (+88 reloc-only), measured with
-   `python3 tools/fnalign.py src/Event/Fcl/y_fclShopDraw.c func_002cdf80 --candidate <this file> --quiet`.
+   `python3 tools/fnalign.py src/Event/Fcl/y_fclShopDraw.c func_002cdf80 --candidate <this file> --quiet`
+   (still 2 edits after the prototypes were reconciled on 2026-09-26).
    Needs shopDrawLabel (static inline in y_fclShopDraw.c) moved above func_002cdf80.
    The only residual is the 0x43 loop test: this body tests `j < 6`, retail tests
    `i < 0x49` and keeps `j` as a dead counter. See ShopDraw_002cdf80_20260926.md. */
@@ -56,8 +57,8 @@ void func_002cdf80(void *arg0, s8 arg1) {
     extern f32 fGpffff8528;
     s8 func_002e05a0(void *);
     s8 func_002e2a00(void *);
-    void func_002e3560(void *, s32, s32, s32, s32);
-    void func_002b3050(s16, s16, s32, s32, s32, s16 *, s16 *);
+    void func_002e3560(void *, s32, s32, s8, s32);
+    void func_002b3050(s32, s32, s32, s64, s32, s16 *, s16 *);
     s8 func_002d4760(void *, s8);
     void func_002d7c10(void *, s16);
     void func_002dd230(void *);
