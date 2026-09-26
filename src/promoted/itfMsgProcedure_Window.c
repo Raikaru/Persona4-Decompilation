@@ -2060,40 +2060,37 @@ void func_002818a0(u32 arg0, s32 arg1) {
     }
 }
 
-/* Floor (measured 2026-09-18, source-repo only): banked 485 words, fnalign 601/594/179 (+47 reloc), emitted 2376B/window 2416B (98.3%% PASS). Full 8+28 sweep: prop+peephole 443 BEST, peephole 449, dead+peephole 451, loop+dead 474, dead 475, loop/strength/unroll 485 tie, prop 486, cse 502, schedule 519 -- installed prop+peephole (peephole gives exact count 602/602 vs base 594/601 short, un-merging the six bec0 bodies; words -42, edits 179->197 +37 reloc, size 2376B->2408B/2416B 99.7%%). TWIN 608B triage stale vs 2416B window. Residual is FPU-chain scheduling + saved/FP coloring (s0/a0 vs s2/a0 swap persists); dsll32 1/1 exact, signature neutral. Banked as guarded floor; production stays ASM. */
-/* measured 002818e0 (owner, 2026-09-19): fnalign **197 -> 147 edits**, count
-   602 -> 602 against retail 602, by putting the switch arms in the order the
-   JUMP TABLE uses rather than ascending case order.  The layout is read out of the
-   retail ELF - the `sltiu` bound gives the entry count, each 4-byte entry gives an
-   arm address, and sorting the case values by arm address is the order retail
-   emitted them in; entries sharing the most common address are the default.
-   Ascending order is what a lowered if-CHAIN wants.  A jump table already encodes
-   its own order and the source has to agree with it.  Swept over every first-party
-   floor with a table: 20 were already in layout order, 5 improved (274, 88, 50, 37
-   and 7 edits) and 13 got worse, so it is measured per function like every other
-   spelling. */
-// FUN_002818E0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_propagation off
-#pragma peephole off
+/* Shared by the message-window procedures: the first entry of D_008820B0 whose
+   in-use bit is clear.  Inlined; its `return e` inside the loop is retail's
+   unthreaded bnez/b pair. */
+static inline MsgProcWindowEntry *msgWinFindFreeEntry(void)
+{
+    s32 i;
+    MsgProcWindowEntry *e;
+
+    for (i = 0; i < 8; i++) {
+        e = &D_008820B0[i];
+        if ((e->field0 & 1) == 0) {
+            return e;
+        }
+    }
+    return NULL;
+}
+
+#pragma push
+/* measured: byte-exact (602/602 instructions, 0 differing words).  The frame
+   counter is read straight from D_00882044 at each test (retail reloads it
+   after every call), the `> 3` bound keeps the first test in $at, and the
+   case 8/10 handles are tested as they come back in $v0.
+   opt_loop_invariants hoists the entry-table base out of the free-entry scan. */
+#pragma opt_loop_invariants on
+// FUN_002818E0
 s32 func_002818e0(u8 *arg0, s32 arg1)
 {
     s32 ret;
-    s32 *tmp;
-    s32 tmpw;
-    s32 *tmp3;
-    s16 cnt;
-    s32 cnt32;
-    float f;
-    float f2;
-    s32 a0;
-    s32 a1;
-    s32 a2;
-    s32 a3;
-    s32 i;
+    s32 *tex;
+    f32 f;
     MsgProcWindowEntry *e;
-    void *pv1;
-    void *pv2;
 
     func_00278110();
     ret = 0;
@@ -2102,64 +2099,54 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
         func_00278170(arg0, 0x4000000);
         func_00278170(arg0, 0x100000);
         func_00278170(arg0, 0x400000);
-        if ((void *)D_00882040 == NULL) {
+        if (D_00882040 == NULL) {
             func_0046d730(D_0063BFC0, 0x18F);
         }
         memset(D_00882040, 0, 0x18);
-        tmp = func_0027be60(arg0);
-        if (tmp == NULL) {
+        if (func_0027be60(arg0) == NULL) {
             func_0044ea90(D_0063BFC0, 0x5C0);
-            pv1 = D_008873F4[0](1, 8, 0x40000);
-            func_0027be90(arg0, pv1);
+            func_0027be90(arg0, D_008873F4[0](1, 8, 0x40000));
         }
         break;
     case 1:
-        tmp = func_0027be60(arg0);
-        if (tmp != NULL) {
-            jtbl_008873EC[0](tmp);
+        if ((tex = func_0027be60(arg0)) != NULL) {
+            jtbl_008873EC[0](tex);
             func_0027be90(arg0, NULL);
         }
         break;
     case 4:
         if (func_0027bec0(arg0) != 0) {
             if ((D_00882040[0] & 2) == 0) {
-                D_00882040[0] = D_00882040[0] | 2;
+                D_00882040[0] |= 2;
                 D_00882044[0] = 0;
             }
-            cnt = D_00882044[0] + 1;
-            D_00882044[0] = cnt;
-            cnt32 = (s32)cnt;
-            if (cnt32 < 5) {
-                f = sinf(iGpffff81dc + (iGpffff8084 * (float)cnt32) / 4.0f);
-                f = (f + 1.0f) / 2.0f;
-                a0 = (s32)((1.0f - f) * 200.0f + 70.0f);
-                a1 = (s32)(47.0f - (1.0f - f) * 5.0f);
-                a2 = (s32)(f * 404.0f);
-                a3 = (s32)(20.0f - f * 15.0f);
-                func_00366380(a0, a1, a2, a3, 0, 0xB2, 1, 0, 0, (void *)D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
-            } else if (cnt32 < 11) {
-                f = sinf((iGpffff8094 * (float)(cnt32 - 4)) / 6.0f);
-                a1 = (s32)((1.0f - f) * 20.0f + 27.0f);
-                a3 = (s32)(f * 50.0f + 5.0f);
-                func_00366380(0x46, a1, 0x194, a3, 0, 0xB2, 1, 0, 0, (void *)D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
+            D_00882044[0]++;
+            if (D_00882044[0] < 5) {
+                f = sinf(iGpffff81dc + iGpffff8084 * (f32)D_00882044[0] / 4.0f);
+                f = (1.0f + f) / 2.0f;
+                func_00366380((s32)(200.0f * (1.0f - f) + 70.0f), (s32)(47.0f - 5.0f * (1.0f - f)), (s32)(404.0f * f),
+                              (s32)(20.0f - 15.0f * f), 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
+            } else if (D_00882044[0] < 11) {
+                f = sinf(iGpffff8094 * (f32)(D_00882044[0] - 4) / 6.0f);
+                func_00366380(0x46, (s32)(20.0f * (1.0f - f) + 27.0f), 0x194, (s32)(50.0f * f + 5.0f), 0, 0xB2, 1, 0, 0,
+                              D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
             }
-            if (cnt32 < 6) {
-                f2 = sinf((iGpffff8094 * (float)cnt32) / 5.0f);
-                func_0027d3c0(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, f2, 1.0f, (void *)D_00796490);
+            if (D_00882044[0] < 6) {
+                func_0027d3c0(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f,
+                              sinf(iGpffff8094 * (f32)D_00882044[0] / 5.0f), 1.0f, D_00796490);
             } else {
-                func_0027d3c0(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, (void *)D_00796490);
+                func_0027d3c0(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
             }
-            if (cnt32 > 3 && cnt32 < 11) {
-                tmp = func_0027be60(arg0);
-                if (tmp != NULL) {
-                    f = sinf((iGpffff8094 * (float)(cnt32 - 3)) / 7.0f);
-                    tmpw = func_002bd1e0(*tmp);
-                    f2 = 9.0f - (1.0f - f) * 60.0f;
-                    func_0025ecd0(f2, 1.0f, 0.0f, 0xFFFFFF, (u8)0xFF, 0, (void *)tmpw, 1, 0, 0, 0.0f, 1.0f, 1.0f, (void *)D_00796490);
+            if (D_00882044[0] > 3 && D_00882044[0] < 11) {
+                tex = func_0027be60(arg0);
+                if (tex != NULL) {
+                    f = sinf(iGpffff8094 * (f32)(D_00882044[0] - 3) / 7.0f);
+                    func_0025ecd0(9.0f - 60.0f * (1.0f - f), 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)func_002bd1e0(*tex), 1,
+                                  0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
                 }
             }
-            if (cnt32 > 9) {
-                D_00882040[0] = D_00882040[0] & 0xFFFFFFFD;
+            if (D_00882044[0] >= 10) {
+                D_00882040[0] &= ~2u;
                 D_00882044[0] = 0;
                 ret = 1;
             }
@@ -2167,12 +2154,11 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
         break;
     case 5:
         if (func_0027bec0(arg0) != 0) {
-            func_00366380(0x46, 0x1B, 0x194, 0x37, 0, 0xB2, 1, 0, 0, (void *)D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
-            func_0027d3c0(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, (void *)D_00796490);
-            tmp = func_0027be60(arg0);
-            if (tmp != NULL) {
-                tmpw = func_002bd1e0(*tmp);
-                func_0025ecd0(9.0f, 1.0f, 0.0f, 0xFFFFFF, (u8)0xFF, 0, (void *)tmpw, 1, 0, 0, 0.0f, 1.0f, 1.0f, (void *)D_00796490);
+            func_00366380(0x46, 0x1B, 0x194, 0x37, 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
+            func_0027d3c0(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
+            if ((tex = func_0027be60(arg0)) != NULL) {
+                func_0025ecd0(9.0f, 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)func_002bd1e0(*tex), 1, 0, 0, 0.0f, 1.0f, 1.0f,
+                              D_00796490);
             }
         }
         ret = 1;
@@ -2181,36 +2167,30 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
         func_0027bec0(arg0);
         ret = 1;
         break;
-    case 8:
-        pv1 = (void *)func_00278fd0(arg0);
-        if (pv1 != NULL) {
-            func_00272a10(pv1, 10.0f, 90.0f);
-            func_002728c0(pv1, 0);
-            func_00272b00(pv1, 2);
+    case 8: {
+        void *p1;
+        void *p2;
+
+        if ((p1 = (void *)func_00278fd0(arg0)) != NULL) {
+            func_00272a10(p1, 10.0f, 90.0f);
+            func_002728c0(p1, 0);
+            func_00272b00(p1, 2);
         }
-        pv2 = (void *)func_00278fb0(arg0);
-        if (pv2 != NULL) {
-            func_00272a10(pv2, 141.0f, 25.0f);
-            func_002728c0(pv2, 1);
-            func_00272b50(pv2, 0, 0);
-            func_00272730(pv2, 0x20);
-            func_002727a0(pv2, 0);
+        if ((p2 = (void *)func_00278fb0(arg0)) != NULL) {
+            func_00272a10(p2, 141.0f, 25.0f);
+            func_002728c0(p2, 1);
+            func_00272b50(p2, 0, 0);
+            func_00272730(p2, 0x20);
+            func_002727a0(p2, 0);
         }
         ret = 1;
         break;
+    }
     case 7:
-        e = NULL;
-        for (i = 0; i < 8; i++) {
-            e = &D_008820B0[i];
-            if ((e->field0 & 1) == 0) {
-                goto found;
-            }
-        }
-        e = NULL;
-found:
+        e = msgWinFindFreeEntry();
         if (e != NULL) {
             memset(e, 0, 0x18);
-            e->field0 = e->field0 | 1;
+            e->field0 |= 1;
             e->field8 = 0;
             e->fieldC = 0;
             e->field4 = 5;
@@ -2219,12 +2199,14 @@ found:
     case 9:
         ret = 1;
         break;
-    case 10:
-        pv1 = (void *)func_00278ff0(arg0);
-        if (pv1 != NULL) {
-            func_002728c0(pv1, 0);
+    case 10: {
+        void *p;
+
+        if ((p = (void *)func_00278ff0(arg0)) != NULL) {
+            func_002728c0(p, 0);
         }
         break;
+    }
     case 11:
         func_0027bec0(arg0);
         ret = 1;
@@ -2252,11 +2234,7 @@ found:
     }
     return ret;
 }
-#pragma peephole on
-#pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_002818e0);
-#endif
+#pragma pop
 
 /* measured 2026-09-18: honest first reconstruction from bare marker; base 835 */
 /* reloc-masked words via probe_variants and measure_guarded (retail 988 */
@@ -3073,20 +3051,6 @@ INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_00283490);
    keeps its `ret = 0` arm, which is the double branch after func_0027bec0.
    opt_loop_invariants is worth 9 words here (hoists the scan-loop base). */
 #pragma opt_loop_invariants on
-static inline MsgProcWindowEntry *msgWinFindFreeEntry(void)
-{
-    s32 i;
-    MsgProcWindowEntry *e;
-
-    for (i = 0; i < 8; i++) {
-        e = &D_008820B0[i];
-        if ((e->field0 & 1) == 0) {
-            return e;
-        }
-    }
-    return NULL;
-}
-
 static inline u32 msgWinResource(void)
 {
     MsgProcWindowWork *work = &D_00882098;
