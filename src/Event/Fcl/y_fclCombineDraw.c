@@ -70,7 +70,6 @@ extern u8 *func_002e48a0(s8 arg0, s16 arg1);
 extern void func_002ba970(u8 *, s16, u32);
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern s32 func_0010b5b0(void);
-extern void func_0031e5b0(u8 *, s64, s32, s8, s32, s32, s32);
 extern void func_002b6b90(s16, s32, s32, s32, s32, s32);
 extern void func_002b8370(u8 *, FclByte4, FclByte4, u8, s16, s32);
 extern void func_0032fa30(u8 *, s16, FclDrawColor, FclDrawColor, FclDrawColor);
@@ -2291,7 +2290,7 @@ void func_0031e320(u8 *arg0, s8 arg1) {
 /* v2 (frame-first): blocks 0/1 pass live sp148 to 6c30 instead of copying to sp140/sp118 (as blocks 2+ already did) — two dead s64 (16B) leave the frame: object 0x180 -> 0x170 exact, words 1126 -> 1118, edits 1561 -> 489 (cascade misalignment resolved), count 1287 -> 1277 (-30, -2.30% PASS). Probed DIRECT beats V1 on all three numbers; installed. */
 // FUN_0031E5B0 NONMATCHING
 #ifdef NON_MATCHING
-void func_0031e5b0(u8 *arg0, s64 arg1, s32 arg2, s8 arg3, s32 arg4, s32 arg5, s32 arg6) {
+void func_0031e5b0(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3, s32 arg4, s32 arg5, s32 arg6) {
     u8 c0[4];
     u8 c1[4];
     u8 c2[4];
@@ -2342,8 +2341,8 @@ void func_0031e5b0(u8 *arg0, s64 arg1, s32 arg2, s8 arg3, s32 arg4, s32 arg5, s3
     u8 *h5;
     u8 *p;
     (void)arg0;
-    spA0 = arg1;
-    sp148.bits = arg1;
+    *(FclVec2 *)&spA0 = arg1;
+    sp148.position = arg1;
     by = *((f32 *)&spA0 + 1);
     id = 0x193;
     idB = (s16)arg6;
@@ -4963,7 +4962,7 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
   new_var2 = (u8 **) (arg0 + 0x38);
   obj = *new_var2;
   spC8 = func_002b2970(156.0f, (float) ((float) 87.0f));
-  func_0031e5b0(arg0, *(s64 *)&spC8, 0, arg3, 0, 1, 1);
+  func_0031e5b0(arg0, spC8, 0, arg3, 0, 1, 1);
   i = 0;
   v1 = (s16) arg1;
   new_var9 = (s16) arg2;
@@ -5029,7 +5028,7 @@ void func_0032b9d0(u8 *arg0, s16 arg1, s16 arg2, s8 arg3) {
 
     t = *(u8 **)(arg0 + 0x38);
     sp118.position = func_002b2970(88.0f, 127.0f);
-    func_0031e5b0(arg0, sp118.bits, 0, arg3, 0, 1, 3);
+    func_0031e5b0(arg0, sp118.position, 0, arg3, 0, 1, 3);
     spF8 = func_002b2970(390.0f, 127.0f);
     origin = *(FclVec2 *)&spF8;
     c13C = func_002b2a60(0, 0, 0x99, 0xFF);
@@ -5198,7 +5197,7 @@ void func_0032c480(u8 *arg0)
 // measured: nd N/A (draw-family, s64-param floor). 26x 2970 + 17x 69f0 + 8x 68d0 + 6x 6c30 + 6x 7750: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
 // FUN_0032C660 NONMATCHING
 #ifdef NON_MATCHING
-void func_0032c660(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5) {
+void func_0032c660(u8 *arg0, s32 arg1, FclVec2 arg2, FclVec2 arg3, s32 arg4, s32 arg5) {
     u8 sp34C[4];
     u8 sp348[4];
     u8 sp344[4];
@@ -5353,14 +5352,14 @@ void func_0032c660(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5) {
     u8 *temp_2_13;
     u8 *temp_2_28;
 
-    spB0 = arg2;
-    spB8 = arg3;
+    *(FclVec2 *)&spB0 = arg2;
+    *(FclVec2 *)&spB8 = arg3;
     temp_23 = *(u8 **)(arg0 + 0x38);
     *(FclVec2 *)&sp308 = func_002b2970(57.0f, 72.0f);
     sp318 = sp308;
     sp31C = sp30C;
     var_18 = 0x66;
-    temp_21 = (s64) (arg1 << 0x38) >> 0x38;
+    temp_21 = (s8)arg1;
     if (temp_21 == 1) {
         var_18 = 0x70;
     }
@@ -5562,7 +5561,7 @@ void func_0032c660(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5) {
     }
     if (temp_20 == 1) {
         temp_22 = func_0046d200(func_00331560(), 0x80U);
-        temp_2_13 = (((s64) (arg1 << 0x38) >> 0x38) * 8) + temp_23;
+        temp_2_13 = (((s8)arg1) * 8) + temp_23;
         *(FclVec2 *)&sp230 = func_002b2970(*(f32 *)&spB0 - 120.0f, (*((f32 *)&spB0 + 1)) - 40.0f);
         temp_2_14 = func_002b81f0(*(u8 **)(temp_2_13 + 0x258));
         *(f32 *)(temp_2_14 + 0x0) = sp230;
@@ -5781,7 +5780,7 @@ void func_0032c660(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5) {
     }
     if (temp_20 == 1) {
         temp_19 = func_0046d200(func_00331560(), 0x80U);
-        temp_2_28 = (((s64) (arg1 << 0x38) >> 0x38) * 8) + temp_23;
+        temp_2_28 = (((s8)arg1) * 8) + temp_23;
         *(FclVec2 *)&sp138 = func_002b2970(*(f32 *)&spB0 - 120.0f, 99.0f + ((*((f32 *)&spB0 + 1)) - 27.0f));
         temp_2_29 = func_002b81f0(*(u8 **)(temp_2_28 + 0x25C));
         *(f32 *)(temp_2_29 + 0x0) = sp138;
@@ -6121,7 +6120,7 @@ void func_0032fbc0(u8 *arg0) {
 
     t = *(u8 **)(arg0 + 0x38);
     sp100.position = func_002b2970(16.0f, 104.0f);
-    func_0031e5b0(arg0, sp100.bits, 0, 1, 0, 0, 0);
+    func_0031e5b0(arg0, sp100.position, 0, 1, 0, 0, 0);
     i = 0;
     while ((s16)i < (u16)func_0010b5b0()) {
         spF8.position = func_002b2970(16.0f, 128.0f);
