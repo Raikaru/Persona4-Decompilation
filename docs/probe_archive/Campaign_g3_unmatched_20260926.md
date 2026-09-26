@@ -88,3 +88,53 @@ drafts of 00130680 and 0013ad40 still call the old forms.
   the final `(u8)(alpha * dim)` conversion; b210 converts first. A sprite local,
   the table-index form, an implicit conversion and a float temp all leave it
   unchanged.
+
+## Round 2 (same day)
+
+`func_00130680` and its twin `func_0013ad40` are MATCHED; see
+`Code0013Label_00130680_20260926.md`.
+
+### code1_0031.c `func_00313d20`: 81 -> 13 words
+
+Body: `C31B_00313d20_body_r2_20260926.c` (the round 1 body with two changes).
+
+- `s16 m = mode;` instead of `s32 m`. The `s16` copy is not CSE'd with the
+  parameter, so branch 2's flag base re-extends the raw `$a3` exactly as retail
+  does (81 -> 16). `s32`/`s8` copies, `(s16)`/`(s32)` casts at the use, an
+  `s32 mode` parameter and a mode-only spelling all stay at 81.
+- The count is written inline, `*(s16 *)(work + m * 2 + 0x2C0)`, not held in a
+  `count` pointer local (16 -> 13; `date` then lands in `$a1`). All
+  spellings of the inline form (`((s16 *)work)[m + 0x160]`, index-first) tie.
+- Residual (13): in the else branch retail colours the second loop's counter
+  `k` into `$a2` before the count temporary (`$t0`), so `k`'s `+1` is done in
+  place; b210 gives the temporary `$a2` and `k` `$t0`. It also adds
+  `m * 2 + work`, while b210 adds `work + m * 2`. Declaration order (60 random
+  permutations: all 16 on the pointer-local form), a fresh counter for the second
+  loop, block scope, and computing count before date do not move it.
+  `tools/permute_ast.py` loses the function's push/pop pragmas (base score 939),
+  so it cannot be used here.
+
+### mc.c `func_002a5f00`: 70 -> 59 words
+
+Body: `Mc_002a5f00_body_r2_20260926.c`.
+
+- `if (*(s32 *)(p + 0x3AC) + 1 != 0)`: retail tests `addiu +1; beqz`, not
+  `!= -1` (-2 words).
+- `scale = D_00761120 * sinf(...); scale = 1.0f + scale;` in two statements
+  stops b210 fusing the mul and add into `adda.s`/`madd.s`, as retail does (-9).
+  `scale = 1.0f; scale += ...` fuses again (76).
+- Residual (59): the saved-register rotation from round 1 (`p` is `$s4`
+  here, `$s0` in retail), the f20/f21 x/y swap, and two commutative float
+  operand orders (`d * 0.5f` and `1.0f + scale`). Neither spelling order, an
+  explicit `(f32)diff` and dropping `d`, nor a declaration initializer for `p`
+  moves any of them.
+
+### cmmScript.c `func_0024be40`: 8 (unchanged)
+
+A clean rewrite (`WSCR_0024be40_body_r2_20260926.c`: separate `flag`/`row`
+locals, `for` loops, a fresh counter for each loop) reaches 12 at best over 40
+declaration permutations, with the same `$s0`/`$s2` row/counter swap. With no
+row local, `base[index * 6 + i]` is not hoisted, because the loop calls
+datGetFlag (157). With one shared counter for both loops, both loops get the
+same register (20). `row = base; row += ...` coalesces `row` with `base`
+(16). The 8-word archive draft stays the frontier.
