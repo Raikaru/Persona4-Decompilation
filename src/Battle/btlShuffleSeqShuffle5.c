@@ -85,165 +85,72 @@ extern u32 D_0064EB40[];
 extern u16 D_008C024E[];
 
 
-// measured: field-by-field and aggregate pair-buffer candidates reach object 1260B
-// versus the retail 1264B window but remain normalized_diff 344; the three
-// interleaved shuffle-copy loops retain divergent register scheduling. Restored
-// the bare assembly fallback.
-/* measured 0037ef40: `opt_loop_invariants on` inside the guard is worth 22 words (298 -> 276), the loop-preheader constant hoist. */
-/* measured 0037ef40 (owner, 2026-09-19): fnalign **298 -> 296 edits**, count
-   316 -> 314 against retail 316, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits - no guard before the first iteration, one compare
-   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
-// FUN_0037EF40 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct {
+    s32 words[0x3EC];
+} ShuffleCardRecord;
+
+/* measured: 1260B in the 1264B window. Swapping whole 0xFB0-byte card
+   records emits retail's word-pair copy loops, and indexing the deck as
+   cards[rowStart + k] under loop-invariant hoisting reproduces retail's
+   row-product-then-counter preheader order. */
 #pragma opt_loop_invariants on
+// FUN_0037EF40
 void func_0037ef40(u8 *arg0) {
+    ShuffleCardRecord *cards;
+    ShuffleCardRecord tmp0;
+    ShuffleCardRecord tmp2;
+    ShuffleCardRecord tmp1;
     s32 n;
     s32 i;
     s32 k;
     s32 c;
-    u32 rnd;
-    u64 *d;
-    u64 *s;
-    s32 t;
-    u64 bufA[502];
-    u64 bufB[502];
-    u64 bufC[502];
+    s32 first;
+    s32 second;
 
+    cards = (ShuffleCardRecord *)arg0;
     if (*(s32 *)(arg0 + 0x1F2FC) != 4) {
         func_0046d730(&D_0064EB40[0], 0xBD);
     }
     n = *(s32 *)(arg0 + 0x1F304);
     if (n < 6) {
         for (i = 0; i < 6; i += 2) {
-            c = n;
-            k = c - 1;
-            while (k > 0) {
-                rnd = RpRandom();
-                c = (s32)((f32)c * ((f32)(rnd & 0xFFF) / 4096.0f));
-                if (k < 0 || n <= k) {
+            first = i * n;
+            second = (i + 1) * n;
+            for (k = n - 1; k > 0; k--) {
+                c = (k + 1) * ((f32)(RpRandom() & 0xFFF) / 4096.0f);
+                if (k < 0 || k >= n) {
                     func_0046d730(&D_0064EB40[0], 0xCB);
                 }
-                if (c < 0 || n <= c) {
+                if (c < 0 || c >= n) {
                     func_0046d730(&D_0064EB40[0], 0xCC);
                 }
-                d = (u64 *)bufC;
-                s = (u64 *)((s32)arg0 + (i * n + k) * 0xFB0);
-                t = 0x1F6;
-                do {
-                    d[0] = s[0];
-                    d[1] = s[1];
-                    d += 2;
-                    s += 2;
-                    t--;
-                } while (t > 0);
-                d = (u64 *)((s32)arg0 + (i * n + k) * 0xFB0);
-                s = (u64 *)((s32)arg0 + (i * n + c) * 0xFB0);
-                t = 0x1F6;
-                do {
-                    d[0] = s[0];
-                    d[1] = s[1];
-                    d += 2;
-                    s += 2;
-                    t--;
-                } while (t > 0);
-                d = (u64 *)((s32)arg0 + (i * n + c) * 0xFB0);
-                s = (u64 *)bufC;
-                t = 0x1F6;
-                do {
-                    d[0] = s[0];
-                    d[1] = s[1];
-                    d += 2;
-                    s += 2;
-                    t--;
-                } while (t > 0);
-                d = (u64 *)((s32)arg0 + ((i + 1) * n + k) * 0xFB0);
-                s = (u64 *)bufA;
-                t = 0x1F6;
-                do {
-                    s[0] = d[0];
-                    s[1] = d[1];
-                    s += 2;
-                    d += 2;
-                    t--;
-                } while (t > 0);
-                d = (u64 *)((s32)arg0 + ((i + 1) * n + k) * 0xFB0);
-                s = (u64 *)((s32)arg0 + ((i + 1) * n + c) * 0xFB0);
-                t = 0x1F6;
-                do {
-                    d[0] = s[0];
-                    d[1] = s[1];
-                    d += 2;
-                    s += 2;
-                    t--;
-                } while (t > 0);
-                d = (u64 *)((s32)arg0 + ((i + 1) * n + c) * 0xFB0);
-                s = (u64 *)bufA;
-                t = 0x1F6;
-                do {
-                    d[0] = s[0];
-                    d[1] = s[1];
-                    d += 2;
-                    s += 2;
-                    t--;
-                } while (t > 0);
-                k = c - 1;
+                tmp0 = cards[first + k];
+                cards[first + k] = cards[first + c];
+                cards[first + c] = tmp0;
+                tmp1 = cards[second + k];
+                cards[second + k] = cards[second + c];
+                cards[second + c] = tmp1;
             }
         }
     } else {
-        i = 0;
-        do {
-            c = n;
-            k = c - 1;
-            while (k > 0) {
-                rnd = RpRandom();
-                c = (s32)((f32)c * ((f32)(rnd & 0xFFF) / 4096.0f));
-                if (k < 0 || n <= k) {
+        for (i = 0; i < 3; i++) {
+            first = i * n;
+            for (k = *(s32 *)(arg0 + 0x1F304) - 1; k > 0; k--) {
+                c = (k + 1) * ((f32)(RpRandom() & 0xFFF) / 4096.0f);
+                if (k < 0 || k >= n) {
                     func_0046d730(&D_0064EB40[0], 0xDF);
                 }
-                if (c < 0 || n <= c) {
+                if (c < 0 || c >= n) {
                     func_0046d730(&D_0064EB40[0], 0xE0);
                 }
-                d = (u64 *)bufB;
-                s = (u64 *)((s32)arg0 + (i * n + k) * 0xFB0);
-                t = 0x1F6;
-                do {
-                    d[0] = s[0];
-                    d[1] = s[1];
-                    d += 2;
-                    s += 2;
-                    t--;
-                } while (t > 0);
-                d = (u64 *)((s32)arg0 + (i * n + k) * 0xFB0);
-                s = (u64 *)((s32)arg0 + (i * n + c) * 0xFB0);
-                t = 0x1F6;
-                do {
-                    d[0] = s[0];
-                    d[1] = s[1];
-                    d += 2;
-                    s += 2;
-                    t--;
-                } while (t > 0);
-                d = (u64 *)((s32)arg0 + (i * n + c) * 0xFB0);
-                s = (u64 *)bufB;
-                t = 0x1F6;
-                do {
-                    d[0] = s[0];
-                    d[1] = s[1];
-                    d += 2;
-                    s += 2;
-                    t--;
-                } while (t > 0);
-                k = c - 1;
+                tmp2 = cards[first + k];
+                cards[first + k] = cards[first + c];
+                cards[first + c] = tmp2;
             }
-            i++;
-        } while (i < 3);
+        }
     }
 }
 #pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle5", func_0037ef40);
-#endif
 // FUN_0037F430
 s32 func_0037f430(u8 *arg0)
 {
