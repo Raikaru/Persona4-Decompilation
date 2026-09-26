@@ -1,0 +1,90 @@
+diff --git a/src/Event/Fcl/y_fclCombine.c b/src/Event/Fcl/y_fclCombine.c
+index 070dc1d..143e938 100644
+--- a/src/Event/Fcl/y_fclCombine.c
++++ b/src/Event/Fcl/y_fclCombine.c
+@@ -4389,8 +4389,8 @@ void func_002f6cf0(u8 *arg0) {
+     extern void func_003144d0(u8 *, s32, s8, s32, s32);
+     extern void func_00314450(u8 *, s32, u8, s32);
+     extern s32 func_00311930(s32, u8 *, s8);
+-    extern s64 func_00313ae0(s64, s32);
+-    extern s32 func_00313a80(s64, s64);
++    extern s8 func_00313ae0(s8, u16);
++    extern s32 func_00313a80(s8, s8);
+     extern void func_002f9c30(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 *, s32, s8, s8);
+     extern u8 D_00795E60[];
+     extern f32 D_00640E70[];
+diff --git a/src/promoted/code1_0031.c b/src/promoted/code1_0031.c
+index 5bd9692..b7e192b 100644
+--- a/src/promoted/code1_0031.c
++++ b/src/promoted/code1_0031.c
+@@ -334,7 +334,7 @@ void func_00313800(s8 arg0)
+ }
+ #pragma pop
+ // FUN_003139D0
+-s32 func_003139d0(s64 arg0, s64 arg1)
++s32 func_003139d0(s8 arg0, s8 arg1)
+ {
+     s32 i;
+     s32 start;
+@@ -342,8 +342,8 @@ s32 func_003139d0(s64 arg0, s64 arg1)
+     s32 result;
+ 
+     i = 0;
+-    start = (s8)arg1 + 1;
+-    limit = (s8)arg0;
++    start = arg1 + 1;
++    limit = arg0;
+     goto loop_test;
+ loop_body:
+     if (func_0010ac10(*(u16 *)(func_002e48a0((s8)start, i) + 2)) == 0) {
+@@ -360,36 +360,28 @@ done:
+     return result;
+ }
+ // FUN_00313A80
+-s32 func_00313a80(s64 arg0, s64 arg1)
++s32 func_00313a80(s8 arg0, s8 arg1)
+ {
+-    return func_0010ac10(*(u16 *)(*(u8 **)((u8 *)D_00642EF0 + ((s8)arg0 * 8)) + ((s8)arg1 * 0x20))) != 0;
++    return func_0010ac10(*(u16 *)(*(u8 **)((u8 *)D_00642EF0 + (arg0 * 8)) + (arg1 * 0x20))) != 0;
+ }
++/* Slot of the given item in a kind's six-entry table (0 when absent).  The
++   id is widened once on entry, as retail does before the table walk. */
+ // FUN_00313AE0
+-s64 func_00313ae0(s64 arg0, s32 arg1)
++s8 func_00313ae0(s8 arg0, u16 arg1)
+ {
+     s32 i;
+-    s64 result;
+-    u8 *table;
++    s32 id;
++    u8 **table;
+ 
+     i = 0;
+-    arg1 = (u16)arg1;
+-    table = (u8 *)D_00642F00 + ((s8)arg0 * 8);
+-    goto loop_test;
+-loop_body:
+-    if (func_0031_ne(*(u16 *)(*(u8 **)(table - 0x10) + (i * 0x20)), arg1)) {
+-        goto loop_next;
+-    }
+-    result = (s8)i;
+-    goto done;
+-loop_next:
+-    i++;
+-loop_test:
+-    if (i < 6) {
+-        goto loop_body;
++    id = arg1;
++    table = (u8 **)((u8 *)D_00642F00 + arg0 * 8);
++    for (; i < 6; i++) {
++        if (!func_0031_ne(*(u16 *)(table[-4] + i * 0x20), id)) {
++            return i;
++        }
+     }
+-    result = 0;
+-done:
+-    return result;
++    return 0;
+ }
+ /* measured: shared inline lookup and loop-invariant hoisting give 464B/464B MATCH. */
+ #pragma push
