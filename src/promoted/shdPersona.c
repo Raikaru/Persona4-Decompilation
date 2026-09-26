@@ -31,7 +31,7 @@ void func_00115e90(Vec2f, f32, s32, s16 *);
 extern char iGpffff9c0c;
 extern char iGpffff9c08;
 
-u8 *func_00109220(s32 personaId);
+u8 *func_00109220(u16 personaId);
 u8 *func_0046a770(char *arg0);
 void func_00116190(s64, f32, s32, u8 *, s32 *);
 void func_00116610(s64, f32, s32, u8 *, s32 *);
@@ -272,7 +272,7 @@ void func_00115cb0(Vec2f arg0, f32 farg3, s32 arg1, s16 *arg2)
 
 
 
-u8 *func_00109220(s32 personaId);
+u8 *func_00109220(u16 personaId);
 /* measured: func_00115dc0 closes the 208B fp-colour member. Its final
    renderer declaration is interleaved as
    `func_00274ed0(f32,f32,f32,s32,s8,s32,const char*,s32,s32)`, preserving the
@@ -413,7 +413,7 @@ void func_001162f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
 
 
 
-u8 func_00109280(s32 personaId);
+u8 func_00109280(u16 personaId);
 f32 func_0046b1f0(s32, s32);
 /* measured: FP/GP colouring residual, nd 99. The family's real signature
    IS (s64 arg0, u8 *arg2, s32 *arg3, f32 fparg0) with the color and its
@@ -4476,7 +4476,7 @@ s32 func_002bb4e0(void);
 s32 func_002bb600(void);
 u32 func_002bb1e0(s32);
 s32 func_002bb140(void);
-u32 func_001092f0(u32);
+u16 func_001092f0(u32);
 extern u16 D_008C024E[];
 extern u16 D_008C024C[];
 /* Level-up messages retain the parent task across skill lookups and read
@@ -4555,11 +4555,9 @@ s32 func_0011e8e0(u8 *arg0)
             isOld = 1;
         }
         if ((isOld != 0) || (D_008C024E[0] & 0x50) || ((D_008C024C[0] & 0x10) && ((++*(u16 *)(work + 4) > 4)))) {
-            u32 id;
             u16 id2;
             func_002baac0((u8 *)(*(s32 *)(work + 0x24)));
-            id = func_001092f0((u32)first);
-            func_002bbd20(0, func_00109220(id));
+            func_002bbd20(0, func_00109220(func_001092f0((u32)first)));
             id2 = *(s16 *)(*(u8 **)(*(u8 **)(work + 0x1C) + 0x38) + 0xC);
             func_002bbd20(1, (void *)func_0010d6d0(id2));
             func_002bad10(*(s32 *)(work + 0x30));
@@ -4922,7 +4920,7 @@ u32 func_002bb1e0(s32 arg0);
 s32 func_002bb140(void);
 u16 func_0011ccb0(u8 *arg0);
 void func_00115760(u8 *arg0);
-u32 func_001092f0(u32 arg0);
+u16 func_001092f0(u32 arg0);
 s16 func_00115380(u8 *, s32);
 extern u16 D_008C024E[];
 extern u16 D_008C024C[];
@@ -5039,11 +5037,9 @@ s32 func_0011f5a0(u8 *arg0)
                         *(s32 *)(work + 8) = 4;
                     } else {
                         u8 *qb2;
-                        u32 personaId;
                         *(s32 *)(work + 8) = 6;
                         qb2 = first;
-                        personaId = func_001092f0((u32)qb2);
-                        qb2 = func_00109220(personaId);
+                        qb2 = func_00109220(func_001092f0((u32)qb2));
                         func_002bbd20(0, qb2);
                         func_002bbd20(1, func_00243840(*(u16 *)(work + 4)));
                         func_002bad10(*(s32 *)(work + 0x30));

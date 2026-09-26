@@ -45,14 +45,82 @@ Casealign totals, then fndiff words once the function was size-exact.
    s32 or u8 the byte load was hoisted ahead of `lw 0x148` (3 sites). The
    callee only stores the byte with `sb`. Its sibling func_00314560 takes the
    same +0xC field as `s8`.
-8. The class id is `u16`. This matches g_data's `func_00105f50(u16)`, which
-   is also what func_003097e0 needed. It goes to `func_00310a10` unmasked,
-   through a local `(u8 *, u16)` prototype. The definition keeps `s32`,
-   because a `u16` parameter re-normalises `arg1` in place there (5 words)
-   and an unprototyped call still masks. This is the one prototype that is
-   narrower than its definition. It is commented at the declaration.
+8. The class id is `u16` and every persona-id callee takes `u16`. See
+   "Class-id contract" below.
 
-## Why the func_00310a10 declaration stays u16 (STYLE exception, measured)
+## Class-id contract (resolved 2026-09-26)
+
+Earlier revisions kept a block-scope `func_00310a10(u8 *, u16)` declaration
+that conflicted with an `s32` definition, then parked the body. The conflict
+came from two wrong definitions, not from the caller. Retail's persona-id API
+takes `u16` throughout, and MWCC b210 passes a `u16` value to a `u16`
+parameter without a mask. It masks on any u16 <-> 32-bit change. Every
+declaration below now agrees with its definition across `src/`.
+
+- `func_00310a10(u8 *, u16 arg1)`. The row lookup is plain
+  `iGpffffb3d4[arg1 * 14 + 2]`, which gives retail's `andi $v1,$s2` into a
+  temporary. arg1 then reaches `func_00109280` raw. The old `s32` form needed
+  an explicit `(arg1 & 0xFFFF)`. A `u16` parameter only renormalised `$s2` in
+  place because `func_00109280` was still declared `s32`, which made the
+  zero-extension shared.
+- `func_00109280(u16)` and `func_00109220(u16)` in g_data. Retail masks the id
+  separately for the `< 0x100` check and for the row offset. A plain
+  `id * 0xE` CSEs both into one entry `andi $s0,$a0` (20 words), and so did
+  `& 0xffff`, `(s32)` casts, `u16`/`s32` copies and a struct-array index.
+  `(u32)personaId * 0xE` (and `* 0x11`) is a distinct conversion and matches.
+- `func_001092f0` returns `u16`. The body reads `*(u16 *)(arg0 + 2)`, like its
+  siblings 109300 and 109360.
+- `func_003026c0(u16, s32)`. Its callers pass `lhu` values, and it passes
+  arg0 raw to 109280.
+- Callers updated so their bytes are unchanged:
+  - code1_0036 `func_003672d0`: `u16 personaId = func_00105290(pcId)`.
+  - shdPersona `func_0011e8e0` and `func_0011f5a0`: the 1092f0 result goes
+    straight into 109220. A `u16` local re-masks a call result.
+  - Declarations in itfMesManager, code1_0019 (`(s32)` casts on the pointer
+    return), code1_0020, code1_0038, cmmScript, cmmMisc, cmmRankUp,
+    y_fclCombineDraw and y_fclCombine.
+- `func_00105f50(u16)` and `func_0034a640(.., u16, ..)` are unchanged. The
+  all-32-bit alternative stays ruled out. With `func_0034a640(u8 *, s32,
+  s64)`, y_fclCombineDraw `func_0032c480` hoists `lhu $a1` above
+  `lw $a0,0x254`, a 2-word difference. None of these closed it:
+  - a u16, s32 or bitfield (`u32 cls:16`) read;
+  - `(s32)`, `(u16)` and `& 0xFFFF` spellings;
+  - pointer or index temporaries;
+  - `(u8 *)(u32)` and `*(u8 **)` model reads;
+  - s32/int/u8 third parameters;
+  - an unprototyped declaration.
+  Only a `u16` parameter keeps the argument order. u16 -> s32 at a
+  prototyped call is scheduled as a computed argument, ahead of the memory
+  operands.
+- Other hypotheses measured in 002ed430 with an `s32` 310a10: an enum-typed
+  temporary is int-sized and masks at both 105f50 calls.
+- File-boundary evidence for 310a10: its only rodata, D_00749480, sits after
+  the 00302570/00304580/00308f40 tables. It also comes before code1_0031's
+  D_007494D0, so it fits y_fclCombine's rodata run in order. No TU split
+  is indicated.
+
+All affected units verified unchanged or improved, with no WRONG SYMBOL
+lines:
+- y_fclCombine 33/8 (002ed430 now MATCH)
+- y_fclCombineDraw 61/9
+- g_data 137
+- code1_0034 28
+- code1_0036 31/3
+- code1_0038 88/7
+- shdPersona 100/2
+- cmmMisc 57
+- fclCombineMisc 11
+- itfMesManager 85
+- code1_0020 146
+- cmmScript 50/1
+- btlShuffleResult 7/3
+- datPersona 56
+- cmmRankUp 26
+- code1_0019 150/1
+
+Lint: 0 errors.
+
+## Superseded: why the func_00310a10 declaration stayed u16
 In state 0x2F, retail loads the class id once (`lhu $s0`). It then passes
 `$s0` unmasked to `func_00105f50` and to `func_00310a10`. MWCC masks on
 every type change between u16 and a 32-bit type, but not on u16 -> u16 or
@@ -86,7 +154,7 @@ s32 <-> u32. So:
 No single set of prototypes reproduces all four functions. The narrow local
 declaration is the smallest deviation measured.
 
-## Parked (2026-09-25)
+## Parked (2026-09-25; superseded by the class-id contract above)
 
 The byte-exact body is kept in `src/Event/Fcl/y_fclCombine.c` under
 `#ifdef NON_MATCHING`, with `INCLUDE_ASM` as the active build. It depends on a
