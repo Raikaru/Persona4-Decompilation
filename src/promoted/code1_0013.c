@@ -69,8 +69,8 @@ extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, s32 arg3);
 extern void func_00112300(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
 extern void func_002bc4b0(f32 fparg0, s32 arg0, s32 arg1, s32 arg2,
                           s32 arg3, s32 arg4, s32 arg5);
-extern void func_0011fd30(s16 *arg0);
-extern void func_0011fd50(s64 arg0, s32 arg1, s16 *arg2, s32 arg3, f32 fparg0);
+extern void func_0011fd30(u8 *arg0);
+extern void func_0011fd50(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 extern s32 func_00104c70(s32 arg0);
 extern f32 fGpffff82cc; /* gp -0x7d34 */
 extern void func_00113790(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
@@ -261,186 +261,105 @@ s32 func_00130600(u8 *arg0) {
     }
     return flag & func_0034c210();
 }
-/* Model floor (1456B window; obj 1452B). Probe 304 words (verify nd 918),
-   fnalign 433 edits plus 7 reloc-only, retail 363/object 363 exact via dead-arm store
-   (was 445; shortfall vanished 361-vs-359 -> 363-vs-363).
-   WINS this round: spd 12B array (matched func_00367940 tmp[12] idiom;
-   208/214/216 exact, +14 layout fixed, dead li+sw/sh kept via alias),
-   loop %10 without fresh andi (retail reuses test $2, no extra andi).
-   Prior WINS kept: 68cb0 arm-flip (c.le+bc1t small-first, all 3 convs),
-   reassign int->float, trunc idiom, 1.0f init, b2 addu order.
-   slti check: exclusive <0xA kept ($at wall none; <=0xA neutral at 302).
-   WALLS (coloring chaos, ~27 inert probes total): unmerge-wall (b0/b1
-   identical RHS merges to s5-sum; retail i21 in s5 + v-temp sums
-   + pp s5-reuse), t30 spill (sq/lq@192, s16-narrow), pp2 dup,
-   s/f-rotations, f12t offset (220 vs 200), temp-reg names. D_0064 rows
-   are reloc phantoms. This round inert: final-reassign, loop-mask alone,
-   slti-inclusive, dead else-if, i21/bb orders, decl reorder, b2 order,
-   pragmas, unmerge split, pp+4. Re-measured 2026-09-17: cse_off fndiff 300
-   verify 888 obj 1508 fnalign 463 retail 364/object 377; +loopinv 300 neutral,
-   +schedule 345 worse, +nobl 300 neutral. Resume: declaration-order key for f12t,
-   then t30 narrow.
-*/
-/* measured 00130680: `opt_common_subs off` inside the guard is worth 4 words (304 -> 300); retail rematerialises what b210 hoists. */
-/* re-measured 00130680: `python3 -E -s tools/measure_guarded.py src/promoted/code1_0013.c func_00130680`
-   reports 300 differing words today.  The figures in the note above are
-   from earlier bodies and no longer describe what is banked here; they
-   are kept only as history.  Flagged by `tools/floorboard.py --audit`. */
-// FUN_00130680 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
+/* measured: 1448B in the 1456B window.  The slot x/y reads are f32-array views
+   (retail adds the row before arg0), and the last sprite pointer is a local
+   loaded ahead of the alpha conversion, which needs opt_propagation off. */
+#pragma push
 #pragma opt_propagation off
+// FUN_00130680
 void func_00130680(u8 *arg0, s32 arg1)
 {
-    s32 v23;
-    s32 t30;
-    s32 b2;
-    f32 f24g;
-    u8 spd[12];
-    f32 f22;
-    f32 f21;
-    s32 tu0;
-    f32 fq;
-    f32 f23d;
-    s32 t3;
-    u8 *pb0;
-    u8 *pb1;
-    u8 *pb2;
-    s32 i21;
-    u8 *bb;
-    f32 f20t;
-    f32 f1t;
-    s32 tu2;
-    f32 fmul2;
-    s32 mbyte;
-    s32 s3v;
-    u8 *pp;
-    u8 *pp2;
-    f32 f12t;
-    f32 f13t;
-    s32 dc;
-    f32 s3f;
-    f32 fmul3;
-    s32 vfin;
+    typedef struct
+    {
+        s16 id;
+        s16 pad2;
+        s16 unk4;
+        s16 highlight;
+        s32 mode;
+    } LabelParam;
+    typedef struct
+    {
+        f32 x;
+        f32 y;
+        u8 pad8[2];
+        u8 alpha;
+        u8 padB[0x25];
+    } LabelSlot;
+    s32 id;
+    s32 highlight;
+    u8 *color0;
+    u8 *color1;
+    u8 *color2;
+    u8 n;
+    u8 alpha;
+    f32 dim;
+    f32 fade;
+    f32 x;
+    f32 y;
+    f32 yoff;
+    f32 ty;
+    LabelParam param;
+    Vec2f pos;
+    void *spr;
 
-    b2 = arg1 * 2;
-    t30 = *(s16 *)(b2 + (s32)arg0 + 0x34);
-    f24g = 1.0f;
-    v23 = 0;
-    func_0011fd30((s16 *)spd);
-    *(s32 *)(spd + 8) = 1;
-    *(s16 *)spd = t30;
-    f22 = *(f32 *)(arg0 + 4);
-    f21 = *(f32 *)(arg0 + 8);
-    tu0 = *(u8 *)(arg0 + 0);
-    if (tu0 >= 0) {
-        fq = (f32)tu0;
+    id = ((s16 *)(arg0 + 0x34))[arg1];
+    dim = 1.0f;
+    highlight = 0;
+    func_0011fd30((u8 *)&param);
+    param.mode = 1;
+    param.id = id;
+    x = *(f32 *)(arg0 + 4);
+    y = *(f32 *)(arg0 + 8);
+    fade = (f32)*(u8 *)arg0 / 255.0f;
+    if (((*(s32 *)(arg0 + 0x14) & 0x10) != 0 && *(s16 *)(arg0 + 0x26) == arg1) || (*(s32 *)(arg0 + 0x14) & 0x20) != 0) {
+        highlight = 1;
+        param.highlight = highlight;
+        color0 = D_0064B2E8;
+        color1 = D_0064B2EC;
+        color2 = D_0064B2FC;
     } else {
-        tu0 = ((u32)tu0 >> 1) | (tu0 & 1);
-        fq = (f32)tu0;
-        fq += fq;
+        param.highlight = 0;
+        color0 = D_0064B2E0;
+        color1 = D_0064B2F0;
+        color2 = D_0064B308;
+        dim = fGpffff82cc;
     }
-    f23d = fq / 255.0f;
-    t3 = *(s32 *)(arg0 + 0x14);
-    if (((t3 & 0x10) != 0 && *(s16 *)(arg0 + 0x26) == arg1) || ((t3 & 0x20) != 0)) {
-        v23 = 1;
-        *(s16 *)(spd + 6) = v23;
-        pb0 = D_0064B2E8;
-        pb1 = &D_0064B2E8[4];
-        pb2 = &D_0064B2E8[20];
-    } else {
-        *(s16 *)(spd + 6) = 0;
-        pb0 = D_0064B2E0;
-        pb1 = &D_0064B2E0[16];
-        pb2 = &D_0064B2E0[40];
-        f24g = fGpffff82cc;
+    pos.x = 67.0f + (x + ((LabelSlot *)(arg0 + 0x16D8))[arg1].x);
+    yoff = 75.0f * (f32)arg1;
+    ty = 24.0f + (y + ((LabelSlot *)(arg0 + 0x16D8))[arg1].y);
+    pos.y = ty + yoff;
+    ty = ((LabelSlot *)(arg0 + 0x16D8))[arg1].alpha;
+    func_0011fd50(pos, 0.0f, (u8)(ty * fade), (u8 *)&param, 0);
+    alpha = (f32)(arg0 + 0x1622)[arg1 * 0x30] * fade;
+    pos.x = 60.0f + (x + ((f32 *)(arg0 + 0x1618))[arg1 * 12]);
+    ty = y + ((f32 *)(arg0 + 0x161C))[arg1 * 12];
+    pos.y = 21.0f + (ty + yoff);
+    func_0034f2e0(*(void **)(arg0 + 0x1B90), pos.x, pos.y, color0[0], color0[1], color0[2], alpha);
+    if (highlight != 0) {
+        pos.x = 2.0f + (x + ((f32 *)(arg0 + 0x1618))[arg1 * 12]);
+        ty = y + ((f32 *)(arg0 + 0x161C))[arg1 * 12];
+        pos.y = 27.0f + (ty + yoff);
+        func_0034f2e0(*(void **)(arg0 + 0x1B94), pos.x, pos.y, 0x4C, 0x4C, 0x4C, alpha);
     }
-    i21 = arg1 * 0x30;
-    bb = (u8 *)(i21 + (s32)arg0);
-    f12t = 67.0f + (f22 + *(f32 *)(bb + 0x16D8));
-    f20t = 75.0f * (f32)arg1;
-    f13t = 24.0f + (f21 + *(f32 *)(bb + 0x16DC)) + f20t;
-    tu2 = *(u8 *)(bb + 0x16E2);
-    if (tu2 >= 0) {
-        f1t = (f32)tu2;
-    } else {
-        tu2 = ((u32)tu2 >> 1) | (tu2 & 1);
-        f1t = (f32)tu2;
-        f1t += f1t;
+    n = func_00104c70(id);
+    pos.x = 43.0f + (x + ((f32 *)(arg0 + 0x1618))[arg1 * 12]);
+    ty = y + ((f32 *)(arg0 + 0x161C))[arg1 * 12];
+    pos.y = 25.0f + (ty + yoff);
+    if (n < 10) {
+        pos.x -= 11.0f;
     }
-    fmul2 = f1t * f23d;
-    if (!(2147483648.0f <= fmul2)) {
-        mbyte = (s32)(fmul2) & 0xFF;
-    } else {
-        mbyte = ((s32)(fmul2 - 2147483648.0f)) | 0x80000000;
-        mbyte &= 0xFF;
+    while (n > 0) {
+        func_0034f2e0(*(void **)(arg0 + (n % 10) * 4 + 0x1BA4), pos.x, pos.y, color1[0], color1[1], color1[2], alpha);
+        pos.x -= 22.0f;
+        n /= 10;
     }
-    s3v = mbyte & 0xFF;
-    func_0011fd50(*(s64 *)&f12t, mbyte & 0xFF, (s16 *)spd, 0, 0.0f);
-    bb = (u8 *)(i21 + (s32)arg0);
-    tu2 = *(u8 *)(bb + 0x1622);
-    if (tu2 >= 0) {
-        f1t = (f32)tu2;
-    } else {
-        tu2 = ((u32)tu2 >> 1) | (tu2 & 1);
-        f1t = (f32)tu2;
-        f1t += f1t;
-    }
-    fmul2 = f1t * f23d;
-    if (!(2147483648.0f <= fmul2)) {
-        mbyte = (s32)(fmul2) & 0xFF;
-    } else {
-        mbyte = ((s32)(fmul2 - 2147483648.0f)) | 0x80000000;
-        mbyte &= 0xFF;
-    }
-    s3v = mbyte & 0xFF;
-    pp = bb + 0x1618;
-    f12t = 60.0f + (f22 + *(f32 *)(bb + 0x1618));
-    pp2 = bb + 0x161C;
-    f13t = 21.0f + (f21 + *(f32 *)(bb + 0x161C)) + f20t;
-    func_0034f2e0(*(void **)(arg0 + 0x1B90), f12t, f13t,
-                  pb0[0], pb0[1], pb0[2], s3v);
-    if (v23 != 0) {
-        f12t = 2.0f + (f22 + *(f32 *)(pp + 0));
-        f13t = 27.0f + (f21 + *(f32 *)(pp2 + 0)) + f20t;
-        func_0034f2e0(*(void **)(arg0 + 0x1B94), f12t, f13t,
-                      0x4C, 0x4C, 0x4C, s3v);
-    }
-    dc = func_00104c70(t30) & 0xFF;
-    f12t = 43.0f + (f22 + *(f32 *)(pp + 0));
-    f13t = 25.0f + (f21 + *(f32 *)(pp2 + 0)) + f20t;
-    if (dc < 0xA) {
-        f12t = f12t - 11.0f;
-    }
-    while ((dc & 0xFF) > 0) {
-        func_0034f2e0(*(void **)((s32)arg0 + ((dc % 10) * 4) + 0x1BA4),
-                      f12t, f13t, pb1[0], pb1[1], pb1[2], s3v);
-        f12t = f12t - 22.0f;
-        dc = ((u32)(dc & 0xFF) / 10U) & 0xFF;
-    }
-    f12t = 37.0f + (f22 + *(f32 *)(pp + 0));
-    f13t = 53.0f + (f21 + *(f32 *)(pp2 + 0)) + f20t;
-    if (s3v >= 0) {
-        s3f = (f32)s3v;
-    } else {
-        s3f = (f32)(((u32)s3v >> 1) | (s3v & 1));
-        s3f += s3f;
-    }
-    fmul3 = s3f * f24g;
-    if (!(2147483648.0f <= fmul3)) {
-        vfin = (s32)(fmul3) & 0xFF;
-    } else {
-        vfin = ((s32)(fmul3 - 2147483648.0f)) | 0x80000000;
-        vfin &= 0xFF;
-    }
-    func_0034f2e0(*(void **)(arg0 + 0x1BE0), f12t, f13t,
-                  pb2[0], pb2[1], pb2[2], vfin);
+    pos.x = 37.0f + (x + ((f32 *)(arg0 + 0x1618))[arg1 * 12]);
+    ty = y + ((f32 *)(arg0 + 0x161C))[arg1 * 12];
+    pos.y = 53.0f + (ty + yoff);
+    spr = *(void **)(arg0 + 0x1BE0);
+    func_0034f2e0(spr, pos.x, pos.y, color2[0], color2[1], color2[2], (u8)((f32)alpha * dim));
 }
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00130680);
-#endif
+#pragma pop
 // FUN_00130C30
 /* measured: opt_propagation off probe for func_00130c30 ordering. */
 #pragma opt_propagation off
@@ -1091,7 +1010,7 @@ void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2) {
         fDiv = fDiv + fDiv;
     }
     fDiv = fDiv / 255.0f;
-    func_0011fd30((s16 *)spd);
+    func_0011fd30(spd);
     *(s32 *)(spd + 8) = 1;
     *(s16 *)spd = idx0;
     if (*(s16 *)(arg0 + arg2 * 2 + 0x5C) == arg1 || (*(s32 *)(arg0 + 0x1C) & 0x100) != 0) {
@@ -1129,7 +1048,7 @@ void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2) {
         col &= 0xFF;
     }
     col = col & 0xFF;
-    func_0011fd50(*(s64 *)&spC8, col & 0xFF, (s16 *)spd, 0, 0.0f);
+    func_0011fd50(*(Vec2f *)&spC8, 0.0f, col & 0xFF, spd, 0);
     e2 = arg0 + (cntB + arg1) * 0x30;
     c1 = e2[0x59E];
     if (c1 >= 0) { fProd = (f32)c1; } else { c1 = ((u32)c1 >> 1) | (c1 & 1); fProd = (f32)c1; fProd = fProd + fProd; }
