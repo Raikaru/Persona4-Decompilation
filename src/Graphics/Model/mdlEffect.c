@@ -11,7 +11,7 @@ extern void func_004b11d0(s32 arg0, s32 arg1);
 
 extern void func_004b1170();
 
-extern void func_004b13f0(s32 arg0, s32 arg1);
+extern void func_004b13f0(void *object, s32 *color);
 
 extern void func_004b13d0(float param_1, u8 param_2[][16]);
 extern void func_0047dae0(u32 *param_1);
@@ -352,7 +352,7 @@ void func_0047d840(u32 *param_1)
 
 
 // FUN_0047D8A0
-void func_0047d8a0(u8 **arg0, s32 arg1)
+void func_0047d8a0(u8 **arg0, s32 *arg1)
 {
     s32 temp_4;
     u8 *var_16;
@@ -361,7 +361,7 @@ void func_0047d8a0(u8 **arg0, s32 arg1)
     while (var_16 != NULL) {
         temp_4 = *(s32 *)(var_16 + 8);
         if (temp_4 != 0) {
-            func_004b13f0(temp_4, arg1);
+            func_004b13f0((void *)temp_4, arg1);
         }
         var_16 = *(u8 **)(var_16 + 0x10);
     }

@@ -170,7 +170,6 @@ extern void RwMatrixMultiply(void* a, void* b, void* c);
 
 extern void func_004585c0(u8* arg0);
 extern void* func_00476e90(void* object, void* data);
-extern f32 iGpffff8044;
 extern u8 D_00713160[];
 extern s32 func_004581a0(void* object, const char* data);
 extern u8 D_007131D8[];
@@ -3689,33 +3688,18 @@ typedef struct MdlMaterialColorGeometry {
     u32 count;
 } MdlMaterialColorGeometry;
 
-/* Retail reloads iGpffff8044 for each channel instead of holding it in one
- * register.  That reload used to be forced with `*(volatile f32*)&iGpffff8044`,
- * which reaches GUARDED_SCORE 0 on func_00476e90 - and is removed anyway,
- * because `volatile` on ordinary memory is a banned construct here: it is a
- * lie about the storage, and a body that depends on it is not a faithful
- * reconstruction however well it scores.
- * Measured replacements, all without volatile: `opt_common_subs off` 73,
- * `opt_common_subs on` 180, `opt_propagation on` 81, and dropping the `channel`
- * temporary 73.  `opt_common_subs off` is kept as a measured pair (73 against
- * 180); the remaining 73 is the honest floor until a non-volatile spelling of
- * the per-channel reload is found. */
+/* RwRGBA -> RwRGBAReal normalisation.  The 1/255 scale is a float literal, so
+ * MWCC places it in .sdata and reloads it per channel (gp-relative), while the
+ * shared 0.0f accumulator seed of the quantiser stays CSE'd across channels. */
 #pragma push
 #pragma always_inline on
-#pragma opt_common_subs off
-#pragma opt_propagation off
 
 static inline void mdlColorToReal(MdlMaterialColorReal* out, const RwRGBA* color)
 {
-    f32 channel;
-    channel = (f32)(u32)color->red;
-    out->red = iGpffff8044 * channel;
-    channel = (f32)(u32)color->green;
-    out->green = iGpffff8044 * channel;
-    channel = (f32)(u32)color->blue;
-    out->blue = iGpffff8044 * channel;
-    channel = (f32)(u32)color->alpha;
-    out->alpha = iGpffff8044 * channel;
+    out->red = (f32)(u32)color->red * (1.0f / 255.0f);
+    out->green = (f32)(u32)color->green * (1.0f / 255.0f);
+    out->blue = (f32)(u32)color->blue * (1.0f / 255.0f);
+    out->alpha = (f32)(u32)color->alpha * (1.0f / 255.0f);
 }
 
 static inline void mdlColorUnpack(RwRGBA* out, u32 packed)
@@ -3736,24 +3720,7 @@ static inline void mdlColorQuantize(RwRGBA* out, const MdlMaterialColorReal* col
     out->alpha = (s32)(bias + maximum * color->alpha);
 }
 
-/* measured 00476e90 (owner, 2026-09-19): demoted from MATCH to a guarded NONMATCHING body,
-   and the reason matters more than the loss.  It matched only because the four per-channel
-   reads of iGpffff8044 were spelled `*(volatile f32*)&iGpffff8044`.  `volatile` on ordinary
-   memory is a banned construct here - it is a lie about the storage - so it was removed,
-   and the function stopped matching.  Leaving it unguarded would have left verify.py
-   reporting MISMATCH, which is a false claim that the C reproduces retail; a guarded body
-   over the INCLUDE_ASM says what is actually true.
-   The residual is 73 differing words and it is NOT the float reloads - those still land on
-   retail's `lwc1 $f0, -0x7fbc($gp)`.  It is register identity: `geometry` lands in $s0
-   where retail holds it in $s1, and the packed colour round-trips through 0x8c-0x8f($sp)
-   where retail stores straight to the material.
-   Measured against the 73: ALL TWENTY-FOUR permutations of the four local declarations
-   score exactly 73, so declaration order does not reach this allocation (consistent with
-   handoff 7bf); quantising straight into `material->color` instead of through the `color`
-   temporary is 147, twice as bad.  Earlier, without volatile: `opt_common_subs off` 73,
-   `opt_common_subs on` 180, `opt_propagation on` 81, dropping the `channel` temporary 73. */
-// FUN_00476E90 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00476E90
 void* func_00476e90(void* object, void* data)
 {
     MdlMaterialColorGeometry* geometry;
@@ -3782,9 +3749,6 @@ void* func_00476e90(void* object, void* data)
     }
     return object;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00476e90);
-#endif
 #pragma pop
 // FUN_00477260
 void func_00477260(void* param_1, u32* param_2, u16 param_3)
@@ -4898,37 +4862,9 @@ void func_00479080(void* param_1, void* param_2)
     }
 }
 
-/* measured cold479100+4: sanitized m2c (K&R->ANSI) 187 lines COP2 M2C_ERROR; k_draw raw idiom (Model/RwRGBA/MdlCloneLayer/MdlWpnSlot, no new struct). Gap 477/477. R3: blez<=0 29 (adopts opcode), noCSE 414, nopragma 414, CSEonly 246, volatile 29. R4 widths via casts: ae90-narrow 101, wide-cast 99, loaded-u32 29, d7e0-u32 29, child-u16 31 (empty () correct, no andi). R5: reorder 36, layer-s32 172, uncolored/flags-s32 29, void-cmd COMPILE ERROR (u8* required). R6 floats: alpha-first 135, merged-alpha 80, signed-300 29, perchan-literal 190, hoisted-inv 309 (separate lifetimes/order correct). fnalign 477/477 15+18; resid 0x48c-0x500 3x mtc1/nop + addiu shift + blez-offset/jal at 0x4f4. Best 29. Archive COLD_00479100_body.c. Production ASM. */
-/* 2026-09-18 probe; floor stands at 29.  The residual is three extra
-   `mtc1 $zero, $fN` + `nop` pairs this body emits around instruction 291-309
-   and one `addiu $a1, $sp, 0x6c` issued a slot early.  They are NOT the
-   unsigned-conversion idiom: the `(f32)(u32)` casts on the colour bytes are
-   retail's shape, and weakening them is a large regression - all eight to
-   `(f32)(s32)` costs 312, the three `model[0x300..0x302]` ones 255, the four
-   `color.*` ones 314, and `model[0x303]` alone 202.  Leave them alone.  The
-   zero materialisations are the FPU accumulator prime described in handoff
-   7r, and aligning instructions 272-300 says exactly what the difference is:
-   both bodies are identical through instruction 283, where each primes
-   `mtc1 $zero, $f3` before the first channel's `adda.s`/`madd.s` pair.
-   Retail then keeps that zeroed register live and reuses it for the other
-   three channels; this body re-primes into $f2, $f1 and $f0.  So it is not
-   the expression shape - `a * b + c` always costs the prime, and no spelling
-   avoids it (7r measures six).  It is whether the allocator keeps one zero
-   live across the four conversions.  Measured and not moved: writing the
-   products first, `maximum * red + bias`, ties at 29; computing the four
-   floats into temporaries and converting afterwards costs 31; an explicit
-   shared `f32 zero` local costs 196.  Treat as constant-rematerialisation
-   colouring unless someone finds a source form that pins the zero.
-   Micro-test lead: the same four lines in isolation prime `mtc1 $zero` once
-   and reuse it, so the re-prime inside this function is register pressure,
-   not expression shape — fewer simultaneously live values across the four
-   channels, a tighter scope around each, or letting one value die before the
-   next is born should keep $f3 live. */
-// FUN_00479100 NONMATCHING
-#ifdef NON_MATCHING
-#pragma push
-#pragma opt_common_subs off
-#pragma opt_propagation off
+/* Colour tint uses the same RwRGBA <-> real helpers as func_00476e90; the
+ * draw-colour forwarder func_0047d8a0 takes the colour by pointer. */
+// FUN_00479100
 /* IDA mdlManager.c:2696-2870; retail 00479100-00479870.
  * Integration requirements, including attachment fields and the corrected
  * color-forwarding wrapper, are recorded in IDA_model_followthrough.json. */
@@ -4938,11 +4874,11 @@ extern u8* func_00460990(void);
 extern void func_00460ac0(void*, void*);
 extern void func_00478a30(u8*, s32);
 extern void func_00479030(u8*, u8*);
-extern void func_0047d8a0(u8**, s32);
+extern void func_0047d8a0(u8**, s32*);
 extern void func_0047d7e0(s32, u8**);
 extern void func_0047ddd0(u8*, const u8*);
 extern void func_0047dd70(u8*, u8*);
-extern void mdlSetColor(void*, void*);
+extern void mdlSetColor(Model*, const RwRGBA*);
 
 void func_00479100(void* queue, u8* model)
 {
@@ -4963,7 +4899,7 @@ void func_00479100(void* queue, u8* model)
     flags = *(u32*)(model + 0xd8);
     if ((flags & 2) != 0)
         return;
-    if (((Model*)model)->color.alpha <= 0)
+    if (model[0xd3] <= 0)
         return;
 
     if ((flags & 1) != 0 && (flags & 0x8000) == 0)
@@ -5028,38 +4964,29 @@ void func_00479100(void* queue, u8* model)
         }
         if ((*(u32*)(model + 0xd8) & 0x80) == 0)
         {
-            f32 red;
-            f32 green;
-            f32 blue;
-            f32 alpha;
-            f32 modulatedAlpha;
-            f32 maximum;
-            f32 bias;
-            red = iGpffff8044 * (f32)(u32)((Model*)model)->color.red;
-            green = iGpffff8044 * (f32)(u32)((Model*)model)->color.green;
-            blue = iGpffff8044 * (f32)(u32)((Model*)model)->color.blue;
-            alpha = iGpffff8044 * (f32)(u32)((Model*)model)->color.alpha;
-            red *= iGpffff8044 * (f32)(u32)model[0x300];
-            green *= iGpffff8044 * (f32)(u32)model[0x301];
-            blue *= iGpffff8044 * (f32)(u32)model[0x302];
-            modulatedAlpha = alpha * (iGpffff8044 * (f32)(u32)model[0x303]);
-            maximum = 255.0f;
-            bias = 0.5f;
-            color.red = (s32)(bias + maximum * red);
-            color.green = (s32)(bias + maximum * green);
-            color.blue = (s32)(bias + maximum * blue);
-            color.alpha = (s32)(bias + maximum * modulatedAlpha);
-            func_0047d8a0(*(u8***)(model + 0x2cc), (s32)&color);
-            if (color.alpha <= 0)
-                goto layers;
+            MdlMaterialColorReal real;
+            MdlMaterialColorReal tint;
+            mdlColorToReal(&real, &((Model*)model)->color);
+            mdlColorToReal(&tint, (RwRGBA*)(model + 0x300));
+            real.red *= tint.red;
+            real.green *= tint.green;
+            real.blue *= tint.blue;
+            real.alpha *= tint.alpha;
+            mdlColorQuantize(&color, &real);
+            func_0047d8a0(*(u8***)(model + 0x2cc), (s32*)&color);
+            if (color.alpha > 0)
+                func_0047d7e0(*(s32*)(model + 0x2fc), *(u8***)(model + 0x2cc));
         }
-        func_0047d7e0(*(s32*)(model + 0x2fc), *(u8***)(model + 0x2cc));
+        else
+        {
+            func_0047d7e0(*(s32*)(model + 0x2fc), *(u8***)(model + 0x2cc));
+        }
     }
 
 layers:
     for (layer = 0; layer < 2; ++layer)
     {
-        MdlCloneAttachmentTable** slot = &((MdlCloneLayerView*)(model + 0xec + layer * 0xa4))->attachments;
+        MdlCloneAttachmentTable** slot = &((MdlCloneLayerView*)(model + 0xec + (u32)layer * sizeof(MdlCloneLayerView)))->attachments;
         MdlCloneAttachmentTable* attachments = *slot;
         if (attachments != 0 && (*(u32*)(model + 0xd8) & 0x20000) == 0)
         {
@@ -5073,7 +5000,7 @@ layers:
             draw = attachments->primaryDraw;
             if (draw != 0)
             {
-                func_0047d8a0(draw, (s32)&attachments->color);
+                func_0047d8a0(draw, (s32*)&attachments->color);
                 func_0047d7e0((s32)attachmentQueue, attachments->primaryDraw);
             }
             draw = attachments->secondaryDraw;
@@ -5086,8 +5013,7 @@ layers:
     }
     for (childIndex = 0; (u16)childIndex < 5; childIndex = (u16)(childIndex + 1))
     {
-        s32 index = (u16)childIndex;
-        u8* childBase = model + index * sizeof(MdlWpnSlot);
+        u8* childBase = (u8*)((MdlWpnSlot*)model + (u16)childIndex);
         if ((childBase[0x28c] & 1) != 0)
         {
             void** child = (void**)(childBase + 0x290);
@@ -5100,7 +5026,7 @@ layers:
                     *(u32*)((u8*)*child + 0xd8) &= ~0x20000u;
                 else
                     *(u32*)((u8*)*child + 0xd8) |= 0x20000;
-                mdlSetColor(*child, &((Model*)model)->color);
+                mdlSetColor((Model*)*child, &((Model*)model)->color);
                 if ((*(u32*)(model + 0xd8) & 0x20) == 0)
                     *(u32*)((u8*)*child + 0xd8) &= ~0x20u;
                 else
@@ -5110,11 +5036,6 @@ layers:
         }
     }
 }
-
-#pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479100);
-#endif
 
 // FUN_00479880
 void* func_00479880(void* param_1, void* data)
