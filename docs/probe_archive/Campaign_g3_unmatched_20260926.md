@@ -169,3 +169,32 @@ Body: `Code0026Spline_0026cef0_body_r2_20260926.c` (1292 B of 1296 B, under
   shares `k`, `k` goes to `$s0` but that loop is also in `$s0` (6 words).
   Installed with the body as `Code0026Spline_0026cef0_body_r2_20260926.c` plus
   that scoping change.
+
+### code1_0036.c `func_0036ae90`: 292 -> 23 words
+
+Body: `Code0036Light_0036ae90_body_r2_20260926.c` (1504 B of 1504 B, frame -0x140,
+under `opt_loop_invariants on`).
+
+- The four constant vectors are struct copies from typed globals
+  (`extern RwV3d D_0064E490; stack130 = D_0064E490;`). b210 then emits retail's
+  `ld`+`lwc1`/`sd`+`swc1` pairs, and the `+8` half resolves to the `D_0064E498`
+  address. The cast form `*(RwV3d *)D_...` gives three `lwc1` (4-byte alignment).
+- `stackE0 = *(RwV3d *)(arg0 + 0x994);` and
+  `stack100 = *(RwV3d *)(arg1 + 0x20);` as struct copies. Per-field copies promote
+  `stackE0` to registers and shrink the frame to -0x130.
+- `stack100` is declared before `stackF0` (0x100 against 0xF0).
+- `rgba = arg1 + 0x40;` after the `dot < 0` block, read as `rgba[3]` in the
+  loop. This is retail's `$fp`.
+- The fx ladder tests the odd row first, with `0.5f + (f32)(inner - 1)`.
+- The reflection is `t + (t - n)` per axis, with the `t` products in x, y, z
+  order (`stack130.x * dot2` first). This fixes the whole MAC block (-15).
+- `if (dot3 <= 0.0f) clamped = 0.0f; else clamped = dot3;`,
+  `shade = scaled;` stored to all four bytes (the plain `u8` conversion gives
+  retail's checked lowering), and `inner++, dst += 0x24` in the for-increment.
+- With the loop-invariant pragma, reading `stackE0.y`/`.z` in the loop (not
+  `ey`/`ez` locals) hoists them after `outer = 0`, as retail does.
+- Residual (23): a three-way saved-register permutation. Retail has `cam` in
+  `$s1`, `arg1`/`dst` in `$s2` and `inner` in `$s3`; b210 has `arg1`/`inner` in
+  `$s1`, `dst` in `$s2` and `cam` in `$s3`. Declaration order (16 permutations),
+  block-scoping the loop variables, an explicit `even` local, and inlining `tmp`
+  do not move it.
