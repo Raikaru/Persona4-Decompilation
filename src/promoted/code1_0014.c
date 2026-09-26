@@ -2077,9 +2077,8 @@ s32 func_00145480(u16 arg0) {
     return temp_16;
 }
 // FUN_00145510
-void func_00145510(s32 arg0, s32 arg1) {
-    extern s32 func_00145540(s32 arg0, s32 arg1, s32 arg2);
-    func_00145540(arg0, 0, arg1);
+s32 func_00145510(u16 arg0, s32 arg1) {
+    return func_00145540(arg0, 0, arg1);
 }
 
 

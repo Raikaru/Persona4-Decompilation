@@ -306,7 +306,7 @@ extern void func_001d78d0(void);
 extern void func_00200cb0(void);
 extern void func_001f8480(void);
 extern void func_00202be0(void);
-extern void func_0047d170();
+extern void func_0047d170(void *model);
 extern s32 func_0047e6f0(void **owner);
 extern void func_0019db40(u8 *arg0);
 extern void func_001fc1b0(s16 arg0);
@@ -3696,7 +3696,7 @@ void func_0019bf10(u8 *arg0) {
     if (!(*(u16 *)(arg0 + 8) & 0x10)) {
         temp_4 = (u8 *)(*(u8 **)(temp_5 + 0xA00));
         if (*(s32 *)(temp_4 + 0x2D0) == 0) {
-            func_0047d170(temp_4, temp_5);
+            func_0047d170(temp_4);
         }
         *(s32 *)(arg0 + 0xC) = 1;
     }
