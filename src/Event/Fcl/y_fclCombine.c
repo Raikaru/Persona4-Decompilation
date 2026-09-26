@@ -183,7 +183,7 @@ extern u8 *iGpffffb440;
 extern f32 D_00640C50[];
 extern f32 D_00640C58[];
 extern u8 D_00641BB0[];
-extern void func_00317900(u8 *, s64, s64, s8, s16, s16, s16);
+extern void func_00317900(u8 *, FclVec2, FclVec2, s8, s16, s16, s16);
 extern u8 D_00640760[];
 extern u8 D_00640790[];
 extern u8 D_0064079C[];
@@ -948,402 +948,262 @@ void func_002e90d0(u8 *arg0)
 }
 #pragma pop
 
-/* measured: GUARDED_SCORE 1719 via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombine.c func_002eb270 --candidate v11=/var/tmp/eb270/cand_eb270_v11_nocast.c` (baseline s64 2033 -> s32 1978 -> nocast 1902 inside); obj 1902I / retail 1876I (+26, +1.39% PASS, band 1820-1932, headroom 30). fnalign 2064 edits +6 reloc-only via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombine.c func_002eb270 --candidate /var/tmp/eb270/cand_eb270_v11_nocast.c --quiet`. m2c oracle from src/generated/code1_002e.c de-noised to file idiom (s64 stk[70] array forces distinct stack slots vs overlaid 0x180 frame, D_ tables without (s32)&, no (s64) first-arg casts, no &0xFFFF masks; s16 decl variant 2023-2049 outside, s64 baseline 2033 outside). No large hole: all 35x 317900 + 70x 22970 + 19x 3b7060 call sites present. */
+/* One 12-byte slot of the combine layout tables at D_00640760 / D_006407C0. */
+typedef struct {
+    f32 x;
+    f32 y;
+    s16 col;
+    s16 row;
+} FclCombineLayoutSlot;
+
+/* 48 words: every other layout matches; in the 0xB5 == 8 block the mode and
+   the slot pointer take $s1/$s0 where retail has $s0/$s1.  See
+   docs/probe_archive/FclCombine_002eb270_20260925.md. */
 // FUN_002EB270 NONMATCHING
 #ifdef NON_MATCHING
 void func_002eb270(u8 *arg0, s32 arg1) {
     extern u8 D_006407F0[];
-    s64 stk[70];
-    s32 var_3;
-    s32 temp_16_10;
-    s32 temp_16_11;
-    s32 temp_16_12;
-    s32 temp_16_13;
-    s32 temp_16_14;
-    s32 temp_16_2;
-    s32 temp_16_3;
-    s32 temp_16_4;
-    s32 temp_16_5;
-    s32 temp_16_7;
-    s32 temp_16_8;
-    s32 temp_17;
-    s32 temp_17_10;
-    s32 temp_17_2;
-    s32 temp_17_6;
-    s32 temp_17_7;
-    s32 temp_17_9;
-    s32 temp_18;
-    s32 temp_18_2;
-    s32 temp_18_3;
-    s32 temp_18_4;
-    s32 temp_20;
-    s32 temp_20_2;
-    s32 temp_20_3;
-    s32 temp_20_4;
-    s32 temp_20_5;
-    s32 temp_20_6;
-    s32 temp_22;
-    s32 temp_22_10;
-    s32 temp_22_11;
-    s32 temp_22_12;
-    s32 temp_22_13;
-    s32 temp_22_2;
-    s32 temp_22_3;
-    s32 temp_22_4;
-    s32 temp_22_5;
-    s32 temp_22_6;
-    s32 temp_22_7;
-    s32 temp_22_8;
-    s32 temp_22_9;
-    s32 temp_3;
-    s32 var_18;
-    s32 var_18_2;
-    s32 var_18_3;
-    s32 var_20;
-    s32 var_20_2;
-    s32 var_20_3;
-    s8 temp_4;
-    u8 *temp_16;
-    u8 *temp_16_6;
-    u8 *temp_16_9;
-    u8 *temp_17_11;
-    u8 *temp_17_12;
-    u8 *temp_17_3;
-    u8 *temp_17_4;
-    u8 *temp_17_5;
-    u8 *temp_17_8;
-    u8 *temp_19;
-    u8 *temp_4_10;
-    u8 *temp_4_2;
-    u8 *temp_4_3;
-    u8 *temp_4_4;
-    u8 *temp_4_5;
-    u8 *temp_4_6;
-    u8 *temp_4_7;
-    u8 *temp_4_8;
-    u8 *temp_4_9;
+    FclCombineLayoutSlot *slot;
+    u8 *p;
+    s16 i1;
+    s16 i2;
+    s16 i3;
+    s16 i4;
+    s16 i5;
+    s16 i6;
+    s32 mode1;
+    s32 mode2;
+    s32 mode3;
+    s32 mode4;
+    s32 mode5;
+    s16 jitter;
 
-    temp_19 = (u8 *)((*( u8 ** )((u8 *)(arg0) + (0x38))));
-    temp_4 = ((*( s8 * )((u8 *)(temp_19) + (0xB5))));
-    var_3 = temp_4 & 1;
-    if ((temp_4 < 0) && (var_3 != 0)) {
-        var_3 -= 2;
-    }
-    if (var_3 == 0) {
-        if (temp_4 == 6) {
-            var_18 = 0;
-            temp_17 = (arg1);
-loop_10:
-            temp_20 = (var_18);
-            if (temp_20 < 3) {
-                temp_16 = (u8 *)(D_00640760 + ((temp_20 + 1) * 0xC));
-                if (temp_17 == 0) {
-                    temp_20_2 = (var_18);
-                    *(FclVec2 *)&stk[69] = func_002b2970(-200.0f, 100.0f + (*( f32 * )((u8 *)(temp_16) + (4))));
-                    *(FclVec2 *)&stk[68] = func_002b2970((*( f32 * )((u8 *)(temp_16) + (0))), (*( f32 * )((u8 *)(temp_16) + (4))));
-                    func_00317900(arg0, stk[69], stk[68], (var_18), ((temp_20_2 * 4)), ((((*( s16 * )((u8 *)(temp_16) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_16) + (0xA))) + 0x57)));
-                    temp_4_2 = (u8 *)(temp_19 + (temp_20_2 * 0xA));
-                    (*( s16 * )((u8 *)(temp_4_2) + (0xCA))) = (s16) (((*( s16 * )((u8 *)(temp_16) + (8))) * 3) + 0x3E);
-                    (*( s16 * )((u8 *)(temp_4_2) + (0xCC))) = (s16) ((*( s16 * )((u8 *)(temp_16) + (0xA))) + 0x57);
+    p = *(u8 **)(arg0 + 0x38);
+    if (*(s8 *)(p + 0xB5) % 2 == 0) {
+        if (*(s8 *)(p + 0xB5) == 6) {
+            for (i1 = 0, mode1 = (s8)arg1; i1 < 3; i1++) {
+                slot = (FclCombineLayoutSlot *)D_00640760 + (i1 + 1);
+                if (mode1 == 0) {
+                    func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 i1, i1 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(p + i1 * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(p + i1 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
-                    temp_22 = (((RpRandom() % 300U) - 0x96));
-                    *(FclVec2 *)&stk[67] = func_002b2970((*( f32 * )((u8 *)(temp_16) + (0))), (*( f32 * )((u8 *)(temp_16) + (4))));
-                    *(FclVec2 *)&stk[66] = func_002b2970(-300.0f, (*( f32 * )((u8 *)(temp_16) + (4))) + (f32) temp_22);
-                    func_00317900(arg0, stk[67], stk[66], (var_18), ((temp_20 * 2)), ((((*( s16 * )((u8 *)(temp_16) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_16) + (0xA))) + 0x57)));
+                    jitter = RpRandom() % 300 - 150;
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                                 i1, i1 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
-                var_18 = ((var_18 + 1));
-                goto loop_10;
             }
-            if (temp_17 == 0) {
-                *(FclVec2 *)&stk[65] = func_002b2970(700.0f, 100.0f + (*( f32 * )((u8 *)(&D_006407A8) + (4))));
-                *(FclVec2 *)&stk[64] = func_002b2970((*( f32 * )((u8 *)(&D_006407A8) + (0))), (*( f32 * )((u8 *)(&D_006407A8) + (4))));
-                func_00317900(arg0, stk[65], stk[64], 8, 2, ((((*( s16 * )((u8 *)(&D_006407A8) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_006407A8) + (0xA))) + 0x57)));
-                (*( s16 * )((u8 *)(temp_19) + (0xFC))) = (s16) (((*( s16 * )((u8 *)(&D_006407A8) + (8))) * 3) + 0x3E);
-                (*( s16 * )((u8 *)(temp_19) + (0xFE))) = (s16) ((*( s16 * )((u8 *)(&D_006407A8) + (0xA))) + 0x57);
+            slot = (FclCombineLayoutSlot *)D_006407A8;
+            if (mode1 == 0) {
+                func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                             8, 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                *(s16 *)(p + 0xFC) = slot->col * 3 + 0x3E;
+                *(s16 *)(p + 0xFE) = slot->row + 0x57;
             } else {
-                temp_16_2 = (((RpRandom() % 300U) - 0x96));
-                *(FclVec2 *)&stk[63] = func_002b2970((*( f32 * )((u8 *)(&D_006407A8) + (0))), (*( f32 * )((u8 *)(&D_006407A8) + (4))));
-                *(FclVec2 *)&stk[62] = func_002b2970(700.0f, (*( f32 * )((u8 *)(&D_006407A8) + (4))) + (f32) temp_16_2);
-                func_00317900(arg0, stk[63], stk[62], 8, 1, ((((*( s16 * )((u8 *)(&D_006407A8) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_006407A8) + (0xA))) + 0x57)));
+                jitter = RpRandom() % 300 - 150;
+                func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                             8, 1, slot->col * 3 + 0x3E, slot->row + 0x57);
             }
-            if (temp_17 == 0) {
-                *(FclVec2 *)&stk[61] = func_002b2970(700.0f, 100.0f + (*( f32 * )((u8 *)(&D_0064079C) + (4))));
-                *(FclVec2 *)&stk[60] = func_002b2970((*( f32 * )((u8 *)(&D_0064079C) + (0))), (*( f32 * )((u8 *)(&D_0064079C) + (4))));
-                func_00317900(arg0, stk[61], stk[60], 7, 6, ((((*( s16 * )((u8 *)(&D_0064079C) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_0064079C) + (0xA))) + 0x57)));
-                (*( s16 * )((u8 *)(temp_19) + (0xF2))) = (s16) (((*( s16 * )((u8 *)(&D_0064079C) + (8))) * 3) + 0x3E);
-                (*( s16 * )((u8 *)(temp_19) + (0xF4))) = (s16) ((*( s16 * )((u8 *)(&D_0064079C) + (0xA))) + 0x57);
+            slot = (FclCombineLayoutSlot *)D_0064079C;
+            if (mode1 == 0) {
+                func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                             7, 6, slot->col * 3 + 0x3E, slot->row + 0x57);
+                *(s16 *)(p + 0xF2) = slot->col * 3 + 0x3E;
+                *(s16 *)(p + 0xF4) = slot->row + 0x57;
             } else {
-                temp_18 = (((RpRandom() % 300U) - 0x96));
-                *(FclVec2 *)&stk[59] = func_002b2970((*( f32 * )((u8 *)(&D_0064079C) + (0))), (*( f32 * )((u8 *)(&D_0064079C) + (4))));
-                *(FclVec2 *)&stk[58] = func_002b2970(700.0f, (*( f32 * )((u8 *)(&D_0064079C) + (4))) + (f32) temp_18);
-                func_00317900(arg0, stk[59], stk[58], 7, 3, ((((*( s16 * )((u8 *)(&D_0064079C) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_0064079C) + (0xA))) + 0x57)));
+                jitter = RpRandom() % 300 - 150;
+                func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                             7, 3, slot->col * 3 + 0x3E, slot->row + 0x57);
             }
-            if (temp_17 == 0) {
-                *(FclVec2 *)&stk[57] = func_002b2970(700.0f, 100.0f + (*( f32 * )((u8 *)(&D_00640790) + (4))));
-                *(FclVec2 *)&stk[56] = func_002b2970((*( f32 * )((u8 *)(&D_00640790) + (0))), (*( f32 * )((u8 *)(&D_00640790) + (4))));
-                func_00317900(arg0, stk[57], stk[56], 6, 0xA, ((((*( s16 * )((u8 *)(&D_00640790) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_00640790) + (0xA))) + 0x57)));
-                (*( s16 * )((u8 *)(temp_19) + (0xE8))) = (s16) (((*( s16 * )((u8 *)(&D_00640790) + (8))) * 3) + 0x3E);
-                (*( s16 * )((u8 *)(temp_19) + (0xEA))) = (s16) ((*( s16 * )((u8 *)(&D_00640790) + (0xA))) + 0x57);
+            slot = (FclCombineLayoutSlot *)D_00640790;
+            if (mode1 == 0) {
+                func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                             6, 0xA, slot->col * 3 + 0x3E, slot->row + 0x57);
+                *(s16 *)(p + 0xE8) = slot->col * 3 + 0x3E;
+                *(s16 *)(p + 0xEA) = slot->row + 0x57;
             } else {
-                temp_17_2 = (((RpRandom() % 300U) - 0x96));
-                *(FclVec2 *)&stk[55] = func_002b2970((*( f32 * )((u8 *)(&D_00640790) + (0))), (*( f32 * )((u8 *)(&D_00640790) + (4))));
-                *(FclVec2 *)&stk[54] = func_002b2970(700.0f, (*( f32 * )((u8 *)(&D_00640790) + (4))) + (f32) temp_17_2);
-                func_00317900(arg0, stk[55], stk[54], 6, 5, ((((*( s16 * )((u8 *)(&D_00640790) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_00640790) + (0xA))) + 0x57)));
+                jitter = RpRandom() % 300 - 150;
+                func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                             6, 5, slot->col * 3 + 0x3E, slot->row + 0x57);
             }
-        } else if (temp_4 == 8) {
-            var_18_2 = 0;
-            temp_16_3 = (arg1);
-loop_26:
-            temp_20_3 = (var_18_2);
-            if (temp_20_3 < 4) {
-                temp_17_3 = (u8 *)(D_00640760 + (temp_20_3 * 0xC));
-                if (temp_16_3 == 0) {
-                    temp_20_4 = (var_18_2);
-                    *(FclVec2 *)&stk[53] = func_002b2970(-200.0f, 100.0f + (*( f32 * )((u8 *)(temp_17_3) + (4))));
-                    *(FclVec2 *)&stk[52] = func_002b2970((*( f32 * )((u8 *)(temp_17_3) + (0))), (*( f32 * )((u8 *)(temp_17_3) + (4))));
-                    func_00317900(arg0, stk[53], stk[52], (var_18_2), ((temp_20_4 * 4)), ((((*( s16 * )((u8 *)(temp_17_3) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_17_3) + (0xA))) + 0x57)));
-                    temp_4_3 = (u8 *)(temp_19 + (temp_20_4 * 0xA));
-                    (*( s16 * )((u8 *)(temp_4_3) + (0xCA))) = (s16) (((*( s16 * )((u8 *)(temp_17_3) + (8))) * 3) + 0x3E);
-                    (*( s16 * )((u8 *)(temp_4_3) + (0xCC))) = (s16) ((*( s16 * )((u8 *)(temp_17_3) + (0xA))) + 0x57);
+        } else if (*(s8 *)(p + 0xB5) == 8) {
+            for (i2 = 0, mode2 = (s8)arg1; i2 < 4; i2++) {
+                slot = (FclCombineLayoutSlot *)D_00640760 + i2;
+                if (mode2 == 0) {
+                    func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 i2, i2 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(p + i2 * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(p + i2 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
-                    temp_22_2 = (((RpRandom() % 300U) - 0x96));
-                    *(FclVec2 *)&stk[51] = func_002b2970((*( f32 * )((u8 *)(temp_17_3) + (0))), (*( f32 * )((u8 *)(temp_17_3) + (4))));
-                    *(FclVec2 *)&stk[50] = func_002b2970(-300.0f, (*( f32 * )((u8 *)(temp_17_3) + (4))) + (f32) temp_22_2);
-                    func_00317900(arg0, stk[51], stk[50], (var_18_2), ((temp_20_3 * 2)), ((((*( s16 * )((u8 *)(temp_17_3) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_17_3) + (0xA))) + 0x57)));
+                    jitter = RpRandom() % 300 - 150;
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                                 i2, i2 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
-                var_18_2 = ((var_18_2 + 1));
-                goto loop_26;
             }
-            var_18_3 = 0;
-loop_32:
-            temp_3 = (var_18_3);
-            if (temp_3 < 3) {
-                temp_17_4 = (u8 *)(D_00640760 + ((7 - temp_3) * 0xC));
-                if (temp_16_3 == 0) {
-                    temp_20_5 = (var_18_3);
-                    *(FclVec2 *)&stk[49] = func_002b2970(700.0f, 100.0f + (*( f32 * )((u8 *)(temp_17_4) + (4))));
-                    *(FclVec2 *)&stk[48] = func_002b2970((*( f32 * )((u8 *)(temp_17_4) + (0))), (*( f32 * )((u8 *)(temp_17_4) + (4))));
-                    func_00317900(arg0, stk[49], stk[48], ((8 - temp_20_5)), (((temp_20_5 * 4) + 2)), ((((*( s16 * )((u8 *)(temp_17_4) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_17_4) + (0xA))) + 0x57)));
-                    temp_4_4 = (u8 *)(temp_19 + ((7 - temp_20_5) * 0xA));
-                    (*( s16 * )((u8 *)(temp_4_4) + (0xCA))) = (s16) (((*( s16 * )((u8 *)(temp_17_4) + (8))) * 3) + 0x3E);
-                    (*( s16 * )((u8 *)(temp_4_4) + (0xCC))) = (s16) ((*( s16 * )((u8 *)(temp_17_4) + (0xA))) + 0x57);
+            for (i3 = 0; i3 < 3; i3++) {
+                slot = (FclCombineLayoutSlot *)D_00640760 + (7 - i3);
+                if (mode2 == 0) {
+                    func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 8 - i3, i3 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(p + (7 - i3) * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(p + (7 - i3) * 10 + 0xCC) = slot->row + 0x57;
                 } else {
-                    temp_22_3 = (((RpRandom() % 300U) - 0x96));
-                    temp_20_6 = (var_18_3);
-                    *(FclVec2 *)&stk[47] = func_002b2970((*( f32 * )((u8 *)(temp_17_4) + (0))), (*( f32 * )((u8 *)(temp_17_4) + (4))));
-                    *(FclVec2 *)&stk[46] = func_002b2970(700.0f, (*( f32 * )((u8 *)(temp_17_4) + (4))) + (f32) temp_22_3);
-                    func_00317900(arg0, stk[47], stk[46], ((8 - temp_20_6)), (((temp_20_6 * 2) + 1)), ((((*( s16 * )((u8 *)(temp_17_4) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_17_4) + (0xA))) + 0x57)));
+                    jitter = RpRandom() % 300 - 150;
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                                 8 - i3, i3 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
-                var_18_3 = ((var_18_3 + 1));
-                goto loop_32;
             }
-            if (temp_16_3 == 0) {
-                *(FclVec2 *)&stk[45] = func_002b2970(700.0f, 100.0f + (*( f32 * )((u8 *)(&D_00640790) + (4))));
-                *(FclVec2 *)&stk[44] = func_002b2970((*( f32 * )((u8 *)(&D_00640790) + (0))), (*( f32 * )((u8 *)(&D_00640790) + (4))));
-                func_00317900(arg0, stk[45], stk[44], 4, 0xE, ((((*( s16 * )((u8 *)(&D_00640790) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_00640790) + (0xA))) + 0x57)));
-                (*( s16 * )((u8 *)(temp_19) + (0xF2))) = (s16) (((*( s16 * )((u8 *)(&D_00640790) + (8))) * 3) + 0x3E);
-                (*( s16 * )((u8 *)(temp_19) + (0xF4))) = (s16) ((*( s16 * )((u8 *)(&D_00640790) + (0xA))) + 0x57);
+            slot = (FclCombineLayoutSlot *)D_00640790;
+            if (mode2 == 0) {
+                func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                             4, 0xE, slot->col * 3 + 0x3E, slot->row + 0x57);
+                *(s16 *)(p + 0xF2) = slot->col * 3 + 0x3E;
+                *(s16 *)(p + 0xF4) = slot->row + 0x57;
             } else {
-                temp_16_4 = (((RpRandom() % 300U) - 0x96));
-                *(FclVec2 *)&stk[43] = func_002b2970((*( f32 * )((u8 *)(&D_00640790) + (0))), (*( f32 * )((u8 *)(&D_00640790) + (4))));
-                *(FclVec2 *)&stk[42] = func_002b2970(700.0f, (*( f32 * )((u8 *)(&D_00640790) + (4))) + (f32) temp_16_4);
-                func_00317900(arg0, stk[43], stk[42], 4, 7, ((((*( s16 * )((u8 *)(&D_00640790) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_00640790) + (0xA))) + 0x57)));
+                jitter = RpRandom() % 300 - 150;
+                func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                             4, 7, slot->col * 3 + 0x3E, slot->row + 0x57);
             }
         }
     } else {
-        switch (temp_4) {                           /* irregular */
-        case 5:
-            var_20 = 0;
-            temp_18_2 = (arg1);
-loop_45:
-            temp_16_5 = (var_20);
-            if (temp_16_5 < 2) {
-                temp_17_5 = (u8 *)(D_006407C0 + ((temp_16_5 + 2) * 0xC));
-                if (temp_18_2 == 0) {
-                    temp_22_4 = (var_20);
-                    *(FclVec2 *)&stk[41] = func_002b2970(-200.0f, 100.0f + (*( f32 * )((u8 *)(temp_17_5) + (4))));
-                    *(FclVec2 *)&stk[40] = func_002b2970((*( f32 * )((u8 *)(temp_17_5) + (0))), (*( f32 * )((u8 *)(temp_17_5) + (4))));
-                    func_00317900(arg0, stk[41], stk[40], (var_20), ((temp_22_4 * 4)), ((((*( s16 * )((u8 *)(temp_17_5) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_17_5) + (0xA))) + 0x57)));
-                    temp_4_5 = (u8 *)(temp_19 + (temp_22_4 * 0xA));
-                    (*( s16 * )((u8 *)(temp_4_5) + (0xCA))) = (s16) (((*( s16 * )((u8 *)(temp_17_5) + (8))) * 3) + 0x3E);
-                    (*( s16 * )((u8 *)(temp_4_5) + (0xCC))) = (s16) ((*( s16 * )((u8 *)(temp_17_5) + (0xA))) + 0x57);
+        if (*(s8 *)(p + 0xB5) == 5) {
+            for (i4 = 0, mode3 = (s8)arg1; i4 < 2; i4++) {
+                slot = (FclCombineLayoutSlot *)D_006407C0 + (i4 + 2);
+                if (mode3 == 0) {
+                    func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 i4, i4 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(p + i4 * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(p + i4 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
-                    temp_22_5 = (((RpRandom() % 300U) - 0x96));
-                    *(FclVec2 *)&stk[39] = func_002b2970((*( f32 * )((u8 *)(temp_17_5) + (0))), (*( f32 * )((u8 *)(temp_17_5) + (4))));
-                    *(FclVec2 *)&stk[38] = func_002b2970(-300.0f, (*( f32 * )((u8 *)(temp_17_5) + (4))) + (f32) temp_22_5);
-                    func_00317900(arg0, stk[39], stk[38], (var_20), ((temp_16_5 * 2)), ((((*( s16 * )((u8 *)(temp_17_5) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_17_5) + (0xA))) + 0x57)));
+                    jitter = RpRandom() % 300 - 150;
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                                 i4, i4 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
-                temp_16_6 = (u8 *)(D_006407C0 + ((6 - temp_16_5) * 0xC));
-                if (temp_18_2 == 0) {
-                    temp_17_6 = (var_20);
-                    *(FclVec2 *)&stk[37] = func_002b2970(700.0f, 100.0f + (*( f32 * )((u8 *)(temp_16_6) + (4))));
-                    *(FclVec2 *)&stk[36] = func_002b2970((*( f32 * )((u8 *)(temp_16_6) + (0))), (*( f32 * )((u8 *)(temp_16_6) + (4))));
-                    func_00317900(arg0, stk[37], stk[36], ((8 - temp_17_6)), (((temp_17_6 * 4) + 2)), ((((*( s16 * )((u8 *)(temp_16_6) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_16_6) + (0xA))) + 0x57)));
-                    temp_4_6 = (u8 *)(temp_19 + ((4 - temp_17_6) * 0xA));
-                    (*( s16 * )((u8 *)(temp_4_6) + (0xCA))) = (s16) (((*( s16 * )((u8 *)(temp_16_6) + (8))) * 3) + 0x3E);
-                    (*( s16 * )((u8 *)(temp_4_6) + (0xCC))) = (s16) ((*( s16 * )((u8 *)(temp_16_6) + (0xA))) + 0x57);
+                slot = (FclCombineLayoutSlot *)D_006407C0 + (6 - i4);
+                if (mode3 == 0) {
+                    func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 8 - i4, i4 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(p + (4 - i4) * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(p + (4 - i4) * 10 + 0xCC) = slot->row + 0x57;
                 } else {
-                    temp_22_6 = (((RpRandom() % 300U) - 0x96));
-                    temp_17_7 = (var_20);
-                    *(FclVec2 *)&stk[35] = func_002b2970((*( f32 * )((u8 *)(temp_16_6) + (0))), (*( f32 * )((u8 *)(temp_16_6) + (4))));
-                    *(FclVec2 *)&stk[34] = func_002b2970(700.0f, (*( f32 * )((u8 *)(temp_16_6) + (4))) + (f32) temp_22_6);
-                    func_00317900(arg0, stk[35], stk[34], ((8 - temp_17_7)), (((temp_17_7 * 2) + 1)), ((((*( s16 * )((u8 *)(temp_16_6) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_16_6) + (0xA))) + 0x57)));
+                    jitter = RpRandom() % 300 - 150;
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                                 8 - i4, i4 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
-                var_20 = ((var_20 + 1));
-                goto loop_45;
             }
-            if (temp_18_2 == 0) {
-                *(FclVec2 *)&stk[33] = func_002b2970(-200.0f, 100.0f + (*( f32 * )((u8 *)(&D_006407F0) + (4))));
-                *(FclVec2 *)&stk[32] = func_002b2970((*( f32 * )((u8 *)(&D_006407F0) + (0))), (*( f32 * )((u8 *)(&D_006407F0) + (4))));
-                func_00317900(arg0, stk[33], stk[32], 6, 8, ((((*( s16 * )((u8 *)(&D_006407F0) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_006407F0) + (0xA))) + 0x57)));
-                (*( s16 * )((u8 *)(temp_19) + (0xDE))) = (s16) (((*( s16 * )((u8 *)(&D_006407F0) + (8))) * 3) + 0x3E);
-                (*( s16 * )((u8 *)(temp_19) + (0xE0))) = (s16) ((*( s16 * )((u8 *)(&D_006407F0) + (0xA))) + 0x57);
+            slot = (FclCombineLayoutSlot *)D_006407F0;
+            if (mode3 == 0) {
+                func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                             6, 8, slot->col * 3 + 0x3E, slot->row + 0x57);
+                *(s16 *)(p + 0xDE) = slot->col * 3 + 0x3E;
+                *(s16 *)(p + 0xE0) = slot->row + 0x57;
             } else {
-                temp_16_7 = (((RpRandom() % 300U) - 0x96));
-                if ((u32) (RpRandom() % 100U) >= 0x32U) {
-                    *(FclVec2 *)&stk[31] = func_002b2970((*( f32 * )((u8 *)(&D_006407F0) + (0))), (*( f32 * )((u8 *)(&D_006407F0) + (4))));
-                    *(FclVec2 *)&stk[30] = func_002b2970(-300.0f, (*( f32 * )((u8 *)(&D_006407F0) + (4))) + (f32) temp_16_7);
-                    func_00317900(arg0, stk[31], stk[30], 6, 4, ((((*( s16 * )((u8 *)(&D_006407F0) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_006407F0) + (0xA))) + 0x57)));
+                jitter = RpRandom() % 300 - 150;
+                if (RpRandom() % 100 >= 50) {
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                                 6, 4, slot->col * 3 + 0x3E, slot->row + 0x57);
                 } else {
-                    *(FclVec2 *)&stk[29] = func_002b2970((*( f32 * )((u8 *)(&D_006407F0) + (0))), (*( f32 * )((u8 *)(&D_006407F0) + (4))));
-                    *(FclVec2 *)&stk[28] = func_002b2970(700.0f, (*( f32 * )((u8 *)(&D_006407F0) + (4))) + (f32) temp_16_7);
-                    func_00317900(arg0, stk[29], stk[28], 6, 4, ((((*( s16 * )((u8 *)(&D_006407F0) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_006407F0) + (0xA))) + 0x57)));
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                                 6, 4, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
-            break;
-        case 7:
-            var_20_2 = 0;
-            temp_18_3 = (arg1);
-loop_60:
-            temp_16_8 = (var_20_2);
-            if (temp_16_8 < 3) {
-                temp_17_8 = (u8 *)(D_006407C0 + ((temp_16_8 + 1) * 0xC));
-                if (temp_18_3 == 0) {
-                    temp_22_7 = (var_20_2);
-                    *(FclVec2 *)&stk[27] = func_002b2970(-200.0f, 100.0f + (*( f32 * )((u8 *)(temp_17_8) + (4))));
-                    *(FclVec2 *)&stk[26] = func_002b2970((*( f32 * )((u8 *)(temp_17_8) + (0))), (*( f32 * )((u8 *)(temp_17_8) + (4))));
-                    func_00317900(arg0, stk[27], stk[26], (var_20_2), ((temp_22_7 * 4)), ((((*( s16 * )((u8 *)(temp_17_8) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_17_8) + (0xA))) + 0x57)));
-                    temp_4_7 = (u8 *)(temp_19 + (temp_22_7 * 0xA));
-                    (*( s16 * )((u8 *)(temp_4_7) + (0xCA))) = (s16) (((*( s16 * )((u8 *)(temp_17_8) + (8))) * 3) + 0x3E);
-                    (*( s16 * )((u8 *)(temp_4_7) + (0xCC))) = (s16) ((*( s16 * )((u8 *)(temp_17_8) + (0xA))) + 0x57);
+        } else if (*(s8 *)(p + 0xB5) == 7) {
+            for (i5 = 0, mode4 = (s8)arg1; i5 < 3; i5++) {
+                slot = (FclCombineLayoutSlot *)D_006407C0 + (i5 + 1);
+                if (mode4 == 0) {
+                    func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 i5, i5 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(p + i5 * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(p + i5 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
-                    temp_22_8 = (((RpRandom() % 300U) - 0x96));
-                    *(FclVec2 *)&stk[25] = func_002b2970((*( f32 * )((u8 *)(temp_17_8) + (0))), (*( f32 * )((u8 *)(temp_17_8) + (4))));
-                    *(FclVec2 *)&stk[24] = func_002b2970(-300.0f, (*( f32 * )((u8 *)(temp_17_8) + (4))) + (f32) temp_22_8);
-                    func_00317900(arg0, stk[25], stk[24], (var_20_2), ((temp_16_8 * 2)), ((((*( s16 * )((u8 *)(temp_17_8) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_17_8) + (0xA))) + 0x57)));
+                    jitter = RpRandom() % 300 - 150;
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                                 i5, i5 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
-                temp_16_9 = (u8 *)(D_006407C0 + ((7 - temp_16_8) * 0xC));
-                if (temp_18_3 == 0) {
-                    temp_17_9 = (var_20_2);
-                    *(FclVec2 *)&stk[23] = func_002b2970(700.0f, 100.0f + (*( f32 * )((u8 *)(temp_16_9) + (4))));
-                    *(FclVec2 *)&stk[22] = func_002b2970((*( f32 * )((u8 *)(temp_16_9) + (0))), (*( f32 * )((u8 *)(temp_16_9) + (4))));
-                    func_00317900(arg0, stk[23], stk[22], ((8 - temp_17_9)), (((temp_17_9 * 4) + 2)), ((((*( s16 * )((u8 *)(temp_16_9) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_16_9) + (0xA))) + 0x57)));
-                    temp_4_8 = (u8 *)(temp_19 + ((6 - temp_17_9) * 0xA));
-                    (*( s16 * )((u8 *)(temp_4_8) + (0xCA))) = (s16) (((*( s16 * )((u8 *)(temp_16_9) + (8))) * 3) + 0x3E);
-                    (*( s16 * )((u8 *)(temp_4_8) + (0xCC))) = (s16) ((*( s16 * )((u8 *)(temp_16_9) + (0xA))) + 0x57);
+                slot = (FclCombineLayoutSlot *)D_006407C0 + (7 - i5);
+                if (mode4 == 0) {
+                    func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 8 - i5, i5 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(p + (6 - i5) * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(p + (6 - i5) * 10 + 0xCC) = slot->row + 0x57;
                 } else {
-                    temp_22_9 = (((RpRandom() % 300U) - 0x96));
-                    temp_17_10 = (var_20_2);
-                    *(FclVec2 *)&stk[21] = func_002b2970((*( f32 * )((u8 *)(temp_16_9) + (0))), (*( f32 * )((u8 *)(temp_16_9) + (4))));
-                    *(FclVec2 *)&stk[20] = func_002b2970(700.0f, (*( f32 * )((u8 *)(temp_16_9) + (4))) + (f32) temp_22_9);
-                    func_00317900(arg0, stk[21], stk[20], ((8 - temp_17_10)), (((temp_17_10 * 2) + 1)), ((((*( s16 * )((u8 *)(temp_16_9) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_16_9) + (0xA))) + 0x57)));
+                    jitter = RpRandom() % 300 - 150;
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                                 8 - i5, i5 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
-                var_20_2 = ((var_20_2 + 1));
-                goto loop_60;
             }
-            if (temp_18_3 == 0) {
-                *(FclVec2 *)&stk[19] = func_002b2970(-200.0f, 100.0f + (*( f32 * )((u8 *)(&D_006407F0) + (4))));
-                *(FclVec2 *)&stk[18] = func_002b2970((*( f32 * )((u8 *)(&D_006407F0) + (0))), (*( f32 * )((u8 *)(&D_006407F0) + (4))));
-                func_00317900(arg0, stk[19], stk[18], 3, 0xC, ((((*( s16 * )((u8 *)(&D_006407F0) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_006407F0) + (0xA))) + 0x57)));
-                (*( s16 * )((u8 *)(temp_19) + (0xE8))) = (s16) (((*( s16 * )((u8 *)(&D_006407F0) + (8))) * 3) + 0x3E);
-                (*( s16 * )((u8 *)(temp_19) + (0xEA))) = (s16) ((*( s16 * )((u8 *)(&D_006407F0) + (0xA))) + 0x57);
+            slot = (FclCombineLayoutSlot *)D_006407F0;
+            if (mode4 == 0) {
+                func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                             3, 0xC, slot->col * 3 + 0x3E, slot->row + 0x57);
+                *(s16 *)(p + 0xE8) = slot->col * 3 + 0x3E;
+                *(s16 *)(p + 0xEA) = slot->row + 0x57;
             } else {
-                temp_16_10 = (((RpRandom() % 300U) - 0x96));
-                if ((u32) (RpRandom() % 100U) >= 0x32U) {
-                    *(FclVec2 *)&stk[17] = func_002b2970((*( f32 * )((u8 *)(&D_006407F0) + (0))), (*( f32 * )((u8 *)(&D_006407F0) + (4))));
-                    *(FclVec2 *)&stk[16] = func_002b2970(-300.0f, (*( f32 * )((u8 *)(&D_006407F0) + (4))) + (f32) temp_16_10);
-                    func_00317900(arg0, stk[17], stk[16], 3, 6, ((((*( s16 * )((u8 *)(&D_006407F0) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_006407F0) + (0xA))) + 0x57)));
+                jitter = RpRandom() % 300 - 150;
+                if (RpRandom() % 100 >= 50) {
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                                 3, 6, slot->col * 3 + 0x3E, slot->row + 0x57);
                 } else {
-                    *(FclVec2 *)&stk[15] = func_002b2970((*( f32 * )((u8 *)(&D_006407F0) + (0))), (*( f32 * )((u8 *)(&D_006407F0) + (4))));
-                    *(FclVec2 *)&stk[14] = func_002b2970(700.0f, (*( f32 * )((u8 *)(&D_006407F0) + (4))) + (f32) temp_16_10);
-                    func_00317900(arg0, stk[15], stk[14], 3, 6, ((((*( s16 * )((u8 *)(&D_006407F0) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_006407F0) + (0xA))) + 0x57)));
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                                 3, 6, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
-            break;
-        case 9:
-            var_20_3 = 0;
-            temp_18_4 = (arg1);
-loop_75:
-            temp_16_11 = (var_20_3);
-            if (temp_16_11 < 4) {
-                temp_17_11 = (u8 *)(D_006407C0 + (temp_16_11 * 0xC));
-                if (temp_18_4 == 0) {
-                    temp_22_10 = (var_20_3);
-                    *(FclVec2 *)&stk[13] = func_002b2970(-200.0f, 100.0f + (*( f32 * )((u8 *)(temp_17_11) + (4))));
-                    *(FclVec2 *)&stk[12] = func_002b2970((*( f32 * )((u8 *)(temp_17_11) + (0))), (*( f32 * )((u8 *)(temp_17_11) + (4))));
-                    func_00317900(arg0, stk[13], stk[12], (var_20_3), ((temp_22_10 * 4)), ((((*( s16 * )((u8 *)(temp_17_11) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_17_11) + (0xA))) + 0x57)));
-                    temp_4_9 = (u8 *)(temp_19 + (temp_22_10 * 0xA));
-                    (*( s16 * )((u8 *)(temp_4_9) + (0xCA))) = (s16) (((*( s16 * )((u8 *)(temp_17_11) + (8))) * 3) + 0x3E);
-                    (*( s16 * )((u8 *)(temp_4_9) + (0xCC))) = (s16) ((*( s16 * )((u8 *)(temp_17_11) + (0xA))) + 0x57);
+        } else if (*(s8 *)(p + 0xB5) == 9) {
+            for (i6 = 0, mode5 = (s8)arg1; i6 < 4; i6++) {
+                slot = (FclCombineLayoutSlot *)D_006407C0 + i6;
+                if (mode5 == 0) {
+                    func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 i6, i6 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(p + i6 * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(p + i6 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
-                    temp_22_11 = (((RpRandom() % 300U) - 0x96));
-                    *(FclVec2 *)&stk[11] = func_002b2970((*( f32 * )((u8 *)(temp_17_11) + (0))), (*( f32 * )((u8 *)(temp_17_11) + (4))));
-                    *(FclVec2 *)&stk[10] = func_002b2970(-300.0f, (*( f32 * )((u8 *)(temp_17_11) + (4))) + (f32) temp_22_11);
-                    func_00317900(arg0, stk[11], stk[10], (var_20_3), ((temp_16_11 * 2)), ((((*( s16 * )((u8 *)(temp_17_11) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_17_11) + (0xA))) + 0x57)));
+                    jitter = RpRandom() % 300 - 150;
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                                 i6, i6 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
-                temp_16_12 = 8 - temp_16_11;
-                temp_17_12 = (u8 *)(D_006407C0 + (temp_16_12 * 0xC));
-                if (temp_18_4 == 0) {
-                    temp_22_12 = (var_20_3);
-                    temp_16_13 = 8 - temp_22_12;
-                    *(FclVec2 *)&stk[9] = func_002b2970(700.0f, 100.0f + (*( f32 * )((u8 *)(temp_17_12) + (4))));
-                    *(FclVec2 *)&stk[8] = func_002b2970((*( f32 * )((u8 *)(temp_17_12) + (0))), (*( f32 * )((u8 *)(temp_17_12) + (4))));
-                    func_00317900(arg0, stk[9], stk[8], (temp_16_13), (((temp_22_12 * 4) + 2)), ((((*( s16 * )((u8 *)(temp_17_12) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_17_12) + (0xA))) + 0x57)));
-                    temp_4_10 = (u8 *)(temp_19 + (temp_16_13 * 0xA));
-                    (*( s16 * )((u8 *)(temp_4_10) + (0xCA))) = (s16) (((*( s16 * )((u8 *)(temp_17_12) + (8))) * 3) + 0x3E);
-                    (*( s16 * )((u8 *)(temp_4_10) + (0xCC))) = (s16) ((*( s16 * )((u8 *)(temp_17_12) + (0xA))) + 0x57);
+                slot = (FclCombineLayoutSlot *)D_006407C0 + (8 - i6);
+                if (mode5 == 0) {
+                    func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 8 - i6, i6 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(p + (8 - i6) * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(p + (8 - i6) * 10 + 0xCC) = slot->row + 0x57;
                 } else {
-                    temp_22_13 = (((RpRandom() % 300U) - 0x96));
-                    *(FclVec2 *)&stk[7] = func_002b2970((*( f32 * )((u8 *)(temp_17_12) + (0))), (*( f32 * )((u8 *)(temp_17_12) + (4))));
-                    *(FclVec2 *)&stk[6] = func_002b2970(700.0f, (*( f32 * )((u8 *)(temp_17_12) + (4))) + (f32) temp_22_13);
-                    func_00317900(arg0, stk[7], stk[6], (temp_16_12), (((((s64) (var_20_3)) * 2) + 1) << 0x30) >> 0x30, ((((*( s16 * )((u8 *)(temp_17_12) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(temp_17_12) + (0xA))) + 0x57)));
+                    jitter = RpRandom() % 300 - 150;
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                                 8 - i6, i6 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
-                var_20_3 = ((var_20_3 + 1));
-                goto loop_75;
             }
-            if (temp_18_4 == 0) {
-                *(FclVec2 *)&stk[5] = func_002b2970(-200.0f, 100.0f + (*( f32 * )((u8 *)(&D_006407F0) + (4))));
-                *(FclVec2 *)&stk[4] = func_002b2970((*( f32 * )((u8 *)(&D_006407F0) + (0))), (*( f32 * )((u8 *)(&D_006407F0) + (4))));
-                func_00317900(arg0, stk[5], stk[4], 4, 0x10, ((((*( s16 * )((u8 *)(&D_006407F0) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_006407F0) + (0xA))) + 0x57)));
-                (*( s16 * )((u8 *)(temp_19) + (0xF2))) = (s16) (((*( s16 * )((u8 *)(&D_006407F0) + (8))) * 3) + 0x3E);
-                (*( s16 * )((u8 *)(temp_19) + (0xF4))) = (s16) ((*( s16 * )((u8 *)(&D_006407F0) + (0xA))) + 0x57);
+            slot = (FclCombineLayoutSlot *)D_006407F0;
+            if (mode5 == 0) {
+                func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                             4, 0x10, slot->col * 3 + 0x3E, slot->row + 0x57);
+                *(s16 *)(p + 0xF2) = slot->col * 3 + 0x3E;
+                *(s16 *)(p + 0xF4) = slot->row + 0x57;
             } else {
-                temp_16_14 = (((RpRandom() % 300U) - 0x96));
-                if ((u32) (RpRandom() % 100U) >= 0x32U) {
-                    *(FclVec2 *)&stk[3] = func_002b2970((*( f32 * )((u8 *)(&D_006407F0) + (0))), (*( f32 * )((u8 *)(&D_006407F0) + (4))));
-                    *(FclVec2 *)&stk[2] = func_002b2970(-300.0f, (*( f32 * )((u8 *)(&D_006407F0) + (4))) + (f32) temp_16_14);
-                    func_00317900(arg0, stk[3], stk[2], 4, 8, ((((*( s16 * )((u8 *)(&D_006407F0) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_006407F0) + (0xA))) + 0x57)));
+                jitter = RpRandom() % 300 - 150;
+                if (RpRandom() % 100 >= 50) {
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                                 4, 8, slot->col * 3 + 0x3E, slot->row + 0x57);
                 } else {
-                    *(FclVec2 *)&stk[1] = func_002b2970((*( f32 * )((u8 *)(&D_006407F0) + (0))), (*( f32 * )((u8 *)(&D_006407F0) + (4))));
-                    *(FclVec2 *)&stk[0] = func_002b2970(700.0f, (*( f32 * )((u8 *)(&D_006407F0) + (4))) + (f32) temp_16_14);
-                    func_00317900(arg0, stk[1], stk[0], 4, 8, ((((*( s16 * )((u8 *)(&D_006407F0) + (8))) * 3) + 0x3E)), (((*( s16 * )((u8 *)(&D_006407F0) + (0xA))) + 0x57)));
+                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                                 4, 8, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
-            break;
         }
     }
-    if (((arg1)) == 1) {
-        (*( s8 * )((u8 *)(func_002b6150(0x216)) + (0x73))) = 0;
+    if ((s8)arg1 == 1) {
+        func_002b6150(0x216)[0x73] = 0;
         func_002b6150(0x216);
-        (*( s8 * )((u8 *)(func_002b6150(0x217)) + (0x73))) = 0;
+        func_002b6150(0x217)[0x73] = 0;
         func_002b6150(0x217);
-        (*( s8 * )((u8 *)(func_002b6150(0x218)) + (0x73))) = 0;
+        func_002b6150(0x218)[0x73] = 0;
         func_002b6150(0x218);
-        (*( s8 * )((u8 *)(func_002b6150(0x219)) + (0x73))) = 0;
+        func_002b6150(0x219)[0x73] = 0;
         func_002b6150(0x219);
-        (*( s8 * )((u8 *)(func_002b6150(0x21A)) + (0x73))) = 0;
+        func_002b6150(0x21A)[0x73] = 0;
         func_002b6150(0x21A);
-        (*( s8 * )((u8 *)(func_002b6150(0x21B)) + (0x73))) = 0;
+        func_002b6150(0x21B)[0x73] = 0;
         func_002b6150(0x21B);
     }
 }
