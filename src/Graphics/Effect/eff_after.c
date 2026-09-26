@@ -25,7 +25,7 @@ extern f32 func_004b7300(void *arg0, s32 arg1);
 extern s32 func_004b7800(void *arg0, s32 arg1);
 extern f32 func_004bc310(u8 *arg0, s32 arg1);
 extern f32 func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_004bb1d0(void *arg0, s32 arg1);
+extern void func_004bb1d0(struct EffAfterQueue *queue, s32 section);
 extern void func_004b7dc0(u8 *arg0, s32 arg1, EffAfterVec *arg2);
 extern void func_004b7830(u8 *arg0, s32 arg1, s32 arg2, EffAfterVec *arg3);
 extern s32 func_003c2130(s32 obj, u8 *buf, u16 a, u16 b, u16 c);
@@ -1462,28 +1462,48 @@ void func_004b8f40(u8 *work, void **pp)
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8f40);
 #endif
 
+/* Ribbon sample queue shared by the sample writer and the offset builder. */
+typedef struct {
+    f32 mid[3];
+    f32 headMid;
+    f32 headNext;
+    f32 tailMid;
+    f32 tailPrev;
+    f32 width[2];
+    f32 alpha[2];
+} EffAfterParam;
+
+typedef struct {
+    EffAfterParam *param;
+    s32 unk4;
+    s32 capacity;
+} EffAfterConfig;
+
+typedef struct EffAfterQueue {
+    EffAfterConfig *config;
+    u32 reserved;
+    s32 count;
+    s32 writeIndex;
+    EffAfterVec *positions;
+    EffAfterVec *normals;
+    EffAfterVec *positionOffsets[2];
+    EffAfterVec *normalOffsets[2];
+} EffAfterQueue;
+
 // FUN_004BAD70
 void func_004bad70(u8 *data, EffAfterVec *position, EffAfterVec *normal) {
-    typedef struct {
-        u8 *config;
-        u32 reserved;
-        s32 count;
-        s32 writeIndex;
-        EffAfterVec *positions;
-        EffAfterVec *normals;
-    } SampleQueue;
-    SampleQueue *queue;
+    EffAfterQueue *queue;
     s32 index;
 
-    queue = (SampleQueue *)data;
+    queue = (EffAfterQueue *)data;
     index = queue->writeIndex;
     queue->positions[index] = *position;
     queue->normals[index] = *normal;
-    if (queue->count < *(s32 *)((u8 *)queue->config + 8)) {
+    if (queue->count < queue->config->capacity) {
         queue->count++;
     }
     queue->writeIndex++;
-    queue->writeIndex %= *(s32 *)((u8 *)queue->config + 8);
+    queue->writeIndex %= queue->config->capacity;
     switch (queue->count) {
     case 0:
         func_0046d730(D_007146E0, 0x5BB);
@@ -1499,516 +1519,421 @@ void func_004bad70(u8 *data, EffAfterVec *position, EffAfterVec *normal) {
         break;
     }
 }
-/* measured: floor for func_004bb1d0 (obj 4144B vs window 4112B, +0.8% inside the +-3% gate; measure_guarded 618 differing words reloc-masked). */
-/*   Frame 0xA0 matches retail; initial param loads (0x1C->0x78, 0x24->0x70, 0x20->0x7C, 0x28->0x74) match. */
-/*   Logic confirmed against retail asm (asm/nonmatchings/eff_after/func_004bb1d0.s via `grep -rl func_004bb1d0 asm/`), */
-/*   IDA sub_4BB1D0, and M2C P4_UNIT_004BB1D0 (606 draft lines, noise 0): 4-block ribbon accumulation */
-/*   (sec,side,src,dst) = (arg1,0,0x10,0x18), (arg1,1,0x14,0x20), (arg1+1,0,0x10,0x1C), (arg1+1,1,0x14,0x24); */
-/*   triple selection (count==2 / section==0 vs else) and (count==2 || (count==3 && section==1) vs else); */
-/*   ring indices `-2 - sec + cursor` and `(cursor-1)-sec` with wrap by +count; asserts 0x14E/0x137 for count<2. */
-/*   Count fix: the 8 vector-difference blocks hoisted `base+idx*12` (one addu, folded +4/+8 loads) where retail */
-/*   recomputes `base+offset` per field (one addiu for +4/+8, then one addu per index). Spelling each block as */
-/*   `b=(u8*)base; ob=idxB*12; oa=idxA*12; *(f32*)(b+ob)-*(f32*)(b+oa); b4=b+4; *(f32*)(b4+ob)-...; b8=b+8; ...` */
-/*   (M2C temp_5+4/temp_5+8 shape) closes all 32 missing addu and 16 of 21 missing addiu: obj 3952B->4144B */
-/*   (+192B, +48 instrs), 879->618 differing words. Remaining retail-only addu/addiu are the widths/alphas */
-/*   folded-displacement pair (retail addiu+load-0 vs object load-offset, 4-5 words) per matching.md gate 2. */
-/*   Residual is compiler floor per docs/matching.md: swapped saved regs ($s2/$s1 for work/section, */
-/*   $f26 vs $f21 etc. for coeff/pair), scheduling (addiu before c.le.s vs after), and FPU choice */
-/*   (madd for scale vs retail mul+mul+add: retail +4 mul.s/+4 add.s). Exhausted folded-displacement */
-/*   (struct AfterWork vs raw work+8 hoisting), reverse-order float/stack allocation, and struct-vs-raw probes. */
-/*   No pooled float constants (noise 0; only 0.0f via mtc1 $zero, no gp-relative loads to bank). */
-/*   Unit confirmed via `grep -rl func_004bb1d0 asm/` -> asm/nonmatchings/eff_after/func_004bb1d0.s. */
-/*   Production stays INCLUDE_ASM fallback; body preserved here as NON_MATCHING seed. */
-// FUN_004BB1D0 NONMATCHING
-#ifdef NON_MATCHING
-void func_004bb1d0(void *arg0, s32 arg1) {
-    typedef struct {
-        u8 *config;
-        s32 unk4;
-        s32 count;
-        s32 cursor;
-        EffAfterVec *src0;
-        EffAfterVec *src1;
-        EffAfterVec *dst0;
-        EffAfterVec *dst1;
-        EffAfterVec *dst2;
-        EffAfterVec *dst3;
-    } AfterWork;
-    AfterWork *work = (AfterWork *)arg0;
+/* Builds the scaled offset vectors for one ribbon section and the section
+ * after it, for both the position and the normal strip. Each vector blends
+ * the sample's own direction with the directions to the neighbouring samples
+ * in the ring buffer, then is normalised and scaled by the section width. */
+// FUN_004BB1D0
+void func_004bb1d0(EffAfterQueue *queue, s32 section)
+{
     EffAfterVec acc;
     EffAfterVec dir;
     f32 widths[2];
     f32 alphas[2];
-    f32 coeff0;
-    f32 pairA0;
-    f32 pairB0;
-    f32 pairB1;
-    f32 pairA1;
-    f32 coeff2;
-    f32 coeff1;
+    f32 mid0;
+    f32 w0;
+    f32 w1;
+    f32 a1;
+    f32 a0;
+    f32 prev0;
+    f32 next0;
     f32 scale;
+    f32 term;
+    f32 scale2;
+    f32 mid1;
+    f32 next1;
+    f32 prev1;
+    f32 *pw;
     s32 sel;
-    {
-        u8 *param = *(u8 **)work->config;
-        widths[0] = *(f32 *)(param + 0x1C);
-        alphas[0] = *(f32 *)(param + 0x24);
-        widths[1] = *(f32 *)(param + 0x20);
-        alphas[1] = *(f32 *)(param + 0x28);
-    }
-    {
-        f32 len0 = func_004bc1e0((u8 *)work, arg1, 0);
-        f32 len1 = func_004bc1e0((u8 *)work, arg1, 1);
-        s32 tmp = 1;
-        if (len0 <= len1) {
-            tmp = 0;
-        }
-        sel = tmp ^ 1;
-    }
-    if (work->count == 2) {
-        u8 *param = *(u8 **)work->config;
-        coeff0 = *(f32 *)(param + 0xC);
-        coeff1 = *(f32 *)(param + 0x10);
-        coeff2 = 0.0f;
-    } else if (arg1 == 0) {
-        u8 *param = *(u8 **)work->config;
-        coeff0 = *(f32 *)(param + 0xC);
-        coeff1 = *(f32 *)(param + 0x10);
-        coeff2 = 0.0f;
+    s32 following;
+
+    widths[0] = queue->config->param->width[0];
+    alphas[0] = queue->config->param->alpha[0];
+    widths[1] = queue->config->param->width[1];
+    alphas[1] = queue->config->param->alpha[1];
+    sel = !(func_004bc1e0((u8 *)queue, section, 0) > func_004bc1e0((u8 *)queue, section, 1));
+    if (queue->count == 2) {
+        mid0 = queue->config->param->headMid;
+        next0 = queue->config->param->headNext;
+        prev0 = 0.0f;
+    } else if (section == 0) {
+        mid0 = queue->config->param->headMid;
+        next0 = queue->config->param->headNext;
+        prev0 = 0.0f;
     } else {
-        u8 *param = *(u8 **)work->config;
-        coeff0 = *(f32 *)(param + 0x0);
-        coeff1 = *(f32 *)(param + 0x8);
-        coeff2 = *(f32 *)(param + 0x4);
+        mid0 = queue->config->param->mid[0];
+        next0 = queue->config->param->mid[2];
+        prev0 = queue->config->param->mid[1];
     }
+
+    /* This section, position side. */
     acc.c[0] = 0.0f;
     acc.c[1] = 0.0f;
     acc.c[2] = 0.0f;
-    pairA0 = widths[sel & 1];
-    scale = pairA0 * func_004bc1e0((u8 *)work, arg1, 0);
-    pairA1 = alphas[sel & 1];
-    scale = scale + pairA1 * func_004bc310((u8 *)work, arg1);
-    func_004b7830((u8 *)work, arg1, 0, &dir);
-    dir.c[0] *= coeff0;
-    dir.c[1] *= coeff0;
-    dir.c[2] *= coeff0;
+    pw = &widths[sel & 1];
+    w0 = *pw;
+    scale = w0 * func_004bc1e0((u8 *)queue, section, 0);
+    pw = &alphas[sel & 1];
+    a0 = *pw;
+    term = a0 * func_004bc310((u8 *)queue, section);
+    scale = scale + term;
+    func_004b7830((u8 *)queue, section, 0, &dir);
+    dir.c[0] *= mid0;
+    dir.c[1] *= mid0;
+    dir.c[2] *= mid0;
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    if (work->count < 2) {
+    if (queue->count < 2) {
         func_0046d730(D_007146E0, 0x14E);
     }
-    if (arg1 == 0) {
+    if (section == 0) {
         dir.c[0] = 0.0f;
         dir.c[1] = 0.0f;
         dir.c[2] = 0.0f;
     } else {
-        s32 idxA = (work->cursor - 1) - arg1;
-        s32 idxB;
-        u8 *b;
-        s32 ob;
-        s32 oa;
-        u8 *b4;
-        u8 *b8;
-        if (idxA < 0) {
-            idxA += work->count;
+        s32 ia;
+        s32 ib;
+
+        ia = queue->writeIndex - 1 - section;
+        if (ia < 0) {
+            ia += queue->count;
         }
-        idxB = work->cursor - arg1;
-        if (idxB < 0) {
-            idxB += work->count;
+        ib = queue->writeIndex - section;
+        if (ib < 0) {
+            ib += queue->count;
         }
-        b = (u8 *)work->src0;
-        ob = idxB * 12;
-        oa = idxA * 12;
-        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
-        b4 = b + 4;
-        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
-        b8 = b + 8;
-        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        RwV3dNormalize(&dir.c[0], &dir.c[0]);
+        dir.c[0] = queue->positions[ib].c[0] - queue->positions[ia].c[0];
+        dir.c[1] = queue->positions[ib].c[1] - queue->positions[ia].c[1];
+        dir.c[2] = queue->positions[ib].c[2] - queue->positions[ia].c[2];
+        RwV3dNormalize(dir.c, dir.c);
     }
-    dir.c[0] *= coeff2;
-    dir.c[1] *= coeff2;
-    dir.c[2] *= coeff2;
+    dir.c[0] *= prev0;
+    dir.c[1] *= prev0;
+    dir.c[2] *= prev0;
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    if (work->count < 2) {
+    if (queue->count < 2) {
         func_0046d730(D_007146E0, 0x137);
     }
-    if (arg1 == work->count - 1) {
+    if (section == queue->count - 1) {
         dir.c[0] = 0.0f;
         dir.c[1] = 0.0f;
         dir.c[2] = 0.0f;
     } else {
-        s32 idxC = (work->cursor - 1) - arg1;
-        s32 idxD;
-        u8 *b;
-        s32 ob;
-        s32 oa;
-        u8 *b4;
-        u8 *b8;
-        if (idxC < 0) {
-            idxC += work->count;
+        s32 ia;
+        s32 ib;
+
+        ia = queue->writeIndex - 1 - section;
+        if (ia < 0) {
+            ia += queue->count;
         }
-        idxD = -2 - arg1 + work->cursor;
-        if (idxD < 0) {
-            idxD += work->count;
+        ib = -2 - section + queue->writeIndex;
+        if (ib < 0) {
+            ib += queue->count;
         }
-        b = (u8 *)work->src0;
-        ob = idxC * 12;
-        oa = idxD * 12;
-        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
-        b4 = b + 4;
-        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
-        b8 = b + 8;
-        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        RwV3dNormalize(&dir.c[0], &dir.c[0]);
+        dir.c[0] = queue->positions[ia].c[0] - queue->positions[ib].c[0];
+        dir.c[1] = queue->positions[ia].c[1] - queue->positions[ib].c[1];
+        dir.c[2] = queue->positions[ia].c[2] - queue->positions[ib].c[2];
+        RwV3dNormalize(dir.c, dir.c);
     }
-    dir.c[0] *= coeff1;
-    dir.c[1] *= coeff1;
-    dir.c[2] *= coeff1;
+    dir.c[0] *= next0;
+    dir.c[1] *= next0;
+    dir.c[2] *= next0;
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    RwV3dNormalize(&acc.c[0], &acc.c[0]);
+    RwV3dNormalize(acc.c, acc.c);
     acc.c[0] *= scale;
     acc.c[1] *= scale;
     acc.c[2] *= scale;
     {
-        s32 idx = (work->cursor - 1) - arg1;
-        EffAfterVec *dst;
-        if (idx < 0) {
-            idx += work->count;
+        s32 ia = queue->writeIndex - 1 - section;
+
+        if (ia < 0) {
+            ia += queue->count;
         }
-        dst = work->dst0;
-        dst[idx] = acc;
+        queue->positionOffsets[0][ia] = acc;
     }
+
+    /* This section, normal side. */
     acc.c[0] = 0.0f;
     acc.c[1] = 0.0f;
     acc.c[2] = 0.0f;
-    pairB0 = widths[(sel + 1) & 1];
-    scale = pairB0 * func_004bc1e0((u8 *)work, arg1, 1);
-    pairB1 = alphas[(sel + 1) & 1];
-    scale = scale + pairB1 * func_004bc310((u8 *)work, arg1);
-    func_004b7830((u8 *)work, arg1, 1, &dir);
-    dir.c[0] *= coeff0;
-    dir.c[1] *= coeff0;
-    dir.c[2] *= coeff0;
+    pw = &widths[(sel + 1) & 1];
+    w1 = *pw;
+    scale = w1 * func_004bc1e0((u8 *)queue, section, 1);
+    pw = &alphas[(sel + 1) & 1];
+    a1 = *pw;
+    term = a1 * func_004bc310((u8 *)queue, section);
+    scale = scale + term;
+    func_004b7830((u8 *)queue, section, 1, &dir);
+    dir.c[0] *= mid0;
+    dir.c[1] *= mid0;
+    dir.c[2] *= mid0;
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    if (work->count < 2) {
+    if (queue->count < 2) {
         func_0046d730(D_007146E0, 0x14E);
     }
-    if (arg1 == 0) {
+    if (section == 0) {
         dir.c[0] = 0.0f;
         dir.c[1] = 0.0f;
         dir.c[2] = 0.0f;
     } else {
-        s32 idxA = (work->cursor - 1) - arg1;
-        s32 idxB;
-        u8 *b;
-        s32 ob;
-        s32 oa;
-        u8 *b4;
-        u8 *b8;
-        if (idxA < 0) {
-            idxA += work->count;
+        s32 ia;
+        s32 ib;
+
+        ia = queue->writeIndex - 1 - section;
+        if (ia < 0) {
+            ia += queue->count;
         }
-        idxB = work->cursor - arg1;
-        if (idxB < 0) {
-            idxB += work->count;
+        ib = queue->writeIndex - section;
+        if (ib < 0) {
+            ib += queue->count;
         }
-        b = (u8 *)work->src1;
-        ob = idxB * 12;
-        oa = idxA * 12;
-        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
-        b4 = b + 4;
-        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
-        b8 = b + 8;
-        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        RwV3dNormalize(&dir.c[0], &dir.c[0]);
+        dir.c[0] = queue->normals[ib].c[0] - queue->normals[ia].c[0];
+        dir.c[1] = queue->normals[ib].c[1] - queue->normals[ia].c[1];
+        dir.c[2] = queue->normals[ib].c[2] - queue->normals[ia].c[2];
+        RwV3dNormalize(dir.c, dir.c);
     }
-    dir.c[0] *= coeff2;
-    dir.c[1] *= coeff2;
-    dir.c[2] *= coeff2;
+    dir.c[0] *= prev0;
+    dir.c[1] *= prev0;
+    dir.c[2] *= prev0;
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    if (work->count < 2) {
+    if (queue->count < 2) {
         func_0046d730(D_007146E0, 0x137);
     }
-    if (arg1 == work->count - 1) {
+    if (section == queue->count - 1) {
         dir.c[0] = 0.0f;
         dir.c[1] = 0.0f;
         dir.c[2] = 0.0f;
     } else {
-        s32 idxC = (work->cursor - 1) - arg1;
-        s32 idxD;
-        u8 *b;
-        s32 ob;
-        s32 oa;
-        u8 *b4;
-        u8 *b8;
-        if (idxC < 0) {
-            idxC += work->count;
+        s32 ia;
+        s32 ib;
+
+        ia = queue->writeIndex - 1 - section;
+        if (ia < 0) {
+            ia += queue->count;
         }
-        idxD = -2 - arg1 + work->cursor;
-        if (idxD < 0) {
-            idxD += work->count;
+        ib = -2 - section + queue->writeIndex;
+        if (ib < 0) {
+            ib += queue->count;
         }
-        b = (u8 *)work->src1;
-        ob = idxC * 12;
-        oa = idxD * 12;
-        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
-        b4 = b + 4;
-        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
-        b8 = b + 8;
-        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        RwV3dNormalize(&dir.c[0], &dir.c[0]);
+        dir.c[0] = queue->normals[ia].c[0] - queue->normals[ib].c[0];
+        dir.c[1] = queue->normals[ia].c[1] - queue->normals[ib].c[1];
+        dir.c[2] = queue->normals[ia].c[2] - queue->normals[ib].c[2];
+        RwV3dNormalize(dir.c, dir.c);
     }
-    dir.c[0] *= coeff1;
-    dir.c[1] *= coeff1;
-    dir.c[2] *= coeff1;
+    dir.c[0] *= next0;
+    dir.c[1] *= next0;
+    dir.c[2] *= next0;
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    RwV3dNormalize(&acc.c[0], &acc.c[0]);
+    RwV3dNormalize(acc.c, acc.c);
     acc.c[0] *= scale;
     acc.c[1] *= scale;
     acc.c[2] *= scale;
     {
-        s32 idx = (work->cursor - 1) - arg1;
-        EffAfterVec *dst;
-        if (idx < 0) {
-            idx += work->count;
+        s32 ia = queue->writeIndex - 1 - section;
+
+        if (ia < 0) {
+            ia += queue->count;
         }
-        dst = work->dst2;
-        dst[idx] = acc;
+        queue->normalOffsets[0][ia] = acc;
     }
+
+    if (queue->count == 2 || (queue->count == 3 && section == 1)) {
+        mid1 = queue->config->param->tailMid;
+        next1 = 0.0f;
+        prev1 = queue->config->param->tailPrev;
+    } else {
+        mid1 = queue->config->param->mid[0];
+        next1 = queue->config->param->mid[2];
+        prev1 = queue->config->param->mid[1];
+    }
+
+    /* Following section, position side. */
     acc.c[0] = 0.0f;
     acc.c[1] = 0.0f;
     acc.c[2] = 0.0f;
-    if (work->count == 2) {
-        u8 *param = *(u8 **)work->config;
-        coeff2 = *(f32 *)(param + 0x14);
-        coeff1 = 0.0f;
-        coeff0 = *(f32 *)(param + 0x18);
-    } else if (work->count == 3 && arg1 == 1) {
-        u8 *param = *(u8 **)work->config;
-        coeff2 = *(f32 *)(param + 0x14);
-        coeff1 = 0.0f;
-        coeff0 = *(f32 *)(param + 0x18);
-    } else {
-        u8 *param = *(u8 **)work->config;
-        coeff2 = *(f32 *)(param + 0x0);
-        coeff1 = *(f32 *)(param + 0x8);
-        coeff0 = *(f32 *)(param + 0x4);
-    }
-    sel = arg1 + 1;
-    pairA0 = pairA0 * func_004bc1e0((u8 *)work, arg1, 0);
-    pairA1 = pairA0 + pairA1 * func_004bc310((u8 *)work, arg1);
-    func_004b7830((u8 *)work, sel, 0, &dir);
-    dir.c[0] *= coeff2;
-    dir.c[1] *= coeff2;
-    dir.c[2] *= coeff2;
+    following = section + 1;
+    w0 *= func_004bc1e0((u8 *)queue, section, 0);
+    term = a0 * func_004bc310((u8 *)queue, section);
+    scale2 = w0 + term;
+    func_004b7830((u8 *)queue, following, 0, &dir);
+    dir.c[0] *= mid1;
+    dir.c[1] *= mid1;
+    dir.c[2] *= mid1;
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    if (work->count < 2) {
+    if (queue->count < 2) {
         func_0046d730(D_007146E0, 0x14E);
     }
-    if (sel == 0) {
+    if (following == 0) {
         dir.c[0] = 0.0f;
         dir.c[1] = 0.0f;
         dir.c[2] = 0.0f;
     } else {
-        s32 idxA = (work->cursor - 1) - sel;
-        s32 idxB;
-        u8 *b;
-        s32 ob;
-        s32 oa;
-        u8 *b4;
-        u8 *b8;
-        if (idxA < 0) {
-            idxA += work->count;
+        s32 ia;
+        s32 ib;
+
+        ia = queue->writeIndex - 1 - following;
+        if (ia < 0) {
+            ia += queue->count;
         }
-        idxB = work->cursor - sel;
-        if (idxB < 0) {
-            idxB += work->count;
+        ib = queue->writeIndex - following;
+        if (ib < 0) {
+            ib += queue->count;
         }
-        b = (u8 *)work->src0;
-        ob = idxB * 12;
-        oa = idxA * 12;
-        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
-        b4 = b + 4;
-        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
-        b8 = b + 8;
-        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        RwV3dNormalize(&dir.c[0], &dir.c[0]);
+        dir.c[0] = queue->positions[ib].c[0] - queue->positions[ia].c[0];
+        dir.c[1] = queue->positions[ib].c[1] - queue->positions[ia].c[1];
+        dir.c[2] = queue->positions[ib].c[2] - queue->positions[ia].c[2];
+        RwV3dNormalize(dir.c, dir.c);
     }
-    dir.c[0] *= coeff0;
-    dir.c[1] *= coeff0;
-    dir.c[2] *= coeff0;
+    dir.c[0] *= prev1;
+    dir.c[1] *= prev1;
+    dir.c[2] *= prev1;
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    if (work->count < 2) {
+    if (queue->count < 2) {
         func_0046d730(D_007146E0, 0x137);
     }
-    if (sel == work->count - 1) {
+    if (following == queue->count - 1) {
         dir.c[0] = 0.0f;
         dir.c[1] = 0.0f;
         dir.c[2] = 0.0f;
     } else {
-        s32 idxC = (work->cursor - 1) - sel;
-        s32 idxD;
-        u8 *b;
-        s32 ob;
-        s32 oa;
-        u8 *b4;
-        u8 *b8;
-        if (idxC < 0) {
-            idxC += work->count;
+        s32 ia;
+        s32 ib;
+
+        ia = queue->writeIndex - 1 - following;
+        if (ia < 0) {
+            ia += queue->count;
         }
-        idxD = -2 - sel + work->cursor;
-        if (idxD < 0) {
-            idxD += work->count;
+        ib = -2 - following + queue->writeIndex;
+        if (ib < 0) {
+            ib += queue->count;
         }
-        b = (u8 *)work->src0;
-        ob = idxC * 12;
-        oa = idxD * 12;
-        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
-        b4 = b + 4;
-        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
-        b8 = b + 8;
-        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        RwV3dNormalize(&dir.c[0], &dir.c[0]);
+        dir.c[0] = queue->positions[ia].c[0] - queue->positions[ib].c[0];
+        dir.c[1] = queue->positions[ia].c[1] - queue->positions[ib].c[1];
+        dir.c[2] = queue->positions[ia].c[2] - queue->positions[ib].c[2];
+        RwV3dNormalize(dir.c, dir.c);
     }
-    dir.c[0] *= coeff1;
-    dir.c[1] *= coeff1;
-    dir.c[2] *= coeff1;
+    dir.c[0] *= next1;
+    dir.c[1] *= next1;
+    dir.c[2] *= next1;
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    RwV3dNormalize(&acc.c[0], &acc.c[0]);
-    acc.c[0] *= pairA1;
-    acc.c[1] *= pairA1;
-    acc.c[2] *= pairA1;
+    RwV3dNormalize(acc.c, acc.c);
+    acc.c[0] *= scale2;
+    acc.c[1] *= scale2;
+    acc.c[2] *= scale2;
     {
-        s32 idx = (work->cursor - 1) - arg1;
-        EffAfterVec *dst;
-        if (idx < 0) {
-            idx += work->count;
+        s32 ia = queue->writeIndex - 1 - section;
+
+        if (ia < 0) {
+            ia += queue->count;
         }
-        dst = work->dst1;
-        dst[idx] = acc;
+        queue->positionOffsets[1][ia] = acc;
     }
+
+    /* Following section, normal side. */
     acc.c[0] = 0.0f;
     acc.c[1] = 0.0f;
     acc.c[2] = 0.0f;
-    pairA1 = pairB0 * func_004bc1e0((u8 *)work, arg1, 1);
-    pairA1 = pairA1 + pairB1 * func_004bc310((u8 *)work, arg1);
-    func_004b7830((u8 *)work, sel, 1, &dir);
-    dir.c[0] *= coeff2;
-    dir.c[1] *= coeff2;
-    dir.c[2] *= coeff2;
+    following = section + 1;
+    scale2 = w1 * func_004bc1e0((u8 *)queue, section, 1);
+    term = a1 * func_004bc310((u8 *)queue, section);
+    scale2 = scale2 + term;
+    func_004b7830((u8 *)queue, following, 1, &dir);
+    dir.c[0] *= mid1;
+    dir.c[1] *= mid1;
+    dir.c[2] *= mid1;
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    if (work->count < 2) {
+    if (queue->count < 2) {
         func_0046d730(D_007146E0, 0x14E);
     }
-    if (sel == 0) {
+    if (following == 0) {
         dir.c[0] = 0.0f;
         dir.c[1] = 0.0f;
         dir.c[2] = 0.0f;
     } else {
-        s32 idxA = (work->cursor - 1) - sel;
-        s32 idxB;
-        u8 *b;
-        s32 ob;
-        s32 oa;
-        u8 *b4;
-        u8 *b8;
-        if (idxA < 0) {
-            idxA += work->count;
+        s32 ia;
+        s32 ib;
+
+        ia = queue->writeIndex - 1 - following;
+        if (ia < 0) {
+            ia += queue->count;
         }
-        idxB = work->cursor - sel;
-        if (idxB < 0) {
-            idxB += work->count;
+        ib = queue->writeIndex - following;
+        if (ib < 0) {
+            ib += queue->count;
         }
-        b = (u8 *)work->src1;
-        ob = idxB * 12;
-        oa = idxA * 12;
-        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
-        b4 = b + 4;
-        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
-        b8 = b + 8;
-        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        RwV3dNormalize(&dir.c[0], &dir.c[0]);
+        dir.c[0] = queue->normals[ib].c[0] - queue->normals[ia].c[0];
+        dir.c[1] = queue->normals[ib].c[1] - queue->normals[ia].c[1];
+        dir.c[2] = queue->normals[ib].c[2] - queue->normals[ia].c[2];
+        RwV3dNormalize(dir.c, dir.c);
     }
-    dir.c[0] *= coeff0;
-    dir.c[1] *= coeff0;
-    dir.c[2] *= coeff0;
+    dir.c[0] *= prev1;
+    dir.c[1] *= prev1;
+    dir.c[2] *= prev1;
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    if (work->count < 2) {
+    if (queue->count < 2) {
         func_0046d730(D_007146E0, 0x137);
     }
-    if (sel == work->count - 1) {
+    if (following == queue->count - 1) {
         dir.c[0] = 0.0f;
         dir.c[1] = 0.0f;
         dir.c[2] = 0.0f;
     } else {
-        s32 idxC = (work->cursor - 1) - sel;
-        s32 idxD;
-        u8 *b;
-        s32 ob;
-        s32 oa;
-        u8 *b4;
-        u8 *b8;
-        if (idxC < 0) {
-            idxC += work->count;
+        s32 ia;
+        s32 ib;
+
+        ia = queue->writeIndex - 1 - following;
+        if (ia < 0) {
+            ia += queue->count;
         }
-        idxD = -2 - sel + work->cursor;
-        if (idxD < 0) {
-            idxD += work->count;
+        ib = -2 - following + queue->writeIndex;
+        if (ib < 0) {
+            ib += queue->count;
         }
-        b = (u8 *)work->src1;
-        ob = idxC * 12;
-        oa = idxD * 12;
-        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
-        b4 = b + 4;
-        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
-        b8 = b + 8;
-        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
-        RwV3dNormalize(&dir.c[0], &dir.c[0]);
+        dir.c[0] = queue->normals[ia].c[0] - queue->normals[ib].c[0];
+        dir.c[1] = queue->normals[ia].c[1] - queue->normals[ib].c[1];
+        dir.c[2] = queue->normals[ia].c[2] - queue->normals[ib].c[2];
+        RwV3dNormalize(dir.c, dir.c);
     }
-    dir.c[0] *= coeff1;
-    dir.c[1] *= coeff1;
-    dir.c[2] *= coeff1;
+    dir.c[0] *= next1;
+    dir.c[1] *= next1;
+    dir.c[2] *= next1;
     acc.c[0] += dir.c[0];
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
-    RwV3dNormalize(&acc.c[0], &acc.c[0]);
-    acc.c[0] *= pairA1;
-    acc.c[1] *= pairA1;
-    acc.c[2] *= pairA1;
+    RwV3dNormalize(acc.c, acc.c);
+    acc.c[0] *= scale2;
+    acc.c[1] *= scale2;
+    acc.c[2] *= scale2;
     {
-        s32 idx = (work->cursor - 1) - arg1;
-        EffAfterVec *dst;
-        if (idx < 0) {
-            idx += work->count;
+        s32 ia = queue->writeIndex - 1 - section;
+
+        if (ia < 0) {
+            ia += queue->count;
         }
-        dst = work->dst3;
-        dst[idx] = acc;
+        queue->normalOffsets[1][ia] = acc;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/eff_after", func_004bb1d0);
-#endif
 
 /* measured: nd 34 from 49 (obj 288B vs window 304B). Logic confirmed, including
    that the two ring-index expressions have DIFFERENT shapes in retail --
