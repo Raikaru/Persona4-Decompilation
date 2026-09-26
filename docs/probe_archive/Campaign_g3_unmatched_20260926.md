@@ -68,3 +68,23 @@ width, `opt_propagation off` or `opt_common_subs off` reproduced it.
 A separate pointer local (`row`) at every declaration position, an
 `s8 (*)[6]` table view, and folding the two index terms into the subscript all
 stay at 8 or grow to 155 (680 B). The `$s0`/`$s2` swap stands.
+
+## code1_0013.c `func_00130680` (1456 B): 256 -> 35 words
+
+Body: `Code0013Label_00130680_body_20260926.c` (1448 B). To install it, first make
+the file's `func_0011fd30`/`func_0011fd50` externs agree with the code1_0011
+definitions (`(u8 *)` and `(Vec2f, f32, s32, u8 *, s32)`). The old guarded
+drafts of 00130680 and 0013ad40 still call the old forms.
+
+- `id` is an `s32` local loaded from `((s16 *)(arg0 + 0x34))[arg1]`. An `s16`
+  local re-extends (dsll32/dsra32) before `func_00104c70(s32)`: 101 -> 42.
+- Commutative operand order follows named-variable vs expression, not
+  source order. Writing `ty = y + slot.y; pos.y = K + (ty + yoff);` makes the
+  sum come before `yoff`. The same trick with a float `ty` for the first
+  alpha fixes the `mul.s` order: 42 -> 35.
+- Residual (35): (1) the addu at +0x2d8 is `arg0 + row` but retail has
+  `row + arg0`. Explicit px/py pointer locals, the LabelSlot form and index-first
+  forms all leave it unchanged. (2) Retail loads `lw $a0, 0x1be0($s4)` before
+  the final `(u8)(alpha * dim)` conversion; b210 converts first. A sprite local,
+  the table-index form, an implicit conversion and a float temp all leave it
+  unchanged.
