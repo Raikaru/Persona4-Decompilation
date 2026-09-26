@@ -65,10 +65,10 @@ extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           f32 z, s32 arg6);
 extern u32 func_00106880(s16 arg0);
 extern s32 func_0046a770(void *param);
-extern s32 func_001068b0(s16 arg0);
+extern u16 func_001068b0(s16 arg0);
 extern u16 func_001068e0(s16 arg0);
-extern s32 func_00106940(s16 arg0);
-extern s32 func_00106970(s16 arg0);
+extern u16 func_00106940(s16 arg0);
+extern u16 func_00106970(s16 arg0);
 extern s32 func_00106c30(s16 arg0, s16 arg1);
 extern s32 func_00106c80(s16 arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
@@ -1046,7 +1046,7 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
     s32 func_0046a770(void *);
     void func_0046d730(void *, s32);
     void func_00112610(Vec2f, f32, u8, u8 *, s32, s32);
-    void func_00112830(s64, f32, u8, u8 *, s32);
+    void func_00112830(Vec2f, f32, u8, u8 *, s32);
     void func_001130c0(Vec2f, f32, u8, u8 *, s32);
     extern f32 D_005E4790[];
     extern f32 D_005E4794[];
@@ -1091,7 +1091,7 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
         temp_1 = 9.0f;
         temp_1 += arg0.y;
         xy.values[1] = temp_1;
-        func_00112830(xy.whole, fparg0, arg1, arg2, temp16);
+        func_00112830(xy.position, fparg0, arg1, arg2, temp16);
     }
     if (*(s16 *)(arg2 + 2) != -1) {
         xy.position.x = arg0.x +
@@ -1197,236 +1197,106 @@ void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4
                       *(s16 *)(arg2 + 0), arg3, arg4);
     }
 }
-/* measured 00112830 2026-09-17 via `python3 tools/measure_guarded.py src/promoted/code1_0011.c func_00112830`: 494wd before and after (obj 2040B/window 2192B); `value / 100` -> `value / 100U` (4 sites) clears division defect (opclass div +4/divu -4 -> 0/0, score 42 -> 34; fnalign 540 -> 540, no regression; u32 value alone flips to div -8/divu +8 with sltu +8/slt -8, so divisor widening not operand widening is correct). Remaining lbu -28/move +16 is spill not signedness: retail has 39 lbu/0 lb (all unsigned); s8 colors probe worsens 540 -> 550 edits, so byte-signedness reading disproved. */
-/* 2026-09-18 `tools/solve_signedness.py src/promoted/code1_0011.c func_00112830`: retail lb 0/lbu 39/lh 10/lhu 0 */
-/* against object lb 0/lbu 11/lh 10/lhu 0, mismatch 28 -> 28 over 7 candidate fields at unchanged 510 */
-/* instrs (retail 548). All flips rejected: D_005E4750[] and table to s8 do not compile (the u8* use */
-/* constrains both); color_b 510->521, color_g 510->519, colors 510->516 (section 7u). Manual probes */
-/* confirm spill, not signedness: s8 colors gives lb 3/lbu 0 (mismatch 28->42, 510->516); color_b/g to */
-/* s8 give lbu 11->7 (28->32, 510->521/519), both give lbu 3 (28->36, 510->530); arg2+0x16 s16->u16 */
-/* gives lh 10->9/lhu 0->1 (28->30, count steady), arg2+6 s16->u16 gives lh 10->6/lhu 0->4 (28->36, */
-/* 510->516). The lh-10-against-zero reading is disproved: retail loads the same three arg2 offsets */
-/* signed (0x16 x1, 0x6 x8, 0x0 x1 for 10 lh), so the halfwords already agree and need no edit. */
-/* Spelling for the solver: the missing lbu are typed array subscripts through locals - `u8 */
-/* colors[9][4]` (2D), `u8 *table` + `table[i]`, `u8 color_b/g`, `extern u8 D_005E4750[]` + `D_...[i]` - */
-/* plus `*(s16 *)(arg2+off)` casts. LOCAL missed the 2D array (a single `[..]?` never matches `[9][4]`); */
-/* fixed to `(?:\[..\])*` so colors now groups and is correctly rejected. No source change: every */
-/* signedness flip either worsens the census or moves the count, and the f32 word-copy that closes lbu */
-/* 11->35 (mismatch 28->4, andi +6->0) costs edits 542->588 with sb 0->16, so it answers the census, */
-/* not the shape. Opclass stays lbu -28/move +16/swc1 -8/lwc1 -8/andi +6/subu -6/sb -5/addiu -4. Floor */
-/* stands at 494 words. */
-/* gate: object 540 against retail 544, -0.7% - INSIDE the +-3% band (explicit */
-/* frame struct restores spills: lbu -28->-1, move +16->+5, edits 540->437, words */
-/* 494->480; sb -5->+15 and swc1/lwc1 -8/-8 remain for the word-copy hole). */
-// FUN_00112830 NONMATCHING
-#ifdef NON_MATCHING
-void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
+
+typedef struct {
+    u8 b[4];
+} StatColor;
+
+static inline void func_00112830_number(Vec2f pos, f32 depth, u16 value,
+                                        StatColor color, s32 tex)
 {
-    extern u8 D_005E4750[];
-
-    u8 *table;
-    s32 current;
-    s32 mode_a;
-    s32 mode_b;
-    u8 color_b;
-    u8 color_g;
-    s32 alpha;
     f32 x;
-    f32 y;
-    s32 kind;
-    s32 value;
-    s32 digit;
-    s32 i;
-    struct { s64 pos[9]; u8 col[9][4]; } fr;
 
-    fr.pos[0] = arg0;
-    table = D_005E4750 + (*(s16 *)(arg2 + 0x16) * 4);
-    fr.col[8][0] = table[0];
-    fr.col[8][1] = table[1];
-    fr.col[8][2] = table[2];
-    fr.col[8][3] = table[3];
-    fr.col[8][3] = arg1;
-    kind = func_00106c80(*(s16 *)arg2);
-    switch (kind) {
+    if (value / 100 != 0) {
+        x = 30.0f + pos.x;
+    } else {
+        x = 22.0f + pos.x;
+    }
+    do {
+        func_0046d4c0(0, tex, value % 10 + 0x1E, x, pos.y, 0xFF - color.b[3],
+                      color.b[0], color.b[1], color.b[2], depth, 0);
+        x -= 15.0f;
+        value /= 10;
+    } while (value > 0);
+}
+
+static inline void func_00112830_arrow(Vec2f pos, f32 depth, StatColor color,
+                                       u16 value, u16 prev, s32 tex)
+{
+    s32 glyph;
+
+    if (value != prev) {
+        if (value < prev) {
+            glyph = 40;
+        } else if (prev < value) {
+            glyph = 41;
+        }
+        func_0046d4c0(0, tex, glyph, pos.x, pos.y - 1.0f, 0xFF - color.b[3],
+                      color.b[0], color.b[1], color.b[2], depth, 0);
+    }
+}
+
+/* measured: loop invariants hoist the green/blue/alpha channels and the
+   row y out of the digit loops, as retail does (without it: 2088 B). */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_00112830
+void func_00112830(Vec2f pos, f32 depth, u8 alpha, u8 *arg2, s32 tex)
+{
+    extern StatColor D_005E4750[];
+    StatColor color;
+    u16 value;
+    s32 i;
+
+    color = D_005E4750[*(s16 *)(arg2 + 0x16)];
+    color.b[3] = alpha;
+    switch (func_00106c80(*(s16 *)arg2)) {
     case 0:
-        value = func_001068b0(*(s16 *)arg2) & 0xFFFF;
-        fr.pos[8] = fr.pos[0];
-        if (value / 100U != 0) {
-            x = 30.0f + *(f32 *)&fr.pos[8];
-        } else {
-            x = 22.0f + *(f32 *)&fr.pos[8];
-        }
-        y = *(f32 *)((u8 *)&fr.pos[8] + 4);
-        current = value;
-        color_b = fr.col[7][2];
-        color_g = fr.col[7][1];
-        fr.col[7][3] = fr.col[8][3];
-        fr.col[7][0] = fr.col[8][0];
-        fr.col[7][1] = fr.col[8][1];
-        fr.col[7][2] = fr.col[8][2];
-        alpha = 0xFF - fr.col[8][3];
-        do {
-            digit = ((current & 0xFFFF) % 10) + 0x1E;
-            func_0046d4c0(0, arg3, digit, x, y, (u8)alpha,
-                          fr.col[8][0], color_g, color_b, fparg0, 0);
-            x -= 15.0f;
-            current = (current / 10) & 0xFFFF;
-        } while (current > 0);
-        *(f32 *)&fr.pos[0] += 52.0f;
+        value = func_001068b0(*(s16 *)arg2);
+        func_00112830_number(pos, depth, value, color, tex);
+        pos.x += 52.0f;
         if (*(s16 *)(arg2 + 6) != -1) {
-            value = func_001068b0(*(s16 *)(arg2 + 6)) & 0xFFFF;
-            fr.pos[7] = fr.pos[0];
-            if (value != current) {
-                if (value < current) {
-                    mode_a = 40;
-                } else if (current < value) {
-                    mode_a = 41;
-                }
-                y = *(f32 *)((u8 *)&fr.pos[7] + 4) - 1.0f;
-                func_0046d4c0(0, arg3, mode_a, *(f32 *)&fr.pos[7], y, (u8)alpha,
-                              fr.col[8][0], color_g, color_b, fparg0, 0);
-            }
+            func_00112830_arrow(pos, depth, color,
+                                func_001068b0(*(s16 *)(arg2 + 6)), value, tex);
         }
-        *(f32 *)&fr.pos[0] += 42.0f;
-        value = func_001068e0(*(s16 *)arg2) & 0xFFFF;
-        fr.pos[6] = fr.pos[0];
-        if (value / 100U != 0) {
-            x = 30.0f + *(f32 *)&fr.pos[6];
-        } else {
-            x = 22.0f + *(f32 *)&fr.pos[6];
-        }
-        y = *(f32 *)((u8 *)&fr.pos[6] + 4);
-        current = value;
-        color_b = fr.col[6][2];
-        color_g = fr.col[6][1];
-        fr.col[6][3] = fr.col[8][3];
-        fr.col[6][0] = fr.col[8][0];
-        fr.col[6][1] = fr.col[8][1];
-        fr.col[6][2] = fr.col[8][2];
-        alpha = 0xFF - fr.col[8][3];
-        do {
-            digit = ((current & 0xFFFF) % 10) + 0x1E;
-            func_0046d4c0(0, arg3, digit, x, y, (u8)alpha,
-                          fr.col[8][0], color_g, color_b, fparg0, 0);
-            x -= 15.0f;
-            current = (current / 10) & 0xFFFF;
-        } while (current > 0);
-        *(f32 *)&fr.pos[0] += 52.0f;
+        pos.x += 42.0f;
+        value = func_001068e0(*(s16 *)arg2);
+        func_00112830_number(pos, depth, value, color, tex);
+        pos.x += 52.0f;
         if (*(s16 *)(arg2 + 6) != -1) {
-            value = func_001068e0(*(s16 *)(arg2 + 6)) & 0xFFFF;
-            fr.pos[5] = fr.pos[0];
-            if (value != current) {
-                if (value < current) {
-                    mode_b = 40;
-                } else if (current < value) {
-                    mode_b = 41;
-                }
-                y = *(f32 *)((u8 *)&fr.pos[5] + 4) - 1.0f;
-                func_0046d4c0(0, arg3, mode_b, *(f32 *)&fr.pos[5], y, (u8)alpha,
-                              fr.col[8][0], color_g, color_b, fparg0, 0);
-            }
+            func_00112830_arrow(pos, depth, color,
+                                func_001068e0(*(s16 *)(arg2 + 6)), value, tex);
         }
         break;
     case 1:
-        value = func_00106940(*(s16 *)arg2) & 0xFFFF;
-        fr.pos[4] = fr.pos[0];
-        if (value / 100U != 0) {
-            x = 30.0f + *(f32 *)&fr.pos[4];
-        } else {
-            x = 22.0f + *(f32 *)&fr.pos[4];
-        }
-        y = *(f32 *)((u8 *)&fr.pos[4] + 4);
-        current = value;
-        color_b = fr.col[5][2];
-        color_g = fr.col[5][1];
-        fr.col[5][3] = fr.col[8][3];
-        fr.col[5][0] = fr.col[8][0];
-        fr.col[5][1] = fr.col[8][1];
-        fr.col[5][2] = fr.col[8][2];
-        alpha = 0xFF - fr.col[8][3];
-        do {
-            digit = ((current & 0xFFFF) % 10) + 0x1E;
-            func_0046d4c0(0, arg3, digit, x, y, (u8)alpha,
-                          fr.col[8][0], color_g, color_b, fparg0, 0);
-            x -= 15.0f;
-            current = (current / 10) & 0xFFFF;
-        } while (current > 0);
-        *(f32 *)&fr.pos[0] += 52.0f;
+        value = func_00106940(*(s16 *)arg2);
+        func_00112830_number(pos, depth, value, color, tex);
+        pos.x += 52.0f;
         if (*(s16 *)(arg2 + 6) != -1) {
-            value = func_00106940(*(s16 *)(arg2 + 6)) & 0xFFFF;
-            fr.pos[3] = fr.pos[0];
-            if (value != current) {
-                if (value < current) {
-                    mode_a = 40;
-                } else if (current < value) {
-                    mode_a = 41;
-                }
-                y = *(f32 *)((u8 *)&fr.pos[3] + 4) - 1.0f;
-                func_0046d4c0(0, arg3, mode_a, *(f32 *)&fr.pos[3], y, (u8)alpha,
-                              fr.col[8][0], color_g, color_b, fparg0, 0);
-            }
+            func_00112830_arrow(pos, depth, color,
+                                func_00106940(*(s16 *)(arg2 + 6)), value, tex);
         }
-        *(f32 *)&fr.pos[0] += 42.0f;
-        value = func_00106970(*(s16 *)arg2) & 0xFFFF;
-        fr.pos[2] = fr.pos[0];
-        if (value / 100U != 0) {
-            x = 30.0f + *(f32 *)&fr.pos[2];
-        } else {
-            x = 22.0f + *(f32 *)&fr.pos[2];
-        }
-        y = *(f32 *)((u8 *)&fr.pos[2] + 4);
-        current = value;
-        color_b = fr.col[4][2];
-        color_g = fr.col[4][1];
-        fr.col[4][3] = fr.col[8][3];
-        fr.col[4][0] = fr.col[8][0];
-        fr.col[4][1] = fr.col[8][1];
-        fr.col[4][2] = fr.col[8][2];
-        alpha = 0xFF - fr.col[8][3];
-        do {
-            digit = ((current & 0xFFFF) % 10) + 0x1E;
-            func_0046d4c0(0, arg3, digit, x, y, (u8)alpha,
-                          fr.col[8][0], color_g, color_b, fparg0, 0);
-            x -= 15.0f;
-            current = (current / 10) & 0xFFFF;
-        } while (current > 0);
-        *(f32 *)&fr.pos[0] += 52.0f;
+        pos.x += 42.0f;
+        value = func_00106970(*(s16 *)arg2);
+        func_00112830_number(pos, depth, value, color, tex);
+        pos.x += 52.0f;
         if (*(s16 *)(arg2 + 6) != -1) {
-            value = func_00106970(*(s16 *)(arg2 + 6)) & 0xFFFF;
-            fr.pos[1] = fr.pos[0];
-            if (value != current) {
-                if (value < current) {
-                    mode_b = 40;
-                } else if (current < value) {
-                    mode_b = 41;
-                }
-                y = *(f32 *)((u8 *)&fr.pos[1] + 4) - 1.0f;
-                func_0046d4c0(0, arg3, mode_b, *(f32 *)&fr.pos[1], y, (u8)alpha,
-                              fr.col[8][0], color_g, color_b, fparg0, 0);
-            }
+            func_00112830_arrow(pos, depth, color,
+                                func_00106970(*(s16 *)(arg2 + 6)), value, tex);
         }
         break;
     case 2:
-        *(f32 *)&fr.pos[0] += 35.0f;
-        *(f32 *)((u8 *)&fr.pos[0] + 4) += 4.0f;
-        current = 0;
-        color_b = fr.col[8][2];
-        color_g = fr.col[8][1];
-        alpha = 0xFF - (arg1 & 0xFF);
+        pos.x += 35.0f;
+        pos.y += 4.0f;
         for (i = 0; i < 4; i++) {
-            func_0046d4c0(0, arg3, 60,
-                          *(f32 *)&fr.pos[0],
-                          *(f32 *)((u8 *)&fr.pos[0] + 4), (u8)alpha,
-                          fr.col[8][0], color_g, color_b, fparg0, 0);
-            *(f32 *)&fr.pos[0] += 34.0f;
-            current++;
+            func_0046d4c0(0, tex, 60, pos.x, pos.y, 0xFF - alpha,
+                          color.b[0], color.b[1], color.b[2], depth, 0);
+            pos.x += 34.0f;
         }
         break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
-#endif
+#pragma pop
 typedef struct { u8 r, g, b, a; } FontGlyphColor;
 static inline s32 fontDrawLeadingGlyph(const Vec2f *position, f32 depth, u8 opacity, s32 texture,
     const FontGlyphColor *color, u32 *blue, u32 *green)
