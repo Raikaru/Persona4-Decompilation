@@ -376,7 +376,7 @@ void func_0015d100(u8 *arg0, s32 arg1)
 
 
 // FUN_0015D1A0
-s32 func_0015d1a0(u8 *arg0)
+s32 func_0015d1a0(u8 *arg0, s32 arg1)
 {
     s32 size;
 
