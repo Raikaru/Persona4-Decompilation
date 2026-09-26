@@ -142,36 +142,32 @@ s32 func_002b2960(void)
     return iGpffffb55c;
 }
 // FUN_002B2970
-void func_002b2970(u8 *arg0, f32 arg1, f32 arg2)
+FclVec2 func_002b2970(f32 x, f32 y)
 {
-    Vec2f val;
+    FclVec2 val;
 
-    val.x = arg1;
-    val.y = arg2;
-    *(Vec2f *)arg0 = val;
+    val.x = x;
+    val.y = y;
+    return val;
 }
 // FUN_002B29A0
-void func_002b29a0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
+FclVec3 func_002b29a0(f32 x, f32 y, f32 z)
 {
-    struct Float3 {
-        f32 x;
-        f32 y;
-        f32 z;
-    } val;
+    FclVec3 val;
 
-    val.x = arg1;
-    val.y = arg2;
-    val.z = arg3;
-    *(struct Float3 *)arg0 = val;
+    val.x = x;
+    val.y = y;
+    val.z = z;
+    return val;
 }
 // FUN_002B29E0
-void func_002b29e0(u8 *arg0, f32 arg1, f32 arg2)
+FclBoundsPacket func_002b29e0(f32 width, f32 height)
 {
     FclBoundsPacket val;
 
-    val.dimensions.width = (s32)arg1;
-    val.dimensions.height = (s32)arg2;
-    ((FclBoundsPacket *)arg0)->representation = val.representation;
+    val.dimensions.width = (s32)width;
+    val.dimensions.height = (s32)height;
+    return val;
 }
 // FUN_002B2A30
 s32 func_002b2a30(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
@@ -1047,8 +1043,8 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
     (void)field;
     spC0 = arg3;
     spCC = arg4;
-    func_002b29e0((u8 *)&src, 22.0f, 17.0f);
-    func_002b2970((u8 *)&pos1, *(f32 *)((u8 *)&spC0) + 284.0f, *(f32 *)((u8 *)&spC0 + 4) + 6.0f);
+    src = func_002b29e0(22.0f, 17.0f);
+    pos1 = func_002b2970(*(f32 *)((u8 *)&spC0) + 284.0f, *(f32 *)((u8 *)&spC0 + 4) + 6.0f);
     value = (s16)arg2;
     if ((value == -1) || (value == 0)) { ones = 10; tens = 10; }
     else { ones = (s8)(value % 10); tens = (s8)(value / 10); }
@@ -1080,7 +1076,7 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
         *(s16 *)(slot + 0x104) = (s16)(*(s16 *)(slot + 0x104) | 1);
         ((FclBoundsPacket *)(slot + 0x204))->representation = copy1;
         *(s16 *)(slot + 0x100) = arg7;
-        func_002b83e0(slot + 0x104, fclDrawPositionValue(fclPacketPosition(*(s64 *)((u8 *)&pos1))), fclPacketColor((u32)(spCC)), fclPacketColor((u32)(spCC)), 0, ((u8 *)&spCC)[3], (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
+        func_002b83e0(slot + 0x104, fclPacketPosition(*(s64 *)((u8 *)&pos1)), fclPacketColor((u32)(spCC)), fclPacketColor((u32)(spCC)), 0, ((u8 *)&spCC)[3], (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
     } else {
         u8 *slot;
         s32 offset;
@@ -1088,7 +1084,7 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
         slot = *(u8 **)(object + 0x38) + offset;
         if ((*(s16 *)(slot + 0x104) & 1) == 1) {
             u8 *a0 = slot + 0x104;
-            func_002b83e0(a0, fclDrawPositionValue(fclPacketPosition(*(s64 *)(a0 + 0x28))), fclPacketColor((u32)(*(s32 *)(a0 + 0x75))), fclPacketColor((u32)(*(s32 *)(a0 + 0x75))), *(u8 *)(a0 + 0x5E), 0, (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
+            func_002b83e0(a0, fclPacketPosition(*(s64 *)(a0 + 0x28)), fclPacketColor((u32)(*(s32 *)(a0 + 0x75))), fclPacketColor((u32)(*(s32 *)(a0 + 0x75))), *(u8 *)(a0 + 0x5E), 0, (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
         }
     }
     if (flag == 0) {
@@ -1101,7 +1097,7 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
             *(f32 *)(slot + 0x1F8) = *(f32 *)(digit + 4);
             *(f32 *)(slot + 0x1FC) = *(f32 *)(digit + 8);
             *(f32 *)(slot + 0x200) = *(f32 *)(digit + 0xC);
-            func_002b2970((u8 *)&pos2, pos1.x - 18.0f, pos1.y);
+            pos2 = func_002b2970(pos1.x - 18.0f, pos1.y);
             tmpA = pos2;
             copy2 = src.representation;
             tmpCol2 = spCC;
@@ -1119,8 +1115,8 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
             *(s16 *)(slot + 0x104) = (s16)(*(s16 *)(slot + 0x104) | 1);
             ((FclBoundsPacket *)(slot + 0x204))->representation = copy2;
             *(s16 *)(slot + 0x100) = arg7;
-            func_002b2970((u8 *)&tmpB, pos1.x - 18.0f, pos1.y);
-            func_002b83e0(slot + 0x104, fclDrawPositionValue(fclPacketPosition(*(s64 *)((u8 *)&tmpB))), fclPacketColor((u32)(spCC)), fclPacketColor((u32)(spCC)), 0, ((u8 *)&spCC)[3], (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
+            tmpB = func_002b2970(pos1.x - 18.0f, pos1.y);
+            func_002b83e0(slot + 0x104, fclPacketPosition(*(s64 *)((u8 *)&tmpB)), fclPacketColor((u32)(spCC)), fclPacketColor((u32)(spCC)), 0, ((u8 *)&spCC)[3], (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
         }
     } else {
         u8 *slot;
@@ -1129,8 +1125,8 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
         slot = *(u8 **)(object + 0x38) + offset;
         if ((*(s16 *)(slot + 0x104) & 1) == 1) {
             u8 *a0 = slot + 0x104;
-            func_002b2970((u8 *)&tmpC, pos1.x - 18.0f, *(f32 *)(a0 + 0x2C));
-            func_002b83e0(a0, fclDrawPositionValue(fclPacketPosition(*(s64 *)((u8 *)&tmpC))), fclPacketColor((u32)(*(s32 *)(a0 + 0x75))), fclPacketColor((u32)(*(s32 *)(a0 + 0x75))), *(u8 *)(a0 + 0x5E), 0, (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
+            tmpC = func_002b2970(pos1.x - 18.0f, *(f32 *)(a0 + 0x2C));
+            func_002b83e0(a0, fclPacketPosition(*(s64 *)((u8 *)&tmpC)), fclPacketColor((u32)(*(s32 *)(a0 + 0x75))), fclPacketColor((u32)(*(s32 *)(a0 + 0x75))), *(u8 *)(a0 + 0x5E), 0, (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
         }
     }
 }
@@ -1167,8 +1163,8 @@ void func_002ba5d0(u8 *arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s64 arg5, f
     field = arg5;
     sp60 = arg3;
     sp6C = arg4;
-    func_002b29e0((u8 *)&src, 88.0f, 17.0f);
-    func_002b2970((u8 *)&pos1, *(f32 *)((u8 *)&sp60) + 284.0f, *(f32 *)((u8 *)&sp60 + 4) + 6.0f);
+    src = func_002b29e0(88.0f, 17.0f);
+    pos1 = func_002b2970(*(f32 *)((u8 *)&sp60) + 284.0f, *(f32 *)((u8 *)&sp60 + 4) + 6.0f);
     value = (s16)arg2;
     if ((value == -1) || (value == 0)) { ones = 10; tens = 10; }
     else { ones = (s8)(value % 10); tens = (s8)(value / 10); }
@@ -1211,7 +1207,7 @@ void func_002ba5d0(u8 *arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s64 arg5, f
         *(f32 *)(slot + 0x1F8) = *(f32 *)(digit + 4);
         *(f32 *)(slot + 0x1FC) = *(f32 *)(digit + 8);
         *(f32 *)(slot + 0x200) = *(f32 *)(digit + 0xC);
-        func_002b2970((u8 *)&pos2, pos1.x - 18.0f, pos1.y);
+        pos2 = func_002b2970(pos1.x - 18.0f, pos1.y);
         copy2 = src.representation;
         *(f32 *)(slot + 0x12C) = pos2.x;
         *(f32 *)(slot + 0x130) = pos2.y;
@@ -2397,7 +2393,7 @@ void func_002be4a0(void)
 {
     Vec2f sp18;
 
-    func_002b2970((u8 *)&sp18,
+    sp18 = func_002b2970(
                   580.0f - 21.0f * (f32)func_002b3170(func_002e7a60()),
                   15.0f);
     func_00364320(sp18, 1.0f, 0xFF, func_002e7a60());

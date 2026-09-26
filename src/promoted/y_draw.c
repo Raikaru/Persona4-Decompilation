@@ -42,7 +42,6 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void RpSkyRenderStateSet(s32, s32);
 extern void (*D_00887300[])(u32 state, u32 value);
 
-extern void func_002b2970(u8 *, f32, f32);
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 func_0046b260(u8 *arg0);
@@ -133,10 +132,10 @@ u8 *func_002b5da0(u8 *arg0) {
 }
 
 // FUN_002B5DB0
-void func_002b5db0(u8 *arg0, f2 p1, FclBoundsPacket *p2) {
+void func_002b5db0(u8 *arg0, f2 p1, FclBoundsPacket p2) {
     FclBoundsBytes t;
     u8 *base;
-    t = p2->representation;
+    t = p2.representation;
     base = *(u8 **)(arg0 + 0x38);
     *(f2 *)(base + 0x134) = p1;
     ((FclBoundsPacket *)(base + 0x120))->representation = t;
@@ -168,9 +167,9 @@ void func_002b5e90(u8 *arg0, f2 p1, f2 p2, u32 arg3) {
 }
 
 // FUN_002B5EF0
-void func_002b5ef0(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket *p3, FclBoundsPacket *p4, u32 arg5) {
-    FclBoundsBytes a = p3->representation;
-    FclBoundsBytes b = p4->representation;
+void func_002b5ef0(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket p3, FclBoundsPacket p4, u32 arg5) {
+    FclBoundsBytes a = p3.representation;
+    FclBoundsBytes b = p4.representation;
     u8 *base = *(u8 **)(arg0 + 0x38);
     *(s16 *)(base + 0x14C) = 0;
     *(u32 *)(base + 0x150) = arg5;
@@ -184,9 +183,9 @@ void func_002b5ef0(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket *p3, FclBoundsPacket 
 }
 
 // FUN_002B5FD0
-void func_002b5fd0(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket *p3, FclBoundsPacket *p4, u32 arg5, s16 arg6) {
-    FclBoundsBytes a = p3->representation;
-    FclBoundsBytes b = p4->representation;
+void func_002b5fd0(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket p3, FclBoundsPacket p4, u32 arg5, s16 arg6) {
+    FclBoundsBytes a = p3.representation;
+    FclBoundsBytes b = p4.representation;
     u8 *base = *(u8 **)(arg0 + 0x38);
     *(s16 *)(base + 0x14C) = 0;
     *(u32 *)(base + 0x150) = arg5;
@@ -350,7 +349,7 @@ s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
         j = i;
         off = j;
         zero = 0.0f;
-        func_002b2970((u8 *)&pos, zero, zero);
+        pos = func_002b2970(zero, zero);
         *(f2 *)((u8 *)((s32)p + off * 8) + 0x28) = pos;
         ff = 0xFF;
         *(u8 *)((s32)p + off + 0x6C) = ff;
@@ -817,7 +816,7 @@ u8 *func_002b74f0(s32 arg0, s32 arg1) {
             index = component;
             componentOffset = index;
             zero = 0.0f;
-            func_002b2970((u8 *)&position, zero, zero);
+            position = func_002b2970(zero, zero);
             *(f2 *)((u8 *)(entryOffset + (s32)entries) + componentOffset * 8 + 0x2C) = position;
             entry = *(u8 **)(iGpffffb574 + 0x38);
             alpha = 0xFF;
@@ -893,7 +892,7 @@ void func_002b77d0(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fparg0, s16
         func_0046d280(tmp);
         func_002b82d0(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x72), 0, 0, 0, (s16)(arg6 + arg7));
         func_002b8300(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 0, (u32)arg6, arg7, 1.0f, 1.0f, 1.0f, fGpffff8504);
-        func_002b2970((u8 *)&tmpS, p1.x, p1.y + func_0046b2f0(first) / 2.0f);
+        tmpS = func_002b2970(p1.x, p1.y + func_0046b2f0(first) / 2.0f);
         outS = tmpS;
         func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, p1, outS, 0, (s32)arg6, (s32)arg7);
     } else {
@@ -920,7 +919,7 @@ void func_002b77d0(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fparg0, s16
         *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x8C) = ((u8 *)&arg2)[3];
         func_002b82d0(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 0, ((u8 *)&arg2)[3], 0, 0, 0);
         func_002b8300(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 0, (u32)arg5, arg7, 1.0f, 1.0f, fGpffff8504, 1.0f);
-        func_002b2970((u8 *)&tmpS, p1.x, p1.y + func_0046b2f0(first) / 2.0f);
+        tmpS = func_002b2970(p1.x, p1.y + func_0046b2f0(first) / 2.0f);
         outS = tmpS;
         func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, outS, p1, 0, (s32)arg5, (s32)arg7);
     }
@@ -1202,14 +1201,14 @@ void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
 
 /* Position snapshots are consumed by the inline transition setters.
    Duration stays signed-word sized until each field is stored. */
-static inline void fclStartPosition(u8 *arg0, const f2 *p1, const f2 *p2, u32 arg3, s32 arg4, s32 arg5) {
-    f32 startX = p1->x;
+static inline void fclStartPosition(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5) {
+    f32 startX = p1.x;
     f32 startY;
     *(f32 *)(arg0 + 0x18) = startX;
-    startY = p1->y;
+    startY = p1.y;
     *(f32 *)(arg0 + 0x1C) = startY;
-    *(f32 *)(arg0 + 0x20) = p2->x;
-    *(f32 *)(arg0 + 0x24) = p2->y;
+    *(f32 *)(arg0 + 0x20) = p2.x;
+    *(f32 *)(arg0 + 0x24) = p2.y;
     *(f32 *)(arg0 + 0x28) = startX;
     *(f32 *)(arg0 + 0x2C) = startY;
     *(s16 *)(arg0 + 0x32) = 0;
@@ -1270,53 +1269,29 @@ static inline void fclStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, 
 }
 
 // FUN_002B83E0
-void func_002b83e0(u8 *arg0, FclDrawPosition p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5,
-                   f32 fparg0, f32 fparg1, s32 arg6, s32 arg7, s8 arg_sp0, s8 arg_sp8)
+void func_002b83e0(u8 *arg0, FclVec2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5,
+                   f32 fparg0, f32 fparg1, s32 arg6, s32 arg7, s32 arg_sp0, s8 arg_sp8)
 {
-    struct {
-        f2 end3;
-        FclPackedPosition start3;
-        f2 end2;
-        FclPackedPosition start2;
-        FclPackedPosition end1;
-        f2 start1;
-        FclPackedPosition end0;
-        f2 start0;
-        f2 source3, source2, source1, source0;
-    } positions;
-
     arg0[0x37] = arg_sp8;
     arg0[0xA3] = arg_sp8;
     fclStartAlpha(arg0, arg4, arg5, 0, arg6, arg7);
-    if (arg_sp0 == 0) {
+    if ((s8)arg_sp0 == 0) {
         if (arg_sp8 == 0) {
             fclStartRevealScale(arg0, 0, (s16)arg6, (s16)arg7, 0);
-            positions.end0.bits = p1.bits;
-            func_002b2970((u8 *)&positions.source0, p1.position.x, p1.position.y + fparg0 / 2.0f);
-            positions.start0 = positions.source0;
-            fclStartPosition(arg0, &positions.start0, &positions.end0.position, 0, arg6, arg7);
+            fclStartPosition(arg0, func_002b2970(p1.x, p1.y + fparg0 / 2.0f), p1, 0, arg6, arg7);
             fclStartColor(arg0, arg2, arg3, 0, 0, 0);
         } else {
             fclStartRevealScale(arg0, 1, (s16)arg6, (s16)arg7, 0);
-            positions.end1.bits = p1.bits;
-            func_002b2970((u8 *)&positions.source1, p1.position.x, p1.position.y + fparg0 / 2.0f);
-            positions.start1 = positions.source1;
-            fclStartPosition(arg0, &positions.start1, &positions.end1.position, 1, arg6, arg7);
+            fclStartPosition(arg0, func_002b2970(p1.x, p1.y + fparg0 / 2.0f), p1, 1, arg6, arg7);
             fclStartColor(arg0, arg2, arg3, 0, 0, arg6 / 2);
         }
     } else if (arg_sp8 == 0) {
         fclStartRevealScale(arg0, 0, (s16)arg6, (s16)arg7, 1);
-        func_002b2970((u8 *)&positions.source2, p1.position.x, p1.position.y + fparg0 / 2.0f);
-        positions.end2 = positions.source2;
-        positions.start2.bits = p1.bits;
-        fclStartPosition(arg0, &positions.start2.position, &positions.end2, 0, arg6, arg7);
+        fclStartPosition(arg0, p1, func_002b2970(p1.x, p1.y + fparg0 / 2.0f), 0, arg6, arg7);
         fclStartColor(arg0, arg2, arg3, 0, 0, 0);
     } else {
         fclStartRevealScale(arg0, 1, (s16)arg6, (s16)arg7, 1);
-        func_002b2970((u8 *)&positions.source3, p1.position.x, p1.position.y + fparg0 / 2.0f);
-        positions.end3 = positions.source3;
-        positions.start3.bits = p1.bits;
-        fclStartPosition(arg0, &positions.start3.position, &positions.end3, 1, arg6, arg7);
+        fclStartPosition(arg0, p1, func_002b2970(p1.x, p1.y + fparg0 / 2.0f), 1, arg6, arg7);
         fclStartColor(arg0, arg2, arg3, 0, 0, arg6 / 2);
     }
     *(f32 *)(arg0 + 4) = fparg1;

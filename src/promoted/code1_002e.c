@@ -56,7 +56,6 @@ void func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
 s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void func_00105fa0(s32 arg0);
 extern u8 D_0063F560[];
-extern void func_002b2970(s64 *out, f32 x, f32 y);
 
 
 
@@ -168,8 +167,8 @@ void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
     pos.y = pos_y;
     if ((s8)arg4 == 1) {
         handle = func_0046d200(*(u32 *)(temp + 0xF4), (s16)arg1);
-        func_002b2970((s64 *)&out1, pos.x,
-                      pos.y - (func_0046b2f0(handle) / 2.0f));
+        out1 = func_002b2970(pos.x,
+                             pos.y - (func_0046b2f0(handle) / 2.0f));
         out1_x = out1.x;
         out1_y = out1.y;
         draw1.x = out1_x;
@@ -181,8 +180,8 @@ void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
         func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, 0, 0xFF, 0, arg2, arg3);
     } else {
         handle = func_0046d200(*(u32 *)(temp + 0xF4), (s16)arg1);
-        func_002b2970((s64 *)&out2, pos.x,
-                      pos.y + (func_0046b2f0(handle) / 2.0f));
+        out2 = func_002b2970(pos.x,
+                             pos.y + (func_0046b2f0(handle) / 2.0f));
         out2_x = out2.x;
         out2_y = out2.y;
         draw2.x = out2_x;
@@ -236,7 +235,7 @@ void func_002e09e0(u8 *arg0, s32 arg1, f32 fparg0) {
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 8) = fparg0;
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
     temp_16 = *(u8 **)(arg0 + 0x38);
-    func_002b2970((s64 *)&out, entry[0], entry[1]);
+    out = func_002b2970(entry[0], entry[1]);
     *(f2 *)(temp_16 + 0x2C) = out;
 }
 
@@ -256,7 +255,7 @@ void func_002e0a60(u8 *arg0, s32 arg1, f32 fparg0)
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 8) = fparg0;
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
     temp_17 = *(u8 **)(arg0 + 0x38);
-    func_002b2970((s64 *)&out, *(f32 *)temp_3, *(f32 *)(temp_3 + 4));
+    out = func_002b2970(*(f32 *)temp_3, *(f32 *)(temp_3 + 4));
     *(f2 *)(temp_17 + 0x2C) = out;
     temp_4 = *(u8 **)(arg0 + 0x38);
     *(u8 *)(temp_4 + 0x62) = 0xFF;
@@ -550,10 +549,6 @@ s32 func_002e7510(s32 arg0)
 {
     s32 result;
     u8 *work;
-    struct { FclBoundsPacket bounds; u8 reserved[8]; } color;
-    FclPackedPosition vec60;
-    FclPackedPosition vec58;
-    FclDrawColor color_value;
     s32 i;
     extern void func_00110810(s32, u8);
 
@@ -561,13 +556,9 @@ s32 func_002e7510(s32 arg0)
     work = D_008873F4[0](1, 0x18, 0x40000);
     result = (s32)func_00451fc0((void *)((void *)(arg0)), (const void *)((char *)D_0063FC90), 0xF, 0, 0, func_002e72c0, func_002e74e0, (u8 *)(work));
     iGpffffb590 = NULL;
-    func_002b2970(&vec60.bits, 0, 0);
-    iGpffffb590 = (u8 *)func_002b5c90(result, vec60.position);
-    func_002b2970(&vec58.bits, 0, 0);
-    func_002b29e0((u8 *)&color.bounds, 640.0f, 448.0f);
-    func_002b5db0(iGpffffb590, vec58.position, &color.bounds);
-    color_value = func_002b2a60(0, 0, 0, 0xFF);
-    func_002b5e30(iGpffffb590, color_value);
+    iGpffffb590 = (u8 *)func_002b5c90(result, func_002b2970(0, 0));
+    func_002b5db0(iGpffffb590, func_002b2970(0, 0), func_002b29e0(640.0f, 448.0f));
+    func_002b5e30(iGpffffb590, func_002b2a60(0, 0, 0, 0xFF));
     *work = 1;
     func_0045aac0(3, 0, 0x1E);
 

@@ -201,12 +201,10 @@ void *func_002e04e0(void *);
 void func_002e04f0(void *, s32, s32);
 void func_002e0620(void *, Vec2f, Vec2f, s32, s32, s16);
 void func_002e0940(void *, f32, f32, s32, s32, s32);
-/* measured: this unit's position constructor returns the Vec2f by value (the
-   EE hidden-result pointer in $a0, the same ABI as the out-pointer form).
-   Used as a call argument it yields a compiler temporary, which is what
-   func_002df020's frame layout and saved-register colouring require; every
-   matched `sp = func_002b2970(x, y)` compiles as the out-pointer call did. */
-Vec2f func_002b2970(f32, f32);
+/* The position constructor func_002b2970 (fcl_draw_types.h) returns its
+   Vec2f by value. Used as a call argument it yields a compiler temporary,
+   which is what func_002df020's frame layout and saved-register colouring
+   require; `sp = func_002b2970(x, y)` into a whole local writes it directly. */
 void *func_002e2590(void *, s32, s32, s32, s32);
 char *strcpy(char *, const char *);
 void *func_0046d200(void *, s32);
