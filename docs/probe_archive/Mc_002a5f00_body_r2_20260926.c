@@ -18,6 +18,7 @@ s32 func_002a5f00(s32 arg0)
     f32 x;
     f32 y;
     f32 scale;
+    f32 wave;
 
     p = (u8 *)func_00452560((void *)arg0);
     func_002a6b10(0, 0, 0xFF, p);
@@ -79,8 +80,8 @@ s32 func_002a5f00(s32 arg0)
         if (*(s32 *)(p + 0x3B8) > 0) {
             (*(s32 *)(p + 0x3B8))--;
         }
-        scale = D_00761120 * sinf((D_00761174 * (f32)*(s32 *)(p + 0x3B8)) / 10.0f);
-        scale = 1.0f + scale;
+        wave = D_00761120 * sinf((D_00761174 * (f32)*(s32 *)(p + 0x3B8)) / 10.0f);
+        scale = 1.0f + wave;
         func_002a66d0(72.0f, 179.0f, 0.0f, 124.0f * scale, 116.0f * scale, 0x2D2D2D, 0xFF, 1);
         func_002a7920(0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, p, 19.0f, 130.0f, 0.0f, scale);
     }
