@@ -199,7 +199,7 @@ void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 arg1, s8 * a
 // FUN_00260600 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
-void func_00260600(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg0, f32 fparg1, f32 fparg2)
+void func_00260600(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6)
 {
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern f32 cosf(f32);
@@ -346,140 +346,130 @@ void func_00260600(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00260600);
 #endif
 extern f32 D_007612C4;
-extern u8 D_006375C0[];
-/* measured (2026-09-18): probe_variants 401 differing words reloc-masked via `python3 tools/probe_variants.py src/promoted/code1_0026.c func_00260e60 --candidate V2=/tmp/cand60e60_v2.c`; fnalign retail 448 vs object 451 instrs (127 edits) via `python3 tools/fnalign.py src/promoted/code1_0026.c func_00260e60 --candidate /tmp/cand60e60_v2.c --quiet`; +3 over (0.7% within 3% rule). Signature all-s32 8 ints + 3 floats per prologue daddu (no dsll/dsra); local externs for 0025f430 (s32 x8 + f32 x6) + 00260600 (s32 x7 + f32 x3) fix 416B overrun; 3.0f/23.0f msub/madd + D_007612C4 muls for FMA; duplicated 00260600/0025f430 blocks match retail triplication; 0x1E copy + 0x1E draw loops. Wall remains FMA ACC scheduling + call/setup ordering. No volatile/asm. */
-// FUN_00260E60 NONMATCHING
-#ifdef NON_MATCHING
-void func_00260e60(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, f32 fparg0, f32 fparg1, f32 fparg2) {
+typedef struct {
+    s32 x, y;
+} CalendarSparkle;
+typedef struct {
+    CalendarSparkle offset[30];
+} CalendarSparkleTable;
+extern CalendarSparkle D_006375C0[30];
+extern void func_00260600(s32 x, s32 y, f32 depth, s32 color, u8 alpha, s32 variant, f32 scaleX, f32 scaleY, s32 font, s32 arg6);
+#pragma push
+#pragma opt_propagation off
+// FUN_00260E60
+void func_00260e60(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 variant, s32 highlight, f32 scaleX, f32 scaleY, s32 font, s32 setupStates)
+{
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
-    extern void func_00260600(s32, s32, s32, s32, s32, s32, s32, f32, f32, f32);
-    u8 spB0[240];
-    s32 var_16;
-    s32 var_4;
-    u8 *var_5;
-    u8 *var_6;
-    s32 var_17;
-    var_16 = 0x919191;
-    switch (arg5) {
+    CalendarSparkleTable sparkle;
+    CalendarSparkle *spot;
+    void (**states)(u32 state, u32 value);
+    s32 color;
+    f32 posX;
+    f32 posY;
+    u32 i;
+
+    color = 0x919191;
+    switch (highlight) {
     case 1:
-        var_16 = 0xFFF000;
+        color = 0xFFF000;
         break;
     case 2:
-        var_16 = 0x52BDFF;
+        color = 0x52BDFF;
         break;
     case 3:
-        var_16 = 0xFF296B;
+        color = 0xFF296B;
         break;
     }
-    if (arg7 != 0) {
-        D_00887300[0](0x14, 1);
-        D_00887300[0](6, 1);
-        D_00887300[0](7, 2);
-        D_00887300[0](8, 1);
-        D_00887300[0](9, 2);
-        D_00887300[0](0x0C, 1);
-        D_00887300[0](2, 4);
-        D_00887300[0](0x0E, 0);
+    if (setupStates != 0) {
+        states = D_00887300;
+        states[0](20, 1);
+        states[0](6, 1);
+        states[0](7, 2);
+        states[0](8, 1);
+        states[0](9, 2);
+        states[0](12, 1);
+        states[0](2, 4);
+        states[0](14, 0);
         RpSkyRenderStateSet(3, 0x7000D);
         RpSkyRenderStateSet(2, 0x44);
     }
-    switch (arg3) {
+    switch (kind) {
     case 0:
-        if (arg5 != 0) {
-            var_16 = 0xFF9000;
+        if (highlight != 0) {
+            color = 0xFF9000;
         }
-        switch (arg4) {
+        switch (variant) {
         case 0:
-            func_00260600(arg0, arg1, var_16, arg2, arg4, arg6, 0, fparg0, fparg1, fparg2);
-            return;
+            func_00260600(x, y, depth, color, alpha, variant, scaleX, scaleY, font, 0);
+            break;
         case 1:
-            func_00260600(arg0, arg1, var_16, arg2, arg4, arg6, 0, fparg0, fparg1, fparg2);
-            return;
+            func_00260600(x, y, depth, color, alpha, variant, scaleX, scaleY, font, 0);
+            break;
         case 2:
-            func_00260600(arg0, arg1, var_16, arg2, arg4, arg6, 0, fparg0, fparg1, fparg2);
-            return;
+            func_00260600(x, y, depth, color, alpha, variant, scaleX, scaleY, font, 0);
+            break;
         }
         break;
     case 1:
-        if (arg5 != 0) {
-            var_16 = 0x4C85EF;
+        if (highlight != 0) {
+            color = 0x4C85EF;
         }
-        switch (arg4) {
+        switch (variant) {
         case 0:
-            func_0025f430((f32)arg0, (f32)arg1, fparg0, var_16, arg2, 8, 0, (u8 *)arg6, 0, 0, 0, 0.0f, fparg1, fparg2);
-            return;
-        case 1: {
-            f32 tf0 = D_007612C4;
-            f32 madd1 = 3.0f * fparg1;
-            f32 res1 = (f32)arg0 - madd1;
-            func_0025f430(res1, (f32)(arg1 - 4), fparg0, var_16, arg2, 7, 0, (u8 *)arg6, 0, 0, 0, (f32)arg0, tf0 * fparg1, tf0 * fparg2);
-            return;
-        }
-        case 2: {
-            f32 tf02 = D_007612C4;
-            f32 madd2 = 23.0f * fparg1;
-            f32 res2 = (f32)arg0 + madd2;
-            func_0025f430(res2, (f32)(arg1 + 0x1B), fparg0, var_16, arg2, 7, 0, (u8 *)arg6, 0, 0, 0, (f32)arg0, tf02 * fparg1, tf02 * fparg2);
-            return;
-        }
+            func_0025f430((f32)x, (f32)y, depth, color, alpha, 8, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            break;
+        case 1:
+            posX = ((f32)x + 0.0f) - 3.0f * scaleX;
+            posY = (f32)(y - 4);
+            func_0025f430(posX, posY, depth, color, alpha, 7, 0, (u8 *)font, 0, 0, 0, 0.0f, 0.707f * scaleX, 0.707f * scaleY);
+            break;
+        case 2:
+            posX = ((f32)x + 0.0f) + 23.0f * scaleX;
+            posY = (f32)(y + 27);
+            func_0025f430(posX, posY, depth, color, alpha, 7, 0, (u8 *)font, 0, 0, 0, 0.0f, 0.707f * scaleX, 0.707f * scaleY);
+            break;
         }
         break;
     case 2:
-        if (arg5 != 0) {
-            var_16 = 0x949494;
+        if (highlight != 0) {
+            color = 0x949494;
         }
-        switch (arg4) {
+        switch (variant) {
         case 0:
-            func_0025f430((f32)arg0, (f32)arg1, fparg0, var_16, arg2, 6, 0, (u8 *)arg6, 0, 0, 0, 0.0f, fparg1, fparg2);
-            return;
+            func_0025f430((f32)x, (f32)y, depth, color, alpha, 6, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            break;
         case 1:
-            func_0025f430((f32)arg0, (f32)arg1, fparg0, var_16, arg2, 6, 0, (u8 *)arg6, 0, 0, 0, 0.0f, fparg1, fparg2);
-            return;
+            func_0025f430((f32)x, (f32)y, depth, color, alpha, 6, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            break;
         case 2:
-            func_0025f430((f32)(arg0 - 5), (f32)(arg1 + 0x19), fparg0, var_16, arg2, 6, 0, (u8 *)arg6, 0, 0, 0, 0.0f, fparg1, fparg2);
-            return;
+            func_0025f430((f32)(x - 5), (f32)(y + 25), depth, color, alpha, 6, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            break;
         }
         break;
+    case 3:
+        break;
     case 4:
-        if (arg5 != 0) {
-            var_16 = 0xFFFFFF;
+        if (highlight != 0) {
+            color = 0xFFFFFF;
         }
-        switch (arg4) {
-        case 0: {
-            u8 *v6 = D_006375C0;
-            u8 *v5 = spB0;
-            s32 v4 = 0x1E;
-            s32 t3;
-            s32 t2;
-            do {
-                t3 = *(s32 *)v6;
-                t2 = *(s32 *)(v6 + 4);
-                v6 += 8;
-                v4 -= 1;
-                *(s32 *)v5 = t3;
-                *(s32 *)(v5 + 4) = t2;
-                v5 += 8;
-            } while (v4 > 0);
-            func_0025f430((f32)arg0, (f32)arg1, fparg0, var_16, arg2, 0x0A, 0, (u8 *)arg6, 0, 0, 0, 0.0f, fparg1, fparg2);
-            var_17 = 0;
-            while (var_17 < 0x1E) {
-                s32 off = var_17 * 8;
-                u8 *t22 = (u8 *)((s32)spB0 + off);
-                func_0025f430((f32)(arg0 - 0x0A + *(s32 *)((s32)t22 + 0xB0)), (f32)(arg1 - 0x0C + *(s32 *)((s32)t22 + 0xB0 + 4)), fparg0, var_16, arg2, 9, 0, (u8 *)arg6, 0, 0, 0, 0.0f, fparg1, fparg2);
-                var_17 += 1;
+        switch (variant) {
+        case 0:
+            sparkle = *(CalendarSparkleTable *)D_006375C0;
+            func_0025f430((f32)x, (f32)y, depth, color, alpha, 10, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            for (i = 0; i < 30; i++) {
+                spot = &sparkle.offset[i];
+                func_0025f430((f32)(x - 10 + spot->x), (f32)(y - 12 + spot->y), depth, color, alpha, 9, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
             }
-        }
-        case 3:
-        case 2:
+            break;
         case 1:
-            return;
+            break;
+        case 2:
+            break;
         }
         break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00260e60);
-#endif
+#pragma pop
 /* measured: GUARDED_SCORE 1357 via `python3 tools/measure_guarded.py src/promoted/code1_0026.c func_00261560` with scoped `#pragma optimization_level 3` (baseline v1e 1804I/1591wd -> 1558I/1357wd, -246I/-234wd, count and words both improve so not inflation); obj 1558I / retail 1568I (-10, -0.64% PASS, band 1521-1615). fnalign 2970 edits. 12-arg float ABI from prologue (a0->s0,a1->s4,a2->s3,a3->s8,t0->stack0xCC,f13->f22,f14->f21,t1->s6,t2->s7,t3->s2); handoff-7r entry MAC shaped as (s32)((float)arg0+47.0f*(1.0f-fparg1)), remaining 10 MAC sites stubbed 0.0f for count (same 1I float const); D_00887300[0], D_00637430, s128 aligned(16), base-first. */
 /* decomposition for func_00261560 (banked vC 1611 inside, s32 spB0 saves 6 — same call as func_0035aff0):
    Retail 0x00261560-0x00262DDF 6272B 1568I, band 1521-1615. Banked vC 1611I/1429wd/2998ed (+43/+2.74% PASS, headroom 4) with handoff-7r entry (s32)((float)arg0+47.0f*(1.0f-fparg1)) and four 0xE 9th-args ((float)arg0+70/69*fparg1, 70,69,70,69 per c.lt.s/bc1t), s0 reuse via arg0, s32 spB0 (was s128, saves 6I/1wd/4ed vs v1d 1617I/1430wd/3002ed +2 over max), opt_level3 scoped (dummy v1e 1558I/1357wd/2970ed inside but 10x0.0f placeholders, correctly reverted). 12-arg ABI: a0->s0(arg0),a1->s4(arg1),a2->s3(arg2 u8),a3->s8(arg3 &0xF,>>4),t0->stack0xCC(arg4),f13->f22(fparg1),f14->f21(fparg2),t1->s6(arg5),t2->s7(arg6),t3->s2(arg7). MAC addrs 0x00261614/18,0x002619EC/F0,0x00261A5C/60,0x00261D00/04,0x00261D70/74,0x00261FDC/E0 (plain a+b*c). 12th-arg f15 0.0f correct literal. Caveat: no block prototypes for 0025f430/00260e60 (untyped calls keep sd bloat); adding s32/u8* prototypes drops to 1403I/1566 (-163 outside below, needs +~165 real logic) — bloat compensates missing blocks, gate passes but composition still 2998ed; honest typed version needs block recovery. */
@@ -732,10 +722,10 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
         func_0045d6e0(&sp294, &sp1E0, 0, 1.0f);
         func_0048a000();
         if (arg_sp0 != 0) {
-            func_00260e60(arg0, arg1, arg2, temp_30, 0, arg_sp0, arg7, 1, 10.0f, fparg1, fparg2);
+            func_00260e60(arg0, arg1, 10.0f, arg2, temp_30, 0, arg_sp0, fparg1, fparg2, arg7, 1);
             return;
         }
-        func_00260e60(arg0, arg1, arg2, temp_30, 0, spCC, arg7, 1, 10.0f, fparg1, fparg2);
+        func_00260e60(arg0, arg1, 10.0f, arg2, temp_30, 0, spCC, fparg1, fparg2, arg7, 1);
         return;
     }
     (void)fparg0;
@@ -869,9 +859,9 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     func_0045d6e0(&sp274, &sp160, 0, 1.0f);
     func_0048a000();
     if (arg_sp0 != 0) {
-        func_00260e60(arg0, arg1, arg2, temp_30, 1, arg_sp0, arg7, 1, 10.0f, fparg1, fparg2);
+        func_00260e60(arg0, arg1, 10.0f, arg2, temp_30, 1, arg_sp0, fparg1, fparg2, arg7, 1);
     } else {
-        func_00260e60(arg0, arg1, arg2, temp_30, 1, spCC, arg7, 1, 10.0f, fparg1, fparg2);
+        func_00260e60(arg0, arg1, 10.0f, arg2, temp_30, 1, spCC, fparg1, fparg2, arg7, 1);
     }
     var_3 = (u8 *)(&sp268);
     var_2 = 4;
@@ -1002,10 +992,10 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     func_0045d6e0(&sp254, &spE0, 0, 1.0f);
     func_0048a000();
     if (arg_sp0 != 0) {
-        func_00260e60(arg0, arg1, arg2, ((s32)spB0 & 0xF), 2, arg_sp0, arg7, 1, 10.0f, fparg1, fparg2);
+        func_00260e60(arg0, arg1, 10.0f, arg2, ((s32)spB0 & 0xF), 2, arg_sp0, fparg1, fparg2, arg7, 1);
         return;
     }
-    func_00260e60(arg0, arg1, arg2, ((s32)spB0 & 0xF), 2, spCC, arg7, 1, 10.0f, fparg1, fparg2);
+    func_00260e60(arg0, arg1, 10.0f, arg2, ((s32)spB0 & 0xF), 2, spCC, fparg1, fparg2, arg7, 1);
 }
 #pragma pop
 #else
