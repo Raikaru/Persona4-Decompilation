@@ -138,3 +138,27 @@ row local, `base[index * 6 + i]` is not hoisted, because the loop calls
 datGetFlag (157). With one shared counter for both loops, both loops get the
 same register (20). `row = base; row += ...` coalesces `row` with `base`
 (16). The 8-word archive draft stays the frontier.
+
+### code1_0026.c `func_0026cef0`: 245 -> 60 words
+
+Body: `Code0026Spline_0026cef0_body_r2_20260926.c` (1292 B of 1296 B, under
+`opt_loop_invariants on`).
+
+- Separate scalar out-parameters (`f32 ax0, ax1, ay0, ay1, az0, az1;` and the
+  same for the b/c groups), `CefV3` locals, and three `f32[4]` control-point
+  arrays reproduce retail's stack layout exactly. `dir` must be a `CefV3`
+  (as an `f32[4]` it drops below the structs). Out-parameters that are scalar
+  locals let `delta = at - p0` reuse the register copy of `at`.
+- `n = path->count` as an `s8` local (loaded once and re-extended), plus
+  `idx = (n - 1) * 3; ... path->pts[idx + j]` under the loop-invariant pragma,
+  gives retail's hoisted `arg0 + idx * 12` base with `+4` kept in the loads.
+  Folding `(n - 1) * 3 + j` inline folds `*3*12` into `*36`, and a hoisted
+  `CefV3 *` folds the `+4` into the pointer.
+- `sx = bx0; sy = by0; sz = bz0;` read before `dist += len` (retail loads the
+  start point before the branch), and `u = t + adv` in a fresh local.
+- Residual (60): register colouring only. Retail colours `k` into `$s0` first,
+  then seg, arg2, arg1 and arg0 into `$s1`..`$s4`; b210 colours `k` last (`$s4`).
+  The same order is reversed for the `$a0`/`$a1`/`$v0` temporaries of both
+  control-point loops. Permuting the integer/pointer declarations (30), a
+  block-scoped `k`, a `while` loop, testing `*arg0` directly, and dropping the
+  `path` local all leave 60.
