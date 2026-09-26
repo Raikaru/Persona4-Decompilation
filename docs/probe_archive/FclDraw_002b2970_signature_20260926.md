@@ -156,3 +156,37 @@ Open follow-ups:
   y_fclItemShopDraw were not in the 14. Branch ddca243 regressed only the
   14, so these already held under struct return there. They were not
   re-measured here, so re-verify them when landing.
+
+## Landed (e795c8a..f7d0ec4)
+
+The contract is now real source, one declaration per function:
+
+- `fcl_draw_types.h`: `FclVec2 func_002b2970(f32, f32)`, `FclVec3
+  func_002b29a0(f32, f32, f32)` (CmbVec3f is FclVec3).
+- `fcl_bounds_packet.h`: `FclBoundsPacket func_002b29e0(f32, f32)`; 5db0,
+  5ef0 and 5fd0 take the bounds by value.
+- `fcl_draw_task.h`: 83e0 takes `FclVec2`. Its mode is `s32` and the
+  callee tests `(s8)mode`, the reverse flag is `s8`. With `s8 mode`,
+  003191c0 (which passes a raw int) gains a sign extension; with both
+  `s32`, the callee loads `lw` instead of retail's `lb`.
+- `cmb_card_eff.h` (new): 3489c0 takes `FclVec3` by value.
+- `fcl_combine_internal.h`: 0031e5b0, 0031fa20, 0032c660 and 0033e540 take
+  `FclVec2`. 002ed430 and 00302770 pass points, not `.bits`.
+
+**0032f4d0 without the constant out-of-bounds store.** Each row is written
+as `tbl[*(s8 *)(t + 0xB7)] = func_002b2970(..)` into `FclVec2 tbl[5]`, with
+no named temporaries. The compiler's six temporaries land at 0xA0..0x78,
+as in retail. `tbl[6]` in this form is exact except for a frame 0x10
+larger. Retail's frame therefore holds a five-entry table, and the sixth
+row (both flags set) overflows it at run time, as it does in retail.
+
+**003191c0 stays as it was.** Retail's callers narrow the row to s8 and
+pass the u16 item and u8 order without conversion. The definition homes
+them `sw`/`sw`/`sh`, which is s32/s32/s16. b210 re-masks an unsigned
+narrow variable passed to a wider parameter. The measured variants were
+the (s8, u16, u8) definition (4949 words), (s32, u16, u8) (336 words),
+(s32, s32, u16) (97 words) and (s32, s32, s32) with an `(s16)` use
+(123 words). None reproduces both sides.
+
+The 26 affected files stay at 1184 MATCH and 58 ASM.
+Whole-tree H011 went from 2416 to 2397.
