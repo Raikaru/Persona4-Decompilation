@@ -3730,237 +3730,166 @@ unlink_done:
 return_best:
     return best;
 }
-/* Route-search floor (1024B window). First probe nd 132 (frame/prologue
-   verified); structure and callee conventions per archived notes. Open:
-   s-reg rotation and scheduler ordering. See P023 doc. */
-// FUN_001EED10 NONMATCHING
-#ifdef NON_MATCHING
-/* measured 001eed10: `opt_propagation off` inside the guard is worth 1 word (132 -> 131). */
-#pragma opt_propagation off
-/* P023: retained route-search investigation, 2026-09-08.
- * Production remains ASM: 001EED10..001EF10F, 1024-byte window.
- * Preferred full-owner candidate: 1000/1024 bytes, nd364, 24 relocations.
- * Frame is the retail 0xB0, but 24 executable bytes are missing. This is
- * not a register-only floor, exact recovery, or impossibility claim.
- *
- * Initial typed-provider flat candidate: 992/716, frame0xA0. Typed edge
- * condition preserves two distinct live edge pointers: 1016/430. Matching
- * the open/closed membership loop exits reaches the preferred 1000/364.
- * CSE-off flat source:1080/695; propagation/loop profiles do not close it.
- * Typed cost field:1000/438; integer insertion address:1012/742;
- * float-array cost:1004/431; array insertion:1016/762. These pairs list
- * emitted bytes / normalized byte differences. Literal final addresses
- * were resolved for inspection, not treated as arbitrary relocations.
- *
- * Remaining source-shape differences: cost-address scheduling, membership
- * register lifetimes, recomputation of update/insertion index projections,
- * global/neighbor reload ordering and closed-unlink loop alignment.
- *
- * Input ABI: route a0, start/end two-float arrays a1/a2, radius f12.
- * Collision test receives half radius. Direct path stages each endpoint's
- * two loads, writes two points/count2/mode2, returns1. Obstructed path
- * clears count, stages global endpoints, builds adjacency. Missing start
- * or goal adjacency returns0/mode3 before list initialization.
- *
- * Search clears open/closed heads, start g/parent; start f is distance to
- * goal. The exact 001EEC60 provider removes the best open node. A neighbor
- * is reopened only when absent from both lists or !(current.g<=newCost).
- * This compares CURRENT g, not neighbor g: do not fix the retail algorithm.
- * Reopening updates g/f/parent, unlinks the closed node and inserts it in
- * open when absent. NaN behavior follows the ordered comparison literally.
- * Goal selection invokes 001EE610 and returns1/mode2 regardless of that
- * provider's return; exhausted open returns0/mode3.
- *
- * External contracts still govern provider inputs/results. In particular,
- * 001EEC60 needs a nonempty open list with a selectable score below 350000
- * (or an unordered score); its source leaves best unwritten otherwise.
- * This investigation proves no game-data bound excluding that provider
- * path, and makes no native/gameplay validation claim for this candidate.
- *
- * To reproduce: start from current full owner, replace NNode's
- * opaque rest[0x114] with the fields below, add these provider declarations,
- * replace only target INCLUDE_ASM with this body. All other source remains.
- * Standalone archive declarations are not a production ABI migration.
- */
-#include "type.h"
-extern u8 *iGpffffb3ac;
-extern u8 *func_001eec60(void);
+extern s32 func_001ece50(f32 *first, f32 *second, f32 margin);
 extern void func_001ed700(f32 radius);
 extern s32 func_001ee610(u8 *route, f32 radius);
-extern s32 func_001ece50(f32 *start, f32 *end, f32 radius);
+
+typedef struct RouteNode {
+    u8 unknown00[8];
+    f32 x;
+    f32 z;
+    u8 unknown10[0xC];
+    f32 g;
+    f32 f;
+    struct RouteNode *openNext;
+    struct RouteNode *closedNext;
+    struct RouteNode *parent;
+    struct RouteNode *neighbors[32];
+    f32 distances[32];
+} RouteNode;
+
+/* Retail indexes the neighbour and distance arrays as base + index * 4 + field. */
+#define ROUTE_NEIGHBOR(n, i) (*(RouteNode **)((u8 *)(n) + (i) * 4 + 0x30))
+#define ROUTE_DISTANCE(n, i) (*(f32 *)((u8 *)(n) + (i) * 4 + 0xB0))
+
+static inline s32 routeInOpenList(RouteNode *scan, RouteNode *node)
+{
+    for (; scan != NULL; scan = scan->openNext) {
+        if (scan == node) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static inline s32 routeInClosedList(RouteNode *scan, RouteNode *node)
+{
+    for (; scan != NULL; scan = scan->closedNext) {
+        if (scan == node) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// FUN_001EED10
 s32 func_001eed10(u8 *route, f32 *start, f32 *end, f32 radius)
 {
-typedef struct NNode {
-    s32 unknown0;
-    s32 unknown4;
-    f32 x;
-    f32 z;
-    f32 unknown10;
-    f32 active;
-    f32 clearance;
-    f32 pathCost;
-    f32 estimatedCost;
-    struct NNode *openNext;
-    struct NNode *closedNext;
-    struct NNode *parent;
-    struct NNode *neighbors[32];
-    f32 distances[32];
-} NNode;
-typedef struct NGroup {
-    s32 unknown0;
-    s32 unknown4;
-    NNode nodes[4];
-    struct NGroup *previous;
-    struct NGroup *next;
-} NGroup;
-typedef struct NWorld {
-    u8 prefix[0x318];
-    NGroup *groups;
-    NNode nodes[4];
-    NNode start;
-    NNode goal;
-} NWorld;
-
-    f32 initialDelta[2];
+    f32 startDelta[2];
     f32 goalDelta[2];
+    u8 *world;
+    RouteNode *node;
     f32 x;
     f32 z;
-    f32 oldCost;
-    f32 newCost;
-    f32 distance;
-    u8 *base;
-    u8 *current;
-    u8 *neighbor;
-    u8 **edge;
-    u8 **updateEdge;
-    u8 *scan;
-    u8 *previous;
-    u8 **closedHead;
-    u8 *remove;
+    f32 cost;
+    u16 index;
     s32 found;
     s32 inOpen;
     s32 inClosed;
-    u16 index;
 
-    *(u8 *)(route + 0x404) = 1;
+    route[0x404] = 1;
     if (func_001ece50(start, end, 0.5f * radius) == 0) {
         x = start[0];
         z = start[1];
-        *(f32 *)(route + 0) = x;
-        *(f32 *)(route + 4) = z;
+        *(f32 *)(route + 0x0) = x;
+        *(f32 *)(route + 0x4) = z;
         x = end[0];
         z = end[1];
-        *(f32 *)(route + 8) = x;
+        *(f32 *)(route + 0x8) = x;
         *(f32 *)(route + 0xC) = z;
         *(u16 *)(route + 0x400) = 2;
-        *(u8 *)(route + 0x404) = 2;
+        route[0x404] = 2;
         return 1;
     }
     *(u16 *)(route + 0x400) = 0;
-    base = iGpffffb3ac;
+    world = iGpffffb3ac;
     x = start[0];
     z = start[1];
-    *(f32 *)(base + 0x7E4) = x;
-    *(f32 *)(base + 0x7E8) = z;
+    *(f32 *)(world + 0x7E4) = x;
+    *(f32 *)(world + 0x7E8) = z;
     x = end[0];
     z = end[1];
-    *(f32 *)(base + 0x914) = x;
-    *(f32 *)(base + 0x918) = z;
+    *(f32 *)(world + 0x914) = x;
+    *(f32 *)(world + 0x918) = z;
     func_001ed700(radius);
-    base = iGpffffb3ac;
-    if (*(s32 *)(base + 0x80C) == 0 || *(s32 *)(base + 0x93C) == 0) {
-        *(u8 *)(route + 0x404) = 3;
+    world = iGpffffb3ac;
+    if (*(s32 *)(world + 0x80C) == 0 || *(s32 *)(world + 0x93C) == 0) {
+        route[0x404] = 3;
         return 0;
     }
-    *(u8 **)(base + 0xA3C) = 0;
-    *(u8 **)(iGpffffb3ac + 0xA40) = 0;
-    *(s32 *)(iGpffffb3ac + 0x7F8) = 0;
-    base = iGpffffb3ac;
-    initialDelta[0] = *(f32 *)(base + 0x7E4) - *(f32 *)(base + 0x914);
-    initialDelta[1] = *(f32 *)(base + 0x7E8) - *(f32 *)(base + 0x918);
-    distance = RwV2dLength(initialDelta);
-    *(f32 *)(iGpffffb3ac + 0x7FC) = distance;
-    *(s32 *)(iGpffffb3ac + 0x808) = 0;
-    base = iGpffffb3ac;
-    *(u8 **)(base + 0x800) = *(u8 **)(base + 0xA3C);
-    base = iGpffffb3ac;
-    *(u8 **)(base + 0xA3C) = base + 0x7DC;
+    *(u8 **)(world + 0xA3C) = NULL;
+    *(u8 **)(iGpffffb3ac + 0xA40) = NULL;
+    *(f32 *)(iGpffffb3ac + 0x7F8) = 0.0f;
+    world = iGpffffb3ac;
+    startDelta[0] = *(f32 *)(world + 0x7E4) - *(f32 *)(world + 0x914);
+    startDelta[1] = *(f32 *)(world + 0x7E8) - *(f32 *)(world + 0x918);
+    *(f32 *)(iGpffffb3ac + 0x7FC) = RwV2dLength(startDelta);
+    *(u8 **)(iGpffffb3ac + 0x808) = NULL;
+    world = iGpffffb3ac;
+    *(u8 **)(world + 0x800) = *(u8 **)(world + 0xA3C);
+    world = iGpffffb3ac;
+    *(u8 **)(world + 0xA3C) = world + 0x7DC;
     found = 0;
-    while (*(u8 **)(iGpffffb3ac + 0xA3C) != 0) {
-        current = func_001eec60();
-        if (current == iGpffffb3ac + 0x90C) {
+    while (*(u8 **)(iGpffffb3ac + 0xA3C) != NULL) {
+        node = (RouteNode *)func_001eec60();
+        if ((u8 *)node == iGpffffb3ac + 0x90C) {
             found = 1;
             break;
         }
-        for (index = 0; (neighbor = *(edge = (u8 **)&((NNode *)current)->neighbors[index])) != 0; index++) {
-            oldCost = *(f32 *)(current + 0x1C);
-            newCost = oldCost + *(f32 *)(current + index * 4 + 0xB0);
-            base = iGpffffb3ac;
-            scan = *(u8 **)(base + 0xA3C);
-            while (scan != 0) {
-                if (scan == neighbor) { inOpen = 1; goto open_done; }
-                scan = *(u8 **)(scan + 0x24);
-            }
-            inOpen = 0;
-open_done:
-            scan = *(u8 **)(base + 0xA40);
-            while (scan != 0) {
-                if (scan == neighbor) { inClosed = 1; goto closed_done; }
-                scan = *(u8 **)(scan + 0x28);
-            }
-            inClosed = 0;
-closed_done:
-            if ((inOpen != 0 || inClosed != 0) && oldCost <= newCost)
+        for (index = 0; ROUTE_NEIGHBOR(node, index) != NULL; index++) {
+            cost = node->g + ROUTE_DISTANCE(node, index);
+            world = iGpffffb3ac;
+            inOpen = routeInOpenList(*(RouteNode **)(world + 0xA3C), ROUTE_NEIGHBOR(node, index));
+            inClosed = routeInClosedList(*(RouteNode **)(world + 0xA40), ROUTE_NEIGHBOR(node, index));
+            if ((inOpen != 0 || inClosed != 0) && node->g <= cost) {
                 continue;
-            updateEdge = (u8 **)(current + index * 4 + 0x30);
-            *(f32 *)(neighbor + 0x1C) = newCost;
-            *(f32 *)(*updateEdge + 0x20) = newCost;
-            base = iGpffffb3ac;
-            neighbor = *updateEdge;
-            goalDelta[0] = *(f32 *)(neighbor + 8) - *(f32 *)(base + 0x914);
-            goalDelta[1] = *(f32 *)(neighbor + 0xC) - *(f32 *)(base + 0x918);
-            distance = RwV2dLength(goalDelta);
-            *(f32 *)(*updateEdge + 0x20) = *(f32 *)(*updateEdge + 0x20) + distance;
-            *(u8 **)(*updateEdge + 0x2C) = current;
+            }
+            ROUTE_NEIGHBOR(node, index)->g = cost;
+            ROUTE_NEIGHBOR(node, index)->f = cost;
+            world = iGpffffb3ac;
+            goalDelta[0] = ROUTE_NEIGHBOR(node, index)->x - *(f32 *)(world + 0x914);
+            goalDelta[1] = ROUTE_NEIGHBOR(node, index)->z - *(f32 *)(world + 0x918);
+            ROUTE_NEIGHBOR(node, index)->f += RwV2dLength(goalDelta);
+            ROUTE_NEIGHBOR(node, index)->parent = node;
             if (inClosed != 0) {
-                remove = *edge;
-                previous = 0;
-                closedHead = (u8 **)(iGpffffb3ac + 0xA40);
-                scan = *closedHead;
-                while (scan != 0) {
-                    if (scan == remove) break;
-                    previous = scan;
-                    scan = *(u8 **)(scan + 0x28);
+                RouteNode **head;
+                RouteNode *scanNode;
+                RouteNode *prevNode;
+                RouteNode *removed;
+
+                removed = ROUTE_NEIGHBOR(node, index);
+                prevNode = NULL;
+                head = (RouteNode **)(iGpffffb3ac + 0xA40);
+                for (scanNode = *head; scanNode != NULL; scanNode = scanNode->closedNext) {
+                    if (scanNode == removed) {
+                        break;
+                    }
+                    prevNode = scanNode;
                 }
-                if (scan != 0) {
-                    if (previous != 0)
-                        *(u8 **)(previous + 0x28) = *(u8 **)(scan + 0x28);
-                    else
-                        *closedHead = *(u8 **)(scan + 0x28);
+                if (scanNode != NULL) {
+                    if (prevNode != NULL) {
+                        prevNode->closedNext = scanNode->closedNext;
+                    } else {
+                        *head = scanNode->closedNext;
+                    }
                 }
             }
             if (inOpen == 0) {
-                updateEdge = (u8 **)(current + index * 4 + 0x30);
-                *(u8 **)(*updateEdge + 0x24) = *(u8 **)(iGpffffb3ac + 0xA3C);
-                *(u8 **)(iGpffffb3ac + 0xA3C) = *updateEdge;
+                ROUTE_NEIGHBOR(node, index)->openNext = *(RouteNode **)(iGpffffb3ac + 0xA3C);
+                *(RouteNode **)(iGpffffb3ac + 0xA3C) = ROUTE_NEIGHBOR(node, index);
             }
         }
-        *(u8 **)(current + 0x28) = *(u8 **)(iGpffffb3ac + 0xA40);
-        *(u8 **)(iGpffffb3ac + 0xA40) = current;
+        node->closedNext = *(RouteNode **)(iGpffffb3ac + 0xA40);
+        *(RouteNode **)(iGpffffb3ac + 0xA40) = node;
     }
     if (found != 0) {
         func_001ee610(route, radius);
-        *(u8 *)(route + 0x404) = 2;
+        route[0x404] = 2;
     } else {
-        *(u8 *)(route + 0x404) = 3;
+        route[0x404] = 3;
     }
     return found;
 }
-/* measured: closes the opt_propagation bracket opened above. */
-#pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eed10);
-#endif
 // FUN_001EF110
 /* 904/912 bytes; all eighteen relocations resolve exactly.
    Stage both endpoint loads before either store to preserve overlap. */
