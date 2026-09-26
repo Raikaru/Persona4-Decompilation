@@ -22,13 +22,15 @@ typedef union {
     FclBoundsBytes representation;
 } FclBoundsPacket;
 
-void func_002b29e0(u8 *out, f32 width, f32 height);
-void func_002b5db0(u8 *task, FclVec2 position, FclBoundsPacket *bounds);
+/* Returned by value; the sixteen-byte records are passed by value too
+   (through a caller-side copy whose address travels in the argument). */
+FclBoundsPacket func_002b29e0(f32 width, f32 height);
+void func_002b5db0(u8 *task, FclVec2 position, FclBoundsPacket bounds);
 void func_002b5ef0(u8 *task, FclVec2 start, FclVec2 end,
-                   FclBoundsPacket *startBounds, FclBoundsPacket *endBounds,
+                   FclBoundsPacket startBounds, FclBoundsPacket endBounds,
                    u32 duration);
 void func_002b5fd0(u8 *task, FclVec2 start, FclVec2 end,
-                   FclBoundsPacket *startBounds, FclBoundsPacket *endBounds,
+                   FclBoundsPacket startBounds, FclBoundsPacket endBounds,
                    u32 duration, s16 mode);
 
 #endif
