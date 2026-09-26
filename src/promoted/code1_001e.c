@@ -3474,213 +3474,187 @@ s32 func_001ee490(u8 *arg0) {
     }
     return 0;
 }
-/* measured 001ee610: heaviest MAC (1600B window, 429-line asm, 7 mula + 12 madda + 7 madd = 26 MAC words in 7 groups: 1x2-term dot + 6x4-term dots).
-   First probe via fnalign --candidate: object 383 vs retail 398 instrs, frame 0x4C0 vs 0x4E0 (32B shortfall),
-   s-reg rotation (arg0 s3 vs retail s4), stack pts 0xC0 vs 0x80. MAC reassociation per matching.md
-   (madd.s follows source multiply order; b210 starts accumulator with SECOND addend): 2-term dot as
-   tmp8*tmp10 + tmp9*tmp11 (mula=second) and 4-term dots as c0+c1+c2+c3 where c1=mula, c3=madd
-   (retail order c1,c0,c2,c3). Swapped order (c1+c0+c2+c3) same earliest hunks, confirming earliest
-   frame/s-reg floor hides MACs. Open: frame, s-reg rotation, scheduler ordering (cf. 001eed10 floor).
-   Committed as NONMATCHING; production remains ASM (1024B? no, 1600B window). See P023 doc. */
-/* measured: object 387 against retail 398, -2.76% - INSIDE the +-3% band
-   (a 398-instruction function gets 12 instructions of slack; the deficit is
-   11).  Was 383 / -3.8% OUTSIDE with 380 edits; now 371 edits.
-   The fix was UNFUSING two multiply-accumulates, and the evidence for it was
-   the opcode delta rather than any run: retail had 18 more `swc1`, 8 more
-   `mul.s` and 8 more `add.s` against a deficit of only 15, which means the
-   object was FUSING work retail kept separate rather than omitting it.  All
-   three retail-only runs were longer than the deficit - 37 at 0x001EEA78, 29
-   at 0x001EE7F0, 23 at 0x001EE870 - so every one was a CROSS and writing new
-   statements would have made the floor worse.
-   Retail at 0x001EEA78 stores each intermediate back before using it:
-     lwc1 $f0,0x4C0($29) / mul.s $f2,$f0,$f1 / swc1 $f2,0x4C0($29)
-     lwc1 $f0,0x4C4($29) / mul.s $f1,$f0,$f1 / swc1 $f1,0x4C4($29)
-     lwc1 $f0,0x80($29)  / add.s $f0,$f2,$f0 / swc1 $f0,0x4C0($29)
-     add.s $f0,$f1,$f20  / swc1 $f0,0x4C4($29)
-     lwc1 $f1,0x4C0($29) / lwc1 $f0,0x4C4($29)
-     swc1 $f1,0x498($29) / swc1 $f0,0x49C($29)
-   That is `t *= s; t += p; out = t;` as separate statements on an
-   address-taken pair, not `out = t * s + p;`.  Both the 300.0f and the
-   500.0f blocks were written fused and are now separate.
-   STILL OPEN, and the next thing to attack: the prologue.  Retail opens
-   `addiu $sp,$sp,-0x4e0` / `sd $ra,0x70($sp)` / `sq $s5,0x60($sp)` /
-   `sq $s4,0x50($sp)` where the object has `addiu $sp,$sp,-0x4c0` /
-   `sd $ra,0x50($sp)`.  Retail's frame is 32 bytes bigger, its save area
-   starts 32 bytes higher, and it holds one more pointer live - `$s4` against
-   the object's `$s3`.  A frame-size and saved-register-count difference is a
-   source defect: the body does not keep as many values live across calls as
-   retail's did.  (Visible only since tools/eedis.py taught fnalign to decode
-   `lq`/`sq`; both rows previously read `??` and compared equal.) */
-// FUN_001EE610 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_001ee610(u8 *arg0, f32 arg1) {
-    extern s32 func_001ece50(f32 *a0, f32 *a1, f32 f);
+extern s32 func_001ece50(f32 *first, f32 *second, f32 margin);
+extern void func_001ed700(f32 radius);
+extern s32 func_001ee610(u8 *route, f32 radius);
+
+typedef struct RoutePoint {
+    f32 x;
+    f32 z;
+} RoutePoint;
+
+typedef struct RouteNode {
+    u8 unknown00[8];
+    RoutePoint pos;
+    u8 unknown10[0xC];
+    f32 g;
+    f32 f;
+    struct RouteNode *openNext;
+    struct RouteNode *closedNext;
+    struct RouteNode *parent;
+    struct RouteNode *neighbors[32];
+    f32 distances[32];
+} RouteNode;
+
+/* measured: opt_loop_invariants hoists &pts[n] (retail $s5) and pts[0].z
+   (retail $f20) out of the subdivision loop; without it the body is 178
+   edits off.  Scoped with push/pop so neighbours keep the file default. */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_001EE610
+s32 func_001ee610(u8 *route, f32 radius)
+{
     extern f32 func_003e41e0(f32 *out, f32 *in);
-    extern f32 fGpffff8334;
-    extern f32 fGpffff8338;
-    extern f32 fGpffff80fc;
-    extern f32 fGpffff833c;
-    f32 pts[256];
-    f32 tmp[24];
-    u8 *var_16;
-    u8 *var_17;
-    s32 var_18;
-    s32 var_19;
-    s32 var_18_2;
-    s32 var_17_2;
+    RoutePoint last;
+    RoutePoint tmp;
+    RoutePoint cur;
+    RoutePoint edge;
+    RoutePoint norm[2];
+    RoutePoint seg[2];
+    RoutePoint ctrl[4];
+    RoutePoint pts[128];
+    RouteNode *goal;
+    RouteNode *node;
+    RouteNode *prev;
     u8 *base;
-    f32 half;
+    s32 i;
+    s32 n;
+    s32 k;
+    f32 margin;
+    f32 dot;
+    f32 segLen;
+    f32 prevLen;
+    f32 s;
+
+    n = 0;
     base = iGpffffb3ac;
-    var_16 = base + 0x90C;
-    half = 0.5f * arg1;
-    var_18 = 0;
-    tmp[10] = 0.0f;
-    tmp[11] = 0.0f;
-    tmp[22] = 0.0f;
-    tmp[23] = 0.0f;
-    if (func_001ece50((f32 *)(base + 0x7E4), (f32 *)(base + 0x914), half) == 0) {
+    goal = (RouteNode *)(base + 0x90C);
+    margin = 0.5f * radius;
+    if (func_001ece50((f32 *)(base + 0x7E4), (f32 *)(base + 0x914), margin) == 0) {
+        /* The start is already in reach of the goal: a straight segment. */
         base = iGpffffb3ac;
-        pts[0] = *(f32 *)(base + 0x914);
-        pts[1] = *(f32 *)(base + 0x918);
-        pts[2] = *(f32 *)(base + 0x7E4);
-        pts[3] = *(f32 *)(base + 0x7E8);
-        var_18 = 2;
-        goto tail_check;
-    }
-    goto outer_test;
-outer_body:
-    if (var_18 > 0) {
-        var_17 = var_16;
-inner_test:
-        if (var_16 != 0) {
-            if (func_001ece50(&tmp[18], (f32 *)(var_16 + 8), half) == 0) {
-                var_17 = var_16;
-                var_16 = *(u8 **)(var_16 + 0x2C);
-                goto inner_test;
-            }
-        }
-        var_16 = var_17;
-        tmp[18] = *(f32 *)(var_17 + 8);
-        tmp[19] = *(f32 *)(var_17 + 0xC);
+        pts[0] = ((RouteNode *)(base + 0x90C))->pos;
+        pts[1] = ((RouteNode *)(base + 0x7DC))->pos;
+        n = 2;
     } else {
-        tmp[18] = *(f32 *)(var_16 + 8);
-        tmp[19] = *(f32 *)(var_16 + 0xC);
-    }
-    tmp[8] = tmp[10];
-    tmp[9] = tmp[11];
-    tmp[10] = tmp[18] - tmp[22];
-    tmp[11] = tmp[19] - tmp[23];
-    {
-        f32 dot = tmp[8] * tmp[10] + tmp[9] * tmp[11];
-        if (var_18 >= 2 && dot <= fGpffff8334) {
-            f32 f21;
-            f32 f02;
-            f21 = func_003e41e0(&tmp[12], &tmp[10]);
-            f02 = func_003e41e0(&tmp[14], &tmp[8]);
-            if (f21 < 250.0f && f02 < 250.0f) {
-                var_18_2 = var_18 - 1;
-            } else {
-                f32 f2 = fGpffff8338 * f21;
-                tmp[20] = tmp[12] * f2 + pts[var_18 * 2 - 2];
-                tmp[21] = tmp[13] * f2 + pts[var_18 * 2 - 1];
-                pts[var_18 * 2] = tmp[20];
-                pts[var_18 * 2 + 1] = tmp[21];
-                {
-                    f32 g1 = fGpffff80fc * f02;
-                    tmp[20] = tmp[14] * g1 + pts[var_18 * 2 - 4];
-                    tmp[21] = tmp[15] * g1 + pts[var_18 * 2 - 3];
-                    pts[var_18 * 2 - 2] = tmp[20];
-                    pts[var_18 * 2 - 1] = tmp[21];
+        node = goal;
+        while (node != NULL) {
+            if (n > 0) {
+                /* Skip ahead along the parent chain while the last point
+                   still reaches the next node. */
+                prev = node;
+                while (node != NULL) {
+                    if (func_001ece50(&cur.x, &node->pos.x, margin) != 0) {
+                        break;
+                    }
+                    prev = node;
+                    node = node->parent;
                 }
-                var_18_2 = var_18 + 1;
+                node = prev;
+                cur = prev->pos;
+            } else {
+                cur = node->pos;
             }
-            pts[var_18_2 * 2] = tmp[18];
-            pts[var_18_2 * 2 + 1] = tmp[19];
-            var_18 = var_18_2 + 1;
-        } else {
-            pts[var_18 * 2] = tmp[18];
-            pts[var_18 * 2 + 1] = tmp[19];
-            var_18 += 1;
+            seg[0] = seg[1];
+            seg[1].x = cur.x - last.x;
+            seg[1].z = cur.z - last.z;
+            dot = seg[0].x * seg[1].x + seg[0].z * seg[1].z;
+            if (n > 1 && dot <= 0.173648f) {
+                /* Sharp corner: round it with two extra points. */
+                segLen = func_003e41e0(&norm[0].x, &seg[1].x);
+                prevLen = func_003e41e0(&norm[1].x, &seg[0].x);
+                if (segLen < 250.0f && prevLen < 250.0f) {
+                    n--;
+                } else {
+                    s = (1.0f - 0.65f) * segLen;
+                    tmp.x = norm[0].x * s;
+                    tmp.z = norm[0].z * s;
+                    tmp.x = tmp.x + pts[n - 1].x;
+                    tmp.z = tmp.z + pts[n - 1].z;
+                    pts[n] = tmp;
+                    s = 0.65f * prevLen;
+                    tmp.x = norm[1].x * s;
+                    tmp.z = norm[1].z * s;
+                    tmp.x = tmp.x + pts[n - 2].x;
+                    tmp.z = tmp.z + pts[n - 2].z;
+                    pts[n - 1] = tmp;
+                    n++;
+                }
+                pts[n] = cur;
+                n++;
+            } else {
+                pts[n] = cur;
+                n++;
+            }
+            last = pts[n - 1];
+            node = node->parent;
         }
     }
-    tmp[22] = pts[var_18 * 2 - 4];
-    tmp[23] = pts[var_18 * 2 - 3];
-    var_16 = *(u8 **)(var_16 + 0x2C);
-outer_test:
-    if (var_16 != 0) goto outer_body;
-tail_check:
-    if (var_18 < 2) return 0;
-    if (var_18 < 3) {
-        *(f32 *)(arg0 + 0) = pts[2];
-        *(f32 *)(arg0 + 4) = pts[3];
-        *(f32 *)(arg0 + 8) = pts[0];
-        *(f32 *)(arg0 + 0xC) = pts[1];
-        *(s16 *)(arg0 + 0x400) = 2;
-        return 1;
+    if (n < 2) {
+        return 0;
     }
-    {
-        var_17_2 = 0;
-        var_19 = var_18 - 1;
+    if (n < 3) {
+        ((RoutePoint *)route)[0] = pts[1];
+        ((RoutePoint *)route)[1] = pts[0];
+        *(s16 *)(route + 0x400) = 2;
+    } else {
+        /* Subdivide each span into four points of a cubic spline, with
+           phantom points extrapolated past the start. */
+        k = 0;
+        i = n - 1;
         do {
-            u8 *out;
-            tmp[0] = pts[var_19 * 2];
-            tmp[1] = pts[var_19 * 2 + 1];
-            if ((var_19 + 1) >= var_18) {
-                tmp[2] = pts[var_18 * 2 - 2];
-                tmp[3] = pts[var_18 * 2 - 1];
+            RoutePoint *out;
+
+            if (i + 1 >= n) {
+                ctrl[0] = pts[n - 1];
             } else {
-                tmp[2] = pts[var_19 * 2 + 4];
-                tmp[3] = pts[var_19 * 2 + 5];
+                ctrl[0] = pts[i + 1];
             }
-            if ((var_19 - 1) < 0) {
-                tmp[16] = pts[0] - tmp[0];
-                tmp[17] = pts[1] - tmp[1];
-                func_003e41e0(&tmp[16], &tmp[16]);
-                tmp[16] = tmp[16] * 300.0f;
-                tmp[17] = tmp[17] * 300.0f;
-                tmp[16] = tmp[16] + pts[0];
-                tmp[17] = tmp[17] + pts[1];
-                tmp[4] = tmp[16];
-                tmp[5] = tmp[17];
+            ctrl[1] = pts[i];
+            if (i - 1 < 0) {
+                edge.x = pts[0].x - ctrl[1].x;
+                edge.z = pts[0].z - ctrl[1].z;
+                func_003e41e0(&edge.x, &edge.x);
+                edge.x = edge.x * 300.0f;
+                edge.z = edge.z * 300.0f;
+                edge.x = edge.x + pts[0].x;
+                edge.z = edge.z + pts[0].z;
+                ctrl[2] = edge;
             } else {
-                tmp[4] = pts[var_19 * 2 - 2];
-                tmp[5] = pts[var_19 * 2 - 1];
+                ctrl[2] = pts[i - 1];
             }
-            if ((var_19 - 2) < 0) {
-                tmp[16] = pts[0] - tmp[0];
-                tmp[17] = pts[1] - tmp[1];
-                func_003e41e0(&tmp[16], &tmp[16]);
-                tmp[16] = tmp[16] * 500.0f;
-                tmp[17] = tmp[17] * 500.0f;
-                tmp[16] = tmp[16] + pts[0];
-                tmp[17] = tmp[17] + pts[1];
-                tmp[6] = tmp[16];
-                tmp[7] = tmp[17];
+            if (i - 2 < 0) {
+                edge.x = pts[0].x - ctrl[1].x;
+                edge.z = pts[0].z - ctrl[1].z;
+                func_003e41e0(&edge.x, &edge.x);
+                edge.x = edge.x * 500.0f;
+                edge.z = edge.z * 500.0f;
+                edge.x = edge.x + pts[0].x;
+                edge.z = edge.z + pts[0].z;
+                ctrl[3] = edge;
             } else {
-                tmp[6] = pts[var_19 * 2 - 4];
-                tmp[7] = pts[var_19 * 2 - 3];
+                ctrl[3] = pts[i - 2];
             }
-            out = arg0 + var_17_2 * 8;
-            *(f32 *)(out + 0) = tmp[0];
-            *(f32 *)(out + 4) = tmp[1];
-            *(f32 *)(out + 8) = -0.0703125f * tmp[2] + 0.8671875f * tmp[0] + 0.2265625f * tmp[4] + -0.0234375f * tmp[6];
-            *(f32 *)(out + 0xC) = -0.0703125f * tmp[3] + 0.8671875f * tmp[1] + 0.2265625f * tmp[5] + -0.0234375f * tmp[7];
-            *(f32 *)(out + 0x10) = -0.0625f * tmp[2] + 0.5625f * tmp[0] + 0.5625f * tmp[4] + -0.0625f * tmp[6];
-            *(f32 *)(out + 0x14) = -0.0625f * tmp[3] + 0.5625f * tmp[1] + 0.5625f * tmp[5] + -0.0625f * tmp[7];
-            *(f32 *)(out + 0x18) = -0.0234375f * tmp[2] + fGpffff833c * tmp[0] + 0.8671875f * tmp[4] + -0.0703125f * tmp[6];
-            *(f32 *)(out + 0x1C) = -0.0234375f * tmp[3] + fGpffff833c * tmp[1] + 0.8671875f * tmp[5] + -0.0703125f * tmp[7];
-            var_17_2 += 4;
-            var_19 -= 1;
-        } while (var_19 > 0);
-        *(f32 *)(arg0 + var_17_2 * 8 + 0) = pts[0];
-        *(f32 *)(arg0 + var_17_2 * 8 + 4) = pts[1];
-        *(s16 *)(arg0 + 0x400) = (s16)(var_17_2 + 1);
+            out = (RoutePoint *)route + k;
+            out[0] = pts[i];
+            tmp.x = -0.0703125f * ctrl[0].x + 0.8671875f * ctrl[1].x + 0.2265625f * ctrl[2].x + -0.0234375f * ctrl[3].x;
+            tmp.z = -0.0703125f * ctrl[0].z + 0.8671875f * ctrl[1].z + 0.2265625f * ctrl[2].z + -0.0234375f * ctrl[3].z;
+            out[1] = tmp;
+            tmp.x = -0.0625f * ctrl[0].x + 0.5625f * ctrl[1].x + 0.5625f * ctrl[2].x + -0.0625f * ctrl[3].x;
+            tmp.z = -0.0625f * ctrl[0].z + 0.5625f * ctrl[1].z + 0.5625f * ctrl[2].z + -0.0625f * ctrl[3].z;
+            out[2] = tmp;
+            tmp.x = -0.0234375f * ctrl[0].x + 0.226563f * ctrl[1].x + 0.8671875f * ctrl[2].x + -0.0703125f * ctrl[3].x;
+            tmp.z = -0.0234375f * ctrl[0].z + 0.226563f * ctrl[1].z + 0.8671875f * ctrl[2].z + -0.0703125f * ctrl[3].z;
+            out[3] = tmp;
+            k += 4;
+            i--;
+        } while (i > 0);
+        ((RoutePoint *)route)[k] = pts[0];
+        *(s16 *)(route + 0x400) = k + 1;
     }
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ee610);
-#endif
+#pragma pop
 /* measured: object 172B vs window 176B, normalized_diff 2; the remaining
    residual is the best-node register assignment. Committed at nd 2. */
 // FUN_001EEC60
@@ -3730,23 +3704,6 @@ unlink_done:
 return_best:
     return best;
 }
-extern s32 func_001ece50(f32 *first, f32 *second, f32 margin);
-extern void func_001ed700(f32 radius);
-extern s32 func_001ee610(u8 *route, f32 radius);
-
-typedef struct RouteNode {
-    u8 unknown00[8];
-    f32 x;
-    f32 z;
-    u8 unknown10[0xC];
-    f32 g;
-    f32 f;
-    struct RouteNode *openNext;
-    struct RouteNode *closedNext;
-    struct RouteNode *parent;
-    struct RouteNode *neighbors[32];
-    f32 distances[32];
-} RouteNode;
 
 /* Retail indexes the neighbour and distance arrays as base + index * 4 + field. */
 #define ROUTE_NEIGHBOR(n, i) (*(RouteNode **)((u8 *)(n) + (i) * 4 + 0x30))
@@ -3847,8 +3804,8 @@ s32 func_001eed10(u8 *route, f32 *start, f32 *end, f32 radius)
             ROUTE_NEIGHBOR(node, index)->g = cost;
             ROUTE_NEIGHBOR(node, index)->f = cost;
             world = iGpffffb3ac;
-            goalDelta[0] = ROUTE_NEIGHBOR(node, index)->x - *(f32 *)(world + 0x914);
-            goalDelta[1] = ROUTE_NEIGHBOR(node, index)->z - *(f32 *)(world + 0x918);
+            goalDelta[0] = ROUTE_NEIGHBOR(node, index)->pos.x - *(f32 *)(world + 0x914);
+            goalDelta[1] = ROUTE_NEIGHBOR(node, index)->pos.z - *(f32 *)(world + 0x918);
             ROUTE_NEIGHBOR(node, index)->f += RwV2dLength(goalDelta);
             ROUTE_NEIGHBOR(node, index)->parent = node;
             if (inClosed != 0) {
