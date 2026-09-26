@@ -270,3 +270,74 @@ permutations could not).
 Folding `index + found` into the pointer expression (three spellings)
 costs 155. The statement order `index = index + found;` before `sum = 0; j = 0;`
 is retail's.
+
+## Round 4 (same day)
+
+`func_00260e60` is MATCHED (fresh rewrite); see
+`Code0026Calendar_00260e60_20260926.md`. That commit also corrects
+`func_00260600`'s declared order to `(x, y, depth, color, u8 alpha, variant,
+scaleX, scaleY, font, 0)`. It is ABI-identical to the old order, and the
+guarded definition is updated to match.
+
+### code1_0026.c `func_00263730` (1408 B): 285 -> 218 words (fresh rewrite)
+
+Body: `C26_00263730_body_r4_20260926.c`. A variant under `opt_common_subs off`
+is `C26_00263730_body_r4_cseoff_20260926.c` (291 words, but structurally
+closest).
+
+- Signature: `(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 blink,
+  u8 *font)`. Retail moves the params in the order a0, a1, f12, a2..., so
+  `depth` is third, as in the sibling `func_00262de0`. `alpha` is `u8`,
+  because callers materialise 255 and mask computed values.
+  `func_00261560` keeps its definition signature (`u8` 4th int, `s32` code:
+  the callee `andi 0xF`/`sra 4`s it, and the caller masks the u16 day code).
+  `code1_0027.c` still declares that 4th parameter `s32`, which is another
+  owner's H011.
+- The multiply the old draft dropped is real: `alpha * func_0043c6a0(x)`,
+  with `alpha & 0xFF` LICM-hoisted into a `sq` slot
+  (`opt_loop_invariants on`). The two fade bytes are separate `u8` locals
+  (0x110/0x100). The font word for each `func_00261560` call is read into a
+  local before the nested `func_00110c50` call (retail loads it first and
+  spills it with `sw`).
+- Blocker: retail recomputes `date - 1 + i` and `x + i * 94` at the top of
+  every draw block, keeps `dx = px + 15` in `$s6` across into the
+  `i == 1/2` blocks, and colours n `$s7`, px `$fp`. b210 value-numbers
+  `date - 1 + i` with the header's value, even across `i + date - 1`,
+  block-scoped locals, an inline helper, reusing the header variable, and
+  under propagation off. Only `opt_common_subs off` gives retail's
+  recompute structure, but it then loses retail's `mov.s $f14, $f13`
+  (1.0f) and the `$t0 = 1` reuse from the `i == 1` compare.
+  `(u32)` casts on the index hoist `date - 1` out of the loop (315).
+
+### code1_0026.c `func_00267b20` (1808 B): 260 -> 232 words (fresh rewrite)
+
+Body: `C26_00267b20_body_r4_20260926.c` (1788 B, `opt_propagation off`).
+
+- Table copies are `*(ShapeCountTable *)D_0063A9E0` casts (4-byte `lw/sw`
+  loops). A struct-typed global gives `lq/sq`.
+- The depth/clip setup reuses `calendarZeroBytes` and the `func_00262de0`
+  shape.
+- Each vertex loop is `pt = &src[i]; dst = &points[i];` (src address
+  first, then the materialised `sp + 0x5A0 + i*8`), with `col = colors[i]`
+  after the float stores. `i = 0` is set before the colour-byte unpack. The
+  last loop needs `dst = &points[i] - 1; col = colors[i] - 4;` to get
+  retail's shared `i*8` with -8/-4 store offsets. `points[i - 1]` computes
+  `i - 1` first.
+- Residual: (1) `color` is `$s1` and count/states/src are `$s0`; retail has
+  them the other way round. A 50-step declaration hill-climb is inert, and
+  holding the colour in `rgb` gives 405. (2) Retail forms
+  `sp + shape*8` then `addiu 0x154/0x104` for the outline count/pointer;
+  every index spelling and plain local arrays fold the offsets into `lw`.
+  (3) Retail spills the third colour byte with `sw` at 0xD0; b210 uses
+  `sq` whatever its type (u8/u32/s32, or held in the unused parameter).
+  Loop-invariant hoisting of the bytes instead gives the right `i = 0`
+  placement but drops the `andi`s and turns the zero loops into `bgtz`
+  (358).
+
+### Not attempted this round
+
+The `code1_0049.c` targets use VU0 macro code (`lqc2`/`vmul`...), including
+`004941f0`, and were skipped. `sdkSndcom.c` `func_0045b7c0` has a 228-word
+draft in-source (not in the group notes); retail keeps per-field pointers
+(`addiu $18, $16, 4` then `sw 0($18)`) and recomputes the slot base after
+every call, which needs a slot struct plus a per-case pointer study.
