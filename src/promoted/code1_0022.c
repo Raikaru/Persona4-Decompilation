@@ -3707,140 +3707,148 @@ s32 func_0022a6b0(s64 *arg0) {
     return 1;
 }
 
-/* Battle-packet floor (1184B window). First probe nd 259 (obj 1216B,
-   32B overrun); frame -0x90 vs -0xA0, prologue incl DSP words
-   verified. Open: frame size, branch-target cascade, scheduler
-   ordering. Triple-built (m2c+IDA+Ghidra, retail-arbitrated:
-   gp-struct direct, 1973f0 4-arg, masked k-counter). */
-/* measured 2026-09-19: removed `schedule on` (default off) to fix the count. fnalign 296/304/89 (+6 reloc-only), floor_distance 304/296/95/288, probe 259 words, emitted 1216B/window 1184B (+2.7% inside gate). Prior schedule-on 263/292/374 outside (-9.9%) with probe 253 was incomparable per handoff 7y; the 6-word win was a measurement artefact. Residual is frame 0x90 vs 0xA0, branch-target cascade, scheduler ordering. */
-// FUN_0022A730 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: byte-exact (293/293 instructions, 0 differing words).  The
+   roster walk is an inline helper returning u16 (retail masks the index at
+   the helper's return and again at the use).  The 0x20-byte parameter block
+   and the rotation centre are the stack locals at 0x70 and 0x90.  Saved
+   registers follow declaration order: moveDelay, entry/delay, count,
+   last/other, unit/target/move.
+   `last` is deliberately left uninitialised: retail tests $s1 after the
+   first scan without ever clearing it, so a battle with no candidate reads
+   a stale register.  That is retail's behaviour, kept as found. */
+static inline u16 btlUnitRosterIndex(u8 *unit)
+{
+    u8 *node;
+    u16 index;
+
+    if (unit[0xA2] != 0) {
+        return 0;
+    }
+    index = 0;
+    for (node = *(u8 **)(iGpffffb3ac + 0x17C); node != NULL; node = *(u8 **)(node + 0xA68)) {
+        if (unit == node) {
+            break;
+        }
+        index++;
+    }
+    return index;
+}
+
+// FUN_0022A730
 void func_0022a730(u8 *arg0)
 {
-    extern u8 *func_0019a0c0();
-    extern void func_00196040();
-    extern u8 *btlUnitCreateMovePacket(u8 *arg0, s32 arg1, f32 farg, s32 arg2);
-    extern u8 *btlUnitCreateRotatePacket();
-    extern f32 fGpffff809c;
+    extern u8 *func_0019a0c0(u8 *arg0, s16 arg1);
+    extern f32 func_00196040(u32 arg0, u32 arg1, RwV3d *arg2, f32 *arg3, f32 *arg4, u32 arg5);
+    extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
     extern u8 D_00635530[];
-    u8 v26[12];
-    s32 v27;
-    u8 v28[16];
-    u8 *i;
-    u8 *j;
-    u8 *v1;
-    s32 v4;
-    u8 *v6;
-    u8 *v14;
-    u8 *k;
-    u16 u;
-    s16 v12;
-    s16 v22;
-    u8 *w;
-    u8 *w24;
-    s32 v9;
+    union {
+        u32 words[8];
+        u8 bytes[0x20];
+    } params;
+    RwV3d center;
+    s32 moveDelay;
+    u8 *entry;
+    s32 delay;
+    s32 count;
+    u8 *last;
+    u8 *other;
+    u8 *unit;
+    u8 *target;
+    u8 *move;
+    u8 *packet;
 
-    *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) | 0x80000;
-    v4 = 0;
-    v1 = 0;
-    for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
-        if ((*(u16 *)(i + 0x1A) & 1) != 0) {
-            v6 = *(u8 **)(i + 0x30);
-            if ((*(u32 *)(v6 + 0x9C) & 8) != 0) {
-                if (datCalcIsDead(*(u8 **)(v6 + 0xA64), 0) == 0) {
-                    w = func_0019a0c0(v6, 0);
-                    *(s64 *)(w + 0x60) = *(s64 *)arg0;
-                    func_00194590(w, 0);
-                }
-                if (datCalcChkBadStatus(*(s32 *)(v6 + 0xA64), 256) != 0) {
-                    v1 = i;
-                    v4 = v4 + 1;
-                }
-            }
+    *(u32 *)(iGpffffb3ac + 0xC) |= 0x80000;
+    count = 0;
+    for (entry = *(u8 **)(iGpffffb3ac + 0x174); entry != NULL; entry = *(u8 **)(entry + 0x450)) {
+        if ((*(u16 *)(entry + 0x1A) & 1) == 0) {
+            continue;
+        }
+        unit = *(u8 **)(entry + 0x30);
+        if ((*(u32 *)(unit + 0x9C) & 8) == 0) {
+            continue;
+        }
+        if (datCalcIsDead(*(u8 **)(unit + 0xA64), 0) == 0) {
+            packet = func_0019a0c0(unit, 0);
+            *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+            func_00194590(packet, 0);
+        }
+        if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100) != 0) {
+            last = entry;
+            count++;
         }
     }
-    if (v1 != 0) {
-        w = (u8 *)func_001d3700(2, 4095);
-        *(s16 *)(w + 0x48) = 8;
-        *(s64 *)(w + 0x60) = *(s64 *)arg0;
-        func_00194590(w, 0);
-        if (v4 == 1) {
-            v9 = 172;
+    if (last == NULL) {
+        return;
+    }
+    packet = (u8 *)func_001d3700(2, 0xFFF);
+    *(s16 *)(packet + 0x48) = 8;
+    *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+    func_00194590(packet, 0);
+    packet = func_00202400(*(s32 *)(last + 0x30), count == 1 ? 0xAC : 0xAD);
+    *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+    func_00194590(packet, 3);
+    func_001f0a10(params.bytes);
+    params.words[3] = 0x100;
+    func_00196040(2, 1, &center, NULL, NULL, 1);
+    if (count != 1) {
+        packet = btlCameraCreateSetStatePacket(arg0, 0x2C);
+        *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+        func_00194590(packet, 0);
+    }
+    delay = 12;
+    for (other = *(u8 **)(iGpffffb3ac + 0x174); other != NULL; other = *(u8 **)(other + 0x450)) {
+        if ((*(u16 *)(other + 0x1A) & 1) == 0) {
+            continue;
+        }
+        target = *(u8 **)(other + 0x30);
+        if ((*(u32 *)(target + 0x9C) & 8) == 0) {
+            continue;
+        }
+        if (datCalcChkBadStatus(*(s32 *)(target + 0xA64), 0x100) == 0) {
+            continue;
+        }
+        *(u16 *)(other + 0x1A) |= 8;
+        **(u16 **)(*(u8 **)(other + 0x30) + 0xA64) &= 0xFFDF;
+        **(u16 **)(*(u8 **)(other + 0x30) + 0xA64) &= 0xFFF7;
+        **(u16 **)(*(u8 **)(other + 0x30) + 0xA64) &= 0xFFEF;
+        func_001ec6d0((s16 *)(target + 0x94), (s16 *)(target + 0x96), (f32 *)(D_00635530 + btlUnitRosterIndex(target) * 12));
+        if (count == 1) {
+            packet = btlCameraCreateSetStatePacket(other, 10);
+            *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+            func_00194590(packet, 0);
+        }
+        packet = (u8 *)func_001d6240(*(u32 *)(iGpffffb3ac + 0xD74), (u32)target, (u32)target, 1, 0);
+        *(s16 *)(packet + 0x48) = delay;
+        *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+        func_00194590(packet, 2);
+        packet = (u8 *)func_001f36e0((s32)other, (s32)other, params.bytes, 1, 1);
+        *(s16 *)(packet + 0x48) = delay;
+        *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+        func_00194590(packet, 1);
+        packet = (u8 *)btlUnitCreateLookAtDeactivatePacket(*(BtlUnit **)(other + 0x30), 0);
+        *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+        func_00194590(packet, 1);
+        if (count == 1) {
+            moveDelay = delay + 0x22;
+            packet = btlCameraCreateSetStatePacket(other, 0x2C);
+            *(s16 *)(packet + 0x48) = moveDelay;
+            *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+            func_00194590(packet, 0);
         } else {
-            v9 = 173;
+            moveDelay = delay + 0x1A;
         }
-        w = func_00202400(*(s32 *)(v1 + 0x30), v9);
-        *(s64 *)(w + 0x60) = *(s64 *)arg0;
-        func_00194590(w, 3);
-        func_001f0a10(v26);
-        v27 = 256;
-        func_00196040(2, 1, v28, 0, 0, 1);
-        if (v4 != 1) {
-            w = btlCameraCreateSetStatePacket(arg0, 44);
-            *(s64 *)(w + 0x60) = *(s64 *)arg0;
-            func_00194590(w, 0);
-        }
-        v12 = 12;
-        for (j = *(u8 **)(iGpffffb3ac + 0x174); j != 0; j = *(u8 **)(j + 0x450)) {
-            if ((*(u16 *)(j + 0x1A) & 1) != 0) {
-                v14 = *(u8 **)(j + 0x30);
-                if ((*(u32 *)(v14 + 0x9C) & 8) != 0 && datCalcChkBadStatus(*(s32 *)(v14 + 0xA64), 256) != 0) {
-                    *(u16 *)(j + 0x1A) = *(u16 *)(j + 0x1A) | 8;
-                    *(u16 *)(*(u8 **)(*(u8 **)(j + 0x30) + 0xA64)) = *(u16 *)(*(u8 **)(*(u8 **)(j + 0x30) + 0xA64)) & ~0x20;
-                    *(u16 *)(*(u8 **)(*(u8 **)(j + 0x30) + 0xA64)) = *(u16 *)(*(u8 **)(*(u8 **)(j + 0x30) + 0xA64)) & ~0x8;
-                    *(u16 *)(*(u8 **)(*(u8 **)(j + 0x30) + 0xA64)) = *(u16 *)(*(u8 **)(*(u8 **)(j + 0x30) + 0xA64)) & ~0x10;
-                    if (*(v14 + 0xA2) != 0) {
-                        u = 0;
-                    } else {
-                        u = 0;
-                        for (k = *(u8 **)(iGpffffb3ac + 0x17C); k != 0 && v14 != k; k = *(u8 **)(k + 0xA68)) {
-                            u = (u + 1) & 0xFFFF;
-                        }
-                    }
-                    func_001ec6d0((s16 *)(v14 + 0x94), (s16 *)(v14 + 0x96), (f32 *)(D_00635530 + u * 0xC));
-                    if (v4 == 1) {
-                        w = btlCameraCreateSetStatePacket(j, 10);
-                        *(s64 *)(w + 0x60) = *(s64 *)arg0;
-                        func_00194590(w, 0);
-                    }
-                    w = (u8 *)func_001d6240(*(u32 *)(iGpffffb3ac + 0xD74), (u32)v14, (u32)v14, 1, 0);
-                    *(s16 *)(w + 0x48) = v12;
-                    *(s64 *)(w + 0x60) = *(s64 *)arg0;
-                    func_00194590(w, 2);
-                    w = (u8 *)func_001f36e0((s32)j, (s32)j, v26, 1, 1);
-                    *(s16 *)(w + 0x48) = v12;
-                    *(s64 *)(w + 0x60) = *(s64 *)arg0;
-                    func_00194590(w, 1);
-                    w = (u8 *)btlUnitCreateLookAtDeactivatePacket(*(u8 **)(j + 0x30), 0);
-                    *(s64 *)(w + 0x60) = *(s64 *)arg0;
-                    func_00194590(w, 1);
-                    if (v4 == 1) {
-                        v22 = v12 + 34;
-                        w = btlCameraCreateSetStatePacket(j, 44);
-                        *(s16 *)(w + 0x48) = v22;
-                        *(s64 *)(w + 0x60) = *(s64 *)arg0;
-                        func_00194590(w, 0);
-                    } else {
-                        v22 = v12 + 26;
-                    }
-                    w24 = btlUnitCreateMovePacket(v14, 0, fGpffff809c, 24);
-                    *(s16 *)(w24 + 0x48) = v22;
-                    *(s64 *)(w24 + 0x60) = *(s64 *)arg0;
-                    func_00194590(w24, 1);
-                    w = btlUnitCreateRotatePacket(*(u8 **)(j + 0x30), v28, 0);
-                    *w = 4;
-                    *(s64 *)(w + 8) = *(s64 *)(w24 + 88);
-                    *(s64 *)(w + 0x60) = *(s64 *)arg0;
-                    func_00194590(w, 1);
-                    v12 = v12 + 4;
-                }
-            }
-        }
+        move = (u8 *)btlUnitCreateMovePacket((BtlUnit *)target, NULL, fGpffff809c, 0x18);
+        *(s16 *)(move + 0x48) = moveDelay;
+        *(s64 *)(move + 0x60) = *(s64 *)arg0;
+        func_00194590(move, 1);
+        packet = (u8 *)btlUnitCreateRotatePacket(*(BtlUnit **)(other + 0x30), &center, 0);
+        *packet = 4;
+        *(s64 *)(packet + 8) = *(s64 *)(move + 0x58);
+        *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+        func_00194590(packet, 1);
+        delay += 4;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022a730);
-#endif
 // FUN_0022ABD0
 s32 func_0022abd0(s64 *arg0) {
     u8 *temp_4;
