@@ -1615,315 +1615,129 @@ void func_001febd0(void *arg0) {
     jtbl_008873EC[0](arg0);
 }
 
-// measured: stack-slot blend floor (same family as func_001fceb0/001ff490):
-// retail evaluates [byte-conv + D_0076129C product] then blends via mula/madd
-// into sp70-sp8C with conv in $f1 / D in $f0; b210 for STACK/GLOBAL store
-// targets emits D-load-first with conv in $f0 and mul.s $f0,$f1,$f0, and
-// rotates conversions when hoisted into locals (nd 283-297). V4 struct copies
-// and the &sp70 call-liveness (sp7[8] array) are correct. u8 v22 +
-// `count <= t5` verified fixed. FP-rotation floor; pointer-store variants
-// (func_001fceb0 case 0) DO match this pattern, only the stack/global stores
-// rotate.
-// measured: retried 2026-08 wave, 4 attempts (285/285/284/284). Verified
-// working in this family variant too: u8 mode (daddiu $20,0x1/0x2, mode in
-// $20), sp9C u8[4] + *(s32*) word writes (lbu 0x9C/9D/9E/9F fold), (u32)b>>1
-// shifts (srl, no andi), (s32)-before-(f32) casts, h+h doubling via named
-// temp, case-0's dead 4th byte conversion reproduces exactly as an empty
-// `if (b >= 0) {}` (lbu+bltz+fallthrough), sp80/sp70 stay on the stack
-// (address-taken by func_001496c0), V4 copies, prologue, scale block and
-// dispatch all match. Residual is the same FP-rotation floor as
-// func_001fceb0/001ff490/001fe090: for STACK/global store targets b210
-// keeps the byte conversion in $f0 (cvt.s.w $f0,$f0 in place, doubling in
-// $f0) and loads D_0076129C into $f1, emitting mul.s $f0,$f1,$f0; retail
-// converts into $f1 and loads D into $f0 (mul.s $f0,$f0,$f1).
-// brDataMul(D,conv) fixes the operand order for POINTER stores (001fceb0
-// case 0) but not stack stores; transposed brDataMul(conv,D) gains exactly
-// 1 word (284 vs 285); f32-local declaration-order permutations (scale/m1/
-// conv/h) do not move it. nd 284, obj 1748B vs window 1792B (under).
-// FP-register-colouring floor.
-// measured: see floor note above; nd recorded there.
-// measured: stack-slot blend floor (same family as func_001fceb0/001ff490):
-// retail evaluates [byte-conv + D_0076129C product] then blends via mula/madd
-// into sp70-sp8C with conv in $f1 / D in $f0; b210 for STACK/GLOBAL store
-// targets emits D-load-first with conv in $f0 and mul.s $f0,$f1,$f0, and
-// rotates conversions when hoisted into locals (nd 283-297). V4 struct copies
-// and the &sp70 call-liveness (sp7[8] array) are correct. u8 v22 +
-// `count <= t5` verified fixed. FP-rotation floor; pointer-store variants
-// (func_001fceb0 case 0) DO match this pattern, only the stack/global stores
-// rotate.
-// measured: retried 2026-08 wave, 4 attempts (285/285/284/284). Verified
-// working in this family variant too: u8 mode (daddiu $20,0x1/0x2, mode in
-// $20), sp9C u8[4] + *(s32*) word writes (lbu 0x9C/9D/9E/9F fold), (u32)b>>1
-// shifts (srl, no andi), (s32)-before-(f32) casts, h+h doubling via named
-// temp, case-0's dead 4th byte conversion reproduces exactly as an empty
-// `if (b >= 0) {}` (lbu+bltz+fallthrough), sp80/sp70 stay on the stack
-// (address-taken by func_001496c0), V4 copies, prologue, scale block and
-// dispatch all match. Residual is the same FP-rotation floor as
-// func_001fceb0/001ff490/001fe090: for STACK/global store targets b210
-// keeps the byte conversion in $f0 (cvt.s.w $f0,$f0 in place, doubling in
-// $f0) and loads D_0076129C into $f1, emitting mul.s $f0,$f1,$f0; retail
-// converts into $f1 and loads D into $f0 (mul.s $f0,$f0,$f1).
-// brDataMul(D,conv) fixes the operand order for POINTER stores (001fceb0
-// case 0) but not stack stores; transposed brDataMul(conv,D) gains exactly
-// 1 word (284 vs 285); f32-local declaration-order permutations (scale/m1/
-// conv/h) do not move it. nd 284, obj 1748B vs window 1792B (under).
-// FP-register-colouring floor.
-// measured: see floor note above; nd recorded there.
-// measured: re-derived floor shape (u8 mode daddiu $20 0x1/0x2 + andi 0xFF, sp9C u8[4] + *(s32*) word writes, (u32)b>>1 srl, (s32)-before-(f32), h+h doubling, empty if (b>=0) dead byte, V4 copies) to compiling body within 3%: guarded fndiff obj 1764B window 1792B (28B under, 1.6% in 1738-1846B) nd347 via `python3 tools/measure_guarded.py src/promoted/btlEPL.c func_001fec00` (GUARDED_SCORE 347); fnalign retail 447 object 441 (6 short, edit 373) via `python3 tools/fnalign.py src/promoted/btlEPL.c func_001fec00 --candidate /tmp/fec00_ord4.c`; verify 20 MATCH 6 ASM (001fec00 ASM obj1792 win1792 nd0, production stays ASM via #else INCLUDE_ASM); lint 0 findings via `python3 tools/decomp_lint.py src/promoted/btlEPL.c`; residual is FP-rotation floor for stack stores (conv $f0/D $f1 vs retail $f1/$f0, cf. prior best nd284 obj1748/1792).
-// FUN_001FEC00 NONMATCHING
-#ifdef NON_MATCHING
+typedef union BtlEplRgba
+{
+    u32 rgba;
+    u8 c[4]; // r, g, b, a
+} BtlEplRgba; // 0x04
+
+typedef struct BtlEplFadeParam
+{
+    u32 total;        // 0x00
+    u16 fadeIn;       // 0x04
+    u16 fadeOut;      // 0x06
+    BtlEplRgba color; // 0x08
+} BtlEplFadeParam;
+
+static inline void btlEplRgbaToV4(V4 *out, const u8 *rgba)
+{
+    out->v[0] = (1.0f / 255.0f) * (f32)(u32)rgba[0];
+    out->v[1] = (1.0f / 255.0f) * (f32)(u32)rgba[1];
+    out->v[2] = (1.0f / 255.0f) * (f32)(u32)rgba[2];
+    out->v[3] = (1.0f / 255.0f) * (f32)(u32)rgba[3];
+}
+
+// FUN_001FEC00
+/* The blend keeps the third colour term unscaled until the final add, as in
+   func_001b7e70 (btlMain.c); retail fuses only that last component. */
 void func_001fec00(u8 *arg0)
 {
-    s32 s0;
-    s32 count;
-    u8 *param;
-    u8 *target;
+    u32 count;
+    BtlEplFadeParam *param;
+    V4 *target;
+    u32 total;
     u8 mode;
     f32 scale;
-    f32 sp70[4];
-    f32 sp80[4];
-    u8 sp9C[4];
-    count = *(s32 *)(arg0 + 0x28);
-    param = *(u8 **)(arg0 + 0x38);
-    target = *(u8 **)(arg0 + 0x30);
-    s0 = *(s32 *)param;
-    if ((u32)s0 < (u32)count) {
-        if (s0 != 0) {
-            return;
-        }
+    V4 *heap;
+    V4 color;
+    V4 blend;
+    BtlEplRgba rgba;
+    f32 inv;
+    f32 a0;
+    f32 a1;
+    f32 a2;
+    f32 b0;
+    f32 b1;
+    f32 b2;
+
+    target = *(V4 **)(arg0 + 0x30);
+    param = *(BtlEplFadeParam **)(arg0 + 0x38);
+    count = *(u32 *)(arg0 + 0x28);
+    total = param->total;
+    if (total < count && total != 0) {
+        return;
     }
     mode = 0;
-    if (s0 != 0) {
-        s32 a4;
-        a4 = *(u16 *)(param + 4);
-        if ((u32)a4 >= (u32)count) {
-            if (a4 > 0) {
-                f32 fc;
-                f32 fa;
-                if (count >= 0) {
-                    fc = (f32)(s32)count;
-                } else {
-                    u32 t = ((u32)count >> 1) | ((u32)count & 1);
-                    fc = (f32)(s32)t;
-                    fc = fc + fc;
-                }
-                if (a4 >= 0) {
-                    fa = (f32)(s32)a4;
-                } else {
-                    u32 t = ((u32)a4 >> 1) | ((u32)a4 & 1);
-                    fa = (f32)(s32)t;
-                    fa = fa + fa;
-                }
-                scale = fc / fa;
-                mode = 1;
+    if (total != 0) {
+        if (count <= param->fadeIn) {
+            if (param->fadeIn > 0) {
+                scale = (f32)count / (f32)param->fadeIn;
             } else {
                 scale = 1.0f;
-                mode = 1;
             }
-        } else {
-            s32 a6;
-            s32 diff1;
-            a6 = *(u16 *)(param + 6);
-            diff1 = s0 - a6;
-            if ((u32)count >= (u32)diff1) {
-                if (a6 > 0) {
-                    s32 diff2;
-                    f32 fc;
-                    f32 fa;
-                    diff2 = s0 - count;
-                    if (diff2 >= 0) {
-                        fc = (f32)(s32)diff2;
-                    } else {
-                        u32 t = ((u32)diff2 >> 1) | ((u32)diff2 & 1);
-                        fc = (f32)(s32)t;
-                        fc = fc + fc;
-                    }
-                    if (a6 >= 0) {
-                        fa = (f32)(s32)a6;
-                    } else {
-                        u32 t = ((u32)a6 >> 1) | ((u32)a6 & 1);
-                        fa = (f32)(s32)t;
-                        fa = fa + fa;
-                    }
-                    scale = fc / fa;
-                    mode = 2;
-                } else {
-                    scale = 0.0f;
-                    mode = 2;
-                }
+            mode = 1;
+        } else if (count >= total - param->fadeOut) {
+            if (param->fadeOut > 0) {
+                scale = (f32)(total - count) / (f32)param->fadeOut;
             } else {
+                scale = 0.0f;
             }
+            mode = 2;
         }
     }
-    {
-        u8 *heap;
-        heap = func_001b7050();
-        if ((mode & 0xFF) == 2) {
-            if (count == (s0 - *(u16 *)(param + 6))) {
-                *(V4 *)target = *(V4 *)heap;
-            }
-            {
-                s32 b0 = D_007641F8[0];
-                s32 b1 = D_007641F8[1];
-                s32 b2 = D_007641F8[2];
-                s32 b3 = D_007641F8[3];
-                f32 h0; f32 h1; f32 h2; f32 h3;
-                if (b0 >= 0) {
-                    h0 = (f32)(s32)b0;
-                } else {
-                    u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
-                    h0 = (f32)(s32)t;
-                    h0 = h0 + h0;
-                }
-                sp80[0] = D_0076129C * h0;
-                if (b1 >= 0) {
-                    h1 = (f32)(s32)b1;
-                } else {
-                    u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
-                    h1 = (f32)(s32)t;
-                    h1 = h1 + h1;
-                }
-                sp80[1] = D_0076129C * h1;
-                if (b2 >= 0) {
-                    h2 = (f32)(s32)b2;
-                } else {
-                    u32 t = ((u32)b2 >> 1) | ((u32)b2 & 1);
-                    h2 = (f32)(s32)t;
-                    h2 = h2 + h2;
-                }
-                sp80[2] = D_0076129C * h2;
-                if (b3 >= 0) {
-                    h3 = (f32)(s32)b3;
-                } else {
-                    u32 t = ((u32)b3 >> 1) | ((u32)b3 & 1);
-                    h3 = (f32)(s32)t;
-                    h3 = h3 + h3;
-                }
-                sp80[3] = D_0076129C * h3;
-            }
-            {
-                f32 inv = 1.0f - scale;
-                f32 t0 = sp80[0] * inv;
-                f32 t1 = sp80[1] * inv;
-                f32 t2 = sp80[2] * inv;
-                f32 s0f = ((f32 *)target)[0] * scale;
-                f32 s1f = ((f32 *)target)[1] * scale;
-                f32 s2f = ((f32 *)target)[2] * scale;
-                sp70[0] = t0 + s0f;
-                sp70[1] = t1 + s1f;
-                sp70[2] = t2 + s2f;
-                sp70[3] = 1.0f;
-            }
-            *(V4 *)heap = *(V4 *)sp70;
-            func_001496c0(sp70);
-        } else if ((mode & 0xFF) == 1) {
-            if (count == 0) {
-                *(V4 *)target = *(V4 *)heap;
-            }
-            *(s32 *)sp9C = *(s32 *)(param + 8);
-            {
-                s32 b0 = sp9C[0];
-                s32 b1 = sp9C[1];
-                s32 b2 = sp9C[2];
-                s32 b3 = sp9C[3];
-                f32 h0; f32 h1; f32 h2; f32 h3;
-                if (b0 >= 0) {
-                    h0 = (f32)(s32)b0;
-                } else {
-                    u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
-                    h0 = (f32)(s32)t;
-                    h0 = h0 + h0;
-                }
-                sp80[0] = D_0076129C * h0;
-                if (b1 >= 0) {
-                    h1 = (f32)(s32)b1;
-                } else {
-                    u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
-                    h1 = (f32)(s32)t;
-                    h1 = h1 + h1;
-                }
-                sp80[1] = D_0076129C * h1;
-                if (b2 >= 0) {
-                    h2 = (f32)(s32)b2;
-                } else {
-                    u32 t = ((u32)b2 >> 1) | ((u32)b2 & 1);
-                    h2 = (f32)(s32)t;
-                    h2 = h2 + h2;
-                }
-                sp80[2] = D_0076129C * h2;
-                if (b3 >= 0) {
-                    h3 = (f32)(s32)b3;
-                } else {
-                    u32 t = ((u32)b3 >> 1) | ((u32)b3 & 1);
-                    h3 = (f32)(s32)t;
-                    h3 = h3 + h3;
-                }
-                sp80[3] = D_0076129C * h3;
-            }
-            {
-                f32 inv = 1.0f - scale;
-                f32 t0 = ((f32 *)target)[0] * inv;
-                f32 t1 = ((f32 *)target)[1] * inv;
-                f32 t2 = ((f32 *)target)[2] * inv;
-                f32 s0f = sp80[0] * scale;
-                f32 s1f = sp80[1] * scale;
-                f32 s2f = sp80[2] * scale;
-                sp70[0] = t0 + s0f;
-                sp70[1] = t1 + s1f;
-                sp70[2] = t2 + s2f;
-                sp70[3] = 1.0f;
-            }
-            *(V4 *)heap = *(V4 *)sp70;
-            func_001496c0(sp70);
-        } else if ((mode & 0xFF) == 0) {
-            if (count != 0) {
-                return;
-            }
-            *(s32 *)sp9C = *(s32 *)(param + 8);
-            {
-                s32 b0 = sp9C[0];
-                s32 b1 = sp9C[1];
-                s32 b2 = sp9C[2];
-                s32 b3 = sp9C[3];
-                f32 h0; f32 h1; f32 h2;
-                if (b0 >= 0) {
-                    h0 = (f32)(s32)b0;
-                } else {
-                    u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
-                    h0 = (f32)(s32)t;
-                    h0 = h0 + h0;
-                }
-                sp80[0] = D_0076129C * h0;
-                if (b1 >= 0) {
-                    h1 = (f32)(s32)b1;
-                } else {
-                    u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
-                    h1 = (f32)(s32)t;
-                    h1 = h1 + h1;
-                }
-                sp80[1] = D_0076129C * h1;
-                if (b2 >= 0) {
-                    h2 = (f32)(s32)b2;
-                } else {
-                    u32 t = ((u32)b2 >> 1) | ((u32)b2 & 1);
-                    h2 = (f32)(s32)t;
-                    h2 = h2 + h2;
-                }
-                sp80[2] = D_0076129C * h2;
-                if (b3 >= 0) {
-                }
-                sp80[3] = 1.0f;
-            }
-            *(V4 *)heap = *(V4 *)sp80;
-            func_001496c0(sp80);
-        } else {
+    heap = (V4 *)func_001b7050();
+    switch (mode) {
+    case 0:
+        if (count != 0) {
             return;
         }
+        rgba.rgba = param->color.rgba;
+        btlEplRgbaToV4(&color, rgba.c);
+        color.v[3] = 1.0f;
+        *heap = color;
+        func_001496c0(&color);
+        break;
+    case 1:
+        if (count == 0) {
+            *target = *heap;
+        }
+        rgba.rgba = param->color.rgba;
+        btlEplRgbaToV4(&color, rgba.c);
+        inv = 1.0f - scale;
+        a0 = target->v[0] * inv;
+        a1 = target->v[1] * inv;
+        a2 = target->v[2] * inv;
+        b0 = color.v[0] * scale;
+        b1 = color.v[1] * scale;
+        b2 = color.v[2];
+        blend.v[0] = a0 + b0;
+        blend.v[1] = a1 + b1;
+        blend.v[2] = a2 + b2 * scale;
+        blend.v[3] = 1.0f;
+        *heap = blend;
+        func_001496c0(&blend);
+        break;
+    case 2:
+        if (count == total - param->fadeOut) {
+            *target = *heap;
+        }
+        btlEplRgbaToV4(&color, D_007641F8);
+        inv = 1.0f - scale;
+        a0 = color.v[0] * inv;
+        a1 = color.v[1] * inv;
+        a2 = color.v[2] * inv;
+        b0 = target->v[0] * scale;
+        b1 = target->v[1] * scale;
+        b2 = target->v[2];
+        blend.v[0] = a0 + b0;
+        blend.v[1] = a1 + b1;
+        blend.v[2] = a2 + b2 * scale;
+        blend.v[3] = 1.0f;
+        *heap = blend;
+        func_001496c0(&blend);
+        break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlEPL", func_001fec00);
-#endif
 // FUN_001FF300
 s32 *func_001ff300(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *result;
