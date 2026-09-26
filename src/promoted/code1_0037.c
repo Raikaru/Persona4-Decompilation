@@ -505,6 +505,7 @@ void func_00379e90(u8 *arg0, s32 arg1, f32 *arg2) {
    argument narrowed at the call, as retail does. */
 #pragma push
 #pragma opt_dead_assignments off
+// measured: loop invariants hoist (u16)mod out of the deal loops as retail does
 #pragma opt_loop_invariants on
 // FUN_00379F90
 s32 func_00379f90(u8 *arg0) {
@@ -866,6 +867,7 @@ extern s32 func_00379d70(u8 *arg0);
    func_00379f90: the deal loop spreads the cards 150 units left or right by
    index parity and lifts them 100 units. */
 #pragma push
+// measured: MISMATCH without loop invariants (in-file build); retail hoists (u16)mod out of the loops
 #pragma opt_loop_invariants on
 // FUN_0037AD10
 s32 func_0037ad10(u8 *arg0) {
@@ -1213,39 +1215,43 @@ void func_0037bac0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     points.second.z = points.first.z;
     func_00375e50(arg0, arg1, arg2, arg3, &points.base.x);
 }
-// FUN_0037BC80 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_dead_assignments off
+/* Deal state machine for the third shuffle layout.  It is the twin of
+   func_00379f90 and func_0037ad10.  The deal loop hands each card to
+   func_0037bac0, and the fan step also sets the per-card offset
+   through func_00378c80. */
+#pragma push
+// measured: MISMATCH without loop invariants (in-file build); retail hoists (u16)mod out of the loops
+#pragma opt_loop_invariants on
+// FUN_0037BC80
 s32 func_0037bc80(u8 *arg0) {
     struct Vec3 {
         f32 x;
         f32 y;
         f32 z;
     };
-    struct {
-        struct Vec3 v0;
-        struct Vec3 v1;
-        struct Vec3 v2;
-    } work;
+    struct Vec3 v2;
+    struct Vec3 v1;
+    struct Vec3 v0;
     f32 factor;
-    f32 f0;
-    f32 f1;
+    f32 base;
     u8 *sbase;
     u8 *sbase2;
     u8 *deck;
     s32 mod;
     s32 i;
+    s32 j;
+    s32 offset;
+    s32 k;
     s32 sel;
     s32 m;
-    u16 dur;
     sbase = arg0 + 0x1F1D0;
-    mod = ((s32)*(u16 *)(sbase + 2) / *(s32 *)(arg0 + 0x1F304)) & 0xFFFF;
+    mod = (u16)(*(u16 *)(sbase + 2) / *(s32 *)(arg0 + 0x1F304));
     switch (*(u32 *)(arg0 + 0x1F2F8)) {
     case 0:
         if (func_00378a70(arg0, *(s32 *)(arg0 + 0x1F304)) == 0) {
             break;
         }
-        sbase2 = sbase;
+        sbase2 = arg0 + 0x1F1D0;
         switch (*(s32 *)(arg0 + 0x1F300)) {
         case 0:
             *(u16 *)(sbase2 + 2) = 0x1A;
@@ -1263,12 +1269,7 @@ s32 func_0037bc80(u8 *arg0) {
             func_0046d730(D_0064EB00, 0x3A);
             break;
         }
-        dur = *(u16 *)(sbase2 + 2);
-        f0 = (f32)(u32)dur;
-        f1 = factor * (f32)(*(s32 *)(arg0 + 0x1F304) - 3) / 5.0f;
-        f1 = 1.0f + f1;
-        f1 = f0 * f1;
-        *(u16 *)(sbase2 + 2) = (u16)f1;
+        *(u16 *)(sbase2 + 2) = *(u16 *)(sbase2 + 2) * (1.0f + factor * (*(s32 *)(arg0 + 0x1F304) - 3) / 5.0f);
         *(s32 *)(sbase + 0xC) = -1;
         if (func_00379240(arg0) != 0) {
             *(u32 *)(arg0 + 0x1F2F8) = 1;
@@ -1282,9 +1283,7 @@ s32 func_0037bc80(u8 *arg0) {
         }
         *(u32 *)(arg0 + 0x1F2F8) = 2;
     case 2: {
-        u16 tmp = *(u16 *)(arg0 + 0x1F2F0) + 1;
-        *(u16 *)(arg0 + 0x1F2F0) = tmp;
-        if (((s32)(tmp & 0xFFFF) < 0)) {
+        if (++*(u16 *)(arg0 + 0x1F2F0) < 0) {
             break;
         }
         deck = *(u8 **)(arg0 + 0x1F298);
@@ -1301,8 +1300,8 @@ s32 func_0037bc80(u8 *arg0) {
             *(u32 *)(arg0 + 0x1F2F8) = 4;
             *(s32 *)(sbase + 8) = 0;
             for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
-                m = (mod * i) & 0xFFFF;
-                func_0037bac0(arg0, i, m & 0xFFFF, (m + 0x14) & 0xFFFF);
+                m = (u16)mod * i;
+                func_0037bac0(arg0, i, (u16)m, (u16)(m + 0x14));
             }
             func_0045af60(0, 4, 0, 1);
         } else if ((D_008C024E[0] & 0x20) != 0) {
@@ -1311,20 +1310,21 @@ s32 func_0037bc80(u8 *arg0) {
         }
         break;
     case 4:
-        for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
-            if (func_00375970(arg0 + i * 0xE8 + 0x1D6A0) != 0) {
-                func_00375b40(arg0, i, 0, 0xA);
-                m = (mod * (*(s32 *)(arg0 + 0x1F304) - i)) & 0xFFFF;
+        base = 0.0f;
+        for (k = 0; k < *(s32 *)(arg0 + 0x1F304); k++) {
+            if (func_00375970(arg0 + k * 0xE8 + 0x1D6A0) != 0) {
+                func_00375b40(arg0, k, 0, 0xA);
+                offset = ((u16)mod * (*(s32 *)(arg0 + 0x1F304) - k)) & 0xFFFF;
                 sel = *(s32 *)(sbase + 8);
                 if (sel >= *(s32 *)(arg0 + 0x1F304)) {
                     func_0046d730(D_0064EB00, 0x72);
                 }
-                func_0037b8c0(arg0, i, (f32 *)0);
-                func_00378c80(arg0, i, m);
-                work.v2 = *(struct Vec3 *)(arg0 + i * 0xE8 + 0x1D6CC);
-                work.v1 = *(struct Vec3 *)(arg0 + i * 0xE8 + 0x1D6D8);
-                work.v0 = *(struct Vec3 *)(arg0 + i * 0xE8 + 0x1D6E4);
-                func_00375fa0(arg0, i, m, &work.v2.x, &work.v1.x, &work.v0.x, 0.0f, 0.0f + (360.0f / (f32)*(s32 *)(arg0 + 0x1F304)) * (f32)(*(s32 *)(arg0 + 0x1F304) - sel));
+                func_0037b8c0(arg0, k, (f32 *)0);
+                func_00378c80(arg0, k, offset);
+                v2 = *(struct Vec3 *)(arg0 + k * 0xE8 + 0x1D6CC);
+                v1 = *(struct Vec3 *)(arg0 + k * 0xE8 + 0x1D6D8);
+                v0 = *(struct Vec3 *)(arg0 + k * 0xE8 + 0x1D6E4);
+                func_00375fa0(arg0, k, offset, &v2.x, &v1.x, &v0.x, base, base + (360.0f / (f32)*(s32 *)(arg0 + 0x1F304)) * (f32)(*(s32 *)(arg0 + 0x1F304) - sel));
                 (*(s32 *)(sbase + 8))++;
             }
         }
@@ -1337,9 +1337,7 @@ s32 func_0037bc80(u8 *arg0) {
         *(u16 *)(arg0 + 0x1F2F0) = 0;
         *(u16 *)(sbase + 4) = func_00378bf0();
     case 5: {
-        u16 tmp = *(u16 *)(arg0 + 0x1F2F0) + 1;
-        *(u16 *)(arg0 + 0x1F2F0) = tmp;
-        if ((tmp & 0xFFFF) < *(u16 *)(sbase + 4)) {
+        if (++*(u16 *)(arg0 + 0x1F2F0) < *(u16 *)(sbase + 4)) {
             break;
         }
         *(u32 *)(arg0 + 0x1F2F8) = 7;
@@ -1377,9 +1375,9 @@ s32 func_0037bc80(u8 *arg0) {
             break;
         }
         func_00378df0(arg0, *(s32 *)(sbase + 0xC));
-        for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
-            if (i != *(s32 *)(sbase + 0xC)) {
-                func_00376290(arg0, i, 0xF, 0xFF, 0);
+        for (j = 0; j < *(s32 *)(arg0 + 0x1F304); j++) {
+            if (j != *(s32 *)(sbase + 0xC)) {
+                func_00376290(arg0, j, 0xF, 0xFF, 0);
             }
         }
         func_0045af60(1, 0, 5, 1);
@@ -1388,9 +1386,9 @@ s32 func_0037bc80(u8 *arg0) {
         if (func_00375910(arg0 + (*(s32 *)(sbase + 0xC) * 0xE8) + 0x1D6A0) == 0) {
             break;
         }
-        for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
-            if (i != *(s32 *)(sbase + 0xC)) {
-                func_00375890(arg0, i, 0);
+        for (j = 0; j < *(s32 *)(arg0 + 0x1F304); j++) {
+            if (j != *(s32 *)(sbase + 0xC)) {
+                func_00375890(arg0, j, 0);
             }
         }
         *(u16 *)(sbase + 0) = *(u16 *)(sbase + 0) & 0xFFFE;
@@ -1421,8 +1419,7 @@ s32 func_0037bc80(u8 *arg0) {
         if (*(u16 *)(arg0 + 0x1F2F4) & 2) {
             *(u16 *)(arg0 + 0x1F2F4) = *(u16 *)(arg0 + 0x1F2F4) & 0xFFFD;
         }
-        *(u16 *)(arg0 + 0x1F2F0) = *(u16 *)(arg0 + 0x1F2F0) + 1;
-        if ((*(u16 *)(arg0 + 0x1F2F0) & 0xFFFF) < 0x1E) {
+        if (++*(u16 *)(arg0 + 0x1F2F0) < 0x1E) {
             break;
         }
         func_00106390(0x1431, 1);
@@ -1433,18 +1430,15 @@ s32 func_0037bc80(u8 *arg0) {
         break;
     }
     if (*(u16 *)(sbase + 0) & 1) {
-        for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
-            if (i != *(s32 *)(sbase + 0xC)) {
-                func_00378c80(arg0, i, mod);
+        for (j = 0; j < *(s32 *)(arg0 + 0x1F304); j++) {
+            if (j != *(s32 *)(sbase + 0xC)) {
+                func_00378c80(arg0, j, mod);
             }
         }
     }
     return 0;
 }
-#pragma opt_dead_assignments on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0037", func_0037bc80);
-#endif
+#pragma pop
 // FUN_0037ED90
 s32 func_0037ed90(u8 *arg0, s32 arg1) {
     f32 work[4];
