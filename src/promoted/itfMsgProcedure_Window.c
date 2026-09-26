@@ -3065,18 +3065,58 @@ lab5b_chk:;
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_00283490);
 #endif
 
-/* Floor (measured 2026-09-18, source-repo only): banked 182 words (loop_invariants), fnalign 522/519/52 (+114 reloc), emitted 2076B/window 2096B (99.05%% PASS). Full 8+28 sweep: loop 182 ties with loop+dead/loop+prop/loop+strength/loop+unroll 182; bare/new singles 189, cse 365, peephole 418, schedule 446, no pair beats 182 -- installed loop stands (worth 7w/2ed via scan-loop base hoist; cseoff +176, peephole +236). Residual is register/branch-form only (case8 saved-vs-v0, scan-loop bnez/b vs beqz, gp sltu join, case17 double-branch); dsll32 2/2 exact, var_2 join exact, jtbl exact. Banked as guarded floor; production stays ASM. */
-// FUN_002848C0 NONMATCHING
-#ifdef NON_MATCHING
+#pragma push
+/* measured: byte-exact (522/522 instructions, 0 differing words).  The three
+   small helpers are inlined by retail: the free-entry scan's `return e` is the
+   unthreaded `bnez`/`b` pair, the resource check (the body of func_002833b0
+   for slot 0) and the two-flag ready test each leave their own join.  Case 17
+   keeps its `ret = 0` arm, which is the double branch after func_0027bec0.
+   opt_loop_invariants is worth 9 words here (hoists the scan-loop base). */
 #pragma opt_loop_invariants on
+static inline MsgProcWindowEntry *msgWinFindFreeEntry(void)
+{
+    s32 i;
+    MsgProcWindowEntry *e;
+
+    for (i = 0; i < 8; i++) {
+        e = &D_008820B0[i];
+        if ((e->field0 & 1) == 0) {
+            return e;
+        }
+    }
+    return NULL;
+}
+
+static inline u32 msgWinResource(void)
+{
+    MsgProcWindowWork *work = &D_00882098;
+
+    if (func_00452380(D_0063C180) != 0) {
+        if (work->field0 >= 2) {
+            return work->field4;
+        }
+    } else if (func_00452380(D_0063C180) == 0) {
+        memset(work, 0, 12);
+        func_00451fc0(NULL, D_0063C180, 15, 0, 0, func_002831c0, func_002832b0, NULL);
+    }
+    return 0;
+}
+
+static inline s32 msgWinReady(void)
+{
+    if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+// FUN_002848C0
 s32 func_002848c0(void *arg0, s32 arg1)
 {
     s32 ret;
-    s32 v;
     void *p1;
     void *p2;
     f32 f;
-    s32 i;
     MsgProcWindowEntry *e;
     s32 t;
     s32 w1;
@@ -3095,28 +3135,7 @@ s32 func_002848c0(void *arg0, s32 arg1)
         memset(&D_00882080, 0, 24);
         break;
     case 4:
-        {
-            MsgProcWindowWork *work = &D_00882098;
-            if (func_00452380(D_0063C180) != 0) {
-                if (work->field0 >= 2) {
-                    v = work->field4;
-                    goto lab4_chk;
-                }
-            } else {
-                if (func_00452380(D_0063C180) == 0) {
-                    memset(work, 0, 12);
-                    (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
-                } else {
-                    goto lab4_zero;
-                }
-                goto lab4_zero2;
-            }
-lab4_zero:
-lab4_zero2:
-            v = 0;
-lab4_chk:;
-        }
-        if (v != 0 && func_0027bec0(arg0) != 0) {
+        if (msgWinResource() != 0 && func_0027bec0(arg0) != 0) {
             if ((D_00882080[0] & 2) == 0) {
                 D_00882080[0] |= 2;
                 D_00882084[0] = 0;
@@ -3140,25 +3159,7 @@ lab4_chk:;
         }
         break;
     case 5:
-        {
-            MsgProcWindowWork *work = &D_00882098;
-            if (func_00452380(D_0063C180) != 0) {
-                if (work->field0 >= 2) {
-                    v = work->field4;
-                    goto lab5_chk;
-                }
-            } else {
-                if (func_00452380(D_0063C180) == 0) {
-                    memset(work, 0, 12);
-                    (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
-                }
-                goto lab5_zero;
-            }
-lab5_zero:
-            v = 0;
-lab5_chk:;
-        }
-        if (v != 0 && func_0027bec0(arg0) != 0) {
+        if (msgWinResource() != 0 && func_0027bec0(arg0) != 0) {
             if ((D_00882080[0] & 2) == 0) {
                 D_00882080[0] |= 2;
                 D_00882084[0] = 0;
@@ -3187,14 +3188,12 @@ lab5_chk:;
         }
         break;
     case 8:
-        p1 = (void *)func_00278fd0(arg0);
-        if (p1 != NULL) {
+        if ((p1 = (void *)func_00278fd0(arg0)) != NULL) {
             func_00272a10(p1, 400.0f, 170.0f);
             func_002728c0(p1, 0);
             func_00272b00(p1, 0);
         }
-        p2 = (void *)func_00278fb0(arg0);
-        if (p2 != NULL) {
+        if ((p2 = (void *)func_00278fb0(arg0)) != NULL) {
             func_00272a10(p2, 202.0f, (f32)281);
             func_002728c0(p2, 0);
             func_00272b50(p2, 0, 0);
@@ -3205,14 +3204,7 @@ lab5_chk:;
         break;
     case 7:
         f = (f32)D_00882084[0];
-        for (i = 0; i < 8; i++) {
-            e = &D_008820B0[i];
-            if ((e->field0 & 1) == 0) {
-                goto lab7_found;
-            }
-        }
-        e = NULL;
-lab7_found:
+        e = msgWinFindFreeEntry();
         if (e != NULL) {
             memset(e, 0, 24);
             e->field0 |= 1;
@@ -3249,13 +3241,7 @@ lab7_found:
         break;
     case 16:
         if (func_0027bec0(arg0) != 0) {
-            s32 ok;
-            if (iGpffffb4d8 == 0 || iGpffffb4dc == 0) {
-                ok = 0;
-            } else {
-                ok = 1;
-            }
-            if (ok != 0) {
+            if (msgWinReady() != 0) {
                 s32 c = D_00882088[0];
                 if ((D_00882080[0] & 0x20) == 0) {
                     D_00882080[0] |= 0x20;
@@ -3272,17 +3258,13 @@ lab7_found:
         }
         break;
     case 17:
-        func_0027bec0(arg0);
+        if (func_0027bec0(arg0) != 0) {
+            ret = 0;
+        }
         break;
     case 18:
         if (func_0027bec0(arg0) != 0) {
-            s32 ok2;
-            if (iGpffffb4d8 == 0 || iGpffffb4dc == 0) {
-                ok2 = 0;
-            } else {
-                ok2 = 1;
-            }
-            if (ok2 != 0) {
+            if (msgWinReady() != 0) {
                 s32 c = D_00882088[0];
                 if ((D_00882080[0] & 0x80) == 0) {
                     D_00882080[0] |= 0x80;
@@ -3303,7 +3285,4 @@ lab7_found:
     }
     return ret;
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_002848c0);
-#endif
+#pragma pop
