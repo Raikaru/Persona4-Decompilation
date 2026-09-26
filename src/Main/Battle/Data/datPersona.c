@@ -64,7 +64,7 @@ extern u8 *func_0010b060(u16 personaId);
 u16 *func_0010a900(u16 character);
 
 // FUN_001092F0
-u32 func_001092f0(u32 arg0)
+u16 func_001092f0(u32 arg0)
 {
     return *(u16 *)(arg0 + 2);
 }

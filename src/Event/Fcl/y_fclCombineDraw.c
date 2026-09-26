@@ -139,7 +139,7 @@ extern s32 func_00279350(f32, f32, f32, s32, s32, s32, s32, s32, s32, u8 *);
 extern int func_00275820(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
 extern void func_0034a640(s32, u16, s32);
 extern s32 func_0034a630(u8 *);
-extern u8 func_00109280(s32);
+extern u8 func_00109280(u16);
 extern void func_0011d1d0(u8 *, f32);
 extern s8 func_00331640(void);
 extern void func_00330e50(s32, FclVec2, f32, s32, u8, s32, f32, f32, void *);

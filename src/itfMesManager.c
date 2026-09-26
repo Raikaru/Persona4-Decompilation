@@ -14,7 +14,7 @@ u32 func_002786c0(int param_1,int param_2,int param_3);
 extern void func_00278450(int a, int b, char *c);
 extern int func_002438b0(int arg0);
 extern int func_00243840(int arg0);
-extern int func_00109220(int arg0);
+extern u8 *func_00109220(u16 arg0);
 extern char iGpffffa760;
 extern int iGpffffb444;
 
@@ -66,7 +66,7 @@ s32 func_002438b0(s32 arg0);
 s32 func_00243840(s32 arg0);
 u32 func_0010d620(s16 arg0);
 u32 func_001067f0(s16 arg0);
-s32 func_00109220(s32 arg0);
+u8 *func_00109220(u16 arg0);
 extern char iGpffffa760;
 extern s32 iGpffffb444;
 int func_00278de0(int param_1, int param_2);

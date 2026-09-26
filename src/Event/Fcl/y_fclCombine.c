@@ -42,7 +42,7 @@ extern u32 RpRandom(void);
 extern s8 D_007490F8[];
 extern u16 *func_0010ace0(s16);
 extern s32 func_0010b6f0(void);
-extern u8 func_00109280(s32);
+extern u8 func_00109280(u16);
 extern s32 func_00331660(void);
 extern s8 func_002bab80(void *);
 extern void func_002badc0(s8, s32);
@@ -1516,14 +1516,9 @@ typedef struct {
     s8 f2E4;
 } FclPartySlot;
 
-/* Byte-exact (15048/15056, 0 per-case edits) but parked: it needs a local
-   `func_00310a10(u8 *, u16)` declaration narrower than that function's s32
-   definition in this file, which docs/STYLE.md forbids and the original source
-   cannot have contained. The class-id source shape (field type / read form) that
-   lets one lhu value reach both u16 and int callees unmasked is still unknown.
-   See docs/probe_archive/FclCombine_002ed430_recovery_20260925.md. */
-// FUN_002ED430 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: 15048B/window 15056B, eight zero alignment bytes. See
+   docs/probe_archive/FclCombine_002ed430_recovery_20260925.md. */
+// FUN_002ED430
 void func_002ed430(u8 *arg0) {
     extern s32 func_00104c70(s32);
     extern s32 func_0010b5b0(void);
@@ -1562,13 +1557,6 @@ void func_002ed430(u8 *arg0) {
     extern s32 func_002b2d00(s32, s32, s32, s32, s8);
     extern void func_002ba970(s32, s8, s32);
     extern void func_00310960(u8 *, s32, s32);
-    /* STYLE exception, measured: narrower than the s32 definition. Retail passes
-       the lhu class id in one register unmasked to both func_00105f50 and this
-       callee. That needs a u16 value into a u16 parameter here; any 32-bit form
-       (s32/u32 temp, casts, unprototyped) adds an andi at one of the two calls.
-       A u16 definition renormalises arg1 in place (5 words). Making the whole
-       contract 32-bit (105f50 and 34a640 s32) breaks func_003097e0 or
-       y_fclCombineDraw func_0032c480. See FclCombine_002ed430_recovery_20260925.md. */
     extern void func_00310a10(u8 *, u16);
     extern s32 func_00311930(s32, u8 *, s8);
     extern s32 func_00312bc0(s32);
@@ -2487,9 +2475,6 @@ void func_002ed430(u8 *arg0) {
         break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ed430);
-#endif
 
 /* measured: func_002f0f00 recon + jump-table recovery + guarded body installed (see below). */
 /* Retail 24048B = 6012 instrs, band 5832-6192 (+-3%: 6012*0.97=5831.64, 6012*1.03=6192.36). Frame 0x400 */
@@ -2740,7 +2725,7 @@ void func_002f0f00(u8 *arg0) {
     extern f32 iGpffff8504;
     extern void func_002f9c30(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 *, s32, s8, s8);
     extern void func_00310960(u8 *, s32, s32);
-    extern void func_00310a10(u8 *, s32);
+    extern void func_00310a10(u8 *, u16);
 
     u8 *s0;
     u8 sp3FD;
@@ -4358,11 +4343,13 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f0f00);
    builders passed straight into 002ba5d0 keep retail's call order; the object ids
    reused inside the selected-row branch are locals computed before their first
    colour call; the row index is copied into its own local at each branch. */
-/* Byte-exact when func_00105f50 is declared (u32), but parked: its definition
-   in g_data.c takes u16, and with the real prototype the case 0x59 call masks
-   the lhu item id (andi 0xffff) where retail passes it unmasked (8 words). This
-   is the same one-lhu-value-to-u16-and-int-callees shape as func_002ed430; see
-   docs/probe_archive/FclCombine_002ed430_recovery_20260925.md. */
+/* Parked: with every declaration agreeing with its definition this is 4 words
+   off, all at one call. Case 0x59 passes the lhu item id unmasked to
+   func_00313ae0, but that function's definition (code1_0031.c) takes a wider
+   parameter and masks it on entry (retail andi $a1, 0xffff), which b210 only
+   emits for a wider parameter; a u16 prototype here matches this caller but not
+   the callee. func_00310a10 and func_00105f50 take u16 (see
+   docs/probe_archive/FclCombine_002ed430_recovery_20260925.md). */
 // FUN_002F6CF0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -4377,7 +4364,7 @@ void func_002f6cf0(u8 *arg0) {
     extern void func_00317240(u8 *, s64, f32);
     extern s32 func_003190d0(u8 *);
     extern void func_00310960(u8 *, s32, s32);
-    extern void func_00310a10(u8 *, s32);
+    extern void func_00310a10(u8 *, u16);
     extern void func_00325450(u8 *, s32, s32);
     extern void func_00313800(s8);
     extern void func_00316470(u8 *, s64, s64);
@@ -4401,8 +4388,8 @@ void func_002f6cf0(u8 *arg0) {
     extern void func_003144d0(u8 *, s32, s8, s32, s32);
     extern void func_00314450(u8 *, s32, u8, s32);
     extern s32 func_00311930(s32, u8 *, s8);
-    extern s32 func_00313ae0(s32, s32);
-    extern s32 func_00313a80(s32, s32);
+    extern s64 func_00313ae0(s64, s32);
+    extern s32 func_00313a80(s64, s64);
     extern void func_002f9c30(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 *, s32, s8, s8);
     extern u8 D_00795E60[];
     extern f32 D_00640E70[];
@@ -4454,7 +4441,7 @@ void func_002f6cf0(u8 *arg0) {
     s32 row;
     s32 objB;
     s32 objC;
-    s32 item;
+    u16 item;
     u8 shade;
     u16 buttons;
 
@@ -5575,7 +5562,7 @@ void func_002fbea0(u8 *arg0) {
     extern u8 D_00795E60[];
     extern s32 func_0010b190(u8 *);
     extern s32 func_001099f0(u16 *, s32);
-    extern s32 func_003026c0(s32, s32);
+    extern s32 func_003026c0(u16, s32);
     extern s32 func_002e7a60(void);
     extern void func_002e7a80(s32);
     extern void func_002bbd80(s8, s32, void *);
@@ -5584,7 +5571,7 @@ void func_002fbea0(u8 *arg0) {
     extern void *func_0046a770(void *);
     extern s32 func_00331560(void);
     extern u8 D_00641B30[];
-    extern u8 func_00109280(s32);
+    extern u8 func_00109280(u16);
     extern void func_002ba5d0(u8 *, s32, s32, s64, s32, s64, f32);
     extern void func_0032c0c0(u8 *, s32);
     extern void func_002bafc0(s8, s32);
@@ -7378,7 +7365,7 @@ s32 func_00302570(u8 *arg0) {
 }
 
 // FUN_003026C0
-s32 func_003026c0(s32 arg0, s32 arg1)
+s32 func_003026c0(u16 arg0, s32 arg1)
 {
     s16 i;
 
@@ -12566,8 +12553,10 @@ void func_00310960(u8 *arg0, s32 arg1, s32 arg2)
         func_002bbf60();
     }
 }
+/* measured: u16 class id, as its three callers pass it (raw lhu). With
+   func_00109280(u16), the row index masks into a temp, as retail does. */
 // FUN_00310A10
-void func_00310a10(u8 *arg0, s32 arg1) {
+void func_00310a10(u8 *arg0, u16 arg1) {
     s8 *p = *(s8 **)(arg0 + 0x38);
     s8 *t;
     s32 s0;
@@ -12576,7 +12565,7 @@ void func_00310a10(u8 *arg0, s32 arg1) {
     u8 x;
 
     s0 = D_00749480[func_002e78a0() & 0xFF] * 100 + (func_002e78e0() & 0xFF);
-    x = iGpffffb3d4[(arg1 & 0xFFFF) * 14 + 2];
+    x = iGpffffb3d4[arg1 * 14 + 2];
     t = D_00641A60 + x * 4;
     s4 = D_00749480[t[0]] * 100 + t[1];
     s3 = D_00749480[t[2]] * 100 + t[3];

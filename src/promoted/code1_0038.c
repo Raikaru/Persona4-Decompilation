@@ -92,7 +92,7 @@ s32 func_00380980(u8 *arg0)
         u16 value2;
     } Result;
     extern s32 func_0036f640(s32 arg0, s32 *arg1);
-    extern u8 *func_00109220(s32 arg0);
+    extern u8 *func_00109220(u16 arg0);
     extern u8 *func_00243840(s32 arg0);
     extern s32 func_002bad10(s32 arg0);
     extern void func_002bbd20(s32 arg0, void *arg1);
@@ -1341,7 +1341,7 @@ void func_00387e70(u8 *arg0)
 {
     extern s32 func_0046a770(void *arg0);
     extern s32 func_0010b5b0(void);
-    extern u8 func_00109280(s32 arg0);
+    extern u8 func_00109280(u16 arg0);
     extern s32 datPersonaGetLevel(s32 arg0);
     extern int func_00275020(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
     extern void func_00364c90(s64 pos, s32 color, s32 mode, f32 rotation, f32 width, f32 height, f32 alpha);

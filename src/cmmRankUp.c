@@ -138,7 +138,7 @@ extern u8 D_005DC974[];
 extern s64 func_00248760(s32 arg0);
 extern u8 *func_002438b0();
 extern u8 *func_00246d90();
-extern u8 *func_00109220();
+extern u8 *func_00109220(u16 personaId);
 
 /* Old-style: the two callbacks passed here (func_00251e60 takes one s32,
  * func_00251ec0 takes none) do not share a signature, and a typed prototype
@@ -3232,7 +3232,7 @@ extern u8 *func_002438b0();
 extern u8 *func_00246830(u32);
 extern u8 *func_002468a0();
 extern u8 *func_00246d90();
-extern u8 *func_00109220(s32 personaId);
+extern u8 *func_00109220(u16 personaId);
 extern char *strcpy(char *destination, const char *source);
 extern void func_00275980(char *source, char *destination, s32 capacity);
 extern void func_002bbd80(s8 handle, s32 variable, void *text);

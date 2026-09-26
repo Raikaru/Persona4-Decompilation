@@ -67,7 +67,7 @@ extern f32 fGpffff83b0;
 extern u8 *func_0010ace0(s16 arg0);
 extern s32 func_0010b510(void);
 extern s32 datPersonaGetLevel(u8 *arg0);
-extern s32 func_00109220(s32 arg0);
+extern u8 *func_00109220(u16 arg0);
 extern u16 func_00272c60(s16 arg0);
 extern u16 func_00272c80(u16 arg0);
 

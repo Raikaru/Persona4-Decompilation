@@ -252,7 +252,7 @@ extern u8 *func_00194470(s32 arg0, s32 arg1);
 extern float func_001d4380(int arg0);
 extern s32 func_00197a80(u8 *arg0);
 extern s32 func_0010d740(s16 arg0);
-extern s32 func_00109220(u16 arg0);
+extern u8 *func_00109220(u16 arg0);
 extern s32 iGpffffb444;
 extern s32 btlUnitIsMoving(u8 *arg0);
 extern s32 func_0019f8a0(u8 *arg0);
@@ -4891,7 +4891,7 @@ s32 func_0019f050(u8 *arg0)
                                       (s32)iGpffffb444);
         break;
     case 2:
-        result = func_00109220(id);
+        result = (s32)func_00109220(id);
         break;
     default:
         break;
@@ -4924,7 +4924,7 @@ s32 func_0019f0f0(u8 *arg0)
                                           (s32)iGpffffb444);
             break;
         case 2:
-            result = func_00109220(id);
+            result = (s32)func_00109220(id);
             break;
         default:
             break;

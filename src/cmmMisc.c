@@ -34,7 +34,7 @@ extern u16 func_00108ee0(void);
 extern s32 func_001093a0(s32 idx);
 extern s64 func_00248760(s32 idx);
 extern s32 func_001077f0(u16 idx);
-extern s32 func_00109280(s32 idx);
+extern u8 func_00109280(u16 idx);
 extern s32 func_00109300(s32 idx);
 extern s32 func_0010b6f0(void);
 extern void func_001104d0(s32 seed, s32 *month, s32 *day);
