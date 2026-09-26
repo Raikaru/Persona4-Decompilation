@@ -114,7 +114,7 @@ Body: `C31B_00313d20_body_r2_20260926.c` (the round 1 body with two changes).
   `tools/permute_ast.py` loses the function's push/pop pragmas (base score 939),
   so it cannot be used here.
 
-### mc.c `func_002a5f00`: 70 -> 59 words
+### mc.c `func_002a5f00`: 70 -> 58 words
 
 Body: `Mc_002a5f00_body_r2_20260926.c`.
 
@@ -122,7 +122,10 @@ Body: `Mc_002a5f00_body_r2_20260926.c`.
   `!= -1` (-2 words).
 - `scale = D_00761120 * sinf(...); scale = 1.0f + scale;` in two statements
   stops b210 fusing the mul and add into `adda.s`/`madd.s`, as retail does (-9).
-  `scale = 1.0f; scale += ...` fuses again (76).
+  `scale = 1.0f; scale += ...` fuses again (76). A separate `wave` local
+  (`scale = 1.0f + wave;`) also fixes the add operand order (58). The literal
+  floats (0.001f, 0.2f, 13107.2f, 0.1f, pi) tie with the gp names. The
+  declaration order is inert (45-step hill-climb), and `p` declared last is worse (83).
 - Residual (59): the saved-register rotation from round 1 (`p` is `$s4`
   here, `$s0` in retail), the f20/f21 x/y swap, and two commutative float
   operand orders (`d * 0.5f` and `1.0f + scale`). Neither spelling order, an
@@ -198,3 +201,31 @@ under `opt_loop_invariants on`).
   `$s1`, `dst` in `$s2` and `cam` in `$s3`. Declaration order (16 permutations),
   block-scoping the loop variables, an explicit `even` local, and inlining `tmp`
   do not move it.
+
+### mc.c `func_002a4f20`: 391 -> 96 words (fresh rewrite)
+
+Body: `Mc_002a4f20_body_r2_20260926.c` (1796 B of 1808 B, under
+`opt_loop_invariants on`). This is the fade-in twin of `func_002a5f00`, written
+from that draft rather than the old m2c floor. The old floor's gp names were
+wrong: the sine scale at `-0x7F6C($gp)` is `D_00761184` (pi/2), and the
+`D_00761304/08/0C` and `D_00761120/74` reads are the same constants that
+`002a5f00` uses.
+
+- `func_00452560((void *)arg0)` is a direct call; retail leaves `arg0` in `$a0`.
+- `alpha = 255.0f * fade;` is a plain signed conversion (`cvt.w.s`), passed to
+  `func_002a6b60`/`6c30`/`2a9f50`.
+- `slide = sinf(D_00761184 * (f32)frame / 30.0f);`. The first loop passes
+  `x - 350.0f * (1.0f - slide)`, which LICM hoists; the last block uses
+  `400.0f * (1.0f - slide)`.
+- `wave = 0.1 * sinf(...); scale = 1.0f + wave;` with a separate `wave` local
+  gives retail's `add.s $f22, $f0, $f1` operand order. Reusing `scale` or a
+  single expression does not. The same change takes `002a5f00` from 59 to 58.
+- Declaration order matters here: `p` declared last moves it from `$s4` to
+  retail's `$s1` (149 -> 109). A 45-step hill-climb over the declarations
+  reaches 96.
+- Residual (96, 12 B short): `alpha`/`diff`/`target` rotate over `$s0`/`$s2`/`$s3`
+  (retail `alpha` `$s0`); the slide and x/y floats are coloured f20/f21/f22/f23
+  the other way round; `d * 0.5f` operand order. b210 CSEs the
+  hoisted `1.0f - slide` into the last block, which retail recomputes (one
+  `sub.s`, part of the 12 B). Writing the loop term as `(1.0f - slide) * 350.0f`,
+  as an `ofs` local, or with an `if` block instead of `continue` does not change it.
