@@ -55,8 +55,8 @@ extern u8 *func_00201de0(s32 source, s32 target, s32 id, s16 effect, s16 targetF
 extern u8 *func_001b7e20(s32 arg0);
 extern u8 *func_001b9360(s32 arg0, s32 arg1);
 extern u8 *func_001b99a0(s32 arg0);
-extern s32 datCalcGetHp(u8 *arg0);
-extern s32 datCalcGetSp(u8 *arg0);
+extern u16 datCalcGetHp(s32 unit);
+extern u16 datCalcGetSp(s32 unit);
 extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
 extern s32 func_001b7080(s32 arg0);
 extern s32 func_001b7090(s32 arg0);
@@ -2000,135 +2000,143 @@ s32 func_001b3fb0(void)
     }
     return 0;
 }
-/* measured 001b4060 2026-09-19: explicit frame struct at retail offsets (spA0 0xA0, sp120/124/12C/148/14C) forces spills; object 362/retail 371 -2.4% INSIDE, 314 words, 112 edits (was 355/371 -4.3%, 306 words, 106 edits). Largest hole closed: sp124 4-instr (andi/andi/subu/sw at 0x1b42d4) now spills; remaining pure deletes are 1-instr first-arg moves (0x1b40d4,0x1b4110,0x1b4224,0x1b4368,0x1b43e8,0x1b44a0) + 2-instr ld/lw at 0x1b43f8 (pkt+88 + sp12C reload). Prior: opt_common_subs off 308->306. */
-// FUN_001B4060 NONMATCHING
-#ifdef SKIP_ASM
-#pragma opt_common_subs off
+/* measured: MATCH. Each follow-up packet chains to the +0x58 of the packet
+   it follows (the SE packet, the per-unit formation packet, the result
+   packet), not to its own. Short-lived packets use `next` so they never
+   take a saved register; locals are declared in retail's $s7..$s0 order. */
+// FUN_001B4060
 void func_001b4060(void)
 {
-    u8 *t16;
-    s32 v19;
-    s32 t18;
-    u8 *pkt;
-    struct { u8 pad00[0xA0]; u8 spA0[32]; u8 padC0[0x60]; s32 sp120; s32 sp124; u8 pad128[4]; s32 sp12C; u8 pad130[0x18]; s32 sp148; s32 sp14C; } frame;
-    u8 *v20;
+    union {
+        u8 bytes[0x20];
+        s32 words[8];
+    } result;
+    u8 formation[0x80];
+    s32 camA;
+    s32 camB;
+    u16 maxSp;
+    u8 *sePacket;
+    u8 *unitAction;
+    u8 *unit;
+    s64 last;
+    s32 form;
+    u8 *packet;
+    u8 *action;
+    u8 *next;
+    u8 *camera;
+    u16 maxHp;
+    s32 id;
+    u32 target;
 
-    t16 = *(u8 **)(iGpffffb3ac + 368);
-    v19 = 0;
-    t18 = func_001d3d50(0);
-    func_001d69f0(317, frame.spA0);
-    pkt = func_001d5eb0(t18, frame.spA0, 0);
-    *(s64 *)(pkt + 96) = *(s64 *)t16;
-    func_00194590(pkt, 1);
-    pkt = btlSoundCreateSkillSEPacket(317, 0);
-    *(pkt + 0) = 4;
-    *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-    *(s64 *)(pkt + 96) = *(s64 *)t16;
-    func_00194590(pkt, 1);
-    func_001b7060(317, &frame.sp14C, &frame.sp148);
-    pkt = func_001b7880(frame.sp14C, frame.sp148, 16);
-    *(s64 *)(pkt + 96) = *(s64 *)t16;
-    func_00194590(pkt, 1);
-    t18 = func_001b7080(317);
-    func_001b70a0(317, &frame.sp14C, &frame.sp148);
-    pkt = func_001b83f0(t18, frame.sp14C, frame.sp148, 16, 0);
-    *(s64 *)(pkt + 96) = *(s64 *)t16;
-    func_00194590(pkt, 1);
-    pkt = func_001b9560(func_001b7090(317), 16);
-    *(s64 *)(pkt + 96) = *(s64 *)t16;
-    func_00194590(pkt, 1);
-    pkt = (u8 *)func_001d6240(t18, (u32)t16, (u32)t16, 0, 0);
-    *(pkt + 0) = 4;
-    *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-    *(s64 *)(pkt + 96) = *(s64 *)t16;
-    func_00194590(pkt, 2);
-    pkt = func_001f8140(0);
-    *(pkt + 0) = 5;
-    *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-    func_00194590(pkt, 1);
-    v20 = *(u8 **)(iGpffffb3ac + 376);
-    while (v20 != NULL) {
-        u8 *t21;
-        s32 v0a;
-        s32 v1a;
-        t21 = (u8 *)func_001b0c80((s32)v20);
-        func_001f0a10((u8 *)&frame.sp120);
-        v0a = func_00231f80((DatUnit *)(v20 + 2660)) & 0xFFFF;
-        v1a = func_00232290((DatUnit *)(v20 + 2660)) & 0xFFFF;
-        frame.sp120 = (v0a & 0xFFFF) - (datCalcGetHp(v20 + 2660) & 0xFFFF);
-        frame.sp124 = (v1a & 0xFFFF) - (datCalcGetSp(v20 + 2660) & 0xFFFF);
-        if (datCalcIsDead(*(s32 *)(v20 + 2660), 0) != 0) {
-            frame.sp12C = 0x80000;
+    action = *(u8 **)(iGpffffb3ac + 0x170);
+    last = 0;
+    form = func_001d3d50(0);
+    func_001d69f0(0x13D, formation);
+    packet = func_001d5eb0(form, formation, 0);
+    *(s64 *)(packet + 0x60) = *(s64 *)action;
+    func_00194590(packet, 1);
+    sePacket = btlSoundCreateSkillSEPacket(0x13D, 0);
+    *sePacket = 4;
+    *(s64 *)(sePacket + 8) = *(s64 *)(packet + 0x58);
+    *(s64 *)(sePacket + 0x60) = *(s64 *)action;
+    func_00194590(sePacket, 1);
+    func_001b7060(0x13D, &camA, &camB);
+    next = func_001b7880(camA, camB, 0x10);
+    *(s64 *)(next + 0x60) = *(s64 *)action;
+    func_00194590(next, 1);
+    id = func_001b7080(0x13D);
+    func_001b70a0(0x13D, &camA, &camB);
+    next = func_001b83f0(id, camA, camB, 0x10, 0);
+    *(s64 *)(next + 0x60) = *(s64 *)action;
+    func_00194590(next, 1);
+    next = func_001b9560(func_001b7090(0x13D), 0x10);
+    *(s64 *)(next + 0x60) = *(s64 *)action;
+    func_00194590(next, 1);
+    target = *(u32 *)(action + 0x30);
+    packet = (u8 *)func_001d6240(form, target, target, 0, 0);
+    *packet = 4;
+    *(s64 *)(packet + 8) = *(s64 *)(sePacket + 0x58);
+    *(s64 *)(packet + 0x60) = *(s64 *)action;
+    func_00194590(packet, 2);
+    next = func_001f8140(0);
+    *next = 5;
+    *(s64 *)(next + 8) = *(s64 *)(packet + 0x58);
+    func_00194590(next, 1);
+    for (unit = *(u8 **)(iGpffffb3ac + 0x178); unit != NULL; unit = *(u8 **)(unit + 0xA6C)) {
+        unitAction = func_001b0c80((s32)unit);
+        func_001f0a10(result.bytes);
+        maxHp = func_00231f80(*(DatUnit **)(unit + 0xA64));
+        maxSp = func_00232290(*(DatUnit **)(unit + 0xA64));
+        result.words[0] = maxHp - datCalcGetHp(*(s32 *)(unit + 0xA64));
+        result.words[1] = maxSp - datCalcGetSp(*(s32 *)(unit + 0xA64));
+        if (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) != 0) {
+            result.words[3] = 0x80000;
         }
-        pkt = func_00202740(v20);
-        *(s64 *)(pkt + 96) = *(s64 *)t16;
-        func_00194590(pkt, 1);
-        pkt = (u8 *)func_001d6240(t18, (u32)v20, (u32)v20, 1, 0);
-        *(pkt + 0) = 4;
-        *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-        *(pkt + 16) = 4;
-        *(s64 *)(pkt + 24) = v19;
-        *(s64 *)(pkt + 96) = *(s64 *)t16;
-        func_00194590(pkt, 2);
-        pkt = func_001f8140(1);
-        *(pkt + 0) = 5;
-        *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-        func_00194590(pkt, 1);
-        pkt = btlCameraCreateSetStatePacket(t21, 27);
-        *(pkt + 0) = 5;
-        *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-        *(pkt + 32) = 11;
-        *(s64 *)(pkt + 40) = *(s64 *)(pkt + 88);
-        *(s16 *)(pkt + 74) = 18;
-        *(s64 *)(pkt + 96) = *(s64 *)t16;
-        func_00194590(pkt, 0);
-        if ((frame.sp12C & 0x80000) != 0 && (*(s32 *)(v20 + 156) & 0x200) != 0) {
-            pkt = btlUnitCreateAnimPacket((u8 *)v20, 20, 0, 0, 1.0f);
-            *(pkt + 0) = 11;
-            *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-            *(s64 *)(pkt + 96) = *(s64 *)t16;
-            func_00194590(pkt, 1);
+        next = func_00202740(unit);
+        *(s64 *)(next + 0x60) = *(s64 *)action;
+        func_00194590(next, 1);
+        packet = (u8 *)func_001d6240(form, (u32)unit, (u32)unit, 1, 0);
+        packet[0] = 4;
+        *(s64 *)(packet + 8) = *(s64 *)(sePacket + 0x58);
+        packet[0x10] = 4;
+        *(s64 *)(packet + 0x18) = last;
+        *(s64 *)(packet + 0x60) = *(s64 *)action;
+        func_00194590(packet, 2);
+        next = func_001f8140(1);
+        *next = 5;
+        *(s64 *)(next + 8) = *(s64 *)(packet + 0x58);
+        func_00194590(next, 1);
+        camera = btlCameraCreateSetStatePacket(unitAction, 0x1B);
+        camera[0] = 5;
+        *(s64 *)(camera + 8) = *(s64 *)(packet + 0x58);
+        camera[0x20] = 0xB;
+        *(s64 *)(camera + 0x28) = *(s64 *)(packet + 0x58);
+        *(s16 *)(camera + 0x4A) = 0x12;
+        *(s64 *)(camera + 0x60) = *(s64 *)action;
+        func_00194590(camera, 0);
+        last = *(s64 *)(camera + 0x58);
+        if ((result.words[3] & 0x80000) != 0 && (*(s32 *)(unit + 0x9C) & 0x200) != 0) {
+            next = btlUnitCreateAnimPacket(unit, 0x14, 0, 0, 1.0f);
+            *next = 0xB;
+            *(s64 *)(next + 8) = *(s64 *)(packet + 0x58);
+            *(s64 *)(next + 0x60) = *(s64 *)action;
+            func_00194590(next, 1);
         }
-        pkt = (u8 *)func_001f36e0((s32)v20, (s32)v20, &frame.sp120, 1, 1);
-        *(pkt + 0) = 11;
-        *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-        *(s64 *)(pkt + 96) = *(s64 *)t16;
-        func_00194590(pkt, 1);
-        if (frame.sp120 != 0) {
-            pkt = func_00202590((s32)v20, 0, 0);
-            *(pkt + 0) = 4;
-            *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-            *(pkt + 71) = *(pkt + 71) & 0xDF;
-            func_00194590(pkt, 3);
+        unitAction = (u8 *)func_001f36e0((s32)unitAction, (s32)unitAction, result.bytes, 1, 1);
+        *unitAction = 0xB;
+        *(s64 *)(unitAction + 8) = *(s64 *)(packet + 0x58);
+        *(s64 *)(unitAction + 0x60) = *(s64 *)action;
+        func_00194590(unitAction, 1);
+        if (result.words[0] != 0) {
+            next = func_00202590((s32)unit, 0, 0);
+            *next = 4;
+            *(s64 *)(next + 8) = *(s64 *)(unitAction + 0x58);
+            next[0x47] &= 0xDF;
+            func_00194590(next, 3);
         }
-        pkt = func_00201de0((s32)v20, (s32)v20, -1, 0, 0, 0, 1, (u8 *)&frame.sp120, 0);
-        *(pkt + 0) = 4;
-        *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-        *(pkt + 71) = *(pkt + 71) & 0xDF;
-        func_00194590(pkt, 3);
-        v20 = *(u8 **)(v20 + 2668);
+        next = func_00201de0((s32)unit, (s32)unit, -1, 0, 0, 0, 1, result.bytes, 0);
+        *next = 4;
+        *(s64 *)(next + 8) = *(s64 *)(unitAction + 0x58);
+        next[0x47] &= 0xDF;
+        func_00194590(next, 3);
     }
-    pkt = func_001b7e20(16);
-    *(pkt + 0) = 4;
-    *(s64 *)(pkt + 8) = v19;
-    *(s64 *)(pkt + 96) = *(s64 *)t16;
-    func_00194590(pkt, 1);
-    pkt = func_001b9360(16, 0);
-    *(pkt + 0) = 4;
-    *(s64 *)(pkt + 8) = v19;
-    *(s64 *)(pkt + 96) = *(s64 *)t16;
-    func_00194590(pkt, 1);
-    pkt = func_001b99a0(16);
-    *(pkt + 0) = 4;
-    *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-    *(s64 *)(pkt + 96) = *(s64 *)t16;
-    func_00194590(pkt, 1);
-    func_001d3e00(t18);
+    next = func_001b7e20(0x10);
+    *next = 4;
+    *(s64 *)(next + 8) = last;
+    *(s64 *)(next + 0x60) = *(s64 *)action;
+    func_00194590(next, 1);
+    next = func_001b9360(0x10, 0);
+    *next = 4;
+    *(s64 *)(next + 8) = last;
+    *(s64 *)(next + 0x60) = *(s64 *)action;
+    func_00194590(next, 1);
+    next = func_001b99a0(0x10);
+    *next = 4;
+    *(s64 *)(next + 8) = last;
+    *(s64 *)(next + 0x60) = *(s64 *)action;
+    func_00194590(next, 1);
+    func_001d3e00(form);
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b4060);
-#endif
 // FUN_001B4630
 s32 func_001b4630(void)
 {
