@@ -115,7 +115,7 @@ extern void H_Fade_SetCustomColor(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_002aa3f0(void);
 extern void func_00192b20(void);
 extern void func_00145080();
-extern s32 func_001ba0e0(u8 *arg0);
+extern s32 func_001ba0e0(struct ColorBlendWork *work);
 extern u8 *func_00194470(s32 size, s32 align);
 extern void func_001ec5e0(u8 *arg0, f32 fp);
 extern void func_001b69c0(void);
@@ -3567,89 +3567,53 @@ u32 func_001b7520(void *arg0)
     return 0;
 }
 #pragma pop
-/* Effect-blend floor (1104B window, 273 instrs). Re-derived from m2c
-   (build/m2c/func_001ba0e0.c) + romwright export-c/--types (u8x8 + u32x2
-   arg0 layout, fGpffff81f4 scale, plain (f32)u32 casts) instead of patching
-   the BYTE_FLOAT/goto expansion, which folded (u32)<0 and doubled every
-   unsigned conversion. Simple casts let b210 emit retail's bltz/srl/andi/or
-   sequences; scale-first muls, per-channel &0xFF, and tail increment outside
-   the if/else match retail's layout. Frame 0x20 and head 4+4 match. */
-/* measured 001ba0e0: fnalign retail 273/object 271 instrs, 31 edits +5 reloc-only,
-   no pure hole/lump >=25 (gate composition clean; archived was 268/273 with
-   146 hole vs 119 lump). probe_variants 174 differing words (archived 215).
-   `opt_common_subs off` + `opt_propagation off` both load-bearing (head match
-   and 39->31). Open: start-mul dest $f5 vs $f4 (3 words) and 255/0.5 vs zero
-   prime scheduling (FPU-color/scheduler floor, hidden from fnalign as `??`
-   but counted in verify). Production stays ASM. */
-// FUN_001BA0E0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma push
-#pragma opt_common_subs off
-#pragma opt_propagation off
-s32 func_001ba0e0(u8 *arg0)
+typedef struct { u8 r; u8 g; u8 b; u8 a; } BlendColor;
+typedef struct ColorBlendWork {
+    BlendColor target;
+    BlendColor start;
+    u32 frames;
+    u32 frame;
+} ColorBlendWork;
+static inline u8 blendChannel(u8 start, u8 target, f32 t, f32 inv)
 {
-    extern f32 fGpffff81f4;
+    f32 s = (1.0f / 255.0f) * (f32)start;
+    f32 e = (1.0f / 255.0f) * (f32)target;
+    f32 m = s * inv + e * t;
+    return ((s32)(m * 255.0f + 0.5f)) & 0xFF;
+}
+/* measured: MATCH. The 1/255 scale is the pooled literal, not a global;
+   with it written as a literal no pragmas are needed. The start colour is
+   one struct copy (retail loads all four bytes, then stores them). */
+// FUN_001BA0E0
+s32 func_001ba0e0(ColorBlendWork *work)
+{
     extern u8 *func_00457130(void);
     extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
-    u32 total;
-    u32 cur;
     f32 t;
     f32 inv;
-    f32 s;
-    f32 e;
-    f32 m;
-    u8 o0;
-    u8 o1;
-    u8 o2;
-    u8 o3;
-    u8 b0;
-    u8 b1;
-    u8 b2;
-    u8 b3;
-    if (*(u32 *)(arg0 + 0xC) == 0) {
-        u8 *p = func_00457130();
-        b0 = p[0];
-        b1 = p[1];
-        b2 = p[2];
-        b3 = p[3];
-        arg0[4] = b0;
-        arg0[5] = b1;
-        arg0[6] = b2;
-        arg0[7] = b3;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+
+    if (work->frame == 0) {
+        work->start = *(BlendColor *)func_00457130();
     }
-    total = *(u32 *)(arg0 + 8);
-    cur = *(u32 *)(arg0 + 0xC);
-    if (cur < total) {
-        t = (f32)cur / (f32)total;
+    if (work->frame < work->frames) {
+        t = (f32)work->frame / (f32)work->frames;
         inv = 1.0f - t;
-        s = fGpffff81f4 * (f32)arg0[4];
-        e = fGpffff81f4 * (f32)arg0[0];
-        m = s * inv + e * t;
-        o0 = ((s32)(m * 255.0f + 0.5f)) & 0xFF;
-        s = fGpffff81f4 * (f32)arg0[5];
-        e = fGpffff81f4 * (f32)arg0[1];
-        m = s * inv + e * t;
-        o1 = ((s32)(m * 255.0f + 0.5f)) & 0xFF;
-        s = fGpffff81f4 * (f32)arg0[6];
-        e = fGpffff81f4 * (f32)arg0[2];
-        m = s * inv + e * t;
-        o2 = ((s32)(m * 255.0f + 0.5f)) & 0xFF;
-        s = fGpffff81f4 * (f32)arg0[7];
-        e = fGpffff81f4 * (f32)arg0[3];
-        m = s * inv + e * t;
-        o3 = ((s32)(m * 255.0f + 0.5f)) & 0xFF;
-        func_00457140(o0, o1, o2, o3);
+        r = blendChannel(work->start.r, work->target.r, t, inv);
+        g = blendChannel(work->start.g, work->target.g, t, inv);
+        b = blendChannel(work->start.b, work->target.b, t, inv);
+        a = blendChannel(work->start.a, work->target.a, t, inv);
+        func_00457140(r, g, b, a);
     } else {
-        func_00457140(arg0[0], arg0[1], arg0[2], arg0[3]);
+        func_00457140(work->target.r, work->target.g, work->target.b, work->target.a);
         return 1;
     }
-    *(u32 *)(arg0 + 0xC) += 1;
+    work->frame++;
     return 0;
 }
-#pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001ba0e0);
-#endif
 // FUN_001BA530
 void func_001ba530(s32 arg0, s32 arg1) {
     u8 *o = func_00194470(0x608, 0x10);
