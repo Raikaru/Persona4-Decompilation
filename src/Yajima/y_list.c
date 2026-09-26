@@ -1869,135 +1869,94 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e5ae0);
 #endif
 
-// FUN_002E6230
-s32 func_002e6230(u16 arg0, u16 *arg1) {
-    s32 i = 0;
-    s32 key = arg0 & 0xFFFF;
+/* True when `id` is one of the 13 entries of `exclude`. func_002e6280 uses it
+   inline; func_002e5ae0 calls the out-of-line copy. */
+static inline s32 yListExcluded(u16 id, u16 *exclude)
+{
+    s32 j = 0;
+    s32 key = id & 0xFFFF;
 
-    while (i < 13) {
-        if (*(u16 *)((u8 *)arg1 + i * 2) == key) {
+    while (j < 13) {
+        if (exclude[j] == key) {
             return 1;
         }
-        i++;
+        j++;
     }
     return 0;
 }
 
-/* measured: object 888B/window 944B/normalized_diff 523 (183 differing words, fnalign per current tree). */
-/* measured: current 100-line body re-measured live (was nd73 at 936B in old note, now 888B with TU drift); saved-reg rotation-spill floor with single materialization vs retail v1-retained plus post-j sink and k-join rematerialization; declaration-order, loop-invariant, slti, dead-store and arg-setup levers to be worked top-down via fnalign; full-window body preserved. */
-/* gate: object 222 against retail 233, -4.7% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
-// FUN_002E6280 NONMATCHING
-#ifdef NON_MATCHING
-void func_002e6280(s8 arg0, u8 *arg1, s8 arg2)
-{
-    u8 **slotp;
-    s16 cnt;
-    s16 i;
-    u16 j;
-    u16 k;
-    s16 found;
-    u8 *q;
-    s16 h8;
-    u32 sw1;
-    u32 sw2;
-    u8 *dst1;
-    u8 *dst2;
-    s32 spA0;
-    u8 *gp_tbl;
+// FUN_002E6230
+s32 func_002e6230(u16 arg0, u16 *arg1) {
+    return yListExcluded(arg0, arg1);
+}
 
-    slotp = &D_00882F70[(s8)arg0];
-    if (*slotp == NULL) {
-        return;
-    }
-    gp_tbl = iGpffffb3d4;
-    func_002e5960(arg0);
-    spA0 = (s16)func_002b2cb0((s16)arg2, 3, 99, 1, 1);
-    i = 0;
-    while (((i & 0xFFFF)) < 192) {
-        {
-            u8 *t = *(u8 **)(gp_tbl + i * 14);
-            if (*(t + 2) == 1 && (*(t) & 8) == 0) {
-                u16 id = (u16)i;
-                if (func_00311d00(id) != 0 && func_00311d60(id) != 0) {
-                    found = 0;
-                    j = 0;
-                    while (((j & 0xFFFF)) < 13) {
-                        if (id == *(u16 *)(arg1 + (j & 0xFFFF) * 2)) {
-                            found = 1;
-                            break;
-                        }
-                        j = (j + 1) & 0xFFFF;
-                    }
-                    if (found == 0) {
-                        if (*slotp != NULL) {
-                            k = 0;
-                            found = 0;
-                            while (((s16)k) < *(s32 *)(*(u8 **)(*slotp + 56) + 8)) {
-                                if (i == *(s16 *)(func_002e48a0(arg0, k) + 2)) {
-                                    found = 1;
-                                    break;
-                                }
-                                k = (((s16)k + 1) & 0xFFFF);
-                            }
-                        }
-                        if (found == 0 && func_00311e40(id) == 0 && spA0 >= *(t + 3)) {
-                            h8 = *(s16 *)(*(u8 **)(*slotp + 56) + 8);
-                            q = *(u8 **)(*slotp + 56);
-                            sw1 = *(u32 *)(q + 4);
-                            switch (sw1) {
-                            case 0:
-                            case 2:
-                            case 7:
-                            case 8:
-                                dst1 = q + (h8 * 48) + 20;
-                                break;
-                            case 1:
-                            case 5:
-                            case 6:
-                            case 10:
-                                dst1 = q + (h8 * 48) + 164;
-                                break;
-                            default:
-                                dst1 = q + (h8 * 48) + 20;
-                                break;
-                            }
-                            memset(dst1, 0, 48);
-                            h8 = *(s16 *)(*(u8 **)(*slotp + 56) + 8);
-                            q = *(u8 **)(*slotp + 56);
-                            sw2 = *(u32 *)(q + 4);
-                            switch (sw2) {
-                            case 0:
-                            case 2:
-                            case 7:
-                            case 8:
-                                dst2 = q + (h8 * 48) + 20;
-                                break;
-                            case 1:
-                            case 5:
-                            case 6:
-                            case 10:
-                                dst2 = q + (h8 * 48) + 164;
-                                break;
-                            default:
-                                dst2 = q + (h8 * 48) + 20;
-                                break;
-                            }
-                            func_0010cad0(dst2, id);
-                            *(s16 *)(*(u8 **)(*slotp + 56) + 8) = h8 + 1;
-                        }
-                    }
-                }
-            }
-        }
-        i = (((s16)i + 1) & 0xFFFF);
+static inline u8 *yListEntry(s8 list, s16 index)
+{
+    u8 *p = *(u8 **)(D_00882F70[list] + 0x38);
+
+    switch (*(u32 *)(p + 4)) {
+    case 0:
+    case 2:
+    case 7:
+    case 8:
+        return p + ((index * 3) * 0x10) + 0x14;
+    case 1:
+    case 5:
+    case 6:
+    case 10:
+        return p + ((index * 3) * 0x10) + 0xA4;
+    default:
+        return p + ((index * 3) * 0x10) + 0x14;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6280);
-#endif
+
+static inline s32 yListContains(s8 list, s16 id)
+{
+    s16 k;
+
+    if (D_00882F70[list] != NULL) {
+        for (k = 0; k < *(s32 *)(*(u8 **)(D_00882F70[list] + 0x38) + 8); k++) {
+            if (id == *(u16 *)(func_002e48a0(list, k) + 2)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+#pragma push
+/* measured: MATCH. The exclusion, membership and entry-address steps are
+   inline helpers, which gives retail's 1/0 joins and the two duplicated
+   jump-table switches. The persona id passed to the u16 callees is `i`
+   itself (a separate u16 local changes the saved-register order).
+   measured: loop-invariant motion is required (29 words without it). */
+#pragma opt_loop_invariants on
+// FUN_002E6280
+void func_002e6280(s8 list, u16 *exclude, s8 level)
+{
+    u8 *data;
+    s32 limit;
+    s16 i;
+
+    if (D_00882F70[list] == NULL) {
+        return;
+    }
+    data = *(u8 **)(D_00882F70[list] + 0x38);
+    func_002e5960(list);
+    limit = func_002b2cb0(level, 3, 99, 1, 1);
+    for (i = 0; i < 0xC0; i++) {
+        if (iGpffffb3d4[i * 0xE + 2] == 1 && (*(u16 *)&iGpffffb3d4[i * 0xE] & 8) == 0) {
+            if (func_00311d00(i) != 0 && func_00311d60(i) != 0 && yListExcluded(i, exclude) == 0 &&
+                yListContains(list, i) == 0 && func_00311e40(i) == 0 &&
+                limit >= iGpffffb3d4[i * 0xE + 3]) {
+                memset(yListEntry(list, *(s32 *)(data + 8)), 0, 0x30);
+                func_0010cad0(yListEntry(list, *(s32 *)(data + 8)), i);
+                *(s32 *)(data + 8) += 1;
+            }
+        }
+    }
+}
+#pragma pop
 
 /* measured: 640B/640B, exact instructions and all 44 jump-table entries.
    Keep each signed index's byte offset across its repeated accessor pair.
