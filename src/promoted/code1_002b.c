@@ -229,10 +229,7 @@ f32 func_002b2aa0(s64 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
 // FUN_002B2BD0
 void func_002b2bd0(f32 *arg0, s64 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
 {
-    struct Vec2 {
-        f32 x;
-        f32 y;
-    } sp;
+    FclVec2 sp;
 
     if ((s8)arg1 == 0) {
         sp.x = fparg0 / 2.0f;
@@ -244,7 +241,7 @@ void func_002b2bd0(f32 *arg0, s64 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 
         sp.x = (fparg0 / 2.0f) - (fparg2 / 2.0f);
         sp.y = (fparg1 / 2.0f) - (fparg3 / 2.0f);
     }
-    *(struct Vec2 *)arg0 = sp;
+    *(FclVec2 *)arg0 = sp;
 }
 // FUN_002B2CB0
 s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4) {
@@ -717,18 +714,15 @@ found:
 // FUN_002B3720
 s32 func_002b3720(u8 *arg0)
 {
-    struct Vec2 {
-        f32 x;
-        f32 y;
-    } out;
-    struct Vec2 work;
+    FclVec2 out;
+    FclVec2 work;
     f32 temp_f20;
     u8 *p;
     s32 color;
 
     p = *(u8 **)(arg0 + 0x38);
     func_002b2bd0(&work.x, 0, 136.0f, 136.0f, 21.0f, 22.0f);
-    out = *(struct Vec2 *)&work;
+    out = *(FclVec2 *)&work;
     if (func_002b2960() == 0) {
         return 0;
     }
@@ -1035,7 +1029,7 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
 
     FclBoundsPacket src;
     FclBoundsBytes copy1, copy2;
-    struct Float2 { f32 x; f32 y; } pos1, pos2, tmpA, tmpB, tmpC;
+    FclVec2 pos1, pos2, tmpA, tmpB, tmpC;
     s64 field;
     u8 *object;
     s64 spC0;
@@ -1157,7 +1151,7 @@ void func_002ba5d0(u8 *arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s64 arg5, f
 {
     FclBoundsPacket src;
     FclBoundsBytes copy1, copy2;
-    struct Float2 { f32 x; f32 y; } pos1, pos2;
+    FclVec2 pos1, pos2;
     s64 field;
     u8 *object;
     s64 sp60;

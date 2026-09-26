@@ -6,10 +6,7 @@
 #include "type.h"
 #include "fr_font_internal.h"
 extern void (*jtbl_008873EC[])(void *arg0);
-typedef struct {
-    f32 x;
-    f32 y;
-} f2;
+typedef FclVec2 f2;
 typedef struct {
     u8 c0;
     u8 c1;
@@ -231,29 +228,24 @@ void func_002e09b0(u8 *arg0, f32 fparg0, s16 arg1)
 }
 // FUN_002E09E0
 void func_002e09e0(u8 *arg0, s32 arg1, f32 fparg0) {
-    struct Out2 { f32 x; f32 y; };
     u8 *temp_6 = *(u8 **)(arg0 + 0x38);
     f32 *entry = (f32 *)(D_0063F560 + *(s16 *)(temp_6 + 0xF8) * 8);
     u8 *temp_16;
-    struct Out2 out;
+    f2 out;
     *(s16 *)(temp_6 + 4) |= 1;
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 8) = fparg0;
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
     temp_16 = *(u8 **)(arg0 + 0x38);
     func_002b2970((s64 *)&out, entry[0], entry[1]);
-    *(struct Out2 *)(temp_16 + 0x2C) = out;
+    *(f2 *)(temp_16 + 0x2C) = out;
 }
 
 // FUN_002E0A60
 void func_002e0a60(u8 *arg0, s32 arg1, f32 fparg0)
 {
-    struct Out2 {
-        f32 x;
-        f32 y;
-    };
     u8 *temp_6;
     u8 *temp_3;
-    struct Out2 out;
+    f2 out;
     u8 *temp_17;
     u8 *temp_4;
     u8 *temp_3_2;
@@ -265,7 +257,7 @@ void func_002e0a60(u8 *arg0, s32 arg1, f32 fparg0)
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
     temp_17 = *(u8 **)(arg0 + 0x38);
     func_002b2970((s64 *)&out, *(f32 *)temp_3, *(f32 *)(temp_3 + 4));
-    *(struct Out2 *)(temp_17 + 0x2C) = out;
+    *(f2 *)(temp_17 + 0x2C) = out;
     temp_4 = *(u8 **)(arg0 + 0x38);
     *(u8 *)(temp_4 + 0x62) = 0xFF;
     temp_4 = *(u8 **)(arg0 + 0x38);

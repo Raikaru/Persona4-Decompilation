@@ -10,7 +10,7 @@
 
 extern void (*jtbl_008873EC[])(void *);
 typedef struct { f32 x, y, z; } CmbVec3f;
-typedef struct { f32 x, y; } CmbVec2f;
+typedef FclVec2 CmbVec2f;
 typedef FclDrawColor CmbRGBA;
 typedef struct {
     f32 f70, f74, f78, f7c, f80, f84, f88, f8c, f90, f94, f98, f9c;

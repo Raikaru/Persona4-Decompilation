@@ -4,6 +4,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_smap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "fcl_draw_types.h"
 extern void (*D_00887304[])(s32, void *);
 
 extern void (*D_00887300[])(s32 state, s32 value);
@@ -72,7 +73,7 @@ extern s32 func_001687d0(void *arg0);
 extern s32 func_001687e0(void *arg0);
 
 typedef struct YVec3f { f32 x, y, z; } YVec3f;
-typedef struct YVec2f { f32 x, y; } YVec2f;
+typedef FclVec2 YVec2f;
 typedef struct YRGBA { u8 a, b, c, d; } YRGBA;
 
 /* func_002afbc0 callees */
