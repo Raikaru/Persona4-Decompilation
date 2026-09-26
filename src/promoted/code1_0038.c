@@ -596,83 +596,60 @@ void func_00384cc0(u8 *work)
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 }
-/* measured: probe_variants func_00385380 base 336wd honest (exclusive <0x12, Vec2f{318,231}, plain accumulators, (u8)/(u16) clamps), inclusive (>0x12/slti 0x13) 336wd tie (no $at site, lever N/A beyond exclusivity), pragma_schedule 335wd (-1 churn, fnalign 411 vs 193 edits worse, not adopted); fnalign base retail 377/object 320 (193 edits +1 reloc-only; frame 0x90->0x80, s3->s2, accumulator madd chains); providers verified (373cb0, 3f6440, 64c90, 34f4a0, 44b7b0/610, DAT_007613F8/fGp82cc/80bc/83c8 per Draft5380); Ghidra/IDA agree; archive docs/probe_archive/P038_00385380_body.c (COP1 floor note, consistent); lever 4 tie; banked guarded floor for opclass measurability (object 320/377, 15% short noted plainly, stays out per 3% rule for MATCH but in as floor for triage). */
-/* measured this batch: hoisting N/A (no D_00887310/global-pointer call, no loop; DAT_007613F8/fGp globals read straight-line only); direct (u8)/(u16) casts (was (u8)(s32)/(u16)(s32)) recover retail clamping chains: fnalign retail 377/object 366 (-2.9% inside gate, was 320/-15.1%), edits 194+1 reloc-only (was 193+1), max hole 49@0x385818 -> 4@0x3854F0, max lump 30 retained, guarded 342wd (was 336wd outside gate, not comparable per handoff 7y), opclass 29 -> 8 (lui -4, mtc1 -4 remain); remaining deletes 0x3854F0(4, Vec 318/231 lui/sw), 0x3858EC(2, x/y reload), 0x385900(1, move t1,s2 idx). */
-// FUN_00385380 NONMATCHING
-#ifdef NON_MATCHING
+/* The two work floats are each reused across the phases, as retail's FP
+   colouring shows: `ratio` holds the first-phase interpolation and then the
+   width delta, `extent` the start value and then the half width. */
+// FUN_00385380
 void func_00385380(u8 *arg0)
 {
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
-    extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    typedef struct { f32 x; f32 y; } Vec2f_5380;
-    extern void func_00364c90(Vec2f_5380 pos, f32 depth, s32 color, f32 width, f32 height, f32 angle, s32 mode);
-    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     extern f32 sinf(f32 fparg0);
-    extern f32 cosf(f32 fparg0);
-    extern f32 DAT_007613F8;
+    extern f32 fGpffff8308;
     extern f32 fGpffff82cc;
     extern f32 fGpffff80bc;
     extern f32 fGpffff83c8;
-    u16 *cnt = (u16 *)(arg0 + 0x1E);
-    s32 res = *(s32 *)(*(u8 **)arg0 + 0x1F2AC);
-    f32 eased1;
-    f32 w1;
-    f32 t1;
-    f32 blend1;
-    f32 w2;
-    f32 t2;
-    f32 blend2;
-    f32 b;
-    u8 idx;
-    f32 delta;
+    u8 alpha;
+    u16 *counter = (u16 *)(arg0 + 0x1E);
+    s32 resource = *(s32 *)(*(u8 **)arg0 + 0x1F2AC);
+    Vec2f point;
+    f32 ratio;
+    f32 extent;
+    f32 blend;
     f32 inv;
-    f32 v21;
-    f32 v23;
-    f32 s1;
-    f32 c1;
-    f32 s2;
-    f32 c2;
-    f32 x;
-    f32 y;
-    u16 cdelta;
-    u16 cblend;
-    u16 next;
-    eased1 = func_00373cb0((f32)*cnt, 14.0f, 18.0f, 2);
-    w1 = func_00373cb0((f32)*cnt, 5.0f, 6.0f, 1);
-    t1 = func_00373cb0((f32)*cnt, 0.0f, 5.0f, 1);
-    blend1 = DAT_007613F8 * w1 + (fGpffff80bc - fGpffff82cc * t1);
+    f32 halfHeight;
+    f32 s;
+    u16 scaleX;
+    u16 scaleY;
+
+    extent = func_00373cb0((f32)*counter, 14.0f, 18.0f, 2);
+    ratio = func_00373cb0((f32)*counter, 5.0f, 6.0f, 1);
+    blend = fGpffff8308 * ratio + (fGpffff80bc - fGpffff82cc * func_00373cb0((f32)*counter, 0.0f, 5.0f, 1));
+    point.x = 318.0f;
+    point.y = 231.0f;
     RpSkyRenderStateSet(3, (void *)0x71801);
     RpSkyRenderStateSet(2, (void *)0x48);
-    func_00364c90((Vec2f_5380){318.0f, 231.0f}, 0.0f, 0x71BA00FF, (blend1 - eased1) * 270.0f, blend1 * 45.0f, fGpffff83c8, 0);
+    func_00364c90(point, 0.0f, 0x71BA00FF, 270.0f * (blend - extent), 45.0f * blend, fGpffff83c8, 0);
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
-    w2 = func_00373cb0((f32)*cnt, 5.0f, 6.0f, 1);
-    t2 = func_00373cb0((f32)*cnt, 2.0f, 5.0f, 1);
-    blend2 = DAT_007613F8 * w2 + (fGpffff80bc - fGpffff82cc * t2);
-    delta = blend2 - eased1;
-    b = func_00373cb0((f32)*cnt, 2.0f, 5.0f, 1);
-    idx = (u8)(255.0f * b);
-    inv = 1.0f - delta;
-    v21 = (inv * 190.0f) / 2.0f;
-    s1 = sinf(fGpffff83c8);
-    c1 = cosf(fGpffff83c8);
-    v23 = (inv * 39.0f) / 2.0f;
-    s2 = sinf(fGpffff83c8);
-    c2 = cosf(fGpffff83c8);
-    x = 221.0f + v21 * c1 - v23 * s1;
-    y = 235.0f + 2.0f + v21 * s2 + ((1.0f - blend2) * 39.0f) / 2.0f * c2;
-    cdelta = (u16)(4096.0f * delta);
-    cblend = (u16)(4096.0f * blend2);
-    func_0034f4a0(res, 0x12, x, y, 0.0f, 0, 0, 0, idx, cdelta, cblend, -15.0f, 0, 0);
-    next = *cnt + 1;
-    *cnt = next;
-    if ((u16)(next & 0xFFFF) >= 0x12) {
-        *(u16 *)(arg0 + 0x4C) &= (u16)~8;
+
+    ratio = func_00373cb0((f32)*counter, 5.0f, 6.0f, 1);
+    blend = fGpffff8308 * ratio + (fGpffff80bc - fGpffff82cc * func_00373cb0((f32)*counter, 2.0f, 5.0f, 1));
+    ratio = blend - extent;
+    alpha = 255.0f * func_00373cb0((f32)*counter, 2.0f, 5.0f, 1);
+    inv = 1.0f - ratio;
+    extent = (190.0f * inv) / 2.0f;
+    s = sinf(fGpffff83c8);
+    halfHeight = (39.0f * inv) / 2.0f;
+    point.x = 221.0f + extent * cosf(fGpffff83c8) - halfHeight * s;
+    s = sinf(fGpffff83c8);
+    point.y = 2.0f + (235.0f + ((39.0f * (1.0f - blend)) / 2.0f) * cosf(fGpffff83c8) + extent * s);
+    scaleX = 4096.0f * ratio;
+    scaleY = 4096.0f * blend;
+    func_0034f4a0(resource, 0x12, point.x, point.y, 0.0f, 0, 0, 0, alpha, scaleX, scaleY, -15.0f, 0, 0);
+    if (++*counter >= 0x12) {
+        *(u16 *)(arg0 + 0x4C) &= ~8;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00385380);
-#endif
 /* measured: honest first reconstruction per func_0038bab0/86c00 idiom (u8* state at +0x04 plus base, (f32)(u16) counters bltz double, plain (u8) clamps, sequential <0x20/<0xA/<5 guards empty else, block-scoped next/i, plain arithmetic no COP1 exemption, s64 pos via spA8/spAC shift/or packing per bab0; m2c+romwright into /var/tmp/cold385970 (m2c_385970.c 422 lines + rom_385970.c 259 lines + rom_raw 245 lines + types int(void*) 1082 instr arity trusted); probe_variants v1 938 base honest, R1 branch 934 win (-4, inner &8 !=0 with C-first matches retail beqz), swap 940 regress (+2), inclusive 940 regress (+2), frev/s64/nextfunc/staterev/loop 938 ties; R2 flip2 938 regress (+4), bswap/binc 936 regress (+2), bfrev/bs64/bnext/bloop/bstate 934 ties unproductive, stop after two rounds per batch; pragma prag1/prag2 934 ties not adopted; fnalign branch retail 1187/object 1175 (12 short 1.0% within 3%, 289 edits +3 reloc-only, vs v1 360 edits -71 from branch fix, frame 0xB0, sh/andi order + $v0/$v1 + GP offsets + COP1 mula/madd/adda/msub floor remain); providers verified (373cb0 f32,f32,f32,s32 per btlShuffleCalc.c:43, 64fb0 s64,u32,s32,s32,f32,f32 per generated/code1_0036.c:1920, 34f4a0 per this file:75, 3f6440 s32,s32 per this file:25, 3b7060 s32(void) per this file:176 as (u32)&0xFFF idiom, 44b7b0 f32 per btlShuffleCalc.c:27, fGp8374/83cc/81e0 per GP -0x7C8C/-0x7C34/-0x7E20, D_0064ED30 12B table per asm lui); Ghidra/IDA agree on CFG/32-call order, differ on 64fb0/34f4a0 prototypes and GP naming (used file idiom); lever 4 exclusive <0x20/<0xA/<5/<0x1E/<15 correct (inclusive regresses); lhu/lbu correct; double-def offset remains + COP1 chains (26 mula/madd/adda/msub); re-derived, no fabrications; archive P038_00385970_body.c is seven-line stub, not a body. Banked guarded floor. */
 // FUN_00385970 NONMATCHING
 #ifdef NON_MATCHING
