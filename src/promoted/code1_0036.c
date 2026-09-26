@@ -151,7 +151,6 @@ extern P4RenderState66C70 D_00887300[];
 extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 iGpffff8040;
 extern f32 fGpffff8198;
-extern f32 fGpffff83fc;
 
 // FUN_00361970
 void func_00361970(u8 *arg0)
@@ -1656,44 +1655,48 @@ void func_00369470(s32 arg0, u8 *arg1) {
     func_00460ac0(arg1, p);
 }
 
-/* measured: floor v12 MISMATCH nd292 exact-size 1504/1504 (delta 0, >=1459 threshold, not draft); frame -0x130 vs -0x140 + FPR/GPR coloring wall (swc1 f23/f22/f21/f20, s4/s3 vs s4/s2, mtx s5 vs s0, lwc1 f20/f22/f21 vs f2/f1/f0); reflection 2.0f*t-o adopted (-16) + exact size; MAC dot MULA-MADDA-MADD + (f32)(u32) 2147483648.0f lui 0x4F00 kept direct. */
-// FUN_0036AE90 NONMATCHING
-#ifdef NON_MATCHING
+struct PanelMatrix;
+struct PanelTransform;
+/* measured: nd 87 -> 0. opt_loop_invariants on hoists the stackE0.y/.z loads
+   out of the grid loops after `outer = 0`, as retail does. */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_0036AE90
 void func_0036ae90(u8 *arg0, u8 *arg1) {
-    extern u8 *func_00457120(void);
-    extern u8 *func_003e9700(s32 arg0);
-    extern u8 *func_003e0f80(void);
-    extern void func_0036abd0(void *arg0, void *arg1);
-    extern RwV3d *func_003e4320(RwV3d *dst, const RwV3d *src, const void *matrix);
-    extern void func_003e42a0(void *dst, void *src, void *cam);
-    extern void RwV3dNormalize(void *dst, void *src);
-    extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
-    extern void func_003e0f40(void *arg0);
-    extern u8 D_0064E490[];
-    extern u8 D_0064E498[];
-    extern u8 D_0064E4A0[];
-    extern u8 D_0064E4A8[];
-    extern u8 D_0064E4B0[];
-    extern u8 D_0064E4B8[];
-    extern u8 D_0064E4C0[];
-    extern u8 D_0064E4C8[];
-    extern f32 fGpffff83fc;
+    extern u8 *func_003e9700(u8 *frame);
+    extern struct RwMatrixTag *func_003e0f80(void);
+    extern void func_0036abd0(struct PanelMatrix *output,
+                              const struct PanelTransform *transform);
+    extern RwV3d *func_003e42a0(RwV3d *out, const RwV3d *in,
+                                const struct RwMatrixTag *matrix);
+    extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
+    extern struct RwMatrixTag *RwMatrixRotate(struct RwMatrixTag *matrix,
+                                              const RwV3d *axis, f32 angle,
+                                              s32 combineOp);
+    extern void func_003e0f40(struct RwMatrixTag *matrix);
+    extern RwV3d D_0064E490;
+    extern RwV3d D_0064E4A0;
+    extern RwV3d D_0064E4B0;
+    extern RwV3d D_0064E4C0;
     RwV3d stack130;
     RwV3d stack120;
     RwV3d stack110;
-    RwV3d stackF0;
     RwV3d stack100;
+    RwV3d stackF0;
     RwV3d stackE0;
     RwV3d stackD0;
     RwV3d stackC0;
     RwV3d stackB0;
-    u8 *cam;
+    s32 inner;
+    s32 outer;
+    s32 limit;
+    s32 even;
+    u8 *dst;
     u8 *mtx;
     u8 *tmp;
+    u8 *rgba;
+    struct RwMatrixTag *cam;
     f32 dot;
-    s32 outer;
-    s32 inner;
-    s32 limit;
     f32 fx;
     f32 dot2;
     f32 pow6;
@@ -1701,38 +1704,34 @@ void func_0036ae90(u8 *arg0, u8 *arg1) {
     f32 clamped;
     f32 combined;
     u8 abyte;
+    u8 shade;
     f32 af;
     f32 scaled;
 
-    *(s64 *)&stack130 = *(s64 *)D_0064E490;
-    *(f32 *)((u8 *)&stack130 + 8) = *(f32 *)D_0064E498;
+    stack130 = D_0064E490;
     tmp = func_00457120();
-    mtx = func_003e9700(*(s32 *)(tmp + 4)) + 0x30;
-    *(s64 *)&stackD0 = *(s64 *)D_0064E4A0;
-    *(f32 *)((u8 *)&stackD0 + 8) = *(f32 *)D_0064E4A8;
-    *(s64 *)&stackC0 = *(s64 *)D_0064E4B0;
-    *(f32 *)((u8 *)&stackC0 + 8) = *(f32 *)D_0064E4B8;
-    *(s64 *)&stackB0 = *(s64 *)D_0064E4C0;
-    *(f32 *)((u8 *)&stackB0 + 8) = *(f32 *)D_0064E4C8;
+    mtx = func_003e9700(*(u8 **)(tmp + 4)) + 0x30;
+    stackD0 = D_0064E4A0;
+    stackC0 = D_0064E4B0;
+    stackB0 = D_0064E4C0;
     cam = func_003e0f80();
-    func_0036abd0(cam, arg1);
+    func_0036abd0((struct PanelMatrix *)cam,
+                  (const struct PanelTransform *)arg1);
     func_003e4320(&stackD0, &stackD0, cam);
-    stackE0.x = *(f32 *)(arg0 + 0x994);
-    stackE0.y = *(f32 *)(arg0 + 0x998);
-    stackE0.z = *(f32 *)(arg0 + 0x99C);
-    if (*(s32 *)(arg1 + 0x38) != 0) {
-        func_003e42a0(&stack100, arg1 + 0x20, func_003e9700(*(s32 *)(arg1 + 0x38)));
+    stackE0 = *(RwV3d *)(arg0 + 0x994);
+    if (*(u8 **)(arg1 + 0x38) != NULL) {
+        func_003e42a0(&stack100, (RwV3d *)(arg1 + 0x20),
+                      (struct RwMatrixTag *)func_003e9700(*(u8 **)(arg1 + 0x38)));
     } else {
-        stack100.x = *(f32 *)(arg1 + 0x20);
-        stack100.y = *(f32 *)(arg1 + 0x24);
-        stack100.z = *(f32 *)(arg1 + 0x28);
+        stack100 = *(RwV3d *)(arg1 + 0x20);
     }
     dot = stackD0.x * (*(f32 *)mtx - stack100.x) + stackD0.y * (*(f32 *)(mtx + 4) - stack100.y) + stackD0.z * (*(f32 *)(mtx + 8) - stack100.z);
     *(s32 *)arg0 &= ~1;
     if (dot < 0.0f) {
-        RwMatrixRotate(cam, &stackC0, 1, 180.0f);
+        RwMatrixRotate(cam, &stackC0, 180.0f, 1);
         *(s32 *)arg0 |= 1;
     }
+    rgba = arg1 + 0x40;
     stack100.x = 0.0f;
     stack100.y = 0.0f;
     stack100.z = 100.0f;
@@ -1740,27 +1739,28 @@ void func_0036ae90(u8 *arg0, u8 *arg1) {
     func_003e4320(&stackB0, &stack130, cam);
     RwV3dNormalize(&stackB0, &stackB0);
     {
-        u8 *dst = arg0 + 4;
-        f32 ey = stackE0.y;
-        f32 ez = stackE0.z;
+        dst = arg0 + 4;
         for (outer = 0; outer < 9; outer++) {
-            if ((~outer & 1) != 0) {
+            even = ~outer & 1;
+            if (even != 0) {
                 limit = 8;
             } else {
                 limit = 7;
             }
-            for (inner = 0; inner < limit; inner++) {
-                if ((~outer & 1) == 0) {
-                    fx = (f32)inner;
-                } else if (inner == 0) {
-                    fx = 0.0f;
-                } else if (inner == limit - 1) {
-                    fx = 6.0f;
+            for (inner = 0; inner < limit; inner++, dst += 0x24) {
+                if (even != 0) {
+                    if (inner == 0) {
+                        fx = 0.0f;
+                    } else if (inner == limit - 1) {
+                        fx = 6.0f;
+                    } else {
+                        fx = 0.5f + (f32)(inner - 1);
+                    }
                 } else {
-                    fx = (f32)(inner - 1) + 0.5f;
+                    fx = (f32)inner;
                 }
                 stack100.x = fx - 3.0f;
-                stack100.y = fGpffff83fc * ((f32)outer / 8.0f - 0.5f);
+                stack100.y = 7.68f * ((f32)outer / 8.0f - 0.5f);
                 stack100.z = 0.0f;
                 func_003e42a0(&stackF0, &stack100, cam);
                 stack110.x = stackF0.x - *(f32 *)mtx;
@@ -1768,17 +1768,17 @@ void func_0036ae90(u8 *arg0, u8 *arg1) {
                 stack110.z = stackF0.z - *(f32 *)(mtx + 8);
                 RwV3dNormalize(&stack110, &stack110);
                 stack120.x = stackF0.x - stackE0.x;
-                stack120.y = stackF0.y - ey;
-                stack120.z = stackF0.z - ez;
+                stack120.y = stackF0.y - stackE0.y;
+                stack120.z = stackF0.z - stackE0.z;
                 RwV3dNormalize(&stack120, &stack120);
-                dot2 = stack110.x * stack130.x + stack110.y * stack130.y + stack110.z * *(((f32 *)&stack130) + 2);
+                dot2 = stack110.x * stack130.x + stack110.y * stack130.y + stack110.z * stack130.z;
                 {
-                    f32 t1 = *(((f32 *)&stack130) + 2) * dot2;
                     f32 t2 = stack130.x * dot2;
                     f32 t3 = stack130.y * dot2;
-                    f32 u1 = 2.0f * t1 - stack110.z;
-                    f32 u2 = 2.0f * t2 - stack110.x;
-                    f32 u3 = 2.0f * t3 - stack110.y;
+                    f32 t1 = stack130.z * dot2;
+                    f32 u1 = t1 + (t1 - stack110.z);
+                    f32 u2 = t2 + (t2 - stack110.x);
+                    f32 u3 = t3 + (t3 - stack110.y);
                     f32 v1 = stack120.x * u2 + stack120.y * u3 + stack120.z * u1;
                     if (v1 <= 0.0f) {
                         pow6 = 0.0f;
@@ -1787,38 +1787,33 @@ void func_0036ae90(u8 *arg0, u8 *arg1) {
                     }
                 }
                 stack120.x = stackE0.x - stackF0.x;
-                stack120.y = ey - stackF0.y;
-                stack120.z = ez - stackF0.z;
+                stack120.y = stackE0.y - stackF0.y;
+                stack120.z = stackE0.z - stackF0.z;
                 RwV3dNormalize(&stack120, &stack120);
-                dot3 = stack120.x * stackB0.x + stack120.y * stackB0.y + stack120.z * *(((f32 *)&stackB0) + 2);
-                clamped = 0.0f;
-                if (!(dot3 <= 0.0f)) {
+                dot3 = stack120.x * stackB0.x + stack120.y * stackB0.y + stack120.z * stackB0.z;
+                if (dot3 <= 0.0f) {
+                    clamped = 0.0f;
+                } else {
                     clamped = dot3;
                 }
                 combined = pow6 * *(f32 *)(arg0 + 0x9A0) + clamped * *(f32 *)(arg0 + 0x9A4);
                 if (!(combined <= 1.0f)) {
                     combined = 1.0f;
                 }
-                abyte = *(u8 *)(arg1 + 0x43);
+                abyte = rgba[3];
                 af = (f32)(u32)abyte;
                 scaled = af * combined;
-                if (scaled >= 2147483648.0f) {
-                    dst[0xC] = (u8)((s32)(scaled - 2147483648.0f) | 0x80000000);
-                } else {
-                    dst[0xC] = (u8)(s32)scaled;
-                }
-                dst[0xD] = dst[0xC];
-                dst[0xE] = dst[0xC];
-                dst[0xF] = dst[0xC];
-                dst += 0x24;
+                shade = scaled;
+                dst[0xC] = shade;
+                dst[0xD] = shade;
+                dst[0xE] = shade;
+                dst[0xF] = shade;
             }
         }
     }
     func_003e0f40(cam);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_0036ae90);
-#endif
+#pragma pop
 // FUN_0036B630
 void func_0036b630(u8 *arg0, RwV3d *arg1)
 {
