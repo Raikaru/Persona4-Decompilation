@@ -57,7 +57,7 @@ extern f32 D_00761470;
 extern f32 D_008872F8[];
 extern s32 (*D_00887300[])(RwRenderState state, void *value);
 extern s32 (*D_00887310[])(s32, void *, s32);
-extern u8 *func_00457120(void);
+extern s32 func_00457120(void);
 extern f32 cosf(f32 fparg0);
 extern void func_00364c50(void);
 extern void func_00364c70(void);
@@ -317,52 +317,15 @@ void func_00383d70(u8 *arg0)
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 }
-/* Floor: 727 differing words over 145 edit instructions, 785 emitted against
-   retail's 846, from a first reconstruction.  arg0 is a `u8 *`: m2c types it
-   `u8 **` and then scales `arg0 + 0x20` by four, while retail's `$s3` is
-   `arg0 + 0x20` in bytes (`state`) and `$s5` is `*(u8 **)arg0` (`ctx`) with
-   every field read relative to it (`info = ctx + 0x1F1D0`).
-   The window animation carries TWO scales and BOTH are live here, unlike
-   func_0038c100 where the second is 1.0f: retail saves `$f20` (animation
-   from func_00373cb0), `$f21` (1.0f / *(func_00457120() + 0x80)) and `$f22`
-   (D_008872F8[0]) across the calls.  The matched sibling func_0038cab0's
-   `Vertex_0038CAB0 work[4]` (x/y/z/scale/color[4] with u32 pads, 8 writes per
-   matrix at indices 0,1,2,6,8,9,10,11) carries it: scalar f32 locals die as
-   dead stores (266 emitted, 0x90 frame) while work[4] gives the retail 0x1A0
-   frame and 785 instructions.  D_00887310 takes 3 args
-   (`D_00887310[0](4, work, 4)`); m2c's 4th is a stale-register invention.
-   Unsigned-to-float is exact - `(f32)(u32)*(u16 *)` and `(f32)(u32)colors[i]`
-   reproduce retail's bltz/srl/or, `(u8)(u32)(255.0f * scale)` and
-   `(u8)(u32)(192.0f * scale)` the 2.1474836e9 clamp, `(f32)0x1D9` the 473.0f
-   mtc1/cvt, 156.0f/84.0f/364.0f/448.0f the lui stores.
-   WALL: redundant second `andi $s0,$a2,0xFF` after each float->u8 conversion
-   (8 sites of one), sh/andi order (`sh $v0,2($s2)` then `andi $v0,$v0,0xFFFF`
-   vs ours andi-then-sh, 2 sites), clampCompare in `$at`+beqz+b vs ours
-   `slti $v0`+bnez (`lhu $s2,4($s1)` site), int colour `$s1/$s2/$s3`
-   (`move $a1,$s0` vs `$s4`, `move $s4,$s3` vs `$s2`), plus scheduling
-   displacement on every `bnez`/`beqz`.  FP homes now exact (f20=scale,
-   f21=inv, f22=datw).  opt_propagation/lifetimes/common-subexpression and
-   200 declaration orders measured (best 727; optimize_for_size off gives 707
-   with 192 edits, rejected as steering).
-   Archive: docs/probe_archive/P038_00383f80_body.c. */
-/* measured this session: fresh probe 727wd / fnalign 143 edits (was 145 stale) confirms floor; slti inclusive (v18<3 -> <=2 fixes slti $at,$s2,3 dest to $at, tie 727wd; src $s2 vs $s3 colour wall remains per owner note); short-by-N hunt checked (no 1-4 short trailing chain in this window per top-down fnalign). Banked. */
-/* 2026-09-20 deficit probe (counts only; words/edits here are NOT comparable per handoff 7y while at -7.2%): retail 846 / object 785 (deficit 61). deficit_scan delta: nop +15, andi +11, mfc1 +6, cvt.w.s +6, lui +5, b +4, sub.s +3, or +3. Three 18-runs ABSENT (18 <= 61, no CROSS by length), each vs single mtc1 $s0, net +17 each = 51: 0x38459c retail[391:409], 0x384a70 retail[700:718], 0x384bcc retail[787:805] (c.ole/bc1t/nop/cvt/mfc1/nop/andi/b/nop/sub/cvt/mfc1/lui 0x8000/or/andi/bltz/nop/mtc1). Remaining 10 net are scattered singletons (max run 3, incl. first-site tail-merge pair retail[311:313] -5 + retail[314:323] +8 = +3) offset by sixteen -1 object singletons; all ABSENT by length. */
-/* Central finding is REGISTER-CLASS, not CSE: $s0 (saved) survives the jalr $v0 at 0x3847dc (D_00887310), $a3 (temp) would not, which is why retail's $a3 sites must still recompute after the call but object's $s0 does not. The CSE is downstream of the allocation. Source already writes (192.0f*scale) inline at each of the four uses with no shared temp to delete; straight-line sites dominate (335-387 and 730-783 carry only inner bltz/b tails, 421-696 carries only the returning jalr), and single-site respellings (+0.0f/*1.0f/swap/separate p0-p3) all tie at 785, while opt_common_subs off (866/848 inside) is steering at 814wd/1178e. */
-/* Two classes: (A) cross-call recomputation at 0x384a70 (first site after jalr 535) has a mechanical explanation ($a3 dies, $s0 survives) and a plausible attack via live ranges / register pressure across that call; (B) straight-line CSE within batches (0x38459c with site0 before the call, 0x384bcc with 0x384a70 after the call, no call between each pair) has no call to justify it and is the harder half. */
-/* gate: object 785 against retail 846, -7.2% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
-// FUN_00383F80 NONMATCHING
-#ifdef NON_MATCHING
+/* Window frame fade.  The 192 alpha is converted at each vertex (u8)(192.0f *
+   scale) - the product is shared, the float->u8 conversion is not - and the
+   primitive table is read through an integer view so its address stays in
+   $s0 across the first draw, as in func_0034ae70's twin 0014dd80 recipe. */
+// FUN_00383F80
 void func_00383f80(u8 *arg0)
 {
     extern f32 func_00373cb0(f32 t, f32 a, f32 b, s32 mode);
     extern s32 func_00378530(s32 a, s32 b);
-    extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern u8 *func_00457120(void);
-    extern f32 D_008872F8[];
-    extern s32 (*D_00887310[])(s32, void *, s32);
     typedef struct {
         f32 x;
         f32 y;
@@ -383,15 +346,17 @@ void func_00383f80(u8 *arg0)
     f32 f22;
     f32 f21;
     f32 scale;
-    s32 alpha;
+    u8 alpha;
     s32 var17;
     s32 count;
     s32 tmp;
     s32 i;
     s32 lo;
+    u32 draw;
+    s32 j;
     s32 hi;
     u16 flags;
-    u16 v18;
+    s32 v18;
 
     state = arg0 + 0x20;
     ctx = *(u8 **)arg0;
@@ -399,17 +364,15 @@ void func_00383f80(u8 *arg0)
     flags = *(u16 *)state;
     if (!(flags & 1)) {
         scale = func_00373cb0((f32)(u32)*(u16 *)(state + 2), 0.0f, 10.0f, 1);
-        alpha = (u8)(u32)(255.0f * scale);
-        *(u16 *)(state + 2) = *(u16 *)(state + 2) + 1;
-        if ((*(u16 *)(state + 2) & 0xFFFF) >= 0xA) {
+        alpha = 255.0f * scale;
+        if (++*(u16 *)(state + 2) >= 0xA) {
             *(u16 *)state = *(u16 *)state | 1;
             *(u16 *)(state + 2) = 0;
         }
     } else if (flags & 2) {
         scale = 1.0f - func_00373cb0((f32)(u32)*(u16 *)(state + 2), 0.0f, 10.0f, 1);
-        alpha = (u8)(u32)(255.0f * scale);
-        *(u16 *)(state + 2) = *(u16 *)(state + 2) + 1;
-        if ((*(u16 *)(state + 2) & 0xFFFF) >= 0xA) {
+        alpha = 255.0f * scale;
+        if (++*(u16 *)(state + 2) >= 0xA) {
             *(u16 *)(arg0 + 0x4C) = *(u16 *)(arg0 + 0x4C) & 0xFFDF;
         }
     } else {
@@ -417,16 +380,9 @@ void func_00383f80(u8 *arg0)
         alpha = 0xFF;
     }
     v18 = *(u16 *)(info + 4);
-    if ((s32)v18 <= 2) {
-    } else {
-        v18 = 2;
-    }
+    v18 = (v18 < 3) ? v18 : 2;
     tmp = *(s32 *)(ctx + 0x1F304);
-    if (tmp < 6) {
-        var17 = tmp * 2;
-    } else {
-        var17 = tmp;
-    }
+    var17 = (tmp < 6) ? tmp * 2 : tmp;
     count = func_00378530(tmp, *(s32 *)(ctx + 0x1F2FC));
     f22 = D_008872F8[0];
     f21 = 1.0f / *(f32 *)(func_00457120() + 0x80);
@@ -447,8 +403,8 @@ void func_00383f80(u8 *arg0)
     colors[3] = (u8)(((alpha & 0xFF) << 7) / 255);
     lo = var17 * v18;
     hi = var17 * (v18 + 1);
-    for (i = lo; i < hi; i++) {
-        func_00377930(ctx, i, 0, colors, 0);
+    for (j = lo; j < hi; j++) {
+        func_00377930(ctx, j, 0, colors, 0);
     }
     colors[0] = 0xFF;
     colors[1] = 0xC5;
@@ -456,75 +412,73 @@ void func_00383f80(u8 *arg0)
     work[0].x = 156.0f;
     work[0].y = 0.0f;
     work[0].z = f22;
-    work[0].scale = f21;
     work[0].color[0] = (f32)(u32)colors[0];
     work[0].color[1] = (f32)(u32)colors[1];
     work[0].color[2] = (f32)(u32)colors[2];
-    work[0].color[3] = (f32)(u32)(u8)(u32)(192.0f * scale);
+    work[0].color[3] = (u8)(192.0f * scale);
+    work[0].scale = f21;
     work[1].x = (f32)0x1D9;
     work[1].y = 0.0f;
     work[1].z = f22;
-    work[1].scale = f21;
     work[1].color[0] = (f32)(u32)colors[0];
     work[1].color[1] = (f32)(u32)colors[1];
     work[1].color[2] = (f32)(u32)colors[2];
-    work[1].color[3] = (f32)(u32)(u8)(u32)(192.0f * scale);
+    work[1].color[3] = (u8)(192.0f * scale);
+    work[1].scale = f21;
     work[2].x = 156.0f;
     work[2].y = 84.0f;
     work[2].z = f22;
-    work[2].scale = f21;
     work[2].color[0] = (f32)(u32)colors[0];
     work[2].color[1] = (f32)(u32)colors[1];
     work[2].color[2] = (f32)(u32)colors[2];
     work[2].color[3] = 0.0f;
+    work[2].scale = f21;
     work[3].x = (f32)0x1D9;
     work[3].y = 84.0f;
     work[3].z = f22;
-    work[3].scale = f21;
     work[3].color[0] = (f32)(u32)colors[0];
     work[3].color[1] = (f32)(u32)colors[1];
     work[3].color[2] = (f32)(u32)colors[2];
     work[3].color[3] = 0.0f;
-    D_00887310[0](4, work, 4);
+    work[3].scale = f21;
+    draw = (u32)D_00887310;
+    (*(s32 (**)(s32, void *, s32))draw)(4, work, 4);
     work[0].x = 156.0f;
     work[0].y = 364.0f;
     work[0].z = f22;
-    work[0].scale = f21;
     work[0].color[0] = (f32)(u32)colors[0];
     work[0].color[1] = (f32)(u32)colors[1];
     work[0].color[2] = (f32)(u32)colors[2];
     work[0].color[3] = 0.0f;
+    work[0].scale = f21;
     work[1].x = (f32)0x1D9;
     work[1].y = 364.0f;
     work[1].z = f22;
-    work[1].scale = f21;
     work[1].color[0] = (f32)(u32)colors[0];
     work[1].color[1] = (f32)(u32)colors[1];
     work[1].color[2] = (f32)(u32)colors[2];
     work[1].color[3] = 0.0f;
+    work[1].scale = f21;
     work[2].x = 156.0f;
     work[2].y = 448.0f;
     work[2].z = f22;
-    work[2].scale = f21;
     work[2].color[0] = (f32)(u32)colors[0];
     work[2].color[1] = (f32)(u32)colors[1];
     work[2].color[2] = (f32)(u32)colors[2];
-    work[2].color[3] = (f32)(u32)(u8)(u32)(192.0f * scale);
+    work[2].color[3] = (u8)(192.0f * scale);
+    work[2].scale = f21;
     work[3].x = (f32)0x1D9;
     work[3].y = 448.0f;
     work[3].z = f22;
-    work[3].scale = f21;
     work[3].color[0] = (f32)(u32)colors[0];
     work[3].color[1] = (f32)(u32)colors[1];
     work[3].color[2] = (f32)(u32)colors[2];
-    work[3].color[3] = (f32)(u32)(u8)(u32)(192.0f * scale);
-    D_00887310[0](4, work, 4);
+    work[3].color[3] = (u8)(192.0f * scale);
+    work[3].scale = f21;
+    (*(s32 (**)(s32, void *, s32))draw)(4, work, 4);
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00383f80);
-#endif
 /* Line and icon fade for the selected shuffle pattern.
  * The halfword frame increment wraps before the phase test; byte
  * opacities and the shared point preserve the native call boundaries. */
