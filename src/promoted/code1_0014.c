@@ -4905,7 +4905,7 @@ extern u32 ourGlobals[];
    instead of $v0, and the four bytes convert as (f32)(u32) so MWCC emits
    its own bltz/srl/or/cvt/add.s sequence.  No pragma. */
 // FUN_0014DEF0
-void func_0014def0(s32 arg0, u8 *arg1,
+void func_0014def0(u8 *arg0, u8 *arg1,
                    f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
                    f32 fparg4, u8 *arg2, s32 arg3,
                    f32 fparg5, f32 fparg6, f32 fparg7, s32 arg4,
@@ -5012,7 +5012,7 @@ void func_0014def0(s32 arg0, u8 *arg1,
     *(f32 *)(arg1 + 0x110) = fparg7;
     *(f32 *)(arg1 + 0x114) = arg_sp0;
     *(s32 *)(arg1 + 0x118) = arg4;
-    entry = func_00461390((void *)arg0, 4, arg1, 4);
+    entry = func_00461390(arg0, 4, arg1, 4);
     *(void **)(entry + 8) = (void *)func_0014dd80;
     *(u8 **)(entry + 0x10) = arg1;
 }
