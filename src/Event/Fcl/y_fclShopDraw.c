@@ -5144,6 +5144,39 @@ void func_002d3ee0(void *arg0) {
     func_002e04f0(work->field_DE4, 0, 0);
 }
 
+/* Colour rows are u8[4] (r, g, b, pad).  Both setters address the g/b
+   bytes through component pointers: the selected-tab path stores through
+   the g/b addresses again after the second func_002e26f0 call, and retail
+   keeps exactly those addresses live in saved registers ($s0/$s6/$s7/$fp).
+   A local RGBA struct array instead grows the frame by 0x20. */
+#define SHOP_SET_RGB(rgb, r, g, b) do { \
+    u8 *g_ = &(rgb)[1];                  \
+    u8 *b_ = &(rgb)[2];                  \
+    (rgb)[0] = (r);                      \
+    *g_ = (g);                           \
+    *b_ = (b);                           \
+} while (0)
+#define SHOP_SET_GRAY(rgb, v) do {       \
+    u8 *b_ = &(rgb)[2];                  \
+    u8 *g_ = &(rgb)[1];                  \
+    (rgb)[0] = *g_ = *b_ = (v);          \
+} while (0)
+/* The sprite record behind a draw handle: only the fields the shop tabs set. */
+typedef struct {
+    u8 pad0[0x8];
+    f32 y;              /* 0x08 */
+    u8 pad0C[0x6D];
+    u8 r;               /* 0x79 */
+    u8 g;               /* 0x7A */
+    u8 b;               /* 0x7B */
+    u8 pad7C[0x80];
+    u32 priority;       /* 0xFC */
+} ShopSprite;
+#define SHOP_SPRITE(handle) ((ShopSprite *)func_002e04e0(handle))
+
+/* measured: MATCH (1,996 code bytes in the 2,000-byte window).  Sets the
+   three shop tabs' priority, y and colour; the selected tab is highlighted
+   and tabs whose stock is exhausted are greyed out. */
 // FUN_002D4760
 s8 func_002d4760(void *arg0, s8 arg1) {
     u8 colorA[3][4];
@@ -5155,19 +5188,15 @@ s8 func_002d4760(void *arg0, s8 arg1) {
     s16 i;
     s16 j;
     s32 sel;
-    u8 *work;
-    s16 *yr;
+    ShopWork *work;
     u8 *ca;
     u8 *cb;
+    s16 *row;
     u8 r;
     u8 g;
-    u8 bl;
-    u8 *ga;
-    u8 *ba;
-    u8 *gb;
-    u8 *bb;
+    u8 b;
 
-    work = *(u8 **)((u8 *)arg0 + 0x38);
+    work = *(ShopWork **)((u8 *)arg0 + 0x38);
     colorA[0][0] = colorA[2][0] = 0xBD;
     colorA[0][1] = colorA[2][1] = 0x68;
     colorA[0][2] = colorA[2][2] = 3;
@@ -5190,108 +5219,102 @@ s8 func_002d4760(void *arg0, s8 arg1) {
     colorB[1][2] = 0x2D;
     secondary[1] = primary[1] + 1;
     thirdY[1] = 0x88;
-    i = 0;
-    sel = arg1;
-    for (; i < 3; i++) {
-        if (func_002e26f0(*(void **)(work + 0xF18 + i * 4)) <= D_00748908[i]) {
-            u8 *a2p = &colorA[i][2];
-            u8 *a1p = &colorA[i][1];
-            colorA[i][0] = *a1p = *a2p = 0x2D;
+    /* The F18 handles are read by byte offset: work->field_F18[i] adds
+       the index before the base (addu v1, v0, work) and misses by one word. */
+    for (i = 0, sel = arg1; i < 3; i++) {
+        if (func_002e26f0(*(void **)((u8 *)work + 0xF18 + i * 4)) <= D_00748908[i]) {
+            SHOP_SET_GRAY(colorA[i], 0x2D);
             if (i == 1) {
-                colorA[i][0] = *a1p = *a2p = 0;
+                SHOP_SET_GRAY(colorA[i], 0);
             }
-            {
-                u8 *b2p = &colorB[i][2];
-                u8 *b1p = &colorB[i][1];
-                colorB[i][0] = *b1p = *b2p = 0x6F;
-            }
+            SHOP_SET_GRAY(colorB[i], 0x6F);
         }
         if (i == sel) {
-            colorA[i][0] = 0xFF;
-            ga = colorA[i] + 1;
-            *ga = 0x96;
-            ba = colorA[i] + 2;
-            *ba = 1;
+            SHOP_SET_RGB(colorA[i], 0xFF, 0x96, 1);
             primary[i] = 0x57;
-            yr = y[i];
-            yr[0] = 0x83;
-            yr[1] = 0x84;
-            colorB[i][0] = 0xFF;
-            gb = colorB[i] + 1;
-            *gb = 0xF2;
-            bb = colorB[i] + 2;
-            *bb = 0x95;
+            row = y[i];
+            row[0] = 0x83;
+            row[1] = 0x84;
+            SHOP_SET_RGB(colorB[i], 0xFF, 0xF2, 0x95);
             secondary[i] = primary[i] + 1;
             thirdY[i] = 0x82;
-            if (func_002e26f0(*(void **)(work + 0xF18 + i * 4)) <= D_00748908[i]) {
-                ca = (u8 *)colorA + i * 4;
-                *ca = *ga = *ba = 0x9C;
-                cb = (u8 *)colorB + i * 4;
-                *cb = *gb = *bb = 0xFF;
+            if (func_002e26f0(*(void **)((u8 *)work + 0xF18 + i * 4)) <= D_00748908[i]) {
+                SHOP_SET_GRAY(colorA[i], 0x9C);
+                SHOP_SET_GRAY(colorB[i], 0xFF);
             }
         }
     }
+    /* Colour bytes of the first sprite are kept in r/g/b for the second. */
     for (j = 0; j < 3; j++) {
         switch (j) {
         case 0:
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0xFC) = primary[j];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x8) = (f32)(yr = y[j])[0];
-            r = (ca = colorA[j])[0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x79) = r;
+            SHOP_SPRITE(work->field_EC4)->priority = primary[j];
+            row = y[j];
+            SHOP_SPRITE(work->field_EC4)->y = row[0];
+            ca = colorA[j];
+            r = ca[0];
+            SHOP_SPRITE(work->field_EC4)->r = r;
             g = ca[1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x7A) = g;
-            bl = ca[2];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x7B) = bl;
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0xFC) = primary[j];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x8) = (f32)yr[1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x79) = r;
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x7A) = g;
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x7B) = bl;
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0xFC) = secondary[j];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x8) = (f32)thirdY[j];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x79) = (cb = colorB[j])[0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x7A) = cb[1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x7B) = cb[2];
+            SHOP_SPRITE(work->field_EC4)->g = g;
+            b = ca[2];
+            SHOP_SPRITE(work->field_EC4)->b = b;
+            SHOP_SPRITE(work->field_EC8)->priority = primary[j];
+            SHOP_SPRITE(work->field_EC8)->y = row[1];
+            SHOP_SPRITE(work->field_EC8)->r = r;
+            SHOP_SPRITE(work->field_EC8)->g = g;
+            SHOP_SPRITE(work->field_EC8)->b = b;
+            SHOP_SPRITE(work->field_E38)->priority = secondary[j];
+            SHOP_SPRITE(work->field_E38)->y = thirdY[j];
+            cb = colorB[j];
+            SHOP_SPRITE(work->field_E38)->r = cb[0];
+            SHOP_SPRITE(work->field_E38)->g = cb[1];
+            SHOP_SPRITE(work->field_E38)->b = cb[2];
             break;
         case 1:
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0xFC) = primary[j];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x8) = (f32)(yr = y[j])[0];
-            r = (ca = colorA[j])[0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x79) = r;
+            SHOP_SPRITE(work->field_EB4)->priority = primary[j];
+            row = y[j];
+            SHOP_SPRITE(work->field_EB4)->y = row[0];
+            ca = colorA[j];
+            r = ca[0];
+            SHOP_SPRITE(work->field_EB4)->r = r;
             g = ca[1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x7A) = g;
-            bl = ca[2];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x7B) = bl;
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0xFC) = primary[j];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x8) = (f32)yr[1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x79) = r;
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x7A) = g;
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x7B) = bl;
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0xFC) = secondary[j];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x8) = (f32)thirdY[j];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x79) = (cb = colorB[j])[0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x7A) = cb[1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x7B) = cb[2];
+            SHOP_SPRITE(work->field_EB4)->g = g;
+            b = ca[2];
+            SHOP_SPRITE(work->field_EB4)->b = b;
+            SHOP_SPRITE(work->field_EB8)->priority = primary[j];
+            SHOP_SPRITE(work->field_EB8)->y = row[1];
+            SHOP_SPRITE(work->field_EB8)->r = r;
+            SHOP_SPRITE(work->field_EB8)->g = g;
+            SHOP_SPRITE(work->field_EB8)->b = b;
+            SHOP_SPRITE(work->field_CC4)->priority = secondary[j];
+            SHOP_SPRITE(work->field_CC4)->y = thirdY[j];
+            cb = colorB[j];
+            SHOP_SPRITE(work->field_CC4)->r = cb[0];
+            SHOP_SPRITE(work->field_CC4)->g = cb[1];
+            SHOP_SPRITE(work->field_CC4)->b = cb[2];
             break;
         case 2:
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0xFC) = primary[j];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x8) = (f32)(yr = y[j])[0];
-            r = (ca = colorA[j])[0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x79) = r;
+            SHOP_SPRITE(work->field_EBC)->priority = primary[j];
+            row = y[j];
+            SHOP_SPRITE(work->field_EBC)->y = row[0];
+            ca = colorA[j];
+            r = ca[0];
+            SHOP_SPRITE(work->field_EBC)->r = r;
             g = ca[1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x7A) = g;
-            bl = ca[2];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x7B) = bl;
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0xFC) = primary[j];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x8) = (f32)yr[1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x79) = r;
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x7A) = g;
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x7B) = bl;
-            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0xFC) = secondary[j];
-            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x8) = (f32)thirdY[j];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x79) = (cb = colorB[j])[0];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x7A) = cb[1];
-            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x7B) = cb[2];
+            SHOP_SPRITE(work->field_EBC)->g = g;
+            b = ca[2];
+            SHOP_SPRITE(work->field_EBC)->b = b;
+            SHOP_SPRITE(work->field_EC0)->priority = primary[j];
+            SHOP_SPRITE(work->field_EC0)->y = row[1];
+            SHOP_SPRITE(work->field_EC0)->r = r;
+            SHOP_SPRITE(work->field_EC0)->g = g;
+            SHOP_SPRITE(work->field_EC0)->b = b;
+            SHOP_SPRITE(work->field_CC0)->priority = secondary[j];
+            SHOP_SPRITE(work->field_CC0)->y = thirdY[j];
+            cb = colorB[j];
+            SHOP_SPRITE(work->field_CC0)->r = cb[0];
+            SHOP_SPRITE(work->field_CC0)->g = cb[1];
+            SHOP_SPRITE(work->field_CC0)->b = cb[2];
             break;
         }
     }
