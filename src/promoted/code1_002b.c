@@ -798,211 +798,167 @@ void func_002b5120(s32 arg0, u8 *arg1)
 }
 /* measured: restores opt_propagation after func_002b5120. */
 #pragma opt_propagation on
-/* measured: first C reconstruction (m2c 222 + rw 190 + types 3-vs-2 de-noised to file idiom, truthful externs D_008872F8[]/00461390(void*,s32,void*,s32) per tree, s32(u8*) + s8/u16/s16 + (s32)int-store + (u8)color + branchy u8-to-f32 + quad + (void*)callback, corrected active!=0 early-return without shared tail and mode3/4 folded); retail 624 object 632 (8 over, 1.3% in 3% gate) probe 548 via probe_variants, 304 edits +4 reloc-only via fnalign --candidate /var/tmp/cold2b52a0/guarded_extracted.c; step2 pragma singles all tie/regress (548 tie dead/prop/strength/unroll, 555 loop_invariants, 584 schedule, 611 common_subs, 627 L1, 676 peephole, 810 L0) and pairs best 548 tie via pragma_sweep; step3 subscript v3a direct/v3b off-local/v3c P-index all 548 tie; step4 colouring v4a count/half, v4b floats, v4c ptrs/bytes, v4d counters-first all 548 tie; residual is dispatch polarity (beq vs bne + addiu -1), sra $v0/$v1 swap, float mov.s surplus, folded mode3/4 vs retail duplicated blocks, vertex sub.s order; above 60 so two-tie stop met. */
-/* measured 002b52a0 (hand switch, 2026-09-20): mode chain (braced multi-line arms, chain_variables mode) */
-/* hand switch ascending 330 edits +4 reloc-only / probe 577, reversed 521 +4 / 567 vs chain 304 +4 / 548 */
-/* (chain wins; switch not installed. dup fixes 61-run at 0x002b5600 but breaks gate: switch-asc-dup 271/644 */
-/* 694 vs 624 +11.2% outside, chain-dup 241/586 692 vs 624 +10.9% outside, rejected per handoff 7y. state */
-/* 1-then-0 and 0-then-1 both tie 304/548. deficit retail+ lwc1 12/cvt 6/lh 4/jal 4, runs 61 at 0x002b5600, */
-/* 13 at 0x002b5808, 11 at 0x002b5a48; tail 43 structure vs 16 register. floor stays ASM.) */
-// FUN_002B52A0 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct FclFadeRectVertex
+{
+    f32 x;        // 0x00
+    f32 y;        // 0x04
+    f32 z;        // 0x08
+    u8 pad0C[0xC];
+    f32 q;        // 0x18
+    u8 pad1C[4];
+    f32 r;        // 0x20
+    f32 g;        // 0x24
+    f32 b;        // 0x28
+    f32 a;        // 0x2C
+    u8 pad30[0x10];
+} FclFadeRectVertex; // 0x40
+
+typedef struct FclFadeRect
+{
+    s8 state;                    // 0x000
+    u8 pad001[0xF];
+    FclFadeRectVertex vtx[4];    // 0x010
+    u8 color[4][4];              // 0x110
+    u8 pad120[8];
+    s32 width;                   // 0x128
+    s32 height;                  // 0x12C
+    f32 depth;                   // 0x130
+    f32 x;                       // 0x134
+    f32 y;                       // 0x138
+    f32 x0;                      // 0x13C
+    f32 y0;                      // 0x140
+    f32 x1;                      // 0x144
+    f32 y1;                      // 0x148
+    s16 frame;                   // 0x14C
+    u8 pad14E[2];
+    s32 frames;                  // 0x150
+    s8 done;                     // 0x154
+    u8 pad155;
+    s16 mode;                    // 0x156
+    u8 pad158[8];
+    s32 width0;                  // 0x160
+    s32 height0;                 // 0x164
+    u8 pad168[8];
+    s32 width1;                  // 0x170
+    s32 height1;                 // 0x174
+    u8 alpha0;                   // 0x178
+    u8 alpha1;                   // 0x179
+    s16 alphaFrame;              // 0x17A
+    s32 alphaFrames;             // 0x17C
+    u8 alphaFading;              // 0x180
+    u8 pad181;
+    u16 wait;                    // 0x182
+    u8 pad184[4];
+    s32 layer;                   // 0x188
+} FclFadeRect;
+
+/* measured: opt_loop_invariants on hoists the %hi of D_008872F8 above the vertex loop (156 words
+   without it). */
+// FUN_002B52A0
+#pragma opt_loop_invariants on
 s32 func_002b52a0(u8 *arg0)
 {
-    extern f32 D_008872F8[];
+    /* far-plane depth inside the render-state record; sized so that it is
+       re-read after the vertex stores, as retail does */
+    extern f32 D_008872F8[4];
     extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
-    u8 *work;
-    s8 state;
-    u16 active;
-    s16 mode;
-    s16 frame;
-    s32 count;
-    s32 half;
-    s32 v;
+    FclFadeRect *work;
+    f32 q;
     s32 i;
-    u8 b0;
-    u8 b1;
-    u8 b2;
-    u8 b3;
-    f32 x0;
-    f32 y0;
-    f32 f0;
-    f32 factor;
-    u8 *item;
-    u8 *node;
+    s32 j;
     u8 *pkt;
-    work = *(u8 **)(arg0 + 0x38);
-    if (*(s8 *)(work + 0x154) == 1) {
+
+    work = *(FclFadeRect **)(arg0 + 0x38);
+    if (work->done == 1) {
         return 0;
     }
-    state = *(s8 *)work;
-    if (state == 3) {
+    switch (work->state) {
+    case 2:
+        if (work->wait == 0) {
+            if (work->mode == 0) {
+                work->x = func_002b2aa0(0, work->x0 + (f32)(work->width1 / 2), work->x0, (f32)work->frame, (f32)work->frames);
+                work->y = func_002b2aa0(0, work->y0 + (f32)(work->height1 / 2), work->y0, (f32)work->frame, (f32)work->frames);
+                work->width = func_002b2aa0(0, (f32)work->width0, (f32)work->width1, (f32)work->frame, (f32)work->frames);
+                work->height = func_002b2aa0(0, (f32)work->height0, (f32)work->height1, (f32)work->frame, (f32)work->frames);
+            } else if (work->mode == 1) {
+                work->x = func_002b2aa0(0, work->x0, work->x0 + (f32)(work->width0 / 2), (f32)work->frame, (f32)work->frames);
+                work->y = func_002b2aa0(0, work->y0, work->y0 + (f32)(work->height0 / 2), (f32)work->frame, (f32)work->frames);
+                work->width = func_002b2aa0(0, (f32)work->width0, (f32)work->width1, (f32)work->frame, (f32)work->frames);
+                work->height = func_002b2aa0(0, (f32)work->height0, (f32)work->height1, (f32)work->frame, (f32)work->frames);
+            } else if (work->mode == 2) {
+                work->x = func_002b2aa0(0, work->x0, work->x1, (f32)work->frame, (f32)work->frames);
+                work->y = func_002b2aa0(0, work->y0, work->y1, (f32)work->frame, (f32)work->frames);
+            } else if (work->mode == 3) {
+                work->x = func_002b2aa0(0, work->x0, work->x1, (f32)work->frame, (f32)work->frames);
+                work->y = func_002b2aa0(0, work->y0, work->y1, (f32)work->frame, (f32)work->frames);
+                work->width = func_002b2aa0(0, (f32)work->width0, (f32)work->width1, (f32)work->frame, (f32)work->frames);
+                work->height = func_002b2aa0(0, (f32)work->height0, (f32)work->height1, (f32)work->frame, (f32)work->frames);
+            } else if (work->mode == 4) {
+                work->x = func_002b2aa0(0, work->x0, work->x1, (f32)work->frame, (f32)work->frames);
+                work->y = func_002b2aa0(0, work->y0, work->y1, (f32)work->frame, (f32)work->frames);
+                work->width = func_002b2aa0(0, (f32)work->width0, (f32)work->width1, (f32)work->frame, (f32)work->frames);
+                work->height = func_002b2aa0(0, (f32)work->height0, (f32)work->height1, (f32)work->frame, (f32)work->frames);
+            }
+            if (work->alphaFading == 1) {
+                work->color[0][3] = func_002b2aa0(2, (f32)work->alpha0, (f32)work->alpha1, (f32)work->alphaFrame, (f32)work->alphaFrames);
+                for (j = 1; j < 4; j++) {
+                    work->color[j][3] = work->color[0][3];
+                }
+                work->alphaFrame = func_002b2cb0(work->alphaFrame, 1, work->alphaFrames, 0, 1);
+                if (work->alphaFrame >= work->alphaFrames) {
+                    work->color[0][3] = work->alpha1;
+                    for (j = 1; j < 4; j++) {
+                        work->color[j][3] = work->color[0][3];
+                    }
+                    work->alphaFading = 0;
+                }
+            }
+            if (work->frame < work->frames) {
+                work->frame++;
+            } else {
+                work->mode = -1;
+                if (work->width == 0 || work->height == 0) {
+                    work->done = 1;
+                }
+                if (work->alphaFading == 0 && work->mode == -1) {
+                    work->state = 1;
+                }
+            }
+        } else {
+            work->wait = func_002b2d00(work->wait, 1, 0, 0, 1);
+            return 0;
+        }
+    case 0:
+    case 1:
+        q = 1.0f / *(f32 *)(func_00457120() + 0x80);
+        for (i = 0; i < 4; i++) {
+            f32 farZ = D_008872F8[0];
+
+            work->vtx[i].z = farZ - work->depth;
+            work->vtx[i].q = q;
+            work->vtx[i].r = work->color[i][0];
+            work->vtx[i].g = work->color[i][1];
+            work->vtx[i].b = work->color[i][2];
+            work->vtx[i].a = work->color[i][3];
+        }
+        work->vtx[0].x = work->x;
+        work->vtx[0].y = work->y;
+        work->vtx[1].x = work->x + (f32)work->width;
+        work->vtx[1].y = work->y;
+        work->vtx[2].x = work->x;
+        work->vtx[2].y = work->y + (f32)work->height;
+        work->vtx[3].x = work->x + (f32)work->width;
+        work->vtx[3].y = work->y + (f32)work->height;
+        pkt = func_00461390(D_00793E80 + work->layer * 0x30, 4, work->vtx, 4);
+        *(void **)(pkt + 8) = (void *)func_002b5120;
+        *(FclFadeRect **)(pkt + 0x10) = work;
+        break;
+    case 3:
         return -1;
     }
-    if (state == 0 || state == 1) {
-        goto shared;
-    }
-    if (state != 2) {
-        return 0;
-    }
-    active = *(u16 *)(work + 0x182);
-    if (active != 0) {
-        *(u16 *)(work + 0x182) = func_002b2d00(active, 1, 0, 0, 1);
-        return 0;
-    }
-    mode = *(s16 *)(work + 0x156);
-    if (mode == 0) {
-        x0 = *(f32 *)(work + 0x13C);
-        count = *(s32 *)(work + 0x170);
-        half = count >> 1;
-        if (count < 0) {
-            half = (count + 1) >> 1;
-        }
-        *(f32 *)(work + 0x134) = func_002b2aa0(0, x0 + (f32)half, x0, (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-        x0 = *(f32 *)(work + 0x140);
-        count = *(s32 *)(work + 0x174);
-        half = count >> 1;
-        if (count < 0) {
-            half = (count + 1) >> 1;
-        }
-        *(f32 *)(work + 0x138) = func_002b2aa0(0, x0 + (f32)half, x0, (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-        *(s32 *)(work + 0x128) = (s32)func_002b2aa0(0, (f32)*(s32 *)(work + 0x160), (f32)*(s32 *)(work + 0x170), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-        *(s32 *)(work + 0x12C) = (s32)func_002b2aa0(0, (f32)*(s32 *)(work + 0x164), (f32)*(s32 *)(work + 0x174), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-    } else if (mode == 1) {
-        x0 = *(f32 *)(work + 0x13C);
-        count = *(s32 *)(work + 0x160);
-        half = count >> 1;
-        if (count < 0) {
-            half = (count + 1) >> 1;
-        }
-        *(f32 *)(work + 0x134) = func_002b2aa0(0, x0, x0 + (f32)half, (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-        x0 = *(f32 *)(work + 0x140);
-        count = *(s32 *)(work + 0x164);
-        half = count >> 1;
-        if (count < 0) {
-            half = (count + 1) >> 1;
-        }
-        *(f32 *)(work + 0x138) = func_002b2aa0(0, x0, x0 + (f32)half, (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-        *(s32 *)(work + 0x128) = (s32)func_002b2aa0(0, (f32)*(s32 *)(work + 0x160), (f32)*(s32 *)(work + 0x170), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-        *(s32 *)(work + 0x12C) = (s32)func_002b2aa0(0, (f32)*(s32 *)(work + 0x164), (f32)*(s32 *)(work + 0x174), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-    } else if (mode == 2) {
-        *(f32 *)(work + 0x134) = func_002b2aa0(0, *(f32 *)(work + 0x13C), *(f32 *)(work + 0x144), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-        *(f32 *)(work + 0x138) = func_002b2aa0(0, *(f32 *)(work + 0x140), *(f32 *)(work + 0x148), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-    } else if (mode == 3 || mode == 4) {
-        *(f32 *)(work + 0x134) = func_002b2aa0(0, *(f32 *)(work + 0x13C), *(f32 *)(work + 0x144), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-        *(f32 *)(work + 0x138) = func_002b2aa0(0, *(f32 *)(work + 0x140), *(f32 *)(work + 0x148), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-        *(s32 *)(work + 0x128) = (s32)func_002b2aa0(0, (f32)*(s32 *)(work + 0x160), (f32)*(s32 *)(work + 0x170), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-        *(s32 *)(work + 0x12C) = (s32)func_002b2aa0(0, (f32)*(s32 *)(work + 0x164), (f32)*(s32 *)(work + 0x174), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
-    }
-    if (*(u8 *)(work + 0x180) == 1) {
-        b0 = *(u8 *)(work + 0x178);
-        if ((s32)b0 >= 0) {
-            x0 = (f32)b0;
-        } else {
-            u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
-            x0 = (f32)(s32)t;
-            x0 = x0 + x0;
-        }
-        b1 = *(u8 *)(work + 0x179);
-        if ((s32)b1 >= 0) {
-            y0 = (f32)b1;
-        } else {
-            u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
-            y0 = (f32)(s32)t;
-            y0 = y0 + y0;
-        }
-        *(u8 *)(work + 0x113) = (u8)func_002b2aa0(2, x0, y0, (f32)*(s16 *)(work + 0x17A), (f32)*(s32 *)(work + 0x17C));
-        v = 1;
-        while (v < 4) {
-            *(u8 *)(work + v * 4 + 0x113) = *(u8 *)(work + 0x113);
-            v += 1;
-        }
-        v = func_002b2cb0(*(s16 *)(work + 0x17A), 1, *(s32 *)(work + 0x17C), 0, 1);
-        *(s16 *)(work + 0x17A) = (s16)v;
-        if ((s16)v >= *(s32 *)(work + 0x17C)) {
-            *(u8 *)(work + 0x113) = *(u8 *)(work + 0x179);
-            v = 1;
-            while (v < 4) {
-                *(u8 *)(work + v * 4 + 0x113) = *(u8 *)(work + 0x113);
-                v += 1;
-            }
-            *(u8 *)(work + 0x180) = 0;
-        }
-    }
-    frame = *(s16 *)(work + 0x14C);
-    if (frame < *(s32 *)(work + 0x150)) {
-        *(s16 *)(work + 0x14C) = frame + 1;
-    } else {
-        *(s16 *)(work + 0x156) = -1;
-        if (*(s32 *)(work + 0x128) == 0 || *(s32 *)(work + 0x12C) == 0) {
-            *(s8 *)(work + 0x154) = 1;
-        }
-        if (*(u8 *)(work + 0x180) == 0 && *(s16 *)(work + 0x156) == -1) {
-            *(s8 *)work = 1;
-        }
-    }
-shared:
-    factor = 1.0f / *(f32 *)(func_00457120() + 0x80);
-    v = 0;
-    while (v < 4) {
-        item = work + (v << 6);
-        *(f32 *)(item + 0x18) = D_008872F8[0] - *(f32 *)(work + 0x130);
-        *(f32 *)(item + 0x28) = factor;
-        node = work + v * 4;
-        b0 = *(u8 *)(node + 0x110);
-        if ((s32)b0 >= 0) {
-            f0 = (f32)b0;
-        } else {
-            u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
-            f0 = (f32)(s32)t;
-            f0 = f0 + f0;
-        }
-        *(f32 *)(item + 0x30) = f0;
-        b1 = *(u8 *)(node + 0x111);
-        if ((s32)b1 >= 0) {
-            f0 = (f32)b1;
-        } else {
-            u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
-            f0 = (f32)(s32)t;
-            f0 = f0 + f0;
-        }
-        *(f32 *)(item + 0x34) = f0;
-        b2 = *(u8 *)(node + 0x112);
-        if ((s32)b2 >= 0) {
-            f0 = (f32)b2;
-        } else {
-            u32 t = ((u32)b2 >> 1) | ((u32)b2 & 1);
-            f0 = (f32)(s32)t;
-            f0 = f0 + f0;
-        }
-        *(f32 *)(item + 0x38) = f0;
-        b3 = *(u8 *)(node + 0x113);
-        if ((s32)b3 >= 0) {
-            f0 = (f32)b3;
-        } else {
-            u32 t = ((u32)b3 >> 1) | ((u32)b3 & 1);
-            f0 = (f32)(s32)t;
-            f0 = f0 + f0;
-        }
-        *(f32 *)(item + 0x3C) = f0;
-        v += 1;
-    }
-    *(f32 *)(work + 0x10) = *(f32 *)(work + 0x134);
-    *(f32 *)(work + 0x14) = *(f32 *)(work + 0x138);
-    *(f32 *)(work + 0x50) = *(f32 *)(work + 0x134) + (f32)*(s32 *)(work + 0x128);
-    *(f32 *)(work + 0x54) = *(f32 *)(work + 0x138);
-    *(f32 *)(work + 0x90) = *(f32 *)(work + 0x134);
-    *(f32 *)(work + 0x94) = *(f32 *)(work + 0x138) + (f32)*(s32 *)(work + 0x12C);
-    *(f32 *)(work + 0xD0) = *(f32 *)(work + 0x134) + (f32)*(s32 *)(work + 0x128);
-    *(f32 *)(work + 0xD4) = *(f32 *)(work + 0x138) + (f32)*(s32 *)(work + 0x12C);
-    pkt = func_00461390(D_00793E80 + *(s32 *)(work + 0x188) * 0x30, 4, work + 0x10, 4);
-    *(void **)(pkt + 8) = (void *)func_002b5120;
-    *(u8 **)(pkt + 0x10) = work;
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b52a0);
-#endif
+#pragma opt_loop_invariants off
 // FUN_002B5C60
 void func_002b5c60(u8 *arg0)
 {
