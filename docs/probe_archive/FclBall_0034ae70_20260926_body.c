@@ -21,7 +21,12 @@
    volatile, a 2-D view, `-e14 + nearZ` / `nearZ + -e14`, integer-cast
    operands (185), an `f32 *depth` pointer (185-282), and pragmas
    (common_subs off 249, peephole off 378, propagation on 270,
-   optimization_level 3/4 293; the other five were inert). */
+   optimization_level 3/4 293; the other five were inert).
+   Closest miss (4 words): a value accessor
+   `static inline f32 GetNearZ(void) { return D_008872E0.nearZ; }`
+   loads nearZ first, as retail does, but ahead of the `i * 64` shift.
+   A pointer accessor behaves like the direct read (3), and an explicit
+   `ofs = i * 64` local is worse (176). */
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
