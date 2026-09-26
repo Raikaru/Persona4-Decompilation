@@ -1,3 +1,5 @@
+/* measured: this unit passes u8 colour channels unmasked (002f6cf0, 002f9d90); see fcl_color.h. */
+#define FCL_COLOR_ARG u8
 #include "model_motion_internal.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_fclCombine.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -4302,15 +4304,10 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f0f00);
    builders passed straight into 002ba5d0 keep retail's call order; the object ids
    reused inside the selected-row branch are locals computed before their first
    colour call; the row index is copied into its own local at each branch. */
-/* Parked: with every declaration agreeing with its definition this is 4 words
-   off, all at one call. Case 0x59 passes the lhu item id unmasked to
-   func_00313ae0, but that function's definition (code1_0031.c) takes a wider
-   parameter and masks it on entry (retail andi $a1, 0xffff), which b210 only
-   emits for a wider parameter; a u16 prototype here matches this caller but not
-   the callee. func_00310a10 and func_00105f50 take u16 (see
-   docs/probe_archive/FclCombine_002ed430_recovery_20260925.md). */
-// FUN_002F6CF0 NONMATCHING
-#ifdef NON_MATCHING
+/* The colour packers take u8 channels in this unit (FCL_COLOR_ARG u8): the
+   alphas are u8 locals and retail passes them unmasked. func_00313ae0 is
+   (s8 kind, u16 id) and widens the id once on entry. */
+// FUN_002F6CF0
 #pragma push
 #pragma opt_lifetimes on
 void func_002f6cf0(u8 *arg0) {
@@ -4330,25 +4327,24 @@ void func_002f6cf0(u8 *arg0) {
     extern void func_00323d00(u8 *, s32, s32);
     extern int func_00275820(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
     extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
-    /* The callee masks every channel itself; retail passes the unmasked alpha. */
-    extern s32 func_002b2a30(s32, s32, s32, s32);
+    extern s32 func_002b2a30(u8, u8, u8, u8);
     extern void func_002ba970(u8 *, s16, u32);
     extern void func_002ba5d0(u8 *, s32, s32, s64, FclDrawColor, s64, f32);
     extern s32 func_003139d0(s8, s8);
     extern s32 func_002bb1c0(s8);
     extern s32 func_00104c70(s32);
     extern s16 func_00247770(s32);
-    extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
-    extern s32 func_0011c610(u8 *);
+    extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
+    extern u32 func_0011c610(u8 *);
     extern void func_0011c630(u8 *);
     extern void func_0011c6e0(u8 *, s32);
     extern void func_0011caf0(u8 *);
-    extern void func_0011d140(u8 *, s32); /* retail loads the colour into $a1 */
+    extern void func_0011d140(u8 *, s32);
     extern void func_003144d0(u8 *, s32, s8, s32, s32);
     extern void func_00314450(u8 *, s32, u8, s32);
     extern s32 func_00311930(s32, u8 *, s8);
-    extern s64 func_00313ae0(s64, s32);
-    extern s32 func_00313a80(s64, s64);
+    extern s8 func_00313ae0(s8, u16);
+    extern s32 func_00313a80(s8, s8);
     extern void func_002f9c30(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 *, s32, s8, s8);
     extern u8 D_00795E60[];
     extern f32 D_00640E70[];
@@ -4382,9 +4378,9 @@ void func_002f6cf0(u8 *arg0) {
     s16 i;
     s16 k;
     s16 m;
-    s32 alpha;
-    s32 alpha2;
-    s32 alpha3;
+    u8 alpha;
+    u8 alpha2;
+    u8 alpha3;
     s32 rgba;
     s32 rgba2;
     s32 rgba3;
@@ -4948,9 +4944,6 @@ void func_002f6cf0(u8 *arg0) {
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f6cf0);
-#endif
 
 // FUN_002F9C30
 void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, u8 *arg6, s32 arg7, s8 arg8, s8 arg9) {
@@ -5006,8 +4999,7 @@ void func_002f9d90(u8 *arg0) {
     extern void func_00325450(u8 *, s32, s32);
     extern int func_00275820(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
     extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
-    /* The callee masks every channel itself; retail passes the unmasked alpha. */
-    extern s32 func_002b2a30(s32, s32, s32, s32);
+    extern s32 func_002b2a30(u8, u8, u8, u8);
     extern void func_002ba970(u8 *, s16, u32);
     extern s32 func_002bb1c0(s8);
     extern s32 func_00104c70(s32);
@@ -5018,7 +5010,7 @@ void func_002f9d90(u8 *arg0) {
     extern void func_0011c6e0(u8 *, s32);
     extern void func_0011caf0(u8 *);
     extern void func_0011d140(u8 *, s32); /* retail loads the colour into $a1 */
-    extern void func_003144d0(u8 *, s32, u8, s32, s32);
+    extern void func_003144d0(u8 *, s32, s8, s32, s32);
     extern void func_00314450(u8 *, s32, u8, s32);
     extern s32 func_00311930(s32, u8 *, s8);
     extern s16 func_002b2d50(s16, s16, s16, s16, s16);
@@ -5036,10 +5028,10 @@ void func_002f9d90(u8 *arg0) {
     FclVec2 pos6;
     s16 j;
     u8 shade;
-    s32 alpha;
-    s32 alpha3;
-    s32 alpha2;
-    s32 alpha4;
+    u8 alpha;
+    u8 alpha3;
+    u8 alpha2;
+    u8 alpha4;
     s32 color2;
     s32 color;
     u16 buttons;
@@ -5511,7 +5503,7 @@ void func_002fbea0(u8 *arg0) {
     extern void func_0032c480(u8 *);
     extern s8 *func_0034a630(s32);
     extern void func_0011d1d0(u8 *, f32);
-    extern s8 func_002bb1c0(s8);
+    extern s32 func_002bb1c0(s8);
     extern void func_0010fd40(void *);
     extern void func_00314750(u8 *, s32);
     extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
@@ -8074,7 +8066,7 @@ void func_00304580(u8 *arg0) {
     extern void func_002badc0(s8, s32);
     extern void func_002bafc0(s8, s32);
     extern void func_002bb0a0(s8, s32);
-    extern s8 func_002bb1c0(s8);
+    extern s32 func_002bb1c0(s8);
     extern void func_002bb550(s8);
     extern s32 func_002bb680(s8);
     extern void func_002bbcf0(s8);

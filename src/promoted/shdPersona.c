@@ -14,7 +14,7 @@ u16 func_00109360(u16 character);
 
 typedef unsigned int ShdByte __attribute__((mode(QI)));
 
-void func_0011e230();
+void func_0011e230(u8 *arg0, s32 arg1);
 void func_0011e240();
 void func_0046d4c0(s32, s32, s32, f32, f32, u8, u8, u8, u8, f32, s32);
 void func_0011e2b0(u8 *arg0, Vec2f *arg1, Vec2f *arg2);
@@ -3717,9 +3717,9 @@ void func_0011d100(u8 *arg0, f32 *arg1)
 
 
 // FUN_0011D140
-void func_0011d140(u8 *arg0)
+void func_0011d140(u8 *arg0, s32 color)
 {
-    func_0011e230(*(s32 *)(((SdkTask *)arg0)->work + 0x4F8));
+    func_0011e230(*(u8 **)(((SdkTask *)arg0)->work + 0x4F8), color);
 }
 
 // FUN_0011D170
@@ -3728,7 +3728,7 @@ void func_0011d140(u8 *arg0)
    of the two reads. The typed form is not codegen-neutral here. */
 void func_0011d170(u8 *arg0, s32 arg1, s32 arg2)
 {
-    func_0011e230(*(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4F8));
+    func_0011e230(*(u8 **)(*(u8 **)(arg0 + 0x38) + 0x4F8), arg1);
     func_0011e3c0(*(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4F8), arg2);
 }
 

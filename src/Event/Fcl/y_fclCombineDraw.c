@@ -206,14 +206,14 @@ void func_00314450(u8 *arg0, s32 arg1, u8 arg2, s32 arg3) {
 }
 
 // FUN_003144D0
-void func_003144d0(u8 *arg0, s32 arg1, u8 arg2, s32 arg3, s32 arg4) {
+void func_003144d0(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, s32 arg4) {
     f32 sp18[2];
     u32 t = *(u32 *)(arg0 + 0x38);
 
     fclZero8((u8 *)sp18);
     sp18[1] = 40.0f * (f32)arg4;
     *(s32 *)((u32)t + 8) = arg1;
-    *(u8 *)((u32)t + 0xC) = arg2;
+    *(s8 *)((u32)t + 0xC) = arg2;
     *(u8 *)((u32)t + 0) = 8;
     *(s32 *)((u32)t + 0x10) = arg3;
     func_0011d100((u8 *)*(u32 *)((u32)t + 4), sp18);
@@ -336,8 +336,8 @@ void func_00314750(u8 *arg0, s8 arg1) {
 }
 
 // FUN_003147D0
-u32 func_003147d0(u8 *arg0) {
-    return *(u32 *)(*(u8 **)(arg0 + 0x38) + 4);
+u8 *func_003147d0(u8 *arg0) {
+    return *(u8 **)(*(u8 **)(arg0 + 0x38) + 4);
 }
 
 /* measured: nd 0 (1800-byte object in the 1808-byte window, zero tail).

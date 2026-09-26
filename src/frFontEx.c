@@ -398,7 +398,7 @@ s8 func_00275a40(char param_1)
 
 
 // FUN_002BB1C0
-s8 func_002bb1c0(char param_1)
+s32 func_002bb1c0(s8 param_1)
 {
     return (&D_00764670)[param_1];
 }
