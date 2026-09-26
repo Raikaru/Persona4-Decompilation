@@ -8065,6 +8065,7 @@ DAT_007644F0 = 0x007644f0; // type:data
 DAT_007644F4 = 0x007644f4; // type:data
 iGpffffb408 = 0x007644f8; // type:data
 iGpffffb40c = 0x007644fc; // type:data
+iGpffffb410 = 0x00764500; // type:data
 D_00724504 = 0x00764504; // type:data
 gEncountTbl = 0x00764504; // type:data
 iGpffffb414 = 0x00764504; // type:data
