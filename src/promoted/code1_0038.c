@@ -598,16 +598,14 @@ void func_00384cc0(u8 *work)
 }
 /* The two work floats are each reused across the phases, as retail's FP
    colouring shows: `ratio` holds the first-phase interpolation and then the
-   width delta, `extent` the start value and then the half width. */
+   width delta, `extent` the start value and then the half width.
+   -0.2617994f is -15 degrees in radians (the sprite below is drawn at -15.0f);
+   it and the other float literals are pooled in retail's gp data. */
 // FUN_00385380
 void func_00385380(u8 *arg0)
 {
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern f32 sinf(f32 fparg0);
-    extern f32 fGpffff8308;
-    extern f32 fGpffff82cc;
-    extern f32 fGpffff80bc;
-    extern f32 fGpffff83c8;
     u8 alpha;
     u16 *counter = (u16 *)(arg0 + 0x1E);
     s32 resource = *(s32 *)(*(u8 **)arg0 + 0x1F2AC);
@@ -623,26 +621,26 @@ void func_00385380(u8 *arg0)
 
     extent = func_00373cb0((f32)*counter, 14.0f, 18.0f, 2);
     ratio = func_00373cb0((f32)*counter, 5.0f, 6.0f, 1);
-    blend = fGpffff8308 * ratio + (fGpffff80bc - fGpffff82cc * func_00373cb0((f32)*counter, 0.0f, 5.0f, 1));
+    blend = 0.1f * ratio + (1.3f - 0.4f * func_00373cb0((f32)*counter, 0.0f, 5.0f, 1));
     point.x = 318.0f;
     point.y = 231.0f;
     RpSkyRenderStateSet(3, (void *)0x71801);
     RpSkyRenderStateSet(2, (void *)0x48);
-    func_00364c90(point, 0.0f, 0x71BA00FF, 270.0f * (blend - extent), 45.0f * blend, fGpffff83c8, 0);
+    func_00364c90(point, 0.0f, 0x71BA00FF, 270.0f * (blend - extent), 45.0f * blend, -0.2617994f, 0);
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 
     ratio = func_00373cb0((f32)*counter, 5.0f, 6.0f, 1);
-    blend = fGpffff8308 * ratio + (fGpffff80bc - fGpffff82cc * func_00373cb0((f32)*counter, 2.0f, 5.0f, 1));
+    blend = 0.1f * ratio + (1.3f - 0.4f * func_00373cb0((f32)*counter, 2.0f, 5.0f, 1));
     ratio = blend - extent;
     alpha = 255.0f * func_00373cb0((f32)*counter, 2.0f, 5.0f, 1);
     inv = 1.0f - ratio;
     extent = (190.0f * inv) / 2.0f;
-    s = sinf(fGpffff83c8);
+    s = sinf(-0.2617994f);
     halfHeight = (39.0f * inv) / 2.0f;
-    point.x = 221.0f + extent * cosf(fGpffff83c8) - halfHeight * s;
-    s = sinf(fGpffff83c8);
-    point.y = 2.0f + (235.0f + ((39.0f * (1.0f - blend)) / 2.0f) * cosf(fGpffff83c8) + extent * s);
+    point.x = 221.0f + extent * cosf(-0.2617994f) - halfHeight * s;
+    s = sinf(-0.2617994f);
+    point.y = 2.0f + (235.0f + ((39.0f * (1.0f - blend)) / 2.0f) * cosf(-0.2617994f) + extent * s);
     scaleX = 4096.0f * ratio;
     scaleY = 4096.0f * blend;
     func_0034f4a0(resource, 0x12, point.x, point.y, 0.0f, 0, 0, 0, alpha, scaleX, scaleY, -15.0f, 0, 0);
