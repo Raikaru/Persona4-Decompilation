@@ -1,10 +1,11 @@
-/* func_002eb270 draft, 2026-09-26: 52 fnalign edits (all one $s0/$s1 swap in
-   the 0xB5 == 8 block), object size equal to retail.  Written against the
-   contracts
+/* func_002eb270 draft, 2026-09-26: 48 differing words (fndiff), object size
+   equal to retail.  Every layout except 0xB5 == 8 matches; there the mode
+   and the slot pointer take $s1/$s0 where retail has $s0/$s1.  The
+   contracts it needs have landed:
        FclVec2 func_002b2970(f32 x, f32 y);
        void func_00317900(u8 *, FclVec2, FclVec2, s8, s16, s16, s16);
-   see FclCombine_002eb270_20260925.md.  To measure it before those land,
-   rename the two calls to stand-ins declared locally with those types. */
+   The same body is the NON_MATCHING draft in y_fclCombine.c.  See
+   FclCombine_002eb270_20260925.md. */
 /* One 12-byte slot of the combine layout tables at D_00640760 / D_006407C0. */
 typedef struct {
     f32 x;
@@ -94,7 +95,7 @@ void func_002eb270(u8 *arg0, s32 arg1) {
                 }
             }
             for (i3 = 0; i3 < 3; i3++) {
-                slot = (FclCombineLayoutSlot *)D_00640760 + (7U - i3);
+                slot = (FclCombineLayoutSlot *)D_00640760 + (7 - i3);
                 if (mode2 == 0) {
                     func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
                                  8 - i3, i3 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);

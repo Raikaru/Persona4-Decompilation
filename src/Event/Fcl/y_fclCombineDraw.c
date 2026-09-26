@@ -1045,10 +1045,10 @@ void func_00317410(u8 *arg0, s8 arg1) {
    depth, and the fade orders are converted to s16 at each call through
    the local func_002b6a70 prototype. */
 // FUN_00317900
-void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s64 arg3, s32 arg4, s32 arg5, s64 arg6) {
+void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s8 arg3, s16 arg4, s16 arg5, s16 arg6) {
     extern void func_002b6c30(s16, FclVec2, f32, s32);
     extern void func_002b6a70(s16, u8, u8, s32, s32, s16);
-    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s32);
+    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
     FclByte4 c23C;
     FclByte4 c238;
     FclByte4 c234;
@@ -1070,15 +1070,15 @@ void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s64 arg3, s32 arg4, s32
     f32 scale;
     s32 orderUp;
 
-    sprite = (s8)arg3 * 2 + 0xDF;
-    if ((s8)arg3 == 6) {
+    sprite = arg3 * 2 + 0xDF;
+    if (arg3 == 6) {
         sprite = 0xEF;
-    } else if ((s8)arg3 == 7) {
+    } else if (arg3 == 7) {
         sprite = 0xEB;
-    } else if ((s8)arg3 == 8) {
+    } else if (arg3 == 8) {
         sprite = 0xED;
     }
-    order = (s16)arg6;
+    order = arg6;
     orderUp = order + 1;
     func_002b6c30(sprite, func_002b2970(6.0f + pos.x, 4.0f + pos.y), (f32)arg5, orderUp);
     c23C = func_002b2a60(0x46, 0x6A, 0x82, 0xFF);
@@ -1086,16 +1086,16 @@ void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s64 arg3, s32 arg4, s32
     *(f32 *)(func_002b6150(sprite) + 0xA0) = 1.0f;
     *(f32 *)(func_002b6150(sprite) + 0xAC) = 1.0f;
     func_002b69f0(sprite, func_002b2970(6.0f + pos.x, 4.0f + pos.y), func_002b2970(6.0f + arg2.x, 4.0f + arg2.y), 0, 8, arg4);
-    frameId = frame = (s8)arg3 + 0x20D;
-    depthUp = (s16)arg5 + 1;
+    frameId = frame = arg3 + 0x20D;
+    depthUp = arg5 + 1;
     func_002b6c30(frameId, arg2, (f32)depthUp, order);
-    func_002b6c30((s8)arg3 + 0xF2, func_002b2970(6.0f + arg2.x, 78.0f + arg2.y), (f32)depthUp, orderUp);
+    func_002b6c30(arg3 + 0xF2, func_002b2970(6.0f + arg2.x, 78.0f + arg2.y), (f32)depthUp, orderUp);
     c238 = func_002b2a60(0x46, 0x6A, 0x82, 0xFF);
-    *(FclByte4 *)(func_002b6150((s8)arg3 + 0xF2) + 0x85) = c238;
-    func_002b6c30((s8)arg3 + 0xFD, func_002b2970(arg2.x - 12.0f, 104.0f + arg2.y), (f32)arg5, order + 2);
+    *(FclByte4 *)(func_002b6150(arg3 + 0xF2) + 0x85) = c238;
+    func_002b6c30(arg3 + 0xFD, func_002b2970(arg2.x - 12.0f, 104.0f + arg2.y), (f32)arg5, order + 2);
     c234 = func_002b2a60(0xE0, 0xFF, 0x33, 0xFF);
-    *(FclByte4 *)(func_002b6150((s8)arg3 + 0xFD) + 0x85) = c234;
-    if ((s8)arg3 == ((s16 *)(work + 0xC8))[*(s8 *)(work + 0xB4) * 5]) {
+    *(FclByte4 *)(func_002b6150(arg3 + 0xFD) + 0x85) = c234;
+    if (arg3 == ((s16 *)(work + 0xC8))[*(s8 *)(work + 0xB4) * 5]) {
         func_002b6c30(sprite, func_002b2970(6.0f + pos.x, 4.0f + pos.y), 59.0f, 0xAB);
         scale = iGpffff8360;
         *(f32 *)(func_002b6150(sprite) + 0xA0) = scale;
@@ -1108,20 +1108,20 @@ void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s64 arg3, s32 arg4, s32
         *(FclByte4 *)(func_002b6150(sprite) + 0x85) = c230;
         func_002b6c30(0x1DC, pos, 60.0f, 0xAA);
         func_002b69f0(0x1DC, pos, arg2, 0, 8, arg4);
-        func_002b69f0((s8)arg3 + 0xFD, func_002b2970(pos.x - 12.0f, 104.0f + pos.y), func_002b2970(arg2.x - 12.0f, 104.0f + arg2.y), 0, 8, arg4);
+        func_002b69f0(arg3 + 0xFD, func_002b2970(pos.x - 12.0f, 104.0f + pos.y), func_002b2970(arg2.x - 12.0f, 104.0f + arg2.y), 0, 8, arg4);
         func_002b68d0(frame, 0, 1);
-        if ((s8)arg3 < 6) {
+        if (arg3 < 6) {
             func_002b6c30(0xFC, func_002b2970(pos.x - 12.0f, 123.0f + pos.y), 59.0f, 0xAC);
             func_002b69f0(0xFC, func_002b2970(pos.x - 12.0f, 123.0f + pos.y), func_002b2970(arg2.x - 12.0f, 123.0f + arg2.y), 0, 8, arg4);
             c22C = func_002b2a60(0xE0, 0xFF, 0x33, 0xFF);
             *(FclByte4 *)(func_002b6150(0xFC) + 0x85) = c22C;
         }
-        func_002b68d0((s8)arg3 + 0xF2, 0, 1);
+        func_002b68d0(arg3 + 0xF2, 0, 1);
         func_002b7750(0x216, 0x87);
         *(s16 *)(func_002b6150(0x216) + 0x10) = 0;
         func_002b6c30(0x216, func_002b2970(6.0f + pos.x, 62.0f + pos.y), 62.0f, 0xAA);
         func_002b69f0(0x216, func_002b2970(6.0f + pos.x, 62.0f + pos.y), func_002b2970(6.0f + arg2.x, 62.0f + arg2.y), 0, 8, arg4);
-        fadeA = (s16)arg4 + 8;
+        fadeA = arg4 + 8;
         func_002b6a70(0x216, 0x40, 0x80, 1, 0x3C, fadeA);
         *(u8 *)(func_002b6150(0x216) + 0x73) = 1;
         func_002b68d0(0x216, 0xB, 0);
@@ -1129,7 +1129,7 @@ void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s64 arg3, s32 arg4, s32
         *(s16 *)(func_002b6150(0x217) + 0x10) = 0;
         func_002b6c30(0x217, func_002b2970(33.0f + pos.x, 62.0f + pos.y), 62.0f, 0xAA);
         func_002b69f0(0x217, func_002b2970(33.0f + pos.x, 62.0f + pos.y), func_002b2970(33.0f + arg2.x, 62.0f + arg2.y), 0, 8, arg4);
-        fadeB = (s16)arg4 + 0x26;
+        fadeB = arg4 + 0x26;
         func_002b6a70(0x217, 0x40, 0x80, 1, 0x3C, fadeB);
         *(u8 *)(func_002b6150(0x217) + 0x73) = 1;
         func_002b68d0(0x217, 0xB, 0);
@@ -1137,7 +1137,7 @@ void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s64 arg3, s32 arg4, s32
         *(s16 *)(func_002b6150(0x218) + 0x10) = 0;
         func_002b6c30(0x218, func_002b2970(20.0f + pos.x, 62.0f + pos.y), 61.0f, 0xAA);
         func_002b69f0(0x218, func_002b2970(20.0f + pos.x, 62.0f + pos.y), func_002b2970(20.0f + arg2.x, 62.0f + arg2.y), 0, 8, arg4);
-        fadeC = (s16)arg4 + 0x17;
+        fadeC = arg4 + 0x17;
         func_002b6a70(0x218, 0x40, 0x80, 1, 0x3C, fadeC);
         *(u8 *)(func_002b6150(0x218) + 0x73) = 1;
         func_002b68d0(0x218, 0xB, 0);
@@ -1164,11 +1164,11 @@ void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s64 arg3, s32 arg4, s32
         func_002b68d0(0x21B, 0xB, 0);
         return;
     }
-    func_002b69f0((s8)arg3 + 0x20D, pos, arg2, 0, 8, arg4);
-    func_002b69f0((s8)arg3 + 0xF2, func_002b2970(6.0f + pos.x, 78.0f + pos.y), func_002b2970(6.0f + arg2.x, 78.0f + arg2.y), 0, 8, arg4);
+    func_002b69f0(arg3 + 0x20D, pos, arg2, 0, 8, arg4);
+    func_002b69f0(arg3 + 0xF2, func_002b2970(6.0f + pos.x, 78.0f + pos.y), func_002b2970(6.0f + arg2.x, 78.0f + arg2.y), 0, 8, arg4);
     c228 = func_002b2a60(0x42, 0x6E, 0xFF, 0xFF);
-    *(FclByte4 *)(func_002b6150((s8)arg3 + 0xF2) + 0x85) = c228;
-    func_002b68d0((s8)arg3 + 0xFD, 0, 1);
+    *(FclByte4 *)(func_002b6150(arg3 + 0xF2) + 0x85) = c228;
+    func_002b68d0(arg3 + 0xFD, 0, 1);
     c224 = func_002b2a60(0x42, 0x6E, 0xFF, 0xFF);
     *(FclByte4 *)(func_002b6150(sprite) + 0x85) = c224;
 }
