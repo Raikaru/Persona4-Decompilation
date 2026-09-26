@@ -3380,6 +3380,21 @@ void func_0018e4d0(u8 *arg0)
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
+/* One 0x4A-byte pad record; the pads start at 0x8C0240 (func_00452760). */
+typedef struct {
+    u8 unk00[0xC];
+    u16 level;
+    u16 trigger;
+    u8 unk10[2];
+    u16 repeat;
+    u8 unk14[0x36];
+} PadStatus;
+typedef struct {
+    u8 r, g, b, a;
+} PanelColor;
+typedef struct {
+    f32 x, y;
+} DbTextPos;
 /* Floor: 95 differing words over 42 fnalign edits, 451 emitted against
    retail's 451 (0.0%).  Levers that moved it: pointer-typed state base
    instead of (s32), block-scoped row/column counters, the func_0017d1f0
@@ -3397,17 +3412,20 @@ void func_0018e4d0(u8 *arg0)
    fnalign edits).  Measured and rejected: hoisting `y << 8` to a y-loop
    temp (364 - retail keeps the per-use shifts, massive perturbation).
    Residual is the case-4 addu operand-order x6 + colour rotation wall. */
+/* 2026-09-26 round 3: the guarded body is now the 25-edit draft from
+   docs/probe_archive/L18B_0018e810_20260926_body.c (with the file's s32
+   format parameter; see that note for the remaining y-loop wall). */
 // FUN_0018E810 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0018e810(u8 *arg0)
 {
-    extern s64 iGpffff9fd0;
-    extern f32 iGpffff9fd8;
-    extern u8 iGpffff9fdc;
+    extern PadStatus D_008C0240[2];
+    static DbTextPos text_pos = {300.0f, 32.0f};
+    static PanelColor cell_color = {0xFF, 0x00, 0x00, 0x80};
     extern s32 iGpffffb240;
     extern s32 func_00470e20(s32 handle);
     extern void func_001582f0(s32 mode, s32 value, s32 arg2);
-    f32 spCC[1];
+    PanelColor color;
     u8 *state;
     s32 v0;
     s32 index;
@@ -3424,7 +3442,7 @@ s32 func_0018e810(u8 *arg0)
         *(s32 *)state += 1;
         break;
     case 1:
-        if (D_008C024E[0] & 0x40) {
+        if (D_008C0240[0].trigger & 0x40) {
             switch (func_00470e20(*(s32 *)(state + 0x1B438))) {
             case 0:
                 *((u8 *)func_00155280() + 0x4A) =
@@ -3475,9 +3493,9 @@ s32 func_0018e810(u8 *arg0)
         *(s32 *)state += 1;
         break;
     case 4:
-        if (D_008C024E[0] & 0x8000) {
+        if (D_008C0240[0].trigger & 0x8000) {
             *(s32 *)(state + 0x1B430) -= 1;
-        } else if (D_008C024E[0] & 0x2000) {
+        } else if (D_008C0240[0].trigger & 0x2000) {
             *(s32 *)(state + 0x1B430) += 1;
         }
         if (*(s32 *)(state + 0x1B430) < 0) {
@@ -3486,10 +3504,10 @@ s32 func_0018e810(u8 *arg0)
         if (*(s32 *)(state + 0x1B430) > 3) {
             *(s32 *)(state + 0x1B430) = 0;
         }
-        if (D_008C024E[0] & 0x40) {
+        if (D_008C0240[0].trigger & 0x40) {
             func_001582f0(*(s32 *)(state + 4), 0, 0);
         }
-        func_00450340(iGpffff9fd0, (s32)&iGpffff9fdc, iGpffffb240);
+        func_00450340(*(s64 *)&text_pos, (s32)"%d", iGpffffb240);
         {
             s32 y;
             s32 x;
@@ -3503,26 +3521,25 @@ s32 func_0018e810(u8 *arg0)
 
             for (y = 0; y < 0x18; y++) {
                 for (x = 0, ty = y * 0x12, panels = state + y * 0x1200; x < 0x10; x++) {
-                    if (*((u8 *)func_00155280() + (y << 8) + x * 0x10 + 0x54) != 0 &&
-                        (*((u8 *)func_00155280() + (y << 8) + x * 0x10 + 0x55) & 0xF) == 1) {
-                        off = x * 0x10;
-                        type = *((u8 *)func_00155280() + (y << 8) + off + 0x58);
+                    if (*((u8 *)((y << 8) + (u32)func_00155280()) + x * 0x10 + 0x54) != 0 &&
+                        (*((u8 *)((y << 8) + (u32)func_00155280()) + x * 0x10 + 0x55) & 0xF) == 1) {
+                        type = *((u8 *)((y << 8) + (u32)func_00155280()) + (off = x * 0x10) + 0x58);
                         fx = (f32)(x * 0x12);
                         fy = (f32)ty;
                         func_0017d1f0(D_007966D0, panels + x * 0x120 + 0x10, type, 0,
                                       fx, fy, 0.0f,
-                                      *((u8 *)func_00155280() + (y << 8) + off + 0x59));
+                                      *((u8 *)((y << 8) + (u32)func_00155280()) + off + 0x59));
                     }
-                    if (*((u8 *)func_00155280() + (y << 8) + x * 0x10 + 0x54) == 2) {
-                        spCC[0] = iGpffff9fd8;
-                        func_0014def0(D_007966D0, panels + x * 0x120 + 0x10, spCC, 0, 0,
+                    if (*((u8 *)((y << 8) + (u32)func_00155280()) + x * 0x10 + 0x54) == 2) {
+                        color = cell_color;
+                        func_0014def0(D_007966D0, panels + x * 0x120 + 0x10,
                                       (f32)(x * 0x12), (f32)ty, 0.0f, 18.0f, 18.0f,
-                                      0.0f, 0.0f, 0.0f, 0.0f);
+                                      (u8 *)&color, 0, 0.0f, 0.0f, 0.0f, 0, 0.0f);
                     }
                 }
             }
         }
-        if (D_008C024E[0] & 0x20) {
+        if (D_008C0240[0].trigger & 0x20) {
             *(s32 *)state = 0;
         }
         break;
@@ -3718,19 +3735,8 @@ extern s32 func_0015c630(u8 *arg0);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern void func_00156800(void *arg0, u32 mask);
 typedef struct {
-    u8 unk00[0xC];
-    u16 level;
-    u16 trigger;
-    u8 unk10[2];
-    u16 repeat;
-    u8 unk14[0x36];
-} PadStatus;
-typedef struct {
     s16 data[0x2B];
 } FieldPanelShape;
-typedef struct {
-    u8 r, g, b, a;
-} PanelColor;
 // FUN_0018F950
 s32 func_0018f950(u8 *arg0)
 {
