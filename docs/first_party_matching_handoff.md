@@ -8,6 +8,14 @@ The objective is a clean C replacement for each first-party `INCLUDE_ASM` functi
 
 ## Current checkpoint
 
+2026-09-27 continuation on upstream `7438a83`: **6,687 of 6,861
+first-party functions MATCH, 174 assembly fallbacks**. Six additional
+recoveries cover field shadows, the map test, date selection and line rendering.
+Complete verification and both retail hashes pass; 820 Python tests run
+with 10 skips. See `docs/probe_archive/Matching_continuation_20260927.md`.
+
+### Earlier September 21 checkpoint
+
 2026-09-21 recovered continuation: **6,438 of 6,860 first-party functions
 MATCH, with 422 assembly fallbacks**. The completed `resumed-62` receipts
 cover all 62 additional C recoveries since `0360227`. Source and object hashes

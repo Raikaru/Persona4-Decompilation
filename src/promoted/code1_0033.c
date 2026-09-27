@@ -93,7 +93,7 @@ extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s16, s16,
 extern u8 D_00794A80[];
 extern u8 D_00794AB0[];
 extern u8 func_002e78a0(void);
-extern u8 func_002e78e0(void);
+extern s32 func_002e78e0(void);
 extern s32 func_002be100(u8 arg0);
 extern u16 func_00107ac0(s32 arg0);
 extern s8 func_002bab80(void *arg0);

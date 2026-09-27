@@ -22,9 +22,9 @@ extern s32 func_00106600(s16 id);
 extern u16 func_00107ac0(u16 arg0);
 extern u8 D_006432B0[];
 extern u8 func_002e78a0(void);
-extern u8 func_002e78e0(void);
+extern s32 func_002e78e0(void);
 extern void func_002e7920(s32 *month, s32 *day);
-extern void func_00313d20(u8 *arg0, u8 month, u8 day, s8 mode);
+extern void func_00313d20(u8 *arg0, u8 month, s32 day, s8 mode);
 
 static inline s8 findDateEntry(u8 month, u8 day)
 {
@@ -401,7 +401,7 @@ void func_00313b50(u8 *arg0)
     *(s8 *)(work + 0x2D4) = findDateEntry(current_month, current_day);
     func_00313d20(arg0, func_002e78a0(), func_002e78e0(), 0);
     month = func_002e78a0();
-    day = func_002e78e0() + 1;
+    day = (u8)func_002e78e0() + 1;
     func_002e7920(&month, &day);
     *(s8 *)(work + 0x2D5) = findDateEntry((u8)month, (u8)day);
     func_00313d20(arg0, (u8)month, (u8)day, 1);
@@ -410,113 +410,89 @@ void func_00313b50(u8 *arg0)
     *(u8 *)(work + 0x2D6) = 0;
 }
 #pragma pop
-/* Floor: 129 differing words (probe_variants) over 60 fnalign edits (+4 reloc-only), 163 emitted against */
-/* retail's 163 (100%). Levers that moved it: truthful (u8-ptr,u8,u8,s8) sig */
-/* plus s64-return callee decl (140->138); structured while loops for the */
-/* jump-to-test lowering (138->135); opt_loop_invariants on for the hoisted */
-/* base-plus-offset address invariant (135->131); s8->s16 for temp_4_4/temp_11_3 */
-/* (edits 64->60, words 129 neutral). Ruled out with measurement: */
-/* var_17/var_18 decl swap (131->130); param-sourced x5 multiply (neutral at */
-/* 130, CSE-defeated); opt_propagation off (130->138, worse); var_18 reuse for */
-/* the -1 compare (neutral at 129). WALL: saved-register colour rotation plus */
-/* temp-reg selection and the resulting branch-displacement cascade; loop */
-/* bounds already slti-$v1 both sides (no slti-$at lever); no adjacent-const */
-/* OR fold; single call site (no index mask CSE shape); no MAC block. */
-/* measured 00313d20: `opt_common_subs off` inside the guard is worth 1 words (130 -> 129); retail rematerialises what b210 hoists. */
-// FUN_00313D20 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
+/* Select the highest-priority enabled date entry, retaining mandatory
+ * priority-100 entries and the retail repeated count-flag reads.
+ * The calendar branch consumes the low day byte; the explicit-date
+ * branch reuses that parameter as its signed-halfword loop index. */
+typedef struct DateSelectionWork {
+    u8 beforeCounts[0x2C0];
+    s16 counts[2];
+    u8 selectedFlags[2][5];
+    u8 beforeDate[4];
+    u8 nextMonth;
+    u8 nextDay;
+    s8 slots[2];
+    u8 nextSelection;
+    u8 padding;
+} DateSelectionWork;
+// FUN_00313D20
 #pragma push
 #pragma opt_loop_invariants on
-void func_00313d20(u8 *arg0, u8 arg1, u8 arg2, s8 arg3)
+void func_00313d20(u8 *task, u8 month, s32 day, s8 mode)
 {
-    extern s64 func_00110a60(s32 arg0, s32 arg1);
+    extern s64 func_00110a60(s32 month, s32 day);
     extern u8 D_00643D00[];
-    s32 temp_16;
-    s32 temp_4_5;
-    s32 temp_6;
-    s32 temp_11;
-    s32 temp_19;
-    s32 temp_4_2;
-    s32 var_18;
-    s32 var_17;
-    s32 var_4;
-    s32 var_6;
-    s32 var_8;
-    s16 temp_11_3;
-    s8 temp_4;
-    s16 temp_4_4;
-    u8 *temp_11_2;
-    u8 *temp_4_3;
-    u8 *temp_5;
-    u8 *temp_7;
-    u8 *temp_7_2;
-    u8 *temp_8;
+    s16 best;
+    DateSelectionWork *state;
+    s8 selected;
+    s32 savedMode;
+    s8 slot;
 
-    temp_16 = *(s32 *)(arg0 + 0x38);
-    var_18 = -1;
-    temp_19 = (s8)arg3;
-    temp_4 = *(s8 *)(temp_19 + temp_16 + 0x2D4);
-    if (temp_4 == -1) {
-        temp_7 = D_00643D00 + (s8)func_00110a60(arg1, arg2) * 0x14;
-        var_8 = 0;
-        temp_6 = temp_19 * 5;
-        while ((s16)var_8 < 5) {
-            temp_4_2 = (s16)var_8;
-            *(s8 *)(temp_16 + temp_6 + temp_4_2 + 0x2C4) = 0;
-            temp_4_3 = temp_7 + temp_4_2 * 4;
-            if (*(s8 *)temp_4_3 != 0) {
-                temp_4_4 = *(s8 *)(temp_4_3 + 1);
-                if ((s16)var_18 < temp_4_4) {
-                    var_17 = (s8)var_8;
-                    var_18 = (s16)temp_4_4;
+    state = *(DateSelectionWork **)(task + 0x38);
+    best = -1;
+    savedMode = mode;
+    slot = state->slots[mode];
+    if (slot == -1) {
+        u8 *fallback;
+        s16 i;
+        u8 *entry;
+        s8 priority;
+        fallback = D_00643D00 + 20 * (s8)func_00110a60(month, (u8)day);
+        for (i = 0; i < 5; i++) {
+            state->selectedFlags[savedMode][i] = 0;
+            entry = fallback + 4 * i;
+            if (*(s8 *)entry != 0) {
+                priority = *((s8 *)entry + 1);
+                if (best < priority) {
+                    selected = i;
+                    best = priority;
                 }
             }
-            var_8 = (s16)(var_8 + 1);
         }
-        if ((s16)var_18 != -1) {
-            *(s8 *)((s8)var_17 + temp_6 + temp_16 + 0x2C4) = 1;
-        }
+        if (best != -1) state->selectedFlags[savedMode][selected] = 1;
     } else {
-        temp_5 = D_006432B0 + temp_4 * 0x1C;
-        temp_8 = (u8 *)((temp_19 * 2) + temp_16);
-        *(s16 *)(temp_8 + 0x2C0) = 0;
-        var_4 = 0;
-        while ((s16)var_4 < 3) {
-            if (*(s8 *)(temp_5 + 2) != 0) {
-                *(s16 *)(temp_8 + 0x2C0) = (s16)(*(s16 *)(temp_8 + 0x2C0) + 1);
-            }
-            var_4 = (s16)(var_4 + 1);
+        u8 *date;
+        s16 j;
+        u8 *flag;
+        u8 *entry;
+        s8 priority;
+        date = D_006432B0 + 28 * slot;
+        state->counts[mode] = 0;
+        /* Retail tests this same flag three times; the date pointer stays fixed. */
+        for (j = 0; j < 3; j++) {
+            if (*((s8 *)date + 2) != 0) ++state->counts[mode];
         }
-        var_6 = 0;
-        temp_4_5 = temp_19 * 5;
-        while ((s16)var_6 < 5) {
-            temp_11 = (s16)var_6;
-            temp_7_2 = (u8 *)(temp_16 + temp_4_5 + temp_11);
-            *(s8 *)(temp_7_2 + 0x2C4) = 0;
-            temp_11_2 = temp_5 + temp_11 * 4;
-            if (*(s8 *)(temp_11_2 + 8) != 0) {
-                *(s16 *)(temp_8 + 0x2C0) = (s16)(*(s16 *)(temp_8 + 0x2C0) + 1);
-                temp_11_3 = *(s8 *)(temp_11_2 + 9);
-                if (temp_11_3 == 0x64) {
-                    *(s8 *)(temp_7_2 + 0x2C4) = 1;
-                } else if ((s16)var_18 < temp_11_3) {
-                    var_17 = (s8)var_6;
-                    var_18 = (s16)temp_11_3;
+        /* The calendar path consumes day; this branch reuses it as an index. */
+        day = 0;
+        while ((s16)day < 5) {
+            flag = &state->selectedFlags[(u32)mode][(s16)day];
+            *flag = 0;
+            entry = date + 4 * (s16)day;
+            if (*((s8 *)entry + 8) != 0) {
+                ++state->counts[mode];
+                priority = *((s8 *)entry + 9);
+                if (priority == 100) *flag = 1;
+                else if (best < priority) {
+                    selected = day;
+                    best = priority;
                 }
             }
-            var_6 = var_6 + 1;
+            day = (s16)(day + 1);
         }
-        if ((s16)var_18 != -1) {
-            *(s8 *)((s8)var_17 + temp_4_5 + temp_16 + 0x2C4) = 1;
-        }
+        if (best != -1) state->selectedFlags[(u32)mode][selected] = 1;
     }
 }
 #pragma pop
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00313d20);
-#endif
 // FUN_00313FB0
 s32 func_00313fb0(u8 *arg0)
 {

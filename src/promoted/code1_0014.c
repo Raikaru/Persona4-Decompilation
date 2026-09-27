@@ -199,7 +199,7 @@ extern void func_004b1170(s32 arg0);
 extern s32 func_004b11b0(s32 arg0);
 extern void func_004b1250(s32 arg0, u8 *arg1);
 extern s32 func_001684a0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0);
-extern void *func_0017b510(u8 *parent, s32 id, s32 mode);
+extern void *func_0017b510(u8 *parent, u16 id, s32 mode);
 extern void func_004b13d0(s32 arg0, f32 arg1);
 
 extern s32 D_007642E4;
@@ -2087,6 +2087,7 @@ s32 func_00145510(u16 arg0, s32 arg1) {
 s32 func_00145540(u16 arg0, s32 arg1, s32 arg2) {
     s8 sp50[0xC];
     s32 temp_16;
+    u16 shadowId;
     s32 temp_2_2;
     s32 temp_4;
     s8 *var_3;
@@ -2103,6 +2104,7 @@ s32 func_00145540(u16 arg0, s32 arg1, s32 arg2) {
         } while (var_2 != 0);
     }
     temp_16 = ((arg0 & 0xFFFF & 0x3FF) | 0x400) & 0xFFFF;
+    shadowId = temp_16;
     temp_4 = *(s32 *)(iGpffff9db0 + 8);
     if (temp_4 == 0) {
         func_00440b68(&D_005EF820);
@@ -2120,7 +2122,7 @@ s32 func_00145540(u16 arg0, s32 arg1, s32 arg2) {
     RwMatrixUpdate(mdlGetMatrix(*(s32 *)(temp_2 + 0x164)));
     temp_2_2 = func_001684a0(0, temp_16 & 0xFFFF, 0, 60.0f);
     *(s32 *)(temp_2 + 0x220) = temp_2_2;
-    *(void **)(temp_2 + 0x224) = func_0017b510((u8 *)temp_2_2, temp_16, arg1);
+    *(void **)(temp_2 + 0x224) = func_0017b510((u8 *)temp_2_2, shadowId, arg1);
     return temp_16;
 }
 // FUN_00145690
@@ -2162,6 +2164,7 @@ s32 func_00145690(u16 arg0, s32 arg1) {
 s32 func_00145780(u16 arg0, s32 arg1, s32 arg2) {
     s8 sp[0xC];
     s32 temp_17;
+    u16 shadowId;
     s32 temp_2_2;
     s32 temp_4;
     s8 *clear;
@@ -2178,6 +2181,7 @@ s32 func_00145780(u16 arg0, s32 arg1, s32 arg2) {
         } while (var_2 != 0);
     }
     temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0xC00) & 0xFFFF;
+    shadowId = temp_17;
     temp_4 = *(s32 *)(iGpffff9db0 + 8);
     if (temp_4 == 0) {
         func_00440b68(&D_005EF820);
@@ -2194,7 +2198,7 @@ s32 func_00145780(u16 arg0, s32 arg1, s32 arg2) {
     *(s32 *)(temp_2 + 0x164) = arg2;
     temp_2_2 = func_001684a0(0, temp_17 & 0xFFFF, 0, 60.0f);
     *(s32 *)(temp_2 + 0x228) = temp_2_2;
-    *(void **)(temp_2 + 0x230) = func_0017b510((u8 *)temp_2_2, temp_17, arg1);
+    *(void **)(temp_2 + 0x230) = func_0017b510((u8 *)temp_2_2, shadowId, arg1);
     return temp_17;
 }
 // FUN_001459B0

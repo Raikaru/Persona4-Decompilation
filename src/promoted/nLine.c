@@ -1,3 +1,4 @@
+#include "nline_vertex_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
@@ -68,12 +69,11 @@ void func_0034cef0(u8 *arg0);
 s16 func_0034e290(u8 *arg0, s32 arg1);
 s32 func_0034e360(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 void func_0034ee90(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
-void func_0034f0d0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7);
 u32 RpRandom(void);
 void func_00364c50(void);
 void func_00364c70(void);
 void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-u8 *func_00457120(void);
+s32 func_00457120(void);
 f32 sinf(f32 arg0);
 f32 cosf(f32 arg0);
 
@@ -557,7 +557,7 @@ void func_0034c6c0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 
     f32 scale;
 
     z = D_008872F8[0] - D_0088467C[0];
-    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    scale = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     func_0034f0d0(arg0, fparg0, fparg1, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
     func_0034f0d0(arg0 + 0x40, fparg0, fparg1 + fparg3, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
     func_0034f0d0(arg0 + 0x80, fparg0 + fparg2, fparg1 + fparg3, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
@@ -639,7 +639,7 @@ void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2) {
         width1 = *(f32 *)(arg0 + 8) - arg1.x;
         y1 = arg1.y;
         z1 = D_008872F8[0] - D_0088467C[0];
-        q1 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+        q1 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
         alpha1 = arg2 & 0xFF;
         func_0034f0d0(arg0 + 0x890, arg1.x, y1, z1, q1, 255, 255, 129, alpha1);
         func_0034f0d0(arg0 + 0x8D0, arg1.x, addF(y1, 448.0f), z1, q1, 255, 255, 129, alpha1);
@@ -653,7 +653,7 @@ void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2) {
         y2 = arg1.y;
         x2 = extent2 + arg1.x;
         z2 = D_008872F8[0] - D_0088467C[0];
-        q2 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+        q2 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
         alpha2 = arg2 & 0xFF;
         func_0034f0d0(arg0 + 0x890, x2, y2, z2, q2, 255, 255, 129, alpha2);
         func_0034f0d0(arg0 + 0x8D0, x2, addF(y2, 448.0f), z2, q2, 255, 255, 129, alpha2);
@@ -676,7 +676,7 @@ void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2) {
         y3 = arg1.y;
         x3 = arg1.x + (*(f32 *)(arg0 + 8) - width3);
         z3 = D_008872F8[0] - D_0088467C[0];
-        q3 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+        q3 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
         alpha3 = arg2 & 0xFF;
         func_0034f0d0(arg0 + 0x890, x3, y3, z3, q3, 255, 255, 129, alpha3);
         func_0034f0d0(arg0 + 0x8D0, x3, addF(y3, 448.0f), z3, q3, 255, 255, 129, alpha3);
@@ -1020,7 +1020,7 @@ void func_0034d890(u8 *arg0, s32 arg1) {
     temp_f20 = *(f32 *)(arg0 + 0x9A0);
     temp_f22 = (247.0f - 82.0f * temp_f0) + *(f32 *)(arg0 + 0x99C);
     temp_f23 = D_008872F8[0] - D_0088467C[0];
-    temp_f24 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_f24 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     temp_3 = (u8)temp_16;
     func_0034f0d0(arg0 + 0x690, temp_f22, temp_f20, temp_f23, temp_f24,
                   0xFF, 0xE9, 0x2C, temp_3);
@@ -1073,7 +1073,7 @@ void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1) {
     top = inset_y + *(f32 *)(arg0 + 0x9A0);
     left = inset_x + *(f32 *)(arg0 + 0x99C);
     depth = D_008872F8[0] - D_0088467C[0];
-    reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     func_0034f0d0(arg0 + 0x690, left, top, depth, reciprocal, 255, 233, 44, 255);
     bottom = addF(top, height);
     func_0034f0d0(arg0 + 0x6D0, left, bottom, depth, reciprocal, 255, 233, 44, 255);
@@ -1083,51 +1083,17 @@ void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1) {
     *(s16 *)(arg0 + 0x1670) = func_0034e360(arg0, inset_x + *(f32 *)(arg0 + 0x99C), inset_y + *(f32 *)(arg0 + 0x9A0), width, height);
     func_0034ee90(arg0, 0.0f, 0.0f, amount);
 }
-/* measured: disabling common-subexpression elimination preserves retail's
-   per-call corner recomputation. */
+/* Measured: the initialized output helper keeps the height lifetime separate
+ * from alpha conversion. The body uses common-subexpression elimination;
+ * the helper preserves the retail multiply and floating-point register use. */
 #pragma opt_common_subs off
-/* Floor (re-measured 2026-09-17): probe_variants 5 reloc-masked differing */
-/* words; fnalign retail 175 instrs / object 175 instrs, 5 edits plus 6 */
-/* reloc-only (175*4 = 700B in the 704B window; the 1-word suffix is retail */
-/* zero tail). All five edits sit in the alpha float-to-int clamp: retail */
-/* `cvt.w.s $f1,$f2` against object `cvt.w.s $f2,$f2`, cascading through the */
-/* high-path sub.s/cvt/mfc1 FPR colour. That is destination selection, not */
-/* source shape: sibling func_00311930 (code1_0031.c) measures 149/149 with */
-/* 5 words / 5 edits over the same cvt.w.s/mfc1 colour wall (re-measured */
-/* 2026-09-17), so this floor is banked with that evidence rather than */
-/* ground further. Body banked verbatim from */
-/* docs/probe_archive/VNLN_0034ddf0_body.c; its native geometry and */
-/* mutating-callback smoke evidence stays in the archive. Pragma sweep */
-/* 2026-09-17: `opt_propagation off` is load-bearing (bare body scores 140), */
-/* the file `opt_common_subs off` region is load-bearing (forcing it on */
-/* scores 161), `schedule on` scores 158, `opt_loop_invariants on` ties at */
-/* 5 words / 5 edits with an identical stream and is omitted for simplicity. */
-/* Pairs 2026-09-17 (`tools/pragma_sweep.py --pairs`, 8 singles + 28 pairs, */
-/* banked 5, already carries prop_off): ties at 5 only with prop_off */
-/* (prop alone + 5 prop pairs); bare 140, cse/loopinv/strength/unroll 140, */
-/* dead 144, sched 156, peephole 146/205. No pair beats prop_off; floor stands. */
-/* Semantic gate: (u8*,s32) signature matches retail and both headstarts; */
-/* the alpha-narrowing idiom mirrors MATCHED sibling func_0034d890 above. */
-/* 2026-09-18, handoff 7h-quinquies and 7p probes; floor stands at 5.  The
-   residual is conversion-register selection: retail lands `cvt.w.s` in $f1
-   at instructions 70 and 77, this body lands it in $f2, reusing the source
-   register.  The 7h-quinquies pragma lever does not reach it here -
-   `opt_common_subs off`, `opt_propagation off` and `schedule off` all tie at
-   5, and `optimization_level 1` costs 121.  Nor does the source form of the
-   conversion: folding the product into the cast ties at 5, assigning the
-   product back into `var_f1` costs 9, and forcing an explicit integer
-   intermediate - `(u8)(s32)temp_f2_2` or a separate `s32 conv` - costs 101
-   both ways, because it materialises a second conversion. */
-/* 2026-09-19 pair close-out (Main request): fnalign 175/175, 5 edits +6 reloc-only =11 floor_distance edits, 17 words. Frame addiu $sp,-0x50 both sides -- match, closed on frame. */
-/* - reloc-only [22:23] lwc1 $f0,-0x7f6c($gp) vs lwc1 $f0,($gp) (iGpffff8094): immediate. */
-/* - replace [70:72] cvt.w.s $f1,$f2 + mfc1 $v1,$f1 vs cvt.w.s $f2,$f2 + mfc1 $v1,$f2: register-only FPR rotation $f1<->$f2 (conversion-temp selection, 7h-bis). */
-/* - replace [76:79] sub.s $f1,$f2,$f1 + cvt.w.s $f1,$f1 + mfc1 $v1,$f1 vs sub.s $f2,$f2,$f1 + cvt.w.s $f2,$f2 + mfc1 $v1,$f2: register-only FPR rotation (high-path cascade of the same temp). */
-/* - reloc-only [92:93] lwc1 $f0,-0x7de0($gp) vs lwc1 $f0,($gp) (iGpffff8220): immediate. */
-/* - reloc-only [101:105] lui $v0,0x88 + lwc1 $f1,0x72f8($v0) + lui $v0,0x88 + lwc1 $f0,0x467c($v0) vs lui $v0,0 + lwc1 $f1,($v0) + lui $v0,0 + lwc1 $f0,($v0) (D_008872F8/D_0088467C): immediates. */
-/* No $a0-$t0 spill move, no operand-order (mul/div/sub operand order already retail's), no branch-offset (bc1t/bc1f/c.lt/c.le all match), no nop-vs-work (both sides emit cvt+mfc1+andi). Next person: finished on frame/count, open only on $f1/$f2 destination. */
-// FUN_0034DDF0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_propagation off
+static inline void nLineHeight(f32 *height, const f32 *amount)
+{
+    *height = 171.0f * *amount;
+}
+#pragma push
+#pragma opt_common_subs on
+// FUN_0034DDF0
 void func_0034ddf0(u8 *arg0, s32 arg1) {
     f32 temp_f2;
     f32 temp_f21;
@@ -1156,7 +1122,7 @@ void func_0034ddf0(u8 *arg0, s32 arg1) {
     if (arg1 == 0) {
         var_f0 = 1.0f - var_f0;
     }
-    temp_f21 = 171.0f * var_f0;
+    nLineHeight(&temp_f21, &var_f0);
     temp_2 = *(u8 *)(arg0 + 0x994);
     var_f1 = (f32)(u32)temp_2;
     temp_f2_2 = var_f1 * var_f0;
@@ -1166,7 +1132,7 @@ void func_0034ddf0(u8 *arg0, s32 arg1) {
     temp_f20 = addF(temp_f1, *(f32 *)(arg0 + 0x9A0));
     temp_f24 = 77.0f + *(f32 *)(arg0 + 0x99C);
     projection.depth = D_008872F8[0] - D_0088467C[0];
-    projection.reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    projection.reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     temp_3 = (u8)temp_16;
     func_0034f0d0(arg0 + 0x690, temp_f24, temp_f20, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
     temp_f21 = addF(temp_f20, temp_f21);
@@ -1175,10 +1141,9 @@ void func_0034ddf0(u8 *arg0, s32 arg1) {
     func_0034f0d0(arg0 + 0x750, addF(temp_f24, 580.0f), temp_f20, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
 }
 #pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ddf0);
-#endif
-/* measured: closes ddf0 common-subexpression scope after its archived body. */
+
+#pragma pop
+/* Restore the common-subexpression setting for the following callbacks. */
 #pragma opt_common_subs on
 /* measured: snapshot alpha before the camera callback, then narrow for the
    vertex calls. addF keeps each translated corner addition separate. */
@@ -1195,7 +1160,7 @@ void func_0034e0b0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
     y = fparg1 + *(f32 *)(arg0 + 0x9A0);
     x = fparg0 + *(f32 *)(arg0 + 0x99C);
     z = D_008872F8[0] - D_0088467C[0];
-    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    scale = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     byte_alpha = (u8)alpha;
     func_0034f0d0(arg0 + 0x690, x, y, z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
     func_0034f0d0(arg0 + 0x6D0, x, addF(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
@@ -1225,48 +1190,70 @@ s16 func_0034e290(u8 *arg0, s32 arg1) {
     return val;
 }
 
-/* measured: GUARDED_SCORE 331 via tools/measure_guarded.py */
-/* src/promoted/nLine.c func_0034e360; fnalign retail 662/object 662 instrs */
-/* exact (2648B emitted/window 2656B, 8B zero tail), 233 edits +11 reloc-only. */
-/* De-noised /var/tmp/cold34e360/m2c.c (259 lines, s128 sp110/sp100, spFC..spD4, */
-/* goto-loops) + romwright.c (211 lines, arity 5) + romwright_raw.c (198 lines) */
-/* + romwright_types.txt (arg0 +0x994/+0x998/+0x99A) + ghidra nLine.c:464-659 + */
-/* ida nLine.c:335-449 + docs/probe_archive/VNLN_0034e360_body.c (334) into file */
-/* idiom (Vec2f, s32 return, 44B NLineDecorationStyle, floats-first f0d0, */
-/* iGpffffa950). Neighbouring opt_loop_invariants/opt_propagation/opt_common_subs */
-/* regions read (ba30, bd60, bea0/c120, c270, d070/d280/d490/d690, ddf0); none */
-/* kept without measurement. Step1 counts exact: no float-to-unsigned lui 0x4f00, */
-/* s16 mode/index correct (retail 3 dsll32), no struct-copy widen, no defensive */
-/* init (directions unset on custom-size path). Step2 pragma_sweep banked 331: */
-/* strength/unroll tie 331, loop 496, dead 498, prop 562, subs 574, peephole 594, */
-/* schedule 616, O3/O4 617, O1 624, O0 767 — no keep. Step3 subscript: byte-offset */
-/* *(f32*)((u8*)style+24+i*4) 493 regress (+162), array-idx tie 334 — P[i] stands; */
-/* base pointer not hoisted (retail reloads each iteration). Step4 decl order: */
-/* direction_y before direction_x 334->331 WINNER (-3, edits 249->233); depth/vert */
-/* ties 334; second round (mode/start/vert-top) all tie 331; expr mulswap + */
-/* split-center tie 331 — two consecutive non-improving (decl2+expr) so bank 331. */
-/* Biggest residual: saved-GPR/FP rotation + stack-slot shifts + slti $at vs $v0 */
-/* at 0x34 + add.s/mul.s operand orientation. verify 26 MATCH/2 ASM/0 MISMATCH; */
-/* lint 0 errors (1 pre-existing H007 warn at c270:449). */
-// FUN_0034E360 NONMATCHING
-#ifdef NON_MATCHING
+/* Build the decoration mesh: styles 1-4 form successive V-shaped strips;
+   style 5 draws nested rectangles in reverse layer order. Style records
+   have a 44-byte stride and at most five color/distance entries.
+   Native b210 -O2: 2648 exact bytes, 8 zero alignment bytes. The edge
+   normal record and scoped observation helpers preserve the measured
+   register lifetimes without changing projection or callback timing. */
 typedef struct {
     s16 count;
     s32 colors[5];
     f32 offsets[5];
 } NLineDecorationStyle;
 
-/* Styles 1-4 require a full-width or full-height translated edge. Retail */
-/* does not initialize directions on the custom-size path; style 5 does */
-/* not use them. Do not invent a direction for unsupported combinations. */
+/* Styles 1-4 receive a full-width or full-height translated edge. The
+ * animation table disables decoration for scaled rectangles; the forced
+ * transition setter only selects the forward full-width rectangle case.
+ * The custom-size path serves style 5, which never reads edge directions.
+ * See the 2026-09-27 recovery note for the setter and retail-table audit. */
+/* measured: this index reference retains the previous-entry address
+   recomputation, separately from the current distance/color lookup. */
+#pragma push
+#pragma opt_common_subs off
+static inline void nLineLoadPreviousMargin(f32 *out, const NLineDecorationStyle *style, const s32 *index)
+{
+    *out = 30.0f + style->offsets[*index - 1];
+}
+#pragma pop
+
+/* measured: the referenced input preserves extent-plus-coordinate
+   operand order when the destination reuses that coordinate. */
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
+static inline f32 nLineTranslatedCoordinate(f32 extent, const f32 *source)
+{
+    return extent + *source;
+}
+#pragma pop
+
+/* measured: the value index and output distance retain the current
+   style-base-plus-index address used by both record fields. */
+#pragma push
+#pragma opt_common_subs off
+static inline void nLineCurrentDistance(f32 *out, const NLineDecorationStyle *style, s32 index)
+{
+    *out = style->offsets[index];
+}
+#pragma pop
+
+// FUN_0034E360
 s32 func_0034e360(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
+    u32 strip_alpha;
+    u8 strip_byte_alpha;
+    s32 strip_i;
+    s32 strip_n;
+    struct { s32 x; s32 y; } direction;
+    f32 shift_x;
+    f32 shift_y;
+    f32 previous_shift_x;
+    f32 previous_shift_y;
+    f32 depth;
+    f32 reciprocal;
     s16 mode;
     s16 index;
     Vec2f start;
-    f32 depth;
-    f32 reciprocal;
-    s32 direction_y;
-    s32 direction_x;
     u8 *vertices;
 
     mode = *(s16 *)(arg0 + 0x998);
@@ -1275,7 +1262,7 @@ s32 func_0034e360(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
         return 0;
     }
     depth = D_008872F8[0] - D_0088467C[0];
-    reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     vertices = arg0 + 0x9B0;
     if (width != 640.0f && height != 448.0f) {
         start.x = x;
@@ -1286,25 +1273,25 @@ s32 func_0034e360(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
         start.x = 640.0f + x;
         start.y = y;
         x = start.x;
-        y = 448.0f + y;
-        direction_x = 1;
-        direction_y = 0;
+        y = nLineTranslatedCoordinate(448.0f, &y);
+        direction.x = 1;
+        direction.y = 0;
     } else if (!(x <= 0.0f)) {
         start.x = x;
         start.y = 448.0f + y;
-        direction_x = -1;
-        direction_y = 0;
+        direction.x = -1;
+        direction.y = 0;
     } else if (!(y <= 0.0f)) {
         start.x = x;
         start.y = y;
-        x = 640.0f + x;
-        direction_x = 0;
-        direction_y = -1;
+        x = nLineTranslatedCoordinate(640.0f, &x);
+        direction.x = 0;
+        direction.y = -1;
     } else if (y < 0.0f) {
         start.x = 640.0f + x;
         start.y = y;
-        direction_x = 0;
-        direction_y = 1;
+        direction.x = 0;
+        direction.y = 1;
     } else {
         return 0;
     }
@@ -1316,83 +1303,79 @@ s32 func_0034e360(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
         NLineDecorationStyle *style;
         s32 count;
         s32 selected;
-        s32 i;
-        s32 n;
         Vec2f center;
         Vec2f peak_offset;
         Vec2f gap_offset;
         style = (NLineDecorationStyle *)D_00752600 + index;
+        /* Capture the layer count and hidden layer after the camera query. */
         count = style->count;
         selected = *(s16 *)(arg0 + 0x99A);
-        i = 0;
-        n = 0;
+        strip_i = 0;
+        strip_n = 0;
         if (count > 0) {
             center.x = (start.x + x) / 2.0f;
             center.y = (start.y + y) / 2.0f;
-            peak_offset.y = 200.0f * (f32)direction_y;
-            peak_offset.x = 200.0f * (f32)direction_x;
-            gap_offset.x = 30.0f * (f32)direction_x;
-            gap_offset.y = 30.0f * (f32)direction_y;
-            while (i < count) {
+            peak_offset.y = 200.0f * (f32)direction.y;
+            peak_offset.x = 200.0f * (f32)direction.x;
+            gap_offset.x = 30.0f * (f32)direction.x;
+            gap_offset.y = 30.0f * (f32)direction.y;
+            while (strip_i < count) {
                 f32 distance;
-                Vec2f shift;
                 u8 *color;
-                u32 alpha;
-                u8 byte_alpha;
-                distance = style->offsets[i];
-                shift.x = (f32)direction_x * distance;
-                shift.y = (f32)direction_y * distance;
-                color = D_00749AC0 + style->colors[i] * 4;
-                if (i == selected) {
-                    alpha = 0;
+                nLineCurrentDistance(&distance, style, strip_i);
+                shift_x = (f32)direction.x * distance;
+                shift_y = (f32)direction.y * distance;
+                color = D_00749AC0 + style->colors[strip_i] * 4;
+                if (strip_i == selected) {
+                    strip_alpha = 0;
                 } else {
-                    alpha = (u8)((color[3] * arg0[0x994]) / 255);
+                    strip_alpha = (u8)((color[3] * arg0[0x994]) / 255);
                 }
-                byte_alpha = (u8)alpha;
-                if (i == 0) {
-                    func_0034f0d0(vertices + (n++ << 6), x, y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
-                    func_0034f0d0(vertices + (n++ << 6), peak_offset.x + (center.x + shift.x), peak_offset.y + (center.y + shift.y), depth, reciprocal, color[0], color[1], color[2], byte_alpha);
-                    func_0034f0d0(vertices + (n++ << 6), start.x, start.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                /* Alpha is fixed for this layer; RGB is reloaded per vertex. */
+                strip_byte_alpha = (u8)strip_alpha;
+                if (strip_i == 0) {
+                    func_0034f0d0(vertices + (strip_n++ << 6), x, y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    func_0034f0d0(vertices + (strip_n++ << 6), peak_offset.x + (center.x + shift_x), peak_offset.y + (center.y + shift_y), depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    func_0034f0d0(vertices + (strip_n++ << 6), start.x, start.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
                 } else {
                     f32 previous;
-                    Vec2f previous_shift;
                     Vec2f peak;
                     Vec2f edge;
                     Vec2f inner_peak;
                     Vec2f other;
-                    previous = 30.0f + style->offsets[i - 1];
-                    previous_shift.x = (f32)direction_x * previous;
-                    previous_shift.y = (f32)direction_y * previous;
-                    shift.x += gap_offset.x;
-                    shift.y += gap_offset.y;
-                    func_0034f0d0(vertices + (n++ << 6), x + shift.x, y + shift.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
-                    peak.y = peak_offset.y + (center.y + shift.y);
-                    peak.x = peak_offset.x + (center.x + shift.x);
-                    func_0034f0d0(vertices + (n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
-                    edge.y = y + previous_shift.y;
-                    edge.x = x + previous_shift.x;
-                    func_0034f0d0(vertices + (n++ << 6), edge.x, edge.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
-                    func_0034f0d0(vertices + (n++ << 6), edge.x, edge.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
-                    func_0034f0d0(vertices + (n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
-                    inner_peak.y = peak_offset.y + (center.y + previous_shift.y);
-                    inner_peak.x = peak_offset.x + (center.x + previous_shift.x);
-                    func_0034f0d0(vertices + (n++ << 6), inner_peak.x, inner_peak.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
-                    func_0034f0d0(vertices + (n++ << 6), inner_peak.x, inner_peak.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
-                    func_0034f0d0(vertices + (n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
-                    other.y = start.y + previous_shift.y;
-                    other.x = start.x + previous_shift.x;
-                    func_0034f0d0(vertices + (n++ << 6), other.x, other.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
-                    func_0034f0d0(vertices + (n++ << 6), other.x, other.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
-                    func_0034f0d0(vertices + (n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
-                    func_0034f0d0(vertices + (n++ << 6), start.x + shift.x, start.y + shift.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    nLineLoadPreviousMargin(&previous, style, &strip_i);
+                    previous_shift_x = (f32)direction.x * previous;
+                    previous_shift_y = (f32)direction.y * previous;
+                    shift_x += gap_offset.x;
+                    shift_y += gap_offset.y;
+                    func_0034f0d0(vertices + (strip_n++ << 6), x + shift_x, y + shift_y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    peak.y = peak_offset.y + (center.y + shift_y);
+                    peak.x = peak_offset.x + (center.x + shift_x);
+                    func_0034f0d0(vertices + (strip_n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    edge.y = y + previous_shift_y;
+                    edge.x = x + previous_shift_x;
+                    func_0034f0d0(vertices + (strip_n++ << 6), edge.x, edge.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    func_0034f0d0(vertices + (strip_n++ << 6), edge.x, edge.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    func_0034f0d0(vertices + (strip_n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    inner_peak.y = peak_offset.y + (center.y + previous_shift_y);
+                    inner_peak.x = peak_offset.x + (center.x + previous_shift_x);
+                    func_0034f0d0(vertices + (strip_n++ << 6), inner_peak.x, inner_peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    func_0034f0d0(vertices + (strip_n++ << 6), inner_peak.x, inner_peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    func_0034f0d0(vertices + (strip_n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    other.y = start.y + previous_shift_y;
+                    other.x = start.x + previous_shift_x;
+                    func_0034f0d0(vertices + (strip_n++ << 6), other.x, other.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    func_0034f0d0(vertices + (strip_n++ << 6), other.x, other.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    func_0034f0d0(vertices + (strip_n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    func_0034f0d0(vertices + (strip_n++ << 6), start.x + shift_x, start.y + shift_y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
                 }
-                ++i;
+                ++strip_i;
             }
         }
-        if (n >= 0x34) {
+        if (strip_n > 0x33) {
             func_0046d730(&iGpffffa950, 0x67E);
         }
-        return n;
+        return strip_n;
     }
     case 5: {
         NLineDecorationStyle *style;
@@ -1407,22 +1390,22 @@ s32 func_0034e360(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
             Vec2f bottom_right;
             u8 *color;
             u8 alpha;
-            distance = style->offsets[i];
+            nLineCurrentDistance(&distance, style, i);
             color = D_00749AC0 + style->colors[i] * 4;
             alpha = (u8)((color[3] * arg0[0x994]) / 255);
             top_left.y = start.y - distance;
-            top_left.x = start.x - distance;
-            func_0034f0d0(vertices + (n++ << 6), top_left.x, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            width = start.x - distance;
+            func_0034f0d0(vertices + (n++ << 6), width, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
             bottom_right.x = x + distance;
             func_0034f0d0(vertices + (n++ << 6), bottom_right.x, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
             bottom_right.y = y + distance;
             func_0034f0d0(vertices + (n++ << 6), bottom_right.x, bottom_right.y, depth, reciprocal, color[0], color[1], color[2], alpha);
-            func_0034f0d0(vertices + (n++ << 6), top_left.x, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            func_0034f0d0(vertices + (n++ << 6), width, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
             func_0034f0d0(vertices + (n++ << 6), bottom_right.x, bottom_right.y, depth, reciprocal, color[0], color[1], color[2], alpha);
-            func_0034f0d0(vertices + (n++ << 6), top_left.x, bottom_right.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            func_0034f0d0(vertices + (n++ << 6), width, bottom_right.y, depth, reciprocal, color[0], color[1], color[2], alpha);
             --i;
         }
-        if (n >= 0x34) {
+        if (n > 0x33) {
             func_0046d730(&iGpffffa950, 0x6AC);
         }
         return n;
@@ -1432,6 +1415,3 @@ s32 func_0034e360(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
         return 0;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034e360);
-#endif

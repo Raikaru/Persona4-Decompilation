@@ -1,3 +1,5 @@
+#include "sdk_lbox_internal.h"
+#include "sdk_dbprt.h"
 #include "model_motion_internal.h"
 #include "Kosaka/k_clump_internal.h"
 #include "sdk_task_registration.h"
@@ -41,24 +43,14 @@ extern s16 iGpffffb398;
 extern s16 iGpffffb39c;
 extern s16 iGpffffb3a0;
 extern s32 iGpffffb3a4;
-extern s32 func_00470250(u8 *window, s32 size, s32 align);
-extern void func_00470810(s32 buf, const void *file, s32 flags);
-extern s32 *func_00470bd0(s32 buf, s32 id);
-extern void func_004703c0(s32 buf, s32 flags);
-extern void func_004703d0(s32 buf, s32 flags);
-extern void func_00470430(s32 buf, s32 size);
-extern void func_00452080(s32 handle);
-extern u8 D_005F5830[];
-extern u8 D_005F5730[];
+extern s32 func_00452080(KwlnTask *handle);
+extern const KWindowEntryDescriptor D_005F5830[];
+extern const KWindowEntryDescriptor D_005F5730[];
 extern u8 D_007E3720[];
 extern u8 D_007966D0[];
 extern s64 iGpffff9fd0;
-extern f32 iGpffff9fd8;
-extern u8 iGpffff9fdc;
 extern s32 iGpffffb240;
-extern s32 func_00470e20(s32 handle);
 extern void func_001582f0(s32 mode, s32 value, s32 arg2);
-extern void func_00450340(s64 arg0, s32 arg1, ...);
 extern void func_0017d1f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
                            f32 arg5, f32 arg6, f32 arg7, s32 arg4);
 extern void func_0014def0(u8 *arg0, u8 *arg1,
@@ -80,7 +72,7 @@ extern void func_003e0f40(s32 arg0);
 extern s32 K_Clump_MatUsrDataHasData(u8 *arg0, u8 *arg1);
 extern void func_003c42b0(u8 *arg0, s32 arg1);
 extern u8 D_005F5438[];
-extern u8 *func_00155280(void);
+extern s32 *func_00155280(void);
 extern void func_0014e8f0(s32 a, s32 b, s32 c);
 extern s32 func_003ef6d0(void);
 extern s32 func_003ef650(s32 a, u8 *b);
@@ -1942,7 +1934,7 @@ s32 func_00189fa0(void) {
     if (*(s32 *)((u8 *)(func_00155280()) + 0x30) == 0) {
         return 0;
     }
-    func_00452080(*(s32 *)((u8 *)(func_00155280()) + 0x30));
+    func_00452080(*(KwlnTask **)((u8 *)(func_00155280()) + 0x30));
     *(s32 *)((u8 *)(func_00155280()) + 0x30) = 0;
     return 1;
 }
@@ -1973,7 +1965,7 @@ void func_0018a010(s32 arg0)
     s32 slot;
     u8 *p;
 
-    if (*(s32 *)(func_00155280() + 0x30) == 0) {
+    if (*(s32 *)((u8 *)func_00155280() + 0x30) == 0) {
         return;
     }
     if (arg0 == -1) {
@@ -1997,7 +1989,7 @@ void func_0018a010(s32 arg0)
     } else {
         base = D_005F2210 + arg0 * 0x1A;
     }
-    work = *(u8 **)(*(u8 **)(func_00155280() + 0x30) + 0x38);
+    work = *(u8 **)(*(u8 **)((u8 *)func_00155280() + 0x30) + 0x38);
     slot = ((*(s32 *)(work + 8) != 0) ^ 1) * 4;
     *(u8 **)(slot + (s32)work + 0x10) = base;
     slot = ((*(s32 *)(work + 8) != 0) ^ 1) * 4;
@@ -2897,10 +2889,10 @@ rest:
 void func_0018bed0(u8 *arg0, s32 arg1) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
-    if (*(s32 *)(func_00155280() + *(s32 *)(p + 0x50) * 4 + 0x34) == 0) {
+    if (*(s32 *)((u8 *)func_00155280() + *(s32 *)(p + 0x50) * 4 + 0x34) == 0) {
         return;
     }
-    func_0014e8f0(*(s32 *)(func_00155280() + *(s32 *)(p + 0x50) * 4 + 0x34),
+    func_0014e8f0(*(s32 *)((u8 *)func_00155280() + *(s32 *)(p + 0x50) * 4 + 0x34),
                   *(s32 *)(p + 0x54), arg1);
 }
 
@@ -3393,94 +3385,85 @@ typedef struct {
     u8 r, g, b, a;
 } PanelColor;
 typedef struct {
-    f32 x, y;
-} DbTextPos;
-/* Floor: 95 differing words over 42 fnalign edits, 451 emitted against
-   retail's 451 (0.0%).  Levers that moved it: pointer-typed state base
-   instead of (s32), block-scoped row/column counters, the func_0017d1f0
-   prototype above reordered so the trailing s32 follows the three f32s
-   (that reorder alone is worth 34 words and is required by the two
-   func_0018f950 call sites as well).  WALL: saved-register colour
-   rotation across the case 1 / case 4 bodies -- retail keeps the packet
-   pointer in s3 and the row cursor in s2 for the whole function while
-   b210 recolours them per case, which no source spelling reaches. */
-/* 95 -> 89 (2026-09-19): case 1's three inner sites stage the
-   func_00470bd0 deref before the state+4 load - retail evaluates
-   `*func_00470bd0(h, N)` into a temp (`v0`) first, so the `lw $a0, 4($s2)`
-   lands one slot later than b210's in-line order; sequencing all three
-   sites through the temp closes the x3 load-scheduling cluster (41 -> 35
-   fnalign edits).  Measured and rejected: hoisting `y << 8` to a y-loop
-   temp (364 - retail keeps the per-use shifts, massive perturbation).
-   Residual is the case-4 addu operand-order x6 + colour rotation wall. */
-/* 2026-09-26 round 3: the guarded body is now the 25-edit draft from
-   docs/probe_archive/L18B_0018e810_20260926_body.c (with the file's s32
-   format parameter; see that note for the remaining y-loop wall). */
-// FUN_0018E810 NONMATCHING
-#ifdef NON_MATCHING
+    u8 occupied;
+    u8 flags;
+    u16 resourceId;
+    u8 shape;
+    u8 rotation;
+    u8 unknown06[10];
+} MapTestCell;
+typedef struct {
+    u8 header[0x54];
+    MapTestCell cells[24][16];
+} MapTestGrid;
+
+/* k_maptest.c: dungeon map generation test. The input image contains the
+   button halfword; the map uses 16-byte cells and RGBA colors. Keep the
+   row byte offset alive across its sixteen columns. */
+// FUN_0018E810
 s32 func_0018e810(u8 *arg0)
 {
     extern PadStatus D_008C0240[2];
-    static DbTextPos text_pos = {300.0f, 32.0f};
-    static PanelColor cell_color = {0xFF, 0x00, 0x00, 0x80};
+    extern s64 iGpffff9fd0;
+    extern PanelColor iGpffff9fd8;
+    extern char iGpffff9fdc[3];
     extern s32 iGpffffb240;
-    extern s32 func_00470e20(s32 handle);
     extern void func_001582f0(s32 mode, s32 value, s32 arg2);
     PanelColor color;
     u8 *state;
     s32 v0;
-    s32 index;
 
     state = *(u8 **)(arg0 + 0x38);
     switch (*(s32 *)state) {
     case 0:
-        *(s32 *)(state + 0x1B438) = func_00470250(arg0, 0x100, 0x40);
-        func_00470810(*(s32 *)(state + 0x1B438), D_005F5730, 4);
-        func_00470430(*(s32 *)(state + 0x1B438), 0x14);
-        func_004703c0(*(s32 *)(state + 0x1B438), 4);
-        func_004703d0(*(s32 *)(state + 0x1B438), 1);
+        *(KwlnTask **)(state + 0x1B438) = func_00470250((KwlnTask *)arg0, 0x100, 0x40);
+        func_00470810(*(KwlnTask **)(state + 0x1B438), D_005F5730, 4);
+        func_00470430(*(u8 **)(state + 0x1B438), 0x14);
+        func_004703c0(*(u8 **)(state + 0x1B438), 4);
+        func_004703d0(*(u8 **)(state + 0x1B438), 1);
         *(u8 **)(state + 0x1B434) = D_007E3720;
         *(s32 *)state += 1;
         break;
     case 1:
         if (D_008C0240[0].trigger & 0x40) {
-            switch (func_00470e20(*(s32 *)(state + 0x1B438))) {
+            switch (func_00470e20(*(u8 **)(state + 0x1B438))) {
             case 0:
                 *((u8 *)func_00155280() + 0x4A) =
-                    *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
-                      (u32)*(u8 **)(state + 0x1B434) + 8);
+                    *(*(u8 **)(state + 0x1B434) +
+                      *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 8);
                 *((u8 *)func_00155280() + 0x4B) =
-                    *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
-                      (u32)*(u8 **)(state + 0x1B434) + 9);
+                    *(*(u8 **)(state + 0x1B434) +
+                      *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
                 *(s32 *)(state + 4) = 2;
-                v0 = *func_00470bd0(*(s32 *)(state + 0x1B438), 0);
+                v0 = *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 0);
                 func_001582f0(*(s32 *)(state + 4), v0, 0);
-                func_00452080(*(s32 *)(state + 0x1B438));
+                func_00452080(*(KwlnTask **)(state + 0x1B438));
                 *(s32 *)state += 1;
                 break;
             case 1:
                 *((u8 *)func_00155280() + 0x4A) =
-                    *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
-                      (u32)*(u8 **)(state + 0x1B434) + 8);
+                    *(*(u8 **)(state + 0x1B434) +
+                      *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 8);
                 *((u8 *)func_00155280() + 0x4B) =
-                    *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
-                      (u32)*(u8 **)(state + 0x1B434) + 9);
+                    *(*(u8 **)(state + 0x1B434) +
+                      *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
                 *(s32 *)(state + 4) = 0;
-                v0 = *func_00470bd0(*(s32 *)(state + 0x1B438), 1);
+                v0 = *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 1);
                 func_001582f0(*(s32 *)(state + 4), v0, 0);
-                func_00452080(*(s32 *)(state + 0x1B438));
+                func_00452080(*(KwlnTask **)(state + 0x1B438));
                 *(s32 *)state += 1;
                 break;
             case 2:
                 *((u8 *)func_00155280() + 0x4A) =
-                    *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
-                      (u32)*(u8 **)(state + 0x1B434) + 8);
+                    *(*(u8 **)(state + 0x1B434) +
+                      *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 8);
                 *((u8 *)func_00155280() + 0x4B) =
-                    *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
-                      (u32)*(u8 **)(state + 0x1B434) + 9);
+                    *(*(u8 **)(state + 0x1B434) +
+                      *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
                 *(s32 *)(state + 4) = 1;
-                v0 = *func_00470bd0(*(s32 *)(state + 0x1B438), 2);
+                v0 = *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 2);
                 func_001582f0(*(s32 *)(state + 4), v0, 0);
-                func_00452080(*(s32 *)(state + 0x1B438));
+                func_00452080(*(KwlnTask **)(state + 0x1B438));
                 *(s32 *)state += 1;
                 break;
             }
@@ -3507,31 +3490,31 @@ s32 func_0018e810(u8 *arg0)
         if (D_008C0240[0].trigger & 0x40) {
             func_001582f0(*(s32 *)(state + 4), 0, 0);
         }
-        func_00450340(*(s64 *)&text_pos, (s32)"%d", iGpffffb240);
+        func_00450340(iGpffff9fd0, iGpffff9fdc, iGpffffb240);
         {
             s32 y;
             s32 x;
             s32 ty;
+            s32 rowOffset;
             u8 *panels;
-            s32 colofs;
             s32 type;
             s32 off;
             f32 fx;
             f32 fy;
 
             for (y = 0; y < 0x18; y++) {
-                for (x = 0, ty = y * 0x12, panels = state + y * 0x1200; x < 0x10; x++) {
-                    if (*((u8 *)((y << 8) + (u32)func_00155280()) + x * 0x10 + 0x54) != 0 &&
-                        (*((u8 *)((y << 8) + (u32)func_00155280()) + x * 0x10 + 0x55) & 0xF) == 1) {
-                        type = *((u8 *)((y << 8) + (u32)func_00155280()) + (off = x * 0x10) + 0x58);
+                for (x = 0, rowOffset = y * 0x100, ty = y * 0x12,
+                     panels = state + y * 0x1200; x < 0x10; x++) {
+                    if (((MapTestGrid *)(rowOffset + (intptr_t)func_00155280()))->cells[0][x].occupied != 0 &&
+                        (((MapTestGrid *)(rowOffset + (intptr_t)func_00155280()))->cells[0][x].flags & 0xF) == 1) {
+                        off = x;
+                        type = ((MapTestGrid *)(rowOffset + (intptr_t)func_00155280()))->cells[0][off].shape;
                         fx = (f32)(x * 0x12);
                         fy = (f32)ty;
-                        func_0017d1f0(D_007966D0, panels + x * 0x120 + 0x10, type, 0,
-                                      fx, fy, 0.0f,
-                                      *((u8 *)((y << 8) + (u32)func_00155280()) + off + 0x59));
+                        func_0017d1f0(D_007966D0, panels + x * 0x120 + 0x10, type, 0, fx, fy, 0.0f, ((MapTestGrid *)(rowOffset + (intptr_t)func_00155280()))->cells[0][off].rotation);
                     }
-                    if (*((u8 *)((y << 8) + (u32)func_00155280()) + x * 0x10 + 0x54) == 2) {
-                        color = cell_color;
+                    if (((MapTestGrid *)(rowOffset + (intptr_t)func_00155280()))->cells[0][x].occupied == 2) {
+                        color = iGpffff9fd8;
                         func_0014def0(D_007966D0, panels + x * 0x120 + 0x10,
                                       (f32)(x * 0x12), (f32)ty, 0.0f, 18.0f, 18.0f,
                                       (u8 *)&color, 0, 0.0f, 0.0f, 0.0f, 0, 0.0f);
@@ -3546,9 +3529,6 @@ s32 func_0018e810(u8 *arg0)
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018e810);
-#endif
 // FUN_0018EF20
 void func_0018ef20(u8 *arg0)
 {
@@ -3571,53 +3551,53 @@ s32 func_0018efe0(u8 *arg0)
     temp_16 = *(u8 **)(arg0 + 0x38);
     switch (*(s32 *)temp_16) {
     case 0:
-        *(s32 *)(temp_16 + 4) = func_00470250(arg0, 0xDC, 0xA0);
-        func_00470810(*(s32 *)(temp_16 + 4), &D_005F5830, 0xB);
+        *(KwlnTask **)(temp_16 + 4) = func_00470250((KwlnTask *)arg0, 0xDC, 0xA0);
+        func_00470810(*(KwlnTask **)(temp_16 + 4), D_005F5830, 0xB);
         temp_17 = iGpffffb268 != 0;
-        *func_00470bd0(*(s32 *)(temp_16 + 4), 5) = temp_17 ^ 1;
-        *func_00470bd0(*(s32 *)(temp_16 + 4), 0) = iGpffffb3a0;
-        *func_00470bd0(*(s32 *)(temp_16 + 4), 1) = iGpffffb39c;
-        *func_00470bd0(*(s32 *)(temp_16 + 4), 2) = iGpffffb398;
-        *func_00470bd0(*(s32 *)(temp_16 + 4), 3) = iGpffffb394;
-        *func_00470bd0(*(s32 *)(temp_16 + 4), 4) = iGpffffb390;
-        *func_00470bd0(*(s32 *)(temp_16 + 4), 6) = iGpffffb250;
-        func_00470430(*(s32 *)(temp_16 + 4), 0x14);
-        func_004703c0(*(s32 *)(temp_16 + 4), 4);
-        func_004703d0(*(s32 *)(temp_16 + 4), 1);
+        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 5) = temp_17 ^ 1;
+        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 0) = iGpffffb3a0;
+        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 1) = iGpffffb39c;
+        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 2) = iGpffffb398;
+        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 3) = iGpffffb394;
+        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 4) = iGpffffb390;
+        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 6) = iGpffffb250;
+        func_00470430(*(u8 **)(temp_16 + 4), 0x14);
+        func_004703c0(*(u8 **)(temp_16 + 4), 4);
+        func_004703d0(*(u8 **)(temp_16 + 4), 1);
         *(s32 *)temp_16 += 1;
         break;
     case 1:
-        iGpffffb268 = *func_00470bd0(*(s32 *)(temp_16 + 4), 5) != 1;
-        iGpffffb250 = *func_00470bd0(*(s32 *)(temp_16 + 4), 6);
+        iGpffffb268 = *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 5) != 1;
+        iGpffffb250 = *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 6);
         if (D_008C024E[0] & 0x40) {
-            if (*func_00470bd0(*(s32 *)(temp_16 + 4), 8) == -1) {
+            if (*func_00470bd0(*(KwlnTask **)(temp_16 + 4), 8) == -1) {
                 *(u16 *)(packet + 0) =
-                    (u16)*func_00470bd0(*(s32 *)(temp_16 + 4), 0);
+                    (u16)*func_00470bd0(*(KwlnTask **)(temp_16 + 4), 0);
                 *(u16 *)(packet + 2) =
-                    (u16)*func_00470bd0(*(s32 *)(temp_16 + 4), 1);
+                    (u16)*func_00470bd0(*(KwlnTask **)(temp_16 + 4), 1);
                 *(u16 *)(packet + 4) =
-                    (u16)*func_00470bd0(*(s32 *)(temp_16 + 4), 2);
+                    (u16)*func_00470bd0(*(KwlnTask **)(temp_16 + 4), 2);
                 *(s16 *)(packet + 6) =
-                    (s16)*func_00470bd0(*(s32 *)(temp_16 + 4), 3);
+                    (s16)*func_00470bd0(*(KwlnTask **)(temp_16 + 4), 3);
                 *(s16 *)(packet + 8) =
-                    (s16)*func_00470bd0(*(s32 *)(temp_16 + 4), 4);
+                    (s16)*func_00470bd0(*(KwlnTask **)(temp_16 + 4), 4);
                 iGpffffb3a0 = *(u16 *)(packet + 0);
                 iGpffffb39c = *(u16 *)(packet + 2);
                 iGpffffb398 = *(u16 *)(packet + 4);
                 iGpffffb394 = *(s16 *)(packet + 6);
                 iGpffffb390 = *(s16 *)(packet + 8);
                 func_001029a0(9, packet, 0x1C, 0);
-                func_004703d0(*(s32 *)(temp_16 + 4), 0);
+                func_004703d0(*(u8 **)(temp_16 + 4), 0);
                 *(s32 *)temp_16 = 2;
             } else {
                 *(s32 *)(packet + 0xC) =
-                    *func_00470bd0(*(s32 *)(temp_16 + 4), 8);
+                    *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 8);
                 *(s32 *)(packet + 0x10) =
-                    *func_00470bd0(*(s32 *)(temp_16 + 4), 9);
+                    *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 9);
                 *(s32 *)(packet + 0x14) =
-                    *func_00470bd0(*(s32 *)(temp_16 + 4), 0xA);
+                    *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 0xA);
                 func_001029a0(0xA, packet, 0x1C, 0);
-                func_004703d0(*(s32 *)(temp_16 + 4), 0);
+                func_004703d0(*(u8 **)(temp_16 + 4), 0);
                 *(s32 *)temp_16 = 2;
             }
         } else if (D_008C024E[0] & 0x20) {
@@ -3627,7 +3607,7 @@ s32 func_0018efe0(u8 *arg0)
     case 2:
         if (func_00102980() == 0) {
             iGpffffb3a4 = 0;
-            func_004703d0(*(s32 *)(temp_16 + 4), 1);
+            func_004703d0(*(u8 **)(temp_16 + 4), 1);
             *(s32 *)temp_16 = 1;
         }
         break;
@@ -3723,9 +3703,8 @@ void func_0018f8a0(u8 *arg0, u16 arg1, u16 arg2)
 }
 extern u16 D_008C0252[];
 extern u16 D_008C0298[];
-extern u8 D_005F5FD0[];
+extern const KWindowEntryDescriptor D_005F5FD0[];
 extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
-extern s32 func_00470280(u8 *window, s32 id, s32 size, s32 flags);
 extern s32 func_00470970(u8 *arg0, u8 *arg1);
 extern void sprintf(void *dst, const char *fmt, ...);
 extern u8 *func_0015c640(s32 arg0, s32 arg1);
@@ -3760,22 +3739,22 @@ s32 func_0018f950(u8 *arg0)
         *(s32 *)work += 1;
         break;
     case 1:
-        *(s32 *)(work + 0x1CD10) = func_00470250(arg0, 0xDC, 0xC8);
-        func_00470810(*(s32 *)(work + 0x1CD10), D_005F5FD0, 2);
-        func_004703d0(*(s32 *)(work + 0x1CD10), 1);
+        *(KwlnTask **)(work + 0x1CD10) = func_00470250((KwlnTask *)arg0, 0xDC, 0xC8);
+        func_00470810(*(KwlnTask **)(work + 0x1CD10), D_005F5FD0, 2);
+        func_004703d0(*(u8 **)(work + 0x1CD10), 1);
         *(s32 *)work += 1;
         break;
     case 2:
         if (D_008C0240[0].trigger & 0x40) {
-            *(s16 *)(work + 0x28) = *func_00470bd0(*(s32 *)(work + 0x1CD10), 0);
-            *(s16 *)(work + 0x2A) = *func_00470bd0(*(s32 *)(work + 0x1CD10), 1);
-            func_00452080(*(s32 *)(work + 0x1CD10));
+            *(s16 *)(work + 0x28) = *func_00470bd0(*(KwlnTask **)(work + 0x1CD10), 0);
+            *(s16 *)(work + 0x2A) = *func_00470bd0(*(KwlnTask **)(work + 0x1CD10), 1);
+            func_00452080(*(KwlnTask **)(work + 0x1CD10));
             *(u8 **)(work + 0x1CD14) = func_0015c640(*(u16 *)(work + 0x28), *(u16 *)(work + 0x2A));
             *(s32 *)(work + 0x1CD10) = func_00470280(arg0, 0x22E, 0x28, 2);
             sprintf(text, "%d-%d", *(u16 *)(work + 0x28), *(u16 *)(work + 0x2A));
-            func_004703c0(*(s32 *)(work + 0x1CD10), 1);
+            func_004703c0(*(u8 **)(work + 0x1CD10), 1);
             func_00470970(*(u8 **)(work + 0x1CD10), text);
-            func_004703d0(*(s32 *)(work + 0x1CD10), 1);
+            func_004703d0(*(u8 **)(work + 0x1CD10), 1);
             *(s32 *)work += 1;
         }
         break;

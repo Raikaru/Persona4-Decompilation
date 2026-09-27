@@ -604,14 +604,15 @@ u8 func_002e78a0(void)
 
 
 
+/* Retail returns the low day byte with lbu, defining the full result. */
 // FUN_002E78E0
-u8 func_002e78e0(void)
+s32 func_002e78e0(void)
 {
     s32 sp1C;
     s32 sp18;
 
     func_001104d0(func_001060b0(), &sp18, &sp1C);
-    return sp1C;
+    return (u8)sp1C;
 }
 
 
