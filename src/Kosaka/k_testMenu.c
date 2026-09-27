@@ -1,5 +1,6 @@
 /* Consolidated Persona 4 source units. */
 /* Whole-file translation unit (functions contiguous in retail). */
+#include "sdk_lbox_internal.h"
 #include "type.h"
 #include "sdk_task_registration.h"
 
@@ -7,23 +8,17 @@ extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u16 D_008C024E[];
 
-extern u8 D_005F55B0[];
+extern const KWindowEntryDescriptor D_005F55B0[];
 extern u8 D_005F56F0[];
 extern u8 D_005F5700[];
 extern f32 D_00761624;
 extern f32 D_0076151C;
 
 extern void func_0044ea90(void *msg, s32 id);
-extern s32 func_00470250(u8 *window, s32 size, s32 align);
-extern void func_00470810(s32 buf, void *file, s32 flags);
-extern void func_00470430(s32 buf, s32 size);
-extern void func_004703c0(s32 buf, s32 flags);
-extern void func_004703d0(s32 buf, s32 flags);
-extern u32 func_00470e20(s32 buf);
 extern void func_0046d730(void *msg, s32 id);
 extern s32 func_00452490(s32 buf);
 extern s32 func_00452380(void *buf);
-extern void func_00452080(s32 handle);
+extern s32 func_00452080(KwlnTask *handle);
 
 
 extern s32 func_0018ef50(u8 *arg0);
@@ -49,20 +44,20 @@ s32 func_0018e050(u8 *arg0)
     switch (state) {
     case 0:
     {
-        s32 buf;
+        KwlnTask *buf;
 
-        buf = func_00470250(arg0, 0x100, 0x40);
-        *(s32 *)(p + 4) = buf;
+        buf = func_00470250((KwlnTask *)arg0, 0x100, 0x40);
+        *(KwlnTask **)(p + 4) = buf;
         func_00470810(buf, D_005F55B0, 0xA);
-        func_00470430(*(s32 *)(p + 4), 0x14);
-        func_004703c0(*(s32 *)(p + 4), 4);
-        func_004703d0(*(s32 *)(p + 4), 1);
+        func_00470430(*(u8 **)(p + 4), 0x14);
+        func_004703c0(*(u8 **)(p + 4), 4);
+        func_004703d0(*(u8 **)(p + 4), 1);
         *(s32 *)p = *(s32 *)p + 1;
         break;
     }
     case 1:
         if (D_008C024E[0] & 0x40) {
-            switch (func_00470e20(*(s32 *)(p + 4))) {
+            switch (func_00470e20(*(u8 **)(p + 4))) {
             case 0:
                 *(s32 *)(p + 8) = func_0018ef50(arg0);
                 break;
@@ -99,7 +94,7 @@ s32 func_0018e050(u8 *arg0)
                 func_0046d730(D_005F56F0, 0xA1);
                 break;
             }
-            func_004703d0(*(s32 *)(p + 4), 0);
+            func_004703d0(*(u8 **)(p + 4), 0);
             *(s32 *)p = 2;
         } else if (D_008C024E[0] & 0x20) {
             *(s32 *)p = 3;
@@ -107,7 +102,7 @@ s32 func_0018e050(u8 *arg0)
         break;
     case 2:
         if (func_00452490(*(s32 *)(p + 8)) != 1) {
-            func_004703d0(*(s32 *)(p + 4), 1);
+            func_004703d0(*(u8 **)(p + 4), 1);
             *(s32 *)p = 1;
         }
         break;
@@ -145,5 +140,5 @@ void func_0018e3f0(void)
     if (result == 0) {
         func_0046d730(D_005F56F0, 0xF2);
     }
-    func_00452080(result);
+    func_00452080((KwlnTask *)result);
 }

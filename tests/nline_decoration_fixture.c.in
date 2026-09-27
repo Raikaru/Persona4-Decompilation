@@ -1,0 +1,339 @@
+@@RUNTIME@@
+#include "nline_vertex_internal.h"
+@@VECTOR_TYPE@@
+
+/* Fixture records are independent raw byte layouts, including guard bytes. */
+typedef struct { u32 guard0[8]; u8 bytes[0x1800]; u32 guard1[8]; } State;
+typedef struct { u32 tag; u32 values[10]; } Event;
+typedef struct {
+    State state;
+    u32 styles[55];
+    u8 colors[128];
+    u32 camera[64];
+    f32 far_depth, near_depth;
+    Event events[56];
+    u32 event_count, camera_count, vertex_count, mutations;
+    s32 initial_mode, replacement_count;
+} Context;
+static Context *current;
+static unsigned scenarios, emitted_vertices, group_cases[5];
+static u32 iGpffffa950;
+#define D_00752600 ((u8 *)current->styles)
+#define D_00749AC0 (current->colors)
+#define D_008872F8 (&current->far_depth)
+#define D_0088467C (&current->near_depth)
+#define CHECK(x) do { if (!(x)) native32_failure(__LINE__, scenarios, #x); } while (0)
+static void put16(u8 *p, s16 value) { memcpy(p, &value, 2); }
+static s16 get16(const u8 *p) { s16 value; memcpy(&value, p, 2); return value; }
+static void put32(u8 *p, s32 value) { memcpy(p, &value, 4); }
+static s32 get32(const u8 *p) { s32 value; memcpy(&value, p, 4); return value; }
+static void putf(u8 *p, f32 value) { memcpy(p, &value, 4); }
+static f32 getf(const u8 *p) { f32 value; memcpy(&value, p, 4); return value; }
+static u32 bits(f32 value) { u32 result; memcpy(&result, &value, 4); return result; }
+static Event *event(unsigned tag) {
+    Event *result;
+    CHECK(current->event_count < 56);
+    result = &current->events[current->event_count++];
+    memset(result, 0, sizeof *result);
+    result->tag = tag;
+    return result;
+}
+static u8 *style_bytes(unsigned mode) {
+    CHECK(mode >= 1 && mode <= 5);
+    return (u8 *)current->styles + 44 * (mode - 1);
+}
+static void camera_mutation(void) {
+    if (current->mutations & 1) {
+        /* Mode is observed before this call, count and selection after it. */
+        put16(current->state.bytes + 0x998, (s16)(current->initial_mode == 5 ? 1 : 5));
+        put16(current->state.bytes + 0x99A, 2);
+        current->state.bytes[0x994] ^= 0xC3;
+        if (current->initial_mode >= 1 && current->initial_mode <= 5)
+            put16(style_bytes(current->initial_mode), (s16)current->replacement_count);
+        putf((u8 *)current->camera + 0x80, 256.0f);
+        current->far_depth = 9001.5f;
+        current->near_depth = 17.25f;
+    }
+}
+static s32 func_00457120(void) {
+    event(1);
+    ++current->camera_count;
+    camera_mutation();
+    return (s32)(u32)current->camera;
+}
+static void func_0046d730(void *file, s32 line) {
+    CHECK(file == &iGpffffa950);
+    event(3)->values[0] = (u32)line;
+}
+static void vertex_mutation(void) {
+    unsigned vertex = current->vertex_count;
+    if (current->mutations & 2) {
+        /* Per-layer pointer and alpha stay captured, RGB reloads each call. */
+        for (unsigned i = 0; i < 32; ++i) {
+            current->colors[i * 4] ^= (u8)(1 + vertex);
+            current->colors[i * 4 + 1] += 7;
+            current->colors[i * 4 + 2] ^= 0x5A;
+            current->colors[i * 4 + 3] ^= 0xA5;
+        }
+        current->state.bytes[0x994] ^= 0x33;
+    }
+    if (current->mutations & 4) {
+        put16(current->state.bytes + 0x998, 0);
+        put16(current->state.bytes + 0x99A, (s16)(vertex % 5));
+        if (current->initial_mode >= 1 && current->initial_mode <= 5)
+            put16(style_bytes(current->initial_mode), -1);
+    }
+    if (current->mutations & 8) {
+        for (unsigned mode = 1; mode <= 5; ++mode) {
+            u8 *style = style_bytes(mode);
+            for (unsigned i = 0; i < 5; ++i) {
+                s32 color = get32(style + 4 + i * 4);
+                put32(style + 4 + i * 4, (color + 3) % 32);
+                putf(style + 24 + i * 4, getf(style + 24 + i * 4) + 0.375f);
+            }
+        }
+    }
+    if (current->mutations & 16) {
+        current->far_depth += 4.25f;
+        current->near_depth += 0.5f;
+        putf((u8 *)current->camera + 0x80, 1024.0f + (f32)vertex);
+        putf(current->state.bytes + 0x99C, 3000.0f + (f32)vertex);
+        putf(current->state.bytes + 0x9A0, -2000.0f - (f32)vertex);
+    }
+}
+@@RECOVERED_SOURCE@@
+@@WRITER_SOURCE@@
+
+_Static_assert(sizeof(void *) == 4 && sizeof(s32) == 4, "real 32-bit addresses required");
+_Static_assert(sizeof(NLineDecorationStyle) == 44, "style stride");
+_Static_assert(__builtin_offsetof(NLineDecorationStyle, colors) == 4, "palette index offset");
+_Static_assert(__builtin_offsetof(NLineDecorationStyle, offsets) == 24, "distance offset");
+static void record_vertex(unsigned offset, f32 x, f32 y, f32 z, f32 reciprocal,
+                          u8 red, u8 green, u8 blue, u8 alpha) {
+    Event *call = event(2);
+    CHECK(offset == 0x9B0 + current->vertex_count * 0x40);
+    CHECK(offset + 0x40 <= sizeof current->state.bytes);
+    call->values[0] = offset;
+    call->values[1] = bits(x); call->values[2] = bits(y);
+    call->values[3] = bits(z); call->values[4] = bits(reciprocal);
+    call->values[5] = red; call->values[6] = green;
+    call->values[7] = blue; call->values[8] = alpha;
+}
+void func_0034f0d0(u8 *vertex, f32 x, f32 y, f32 z, f32 reciprocal,
+                  u8 red, u8 green, u8 blue, u8 alpha) {
+    unsigned offset = (unsigned)(vertex - current->state.bytes);
+    record_vertex(offset, x, y, z, reciprocal, red, green, blue, alpha);
+    actual_vertex_writer(vertex, x, y, z, reciprocal, red, green, blue, alpha);
+    ++current->vertex_count;
+    vertex_mutation();
+}
+
+/* This oracle indexes triangles in a six-point strip, independently of the
+   recovered scalar temporaries, inline helpers and sequence of float spills.
+   Association follows retail's explicit single-precision add/div/mul steps. */
+typedef struct { f32 x, y; } Point;
+static Point point(f32 x, f32 y) { Point p = {x, y}; return p; }
+static Point plus(Point a, Point b) { return point(a.x + b.x, a.y + b.y); }
+static Point scaled(Point a, f32 scale) { return point(a.x * scale, a.y * scale); }
+static void oracle_vertex(Point position, f32 depth, f32 reciprocal, unsigned color, u8 alpha) {
+    static const unsigned fields[8] = {0, 4, 8, 0x18, 0x20, 0x24, 0x28, 0x2C};
+    unsigned offset = 0x9B0 + current->vertex_count * 0x40;
+    u8 *rgba;
+    f32 values[8];
+    CHECK(color < 32);
+    rgba = current->colors + color * 4;
+    values[0] = position.x; values[1] = position.y;
+    values[2] = depth; values[3] = reciprocal;
+    values[4] = (f32)rgba[0]; values[5] = (f32)rgba[1];
+    values[6] = (f32)rgba[2]; values[7] = (f32)alpha;
+    record_vertex(offset, position.x, position.y, depth, reciprocal, rgba[0], rgba[1], rgba[2], alpha);
+    for (unsigned i = 0; i < 8; ++i) putf(current->state.bytes + offset + fields[i], values[i]);
+    ++current->vertex_count;
+    vertex_mutation();
+}
+static int oracle(f32 x, f32 y, f32 width, f32 height) {
+    int mode = get16(current->state.bytes + 0x998);
+    f32 depth, reciprocal;
+    Point a, b, normal = {0, 0};
+    unsigned selected_style;
+    if (mode == 0) return 0;
+    depth = current->far_depth - current->near_depth;
+    func_00457120();
+    reciprocal = 1.0f / getf((u8 *)current->camera + 0x80);
+    a = b = point(x, y);
+    if (width != 640.0f && height != 448.0f) {
+        /* Only style 5 consumes this path with a positive layer count. */
+        b = plus(b, point(width, height));
+    } else if (x < 0.0f) {
+        a.x = 640.0f + x; b.x = a.x; b.y = 448.0f + y;
+        normal.x = 1;
+    } else if (!(x <= 0.0f)) {
+        a.y = 448.0f + y; normal.x = -1;
+    } else if (!(y <= 0.0f)) {
+        b.x = 640.0f + x; normal.y = -1;
+    } else if (y < 0.0f) {
+        a.x = 640.0f + x; normal.y = 1;
+    } else {
+        return 0;
+    }
+    if (mode < 1 || mode > 5) {
+        func_0046d730(&iGpffffa950, 0x6AF);
+        return 0;
+    }
+    selected_style = (unsigned)mode;
+    if (mode == 5) {
+        static const unsigned corners[6] = {0, 1, 2, 0, 2, 3};
+        int count = get16(style_bytes(selected_style));
+        for (int layer = count - 1; layer >= 0; --layer) {
+            u8 *style = style_bytes(selected_style);
+            f32 inset = getf(style + 24 + layer * 4);
+            unsigned color = (unsigned)get32(style + 4 + layer * 4);
+            u8 alpha = (u8)((current->colors[color * 4 + 3] * current->state.bytes[0x994]) / 255);
+            Point corners_xy[4] = {
+                {a.x - inset, a.y - inset}, {b.x + inset, a.y - inset},
+                {b.x + inset, b.y + inset}, {a.x - inset, b.y + inset}
+            };
+            for (unsigned k = 0; k < 6; ++k) oracle_vertex(corners_xy[corners[k]], depth, reciprocal, color, alpha);
+        }
+        if (current->vertex_count > 51) func_0046d730(&iGpffffa950, 0x6AC);
+    } else {
+        static const unsigned strip_triangles[12] = {0, 1, 2, 2, 1, 3, 3, 1, 4, 4, 1, 5};
+        int count = get16(style_bytes(selected_style));
+        int hidden_layer = get16(current->state.bytes + 0x99A);
+        Point center = point((a.x + b.x) / 2.0f, (a.y + b.y) / 2.0f);
+        Point tip = scaled(normal, 200.0f), gap = scaled(normal, 30.0f);
+        for (int layer = 0; layer < count; ++layer) {
+            u8 *style = style_bytes(selected_style);
+            f32 distance = getf(style + 24 + layer * 4);
+            unsigned color = (unsigned)get32(style + 4 + layer * 4);
+            u8 alpha = layer == hidden_layer ? 0 : (u8)((current->colors[color * 4 + 3] * current->state.bytes[0x994]) / 255);
+            Point shift = scaled(normal, distance);
+            if (layer == 0) {
+                Point triangle[3] = {b, plus(tip, plus(center, shift)), a};
+                for (unsigned k = 0; k < 3; ++k) oracle_vertex(triangle[k], depth, reciprocal, color, alpha);
+            } else {
+                f32 previous_distance = 30.0f + getf(style + 24 + (layer - 1) * 4);
+                Point previous = scaled(normal, previous_distance);
+                Point current_shift = plus(shift, gap);
+                Point ring[6] = {
+                    plus(b, current_shift), plus(tip, plus(center, current_shift)),
+                    plus(b, previous), plus(tip, plus(center, previous)),
+                    plus(a, previous), plus(a, current_shift)
+                };
+                for (unsigned k = 0; k < 12; ++k) oracle_vertex(ring[strip_triangles[k]], depth, reciprocal, color, alpha);
+            }
+        }
+        if (current->vertex_count > 51) func_0046d730(&iGpffffa950, 0x67E);
+    }
+    return (int)current->vertex_count;
+}
+static void initialize(Context *c, int mode, int count, int hidden, unsigned alpha, unsigned mutations, unsigned pattern) {
+    static const f32 distances[3][5] = {
+        {0.0f, 1.5f, 7.25f, 12.0f, 23.75f},
+        {-16.5f, -0.0f, 0.125f, 17.25f, 64.0f},
+        {16777216.0f, 0.75f, 33554432.0f, 2.25f, -16777216.0f}
+    };
+    static const f32 projections[3] = {512.0f, 0.125f, 3.0f};
+    memset(c, 0, sizeof *c);
+    memset(&c->state, 0xA5, sizeof c->state);
+    c->initial_mode = mode; c->mutations = mutations;
+    c->replacement_count = count > 0 ? 6 - count : count;
+    put16(c->state.bytes + 0x998, (s16)mode);
+    put16(c->state.bytes + 0x99A, (s16)hidden);
+    c->state.bytes[0x994] = (u8)alpha;
+    for (unsigned s = 0; s < 5; ++s) {
+        u8 *style = (u8 *)c->styles + s * 44;
+        put16(style, (s16)count);
+        style[2] = 0x31; style[3] = 0xF3;
+        for (unsigned i = 0; i < 5; ++i) {
+            put32(style + 4 + i * 4, (s32)((s * 5 + i * 7 + pattern) % 32));
+            putf(style + 24 + i * 4, distances[pattern % 3][i]);
+        }
+    }
+    for (unsigned i = 0; i < 128; ++i) c->colors[i] = (u8)(i * 37 + 11);
+    putf((u8 *)c->camera + 0x80, projections[pattern % 3]);
+    c->far_depth = 1024.25f + (f32)pattern;
+    c->near_depth = 0.5f + (f32)pattern * 0.25f;
+}
+static void scenario(unsigned group, int mode, int count, int hidden, unsigned alpha, unsigned mutations,
+                     unsigned pattern, f32 x, f32 y, f32 width, f32 height) {
+    Context expected, actual;
+    int want, got;
+    initialize(&actual, mode, count, hidden, alpha, mutations, pattern);
+    expected = actual;
+    current = &expected;
+    want = oracle(x, y, width, height);
+    current = &actual;
+    got = func_0034e360(actual.state.bytes, x, y, width, height);
+    CHECK(got == want);
+    CHECK(actual.event_count == expected.event_count);
+    CHECK(memcmp(actual.events, expected.events, sizeof actual.events) == 0);
+    CHECK(memcmp(&actual.state, &expected.state, sizeof actual.state) == 0);
+    CHECK(memcmp(actual.styles, expected.styles, sizeof actual.styles) == 0);
+    CHECK(memcmp(actual.colors, expected.colors, sizeof actual.colors) == 0);
+    CHECK(memcmp(actual.camera, expected.camera, sizeof actual.camera) == 0);
+    CHECK(bits(actual.far_depth) == bits(expected.far_depth));
+    CHECK(bits(actual.near_depth) == bits(expected.near_depth));
+    CHECK(actual.vertex_count == expected.vertex_count && actual.camera_count == expected.camera_count);
+    emitted_vertices += actual.vertex_count;
+    ++scenarios; ++group_cases[group];
+}
+static void cases(void) {
+    static const int counts[] = {-32768, -1, 0, 1, 2, 3, 4, 5};
+    static const int hidden[] = {-32768, -1, 0, 1, 2, 3, 4, 5, 32767};
+    static const unsigned alpha[] = {0, 1, 127, 128, 254, 255};
+    static const f32 edge[6][4] = {
+        {-17.5f, 8.25f, 640.0f, 448.0f}, {33.5f, -5.5f, 640.0f, 448.0f},
+        {0.0f, 17.25f, 640.0f, 448.0f}, {-0.0f, -23.5f, 640.0f, 448.0f},
+        {-7.25f, 2.5f, 640.0f, 91.25f}, {0.0f, 5.5f, 19.5f, 448.0f}
+    };
+    for (int mode = 1; mode <= 5; ++mode)
+    for (unsigned n = 0; n < 8; ++n)
+    for (unsigned h = 0; h < 9; ++h)
+    for (unsigned a = 0; a < 6; ++a)
+    for (unsigned e = 0; e < 6; ++e)
+        scenario(0, mode, counts[n], hidden[h], alpha[a], 0, (n + h + e) % 3,
+                 edge[e][0], edge[e][1], edge[e][2], edge[e][3]);
+    for (int mode = 1; mode <= 5; ++mode)
+    for (unsigned a = 0; a < 256; ++a)
+    for (unsigned e = 0; e < 4; ++e)
+        scenario(1, mode, 5, 2, a, 0, a % 3, edge[e][0], edge[e][1], edge[e][2], edge[e][3]);
+    for (int mode = 1; mode <= 5; ++mode)
+    for (int count = 1; count <= 5; ++count)
+    for (unsigned mutations = 1; mutations < 32; ++mutations)
+    for (unsigned e = 0; e < 4; ++e)
+    for (unsigned a = 0; a < 6; ++a)
+        scenario(2, mode, count, count - 1, alpha[a], mutations, e % 3,
+                 edge[e][0], edge[e][1], edge[e][2], edge[e][3]);
+    for (int count = -1; count <= 5; ++count)
+    for (unsigned mutations = 0; mutations < 32; ++mutations)
+    for (unsigned shape = 0; shape < 4; ++shape)
+    for (unsigned a = 0; a < 6; ++a) {
+        static const f32 rect[4][4] = {
+            {-17.5f, 8.25f, 101.5f, 73.25f}, {0.0f, -0.0f, 0.0f, 0.0f},
+            {8388608.0f, -8388608.0f, 101.5f, -73.25f}, {33.5f, 27.25f, -53.5f, 91.25f}
+        };
+        scenario(3, 5, count, 2, alpha[a], mutations, shape % 3,
+                 rect[shape][0], rect[shape][1], rect[shape][2], rect[shape][3]);
+    }
+    for (unsigned m = 0; m < 5; ++m)
+    for (unsigned mutations = 0; mutations < 32; ++mutations)
+    for (unsigned e = 0; e < 7; ++e) {
+        static const int modes[5] = {0, -32768, -1, 6, 32767};
+        if (e < 6) scenario(4, modes[m], 5, -1, 255, mutations, 0, edge[e][0], edge[e][1], edge[e][2], edge[e][3]);
+        else scenario(4, modes[m], 5, -1, 255, mutations, 0, 0.0f, -0.0f, 640.0f, 448.0f);
+    }
+    for (int mode = 1; mode <= 5; ++mode)
+    for (unsigned mutations = 0; mutations < 32; ++mutations)
+        scenario(4, mode, 5, -1, 255, mutations, 0, 0.0f, -0.0f, 640.0f, 448.0f);
+}
+int main(void) {
+    cases();
+    native32_text("{\"scenarios\":"); native32_number(scenarios);
+    native32_text(",\"vertices\":"); native32_number(emitted_vertices);
+    native32_text(",\"groups\":[");
+    for (unsigned i = 0; i < 5; ++i) { if (i) native32_text(","); native32_number(group_cases[i]); }
+    native32_text("],\"pointer_bits\":32}\n");
+    return 0;
+}
+@@ENTRY@@

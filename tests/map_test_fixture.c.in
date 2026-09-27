@@ -1,0 +1,303 @@
+#include "type.h"
+#include "sdk_dbprt.h"
+#include "sdk_lbox_internal.h"
+@@TYPES@@
+
+static unsigned scenario;
+#define CHECK(condition) do { if (!(condition)) native32_failure(__LINE__, scenario, #condition); } while (0)
+#define WORD(buffer, offset) (*(s32 *)((buffer) + (offset)))
+
+PadStatus D_008C0240[2] __attribute__((aligned(8)));
+const KWindowEntryDescriptor D_005F5730[4] = {0};
+u8 D_007E3720[256 * 16];
+u8 D_007966D0[16];
+s64 iGpffff9fd0 = 0x4200000043960000LL;
+PanelColor iGpffff9fd8 = {255, 0, 0, 128};
+char iGpffff9fdc[3] = "%d";
+s32 iGpffffb240 = 1234567;
+static u8 task[0x40] __attribute__((aligned(8)));
+static u8 windowTask[0x40] __attribute__((aligned(8)));
+static u8 windowState[0x190] __attribute__((aligned(8)));
+static s32 expectedVisibleRows;
+static unsigned rowStep, menuProviderCases;
+static u8 state[0x1B448] __attribute__((aligned(8)));
+static u8 expectedState[sizeof(state)] __attribute__((aligned(8)));
+static u8 grid[0x18F8] __attribute__((aligned(8)));
+static s32 values[4];
+static s32 menuSelection;
+static unsigned menuPolls, valueCalls, gets, generations, closes, prints, creates;
+static unsigned settings;
+static s32 selectedIds[3];
+static s32 generatedMode, generatedSeed;
+static int mutateAfterIcon;
+static int expectChangedLimits;
+static unsigned drawCount, expectedDrawCount;
+static unsigned totalCases, totalDraws, totalMenus;
+
+typedef struct { s32 kind, cell, shape, rotation; } ExpectedDraw;
+static ExpectedDraw expectedDraws[768];
+
+s32 *func_00155280(void) { ++gets; return (s32 *)grid; }
+s32 func_00470280(u8 *parent, s32 x, s32 y, s32 mode) {
+    CHECK(parent == task && x == 256 && y == 64 && mode == 0);
+    ++creates;
+    return (s32)windowTask;
+}
+void func_00470810(KwlnTask *window, const KWindowEntryDescriptor *menu, u32 count) {
+    CHECK((u8 *)window == windowTask && menu == D_005F5730 && count == 4);
+    CHECK(settings++ == 0);
+}
+void func_00453fa0(u8 *list, s32 visibleRows) {
+    CHECK(list == windowState + 0x164 && visibleRows == expectedVisibleRows);
+    CHECK(rowStep++ == 0);
+    WORD(list, 0x14) = visibleRows;
+}
+s32 func_00453e60(u8 *list) {
+    CHECK(list == windowState + 0x164 && rowStep++ == 1);
+    return WORD(list, 0x14);
+}
+void func_004704d0(u8 *window) {
+    CHECK(window == windowTask && rowStep++ == 2);
+    CHECK(WORD(windowState, 0x13C) == expectedVisibleRows);
+    CHECK(settings++ == 1);
+}
+void func_004703c0(u8 *window, s32 flags) {
+    CHECK(window == windowTask && flags == 4);
+    CHECK(settings++ == 2);
+}
+void func_004703d0(u8 *window, s32 flags) {
+    CHECK(window == windowTask && flags == 1);
+    CHECK(settings++ == 3);
+}
+s32 func_00470e20(u8 *window) {
+    CHECK(window == windowTask);
+    ++menuPolls;
+    return menuSelection;
+}
+s32 *func_00470bd0(KwlnTask *window, u32 id) {
+    CHECK((u8 *)window == windowTask && id < 4 && valueCalls < 3);
+    selectedIds[valueCalls++] = id;
+    return &values[id];
+}
+s32 func_00452080(KwlnTask *window) { CHECK((u8 *)window == windowTask); ++closes; return 1; }
+void func_001582f0(s32 mode, s32 seed, s32 unused) {
+    CHECK(unused == 0);
+    CHECK(WORD(state, 4) == mode);
+    CHECK(mode == generatedMode && seed == generatedSeed);
+    if (expectChangedLimits) {
+        CHECK(grid[0x4A] == D_007E3720[values[3] * 16 + 8]);
+        CHECK(grid[0x4B] == D_007E3720[values[3] * 16 + 9]);
+    }
+    ++generations;
+}
+void func_00450340(s64 position, const char *format, ...) {
+    __builtin_va_list arguments;
+    __builtin_va_start(arguments, format);
+    CHECK(position == iGpffff9fd0);
+    CHECK(format == iGpffff9fdc);
+    CHECK(sizeof(iGpffff9fdc) > 1);
+    CHECK(__builtin_va_arg(arguments, s32) == iGpffffb240);
+    __builtin_va_end(arguments);
+    ++prints;
+}
+
+static ExpectedDraw *draw(s32 kind, void *queue, u8 *packet, f32 x, f32 y, f32 z) {
+    CHECK(queue == D_007966D0 && drawCount < expectedDrawCount);
+    ExpectedDraw *expected = &expectedDraws[drawCount++];
+    CHECK(expected->kind == kind);
+    CHECK(packet == state + 16 + expected->cell * 288);
+    CHECK(x == (f32)((expected->cell % 16) * 18));
+    CHECK(y == (f32)((expected->cell / 16) * 18));
+    CHECK(z == 0.0f);
+    ++totalDraws;
+    return expected;
+}
+void func_0017d1f0(u8 *queue, u8 *packet, s32 shape, s32 texture,
+                  f32 x, f32 y, f32 z, s32 rotation) {
+    ExpectedDraw *expected = draw(1, queue, packet, x, y, z);
+    CHECK(shape == expected->shape && rotation == expected->rotation && texture == 0);
+    if (mutateAfterIcon) {
+        CHECK(expected->cell == 0);
+        grid[0x54] = 2;
+        D_008C0240[0].trigger |= 0x20;
+        mutateAfterIcon = 0;
+    }
+}
+void func_0014def0(u8 *queue, u8 *packet, f32 x, f32 y, f32 z, f32 width, f32 height,
+                  u8 *color, s32 texture, f32 u0, f32 v0, f32 u1, s32 rotation, f32 v1) {
+    draw(2, queue, packet, x, y, z);
+    CHECK(color != (u8 *)&iGpffff9fd8);
+    CHECK(memcmp(color, &iGpffff9fd8, 4) == 0);
+    CHECK(width == 18.0f && height == 18.0f);
+    CHECK(texture == 0 && rotation == 0 && u0 == 0.0f && v0 == 0.0f && u1 == 0.0f && v1 == 0.0f);
+}
+
+@@MENU_PROVIDERS@@
+
+@@TARGET@@
+
+static void begin(s32 phase, s32 page, u16 buttons) {
+    ++scenario;
+    memset(state, 0x5A, sizeof(state));
+    memset(task, 0x6B, sizeof(task));
+    memset(windowTask, 0, sizeof(windowTask));
+    memset(windowState, 0, sizeof(windowState));
+    *(u8 **)(windowTask + 0x38) = windowState;
+    expectedVisibleRows = 20;
+    rowStep = 0;
+    memset(grid, 0, sizeof(grid));
+    memset(D_008C0240, 0, sizeof(D_008C0240));
+    *(u8 **)(task + 0x38) = state;
+    WORD(state, 0) = phase;
+    WORD(state, 4) = 1;
+    WORD(state, 0x1B430) = page;
+    *(KwlnTask **)(state + 0x1B438) = (KwlnTask *)windowTask;
+    *(u8 **)(state + 0x1B434) = D_007E3720;
+    D_008C0240[0].trigger = buttons;
+    memcpy(expectedState, state, sizeof(state));
+    menuPolls = valueCalls = gets = generations = closes = prints = creates = settings = 0;
+    drawCount = expectedDrawCount = 0;
+    mutateAfterIcon = expectChangedLimits = 0;
+    generatedMode = 1;
+    generatedSeed = 0;
+}
+
+static void finish(void) {
+    CHECK(func_0018e810(task) == 0);
+    CHECK(memcmp(state, expectedState, sizeof(state)) == 0);
+    CHECK(drawCount == expectedDrawCount);
+    CHECK(*(u8 **)(task + 0x38) == state);
+    ++totalCases;
+}
+
+static void append(s32 kind, s32 cell, s32 shape, s32 rotation) {
+    CHECK(expectedDrawCount < 768);
+    expectedDraws[expectedDrawCount++] = (ExpectedDraw){kind, cell, shape, rotation};
+}
+
+int main(void) {
+    CHECK(sizeof(KWindowEntryDescriptor) == 0x20);
+    CHECK(sizeof(MapTestCell) == 16 && __builtin_offsetof(MapTestCell, shape) == 4);
+    CHECK(__builtin_offsetof(MapTestGrid, cells) == 84 && sizeof(PanelColor) == 4);
+    CHECK(sizeof(PadStatus) == 0x4A && __builtin_offsetof(PadStatus, trigger) == 14);
+    CHECK(__builtin_offsetof(MapTestCell, flags) == 1);
+    CHECK(__builtin_offsetof(MapTestCell, resourceId) == 2);
+    CHECK(__builtin_offsetof(MapTestCell, rotation) == 5);
+    CHECK(sizeof(((MapTestGrid *)0)->cells[0]) == 0x100);
+    CHECK(sizeof(((MapTestGrid *)0)->cells) == 24 * 0x100);
+    for (s32 i = 0; i < 256; ++i) {
+        D_007E3720[i * 16 + 8] = (u8)(255 - i);
+        D_007E3720[i * 16 + 9] = (u8)i;
+    }
+
+    begin(0, 0, 0);
+    WORD(state, 0x1B438) = 0;
+    *(u8 **)(state + 0x1B434) = 0;
+    WORD(expectedState, 0) = 1;
+    finish();
+    CHECK(creates == 1 && settings == 4 && gets == 0 && generations == 0);
+
+    for (s32 phase = -1; phase <= 5; ++phase) {
+        if (phase == 0 || phase == 1 || phase == 4) continue;
+        begin(phase, 0, 0xFFFF);
+        if (phase == 2 || phase == 3) WORD(expectedState, 0) = phase + 1;
+        finish();
+        CHECK(gets == 0 && prints == 0 && menuPolls == 0 && generations == 0);
+    }
+
+    const s32 seeds[3] = {0, -12345, 0x7FFFFFFF};
+    const s32 templateIds[3] = {0, 1, 255};
+    const s32 modes[3] = {2, 0, 1};
+    for (s32 selected = -1; selected < 4; ++selected) {
+        for (s32 seed = 0; seed < 3; ++seed) {
+            for (s32 templateId = 0; templateId < 3; ++templateId) {
+                begin(1, 3, 0x40);
+                menuSelection = selected;
+                values[0] = values[1] = values[2] = seeds[seed];
+                values[3] = templateIds[templateId];
+                if (selected >= 0 && selected < 3) {
+                    generatedMode = modes[selected];
+                    generatedSeed = seeds[seed];
+                    expectChangedLimits = 1;
+                    WORD(expectedState, 0) = 2;
+                    WORD(expectedState, 4) = generatedMode;
+                }
+                finish();
+                CHECK(menuPolls == 1);
+                if (expectChangedLimits) {
+                    CHECK(generations == 1 && closes == 1 && valueCalls == 3 && gets == 2);
+                    CHECK(selectedIds[0] == 3 && selectedIds[1] == 3 && selectedIds[2] == selected);
+                } else CHECK(generations == 0 && closes == 0 && valueCalls == 0 && gets == 0);
+                ++totalMenus;
+            }
+        }
+    }
+    begin(1, 0, 0x20);
+    finish();
+    CHECK(menuPolls == 0 && valueCalls == 0 && generations == 0);
+
+    for (s32 page = -1; page <= 4; ++page) {
+        for (s32 bits = 0; bits < 16; ++bits) {
+            u16 buttons = (bits & 1 ? 0x8000 : 0) | (bits & 2 ? 0x2000 : 0) |
+                          (bits & 4 ? 0x40 : 0) | (bits & 8 ? 0x20 : 0);
+            begin(4, page, buttons);
+            s32 expectedPage = page + (bits & 1 ? -1 : (bits & 2 ? 1 : 0));
+            if (expectedPage < 0) expectedPage = 3;
+            if (expectedPage > 3) expectedPage = 0;
+            WORD(expectedState, 0x1B430) = expectedPage;
+            if (bits & 8) WORD(expectedState, 0) = 0;
+            finish();
+            CHECK(prints == 1 && generations == (unsigned)((bits >> 2) & 1) && gets == 768);
+        }
+    }
+
+    /* Every row and column is exercised with occupancy 0/1/2/3 and all
+       flag bytes. This catches swapped dimensions, signed byte reads and
+       testing the complete flags byte instead of its low nibble. */
+    for (s32 pattern = 0; pattern < 16; ++pattern) {
+        begin(4, 0, 0);
+        for (s32 cell = 0; cell < 384; ++cell) {
+            u8 *record = grid + 84 + cell * 16;
+            record[0] = (u8)((cell + pattern) % 4);
+            record[1] = (u8)(cell + pattern * 17);
+            record[4] = (u8)(cell % 15);
+            record[5] = (u8)(cell % 4);
+            if (record[0] && record[1] % 16 == 1) append(1, cell, record[4], record[5]);
+            if (record[0] == 2) append(2, cell, 0, 0);
+        }
+        finish();
+        CHECK(prints == 1 && generations == 0);
+    }
+
+    /* The second occupancy test and final button test must observe a
+       callback's changes, preserving retail's load/call ordering. */
+    begin(4, 0, 0);
+    grid[84] = 1; grid[85] = 1; grid[88] = 14; grid[89] = 3;
+    append(1, 0, 14, 3);
+    append(2, 0, 0, 0);
+    mutateAfterIcon = 1;
+    WORD(expectedState, 0) = 0;
+    finish();
+    CHECK(mutateAfterIcon == 0 && prints == 1);
+
+    /* Execute the exact recovered setter across the signed argument range.
+       The refresh callback must observe the updated capacity after the getter. */
+    const s32 capacities[] = {-7, 0, 1, 20, 2147483647, (-2147483647 - 1)};
+    for (unsigned index = 0; index < sizeof(capacities) / sizeof(capacities[0]); ++index) {
+        begin(4, 0, 0);
+        settings = 1;
+        expectedVisibleRows = capacities[index];
+        func_00470430(windowTask, capacities[index]);
+        CHECK(rowStep == 3 && settings == 2);
+        CHECK(WORD(windowState, 0x178) == capacities[index]);
+        CHECK(WORD(windowState, 0x13C) == capacities[index]);
+        ++menuProviderCases;
+    }
+
+    native32_text("map_test_cases="); native32_number(totalCases);
+    native32_text(" menus="); native32_number(totalMenus);
+    native32_text(" draws="); native32_number(totalDraws);
+    native32_text(" menu_provider_cases="); native32_number(menuProviderCases);
+    native32_text("\n");
+    return 0;
+}

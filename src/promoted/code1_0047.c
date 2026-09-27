@@ -1,3 +1,4 @@
+#include "sdk_lbox_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
 #include "type.h"

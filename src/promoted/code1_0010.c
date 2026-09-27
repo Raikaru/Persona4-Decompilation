@@ -1,3 +1,4 @@
+#include "sdk_dbprt.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -982,7 +983,6 @@ void func_00103600(void)
 }
 // FUN_001036D0
 s32 func_001036d0(u8 *arg0) {
-    extern void func_00450340(s64 arg0, void *arg1);
     extern u8 *func_004609f0(void);
     extern void func_00460ac0(void *list, void *node);
     extern u8 D_005DD5D0[];
@@ -1093,7 +1093,7 @@ loop2_check:
             break;
         }
     case 1:
-        func_00450340(iGpffff85c8, D_005DD5D0);
+        func_00450340(iGpffff85c8, (const char *)D_005DD5D0);
         *(s32 *)(*(u8 **)(state + 4) + 0) = 0;
         *(s32 *)(*(u8 **)(state + 4) + 4) = 0;
         *(s32 *)(*(u8 **)(state + 8) + 0) = 0;

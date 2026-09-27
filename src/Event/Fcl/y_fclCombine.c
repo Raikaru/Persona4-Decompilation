@@ -227,7 +227,7 @@ extern s64 func_00312c60(u16 *arg0, u8 *arg1, s64 arg2);
 /* The item id is an s16; the callee sign-extends its own table index. */
 extern s32 func_00313690(s16 arg0);
 extern u8 func_002e78a0(void);
-extern u8 func_002e78e0(void);
+extern s32 func_002e78e0(void);
 extern s8 D_00641A60[];
 extern s8 D_00749480[];
 extern u8 *iGpffffb44c;
@@ -435,8 +435,8 @@ s32 func_002e8410(u8 *arg0) {
     func_002b7750(0x2D9, 0x1D7);
     func_002b7750(0x2DA, 0x165);
     func_002b7750(0x2DB, (s16)((func_002e78a0() % 10) + 9));
-    func_002b7750(0x2DC, (s16)((func_002e78e0() / 10) + 9));
-    func_002b7750(0x2DD, (s16)((func_002e78e0() % 10) + 9));
+    func_002b7750(0x2DC, (s16)(((u8)func_002e78e0() / 10) + 9));
+    func_002b7750(0x2DD, (s16)(((u8)func_002e78e0() % 10) + 9));
     func_002b7750(0x22A, 0x193);
     func_002b7750(0x2DE, 0x126);
     func_002b7750(0x2DE, 0x125);
@@ -5945,7 +5945,7 @@ void func_00302770(u8 *arg0) {
         *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
         sprintf(buf, (const char *)&iGpffffa8a0, func_002e78a0());
         func_002bbd80(*(s8 *)(p + 0xD), 0, buf);
-        sprintf(buf, (const char *)&iGpffffa8a0, func_002e78e0());
+        sprintf(buf, (const char *)&iGpffffa8a0, (u8)func_002e78e0());
         func_002bbd80(*(s8 *)(p + 0xD), 1, buf);
         func_002badc0(*(s8 *)(p + 0xD), 0x4A);
         p[1] = 0x71;
@@ -6312,7 +6312,7 @@ void func_00303de0(u8 *arg0)
        before the table when the selector is -1. */
     selectedAddress = (u32)D_0063FCA0 + p[724] * 28;
     month = func_002e78a0();
-    calendar = (s8 *)D_006406F0 + (s8)func_00110a60(month, func_002e78e0()) * 20;
+    calendar = (s8 *)D_006406F0 + (s8)func_00110a60(month, (u8)func_002e78e0()) * 20;
     p[735] = 0;
     if (p[724] == -1) {
         for (i = 0; i < 5; i++) {
@@ -9205,7 +9205,7 @@ void func_0030c3c0(u8 *arg0) {
         break;
     case 0xB2:
         row = D_0063FCA0 + *(s8 *)(p + 0x2D4) * 28;
-        cal = (FclCombineSlot *)(D_006406F0 + (s8)func_00110a60(func_002e78a0(), func_002e78e0()) * 20);
+        cal = (FclCombineSlot *)(D_006406F0 + (s8)func_00110a60(func_002e78a0(), (u8)func_002e78e0()) * 20);
         if (*(s8 *)(p + 0x2D4) == -1) {
             for (i10 = 0; i10 < 5; i10++) {
                 if (*(s8 *)(p + i10 + 0x2DA) == 0xA) {

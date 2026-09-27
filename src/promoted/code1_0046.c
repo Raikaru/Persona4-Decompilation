@@ -3487,7 +3487,6 @@ void func_0046ec70(u8 *arg0) {
     extern s32 strlen(const void *str);
     extern s32 func_0044dcd8(f32 value);
     extern void func_004501f0(s64 arg0, s32 arg1, const void *arg2, ...);
-    extern void func_00450340(s64 arg0, const void *arg1, ...);
     extern s32 iGpffffb064;
     extern char iGpffffb068;
     extern char iGpffffb06c;

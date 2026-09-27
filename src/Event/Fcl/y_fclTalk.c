@@ -18,7 +18,7 @@ extern void *func_001067f0(s16);
 extern void func_00275980(void *, void *, s32);
 extern s32 datGetFlag(s32);
 extern u8 func_002e78a0(void);
-extern u8 func_002e78e0(void);
+extern s32 func_002e78e0(void);
 extern s32 func_002be100(u8);
 extern s32 func_002bb680(s8);
 extern void func_002bbcf0(s32);

@@ -510,7 +510,7 @@ void func_004501f0(s64 arg0, s32 arg1, s32 arg2, ...) {
 }
 
 // FUN_00450340
-void func_00450340(s64 arg0, s32 arg1, ...) {
+void func_00450340(s64 arg0, const char *arg1, ...) {
     va_list args;
     u8 *temp_2;
     HDbText3D *var_4;
@@ -524,7 +524,7 @@ void func_00450340(s64 arg0, s32 arg1, ...) {
     if (temp_2 != NULL) {
         func_0044ec50(0);
         va_start(args, arg1);
-        func_00446ed8(temp_2 + 0x10, (void *)arg1, args);
+        func_00446ed8(temp_2 + 0x10, arg1, args);
         *(f32 *)(temp_2 + 4) = *(f32 *)&arg0;
         *(f32 *)(temp_2 + 8) = arg0hi;
         *(s32 *)(temp_2 + 0xC) = 0;

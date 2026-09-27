@@ -1,10 +1,11 @@
 /* Original translation unit sdkLbox.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "sdk_lbox_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
-extern void func_00453fa0();
-extern s32 func_00453e60();
-extern void func_004704d0();
+extern void func_00453fa0(u8 *list, s32 visibleRows);
+extern s32 func_00453e60(u8 *list);
+extern void func_004704d0(u8 *task);
 extern void func_0046ea50();
 extern void func_0046ea60();
 extern void func_0044ea90(const void *msg, s32 id);
@@ -82,10 +83,10 @@ void func_004703d0(u8 *arg0, s32 arg1) {
 }
 
 // FUN_00470430
-void func_00470430(u8 *arg0) {
+void func_00470430(u8 *arg0, s32 visibleRows) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
-    func_00453fa0(p + 0x164);
+    func_00453fa0(p + 0x164, visibleRows);
     *(s32 *)(p + 0x13C) = func_00453e60(p + 0x164);
     func_004704d0(arg0);
 }

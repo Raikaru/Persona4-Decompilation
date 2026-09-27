@@ -571,7 +571,7 @@ void func_00315600(u8 *arg0, s64 arg1) {
     extern s32 func_00110d30(s32 arg0);
     extern s64 func_00110a60(s32 arg0, s32 arg1);
     extern u8 func_002e78a0(void);
-    extern u8 func_002e78e0(void);
+    extern s32 func_002e78e0(void);
     extern f32 D_00643DA8[];
     extern f32 D_00643E28[];
     extern f32 D_00643E30[];
@@ -5795,7 +5795,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c660);
 // FUN_0032E570
 void func_0032e570(u8 *arg0) {
     extern u8 func_002e78a0(void);
-    extern u8 func_002e78e0(void);
+    extern s32 func_002e78e0(void);
     extern s64 func_00110a60(s32 arg0, s32 arg1);
     extern u8 D_00643D00[];
     extern u8 D_006432B0[];

@@ -86,7 +86,7 @@ extern s32 func_00106850(void);
 extern s32 func_00106ac0(s64 arg0);
 extern s64 func_00106af0(s64 arg0);
 extern s32 func_002e78a0(void);
-extern u8 func_002e78e0(void);
+extern s32 func_002e78e0(void);
 extern s32 func_002be100(s32 arg0);
 extern void func_00144c90(s32 arg0, s32 arg1);
 extern s32 func_00144f60(void);

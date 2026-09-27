@@ -1,4 +1,5 @@
 /* Source unit: src/Kosaka/Field/k_sceneDraw.c */
+#include "sdk_lbox_internal.h"
 #include "include_asm.h"
 #include "type.h"
 
@@ -44,21 +45,7 @@ extern Resrc* func_00147530(ResrcManager* resManager, u16 resTypeId);
 
 #define SCENEDRAW_RESRC_FLAG_PERSONA 0x00010000
 
-typedef struct KwlnTask KwlnTask;
 
-extern KwlnTask* func_00470280(KwlnTask* parent, u32 width, u32 height, u32 mode);
-typedef void (*KWindowEntryCallback)(void* value);
-typedef struct KWindowEntryDescriptor
-{
-    const char* name;
-    s32 type;
-    const char* text;
-    s32 value0;
-    s32 value1;
-    s32 value2;
-    s32 value3;
-    KWindowEntryCallback callback;
-} KWindowEntryDescriptor;
 
 extern u32 func_00470970(KwlnTask* task, const char* name);
 extern void func_00470ad0(KwlnTask* task, u32 id, const char* text);
@@ -639,10 +626,9 @@ setFlags:
 
 
 // FUN_00470250
-KwlnTask* func_00470250(KwlnTask* parent, u32 width, u32 height, u32 unused)
+KwlnTask* func_00470250(KwlnTask* parent, u32 width, u32 height)
 {
-    (void)unused;
-    return func_00470280(parent, width, height, 0);
+    return (KwlnTask*)func_00470280((u8*)parent, width, height, 0);
 }
 
 

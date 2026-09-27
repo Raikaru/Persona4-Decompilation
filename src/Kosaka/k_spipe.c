@@ -1,6 +1,7 @@
 /* Source unit: src/Kosaka/k_spipe_00178c20.c */
 #include "include_asm.h"
 #include "type.h"
+#include "field_shadow_internal.h"
 
 typedef struct RwV3d RwV3d;
 struct RwV3d
@@ -134,7 +135,6 @@ typedef struct FldShadowBoundsAccum
 extern RwSphere* func_003bfae0(void* atomic);
 
 typedef struct FldShadowProjectionWork FldShadowProjectionWork;
-typedef struct FldShadowTriangle FldShadowTriangle;
 
 typedef struct FldShadowAtomicContext
 {
@@ -143,9 +143,6 @@ typedef struct FldShadowAtomicContext
     void* atomic;                         // 0x08
 } FldShadowAtomicContext;
 
-extern void* func_00394e70(void* atomic, void* geometry, void* callback, void* context);
-extern void* func_00179860(void* ignored, const FldShadowTriangle* triangle,
-                           FldShadowAtomicContext* context);
 
 
 // FUN_00178C20
@@ -234,8 +231,9 @@ void func_001790a0(RwCamera* camera)
 
 
 // FUN_00179130
-void* func_00179130(void* atomic, FldShadowBoundsAccum* accum)
+void* func_00179130(void* atomic, void* data)
 {
+    FldShadowBoundsAccum* accum = data;
     const RwSphere* sphere;
 
     sphere = func_003bfae0(atomic);
@@ -255,14 +253,16 @@ void* func_00179130(void* atomic, FldShadowBoundsAccum* accum)
 
 /* measured: MATCH nd0 obj1668/win1680 (12B 3-word zero tail only); V12 u32 c0/c1/c2; MAC dot mula/madda/madd + 1.5f mul+add unfused + adda/msub color exact. */
 // FUN_001791D0
-void* func_001791d0(void* ignored0, void* ignored1, u8* tri, u8* work)
+struct RpCollisionTriangle* func_001791d0(
+    struct RpIntersection* intersection, struct RpWorldSector* sector,
+    struct RpCollisionTriangle* tri, f32 distance, void* data)
 {
     extern void func_003e42e0(void* dst, void* src, s32 n, void* mat);
     extern s32 func_00410420(void* w, u32 c, s32 z, s32 v);
     extern void func_004106a0(s32 v);
     extern void func_004104d0(void);
-    u8* triSaved = tri;
-    u8* workSaved = work;
+    u8* triSaved = (u8*)tri;
+    u8* workSaved = data;
     u8* base = workSaved + 0x5470;
     RwV3d src[3];
     RwV3d dst[3];
@@ -280,7 +280,7 @@ void* func_001791d0(void* ignored0, void* ignored1, u8* tri, u8* work)
     u8* out;
     dot = triNormal->x * workVec->x + triNormal->y * workVec->y + triNormal->z * workVec->z;
     if (dot > 0.0f) {
-        return triSaved;
+        return (struct RpCollisionTriangle*)triSaved;
     }
     src[0] = *(RwV3d*)(*(u8**)(triSaved + 0x1C));
     src[1] = *(RwV3d*)(*(u8**)(triSaved + 0x20));
@@ -303,7 +303,7 @@ void* func_001791d0(void* ignored0, void* ignored1, u8* tri, u8* work)
         (dst[0].x <= 1.0f || dst[1].x <= 1.0f || dst[2].x <= 1.0f) &&
         (dst[0].y >= 0.0f || dst[1].y >= 0.0f || dst[2].y >= 0.0f) &&
         (dst[0].y <= 1.0f || dst[1].y <= 1.0f || dst[2].y <= 1.0f))) {
-        return triSaved;
+        return (struct RpCollisionTriangle*)triSaved;
     }
     cnt = *(u32*)(workSaved + 0x5460);
     if (cnt > 0x255U) {
@@ -398,13 +398,16 @@ void* func_001791d0(void* ignored0, void* ignored1, u8* tri, u8* work)
         *(u8*)(out + 0x57) = b;
     }
     (*(u32*)(workSaved + 0x5460)) += 3;
-    return triSaved;
+    return (struct RpCollisionTriangle*)triSaved;
 }
 /* Skinned twin of func_001791d0: each vertex is first transformed by its
    atomic's frame matrix, then projected and emitted the same way. */
 // FUN_00179860
-void* func_00179860(void* ignored, const FldShadowTriangle* triangle, FldShadowAtomicContext* context)
+struct RpCollisionTriangle* func_00179860(
+    struct RpIntersection* intersection, struct RpCollisionTriangle* triangle,
+    f32 distance, void* data)
 {
+    FldShadowAtomicContext* context = data;
     extern void* func_003e9700(void* arg);
     extern void func_003e42e0(void* dst, void* src, s32 n, void* mat);
     extern s32 func_00410420(void* w, u32 c, s32 z, s32 v);
@@ -435,7 +438,7 @@ void* func_00179860(void* ignored, const FldShadowTriangle* triangle, FldShadowA
     }
     dot = normal.x * workVec->x + normal.y * workVec->y + normal.z * workVec->z;
     if (dot > 0.0f) {
-        return (void*)triangle;
+        return triangle;
     }
     src[0] = skinned[0];
     src[1] = skinned[1];
@@ -458,7 +461,7 @@ void* func_00179860(void* ignored, const FldShadowTriangle* triangle, FldShadowA
         (dst[0].x <= 1.0f || dst[1].x <= 1.0f || dst[2].x <= 1.0f) &&
         (dst[0].y >= 0.0f || dst[1].y >= 0.0f || dst[2].y >= 0.0f) &&
         (dst[0].y <= 1.0f || dst[1].y <= 1.0f || dst[2].y <= 1.0f))) {
-        return (void*)triangle;
+        return triangle;
     }
     cnt = *(u32*)((u8*)context->work + 0x5460);
     if (cnt > 0x255U) {
@@ -553,11 +556,12 @@ void* func_00179860(void* ignored, const FldShadowTriangle* triangle, FldShadowA
         *(u8*)(out + 0x57) = b;
     }
     (*(u32*)((u8*)context->work + 0x5460)) += 3;
-    return (void*)triangle;
+    return triangle;
 }
 // FUN_00179F70
-void* func_00179f70(void* atomic, FldShadowAtomicContext* context)
+void* func_00179f70(void* atomic, void* data)
 {
+    FldShadowAtomicContext* context = data;
     context->atomic = atomic;
     func_00394e70(atomic, context->geometry, func_00179860, context);
     return atomic;
