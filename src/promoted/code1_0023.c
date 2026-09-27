@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "model_callbacks_internal.h"
 
 typedef struct BtlPacket BtlPacket;
 
@@ -20,7 +21,7 @@ extern s32 datGetFlag(s32 arg0);
 extern s32 func_00106cd0(s32 arg0, s32 arg1);
 extern s32 func_00110d60(s16 arg0);
 extern s32 sprintf(char *buf, char *fmt, ...);
-extern void func_00231550(s32 arg0, s32 arg1);
+extern void func_00231550(s32 arg0, u16 arg1);
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
 extern char D_007636e0;
 extern char D_006358D0[];
@@ -37,15 +38,13 @@ extern char D_00635750[];
 extern char D_00635770[];
 extern char D_00635790[];
 extern char D_006357B0[];
-extern s32 func_0047d0e0(void);
-extern s32 func_0047d0b0(s32 arg0, s32 arg1, void *arg2);
 extern s32 strlen(const void *arg0);
 extern char D_006357C8[];
-extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
-extern void func_0047aaa0(void *arg0, s32 arg1, s32 arg2, s32 arg3,
-                           void *arg4, s32 arg5);
-extern void func_0047ac90(void *arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4);
+extern void *func_00477c40(u32 type, u16 id, u32 flags);
+extern void func_0047aaa0(void *model, u16 slot, u32 type, u16 id,
+                           void *path, u32 flags);
+extern void func_0047ac90(void *model, u16 slot, u32 type, u16 id,
+                          u32 flags);
 extern void func_0047adf0(void *arg0, s32 arg1, s32 arg2);
 extern char D_006357E0[];
 extern char D_00635800[];
@@ -170,7 +169,7 @@ s32 func_00230790(void)
     }
 }
 // FUN_002308A0
-s32 func_002308a0(s32 arg0, s32 arg1, char *arg2)
+s32 func_002308a0(u32 arg0, u16 arg1, char *arg2)
 {
     s32 temp_16;
     s32 temp_18;
@@ -234,12 +233,12 @@ s32 func_002308a0(s32 arg0, s32 arg1, char *arg2)
 // measured: opt_loop_invariants on hoists the two delimiter constants before the scan loop and preserves the retail register schedule.
 #pragma opt_loop_invariants on
 // FUN_00230C00
-s32 func_00230c00(s32 arg0, s32 arg1, char *arg2)
+s32 func_00230c00(u32 arg0, u16 arg1, char *arg2)
 {
     char sp40[0x100];
     s32 var_2;
 
-    if (func_0047d0e0() == 0) {
+    if (func_0047d0e0(arg0, arg1) == 0) {
         return func_0047d0b0(arg0, arg1, arg2);
     }
     func_0047d0b0(arg0, arg1, sp40);
@@ -269,43 +268,35 @@ s32 func_00230c00(s32 arg0, s32 arg1, char *arg2)
 s32 func_00230d30(void *arg0)
 {
     extern s32 func_00106cd0(s16 arg0, s16 arg1);
-    extern void func_0047aaa0(void *arg0, s32 arg1, void *arg2, void *arg3,
-                               void *arg4, u32 arg5);
-    extern void func_0047ac90(void *arg0, u32 arg1, void *arg2, void *arg3,
-                              u32 arg4);
     extern void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2);
-    s32 temp_16;
+    u16 id;
     u8 sp40[0x100];
     s32 temp_18;
 
     if (*(u16 *)((s8 *)arg0 + 0xD4) != 1) return 0;
-    temp_16 = (s32)(func_00106cd0(*(s16 *)((u8 *)arg0 + 0xD6), 0) & 0xFFFF);
+    id = func_00106cd0(*(s16 *)((u8 *)arg0 + 0xD6), 0);
     switch (*(u16 *)((s8 *)arg0 + 0xD6)) {
     case 2:
-        if (func_00477c40(7, temp_16, 0) == 0) {
+        if (func_00477c40(7, id, 0) == 0) {
             sprintf((char *)sp40, D_006357E0,
-                          (char *)&iGpffffa5f0, temp_16 & 0xFFFF);
-            func_0047aaa0(arg0, 0, (void *)7, (void *)temp_16,
-                          sp40, 0);
+                          (char *)&iGpffffa5f0, id & 0xFFFF);
+            func_0047aaa0(arg0, 0, 7, id, sp40, 0);
         } else {
-            func_0047ac90(arg0, 0, (void *)7, (void *)temp_16, 0);
+            func_0047ac90(arg0, 0, 7, id, 0);
         }
-        temp_18 = (temp_16 & 0xFFFF) + 0x3E8;
+        temp_18 = (id & 0xFFFF) + 0x3E8;
         if (func_00477c40(7, temp_18 & 0xFFFF, 0) == 0) {
             sprintf((char *)sp40, D_00635800,
-                          (char *)&iGpffffa5f0, temp_16 & 0xFFFF);
-            func_0047aaa0(arg0, 1, (void *)7,
-                          (void *)(temp_18 & 0xFFFF),
-                          sp40, 0);
+                          (char *)&iGpffffa5f0, id & 0xFFFF);
+            func_0047aaa0(arg0, 1, 7, (u16)temp_18, sp40, 0);
         } else {
-            func_0047ac90(arg0, 1, (void *)7,
-                          (void *)(temp_18 & 0xFFFF), 0);
+            func_0047ac90(arg0, 1, 7, (u16)temp_18, 0);
         }
         break;
     case 3:
         return 0;
     default:
-        func_0047ac90(arg0, 0, (void *)7, (void *)temp_16, 0);
+        func_0047ac90(arg0, 0, 7, id, 0);
         goto block_13;
     }
 block_13:
@@ -384,7 +375,7 @@ void func_00231380(s32 *arg0, s32 arg1)
                       temp_18, var_19);
 }
 // FUN_00231550
-void func_00231550(s32 arg0, s32 arg1)
+void func_00231550(s32 arg0, u16 arg1)
 {
     func_00231380((s32 *)arg0, arg1 & 0xFFFF);
 }

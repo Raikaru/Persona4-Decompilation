@@ -111,7 +111,8 @@ extern BtlPacket *func_001d3d00(u32 action);
 BtlPacket *func_001ba090(s32 arg0);
 u8 *func_001d7a10(u16 arg0);
 u8 *func_00201f20(void);
-s32 datCalcIsDead(u8 *arg0, s32 arg1);
+u32 datCalcIsDead(s32 unit, s32 hpDelta);
+extern s32 func_00242800(u8 *unit, s16 element);
 u8 *func_001fa720(const void *data);
 s32 func_001eb860(void);
 extern void func_00218420(s32 task, u8 *arg1);
@@ -139,6 +140,7 @@ u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
 extern s32 func_00218360(s32 task);
 extern s32 func_00218390(s32 task);
 u8 *func_001f99c0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+u8 *func_001fa320(void);
 u8 *func_001fa450(void);
 u8 *func_002027e0(void);
 extern void func_002183c0(s32 task);
@@ -332,7 +334,7 @@ void func_001a03b0(s64 *arg0)
             goto loop_test;
 loop_body:
             if ((*(u16 *)(var_16 + 0x1A) & 1) &&
-                datCalcIsDead(*(u8 **)(*(u8 **)(var_16 + 0x30) + 0xA64), 0) == 0) {
+                datCalcIsDead(*(s32 *)(*(u8 **)(var_16 + 0x30) + 0xA64), 0) == 0) {
                 temp_2_3 = func_0019a0c0(*(u8 **)(var_16 + 0x30), 0);
                 *(s64 *)(temp_2_3 + 0x60) = *arg0;
                 func_00194590(temp_2_3, 0);
@@ -440,7 +442,7 @@ void func_001a06d0(u8 *arg0) {
     var_17 = *(u8 **)(D_0076449C + 0x174);
     while (var_17 != NULL) {
         if ((arg0 != var_17) && (*(u16 *)(var_17 + 0x1A) & 1) &&
-            (datCalcIsDead(*(u8 **)(*(u8 **)(var_17 + 0x30) + 0xA64), 0) == 0) &&
+            (datCalcIsDead(*(s32 *)(*(u8 **)(var_17 + 0x30) + 0xA64), 0) == 0) &&
             (*(s32 *)(*(u8 **)(var_17 + 0x30) + 0x9C) & 0x10)) {
             var_16 = 0;
             break;
@@ -2082,12 +2084,16 @@ void func_001a4390(void)
 {
 }
 
-/* measured 001a43a0: live object 1092B/window 1104B, normalized_diff 161 (guard below; fnalign 273/273 instrs, 83 edits). `opt_loop_invariants on` inside the guard is worth 56 words (218 -> 162), the loop-preheader constant hoist; `temp_18 > 1` for `>= 2` fixes the slti destination to $at (162 -> 161). Remainder is a self-consistent 5-cycle saved-register rotation (banked wall) plus the s16-slot sh/lh pair (retail sh + lh vs this build sign-extend + sw + lw). Ruled out today: volatile s16 spB0 (219), u16 res23 (215), s16 res23 (163, neutral), s32 spB0 (219), opt_common_subs off (223). Banked as floor. */
+/* Guarded draft: 1092B/window 1104B, 160 reloc-masked differing words.
+ * The task constructors now return their pointers explicitly, and the cutin's
+ * +0x58 value is copied to the formation task's +8 field, as in retail.
+ * Remaining: saved-register rotation, s16 sh/lh versus widened sw/lw spill,
+ * and loop-index CSE. See Code1a_001a43a0_20260926_body.c for the separate
+ * rewrite and measured hypotheses; production remains the retail fallback. */
 // FUN_001A43A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
 void func_001a43a0(u8 *arg0) {
-    extern u8 *func_001fa320(void);
     extern s32 func_001a05f0(u8 *arg0);
     s32 spF0[12];
     s32 spC0[12];
@@ -2134,7 +2140,7 @@ void func_001a43a0(u8 *arg0) {
             temp_16 = *(u8 **)(arg0 + ((var_20 & 0xFFFF) * 4) + 0x98);
             if (*(u16 *)(temp_16 + 0x1A) & 1) {
                 temp_22 = *(u8 **)(temp_16 + 0x30);
-                if (datCalcIsDead(*(u8 **)(temp_22 + 0xA64), 0) == 0 &&
+                if (datCalcIsDead(*(s32 *)(temp_22 + 0xA64), 0) == 0 &&
                     (s8)func_00233a90(*(u8 **)(temp_22 + 0xA64), 0x10) <= 0 &&
                     !(func_00242800(*(u8 **)(temp_22 + 0xA64), spB0) & 0x7000000)) {
                     if (datCalcChkBadStatus((s32)*(u8 **)(temp_22 + 0xA64), 0x100000) == 0) {
@@ -2208,9 +2214,9 @@ void func_001a43a0(u8 *arg0) {
         func_00194590(temp_2_5, 1);
         temp_2_6 = func_002027e0();
         *(s8 *)(temp_2_6 + 0) = 4;
-        *(s64 *)(temp_2_6 + 0x58) = *(s64 *)(temp_2_5 + 0x58);
+        *(s64 *)(temp_2_6 + 8) = *(s64 *)(temp_2_5 + 0x58);
         func_00194590(temp_2_6, 1);
-        btlActionSetState(arg0, 0xF);
+        btlActionSetState((BtlAction *)arg0, 0xF);
     }
 }
 #pragma opt_loop_invariants off
@@ -2243,7 +2249,7 @@ void func_001a4800(u8 *arg0)
 {
     extern void func_001eb420(u8 *target);
     extern u16 *func_0010a900(u16 personaId);
-    extern s32 func_0010ce10(u8 *persona, u32 skillId);
+    extern s32 func_0010ce10(u8 *persona, u16 skillId);
     extern s32 func_0019fc70(u8 *action);
     extern void func_001f5bd0(s32 state);
     extern s32 func_001f68e0(u8 *action);
@@ -2265,7 +2271,7 @@ void func_001a4800(u8 *arg0)
             if (!((*(u16 *)((u8 *)(temp_17) + 0x1A)) & 1)) {
                 goto incr;
             }
-            if (((s32)(datCalcIsDead((*(u8 **)((u8 *)((*(s32 *)((u8 *)(temp_17) + 0x30))) + 0xA64)), 0)) != (s32)(0))) {
+            if (((s32)(datCalcIsDead((*(s32 *)((u8 *)((*(s32 *)((u8 *)(temp_17) + 0x30))) + 0xA64)), 0)) != (s32)(0))) {
                 goto incr;
             }
             if ((*(u16 *)((u8 *)(temp_17) + 0xC)) != 1) {
@@ -3836,7 +3842,6 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001f8430();
     extern s32 func_001f99c0();
     extern s32 func_001fa110();
-    extern s32 func_001fa320();
     extern u8 *func_00201de0(s32 source, s32 target, s32 id, s16 effect, s16 targetFlags, s16 value, s16 enabled, void *result, u16 flags);
     extern s32 func_00201f20();
     extern s32 func_00202010();
@@ -4430,7 +4435,7 @@ void func_001a7720(u8 *arg0) {
                 (*( s32 * )((u8 *)(temp_2_14) + (8))) = var_17_3;
                 (*( s64 * )((u8 *)(temp_2_14) + (0x60))) = temp_16;
                 func_00194590(temp_2_14, 1);
-                temp_2_15 = (u8 *)(func_001fa320());
+                temp_2_15 = func_001fa320();
                 (*( s8 * )((u8 *)(temp_2_15) + (0))) = 4;
                 (*( s32 * )((u8 *)(temp_2_15) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(temp_2_14) + (0x58))));
                 (*( s64 * )((u8 *)(temp_2_15) + (0x60))) = temp_16;
@@ -6729,7 +6734,7 @@ loop_body:
     if ((*(u16 *)(iter + 0x1A) & 1) != 0) {
         u8 *u = *(u8 **)(iter + 0x30);
         if (*(u8 *)(u + 0xA2) == 0) {
-            if (datCalcIsDead(*(u8 **)(u + 0xA64), 0) == 0) {
+            if (datCalcIsDead(*(s32 *)(u + 0xA64), 0) == 0) {
                 if (datCalcChkBadStatus((s32)*(u8 **)(u + 0xA64), 0x100001) == 0) {
                     collected[(var16 & 0xFFFF)] = iter;
                     var16 = (var16 + 1) & 0xFFFF;
@@ -7456,12 +7461,10 @@ void func_001aed50(u8 *arg0)
     extern u8 *func_001d5eb0(s32 arg0, void *arg1, s32 arg2);
     extern void func_001d69f0(s32 arg0, void *arg1);
     extern u8 *func_001d7bf0(u32 arg0, u32 arg1, u32 arg2);
-    extern u8 *func_001fa320(void);
     extern u8 *func_001f3950(u8 *arg0);
     extern s32 func_001ef4a0(s32 arg0);
     extern void func_00230340(u8 *arg0);
     extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-    extern s32 datCalcIsDead(s32 arg0, s32 arg1);
     extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
     extern s32 func_001b7080(s32 arg0);
     extern s32 func_001b7090(s32 arg0);
@@ -7875,7 +7878,6 @@ void func_001afb50(u8 *action)
     void func_001f2cc0(u8 *action);
     void datCalcSetHp(s32 unit, u16 hp);
     u32 datCalcSetBadStatus(s32 unit, u32 badStatus);
-    u32 datCalcIsDead(s32 unit, s32 hpDelta);
 
     u16 entryFlags;
     s32 specialOrder;

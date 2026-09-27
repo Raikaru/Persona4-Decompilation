@@ -206,7 +206,7 @@ extern void func_002318c0(DatUnitEc *arg0, DatUnit *arg1);
 extern void func_001bdd60(void);
 extern u8 *func_00105510(s16 arg0);
 extern u16 *func_0010a900(u16 arg0);
-extern s32 func_0010ce10(u8 *arg0, u32 arg1);
+extern s32 func_0010ce10(u8 *arg0, u16 arg1);
 extern void func_002038c0(s32 arg0);
 extern void datCalcSetHp(s32 arg0, u16 arg1);
 extern void datCalcSetSp(s32 arg0, u16 arg1);
@@ -1051,40 +1051,42 @@ second_check:
 done:
     return 0;
 }
-/* measured (this session): cold reconstruction v2 exact size 386/386 instrs; probe_variants 242 words -> probe_search decl-order 196 words/162 edits (200 orders; propagation/rebuild/no_branch/dead/lifetimes/strength/size/unroll tried, common_subs worse 310, loop_invariants 198); fnalign $at none (slti $at lever N/A for sltiu loops), s64 entry-guard N/A for fixed 4/6 loops; residual is saved-reg coloring ($s1/$s3 etc.) and branch-displacement cascade; banked guarded floor. Width 2026-09-17: r2/s1tmp/r1/id s16/u16->s32/u32 196 neutral, keep narrow; pragmas schedule 325/cse 310/loopinv 198/prop 196 all worse-or-neutral. */
-// FUN_001B1D70 NONMATCHING
-#ifdef NON_MATCHING
+/* Round-3 reconstruction: retain the u16 model ID, table-entry reloads,
+ * switch dispatch and full-width status-roll locals.
+ * See docs/probe_archive/BattleSetup_001b1d70_20260926_body.c and the
+ * corrected model-ID contract survey, Prototype_mismatch_00477c40_00478140_20260926.md. */
+// FUN_001B1D70
 void func_001b1d70(void) {
     extern s32 iGpffffb414;
     extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2);
     extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
-    extern u8 *func_00477c40(u16 arg0, u16 arg1, s32 arg2);
+    extern void *func_00477c40(u32 arg0, u16 arg1, u32 arg2);
     extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
-    extern u16 func_00145510(u16 arg0, u8 *arg1);
-    extern void func_0014a460(u16 arg0, s32 arg1);
+    extern s32 func_00145510(u16 arg0, s32 arg1);
+    extern void func_0014a460(u16 arg0, u32 arg1);
     extern void func_0019d7a0(u8 *arg0, s32 arg1);
     extern void func_001987a0(u8 *arg0);
-    extern void func_0047d170(u8 *arg0);
+    extern void func_0047d170(void *model);
     extern u8 *mdlGetClump(u8 *arg0);
     extern void func_004774e0(u8 *arg0);
     extern s32 func_001ef8c0(void);
     extern void func_001b11c0(s32 arg0);
-    extern void func_001b0f20(u8 *arg0);
+    extern s32 func_001b0f20(s32 arg0);
     extern s32 func_0023d740(s32 arg0, s32 arg1);
-    extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
-    extern void datCalcSetBadStatus(u8 *arg0, s32 arg1);
+    extern s32 func_0023a6b0(u8 *arg0, s16 arg1);
+    extern u32 datCalcSetBadStatus(s32 unit, u32 badStatus);
     extern void func_001d1680(s32 arg0, s32 arg1);
     extern void btlUnitSetPos(u8 *arg0, f32 *arg1);
-    s16 r2;
     u8 *tmp;
     u8 *unit;
     u32 k;
-    s16 s1tmp;
-    s16 r1;
     f32 st[3];
     s32 w2;
+    u32 *entry;
     u8 *list;
     s64 v1;
+    s16 r1;
+    s16 r2;
     u8 *j;
     u32 i;
     u8 *pkt;
@@ -1095,7 +1097,7 @@ void func_001b1d70(void) {
     if ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) == 0) {
         i = 0;
         while (i < 4) {
-            w2 = *(s32 *)(D_0076449C + i * 4 + 0xC74);
+            w2 = *(s32 *)((u32)D_0076449C + i * 4 + 0xC74);
             if (w2 == 0)
                 break;
             tmp = *(u8 **)(w2 + 4);
@@ -1118,7 +1120,7 @@ void func_001b1d70(void) {
                 f = *(s32 *)(unit + 0x98) | 2;
                 *(s32 *)(unit + 0x98) = f;
                 *(s32 *)(unit + 0x98) = f | 8;
-                *(u16 *)(unit + 0x9FE) = func_00145510(id, *(u8 **)(unit + 0xA00));
+                *(u16 *)(unit + 0x9FE) = func_00145510(id, *(s32 *)(unit + 0xA00));
                 func_0014a460(*(u16 *)(unit + 0x9FE), 1);
                 func_0019d7a0(unit, 1);
                 func_00198dd0(unit, 0);
@@ -1141,55 +1143,59 @@ void func_001b1d70(void) {
     k = 0;
     while (k < 6) {
         if (*(u16 *)(list + 2) != 0 && datCalcIsDead((s32)list, 0) == 0) {
-            func_0019f5f0(1, *(u16 *)(list + 2), (u16 *)list);
+            func_0019f5f0(1, *(s16 *)(list + 2), (u16 *)list);
         }
         k++;
         list += 0x30;
     }
     if ((*(u32 *)(D_0076449C + 0xC) & 0x100) != 0) {
-        w2 = *(s32 *)((u8 *)iGpffffb414 + (u32)*(u16 *)(*(u8 **)(D_0076449C + 0xC68) + 8) * 0x18);
-        if ((w2 & 0x20) == 0) {
-            *(u16 *)(D_0076449C + 0x1A) = (u16)func_001ef8c0();
-            s1tmp = *(s16 *)(D_0076449C + 0x1A);
-            if (s1tmp == 2) {
+        entry = (u32 *)((u8 *)iGpffffb414 + (u32)*(u16 *)(*(u8 **)(D_0076449C + 0xC68) + 8) * 0x18);
+        if ((*entry & 0x20) != 0) {
+            if ((*entry & 0x10) == 0) {
+                *(u16 *)(D_0076449C + 0x1A) = 0;
+            }
+            func_0022fdc0((u8 *)0);
+        } else {
+            *(u16 *)(D_0076449C + 0x1A) = func_001ef8c0();
+            switch (*(u16 *)(D_0076449C + 0x1A)) {
+            case 0:
+                func_001b1020(1);
+                func_001b1280(1);
+                if ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) != 0) {
+                    func_001b0f20(*(s32 *)(D_0076449C + 0x170));
+                }
+                break;
+            case 1:
+                func_001b1020(0);
+                func_001b11c0(0);
+                func_001b0f20(*(s32 *)(D_0076449C + 0x170));
+                *(u16 *)(D_0076449C + 0x290) |= 2;
+                if ((*entry & 0x200) == 0) {
+                    *(u32 *)(D_0076449C + 0xC) |= 0x100000;
+                }
+                break;
+            case 2:
                 func_001b1020(0);
                 func_001b11c0(1);
                 func_001b1280(1);
                 *(u16 *)(D_0076449C + 0x290) |= 4;
-                if ((w2 & 0x200) == 0) {
+                if ((*entry & 0x200) == 0) {
                     *(u32 *)(D_0076449C + 0xC) |= 0x100000;
                 }
-            } else if (s1tmp == 1) {
-                func_001b1020(0);
-                func_001b11c0(0);
-                func_001b0f20(*(u8 **)(D_0076449C + 0x170));
-                *(u16 *)(D_0076449C + 0x290) |= 2;
-                if ((w2 & 0x200) == 0) {
-                    *(u32 *)(D_0076449C + 0xC) |= 0x100000;
-                }
-            } else if (*(u16 *)(D_0076449C + 0x1A) == 0) {
-                func_001b1020(1);
-                func_001b1280(1);
-                if ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) != 0) {
-                    func_001b0f20(*(u8 **)(D_0076449C + 0x170));
-                }
+                break;
             }
-        } else {
-            if ((w2 & 0x10) == 0) {
-                *(u16 *)(D_0076449C + 0x1A) = 0;
-            }
-            func_0022fdc0((u8 *)0);
         }
-        if (((*(u16 *)(D_0076449C + 0xC70) & 8) != 0) && ((w2 & 0x100) == 0) && ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) == 0)) {
+        if (((*(u16 *)(D_0076449C + 0xC70) & 8) != 0) && ((*entry & 0x100) == 0) &&
+            ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) == 0)) {
             r1 = (s16)func_0023d740(-1, 4);
             r2 = (s16)func_0023d740(-1, 2);
             for (j = *(u8 **)(D_0076449C + 0x180); j != NULL; j = *(u8 **)(j + 0xA6C)) {
                 if (*(u8 **)(j + 0xA64) != NULL) {
                     if ((func_0023a6b0(*(u8 **)(j + 0xA64), r2) & 0x27000000) == 0 && (s32)func_00231d70(100) < 0) {
-                        datCalcSetBadStatus(*(u8 **)(j + 0xA64), 2);
+                        datCalcSetBadStatus(*(s32 *)(j + 0xA64), 2);
                     }
                     if ((func_0023a6b0(*(u8 **)(j + 0xA64), r1) & 0x27000000) == 0 && (s32)func_00231d70(100) < 0) {
-                        datCalcSetBadStatus(*(u8 **)(j + 0xA64), 4);
+                        datCalcSetBadStatus(*(s32 *)(j + 0xA64), 4);
                     }
                 }
             }
@@ -1207,9 +1213,6 @@ void func_001b1d70(void) {
         btlUnitSetPos(j, st);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b1d70);
-#endif
 /* measured: probe 852 differing words (reloc-masked) via tools/probe_variants.py; fnalign retail 1038/object 1014 instrs (1527 edits +7 reloc-only), assignment retail 1040; band 1009-1071 (±3% of 1040), 1014 inside (-26, -2.5%). Baseline 857; free pragmas all tie/worse (commons/loopinv/unroll/schedule 857, peephole 895, dead 923); subscript index/shift tie 857; fresh counters tie 857; addr rowBase 857->852, elem tie; colour swaps tie 852. Biggest remaining: frame -0x100 vs -0xE0, stack slots shifted (0xA0 vs 0xC0, 0xD0 vs 0xD4), saved-reg rotation and FPR colouring, lbu vs lb at 0xA2, andi+sll vs sll. De-noised m2c (425 lines) + romwright (402 lines, arity void, 860 instrs) into file idiom; fixed 973f0/99ee0 float-last order and 195730/194590 nesting per retail. */
 /* 2026-09-19 lifetime experiment (this session, REJECTED): sinking puVar16
    (recompute iGpffffb414+ID*0x18 at its two uses instead of holding from the

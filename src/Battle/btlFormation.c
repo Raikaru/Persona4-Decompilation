@@ -1439,10 +1439,11 @@ u32 func_001d7bb0(u32* args)
 
 
 // FUN_002027E0
-void func_002027e0(void)
+u8 *func_002027e0(void)
 {
-    s32 task;
+    u8 *task;
 
-    task = (s32)func_00194470(0x50d, 0);
+    task = (u8 *)func_00194470(0x50d, 0);
     *(u32*)(task + 0x6c) = (u32)func_002027b0;
+    return task;
 }

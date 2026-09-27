@@ -38,7 +38,7 @@ extern u8 *func_00285480();
 extern u8 *func_00285b80();
 extern s32 func_0029cc00();
 extern s32 func_0029d020(void);
-extern s32 func_00478140(u16, u16, s32);
+extern void *func_00478140(u32, u16, u32);
 extern s32 func_00286350();
 extern s32 func_002909a0(void *arg0);
 extern void func_00279d40(s32 arg0);
@@ -138,7 +138,7 @@ s32 func_00298550(void)
         }
         func_0044ea90(D_0063CF80, 0x4F);
         work = D_008873F4[0](1, 8, 0x40000);
-        *(s32 *)(work + 0) = func_00478140(5, v1 & 0xFFFF, 0);
+        *(s32 *)(work + 0) = (s32)func_00478140(5, v1 & 0xFFFF, 0);
         *(s32 *)(work + 4) = v0;
         if (*(s32 *)(work + 0) == 0) {
             func_0046d730(D_0063CF80, 0x52);

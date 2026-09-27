@@ -34,6 +34,7 @@ extern s32 func_0010be20(u8 *arg0);
 extern void func_0010fde0(u8 *arg0);
 void func_0010cad0(u8 *arg0, u16 arg1);
 s32 func_0010cc20(u8 *arg0, u16 arg1);
+s32 func_0010ce10(u8 *arg0, u16 arg1);
 
 extern u16 *func_0010ace0(s16 arg0);
 extern s32 func_0010b5b0(void);
@@ -1641,7 +1642,7 @@ s32 func_0010cd70(u8 *arg0, s32 arg1, u16 arg2)
 }
 
 // FUN_0010CE10
-s32 func_0010ce10(u8 *arg0, u32 arg1)
+s32 func_0010ce10(u8 *arg0, u16 arg1)
 {
     s32 i;
     u32 key;

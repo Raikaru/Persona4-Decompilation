@@ -34,7 +34,7 @@ extern u8 *func_00104900(s8 arg0);
 extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 arg3);
 extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
 extern s32 func_00349c50(u8 *arg0);
-extern u8 *func_00478140(s32, u16, s32);
+extern void *func_00478140(u32, u16, u32);
 extern s32 datGetFlag(s32);
 extern s32 func_00348be0(u8 *);
 extern s32 func_00348c10(u8 *);

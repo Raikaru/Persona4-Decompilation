@@ -94,7 +94,7 @@ extern u32 H_Cdvd_Destroy(void *arg0);
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
 extern void func_0046d700(const char *arg0, s32 arg1, char *arg2, void *arg3);
-extern u32 func_00477e80(s32 arg0, s32 arg1, const char *arg2, s32 arg3);
+extern void *func_00477e80(u32 arg0, u16 arg1, void *arg2, u32 arg3);
 extern s32 func_004782b0(u8 *arg0);
 extern u32 *func_00478750(u8 *arg0);
 extern void func_00478e70(u8 *arg0);
