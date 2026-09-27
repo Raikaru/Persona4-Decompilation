@@ -1,4 +1,5 @@
 /* Source unit: src/Kosaka/k_view_004577d0.c */
+#include "sdk_lbox_internal.h"
 #include "include_asm.h"
 #include "type.h"
 
@@ -30,8 +31,6 @@ extern f32 gRadToDegFactor;
 extern f32 atanf(f32 x);
 
 /* Ported from P3FES src/Kosaka/k_view.c FUN_001a4050 (verified MATCH there). */
-typedef struct KwlnTask KwlnTask;
-typedef void (*KWindowEntryCallback)(void* value);
 typedef struct KWindowEntry
 {
     s32 id;                         /* 0x000 */

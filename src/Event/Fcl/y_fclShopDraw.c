@@ -360,7 +360,7 @@ s32 func_002be530(u8 *arg0)
     extern void func_002e24a0(s32, s32, s32, s32);
     extern s32 func_002e28f0(void *, s32);
     extern u8 func_002e78a0(void);
-    extern u8 func_002e78e0(void);
+    extern s32 func_002e78e0(void);
     extern void func_002e7a80(s32);
     extern void func_00331fc0(u8 *);
     extern s32 sprintf(char *, const char *, ...);
@@ -986,8 +986,8 @@ s32 func_002be530(u8 *arg0)
             (*(s8 *)(work + 0)) = 0xC;
             return 0;
         }
-        if (((s8) (func_00110a60((func_002e78a0() & 0xFF), func_002e78e0() & 0xFF))) == 1) {
-            temp_3_2 = (s16) (((func_002e78e0() & 0xFF) + ((func_002e78a0() & 0xFF) * 0x64)));
+        if (((s8) (func_00110a60((func_002e78a0() & 0xFF), (u8)func_002e78e0() & 0xFF))) == 1) {
+            temp_3_2 = (s16) ((((u8)func_002e78e0() & 0xFF) + ((func_002e78a0() & 0xFF) * 0x64)));
             if ((temp_3_2 >= 0x190) && (temp_3_2 < 0x207)) {
                 (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 0xC, (*(void * *)((u8 *)((*(void * *)(work + 0xF2C))) + 0x110)), 0);
             } else {

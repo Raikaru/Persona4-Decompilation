@@ -1,0 +1,357 @@
+#include "type.h"
+#include "field_shadow_internal.h"
+#include "rw_collision_internal.h"
+#include "rw/plcore/barenderstate.h"
+
+#define CHECK(condition) do { ++checks; if (!(condition)) native32_failure(__LINE__, scenario, #condition); } while (0)
+
+typedef struct RwV3d { f32 x, y, z; } RwV3d;
+struct RwMatrixTag { f32 value[16]; };
+struct RpAtomic { u32 tag; };
+struct RpWorld { u32 tag; };
+struct RpWorldSector { u32 tag; };
+struct RpIntersection { u32 tag[8]; };
+struct RpCollisionTriangle { RwV3d normal; RwV3d point; s32 index; RwV3d *vertices[3]; };
+struct Resrc;
+struct _RxObjSpace3DVertex;
+typedef struct FldShadowProjectionWork FldShadowProjectionWork;
+/* The two production owners name offset zero by its use: the constructor calls
+ * it geometry, while func_00179f70 consumes the same pointer as an intersection. */
+typedef struct FldShadowAtomicContext {
+    union { void *geometry; struct RpIntersection *intersection; };
+    FldShadowProjectionWork *work;
+    struct RpAtomic *atomic;
+} FldShadowAtomicContext;
+
+enum RwOpCombineType { rwCOMBINEREPLACE = 0, rwCOMBINEPRECONCAT = 1, rwCOMBINEPOSTCONCAT = 2 };
+enum RwPrimitiveType { rwPRIMTYPENAPRIMTYPE = 0, rwPRIMTYPELINELIST = 1, rwPRIMTYPEPOLYLINE = 2, rwPRIMTYPETRILIST = 3 };
+typedef s32 (*FieldRenderStateSetFunction)(enum RwRenderState, void *);
+
+static u32 scenario, checks;
+static struct {
+    u32 renderCount;
+    s32 renderState[32];
+    uintptr_t renderValue[32];
+    u32 matrixCopyCount, scaleCount, translateCount;
+    void *matrixSource;
+    RwV3d scale, translation;
+    u32 worldQueryCount, worldCallbackCount;
+    struct RpWorld *world;
+    struct RpIntersection *worldIntersection;
+    RwWorldTriangleCallback worldCallback;
+    void *worldData;
+    f32 worldDistance;
+    u32 clumpWalkCount, atomicCallbackCount, triangleCallbackCount;
+    void *clump;
+    struct RpAtomic *atomic;
+    struct RpIntersection *atomicIntersection;
+    RwAtomicTriangleCallback atomicCallback;
+    void *atomicData;
+    f32 atomicDistance;
+    u32 drawSubmitCount, drawVertexCount, primitiveCount, drawFinishCount;
+    u32 alloc400Count;
+} observed;
+
+static u8 resourceC[0x1A4];
+static u8 resourceDescriptor[0x40];
+static u8 transform[0x80];
+static u8 model[0x80];
+static s32 tableData[0x400 / sizeof(s32)];
+static struct RpAtomic atomicObject;
+static struct RpWorld worldObject;
+static struct RpIntersection queryObject;
+static struct RpCollisionTriangle worldTriangle;
+static s32 gpValue;
+static s32 gateValue;
+static s32 alloc400Fails;
+static s32 atomicAddsTriangle;
+static s32 atomicAddsBatch;
+static u8 *iGpffff9db0 = (u8 *)&gpValue;
+static s32 iGpffffba48;
+
+typedef struct WorkEnvelope {
+    u32 pre[4];
+    u8 work[0x5500];
+    u32 post[4];
+} WorkEnvelope;
+static WorkEnvelope envelope;
+
+static s32 render_state(enum RwRenderState state, void *value)
+{
+    u32 i = observed.renderCount++;
+    CHECK(i < 32);
+    observed.renderState[i] = (s32)state;
+    observed.renderValue[i] = (uintptr_t)value;
+    return 1;
+}
+static FieldRenderStateSetFunction D_00887300[] = { render_state };
+
+static u8 *func_001452b0(s32 id)
+{
+    CHECK(id == 0xC);
+    return resourceC;
+}
+static struct Resrc *MT_Scene_GetRes(u16 id)
+{
+    if (id == 0x400) {
+        ++observed.alloc400Count;
+        return alloc400Fails ? (struct Resrc *)0 : (struct Resrc *)resourceC;
+    }
+    return (struct Resrc *)resourceC;
+}
+static s32 func_0014a200(void) { return gateValue; }
+static s32 func_001687d0(u8 *value) { (void)value; return 0; }
+static s32 func_001687e0(u8 *value) { (void)value; return 0; }
+static s32 *func_00155280(void) { return tableData; }
+
+static struct RwMatrixTag *func_003e0960(struct RwMatrixTag *destination, const struct RwMatrixTag *source)
+{
+    ++observed.matrixCopyCount;
+    observed.matrixSource = (void *)source;
+    for (u32 i = 0; i < 16; ++i) destination->value[i] = source->value[i];
+    return destination;
+}
+static struct RwMatrixTag *RwMatrixScale(struct RwMatrixTag *matrix, const RwV3d *scale, enum RwOpCombineType combine)
+{
+    CHECK(combine == rwCOMBINEPOSTCONCAT);
+    ++observed.scaleCount;
+    observed.scale = *scale;
+    return matrix;
+}
+static struct RwMatrixTag *RwMatrixTranslate(struct RwMatrixTag *matrix, const RwV3d *translation, enum RwOpCombineType combine)
+{
+    CHECK(combine == rwCOMBINEPOSTCONCAT);
+    ++observed.translateCount;
+    observed.translation = *translation;
+    return matrix;
+}
+
+/* Host boundary for the retail immediate-mode EE renderer. The fixture checks
+ * the target's submit contract but does not claim to execute the PS2 pipeline. */
+static void *func_00410420(struct _RxObjSpace3DVertex *vertices, u32 count, struct RwMatrixTag *matrix, u32 flags)
+{
+    CHECK((void *)vertices == (void *)envelope.work);
+    CHECK(matrix == 0);
+    CHECK(flags == 0x19);
+    ++observed.drawSubmitCount;
+    observed.drawVertexCount = count;
+    return count ? vertices : 0;
+}
+static s32 func_004106a0(enum RwPrimitiveType primitive)
+{
+    ++observed.primitiveCount;
+    CHECK(primitive == rwPRIMTYPETRILIST);
+    return 1;
+}
+static s32 func_004104d0(void) { ++observed.drawFinishCount; return 1; }
+
+/* Canonical world callback boundary. It invokes a triangle callback with the
+ * real five-argument ABI and a nonzero distance so transport is observable. */
+struct RpWorld *func_00394d70(struct RpWorld *world, struct RpIntersection *intersection,
+                              RwWorldTriangleCallback callback, void *data)
+{
+    ++observed.worldQueryCount;
+    observed.world = world;
+    observed.worldIntersection = intersection;
+    observed.worldCallback = callback;
+    observed.worldData = data;
+    observed.worldDistance = 6.25f;
+    callback(intersection, 0, &worldTriangle, observed.worldDistance, data);
+    return world;
+}
+
+/* func_001791d0 itself is already separately byte-exact. For this constructor
+ * fixture its EE projection/render work is a provider boundary; this canonical
+ * ABI probe records that the constructor selected and called it correctly. */
+struct RpCollisionTriangle *func_001791d0(struct RpIntersection *intersection,
+    struct RpWorldSector *sector, struct RpCollisionTriangle *triangle, f32 distance, void *data)
+{
+    (void)intersection; (void)sector;
+    ++observed.worldCallbackCount;
+    CHECK(triangle == &worldTriangle);
+    CHECK(distance == observed.worldDistance);
+    CHECK(data == observed.worldData);
+    return triangle;
+}
+
+/* Canonical atomic collision boundary. The actual RenderWare traversal is not
+ * host code; it calls the callback with the real ABI and can model emitted
+ * triangle/batch counts that the constructor consumes afterward. */
+struct RpAtomic *func_00394e70(struct RpAtomic *atomic, struct RpIntersection *intersection,
+                               RwAtomicTriangleCallback callback, void *data)
+{
+    FldShadowAtomicContext *context = data;
+    ++observed.atomicCallbackCount;
+    observed.atomic = atomic;
+    observed.atomicIntersection = intersection;
+    observed.atomicCallback = callback;
+    observed.atomicData = data;
+    observed.atomicDistance = 3.5f;
+    CHECK(context->atomic == atomic);
+    callback(intersection, &worldTriangle, observed.atomicDistance, data);
+    return atomic;
+}
+
+struct RpCollisionTriangle *func_00179860(struct RpIntersection *intersection,
+    struct RpCollisionTriangle *triangle, f32 distance, void *data)
+{
+    FldShadowAtomicContext *context = data;
+    (void)intersection;
+    ++observed.triangleCallbackCount;
+    CHECK(triangle == &worldTriangle);
+    CHECK(distance == observed.atomicDistance);
+    CHECK(context == observed.atomicData);
+    if (atomicAddsTriangle) *(u32 *)((u8 *)context->work + 0x5460) += 3;
+    if (atomicAddsBatch) *(u32 *)((u8 *)context->work + 0x54C8) += 1;
+    return triangle;
+}
+
+typedef void *(*KClumpCallback)(void *, void *);
+static void *func_003bff30(void *clump, KClumpCallback callback, void *data)
+{
+    ++observed.clumpWalkCount;
+    observed.clump = clump;
+    return callback(&atomicObject, data);
+}
+
+@@ATOMIC_CALLBACK@@
+
+@@TARGET@@
+
+static void clear_bytes(void *destination, u32 size)
+{
+    u8 *out = destination;
+    for (u32 i = 0; i < size; ++i) out[i] = 0;
+}
+static void setup_common(void)
+{
+    clear_bytes(&observed, sizeof(observed));
+    clear_bytes(resourceC, sizeof(resourceC));
+    clear_bytes(resourceDescriptor, sizeof(resourceDescriptor));
+    clear_bytes(transform, sizeof(transform));
+    clear_bytes(model, sizeof(model));
+    clear_bytes(tableData, sizeof(tableData));
+    clear_bytes(&envelope, sizeof(envelope));
+    for (u32 i = 0; i < 4; ++i) { envelope.pre[i] = 0xA5A50000u + i; envelope.post[i] = 0x5A5A0000u + i; }
+    *(u8 **)(model + 4) = transform;
+    *(f32 *)(model + 0x68) = 2.0f;
+    for (u32 i = 0; i < 16; ++i) ((struct RwMatrixTag *)(transform + 0x10))->value[i] = (f32)(i + 1);
+    *(RwV3d *)(transform + 0x30) = (RwV3d){1.0f, 2.0f, 3.0f};
+    *(u8 **)(resourceC + 0x1A0) = resourceDescriptor;
+    *(void **)(resourceDescriptor + 8) = &worldObject;
+    *(void **)(resourceDescriptor + 0x10) = &atomicObject;
+    gpValue = 0;
+    gateValue = 0;
+    alloc400Fails = 0;
+    atomicAddsTriangle = 0;
+    atomicAddsBatch = 0;
+    iGpffffba48 = 0;
+}
+static void check_canaries(void)
+{
+    for (u32 i = 0; i < 4; ++i) {
+        CHECK(envelope.pre[i] == 0xA5A50000u + i);
+        CHECK(envelope.post[i] == 0x5A5A0000u + i);
+    }
+}
+static void check_matrix(f32 expectedAlphaMagnitude)
+{
+    CHECK(observed.matrixCopyCount == 1 && observed.scaleCount == 1 && observed.translateCount == 1);
+    CHECK(observed.matrixSource == transform + 0x10);
+    CHECK(observed.scale.x == -0.25f && observed.scale.y == -0.25f);
+    CHECK(observed.scale.z == 0.25f);
+    CHECK(observed.translation.x == 0.5f && observed.translation.y == 0.5f && observed.translation.z == 0.0f);
+    CHECK(*(f32 *)(envelope.work + 0x5470) == 1.0f);
+    CHECK(*(f32 *)(envelope.work + 0x5474) == 2.0f);
+    CHECK(*(f32 *)(envelope.work + 0x5478) == 3.0f);
+    CHECK(*(u8 *)(envelope.work + 0x54C0) == (u8)(255.0f * expectedAlphaMagnitude));
+}
+static void check_initial_states(s32 texture, s32 blend)
+{
+    CHECK(observed.renderState[0] == 1 && observed.renderValue[0] == (uintptr_t)texture);
+    CHECK(observed.renderState[1] == 2 && observed.renderValue[1] == 3);
+    CHECK(observed.renderState[2] == 0xC && observed.renderValue[2] == 1);
+    CHECK(observed.renderState[3] == 9 && observed.renderValue[3] == 2);
+    CHECK(observed.renderState[4] == 0xA && observed.renderValue[4] == 5);
+    CHECK(observed.renderState[5] == 0xB && observed.renderValue[5] == (uintptr_t)blend);
+}
+
+static void scenario_world(void)
+{
+    ++scenario; setup_common();
+    *(void **)(resourceDescriptor + 0x10) = &worldObject;
+    s32 result = func_00179fc0(model, 77, 0, &queryObject, 0.5f, 2.0f, 9, envelope.work);
+    CHECK(result == 1);
+    check_initial_states(77, 6);
+    CHECK(observed.renderCount == 8);
+    CHECK(observed.renderState[6] == 0xB && observed.renderValue[6] == 6);
+    CHECK(observed.renderState[7] == 0xA && observed.renderValue[7] == 5);
+    check_matrix(0.5f);
+    CHECK(*(s32 *)(envelope.work + 0x54C4) == 9);
+    CHECK(*(u32 *)(envelope.work + 0x5460) == 0 && *(u32 *)(envelope.work + 0x54C8) == 0);
+    CHECK(*(u32 *)(envelope.work + 0x5464) == 0);
+    CHECK(observed.worldQueryCount == 1 && observed.worldCallbackCount == 1);
+    CHECK(observed.world == &worldObject && observed.worldIntersection == &queryObject);
+    CHECK(observed.worldCallback == func_001791d0 && observed.worldData == envelope.work);
+    CHECK(observed.clumpWalkCount == 0 && observed.atomicCallbackCount == 0);
+    CHECK(observed.drawSubmitCount == 0 && observed.primitiveCount == 0 && observed.drawFinishCount == 0);
+    check_canaries();
+}
+
+static void scenario_atomic_draw(void)
+{
+    ++scenario; setup_common();
+    gpValue = 0;
+    iGpffffba48 = 1;
+    atomicAddsTriangle = 1;
+    atomicAddsBatch = 1;
+    s32 result = func_00179fc0(model, 88, 1, &queryObject, -0.25f, 2.0f, 4, envelope.work);
+    CHECK(result == 1);
+    check_initial_states(88, 5);
+    check_matrix(0.25f);
+    CHECK(observed.clumpWalkCount == 1 && observed.clump == &atomicObject);
+    CHECK(observed.atomicCallbackCount == 1 && observed.triangleCallbackCount == 1);
+    CHECK(observed.atomic == &atomicObject && observed.atomicIntersection == &queryObject);
+    CHECK(observed.atomicCallback == func_00179860);
+    CHECK(*(u32 *)(envelope.work + 0x5464) == 201);
+    CHECK(*(u32 *)(envelope.work + 0x5460) == 0);
+    CHECK(observed.drawSubmitCount == 1 && observed.drawVertexCount == 3);
+    CHECK(observed.primitiveCount == 1 && observed.drawFinishCount == 1);
+    CHECK(observed.renderCount == 13);
+    CHECK(observed.renderState[6] == 1 && observed.renderValue[6] == 88);
+    CHECK(observed.renderState[7] == 0xE && observed.renderValue[7] == 0);
+    CHECK(observed.renderState[8] == 6 && observed.renderValue[8] == 1);
+    CHECK(observed.renderState[9] == 8 && observed.renderValue[9] == 0);
+    CHECK(observed.renderState[10] == 0xE && observed.renderValue[10] == 1);
+    CHECK(observed.renderState[11] == 0xB && observed.renderValue[11] == 6);
+    CHECK(observed.renderState[12] == 0xA && observed.renderValue[12] == 5);
+    check_canaries();
+}
+
+static void scenario_gate_failure(s32 gate, s32 gp)
+{
+    ++scenario; setup_common();
+    gateValue = gate;
+    gpValue = gp;
+    alloc400Fails = 1;
+    s32 result = func_00179fc0(model, 99, 1, &queryObject, 0.75f, 2.0f, 2, envelope.work);
+    CHECK(result == 0);
+    CHECK(observed.alloc400Count == 1);
+    CHECK(observed.renderCount == 6);
+    check_initial_states(99, 6);
+    check_matrix(0.75f);
+    CHECK(observed.worldQueryCount == 0 && observed.clumpWalkCount == 0 && observed.atomicCallbackCount == 0);
+    CHECK(observed.drawSubmitCount == 0);
+    check_canaries();
+}
+
+int main(void)
+{
+    scenario_world();
+    scenario_atomic_draw();
+    scenario_gate_failure(1, 0);
+    scenario_gate_failure(0, 0x35);
+    native32_text("shadow_projection_cases="); native32_number(scenario);
+    native32_text(" checks="); native32_number(checks); native32_text("\n");
+    return 0;
+}
