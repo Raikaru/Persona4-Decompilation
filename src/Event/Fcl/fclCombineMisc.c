@@ -4,7 +4,7 @@
 #include "type.h"
 extern s32 func_00311b90(u16 *, u16 *, s32, s16 *);
 extern s32 func_0010cc20(u8 *, u16);
-extern s32 func_0010ce10(u8 *, u32);
+extern s32 func_0010ce10(u8 *, u16);
 extern s32 func_003124a0(u16 *output, u16 first, u16 second);
 extern s32 func_003127e0();
 extern u32 RpRandom();

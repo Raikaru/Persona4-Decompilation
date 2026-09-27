@@ -17,19 +17,24 @@ typedef struct HSfdDecodeSlot
     s32 outputHandle;      // 0x10
     s32 decodeHandle;      // 0x14
     s32 status;            // 0x18
-    void* input;           // 0x1C
+    s32 input;            // 0x1C: IOP address, not an EE pointer
     u32 inputSize;         // 0x20
-    void* intermediate;    // 0x24
+    s32 intermediate;     // 0x24: IOP address
     u32 intermediateSize;  // 0x28
-    void* output;          // 0x2C
+    s32 output;           // 0x2C: IOP address
     u32 outputSize;        // 0x30
     void* resource;        // 0x34
     void* aux;             // 0x38
     void* sourceData;      // 0x3C
-    void* completion;      // 0x40
+    s32 completion;       // 0x40: command result
 } HSfdDecodeSlot;
 
 extern HSfdDecodeSlot sSfdDecodeSlots_abs[];
+
+typedef struct HSfdFileEntry
+{
+    u8 *path[3];
+} HSfdFileEntry;
 
 /* Per-stream state tables (byte-indexed; stride 0x44 for the slot tables). */
 extern u8 D_008E3FC0[];
@@ -40,7 +45,6 @@ extern u8 D_008E3FD0[];
 extern u8 D_008E3FD4[];
 extern u8 D_008E3FD8[];
 extern u8 D_008E4090[];
-extern u8 D_008E4094[];
 extern u8 D_008E4098[];
 extern u8 D_008E409C[];
 extern u8 D_008E40A0[];
@@ -48,7 +52,6 @@ extern u8 D_008E40A4[];
 extern u8 D_008E40A8[];
 extern u8 D_008E40AC[];
 extern u8 D_008E40B0[];
-extern u8 D_008E40B4[];
 extern u8 D_008E40B8[];
 extern u8 D_008E40BC[];
 extern u8 D_008E40C0[];
@@ -57,7 +60,7 @@ extern u8 D_008E40C8[];
 extern u8 D_008E40CC[];
 extern u8 D_008E40D0[];
 extern u8 D_008D3FD0[];
-extern u8 D_00712390[];   /* stream setup table (stride 0xC) */
+extern HSfdFileEntry D_00712390[];
 
 /* Debug strings (absolute) and small-data format strings (gp-relative). */
 extern char D_007123C0[];
@@ -74,26 +77,27 @@ extern char D_00764028;
 extern char D_00764030;
 
 /* Sony SDK PS2 sound-library helpers (shared blob). */
-extern void func_00440b68();
-extern void func_0046d730();
+extern void func_00440b68(const void *format, ...);
+extern void func_0046d730(void *file, s32 line);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern void func_00421a60();
 extern s32 func_00424708();
 extern s32 func_00421b80();
 extern void func_0043c470();
 extern void func_0043c308();
-extern void func_00429d90();
+extern s32 func_00429d90(s32 address);
 extern s32 func_0043c5e8(s32 handle, ...);
 extern s32 func_0043c518(s32 handle, ...);
-extern s32 func_00429d10();
-extern void func_0043c180();
-extern s32 func_0043c230();
-extern s32 func_0043c3b0();
-extern void memcpy();
-extern s32 func_00454a60();
-extern void H_Cdvd_Destroy();
-extern s32 H_Cdvd_IsFileLoaded();
-extern void *func_00455f70();
+extern s32 func_00429d10(s32 mode, u32 size, s32 address);
+extern s32 func_0043c180(s32 command, ...);
+extern s32 func_0043c230(s32 command, ...);
+extern s32 func_0043c3b0(s32 command, ...);
+extern void memcpy(void *destination, const void *source, u32 size);
+extern HCdvd *func_00454a60(u8 *path, s32 mode);
+extern u32 H_Cdvd_Destroy(HCdvd *request);
+extern u32 H_Cdvd_IsFileLoaded(const HCdvd *request);
+/* The existing file-cache API encodes both paths/sentinels and returned EE addresses as s32. */
+extern s32 func_00455f70(s32 pathOrMode, s32 *size);
 
 s32 func_0045b650(s32 handle, void *data, s32 size);
 void func_0045c3d0(s16 index);
@@ -139,228 +143,255 @@ s32 func_0045b650(s32 handle, void *data, s32 size)
     return size;
 }
 
-/* measured: guarded 504 words (reloc-masked), obj 2444B/window 2416B (+28B, 1.2% within 3% gate), */
-/* fnalign retail 604/object 611 instrs (+7, 23 reloc-only, 556 edits). Retail rematerializes */
-/* the slot base (lui/addiu/addu D_008E4090+i*0x44 with dsll32/dsra32) after every call */
-/* (wscan retail 16 dsll32 pairs + 51 daddu vs object 2 + 0); b210 CSEs the slot into one */
-/* saved reg with direct offsets, frame 0xD0 vs 0xC0 (i in $s7 vs $s4). Pragma sweep ties */
-/* at 504 (all singles neutral/regress). Switch keeps jtbl_00756550 order 0,2-8 */
-/* (case 1 falls to tail); m2c with hand-supplied jtbl + romwright second opinion; */
-/* file byte-array idiom with D_008E4094/D_008E40B4 completing the split table. */
-/* 2026-09-18 addressing pass (7k/7p), base 504, reloc-masked words: slot_cast 439 (69 slot */
-/* addrs to (char*)D_008E4090+i*0x44+off, off hoist removed); both_cast 257 (+6 setup addrs to */
-/* (char*)D_00712390+fi*0xC[+4/8]); rounding_clean_census 259 (t+0x7F sra before/after branch, */
-/* spBC=rem first); decl_i_late 228 (kept: [spBC,fileIndex,src,p1,p2,i,h,h2,dst,rem] and later, */
-/* h2 removal neutral, i in $s4 like retail, slot still $s1 vs $s0, frame 0xB0 vs 0xC0); */
-/* decl_i_early 259 tie; decl_i_mid 276 regress; reorder tie 228 (seven other-local singles); */
-/* slot_hold_per_loop 523: per-loop slotBase hold is the 7k hoist, cost 295 words over kept 228. */
-/* Census before (opclass, unusually clean, seven classes, no float noise): lui +31, sll -29, */
-/* addiu +19, addu +16, dsra32 -14, dsll32 -14, sra -2. After: both_cast leaves sra -2/sll -1 */
-/* only (obj 2384B, lui/addu/dsll32/dsra32 deltas gone); rounding_dup leaves zero INTERESTING */
-/* surplus (obj 2388B); kept decl_i_late inherits the clean census (decl order shifts coloring, */
-/* frame 0xB0 vs 0xC0, not opcode counts). */
-// FUN_0045B7C0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: b210 -O2, 2408B body/2416B window, eight zero alignment bytes.
+ * Explicit state/payload scopes preserve the request and payload-field addresses
+ * across calls. CSE off retains the retail slot-base rematerialization; propagation
+ * off preserves the signed index and transfer-size snapshots rather than duplicating
+ * their loads. The three payload stages have independent transfer cursors. */
+// FUN_0045B7C0
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
 void func_0045b7c0(void)
 {
-    s32 spBC;
+    s32 size;
     s16 fileIndex;
-    void *src;
-    u8 *p1;
-    u8 *p2;
-    s32 h;
-    s32 h2;
-    s32 dst;
-    s32 rem;
+    HSfdFileEntry *fileEntry;
     s16 i;
-    for (i = 0; i < 6; i++) {
-        switch (*(s16 *)((char*)D_008E4090 + i * 0x44)) {
+    s32 slotIndex;
+    HSfdDecodeSlot *slot;
+
+    for (i = 0; (slotIndex = i) < 6; i++) {
+        s32 slotOffset = slotIndex * (s32)sizeof(HSfdDecodeSlot);
+        HSfdDecodeSlot *slotBase = sSfdDecodeSlots_abs;
+        slot = (HSfdDecodeSlot *)((u8 *)slotBase + slotOffset);
+        switch (slot->state) {
         case 0:
-            *(s16 *)((char*)D_008E4090 + i * 0x44) = 1;
+            slot->state = 1;
             break;
         case 2:
             func_00440b68(&D_00764030, D_00712408, 0x11F);
-            fileIndex = *(s16 *)((char*)D_008E4090 + i * 0x44 + 0x8);
-            *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x4) = func_00454a60(*(void **)((char*)D_00712390 + fileIndex * 0xC), 0);
-            *(s16 *)((char*)D_008E4090 + i * 0x44) = 3;
+            slot = &sSfdDecodeSlots_abs[i];
+            fileIndex = slot->fileIndex;
+            fileEntry = &D_00712390[fileIndex];
+            slot->request = func_00454a60(fileEntry->path[0], 0);
+            slot->state = 3;
             break;
         case 3:
-            if (H_Cdvd_IsFileLoaded(*(s32 *)((char*)D_008E4090 + i * 0x44 + 0x4)) != 0) {
-                fileIndex = *(s16 *)((char*)D_008E4090 + i * 0x44 + 0x8);
-                src = func_00455f70(*(void **)((char*)D_00712390 + fileIndex * 0xC), &spBC);
-                h = func_00429d10(0, spBC, 0);
-                if (h == 0) {
+            if (H_Cdvd_IsFileLoaded(slot->request)) {
+                u8 *source;
+                s32 address;
+                HCdvd **request;
+
+                fileIndex = slot->fileIndex;
+                fileEntry = &D_00712390[fileIndex];
+                source = (u8 *)func_00455f70((s32)fileEntry->path[0], &size);
+                address = func_00429d10(0, size, 0);
+                if (!address) {
                     func_0046d730(D_00712408, 0x129);
                 }
-                memcpy(D_008D3FD0, src, spBC);
-                func_0045b650(h, D_008D3FD0, spBC);
-                H_Cdvd_Destroy(*(void **)((char*)D_008E4090 + i * 0x44 + 0x4));
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x1C) = h;
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x20) = spBC;
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x4) = 0;
-                *(s16 *)((char*)D_008E4090 + i * 0x44) = 4;
+                memcpy(D_008D3FD0, source, size);
+                func_0045b650(address, D_008D3FD0, size);
+                slot = &sSfdDecodeSlots_abs[i];
+                request = &slot->request;
+                H_Cdvd_Destroy(*request);
+                slot->input = address;
+                slot->inputSize = size;
+                *request = 0;
+                slot->state = 4;
             }
             break;
         case 4:
             func_00440b68(&D_00764030, D_00712408, 0x136);
-            fileIndex = *(s16 *)((char*)D_008E4090 + i * 0x44 + 0x8);
-            *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x4) = func_00454a60(*(void **)((char*)D_00712390 + fileIndex * 0xC + 4), 0);
-            *(s16 *)((char*)D_008E4090 + i * 0x44) = 5;
+            slot = &sSfdDecodeSlots_abs[i];
+            fileIndex = slot->fileIndex;
+            fileEntry = &D_00712390[fileIndex];
+            slot->request = func_00454a60(fileEntry->path[1], 0);
+            slot->state = 5;
             break;
         case 5:
-            if (H_Cdvd_IsFileLoaded(*(s32 *)((char*)D_008E4090 + i * 0x44 + 0x4)) != 0) {
-                fileIndex = *(s16 *)((char*)D_008E4090 + i * 0x44 + 0x8);
-                src = func_00455f70(*(void **)((char*)D_00712390 + fileIndex * 0xC + 4), &spBC);
-                h = func_00429d10(0, 0x1000, 0);
-                if (h == 0) {
+            if (H_Cdvd_IsFileLoaded(slot->request)) {
+                s32 destination;
+                s32 remaining;
+                s32 address;
+                u8 *source;
+                s32 transferred;
+                HCdvd **request;
+
+                fileIndex = slot->fileIndex;
+                fileEntry = &D_00712390[fileIndex];
+                source = (u8 *)func_00455f70((s32)fileEntry->path[1], &size);
+                address = func_00429d10(0, 0x1000, 0);
+                if (!address) {
                     func_0046d730(D_00712408, 0x140);
                 }
-                dst = *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x24);
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x28) = spBC;
-                rem = spBC;
-                p1 = (u8 *)src;
+                slot = &sSfdDecodeSlots_abs[i];
+                destination = slot->intermediate;
+                remaining = size;
+                slot->intermediateSize = remaining;
                 do {
-                    if (rem < 0x1001) {
-                        spBC = rem;
-                        rem = 0;
+                    if (remaining > 0x1000) {
+                        size = 0x1000;
+                        remaining -= 0x1000;
                     } else {
-                        spBC = 0x1000;
-                        rem -= 0x1000;
+                        size = remaining;
+                        remaining = 0;
                     }
-                    func_0045b650(h, p1, spBC);
-                    func_0043c180(1, h, dst, spBC);
-                    p1 += spBC;
-                    dst += spBC;
-                } while (rem != 0);
-                H_Cdvd_Destroy(*(void **)((char*)D_008E4090 + i * 0x44 + 0x4));
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x4) = 0;
-                func_00429d90(h);
-                *(s16 *)((char*)D_008E4090 + i * 0x44) = 6;
+                    func_0045b650(address, source, size);
+                    func_0043c180(1, address, destination, size);
+                    transferred = size;
+                    source += transferred;
+                    destination += transferred;
+                } while (remaining);
+                slot = &sSfdDecodeSlots_abs[i];
+                request = &slot->request;
+                H_Cdvd_Destroy(*request);
+                *request = 0;
+                func_00429d90(address);
+                slot->state = 6;
             }
             break;
         case 6:
             func_00440b68(&D_00764030, D_00712408, 0x15B);
-            fileIndex = *(s16 *)((char*)D_008E4090 + i * 0x44 + 0x8);
-            *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x4) = func_00454a60(*(void **)((char*)D_00712390 + fileIndex * 0xC + 8), 0);
-            *(s16 *)((char*)D_008E4090 + i * 0x44) = 7;
+            slot = &sSfdDecodeSlots_abs[i];
+            fileIndex = slot->fileIndex;
+            fileEntry = &D_00712390[fileIndex];
+            slot->request = func_00454a60(fileEntry->path[2], 0);
+            slot->state = 7;
             break;
         case 7:
-            if (H_Cdvd_IsFileLoaded(*(s32 *)((char*)D_008E4090 + i * 0x44 + 0x4)) != 0) {
-                s32 r1;
-                s32 r2;
-                s32 r3;
-                s32 r4;
-                fileIndex = *(s16 *)((char*)D_008E4090 + i * 0x44 + 0x8);
-                src = func_00455f70(*(void **)((char*)D_00712390 + fileIndex * 0xC + 8), &spBC);
-                h = func_00429d10(0, spBC, 0);
-                if (h == 0) {
+            if (H_Cdvd_IsFileLoaded(slot->request)) {
+                u8 *source;
+                s32 address;
+                HCdvd **request;
+                s32 *output;
+                u32 *outputSize;
+                s32 *queue;
+                s32 *handle;
+                s32 *decode;
+
+                fileIndex = slot->fileIndex;
+                fileEntry = &D_00712390[fileIndex];
+                source = (u8 *)func_00455f70((s32)fileEntry->path[2], &size);
+                address = func_00429d10(0, size, 0);
+                if (!address) {
                     func_0046d730(D_00712408, 0x165);
                 }
-                func_0045b650(h, src, spBC);
-                H_Cdvd_Destroy(*(void **)((char*)D_008E4090 + i * 0x44 + 0x4));
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x2C) = h;
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x30) = spBC;
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x4) = 0;
-                r1 = func_0043c230(3, -1, *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x1C), *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x20), *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x24), *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x28));
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0xC) = r1;
-                if (r1 < 0) {
+                func_0045b650(address, source, size);
+                slot = &sSfdDecodeSlots_abs[i];
+                request = &slot->request;
+                H_Cdvd_Destroy(*request);
+                output = &slot->output;
+                *output = address;
+                outputSize = &slot->outputSize;
+                *outputSize = size;
+                *request = 0;
+                queue = &slot->queueHandle;
+                if ((*queue = func_0043c230(3, -1, slot->input, slot->inputSize,
+                                           slot->intermediate, slot->intermediateSize)) < 0) {
                     func_0046d730(D_00712408, 0x16F);
                 }
-                r2 = func_0043c230(5, -1, *(s32 *)((char*)D_008E4090 + i * 0x44 + 0xC), 0);
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x10) = r2;
-                if (r2 < 0) {
+                slot = &sSfdDecodeSlots_abs[i];
+                handle = &slot->outputHandle;
+                if ((*handle = func_0043c230(5, -1, *queue, 0)) < 0) {
                     func_0046d730(D_00712408, 0x174);
                 }
-                r3 = func_0043c3b0(0, -1, *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x2C), *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x30));
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x14) = r3;
-                if (r3 < 0) {
+                slot = &sSfdDecodeSlots_abs[i];
+                decode = &slot->decodeHandle;
+                if ((*decode = func_0043c3b0(0, -1, *output, *outputSize)) < 0) {
                     func_0046d730(D_00712408, 0x178);
                 }
-                r4 = func_0043c3b0(5, *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x10), *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x14));
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x40) = r4;
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x18) = 1;
-                *(s16 *)((char*)D_008E4090 + i * 0x44) = 1;
+                slot = &sSfdDecodeSlots_abs[i];
+                slot->completion = func_0043c3b0(5, *handle, *decode);
+                slot->state = slot->status = 1;
             }
             break;
         case 8:
             {
-                void *res;
-                s32 sz;
-                s32 h1;
-                void *s2;
-                s32 sz2;
-                s32 hb;
-                s32 d2;
-                s32 rem2;
-                void *s3;
-                s32 sz3;
-                s32 hc;
-                s32 q;
-                s32 o;
-                s32 d;
-                s32 c;
-                res = *(void **)((char*)D_008E4090 + i * 0x44 + 0x34);
-                sz = *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x20);
-                spBC = sz;
-                h1 = func_00429d10(0, sz, 0);
-                if (h1 == 0) {
-                    func_0046d730(D_00712408, 0x189);
-                }
-                func_0045b650(h1, res, spBC);
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x1C) = h1;
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x20) = spBC;
-                s2 = *(void **)((char*)D_008E4090 + i * 0x44 + 0x38);
-                sz2 = *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x28);
-                spBC = sz2;
-                hb = func_00429d10(0, 0x1000, 0);
-                if (hb == 0) {
-                    func_0046d730(D_00712408, 0x193);
-                }
-                d2 = *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x24);
-                rem2 = sz2;
-                p1 = (u8 *)s2;
-                p2 = (u8 *)d2;
-                do {
-                    if (rem2 < 0x1001) {
-                        s32 t;
-                        s32 q;
-                        spBC = rem2;
-                        t = rem2 + 0x7F;
-                        q = t >> 7;
-                        if (t < 0) {
-                            q = (t + 0x7F) >> 7;
-                        }
-                        spBC = q << 7;
-                        rem2 = 0;
-                    } else {
-                        spBC = 0x1000;
-                        rem2 -= 0x1000;
+                HSfdDecodeSlot *initial = slot;
+                s32 *input;
+                u32 *inputSize;
+                s32 *intermediate;
+                u32 *intermediateSize;
+                s32 *output;
+                u32 *outputSize;
+                s32 *queue;
+                s32 *handle;
+                s32 *decode;
+                {
+                    u8 *source;
+                    s32 address;
+                    slot = &slotBase[i];
+                    source = slot->resource;
+                    inputSize = &slot->inputSize;
+                    size = *inputSize;
+                    address = func_00429d10(0, size, 0);
+                    if (!address) {
+                        func_0046d730(D_00712408, 0x189);
                     }
-                    func_0045b650(hb, p1, spBC);
-                    func_0043c180(1, hb, p2, spBC);
-                    p1 += spBC;
-                    p2 += spBC;
-                } while (rem2 != 0);
-                func_00429d90(hb);
-                s3 = *(void **)((char*)D_008E4090 + i * 0x44 + 0x3C);
-                sz3 = *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x30);
-                spBC = sz3;
-                hc = func_00429d10(0, sz3, 0);
-                if (hc == 0) {
-                    func_0046d730(D_00712408, 0x1AB);
+                    func_0045b650(address, source, size);
+                    slot = &sSfdDecodeSlots_abs[i];
+                    input = &slot->input;
+                    *input = address;
+                    *inputSize = size;
                 }
-                func_0045b650(hc, s3, spBC);
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x2C) = hc;
-                q = func_0043c230(3, -1, *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x1C), *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x20), *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x24), *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x28));
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0xC) = q;
-                o = func_0043c230(5, -1, q, 0);
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x10) = o;
-                d = func_0043c3b0(0, -1, *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x2C), *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x30));
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x14) = d;
-                c = func_0043c3b0(5, *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x10), d);
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x40) = c;
-                *(s32 *)((char*)D_008E4090 + i * 0x44 + 0x18) = 1;
-                *(s16 *)((char*)D_008E4090 + i * 0x44) = 1;
+                {
+                    s32 remaining;
+                    s32 address;
+                    u8 *source;
+                    s32 destination;
+                    s32 transferred;
+                    source = slot->aux;
+                    intermediateSize = &slot->intermediateSize;
+                    size = *intermediateSize;
+                    address = func_00429d10(0, 0x1000, 0);
+                    if (!address) {
+                        func_0046d730(D_00712408, 0x193);
+                    }
+                    intermediate = &initial->intermediate;
+                    destination = *intermediate;
+                    remaining = size;
+                    do {
+                        if (remaining > 0x1000) {
+                            size = 0x1000;
+                            remaining -= 0x1000;
+                        } else {
+                            size = remaining;
+                            size = ((size + 0x7F) / 128) * 128;
+                            remaining = 0;
+                        }
+                        func_0045b650(address, source, size);
+                        func_0043c180(1, address, destination, size);
+                        transferred = size;
+                        source += transferred;
+                        destination += transferred;
+                    } while (remaining);
+                    func_00429d90(address);
+                }
+                {
+                    u8 *source;
+                    s32 address;
+                    slot = &sSfdDecodeSlots_abs[i];
+                    source = slot->sourceData;
+                    outputSize = &slot->outputSize;
+                    size = *outputSize;
+                    address = func_00429d10(0, size, 0);
+                    if (!address) {
+                        func_0046d730(D_00712408, 0x1AB);
+                    }
+                    func_0045b650(address, source, size);
+                    slot = &sSfdDecodeSlots_abs[i];
+                    output = &slot->output;
+                    *output = address;
+                }
+                queue = &slot->queueHandle;
+                *queue = func_0043c230(3, -1, *input, *inputSize, *intermediate, *intermediateSize);
+                handle = &slot->outputHandle;
+                *handle = func_0043c230(5, -1, *queue, 0);
+                decode = &slot->decodeHandle;
+                *decode = func_0043c3b0(0, -1, *output, *outputSize);
+                slot->completion = func_0043c3b0(5, *handle, *decode);
+                slot->state = slot->status = 1;
             }
             break;
         default:
@@ -368,9 +399,8 @@ void func_0045b7c0(void)
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/sdkSndcom", func_0045b7c0);
-#endif
+#pragma pop
+
 // FUN_0045C130
 void func_0045c130(s16 index, s16 fileIndex)
 {
@@ -386,8 +416,8 @@ void func_0045c130(s16 index, s16 fileIndex)
 }
 
 // FUN_0045C210
-void func_0045c210(s16 index, s16 fileIndex, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
-                   s32 arg6, s32 arg7)
+void func_0045c210(s16 index, s16 fileIndex, void *data0, u32 data0Size, void *data1, u32 data1Size,
+                   void *data2, u32 data2Size)
 {
     if (*(s16 *)&D_008E4090[index * 0x44] == 1) {
         if (*(void **)&D_008E40A8[index * 0x44] != 0) {
@@ -395,12 +425,12 @@ void func_0045c210(s16 index, s16 fileIndex, s32 arg2, s32 arg3, s32 arg4, s32 a
         }
         *(s16 *)&D_008E4098[index * 0x44] = fileIndex;
         *(s16 *)&D_008E4090[index * 0x44] = 8;
-        *(s32 *)&D_008E40C4[index * 0x44] = arg2;
-        *(s32 *)&D_008E40C8[index * 0x44] = arg4;
-        *(s32 *)&D_008E40CC[index * 0x44] = arg6;
-        *(s32 *)&D_008E40B0[index * 0x44] = arg3;
-        *(s32 *)&D_008E40B8[index * 0x44] = arg5;
-        *(s32 *)&D_008E40C0[index * 0x44] = arg7;
+        *(void **)&D_008E40C4[index * 0x44] = data0;
+        *(void **)&D_008E40C8[index * 0x44] = data1;
+        *(void **)&D_008E40CC[index * 0x44] = data2;
+        *(u32 *)&D_008E40B0[index * 0x44] = data0Size;
+        *(u32 *)&D_008E40B8[index * 0x44] = data1Size;
+        *(u32 *)&D_008E40C0[index * 0x44] = data2Size;
         return;
     }
     func_0046d740(D_00712440, D_00712408, 0x1E9);
@@ -427,8 +457,8 @@ void func_0045c3d0(s16 index)
             func_0043c308(5, *(s32 *)&D_008E40A0[off]);
             func_0043c308(3, *(s32 *)&D_008E409C[off]);
             *inp = 0;
-            func_00429d90(*(void **)&D_008E40AC[off]);
-            func_00429d90(*(void **)&D_008E40BC[off]);
+            func_00429d90((s32)*(void **)&D_008E40AC[off]);
+            func_00429d90((s32)*(void **)&D_008E40BC[off]);
         }
         *inp = 0;
         return;

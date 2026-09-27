@@ -1,3 +1,33 @@
+/* ModelLayoutRecovery, 2026-09-26: isolated full-TU probe, MWCC b210 -O2,
+ * current mdlManager profile (schedule off). Not a production implementation.
+ * Current guarded baseline: 4008/4000 bytes, fnalign 621 edits, frame 0x1E0.
+ * This natural-layout candidate: 3960/4000 bytes, fnalign 571 edits,
+ * plus 16 relocation-only substitutions; frame 0x1A0 as in retail.
+ * Quaternion/result/cache: sp+0x70/0x80/0x90; omega/flag: +0xB0/+0xB4.
+ * RtQuatSlerp interior 00475FFC..0047610F: 276 bytes (69 instructions),
+ * zero relocation-masked differences. All six sine-pool words were compared
+ * directly with retail and are equal. This is NOT a whole-function match.
+ *
+ * RtQuat/RtQuatSlerpCache and the macro definitions below are copied verbatim
+ * from include/rw/inc/{rtquat.h,rtslerp.h,rwplcore.h} for isolated TU probing:
+ * mdlManager currently defines its own RwV3d/RwMatrix, so including the full
+ * SDK headers directly would conflict. No synthetic stack aggregate is used.
+ *
+ * Corrected retail behavior: distinct negate scratch/result, independent
+ * slerp weights, fresh flags after getters, matrix identity initialization,
+ * frame load before matrix calls, and callback-visible effect reloads.
+ * Provider contract 0047DD40 now includes its unused owning-model argument,
+ * proven by all three direct retail callsites. D540/D900 declarations agree
+ * with their providers; AE90 uses its existing u16 slot-index contract.
+ *
+ * Remaining: parameter in s2 rather than retail s0, quaternion-dot load/acc
+ * ordering, attached-model loop/CSE structure, and remaining register choices.
+ * Do not restore incompatible prototypes to recover the lower score: omitting
+ * AE90's narrow prototype yielded 3952 bytes / 516 edits but was not retained.
+ * Source func_00475cd0 remains the existing guarded body plus ASM fallback.
+ */
+/* Historical measurements below describe the superseded synthetic-stack draft,
+ * not the current candidate or current owner match counts. */
 /* LaneMdlManager func_00475cd0 best: sched 4028B/4000B nd 915 (base 4524B nd 1014).
  * Retail window 4000B frame 0x1A0; candidate frame 0x1D0 (3 extra saved s5-s7).
  * First diffs sched at 0 (frame), 56 (sltu vs slt head), 64 (sb via $a2 vs direct 0x280),
@@ -12,69 +42,189 @@
  *   value(0x80)+result(0x90,40B) vs merged interpolation, easing two-stage vs independent curves.
  * Production remains INCLUDE_ASM; owner 126 markers, 120 MATCH/6 ASM unchanged. func_00479100 untouched (29-word floor).
  */
-// FUN_00475CD0
-/* measured: schedule on 1014->915 (-99, 4524->4028B, 28B over window; frame still 0x1D0 vs 0x1A0). */
-#pragma schedule on
-void func_00475cd0(void* param_1)
+
+typedef f32 RwReal;
+typedef s32 RwBool;
+#define MACRO_START do
+#define MACRO_STOP while(0)
+typedef struct RtQuat RtQuat;
+struct RtQuat
 {
-    extern void func_00397c40();
-    extern void func_003f6440(s32 a, s32 b);
-    extern void func_00477260(u64 a, u32* b, u16 c);
-    extern void func_004789c0(void* a);
-    extern void func_003dc610(void* out, void* in);
-    extern void func_003dcb40(void* out, const void* in, s32 count, const void* quat);
+    RwV3d               imag;   /**< The imaginary part(s) */
+    RwReal              real;   /**< The real part */
+};
+
+typedef struct RtQuatSlerpCache RtQuatSlerpCache;
+struct RtQuatSlerpCache
+{
+    RtQuat              raFrom; /**< Scaled initial quaternion  */
+    RtQuat              raTo;   /**< Scaled final quaternion */
+    RwReal              omega;  /**< Angular displacement in radians */
+    RwBool              nearlyZeroOm; /**< Flags near-zero angular 
+                                                displacement*/
+};
+#define   _RW_S1      ( (float)-1.6666667163e-01 )
+#define   _RW_S2      ( (float) 8.3333337680e-03 )
+#define   _RW_S3      ( (float)-1.9841270114e-04 )
+#define   _RW_S4      ( (float) 2.7557314297e-06 )
+#define   _RW_S5      ( (float)-2.5050759689e-08 )
+#define   _RW_S6      ( (float) 1.5896910177e-10 )
+#define RwSinMinusPiToPiMacro(result, x)                          \
+do                                                                \
+{                                                                 \
+    const float z = x * x;                                        \
+    const float v = z * x;                                        \
+    const float r = ( _RW_S2 +                                    \
+                      z * (_RW_S3 +                               \
+                           z * (_RW_S4 +                          \
+                                z * (_RW_S5 +                     \
+                                     z * _RW_S6))) );             \
+    result = x + v * (_RW_S1 + z * r);                            \
+}                                                                 \
+while(0)                                                                  
+
+#define RwV3dScaleMacro(o, a, s)                                \
+MACRO_START                                                     \
+{                                                               \
+    (o)->x = (((a)->x) * ( (s)));                               \
+    (o)->y = (((a)->y) * ( (s)));                               \
+    (o)->z = (((a)->z) * ( (s)));                               \
+}                                                               \
+MACRO_STOP
+
+#define RwV3dIncrementScaledMacro(o, a, s)                      \
+MACRO_START                                                     \
+{                                                               \
+    (o)->x += (((a)->x) * ( (s)));                              \
+    (o)->y += (((a)->y) * ( (s)));                              \
+    (o)->z += (((a)->z) * ( (s)));                              \
+}                                                               \
+MACRO_STOP
+
+#define RtQuatSlerpMacro(qpResult, qpFrom, qpTo, rT, sCache)            \
+MACRO_START                                                             \
+{                                                                       \
+    if ((rT) <= ((RwReal) 0))                                           \
+    {                                                                   \
+        /* t is before start */                                         \
+        *(qpResult) = *(qpFrom);                                        \
+    }                                                                   \
+    else if (((RwReal) 1) <= (rT))                                      \
+    {                                                                   \
+                                                                        \
+        /* t is after end */                                            \
+        *(qpResult) = *(qpTo);                                          \
+    }                                                                   \
+    else                                                                \
+    {                                                                   \
+        /* ... so t must be in the interior then */                     \
+        /* Calc coefficients rSclFrom, rSclTo */                        \
+        RwReal rSclFrom = ((RwReal) 1) - (rT);                          \
+        RwReal rSclTo = (rT);                                           \
+                                                                        \
+        if (!((sCache)->nearlyZeroOm))                                  \
+        {                                                               \
+            /* Standard case: slerp */                                  \
+            /* SLERPMESSAGE(("Neither nearly ZERO nor nearly PI")); */  \
+                                                                        \
+            rSclFrom *= (sCache)->omega;                                \
+            RwSinMinusPiToPiMacro(rSclFrom, rSclFrom);                   \
+            rSclTo *= (sCache)->omega;                                  \
+            RwSinMinusPiToPiMacro(rSclTo, rSclTo);                       \
+        }                                                               \
+                                                                        \
+        /* Calc final values */                                         \
+        RwV3dScaleMacro(&(qpResult)->imag,                              \
+                        &(sCache)->raFrom.imag, rSclFrom);              \
+        RwV3dIncrementScaledMacro(&(qpResult)->imag,                    \
+                             &(sCache)->raTo.imag, rSclTo);             \
+        (qpResult)->real =                                              \
+            ((sCache)->raFrom.real * rSclFrom) +                        \
+            ((sCache)->raTo.real * rSclTo);                             \
+    }                                                                   \
+}                                                                       \
+MACRO_STOP
+#define RtQuatNegateMacro( result, q )                                     \
+MACRO_START                                                                \
+{                                                                          \
+    (result)->real = -(q)->real;                                           \
+    (result)->imag.x = -(q)->imag.x;                                       \
+    (result)->imag.y = -(q)->imag.y;                                       \
+    (result)->imag.z = -(q)->imag.z;                                       \
+}                                                                          \
+MACRO_STOP
+typedef struct Mdl475State {
+    RwMatrix matrix;
+    RwMatrix identityMatrix;
+    RwV3d scale;
+    u8 unknown8c[0xD0-0x8C];
+    RwRGBA color;
+    u32 unknownD4;
+    u32 flagsD8;
+    void* clump;
+    void* e0;
+    u8 unknownE4[8];
+    u16 animFlags;
+    u8 unknownEE[2];
+    s16 animIndex;
+    u8 unknownF2[0x10C-0xF2];
+    void* hierarchy;
+    u8 unknown110[0x120-0x110];
+    void* animations;
+    void* effect124;
+    u8 unknown128[0x140-0x128];
+    u16 flags140;
+    u8 unknown142[0x234-0x142];
+    u8 state234[0x2C];
+    u8 flags;
+    u8 unknown261[3];
+    RtQuat rotation;
+    f32 limit;
+    f32 targetLimit;
+    f32 limitRate;
+    u8 alpha;
+    u8 targetAlpha;
+    u8 alphaStep;
+    u8 unknown283;
+    f32 minBlend;
+    f32 maxAngle;
+} Mdl475State;
+void func_00475cd0(Mdl475State* param_1)
+{
+    extern void RpSkyRenderStateSet(s32 a, s32 b);
+    extern void func_00477260(void* a, u32* b, u16 c);
+    extern void func_004789c0(Model* a);
+    extern s32 RtQuatConvertFromMatrix(RtQuat* out, const RwMatrix* in);
+    extern RwV3d* RtQuatTransformVectors(RwV3d* out, const RwV3d* in, s32 count, const RtQuat* quat);
     extern void func_003dcc70(f32* first, f32* second, void* result);
     extern f32 func_0044b920(f32 value);
-    extern void* func_004571b0(void);
-    extern void* func_004571c0(void* object, u32 index);
+    extern s32 func_004571b0(void);
+    extern s32 func_004571c0(void);
     extern void func_004746b0(u8* a, u8* b);
     extern void func_00479910(void* a);
-    extern void* func_0047a2f0(void* a);
+    extern void* mdlGetMatrix(void* a);
     extern s32 func_0047a510(void* a, s32 b, void* c);
-    extern void func_0047d540(u32 a, void* b);
-    extern void func_0047d900(u32 a, void* b);
-    extern void func_0047dd40(u32 a, void* b);
+    extern s32 func_0047ae90(u8* model, u16 index);
+    extern void func_0047d540(u8** a, u8* b);
+    extern void func_0047d900(s32* a, f32* b);
+    extern void func_0047dd40(u8* a, void* model);
     extern void (*D_00887300_abs[])(s32, s32);
     extern void (*D_00887304[])(s32, void*);
-    extern f32 fGpffff8054;
-    extern f32 fGpffff8058;
-    extern f32 fGpffff805c;
-    extern f32 fGpffff8060;
-    extern f32 fGpffff80f0;
-    extern f32 fGpffff81f4;
 
-    u32 current;
-    u32 target;
-    u32 value;
+    s32 current;
+    s32 target;
+    s32 value;
     u32 flags;
-    struct {
-        f32 quaternion[4];
-        struct {
-            f32 value[4];
-            f32 second[4];
-            f32 scale;
-            s32 flag;
-        } interpolation;
-        u8 padding[0x18];
-        u8 identity[0x40];
-        u8 matrix0[0x40];
-        u8 matrix1[0x48];
-        f32 direction[3];
-        u8 directionPadding[4];
-        s32 renderState;
-        u8 color[4];
-    } stack;
-#define color stack.color
-#define quaternion stack.quaternion
-#define interpolation stack.interpolation
-#define direction stack.direction
-#define matrix0 stack.matrix0
-#define matrix1 stack.matrix1
-#define identity stack.identity
-#define renderState stack.renderState
+    RwRGBA color;
+    s32 renderState;
+    RwV3d direction;
+    RwMatrix matrix1;
+    RwMatrix matrix0;
+    RwMatrix identity;
+    RtQuatSlerpCache interpolation;
+    RtQuat result;
+    RtQuat quaternion;
     void (**renderStateSet)(s32, s32);
-    u8* material;
-    u8* source;
     u8* effect;
     u8* slot;
     u8* model;
@@ -89,224 +239,124 @@ void func_00475cd0(void* param_1)
     u32* copySource;
     u32* copyTarget;
 
-    target = *(u8*)((u8*)param_1 + 0x281);
-    current = *(u8*)((u8*)param_1 + 0x280);
+    target = param_1->targetAlpha;
+    current = param_1->alpha;
     if (current < target) {
-        value = current + *(u8*)((u8*)param_1 + 0x282);
+        value = current + param_1->alphaStep;
         if (target < value) {
-            *(u8*)((u8*)param_1 + 0x280) = (u8)target;
+            param_1->alpha = (u8)target;
         } else {
-            *(u8*)((u8*)param_1 + 0x280) = (u8)value;
+            param_1->alpha = (u8)value;
         }
     } else if (target < current) {
-        value = current - *(u8*)((u8*)param_1 + 0x282);
+        value = current - param_1->alphaStep;
         if (value < target) {
-            *(u8*)((u8*)param_1 + 0x280) = (u8)target;
+            param_1->alpha = (u8)target;
         } else {
-            *(u8*)((u8*)param_1 + 0x280) = (u8)value;
+            param_1->alpha = (u8)value;
         }
     } else {
-        *(u8*)((u8*)param_1 + 0x280) = (u8)target;
+        param_1->alpha = (u8)target;
     }
 
-    color[0] = 0;
-    color[1] = 0;
-    color[2] = 0;
-    flags = *(u8*)((u8*)param_1 + 0x260);
+    color.red = 0;
+    color.green = 0;
+    color.blue = 0;
+    color.alpha = (u8)(255.0f * ((f32)(param_1->alpha
+                         * param_1->color.alpha) / (255 * 255)));
+
     {
-        f32 alpha;
-        s32 alphaValue;
-        alpha = 255.0f * ((f32)(*(u8*)((u8*)param_1 + 0x280)
-                                * *(u8*)((u8*)param_1 + 0xD3)) / 65025.0f);
-        if (alpha >= 2147483600.0f) {
-            alphaValue = (s32)(alpha - 2147483600.0f);
-        } else {
-            alphaValue = (s32)alpha;
-        }
-        color[3] = (u8)alphaValue;
-    }
-
+    u8* material;
+    flags = param_1->flags;
     if ((flags & 1) != 0 && (flags & 0x20) == 0) {
-        material = (u8*)func_004571b0();
+        material = *(u8**)((u8*)func_004571b0() + 4);
     } else {
-        material = (u8*)func_004571c0(param_1, target);
+        material = *(u8**)((u8*)func_004571c0() + 4);
     }
-    material = *(u8**)(material + 4);
 
+    flags = param_1->flags;
     if ((flags & 2) != 0 && (flags & 0x20) == 0) {
         if ((flags & 4) == 0) {
-            func_003dc610(quaternion, material + 0x10);
+            RtQuatConvertFromMatrix(&quaternion, (const RwMatrix*)(material + 0x10));
         } else {
-            quaternion[0] = *((f32*)((u8*)&fGpffff81f4) + 1);
-            quaternion[1] = 0.0f;
-            quaternion[2] = 0.0f;
-            quaternion[3] = quaternion[0];
+            quaternion.imag.x = 0.707107f;
+            quaternion.imag.y = 0.0f;
+            quaternion.imag.z = 0.0f;
+            quaternion.real = quaternion.imag.x;
         }
         {
             f32 dot;
             f32 angle;
             f32 amount;
             f32 limit;
-            dot = *(f32*)((u8*)param_1 + 0x268) * quaternion[1]
-                + *(f32*)((u8*)param_1 + 0x264) * quaternion[0]
-                + *(f32*)((u8*)param_1 + 0x26C) * quaternion[2]
-                + *(f32*)((u8*)param_1 + 0x270) * quaternion[3];
+            dot = param_1->rotation.imag.x * quaternion.imag.x
+                + param_1->rotation.imag.y * quaternion.imag.y
+                + param_1->rotation.imag.z * quaternion.imag.z
+                + param_1->rotation.real * quaternion.real;
             if (dot < 0.0f) {
-                quaternion[3] = -quaternion[3];
-                quaternion[0] = -quaternion[0];
-                quaternion[1] = -quaternion[1];
-                quaternion[2] = -quaternion[2];
-                dot = *(f32*)((u8*)param_1 + 0x268) * quaternion[1]
-                    + *(f32*)((u8*)param_1 + 0x264) * quaternion[0]
-                    + *(f32*)((u8*)param_1 + 0x26C) * quaternion[2]
-                    + *(f32*)((u8*)param_1 + 0x270) * quaternion[3];
+                RtQuatNegateMacro(&result, &quaternion);
+                dot = param_1->rotation.imag.y * result.imag.y
+                    + param_1->rotation.imag.x * result.imag.x
+                    + param_1->rotation.imag.z * result.imag.z
+                    + param_1->rotation.real * result.real;
             }
             angle = 2.0f * func_0044b920(dot);
-            limit = *(f32*)((u8*)param_1 + 0x284);
+            limit = param_1->minBlend;
             if (limit < 1.0f) {
                 f32 maximum;
-                maximum = *(f32*)((u8*)param_1 + 0x288);
-                if (angle <= maximum) {
-                    amount = limit;
-                } else {
+                maximum = param_1->maxAngle;
+                if (!(angle <= maximum)) {
                     amount = maximum / angle;
                     if (amount < limit) {
                         amount = limit;
                     }
-                }
-                func_003dcc70((f32*)((u8*)param_1 + 0x264), quaternion,
-                              &interpolation);
-                if (amount <= 0.0f) {
-                    interpolation.value[0] = *(f32*)((u8*)param_1 + 0x264);
-                    interpolation.value[1] = *(f32*)((u8*)param_1 + 0x268);
-                    interpolation.value[2] = *(f32*)((u8*)param_1 + 0x26C);
-                    interpolation.value[3] = *(f32*)((u8*)param_1 + 0x270);
-                } else if (amount >= 1.0f) {
-                    interpolation.value[0] = quaternion[0];
-                    interpolation.value[1] = quaternion[1];
-                    interpolation.value[2] = quaternion[2];
-                    interpolation.value[3] = quaternion[3];
                 } else {
-                    f32 remaining;
-                    f32 t;
-                    f32 t2;
-                    f32 t3;
-                    f32 curve0;
-                    f32 curve1;
-                    remaining = 1.0f - amount;
-                    if (interpolation.flag == 0) {
-                        t = remaining * interpolation.scale;
-                        t2 = t * t;
-                        curve0 = t2 * (t2 * (t2 * (t2 * (t2 * fGpffff8054
-                            + fGpffff8058) + fGpffff805c) + fGpffff8060)
-                            + *(f32*)((u8*)&fGpffff81f4 + 8))
-                            + t;
-                        t = curve0 * interpolation.scale;
-                        t2 = t * t;
-                        curve1 = t2 * (t2 * (t2 * (t2 * (t2 * fGpffff8054
-                            + fGpffff8058) + fGpffff805c) + fGpffff8060)
-                            + *(f32*)((u8*)&fGpffff81f4 + 8))
-                            + t;
-                        interpolation.scale = curve1;
-                    }
-                    t = interpolation.value[0] * remaining;
-                    interpolation.value[0] = t + interpolation.second[0] * interpolation.scale;
-                    t = interpolation.value[1] * remaining;
-                    interpolation.value[1] = t + interpolation.second[1] * interpolation.scale;
-                    t = interpolation.value[2] * remaining;
-                    interpolation.value[2] = t + interpolation.second[2] * interpolation.scale;
-                    interpolation.value[3] = interpolation.value[3] * amount;
-                    interpolation.value[3] = interpolation.value[3] + interpolation.second[3] * interpolation.scale;
+                    amount = limit;
                 }
-                *(f32*)((u8*)param_1 + 0x264) = interpolation.value[0];
-                *(f32*)((u8*)param_1 + 0x268) = interpolation.value[1];
-                *(f32*)((u8*)param_1 + 0x26C) = interpolation.value[2];
-                *(f32*)((u8*)param_1 + 0x270) = interpolation.value[3];
+                func_003dcc70((f32*)&param_1->rotation, (f32*)&quaternion,
+                              &interpolation);
+                RtQuatSlerpMacro(&result, &param_1->rotation, &quaternion,
+                                amount, &interpolation);
+                *&param_1->rotation = result;
             } else {
-                *(f32*)((u8*)param_1 + 0x264) = quaternion[0];
-                *(f32*)((u8*)param_1 + 0x268) = quaternion[1];
-                *(f32*)((u8*)param_1 + 0x26C) = quaternion[2];
-                *(f32*)((u8*)param_1 + 0x270) = quaternion[3];
+                param_1->rotation = quaternion;
             }
         }
-        func_003dcb40(direction, (u8*)D_00713138 + 0x10, 1,
-                      (u8*)param_1 + 0x264);
+        RtQuatTransformVectors(&direction, (const RwV3d*)(D_00713138 + 0x10), 1,
+                      &param_1->rotation);
     } else {
-        source = material + 0x10;
-        func_003dc610((u8*)param_1 + 0x264, source);
-        direction[0] = *(f32*)(source + 0x20);
-        direction[1] = *(f32*)(source + 0x24);
-        direction[2] = *(f32*)(source + 0x28);
+        u8* source = material + 0x10;
+        RtQuatConvertFromMatrix(&param_1->rotation, (const RwMatrix*)source);
+        direction = ((RwMatrix*)source)->at;
     }
 
-    if (color[3] == 0) {
-        if ((*(u16*)((u8*)param_1 + 0xEC) & 0x10) != 0) {
-            func_00473000(*(void**)((u8*)param_1 + 0x10C),
-                          (u8*)param_1 + 0xEC);
-        } else if ((*(u16*)((u8*)param_1 + 0x140) & 0x81E0) != 0) {
-            func_00471370(*(void**)((u8*)param_1 + 0x10C),
-                          (u8*)param_1 + 0xEC, (u8*)param_1 + 0x140, 0);
+    }
+
+    if (color.alpha == 0) {
+        if ((param_1->animFlags & 0x10) != 0) {
+            func_00473000(param_1->hierarchy,
+                          (u8*)&param_1->animFlags);
+        } else if ((param_1->flags140 & 0x81E0) != 0) {
+            func_00471370(param_1->hierarchy,
+                          (u8*)&param_1->animFlags, (u8*)&param_1->flags140, 0);
         } else {
-            func_00397c40(*(void**)((u8*)param_1 + 0x10C));
+            func_00397c40(param_1->hierarchy);
         }
-        if ((*(u32*)((u8*)param_1 + 0xD8) & 0x80000) != 0) {
-            func_004746b0((u8*)param_1 + 0x234, (u8*)param_1 + 0xEC);
-        }
-        func_00477260((u64)(u32)*(void**)((u8*)param_1 + 0xDC), (u32*)color,
-                               (u16)((*(u8*)((u8*)param_1 + 0x260) & 8) != 0));
-        effect = *(u8**)((u8*)param_1 + 0xE0);
-        if (effect == 0) {
-            func_003f6440(3, 0x7C01B);
-        } else if ((*(s32*)(effect + 0x10) != 0 || *(s32*)(effect + 0x1C) != 0)
-                   && (*(u8*)((u8*)param_1 + 0x260) & 0x80) == 0) {
-            func_003f6440(3, 0x7F06B);
-        } else {
-            func_003f6440(3, 0x7D7FB);
-        }
-        func_00479910(*(void**)((u8*)param_1 + 0xDC));
-        func_004789c0(param_1);
-        if ((*(u16*)((u8*)param_1 + 0xEC) & 0x10) != 0) {
-            func_00473000(*(void**)((u8*)param_1 + 0x10C),
-                          (u8*)param_1 + 0xEC);
-        } else if ((*(u16*)((u8*)param_1 + 0x140) & 0x81E0) != 0) {
-            func_00471370(*(void**)((u8*)param_1 + 0x10C),
-                          (u8*)param_1 + 0xEC, (u8*)param_1 + 0x140, 0);
-        } else {
-            func_00397c40(*(void**)((u8*)param_1 + 0x10C));
-        }
-        effect = *(u8**)((u8*)param_1 + 0x2CC);
-        if (effect != 0) {
-            func_0047d900((u32)effect, (u8*)param_1 + 0x80);
-            func_0047d540((u32)effect, param_1);
-        }
-        i = 0;
-        while (i < 2) {
-            model = *(u8**)((u8*)param_1 + i * 0xA4 + 0x124);
-            if (model != 0) {
-                effect = *(u8**)(model + 0x18);
-                if (effect != 0 && *(u16*)(model + 0x30) == 0) {
-                    func_0047d900((u32)effect, model + 8);
-                    func_0047d540((u32)effect, param_1);
-                }
-                effect = *(u8**)(model + 0x24);
-                if (effect != 0 && *(u16*)(model + 0x30) == 0) {
-                    func_0047dd40((u32)effect, param_1);
-                }
-                if (*(u16*)(model + 0x30) > 0) {
-                    *(u16*)(model + 0x30) -= 1;
-                }
-            }
-            i++;
+        if ((param_1->flagsD8 & 0x80000) != 0) {
+            func_004746b0(param_1->state234, (u8*)&param_1->animFlags);
         }
         j = 0;
         while (j < 5) {
             slot = (u8*)param_1 + j * 0xC;
             if ((*(u8*)(slot + 0x28C) & 1) != 0 &&
                 *(void**)(slot + 0x290) != 0 &&
-                func_0047ae90(param_1, j) != 0) {
+                func_0047ae90((u8*)param_1, j) != 0) {
                 model = *(u8**)(slot + 0x290);
                 if ((*(u32*)(model + 0xD8) & 2) == 0) {
-                    if (*(s32*)(slot + 0x294) == -1) {
+                    if (*(s32*)(slot + 0x294) != -1) {
+                        func_0047a510(param_1, *(s32*)(slot + 0x294),
+                                      mdlGetMatrix(model));
+                    } else {
                         copyCount = 8;
                         copySource = (u32*)param_1;
                         copyTarget = (u32*)model;
@@ -317,9 +367,6 @@ void func_00475cd0(void* param_1)
                             copyTarget += 2;
                             copyCount--;
                         } while (copyCount > 0);
-                    } else {
-                        func_0047a510(param_1, *(s32*)(slot + 0x294),
-                                      func_0047a2f0(model));
                     }
                     hasIndex = 0;
                     hasItem = 0;
@@ -353,109 +400,108 @@ void func_00475cd0(void* param_1)
         return;
     }
 
-    if (direction[1] >= 0.0f) {
+    if (!(direction.y < 0.0f)) {
         f32 unit;
-        unit = *((f32*)((u8*)&fGpffff81f4) + 1);
-        *(f32*)((u8*)param_1 + 0x264) = unit;
-        *(f32*)((u8*)param_1 + 0x268) = 0.0f;
-        *(f32*)((u8*)param_1 + 0x26C) = 0.0f;
-        *(f32*)((u8*)param_1 + 0x270) = unit;
-        func_003dcb40(direction, (u8*)D_00713138 + 0x10, 1,
-                      (u8*)param_1 + 0x264);
+        unit = 0.707107f;
+        param_1->rotation.imag.x = unit;
+        param_1->rotation.imag.y = 0.0f;
+        param_1->rotation.imag.z = 0.0f;
+        param_1->rotation.real = unit;
+        RtQuatTransformVectors(&direction, (const RwV3d*)(D_00713138 + 0x10), 1,
+                      &param_1->rotation);
     }
-    if (*(f32*)((u8*)param_1 + 0x274) !=
-        *(f32*)((u8*)param_1 + 0x278)) {
-        *(f32*)((u8*)param_1 + 0x274) =
-            *(f32*)((u8*)param_1 + 0x274)
-            + *(f32*)((u8*)param_1 + 0x27C)
-              * (*(f32*)((u8*)param_1 + 0x278)
-                 - *(f32*)((u8*)param_1 + 0x274));
+    if (param_1->limit !=
+        param_1->targetLimit) {
+        param_1->limit =
+            param_1->limit
+            + param_1->limitRate
+              * (param_1->targetLimit
+                 - param_1->limit);
     }
     {
         f32 limit;
-        limit = *(f32*)((u8*)param_1 + 0x274);
-        if (fabsf(direction[1]) < limit) {
-            if (direction[1] < 0.0f) {
-                direction[1] = -limit;
+        limit = param_1->limit;
+        if (fabsf(direction.y) < limit) {
+            if (direction.y < 0.0f) {
+                direction.y = -limit;
             } else {
-                direction[1] = limit;
+                direction.y = limit;
             }
         }
     }
 
-    *(f32*)(identity + 0x00) = 1.0f;
-    *(f32*)(identity + 0x04) = 0.0f;
-    *(f32*)(identity + 0x08) = 0.0f;
-    *(f32*)(identity + 0x10) = -direction[0] / direction[1];
-    *(f32*)(identity + 0x14) = fGpffff80f0;
-    *(f32*)(identity + 0x18) = -direction[2] / direction[1];
-    *(f32*)(identity + 0x20) = 0.0f;
-    *(f32*)(identity + 0x24) = 0.0f;
-    *(f32*)(identity + 0x28) = 1.0f;
-    *(f32*)(identity + 0x30) = 0.0f;
-    *(f32*)(identity + 0x34) = 0.0f;
-    *(f32*)(identity + 0x38) = 0.0f;
-    *(u32*)(identity + 0x0C) |= 0x20003;
+    identity.right.x = identity.up.y = identity.at.z = 1.0f;
+    identity.right.y = identity.right.z = identity.up.x = 0.0f;
+    identity.up.z = identity.at.x = identity.at.y = 0.0f;
+    identity.pos.x = identity.pos.y = identity.pos.z = 0.0f;
+    identity.flags |= 0x20003;
+    identity.up.x = -direction.x / direction.y;
+    identity.up.y = 0.01f;
+    identity.up.z = -direction.z / direction.y;
 
-    func_003e05f0(&matrix0, (u8*)param_1 + 0x40, param_1);
-    func_003e05f0(&matrix1, &matrix0, &identity);
-    func_003e9cb0(*(void**)((u8*)*(u8**)((u8*)param_1 + 0xDC) + 4),
-                  &matrix1, 0);
-    if ((*(u16*)((u8*)param_1 + 0x140) & 0x4000) != 0) {
-        func_00471370(*(void**)((u8*)param_1 + 0x10C),
-                      (u8*)param_1 + 0xEC, (u8*)param_1 + 0x140,
+    {
+    void* frame = *(void**)((u8*)param_1->clump + 4);
+    RwMatrixMultiply(&matrix0, &param_1->identityMatrix, param_1);
+    RwMatrixMultiply(&matrix1, &matrix0, &identity);
+    func_003e9cb0(frame, &matrix1, 0);
+    }
+    if ((param_1->flags140 & 0x4000) != 0) {
+        func_00471370(param_1->hierarchy,
+                      (u8*)&param_1->animFlags, (u8*)&param_1->flags140,
                       &identity);
     } else {
-        func_00397c40(*(void**)((u8*)param_1 + 0x10C));
+        func_00397c40(param_1->hierarchy);
     }
     renderStateSet = D_00887300_abs;
     renderStateSet[0](6, 1);
     renderStateSet[0](8, 0);
     D_00887304[0](0xE, &renderState);
     renderStateSet[0](0xE, 0);
-    func_003f6440(2, 0x44);
-    if ((*(u32*)((u8*)param_1 + 0xD8) & 0x80000) != 0) {
-        func_004746b0((u8*)param_1 + 0x234, (u8*)param_1 + 0xEC);
+    RpSkyRenderStateSet(2, 0x44);
+    if ((param_1->flagsD8 & 0x80000) != 0) {
+        func_004746b0(param_1->state234, (u8*)&param_1->animFlags);
     }
-    func_00477260((u64)(u32)*(void**)((u8*)param_1 + 0xDC), (u32*)color,
-                        (u16)((*(u8*)((u8*)param_1 + 0x260) & 8) != 0));
-    effect = *(u8**)((u8*)param_1 + 0xE0);
+    func_00477260(param_1->clump, (u32*)&color,
+                        (u16)((param_1->flags & 8) != 0));
+    effect = (u8*)param_1->e0;
     if (effect == 0) {
-        func_003f6440(3, 0x7C01B);
+        RpSkyRenderStateSet(3, 0x7C01B);
     } else if ((*(s32*)(effect + 0x10) != 0 || *(s32*)(effect + 0x1C) != 0)
-               && (*(u8*)((u8*)param_1 + 0x260) & 0x80) == 0) {
-        func_003f6440(3, 0x7F06B);
+               && ((param_1->flags & 0x80) == 0)) {
+        RpSkyRenderStateSet(3, 0x7F06B);
     } else {
-        func_003f6440(3, 0x7D7FB);
+        RpSkyRenderStateSet(3, 0x7D7FB);
     }
-    func_00479910(*(void**)((u8*)param_1 + 0xDC));
-    func_004789c0(param_1);
-    if ((*(u16*)((u8*)param_1 + 0xEC) & 0x10) != 0) {
-        func_00473000(*(void**)((u8*)param_1 + 0x10C),
-                      (u8*)param_1 + 0xEC);
-    } else if ((*(u16*)((u8*)param_1 + 0x140) & 0x81E0) != 0) {
-        func_00471370(*(void**)((u8*)param_1 + 0x10C),
-                      (u8*)param_1 + 0xEC, (u8*)param_1 + 0x140, 0);
+    func_00479910(param_1->clump);
+    func_004789c0((Model*)param_1);
+    if ((param_1->animFlags & 0x10) != 0) {
+        func_00473000(param_1->hierarchy,
+                      (u8*)&param_1->animFlags);
+    } else if ((param_1->flags140 & 0x81E0) != 0) {
+        func_00471370(param_1->hierarchy,
+                      (u8*)&param_1->animFlags, (u8*)&param_1->flags140, 0);
     } else {
-        func_00397c40(*(void**)((u8*)param_1 + 0x10C));
+        func_00397c40(param_1->hierarchy);
     }
     effect = *(u8**)((u8*)param_1 + 0x2CC);
     if (effect != 0) {
-        func_0047d900((u32)effect, (u8*)param_1 + 0x80);
-        func_0047d540((u32)effect, param_1);
+        func_0047d900((s32*)effect, (f32*)(&param_1->scale));
+        func_0047d540(*(u8***)((u8*)param_1 + 0x2CC), (u8*)param_1);
     }
+    {
+    u8* model;
     i = 0;
     while (i < 2) {
         model = *(u8**)((u8*)param_1 + i * 0xA4 + 0x124);
         if (model != 0) {
             effect = *(u8**)(model + 0x18);
             if (effect != 0 && *(u16*)(model + 0x30) == 0) {
-                func_0047d900((u32)effect, model + 8);
-                func_0047d540((u32)effect, param_1);
+                func_0047d900((s32*)effect, (f32*)(model + 8));
+                func_0047d540(*(u8***)(model + 0x18), (u8*)param_1);
             }
             effect = *(u8**)(model + 0x24);
             if (effect != 0 && *(u16*)(model + 0x30) == 0) {
-                func_0047dd40((u32)effect, param_1);
+                func_0047dd40(effect, param_1);
             }
             if (*(u16*)(model + 0x30) > 0) {
                 *(u16*)(model + 0x30) -= 1;
@@ -463,34 +509,35 @@ void func_00475cd0(void* param_1)
         }
         i++;
     }
+    }
     j = 0;
     while (j < 5) {
         slot = (u8*)param_1 + j * 0xC;
         if ((*(u8*)(slot + 0x28C) & 1) != 0 &&
             *(void**)(slot + 0x290) != 0 &&
-            func_0047ae90(param_1, j) != 0) {
+            func_0047ae90((u8*)param_1, j) != 0) {
             model = *(u8**)(slot + 0x290);
+            if (*(s32*)(slot + 0x294) != -1) {
+                func_0047a510(param_1, *(s32*)(slot + 0x294),
+                              mdlGetMatrix(model));
+            } else {
+                copyCount = 8;
+                copySource = (u32*)param_1;
+                copyTarget = (u32*)model;
+                do {
+                    copyTarget[0] = copySource[0];
+                    copyTarget[1] = copySource[1];
+                    copySource += 2;
+                    copyTarget += 2;
+                    copyCount--;
+                } while (copyCount > 0);
+            }
             if ((*(u32*)(model + 0xD8) & 2) == 0 &&
-                *(u8*)((u8*)param_1 + 0xD3) != 0) {
-                if (*(s32*)(slot + 0x294) == -1) {
-                    copyCount = 8;
-                    copySource = (u32*)param_1;
-                    copyTarget = (u32*)model;
-                    do {
-                        copyTarget[0] = copySource[0];
-                        copyTarget[1] = copySource[1];
-                        copySource += 2;
-                        copyTarget += 2;
-                        copyCount--;
-                    } while (copyCount > 0);
-                } else {
-                    func_0047a510(param_1, *(s32*)(slot + 0x294),
-                                  func_0047a2f0(model));
-                }
-                source = *(u8**)(model + 0xDC);
-                material = *(u8**)(source + 4);
-                func_003e05f0(&matrix0, model + 0x40, model);
-                func_003e05f0(&matrix1, &matrix0, &identity);
+                param_1->color.alpha != 0) {
+                u8* source = *(u8**)(model + 0xDC);
+                u8* material = *(u8**)(source + 4);
+                RwMatrixMultiply(&matrix0, model + 0x40, model);
+                RwMatrixMultiply(&matrix1, &matrix0, &identity);
                 func_003e9cb0(material, &matrix1, 0);
                 hasIndex = 0;
                 hasItem = 0;
@@ -517,26 +564,26 @@ void func_00475cd0(void* param_1)
                 if ((*(u32*)(model + 0xD8) & 0x80000) != 0) {
                     func_004746b0(model + 0x234, model + 0xEC);
                 }
-                func_00477260((u64)(u32)*(void**)(model + 0xDC), (u32*)color,
+                func_00477260(source, (u32*)&color,
                                     (u16)((*(u8*)(model + 0x260) & 8) != 0));
-                effect = *(u8**)((u8*)param_1 + 0xE0);
+                effect = (u8*)param_1->e0;
                 if (effect == 0) {
-                    func_003f6440(3, 0x7C01B);
+                    RpSkyRenderStateSet(3, 0x7C01B);
                 } else if (*(s32*)(effect + 0x10) != 0 ||
                            *(s32*)(effect + 0x1C) != 0) {
-                    func_003f6440(3, 0x7F08B);
+                    RpSkyRenderStateSet(3, 0x7F08B);
                 } else {
-                    func_003f6440(3, 0x7D7FB);
+                    RpSkyRenderStateSet(3, 0x7D7FB);
                 }
-                func_00479910(*(void**)(model + 0xDC));
-                func_004789c0(model);
+                func_00479910(source);
+                func_004789c0((Model*)model);
                 if (needsReset != 0) {
                     func_00397c40(*(void**)(model + 0x10C));
                 }
                 effect = *(u8**)(model + 0x2CC);
                 if (effect != 0) {
-                    func_0047d900((u32)effect, model + 0x80);
-                    func_0047d540((u32)effect, model);
+                    func_0047d900((s32*)effect, (f32*)(model + 0x80));
+                    func_0047d540(*(u8***)(model + 0x2CC), model);
                 }
                 k = 0;
                 while (k < 2) {
@@ -544,12 +591,12 @@ void func_00475cd0(void* param_1)
                     if (effect != 0) {
                         source = *(u8**)(effect + 0x18);
                         if (source != 0 && *(u16*)(effect + 0x30) == 0) {
-                            func_0047d900((u32)source, effect + 8);
-                            func_0047d540((u32)source, model);
+                            func_0047d900((s32*)source, (f32*)(effect + 8));
+                            func_0047d540(*(u8***)(effect + 0x18), model);
                         }
                         source = *(u8**)(effect + 0x24);
                         if (source != 0 && *(u16*)(effect + 0x30) == 0) {
-                            func_0047dd40((u32)source, model);
+                            func_0047dd40(source, model);
                         }
                         if (*(u16*)(effect + 0x30) > 0) {
                             *(u16*)(effect + 0x30) -= 1;
@@ -563,16 +610,6 @@ void func_00475cd0(void* param_1)
     }
     renderStateSet = D_00887300_abs;
     renderStateSet[0](0xE, renderState);
-    func_003f6440(3, 0x717FB);
+    RpSkyRenderStateSet(3, 0x717FB);
     renderStateSet[0](8, 1);
 }
-#undef renderState
-#undef identity
-#undef matrix1
-#undef matrix0
-#undef direction
-#undef interpolation
-#undef quaternion
-#undef color
-
-#pragma schedule off

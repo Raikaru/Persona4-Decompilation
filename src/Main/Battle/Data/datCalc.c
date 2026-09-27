@@ -62,7 +62,8 @@ extern u16 func_001069d0(s16 arg0);
 extern u16 func_00106a30(s16 arg0);
 extern u32 func_001069a0(s16 arg0);
 
-extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
+extern s32 func_0023a6b0(u8 *arg0, s16 arg1);
+extern s32 func_00242800(u8 *arg0, s16 arg1);
 extern s32 func_00238940(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
 extern s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
 extern u32 func_002397d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
@@ -2680,7 +2681,7 @@ extern s32 func_00243e30(u16 *arg0);
 #pragma push
 #pragma opt_loop_invariants on
 // FUN_0023A6B0
-s32 func_0023a6b0(u8 *arg0, s32 arg1)
+s32 func_0023a6b0(u8 *arg0, s16 arg1)
 {
     s32 temp_16;
     s32 found;
@@ -2713,7 +2714,7 @@ s32 func_0023a6b0(u8 *arg0, s32 arg1)
         func_0046d730(D_00635938, 0xCC2);
     }
     if ((*(u16 *)arg0 & 4) == 0) {
-        val = func_00109870(*(u16 *)(arg0 + 2), arg1 & 0xFFFF);
+        val = func_00109870(*(u16 *)(arg0 + 2), (u16)arg1);
     } else {
         if (*(u16 *)(arg0 + 4) >= 0x150) {
             func_0046d730(D_00635938, 0xCCD);
@@ -3621,7 +3622,7 @@ s32 arg3;
     s32 element;
     s32 elementMask;
     s32 counterRate;
-    s32 rawElement;
+    s16 rawElement;
     s32 resistance;
     f32 defenseRate;
     f32 attackRate;
@@ -3943,7 +3944,7 @@ s32 arg3;
 s32 arg4;
 {
     s32 tmp22;
-    s32 lvl;
+    s16 lvl;
     s32 idx;
     s32 bits;
     u16 element;
@@ -4417,7 +4418,7 @@ done:
 #pragma opt_loop_invariants off
 
 // FUN_00242800
-s32 func_00242800(u8 *arg0, s32 arg1)
+s32 func_00242800(u8 *arg0, s16 arg1)
 {
     s16 id;
     s32 x;

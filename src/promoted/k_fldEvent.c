@@ -26,7 +26,7 @@ void func_00174be0(s32, s32);
 s32 func_00171dc0(void);
 s32 func_00175dc0(u8 *);
 u16 *func_0010a900(u16);
-s32 func_0010ce10(u8 *, u32);
+s32 func_0010ce10(u8 *, u16);
 s16 datGetPartyId(s32);
 s16 func_00106cd0(s16, s32);
 s32 func_001747d0(u8 *);
@@ -886,7 +886,7 @@ s32 func_00172e00(u8 *arg0)
     s32 func_00160000(s32);
     s32 func_001601e0(s32);
     s32 func_001602a0(s32, s32);
-    s32 func_00477e80(s32, s32, void *, s32);
+    void *func_00477e80(u32, u16, void *, u32);
     s32 func_004782b0(s32);
     void func_00457140(u8, u8, u8, u8);
     u8 *func_00457130(void);
@@ -1421,7 +1421,7 @@ block_209:
                         extern int sprintf(char *, char *, s32);
                         sprintf((char *)&spF0, D_005F17B0, v6);
                     }
-                    *(s32 *)(h + 0x30) = func_00477e80(4, 0xFFFD, &spF0, 0);
+                    *(s32 *)(h + 0x30) = (s32)func_00477e80(4, 0xFFFD, &spF0, 0);
                 }
                 *(s32 *)(h + 0x4) = *(s32 *)(h + 0x4) + 1;
             }

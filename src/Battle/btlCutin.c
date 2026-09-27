@@ -184,12 +184,13 @@ s32 func_001fa190(s32 *arg0) {
 }
 
 // FUN_001FA320
-void func_001fa320(void) {
+u8 *func_001fa320(void) {
     u8 *p = func_00194470(0xC01, 4);
 
     *(u8 *)(p + 0x47) &= 0xEE;
     *(void **)(p + 0x6C) = (void *)func_001fa190;
     **(s32 **)(p + 0x78) = 0;
+    return p;
 }
 
 // FUN_001FA370

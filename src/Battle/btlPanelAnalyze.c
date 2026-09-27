@@ -3,7 +3,7 @@
 #include "type.h"
 #include "btl_panel_internal.h"
 extern void memset();
-s32 func_0023a6b0(s32 arg0, s64 arg1);
+s32 func_0023a6b0(u8 *arg0, s16 arg1);
 void func_00364c50(void);
 void func_00364c70(void);
 void func_003c38b0(void *arg0, void *arg1);
@@ -203,7 +203,7 @@ void func_00218c60(u8 *arg0, s32 arg1, s64 arg2, f32 fparg0, f32 fparg1) {
     f32 temp_f12;
     f32 temp_f13;
 
-    temp = func_0023a6b0(arg1, (s64)(arg2 << 0x30) >> 0x30);
+    temp = func_0023a6b0((u8 *)arg1, (s16)arg2);
     func_00201650(arg0, 0xE, 0x43, fparg0, fparg1, 0x24, 0x4C, 0, 0xFF);
     temp_f12 = panelAdd2(fparg0, 2.0f);
     temp_f13 = panelAdd2(fparg1, 2.0f);

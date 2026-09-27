@@ -95,7 +95,7 @@ extern void func_00162e10(void);
 extern void func_001658b0(void);
 extern s32 func_0014a160(void);
 extern s32 sprintf(char *, const void *, ...);
-extern s32 func_00477e80(s32, s32, const char *, s32);
+extern void *func_00477e80(u32, u16, void *, u32);
 extern s32 func_00165be0(void);
 extern s32 func_004782b0(s32);
 extern s32 func_001227f0(void);
@@ -215,7 +215,7 @@ s32 func_00155360(u8 *task)
                     modelField == 0x43 || modelField == 0x44) {
                     sprintf(filename, D_005EFF20,
                         modelField < 0x32 ? modelField : modelField - 0x14);
-                    work->model = func_00477e80(4, 0xFFFD, filename, 0);
+                    work->model = (s32)func_00477e80(4, 0xFFFD, filename, 0);
                 }
             }
         }

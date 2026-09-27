@@ -95,7 +95,7 @@ void func_002bbf60(void);
 u8 *func_00243840(s32 skillId);
 s32 func_0011e490(u8 *);
 void func_0011c6e0(u8 *, s32);
-void func_0011b480(u8 *, s32, u32, s32);
+void func_0011b480(u8 *, s32, u32, s8);
 void func_0011d5b0(f32, s32, s32, f32, f32, s32, s32, s32);
 u32 func_0011e3e0(u8 *);
 f32 sinf(f32 arg0);
@@ -2570,7 +2570,7 @@ void func_0011e0c0(u8 *, s32, s32);
 s32 func_0011dec0(u8 *);
 void func_0011cee0(u8 *);
 // FUN_0011B480
-void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s32 arg3)
+void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
 {
     u8 *work;
     s32 t17;
@@ -2737,7 +2737,7 @@ s32 func_0011b6d0(u8 *arg0, s32 arg1)
 
 
 // FUN_0011B8F0
-void func_0011b8f0(u8 *arg0, s32 arg1)
+void func_0011b8f0(u8 *arg0, u8 *arg1)
 {
     u8 *work;
     u16 *ptr;
@@ -3158,7 +3158,7 @@ void func_0011bf10(u8 *arg0)
 
 
 // FUN_0011C180
-void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
 {
     s32 *src;
     s32 *dst;
@@ -3202,7 +3202,7 @@ void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 
 
 // FUN_0011C2C0
-void func_0011c2c0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+void func_0011c2c0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
 {
     s32 *src;
     s32 *dst;

@@ -87,7 +87,7 @@ extern s32 func_00453dc0(void *arg0);
 extern u16 D_008C024E[];
 extern void sprintf(void *arg0, const char *arg1, ...);
 extern s32 func_00455f70(void *arg0, s32 *arg1);
-extern u8 *func_00477f10(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void *func_00477f10(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
 extern s32 func_004782b0(void *arg0);
 extern u8 D_005E5560[];
 extern u8 D_005E5570[];
@@ -1670,7 +1670,7 @@ block_end:
 // FUN_001246D0
 s32 func_001246d0(u8 *arg0)
 {
-    s32 sp7C;
+    u32 sp7C;
     u8 sp50[0x2C];
     s32 var_16;
     s32 var_17;
@@ -1692,12 +1692,12 @@ loop_18:
         } else {
             sprintf(sp50, (const char *)D_005E5570, var_16 - 7);
         }
-        var_17 = func_00455f70(sp50, &sp7C);
+        var_17 = func_00455f70(sp50, (s32 *)&sp7C);
         if (var_17 == 0) {
             func_0046d730(D_005E5548, 0xFE);
         }
         *(u8 **)temp_4 =
-            func_00477f10(9, 0xFF01, var_17, sp7C, 0);
+            func_00477f10(9, 0xFF01, (void *)var_17, sp7C, 0);
         var_17 = 0;
     }
     if ((*(u8 **)temp_4 != NULL) &&

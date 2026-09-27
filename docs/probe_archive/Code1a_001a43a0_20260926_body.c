@@ -28,11 +28,26 @@
  *    it is CSE'd from the loop compare.
  * Callee contracts used (they agree with the definitions): func_001d7f10
  * returns u16, datCalcIsDead(s32, s32), func_00233a90 returns s8, and
- * func_00242800(u8 *, s32). func_001fa320 and func_002027e0 are
- * defined `void` in btlCutin.c/btlFormation.c but return their task
- * pointer, which every caller uses. Installing this needs those definitions
- * changed to return u8 * (the bytes are likely unchanged, since v0 already
- * holds the task).
+ * func_00242800(u8 *, s32).
+ *
+ * Contract-first follow-up: func_001fa320 and func_002027e0 now explicitly
+ * return u8 * in their definitions, agreeing with their task consumers.
+ * The providers remain exact (72B/80B and 52B/64B); the three affected
+ * production owners retain 102 MATCH / 11 ASM. code1_001a.c uses one typed
+ * file-scope declaration instead of conflicting/redundant local declarations.
+ * The in-source guarded body now also copies cutin[0x58] to task[8], not
+ * task[0x58], and casts its opaque action pointer at btlActionSetState.
+ * That guarded body compiles at 1092B/1104B and 160 differing words.
+ *
+ * Current remeasurement of this separate rewrite: 1096B/1104B, 48 aligned
+ * edits (the original round-4 measurement above was 45). New hypotheses:
+ * - Returning s16 from func_0023d8e0 adds two instructions to that provider
+ *   (216B/208B), while this caller stays at 48 edits. Rejected.
+ * - opt_propagation off stays at 48 edits; combined with opt_common_subs off
+ *   it grows to 1144B/1104B and 102 edits. Neither closes the spill/colour wall.
+ * Historical guarded-body probes: volatile s16 spB0 219 words, u16 res23 215,
+ * s16 res23 163, s32 spB0 219, opt_common_subs off 223. Do not repeat these
+ * or the exhausted declaration permutations without a new structural cause.
  */
 #pragma push
 #pragma opt_loop_invariants on

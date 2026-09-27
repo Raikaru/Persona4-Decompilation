@@ -140,7 +140,7 @@ extern s32 func_001fbb50(u8 *arg0);
 extern void func_001f38e0(u8 **arg0);
 extern u16 func_00109360(u16 arg0);
 extern u16 *func_0010a900(u16 character);
-extern s32 func_0010ce10(u8 *persona, u32 skill);
+extern s32 func_0010ce10(u8 *persona, u16 skill);
 extern s32 func_001f3900(u8 **arg0);
 extern void func_001f3930(void);
 extern u8 *func_00194470(s32 type, s32 workSize);
@@ -1867,7 +1867,7 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     extern s32 func_001ef4d0(s32 arg0, s32 arg1);
     extern s32 func_00231e20(u8 *arg0);
-    extern s32 func_00242800(u8 *arg0, s32 arg1);
+    extern s32 func_00242800(u8 *arg0, s16 arg1);
     typedef struct ResistanceScanNode {
         u8 reserved000[0xA4];
         u16 id;
@@ -3218,9 +3218,9 @@ s32 func_001f62f0(u8 *arg0)
 {
     extern s32 func_001ef4d0(s32 arg0, s32 arg1);
     extern s32 func_00231e20(u8 *arg0);
-    extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
+    extern s32 func_0023a6b0(u8 *arg0, s16 arg1);
     extern u32 effMiscRand(struct EffRandState *state);
-    s32 code;
+    s16 code;
     s32 base;
     s32 random;
     u16 mode;

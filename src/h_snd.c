@@ -1,5 +1,6 @@
 /* Source unit: src/h_snd_00459790.c */
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 typedef struct HsndSlotWork
 {
@@ -19,8 +20,6 @@ typedef struct HsndSlotWork
 } HsndSlotWork;
 
 extern void func_0045c130(s16 param1, s16 param2);
-extern void func_0045c210(s16 param1, s16 param2, void* data0, u32 data0Size,
-                          void* data1, u32 data1Size, void* data2, u32 data2Size);
 extern s32 func_0045c390(s16 param1);
 
 extern u8 func_0045a3e0(s16 id, s32 unused);

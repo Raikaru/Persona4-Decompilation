@@ -47,7 +47,7 @@ extern u32 func_0023e130(u8 *arg0);
 extern u8 *func_0023e140(u8 *unit);
 extern s32 func_0023ddc0(u8 *unit, s32 skill);
 extern s32 func_0023dfe0(u8 *unit);
-extern s32 func_00242800(s32 arg0, s32 arg1);
+extern s32 func_00242800(u8 *arg0, s16 arg1);
 extern u8 *func_001b1510(void);
 extern u8 *func_0029d050();
 
@@ -1296,15 +1296,16 @@ s32 func_001e9350(void) {
     u8 *entry;
     u32 count;
     u8 *base;
-    u8 *work_or_id;
+    u8 *work;
+    s16 element;
 
-    work_or_id = func_0029d050();
+    work = func_0029d050();
     command = func_0029cc00(0);
     result = func_001b0cc0((u64)(command << 0x24) >> 0x24);
-    entry = *(u8 **)((u8 *)work_or_id + 0x30);
-    work_or_id = (u8 *)(s16)func_0023d8e0(*(u8 **)(entry + 0xA64), 0);
-    if (func_00242800(*(s32 *)(*(u8 **)(result + 0x30) + 0xA64), (s32)work_or_id) & 0x08000000) {
-        func_0029cf50((s16)work_or_id);
+    entry = *(u8 **)(work + 0x30);
+    element = (s16)func_0023d8e0(*(u8 **)(entry + 0xA64), 0);
+    if (func_00242800(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
+        func_0029cf50(element);
         return 1;
     }
     count = func_0023e130(*(u8 **)(entry + 0xA64)) & 0xFFFF;
@@ -1313,9 +1314,9 @@ s32 func_001e9350(void) {
     while (index < count) {
         skill = *(u16 *)(base + index * 2);
         if (skill != 0 && skill < 0x1B8) {
-            work_or_id = (u8 *)(s16)func_0023d8e0(*(u8 **)(entry + 0xA64), skill);
-            if (func_00242800(*(s32 *)(*(u8 **)(result + 0x30) + 0xA64), (s32)work_or_id) & 0x08000000) {
-                func_0029cf50((s16)work_or_id);
+            element = (s16)func_0023d8e0(*(u8 **)(entry + 0xA64), skill);
+            if (func_00242800(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
+                func_0029cf50(element);
                 return 1;
             }
         }
@@ -1512,7 +1513,6 @@ s32 func_001e9950(void) {
     extern u16 func_0023dd90(u8 *arg0, s32 arg1);
     extern s32 func_001db360(u8 *arg0, s32 arg1, s32 arg2);
     extern s32 func_00235520(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
-    extern s32 func_00242800(s32 arg0, s32 arg1);
     extern u8 *func_001b0cc0(s32 arg0);
     extern void func_001dbf20(u8 *arg0, s32 arg1);
     u8 *work;
@@ -1532,7 +1532,7 @@ s32 func_001e9950(void) {
     s32 skillStore;
     s64 kind;
     s32 paramA;
-    s32 paramB;
+    s16 paramB;
     s32 innerBest;
     s32 idxA;
     s32 idxB;
@@ -1631,7 +1631,7 @@ innerB_test:
         }
         entryB = tgt.entries[(idxB & 0xFFFF)];
         if (func_001db360(entryB, paramB, 1) == 0) {
-            if ((func_00242800(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64), paramB) & 0x1000000) == 0) {
+            if ((func_00242800(*(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), paramB) & 0x1000000) == 0) {
                 curScore = 0.0f;
                 goto scored;
             }

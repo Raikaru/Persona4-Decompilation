@@ -7,7 +7,7 @@ extern void func_0044ea90();
 extern void memset(void *dest, s32 value, s32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007241D8;
-extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
+extern void *func_00477c40(u32 type, u16 id, u32 flags);
 extern s32 iGpffffbb40;
 extern u8 D_00922C10[];
 extern u8 D_00922C14[];
@@ -19,12 +19,12 @@ extern void H_Cdvd_Destroy(void *arg0);
 extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 extern s32 func_0045a890(s16 arg0);
 extern u32 RpRandom(void);
-extern s32 func_0047df40(s32 arg0, s32 arg1);
+extern s32 func_0047df40(u32 type, u16 id);
 
 
 
 // FUN_0047DEA0
-void *func_0047dea0(s16 arg0, s16 arg1, s16 arg2)
+void *func_0047dea0(u32 arg0, u16 arg1, s32 arg2)
 {
     void *temp_2;
 
@@ -45,7 +45,7 @@ void *func_0047dea0(s16 arg0, s16 arg1, s16 arg2)
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
-s32 func_0047df40(s32 type, s32 id)
+s32 func_0047df40(u32 type, u16 id)
 {
     s32 selectedSlot;
     s32 scanIndex;
@@ -232,7 +232,7 @@ s32 func_0047e0f0(u8 *arg0, s32 arg1, s32 arg2, u16 arg3)
 
 
 // FUN_0047E440
-s64 func_0047e440(void) {
+s32 func_0047e440(u32 type, u16 id) {
     return 0;
 }
 
@@ -241,7 +241,7 @@ s64 func_0047e440(void) {
    (retail addiu $v1 / sra $v0 / bgez fix-up); hand-written shifts with an
    explicit negative branch were the archived nd 5 "register-class" residual. */
 // FUN_0047E450
-void func_0047e450(void **arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4)
+void func_0047e450(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4)
 {
     s32 arg3_p = arg3;
     void ** arg0_p = arg0;

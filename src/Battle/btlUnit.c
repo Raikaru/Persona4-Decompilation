@@ -3,9 +3,10 @@
 #include "model_callbacks_internal.h"
 
 extern void func_004787e0(); /* old-style: retail jals with $a1 still holding the compared coordinate */
-extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
+extern void *func_00477c40(u32 arg0, u16 arg1, u32 arg2);
+extern void *func_00477fb0(u32 arg0, u16 arg1, void *arg2, u32 arg3);
 extern u32 *func_00478750(u8 *arg0);
-extern void func_0047d110(u16 arg0, u16 arg1, void *arg2);
+extern s32 func_0047d110(u32 arg0, u16 arg1, char *arg2);
 extern void func_00440b68(void *arg0, u8 *arg1, s32 arg2);
 extern s32 func_00454a60(void *arg0, s32 arg1);
 extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
@@ -1047,7 +1048,7 @@ void func_0019acd0(u8 *arg0)
         }
     }
     if (!(*(u16 *)(arg0 + 8) & 0x10)) {
-        func_0047d110(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), &sp30[0]);
+        func_0047d110(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), (char *)&sp30[0]);
         func_00440b68(&iGpffffa0b0, D_005F6D00, 0xD98);
         *(s32 *)(arg0 + 0xC) = func_00454a60(&sp30[0], 0);
         *(s32 *)(p + 0x98) = *(s32 *)(p + 0x98) | 1;
@@ -1100,7 +1101,7 @@ s32 func_0019ae20(u8 *arg0) {
         if (made != 0) {
             *(u8 **)(t17 + 0xA00) = (u8 *)func_00478750(made);
         } else {
-            func_0047d110(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), sp80);
+            func_0047d110(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), (char *)sp80);
             func_00440b68(&iGpffffa0b0, D_005F6D00, 0xDC9);
             *(s32 *)(arg0 + 0xC) = func_00454a60(sp80, 0);
             *(s32 *)(t17 + 0x98) |= 1;
@@ -1109,7 +1110,7 @@ s32 func_0019ae20(u8 *arg0) {
     t4 = *(u8 **)(t17 + 0xA00);
     if (t4 == NULL) {
         if (H_Cdvd_IsFileLoaded(*(s32 *)(arg0 + 0xC)) != 0) {
-            t4 = (u8 *)func_00477fb0(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), *(s32 *)(arg0 + 0xC), 0);
+            t4 = func_00477fb0(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), *(void **)(arg0 + 0xC), 0);
             *(u8 **)(t17 + 0xA00) = t4;
             func_002311a0((void *)t4);
             if (*(u16 *)(arg0 + 4) == 1) {
