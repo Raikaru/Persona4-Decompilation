@@ -12,7 +12,7 @@ extern char D_0064A050[];
 extern void func_0044ea90(const void *file, s32 line);
 
 extern s8 func_002bab80(void *);
-extern void func_002badc0(s8, s32);
+extern s32 func_002badc0(s8, s32);
 extern void func_002bbd80(s8, s32, void *);
 extern void *func_001067f0(s16);
 extern void func_00275980(void *, void *, s32);
@@ -21,7 +21,7 @@ extern u8 func_002e78a0(void);
 extern u8 func_002e78e0(void);
 extern s32 func_002be100(u8);
 extern s32 func_002bb680(s8);
-extern void func_002bbcf0(s8);
+extern void func_002bbcf0(s32);
 extern void func_002bb550(s8);
 extern u8 D_00645240[];
 extern u8 D_006450E0[];

@@ -15,7 +15,7 @@ extern void btlUnitSetRot(void *arg0, void *arg1);
 extern void func_001ec1c0(void *out, void *first, void *second);
 extern void func_001ec6d0(s16 *arg0, s16 *arg1, f32 *position);
 extern s32 func_001ef720(s32 groupFlags, s32 excludedFlags);
-extern s64 func_0023a6b0(s32 arg0, s64 arg1);
+extern s32 func_0023a6b0(u8 *arg0, s16 arg1);
 extern u16 func_00231f80(u8 *arg0);
 extern u16 func_00232290(u8 *arg0);
 extern u8 *iGpffffb3ac;
@@ -3409,28 +3409,28 @@ s32 btlCond_SENSEI(u8 *arg0)
 
 // FUN_001DA230
 s32 btlCond_MYHANSYA(u8 *arg0, s16 arg1) {
-    return (s32)((func_0023a6b0(*(s32 *)((u8 *)*(u8 **)((u8 *)arg0 + 0x30) + 0xA64), arg1) & 0x02000000) != 0);
+    return (s32)((func_0023a6b0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x02000000) != 0);
 }
 
 
 
 // FUN_001DA270
 s32 btlCond_MYKYUSYU(u8 *arg0, s16 arg1) {
-    return (s32)((func_0023a6b0(*(s32 *)((u8 *)*(u8 **)((u8 *)arg0 + 0x30) + 0xA64), arg1) & 0x04000000) != 0);
+    return (s32)((func_0023a6b0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x04000000) != 0);
 }
 
 
 
 // FUN_001DA2B0
 s32 btlCond_MYMUKOU(u8 *arg0, s16 arg1) {
-    return (s32)((func_0023a6b0(*(s32 *)((u8 *)*(u8 **)((u8 *)arg0 + 0x30) + 0xA64), arg1) & 0x01000000) != 0);
+    return (s32)((func_0023a6b0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x01000000) != 0);
 }
 
 
 
 // FUN_001DA2F0
 s32 btlCond_MYWEAK(u8 *arg0, s16 arg1) {
-    return (s32)((func_0023a6b0(*(s32 *)((u8 *)*(u8 **)((u8 *)arg0 + 0x30) + 0xA64), arg1) & 0x08000000) != 0);
+    return (s32)((func_0023a6b0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x08000000) != 0);
 }
 
 

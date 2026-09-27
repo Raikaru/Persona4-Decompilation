@@ -341,3 +341,60 @@ The `code1_0049.c` targets use VU0 macro code (`lqc2`/`vmul`...), including
 draft in-source (not in the group notes); retail keeps per-field pointers
 (`addiu $18, $16, 4` then `sw 0($18)`) and recomputes the slot base after
 every call, which needs a slot struct plus a per-case pointer study.
+
+### sdkSndcom slot/payload recovery (same day)
+
+`func_0045b7c0` remains on its retail fallback. The 228-word in-source draft
+was remeasured at 2388 B against the 2416 B retail window under the owner's
+b210 `-O2` profile.
+
+The retail layout is six 0x44-byte slots: signed state/file-index halfwords
+at +0/+8, a file-request pointer at +4, command results at +0xC/+0x10/+0x14,
+status at +0x18, three transferred-address/size pairs at
++0x1C/+0x20, +0x24/+0x28, and +0x2C/+0x30, three EE source pointers at
++0x34/+0x38/+0x3C, and the final `func_0043c3b0(5, ...)` result at +0x40.
+The file table at `D_00712390` contains three path pointers per 0xC-byte
+entry. Do not interpret the command results as callback pointers:
+`0043c230` and `0043c3b0` marshal variadic arguments into RPC packets.
+`00429d10` obtains its returned address from an RPC reply; the target passes
+these addresses to transfer/command routines rather than dereferencing them
+as EE memory.
+
+Cases 3/5/7 retain the address of the request field across
+`H_Cdvd_Destroy`; case 7 additionally retains the output-data/size and command
+result field addresses across subsequent calls. Case 8 retains the first
+size field, first transferred-address field, intermediate-address/size
+fields, and final size field across its transfers. The destroy provider can
+invoke the file-memory free hook, but no pointer to a sound-slot field is
+passed to that hook. These facts do not justify `volatile` or an invented
+slot-mutating callback to force address rematerialization.
+
+Measured typed-struct probes, all isolated and not installed:
+
+- Direct typed array accesses: 562 differing words, 2704 B.
+- Explicit per-case slot pointers: 523 words, 1864 B.
+- Per-field pointer lifetimes: 501 words, 1968 B. An inline typed slot
+  accessor gives the same result.
+- Disabling common-subexpression elimination on the per-field candidate:
+  536 words, 2444 B; additionally disabling propagation is neutral.
+- Specifying the file-request, allocation and variadic-command contracts,
+  then using the recovered unsigned payload-size fields, leaves the last
+  two scores/sizes unchanged. Distinct state-local slot/request scopes are
+  also neutral after those contract corrections.
+
+The remaining blocker is address-expression lifetime/code generation:
+ordinary typed slot pointers coalesce the repeated base computations
+(2 `dsll32`/`dsra32` pairs versus retail's 16, and 22 `lui` versus 35);
+disabling CSE restores them but adds a duplicate loop-index extension and
+changes register allocation and file-table field addressing. No new
+nonmatching production body, cast-based CSE workaround or pragma was added.
+
+An independently exact contract fix was installed for `func_0045c210`.
+Its three payloads are `void *`/`u32` pairs, consistent with
+`h_snd.c:func_00459790` and the retail stores to the fields above, not six
+signed integers. The declaration now lives in `sdk_snd_internal.h` and the
+caller includes it. The provider is 384/384 B with zero differing words;
+the caller is 228/240 B with a zero alignment tail. Scoped `verify.py` on
+`sdkSndcom.c` and `h_snd.c` reported 10 MATCH / 1 ASM, preserving every
+existing match. The broader `func_00455f70` path-or-sentinel/pointer-return
+contract was not changed.

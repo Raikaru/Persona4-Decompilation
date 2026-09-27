@@ -130,7 +130,7 @@ extern s32 func_00110960(s16 arg0, s32 arg1);
 extern s32 D_005F1350[];
 extern void mdlSetColor(void *arg0, void *arg1);
 extern void func_0047a990(void *arg0);
-extern void func_0047aaa0(void *arg0, s32 arg1, void *arg2, void *arg3,
+extern void func_0047aaa0(void *arg0, u16 arg1, u32 arg2, u16 arg3,
                            void *arg4, u32 arg5);
 extern void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2);
 extern u8 iGpffff9f10;
@@ -988,7 +988,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
             if (type == 1) {
                 func_0047d140(obj);
             } else {
-                func_0047aaa0(obj, 0, (void *)9, (void *)0x163, D_005F13A0, 0);
+                func_0047aaa0(obj, 0, 9, 0x163, D_005F13A0, 0);
                 func_0047adf0(obj, 0, 0x1F4);
             }
             if (*(u8 **)(D_007F16F4 + slot * 8) != NULL) {

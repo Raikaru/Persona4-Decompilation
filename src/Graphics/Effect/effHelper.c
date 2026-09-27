@@ -16,7 +16,7 @@ u32 func_00484bb0(s32 arg);
 u32 func_00485c80(u32 arg);
 void func_00485b20(u32 arg);
 void func_004abd60(s32 res);
-s32 func_00478140(u16 a, u16 b, s32 c);
+void *func_00478140(u32 a, u16 b, u32 c);
 void func_004abbb0(s32 res);
 
 extern u8 D_007144F8[];

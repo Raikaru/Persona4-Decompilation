@@ -1,6 +1,6 @@
-/* func_001b1d70 (src/promoted/code1_001b.c), 2026-09-26 (round 3 update).
- * Measured with tools/fndiff.py: 1 reloc-masked differing word, object
- * 1548B in the 1552B window (was 4 words in round 2).
+/* func_001b1d70 (src/promoted/code1_001b.c), 2026-09-26 round 3 draft.
+ * Subsequently installed as matching C after the model ID-plumbing cleanup:
+ * 1548B, zero normalized differences in the 1552B window (four-byte zero tail).
  *
  * Round 2 levers (all kept): the flag-0x100 block keeps a pointer to the
  * 0x18-stride table entry and re-reads `*entry` at each test; the state
@@ -22,27 +22,21 @@
  *    was corrected to one argument (still MATCH; $a1 held that value only by
  *    coincidence).
  *
- * Remaining word (offset 196): retail `move $a1,$s0` passes the u16 `id` to
- * func_00477c40 unmasked; ours emits `andi $a1,$s0,0xffff`. It reaches 0 only
- * with a u16 prototype for func_00477c40. The body of func_00477c40 masks all
- * three parameters on entry, which suggests u16, BUT retyping its definition
- * and every declaration to (u16, u16, u16) breaks seven matched callers:
- * effModel func_004abe80/func_004ac640, code1_0029 func_002915f0, code1_004a
- * func_004abc50 (constant 5/6 argument becomes `daddiu` instead of retail
- * `addiu`), mdlManager func_0047ac90 and code1_0023 func_00230d30 (u32
- * values gain `andi` masks), and mdlSE func_0047df40 (215 words). So those
- * retail units saw a 32-bit prototype and this unit saw a 16-bit one; no
- * single signature reproduces both. Also measured: unprototyped
- * `extern void *func_00477c40();` (1 word, same andi), `u32 id`/`s32 id`
- * (3 words: the masks move to the u16 parameters of func_0019b550 and
- * func_00145510, both of which are genuinely u16). Left INCLUDE_ASM under the
- * one-signature rule.
+ * The final round-3 word (offset 196) was an unnecessary `andi` when the u16
+ * id entered func_00477c40. The earlier seven-caller claim was wrong: that
+ * experiment narrowed the type and flags too. The canonical signature is
+ * `void *(u32 type, u16 id, u32 flags)`. Retyping mdlManager's helpers,
+ * attachment IDs, callbacks and their providers preserves every prior match
+ * and closes this function without a prototype exception. An unprototyped
+ * declaration or widening this local ID merely moved the unwanted masks.
+ * See Prototype_mismatch_00477c40_00478140_20260926.md for the complete survey
+ * and linked-image verification. The active source is authoritative.
  */
 void func_001b1d70(void) {
     extern s32 iGpffffb414;
     extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2);
     extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
-    extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
+    extern void *func_00477c40(u32 arg0, u16 arg1, u32 arg2);
     extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
     extern s32 func_00145510(u16 arg0, s32 arg1);
     extern void func_0014a460(u16 arg0, u32 arg1);

@@ -18,7 +18,7 @@ extern void func_00452080(s32 handle);
 extern u8 *iGpffffb588;
 extern u8 *iGpffffb590;
 extern u8 *func_002e1db0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void func_00105ed0();
+extern u32 func_00105ed0(void);
 extern s32 func_002e1230();
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern s32 func_0046a770(const void *arg0);
@@ -654,9 +654,9 @@ void func_002e7920(s32 *arg0, s32 *arg1)
     *out1 = *(u8 *)&sp4C + 1;
 }
 // FUN_002E7A60
-void func_002e7a60(void)
+u32 func_002e7a60(void)
 {
-    func_00105ed0();
+    return func_00105ed0();
 }
 
 // FUN_002E7A80

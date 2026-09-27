@@ -6,6 +6,9 @@
 typedef u8 bool;
 typedef int (*code)();
 
+typedef struct DatUnit DatUnit;
+extern u16 func_00231f80(DatUnit *unit);
+
 extern u32 func_001d94d0(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
 extern bool btlCond_MYWEAK(int param_1, short param_2);
 
@@ -14,7 +17,7 @@ extern s32 btlCond_MYNOMAL(u8 *formation, s32 index);
 
 extern u64 func_0010f460();
 
-extern s64 func_0023a6b0(s32 arg0, s64 arg1);
+extern s32 func_0023a6b0(u8 *arg0, s16 arg1);
 
 typedef void (*FormationCallback)(void);
 
@@ -59,7 +62,7 @@ extern s32 func_001ef720(s32 arg0, s32 arg1);
 extern s32 func_001ef4d0(s32 arg0, s32 arg1);
 extern u32 datCalcGetHp(u32 arg0);
 extern u32 func_002340c0();
-extern s32 func_00242800(u8 *unit, s32 index);
+extern s32 func_00242800(u8 *unit, s16 index);
 extern void func_001de640(u8 *a, u8 *b, u16 c);
 
 extern void *D_00609934[];
@@ -330,7 +333,7 @@ s32 func_001db5b0(u8 *formation, s32 index)
 
 // FUN_001DB5E0
 s32 func_001db5e0(u8 *arg0, s16 arg1) {
-    return !(func_00242800(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), arg1) & 0x7000000);
+    return !(func_00242800(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x7000000);
 }
 
 #pragma opt_rebuildconditionals off
@@ -482,7 +485,7 @@ s32 btlCond_MYHOJO(u8 *arg0) {
 
 // FUN_001DB900
 s32 btlCond_MYTAISEI(u8 *arg0, s16 arg1) {
-    return (s32)((func_0023a6b0(*(s32 *)((u8 *)*(u8 **)((u8 *)arg0 + 0x30) + 0xA64), arg1) & 0x10000000) != 0);
+    return (s32)((func_0023a6b0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x10000000) != 0);
 }
 
 
@@ -524,7 +527,7 @@ s32 btlCond_MYNOTNOMAL(u8 *arg0, s16 arg1) {
         if (func_0010f420(*(u16 *)(p + 0xA4), index) == 0)
             return 0;
     }
-    return (func_00242800(*(u8 **)(p + 0xA64), arg1) & 0x7000000) != 0;
+    return (func_00242800(*(u8 **)(p + 0xA64), (s32)arg1) & 0x7000000) != 0;
 }
 #pragma pop
 
@@ -728,7 +731,6 @@ code arg5;
 // FUN_001DBF20 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001dbf20(u8 *arg0, u32 arg1) {
-    extern u16 func_00231f80(u8 *arg0);
     extern u8 D_006095F0[];
     u16 v7;
     u16 i;
@@ -791,7 +793,7 @@ s32 func_001dbf20(u8 *arg0, u32 arg1) {
             while (n < c18) {
                 e = (u8 *)(arg0 + 4 * n + 0x98);
                 w = *(u32 *)e;
-                f15 = func_00231f80(*(u8 **)(*(u32 *)(*(u32 *)e + 0x30) + 0xA64));
+                f15 = func_00231f80((DatUnit *)*(u8 **)(*(u32 *)(*(u32 *)e + 0x30) + 0xA64));
                 f16 = (u16)datCalcGetHp(*(u32 *)(w + 0x30) + 0xA64);
                 stab[2 * n] = *(f32 *)e;
                 stab[2 * n + 1] = (f32)f16 / (f32)f15;
@@ -1329,7 +1331,7 @@ s32 func_001dd3a0(u8 *p, u8 *q, u16 *t, u16 u, s32 v) {
     s32 d;
 
     s1 = datCalcGetHp(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
-    s2 = func_00231f80(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
+    s2 = func_00231f80((DatUnit *)*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
     best = -1;
     bd = 0xFFFFFF;
     i = 0;
@@ -1472,22 +1474,12 @@ next:
     return -1;
 }
 #pragma pop
-/* measured: object 1748B/window 1760B/normalized_diff 39 (39 differing words, live re-measured current tree). */
-/* measured: earliest fnalign is saved-reg coloring s0-s1 (437 vs 437 instrs); paired slti dest already $at both sides for 0x1B8 (input s1-vs-s0 coloring only) so inclusive flip N-A — re-verified this wave via fnalign slti dest (retail slti $at vs object slti $at; 0x240 pair retail slti $v0 vs object slti $v0, same dest): cmd<0x1B8 to cmd<=0x1B7 / 0x1B8>cmd / !(cmd>=0x1B8) all stay 39/39w 437/437; decl swap neutral (39), s32 result 317w / s32 count 330w, init swap 40 per sibling; no short tail, arg N-A, loop neutral; Main 004938e0 levers N-A (frame exact, no andi-CSE; no adjacent-OR fold); wall is colour rotation. */
-/* measured 001dd920 (pragma exhaustion): all eight cheap pragmas and all
-   twenty-eight pairs measured with `tools/pragma_sweep.py --pairs`; every
-   configuration ties the banked 39 or is worse, so this is not the
-   `opt_dead_assignments off` case that closed func_001dbba0 above.
-   WALL, all 39 words at an exact 437/437: a pure two-register exchange.
-   Retail keeps `result` (the -1/0/1/2 selector) in $s0 and `count`
-   (`andi $v0, 0xffff` from func_0023e130) in $s1; b210 assigns them the
-   other way round and the swap then shows at every one of the nineteen
-   sites that touch either.  Declaration order is inert: `result` first,
-   `count` last, `result` second, and the original order all measure 39;
-   swapping the two initialisers costs 40.  opclass reports no surplus on
-   this floor. */
-// FUN_001DD920 NONMATCHING
-#ifdef NON_MATCHING
+/* Measured with b210: the scoped scan aggregates preserve iterator lifetimes
+   through scalarization. The status scan keeps a native index with explicit
+   halfword boundaries; both scans reload entries after the usability calls.
+   Allocator capture traced the former selector/count exchange to the healing
+   scan's command/index coloring, rather than their declaration order. */
+// FUN_001DD920
 s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
 {
     u8 *unit;
@@ -1511,7 +1503,7 @@ s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
         result = 0;
     } else {
         hp = *(u16 *)(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64) + 8);
-        max = (u16)func_00231f80(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64));
+        max = (u16)func_00231f80((DatUnit *)*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64));
         if (hp * 100 <= max * 60) {
             result = 1;
         } else {
@@ -1519,7 +1511,7 @@ s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
                 result = 2;
             } else {
                 cur = datCalcGetHp(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64)) & 0xFFFF;
-                if (cur < (s32)(func_00231f80(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64)) & 0xFFFF))
+                if (cur < (s32)(func_00231f80((DatUnit *)*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64)) & 0xFFFF))
                     result = 1;
             }
         }
@@ -1550,27 +1542,29 @@ s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
         break;
     }
     case 1: {
-        u16 i;
-        u16 *entry;
-        s32 limit;
+        struct {
+            u16 i;
+            u16 *entry;
+            s32 limit;
+        } scan;
 
-        i = 0;
-        limit = count;
-        while (i < limit) {
-            entry = commands + i;
-            cmd = *entry;
+        scan.i = 0;
+        scan.limit = count;
+        while (scan.i < scan.limit) {
+            scan.entry = commands + scan.i;
+            cmd = *scan.entry;
             if (cmd != 0 && cmd < 0x1B8) {
                 switch (cmd) {
                 case 0xC0: case 0xC1: case 0xC2: case 0xC3:
                 case 0xC4: case 0xC5: case 0xC6:
                     if (btlCommandUsable(arg0, cmd)) {
-                        table[n] = *entry;
+                        table[n] = *scan.entry;
                         n++;
                     }
                     break;
                 }
             }
-            i++;
+            scan.i++;
         }
         if (n > 0) {
             switch (arg3) {
@@ -1593,26 +1587,28 @@ s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
         break;
     }
     case 2: {
-        u16 i;
-        u16 *entry;
-        s32 limit;
+        struct {
+            s32 i;
+            u16 *entry;
+            s32 limit;
+        } scan;
 
-        i = 0;
-        limit = count;
-        while (i < limit) {
-            entry = commands + i;
-            cmd = *entry;
+        scan.i = 0;
+        scan.limit = count;
+        while ((u16)scan.i < scan.limit) {
+            scan.entry = commands + (u16)scan.i;
+            cmd = *scan.entry;
             if (cmd != 0 && cmd < 0x1B8) {
                 switch (cmd) {
                 case 0xC7: case 0xC8:
                     if (btlCommandUsable(arg0, cmd)) {
-                        table[n] = *entry;
+                        table[n] = *scan.entry;
                         n++;
                     }
                     break;
                 }
             }
-            i++;
+            scan.i = (u16)(scan.i + 1);
         }
         break;
     }
@@ -1621,9 +1617,6 @@ s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
         return table[func_00231d70(n)];
     return -1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd920);
-#endif
 /* measured: matched by declaring func_001dd1c0's count parameter u16, so
    the u16 tally passes raw ($a3 = $s2) instead of reusing a promoted
    copy; the guard and the table index keep their own andi temps, which
@@ -1733,7 +1726,7 @@ u32 func_001de370(u8 *arg0)
         unit = *(u8 **)(arg0 + i * 4 + 0x98);
         score = scores + i;
         *score = 0;
-        max = func_00231f80(*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64)) & 0xFFFF;
+        max = func_00231f80((DatUnit *)*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64)) & 0xFFFF;
         current = datCalcGetHp(*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64)) & 0xFFFF;
         *score += (s16)(100.0f - 100.0f * ((f32)current / (f32)max));
         switch (datCalcGetBadStatusNoDown(*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64))) {

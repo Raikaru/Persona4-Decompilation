@@ -54,10 +54,10 @@ extern s32 datGetFlag(s32);
 extern s32 func_00452490(void *);
 extern void func_0011b9e0(u8 *arg0);
 extern void func_0011d100(u8 *arg0, f32 *arg1);
-extern void func_0011b480(u8 *, s32, u32, s32);
+extern void func_0011b480(u8 *, s32, u32, s8);
 extern void func_0011bc70(u8 *arg0);
-extern void func_0011c180(s32, s32, s32, s8);
-extern void func_0011c2c0(s32, s32, s32, s8);
+extern void func_0011c180(u8 *, s32, s32, s8);
+extern void func_0011c2c0(u8 *, s32, s32, s8);
 extern void func_0011bdc0(u8 *arg0);
 extern void func_0011bf10(u8 *arg0);
 extern void func_002b6a70(s16, u8, u8, s32, s32, s32);
@@ -67,7 +67,7 @@ extern s16 func_002b6970(s16, s16);
 extern void func_002b7750(s16, s16);
 extern u8 *func_002e4870(s8 arg0);
 extern u8 *func_002e48a0(s8 arg0, s16 arg1);
-extern void func_002ba970(u8 *, s16, u32);
+extern void func_002ba970(u8 *, s16, FclDrawColor);
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern s32 func_0010b5b0(void);
 extern void func_002b6b90(s16, s32, s32, s32, s32, s32);
@@ -227,12 +227,12 @@ void func_00314560(u8 *arg0, s32 arg1, s8 arg2, s8 arg3) {
     if (arg3 == 0) {
         *(s32 *)(t + 8) = arg1;
         *(s8 *)(t + 0xC) = arg2;
-        func_0011c180(*(u32 *)(t + 4), 0, *(s32 *)(t + 8), arg2);
+        func_0011c180(*(u8 **)(t + 4), 0, *(s32 *)(t + 8), arg2);
         return;
     }
     *(s32 *)(t + 8) = arg1;
     *(s8 *)(t + 0xC) = arg2;
-    func_0011c2c0(*(u32 *)(t + 4), 0, *(s32 *)(t + 8), arg2);
+    func_0011c2c0(*(u8 **)(t + 4), 0, *(s32 *)(t + 8), arg2);
 }
 // FUN_003145E0
 s32 func_003145e0(u8 *arg0) {
@@ -273,29 +273,18 @@ void func_003146c0(u8 *arg0) {
     func_0011b9e0(*(u8 **)(*(u8 **)(arg0 + 0x38) + 4));
 }
 
-/* Historical measurements before parking: the original all-s32 0011b480
-   declaration scored nd 18, object 60/window 80; the canonical pointer
-   prototype (u8 *, s32, u32, s32) scored nd 28, object 68/window 80.
-   Retail copies arg2 into $v1 early, stores through $v0, and sign-extends
-   $v1 into $a3 immediately before func_0011b480; MWCC reverses that
-   materialization and reuses the object register. Exact residuals, probes,
-   and ruled-outs remain archived in build/W8FclCombineDraw_003146f0_body.c.txt. */
-/* measured: MATCH (68B in the 80B window). The late dsll32/dsra32 into $a3 is the
-   canonicalisation of an s8 CALLEE parameter (block-scope declaration; the
-   file-scope prototype stays s32 for the matched callers) fed by the reload of
-   the byte just stored (`*(s8 *)(obj + 0xC)`, store-forwarded from the $v1 park),
-   which mwcc materialises in argument order; an (s8)/(s64) cast of the parameter
-   is hoisted ahead of the loaded arguments instead (nd45). */
+/* The stored selector is signed-byte state throughout the renderer/persona
+   pipeline. Reloading it at the call preserves the retail argument order.
+   Measured: 68 bytes in the 80-byte window, with zero instruction differences. */
 // FUN_003146F0
-void func_003146f0(u8 *arg0, s32 arg1, s32 arg2)
+void func_003146f0(u8 *arg0, s32 arg1, s8 arg2)
 {
-    extern void func_0011b480(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
     u8 *obj;
 
     obj = *(u8 **)(arg0 + 0x38);
     *(s32 *)(obj + 8) = arg1;
     *(s8 *)(obj + 0xC) = arg2;
-    func_0011b480(*(u8 **)(obj + 4), 0, *(s32 *)(obj + 8), *(s8 *)(obj + 0xC));
+    func_0011b480(*(u8 **)(obj + 4), 0, *(u32 *)(obj + 8), *(s8 *)(obj + 0xC));
 }
 
 
@@ -1575,7 +1564,7 @@ void func_0031ac10(u8 *arg0, FclVec2 arg1, s8 arg2, s8 arg3, s32 arg4, u16 arg5,
     s32 w0;
     s32 w1;
     s32 w2;
-    s32 w3;
+    FclByte4 w3;
     FclPackedPosition sp100;
     FclPackedPosition sp248;
     s64 sp240;
@@ -1874,7 +1863,7 @@ void func_0031ac10(u8 *arg0, FclVec2 arg1, s8 arg2, s8 arg3, s32 arg4, u16 arg5,
                 p[0x86] = c7[1];
                 p[0x87] = c7[2];
                 p[0x88] = c7[3];
-                fclWriteColorBytes(&w3, 0xFF, 0xCC, 0xFA, 0xFF);
+                w3 = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
                 func_002ba970(*(u8 **)(t + 0x2BC), spE0, w3);
                 return;
             }
@@ -2127,7 +2116,7 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
             *(FclByte4 *)(p + 0x85) = cC4;
             ret = func_002b2a30(0, 0, 0x66, 0xFF);
             cC0.channels = func_002b2a60(0, 0, 0x66, 0xFF);
-            func_002ba970(*(u8 **)(t + 0x2BC), (s8)arg1, cC0.word);
+            func_002ba970(*(u8 **)(t + 0x2BC), (s8)arg1, cC0.channels);
         }
         if ((s8)arg4 == 0) {
             s16 j = 0;
@@ -2205,7 +2194,7 @@ s32 func_0031ddf0(u8 *arg0, s8 arg1, s8 arg2, u8 arg3) {
         q = func_002b6150((s16)(v16 + 0x39));
         *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
         cB4.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        func_002ba970(*(u8 **)(t + 0x2BC), (s8)arg1, cB4.word);
+        func_002ba970(*(u8 **)(t + 0x2BC), (s8)arg1, cB4.channels);
         ret = func_002b2a30(0x2D, 0x2D, 0x2D, arg3);
     } else {
         s32 v16;
@@ -2233,7 +2222,7 @@ s32 func_0031ddf0(u8 *arg0, s8 arg1, s8 arg2, u8 arg3) {
         cA0 = func_002b2a60(0, 0, 0x66, 0xFF);
         *(FclByte4 *)(func_002b6150((s16)(v16 + 0x250)) + 0x85) = cA0;
         c9C.channels = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-        func_002ba970(*(u8 **)(t + 0x2BC), (s8)arg1, c9C.word);
+        func_002ba970(*(u8 **)(t + 0x2BC), (s8)arg1, c9C.channels);
         ret = func_002b2a30(0xCC, 0xFF, 0xFF, arg3);
     }
     return ret;
@@ -3413,8 +3402,8 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00321e60);
 /* MATCHED.  The whole 2352-byte window including all 59 relocations.  Three source facts
    closed the last 366 words: the paired `+0x6E` selection flags are one chained assignment
    (`*(u8 *)(A + 0x6E) = *(u8 *)(B + 0x6E) = 0xFF`) with the 0x270 slot written through the
-   0x27D one, not two separate stores; the three colours handed to func_002ba970 are a union
-   of the FclByte4 and its word, so the call takes `.word` rather than a reinterpreting cast;
+   0x27D one, not two separate stores; the three colours retain their byte/word
+   union representation and cross the call boundary as native FclDrawColor values;
    and the height is converted to f32 before the second lookup, after which the opacity is
    plain `(u8)f` - the hand-written 2.1474836e9f guard that had been carried from the
    y_CmbCardEff idiom was the thing keeping it apart.  `func_0031d630`'s third formal is s8,
@@ -3458,7 +3447,7 @@ void func_003233d0(u8 *arg0) {
                 p = func_002b6150((s16)((s16)i + 0x2A3));
                 *(FclByte4 *)(p + 0x85) = cD8;
                 cD4.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cD4.word);
+                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cD4.channels);
                 func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
                 if (*(s8 *)(func_002e4870(0) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) == 2) {
                     func_002b68d0(0xCF, 0, 1);
@@ -3479,7 +3468,7 @@ void func_003233d0(u8 *arg0) {
                 p = func_002b6150((s16)((s16)i + 0x2A3));
                 *(FclByte4 *)(p + 0x85) = cCC;
                 cC8.channels = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
-                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cC8.word);
+                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cC8.channels);
                 func_002b2a30(0xFF, 0xCC, 0xFA, 0xFF);
                 func_002b68d0(0xCF, 0, 0);
                 func_002b68d0(0xD2, 0, 0);
@@ -3502,7 +3491,7 @@ void func_003233d0(u8 *arg0) {
                 p = func_002b6150((s16)((s16)i + 0x2A3));
                 *(FclByte4 *)(p + 0x85) = cBC;
                 cB8.channels = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cB8.word);
+                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cB8.channels);
                 func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
             }
             if (*(s8 *)(t + 0x128) != (s16)i && *(s8 *)(t + 0x129) != (s16)i) {
@@ -3828,7 +3817,7 @@ void func_00324680(u8 *arg0, s32 arg1, s32 arg2) {
         p[0x87] = c118[2];
         p[0x88] = c118[3];
         c114 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), *(s32 *)&c114);
+        func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), c114);
     }
     spD0.position = func_002b2970(D_006440F8[0], D_006440F8[1]);
     func_002b6c30(0x71, spD0.position, 138.0f, 0x41);
@@ -4997,7 +4986,7 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
 /* The mode byte is passed unconverted to every callee, so each callee takes it as s8.
    See docs/probe_archive/FclDraw_0032b9d0_20260925.md for the recipe. */
 // FUN_0032B9D0
-void func_0032b9d0(u8 *arg0, s16 arg1, s16 arg2, s8 arg3) {
+void func_0032b9d0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
     FclByte4 c13C;
     FclByte4 c138;
     FclByte4 c134;
@@ -5050,8 +5039,8 @@ void func_0032b9d0(u8 *arg0, s16 arg1, s16 arg2, s8 arg3) {
     func_00329e40(arg0, 0, arg3);
     entry = *(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120);
     row = 0;
-    step = arg1;
-    end = arg2 + entry;
+    step = (s16)arg1;
+    end = (s16)arg2 + entry;
     for (; entry < end; entry++, row++) {
         {
             /* The label point is returned by value into its named slot while

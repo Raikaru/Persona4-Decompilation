@@ -16,7 +16,7 @@ extern void func_00479e60(u8 *arg0, s32 arg1, f32 arg2);
 extern void func_004813f0(void);
 extern void func_004abe60(void);
 extern s32 func_00481460(s32 arg0);
-extern void *func_00478140(u16 arg0, u16 arg1, s32 arg2);
+extern void *func_00478140(u32 arg0, u16 arg1, u32 arg2);
 extern void func_0046d730(const char *arg0, s32 arg1);
 extern void func_0047a2a0(void *arg0);
 extern s32 func_00479ca0(void *arg0, s32 arg1);
@@ -35,8 +35,8 @@ extern void func_00478ea0(u8 *arg0, void (*arg1)(u8 *), void *arg2);
 extern void func_0047a4d0(void *arg0, s32 arg1);
 extern u8 *func_00484490(u8 *arg0);
 extern s32 func_004844d0(u8 *arg0);
-extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
-extern u8 *func_00477f10(u16 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void *func_00477c40(u32 arg0, u16 arg1, u32 arg2);
+extern void *func_00477f10(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
 extern u16 iGpffffbb90;
 extern char D_007144B8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -108,7 +108,7 @@ void *func_004abe80(u8 *arg0) {
             while ((lookupType = 6, func_00477c40(lookupType, iGpffffbb90, 0)) != 0) {
                 iGpffffbb90 += 1;
             }
-            temp_2_4 = func_00477f10(6, iGpffffbb90, temp_2_3, temp_18, 1);
+            temp_2_4 = func_00477f10(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
             func_0047a2a0(temp_2_4);
             if (func_00479ca0(temp_2_4, 0) != 0) {
                 func_00479940(temp_2_4, 0, 0, 0, 0);
@@ -370,7 +370,7 @@ u8 *func_004ac640(u8 *arg0) {
             while ((lookupType = 6, func_00477c40(lookupType, iGpffffbb90, 0)) != 0) {
                 iGpffffbb90 += 1;
             }
-            temp_2_4 = func_00477f10(6, iGpffffbb90, temp_2_3, temp_18, 1);
+            temp_2_4 = func_00477f10(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
             func_0047a2a0(temp_2_4);
             if (func_00479ca0(temp_2_4, 0) != 0) {
                 func_00479940(temp_2_4, 0, 0, 0, 0);

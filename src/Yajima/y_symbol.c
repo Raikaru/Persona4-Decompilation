@@ -230,7 +230,7 @@ s32 func_002b4140(s32 arg0, s32 arg1, Vec3 *arg2)
 }
 
 // FUN_002B4240
-void func_002b4240(u8 *arg0, u8 arg1)
+void func_002b4240(u8 *arg0, s8 arg1)
 {
     u8 *p;
 
@@ -382,7 +382,7 @@ s32 func_002b4a10(s32 arg0, s32 arg1)
 }
 
 // FUN_002B4AC0
-void func_002b4ac0(u8 *arg0, u8 arg1)
+void func_002b4ac0(u8 *arg0, s8 arg1)
 {
     u8 *p;
 

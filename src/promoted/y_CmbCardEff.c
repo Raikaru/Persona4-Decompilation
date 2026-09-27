@@ -2654,7 +2654,7 @@ extern u8 D_0064A600[];
 s32 func_00348c40(u8 *arg0);
 
 // FUN_00349290
-u8 *func_00349290(u8 *arg0, u8 arg1) {
+u8 *func_00349290(u8 *arg0, s8 arg1) {
     u8 *blk;
     u8 *ret;
 

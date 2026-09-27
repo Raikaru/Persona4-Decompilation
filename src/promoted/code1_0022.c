@@ -87,7 +87,7 @@ extern u8 *func_00117780(s32 parent, s32 priority, s32 mode, s32 layout, s32 opt
 extern void func_00117580(u8 *window, s32 value);
 extern void func_0011d100(u8 *window, f32 *position);
 extern void func_0011bb90(u8 *window);
-extern void func_0011b480(u8 *window, s32 mode, u32 persona, s32 option);
+extern void func_0011b480(u8 *window, s32 mode, u32 persona, s8 option);
 extern u8 *func_0011f410(s32 parent, s32 window, u8 *record, s32 payload, s32 option, s32 *messages);
 extern u32 func_0011f560(u8 *child);
 extern s32 func_0011f580(u8 *child);

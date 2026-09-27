@@ -2192,151 +2192,90 @@ void func_00489f10(u8 *arg0)
 {
     func_00492e10(*(u8 **)(arg0 + 0x4C));
 }
-/* Floor (measured 2026-09-17, source-repo only): probe_variants base 5 words (v2_retail 7, v1_ghidra 110, v4/v5 7, v6 50, v7 s8 99, v8 struct3 142, v9 doubledef neutral), fnalign 146/146/6, emitted 584B/window 592B (98.6%). Four-pragma sweep on best: base wins (loop/sched neutral, prop/common worse). wscan 0, opclass N/A (no guard). Residual is FPR destination selection (cvt.w.s/mfc1 colors + branch); recorded cvt wall re-derived and rejected as shared-wall claim (same shape as 00311930/0034ddf0 but per-function levers differ). Banked as guarded floor; production stays ASM.
- * Re-measured 2026-09-17: still 5 words (obj 584B/window 592B, fnalign 146/146/6); residual is mtc1 f1-vs-f3, add f1-vs-f3, sqrt f2-vs-f1, mul f2-vs-f1, swc1 f1-vs-f3 plus one branch-cascade bbit; 36-config pragma sweep skipped per parent (00311930 proven byte-identical across all configs, so cvt.w.s destinations banked, not re-proven). */
-/* measured 0048a980 (pragma exhaustion): all eight cheap pragmas and all
-   twenty-eight pairs via `tools/pragma_sweep.py --pairs`; ten configurations
-   tie the banked 5 and every other is 96 or worse, so nothing moves it.
-   WALL, 4 real words at an exact 146/146 (the fifth fnalign row is a
-   bbit032 branch-target artefact, not a code difference): retail keeps the
-   1.0f addend in $f1 and puts the sqrt result in $f2, while b210 uses $f3
-   for the constant and $f1 for the root - the long-lived value gets the
-   higher register here and the lower one in retail.  Measured and rejected:
-   inlining the 1.0f at both its uses, giving it a dedicated local declared
-   first, the same declared last, and a dedicated local for the sqrt result;
-   all four tie at 5. */
-/* 2026-09-18 lead pass, 5 more measured variants on top of the permuter's
-   9731 compiles; floor confirmed at 5 words.  146/146 instructions, and the
-   residual is an FP temporary rotation around the second `sqrtf`: retail
-   holds the 1.0f in $f1 and the square root in $f2, this body uses $f3 and
-   $f1.  (The sixth fnalign row is a capstone mis-decode of the relocated
-   `bbit032` branch word, not a real difference.)
-   Reusing `temp_f1` for that 1.0f is load-bearing: giving the constant its
-   own local costs 5 -> 7, and inlining it into the add costs the same.
-   Inlining the 2.0f, swapping the `temp_f2_2`/`temp_f2_3` declarations and
-   padding the float declaration list all tie at 5 with a byte-identical
-   stream.  FP temp numbering here follows the count of live float values,
-   which no source shape tried changes without changing the stream. */
-/* 2026-09-18, handoff 7o re-probe; floor stands at 5.  146/146 instructions
-   and the residual is an FPR pair, not a GPR one: retail holds the 1.0f in
-   $f1 and the sqrt result in $f2, this body has them $f3 and $f1.  The 7o
-   lever does not reach floating-point colouring here - declaring the sqrt
-   temporary first among the float locals ties at 5, declaring it before
-   `temp_f0` ties at 5, reusing `temp_f2_2` for the sqrt result instead of a
-   fresh temporary ties at 5, and giving the difference chain its own
-   temporary so the 1.0f stays live across it ties at 5.  One of the six
-   fnalign rows is a `bbit032` branch-target line, which is a capstone
-   mis-decode of a relocated word, not a real difference. */
-/* 2026-09-19 re-probe per assignment (single localised cause hunt): re-measured 5 words (obj 584B/window 592B, 146/146 after trim; real diffs at +352 mtc1 f3-vs-f1, +360 add f3-vs-f1, +364 sqrt f1-vs-f2, +380 mul f1-vs-f2, +540 swc1 f3-vs-f1). Tried: drop unused temp_f5 (5), swap second-add operands (5), inline second add (5), inline second mul (5), no-add-helpers (7, worse), f5-for-second-1.0f (5), separate diff temp (12, worse, breaks early sub.s matches). Helpers are load-bearing (inline costs 5->7). WALL stands: long-lived 1.0f gets $f3 here vs $f1 retail, sqrt follows $f1 vs $f2; no honest source shape moves it without changing the stream. */
-/* 2026-09-19 Main round: five differing pairs with byte offsets (measure_guarded
-   fndiff, reloc-masked), frame MATCH, single-arg so no move-order component.
-   off 352: object mtc1 $a0, $f3 vs retail mtc1 $a0, $f1
-   off 360: object add.s $f0, $f3, $f0 vs retail add.s $f0, $f1, $f0
-   off 364: object sqrt.s $f1, $f0 vs retail sqrt.s $f2, $f0
-   off 380: object mul.s $f2, $f0, $f1 vs retail mul.s $f2, $f0, $f2
-   off 540: object swc1 $f3, ($a0) vs retail swc1 $f1, ($a0)
-   (fnalign 6th row bbit032 $v1, 0xa is relocated branch-target artefact, 0 words.)
-   Frame: off 0 addiu $sp, $sp, -0x10 both sides MATCH. Param copy: single f32 *arg0
-   used directly via lwc1 off $a0, no GPR save, so arg-order == first-use-order.
-   Classification: register-only rotation family (handoff 7ah, 7al sibling) - closed. */
-// FUN_0048A980 NONMATCHING
-#ifdef NON_MATCHING
-/* Best re-derived body for func_0048a980: 5 differing words (reloc-masked),
-   146/146 instrs, 6 fnalign edits. Plain C + terminal lqc2 per VU handoff.
-   Terminal transfer is C-shaping target; no interior VU pipeline.
-   Owner TU supplies code1_0048_mul; add helper retained for standalone replay. */
-static inline f32 code1_0048_add(f32 left, f32 right) {
-    return left + right;
-}
-
+/* Measured with b210 -O2: keeping the trace/diagonal stages and the scaled
+   root as distinct lifetimes reproduces the scalar calculation. Propagation
+   and common-subexpression elimination otherwise merge the identity
+   constants and discard the root copy before register coalescing. */
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
+// FUN_0048A980
 void func_0048a980(f32 *arg0)
 {
-    extern f32 sqrtf(f32 arg0);
-    f32 sp[4];
-    f32 temp_f0;
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f2_2;
-    f32 temp_f5;
-    f32 temp_f2_3;
-    f32 temp_f3;
-    f32 temp_f4;
-    s32 temp_3;
-    s32 temp_5;
-    s32 temp_6;
-    s32 temp_7;
-    s32 temp_8;
-    u8 var_6;
-    s32 var_3;
-    u8 *temp_5_2;
-    u8 *temp_7_2;
-    u8 *temp_9;
-    u8 next2;
-    s32 temp_10;
+    extern f32 sqrtf(f32);
+    f32 q[4] __attribute__((aligned(16)));
+    f32 zz, yy, xx;
+    f32 one;
+    f32 traceXY, traceXYZ, trace;
 
-    temp_f3 = arg0[5];
-    temp_f2 = arg0[0];
-    temp_f4 = arg0[10];
-    temp_f1 = 1.0f;
-    temp_f0 = temp_f2 + temp_f3;
-    temp_f0 = code1_0048_add(temp_f4, temp_f0);
-    temp_f0 = code1_0048_add(temp_f1, temp_f0);
-    if (!(temp_f0 < temp_f1)) {
-        temp_f2_2 = 2.0f * sqrtf(temp_f0);
-        sp[3] = -(temp_f2_2 / 4.0f);
-        sp[0] = (arg0[6] - arg0[9]) / temp_f2_2;
-        sp[1] = (arg0[8] - arg0[2]) / temp_f2_2;
-        sp[2] = (arg0[1] - arg0[4]) / temp_f2_2;
+    yy = arg0[5];
+    xx = arg0[0];
+    zz = arg0[10];
+    one = 1.0f;
+    traceXY = xx + yy;
+    traceXYZ = zz + traceXY;
+    trace = one + traceXYZ;
+    if (!(trace < one)) {
+        f32 s = 2.0f * sqrtf(trace);
+        q[3] = -(s / 4.0f);
+        q[0] = (arg0[6] - arg0[9]) / s;
+        q[1] = (arg0[8] - arg0[2]) / s;
+        q[2] = (arg0[1] - arg0[4]) / s;
     } else {
-        var_3 = (temp_f2 > temp_f3) ? 1 : 0;
-        var_6 = (var_3 ^ 1) & 0xFF;
-        if (!(temp_f4 <= *(f32 *)((u8 *)arg0 + (var_6 * 0x10) +
-                                  (var_6 * 4)))) {
-            var_6 = 2;
+        u32 selected = (((xx > yy) ? 1 : 0) ^ 1) & 0xFF;
+        s32 i;
+        s32 j, k;
+        s32 axisCount;
+        s32 next;
+        s32 oi, oj, ok;
+        u8 *ri, *rj, *rk;
+        f32 dj, delta, radicand, sum;
+        f32 root;
+        f32 identity;
+        f32 zero;
+
+        if (!(zz <= *(f32 *)((u8 *)arg0 + selected * 16 + selected * 4))) {
+            u8 third = 2;
+            selected = third;
         }
-        temp_7 = var_6 & 0xFF;
-        temp_5 = ((s32)(temp_7 + 1) % 3) & 0xFF;
-        temp_10 = (s32)(temp_5 + 1) % 3;
-        next2 = temp_10 & 0xFF;
-        temp_3 = temp_5 * 4;
-        temp_9 = (u8 *)arg0 + (temp_5 * 0x10);
-        temp_f1 = *(f32 *)(temp_9 + temp_3);
-        temp_8 = temp_7 * 4;
-        temp_7_2 = (u8 *)arg0 + (temp_7 * 0x10);
-        temp_f0 = *(f32 *)(temp_7_2 + temp_8);
-        temp_f1 = temp_f0 - temp_f1;
-        temp_6 = next2 * 4;
-        temp_5_2 = (u8 *)arg0 + (next2 * 0x10);
-        temp_f0 = *(f32 *)(temp_5_2 + temp_6);
-        temp_f0 = temp_f1 - temp_f0;
-        temp_f1 = 1.0f;
-        temp_f0 = code1_0048_add(temp_f1, temp_f0);
-        temp_f2_3 = sqrtf(temp_f0);
-        temp_f0 = 2.0f;
-        temp_f2_3 = code1_0048_mul(temp_f0, temp_f2_3);
-        if (temp_f2_3 != 0.0f) {
-            *(f32 *)((u8 *)sp + temp_8) = temp_f2_3 / 4.0f;
-            *(f32 *)((u8 *)sp + temp_3) =
-                (*(f32 *)(temp_7_2 + temp_3) + *(f32 *)(temp_9 + temp_8)) /
-                temp_f2_3;
-            *(f32 *)((u8 *)sp + temp_6) =
-                (*(f32 *)(temp_7_2 + temp_6) + *(f32 *)(temp_5_2 + temp_8)) /
-                temp_f2_3;
-            sp[3] = -((*(f32 *)(temp_9 + temp_6) -
-                       *(f32 *)(temp_5_2 + temp_3)) /
-                      temp_f2_3);
+        i = (u8)selected;
+        next = i + 1;
+        axisCount = 3;
+        j = (u8)(next % axisCount);
+        k = (u8)((j + 1) % axisCount);
+        oj = j * 4;
+        rj = (u8 *)arg0 + j * 16;
+        dj = *(f32 *)(rj + oj);
+        oi = i * 4;
+        ri = (u8 *)arg0 + i * 16;
+        delta = *(f32 *)(ri + oi) - dj;
+        ok = k * 4;
+        rk = (u8 *)arg0 + k * 16;
+        radicand = delta - *(f32 *)(rk + ok);
+        identity = 1.0f;
+        sum = identity + radicand;
+        root = sqrtf(sum);
+        {
+            f32 scaled = 2.0f * root;
+            root = scaled;
+        }
+        zero = 0.0f;
+        if (zero != root) {
+            *(f32 *)((u8 *)q + oi) = root / 4.0f;
+            *(f32 *)((u8 *)q + oj) = (*(f32 *)(ri + oj) + *(f32 *)(rj + oi)) / root;
+            *(f32 *)((u8 *)q + ok) = (*(f32 *)(ri + ok) + *(f32 *)(rk + oi)) / root;
+            q[3] = -((*(f32 *)(rj + ok) - *(f32 *)(rk + oj)) / root);
         } else {
-            *(f32 *)((u8 *)sp + temp_8) = temp_f1;
-            *(f32 *)((u8 *)sp + temp_3) = 0.0f;
-            *(f32 *)((u8 *)sp + temp_6) = 0.0f;
-            sp[3] = 0.0f;
+            *(f32 *)((u8 *)q + oi) = identity;
+            *(f32 *)((u8 *)q + oj) = zero;
+            *(f32 *)((u8 *)q + ok) = zero;
+            q[3] = zero;
         }
     }
-    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp) : "$vf10", "memory");
+    /* The quaternion is returned through the established VU0 vf10 ABI. */
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(q), "m"(q) : "$vf10");
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048a980);
-#endif
+#pragma pop
 /* The fields consumed by the packed-color interpolator. */
 typedef struct EffectPackedColorKeys {
     u8 mode;

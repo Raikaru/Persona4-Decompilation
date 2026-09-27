@@ -3,9 +3,9 @@
 #include "type.h"
 #include "model_callbacks_internal.h"
 #include "sdk_snd_internal.h"
-extern void (*iGpffffbb2c)();
-extern void (*iGpffffbb30)();
-extern void (*iGpffffbb34)();
+extern MdlNameCallback iGpffffbb2c;
+extern MdlTypeCallback iGpffffbb30;
+extern MdlNameCallback iGpffffbb34;
 extern MdlSetupCallback iGpffffbb38;
 extern void (*iGpffffbb3c)();
 extern void func_00470d70(u8 *arg0);
@@ -61,7 +61,7 @@ extern void H_Cdvd_ReadSync(u8 *arg0);
 extern void func_00463250(void *arg0);
 extern s32 func_0047b0c0(u8 *arg0);
 extern s32 func_0047c660(u8 *arg0);
-extern void func_0047e450(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4);
+extern void func_0047e450(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4);
 extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
 extern f32 fGpffffbb50;
@@ -275,7 +275,7 @@ s32 func_0047ce00(u8 *arg0)
             } else {
                 *(s32 *)(obj + 0x2C) = (s32)func_00455ea0(*(u8 **)(obj + 0x38), 0, (s32 *)&sp4C);
                 *(s32 *)(obj + 0x30) = sp4C;
-                func_0047e450((u8 *)((u32)arg0 + 0x2D0), *(u16 *)(arg0 + 0xD4), *(u16 *)(arg0 + 0xD6),
+                func_0047e450((void **)((u32)arg0 + 0x2D0), *(u16 *)(arg0 + 0xD4), *(u16 *)(arg0 + 0xD6),
                               (s32)func_00455ea0(*(u8 **)(obj + 0x38), 1, (s32 *)&sp4C), sp4C);
             }
             *(u8 *)(obj + 0x3C) = 2;
@@ -338,29 +338,29 @@ void func_0047d050(s32 arg0)
 s32 func_0047d090(MdlNameCallback arg0, MdlTypeCallback arg1, MdlNameCallback arg2,
                  MdlSetupCallback arg3, MdlDataCallback arg4)
 {
-    iGpffffbb2c = (void (*)())arg0;
-    iGpffffbb30 = (void (*)())arg1;
-    iGpffffbb34 = (void (*)())arg2;
+    iGpffffbb2c = arg0;
+    iGpffffbb30 = arg1;
+    iGpffffbb34 = arg2;
     iGpffffbb38 = arg3;
     iGpffffbb3c = (void (*)())arg4;
     return 1;
 }
 // FUN_0047D0B0
-void func_0047d0b0(void)
+s32 func_0047d0b0(u32 type, u16 id, char *output)
 {
-    iGpffffbb2c();
+    return iGpffffbb2c(type, id, output);
 }
 
 // FUN_0047D0E0
-void func_0047d0e0(void)
+s32 func_0047d0e0(u32 type, u16 id)
 {
-    iGpffffbb30();
+    return iGpffffbb30(type, id);
 }
 
 // FUN_0047D110
-void func_0047d110(void)
+s32 func_0047d110(u32 type, u16 id, char *output)
 {
-    iGpffffbb34();
+    return iGpffffbb34(type, id, output);
 }
 
 // FUN_0047D140
@@ -376,7 +376,9 @@ void func_0047d170(void *model)
 }
 
 // FUN_0047DD40
-void func_0047dd40(u8 *arg0)
+/* All three retail callers pass the owning model in a1 (00476808,
+   00476BB0, 00478CC4); this secondary-effect updater does not read it. */
+void func_0047dd40(u8 *arg0, void *model)
 {
     u8 *temp_4;
 

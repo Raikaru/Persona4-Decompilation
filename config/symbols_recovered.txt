@@ -8151,6 +8151,7 @@ D_00764648 = 0x00764648; // type:data
 D_0076464C = 0x0076464c; // type:data
 iGpffffb55c = 0x0076464c; // type:data
 D_00764650 = 0x00764650; // type:data
+D_00764654 = 0x00764654; // type:data
 D_00764658 = 0x00764658; // type:data
 D_0076465C = 0x0076465c; // type:data
 D_00764660 = 0x00764660; // type:data

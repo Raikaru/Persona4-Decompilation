@@ -112,7 +112,7 @@ extern f32 fGpffff84a4;
 extern void func_002bb7c0(s32 arg0);
 extern s32 func_002bb600(void);
 extern void func_002bb1e0(s32 arg0);
-extern void func_002bb9e0(s8 arg0, s32 arg1);
+extern void func_002bb9e0(s32 arg0, s32 arg1);
 extern s32 func_002bb680(s8 arg0);
 extern void func_002bb290(s8 arg0, s32 arg1);
 extern s32 func_002bb4e0(void);
@@ -361,7 +361,7 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
     extern s8 func_002bab80(void *arg0);
     extern void func_00106390(s32 arg0, s32 arg1);
     extern void func_00275980(void *src, void *dst, s32 maxlen);
-    extern void func_002badc0(s8 arg0, s32 arg1);
+    extern s32 func_002badc0(s8 arg0, s32 arg1);
     extern void func_002bbd80(s8 arg0, s32 arg1, void *arg2);
     extern u8 func_0045aeb0(s16 channelIndex, const char *name);
     extern u8 D_0064B340[];

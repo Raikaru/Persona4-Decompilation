@@ -1089,27 +1089,21 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba080);
 #endif
-/* Floor: 186 differing words (probe_variants) over 207 fnalign edits (+2 reloc-only), 230 emitted against */
-/* retail's 230 (100%, 8B zero tail in 928B window). WALL: saved-register rotation (retail s1=a2/s2=t1 */
-/* vs object s2=a2/s1=t1, invariant under field/value decl swap) plus spill offsets (sd a3 96 vs 152, */
-/* sw t0 108 vs 188) and scheduling cascade; frame now 0xC0 both sides after `opt_common_subs off` */
-/* (old 0xD0 claim stale). Ruled out: inclusive-bound flip >=10->>9 (neutral at 186). */
-/* measured 002ba5d0: `opt_common_subs off` inside the guard is worth 21 words (207 -> 186); retail rematerialises what b210 hoists. */
+/* Guarded 002ba5d0 candidate: native FclVec2/FclDrawColor aggregates, width 22.0f; INCLUDE_ASM below stays the build path. */
 // FUN_002BA5D0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
-/* Guarded body: 186 words over 207 edits, 230/230 instrs (920B/928B, 8B zero tail); frame 0xC0 both sides, s1/s2 rotation remains. */
-void func_002ba5d0(u8 *arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s64 arg5, f32 fparg0)
+void func_002ba5d0(u8 *arg0, s16 arg1, s32 arg2, FclVec2 arg3, FclDrawColor arg4, s64 arg5, f32 fparg0)
 {
     FclBoundsPacket src;
     FclBoundsBytes copy1, copy2;
     FclVec2 pos1, pos2;
     s64 field;
     u8 *object;
-    s64 sp60;
-    s32 sp6C;
-    s32 spBC;
-    s32 spB8;
+    FclVec2 sp60;
+    FclDrawColor sp6C;
+    FclDrawColor spBC;
+    FclDrawColor spB8;
     s16 value;
     s16 pair_index;
     s16 next_index;
@@ -1119,8 +1113,8 @@ void func_002ba5d0(u8 *arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s64 arg5, f
     field = arg5;
     sp60 = arg3;
     sp6C = arg4;
-    src = func_002b29e0(88.0f, 17.0f);
-    pos1 = func_002b2970(*(f32 *)((u8 *)&sp60) + 284.0f, *(f32 *)((u8 *)&sp60 + 4) + 6.0f);
+    src = func_002b29e0(22.0f, 17.0f);
+    pos1 = func_002b2970(sp60.x + 284.0f, sp60.y + 6.0f);
     value = (s16)arg2;
     if ((value == -1) || (value == 0)) { ones = 10; tens = 10; }
     else { ones = (s8)(value % 10); tens = (s8)(value / 10); }
@@ -1197,7 +1191,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba5d0);
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
 #pragma opt_common_subs off
 // FUN_002BA970
-void func_002ba970(u8 *arg0, s16 arg1, u32 color)
+void func_002ba970(u8 *arg0, s16 arg1, FclDrawColor color)
 {
     s32 first;
     s32 second;
@@ -1328,7 +1322,7 @@ s32 func_002bad10(s32 arg0)
     return 1;
 }
 // FUN_002BADC0
-s32 func_002badc0(s64 arg0, s32 arg1)
+s32 func_002badc0(s8 arg0, s32 arg1)
 {
     s32 temp_4;
     u8 **temp_17;
@@ -1595,7 +1589,7 @@ void func_002bb7c0(s32 arg0)
     }
 }
 // FUN_002BB9E0
-void func_002bb9e0(u8 *arg0, s32 arg1)
+void func_002bb9e0(s32 arg0, s32 arg1)
 {
     typedef struct {
         s32 id;
@@ -1720,7 +1714,7 @@ void func_002bbcc0(void)
     func_002bb7c0(1);
 }
 // FUN_002BBCF0
-void func_002bbcf0(u8 *arg0) {
+void func_002bbcf0(s32 arg0) {
     func_002bb9e0(arg0, 1);
 }
 

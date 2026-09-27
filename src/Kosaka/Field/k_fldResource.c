@@ -108,8 +108,8 @@ extern char D_005EFE00[];
 extern char D_005EFE10[];
 extern char iGpffff9e10;
 extern void strcat(char *dst, char *src);
-extern s32 func_00477e80(s32 arg0, u16 arg1, char *arg2, s32 arg3);
-extern s32 func_00477f10(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void *func_00477e80(u32 arg0, u16 arg1, void *arg2, u32 arg3);
+extern void *func_00477f10(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
 extern s32 func_0014a230(s32 a0, s32 a1);
 extern s32 func_0014a2a0(s32 a0, s32 a1);
 extern u8 *func_0015c640(s32 a0, s32 a1);
@@ -1392,7 +1392,7 @@ void func_00151710(u8 *arg0)
     u8 *temp_17;
     u32 var_19;
     s32 var_18;
-    s32 sp20C;
+    u32 sp20C;
     s32 sp208;
     s32 sp200[2];
     s32 sp1F8[2];
@@ -1431,15 +1431,15 @@ void func_00151710(u8 *arg0)
                         strcat(sp1A0, sp160);
                         sprintf(sp160, D_005EFDA8, sp1F8[0]);
                         strcat(sp1A0, sp160);
-                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = func_00477e80(4, (u16)sp1F8[0], sp1A0, 0);
+                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)func_00477e80(4, (u16)sp1F8[0], sp1A0, 0);
                     } else {
                         strcpy(sp1A0, D_005EFDB8);
                         sprintf(sp160, &iGpffff9e10, *(s16 *)(arg0 + 4));
                         strcat(sp1A0, sp160);
                         sprintf(sp160, D_005EFDA8, sp1F8[0]);
                         strcat(sp1A0, sp160);
-                        r = func_00455f70(sp1A0, &sp20C);
-                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = func_00477f10(4, (u16)sp1F8[0], r, sp20C, 0);
+                        r = func_00455f70(sp1A0, (s32 *)&sp20C);
+                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)func_00477f10(4, (u16)sp1F8[0], (void *)r, sp20C, 0);
                     }
                 } else if (sp200[0] == 1) {
                     if (iGpffffb204 == 0) {
@@ -1465,7 +1465,7 @@ void func_00151710(u8 *arg0)
                     strcpy(spA0, D_005EFE00);
                     sprintf(sp60, D_005EFDA8, sp1F8[0]);
                     strcat(spA0, sp60);
-                    *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = func_00477e80(4, (u16)(sp1F8[0] + 0x3E8), spA0, 0);
+                    *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)func_00477e80(4, (u16)(sp1F8[0] + 0x3E8), spA0, 0);
                 }
                 func_00458430(sp1F0, *(void **)(temp_17 + 0x1C), (const char *)D_005EFE10, var_18);
                 if (sp200[0] == 0) {

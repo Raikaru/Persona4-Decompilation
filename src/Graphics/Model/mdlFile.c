@@ -27,9 +27,9 @@ extern u8 DAT_00922c30_abs[];
 
 
 // FUN_00230BC0
-u8 mdlFileIsTypePac(u16 type)
+s32 mdlFileIsTypePac(u32 type, u16 id)
 {
-    switch (type)
+    switch ((u16)type)
     {
         case MODEL_TYPE_BTLCHAR: // fallthrough
         case MODEL_TYPE_ENEMY:   return 1;

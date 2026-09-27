@@ -216,7 +216,7 @@ void H_Cdvd_Destroy(void *);
 void func_002e29a0(void);
 s64 func_002bab80(void *);
 void func_002bbd80(s8, s32, void *);
-void func_002badc0(s32, s16);
+s32 func_002badc0(s8, s32);
 void func_002bafc0(s32, s32);
 void func_002bb0a0(s32, s32);
 void func_002bbf60(void);
@@ -355,7 +355,7 @@ s32 func_002be530(u8 *arg0)
     extern s32 func_002bb1c0(s8);
     extern void func_002bb550(s8);
     extern s32 func_002bb680(s8);
-    extern void func_002bbcf0(s8);
+    extern void func_002bbcf0(s32);
     extern s32 func_002be160(s32, s32);
     extern void func_002e24a0(s32, s32, s32, s32);
     extern s32 func_002e28f0(void *, s32);
@@ -7331,7 +7331,7 @@ s32 func_002dfec0(void *arg0, s32 arg1, void *arg2, s8 arg3) {
     if (arg2 != 0) {
         func_002bbd80(handle, 0, arg2);
     }
-    func_002badc0(v, arg1);
+    func_002badc0(handle, (s16)arg1);
     if (arg3 == 1) {
         func_002bafc0(v, 0);
         func_002bb0a0(v, 0);
@@ -7351,7 +7351,7 @@ s32 func_002dff90(void *arg0, s32 arg1, void *arg2, void *arg3, s8 arg4) {
     v = handle;
     func_002bbd80(handle, 0, arg2);
     func_002bbd80(handle, 1, arg3);
-    func_002badc0(v, arg1);
+    func_002badc0(handle, (s16)arg1);
     if (arg4 == 1) {
         func_002bafc0(v, 0);
         func_002bb0a0(v, 0);

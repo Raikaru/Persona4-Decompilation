@@ -509,7 +509,7 @@ void func_002b6a70(s16 arg0, u8 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
 /* measured: close opt_propagation scope after func_002b6a70. */
 #pragma opt_propagation on
 // FUN_002B6AC0
-void func_002b6ac0(u8 *arg0, u32 arg1, u32 arg2, s32 arg3, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
+void func_002b6ac0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s32 arg3) {
     u8 *base = *(u8 **)(arg0 + 0x38);
     s16 ext = (s16)arg3;
     func_002b8300(base + 0x10, arg1, arg2, ext, fparg0, fparg1, fparg2, fparg3);
