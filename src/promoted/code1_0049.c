@@ -1,12 +1,11 @@
 #include "include_asm.h"
 #include "type.h"
+#include "effect_instance_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern void (*D_00713E70[])(void);
 extern void (*D_00713E78[])(void);
 extern void (*D_00713E7C[])(void);
 extern void (*D_00713E80[])(void);
-extern void *func_004988c0(u16 arg0, u8 *arg1);
-extern void *func_0049a370(u16 arg0, u8 *arg1);
 extern void (*D_00713F18[])(s32);
 extern void (*D_00713F10[])(void);
 extern void (*D_00713F1C[])(void);
@@ -2340,8 +2339,10 @@ void func_00498ac0(u8 *arg0) {
     jtbl_008873EC[0](arg0);
 }
 // FUN_00498B20
-void func_00498b20(u8 *arg0) {
-    func_004988c0(*(u16 *)(arg0 + 0x2C), *(u8 **)(arg0 + 0x34));
+void *func_00498b20(void *source) {
+    u8 *arg0 = source;
+
+    return func_004988c0(*(u16 *)(arg0 + 0x2C), *(u8 **)(arg0 + 0x34));
 }
 // FUN_00498B50
 void func_00498b50(u8 *arg0) {
@@ -2398,8 +2399,10 @@ void func_0049a570(u8 *arg0) {
     jtbl_008873EC[0](arg0);
 }
 // FUN_0049A5E0
-void func_0049a5e0(u8 *arg0) {
-    func_0049a370(*(u16 *)(arg0 + 0x38), *(u8 **)(arg0 + 0x40));
+void *func_0049a5e0(void *source) {
+    u8 *arg0 = source;
+
+    return func_0049a370(*(u16 *)(arg0 + 0x38), *(u8 **)(arg0 + 0x40));
 }
 // FUN_0049A610
 void func_0049a610(u8 *arg0) {

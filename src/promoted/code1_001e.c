@@ -47,7 +47,7 @@ extern u32 func_0023e130(u8 *arg0);
 extern u8 *func_0023e140(u8 *unit);
 extern s32 func_0023ddc0(u8 *unit, s32 skill);
 extern s32 func_0023dfe0(u8 *unit);
-extern s32 func_00242800(u8 *arg0, s16 arg1);
+extern s32 func_00242800(u8 *arg0, s32 arg1);
 extern u8 *func_001b1510(void);
 extern u8 *func_0029d050();
 
@@ -1297,7 +1297,7 @@ s32 func_001e9350(void) {
     u32 count;
     u8 *base;
     u8 *work;
-    s16 element;
+    s32 element;
 
     work = func_0029d050();
     command = func_0029cc00(0);
@@ -1305,7 +1305,7 @@ s32 func_001e9350(void) {
     entry = *(u8 **)(work + 0x30);
     element = (s16)func_0023d8e0(*(u8 **)(entry + 0xA64), 0);
     if (func_00242800(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
-        func_0029cf50(element);
+        func_0029cf50((s16)element);
         return 1;
     }
     count = func_0023e130(*(u8 **)(entry + 0xA64)) & 0xFFFF;
@@ -1316,7 +1316,7 @@ s32 func_001e9350(void) {
         if (skill != 0 && skill < 0x1B8) {
             element = (s16)func_0023d8e0(*(u8 **)(entry + 0xA64), skill);
             if (func_00242800(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
-                func_0029cf50(element);
+                func_0029cf50((s16)element);
                 return 1;
             }
         }

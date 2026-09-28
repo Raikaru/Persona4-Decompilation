@@ -17,7 +17,7 @@ extern s32 btlCond_MYNOMAL(u8 *formation, s32 index);
 
 extern u64 func_0010f460();
 
-extern s32 func_0023a6b0(u8 *arg0, s16 arg1);
+extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
 
 typedef void (*FormationCallback)(void);
 
@@ -62,7 +62,7 @@ extern s32 func_001ef720(s32 arg0, s32 arg1);
 extern s32 func_001ef4d0(s32 arg0, s32 arg1);
 extern u32 datCalcGetHp(u32 arg0);
 extern u32 func_002340c0();
-extern s32 func_00242800(u8 *unit, s16 index);
+extern s32 func_00242800(u8 *unit, s32 index);
 extern void func_001de640(u8 *a, u8 *b, u16 c);
 
 extern void *D_00609934[];

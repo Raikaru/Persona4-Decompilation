@@ -2,6 +2,7 @@
 /* Original translation unit effParticle.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "effect_instance_internal.h"
 #include "btl_shuffle_draw_internal.h"
 
 typedef unsigned int ParticleSnapshot __attribute__((mode(TI)));
@@ -37,12 +38,8 @@ extern void (*jtbl_008873EC[])(void *);
 extern u8 *func_00484570(u8 *arg0);
 extern void func_004846d0(u8 *arg0);
 extern u8 *func_00484830(u8 *arg0);
-extern u8 *func_00484bb0(u8 *arg0);
 extern void func_00485b20(void *arg0);
-extern void *func_00485c80(void *arg0);
 extern u8 *func_00483270(void *arg0);
-extern s32 func_00484490(s32 arg0);
-extern s32 func_004844d0(s32 arg0);
 void func_004875d0(u8 *arg0, s32 arg1, void *arg2);
 void func_00487160(u8 *arg0, u8 *arg1);
 void func_00487650(u8 *arg0, s32 arg1, s32 arg2);
@@ -81,8 +78,9 @@ void *func_00486a50(s32 arg0)
     return p;
 }
 // FUN_00486B00
-s32 func_00486b00(u8 *source)
+void *func_00486b00(void *opaqueSource)
 {
+    u8 *source = opaqueSource;
     u8 *settings;
     u32 allocatorAddress;
     u32 count;
@@ -90,7 +88,7 @@ s32 func_00486b00(u8 *source)
     u8 *link;
     s32 *resource;
 
-    settings = (u8 *)func_00484490((s32)source);
+    settings = (u8 *)func_00484490(source);
     if (settings == NULL) {
         func_0046d730(D_00713CD0, 0x55);
     }
@@ -119,9 +117,9 @@ s32 func_00486b00(u8 *source)
         }
         func_004875d0(particle, *(u16 *)(source + 0xC), settings);
         if (*(u32 *)particle == 0) {
-            return (s32)particle;
+            return particle;
         }
-        resource = (s32 *)func_004844d0((s32)source);
+        resource = (s32 *)func_004844d0(source);
         if (resource != NULL) {
             switch (*(u16 *)(source + 0x1C)) {
             case 1:
@@ -158,7 +156,7 @@ s32 func_00486b00(u8 *source)
             }
             *(u16 *)(particle + 0xC) = *(u16 *)(source + 0x1C);
         }
-        return (s32)particle;
+        return particle;
     }
 }
 
@@ -208,8 +206,9 @@ void func_00486e10(u8 *arg0)
     jtbl_008873EC[0](arg0);
 }
 // FUN_00486FB0
-void *func_00486fb0(u8 *arg0)
+void *func_00486fb0(void *opaqueSource)
 {
+    u8 *arg0 = opaqueSource;
     u32 s19;
     u8 *s17;
     u8 *p;

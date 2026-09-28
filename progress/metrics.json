@@ -14123,6 +14123,7 @@
         "0011fd30",
         "0011fd50",
         "0011fdf0",
+        "001203a0",
         "00120ae0",
         "00120bc0",
         "00120db0",
@@ -14162,6 +14163,7 @@
         "001228a0",
         "001228c0",
         "00122a10",
+        "00122a40",
         "001236e0",
         "00123730",
         "00123810",
@@ -14225,6 +14227,7 @@
         "0012e7c0",
         "0012e8b0",
         "0012e900",
+        "0012e9d0",
         "0012fdf0",
         "0012feb0",
         "0012ff40",
@@ -15289,6 +15292,7 @@
         "001a1450",
         "001a17d0",
         "001a1c80",
+        "001a1ea0",
         "001a24a0",
         "001a2ad0",
         "001a2b50",
@@ -15302,6 +15306,7 @@
         "001a3df0",
         "001a3f90",
         "001a4390",
+        "001a43a0",
         "001a47f0",
         "001a4800",
         "001a55a0",
@@ -19779,6 +19784,7 @@
         "00484a90",
         "00484ae0",
         "00484b30",
+        "00484bb0",
         "00485ae0",
         "00485b20",
         "00485c80",
@@ -20318,8 +20324,8 @@
         "004bd4a0",
         "0052d9a0"
       ],
-      "matching_count": 6690,
-      "matching_percent": 97.508,
+      "matching_count": 6696,
+      "matching_percent": 97.595,
       "total": 6861,
       "total_code_bytes": 3139392
     },
@@ -34717,7 +34723,7 @@
       "0052bf50",
       "0052d7e8"
     ],
-    "asm_fallbacks_in_linked_objects": 467,
+    "asm_fallbacks_in_linked_objects": 461,
     "count": 3653,
     "percent": 27.881
   },
@@ -35219,6 +35225,7 @@
       "0011fd30",
       "0011fd50",
       "0011fdf0",
+      "001203a0",
       "00120ae0",
       "00120bc0",
       "00120db0",
@@ -35258,6 +35265,7 @@
       "001228a0",
       "001228c0",
       "00122a10",
+      "00122a40",
       "001236e0",
       "00123730",
       "00123810",
@@ -35321,6 +35329,7 @@
       "0012e7c0",
       "0012e8b0",
       "0012e900",
+      "0012e9d0",
       "0012fdf0",
       "0012feb0",
       "0012ff40",
@@ -36385,6 +36394,7 @@
       "001a1450",
       "001a17d0",
       "001a1c80",
+      "001a1ea0",
       "001a24a0",
       "001a2ad0",
       "001a2b50",
@@ -36398,6 +36408,7 @@
       "001a3df0",
       "001a3f90",
       "001a4390",
+      "001a43a0",
       "001a47f0",
       "001a4800",
       "001a55a0",
@@ -41922,6 +41933,7 @@
       "00484a90",
       "00484ae0",
       "00484b30",
+      "00484bb0",
       "00485ae0",
       "00485b20",
       "00485c80",
@@ -44234,23 +44246,23 @@
       "0052d980",
       "0052d9a0"
     ],
-    "count": 9510,
+    "count": 9516,
     "duplicate_rows": 0,
     "known_rows": 13102,
-    "matched_body_bytes": 2695756,
-    "percent": 72.584,
+    "matched_body_bytes": 2711280,
+    "percent": 72.63,
     "unique_known_addresses": 13102
   },
   "schema_version": 1,
   "source": {
     "ignored_unknown_rows": 0,
-    "linked_report": "build\\batches\\shuffle-list-v1\\linked.json",
+    "linked_report": "build\\batches\\battle-item-clone-v1\\linked-v2.json",
     "raw_rows": 13102,
-    "verifier_report": "build\\publication-verification\\shuffle-list-v1\\report.json"
+    "verifier_report": "build\\publication-verification\\battle-item-clone-symbol-v2\\report.json"
   },
   "status_counts": {
-    "ASM": 3592,
-    "MATCH": 9510
+    "ASM": 3586,
+    "MATCH": 9516
   },
   "total": 13102
 }
