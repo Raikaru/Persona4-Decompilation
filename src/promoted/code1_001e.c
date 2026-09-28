@@ -2329,7 +2329,9 @@ void func_001eb410(u8 *arg0) {
 // FUN_001EB4A0
 /* measured: u16 state selects the narrow daddiu constants at 0x001eb598 and
    0x001eb5c0; the table-entry scan preserves the retail register-width masks. */
-void func_001eb4a0(u8 *arg0, u8 *arg1, s64 arg2) {
+/* The action caller forwards the 32-bit unit-status word. This selector
+ * consumes its low20 bits; higher bits have no role in table selection. */
+void func_001eb4a0(u8 *arg0, u8 *arg1, u32 status) {
     extern s32 func_00105ed0();
     extern void func_001de640(u8 *arg0, u8 *arg1, u16 arg2);
     extern s32 func_00231d70(u32 arg0);
@@ -2369,7 +2371,7 @@ void func_001eb4a0(u8 *arg0, u8 *arg1, s64 arg2) {
     memset(arg1 + 0x3E, 0, 6);
     table = NULL;
     entry = NULL;
-    mode = ((u64)arg2 << 44) >> 44;
+    mode = ((u64)status << 44) >> 44;
     switch (mode) {
     case 0x10:
         unit = *(u8 **)(arg0 + 0x30);
