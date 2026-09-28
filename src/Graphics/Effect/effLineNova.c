@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effLineNova.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "effect_instance_internal.h"
 #include "include_asm.h"
 
 void func_004833f0(void *arg);
@@ -10,7 +11,6 @@ void func_0046d730(u8 *file, s32 line);
 void *func_00481460(u16 arg0);
 void *func_00481540(u16 arg0);
 void func_00460ac0(void *arg0, void *arg1);
-u8 *func_00484490(u8 *obj);
 void memcpy(void *dst, const void *src, u32 size);
 void func_004b4430(u8 *arg0, u8 *arg1);
 f32 effMiscRandFloat(u32 param);
@@ -957,14 +957,14 @@ u8 *func_004b4cb0(s32 arg0, u8 *arg1) {
     return w;
 }
 // FUN_004B4E10
-u8 *func_004b4e10(u8 *arg0) {
+void *func_004b4e10(void *arg0) {
     u8 *p;
 
     p = func_00484490(arg0);
     if (p == NULL) {
         func_0046d730(D_00714628, 0x2B3);
     }
-    p = func_004b4cb0(*(u16 *)(arg0 + 0xC), p);
+    p = func_004b4cb0(*(u16 *)((u8 *)arg0 + 0xC), p);
     if (p == NULL) {
         func_0046d730(D_00714628, 0x2B5);
     }

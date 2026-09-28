@@ -1,6 +1,7 @@
 #include "effect_geometry_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "effect_instance_internal.h"
 #include "btl_shuffle_draw_internal.h"
 #include "effect_update_internal.h"
 extern s32 func_00457120(void);
@@ -9,11 +10,9 @@ extern s32 iGpffffbb9c;
 extern u8 *iGpffffbba0;
 /* gp - 0x445C = 0x00764c94: enable predicate, called through the pointer */
 extern s32 (*iGpffffbba4)(void);
-extern u8 *func_00484bb0(u8 *resource);
 extern void func_00485b20(u8 *model);
 extern void func_00485fe0();
 extern void func_00485630(u8 *object);
-extern u8 *func_00485c80(u8 *arg0);
 extern void func_00486400();
 extern void func_00486060();
 extern void func_004860f0();
@@ -37,7 +36,6 @@ extern void func_00485870(void *arg0);
 extern void func_00485ae0(void *arg0);
 extern void func_004861f0(void *arg0, f32 *arg1);
 extern void func_004b1ad0(u8 *arg0);
-extern void func_004b4cb0(u16 arg0, s32 arg1);
 typedef struct {
     u8 c0;
     u8 c1;
@@ -51,7 +49,6 @@ extern void func_003e9390(s32 arg0);
 extern void func_003ec330(s32 arg0);
 extern void func_0040fcd0(s32 arg0, s32 arg1);
 extern void func_003e8440(u8 *arg0);
-extern u8 *func_004b16c0(u8 *arg0);
 extern u8 *func_00483270(s32 arg0);
 extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern void func_004b1a00(u8 *arg0, u8 *arg1);
@@ -88,8 +85,6 @@ extern void func_0044ea90(void *arg0, s32 arg1);
 extern void func_0046d730(void *arg0, s32 arg1);
 extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern u8 *func_00484490(u8 *arg0);
-extern u16 *func_004844d0(u8 *arg0);
 extern void func_00483970(u8 *arg0, u16 *arg1);
 extern s32 func_00481d80(u16 *arg0);
 extern s32 func_00481300(u16 arg0);
@@ -391,7 +386,8 @@ void func_004b1680(s32 arg0, s16 arg1, s32 arg2, s32 arg3)
     iGpffffbb98 = 1;
 }
 // FUN_004B16C0
-u8 *func_004b16c0(u8 *arg0) {
+void *func_004b16c0(void *opaqueSource) {
+    u8 *arg0 = opaqueSource;
     u16 *temp_2_3;
     u16 *temp_2_4;
     u16 temp_4;
@@ -466,7 +462,8 @@ void func_004b18e0(u8 *arg0)
 }
 
 // FUN_004B1950
-u8 *func_004b1950(u8 *arg0) {
+void *func_004b1950(void *opaqueSource) {
+    u8 *arg0 = opaqueSource;
     s32 temp_4;
     u8 *temp_2;
     u8 *temp_2_2;
@@ -1089,9 +1086,10 @@ void func_004b4ea0(u8 *arg0)
 }
 
 // FUN_004B4F10
-void func_004b4f10(u8 *arg0)
+void *func_004b4f10(void *opaqueSource)
 {
-    func_004b4cb0(*(u16 *)(arg0 + 0x18), *(s32 *)(arg0 + 0x24));
+    u8 *arg0 = opaqueSource;
+    return func_004b4cb0(*(u16 *)(arg0 + 0x18), *(u8 **)(arg0 + 0x24));
 }
 // FUN_004B4F40
 void func_004b4f40(u8 *arg0)
@@ -1165,8 +1163,9 @@ void func_004b5340(u8 *arg0) {
 }
 
 // FUN_004B53C0
-u8 *func_004b53c0(u8 *arg0)
+void *func_004b53c0(void *opaqueSource)
 {
+    u8 *arg0 = opaqueSource;
     u8 *result;
     u8 *work;
     s32 base;

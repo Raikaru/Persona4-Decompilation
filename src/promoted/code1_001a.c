@@ -67,11 +67,11 @@ extern void func_00218730(s32 arg0);
 extern u8 *func_0019bbe0(u8 *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern u8 *func_0019bd00(u8 *arg0);
 extern u8 *func_0019bdd0(u8 *arg0);
-extern s32 func_0020ba00(s32 arg0);
-extern s32 func_001d8df0(u8 *arg0);
+extern u16 func_0020ba00(s32 task);
+extern u32 func_001d8df0(s32 formation);
 extern void func_0020bac0(s32 arg0);
-extern u8 *func_0020ba90(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_0020ba60(s32 arg0, s32 arg1, s32 arg2);
+extern u32 func_0020ba90(s32 task);
+extern u32 func_0020ba60(s32 task);
 extern s32 func_001faf70(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0020ba30(s32 arg0);
 extern void func_00203880(s32 arg0, s32 arg1);
@@ -82,7 +82,7 @@ void func_001ded30();
 u32 func_001deee0();
 s32 func_0023dfe0(u8 *unit);
 u32 func_001d8bc0(void *arg0);
-void func_001d8be0(u8 *arg0, s32 arg1);
+void func_001d8be0(s32 formation, u64 *unit);
 u8 *func_001f5f70(u8 *arg0, u16 arg1, u32 arg2, u32 arg3, u32 arg4);
 extern u8 *iGpffffb3b8;
 void func_001d8e50(u8 *arg0, u8 *arg1);
@@ -90,7 +90,11 @@ void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3);
 extern void func_00212010(s32 task);
 void func_0019faf0(u8 *arg0);
 s32 func_0023e1f0();
-u8 *btlUnitCreateLookAtUnitPacket(u8 *arg0, u8 *arg1, s32 arg2);
+extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
+static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
+{
+    return (u8 *)btlUnitCreateLookAtUnitPacket((BtlUnit *)unit, (BtlUnit *)target, (u16)flags);
+}
 u8 *func_0019a0c0(u8 *arg0, s16 arg1);
 extern s16 func_00196bd0(u8 *arg0, u8 *arg1, s32 arg2);
 extern void func_001eb410(u8 *arg0);
@@ -112,7 +116,7 @@ BtlPacket *func_001ba090(s32 arg0);
 u8 *func_001d7a10(u16 arg0);
 u8 *func_00201f20(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
-extern s32 func_00242800(u8 *unit, s16 element);
+extern s32 func_00242800(u8 *unit, s32 element);
 u8 *func_001fa720(const void *data);
 s32 func_001eb860(void);
 extern void func_00218420(s32 task, u8 *arg1);
@@ -126,7 +130,7 @@ s32 func_0019ff60(u8 *arg0);
 s64 *func_001b1540(void);
 s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
-s32 func_001f01a0(u8 *arg0, s32 arg1);
+s32 func_001f01a0(u8 *arg0, u8 *arg1);
 s32 func_0023d8e0(u8 *arg0, u16 arg1);
 u8 *func_001fa9c0(void);
 s32 func_001db5e0(u8 *arg0, s64 arg1);
@@ -790,7 +794,7 @@ loop_19_test:
 
         temp_5 = *(u8 **)((u8 *)arg0 + 0x30);
         if (temp_5[0xA2] == 0) {
-            temp_2_5 = btlUnitCreateLookAtUnitPacket(NULL, temp_5, 2);
+            temp_2_5 = actionLookAtUnit(NULL, temp_5, 2);
             *(s64 *)(temp_2_5 + 0x60) = *arg0;
             func_00194590(temp_2_5, 1);
         } else {
@@ -1008,201 +1012,203 @@ after_type_1c80:
     func_00212010(*(s32 *)(D_0076449C + 0xDD4));
     func_0019faf0(arg0);
     if (var_17 != NULL) {
-        temp_2 = btlUnitCreateLookAtUnitPacket(NULL, *(u8 **)(var_17 + 0x30), 1);
+        temp_2 = actionLookAtUnit(NULL, *(u8 **)(var_17 + 0x30), 1);
         func_00194590(temp_2, 1);
         temp_2 = (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)*(s32 *)(var_17 + 0x30), 0);
         func_00194590(temp_2, 1);
     }
 }
-/* measured 001a1ea0 (WCold): m2c cold draft cleaned to honest compiling C (raw `iGpffffb3ac`/`iGpffffb3b8` + file-evidenced `*(s32*)/(u8**)/(u16*)/(u8*)/(s64*)` casts, old-style `s32()` for 18 truly-missing callees, honest `s64` for 001fb170/002019f0); 262 words via `tools/probe_variants.py` (v6 base 294; sched 296, commonsubs 262 win, loopinv 294, propOff 311), 380/381 (-1, 0.26% floor) 183 edits via `tools/fnalign.py --candidate`, `tools/wscan_pairs.py` 1 vs 1 (same 0x10 shift, colour only); remaining for next pass: `temp_2_4!=2&&!=1` + `temp_3_4` switch 1/2 adjacent folding (`x==K||x==K+1` two-compare), double-def pinning for `((unk6E*0x28)+base)->unk8` scheduling. */
-/* measured 001a1ea0 (owner, 2026-09-19): fnalign **183 -> 177 edits**, count
-   380 -> 382 against retail 381, by writing m2c's top-tested `loop_N:` /
-   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
-   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
-   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
-   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
-   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
-   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
-   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
-// FUN_001A1EA0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
-void func_001a1ea0(u8 *arg0) {
-    extern u16 D_008C024C;
-    extern s32 btlUnitCreateLookAtUnitPacket();
-    extern s32 btlUnitCreateLookAtDeactivatePacket();
-    extern s32 func_0019fa40();
-    extern s32 func_0019fc60();
-    extern s32 func_001d8be0();
-    extern s64 func_001fb170(s32);
-    extern void func_002019f0(u8 *, s64);
-    extern s32 func_002037b0();
-    extern s32 func_002038c0();
-    extern s32 func_00204d50();
-    extern s32 func_0020bf60();
-    extern s32 func_0020bf90();
-    extern s32 func_00212040();
-    extern s32 func_00213b50();
-    extern s32 func_00213b80();
-    extern s32 func_00213c40();
-    extern s32 func_00216ca0();
-    extern s32 func_0045af60();
-    s32 temp_16;
-    s32 temp_2_5;
-    s32 temp_4;
-    s32 temp_6;
-    s32 var_4;
-    s32 var_4_2;
-    s64 temp_16_2;
-    u16 temp_3_2;
-    u16 temp_3_4;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_5_2;
-    u8 temp_2_4;
-    u8 *temp_3;
-    u8 *temp_3_3;
-    u8 *temp_4_2;
-    u8 *temp_4_3;
-    u8 *temp_5;
-    u8 *var_2;
-    u8 *var_2_2;
+#pragma push
+#pragma opt_common_subs on
+static inline void actionCopySelectedTarget(u8 *action, const u16 *index)
+{
+    u8 *slot = action + *index * 4;
+    *(u8 **)(slot + 0x38) = *(u8 **)(slot + 0x98);
+}
+
+static inline u8 *actionSelectionOffset(u32 offset, u8 *base)
+{
+    return (u8 *)(offset + (u32)base);
+}
+
+/* The task helpers explicitly consume their task and return the selected
+ * formation entry. Sparse switches preserve retail's separate branch joins;
+ * the u16 copy cursor wraps at its stored width. Sequence the count load before
+ * reading that cursor so the configured b210 -O2 owner emits all 1528 retail
+ * bytes, followed by eight zero alignment bytes. CSE remains at its default. */
+// FUN_001A1EA0
+void func_001a1ea0(u8 *action) {
+    extern u16 D_008C024C[];
+    extern void func_0019fa40(void);
+    extern void func_0019fc60(void);
+    extern s32 func_001fb170(s32 condition);
+    extern void func_002019f0(s32 unit, u32 message);
+    extern void func_002037b0(s32 task);
+    extern void func_002038c0(s32 task);
+    extern void func_00204d50(s32 task);
+    extern void func_0020bf60(s32 task);
+    extern void func_0020bf90(s32 task);
+    extern void func_00212040(s32 task);
+    extern void func_00213b50(s32 task);
+    extern void func_00213b80(s32 task);
+    extern void func_00213c10(s32 task);
+    extern void func_00213c40(s32 task);
+    extern void func_00216ca0(s32 task);
+    s32 selectionState;
+    s32 selectedAddress;
+    s32 battleFlags;
+    s32 selectionMode;
+    u16 targetIndex;
+    s32 condition;
+    s32 messageId;
+    u16 targetCount;
+    u16 actionKind;
+    u8 *enterCamera;
+    u8 *exitCamera;
+    u8 *selectedAction;
+    u8 *selectedUnit;
+    u8 targetMode;
+    u8 *selectionBattle;
+    u8 *enteredBattle;
+    u8 *exitedBattle;
+    u8 *battle;
+    u8 *actionCursor;
+    u8 *clearCursor;
 
     func_0019fc60();
     func_0019fa40();
-    temp_16 = func_0020ba00((s32)(*(u8**)(iGpffffb3ac + 0xDD4))) & 0xFFFF;
-    if ((D_008C024C & 8) && !(temp_16 & 0xFFFF)) {
-        temp_4 = (*(s32*)(iGpffffb3ac + 0xC));
-        if (temp_4 & 0x20000) {
-            if (!(temp_4 & 0x10000) && ((func_001d8df0(arg0 + 0x98) & 0xFFFF) != 1)) {
+    selectionState = func_0020ba00((s32)(*(u8**)(iGpffffb3ac + 0xDD4))) & 0xFFFF;
+    if ((D_008C024C[0] & 8) && !(selectionState & 0xFFFF)) {
+        battleFlags = (*(s32*)(iGpffffb3ac + 0xC));
+        if (battleFlags & 0x20000) {
+            if (!(battleFlags & 0x10000) && ((func_001d8df0((s32)(action + 0x98)) & 0xFFFF) != 1)) {
                 func_0020bf60((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-                temp_4_2 = iGpffffb3ac;
-                (*(s32*)(temp_4_2 + 0xC)) = (s32) ((*(s32*)(temp_4_2 + 0xC)) | 0x10000);
+                enteredBattle = iGpffffb3ac;
+                (*(s32*)(enteredBattle + 0xC)) = (s32) ((*(s32*)(enteredBattle + 0xC)) | 0x10000);
                 func_00213b80((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-                temp_2 = btlCameraCreateSetStatePacket(arg0, 0x28);
-                (*(s64*)(temp_2 + 0x60)) = (s64) (*(s64*)arg0);
-                func_00194590(temp_2, 0U);
+                enterCamera = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x28);
+                (*(s64*)(enterCamera + 0x60)) = (s64) (*(s64*)action);
+                func_00194590(enterCamera, 0U);
             }
             return;
         }
-        goto block_9;
+        goto select_action;
     }
-    temp_5 = iGpffffb3ac;
-    if ((*(s32*)(temp_5 + 0xC)) & 0x10000) {
-        func_0020bf90((s32)(*(u8**)(temp_5 + 0xDD4)), temp_5);
-        temp_4_3 = iGpffffb3ac;
-        (*(s32*)(temp_4_3 + 0xC)) = (s32) ((*(s32*)(temp_4_3 + 0xC)) & 0xFFFEFFFF);
+    battle = iGpffffb3ac;
+    if ((*(s32*)(battle + 0xC)) & 0x10000) {
+        func_0020bf90((s32)(*(u8**)(battle + 0xDD4)));
+        exitedBattle = iGpffffb3ac;
+        (*(s32*)(exitedBattle + 0xC)) = (s32) ((*(s32*)(exitedBattle + 0xC)) & 0xFFFEFFFF);
         func_00213b50((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-        temp_2_2 = btlCameraCreateSetStatePacket(arg0, 0x22);
-        (*(s64*)(temp_2_2 + 0x60)) = (s64) (*(s64*)arg0);
-        func_00194590(temp_2_2, 0U);
+        exitCamera = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x22);
+        (*(s64*)(exitCamera + 0x60)) = (s64) (*(s64*)action);
+        func_00194590(exitCamera, 0U);
     }
-block_9:
-    temp_6 = temp_16 & 0xFFFF;
-    switch (temp_6) {                               /* switch 1; irregular */
-    case 0:                                         /* switch 1 */
-        temp_3 = iGpffffb3ac;
-        if ((*(s32*)(temp_3 + 0xC)) & 0x1000) {
-            func_00212040((s32)(*(u8**)(temp_3 + 0xDD4)), 2, temp_6);
+select_action:
+    selectionMode = selectionState & 0xFFFF;
+    switch (selectionMode) {
+    case 0:
+        selectionBattle = iGpffffb3ac;
+        if ((*(s32*)(selectionBattle + 0xC)) & 0x1000) {
+            func_00212040((s32)(*(u8**)(selectionBattle + 0xDD4)));
             func_00216ca0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_002038c0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_00213c40((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            var_2 = (*(u8**)(iGpffffb3ac + 0x174));
-do {
-                    var_2 = (*(u8**)(var_2 + 0x450));
-} while (var_2 != NULL);
-            btlActionSetState(arg0, 9);
+            actionCursor = (*(u8**)(iGpffffb3ac + 0x174));
+            while (actionCursor != NULL) {
+                actionCursor = *(u8 **)(actionCursor + 0x450);
+            }
+            btlActionSetState((BtlAction *)action, 9);
             func_00194590((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
             return;
         }
-        temp_2_3 = func_0020ba90((s32)(*(u8**)(temp_3 + 0xDD4)), 2, temp_6);
-        if (temp_2_3 != NULL) {
-            temp_5_2 = (*(u8**)(temp_2_3 + 0x30));
-            if ((*(u8*)(temp_5_2 + 0xA2)) == 1) {
-                func_00194590((u8*)btlUnitCreateLookAtUnitPacket(NULL, temp_5_2, 1), 1U);
-                func_00194590((u8*)btlUnitCreateLookAtDeactivatePacket((s32) (*(u8**)(temp_2_3 + 0x30)), 0), 1U);
+        selectedAction = (u8 *)func_0020ba90((s32)(*(u8**)(selectionBattle + 0xDD4)));
+        if (selectedAction != NULL) {
+            selectedUnit = (*(u8**)(selectedAction + 0x30));
+            if ((*(u8*)(selectedUnit + 0xA2)) == 1) {
+                func_00194590((u8*)actionLookAtUnit(NULL, selectedUnit, 1), 1U);
+                func_00194590((u8*)btlUnitCreateLookAtDeactivatePacket(*(BtlUnit **)(selectedAction + 0x30), 0), 1U);
                 return;
             }
         }
         func_00194590((u8*)btlUnitCreateLookAtDeactivatePacket(0, 3), 1U);
         return;
-    case 1:                                         /* switch 1 */
-        temp_2_4 = (*(u8*)(((*(u16*)(arg0 + 0x6E)) * 0x28) + iGpffffb3b8 + 0x8));
-        if ((temp_2_4 != 2) && (temp_2_4 != 1)) {
-            temp_2_5 = func_0020ba60((s32)(*(u8**)(iGpffffb3ac + 0xDD4)), 2, temp_6);
-            (*(u8**)(arg0 + 0x38)) = (u8*)temp_2_5;
-            (*(u16*)(arg0 + 0x6A)) = 1U;
-            func_001d8be0(arg0 + 0x98, temp_2_5);
-        } else {
-            var_4 = 0;
-loop_28:
-            temp_3_2 = (*(u16*)(arg0 + 0xD0));
-            if ((var_4 & 0xFFFF) < (s32) temp_3_2) {
-                temp_3_3 = arg0 + ((var_4 & 0xFFFF) * 4);
-                (*(u8**)(temp_3_3 + 0x38)) = (u8*)(s32)(*(s32*)(temp_3_3 + 0x98));
-                var_4 = (var_4 + 1) & 0xFFFF;
-                goto loop_28;
+    case 1:
+        targetMode = *(u8 *)(actionSelectionOffset(*(u16 *)(action + 0x6E) * 0x28, iGpffffb3b8) + 8);
+        switch (targetMode) {
+        case 1:
+        case 2: {
+            targetIndex = 0;
+            while ((targetCount = *(u16 *)(action + 0xD0), targetIndex < (s32)targetCount)) {
+                actionCopySelectedTarget(action, &targetIndex);
+                targetIndex++;
             }
-            (*(u16*)(arg0 + 0x6A)) = temp_3_2;
+            (*(u16*)(action + 0x6A)) = targetCount;
+        } break;
+        default: {
+            selectedAddress = (s32)func_0020ba60((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            (*(u8**)(action + 0x38)) = (u8*)selectedAddress;
+            (*(u16*)(action + 0x6A)) = 1U;
+            func_001d8be0((s32)(action + 0x98), (u64 *)(u32)selectedAddress);
+        } break;
         }
-        temp_3_4 = (*(u16*)(arg0 + 0x6C));
-        switch (temp_3_4) {                         /* switch 2; irregular */
-        case 2:                                     /* switch 2 */
-        case 1:                                     /* switch 2 */
-            var_4_2 = func_001faf70(arg0, (s32) (*(u16*)(arg0 + 0x6E)), 0) & 0xFFFF;
+        actionKind = (*(u16*)(action + 0x6C));
+        switch (actionKind) {
+        case 1:
+        case 2:
+            condition = func_001faf70(action, (s32) (*(u16*)(action + 0x6E)), 0) & 0xFFFF;
             break;
-        case 3:                                     /* switch 2 */
-            var_4_2 = func_001faf70(arg0, (s32) (*(u16*)(arg0 + 0x6E)), 1) & 0xFFFF;
+        case 3:
+            condition = func_001faf70(action, (s32) (*(u16*)(action + 0x6E)), 1) & 0xFFFF;
             break;
-        default:                                    /* switch 2 */
-            var_4_2 = 0;
+        default:
+            condition = 0;
             break;
         }
-        temp_16_2 = (s64) (func_001fb170(var_4_2) << 0x30) >> 0x30;
-        if (temp_16_2 != 0) {
+        messageId = (s16)func_001fb170(condition);
+        if (messageId != 0) {
             func_0045af60(0, 0xF, 0, 8);
-            func_002019f0((*(u8**)(arg0 + 0x30)), temp_16_2);
+            func_002019f0(*(s32 *)(action + 0x30), (u32)messageId);
             func_0020ba30((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             return;
         }
-        if ((*(u16*)(arg0 + 0x6C)) != 4) {
-            (*(u16*)(arg0 + 0x18)) = (u16) ((*(u16*)(arg0 + 0x18)) | 2);
+        switch (*(u16 *)(action + 0x6C)) {
+        case 4: {
+            func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            func_00203880((s32)(*(u8**)(iGpffffb3ac + 0xDD4)), (s32)(*(u8**)(action + 0x38)));
+            btlActionSetState((BtlAction *)action, 5);
+            return;
+        } break;
+        default: {
+            (*(u16*)(action + 0x18)) = (u16) ((*(u16*)(action + 0x18)) | 2);
             func_00212040((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_00216ca0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_002038c0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_00213c40((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            var_2_2 = (*(u8**)(iGpffffb3ac + 0x174));
-loop_45:
-            if (var_2_2 != NULL) {
-                var_2_2 = (*(u8**)(var_2_2 + 0x450));
-                goto loop_45;
+            clearCursor = (*(u8**)(iGpffffb3ac + 0x174));
+            while (clearCursor != NULL) {
+                clearCursor = *(u8 **)(clearCursor + 0x450);
             }
-            btlActionSetState(arg0, 0xF);
+            btlActionSetState((BtlAction *)action, 0xF);
             return;
+        } break;
         }
-        func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-        func_00203880((s32)(*(u8**)(iGpffffb3ac + 0xDD4)), (s32)(*(u8**)(arg0 + 0x38)));
-        btlActionSetState(arg0, 5);
-        return;
-    case 2:                                         /* switch 1 */
+    case 2:
         func_00194590((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
         func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-        func_00213c10((*(u8**)(iGpffffb3ac + 0xDD4)));
+        func_00213c10(*(s32 *)(iGpffffb3ac + 0xDD4));
         func_00204d50((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         func_002037b0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-        btlActionSetState(arg0, 5);
+        btlActionSetState((BtlAction *)action, 5);
         /* fallthrough */
-    case 3:                                         /* switch 1 */
+    case 3:
         return;
     }
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a1ea0);
-#endif
+
+#pragma pop
 // FUN_001A24A0
 void func_001a24a0(u8 *arg0)
 {
@@ -1444,7 +1450,7 @@ void func_001a2c70(u8 *arg0)
         func_0023dfe0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
     *(s32 *)(arg0 + 0x38) = func_001d8bc0(arg0 + 0x98);
     *(s16 *)(arg0 + 0x6A) = 1;
-    func_001d8be0(arg0 + 0x98, *(s32 *)(arg0 + 0x38));
+    func_001d8be0((s32)(arg0 + 0x98), *(u64 **)(arg0 + 0x38));
     temp_3 = *(u8 **)(arg0 + 0x30);
     if ((temp_3[0xA2] == 0) && (*(u16 *)(temp_3 + 0xA4) == 1)) {
         func_00194590(func_001f5f70(arg0, 1, 0, 0, 0), 1);
@@ -1733,7 +1739,7 @@ void func_001a31e0(u8 *arg0) {
                     *(s32 *)(arg0 + 0x41C) = 0;
                 }
             }
-            func_00194590(btlUnitCreateLookAtUnitPacket(NULL, *(u8 **)arg0, 1), 1);
+            func_00194590(actionLookAtUnit(NULL, *(u8 **)arg0, 1), 1);
             func_00194590(btlUnitCreateLookAtDeactivatePacket((s32)*(u8 **)arg0, 0), 1);
             *(u16 *)(arg0 + 0x18) |= 0x200;
             *(s32 *)(arg0 + 0x420) = 1;
@@ -1974,7 +1980,7 @@ loop_test:
             arg0,
             func_0023d8e0(
                 *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64),
-                func_001f01a0(arg0, *(s32 *)(arg0 + 0x90)) & 0xFFFF) & 0xFFFF,
+                func_001f01a0(arg0, *(u8 **)(arg0 + 0x90)) & 0xFFFF) & 0xFFFF,
             2, 0x80000, 2, func_001db5e0);
     }
     if (status == 0) {
@@ -2029,7 +2035,7 @@ void func_001a3f90(u8 *arg0)
                 (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)temp_2->field_30, 0),
                 1);
             func_00194590(
-                btlUnitCreateLookAtUnitPacket(*(u8 **)(arg0 + 0x30),
+                actionLookAtUnit(*(u8 **)(arg0 + 0x30),
                               (u8 *)temp_2->field_30, 0),
                 1);
             func_00194590((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x30), 0);
@@ -2084,145 +2090,165 @@ void func_001a4390(void)
 {
 }
 
-/* Guarded draft: 1092B/window 1104B, 160 reloc-masked differing words.
- * The task constructors now return their pointers explicitly, and the cutin's
- * +0x58 value is copied to the formation task's +8 field, as in retail.
- * Remaining: saved-register rotation, s16 sh/lh versus widened sw/lw spill,
- * and loop-index CSE. See Code1a_001a43a0_20260926_body.c for the separate
- * rewrite and measured hypotheses; production remains the retail fallback. */
-// FUN_001A43A0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_loop_invariants on
-void func_001a43a0(u8 *arg0) {
-    extern s32 func_001a05f0(u8 *arg0);
-    s32 spF0[12];
-    s32 spC0[12];
-    s16 spB0;
-    u32 spA0;
-    s32 temp_17;
-    u16 temp_23;
-    s32 var_30;
-    s32 var_18;
-    s32 var_19;
-    s32 var_20;
-    u8 *temp_16;
-    u8 *temp_22;
-    s32 temp_22_2;
-    s32 temp_3;
-    s32 temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    s32 temp_4_2;
-    s32 var_16;
-    u8 *temp_2_4;
-    s32 var_16_2;
-    u8 *temp_2_5;
-    u8 *temp_2_6;
-    s32 temp_4;
-    s32 temp_18;
-    s32 var_7;
-    s32 temp_3_2;
-    s32 bound19;
-    u8 *copyDst;
-    s32 res23;
-
-    if (func_00193cd0(0xC00) == 0) {
-        temp_17 = *(s32 *)(arg0 + 0x90);
-        temp_23 = func_001f01a0(arg0, temp_17) & 0xFFFF;
-        spA0 = func_001d7f10(arg0, arg0 + 0x98, temp_23, 0) & 0xFFFF;
-        res23 = func_0023d8e0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), temp_23);
-        var_30 = 0;
-        var_19 = 0;
-        var_18 = 0;
-        var_20 = 0;
-        spB0 = res23;
-        for (var_20 = 0; (var_20 & 0xFFFF) < *(u16 *)(arg0 + 0xD0); var_20 = (var_20 + 1) & 0xFFFF) {
-            temp_16 = *(u8 **)(arg0 + ((var_20 & 0xFFFF) * 4) + 0x98);
-            if (*(u16 *)(temp_16 + 0x1A) & 1) {
-                temp_22 = *(u8 **)(temp_16 + 0x30);
-                if (datCalcIsDead(*(s32 *)(temp_22 + 0xA64), 0) == 0 &&
-                    (s8)func_00233a90(*(u8 **)(temp_22 + 0xA64), 0x10) <= 0 &&
-                    !(func_00242800(*(u8 **)(temp_22 + 0xA64), spB0) & 0x7000000)) {
-                    if (datCalcChkBadStatus((s32)*(u8 **)(temp_22 + 0xA64), 0x100000) == 0) {
-                        spC0[var_18 & 0xFFFF] = (s32)temp_16;
-                        var_18 = (var_18 + 1) & 0xFFFF;
-                    }
-                    if (temp_17 == (s32)temp_16) {
-                        var_30 = 1;
-                    } else {
-                        spF0[var_19 & 0xFFFF] = (s32)temp_16;
-                        var_19 = (var_19 + 1) & 0xFFFF;
-                    }
-                }
-            }
-        }
-        func_001eb3b0(arg0 + 0x38);
-        *(s16 *)(arg0 + 0x6C) = 2;
-        *(s16 *)(arg0 + 0x6E) = temp_23;
-        if ((spA0 & 0xFFFF) == 0) {
-        temp_4 = var_18 & 0xFFFF;
-        if (temp_4 > 0) {
-            *(s32 *)(arg0 + 0x38) = spC0[func_00231d70(temp_4)];
-        } else if (var_30 != 0) {
-            *(s32 *)(arg0 + 0x38) = temp_17;
-        } else {
-            *(s32 *)(arg0 + 0x38) = spF0[func_00231d70(var_19 & 0xFFFF)];
-        }
-        *(u16 *)(arg0 + 0x6A) = 1;
-        } else {
-            var_16 = 0;
-            temp_18 = var_19 & 0xFFFF;
-            var_20 = temp_18 * 3;
-            for (var_16 = 0; (var_16 & 0xFFFF) < var_20; var_16 = (var_16 + 1) & 0xFFFF) {
-                temp_22_2 = func_00231d70(temp_18) & 0xFFFF;
-                temp_3 = func_00231d70(temp_18) & 0xFFFF;
-                temp_2 = temp_22_2 & 0xFFFF;
-                if (temp_2 != temp_3) {
-                    temp_4_2 = spF0[temp_2];
-                    spF0[temp_2] = spF0[temp_3];
-                    spF0[temp_3] = temp_4_2;
-                }
-            }
-            if (var_30 != 0) {
-                *(s32 *)(arg0 + 0x38) = temp_17;
-                *(u16 *)(arg0 + 0x6A) = 1;
-                var_16_2 = 1;
-            } else {
-                *(u16 *)(arg0 + 0x6A) = 0;
-                var_16_2 = 0;
-            }
-            if (temp_18 > 1) {
-                if (temp_18 == 2) {
-                    var_19 = 1;
-                } else {
-                    var_19 = (func_00231d70(temp_18 - 1) + 1) & 0xFFFF;
-                }
-            }
-            bound19 = var_19 & 0xFFFF;
-            copyDst = arg0 + ((var_16_2 & 0xFFFF) * 4);
-            for (var_7 = 0; (var_7 & 0xFFFF) < bound19; var_7 = (var_7 + 1) & 0xFFFF) {
-                *(s32 *)(copyDst + (var_7 & 0xFFFF) * 4 + 0x38) = spF0[var_7 & 0xFFFF];
-            }
-            *(u16 *)(arg0 + 0x6A) += var_19;
-        }
-        *(u16 *)(arg0 + 0x18) |= 2;
-        temp_2_4 = func_001f99c0(arg0, 9, 0, 0, 0);
-        *(s64 *)(temp_2_4 + 0x60) = *(s64 *)arg0;
-        func_00194590(temp_2_4, 1);
-        temp_2_5 = func_001fa320();
-        *(s64 *)(temp_2_5 + 0x60) = *(s64 *)arg0;
-        func_00194590(temp_2_5, 1);
-        temp_2_6 = func_002027e0();
-        *(s8 *)(temp_2_6 + 0) = 4;
-        *(s64 *)(temp_2_6 + 8) = *(s64 *)(temp_2_5 + 0x58);
-        func_00194590(temp_2_6, 1);
-        btlActionSetState((BtlAction *)arg0, 0xF);
-    }
-}
+/* Recovered action selection. Configured b210 -O2 emits 1092 retail bytes
+ * plus 12 zero alignment bytes. The workspace keeps the signed element in
+ * actual halfword storage and both twelve-entry target lists at their observed
+ * 16-byte alignment. Scalarization is disabled for this storage; propagation
+ * is disabled to preserve the unit load before the element's signed-word
+ * promotion. The affinity provider retains its canonical s32 input. */
+#pragma push
+/* Keep the promoted shuffle count and output base at their explicit
+ * phase boundaries. The index reference preserves each narrow read. */
 #pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a43a0);
-#endif
+static inline u8 *actionReadCandidate(u8 *action, const u16 *index)
+{
+    return *(u8 **)(action + 0x98 + *index * 4);
+}
+
+/* Select eligible targets, preserving the reference action when required,
+ * then queue voice, cut-in and dependent formation packets. Both local
+ * target lists hold twelve entries; single-target selection requires
+ * a nonempty eligible set. */
+#pragma opt_scalarize off
+#pragma opt_propagation off
+// FUN_001A43A0
+void func_001a43a0(u8 *action)
+{
+    extern s8 func_00233a90(u8 *action, s32 arg1);
+    extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, s32 kind, s32 id, s32 flags, s32 mode);
+    struct {
+        s16 element;
+        u8 *preferred[12] __attribute__((aligned(16)));
+        u8 *other[12] __attribute__((aligned(16)));
+    } targets;
+    u8 *candidate;
+    u8 *referenceAction;
+    u16 scanIndex;
+    u16 otherCount;
+    u16 preferredCount;
+    u8 *workspace;
+    u16 skill;
+    s32 hasReferenceAction;
+    u16 targetMode;
+    s32 rawElement;
+    u8 *task;
+
+    if (func_00193cd0(0xC00) != 0) {
+        return;
+    }
+    referenceAction = *(u8 **)(action + 0x90);
+    skill = func_001f01a0(action, referenceAction);
+    targetMode = func_001d7f10(action, action + 0x98, skill, 0);
+    rawElement = func_0023d8e0(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64), skill);
+    hasReferenceAction = 0;
+    otherCount = 0;
+    preferredCount = 0;
+    scanIndex = 0;
+    targets.element = (s16)rawElement;
+    for (; scanIndex < *(u16 *)(action + 0xD0); scanIndex++) {
+        candidate = actionReadCandidate(action, &scanIndex);
+        if (!(*(u16 *)(candidate + 0x1A) & 1)) {
+            continue;
+        }
+        workspace = *(u8 **)(candidate + 0x30);
+        if (datCalcIsDead(*(s32 *)(workspace + 0xA64), 0) != 0) {
+            continue;
+        }
+        if (func_00233a90(*(u8 **)(workspace + 0xA64), 0x10) > 0) {
+            continue;
+        }
+        {
+            u8 *affinityUnit = *(u8 **)(workspace + 0xA64);
+            s32 affinityElement = targets.element;
+
+            if (func_00242800(affinityUnit, affinityElement) & 0x7000000) {
+                continue;
+            }
+        }
+        if (datCalcChkBadStatus(*(s32 *)(workspace + 0xA64), 0x100000) == 0) {
+            targets.preferred[preferredCount++] = candidate;
+        }
+        if (referenceAction != candidate) {
+            targets.other[otherCount++] = candidate;
+        } else {
+            hasReferenceAction = 1;
+        }
+    }
+    func_001eb3b0(action + 0x38);
+    *(s16 *)(action + 0x6C) = 2;
+    *(u16 *)(action + 0x6E) = skill;
+    if (targetMode == 0) {
+        if (preferredCount > 0) {
+            *(u8 **)(action + 0x38) = targets.preferred[func_00231d70(preferredCount)];
+        } else if (hasReferenceAction) {
+            *(u8 **)(action + 0x38) = referenceAction;
+        } else {
+            *(u8 **)(action + 0x38) = targets.other[func_00231d70(otherCount)];
+        }
+        *(u16 *)(action + 0x6A) = 1;
+    } else {
+        s32 availableCount;
+        s32 shuffleLimit;
+        u16 outputStart;
+        u16 shuffleIndex;
+
+        shuffleIndex = 0;
+        availableCount = otherCount;
+        shuffleLimit = availableCount * 3;
+        for (; shuffleIndex < shuffleLimit; shuffleIndex++) {
+            u16 firstIndex = func_00231d70(availableCount);
+            u16 secondIndex = func_00231d70(availableCount);
+
+            if (firstIndex != secondIndex) {
+                u8 *savedTarget = targets.other[firstIndex];
+
+                targets.other[firstIndex] = targets.other[secondIndex];
+                targets.other[secondIndex] = savedTarget;
+            }
+        }
+        if (hasReferenceAction) {
+            *(u8 **)(action + 0x38) = referenceAction;
+            *(u16 *)(action + 0x6A) = 1;
+            outputStart = 1;
+        } else {
+            *(u16 *)(action + 0x6A) = 0;
+            outputStart = 0;
+        }
+        if (availableCount > 1) {
+            if (availableCount == 2) {
+                otherCount = 1;
+            } else {
+                otherCount = func_00231d70(availableCount - 1) + 1;
+            }
+        }
+        {
+            u16 copyIndex;
+            u8 *outputBase;
+            s32 appendCount;
+
+            copyIndex = 0;
+            outputBase = action + outputStart * 4;
+            appendCount = otherCount;
+            for (; copyIndex < appendCount; copyIndex++) {
+                *(u8 **)(outputBase + copyIndex * 4 + 0x38) = targets.other[copyIndex];
+            }
+        }
+        *(u16 *)(action + 0x6A) += otherCount;
+    }
+    *(u16 *)(action + 0x18) |= 2;
+    task = (u8 *)btlVoiceCreatePacket((BtlAction *)action, 9, 0, 0, 0);
+    *(u64 *)(task + 0x60) = *(u64 *)action;
+    func_00194590(task, 1);
+    workspace = func_001fa320();
+    *(u64 *)(workspace + 0x60) = *(u64 *)action;
+    func_00194590(workspace, 1);
+    task = func_002027e0();
+    task[0] = 4;
+    *(u64 *)(task + 8) = *(u64 *)(workspace + 0x58);
+    func_00194590(task, 1);
+    btlActionSetState((BtlAction *)action, 0xF);
+}
+#pragma pop
 // FUN_001A47F0
 void func_001a47f0(void)
 {
@@ -2425,7 +2451,7 @@ void func_001a4c80(u8 *arg0)
     var_18 = 1;
     var_23 = 0;
     var_22 = 0;
-    tmp_pkt = btlUnitCreateLookAtUnitPacket(NULL, *(u8 **)((u8 *)arg0 + 0x30), 3);
+    tmp_pkt = actionLookAtUnit(NULL, *(u8 **)((u8 *)arg0 + 0x30), 3);
     *(s64 *)(tmp_pkt + 0x60) = *(s64 *)arg0;
     func_00194590(tmp_pkt, 1);
     tmp_pkt = (u8 *)btlUnitCreateLookAtDeactivatePacket(*(s32 *)((u8 *)arg0 + 0x30), 0);
@@ -3786,7 +3812,7 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_0019b550();
     extern s32 func_0019bbe0();
     extern s32 btlUnitCreateLookAtPacket();
-    extern s32 btlUnitCreateLookAtUnitPacket();
+    extern s32 actionLookAtUnit();
     extern s32 btlUnitCreateLookAtDeactivatePacket();
     extern s32 func_001a03b0();
     extern s32 btlActionSetState();
@@ -4302,7 +4328,7 @@ void func_001a7720(u8 *arg0) {
             }
         }
         if ((s32)(s32)sp1C0 != 0) {
-            temp_2_7 = (u8 *)(btlUnitCreateLookAtUnitPacket(0, (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 3));
+            temp_2_7 = (u8 *)(actionLookAtUnit(0, (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 3));
             (*( s32 * )((u8 *)(temp_2_7) + (0x60))) = (s32)((s32) (*( s32 * )((u8 *)((u8 *)arg0) + (0))));
             func_00194590(temp_2_7, 1);
             temp_2_8 = (u8 *)(btlUnitCreateLookAtDeactivatePacket((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0));
@@ -5082,13 +5108,13 @@ do {
             }
             if (sp33C != 0) {
                 if ((s32)(s32)sp1C0 != 0) {
-                    temp_2_84 = (u8 *)(btlUnitCreateLookAtUnitPacket(0, (*( u8 ** )((u8 *)(var_21_2) + (0x30))), 3));
+                    temp_2_84 = (u8 *)(actionLookAtUnit(0, (*( u8 ** )((u8 *)(var_21_2) + (0x30))), 3));
                     (*( s8 * )((u8 *)(temp_2_84) + (0))) = 5;
                     (*( s32 * )((u8 *)(temp_2_84) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_17_6) + (0x58))));
                     (*( s32 * )((u8 *)(temp_2_84) + (0x60))) = (s32)((s32) (*( s32 * )((u8 *)((u8 *)arg0) + (0))));
                     func_00194590(temp_2_84, 1);
                     if ((s32)(var_21_2) != (s32)(arg0)) {
-                        temp_2_85 = (u8 *)(btlUnitCreateLookAtUnitPacket((*( u8 ** )((u8 *)(var_21_2) + (0x30))), (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0));
+                        temp_2_85 = (u8 *)(actionLookAtUnit((*( u8 ** )((u8 *)(var_21_2) + (0x30))), (*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0));
                         (*( s8 * )((u8 *)(temp_2_85) + (0))) = 5;
                         (*( s32 * )((u8 *)(temp_2_85) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_17_6) + (0x58))));
                         (*( s32 * )((u8 *)(temp_2_85) + (0x60))) = (s32)((s32) (*( s32 * )((u8 *)((u8 *)arg0) + (0))));
@@ -6604,13 +6630,13 @@ void func_001ad280(u8 *arg0)
     u8 *temp_2;
 
     func_001a03b0((s64 *)arg0);
-    temp_2 = btlUnitCreateLookAtUnitPacket(
+    temp_2 = actionLookAtUnit(
         *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30),
         *(u8 **)(arg0 + 0x30),
         0);
     *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
     func_00194590(temp_2, 1);
-    temp_2 = btlUnitCreateLookAtUnitPacket(
+    temp_2 = actionLookAtUnit(
         *(u8 **)(arg0 + 0x30),
         *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30),
         0);

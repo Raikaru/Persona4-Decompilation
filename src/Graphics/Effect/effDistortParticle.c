@@ -2,6 +2,7 @@
 /* Persona 4 USA decompilation - effDistortParticle.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "effect_instance_internal.h"
 
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -14,8 +15,6 @@ extern void *memset(void *dest, s32 value, s32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern void func_003ef3a0(void *ptr);
 extern void func_00492cd0(void *ptr);
-extern u8 *func_00484490(void);
-extern s32 func_004844d0(void *obj);
 extern u8 *func_00492b20(u32 arg0, s32 arg1, u8 *arg2);
 extern void func_00492d10(void *ptr);
 extern s32 func_00481300(u16 param);
@@ -57,14 +56,15 @@ u8 *func_004af680(u32 arg0) {
 }
 
 // FUN_004AF740
-u8 *func_004af740(u8 *arg0) {
+void *func_004af740(void *opaqueSource) {
+    u8 *arg0 = opaqueSource;
     s32 temp_3;
     u32 var_4;
     u8 *temp_2_2;
     u8 *temp_2;
     s32 temp_2_3;
 
-    temp_2_2 = func_00484490();
+    temp_2_2 = func_00484490(arg0);
     if (temp_2_2 == NULL) {
         func_0046d730(D_00714550, 0x69);
     }
@@ -86,7 +86,7 @@ u8 *func_004af740(u8 *arg0) {
     if (*(s32 *)(*(u8 **)(temp_2 + 0x5C) + 8) == 0) {
         return temp_2;
     }
-    temp_2_3 = func_004844d0(arg0);
+    temp_2_3 = (s32)func_004844d0(arg0);
     if (temp_2_3 != 0) {
         switch (*(u16 *)(arg0 + 0x1C)) {
         case 1:
@@ -120,7 +120,8 @@ void func_004af8a0(u8 *arg0) {
 }
 
 // FUN_004AF920
-u8 *func_004af920(u8 *arg0) {
+void *func_004af920(void *opaqueSource) {
+    u8 *arg0 = opaqueSource;
     s32 temp_3;
     u32 var_4;
     u8 *temp_16;

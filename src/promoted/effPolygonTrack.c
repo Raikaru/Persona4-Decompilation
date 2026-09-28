@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effPolygonTrack.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "effect_instance_internal.h"
 #include "include_asm.h"
 
 extern void func_00486e10(void *arg0);
@@ -19,8 +20,6 @@ extern void memset(void *dst, s32 value, u32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern char D_00713E20[];
 extern char D_00713E30[];
-extern u8 *func_00484490(u8 *obj);
-extern s32 func_004844d0(u8 *obj);
 extern void *func_00486a50(s32 arg0);
 extern u8 *func_00483270(u8 *arg0);
 extern void func_00487160(void *arg0, void *arg1);
@@ -96,8 +95,9 @@ void *func_00492e70(u32 arg0)
    local nd 62 (spills into $s2); the volatile-anchored read applied here
    first try, nd 0. */
 // FUN_00492F20
-u8 *func_00492f20(u8 *arg0)
+void *func_00492f20(void *opaqueSource)
 {
+    u8 *arg0 = opaqueSource;
     u8 *t;
     u32 var;
     u8 *t2;
@@ -183,8 +183,9 @@ void func_00493080(u8 *arg0, u16 arg1, s32 *arg2) {
 /* measured: same volatile-anchored arg1 read as FUN_00492F20; plain reads
    swap the lhu/move order at both call sites (nd 5), local spills (nd 62). */
 // FUN_00493200
-u8 *func_00493200(u8 *arg0)
+void *func_00493200(void *opaqueSource)
 {
+    u8 *arg0 = opaqueSource;
     u8 *t;
     u8 *p;
     u32 var;
@@ -247,8 +248,9 @@ void func_00493320(u8 *arg0)
 /* measured: same volatile-anchored arg1 read as FUN_00492F20 (see its
    note); plain reads swap the lhu/move order at both call sites. */
 // FUN_004933A0
-u8 *func_004933a0(u8 *arg0)
+void *func_004933a0(void *opaqueSource)
 {
+    u8 *arg0 = opaqueSource;
     u8 *t17;
     u32 var;
     u8 *t2;
@@ -293,8 +295,9 @@ u8 *func_004933a0(u8 *arg0)
 /* measured: same volatile-anchored arg1 read as FUN_00492F20 (see its
    note); plain reads swap the lhu/move order at both call sites. */
 // FUN_00493530
-u8 *func_00493530(u8 *arg0)
+void *func_00493530(void *opaqueSource)
 {
+    u8 *arg0 = opaqueSource;
     u8 *t17;
     u32 var;
     u8 *t2;

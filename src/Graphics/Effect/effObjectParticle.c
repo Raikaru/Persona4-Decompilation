@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "effect_instance_internal.h"
 #include "Kosaka/k_clump_internal.h"
 #include "texture_callback_internal.h"
 
@@ -26,8 +27,6 @@ extern void func_003ef1b0(void *arg0);
 extern u8 *func_003c0f20(s32 arg0);
 extern void func_003e2ce0(s32 arg0, u32 arg1);
 extern void func_00463250(void *arg0);
-extern u8 *func_00484490(void);
-extern s32 func_004844d0(void *obj);
 
 void func_004aea70(u8 *arg0, s32 arg1, s32 arg2);
 
@@ -35,15 +34,16 @@ void func_004ae880(u8 *arg0, u8 *arg1);
 void func_004ae930(u8 *arg0, u32 arg1, u8 *arg2);
 
 // FUN_004AE460
-u8 *func_004ae460(u8 *arg0)
+void *func_004ae460(void *opaqueSource)
 {
+    u8 *arg0 = opaqueSource;
     s32 temp_2_3;
     s32 temp_3;
     u32 var_19;
     u8 *temp_2_2;
     u8 *temp_2;
 
-    temp_2_2 = func_00484490();
+    temp_2_2 = func_00484490(arg0);
     if (temp_2_2 == 0) {
         func_0046d730(D_00714520, 0xFD);
     }
@@ -75,7 +75,7 @@ u8 *func_004ae460(u8 *arg0)
     if (*(u32 *)(*(u8 **)(temp_2 + 0x58) + 8) == 0) {
         return temp_2;
     }
-    temp_2_3 = func_004844d0(arg0);
+    temp_2_3 = (s32)func_004844d0(arg0);
     if (temp_2_3 != 0) {
         switch (*(u16 *)(arg0 + 0x1C)) {
         case 3:
@@ -113,8 +113,9 @@ void func_004ae650(u8 *arg0)
 }
 
 // FUN_004AE6D0
-u8 *func_004ae6d0(u8 *arg0)
+void *func_004ae6d0(void *opaqueSource)
 {
+    u8 *arg0 = opaqueSource;
     u32 temp_3;
     u32 var_19;
     u8 *temp_17;

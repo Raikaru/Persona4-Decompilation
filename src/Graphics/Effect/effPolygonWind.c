@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effPolygonWind.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "effect_instance_internal.h"
 
 typedef struct RpGeometry RpGeometry;
 
@@ -33,8 +34,6 @@ extern char D_00713330[];
 extern char D_00714148[];
 extern u_long128 D_00713CE0;
 
-extern void *func_004844d0(void);
-extern void *func_00484490(void *);
 extern void func_0046d730(void *, s32);
 extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
 extern void func_004843a0();
@@ -1995,7 +1994,7 @@ void *func_004a5630(s32 arg0, void *arg1)
 #pragma opt_propagation on
 
 // FUN_004A5750
-void *func_004a5750(u8 *arg0)
+void *func_004a5750(void *arg0)
 {
     u8 *p16;
     u8 *p19;
@@ -2003,11 +2002,11 @@ void *func_004a5750(u8 *arg0)
     u8 *p17;
     u32 idx;
 
-    p18 = func_004844d0();
+    p18 = func_004844d0(arg0);
     if (p18 == NULL) {
         func_0046d730(D_00714110, 0x5D5);
     }
-    switch (*(u16 *)(arg0 + 0x1C)) {
+    switch (*(u16 *)((u8 *)arg0 + 0x1C)) {
     case 1:
         break;
     case 4:
@@ -2021,7 +2020,7 @@ void *func_004a5750(u8 *arg0)
     if (p19 == NULL) {
         func_0046d730(D_00714110, 0x5E3);
     }
-    p16 = (u8 *)(*(u16 *)(arg0 + 0xC) & 0xFFFF);
+    p16 = (u8 *)(*(u16 *)((u8 *)arg0 + 0xC) & 0xFFFF);
     p17 = func_004a5630((s32)p16, p19);
     idx = ((u32)p16 & 0xFFFF) * 28;
     *(u32 *)(p17 + 0x3C) = (u32)((void *(*)(void *, void *))(*(void **)(D_00714134 + idx)))(p19, p18);

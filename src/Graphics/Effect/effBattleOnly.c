@@ -1,6 +1,7 @@
 #include "include_asm.h"
 /* Source unit: src/Graphics/Effect/effBattleOnly_004b50f0.c */
 #include "type.h"
+#include "effect_instance_internal.h"
 
 void func_0046d730(u8 *file, s32 line);
 void func_0044ea90(u8 *file, s32 line);
@@ -34,8 +35,6 @@ typedef struct EffBattleWork
  * Storage is DEFINED by this unit so the linker can place it at 0x00764c90. */
 EffBattleEntry *D_00764C90;  // 0x00764c90
 s32 (*D_00764C94)(void);     // 0x00764c94
-u8 *func_00484490(u8 *obj);
-s32 func_004844d0(u8 *obj);
 
 u8 *func_004b50f0(s32 id, s32 arg1);
 
@@ -82,7 +81,7 @@ u8 *func_004b50f0(s32 id, s32 arg1)
  * offset for post. This preserves retail's lw/addiu/addu address sequence.
  * Object 316B/window 320B; scoped verify normalized_diff 0. */
 // FUN_004B5200
-u8 *func_004b5200(u8 *arg0)
+void *func_004b5200(void *arg0)
 {
     u8 *tex;
     s32 value;
@@ -97,10 +96,10 @@ u8 *func_004b5200(u8 *arg0)
     if (tex == NULL) {
         func_0046d730(D_007146A0, 0x58);
     }
-    value = func_004844d0(arg0);
-    id16 = *(u16 *)(arg0 + 0x1C);
-    param = *(s32 *)(arg0 + 0x24);
-    id = *(u16 *)(arg0 + 0xC);
+    value = (s32)func_004844d0(arg0);
+    id16 = *(u16 *)((u8 *)arg0 + 0x1C);
+    param = *(s32 *)((u8 *)arg0 + 0x24);
+    id = *(u16 *)((u8 *)arg0 + 0xC);
     work = func_004b50f0(id, (s32)tex);
     if ((*D_00764C94)() != 0) {
         off = (id & 0xFFFF) * 0x1C;

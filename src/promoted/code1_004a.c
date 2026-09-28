@@ -2,6 +2,7 @@
 #include "model_motion_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "effect_instance_internal.h"
 
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
@@ -84,7 +85,6 @@ extern void func_0048a070(s64 arg);
 extern void func_0048a0e0(void);
 extern void func_00489f80(void);
 extern void func_0048a000(void);
-extern u8 *func_00484490();
 extern f32 D_008872F8[];
  
 extern void primQuad3D(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
@@ -107,7 +107,6 @@ extern s32 func_00481300(u16 arg0);
 extern s32 func_00481d80(u16 *arg0);
 extern s32 func_00482800(u16 *arg0);
 extern void func_00483970(u8 *arg0, u16 *arg1);
-extern u16 *func_004844d0(u8 *arg0);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern s32 func_00481e30(s32 arg0);
@@ -145,7 +144,8 @@ void func_004a18e0(u8 *arg0) {
     jtbl_008873EC[0](arg0);
 }
 // FUN_004A1950
-u8 *func_004a1950(u8 *arg0) {
+void *func_004a1950(void *source) {
+    u8 *arg0 = (u8 *)source;
     s32 index;
     s32 stride;
     u8 *result;
@@ -380,8 +380,9 @@ void func_004a58b0(u8 *arg0)
 }
 
 // FUN_004A5910
-u8 *func_004a5910(u8 *arg0)
+void *func_004a5910(void *source)
 {
+    u8 *arg0 = (u8 *)source;
     u8 *temp_16;
 
     temp_16 = func_004a5630(*(u16 *)(arg0 + 0x38), *(u8 **)(arg0 + 0x40));
@@ -462,8 +463,9 @@ void func_004a5b90(u8 *arg0, f32 *arg1) {
 }
 
 // FUN_004A5BB0
-u8 *func_004a5bb0(u8 *arg0)
+void *func_004a5bb0(void *source)
 {
+    u8 *arg0 = (u8 *)source;
     u16 *temp_2_4;
     u16 temp_4;
     u8 *temp_2;
@@ -541,8 +543,9 @@ void func_004a5de0(u8 *arg0) {
 }
 
 // FUN_004A5E50
-u8 *func_004a5e50(u8 *arg0)
+void *func_004a5e50(void *source)
 {
+    u8 *arg0 = (u8 *)source;
     u8 *temp_16;
     u8 *temp_2;
     u8 *temp_3;
@@ -992,10 +995,10 @@ loop_004a6c00_check:
 /* measured: close loop-invariant hoisting after func_004a6c00. */
 #pragma opt_loop_invariants off
 // FUN_004A6D90
-void func_004a6d90(void) {
+void *func_004a6d90(void *source) {
     u8 *temp;
-    temp = func_00484490();
-    func_004a6c00(temp);
+    temp = func_00484490(source);
+    return func_004a6c00(temp);
 }
 // FUN_004A6DC0
 void func_004a6dc0(u8 *arg0)
@@ -1005,8 +1008,9 @@ void func_004a6dc0(u8 *arg0)
 }
 
 // FUN_004A6E10
-void func_004a6e10(u8 *arg0) {
-    func_004a6c00(arg0 + 0x18);
+void *func_004a6e10(void *source) {
+    u8 *arg0 = (u8 *)source;
+    return func_004a6c00(arg0 + 0x18);
 }
 // FUN_004A6E40
 void func_004a6e40(u8 *arg0)
@@ -1139,12 +1143,12 @@ void func_004a7a50(void) {
 
 
 // FUN_004A7A90
-void *func_004a7a90(void)
+void *func_004a7a90(void *source)
 {
     u8 *src;
     void *dst;
 
-    src = func_00484490();
+    src = func_00484490(source);
     func_0044ea90(D_00714350, 0x249);
     dst = jtbl_008873E8[0](0x14, 0x40000);
     *(u32 *)dst = 0;

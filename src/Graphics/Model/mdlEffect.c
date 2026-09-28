@@ -1,6 +1,7 @@
 #include "include_asm.h"
 /* Source unit: src/Graphics/Model/mdlFile_0047d2d0.c (1 function markers) */
 #include "type.h"
+#include "effect_instance_internal.h"
 #include "effect_update_internal.h"
 
 typedef int (*code)();
@@ -40,7 +41,7 @@ extern void func_0047d310(u32 *param_1);
 extern s32 func_00457120(void);
 extern u8 *func_003e9700(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void memcpy(void *dst, const void *src, u32 size);
+extern void *memcpy(void *dst, const void *src, u32 size);
 extern void memset(void *dest, s32 value, s32 size);
 extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
 extern void func_003e0670(void *matrixOut, void *matrixIn);
@@ -530,23 +531,24 @@ void func_00482730(int param_1, u32 param_2)
 #pragma opt_loop_invariants off
 
 // FUN_00484490
-int func_00484490(int param_1)
+void *func_00484490(void *source)
 {
-  int value;
+  u8 *param_1 = source;
+  u8 *value;
 
   if (*(int *)(param_1 + 0x18) == 0) {
     goto check;
   }
 
-  value = *(int *)(param_1 + 0x10);
+  value = *(u8 **)(param_1 + 0x10);
   goto done;
 check:
-  value = *(int *)(param_1 + 0x10);
+  value = *(u8 **)(param_1 + 0x10);
   if (value == 0) {
     goto zero;
   }
 
-  value = (int)((u8 *)param_1 + value);
+  value = (u8 *)((u32)param_1 + (u32)value);
   goto done;
 zero:
   value = 0;
@@ -557,23 +559,24 @@ done:
 
 
 // FUN_004844D0
-int func_004844d0(int param_1)
+void *func_004844d0(void *source)
 {
-  int value;
+  u8 *param_1 = source;
+  u8 *value;
 
   if (*(int *)(param_1 + 0x28) == 0) {
     goto check;
   }
 
-  value = *(int *)(param_1 + 0x20);
+  value = *(u8 **)(param_1 + 0x20);
   goto done;
 check:
-  value = *(int *)(param_1 + 0x20);
+  value = *(u8 **)(param_1 + 0x20);
   if (value == 0) {
     goto zero;
   }
 
-  value = (int)((u8 *)param_1 + value);
+  value = (u8 *)((u32)param_1 + (u32)value);
   goto done;
 zero:
   value = 0;
@@ -584,30 +587,27 @@ done:
 
 
 // FUN_00486710
-void func_00486710(u64 param_1, u64 param_2)
+void func_00486710(u8 *destination, u8 *source)
 {
-  /* This retail-matched call passes two 64-bit address values. */
-  extern u64 memcpy();
-  memcpy(param_1, param_2, 0x90);
-  return;
+  memcpy(destination, source, 0x90);
 }
 
 
 
 // FUN_00486740
-int func_00486740(int param_1, int param_2)
+u8 *func_00486740(u8 *root, s32 identifier)
 {
-  int iVar1;
+  u8 *node;
 
-  iVar1 = *(int *)(param_1 + 0x8c);
-  while (iVar1 != 0) {
-    if (*(int *)(iVar1 + 0x90) == param_2) {
-      return iVar1;
+  node = *(u8 **)(root + 0x8c);
+  while (node != NULL) {
+    if (*(s32 *)(node + 0x90) == identifier) {
+      return node;
     }
-    iVar1 = *(int *)(iVar1 + 0xac);
+    node = *(u8 **)(node + 0xac);
   }
 
-  return 0;
+  return NULL;
 }
 
 

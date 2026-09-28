@@ -1,3 +1,6 @@
+// Item-panel font pointer, read by the recovered renderer from the retail GP slot.
+iGpffff9cc8 = 0x00762db8; // type:data evidence: func_0012e9d0 lw $7,-0x6338($28) at 0x0012F558; zero-addend native R_MIPS_GPREL16; GP 0x007690F0
+
 // Current first-party panel and rank-up constants; native relocations resolve from GP 0x007690F0.
 fGpffff8488 = 0x00761578; // type:data evidence: func_00203930 lwc1 gp-0x7B78 at 0x00203984
 fGpffff848c = 0x0076157c; // type:data evidence: func_00203930 lwc1 gp-0x7B74 at 0x0020398C

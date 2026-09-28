@@ -2,6 +2,7 @@
 /* Persona 4 USA decompilation - effBlurFilter.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "effect_instance_internal.h"
 
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -47,8 +48,6 @@ extern void func_004a8da0(u8 *arg0, u8 *arg1);
 extern void func_004a8890(u8 *arg0, s32 *arg1);
 extern s32 func_00481390(void *ptr);
 extern s32 func_00481300(u16 param);
-extern s32 func_00484490(void);
-extern u16 *func_004844d0(u8 *obj);
 extern u8 D_00714390[];
 extern u8 D_007143A4[];
 extern u8 D_00714460[];
@@ -1411,32 +1410,32 @@ u8 *func_004aaee0(u32 type, s32 initialData)
    nested-if, #pragma schedule on (nd 46) — all nd 4. Same shape as the
    documented bpc 00245420 floor (retail move-before-load). */
 // FUN_004AB060
-u8 *func_004ab060(u8 *arg0) {
+void *func_004ab060(void *arg0) {
     s32 temp_2_2;
     s32 temp_2_3;
     u8 *temp_2;
 
-    temp_2_2 = (s32)func_00484490();
+    temp_2_2 = (s32)func_00484490(arg0);
     if (temp_2_2 == 0) {
         func_0046d730(D_00714380, 0x660);
     }
-    temp_2 = (u8 *)func_004aaee0(*(u16 *)(arg0 + 0xC), temp_2_2);
+    temp_2 = (u8 *)func_004aaee0(*(u16 *)((u8 *)arg0 + 0xC), temp_2_2);
     if (temp_2 == 0) {
         func_0046d730(D_00714380, 0x662);
     }
     temp_2_3 = (s32)func_004844d0(arg0);
     if ((temp_2_3 != 0) && (*(s8 *)(D_007143A0 + *(s32 *)(temp_2 + 0x18) * 24) != 0)) {
-        *(s32 *)(temp_2 + 0x28) = (s32)func_004ab960((u16 *)temp_2_3, *(u16 *)(arg0 + 0x1C));
+        *(s32 *)(temp_2 + 0x28) = (s32)func_004ab960((u16 *)temp_2_3, *(u16 *)((u8 *)arg0 + 0x1C));
     }
     return temp_2;
 }
 
 // FUN_004AB5A0
-u8 *func_004ab5a0(void *param_1) {
+void *func_004ab5a0(void *param_1) {
     u8 *tmp;
     u16 *tex;
 
-    tmp = (u8 *)func_00484490();
+    tmp = (u8 *)func_00484490(param_1);
     if (tmp == 0) {
         func_0046d730(D_00714380, 0x72B);
     }
@@ -1463,7 +1462,7 @@ void func_004ab140(void *param_1) {
 }
 
 // FUN_004AB1C0
-u8 *func_004ab1c0(void *param_1) {
+void *func_004ab1c0(void *param_1) {
     u8 *tmp;
 
     tmp = func_004aaee0(*(u16 *)((char *)param_1 + 0x18), *(s32 *)((char *)param_1 + 0x24));
@@ -1586,7 +1585,7 @@ void func_004ab680(void *param_1) {
 }
 
 // FUN_004AB700
-u8 *func_004ab700(void *param_1) {
+void *func_004ab700(void *param_1) {
     u8 *tmp;
 
     tmp = func_004ab420(*(u16 *)((char *)param_1 + 0x18), *(s32 *)((char *)param_1 + 0x24));

@@ -2,18 +2,15 @@
 /* Whole-file translation unit: src/Graphics/Effect/effHelper.c */
 
 #include "type.h"
+#include "effect_instance_internal.h"
 
 void func_0046d730(u8 *file, s32 line);
 void func_0044ea90(u8 *file, s32 line);
 void *memcpy(void *dst, const void *src, s32 size);
 void *memset(void *dst, s32 value, s32 size);
-u8 *func_00484490(u8 *obj);
-s32 func_004844d0(u8 *obj);
 u8 *func_004abc50(u8 *base, s32 size);
 s32 func_00479ca0(s32 res, s32 arg1);
 u32 func_0047a7c0(s32 res);
-u32 func_00484bb0(s32 arg);
-u32 func_00485c80(u32 arg);
 void func_00485b20(u32 arg);
 void func_004abd60(s32 res);
 void *func_00478140(u32 a, u16 b, u32 c);
@@ -46,7 +43,7 @@ typedef struct EffHlpWork
 void func_004ad880(EffHlpWork *work, EffHlpWork *src);
 
 // FUN_004AD460
-EffHlpWork *func_004ad460(u8 *arg0)
+void *func_004ad460(void *arg0)
 {
     void *(*const *allocSlot)(u32, u32);
     EffHlpWork *work;
@@ -73,7 +70,7 @@ EffHlpWork *func_004ad460(u8 *arg0)
     if (tex == NULL) {
         func_0046d730(D_007144F8, 0x2E);
     }
-    switch (*(u16 *)(arg0 + 0xC)) {
+    switch (*(u16 *)((u8 *)arg0 + 0xC)) {
     case 0:
         v20 = 0x70;
         memcpy((u8 *)work + 0x30, tex, 0x68);
@@ -83,7 +80,7 @@ EffHlpWork *func_004ad460(u8 *arg0)
         v20 = 0;
         break;
     }
-    work->res = (s32)func_004abc50(tex + v20, *(s32 *)(arg0 + 0x14) - v20);
+    work->res = (s32)func_004abc50(tex + v20, *(s32 *)((u8 *)arg0 + 0x14) - v20);
     if (work->res == 0) {
         func_0046d730(D_007144F8, 0x40);
     }
@@ -98,9 +95,9 @@ EffHlpWork *func_004ad460(u8 *arg0)
     if (work->count == 0) {
         return work;
     }
-    v = func_004844d0(arg0);
+    v = (s32)func_004844d0(arg0);
     if (v != 0) {
-        if (*(u16 *)(arg0 + 0x1C) != 6) {
+        if (*(u16 *)((u8 *)arg0 + 0x1C) != 6) {
             func_0046d730(D_007144F8, 0x53);
         }
         {
@@ -112,9 +109,9 @@ EffHlpWork *func_004ad460(u8 *arg0)
             func_0046d730(D_007144F8, 0x58);
         }
         work->list = work->listAlloc;
-        work->list[0] = func_00484bb0(v);
+        work->list[0] = (u32)func_00484bb0((u8 *)v);
         for (i = 1; i < work->count; i++) {
-            work->list[i] = func_00485c80(work->list[0]);
+            work->list[i] = (u32)func_00485c80((u8 *)work->list[0]);
         }
     }
     return work;
@@ -138,12 +135,12 @@ void func_004ad760(EffHlpWork *work)
 }
 
 // FUN_004AD810
-EffHlpWork *func_004ad810(u8 *arg0)
+void *func_004ad810(void *arg0)
 {
     EffHlpWork *work;
 
     work = func_004ad460(NULL);
-    memcpy((u8 *)work + 0x30, arg0 + 0x30, 0x68);
+    memcpy((u8 *)work + 0x30, (u8 *)arg0 + 0x30, 0x68);
     func_004ad880(work, (EffHlpWork *)arg0);
     return work;
 }
@@ -190,7 +187,7 @@ void func_004ad880(EffHlpWork *work, EffHlpWork *src)
         }
         work->list = work->listAlloc;
         for (i = 0; i < work->count; i++) {
-            work->list[i] = func_00485c80(src->list[0]);
+            work->list[i] = (u32)func_00485c80((u8 *)src->list[0]);
         }
     }
 }

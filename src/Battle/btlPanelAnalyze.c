@@ -3,7 +3,7 @@
 #include "type.h"
 #include "btl_panel_internal.h"
 extern void memset();
-s32 func_0023a6b0(u8 *arg0, s16 arg1);
+s32 func_0023a6b0(u8 *arg0, s32 arg1);
 void func_00364c50(void);
 void func_00364c70(void);
 void func_003c38b0(void *arg0, void *arg1);

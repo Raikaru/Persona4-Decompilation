@@ -1,6 +1,7 @@
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "effect_instance_internal.h"
 typedef struct BtlPacket BtlPacket;
 static inline s32 p4_001da5f0_xor(s32 left, s32 right)
 {
@@ -15,7 +16,7 @@ extern void btlUnitSetRot(void *arg0, void *arg1);
 extern void func_001ec1c0(void *out, void *first, void *second);
 extern void func_001ec6d0(s16 *arg0, s16 *arg1, f32 *position);
 extern s32 func_001ef720(s32 groupFlags, s32 excludedFlags);
-extern s32 func_0023a6b0(u8 *arg0, s16 arg1);
+extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
 extern u16 func_00231f80(u8 *arg0);
 extern u16 func_00232290(u8 *arg0);
 extern u8 *iGpffffb3ac;
@@ -1343,7 +1344,6 @@ static inline f32 btlAttachFieldScale(u8 *unit)
 void func_001d53e0(s32 arg0)
 {
     extern void func_001fc2c0(u8 *a0, u8 *a1);
-    extern u32 func_00485c80(u32 a0);
     extern s32 func_004861f0(u8 *a0, f32 *a1);
     extern void func_00486330(s32 a0, u8 *a1);
     extern void func_00486400(u8 *a0, f32 a1);
@@ -1407,7 +1407,7 @@ void func_001d53e0(s32 arg0)
                 created = 0;
                 entry->state = 0xFD;
             } else {
-                *handles = func_00485c80(entry->id);
+                *handles = (s32)func_00485c80((u8 *)entry->id);
                 created = 1;
             }
             mode = w->table[0x10];

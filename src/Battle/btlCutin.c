@@ -2,6 +2,7 @@
 /* Original translation unit btlCutin.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "effect_instance_internal.h"
 extern u8 *iGpffffb3ac;
 extern void func_00485b20();
 extern u8 *func_00194470();
@@ -10,7 +11,6 @@ extern void memcpy();
 extern void func_001f9cf0(u8 *arg0);
 extern s32 func_001f9fa0();
 extern s32 H_Cdvd_IsFileLoaded();
-extern s32 func_00484bb0();
 extern void H_Cdvd_Destroy();
 extern s32 func_004b1520();
 extern void func_00485630();
@@ -105,7 +105,7 @@ s32 func_001f9fa0(void) {
             if (H_Cdvd_IsFileLoaded(temp_4) != 0) {
                 if (!(*(s32 *)(iGpffffb3ac + 0xB4C) & 1)) {
                     temp_16 = var_18 * 4;
-                    *(s32 *)(iGpffffb3ac + temp_16 + 0xB5C) = func_00484bb0(*(s32 *)(*(u8 **)(iGpffffb3ac + temp_16 + 0xB6C) + 0x110));
+                    *(u8 **)(iGpffffb3ac + temp_16 + 0xB5C) = func_00484bb0(*(u8 **)(*(u8 **)(iGpffffb3ac + temp_16 + 0xB6C) + 0x110));
                 }
                 temp_16 = var_18 * 4;
                 H_Cdvd_Destroy(*(u8 **)(iGpffffb3ac + temp_16 + 0xB6C));
@@ -118,7 +118,7 @@ s32 func_001f9fa0(void) {
     if (var_17 != 0 && H_Cdvd_IsFileLoaded(*(u8 **)(iGpffffb3ac + 0xB58)) != 0) {
         s32 temp_3_2 = *(s32 *)(iGpffffb3ac + 0xB4C);
         if (!(temp_3_2 & 1)) {
-            *(s32 *)(iGpffffb3ac + 0xB54) = func_00484bb0(*(s32 *)(*(u8 **)(iGpffffb3ac + 0xB58) + 0x110));
+            *(u8 **)(iGpffffb3ac + 0xB54) = func_00484bb0(*(u8 **)(*(u8 **)(iGpffffb3ac + 0xB58) + 0x110));
         } else {
             *(s32 *)(iGpffffb3ac + 0xB4C) = temp_3_2 & ~1;
         }

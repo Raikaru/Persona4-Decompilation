@@ -3,6 +3,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "effect_instance_internal.h"
 
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
@@ -26,15 +27,11 @@ extern void func_004787e0(u32 arg0);
 extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern char D_007144A8[];
-extern void *func_004abe80(u8 *arg0);
 extern void func_004ac170(u8 *arg0, u8 *arg1);
 extern void func_004ac300(s32 arg0, u8 *arg1);
-extern u8 *func_004ac640(u8 *arg0);
 extern void func_004ac9a0(u8 *arg0, u8 *arg1);
 extern void func_00478ea0(u8 *arg0, void (*arg1)(u8 *), void *arg2);
 extern void func_0047a4d0(void *arg0, s32 arg1);
-extern u8 *func_00484490(u8 *arg0);
-extern s32 func_004844d0(u8 *arg0);
 extern void *func_00477c40(u32 arg0, u16 arg1, u32 arg2);
 extern void *func_00477f10(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
 extern u16 iGpffffbb90;
@@ -72,7 +69,7 @@ void func_004abe60(void) {
 #pragma push
 #pragma opt_propagation off
 // FUN_004ABE80
-void *func_004abe80(u8 *arg0) {
+void *func_004abe80(void *arg0) {
     f32 temp_f20;
     s32 temp_18;
     s32 temp_2_3;
@@ -99,12 +96,12 @@ void *func_004abe80(u8 *arg0) {
             func_0046d730(D_007144A8, 0x83);
         }
         memcpy(temp_2 + 0x2C, temp_2_2, 0x68);
-        temp_2_3 = func_004844d0(arg0);
+        temp_2_3 = (s32)func_004844d0(arg0);
         if (temp_2_3 != 0) {
-            if (*(u16 *)(arg0 + 0x1C) != 3) {
+            if (*(u16 *)((u8 *)arg0 + 0x1C) != 3) {
                 func_0046d730(D_007144A8, 0x8A);
             }
-            temp_18 = *(s32 *)(arg0 + 0x24);
+            temp_18 = *(s32 *)((u8 *)arg0 + 0x24);
             while ((lookupType = 6, func_00477c40(lookupType, iGpffffbb90, 0)) != 0) {
                 iGpffffbb90 += 1;
             }
@@ -337,7 +334,7 @@ void func_004ac620(int param_1, int param_2)
 #pragma push
 #pragma opt_propagation off
 // FUN_004AC640
-u8 *func_004ac640(u8 *arg0) {
+void *func_004ac640(void *arg0) {
     s32 temp_18;
     s32 temp_2_3;
     s32 temp_2_5;
@@ -361,12 +358,12 @@ u8 *func_004ac640(u8 *arg0) {
             func_0046d730(D_007144A8, 0x196);
         }
         memcpy(temp_2 + 0x10, temp_2_2, 0xA4);
-        temp_2_3 = func_004844d0(arg0);
+        temp_2_3 = (s32)func_004844d0(arg0);
         if (temp_2_3 != 0) {
-            if (*(u16 *)(arg0 + 0x1C) != 3) {
+            if (*(u16 *)((u8 *)arg0 + 0x1C) != 3) {
                 func_0046d730(D_007144A8, 0x19D);
             }
-            temp_18 = *(s32 *)(arg0 + 0x24);
+            temp_18 = *(s32 *)((u8 *)arg0 + 0x24);
             while ((lookupType = 6, func_00477c40(lookupType, iGpffffbb90, 0)) != 0) {
                 iGpffffbb90 += 1;
             }

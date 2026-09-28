@@ -1683,11 +1683,15 @@ void func_00203670(s32 unused, s32 arg1)
     *(s32 *)(temp_16 + 0x2C) = 0;
     *(s32 *)(temp_16 + 0x30) = 0;
 }
+/* This and the selection helpers take the caller's task explicitly. Retail
+ * forwards that argument to the work getter; an empty C parameter list loses
+ * the contract even when the argument register happens to retain the value. */
 // FUN_002037B0
-void func_002037b0(void) {
+void func_002037b0(s32 task) {
+    extern u32 func_00452560(void *task);
     u8 *p;
 
-    p = (u8 *)func_00452560();
+    p = (u8 *)func_00452560((void *)task);
     *(s16 *)(p + 0x9C) = 1;
 }
 // FUN_002037E0
@@ -1717,7 +1721,7 @@ s32 func_00203850(void)
     return *(s16 *)((u8 *)func_00452560() + 0xAA) < 2;
 }
 // FUN_00203880
-void func_00203880(void)
+void func_00203880(s32 unusedTask, s32 unusedAction)
 {
 }
 
@@ -2220,11 +2224,12 @@ void func_00204b80(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
 }
 #pragma pop
 // FUN_00204D50
-void func_00204d50(void)
+void func_00204d50(s32 task)
 {
+    extern u32 func_00452560(void *task);
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00452560();
+    temp_2 = (u8 *)func_00452560((void *)task);
     *(s16 *)(temp_2 + 0xAC) = 0;
     *(s32 *)(temp_2 + 0xA0) &= ~1;
 }
@@ -4820,7 +4825,7 @@ extern u16 func_0010f8c0(s32 arg0);
 extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
 extern s32 func_0023d6e0(s16 arg0);
 extern s8 func_00233a90(u8 *arg0, s32 arg1);
-extern s32 func_00242800(u8 *arg0, s16 arg1);
+extern s32 func_00242800(u8 *arg0, s32 arg1);
 extern s32 func_001f0950(s32 arg0, s32 arg1);
 extern void func_0020bfc0(u8 *arg0, s16 arg1);
 extern void func_0020bfd0(u8 *arg0);
@@ -4840,7 +4845,7 @@ void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3)
     s32 var_2;
     s32 var_30;
     u16 var_19;
-    s16 temp_18;
+    s32 temp_18;
     s32 temp_3;
     u16 temp_16;
     u8 *temp_16_2;
@@ -4930,33 +4935,40 @@ loop_condition:
 }
 
 // FUN_0020BA00
-u16 func_0020ba00(void) {
-    return *(u16 *)((u8 *)func_00452560() + 0x712);
+u16 func_0020ba00(s32 task) {
+    extern u32 func_00452560(void *task);
+    return *(u16 *)((u8 *)func_00452560((void *)task) + 0x712);
 }
 
 // FUN_0020BA30
-void func_0020ba30(void)
+void func_0020ba30(s32 task)
 {
-    *(s16 *)((u8 *)func_00452560() + 0x712) = 0;
+    extern u32 func_00452560(void *task);
+    *(s16 *)((u8 *)func_00452560((void *)task) + 0x712) = 0;
 }
 
+/* Both selection accessors return the formation entry read by 001d8bc0.
+ * Their action callers consume this address, so the result must be explicit. */
 // FUN_0020BA60
-void func_0020ba60(void)
+u32 func_0020ba60(s32 task)
 {
-    func_001d8bc0(*(u8 **)((u8 *)func_00452560() + 0x720));
+    extern u32 func_00452560(void *task);
+    return func_001d8bc0(*(u8 **)((u8 *)func_00452560((void *)task) + 0x720));
 }
 
 // FUN_0020BA90
-void func_0020ba90(void)
+u32 func_0020ba90(s32 task)
 {
-    func_001d8bc0(*(u8 **)((u8 *)func_00452560() + 0x720));
+    extern u32 func_00452560(void *task);
+    return func_001d8bc0(*(u8 **)((u8 *)func_00452560((void *)task) + 0x720));
 }
 // FUN_0020BAC0
 /* measured: retail keeps the ~0x200 mask live in the loop preheader; plain -O2
    rematerialises it inside the body (nd 41 -> byte-exact with the hoist). */
 #pragma opt_loop_invariants on
-void func_0020bac0(void) {
-    u8 *w = (u8 *)func_00452560() + 0x710;
+void func_0020bac0(s32 task) {
+    extern u32 func_00452560(void *task);
+    u8 *w = (u8 *)func_00452560((void *)task) + 0x710;
     s32 mask = ~0x200;
     u8 *p = *(u8 **)(D_0076449C + 0x178);
 
@@ -5096,17 +5108,19 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
     }
 }
 // FUN_0020BF60
-void func_0020bf60(void) {
+void func_0020bf60(s32 task) {
+    extern u32 func_00452560(void *task);
     u8 *p;
 
-    p = (u8 *)func_00452560();
+    p = (u8 *)func_00452560((void *)task);
     *(u16 *)(p + 0x710) |= 1;
 }
 // FUN_0020BF90
-void func_0020bf90(void) {
+void func_0020bf90(s32 task) {
+    extern u32 func_00452560(void *task);
     u8 *p;
 
-    p = (u8 *)func_00452560();
+    p = (u8 *)func_00452560((void *)task);
     *(u16 *)(p + 0x710) &= 0xFFFE;
 }
 // FUN_0020BFC0

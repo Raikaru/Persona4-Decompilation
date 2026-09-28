@@ -1,6 +1,7 @@
 /* Source unit: src/Battle/btlFormation_001d1eb0.c */
 #include "include_asm.h"
 #include "type.h"
+#include "effect_instance_internal.h"
 
 typedef int (*code)();
 
@@ -60,8 +61,6 @@ extern void func_001d3ff0(int state);
 extern void (*DAT_008873EC[])(void *);
 
 extern u64 memcpy();
-extern u32 func_00485c80(u32 param_1);
-extern u32 func_00484bb0(u32 param_1);
 
 extern u64 func_00485b20(u32 param_1);
 
@@ -1131,10 +1130,10 @@ void func_001d3ea0(int destination, u32 source)
                     packed = *(u32 *)(entry + 4);
                     referencedEntry = (u8 *)(destination + (packed >> 5) * 0x314 +
                                              (packed & 0x1f) * 0x18 + 0x1c);
-                    resource = func_00485c80(*(u32 *)(referencedEntry + 4));
+                    resource = (u32)func_00485c80(*(u8 **)(referencedEntry + 4));
                     entry[0] = referencedEntry[0];
                 } else {
-                    resource = func_00484bb0(source + *(u32 *)(entry + 4));
+                    resource = (u32)func_00484bb0((u8 *)(source + *(u32 *)(entry + 4)));
                 }
                 *(u32 *)(entry + 4) = resource;
             }

@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "effect_instance_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
@@ -114,7 +115,6 @@ extern s32 func_001faa00(void);
 extern s32 func_0022bd00(void);
 extern s32 func_00120ee0(s32 arg0);
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-extern s32 func_00484bb0(s32 arg0, u8 *arg1);
 extern void func_00243e70(s32 arg0);
 extern void datCalcSetHp(s32 arg0, s32 arg1);
 extern void datCalcClearBadStatus(s32 arg0, s32 arg1);
@@ -1867,7 +1867,7 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     extern s32 func_001ef4d0(s32 arg0, s32 arg1);
     extern s32 func_00231e20(u8 *arg0);
-    extern s32 func_00242800(u8 *arg0, s16 arg1);
+    extern s32 func_00242800(u8 *arg0, s32 arg1);
     typedef struct ResistanceScanNode {
         u8 reserved000[0xA4];
         u16 id;
@@ -3218,9 +3218,9 @@ s32 func_001f62f0(u8 *arg0)
 {
     extern s32 func_001ef4d0(s32 arg0, s32 arg1);
     extern s32 func_00231e20(u8 *arg0);
-    extern s32 func_0023a6b0(u8 *arg0, s16 arg1);
+    extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
     extern u32 effMiscRand(struct EffRandState *state);
-    s16 code;
+    s32 code;
     s32 base;
     s32 random;
     u16 mode;
@@ -4951,8 +4951,8 @@ s32 func_001fa660(void)
         flags = *(s32 *)flag_ptr;
         if ((flags & 2) == 0) {
             work = *(u8 **)(base + 0xB84);
-            *(s32 *)(iGpffffb3ac + 0xB80) =
-                func_00484bb0(*(s32 *)(work + 0x110), base);
+            *(u8 **)(iGpffffb3ac + 0xB80) =
+                func_00484bb0(*(u8 **)(work + 0x110));
         } else {
             *(s32 *)flag_ptr = flags & ~2;
         }
