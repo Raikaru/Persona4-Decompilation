@@ -75,7 +75,7 @@ extern f32 iGpffff8218;
 extern f32 iGpffff821c;
 extern f32 iGpffff8030;
 extern s32 func_0043c6a0(u32 arg0);
-extern void func_002a7920(u8, u8 *, s32, s32, u8 *, f32, f32, f32, f32);
+extern void func_002a7920(f32, f32, f32, u8, u8 *, s32, s32, f32, u8 *);
 extern void func_002a9f50(f32, f32, f32, s32, u8 *, s32, s32, u8 *);
 extern void func_002a6b10(s32, s32, s32, void *);
 extern void func_002a7710(s32, u8 *);
@@ -1216,13 +1216,13 @@ s32 func_002a4d10(s32 task) {
    are retail's (`(D_00761184 * (f32)frame) / 30.0f` fed to sinf, alpha is
    `(s32)(255.0f * ramp)` and is passed on to 6b60/6c30/9f50, the slide offsets are
    `350.0f * (1.0f - wave)` before the first loop and `400.0f * (1.0f - wave)` in the
-   tail).  449/449 instructions, guarded score 114 differing words (reloc-masked).
+   tail).  449/449 instructions, guarded score 111 differing words (reloc-masked).
    Structural levers: `fdiff`/`half` as named floats (see func_002a5f00) and the
    two-statement `pulse = K * sinf(..); scale = 1.0f + pulse;` (a single
    statement fuses into adda.s/madd.s, retail keeps mul.s + add.s), and
    separate x/y and x2/y2 float locals for the two loops (retail colours them
    f23/f22 and f22/f20; one shared pair gets the same registers in both).
-   Residual: saved-register colouring plus one argument-order difference.
+   Residual: saved-register colouring.
    Retail: alpha->$s0, p->$s1, base->$s2, slot->$s3, idx->$s4, row->$s5 and
    f23=x f22=y f21=wave f20=slide (loop 1).  Here row/idx/slot land on retail's
    $s5/$s4/$s3 with row/idx/slot/base/p/alpha declared in that order, but base
@@ -1233,9 +1233,11 @@ s32 func_002a4d10(s32 task) {
    in ALU operations rank below all of them, also in declaration order.
    Every opt_* pragma name in the compiler's list (on and off, measured on
    func_002a5f00) and copies through temporaries leave that split unchanged;
-   -O1 removes it but rewrites the whole body (261 edits).  In the first
-   7920 call retail materialises `mov.s $f13,y` before the integer arguments, this
-   body after them. */
+   -O1 removes it but rewrites the whole body (261 edits).
+   func_002a7920's parameter order is (f32, f32, f32, u8, u8 *, s32, s32, f32, u8 *):
+   with the trailing float and pointer in that order the call sites emit
+   `mov.s $f13,y` / `mov.s $f15,scale` where retail does (measured in isolation:
+   the old ints-then-floats order puts every plain float move last). */
 // FUN_002A4F20 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002a4f20(s32 arg0)
@@ -1305,7 +1307,7 @@ s32 func_002a4f20(s32 arg0)
             diff = row - *(s32 *)(p + 0x3B4);
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
-            func_002a7920(0xFF, p + 0x14, slot, 0, p, x - slide, y, 0.0f, 1.0f);
+            func_002a7920(x - slide, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
             func_002a9f50(x, y, 5.0f, alpha, p + 0x14, slot, 0, p);
         }
         idx++;
@@ -1336,7 +1338,7 @@ s32 func_002a4f20(s32 arg0)
         scale = 1.0f + pulse;
         slide = 400.0f * (1.0f - wave);
         func_002a66d0(72.0f - slide, 179.0f, 0.0f, 124.0f * scale, 116.0f * scale, 0x2D2D2D, 0xFF, 1);
-        func_002a7920(0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, p, 19.0f - slide, 130.0f, 0.0f, scale);
+        func_002a7920(19.0f - slide, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
     }
     frame = *(s32 *)(p + 0x568) + 1;
     *(s32 *)(p + 0x568) = frame;
@@ -1357,12 +1359,12 @@ INCLUDE_ASM("asm/nonmatchings/mc", func_002a4f20);
    (retail lays the 0.0f arm out last), 400.0f * wave slide in the loops, 350.0f *
    wave in the tail, two-statement pulse (see func_002a4f20) and separate x/y and
    x2/y2 locals per loop.  `131.0f + 47.0f * wave` needs no help: mwcc emits
-   retail's adda.s/madd.s pair for it.  564/564 instructions, guarded score 56
-   differing words (reloc-masked).  Residual: saved-register colouring (retail
-   alpha->$s0 p->$s1 base->$s2, see func_002a4f20 for the measured tier rule) and
-   argument order in the first func_002a7920 call and the tail one (retail
-   emits the plain `mov.s $f13,y` / `mov.s $f15,scale` before the trailing integer
-   arguments, this body after them). */
+   retail's adda.s/madd.s pair for it.  564/564 instructions, guarded score 51
+   differing words (reloc-masked).  Residual: saved-register colouring only
+   (retail alpha->$s0 p->$s1 base->$s2, see func_002a4f20 for the measured tier
+   rule).  func_002a7920 is declared (f32, f32, f32, u8, u8 *, s32, s32, f32, u8 *): that
+   parameter order, not the old ints-then-floats one, reproduces retail's argument
+   emission order at both of its call sites. */
 // FUN_002A5630 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002a5630(s32 arg0)
@@ -1465,7 +1467,7 @@ s32 func_002a5630(s32 arg0)
                 diff = row - *(s32 *)(p + 0x3B4);
                 x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
                 y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
-                func_002a7920(0xFF, p + 0x14, slot, 0, p, x - slide, y, 0.0f, 1.0f);
+                func_002a7920(x - slide, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
                 func_002a9f50(x, y, 5.0f, alpha, p + 0x14, slot, 0, p);
             }
             idx++;
@@ -1496,7 +1498,7 @@ s32 func_002a5630(s32 arg0)
             scale = 1.0f + pulse;
             slide = 350.0f * wave;
             func_002a66d0(72.0f - slide, 179.0f, 0.0f, 124.0f * scale, 116.0f * scale, 0x2D2D2D, 0xFF, 1);
-            func_002a7920(0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, p, 19.0f - slide, 130.0f, 0.0f, scale);
+            func_002a7920(19.0f - slide, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
         }
     }
     frame = *(s32 *)(p + 0x568) + 1;
@@ -1514,7 +1516,7 @@ INCLUDE_ASM("asm/nonmatchings/mc", func_002a5630);
 /* Rewrite 2026-09-28 (lane 5), replaces the m2c-shaped draft (181 differing words).
    Honest ABI: func_00452560 takes the task in arg0 (a0 passes through; the old
    draft called it through a no-argument cast).  Every call, constant and loop
-   is now retail's: 385/385 instructions, guarded score 62 differing words
+   is now retail's: 385/385 instructions, guarded score 58 differing words
    (reloc-masked), 0 inserted/deleted instructions.
    Levers that mattered: `fdiff = (f32)diff` as a named float (retail converts
    once and reuses it; without it the K2 load moves ahead of the cvt.s.w) and
@@ -1581,7 +1583,7 @@ s32 func_002a5f00(s32 arg0)
             diff = row - *(s32 *)(p + 0x3B4);
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
-            func_002a7920(0xFF, p + 0x14, slot, 0, p, x, y, 0.0f, 1.0f);
+            func_002a7920(x, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
             func_002a9f50(x, y, 5.0f, 0xFF, p + 0x14, slot, 0, p);
         }
         idx++;
@@ -1610,7 +1612,7 @@ s32 func_002a5f00(s32 arg0)
         }
         scale = 1.0f + iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(p + 0x3B8) / 10.0f);
         func_002a66d0(72.0f, 179.0f, 0.0f, 124.0f * scale, 116.0f * scale, 0x2D2D2D, 0xFF, 1);
-        func_002a7920(0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, p, 19.0f, 130.0f, 0.0f, scale);
+        func_002a7920(19.0f, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
     }
     func_002a6e30(5, -5, 0xFF, p);
     return 1;
@@ -2133,7 +2135,7 @@ void func_002a7710(s32 arg0, u8 *arg1) {
 #pragma opt_common_subs off
 // FUN_002A7920 NONMATCHING
 #ifdef NON_MATCHING
-void func_002a7920(u8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
+void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, u8 arg0, u8 *arg1, s32 arg2, s32 arg3, f32 fparg3, u8 *arg4) {
     extern f32 D_00761184;
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     u8 spEF;
