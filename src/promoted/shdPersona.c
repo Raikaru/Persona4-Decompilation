@@ -1901,45 +1901,48 @@ void func_0011c3e0(u8 *);
 void func_0011cd20(u8 *);
 void func_0011ce50(u8 *);
 void func_0011b110(u8 *);
-void func_0011de40(u8 *, s32);
+void func_0011de40(u8 *, u8);
 void func_0011dd50(u8 *);
 void func_00118a20(u8 *);
 void func_0011dc50(u8 *);
 void func_0011e400(u8 *, u8 *);
 s32 func_0011e460(u8 *);
 u16 func_0011ccb0(u8 *);
-void func_00114e50(s64, u8, s32, s32);
+void func_00114e50(Vec2f, f32, u8, u16);
 void func_00119210(u8 *);
 void func_00119810(u8 *);
 void func_00117980(u8 *);
 void func_0034f9d0(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
-/* measured: fully decoded, best nd 830 (obj 3844B / window 3216B, frame 0xA0
-   vs 0x90) at attempt 3. The TRUE signature is `void func_00119e10(u8 *arg0,
-   u8 *arg1)` with the USED base in $5 (the m2c's arg1 — a leading param was
-   dropped; the vtable callers pass the work in $5). Fixed during the attempt:
-   func_00364680 is (s32,s32,s32,s32,f32,f32,f32,f32,f32,f32,f32) (2nd param a
-   value, not s32*), func_001163e0 is (s64,s32,u8*,s32*,f32) (fparg0 LAST — the
-   odd-register rule puts arg1 in $5), func_00116d40 is (I64,u8,u8,u8,s16,s32,
-   f32). Remaining allocation cascade: (1) the D_00887300 base — retail caches
-   it in $s1 (lazily lui'd at the first call, per-call `lw $v0,($s1)`), mwcc
-   without a local rematerialises lui/lw per call (~72B), and with the local
-   `tbl = D_00887300; tbl[N](0,0)` it hoists into $s0 with arg1 pushed to $s1
-   (retail: arg1 $s0, base $s1 — one register swap that shifts the whole body);
-   (2) the candidate needs ONE extra saved GP (5 vs retail's 4 — frame 0xA0);
-   (3) the sp88/sp8C pair homes land at 0x78 instead of 0x88 (layout order).
-   All the (f32)(s32) cvt pairs, the 0x4F guard on `(u8)(s32)(204.0f*(1-f20))`
-   (survives — the value mixes a call result), the sp78/sp70/sp68 s64 copies,
-   and the family calls (16610/163e0/16820/16d40/14e50/13ef0/14460/34f9d0)
-   decode per the draft; the `(u32)(b18 * 0xFF) / 255U` and
-   `*(*(u16 **)arg1) & 4` shapes reproduced. */
-/* measured: cold 2026-09-18 00119e10 -- GUARDED_SCORE 415 in real tree via `python3 -E -s tools/measure_guarded.py src/promoted/shdPersona.c func_00119e10` (probe 415 differing words, object 802 instrs/window 802 instrs exact count per fnalign, 804-instr retail window). Full-C from P4 m2c draft (/var/tmp/cold119e10/m2c.c) + rw raw (/var/tmp/cold119e10/rw.c) + Ghidra/IDA headstarts, de-noised to file idiom (raw u8 work offsets, PackedVec2f position + e400buf[2] + s64 sp78/sp70/sp68 copies, u32 tblbase single-base D_00887300 idiom, (f32)(s32) truncations for 114/2 per 0011d5b0 lesson, plain (u8) for 204*(1-f20) per 7a-quinquies, (u32)(alpha*0xFF)/255U + color|~0xFF per 00116190 sibling, block-scope 113ef0/14460/14e50/274ed0 decls to keep file-scope untouched). Frame 0xA0 vs retail 0x90 (+1 saved GP) + homes 0x98/0x9C vs 0x88/0x8C shift + $s1/$s2/$s3 colour permutation are the floor. Reused existing decls (00364680 f32-first, 0046d2b0 8-arg, 0046d4c0 11-arg, 00116610/163e0/16820 s64-family, 00116d40 Vec2f-family, 0034f9d0 Vec2f-family), no new globals. Rounds in batch order: (1) pragmas tie 415 (loopinv/strength/unroll tie, dead 547, prop 703, sched 720, cse 733, levels worse); (2) scoping cnt/flags block-local tie 415 (1st non-lowering); (3) decl orders tie 415 (b/tblbase swap, u32*-base, position/e400 swap; 2nd consecutive non-lowering but continued for diagnosis); (4) tblbase-direct 630 (+215, confirms single-base idiom) + (u8)(s32) 521 (+106, confirms plain (u8) per 7a-quinquies); (5) hoisted row 432 (+17, confirms direct b[i+..] per 7k Step3) + e400 scalars 421 (+6, confirms e400buf[2] array). verify.py src/promoted/shdPersona.c 91 MATCH/11 ASM/0 MISMATCH pre/post (now 91/11 with target ASM floor counted among 11); decomp_lint clean; -DNON_MATCHING compiles. Walls: systematic $s1->$s2/$s2->$s3/$s3->$s4 shift (extra saved, decl-order inert per 7m), FP mov.s shortfall 7, move/addiu surplus 3. */
+/* measured 2026-09-28 (lane 3): 12 differing words, object 802 instructions ==
+   retail 802, frame 0x90, same saved-register set (was 416 words / frame 0xA0).
+   The signature is `(u8 *arg0, u8 *arg1)`; the work base is arg1 ($a1).
+   What closed the gap: (1) `func_0011de40` and `func_00114e50` take u8/u16
+   (their bodies already masked), so retail's slot-order `lbu` after `ld $a0`
+   is reproduced; (2) the y half of each `spNN` copy is held in an f32 local
+   (retail keeps it in $f20 across the calls) instead of re-deriving `&spNN+1`,
+   which cost a fifth saved register; (3) the e400 pair is read into `sy`/`sx`
+   (f22/f21) before the colour is built, and the id call is made inside the
+   argument list so the colour arithmetic is not sunk below it; (4) `inv`
+   is passed unmasked (the callee's u8 slot masks it), and each position half
+   is stored right after its add; (5) `qx = (f32)0x131; qx = qx + field` keeps
+   the int-to-float convert ahead of the field load; (6) `record = b + i`
+   fixes the loop's addu operand order.
+   Residual: all 12 words are one effect at six call sites (`func_00116610`
+   x2, `func_001163e0` x2, `func_00116820`, `func_00116d40`): retail loads the
+   byte alpha AFTER `ld $a0`, which b210 only does when the callee parameter
+   is `u8` (an `s32` parameter hoists the `lbu` first; measured in isolation
+   for u8/u32/u16/local/struct spellings). Making that whole family u8
+   (115c40..116d40) keeps every member MATCH except func_00116d40, which
+   loses 5 words: retail converts its raw incoming alpha register as u32
+   (`bltz $s4`), which needs a 32-bit parameter. So retail's callee and this
+   caller disagree on the parameter type; no single consistent signature
+   reproduces both, and the family is left as s32. */
 // FUN_00119E10 NONMATCHING
 #ifdef NON_MATCHING
 void func_00119e10(u8 *arg0, u8 *arg1)
 {
     void func_00113ef0(Vec2f, f32, u8, u8 *, u8, f32);
     void func_00114460(Vec2f, f32, u8, u8 *, f32);
-    void func_00114e50(Vec2f, f32, s32, s32);
     void func_00274ed0(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
     PackedVec2f position;
     f32 e400buf[2];
@@ -2033,6 +2036,8 @@ void func_00119e10(u8 *arg0, u8 *arg1)
         if ((*(s32 *)(b + 0x534) & 0x200) != 0) {
             u8 *work2;
             f32 f20;
+            f32 sy;
+            f32 sx;
             s32 packed;
             s32 id;
             work2 = *(u8 **)(b + 0x4F8);
@@ -2040,10 +2045,11 @@ void func_00119e10(u8 *arg0, u8 *arg1)
                 f32 t;
                 f20 = func_001174a0(*(s16 *)(b + 0x520), 0x17, 0x32, 2);
                 func_0011e400(work2, (u8 *)e400buf);
+                sy = e400buf[1];
+                sx = e400buf[0];
                 t = 204.0f * (1.0f - f20);
                 packed = ((u8)t & 0xFF) | 0xFF8C3200;
-                id = func_0011e460(work2);
-                func_00364680(0.0f, packed, e400buf[0], e400buf[1], e400buf[0], e400buf[1], 512.0f, 512.0f, id, 0, 1);
+                func_00364680(0.0f, packed, sx, sy, sx, sy, 512.0f, 512.0f, func_0011e460(work2), 0, 1);
                 RpSkyRenderStateSet(3, (void *)0x717FB);
                 RpSkyRenderStateSet(2, (void *)0x44);
             }
@@ -2064,8 +2070,8 @@ void func_00119e10(u8 *arg0, u8 *arg1)
             f32 px;
             f32 py;
             px = 16.0f + *(f32 *)(b + 0x36C);
-            py = 17.0f + *(f32 *)(b + 0x370);
             position.xy.x = px;
+            py = 17.0f + *(f32 *)(b + 0x370);
             position.xy.y = py;
             func_0046d2b0(0, *(s32 *)(b + 0x2C4), 3, px, py, (0xFF - *(u8 *)(b + 0x376)) & 0xFF, 0.0f, 0);
         }
@@ -2077,9 +2083,10 @@ void func_00119e10(u8 *arg0, u8 *arg1)
             s32 id;
             f32 x;
             f32 y;
+            f32 sy78;
             px = *(f32 *)(b + 0x2DC);
-            py = 43.0f + *(f32 *)(b + 0x2E0);
             position.xy.x = px;
+            py = 43.0f + *(f32 *)(b + 0x2E0);
             position.xy.y = py;
             alpha = *(u8 *)(b + 0x2E6);
             sp78 = position.packed;
@@ -2089,9 +2096,10 @@ void func_00119e10(u8 *arg0, u8 *arg1)
                 if (id == 0) {
                     func_0046d730(D_005E4868, 0x171);
                 }
-                func_0046d4c0(0, id, 0x59, 207.0f + *(f32 *)&sp78, *((f32 *)&sp78 + 1), (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+                sy78 = *((f32 *)&sp78 + 1);
+                func_0046d4c0(0, id, 0x59, 207.0f + *(f32 *)&sp78, sy78, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
                 x = (f32)(s32)(114.0f + *(f32 *)&sp78);
-                y = (f32)(s32)(2.0f + *((f32 *)&sp78 + 1));
+                y = (f32)(s32)(2.0f + sy78);
                 func_00274ed0(x, y, 0.0f, color | ~0xFF, 8, 1, (const char *)func_0010d6d0(*(s16 *)(b + 0xC)), 8, 0);
             }
         }
@@ -2101,14 +2109,15 @@ void func_00119e10(u8 *arg0, u8 *arg1)
             u8 alpha;
             s32 id;
             s32 inv;
+            f32 sy;
             px = -23.0f + *(f32 *)(b + 0x300);
-            py = 76.0f + *(f32 *)(b + 0x304);
             position.xy.x = px;
+            py = 76.0f + *(f32 *)(b + 0x304);
             position.xy.y = py;
             func_00116610(position.packed, 0.0f, *(u8 *)(b + 0x30A), b + 0xC, (s32 *)(b + 0x2B8));
             px = -23.0f + *(f32 *)(b + 0x348);
-            py = 76.0f + *(f32 *)(b + 0x34C);
             position.xy.x = px;
+            py = 76.0f + *(f32 *)(b + 0x34C);
             position.xy.y = py;
             alpha = *(u8 *)(b + 0x352);
             sp70 = position.packed;
@@ -2117,22 +2126,23 @@ void func_00119e10(u8 *arg0, u8 *arg1)
                 func_0046d730(D_005E4868, 0x197);
             }
             inv = 0xFF - (alpha & 0xFF);
-            func_0046d4c0(0, id, 0x47, *(f32 *)&sp70, *((f32 *)&sp70 + 1), inv & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
-            func_0046d4c0(0, id, 0x41, 126.0f + *(f32 *)&sp70, *((f32 *)&sp70 + 1), inv & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+            sy = *((f32 *)&sp70 + 1);
+            func_0046d4c0(0, id, 0x47, *(f32 *)&sp70, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+            func_0046d4c0(0, id, 0x41, 126.0f + *(f32 *)&sp70, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
             px = -23.0f + *(f32 *)(b + 0x324);
-            py = 76.0f + *(f32 *)(b + 0x328);
             position.xy.x = px;
+            py = 76.0f + *(f32 *)(b + 0x328);
             position.xy.y = py;
             func_001163e0(position.packed, 0.0f, *(u8 *)(b + 0x32E), b + 0xC, (s32 *)(b + 0x2B8));
             if ((*(s32 *)(b + 0x534) & 0x4000) != 0) {
                 px = -23.0f + *(f32 *)(b + 0x3D8);
-                py = 76.0f + *(f32 *)(b + 0x3DC);
                 position.xy.x = px;
+                py = 76.0f + *(f32 *)(b + 0x3DC);
                 position.xy.y = py;
                 func_00116610(position.packed, 0.0f, *(u8 *)(b + 0x3E2), b + 0x48, (s32 *)(b + 0x2B8));
                 px = -23.0f + *(f32 *)(b + 0x420);
-                py = 76.0f + *(f32 *)(b + 0x424);
                 position.xy.x = px;
+                py = 76.0f + *(f32 *)(b + 0x424);
                 position.xy.y = py;
                 alpha = *(u8 *)(b + 0x42A);
                 sp68 = position.packed;
@@ -2141,34 +2151,36 @@ void func_00119e10(u8 *arg0, u8 *arg1)
                     func_0046d730(D_005E4868, 0x197);
                 }
                 inv = 0xFF - (alpha & 0xFF);
-                func_0046d4c0(0, id, 0x47, *(f32 *)&sp68, *((f32 *)&sp68 + 1), inv & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
-                func_0046d4c0(0, id, 0x41, 126.0f + *(f32 *)&sp68, *((f32 *)&sp68 + 1), inv & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+                sy = *((f32 *)&sp68 + 1);
+            func_0046d4c0(0, id, 0x47, *(f32 *)&sp68, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+                func_0046d4c0(0, id, 0x41, 126.0f + *(f32 *)&sp68, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
                 px = -23.0f + *(f32 *)(b + 0x3FC);
-                py = 76.0f + *(f32 *)(b + 0x400);
                 position.xy.x = px;
+                py = 76.0f + *(f32 *)(b + 0x400);
                 position.xy.y = py;
                 func_001163e0(position.packed, 0.0f, *(u8 *)(b + 0x406), b + 0x48, (s32 *)(b + 0x2B8));
             }
             {
                 f32 qx;
                 f32 qy;
-                u8 b39A;
-                qx = (f32)0x131 + *(f32 *)(b + 0x390);
+                qx = (f32)0x131;
+                qx = qx + *(f32 *)(b + 0x390);
                 qy = 139.0f + *(f32 *)(b + 0x394);
                 position.xy.x = qx;
                 position.xy.y = qy;
-                b39A = *(u8 *)(b + 0x39A);
-                func_00116820(position.xy, 0.0f, b39A, b + 0xC, (s32 *)(b + 0x2B8));
+                func_00116820(position.xy, 0.0f, *(u8 *)(b + 0x39A), b + 0xC, (s32 *)(b + 0x2B8));
                 {
                     s32 i;
                     for (i = 0; i < 5; i++) {
                         f32 rx;
                         f32 ry;
+                        u8 *record;
                         rx = 88.0f + *(f32 *)(b + 0x390);
                         ry = 203.0f + *(f32 *)(b + 0x394) + (f32)(i * 19);
                         position.xy.x = rx;
                         position.xy.y = ry;
-                        func_00116d40(position.xy, 0.0f, b39A, b[i + 0x13], b[i + 0x18], *(s16 *)(b + 0x526), *(s32 *)(b + 0x2B8));
+                        record = b + i;
+                        func_00116d40(position.xy, 0.0f, *(u8 *)(b + 0x39A), record[0x13], record[0x18], *(s16 *)(b + 0x526), *(s32 *)(b + 0x2B8));
                     }
                 }
             }
@@ -2181,8 +2193,8 @@ void func_00119e10(u8 *arg0, u8 *arg1)
                 *(s16 *)(b + 0x514) = cnt + 1;
             }
             px = 18.0f + *(f32 *)(b + 0x444);
-            py = 194.0f + *(f32 *)(b + 0x448);
             position.xy.x = px;
+            py = 194.0f + *(f32 *)(b + 0x448);
             position.xy.y = py;
             func_00114e50(position.xy, 0.0f, *(u8 *)(b + 0x505), func_0011ccb0(b));
         }
@@ -2192,8 +2204,8 @@ void func_00119e10(u8 *arg0, u8 *arg1)
             u8 alpha;
             f32 fade;
             px = *(f32 *)(b + 0x3B4);
-            py = *(f32 *)(b + 0x3B8);
             position.xy.x = px;
+            py = *(f32 *)(b + 0x3B8);
             position.xy.y = py;
             alpha = *(u8 *)(b + 0x3BE);
             {
@@ -4072,10 +4084,10 @@ void func_0011dd50(u8 *arg0)
 
 
 // FUN_0011DE40
-void func_0011de40(u8 *arg0, s32 arg1)
+void func_0011de40(u8 *arg0, u8 arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
-    s32 v = arg1 & 0xFF;
+    s32 v = arg1;
     *(s32 *)(b + 8) = (*(s32 *)(b + 8) & ~0xFF) | v;
     *(s32 *)(b + 0xC) = (*(s32 *)(b + 0xC) & ~0xFF) | v;
 }
