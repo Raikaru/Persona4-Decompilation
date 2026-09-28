@@ -4173,7 +4173,7 @@ u16 func_00209dc0(u8 *arg0, u8 *arg1)
     extern s16 func_00105f00(s16 arg0);
     extern void func_00105e30(s16 arg0, s16 arg1);
     extern u8 *func_001b0c80(s32 arg0);
-    extern u8 *func_001f99c0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3,
+    extern u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3,
                               s32 arg4);
     extern s64 func_00194590(u8 *arg0, u32 arg1);
     s16 temp_16;

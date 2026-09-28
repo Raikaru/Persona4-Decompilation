@@ -2220,7 +2220,7 @@ void func_001b4880(u8 *arg0) {
     extern u8 *func_001ba530(s32 arg0, s32 arg1);
     extern u8 *func_00457160(void);
     extern u8 *func_001d3b50(u8 *arg0);
-    extern u8 *func_001f99c0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+    extern u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern u8 *btlUnitCreateMovePacket(u8 *arg0, void *arg1, f32 arg2, s32 arg3);
     extern u8 *func_0019bdd0(u8 *arg0);
     extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrames, f32 speed, u16 mode);

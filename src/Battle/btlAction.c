@@ -93,7 +93,7 @@ void func_001a1190(BtlAction* action)
     extern void func_001a03b0(BtlAction* action);
     extern BtlPacket* func_001d3900(u16 param_1);
     extern BtlPacket* func_001d3700(u16 param_1, u16 param_2);
-    extern BtlPacket* func_001f99c0(BtlAction* action, s32 param_2, s32 param_3,
+    extern BtlPacket* func_001f99c0(BtlAction* action, u16 param_2, s32 param_3,
                                      s32 param_4, s32 param_5);
     extern u32 datCalcChkBadStatus(u32 unit, u32 badStatus);
     extern u32 datCalcIsDead(u32 unit, s32 hpDelta);
