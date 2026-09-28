@@ -7517,6 +7517,7 @@ fGpffff84fc = 0x007615ec; // type:data
 fGpffff8500 = 0x007615f0; // type:data
 fGpffff8504 = 0x007615f4; // type:data
 iGpffff8504 = 0x007615f4; // type:data
+iGpffff8518 = 0x00761608; // type:data
 fGpffff8510 = 0x00761600; // type:data
 fGpffff8514 = 0x00761604; // type:data
 fGpffff8520 = 0x00761610; // type:data
