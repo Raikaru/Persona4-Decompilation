@@ -1216,10 +1216,12 @@ s32 func_002a4d10(s32 task) {
    are retail's (`(D_00761184 * (f32)frame) / 30.0f` fed to sinf, alpha is
    `(s32)(255.0f * ramp)` and is passed on to 6b60/6c30/9f50, the slide offsets are
    `350.0f * (1.0f - wave)` before the first loop and `400.0f * (1.0f - wave)` in the
-   tail).  449/449 instructions, guarded score 118 differing words (reloc-masked).
+   tail).  449/449 instructions, guarded score 114 differing words (reloc-masked).
    Structural levers: `fdiff`/`half` as named floats (see func_002a5f00) and the
    two-statement `pulse = K * sinf(..); scale = 1.0f + pulse;` (a single
-   statement fuses into adda.s/madd.s, retail keeps mul.s + add.s).
+   statement fuses into adda.s/madd.s, retail keeps mul.s + add.s), and
+   separate x/y and x2/y2 float locals for the two loops (retail colours them
+   f23/f22 and f22/f20; one shared pair gets the same registers in both).
    Residual: saved-register colouring plus one argument-order difference.
    Retail: alpha->$s0, p->$s1, base->$s2, slot->$s3, idx->$s4, row->$s5 and
    f23=x f22=y f21=wave f20=slide (loop 1).  Here row/idx/slot land on retail's
@@ -1258,6 +1260,8 @@ s32 func_002a4f20(s32 arg0)
     f32 pulse;
     f32 fdiff;
     f32 half;
+    f32 x2;
+    f32 y2;
 
     p = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
     func_002a6b10(0, 0, 255, p);
@@ -1312,12 +1316,12 @@ s32 func_002a4f20(s32 arg0)
         slot = base + idx - 3;
         if (slot >= 0 && slot < 16) {
             diff = row - *(s32 *)(p + 0x3B4);
-            x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
-            y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
+            x2 = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
+            y2 = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             if (slot == base || slot == base + 1) {
                 func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
                 func_002a6960(0, 0x83, 0x280, 0x5E, 10.0f);
-                func_002a9f50(x, y, 5.0f, alpha, p + 0x14, slot, 1, p);
+                func_002a9f50(x2, y2, 5.0f, alpha, p + 0x14, slot, 1, p);
             }
         }
         idx++;
