@@ -1,118 +1,123 @@
 # Matching playbook: source-shaping for MWCCPS2
 
-Hard-won, reusable source-shaping tricks for making `mwccps2`
-(`mwcps2-3.0.1b210-060308`, `-O2 -Iinclude`) reproduce retail Persona 4 codegen
-byte-for-byte. This is the "every reusable source-shaping lever" file the
-roadmap points at. Techniques were validated in the Persona 3 FES campaign
-(its `docs/matching.md`) and are written up here compiler-general; they apply
-to any PS2 MWCCPS2 codebase, not to specific P3 files.
+This page records source shapes that make MWCCPS2 3.0.1 build 210
+(`mwcps2-3.0.1b210-060308`, `-O2 -Iinclude`) reproduce retail Persona 4
+code, and the checks that separate a recovery from a byte coincidence. Many
+levers were first found in the Persona 3 FES decompilation and were
+remeasured here; they are compiler behavior, not facts about particular P3
+files.
 
-Rules of engagement:
+The page has three parts:
 
-- Every entry must be confirmed on your function by `python tools/verify.py`
-  reporting `MATCH` before you trust it. Techniques are **per-function**: the
-  same construct that matches one function walls the next.
-- Diff a single function with `python tools/fndiff.py <file> <fn>`. Rows
-  marked `!` are real reloc-masked differences; the trailing count also counts
-  zero-padding tail words when the object is shorter than the retail window, so
-  a nonzero count on a `!`-free listing is padding, not a bug.
-- If only register allocation, instruction scheduling, evaluation order,
-  FPU-register choice, or commutative operand orientation remains after
-  exhausting the levers below, it is a compiler floor. Keep production as
-  `INCLUDE_ASM`/ASM; do not leave a `NONMATCHING` C body in `src/`. Preserve
-  the best semantically faithful C only in the existing `docs/probe_archive/`
-  record with its measured result, then move on. Never claim that a floor is
-  impossible.
+1. [Operating procedure](#operating-procedure): the loop and gates for
+   every target.
+2. The technique reference, from [Types and the EE ABI](#types-and-the-ee-abi)
+   to the durable campaign lessons. Entries are organized by the residual
+   they fix and name the function where the lever was measured.
+3. Dated records: [campaign history](#campaign-history-dated-measurements)
+   and [per-target recovery records](#recovery-records-dated). They keep
+   results as measured at the time. Use them as evidence and negative
+   results, not as current status.
 
-Current lint policy is defined in `docs/STYLE.md`: marker and assembly
-integrity, pragma stack structure, and scan failures are hard gates.
-Volatile-context, optimization-provenance, and dead-store checks are advisory;
-`register` and restoring optimization level 2 are not violations. A generic
-measurement note never waives assembly-integrity rules. Historical campaign
-notes below describe the policy in force when those experiments were run.
+Source-acceptability rules live in [STYLE.md](STYLE.md); the
+[first-party handoff](first_party_matching_handoff.md) covers how to pick up
+work from a fresh status report. Measured compiler limits are summarized in
+[compiler-floors.md](compiler-floors.md).
+
+Using an entry:
+
+- A lever is per-function. The construct that matches one function can
+  make the next worse. Trust it only after `python tools/verify.py <owner.c>`
+  reports `MATCH` for your function in its whole owning file.
+- `python tools/fndiff.py <file> <fn>` diffs one function. Rows marked `!`
+  are real differences after relocation masking. Its trailing count also
+  includes zero-padding words when the object is shorter than the retail
+  window, so a nonzero count with no `!` rows is padding. `verify.py`'s
+  `normalized_diff` is in bytes, not words; do not compare the two numbers.
+- If only register allocation, scheduling, evaluation order, FPU register
+  choice or commutative operand order remains after the relevant levers,
+  record a measured floor: keep the best faithful C behind
+  `#ifdef NON_MATCHING` with the `INCLUDE_ASM` fallback in production (see
+  [CONTRIBUTING](../CONTRIBUTING.md)), and/or archive it in
+  `docs/probe_archive/` with its measurement. A floor is not a proof of
+  impossibility.
+- Older entries were written under earlier lint policy (for example, when
+  nonbaseline pragmas needed a waiver). Current policy is STYLE.md:
+  compiler-recognized pragmas and `register` are legitimate;
+  ordinary-memory `volatile`, fake ABI and assembly transcription are not.
 
 ## Operating procedure
 
-Use this six-step loop for every target:
+Use this loop for every target:
 
-1. **Stage the shape before tuning.** Recover the EE ABI and types/prototypes,
-   then match the frame and values live across calls, then reconstruct the
-   CFG/branch layout. Only after those agree, try instruction scheduling,
-   register coloring, or operand orientation.
-   Compare M2C (`src/generated/`) with available IDA
-   (`docs/ida_headstart/`) and Ghidra (`docs/ghidra_headstart/`) bodies.
-   They are independent references, not authoritative source: resolve
-   disagreements against retail assembly. IDA's register annotations can
-   clarify lifetimes, but guessed extra arguments and register-width
-   pseudo-types are not proof of an ABI.
-2. **Reuse the proven catalogue.** Start with the symptom table below and its
-   linked technique section. Write one named hypothesis (`H: ...`) and change
-   only the source shape that tests it; do not invent a new steering form when
-   a measured lever applies.
-3. **Probe in isolation.** Use a bounded family against one target:
+1. **Stage the shape before tuning.** Recover the EE ABI, types and
+   prototypes; then the frame and the values live across calls; then the
+   CFG and branch layout. Only then try scheduling, register coloring or
+   operand orientation. Compare m2c output (`build/m2c/`, or saved
+   `src/generated/` drafts), IDA (`docs/ida_headstart/`) and Ghidra
+   (`docs/ghidra_headstart/`) as hypotheses against retail assembly.
+   IDA register annotations can clarify lifetimes; its guessed
+   extra arguments and register-width pseudo-types do not prove an ABI.
+2. **Reuse measured levers.** Start from the symptom table below. Write one
+   named hypothesis (`H: ...`) and change only the source property that
+   tests it.
+3. **Probe in isolation.**
 
-   ```
+   ```sh
    python tools/probe_variants.py SOURCE FUNCTION --candidate NAME=PATH
    python tools/probe_archive.py ARCHIVE SOURCE
    ```
 
-   These are read-only probes: they never write production `SOURCE` on
-   success, failure, or interruption, and there is no `--keep` mode. If the
-   family yields no new evidence, stop and record a measured floor; do not
-   call it impossible.
-   Archive notes and pragma brackets are preserved. Marker lookup stops at
-   the definition or next marker, not a fixed number of header lines.
-   `FUNCTION` may be a curated C name (for example `RpRandom`): its marker
-   address comes from `config/symbol_addrs.txt`, and an address-form
-   `INCLUDE_ASM` in the same guard is treated as the fallback, not a score.
-4. **Rank for payoff.** Prefer untried ordinary-C targets with a known matched
-   analogue, sibling, or TU above hardware-only targets and floor families
-   already exhausted by repeated measured probes.
-5. **Bound the batch.** Keep at most four independent owners on disjoint
-   targets; use no nested workers. Do not poll or send checkpoint chatter, and
-   do not run broad validation mid-flight. Finish with one final reproducible
-   result for the batch.
-6. **Gate before installing.** A low or zero score is only a proposal. Reject
-   semantic changes, wrong relocation/addend matches, and forbidden steering
-   below. After target and semantic verification, install a winner with a
-   separate deliberate source edit. Any TU, declaration, or relocation change
-   requires a full `tools/build.py` link and linked-image comparison.
+   Both are read-only: they never write `SOURCE`, on success, failure or
+   interruption. Archive notes and pragma brackets are preserved, and
+   marker lookup stops at the definition or next marker. `FUNCTION` may be a
+   curated C name (for example `RpRandom`); its address comes from
+   `config/symbol_addrs.txt`, and an address-form `INCLUDE_ASM` in the same
+   guard is treated as the fallback, not a score. If a family produces no
+   new evidence, record the floor and stop.
+4. **Rank for payoff.** Prefer untried ordinary C with a matched analogue,
+   sibling or translation unit over hardware-only targets and floors
+   already exhausted by recorded probes.
+5. **One owner per worker.** Parallel work uses disjoint owner files and
+   finishes with one reproducible result; broad validation runs once at the
+   end, not mid-flight.
+6. **Gate before installing.** A low score is only a proposal. Apply the
+   [semantic gate](#semantic-and-target-gate), install the winner as a
+   separate deliberate edit, and run the full link for any translation-unit,
+   declaration or relocation change.
 
 ### Five evidence gates before a floor verdict
 
-These are source-shape decisions, not invitations to add arbitrary pragmas:
+These are source-shape decisions, not invitations to add pragmas:
 
-1. **Reverse declaration-order allocation is target-local.** On the
-   declaration/first-use shapes that were probed, b210 assigned callee-saved
-   registers in reverse order. Require matching frame size, saved-register
-   count, and value lifetimes first; then run a bounded declaration-order
-   probe. A successful swap is evidence about that target's source ordering,
-   not a campaign-wide allocator law. See [Register allocation and
-   caching](#register-allocation-and-caching).
-2. **Separate folded displacement from materialized address.** A direct
-   field expression such as `value = arr[i].member` can give retail's
-   `load ...,offset(base)`. If retail instead has `addiu tmp,base,offset`
-   followed by `load ...,0(tmp)`, preserve an address value at that point,
-   for example with `p = &arr[i].member; value = *p;`, and measure any
-   propagation scope. The `addiu`/load pair in retail decides which spelling
-   is correct; source style does not.
+1. **Reverse declaration-order allocation is target-local.** On the shapes
+   probed, b210 assigned callee-saved registers in reverse declaration
+   order. First match frame size, saved-register count and value lifetimes;
+   then run a bounded declaration-order probe. A successful swap is evidence
+   about that function's source, not a general allocator law. See
+   [Register allocation and caching](#register-allocation-and-caching).
+2. **Separate a folded displacement from a materialized address.**
+   `value = arr[i].member` can give retail's `load ...,offset(base)`. If
+   retail has `addiu tmp,base,offset` then `load ...,0(tmp)`, keep an address
+   value (`p = &arr[i].member; value = *p;`) and measure any propagation
+   scope. The retail instruction pair decides the spelling.
 3. **Match the physical CFG: shared epilogue or duplicated tail.** If retail
    branches to one common suffix, assign the result in each arm and return
-   once. If retail repeats the suffix in each arm, keep the source tails
-   separate. Factoring or duplicating a semantically identical tail changes
-   branch targets, delay slots, and object layout. See [Shared-tail joins](#shared-tail-joins-assign-one-result-in-every-arm-return-once).
-4. **Run a matched-binary signature census before permuting.** Normalize the
-   residual, mask relocations, and search verified MATCH retail windows for
-   the same call order, load/store widths, branch shape, and COP1/COP2/MMI
-   instruction classes. A hit supplies a structural sibling to transfer;
-   zero hits is the gate to stop mining that recipe and switch to ABI, CFG,
-   or source reconstruction. Zero hits is not proof of impossibility.
-5. **Preserve explicit redundant range guards.** Retail may keep a signed
-   outer guard around a bounded switch, such as
-   `if (aux >= 0) { switch (aux) { ... } }`, even when the guard is
-   semantically redundant. That source shape can retain the retail `bltz`
-   and dispatch sequence. Confirm signedness and the exact upper-bound
-   behavior from retail; do not simplify the guard away.
+   once. If retail repeats the suffix, keep the tails separate. See
+   [Shared-tail joins](#shared-tail-joins-assign-one-result-in-every-arm-return-once).
+4. **Run a signature census before permuting.** Normalize the residual, mask
+   relocations, and search matched retail windows for the same call order,
+   load/store widths, branch shape and COP1/COP2/MMI classes. A hit gives a
+   sibling to copy the shape from. Zero hits means stop mining that recipe
+   and go back to ABI, CFG or reconstruction; it does not prove
+   impossibility. See
+   [Signature census](#signature-census-before-permuting-or-declaring-a-floor).
+5. **Keep explicit redundant range guards.** Retail may keep a signed outer
+   guard around a bounded switch, such as
+   `if (aux >= 0) { switch (aux) { ... } }`, which preserves the retail
+   `bltz` and dispatch. Confirm the signedness and upper bound from retail;
+   do not simplify the guard away. See
+   [Redundant outer guards](#redundant-outer-guards-around-bounded-dispatch).
 
 ### Symptom → technique → measured anchor
 
@@ -122,143 +127,32 @@ These are source-shape decisions, not invitations to add arbitrary pragmas:
 | A known helper leaves extra saves or a final scheduling residual | Static helper/caller cluster; [Types and the EE ABI](#types-and-the-ee-abi) | `sdkChkmem`: reuniting `func_0044e8d0`, `func_0044e920`, `func_0044e9e0`, and `func_0044ee70` removed the last store/move residual |
 | Private helper removes the spill, but argument setup still swaps a load and move | Stage arguments with scoped `opt_propagation off` | `func_00278d50`: private `func_00278c60` plus staged fixup pointer/size gives 76B matching instructions and a 4B zero tail; helper remains 240B MATCH |
 | Call-crossing spills or frame size are too small | Aggregate snapshots; [Types and the EE ABI](#types-and-the-ee-abi) | `func_0047f040`: two `Pair` snapshots produce retail's `0x20` frame (scalar locals produced `0x10`) |
-| Saved-register colors are wrong while the body shape is right | Declaration order; [Register allocation and caching](#register-allocation-and-caching) | `frFont func_002739e0`: declaration-order closure, object/window `724/736`, normalized diff `0` |
+| Saved-register colors are wrong while the body shape is right | Declaration order; [Register allocation and caching](#register-allocation-and-caching) | `frFont func_002739e0`: declaration-order fix, object/window `724/736`, normalized diff `0` |
 | Loop bases or constants rematerialize in the body | `opt_loop_invariants on`; [Loops](#loops) | `func_00161bb0` nd `45 → 0`; `func_0045b430` nd `8 → 0` |
+| Argument setup order before a call differs | [Argument materialisation](#argument-materialisation--measured-rule) | Emission follows source declaration order of the arguments |
 | A reloc-masked `MATCH` names the wrong global | Check the retail immediate/addend; [Globals and addressing](#globals-and-addressing) | `func_004a8bb0`/`func_004a8f90` both masked `MATCH` but had wrong GP references; only the linked image exposed it |
 
 ### Semantic and target gate
 
-- Reject a candidate that moves an observable load across a call whose
-  mutation set is unknown. In `nLine` `func_0034e0b0`, the alpha-last probe
-  reached nd23 by moving the alpha field load across `func_00457120`; reject
-  it and retain the semantically faithful nd35 body.
-- Reject omitted call arguments and incompatible empty-prototype casts even
-  at nd0. The `func_0028ad90` archive's apparent two-word register floor
-  omitted the child argument to the already-typed `func_00286c60`. Passing
-  that child could produce nd0 only while retaining a wrong zero-argument
-  cast of the deallocator. With both calls repaired, the faithful candidate
-  is 596B against retail's 592B window and stays ASM. Inspect callee bodies
-  before calling an argument-register difference an allocation floor.
-- Audit apparent register passthrough even in existing matches. Community
-  flag helpers `func_00107b70`, `func_00107c80` and `func_00107ea0` had
-  zero-argument definitions calling the old-style `func_001070e0()` declaration,
-  accidentally leaving the incoming identifier in `$a0`. Explicit `s32`
-  parameters and forwarding calls preserve all three 84B/96B matches; the
-  lookup remains 152B/160B MATCH with a complete prototype. A consumer smoke
-  exercises 192 cases across record IDs, upper-bit masking, absent records
-  and flag combinations. Assembly identity does not excuse missing C arguments.
-  The model callback `func_00475b10` likewise retains its instruction match
-  when it passes the frame to `s32 func_00397470(u8*)` and compares a signed
-  ID instead of calling a false `void* (void)` prototype. The original
-  callback crashes in a 32-bit consumer smoke; the repaired one passes
-  45 cases across plugin offsets, nested/missing matches and signed ID limits.
-- Audit missing C returns when retail preserves a callee result in `$v0`.
-  Field-task constructors `func_00166b40`, `func_00167420` and
-  `func_00167d90` now explicitly return the task created by `func_00451fc0`,
-  after initializing its work data. All three retain their instruction
-  matches; the complete `k_fldUnit.c` unit remains 34 MATCH / 8 ASM.
-  A 32-bit consumer smoke fails the original change-list handle check and
-  passes 288 cases after repair, covering returned handles, payloads, packed
-  IDs, unit flags, gates, allocation failure and task-creation failure.
-  A null constructor result still permits the retail work-data writes;
-  do not introduce an early return that skips those writes.
-  Their change-list caller `func_00134be0` is now 444B/448B MATCH with
-  scoped loop-invariant hoisting, `s16 party[4]`, four eight-byte change
-  records and the canonical `s16 func_00106cd0(s16,s16)` declaration.
-  Its 32-bit consumer smoke passes 4,608 cases covering membership, signed
-  before/after values, zeroed unused records, all three stat-query side
-  effects, task-creation failure and preservation of the old handle when
-  there are no changes. The retail-sized frame needs no invented padding.
-- Recover distinct logical variables before tuning generated register names.
-  The old `func_00313800` archive reused the item limit for unrelated values
-  and omitted flag offsets. Separate signed row/item/selected counters,
-  canonical list-helper parameters and the pointer-returning availability
-  getter restore the behavior. Declaring row, item, then selected closes the
-  remaining saved-register rotation: 452B/464B MATCH with zero tail padding.
-  A 32-bit consumer smoke passes 40,960 cases across row filtering, compacted
-  output columns, signed IDs, availability flags and untouched bytes.
-  The neighboring date callback `func_00313b50` reaches 464B/464B MATCH by
-  sharing the two sentinel-table scans in a private inline helper and
-  hoisting loop invariants. Passing the date getters directly to the first
-  renderer call avoids an intermediate byte truncation while preserving
-  retail call order. Its smoke covers all 65,536 byte pairs against four
-  table layouts, plus 2,976 callback cases for rollover, refreshed dates,
-  duplicate precedence, signed sentinel bytes and untouched state.
-  Consult the corresponding IDA body before further probes. For
-  `func_00313d20`, Hex-Rays distinguishes branch-local table/entry pointers
-  and a saved mode that the initial reconstruction merged. Its translation
-  improves the safe floor from 89 to 84 differing words (644B/656B), still
-  ASM. The archived counter now consistently uses the mode-times-two base,
-  rather than the mode-times-five flag base mistakenly reused by the old
-  body. A native smoke passes 40,960 cases covering both modes, signed
-  priorities, first-winner ties, priority-100 flags, counts and untouched bytes.
-  The same IDA-first pass improves `func_001130c0` from 54 to seven differing
-  words (440B/448B): five cached-color/alpha scheduling differences and two
-  zero-tail words. A real 76-byte text buffer plus four-byte color aggregate,
-  the by-value position ABI, and canonical variadic formatting preserve the
-  complete rendering contract; 1,920 native cases cover signed numbers,
-  reversed glyphs, cached colors and post-formatter width reads.
-  For `func_00207140`, natural unsigned skill/item loops and canonical helper
-  types give a 476B/480B floor of 35 differing words. The superseded signed
-  skill temporary incorrectly admitted IDs at or above 0x8000. Its 2,048-case
-  native smoke checks those boundaries, eight accepted skills, optional
-  actions, repeated quantity queries, ID-store visibility and untouched
-  bytes. Neither candidate is promoted.
-  The cut-in `func_001f9cf0` IDA body confirms its case-local suffix pointer
-  and signed count. The retained body now uses the known four-word
-  pointer-first floor with canonical helpers and explicit string pointers.
-  A 3,136-case native smoke uses retail format strings and S/W, B/C/D tables
-  to check resource paths, the character-11 branch, call order, handle slots
-  and untouched bytes. Ordinary C `register` hints on either count-first
-  local leave that variant at eight words; production remains ASM.
-  For `func_0016b080`, IDA and retail callers recover the output-normal
-  pointer rather than an `s64` input. The 460B/480B candidate improves the
-  corrected floor from 97 to 93 words and stays ASM. Its 13,440-case
-  32-bit smoke checks exact query results and short-circuiting, changed
-  global context, unsigned list keys, first-match/fallback precedence,
-  float grid boundaries, pointer identities, fraction bits and outputs.
-  Multiply signed grid coordinates by their strides instead of left
-  shifting negative values; this removes C undefined behavior without
-  changing the measured code.
-- Give output helpers a complete valid buffer, not adjacent scalar locals.
-  `func_001d1310` writes eight bytes; the `func_001d15a0` archive now supplies
-  `u16 stats[4]`. The corrected 212B candidate retains nine emitted-word
-  index/result register differences against the 224B retail window and stays
-  ASM. Its `fndiff` count is 12 words including three absent zero-padding
-  words; do not compare that with `verify.py`'s byte-valued `normalized_diff`.
-- Reject wrong GP addends and relocation-masked false matches: compare every
-  GP-relative or `%hi`/`%lo` reference with the retail immediate, not the
-  guessed symbol name, and use the full link when relocation ownership changes.
-- Reject ordinary-memory `volatile` and ordinary-CPU inline asm used as
-  compiler steering, even when the score is zero. Genuine hardware accesses
-  may use the established hardware-only asm pattern, with accurate operands
-  and clobbers. Verify the intended target/function owner before installation.
-- Preserve hardware register values, not a guessed scalar substitute.
-  `sqc2 $vf0` stores `(0,0,0,1)`, not a zero quadword. The former
-  `func_00484b30` archive incorrectly cleared four W lanes; the corrected
-  four-COP2-store candidate is 120B/128B with six register-color differences
-  and two zero tail words. It remains ASM, not a promoted match.
-- An address left in `$v0` for a hardware transfer is not proof of a C return.
-  The observed callers of `func_0048a460` consume `$vf10`, not `$v0`.
-  Removing the archive's unsupported local-array pointer return gives an
-  honest `void` projection body at 176B/176B and 15 differing words, rather
-  than the misleading 11-word floor. Aligned storage and exact vector memory
-  operands describe the genuine COP2 transfers without escaping local storage.
-- Check runtime provenance before counting a compiler-floor closure as game
-  progress. `func_0044e830` is GCC `fp-bit.c` GOFAST `float_to_usi`, not a
-  memory initializer: ee-gcc 2.96 reproduces 156B/160B with only a zero tail.
-  The matched C lives in the isolated `src/middleware/gcc_fp.c` ee-gcc unit,
-  retaining the upstream GPL notices and linking exceptions; its license is
-  alongside it in `COPYING.gcc-runtime`. This is a runtime match, not a
-  first-party match. Runtime classification does not remove it from overall
-  C-matching work. As with the other configured GCC units, the current
-  linker still uses extracted assembly; this increases compiler-verified
-  C matching, not C-linked coverage.
-  Reproduce with `python tools/verify.py src/middleware/gcc_fp.c`.
-- Independently check signedness, truncation and extension at calls and stores;
-  aliasing and alignment assumptions; every cross-TU caller before making a
-  helper static; and switch tables or other owned data. Record unresolved
-  assumptions rather than treating a low instruction score as proof.
+A candidate is rejected, whatever its score, when it:
+
+- moves a load across a call without proving that the call cannot change it;
+- omits an argument, invents a return, or relies on incompatible declarations
+  or accidental register passthrough;
+- merges distinct values, loses a required store, or gives a callee a scalar
+  where it writes a buffer;
+- uses undefined behavior, ordinary-memory `volatile` or assembly
+  transcription to obtain the desired bytes;
+- substitutes a guessed scalar value for an observed hardware result;
+- attributes runtime or vendor code to the game merely because of its file.
+
+The [case records](#semantic-gate-case-records) retain the failed candidates,
+repairs and measurements behind these rules.
+
+Also check signedness, truncation and extension at calls and stores;
+aliasing and alignment; every cross-TU caller before making a helper
+`static`; and switch tables or other owned data. Record unresolved
+assumptions rather than treating a low score as proof.
 
 ### Acceptance levels and evidence
 
@@ -266,12 +160,12 @@ Report these separately; an unmeasured level is **unverified**, not passed:
 
 | Level | Required evidence | Does not prove |
 | --- | --- | --- |
-| Instruction match | `tools/verify.py` reports `MATCH`; inspect `tools/fndiff.py` residuals and accepted zero-tail padding | Correct relocation targets, data sections, or link eligibility |
-| TU link eligibility | `tools/build.py --progress-report` confirms the TU is C-linked with owned sections and resolved relocations accepted | That every other TU is C-linked |
-| Retail identity | The complete linked image and rebuilt ELF have the expected retail hashes | That fallback assembly has been replaced with C |
+| Instruction match | The per-function `MATCH` row from a whole-owner compile; inspect accepted zero-tail padding | The row alone does not establish data-section correctness or linkage; read the verifier's separate relocation diagnostics too |
+| TU link eligibility | `make build-progress` (`tools/build.py --progress-report`) keeps the TU C-linked with owned sections and resolved relocations | That every other TU is C-linked |
+| Retail identity | The linked image and rebuilt ELF have the expected retail hashes | That fallback assembly has been replaced with C |
 
-For each installed match or archived floor, retain this record with the existing
-archive/comment or batch evidence (do not create a second archive system):
+For each installed match or archived floor, keep this record with the
+existing archive or comment (do not create a second archive system):
 
 ```
 Target: source path, function, retail address
@@ -284,24 +178,31 @@ Retail identity: measured image and ELF hashes / unverified
 Semantic review: assumptions checked, remaining caveats, rejected alternatives
 ```
 
-Use `sha256sum SOURCE CANDIDATE` to bind evidence to measured inputs. A later
-edit invalidates the recorded measurement until replayed; a command written in
-a note but not executed is not evidence.
+`sha256sum SOURCE CANDIDATE` binds the record to its inputs. A later edit
+invalidates the measurement until it is replayed; a command written in a
+note but not run is not evidence.
 
 ### Integration baseline and commits
 
-Before starting a new batch, run the tooling tests, full verifier, and full link.
-Keep their reports and hash outputs together as the baseline. Account for every
-missing canonical owner before changing marker-count expectations. Splat output
-can include curated symbols from its input symbol map, so it is not independent
-evidence that a curated boundary was discovered automatically.
+Before a batch, run the tooling tests (`make test`), the full verifier and
+the full link, and keep their reports and hashes as the baseline. Account
+for every missing canonical owner before changing marker-count
+expectations. Splat output can include curated symbols from its input map,
+so it is not independent evidence that a boundary was discovered
+automatically.
 
-Commit coherent verified batches: probe tooling separately from matching
-closures, and source/TU changes together with their required symbol or data
-updates. Record commands and outcomes in the commit message. Do not commit
-temporary probes or imply that instruction `MATCH` alone proves retail identity.
+Commit coherent verified batches: tooling separately from matches, and
+source changes together with their required symbol or data updates. Do not
+commit temporary probes or imply that an instruction `MATCH` alone proves
+retail identity.
 
 ## Types and the EE ABI
+
+Type rules that are plain source honesty (no `bool`; declare Ghidra's
+mistyped `undefined4` float arguments and returns as `float`/`f32`, trusting
+`mov.s`/`lwc1`/`swc1`/`cvt.*` in the disassembly) live in
+[`docs/STYLE.md` → Naming and types](STYLE.md#naming-and-types). The entries
+below are the codegen consequences.
 
 - **Independent int/float argument register files.** The EE o32-hardfloat ABI
   fills integer args (`$a0`...) and float args (`$f12`...) from *separate*
@@ -415,11 +316,6 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   `func_0047f040`, two such snapshots produced retail's `0x20` frame and exact
   `sp+0x10..0x1c` stores/loads; scalar locals stayed in FPU registers and
   incorrectly shrank the frame to `0x10`.
-- **Ghidra mistypes float returns and args as `int`.** A callee returning
-  `float` shows as `undefined4`/`uint`; a `float` parameter shows as
-  `undefined4`. Trust the disassembly: `mov.s`, `swc1`, `lwc1`, `cvt.*` mean
-  float. Declare `float FUN_x();` and `void FUN_y(void*, float);` accordingly.
-- **`bool` is not a valid type here.** Use `u8`/`u32` for predicate returns.
 - **Typed `short`/`char` prototype params defeat sign-extension CSE.** Retail
   re-sign-extends a `short`/`char` arg at *every* call site; a bare `(short)`
   cast in the caller gets CSE'd into one extension. Declaring the callee
@@ -440,7 +336,6 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
 - **u16 field load width.** A direct `*(u16*)((int)p + off)` emits `lhu`;
   `*(short*)` emits `lh`. Only add a `(u16)`/`(short)` cast on the *other*
   operand when retail actually emits `andi`/sign-extend.
-
 - **Address-take incoming stack slots to prevent parameter homing.** When
   retail reloads several stack arguments from their incoming slots after
   calls, declaring the slots as `s64` and reading the needed width through
@@ -474,11 +369,12 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   value's own register (`lw $v1,off(base); slti $v1,$v1,4`); mwcc lowers the
   literal `<= N` through the `$at` pseudo. Rewriting as the equivalent
   `< N+1` keeps the value's register. If the value *is* reused after the test,
-  retail itself uses `$at` — then keep `<= N`.
-- **Switch case test order follows REVERSE written order — SOLVED, it was
-  never a floor.** This entry used to say mwcc emits compares in
-  numeric-ascending case order and that a higher-case-first retail dispatch
-  was unreachable. Measured against b210:
+  retail itself uses `$at` — then keep `<= N`. The full measured grid is under
+  "`slt $at` vs `slt $v0`" below.
+- **Switch case test order follows REVERSE written order.** An older version
+  of this entry claimed mwcc emits compares in numeric-ascending case order
+  and that a higher-case-first retail dispatch was unreachable. Measured
+  against b210:
 
   ```c
   switch (k) { case 0: f0(); break; case 1: f1(); break; }  /* beq (1) first, then beqz (0) */
@@ -497,7 +393,7 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   source happened to list cases ascending.
 - **A matching function body does not prove a matching switch table.**
   `verify.py` masks relocation-owned bytes, including the `R_MIPS_32`
-  jump-table entries in `.rodata`, so a permuted table can hide behind an
+  jump-table entries in `.rodata`, so a permuted table can hide behind a
   byte-identical body. The linker build (`tools/build.py`) only C-links a
   translation unit whose owned data sections (`.rodata`, `.data`, `.sdata`,
   `.sbss`, `.bss`) can be placed byte-exact — direct byte comparison where a
@@ -527,14 +423,20 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   a different constant, sibling pointers off by one slot). Linked units are
   immune: the full-image SHA1 resolves every relocation. Register the
   corrected name in `config/symbol_data_addrs.txt` from `GP + signed(imm)`.
-- **Repeated reloads of the same bytes: `volatile` on the source pointer.**
-  `func_0045ed60` copies `arg0[0..3]` into three consecutive 4-byte slots of
-  a local array and retail reloads the four bytes each time. A plain `u8 *`
-  lets b210 CSE the loads; `opt_common_subs off` restores them but also
-  un-CSEs the `3, 3` argument pair that retail materialises as
-  `li $a2,3 / move $a3,$a2`. `volatile u8 *arg0` keeps the reloads and
-  leaves every other optimisation alone (with `opt_propagation off` to keep
-  the destination pointer computed early in `$t1`).
+- **Repeated reloads of the same bytes — measured, but the `volatile` spelling
+  is rejected.** `func_0045ed60` copies `arg0[0..3]` into three consecutive
+  4-byte slots of a local array and retail reloads the four bytes each time.
+  A plain `u8 *` lets b210 CSE the loads; `opt_common_subs off` restores them
+  but also un-CSEs the `3, 3` argument pair that retail materialises as
+  `li $a2,3 / move $a3,$a2`. `volatile u8 *arg0` (with `opt_propagation off`
+  to keep the destination pointer computed early in `$t1`) kept the reloads
+  and left every other optimisation alone. That is `volatile` on ordinary
+  memory used as codegen steering: rejected by the semantic gate (lint H001)
+  and not acceptable in production, so the measurement only records that
+  the reloads are real and the CSE is the obstacle. A legitimate spelling
+  still has to be found; see the named-local-under-`opt_propagation off`
+  lever in "THE load-ordering rule" below, which replaced `volatile`
+  read-backs in `func_0019df20`.
 - **A hoisted loop bound is coloured after the body's temporaries.** Retail
   `func_00275a60` keeps the loop limit in `$a0` and the body's next-node
   pointer in `$a1`; every named `limit = count - 1` local is coloured before
@@ -571,7 +473,6 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   `*(u64 *)p &= (u64)-0x10000` emits `lui $v0,0xffff / pcpyld $v0,$zero,$v0`
   exactly; it is how b210 materialises a 64-bit constant whose low word is
   a `lui` immediate. Do not file every MMI opcode as a floor.
-
 - **Converge scan matches at a label immediately before the return.** For a
   byte scanner with several fixed tags, `goto found` from every successful
   compare and one `return count` at `found:` can make the final byte compare
@@ -589,8 +490,10 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   an `andi`/cast out of a loop at `-O2`. Write `int key = param & 0xffff;`
   (or the cast) *before* the loop and compare against `key`; that reproduces
   retail's single hoisted `andi`. `#pragma optimization_level 3` enables LICM
-  but also reschedules the prologue — usually worse, and banned without a
-  waiver (see `docs/STYLE.md`).
+  but also reschedules the prologue — usually worse. It is a valid compiler
+  input like any other pragma (record the measurement, scope it with
+  push/pop); for loop-invariant hoisting alone, the narrower
+  `opt_loop_invariants on` (below) is the measured lever.
 - **Integer-arithmetic copy loops** (`*(u16*)(p + i*2 + 2)` with `p` as `int`)
   beat the `arr[i+1]` commutative-`addu` form.
 - **Raw byte-offset addressing controls `addu` operand order.**
@@ -638,10 +541,10 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   for the last call forces a `move s,v0`; assign the last result to a
   *different* short-lived local so it stays in `$v0`.
 - **Split one value into two named locals to flip callee-saved colouring.**
-  The mirror of the entry above, and it closed two functions in one session,
-  so reach for it whenever the *only* residual is a saved-register swap. When
-  a value is produced and then used under a second role, giving each role its
-  own local changes which physical register the allocator assigns:
+  The mirror of the entry above; reach for it whenever the *only* residual is
+  a saved-register swap. When a value is produced and then used under a
+  second role, giving each role its own local changes which physical
+  register the allocator assigns:
   - `code1_0020 func_0020e250` had **19** differing words, every one of them
     `$s0`/`$s1` swapped against retail (the list and the freshly allocated
     node). Writing `allocated = jtbl_008873E8[0](...); new_node = allocated;`
@@ -649,19 +552,23 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
     colouring to retail's and took it to MATCH. Nothing else changed.
   - `code1_004b func_004b53c0` needed the same split for a different reason —
     separating `work` from `result` and assigning `result = work` at the tail
-    of both arms — see "Shared-tail joins" above.
+    of both arms — see "Shared-tail joins" below.
 
   The two cases together give the rule: **an intermediate name is a register
   allocation control, not cosmetic.** If retail holds a value in a different
   `$s` register than you do, try both directions — collapse two locals into
   one, or split one into two — before concluding it is a floor.
-- **A `volatile` lvalue can delay an address calculation across a call.** When
-  retail calls a size helper before materializing the destination address, but
-  mwcc hoists the destination arithmetic, cast the final lvalue — not the
-  stored value — to `volatile`. This keeps the observable store while
-  preventing the compiler from scheduling its address calculation before the
-  call. `volatile` is banned by `docs/STYLE.md` unless the function carries a
-  `measured` waiver.
+- **A `volatile` lvalue can delay an address calculation across a call —
+  measured, rejected in production.** When retail calls a size helper before
+  materializing the destination address, but mwcc hoists the destination
+  arithmetic, casting the final lvalue — not the stored value — to
+  `volatile` keeps the observable store while preventing the compiler from
+  scheduling its address calculation before the call. On ordinary memory
+  this is codegen steering: lint H001 warns and the semantic gate rejects it
+  (see [`docs/STYLE.md`](STYLE.md#integrity-checks-and-advisories)). Use it
+  only to confirm the diagnosis, then find a non-`volatile` spelling (named
+  locals under `opt_propagation off`, statement order, the lifetime levers
+  below).
 - **THE saved-register assignment rule is a measured source lever, not a
   universal floor.** The 20 declaration/first-use probes were consistent: b210
   assigned callee-saved GPRs in reverse order. This replaces the earlier
@@ -695,8 +602,7 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
 
   **How to use it.** Read retail's prologue and list which value sits in each
   `$s` register. Then order your declarations so that the value in the
-  highest register is declared first, and so on down. That is the whole
-  procedure; it is no longer trial and error.
+  highest register is declared first, and so on down.
 
   **What it says about the old "param vs local fight".** Parameters always
   precede locals in the list, so a parameter can never sit *below* a local.
@@ -788,16 +694,16 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   must be closed by the rest of the recipe (declaration order, `u16`
   conversions in place of explicit masks), not by narrowing the bracket.
 - **THE caller-saved temporary rule — measured.** After the callee-saved
-  rules were applied to the eight best remaining near-misses, six of the
-  eight turned out to be register choice among `$v0`/`$v1`/`$a1`–`$a3` — the
-  one axis nothing measured. Fourteen probes give the shape:
+  rules were applied to the eight best remaining near-misses (2026-09-01),
+  six of the eight turned out to be register choice among
+  `$v0`/`$v1`/`$a1`–`$a3`. Fourteen probes give the shape:
 
   1. **Pure computations are sunk to their point of use** under default
      propagation. `s32 v = k * 7; p[0] = p[1] + 1; p[2] = p[3] + 1; return v;`
      emits the two stores first and computes `v` last, so `v` never occupies
      a register across the stores. **`opt_propagation off` stops the sinking**
      and the computation is emitted where written — the same mechanism as
-     every other use of that pragma this session.
+     the other `opt_propagation off` levers in this section.
   2. **The pool fills lowest-free in the order `$v1`, `$v0`, `$a1`, `$a2`,
      `$a3`, `$t0`…** with `$a0`–`$aN` skipped while they still hold live
      parameters. Loads go to `$v1` first; a second simultaneous value to
@@ -818,8 +724,8 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   window. Under propagation off, `u6p` shows the promotion directly: the
   first held value takes `$a1`, the second `$v1`, and the store traffic runs
   in `$v0`. Genuine floors remain where the residual is two *independent*
-  adjacent instructions (no liveness difference to change), and the
-  float-to-byte conversion tail.
+  adjacent instructions (no liveness difference to change). The
+  float-to-byte conversion tail once listed here was later solved (below).
 - **Saved-FPR count tells you whether retail cached a float across a call.**
   `f20`–`f23` are only allocated when a float value must survive a call. If
   retail's prologue saves none and yours saves two, the frame-size gap is
@@ -831,12 +737,14 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   product on both sides of the call, looks redundant in source and is exactly
   what produces the no-save frame. Measured on `func_0047f4d0`, where every
   scalar variant retained `f20`–`f23` (frame 0x40/0x50) against retail's
-  smaller frame. Count the saved FPRs before probing anything else.
+  smaller frame. Count the saved FPRs before probing anything else. (That
+  function's final close also needed the `static` local callee from "Types
+  and the EE ABI".)
 - **THE saved-register COUNT rule — measured.** "Retail saves fewer registers
-  than any spelling I can write" is cited by 59 archives. Fourteen probes
-  reduce it to one statement: **the count is exactly the number of named C
-  values that are live across a call, and a parameter pointer is such a
-  value.** What does *not* reduce it, measured:
+  than any spelling I can write" was cited by 59 archives (count as of
+  2026-09-01). Fourteen probes reduce it to one statement: **the count is
+  exactly the number of named C values that are live across a call, and a
+  parameter pointer is such a value.** What does *not* reduce it, measured:
   - re-reading a field through a parameter pointer after the call
     (`sink(s->b); call(); sink(s->b);`) — the *pointer* survives instead of
     the value, still one register;
@@ -896,15 +804,15 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   `func_00166e30`, `func_00167120` (k_fldUnit.c). The archives are left in
   place as the record of the wrong turn.
 - **A measured pragma keeps applying to every function below it.** `#pragma X
-  off` is file-position scoped, not function scoped, so a lane that opens one
-  for its target and never closes it silently changes the codegen of every
-  later function in the translation unit. This has bitten once already: an
+  off` is file-position scoped, not function scoped, so a target that opens
+  one and never closes it silently changes the codegen of every later
+  function in the translation unit. This has happened: an
   `opt_propagation off` was left open across ~14 downstream functions.
   `tools/pragma_scope_audit.py` reports it properly — it simulates
   `#pragma push`/`pop`, so unlike raw `on`/`off` counting it does not
-  false-positive on push-scoped flips. It currently lists **125 files ending
-  off baseline, 109 of them with functions sitting under an open `off`**.
-  Those are NOT presently wrong: every one of those functions verifies, and a
+  false-positive on push-scoped flips. On 2026-09-01 it listed **125 files
+  ending off baseline, 109 of them with functions sitting under an open
+  `off`**. Those were not wrong: every one of those functions verified, and a
   spot check on `btlBoss.c` closed the trailing `opt_loop_invariants off`
   before its five downstream functions with all 15 still MATCHing, so the
   inherited state is incidental there rather than load-bearing. Do not
@@ -915,8 +823,8 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   you are not compiling at the `-O2` baseline you think you are, and a pragma
   you then add may be redundant, or its removal may appear to do nothing.
 - **THE load-ordering rule for a global versus a field — measured.** The
-  "float-load scheduling floor" cited in 29 archives is one rule, and it has
-  a source-level fix. Thirty probes against b210:
+  "float-load scheduling floor" (cited in 29 archives as of 2026-09-01) is
+  one rule, and it has a source-level fix. Thirty probes against b210:
 
   | operands | order emitted |
   |---|---|
@@ -947,15 +855,15 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   With propagation off, the assignment is honoured as a real load at its
   written position instead of being folded into the use. Either half alone
   does nothing: the pragma without the local leaves the fold in place, and
-  the local without the pragma is propagated away. This is precisely
+  the local without the pragma is propagated away. This was
   `func_0034ac00`'s remaining nd 2 (`fGpffff8504` loaded before
-  `entry+0x194`, retail the reverse), where the lane reported
+  `entry+0x194`, retail the reverse), where an earlier attempt reported
   "opt_propagation off no effect" — because it applied the pragma without
   the named local. Also the shape of the `c.ole.s`/`bc1t` scheduling wall
   recorded on `y_draw`. Retry both with the pair.
 
   **Validated on `func_0034ac00` (closed, nd 2 → 0) and `func_0019df20`
-  (closed, nd 0 with the banned `volatile` removed) — and the validation
+  (closed, nd 0 with the rejected `volatile` removed) — and the validation
   generalised the rule.** In `func_0034ac00` the *default* C emitted the GP
   load first and retail wanted the field first: the opposite direction from
   the isolated probe. The pair still closed it, because what it actually
@@ -970,9 +878,9 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
 
   `func_0019df20` shows the other use: it had reached a true nd 0 only by
   `*(volatile f32 *)&angle` read-backs forcing two values to spill before a
-  call. `volatile` is banned; the pragma plus a named read-back local is the
-  legal way to force that spill, and it closed at 520/528 with the casts
-  removed.
+  call. That is rejected ordinary-memory `volatile` steering; the pragma plus
+  a named read-back local is the legitimate way to force that spill, and it
+  closed at 520/528 with the casts removed.
 
   Note the distinction from the entry below: that one is two *stack* reloads
   swapping, where neither operand is a global, and the pragma pair was
@@ -1012,9 +920,9 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
 
 ## Argument materialisation — measured rule
 
-Cited by 71 archives as a residual and worked by trial and error ("float
-params ahead of `u8`", "delayed first parameter read"). Twenty-two probes
-against b210 reduce it to four clauses.
+Cited by 71 archives as a residual (count as of 2026-09-01) and previously
+worked by trial and error ("float params ahead of `u8`", "delayed first
+parameter read"). Twenty-two probes against b210 reduce it to four clauses.
 
 **1. Arguments materialise strictly left to right in parameter order, with no
 exceptions.** Loads from a pointer, GP globals, `lui`/`li` constants, values
@@ -1122,7 +1030,8 @@ isolation — whole-function pressure, still open).
 `$a0`/`$a1` to the stack and only then parks `$a2` into `$t1`; mwcc parks
 `$t1` at entry. A parked caller-saved temp is just a value becoming live,
 so name the copy where retail makes it live and stop the copy from being
-folded back into the parameter:
+folded back into the parameter. The pragma applies from before the function
+(see "Pragma granularity" above); the body statements are:
 
 ```c
 #pragma opt_propagation off
@@ -1160,10 +1069,10 @@ real conversion instruction moves it — see that archive.
   distorted calls whose callbacks have different signatures. A `void *`
   table plus an explicit function-pointer cast at each use retained the exact
   argument materialisation without volatile staging.
-- **gp base = `0x007690f0`** (recorded in `config/target.json` as `_gp`, also
-  in `config/symbols_recovered.txt`). This maps gp-relative offsets (the
-  `saved_reg_gp - 0xXXXX` idiom in m2c output) to the absolute addresses they
-  alias: absolute = `0x007690f0 - offset`. Use it to avoid declaring a
+- **gp base = `0x007690f0`** (recorded in `config/target.json` as `"gp"`, and
+  as `_gp` in `config/symbols_recovered.txt`). This maps gp-relative offsets
+  (the `saved_reg_gp - 0xXXXX` idiom in m2c output) to the absolute addresses
+  they alias: absolute = `0x007690f0 - offset`. Use it to avoid declaring a
   duplicate global for the same variable.
 - **`#pragma alias` does nothing — b210 does not recognize it.** The compiler
   ignores an unknown `#pragma` silently: no warning, no error, no effect. 109
@@ -1181,7 +1090,9 @@ real conversion instruction moves it — see that archive.
   quoting a pragma at line start are not mistaken for directives) and compiles
   them in one unit under `warn_illpragma`. A typo such as `scheduling off` for
   `schedule off` otherwise compiles clean, does nothing, and still demands a
-  `measured` justification from the lint. All 19 remaining spellings pass.
+  `measured` justification from the lint. When this was added (2026-08-04)
+  all 19 spellings then in the tree passed; the full accepted set is in
+  "b210 accepts 386 pragmas" below.
 
 ## Commutative-`addu` (frequent wall)
 
@@ -1236,8 +1147,9 @@ and often not source-reachable. Levers to try, in order:
   at offsets 0x2C/0x34 where retail emits `ld D_005EFE38` then
   `lwc1 D_005EFE40` and the aggregate copy adds a second `ld`/`sd`.
 
-When no order matches after trying these, drop the function. Indexed
-getters/setters are the usual victims.
+When no order matches after trying these, leave the function on its
+`INCLUDE_ASM` fallback and record the attempt. Indexed getters/setters are the
+usual victims.
 
 ### Commutative `add.s` operand order — measured
 
@@ -1328,13 +1240,14 @@ the emitted branch is `bnez`. Three of the four register×sense combinations
 are reachable by spelling alone; `$vN + beqz` is the only one never
 observed. Whether `x` is live afterwards does not change the choice.
 
-**Operand swap is a second, distinct form of the same lever, and is now the
-highest-yield single trick in this campaign.** Where `>= K` → `> K-1` changes
-the *operator*, this changes the *operand order* while preserving the sense:
-write `a < b` as `b > a`, `x >= y` as `y <= x`. That changes which operand
-reaches the `slt` first and therefore which register the result is assigned.
-It is validated by the `compare_destination` experiment in the mwccps2-debugger
-corpus (`~/mwccdbg/experiments/compare_destination/`), which asks exactly this
+**Operand swap is a second, distinct form of the same lever** (the
+highest-yield single comparison trick as of 2026-09-01). Where `>= K` →
+`> K-1` changes the *operator*, this changes the *operand order* while
+preserving the sense: write `a < b` as `b > a`, `x >= y` as `y <= x`. That
+changes which operand reaches the `slt` first and therefore which register
+the result is assigned. It is validated by the `compare_destination`
+experiment in the mwccps2-debugger corpus
+(`~/mwccdbg/experiments/compare_destination/`), which asks exactly this
 question of b210 and answers yes.
 
 Measured closures and near-misses from the swap and its relatives:
@@ -1435,11 +1348,15 @@ precedent in the searched corpus.
 
 ## b210 accepts 386 pragmas — sweep them before declaring a floor
 
-This campaign spent a long time using **19** pragma spellings. `mwccps2.exe`
-accepts **386**, and an unrecognized one is ignored *silently*, so nobody ever got
-told. `tools/knob_sweep.py --list-knobs` discovers the real list: it pulls
-identifiers out of the compiler binary and validates each with
-`#pragma warn_illpragma on`.
+Measured 2026-08-05. Early work used **19** pragma spellings. `mwccps2.exe`
+accepts **386**, and it ignores an unrecognized one *silently*, so a typo or an
+invented knob gives no diagnostic. The list comes from the compiler binary:
+pull out identifier-shaped strings and validate each with
+`#pragma warn_illpragma on`. The original `tools/knob_sweep.py --list-knobs`
+that did this is not in this tree; see the second sweep below for the manual
+recipe. `tools/pragma_audit.py --list` lists the knobs already proven here, and
+`tools/pragma_sweep.py <file> <function> [--pairs]` measures every cheap pragma
+(and optionally every pair) on one banked floor.
 
 The first sweep paid for itself immediately. **`#pragma no_branch_likely on`**
 turned four functions documented as compiler floors into byte-exact matches:
@@ -1453,9 +1370,10 @@ knob, never a global flag. The cheap test for whether it applies: scan the retai
 window for opcodes `0x14`–`0x17`; if there are none and our object has one, the
 likely form is wrong for that function.
 
-Knobs that look promising and did **not** move their obvious target, so you can
-skip them: `cse_hard_reg_gpr off`, `opt_lifetimes off`, `reg_class_allocs off` and
-`opt_scalarizeliveranges off` on the absolute-getter register floor;
+Knobs that look promising and did **not** move their obvious target:
+`cse_hard_reg_gpr off`, `opt_lifetimes off`, `reg_class_allocs off` and
+`opt_scalarizeliveranges off` on the absolute-getter register residual (later
+shown to be ee-gcc code; see the mixed-toolchain section);
 `opt_strength_reduction off`, `opt_strength_reduction_strict on`,
 `optimize_for_size on` and `opt_dospecialmultiplyunpromotion off` on
 `code1_0039 func_003963b0`, where b210 lowers `x * 0x24` to `sll/addu/sll` and
@@ -1463,18 +1381,19 @@ retail emits a real `mult`; `opt_rebuildconditionals off`,
 `opt_optimizecontrolflow off` and `conditional_move off` on the `beql` case that
 `no_branch_likely` did fix.
 
-A knob hit is a **proposal**, not a result. Record what the pragma fixed and
-what the residual was. `tools/decomp_lint.py` treats optimization provenance
-as advisory: a valid compiler setting is not itself window filling. Semantic
-equivalence, scoped verification, and correct linkage remain mandatory.
+A knob hit is a **proposal**, not a result. Pragmas are ordinary compiler
+inputs: `tools/decomp_lint.py` H003 is an advisory warning asking for the
+measured justification, so record next to the pragma what it fixed and what
+the residual was, and prefer a scoped `push`/`pop`. The one hard exception is
+`#pragma schedule on` inside a guarded body (H010, error): retail's first-party
+build is unscheduled. Semantic equivalence, whole-file verification and correct
+linkage are still required.
 
 ### Second sweep: 60 additional knobs pulled from the b210 binary, zero closures
 
-`tools/knob_sweep.py` referenced above no longer exists in this tree (either lost
-or never ported from the P3 FES campaign); the underlying technique is simple
-enough to redo directly: `strings -a mwccps2.exe | grep -E '^[a-z_]{3,40}$'`
-finds identifier-shaped strings, then `tools/pragma_audit.py`'s `_compile_probe`
-helper (imported directly, not via its CLI) validates each with
+Measured 2026-08-31. The recipe: `strings -a mwccps2.exe | grep -E
+'^[a-z_]{3,40}$'` finds identifier-shaped strings, then `tools/pragma_audit.py`'s
+`_compile_probe` helper (imported directly, not via its CLI) validates each with
 `#pragma warn_illpragma on` in a throwaway TU. That found **60 previously-unswept
 base names** (120 spellings with `on`/`off`) beyond the 9 base names already
 proven in this tree — mostly `opt_*` register/loop/scheduling internals plus
@@ -1486,23 +1405,23 @@ one per distinct floor pattern (scheduler-residual delay-slot `addu`, 128-bit
 `sq`/`lq` slot compare, COP1 `adda`/`madd`/`msub` chains, two independent
 saved-register-rotation floors, FPU-accumulator, VU0/COP2 `s128`
 canonicalization, register/schedule/quad-shape) — 960 total compiles. **Zero
-knobs produced an exact match on any of the eight.** Do not re-run this sweep on
-these floor categories; the result is confirmed exhausted for this knob set.
+knobs produced an exact match on any of the eight.** This knob set is measured
+exhausted for those floor categories; re-sweeping them needs a new knob or a
+different source shape, not the same 120 spellings.
 
-Findings worth keeping so nobody re-discovers them the hard way:
+Findings:
 
 - **`opt_pointer_analysis on` crashes `mwccgap`** (compile exception, not a
-  normal diagnostic) on every one of the eight probes. Never use it.
+  normal diagnostic) on every one of the eight probes. Avoid it.
 - **`opt_generateconditionalassignments on`** triggers an MWCC *internal
-  compiler error* (`InstrSelection.c:3893`) on multiple probes. Never use it.
+  compiler error* (`InstrSelection.c:3893`) on multiple probes. Avoid it.
 - **`opt_markcounterloops on`** also hit a compile error on at least one probe.
 - **`opt_repositioncode on`** is the only knob that ever *improved*
   `normalized_diff` by a nontrivial amount (-12 to -34 across three of the eight
   probes) — but it also *worsened* three other probes by comparable amounts
   (+20 to +235), and never got closer than 96% of the residual on any of them.
-  It is a real, inconsistent effect, not noise, but it is not source-reachable
-  as a general lever: treat a positive result on one function as
-  function-specific, never assume it generalizes.
+  It is a real, inconsistent effect, not noise, but not a general lever:
+  treat a positive result on one function as function-specific.
 - **`opt_dead_code off` / `opt_dead_assignments off`** move `normalized_diff` by
   single-digit-to-tens amounts on most probes, always in the *worse* direction
   except once. Not useful.
@@ -1537,14 +1456,14 @@ first = words[0]
 is_b = (first >> 26) == 4 and ((first >> 21) & 0x1f) == 0 and ((first >> 16) & 0x1f) == 0
 ```
 
-That found exactly three instances tree-wide (`0x00272B34`, `0x00272BD4`,
-`0x0027A350`), all genuine, all now withdrawn in
-`reconcile.BRANCH_LANDING_ENTRIES`. The set is **exhausted** — re-running the sweep
-finds nothing.
+Measured 2026-08-05: that found exactly three instances tree-wide
+(`0x00272B34`, `0x00272BD4`, `0x0027A350`), all genuine, all now withdrawn in
+`BRANCH_LANDING_ENTRIES` (`tools/reconcile_function_boundaries.py`). Re-running
+the sweep then found nothing more.
 
 ### Detectors that look equivalent and are not
 
-Measured, so they are not retried:
+Measured 2026-08-05:
 
 | rule | hits | false positives |
 |---|---|---|
@@ -1575,9 +1494,9 @@ declares. `tools/draft_probe.py` splices them **one at a time**, keeps only what
 compiles, and ranks the survivors by `normalized_diff`, so the failure mode becomes
 a filter.
 
-Over the 150 game-file `INCLUDE_ASM` functions with a draft and a window ≤ 400 B:
-80 had a draft free of `M2C_UNK`/`M2C_ERROR`, and **20 compiled cleanly**. None
-matched outright, but the ranking is the useful part:
+Measured 2026-08-05 over the 150 game-file `INCLUDE_ASM` functions with a draft
+and a window ≤ 400 B: 80 had a draft free of `M2C_UNK`/`M2C_ERROR`, and **20
+compiled cleanly**. None matched outright, but the ranking is the useful part:
 
 | function | nd | obj/window | file |
 |---|---|---|---|
@@ -1602,31 +1521,43 @@ advances 64 bytes where retail advances 16.
 
 ## The retail binary is a MIXED-toolchain build — check the compiler first
 
-Two families this file used to list as MWCCPS2 "compiler floors" are **byte-exact
-under ee-gcc**, which means they were never Metrowerks code and no amount of source
-shaping or pragma work could ever have matched them.
+The retail executable mixes toolchains per translation unit (README "How it
+works"): most Atlus units are MWCCPS2 3.0.1 b210 `-O2`, speed-tuned units b210
+`-O2,p` (`config/speed_units.txt`), the RenderWare Graphics 3.7 block b119
+`-O4,p -inline auto` (`config/compiler_units.txt`, `config/version_flags.txt`),
+and configured CRI and other GCC units ee-gcc 2.96 `-O2 -G0`
+(`config/gcc_units.txt`). `tools/verify.py` (`unit_compiler`,
+`unit_compile_flags`) applies all of these in both verify and build. The
+compiler is a per-TU property to be discovered, not a global setting.
+
+Two families once listed here as MWCCPS2 "compiler floors" are **byte-exact
+under ee-gcc**, so no MWCC source shaping or pragma work could have matched
+them (measured 2026-08-05):
 
 | function | mwccps2 b210 best | ee-gcc |
 |---|---|---|
 | `code1_004c func_004c3410` (absolute getter) | nd 2, unmoved by 8 spellings, 4 register/lifetime knobs and 9,039 `permute_ast` compiles | **exact** at `-O2`, every 2.9/2.95/2.96 variant |
 | `code1_0044 func_0044b8d8` (framed tail jump) | never reaches the 24-byte shape across 18 pragma combinations | **exact** at `ee-gcc2.96 -O2` |
 
-Verified through `tools/decompme.py --try ADDR --source ... --against ...`, which
-compiles one function against several compilers on decomp.me and reports each score.
+Both now live in ee-gcc units: `src/middleware/gcc_ee_004c3410.c` and
+`src/middleware/gcc_ee_wrappers.c`. The comparison was made on decomp.me,
+compiling one function against several compilers and reading each score (the
+`tools/decompme.py --try` helper used then is not in this tree;
+`tools/m2ctx.py <file> --decompme` prints the context and flags for a scratch).
 
 **This does not mean switch compilers.** Plenty of functions are the other way
 round: `code1_003b func_003bd560` is byte-exact under b210 (with
-`#pragma no_branch_likely on`) and scores 545–765 under every gcc. The two
-toolchains are interleaved, so the compiler is a per-TU property to be discovered,
-not a global setting.
+`#pragma no_branch_likely on`) and scores 545–765 under every gcc.
 
-**Where the gcc code is.** Scanning every window ≤ 64 bytes for two unmistakable
-gcc shapes — `lui rX / jr $ra / load rY,off(rX)` with `rX != rY`, and
-`addiu $sp,-N / sd $ra / ld $ra / j target / addiu $sp,N` — finds 34 and 265
-functions respectively. 281 of those 299 sit in `0x004C0000`–`0x0052FFFF`, and that
-region is 91% third-party by scanned function count: 561 `cri_adx_grouped.c`, 93
-Sony `rofs_*`, 5 `cri_adx.c`, against 64 first-party placeholder entries. **These
-families are middleware, not game code.**
+**Where the gcc code is** (measured 2026-08-05). Scanning every window ≤ 64
+bytes for two unmistakable gcc shapes — `lui rX / jr $ra / load rY,off(rX)` with
+`rX != rY`, and `addiu $sp,-N / sd $ra / ld $ra / j target / addiu $sp,N` —
+finds 34 and 265 functions respectively. 281 of those 299 sit in
+`0x004C0000`–`0x0052FFFF`, and that region is 91% third-party by scanned function
+count: 561 `cri_adx_grouped.c`, 93 Sony `rofs_*`, 5 `cri_adx.c`, against 64
+first-party placeholder entries. **These families are middleware, not game
+code.** Another gcc signature is `sd` (not `sq`) saves of callee-saved `$s`
+registers, which b210 never emits (`config/gcc_units.txt` header).
 
 So before grinding a function in the promoted `code1_XXXX` files, ask whether it is
 game code at all. A gcc signature plus a high address is strong evidence it belongs
@@ -1636,9 +1567,9 @@ to CRI or the Sony SDK and is out of scope for first-party matching.
 `0x0044db98`–`0x0052d980` but is non-contiguous: 943 game functions from
 `mdlManager.c`, `effBlurFilter.c`, `sdkSnd.c`, `sdkTask.c` and others are
 interleaved inside it. Attribute by nearest scanned neighbour on both sides
-instead. On that test, of 7,705 unscanned windows **2,723 are flanked by
-third-party on both sides** (likely middleware), 4,099 are flanked by first-party,
-and 883 are mixed and need real attribution.
+instead. On that test (2026-08-05), of 7,705 unscanned windows **2,723 are
+flanked by third-party on both sides** (likely middleware), 4,099 are flanked by
+first-party, and 883 are mixed and need real attribution.
 
 ### ...and a mixed-FLAGS build within MWCC: `-O2` versus `-O2,p`
 
@@ -1664,7 +1595,7 @@ Retail also mixes MWCCPS2 optimisation *variants* per translation unit. The
   units (`code1_001e`, `mdlManager`, `code1_0014`...) lose 20–35% each, so
   this is per-unit, not global.
 - With `,p` on, the functions in that block that stalled on the nop are
-  re-openable; what remains on `func_003bcd50` is a store-to-load reload
+  re-openable; what remained on `func_003bcd50` was a store-to-load reload
   under CSE (see its archive), and on `func_003b4230` an `s32` counter
   compared against an `s64` parameter without extension.
 - Cross-build check (2.4-001213, 3.0.1-020123, 3.0.3-020716, b74, b119,
@@ -1674,7 +1605,7 @@ Retail also mixes MWCCPS2 optimisation *variants* per translation unit. The
   `daddiu` into `addiu` (`func_003b4230`). 2.4 saves `$ra` with `sq`. So
   the block's remaining scheduler-shaped residuals are not a compiler
   version question either; they are source-shape or genuinely open.
-  Builds cached under `~/opt/mwcc_all/` for future checks.
+  The builds were cached machine-locally under `~/opt/mwcc_all/`.
 
 ### The `lw` before `sd $ra` prologue -- measured 2026-09-03
 
@@ -1704,28 +1635,31 @@ game units losing 20-85% each (shdPersona 0/88, datPersona 7/51), but the
 RenderWare-derived block (`code1_0039`..`003e`, `src/rw/`) keeping 488/529.
 So b210 is right for Atlus's code and an older build for the prebuilt
 RenderWare objects that the promoted `code1_003x` units interleave with it.
+The b210 side of this is recorded in
+[compiler-floors.md](compiler-floors.md#conditional-moves-movz--movn-under-build-210).
 
-The compiler is now carried per unit: `config/compiler_units.txt` maps a unit
+The compiler is carried per unit: `config/compiler_units.txt` maps a unit
 to a version key, `mwcc_versions` in the local verify/build config (or
 `P4_MWCC_<KEY>`) maps the key to a binary, and `verify.unit_compiler()` feeds
 both verify and build (cache keys include the binary). `code1_003c_cw119.c`
-is the first such unit. CI resolves the key through the container: the
+was the first such unit. CI resolves the key through the container: the
 Dockerfile installs `/usr/local/bin/mwccps2-cw3.0.1b119.exe` (a wibo wrapper
 over `P4_MWCC_CW3_0_1B119_BINARY`, mounted from `cw3.0.1b119/mwccps2.exe` in
 the private dependencies repository) and exports `P4_MWCC_CW3_0_1B119` to it;
 a unit naming an unconfigured version fails verify outright rather than
-scoring against b210. The cw119 units are not link-eligible (their functions
-are not contiguous with the unit's first), so the full-link SHA1 never sees
-their relocations; `verify.py` now cross-checks every gp-relative and
-%hi/%lo relocation of a MATCH function against retail's immediate using the
-candidate's addend (`WRONG SYMBOL`, a hard failure). Its first run found
-seven latent wrong-symbol matches: three in cw119 units (`iGpffffb680` for
-`iGpffffaa7c`, `iGpffffb6f8` for `iGpffffb700` plus `D_008873F8[0x46]` for
-`[0]`, `iGpffffb768` for `iGpffffb788`) and three in unlinked b210 units
-(btlCamera `DAT_00761188` for `fGpffff8110`, code1_0045 `D_008872F8` for
-`fGpffff8200` - 64K out of gp's reach, k_fldUnit a file-static shadowing
-`iGpffffb2e8` where one site is `iGpffffb2e4`). Two cautions from the
-measurements:
+scoring against b210.
+
+The cw119 units are not link-eligible (their functions are not contiguous with
+the unit's first), so the full-link SHA1 never sees their relocations;
+`verify.py` therefore cross-checks every gp-relative and %hi/%lo relocation of a
+MATCH function against retail's immediate using the candidate's addend
+(`WRONG SYMBOL`, a hard failure). Its first run (2026-09-03) found seven latent
+wrong-symbol matches: three in cw119 units (`iGpffffb680` for `iGpffffaa7c`,
+`iGpffffb6f8` for `iGpffffb700` plus `D_008873F8[0x46]` for `[0]`,
+`iGpffffb768` for `iGpffffb788`) and three in unlinked b210 units (btlCamera
+`DAT_00761188` for `fGpffff8110`, code1_0045 `D_008872F8` for `fGpffff8200` -
+64K out of gp's reach, k_fldUnit a file-static shadowing `iGpffffb2e8` where
+one site is `iGpffffb2e4`).
 
 **2026-09-03: the block is RenderWare Graphics 3.7.** `func_003e46e0` is
 `_rwChunkGroupOpen` (core/src/plcore/rwgrp.c) line for line; its `0x40412` is
@@ -1739,7 +1673,8 @@ b119 with schedule on, once RwEngineInstance is the static `ourGlobals` array
 Headers are vendored under include/rw (public misc/inc plus the internal
 plcore/core/p2/world/driver headers, a PS2 ostypes.h with 16-byte matrix
 alignment, and libc shims), reached through config/version_flags.txt for the
-b119 units. Lane rules: build/LANE_RULES.md, RenderWare section.
+b119 units. Working rules for the block: `build/LANE_RULES.md`, "RenderWare
+source port" section.
 
 **2026-09-04: the block's build flags are `-O4,p -inline auto -DRWBUILDNUMBER=55`,
 and the port is mostly automatic.** At `-O2` b119 inverts a plain `while` into a
@@ -1764,15 +1699,18 @@ build 101) and is worked by hand. `src/renderware/` is classified third-party
 like `src/rw/`: the block was never Atlus's code, so the first-party denominator
 shrinks as it is ported out of the promoted code1_003x units.
 
-The block is now a vendor address span in `tools/verify.py` (`0x0038F990`, the
+The block is a vendor address span in `tools/verify.py` (`0x0038F990`, the
 first function after ed_res.c and a caller of `_rwerror`/`RwErrorSet`, up to the
-CRI span at `0x00417510`), so the whole of it - core, plugins, sky2 driver - is
-third-party whatever unit it currently sits in: first-party is 6023/6861
-(87.8%) with the block out. The RenderWare 3.5 PS2 SDK (`../rwsdk-v3.5-ps2`,
-binary libraries plus the sky2 headers) confirms the layout - its sky2
-`rwplcore.h` carries exactly the alignment settings `include/rw/ps2/ostypes.h`
-reproduces - and names the driver/plugin functions no source exists for, but
-its bytes are a different version and do not fingerprint (build/rw35_fid.json).
+CRI span at `0x00417510`; `is_vendor_address`), so the whole of it - core,
+plugins, sky2 driver - is third-party whatever unit it currently sits in. With
+the block out, first-party was 6023/6861 (87.8%) on 2026-09-03. The
+RenderWare 3.5 PS2 SDK (`../rwsdk-v3.5-ps2`, binary libraries plus the sky2
+headers) confirms the layout - its sky2 `rwplcore.h` carries exactly the
+alignment settings `include/rw/ps2/ostypes.h` reproduces - and names the
+driver/plugin functions no source exists for, but its bytes are a different
+version and do not fingerprint (`build/rw35_fid.json`).
+
+Cautions from the b119 measurements:
 
 - **b119's prologue scheduling is unit-state dependent.** The same
   `func_003cb720` body is nd 0 when compiled inside the whole `code1_003c.c`
@@ -1784,7 +1722,7 @@ its bytes are a different version and do not fingerprint (build/rw35_fid.json).
   into a b119 unit is therefore not reliable; the honest split is whole
   units, which means re-spelling the few b210-only matches (`func_003c9c20`
   nd 10, `func_003cb250` nd 9, five more) before the block can move.
-- The `lw` before `sd $ra` prologue (below) is NOT explained by the build:
+- The `lw` before `sd $ra` prologue (above) is NOT explained by the build:
   every cached build keeps the `$ra` store first for that source.
 - Likewise a parameter `move` interleaved between the `sq` saves
   (`func_003c47c0`: retail `sq $s1; move $s1,$a0; sq $s0`, every build
@@ -1793,37 +1731,91 @@ its bytes are a different version and do not fingerprint (build/rw35_fid.json).
   opt_loop_invariants / opt_rebuildconditionals off, tailcall off, eleven
   spellings (self copy, child local, sum orders, `u8 **` parameter,
   explicit temporaries), inside the whole parent and at every position in
-  the cw119 unit. `func_003e8ed0` (nd 17) is the same shape. Not a lever
-  question; do not re-probe.
+  the cw119 unit. `func_003e8ed0` (nd 17) is the same shape. Not a build or
+  knob question; a new source shape is the only thing left to try.
 
 ## Known compiler floors (do not fight these)
 
-When the only residual is one of these, the function is a compiler floor:
-keep the best source, tag the marker `// FUN_XXXXXXXX NONMATCHING` (with a
-short comment recording what was tried), and move on. Retrying exhausted
-variants is wasted time.
+A floor here is **measured, not proven impossible**: the listed residual
+survived every spelling, knob and build recorded against it. When a function's
+only residual is one of the open floors below, keep the best source behind
+`#ifdef NON_MATCHING` with the `INCLUDE_ASM` fallback in the production branch,
+tag the marker `// FUN_xxxxxxxx NONMATCHING` with a short note of what was
+tried, and/or archive the attempt in `docs/probe_archive/`; then move on.
+Re-running the exhausted variants is wasted time; a genuinely new source shape
+is not. Many entries that used to sit here turned out reachable, so check the
+second list before calling anything a floor. The standalone floor catalogue is
+[compiler-floors.md](compiler-floors.md).
 
-- **Call-argument setup order before a JAL — SOLVED for the address case.**
-  Used to read "a scheduler choice the C argument list cannot always
-  reproduce". Measured: a stack-buffer address argument is materialised
-  *first* (`addiu $a2,$sp` before the `move $a0/$a1`) when the source casts
-  it to an integer (`(s32)buf`, `(s32)p`, `(s32)&buf[0]`) or the callee's
-  parameter is integer-typed; it is materialised *last*, after the register
-  moves, when `buf` is passed as-is to a **pointer-typed parameter**. The
-  cast turns the address into a computed value that goes into the argument
-  order first; the plain pointer is a "load-like" operand and follows.
-  Closed `func_002782c0` (itfMesManager.c, nd10 -> 0) by retyping
-  `func_00278450`'s third parameter `char *` (the callee stayed MATCH; its
-  body only passes the value on). `#pragma schedule on` also reorders the
-  pair but wrecks everything else. The mirror case — retail materialises an
+### Open floors
+
+- **Saved-register coloring cycles.** A parameter and a surviving local both
+  wanting the same callee-saved register (the param-vs-local `s0/s1` fight),
+  or a register reused as an unrelated counter on a sibling branch — these are
+  allocation cycles no recorded source shape has broken. Partial lever: a call
+  result used directly as an argument takes the lowest saved register (see
+  below).
+- **Independent adjacent memory access order.** Two adjacent loads or stores
+  from different fields compile in an order the scheduler picks; when it
+  disagrees with retail and the two accesses are genuinely independent, no
+  source order fixes it (see also the commutative-`addu` section — but those
+  levers work only when the order is *dependent* on addressing). Exception:
+  12-byte aggregate copies (below).
+- **Commutative operand orientation** — `addu` and `mul.s` operand order when
+  both operands are live in fixed registers. For float specifically,
+  `fresh * invariant` canonicalizes to invariant-first (`mul.s $f0,$f2,$f0`)
+  while retail emits fresh-first (`mul.s $f0,$f0,$f2`); neither source
+  operand order changes it. Indexed getters/setters and float math are the
+  usual victims.
+- **Instruction scheduling / subexpression evaluation order** in general,
+  and **FPU-register allocation**. Of the `slt $at` branch-temp grid (see
+  "`slt $at` vs `slt $v0`" above), only `$vN + beqz` is unreachable.
+- **Store-to-load reload together with a 64-bit guard.** `#pragma peephole
+  off` keeps a post-store reload (see below) but the same peephole also
+  removes the `dsll32/dsra32` an `s32`->`s64` conversion leaves after a fresh
+  `lw`, so a function that needs both a reload and the `slt $at,$zero,$v0`
+  64-bit guard (`func_003bcd50`) cannot have both: with `peephole off` every
+  guard spelling either keeps the shifts or folds to `blez`. Only an
+  ordinary-memory `volatile` reproduces it, which is rejected steering (lint
+  H001 plus the semantic gate), so it stays a floor. Second exclusive case:
+  `func_003d0460` - the `peephole off` that keeps its six `*arg1` reloads
+  removes retail's tail-merge branch into the epilogue with `ld $ra` in the
+  delay slot (archived at nd34).
+- **The `lw` before `sd $ra` prologue** and **a parameter `move` between the
+  `sq` saves** — see the build measurements above (2026-09-03).
+
+### Former floors that are reachable (what works)
+
+Several closures below were reached with old-style (unprototyped) calls or
+block-scope callee declarations that disagree with the definition
+(`func_00178870`, `func_0020e420`, `func_003146f0`, `func_00232c70`). The
+measurements stand as compiler findings, but current policy
+([STYLE.md](STYLE.md) "One function, one signature" and "Recovered C, not
+steering"; lint H011) rejects a conflicting local declaration or an
+old-style call that passes whatever is left in a register. Use such a shape
+only when it describes the callee's real signature; otherwise fix the
+definition and every caller together.
+
+- **Call-argument setup order before a JAL — the prototype and address-taking
+  decide.** Measured 2026-09-02: a stack-buffer address argument is
+  materialised *first* (`addiu $a2,$sp` before the `move $a0/$a1`) when the
+  source casts it to an integer (`(s32)buf`, `(s32)p`, `(s32)&buf[0]`) or the
+  callee's parameter is integer-typed; it is materialised *last*, after the
+  register moves, when `buf` is passed as-is to a **pointer-typed
+  parameter**. The cast turns the address into a computed value that goes
+  into the argument order first; the plain pointer is a "load-like" operand
+  and follows. Closed `func_002782c0` (itfMesManager.c, nd10 -> 0) by
+  retyping `func_00278450`'s third parameter `char *` (the callee stayed
+  MATCH; its body only passes the value on). `#pragma schedule on` also
+  reorders the pair but wrecks everything else (and is lint error H010 in a
+  guarded first-party body). The mirror case — retail materialises an
   argument address *early*, e.g. `addiu $a0,$sp,0x5C` before the store into
   that very slot, or `addiu $a1,$sp,0x40` between two quad stores — is the
   address taken into a pointer local at that point in the source, under
   `opt_propagation off` so it is not folded back to the call:
   `pf = &fbuf; fbuf = ...; ...; a16 = (u_long128 *)&arr[16]; *(u_long128 *)&arr[16] = q; call(pf, a16, ...)`
   (the store itself stays direct so it addresses `$sp`). Closed
-  `func_0025b0f0` (cmmRankUp.c, nd24 -> 0). Both members of this entry are
-  now closed.
+  `func_0025b0f0` (cmmRankUp.c, nd24 -> 0).
 - **Argument masks before or after the loads — the prototype decides.**
   With a prototyped `u16` parameter mwcc emits every conversion (`andi
   $aN,$rX,0xffff`) *before* the memory-operand arguments (`lhu $a0/$a1`),
@@ -1835,6 +1827,7 @@ variants is wasted time.
   after the loads). Both masks written as casts under the old-style
   declaration put the loads first instead. Closed `func_00178870`
   (code1_0017.c, nd4 -> 0); measured in isolation across 22 spellings.
+  Policy caveat: see the note at the top of this list.
 - **Entry parks are emitted in PARAMETER order.** Retail `move $s6,$a0 /
   mov.s $f21,$f12 / mov.s $f20,$f13 / move $v1,$a1 / move $s4,$a2` is not a
   scheduling floor: the floats sit between the GPR parks because the source
@@ -1849,8 +1842,9 @@ variants is wasted time.
   the masks so the index inherits the dead flag's `$s4`.
 - **"COP1 accumulator-chain floor" archives are not floors.** 41 archives
   carried that classification with no source probing; the first four opened
-  (`func_001bc660` - no COP1 at all, `func_00208870`, `func_0020e420`,
-  `func_003a9e50`) all closed. Treat every such archive as a fresh target.
+  (2026-09-02: `func_001bc660` - no COP1 at all, `func_00208870`,
+  `func_0020e420`, `func_003a9e50`) all closed. Treat every such archive as a
+  fresh target.
 - **The "s64-parameter-normalization floor" (y_fclCombineDraw.c draw family)
   is narrow-type canonicalisation, and it is reachable.** Every `dsll32
   $r,$r,0x18 / dsra32` (or `0x10`) pair in that family is b210 canonicalising
@@ -1865,8 +1859,9 @@ variants is wasted time.
   the `$v1` park) - that is emitted in argument order, whereas `(s8)arg2` /
   `(s64)arg2` casts of the parameter are hoisted ahead of the loaded
   arguments (nd45). Declaring the callee's parameter `s64` produces the same
-  shifts but still hoisted. The 37 remaining functions in that file carry
-  "floor" notes written before this was understood; treat them as open.
+  shifts but still hoisted. The 37 other functions in that file carried
+  "floor" notes written before this was understood (count as of 2026-09-02);
+  treat them as open.
 - **Store-to-load forwarding is a PEEPHOLE: `#pragma peephole off` keeps the
   reload.** Retail's `sw $v0,0xc($s2); lw $s3,0xc($s2)` (and the same on the
   `0x10` field) in the 0039-003e allocator block is not reachable by access
@@ -1874,36 +1869,30 @@ variants is wasted time.
   `opt_pointer_analysis off`, `global_optimizer off` or `opt_lifetimes off`
   (all forward the store); `#pragma peephole off` reproduces both reloads
   exactly (`func_003a8500`, now nd12 = saved-register colouring only,
-  archived as `Main_003a8500_body.c`). `peephole` is recognised by b210
-  (compile-probed) and is function-granular like the other knobs. Cost: the
-  same peephole also removes the `dsll32/dsra32` that an `s32`->`s64`
-  conversion leaves after a fresh `lw`, so a function that needs both a
-  post-store reload and the `slt $at,$zero,$v0` 64-bit guard (`func_003bcd50`)
-  cannot have both - with `peephole off` every guard spelling either keeps the
-  shifts or folds to `blez`. That one closes only with `volatile` (banned).
-  Closed with `peephole off` instead of the banned `volatile` the archives
-  had needed: `func_003c3e90`, `func_003e2570`, `func_003e8080` (all the
-  `*slot = result; result = *slot;` allocator idiom). `func_003de8c0`'s
-  archived volatile turned out unnecessary under the unit's `-O2,p`.
-  Also `func_003d5fb0` (84/96; plus a named `self` copy under
+  archived as `docs/probe_archive/Main_003a8500_body.c`). `peephole` is
+  recognised by b210 (compile-probed) and is function-granular like the other
+  knobs. Closed with `peephole off` instead of the ordinary-memory `volatile`
+  the archives had used: `func_003c3e90`, `func_003e2570`, `func_003e8080`
+  (all the `*slot = result; result = *slot;` allocator idiom).
+  `func_003de8c0`'s archived volatile turned out unnecessary under the unit's
+  `-O2,p`. Also `func_003d5fb0` (84/96; plus a named `self` copy under
   `opt_propagation off` so the flags load is issued from `$a0` before the
-  park). Second exclusive case: `func_003d0460` - the same `peephole off`
-  that keeps its six `*arg1` reloads removes retail's tail-merge branch into
-  the epilogue with `ld $ra` in the delay slot (archived at nd34).
+  park). The cases where `peephole off` costs something else are in the open
+  list above.
 - **A call result used directly as an argument and parked across an inner
   call takes the LOWEST saved register, below declared locals.** Retail
   `obj=$s1, colour=$s0` (`func_0032c480`, y_fclCombineDraw.c) is not reachable
   by declaring `colour` in any order or scope (every permutation gives
   `obj=$s0`); writing `func_00275820(func_002b2a30(0, 0, 0, 0xFF), ...)` with
   the inner `func_002e48a0` call in a later argument parks the result in `$s0`
-  under the declared `obj`. Took that function from nd31 to nd13.
+  under the declared `obj`. Took that function from nd31 to nd13 (not closed).
 - **Loop-invariant constant hoisting into the preheader.** mwcc sometimes
   hoists a constant into the preheader where retail rematerializes it in the
-  loop (or the reverse — see the `opt_loop_invariants` waiver in
-  `src/Battle/btlTarget.c`, where retail hoists and mwcc rematerializes with
-  swapped `addiu/sllv` operands). `opt_loop_invariants on` under push/pop has
-  since closed six functions (0012d410, 0012dea0, 00359400, 002b7f20,
-  0016f3b0, 00473870) — measure it before calling this a floor.
+  loop, or the reverse — see the measured `#pragma opt_loop_invariants on` in
+  `src/Battle/btlTarget.c`, where without it mwcc rematerializes with swapped
+  `addiu/sllv` operands (nd 28). `opt_loop_invariants on` under push/pop has
+  closed six functions (0012d410, 0012dea0, 00359400, 002b7f20, 0016f3b0,
+  00473870; as of 2026-09-02) — measure it before calling this a floor.
 - **A `base + i*stride` slot address that retail rematerialises several times
   is NOT a GVN floor.** `func_00165380` (k_fldUnit.c, nd 148 -> 0): retail
   recomputes `D_007E8C00 + i*0x750` (mult/lui/addiu/addu) at the head of each
@@ -1918,30 +1907,22 @@ variants is wasted time.
   load is its own statement (`p = ...;`) before the call.
 - **A value written by an asm island must be read back through its
   address.** `func_004adb50` (code1_004a.c, nd 118 -> 0): the VU0 colour-pack
-  island ends with `sw $2, 0x134($sp)`; reading it as `color = sp134` leaves
-  the compiler free to float the load (the local is uninitialised from its
-  point of view), which also flipped the entire saved-register ranking
-  (param and loop bound at the bottom). `color = *(s32 *)&sp134;` - the
-  effModel.c form - pins the `lw $s5` right after the island and restores
-  the documented ranking (params first, locals in declaration order).
-- **Saved-register coloring cycles.** A parameter and a surviving local both
-  wanting the same callee-saved register (the param-vs-local `s0/s1` fight),
-  or a register reused as an unrelated counter on a sibling branch — these are
-  allocation cycles the source cannot break.
-- **Independent adjacent memory access order.** Two adjacent loads or stores
-  from different fields compile in an order the scheduler picks; when it
-  disagrees with retail and the two accesses are genuinely independent, no
-  source order fixes it (see also the commutative-`addu` section — but those
-  levers work only when the order is *dependent* on addressing).
-  **Measured exception — 12-byte aggregate copies.** A `ld/lwc1/sd/swc1`
-  copy (retail loads the 64-bit half first) is a struct assignment between
-  two *struct-typed locals*: `Vec3 d, s; d = s;`. The `ld` appears only
-  when mwcc knows the slot is 8-aligned, which it does for top-level locals
-  (each gets its own 16-byte slot) and does **not** for a member of a
-  packed "frame" struct (type alignment 4 → three `lwc1`). A helper taking
-  `(s64 *, f32 *)` pointers gives `lwc1; ld; sd; swc1`; casts on either
-  side (`*(V3 *)arr = ...`) give three `lwc1`. Closed `func_001cff00`
-  (code1_001c.c, nd2 -> 0) by dissolving the lane's frame struct into
+  island (a VU0 hardware operation, the kind of asm H009 permits) ends with
+  `sw $2, 0x134($sp)`; reading it as `color = sp134` leaves the compiler free
+  to float the load (the local is uninitialised from its point of view), which
+  also flipped the entire saved-register ranking (param and loop bound at the
+  bottom). `color = *(s32 *)&sp134;` - the effModel.c form - pins the `lw $s5`
+  right after the island and restores the documented ranking (params first,
+  locals in declaration order).
+- **12-byte aggregate copies (the exception to independent access order).**
+  A `ld/lwc1/sd/swc1` copy (retail loads the 64-bit half first) is a struct
+  assignment between two *struct-typed locals*: `Vec3 d, s; d = s;`. The `ld`
+  appears only when mwcc knows the slot is 8-aligned, which it does for
+  top-level locals (each gets its own 16-byte slot) and does **not** for a
+  member of a packed "frame" struct (type alignment 4 → three `lwc1`). A
+  helper taking `(s64 *, f32 *)` pointers gives `lwc1; ld; sd; swc1`; casts on
+  either side (`*(V3 *)arr = ...`) give three `lwc1`. Closed `func_001cff00`
+  (code1_001c.c, nd2 -> 0) by dissolving the frame struct into
   `Vec3 target; Vec3 source; struct { f32 first[10]; u8 second[0x28]; } fr;`
   — retail's slot spacing (0x90/0xA0 for the two Vec3s, `first`/`second`
   contiguous) is exactly what mwcc's per-local 16-byte slots produce, and
@@ -1953,39 +1934,51 @@ variants is wasted time.
   plain struct assignment. `f32 ab[6]` with `*(FldAIVec3 *)ab` casts blinds
   the alignment (three `lwc1`, nd290); a `{s64; f32}` destination type gives
   scalar order `ld/sd/lwc1/swc1` (nd4).
-- **~~Framed tail jump~~ and ~~absolute-getter address register~~ — NOT floors,
-  wrong compiler.** Both were listed here for a long time and both are **ee-gcc
-  code**; see "The retail binary is a MIXED-toolchain build" above. Kept as a
-  warning, because the MWCCPS2 evidence looked airtight and was still the wrong
-  conclusion.
+- **Framed tail jump and absolute/chained-load getter — NOT floors, wrong
+  compiler.** Both families were listed here for a long time and both are
+  **ee-gcc code**; see "The retail binary is a MIXED-toolchain build" above.
+  Kept as a warning, because the MWCCPS2 evidence looked airtight and was
+  still the wrong conclusion.
   * Framed tail jump (~10 functions in `code1_0043`/`code1_0044`): retail wraps
     `return g(a);` in a frame *and* tail-jumps —
     `addiu $sp,-0x10 / sd $ra,($sp) / ld $ra,($sp) / j g / addiu $sp,0x10`, 24
     bytes. b210 only ever emits 8 bytes (frameless jump), 28 (framed `jal`) or 32
     (unscheduled), across all 18 combinations of `optimization_level` 1/2/3 ×
     `tailcall` on/off × `schedule` on/off/absent. **`ee-gcc2.96 -O2` is exact.**
-  * Absolute getter (19 functions, `code1_0039/0041/004c/004d/004e/004f/0050/0051/0052`):
-    retail emits `lui $v1,%hi(sym) / jr $ra / lw $v0,%lo(sym)($v1)`; b210 reuses
-    `$v0` for the address, nd 2 at 12 bytes against a 16-byte window (the gap is
-    trailing padding). Unmoved by 8 source spellings, by
-    `cse_hard_reg_gpr`/`opt_lifetimes`/`reg_class_allocs`/`opt_scalarizeliveranges`,
-    and by 9,039 `permute_ast` compiles (score 9 → 5, never 0).
-    **Every ee-gcc 2.9/2.95/2.96 at `-O2` is exact.** Scratch:
-    <https://decomp.me/scratch/r8hUx>.
-  * `#pragma schedule on` really is load-bearing for the getter shape under b210 —
-    without it the `lw` misses the `jr` delay slot — which is exactly why the
-    residual looked like one stubborn register instead of a different toolchain.
-- **Commutative operand orientation** — `addu` and `mul.s` operand order when
-  both operands are live in fixed registers. For float specifically,
-  `fresh * invariant` canonicalizes to invariant-first (`mul.s $f0,$f2,$f0`)
-  while retail emits fresh-first (`mul.s $f0,$f0,$f2`); neither source
-  operand order changes it. Indexed getters/setters and float math are the
-  usual victims.
-- **`addiu` vs `daddiu` for small constants — SOLVED: narrow unsigned
-  destination.** This entry previously said constant materialisation never
-  yields `daddiu` and told you to stop probing. That was wrong. The sweep
-  explored *arithmetic* spellings exhaustively but never varied the
-  destination's signedness and width together. Measured against b210:
+  * Absolute / chained-load getter (19 functions,
+    `code1_0039/0041/004c/004d/004e/004f/0050/0051/0052`): retail is exactly
+    three words, `lui $v1,%hi(sym) / jr $ra / lw $v0,%lo(sym)($v1)` (or
+    `lw $v1,off($a0) / jr $ra / lw $v0,off2($v1)`) — the address in `$v1`, the
+    value in `$v0`, the second load in the `jr` delay slot. b210 reuses `$v0`
+    for the intermediate, nd 2 at 12 bytes against a 16-byte window (the gap
+    is trailing padding). Under b210 the delay slot only fills with `#pragma
+    schedule on`; without it the object is four words against a three-word
+    window — which is why the residual looked like one stubborn register
+    instead of a different toolchain. Unmoved by five source forms (a magic
+    `0x00710000 + off` literal, a `u32 *` pointer local, separate base/value
+    locals, a scalar `extern u32 D_xxxxxxxx;` — gp-relative, two words, too
+    short — and `extern u32 D_xxxxxxxx[]; return D_xxxxxxxx[0];`), 8 spellings
+    in all, by `cse_hard_reg_gpr`/`opt_lifetimes`/`reg_class_allocs`/
+    `opt_scalarizeliveranges`, by `tools/permute_sweep.py` (score 2 on every
+    one) and by 9,039 `permute_ast` compiles (score 9 → 5, never 0).
+    **Every ee-gcc 2.9/2.95/2.96 at `-O2` is exact**, and the array-extern
+    form is what the ee-gcc unit uses (`src/middleware/gcc_ee_004c3410.c`:
+    `return D_00714C3C[0];`). Scratch: <https://decomp.me/scratch/r8hUx>.
+- **Text-level permuter budget (measured 2026-08-04).** A
+  60-second-per-function `tools/permute.py` sweep over all 86 functions with a
+  preserved `#ifdef NON_MATCHING` body cracked three (`y_fclModel
+  func_0034a4f0`, `code1_0017 func_00176220`, `btlResultHeroLvUp
+  func_00221cf0`). A second sweep at **420 seconds** over the 35 that had
+  scored 3–60 cracked **none**, and every score was identical to the 60-second
+  run. `tools/permute.py` converges well inside a minute; more time buys
+  nothing. What is left needs a search that RESTRUCTURES code rather than
+  reordering lines and swapping operands — `tools/permute_ast.py` and
+  decomp-permuter's AST passes, not a longer budget.
+- **`addiu` vs `daddiu` for small constants — narrow unsigned destination.**
+  Measured 2026-09-01; an earlier version of this entry said constant
+  materialisation never yields `daddiu`. That sweep explored *arithmetic*
+  spellings exhaustively but never varied the destination's signedness and
+  width together. Measured against b210:
 
   > A constant that fits a signed 16-bit immediate, assigned to an **unsigned
   > destination narrower than 32 bits**, materialises as `daddiu $rX,$zero,K`.
@@ -2010,7 +2003,7 @@ variants is wasted time.
   to 1 inside a branch gives retail's `andi`/`daddiu`/`andi` sequence
   instruction for instruction.
 
-  **Third case — a `u8` return whose callers do not re-mask.** Retail
+  **A `u8` return whose callers do not re-mask.** Retail
   `daddiu $v0,$zero,K` straight into the return register with no `andi` at
   the return, while the *matched* caller in the same unit also has no
   `andi` after the `jal`: the definition returns `u8` (constants land in
@@ -2024,14 +2017,15 @@ variants is wasted time.
   `func_00232c70` (datCalc.c, nd2 -> 0) with `func_002384b0` still MATCH.
   A file-scope `u32` prototype instead re-masks the callee's return
   (`daddiu v1` + `andi v0,v1`); a function-pointer cast at the call is a
-  different call shape (nd 482).
+  different call shape (nd 482). Policy caveat: this is a declaration that
+  conflicts with the definition; see the note at the top of this list.
 
-  **Second half of the same closure — the fused post-increment.** Retyping the
-  counter reaches the `daddiu` but can cost more than it gains: on
-  `func_001e7ab0` it went from 1 differing word to 4, because mwcc then CSE'd
-  the `0xffff` mask between the array index and the increment, so the
-  increment read the masked temp where retail reads the counter register.
-  Retail's five-instruction idiom is a subscript post-increment:
+  **The fused post-increment.** Retyping the counter reaches the `daddiu` but
+  can cost more than it gains: on `func_001e7ab0` it went from 1 differing
+  word to 4, because mwcc then CSE'd the `0xffff` mask between the array index
+  and the increment, so the increment read the masked temp where retail reads
+  the counter register. Retail's five-instruction idiom is a subscript
+  post-increment:
 
   ```
   andi  v0, s1, 0xffff     |   sp60[n++] = value;      /* n is u16 */
@@ -2047,13 +2041,11 @@ variants is wasted time.
   the wrong instrument — measured, it disabled CSE far too broadly and blew the
   residual out to 64 words at 372B against a 368B window. **If a masked index
   and an increment of the same variable differ only in which register they
-  read, fuse them into one post-increment expression.** That pair of levers
-  closed the campaign's oldest one-word near-miss.
+  read, fuse them into one post-increment expression.**
 
-  **Three spellings of the split, now all proven.** The retype nearly always
-  reaches the `daddiu` on first application — it did in all eight functions of
-  the first pool wave — and what remains is keeping the masked index apart
-  from the increment. Pick by control flow:
+  **Three spellings of the split.** The retype reached the `daddiu` on first
+  application in all eight functions of the first target pool; what remains is
+  keeping the masked index apart from the increment. Pick by control flow:
 
   | shape | when |
   |---|---|
@@ -2066,17 +2058,17 @@ variants is wasted time.
   constants retail materialises with `daddiu` come from the `u16` and the two it
   materialises with `addiu` come from the `s32`.
 
-  Rebuild the target pool with a scan for opcode `0x19` with `rs == 0`
-  (`daddiu $rX,$zero,K`) over the unmatched set: 107 functions, 338
-  instructions, at the time of writing.
+  Build a target pool with a scan for opcode `0x19` with `rs == 0`
+  (`daddiu $rX,$zero,K`) over the unmatched set; on 2026-09-01 that was 107
+  functions, 338 instructions.
 
-  Everything the old sweep ruled out stays ruled out, and none of it is a
-  substitute: `*p |= 255` on a `u64` gives `ori`, a `u64` local built from
-  constants gives `ori`, constants passed to `u64` parameters give neither,
-  and `1`/`1LL`/`(long long)1`/`s64` returns/64-bit locals/64-bit stores all
-  give `addiu`. A 64-bit add with a live REGISTER operand also emits `daddiu`
-  (`long long x; return x + 1;` → `64820001`), but that is a different shape
-  from the `$zero`-source constants in the retail family.
+  Spellings that do **not** produce it: `*p |= 255` on a `u64` gives `ori`, a
+  `u64` local built from constants gives `ori`, constants passed to `u64`
+  parameters give neither, and `1`/`1LL`/`(long long)1`/`s64` returns/64-bit
+  locals/64-bit stores all give `addiu`. A 64-bit add with a live REGISTER
+  operand also emits `daddiu` (`long long x; return x + 1;` → `64820001`), but
+  that is a different shape from the `$zero`-source constants in the retail
+  family.
 
   These are PS2 GS/GIF packet structures, so bitfields in 64-bit words are
   what retail's source almost certainly used; reconstructions that build the
@@ -2084,55 +2076,28 @@ variants is wasted time.
   `daddiu` where you have `addiu` and the value is a packed field, write it as
   a bitfield assignment.**
 
-  Members to re-open, all previously archived as unreachable:
-  `func_001e7ab0` (nd 1, +0xEC — the campaign's closest near-miss),
-  `func_00232c70` (nd 2), `func_00209870` (nd 6), `func_0034ac00` (5 words),
-  `func_0038b1c0` (nd 6, whose residuals decode as `daddiu a2,zero,0xff` /
-  `a3,zero,0xbe` / `t0,zero,0x5a` / `a2,zero,0x2b` / `a3,zero,0x26` /
-  `t0,zero,0x1e` — three-channel colour values in consecutive argument
-  registers, exactly what a packed-colour bitfield write produces).
-  Full write-up: `docs/open_question_daddiu.md`.
-- **Chained-load intermediate register in a delay-slot getter.** The
-  `code1_004c`–`code1_0052` getter family: retail is exactly three words,
-  `lui $v1,%hi / jr $ra / lw $v0,%lo($v1)` (or `lw $v1,off($a0) / jr $ra /
-  lw $v0,off2($v1)`), i.e. the ADDRESS lands in `$v1` and the loaded value in
-  `$v0`, with the second load in the `jr` delay slot. b210 always reuses `$v0`
-  for the intermediate, giving `lw $v0,off($v0)`. That single word is the whole
-  residual — but only after `#pragma schedule on`, which is required in these
-  files (scheduling is off at file scope) to fill the delay slot at all;
-  without it the object is four words against a three-word window. Measured
-  invariant across five source forms: a magic `0x00710000 + off` literal, a
-  `u32 *` pointer local, two separate locals for base and value, a scalar
-  `extern u32 D_xxxxxxxx;` (which becomes gp-relative and is two words, too
-  short), and `extern u32 D_xxxxxxxx[]; return D_xxxxxxxx[0];`. The array-extern
-  form is the one to keep: it is the only spelling that both reproduces retail's
-  relocated `%hi`/`%lo` pair and avoids inventing a magic address. 19 functions
-  sit on this, all at exactly one differing word; `tools/permute_sweep.py`
-  scores every one of them 2 and cracks none.
-
-  Measured budget ceiling for the text-level permuter, so nobody re-runs it: a
-  60-second-per-function sweep over all 86 functions with a preserved
-  `#ifdef NON_MATCHING` body cracked three (`y_fclModel func_0034a4f0`,
-  `code1_0017 func_00176220`, `btlResultHeroLvUp func_00221cf0`). A second sweep
-  at **420 seconds** over the 35 that had scored 3–60 cracked **none**, and
-  every score was identical to the 60-second run. `tools/permute.py` converges
-  well inside a minute; more time buys nothing. What is left needs a search that
-  RESTRUCTURES code rather than reordering lines and swapping operands — i.e.
-  `permute_ast.py` and decomp-permuter's AST passes, not a longer budget.
-- **~~128-bit `lq`/`sq` aggregate copy~~ — NOT a floor; `__int128` works.**
-  This entry used to claim "no genuine 128-bit type in this repo... reaching
-  these needs a real quadword type first" and told people not to retry. That
-  was wrong even at the time it was written: `mwccps2.exe` recognizes
-  `__int128` as a real type (confirmed by extracting identifier strings from
-  the compiler binary and a direct compile probe) and lowers a same-size
-  load/store or struct-field copy through it straight to `lq`/`sq` —
+  Historical examples, all previously archived as unreachable and all MATCH
+  as of 2026-09-23: `func_001e7ab0` (nd 1, +0xEC), `func_00232c70` (nd 2),
+  `func_00209870` (nd 6), `func_0034ac00` (5 words), `func_0038b1c0` (nd 6,
+  whose residuals decoded as `daddiu a2,zero,0xff` / `a3,zero,0xbe` /
+  `t0,zero,0x5a` / `a2,zero,0x2b` / `a3,zero,0x26` / `t0,zero,0x1e` —
+  three-channel colour values in consecutive argument registers, exactly what
+  `u8` colour components produce). `func_001932f0` and `func_0015d310` also
+  match (the latter's fix carries a `(s32)var_2 % 2` source note). Full
+  write-up and the matched table:
+  [open_question_daddiu.md](open_question_daddiu.md#functions-matched-with-this-rule).
+- **128-bit `lq`/`sq` aggregate copy — NOT a floor; `__int128` works.**
+  Measured 2026-08-31; an earlier version of this entry claimed there was no
+  genuine 128-bit type. `mwccps2.exe` recognizes `__int128` as a real type
+  (confirmed by extracting identifier strings from the compiler binary and a
+  direct compile probe) and lowers a same-size load/store or struct-field copy
+  through it straight to `lq`/`sq` —
   `typedef signed __int128 s128; s128 t = *(s128*)src; *(s128*)dst = t;`
   compiles to exactly `lq $v0,($a1) / sq $v0,($a0) / jr $ra`, byte-for-byte.
-  Three functions already MATCH on this exact shape:
-  `effBlurFilter.c func_004ab3f0`/`func_004ab930`
-  (`typedef signed __int128 s128;` declared locally in the file) and
+  `effBlurFilter.c func_004ab3f0`/`func_004ab930` MATCH on this exact shape
+  (`typedef signed __int128 s128;` declared locally in the file);
   `evtPolygonMovie.c` uses the same typedef for a small array of `s128`
-  globals. `shdSprite.c` also declares it. Copy this local-typedef pattern
+  globals, and `shdSprite.c` also declares it. Copy this local-typedef pattern
   (do not add it to `include/type.h` — it is file-scoped by convention here)
   into any other file with an `lq`/`sq`-shaped residual.
   **Limitation found by direct probe:** `__int128` supports assignment
@@ -2145,25 +2110,21 @@ variants is wasted time.
   ordinary scalar load and `bne`/`sltu`. Model this in C as: move via
   `s128`, then separately re-read and compare the *narrower* scalar field
   you actually need — do not try to make the comparison itself go through
-  the 128-bit type.
-  Still genuinely useful before writing off a residual as this floor:
-  confirm with `RECON_dis.py` that the retail window truly contains an
-  `lq`/`sq` pair and not just a coincidental instruction encoding.
-- **Zero padding tail.** A 4–12 byte deficit after retail's last real
-  instruction is zero padding, not missing logic. `verify.py` treats an
-  all-zero tail as matching (`MATCH`; object 108B in a 112B window, 148B in a
-  160B window, etc.), and `fndiff.py` counts those tail words in its summary.
-  Do not add code to fill it.
-- **Instruction scheduling / subexpression evaluation order** in general;
-  and **FPU-register allocation**.
-  The **`slti $at` branch-temp idiom** used to be listed here ("the `$at`
-  layout is not always reachable while preserving the inline/out-line
-  arrangement"). It is reachable: the full spelling grid is under
-  "`slt $at` vs `slt $v0`" above — `<=`/`>` always use `$at`, `<`/`>=` use
-  `$vN` exactly when the branch is `bnez`, and loops/early-returns invert the
-  `if` table. Only `$vN + beqz` is unreachable.
-  **u16-mask propagation** used to be listed here as "retail re-masks per
-  use, mwcc elides the repeat". Measured against b210, the number of `andi
+  the 128-bit type. Before writing off a residual as this shape, confirm with
+  `tools/recon_dis.py` that the retail window truly contains an `lq`/`sq`
+  pair and not just a coincidental instruction encoding.
+- **Zero padding tail — not a residual.** A 4–12 byte deficit after retail's
+  last real instruction is zero padding, not missing logic. `tools/verify.py`
+  treats an all-zero tail as matching (`MATCH`; object 108B in a 112B window,
+  148B in a 160B window, etc.), and `tools/fndiff.py` counts those tail words
+  in its summary. Do not add code to fill it.
+- **The `slti $at` branch-temp idiom** ("the `$at` layout is not always
+  reachable while preserving the inline/out-line arrangement") is reachable:
+  the full spelling grid is under "`slt $at` vs `slt $v0`" above — `<=`/`>`
+  always use `$at`, `<`/`>=` use `$vN` exactly when the branch is `bnez`, and
+  loops/early-returns invert the `if` table. Only `$vN + beqz` is unreachable.
+- **u16-mask propagation** ("retail re-masks per use, mwcc elides the
+  repeat"): measured against b210 (2026-09-01), the number of `andi
   $r,$r,0xffff` per loop iteration is a source knob (counter passed to a
   call and compared against a `u16` load):
 
@@ -2177,9 +2138,9 @@ variants is wasted time.
   Count retail's `andi` per iteration and note which operands carry them
   (increment result, compare operand, call argument), then pick the counter
   declaration and loop form that emits exactly that.
-  Two entries used to sit here and are solved: switch case-order (reverse
-  written order, top of this file; closed `func_0019fc70`), and the
-  **boolean-result tail layout** — "retail places the 0-materialization
+- **Switch case order**: reverse written order, top of this file; closed
+  `func_0019fc70`.
+- **Boolean-result tail layout** — "retail places the 0-materialization
   block after the main body but before the 1-materialization, which mwcc
   never emits". Measured: it emits it whenever the `1` return is a labelled
   block written *after* the `return 0`, reached by `goto`:
@@ -2193,833 +2154,6 @@ variants is wasted time.
   Block order in the object follows the written order of the labelled
   blocks; `return` inside the loop inlines the constant at the branch site.
 
-## Target selection: measured cost of choosing wrong (four 16-lane waves, zero closures)
-
-Four consecutive 16-lane waves produced no first-party closure. Every failure
-traces to target SELECTION, not to lane technique, and each rule below is the
-correction:
-
-- **Filter the census with `verify.is_vendor_address`, never by filename.**
-  A whole wave was spent on `code1_0042`/`0043`/`0044`/`004c`/`004d`/`0051`,
-  which look like the largest never-attempted pools in the tree (291, 236, 226,
-  118, 74 rows). They are entirely inside `VENDOR_CODE_RANGES`
-  (`0x00417510-0x0044E830`, `0x004BD628-0x0052D8C0`, `0x0070C850-0x0070E140`)
-  and score ZERO against the first-party metric. The tell before you dispatch:
-  a scoped `verify.py` on the file prints `first-party functions scanned: 0`.
-  Correct first-party never-attempted total at 6084/7866: **1778 rows**, and
-  the largest pools are `code1_003c` (107), `003e` (97), `003d` (94),
-  `003b` (92), `0039` (79), `003a` (64).
-- **The tiny-window seam is exhausted.** Exactly four first-party ASM rows have
-  a window of 32 bytes or less, and all four are documented floors
-  (`00399320`/`00399450` movn; `003df870`/`003df8a0` delay-slot scheduling).
-  Anything reading "smallest window first" below 48 bytes will find nothing.
-- **Do not re-grind the measured near-miss tail.** A wave that attacked the
-  twelve smallest known residuals (nd 5-28: `0011b110` 5, `003d59a0` 5,
-  `003de8c0` 6, `0011c930` 7, `0011c780` 8, `003de280` 8, `00396940` 15,
-  `0032b770` 16, `0039bb70` 16, `003e3830` 18, `003f2760` 28) ran 8-11 distinct
-  hypotheses each — 130 measured source revisions — and moved not one of them.
-  Several nd values also re-measured WORSE than their archived note, confirming
-  archived nd is not a ranking key.
-- **Permuter reach is confirmed exhausted on this tree.** Seeding 4387 m2c
-  candidates as `#ifdef NON_MATCHING` bodies and sweeping the 342 first-party
-  ones with the text engine at 240s x 20 workers cracked **zero**. This
-  reproduces, at 2.6x the seed count, the result already recorded above.
-
-What is left for the first-party metric is 1778 never-attempted functions with
-a median window near 400 bytes in units at 40-60% density, plus roughly 100
-ground near-misses on documented floors. The productive shape remains a lane
-per file in a unit that is ALREADY 90%+ matched, reading its matched
-neighbours for struct and callee spellings before writing anything.
-
-## The P3 FES twin port is the seam that still yields
-
-After four zero-yield reconstruction waves, eight functions closed in three
-waves by porting from the sibling Persona 3 FES decomp. Build the candidate
-list yourself rather than trusting `build/shared_p3.json`, which read the
-committed P3 metrics snapshot as **1** matched address instead of 6922:
-
-1. Read both `image.bin` files with their window maps
-   (`tools/slus21782_functions.json`, P3 `tools/slus21621_functions.json`,
-   load base `0x00100000`).
-2. Fingerprint every function as sha1 over MASKED words: SPECIAL and MMI
-   (op `0x00`, `0x1C`) kept whole because the registers are the signal; `J`/`JAL`
-   reduced to the opcode; branches and every other I-type masked to
-   `word & 0xFFFF0000`; COP1/COP2 keep opcode plus sub-opcode.
-3. Join on `(window_size, fingerprint)` — exact size equality is required.
-4. Keep only donors listed in the P3 checkout's
-   `progress/metrics.json` -> `matching.addresses`.
-5. Filter P4 rows through BOTH `verify.is_third_party` and
-   `verify.is_vendor_address`.
-
-That produced 41 first-party twins, of which 8 closed. Three facts decide the
-outcome of each port:
-
-- **The residual is always an IMMEDIATE.** The donor supplies the shape; P4
-  supplies every number. Four of the eight closed only after correcting one
-  field offset the donor carried over from P3 (`0x18`->`0x1c`, index `[5]`->`[6]`,
-  `0x2cc`->`0x318`) and one after loading a field the port passed by address.
-  Reconcile differing words one at a time with `tools/fndiff.py`; never rewrite
-  the ported body, which scored worse every time it was tried.
-- **Roughly a third of donors are `asm __volatile__` bodies** — including both
-  `k_vpad` twins, the `mdlEffect` VU matrix builder, and the `rwplcore` pair
-  that P3 matched with raw `.word` directives. Classify the donor body FIRST;
-  copying it is a policy violation and gains nothing over `INCLUDE_ASM`.
-- **An opcode-only re-join adds nothing** (measured: zero extra candidates), and
-  broadening the donor set from "P3 verifier-matched" to "P3 body not marked
-  NONMATCHING" adds four, all of which are inline asm or `TODO window stub`.
-  The twin seam is exhausted at 41.
-
-## Rank the archive corpus by measurement, not by its notes
-
-`archive_to_guard --apply` installs archived bodies as `#ifdef NON_MATCHING`
-blocks, which `verify.py` never scores — so a guarded corpus tells you nothing.
-Two tools now measure it:
-
-- `build/arch_measure.py` activates each guarded body one at a time
-  (`permute_sweep.activate` + `permute.Target.score`) and writes an nd ranking.
-  Measured over 726 archives: **520 first-party scored, 30 at nd <= 10, 53 at
-  nd <= 20.**
-- `build/arch_classify.py` additionally diffs the object against the retail
-  window word by word and names the residual class: `immediate` (same opcode and
-  registers, only the 16-bit field differs — the mechanically fixable case),
-  `width` (`addiu`/`daddiu`, a type fact), `register`, `opcode`, or `size`.
-
-The classification over 686 first-party archives is the campaign's real shape:
-**361 `size`** (the body is missing or carrying a whole block — 75 of them
-within 4 bytes, 220 within 16), 166 that the permuter harness cannot even
-locate, 110 that no longer compile in the current declaration environment, and
-only **~45 with a pure word-level residual**. Of those, exactly four are a
-single-kind residual, and each was then proven a floor by direct probing:
-`001932f0` one `addiu`/`daddiu` word, `00153300` an aggregate `sd` where retail
-emits `swc1` (unmoved by field-wise copy, temporaries, statement order, and
-every scheduling pragma), `0044ee70` a store/argument transposition, `001ee490`
-the `slti $at` versus `slti $v0` branch-temp idiom.
-
-The practical consequence: **stop mining the near-miss tail.** The remaining
-first-party work is dominated by `size` rows, i.e. functions whose C is missing
-real logic, and those are reconstruction problems, not residual problems.
-
-## Where the remaining 1765 first-party functions actually stand
-
-Every search avenue has now been measured to exhaustion, and the numbers are
-worth stating plainly so nobody re-runs them:
-
-| avenue | attempted | closed |
-|---|---|---|
-| P3 FES twin ports (masked-fingerprint join) | 41 | 8 |
-| decomp-permuter, both engines, all seed corpora and score bands | ~1500 sweeps | 8 |
-| archive near-miss tail, hand lanes | ~60 | 0 |
-| m2c near-miss band, hand lanes | 16 | 0 |
-| undersized archives ("missing block"), hand lanes | 32 | 1 |
-| never-attempted functions in 89-98% dense units, hand lanes | 16 | 0 |
-| P3 twins at +/-4 instructions (`build/twin_nearsize.py`) | 16 | 0 |
-| never-archived LEAF functions (no saved registers) | 20 | 0 |
-| MWCC command-line flag sweep (`build/flag_sweep*.py`) | 15 flag sets x 128 bodies | 0 |
-| reconstruction of never-attempted functions <= 256B | 8 | 3 |
-| reconstruction of never-attempted functions > 256B | 12 | 0 |
-| reconstruction, file-local siblings, 10 parallel lanes (wave 5) | ~40 | 12 |
-| reconstruction, file-local siblings, 10 parallel lanes (wave 6) | ~40 | 5 |
-| reconstruction, file-local siblings, 10 parallel lanes (wave 7) | ~50 | 7 |
-| reconstruction, file-local siblings, 10 parallel lanes (wave 8) | ~37 | 2 |
-
-### Reconstruction is the only avenue that still pays
-
-Every row above except the first two is residual-polishing: take a body that is
-already close and hunt for the source spelling that closes it. Pooled, that is
-**1 closure in ~175 hand lanes, 0.6%**. The first reconstruction wave closed
-**3 of 13, 23%**. The difference is not luck, it is which defect is being
-attacked: polishing can only fix a register or scheduling choice, and most
-remaining functions are wrong because their C is missing logic.
-
-Two census errors had hidden this, and both are easy to repeat:
-
-  * **The `code1_0041..0052` and `code2_0070` families are vendor address
-    spans** (CRI, the Sony SDK, the C runtime), excluded by
-    `verify.is_vendor_address`. They are full of tempting 16-byte accessors and
-    tail-call thunks, and closing every one of them would not move the metric
-    by a single function. Filter with `is_third_party` AND `is_vendor_address`,
-    never by path prefix alone.
-  * **Lanes never agreed on an archive filename.** `*_body.c` and
-    `*_body.c.txt` are the common forms, but the tree also holds
-    `WT17_004140F0.c`, `WLFcl_004555d0_base.c` and others. 137 still-unmatched
-    functions carry an attempt recorded under a name the `_body` globs miss,
-    and every one was being handed to lanes as "never attempted" -- a wave-4
-    lane spent most of its run rediscovering three of them. The rule that
-    works is: any `.c`/`.txt` under `build/` whose NAME encodes an address and
-    whose CONTENT looks like C. The content test is load-bearing; matching on
-    the name alone sweeps in probe drivers, disassembly dumps and scope
-    reports and overstates the attempted population badly.
-
-With all three corrected there are **1061 never-attempted first-party
-functions**, and the tractable end of that distribution is all but gone:
-**0 at a window of 128 bytes or less, 7 at 256 or less**, 56 at 400 or less.
-`tools/recon_pool.py --pool fresh` regenerates the list and is the authority;
-do not recount it by hand. This number has now been wrong three times in one
-session -- 2274, then 1186, then 1061 -- always in the optimistic direction,
-and always because the archive-discovery rule was too narrow.
-
-### The 256-byte cliff, and what it leaves to work on
-
-A second wave ran the same method against larger never-attempted functions and
-closed **nothing in 16 attempts**. Pooling both waves by retail window size
-separates the two results completely:
-
-| window | attempted | matched |
-|---|---|---|
-| <= 256 B | 8 | 3 |
-| 257-400 B | 6 | 0 |
-| > 400 B | 6 | 0 |
-
-Every match came from a window of 256 bytes or less. Nothing above it closed.
-Cold reconstruction works, but only at a size where the whole function can be
-held in one piece; past that the reconstruction is right in outline and wrong
-in a dozen small ways at once, and the residual is not attackable.
-
-Wave 4 tested that reading directly: 19 never-attempted targets, every one
-under the cliff, four lanes, **0 matches**. So the cliff is real but it is not
-sufficient -- being small is necessary for a match, not enough for one. Across
-four waves the record is 3 matches in 62 attempts, and all three came from
-wave 1.
-
-And the supply below the cliff is now essentially gone: **7 never-attempted
-first-party functions at 256 bytes or less, none at all under 128**
-(`tools/recon_pool.py --pool fresh --max-window 256`).
-
-### Wave 5 breaks the cliff: parallel lanes at 432-656 bytes, +11
-
-A fifth wave dispatched 10 parallel lanes against `build/recon_queue.json`
-(never-attempted functions, size-ascending, filtered to `abs(object -
-window) <= 8` to exclude the metric-trap stubs) each restricted to one file.
-Each lane was told to re-derive the C from a fresh Ghidra decompile of the
-retail function plus its surrounding matched siblings, not to permute an
-existing near-miss. Result: **11 of ~40 attempted closed to MATCH**, sizes
-432-656 bytes (`func_0018bc20`, `func_0037ed90`, `func_00197d70`,
-`func_0037bac0`, `func_0015a350`, `func_001efd50`, `func_00370410`,
-`func_001eff50`, `func_00370a80`, `func_001bb9b0`, `func_004669d0`), plus a
-twelfth (`func_0036aa20`, 432B) reconstructed by hand ahead of the wave.
-**The 256-byte cliff from waves 2-4 does not hold at this file selection**:
-every wave-5 target had at least one already-MATCH sibling in the same file
-within a few hundred bytes, giving the lane a same-unit struct-layout and
-calling-convention anchor that isolated cold targets in wave 4 did not have.
-Read the file's existing matched functions before reconstructing a new one;
-that context, not size alone, is what predicts a close.
-
-Two of the wave's candidate closures were reverted after the fact for using
-banned compiler-steering idioms to force the match (`decomp_lint` H001/H009):
-see the "Where `volatile` is actually required" section below and the H009
-entry in the pragma-knob section. Net after reverting both: **+11, not
-+13**. A lane under schedule pressure will reach for `volatile` or inline
-asm before it reaches for re-deriving the logic; the fix is to lint every
-lane-touched file before trusting a MATCH claim, not to trust the verify
-status alone.
-
-**Waves 6-8 confirm the method but show declining yield as the easy files
-run out**: 5 of ~40, 7 of ~50, 2 of ~37 (wave 8's files had fewer already-MATCH
-siblings per never-attempted target than the earlier batches -- the
-file-local-sibling predictor holding in the other direction too). Running
-total after wave 8: **26 closed across 4 waves and ~170 attempts, 15.3%
-pooled yield**, against 0.6% for every residual-polishing avenue combined.
-Two more process failures were caught by independent post-wave verification
-and fixed before committing: a lane silently dropping a `// FUN_xxxxxxxx`
-marker comment during an unrelated cut/paste (wave 7 -- caught only by
-diffing the full-project scanned-function COUNT, not by any MISMATCH/error
-signal), and a lane leaving 3 live MISMATCH bodies behind at report time
-(wave 6, `k_fldFrame.c`). Neither is optional to check: run a full
-`tools/verify.py` and confirm both the MATCH set and the total scanned count
-against the pre-wave baseline before ever committing lane output.
-
-### The recon-queue-rebuild bug, and what full exhaustion looks like
-
-A later continuation of this campaign (waves 22-32, +66 net first-party
-matches, 6153 -> 6219) had stalled for many prior waves at 0 closures each
-before the actual defect was found: the target-list builder was filtering
-out any FILE that had ever been "touched" by an earlier lane, not just the
-individual functions that had actually been attempted in it. Since most
-files in this tree accumulate matches incrementally over many sessions,
-almost every file looked "touched" and got excluded wholesale, even when it
-still held several genuinely never-attempted functions. The fix: rebuild the
-target list every wave from the FULL `build/recon_queue.json`, filtered only
-by a cumulative set of individually-attempted function NAMES (tracked
-wave-over-wave, e.g. in a scratch file), never by whole-file exclusion. This
-single change turned a run of stalled waves back into 4-19 closures each
-until the pool ran out.
-
-**The pool does run out, and it is worth recognizing when it has.** By wave
-29 the rebuilt target list was down to single-digit functions per file; by
-wave 31 `build/recon_queue.json` had exactly 10 first-party entries left
-that were not already individually attempted, and every one of those 10 was
-a documented hardware floor (the fromSPR/toSPR DMA family in `code1_003a.c`,
-`sdkUttmx.c`'s `func_00463ea0`, `code1_0016.c`'s `func_0016bdd0`). At that
-point `recon_queue.json`'s never-attempted-function avenue is exhausted, not
-merely thinned, and continuing to rebuild-and-redispatch against it wastes a
-wave discovering the same empty result.
-
-**The natural next avenue -- mining source comments for a small recorded
-`nd`/`normalized_diff` next to a still-`INCLUDE_ASM` marker -- pays far less
-than it looks like it should, for the same reason `tools/recon_pool.py
---measure` already warns about staleness above.** A tight regex scan (marker
-immediately followed by `INCLUDE_ASM`, only trusting an `nd`/`normalized_diff`
-mention that also names the target's own hex address, filtered against the
-VENDOR_CODE_RANGES + THIRD_PARTY_PREFIXES first-party set from a real
-`tools/verify.py --json` run rather than a bare `glob` over `src/**/*.c`)
-found only 12 candidates at `nd <= 10` out of 1647 true first-party ASM
-functions. Dispatching lanes at 5 of them (the clearest, most literally
-worded) closed zero: two were confirmed ee-gcc2.96-vs-3.2 compiler-version
-floors in a *vendor* translation unit that should never have been in the
-candidate pool at all (the regex had matched a comment inside
-`code1_004f.c`, one of the five files in `config/gcc_units.txt` --
-`tools/verify.py`'s own `is_gcc_unit`/`is_third_party`/`is_vendor_address`
-filters exclude these from the first-party count, but a naive `glob` +
-text-scan does not know that), and the other three reconfirmed already-
-documented floors (an argument-evaluation-order floor, a padding-tail floor,
-and a compiler-width floor) with no new lever found. Re-checking the
-remaining 7 candidates by hand found every one was either a *misattributed*
-comment (the `nd`/`normalized_diff` text belonged to an adjacent function's
-bracket-close rationale, not the marked target -- `func_00267800`,
-`func_003e4520`/`func_003e45f0`, `func_001f1030` all read this way) or an
-explicitly pre-flagged false positive already recorded in-tree
-(`y_draw.c`'s `func_002b6ec0`: "fndiff of the INCLUDE_ASM state reads nd 0 by
-construction... do not treat this function as matched", dated 2026-08-03).
-**Conclusion: at this point in the campaign, both the never-attempted-
-function avenue and the naive near-miss-comment-mining avenue are measured
-exhausted.** What is left is either a genuine hardware floor, an
-already-exhaustively-probed register/scheduling floor with the probe history
-recorded in place, or requires the same kind of from-scratch disassembly
-re-derivation described in "Reconstruction is the only avenue that still
-pays" above -- applied one function at a time, not by batch dispatch against
-a generated list.
-
-**A live example of the H001 volatile trap from "Two ways this pool lies to
-you" recurring in this later continuation:** a lane closed `code1_0039.c`'s
-`func_00399bf0` to a clean-looking MATCH (nd 0, scoped verify green, a
-`measured:` comment attached) using `volatile` on an ordinary allocator
-struct field (`p + 0x80`, a heap object this same function allocates, not a
-hardware address) to force a post-store reload. `decomp_lint`'s textual
-waiver check does not distinguish a genuinely justified hardware `volatile`
-from a `measured:`-commented one on ordinary data -- exactly the
-"FUNCTION-scope waiver licenses a banned construct" trap documented above --
-so this passed decomp_lint clean and reported MATCH under scoped verify. It
-was caught only by reading the diff for `volatile` by eye per the existing
-rule and reverted, with the comment rewritten to document the real
-(unresolved) floor and to correct a genuinely misattributed nd44->36->18
-probe history that a much earlier session had pasted onto the wrong marker
-(it describes the unrelated `00399fd0`/`0039a200` slot-search family; retail
-`00399bf0` is an allocator/state-switch routine with no loop at all).
-
-**The other pool is the archived near-misses**, 113 functions still
-`INCLUDE_ASM` carrying an archived body with a claimed `0 < nd <= 25` inside a
-400-byte window. `tools/recon_pool.py` (default `--pool nearmiss`) regenerates
-it, and `--measure` is mandatory before acting on it, for the reason in the
-next section. Measured, only about six are genuinely close: nd 1, 1, 4, 4, 5,
-and the rest of the top of the list turns out to be nd 30+.
-
-The obvious objection is that "archive near-miss tail, hand lanes" is already a
-measured zero in the table above. The distinction is method, and wave 1 proved
-it on exactly this kind of target: `func_0028b6b0` had been parked at nd 8 by
-an earlier lane and every spelling permutation had failed on it. It closed only
-when the logic was re-derived from the retail disassembly, which showed the
-doubled `beqz` came from nested ifs and the body-head order came from a table
-local. So the pool is not exhausted -- the *permutation* of it is. Re-derive
-the logic; do not permute the spelling.
-
-### Where `volatile` is actually required
-
-`volatile` is banned as compiler-steering and required for a real device
-access, and that split is only decidable from the retail code.
-`tools/hw_access_census.py` decides it: it reads the retail bytes of every
-first-party function still on `INCLUDE_ASM` and reports the ones that
-dereference a hardware address. **21 functions do.** Three families:
-
-  * **fromSPR/toSPR DMA, 18 functions.** `0x1000D000` `D_CHCR`, `D010` `D_MADR`,
-    `D020` `D_QWC`, `D080` `D_SADR`, `0x1000D400` toSPR, `0x1000E010` `D_STAT`,
-    paired with scratchpad at `0x70000000`. All of `code1_003a.c`'s and
-    `code1_003b.c`'s big transfer routines, plus `sdkUttmx.c`'s
-    `func_00463ea0`.
-  * **Timer 0 init, 1 function.** `func_00100350` writes `T0_COUNT`, `T0_MODE`,
-    `T0_COMP`, `T0_HOLD` at `0x10000000/10/20/30`.
-  * **Direct scratchpad, 2 functions.** `func_0016bdd0` and `func_00174e10`
-    read `0xBF800004`.
-
-None is under the 256-byte cliff -- the smallest is 608 bytes -- so none is a
-near-term target. The point is that when they are attempted, `volatile` there
-is correct and must not be argued away.
-
-Two traps the census had to be taught, both of which produced confident wrong
-answers first:
-
-  * **Segment masking is mandatory.** EE code reaches devices through KSEG1, so
-    the fromSPR channel appears as `lui 0xB000` / `ori 0xD000`. A scan looking
-    for literal `0x1000xxxx` finds almost nothing real.
-  * **A constant in a register is not an access.** `func_0039c730` looked like
-    an `sq` to `0x10000000` and is not: a `lui v0,0x1000` fed an `or` building
-    a GIF tag word, then `lw v0,-0x477c(gp)` reloaded `v0` as a packet pointer
-    while the scan still credited it the stale upper half. Only a load or store
-    whose *base* register holds the address counts. Requiring a real
-    dereference cut 34 candidate functions to 21.
-
-And one collision worth knowing in both directions: **`0xBF800000` is `-1.0f`**
-as well as the KSEG1 mirror of the scratchpad base. Retail's `func_001774a0`
-does `lui v0,0xbf80; mtc1 v0,f1`, which is the float. `decomp_lint` now masks
-KSEG0/KSEG1 before its hardware-range test -- without that it rejects genuine
-`0xBF800004` scratchpad accesses as H001 -- but it excludes `0xBF800000` and
-`0x3F800000` from the mask, because otherwise any line mentioning +/-1.0f
-would earn a free `volatile` waiver.
-
-### The fromSPR/toSPR family's real blocker was a missing allowlist entry, not size
-
-Revisited the 21-function hardware census above after wave 12: six of the
-18 fromSPR/toSPR functions live in `code1_003a.c` (`func_003a4d50` 1072B,
-`func_003a7a30` 1360B, `func_003acb10`/`func_003adc40`/`func_003af990`
-~4.4-4.6KB, `func_003aed60` 3120B). Their retail bytes use a hardware
-primitive `decomp_lint.py`'s `ASM_ALLOWED` did not know about:
-**`bc0f`** (branch on the COP0 condition line). The EE's DMAC channel-drain
-arbitration signal is wired into COP0's condition input and is *only*
-readable via `bc0f`/`bc0t` -- there is no `mfc0` for it, so unlike
-`mfc0 Status` this one genuinely has zero C expression. Added both to the
-allowlist (`tools/decomp_lint.py`).
-
-Confirmed empirically via `build/RECON_probe.py` (full round-trip through
-`tools/verify.py`, so a real MWCCPS2 compile, not a guess) that b210 accepts
-the literal mnemonics `sync.l`, `sync.p`, and `bc0f 1b` inside
-`__asm__ volatile(".set noreorder\n" ... ".set reorder" ::: "memory")` --
-COMPILE_ERROR would have shown immediately if the spelling were wrong; it
-compiled (MISMATCH, as expected for a one-line stub against a 1072-byte
-window).
-
-The idiom, read off `func_003a4d50`'s disassembly: writing global register
-`D_PCR` (`0x1000E020`) arms a stall-control drain condition; the wait is
-`sync.l; sync.p; nop*5; 1: bc0f 1b; nop`. Separately, per-channel busy is an
-*ordinary* `volatile` poll -- `while ((*(vu32*)D9_CHCR & 0x100) != 0) {}` --
-no asm needed there. Global DMAC register map recovered from the offsets
-(`D_CTRL/STAT/PCR/SQWC/RBSR/RBOR/STADR` at `0x1000E000` + 0x10 each) matches
-the known SCE map exactly, as do the per-channel bases (`0x1000D000` chan 8
-fromSPR, `0x1000D400` chan 9 toSPR, `+0x00 CHCR/+0x10 MADR/+0x20 QWC/+0x80
-SADR`), both already partly attested by the existing `0x1000C000`/`0x1000E010`
-reads in `code1_0042.c`.
-
-**Attempted, still not closed.** `func_003a4d50`'s retail control flow is
-hand-scheduled with backward cross-jumps between wait/poll blocks: every
-busy-check is a `bnez` branching *forward into* a cold wait-block placed
-after the main body (not a fallthrough `if`), and each wait-block ends
-with an unconditional `goto` back into the middle of the main flow --
-confirmed by manual disassembly of the full 268-instruction body (there is
-no `jal` to a shared subroutine anywhere in it). A goto-per-basic-block C
-reconstruction was written mirroring this exactly (14 labels, matched
-register mapping `arg0`=dest/`arg1`=src confirmed independently via the
-`func_0043f810(dst,src,size)` tail-call argument order, `tail = arg2 - qwc
-* 16` confirmed against retail's `subu` rather than `arg2 % 16`'s `andi`
-codegen) and reached `MATCH19/MISMATCH1`, object 1136B against a 1072B
-window -- *larger* than retail, meaning MWCC duplicated at least one small
-block (most likely the `tail_check` label, `goto`'d from three sites) that
-a straight assembly source would have shared once. Reverted to bare
-`INCLUDE_ASM` per policy. The next attempt should either restructure to
-remove the triple-entry label (duplicate the tiny body at each site
-explicitly, matching whatever the compiler's own duplication threshold
-is) or accept the duplication and instead match its *content* exactly.
-Left as a queued, fully-scoped lane target rather than hand-carried to
-MATCH in this session: the size (1072-4592 bytes) and control-flow
-complexity make it an expensive single function, while the 920-function
-never-attempted backlog (see wave 11/12 above) has a much better
-match-per-hour rate for lanes right now.
-
-**External precedent confirms the goto approach, not the shape I used.**
-`AshfordFamily/recvx-decomp` (Resident Evil Code: Veronica X, confirmed
-MWCCPS2 toolchain via its `compile_config.json` pointing at `mwccps2.exe`,
-64% matched) has the identical `bc0f`/`bc0t` DMA-wait idiom, marked `// 100%
-matching!`, e.g. `ps2_loadtim2.c`'s `D2_SyncTag()`:
-```c
-if ((DGET_D_PCR() & 0x4))
-{
-    asm volatile (bc0t label_0f);
-label_0b:
-    asm volatile { bc0f label_0b; nop }
-}
-label_0f:
-    DPUT_D_PCR(DGET_D_PCR() | tmp);
-```
-Two things this confirms: (1) MWCC really does let inline-asm `bc0t`/`bc0f`
-branch to plain C statement labels, including labels *outside* the
-enclosing block -- the goto-shaped technique from the attempt above is the
-right one, not a wrong turn; (2) their idiom pairs `bc0t` (skip the wait
-entirely if the condition is already true) with `bc0f` (spin while false),
-a "check once, then loop" shape -- `func_003a4d50` uses only `bc0f` (no
-`bc0t` anywhere in its 268 instructions), so its wait is the simpler
-unconditional-entry variant, consistent with the disassembly, not a
-contradiction. The same repository's inline-asm-only handling of
-`movz`/`movn` (whole functions in raw `asm volatile` blocks, e.g.
-`ps2_NaMath.c`) and `pextlw`/`pextlh`/`pcpyld`/`pcpyud` (targeted asm
-snippets, e.g. `ps2_NaMatrix.c`, `ps2_Vu1Strip.c`) independently confirms
-both floors this campaign already found on its own (movz/movn census
-above; the `effPolygonFlash.c` pextlb/pextlh floor wave 15 hit) -- a
-second unrelated MWCCPS2 project reached the same walls.
-
-Next attempt at `func_003a4d50` should retry the goto structure with the
-check-once-then-loop pairing where retail actually pairs `bc0t`+`bc0f`
-(none of its eight wait sites do, per the disassembly, but re-verify per
-site) and fix the block-duplication bug from the reverted attempt (the
-`tail_check` label reached via three `goto`s) before assuming the
-technique itself is wrong.
-
-### Is the rest just C we have not shaped?
-
-Almost entirely, yes -- and that is measurable rather than a matter of faith.
-`tools/reachability_census.py` counts each unusual instruction class over
-MATCHED and over unmatched first-party functions. The matched column is the
-control: a matched function is proof by construction that b210 emits that
-instruction from plain C *in this tree*.
-
-| class | in matched | in unmatched | verdict |
-|---|---|---|---|
-| COP2 (VU0 macro mode) | 45 | 62 | reachable from C |
-| MMI (EE multimedia) | 43 | 95 | reachable from C |
-| lqc2/sqc2 (VU0 quadword) | 38 | 67 | reachable from C |
-| COP0 (mfc0/mtc0/tlb/eret) | 3 | 29 | reachable from C |
-| sync | 3 | 29 | reachable from C |
-| syscall | 1 | 1 | reachable from C |
-| **movz/movn** | **0** | **31** | **never matched** |
-
-So the recurring "VU0 floor" belief is false here: 45 functions we already
-match contain COP2 macro-mode instructions. Same for MMI and the quadword
-VU0 loads.
-
-`movz`/`movn` is the single exception, and two independent lines of evidence
-agree. It appears in zero of 6104 matched functions; and compiling ten
-conditional-select idioms -- ternary, if-assign, inverted, `== 0`, named
-temporary, unsigned, pointer-indexed, select-or-zero, zero-or-select, float
--- at `-O0/-O1/-O2/-O3/-O4`, with `-inline all`, `-opt speed` and `-opt space`,
-produces **no `movz` or `movn` in `.text` at any setting**. Retail's uses of it
-therefore did not come from C through this compiler; inline asm in the
-original source or an SDK macro is the likely origin.
-
-Beware the obvious way to get this wrong: scanning a whole `.o` for the
-opcode pattern reports a confident 14 hits at every optimisation level,
-because relocation entries and the symbol table contain matching bytes. Scan
-`SHF_EXECINSTR` sections only.
-
-**31 of the 1762 remaining functions contain movz/movn, and 29 have it as
-their only unusual content.** The other 1731 -- 98% -- contain nothing that
-has not already been produced from C elsewhere in this tree.
-
-That is the honest answer to "is the rest just C we have not shaped yet":
-the language is not the obstacle. But "just shaping" understates the
-obstacle considerably. This session shaped 43 functions and matched 3. The
-work that remains is C-shaped and mostly reachable in principle; what is
-scarce is the ability to find the exact shape, and above 256 bytes we have
-not found one yet.
-
-### Two ways this pool lies to you
-
-**The nd in an archive note is a claim, not a measurement.** Notes are written
-by hand as a lane ends and they go stale as the tree moves. `func_003bcf10` and
-`func_003bcfb0` are both recorded at nd 2 and both measure **nd 32** when their
-archived bodies are installed today; `func_003b6da0` is recorded at nd 6 and
-measures **55**; several archives no longer compile at all. Some quoted `nd 0`
-values are worse than stale -- they came from an `INCLUDE_ASM` self-compare
-rather than from any compiled body. Rank with `tools/recon_pool.py --measure`,
-which installs each archived body, scores it, and restores the file. It costs
-about two seconds per target. The claimed and measured columns agreed for six
-of the top nine and were wildly wrong for the other three.
-
-**A `measured:` note above a marker waives H001 for the whole function.**
-`decomp_lint`'s waiver has FUNCTION scope: a justification in the six lines
-above a `// FUN_` marker covers every occurrence of a banned construct inside
-that function. So a note written to justify a *pragma* silently licenses a
-banned `volatile` in the same body. That is how a wave-3 lane landed a
-"MATCH" on `func_0045ed60` that reached nd 0 only by casting a plain `void *`
-parameter to `volatile u8 *` to defeat b210's CSE and force retail's twelve
-repeated byte loads -- compiler-steering of exactly the kind this campaign
-bans alongside inline asm. It was reverted and archived as
-`build/NMX_0045ed60_body_REJECTED.c`.
-
-Note also that H001's regex looks for the token `volatile`, and the lane's
-construct was a volatile CAST EXPRESSION rather than a declaration; between the
-cast form and the function-scope waiver it drew no finding at all. When a lane
-reports a match, check its diff for `volatile` by eye rather than trusting a
-clean lint run, and require volatile to be justified at the site.
-
-Before rejecting that body I checked whether retail's repeated loads could be
-honest aliasing, which would make a legitimate shape possible. They cannot: a
-direct `u8 *` cast, a local `u8 *`, a `char *` source, and stores through the
-destination local all let b210 collapse the three load groups into one, scoring
-nd 59-66 and losing about 44 bytes of object.
-
-### Abandon on measured nd, not on iteration count
-
-The first reconstruction wave spent roughly half its compute on six targets
-that finished at nd 42, 51, 71, 107, 144 and 309 -- three of them absorbed 25
-to 35 probe variants each. The instruction that failed was "time-box each
-function to about a dozen iterations": an iteration count is estimated loosely
-and every lane overshot it two- to threefold.
-
-The rule that works is keyed to a measurement. Get one candidate whose
-`object_size` is within ~8 bytes of `window`, then read its `normalized_diff`:
-
-  * **nd > 25** -- archive immediately. At that distance the defect is missing
-    or wrong logic, and no source spelling closes it. More variants are waste.
-  * **nd <= 25** -- worth a probe budget, capped at 12 variants.
-
-On the first wave this rule would have cut about half the runtime at zero cost
-in matches.
-
-### Two b210 levers measured during the wave
-
-  * Retail's **doubled `beqz`** comes from **nested `if`s**. b210 CSEs an `&&`
-    chain into a single test but does not collapse nested ifs, so the two
-    shapes are distinguishable in the object.
-  * A **table local declared at the loop-body head** forces retail's
-    `sll`-before-`lw` body-head instruction order.
-
-### Reading EE FPU multiply-accumulate out of rabbitizer
-
-rabbitizer does not know the EE's multiply-accumulate opcodes and prints them
-as `.word 0x46...` tagged INVALID. Two lanes each burned an hour rediscovering
-how to read them, so the rules are recorded here.
-
-  * **In those INVALID words rabbitizer prints float registers using INTEGER
-    register names.** `$a2` means `$f6`, and so on by register number. This is
-    the detail that wastes the hour.
-  * Function field, bits 5-0: `0x18` ADDA.S, `0x19` SUBA.S, `0x1A` MULA.S,
-    `0x1C` MADD.S, `0x1D` MSUB.S, `0x1E` MADDA.S, `0x1F` MSUBA.S.
-  * Accumulator semantics: `mula`/`adda`/`suba` SET the accumulator and their
-    `fd` field is unused; `madd`/`msub` write `fd` from the accumulator
-    combined with the product; `madda`/`msuba` accumulate into it.
-
-All of these come from ordinary C float expressions such as `a*a + b*b + c*c`;
-none of them justifies inline asm. When b210 compiles such a sum it starts the
-accumulator with the SECOND addend, which is why a literal left-to-right
-transcription of the retail order does not reproduce it.
-
-### The command-line flag axis, and why a per-UNIT sweep cannot test it
-
-Every verify in this tree compiles with exactly `-O2 -Iinclude`, and that
-baseline had never been questioned. `build/flag_sweep.py` sweeps 15 flag sets
-per translation unit; `build/flag_sweep_bodies.py` sweeps them per archived
-body. Both are committed because the negative needs to stay re-derivable.
-
-Three things came out of it, in order of importance:
-
-- **A per-unit sweep is structurally incapable of finding anything.** An
-  unmatched function is an `INCLUDE_ASM` line, so it never reaches the
-  compiler; no switch can change bytes that are pasted from retail. The only
-  functions a unit-level sweep can move are ones that already MATCH, and there
-  a change is a regression. Measured: `btlShuffle.c` keeps 21/21 under every
-  neutral flag set, loses 6 at `-O1` and all 21 at `-O3`/`-O4`. That also
-  confirms `-O2` is right, and that the flags do reach the compiler.
-- **In pragma-heavy units the sweep reads as a flat line** because file-scope
-  `#pragma optimization_level` overrides `-O`: `code1_003e.c` (55 such pragmas)
-  reports an identical 73 MATCH at `-O1`, `-O2`, `-O3` and `-O4`. Do not read
-  that as insensitivity.
-- **Per-body, one flag set moved a residual materially**: `func_00311930`
-  (`code1_0031`) goes from nd 48 to nd 6 under `-O1` — but its archive already
-  documents that exact result under a function-scoped `optimization_level 1`
-  bracket, with five residual words confined to FPU destination-register
-  choice. The sweep rediscovered a known floor rather than opening one.
-
-One caveat the sweeper cannot fix: `normalized_diff` rewards a SMALLER object,
-so a body that compiles to an 8-byte stub against a 1120-byte window scores
-better than a real attempt. Two apparent `-O3` wins (`func_001dbf20`,
-`func_004667d0`) were exactly this. Always read `object` against `window`
-before believing an nd improvement.
-
-### The remaining work is not a toolchain problem
-
-`build/prologue_census.py` applies `config/gcc_units.txt`'s own discriminator —
-retail saves callee-saved registers with `sd` under ee-gcc and `sq` under
-MWCCPS2 — to every FUNCTION rather than per translation unit, straight from
-`image.bin` with no build required. The result settles a question the campaign
-had never actually measured:
-
-| verify status | prologue | count |
-|---|---|---|
-| MATCH | mwcc | 3281 |
-| MATCH | leaf (saves nothing) | 2820 |
-| ASM | mwcc | 1539 |
-| ASM | leaf | 226 |
-| **ASM** | **gcc** | **0** |
-
-**Zero** unmatched first-party functions have a GCC prologue. Every one of them
-was built by b210 and is therefore reachable in principle with the compiler in
-use; nothing is waiting on an ee-gcc split. (The `code1_0041`/`code1_0044` GCC
-populations noted in `config/gcc_units.txt` are all above 0x00417510, i.e.
-inside the vendor ranges, and score nothing either way.)
-
-That census also isolated the 226 unmatched LEAF functions — no saved registers
-at all, so structurally incapable of carrying the saved-register colouring or
-rotation residual that walls most of the corpus. 82 had never been archived,
-and a 16-lane wave over the 20 smallest closed **zero**. Their residuals were
-COP1 accumulator chains (`003e3f00`, `003e4030`, `003963c0`, `00396520`), or
-ordinary word-level walls at nd 12-64 on functions of 80-368 bytes. Leaf-ness
-does not predict closure either.
-
-### CORRECTION: COP1 accumulator chains ARE emitted by plain C
-
-Several lanes have abandoned targets on the belief that an `adda.s`/`madd.s`/
-`msub.s` chain cannot be produced from compliant C. **That is wrong**, and it
-was measured directly against b210 at `-O2`:
-
-```c
-float c_plain(float acc, int count) { return acc - (float)count * 9.5f; }
-```
-
-```
-  1c:  460c0018   adda.s  $f0,$f12
-  20:  4601101d   msub.s  $f0,$f2,$f1
-```
-
-No pragma, no intrinsic, no `+ 0.0f` trick — an ordinary multiply-and-subtract
-expression fuses. The `+` form gives `adda.s`/`madd.s`, and a three-operand
-`(x + 0.0f) + y * z` fuses as well. b210 forms the accumulator chain whenever a
-float multiply feeds an add or subtract.
-
-So when the retail window contains one of these, **do not stop**: write the
-arithmetic naturally and the chain appears. What actually walls these functions
-is the surrounding code — operand orientation (see the commutative floor),
-saved-register colouring, and load scheduling — not the fused instruction.
-
-Where a chain genuinely is unreachable it is because of *which* registers the
-accumulator reads, not because the instruction cannot be emitted. Treat
-"contains adda.s" as a normal target from now on.
-
-**Confirmed by eight independent reconstructions.** A wave was run against the
-reopened pool specifically to test this, and every single lane reproduced the
-retail accumulator chain from ordinary C — 4 ops (`func_0035bad0`), 6
-(`func_0011c780`), 6 (`func_0026bfc0`), 3 (`func_0047f4d0`), the full
-`MULA`/`MSUB`/`MADD` sequence (`func_00208870`), `madd.s` (`func_001bb790`),
-the tail chain (`func_004b7300`), and — decisively — **all 25** ops of
-`func_00480f20`, the densest accumulator function in the corpus. Not one lane
-needed a pragma, an intrinsic or inline asm to emit the chain, and not one
-found the chain itself to be the residual. Two closed outright
-(`func_004b7300`, `func_0026bfc0`); the rest walled on ordinary causes:
-commutative MAC operand order (`madd.s $f0,$f0,$f2` vs retail `$f0,$f2,$f0`),
-FPR colouring, and load scheduling.
-
-A scan of the unmatched first-party set found **308 functions containing an
-accumulator chain**. Rebuild that list with `insn.itype` in `0x13e..0x144`;
-matching on the mnemonic string finds nothing, which is how the pool stayed
-invisible. Those 308 are all ordinary targets and are the largest single block
-of work reopened this session.
-
-### The reverse case: retail has a plain `add.s` after `mul.s` (no fusion)
-
-When retail shows `mul.s $f1 ... ; mtc1 const,$f0 ; add.s $fd,$f0,$f1` where
-plain C would fuse into `adda.s`/`madd.s`, the lever is a copy through a
-named local between the product and the add - measured on `func_002b2290`
-(y_smap.c, nd 409 -> 0):
-```c
-t = 108.0f * (f32)j;
-y = t;                /* the copy is what blocks the c + a*b fusion */
-z = -99.0f + y;       /* fresh name z: constant-first add.s $f20,$f0,$f1 */
-```
-`y = -99.0f + t` (no copy) fuses; `y = t; y = -99.0f + y` (self-update) is
-unfused but variable-first (`add.s $f20,$f1,$f0`, nd 1); `y = t; t = y + c`
-coalesces back to the self-update. `opt_propagation off` also unfuses the
-plain `y = -99.0f + t` form, but in that function it changed the loop-head
-sign-extension sharing and let `opt_loop_invariants` hoist every float
-constant, so the copy is the cheaper lever. Doubles are real software
-doubles on b210 (`-99.0 + 108.0 * j` grows the object by 60B) - not a way
-to dodge fusion.
-
-### Near-size twins are a shape family, not a twin
-
-That row retires an idea worth recording so it is not retried. The exact
-twin join demands IDENTICAL window sizes; relaxing it to +/-4 instructions and
-scoring masked-instruction alignment finds 57 pairs at ratio >= 0.80, of which
-26 are new. They are almost all FALSE POSITIVES: at that tolerance the score
-matches a shape FAMILY — the same compiler emitting the same idiom over the
-same struct — not the same source function. Lanes reported it directly: the
-`func_001a0f40` donor is a 200-byte function against a 448-byte window, the
-`func_0047ce00` donor uses a different dispatch (jump table versus chain), and
-the `func_001bfc00` donor relies on P3-only `RtQuat` and extended `BtlUnit`
-fields. The strictness of the size constraint was doing real work; a twin is
-only a twin at ratio 1.000 with equal windows.
-
-The dense-unit row is the other one that changed this week. Fresh functions in
-dense units
-used to be the reliable seam — it is how most of the campaign was built — and it
-has now stopped producing at 16 lanes per wave. What those lanes found is
-consistent: the remaining never-attempted functions are large (median window
-near 400 bytes, several over 2 KB), and their residuals land on the SAME walls
-the ground corpus sits on. `func_00250ad0` (2720 B, the only gap in a 98% unit)
-reduces to COP1 `adda.s`/`madd.s` accumulator chains; `func_0036d3e0` (1152 B,
-the only gap in a 97% unit) reduces to a callee-saved register rotation at
-nd 51; `func_00177120` and `func_001774a0` do NOT respond to the exhaustive
-empty-case hypothesis (nd 75 and 348 differing words with cases 2 and 4-9 added
-explicitly, so that idea is now retired).
-
-What is left therefore needs one of: a genuinely new source lever, a donor tree
-we do not have, or acceptance that a large share of these are compiler floors
-under b210. Ranking by window size or by unit density no longer predicts
-closure.
-
-## The permuter is seed-limited, not exhausted — and the AST engine works now
-
-An earlier sweep concluded the permuter was spent. That conclusion was about the
-SEED POPULATION, not the tool. Re-seeding it after the archive-note fix produced
-eight closures across seven sweeps, all in functions no hand wave had ever
-ground:
-
-| sweep | seeds | engine | budget | cracked |
-|---|---|---|---|---|
-| all first-party archives that compile | 461 | text | 200s x 20 | **3** (`003ca430`, `001ee490`, `002e6b20`) |
-| the 93 seeds text scored 1-30 | 93 | ast | 300s x 16 | **2** (`00296600`, `0027d800`) |
-| the 365 seeds text scored >30 | 365 | ast | 240s x 18 | 0 |
-| `src/generated` m2c candidates | 506 | ast | 200s x 18 | 0, and 0 SCORED — pycparser cannot construct them |
-| the same m2c candidates | 506 | text | 200s x 20 | 0, 56 scored |
-| the 41 seeds text scored 1-12 | 41 | ast | **1200s** x 16 | **1** (`0045aac0`) |
-| the 62 seeds text scored 13-40 | 62 | ast | **1200s** x 16 | **2** (`0032b770`, `0011bf10`) |
-| the 110 seeds text scored 41-120 | 110 | ast | 1200s x 16 | 0 |
-
-Four things follow, each measured:
-
-- **The AST engine had never actually run here.** It needs `pycparser` and
-  `toml`; neither was installed, and both are invisible under
-  `PYTHONNOUSERSITE=1`. Install them and run that engine with the variable
-  UNSET. It restructures code where the text engine only reorders, which is why
-  it cracked `func_00296600` after four hand waves had stalled it at nd 8.
-- **Its reach is the low-score tail, and AST budget keeps paying inside it.**
-  Zero hits from 365 seeds scored above 30 at 240s, and zero from 110 seeds
-  scored 41-120 even at 1200s — but raising the budget to 1200s inside the
-  1-40 band produced three more cracks that 200-300s had missed, including
-  `func_0045aac0`, which had a header full of exhausted hand probes, and
-  `func_0032b770`, a P3 twin port stalled at nd 16. Budget the AST engine
-  generously on scores <= 40 and never above it. (Text-engine budget, by
-  contrast, was measured to buy nothing.)
-- **The m2c seed corpus is closed, and it took a tool fix to prove it.**
-  `generated_bodies()` used to prepend the `M2C_` typedef/`#define` prelude to
-  the BODY, so an activated seed put typedefs on the line after its `// FUN_`
-  marker. `permute.scan_markers` names a marker from the line below it, so the
-  marker stayed nameless and every run died with "no `// FUN_` marker for
-  func_xxxxxxxx" — silently, as a harness error rather than a compile failure.
-  447 of the first-party generated seeds were unusable for that reason alone.
-  Hoisting the prelude into the NOTE (above the marker; it is pure text
-  substitution, so it cannot change a byte) took the usable first-party seed
-  count from 503 to 531 and the SCORED population from 56 to 206. Both engines
-  were then run over the unlocked corpus: text at 180s over all 531 cracked
-  **zero**, and AST at 1200s over the 26 that scored 1-40 cracked **zero**.
-  Seven `match` rows in the classification are all vendor addresses and score
-  nothing for the metric. Archives are the seed corpus; m2c candidates are not,
-  and this is now measured rather than assumed.
-  Hand lanes then attacked the same corpus: 16 lanes over the 16 best-scoring
-  m2c near-misses (scores 5-48, several of them EXACT SIZE) closed **zero**.
-  So the m2c bodies are not a starting point for hand work either — their
-  residuals are the same register-colouring and branch-layout walls the
-  archives already sit on, reached from a different direction. What an m2c
-  seed IS good for is a measurement and a block map, not a candidate.
-- **Re-sweep after anything that makes new archives measurable.** Every crack
-  this session came from bodies that had just become visible.
-
-Splice trap, measured: `permute_sweep.splice` replaces marker-to-first-closing-
-brace. A target that is still a bare `INCLUDE_ASM` has no brace, so the splice
-runs on and swallows the NEXT function, silently deleting markers (209 -> 207).
-For those targets replace exactly the marker line plus its `INCLUDE_ASM`/guard
-lines, then diff the marker SET against `jj file show -r @-` before believing
-any count.
-
-An AST hit is heavily mutated and is not committable as found: re-verify it by
-splicing and scoring, then reduce with `tools/permute_min.py` and re-verify
-after each round. `func_00296600` reduced from twelve permuter temporaries to
-nine and stayed exact; the rest are load-bearing.
-
 ## Process
 
 - **Disassemble before modeling any multi-call handler.** Resolve ambiguous
@@ -3032,11 +2166,14 @@ nine and stayed exact; the rest are load-bearing.
   render functions.
 - **Grep before writing a new file.** Files are whole translation units named
   after their module or original TU; check for an existing file that already
-owns your function's addresses before creating anything. A made-up file causes
-duplicate definitions.
-- **Record waivers per `docs/STYLE.md`** when a steering construct is
-  load-bearing: annotation above the marker, containing the word `measured`
-  and the measured cost of removal.
+  owns your function's addresses before creating anything. A made-up file causes
+  duplicate definitions.
+- **Record waivers per `docs/STYLE.md`** when an advisory construct (for
+  example a scoped optimization pragma, lint H003) is load-bearing: annotation
+  above the marker, containing the word `measured` and the measured cost of
+  removal. A waiver does not make ordinary-memory `volatile` or ordinary-
+  instruction inline asm acceptable (see "Two ways the archive pool lies to
+  you" below).
 
 ## A MATCH does not prove the right global
 
@@ -3046,11 +2183,12 @@ verification and it has one consequence worth internalising: **a function can
 report MATCH while referencing the wrong symbol.** The relocated field is
 masked, so any symbol of the right kind compares equal.
 
-Only the linked image catches it. A real example, from the wave that added
-`func_004a8bb0` and `func_004a8f90` to `src/Graphics/Effect/effBlurFilter.c`:
-both verified MATCH at normalized_diff 0, and both were wrong. They are a
-sibling cluster, solved once and transferred, and the transfer silently carried
-the first function's global into the second:
+Only the linked image catches it. A real example (2026-08-11), from the change
+that added `func_004a8bb0` and `func_004a8f90` to
+`src/Graphics/Effect/effBlurFilter.c`: both verified MATCH at normalized_diff
+0, and both were wrong. They are a sibling cluster, solved once and
+transferred, and the transfer silently carried the first function's global
+into the second:
 
     func_004a8bb0 @ 0x004a8cbc   ld $a0, -0x7fe0($gp)   fGpffff8020 = 0x00761110
     func_004a8f90 @ 0x004a909c   ld $a0, -0x7ff0($gp)   fGpffff8010 = 0x00761100
@@ -3073,6 +2211,42 @@ Practical rules:
   it rather than against the name. The name is a decompiler guess and this
   case proves it can be wrong.
 
+## Target selection: filter by address, never by filename
+
+- **Filter every census through `tools/verify.py`'s attribution, not by path
+  prefix.** Use `verify.code_origin(file, address)` (or both
+  `verify.is_third_party(file)` and `verify.is_vendor_address(address)`);
+  vendor spans are listed in `verify.VENDOR_CODE_RANGES`. Functions in those
+  spans score ZERO for the first-party metric however tempting they look (the
+  `code1_0041..0052` and `code2_0070` families are full of 16-byte accessors
+  and tail-call thunks). The tell before you dispatch: a scoped `verify.py` on
+  the file prints `first-party functions scanned: 0`. Measured 2026-08-14: a
+  whole wave was spent on `code1_0042`/`0043`/`0044`/`004c`/`004d`/`0051`
+  (291, 236, 226, 118, 74 rows), all vendor.
+- **The vendor ranges move; recount after they do.** On 2026-09-03 (commit
+  `8a7c04e4`) RenderWare was added as a vendor span, `0x0038F990-0x00417510`,
+  alongside `0x00417510-0x0044E830`, `0x004BD628-0x0052D8C0` and
+  `0x0070C850-0x0070E140`. Counts and pools in this document measured before
+  that date (for example the `code1_0039`..`003e` pools, the fromSPR/toSPR
+  family in `code1_003a`/`003b`, `func_00399bf0`) treated addresses in the
+  RenderWare span as first-party.
+- **A text scan does not know about GCC units either.** `tools/verify.py`'s
+  `is_gcc_unit` (`config/gcc_units.txt`) and vendor filters exclude those files
+  from the first-party count; a bare `glob` over `src/**/*.c` does not. Build
+  first-party sets from a real `tools/verify.py --json PATH` report.
+- **Find archived attempts by address and content, not by a filename
+  convention.** Lanes never agreed on an archive filename (`*_body.c`,
+  `*_body.c.txt`, `WT17_004140F0.c`, `WLFcl_004555d0_base.c`, ...). The rule
+  that works: any `.c`/`.txt` under `build/` whose NAME encodes an address and
+  whose CONTENT looks like C. The content test is load-bearing; matching on the
+  name alone sweeps in probe drivers, disassembly dumps and scope reports. On
+  2026-08-21, 137 still-unmatched functions carried an attempt under a name the
+  `_body` globs missed, and every one was being handed out as "never
+  attempted". `tools/recon_pool.py --pool fresh` regenerates the
+  never-attempted list and is the authority; do not recount it by hand (the
+  count was wrong three times in one day, 2274 -> 1186 -> 1061, always
+  optimistic, always because the discovery rule was too narrow).
+
 ## Targeting: rescan the whole tree by per-file MATCH density, not a fixed queue
 
 A campaign that dispatches lanes only against a pre-built candidate list
@@ -3082,29 +2256,30 @@ attempted functions remain — the list was never the full first-party ASM
 set, only a snapshot of it. The symptom is several consecutive waves closing
 zero functions despite lanes reporting real effort.
 
-The fix that turned a stalled campaign productive again: rebuild the target
-list every wave directly from a **fresh full `tools/verify.py --json`
-report**, not from any earlier queue file. Group every non-vendor,
-non-third-party ASM function by its file, compute each file's MATCH density
-(`MATCH / (MATCH + ASM)`), and dispatch lanes at the **highest-density files
-first** — a file that is 80%+ MATCH already encodes the local struct
-layouts, calling conventions, and GP-relative symbol set a lane needs, so a
-fresh Ghidra/retail read of its handful of remaining ASM functions closes at
-a much higher rate than the same functions would in isolation. Exclude the
-vendor ranges (`config/target.json`'s middleware windows) and third-party
-files the same way `tools/verify.py`'s first-party filter does, or the
-density numbers are meaningless.
+The fix that turned a stalled campaign productive again (2026-08-31): rebuild
+the target list every wave directly from a **fresh full
+`tools/verify.py --json PATH` report**, not from any earlier queue file. Group
+every non-vendor, non-third-party ASM function by its file, compute each
+file's MATCH density (`MATCH / (MATCH + ASM)`), and dispatch lanes at the
+**highest-density files first** — a file that is 80%+ MATCH already encodes
+the local struct layouts, calling conventions, and GP-relative symbol set a
+lane needs, so a fresh Ghidra/retail read of its handful of remaining ASM
+functions closes at a much higher rate than the same functions would in
+isolation. Exclude vendor ranges and third-party files with `tools/verify.py`'s
+own first-party filter (see the previous section), or the density numbers are
+meaningless.
 
-Recipe (Python, run against the latest `postWaveNN.json`):
+Recipe (Python, run against the latest report; `build/` is untracked scratch,
+the file name is whatever you passed to `--json`):
 
 ```python
 import json, collections
+from verify import is_vendor_address, is_third_party   # tools/verify.py
 d = json.load(open('build/postWaveNN.json'))
-VENDOR = (...)  # from config/target.json
 attempted = set(open('/tmp/attempted.txt').read().split())  # cumulative
 byfile = collections.defaultdict(lambda: {'MATCH': 0, 'ASM': 0, 'names': []})
 for x in d['results']:
-    if is_vendor(x['addr']) or is_third_party(x['file']):
+    if is_vendor_address(int(x['addr'], 16)) or is_third_party(x['file']):
         continue
     e = byfile[x['file']]
     if x['status'] == 'MATCH':
@@ -3121,32 +2296,557 @@ candidates = sorted(
 
 Track cumulative per-function `attempted` names across waves (append after
 every wave's dispatch, whether closed or not) so a re-scan does not
-re-assign a function a sibling lane already spent budget on the same
-session — but re-running the *file* density scan from scratch every wave is
-what matters; never filter by "file already touched."
+re-assign a function a sibling lane already spent budget on — but re-running
+the *file* density scan from scratch every wave is what matters; **never
+filter by "file already touched."** That whole-file exclusion was the defect
+behind a long run of zero-closure waves (see "The recon-queue-rebuild bug" in
+the campaign history below).
 
 Large low-density files (a single file with 60-100+ remaining ASM
 functions) still belong in this method — split the file's remaining target
 list into two (or more) disjoint address-range halves and dispatch one lane
 per half as siblings on the same file. Sibling lanes on a shared file MUST
-coordinate over `hub` before every edit (announce the function about to be
-touched) and edit one function at a time with their own scoped `lverify`
-immediately after, so a crash or a bad probe from one lane never corrupts
-the other's already-landed closures. When one sibling finishes before the
-other, it must re-run its own scoped `lverify` after the other's next
-closure lands (not just once at first-sight-clean) since the shared file's
-content keeps moving.
+coordinate (the orchestration harness's `hub`) before every edit (announce
+the function about to be touched) and edit one function at a time with their
+own scoped verify (`lverify` in that harness) immediately after, so a crash or
+a bad probe from one lane never corrupts the other's already-landed closures.
+When one sibling finishes before the other, it must re-run its own scoped
+verify after the other's next closure lands (not just once at
+first-sight-clean) since the shared file's content keeps moving.
 
-This method found and closed on the order of 400+ never-before-attempted
-first-party functions across roughly a dozen files that a
-`recon_queue.json`-driven campaign had never surfaced, entirely because the
-queue file predated (and undercounted) the tree's current first-party ASM
-set. Once density-scanned files bottom out below roughly 25% MATCH with no
-fresh (never-attempted) names left, the remaining ASM in that file is
+Measured through 2026-08-31, this method found and closed on the order of 400+
+never-before-attempted first-party functions across roughly a dozen files that
+a `recon_queue.json`-driven campaign had never surfaced, entirely because the
+queue file predated (and undercounted) the tree's first-party ASM set. Once
+density-scanned files bottom out below roughly 25% MATCH with no fresh
+(never-attempted) names left, the remaining ASM in that file is
 overwhelmingly genuine floors (register-allocation/scheduling walls, or
 documented hardware) rather than untried low-hanging fruit; a repeat pass
 with the same method on the same file after such a bottom-out reliably
-returns zero closures.
+returned zero closures.
+
+**Read the file's existing matched functions before reconstructing a new
+one.** Measured 2026-08-29: every target that closed in the first
+parallel-lane reconstruction wave (432-656 bytes) had at least one
+already-MATCH sibling in the same file within a few hundred bytes; isolated
+cold targets under 256 bytes closed 0 of 19 in the wave before. That context,
+not size alone, predicts a close.
+
+**Re-derive the logic; do not permute the spelling.** `func_0028b6b0` had
+been parked at nd 8 and every spelling permutation had failed on it. It closed
+only when the logic was re-derived from the retail disassembly, which showed
+the doubled `beqz` came from nested ifs and the body-head order came from a
+table local (2026-08-21).
+
+**Verify lane output against the pre-wave baseline before committing.** Lanes
+under pressure reach for `volatile` or inline asm before re-deriving logic
+(two such "matches" were reverted in wave 5); a lane silently dropped a
+`// FUN_xxxxxxxx` marker during an unrelated cut/paste (wave 7 — caught only
+by diffing the full-project scanned-function COUNT, not by any MISMATCH/error
+signal); a lane left 3 live MISMATCH bodies behind at report time (wave 6,
+`k_fldFrame.c`). Run `tools/decomp_lint.py` on every lane-touched file, read
+the diff for `volatile`/asm by eye, then run a full `tools/verify.py` and
+confirm both the MATCH set and the total scanned count against the pre-wave
+baseline.
+
+## Rank the archive corpus by measurement, not by its notes
+
+`tools/archive_to_guard.py --apply` installs archived bodies as
+`#ifdef NON_MATCHING` blocks, which `verify.py` never scores — so a guarded
+corpus tells you nothing until it is measured. Two scratch scripts measured it
+(both live only in the untracked `build/` directory, not in git):
+
+- `build/arch_measure.py` activates each guarded body one at a time
+  (`permute_sweep.activate` + `permute.Target.score`) and writes an nd ranking.
+  Measured 2026-08-15 over 726 archives: **520 first-party scored, 30 at
+  nd <= 10, 53 at nd <= 20.**
+- `build/arch_classify.py` additionally diffs the object against the retail
+  window word by word and names the residual class: `immediate` (same opcode and
+  registers, only the 16-bit field differs — the mechanically fixable case),
+  `width` (`addiu`/`daddiu`, a type fact), `register`, `opcode`, or `size`.
+
+The classification over 686 first-party archives (2026-08-15): **361 `size`**
+(the body is missing or carrying a whole block — 75 of them within 4 bytes,
+220 within 16), 166 that the permuter harness cannot even locate, 110 that no
+longer compiled in the then-current declaration environment, and only **~45
+with a pure word-level residual**. Of those, exactly four were a single-kind
+residual, and each was then judged a floor by direct probing: `001932f0` one
+`addiu`/`daddiu` word, `00153300` an aggregate `sd` where retail emits `swc1`
+(unmoved by field-wise copy, temporaries, statement order, and every
+scheduling pragma), `0044ee70` a store/argument transposition, `001ee490` the
+`slti $at` versus `slti $v0` branch-temp idiom. **All four later matched**:
+`001ee490` was cracked by the AST permuter the next day (table below),
+`001932f0` by a source change (`docs/compiler-floors.md`), and all four are in
+the MATCH set of `progress/metrics.json` (2026-09-28). "Proven floor" in an
+archive note is a dated claim.
+
+The durable consequence: `size` rows dominate, i.e. functions whose C is
+missing real logic. Those are reconstruction problems, not residual problems.
+
+## Two ways the archive pool lies to you
+
+**The nd in an archive note is a claim, not a measurement.** Notes are written
+by hand as a lane ends and they go stale as the tree moves. Measured
+2026-08-21: `func_003bcf10` and `func_003bcfb0` were both recorded at nd 2 and
+both measured **nd 32** with their archived bodies installed; `func_003b6da0`
+was recorded at nd 6 and measured **55**; several archives no longer compiled
+at all. Some quoted `nd 0` values are worse than stale -- they came from an
+`INCLUDE_ASM` self-compare rather than from any compiled body. Rank with
+`tools/recon_pool.py --measure`, which installs each archived body, scores it,
+and restores the file. It costs about two seconds per target. The claimed and
+measured columns agreed for six of the top nine and were wildly wrong for the
+other three.
+
+**A `measured:` note above a marker waives H001 for the whole function.**
+`decomp_lint`'s waiver has FUNCTION scope: a justification in the six lines
+above a `// FUN_` marker covers every occurrence of an advisory finding
+(H001/H003/H007) inside that function. So a note written to justify a
+*pragma* silently silences H001 for a `volatile` in the same body. That is how
+a wave-3 lane landed a "MATCH" on `func_0045ed60` that reached nd 0 only by
+casting a plain `void *` parameter to `volatile u8 *` to defeat b210's CSE and
+force retail's twelve repeated byte loads -- ordinary-memory `volatile` as
+codegen steering, which is rejected in production. It was reverted and
+archived as `build/NMX_0045ed60_body_REJECTED.c` (untracked scratch).
+
+Note also that H001's regex looks for the token `volatile`, and the lane's
+construct was a volatile CAST EXPRESSION rather than a declaration; between the
+cast form and the function-scope waiver it drew no finding at all. When a lane
+reports a match, check its diff for `volatile` by eye rather than trusting a
+clean lint run, and require volatile to be justified at the site.
+
+Before rejecting that body its repeated loads were checked for honest aliasing,
+which would make a legitimate shape possible. They were not: a direct `u8 *`
+cast, a local `u8 *`, a `char *` source, and stores through the destination
+local all let b210 collapse the three load groups into one, scoring nd 59-66
+and losing about 44 bytes of object. (`func_0045ed60` is in the MATCH set of
+`progress/metrics.json` as of 2026-09-28.)
+
+A second instance (2026-08-30): a lane closed `code1_0039.c`'s `func_00399bf0`
+to a clean-looking MATCH (nd 0, scoped verify green, a `measured:` comment
+attached) using `volatile` on an ordinary allocator struct field (`p + 0x80`, a
+heap object this same function allocates, not a hardware address) to force a
+post-store reload. It passed `decomp_lint` clean for the reason above and was
+caught only by reading the diff for `volatile` by eye, then reverted, with the
+comment rewritten to document the real (unresolved) floor and to correct a
+misattributed nd44->36->18 probe history that an earlier session had pasted
+onto the wrong marker (it describes the unrelated `00399fd0`/`0039a200`
+slot-search family; retail `00399bf0` is an allocator/state-switch routine with
+no loop at all).
+
+**Source comments are not a near-miss index either.** A 2026-08-30 scan for a
+recorded `nd`/`normalized_diff` next to a still-`INCLUDE_ASM` marker (only
+trusting mentions that also name the target's own hex address, filtered
+against a real `tools/verify.py --json` first-party set) found 12 candidates
+at `nd <= 10` of 1647 first-party ASM functions and closed zero of the 5
+dispatched. Two were ee-gcc 2.96-vs-3.2 floors in `code1_004f.c`, a
+`config/gcc_units.txt` vendor unit that a naive `glob` + text scan did not
+exclude; three reconfirmed documented floors (argument evaluation order,
+padding tail, compiler width). The other 7 were misattributed comments (the
+text belonged to an adjacent function's bracket-close rationale:
+`func_00267800`, `func_003e4520`/`func_003e45f0`, `func_001f1030`) or an
+explicitly pre-flagged false positive (`y_draw.c`'s `func_002b6ec0`: "fndiff of
+the INCLUDE_ASM state reads nd 0 by construction... do not treat this function
+as matched", dated 2026-08-03).
+
+## Abandon on measured nd, not on iteration count
+
+Measured 2026-08-21: the first reconstruction wave spent roughly half its
+compute on six targets that finished at nd 42, 51, 71, 107, 144 and 309 --
+three of them absorbed 25 to 35 probe variants each. The instruction that
+failed was "time-box each function to about a dozen iterations": an iteration
+count is estimated loosely and every lane overshot it two- to threefold.
+
+The rule that works is keyed to a measurement. Get one candidate whose
+`object_size` is within ~8 bytes of `window`, then read its `normalized_diff`:
+
+  * **nd > 25** -- archive immediately. At that distance the defect is missing
+    or wrong logic, and no source spelling closes it. More variants are waste.
+  * **nd <= 25** -- worth a probe budget, capped at 12 variants.
+
+On the first wave this rule would have cut about half the runtime at zero cost
+in matches. The exception is an interrupted lane's draft, which is often one
+lever away even above nd 25 (see "Salvage the lane drafts" below: every
+salvaged draft under nd 40 closed).
+
+## Two b210 levers measured during the wave
+
+Measured 2026-08-21:
+
+  * Retail's **doubled `beqz`** comes from **nested `if`s**. b210 CSEs an `&&`
+    chain into a single test but does not collapse nested ifs, so the two
+    shapes are distinguishable in the object.
+  * A **table local declared at the loop-body head** forces retail's
+    `sll`-before-`lw` body-head instruction order.
+
+## Reading EE FPU multiply-accumulate out of rabbitizer
+
+rabbitizer does not know the EE's multiply-accumulate opcodes and prints them
+as `.word 0x46...` tagged INVALID. Two lanes each burned an hour rediscovering
+how to read them, so the rules are recorded here.
+
+  * **In those INVALID words rabbitizer prints float registers using INTEGER
+    register names.** `$a2` means `$f6`, and so on by register number. This is
+    the detail that wastes the hour.
+  * Function field, bits 5-0: `0x18` ADDA.S, `0x19` SUBA.S, `0x1A` MULA.S,
+    `0x1C` MADD.S, `0x1D` MSUB.S, `0x1E` MADDA.S, `0x1F` MSUBA.S.
+  * Accumulator semantics: `mula`/`adda`/`suba` SET the accumulator and their
+    `fd` field is unused; `madd`/`msub` write `fd` from the accumulator
+    combined with the product; `madda`/`msuba` accumulate into it.
+
+All of these come from ordinary C float expressions such as `a*a + b*b + c*c`;
+none of them justifies inline asm. When b210 compiles such a sum it starts the
+accumulator with the SECOND addend, which is why a literal left-to-right
+transcription of the retail order does not reproduce it.
+
+## CORRECTION: COP1 accumulator chains ARE emitted by plain C
+
+Several lanes abandoned targets on the belief that an `adda.s`/`madd.s`/
+`msub.s` chain cannot be produced from compliant C. **That is wrong**, and it
+was measured directly against b210 at `-O2` (2026-09-01):
+
+```c
+float c_plain(float acc, int count) { return acc - (float)count * 9.5f; }
+```
+
+```
+  1c:  460c0018   adda.s  $f0,$f12
+  20:  4601101d   msub.s  $f0,$f2,$f1
+```
+
+No pragma, no intrinsic, no `+ 0.0f` trick — an ordinary multiply-and-subtract
+expression fuses. The `+` form gives `adda.s`/`madd.s`, and a three-operand
+`(x + 0.0f) + y * z` fuses as well. b210 forms the accumulator chain whenever a
+float multiply feeds an add or subtract.
+
+So when the retail window contains one of these, **do not stop**: write the
+arithmetic naturally and the chain appears. What actually walls these functions
+is the surrounding code — operand orientation (see the commutative floor),
+saved-register colouring, and load scheduling — not the fused instruction.
+
+Where a chain genuinely is unreachable it is because of *which* registers the
+accumulator reads, not because the instruction cannot be emitted. Treat
+"contains adda.s" as a normal target.
+
+**Confirmed by eight independent reconstructions** (2026-09-01). A wave was
+run against the reopened pool specifically to test this, and every single lane
+reproduced the retail accumulator chain from ordinary C — 4 ops
+(`func_0035bad0`), 6 (`func_0011c780`), 6 (`func_0026bfc0`), 3
+(`func_0047f4d0`), the full `MULA`/`MSUB`/`MADD` sequence (`func_00208870`),
+`madd.s` (`func_001bb790`), the tail chain (`func_004b7300`), and —
+decisively — **all 25** ops of `func_00480f20`, the densest accumulator
+function in the corpus. Not one lane needed a pragma, an intrinsic or inline
+asm to emit the chain, and not one found the chain itself to be the residual.
+Two closed outright (`func_004b7300`, `func_0026bfc0`); the rest walled on
+ordinary causes: commutative MAC operand order (`madd.s $f0,$f0,$f2` vs retail
+`$f0,$f2,$f0`), FPR colouring, and load scheduling. (All eight are in the MATCH
+set of `progress/metrics.json` as of 2026-09-28.)
+
+To find accumulator functions, match IDA's `insn.itype` in `0x13e..0x144`;
+matching on the mnemonic string finds nothing, which is how the pool stayed
+invisible. On 2026-09-01 that scan found **308 unmatched first-party functions
+containing an accumulator chain**, all ordinary targets.
+
+## The reverse case: retail has a plain `add.s` after `mul.s` (no fusion)
+
+When retail shows `mul.s $f1 ... ; mtc1 const,$f0 ; add.s $fd,$f0,$f1` where
+plain C would fuse into `adda.s`/`madd.s`, the lever is a copy through a
+named local between the product and the add - measured on `func_002b2290`
+(y_smap.c, nd 409 -> 0, 2026-09-04):
+```c
+t = 108.0f * (f32)j;
+y = t;                /* the copy is what blocks the c + a*b fusion */
+z = -99.0f + y;       /* fresh name z: constant-first add.s $f20,$f0,$f1 */
+```
+`y = -99.0f + t` (no copy) fuses; `y = t; y = -99.0f + y` (self-update) is
+unfused but variable-first (`add.s $f20,$f1,$f0`, nd 1); `y = t; t = y + c`
+coalesces back to the self-update. `opt_propagation off` also unfuses the
+plain `y = -99.0f + t` form, but in that function it changed the loop-head
+sign-extension sharing and let `opt_loop_invariants` hoist every float
+constant, so the copy is the cheaper lever. Doubles are real software
+doubles on b210 (`-99.0 + 108.0 * j` grows the object by 60B) - not a way
+to dodge fusion.
+
+## Where `volatile` is actually required
+
+Ordinary-memory `volatile` as compiler steering is rejected; `volatile` is
+required for a real device access, and that split is only decidable from the
+retail code. On 2026-08-21 `tools/hw_access_census.py` (removed 2026-08-29 in
+commit `83a70c97`; recover it with
+`git show 83a70c97^:tools/hw_access_census.py`) read the retail bytes of every
+first-party function still on `INCLUDE_ASM` and reported the ones that
+dereference a hardware address. **21 functions did.** Three families:
+
+  * **fromSPR/toSPR DMA, 18 functions.** `0x1000D000` `D_CHCR`, `D010` `D_MADR`,
+    `D020` `D_QWC`, `D080` `D_SADR`, `0x1000D400` toSPR, `0x1000E010` `D_STAT`,
+    paired with scratchpad at `0x70000000`. All of `code1_003a.c`'s and
+    `code1_003b.c`'s big transfer routines, plus `sdkUttmx.c`'s
+    `func_00463ea0`. (Since 2026-09-03 the `code1_003a`/`003b` addresses fall
+    in the RenderWare vendor span.)
+  * **Timer 0 init, 1 function.** `func_00100350` writes `T0_COUNT`, `T0_MODE`,
+    `T0_COMP`, `T0_HOLD` at `0x10000000/10/20/30`.
+  * **Direct scratchpad, 2 functions.** `func_0016bdd0` and `func_00174e10`
+    read `0xBF800004`.
+
+When these are attempted, `volatile` there is correct and must not be argued
+away.
+
+Two traps the census had to be taught, both of which produced confident wrong
+answers first:
+
+  * **Segment masking is mandatory.** EE code reaches devices through KSEG1, so
+    the fromSPR channel appears as `lui 0xB000` / `ori 0xD000`. A scan looking
+    for literal `0x1000xxxx` finds almost nothing real.
+  * **A constant in a register is not an access.** `func_0039c730` looked like
+    an `sq` to `0x10000000` and is not: a `lui v0,0x1000` fed an `or` building
+    a GIF tag word, then `lw v0,-0x477c(gp)` reloaded `v0` as a packet pointer
+    while the scan still credited it the stale upper half. Only a load or store
+    whose *base* register holds the address counts. Requiring a real
+    dereference cut 34 candidate functions to 21.
+
+And one collision worth knowing in both directions: **`0xBF800000` is `-1.0f`**
+as well as the KSEG1 mirror of the scratchpad base. Retail's `func_001774a0`
+does `lui v0,0xbf80; mtc1 v0,f1`, which is the float. `decomp_lint` masks
+KSEG0/KSEG1 before its hardware-range test -- without that it rejects genuine
+`0xBF800004` scratchpad accesses as H001 -- but it excludes `0xBF800000` and
+`0x3F800000` from the mask, because otherwise any line mentioning +/-1.0f
+would earn a free `volatile` waiver.
+
+## Is the rest just C we have not shaped?
+
+Almost entirely, yes -- and that was measured rather than assumed.
+On 2026-08-21 `tools/reachability_census.py` (removed 2026-08-29 in commit
+`83a70c97`; `git show 83a70c97^:tools/reachability_census.py`) counted each
+unusual instruction class over MATCHED and over unmatched first-party
+functions. The matched column is the control: a matched function is proof by
+construction that b210 emits that instruction from plain C *in this tree*.
+
+| class | in matched | in unmatched | verdict |
+|---|---|---|---|
+| COP2 (VU0 macro mode) | 45 | 62 | reachable from C |
+| MMI (EE multimedia) | 43 | 95 | reachable from C |
+| lqc2/sqc2 (VU0 quadword) | 38 | 67 | reachable from C |
+| COP0 (mfc0/mtc0/tlb/eret) | 3 | 29 | reachable from C |
+| sync | 3 | 29 | reachable from C |
+| syscall | 1 | 1 | reachable from C |
+| **movz/movn** | **0** | **31** | **never matched** |
+
+So the recurring "VU0 floor" belief is false here: 45 functions then matched
+contained COP2 macro-mode instructions. Same for MMI and the quadword VU0 loads.
+
+`movz`/`movn` is the single exception, and two independent lines of evidence
+agree. It appeared in zero of 6104 matched functions; and compiling ten
+conditional-select idioms -- ternary, if-assign, inverted, `== 0`, named
+temporary, unsigned, pointer-indexed, select-or-zero, zero-or-select, float
+-- at `-O0/-O1/-O2/-O3/-O4`, with `-inline all`, `-opt speed` and `-opt space`,
+produces **no `movz` or `movn` in `.text` at any setting**. Retail's uses of it
+therefore did not come from C through this compiler; inline asm in the
+original source or an SDK macro is the likely origin [INFERENCE in the
+original measurement]. A second MWCCPS2 project,
+`AshfordFamily/recvx-decomp`, likewise handles `movz`/`movn` only with raw
+`asm volatile` (e.g. `ps2_NaMath.c`).
+
+Beware the obvious way to get this wrong: scanning a whole `.o` for the
+opcode pattern reports a confident 14 hits at every optimisation level,
+because relocation entries and the symbol table contain matching bytes. Scan
+`SHF_EXECINSTR` sections only.
+
+On 2026-08-21, 31 of the 1762 unmatched first-party functions contained
+movz/movn, and 29 had it as their only unusual content. The other 1731 -- 98%
+-- contained nothing that had not already been produced from C elsewhere in
+this tree. The language is not the obstacle; finding the exact shape is.
+
+## The command-line flag axis, and why a per-UNIT sweep cannot test it
+
+Every verify in this tree compiles with exactly `-O2 -Iinclude`, and that
+baseline had never been questioned. On 2026-08-16 `build/flag_sweep.py` swept
+15 flag sets per translation unit and `build/flag_sweep_bodies.py` swept them
+per archived body. (The text of the time said both were committed; they exist
+only in the untracked `build/` directory.)
+
+Three things came out of it, in order of importance:
+
+- **A per-unit sweep is structurally incapable of finding anything.** An
+  unmatched function is an `INCLUDE_ASM` line, so it never reaches the
+  compiler; no switch can change bytes that are pasted from retail. The only
+  functions a unit-level sweep can move are ones that already MATCH, and there
+  a change is a regression. Measured: `btlShuffle.c` keeps 21/21 under every
+  neutral flag set, loses 6 at `-O1` and all 21 at `-O3`/`-O4`. That also
+  confirms `-O2` is right, and that the flags do reach the compiler.
+- **In pragma-heavy units the sweep reads as a flat line** because file-scope
+  `#pragma optimization_level` overrides `-O`: `code1_003e.c` (55 such pragmas)
+  reports an identical 73 MATCH at `-O1`, `-O2`, `-O3` and `-O4`. Do not read
+  that as insensitivity.
+- **Per-body, one flag set moved a residual materially**: `func_00311930`
+  (`code1_0031`) goes from nd 48 to nd 6 under `-O1` — but its archive already
+  documented that exact result under a function-scoped `optimization_level 1`
+  bracket, with five residual words confined to FPU destination-register
+  choice. The sweep rediscovered a known floor rather than opening one.
+  (`func_00311930` later matched; it is in the MATCH set of
+  `progress/metrics.json` as of 2026-09-28.)
+
+One caveat the sweeper cannot fix: `normalized_diff` rewards a SMALLER object,
+so a body that compiles to an 8-byte stub against a 1120-byte window scores
+better than a real attempt. Two apparent `-O3` wins (`func_001dbf20`,
+`func_004667d0`) were exactly this. Always read `object` against `window`
+before believing an nd improvement.
+
+## The remaining work is not a toolchain problem
+
+`build/prologue_census.py` (untracked scratch) applies
+`config/gcc_units.txt`'s own discriminator — retail saves callee-saved
+registers with `sd` under ee-gcc and `sq` under MWCCPS2 — to every FUNCTION
+rather than per translation unit, straight from `image.bin` with no build
+required. Measured 2026-08-16:
+
+| verify status | prologue | count |
+|---|---|---|
+| MATCH | mwcc | 3281 |
+| MATCH | leaf (saves nothing) | 2820 |
+| ASM | mwcc | 1539 |
+| ASM | leaf | 226 |
+| **ASM** | **gcc** | **0** |
+
+**Zero** unmatched first-party functions had a GCC prologue. Every one of them
+was built by b210 and is therefore reachable in principle with the compiler in
+use; nothing is waiting on an ee-gcc split. (The `code1_0041`/`code1_0044` GCC
+populations noted in `config/gcc_units.txt` are all above 0x00417510, i.e.
+inside the vendor ranges, and score nothing either way.)
+
+That census also isolated the 226 unmatched LEAF functions — no saved registers
+at all, so structurally incapable of carrying the saved-register colouring or
+rotation residual that walls most of the corpus. 82 had never been archived,
+and a 16-lane wave over the 20 smallest closed **zero**. Their residuals were
+COP1 accumulator chains (`003e3f00`, `003e4030`, `003963c0`, `00396520`), or
+ordinary word-level walls at nd 12-64 on functions of 80-368 bytes. Leaf-ness
+does not predict closure either.
+
+## Porting P3 FES twins: the fingerprint method
+
+Measured 2026-08-15: after four zero-yield reconstruction waves, eight
+functions closed in three waves by porting from the sibling Persona 3 FES
+decomp. Build the candidate list yourself rather than trusting
+`build/shared_p3.json` (a scratch file, since deleted), which read the
+committed P3 metrics snapshot as **1** matched address instead of 6922:
+
+1. Read both `image.bin` files with their window maps
+   (`tools/slus21782_functions.json`, P3 `tools/slus21621_functions.json`,
+   load base `0x00100000`).
+2. Fingerprint every function as sha1 over MASKED words: SPECIAL and MMI
+   (op `0x00`, `0x1C`) kept whole because the registers are the signal; `J`/`JAL`
+   reduced to the opcode; branches and every other I-type masked to
+   `word & 0xFFFF0000`; COP1/COP2 keep opcode plus sub-opcode.
+3. Join on `(window_size, fingerprint)` — exact size equality is required.
+4. Keep only donors listed in the P3 checkout's
+   `progress/metrics.json` -> `matching.addresses`.
+5. Filter P4 rows through BOTH `verify.is_third_party` and
+   `verify.is_vendor_address` (or `verify.code_origin`).
+
+The tools that implemented this (`tools/twin_census.py`, `twin_find.py`,
+`twin_diff.py`) were removed on 2026-08-29 (commit `83a70c97`) once the join
+was exhausted; recover them from `83a70c97^` if the P3 tree changes.
+
+On 2026-08-15 that produced 41 first-party twins, of which 8 closed. Three
+facts decide the outcome of each port:
+
+- **The residual is always an IMMEDIATE.** The donor supplies the shape; P4
+  supplies every number. Four of the eight closed only after correcting one
+  field offset the donor carried over from P3 (`0x18`->`0x1c`, index `[5]`->`[6]`,
+  `0x2cc`->`0x318`) and one after loading a field the port passed by address.
+  Reconcile differing words one at a time with `tools/fndiff.py`; never rewrite
+  the ported body, which scored worse every time it was tried.
+- **Roughly a third of donors are `asm __volatile__` bodies** — including both
+  `k_vpad` twins, the `mdlEffect` VU matrix builder, and the `rwplcore` pair
+  that P3 matched with raw `.word` directives. Classify the donor body FIRST;
+  copying it is a policy violation and gains nothing over `INCLUDE_ASM`.
+- **An opcode-only re-join adds nothing** (measured: zero extra candidates), and
+  broadening the donor set from "P3 verifier-matched" to "P3 body not marked
+  NONMATCHING" adds four, all of which are inline asm or `TODO window stub`.
+  The exact-twin join was exhausted at 41.
+
+**Near-size twins are a shape family, not a twin** (2026-08-16). The exact twin
+join demands IDENTICAL window sizes; relaxing it to +/-4 instructions and
+scoring masked-instruction alignment (`build/twin_nearsize.py`, untracked)
+finds 57 pairs at ratio >= 0.80, of which 26 are new. They are almost all
+FALSE POSITIVES: at that tolerance the score matches a shape FAMILY — the same
+compiler emitting the same idiom over the same struct — not the same source
+function. 16 lanes closed 0. Lanes reported it directly: the `func_001a0f40`
+donor is a 200-byte function against a 448-byte window, the `func_0047ce00`
+donor uses a different dispatch (jump table versus chain), and the
+`func_001bfc00` donor relies on P3-only `RtQuat` and extended `BtlUnit`
+fields. The strictness of the size constraint was doing real work; a twin is
+only a twin at ratio 1.000 with equal windows.
+
+## The permuter is seed-limited, not exhausted — and the AST engine works now
+
+An earlier sweep concluded the permuter was spent. That conclusion was about the
+SEED POPULATION, not the tool. Re-seeding it after the archive-note fix produced
+eight closures across seven sweeps (2026-08-15/16), all in functions no hand
+wave had ever ground:
+
+| sweep | seeds | engine | budget | cracked |
+|---|---|---|---|---|
+| all first-party archives that compile | 461 | text | 200s x 20 | **3** (`003ca430`, `001ee490`, `002e6b20`) |
+| the 93 seeds text scored 1-30 | 93 | ast | 300s x 16 | **2** (`00296600`, `0027d800`) |
+| the 365 seeds text scored >30 | 365 | ast | 240s x 18 | 0 |
+| `src/generated` m2c candidates | 506 | ast | 200s x 18 | 0, and 0 SCORED — pycparser cannot construct them |
+| the same m2c candidates | 506 | text | 200s x 20 | 0, 56 scored |
+| the 41 seeds text scored 1-12 | 41 | ast | **1200s** x 16 | **1** (`0045aac0`) |
+| the 62 seeds text scored 13-40 | 62 | ast | **1200s** x 16 | **2** (`0032b770`, `0011bf10`) |
+| the 110 seeds text scored 41-120 | 110 | ast | 1200s x 16 | 0 |
+
+The tools are `tools/permute.py` (text engine), `tools/permute_ast.py` (wraps
+upstream decomp-permuter), `tools/permute_sweep.py`, `tools/permute_archived.py`
+and `tools/permute_min.py`. Four things follow, each measured:
+
+- **The AST engine had never actually run here.** It needs `pycparser` and
+  `toml`; neither was installed, and both are invisible under
+  `PYTHONNOUSERSITE=1`. Install them and run that engine with the variable
+  UNSET. It restructures code where the text engine only reorders, which is why
+  it cracked `func_00296600` after four hand waves had stalled it at nd 8.
+- **Its reach is the low-score tail, and AST budget keeps paying inside it.**
+  Zero hits from 365 seeds scored above 30 at 240s, and zero from 110 seeds
+  scored 41-120 even at 1200s — but raising the budget to 1200s inside the
+  1-40 band produced three more cracks that 200-300s had missed, including
+  `func_0045aac0`, which had a header full of exhausted hand probes, and
+  `func_0032b770`, a P3 twin port stalled at nd 16. Budget the AST engine
+  generously on scores <= 40 and never above it. (Text-engine budget, by
+  contrast, was measured to buy nothing.)
+- **The m2c seed corpus is closed, and it took a tool fix to prove it.**
+  `archive_to_guard.generated_bodies()` used to prepend the `M2C_`
+  typedef/`#define` prelude to the BODY, so an activated seed put typedefs on
+  the line after its `// FUN_` marker. The marker scan (`verify.scan_markers`,
+  used by `permute.py`) names a marker from the line below it, so the
+  marker stayed nameless and every run died with "no `// FUN_` marker for
+  func_xxxxxxxx" — silently, as a harness error rather than a compile failure.
+  447 of the first-party generated seeds were unusable for that reason alone.
+  Hoisting the prelude into the NOTE (above the marker; it is pure text
+  substitution, so it cannot change a byte) took the usable first-party seed
+  count from 503 to 531 and the SCORED population from 56 to 206. Both engines
+  were then run over the unlocked corpus: text at 180s over all 531 cracked
+  **zero**, and AST at 1200s over the 26 that scored 1-40 cracked **zero**.
+  Seven `match` rows in the classification are all vendor addresses and score
+  nothing for the metric. Archives are the seed corpus; m2c candidates are not,
+  and this is measured rather than assumed.
+  Hand lanes then attacked the same corpus: 16 lanes over the 16 best-scoring
+  m2c near-misses (scores 5-48, several of them EXACT SIZE) closed **zero**.
+  So the m2c bodies are not a starting point for hand work either — their
+  residuals are the same register-colouring and branch-layout walls the
+  archives already sit on, reached from a different direction. What an m2c
+  seed IS good for is a measurement and a block map, not a candidate.
+- **Re-sweep after anything that makes new archives measurable.** Every crack
+  in these sweeps came from bodies that had just become visible.
+
+Splice trap, measured: `permute_sweep.splice` replaces marker-to-first-closing-
+brace. A target that is still a bare `INCLUDE_ASM` has no brace, so the splice
+runs on and swallows the NEXT function, silently deleting markers (209 -> 207).
+For those targets replace exactly the marker line plus its `INCLUDE_ASM`/guard
+lines, then diff the marker SET against `jj file show -r @-` before believing
+any count.
+
+An AST hit is heavily mutated and is not committable as found: re-verify it by
+splicing and scoring, then reduce with `tools/permute_min.py` and re-verify
+after each round. `func_00296600` reduced from twelve permuter temporaries to
+nine and stayed exact; the rest are load-bearing.
 
 ## Salvage the lane drafts: an nd < 40 draft is usually one lever from MATCH
 
@@ -3227,10 +2927,12 @@ closed them, all measured against b210 `-O2,p`:
   conversion ORs into the wrong operand. Reconstructing the surviving XWND
   archive with native casts, its existing four-byte color aggregate, and
   loop-local invariant products makes both OR/mtc1 pairs exact. The retained
-  764B/768B candidate is still nonmatching: nine replication-loop register
-  differences plus one tail-padding word. Its copy helper uses the real
-  `(void *, const void *, u32)` argument types. The historical nd5 body was
-  unavailable; this corrects the coalescing claim, not that recorded score.
+  764B/768B candidate was still nonmatching on 2026-09-05: nine
+  replication-loop register differences plus one tail-padding word. Its copy
+  helper uses the real `(void *, const void *, u32)` argument types. The
+  historical nd5 body was unavailable; this corrects the coalescing claim, not
+  that recorded score. (`func_004a30e0` later matched; it is in the MATCH set
+  of `progress/metrics.json` as of 2026-09-28.)
 - **Loop-counter vs count colouring.** Declaring `i` before `count` swaps
   their `$a2`/`$a3` colouring (`func_001b1280`). Declaration order is the
   lever, not assignment order.
@@ -3281,17 +2983,426 @@ closed them, all measured against b210 `-O2,p`:
   sll ahead of the loads only under `opt_propagation off`; with propagation on
   it folds into the address and is emitted after them.
 
-Two floors this pass confirmed rather than broke: `func_003b7ca0`
-(rprandom_grouped.c, nd 2) keeps an `lbu`/`sll` pair swapped inside an
-OR-assembly expression through 16 association/temp spellings and every
-scheduling-relevant pragma — the pre-schedule order is identical for all of
-them, so this is a scheduler tie-break; and `func_00396520` (code1_0039.c,
-the COP1 chain) now reproduces retail's f1-f8 operand colouring (a zero-valued
+Two floors this pass (2026-09-02) confirmed rather than broke:
+`func_003b7ca0` (rprandom_grouped.c, nd 2) keeps an `lbu`/`sll` pair swapped
+inside an OR-assembly expression through 16 association/temp spellings and
+every scheduling-relevant pragma — the pre-schedule order is identical for all
+of them, so this is a scheduler tie-break; and `func_00396520` (code1_0039.c,
+the COP1 chain) reproduces retail's f1-f8 operand colouring (a zero-valued
 f32 local assigned first reserves f0; `+=` products give the `mtc1 zero /
 adda.s / madd.s` chain) but the w-product/dot register pair stays swapped
 across 120 shapes and a 41k-compile AST-permuter run.
 
-## IDA quaternion recovery: aggregates before register speculation
+## Campaign history (dated measurements)
+
+The subsections below are snapshots from dated campaigns (2026-08-14 through
+2026-09-05), kept for their negative results and method evidence. They are not
+current status: counts, pools, "remaining" totals and floor verdicts are as of
+the date given. For current status run a fresh `tools/verify.py --json PATH`.
+Two corrections apply throughout: since 2026-09-03 the RenderWare span
+`0x0038F990-0x00417510` is a vendor range, so pools in `code1_0039`..`0041`
+counted here as first-party no longer score; and most functions named below as
+floors or near-miss residuals later matched — as of `progress/metrics.json`
+(2026-09-28) the MATCH set includes `0011b110`, `003d59a0`, `003de8c0`,
+`0011c930`, `0011c780`, `003de280`, `0032b770`, `003e3830`, `00399320`,
+`00399450`, `003df870`, `003df8a0`, `00250ad0`, `0036d3e0`, `00177120`,
+`001774a0`, `003e3f00`, `00100350` and `00463ea0`, while `00396940`,
+`0039bb70`, `003f2760`, `003a4d50`, `00399bf0`, `003e4030`, `003963c0`,
+`0016bdd0` and `00174e10` are not in it.
+
+### Target selection: measured cost of choosing wrong (four 16-lane waves, zero closures)
+
+Recorded 2026-08-14. Four consecutive 16-lane waves produced no first-party
+closure. Every failure traced to target SELECTION, not to lane technique, and
+each rule below was the correction (the durable rules are in "Target
+selection: filter by address, never by filename" above):
+
+- **Filter the census with `verify.is_vendor_address`, never by filename.**
+  A whole wave was spent on `code1_0042`/`0043`/`0044`/`004c`/`004d`/`0051`,
+  which look like the largest never-attempted pools in the tree (291, 236, 226,
+  118, 74 rows). They are entirely inside `VENDOR_CODE_RANGES`
+  (then `0x00417510-0x0044E830`, `0x004BD628-0x0052D8C0`,
+  `0x0070C850-0x0070E140`) and score ZERO against the first-party metric. The
+  tell before you dispatch: a scoped `verify.py` on the file prints
+  `first-party functions scanned: 0`. Correct first-party never-attempted total
+  at 6084/7866: **1778 rows**, and the largest pools were `code1_003c` (107),
+  `003e` (97), `003d` (94), `003b` (92), `0039` (79), `003a` (64) — all of
+  which fall in the RenderWare span made vendor on 2026-09-03.
+- **The tiny-window seam was exhausted.** Exactly four first-party ASM rows had
+  a window of 32 bytes or less, and all four were documented floors
+  (`00399320`/`00399450` movn; `003df870`/`003df8a0` delay-slot scheduling).
+  Anything reading "smallest window first" below 48 bytes found nothing.
+- **Do not re-grind the measured near-miss tail.** A wave that attacked the
+  twelve smallest known residuals (nd 5-28: `0011b110` 5, `003d59a0` 5,
+  `003de8c0` 6, `0011c930` 7, `0011c780` 8, `003de280` 8, `00396940` 15,
+  `0032b770` 16, `0039bb70` 16, `003e3830` 18, `003f2760` 28) ran 8-11 distinct
+  hypotheses each — 130 measured source revisions — and moved not one of them.
+  Several nd values also re-measured WORSE than their archived note, confirming
+  archived nd is not a ranking key.
+- **Permuter reach was then judged exhausted on this tree.** Seeding 4387 m2c
+  candidates as `#ifdef NON_MATCHING` bodies and sweeping the 342 first-party
+  ones with the text engine at 240s x 20 workers cracked **zero**. This
+  reproduced, at 2.6x the seed count, the earlier result. (Revised the next
+  day: see "The permuter is seed-limited, not exhausted" above.)
+
+What was left for the first-party metric on 2026-08-14 was 1778
+never-attempted functions with a median window near 400 bytes in units at
+40-60% density, plus roughly 100 ground near-misses on documented floors. The
+productive shape remained a lane per file in a unit that is ALREADY 90%+
+matched, reading its matched neighbours for struct and callee spellings before
+writing anything.
+
+### Where the remaining 1765 first-party functions actually stand
+
+Recorded 2026-08-16, rows added through 2026-08-29. The avenue table as
+measured:
+
+| avenue | attempted | closed |
+|---|---|---|
+| P3 FES twin ports (masked-fingerprint join) | 41 | 8 |
+| decomp-permuter, both engines, all seed corpora and score bands | ~1500 sweeps | 8 |
+| archive near-miss tail, hand lanes | ~60 | 0 |
+| m2c near-miss band, hand lanes | 16 | 0 |
+| undersized archives ("missing block"), hand lanes | 32 | 1 |
+| never-attempted functions in 89-98% dense units, hand lanes | 16 | 0 |
+| P3 twins at +/-4 instructions (`build/twin_nearsize.py`) | 16 | 0 |
+| never-archived LEAF functions (no saved registers) | 20 | 0 |
+| MWCC command-line flag sweep (`build/flag_sweep*.py`) | 15 flag sets x 128 bodies | 0 |
+| reconstruction of never-attempted functions <= 256B | 8 | 3 |
+| reconstruction of never-attempted functions > 256B | 12 | 0 |
+| reconstruction, file-local siblings, 10 parallel lanes (wave 5) | ~40 | 12 |
+| reconstruction, file-local siblings, 10 parallel lanes (wave 6) | ~40 | 5 |
+| reconstruction, file-local siblings, 10 parallel lanes (wave 7) | ~50 | 7 |
+| reconstruction, file-local siblings, 10 parallel lanes (wave 8) | ~37 | 2 |
+
+#### Reconstruction is the only avenue that still pays
+
+Recorded 2026-08-21. Every row above except the first two is
+residual-polishing: take a body that is already close and hunt for the source
+spelling that closes it. Pooled, that was **1 closure in ~175 hand lanes,
+0.6%**. The first reconstruction wave closed **3 of 13, 23%**. The difference
+is not luck, it is which defect is being attacked: polishing can only fix a
+register or scheduling choice, and most remaining functions were wrong because
+their C is missing logic.
+
+Two census errors had hidden this, and both are easy to repeat:
+
+  * **The `code1_0041..0052` and `code2_0070` families are vendor address
+    spans** (CRI, the Sony SDK, the C runtime), excluded by
+    `verify.is_vendor_address`. They are full of tempting 16-byte accessors and
+    tail-call thunks, and closing every one of them would not move the metric
+    by a single function. Filter with `is_third_party` AND `is_vendor_address`,
+    never by path prefix alone.
+  * **Lanes never agreed on an archive filename.** `*_body.c` and
+    `*_body.c.txt` are the common forms, but the tree also holds
+    `WT17_004140F0.c`, `WLFcl_004555d0_base.c` and others. 137 still-unmatched
+    functions carried an attempt recorded under a name the `_body` globs miss,
+    and every one was being handed to lanes as "never attempted" -- a wave-4
+    lane spent most of its run rediscovering three of them. The rule that
+    works is: any `.c`/`.txt` under `build/` whose NAME encodes an address and
+    whose CONTENT looks like C. The content test is load-bearing; matching on
+    the name alone sweeps in probe drivers, disassembly dumps and scope
+    reports and overstates the attempted population badly.
+
+With all three corrected there were **1061 never-attempted first-party
+functions** on 2026-08-21, and the tractable end of that distribution was all
+but gone: **0 at a window of 128 bytes or less, 7 at 256 or less**, 56 at 400
+or less. `tools/recon_pool.py --pool fresh` regenerates the list and is the
+authority; do not recount it by hand. The number was wrong three times that
+day -- 2274, then 1186, then 1061 -- always in the optimistic direction, and
+always because the archive-discovery rule was too narrow.
+
+#### The 256-byte cliff, and what it leaves to work on
+
+Recorded 2026-08-21. A second wave ran the same method against larger
+never-attempted functions and closed **nothing in 16 attempts**. Pooling both
+waves by retail window size separates the two results completely:
+
+| window | attempted | matched |
+|---|---|---|
+| <= 256 B | 8 | 3 |
+| 257-400 B | 6 | 0 |
+| > 400 B | 6 | 0 |
+
+Every match came from a window of 256 bytes or less. Nothing above it closed.
+Cold reconstruction worked, but only at a size where the whole function can be
+held in one piece; past that the reconstruction was right in outline and wrong
+in a dozen small ways at once, and the residual was not attackable.
+
+Wave 4 tested that reading directly: 19 never-attempted targets, every one
+under the cliff, four lanes, **0 matches**. So the cliff was real but not
+sufficient -- being small is necessary for a match, not enough for one. Across
+four waves the record was 3 matches in 62 attempts, and all three came from
+wave 1.
+
+The supply below the cliff was then essentially gone: **7 never-attempted
+first-party functions at 256 bytes or less, none at all under 128**
+(`tools/recon_pool.py --pool fresh --max-window 256`, 2026-08-21).
+
+#### Wave 5 breaks the cliff: parallel lanes at 432-656 bytes, +11
+
+Recorded 2026-08-29. A fifth wave dispatched 10 parallel lanes against
+`build/recon_queue.json` (never-attempted functions, size-ascending, filtered
+to `abs(object - window) <= 8` to exclude the metric-trap stubs) each
+restricted to one file. Each lane was told to re-derive the C from a fresh
+Ghidra decompile of the retail function plus its surrounding matched
+siblings, not to permute an existing near-miss. Result: **11 of ~40 attempted
+closed to MATCH**, sizes 432-656 bytes (`func_0018bc20`, `func_0037ed90`,
+`func_00197d70`, `func_0037bac0`, `func_0015a350`, `func_001efd50`,
+`func_00370410`, `func_001eff50`, `func_00370a80`, `func_001bb9b0`,
+`func_004669d0`), plus a twelfth (`func_0036aa20`, 432B) reconstructed by hand
+ahead of the wave. **The 256-byte cliff from waves 2-4 did not hold at this
+file selection**: every wave-5 target had at least one already-MATCH sibling
+in the same file within a few hundred bytes, giving the lane a same-unit
+struct-layout and calling-convention anchor that isolated cold targets in wave
+4 did not have. Read the file's existing matched functions before
+reconstructing a new one; that context, not size alone, is what predicts a
+close.
+
+Two of the wave's candidate closures were reverted after the fact for using
+rejected compiler-steering idioms to force the match (`decomp_lint`
+H001/H009): see "Where `volatile` is actually required" above and the H009
+rule in `docs/STYLE.md`. Net after reverting both: **+11, not
++13**. A lane under schedule pressure will reach for `volatile` or inline
+asm before it reaches for re-deriving the logic; the fix is to lint every
+lane-touched file before trusting a MATCH claim, not to trust the verify
+status alone.
+
+**Waves 6-8 confirmed the method but showed declining yield as the easy files
+ran out**: 5 of ~40, 7 of ~50, 2 of ~37 (wave 8's files had fewer already-MATCH
+siblings per never-attempted target than the earlier batches -- the
+file-local-sibling predictor holding in the other direction too). Running
+total after wave 8: **26 closed across 4 waves and ~170 attempts, 15.3%
+pooled yield**, against 0.6% for every residual-polishing avenue combined.
+Two more process failures were caught by independent post-wave verification
+and fixed before committing: a lane silently dropping a `// FUN_xxxxxxxx`
+marker comment during an unrelated cut/paste (wave 7 -- caught only by
+diffing the full-project scanned-function COUNT, not by any MISMATCH/error
+signal), and a lane leaving 3 live MISMATCH bodies behind at report time
+(wave 6, `k_fldFrame.c`). Neither is optional to check: run a full
+`tools/verify.py` and confirm both the MATCH set and the total scanned count
+against the pre-wave baseline before ever committing lane output.
+
+#### The recon-queue-rebuild bug, and what full exhaustion looks like
+
+Recorded 2026-08-30. A later continuation of this campaign (waves 22-32, +66
+net first-party matches, 6153 -> 6219) had stalled for many prior waves at 0
+closures each before the actual defect was found: the target-list builder was
+filtering out any FILE that had ever been "touched" by an earlier lane, not
+just the individual functions that had actually been attempted in it. Since
+most files in this tree accumulate matches incrementally over many sessions,
+almost every file looked "touched" and got excluded wholesale, even when it
+still held several genuinely never-attempted functions. The fix: rebuild the
+target list every wave from the FULL `build/recon_queue.json`, filtered only
+by a cumulative set of individually-attempted function NAMES (tracked
+wave-over-wave, e.g. in a scratch file), never by whole-file exclusion. This
+single change turned a run of stalled waves back into 4-19 closures each
+until the pool ran out. (The durable form, rebuilding from a fresh verify
+report rather than `recon_queue.json`, is "Targeting: rescan the whole tree by
+per-file MATCH density" above.)
+
+**The pool does run out, and it is worth recognizing when it has.** By wave
+29 the rebuilt target list was down to single-digit functions per file; by
+wave 31 `build/recon_queue.json` had exactly 10 first-party entries left
+that were not already individually attempted, and every one of those 10 was
+a documented hardware floor (the fromSPR/toSPR DMA family in `code1_003a.c`,
+`sdkUttmx.c`'s `func_00463ea0`, `code1_0016.c`'s `func_0016bdd0`). At that
+point `recon_queue.json`'s never-attempted-function avenue was exhausted, not
+merely thinned, and continuing to rebuild-and-redispatch against it wasted a
+wave discovering the same empty result.
+
+**The natural next avenue -- mining source comments for a small recorded
+`nd`/`normalized_diff` next to a still-`INCLUDE_ASM` marker -- paid far less
+than it looked like it should, for the same reason `tools/recon_pool.py
+--measure` warns about staleness.** A tight regex scan (marker
+immediately followed by `INCLUDE_ASM`, only trusting an `nd`/`normalized_diff`
+mention that also names the target's own hex address, filtered against the
+VENDOR_CODE_RANGES + THIRD_PARTY_PREFIXES first-party set from a real
+`tools/verify.py --json` run rather than a bare `glob` over `src/**/*.c`)
+found only 12 candidates at `nd <= 10` out of 1647 true first-party ASM
+functions. Dispatching lanes at 5 of them (the clearest, most literally
+worded) closed zero: two were confirmed ee-gcc2.96-vs-3.2 compiler-version
+floors in a *vendor* translation unit that should never have been in the
+candidate pool at all (the regex had matched a comment inside
+`code1_004f.c`, one of the five files in `config/gcc_units.txt` --
+`tools/verify.py`'s own `is_gcc_unit`/`is_third_party`/`is_vendor_address`
+filters exclude these from the first-party count, but a naive `glob` +
+text-scan does not know that), and the other three reconfirmed already-
+documented floors (an argument-evaluation-order floor, a padding-tail floor,
+and a compiler-width floor) with no new lever found. Re-checking the
+remaining 7 candidates by hand found every one was either a *misattributed*
+comment (the `nd`/`normalized_diff` text belonged to an adjacent function's
+bracket-close rationale, not the marked target -- `func_00267800`,
+`func_003e4520`/`func_003e45f0`, `func_001f1030` all read this way) or an
+explicitly pre-flagged false positive already recorded in-tree
+(`y_draw.c`'s `func_002b6ec0`: "fndiff of the INCLUDE_ASM state reads nd 0 by
+construction... do not treat this function as matched", dated 2026-08-03).
+**Conclusion on 2026-08-30: both the never-attempted-function avenue and the
+naive near-miss-comment-mining avenue were measured exhausted.** What was
+left was either a genuine hardware floor, an already-exhaustively-probed
+register/scheduling floor with the probe history recorded in place, or
+required the same kind of from-scratch disassembly re-derivation described in
+"Reconstruction is the only avenue that still pays" above -- applied one
+function at a time, not by batch dispatch against a generated list. (The
+per-file density rescan of 2026-08-31 then found 400+ never-attempted
+functions this queue had never listed; see "Targeting" above.)
+
+The `func_00399bf0` H001 volatile case from this continuation is recorded
+under "Two ways the archive pool lies to you" above.
+
+**The other pool was the archived near-misses** (2026-08-21): 113 functions
+still `INCLUDE_ASM` carrying an archived body with a claimed `0 < nd <= 25`
+inside a 400-byte window. `tools/recon_pool.py` (default `--pool nearmiss`)
+regenerates it, and `--measure` is mandatory before acting on it. Measured,
+only about six were genuinely close: nd 1, 1, 4, 4, 5, and the rest of the top
+of the list turned out to be nd 30+.
+
+The obvious objection is that "archive near-miss tail, hand lanes" is already a
+measured zero in the table above. The distinction is method, and wave 1 proved
+it on exactly this kind of target: `func_0028b6b0` had been parked at nd 8 by
+an earlier lane and every spelling permutation had failed on it. It closed only
+when the logic was re-derived from the retail disassembly, which showed the
+doubled `beqz` came from nested ifs and the body-head order came from a table
+local. So the pool was not exhausted -- the *permutation* of it was. Re-derive
+the logic; do not permute the spelling.
+
+#### The fromSPR/toSPR family's real blocker was a missing allowlist entry, not size
+
+Recorded 2026-08-29/30. (The `code1_003a.c` addresses below fall in the
+RenderWare vendor span since 2026-09-03.) Revisited the 21-function hardware
+census after wave 12: six of the 18 fromSPR/toSPR functions live in
+`code1_003a.c` (`func_003a4d50` 1072B, `func_003a7a30` 1360B,
+`func_003acb10`/`func_003adc40`/`func_003af990` ~4.4-4.6KB, `func_003aed60`
+3120B). Their retail bytes use a hardware primitive `decomp_lint.py`'s
+`ASM_ALLOWED` did not know about: **`bc0f`** (branch on the COP0 condition
+line). The EE's DMAC channel-drain arbitration signal is wired into COP0's
+condition input and is *only* readable via `bc0f`/`bc0t` -- there is no
+`mfc0` for it, so unlike `mfc0 Status` this one genuinely has zero C
+expression. Both were added to the allowlist (`tools/decomp_lint.py`).
+
+Confirmed empirically via `build/RECON_probe.py` (untracked scratch; full
+round-trip through `tools/verify.py`, so a real MWCCPS2 compile, not a guess)
+that b210 accepts the literal mnemonics `sync.l`, `sync.p`, and `bc0f 1b`
+inside `__asm__ volatile(".set noreorder\n" ... ".set reorder" ::: "memory")`
+-- COMPILE_ERROR would have shown immediately if the spelling were wrong; it
+compiled (MISMATCH, as expected for a one-line stub against a 1072-byte
+window).
+
+The idiom, read off `func_003a4d50`'s disassembly: writing global register
+`D_PCR` (`0x1000E020`) arms a stall-control drain condition; the wait is
+`sync.l; sync.p; nop*5; 1: bc0f 1b; nop`. Separately, per-channel busy is an
+*ordinary* `volatile` poll -- `while ((*(vu32*)D9_CHCR & 0x100) != 0) {}` --
+no asm needed there. Global DMAC register map recovered from the offsets
+(`D_CTRL/STAT/PCR/SQWC/RBSR/RBOR/STADR` at `0x1000E000` + 0x10 each) matches
+the known SCE map exactly, as do the per-channel bases (`0x1000D000` chan 8
+fromSPR, `0x1000D400` chan 9 toSPR, `+0x00 CHCR/+0x10 MADR/+0x20 QWC/+0x80
+SADR`), both already partly attested by the existing `0x1000C000`/`0x1000E010`
+reads in `code1_0042.c`.
+
+**Attempted, not closed.** `func_003a4d50`'s retail control flow is
+hand-scheduled with backward cross-jumps between wait/poll blocks: every
+busy-check is a `bnez` branching *forward into* a cold wait-block placed
+after the main body (not a fallthrough `if`), and each wait-block ends
+with an unconditional `goto` back into the middle of the main flow --
+confirmed by manual disassembly of the full 268-instruction body (there is
+no `jal` to a shared subroutine anywhere in it). A goto-per-basic-block C
+reconstruction was written mirroring this exactly (14 labels, matched
+register mapping `arg0`=dest/`arg1`=src confirmed independently via the
+`func_0043f810(dst,src,size)` tail-call argument order, `tail = arg2 - qwc
+* 16` confirmed against retail's `subu` rather than `arg2 % 16`'s `andi`
+codegen) and reached `MATCH19/MISMATCH1`, object 1136B against a 1072B
+window -- *larger* than retail, meaning MWCC duplicated at least one small
+block (most likely the `tail_check` label, `goto`'d from three sites) that
+a straight assembly source would have shared once. Reverted to bare
+`INCLUDE_ASM`. The next attempt should either restructure to
+remove the triple-entry label (duplicate the tiny body at each site
+explicitly, matching whatever the compiler's own duplication threshold
+is) or accept the duplication and instead match its *content* exactly.
+It was left as a fully-scoped lane target rather than hand-carried to
+MATCH: the size (1072-4592 bytes) and control-flow complexity make it an
+expensive single function, while the 920-function never-attempted backlog
+(waves 11/12) had a much better match-per-hour rate for lanes at the time.
+
+**External precedent confirms the goto approach, not the shape used.**
+`AshfordFamily/recvx-decomp` (Resident Evil Code: Veronica X, confirmed
+MWCCPS2 toolchain via its `compile_config.json` pointing at `mwccps2.exe`,
+64% matched) has the identical `bc0f`/`bc0t` DMA-wait idiom, marked `// 100%
+matching!`, e.g. `ps2_loadtim2.c`'s `D2_SyncTag()`:
+```c
+if ((DGET_D_PCR() & 0x4))
+{
+    asm volatile (bc0t label_0f);
+label_0b:
+    asm volatile { bc0f label_0b; nop }
+}
+label_0f:
+    DPUT_D_PCR(DGET_D_PCR() | tmp);
+```
+Two things this confirms: (1) MWCC really does let inline-asm `bc0t`/`bc0f`
+branch to plain C statement labels, including labels *outside* the
+enclosing block -- the goto-shaped technique from the attempt above is the
+right one, not a wrong turn; (2) their idiom pairs `bc0t` (skip the wait
+entirely if the condition is already true) with `bc0f` (spin while false),
+a "check once, then loop" shape -- `func_003a4d50` uses only `bc0f` (no
+`bc0t` anywhere in its 268 instructions), so its wait is the simpler
+unconditional-entry variant, consistent with the disassembly, not a
+contradiction. The same repository's inline-asm-only handling of
+`movz`/`movn` (whole functions in raw `asm volatile` blocks, e.g.
+`ps2_NaMath.c`) and `pextlw`/`pextlh`/`pcpyld`/`pcpyud` (targeted asm
+snippets, e.g. `ps2_NaMatrix.c`, `ps2_Vu1Strip.c`) independently confirms
+both floors this campaign had found on its own (the movz/movn census in "Is
+the rest just C we have not shaped?" above; the `effPolygonFlash.c`
+pextlb/pextlh floor wave 15 hit) -- a second unrelated MWCCPS2 project reached
+the same walls.
+
+Next attempt at `func_003a4d50` should retry the goto structure with the
+check-once-then-loop pairing where retail actually pairs `bc0t`+`bc0f`
+(none of its eight wait sites do, per the disassembly, but re-verify per
+site) and fix the block-duplication bug from the reverted attempt (the
+`tail_check` label reached via three `goto`s) before assuming the
+technique itself is wrong.
+
+#### Shaping yield, 2026-08-21
+
+On 2026-08-21, 43 functions were shaped in one day and 3 matched. The work
+that remained was C-shaped and mostly reachable in principle; what was scarce
+was the ability to find the exact shape, and above 256 bytes none had been
+found yet (wave 5 on 2026-08-29 then closed 432-656-byte functions using
+file-local siblings).
+
+#### Dense-unit fresh functions stopped producing (2026-08-16)
+
+Fresh functions in dense units used to be the reliable seam — it is how most
+of the campaign was built — and on 2026-08-16 it stopped producing at 16
+lanes per wave. What those lanes found was consistent: the remaining
+never-attempted functions were large (median window near 400 bytes, several
+over 2 KB), and their residuals landed on the SAME walls the ground corpus sat
+on. `func_00250ad0` (2720 B, the only gap in a 98% unit) reduced to COP1
+`adda.s`/`madd.s` accumulator chains; `func_0036d3e0` (1152 B, the only gap in
+a 97% unit) reduced to a callee-saved register rotation at nd 51;
+`func_00177120` and `func_001774a0` did NOT respond to the exhaustive
+empty-case hypothesis (nd 75 and 348 differing words with cases 2 and 4-9
+added explicitly, so that idea was retired). All four later matched (MATCH
+set of `progress/metrics.json`, 2026-09-28), and the COP1 belief was
+corrected on 2026-09-01 (see "CORRECTION" above).
+
+The conclusion drawn then: what was left needed one of a genuinely new source
+lever, a donor tree not available, or acceptance that a large share were
+compiler floors under b210; ranking by window size or by unit density no
+longer predicted closure. The later per-file density rescan (2026-08-31) and
+draft salvage (2026-09-02/05) contradicted the last part.
+
+## Recovery records (dated)
+
+Per-target notes written as each function was worked (commits dated
+2026-09-05 to 2026-09-23). Each records the contract that was repaired, the
+decisive lever, emitted/window sizes, residual words and smoke coverage as
+measured then. Words such as "current", "retained" or "remains ASM" refer to
+that date: a floor here may since have matched, and a match may have been
+refined. Check the verify report and the owner before acting. Many entries
+have fuller source and measurements in `docs/probe_archive/`.
+
+### IDA quaternion recovery: aggregates before register speculation
 
 `func_00480f20` in `src/Graphics/primitive.c` is now MATCH: 408B of
 instructions plus eight bytes of retail zero tail. The old JnF archive had
@@ -3337,7 +3448,7 @@ callback mutation, captured parent color/scale and next-pointer reloads.
 This proves host arithmetic and control behavior, **not** VU register
 effects or PS2 rounding identity. All three functions remain ASM.
 
-## IDA state and interpolation recovery: preserve the source objects
+### IDA state and interpolation recovery: preserve the source objects
 
 `func_003672d0` is now MATCH at 336B/336B. The IDA body at
 `docs/ida_headstart/src/promoted/code1_0036.c:946-988` recovers the
@@ -3389,7 +3500,7 @@ expansion in `001b1450`. Both obsolete drafts are removed. IDA replay of
 `00106f40` and `00484b30` leaves their six- and eight-word floors unchanged;
 the archives record the tested contracts and helper hypotheses.
 
-## IDA model attachment: preserve snapshots and pointer contracts
+### IDA model attachment: preserve snapshots and pointer contracts
 
 `func_00473710` is MATCH: 340B of exact instructions plus 12 bytes of
 retail zero tail. Read the complete IDA body at
@@ -3444,7 +3555,7 @@ including **6,082 first-party MATCH (88.7%)** and **778 first-party ASM**.
 Both retail SHA-1 checks pass; lint reports zero findings. C-linked
 functions remain 1,555: this model unit still contains assembly fallbacks.
 
-## Frame lookup and matrix copy: preserve real helper return paths
+### Frame lookup and matrix copy: preserve real helper return paths
 
 The attachment repair's pointer-valued traversal API also closes
 `func_00475b90`: **312B of exact instructions plus eight zero-tail bytes**.
@@ -3499,7 +3610,7 @@ Full verification after both promotions reports **7,714 MATCH**, including
 SHA-1 checks pass and lint has zero findings. Source linkage remains
 1,555 functions across 172 eligible C objects.
 
-## Animation stepping and dispatch: separate callbacks from validation
+### Animation stepping and dispatch: separate callbacks from validation
 
 The complete IDA bodies in
 `docs/ida_headstart/src/Graphics/Model/mdlManager.c` precede these recoveries:
@@ -3578,7 +3689,7 @@ and **zero mismatches**, including **6,086 first-party MATCH (88.7%)** and
 findings across 333 first-party files. Source linkage remains 1,555
 functions across 172 eligible C objects.
 
-## Model cloning: preserve storage stages and the hierarchy ABI
+### Model cloning: preserve storage stages and the hierarchy ABI
 
 The complete IDA body at `mdlManager.c:2448-2545` and the retail assembly
 recover `func_00478410`: **824 instruction bytes plus eight zero-tail bytes**.
@@ -3642,7 +3753,7 @@ ASM**. Both retail SHA-1 checks pass. Linkage remains 1,555 functions in
 172 eligible C objects. Full lint reports **zero errors and 181 advisory
 warnings** across 333 first-party files.
 
-## Model callbacks: preserve both argument registers in C
+### Model callbacks: preserve both argument registers in C
 
 The retail wrappers `00479030` and `0047ddd0` preserve their incoming
 second argument when calling model setup and runtime color application.
@@ -3673,7 +3784,7 @@ and **6,087 first-party functions match with 773 ASM remaining**. The
 errors-only lint gate reports zero errors; this invocation does not
 report advisory warning counts.
 
-## Helper-bearing probes: resolve identity from the owning source
+### Helper-bearing probes: resolve identity from the owning source
 
 Probe normalization removes copied `FUN_` markers. When a candidate has
 declarations or private helpers before its target, scanning that synthetic
@@ -3693,7 +3804,7 @@ a custom marker-preserving driver. Neither measurement installs source.
 
 The full `make test` suite passes all 519 tooling tests.
 
-## AI command predicate: preserve both retail forms
+### AI command predicate: preserve both retail forms
 
 `func_001db160` is now **MATCH, 508B/512B, verify normalized_diff 0**.
 The last four bytes are zero tail padding. Complete IDA recovery first
@@ -3742,7 +3853,7 @@ Linked C coverage stays at 172 complete objects: the AI unit still has six
 assembly functions, so this is an instruction-match gain, not a claim that
 the new AI C body is already linked into the retail image.
 
-## AI skill callbacks: return the predicate result explicitly
+### AI skill callbacks: return the predicate result explicitly
 
 `btlCond_MYNOMAL` and `func_001db5b0` now return `s32` and accept
 `u8 *formation, s32 index`. Retail forwards both input registers and returns
@@ -3780,7 +3891,7 @@ above are unchanged; errors-only lint reports zero errors across 333
 first-party files. This callback repair does not claim another C promotion
 or an increase in the 172 linked C objects.
 
-## Blur allocators: narrow the lookup, name the header span
+### Blur allocators: narrow the lookup, name the header span
 
 `func_004ab420` and `func_004aaee0` are now **MATCH, 372B/384B**.
 All 93 executable words in each function match; the remaining three words
@@ -3824,7 +3935,7 @@ overall, **6,090 first-party MATCH / 770 ASM**, and zero lint errors across
 loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`, executable
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Further bounded low-floor probes
+### Further bounded low-floor probes
 
 The `00279780` message-initialization candidate initially improved **9 to 3
 words**, still **768B/768B**. Named zero origins with scoped
@@ -3925,7 +4036,7 @@ The floor still has 31 executable differences and one zero-tail word;
 the **0x50 frame and s0-s3 save set** already agree. These source levers
 are parked, with no production body or signature change.
 
-## Font metrics: native signed division and the real small table
+### Font metrics: native signed division and the real small table
 
 `func_00271d10` in `src/frFont.c` closes at **576B/576B**. Replaying the
 retained source gives **42 raw differing words**; replacing seven manual
@@ -3969,7 +4080,7 @@ first-party files. Linked C object count remains **172**; both retail
 SHA-1s remain exact. The superseded font archive is removed; production
 source now holds the accepted body.
 
-## Sound initializer: restore the return and pointer/size contracts
+### Sound initializer: restore the return and pointer/size contracts
 
 `func_0045a570` in `src/sdkSnd.c` closes at **448B/448B**, with all 112
 instruction words matching. The archived seven-argument body omitted the
@@ -4015,7 +4126,7 @@ concurrent-mutation or retail-game execution coverage. The obsolete
 retail SHA-1s are retained; lint reports zero findings across 333
 first-party files.
 
-## Ratio conversion follow-through: paired group statistics
+### Ratio conversion follow-through: paired group statistics
 
 `func_001f5bd0` is now production C in `src/promoted/code1_001f.c`:
 **708B emitted / 720B retail window, MATCH**. Removing five
@@ -4052,7 +4163,7 @@ The full build/verify/lint gate passed with **7,723 overall MATCH**,
 both expected retail hashes and zero lint findings. Publication
 reports and the README were regenerated and validated.
 
-## Follow-through floor checks
+### Follow-through floor checks
 
 - `func_004b5800`: a local record holding both matrix pointers produces
   the identical **324B/336B, five-word** diff as the retained scalar
@@ -4072,7 +4183,7 @@ reports and the README were regenerated and validated.
   disables strict aliasing for the raw memory views; this is not
   EE/FCSR or in-game validation. The function remains ASM.
 
-## Record extraction: restore the pointer-return contract
+### Record extraction: restore the pointer-return contract
 
 `func_00455ea0` in `src/Kernel/sdkCdvd.c` returns `u8 *` and accepts
 `(u8 *, s32, s32 *)`. Its live declarations now agree with that definition.
@@ -4118,7 +4229,7 @@ the plain unsigned draft's **41 words**. These are measured source-shape
 experiments only; at that stage the callback remained ASM and had not
 passed a runtime semantic oracle.
 
-## Model sound callback: separate inline copy lifetimes
+### Model sound callback: separate inline copy lifetimes
 
 `func_0047e6f0` is now production C in `src/Graphics/Model/mdlSE.c`:
 **840B emitted / 848B retail window, MATCH**. The two remaining standalone
@@ -4151,7 +4262,7 @@ committed progress endpoints and README are regenerated and validated.
 Superseded callback drafts and the throwaway smoke are removed; the
 unmatched sound dispatcher drafts remain separate.
 
-## Message initialization: preserve the text pointer
+### Message initialization: preserve the text pointer
 
 `func_00279780` is now production C in `src/itfMesManager.c`:
 **768B emitted / 768B retail window, exact MATCH**. The preceding
@@ -4195,7 +4306,7 @@ The byte-exact build and resumed `make progress lint-errors` gate pass:
 source-linked units**, both expected retail SHA-1s, and zero lint findings.
 Progress endpoints and the README are regenerated and validated.
 
-## Recursive model update: cache within call boundaries
+### Recursive model update: cache within call boundaries
 
 `func_00478a30` is now production C in `src/Graphics/Model/mdlManager.c`:
 **1080B emitted / 1088B retail window, MATCH**. The two standalone
@@ -4239,7 +4350,7 @@ both expected retail SHA-1s and zero lint findings. Progress endpoints and
 the README are regenerated and validated. The superseded recursive archive
 and throwaway probes are removed; remaining model floors stay unpromoted.
 
-## Layer animation and sound dispatch: repair lifetimes and return contracts
+### Layer animation and sound dispatch: repair lifetimes and return contracts
 
 Both functions are now production C, with every relocated instruction
 matching retail:
@@ -4306,7 +4417,7 @@ both expected retail SHA-1s and zero lint findings. Progress endpoints and
 the README are regenerated and validated. Completed layer/dispatcher probes,
 the throwaway consumers and their target32 container are removed.
 
-### Renderer follow-through: distinguish allocation gains from size cancellation
+#### Renderer follow-through: distinguish allocation gains from size cancellation
 
 The saved `IDA_00479100_body.c` now replays at **1908B / 1920B,
 32 relocation-masked differing words**, down from 409. A separate
@@ -4337,7 +4448,7 @@ sort in `func_001de370` supplies a real source convention, but transferring
 that convention does not improve this target. Production remains ASM for
 all three functions.
 
-## Model sound cache: canonical lookup types and eviction lifetimes
+### Model sound cache: canonical lookup types and eviction lifetimes
 
 `mdlSE.c::func_0047df40` is promoted at **420B / 432B,
 normalized_diff=0**. The three words reported by the isolated comparator
@@ -4381,7 +4492,7 @@ Strict aliasing is disabled for the raw-layout views; undefined-behavior
 sanitization remains enabled. This is native x86 target32 evidence,
 **not EE execution or in-game validation**.
 
-### Retained compact-floor evidence
+#### Retained compact-floor evidence
 
 Formation `func_001d2e20` remains ASM. The cleaned
 `SFRM_001d2e20_body.c` uses typed work/reference views and canonical helper
@@ -4405,7 +4516,7 @@ C objects**. Both the loadable image SHA-1
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
 Lint reports 333 first-party files and zero findings.
 
-## Game-data scaling: short values in word-sized carriers
+### Game-data scaling: short values in word-sized carriers
 
 `g_data.c::func_00105010` is promoted at **396B / 400B,
 normalized_diff=0**. Its isolated comparator reports only the absent
@@ -4455,7 +4566,7 @@ The source-linked object count stays at 172; this match does not yet make
 the entire `g_data.c` owner link-eligible. The superseded
 `EcC_00105010_body.c` archive and throwaway smoke/probe files are removed.
 
-## Packed-color propagation: VU bridges with C-owned state
+### Packed-color propagation: VU bridges with C-owned state
 
 `func_004865c0` in `src/promoted/code1_0048.c` is now **MATCH**:
 **276B / 288B, normalized_diff 0**, with twelve bytes of zero tail padding.
@@ -4517,7 +4628,7 @@ C-linked. The loadable image SHA-1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; the complete executable remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Line rectangles: aggregate position instead of a packed scalar
+### Line rectangles: aggregate position instead of a packed scalar
 
 `func_0034c500` in `src/promoted/nLine.c` is now **MATCH**:
 **436B / 448B, normalized_diff 0**, with twelve zero tail bytes.
@@ -4576,7 +4687,7 @@ to 1,560. Both retail SHA-1 values remain exact:
 `3d1d3d2b9d6ccb60836db239ab49674223025a78` for the loadable image and
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` for the complete executable.
 
-## Line setup: preserving aggregate and arithmetic lifetimes
+### Line setup: preserving aggregate and arithmetic lifetimes
 
 `func_0034c860` in `src/promoted/nLine.c` is now **MATCH**:
 **1,672B / 1,680B, normalized_diff 0**, with eight zero tail bytes.
@@ -4630,7 +4741,7 @@ C-linked functions. Both retail hashes remain exact:
 `3d1d3d2b9d6ccb60836db239ab49674223025a78` (loadable image) and
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` (complete executable).
 
-## Translated rectangles: capture alpha before narrowing
+### Translated rectangles: capture alpha before narrowing
 
 `func_0034e0b0` in `src/promoted/nLine.c` is now **MATCH**:
 **468B / 480B, normalized_diff 0**, with twelve zero tail bytes.
@@ -4674,7 +4785,7 @@ zero findings across 333 first-party files. Both retail hashes remain exact:
 `3d1d3d2b9d6ccb60836db239ab49674223025a78` (loadable image) and
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` (complete executable).
 
-## Decoration mesh: preserve the full return counter
+### Decoration mesh: preserve the full return counter
 
 `func_0034e360` remains ASM. The measured typed reconstruction is retained
 in `docs/probe_archive/VNLN_0034e360_body.c`: **2,648B / 2,656B,
@@ -4713,7 +4824,7 @@ first-party MATCH / 756 ASM**, with 172 source-linked objects and 1,562
 C-linked functions. Both retail hashes remain exact, progress validates,
 and lint reports zero findings across 333 first-party files.
 
-## Archive discovery: do not parse lane prefixes as addresses
+### Archive discovery: do not parse lane prefixes as addresses
 
 `recon_pool.py` previously took the first eight hexadecimal characters in
 an archive filename. For `UnC001d7c60au_001d7c60_body.c`, that produced
@@ -4738,7 +4849,7 @@ four-word `func_0014efc0` floor replays at **836B / 848B, normalized_diff
 body in its current owner before treating a filename or note as evidence
 of a nearly complete match.
 
-## Persona digits: aggregate coordinates and unsigned number fields
+### Persona digits: aggregate coordinates and unsigned number fields
 
 `func_00117310` is now source C in `src/promoted/shdPersona.c`:
 **388B / 400B, zero differing instruction words**. The three raw fndiff
@@ -4793,7 +4904,7 @@ files. Both retail hashes remain exact:
 instruction-match promotion, not newly C-linked code. The linked totals
 remain **172 source objects / 1,562 C-linked functions**.
 
-## Retail assembly: prove regeneration before untracking
+### Retail assembly: prove regeneration before untracking
 
 The fallback audit covers all **11,154 tracked files / 62,635,980 bytes**,
 including historical and duplicate copies, not just current `INCLUDE_ASM`
@@ -4843,7 +4954,7 @@ unchanged, and **7,735 overall MATCH / 6,105 first-party MATCH / 755 ASM**.
 Only after this result are the manifest-generated paths removed from Git's
 index, with their local files preserved and the two manual exceptions kept.
 
-## Field resource loader: complete stream descriptors and callback ordering
+### Field resource loader: complete stream descriptors and callback ordering
 
 `func_00150ce0` in `src/Kosaka/Field/k_fldResource.c` matches every emitted
 instruction: **988B / 992B**, with four bytes of retail zero tail. The
@@ -4911,7 +5022,7 @@ The published field-loader commit `95b0528a` also passes proprietary CI
 11,152 fallbacks regenerate exactly, both manual files remain unchanged,
 and the build reproduces both retail hashes and the 6,106/754 first-party count.
 
-## List comparator: signed indices and repeated selector lifetimes
+### List comparator: signed indices and repeated selector lifetimes
 
 `func_002e6630` in `src/Yajima/y_list.c` matches **640B / 640B**, with no
 padding gap. All **44 entries in its four jump tables** also reproduce the
@@ -4963,7 +5074,7 @@ The published comparator commit `ad5ffd9f` also passes proprietary CI
 11,152 exact fallback regenerations, both manual files unchanged, and the
 same retail hashes and 6,107/753 first-party count.
 
-## Relocated model and battle-order floor replay
+### Relocated model and battle-order floor replay
 
 Neither model candidate is promoted. The material-color routine
 `func_00476e90` still emits **996B** against **972 executable retail bytes
@@ -4988,7 +5099,7 @@ five-word register-coloring floor**. Parameter-key reuse and reversed filter
 comparison tie; scan/index reuse, postincrement and inline predicates are
 worse. The retained C body and production ASM fallback are unchanged.
 
-## Community flag rebuilding and indexed font insertion
+### Community flag rebuilding and indexed font insertion
 
 `func_00106f40` closes the last ASM fallback in `src/cmmCommunity.c`:
 **356 executable bytes / 368B retail window**, with all 16 relocations
@@ -5057,7 +5168,7 @@ boundaries likewise leave battle order at **192B / 192B, five masked words**.
 These hypotheses are recorded in the existing archives without replacing
 their C bodies or promoting any of these three fallbacks.
 
-## Weighted combination choices and packed battle modifiers
+### Weighted combination choices and packed battle modifiers
 
 `func_00303de0` in `src/Event/Fcl/y_fclCombine.c` matches **740 executable
 bytes / 752B retail window**, with all eight relocations applied and twelve
@@ -5120,7 +5231,7 @@ Commit `b26c588c` also passed
 The proprietary job regenerated 11,152 exact fallbacks, preserved both
 hand-maintained files, and reproduced both retail hashes above.
 
-## Filtered record selection and rotated quad drawing
+### Filtered record selection and rotated quad drawing
 
 `func_00247900` in `src/cmmMisc.c` matches **796 executable bytes / 800B
 retail window**, including all twenty resolved relocations. The remaining
@@ -5192,7 +5303,7 @@ Commit `405c7eb5` passed
 Its proprietary job regenerated all 11,152 exact fallbacks, retained the
 two hand-maintained files, and reproduced both retail identities.
 
-## Font pool allocation and render traversal
+### Font pool allocation and render traversal
 
 `func_00270fb0` matches **860 executable bytes / 864B retail window**, with
 all **62 relocations** resolved and one unreachable alignment word.
@@ -5278,7 +5389,7 @@ all 11,152 exact fallbacks regenerated, the two hand-maintained files
 remained unchanged, both retail hashes matched, and first-party MATCH
 remained 6,115.
 
-## Final font parser and message residuals
+### Final font parser and message residuals
 
 `func_002740b0` is fully relocated exact: **1,212 executable bytes /
 1,216B window**, **32 resolved relocations**, zero executable differences
@@ -5367,7 +5478,7 @@ Commit `06dc3758` passed
 all 11,152 exact fallbacks regenerated, both hand-maintained files stayed
 unchanged, both retail hashes matched, and first-party MATCH remained 6,116.
 
-## Checked reallocation and texture packet construction
+### Checked reallocation and texture packet construction
 
 `func_0044f140` closes `src/Kernel/sdkChkmem.c` at **13 MATCH / zero ASM**:
 **596 executable bytes / 608B window**, **36 fully resolved relocations**
@@ -5467,7 +5578,7 @@ instruction streams.
 Loadable SHA1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 complete ELF SHA1 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Scene transition, scratchpad DMA and draw-context ABI
+### Scene transition, scratchpad DMA and draw-context ABI
 
 `func_0026d440` closes the scene updater at **824 executable bytes / 832B
 window**, with **28 fully resolved relocations** and eight zero alignment
@@ -5570,7 +5681,7 @@ Commit `bfeb9ac6` passed
 [CI 34094185276](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/34094185276),
 including the corrected generator-provenance gate.
 
-## Message line-group trimming and retained compact floors
+### Message line-group trimming and retained compact floors
 
 `func_0027a150` is now **332 executable bytes / 336B window**, with **five
 fully resolved relocations**, zero instruction differences and one zero
@@ -5636,7 +5747,7 @@ functions**. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Sampled-color return contract and typed residual replay
+### Sampled-color return contract and typed residual replay
 
 `func_0047f5b0` now explicitly returns its borrowed **`f32 *` work buffer**.
 The color row of `D_00713220` installs it in the sample slot; dispatch at
@@ -5703,7 +5814,7 @@ the masked comparison from **six to 41 differing bytes**.
 snapshots validate. Both the loadable-image and complete-ELF SHA1 values
 remain unchanged from the preceding acceptance result.
 
-## Window creation and constructor contracts
+### Window creation and constructor contracts
 
 `func_0046e850` now matches in `src/promoted/code1_0046.c`: **444 executable
 bytes / 448-byte retail window**, fifteen exact relocations, and four
@@ -5768,7 +5879,7 @@ lint-clean and progress snapshots validate. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Archive path normalization and defined nearest selection
+### Archive path normalization and defined nearest selection
 
 `func_00456530` now matches in `src/promoted/code1_0045.c`: **348 executable
 bytes / 352-byte retail window**. The raw diff counts only the final zero
@@ -5809,7 +5920,7 @@ progress snapshots validate. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Combination inventory finalization
+### Combination inventory finalization
 
 `func_0030f4f0` now matches in `src/Event/Fcl/y_fclCombine.c`: **348 executable
 bytes / 352-byte retail window**, with only four zero alignment bytes beyond
@@ -5848,7 +5959,7 @@ progress snapshots validate. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Track dispatch and compatible callback contracts
+### Track dispatch and compatible callback contracts
 
 `func_0047f850` now matches in `src/promoted/code1_0047.c`: **412 executable
 bytes / 416-byte retail window**, with one zero alignment word beyond the
@@ -5895,7 +6006,7 @@ progress snapshots validate. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Signed calendar overrides and the draw ABI boundary
+### Signed calendar overrides and the draw ABI boundary
 
 `src/promoted/code1_0011.c` now declares `func_00123ae0` with its actual
 `s8` return and `func_00123b10` / `func_00123b40` with their actual `s16`
@@ -5951,7 +6062,7 @@ are lint-clean and progress snapshots validate. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Exact status-level selection and defined scalar contracts
+### Exact status-level selection and defined scalar contracts
 
 `func_00235320` in `src/Main/Battle/Data/datCalc.c` is now exact:
 **504B / 512B window**, with only the two omitted zero-tail words in
@@ -6017,7 +6128,7 @@ files are lint-clean and progress snapshots validate. Loadable SHA1 is
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 is
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Exact packed status maintenance and bank acquisition evidence
+### Exact packed status maintenance and bank acquisition evidence
 
 `func_00235110` in `src/Main/Battle/Data/datCalc.c` is now exact:
 **524B / 528B**, with one omitted zero-tail word and no differing emitted
@@ -6051,7 +6162,7 @@ are lint-clean and progress snapshots validate. Loadable SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`. Native checks execute C rather
 than retail MIPS; their freestanding platform scaffolding is not retained.
 
-## Byte drawing contracts close shop rendering
+### Byte drawing contracts close shop rendering
 
 `func_002e0100` in `src/Event/Fcl/y_fclShopDraw.c` is now exact:
 **452B / 464B**, with only three omitted zero-tail words. The apparent
@@ -6109,7 +6220,7 @@ are lint-clean and progress snapshots validate. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Defined combination loop and honest residual contracts
+### Defined combination loop and honest residual contracts
 
 `func_0032b770` contained an unused expression that dereferenced `new_var`
 and read `f20`/`f21` before initialization. MWCC discarded its result, so
@@ -6171,7 +6282,7 @@ remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1
 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`. Native smoke
 scaffolding is removed after the evidence is archived.
 
-## Tile opacity floor and calendar fallback boundaries
+### Tile opacity floor and calendar fallback boundaries
 
 The current-contract `00204b80` archive improves from eight differing
 emitted words to **one**, at **460B/464B**: entry `andi` versus retail's
@@ -6212,7 +6323,7 @@ this evidence; no guards or behavior are invented.
 These are archive/evidence changes only. Production matching and linking
 remain at the preceding verified totals. Native scaffolding is removed.
 
-## Coherent font character contracts and defined text normalization
+### Coherent font character contracts and defined text normalization
 
 `func_00105f00` now returns `s16`, matching the existing C consumer and
 the signed-halfword normalization in retail `00205c20`, `00209dc0` and
@@ -6287,7 +6398,7 @@ identities remain unchanged: loadable image
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`, executable
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Exact threshold selection and byte-contract drawing
+### Exact threshold selection and byte-contract drawing
 
 `func_001d15a0` is now C: **212B/224B**, four fully resolved relocations,
 zero executable differences and twelve zero-tail bytes. Grouping the
@@ -6327,7 +6438,7 @@ The integrated `make build-progress progress lint-errors` gate passes:
 1,567 functions**, validated progress artifacts and zero lint findings.
 Both retail SHA-1 identities remain unchanged.
 
-## Exact sound start routine and explicit argument forwarding
+### Exact sound start routine and explicit argument forwarding
 
 `func_0045c640` is now C: **552B/560B**, all 32 relocations resolved,
 zero executable differences and eight zero-tail bytes. Bounded
@@ -6391,7 +6502,7 @@ The integrated `make build-progress progress lint-errors` gate passes:
 1,568 functions**, validated progress artifacts and zero lint findings
 across 336 first-party files. Both retail SHA-1 identities remain unchanged.
 
-## Shuffle initializer floor and order-sort preconditions
+### Shuffle initializer floor and order-sort preconditions
 
 `func_00375f00` remains ASM, but its retained C candidate now uses ordinary
 typed pointer arithmetic rather than integer-punned pointers. Both calls
@@ -6428,7 +6539,7 @@ The integrated `make build-progress progress lint-errors` gate retains
 functions**, validated progress snapshots and zero lint findings across
 336 first-party files. Both retail SHA-1 identities remain unchanged.
 
-## Defined curve and label arithmetic; action transition evidence
+### Defined curve and label arithmetic; action transition evidence
 
 These candidates remain ASM. The new evidence does not reduce their
 retained instruction residuals or count them as recovered C functions.
@@ -6481,7 +6592,7 @@ with unchanged **6,131 first-party MATCH / 729 ASM (89.4%)** and
 all 336 first-party files are lint-clean, and both retail SHA-1 identities
 remain unchanged.
 
-## Ordinary triangle normal and renderer cache evidence
+### Ordinary triangle normal and renderer cache evidence
 
 The retained `0014be50` candidate now uses an ordinary **12-byte normal**
 and three `SVec3 *` triangle pointers instead of an inactive-member normal
@@ -6517,7 +6628,7 @@ The integrated `make build-progress progress lint-errors` gate passes:
 1,568 functions**, validated progress snapshots, and zero lint findings
 across 336 first-party files. Both retail SHA-1 identities are unchanged.
 
-## Explicit ending-resource ownership release
+### Explicit ending-resource ownership release
 
 The `0038f400` revisit identified a concrete contract defect in its adjacent
 release wrapper. `0038f590(void)` invoked an unprototyped callback without
@@ -6565,7 +6676,7 @@ The integrated `make build-progress progress lint-errors` gate passes:
 1,568 functions**, validated progress snapshots and zero lint findings
 across 336 first-party files. Both retail SHA-1 identities are unchanged.
 
-## Canonical ending-staff accessor pointer contracts
+### Canonical ending-staff accessor pointer contracts
 
 `include/ed_staff_internal.h` now owns the shared release and three
 accessor declarations, used by `op_fade_grouped.c`, `ed_scroll.c`,
@@ -6606,7 +6717,7 @@ The integrated `make build-progress progress lint-errors` gate passes:
 across 337 first-party files. Both retail SHA-1 identities are unchanged.
 The recovery-quality typed count increases from 2,167 to **2,169**.
 
-## Memory-card task forwarding and enemy bitmap boundaries
+### Memory-card task forwarding and enemy bitmap boundaries
 
 `mc.c` now declares `00452560` exactly like the existing SDK provider:
 `u32 func_00452560(void *task)`. The result is the packed address word
@@ -6636,7 +6747,7 @@ relative relocations for all **31 emitted `mc.c` functions** and all
 **137 emitted `g_data.c` functions**. No new MATCH is claimed from either
 repair.
 
-## Refreshed AI, rectangle, calendar and clamp residuals
+### Refreshed AI, rectangle, calendar and clamp residuals
 
 The retained candidates were replayed against the current retail image
 with every target relocation resolved. Executable differences below do
@@ -6691,7 +6802,7 @@ The integrated `make build-progress progress lint-errors` gate passes:
 across 337 first-party files. Both the loadable-image and whole-retail-file
 SHA-1 identities remain unchanged.
 
-## Exact field raycast and complete hit-point contracts
+### Exact field raycast and complete hit-point contracts
 
 `func_0016b540` is now C in `k_fldFrame.c`: **560 / 560 bytes**, zero
 fully relocated differing words and all **12 relocations resolved**.
@@ -6719,7 +6830,7 @@ The retail nearest-distance sentinel at `0x007613a4` is **FLT_MAX**
 (`0x7f7fffff`), not 1.0. The consumer fixture exposed that mistaken fixture
 assumption before the retail constant was read and used.
 
-## Clump iterator, callback and material metadata cutover
+### Clump iterator, callback and material metadata cutover
 
 The existing `Kosaka/k_clump_internal.h` already specified a pointer-returning
 iterator and `void *callback(void *object, void *data)`. Its `003bff30`
@@ -6754,7 +6865,7 @@ the removed iterator alias and canonical name resolve to the same address.
 The new field raycast is checked separately against its complete retail
 window, rather than counted as a before/after preserved function.
 
-## Native field and clump behavior evidence
+### Native field and clump behavior evidence
 
 The throwaway executables compile the actual recovered functions and use
 controlled external engine providers; they are not a rendered PS2 frame.
@@ -6774,7 +6885,7 @@ These are **371,801 cases**, with the 1,249 raycast/iterator scenarios
 additionally exercised on the other host pointer width. The callback ABI
 failure/repaired run is a separate before/after reproduction.
 
-## Primitive rotation residual correction
+### Primitive rotation residual correction
 
 `Lng_0045e8e0_body.c` and `MnB_0045eb20_body.c` now retain the measured
 `PrimBatch` candidates with the actual `iGpffff81d0` conversion cached
@@ -6802,7 +6913,7 @@ across 338 first-party files. The loadable-image SHA-1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; the complete retail file remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Field dispatcher: one remaining branch target
+### Field dispatcher: one remaining branch target
 
 `LFF2_0016b080_body.c` now retains a **476 / 480-byte** candidate with
 **one fully relocated executable-word difference**, down from **78** in
@@ -6860,7 +6971,7 @@ That tool's legacy score is **2**: the branch mismatch plus one omitted
 zero-tail word. The fully relocated measurement above separately checks
 all ten linker-owned fields.
 
-## Fresh functions instead of repeated compiler floors
+### Fresh functions instead of repeated compiler floors
 
 `shdScript.c::func_0025c790` is now ordinary C: **996 / 1008 bytes**,
 all **45 relocations resolved**, no executable differences, and twelve
@@ -6916,7 +7027,7 @@ functions**, validated progress artifacts, and zero lint findings across
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; the complete retail file remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Fresh battle dispatchers and truthful provider contracts
+### Fresh battle dispatchers and truthful provider contracts
 
 Two previously unworked dispatchers are now ordinary matching C in
 `src/promoted/code1_0022.c`:
@@ -7020,7 +7131,7 @@ findings across 338 first-party files. Both hashes remain unchanged:
 loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 retail file `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Fresh formation followup and the first motion reconstruction
+### Fresh formation followup and the first motion reconstruction
 
 `code1_0022.c::func_0022c430` matched on its first complete reconstruction,
 without a refinement: **1,876 executable bytes / 1,888-byte window**,
@@ -7069,7 +7180,7 @@ C-linked coverage remains **172 objects / 1,570 functions**; progress
 artifacts validate, and all 338 first-party files have zero lint findings.
 The loadable-image and complete-retail SHA-1 hashes remain unchanged.
 
-## Fresh enemy reaction dispatcher
+### Fresh enemy reaction dispatcher
 
 `code1_0022.c::func_0022eba0` is now ordinary C: **2,428 executable bytes
 / 2,432-byte retail window**, with all **115 code relocations resolved
@@ -7118,7 +7229,7 @@ The complete `make build-progress progress lint-errors` gate passes at
 338 first-party files. Both the loadable-image and complete-retail hashes
 remain unchanged.
 
-## Fresh reaction setup and start dispatchers
+### Fresh reaction setup and start dispatchers
 
 Two previously unattempted helpers in `code1_0022.c` are now ordinary C:
 
@@ -7182,7 +7293,7 @@ objects / 1,570 functions**. Progress artifacts validate, all 338 first-party
 files have zero lint findings, and both the loadable-image and complete-retail
 SHA-1 hashes remain unchanged.
 
-## Fresh task builders and constructor return contracts
+### Fresh task builders and constructor return contracts
 
 `func_00229da0` now has its first complete ordinary-C probe, preserved in
 `docs/probe_archive/P022_00229da0_body.c`; production remains ASM. The first
@@ -7235,7 +7346,7 @@ MATCH / 722 ASM**, with **172 C-linked objects / 1,570 functions**, validated
 progress artifacts, zero findings across 338 first-party files, and both
 retail hashes unchanged.
 
-## Fresh status and resource probes; complete packet returns
+### Fresh status and resource probes; complete packet returns
 
 `func_002240e0` now has a complete ordinary-C reconstruction in
 `docs/probe_archive/P022_002240e0_body.c`. Its first candidate was 868 bytes;
@@ -7316,7 +7427,7 @@ first-party files. Loadable-image SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`. The API corrections do not claim
 additional matching functions.
 
-## Fresh menu reconstruction and task/state argument contracts
+### Fresh menu reconstruction and task/state argument contracts
 
 `func_002232a0` now has a complete ordinary-C candidate in
 `docs/probe_archive/P022_002232a0_body.c`, including all nine verified states,
@@ -7401,7 +7512,7 @@ The final `make build-progress progress lint-errors` gate passes with
 functions**, validated progress artifacts and zero findings across 338
 first-party files. Both retail hashes remain unchanged.
 
-## Exact camera preparation and descriptor release contracts
+### Exact camera preparation and descriptor release contracts
 
 `func_002277e0` is now ordinary C in `src/promoted/code1_0022.c`:
 **1,620 object bytes / 1,632 retail-window bytes, 50 code relocations,
@@ -7460,7 +7571,7 @@ MATCH coverage, not this separately measured linked subset. Loadable
 image SHA-1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 retail ELF SHA-1 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Exact state-0x1A camera initialization
+### Exact state-0x1A camera initialization
 
 `func_00227e40` now matches in ordinary C on its first full-owner compile:
 **1,168/1,168 bytes, 44 code relocations, zero differing bytes and no
@@ -7506,7 +7617,7 @@ functions**, validated progress artifacts and zero findings across 338
 first-party files. Both retail hashes remain unchanged. Temporary
 reconstruction probes and the compile-contract fixture are removed.
 
-## Exact enemy camera transition and battle resource selection
+### Exact enemy camera transition and battle resource selection
 
 Two further helpers now match in ordinary C:
 
@@ -7570,7 +7681,7 @@ first-party files. Loadable image SHA-1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`. The reconstruction probes
 and native smoke fixture are removed.
 
-## Exact camera positions and parameterized fitting
+### Exact camera positions and parameterized fitting
 
 Two more camera helpers now match in ordinary C:
 
@@ -7617,7 +7728,7 @@ still `3d1d3d2b9d6ccb60836db239ab49674223025a78`, and retail ELF SHA-1 is
 still `4eeec0360cf2715535d9f7e52eb69d786fb0158c`. The three reconstruction
 directories and their temporary compiler experiments are removed.
 
-## Exact group and selection camera dispatchers
+### Exact group and selection camera dispatchers
 
 `func_00226c40` and `func_00227230` are now ordinary C in
 `src/promoted/code1_0022.c`. Both initial owner-context candidates matched;
@@ -7668,7 +7779,7 @@ build checks, not game or camera execution.
 The two reconstruction directories and their temporary compiler objects
 have been removed after archiving the source and contract evidence.
 
-## Formation packet creator return contract
+### Formation packet creator return contract
 
 `func_001d3700` in `src/Battle/btlFormation.c` now explicitly returns the
 `BtlPacket *` it allocates. Retail retains the allocator's result in `v0`
@@ -7689,7 +7800,7 @@ It confirmed that the consumer publishes the returned packet and writes
 its expected timing field. This is an isolated C contract check, not game
 execution.
 
-## Exact alternate camera and action sequencing
+### Exact alternate camera and action sequencing
 
 `func_00229020` and `func_00229da0` are now ordinary C in
 `src/promoted/code1_0022.c`. The already matching `func_002299b0` now uses
@@ -7756,7 +7867,7 @@ Loadable image SHA-1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 These are compiler, relocation and build checks, not game execution.
 
-## Scripted initializer saved-register blocker
+### Scripted initializer saved-register blocker
 
 `func_0022a730` remains ASM. A fresh complete audit confirms the existing
 `P022_0022a730_body.c` blocker: `0x0022A80C` consumes incoming `s1` unless
@@ -7776,7 +7887,7 @@ no-output path remains a secondary, unresolved path-invariant requirement.
 The four temporary reconstruction directories and the formation-return
 smoke fixtures were removed after their source and evidence were archived.
 
-## Exact opposing camera and persona result updater
+### Exact opposing camera and persona result updater
 
 Two more ASM bodies in `src/promoted/code1_0022.c` are now ordinary C:
 
@@ -7827,7 +7938,7 @@ support were substituted; this is not game execution.
 `P022_002250a0_body.c` and `P022_002232a0_body.c` archive the exact sources
 and their evidence.
 
-### Result renderer: one opcode byte remains
+#### Result renderer: one opcode byte remains
 
 `func_00222d20` remains ASM. Its complete ordinary-C candidate now covers
 **896/896 bytes**, with all **17 code relocations resolved** and just one
@@ -7861,7 +7972,7 @@ Loadable image SHA-1 is unchanged at
 The three reconstruction directories, compiler experiments and native
 smoke fixtures were removed after archiving the source and evidence.
 
-## Exact action preparation and camera roster blocker
+### Exact action preparation and camera roster blocker
 
 `func_0022b120` is complete ordinary C: **1860/1872 bytes**, all **67 code
 relocations resolved**, no differing bytes, and twelve zero alignment
@@ -7891,7 +8002,7 @@ pointer and consume no result. This is compiler/retail-byte verification,
 not game execution. `P022_0022b120_body.c` archives the exact source and
 complete provider, publication and lifetime contracts.
 
-### Camera roster initializer: an admitted uninitialized-pose path
+#### Camera roster initializer: an admitted uninitialized-pose path
 
 `func_00224450` remains ASM. Its complete **1312-byte** audit distinguishes
 two superficially similar fallbacks:
@@ -7930,7 +8041,7 @@ files. C linking remains **172 objects / 1,570 functions**, with unchanged
 loadable and retail ELF hashes. Both completed recovery directories and
 their compiler probes were removed after archiving the evidence.
 
-## Exact collision segment and actor skill selectors
+### Exact collision segment and actor skill selectors
 
 `func_001ece50` now lives beside its geometry providers in
 `src/btlTarget/btlTarget.c`; the promoted-owner ASM marker is removed.
@@ -7964,7 +8075,7 @@ validated progress artifacts, and zero findings across 338 first-party
 files. C linking remains **172 objects / 1,570 functions**; both loadable
 and retail ELF hashes are unchanged.
 
-## Exact roster assistance and geometry register floor
+### Exact roster assistance and geometry register floor
 
 `func_001ef9c0` now matches **904/912 bytes**, including all fifteen
 relocations. Its rank is an ordinary scalar; the three four-element arrays
@@ -8005,7 +8116,7 @@ validated progress artifacts, and zero findings across 338 first-party
 files. C linking remains **172 objects / 1,570 functions**, with unchanged
 loadable and retail ELF hashes.
 
-## Exact eight-point route interpolation
+### Exact eight-point route interpolation
 
 `func_001ef110` now matches **904/912 bytes**, with all eighteen
 relocations resolved. Ordinary 16-byte quaternions, a 40-byte interpolation
@@ -8048,7 +8159,7 @@ reports 192 review warnings across 338 first-party files. C linking remains
 **172 objects / 1,570 functions**, with unchanged loadable and retail ELF
 hashes.
 
-## Exact geometry neighbor construction
+### Exact geometry neighbor construction
 
 `func_001ed3a0` matches **852/864 bytes**, including all eighteen resolved
 relocations and twelve zero alignment bytes. Typed 0x130-byte node arrays
@@ -8086,7 +8197,7 @@ validated progress artifacts, and zero lint errors across 338 first-party
 files. C linking remains **172 objects / 1,570 functions**; both the
 loadable-image and retail-ELF hashes remain unchanged.
 
-## Exact four-sample battle curve
+### Exact four-sample battle curve
 
 `func_001bb790` now matches **296/304 bytes**, with all six relocations
 resolved to the three seed words at `00881430`, `00881434`, and `00881438`,
@@ -8124,7 +8235,7 @@ validated progress artifacts, and zero lint findings across 338 first-party
 files. C linking remains **172 objects / 1,570 functions**; the loadable-image
 and retail-ELF hashes remain unchanged.
 
-## Fusion, initiative and nearest-action source-shape retry
+### Fusion, initiative and nearest-action source-shape retry
 
 Fresh independent fusion and initiative proposals were compiled in their
 current owners; none was promoted. The published curve recovery above is
@@ -8160,7 +8271,7 @@ unchanged, and its CI run `34293257000` passed.
 
 These are bounded source-shaping results, not compiler-impossibility claims.
 
-## Script glyph, panel callback and shop digit retry
+### Script glyph, panel callback and shop digit retry
 
 Independent script and panel reconstructions were measured in their current
 owners with the actual provider contracts. Neither was promoted; the shop
@@ -8203,7 +8314,7 @@ Production and the previously verified **6,157 first-party MATCH / 703 ASM**
 result are unchanged by this batch. Archive-only work does not constitute a
 new production match.
 
-## Capped updates, formation mode and neighboring script retry
+### Capped updates, formation mode and neighboring script retry
 
 All three retained archive files were compiled again under their canonical
 current-owner declaration prerequisites before publication:
@@ -8239,7 +8350,7 @@ archive publication `ff18dbfa` passed CI (`34298804183`); these new compiler
 replays are source-shape evidence, not a new production match or runtime
 verification claim.
 
-## Text color, reward clamp and virtual-pad contracts
+### Text color, reward clamp and virtual-pad contracts
 
 Fresh canonical-owner compiler replays retain three existing ASM fallbacks:
 
@@ -8270,7 +8381,7 @@ archive word metric. These are compiler experiments, not new runtime smoke
 claims. Production sources and **6,157 first-party MATCH / 703 ASM** remain
 unchanged; no padding, invented storage or false provider ABI was promoted.
 
-## Integer sprite handle ABI and coupled draw recoveries
+### Integer sprite handle ABI and coupled draw recoveries
 
 `func_0025f360` in `src/Event/Fcl/shdSprite.c` now returns `s32`, matching
 the actual resource handle returned by `func_0046d5f0`. Its callee declaration
@@ -8322,7 +8433,7 @@ and **6,157 MATCH / 703 ASM** first-party. Lint reports zero findings across
 338 first-party files. This is an ABI correction with unchanged retail
 bytes, not an additional first-party match.
 
-## Fresh-target pivot: result weight update
+### Fresh-target pivot: result weight update
 
 Target selection now excludes retained candidate definitions and
 address-named probe archives rather than repeatedly selecting the smallest
@@ -8391,7 +8502,7 @@ first-party. Lint reports zero findings across338 first-party files.
 This is one additional first-party recovery. The disposable native smoke
 and compiler replay directories are removed after verification.
 
-## Fresh-target continuation: four-key camera initializer
+### Fresh-target continuation: four-key camera initializer
 
 `func_001bb3d0` in `src/Battle/btlMain.c` replaces its plain ASM slot with
 complete ordinary C: **948/960 bytes, nd0, four resolved calls and twelve
@@ -8449,7 +8560,7 @@ were scanned. Totals are **7,789 MATCH /4,931 ASM** overall and
 first-party files. This is one additional first-party match, not completion
 of the remaining701 ASM functions.
 
-## Fresh-target continuation: item-shop polygon renderer
+### Fresh-target continuation: item-shop polygon renderer
 
 `func_0033d630` in `src/promoted/code1_0033.c` now replaces its ASM slot
 with ordinary C: **924/928 bytes, nd0, eight resolved relocations and four
@@ -8520,7 +8631,7 @@ functions were scanned. Totals are **7,790 MATCH /4,930 ASM** overall and
 first-party files. This batch adds one exact first-party recovery. Compiler
 and native-smoke scratch directories are removed after their evidence is saved.
 
-## Fresh-target continuation: field camera callback
+### Fresh-target continuation: field camera callback
 
 `func_0017bc60` in `src/promoted/code1_0017.c` now replaces its ASM slot
 with ordinary C: **940/944 bytes, nd0,29 resolved relocations and four zero
@@ -8580,7 +8691,7 @@ scanned. Totals are **7,791 MATCH /4,929 ASM** overall and **6,161 MATCH /
 699 ASM** first-party. Lint reports zero findings across338 first-party
 files. This is one additional exact first-party recovery, not completion.
 
-## Fresh-target continuation: panel geometry
+### Fresh-target continuation: panel geometry
 
 `func_00204690` in `src/promoted/code1_0020.c` now replaces its ASM slot
 with ordinary C: **916/928 bytes, nd0,15 independently resolved relocations
@@ -8642,7 +8753,7 @@ scanned. Totals are **7,792 MATCH /4,928 ASM** overall and **6,162 MATCH /
 files. This adds one exact first-party match; the all-matching criterion
 remains unsatisfied.
 
-## Fresh-target continuation: panel state updater
+### Fresh-target continuation: panel state updater
 
 `func_0020add0` in `src/promoted/code1_0020.c` is now **MATCH**:
 968/976 bytes,11 independently resolved relocations,eight zero alignment
@@ -8683,7 +8794,7 @@ MATCH /4,927 ASM** overall and **6,163 MATCH /697 ASM** first-party.
 Lint reports zero findings across338 first-party files. The all-matching
 criterion remains unsatisfied.
 
-## Fresh-target continuation: panel transition
+### Fresh-target continuation: panel transition
 
 `func_0020e690` in `src/promoted/code1_0020.c` is now **MATCH**:
 964/976 bytes, three independently resolved call relocations, twelve
@@ -8723,7 +8834,7 @@ scanned, and zero findings across 338 first-party files. Totals are
 **7,794 MATCH / 4,926 ASM** overall and **6,164 MATCH / 696 ASM** first-party
 (89.9%). The all-matching objective remains incomplete.
 
-## Fresh-target continuation: staged panel animation
+### Fresh-target continuation: staged panel animation
 
 `func_0020ea60` in `src/promoted/code1_0020.c` is now **MATCH**:
 1192/1200 bytes, eight independently resolved call relocations and eight
@@ -8759,7 +8870,7 @@ across 338 first-party files. Totals are **7,795 MATCH / 4,925 ASM**
 overall and **6,165 MATCH / 695 ASM** first-party (89.9%). The overall
 all-matching objective remains incomplete.
 
-## Fresh-target continuation: three-sprite panel expansion
+### Fresh-target continuation: three-sprite panel expansion
 
 `func_0020ef10` in `src/promoted/code1_0020.c` is now **MATCH**:
 1460/1472 bytes, seven independently resolved call relocations and twelve
@@ -8799,7 +8910,7 @@ across 338 first-party files. Totals are **7,796 MATCH / 4,924 ASM**
 overall and **6,166 MATCH / 694 ASM** first-party (89.9%). The overall
 all-matching objective remains incomplete.
 
-## Fresh-target continuation: panel composition and drawing contracts
+### Fresh-target continuation: panel composition and drawing contracts
 
 `func_0020fa70` in `src/promoted/code1_0020.c` is now **MATCH**:
 1156/1168 bytes, nineteen call and five floating-literal relocations
@@ -8854,7 +8965,7 @@ across 339 first-party files. Totals are **7,797 MATCH / 4,923 ASM**
 overall and **6,167 MATCH / 693 ASM** first-party (89.9%). The overall
 all-matching objective remains incomplete.
 
-## Fresh-target continuation: field transform and panel selection
+### Fresh-target continuation: field transform and panel selection
 
 Two independent complete reconstructions are now **MATCH**:
 
@@ -8918,7 +9029,7 @@ findings across 339 first-party files. Totals are **7,799 MATCH / 4,921 ASM**
 overall and **6,169 MATCH / 691 ASM** first-party (89.9%). The overall
 all-matching objective remains incomplete.
 
-## Fresh-target continuation: material color and controller payload
+### Fresh-target continuation: material color and controller payload
 
 `func_004587d0` in `src/promoted/code1_0045.c` is **MATCH**:
 **1,136 / 1,136 bytes**, **23 independently resolved relocations**, and
@@ -8971,7 +9082,7 @@ across 339 first-party files. Totals are **7,800 MATCH / 4,920 ASM** overall
 and **6,170 MATCH / 690 ASM** first-party (89.9%). The all-matching objective
 remains incomplete.
 
-## Fresh-target continuation: field constructor and camera pose
+### Fresh-target continuation: field constructor and camera pose
 
 Two independent agents owned their scratch recoveries through compiler
 iterations and measured handoffs. Integration independently checked complete
@@ -9033,7 +9144,7 @@ SHA-1 hashes matched, all 12,720 functions scanned, and zero findings across
 **6,172 MATCH / 688 ASM** first-party (**90.0%**, rounded). The all-matching
 objective remains incomplete.
 
-## First-party continuation: directory, script, draw and field resources
+### First-party continuation: directory, script, draw and field resources
 
 Seven first-party fallbacks are now recovered C. Both Ghidra and IDA bodies
 were checked against the retail instructions; the current full verifier
@@ -9090,7 +9201,7 @@ test. Totals are **7,810 MATCH / 4,910 ASM** overall and
 and objdiff metadata use these complete reports. The all-matching objective
 remains open.
 
-## First-party continuation: panel callback and rounded rectangle
+### First-party continuation: panel callback and rounded rectangle
 
 Two more first-party fallbacks are recovered C. Both reference decompilers
 were checked against the retail instructions, and the complete production
@@ -9140,7 +9251,7 @@ remain under test. Totals are **7,812 MATCH / 4,908 ASM** overall and
 **6,182 MATCH / 678 ASM** first-party (**90.1%**, rounded). The all-matching
 objective remains open.
 
-## First-party continuation: state, save, drawing and ABI recovery
+### First-party continuation: state, save, drawing and ABI recovery
 
 Thirty-one additional first-party fallbacks are recovered C, totaling 25,192
 emitted bytes. Retail instructions, Ghidra and IDA informed the recoveries;
@@ -9267,7 +9378,7 @@ rendering, storage I/O or floating-point exception coverage. Residual and
 undefined-source blockers remain assembly fallbacks. The all-matching
 objective remains open.
 
-## First-party continuation: slots, loot, drawing and allocation
+### First-party continuation: slots, loot, drawing and allocation
 
 Six more assembly fallbacks are replaced by ordinary C:
 
@@ -9315,7 +9426,7 @@ all 529 repository tests pass, and source-honesty lint finds zero issues in
 remaining 641 first-party fallbacks stay visible; all-matching is not yet
 complete.
 
-## First-party continuation: field tasks, battle state and controller input
+### First-party continuation: field tasks, battle state and controller input
 
 Ten more assembly fallbacks are replaced by ordinary C:
 
@@ -9395,7 +9506,7 @@ across 340 first-party files. Generated progress and its validation pass.
 The remaining 631 first-party fallbacks stay visible; all-matching remains
 open.
 
-## First-party continuation: boot initialization and field rendering
+### First-party continuation: boot initialization and field rendering
 
 Two further fallbacks are recovered with fully resolved instruction bytes:
 
@@ -9438,7 +9549,7 @@ pass, source-honesty lint reports zero findings in 340 first-party files,
 and generated progress validates. The remaining 629 first-party fallbacks
 stay visible; all-matching remains open.
 
-## First-party continuation: camera keys and party-panel selection
+### First-party continuation: camera keys and party-panel selection
 
 Two more fallbacks are replaced by ordinary C:
 
@@ -9497,7 +9608,7 @@ pass, source-honesty lint reports zero findings in 340 first-party files,
 and generated progress validates. The remaining 627 first-party fallbacks
 stay visible; all-matching remains open.
 
-## First-party continuation: four-keyframe orbit camera
+### First-party continuation: four-keyframe orbit camera
 
 `func_001cacd0` is recovered in `src/promoted/code1_001c.c`: **1,052 / 1,056
 bytes**, 19 fully resolved relocations and four verified-zero alignment
@@ -9542,7 +9653,7 @@ canonical ownership. The other 518 tests passed in the full run. No
 ownership check was weakened. The 626 remaining first-party ASM fallbacks
 stay visible; all-matching remains open.
 
-## First-party continuation: shuffle count initialization
+### First-party continuation: shuffle count initialization
 
 `func_0037c720` is recovered in
 `src/Battle/btlShuffleSeqShuffle4.c`: **824 / 832 bytes**, 19 fully resolved
@@ -9563,7 +9674,7 @@ the minimum second count, mode 3's single RNG draw, assertion order and
 complete context guards. Its controlled RNG/error providers do not claim
 PS2 graphics or scheduler execution. The throwaway fixture is removed.
 
-## First-party continuation: fade, packet dispatch and UI interpolation
+### First-party continuation: fade, packet dispatch and UI interpolation
 
 Four more first-party fallbacks are replaced by ordinary C:
 
@@ -9629,7 +9740,7 @@ byte-exact linked C coverage rises to 1,586 functions. All 529 repository
 tests pass, source-honesty lint reports zero findings in 340 first-party
 files, and generated progress validates. All-matching remains open.
 
-## First-party continuation: material animation loading
+### First-party continuation: material animation loading
 
 `func_004800d0` is recovered in `src/Graphics/Model/mdlMatAnim.c`:
 **864 / 864 bytes**, all 27 relocations resolved, and no alignment tail.
@@ -9676,7 +9787,7 @@ All 529 repository tests pass, source-honesty lint reports zero findings
 in 340 first-party files, and generated progress validates. The remaining
 620 first-party assembly fallbacks are still in scope.
 
-## First-party continuation: task-loader parent input
+### First-party continuation: task-loader parent input
 
 `func_00193a80` in `src/promoted/code1_0019.c` now takes its real incoming
 task-parent pointer instead of reading an uninitialized local. Retail
@@ -9703,7 +9814,7 @@ the throwaway native sources and executables are removed.
 SHA-1s are unchanged, all 529 tests pass, first-party lint has zero findings,
 and the full scan remains 6,240 first-party MATCH / 620 ASM.
 
-## First-party continuation: card-record reconciliation
+### First-party continuation: card-record reconciliation
 
 `func_00378600` is recovered in `src/Battle/btlShuffleSeq.c`:
 **804 / 816 bytes**, eight fully resolved relocations, zero differing
@@ -9747,7 +9858,7 @@ byte-exact C-linked functions. All 529 tests pass, first-party lint reports
 zero findings in 340 files, and generated progress validates.
 The remaining 619 first-party assembly fallbacks are still in scope.
 
-## First-party continuation: event, memory-card and interface recovery
+### First-party continuation: event, memory-card and interface recovery
 
 Five more assembly fallbacks are recovered as ordinary C:
 
@@ -9812,7 +9923,7 @@ pass, source-honesty lint reports zero findings in 340 first-party files,
 and generated progress validates. The remaining 614 first-party assembly
 fallbacks remain in scope.
 
-## First-party continuation: battle callback state-word recovery
+### First-party continuation: battle callback state-word recovery
 
 `func_00208d00` in `src/promoted/code1_0020.c` now matches **716/720
 bytes** with eighteen resolved relocations, zero executable differences,
@@ -9853,7 +9964,7 @@ separate from image linkage. The 172 source objects, 56 Sony SDK objects
 and 1,591 byte-exact C-linked functions are unchanged. The remaining 613
 first-party assembly fallbacks remain in scope.
 
-## First-party continuation: model setup, drawing and field selection
+### First-party continuation: model setup, drawing and field selection
 
 Five more first-party functions now match. Every listed relocation resolves
 independently; every executable word agrees with retail, and no object
@@ -9938,7 +10049,7 @@ retains 172 source objects and 56 Sony SDK objects; byte-exact C-linked
 functions rise to 1,592. All 608 remaining first-party assembly fallbacks
 remain in scope.
 
-## First-party continuation: battle labels, party panels and Persona initialization
+### First-party continuation: battle labels, party panels and Persona initialization
 
 Three additional first-party bodies are recovered. Every relocation in
 the following table resolves, every executable word equals retail, and
@@ -10047,7 +10158,7 @@ remain available. These are matching and controlled native-consumer results,
 not a claim of PS2 runtime verification or completion of the remaining
 **605 first-party ASM** functions.
 
-## First-party continuation: callbacks, field frames and resource snapshots
+### First-party continuation: callbacks, field frames and resource snapshots
 
 Six additional first-party bodies are recovered. Every relocation below
 resolves, every executable word equals retail, and each remaining suffix
@@ -10147,7 +10258,7 @@ whole translation units became eligible for C linkage. Both identities pass:
 loadable image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail
 ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## First-party continuation: battle setup and stat contracts
+### First-party continuation: battle setup and stat contracts
 
 `src/promoted/code1_001b.c` now recovers `func_001b5970` at
 **952/960 bytes**, with **40 resolved relocations**, no executable
@@ -10210,7 +10321,7 @@ loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail
 ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact. SDK and
 vendor totals are unchanged.
 
-## First-party continuation: three-pose camera initialization
+### First-party continuation: three-pose camera initialization
 
 `src/Battle/btlMain.c` now recovers `func_001baff0` at **984/992 bytes**,
 with **eight resolved relocations**, zero executable differences and
@@ -10268,7 +10379,7 @@ remain 172 C objects, 56 Sony SDK objects and 1,593 C-linked functions.
 The loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and
 retail ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
 
-## First-party continuation: skill cost and battle fade records
+### First-party continuation: skill cost and battle fade records
 
 | Recovery | C / retail bytes | Resolved relocations | Zero tail |
 | --- | ---: | ---: | ---: |
@@ -10340,7 +10451,7 @@ The loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and
 retail ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
 SDK and other third-party matching totals are unchanged.
 
-## First-party continuation: reward scaling and AI eligibility
+### First-party continuation: reward scaling and AI eligibility
 
 | Recovery | C / retail bytes | Resolved relocations | Zero tail |
 | --- | ---: | ---: | ---: |
@@ -10404,7 +10515,7 @@ The loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and
 retail ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
 SDK and other third-party matching totals are unchanged.
 
-## First-party continuation: two-unit camera framing
+### First-party continuation: two-unit camera framing
 
 `code1_001d.c::func_001d01c0` matches **1,004 / 1,008 bytes** with all
 **19 relocations resolved**, zero executable differences and four zero
@@ -10458,7 +10569,7 @@ matching totals are unchanged. Both the loadable-image SHA-1
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
 All 117 standalone native proof files were removed after archival.
 
-## First-party continuation: unit-level selector return contract
+### First-party continuation: unit-level selector return contract
 
 `func_00104c70` now returns the level reader's value explicitly. Its
 canonical contract is `s32(s32)`, with a local `s16` conversion preserving
@@ -10534,7 +10645,7 @@ link totals do not change. The loadable-image SHA-1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`, and the retail ELF SHA-1
 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## First-party continuation: complete player experience curve
+### First-party continuation: complete player experience curve
 
 `src/Main/g_data.c` declared 99 player XP thresholds but initialized only
 48. The remaining 51 entries became zero: XP **154838** returned level
@@ -10564,7 +10675,7 @@ Native sources, hashes, build recipes, reproduction output and complete
 gate output are archived; all **seven standalone native proof files**
 were removed. Before/after/integrated compiler evidence is retained.
 
-## First-party continuation: reward XP setup and panel quad
+### First-party continuation: reward XP setup and panel quad
 
 Two assembly fallbacks in `src/promoted/code1_0021.c` are now exact C:
 
@@ -10631,7 +10742,7 @@ Sources, binary fixtures, hashes, build recipes, native outputs, relocation
 evidence and full gate output are archived. All **24 standalone native proof
 files** were removed; compiler evidence and JSON measurements are retained.
 
-## First-party continuation: explicit AI status predicate
+### First-party continuation: explicit AI status predicate
 
 `func_001d9b60` now has the real `s32(u8 *task, s32 mask)` contract.
 The former `void(u8 *)` body omitted both the status mask and the result.
@@ -10681,7 +10792,7 @@ compiler comparisons and the complete gate output are archived in the
 private `status_predicate/checkpoint_evidence.json`. All seven standalone
 native proof files were removed; compiler candidates and measurements remain.
 
-## First-party continuation: explicit frame output forwarding
+### First-party continuation: explicit frame output forwarding
 
 `func_00211f90` now passes its frame buffer explicitly to
 `func_00211650(b, sp30)`. The former local unspecified-argument declaration
@@ -10729,7 +10840,7 @@ source snapshot, compiler comparisons, complete gate log, native source and
 binary with hashes. Compiler and production source differ only in line
 endings. All five standalone native proof files were hash-archived and removed.
 
-## First-party continuation: retail diagnostic and lookup data
+### First-party continuation: retail diagnostic and lookup data
 
 Three existing C diagnostics now reference their actual retail filename data.
 The Persona accessors `func_00109220` and `func_00109280` use `D_005E4318`
@@ -10781,7 +10892,7 @@ retains before/after source snapshots, compiler comparisons, native sources
 and binaries with SHA-256 hashes, native outputs and the complete gate log.
 All **12 standalone native proof files** were hash-archived and removed.
 
-## First-party continuation: event cleanup and internal unlink
+### First-party continuation: event cleanup and internal unlink
 
 `func_0028ad90` is recovered as **592/592 bytes**, with all **30 relocations**
 resolved and no differing instruction or tail bytes. Its list-unlink helper,
@@ -10827,7 +10938,7 @@ snapshots, both guide bodies, typed global/static compiler evidence, reference
 evidence, native sources and binary with SHA-256 hashes, and the full gate log.
 All **eight standalone native proof files** were hash-archived and removed.
 
-## First-party continuation: result descriptor initialization
+### First-party continuation: result descriptor initialization
 
 `func_0021ef70` is recovered as **976/976 bytes**, with all **29 relocations**
 resolved and no differing bytes or tail padding. Scoped
@@ -10855,7 +10966,7 @@ and native evidence, seven native source/binary snapshots with SHA-256 hashes,
 and the full gate log. All seven standalone native proof files were
 hash-archived and removed.
 
-## First-party continuation: two-Persona fusion
+### First-party continuation: two-Persona fusion
 
 `func_003124a0` is recovered as **828/832 bytes**, with all **26 relocations**
 resolved, no differing executable bytes and four zero tail bytes. Both lookup
@@ -10893,7 +11004,7 @@ retail-table and native evidence, five native source/binary snapshots with
 SHA-256 hashes, and the full gate log. All five standalone native proof files
 were hash-archived and removed.
 
-## First-party continuation: calendar override classification
+### First-party continuation: calendar override classification
 
 `func_00110a60` is recovered as **488/496 bytes**, with all **15 relocations**
 resolved, no differing executable words and eight zero tail bytes. The inline
@@ -10928,7 +11039,7 @@ retains compiler, native, retail-table and gate evidence, production source
 snapshots, and all five standalone native proof files with SHA-256 hashes.
 Those five native files were hash-verified against the archive and removed.
 
-## First-party continuation: bank-slot registration
+### First-party continuation: bank-slot registration
 
 `func_002e1030` is recovered as **500/512 bytes**, with all **12 relocations**
 resolved, no differing executable words and twelve zero tail bytes. A wide
@@ -10967,7 +11078,7 @@ Only `002e1030` changes status among **12,720** scanned functions:
 Both retail SHA-1 identities remain unchanged. The checkpoint archive also
 retains the full gate log and complete status-delta evidence.
 
-## First-party continuation: bank-slot animation
+### First-party continuation: bank-slot animation
 
 `func_002e13b0` is recovered as **1,080/1,088 bytes**, with all **ten text
 relocations** and the **six-entry switch table** resolved exactly. No executable
@@ -11008,7 +11119,7 @@ Both retail SHA-1 identities remain unchanged. The private
 evidence, production snapshots, the full gate log and status-delta evidence.
 All five native source/binary files were hash-archived, verified and removed.
 
-## First-party continuation: bank controller
+### First-party continuation: bank controller
 
 `func_002e17f0` is recovered as **1,236/1,248 bytes**, with all **54 text
 relocations** resolved exactly. No executable words differ; the twelve tail
@@ -11051,7 +11162,7 @@ Both retail SHA-1 identities remain unchanged. The private
 evidence, production snapshots, the full gate log and status-delta evidence.
 All five native source/binary files were hash-archived, verified and removed.
 
-## First-party continuation: field gradient end callback
+### First-party continuation: field gradient end callback
 
 `func_0017c010` is recovered as **608/608 bytes**, with all **29 text
 relocations** resolved exactly. No executable words differ and no tail
@@ -11109,7 +11220,7 @@ Both retail SHA-1 identities remain unchanged. The private
 native and complete gate evidence. All **19 native consumer, negative-control
 and type-probe source/binary files** were hash-archived, verified and removed.
 
-## First-party continuation: seven recoveries after the renewed worker window
+### First-party continuation: seven recoveries after the renewed worker window
 
 The renewed 65-minute worker window ran **57 assignments in four waves
 (16 / 15 / 16 / 10)**, with at most sixteen concurrent workers. The cutoff was
@@ -11196,7 +11307,7 @@ Both retail SHA-1 identities remain unchanged. The private
 proofs, complete gate transcript, native archive, all 57 worker handoffs and
 the rejected-candidate evidence. The full first-party goal remains open.
 
-## Fusion snapshot and list-lifecycle contract closure
+### Fusion snapshot and list-lifecycle contract closure
 
 `func_002f9c30` now copies the consumed fusion records before the destructive
 Persona initializer. Its 348-byte body matches the 352-byte retail window,
@@ -11235,7 +11346,7 @@ Evidence is indexed by
 and sizing packages, and the full first-party goal are not claimed closed by
 this proof. Shared build counts await the next integrated gate.
 
-## Named-task completion state transitions
+### Named-task completion state transitions
 
 `func_00331680`, `func_00331770`, and `func_00331860` now advance through
 states one through five and poll their named task in state six. Completion
@@ -11257,7 +11368,7 @@ verified, and removed. No permanent test was added. Evidence is indexed by
 `p4_four_resume_20260912T062313/Main/state_transition_evidence.json` and
 `state_transition_native_archive.json`.
 
-## Unit-sizing boundary and mutation proof
+### Unit-sizing boundary and mutation proof
 
 The recovered `func_0019f1d0` uses the three retail size bands, truncates
 scaled dimensions before classification, applies the selected growth/shrink
@@ -11283,7 +11394,7 @@ removed. Evidence is indexed by
 `p4_four_resume_20260912T062313/Main/unit_sizing_evidence.json` and
 `unit_sizing_native_archive.json`. This is not PS2 runtime verification.
 
-## Anonymous text-section relocation identity
+### Anonymous text-section relocation identity
 
 The `mwccgap` transplant now maps an assembled own-text `STT_SECTION`
 reference onto the existing containing-function symbol when their bases
@@ -11300,7 +11411,7 @@ without exact labels. Disabling the section-base repair reproduces the
 unresolved-null-symbol failure. Evidence:
 `p4_four_resume_20260912T062313/Main/section_relocation_evidence.json`.
 
-## Classifier table repair, not anonymous renumbering
+### Classifier table repair, not anonymous renumbering
 
 The baseline `func_00243fa0` table at `0x747CC0` sent ten valid categories
 to `0x2440C8`, the assertion block, instead of retail's `0x2440DC` return.
@@ -11320,7 +11431,7 @@ removed. Evidence is indexed by
 `p4_four_resume_20260912T062313/Main/datcalc_classifier_evidence.json` and
 `datcalc_classifier_native_archive.json`. No PS2 execution is claimed.
 
-## Bounds-centered camera consumer proof
+### Bounds-centered camera consumer proof
 
 The recovered `func_001cfad0` uses a real, sixteen-byte-aligned `RwMatrix`
 for both orbit rotations. Its current `code1_001c.c` owner passes fully
@@ -11344,7 +11455,7 @@ removed. Evidence is indexed by
 `p4_four_resume_20260912T062313/Main/camera_bounds_evidence.json` and
 `camera_bounds_native_archive.json`.
 
-## Canonical free callback and memory lifecycle proof
+### Canonical free callback and memory lifecycle proof
 
 `func_0046e7f0` now caches the free table as `void (**)(void *)`, without
 an incompatible function-pointer cast. Scoped `opt_propagation off` keeps
@@ -11377,7 +11488,7 @@ hash-archived, round-trip verified, and removed. Evidence:
 `p4_four_resume_20260912T062313/Main/memory_consumers_evidence.json` and
 `memory_consumers_native_archive.json`. No PS2 execution is claimed.
 
-## Compiler scratch files outside the source inventory
+### Compiler scratch files outside the source inventory
 
 A concurrent full verification/test run exposed `mwccgap`'s temporary
 copies under source directories as duplicate canonical function owners.
@@ -11396,7 +11507,7 @@ Evidence:
 `p4_four_resume_20260912T062313/Main/source_scratch_evidence.json` and
 `source_scratch_archive.json`.
 
-## Verified continuation: fusion, unit sizing, and camera bounds
+### Verified continuation: fusion, unit sizing, and camera bounds
 
 The fresh shared gate changes exactly three statuses from the preceding
 checkpoint: `002f9c30`, `0019f1d0`, and `001cfad0`, all from ASM to MATCH.
@@ -11424,7 +11535,7 @@ The private checkpoint evidence and preserved reports are under
 `p4_four_resume_20260912T062313/Main/verified_checkpoint/`.
 The full first-party goal remains open.
 
-## Decimal result rendering and coherent opacity slots
+### Decimal result rendering and coherent opacity slots
 
 `func_0021ed10` is now C: **604 executable bytes / 608-byte window**,
 seven fully resolved relocations, and four zero alignment bytes. The
@@ -11482,7 +11593,7 @@ Both retail identities remain exact:
 
 The full first-party goal remains open.
 
-## Controller heading with the actual normalization contract
+### Controller heading with the actual normalization contract
 
 `func_0016f8b0` is now C: **1,100 executable bytes / 1,104-byte
 window**, 13 fully resolved relocations, no differing instruction words,
@@ -11547,7 +11658,7 @@ not evidence that this new C body was linked into that image:
 
 The full first-party goal remains open.
 
-## Encounter slots with real allocator and diagnostic contracts
+### Encounter slots with real allocator and diagnostic contracts
 
 `k_fldUnit.c`'s `func_00163990` is now C: **760 executable bytes /
 768-byte window**, 15 fully resolved relocations, no differing instruction
@@ -11624,7 +11735,7 @@ unchanged combined-image regression gate:
 
 The full first-party goal remains open.
 
-## Descriptor dispatch with explicit case-five forwarding
+### Descriptor dispatch with explicit case-five forwarding
 
 `code1_0036.c`'s `func_00367210` now declares its four actual inputs:
 the packed two-word origin, floating-point depth, alpha, and descriptor
@@ -11675,7 +11786,7 @@ At this checkpoint, the one-word `00222d20` callback floor and two-word
 `00375f00` state-store floor were private and uncredited. The callback
 floor is closed below; the full first-party goal remains open.
 
-## Result dialog callback with byte opacity and live effect reloads
+### Result dialog callback with byte opacity and live effect reloads
 
 `src/promoted/code1_0022.c` now recovers `func_00222d20` in ordinary C:
 **896 executable bytes / 896-byte window**, all **17 code relocations**
@@ -11743,7 +11854,7 @@ separate complete-owner and native-consumer evidence above.
 The four-word cut-in loader and two-word shuffle state-store candidates
 remain private and uncredited. The full first-party goal remains open.
 
-## Skill-grid rendering with coherent descriptor calls
+### Skill-grid rendering with coherent descriptor calls
 
 `func_00113ef0` in `src/shdSkill.c` now replaces its assembly fallback
 with **1,384 executable bytes / 1,392-byte window**, **20 resolved
@@ -11813,7 +11924,7 @@ Both retail hashes remain unchanged:
 
 The full first-party goal remains open with 567 assembly fallbacks.
 
-## Skill-detail frame and live pending-skill iteration
+### Skill-detail frame and live pending-skill iteration
 
 `func_00114460` in `src/shdSkill.c` now reproduces all **2,116 executable
 bytes** in its **2,128-byte** retail window, with **37 resolved relocations**
@@ -11893,7 +12004,7 @@ unchanged. Both retail identities remain exact:
 loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 complete ELF `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Skill descriptor costs and the category-provider contract
+### Skill descriptor costs and the category-provider contract
 
 Recovered `func_001138c0` in `src/shdSkill.c` from its retail assembly and
 both `docs/ghidra_headstart/src/shdSkill.c` and
@@ -11993,7 +12104,7 @@ unchanged. Both retail identities remain exact:
 loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 complete ELF `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Skill navigation: signed remainder and fallback-first selection
+### Skill navigation: signed remainder and fallback-first selection
 
 `src/shdSkill.c` `func_00115020` is **652 executable bytes in its
 656-byte retail window**, with **two resolved relocations** and **four
@@ -12063,7 +12174,7 @@ Linkage rises to **1,606 C-linked functions**, with **173 source objects /
 loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 complete ELF `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-## Calendar scheduler: period initialization and real task context
+### Calendar scheduler: period initialization and real task context
 
 `src/cldScheduler.c` `func_00260020` is **1,048 executable bytes in its
 1,056-byte retail window**, with **63 resolved relocations** and **eight
@@ -12161,3 +12272,92 @@ objects**. `func_00260020` is the only matching-status transition;
 `cldScheduler` has **four MATCH / zero ASM**. Both identities remain
 exact: loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 complete ELF `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+### Semantic gate case records
+
+These examples were recorded during earlier recovery work. Sizes, scores
+and status words describe those measurements, not the current tree. The
+active [semantic gate](#semantic-and-target-gate) summarizes the rules.
+
+- **Moves an observable load across a call whose effects are unknown.** In
+  `nLine` `func_0034e0b0`, an alpha-last probe reached nd23 by moving the
+  alpha field load across `func_00457120`. The faithful nd35 body stays.
+- **Omits call arguments or uses an incompatible empty-prototype cast.** The
+  `func_0028ad90` archive's apparent two-word register floor omitted the
+  child argument to the typed `func_00286c60`. Passing it reached nd0 only
+  while keeping a wrong zero-argument cast of the deallocator. With both
+  calls repaired the faithful candidate is 596B against a 592B window and
+  stays ASM. Read callee bodies before calling an argument-register
+  difference an allocation floor.
+- **Relies on register passthrough, even in an existing match.** Community
+  flag helpers `func_00107b70`, `func_00107c80` and `func_00107ea0` had
+  zero-argument definitions calling the old-style `func_001070e0()`, which
+  left the incoming identifier in `$a0` by accident. Explicit `s32`
+  parameters and forwarding calls keep all three 84B/96B matches; the lookup
+  stays 152B/160B `MATCH` with a complete prototype (consumer smoke: 192
+  cases across record IDs, upper-bit masking, absent records and flag
+  combinations). The model callback `func_00475b10` keeps its match when it
+  passes the frame to `s32 func_00397470(u8*)` and compares a signed ID,
+  instead of calling a false `void* (void)` prototype; the original crashed
+  a 32-bit consumer smoke, the repair passes 45 cases.
+- **Drops a C return that retail keeps in `$v0`.** Field-task constructors
+  `func_00166b40`, `func_00167420` and `func_00167d90` return the task
+  created by `func_00451fc0` after initializing its work data, and keep
+  their matches (`k_fldUnit.c`: 34 MATCH / 8 ASM at the time). A null result
+  still permits the retail work-data writes; do not add an early return. The
+  caller `func_00134be0` is then 444B/448B `MATCH` with scoped
+  loop-invariant hoisting, `s16 party[4]`, four eight-byte change records and
+  the canonical `s16 func_00106cd0(s16,s16)`; its smoke passes 4,608 cases
+  and needs no invented frame padding.
+- **Merges distinct logical variables.** The old `func_00313800` archive
+  reused the item limit for unrelated values and omitted flag offsets.
+  Separate signed row/item/selected counters, canonical list-helper
+  parameters and the pointer-returning availability getter restore the
+  behavior; declaring row, item, then selected fixes the remaining rotation
+  (452B/464B `MATCH`; smoke 40,960 cases). The neighbor `func_00313b50`
+  reaches 464B/464B `MATCH` by sharing two sentinel-table scans in a
+  private inline helper, hoisting loop invariants, and passing the date
+  getters straight to the first renderer call. Read the IDA body before
+  further probes: for `func_00313d20`, Hex-Rays distinguishes branch-local
+  table/entry pointers and a saved mode the first reconstruction merged,
+  improving the safe floor from 89 to 84 words (644B/656B, still ASM; the
+  counter now uses the mode-times-two base, not the mode-times-five flag
+  base). The same IDA-first pass took `func_001130c0` from 54 to seven
+  words (440B/448B: five cached-color/alpha scheduling words and two
+  zero-tail words) with a real 76-byte text buffer, four-byte color
+  aggregate, by-value position ABI and canonical variadic formatting.
+  `func_00207140` reaches a 476B/480B floor of 35 words with natural
+  unsigned skill/item loops; the superseded signed temporary admitted IDs
+  at or above 0x8000. `func_001f9cf0` keeps its known four-word
+  pointer-first floor; `register` hints on either count-first local leave it
+  at eight words. For `func_0016b080`, IDA and retail callers recover an
+  output-normal pointer, not an `s64` input (460B/480B, 97 → 93 words,
+  ASM); multiply signed grid coordinates by their strides instead of
+  left-shifting negative values, which removes undefined behavior without
+  changing code. Each of these has a native smoke of 1,920–13,440 cases
+  recorded with its archive.
+- **Passes adjacent scalars where a callee writes a buffer.**
+  `func_001d1310` writes eight bytes; the `func_001d15a0` archive now passes
+  `u16 stats[4]`. The corrected 212B candidate keeps nine index/result
+  register words against the 224B window and stays ASM (`fndiff` shows 12
+  including three padding words).
+- **Names the wrong global.** Compare every GP-relative and `%hi`/`%lo`
+  reference with the retail immediate, not the guessed symbol name, and run
+  the full link when relocation ownership changes.
+- **Uses ordinary-memory `volatile` or ordinary-CPU inline assembly as
+  steering**, even at score zero. Genuine hardware access may use bounded
+  hardware assembly with accurate operands and clobbers (STYLE.md).
+- **Replaces a hardware value with a guessed scalar.** `sqc2 $vf0` stores
+  `(0,0,0,1)`, not zero. The former `func_00484b30` archive cleared four W
+  lanes; the corrected four-COP2-store candidate was 120B/128B with six
+  register words when this was recorded. An address left in `$v0` for a
+  hardware transfer is not a C return either: callers of `func_0048a460`
+  consume `$vf10`, so the honest body is `void` (176B/176B, 15 words), not
+  the misleading 11-word floor that returned a local array.
+- **Counts runtime library code as game code.** `func_0044e830` is GCC
+  `fp-bit.c` GOFAST `float_to_usi`, not a memory initializer: ee-gcc 2.96
+  reproduces 156B/160B with only a zero tail. It lives in the isolated
+  ee-gcc unit `src/middleware/gcc_fp.c`, with the upstream GPL notices and
+  linking exceptions and `COPYING.gcc-runtime`. It is a runtime C match,
+  not a first-party one. Reproduce with
+  `python tools/verify.py src/middleware/gcc_fp.c`.

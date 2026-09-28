@@ -451,7 +451,7 @@ def render_status(metrics: dict, recovery: dict | None) -> str:
         "Fully linked counts only files whose every function is matching C and "
         "linked from that same source file; physical linkage also includes "
         "retail assembly and SDK black boxes. "
-        "`tools/recovery_quality.py --worst 20` ranks the game files needing work.\n"
+        "`make recovery` ranks the game files needing work.\n"
     )
     return "\n".join(rows) + "\n" + note
 

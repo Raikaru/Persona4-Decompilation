@@ -1,5 +1,9 @@
 # RenderWare name transfer P4 <- NBA Ballers Phenom: same-toolchain structural diff
 
+Measurement record from 2026-09-21; current use is summarised in
+[README.md](README.md). Paths under `/var/tmp/`, `~/ventris` and the local
+game directory belong to the original run and are not in the repository.
+
 ## 0. Verdict up front
 
 Ballers beats Burnout decisively, and the reason is the compiler. Ballers'

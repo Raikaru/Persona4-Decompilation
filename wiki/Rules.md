@@ -1,41 +1,88 @@
 # Rules
 
-The invariants every commit keeps, and the reason each one exists. CI enforces
-the mechanical ones.
+What every commit keeps true, why, and what catches a violation. The steps
+for a pull request are in CONTRIBUTING.md; naming and typing rules are in
+`docs/STYLE.md`. `python tools/decomp_lint.py --list` prints the lint rules.
 
-1. **Nothing non-matching is live.** A function is matching C or an
-   `INCLUDE_ASM` line; a near miss goes to `docs/probe_archive/`. The image is
-   byte-exact on every commit.
-2. **Markers are the denominator.** Never delete, rename or move a
-   `// FUN_XXXXXXXX` marker except together with the function it labels, and
-   into exactly one other file. Count markers before and after an edit.
-3. **Compiler controls are legitimate; evidence still matters.** Record useful
-   measurements for unusual settings and use push/pop for function-local
-   scopes. On/off directives set state, not balancing pairs. Optimization
-   provenance is advisory; `tools/pragma_audit.py` separately rejects spellings
-   the compiler ignores.
-4. **No assembly transcription counted as C.** Hardware operations may need
-   assembly and bounded register plumbing. A pure compiler memory barrier is
-   legitimate, but empty allocation barriers and ordinary computation in
-   assembly are integrity errors. A generic `measured` note cannot waive them;
-   exceptions require a rule-specific comment with a semantic reason.
-5. **Symbols are checked, not guessed.** A new `iGpffffXXXX` / `D_XXXXXXXX`
-   goes into `config/symbol_data_addrs.txt` with its evidence; the suffix must
-   equal the retail immediate; the verifier's WRONG SYMBOL / WRONG CALLEE
-   checks and the full link catch the rest.
-6. **The compiler per unit is configuration, not source.** Which compiler,
-   which level, `,p` or not - `config/compiler_units.txt`,
-   `config/version_flags.txt`, `config/speed_units.txt`, `config/gcc_units.txt`.
-   A unit naming an unconfigured compiler fails verify; it never silently
-   falls back.
-7. **The link floor only goes up.** `config/link_floor.json` counts the C
-   objects in the link; lowering it needs a stated reason in the commit.
-8. **Every commit passes the same gate**: `decomp_lint.py` has no integrity
-   errors or scan failures, `verify.py` has no unexpected statuses or WRONG
-   lines, `build.py` has both SHA-1s OK, then unit tests, push and green CI.
-   Volatile-context, optimization-provenance and dead-store warnings are
-   review aids, not automatic failures. `register` is allowed.
-9. **Honest names and types** (`docs/STYLE.md`): better a neutral decompiler
-   name than a wrong one; project types from `include/type.h`; floats typed
-   as floats.
-10. **Keep line endings.** CRLF files stay CRLF.
+## The executable stays byte-exact
+
+Every commit builds both retail SHA-1s. A function is matching C, an
+`INCLUDE_ASM` fallback, or an attempt under `#ifdef NON_MATCHING` with the
+fallback in its `#else` branch and `NONMATCHING` on its marker. Live C that
+does not match is never committed.
+
+Checked by `tools/build.py` and `tools/verify.py`; lint rules M002, M003 and
+M005 check guarded attempts.
+
+## Markers are the denominator
+
+Each `// FUN_XXXXXXXX` marker is in exactly one file. Move a marker only with
+its function, and never delete one to remove a failure. Boundary changes go
+through `tools/reconcile_function_boundaries.py`, not hand edits to
+`tools/slus21782_functions.json`.
+
+Checked by `tests/test_marker_tripwire.py`, `tests/test_verify_markers.py`
+and lint M001 and M004.
+
+## Matching C must be honest C
+
+Byte equality does not show that the source is a decompilation. Inline
+assembly is limited to instructions C cannot express: `syscall`, `sync`,
+`ei`/`di`, `cache`, the COP0 instructions (`mfc0`, `mtc0`, `eret`, `tlbwi`,
+`bc0f`, `bc0t`), COP2 transfers (`qmtc2`, `qmfc2`, `lqc2`, `sqc2`, `cfc2`,
+`ctc2`) and VU0 macro instructions. A hardware wrapper may include the
+register moves those instructions need. Ordinary computation in `asm`, and
+empty `asm` statements used to steer register allocation, are errors. A pure
+compiler memory barrier is allowed.
+
+Checked by lint H009 and H002. They can be waived only by a rule-specific
+comment giving the reason, such as `lint: allow H009 -- <reason>`.
+"Measured" is not enough.
+
+## Compiler settings need evidence
+
+Pragmas are legitimate when retail was built that way. Non-baseline settings
+(an `optimization_level` other than 2, `schedule off`, `opt_common_subs off`,
+`opt_loop_invariants`) raise warning H003 for review; record the
+measurement next to them. Use `#pragma push`/`pop` for settings scoped to one
+function. `#pragma schedule on` inside a guarded attempt is an error (H010),
+because it can shrink the count without matching retail.
+
+MWCC ignores pragmas it does not recognize. `tools/pragma_audit.py` and
+`tests/test_pragma_audit.py` reject them. Lint P001 checks push/pop balance.
+
+## The compiler is chosen per unit, in configuration
+
+Each translation unit is compiled by one compiler at one setting, as in the
+original build. The choice lives in `config/compiler_units.txt`,
+`config/version_flags.txt`, `config/speed_units.txt` and
+`config/gcc_units.txt`, never in the source file. A unit that names a
+compiler with no configured path fails verification; it does not fall back to
+the default. See [The Retail Build](The-Retail-Build).
+
+## Linked C does not silently decrease
+
+`config/link_floor.json` is the minimum number of source units in the link.
+Raise it when a unit joins the link. Lowering it needs a reason in the commit
+message.
+
+Checked by `tools/build.py`.
+
+## Symbols come from evidence
+
+A new data symbol goes in `config/symbol_data_addrs.txt` with the
+instruction that proves its address. A gp-relative name's suffix is the
+retail immediate. WRONG SYMBOL and WRONG CALLEE in `tools/verify.py`, and the
+full link, check the result.
+
+## Names do not claim more than is known
+
+A neutral name such as `func_00219790` is better than a wrong one. Use the
+types in `include/type.h`, and give floats float types. `docs/STYLE.md` has
+the details. Lint reports conflicting declarations of one function (H011)
+for review.
+
+## Line endings are preserved
+
+A CRLF file stays CRLF. `tools/park.py` preserves line endings; do the same
+when editing by hand.
