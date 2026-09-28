@@ -3279,8 +3279,8 @@ s32 func_00148140(u8 **arg0, u8 **arg1) {
 }
 /* measured: closes opt_propagation off for func_00148140. */
 #pragma opt_propagation on
-/* measured 2026-09-28 (lane 3): 214 differing words / 67 fnalign edits, retail 1253 vs
-   object 1252 instructions (was 737 words / 226 edits, 1224 instructions).
+/* measured 2026-09-28 (lane 3): 194 differing words / 67 fnalign edits, retail 1253 vs
+   object 1251 instructions (was 737 words / 226 edits, 1224 instructions).
    What moved it: the two sorted-list loops walk a `u8 **` element pointer and
    re-read `*pe` at every field access (retail keeps `$s0 = &arr[i]` and loads
    `0($s0)` each time) instead of caching the object pointer; the model-position
@@ -3292,12 +3292,14 @@ s32 func_00148140(u8 **arg0, u8 **arg1) {
    `b` goes to the loop test, skipping the `lw 0x138` advance); and the slot
    value is read as `*(l3 + j * 4 + 0x140)` twice, which is what makes retail
    materialise the `&slot` pointer (`addiu $s4,$v0,0x140`) for the second use.
+   Each of the three descending loops has its own counter (dn1, k, m): sharing
+   one counter made this body CSE `n2 - 1` across the two arrB loops (an extra
+   `move`) where retail recomputes it.
    Residual: saved-register colouring of the loop variables in the three
-   `dn1` loops (retail rotates dn1/pe/j/offset down one register per loop:
-   arrA s4/s0/s3, first arrB s3/s4/s2, second arrB s2/s3/s1), and this body
-   CSEs `n2 - 1` across the two arrB loops (an extra `move`) where retail
-   recomputes it. Declaration-order moves of n1/n2/pe/dn1/j/cur were
-   measured inert or worse (+-3 edits). */
+   descending loops (retail rotates counter/pe/j/offset down one register per
+   loop: arrA s4/s0/s3, first arrB s3/s4/s2, second arrB s2/s3/s1; this body
+   coalesces the last counter with n2). Declaration-order moves of
+   n1/n2/pe/dn1/j/cur were measured inert or worse (+-3 edits). */
 // FUN_00148280 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct {
@@ -3690,9 +3692,9 @@ s32 func_00148280(u8 *unusedTask) {
         *(u8 **)(tmp + 0x10) = NULL;
         func_00460ac0(D_007945D0, tmp);
     }
-    dn1 = (s32)(n2 - 1);
-    while (dn1 >= 0) {
-        pe = &arrB[dn1];
+    k = (s32)(n2 - 1);
+    while (k >= 0) {
+        pe = &arrB[k];
         t = *(s32 *)(*pe + 0x28);
         if ((t & 0x10000000) && (t & 2) && !(t & 0x80000000)) {
             func_00479100(D_007945D0, *(void **)(*pe + 0x164));
@@ -3707,11 +3709,11 @@ s32 func_00148280(u8 *unusedTask) {
                 }
             }
         }
-        dn1 -= 1;
+        k -= 1;
     }
-    dn1 = (s32)(n2 - 1);
-    while (dn1 >= 0) {
-        pe = &arrB[dn1];
+    m = (s32)(n2 - 1);
+    while (m >= 0) {
+        pe = &arrB[m];
         t = *(s32 *)(*pe + 0x28);
         if ((t & 0x10000000) && (t & 2) && (t & 0x80000000)) {
             tmp = func_00460990();
@@ -3730,7 +3732,7 @@ s32 func_00148280(u8 *unusedTask) {
                 }
             }
         }
-        dn1 -= 1;
+        m -= 1;
     }
     tmp = func_00460990();
     *(void **)(tmp + 8) = (void *)func_00147ae0;
