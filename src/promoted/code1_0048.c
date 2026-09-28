@@ -57,7 +57,7 @@ extern void func_0046d730(void *file, s32 line);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];
 extern void func_00485630(u8 *arg0);
-extern void func_00485870(s32 arg0);
+extern void func_00485870(u8 *arg0);
 extern void func_00492d10(s32 arg0);
 extern void func_00487c30(u8 *arg0, f32 arg1);
 extern void func_00487fb0(u8 *arg0, f32 arg1);
@@ -1122,49 +1122,40 @@ u8 *func_00484bb0(u8 *arg0)
     }
 }
 #pragma pop
-/* Floor: 140 emitted against retail's 140, with three real deltas and one
-   consequent nop; everything else is byte-identical once the relocations are
-   masked.  The reconstruction follows its sibling func_00485870 below, with
-   the differences retail shows: no `count <= 0` early-out, the child test
-   uses the raw `*(s32 *)(arg0 + 0x84)` rather than count - 1, there is no
-   `flags & 0x80000000` arm in the loop, the final per-child callback is at
-   table offset 0x08 rather than 0x0C, and the tail sets the 0x80000000 bit
-   and bumps the 0x84 counter.  The four quadword slots are separate locals,
-   which is what puts the frame at retail's 0x90: merging the func_00486840
-   output with the save slot costs a slot and 0x10 of frame.
-   WALL: retail rematerialises `addiu $vN, $sp, 0x50` on both sides of the
-   func_00486970/func_00486330 pair (`$v1` for the save, `$v0` for the
-   restore); b210 hoists that address into `$s0` and keeps it live across
-   both calls, which is one instruction shorter and shifts everything after
-   it.  Measured and rejected: a single `u_long128 *` local (this body, the
-   shortest), two pointer locals in disjoint scopes, a `u8 *` pair, direct
-   `*(u_long128 *)sp50` on both sides (folds to `sq 0x50($sp)`, two
-   instructions short), a `u_long128` value local, a `struct { u_long128 }`
-   and a `struct { s32[4] }` wrapper, and opt_common_subs / opt_propagation /
-   opt_lifetimes / opt_dead_assignments / schedule off both function-wide and
-   scoped to the block.  The declaration of func_00485630 above carries the
-   real `u8 *` parameter that retail passes in $a0; func_00485ae0's call site
-   was updated to pass it and still matches. */
-/* 2026-09-18 probe; floor stands at 13.  Retail recomputes `addiu $v1, $sp,
-   0x50` at each use where this body keeps the save-slot address in $s0, so
-   the obvious fix is the one that works on the sibling func_00485870 three
-   hundred lines up - assign `save_slot` twice, once before the calls and
-   once before the restore.  It does not transfer: the double assignment
-   costs 13 -> 112 here, the trailing-assignment-only form 112, and dropping
-   the pointer entirely for `*(u_long128 *)sp50` 118.
-   The two functions are near-identical in shape and want opposite spellings,
-   so do not copy this idiom between them without measuring.  The remaining
-   rows are `bbit032`/`bbit132` branch-target lines, which are capstone
-   mis-decodes of relocated words rather than real differences. */
-/* 2026-09-19 Main round: 114 positional words are one insert/delete pair's
-   cascade, not 114 causes (fnalign 140/140 exact, 13+6 edits; positional fndiff
-   amplifies the single extra/missing lq/sq around the save/restore wall).
-   Retail asm lines 22-34: addiu $3, sp, 0x50 + lq 0x50($18) + sq, calls with
-   $4=arg0 / $5=sp+0x80 / $6=sp+0x60 and $4=$18 / $5=sp+0x60, restore via
-   rematerialised addiu $2, sp, 0x50. Same shape one step smaller as 85870;
-   frame off 0 -0x90 MATCH, single u8 *arg0 move $s2, $a0 identical. */
+/* Guarded body, 2026-09-28: 3 differing words against retail (fnalign 141/141,
+   one edit; the older body scored 114 positional words, which was one
+   insert/delete wall's cascade).  It follows its sibling func_00485870 below;
+   retail differences: no `count <= 0` early-out, the child test uses the raw
+   `*(s32 *)(arg0 + 0x84)`, there is no `flags & 0x80000000` arm in the loop,
+   the final per-child callback is at table offset 0x08, and the tail sets the
+   0x80000000 bit and bumps the 0x84 counter.  The four quadword slots are
+   separate locals, which puts the frame at retail's 0x90.
+   What closed everything but the last triplet (each measured):
+   - `#pragma opt_propagation off`, which the neighbouring 84bb0/85c80 already
+     carry.  With it a `u_long128 *` local holding `sp50` is not folded back
+     into `sq 0x50($sp)`, so the save is retail's `addiu $v1,$sp,0x50` /
+     `lq $v0,0x50($s2)` / `sq $v0,0($v1)` and the restore is materialised too.
+   - two pointer locals, each assigned right before its use: one local
+     assigned once is held in `$s0` across both calls (one instruction short).
+   - the last callback as one call expression, so the argument load
+     (`lw $a0,8($v0)`) precedes the `lhu`; a `fn = ...; fn(arg)` temp cannot.
+   - `for`/`continue` instead of the m2c goto layout (same code).
+   RESIDUAL (3 words): the restore is `addiu $v1,$sp,0x50` / `lq $v1,0($v1)` /
+   `sq $v1,0x50($s2)`; retail uses `$v0` for all three.  b210 keeps `$v0` out
+   of temps in a void function while the exit is reachable without another
+   call (micro test: one call added at the exit flips every temp here to
+   `$v0`), and no C spelling tried moves it: separate/shared/block-scoped
+   pointer locals, `u8 *` pointer, `register`, value temp, `u_long128[1]` and
+   struct-wrapped slots, `opt_common_subs`/`opt_lifetimes`/`opt_dead_assignments`
+   off.  All four `addiu $2,$29,N; lq $2,0($2)` sites in the retail image
+   (85630, 85870, 48f5f0, 497ce0) use `$2` for pointer and data, and a micro
+   test with hard-coded `lq $2`/`sq $2` inline asm and a `"$2"` clobber
+   (like the `mfc1 $2` blocks in this body) reproduces retail's registers, so
+   the original probably copied the quad through an asm macro.  That is
+   ordinary computation (lint H009), so it stays out of the source. */
 // FUN_00485630 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_propagation off
 void func_00485630(u8 *arg0)
 {
     extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
@@ -1181,7 +1172,6 @@ void func_00485630(u8 *arg0)
     u8 *temp_4;
     void (*temp_2)(s32, void *);
     void (*temp_3)(s32, void *);
-    void (*temp_4fn)(s32);
     s32 child_flags;
 
     __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0) : "$vf10", "memory");
@@ -1189,136 +1179,97 @@ void func_00485630(u8 *arg0)
     __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
     if ((*(s32 *)(arg0 + 0x68) & 0x60) != 0) {
-        u_long128 *save_slot = (u_long128 *)sp50;
+        u_long128 *save_slot;
+        u_long128 *restore_slot;
+        save_slot = (u_long128 *)sp50;
         *save_slot = *(u_long128 *)(arg0 + 0x50);
         func_00486970(arg0, (u8 *)&spA0, &sp60);
         func_00486330(arg0, (u8 *)&sp60);
-        *(u_long128 *)(arg0 + 0x50) = *save_slot;
+        restore_slot = (u_long128 *)sp50;
+        *(u_long128 *)(arg0 + 0x50) = *restore_slot;
     }
     count = *(s32 *)(arg0 + 0x84);
     scale = *(f32 *)(arg0 + 0x60) * *(f32 *)(arg0 + 0x74);
     child = *(u8 **)(arg0 + 0x8C);
     five = 5.0f;
-    goto loop_00485630_check;
-loop_00485630_body:
-    if (count < *(s32 *)(child + 0x80)) {
-        goto loop_00485630_next;
-    }
-    if ((*(s32 *)(child + 0x84) & 2) != 0) {
-        goto loop_00485630_next;
-    }
-    if ((*(s32 *)(child + 0x68) & 0x18) != 0) {
-        func_00486840(child, (u8 *)&spA0, &sp70);
-        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
-        child_flags = *(s32 *)(child + 0x68);
-        if ((child_flags & 4) != 0) {
-            __asm__ volatile(
-                "mfc1 $2, %0       \n"
-                "nop               \n"
-                "qmtc2.ni $2, $vf2 \n"
-                "vaddx.y $vf10, $vf0, $vf2x \n"
-                :
-                : "f"(five)
-                : "$2", "$vf2", "$vf10", "memory");
+    for (; child != NULL; child = *(u8 **)(child + 0xAC)) {
+        if (count < *(s32 *)(child + 0x80)) {
+            continue;
         }
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&sp70) : "$vf11", "memory");
-        if ((child_flags & 0x80) != 0) {
-            __asm__ volatile(
-                "mfc1 $2, %0       \n"
-                "nop               \n"
-                "qmtc2.ni $2, $vf2 \n"
-                "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-                :
-                : "f"(scale)
-                : "$2", "$vf2", "$vf11", "memory");
+        if ((*(s32 *)(child + 0x84) & 2) != 0) {
+            continue;
         }
-        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp70) : "$vf10", "memory");
+        if ((*(s32 *)(child + 0x68) & 0x18) != 0) {
+            func_00486840(child, (u8 *)&spA0, &sp70);
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
+            child_flags = *(s32 *)(child + 0x68);
+            if ((child_flags & 4) != 0) {
+                __asm__ volatile(
+                    "mfc1 $2, %0       \n"
+                    "nop               \n"
+                    "qmtc2.ni $2, $vf2 \n"
+                    "vaddx.y $vf10, $vf0, $vf2x \n"
+                    :
+                    : "f"(five)
+                    : "$2", "$vf2", "$vf10", "memory");
+            }
+            __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&sp70) : "$vf11", "memory");
+            if ((child_flags & 0x80) != 0) {
+                __asm__ volatile(
+                    "mfc1 $2, %0       \n"
+                    "nop               \n"
+                    "qmtc2.ni $2, $vf2 \n"
+                    "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+                    :
+                    : "f"(scale)
+                    : "$2", "$vf2", "$vf11", "memory");
+            }
+            __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp70) : "$vf10", "memory");
+            temp_4 = *(u8 **)(child + 0x90);
+            temp_2 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
+            if (temp_2 != NULL) {
+                temp_2(*(s32 *)(temp_4 + 8), &sp70);
+            }
+        }
+        if ((*(s32 *)(child + 0x68) & 0x60) != 0) {
+            func_00486970(child, (u8 *)&spA0, &sp60);
+            temp_4 = *(u8 **)(child + 0x90);
+            temp_3 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x24);
+            if (temp_3 != NULL) {
+                temp_3(*(s32 *)(temp_4 + 8), &sp60);
+            }
+        }
         temp_4 = *(u8 **)(child + 0x90);
-        temp_2 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
-        if (temp_2 != NULL) {
-            temp_2(*(s32 *)(temp_4 + 8), &sp70);
-        }
-    }
-    if ((*(s32 *)(child + 0x68) & 0x60) != 0) {
-        func_00486970(child, (u8 *)&spA0, &sp60);
-        temp_4 = *(u8 **)(child + 0x90);
-        temp_3 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x24);
-        if (temp_3 != NULL) {
-            temp_3(*(s32 *)(temp_4 + 8), &sp60);
-        }
-    }
-    temp_4 = *(u8 **)(child + 0x90);
-    temp_4fn = *(void (**)(s32))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x08);
-    temp_4fn(*(s32 *)(temp_4 + 8));
-loop_00485630_next:
-    child = *(u8 **)(child + 0xAC);
-loop_00485630_check:
-    if (child != NULL) {
-        goto loop_00485630_body;
+        (*(void (**)(s32))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x08))(*(s32 *)(temp_4 + 8));
     }
     *(s32 *)(arg0 + 0x68) |= 0x80000000;
     *(s32 *)(arg0 + 0x84) += 1;
 }
+
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485630);
 #endif
-/* 2026-09-18 re-probe; floor stands at 10.  Six of the alignment rows are
-   `bbit032`/`bbit132` branch-target lines, which are capstone mis-decodes of
-   relocated words rather than real differences.  The one real row is an
-   extra `addiu $s0, $s4, 0x50`: this body materialises the save-slot address
-   where retail addresses the quadword directly.  Every way of removing the
-   pointer is far worse - storing through `*(u_long128 *)sp70` inline 120, a
-   plain `u_long128 saved` local 125, and assigning `save_slot` once instead
-   of twice 120.  The redundant-looking second `save_slot = (u_long128 *)sp70`
-   is load bearing: it is what keeps the address out of a saved register
-   across the two calls. */
-/* 2026-09-19 Main round: checked scratch-record hypothesis against retail asm
-   (asm/nonmatchings/code1_0048/func_00485870.s lines 31-43). Retail save is
-   addiu $3, sp, 0x70 + lq $2, 0x50($20) + sq $2, 0($3); calls are $4=$20 (arg0),
-   $5=sp+0xA0 (&spA0), $6=sp+0x80 (&sp80) into 86970 and $4=$20 / $5=sp+0x80 into
-   86330; restore is addiu $2, sp, 0x70 + lq + sq 0x50($20). This body passes the
-   same three stack addresses with the same first arg, so the scratch local is
-   already used at this call - the extra object addiu $s0, $s4, 0x50 is the arg-side
-   address for the restore store (retail direct 80($s4)), paired against retail's
-   stack-side rematerialisation by the 1-insn shift, not a wrong object passed.
-   Frame off 0 -0xb0 MATCH; single s32 arg0 move $s4, $a0 identical. Residual is
-   materialisation (1 saved addiu vs 2 rematerialised), already probed worse both
-   ways; ten positional words are that one wall's cascade. */
+/* Guarded body, 2026-09-28: 3 differing words against retail (fnalign 154/154,
+   one edit; was 10 words / four edits).  Same recipe and same residual as the
+   sibling func_00485630 above, whose note has the measurements:
+   - the parameter is `u8 *` (declaration above and func_00485ae0 updated; the
+     caller still matches).  With `s32 arg0` every `(u8 *)arg0 + 0x50` is a
+     separate expression and b210 hoists it into `$s0` across the calls, the
+     old extra `addiu $s0,$s4,0x50`; a real pointer parameter does not.
+   - `#pragma opt_propagation off`, two pointer locals for the save slot, the
+     last callback as one call expression, `for`/`continue` for the child loop.
+     The old body's `save_slot = 0` dummy initialiser is gone (no effect).
+   - `mask` stays a named local: retail keeps 0x80000000 in `$s0` across the
+     loop, and without the local b210 rematerialises it and the frame drops
+     to 0xa0.
+   RESIDUAL (3 words): restore temps are `$v1` where retail has `$v0` (see
+   the func_00485630 note for the measurements and the asm-macro hypothesis). */
 // FUN_00485870 NONMATCHING
 #ifdef SKIP_ASM
-/* measured: 616B obj vs 624B window, 11 differing words reloc-masked (probe cand4).
- * Baseline PoB archive nd388; cleaned honest-C cand1 125; u8[16] save slot for
- * stack (frame 0xA0->0xB0 fixed) cand2 120; scoped dst/src temps cand3 120;
- * shared save_slot live across (u_long128 *save_slot = (u_long128 *)sp70) cand4 11.
- * Parent loop_invariants lever measured 11->11 neutral (genuinely OFF at -O2, omitted
- * to avoid H003 warn); struct-field restore 120 (worse); u_long128[1] save slot 120
- * (worse); u8* signature COMPILE ERROR against extern s32 (confirms s32 correct, keeps
- * caller 85ae0 MATCH with no change). Trailing out-params already bare (&sp80/&sp90 as
- * u_long128*, no casts) so second parent lever (delete trailing cast) already optimal.
- * Conventions copied from MATCHed neighbours: u_long128 quads + lqc2/sqc2/vadd/vmulx/
- * qmtc2/mfc1+nop VU idioms verbatim from 861f0/86400; goto loop_check + D_00713480 +
- * (kind<<6)+off table + !=NULL guards from 86060/860f0; s32 arg0 with (u8*) casts per
- * 81d80 s32-as-pointer file convention.
- * Residual wall (save/restore quad copy, off 104-152): retail materialises stack slot
- * sp+0x70 twice with volatiles (addiu $v1,sp,0x70 + lq/sq 0($v1) for save, addiu
- * $v0,sp,0x70 + lq 0($v0) for restore, arg accesses direct 80($s4)), while honest C
- * with shared save_slot gives saved $s1 shared (1 addiu, not 2) plus extra arg pointer
- * addiu $s0,$s4,0x50 for restore store via sq 0($s0) vs direct 80($s4). Single-use
- * short-lived GPR quad pointer form (addiu+0-disp with volatile) folds to sp+OFF direct
- * in every honest spelling tried (array, struct-field, pointer-temp, volatile array,
- * opt_propagation/common_subs/loop_invariants); double DATA use in one block forces it
- * (micro12: p[0],p[1] -> addiu $a1,sp + 0/16-disp with volatile) but save/restore each
- * single-use; "" : "+r"(p) barrier gives retail form (micro10) but H002-banned.
- * Pointer-temp vs direct-index wall per handoff 7a (both forms same function).
- * Re-measured 2026-09-17: banked 11 holds (obj 616B/window 624B, fnalign 154/154/12+6reloc,
- * earliest hunk off 104-152 save/restore wall). Eight-pragma sweep: loop_invariants on 11,
- * strength_reduction off 11, unroll off 11, dead_assignments off 19, propagation off 19,
- * peephole off 80, common_subs off 129, schedule on 138. Earliest-hunk variants re-probed:
- * direct-indexed 120, value-local 125. Each stack slot stays its own u_long128 local
- * (spA0/sp90/sp80 + sp70 save, one asm block per lqc2/sqc2/vadd/vmulx/qmtc2 transfer per
- * 861f0/86400 idiom); opclass no surplus for this floor. Banked as guarded floor. */
-void func_00485870(s32 arg0)
+#pragma opt_propagation off
+void func_00485870(u8 *arg0)
 {
     extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
     extern u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2);
@@ -1332,105 +1283,94 @@ void func_00485870(s32 arg0)
     u8 *child;
     s32 flags;
     s32 count_minus_1;
-    u32 mask;
     u8 *temp_4;
     void (*temp_2)(s32, void *);
     void (*temp_3)(s32, void *);
-    void (*temp_4fn)(s32);
     s32 child_flags;
+    u32 mask;
 
-    if (*(s32 *)((u8 *)arg0 + 0x84) <= 0) {
+    if (*(s32 *)(arg0 + 0x84) <= 0) {
         return;
     }
-    flags = *(s32 *)((u8 *)arg0 + 0x68);
-    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"((u8 *)arg0) : "$vf10", "memory");
-    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"((u8 *)arg0) : "$vf11", "memory");
+    flags = *(s32 *)(arg0 + 0x68);
+    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0) : "$vf11", "memory");
     __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
     if ((flags & 0x60) != 0) {
         if ((flags & 0x80000000) == 0) {
-            u_long128 *save_slot = (u_long128 *)0;
-
+            u_long128 *save_slot;
+            u_long128 *restore_slot;
             save_slot = (u_long128 *)sp70;
-            *save_slot = *(u_long128 *)((u8 *)arg0 + 0x50);
-            func_00486970((u8 *)arg0, (u8 *)&spA0, &sp80);
-            func_00486330((u8 *)arg0, (u8 *)&sp80);
-            save_slot = (u_long128 *)sp70;
-            *(u_long128 *)((u8 *)arg0 + 0x50) = *save_slot;
+            *save_slot = *(u_long128 *)(arg0 + 0x50);
+            func_00486970(arg0, (u8 *)&spA0, &sp80);
+            func_00486330(arg0, (u8 *)&sp80);
+            restore_slot = (u_long128 *)sp70;
+            *(u_long128 *)(arg0 + 0x50) = *restore_slot;
         }
     }
-    count_minus_1 = *(s32 *)((u8 *)arg0 + 0x84) - 1;
-    scale = *(f32 *)((u8 *)arg0 + 0x60) * *(f32 *)((u8 *)arg0 + 0x74);
-    child = *(u8 **)((u8 *)arg0 + 0x8C);
+    count_minus_1 = *(s32 *)(arg0 + 0x84) - 1;
+    scale = *(f32 *)(arg0 + 0x60) * *(f32 *)(arg0 + 0x74);
+    child = *(u8 **)(arg0 + 0x8C);
     mask = 0x80000000;
     five = 5.0f;
-    goto loop_00485870_check;
-loop_00485870_body:
-    if (count_minus_1 < *(s32 *)(child + 0x80)) {
-        goto loop_00485870_next;
-    }
-    if ((*(s32 *)(child + 0x84) & 2) != 0) {
-        goto loop_00485870_next;
-    }
-    if ((flags & mask) != 0) {
-        goto callback_0c;
-    }
-    if ((*(s32 *)(child + 0x68) & 0x18) != 0) {
-        func_00486840(child, (u8 *)&spA0, &sp90);
-        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
-        child_flags = *(s32 *)(child + 0x68);
-        if ((child_flags & 4) != 0) {
-            __asm__ volatile(
-                "mfc1 $2, %0       \n"
-                "nop               \n"
-                "qmtc2.ni $2, $vf2 \n"
-                "vaddx.y $vf10, $vf0, $vf2x \n"
-                :
-                : "f"(five)
-                : "$2", "$vf2", "$vf10", "memory");
+    for (; child != NULL; child = *(u8 **)(child + 0xAC)) {
+        if (count_minus_1 < *(s32 *)(child + 0x80)) {
+            continue;
         }
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&sp90) : "$vf11", "memory");
-        if ((child_flags & 0x80) != 0) {
-            __asm__ volatile(
-                "mfc1 $2, %0       \n"
-                "nop               \n"
-                "qmtc2.ni $2, $vf2 \n"
-                "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-                :
-                : "f"(scale)
-                : "$2", "$vf2", "$vf11", "memory");
+        if ((*(s32 *)(child + 0x84) & 2) != 0) {
+            continue;
         }
-        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp90) : "$vf10", "memory");
+        if ((flags & mask) == 0) {
+            if ((*(s32 *)(child + 0x68) & 0x18) != 0) {
+                func_00486840(child, (u8 *)&spA0, &sp90);
+                __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
+                child_flags = *(s32 *)(child + 0x68);
+                if ((child_flags & 4) != 0) {
+                    __asm__ volatile(
+                        "mfc1 $2, %0       \n"
+                        "nop               \n"
+                        "qmtc2.ni $2, $vf2 \n"
+                        "vaddx.y $vf10, $vf0, $vf2x \n"
+                        :
+                        : "f"(five)
+                        : "$2", "$vf2", "$vf10", "memory");
+                }
+                __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&sp90) : "$vf11", "memory");
+                if ((child_flags & 0x80) != 0) {
+                    __asm__ volatile(
+                        "mfc1 $2, %0       \n"
+                        "nop               \n"
+                        "qmtc2.ni $2, $vf2 \n"
+                        "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+                        :
+                        : "f"(scale)
+                        : "$2", "$vf2", "$vf11", "memory");
+                }
+                __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+                __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp90) : "$vf10", "memory");
+                temp_4 = *(u8 **)(child + 0x90);
+                temp_2 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
+                if (temp_2 != NULL) {
+                    temp_2(*(s32 *)(temp_4 + 8), &sp90);
+                }
+            }
+            if ((*(s32 *)(child + 0x68) & 0x60) != 0) {
+                func_00486970(child, (u8 *)&spA0, &sp80);
+                temp_4 = *(u8 **)(child + 0x90);
+                temp_3 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x24);
+                if (temp_3 != NULL) {
+                    temp_3(*(s32 *)(temp_4 + 8), &sp80);
+                }
+            }
+        }
         temp_4 = *(u8 **)(child + 0x90);
-        temp_2 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
-        if (temp_2 != NULL) {
-            temp_2(*(s32 *)(temp_4 + 8), &sp90);
-        }
+        (*(void (**)(s32))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x0C))(*(s32 *)(temp_4 + 8));
     }
-    if ((*(s32 *)(child + 0x68) & 0x60) != 0) {
-        func_00486970(child, (u8 *)&spA0, &sp80);
-        temp_4 = *(u8 **)(child + 0x90);
-        temp_3 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x24);
-        if (temp_3 != NULL) {
-            temp_3(*(s32 *)(temp_4 + 8), &sp80);
-        }
-    }
-callback_0c:
-    temp_4 = *(u8 **)(child + 0x90);
-    temp_4fn = *(void (**)(s32))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x0C);
-    temp_4fn(*(s32 *)(temp_4 + 8));
-loop_00485870_next:
-    child = *(u8 **)(child + 0xAC);
-loop_00485870_check:
-    if (child != NULL) {
-        goto loop_00485870_body;
-    }
-    {
-        u32 v = *(u32 *)((u8 *)arg0 + 0x68);
-        *(u32 *)((u8 *)arg0 + 0x68) = v & 0x7fffffffU;
-    }
+    *(u32 *)(arg0 + 0x68) &= 0x7fffffffU;
 }
+
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485870);
 #endif
@@ -1438,7 +1378,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485870);
 void func_00485ae0(s32 arg0)
 {
     func_00485630((u8 *)arg0);
-    func_00485870(arg0);
+    func_00485870((u8 *)arg0);
 }
 // FUN_00485B20
 void func_00485b20(u8 *arg0)
