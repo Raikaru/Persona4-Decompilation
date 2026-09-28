@@ -346,7 +346,7 @@ exit:
    count fixed via site1 inline + pointer colors + one base/workBase swap,
    all truthful same-value shapes (see measured note). */
 // FUN_00222210 NONMATCHING
-/* measured: 2026-09-20 -- 668 differing words via `python3 tools/measure_guarded.py src/promoted/code1_0022.c func_00222210` (retail 705 instrs/object 685 instrs, fnalign 277 edits +3 reloc-only via `python3 tools/fnalign.py src/promoted/code1_0022.c func_00222210 --candidate /tmp/installed.c`). Frame 0x120 matches retail (addiu identical at index0); residual is 4 missing y-conversions (cvt.w.s/mfc1/sub.s/nop per site, retail recomputes workBase.y-y0/base.y-y0 where object CSEs to $s6/$s1) plus lwc1/sd/ld/addiu spill, $s0-$s2/$s5 coloring, f20-f24 rotation and per-use 16-bit masks. Levers that carried the count: pointer-form colors (p=&colors[i*4] per 7a, +2), site1 inline workDelta.x+workBase.x / delta.x+base.x for call args and diffs per IDA v76/v75 and Ghidra (first gold/tail calls use memory inline, +8), one loop y-diff via base.y where base==workBase in gold loop (same gold value, defeats one y-CSE, +5). Kept truthful: (f32)(u32)u16 lowerings, int-form constants, float immediates, s16 tail casts, exact callee prototypes. Walls: remaining straight-line identical y-diffs CSE'd (retail recomputes), B0/C0 coords vs object offsets, sh-before-andi ordering. Production stays ASM. */
+/* measured: 2026-09-20 -- 668 differing words via `python3 tools/measure_guarded.py src/promoted/code1_0022.c func_00222210` (retail 705 instrs/object 685 instrs, fnalign 277 edits +3 reloc-only via `python3 tools/fnalign.py src/promoted/code1_0022.c func_00222210 --candidate /tmp/installed.c`). Frame 0x120 matches retail (addiu identical at index0); residual is 4 missing y-conversions (cvt.w.s/mfc1/sub.s/nop per site, retail recomputes workBase.y-y0/base.y-y0 where object CSEs to $s6/$s1) plus lwc1/sd/ld/addiu spill, $s0-$s2/$s5 coloring, f20-f24 rotation and per-use 16-bit masks. Levers that carried the count: pointer-form colors (p=&colors[i*4] per 7a, +2), site1 inline workDelta.x+workBase.x / delta.x+base.x for call args and diffs per IDA v76/v75 and Ghidra (first gold/tail calls use memory inline, +8), one loop y-diff via base.y where base==workBase in gold loop (same gold value, defeats one y-CSE, +5). Kept truthful: (f32)(u32)u16 lowerings, int-form constants, float immediates, s16 tail casts, exact callee prototypes. Walls: remaining straight-line identical y-diffs CSE'd (retail recomputes), B0/C0 coords vs object offsets. 2026-09-28: the two frame-counter bumps are `if (++*(u16 *)(work + 0x48) >= 0x28)`, which reproduces retail's sh-before-andi in one register (two fnalign hunks gone, 652 words unchanged). Production stays ASM. */
 #ifdef NON_MATCHING
 void func_00222210(u8 *work, u32 alpha)
 {
@@ -389,10 +389,7 @@ void func_00222210(u8 *work, u32 alpha)
         var_f21 = 1.0f - func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 7.0f, 17.0f, 1);
         var_f23 = 1.0f - func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 13.0f, 25.0f, 1);
         if (*(u16 *)(work + 0x46) >= 7) {
-            u16 next;
-            next = *(u16 *)(work + 0x48) + 1;
-            *(u16 *)(work + 0x48) = next;
-            if ((next & 0xFFFF) >= 0x28) {
+            if (++*(u16 *)(work + 0x48) >= 0x28) {
                 *(u16 *)(work + 0x48) = 0;
             }
             var_f20 = func_00373cb0((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
@@ -403,10 +400,7 @@ void func_00222210(u8 *work, u32 alpha)
         var_f21 = 0.0f;
         var_f23 = 0.0f;
         {
-            u16 next;
-            next = *(u16 *)(work + 0x48) + 1;
-            *(u16 *)(work + 0x48) = next;
-            if ((next & 0xFFFF) >= 0x28) {
+            if (++*(u16 *)(work + 0x48) >= 0x28) {
                 *(u16 *)(work + 0x48) = 0;
             }
             var_f20 = func_00373cb0((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
