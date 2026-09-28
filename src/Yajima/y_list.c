@@ -2,10 +2,10 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 
-/* gp-relative global at 0x0072467C (gp - 0x4A74): pointer to the active list. */
+/* gp-relative global at 0x0076467C (gp - 0x4A74): pointer to the active list. */
 static u8 *iGpffffb58c;
-/* gp-relative global at 0x007644C4 (gp - 0x4C2C). */
-static u8 *iGpffffb3d4;
+/* Shared runtime-loaded persona records; storage is owned by cmmMisc.c. */
+extern u8 *iGpffffb3d4;
 
 extern char D_0063FC48[];
 extern char D_0063FC58[];
@@ -999,361 +999,140 @@ void func_002e4960(u8 *arg0, s8 arg1, s16 arg2) {
 
 
 
-/* re-measured 002e4ac0: `python3 -E -s tools/measure_guarded.py src/Yajima/y_list.c func_002e4ac0`
-   reports 295 differing words today.  The figures in the note above are
-   from earlier bodies and no longer describe what is banked here; they
-   are kept only as history.  Flagged by `tools/floorboard.py --audit`. */
-/* gate: object 323 against retail 334, -3.3% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
-// FUN_002E4AC0 NONMATCHING
-#ifdef SKIP_ASM
-void func_002e4ac0(s32 arg0, s32 arg1) {
-    typedef signed __int128 s128;
-    s128 spE0;
-    s128 spD0;
-    s128 spC0;
-    s128 spB0;
-    s128 spA0;
-    s64 var_4;
-    s64 temp_30;
-    s64 temp_22;
-    s64 temp_23;
-    s16 var_20;
-    s16 var_19;
-    s16 temp_18;
-    s16 temp_16;
-    s32 temp_7;
-    s32 temp_17;
-    s32 var_2;
-    s32 var_2_3;
-    s32 temp_2;
-    u8 *temp_21;
-    u8 *var_3;
-    u8 *temp_5;
-    u8 *var_4_2;
-    u8 *var_7;
-    u8 *var_2_2;
-    u8 *var_4_3;
-    u8 *var_5;
-    u8 *var_6;
-    u8 *var_7_2;
+static inline u8 *yListWork(s8 list) {
+    return *(u8 **)(D_00882F70[list] + 0x38);
+}
 
-    var_4 = arg0;
-    temp_21 = *(u8 **)(D_00882F70[0] + 0x38);
-    var_3 = temp_21;
-    temp_7 = *(s32 *)(temp_21 + 4);
-    switch (temp_7) {
+static inline u8 *yListEntryInWork(u8 *work, s16 index) {
+    switch (*(u32 *)(work + 4)) {
+    case 0:
+    case 2:
+    case 7:
+    case 8:
+        work += index * 0x30;
+        return work + 0x14;
+    case 1:
+    case 5:
     case 6:
     case 10:
-    case 1:
-        break;
+        work += index * 0x30;
+        return work + 0xA4;
     default:
-        return;
-    }
-    var_20 = 0;
-    temp_30 = (s64)(s8)var_4;
-    temp_22 = (s64)(s8)arg1;
-    temp_23 = temp_22 * 0x30;
-loop_58:
-    if (var_20 < *(s32 *)(var_3 + 8)) {
-        temp_18 = var_20;
-        *(s8 *)(temp_21 + temp_18 + 0x2E4) = 0;
-        var_19 = 0;
-        spE0 = (s128)(temp_18 * 12);
-        spD0 = (s128)(temp_21 + temp_18 * 12);
-        spC0 = (s128)&D_00882F70[temp_18 + 1];
-        temp_17 = temp_18 * 0x30;
-        spB0 = (s128)&D_00882F70[temp_18];
-loop_56:
-        var_3 = *(u8 **)(D_00882F70[0] + 0x38);
-        temp_16 = var_19;
-        if (temp_16 < *(s32 *)(var_3 + 8)) {
-            temp_5 = (u8 *)((s32)spD0 + temp_16);
-            *(s128 *)&spA0 = (s128)(s32)(temp_5 + 0x14);
-            *(s8 *)(temp_5 + 0x14) = 0;
-            if (temp_18 != var_19) {
-                if (temp_30 == 0) {
-                    u8 *temp_4 = *(u8 **)((u8 *)spC0 + 0x38);
-                    switch (*(u32 *)(temp_4 + 4)) {
-                    case 0: case 2: case 7: case 8:
-                        var_2 = temp_16 * 0x30;
-                        var_4_2 = temp_4 + var_2 + 0x14;
-                        break;
-                    case 1: case 5: case 6: case 10:
-                        var_2 = temp_16 * 0x30;
-                        var_4_2 = temp_4 + var_2 + 0xA4;
-                        break;
-                    default:
-                        var_2 = temp_16 * 0x30;
-                        var_4_2 = temp_4 + var_2 + 0x14;
-                        break;
-                    }
-                    {
-                        u8 *t32 = *(u8 **)(D_00882F70[0] + 0x38);
-                        switch (*(u32 *)(t32 + 4)) {
-                        case 0: case 2: case 7: case 8:
-                            var_7 = t32 + temp_17 + 0x14;
-                            break;
-                        case 1: case 5: case 6: case 10:
-                            var_7 = t32 + temp_17 + 0xA4;
-                            break;
-                        default:
-                            var_7 = t32 + temp_17 + 0x14;
-                            break;
-                        }
-                        {
-                            switch (*(u32 *)(t32 + 4)) {
-                            case 0: case 2: case 7: case 8:
-                                var_2_2 = t32 + var_2 + 0x14;
-                                break;
-                            case 1: case 5: case 6: case 10:
-                                var_2_2 = t32 + var_2 + 0xA4;
-                                break;
-                            default:
-                                var_2_2 = t32 + var_2 + 0x14;
-                                break;
-                            }
-                        }
-                    }
-                    var_4 = (s64)(s8)func_00312b60((s32)var_4_2, *(s16 *)(var_7 + 2), *(s16 *)(var_4_2 + 2));
-                } else if (temp_30 == 1) {
-                    if ((temp_22 == temp_18) || (temp_22 == temp_16)) {
-                        var_4 = 0;
-                    } else {
-                        u8 *temp_42 = *(u8 **)((u8 *)spC0 + 0x38);
-                        switch (*(u32 *)(temp_42 + 4)) {
-                        case 0: case 2: case 7: case 8:
-                            var_2_3 = temp_16 * 0x30;
-                            var_4_3 = temp_42 + var_2_3 + 0x14;
-                            break;
-                        case 1: case 5: case 6: case 10:
-                            var_2_3 = temp_16 * 0x30;
-                            var_4_3 = temp_42 + var_2_3 + 0xA4;
-                            break;
-                        default:
-                            var_2_3 = temp_16 * 0x30;
-                            var_4_3 = temp_42 + var_2_3 + 0x14;
-                            break;
-                        }
-                        {
-                            u8 *t33 = *(u8 **)(D_00882F70[0] + 0x38);
-                            switch (*(u32 *)(t33 + 4)) {
-                            case 0: case 2: case 7: case 8:
-                                var_5 = t33 + temp_23 + 0x14;
-                                break;
-                            case 1: case 5: case 6: case 10:
-                                var_5 = t33 + temp_23 + 0xA4;
-                                break;
-                            default:
-                                var_5 = t33 + temp_23 + 0x14;
-                                break;
-                            }
-                            {
-                                switch (*(u32 *)(t33 + 4)) {
-                                case 0: case 2: case 7: case 8:
-                                    var_6 = t33 + temp_17 + 0x14;
-                                    break;
-                                case 1: case 5: case 6: case 10:
-                                    var_6 = t33 + temp_17 + 0xA4;
-                                    break;
-                                default:
-                                    var_6 = t33 + temp_17 + 0x14;
-                                    break;
-                                }
-                            }
-                            {
-                                switch (*(u32 *)(t33 + 4)) {
-                                case 0: case 2: case 7: case 8:
-                                    var_7_2 = t33 + var_2_3 + 0x14;
-                                    break;
-                                case 1: case 5: case 6: case 10:
-                                    var_7_2 = t33 + var_2_3 + 0xA4;
-                                    break;
-                                default:
-                                    var_7_2 = t33 + var_2_3 + 0x14;
-                                    break;
-                                }
-                            }
-                        }
-                        var_4 = (s64)(s8)func_00312b90((u16 *)var_4_3, var_5, var_6, var_7_2);
-                    }
-                }
-            }
-            {
-                u8 *t34 = (u8 *)((s32)spE0 + *(s32 *)(*(u8 **)((u8 *)spB0 + 4) + 0x38) + temp_16);
-                *(s8 *)(t34 + 0x14) = 0;
-                if (((s64)(s8)var_4) != 0) {
-                    *(s8 *)(t34 + 0x14) = 1;
-                    if (((s64)(s8)var_4) == 2) {
-                        *(s8 *)(t34 + 0x14) = 2;
-                    }
-                }
-            }
-            {
-                if (((s64)(s8)var_4) != 0) {
-                    *(s32 *)&spA0 = 1;
-                    if (((s64)(s8)var_4) == 2) {
-                        *(s32 *)&spA0 = 2;
-                    }
-                }
-            }
-            var_19++;
-            goto loop_56;
-        }
-        var_20++;
-        goto loop_58;
+        work += index * 0x30;
+        return work + 0x14;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4ac0);
-#endif
 
-/* measured: object 604B/window 624B/normalized_diff 260 (90 differing words, fnalign per current tree). */
-/* measured: saved-order dst-nextp-i-j-base-row-outer_offset plus outer-invariant row-nextp-outer_offset and for-loop form already applied per archive (103 to 90); slti-at N-A (both sides sltiu-at with a1-vs-a2 input), no 2-3-instr short tail (151 vs 152 instrs), arg-setup already fixed to 3-arg func_003129b0 with D_00882F70-zero symbol, opt_loop_invariants neutral; residual is a1-a2 slot-base plus a3-t0 outer plus v1-a3 slot2 coloring with inner-bound reload and scheduling. */
-/* measured (this pass): chased the 1-instruction shortfall to its mechanism instead of
-   repeating the register work. fnalign shows the only length-changing sites are
-   retail[68:73]/object[68:71] (5-vs-3: retail rematerializes D_00882F70/active2/bound
-   with lui+lw+lw+lw+sltiu, the build reuses a loop-carried $a1 = D[0]+0x38 with
-   lw+lw+sltiu) and retail[124:127]/object[121:125] (3-vs-4: the build keeps a dead
-   `addiu $a1,$v1,0x38` at the inner latch) plus one trailing alignment nop; net
-   151-vs-152. The $a1 is set at the inner back-edge and consumed by the mid-body
-   active2 reload with no call between, so the forward CSE is valid and retail's twin
-   reloads cannot be forced from any same-iteration duplicate-load spelling. Killed
-   leads, all scored by probe_variants: while+bottom-reload and reload-first (both
-   141); for+body-tail and body-top reloads (141/143); commutative `0x38 + D[0]` and
-   scoped opt_common_subs off around the active2 reload (both neutral at 90). Any
-   change to the assignment-in-condition collapses loop codegen into the 131-143
-   family (same as the recorded explicit-goto 131), so the latch sharing is
-   structural. No empty if/else arm exists for the trailing-dead-arm lever: all three
-   switches carry complete default paths and the call-test is a plain bne+sb. The
-   90-word / 151-vs-152 / 46+6 floor stands. */
-/* 2026-09-18 measurement, not installed: reloading
-   `*(u8 **)(D_00882F70[0] + 0x38)` into a second local before the third
-   switch (instead of reusing active2) makes the object exactly 152/152
-   instructions - retail re-reads the chain there - and drops the edit-group
-   count 46 -> 34, but raises the word score 90 -> 97 because the residual
-   becomes pure $a1/$a2/$v0/$v1 colouring.  All 15 single-declaration moves
-   and the full reversal were swept on that body: every one scores 97, so
-   the colouring is caller-saved and declaration order cannot reach it.
-   Candidate kept at /var/tmp/tri/AFreload.c shape; the 90-word body below
-   is one instruction short of retail. */
-// FUN_002E5000 NONMATCHING
-#ifdef NON_MATCHING
-// func_002e5000 (0x002e5000-0x002e5270, 624B) — clean floor at 90 differing words.
-// Retail 152 instrs, object 151 instrs (604B/624B); fnalign 46 edits plus 6 reloc-only.
-// Retail relocs 15: 4x D_00882F70 HI16/LO16 pairs, 3x jtbl HI16/LO16
-// (jtbl_00748C50/00748C20/00748BF0), 1x func_003129b0 R_MIPS_26. Frame 0x80 with
-// s16-s22 plus ra matches; production stays INCLUDE_ASM (no TU regression).
-// Source is the 108-line P4_UNIT_002E5000 M2C block de-noised: M2C_FIELD/M2C_UNK,
-// s64 shift guards, s128 stack slots, loop gotos and the spurious 4th call arg
-// removed; file idiom kept (u8*, *(u8 **)(...+0x38), *(s32 *)(...+4/8),
-// *(u16 *)(...+2), &D_00882F70[(s8)(i+1)], 0/2/7/8 -> +0x14 / 1/5/6/10 -> +0xA4).
-// Wins: saved-order dst,nextp,i,j,base,row,outer_offset (reverse-assigns to retail
-// s6..s0) 103 -> 90; outer-invariant order row,nextp,outer_offset; for-loop form
-// (explicit-goto variant scores 131); active temp retained (removing it scores 137).
-// Neutral: ((i*3)*0x10) vs i*0x30 and ((j*3)*0x10) vs j*0x30; opt_loop_invariants on;
-// temp-declaration permutations. Prior best W8 107 words (goto, split active/base2),
-// IoG archive MISMATCH-nd288, WT16 shape reference. Walls: $a1/$a2 slot-base colour,
-// $a3/$t0 outer colour, $v1/$a3 slot2 colour, inner-bound reload addiu, scheduling.
-// Semantic gate: D_00882F70[0] is correct per retail HI16/LO16 (iGpffffb58c would be
-// GPREL and is the wrong symbol); func_003129b0 takes 3 args (u8*,s32,s32) per
-// src/Event/Fcl/fclCombineMisc.c — M2C's 4th arg is the dead $a3 (outer) leftover,
-// not a parameter; three switches must stay switches (all three jtbl_ present);
-// s16 i/j for the dsll32/dsra32 guards, u16 loads for the lhu pair. Non-goals
-// func_002e2a10 / func_002e3560 untouched with their own measured notes.
-extern s32 func_003129b0(u8 *arg0, s32 arg1, s32 arg2);
-void func_002e5000(void) {
-    u8 *dst;
-    u8 **nextp;
-    s16 i;
-    s16 j;
+/* Build pair or triple availability for list kinds 1, 6 and 10. The mode is
+ * retained before arg0 becomes the signed-byte result of each combination.
+ * Triple mode also updates the corresponding destination-list matrix. */
+// FUN_002E4AC0
+#pragma push
+#pragma opt_loop_invariants on
+void func_002e4ac0(s32 arg0, s32 arg1) {
     u8 *base;
     u8 *row;
-    s32 outer_offset;
-    s32 inner_offset;
-    u8 *active;
-    u8 *active2;
-    u8 *slot;
-    u8 *inner;
-    u8 *outer;
-    u8 *slot2;
-    base = *(u8 **)(D_00882F70[0] + 0x38);
-    active = base;
-    for (i = 0; i < *(s32 *)(active + 8); i++) {
+    u8 *flag;
+    u8 *destination;
+    u8 *mirror;
+    s32 kind;
+    s16 i;
+    s16 j;
+    s8 mode;
+    s8 selected;
+
+    base = yListWork(0);
+    kind = *(s32 *)(base + 4);
+    switch (kind) {
+    case 1:
+    case 10:
+    case 6:
+        i = 0;
+        mode = (s8)arg0;
+        selected = (s8)arg1;
+        for (; i < *(s32 *)(yListWork(0) + 8); i++) {
+            base[i + 0x2E4] = 0;
+            j = 0;
+            row = base + i * 12;
+            for (; j < *(s32 *)(yListWork(0) + 8); j++) {
+                flag = row + j + 0x14;
+                *flag = 0;
+                if (i != j) {
+                    if (mode == 0) {
+                        destination = yListEntryInWork(yListWork((s8)(i + 1)), j);
+                        arg0 = (s8)func_00312b60((s32)destination,
+                            *(s16 *)(yListEntryInWork(yListWork(0), i) + 2),
+                            *(s16 *)(yListEntryInWork(yListWork(0), j) + 2));
+                    } else if (mode == 1) {
+                        if (selected == i || selected == j) {
+                            arg0 = 0;
+                        } else {
+                            destination = yListEntryInWork(yListWork((s8)(i + 1)), j);
+                            arg0 = (s8)func_00312b90((u16 *)destination,
+                                yListEntryInWork(yListWork(0), selected),
+                                yListEntryInWork(yListWork(0), i),
+                                yListEntryInWork(yListWork(0), j));
+                        }
+                        /* Match the neighboring accessors' EE word-address view. */
+                        mirror = (u8 *)(i * 12 +
+                            (u32)*(u8 **)(D_00882F70[i + 1] + 0x38)) + j + 0x14;
+                        *mirror = 0;
+                        if ((s8)arg0 != 0) {
+                            *mirror = 1;
+                            if ((s8)arg0 == 2) {
+                                *mirror = 2;
+                            }
+                        }
+                    }
+                    if ((s8)arg0 != 0) {
+                        *flag = 1;
+                        if ((s8)arg0 == 2) {
+                            *flag = 2;
+                        }
+                    }
+                }
+            }
+        }
+        break;
+    default:
+        break;
+    }
+}
+#pragma pop
+
+extern s32 func_003129b0(u8 *arg0, s32 arg1, s32 arg2);
+
+/* Fill the availability matrix and each row's corresponding pair-result list.
+ * Complete the destination lookup before reading the two source record IDs. */
+// FUN_002E5000
+#pragma push
+#pragma opt_loop_invariants on
+void func_002e5000(void) {
+    u8 *base;
+    u8 *row;
+    u8 *flag;
+    u8 *destination;
+    s16 i;
+    s16 j;
+
+    base = yListWork(0);
+    for (i = 0; i < *(s32 *)(yListWork(0) + 8); i++) {
         j = 0;
-        row = base + i * 0xC;
-        nextp = &D_00882F70[(s8)(i + 1)];
-        outer_offset = i * 0x30;
-        for (; (active = *(u8 **)(D_00882F70[0] + 0x38)), j < *(s32 *)(active + 8); j++) {
-            dst = row + j + 0x14;
-            *dst = 0;
-            slot = *(u8 **)(*nextp + 0x38);
-            switch (*(s32 *)(slot + 4)) {
-            case 0:
-            case 2:
-            case 7:
-            case 8:
-                inner_offset = j * 0x30;
-                inner = slot + inner_offset + 0x14;
-                break;
-            case 1:
-            case 5:
-            case 6:
-            case 10:
-                inner_offset = j * 0x30;
-                inner = slot + inner_offset + 0xA4;
-                break;
-            default:
-                inner_offset = j * 0x30;
-                inner = slot + inner_offset + 0x14;
-                break;
-            }
-            active2 = *(u8 **)(D_00882F70[0] + 0x38);
-            switch (*(s32 *)(active2 + 4)) {
-            case 0:
-            case 2:
-            case 7:
-            case 8:
-                outer = active2 + outer_offset + 0x14;
-                break;
-            case 1:
-            case 5:
-            case 6:
-            case 10:
-                outer = active2 + outer_offset + 0xA4;
-                break;
-            default:
-                outer = active2 + outer_offset + 0x14;
-                break;
-            }
-            switch (*(s32 *)(active2 + 4)) {
-            case 0:
-            case 2:
-            case 7:
-            case 8:
-                slot2 = active2 + inner_offset + 0x14;
-                break;
-            case 1:
-            case 5:
-            case 6:
-            case 10:
-                slot2 = active2 + inner_offset + 0xA4;
-                break;
-            default:
-                slot2 = active2 + inner_offset + 0x14;
-                break;
-            }
-            if (func_003129b0(inner, *(u16 *)(outer + 2), *(u16 *)(slot2 + 2)) == 1) {
-                *dst = 1;
+        row = base + i * 12;
+        for (; j < *(s32 *)(yListWork(0) + 8); j++) {
+            flag = row + j + 0x14;
+            *flag = 0;
+            destination = yListEntryInWork(yListWork((s8)(i + 1)), j);
+            if (func_003129b0(destination,
+                    *(u16 *)(yListEntryInWork(yListWork(0), i) + 2),
+                    *(u16 *)(yListEntryInWork(yListWork(0), j) + 2)) == 1) {
+                *flag = 1;
             }
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e5000);
-#endif
+#pragma pop
+
 // FUN_002E5270
 s32 func_002e5270(u8 *arg0, u8 *arg1) {
     s16 i;
