@@ -31,7 +31,7 @@ extern void func_003c38b0(void *arg0, void *arg1);
 extern void *func_004571b0(void);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
 extern u8 *func_00104900(s8 arg0);
-extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 arg3);
+extern void RwMatrixRotate(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
 extern s32 func_00349c50(u8 *arg0);
 extern void *func_00478140(u32, u16, u32);
@@ -60,36 +60,41 @@ void func_003493b0(s32 arg0)
     (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A630), 0xF, 0, 0, func_00349340, func_00349380, (u8 *)(work));
 }
 
-/* measured: de-noised m2c (TMPDIR /var/tmp/cold349440/m2c.c) into file idiom */
-/* (u8 trans/scale/axis/mat arrays as in func_0034a4f0; s64+f32 Pair loads for */
-/* the 12B vectors; RwMatrix/RwV3d layout from mdlManager checked for matQ */
-/* flags at 0x0C=3 and pos at 0x30=0; s128 lq/sq idiom from fclCombineMisc and */
-/* aligned(16) from mdlEffect/k_fldFrame for the 16B/64B copies). Retail 464 */
-/* instrs per fnalign; v11 object 462 instrs (-2), GUARDED_SCORE 392 (v10 396, */
-/* v9 420, v8 424, v5 539, v2 540, v1 553). FPU accumulator floor */
-/* (mula.s/madda.s/madd.s sum-of-squares, M2C_ERROR) is unmatchable; */
-/* gp-relative immediates and 12B ld-then-lwc1 order plus float colour remain. */
-/* Fixes in order: u32 to s32 for color bytes removed unsigned cvt bloat */
-/* (539 to 424, minus 115, 617 to 506 instrs); s128 whole copies for col and */
-/* quat plus M64 struct copy (420, 491 instrs); s128 plus aligned(16) for */
-/* col/quat/mat (396, 464/464); parent single-expr plus M64 as s128x4 (392, */
-/* 462/464, within two). v12 scale-descending 393 (unproductive). Two-arg */
-/* (u8*,u8*) signature with a1 as obj as in func_00349b90; first arg unused. */
-/* INCLUDE_ASM retained. */
-// FUN_00349440 NONMATCHING
-#ifdef NON_MATCHING
+/* Model table entry addressed by (task+0x10)[model id]; 0x20 bytes. Field roles follow the
+   uses in func_00349440 (offset/scale/angle/colours/window) and func_00349c50 (field_6). */
+typedef struct FclModelEntry {
+    s16 offset[3];
+    s16 field_6;
+    f32 scale;
+    f32 angle;
+    s16 field_10;
+    s16 quatIdx;
+    s32 colorA;
+    s32 colorB;
+    s16 winX;
+    s16 winY;
+} FclModelEntry;
+
+/* Camera/model set-up for one model task (a1 is the task object; a0 is unused).
+   measured with opt_propagation off, which keeps the D_ constant loads in `ld`/`lwc1`
+   order and keeps the constant/temporary statements where they are written:
+   - the model table entry is read three ways: byte-offset arithmetic for the first entry
+     (base load after the shift), `tbl[id].field` struct indexing where retail loads the
+     base first, and `base + 0x12` materialised before the second pointer add for the
+     quaternion index;
+   - the camera vectors are 4-float struct copies (batched lwc1/swc1) and the frame-locals are
+     declared in retail's stack order (win, pad, mat, tmpA, colA, colB, matQ, matB, quat);
+   - the quaternion-to-matrix products are named temporaries in retail's evaluation order
+     (`qx*qx + qy*qy + ...` is emitted as mula qy, madda qx); 255.0f and 1.0f are loaded at
+     their first use, as retail does;
+   - RwMatrixRotate is (matrix, axis, angle, combineOp); the argument order decides which
+     of the angle load and the combine-op immediate is emitted first. */
+// FUN_00349440
+#pragma push
+#pragma opt_propagation off
 void func_00349440(u8 *arg0, u8 *arg1)
 {
-    extern s32 func_004782b0(u8 *a);
-    extern void *func_00457120(void);
-    extern void *func_004571a0(void);
-    extern void *func_004571b0(void);
     extern f32 K_View_GetFov(void *a);
-    extern void K_View_SetFov(void *a, f32 b);
-    extern void func_003c38b0(void *a, void *b);
-    extern void func_003e9cb0(s32 a, void *b, s32 c);
-    extern void RwMatrixRotate(void *a, void *b, s32 c, f32 d);
-    extern void RwMatrixTranslate(void *a, void *b, s32 c);
     extern void *RwMatrixMultiply(void *a, void *b, void *c);
     extern void func_0047a1c0(void *a, void *b, s32 c);
     extern void mdlScale(void *a, void *b, s32 c);
@@ -108,7 +113,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
     extern u8 D_0064A690[];
     extern u8 D_0064A6A0[];
     typedef signed __int128 s128;
-    typedef struct { s32 w[4]; } Q16;
+    typedef struct { f32 f[4]; } V4;
     typedef struct { s128 w[4]; } M64;
     extern f32 iGpffffb5a0;
     extern f32 iGpffff8518;
@@ -116,15 +121,15 @@ void func_00349440(u8 *arg0, u8 *arg1)
     u8 scale[12];
     u8 axisX[12];
     u8 axisY[12];
+    f32 win[2];
+    u8 pad[12];
     u8 mat[64] __attribute__((aligned(16)));
     u8 tmpA[64] __attribute__((aligned(16)));
     s128 colA __attribute__((aligned(16)));
     s128 colB __attribute__((aligned(16)));
-    s128 quat __attribute__((aligned(16)));
-    u8 pad[12];
-    f32 win[2];
     u8 matQ[64] __attribute__((aligned(16)));
     u8 matB[64] __attribute__((aligned(16)));
+    s128 quat __attribute__((aligned(16)));
     u8 *obj;
     u8 *parent;
     (void)arg0;
@@ -146,36 +151,93 @@ void func_00349440(u8 *arg0, u8 *arg1)
         *(s64 *)&scale[0] = xy;
         *(f32 *)&scale[8] = z;
     }
-    if ((*(u8 **)(obj + 0xC) == NULL) || (func_004782b0(*(u8 **)(obj + 0xC)) == 0)) {
-        return;
-    }
-    {
-        s64 xy = *(s64 *)&D_0064A658[0];
-        f32 z = *(f32 *)&D_0064A660[0];
-        *(s64 *)&axisX[0] = xy;
-        *(f32 *)&axisX[8] = z;
-    }
-    {
-        s64 xy = *(s64 *)&D_0064A668[0];
-        f32 z = *(f32 *)&D_0064A670[0];
-        *(s64 *)&axisY[0] = xy;
-        *(f32 *)&axisY[8] = z;
-    }
-    parent = *(u8 **)((u8 *)func_00457120() + 4) + 0x10;
-    {
-        u8 *entry = *(u8 **)(obj + 0x10) + ((s32)*(u16 *)(obj + 8) << 5);
-        *(f32 *)&trans[0] += (f32)*(s16 *)(entry + 0);
-        *(f32 *)&trans[4] += (f32)*(s16 *)(entry + 2);
-        *(f32 *)&trans[8] += (f32)*(s16 *)(entry + 4);
+    if ((*(u8 **)(obj + 0xC) != NULL) && (func_004782b0(*(u8 **)(obj + 0xC)) != 0)) {
         {
-            f32 s = *(f32 *)(entry + 8);
-            *(f32 *)&scale[0] = s;
-            *(f32 *)&scale[4] = s;
-            *(f32 *)&scale[8] = s;
+            s64 xy = *(s64 *)&D_0064A658[0];
+            f32 z = *(f32 *)&D_0064A660[0];
+            *(s64 *)&axisX[0] = xy;
+            *(f32 *)&axisX[8] = z;
         }
         {
-            s32 *sp = (s32 *)(obj + 0x30);
-            s32 *dp = (s32 *)mat;
+            s64 xy = *(s64 *)&D_0064A668[0];
+            f32 z = *(f32 *)&D_0064A670[0];
+            *(s64 *)&axisY[0] = xy;
+            *(f32 *)&axisY[8] = z;
+        }
+        parent = *(u8 **)((u8 *)func_00457120() + 4) + 0x10;
+        {
+            u8 *entry = *(u8 **)(obj + 0x10) + ((s32)*(u16 *)(obj + 8) << 5);
+            *(f32 *)&trans[0] += (f32)*(s16 *)(entry + 0);
+            *(f32 *)&trans[4] += (f32)*(s16 *)(entry + 2);
+            *(f32 *)&trans[8] += (f32)*(s16 *)(entry + 4);
+            {
+                f32 s = *(f32 *)(entry + 8);
+                *(f32 *)&scale[8] = s;
+                *(f32 *)&scale[4] = s;
+                *(f32 *)&scale[0] = s;
+            }
+            {
+                s32 *sp = (s32 *)(obj + 0x30);
+                s32 *dp = (s32 *)mat;
+                s32 cnt = 8;
+                do {
+                    s32 a = sp[0];
+                    s32 b = sp[1];
+                    sp += 2;
+                    cnt -= 1;
+                    dp[0] = a;
+                    dp[1] = b;
+                    dp += 2;
+                } while (cnt > 0);
+            }
+            RwMatrixRotate(mat, axisY, (*(FclModelEntry **)(obj + 0x10))[*(u16 *)(obj + 8)].angle, 1);
+        }
+        RwMatrixTranslate(mat, trans, 2);
+        RwMatrixMultiply(tmpA, mat, parent);
+        *(M64 *)mat = *(M64 *)tmpA;
+        func_0047a1c0(*(u8 **)(obj + 0xC), mat, 0);
+        mdlScale(*(u8 **)(obj + 0xC), scale, 1);
+        {
+            u16 idx = *(u16 *)(obj + 8);
+            if (idx == 0x1B) {
+                iGpffffb5a0 = 10.0f;
+            } else if (idx == 0xA1) {
+                iGpffffb5a0 = 7.0f;
+            } else if (idx == 0x8D) {
+                iGpffffb5a0 = iGpffff8518;
+            } else {
+                iGpffffb5a0 = 0.0f;
+            }
+        }
+        func_0047a1a0(*(u8 **)(obj + 0xC), axisX, iGpffffb5a0, 1);
+        colA = *(s128 *)D_0064A680;
+        colB = *(s128 *)D_0064A690;
+        quat = *(s128 *)D_0064A6A0;
+        {
+            u8 *p = pad;
+            s32 n = 12;
+            if (p != NULL) {
+                do {
+                    *p = 0;
+                    p += 1;
+                    n -= 1;
+                } while (n != 0);
+            }
+        }
+        parent = *(u8 **)((u8 *)func_00457120() + 4) + 0x10;
+        *(f32 *)(obj + 0x70) = K_View_GetFov(func_00457120());
+        {
+            u8 *cam = (u8 *)func_004571a0();
+            *(V4 *)(obj + 0x74) = *(V4 *)(cam + 0x18);
+        }
+        {
+            u8 *cam = (u8 *)func_004571b0();
+            *(V4 *)(obj + 0x84) = *(V4 *)(cam + 0x18);
+        }
+        {
+            u8 *src = *(u8 **)((u8 *)func_004571b0() + 4);
+            s32 *sp = (s32 *)(src + 0x10);
+            s32 *dp = (s32 *)(obj + 0xA0);
             s32 cnt = 8;
             do {
                 s32 a = sp[0];
@@ -187,147 +249,93 @@ void func_00349440(u8 *arg0, u8 *arg1)
                 dp += 2;
             } while (cnt > 0);
         }
-        RwMatrixRotate(mat, axisY, 1, *(f32 *)(entry + 0xC));
-    }
-    RwMatrixTranslate(mat, trans, 2);
-    RwMatrixMultiply(tmpA, mat, parent);
-    *(M64 *)mat = *(M64 *)tmpA;
-    func_0047a1c0(*(u8 **)(obj + 0xC), mat, 0);
-    mdlScale(*(u8 **)(obj + 0xC), scale, 1);
-    {
-        u16 idx = *(u16 *)(obj + 8);
-        if (idx == 0x1B) {
-            iGpffffb5a0 = 10.0f;
-        } else if (idx == 0xA1) {
-            iGpffffb5a0 = 7.0f;
-        } else if (idx == 0x8D) {
-            iGpffffb5a0 = iGpffff8518;
-        } else {
-            iGpffffb5a0 = 0.0f;
-        }
-    }
-    func_0047a1a0(*(u8 **)(obj + 0xC), axisX, iGpffffb5a0, 1);
-    colA = *(s128 *)D_0064A680;
-    colB = *(s128 *)D_0064A690;
-    quat = *(s128 *)D_0064A6A0;
-    {
-        u8 *p = pad;
-        s32 n = 12;
-        if (p != NULL) {
-            do {
-                *p = 0;
-                p += 1;
-                n -= 1;
-            } while (n != 0);
-        }
-    }
-    parent = *(u8 **)((u8 *)func_00457120() + 4) + 0x10;
-    *(f32 *)(obj + 0x70) = K_View_GetFov(func_00457120());
-    {
-        u8 *cam = (u8 *)func_004571a0();
-        *(f32 *)(obj + 0x74) = *(f32 *)(cam + 0x18);
-        *(f32 *)(obj + 0x78) = *(f32 *)(cam + 0x1C);
-        *(f32 *)(obj + 0x7C) = *(f32 *)(cam + 0x20);
-        *(f32 *)(obj + 0x80) = *(f32 *)(cam + 0x24);
-    }
-    {
-        u8 *cam = (u8 *)func_004571b0();
-        *(f32 *)(obj + 0x84) = *(f32 *)(cam + 0x18);
-        *(f32 *)(obj + 0x88) = *(f32 *)(cam + 0x1C);
-        *(f32 *)(obj + 0x8C) = *(f32 *)(cam + 0x20);
-        *(f32 *)(obj + 0x90) = *(f32 *)(cam + 0x24);
-    }
-    {
-        u8 *src = *(u8 **)((u8 *)func_004571b0() + 4);
-        s32 *sp = (s32 *)(src + 0x10);
-        s32 *dp = (s32 *)(obj + 0xA0);
-        s32 cnt = 8;
-        do {
-            s32 a = sp[0];
-            s32 b = sp[1];
-            sp += 2;
-            cnt -= 1;
-            dp[0] = a;
-            dp[1] = b;
-            dp += 2;
-        } while (cnt > 0);
-    }
-    {
-        u8 *cam = (u8 *)func_00457120();
-        *(f32 *)(obj + 0xE0) = *(f32 *)(cam + 0x78);
-        *(f32 *)(obj + 0xE4) = *(f32 *)(cam + 0x7C);
-    }
-    {
-        u8 *entry = *(u8 **)(obj + 0x10) + ((s32)*(u16 *)(obj + 8) << 5);
-        s32 c1 = *(s32 *)(entry + 0x14);
-        ((f32 *)&colA)[0] = (f32)((c1 >> 24) & 0xFF) / 255.0f;
-        ((f32 *)&colA)[1] = (f32)((c1 >> 16) & 0xFF) / 255.0f;
-        ((f32 *)&colA)[2] = (f32)((c1 >> 8) & 0xFF) / 255.0f;
-        ((f32 *)&colA)[3] = (f32)(c1 & 0xFF) / 255.0f;
         {
-            s32 c2 = *(s32 *)(entry + 0x18);
-            ((f32 *)&colB)[0] = (f32)((c2 >> 24) & 0xFF) / 255.0f;
-            ((f32 *)&colB)[1] = (f32)((c2 >> 16) & 0xFF) / 255.0f;
-            ((f32 *)&colB)[2] = (f32)((c2 >> 8) & 0xFF) / 255.0f;
-            ((f32 *)&colB)[3] = (f32)(c2 & 0xFF) / 255.0f;
+            u8 *cam = (u8 *)func_00457120();
+            *(FclVec2 *)(obj + 0xE0) = *(FclVec2 *)(cam + 0x78);
         }
-        win[0] = (f32)*(s16 *)(entry + 0x1C) / 640.0f;
-        win[1] = (f32)*(s16 *)(entry + 0x1E) / 448.0f;
-    }
-    K_View_SetFov(func_00457120(), 40.0f);
-    func_003c38b0((u8 *)func_004571a0(), (u8 *)&colA);
-    func_003c38b0((u8 *)func_004571b0(), (u8 *)&colB);
-    {
-        u8 *base = *(u8 **)(obj + 0x10);
-        u16 idx2 = *(u16 *)(obj + 8);
-        u8 *entry2 = base + ((s32)idx2 << 5);
-        s16 qidx = *(s16 *)(entry2 + 0x12);
-        if (qidx == -1) {
-            memcpy((u8 *)&quat, obj + 0x18, 16);
-        } else {
-            u8 *tbl = *(u8 **)(obj + 0x14);
-            if (qidx < *(s32 *)(tbl + 4)) {
-                memcpy((u8 *)&quat, *(u8 **)(tbl + 0xC) + ((s32)qidx * 16), 16);
+        {
+            FclModelEntry *tbl = *(FclModelEntry **)(obj + 0x10);
+            s32 c1 = tbl[*(u16 *)(obj + 8)].colorA;
+            f32 ch0 = (f32)((c1 >> 24) & 0xFF);
+            f32 k255 = 255.0f;
+            ((f32 *)&colA)[0] = ch0 / k255;
+            ((f32 *)&colA)[1] = (f32)((c1 >> 16) & 0xFF) / k255;
+            ((f32 *)&colA)[2] = (f32)((c1 >> 8) & 0xFF) / k255;
+            ((f32 *)&colA)[3] = (f32)(c1 & 0xFF) / k255;
+            {
+                s32 c2 = tbl[*(u16 *)(obj + 8)].colorB;
+                ((f32 *)&colB)[0] = (f32)((c2 >> 24) & 0xFF) / k255;
+                ((f32 *)&colB)[1] = (f32)((c2 >> 16) & 0xFF) / k255;
+                ((f32 *)&colB)[2] = (f32)((c2 >> 8) & 0xFF) / k255;
+                ((f32 *)&colB)[3] = (f32)(c2 & 0xFF) / k255;
+            }
+            win[0] = (f32)tbl[*(u16 *)(obj + 8)].winX / 640.0f;
+            win[1] = (f32)tbl[*(u16 *)(obj + 8)].winY / 448.0f;
+        }
+        K_View_SetFov(func_00457120(), 40.0f);
+        func_003c38b0((u8 *)func_004571a0(), (u8 *)&colA);
+        func_003c38b0((u8 *)func_004571b0(), (u8 *)&colB);
+        {
+            u16 idx2 = *(u16 *)(obj + 8);
+            s32 off2 = (s32)idx2 << 5;
+            u8 *base = *(u8 **)(obj + 0x10) + 0x12;
+            s16 qidx = *(s16 *)(base + off2);
+            if (qidx == -1) {
+                memcpy((u8 *)&quat, obj + 0x18, 16);
             } else {
-                memcpy((u8 *)&quat, *(u8 **)(tbl + 0xC), 16);
+                u8 *tbl = *(u8 **)(obj + 0x14);
+                if (qidx < *(s32 *)(tbl + 4)) {
+                    memcpy((u8 *)&quat, *(u8 **)(tbl + 0xC) + ((s32)qidx * 16), 16);
+                } else {
+                    memcpy((u8 *)&quat, *(u8 **)(tbl + 0xC), 16);
+                }
             }
         }
+        {
+            f32 qy = ((f32 *)&quat)[1];
+            f32 qx = ((f32 *)&quat)[0];
+            f32 qz = ((f32 *)&quat)[2];
+            f32 qw = ((f32 *)&quat)[3];
+            f32 sum = qx * qx + qy * qy + qz * qz + qw * qw;
+            f32 inv = 2.0f / sum;
+            f32 sx = qx * inv;
+            f32 sy = qy * inv;
+            f32 sz = qz * inv;
+            f32 wx = sx * qw;
+            f32 wy = sy * qw;
+            f32 wz = sz * qw;
+            f32 xx = qx * sx;
+            f32 yy = qy * sy;
+            f32 zz = qz * sz;
+            f32 yz = qy * sz;
+            f32 xz = qz * sx;
+            f32 xy = qx * sy;
+            f32 d00 = yy + zz;
+            f32 one = 1.0f;
+            ((f32 *)matQ)[0] = one - d00;
+            ((f32 *)matQ)[1] = xy + wz;
+            ((f32 *)matQ)[2] = xz - wy;
+            ((f32 *)matQ)[4] = xy - wz;
+            ((f32 *)matQ)[5] = one - (zz + xx);
+            ((f32 *)matQ)[6] = yz + wx;
+            ((f32 *)matQ)[8] = xz + wy;
+            ((f32 *)matQ)[9] = yz - wx;
+            ((f32 *)matQ)[10] = one - (xx + yy);
+            *(s32 *)&matQ[0x30] = 0;
+            *(s32 *)&matQ[0x34] = 0;
+            *(s32 *)&matQ[0x38] = 0;
+            *(s32 *)&matQ[0x0C] = 3;
+        }
+        RwMatrixMultiply(matB, matQ, parent);
+        *(M64 *)matQ = *(M64 *)matB;
+        func_003e9cb0(*(s32 *)((u8 *)func_004571b0() + 4), matQ, 0);
+        *(u8 *)((u8 *)func_004571b0() + 2) = 3;
+        (void)func_004571b0();
+        func_003cbf30(func_00457190(), func_004571c0());
+        func_003e8130(func_00457120(), win);
     }
-    {
-        f32 qx = ((f32 *)&quat)[0];
-        f32 qy = ((f32 *)&quat)[1];
-        f32 qz = ((f32 *)&quat)[2];
-        f32 qw = ((f32 *)&quat)[3];
-        f32 sum = qx * qx + qy * qy + qz * qz + qw * qw;
-        f32 inv = 2.0f / sum;
-        f32 sz = qz * inv;
-        f32 sy = qy * inv;
-        f32 sx = qx * inv;
-        ((f32 *)matQ)[0] = 1.0f - (qy * sy + qz * sz);
-        ((f32 *)matQ)[1] = qx * sy + sz * qw;
-        ((f32 *)matQ)[2] = qz * sx - sy * qw;
-        ((f32 *)matQ)[4] = qx * sy - sz * qw;
-        ((f32 *)matQ)[5] = 1.0f - (qz * sz + qx * sx);
-        ((f32 *)matQ)[6] = qy * sz + sx * qw;
-        ((f32 *)matQ)[8] = qz * sx + sy * qw;
-        ((f32 *)matQ)[9] = qy * sz - sx * qw;
-        ((f32 *)matQ)[10] = 1.0f - (qx * sx + qy * sy);
-        *(s32 *)&matQ[0x30] = 0;
-        *(s32 *)&matQ[0x34] = 0;
-        *(s32 *)&matQ[0x38] = 0;
-        *(s32 *)&matQ[0x0C] = 3;
-    }
-    RwMatrixMultiply(matB, matQ, parent);
-    *(M64 *)matQ = *(M64 *)matB;
-    func_003e9cb0(*(s32 *)((u8 *)func_004571b0() + 4), matQ, 0);
-    *(u8 *)((u8 *)func_004571b0() + 2) = 3;
-    (void)func_004571b0();
-    func_003cbf30(func_00457190(), func_004571c0());
-    func_003e8130(func_00457120(), win);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclModel", func_00349440);
-#endif
+#pragma pop
 
 // FUN_00349B90
 void func_00349b90(u8 *arg0, u8 *arg1)
@@ -345,28 +353,24 @@ void func_00349b90(u8 *arg0, u8 *arg1)
     }
 }
 
-/* measured: cold m2c via bulk path (direct m2c_decompile fails: jr without jtbl_00749820;
-   combined prepared asm + .word .L targets for 6 entries at 0x749820). De-noised to file
-   idiom (u8*+offsets, s8/s16/u16/s32; file-scope 001102f0 to (u8*,s32,s32,f32)->u8* per
-   g_data.c and 00285b30 to (void)->s32 per y_CmbCardEff; 300.0f/0.0f/1.0f/700.0f floats;
-   s32 (not u32) for sp48/sp4C colors; u8[4] per-byte sp44->sp4C copy for retail lbu/sb).
-   probe_variants: v1/v9w 229 best (v3 317/v4 314/v5 317 with explicit case-4 switch+stack
-   swaps; v6 if-chain 388; v7 guard+switch 381; v8 lh-split 399). fnalign v1: retail 521
-   vs object 521 instrs, edit 67 +16 reloc. Frame 0x50 both. Residuals: missing explicit
-   inner c==4 check (3w, explicit guard/5th case triggers jump-table penalty +88); lhu
-   $a0 vs $v1 + sll/lw order + lh scheduling; mov.s scheduling; sp28 0x20 vs 0x28 and
-   sp44/sp4C swap (stack allocation); sb $a0 reuse vs addiu+sb; branch offsets. Float
-   coloring (mov.s) follows count. Floor per matching.md (alloc/sched/order/FPU).
-   INCLUDE_ASM retained. */
-// FUN_00349C50 NONMATCHING
-#ifdef NON_MATCHING
+/* Effect state machine for the model task at task+0x38. Layout notes measured against retail:
+   - the two draw calls take FclDrawColor by value and their colours are locals filled by
+     func_002b2a60 struct returns; declaring the locals in this order (pos0, pos1, color1,
+     color0, colorTmp) reproduces retail's stack slots 0x38/0x28/0x4C/0x48/0x44;
+   - the second colour is copied from colorTmp through an FclDrawColor cast (a plain
+     struct assignment becomes a word copy, retail copies bytes);
+   - the case-3 state switch keeps an explicit `!= 4` guard (retail compares 4 first, then
+     dispatches 3..0; a fifth case would make b210 emit a jump table);
+   - the model-id colour picks are an if chain in retail order (0x59, 0xA, 0x5F);
+   - the animation table at obj+0x10 is an array of 0x20-byte entries indexed by model id. */
+// FUN_00349C50
 s32 func_00349c50(u8 *arg0)
 {
-    FclVec3 sp28;
-    FclVec3 sp38;
-    u8 sp44[4];
-    s32 sp48;
-    s32 sp4C;
+    FclVec3 pos0;
+    FclVec3 pos1;
+    FclDrawColor color1;
+    FclDrawColor color0;
+    FclDrawColor colorTmp;
     u8 *obj;
     obj = *(u8 **)(arg0 + 0x38);
     switch (*(s8 *)obj) {
@@ -406,97 +410,90 @@ s32 func_00349c50(u8 *arg0)
             if (datGetFlag(0x1450) == 0) {
                 return 0;
             }
-            switch (*(s8 *)(obj + 4)) {
-            case 0:
-                if (func_00348be0(*(u8 **)(obj + 0xEC)) == 0) {
-                    return 0;
-                }
-                if (func_00348be0(*(u8 **)(obj + 0xF0)) == 0) {
-                    return 0;
-                }
-                if (*(s8 *)(obj + 5) == 1) {
-                    u16 a = *(u16 *)(obj + 8);
-                    if (a == 0x16) {
-                        u8 *base = *(u8 **)(obj + 0x10);
-                        s16 an = *(s16 *)(base + (a << 5) + 6);
-                        func_00479940(*(u8 **)(obj + 0xC), 0, an, 0, 0);
+            if (*(s8 *)(obj + 4) != 4) {
+                switch (*(s8 *)(obj + 4)) {
+                case 0:
+                    if (func_00348be0(*(u8 **)(obj + 0xEC)) == 0) {
+                        return 0;
+                    }
+                    if (func_00348be0(*(u8 **)(obj + 0xF0)) == 0) {
+                        return 0;
+                    }
+                    if (*(s8 *)(obj + 5) == 1) {
+                        u16 a = *(u16 *)(obj + 8);
+                        if (a == 0x16) {
+                            FclModelEntry *tbl = *(FclModelEntry **)(obj + 0x10);
+                            s16 an = tbl[a].field_6;
+                            func_00479940(*(u8 **)(obj + 0xC), 0, an, 0, 0);
+                        } else {
+                            FclModelEntry *tbl = *(FclModelEntry **)(obj + 0x10);
+                            s16 an = tbl[a].field_6;
+                            func_00479940(*(u8 **)(obj + 0xC), 0, an, 10, 0);
+                        }
+                    }
+                    *(s8 *)(obj + 4) = 1;
+                    break;
+                case 1:
+                    if (func_00348c10(*(u8 **)(obj + 0xEC)) == 0) {
+                        func_001102f0((u8 *)&pos0, 0x140, 0xA5, 300.0f);
+                        color0 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
+                        func_003489c0(*(u8 **)(obj + 0xEC), pos0, 0.0f, 0.0f, 0.0f, 1.0f, color0, 0, -1);
+                    }
+                    if (func_00348c10(*(u8 **)(obj + 0xF0)) == 0) {
+                        colorTmp = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
+                        *(FclDrawColor *)&color1 = colorTmp;
+                        func_001102f0((u8 *)&pos1, 0x140, 0xA5, 300.0f);
+                        if (*(u16 *)(obj + 8) == 0x59) {
+                            color1 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xCD);
+                        } else if (*(u16 *)(obj + 8) == 0xA) {
+                            color1 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xA);
+                        } else if (*(u16 *)(obj + 8) == 0x5F) {
+                            color1 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xAA);
+                        }
+                        func_003489c0(*(u8 **)(obj + 0xF0), pos1, 0.0f, 0.0f, 0.0f, 1.0f, color1, 0, -1);
+                    }
+                    if (*(s8 *)(obj + 5) == 1) {
+                        u16 v = *(u16 *)(obj + 8);
+                        if ((v == 4) || (v == 0xB) || (v == 0x16) || (v == 0x2D) || (v == 0x53) ||
+                            (v == 0x6B) || (v == 0x9A) || (v == 0x57) || (v == 0xA6) || (v == 0xBA) ||
+                            (v == 0xBD) || (v == 0x15) || (v == 0x43) || (v == 0x68) || (v == 0x8D) ||
+                            (v == 0x93) || (v == 0x71) || (v == 0x7D) || (v == 0x8A) || (v == 0xA3) ||
+                            (v == 0x39)) {
+                            *(s8 *)(obj + 4) = 2;
+                            *(s8 *)(obj + 5) = 0;
+                        } else {
+                            *(s8 *)(obj + 4) = 3;
+                        }
                     } else {
-                        u8 *base = *(u8 **)(obj + 0x10);
-                        s16 an = *(s16 *)(base + (a << 5) + 6);
-                        func_00479940(*(u8 **)(obj + 0xC), 0, an, 10, 0);
+                        *(s8 *)(obj + 4) = 4;
                     }
-                }
-                *(s8 *)(obj + 4) = 1;
-                break;
-            case 1:
-                if (func_00348c10(*(u8 **)(obj + 0xEC)) == 0) {
-                    func_001102f0((u8 *)&sp38, 0x140, 0xA5, 300.0f);
-                    fclWriteColorBytes(&sp48, 0xFF, 0xFF, 0xFF, 0xFF);
-                    func_003489c0(*(u8 **)(obj + 0xEC), sp38, 0.0f, 0.0f, 0.0f, 1.0f, *(FclDrawColor *)&sp48, 0, -1);
-                }
-                if (func_00348c10(*(u8 **)(obj + 0xF0)) == 0) {
-                    fclWriteColorBytes(sp44, 0xFF, 0xFF, 0xFF, 0xFF);
-                    ((u8 *)&sp4C)[0] = sp44[0];
-                    ((u8 *)&sp4C)[1] = sp44[1];
-                    ((u8 *)&sp4C)[2] = sp44[2];
-                    ((u8 *)&sp4C)[3] = sp44[3];
-                    func_001102f0((u8 *)&sp28, 0x140, 0xA5, 300.0f);
-                    switch (*(u16 *)(obj + 8)) {
-                    case 0x59:
-                        fclWriteColorBytes(&sp4C, 0xFF, 0xFF, 0xFF, 0xCD);
-                        break;
-                    case 0xA:
-                        fclWriteColorBytes(&sp4C, 0xFF, 0xFF, 0xFF, 0xA);
-                        break;
-                    case 0x5F:
-                        fclWriteColorBytes(&sp4C, 0xFF, 0xFF, 0xFF, 0xAA);
-                        break;
-                    default:
-                        break;
-                    }
-                    func_003489c0(*(u8 **)(obj + 0xF0), sp28, 0.0f, 0.0f, 0.0f, 1.0f, *(FclDrawColor *)&sp4C, 0, -1);
-                }
-                if (*(s8 *)(obj + 5) == 1) {
-                    u16 v = *(u16 *)(obj + 8);
-                    if ((v == 4) || (v == 0xB) || (v == 0x16) || (v == 0x2D) || (v == 0x53) ||
-                        (v == 0x6B) || (v == 0x9A) || (v == 0x57) || (v == 0xA6) || (v == 0xBA) ||
-                        (v == 0xBD) || (v == 0x15) || (v == 0x43) || (v == 0x68) || (v == 0x8D) ||
-                        (v == 0x93) || (v == 0x71) || (v == 0x7D) || (v == 0x8A) || (v == 0xA3) ||
-                        (v == 0x39)) {
-                        *(s8 *)(obj + 4) = 2;
-                        *(s8 *)(obj + 5) = 0;
-                    } else {
-                        *(s8 *)(obj + 4) = 3;
-                    }
-                } else {
-                    *(s8 *)(obj + 4) = 4;
-                }
-                break;
-            case 2:
-                if (*(u8 *)(*(u8 **)(obj + 0xC) + 0xEE) == 1) {
-                    *(s8 *)(obj + 5) = 0;
-                    *(s8 *)(obj + 4) = 4;
-                } else if ((f32)func_00285b30() >= 700.0f) {
-                    *(s8 *)(obj + 5) = 0;
-                    *(s8 *)(obj + 4) = 4;
-                }
-                break;
-            case 3:
-                {
-                    u8 *mdl = *(u8 **)(obj + 0xC);
-                    if (*(u8 *)(mdl + 0xEE) == 1) {
-                        func_00479940(mdl, 0, 0, 30, 1);
+                    break;
+                case 2:
+                    if (*(u8 *)(*(u8 **)(obj + 0xC) + 0xEE) == 1) {
                         *(s8 *)(obj + 5) = 0;
                         *(s8 *)(obj + 4) = 4;
                     } else if ((f32)func_00285b30() >= 700.0f) {
-                        func_00479940(*(u8 **)(obj + 0xC), 0, 0, 30, 1);
                         *(s8 *)(obj + 5) = 0;
                         *(s8 *)(obj + 4) = 4;
                     }
+                    break;
+                case 3:
+                    {
+                        u8 *mdl = *(u8 **)(obj + 0xC);
+                        if (*(u8 *)(mdl + 0xEE) == 1) {
+                            func_00479940(mdl, 0, 0, 30, 1);
+                            *(s8 *)(obj + 5) = 0;
+                            *(s8 *)(obj + 4) = 4;
+                        } else if ((f32)func_00285b30() >= 700.0f) {
+                            func_00479940(*(u8 **)(obj + 0xC), 0, 0, 30, 1);
+                            *(s8 *)(obj + 5) = 0;
+                            *(s8 *)(obj + 4) = 4;
+                        }
+                    }
+                    break;
+                default:
+                    break;
                 }
-                break;
-            default:
-                break;
             }
         } else {
             *(s32 *)(obj + 0xE8) = 0xB3;
@@ -566,9 +563,6 @@ s32 func_00349c50(u8 *arg0)
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclModel", func_00349c50);
-#endif
 // FUN_0034A480
 void func_0034a480(u8 *arg0)
 {
@@ -667,7 +661,7 @@ s32 func_0034a4f0(s32 arg0, s32 arg1)
     *(u8 **)(mem + 0x14) = entry;
     *(s32 *)(mem + 0x10) = *(s32 *)(entry + 8);
     *(s32 *)(mem + 0xE8) = 0xB3;
-    RwMatrixRotate(mem + 0x30, &sp40[0], 0, 180.0f);
+    RwMatrixRotate(mem + 0x30, &sp40[0], 180.0f, 0);
     RwMatrixTranslate(mem + 0x30, &sp50[0], 2);
     return handle;
 }
