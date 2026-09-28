@@ -1260,7 +1260,16 @@ case8_failure:
    Levers: struct copies for the 0x20/0x34/0x40 blocks, switch statements for the type/mode tests
    (cases written 0,1,0xD,6,7 emit retail's 7,6,0xD,1,0 chain), inline scale helpers, s32 count,
    and the 0.0125f/0.8f literals for fGpffff8354/fGpffff838c. See
-   docs/probe_archive/Attach_001d53e0_20260926_body.c. */
+   docs/probe_archive/Attach_001d53e0_20260926_body.c.
+   2026-09-28 (lane4, still 8 words): the swap is a partition, not an order. Retail keeps
+   {unit,entry,handles,frame,w} in $s0-$s4 and {i,color,created,count} in $s5-$fp; this body puts i in the
+   low group and frame in the high one. Group membership follows how the value is used, not declaration
+   order: moving i or frame anywhere in the declarations never changes it, but one extra use of frame
+   (compare, store or call argument) swaps the groups. A call argument `func(frame)` lands frame at retail's $s3
+   in declaration order and i at $s5, a compare or store puts frame at $s0 instead; none of these
+   spellings exists in retail, so they are diagnostics only. Also no effect: pointer or s32 i,
+   (u16)-cast index, inline compare helpers, pointer parameter, opt_loop_invariants/opt_propagation
+   pragmas (pragma sweep leaves 8). */
 // FUN_001D53E0 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct BtlAttachV3
