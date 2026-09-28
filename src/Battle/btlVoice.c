@@ -16,7 +16,7 @@ typedef struct BtlAction BtlAction;
 
 typedef struct BtlVoicePacket001f99c0 {
     BtlAction* action; // 0x00
-    s16 unk_04;        // 0x04
+    u16 unk_04;        // 0x04: cue index, read unsigned by callback
     u8 unkData1[2];
     s32 unk_08;        // 0x08
     s32 unk_0c;        // 0x0c
@@ -56,7 +56,7 @@ void func_00225740(BtlCamera* camera);
 
 
 // FUN_001F99C0
-BtlPacket* btlVoiceCreatePacket(BtlAction* action, s32 param_2, s32 param_3,
+BtlPacket* btlVoiceCreatePacket(BtlAction* action, u16 param_2, s32 param_3,
                                 s32 param_4, s32 param_5)
 {
     BtlPacket* packet;

@@ -8,6 +8,18 @@ The objective is a clean C replacement for each first-party `INCLUDE_ASM` functi
 
 ## Current checkpoint
 
+2026-09-28 assistance-action continuation: **6,700 of 6,861 first-party
+functions MATCH, 161 assembly fallbacks**. The current source adds `001a3840`
+to the already published `67153c5` checkpoint. Fresh verification covers all
+13,102 markers and preserves 385 peer windows across the six changed owners.
+The full link includes the action from C and reproduces both retail hashes.
+See `docs/probe_archive/Assistance_action_001a3840_20260928.md` and the
+publication checkout's `build/batches/action3840-v1/` receipts. Remaining
+candidates are still assembly fallbacks until their complete owner and caller
+proofs pass.
+
+### Earlier September 27 checkpoint
+
 2026-09-27 continuation on upstream `7438a83`: **6,687 of 6,861
 first-party functions MATCH, 174 assembly fallbacks**. Six additional
 recoveries cover field shadows, the map test, date selection and line rendering.
