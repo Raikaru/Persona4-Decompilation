@@ -576,7 +576,15 @@ typedef struct BtlEplUnitRgbaParam
 
 /* measured: fresh rewrite on the btlEPL family shape, 96 words (obj 2172B, window 2176B);
    residual is FP colouring only (retail inv = 1 - scale in $f2, here $f4). See
-   docs/probe_archive/BtlEpl_001fd790_20260926_body.c for what was tried. */
+   docs/probe_archive/BtlEpl_001fd790_20260926_body.c for what was tried.
+   2026-09-28 re-measure, 96 words unchanged: retail hoists `(u8)mode` (andi) before `1.0f - scale`,
+   so `inv` is not the loop-top local written here.  Spelling it inline as `(1.0f - scale)` in the
+   eight a0..a3 products (or a block-local `inv` inside the cases) reproduces that hoist order, but
+   the hoisted temp then coalesces into the constant's register ($f0) and every colour temp shifts
+   up by one (276 words, one extra mtc1 zero).  Any named `inv` (function-level, assigned at the
+   loop top, before the inner loop, before the switch, or inside each case) colours to $f4 or worse
+   (103 when declared before `scale`); retail wants $f2, the one register the four colour
+   components ($f4,$f3,$f1,$f0) skip. */
 // FUN_001FD790 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_dead_assignments off
