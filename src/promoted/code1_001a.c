@@ -2496,270 +2496,300 @@ donecheck:
     }
 }
 #pragma pop
-/* measured 001a4c80 (WCold): m2c + romwright cold drafts de-noised to file idiom (u8* + RwV3d, truthful externs per tree: 95850(u8*,f32*)/95c50(u8*,u8*,RwV3d*)/99d00(s32,u8*,s64,s32)/f1210(u8*,s64,s32)/951f0(u8*,u8*,u8*,s32,f32*,f32*,s32)/95730(u8*,u8*,u8*,s32)/ec1c0(u8*,u8*,u8*)/3e4180(f32*)/3e40b0(f32*,f32*)/243d80(u8*)/f0a50(u8*)/f0bf0(u8*)/f0ff0(u8*)/22fb10(void)/96bd0(f32 local shadow over file s16)/b3bc+iGp8360 locals, D_005F6D20 kept); count first retail 584 vs v1 597 (2.2% over) then v2 586 (0.34% over); v1 525 -> v2 506 (float max/threshold fix) -> v4 487 via address-fold `(u8*)b3bc+off+2` for `lhu 2` (19-word win, 583/583 exact, 0% deviation, 445 edits +3 reloc-only via fnalign --candidate); pragma singles all tie/regress (sched 508, cs 520, prop 521), pair sched+cs 503 but 517/583 (11% short, rejected per 3% gate); scoped-counter v3 511 and s32-idx v5 499 regressed. Open walls: frame 0x140 vs retail 0x120 (spill of var_22/23), s-reg rotation, VU ACC (adda/msuba/madda) vs plain mul/add. Production stays ASM; banked as floor. Evidence in /var/tmp/cold1a4c80/ (m2c.c/rom.c/raw.c/types.txt/cand_v*.c). */
-/* measured 001a4c80 (owner, 2026-09-19): fnalign edits **445 -> 427** by writing the
-   `if (kind == c) ... else if` chain as a `switch (kind)` with the cases ascending and the
-   trailing `else` as `default`.  Swept with a brace-aware converter over the 26
-   highest-edit first-party floors that carry a chain; seven improved, six got worse and
-   the rest have no convertible chain, so this is measured per function. */
+/* measured 001a4c80 (2026-09): 585 instructions against retail 584, 163 fnalign edits (+9 reloc-only), was 429 edits.
+   Rebuilt on typed action/unit views with block-local packet pointers, RwV3d locals in stack order (sp110 first,
+   spC0 last), the retail `do { ... } while (0)` fall-out shape for the target-in-range test, `var_6 = 1` set before
+   the kind switch, u16 `mask` passed to a u16 parameter, a `!(flags & 2)` turn flag, and the near/turn arms in
+   retail's order.  The float radius/scale reads are struct fields (raw `+0x90` address expressions get CSE'd into
+   saved registers and spilled), and the first distance is its own statement (in one expression b210 hoists the
+   four field loads above the call into saved FPRs).
+   Remaining: saved-register colours (proceed/pktFlags is one variable in retail and lives in $s2; near/turn are
+   $s7/$s6), the second load pair of each fused radius*scale chain that retail emits after the first msuba, and
+   a few `lw` orders. */
 // FUN_001A4C80 NONMATCHING
 #ifdef NON_MATCHING
 void func_001a4c80(u8 *arg0)
 {
-    extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern void func_00195c50(u8 *arg0, u8 *arg1, RwV3d *arg2);
     extern s32 func_00199d00(s32 unused, u8 *arg1, s64 arg2, s32 arg3);
     extern s32 func_001f1210(u8 *arg0, s64 arg1, s32 arg2);
-    extern void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, f32 *arg4, f32 *arg5, s32 arg6);
-    extern u8 *func_00195730(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3);
-    extern void func_001ec1c0(u8 *arg0, u8 *arg1, u8 *arg2);
+    extern void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, RwV3d *arg4, RwV3d *arg5, s32 arg6);
+    extern u8 *func_00195730(u8 *arg0, RwV3d *arg1, RwV3d *arg2, s32 arg3);
+    extern void func_001ec1c0(RwV3d *arg0, RwV3d *arg1, RwV3d *arg2);
+    extern f32 func_001ec250(RwV3d *arg0, RwV3d *arg1);
     extern f32 RwV3dLength(f32 *arg0);
-    extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
+    extern f32 RwV3dNormalize(RwV3d *arg0, RwV3d *arg1);
     extern s32 func_00243d80(u8 *arg0);
     extern s32 func_001f0a50(u8 *arg0);
     extern s32 func_001f0bf0(u8 *arg0);
     extern s32 func_001f0ff0(u8 *arg0);
     extern s32 func_0022fb10(void);
-    extern f32 func_00196bd0(u8 *arg0, u8 *arg1, s32 arg2);
+    extern f32 func_00196bd0(u8 *arg0, u8 *arg1, u16 arg2);
     extern u8 *iGpffffb3bc;
     extern f32 fGpffff8360;
-    u8 spC0[16];
-    RwV3d spD0;
-    RwV3d spE0;
-    f32 spF0[4];
-    f32 sp100[3];
+    typedef struct UnitView {
+        u8 unknown00[8];
+        f32 y;
+        u8 unknown0C[0x2C - 0x0C];
+        f32 scale;
+        u8 unknown30[0x90 - 0x30];
+        f32 radius;
+        u8 unknown94[0xA2 - 0x94];
+        u8 kind;
+        u8 unknownA3[0xA64 - 0xA3];
+        u8 *data;
+    } UnitView;
+    typedef struct ActionView {
+        s64 uid;
+        u8 unknown08[0x10];
+        u16 flags;
+        u8 unknown1A[0x16];
+        UnitView *unit;
+        u8 unknown34[4];
+        struct ActionView *target;
+        u8 unknown3C[0x30];
+        u16 mode;
+        u16 index;
+    } ActionView;
     RwV3d sp110;
-    s32 spB0;
+    RwV3d sp100;
+    RwV3d spF0;
+    RwV3d spE0;
+    RwV3d spD0;
+    RwV3d spC0;
+    ActionView *action;
     u16 idx;
     s32 off;
-    s32 var_18;
-    s32 var_22;
-    s32 var_23;
-    s32 tmp_bf0;
-    s32 var_6;
-    s32 tmp_6b;
-    u8 *unit30;
-    u8 *other30;
-    u8 kind;
-    u8 *tmp_pkt;
-    u8 *tmp_a64_ptr;
-    u16 tmp_half;
-    s32 tmp_e1f0;
-    s32 tmp_1210;
-    f32 var_f21;
-    f32 var_f20;
-    f32 tmp_dist;
-    f32 tmp_len;
+    s32 proceed;
+    s32 near;
+    s32 turn;
+    s32 gate;
+    f32 distance;
+    f32 speed;
 
-    idx = *(u16 *)((u8 *)arg0 + 0x6E);
-    off = (s32)idx * 4;
-    if ((*(u16 *)((u8 *)iGpffffb3bc + off + 2) & 0x8000) != 0) {
+    action = (ActionView *)arg0;
+    idx = action->index;
+    off = idx * 4;
+    if ((*(u16 *)((u32)off + (u32)iGpffffb3bc + 2) & 0x8000) != 0) {
         return;
     }
     if ((*(s32 *)(iGpffffb3ac + 0x10) & 0x2000) != 0) {
         return;
     }
-    var_18 = 1;
-    var_23 = 0;
-    var_22 = 0;
-    tmp_pkt = actionLookAtUnit(NULL, *(u8 **)((u8 *)arg0 + 0x30), 3);
-    *(s64 *)(tmp_pkt + 0x60) = *(s64 *)arg0;
-    func_00194590(tmp_pkt, 1);
-    tmp_pkt = (u8 *)btlUnitCreateLookAtDeactivatePacket(*(s32 *)((u8 *)arg0 + 0x30), 0);
-    *(s64 *)(tmp_pkt + 0x60) = *(s64 *)arg0;
-    func_00194590(tmp_pkt, 1);
-    *(u16 *)((u8 *)arg0 + 0x18) = (u16)(*(u16 *)((u8 *)arg0 + 0x18) | 0x200);
-    if ((*(u8 *)(iGpffffb3b8 + (u32)idx * 0x28) & 2) != 0) {
-        tmp_bf0 = func_001f0bf0(arg0);
-        unit30 = *(u8 **)((u8 *)arg0 + 0x30);
-        kind = *(u8 *)(unit30 + 0xA2);
-        if (kind != 0) {
-            goto first_a2_nonzero;
+    proceed = 1;
+    near = 0;
+    turn = 0;
+    {
+        u8 *pkt;
+        pkt = actionLookAtUnit(NULL, (u8 *)action->unit, 3);
+        *(s64 *)(pkt + 0x60) = action->uid;
+        func_00194590(pkt, 1);
+    }
+    {
+        u8 *pkt;
+        pkt = (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)action->unit, 0);
+        *(s64 *)(pkt + 0x60) = action->uid;
+        func_00194590(pkt, 1);
+    }
+    action->flags |= 0x200;
+    if ((*(u8 *)(iGpffffb3b8 + idx * 0x28) & 2) != 0) {
+        s32 bf0;
+        UnitView *unit;
+        bf0 = func_001f0bf0((u8 *)action);
+        unit = action->unit;
+        do {
+            if (unit->kind == 0) {
+                u8 *data;
+                u16 half;
+                s32 var6;
+                data = unit->data;
+                half = *(u16 *)(data + 2);
+                var6 = 1;
+                switch (unit->kind) {
+                case 0:
+                    {
+                        s32 r;
+                        r = func_0023e1f0(data) & 0xFF;
+                        if (r == 5) {
+                            var6 = 1;
+                        } else if (r == 3 && ((*(u16 *)((u32)off + (u32)iGpffffb3bc + 2) & 0x8000) != 0 || bf0 == 0)) {
+                            var6 = 1;
+                        } else {
+                            var6 = 0;
+                        }
+                    }
+                    break;
+                case 1:
+                    if (*(s16 *)(iGpffffb3cc + (u32)half * 0xE8 + 0x22) != 1) {
+                        var6 = 0;
+                    }
+                    break;
+                default:
+                    var6 = 0;
+                    break;
+                }
+                if (var6 != 0) {
+                    UnitView *other;
+                    unit = action->unit;
+                    other = action->target->unit;
+                    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0 && unit->kind != other->kind) {
+                        proceed = 0;
+                    } else {
+                        btlUnitGetSphereWorldCenter((BtlUnit *)unit, &spE0);
+                        func_00195c50((u8 *)other, (u8 *)unit, &spD0);
+                        if (func_001ec250(&spE0, &spD0) < 500.0f) {
+                            near = 1;
+                            proceed = 0;
+                        } else {
+                            distance = 500.0f;
+                        }
+                    }
+                    break;
+                }
+            }
+            {
+                u16 mask;
+                unit = action->unit;
+                if (unit->kind == 0) {
+                    if ((*(u16 *)((u32)off + (u32)iGpffffb3bc + 2) & 0x8000) != 0) {
+                        mask = 7;
+                    } else if (bf0 != 0) {
+                        mask = 5;
+                    } else {
+                        mask = func_001f0a50((u8 *)action) != 0 ? 0xC : 4;
+                    }
+                } else {
+                    mask = func_001f0a50((u8 *)action) != 0 ? 0xC : 4;
+                }
+                distance = func_00196bd0((u8 *)action->unit, (u8 *)action->target->unit, mask);
+            }
+        } while (0);
+        if ((action->flags & 0x4000) != 0) {
+            turn = 1;
         }
-        tmp_a64_ptr = *(u8 **)(unit30 + 0xA64);
-        tmp_half = *(u16 *)(tmp_a64_ptr + 2);
-        var_6 = 1;
-        switch (kind) {
+    } else {
+        UnitView *unit;
+        unit = action->unit;
+        switch (unit->kind) {
         case 0:
-            tmp_e1f0 = func_0023e1f0(*(u8 **)(unit30 + 0xA64)) & 0xFF;
-            if (tmp_e1f0 == 5) {
-                var_6 = 1;
-            } else if ((tmp_e1f0 == 3) && (((*(u16 *)((u8 *)iGpffffb3bc + off + 2) & 0x8000) != 0) || (tmp_bf0 == 0))) {
-                var_6 = 1;
-            } else {
-                goto first_var6_zero;
+            {
+                UnitView *other;
+                u8 *link;
+                s32 gate2;
+                s32 spB0;
+                other = action->target->unit;
+                link = *(u8 **)((u8 *)unit + 0xA0C);
+                gate2 = func_001f0ff0((u8 *)action);
+                spB0 = func_00199d00((s32)link, (u8 *)unit, (s64)(s16)idx, gate2) & 0xFFFF;
+                gate = func_001f1210(link, (s64)(s16)idx, gate2);
+                btlUnitGetSphereWorldCenter((BtlUnit *)unit, &spE0);
+                func_00195c50((u8 *)other, (u8 *)unit, &spD0);
+                speed = func_001ec250(&spE0, &spD0);
+                speed = speed - unit->radius * unit->scale - other->radius * other->scale;
+                if (gate == 0 || func_0022fb10() == 0 || speed < 300.0f || speed - 300.0f < 200.0f) {
+                    action->flags |= 0x10;
+                    proceed = 0;
+                } else {
+                    speed = speed + unit->radius * unit->scale + other->radius * other->scale;
+                    func_001951f0(link, (u8 *)unit, (u8 *)other, (s16)spB0, &sp110, NULL, 2);
+                    distance = func_001ec250(&sp110, &spD0);
+                    {
+                        f32 limit;
+                        limit = 300.0f + unit->radius * unit->scale + other->radius * other->scale;
+                        if (distance < limit) {
+                            distance = limit;
+                        }
+                    }
+                    func_001951f0(link, (u8 *)unit, NULL, -1, &sp110, NULL, 0);
+                    spF0.x = sp110.x - spE0.x;
+                    spF0.z = sp110.z - spE0.z;
+                    spF0.y = 0.0f;
+                    distance = distance + RwV3dLength((f32 *)&spF0);
+                    if (speed < distance) {
+                        action->flags |= 0x10;
+                        proceed = 0;
+                    }
+                }
             }
             break;
         case 1:
-            if (*(s16 *)((u8 *)iGpffffb3cc + (u32)(tmp_half & 0xFFFF) * 0xE8 + 0x22) == 1) {
-            } else {
-                goto first_var6_zero;
+            {
+                u16 mask;
+                mask = func_001f0a50((u8 *)action) != 0 ? 0xC : 4;
+                distance = func_00196bd0((u8 *)action->unit, (u8 *)action->target->unit, mask);
             }
             break;
-        default:
-first_var6_zero:
-            var_6 = 0;
-            break;
-        }
-        if (var_6 != 0) {
-            unit30 = *(u8 **)((u8 *)arg0 + 0x30);
-            other30 = *(u8 **)(*(u8 **)((u8 *)arg0 + 0x38) + 0x30);
-            if (((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) && (*(u8 *)(unit30 + 0xA2) != *(u8 *)(other30 + 0xA2))) {
-                var_18 = 0;
-            } else {
-                btlUnitGetSphereWorldCenter(unit30, (f32 *)&spE0);
-                func_00195c50(other30, unit30, &spD0);
-                tmp_dist = func_001ec250(&spE0, &spD0);
-                if (tmp_dist < 500.0f) {
-                    var_23 = 1;
-                    var_18 = 0;
-                } else {
-                    var_f21 = 500.0f;
-                }
-            }
-        } else {
-first_a2_nonzero:
-            unit30 = *(u8 **)((u8 *)arg0 + 0x30);
-            if (*(u8 *)(unit30 + 0xA2) == 0) {
-                if ((*(u16 *)((u8 *)iGpffffb3bc + off + 2) & 0x8000) != 0) {
-                    tmp_6b = 7;
-                } else if (tmp_bf0 != 0) {
-                    tmp_6b = 5;
-                } else {
-                    if (func_001f0a50(arg0) != 0) {
-                        tmp_6b = 0xC;
-                    } else {
-                        tmp_6b = 4;
-                    }
-                    tmp_6b = tmp_6b & 0xFFFF;
-                }
-            } else {
-                if (func_001f0a50(arg0) != 0) {
-                    tmp_6b = 0xC;
-                } else {
-                    tmp_6b = 4;
-                }
-                tmp_6b = tmp_6b & 0xFFFF;
-            }
-            var_f21 = func_00196bd0(*(u8 **)((u8 *)arg0 + 0x30), *(u8 **)(*(u8 **)((u8 *)arg0 + 0x38) + 0x30), tmp_6b);
-        }
-        if ((*(u16 *)((u8 *)arg0 + 0x18) & 0x4000) != 0) {
-            var_22 = 1;
-        }
-    } else {
-        unit30 = *(u8 **)((u8 *)arg0 + 0x30);
-        kind = *(u8 *)(unit30 + 0xA2);
-        if (kind == 1) {
-            if (func_001f0a50(arg0) != 0) {
-                tmp_6b = 0xC;
-            } else {
-                tmp_6b = 4;
-            }
-            tmp_6b = tmp_6b & 0xFFFF;
-            var_f21 = func_00196bd0(*(u8 **)((u8 *)arg0 + 0x30), *(u8 **)(*(u8 **)((u8 *)arg0 + 0x38) + 0x30), tmp_6b);
-        } else if (kind == 0) {
-            other30 = *(u8 **)(*(u8 **)((u8 *)arg0 + 0x38) + 0x30);
-            tmp_a64_ptr = *(u8 **)(unit30 + 0xA0C);
-            tmp_pkt = (u8 *)func_001f0ff0(arg0);
-            spB0 = func_00199d00((s32)tmp_a64_ptr, unit30, (s64)(s16)idx, (s32)tmp_pkt) & 0xFFFF;
-            tmp_1210 = func_001f1210(tmp_a64_ptr, (s64)(s16)idx, (s32)tmp_pkt);
-            btlUnitGetSphereWorldCenter(unit30, (f32 *)&spE0);
-            func_00195c50(other30, unit30, &spD0);
-            tmp_dist = func_001ec250(&spE0, &spD0);
-            var_f20 = tmp_dist - *(f32 *)(unit30 + 0x90) * *(f32 *)(unit30 + 0x2C) - *(f32 *)(other30 + 0x90) * *(f32 *)(other30 + 0x2C);
-            if ((tmp_1210 == 0) || (func_0022fb10() == 0) || (var_f20 < 300.0f) || ((var_f20 - 300.0f) < 200.0f)) {
-                *(u16 *)((u8 *)arg0 + 0x18) = (u16)(*(u16 *)((u8 *)arg0 + 0x18) | 0x10);
-                var_18 = 0;
-            } else {
-                var_f20 = var_f20 + *(f32 *)(unit30 + 0x90) * *(f32 *)(unit30 + 0x2C) + *(f32 *)(other30 + 0x90) * *(f32 *)(other30 + 0x2C);
-                func_001951f0(tmp_a64_ptr, unit30, other30, (s32)(s16)spB0, (f32 *)&sp110, NULL, 2);
-                tmp_len = func_001ec250(&sp110, &spD0);
-                var_f21 = tmp_len;
-                tmp_dist = 300.0f + *(f32 *)(unit30 + 0x90) * *(f32 *)(unit30 + 0x2C) + *(f32 *)(other30 + 0x90) * *(f32 *)(other30 + 0x2C);
-                if (tmp_len < tmp_dist) {
-                    var_f21 = tmp_dist;
-                }
-                func_001951f0(tmp_a64_ptr, unit30, NULL, -1, (f32 *)&sp110, NULL, 0);
-                spF0[0] = sp110.x - spE0.x;
-                spF0[2] = sp110.z - spE0.z;
-                spF0[1] = 0.0f;
-                tmp_len = RwV3dLength(spF0);
-                var_f21 = var_f21 + tmp_len;
-                if (var_f20 < var_f21) {
-                    *(u16 *)((u8 *)arg0 + 0x18) = (u16)(*(u16 *)((u8 *)arg0 + 0x18) | 0x10);
-                    var_18 = 0;
-                }
-            }
         }
     }
-    if (var_18 == 0) {
+    if (proceed == 0) {
         return;
     }
-    func_001a03b0((s64 *)arg0);
+    func_001a03b0((s64 *)action);
     {
-        s32 pktFlags;
-        s32 tblIdx;
-        u16 half2;
-        u8 kind2;
-        u8 invFlag;
-        u8 *u30;
-        u8 *o30;
-        f32 f20;
-        pktFlags = 0;
+        UnitView *unit;
+        u16 tblIdx;
+        u32 unitIdx;
+        u32 turnFlag;
+        u8 *pkt;
+        proceed = 0;
         tblIdx = 2;
-        invFlag = (u8)(((*(u8 *)(iGpffffb3b8 + (u32)idx * 0x28) & 2) == 0) & 0xFFFF);
-        u30 = *(u8 **)((u8 *)arg0 + 0x30);
-        half2 = *(u16 *)(*(u8 **)(u30 + 0xA64) + 2);
-        kind2 = *(u8 *)(u30 + 0xA2);
-        if (kind2 == 1) {
-            tblIdx = *(u16 *)((u32)iGpffffb3cc + (u32)(half2 & 0xFFFF) * 0xE8 + (u32)(invFlag & 0xFFFF) * 4 + 0x24);
+        turnFlag = (u16)(!(*(u8 *)(iGpffffb3b8 + action->index * 0x28) & 2));
+        unit = action->unit;
+        unitIdx = *(u16 *)(unit->data + 2);
+        if (unit->kind == 1) {
+            tblIdx = *(u16 *)(iGpffffb3cc + (u16)unitIdx * 0xE8 + (u16)turnFlag * 4 + 0x24);
         }
-        f20 = D_005F6D20[tblIdx & 0xFFFF];
-        if (var_22 == 1) {
-            if (var_23 != 0) {
-                f20 = f20 * 1.25f;
+        speed = D_005F6D20[tblIdx];
+        if (turn == 1) {
+            if (near == 0) {
+                UnitView *other;
+                other = action->target->unit;
+                btlUnitGetSphereWorldCenter((BtlUnit *)unit, &spE0);
+                func_00195c50((u8 *)other, (u8 *)unit, &spD0);
+                sp100.x = spE0.x - spD0.x;
+                sp100.z = spE0.z - spD0.z;
+                sp100.y = 0.0f;
+                RwV3dNormalize(&sp100, &sp100);
+                {
+                    f32 span;
+                    span = (unit->radius * unit->scale + other->radius * other->scale) + distance + 50.0f;
+                    sp100.x = sp100.x * span;
+                    sp100.y = sp100.y * span;
+                    sp100.z = sp100.z * span;
+                }
+                sp110.x = spD0.x + sp100.x;
+                sp110.y = spD0.y + sp100.y;
+                sp110.z = spD0.z + sp100.z;
+                sp110.y = unit->y;
+                func_001ec1c0(&spC0, &sp110, &spD0);
+                pkt = func_00195730((u8 *)unit, &sp110, &spC0, 0);
+                *(s64 *)(pkt + 0x60) = action->uid;
+                func_00194590(pkt, 0);
+                speed = speed * fGpffff8360;
+                proceed = 8;
             } else {
-                o30 = *(u8 **)(*(u8 **)((u8 *)arg0 + 0x38) + 0x30);
-                btlUnitGetSphereWorldCenter(u30, (f32 *)&spE0);
-                func_00195c50(o30, u30, &spD0);
-                sp100[0] = spE0.x - spD0.x;
-                sp100[2] = spE0.z - spD0.z;
-                sp100[1] = 0.0f;
-                RwV3dNormalize(sp100, sp100);
-                tmp_dist = (*(f32 *)(u30 + 0x90) * *(f32 *)(u30 + 0x2C) + *(f32 *)(o30 + 0x90) * *(f32 *)(o30 + 0x2C)) + var_f21 + 50.0f;
-                sp100[0] = sp100[0] * tmp_dist;
-                sp100[1] = sp100[1] * tmp_dist;
-                sp100[2] = sp100[2] * tmp_dist;
-                sp110.x = spD0.x + sp100[0];
-                sp110.y = spD0.y + sp100[1];
-                sp110.z = spD0.z + sp100[2];
-                sp110.y = *(f32 *)(u30 + 8);
-                func_001ec1c0(spC0, (u8 *)&sp110, (u8 *)&spD0);
-                tmp_pkt = func_00195730(u30, (u8 *)&sp110, spC0, 0);
-                *(s64 *)(tmp_pkt + 0x60) = *(s64 *)arg0;
-                func_00194590(tmp_pkt, 0);
-                f20 = f20 * fGpffff8360;
-                pktFlags = 8;
+                speed = speed * 1.25f;
             }
         }
-        if (func_00243d80(*(u8 **)(*(u8 **)(*(u8 **)((u8 *)arg0 + 0x38) + 0x30) + 0xA64)) == 0) {
-            pktFlags = pktFlags | 0x40;
+        if (func_00243d80(action->target->unit->data) == 0) {
+            proceed = proceed | 0x40;
         }
-        tmp_pkt = btlUnitCreateMoveToUnitPacket(*(u8 **)((u8 *)arg0 + 0x30), *(u8 **)(*(u8 **)((u8 *)arg0 + 0x38) + 0x30), pktFlags, var_f21, f20);
-        *(s64 *)(tmp_pkt + 0x60) = *(s64 *)arg0;
-        func_00194590(tmp_pkt, 0);
-        if ((tmp_pkt != NULL) && (var_23 == 0)) {
-            if (var_22 != 0) {
-                tmp_pkt = btlCameraCreateSetStatePacket(arg0, 0x17);
-                *(s64 *)(tmp_pkt + 0x60) = *(s64 *)arg0;
-                func_00194590(tmp_pkt, 0);
+        pkt = (u8 *)btlUnitCreateMoveToUnitPacket((BtlUnit *)action->unit, (BtlUnit *)action->target->unit, distance, speed, proceed);
+        *(s64 *)(pkt + 0x60) = action->uid;
+        func_00194590(pkt, 0);
+        if (pkt != NULL && near == 0) {
+            if (turn != 0) {
+                pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x17);
+                *(s64 *)(pkt + 0x60) = action->uid;
+                func_00194590(pkt, 0);
             } else {
-                tmp_pkt = btlCameraCreateSetStatePacket(arg0, 0x16);
-                *(s64 *)(tmp_pkt + 0x60) = *(s64 *)arg0;
-                func_00194590(tmp_pkt, 0);
+                pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x16);
+                *(s64 *)(pkt + 0x60) = action->uid;
+                func_00194590(pkt, 0);
             }
         }
-        *(u16 *)((u8 *)arg0 + 0x18) = (u16)(*(u16 *)((u8 *)arg0 + 0x18) & 0xFFEF);
+        action->flags &= 0xFFEF;
     }
 }
 #else
