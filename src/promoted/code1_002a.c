@@ -155,115 +155,104 @@ void func_002a02f0(u8 *arg0, s32 arg1) {
     func_0029fbb0(arg0, 4);
     func_0029fbb0(arg0, 5);
 }
-/* Floor for func_002a03b0 (retail 3888B/971 instrs @0x002A03B0, window 3888B).
-   Candidate (modernized Lane0041_002a_002a03b0_body.c:156-414, 259-line range only; other FUNs untouched):
-   3864B emitted / 3888B window (24B short), fnalign 966/971 instrs (5 short, 0.5% gap, within ~3%),
-   278 edit instrs +40 reloc-only, probe 876 differing words. Production guarded to ASM (0 MISMATCH overall).
-   Modernization vs archived snapshot (required for compile, not tuning): honest e9e0 ints-first
-   (s32,s32,s32,void*,s32,f32,f32,f32 per code1_0025, 28 calls translated from floats-first),
-   iGpffffb540 for gp-0x4AC0, iGpffffb538 (was *(s32*)0x0 null deref) for gp-0x4AC8 UI index,
-   iGpffffb528 buffer for gp-0x4AD8 string path, inside-function externs for 274ed0/442de8/442948/29f790
-   (file-scope lacks them; inside keeps edit inside function per batch discipline).
-   7o exchange probes on tail s2/s3 pair (var_18_3/var_19 + var_18_4/var_19_2, bare decls + statement assigns
-   already in 7o form): func/block x decl-retail/decl-reverse x assign-retail/assign-reverse = 8 probes,
-   all 876 ties (F_R_R 876, F_R_V 876, F_V_R 876, F_V_V 876, B_R_R 876, B_R_V 876, B_V_R 876, B_V_V 876).
-   Reversal never improves here; residual is pervasive (float-conv shapes, slti-at vs slti-v0, s2/s4 + FPR
-   colour, gp-lui vs gp-addiu for undefined b528 buffer) not a single exchange. Next: argument-setup order
-   and conversion-register levers top-down per 7a-bis/7a-quinquies, not declaration permutation. */
-/* 2026-09-19: frame -0xa0 exact (addiu sp,sp,-0xa0 both sides). Lui audit retail 90 vs object 94 (+4 surplus): retail {0xc140:1, 0x75:1, 0x88:6 + floats} vs object {0x4140:1, 0:11 + same floats}; surplus is symbols, not floats	D_007485D0 base (retail lui 0x75+addiu -0x7a30 at 0x2A0FA8 vs object lui 0 at obj@757) + 4x iGpffffb528 buffer (retail addiu gp,-0x4AD8 1 instr at 0x2A117C/0x2A11AC/0x2A123C/0x2A126C vs object lui 0+addiu 0 2 instrs). Float 0xc140 (retail -12.0f add at 0x2A0F54) vs 0x4140 (object +12.0f sub) is colour, not surplus. Counts fnalign 966 vs 971 (-5, -0.5%), words 876, edits 278 +40 reloc. Deletes 19 tot 34 (largest 22 vs 4 at 766:788 tail D_007485D0/div + 17 vs 3 at 762:765, rest 1-3 mov.s/lwc1/nop FPR spills at 0x2A03EC,0x2A0524,0x2A0538,0x2A0570,0x2A061C,0x2A068C,0x2A06C8,0x2A0704,0x2A0730,0x2A0920,0x2A0AFC,0x2A0B38,0x2A0BD4,0x2A0C80,0x2A0CEC,0x2A0D28,0x2A0DC4,0x2A0E74,0x2A1110); inserts 17 tot 26. No single missing arm; residual pervasive per prior note. No code change this round (before=after); fixing buffer gp-lui would save 4 but push count 966->962 (-9), so left. */
+/* func_002a03b0 (retail 972 instrs): the guarded body is instruction-identical to retail except two
+   pairs of words (fnalign 4 edits, reloc masked): case 1 of the 0x1C34 mode chain emits the 0xFF constant
+   before the andi of var_18 in retail, and the two `+ cursorOfs` adds at the 0xF cursor draw come out
+   y-first here, x-first in retail. Shapes that were load-bearing: `t = func(); (u8)(255.0f * (1.0f - t))`
+   (the call result is stored before the constants are loaded), u8 alpha locals, `k = 0` before
+   rowBase/yBase in the item grid, `temp_6` (0x20 field) read before the 0x1C field, a float offset
+   local so the adds keep the constant on the right, iGpffffb528 sized (4) so it is gp-relative, strlen
+   returning u32 (srl, not sra). Local declaration order picks the saved-register and FPR colours (the
+   first declared of a pair gets the higher register): var_20 before var_18, var_20_2 before var_18_2,
+   var_19 before var_18_3, temp_f21_2 before temp_f20_2, var_3_2 before var_2. */
 // FUN_002A03B0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002a03b0(u8 *arg0) {
-    extern u8 iGpffffb528[];
+    extern u8 iGpffffb528[4];
     extern s32 iGpffffb538;
     extern s32 func_0029f790(u8 *arg0);
-    extern s32 strlen(const void *arg0);
+    extern u32 strlen(const void *arg0);
     extern void strncpy(void *arg0, const void *arg1, s32 arg2);
     extern s32 func_00274ed0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, void *arg6, s32 arg7, s32 arg8);
-    f32 sp9c;
-    f32 sp98;
-    f32 temp_f1;
-    f32 temp_f1_2;
+    f32 pos[2];
+    f32 px;
+    f32 py;
     f32 temp_f20;
-    f32 temp_f20_2;
-    f32 temp_f21;
     f32 temp_f21_2;
+    f32 temp_f20_2;
     f32 var_f12;
     f32 var_f2;
-    s16 temp_2_2;
     s32 temp_18_2;
-    s32 temp_20_3;
+    u8 temp_20_3;
+    f32 tt;
+    f32 yv;
+    f32 cursorOfs = -12.0f;
     s32 temp_21;
     s32 temp_22;
     s32 temp_2;
     s32 temp_3;
     s32 temp_3_2;
     s32 temp_5;
+    s32 temp_6;
     s32 temp_lo;
     s32 temp_lo_2;
-    s32 var_16;
+    u8 var_16;
+    u8 var_20;
     s32 var_16_2;
-    s32 var_18;
-    s32 var_18_2;
-    s32 var_18_3;
-    s32 var_18_4;
-    s32 var_20;
+    u8 var_18;
     s32 var_20_2;
-    s32 var_2;
-    s32 var_3;
+    s32 var_18_2;
     s32 var_3_2;
-    s32 var_3_3;
+    s32 var_2;
     u32 temp_16;
     u32 temp_16_2;
     u32 var_19;
+    s32 var_18_3;
     u32 var_19_2;
+    s32 var_18_4;
     u8 *temp_18;
     u8 *temp_19;
     u8 *temp_20;
     u8 *temp_20_2;
     s32 sum;
+    u8 *rowBase;
+    s32 yBase;
+    s32 tv;
+    s32 tex;
 
     temp_19 = *(u8 **)(arg0 + 0x38);
     func_0025e9e0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xA4, iGpffffb540, 1);
     temp_2 = *(s32 *)(temp_19 + 0x1C68) + 1;
     *(s32 *)(temp_19 + 0x1C68) = temp_2;
-    if (temp_2 >= 0x5A1) {
+    if (temp_2 > 0x5A0) {
         *(s32 *)(temp_19 + 0x1C68) = 0;
     }
     func_0025ea20(-78.0f, -82.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_19 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
-    func_0025ea20(540.0f, 347.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x15B, (f32)(*(s32 *)(temp_19 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
+    func_0025ea20(540.0f, 347.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_19 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
     func_0025e9e0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAF, iGpffffb540, 1);
     func_0025e9e0(0.0f, 346.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAE, iGpffffb540, 1);
     func_002a2980(temp_19 + 0x2A8);
-    temp_f1 = 255.0f * func_002a2cd0(temp_19 + 0x2A8);
-    if (!(temp_f1 >= 2.1474836e9f)) {
-        var_3 = 0x4F000000 & 0xFF;
-    } else {
-        var_3 = ((s32)(temp_f1 - 2.1474836e9f) | 0x80000000) & 0xFF;
-    }
-    var_16 = var_3 & 0xFF;
-    func_002a2c10(temp_19 + 0x2A8, &sp98);
+    var_16 = (u8)(255.0f * func_002a2cd0(temp_19 + 0x2A8));
+    func_002a2c10(temp_19 + 0x2A8, pos);
+    px = pos[0];
+    py = pos[1];
     temp_3 = *(s32 *)(temp_19 + 0x1C34);
-    switch (temp_3) {
-    case 0:
+    if (temp_3 == 0) {
         var_20 = var_16 & 0xFF;
         var_18 = 0;
-        break;
-    case 1:
+    } else if (temp_3 == 1) {
         var_18 = var_16 & 0xFF;
         var_20 = ((0xFF - var_18) >> 2) & 0xFF;
-        break;
-    case 2:
+    } else if (temp_3 == 2) {
         var_20 = var_16 & 0xFF;
         var_18 = ((0xFF - var_20) >> 2) & 0xFF;
-        break;
     }
-    func_0025e9e0(sp98, sp9c, 0.0f, 0xFFFFFF, var_20, 0x13, iGpffffb540, 1);
-    temp_f20 = 105.0f + sp98;
-    func_0025e9e0(temp_f20, sp9c, 0.0f, 0xFFFFFF, var_20, 0x11, iGpffffb540, 1);
-    temp_f21 = sp9c + 3.0f;
-    func_0025e9e0(sp98, temp_f21, 0.0f, 0xFFFFFF, var_18, 0x13, iGpffffb540, 1);
-    func_0025e9e0(temp_f20, temp_f21, 0.0f, 0xFFFFFF, var_18, 0x12, iGpffffb540, 1);
+    func_0025e9e0(px, py, 0.0f, 0xFFFFFF, var_20, 0x13, iGpffffb540, 1);
+    temp_f20 = 105.0f + px;
+    func_0025e9e0(temp_f20, py, 0.0f, 0xFFFFFF, var_20, 0x11, iGpffffb540, 1);
+    py = py + 3.0f;
+    func_0025e9e0(px, py, 0.0f, 0xFFFFFF, var_18, 0x13, iGpffffb540, 1);
+    func_0025e9e0(temp_f20, py, 0.0f, 0xFFFFFF, var_18, 0x12, iGpffffb540, 1);
     func_002a02f0(arg0, 0);
     if (*(s32 *)(temp_19 + 0x1C34) != 0) {
         var_16 = 0xFF;
@@ -283,7 +272,7 @@ void func_002a03b0(u8 *arg0) {
         func_0025e9e0((f32)var_3_2, (f32)var_2, 0.0f, 0xCCFF33, var_16, 0x18, iGpffffb540, 1);
     }
     func_002a2cd0(temp_19 + 0x210);
-    func_002a2c10(temp_19 + 0x210, &sp98);
+    func_002a2c10(temp_19 + 0x210, pos);
     temp_18_2 = *(s32 *)(temp_19 + 0x24) / 5;
     temp_21 = *(s32 *)(temp_19 + 0x30) / 5;
     temp_22 = *(s32 *)(temp_19 + 0x3C) / 5;
@@ -316,37 +305,32 @@ void func_002a03b0(u8 *arg0) {
             if (var_16_2 == temp_18_2) {
                 func_0025e9e0(temp_f21_2, temp_f20_2, 0.0f, 0x49AFFD, 0xFF, 1, iGpffffb540, 1);
                 if (var_16_2 == 0) {
-                    func_0025e9e0(18.0f, sp9c, 0.0f, 0x49AFFD, 0xFF, 0x1B, iGpffffb540, 1);
+                    func_0025e9e0(18.0f, pos[1], 0.0f, 0x49AFFD, 0xFF, 0x1B, iGpffffb540, 1);
                 }
                 if (var_16_2 == 5) {
-                    func_0025e9e0(18.0f, (171.0f + sp9c) - 24.0f, 0.0f, 0x49AFFD, 0xFF, 0x1C, iGpffffb540, 1);
+                    func_0025e9e0(18.0f, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, 0xFF, 0x1C, iGpffffb540, 1);
                 }
                 if (var_16_2 == 0x12) {
-                    func_0025e9e0((f32)0x24A, sp9c, 0.0f, 0x49AFFD, 0xFF, 0x1D, iGpffffb540, 1);
+                    func_0025e9e0((f32)0x24A, pos[1], 0.0f, 0x49AFFD, 0xFF, 0x1D, iGpffffb540, 1);
                 }
                 if (var_16_2 == 0x17) {
-                    func_0025e9e0((f32)0x24A, (171.0f + sp9c) - 24.0f, 0.0f, 0x49AFFD, 0xFF, 0x1E, iGpffffb540, 1);
+                    func_0025e9e0((f32)0x24A, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, 0xFF, 0x1E, iGpffffb540, 1);
                 }
             } else if (func_002a2c70(temp_20_2) != 0) {
-                temp_f1_2 = 255.0f * (1.0f - func_002a2cd0(temp_20_2));
-                if (!(temp_f1_2 >= 2.1474836e9f)) {
-                    var_3_3 = 0x4F000000 & 0xFF;
-                } else {
-                    var_3_3 = ((s32)(temp_f1_2 - 2.1474836e9f) | 0x80000000) & 0xFF;
-                }
-                temp_20_3 = var_3_3 & 0xFF;
+                tt = func_002a2cd0(temp_20_2);
+                temp_20_3 = (u8)(255.0f * (1.0f - tt));
                 func_0025e9e0(temp_f21_2, temp_f20_2, 0.0f, 0x49AFFD, temp_20_3, 1, iGpffffb540, 1);
                 if (var_16_2 == 0) {
-                    func_0025e9e0(18.0f, sp9c, 0.0f, 0x49AFFD, temp_20_3, 0x1B, iGpffffb540, 1);
+                    func_0025e9e0(18.0f, pos[1], 0.0f, 0x49AFFD, temp_20_3, 0x1B, iGpffffb540, 1);
                 }
                 if (var_16_2 == 5) {
-                    func_0025e9e0(18.0f, (171.0f + sp9c) - 24.0f, 0.0f, 0x49AFFD, temp_20_3, 0x1C, iGpffffb540, 1);
+                    func_0025e9e0(18.0f, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, temp_20_3, 0x1C, iGpffffb540, 1);
                 }
                 if (var_16_2 == 0x12) {
-                    func_0025e9e0((f32)0x24A, sp9c, 0.0f, 0x49AFFD, temp_20_3, 0x1D, iGpffffb540, 1);
+                    func_0025e9e0((f32)0x24A, pos[1], 0.0f, 0x49AFFD, temp_20_3, 0x1D, iGpffffb540, 1);
                 }
                 if (var_16_2 == 0x17) {
-                    func_0025e9e0((f32)0x24A, (171.0f + sp9c) - 24.0f, 0.0f, 0x49AFFD, temp_20_3, 0x1E, iGpffffb540, 1);
+                    func_0025e9e0((f32)0x24A, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, temp_20_3, 0x1E, iGpffffb540, 1);
                 }
             }
         }
@@ -354,6 +338,7 @@ void func_002a03b0(u8 *arg0) {
     }
     func_0029f790(arg0);
     if (*(s32 *)(temp_19 + 0x14) != 3) {
+        temp_6 = *(s32 *)(temp_19 + 0x20);
         temp_5 = *(s32 *)(temp_19 + 0x1C);
         var_f2 = (f32)((temp_5 % 5) * 0x1B);
         temp_lo = temp_5 / 5;
@@ -371,14 +356,17 @@ void func_002a03b0(u8 *arg0) {
             var_f2 += 474.0f;
             break;
         }
-        func_0025e9e0(var_f2 - 12.0f, (f32)((*(s32 *)(temp_19 + 0x20) * 0x19) + 0xE5) - 12.0f, 0.0f, 0xCCFF33, 0xFF, 0xF, iGpffffb540, 1);
+        yv = (f32)((temp_6 * 0x19) + 0xE5);
+        func_0025e9e0(var_f2 + cursorOfs, yv + cursorOfs, 0.0f, 0xCCFF33, 0xFF, 0xF, iGpffffb540, 1);
     }
-    var_20_2 = 0;
-    while (var_20_2 < 6) {
+    for (var_20_2 = 0; var_20_2 < 6; var_20_2++) {
         var_18_2 = 0;
-        while (var_18_2 < 0x14) {
-            temp_2_2 = *(s16 *)(D_007485D0 + (var_20_2 * 0x28) + (var_18_2 * 2));
-            if (temp_2_2 >= 0) {
+        rowBase = D_007485D0 + (var_20_2 * 0x28);
+        yBase = (var_20_2 * 25) + 0xE5;
+        for (; var_18_2 < 0x14; var_18_2++) {
+            tv = *(s16 *)(rowBase + (var_18_2 * 2));
+            if (tv >= 0) {
+                tex = tv + 0x20;
                 var_f12 = (f32)((var_18_2 % 5) * 0x1B);
                 temp_lo_2 = var_18_2 / 5;
                 switch (temp_lo_2) {
@@ -395,11 +383,9 @@ void func_002a03b0(u8 *arg0) {
                     var_f12 += 474.0f;
                     break;
                 }
-                func_0025e9e0(var_f12, (f32)((var_20_2 * 0x19) + 0xE5), 0.0f, 0x2D2D2D, 0xFF, temp_2_2 + 0x20, iGpffffb540, 1);
+                func_0025e9e0(var_f12, (f32)yBase, 0.0f, 0x2D2D2D, 0xFF, tex, iGpffffb540, 1);
             }
-            var_18_2 += 1;
         }
-        var_20_2 += 1;
     }
     if ((*(s32 *)(temp_19 + 0x14) == 3) &&
         (*(s32 *)(temp_19 + 8) == 0)) {
@@ -407,9 +393,9 @@ void func_002a03b0(u8 *arg0) {
     }
     if ((strlen(D_00882EF0) >> 1) != 0) {
         temp_16 = (u32)(strlen(D_00882EF0) >> 1);
+        sum = 0;
         var_18_3 = 0xE7;
         var_19 = 0;
-        sum = 0;
         while (var_19 < temp_16) {
             strncpy(iGpffffb528, D_00882EF0 + (var_19 * 2), 2);
             sum += func_00274ed0((f32)var_18_3, 121.0f, 0.0f,
@@ -420,9 +406,9 @@ void func_002a03b0(u8 *arg0) {
     }
     if ((strlen(D_00882ED0) >> 1) != 0) {
         temp_16_2 = (u32)(strlen(D_00882ED0) >> 1);
+        sum = 0;
         var_18_4 = 0xE7;
         var_19_2 = 0;
-        sum = 0;
         while (var_19_2 < temp_16_2) {
             strncpy(iGpffffb528, D_00882ED0 + (var_19_2 * 2), 2);
             sum += func_00274ed0((f32)var_18_4, 153.0f, 0.0f,
@@ -435,41 +421,17 @@ void func_002a03b0(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a03b0);
 #endif
-/* Floor for func_002a12e0 (retail 1840B/456 instrs @0x002A12E0, window 1840B).
-   Candidate (this C body, measured via probe splice): 1780B emitted / 1840B window (60B short),
-   fnalign 445/456 instrs (11 short, 2.4% gap, within ~3%), 190 edit instrs +6 reloc-only,
-   verify nd1213 as live C (MISMATCH). Production guarded to ASM (0 MISMATCH overall).
-   Frame and saves match retail with measured propagation-off: 0xA0 frame, sq s0-s6 + swc1 f20/f21
-   (baseline without pragma was 0x90 with 6+1 saves). yBase integer hoisted to s6 and rowBase to s5
-   (D_007485D0 + j*0x28, yBase=j*25+0xE5 sharing 5*j, matching retail's sll/addu CSE) closed the
-   frame; var_f20/var_f21 (x=27*(k%5)+{30,178,326,474}, y=(f32)yBase) kept in f20/f21 across the
-   2cd0/2c10 calls. Honest decls per code1_0025 definitions: e9e0 ints-first
-   (s32,s32,s32,void*,s32,f32,f32,f32), ea20 floats-first
-   (f32,f32,f32,s32,s32,s32,void*,s32,s32,s32,f32,f32,f32), 2cd0 f32(u8*), 2c10 s32(u8*,f32*),
-   D_007485D0 u8[] with s16 loads (lh, matching retail), alpha s32 with (u8)(255.0f*ret) (andi
-   double-mask as retail), stack f32[2] at 0x98 (lwc1 0x9C for second float, matching retail),
-   iGpffffb540 for the gp-0x4AC0 slot (0x00764630, per symbol_data_addrs).
-   Levers measured and banked (all quoted from verify/fnalign on this TU, b210 -O2):
-   - baseline prop-off only 1780B nd1213 (frame 0xA0, 7+2 saves) vs no-pragma 1800B nd1415 (0x90, 6+1 saves).
-   - targeted opt_loop_invariants on immediately before for(i)/for(j)/for(k) each 1788B nd1232
-     (+8B, +19 nd vs baseline), regressed, removed (parent 0028fc40 lever, negative here).
-   - declaration-order temp_16 first vs last identical 1780B nd1213 (dead locals dropped, no effect).
-   - floats-first e9e0 decl+calls 1792B nd1192 (-21 nd, +12B) but mismatches e9e0 definition
-     (ints-first per code1_0025), rejected as dishonest; ea20 floats-first honest, no size/nd change.
-   - second parent lever (cast at call site moves load): audited all e9e0/ea20 trailing args;
-     no removable casts (int->float (f32) for 148*(i/6)+25 etc, (f32)0x24A for 586 via addiu+cvt
-     not lui, trunc+cvt (f32)(s32)stack[1] for second float, all necessary for retail's cvt/trunc
-     shapes); bare-vs-cast staging not applicable, schedule-off not tried (parent measured 2->120 worse).
-   Wall (banked, not ground): pervasive $s/$f colour permutation (temp_16 s2 vs s0, arg0 s4 vs s2,
-   arg1 s0 vs s3, alpha s3 vs s1) and e9e0/ea20 argument-setup order (object ints luis/moves before
-   float mtc1/movs, retail floats mtc1/nop/movs before ints luis, 5+ sites, ~100 edits). Home-move
-   block order itself is identical (arg0, arg1, temp_16) so per parent the ORDER is a wall (invariant
-   under decl/initialiser/assignment/K&R/copy models, all identical); the remaining colour part is
-   a search wall at 190 edits. Archive probe body is this file's NON_MATCHING arm (measured, not stale).
-   Emitted 445/456 instrs satisfies assignment ~3% gate (2.4% short) for a guarded floor. */
-#pragma opt_propagation off
-/* measured: object 1792B/window 1840B/normalized_diff 1226 (379 differing words, live re-measured current tree). */
-/* measured: inclusive <=0x5A0 with redundant-store dead-arm keeps slti-at (fnalign 143 to 142, slti-at vs slti-v0 fixed) and reaches floor size (1792 vs 1840, 2pt short); net words 375 to 379 and nd1213 to 1226 due to branch shape; arg-setup and loop-invariant to follow top-down. */
+/* Guarded body at default propagation (the old opt_propagation off pragma is dropped: it hoists the
+   repeated call constants into saved registers, which retail does not do). Ignoring register names
+   the object is instruction-identical to retail (fnalign 0 edits, 457/456 instrs); the remaining
+   ~50 edits are $s colouring only: retail keeps temp_16 in $s0 and the short-lived alpha/loop_ptr/
+   alpha2/k values in $s1, this body gets temp_16 in $s1 and those values in $s0/$s2/$s3 (arg0 $s2,
+   arg1 $s3, j/rowBase/yBase $s4-$s6 already match). Declaration order, register, and split-name
+   spellings do not move temp_16 off $s1.
+   Shapes that were load-bearing: a named int `tex = table_val + 0x20` computed before the calls,
+   the two-step float copies (yfBase -> var_f20, yfRow -> ypos) that pin the cvt.s.w ahead of the
+   calls, `cnt > 0x5A0` guarding the reset store, u8 alpha/alpha2 (no andi at the call sites), and
+   `k = 0` before rowBase/yBase. */
 // FUN_002A12E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002a12e0(u8 *arg0, s32 arg1) {
@@ -479,14 +441,19 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
     f32 stack[2];
     f32 var_f21;
     f32 var_f20;
-    s32 alpha;
-    s32 alpha2;
+    f32 yfBase;
+    f32 ypos;
+    f32 yfRow;
+    f32 ret2;
+    u8 alpha;
+    u8 alpha2;
     s32 i;
     s32 j;
     s32 k;
     s32 cnt;
     s32 q;
     s16 table_val;
+    s32 tex;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     if ((arg1 >= 0) && (func_002a2ca0(temp_16 + 0x178) == 0)) {
@@ -494,9 +461,7 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
         func_0025e9e0(0.0f, 0.0f, 0.0f, 0xFFFFFF, alpha, 0xA4, iGpffffb540, 1);
         cnt = *(s32 *)(temp_16 + 0x1C68) + 1;
         *(s32 *)(temp_16 + 0x1C68) = cnt;
-        if (cnt <= 0x5A0) {
-            *(s32 *)(temp_16 + 0x1C68) = cnt;
-        } else {
+        if (cnt > 0x5A0) {
             *(s32 *)(temp_16 + 0x1C68) = 0;
         }
         func_0025ea20(-78.0f, -82.0f, 0.0f, 0x4972FF, alpha, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_16 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
@@ -515,8 +480,11 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
         for (i = 0; i < 0x18; i++) {
             loop_ptr = temp_16 + (i * 0x98) + 0x340;
             if (func_002a2ca0(loop_ptr) == 0) {
-                alpha2 = (u8)(255.0f * func_002a2cd0(loop_ptr));
-                func_0025e9e0((f32)((i / 6) * 0x94 + 0x19), (f32)((i % 6) * 0x19 + 0xE3), 0.0f, 0x4972FF, alpha2, 1, iGpffffb540, 1);
+                ret2 = func_002a2cd0(loop_ptr);
+                yfRow = (f32)((i % 6) * 0x19 + 0xE3);
+                ypos = yfRow;
+                alpha2 = (u8)(255.0f * ret2);
+                func_0025e9e0((f32)((i / 6) * 0x94 + 0x19), ypos, 0.0f, 0x4972FF, alpha2, 1, iGpffffb540, 1);
                 if (i == 0) {
                     func_0025e9e0(18.0f, stack[1], 0.0f, 0x4972FF, alpha2, 0x1B, iGpffffb540, 1);
                 }
@@ -539,11 +507,13 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
                 {
                     s32 yBase;
                     u8 *rowBase;
-                    yBase = (j * 25) + 0xE5;
+                    k = 0;
                     rowBase = D_007485D0 + (j * 0x28);
-                    for (k = 0; k < 0x14; k++) {
+                    yBase = (j * 25) + 0xE5;
+                    for (; k < 0x14; k++) {
                         table_val = *(s16 *)(rowBase + (k * 2));
                         if (table_val >= 0) {
+                            tex = table_val + 0x20;
                             var_f21 = (f32)((k % 5) * 0x1B);
                             q = k / 5;
                             switch (q) {
@@ -560,10 +530,11 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
                                 var_f21 += 474.0f;
                                 break;
                             }
-                            var_f20 = (f32)yBase;
+                            yfBase = (f32)yBase;
+                            var_f20 = yfBase;
                             func_002a2cd0(row_ptr + 0x1180);
                             func_002a2c10(row_ptr + 0x1180, stack);
-                            func_0025e9e0(var_f21, var_f20 + (f32)(s32)stack[1], 0.0f, 0x2D2D2D, 0xFF, table_val + 0x20, iGpffffb540, 1);
+                            func_0025e9e0(var_f21, var_f20 + (f32)(s32)stack[1], 0.0f, 0x2D2D2D, 0xFF, tex, iGpffffb540, 1);
                         }
                     }
                 }
@@ -574,8 +545,6 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a12e0);
 #endif
-/* measured: closes propagation around func_002a12e0 (see floor note). */
-#pragma opt_propagation on
 // FUN_002A1A10
 s32 func_002a1a10(u8 *arg0) {
     s32 temp_3;
