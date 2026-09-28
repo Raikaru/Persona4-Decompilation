@@ -1511,17 +1511,14 @@ void func_002b0220(u8 *arg0) {
 #pragma push
 
 
-/* func_002b0250 (retail 339 instrs): the guarded body is instruction-identical to retail up to register
-   names (fnalign 2 edits with names normalised, 0 real structural edits). Shape: `arg3 == -1` (a u8
-   compared with -1, which retail keeps), `if (arg3 >= 9) { switch (arg3) 9..14 -> jump table } else if
-   (arg3 >= 7) ... else if (arg3 == 2) ... else default` (the v >= 9 test is a separate source `if`, not a
-   switch case), u8 arg4 (andi, not a sign extension), the (arg7 + i) << 8 row offset held in a local per
-   outer iteration, s8 tile kind, s16 loop counters. Remaining difference: the reloaded arg6/arg7 in the
-   tile scan are coloured $s3/$s2 here and $s2/$s3 in retail (declaration order, local copies and
-   operand order did not move it). */
-// FUN_002B0250 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_002afbc0(u8 *arg0);
+/* func_002b0250: `arg3 == -1` is a u8 compared with -1 (retail keeps the never-true test). The 9..14
+   dispatch is a real switch inside `if (arg3 >= 9)`; 7..8, 2 and the default arm are the if/else chain
+   that follows. arg4 is u8 (andi, not a sign extension). opt_loop_invariants on hoists the per-row
+   (arg7 + i) << 8 out of the tile scan's inner loop as retail does (measured: 8 -> 3 differing words;
+   writing `j = 0` before the row offset, as retail emits it, then gives 0). */
+// FUN_002B0250
+#pragma push
+#pragma opt_loop_invariants on
 u8 *func_002b0250(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7) {
     u8 buf[8];
     u8 *ret;
@@ -1537,14 +1534,14 @@ u8 *func_002b0250(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6
     }
     func_0044ea90(D_0063EF60, 0x5C4);
     blk = D_008873F4[0](1, 0x160, 0x40000);
-    ret = (u8 *)(s32)func_00451fc0((void *)((s32)arg0), (const void *)(D_0063EFD8), 0xF, 0, 0, func_002afbc0, func_002b0220, (u8 *)(blk));
+    ret = (u8 *)(s32)func_00451fc0((void *)((s32)arg0), (const void *)(D_0063EFD8), 0xF, 0, 0, func_002afbc0, func_002b0220, blk);
     *(u8 **)blk = blk;
     *(blk + 4) = arg3;
     *(blk + 5) = arg4;
-    *(blk + 0x18) = (u8)arg5;
-    *(s32 *)(blk + 0x34) = 0x3F800000;
-    *(blk + 0x140) = (u8)arg1;
-    *(blk + 0x141) = (u8)arg2;
+    *(blk + 0x18) = arg5;
+    *(f32 *)(blk + 0x34) = 1.0f;
+    *(blk + 0x140) = arg1;
+    *(blk + 0x141) = arg2;
     *(blk + 0x142) = 0;
     *(blk + 0x143) = 0;
     *(blk + 0x144) = 0;
@@ -1555,103 +1552,104 @@ u8 *func_002b0250(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6
         case 9:
         case 10:
             if (arg4 == 1) {
-                *(s32 *)(blk + 0x28) = 0x3D000000;
-                *(s32 *)(blk + 0x24) = 0x3D000000;
-                *(s32 *)(blk + 0x20) = 0x3F180000;
-                *(s32 *)(blk + 0x1C) = 0x3F180000;
-                *(s32 *)(blk + 0x30) = 0x41980000;
-                *(s32 *)(blk + 0x2C) = 0x41980000;
+                *(f32 *)(blk + 0x28) = 0.03125f;
+                *(f32 *)(blk + 0x24) = 0.03125f;
+                *(f32 *)(blk + 0x20) = 0.59375f;
+                *(f32 *)(blk + 0x1C) = 0.59375f;
+                *(f32 *)(blk + 0x30) = 19.0f;
+                *(f32 *)(blk + 0x2C) = 19.0f;
             } else if (arg4 == 2) {
-                *(s32 *)(blk + 0x24) = 0x3E980000;
-                *(s32 *)(blk + 0x28) = 0x3C800000;
+                *(f32 *)(blk + 0x24) = 0.296875f;
+                *(f32 *)(blk + 0x28) = 0.015625f;
                 *(f32 *)(blk + 0x1C) = *(f32 *)(blk + 0x24) + 0.578125f;
                 *(f32 *)(blk + 0x20) = *(f32 *)(blk + 0x28) + 0.578125f;
-                *(s32 *)(blk + 0x30) = 0x42140000;
-                *(s32 *)(blk + 0x2C) = 0x42140000;
+                *(f32 *)(blk + 0x30) = 37.0f;
+                *(f32 *)(blk + 0x2C) = 37.0f;
             }
             break;
         case 11:
         case 12:
             if (arg4 == 1) {
-                *(s32 *)(blk + 0x28) = 0x3C800000;
-                *(s32 *)(blk + 0x24) = 0x3C800000;
-                *(s32 *)(blk + 0x1C) = 0x3E980000;
-                *(s32 *)(blk + 0x20) = 0x3F5C0000;
-                *(s32 *)(blk + 0x2C) = 0x41980000;
-                *(s32 *)(blk + 0x30) = 0x425C0000;
+                *(f32 *)(blk + 0x28) = 0.015625f;
+                *(f32 *)(blk + 0x24) = 0.015625f;
+                *(f32 *)(blk + 0x1C) = 0.296875f;
+                *(f32 *)(blk + 0x20) = 0.859375f;
+                *(f32 *)(blk + 0x2C) = 19.0f;
+                *(f32 *)(blk + 0x30) = 55.0f;
                 *(blk + 0x142) = 1;
             } else if (arg4 == 2) {
-                *(s32 *)(blk + 0x24) = 0x3E980000;
-                *(s32 *)(blk + 0x28) = 0x3C800000;
+                *(f32 *)(blk + 0x24) = 0.296875f;
+                *(f32 *)(blk + 0x28) = 0.015625f;
                 *(f32 *)(blk + 0x1C) = *(f32 *)(blk + 0x24) + 0.578125f;
                 *(f32 *)(blk + 0x20) = *(f32 *)(blk + 0x28) + 0.578125f;
-                *(s32 *)(blk + 0x30) = 0x42140000;
-                *(s32 *)(blk + 0x2C) = 0x42140000;
+                *(f32 *)(blk + 0x30) = 37.0f;
+                *(f32 *)(blk + 0x2C) = 37.0f;
             }
             break;
         case 13:
         case 14:
             if (arg4 == 1 || arg4 == 3) {
-                *(s32 *)(blk + 0x28) = 0x3D000000;
-                *(s32 *)(blk + 0x24) = 0x3D000000;
-                *(s32 *)(blk + 0x20) = 0x3F180000;
-                *(s32 *)(blk + 0x1C) = 0x3F180000;
-                *(s32 *)(blk + 0x30) = 0x41980000;
-                *(s32 *)(blk + 0x2C) = 0x41980000;
+                *(f32 *)(blk + 0x28) = 0.03125f;
+                *(f32 *)(blk + 0x24) = 0.03125f;
+                *(f32 *)(blk + 0x20) = 0.59375f;
+                *(f32 *)(blk + 0x1C) = 0.59375f;
+                *(f32 *)(blk + 0x30) = 19.0f;
+                *(f32 *)(blk + 0x2C) = 19.0f;
             } else if (arg4 == 2) {
-                *(s32 *)(blk + 0x24) = 0x3E980000;
-                *(s32 *)(blk + 0x28) = 0x3E980000;
-                *(s32 *)(blk + 0x1C) = 0x3F5C0000;
-                *(s32 *)(blk + 0x20) = 0x3F5C0000;
-                *(s32 *)(blk + 0x30) = 0x42140000;
-                *(s32 *)(blk + 0x2C) = 0x42140000;
+                *(f32 *)(blk + 0x24) = 0.296875f;
+                *(f32 *)(blk + 0x28) = 0.296875f;
+                *(f32 *)(blk + 0x1C) = 0.859375f;
+                *(f32 *)(blk + 0x20) = 0.859375f;
+                *(f32 *)(blk + 0x30) = 37.0f;
+                *(f32 *)(blk + 0x2C) = 37.0f;
             }
             break;
         }
     } else if (arg3 >= 7) {
-        *(s32 *)(blk + 0x24) = 0x3C800000;
-        *(s32 *)(blk + 0x28) = 0x3C800000;
-        *(s32 *)(blk + 0x20) = 0x3F140000;
-        *(s32 *)(blk + 0x1C) = 0x3F140000;
-        *(s32 *)(blk + 0x30) = 0x42140000;
-        *(s32 *)(blk + 0x2C) = 0x42140000;
+        *(f32 *)(blk + 0x24) = 0.015625f;
+        *(f32 *)(blk + 0x28) = 0.015625f;
+        *(f32 *)(blk + 0x20) = 0.578125f;
+        *(f32 *)(blk + 0x1C) = 0.578125f;
+        *(f32 *)(blk + 0x30) = 37.0f;
+        *(f32 *)(blk + 0x2C) = 37.0f;
     } else if (arg3 == 2) {
         if (arg4 == 1) {
-            *(s32 *)(blk + 0x24) = 0x3C800000;
-            *(s32 *)(blk + 0x28) = 0x3C800000;
-            *(s32 *)(blk + 0x1C) = 0x3F140000;
-            *(s32 *)(blk + 0x20) = 0x3F140000;
-            *(s32 *)(blk + 0x2C) = 0x42140000;
-            *(s32 *)(blk + 0x30) = 0x42140000;
+            *(f32 *)(blk + 0x24) = 0.015625f;
+            *(f32 *)(blk + 0x28) = 0.015625f;
+            *(f32 *)(blk + 0x1C) = 0.578125f;
+            *(f32 *)(blk + 0x20) = 0.578125f;
+            *(f32 *)(blk + 0x2C) = 37.0f;
+            *(f32 *)(blk + 0x30) = 37.0f;
             if (arg5 == 2 || arg5 == 1) {
                 *(blk + 0x142) = 2;
             }
         } else if (arg4 == 2) {
-            *(s32 *)(blk + 0x28) = 0x3E980000;
-            *(s32 *)(blk + 0x24) = 0x3E980000;
-            *(s32 *)(blk + 0x20) = 0x3F140000;
-            *(s32 *)(blk + 0x1C) = 0x3F140000;
-            *(s32 *)(blk + 0x30) = 0x41980000;
-            *(s32 *)(blk + 0x2C) = 0x41980000;
+            *(f32 *)(blk + 0x28) = 0.296875f;
+            *(f32 *)(blk + 0x24) = 0.296875f;
+            *(f32 *)(blk + 0x20) = 0.578125f;
+            *(f32 *)(blk + 0x1C) = 0.578125f;
+            *(f32 *)(blk + 0x30) = 19.0f;
+            *(f32 *)(blk + 0x2C) = 19.0f;
         }
     } else {
-        *(s32 *)(blk + 0x24) = 0x3D000000;
-        *(s32 *)(blk + 0x28) = 0x3D000000;
-        *(s32 *)(blk + 0x20) = 0x3F180000;
-        *(s32 *)(blk + 0x1C) = 0x3F180000;
-        *(s32 *)(blk + 0x30) = 0x41980000;
-        *(s32 *)(blk + 0x2C) = 0x41980000;
+        *(f32 *)(blk + 0x24) = 0.03125f;
+        *(f32 *)(blk + 0x28) = 0.03125f;
+        *(f32 *)(blk + 0x20) = 0.59375f;
+        *(f32 *)(blk + 0x1C) = 0.59375f;
+        *(f32 *)(blk + 0x30) = 19.0f;
+        *(f32 *)(blk + 0x2C) = 19.0f;
     }
     *(blk + 0x14C) = 0;
     if (arg4 == 2 && arg6 == *(u8 *)(func_00155280() + 0x46) && arg7 == *(u8 *)(func_00155280() + 0x47)) {
         for (i = 0; i < 2; i++) {
+            j = 0;
             rowOfs = (arg7 + i) << 8;
-            for (j = 0; j < 2; j++) {
+            for (; j < 2; j++) {
                 q = func_00155280();
                 kind = *(u8 *)(rowOfs + (u32)q + (arg6 + j) * 0x10 + 0x55) >> 4;
                 if (kind == 2) {
-                    *(s32 *)(blk + 0x150) = 0x41100000;
-                    *(s32 *)(blk + 0x154) = 0x41100000;
+                    *(f32 *)(blk + 0x150) = 9.0f;
+                    *(f32 *)(blk + 0x154) = 9.0f;
                     *(blk + 0x158) = (u8)j;
                     *(blk + 0x159) = (u8)i;
                     *(blk + 0x14C) = 1;
@@ -1662,9 +1660,7 @@ u8 *func_002b0250(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6
     }
     return ret;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b0250);
-#endif
+#pragma pop
 
 // FUN_002B07A0
 void func_002b07a0(u8 *arg0, u8 *arg1) {
