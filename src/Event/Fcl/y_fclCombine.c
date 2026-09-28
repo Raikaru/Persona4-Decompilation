@@ -66,7 +66,6 @@ extern u8 *func_002e48a0(s8, s16);
 extern void func_0010be60(u8 *, u8 *, s32);
 extern s32 func_00313fb0(u8 *);
 extern s32 func_0010b5b0(void);
-extern void func_003205f0(u8 *, s64, s64);
 extern void func_00316470(u8 *, s64, s64);
 extern void func_00316e80(u8 *, s64, s64, s64, s64, s64, s64, s64, s8, s8, s8);
 extern s32 func_002b2a30(u8, u8, u8, u8);
@@ -160,7 +159,7 @@ extern s32 func_002badc0(s8, s32);
 extern s32 func_002bafc0(s64, s32);
 extern void func_002bb0a0(s64, s8);
 extern int sprintf(char *, const char *, ...);
-extern void func_002ba5d0(u8 *, s16, s32, FclVec2, FclDrawColor, s64, f32);
+extern void func_002ba5d0(u8 *, s16, s32, FclVec2, FclDrawColor, f32, s64);
 extern u32 func_002e7a60(void);
 extern u8 *func_00349290(u8 *, s8);
 
@@ -3792,7 +3791,7 @@ void func_002f6cf0(u8 *arg0) {
                 shade = 0x66;
                 func_002b6150(i + 0x21C)[0x6E] = shade;
                 func_002b6150(row + 0x22B)[0x6E] = shade;
-                func_002ba5d0(*(u8 **)(p + 0x2BC), (s8)i, 0, rowPos.position, color3 = func_002b2a60(0xCC, 0xFF, 0xFF, alpha), 0x59, 46.0f);
+                func_002ba5d0(*(u8 **)(p + 0x2BC), (s8)i, 0, rowPos.position, color3 = func_002b2a60(0xCC, 0xFF, 0xFF, alpha), 46.0f, 0x59);
             } else {
                 row = i;
                 color4 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
@@ -3803,7 +3802,7 @@ void func_002f6cf0(u8 *arg0) {
                 func_002b6150(i + 0x21C)[0x6E] = shade;
                 func_002b6150(row + 0x22B)[0x6E] = shade;
                 func_002ba5d0(*(u8 **)(p + 0x2BC), (s8)i, ((u8 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[4],
-                              rowPos.position, color6 = func_002b2a60(shade, 0xFF, 0xFF, alpha), 0x59, 46.0f);
+                              rowPos.position, color6 = func_002b2a60(shade, 0xFF, 0xFF, alpha), 46.0f, 0x59);
             }
         }
         for (k = 0; k < *(s32 *)(func_002e4870(0) + 8); k++) {
@@ -4843,7 +4842,7 @@ void func_002fbea0(u8 *arg0) {
             func_002ba5d0((u8 *)p->f2BC, drawSlot,
                           *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4),
                           func_002b2970(146.0f, 111.0f + 23.0f * (f32)var_18),
-                          fc_colW5, 0x59, 46.0f);
+                          fc_colW5, 46.0f, 0x59);
             *(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 4) = (s16)((func_00109280(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
             if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
@@ -5336,7 +5335,7 @@ void func_002fbea0(u8 *arg0) {
             }
             sp1B0 = (s8)(var_18 + 0xC);
             tmpu8 = *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4);
-            func_002ba5d0((u8 *)p->f2BC, sp1B0, tmpu8, func_002b2970(74.0f, 151.0f + 23.0f * (f32)var_18), fc_colW7, 0x59, 46.0f);
+            func_002ba5d0((u8 *)p->f2BC, sp1B0, tmpu8, func_002b2970(74.0f, 151.0f + 23.0f * (f32)var_18), fc_colW7, 46.0f, 0x59);
             total = ((func_001099f0((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((func_001099f0((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
             func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW7, 0x10, 5, func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
             if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x10), 1) == 0) {

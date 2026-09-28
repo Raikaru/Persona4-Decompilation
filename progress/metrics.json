@@ -18110,6 +18110,7 @@
         "002b9e10",
         "002b9f60",
         "002b9f90",
+        "002ba5d0",
         "002ba970",
         "002baa20",
         "002baa50",
@@ -18442,6 +18443,7 @@
         "0032b9d0",
         "0032c0c0",
         "0032c480",
+        "0032c660",
         "0032e570",
         "0032f060",
         "0032f4d0",
@@ -20324,8 +20326,8 @@
         "004bd4a0",
         "0052d9a0"
       ],
-      "matching_count": 6696,
-      "matching_percent": 97.595,
+      "matching_count": 6698,
+      "matching_percent": 97.624,
       "total": 6861,
       "total_code_bytes": 3139392
     },
@@ -34723,7 +34725,7 @@
       "0052bf50",
       "0052d7e8"
     ],
-    "asm_fallbacks_in_linked_objects": 461,
+    "asm_fallbacks_in_linked_objects": 459,
     "count": 3653,
     "percent": 27.881
   },
@@ -39212,6 +39214,7 @@
       "002b9e10",
       "002b9f60",
       "002b9f90",
+      "002ba5d0",
       "002ba970",
       "002baa20",
       "002baa50",
@@ -39544,6 +39547,7 @@
       "0032b9d0",
       "0032c0c0",
       "0032c480",
+      "0032c660",
       "0032e570",
       "0032f060",
       "0032f4d0",
@@ -44246,23 +44250,23 @@
       "0052d980",
       "0052d9a0"
     ],
-    "count": 9516,
+    "count": 9518,
     "duplicate_rows": 0,
     "known_rows": 13102,
-    "matched_body_bytes": 2711280,
-    "percent": 72.63,
+    "matched_body_bytes": 2720144,
+    "percent": 72.645,
     "unique_known_addresses": 13102
   },
   "schema_version": 1,
   "source": {
     "ignored_unknown_rows": 0,
-    "linked_report": "build\\batches\\battle-item-clone-v1\\linked-v2.json",
+    "linked_report": "build\\batches\\fcl-digit-v1\\linked.json",
     "raw_rows": 13102,
-    "verifier_report": "build\\publication-verification\\battle-item-clone-symbol-v2\\report.json"
+    "verifier_report": "build\\publication-verification\\fcl-digit-v1\\report.json"
   },
   "status_counts": {
-    "ASM": 3586,
-    "MATCH": 9516
+    "ASM": 3584,
+    "MATCH": 9518
   },
   "total": 13102
 }
