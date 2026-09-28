@@ -1352,37 +1352,43 @@ s32 func_002a4f20(s32 arg0)
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a4f20);
 #endif
 
-/* Rewrite 2026-09-28 (lane 5), replaces the m2c-shaped draft (478 differing words).
-   Honest func_00452560(arg0) ABI, five phases of frame-driven ramps as in the
-   listing (each phase its own float local: retail keeps them in $f1/$f2 temps,
-   one shared local drags them into $f20), `ramp > 10` nesting for the first ramp
-   (retail lays the 0.0f arm out last), 400.0f * wave slide in the loops, 350.0f *
-   wave in the tail, two-statement pulse (see func_002a4f20) and separate x/y and
-   x2/y2 locals per loop.  `131.0f + 47.0f * wave` needs no help: mwcc emits
-   retail's adda.s/madd.s pair for it.  564/564 instructions, guarded score 51
-   differing words (reloc-masked).  Residual: saved-register colouring only
-   (retail alpha->$s0 p->$s1 base->$s2, see func_002a4f20 for the measured tier
-   rule).  func_002a7920 is declared (f32, f32, f32, u8, u8 *, s32, s32, f32, u8 *): that
-   parameter order, not the old ints-then-floats one, reproduces retail's argument
-   emission order at both of its call sites. */
-// FUN_002A5630 NONMATCHING
-#ifdef NON_MATCHING
+/* Recovered 2026-09-28 (lane 5): exact under MWCC b210/O2, 564/564 instructions.
+   Shape: five frame-driven ramp phases, each with its own float local (retail
+   keeps them in $f1/$f2 temps; one shared local drags them into $f20),
+   `frame > 10` nesting for the first ramp (retail lays the 0.0f arm out last),
+   400.0f * wave slide in the loops and 350.0f * wave in the tail, a
+   two-statement pulse (a single statement fuses into adda.s/madd.s where retail
+   keeps mul.s + add.s), separate x/y and x2/y2 locals per loop, `fdiff`/`half`
+   as named floats (retail converts once and multiplies by a loaded 0.5f), and
+   `fade` (the phase-3 alpha, dead after 6b60/6c30) separate from `alpha` (the
+   phase-5 value that reaches 9f50): one variable with a dominating def plus a
+   conditional redefinition ranks with the loop counters and rotates every
+   saved register (80 edits with the pragma and a single `alpha`).  Saved
+   registers are retail's alpha->$s0 p->$s1 base->$s2 slot->$s3 idx->$s4 row->$s5
+   only with `opt_lifetimes on` and p, alpha, row, idx, slot, base declared in
+   that order (77 edits without the pragma, 0 with it).  func_002a7920 is declared (f32, f32, f32, u8, u8 *, s32, s32,
+   f32, u8 *): that parameter order reproduces retail's argument emission order. */
+#pragma opt_lifetimes on
+// FUN_002A5630
 s32 func_002a5630(s32 arg0)
 {
     extern f32 iGpffff8084;
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    u8 *p;
+    s32 alpha;
     s32 row;
     s32 idx;
     s32 slot;
     s32 base;
-    u8 *p;
-    s32 alpha;
+    s32 fade;
     s32 target;
     s32 diff;
     s32 rest;
     s32 frame;
     f32 x;
     f32 y;
+    f32 x2;
+    f32 y2;
     f32 wave;
     f32 slide;
     f32 scale;
@@ -1393,8 +1399,6 @@ s32 func_002a5630(s32 arg0)
     f32 pulse;
     f32 fdiff;
     f32 half;
-    f32 x2;
-    f32 y2;
 
     p = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
     frame = *(s32 *)(p + 0x568);
@@ -1421,9 +1425,9 @@ s32 func_002a5630(s32 arg0)
     } else {
         ramp3 = 1.0f;
     }
-    alpha = (s32)(255.0f * (1.0f - ramp3));
-    func_002a6b60(0, 0, alpha, p);
-    func_002a6c30(0, 0, alpha, p);
+    fade = (s32)(255.0f * (1.0f - ramp3));
+    func_002a6b60(0, 0, fade, p);
+    func_002a6c30(0, 0, fade, p);
     frame = *(s32 *)(p + 0x568);
     if (frame < 10) {
         ramp = (f32)frame / 10.0f;
@@ -1509,9 +1513,7 @@ s32 func_002a5630(s32 arg0)
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mc", func_002a5630);
-#endif
+#pragma opt_lifetimes off
 
 /* Rewrite 2026-09-28 (lane 5), replaces the m2c-shaped draft (181 differing words).
    Honest ABI: func_00452560 takes the task in arg0 (a0 passes through; the old
