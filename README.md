@@ -32,20 +32,20 @@ version.
 | Retail executable | `SLUS_217.82`; SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` |
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,102; all mapped to C or owned retail assembly |
-| Byte-identical functions | 9,520 (72.661% of windows) |
+| Byte-identical functions | 9,522 (72.676% of windows) |
 | Under test (a `// FUN_` marker scores them) | 13,102 (100.0% of windows) |
 | Not yet under test, supplied as retail bytes | 0 (0.0% of windows) |
 | Fully linked ASM-free C files | 3,653 (27.881% of windows) |
-| Assembly fallbacks inside other linked objects | 457 |
-| Atlus game/engine | 6,861 functions; 6,700 C-matched (97.653%); 6,755 physically linked, including retail ASM (98.455%) |
+| Assembly fallbacks inside other linked objects | 455 |
+| Atlus game/engine | 6,861 functions; 6,702 C-matched (97.683%); 6,755 physically linked, including retail ASM (98.455%) |
 | Proven Sony PS2 SDK | 491 functions; 152 C-matched (30.957%); 491 physically linked, including retail ASM (100.0%) |
 | Other third-party/vendor | 5,750 functions; 2,668 C-matched (46.4%); 1,130 physically linked, including retail ASM (19.652%) |
 | Unattributed | 0 functions; 0 C-matched (0.0%); 0 physically linked, including retail ASM (0.0%) |
-| First-party matched, scored for recovery | 6,698 |
-| — NAMED (not a `func_<address>` placeholder) | 227 (3.389%) |
-| — TYPED (no raw-offset or `M2C_` access) | 1,826 (27.262%) |
-| — DOCUMENTED (prose, or trivially self-evident) | 4,657 (69.528%) |
-| — still carrying decompiler local names | 1,976 (29.501%) |
+| First-party matched, scored for recovery | 6,700 |
+| — NAMED (not a `func_<address>` placeholder) | 227 (3.388%) |
+| — TYPED (no raw-offset or `M2C_` access) | 1,826 (27.254%) |
+| — DOCUMENTED (prose, or trivially self-evident) | 4,659 (69.537%) |
+| — still carrying decompiler local names | 1,976 (29.493%) |
 
 Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. Fully linked counts only files whose every function is matching C and linked from that same source file; physical linkage also includes retail assembly and SDK black boxes. `tools/recovery_quality.py --worst 20` ranks the game files needing work.
 <!-- STATUS:END -->

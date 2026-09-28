@@ -8,6 +8,18 @@ The objective is a clean C replacement for each first-party `INCLUDE_ASM` functi
 
 ## Current checkpoint
 
+2026-09-28 title and ANALYZE continuation: **6,702 of 6,861 first-party
+functions MATCH, 159 assembly fallbacks**. `00124f70` and `001a24b0` replace
+their fallbacks on the published `c7c8734` assistance-action checkpoint.
+Complete verification covers all 13,102 markers; the two changed owners
+preserve 151 peer windows and all allocated data. Both functions are confirmed
+as linked C, and both retail hashes match. See
+`docs/probe_archive/Title_and_analyze_20260928.md` and the publication
+checkout's `build/batches/title-action-v1/` receipts. Unfinished candidates
+remain fallbacks until their complete source and interface proofs pass.
+
+### Earlier September 28 assistance-action checkpoint
+
 2026-09-28 assistance-action continuation: **6,700 of 6,861 first-party
 functions MATCH, 161 assembly fallbacks**. The current source adds `001a3840`
 to the already published `67153c5` checkpoint. Fresh verification covers all
