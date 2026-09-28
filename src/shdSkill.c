@@ -563,7 +563,7 @@ void func_00114dc0(Vec2f arg0, f32 fparg0, Color4 arg1, u16 arg2, s32 arg3) {
    (76), x/y locals (76), alpha local (38), temp_16-first, decl swaps,
    u8 alpha (79). arg-eval-order + reg-coalescing + FP-scheduling floor. */
 // FUN_00114E50
-void func_00114e50(Vec2f arg0, f32 fparg0, s32 arg1, s32 arg2) {
+void func_00114e50(Vec2f arg0, f32 fparg0, u8 arg1, u16 arg2) {
     s32 temp_16;
     s32 temp_17;
     s32 temp_2;
@@ -577,7 +577,7 @@ void func_00114e50(Vec2f arg0, f32 fparg0, s32 arg1, s32 arg2) {
     }
     x = 1.0f + arg0.x;
     y = arg0.y - 1.0f;
-    temp_17 = arg1 & 0xFF;
+    temp_17 = arg1;
     temp_16 = 0xFF - temp_17;
     func_0046d4c0(0, temp_2, 0x61, x, y, temp_16 & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
     x = 393.0f + arg0.x;
@@ -588,7 +588,7 @@ void func_00114e50(Vec2f arg0, f32 fparg0, s32 arg1, s32 arg2) {
     y = arg0.y;
     temp_16 = 0xFF - temp_17;
     func_0046d4c0(0, temp_2, 0x17, x, y, temp_16 & 0xFF, 0xFF, 0xA0, 0x0B, fparg0, 0);
-    temp_7 = arg2 & 0xFFFF;
+    temp_7 = arg2;
     if (temp_7 != 0) {
         x = 62.0f + arg0.x;
         y = 22.0f + arg0.y;
