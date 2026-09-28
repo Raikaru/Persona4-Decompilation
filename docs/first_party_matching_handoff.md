@@ -15,6 +15,9 @@ Related pages:
   compiler limits.
 - [`docs/probe_archive/`](probe_archive/): saved attempts and dated
   checkpoint records.
+- [`docs/lane_findings_20260928.md`](lane_findings_20260928.md): measurements
+  from the eight-lane session that matched eight functions, including the
+  link-eligibility trap a `MATCH` row cannot show.
 
 The goal is a clean C replacement for each first-party `INCLUDE_ASM`
 function. A replacement is accepted only when the current owning file
