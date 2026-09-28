@@ -4,7 +4,7 @@
 #include "fcl_draw_types.h"
 
 /* Resource and position precede depth; integer order keeps its EE register. */
-void func_002b6c30(s64 resource, FclVec2 position, f32 depth, s32 order);
+void func_002b6c30(s16 resource, FclVec2 position, f32 depth, s32 order);
 
 void func_003147e0(u8 *task, s8 slot, FclVec2 position, s16 resource,
                    s16 argument, s8 mode);
@@ -31,5 +31,8 @@ void func_0033e540(u8 *task, FclVec2 start, FclVec2 end, s16 duration,
 
 u8 *func_0034ae50(u8 *task, s8 slot);
 s32 func_0034b810(u8 *task);
+
+/* This forwarding routine consumes the same signed resource indices. */
+void func_003205f0(u8 *task, s16 firstResource, s16 secondResource);
 
 #endif
