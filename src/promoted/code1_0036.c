@@ -261,7 +261,25 @@ void func_00361ca0(u8 *arg0) {
     }
   }
 
-/* measured: floor v3 MISMATCH nd1464B/498w obj2264/win2320 97.6% PASS 2250 (+14B, not draft); frame 0x200 vs 0x210, GPR +1 shift (s5/s4 vs s4/s3, s8 vs s7), FPR rotation, sq offsets -0x10, probe140 spills vs s8; fnalign 566/578 -12; MAC N/A (0 madd/mula/msub/adda); GP/type lowered (iGpffffa980), no slt-at entry, no volatile/asm. */
+/* measured 2026-09-28 (lane 3): 295 differing words / 32 fnalign edits, object 580 == retail
+   580 instructions (was 490 words / 630 edits, frame 0x200). What moved it:
+   - The row `arg1 + arg0 * 0x30` is never a named pointer: writing the field address out at each
+     use lets b210 CSE the three field addresses (0x1D8/0x1DC/0x1E2) and spill them with `sq`, as
+     retail does, instead of keeping a callee-saved `row` (which cost a register and a 0x10 frame).
+   - x/y/alpha are shared function-level variables (alpha is `s32`) reused by the first, else-if
+     and final draws; single-use one-shot locals were sunk below the alpha conversion, shared
+     variables are computed first (x -> $f12, y -> $f13, then the u8 conversion), matching retail.
+     The probe180 block and the loop keep their own x2/y2/a2 and lx/ly/alphaLoop (saved FPRs).
+   - the final branch tests `probe100 != 0` first and `mode` is `s8` (no dsll32/dsra32 extend).
+   - `(f32)byte * scale` is spelled with the constant offset before the index term so the
+     multiply keeps retail's converted-byte-first operand order.
+   Residual (32 edits): `addu` operand order of `arg0 * 0x30 + arg1` at three sites (retail
+   index first; named offset, inline pointer copy and typed 0x30-byte slot forms were measured:
+   the typed form gets the order but CSEs the slot base, object 586), the 0x1DC spill landing
+   after the `f22` multiply (dropping the f22 local fixes it but rotates f20/f21/f22, 52 edits),
+   the D_0064B2EC base pointer retail keeps in $fp for the third probe180 call (a local pointer
+   is propagated away), and the final `color` computed before func_00354490 while this body
+   keeps `alpha` in $s4 and computes it after the call. */
 // FUN_00361D20 NONMATCHING
 #ifdef NON_MATCHING
 void func_00361d20(s32 arg0, u8 *arg1)
@@ -276,16 +294,16 @@ void func_00361d20(s32 arg0, u8 *arg1)
     extern u8 D_0064B2E4[];
     extern u8 D_0064B2EC[];
     extern u8 iGpffffa980;
+    f32 scale;
     f32 baseX;
     f32 baseY;
-    f32 scale;
     f32 f22;
     s32 idx;
     s32 probe100;
     s32 probe180;
     s32 probe140;
     s32 ptrA;
-    s32 mode;
+    s8 mode;
     s32 colorBase;
     u8 rgb1r;
     u8 rgb1g;
@@ -293,17 +311,15 @@ void func_00361d20(s32 arg0, u8 *arg1)
     u8 rgb2r;
     u8 rgb2g;
     u8 rgb2b;
-    u8 *row;
-    f32 x1;
-    f32 y1;
-    u8 alpha1;
+    f32 x;
+    f32 y;
+    s32 alpha;
     s8 buf[256];
     f32 lx;
     f32 ly;
     u8 alphaLoop;
     f32 fx;
     f32 fy;
-    u8 alphaFinal;
 
     baseX = *(f32 *)(arg1 + 4);
     baseY = *(f32 *)(arg1 + 8);
@@ -373,31 +389,30 @@ void func_00361d20(s32 arg0, u8 *arg1)
             rgb1b = 0x2B;
         }
     }
-    row = arg1 + arg0 * 0x30;
+    x = 560.0f + (baseX + *(f32 *)(arg1 + 0x1D8 + arg0 * 0x30));
     f22 = (f32)arg0 * 30.0f;
-    x1 = 560.0f + (baseX + *(f32 *)(row + 0x1D8));
-    y1 = -13.0f + (f22 + (113.0f + (baseY + *(f32 *)(row + 0x1DC))));
-    alpha1 = (u8)((f32)row[0x1E2] * scale);
-    func_0034f2e0((void *)ptrA, x1, y1, rgb1r, rgb1g, rgb1b, alpha1);
+    y = -13.0f + (f22 + (113.0f + (baseY + *(f32 *)(arg1 + 0x1DC + arg0 * 0x30))));
+    alpha = (u8)((f32)*(u8 *)(arg1 + 0x1E2 + arg0 * 0x30) * scale);
+    func_0034f2e0((void *)ptrA, x, y, rgb1r, rgb1g, rgb1b, alpha);
     if (probe180 != 0) {
-        u8 *row2 = arg1 + arg0 * 0x30;
-        f32 x2 = 15.0f + (baseX + *(f32 *)(row2 + 0x418));
-        f32 y2 = -13.0f + (f22 + (117.0f + (baseY + *(f32 *)(row2 + 0x41C))));
-        u8 a2 = (u8)((f32)row2[0x422] * scale);
+        u8 *pal;
+        f32 x2 = 15.0f + (baseX + *(f32 *)(arg1 + 0x418 + arg0 * 0x30));
+        f32 y2 = -13.0f + (f22 + (117.0f + (baseY + *(f32 *)(arg1 + 0x41C + arg0 * 0x30))));
+        u8 a2 = (u8)((f32)*(u8 *)(arg1 + 0x422 + arg0 * 0x30) * scale);
+        pal = D_0064B2EC;
         func_0034f2e0(*(void **)(arg1 + 0x6A4), x2, y2, 0x8C, 0x85, 0xFF, a2);
         func_0034f2e0(*(void **)(arg1 + 0x6A8), x2 + 60.0f, y2, 0x8C, 0x85, 0xFF, a2);
-        func_0034f2e0(*(void **)(arg1 + 0x6A0), x2 + 10.0f, y2 + 3.0f, D_0064B2EC[0], D_0064B2EC[1], D_0064B2EC[2], a2);
+        func_0034f2e0(*(void **)(arg1 + 0x6A0), x2 + 10.0f, y2 + 3.0f, pal[0], pal[1], pal[2], a2);
     } else if (probe140 != 0) {
-        u8 *row3 = arg1 + arg0 * 0x30;
-        f32 x3 = 62.0f + (baseX + *(f32 *)(row3 + 0x418));
-        f32 y3 = -13.0f + (f22 + (117.0f + (baseY + *(f32 *)(row3 + 0x41C))));
-        u8 a3 = (u8)((f32)row3[0x422] * scale);
-        func_0034f2e0(*(void **)(arg1 + 0x6F8), x3, y3, 0xFF, 0xFF, 0xFF, a3);
+        x = 62.0f + (baseX + *(f32 *)(arg1 + 0x418 + arg0 * 0x30));
+        y = -13.0f + (f22 + (117.0f + (baseY + *(f32 *)(arg1 + 0x41C + arg0 * 0x30))));
+        alpha = (u8)((f32)*(u8 *)(arg1 + 0x422 + arg0 * 0x30) * scale);
+        func_0034f2e0(*(void **)(arg1 + 0x6F8), x, y, 0xFF, 0xFF, 0xFF, alpha);
     }
     sprintf(buf, &iGpffffa980, idx + 1);
-    lx = 89.0f + (baseX + *(f32 *)(row + 0x1D8));
-    ly = -13.0f + (f22 + (118.0f + (baseY + *(f32 *)(row + 0x1DC))));
-    alphaLoop = (u8)((f32)row[0x1E2] * scale);
+    lx = 89.0f + (baseX + *(f32 *)(arg1 + 0x1D8 + arg0 * 0x30));
+    ly = -13.0f + (f22 + (118.0f + (baseY + *(f32 *)(arg1 + 0x1DC + arg0 * 0x30))));
+    alphaLoop = (u8)((f32)*(u8 *)(arg1 + 0x1E2 + arg0 * 0x30) * scale);
     {
         s32 i;
         for (i = 0; i < 2; i++) {
@@ -406,15 +421,15 @@ void func_00361d20(s32 arg0, u8 *arg1)
             lx += 22.0f;
         }
     }
-    fx = 153.0f + (baseX + *(f32 *)(row + 0x1D8));
-    fy = -13.0f + (f22 + (117.0f + (baseY + *(f32 *)(row + 0x1DC))));
-    alphaFinal = (u8)((f32)row[0x1E2] * scale);
-    if (probe100 == 0) {
-        func_0034f2e0(*(void **)(arg1 + 0x69C), fx + 2.0f, fy + 1.0f, rgb2r, rgb2g, rgb2b, alphaFinal);
-    } else {
-        s32 color = colorBase | (alphaFinal & 0xFF);
+    fx = 153.0f + (baseX + *(f32 *)(arg1 + 0x1D8 + arg0 * 0x30));
+    fy = -13.0f + (f22 + (117.0f + (baseY + *(f32 *)(arg1 + 0x1DC + arg0 * 0x30))));
+    alpha = (u8)((f32)*(u8 *)(arg1 + 0x1E2 + arg0 * 0x30) * scale);
+    if (probe100 != 0) {
+        s32 color = colorBase | (alpha & 0xFF);
         u32 str = func_00354490(idx);
-        func_002751a0(fx, fy - 3.0f, 0.0f, color, (s8)mode, 1, (const char *)str, 0, 0x77, -1);
+        func_002751a0(fx, fy - 3.0f, 0.0f, color, mode, 1, (const char *)str, 0, 0x77, -1);
+    } else {
+        func_0034f2e0(*(void **)(arg1 + 0x69C), fx + 2.0f, fy + 1.0f, rgb2r, rgb2g, rgb2b, alpha);
     }
 }
 #else
