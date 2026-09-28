@@ -871,6 +871,20 @@ void func_002b7750(s16 arg0, s16 arg1) {
 /* measured: opt_propagation off is required for the byte-exact 7750 reset sequence. */
 #pragma opt_propagation on
 /* measured 002b77d0 (banked two-branch honest body: s16 index + f2 p1 + s16/s32/s8/s16/s16 + f32 + s16/u32 stack, then/else sharing the 6c30 prefix + 82d0/8300/2970/8270 extras, fGpffff8504 float): measure_guarded 280 words obj 1300B/window 1280B; fnalign --candidate 187 edits (+10 reloc-only), retail 320 vs object 325 instrs; opclass dsll32/dsra32 +3 addu +3 surplus with swc1/lwc1 -4 move -3 shortfall. Earliest hunk is prologue allocation: retail holds 7 saved, mwcc takes an 8th (s7 for the s8 flag) shifting spills sd a1 0x90->0xA8 / sw a3 0x9C->0xB4 and colouring t1/t2/t3 s7/s1/s5; scoping off+tmp per-branch re-measured identical 280. Param-vs-surviving-local floor, same family as 001441e0's standing s1/s2 colour walls. Production stays ASM. */
+/* 2026-09-28 finding (not yet converted): both arms are inline expansions of
+   the small wrappers defined above.  Else arm = func_002b7750(arg0, arg1) (the
+   0x8/0x14/0x4B/0x77/0xB7/0xDF reset), then func_002b6c30(arg0, p1, fparg0,
+   arg3) in both arms (flags |= 1, 0x18/0xC/0x3C stores and the 0x10/0x12
+   half-size pair), func_002b6a70 / func_002b6af0 / func_002b69f0 for the
+   0x82D0/0x8300/0x8270 calls, and an f2 temp per arm.  mwcc only inlines a
+   plain function whose definition was compiled under `#pragma auto_inline on`
+   (measured in isolation: the pragma at the callee's definition is what
+   counts, at the caller it does nothing).  Wrapping those five definitions in
+   auto_inline on/off and writing the arms as calls, with `opt_propagation off`
+   at 77d0, inlined all five (object 315 vs retail 319 instructions, 281 -> 215
+   words); the stack homes then differ by 8 bytes (retail p1 at 0x90 with four
+   f2 slots at 0xA0-0xB8).  The wrappers have no other caller in this unit, so
+   the pragma does not change any matched function. */
 // FUN_002B77D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002b77d0(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fparg0, s16 arg3, s8 arg4, s16 arg5, s16 arg6, s16 arg7, u32 arg8) {
