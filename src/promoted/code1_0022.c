@@ -1794,9 +1794,48 @@ void func_00225e50(u8 *arg0)
     }
 }
 
-/* measured: MWCC -O2 plain, object 2028B/window 2032B, normalized_diff 334 (v1 436, decl-swap 430, separate else-if 334 best). Levers: decl-order, vector reverse, separate else-if vs switch (switch 430), DeMorgan, opt_scalarize/common_subs, float (0.0f+...) idioms for adda/madd, 700/25.0 clamps. Remaining: early join shift, bne-vs-beq, 4B mtc1 gap for delta.y (0.0f-0.0f folds), adda colors for honest uninit sp134 per audit (not invented). No volatile/asm. Cold from NearGA.Cold25EC0 /tmp/cand_B.c. */
+/* measured 2026-09-28: 334 -> 148 differing words (fnalign edits 62 -> about 20), same object size as retail.
+ * What moved it: the flag at the top is an inlined early-return helper (a NULL action returns 1, then a
+ * `switch` with no default per unit kind returns 0 for its two battle ids, and one shared `return 1` follows),
+ * which reproduces retail's beq/beq/b chains and its single shared `var16 = 1`; and `battle == 10` is a
+ * one-case `switch` (retail branches beq/nop/b around it).  `delta.y` reads the two zeroed fields instead of
+ * folding `0.0f - 0.0f`, and the `(0.0f + x) +` prefixes were never needed (the compiler emits the adda/madd
+ * zero itself; dropping them measures the same 148).
+ * Remaining residual, all float scheduling: (a) retail scales `delta` by `scale` into three unfused products
+ * (mul.s f3/f2/f1) before the three plain add.s, where every spelling tried fuses them into adda/madd
+ * (direct, `+=`, temps, struct or array temps, inline helpers taking pointers, `register`); a dead-store
+ * `delta.x *= scale` does emit products-first but keeps three extra swc1; function-wide `opt_propagation off`
+ * gives the right products (121) but breaks the 25.0f clamps, which need default propagation. (b) `1.25f * top`
+ * loads the constant before `top` (retail loads `top` first; only propagation-off named locals reproduce that).
+ * `point.y` is read before it is written (retail reads sp+0x134 uninitialised), so this body is a reference
+ * for the control flow, not something to promote. */
 // FUN_00225EC0 NONMATCHING
 #ifdef NON_MATCHING
+static inline s32 func_00225ec0_flag(u8 *action)
+{
+    u16 battle;
+
+    if (action == NULL) {
+        return 1;
+    }
+    if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 0) {
+        battle = *(u16 *)(iGpffffb3ac + 0x108);
+        switch (battle) {
+        case 0x21:
+        case 0x22:
+            return 0;
+        }
+    } else {
+        battle = *(u16 *)(iGpffffb3ac + 0x108);
+        switch (battle) {
+        case 0x16:
+        case 0x24:
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void func_00225ec0(u8 *camera)
 {
     extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
@@ -1830,38 +1869,21 @@ void func_00225ec0(u8 *camera)
     f32 scale;
     f32 len;
     u32 frames;
-    u16 battle;
 
     action = *(u8 **)(camera + 0xE0);
-    if (action == NULL) {
-        var16 = 1;
-    } else if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 0) {
-        battle = *(u16 *)(iGpffffb3ac + 0x108);
-        if (battle == 0x22) {
-            var16 = 0;
-        } else if (battle == 0x21) {
-            var16 = 0;
-        } else {
-            var16 = 1;
-        }
-    } else {
-        battle = *(u16 *)(iGpffffb3ac + 0x108);
-        if (battle == 0x24) {
-            var16 = 0;
-        } else if (battle == 0x16) {
-            var16 = 0;
-        } else {
-            var16 = 1;
-        }
-    }
+    var16 = func_00225ec0_flag(action);
     var17 = 0;
     unit = *(u8 **)(action + 0x30);
     radius = *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
-    if (*(u16 *)(iGpffffb3ac + 0x108) == 10 && *(s32 *)(iGpffffb3ac + 0xC04) == *(s32 *)(action + 8)) {
-        if (*(s32 *)(iGpffffb3ac + 0xC08) != 0 && datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100) == 0) {
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 8);
+    switch (*(u16 *)(iGpffffb3ac + 0x108)) {
+    case 10:
+        if (*(s32 *)(iGpffffb3ac + 0xC04) == *(s32 *)(action + 8)) {
+            if (*(s32 *)(iGpffffb3ac + 0xC08) != 0 && datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100) == 0) {
+                func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 8);
+            }
+            return;
         }
-        return;
+        break;
     }
     *(s32 *)(iGpffffb3ac + 0xC04) = *(s32 *)(action + 8);
     *(s32 *)(iGpffffb3ac + 0xC08) = 0;
@@ -1872,7 +1894,7 @@ void func_00225ec0(u8 *camera)
         unitCenter.y = 0.0f;
         groupCenter.y = 0.0f;
         delta.x = unitCenter.x - groupCenter.x;
-        delta.y = 0.0f - 0.0f;
+        delta.y = unitCenter.y - groupCenter.y;
         delta.z = unitCenter.z - groupCenter.z;
         len = RwV3dNormalize(&delta, &delta);
         scale = fGpffff80fc * len;
@@ -1881,7 +1903,7 @@ void func_00225ec0(u8 *camera)
         groupCenter.z = groupCenter.z + delta.z * scale;
         point.x = unitCenter.x;
         height = *(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C);
-        point.y = (0.0f + point.y) + fGpffff8100 * height;
+        point.y = point.y + fGpffff8100 * height;
         point.z = unitCenter.z;
         func_001bd780(&poses.secondRotation, &point, &groupCenter, D_0060A0E0);
         len = tanf(0.5f * *(f32 *)(camera + 0xB8));
@@ -1890,9 +1912,9 @@ void func_00225ec0(u8 *camera)
         delta.y = point.y - groupCenter.y;
         delta.z = point.z - groupCenter.z;
         RwV3dNormalize(&delta, &delta);
-        poses.second.x = (0.0f + point.x) + delta.x * radius;
-        poses.second.y = (0.0f + point.y) + delta.y * radius;
-        poses.second.z = (0.0f + point.z) + delta.z * radius;
+        poses.second.x = point.x + delta.x * radius;
+        poses.second.y = point.y + delta.y * radius;
+        poses.second.z = point.z + delta.z * radius;
         if (!(poses.second.y <= 700.0f)) {
             var17 = 1;
         }
