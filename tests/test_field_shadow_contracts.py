@@ -115,34 +115,41 @@ RwSphere *func_003bfae0(void *atomic) {
     ++sphereCalls;
     return &sphere;
 }
-void *func_003e9700(void *frame) {
-    CHECK(frame == &frameToken);
+struct RwMatrixTag *func_003e9700(RwFrame *frame) {
+    CHECK((void *)frame == &frameToken);
     ++frameCalls;
-    return skinMatrix;
+    return (struct RwMatrixTag *)skinMatrix;
 }
-void func_003e42e0(void *destination, void *source, s32 count, void *matrix) {
-    RwV3d *input = source;
+RwV3d *func_003e42e0(RwV3d *destination, const RwV3d *source,
+                    s32 count, const struct RwMatrixTag *matrix) {
+    const RwV3d *input = source;
     if (count == 1) {
-        CHECK(matrix == skinMatrix);
+        CHECK((const void *)matrix == skinMatrix);
         CHECK(memcmp(input, &vertices[skinCalls % 3], sizeof(RwV3d)) == 0);
         memcpy(destination, input, sizeof(RwV3d));
         ++skinCalls;
-        return;
+        return destination;
     }
-    CHECK(count == 3 && matrix == work.matrix);
+    CHECK(count == 3 && (const void *)matrix == work.matrix);
     for (unsigned i = 0; i < 3; ++i)
         CHECK(memcmp(&input[i], &vertices[i], sizeof(RwV3d)) == 0);
     memcpy(destination, projected, sizeof(projected));
     ++transformCalls;
+    return destination;
 }
-s32 func_00410420(void *data, u32 count, s32 matrix, s32 flags) {
-    CHECK(data == &work && count == workBefore.count);
+void *func_00410420(struct _RxObjSpace3DVertex *data, u32 count,
+                   struct RwMatrixTag *matrix, u32 flags) {
+    CHECK((void *)data == &work && count == workBefore.count);
     CHECK(matrix == 0 && flags == 0x19);
     ++flushCalls;
-    return flushSucceeds;
+    return flushSucceeds ? data : NULL;
 }
-void func_004106a0(s32 primitive) { CHECK(primitive == 3); ++renderCalls; }
-void func_004104d0(void) { ++endCalls; }
+s32 func_004106a0(enum RwPrimitiveType primitive) {
+    CHECK(primitive == rwPRIMTYPETRILIST);
+    ++renderCalls;
+    return 1;
+}
+s32 func_004104d0(void) { ++endCalls; return 1; }
 void *func_003efd20(RwCamera *camera, RwFrame *frame) { (void)frame; return camera; }
 void *func_003e9390(void *frame) { return frame; }
 void *func_003ec330(void *raster) { return raster; }
@@ -245,7 +252,7 @@ static void bounds_cases(void) {
 
 static void atomic_cases(void) {
     void *(*callback)(void *, void *) = func_00179f70;
-    atomicContext.geometry = &intersection;
+    atomicContext.intersection = &intersection;
     atomicContext.work = &work;
     work.triangles = 0;
     work.count = 0;
