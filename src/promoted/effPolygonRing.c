@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effPolygonRing.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "effect_instance_internal.h"
 #include "include_asm.h"
 
 /* Same spelling as mdlEffect.c: a 128-bit type makes mwcc emit the lq/sq
@@ -23,9 +24,7 @@ typedef struct RwRGBA
     u8 alpha;
 } RwRGBA;
 
-extern u8 *func_00484490();
 extern void func_0046d730();
-extern u8 *func_0049a370(u16 arg0, u8 *arg1);
 extern u8 D_00713EF0[];
 extern void func_004833f0(void *arg0);
 extern void (*jtbl_008873EC[])(void *);
@@ -993,14 +992,14 @@ u8 *func_0049a370(u16 arg0, u8 *arg1)
 }
 #pragma opt_propagation on
 // FUN_0049A4E0
-u8 *func_0049a4e0(u8 *arg0) {
+void *func_0049a4e0(void *arg0) {
     u8 *p;
 
     p = func_00484490(arg0);
     if (p == NULL) {
         func_0046d730(D_00713EF0, 0x2E5);
     }
-    p = func_0049a370(*(u16 *)(arg0 + 0xC), p);
+    p = func_0049a370(*(u16 *)((u8 *)arg0 + 0xC), p);
     if (p == NULL) {
         func_0046d730(D_00713EF0, 0x2E7);
     }

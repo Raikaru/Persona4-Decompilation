@@ -2,6 +2,7 @@
 /* Original translation unit effPolygonThunder.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "effect_instance_internal.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
@@ -11,7 +12,6 @@ extern u32 effMiscRand(u32 arg0);
 extern f32 effMiscRandFloat(u32 arg0);
 extern void func_0046d730(const char *file, s32 line);
 extern void func_0044ea90(const char *file, s32 line);
-extern u8 *func_00484490(u8 *obj);
 extern void memcpy(void *dst, void *src, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *);
@@ -35,7 +35,6 @@ extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
 extern void func_00483700(void *dst, void *obj, void *src, f32 arg3);
 extern void func_003e9cb0(void *a, void *b, s32 c);
 extern void func_00483490(void *a, u16 b);
-u8 *func_004988c0(u16 arg0, u8 *arg1);
 
 
 #pragma push
@@ -2220,7 +2219,7 @@ u8 *func_004988c0(u16 arg0, u8 *arg1)
 
 
 // FUN_00498A30
-u8 *func_00498a30(u8 *arg0)
+void *func_00498a30(void *arg0)
 {
     u8 *tex;
 
@@ -2229,7 +2228,7 @@ u8 *func_00498a30(u8 *arg0)
     {
         func_0046d730(D_00713E50, 0x6C9);
     }
-    tex = func_004988c0(*(u16 *)(arg0 + 0xC), tex);
+    tex = func_004988c0(*(u16 *)((u8 *)arg0 + 0xC), tex);
     if (tex == NULL)
     {
         func_0046d730(D_00713E50, 0x6CB);

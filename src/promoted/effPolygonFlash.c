@@ -4,6 +4,7 @@
 /* Original translation unit effPolygonFlash.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "effect_instance_internal.h"
 
 /* Same spelling as mdlEffect.c: a 128-bit type makes mwcc emit the lq/sq
    quadword copy retail uses, with no inline asm. */
@@ -34,8 +35,6 @@ extern s32 func_00481300(s32);
 extern void func_003c42b0(void *, void *);
 extern void func_00483970(void *, void *);
 extern char D_00713408[];
-extern void *func_004844d0(void);
-extern void *func_00484490(void *);
 extern char D_00714028[];
 extern char D_00713CE0[];
 extern void memcpy(void *, void *, void *);
@@ -4742,7 +4741,7 @@ void *func_004a1660(s32 arg0, void *arg1)
 #pragma opt_propagation on
 
 // FUN_004A1780
-void *func_004a1780(u8 *arg0)
+void *func_004a1780(void *arg0)
 {
     u8 *p16;
     u8 *p19;
@@ -4750,11 +4749,11 @@ void *func_004a1780(u8 *arg0)
     u8 *p17;
     u32 idx;
 
-    p18 = func_004844d0();
+    p18 = func_004844d0(arg0);
     if (p18 == NULL) {
         func_0046d730(D_00713FF0, 0xD08);
     }
-    switch (*(u16 *)(arg0 + 0x1C)) {
+    switch (*(u16 *)((u8 *)arg0 + 0x1C)) {
     case 1:
         break;
     case 4:
@@ -4768,7 +4767,7 @@ void *func_004a1780(u8 *arg0)
     if (p19 == NULL) {
         func_0046d730(D_00713FF0, 0xD16);
     }
-    p16 = (u8 *)(*(u16 *)(arg0 + 0xC) & 0xFFFF);
+    p16 = (u8 *)(*(u16 *)((u8 *)arg0 + 0xC) & 0xFFFF);
     p17 = func_004a1660((s32)p16, p19);
     idx = ((u32)p16 & 0xFFFF) * 28;
     *(u32 *)(p17 + 0x3C) = (u32)((void *(*)(void *, void *))(*(void **)(D_00714014 + idx)))(p19, p18);

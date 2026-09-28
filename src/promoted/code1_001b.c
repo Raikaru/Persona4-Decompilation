@@ -1073,7 +1073,7 @@ void func_001b1d70(void) {
     extern void func_001b11c0(s32 arg0);
     extern s32 func_001b0f20(s32 arg0);
     extern s32 func_0023d740(s32 arg0, s32 arg1);
-    extern s32 func_0023a6b0(u8 *arg0, s16 arg1);
+    extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
     extern u32 datCalcSetBadStatus(s32 unit, u32 badStatus);
     extern void func_001d1680(s32 arg0, s32 arg1);
     extern void btlUnitSetPos(u8 *arg0, f32 *arg1);
@@ -1085,8 +1085,8 @@ void func_001b1d70(void) {
     u32 *entry;
     u8 *list;
     s64 v1;
-    s16 r1;
-    s16 r2;
+    s32 r1;
+    s32 r2;
     u8 *j;
     u32 i;
     u8 *pkt;

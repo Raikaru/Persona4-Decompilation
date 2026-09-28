@@ -6,6 +6,7 @@ typedef signed __int128 s128;
 #include "primitive_point_buffer.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
+#include "rw/plcore/barenderstate.h"
 extern f32 fGpffff9cA0;
 extern f32 fGpffff9cA4;
 extern s128 D_005E5740;
@@ -41,7 +42,7 @@ extern void func_00264d90();
 extern s32 D_00796670[];
 extern u8 D_005E50D0[];
 extern u8 D_005E5870[];
-extern s32 func_0046a770(void *arg0);
+extern u8 *func_0046a770(char *filename);
 extern void func_001238c0(s32 arg0);
 
 extern void func_00267570();
@@ -56,7 +57,7 @@ extern s32 func_00121af0(u8 *task);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(char *name, u8 *task);
 extern void func_001221a0(void *arg0, u8 *arg1);
-extern void func_00122a40(void *arg0, u8 *arg1);
+extern void func_00122a40(void *unusedNode, void *work);
 extern char D_00796340[];
 extern char D_00795F50[];
 extern s64 func_001060b0(void);
@@ -159,7 +160,7 @@ extern void func_004598e0(s32 arg0);
 extern void func_004787e0(s32 arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s16 func_00353b50(void *arg0);
-extern s32 func_0046d200(void *arg0, s32 arg1);
+extern u8 *func_0046d200(u32 sprites, u32 index);
 extern u8 D_005E5F40[];
 extern u8 D_005E7670[];
 extern u8 D_005E5830[];
@@ -172,211 +173,218 @@ extern u8 D_005E5BB8[];
 extern u8 D_005E76C8[];
 extern void func_0012e7c0(u8 *arg0);
 extern s32 func_0012ff60(u8 *arg0, u32 arg1);
-/* measured: func_001203a0 obj 1824B window 1856B (32B short, 1.7% within 3%), 382 reloc-masked differing words; fnalign retail 463 instrs object 456 instrs (7 short); frame -0xD0 vs -0x100, missing swc1 f23 save, sd/mov park order, s-reg coloring (s5/s3, s0/s2, s7/fp) + f22/f21 vs f12/f13 + stack offsets (0xE0 vs 0xB8 etc.); arg-setup float-first (00275020/00120ae0/0046d4c0) + u32 color unions + s32 D/C via cvt kept; opt_propagation+opt_common_subs off gives 382 (vs 398 single-inner, 397 both-inners, 400 flat); no slti/slt levers in retail; best honest exact-size draft, parked as compiler floor. Width 2026-09-17: 24 dsll/dsra pairs are s16-temp vs s32-callee tension; temp_18 s16->s32 400 worse, 0010d620 s16->s32 390 worse; keep s16, allocation wall. */
-// FUN_001203A0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_propagation off
-#pragma opt_common_subs off
-void func_001203a0(s64 arg0, s8 arg1, u8 *arg2, s32 arg3, s32 arg4, f32 fparg0)
+typedef struct {
+    u8 b[4];
+} PanelRgba;
+
+void func_00120ae0(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 sprites);
+
+// FUN_001203A0
+/* measured: b210 -O2 emits all 1856 retail bytes. Lifetime splitting
+   separates the depth and HP row values. Coordinate accumulation and
+   explicit byte conversions retain retail's separate evaluations.
+   Full owner proof: build/cos20335-continuation/field-ui/review-001203a0-final. */
+#pragma push
+#pragma opt_lifetimes on
+void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaximum, s32 fullName)
 {
-    extern s32 func_0046a770(void *arg0);
+    extern u8 *func_0046a770(char *filename);
     extern void func_0046d730(const void *file, s32 line);
-    extern u8 *func_0010d620(s16 arg0);
-    extern u8 *func_0010d6d0(s16 arg0);
+    extern u32 func_0010d620(s16 unit);
+    extern u32 func_0010d6d0(s16 unit);
     extern int func_00275020(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
-    extern u32 func_00104ce0(s32 arg0);
-    extern u32 func_00104dc0(s32 arg0);
-    extern u32 func_00104d50(s32 arg0);
-    extern u32 func_00104e30(s32 arg0);
-    extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6);
-    extern void func_0046d2b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, f32 z, s32 arg3);
-    extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-    extern void func_00120ae0(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, s32 arg3);
+    extern u32 func_00104ce0(s16 unit);
+    extern u16 func_00104dc0(s16 unit);
+    extern u32 func_00104d50(s16 unit);
+    extern u16 func_00104e30(s16 unit);
+    extern void func_0046d4c0(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, u8 red, u8 green, u8 blue, f32 depth, s32 flags);
+    extern void func_0046d2b0(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, f32 depth, s32 flags);
+    extern void func_0045d6e0(void *color, void *rectangle, f32 depth, s32 mode);
     extern u8 D_005E5830[];
     extern u8 D_005E5850[];
     extern u8 D_005E4F88[];
-    union { u32 w; u8 b[4]; } colFC, colF4, colF0;
-    u8 blkF8[4];
-    f32 spEC;
-    f32 spE8;
-    s32 spDC;
-    s32 spD8;
-    s32 spD4;
-    s32 spD0;
-    s32 spCC;
-    s32 spC8;
-    s32 spC4;
-    s32 spC0;
-    s64 spB8;
-    s32 var_19;
-    f32 temp_f12;
-    f32 temp_f12_2;
-    f32 temp_f20;
-    f32 temp_f20_2;
-    f32 temp_f23;
-    s16 temp_18;
-    s16 temp_3;
-    s32 temp_17;
-    s32 temp_17_2;
-    s32 temp_17_3;
-    s32 temp_19;
-    s32 temp_20;
-    s32 temp_21;
-    u8 *temp_str;
-    s32 temp_lo;
-    s32 temp_4;
-    u32 temp_6;
-    u32 temp_6_2;
-    u32 temp_6_3;
-    u32 temp_6_4;
+    PanelRgba numberColor;
+    u8 emptyColor[4];
+    PanelRgba hpMaxColor;
+    PanelRgba spMaxColor;
+    Vec2f point;
+    s32 hpRect[4];
+    s32 spRect[4];
+    s32 panelSprites;
+    s32 helpSprites;
+    s8 fontStyle;
+    s16 unit;
+    s32 textColor;
+    f32 hpMarkerX;
+    f32 spMarkerX;
+    f32 spY;
+    f32 hpY;
+    s16 entryStyle;
+    s32 alpha;
+    s32 currentHp;
+    u8 *name;
+    s32 missingHpWidth;
+    s32 maximumHp;
+    u32 hpNumber;
+    u32 maxHpNumber;
+    u32 spNumber;
+    u32 maxSpNumber;
 
-    spB8 = arg0;
-    temp_21 = func_0046a770(D_005E5830);
-    temp_20 = func_0046a770(D_005E5850);
-    if (temp_21 == 0) {
+    panelSprites = (s32)func_0046a770((char *)D_005E5830);
+    helpSprites = (s32)func_0046a770((char *)D_005E5850);
+    if (panelSprites == 0) {
         func_0046d730(D_005E4F88, 0xB1);
     }
-    if (temp_20 == 0) {
+    if (helpSprites == 0) {
         func_0046d730(D_005E4F88, 0xB2);
     }
-    temp_18 = *(s16 *)arg2;
-    temp_3 = *(s16 *)(arg2 + 6);
-    switch (temp_3) {
+    unit = *(s16 *)entry;
+    entryStyle = *(s16 *)(entry + 6);
+    switch (entryStyle) {
     case 0:
-        var_19 = 6;
-        colFC.b[0] = 0xEC; colFC.b[1] = 0x7C; colFC.b[2] = 0;
+        fontStyle = 6;
+        numberColor.b[0] = 0xEC;
+        numberColor.b[1] = 0x7C;
+        numberColor.b[2] = 0;
         break;
     case 1:
-        var_19 = 7;
-        colFC.b[0] = 0x2D; colFC.b[1] = 0x2D; colFC.b[2] = 0x2D;
+        fontStyle = 7;
+        numberColor.b[2] = numberColor.b[1] = numberColor.b[0] = 0x2D;
         break;
     case 2:
-        var_19 = 6;
-        colFC.b[0] = 0xEC; colFC.b[1] = 0x7C; colFC.b[2] = 0;
+        fontStyle = 6;
+        numberColor.b[0] = 0xEC;
+        numberColor.b[1] = 0x7C;
+        numberColor.b[2] = 0;
         break;
     default:
-        var_19 = 6;
-        colFC.b[0] = 0xFF; colFC.b[1] = 0xFF; colFC.b[2] = 0x81;
+        fontStyle = 6;
+        numberColor.b[1] = numberColor.b[0] = 0xFF;
+        numberColor.b[2] = 0x81;
         break;
     }
-    colFC.b[3] = (u8)arg1;
-    spE8 = *((f32 *)&spB8);
-    spEC = *((f32 *)&spB8 + 1);
-    if (*(s32 *)(arg2 + 8) == 3) {
-        spEC = *((f32 *)&spB8 + 1) - 5.0f;
+    numberColor.b[3] = (u8)opacity;
+    point.x = origin.x;
+    point.y = origin.y;
+    if (*(s32 *)(entry + 8) == 3) {
+        point.y = origin.y - 5.0f;
     }
-    temp_17 = arg1 & 0xFF;
-    if (arg4 != 0) {
-        temp_str = func_0010d620(temp_18);
+    alpha = opacity & 0xFF;
+    textColor = alpha | -0x100;
+    if (fullName != 0) {
+        name = (u8 *)func_0010d620(unit);
     } else {
-        temp_str = func_0010d6d0(temp_18);
+        name = (u8 *)func_0010d6d0(unit);
     }
-    func_00275020(spE8, spEC, 0.0f, temp_17 | ~0xFF, (s8)var_19, 1, (const char *)temp_str, 0, -1);
-    temp_6 = func_00104ce0(temp_18) & 0xFFFF;
-    temp_f20 = 30.0f + *((f32 *)&spB8);
-    spE8 = temp_f20;
-    spEC = 27.0f + *((f32 *)&spB8 + 1);
-    func_00120ae0(*((s64 *)&spE8), fparg0, (s32)colFC.w, temp_6, temp_21);
-    if (arg3 != 0) {
-        temp_f12 = 52.0f + *((f32 *)&spB8);
-        spE8 = temp_f12;
-        temp_f23 = 27.0f + *((f32 *)&spB8 + 1);
-        spEC = temp_f23;
-        func_0046d4c0(0, temp_20, 0x3D, temp_f12, temp_f23, (0xFF - temp_17) & 0xFF, 0xFF, 0xA2, 0, fparg0, 0);
-        spE8 = 103.0f + *((f32 *)&spB8);
-        spEC = temp_f23;
-        temp_6_2 = func_00104dc0(temp_18) & 0xFFFF;
-        colF4.b[0] = 0xFB; colF4.b[1] = 0xA2; colF4.b[2] = 0; colF4.b[3] = (u8)arg1;
-        func_00120ae0(*((s64 *)&spE8), fparg0, (s32)colF4.w, temp_6_2, temp_21);
-        spE8 = 123.0f + *((f32 *)&spB8);
-        spEC = 31.0f + *((f32 *)&spB8 + 1);
+    func_00275020(point.x, point.y, 0.0f, textColor, fontStyle, 1, (const char *)name, 0, -1);
+    hpNumber = func_00104ce0(unit) & 0xFFFF;
+    point.x = 30.0f + origin.x;
+    point.y = 27.0f + origin.y;
+    func_00120ae0(point, depth, numberColor, hpNumber, panelSprites);
+    if (showMaximum != 0) {
+        hpMarkerX = 52.0f + origin.x;
+        point.x = hpMarkerX;
+        hpY = 27.0f;
+        hpY += origin.y;
+        point.y = hpY;
+        func_0046d4c0(0, helpSprites, 0x3D, hpMarkerX, hpY, (0xFF - alpha) & 0xFF, 0xFF, 0xA2, 0, depth, 0);
+        point.x = 103.0f + origin.x;
+        point.y = hpY;
+        maxHpNumber = func_00104dc0(unit) & 0xFFFF;
+        hpMaxColor.b[0] = 0xFB;
+        hpMaxColor.b[1] = 0xA2;
+        hpMaxColor.b[2] = 0;
+        hpMaxColor.b[3] = (u8)opacity;
+        func_00120ae0(point, depth, hpMaxColor, maxHpNumber, panelSprites);
+        point.x = 123.0f + origin.x;
+        point.y = 31.0f + origin.y;
     } else {
-        spE8 = 49.0f + *((f32 *)&spB8);
-        spEC = 30.0f + *((f32 *)&spB8 + 1);
+        point.x = 49.0f + origin.x;
+        point.y = 30.0f + origin.y;
     }
-    temp_17_2 = 0xFF - (arg1 & 0xFF);
-    func_0046d2b0(0, temp_21, 0x4B, spE8, spEC, temp_17_2 & 0xFF, fparg0, 0);
-    func_0046d2b0(0, temp_21, 0x4C, spE8, spEC, temp_17_2 & 0xFF, fparg0, 0);
-    temp_19 = func_00104ce0(temp_18) & 0xFFFF;
-    temp_4 = func_00104dc0(temp_18) & 0xFFFF;
-    temp_lo = (s32)((temp_4 - (temp_19 & 0xFFFF)) * 0x58) / temp_4;
-    spD8 = temp_lo;
-    spDC = 6;
-    spD0 = (s32)((95.0f + spE8) - (f32)temp_lo);
-    spD4 = (s32)(4.0f + spEC);
-    blkF8[0] = 0x2D; blkF8[1] = 0x2D; blkF8[2] = 0x2D; blkF8[3] = (u8)arg1;
+    alpha = (u8)opacity;
+    alpha = 0xFF - alpha;
+    hpY = point.y;
+    func_0046d2b0(0, panelSprites, 0x4B, point.x, hpY, (u8)alpha, depth, 0);
+    func_0046d2b0(0, panelSprites, 0x4C, point.x, hpY, alpha & 0xFF, depth, 0);
+    currentHp = func_00104ce0(unit) & 0xFFFF;
+    maximumHp = func_00104dc0(unit) & 0xFFFF;
+    missingHpWidth = (s32)((maximumHp - (currentHp & 0xFFFF)) * 0x58) / maximumHp;
+    hpRect[2] = missingHpWidth;
+    hpRect[3] = 6;
+    hpRect[0] = (s32)((95.0f + point.x) - (f32)missingHpWidth);
+    hpRect[1] = (s32)(4.0f + hpY);
+    emptyColor[2] = emptyColor[1] = emptyColor[0] = 0x2D;
+    emptyColor[3] = (u8)opacity;
+    func_0045d6e0(emptyColor, hpRect, 0.0f, 1);
+    spNumber = func_00104d50(unit) & 0xFFFF;
+    point.x = 30.0f + origin.x;
+    point.y = 43.0f + origin.y;
+    func_00120ae0(point, depth, numberColor, spNumber, panelSprites);
+    if (showMaximum != 0) {
+        spMarkerX = 52.0f + origin.x;
+        point.x = spMarkerX;
+        spY = 43.0f;
+        spY += origin.y;
+        point.y = spY;
+        func_0046d4c0(0, helpSprites, 0x3D, spMarkerX, spY, (u32)alpha & 0xFFU, 0xFF, 0xA2, 0, depth, 0);
+        point.x = 103.0f + origin.x;
+        point.y = spY;
+        maxSpNumber = func_00104e30(unit) & 0xFFFF;
+        spMaxColor.b[0] = 0xFB;
+        spMaxColor.b[1] = 0xA2;
+        spMaxColor.b[2] = 0;
+        spMaxColor.b[3] = (u8)opacity;
+        func_00120ae0(point, depth, spMaxColor, maxSpNumber, panelSprites);
+        point.x = 123.0f + origin.x;
+        point.y = 42.0f + origin.y;
+    } else {
+        point.x = 49.0f + origin.x;
+        point.y = 41.0f + origin.y;
+    }
+    alpha = (u32)opacity & 0xFFU;
+    alpha = 0xFFU - (u32)alpha;
+    spY = point.y;
+    func_0046d2b0(0, panelSprites, 0x4B, point.x, spY, (u8)alpha, depth, 0);
+    func_0046d2b0(0, panelSprites, 0x4D, point.x, spY, alpha & 0xFF, depth, 0);
     {
-        s32 blkD[4];
-        blkD[0] = spD0; blkD[1] = spD4; blkD[2] = spD8; blkD[3] = spDC;
-        func_0045d6e0(blkF8, blkD, 0.0f, 1);
+        s32 currentSp = func_00104d50(unit) & 0xFFFF;
+        s32 maximumSp = func_00104e30(unit) & 0xFFFF;
+        s32 missingSpWidth = (s32)((maximumSp - (currentSp & 0xFFFF)) * 0x58) / maximumSp;
+        spRect[2] = missingSpWidth;
+        spRect[3] = 6;
+        spRect[0] = (s32)((95.0f + point.x) - (f32)missingSpWidth);
+        spRect[1] = (s32)(4.0f + spY);
     }
-    temp_6_3 = func_00104d50(temp_18) & 0xFFFF;
-    spE8 = temp_f20;
-    spEC = 43.0f + *((f32 *)&spB8 + 1);
-    func_00120ae0(*((s64 *)&spE8), fparg0, (s32)colFC.w, temp_6_3, temp_21);
-    if (arg3 != 0) {
-        temp_f12_2 = 52.0f + *((f32 *)&spB8);
-        spE8 = temp_f12_2;
-        temp_f20_2 = 43.0f + *((f32 *)&spB8 + 1);
-        spEC = temp_f20_2;
-        func_0046d4c0(0, temp_20, 0x3D, temp_f12_2, temp_f20_2, temp_17_2 & 0xFF, 0xFF, 0xA2, 0, fparg0, 0);
-        spE8 = 103.0f + *((f32 *)&spB8);
-        spEC = temp_f20_2;
-        temp_6_4 = func_00104e30(temp_18) & 0xFFFF;
-        colF0.b[0] = 0xFB; colF0.b[1] = 0xA2; colF0.b[2] = 0; colF0.b[3] = (u8)arg1;
-        func_00120ae0(*((s64 *)&spE8), fparg0, (s32)colF0.w, temp_6_4, temp_21);
-        spE8 = 123.0f + *((f32 *)&spB8);
-        spEC = 42.0f + *((f32 *)&spB8 + 1);
-    } else {
-        spE8 = 49.0f + *((f32 *)&spB8);
-        spEC = 41.0f + *((f32 *)&spB8 + 1);
-    }
-    temp_17_3 = 0xFF - (arg1 & 0xFF);
-    func_0046d2b0(0, temp_21, 0x4B, spE8, spEC, temp_17_3 & 0xFF, fparg0, 0);
-    func_0046d2b0(0, temp_21, 0x4D, spE8, spEC, temp_17_3 & 0xFF, fparg0, 0);
-    {
-        s32 t19 = func_00104ce0(temp_18) & 0xFFFF;
-        s32 t4 = func_00104dc0(temp_18) & 0xFFFF;
-        s32 tlo = (s32)((t4 - (t19 & 0xFFFF)) * 0x58) / t4;
-        spC8 = tlo;
-        spCC = 6;
-        spC0 = (s32)((95.0f + spE8) - (f32)tlo);
-        spC4 = (s32)(4.0f + spEC);
-    }
-    blkF8[0] = 0x2D; blkF8[1] = 0x2D; blkF8[2] = 0x2D; blkF8[3] = (u8)arg1;
-    func_0045d6e0(blkF8, &spC0, 0.0f, 1);
+    emptyColor[2] = emptyColor[1] = emptyColor[0] = 0x2D;
+    emptyColor[3] = (u8)opacity;
+    func_0045d6e0(emptyColor, &spRect[0], 0.0f, 1);
 }
 
-#pragma opt_common_subs on
-#pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001203a0);
-#endif
+#pragma pop
 // FUN_00120AE0
-void func_00120ae0(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, s32 arg3)
+void func_00120ae0(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 sprites)
 {
-    s32 temp_alpha;
-    u32 var_20;
-    s32 temp_arg3;
-    u8 temp_byte2;
-    u8 temp_byte1;
-    s32 sp7C;
+    s32 alpha;
+    u32 remaining;
+    s32 panelSprites;
+    u8 blue;
+    u8 green;
 
-    sp7C = arg1;
-    var_20 = arg2;
-    temp_arg3 = arg3;
-    temp_byte2 = *((u8 *)&sp7C + 2);
-    temp_byte1 = *((u8 *)&sp7C + 1);
-    temp_alpha = 0xFF;
-    temp_alpha -= *((u8 *)&sp7C + 3);
+    remaining = number;
+    panelSprites = sprites;
+    blue = color.b[2];
+    green = color.b[1];
+    alpha = 0xFF;
+    alpha -= color.b[3];
     do {
-        func_0046d4c0(0, temp_arg3, (var_20 % 10U) + 9,
-                      *((f32 *)&arg0), *((f32 *)&arg0 + 1),
-                      temp_alpha & 0xFF, *((u8 *)&sp7C), temp_byte1,
-                      temp_byte2, fparg0, 0);
-        *((f32 *)&arg0) = *((f32 *)&arg0) - 16.0f;
-        var_20 = var_20 / 10U;
-    } while (var_20 != 0);
+        func_0046d4c0(0, panelSprites, (remaining % 10U) + 9,
+                      position.x, position.y,
+                      alpha & 0xFF, color.b[0], green,
+                      blue, depth, 0);
+        position.x = position.x - 16.0f;
+        remaining = remaining / 10U;
+    } while (remaining != 0);
 }
 // FUN_00120EE0
 s32 func_00120ee0(void *arg0)
@@ -868,7 +876,7 @@ s32 func_001228c0(u8 *unusedTask)
     temp_3 = *(s32 *)(temp_16 + 0);
     switch (temp_3) {
     case 0:
-        *(s32 *)(temp_16 + 0x110) = func_0046a770(D_005E5870);
+        *(s32 *)(temp_16 + 0x110) = (s32)func_0046a770((char *)D_005E5870);
         temp_6 = iGpffffb1dc;
         i = 0;
         table = D_005E50D0;
@@ -910,213 +918,225 @@ void func_00122a10(u8 *arg0)
 
 
 
-/* Floor: 324 differing words, 804 of 804 instructions with all 46
-   relocations resolved.  Body at docs/probe_archive/Lane0012_00122a40_body.c;
-   production stays ASM.  The declaration of func_00122a40 above is part of
-   this measurement - it takes (void *, u8 *), not (void) - and changing it
-   is neutral for the rest of the unit. */
-/* measured 2026-09-18: reconstructed from a bare marker; banked floor 324
-   reloc-masked words at 804/804 instructions (3216B emitted into a 3232B
-   window whose last 16 bytes are zero padding), 89 fnalign edits plus 4
-   reloc-only, all 46 relocations resolved.  No jump table in retail - the
-   two apparent switches are two-case q-remaps.  Both pragmas are load
-   bearing and scoped.  Residual: the nested `14.0f + (int + field)` FPR
-   colouring, the alpha GPR temporary, the 0x19 sharing, q polarity and the
-   tail conversion shape. */
-/* composition 2026-09-20: exact 804/804 is cancellation (INS 12 / DEL 3, replaces -9). */
-/* Surplus 12 is repeated lwc1 $f1,0x90/0xf0 reloads (O294,411,445,480,509,511,686,711,743,768 etc) */
-/* + addiu 0xFF reloads where retail keeps $f1/$t0 live; shortfall 3 is R606:609 b/nop/addiu */
-/* $s1,0x1c tail of second q-remap where object falls through. Tail ival/2 bgez + round-trip */
-/* cvt is +3 in one place but net is many smalls, no single 12-block; removing 12 alone */
-/* lands 792 (worse), so not banked. Anchor is retail listing per site, not edit count. */
-// FUN_00122A40 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00122A40
+/* measured: b210 -O2 emits all 3220 executable retail bytes; the
+   remaining 12 bytes are zero alignment. Fresh float constants and
+   shared integer literals require propagation and constant extraction
+   off, with common-subexpression optimization enabled.
+   Proof: build/cos20335-continuation/field-ui/review-00122a40-closed. */
+#pragma push
 #pragma opt_propagation off
-#pragma opt_common_subs off
-void func_00122a40(void *arg0, u8 *arg1)
+#pragma opt_pulloutconstants off
+void func_00122a40(void *unusedNode, void *work)
 {
-    extern s32 (*D_00887304[])(s32 arg0, void *arg1);
-    extern void (*D_00887300[])(s32 arg0, s32 arg1);
-    extern void func_0046d3b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3, f32 z, s32 arg4);
-    extern f32 func_0046b2f0(u8 *arg0);
-    extern void func_0046b380(u8 *arg0, s32 arg1);
-    extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
-    extern s32 func_00110580(s32 arg0);
-    extern s32 func_00110d30(s32 arg0);
-    extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
-    void (**base)(s32 arg0, s32 arg1);
-    u8 *node;
-    u8 *obj;
-    s32 tmp;
-    s32 ratio;
-    s32 result;
-    s32 v;
-    s32 w;
-    s32 v2;
+    extern s32 (*D_00887304[])(RwRenderState state, void *value);
+    extern s32 (*D_00887300[])(RwRenderState state, void *value);
+    extern void func_0046d3b0(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 shadowAlpha, u8 alpha, f32 depth, s32 flags);
+    extern f32 func_0046b2f0(u8 *sprite);
+    extern void func_0046b380(u8 *sprite, s32 flags);
+    extern void func_001104d0(s32 date, s32 *month, s32 *day);
+    extern s32 func_00110580(s32 date);
+    extern s32 func_00110d30(s32 date);
+    extern s32 RpSkyRenderStateSet(s32 state, void *value);
+    s32 (**states)(RwRenderState state, void *value);
+    u8 *sprite;
+    s32 parent;
+    u8 *calendar;
+    s32 value;
+    s32 progress;
+    s32 savedFog;
+    s32 startFrame;
+    s32 elapsed;
+    s32 duration;
     s32 i;
-    s32 sp68;
-    s32 sp64;
-    s32 ival;
-    s32 q;
-    f32 ft1;
-    f32 ft2;
-    f32 ft3;
-    f32 ft4;
-    obj = arg1;
-    node = (u8 *)0;
-    D_00887304[0](0xE, &result);
-    base = D_00887300;
-    base[0](0xE, 0);
-    base[0](6, 0);
-    base[0](7, 2);
-    base[0](8, 0);
-    base[0](9, 2);
-    base[0](0xC, 1);
-    base[0](0xB, 6);
-    base[0](0xA, 5);
-    base[0](2, 4);
-    base[0](0xE, 0);
-    RpSkyRenderStateSet(3, 0x717FB);
-    RpSkyRenderStateSet(2, 0x44);
-    if ((*(s32 *)(obj + 0xC) & 1) != 0) {
-        if (*(s32 *)(obj + 0x14) != 0) {
-            tmp = *(s32 *)(obj + 0x10);
-            if (tmp < 0x64) {
-                *(s32 *)(obj + 0x10) = tmp + 1;
+    s32 month;
+    s32 day;
+    s32 height;
+    s32 spriteIndex;
+    f32 xOffset;
+    f32 backgroundX;
+    f32 yOffset;
+    calendar = (u8 *)work;
+    parent = 0;
+    D_00887304[0](rwRENDERSTATEFOGENABLE, &savedFog);
+    states = D_00887300;
+    states[0](rwRENDERSTATEFOGENABLE, (void *)0);
+    states[0](6, (void *)0);
+    states[0](7, (void *)2);
+    states[0](8, (void *)0);
+    states[0](9, (void *)2);
+    states[0](0xC, (void *)1);
+    states[0](0xB, (void *)6);
+    states[0](0xA, (void *)5);
+    states[0](2, (void *)4);
+    states[0](rwRENDERSTATEFOGENABLE, (void *)0);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
+    RpSkyRenderStateSet(2, (void *)0x44);
+    if ((*(s32 *)(calendar + 0xC) & 1) != 0) {
+        if (*(s32 *)(calendar + 0x14) != 0) {
+            value = *(s32 *)(calendar + 0x10);
+            if (value < 0x64) {
+                *(s32 *)(calendar + 0x10) = value + 1;
             }
         } else {
-            tmp = *(s32 *)(obj + 0x10);
-            if (tmp != 0) {
-                *(s32 *)(obj + 0x10) = tmp - 1;
+            value = *(s32 *)(calendar + 0x10);
+            if (value != 0) {
+                *(s32 *)(calendar + 0x10) = value - 1;
             }
-            if (*(s32 *)(obj + 0x10) == 0) {
-                *(s32 *)(obj + 0xC) = 0;
+            if (*(s32 *)(calendar + 0x10) == 0) {
+                *(s32 *)(calendar + 0xC) = 0;
             }
         }
         for (i = 0; i < 5; i++) {
-            func_001437b0(obj + i * 0x30 + 0x20, *(s32 *)(obj + 0x10), 0);
+            func_001437b0(calendar + i * 0x30 + 0x20, *(s32 *)(calendar + 0x10), 0);
         }
-        v = *(s32 *)(obj + 0x78);
-        tmp = *(s32 *)(obj + 0x10);
-        if (tmp < v) {
-            w = 0;
+        startFrame = *(s32 *)(calendar + 0x78);
+        value = *(s32 *)(calendar + 0x10);
+        if (value < startFrame) {
+            elapsed = 0;
         } else {
-            w = tmp - v;
+            elapsed = value - startFrame;
         }
-        v2 = *(s32 *)(obj + 0x7C) - v;
-        if (v2 < w) {
-            w = v2;
+        duration = *(s32 *)(calendar + 0x7C) - startFrame;
+        if (duration < elapsed) {
+            elapsed = duration;
         }
-        ratio = (w * 0x90) / v2;
-        ft1 = (f32)0x23E;
-        func_0046d3b0(0, *(s32 *)(obj + 0x110), 0x25, ft1 + *(f32 *)(obj + 0x30), *(f32 *)(obj + 0x34), 0, (0xFF - *(u8 *)(obj + 0x3A)) & 0xFF, 0.0f, 1);
-        if (*(s32 *)(obj + 0x18) != 0) {
-            if (*(s32 *)(obj + 0x1C) == 0) {
-                node = (u8 *)func_0046d200((void *)*(s32 *)(obj + 0x110), 0x1D);
+        progress = (elapsed * 0x90) / duration;
+        xOffset = (f32)0x23E;
+        func_0046d3b0(0, *(s32 *)(calendar + 0x110), 0x25, xOffset + *(f32 *)(calendar + 0x30), *(f32 *)(calendar + 0x34), 0, (0xFF - *(u8 *)(calendar + 0x3A)) & 0xFF, 0.0f, 1);
+        if (*(s32 *)(calendar + 0x18) != 0) {
+            if (*(s32 *)(calendar + 0x1C) == 0) {
+                sprite = (u8 *)func_0046d200((u32)*(s32 *)(calendar + 0x110), 0x1D);
             } else {
-                node = (u8 *)func_0046d200((void *)*(s32 *)(obj + 0x110), 0x1E);
+                sprite = (u8 *)func_0046d200((u32)*(s32 *)(calendar + 0x110), 0x1E);
             }
         } else if ((func_0015a160() == 0) && (func_0028b650() == 0)) {
-            node = (u8 *)func_0046d200((void *)*(s32 *)(obj + 0x110), 0x1D);
+            sprite = (u8 *)func_0046d200((u32)*(s32 *)(calendar + 0x110), 0x1D);
         } else {
-            node = (u8 *)func_0046d200((void *)*(s32 *)(obj + 0x110), 0x1E);
+            sprite = (u8 *)func_0046d200((u32)*(s32 *)(calendar + 0x110), 0x1E);
         }
-        *(s32 *)(node + 0x24) = 0;
-        ft2 = (f32)0x223;
-        *(f32 *)(node + 8) = ft2 + *(f32 *)(obj + 0x60);
-        *(f32 *)(node + 0xC) = -33.0f + *(f32 *)(obj + 0x64);
-        *(s8 *)(node + 0x10) = (s8)(0xFF - *(u8 *)(obj + 0x6A));
-        *(s16 *)(node + 0x1C) = 0x50;
-        *(s16 *)(node + 0x1E) = 0x2D;
-        *(f32 *)(node + 0x18) = (f32)(0x90 - ratio);
-        func_0046b380(node, 1);
-        func_0046d280(node);
+        *(s32 *)(sprite + 0x24) = 0;
+        backgroundX = (f32)0x223;
+        *(f32 *)(sprite + 8) = backgroundX + *(f32 *)(calendar + 0x60);
+        *(f32 *)(sprite + 0xC) = -33.0f + *(f32 *)(calendar + 0x64);
+        *(s8 *)(sprite + 0x10) = (s8)(0xFF - *(u8 *)(calendar + 0x6A));
+        *(s16 *)(sprite + 0x1C) = 0x50;
+        *(s16 *)(sprite + 0x1E) = 0x2D;
+        *(f32 *)(sprite + 0x18) = (f32)(0x90 - progress);
+        func_0046b380(sprite, 1);
+        /* Preserve the forwarded word before releasing the temporary sprite. */
+        parent = (s32)sprite;
+        func_0046d280(sprite);
     }
-    if ((*(s32 *)(obj + 0xC) & 2) != 0) {
-        func_001104d0(*(s16 *)(obj + 4), &sp68, &sp64);
-        tmp = (s32)*(f32 *)(obj + 0x90);
-        func_0046d4c0((s32)node, *(s32 *)(obj + 0x110), 7, (f32)(tmp + 0x1C2), 17.0f + *(f32 *)(obj + 0x94), (0xFF - *(u8 *)(obj + 0x9A)) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
-        func_0046d4c0((s32)node, *(s32 *)(obj + 0x110), 8, (f32)(tmp + 0x246), 17.0f + *(f32 *)(obj + 0x94), (0xFF - *(u8 *)(obj + 0x9A)) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
-        func_0046d3b0((s32)node, *(s32 *)(obj + 0x110), sp68 / 10 + 9, 14.0f + ((f32)0x1CF + *(f32 *)(obj + 0x90)), 17.0f + *(f32 *)(obj + 0x94), 0, (0xFF - *(u8 *)(obj + 0x9A)) & 0xFF, 0.0f, 1);
-        func_0046d3b0((s32)node, *(s32 *)(obj + 0x110), sp68 % 10 + 9, 14.0f + (476.0f + *(f32 *)(obj + 0x90)), 17.0f + *(f32 *)(obj + 0x94), 0, (0xFF - *(u8 *)(obj + 0x9A)) & 0xFF, 0.0f, 1);
-        func_0046d3b0((s32)node, *(s32 *)(obj + 0x110), 0x13, 14.0f + (490.0f + *(f32 *)(obj + 0x90)), 17.0f + *(f32 *)(obj + 0x94), 0, (0xFF - *(u8 *)(obj + 0x9A)) & 0xFF, 0.0f, 1);
-        func_0046d3b0((s32)node, *(s32 *)(obj + 0x110), sp64 / 10 + 9, 14.0f + (500.0f + *(f32 *)(obj + 0x90)), 17.0f + *(f32 *)(obj + 0x94), 0, (0xFF - *(u8 *)(obj + 0x9A)) & 0xFF, 0.0f, 1);
-        func_0046d3b0((s32)node, *(s32 *)(obj + 0x110), sp64 % 10 + 9, 14.0f + ((f32)0x201 + *(f32 *)(obj + 0x90)), 17.0f + *(f32 *)(obj + 0x94), 0, (0xFF - *(u8 *)(obj + 0x9A)) & 0xFF, 0.0f, 1);
-        if (func_00110d30(*(s16 *)(obj + 4)) != 0) {
-            func_0046d4c0((s32)node, *(s32 *)(obj + 0x110), func_00110580(*(s16 *)(obj + 4)), (f32)0x219 + *(f32 *)(obj + 0x90), 17.0f + *(f32 *)(obj + 0x94), (0xFF - *(u8 *)(obj + 0x9A)) & 0xFF, 0xFF, 0xAC, 0x99, 0.0f, 1);
-        } else if (func_00110580(*(s16 *)(obj + 4)) == 6) {
-            func_0046d4c0((s32)node, *(s32 *)(obj + 0x110), func_00110580(*(s16 *)(obj + 4)), (f32)0x219 + *(f32 *)(obj + 0x90), 17.0f + *(f32 *)(obj + 0x94), (0xFF - *(u8 *)(obj + 0x9A)) & 0xFF, 0x99, 0xA4, 0xFF, 0.0f, 1);
+    if ((*(s32 *)(calendar + 0xC) & 2) != 0) {
+        func_001104d0(*(s16 *)(calendar + 4), &month, &day);
+        value = (s32)*(f32 *)(calendar + 0x90);
+        func_0046d4c0(parent, *(s32 *)(calendar + 0x110), 7, (f32)(value + 0x1C2), 17.0f + *(f32 *)(calendar + 0x94), (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
+        func_0046d4c0(parent, *(s32 *)(calendar + 0x110), 8, (f32)(value + 0x246), 17.0f + *(f32 *)(calendar + 0x94), (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
+        value = month / 10 + 9;
+        xOffset = (f32)0x1CF;
+        xOffset += *(f32 *)(calendar + 0x90);
+        func_0046d3b0(parent, *(s32 *)(calendar + 0x110), value, 14.0f + xOffset, 17.0f + *(f32 *)(calendar + 0x94), 0, (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0.0f, 1);
+        func_0046d3b0(parent, *(s32 *)(calendar + 0x110), month % 10 + 9, 14.0f + (476.0f + *(f32 *)(calendar + 0x90)), 17.0f + *(f32 *)(calendar + 0x94), 0, (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0.0f, 1);
+        func_0046d3b0(parent, *(s32 *)(calendar + 0x110), 0x13, 14.0f + (490.0f + *(f32 *)(calendar + 0x90)), 17.0f + *(f32 *)(calendar + 0x94), 0, (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0.0f, 1);
+        func_0046d3b0(parent, *(s32 *)(calendar + 0x110), day / 10 + 9, 14.0f + (500.0f + *(f32 *)(calendar + 0x90)), 17.0f + *(f32 *)(calendar + 0x94), 0, (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0.0f, 1);
+        value = day % 10 + 9;
+        xOffset = (f32)0x201;
+        xOffset += *(f32 *)(calendar + 0x90);
+        func_0046d3b0(parent, *(s32 *)(calendar + 0x110), value, 14.0f + xOffset, 17.0f + *(f32 *)(calendar + 0x94), 0, (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0.0f, 1);
+        if (func_00110d30(*(s16 *)(calendar + 4)) != 0) {
+            value = func_00110580(*(s16 *)(calendar + 4));
+            xOffset = (f32)0x219;
+            func_0046d4c0(parent, *(s32 *)(calendar + 0x110), value, xOffset + *(f32 *)(calendar + 0x90), 17.0f + *(f32 *)(calendar + 0x94), (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0xFF, 0xAC, 0x99, 0.0f, 1);
+        } else if (func_00110580(*(s16 *)(calendar + 4)) == 6) {
+            value = func_00110580(*(s16 *)(calendar + 4));
+            xOffset = (f32)0x219;
+            func_0046d4c0(parent, *(s32 *)(calendar + 0x110), value, xOffset + *(f32 *)(calendar + 0x90), 17.0f + *(f32 *)(calendar + 0x94), (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0x99, 0xA4, 0xFF, 0.0f, 1);
         } else {
-            func_0046d4c0((s32)node, *(s32 *)(obj + 0x110), func_00110580(*(s16 *)(obj + 4)), (f32)0x219 + *(f32 *)(obj + 0x90), 17.0f + *(f32 *)(obj + 0x94), (0xFF - *(u8 *)(obj + 0x9A)) & 0xFF, 0xFF, 0xFF, 0xFF, 0.0f, 1);
+            value = func_00110580(*(s16 *)(calendar + 4));
+            xOffset = (f32)0x219;
+            func_0046d4c0(parent, *(s32 *)(calendar + 0x110), value, xOffset + *(f32 *)(calendar + 0x90), 17.0f + *(f32 *)(calendar + 0x94), (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0xFF, 0xFF, 0xFF, 0.0f, 1);
         }
-        v = *(s32 *)(obj + 0xD8);
-        tmp = *(s32 *)(obj + 0x10);
-        if (tmp < v) {
-            w = 0;
+        startFrame = *(s32 *)(calendar + 0xD8);
+        value = *(s32 *)(calendar + 0x10);
+        if (value < startFrame) {
+            elapsed = 0;
         } else {
-            w = tmp - v;
+            elapsed = value - startFrame;
         }
-        v2 = *(s32 *)(obj + 0xDC) - v;
-        if (v2 < w) {
-            w = v2;
+        duration = *(s32 *)(calendar + 0xDC) - startFrame;
+        if (duration < elapsed) {
+            elapsed = duration;
         }
-        ratio = (w << 0xC) / v2;
-        if (func_00110d30(*(s16 *)(obj + 4)) != 0) {
-            tmp = *(s16 *)(obj + 6);
-            if (tmp == 3) {
-                q = 0x1A;
+        progress = (elapsed << 0xC) / duration;
+        if (func_00110d30(*(s16 *)(calendar + 4)) != 0) {
+            value = *(s16 *)(calendar + 6);
+            if (value == 3) {
+                spriteIndex = 0x1A;
             } else {
-                q = tmp + 0x14;
+                spriteIndex = value + 0x14;
             }
         } else {
-            q = *(s16 *)(obj + 6) + 0x14;
+            spriteIndex = *(s16 *)(calendar + 6) + 0x14;
         }
-        if (*(s32 *)(obj + 0x18) != 0) {
-            if (*(s32 *)(obj + 0x1C) == 1) {
-                if (q == 0x1A) {
-                    q = 0x1C;
-                } else if (q == 0x18) {
-                    q = 0x1B;
+        if (*(s32 *)(calendar + 0x18) != 0) {
+            if (*(s32 *)(calendar + 0x1C) == 1) {
+                switch (spriteIndex) {
+                case 0x18:
+                    spriteIndex = 0x1B;
+                    break;
+                case 0x1A:
+                    spriteIndex = 0x1C;
+                    break;
                 }
             }
         } else if ((func_0015a160() != 0) || (func_0028b650() != 0)) {
-            if (q == 0x1A) {
-                q = 0x1C;
-            } else if (q == 0x18) {
-                q = 0x1B;
-            }
+            switch (spriteIndex) {
+                case 0x18:
+                    spriteIndex = 0x1B;
+                    break;
+                case 0x1A:
+                    spriteIndex = 0x1C;
+                    break;
+                }
         }
-        node = (u8 *)func_0046d200((void *)*(s32 *)(obj + 0x110), q);
-        *(s32 *)(node + 0x24) = 0;
-        *(f32 *)(node + 8) = 552.0f + *(f32 *)(obj + 0xC0);
-        *(f32 *)(node + 0xC) = 31.0f + *(f32 *)(obj + 0xC4);
-        *(s8 *)(node + 0x10) = (s8)(0xFF - *(u8 *)(obj + 0xCA));
-        ival = (s32)func_0046b2f0(node);
-        *(s16 *)(node + 0x20) = 0xFF6;
-        *(s16 *)(node + 0x22) = (s16)ratio;
-        *(f32 *)(node + 0xC) = (f32)ival + ((31.0f + *(f32 *)(obj + 0xC4)) - (f32)(s32)(func_0046b2f0(node) / 2.0f + (f32)(ival / 2)));
-        func_0046b380(node, 1);
-        func_0046d280(node);
+        sprite = (u8 *)func_0046d200((u32)*(s32 *)(calendar + 0x110), spriteIndex);
+        *(s32 *)(sprite + 0x24) = 0;
+        *(f32 *)(sprite + 8) = 552.0f + *(f32 *)(calendar + 0xC0);
+        *(f32 *)(sprite + 0xC) = 31.0f + *(f32 *)(calendar + 0xC4);
+        *(s8 *)(sprite + 0x10) = (s8)(0xFF - *(u8 *)(calendar + 0xCA));
+        height = (s32)func_0046b2f0(sprite);
+        *(s16 *)(sprite + 0x20) = 0xFF6;
+        *(s16 *)(sprite + 0x22) = (s16)progress;
+        value = (s32)(func_0046b2f0(sprite) / 2.0f + (f32)(height / 2));
+        yOffset = 31.0f + *(f32 *)(calendar + 0xC4);
+        yOffset -= (f32)value;
+        *(f32 *)(sprite + 0xC) = (f32)height + yOffset;
+        func_0046b380(sprite, 1);
+        /* Preserve the forwarded word before releasing the temporary sprite. */
+        parent = (s32)sprite;
+        func_0046d280(sprite);
     }
-    if ((*(s32 *)(obj + 0xC) & 4) != 0) {
-        if (*(s32 *)(obj + 0x18) != 0) {
-            if (*(s32 *)(obj + 0x1C) == 0) {
-                func_0046d3b0((s32)node, *(s32 *)(obj + 0x110), 0x1F, (f32)0x247 + *(f32 *)(obj + 0xF0), 51.0f + *(f32 *)(obj + 0xF4), 0, (0xFF - *(u8 *)(obj + 0xFA)) & 0xFF, 0.0f, 1);
-                func_0046d3b0((s32)node, *(s32 *)(obj + 0x110), *(s16 *)(obj + 8) + 0x20, (f32)0x247 + *(f32 *)(obj + 0xF0), 51.0f + *(f32 *)(obj + 0xF4), 0, (0xFF - *(u8 *)(obj + 0xFA)) & 0xFF, 0.0f, 1);
+    if ((*(s32 *)(calendar + 0xC) & 4) != 0) {
+        if (*(s32 *)(calendar + 0x18) != 0) {
+            if (*(s32 *)(calendar + 0x1C) == 0) {
+                xOffset = (f32)0x247;
+                func_0046d3b0(parent, *(s32 *)(calendar + 0x110), 0x1F, xOffset + *(f32 *)(calendar + 0xF0), 51.0f + *(f32 *)(calendar + 0xF4), 0, (0xFF - *(u8 *)(calendar + 0xFA)) & 0xFF, 0.0f, 1);
+                value = *(s16 *)(calendar + 8) + 0x20;
+                xOffset = (f32)0x247;
+                func_0046d3b0(parent, *(s32 *)(calendar + 0x110), value, xOffset + *(f32 *)(calendar + 0xF0), 51.0f + *(f32 *)(calendar + 0xF4), 0, (0xFF - *(u8 *)(calendar + 0xFA)) & 0xFF, 0.0f, 1);
             }
         } else if ((func_0015a160() == 0) && (func_0028b650() == 0)) {
-            func_0046d3b0((s32)node, *(s32 *)(obj + 0x110), 0x1F, (f32)0x247 + *(f32 *)(obj + 0xF0), 51.0f + *(f32 *)(obj + 0xF4), 0, (0xFF - *(u8 *)(obj + 0xFA)) & 0xFF, 0.0f, 1);
-            func_0046d3b0((s32)node, *(s32 *)(obj + 0x110), *(s16 *)(obj + 8) + 0x20, (f32)0x247 + *(f32 *)(obj + 0xF0), 51.0f + *(f32 *)(obj + 0xF4), 0, (0xFF - *(u8 *)(obj + 0xFA)) & 0xFF, 0.0f, 1);
+            xOffset = (f32)0x247;
+            func_0046d3b0(parent, *(s32 *)(calendar + 0x110), 0x1F, xOffset + *(f32 *)(calendar + 0xF0), 51.0f + *(f32 *)(calendar + 0xF4), 0, (0xFF - *(u8 *)(calendar + 0xFA)) & 0xFF, 0.0f, 1);
+            value = *(s16 *)(calendar + 8) + 0x20;
+            xOffset = (f32)0x247;
+            func_0046d3b0(parent, *(s32 *)(calendar + 0x110), value, xOffset + *(f32 *)(calendar + 0xF0), 51.0f + *(f32 *)(calendar + 0xF4), 0, (0xFF - *(u8 *)(calendar + 0xFA)) & 0xFF, 0.0f, 1);
         }
     }
-    base[0](0xE, result);
+    states[0](rwRENDERSTATEFOGENABLE, (void *)savedFog);
 }
-/* measured: closes the opt_propagation bracket. */
-#pragma opt_common_subs on
-#pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00122a40);
-#endif
+#pragma pop
 // FUN_001236E0
 s32 func_001236e0(u8 *unusedTask) {
     u8 *p;
@@ -4947,7 +4967,7 @@ s32 func_0012c460(s32 arg0) {
 // FUN_0012D410
 void func_0012d410(u8 *arg0)
 {
-    u8 *temp_2_2;
+    u32 temp_2_2;
     s32 temp_2_3;
     s32 temp_2_4;
     s32 temp_3;
@@ -4972,11 +4992,11 @@ void func_0012d410(u8 *arg0)
         *(s8 *)(arg0 + (var_5 * 0x30) + 0xAE) = 0;
         var_5++;
     }
-    temp_2_2 = (u8 *)func_0046a770(D_005E5810);
+    temp_2_2 = (u32)func_0046a770((char *)D_005E5810);
     if (temp_2_2 == 0) {
         func_0046d730(D_005E5BB8, 0xC1);
     }
-    temp_2_3 = func_0046a770(D_005E57F0);
+    temp_2_3 = (s32)func_0046a770((char *)D_005E57F0);
     *(s32 *)(arg0 + 0x90) = temp_2_3;
     if (temp_2_3 == 0) {
         func_0046d730(D_005E5BB8, 0xC3);
@@ -4985,8 +5005,8 @@ void func_0012d410(u8 *arg0)
     while (var_18 < 0x15) {
         temp_3 = var_18 * 4;
         temp_4 = (s32 *)(arg0 + temp_3 + 0x3C);
-        temp_2_4 = func_0046d200(temp_2_2,
-                                 *(s32 *)((u8 *)D_005E5B60 + temp_3));
+        temp_2_4 = (s32)func_0046d200(temp_2_2,
+                                 *(u32 *)((u8 *)D_005E5B60 + temp_3));
         *temp_4 = temp_2_4;
         if (temp_2_4 == 0) {
             func_0046d730(D_005E5BB8, 0xC9);
@@ -5616,15 +5636,15 @@ s32 func_0012e2f0(u8 *arg0)
         *(s32 *)(arg0 + (n * 0x30) + 0x1AE4) = 3;
     }
     *(s16 *)(arg0 + 0x3C) = func_00353b50(arg0 + 0x34);
-    res_1 = (u8 *)func_0046a770(D_005E5830);
+    res_1 = (u8 *)func_0046a770((char *)D_005E5830);
     if (res_1 == NULL) {
         func_0046d730(D_005E76C8, 0x1FA);
     }
-    res_2 = (u8 *)func_0046a770(D_005E5850);
+    res_2 = (u8 *)func_0046a770((char *)D_005E5850);
     if (res_2 == NULL) {
         func_0046d730(D_005E76C8, 0x1FC);
     }
-    temp_16 = (s32)func_0046a770(D_005E57F0);
+    temp_16 = (s32)func_0046a770((char *)D_005E57F0);
     res_3 = (u8 *)temp_16;
     *(u8 **)(arg0 + 0x1BE4) = (u8 *)temp_16;
     if (res_3 == NULL) {
@@ -5635,17 +5655,17 @@ s32 func_0012e2f0(u8 *arg0)
         if (ii < 28) {
             res_slot = arg0 + (ii * 4) + 0x1B18;
             temp_byte = D_005E7670[ii];
-            temp_16 = func_0046d200(res_1, temp_byte);
+            temp_16 = (s32)func_0046d200((u32)res_1, temp_byte);
             *(s32 *)res_slot = temp_16;
         } else if (ii < 49) {
             res_slot = arg0 + (ii * 4) + 0x1B18;
             temp_byte = D_005E7670[ii];
-            temp_16 = func_0046d200(res_2, temp_byte);
+            temp_16 = (s32)func_0046d200((u32)res_2, temp_byte);
             *(s32 *)res_slot = temp_16;
         } else {
             res_slot = arg0 + (ii * 4) + 0x1B18;
             temp_byte = D_005E7670[ii];
-            temp_16 = func_0046d200(res_3, temp_byte);
+            temp_16 = (s32)func_0046d200((u32)res_3, temp_byte);
             *(s32 *)res_slot = temp_16;
         }
         if (*(s32 *)res_slot == 0) {
@@ -5745,401 +5765,355 @@ loop_test_0012e900:
     func_0012e9d0(arg0);
     return var_16;
 }
-/* measured func_0012e9d0: retail 5152B/1288 vs B8a draft 4968B/1242 (-184B/-46, -3.6%, below 3% floor 4997B/1249 by 29B/7; probe 1188w; fnalign 635 edits +1 reloc-only (retail 1286 vs object 1242); frame -0x100 both; stb[4] top-staging @0xFC + fx/fy spills @0xF0/0xF4 match; gp-fidelity kept (iGpffff9cc8 lw, fGpffff854c/8170 lwc1); s32 idx; two-pointer r. Path: single u32 dances (-154B vs manual-double), tu/fs/fret folds, stb+stack[0x30]. Parked: clamp bc1f (both source forms canonicalize), f26 colour wall (block-scoping inert: B6a -13B/neutral words), fx/fy spill-vs-save, struct home 0xB0 vs 0xC4. Prior best 5552B/1388 GUARDED_SCORE 1291. */
-/* measured 0012e9d0 (owner, 2026-09-19): fnalign **659 -> 657 edits**, count
-   1264 -> 1262 against retail 1286, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits - no guard before the first iteration, one compare
-   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
-/* measured 0012e9d0 (owner, 2026-09-19): fnalign **657 -> 655 edits**, count
-   1262 -> 1260 against retail 1286, converting a SECOND constant-bound `for` loop
-   to `do { } while` after the first conversion was already banked.
-   The lever is iterative, which the first sweep hid: it converts the single best loop
-   per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
-// FUN_0012E9D0 NONMATCHING
-#ifdef NON_MATCHING
-void func_0012e9d0(u8 *arg0)
+/* measured: propagation and constant extraction off preserve cached
+ * opacity values and the independent animation-row evaluations. */
+#pragma push
+#pragma opt_propagation off
+#pragma opt_pulloutconstants off
+/* The label renderer reads these fields at offsets 0x00..0x18. */
+typedef struct {
+    s16 itemId;
+    s16 quantity;
+    s16 field04; /* Not read by these label modes. */
+    s16 comparisonItem;
+    s32 priceMode;
+    s32 drawName;
+    s32 drawStats;
+    s16 iconFlags;
+    s16 palette;
+    s16 layout;
+} CampLabelEntry;
+
+/* Grid state shared with the countdown and cell-weight providers. */
+typedef struct {
+    s16 palette;
+    s16 countdown;
+    s32 column;
+    s32 row;
+    s32 columns;
+    s32 rows;
+} CampGridCell;
+
+/* Draw the animated item list, selection, scrollbar, and background grid.
+ * Native b210 -O2: 5148 executable bytes and four zero alignment bytes.
+ * Preserve the independent position/opacity views across renderer calls. */
+// FUN_0012E9D0
+void func_0012e9d0(u8 *state)
 {
-    typedef struct {
-        f32 x;
-        f32 y;
-    } V2_0012e9d0;
-    typedef union {
-        s64 s;
-        f32 f[2];
-        PackedVec2f position;
-        Vec2f xy;
-    } Pack_0012e9d0;
     extern void func_0034f1e0(void);
-    extern void func_0034c270(V2_0012e9d0 arg0, s32 arg1, s32 arg2, f32 fparg0);
-    extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
-    extern f32 func_0034f720(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
-    extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-    extern void func_00130c30(u8 *arg0, s64 arg1, s32 arg2);
-    extern void func_001125d0(u8 *arg0);
-    extern void func_00112300(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
-    extern void func_00130680(u8 *arg0, s32 arg1);
-    extern u32 func_00106880(s16 arg0);
-    extern void func_00274ed0(s32 color, s32 font, s32 mode, s32 glyph, s32 arg4, s32 arg5, f32 x, f32 y, f32 scale);
-    extern void func_00130ce0(u8 *arg0, PackedVec2f arg1, s32 arg2, s16 *arg3);
-    extern void func_0034f9d0(V2_0012e9d0 arg0, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
+    extern void func_0034c270(Vec2f position, s32 alpha, s32 mode, f32 depth);
+    extern s32 RpSkyRenderStateSet(s32 state, void *value);
+    extern void func_0034f2e0(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
+    extern f32 func_0034f720(u8 *cell, f32 horizontal, f32 vertical, f32 gain);
+    extern void func_0034f320(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+        u16 scaleY, s16 mode, f32 angle, s16 flags);
+    extern void func_00130c30(u8 *state, s64 position, s32 color);
+    extern void func_001125d0(u8 *entry);
+    extern void func_00112300(Vec2f position, f32 depth, u8 alpha, u8 *entry);
+    extern void func_00130680(u8 *state, s32 index);
+    extern u32 func_00106880(s16 item);
+    extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s8 font, s32 mode, const char *text, s32 flags,
+        s32 unused);
+    extern void func_00130ce0(u8 *state, PackedVec2f position, s32 alpha, s16 *entry);
+    extern void func_0034f9d0(Vec2f position, f32 depth, u8 alpha, s32 value, s32 mode);
     extern u8 D_005E76B0[];
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2E4[];
     extern u8 D_0064B2EC[];
     extern u8 D_0064B2E0[];
     extern u8 D_0064B2F4[];
-    extern u8 D_005E5BD0[];
     extern u8 *iGpffff9cc8;
-    extern f32 fGpffff854c;
-    extern f32 fGpffff8170;
-    Pack_0012e9d0 pack;
-    f32 f23;
-    f32 f22;
-    f32 f24;
-    s32 tu;
-    f32 fs;
-    f32 fmul;
-    s32 aval;
-    s32 i;
-    s32 j;
-    s32 k;
-    s32 m;
-    s32 n;
-    s32 temp21;
-    void *h19;
-    u8 *q;
-    u8 *r;
-    f32 fx;
-    f32 fy;
-    f32 f20;
-    f32 f21;
-    f32 f25;
-    f32 fret;
-    u8 stack[0x30];
-    u8 stb[4];
-    s32 idx;
-    s16 s16a;
-    s16 s16b;
-    u32 uret;
-    u8 *tab;
-    s32 divd;
-    s32 divn;
+    PackedVec2f position;
+    f32 opacityScale;
+    f32 originX;
+    f32 originY;
+    f32 value;
+    f32 scaledAlpha;
+    s32 alphaByte;
+    s32 dotIndex;
+    void *dotSprite;
+    s32 cellIndex;
+    s32 labelIndex;
+    u8 cachedAlpha;
+    u8 *palette;
+    s32 rowIndex;
+    s32 selectedItem;
+    u8 *row;
+    CampGridCell *cell;
+    f32 drawX;
+    f32 rowY;
+    f32 cellY;
+    f32 cellWeight;
+    CampLabelEntry label;
+    CampLabelEntry detailLabel;
+    typedef struct { u8 bytes[4]; } CampColorBytes;
+    union { CampColorBytes channels; s32 word; } color;
+    s32 itemIndex;
+    s16 itemId;
+    s16 quantity;
+    u32 itemFlags;
+    u8 *theme;
+    s32 scrollRange;
+    s32 scrollPosition;
+    u8 fontAlpha;
+    u8 *textRow;
+    s32 textIndex;
+    u8 *panelSprite;
+    s16 selection;
     func_0034f1e0();
-    f23 = *(f32 *)(arg0 + 4);
-    f22 = *(f32 *)(arg0 + 8);
-    tu = *(u8 *)(arg0 + 0);
-    if (tu >= 0) {
-        fs = (f32)tu;
-    } else {
-        fs = (f32)(((u32)tu >> 1) | (tu & 1));
-        fs += fs;
+    originX = *(f32 *)(state + 4);
+    originY = *(f32 *)(state + 8);
+    value = (f32)*(u8 *)(state + 0);
+    opacityScale = value / 255.0f;
+    if (*(s32 *)(state + 0x10) != 0) {
+        position.xy.x = originX;
+        position.xy.y = originY;
+        scaledAlpha = 255.0f * opacityScale;
+        alphaByte = (u8)scaledAlpha;
+        func_0034c270(position.xy, alphaByte & 0xFF, *(s32 *)(state + 0x10), 0.0f);
     }
-    f24 = fs / 255.0f;
-    if (*(s32 *)(arg0 + 0x10) != 0) {
-        V2_0012e9d0 pos;
-        pos.x = f23;
-        pos.y = f22;
-        fmul = 255.0f * f24;
-        if (!(2147483648.0f <= fmul)) {
-            aval = (s32)fmul & 0xFF;
-        } else {
-            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+    selectedItem = *(s16 *)(state + 0x24) + *(s16 *)(state + 0x22);
+    if ((*(s32 *)(state + 0x14) & 0x200) != 0) {
+        dotSprite = *(void **)(state + 0x1B50);
+        RpSkyRenderStateSet(3, (void *)0x71801);
+        RpSkyRenderStateSet(2, (void *)0x48);
+        dotIndex = 0;
+        scaledAlpha = 190.0f * opacityScale;
+        alphaByte = (u8)scaledAlpha;
+        cachedAlpha = alphaByte;
+        for (; dotIndex < 0xC; dotIndex++) {
+            row = state + dotIndex * 0x30;
+            position.xy.x = 363.0f + (originX + *(f32 *)(row + 0x1888));
+            position.xy.y = 8.0f + (originY + *(f32 *)(row + 0x188C));
+            func_0034f2e0(dotSprite, position.xy.x, position.xy.y, 0, 0xFF, 0x64, cachedAlpha);
         }
-        func_0034c270(pos, aval & 0xFF, *(s32 *)(arg0 + 0x10), 0.0f);
-    }
-    temp21 = *(s16 *)(arg0 + 0x24) + *(s16 *)(arg0 + 0x22);
-    if ((*(s32 *)(arg0 + 0x14) & 0x200) != 0) {
-        h19 = *(void **)(arg0 + 0x1B50);
-        RpSkyRenderStateSet(3, 0x71801);
-        RpSkyRenderStateSet(2, 0x48);
-        fmul = 190.0f * f24;
-        if (!(2147483648.0f <= fmul)) {
-            aval = (s32)fmul & 0xFF;
-        } else {
-            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
-        }
-        m = aval & 0xFF;
-        i = 0;
-        do {
-            q = arg0 + i * 0x30;
-            fx = 363.0f + (f23 + *(f32 *)(q + 0x1888));
-            fy = 8.0f + (f22 + *(f32 *)(q + 0x188C));
-            func_0034f2e0(h19, fx, fy, 0, 0xFF, 0x64, (u32)m);
-            i++;
-        } while (i < 0xC);
-        RpSkyRenderStateSet(3, 0x717FB);
-        RpSkyRenderStateSet(2, 0x44);
-        fx = 363.0f + (f23 + *(f32 *)(arg0 + 0x17F8));
-        fy = 8.0f + (f22 + *(f32 *)(arg0 + 0x17FC));
-        fmul = (f32)(u32)*(u8 *)(arg0 + 0x1802) * f24;
-        if (!(2147483648.0f <= fmul)) {
-            aval = (s32)fmul & 0xFF;
-        } else {
-            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
-        }
-        m = aval & 0xFF;
-        j = 0;
-        do {
-            q = arg0 + j * 0x14;
-            r = q + 0xC48;
-            if (*(s16 *)r >= 0) {
-                f21 = fx + (f32)(*(s32 *)(r + 4) * 44);
-                f25 = fy + (f32)(*(s32 *)(r + 8) * 37);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
+        RpSkyRenderStateSet(2, (void *)0x44);
+        position.xy.x = 363.0f + (originX + *(f32 *)(state + 0x17F8));
+        position.xy.y = 8.0f + (originY + *(f32 *)(state + 0x17FC));
+        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x1802) * opacityScale;
+        alphaByte = (u8)scaledAlpha;
+        cachedAlpha = alphaByte;
+        cellIndex = 0;
+        rowY = position.xy.y;
+        for (; cellIndex < 0x54; cellIndex++) {
+            row = state + cellIndex * 0x14;
+            cell = (CampGridCell *)(row + 0xC48);
+            if (cell->palette >= 0) {
+                drawX = position.xy.x + (f32)(*(s32 *)(row + 0xC4C) * 44);
+                cellY = rowY + (f32)(*(s32 *)(row + 0xC50) * 37);
 
-                tab = D_005E76B0 + *(s16 *)r * 4;
-                stb[0] = tab[0];
-                stb[1] = tab[1];
-                stb[2] = tab[2];
-                stb[3] = tab[3];
-                fmul = (f32)(u32)m * func_0034f720(r, fGpffff854c, fGpffff854c, fGpffff8170);
-                if (!(2147483648.0f <= fmul)) {
-                    aval = (s32)fmul & 0xFF;
-                } else {
-                    aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
-                }
-                stb[3] = (u8)(aval & 0xFF);
-                func_0034f2e0(h19, f21, f25, stb[0], stb[1], stb[2], (u32)(aval & 0xFF));
+                /* Literal weights retain the compiler-owned small-data constants. */
+                cellWeight = func_0034f720((u8 *)cell, 0.3f, 0.3f, 0.6f);
+                palette = D_005E76B0 + cell->palette * 4;
+                color.channels = *(CampColorBytes *)palette;
+                scaledAlpha = (f32)cachedAlpha * cellWeight;
+                func_0034f2e0(dotSprite, drawX, cellY, color.channels.bytes[0], color.channels.bytes[1],
+                    color.channels.bytes[2], (u8)scaledAlpha);
             }
-            j++;
-        } while (j < 0x54);
+        }
     }
-    if ((*(s32 *)(arg0 + 0x14) & 1) != 0) {
-        fx = 152.0f + (f23 + *(f32 *)(arg0 + 0x12E8));
-        fy = 370.0f + (f22 + *(f32 *)(arg0 + 0x12EC));
-        fmul = (f32)(u32)*(u8 *)(arg0 + 0x12F2) * f24;
-        if (!(2147483648.0f <= fmul)) {
-            aval = (s32)fmul & 0xFF;
+    if ((*(s32 *)(state + 0x14) & 1) != 0) {
+        position.xy.x = 152.0f + (originX + *(f32 *)(state + 0x12E8));
+        position.xy.y = 370.0f + (originY + *(f32 *)(state + 0x12EC));
+        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x12F2) * opacityScale;
+        alphaByte = (u8)scaledAlpha;
+        func_0034f2e0(*(void **)(state + 0x1BDC), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
+    }
+    if ((*(s32 *)(state + 0x14) & 0x40) != 0) {
+        position.xy.x = 16.0f + (originX + *(f32 *)(state + 0x1798));
+        position.xy.y = 405.0f + (originY + *(f32 *)(state + 0x179C));
+        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x17A2) * opacityScale;
+        alphaByte = (u8)scaledAlpha;
+        func_0034f2e0(*(void **)(state + 0x1B88), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
+    }
+    if ((*(s32 *)(state + 0x14) & 0x80) != 0) {
+        position.xy.x = 62.0f + (originX + *(f32 *)(state + 0x17C8));
+        position.xy.y = 405.0f + (originY + *(f32 *)(state + 0x17CC));
+        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x17D2) * opacityScale;
+        alphaByte = (u8)scaledAlpha;
+        func_0034f2e0(*(void **)(state + 0x1B8C), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
+    }
+    if ((*(s32 *)(state + 0x14) & 8) != 0) {
+        u8 headingAlpha;
+        position.xy.x = 271.0f + (originX + *(f32 *)(state + 0x1468));
+        position.xy.y = 21.0f + (originY + *(f32 *)(state + 0x146C));
+        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x1472) * opacityScale;
+        alphaByte = (u8)scaledAlpha;
+        headingAlpha = alphaByte;
+
+        theme = D_0064B2F4;
+        color.channels.bytes[0] = theme[0];
+        color.channels.bytes[1] = theme[1];
+        color.channels.bytes[2] = theme[2];
+        color.channels.bytes[3] = headingAlpha;
+        func_00130c30(state, position.packed, color.word);
+        func_001125d0((u8 *)&label);
+        label.itemId = ((s16 *)(state + 0x3E))[selectedItem * 2];
+        label.quantity = ((s16 *)(state + 0x40))[selectedItem * 2];
+        label.priceMode = -1;
+        label.drawName = 1;
+        label.drawStats = 0;
+        label.layout = 4;
+        label.iconFlags = 1;
+        label.palette = 4;
+        position.xy.x = position.xy.x + 1.0f;
+
+        func_00112300(position.xy, 0.0f, headingAlpha, (u8 *)&label);
+    }
+    if ((*(s32 *)(state + 0x14) & 4) != 0) {
+        for (labelIndex = 0; labelIndex < *(s16 *)(state + 0x3C); labelIndex++) {
+            func_00130680(state, labelIndex);
+        }
+    }
+    if ((*(s32 *)(state + 0x14) & 0x400) != 0) {
+        value = *(f32 *)(state + 0x1AF8) + (originX + *(f32 *)(state + 0x15B8));
+        rowY = *(f32 *)(state + 0x1AFC) + (originY + *(f32 *)(state + 0x15BC));
+        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x15C2) * opacityScale;
+        alphaByte = (u8)scaledAlpha;
+        cachedAlpha = alphaByte;
+        drawX = 573.0f + value;
+        position.xy.x = drawX;
+        position.xy.y = 32.0f + rowY;
+        func_0034f2e0(*(void **)(state + 0x1B44), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, cachedAlpha);
+        position.xy.x = drawX;
+        position.xy.y = 197.0f + rowY;
+        func_0034f2e0(*(void **)(state + 0x1B48), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, cachedAlpha);
+        position.xy.x = drawX;
+        position.xy.y = 35.0f + rowY;
+        scrollRange = (s32)*(s16 *)(state + 0xC3E) - 6;
+        if (scrollRange > 0) {
+            scrollPosition = (s32)*(s16 *)(state + 0x24) * 134;
+            position.xy.y += (f32)(scrollPosition / scrollRange);
+        }
+        theme = D_0064B2E8;
+        func_0034f2e0(*(void **)(state + 0x1B4C), position.xy.x, position.xy.y, theme[0], theme[1], theme[2],
+            cachedAlpha);
+    }
+    if ((*(s32 *)(state + 0x14) & 2) != 0) {
+        if (*(s16 *)(state + 0xC3E) == 0) {
+            position.xy.x = 280.0f + (originX + *(f32 *)(state + 0x1318));
+            position.xy.y = 20.0f + (originY + *(f32 *)(state + 0x131C));
+            fontAlpha = *(u8 *)(state + 0x1322);
+            func_00274ed0(position.xy.x, position.xy.y, 0.0f, (fontAlpha | ~0xFF), 6, 1, (const char *)iGpffff9cc8,
+                0, 0);
         } else {
-            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
-        }
-        func_0034f2e0(*(void **)(arg0 + 0x1BDC), fx, fy, 0xFF, 0xFF, 0xFF, (u32)(aval & 0xFF));
-    }
-    if ((*(s32 *)(arg0 + 0x14) & 0x40) != 0) {
-        fx = 16.0f + (f23 + *(f32 *)(arg0 + 0x1798));
-        fy = 405.0f + (f22 + *(f32 *)(arg0 + 0x179C));
-        fmul = (f32)(u32)*(u8 *)(arg0 + 0x17A2) * f24;
-        if (!(2147483648.0f <= fmul)) {
-            aval = (s32)fmul & 0xFF;
-        } else {
-            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
-        }
-        func_0034f2e0(*(void **)(arg0 + 0x1B88), fx, fy, 0xFF, 0xFF, 0xFF, (u32)(aval & 0xFF));
-    }
-    if ((*(s32 *)(arg0 + 0x14) & 0x80) != 0) {
-        fx = 62.0f + (f23 + *(f32 *)(arg0 + 0x17C8));
-        fy = 405.0f + (f22 + *(f32 *)(arg0 + 0x17CC));
-        fmul = (f32)(u32)*(u8 *)(arg0 + 0x17D2) * f24;
-        if (!(2147483648.0f <= fmul)) {
-            aval = (s32)fmul & 0xFF;
-        } else {
-            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
-        }
-        func_0034f2e0(*(void **)(arg0 + 0x1B8C), fx, fy, 0xFF, 0xFF, 0xFF, (u32)(aval & 0xFF));
-    }
-    if ((*(s32 *)(arg0 + 0x14) & 8) != 0) {
-        fx = 271.0f + (f23 + *(f32 *)(arg0 + 0x1468));
-        fy = 21.0f + (f22 + *(f32 *)(arg0 + 0x146C));
-        fmul = (f32)(u32)*(u8 *)(arg0 + 0x1472) * f24;
-        if (!(2147483648.0f <= fmul)) {
-            aval = (s32)fmul & 0xFF;
-        } else {
-            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
-        }
-        pack.f[0] = fx;
-        pack.f[1] = fy;
-        stb[0] = D_0064B2F4[0];
-        stb[1] = D_0064B2F4[1];
-        stb[2] = D_0064B2F4[2];
-        stb[3] = (u8)(aval & 0xFF);
-        func_00130c30(arg0, pack.s, *(s32 *)stb);
-        func_001125d0(stack);
-        q = arg0 + temp21 * 4;
-        *(s16 *)(stack + 0) = *(s16 *)(q + 0x3E);
-        *(s16 *)(stack + 2) = *(s16 *)(q + 0x40);
-        *(s32 *)(stack + 8) = -1;
-        *(s32 *)(stack + 0xC) = 1;
-        *(s32 *)(stack + 0x10) = 0;
-        *(s16 *)(stack + 0x18) = 4;
-        *(s16 *)(stack + 0x14) = 1;
-        *(s16 *)(stack + 0x16) = 4;
-        pack.f[0] = fx + 1.0f;
-        pack.f[1] = fy;
-        func_00112300(pack.xy, 0.0f, (u8)(aval & 0xFF), stack);
-    }
-    if ((*(s32 *)(arg0 + 0x14) & 4) != 0) {
-        for (k = 0; k < *(s16 *)(arg0 + 0x3C); k++) {
-            func_00130680(arg0, k);
-        }
-    }
-    if ((*(s32 *)(arg0 + 0x14) & 0x400) != 0) {
-        f20 = *(f32 *)(arg0 + 0x1AFC) + (f22 + *(f32 *)(arg0 + 0x15BC));
-        fmul = (f32)(u32)*(u8 *)(arg0 + 0x15C2) * f24;
-        if (!(2147483648.0f <= fmul)) {
-            aval = (s32)fmul & 0xFF;
-        } else {
-            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
-        }
-        m = aval & 0xFF;
-        f21 = 573.0f + (*(f32 *)(arg0 + 0x1AF8) + (f23 + *(f32 *)(arg0 + 0x15B8)));
-        fx = f21;
-        fy = 32.0f + f20;
-        func_0034f2e0(*(void **)(arg0 + 0x1B44), fx, fy, 0xFF, 0xFF, 0xFF, (u32)m);
-        fy = 197.0f + f20;
-        func_0034f2e0(*(void **)(arg0 + 0x1B48), fx, fy, 0xFF, 0xFF, 0xFF, (u32)m);
-        fy = 35.0f + f20;
-        divd = (s32)*(s16 *)(arg0 + 0xC3E) - 6;
-        if (divd > 0) {
-            divn = (s32)*(s16 *)(arg0 + 0x24) * 134;
-            fy += (f32)(divn / divd);
-        }
-        func_0034f2e0(*(void **)(arg0 + 0x1B4C), fx, fy, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], (u32)m);
-    }
-    if ((*(s32 *)(arg0 + 0x14) & 2) != 0) {
-        if (*(s16 *)(arg0 + 0xC3E) == 0) {
-            fx = 280.0f + (f23 + *(f32 *)(arg0 + 0x1318));
-            fy = 20.0f + (f22 + *(f32 *)(arg0 + 0x131C));
-            func_00274ed0((s32)(*(u8 *)(arg0 + 0x1322) | 0xFFFFFF00), 6, 1, (s32)iGpffff9cc8, 0, 0, fx, fy, 0.0f);
-        } else {
-            if (*(u8 *)(arg0 + 0x1AD2) != 0) {
-                fx = f23 + *(f32 *)(arg0 + 0x1AC8);
-                fy = f22 + *(f32 *)(arg0 + 0x1ACC);
-                func_0034f320(*(u8 **)(arg0 + 0x1B18), fx, fy, 0.0f, D_0064B2E4[0], D_0064B2E4[1], D_0064B2E4[2], *(u8 *)(arg0 + 0x1AD2), 0x1000, 0x1000, 0, 0.0f, 0);
+            if (*(u8 *)(state + 0x1AD2) > 0) {
+                position.xy.x = originX + *(f32 *)(state + 0x1AC8);
+                position.xy.y = originY + *(f32 *)(state + 0x1ACC);
+                theme = D_0064B2E4;
+                panelSprite = *(u8 **)(state + 0x1B18);
+                func_0034f320(panelSprite, position.xy.x, position.xy.y, 0.0f, theme[0], theme[1], theme[2],
+                    *(u8 *)(state + 0x1AD2), 0x1000, 0x1000, 0, 0.0f, 0);
             }
-            for (n = 0; n < 6; n++) {
-                idx = n + *(s16 *)(arg0 + 0x24);
-                if (idx < *(s16 *)(arg0 + 0xC3E)) {
-                    q = arg0 + idx * 4;
-                    s16a = *(s16 *)(q + 0x3E);
-                    s16b = *(s16 *)(q + 0x40);
-                    uret = func_00106880(s16a);
-                    if (n == *(s16 *)(arg0 + 0x22)) {
-                        tab = D_0064B2EC;
-                        if ((*(s32 *)(arg0 + 0x14) & 0x100) != 0) {
+            for (rowIndex = 0; rowIndex < 6; rowIndex++) {
+                u8 iconAlpha;
+                u8 *iconSprite;
+                itemIndex = rowIndex + *(s16 *)(state + 0x24);
+                if (itemIndex < *(s16 *)(state + 0xC3E)) {
+                    row = state + itemIndex * 4;
+                    itemId = *(s16 *)(row + 0x3E);
+                    quantity = *(s16 *)(row + 0x40);
+                    itemFlags = func_00106880(itemId);
+                    selection = *(s16 *)(state + 0x22);
+                    if (rowIndex == selection) {
+                        theme = D_0064B2E8;
+                        palette = D_0064B2EC;
+                        if ((*(s32 *)(state + 0x14) & 0x100) != 0) {
                             continue;
                         }
-                            fx = 223.0f + (f23 + *(f32 *)(arg0 + 0x1318));
-                            fy = 21.0f + (*(f32 *)(arg0 + 0x131C) + (f22 + 34.0f * (f32)n));
-                            fmul = (f32)(u32)*(u8 *)(arg0 + 0x1322) * f24;
-                            if (!(2147483648.0f <= fmul)) {
-                                aval = (s32)fmul & 0xFF;
-                            } else {
-                                aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
-                            }
-                            stb[0] = D_0064B2E8[0];
-                            stb[1] = D_0064B2E8[1];
-                            stb[2] = D_0064B2E8[2];
-                            stb[3] = (u8)(aval & 0xFF);
-                            pack.f[0] = fx;
-                            pack.f[1] = fy;
-                            func_00130c30(arg0, pack.s, *(s32 *)stb);
+                        position.xy.x = 223.0f + (originX + *(f32 *)(state + 0x1318));
+                        position.xy.y = 21.0f + (*(f32 *)(state + 0x131C) + (originY + 34.0f * (f32)selection));
+                        color.channels.bytes[0] = theme[0];
+                        color.channels.bytes[1] = theme[1];
+                        color.channels.bytes[2] = theme[2];
+                        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x1322) * opacityScale;
+                        alphaByte = (u8)scaledAlpha;
+                        color.channels.bytes[3] = (u8)(alphaByte & 0xFF);
+
+                        func_00130c30(state, position.packed, color.word);
                     } else {
-                        tab = D_0064B2E0;
-                        q = arg0 + n * 0x30;
-                        fx = 221.0f + (f23 + *(f32 *)(q + 0x1498));
-                        fy = 21.0f + (*(f32 *)(q + 0x149C) + (f22 + 34.0f * (f32)n));
-                        fmul = (f32)(u32)*(u8 *)(q + 0x14A2) * f24;
-                        if (!(2147483648.0f <= fmul)) {
-                            aval = (s32)fmul & 0xFF;
-                        } else {
-                            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
-                        }
-                        func_0034f320(*(u8 **)(arg0 + 0x1B18), fx, fy, 0.0f, D_0064B2E4[0], D_0064B2E4[1], D_0064B2E4[2], (u32)(aval & 0xFF), 0x1000, *(u16 *)(q + 0x14AE), 0, 0.0f, 0);
+                        theme = D_0064B2E4;
+                        palette = D_0064B2E0;
+                        row = state + rowIndex * 0x30;
+                        position.xy.x = 221.0f + (originX + *(f32 *)(row + 0x1498));
+                        position.xy.y = (21.0f + (originY + *(f32 *)(row + 0x149C))) + 34.0f * (f32)rowIndex;
+                        scaledAlpha = (f32)(u32)*(u8 *)(row + 0x14A2) * opacityScale;
+                        alphaByte = (u8)scaledAlpha;
+                        panelSprite = *(u8 **)(state + 0x1B18);
+                        func_0034f320(panelSprite, position.xy.x, position.xy.y, 0.0f, theme[0], theme[1], theme[2],
+                            alphaByte, 0x1000, *(u16 *)(row + 0x14AE), 0, 0.0f, 0);
                     }
-                    q = arg0 + n * 0x30;
-                    fx = 224.0f + (f23 + *(f32 *)(q + 0x1498));
-                    f20 = 34.0f * (f32)n;
-                    fy = f20 + (23.0f + (f22 + *(f32 *)(q + 0x149C)));
-                    fmul = (f32)(u32)*(u8 *)(q + 0x14A2) * f24;
-                    if (!(2147483648.0f <= fmul)) {
-                        aval = (s32)fmul & 0xFF;
+                    row = state + rowIndex * 0x30;
+                    position.xy.x = 224.0f + (originX + *(f32 *)(row + 0x1498));
+                    rowY = 34.0f * (f32)rowIndex;
+                    position.xy.y = rowY + (23.0f + (originY + *(f32 *)(row + 0x149C)));
+                    scaledAlpha = (f32)(u32)*(u8 *)(row + 0x14A2) * opacityScale;
+                    iconAlpha = (u8)scaledAlpha;
+                    if ((itemFlags & 0x10000) != 0) {
+                        iconSprite = *(u8 **)(state + 0x1B9C);
+                    } else if ((itemFlags & 0x20000) != 0) {
+                        iconSprite = *(u8 **)(state + 0x1BA0);
                     } else {
-                        aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+                        iconSprite = *(u8 **)(state + 0x1B98);
                     }
-                    if ((uret & 0x10000) != 0) {
-                        h19 = *(void **)(arg0 + 0x1B9C);
-                    } else if ((uret & 0x20000) != 0) {
-                        h19 = *(void **)(arg0 + 0x1BA0);
+                    /* Text geometry uses a separate row evaluation; the icon row
+                     * remains live for the opacity read after label initialization. */
+                    textIndex = rowIndex;
+                    textRow = state + textIndex * 0x30;
+                    func_0034f320(iconSprite, position.xy.x, position.xy.y, 0.0f, palette[0], palette[1],
+                        palette[2], iconAlpha, 0x1000, *(u16 *)(textRow + 0x14AE), 0, 0.0f, 0);
+                    position.xy.x = 266.0f + (originX + *(f32 *)(textRow + 0x1348));
+                    position.xy.y = 21.0f + (*(f32 *)(textRow + 0x134C) + (originY + rowY));
+
+                    func_001125d0((u8 *)&label);
+                    label.itemId = itemId;
+                    label.quantity = quantity;
+                    label.priceMode = -1;
+                    label.drawName = 1;
+                    label.drawStats = 0;
+                    label.layout = 4;
+                    if (rowIndex == *(s16 *)(state + 0x22)) {
+                        label.iconFlags = 0;
+                        label.palette = 3;
                     } else {
-                        h19 = *(void **)(arg0 + 0x1B98);
+                        label.iconFlags = 0;
+                        label.palette = 2;
                     }
-                    func_0034f320(h19, fx, fy, 0.0f, tab[0], tab[1], tab[2], (u32)(aval & 0xFF), 0x1000, *(u16 *)(q + 0x14AE), 0, 0.0f, 0);
-                    fx = 266.0f + (f23 + *(f32 *)(q + 0x1348));
-                    fy = 21.0f + (*(f32 *)(q + 0x134C) + (f22 + f20));
-                    pack.f[0] = fx;
-                    pack.f[1] = fy;
-                    func_001125d0(stack);
-                    *(s16 *)(stack + 0) = s16a;
-                    *(s16 *)(stack + 2) = s16b;
-                    *(s32 *)(stack + 8) = -1;
-                    *(s32 *)(stack + 0xC) = 1;
-                    *(s32 *)(stack + 0x10) = 0;
-                    *(s16 *)(stack + 0x18) = 4;
-                    if (n == *(s16 *)(arg0 + 0x22)) {
-                        *(s16 *)(stack + 0x14) = 0;
-                        *(s16 *)(stack + 0x16) = 3;
-                    } else {
-                        *(s16 *)(stack + 0x14) = 0;
-                        *(s16 *)(stack + 0x16) = 2;
-                    }
-                    fmul = (f32)(u32)*(u8 *)(q + 0x1352) * f24;
-                    if (!(2147483648.0f <= fmul)) {
-                        aval = (s32)fmul & 0xFF;
-                    } else {
-                        aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
-                    }
-                    func_00112300(pack.xy, 0.0f, (u8)(aval & 0xFF), stack);
+                    scaledAlpha = (f32)(u32)*(u8 *)(row + 0x1352) * opacityScale;
+                    func_00112300(position.xy, 0.0f, (u8)scaledAlpha, (u8 *)&label);
                 }
             }
         }
     }
-    if (((*(s32 *)(arg0 + 0x14) & 0x100) != 0) && (*(s16 *)(arg0 + 0xC3E) != 0)) {
-        fx = 223.0f + (f23 + *(f32 *)(arg0 + 0x1318));
-        fy = 21.0f + (*(f32 *)(arg0 + 0x131C) + (f22 + 34.0f * (f32)*(s16 *)(arg0 + 0x22)));
-        fmul = (f32)(u32)*(u8 *)(arg0 + 0x15F2) * f24;
-        if (!(2147483648.0f <= fmul)) {
-            aval = (s32)fmul & 0xFF;
-        } else {
-            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
-        }
-        s16a = *(s16 *)(arg0 + 0x24);
-        q = arg0 + (s16a + *(s16 *)(arg0 + 0x22)) * 4;
-        *(s16 *)(stack + 0) = *(s16 *)(q + 0x3E);
-        *(s16 *)(stack + 2) = *(s16 *)(q + 0x40);
-        *(s32 *)(stack + 8) = -1;
-        *(s32 *)(stack + 0xC) = 1;
-        *(s32 *)(stack + 0x10) = 0;
-        *(s16 *)(stack + 0x14) = 1;
-        *(s16 *)(stack + 0x16) = 3;
-        *(s16 *)(stack + 0x18) = 4;
-        pack.f[0] = fx;
-        pack.f[1] = fy;
-        func_00130ce0(arg0, pack.position, aval & 0xFF, (s16 *)stack);
+    if (((*(s32 *)(state + 0x14) & 0x100) != 0) && (*(s16 *)(state + 0xC3E) != 0)) {
+        position.xy.x = 223.0f + (originX + *(f32 *)(state + 0x1318));
+        selection = *(s16 *)(state + 0x22);
+        position.xy.y = 21.0f + (*(f32 *)(state + 0x131C) + (originY + 34.0f * (f32)selection));
+        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x15F2) * opacityScale;
+        alphaByte = (u8)scaledAlpha;
+        itemId = *(s16 *)(state + 0x24);
+        detailLabel.itemId = ((s16 *)(state + 0x3E))[(itemId + selection) * 2];
+        detailLabel.quantity = ((s16 *)(state + 0x40))[(itemId + *(s16 *)(state + 0x22)) * 2];
+        detailLabel.priceMode = -1;
+        detailLabel.drawName = 1;
+        /* comparisonItem is only consumed when statistics are enabled. */
+        detailLabel.drawStats = 0;
+        detailLabel.palette = 3;
+        detailLabel.iconFlags = 1;
+        detailLabel.layout = 4;
+
+        func_00130ce0(state, position, alphaByte & 0xFF, (s16 *)&detailLabel);
     }
-    {
-        V2_0012e9d0 pos;
-        pos.x = 640.0f + (f23 + *(f32 *)(arg0 + 0x1828));
-    pos.y = 400.0f + (f22 + *(f32 *)(arg0 + 0x182C));
-    tu = *(u8 *)(arg0 + 0x1832);
-    if (tu >= 0) {
-        fs = (f32)tu;
-    } else {
-        fs = (f32)(((u32)tu >> 1) | (tu & 1));
-        fs += fs;
-    }
-    fmul = fs * f24;
-    if (!(2147483648.0f <= fmul)) {
-        aval = (s32)fmul & 0xFF;
-    } else {
-        aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
-    }
-    func_0034f9d0(pos, 0.0f, (u8)(aval & 0xFF), *(s16 *)(arg0 + 0xC40), *(s32 *)(arg0 + 0x1BE4));
-    }
+    position.xy.x = 640.0f + (originX + *(f32 *)(state + 0x1828));
+    position.xy.y = 400.0f + (originY + *(f32 *)(state + 0x182C));
+    value = (f32)*(u8 *)(state + 0x1832);
+    scaledAlpha = value * opacityScale;
+    alphaByte = (u8)scaledAlpha;
+    func_0034f9d0(position.xy, 0.0f, (u8)(alphaByte & 0xFF), *(s16 *)(state + 0xC40), *(s32 *)(state + 0x1BE4));
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012e9d0);
-#endif
+
+#pragma pop
 // FUN_0012FDF0
 void func_0012fdf0(u8 *arg0)
 {
