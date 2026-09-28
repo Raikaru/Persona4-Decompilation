@@ -1513,7 +1513,7 @@ s32 func_002a5630(s32 arg0)
 /* Rewrite 2026-09-28 (lane 5), replaces the m2c-shaped draft (181 differing words).
    Honest ABI: func_00452560 takes the task in arg0 (a0 passes through; the old
    draft called it through a no-argument cast).  Every call, constant and loop
-   is now retail's: 385/385 instructions, guarded score 58 differing words
+   is now retail's: 385/385 instructions, guarded score 44 differing words
    (reloc-masked), 0 inserted/deleted instructions.
    Levers that mattered: `fdiff = (f32)diff` as a named float (retail converts
    once and reuses it; without it the K2 load moves ahead of the cvt.s.w) and
@@ -1527,17 +1527,23 @@ s32 func_002a5630(s32 arg0)
    moves it up, `row - X` or `row + 5` does not).  Declaration order of p/row,
    merging target/diff into slot/base, inlining `row - X` (CSE'd early),
    opt_loop_invariants with no row local (72), f32 pos[2] and the x/y order all
-   leave the p/row and f20/f21 swaps in place. */
+   leave the p/row and f20/f21 swaps in place.
+   opt_lifetimes on (measured afterwards, see func_002a5630) moves p to $s0 and
+   lifts the score to 44 words / 41 edits with p, row, idx, slot, base declared in
+   that order; row still lands on $s1 (retail $s4) because in this function
+   nothing promotes it (a sixth call-crossing value such as func_002a4f20's alpha
+   does). */
+#pragma opt_lifetimes on
 // FUN_002A5F00 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002a5f00(s32 arg0)
 {
     extern f32 iGpffff8084;
     u8 *p;
-    s32 base;
+    s32 row;
     s32 idx;
     s32 slot;
-    s32 row;
+    s32 base;
     s32 target;
     s32 diff;
     s32 rest;
@@ -1617,6 +1623,7 @@ s32 func_002a5f00(s32 arg0)
 #else
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a5f00);
 #endif
+#pragma opt_lifetimes off
 
 // FUN_002A6510
 s32 func_002a6510(s32 arg0) {
