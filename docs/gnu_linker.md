@@ -1,91 +1,120 @@
-# Selecting the matching-build linker
+# GNU linker backend
 
-The committed `tools/build_config.json` selects `gnu`, so normal `make` and
-`python tools/build.py` builds use GNU ld. This links the current native literal
-pools exactly without a machine-local override. The backend may also be selected
-explicitly:
+`tools/build.py` links the matching image with either GNU ld (`gnu`) or
+Metrowerks mwldps2 (`mwld`). The committed `tools/build_config.json` selects
+`gnu`, so `make build` and a bare `python tools/build.py` use GNU ld. MWLD
+cannot place the current tree's native literal pools at their retail
+addresses, so an `mwld` link may fail the whole-image check.
+
+The choice only affects linking. Compilers, per-unit compiler versions and
+flags are the same for both backends.
+
+## Choosing the backend
+
+From highest to lowest precedence:
+
+1. `--linker-backend gnu|mwld` on the command line;
+2. the `P4_LINKER_BACKEND` environment variable;
+3. `"linker_backend"` in `tools/build_config.local.json`;
+4. `"linker_backend"` in `tools/build_config.json` (committed: `gnu`).
+
+If no config file sets the key, `build.py` falls back to `mwld`. Any value
+other than `gnu` or `mwld` stops the build.
 
 ```sh
 python tools/build.py --linker-backend gnu --progress-report build/linked.json
 ```
 
-MWLD remains available through `--linker-backend mwld`. Its literal-pool limitations
-can prevent the current source tree from passing the complete-image check.
-For a persistent machine-local selection, set `"linker_backend"` in
-`tools/build_config.local.json`. `P4_LINKER_BACKEND` overrides configuration;
-the command-line option overrides both. Valid values are `mwld` and `gnu`.
-The compiler, compiler versions, per-unit settings and flags are unchanged.
+## Finding `ld`
 
-The GNU backend discovers `mipsel-linux-gnu-ld` using the same tool discovery as
-the GNU assembler. `P4_LD` overrides the linker command. On Windows, for example:
+The GNU backend looks for `mipsel-linux-gnu-ld` the same way the build looks
+for the GNU assembler (`tools/asm.py`). `P4_LD` replaces the discovered
+command. On Windows the linker can run under WSL:
 
 ```powershell
 $env:P4_LD = 'wsl -d Debian -- mipsel-linux-gnu-ld'
 python tools/build.py --linker-backend gnu
 ```
 
-`P4_WSL_DISTRO` selects the distribution during automatic discovery. An explicit
-WSL command in `P4_LD` must include `--` before the linker executable. The backend
-maps the common absolute input directory once and uses identical full paths in
-the linker script and response file. Long object lists remain inside the response
-file, including paths containing spaces.
+A WSL command in `P4_LD` must have the form `wsl -d DISTRO -- LINKER`.
+`P4_WSL_DISTRO` (default `Debian`) picks the distribution when `ld` is
+discovered automatically. The backend maps the shared absolute input
+directory once and uses identical full paths in the linker script and the
+response file. Object lists stay in the response file, so paths with spaces
+work.
 
-## Native object placement
+## Placing native objects
 
-GNU ld can place separate sections from one input object around functions owned
-by another object. Gapped owners containing first-party functions therefore remain whole. The existing
-text-section renaming expresses each function's retail address without changing
-instruction bytes, data bytes, symbol definitions or native relocations. Local
-`R_MIPS_LITERAL` references still name the compiler's original local pool. The
-per-function origin classification is preserved in mixed owners, including their
-existing vendor functions. Entirely third-party gapped owners retain their previous
-eligibility restriction. When these literal pools cannot use their emitted section
-order, each pool receives a unique section name and its independently recovered
-retail placement. The original alignment, bytes, local symbols and relocation
-indices stay intact. Missing placement evidence or differing data rejects the owner.
+GNU ld can interleave sections from one input object with functions owned by
+another. The backend relies on this for first-party objects whose retail
+functions are not contiguous. It never changes instruction bytes, data bytes,
+symbol definitions or relocation records.
 
-The same first-party GNU path can place separately emitted local jump tables
-when their `.rodata` sections have gaps or a different retail order. Every
-four-byte word must have exactly one native `R_MIPS_32` relocation. Its symbol
-and original addend are independently resolved, and the complete table must
-equal the retail bytes at its recovered, aligned address. Missing, conflicting
-or overlapping placements, ambiguous targets and unsupported relocations reject
-the owner. Validated tables receive unique section names; their payloads,
-symbols and relocation records remain unchanged. Foreign data in the gaps is
-retained. This does not admit arbitrary unmatched `.rodata` or change MWLD's
-placement rules.
+**Gapped owners.** An owner with first-party functions stays one object even
+when other code sits between its functions. Its text sections are renamed so
+each function lands at its retail address. Vendor functions in a mixed owner
+keep their per-function origin classification. Owners that contain only
+third-party code keep the older restriction and are not linked across gaps.
 
-Two native owners may refer to the same retail constant. A shared placement is
-accepted only for identical, aligned, four- or eight-byte literal atoms with local
-symbols and bounded GP-relative load references. The adapter gives private copies
-of those input sections GNU merge metadata, letting the linker preserve every
-original local definition at the shared address. Instructions, payload bytes and
-relocation records remain unchanged, as do the original input objects. Writable,
-address-exposed or conflicting overlaps are rejected.
+**Literal pools.** Local `R_MIPS_LITERAL` references still point to the
+compiler's original pool. If a pool cannot stay in its emitted section order,
+it gets a unique section name and its independently recovered retail address.
+Alignment, bytes, local symbols and relocation indices are unchanged. If the
+placement evidence is missing or the bytes differ, the owner is rejected.
 
-The script omits fallback names already defined by input objects, including the
-entry symbol and allocated data. Remaining fallback linker symbols use `PROVIDE`.
-An actual source definition remains associated with its linked section. The backend rejects
-missing, duplicate, overlapping or unplaced allocated input sections. It also
-checks the linked load span, entry point, GP and every placed function's real
-section-backed definition. The existing whole-image and complete-retail-ELF
-verification remain required before a successful progress report is written.
+**Jump tables.** A first-party owner can also place separately emitted local
+jump tables whose `.rodata` sections have gaps or appear in a different
+order in retail. Each four-byte word must carry exactly one native
+`R_MIPS_32` relocation. The backend resolves each word's symbol and original
+addend, and the whole table must equal the retail bytes at its recovered,
+aligned address. Missing, conflicting or overlapping placements, ambiguous
+targets and unsupported relocation types reject the owner. A validated table
+gets a unique section name; its payload, symbols and relocations are
+unchanged, and foreign data in the gaps stays where it is. This does not
+admit arbitrary unmatched `.rodata`, and MWLD's placement rules are
+unchanged.
 
-Non-loadable MWCC `.mwcats` metadata is retained outside the load image. The image
-combines retail code and writable data in one segment, so GNU ld may print its
-RWX-segment warning. Linker diagnostics remain visible. No ABI-warning suppression,
-input ABI-flag edits or relocation-type substitutions are used.
+**Shared literals.** Two native owners may refer to the same retail
+constant. Such a shared address is accepted only for identical, aligned
+four- or eight-byte literal atoms with local symbols and bounded GP-relative
+loads. The backend gives private copies of those input sections GNU merge
+metadata, so ld keeps each original local definition at the shared address.
+The original objects are not modified. Writable, address-exposed or
+conflicting overlaps are rejected.
 
-The GNU link strips nonallocated compiler debug sections with `--strip-debug`.
-ee-gcc's ECOFF `.mdebug` carries invalid external-string offsets that crash BFD
-during final linking. This does not strip `.symtab` or `.mwcats`: the linked
-function definitions and both retail hashes are still checked. The CI image
-installs Debian's `binutils-mipsel-linux-gnu` for the linker and objcopy, while
-using the decompals assembler for PS2 R5900 instructions. Decompals v0.7
-objcopy can write an invalid `.symtab sh_info` when an assembly-local label
-follows global labels; Debian objcopy preserves the symbol order correctly.
+## Checks during the link
 
-## Regression checks
+- The linker script leaves out fallback names that an input object already
+  defines, including the entry symbol and allocated data. Remaining fallback
+  symbols use `PROVIDE`, so a real source definition stays tied to its
+  section.
+- Missing, duplicate, overlapping or unplaced allocated input sections fail
+  the link.
+- After linking, the backend checks the load span, entry point, GP value and
+  that every placed function is defined in a real section.
+- The whole-image comparison and the complete retail-ELF hash check must still
+  pass before a progress report is written.
+
+## Expected warnings and stripped sections
+
+- MWCC's non-loadable `.mwcats` metadata is kept outside the load image.
+- Retail code and writable data share one segment, so ld may warn about an
+  RWX segment. Linker diagnostics are not hidden. The backend does not
+  suppress ABI warnings, edit input ABI flags or substitute relocation types.
+- The link uses `--strip-debug`. ee-gcc writes ECOFF `.mdebug` sections with
+  invalid external-string offsets, and those crash BFD during the final link.
+  `.symtab` and `.mwcats` are not stripped, so linked function definitions
+  and both retail hashes are still checked.
+
+## Toolchain in CI
+
+The `Dockerfile` installs Debian's `binutils-mipsel-linux-gnu` for `ld` and
+`objcopy`, and the decompals v0.7 assembler for PS2 R5900 instructions.
+Decompals' own `objcopy` can write an invalid `.symtab` `sh_info` when an
+assembly-local label follows global labels. Debian's `objcopy` keeps the
+symbol order correct.
+
+## Tests
 
 ```sh
 python -m unittest discover -s tests -p test_gnu_link.py
@@ -93,14 +122,13 @@ python -m unittest discover -s tests -p test_build.py
 python -m unittest discover -s tests -p test_elf_text_runs.py
 ```
 
-These tests cover backend selection, first-party gap eligibility, unchanged local
-literal references, foreign gaps, full-path response files, allocation failures,
-extra load segments and absolute-symbol shadowing. A native integration proof must
-also link completed compiler objects and pass both retail hashes; synthetic ELF
-fixtures alone do not establish native linker compatibility.
+The tests cover backend selection, first-party gap eligibility, unchanged
+local literal references, foreign gaps, full-path response files, allocation
+failures, extra load segments and absolute-symbol shadowing.
+`test_elf_text_runs.py` also covers how assembly is carved around C ranges:
+overlapping and nested ranges, duplicate starts, zero-length intervals and
+exact boundaries.
 
-The carving tests additionally compare partial assembly blocks across overlapping
-and nested C ranges, duplicate starts, zero-length intervals and exact boundaries.
-The indexed range-membership lookup preserves the original chunk names, labels,
-bytes and placement indices while avoiding a scan of every C range for every
-instruction.
+These tests use synthetic ELF fixtures, which do not show that ld handles
+real compiler output. To prove that, link the compiled objects and pass both
+retail hashes (`make build`).

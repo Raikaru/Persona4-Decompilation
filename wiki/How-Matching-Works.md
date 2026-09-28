@@ -1,82 +1,103 @@
 # How Matching Works
 
-## The unit of work is a function window
+## Function windows and markers
 
-`tools/slus21782_functions.json` lists 13,102 function start addresses for the
-retail executable and the size of each one's window (up to the next
-function). Every window is owned by exactly one source file through a marker
-comment:
-
-```c
-// FUN_00195850
-s32 func_00195850(BattleUnit *unit) { ... }
-```
-
-A window whose C is not matched yet keeps its retail assembly instead:
+`tools/slus21782_functions.json` is the canonical function map: a start
+address and window size for every function in the retail executable. Each
+window is owned by one source file under `src/` through a marker comment:
 
 ```c
 // FUN_00195850
-INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00195850);
+void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst)
+{
+    ...
+}
 ```
 
-The marker is the verifier's denominator. Deleting or moving one changes what
-is being measured, so the tooling counts them and CI fails on unexplained
-changes.
+A function without matching C keeps its retail assembly:
 
-## What the verifier does
+```c
+// FUN_004BD760
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004bd760);
+```
 
-`python tools/verify.py [files]`:
+An attempt that does not match yet can sit beside the fallback:
 
-1. Compiles each file with the compiler and flags configured for that unit
-   (see [The Retail Build](The-Retail-Build)), through `tools/mwccgap`, which
-   splices the `INCLUDE_ASM` bodies in as assembly.
-2. Extracts every marked function from the object and compares it with the
-   retail bytes at the marker address, masking the relocation fields (`jal`
-   targets, `%hi`/`%lo`/gp-relative immediates) because those are only fixed
-   at link time.
-3. Reports one status per function:
-   - `MATCH` - byte-identical after masking, and the object is not longer than
-     the window (trailing window bytes must be zero padding).
-   - `ASM` - the `INCLUDE_ASM` fallback; correct by construction, not C.
-   - `MISMATCH` / `SIZE_MISMATCH` - live C that differs; never committed.
-   - `NONMATCHING` - C kept under `#ifdef NON_MATCHING` beside its fallback.
-   - `COMPILE_ERROR`, `NO_SYMBOL`, `UNKNOWN_ADDR` - tooling-level problems.
-4. Cross-checks relocations of every `MATCH` function, because masking makes
-   the byte comparison blind to them:
-   - **WRONG CALLEE** - the `jal` names a function other than the one retail
-     calls at that offset.
-   - **WRONG SYMBOL** - a data symbol whose address plus the candidate's
-     addend cannot produce the immediate retail encodes (gp-relative,
-     `%hi`/`%lo` with carry). This caught seven wrong-but-plausible symbols in
-     otherwise matching functions the day it was added.
+```c
+// FUN_00219790 NONMATCHING
+#ifdef NON_MATCHING
+void func_00219790(s32 arg0, u8 *arg1) { ... }
+#else
+INCLUDE_ASM(...);
+#endif
+```
 
-Both checks are hard failures. `verify.py --json` writes a report with every
-function's status, sizes, first differing offsets and relocations; the
-per-wave reports under `build/` are how progress is diffed.
+The markers are the verifier's denominator. Deleting one hides a function
+from the score, so `tests/test_marker_tripwire.py`,
+`tests/test_verify_markers.py` and `tools/decomp_lint.py` check them.
 
-## What the build does
+## What the verifier checks
 
-`python tools/build.py` compiles every unit, decides which objects are
-**link-eligible** (a C object whose functions are contiguous in retail and
-whose data can be placed at its retail addresses), links those with the retail
-assembly of everything else, and checks:
+`python tools/verify.py [files]` compiles whole source files. It never
+compiles a function on its own, because declarations, literals and neighbours
+in the same file change the generated code.
 
-- the loadable image SHA-1 (`3d1d3d2b...`),
-- the ELF SHA-1 (`4eeec036...`),
-- the **link floor** (`config/link_floor.json`): the number of C objects in the
-  link may only go up. A unit silently losing eligibility falls back to retail
-  bytes, which neither SHA-1 nor the per-function verifier can see.
+1. Each file is compiled with the compiler and flags configured for its unit
+   (see [The Retail Build](The-Retail-Build)). MWCC units go through
+   `tools/mwccgap`, which assembles the `INCLUDE_ASM` bodies into the object;
+   GCC units go through `tools/eegcc_shim.py`.
+2. Every marked function is cut out of the object and compared with the
+   retail bytes at its address. Relocated fields (`jal` targets,
+   `%hi`/`%lo`, gp-relative offsets) are masked, because the linker fills
+   them in.
+3. Each function gets a status. `MATCH` means the bytes agree after masking
+   and the object fits the window; any retail bytes past the end of the object
+   must be zero padding. `ASM` is an `INCLUDE_ASM` fallback and never counts
+   as C. CONTRIBUTING.md lists every status and what to do about it.
+4. The relocations of every `MATCH` are checked separately, because masking
+   hides them from the byte comparison:
+   - **WRONG CALLEE**: a `jal` names a different function from the one retail
+     calls.
+   - **WRONG SYMBOL**: the data symbol's address plus the addend cannot
+     produce the immediate that retail encodes.
 
-The full link is the last line of defence for symbol mistakes in link-eligible
-units; the WRONG SYMBOL check covers the units that are not linked.
+   Either one fails the run.
+
+`--json PATH` writes each function's status, sizes, first differing offsets
+and relocations. `--show-mismatches` prints details for failures.
+
+## What the build checks
+
+`python tools/build.py` compiles every unit and chooses which objects can be
+linked in place of retail code. An object is **link-eligible** when its
+functions and data can be placed at their retail addresses. The rest of the
+image comes from retail assembly. GNU ld does the linking by default;
+`docs/gnu_linker.md` explains how it places sections and when it rejects an
+object.
+
+The build then checks:
+
+- the loadable image SHA-1, `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
+- the rebuilt ELF SHA-1, `4eeec0360cf2715535d9f7e52eb69d786fb0158c`;
+- the **link floor** in `config/link_floor.json`, the minimum number of
+  source units in the link.
+
+The floor exists because the hashes cannot see a unit falling out of the
+link: its bytes come from retail assembly and the image still matches.
+`python tools/explain_ineligible.py` says why a unit is not linked.
+`--progress-report PATH` writes the list of linked functions used for
+progress reports.
 
 ## What a MATCH does not prove
 
-- That names and types are right. A matching function can still be
-  `func_00195850(u8 *arg0)` with raw offsets; `tools/recovery_quality.py`
-  scores that separately (NAMED / TYPED / DOCUMENTED in the README table).
-- That a pragma did anything. MWCC ignores unknown pragmas silently;
-  `tools/pragma_audit.py` compiles every spelling in the tree against the real
-  compiler and `tests/test_pragma_audit.py` fails on any that are inert.
-- That the global you named is the one retail used - that is what WRONG
-  SYMBOL and the full link are for.
+- **Names and types.** A match can still be `func_00219790(u8 *arg0)` with raw
+  offsets. `tools/recovery_quality.py` scores naming, typing and comments
+  separately.
+- **That a pragma does anything.** MWCC accepts unknown pragmas without a
+  diagnostic. `tools/pragma_audit.py` and `tests/test_pragma_audit.py` reject
+  spellings the compiler ignores.
+- **That a global is the one retail used.** Masked bytes cannot tell two
+  symbols apart. WRONG SYMBOL and the full link can.
+- **That the source is honest.** Assembly transcribed into `asm` statements
+  matches by construction. `tools/decomp_lint.py` rejects it; see
+  [Rules](Rules).
