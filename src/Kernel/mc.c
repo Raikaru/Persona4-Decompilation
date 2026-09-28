@@ -1216,45 +1216,41 @@ s32 func_002a4d10(s32 task) {
    are retail's (`(D_00761184 * (f32)frame) / 30.0f` fed to sinf, alpha is
    `(s32)(255.0f * ramp)` and is passed on to 6b60/6c30/9f50, the slide offsets are
    `350.0f * (1.0f - wave)` before the first loop and `400.0f * (1.0f - wave)` in the
-   tail).  449/449 instructions, guarded score 111 differing words (reloc-masked).
-   Structural levers: `fdiff`/`half` as named floats (see func_002a5f00) and the
-   two-statement `pulse = K * sinf(..); scale = 1.0f + pulse;` (a single
-   statement fuses into adda.s/madd.s, retail keeps mul.s + add.s), and
-   separate x/y and x2/y2 float locals for the two loops (retail colours them
-   f23/f22 and f22/f20; one shared pair gets the same registers in both).
-   Residual: saved-register colouring.
-   Retail: alpha->$s0, p->$s1, base->$s2, slot->$s3, idx->$s4, row->$s5 and
-   f23=x f22=y f21=wave f20=slide (loop 1).  Here row/idx/slot land on retail's
-   $s5/$s4/$s3 with row/idx/slot/base/p/alpha declared in that order, but base
-   (used only in ALU ops and compares) always sinks to $s0 and pushes alpha/p up
-   one.  Measured rule (micro tests, b210): among call-crossing values, those
-   passed directly as call arguments or redefined inside a loop take the high
-   registers in declaration order (first declared = highest); values used only
-   in ALU operations rank below all of them, also in declaration order.
-   Every opt_* pragma name in the compiler's list (on and off, measured on
-   func_002a5f00) and copies through temporaries leave that split unchanged;
-   -O1 removes it but rewrites the whole body (261 edits).
-   func_002a7920's parameter order is (f32, f32, f32, u8, u8 *, s32, s32, f32, u8 *):
-   with the trailing float and pointer in that order the call sites emit
-   `mov.s $f13,y` / `mov.s $f15,scale` where retail does (measured in isolation:
-   the old ints-then-floats order puts every plain float move last). */
+   tail).  449/449 instructions, guarded score 71 differing words (reloc-masked),
+   14 fnalign edits.  Levers: `opt_lifetimes on` with p, alpha, row, idx, slot, base
+   declared in that order gives retail's alpha->$s0 p->$s1 base->$s2 slot->$s3 idx->$s4
+   row->$s5 (111 words without the pragma); `fdiff`/`half` as named floats (see
+   func_002a5f00); a two-statement `pulse = K * sinf(..); scale = 1.0f + pulse;` (a
+   single statement fuses into adda.s/madd.s, retail keeps mul.s + add.s); separate x/y
+   and x2/y2 float locals for the two loops (retail colours them f23/f22 and f22/f20);
+   func_002a7920 declared (f32, f32, f32, u8, u8 *, s32, s32, f32, u8 *) (argument
+   emission order).
+   Residual, all one thing: retail computes `1.0f - wave` twice (preheader slide and tail
+   slide, wave stays live in $f21, slide in $f20) while this body's CSE reuses the first
+   result in place of wave (wave/slide land on $f20/$f21 and the tail `sub.s` is
+   missing).  Not moved by: separate tail variable, operand order, inline expression in
+   the loop with opt_loop_invariants on, or any opt_* pragma (opt_common_subs off costs
+   +69 edits). */
+#pragma opt_lifetimes on
 // FUN_002A4F20 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002a4f20(s32 arg0)
 {
     extern f32 iGpffff8084;
+    u8 *p;
+    s32 alpha;
     s32 row;
     s32 idx;
     s32 slot;
     s32 base;
-    u8 *p;
-    s32 alpha;
     s32 target;
     s32 diff;
     s32 rest;
     s32 frame;
     f32 x;
     f32 y;
+    f32 x2;
+    f32 y2;
     f32 wave;
     f32 slide;
     f32 scale;
@@ -1262,8 +1258,6 @@ s32 func_002a4f20(s32 arg0)
     f32 pulse;
     f32 fdiff;
     f32 half;
-    f32 x2;
-    f32 y2;
 
     p = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
     func_002a6b10(0, 0, 255, p);
@@ -1351,6 +1345,7 @@ s32 func_002a4f20(s32 arg0)
 #else
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a4f20);
 #endif
+#pragma opt_lifetimes off
 
 /* Recovered 2026-09-28 (lane 5): exact under MWCC b210/O2, 564/564 instructions.
    Shape: five frame-driven ramp phases, each with its own float local (retail
