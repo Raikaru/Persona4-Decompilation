@@ -1,132 +1,145 @@
 # Measured compiler floors
 
-Shapes retail contains that MWCCPS2 3.0.1b210 provably will not emit, with the
-evidence that established each one. A function whose retail body needs one of
-these is unreachable in C and should stay on `INCLUDE_ASM`; probing it wastes a
-lane. Add to this file only what has been measured, never what merely resisted
-a few attempts.
+A compiler floor is a documented code-generation limit for a particular
+compiler build and configuration. Keep an unmatched function on its
+`INCLUDE_ASM` fallback. Revisit the recorded limit when you have a new
+source hypothesis, compiler configuration or ABI fact; unsuccessful probes
+alone do not prove that no C source can match.
 
-## Conditional moves (`movz` / `movn`)
+The second half lists shapes once mistaken for compiler limits.
 
-**Superseded 2026-09-03.** The functions that need `movz`/`movn` are the
-RenderWare block, which retail built with MWCCPS2 3.0.1 **build 119**; that
-build (and b74, b151) emits a conditional move from a plain ternary, byte-exact.
-The block is now compiled with b119 per `config/compiler_units.txt`. The
-measurements below remain true for build 210 and for Atlus's own code.
+## Conditional moves (`movz` / `movn`) under build 210
 
-**No MWCCPS2 build 210 emits a conditional move.** Established four independent
-ways:
+The recorded build-210 probes did not emit conditional moves. They covered:
 
-1. b210 locally against six source shapes - `c ? v : 0`, `s = v; if (!c) s = 0;`,
-   `s = 0; if (c) s = v;`, `c != 0 ? v : 0`, the three-operand `c ? v : w`, and a
-   sixth written in retail's exact order with the value live across the call.
-2. Every optimisation level `-O0` through `-O4`, plus `-opt all`, `-opt speed`,
-   `-opt level=4`, `-opt conditional_move` and `-opt late_conditional_move`.
-3. Both pragmas the compiler's own string table names, `conditional_move` and
-   `late_conditional_move`, on and off. They are accepted without diagnostic
-   and change nothing.
-4. All seventeen other `mwcps2` builds on decomp.me, from `2.3-991202` through
-   `3.0.1b205-051227`, compiled against `func_003cb790`'s real source. None
-   emitted `movz`; every one produced the same branch-and-move shape b210 does.
+1. b210 was run locally on six source shapes: `c ? v : 0`,
+   `s = v; if (!c) s = 0;`, `s = 0; if (c) s = v;`, `c != 0 ? v : 0`, the
+   three-operand `c ? v : w`, and a sixth written in retail's exact order
+   with the value live across the call.
+2. Every optimisation level from `-O0` to `-O4` was tried, plus `-opt all`,
+   `-opt speed`, `-opt level=4`, `-opt conditional_move` and
+   `-opt late_conditional_move`.
+3. Both pragmas named in the compiler's string table,
+   `conditional_move` and `late_conditional_move`, were set on and off. The
+   compiler accepts them without a diagnostic, and they change nothing.
+4. All seventeen other `mwcps2` builds on decomp.me, `2.3-991202` through
+   `3.0.1b205-051227`, compiled `func_003cb790`'s real source. None emitted
+   `movz`. Every one produced the same branch-and-move sequence b210 does.
 
-The mnemonics appear in the compiler's string table because its assembler
-accepts them. The instruction selector never chooses them.
+The mnemonics also occur in the compiler's string table because its assembler
+accepts them. Their presence alone does not show that C code generation uses
+them.
 
-The signature in a candidate: retail has `movz $rd, $zero, $rc` where the
-candidate emits `beqz`/`bnez` plus a move, and the object comes out two words
-long.
+In a candidate diff, this floor appears as a `beqz`/`bnez` plus a move where
+retail has `movz $rd, $zero, $rc`, making the object two words longer.
 
-31 of the open first-party functions are affected. Regenerate the list with:
+**Scope (measured 2026-09-03).** The retail functions that need these moves
+are in the RenderWare-derived block, which retail built with MWCCPS2 3.0.1
+**build 119**. Builds 74, 119 and 151 emit `movz` from a plain ternary,
+byte-exact. Those units now compile with b119 through
+`config/compiler_units.txt`, and that file's header records the measurement.
+Those b119 results do not establish a build-210 solution.
 
-    python tools/residual_census.py
-
-**Apparent counter-example.** 36 matched functions in the tree do contain
-`movz`/`movn`, all in `src/cri/cri_adx_grouped.c`. Each is an `asm` function
-body of raw `.word` literals - transcription rather than decompilation. Do not
-copy that approach into first-party code: an `INCLUDE_ASM` row is already
-byte-exact in the linked image and is honest about what it is.
+**Apparent counter-example.** Some linked CRI and runtime functions contain
+`movz`/`movn` as raw `.word` literals in `asm` bodies. They came from the
+former `src/cri/cri_adx_grouped.c` and now live in the split owners under
+`src/cri/`, plus `src/middleware/soft_float.c` and `src/sce/rofs_dir.c`.
+Those bodies are transcribed, not decompiled. Do not copy the approach into
+first-party code. An `INCLUDE_ASM` row is already byte-exact in the linked
+image and does not claim to be C.
 
 ## Not floors, despite appearances
 
-Recorded here because each has been mistaken for a floor and each turned out to
-be source-drivable. Check these before concluding anything is unreachable.
+### Commutative operand order
 
-- **Commutative operand order** (`addu $v0,$v1,$v0` versus retail
-  `addu $v0,$v0,$v1`). Driven by which operand becomes live first, not by the
-  order written, so changing the source order alone never moves it.
-  (An earlier revision of this line pointed at
-  `skill://mwccps2-operand-order-inline-helper`, which does not exist.)
+Example: the candidate has `addu $v0,$v1,$v0` and retail has
+`addu $v0,$v0,$v1`. In the case below, operand lifetimes determined the
+order; swapping operands within the same expression did not change it.
 
-  `func_00242990` is the cautionary example.  It sat at 813 instructions,
-  exact count, one differing word - `addu $v0, $v0, $v1` against retail's
-  `addu $v0, $v1, $v0` at 0x00242CEC - and was written up here as a floor
-  after ten spellings all tied at one: operand order swapped, the constant
-  written first, the offset hoisted into a `u32` temp, both sides cast to
-  `u32`, the array-subscript form, and the parenthesisations either way.
+`func_00242990` (`src/Main/Battle/Data/datCalc.c`) had 813 instructions
+with the correct count and one differing word at `0x00242CEC`. It was
+recorded as a floor after ten spellings all left that one word: swapped
+operands, the constant written first, the offset hoisted into a `u32` temp,
+both sides cast to `u32`, an array subscript, and both parenthesisations.
+All ten were still one expression.
 
-  It was not a floor.  The file already defines
+The same file already defines
 
-      static inline u32 PTDatCalcOffsetAdd(u32 offset, u32 base)
-      { return offset + base; }
+```c
+static inline u32 PTDatCalcOffsetAdd(u32 offset, u32 base)
+{ return offset + base; }
+```
 
-  and three of the four sites with this address shape already went through it.
-  Routing the fourth through it as well
+and three of the four sites with this address shape used it. Routing the
+fourth site through it matches the function:
 
-      value = *(u8 *)((u8 *)PTDatCalcOffsetAdd(*(u16 *)(arg0 + 2) * 0x3C,
-                                               (u32)iGpffffb3c4) + 0x38);
+```c
+value = *(u8 *)((u8 *)PTDatCalcOffsetAdd(*(u16 *)(arg0 + 2) * 0x3C,
+                                         (u32)iGpffffb3c4) + 0x38);
+```
 
-  takes the function to **zero** and it is now MATCHED.  The parameter
-  boundary is what does it: passing the offset as the first argument fixes
-  which operand becomes live first, and no amount of rewriting the expression
-  in place can express that.  Every spelling that had been tried was still one
-  expression.
+The call boundary fixes which operand becomes live first. When a single
+commutative operand order survives every rewrite, look for an inline helper
+in the same file, or the one sibling sites already use.
 
-  So the lesson is the opposite of what was recorded: when a lone commutative
-  operand order survives every rewrite, look for a call boundary - an existing
-  inline helper in the same file, or the one the siblings already use - before
-  calling it a floor.
+### `addiu` where retail has `daddiu`
 
-- **`addiu` where retail has `daddiu`** on a variable's initialiser. Usually the
-  declared type is 64-bit. Note the converse is not reliable: in
-  `func_001932f0` retail initialises with `daddiu` and increments the same
-  variable with 32-bit `addiu`, and no declaration or literal-suffix change
-  reproduced it - that one word remains open. Second citation: in
-  `func_0015d310` (banked counted-for, 14wd exact 261/261) the six-site
-  `$v0`/`$v1` + `addiu`-against-`daddiu` remnant at fnalign [147:181] in the
-  `(s8)func_00110960` `&1`/`-2` adjust measures 14wd with the holder as
-  `s64`/`s64`, ties at 14wd as `s32`/`s32` and as `s32`-return, and explodes
-  to 112wd mixed (`mixA`/`mixB`) - declaration does not close it either.
-- **A missing `nop` before the final `jr`**, with every following branch
-  displacement off by one and the object one word short. Seen on
-  `func_003c4bc0` and `func_003b6da0` in different files. Two lanes recorded
-  this as an unexplained floor; it is not one. It is delay-slot scheduling,
-  and the lever is `#pragma schedule` ON - the opposite of the `schedule off`
-  both lanes tried, which is why their probes kept getting worse. Retail fills
-  the `blez` delay slot with the following `addiu`; the candidate emits a
-  `nop`. Measured on decomp.me scratch voNWo, max_score 1500:
+When a constant is loaded from `$zero`, `daddiu` means the destination is a
+narrow unsigned type: `u8`, `u16` or an unsigned bitfield. See
+[open_question_daddiu.md](open_question_daddiu.md) for the rule and its
+truth table. For a variable's initialiser, `addiu` versus `daddiu` often
+follows the declared width.
 
-      mwcc b210 -O2 bare                  680   54.7%
-      mwcc b210 -O2 #pragma schedule on    70   95.3%
-      ee-gcc 3.2 -O2                      285   81.0%
-      ee-gcc 3.2 -O3                      270   82.0%
+The two examples recorded here as unexplained width residuals are now
+matched, both by source changes rather than declaration changes:
 
-  The ee-gcc figures are kept because beating bare MWCC prompted a reasonable
-  suggestion that these were GCC-built. They are not; see the census below.
+- `func_001932f0`: retail initialises a variable with `daddiu` and increments
+  it with 32-bit `addiu`. Declaration and literal-suffix changes did not
+  reproduce this. The function later reached `MATCH` at 352/352 bytes.
+- `func_0015d310`: six sites of `$v0`/`$v1` and `addiu`/`daddiu` churn sat
+  at 14 words whether the holders were `s64` or `s32`. Mixing the two made
+  it worse (112 words). The cause was a hand-expanded signed modulo: the
+  body spelled `x % 2` as `x & 1` plus a negative correction and `-= 2`.
+  Writing `(s32)var_2 % 2` with `s32` temporaries lets the compiler emit its
+  own sequence and matches the function.
 
-## Where the GCC-built code is, and is not
+### Missing `nop` before the final `jr`
 
-Both functions above sit at 16-byte-aligned addresses outside every
-`VENDOR_CODE_RANGES` span, and MWCC beats every ee-gcc build on them once the
-scheduler pragma is set. A tree-wide alignment census confirms the boundary is
-sound - GCC aligns functions to 8 bytes, MWCC to 16:
+Symptom: the candidate is one word short, and every later branch
+displacement is off by one. It was seen on `func_003c4bc0` and
+`func_003b6da0`, in different files. Two lanes recorded it as an unexplained
+floor. It is delay-slot scheduling. Retail fills the `blez` delay slot with
+the following `addiu`, and the candidate emits a `nop`. The fix is
+`#pragma schedule on`; both lanes had tried `schedule off`, so their probes
+got worse. On decomp.me scratch voNWo (max_score 1500):
 
-    inside the known vendor ranges:  2350/4873 = 48.22% at 8 mod 16
-    first-party overall:                2/7867 =  0.03% at 8 mod 16
+```
+mwcc b210 -O2 bare                  680   54.7%
+mwcc b210 -O2 #pragma schedule on    70   95.3%
+ee-gcc 3.2 -O2                      285   81.0%
+ee-gcc 3.2 -O3                      270   82.0%
+```
 
-A 1600-fold separation, so there is no second GCC pocket hiding in first-party
-code. The two first-party outliers, `func_00100008` and `func_00100218`, sit at
-the very start of the text segment and one already matches under MWCC.
+The ee-gcc rows are kept because they beat bare MWCC, which suggested these
+functions were built with GCC. They were not; see the next section.
 
-Note that the prologue test which originally found the vendor band cannot
-classify a leaf function: both functions above save nothing, so they have no
-`sd`/`sq` to read. Use alignment for those, not the prologue.
+## Where GCC-built code is
+
+In the recorded census, both functions above were at 16-byte-aligned
+addresses outside the configured vendor spans. With the scheduler pragma,
+MWCC scored better than the tested ee-gcc builds. The census also compared
+8-byte GCC alignment with 16-byte MWCC alignment:
+
+```
+inside the known vendor ranges:  2350/4873 = 48.22% at 8 mod 16
+first-party overall:                2/7867 =  0.03% at 8 mod 16
+```
+
+The rates differ by a factor of about 1600, supporting the existing compiler
+partition. They do not rule out every small or deliberately aligned GCC
+unit. The two first-party outliers in that census, `func_00100008` and
+`func_00100218`, sit at the start of the text segment.
+
+The prologue test cannot classify leaf functions that save no registers.
+Use alignment as supporting evidence for those functions, not as a compiler
+identifier on its own.

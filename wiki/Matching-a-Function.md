@@ -1,91 +1,109 @@
 # Matching a Function
 
-## Picking a target
+This is the working loop for one function. CONTRIBUTING.md has the checks to
+run before a pull request; [Rules](Rules) lists what the tree must keep true.
 
-The scoring tools tell you where the cheap work is:
+## Choosing a target
+
+Start from a fresh verifier report:
 
 ```sh
-python tools/verify.py --json build/verify_report.json          # everything
+python tools/verify.py --json build/verify_report.json
 python tools/floor_census.py --report build/verify_report.json --top 30
-python tools/recovery_quality.py --worst 20
+make recovery                     # matched files that still read like m2c output
 ```
 
-Good first targets:
+`floor_census.py` separates functions nobody has attempted from those with a
+recorded floor. Promising targets:
 
 - **Small functions in files that already match.** Getters, setters, flag
-  tests, copy loops and destroy/cleanup functions match far more reliably than
-  update and render code. `floor_census.py` lists the untried ones by window
-  size.
-- **Near-complete files.** Closing the last function or two lets the whole
-  translation unit into the link.
-- **Archived near misses.** `docs/probe_archive/*_<addr>_body.c` holds the
-  best candidate for every function someone has attempted, with a header
-  saying what was tried and how far it got. `build/archive_sweep.py` re-measures
-  an archive against the current toolchain.
-- **The Persona 3 FES twin.** `make shared-p3 P3_ROOT=../Persona3-FES-Decompilation`
-  maps P3 functions to their P4 counterparts; a P3 `MATCH` body is usually
-  within a few words of its P4 twin.
+  tests, copy loops and cleanup functions usually match sooner than update and
+  render code, and the file already carries the types they need.
+- **The last functions in an almost-recovered file.** A file with no
+  fallbacks left becomes fully linked C.
+- **Earlier attempts.** `docs/probe_archive/` and the `#ifdef NON_MATCHING`
+  bodies in `src/` record what was tried and how close it got.
+  `tools/probe_archive.py` re-measures an archived body;
+  `tools/nd_audit.py` re-measures the parked ones.
+- **Code shared with Persona 3 FES.**
+  `make shared-p3 P3_ROOT=../Persona3-FES-Decompilation` maps P3 functions to
+  their P4 counterparts. A P3 match is a strong starting point, not proof
+  that P4 has the same types.
 
-Skip anything listed under [Compiler Floors](Compiler-Floors) unless you have a
-new idea; those have been measured to death.
+Check [Compiler Floors](Compiler-Floors) before you pick a function that
+someone has already given up on.
 
 ## The loop
 
 ```sh
-make m2c FILE=src/Battle/btlUnit.c FUNC=func_00195850      # first draft into src/generated/
-python tools/fndiff.py src/Battle/btlUnit.c func_00195850  # after installing the draft over the INCLUDE_ASM line
+make m2c-setup                                          # once: installs the pinned m2c
+make m2c FILE=src/Battle/btlTarget.c FUNC=func_001ec630
+python tools/fndiff.py src/Battle/btlTarget.c func_001ec630
 ```
 
-`fndiff.py` prints the object and retail words side by side, disassembled,
-with relocation annotations. Rows marked `!` are real differences; the
-trailing `differing words (reloc-masked): N` also counts zero-padding words
-when the object is shorter than the window (a 148-byte object in a 160-byte
-window reports 3 and is a `MATCH`).
+`make m2c` writes a draft to `build/m2c/<function>.c`, using the owning
+file's declarations as context. Replace the `INCLUDE_ASM` line with it and
+fix the types before anything else. `tools/ida_headstart.py` and
+`tools/ghidra_headstart.py` produce second-opinion drafts;
+`docs/ida_headstart/` and `docs/ghidra_headstart/` hold earlier output.
 
-Then shape the source one lever at a time, re-measuring after each:
+`fndiff.py` compiles the file and prints object and retail words side by
+side, with relocations. Rows marked `!` differ. The closing
+`differing words (reloc-masked): N` also counts zero padding when the object
+is shorter than the window, so a function can be a verifier `MATCH` with a
+non-zero count. For a symbol without a marker, pass its retail address with
+`--addr`.
 
-1. **Types first.** Widths, signedness, pointer vs array, `f32` where the
-   disassembly uses COP1. Most large residuals are type residuals.
-2. **Control flow.** Branch polarity, which arm falls through, `while` vs
-   `do`, early returns vs joins. `docs/matching.md` has a section per shape.
-3. **Register colouring.** Order of declarations and first uses, which value
-   is cached in a local, commutative operand order.
-4. **Pragmas, last.** `schedule`, `no_branch_likely`, `opt_propagation`,
-   `opt_common_subs`, `opt_loop_invariants`, `opt_rebuildconditionals`,
-   `optimization_level`, `tailcall` - each with a `/* measured: ... */` note.
-   The compiler's real pragma list is 386 spellings; `tools/knob_sweep.py`
-   tries them all.
+Change one thing at a time and measure after each change:
 
-`docs/matching.md` is the catalogue: each entry is a residual pattern, the
-lever that fixed it, and the measurement that proved it. Read the section
-matching your `!` rows before guessing.
+1. **Types.** Width, signedness, pointer or array, `f32` where the code uses
+   COP1. Most large differences are type differences.
+2. **Control flow.** Branch polarity, which arm falls through, `while` or
+   `do`, early return or a shared exit.
+3. **Value lifetimes.** Which value is kept in a local, declaration order and
+   first use, the order of commutative operands.
+4. **Compiler settings, last.** A pragma such as `schedule`,
+   `opt_propagation` or `opt_common_subs` can be the real answer. Record the
+   measurement beside it; lint flags non-baseline settings for review.
 
-## When to stop
+`docs/matching.md` records shapes with the change that fixed each one and the
+function where it was measured. Search it for the instructions in your `!`
+rows before guessing. `tools/pragma_sweep.py`, `tools/probe_variants.py` and
+the `tools/permute*.py` scripts automate parts of the search once the source
+is close.
 
-- `MATCH` - run `python tools/decomp_lint.py <file>` and
-  `python tools/verify.py <file>` (no WRONG SYMBOL / WRONG CALLEE lines), then
-  commit.
-- Not `MATCH` after a real attempt - put the bare `INCLUDE_ASM` line back,
-  archive the best candidate under `docs/probe_archive/<LANE>_<addr>_body.c`
-  with a header stating object/window sizes, differing offsets and every
-  lever tried, and move on. Never leave live non-matching C in the tree.
-- The residual is a documented floor - same as above; note which floor.
+For disassembly with the EE-specific instructions decoded, use
+`tools/recon_dis.py <addr>`. It prefers a Ghidra server with the Emotion
+Engine extension and falls back to rabbitizer, which prints COP1
+multiply-accumulate and VU ops as `.word`.
 
-Abandon on measured distance, not on effort: a candidate stuck at the same
-`nd` after three different levers is telling you the shape is wrong, not that
-it needs a fourth.
+## Finishing
 
-## New symbols
+When the function reports `MATCH`, check the rest of its file: a shared
+declaration can change a sibling. Then follow CONTRIBUTING.md.
 
-A function that reads a global the tree does not know yet needs the symbol
-registered in `config/symbol_data_addrs.txt`:
+When it does not match, keep the best body behind `#ifdef NON_MATCHING` with
+its `INCLUDE_ASM` fallback in the `#else` branch, and tag the marker
+`// FUN_XXXXXXXX NONMATCHING`. `tools/park.py` does this edit. Write down the
+remaining difference and what you tried, so the next person does not repeat
+it.
+
+Stop when the difference stops moving, not after a fixed number of tries. If
+three different changes leave the same differing words, the shape is
+probably wrong.
+
+## New data symbols
+
+If the function reads a global the tree does not know, add it to
+`config/symbol_data_addrs.txt` with its evidence:
 
 ```text
-iGpffffb788 = 0x00764878; // type:data evidence: retail func_003e2f60 lw $a2,-0x4878($gp); gp base 0x007690F0
+iGpffff9cc8 = 0x00762db8; // type:data evidence: func_0012e9d0 lw $7,-0x6338($28) at 0x0012F558; GP 0x007690F0
 ```
 
-then `python tools/recover_symbols.py` regenerates `config/symbols_recovered.txt`
-for the linker. For gp-relative names the suffix is the retail immediate and
-the address is `0x007690F0 + sign-extended immediate`; for absolute ones the
-address comes from the `lui`/`addiu` pair. The verifier's WRONG SYMBOL check
-confirms the registration against retail's immediates.
+A gp-relative name's suffix is the 16-bit immediate retail uses, and its
+address is `0x007690F0` plus that immediate, sign-extended. An absolute
+address comes from the `lui` and `addiu`/`lw` pair. Run
+`python tools/recover_symbols.py` to regenerate
+`config/symbols_recovered.txt`, which the linker reads. The verifier's WRONG
+SYMBOL check then compares the symbol against retail's immediates.

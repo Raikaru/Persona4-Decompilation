@@ -1,5 +1,11 @@
 # RenderWare name transfer P4 <- Burnout Revenge: measured precision of romwright's structural diff
 
+Measurement record from 2026-09-21; current use is summarised in
+[README.md](README.md). Paths under `/var/tmp/` were scratch space for this run
+and are not in the repository. Its `truth.json` was committed as
+`known_names.json` and its `names.json` as `proposed_names.json` (122
+entries, the count in §7; §4's figure of 74 is kept as originally recorded).
+
 ## 1. Toolchain (step 1)
 
 - `romwright-cli` resolves from `~/ventris/target/release/romwright-cli` (built from `~/ventris`,
@@ -196,6 +202,8 @@ function lists, and sizes. Driver core (`.text`):
 
 - Measured greedy precision **93/143 = 0.650**, recall **143/389 = 0.368** (reachable ceiling
   212/389 = 0.545 given library mismatch; no-semantic run: 54/80 = 0.675 / 80/389 = 0.206).
+  NAP did not complete in >45 min (>100x slower than greedy) — reported as unmeasured with
+  causes, not as claims.
   Usable as a proposal source with per-entry
   confidence, not as ground truth: ~1 in 3 is wrong, wrongness concentrates in tiny functions
   and same-role siblings, and score-1.0 shape matches on small bodies are the least trustworthy.
@@ -204,6 +212,3 @@ function lists, and sizes. Driver core (`.text`):
   transfer deliverable; `truth.json` (392) is the measuring stick. Median confidence 0.960.
   11 addresses proposed by the no-semantic run are superseded (paired differently or dropped
   under semantics) and not carried over.
-- Measured greedy precision **93/143 = 0.650**, recall **143/389 = 0.368** (reachable ceiling
-  212/389 = 0.545). NAP did not complete in >45 min (>100x slower than greedy) — reported as
-  unmeasured with causes, not as claims.

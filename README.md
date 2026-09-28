@@ -1,30 +1,98 @@
-# Persona 4 (PS2) Decompilation
+# Shin Megami Tensei: Persona 4
+
+A work-in-progress matching decompilation of *Shin Megami Tensei: Persona 4*
+for the PlayStation 2 (USA v1.00, `SLUS_217.82`). The goal is readable C that
+compiles to the original machine code. Unfinished functions still use retail
+assembly so the build can reproduce the executable while recovery continues.
+
+This is not a PC port. You need your own disc image and compiler toolchain;
+the repository does not include the game executable or disc assets.
+
+[![first-party functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=first-party%20functions&measure=matched_functions&category=main)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![fully C-linked](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=fully%20C-linked&measure=complete_code)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+
+## Quickstart
+
+Requirements:
+
+- Python 3.10+, Git and Make.
+- GNU MIPS binutils with R5900 support: `mipsel-linux-gnu-as`,
+  `mipsel-linux-gnu-ld` and `mipsel-linux-gnu-objcopy`. The
+  [decompals build](https://github.com/decompals/binutils-mips-ps2-decompals)
+  supports the target.
+- MWCCPS2 3.0.1 build 210 for game code and build 119 for RenderWare.
+  On Linux, run the Windows compilers through
+  [wibo](https://github.com/decompals/wibo).
+- ee-gcc 2.96 for the configured GCC units.
+- A Persona 4 USA disc image matching the [Redump record](http://redump.org/disc/5576/).
+
+```sh
+git clone https://github.com/Raikaru/Persona4-Decompilation.git
+cd Persona4-Decompilation
+python -m pip install -r requirements-python.txt
+```
+
+Set the compiler paths in `tools/verify_config.local.json` and
+`tools/build_config.local.json`, or use the `P4_*` environment variables.
+[Getting Started](wiki/Getting-Started.md) gives the configuration and Docker
+instructions. These local files are ignored by Git; do not change the shared
+configuration to suit your machine.
+
+```sh
+make setup ISO="/path/to/Shin Megami Tensei - Persona 4 (USA).iso"
+make split
+make regenerate-asm
+make
+```
+
+`make split` extracts the bulk assembly and data. `make regenerate-asm`
+recreates the per-function fallbacks; a fresh checkout needs both. `make`
+then builds the image, checks both retail hashes and verifies the C functions.
+
+| Output | Expected SHA-1 |
+| --- | --- |
+| Retail ELF (`SLUS_217.82`) | `4eeec0360cf2715535d9f7e52eb69d786fb0158c` |
+| Loadable image | `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
+
+## How it works
+
+The retail executable contains code from several toolchains:
+
+| Code | Compiler and flags |
+| --- | --- |
+| Most Atlus game and engine units | MWCCPS2 3.0.1 build 210, `-O2` |
+| Remaining RenderWare holding units | build 210, `-O2` or per-unit `-O2,p` |
+| Recovered RenderWare Graphics 3.7 source | MWCCPS2 3.0.1 build 119, `-O4,p -inline auto` |
+| Configured CRI and other GCC units | ee-gcc 2.96, `-O2 -G0` |
+
+`tools/verify.py` compiles whole source files and compares each marked
+function with retail. It masks relocation fields for the byte comparison and
+checks their targets separately. `tools/build.py` decides which objects can
+replace retail code, links them at their original addresses, and checks the
+image and ELF hashes. GNU ld is the default linker; the optional MWLD backend
+requires MWLDPS2. See [The Retail Build](wiki/The-Retail-Build.md) and the
+[linker reference](docs/gnu_linker.md).
+
+A byte match does not mean the source is finished. Names, types and data
+layouts are still being recovered. Likewise, an object containing
+`INCLUDE_ASM` can be linked without being fully decompiled. Progress separates
+Atlus code, proven Sony SDK code, and other middleware; retail assembly does
+not count as recovered C.
+
+## Status
+
+[decomp.dev](https://decomp.dev/Raikaru/Persona4-Decompilation) publishes the
+CI results. The table below is the last committed report, not a fresh
+measurement of your working tree. Run `make verify` for that.
+
+<details>
+<summary>Detailed progress</summary>
 
 [![perfect match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=perfect%20match&measure=code)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![fuzzy match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=fuzzy%20match&measure=fuzzy_match_percent)](https://decomp.dev/Raikaru/Persona4-Decompilation)
-[![fully C-linked](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=fully%20C-linked&measure=complete_code)](https://decomp.dev/Raikaru/Persona4-Decompilation)
-[![first-party functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=first-party%20functions&measure=matched_functions&category=main)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![all functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20functions&measure=matched_functions)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![ASM-free linked C](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Flinked.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/linked.json)
 [![Sony SDK fully C-linked](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=Sony%20SDK%20fully%20C-linked&measure=complete_code&category=sony_sdk)](https://decomp.dev/Raikaru/Persona4-Decompilation)
-
-A matching decompilation of **Shin Megami Tensei: Persona 4** for the
-PlayStation 2 (USA, v1.00, `SLUS_217.82`). Recovered C functions are compiled
-with their configured matching toolchain and compared against the retail
-executable byte for byte. The build links those objects with retail-backed
-binary inputs and reproduces the loadable image and ELF SHA-1s.
-
-This repository contains source and tooling only. There is no executable, disc
-image, or game data here; `make setup` extracts what the build needs from a
-disc image you own, after checking it against the
-[Redump record](http://redump.org/disc/5576/).
-
-**Documentation:** the [wiki](https://github.com/Raikaru/Persona4-Decompilation/wiki)
-has the long-form guides (how matching works, what the verifier checks, how
-to pick and match a function, the compiler findings). This file is the short
-version.
-
-## Status
 
 <!-- STATUS:BEGIN (generated by tools/progress.py --update-readme) -->
 | Item | Verified value |
@@ -47,248 +115,57 @@ version.
 | — DOCUMENTED (prose, or trivially self-evident) | 4,659 (69.537%) |
 | — still carrying decompiler local names | 1,976 (29.493%) |
 
-Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. Fully linked counts only files whose every function is matching C and linked from that same source file; physical linkage also includes retail assembly and SDK black boxes. `tools/recovery_quality.py --worst 20` ranks the game files needing work.
+Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. Fully linked counts only files whose every function is matching C and linked from that same source file; physical linkage also includes retail assembly and SDK black boxes. `make recovery` ranks the game files needing work.
 <!-- STATUS:END -->
 
-"First-party" means Atlus's game and engine code. Progress is partitioned by
-**function address**, not whole source file, because some promoted files mix
-game functions with vendor libraries:
+To publish new measurements, run `make build-progress` followed by
+`make progress`. The first supplies the verified link report; the second
+updates the endpoints and this table.
 
-- **Atlus game and engine** (`main`): first-party game-source recovery.
-- **Sony PS2 SDK** (`sony_sdk`): only functions recorded with archive, member,
-  address, size, and canonical hash in
-  [`config/sdk_symbol_provenance.txt`](config/sdk_symbol_provenance.txt).
-- **Other third-party/vendor** (`third_party`): RenderWare, CRI, the C runtime,
-  and vendor code without enough evidence to call it Sony SDK.
-- **Unattributed** (`unclassified`): functions without an established owner.
+</details>
 
-SDK functions with byte-exact, link-eligible C replace their own retail windows.
-The remaining SDK functions link as generated objects under `build/obj/sony_sdk/`,
-assembled from the user's extracted retail assembly. Those residual objects are
-**retail-backed black boxes**, not copies of original Sony archive members or
-recovered C. No proprietary SDK objects or archives are committed.
+## Contributing
 
-The decomp.dev **fully linked C** measure (`complete_code`) credits a source
-file only when every function is matching C, the file has no inline assembly or
-`INCLUDE_ASM` fallback, and that C file is used in the verified link. It does
-not count residual Sony SDK black boxes; their physical linkage is tracked
-separately in `progress/sony-sdk-linked.json`. The proven SDK manifest does not
-assert that every Sony function has been found.
-Recovery queues, batch m2c promotion, and naming passes exclude SDK/vendor
-targets. Atlus wrappers such as `sdkTask.c`, `sdkOt.c`, and `sdkCdvd.c` stay
-in game scope: an `sdk` filename is not authorship evidence.
-
-## How it works
-
-Every function has a marker comment in exactly one source file:
-
-```c
-// FUN_00195850
-s32 func_00195850(BattleUnit *unit) { ... }
-```
-
-`tools/verify.py` compiles each file with the compiler that file is
-configured for, cuts the function out of the object, masks the relocation
-fields, and compares it with the bytes at that address in the retail
-executable. A function is `MATCH` only when nothing differs; otherwise its
-`INCLUDE_ASM` fallback (the retail assembly) is what gets linked. Beyond the
-byte comparison the verifier cross-checks every call target and every data
-symbol against what retail actually references, because relocation masking
-would otherwise let a plausible-but-wrong symbol through.
-
-`tools/build.py` links the matched objects with the retail assembly for
-everything else and checks the image and ELF SHA-1s. CI runs the same
-pipeline against the private toolchain.
-
-The committed build configuration selects GNU ld, which preserves native local
-literal pools while placing functions at their retail addresses. Normal `make`
-and `python tools/build.py` commands use that backend. `--linker-backend mwld`
-selects the retained MWLD implementation; `--linker-backend gnu` selects GNU
-explicitly. Compiler and per-unit flags are unchanged. See
-[`docs/gnu_linker.md`](docs/gnu_linker.md) for configuration and validation details.
-
-The retail executable is a mixed build, and the tree is configured per unit
-to reproduce it:
-
-| Code | Compiler | Flags | Configured in |
-| --- | --- | --- | --- |
-| Atlus game code (most of `src/`) | MWCCPS2 3.0.1 build 210 | `-O2` | `tools/verify_config.json` |
-| RenderWare Graphics 3.7 (`src/renderware/`) | MWCCPS2 3.0.1 build 119 | `-O4,p -inline auto` | `config/compiler_units.txt`, `config/version_flags.txt` |
-| A few speed-tuned units | build 210 | `-O2,p` | `config/speed_units.txt` |
-| CRI and other GCC-built vendor units (`src/cri/`) | ee-gcc 2.96 | `-O2 -G0` | `config/gcc_units.txt`, `config/compiler_units.txt` |
-| Archive-proven Sony PS2 SDK | Matched, link-eligible C where available; residual fixed-address retail assembly | Per-unit source settings or fixed-address link | `config/sdk_symbol_provenance.txt` |
-
-Existing RenderWare recoveries use the RenderWare 3.7.0.2 source and vendored
-headers in `include/rw/`; `src/renderware/` mirrors the original tree. RenderWare,
-CRI, and Sony recovery are measured separately from first-party functions.
-
-## Setup
-
-You need:
-
-- Python 3.10+ and `python -m pip install -r requirements-python.txt`
-- GNU binutils for MIPS with R5900 support (`mipsel-linux-gnu-as`,
-  `mipsel-linux-gnu-ld`, `mipsel-linux-gnu-objcopy`; the
-  [decompals build](https://github.com/decompals/binutils-mips-ps2-decompals)
-  works)
-- MWCCPS2 / MWLDPS2 3.0.1 build 210 (`mwcps2-3.0.1b210-060308`); on Linux
-  run the Windows binaries through [wibo](https://github.com/decompals/wibo)
-- MWCCPS2 3.0.1 build 119 (`040914`) for the RenderWare units
-- ee-gcc 2.96 for the GCC units (`tools/eegcc_shim.py` drives it)
-- A Persona 4 USA disc image you own
-
-Point the tools at your toolchain with environment variables (`P4_MWCC`,
-`P4_RETAIL_ELF`, `P4_AS`, `P4_OBJCOPY`, `P4_LD`, `P4_MWCC_CW3_0_1B119`) or with the
-machine-local, git-ignored `tools/verify_config.local.json` and
-`tools/build_config.local.json`:
-
-```json
-{
-  "mwcc": "/opt/mwcps2-3.0.1b210-060308/mwccps2.exe",
-  "ld_exe": "/opt/mwcps2-3.0.1b210-060308/mwldps2.exe",
-  "retail_elf": "/path/to/SLUS_217.82",
-  "mwcc_versions": { "cw3.0.1b119": "/opt/mwcps2-3.0.1b119-040914/mwccps2.exe" }
-}
-```
-
-Use the same values in both files. The committed `tools/verify_config.json`
-holds only the shared defaults; never put machine-local paths there.
-
-The `Dockerfile` builds a Linux image with binutils and wibo installed; mount
-the compilers and the retail ELF at `/opt/p4`.
-
-## Build
+Start with [CONTRIBUTING.md](CONTRIBUTING.md), then pick an `INCLUDE_ASM`
+function or improve the names and types of an existing match. For example:
 
 ```sh
-make setup ISO="/path/to/Shin Megami Tensei - Persona 4 (USA).iso"
-make split           # create bulk retail disassembly and build assets
-make regenerate-asm  # regenerate all manifest-listed INCLUDE_ASM fallbacks
-make            # build the image and verify the retail hashes
-make test       # unit tests for the tooling
+python tools/verify.py src/Battle/btlUnit.c
+python tools/fndiff.py src/Battle/btlUnit.c btlUnitGetSphereWorldCenter
+python tools/decomp_lint.py src/Battle/btlUnit.c
 ```
 
-`make setup` writes the ignored `orig/SYSTEM.CNF`, `orig/SLUS_217.82` and
-`image.bin`. Other useful targets:
+Keep unmatched functions on their assembly fallback. Verify the whole owning
+file, not an isolated copy of the function, and check that its object remains
+in the final link. The [matching guide](wiki/Matching-a-Function.md) covers
+the working loop; [source rules](docs/STYLE.md) explain what counts as an
+honest recovery.
 
-```sh
-make verify             # score every // FUN_ marker (python tools/verify.py)
-make lint               # integrity errors plus advisory source diagnostics
-make progress           # regenerate the progress endpoints and this README's table
-make objdiff            # objdiff-cli report for the matching build
-```
-
-### Regenerating retail assembly
-
-`make split` alone does not regenerate `asm/nonmatchings/`. Run
-`make regenerate-asm` before compiling a fresh checkout. It invokes
-`python tools/regenerate_asm.py --fresh`: after refusing unexpected edits to
-existing generated files, it removes only the manifest-classified generated
-outputs, performs an independent split in scratch space, and checks every
-regenerated file against its expected SHA-256 before succeeding. Retained manual
-assembly is left in place. To check reproduction without changing output files:
-
-```sh
-P4_RETAIL_ELF="/path/to/SLUS_217.82" python tools/regenerate_asm.py --check
-```
-
-Regeneration needs the privately supplied, hash-validated USA retail ELF
-(`orig/SLUS_217.82`, `P4_RETAIL_ELF`, or `--retail PATH`) and Python dependencies
-pinned in `requirements-python.txt` (including splat64's MIPS extra,
-spimdisasm, and rabbitizer). Public R5900 binutils and the proprietary
-compilers are needed for the subsequent build/verification, not regeneration.
-The generator does not consume machine-local build/verify configurations,
-existing split outputs, or existing fallback assembly as generation inputs.
-Tracked inputs include `config/slus21782.yaml`, target metadata,
-`config/asm_symbol_baseline.txt` (the pinned pre-migration symbol map),
-the canonical function map, the extraction tools, and
-`config/generated_asm.json` with expected paths/hashes, recipes, corrections,
-and explicit retained exceptions. The live `config/symbol_addrs.txt` is
-reconciled for C builds; it is not an input to the pinned fallback generator.
-
-The **11,152 reproducibly generated fallbacks are ignored**, but remain
-necessary locally for `INCLUDE_ASM`. Their untracking followed exact
-clean-checkout reproduction and a successful proprietary CI rebuild.
-Two hand-maintained files stay tracked: `btlVoiceCreatePacket.s` and
-`cldDayChange/func_00266050.s` under `asm/nonmatchings/`. New manual files
-must be explicitly retained in the manifest and Git, not hidden by the
-generated-file ignore rule. Assembler support stays tracked too.
-
-C recovery probes under `docs/probe_archive/` also stay tracked: disassembling
-the ELF cannot recover their hypotheses, measurements or human decisions.
-Do not blanket-delete or untrack either directory.
-
-The proprietary CI job runs setup, `make split`, and `make regenerate-asm`
-before its existing full build and verifier, with no local configuration files.
-It requires the private inputs and approval described in
-`.github/workflows/ci.yml`; a skipped proprietary job is not regeneration proof.
-
-### Applying curated function names
-
-Add evidence-backed names to `config/symbol_names*.txt`, then run
-`make reconcile` and `python tools/apply_symbol_names.py`. The default migration
-updates all non-generated C sources and headers together. `make names-check`
-must report no remaining C/header identifiers; `make verify` and `make build`
-then check the source objects and both retail hashes. A scoped file rename is
-refused when other C sources, headers, or fallback assembly still reference
-the address.
-
-The `INCLUDE_ASM` filenames, generated assembly symbols, and explicit
-`#define API func_<address>` linker aliases retain their historical address-form
-spellings. The build resolves those spellings and the new C names to the same
-canonical address. Do not rename generated assembly to make a C migration pass;
-`python tools/regenerate_asm.py --check` validates its pinned bytes.
-
-## Matching a function
-
-```sh
-make m2c FILE=src/Battle/btlUnit.c FUNC=func_00195850   # decompiler first draft
-python tools/fndiff.py src/Battle/btlUnit.c func_00195850  # word-by-word diff against retail
-python tools/verify.py src/Battle/btlUnit.c                 # score the whole file
-python tools/decomp_lint.py src/Battle/btlUnit.c            # before committing
-```
-
-`fndiff.py` prints the differing words with the retail instruction beside
-yours; `docs/matching.md` catalogues what each kind of residual means and
-which source shape fixes it. The rules of the road:
-
-- A function that is not `MATCH` keeps its `INCLUDE_ASM` line. Nothing
-  non-matching is committed as live C.
-- The `// FUN_` marker is the verifier's denominator: never delete or move
-  one without moving the function.
-- Document useful pragma measurements; compiler controls and `register` are
-  legitimate C. Lint checks push/pop nesting, while `pragma_audit.py` rejects
-  spellings the compiler would silently ignore.
-- No assembly transcription counted as recovered C. Hardware assembly and
-  pure compiler memory barriers are legitimate; ordinary computation in
-  assembly is an integrity error. A byte-match note alone cannot waive it.
-
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for how to pick a target and what a
-finished function looks like, and the wiki for the long version.
-
-## Layout
+## Project structure
 
 ```text
-src/            matching C, one file per original translation unit
-  renderware/   RenderWare Graphics 3.7 ported verbatim (build 119 units)
-  promoted/     game units named by address range (code1_XXXX.c) until identified
-  rw/ cri/ sce/ middleware tracked for the byte-exact image, not decompiled
-  generated/    raw m2c candidates (M2C_CANDIDATE); never authoritative
-include/        project types and headers; include/rw/ is the RenderWare SDK
-config/         target, symbols, compiler/flag lists, generated-ASM manifest
-asm/            assembler support, retail split output, and fallback assembly
-  nonmatchings/ manifest-classified generated fallbacks and retained manual ASM
-tools/          setup, build, verify, lint, progress and analysis tools
-tests/          deterministic tests for the tooling
-docs/           matching playbook, style rules, compiler floors, probe archive
-  probe_archive/ tracked C recovery probes; not regenerable retail disassembly
-progress/       published progress endpoints (GitHub Pages)
-orig/ build/    extracted retail files and build output (ignored)
+src/                 recovered C and INCLUDE_ASM fallbacks
+src/promoted/        units whose original ownership is partly unresolved
+include/             project and middleware headers
+config/              addresses, names, compiler choices and assembly manifest
+tools/               extraction, build, verification and analysis
+tests/               tooling regression tests
+wiki/                setup and contributor guides
+docs/                compiler findings and technical references
+docs/probe_archive/  saved C attempts and measurements
+progress/            committed progress reports
+orig/ asm/ assets/   local retail inputs and generated data, with tracked ASM exceptions
+build/               local build output (ignored)
 ```
 
-## Related
+The [documentation index](wiki/Home.md) points to the detailed guides.
+Probe records stay tracked: the retail executable can reproduce disassembly,
+not the source hypotheses and measurements used to recover it.
 
-- [Persona 3 FES decompilation](https://github.com/Raikaru/Persona3-FES-Decompilation)
-  shares a large part of this engine; `make shared-p3` cross-references the
-  two without copying anything between them.
-- [decomp.dev](https://decomp.dev/Raikaru/Persona4-Decompilation) tracks the
-  progress reported by CI.
+## Related projects
+
+- [Persona 3 FES](https://github.com/Raikaru/Persona3-FES-Decompilation)
+  shares engine code. `make shared-p3 P3_ROOT=/path/to/Persona3-FES-Decompilation`
+  compares the trees without copying source.
+- [Digital Devil Saga 1 & 2](https://github.com/Raikaru/dds-decomp)
+  reconstructs earlier games in the same engine family.

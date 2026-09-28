@@ -1,48 +1,70 @@
 # Tools
 
-Everything runs from the repository root with `python tools/<name>.py`. Set
-`PYTHONNOUSERSITE=1` (or use `python -E -s`) so a user site-packages cannot
-change the toolchain's behaviour; the Makefile does this for you.
+Run everything from the repository root. Most scripts print their options
+with `--help`, and each one's docstring describes it in more detail. This page
+lists the ones you are likely to need.
 
-## The pipeline
+## Setup and build
 
-| Tool | Does |
+| Command | Does |
 | --- | --- |
-| `setup.py` (`make setup`) | verifies the ISO against Redump, extracts `orig/SLUS_217.82` and `image.bin` |
-| `build.py --setup-only`, `make split` | writes the splat configuration and extracts the retail assembly |
-| `verify.py [files] [--json report]` | compiles, compares every marker, cross-checks callees and data symbols; the authoritative score |
-| `build.py [--progress-report json]` | compiles, decides link eligibility, links, checks both SHA-1s and the link floor |
-| `decomp_lint.py [files]` | style, pragma-justification, inline-asm, marker and CRLF rules; `--errors-only` for the gate |
-| `pragma_audit.py` | compiles every pragma spelling in the tree against the real compiler; inert ones fail the test |
-| `progress.py`, `recovery_quality.py`, `gen_decomp_report.py` | the README table, `progress/` endpoints and the decomp.dev report |
-| `mwccgap/` | the compile wrapper that splices `INCLUDE_ASM` bodies in (vendored) |
-| `eegcc_shim.py` | drives ee-gcc 2.96 for the GCC units |
+| `make setup ISO=...` (`tools/setup.py`) | checks the disc hash, writes `orig/` and `image.bin` |
+| `make split` | runs splat on `image.bin` |
+| `make regenerate-asm` (`tools/regenerate_asm.py`) | recreates manifest-listed `INCLUDE_ASM` fallbacks and checks their hashes; `--check` compares without writing |
+| `make build` (`tools/build.py`) | compiles, links eligible objects, checks both SHA-1s and the link floor; `--progress-report PATH`, `--linker-backend gnu\|mwld`, `--setup-only` |
+| `make verify` (`tools/verify.py [files]`) | per-function comparison with retail; `--json PATH`, `--show-mismatches`, `--skip-gcc-units` |
+| `make` | `build`, then `verify` |
+| `make test` | tooling tests under `tests/` |
+| `make lint`, `make lint-errors` (`tools/decomp_lint.py`) | source-honesty and marker checks on first-party code; `--list` prints the rules |
+| `tools/explain_ineligible.py` | why a unit is not in the link |
+
+`tools/mwccgap/` (vendored) compiles a unit with MWCC and assembles its
+`INCLUDE_ASM` bodies into the object. `tools/eegcc_shim.py` does the same job
+for ee-gcc units.
 
 ## Working on a function
 
-| Tool | Does |
+| Command | Does |
 | --- | --- |
-| `fndiff.py <file> <func> [--addr]` | side-by-side disassembly of your object vs retail, relocations annotated |
-| `m2c_decompile.py` (`make m2c FILE= FUNC=`), `m2c_bulk.py` | decompiler first drafts into `src/generated/` |
-| `build/RECON_dis.py <addr>` | retail disassembly of a window; Ghidra-backed (`gmcp serve --port 8091 --file orig/SLUS_217.82`) so EE COP1/VU ops decode |
-| `knob_sweep.py`, `probe_variants.py`, `permute*.py` | try pragma spellings / source permutations on a candidate automatically |
-| `floor_census.py`, `nd_audit.py`, `residual_census.py` | rank open functions by size, measured distance, floor category |
-| `probe_archive.py`, `build/archive_sweep.py` | manage and re-measure `docs/probe_archive/` |
-| `gen_objdiff.py` (`make objdiff`) | objdiff-cli project for interactive whole-object diffing |
-| `map_shared_p3.py` (`make shared-p3`) | Persona 3 FES twin map |
+| `tools/fndiff.py <file> <function> [--addr]` | object against retail, word by word, with relocations |
+| `tools/fnalign.py <file> <function> [--candidate body.c]` | aligns object and retail instructions, so a missing or extra instruction shows as one edit instead of shifting every later row |
+| `make m2c-setup`, `make m2c FILE= FUNC=` | install pinned m2c; draft one function into `build/m2c/` |
+| `make ctx CTX_SRC=<file>` (`tools/m2ctx.py`) | flattened context for decomp.me or the permuter |
+| `tools/recon_dis.py <addr>` | retail disassembly; decodes EE COP1/VU instructions when a Ghidra server is running |
+| `tools/eedis.py`, `tools/jtbl.py` | decode one EE instruction; decode a switch jump table |
+| `tools/micro_codegen.py` | compile a standalone snippet with the project's MWCC and print the code |
+| `tools/pragma_sweep.py`, `tools/probe_variants.py`, `tools/probe_search.py` | try pragmas or source spellings in isolated copies of the unit |
+| `tools/permute.py`, `tools/permute_ast.py` | randomized source search, scored by the verifier's masked comparison |
+| `tools/park.py` | move a candidate body behind `#ifdef NON_MATCHING` at a bare fallback |
+| `make objdiff`, `make objdiff-objects ONLY=<unit>` | objdiff project and objects for interactive diffing |
 
-## RenderWare
+## Finding work
 
-| Tool | Does |
+| Command | Does |
 | --- | --- |
-| `build/rw_fid.py` | fingerprint the RenderWare sources against the block -> `build/rw_fid.json`, `build/rw_map.txt` |
-| `build/rw_port.py <dir>/<file>.c [--install]` | generate, verify and install a verbatim unit |
-| `build/rw_hints.py` | rwID / memory-hint constants, gp slots and calls per block function |
+| `tools/floor_census.py --report <verify.json>` | unattempted functions versus recorded floors |
+| `tools/recon_pool.py` | ranks candidates by measurement |
+| `tools/nd_audit.py`, `tools/probe_archive.py` | re-measure parked and archived attempts |
+| `make recovery` (`tools/recovery_quality.py`) | matched files that still need names, types or comments |
+| `make shared-p3 P3_ROOT=...` (`tools/map_shared_p3.py`) | map Persona 3 FES functions to their P4 counterparts |
+| `tools/ida_headstart.py`, `tools/ghidra_headstart.py` | batch decompiler drafts for unmatched first-party functions |
 
-## Symbols and names
+## Symbols, names and boundaries
 
-| Tool | Does |
+| Command | Does |
 | --- | --- |
-| `recover_symbols.py` | `config/symbol_data_addrs.txt` -> `config/symbols_recovered.txt` (run after adding a symbol) |
-| `apply_symbol_names.py`, `port_p3_names.py`, `mine_name_strings.py`, `file_strings.py` | name recovery from strings and the P3 twin |
-| `reconcile_function_boundaries.py` (`make reconcile`), `attribute_windows.py`, `tu_audit.py` | keep the window table, markers and units consistent |
+| `tools/recover_symbols.py` | regenerates `config/symbols_recovered.txt` from matched code and `config/symbol_data_addrs.txt` |
+| `make names` | port P3 names, mine name strings, reconcile the map, apply names to the source |
+| `make names-check` | fails if a recovered name has not been applied |
+| `make reconcile` (`tools/reconcile_function_boundaries.py`) | rebuilds the canonical function map and `config/symbol_addrs.txt` |
+| `make file-strings`, `make tu-audit P3_ROOT=...` | original file names from `__FILE__` strings; proposed unit boundaries |
+| `tools/port_rw_names.py` | vendor-library names from other games' symbol tables |
+
+## Progress
+
+| Command | Does |
+| --- | --- |
+| `make build-progress` | build and write `build/linked_report.json` |
+| `make progress` | full verify, then regenerate `progress/` and the README status table |
+| `make progress-validate` | check the committed `progress/` files |
+| `make objdiff-report` (`tools/gen_decomp_report.py`) | the decomp.dev report, from verifier data |
