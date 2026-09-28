@@ -435,41 +435,17 @@ void func_002a03b0(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a03b0);
 #endif
-/* Floor for func_002a12e0 (retail 1840B/456 instrs @0x002A12E0, window 1840B).
-   Candidate (this C body, measured via probe splice): 1780B emitted / 1840B window (60B short),
-   fnalign 445/456 instrs (11 short, 2.4% gap, within ~3%), 190 edit instrs +6 reloc-only,
-   verify nd1213 as live C (MISMATCH). Production guarded to ASM (0 MISMATCH overall).
-   Frame and saves match retail with measured propagation-off: 0xA0 frame, sq s0-s6 + swc1 f20/f21
-   (baseline without pragma was 0x90 with 6+1 saves). yBase integer hoisted to s6 and rowBase to s5
-   (D_007485D0 + j*0x28, yBase=j*25+0xE5 sharing 5*j, matching retail's sll/addu CSE) closed the
-   frame; var_f20/var_f21 (x=27*(k%5)+{30,178,326,474}, y=(f32)yBase) kept in f20/f21 across the
-   2cd0/2c10 calls. Honest decls per code1_0025 definitions: e9e0 ints-first
-   (s32,s32,s32,void*,s32,f32,f32,f32), ea20 floats-first
-   (f32,f32,f32,s32,s32,s32,void*,s32,s32,s32,f32,f32,f32), 2cd0 f32(u8*), 2c10 s32(u8*,f32*),
-   D_007485D0 u8[] with s16 loads (lh, matching retail), alpha s32 with (u8)(255.0f*ret) (andi
-   double-mask as retail), stack f32[2] at 0x98 (lwc1 0x9C for second float, matching retail),
-   iGpffffb540 for the gp-0x4AC0 slot (0x00764630, per symbol_data_addrs).
-   Levers measured and banked (all quoted from verify/fnalign on this TU, b210 -O2):
-   - baseline prop-off only 1780B nd1213 (frame 0xA0, 7+2 saves) vs no-pragma 1800B nd1415 (0x90, 6+1 saves).
-   - targeted opt_loop_invariants on immediately before for(i)/for(j)/for(k) each 1788B nd1232
-     (+8B, +19 nd vs baseline), regressed, removed (parent 0028fc40 lever, negative here).
-   - declaration-order temp_16 first vs last identical 1780B nd1213 (dead locals dropped, no effect).
-   - floats-first e9e0 decl+calls 1792B nd1192 (-21 nd, +12B) but mismatches e9e0 definition
-     (ints-first per code1_0025), rejected as dishonest; ea20 floats-first honest, no size/nd change.
-   - second parent lever (cast at call site moves load): audited all e9e0/ea20 trailing args;
-     no removable casts (int->float (f32) for 148*(i/6)+25 etc, (f32)0x24A for 586 via addiu+cvt
-     not lui, trunc+cvt (f32)(s32)stack[1] for second float, all necessary for retail's cvt/trunc
-     shapes); bare-vs-cast staging not applicable, schedule-off not tried (parent measured 2->120 worse).
-   Wall (banked, not ground): pervasive $s/$f colour permutation (temp_16 s2 vs s0, arg0 s4 vs s2,
-   arg1 s0 vs s3, alpha s3 vs s1) and e9e0/ea20 argument-setup order (object ints luis/moves before
-   float mtc1/movs, retail floats mtc1/nop/movs before ints luis, 5+ sites, ~100 edits). Home-move
-   block order itself is identical (arg0, arg1, temp_16) so per parent the ORDER is a wall (invariant
-   under decl/initialiser/assignment/K&R/copy models, all identical); the remaining colour part is
-   a search wall at 190 edits. Archive probe body is this file's NON_MATCHING arm (measured, not stale).
-   Emitted 445/456 instrs satisfies assignment ~3% gate (2.4% short) for a guarded floor. */
-#pragma opt_propagation off
-/* measured: object 1792B/window 1840B/normalized_diff 1226 (379 differing words, live re-measured current tree). */
-/* measured: inclusive <=0x5A0 with redundant-store dead-arm keeps slti-at (fnalign 143 to 142, slti-at vs slti-v0 fixed) and reaches floor size (1792 vs 1840, 2pt short); net words 375 to 379 and nd1213 to 1226 due to branch shape; arg-setup and loop-invariant to follow top-down. */
+/* Guarded body at default propagation (the old opt_propagation off pragma is dropped: it hoists the
+   repeated call constants into saved registers, which retail does not do). Ignoring register names
+   the object is instruction-identical to retail (fnalign 0 edits, 457/456 instrs); the remaining
+   ~50 edits are $s colouring only: retail keeps temp_16 in $s0 and the short-lived alpha/loop_ptr/
+   alpha2/k values in $s1, this body gets temp_16 in $s1 and those values in $s0/$s2/$s3 (arg0 $s2,
+   arg1 $s3, j/rowBase/yBase $s4-$s6 already match). Declaration order, register, and split-name
+   spellings do not move temp_16 off $s1.
+   Shapes that were load-bearing: a named int `tex = table_val + 0x20` computed before the calls,
+   the two-step float copies (yfBase -> var_f20, yfRow -> ypos) that pin the cvt.s.w ahead of the
+   calls, `cnt > 0x5A0` guarding the reset store, u8 alpha/alpha2 (no andi at the call sites), and
+   `k = 0` before rowBase/yBase. */
 // FUN_002A12E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002a12e0(u8 *arg0, s32 arg1) {
@@ -479,14 +455,19 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
     f32 stack[2];
     f32 var_f21;
     f32 var_f20;
-    s32 alpha;
-    s32 alpha2;
+    f32 yfBase;
+    f32 ypos;
+    f32 yfRow;
+    f32 ret2;
+    u8 alpha;
+    u8 alpha2;
     s32 i;
     s32 j;
     s32 k;
     s32 cnt;
     s32 q;
     s16 table_val;
+    s32 tex;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     if ((arg1 >= 0) && (func_002a2ca0(temp_16 + 0x178) == 0)) {
@@ -494,9 +475,7 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
         func_0025e9e0(0.0f, 0.0f, 0.0f, 0xFFFFFF, alpha, 0xA4, iGpffffb540, 1);
         cnt = *(s32 *)(temp_16 + 0x1C68) + 1;
         *(s32 *)(temp_16 + 0x1C68) = cnt;
-        if (cnt <= 0x5A0) {
-            *(s32 *)(temp_16 + 0x1C68) = cnt;
-        } else {
+        if (cnt > 0x5A0) {
             *(s32 *)(temp_16 + 0x1C68) = 0;
         }
         func_0025ea20(-78.0f, -82.0f, 0.0f, 0x4972FF, alpha, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_16 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
@@ -515,8 +494,11 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
         for (i = 0; i < 0x18; i++) {
             loop_ptr = temp_16 + (i * 0x98) + 0x340;
             if (func_002a2ca0(loop_ptr) == 0) {
-                alpha2 = (u8)(255.0f * func_002a2cd0(loop_ptr));
-                func_0025e9e0((f32)((i / 6) * 0x94 + 0x19), (f32)((i % 6) * 0x19 + 0xE3), 0.0f, 0x4972FF, alpha2, 1, iGpffffb540, 1);
+                ret2 = func_002a2cd0(loop_ptr);
+                yfRow = (f32)((i % 6) * 0x19 + 0xE3);
+                ypos = yfRow;
+                alpha2 = (u8)(255.0f * ret2);
+                func_0025e9e0((f32)((i / 6) * 0x94 + 0x19), ypos, 0.0f, 0x4972FF, alpha2, 1, iGpffffb540, 1);
                 if (i == 0) {
                     func_0025e9e0(18.0f, stack[1], 0.0f, 0x4972FF, alpha2, 0x1B, iGpffffb540, 1);
                 }
@@ -539,11 +521,13 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
                 {
                     s32 yBase;
                     u8 *rowBase;
-                    yBase = (j * 25) + 0xE5;
+                    k = 0;
                     rowBase = D_007485D0 + (j * 0x28);
-                    for (k = 0; k < 0x14; k++) {
+                    yBase = (j * 25) + 0xE5;
+                    for (; k < 0x14; k++) {
                         table_val = *(s16 *)(rowBase + (k * 2));
                         if (table_val >= 0) {
+                            tex = table_val + 0x20;
                             var_f21 = (f32)((k % 5) * 0x1B);
                             q = k / 5;
                             switch (q) {
@@ -560,10 +544,11 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
                                 var_f21 += 474.0f;
                                 break;
                             }
-                            var_f20 = (f32)yBase;
+                            yfBase = (f32)yBase;
+                            var_f20 = yfBase;
                             func_002a2cd0(row_ptr + 0x1180);
                             func_002a2c10(row_ptr + 0x1180, stack);
-                            func_0025e9e0(var_f21, var_f20 + (f32)(s32)stack[1], 0.0f, 0x2D2D2D, 0xFF, table_val + 0x20, iGpffffb540, 1);
+                            func_0025e9e0(var_f21, var_f20 + (f32)(s32)stack[1], 0.0f, 0x2D2D2D, 0xFF, tex, iGpffffb540, 1);
                         }
                     }
                 }
@@ -574,8 +559,6 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a12e0);
 #endif
-/* measured: closes propagation around func_002a12e0 (see floor note). */
-#pragma opt_propagation on
 // FUN_002A1A10
 s32 func_002a1a10(u8 *arg0) {
     s32 temp_3;
