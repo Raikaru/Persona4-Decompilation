@@ -1298,42 +1298,14 @@ void func_002b83e0(u8 *arg0, FclVec2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5,
     *(s16 *)arg0 |= 1;
 }
 
-/* measured: complete six-chain state machine decompiled (0x2/0x80/0x4/0x200/
-   0x10/8 flag dispatches, recipe-A byte conversions at 0x5C-0x77 - single bare
-   bltz, direct inline, doubled arm out of line, byte-exact - the (u8)(s32)tf
-   clamp, the 5-arg func_002b2aa0/2cb0/2d00 calls, the 0x100 special). The
-   prologue through the first 2aa0 call is byte-identical; nd 907 from there
-   (obj 3924B vs window 4368B, 111 instructions short). Residuals: (1) the
-   2aa0 argument-materialization order - retail computes the 0x32 cvt ($f14)
-   BEFORE the 0x30/2 sra chain ($f15), mwcc b210 always emits the long /2
-   chain first (same wall as func_002b6340's note); (2) my tf = f intermediate
-   for the conversion result adds mov.s where retail's $f12/$f13 flow directly
-   (m2c's var_f12/var_f13 are single assignments); (3) the size deficit
-   propagates through every branch's scheduling. Not reachable in the four-
-   attempt budget; arg-order + scheduling floor. */
-/* measured 2026-09-18 banked v1 (/var/tmp/cold2b89a0/v1.c): retail 1091 instrs, object 1084 instrs, band 1058.3-1123.7 (+-3%), diff -7 (-0.64%) INSIDE, 794 words, 131 edit instrs. jal retail 21x2aa0/11x2cb0/5x2d00 =37, object same 21/11/5 (source counts match). unsigned float casts 0 both sides (16 (u32) are int copies c=(u32)v; all (f32) are (s32)/(s16)/v signed). dsll32/dsra32 retail 0, object 0 (fndiff grep 0; widths are lh/lb/lbu-direct, clamp is cvt.w.s+mfc1+andi). 7r: retail 18 add.s +11 sub.s, 0 mul/madd/adda/mula; v1 has no float * (92 * are derefs), object likewise add.s for t+t doubling + sub.s for tf-threshold/+ (...-25.0f); no accumulator divergence. fnalign largest runs are replaces len 2-4 (e.g. retail[245:249] 4v3 clamp mfc1/andi/b vs sb/b; retail[545:549] same family; trick or/mtc1/cvt/add triple), plus tail insert retail[1091:1091] object[1083:1084] (1, branch-cascade tail); no missing logic. 7o eight rejects (pair $v0/$v1 trick halves 0x5C/0x5D->a0/a1, two calls of four): ff_retail 794, ff_reverse 798, bb_retail 794, bb_reverse 798; vf_cb_retail 794, vf_cb_reverse 798, vb_cf_retail 794, vb_cf_reverse 798. Retail order correct (reverse +4); scope ties. Next pass starts from this body. */
-// FUN_002B89A0 NONMATCHING
-#ifdef NON_MATCHING
+/* The byte channels go through the compiler's own unsigned conversions:
+   `(f32)(u32)byte` is retail's `lbu` + `bltz` + halved-`srl/andi/or` +
+   `add.s` sequence, and `(u8)float` is the `0x4F000000` threshold/`sub.s`
+   pair with the mask in both arms.  Hand-expanding either (an s32 copy with
+   an explicit sign test, `(u8)(s32)tf` with a threshold branch) left 131
+   edits of register colouring and moves; the plain casts match. */
+// FUN_002B89A0
 s32 func_002b89a0(u8 *arg0) {
-    s32 v0;
-    u32 c0;
-    s32 v1;
-    u32 c1;
-    s32 v2;
-    u32 c2;
-    s32 v3;
-    u32 c3;
-    s32 v4;
-    u32 c4;
-    s32 v5;
-    u32 c5;
-    f32 a0;
-    f32 a1;
-    f32 b0;
-    f32 b1;
-    f32 d0;
-    f32 d1;
-    f32 tf;
     if (((*(s16 *)arg0 & 2) >> 1) == 1) {
         if (*(s16 *)(arg0 + 0x34) == 0) {
             if (*(s8 *)(arg0 + 0x37) == 0) {
@@ -1374,51 +1346,9 @@ s32 func_002b89a0(u8 *arg0) {
     if (((*(s16 *)arg0 & 4) >> 2) == 1) {
         if (*(s16 *)(arg0 + 0x60) == 0) {
             if (*(s8 *)(arg0 + 0x63) == 0) {
-                v0 = arg0[0x5C];
-                c0 = (u32)v0;
-                if (v0 >= 0) {
-                    a0 = (f32)v0;
-                } else {
-                    f32 t = (f32)(s32)((c0 >> 1) | (c0 & 1));
-                    a0 = t + t;
-                }
-                v1 = arg0[0x5D];
-                c1 = (u32)v1;
-                if (v1 >= 0) {
-                    a1 = (f32)v1;
-                } else {
-                    f32 t = (f32)(s32)((c1 >> 1) | (c1 & 1));
-                    a1 = t + t;
-                }
-                tf = func_002b2aa0((s32)*(s8 *)(arg0 + 0x62), a0, a1, (f32)*(s16 *)(arg0 + 0x5A), (f32)*(s16 *)(arg0 + 0x58));
-                if (tf < 2147483648.0f) {
-                    arg0[0x5E] = (u8)(s32)tf;
-                } else {
-                    arg0[0x5E] = (u8)((s32)(tf - 2147483648.0f) | 0x80000000);
-                }
+                arg0[0x5E] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x62), (f32)(u32)arg0[0x5C], (f32)(u32)arg0[0x5D], (f32)*(s16 *)(arg0 + 0x5A), (f32)*(s16 *)(arg0 + 0x58));
             } else {
-                v0 = arg0[0x5C];
-                c0 = (u32)v0;
-                if (v0 >= 0) {
-                    a0 = (f32)v0;
-                } else {
-                    f32 t = (f32)(s32)((c0 >> 1) | (c0 & 1));
-                    a0 = t + t;
-                }
-                v1 = arg0[0x5D];
-                c1 = (u32)v1;
-                if (v1 >= 0) {
-                    a1 = (f32)v1;
-                } else {
-                    f32 t = (f32)(s32)((c1 >> 1) | (c1 & 1));
-                    a1 = t + t;
-                }
-                tf = func_002b2aa0((s32)*(s8 *)(arg0 + 0x62), a0, a1, (f32)*(s16 *)(arg0 + 0x5A), (f32)(*(s16 *)(arg0 + 0x58) / 2));
-                if (tf < 2147483648.0f) {
-                    arg0[0x5E] = (u8)(s32)tf;
-                } else {
-                    arg0[0x5E] = (u8)((s32)(tf - 2147483648.0f) | 0x80000000);
-                }
+                arg0[0x5E] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x62), (f32)(u32)arg0[0x5C], (f32)(u32)arg0[0x5D], (f32)*(s16 *)(arg0 + 0x5A), (f32)(*(s16 *)(arg0 + 0x58) / 2));
             }
             if (*(s16 *)(arg0 + 0x5A) < *(s16 *)(arg0 + 0x58)) {
                 *(s16 *)(arg0 + 0x5A) = func_002b2cb0((s32)*(s16 *)(arg0 + 0x5A), 1, (s32)*(s16 *)(arg0 + 0x58), 0, 1);
@@ -1440,139 +1370,13 @@ s32 func_002b89a0(u8 *arg0) {
     if (((*(s16 *)arg0 & 0x200) >> 9) == 1) {
         if (*(s16 *)(arg0 + 0x7E) == 0) {
             if (*(s8 *)(arg0 + 0x81) == 0) {
-                v0 = arg0[0x6D];
-                c0 = (u32)v0;
-                if (v0 >= 0) {
-                    a0 = (f32)v0;
-                } else {
-                    f32 t = (f32)(s32)((c0 >> 1) | (c0 & 1));
-                    a0 = t + t;
-                }
-                v1 = arg0[0x71];
-                c1 = (u32)v1;
-                if (v1 >= 0) {
-                    a1 = (f32)v1;
-                } else {
-                    f32 t = (f32)(s32)((c1 >> 1) | (c1 & 1));
-                    a1 = t + t;
-                }
-                tf = func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), a0, a1, (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
-                if (tf < 2147483648.0f) {
-                    arg0[0x75] = (u8)(s32)tf;
-                } else {
-                    arg0[0x75] = (u8)((s32)(tf - 2147483648.0f) | 0x80000000);
-                }
-                v2 = arg0[0x6E];
-                c2 = (u32)v2;
-                if (v2 >= 0) {
-                    b0 = (f32)v2;
-                } else {
-                    f32 t = (f32)(s32)((c2 >> 1) | (c2 & 1));
-                    b0 = t + t;
-                }
-                v3 = arg0[0x72];
-                c3 = (u32)v3;
-                if (v3 >= 0) {
-                    b1 = (f32)v3;
-                } else {
-                    f32 t = (f32)(s32)((c3 >> 1) | (c3 & 1));
-                    b1 = t + t;
-                }
-                tf = func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), b0, b1, (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
-                if (tf < 2147483648.0f) {
-                    arg0[0x76] = (u8)(s32)tf;
-                } else {
-                    arg0[0x76] = (u8)((s32)(tf - 2147483648.0f) | 0x80000000);
-                }
-                v4 = arg0[0x6F];
-                c4 = (u32)v4;
-                if (v4 >= 0) {
-                    d0 = (f32)v4;
-                } else {
-                    f32 t = (f32)(s32)((c4 >> 1) | (c4 & 1));
-                    d0 = t + t;
-                }
-                v5 = arg0[0x73];
-                c5 = (u32)v5;
-                if (v5 >= 0) {
-                    d1 = (f32)v5;
-                } else {
-                    f32 t = (f32)(s32)((c5 >> 1) | (c5 & 1));
-                    d1 = t + t;
-                }
-                tf = func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), d0, d1, (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
-                if (tf < 2147483648.0f) {
-                    arg0[0x77] = (u8)(s32)tf;
-                } else {
-                    arg0[0x77] = (u8)((s32)(tf - 2147483648.0f) | 0x80000000);
-                }
+                arg0[0x75] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6D], (f32)(u32)arg0[0x71], (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
+                arg0[0x76] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6E], (f32)(u32)arg0[0x72], (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
+                arg0[0x77] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6F], (f32)(u32)arg0[0x73], (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
             } else {
-                v0 = arg0[0x6D];
-                c0 = (u32)v0;
-                if (v0 >= 0) {
-                    a0 = (f32)v0;
-                } else {
-                    f32 t = (f32)(s32)((c0 >> 1) | (c0 & 1));
-                    a0 = t + t;
-                }
-                v1 = arg0[0x71];
-                c1 = (u32)v1;
-                if (v1 >= 0) {
-                    a1 = (f32)v1;
-                } else {
-                    f32 t = (f32)(s32)((c1 >> 1) | (c1 & 1));
-                    a1 = t + t;
-                }
-                tf = func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), a0, a1, (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
-                if (tf < 2147483648.0f) {
-                    arg0[0x75] = (u8)(s32)tf;
-                } else {
-                    arg0[0x75] = (u8)((s32)(tf - 2147483648.0f) | 0x80000000);
-                }
-                v2 = arg0[0x6E];
-                c2 = (u32)v2;
-                if (v2 >= 0) {
-                    b0 = (f32)v2;
-                } else {
-                    f32 t = (f32)(s32)((c2 >> 1) | (c2 & 1));
-                    b0 = t + t;
-                }
-                v3 = arg0[0x72];
-                c3 = (u32)v3;
-                if (v3 >= 0) {
-                    b1 = (f32)v3;
-                } else {
-                    f32 t = (f32)(s32)((c3 >> 1) | (c3 & 1));
-                    b1 = t + t;
-                }
-                tf = func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), b0, b1, (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
-                if (tf < 2147483648.0f) {
-                    arg0[0x76] = (u8)(s32)tf;
-                } else {
-                    arg0[0x76] = (u8)((s32)(tf - 2147483648.0f) | 0x80000000);
-                }
-                v4 = arg0[0x6F];
-                c4 = (u32)v4;
-                if (v4 >= 0) {
-                    d0 = (f32)v4;
-                } else {
-                    f32 t = (f32)(s32)((c4 >> 1) | (c4 & 1));
-                    d0 = t + t;
-                }
-                v5 = arg0[0x73];
-                c5 = (u32)v5;
-                if (v5 >= 0) {
-                    d1 = (f32)v5;
-                } else {
-                    f32 t = (f32)(s32)((c5 >> 1) | (c5 & 1));
-                    d1 = t + t;
-                }
-                tf = func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), d0, d1, (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
-                if (tf < 2147483648.0f) {
-                    arg0[0x77] = (u8)(s32)tf;
-                } else {
-                    arg0[0x77] = (u8)((s32)(tf - 2147483648.0f) | 0x80000000);
-                }
+                arg0[0x75] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6D], (f32)(u32)arg0[0x71], (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
+                arg0[0x76] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6E], (f32)(u32)arg0[0x72], (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
+                arg0[0x77] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6F], (f32)(u32)arg0[0x73], (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
             }
             if (((*(s16 *)arg0 & 0x40) >> 6) == 1) {
                 *(s16 *)(arg0 + 0x7C) = func_002b2cb0((s32)*(s16 *)(arg0 + 0x7C), 1, (s32)*(s16 *)(arg0 + 0x7A), 1, 2);
@@ -1651,9 +1455,6 @@ s32 func_002b89a0(u8 *arg0) {
     }
     return (s32)arg0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b89a0);
-#endif
 
 /* measured: opt_loop_invariants on is required for the signed-short loop
    preheader/register shape; removing it produced obj 860B/window 864B with
