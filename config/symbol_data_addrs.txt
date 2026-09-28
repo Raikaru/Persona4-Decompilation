@@ -1018,3 +1018,6 @@ D_0075CA80 = 0x0075ca80; // type:data evidence: retail func_004ece70 004ECE98/00
 
 // MPEG video delimiter state reset's 5-word module singleton.
 D_00743D38 = 0x00743d38; // type:data evidence: retail func_005049f0 005049F4/005049FC HI16/LO16
+
+// Model-effect default position constant, read by func_00349440 from the retail GP slot.
+iGpffff8518 = 0x00761608; // type:data evidence: func_00349440 lwc1 $f0,-0x7AE8($28) at 0x00349680; native R_MIPS_GPREL16; GP 0x007690F0
