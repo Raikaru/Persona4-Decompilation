@@ -83,7 +83,7 @@ extern s32 func_001f7140(u8 *arg0);
 extern void func_001f62b0(void);
 extern s32 func_001f62f0(u8 *arg0);
 extern void func_001f86d0(void);
-extern void func_001f9a50(u16 arg0, s32 arg1);
+extern void func_001f9a50(s32 arg0, s32 arg1);
 extern void func_001f9a90(void);
 extern void func_00213bb0(s32 arg0);
 extern void func_00213be0(s32 arg0);
@@ -1242,189 +1242,185 @@ void func_001a24a0(u8 *arg0)
 {
     *(s32 *)(arg0 + 0x41c) = 1;
 }
-// FUN_001A24B0 NONMATCHING
-/* measured 001a24b0: 346 differing words guarded via `python3 tools/measure_guarded.py src/promoted/code1_001a.c func_001a24b0` (GUARDED_SCORE 346); probe 346 via `python3 tools/probe_variants.py src/promoted/code1_001a.c func_001a24b0 --candidate f=/tmp/cand_24b0f.c`; fnalign retail 392 vs object 404 instrs (1616B/1568B, 3.1% over), 522 edits (+5 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_001a.c func_001a24b0 --candidate /tmp/cand_24b0f.c --quiet`. Levers copied: block-scope loop counters (shared s32 k across disjoint loops claims saved reg; separate k per loop), compare operand order decides load order (cand != base emits word first as retail), if/else descending 4/3/2/1 beats switch (347/411 vs 346/404), opt_common_subs off hurts here (376/439) so none installed, redundant (flag & 0xFFFF) removal saves 4 instrs (408->404). Extern audit: func_00193cd0(u32)->u32 (bnez $v0), func_001d3700(u16,u16)->BtlPacket* (daddu $v0), func_00194590(u8*,u32)->s32 (return ignored, kept file decl), func_0019bbe0/bdd0/bd00 (u8*, correct widths; (u32)-1 for -1, 0xFFFFFF for case1 else), func_002186c0(u8*,s32) needs (u8**) cast on task (illegal implicit conversion otherwise), D_008C024E as D_008C024C[1] (only D_008C024C registered, +2 bytes). Frame 0x40, saves s16-s18/ra; dispatch reuses $4=3 into case1 call (if/else preserves carry, switch does not). 1 instr over 3% threshold (404 vs 403); banked as honest floor for next agent to shave. */
-/* measured 001a24b0: retail checks 4,3,2,1 descending but handlers 1,2,3,4 ascending (H1 at R26 first) vs C 4,3,2,1 descending handlers descending - one block move to `if (state==1)..else if (2)..else if (3)..else if (4)` + plain `s32 i` loop (`while (i<..)`, `i*4`, `i+1` vs `(i&0xFFFF)` masks): fnalign 404/392,522 -> 403/392,310 (-212, -40%), words 346 -> 338 (GUARDED_SCORE via `python3 tools/measure_guarded.py src/promoted/code1_001a.c func_001a24b0`); +11 over (2.8% within gate, was +12/3.1% outside). switch 1,2,3,4 gives 404/309/289 but +12 outside gate, so if/else ascending wins for gate. */
-/* measured 001a24b0 (owner, 2026-09-20): hand switch both orders from the banked if-chain (identical bodies, braced cases) via `python3 tools/probe_variants.py src/promoted/code1_001a.c func_001a24b0 --candidate asc=/tmp/switch_asc.c --candidate desc=/tmp/switch_desc.c` + `python3 tools/fnalign.py src/promoted/code1_001a.c func_001a24b0 --candidate ... --quiet`: asc 1,2,3,4 gives 309 words / 289 edits / 404 obj, desc 4,3,2,1 gives 343 / 541 / 405 (baseline if-chain 338 / 310 / 403). Asc dispatch aligns (retail beq 4,3,2,1 with H1 first, 10-instr delete gone) but 404 is +12 over gate (403.76) so the inside-gate if-chain stays. `echo src/promoted/code1_001a.c func_001a24b0 | python3 tools/deficit_scan.py`: 403 vs 392 +2.8% INSIDE, deficit -11 (not short), retail has more dsra32/dsll32/beq/andi/lhu, runs 89 at 0x001a27c4 + 11 at 0x001a2640 + 10 at 0x001a24f0. Structural (all regress): D2-for-flag 311/288/406, D2mask/u16 318, lim-hoist delay 313. Loops do-while each alone on asc base: L1-list1 324, L2-array 318, L3 309, L4 309, L5 310, L6 309, L7-list4 309 vs 309 (retail is `b ->test` while-shape in every loop per asm, none bottom-tested). Banked. */
-#ifdef NON_MATCHING
-void func_001a24b0(u8 *arg0)
+/* measured: 1564/1568 bytes, 47 resolved relocations, four zero tail bytes.
+ * Loop invariants hoist the first scan's true value and each unsigned wrap
+ * bound as retail does. Stored short cursor and widened index stay distinct. */
+// FUN_001A24B0
+#pragma push
+#pragma opt_loop_invariants on
+void func_001a24b0(u8 *action)
 {
     extern u16 D_008C024C[];
-    extern s32 func_0045af60();
-    s32 state;
-
+    extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
 
     if (func_00193cd0(0x800) != 0) {
         return;
     }
-    state = *(s32 *)(arg0 + 0x41C);
-    if (state == 1) {
-        u8 *pkt;
-        u8 *var_17;
-        u8 *temp_2;
-        pkt = (u8 *)func_001d3700(3, 0xFFF);
-        *(s64 *)(pkt + 0x60) = *(s64 *)arg0;
-        func_00194590(pkt, 0);
-        var_17 = *(u8 **)(D_0076449C + 0x174);
-        while (var_17 != NULL) {
-            if ((*(u16 *)(var_17 + 0x1A) & 1) != 0) {
-                if (arg0 == var_17 || (*(u16 *)(var_17 + 0x1A) & 8) == 0) {
-                    temp_2 = func_0019bdd0(*(u8 **)(var_17 + 0x30));
+    switch (*(s32 *)(action + 0x41C)) {
+    case 1: {
+        u8 *openingPacket;
+        u8 *iter;
+        s32 hasOther;
+        u8 *selected;
+        s16 index;
+
+        openingPacket = (u8 *)func_001d3700(3, 0xFFF);
+        *(s64 *)(openingPacket + 0x60) = *(s64 *)action;
+        func_00194590(openingPacket, 0);
+        iter = *(u8 **)(D_0076449C + 0x174);
+        while (iter != NULL) {
+            u8 *packet;
+            if (*(u16 *)(iter + 0x1A) & 1) {
+                if (action == iter || !(*(u16 *)(iter + 0x1A) & 8)) {
+                    packet = func_0019bdd0(*(u8 **)(iter + 0x30));
                 } else {
-                    temp_2 = func_0019bbe0(*(u8 **)(var_17 + 0x30), 0xFFFFFF, 8, 0, 4, 0);
+                    packet = func_0019bbe0(*(u8 **)(iter + 0x30), 0xFFFFFF, 8, 0, 4, 0);
                 }
-                *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
-                func_00194590(temp_2, 0);
+                *(s64 *)(packet + 0x60) = *(s64 *)action;
+                func_00194590(packet, 0);
             }
-            var_17 = *(u8 **)(var_17 + 0x450);
+            iter = *(u8 **)(iter + 0x450);
         }
+        selected = *(u8 **)(action + 0x38);
+        func_001d7c60(action, action + 0x98, 2, 0, 0);
+        hasOther = 0;
+        *(u16 *)(action + 0xD2) = *(u16 *)(action + 0xD0);
+        index = 0;
+        while ((s16)index < *(u16 *)(action + 0xD0)) {
+            u8 **slot = (u8 **)(action + (s16)index * 4 + 0x98);
+            if (*slot == selected) {
+                *(u16 *)(action + 0xD2) = index;
+            }
+            if (*(u16 *)(*(u8 **)(*slot + 0x30) + 0xA4) !=
+                *(u16 *)(*(u8 **)(selected + 0x30) + 0xA4)) {
+                hasOther = 1;
+            }
+            index++;
+        }
+        func_00213be0(*(s32 *)(D_0076449C + 0xDD4));
+        func_00218560(*(u8 **)(D_0076449C + 0xDD4), selected);
+        if (hasOther) {
+            func_00218730(*(s32 *)(D_0076449C + 0xDD4));
+        }
+        func_001a03b0((s64 *)action);
         {
-            u8 *base38 = *(u8 **)(arg0 + 0x38);
-            s32 var_18;
-            s32 i;
-            func_001d7c60(arg0, arg0 + 0x98, 2, 0, 0);
-            var_18 = 0;
-            *(u16 *)(arg0 + 0xD2) = *(u16 *)(arg0 + 0xD0);
-            i = 0;
-            while (i < *(u16 *)(arg0 + 0xD0)) {
-                if (*(u8 **)(arg0 + (i * 4) + 0x98) == base38) {
-                    *(u16 *)(arg0 + 0xD2) = (u16)i;
-                }
-                if (*(u16 *)(*(u8 **)(*(u8 **)(arg0 + (i * 4) + 0x98) + 0x30) + 0xA4) != *(u16 *)(*(u8 **)(base38 + 0x30) + 0xA4)) {
-                    var_18 = 1;
-                }
-                i = i + 1;
-            }
-            func_00213be0(*(s32 *)(D_0076449C + 0xDD4));
-            func_00218560(*(u8 **)(D_0076449C + 0xDD4), base38);
-            if (var_18 != 0) {
-                func_00218730(*(s32 *)(D_0076449C + 0xDD4));
-            }
-            func_001a03b0((s64 *)arg0);
-            temp_2 = btlCameraCreateSetStatePacket(base38, 1);
-            *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
-            func_00194590(temp_2, 0);
-            func_001f62b0();
-            func_001f86d0();
-            if (func_001eb860() == 1) {
-                *(s32 *)(D_0076449C + 0xC) &= ~0x2000;
-                func_00212240(*(u8 **)(D_0076449C + 0xDD4), 0);
-            }
-            *(s32 *)(arg0 + 0x41C) = 2;
+            u8 *cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)selected, 1);
+            *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
+            func_00194590(cameraPacket, 0);
         }
-        return;
-    } else if (state == 2) {
+        func_001f62b0();
+        func_001f86d0();
+        if (func_001eb860() == 1) {
+            *(s32 *)(D_0076449C + 0xC) &= ~0x2000;
+            func_00212240(*(u8 **)(D_0076449C + 0xDD4), 0);
+        }
+        *(s32 *)(action + 0x41C) = 2;
+        break;
+    }
+    case 2: {
         if (func_00218690(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
-            u8 *slot = *(u8 **)(*(u8 **)(arg0 + 0x38) + 0x30);
-            if (slot != NULL) {
-                s32 v = func_001f62f0(slot);
-                if (v >= 0) {
-                    func_001f9a50((u16)v, 1);
+            u8 *unit = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
+            if (unit != NULL) {
+                s32 resource = func_001f62f0(unit);
+                if (resource >= 0) {
+                    func_001f9a50((u16)resource, 1);
                 }
             }
-            *(s32 *)(arg0 + 0x41C) = 3;
+            *(s32 *)(action + 0x41C) = 3;
         }
-        return;
-    } else if (state == 3) {
-        u16 flag = D_008C024C[1];
-        if (((flag & 8) != 0) || ((flag & 4) != 0)) {
-            u8 *base38;
-            s32 curD2;
-            s32 limD0;
-            base38 = *(u8 **)(arg0 + 0x38);
-            curD2 = (s32)(s16)*(u16 *)(arg0 + 0xD2);
-            limD0 = *(u16 *)(arg0 + 0xD0);
-            if ((flag & 8) != 0) {
-                s32 idx = curD2;
-                s32 lim = limD0;
-                while ((s32)(s16)idx < lim) {
-                    u8 *cand = *(u8 **)(arg0 + ((s32)(s16)idx * 4) + 0x98);
-                    if (*(u16 *)(*(u8 **)(cand + 0x30) + 0xA4) != *(u16 *)(*(u8 **)(base38 + 0x30) + 0xA4)) {
+        break;
+    }
+    case 3: {
+        u16 input = D_008C024C[1];
+        if ((input & 8) || (input & 4)) {
+            u8 *selected = *(u8 **)(action + 0x38);
+            u16 previous = *(u16 *)(action + 0xD2);
+            s32 selectedIndex;
+            s16 cursor = (s16)previous;
+            if (input & 8) {
+                s32 count = *(u16 *)(action + 0xD0);
+                while ((selectedIndex = (s16)cursor) < count) {
+                    u8 *candidate = *(u8 **)(action + selectedIndex * 4 + 0x98);
+                    if (*(u16 *)(*(u8 **)(candidate + 0x30) + 0xA4) !=
+                        *(u16 *)(*(u8 **)(selected + 0x30) + 0xA4)) {
                         break;
                     }
-                    idx = (s32)(s16)(idx + 1);
+                    cursor++;
                 }
-                if (lim == (s32)(s16)idx) {
-                    idx = 0;
-                    while ((s32)(s16)idx < (s32)flag) {
-                        u8 *cand = *(u8 **)(arg0 + ((s32)(s16)idx * 4) + 0x98);
-                        if (*(u16 *)(*(u8 **)(cand + 0x30) + 0xA4) != *(u16 *)(*(u8 **)(base38 + 0x30) + 0xA4)) {
+                if (count == selectedIndex) {
+                    cursor = 0;
+                    while ((selectedIndex = (s16)cursor) < (u16)previous) {
+                        u8 *candidate = *(u8 **)(action + selectedIndex * 4 + 0x98);
+                        if (*(u16 *)(*(u8 **)(candidate + 0x30) + 0xA4) !=
+                            *(u16 *)(*(u8 **)(selected + 0x30) + 0xA4)) {
                             break;
                         }
-                        idx = (s32)(s16)(idx + 1);
+                        cursor++;
                     }
                 }
-                if ((s32)flag != (s32)(s16)idx) {
-                    func_0045af60(0, 0, 0, 5);
-                    *(u8 **)(arg0 + 0x38) = *(u8 **)(arg0 + ((s32)(s16)idx * 4) + 0x98);
-                    *(u16 *)(arg0 + 0xD2) = (u16)idx;
-                    func_002186c0(*(u8 **)(D_0076449C + 0xDD4), *(s32 *)(arg0 + 0x38));
-                }
-                return;
             } else {
-                s32 idx = curD2;
-                while ((s32)(s16)idx >= 0) {
-                    u8 *cand = *(u8 **)(arg0 + ((s32)(s16)idx * 4) + 0x98);
-                    if (*(u16 *)(*(u8 **)(cand + 0x30) + 0xA4) != *(u16 *)(*(u8 **)(base38 + 0x30) + 0xA4)) {
+                while ((selectedIndex = (s16)cursor) >= 0) {
+                    u8 *candidate = *(u8 **)(action + selectedIndex * 4 + 0x98);
+                    if (*(u16 *)(*(u8 **)(candidate + 0x30) + 0xA4) !=
+                        *(u16 *)(*(u8 **)(selected + 0x30) + 0xA4)) {
                         break;
                     }
-                    idx = (s32)(s16)(idx - 1);
+                    cursor--;
                 }
-                if ((s32)(s16)idx < 0) {
-                    idx = (s32)(s16)(limD0 - 1);
-                    while ((s32)flag < (s32)(s16)idx) {
-                        u8 *cand = *(u8 **)(arg0 + ((s32)(s16)idx * 4) + 0x98);
-                        if (*(u16 *)(*(u8 **)(cand + 0x30) + 0xA4) != *(u16 *)(*(u8 **)(base38 + 0x30) + 0xA4)) {
+                if (selectedIndex < 0) {
+                    cursor = *(u16 *)(action + 0xD0) - 1;
+                    while ((selectedIndex = (s16)cursor) > (u16)previous) {
+                        u8 *candidate = *(u8 **)(action + selectedIndex * 4 + 0x98);
+                        if (*(u16 *)(*(u8 **)(candidate + 0x30) + 0xA4) !=
+                            *(u16 *)(*(u8 **)(selected + 0x30) + 0xA4)) {
                             break;
                         }
-                        idx = (s32)(s16)(idx - 1);
+                        cursor--;
                     }
                 }
-                if ((s32)flag != (s32)(s16)idx) {
-                    func_0045af60(0, 0, 0, 5);
-                    *(u8 **)(arg0 + 0x38) = *(u8 **)(arg0 + ((s32)(s16)idx * 4) + 0x98);
-                    *(u16 *)(arg0 + 0xD2) = (u16)idx;
-                    func_002186c0(*(u8 **)(D_0076449C + 0xDD4), *(s32 *)(arg0 + 0x38));
-                }
-                return;
             }
-        } else if (((flag & 0x40) != 0) || ((flag & 0x20) != 0)) {
+            if ((u16)previous != selectedIndex) {
+                func_0045af60(0, 0, 0, 5);
+                *(u8 **)(action + 0x38) = *(u8 **)((u8 *)func_001a_add_offset(selectedIndex * 4, (s32)action) + 0x98);
+                *(u16 *)(action + 0xD2) = cursor;
+                func_002186c0(*(u8 **)(D_0076449C + 0xDD4), *(s32 *)(action + 0x38));
+            }
+        } else if ((input & 0x40) || (input & 0x20)) {
             func_0045af60(0, 0, 0, 4);
             if (func_001eb860() == 1) {
                 *(s32 *)(D_0076449C + 0xC) |= 0x2000;
-                func_00212240(*(u8 **)(D_0076449C + 0xDD4), 0);
+                func_00212240(*(u8 **)(D_0076449C + 0xDD4), 1);
             }
-            *(s32 *)(arg0 + 0x41C) = 4;
-            return;
+            *(s32 *)(action + 0x41C) = 4;
         }
-        return;
-    } else if (state == 4) {
-        u8 *var_17;
-        u8 *temp_2;
+        break;
+    }
+    case 4: {
+        u8 *iter;
+        u8 *packet;
         func_001f9a90();
-        var_17 = *(u8 **)(D_0076449C + 0x174);
-        while (var_17 != NULL) {
-            if ((*(u16 *)(var_17 + 0x1A) & 1) != 0 && (*(u16 *)(var_17 + 0x1A) & 0x400) == 0) {
-                if (arg0 == var_17) {
-                    temp_2 = func_0019bd00(*(u8 **)(var_17 + 0x30));
+        iter = *(u8 **)(D_0076449C + 0x174);
+        while (iter != NULL) {
+            if ((*(u16 *)(iter + 0x1A) & 1) && !(*(u16 *)(iter + 0x1A) & 0x400)) {
+                if (action == iter) {
+                    packet = func_0019bd00(*(u8 **)(iter + 0x30));
                 } else {
-                    temp_2 = func_0019bbe0(*(u8 **)(var_17 + 0x30), (u32)-1, 0, 0, 3, 0);
+                    packet = func_0019bbe0(*(u8 **)(iter + 0x30), (u32)-1, 0, 0, 3, 0);
                 }
-                *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
-                func_00194590(temp_2, 0);
+                *(s64 *)(packet + 0x60) = *(s64 *)action;
+                func_00194590(packet, 0);
             }
-            var_17 = *(u8 **)(var_17 + 0x450);
+            iter = *(u8 **)(iter + 0x450);
         }
         func_00213bb0(*(s32 *)(D_0076449C + 0xDD4));
         func_00218700(*(s32 *)(D_0076449C + 0xDD4));
-        btlActionSetState(arg0, *(u16 *)(arg0 + 0x14));
-        *(s32 *)(arg0 + 0x41C) = 0;
-        return;
+        btlActionSetState((BtlAction *)action, *(u16 *)(action + 0x14));
+        *(s32 *)(action + 0x41C) = 0;
+        break;
+    }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a24b0);
-#endif
+#pragma pop
 // FUN_001A2AD0
 void func_001a2ad0(u8 *arg0) {
     func_001eb3b0(arg0 + 0x38);
