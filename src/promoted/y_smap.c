@@ -2105,60 +2105,26 @@ f32 func_002b1480(f32 arg1, YVec3f *arg0) {
     return arg1 / 2.0f - p * q;
 }
 
-/* measured: recipe B re-test with the u32-cast base form (4 attempts, nd
-   699 -> 632 -> 612 -> 603; best body below, nd 603, obj 3320B/window 3360B).
-   The u32 base = (u32)D_00887300 + ((void (*)(s32,s32))*(u32 *)base)(a,b)
-   spelling reproduces retail's single lui/addiu hoist into $17 with lw/jalr
-   per call; the one-array sp[0x10] + cast accesses keep retail's two dead
-   prologue s64 gp-relative ld/sd pairs (separate s64 locals get DCE'd), and
-   the case-0/1 empty labels make mwcc emit the jtbl_007488A0 jump table
-   (sltiu 7/beqz/lui/addiu/sll/addu/lw/jr). The (u8)(s32) saturation guard
-   needs the explicit `if (2.1474836e9f > x) {plain} else {overflow}` spelling
-   to emit c.ole.s $f1,$f2 + bc1t (the plain (u8)(s32)x form alone lets the
-   range analysis drop the guard; `x < 2^31` emits c.olt.s + bc1f instead).
-   Residuals: (1) the guard conversions allocate mfc1 $v0/andi $v1,$v0 (and
-   or $v0,$v1,$v0) where retail uses $v1 throughout — 4 words per guard;
-   (2) the fill-loop guard (2^31 const + c.ole.s + lui 0x8000) is NOT hoisted
-   out of the loop by b210 here (retail hoists it before the loop-entry
-   branch); (3) the clear-loop counters land in $s2/$s1 vs retail $s3/$s2. */
-/* measured: cold2b1520 first reconstruction (bare INCLUDE_ASM, recipe-B 603 lost, no archived body). */
-/* Target: src/promoted/y_smap.c func_002b1520 retail 0x002b1520 window 3360B (840 instrs). */
-/* Candidate: /var/tmp/cold2b1520/v_minloc_loopon.c sha256 10aa44ed3ab051af (6666B). */
-/* Compiler: mwccps2 3.0.1 b210 -O2 -Iinclude, scoped #pragma opt_loop_invariants on/off (624->619). */
-/* Commands: m2c single fails on jr/jtbl (no m2c.c); romwright body+--types saved 175 lines; */
-/*   probe_variants v0 714, common_off 796, loop_on 713, unroll_off 714, sched_off 714, subscript 713, */
-/*   fresh 701, col1 700, minloc 624, loopon 619 best, sub 625, loopon+sub 639 (two non-improving, stop). */
-/*   fnalign retail 838 obj 831 (3324B/window 3360B, 1.1% under, bankable) 172 edits+8 reloc-only. */
-/* TU: guarded floor, prod stays ASM; verify ASM, lint clean, -DNON_MATCHING compiles. */
-/* Semantic: switch 0/1 empty + default for jtbl_007488A0 (2..6, 3->4 fallthrough); u32 base hoist; */
-/*   u8 sp[0x10] s64 dead loads + high-word spills; (f32)327/341/395/443 via int cvt; */
-/*   explicit if (2.1474836e9f > x) u8/u16 guards; 9 fresh s16 counters; tail pp double-deref reload. */
-/* Residuals: guard mfc1 $v0 vs $v1 (4w/guard), fill-loop hoist, clear $s2/$s1 vs $s3/$s2. */
-/* measured 002b1520 (owner, 2026-09-19): fnalign **172 -> 163 edits**, count
-   831 -> 830 against retail 838, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all. */
-/* measured 002b1520 (owner, 2026-09-19): fnalign **163 -> 154 edits**, count
-   830 -> 829 against retail 838, converting a SECOND constant-bound `for` loop
-   to `do { } while` after the first conversion was already banked.
-   The lever is iterative, which the first sweep hid: it converts the single best loop
-   per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
+/* Guarded body, fnalign vs retail 838/837 instrs: 10 edits (+11 reloc-only). Read against the earlier
+   floor notes: the saturating float->byte guards are plain casts here (`(u8)t4n`, `(u16)sa`; b210 emits the
+   c.le.s/or 0x80000000 unsigned conversion itself), the fill/clear loops are ordinary `for` loops with the
+   entry branch to the test (not do-while), the 255.0f-t and 4096.0f*a results go to fresh locals (t3n/t4n/sa:
+   reusing t3/t4/a picks different $f registers and mul operand order), a is declared before b (retail $f21/$f20),
+   `i1 = 0` and `k = 0` are written before the value they precede in retail (`i1 = 0; t4n = ...`), and the two
+   ld/sd prologue copies write sp+8 from iGpffffa840 then sp+0 from iGpffffa848. opt_loop_invariants on is still
+   needed (retail hoists the guard compare/lui out of the loops). Residual: in the last `for (k...)` loop retail's
+   body re-extends k from $s1 (`dsll32/dsra32`) where this body reuses the condition's extended copy in $v1;
+   only `(s16)(k + 0)` moved that, which is not honest source. Keep ASM. */
 // FUN_002B1520 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
 void func_002b1520(s32 arg0, u8 *q) {
     u32 base;
     u8 sp[0x10];
-    f32 b;
     f32 a;
+    f32 b;
     f32 c;
+    f32 sa;
     s16 i1;
     s16 j1;
     s16 i2;
@@ -2169,9 +2135,9 @@ void func_002b1520(s32 arg0, u8 *q) {
     s16 j4;
     s16 k;
     (void)arg0;
-    *(s64 *)(sp + 0) = iGpffffa840;
-    *(s64 *)(sp + 8) = iGpffffa848;
     a = 1.0f;
+    *(s64 *)(sp + 8) = iGpffffa840;
+    *(s64 *)(sp + 0) = iGpffffa848;
     b = 120.0f;
     c = (f32)395;
     base = (u32)D_00887300;
@@ -2194,6 +2160,8 @@ void func_002b1520(s32 arg0, u8 *q) {
         f32 t2;
         f32 t3;
         f32 t4;
+        f32 t3n;
+        f32 t4n;
         u8 bv;
         t1 = func_002b2aa0(0, 179.0f, 312.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
         t2 = func_002b2aa0(0, (f32)443, 312.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
@@ -2201,27 +2169,18 @@ void func_002b1520(s32 arg0, u8 *q) {
         t4 = func_002b2aa0(0, 255.0f, 0.0f, (f32)*(s16 *)(q + 0x766), 5.0f);
         *(f32 *)(*(u8 **)(q + 0x7C) + 8) = t1;
         *(f32 *)(*(u8 **)(q + 0x80) + 8) = t2;
-        t3 = 255.0f - t3;
-        if (2.1474836e9f > t3) {
-            bv = (u8)(s32)t3;
-        } else {
-            bv = (u8)(s32)(t3 - 2.1474836e9f);
-        }
+        t3n = 255.0f - t3;
+        bv = (u8)t3n;
         *(u8 *)(*(u8 **)(q + 0x80) + 0x10) = bv;
         *(u8 *)(*(u8 **)(q + 0x7C) + 0x10) = bv;
-        t4 = 255.0f - t4;
-        for (i1 = 0; i1 < 3; i1++) {
-            j1 = 0;
-            do {
+        i1 = 0;
+        t4n = 255.0f - t4;
+        for (; i1 < 3; i1++) {
+            for (j1 = 0; j1 < 6; j1++) {
                 u8 vv;
-                if (2.1474836e9f > t4) {
-                    vv = (u8)(s32)t4;
-                } else {
-                    vv = (u8)(s32)(t4 - 2.1474836e9f);
-                }
+                vv = (u8)t4n;
                 *(u8 *)(*(u8 **)(q + (s32)i1 * 0x18 + (s32)j1 * 4 + 0x34) + 0x10) = vv;
-                j1++;
-            } while (j1 < 6);
+            }
         }
         func_0046b380(*(u8 **)(q + 0x7C), 0);
         func_0046b380(*(u8 **)(q + 0x80), 0);
@@ -2230,8 +2189,8 @@ void func_002b1520(s32 arg0, u8 *q) {
                 func_0046b380(*(u8 **)(q + (s32)i2 * 0x18 + (s32)j2 * 4 + 0x34), 0);
             }
         }
-        *(f32 *)(sp + 4) = func_002b2aa0(0, (f32)327, 264.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
-        *(f32 *)(sp + 12) = func_002b2aa0(0, (f32)327, (f32)341, (f32)*(s16 *)(q + 0x764), 10.0f);
+        *(f32 *)(sp + 12) = func_002b2aa0(0, (f32)327, 264.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
+        *(f32 *)(sp + 4) = func_002b2aa0(0, (f32)327, (f32)341, (f32)*(s16 *)(q + 0x764), 10.0f);
         a = func_002b2aa0(0, iGpffff84f4, 1.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
         b = func_002b2aa0(0, 183.0f, 120.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
         c = func_002b2aa0(0, 332.0f, (f32)395, (f32)*(s16 *)(q + 0x764), 10.0f);
@@ -2242,6 +2201,8 @@ void func_002b1520(s32 arg0, u8 *q) {
         f32 t2;
         f32 t3;
         f32 t4;
+        f32 t3n;
+        f32 t4n;
         u8 bv;
         t1 = func_002b2aa0(0, 312.0f, 179.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
         t2 = func_002b2aa0(0, 312.0f, (f32)443, (f32)*(s16 *)(q + 0x764), 5.0f);
@@ -2249,30 +2210,21 @@ void func_002b1520(s32 arg0, u8 *q) {
         t4 = func_002b2aa0(0, 0.0f, 255.0f, (f32)*(s16 *)(q + 0x766), 5.0f);
         *(f32 *)(*(u8 **)(q + 0x7C) + 8) = t1;
         *(f32 *)(*(u8 **)(q + 0x80) + 8) = t2;
-        t3 = 255.0f - t3;
-        if (2.1474836e9f > t3) {
-            bv = (u8)(s32)t3;
-        } else {
-            bv = (u8)(s32)(t3 - 2.1474836e9f);
-        }
+        t3n = 255.0f - t3;
+        bv = (u8)t3n;
         *(u8 *)(*(u8 **)(q + 0x80) + 0x10) = bv;
         *(u8 *)(*(u8 **)(q + 0x7C) + 0x10) = bv;
-        t4 = 255.0f - t4;
-        for (i3 = 0; i3 < 3; i3++) {
-            j3 = 0;
-            do {
+        i3 = 0;
+        t4n = 255.0f - t4;
+        for (; i3 < 3; i3++) {
+            for (j3 = 0; j3 < 6; j3++) {
                 u8 vv;
-                if (2.1474836e9f > t4) {
-                    vv = (u8)(s32)t4;
-                } else {
-                    vv = (u8)(s32)(t4 - 2.1474836e9f);
-                }
+                vv = (u8)t4n;
                 *(u8 *)(*(u8 **)(q + (s32)i3 * 0x18 + (s32)j3 * 4 + 0x34) + 0x10) = vv;
-                j3++;
-            } while (j3 < 6);
+            }
         }
-        *(f32 *)(sp + 4) = func_002b2aa0(0, 264.0f, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
-        *(f32 *)(sp + 12) = func_002b2aa0(0, (f32)341, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
+        *(f32 *)(sp + 12) = func_002b2aa0(0, 264.0f, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
+        *(f32 *)(sp + 4) = func_002b2aa0(0, (f32)341, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
         a = func_002b2aa0(0, 1.0f, iGpffff84f4, (f32)*(s16 *)(q + 0x764), 5.0f);
         b = func_002b2aa0(0, 120.0f, 183.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
         c = func_002b2aa0(0, (f32)395, 332.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
@@ -2288,16 +2240,16 @@ void func_002b1520(s32 arg0, u8 *q) {
         }
         break;
     case 5:
-        *(f32 *)(sp + 4) = func_002b2aa0(0, (f32)327, 264.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
-        *(f32 *)(sp + 12) = func_002b2aa0(0, (f32)327, (f32)341, (f32)*(s16 *)(q + 0x764), 10.0f);
+        *(f32 *)(sp + 12) = func_002b2aa0(0, (f32)327, 264.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
+        *(f32 *)(sp + 4) = func_002b2aa0(0, (f32)327, (f32)341, (f32)*(s16 *)(q + 0x764), 10.0f);
         a = func_002b2aa0(0, iGpffff84f4, 1.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
         b = func_002b2aa0(0, 183.0f, 120.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
         c = func_002b2aa0(0, 332.0f, (f32)395, (f32)*(s16 *)(q + 0x764), 10.0f);
         func_002b3c60((s32)*(u8 **)(q + 0xCC), 0);
         break;
     case 6:
-        *(f32 *)(sp + 4) = func_002b2aa0(0, 264.0f, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
-        *(f32 *)(sp + 12) = func_002b2aa0(0, (f32)341, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
+        *(f32 *)(sp + 12) = func_002b2aa0(0, 264.0f, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
+        *(f32 *)(sp + 4) = func_002b2aa0(0, (f32)341, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
         a = func_002b2aa0(0, 1.0f, iGpffff84f4, (f32)*(s16 *)(q + 0x764), 5.0f);
         b = func_002b2aa0(0, 120.0f, 183.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
         c = func_002b2aa0(0, (f32)395, 332.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
@@ -2306,22 +2258,17 @@ void func_002b1520(s32 arg0, u8 *q) {
     default:
         break;
     }
-    if (iGpffff84f4 < a) {
-        f32 se = *(f32 *)(sp + 4);
-        f32 sf = *(f32 *)(sp + 12);
-        *(f32 *)(*(u8 **)(q + 0x28) + 0xC) = se;
-        *(f32 *)(*(u8 **)(q + 0x24) + 0xC) = se;
-        *(f32 *)(*(u8 **)(q + 0x30) + 0xC) = sf;
-        *(f32 *)(*(u8 **)(q + 0x2C) + 0xC) = sf;
-        a = a * 4096.0f;
-        for (k = 0; k < 4; k++) {
+    if (a > iGpffff84f4) {
+        *(f32 *)(*(u8 **)(q + 0x28) + 0xC) = *(f32 *)(sp + 12);
+        *(f32 *)(*(u8 **)(q + 0x24) + 0xC) = *(f32 *)(sp + 12);
+        *(f32 *)(*(u8 **)(q + 0x30) + 0xC) = *(f32 *)(sp + 4);
+        *(f32 *)(*(u8 **)(q + 0x2C) + 0xC) = *(f32 *)(sp + 4);
+        k = 0;
+        sa = a * 4096.0f;
+        for (; k < 4; k++) {
             u8 **pp = (u8 **)(q + (s32)k * 4 + 0x24);
             u16 ww;
-            if (2.1474836e9f > a) {
-                ww = (u16)(s32)a;
-            } else {
-                ww = (u16)(s32)(a - 2.1474836e9f);
-            }
+            ww = (u16)sa;
             *(u16 *)(*pp + 0x22) = ww;
             func_0046b380(*pp, 0);
         }
