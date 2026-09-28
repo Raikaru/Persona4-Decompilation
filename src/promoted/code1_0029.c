@@ -2679,42 +2679,52 @@ void func_0029f790(u8 *arg0)
                       alpha, 1);
     }
 }
-/* measured: func_0029fbb0 obj 1856B window 1856B (retail 464 instrs object 464 instrs) fnalign 131 edits (+10 reloc-only) fndiff 404 differing words; frame 0x1A0 vs retail 0x1A0 (copy[36] honest, frame honest via arg0 spill for redundant base reload, not via copy[40] padding); slti check: no slti/$at wall, final ==0/==1/==3 chain intact (adjacent 0/1 not folded); residual systematic saved-reg rotation + sq/lq spill vs sw + copy-loop a0-a2 vs a1-a3 shift; compiler floor, keep ASM. */
+/* measured: func_0029fbb0 (retail 464 instrs; fnalign 14 edits, down from 139). The local 6x24-byte
+   slide table is a struct array so retail's stack addressing (arg1*24 + sp, field offsets as
+   displacements) falls out; `base` is read before the table copy (retail spills it, so arg0 is
+   not kept), `code29AddOff(off4, base)` keeps the flag address from being CSE'd with p22/p16,
+   the u8 colour/alpha locals and the u32 float->int shift reproduce retail's conversions, and
+   the (x, y) draw offsets are computed inside the call arguments. Only residual: the six
+   region-3 table reads (temp30/temp22/t18/f3v/t17/f2v) are `addiu tmp,base,K; lw x,0(tmp)`
+   in retail but fold to `lw x,K(base)` here; folded forms of every spelling tried
+   (direct member, &member pointer locals, u8 and s32 casts, inline offset-first helpers,
+   opt_propagation/peephole/common_subs pragmas) either fold or CSE the entry pointer into
+   a saved register instead. Keep ASM. */
 // FUN_0029FBB0 NONMATCHING
 #ifdef NON_MATCHING
+typedef struct SlideEnt {
+    s32 f0, f1, f2, f3, f4, f5;
+} SlideEnt;
 void func_0029fbb0(u8 *arg0, s32 arg1) {
-    s32 copy[36];
+    SlideEnt tbl[6];
     f32 stack[2];
     u8 *base;
     u8 *temp_18;
     u8 *temp_19;
     s16 *p22;
     s16 *p16;
-    s32 color;
-    s32 var23;
+    u8 color;
+    u8 var23;
     s32 temp30;
     s32 temp22;
-    s32 t17;
     s32 t18;
-    s32 spB0;
-    s32 spD0;
-    s32 spC0;
-    s32 spA0;
+    s32 t17;
+    s32 f2v;
+    s32 f3v;
+    s32 y2;
+    s32 x2;
     f32 ret;
     s32 ix;
     s32 iy;
-    s32 jx;
-    s32 jy;
-    s32 kx;
-    s32 ky;
     s32 off4;
     s32 *srcw;
     s32 *dstw;
     s32 ncopy;
     s32 tmpc;
     s32 tmpd;
+    base = *(u8 **)(arg0 + 0x38);
     srcw = D_0063E830;
-    dstw = copy;
+    dstw = (s32 *)tbl;
     ncopy = 0x12;
 do_copy:
     tmpc = srcw[0];
@@ -2727,20 +2737,17 @@ do_copy:
     if (ncopy > 0) {
         goto do_copy;
     }
-    base = *(u8 **)(arg0 + 0x38);
-    off4 = arg1 * 4;
     temp_18 = base + arg1 * 0x130 + 0x1510;
     temp_19 = base + arg1 * 0x130 + 0x15A8;
+    off4 = arg1 * 4;
     p22 = (s16 *)(base + off4 + 0x1C38);
     p16 = (s16 *)(base + off4 + 0x1C3A);
     {
         s32 v0 = *p22;
         if (v0 == 3) {
             if (v0 != *p16) {
-                s32 off = arg1 * 0x18;
-                u8 *pb = (u8 *)(off + (s32)copy);
-                s32 a0 = *(s32 *)(pb + 0x10);
-                s32 a1 = *(s32 *)(pb + 0x14);
+                s32 a0 = tbl[arg1].f4;
+                s32 a1 = tbl[arg1].f5;
                 func_002a2780((s32)temp_18);
                 func_002a27c0((s32)temp_18, a0, a1 + 0x1E, a0, a1, fGpffff8204, 0, 0, 0xA);
                 *p16 = *p22;
@@ -2751,28 +2758,14 @@ do_copy:
             func_002a2c10(temp_18, stack);
             ix = (s32)stack[0];
             iy = (s32)stack[1];
-            {
-                s32 off = arg1 * 0x18;
-                u8 *pb = (u8 *)(off + (s32)copy);
-                s32 c1 = *(s32 *)(pb + 4);
-                s32 c0 = *(s32 *)(pb + 0);
-                s32 c2 = *(s32 *)(pb + 8);
-                s32 c3 = *(s32 *)(pb + 12);
-                s32 c4 = *(s32 *)(pb + 16);
-                s32 c5 = *(s32 *)(pb + 20);
-                func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, color, c1, iGpffffb540, 1);
-                jx = (ix + c2) - c4;
-                jy = (iy + c3) - c5;
-                func_0025e9e0((f32)jx, (f32)jy, 0.0f, 0x8F8F8F, color, c0, iGpffffb540, 1);
-            }
+            func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, color, tbl[arg1].f1, iGpffffb540, 1);
+            func_0025e9e0((f32)((ix + tbl[arg1].f2) - tbl[arg1].f4), (f32)((iy + tbl[arg1].f3) - tbl[arg1].f5), 0.0f, 0x8F8F8F, color, tbl[arg1].f0, iGpffffb540, 1);
             return;
         }
         if (v0 != *p16) {
             if (v0 == 0) {
-                s32 off = arg1 * 0x18;
-                u8 *pb = (u8 *)(off + (s32)copy);
-                s32 a0 = *(s32 *)(pb + 0x10);
-                s32 a1 = *(s32 *)(pb + 0x14);
+                s32 a0 = tbl[arg1].f4;
+                s32 a1 = tbl[arg1].f5;
                 func_002a2780((s32)temp_18);
                 if (*p16 == 3) {
                     func_002a27c0((s32)temp_18, a0, a1, a0, a1, fGpffff8204, 0, 0, 1);
@@ -2786,7 +2779,7 @@ do_copy:
         ret = func_002a2cd0(temp_18);
         if (*p16 == 0) {
             f32 t = 1.0f - ret;
-            s32 iv = (u8)(255.0f * t);
+            u32 iv = (u32)(255.0f * t);
             color = (iv >> 1) & 0xFF;
         } else {
             color = 0xFF;
@@ -2795,26 +2788,23 @@ do_copy:
         func_002a2c10(temp_18, stack);
         ix = (s32)stack[0];
         iy = (s32)stack[1];
+        temp30 = tbl[arg1].f1;
+        func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, 0xFF, temp30, iGpffffb540, 1);
+        temp22 = tbl[arg1].f0;
+        t18 = tbl[arg1].f5;
+        f3v = tbl[arg1].f3;
+        y2 = (iy + f3v) - t18;
+        t17 = tbl[arg1].f4;
+        f2v = tbl[arg1].f2;
+        x2 = (ix + f2v) - t17;
+        func_0025e9e0((f32)x2, (f32)y2, 0.0f, 0x8F8F8F, 0xFF, temp22, iGpffffb540, 1);
+        func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x99, var23, temp30, iGpffffb540, 1);
+        func_0025e9e0((f32)x2, (f32)y2, 0.0f, 0xCCFFFF, var23, temp22, iGpffffb540, 1);
         {
-            s32 off = arg1 * 0x18;
-            u8 *pb = (u8 *)(off + (s32)copy);
-            temp30 = *(s32 *)(pb + 4);
-            temp22 = *(s32 *)(pb + 0);
-            t18 = *(s32 *)(pb + 20);
-            spD0 = *(s32 *)(pb + 12);
-            spC0 = (iy + spD0) - t18;
-            t17 = *(s32 *)(pb + 16);
-            spB0 = *(s32 *)(pb + 8);
-            spA0 = (ix + spB0) - t17;
-            func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, 0xFF, temp30, iGpffffb540, 1);
-            func_0025e9e0((f32)spA0, (f32)spC0, 0.0f, 0x8F8F8F, 0xFF, temp22, iGpffffb540, 1);
-            func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x99, var23, temp30, iGpffffb540, 1);
-            func_0025e9e0((f32)spA0, (f32)spC0, 0.0f, 0xCCFFFF, var23, temp22, iGpffffb540, 1);
-        }
-        {
-            u8 *b2 = *(u8 **)(arg0 + 0x38) + off4;
-            if (*(s32 *)(b2 + 0x1C50) != 0) {
-                *(s32 *)(b2 + 0x1C50) = 0;
+            u8 *b2 = code29AddOff(off4, base);
+            s32 *pflag = (s32 *)(b2 + 0x1C50);
+            if (*pflag != 0) {
+                *pflag = 0;
                 ix = t17;
                 iy = t18;
                 func_002a2780((s32)temp_19);
@@ -2829,14 +2819,10 @@ do_copy:
             ix = (s32)stack[0];
             iy = (s32)stack[1];
             func_0025ea20((f32)ix, (f32)iy, 0.0f, 0xCCFF33, 0xFF, temp30, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
-            kx = (ix + spB0) - t17;
-            ky = (iy + spD0) - t18;
-            func_0025ea20((f32)kx, (f32)ky, 0.0f, 0x2D2D2D, 0xFF, temp22, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            func_0025ea20((f32)((ix + f2v) - t17), (f32)((iy + f3v) - t18), 0.0f, 0x2D2D2D, 0xFF, temp22, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
         }
         if ((arg1 == 0) || (arg1 == 1) || (arg1 == 3)) {
-            kx = (ix + spB0) - t17;
-            ky = (iy + spD0) - t18;
-            func_0025e9e0((f32)kx, (f32)ky, 0.0f, 0xCCFFFF, var23, temp22 + 0xB2, iGpffffb540, 1);
+            func_0025e9e0((f32)((ix + f2v) - t17), (f32)((iy + f3v) - t18), 0.0f, 0xCCFFFF, var23, temp22 + 0xB2, iGpffffb540, 1);
         }
     }
 }
