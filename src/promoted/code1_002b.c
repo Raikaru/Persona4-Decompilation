@@ -1089,104 +1089,130 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba080);
 #endif
-/* Guarded 002ba5d0 candidate: native FclVec2/FclDrawColor aggregates, width 22.0f; INCLUDE_ASM below stays the build path. */
-// FUN_002BA5D0 NONMATCHING
-#ifdef NON_MATCHING
+/* Preserve the signed-halfword zero test without merging it with the
+   preceding sentinel comparison. */
+#pragma push
 #pragma opt_common_subs off
-void func_002ba5d0(u8 *arg0, s16 arg1, s32 arg2, FclVec2 arg3, FclDrawColor arg4, s64 arg5, f32 fparg0)
+static inline s32 fclDigitIsZero(const s16 *value)
 {
-    FclBoundsPacket src;
-    FclBoundsBytes copy1, copy2;
-    FclVec2 pos1, pos2;
-    s64 field;
-    u8 *object;
-    FclVec2 sp60;
-    FclDrawColor sp6C;
-    FclDrawColor spBC;
-    FclDrawColor spB8;
+    return *value == 0;
+}
+#pragma pop
+/* Keep the two positions, colors, and character-representation bounds
+   snapshots separate across writes to the draw slots. The depth precedes
+   the layer in the recovered signature. See the worker3 digit-pair archive. */
+#pragma push
+#pragma opt_propagation off
+#pragma opt_common_subs on
+// FUN_002BA5D0
+void func_002ba5d0(u8 *task, s16 row, s32 number, FclVec2 position,
+                    FclDrawColor color, f32 depth, s64 layer)
+{
+    FclBoundsPacket bounds;
+    FclBoundsBytes firstBounds, secondBounds;
+    FclVec2 origin, shifted, secondPosition;
+    FclDrawColor firstColor;
+    FclDrawColor secondColor;
     s16 value;
-    s16 pair_index;
-    s16 next_index;
+    s16 firstIndex;
+    s16 secondIndex;
     s8 ones;
     s8 tens;
-    object = arg0;
-    field = arg5;
-    sp60 = arg3;
-    sp6C = arg4;
-    src = func_002b29e0(22.0f, 17.0f);
-    pos1 = func_002b2970(sp60.x + 284.0f, sp60.y + 6.0f);
-    value = (s16)arg2;
-    if ((value == -1) || (value == 0)) { ones = 10; tens = 10; }
-    else { ones = (s8)(value % 10); tens = (s8)(value / 10); }
-    pair_index = (s16)((s16)arg1 * 2);
-    next_index = (s16)(pair_index + 1);
+
+    bounds = func_002b29e0(22.0f, 17.0f);
+    origin = func_002b2970(position.x + 284.0f, position.y + 6.0f);
+    value = (s16)number;
+    if ((value == -1) || fclDigitIsZero(&value)) {
+        ones = 10;
+        tens = 10;
+    } else {
+        ones = (s8)(value % 10);
+        tens = (s8)(value / 10);
+    }
+    firstIndex = (s16)((s16)row * 2);
+    secondIndex = (s16)((s16)row * 2 + 1);
     {
         u8 *digit; u8 *slot; s32 offset;
-        offset = (s32)pair_index * 0x220;
+        f32 glyphHeight, glyphWidth, glyphY, glyphX;
+
         digit = D_0063F1F0 + ((s32)ones * 0x10);
-        slot = *(u8 **)(object + 0x38) + offset;
-        *(f32 *)(slot + 0x1F4) = *(f32 *)(digit + 0);
-        *(f32 *)(slot + 0x1F8) = *(f32 *)(digit + 4);
-        *(f32 *)(slot + 0x1FC) = *(f32 *)(digit + 8);
-        *(f32 *)(slot + 0x200) = *(f32 *)(digit + 0xC);
-        copy1 = src.representation;
-        *(f32 *)(slot + 0x12C) = pos1.x;
-        *(f32 *)(slot + 0x130) = pos1.y;
+        glyphHeight = *(f32 *)(digit + 12);
+        glyphWidth = *(f32 *)(digit + 8);
+        glyphY = *(f32 *)(digit + 4);
+        slot = *(u8 **)(task + 0x38);
+        offset = (s32)firstIndex * 0x220;
+        glyphX = *(f32 *)digit;
+        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F4) = glyphX;
+        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F8) = glyphY;
+        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1FC) = glyphWidth;
+        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x200) = glyphHeight;
+        firstBounds = bounds.representation;
+        slot = *(u8 **)(task + 0x38);
+        firstColor = color;
+        slot += offset;
+        *(FclVec2 *)(slot + 0x12C) = origin;
         *(f32 *)(slot + 0x1A0) = 1.0f;
         *(f32 *)(slot + 0x194) = 1.0f;
-        spBC = sp6C;
-        *(u8 *)(slot + 0x162) = ((u8 *)&spBC)[3];
-        *(u8 *)(slot + 0x179) = ((u8 *)&sp6C)[0];
-        *(u8 *)(slot + 0x17A) = ((u8 *)&sp6C)[1];
-        *(u8 *)(slot + 0x17B) = ((u8 *)&sp6C)[2];
-        *(u8 *)(slot + 0x17C) = ((u8 *)&sp6C)[3];
+        *(u8 *)(slot + 0x162) = ((u8 *)&firstColor)[3];
+        *(FclDrawColor *)(slot + 0x179) = color;
         *(s32 *)(slot + 0x1C4) = 0;
-        *(f32 *)(slot + 0x108) = fparg0;
+        *(f32 *)(slot + 0x108) = depth;
         *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;
-        ((FclBoundsPacket *)(slot + 0x204))->representation = copy1;
-        *(s16 *)(slot + 0x100) = field;
-        *(s16 *)(slot + 0x104) = 0;
+        ((FclBoundsPacket *)(slot + 0x204))->representation = firstBounds;
+        *(s16 *)(slot + 0x100) = layer;
+        *(s16 *)(*(u8 **)(task + 0x38) + offset + 0x104) = 0;
+        slot = *(u8 **)(task + 0x38) + offset;
         *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;
     }
     if ((value >= 10) || (value == 0)) {
         u8 *digit; u8 *slot; s32 offset;
-        offset = (s32)next_index * 0x220;
+        f32 glyphHeight, glyphWidth, glyphY, glyphX;
+
         digit = D_0063F1F0 + ((s32)tens * 0x10);
-        slot = *(u8 **)(object + 0x38) + offset;
-        *(f32 *)(slot + 0x1F4) = *(f32 *)(digit + 0);
-        *(f32 *)(slot + 0x1F8) = *(f32 *)(digit + 4);
-        *(f32 *)(slot + 0x1FC) = *(f32 *)(digit + 8);
-        *(f32 *)(slot + 0x200) = *(f32 *)(digit + 0xC);
-        pos2 = func_002b2970(pos1.x - 18.0f, pos1.y);
-        copy2 = src.representation;
-        *(f32 *)(slot + 0x12C) = pos2.x;
-        *(f32 *)(slot + 0x130) = pos2.y;
+        glyphHeight = *(f32 *)(digit + 12);
+        glyphWidth = *(f32 *)(digit + 8);
+        glyphY = *(f32 *)(digit + 4);
+        slot = *(u8 **)(task + 0x38);
+        offset = (s32)secondIndex * 0x220;
+        glyphX = *(f32 *)digit;
+        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F4) = glyphX;
+        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F8) = glyphY;
+        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1FC) = glyphWidth;
+        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x200) = glyphHeight;
+        shifted = func_002b2970(origin.x - 18.0f, origin.y);
+        {
+            f32 pointX, pointY;
+            pointX = shifted.x;
+            pointY = shifted.y;
+            secondPosition.x = pointX;
+            secondPosition.y = pointY;
+        }
+        secondBounds = bounds.representation;
+        slot = *(u8 **)(task + 0x38);
+        secondColor = color;
+        slot += offset;
+        *(FclVec2 *)(slot + 0x12C) = secondPosition;
         *(f32 *)(slot + 0x1A0) = 1.0f;
         *(f32 *)(slot + 0x194) = 1.0f;
-        spB8 = sp6C;
-        *(u8 *)(slot + 0x162) = ((u8 *)&spB8)[3];
-        *(u8 *)(slot + 0x179) = ((u8 *)&sp6C)[0];
-        *(u8 *)(slot + 0x17A) = ((u8 *)&sp6C)[1];
-        *(u8 *)(slot + 0x17B) = ((u8 *)&sp6C)[2];
-        *(u8 *)(slot + 0x17C) = ((u8 *)&sp6C)[3];
+        *(u8 *)(slot + 0x162) = ((u8 *)&secondColor)[3];
+        *(FclDrawColor *)(slot + 0x179) = color;
         *(s32 *)(slot + 0x1C4) = 0;
-        *(f32 *)(slot + 0x108) = fparg0;
+        *(f32 *)(slot + 0x108) = depth;
         *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;
-        ((FclBoundsPacket *)(slot + 0x204))->representation = copy2;
-        *(s16 *)(slot + 0x100) = field;
-        *(s16 *)(slot + 0x104) = 0;
+        ((FclBoundsPacket *)(slot + 0x204))->representation = secondBounds;
+        *(s16 *)(slot + 0x100) = layer;
+        *(s16 *)(*(u8 **)(task + 0x38) + offset + 0x104) = 0;
+        slot = *(u8 **)(task + 0x38) + offset;
         *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;
     } else {
         u8 *slot; s32 offset;
-        offset = (s32)next_index * 0x220;
-        slot = *(u8 **)(object + 0x38) + offset;
+        offset = (s32)secondIndex * 0x220;
+        slot = *(u8 **)(task + 0x38) + offset;
         *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) & ~1;
     }
 }
 #pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba5d0);
-#endif
+#pragma pop
 /* Preserve the RGBA snapshot and later alpha reload across byte stores.
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
 #pragma opt_common_subs off
