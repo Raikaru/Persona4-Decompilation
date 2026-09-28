@@ -2298,260 +2298,237 @@ void func_001c5500(u8 *arg0, s32 arg1)
     func_001bac20((u16 *)arg0, (f32 *)&poses.first, (f32 *)&poses.second, 1);
     func_001bbef0(arg0, duration);
 }
-/* measured 001c5b80: 515 differing words guarded via `python3 tools/measure_guarded.py src/promoted/code1_001c.c func_001c5b80` (GUARDED_SCORE 515); probe 515 via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c5b80 --candidate v16=/var/tmp/cold1c5b80/v16.c`; fnalign retail 629 vs object 626 instrs, 231 edits (+15 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_001c.c func_001c5b80 --candidate /var/tmp/cold1c5b80/v16.c --quiet`. M2C via `python3 -E -s tools/m2c_decompile.py src/promoted/code1_001c.c func_001c5b80 -o /var/tmp/cold1c5b80/m2c.c`; romwright raw via `python3 tools/romwright_decompile.py func_001c5b80 --raw -o /var/tmp/cold1c5b80/rw_raw.c` (m2c-shaped fails on CONCAT44 intrinsic); de-noised to file idiom reusing existing decls (func_001bd560, func_003e40b0, func_003e4180, func_001958f0, func_00196040, func_003e0870, func_003e4320, func_001bd780, func_001bc3a0, func_001bac20, func_001bbef0, func_004b3110, func_001eb440, func_004bd050, D_0060A0E0, iGpffffb3ac, fGpffff8110) plus block externs (func_001bc630(u8*), func_003e41e0(f32*,f32*), func_0044b868(f32)->f32, fGpffff8118/fGpffff8128). Frame 0x160 with pose50[7]+out6C[3]+quat78[4]+pad88+mat90+padD0+pairD8+valE0+padE4+pairE8[2]+pairF0+valF8+padFC+actor100[3]+pad10C+out110[3]+pad11C+dir120[3]+pad12C+tmp130[3]+pad13C+center140[3]+pad14C+center150[3]+top15C (0x110 locals). Round1 v1 535 (629 vs 629, 125+16) -> v2 535 tie (single-mask group + (f32)0x226/0x2EE for 550/750). Round2 v3 530 (reversed float decls, -5) vs v4 532 (branch >=2 first, -3). Round3 v5 518 (v3+branch+center-center zero, -12) vs v6 530 tie (u16 counter). Round4 v7 518 tie (switch descending 4E-first) vs v8 522 (50-first numerator, +4). Round5 v9 517 (for-loop, -1) vs v10 518 tie (1.25 reorder). Round6 v11/v12 517 ties (0.5/len and 8128/len swaps). Round7 v13 522 (len-first decls, +5) vs v14 516 (centerY/Z cache, -1). Round8 v15 516 tie (split side) vs v16 515 (double copy_pair, -1). Round9 v17/v18 515 ties (split on v16, p4_cacd0_mul). Round10 v19/v20 515 ties (plain +0 removal, inclusive compare). Two unproductive rounds, stopping. Top remaining: FPU color shift (retail $f23/$f21 vs object $f21/$f22), COP1 adda/madd at +0x3E8/+0x3EC and adda/madd+msub at +0x6AC..+0x6C4 per archive (plain C emits mul/add, source-unreachable floor), ld/sd vs lw/sw copy, branch $at vs $v0, switch dispatch. Pragma sweep singles+28 pairs: best ties 515 (loopinv/strength/unroll), none installed. Within 3% size gate (626/629=99.5%), banked as floor. */
-/* measured 001c5b80 (owner, 2026-09-19): fnalign **231 -> 191 edits**, count
-   626 -> 626 against retail 629, by putting one switch's arms in REVERSED
-   order.  Case order is EMISSION order and the right one is whatever retail emitted:
-   a chain converted to a switch wants ascending, a jump table wants the table's own
-   layout, and a `beq` chain with no table can want the reverse of the source order.
-   All three orderings were measured on every switch in this body and this is the
-   only one that improved it; swept across the 167 first-party floors carrying a
-   switch, just four responded at all. */
-// FUN_001C5B80 NONMATCHING
-#ifdef NON_MATCHING
+/* Frame the whole group, then place two poses around the farthest unit.  Load-bearing shapes,
+   measured against b210: the unit table is indexed as `((u8 **)work + 14)[i]` (an array subscript keeps
+   the u16 counter's mask separate per use and puts the base register first in the address add);
+   `farthest = actorPos` is written twice in the last-unit branch, which is how retail's struct copy
+   comes out (one compiler temporary, then two stores; a single assignment is one direct ld/sd pair).
+   Locals are declared in stack order (highest address first): b210 lays them out in declaration order
+   and puts small objects ahead of the matrix and pose block, so `top` fills the pad after `groupCenter`. */
+// FUN_001C5B80
 void func_001c5b80(u8 *arg0, s32 arg1)
 {
-    struct Frame {
-        f32 pose50[7];
-        f32 out6C[3];
-        f32 quat78[4];
-        u8 pad88[8];
-        u8 mat90[0x40];
-        u8 padD0[8];
-        s64 pairD8;
-        f32 valE0;
-        u8 padE4[4];
-        f32 pairE8[2];
-        s64 pairF0;
-        f32 valF8;
-        u8 padFC[4];
-        f32 actor100[3];
-        u8 pad10C[4];
-        f32 out110[3];
-        u8 pad11C[4];
-        f32 dir120[3];
-        u8 pad12C[4];
-        f32 tmp130[3];
-        u8 pad13C[4];
-        f32 center140[3];
-        u8 pad14C[4];
-        f32 center150[3];
-        f32 top15C;
-    } frame;
     extern s32 func_001bc630(u8 *arg0);
+    extern void func_001bd560(f32 *out, f32 *in);
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
     extern f32 tanf(f32 arg0);
     extern f32 fGpffff8110;
     extern f32 fGpffff8118;
     extern f32 fGpffff8128;
-    f32 centerY;
-    f32 centerZ;
-    f32 cand;
-    f32 tanRes;
-    f32 scale;
+    f32 top;
+    RwV3d groupCenter;
+    RwV3d optionCenter;
+    RwV3d delta;
+    RwV3d direction;
+    RwV3d focus;
+    RwV3d actorPos;
+    RwV3d farthest;
+    P4CameraVec2 horizontal;
+    RwMatrix matrix;
+    P4CameraFrame frames[2];
+    f32 cameraDistance;
+    f32 edgeX;
+    f32 groupRadius;
+    f32 maxLen;
+    f32 focusHeight;
+    f32 edgeZ;
+    f32 lateralOffset;
+    f32 angle;
+    f32 duration;
     f32 len;
-    f32 var_f23;
-    f32 var_f22;
-    f32 var_f21;
-    f32 var_f20;
-    s32 isZero;
+    f32 scale;
+    f32 candidate;
+    f32 reach;
+    s32 fixedShot;
     s32 group;
-    s32 var_17;
-    u8 *saved_arg0;
+    u16 i;
     u8 *work;
     u8 *entry;
     u8 *unit;
+
     (void)arg1;
-    saved_arg0 = arg0;
-    isZero = func_001bc630(saved_arg0);
-    func_001bd560(frame.pose50, saved_arg0 + 0x9C);
-    work = *(u8 **)(saved_arg0 + 0xE0);
-    if (*(u16 *)(work + 0x6A) >= 2) {
+    fixedShot = func_001bc630(arg0);
+    func_001bd560((f32 *)&frames[0], (f32 *)(arg0 + 0x9C));
+    work = *(u8 **)(arg0 + 0xE0);
+    if (*(u16 *)(work + 0x6A) > 1) {
         group = func_001eb440(work + 0x38);
     } else {
         group = 3;
     }
     group = group & 0xFFFF;
-    var_f21 = func_00196040(group, 1, (RwV3d *)(frame.center150), &frame.top15C, NULL, 0);
-    frame.center150[1] = 0.75f * frame.top15C;
-    var_f23 = var_f21 / tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
-    if (var_f23 < 1000.0f) {
-        var_f23 = 1000.0f;
+    groupRadius = func_00196040(group, 1, &groupCenter, &top, NULL, 0);
+    groupCenter.y = 0.75f * top;
+    cameraDistance = groupRadius / tanf(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    if (cameraDistance < 1000.0f) {
+        cameraDistance = 1000.0f;
     }
-    func_00196040(group, 1, (RwV3d *)(frame.center140), NULL, NULL, 1);
-    var_f20 = 0.0f;
-    for (var_17 = 0; (var_17 & 0xFFFF) < *(u16 *)(*(u8 **)(saved_arg0 + 0xE0) + 0x6A); var_17 = (var_17 + 1) & 0xFFFF) {
-        work = *(u8 **)(saved_arg0 + 0xE0);
-        entry = *(u8 **)(work + ((var_17 & 0xFFFF) * 4) + 0x38);
+    func_00196040(group, 1, &optionCenter, NULL, NULL, 1);
+    maxLen = 0.0f;
+    for (i = 0; i < *(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x6A); i++) {
+        work = *(u8 **)(arg0 + 0xE0);
+        entry = (((u8 **)work) + 14)[i];
         if ((*(u16 *)(entry + 0x1A) & 1) != 0) {
-            func_001958f0((BtlUnit *)(*(u8 **)(entry + 0x30)), (RwV3d *)(frame.actor100));
-            frame.tmp130[0] = frame.center140[0] - frame.actor100[0];
-            frame.tmp130[1] = frame.center140[1] - frame.actor100[1];
-            frame.tmp130[2] = frame.center140[2] - frame.actor100[2];
-            len = RwV3dLength(frame.tmp130);
-            if (!(len <= var_f20)) {
-                func_001c_copy_pair(&frame.pairF0, &frame.valF8, (s64 *)frame.actor100, &frame.actor100[2]);
-                var_f20 = len;
+            func_001958f0((BtlUnit *)(*(u8 **)(entry + 0x30)), &actorPos);
+            delta.x = optionCenter.x - actorPos.x;
+            delta.y = optionCenter.y - actorPos.y;
+            delta.z = optionCenter.z - actorPos.z;
+            len = RwV3dLength((f32 *)&delta);
+            if (!(len <= maxLen)) {
+                farthest = actorPos;
+                maxLen = len;
             }
         }
     }
-    work = *(u8 **)(saved_arg0 + 0xE0);
+    work = *(u8 **)(arg0 + 0xE0);
     unit = *(u8 **)(work + 0x30);
-    func_001958f0((BtlUnit *)(unit), (RwV3d *)(frame.actor100));
-    frame.tmp130[0] = frame.center140[0] - frame.actor100[0];
-    frame.tmp130[1] = frame.center140[1] - frame.actor100[1];
-    frame.tmp130[2] = frame.center140[2] - frame.actor100[2];
-    len = RwV3dLength(frame.tmp130);
-    if (!(len <= var_f20)) {
-        func_001c_copy_pair(&frame.pairD8, &frame.valE0, (s64 *)frame.actor100, &frame.actor100[2]);
-        func_001c_copy_pair(&frame.pairF0, &frame.valF8, &frame.pairD8, &frame.valE0);
-        frame.dir120[0] = frame.actor100[0] - frame.center150[0];
-        frame.dir120[1] = frame.actor100[1] - frame.center150[1];
-        frame.dir120[2] = frame.actor100[2] - frame.center150[2];
-        len = RwV3dNormalize((RwV3d *)frame.dir120, (const RwV3d *)frame.dir120);
-        var_f20 = len;
-        scale = fGpffff8128 * len;
-        frame.actor100[0] = frame.dir120[0] * scale;
-        frame.actor100[1] = frame.dir120[1] * scale;
-        frame.actor100[2] = frame.dir120[2] * scale;
-        centerY = frame.center150[1];
-        centerZ = frame.center150[2];
-        frame.center150[0] = frame.center150[0] + frame.actor100[0];
-        frame.center150[1] = centerY + frame.actor100[1];
-        frame.center150[2] = centerZ + frame.actor100[2];
-        unit = *(u8 **)(*(u8 **)(saved_arg0 + 0xE0) + 0x30);
-        cand = len + (1.25f * (*(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C))) / tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
-        if (!(cand <= var_f23)) {
-            var_f23 = cand;
+    func_001958f0((BtlUnit *)unit, &actorPos);
+    delta.x = optionCenter.x - actorPos.x;
+    delta.y = optionCenter.y - actorPos.y;
+    delta.z = optionCenter.z - actorPos.z;
+    len = RwV3dLength((f32 *)&delta);
+    if (!(len <= maxLen)) {
+        farthest = actorPos;
+        farthest = actorPos;
+        direction.x = actorPos.x - groupCenter.x;
+        direction.y = actorPos.y - groupCenter.y;
+        direction.z = actorPos.z - groupCenter.z;
+        maxLen = RwV3dNormalize(&direction, &direction);
+        scale = fGpffff8128 * maxLen;
+        actorPos.x = direction.x * scale;
+        actorPos.y = direction.y * scale;
+        actorPos.z = direction.z * scale;
+        groupCenter.x = groupCenter.x + actorPos.x;
+        groupCenter.y = groupCenter.y + actorPos.y;
+        groupCenter.z = groupCenter.z + actorPos.z;
+        unit = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
+        candidate = maxLen + (1.25f * (*(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C))) / tanf(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+        if (!(candidate <= cameraDistance)) {
+            cameraDistance = candidate;
         }
-    } else if (var_f20 != 0.0f) {
-        if (*(u16 *)(*(u8 **)(saved_arg0 + 0xE0) + 0x6A) >= 2) {
-            frame.dir120[0] = frame.actor100[0] - frame.center150[0];
-            frame.dir120[1] = frame.actor100[1] - frame.center150[1];
-            frame.dir120[2] = frame.actor100[2] - frame.center150[2];
-            len = RwV3dNormalize((RwV3d *)frame.dir120, (const RwV3d *)frame.dir120);
-            cand = (len + *(f32 *)(*(u8 **)(*(u8 **)(saved_arg0 + 0xE0) + 0x30) + 0x90) * *(f32 *)(*(u8 **)(*(u8 **)(saved_arg0 + 0xE0) + 0x30) + 0x2C) + 50.0f) / tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
-            if (!(cand <= var_f23)) {
-                var_f23 = cand;
+    } else if (maxLen != 0.0f) {
+        if (*(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x6A) > 1) {
+            direction.x = actorPos.x - groupCenter.x;
+            direction.y = actorPos.y - groupCenter.y;
+            direction.z = actorPos.z - groupCenter.z;
+            len = RwV3dNormalize(&direction, &direction);
+            reach = len + (50.0f + *(f32 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0x90) * *(f32 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0x2C));
+            candidate = reach / tanf(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+            if (!(candidate <= cameraDistance)) {
+                cameraDistance = candidate;
             }
-            frame.dir120[0] = frame.actor100[0] - *(f32 *)&frame.pairF0;
-            frame.dir120[1] = frame.actor100[1] - *(f32 *)((u8 *)&frame.pairF0 + 4);
-            frame.dir120[2] = frame.actor100[2] - frame.valF8;
-            scale = 0.5f * RwV3dNormalize((RwV3d *)frame.dir120, (const RwV3d *)frame.dir120);
-            frame.actor100[0] = frame.dir120[0] * scale;
-            frame.actor100[1] = frame.dir120[1] * scale;
-            frame.actor100[2] = frame.dir120[2] * scale;
-            *(f32 *)&frame.pairF0 = *(f32 *)&frame.pairF0 + frame.actor100[0];
-            *(f32 *)((u8 *)&frame.pairF0 + 4) = *(f32 *)((u8 *)&frame.pairF0 + 4) + frame.actor100[1];
-            frame.valF8 = frame.valF8 + frame.actor100[2];
+            direction.x = actorPos.x - farthest.x;
+            direction.y = actorPos.y - farthest.y;
+            direction.z = actorPos.z - farthest.z;
+            scale = 0.5f * RwV3dNormalize(&direction, &direction);
+            actorPos.x = direction.x * scale;
+            actorPos.y = direction.y * scale;
+            actorPos.z = direction.z * scale;
+            farthest.x = farthest.x + actorPos.x;
+            farthest.y = farthest.y + actorPos.y;
+            farthest.z = farthest.z + actorPos.z;
         }
-    } else if (var_f20 == 0.0f) {
-        func_001958f0((BtlUnit *)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30)), (RwV3d *)((f32 *)&frame.pairF0));
+    } else if (maxLen == 0.0f) {
+        func_001958f0((BtlUnit *)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30)), &farthest);
     }
-    *(f32 *)((u8 *)&frame.pairF0 + 4) = frame.center150[1];
-    frame.tmp130[0] = *(f32 *)&frame.pairF0 - frame.center150[0];
-    frame.tmp130[1] = frame.center150[1] - frame.center150[1];
-    frame.tmp130[2] = frame.valF8 - frame.center150[2];
-    RwV3dNormalize((RwV3d *)frame.tmp130, (const RwV3d *)frame.tmp130);
-    frame.tmp130[0] = frame.tmp130[0] * var_f21;
-    frame.tmp130[1] = frame.tmp130[1] * var_f21;
-    frame.tmp130[2] = frame.tmp130[2] * var_f21;
-    var_f22 = frame.center150[0] + frame.tmp130[0];
-    var_f20 = frame.center150[2] + frame.tmp130[2];
-    var_f21 = 1.25f * frame.top15C;
-    frame.dir120[0] = var_f22 - frame.center150[0];
-    frame.dir120[2] = var_f20 - frame.center150[2];
-    frame.dir120[1] = 0.0f;
-    scale = fGpffff8118 * RwV3dNormalize((RwV3d *)frame.dir120, (const RwV3d *)frame.dir120);
-    frame.dir120[0] = frame.dir120[0] * scale;
-    frame.dir120[1] = frame.dir120[1] * scale;
-    frame.dir120[2] = frame.dir120[2] * scale;
-    frame.out110[0] = frame.center150[0] + frame.dir120[0];
-    frame.out110[1] = frame.center150[1] + frame.dir120[1];
-    frame.out110[2] = frame.center150[2] + frame.dir120[2];
-    frame.out110[1] = frame.center150[1];
-    if (var_f21 < 250.0f) {
-        var_f21 = 250.0f;
+    farthest.y = groupCenter.y;
+    delta.x = farthest.x - groupCenter.x;
+    delta.y = farthest.y - groupCenter.y;
+    delta.z = farthest.z - groupCenter.z;
+    RwV3dNormalize(&delta, &delta);
+    delta.x = delta.x * groupRadius;
+    delta.y = delta.y * groupRadius;
+    delta.z = delta.z * groupRadius;
+    edgeX = groupCenter.x + delta.x;
+    edgeZ = groupCenter.z + delta.z;
+    focusHeight = 1.25f * top;
+    direction.x = edgeX - groupCenter.x;
+    direction.z = edgeZ - groupCenter.z;
+    direction.y = 0.0f;
+    scale = fGpffff8118 * RwV3dNormalize(&direction, &direction);
+    direction.x = direction.x * scale;
+    direction.y = direction.y * scale;
+    direction.z = direction.z * scale;
+    focus.x = groupCenter.x + direction.x;
+    focus.y = groupCenter.y + direction.y;
+    focus.z = groupCenter.z + direction.z;
+    focus.y = groupCenter.y;
+    if (focusHeight < 250.0f) {
+        focusHeight = 250.0f;
     }
-    frame.tmp130[0] = var_f22 - frame.out110[0];
-    frame.tmp130[1] = var_f21 - frame.out110[1];
-    frame.tmp130[2] = var_f20 - frame.out110[2];
-    RwV3dNormalize((RwV3d *)frame.tmp130, (const RwV3d *)frame.tmp130);
-    tanRes = tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
-    scale = var_f23 * tanRes * 0.21875f;
-    frame.pairE8[0] = frame.tmp130[0];
-    frame.pairE8[1] = frame.tmp130[2];
-    func_003e41e0(frame.pairE8, frame.pairE8);
-    frame.out110[0] = frame.pairE8[1] * scale + frame.out110[0] + 0.0f;
-    frame.out110[2] = (frame.out110[2] + 0.0f) - frame.pairE8[0] * scale;
+    delta.x = edgeX - focus.x;
+    delta.y = focusHeight - focus.y;
+    delta.z = edgeZ - focus.z;
+    RwV3dNormalize(&delta, &delta);
+    lateralOffset = cameraDistance * tanf(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    lateralOffset *= 0.21875f;
+    horizontal.x = delta.x;
+    horizontal.y = delta.z;
+    func_003e41e0((f32 *)&horizontal, (f32 *)&horizontal);
+    focus.x = (0.0f + focus.x) + horizontal.y * lateralOffset;
+    focus.z = (0.0f + focus.z) - horizontal.x * lateralOffset;
     if (effMiscRand(0) & 1) {
-        scale = 7.5f;
+        angle = 7.5f;
     } else {
-        scale = -7.5f;
+        angle = -7.5f;
     }
-    RwMatrixRotate((RwMatrix *)frame.mat90, (const RwV3d *)D_0060A0E0, scale, 0);
-    func_003e4320((RwV3d *)frame.dir120, (const RwV3d *)frame.tmp130, (const RwMatrix *)frame.mat90);
-    frame.dir120[0] = frame.dir120[0] * var_f23;
-    frame.dir120[1] = frame.dir120[1] * var_f23;
-    frame.dir120[2] = frame.dir120[2] * var_f23;
-    frame.out6C[0] = frame.out110[0] + frame.dir120[0];
-    frame.out6C[1] = frame.out110[1] + frame.dir120[1];
-    frame.out6C[2] = frame.out110[2] + frame.dir120[2];
-    func_001bd780(frame.quat78, frame.out6C, frame.out110, D_0060A0E0);
-    if (isZero == 0) {
-        RwMatrixRotate((RwMatrix *)frame.mat90, (const RwV3d *)D_0060A0E0, -scale, 0);
-        func_003e4320((RwV3d *)frame.dir120, (const RwV3d *)frame.tmp130, (const RwMatrix *)frame.mat90);
-        frame.dir120[0] = frame.dir120[0] * var_f23;
-        frame.dir120[1] = frame.dir120[1] * var_f23;
-        frame.dir120[2] = frame.dir120[2] * var_f23;
-        frame.pose50[0] = frame.out110[0] + frame.dir120[0];
-        frame.pose50[1] = frame.out110[1] + frame.dir120[1];
-        frame.pose50[2] = frame.out110[2] + frame.dir120[2];
-        func_001bd780(&frame.pose50[3], frame.pose50, frame.out110, D_0060A0E0);
+    RwMatrixRotate(&matrix, (const RwV3d *)D_0060A0E0, angle, 0);
+    func_003e4320(&direction, &delta, &matrix);
+    direction.x = direction.x * cameraDistance;
+    direction.y = direction.y * cameraDistance;
+    direction.z = direction.z * cameraDistance;
+    frames[1].pos.x = focus.x + direction.x;
+    frames[1].pos.y = focus.y + direction.y;
+    frames[1].pos.z = focus.z + direction.z;
+    func_001bd780(&frames[1].rot, &frames[1].pos, &focus, D_0060A0E0);
+    if (fixedShot == 0) {
+        RwMatrixRotate(&matrix, (const RwV3d *)D_0060A0E0, -angle, 0);
+        func_003e4320(&direction, &delta, &matrix);
+        direction.x = direction.x * cameraDistance;
+        direction.y = direction.y * cameraDistance;
+        direction.z = direction.z * cameraDistance;
+        frames[0].pos.x = focus.x + direction.x;
+        frames[0].pos.y = focus.y + direction.y;
+        frames[0].pos.z = focus.z + direction.z;
+        func_001bd780(&frames[0].rot, &frames[0].pos, &focus, D_0060A0E0);
         func_004b3110(8);
-        scale = 8.0f;
+        duration = 8.0f;
     } else {
-        frame.pose50[0] = frame.out6C[0];
-        frame.pose50[1] = frame.out6C[1];
-        frame.pose50[2] = frame.out6C[2];
-        switch (*(u16 *)(*(u8 **)(saved_arg0 + 0xE0) + 0x6E)) {
+        frames[0].pos = frames[1].pos;
+        switch (*(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x6E)) {
         case 52:
-            frame.pose50[1] = 500.0f;
-            frame.out110[1] = 450.0f;
-            scale = 2.75f;
+            frames[0].pos.y = 500.0f;
+            focus.y = 450.0f;
+            duration = 2.75f;
             break;
         case 53:
-            frame.pose50[1] = 600.0f;
-            frame.out110[1] = (f32)0x226;
-            scale = 3.0f;
+            frames[0].pos.y = 600.0f;
+            focus.y = 550.0f;
+            duration = 3.0f;
             break;
         case 56:
-            frame.pose50[1] = 800.0f;
-            frame.out110[1] = 700.0f;
-            scale = 3.75f;
+            frames[0].pos.y = 800.0f;
+            focus.y = 700.0f;
+            duration = 3.75f;
             break;
         case 78:
-            frame.pose50[1] = 1000.0f;
-            frame.out110[1] = (f32)0x2EE;
-            scale = 2.5f;
+            frames[0].pos.y = 1000.0f;
+            focus.y = 750.0f;
+            duration = 2.5f;
             break;
         default:
-            frame.pose50[1] = 500.0f;
-            frame.out110[1] = 450.0f;
-            scale = 2.75f;
+            frames[0].pos.y = 500.0f;
+            focus.y = 450.0f;
+            duration = 2.75f;
             break;
         }
-        func_001bd780(&frame.pose50[3], frame.pose50, frame.out110, D_0060A0E0);
+        func_001bd780(&frames[0].rot, &frames[0].pos, &focus, D_0060A0E0);
         func_004b3110(8);
     }
-    func_001bc3a0(frame.pose50, frame.pose50);
-    func_001bc3a0(frame.out6C, frame.out6C);
-    func_001bac20((u16 *)saved_arg0, frame.pose50, frame.out6C, 1);
-    func_001bbef0(saved_arg0, scale);
+    func_001bc3a0((f32 *)&frames[0], (f32 *)&frames[0]);
+    func_001bc3a0((f32 *)&frames[1], (f32 *)&frames[1]);
+    func_001bac20((u16 *)arg0, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+    func_001bbef0(arg0, duration);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c5b80);
-#endif
 // FUN_001C79E0
 void func_001c79e0(void) {}
 /* MATCH.  The last two words were the order of two operand loads feeding one
