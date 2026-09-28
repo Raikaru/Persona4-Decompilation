@@ -1501,113 +1501,106 @@ s32 func_002a5630(s32 arg0)
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a5630);
 #endif
 
-/* measured: retail colors p->$s0, s17->$s1, s18->$s2, s19->$s3, s20->$s4; mwcc
-   b210 graph-colors a cyclic rotation (p->$s2, s17->$s0, s18->$s1, s20->$s0,
-   loop-s18->$s4) and the loop's s18 = s17+s19-3 reuses a different register
-   than retail. Tried p first/last, all five saved-reg declaration orders, and
-   the two-statement mul.s (value-in-fs) fix (that one landed); best nd 81.
-   Saved-register rotation floor. */
-/* Wave-14 re-test: corrected the m2c call-signature errors at func_0025f3f0 */
-/*   (floats 0.0/195.0/0.0 then ints 0xFFFFFF/0xFF/0x22/0/[0x398]/1) and */
-/*   func_002a66d0 (floats 72.0/179.0/0.0/124.0*f/116.0*f then ints 0x2D2D2D/0xFF/1) */
-/*   and the 0xFF constants (m2c misread as 3.57e-43f); nd 314 from a fresh m2c */
-/*   body, worse than the recorded 81 (previous hand-adapted body). The func_002a9f50 */
-/*   call now passes the correct s32 0xFF first arg. Rotation floor persists. */
-/* 2026-09-17 cold reconstruction from the m2c draft (guarded v1): nd 181. */
-/*   Call map used (all verified against mc.c decls + 002a4f20 sibling spellings): */
-/*   0025f3f0 as (0.0f,131.0f,0.0f,FFFFFF,FF,22,0,*(0x398),1) (m2c rotated the */
-/*   two triples); 002a9f50 as (f21,f20,5.0f,0xFF,t+0x14,t18,0,temp_2); */
-/*   002a66d0 floats-first; 6b10/6b60/6c30/7710 take int 255 (not 3.57e-43f); */
-/*   0018bb20/0015d1a0 at true arity (extra m2c args dropped); 0047a1a0 as */
-/*   (obj,&cfg,float,int). 00452560 called via cast (TU decl is (void*)->u32); */
-/*   a block-scope shadow decl + direct call regressed badly (decl conflict), */
-/*   reverted. Unhandled: two-statement mul.s split (870, worse), D_00761304/ */
-/*   D_0076130C/D_00761308 unregistered (recover_symbols.py needed before any */
-/*   live attempt; D_00761120/74 likewise Ghidra-spelled, cf iGpffff8030/8084). */
-/*   Size: object 1568B vs 1552B window (16 over — residual is coloring plus */
-/*   extra materialization, not missing work). Production stays ASM. */
+/* Rewrite 2026-09-28 (lane 5), replaces the m2c-shaped draft (181 differing words).
+   Honest ABI: func_00452560 takes the task in arg0 (a0 passes through; the old
+   draft called it through a no-argument cast).  Every call, constant and loop
+   is now retail's: 385/385 instructions, guarded score 62 differing words
+   (reloc-masked), 0 inserted/deleted instructions.
+   Levers that mattered: `fdiff = (f32)diff` as a named float (retail converts
+   once and reuses it; without it the K2 load moves ahead of the cvt.s.w) and
+   `half = 0.5f` as a named float (gives `mul.s f0,f2,f0`, operand order).
+   iGpffff8214/8218/821c/8030/8084 are the gp floats at -0x7dec/-0x7de8/-0x7de4/
+   -0x7fd0/-0x7f7c($gp).  Residual is only register colouring: retail has
+   p->$s0, base->$s1, slot->$s2, idx->$s3, row->$s4 (and f21=x, f20=y); mwcc gives
+   p->$s4 and row->$s0 (row/base/target/diff are only used in ALU operations, and
+   an ALU-only value ranks below the direct call-argument values p/idx/slot no
+   matter where it is declared: measured in isolation, a direct call argument use
+   moves it up, `row - X` or `row + 5` does not).  Declaration order of p/row,
+   merging target/diff into slot/base, inlining `row - X` (CSE'd early),
+   opt_loop_invariants with no row local (72), f32 pos[2] and the x/y order all
+   leave the p/row and f20/f21 swaps in place. */
 // FUN_002A5F00 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002a5f00(s32 arg0)
 {
-    extern f32 D_00761304;
-    extern f32 D_0076130C;
-    extern f32 D_00761308;
-    extern f32 D_00761120;
-    extern f32 D_00761174;
+    extern f32 iGpffff8084;
     u8 *p;
-    s32 s17;
-    s32 s18;
-    s32 s19;
-    s32 s20;
-    f32 f21;
-    f32 f20;
-    f32 f23;
-    f32 f22;
-    f32 t0;
-    s32 a;
-    s32 b;
-    s32 c;
+    s32 base;
+    s32 idx;
+    s32 slot;
+    s32 row;
+    s32 target;
+    s32 diff;
+    s32 rest;
+    f32 x;
+    f32 y;
+    f32 scale;
+    f32 fdiff;
+    f32 half;
 
-    p = ((u8 *(*)(void))func_00452560)();
+    p = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
     func_002a6b10(0, 0, 255, p);
     func_002a7710(255, p);
     func_002a6b60(0, 0, 255, p);
     func_002a6c30(0, 0, 255, p);
-    a = *(s32 *)(p + 0x3AC) << 16;
-    b = *(s32 *)(p + 0x3B4);
-    if (b != a) {
-        c = a - b;
-        if ((f32)func_0043c6a0(c) <= D_00761304 * (f32)a) {
-            *(s32 *)(p + 0x3B4) = a;
+    target = *(s32 *)(p + 0x3AC) << 16;
+    if (*(s32 *)(p + 0x3B4) != target) {
+        diff = target - *(s32 *)(p + 0x3B4);
+        if ((f32)func_0043c6a0(diff) <= iGpffff8214 * (f32)target) {
+            *(s32 *)(p + 0x3B4) = target;
         } else {
-            t0 = (f32)c;
-            f20 = (f32)(s32)D_0076130C;
-            if (D_00761308 * t0 < f20) {
-                f23 = t0 * 0.5f;
+            fdiff = (f32)diff;
+            if (iGpffff8218 * fdiff < iGpffff821c) {
+                half = 0.5f;
+                rest = (s32)(fdiff * half);
             } else {
-                f23 = f20;
+                rest = (s32)(iGpffff8218 * fdiff);
             }
-            *(s32 *)(p + 0x3B4) = *(s32 *)(p + 0x3B4) + (s32)f23;
+            *(s32 *)(p + 0x3B4) = *(s32 *)(p + 0x3B4) + rest;
         }
     }
-    s17 = *(s32 *)(p + 0x3B4) >> 16;
-    s19 = 0;
-    s20 = s17 << 16;
-    while (s19 < 7) {
-        s18 = (s17 + s19) - 3;
-        if (s18 >= 0 && s18 < 0x10 && ((s19 != 0 && s19 != 6) || (u16)*(s32 *)(p + 0x3B4) != 0)) {
+    base = *(s32 *)(p + 0x3B4) >> 16;
+    idx = 0;
+    row = base << 16;
+    while (idx < 7) {
+        slot = base + idx - 3;
+        if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(p + 0x3B4) != 0)) {
             func_002a6960(0, 0, 0x280, 0x1C0, 5.0f);
             func_002a6960(0, 0, 0x280, 0x2D, 0.0f);
             func_002a6960(0, 0x195, 0x280, 0x30, 0.0f);
-            c = s20 - *(s32 *)(p + 0x3B4);
-            f21 = -59.0f + (f32)(s19 * 0x1A) + (f32)(c * 0x1A) / 65536.0f;
-            f20 = -152.0f + (f32)(s19 * 0x5E) + (f32)(c * 0x5E) / 65536.0f;
-            func_002a7920(0xFF, p + 0x14, s18, 0, p, f21, f20, 0, 1.0f);
-            func_002a9f50(f21, f20, 5.0f, 0xFF, p + 0x14, s18, 0, p);
+            diff = row - *(s32 *)(p + 0x3B4);
+            x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
+            y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
+            func_002a7920(0xFF, p + 0x14, slot, 0, p, x, y, 0.0f, 1.0f);
+            func_002a9f50(x, y, 5.0f, 0xFF, p + 0x14, slot, 0, p);
         }
-        s19 += 1;
+        idx++;
     }
-    func_0025f3f0(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)(*(s32 *)(p + 0x398)), 1);
-    s19 = 0;
-    while (s19 < 7) {
-        s18 = (s17 + s19) - 3;
-        if (s18 >= 0 && s18 < 0x10 && ((c = s20 - *(s32 *)(p + 0x3B4), f21 = -59.0f + (f32)(s19 * 0x1A) + (f32)(c * 0x1A) / 65536.0f, f20 = -152.0f + (f32)(s19 * 0x5E) + (f32)(c * 0x5E) / 65536.0f, s18 == s17) || s18 == s17 + 1)) {
-            func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
-            func_002a6960(0, 0x83, 0x280, 0x5E, 10.0f);
-            func_002a9f50(f21, f20, 5.0f, 0xFF, p + 0x14, s18, 1, p);
+    func_0025f3f0(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(p + 0x398), 1);
+    idx = 0;
+    while (idx < 7) {
+        slot = base + idx - 3;
+        if (slot >= 0 && slot < 16) {
+            diff = row - *(s32 *)(p + 0x3B4);
+            x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
+            y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
+            if (slot == base || slot == base + 1) {
+                func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
+                func_002a6960(0, 0x83, 0x280, 0x5E, 10.0f);
+                func_002a9f50(x, y, 5.0f, 0xFF, p + 0x14, slot, 1, p);
+            }
         }
-        s19 += 1;
+        idx++;
     }
-    if ((*(s32 *)(p + 0x3AC) + 1) != 0) {
+    if (*(s32 *)(p + 0x3AC) + 1 != 0) {
         func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
-        c = *(s32 *)(p + 0x3B8);
-        if (c > 0) {
-            *(s32 *)(p + 0x3B8) = c - 1;
+        diff = *(s32 *)(p + 0x3B8);
+        if (diff > 0) {
+            *(s32 *)(p + 0x3B8) = diff - 1;
         }
-        f20 = (f32)(s32)(1.0f + (D_00761120 * sinf((s16)((D_00761174 * (f32)*(s32 *)(p + 0x3B8)) / 10.0f))));
-        func_002a66d0(72.0f, 179.0f, 0.0f, 124.0f * f20, 116.0f * f20, 0x2D2D2D, 0xFF, 1);
-        func_002a7920(0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, p, 19.0f, 130.0f, 0, f20);
+        scale = 1.0f + iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(p + 0x3B8) / 10.0f);
+        func_002a66d0(72.0f, 179.0f, 0.0f, 124.0f * scale, 116.0f * scale, 0x2D2D2D, 0xFF, 1);
+        func_002a7920(0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, p, 19.0f, 130.0f, 0.0f, scale);
     }
     func_002a6e30(5, -5, 0xFF, p);
     return 1;
