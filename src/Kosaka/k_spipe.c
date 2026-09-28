@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "field_shadow_internal.h"
+#include "rw_collision_internal.h"
 
 typedef struct RwV3d RwV3d;
 struct RwV3d
@@ -138,12 +139,33 @@ typedef struct FldShadowProjectionWork FldShadowProjectionWork;
 
 typedef struct FldShadowAtomicContext
 {
-    void* geometry;                       // 0x00
+    struct RpIntersection* intersection; // 0x00
     FldShadowProjectionWork* work;        // 0x04
-    void* atomic;                         // 0x08
+    struct RpAtomic* atomic;             // 0x08
 } FldShadowAtomicContext;
 
 
+
+/* RenderWare immediate-mode interfaces used by both projection callbacks. */
+struct RwMatrixTag;
+struct _RxObjSpace3DVertex;
+enum RwPrimitiveType {
+    rwPRIMTYPENAPRIMTYPE = 0,
+    rwPRIMTYPELINELIST = 1,
+    rwPRIMTYPEPOLYLINE = 2,
+    rwPRIMTYPETRILIST = 3,
+    rwPRIMTYPETRISTRIP = 4,
+    rwPRIMTYPETRIFAN = 5,
+    rwPRIMTYPEPOINTLIST = 6,
+    rwPRIMITIVETYPEFORCEENUMSIZEINT = 0x7fffffff
+};
+extern RwV3d *func_003e42e0(RwV3d *dst, const RwV3d *src,
+                           s32 count, const struct RwMatrixTag *matrix);
+extern struct RwMatrixTag *func_003e9700(RwFrame *frame);
+extern void *func_00410420(struct _RxObjSpace3DVertex *vertices, u32 count,
+                          struct RwMatrixTag *matrix, u32 flags);
+extern s32 func_004106a0(enum RwPrimitiveType primitive);
+extern s32 func_004104d0(void);
 
 // FUN_00178C20
 u32 K_FldShadow_Draw(f32 xLeft, f32 yTop,
@@ -257,10 +279,6 @@ struct RpCollisionTriangle* func_001791d0(
     struct RpIntersection* intersection, struct RpWorldSector* sector,
     struct RpCollisionTriangle* tri, f32 distance, void* data)
 {
-    extern void func_003e42e0(void* dst, void* src, s32 n, void* mat);
-    extern s32 func_00410420(void* w, u32 c, s32 z, s32 v);
-    extern void func_004106a0(s32 v);
-    extern void func_004104d0(void);
     u8* triSaved = (u8*)tri;
     u8* workSaved = data;
     u8* base = workSaved + 0x5470;
@@ -285,7 +303,7 @@ struct RpCollisionTriangle* func_001791d0(
     src[0] = *(RwV3d*)(*(u8**)(triSaved + 0x1C));
     src[1] = *(RwV3d*)(*(u8**)(triSaved + 0x20));
     src[2] = *(RwV3d*)(*(u8**)(triSaved + 0x24));
-    func_003e42e0(dst, src, 3, base + 0x10);
+    func_003e42e0(dst, src, 3, (const struct RwMatrixTag *)(base + 0x10));
     f15x = 1.5f * triNormal->x;
     f15y = 1.5f * triNormal->y;
     f15z = 1.5f * triNormal->z;
@@ -307,7 +325,7 @@ struct RpCollisionTriangle* func_001791d0(
     }
     cnt = *(u32*)(workSaved + 0x5460);
     if (cnt > 0x255U) {
-        if (func_00410420(workSaved, cnt, 0, 0x19) != 0) {
+        if (func_00410420((struct _RxObjSpace3DVertex *)workSaved, cnt, 0, 0x19) != 0) {
             func_004106a0(3);
             func_004104d0();
         }
@@ -408,11 +426,6 @@ struct RpCollisionTriangle* func_00179860(
     f32 distance, void* data)
 {
     FldShadowAtomicContext* context = data;
-    extern void* func_003e9700(void* arg);
-    extern void func_003e42e0(void* dst, void* src, s32 n, void* mat);
-    extern s32 func_00410420(void* w, u32 c, s32 z, s32 v);
-    extern void func_004106a0(s32 v);
-    extern void func_004104d0(void);
     u8* base = (u8*)context->work + 0x5470;
     RwV3d normal;
     RwV3d src[3];
@@ -433,8 +446,8 @@ struct RpCollisionTriangle* func_00179860(
 
     normal = *(const RwV3d*)triangle;
     for (i = 0; i < 3; i++) {
-        func_003e42e0(&skinned[i], *(void**)((const u8*)triangle + 0x1C + i * 4), 1,
-                      func_003e9700(*(void**)((u8*)context->atomic + 4)));
+        func_003e42e0(&skinned[i], *(const RwV3d **)((const u8*)triangle + 0x1C + i * 4), 1,
+                      func_003e9700(*(RwFrame **)((u8*)context->atomic + 4)));
     }
     dot = normal.x * workVec->x + normal.y * workVec->y + normal.z * workVec->z;
     if (dot > 0.0f) {
@@ -443,7 +456,7 @@ struct RpCollisionTriangle* func_00179860(
     src[0] = skinned[0];
     src[1] = skinned[1];
     src[2] = skinned[2];
-    func_003e42e0(dst, src, 3, base + 0x10);
+    func_003e42e0(dst, src, 3, (const struct RwMatrixTag *)(base + 0x10));
     f15x = 1.5f * normal.x;
     f15y = 1.5f * normal.y;
     f15z = 1.5f * normal.z;
@@ -465,7 +478,7 @@ struct RpCollisionTriangle* func_00179860(
     }
     cnt = *(u32*)((u8*)context->work + 0x5460);
     if (cnt > 0x255U) {
-        if (func_00410420(context->work, cnt, 0, 0x19) != 0) {
+        if (func_00410420((struct _RxObjSpace3DVertex *)context->work, cnt, 0, 0x19) != 0) {
             func_004106a0(3);
             func_004104d0();
         }
@@ -563,6 +576,6 @@ void* func_00179f70(void* atomic, void* data)
 {
     FldShadowAtomicContext* context = data;
     context->atomic = atomic;
-    func_00394e70(atomic, context->geometry, func_00179860, context);
+    func_00394e70(atomic, context->intersection, func_00179860, context);
     return atomic;
 }
