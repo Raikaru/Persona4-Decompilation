@@ -136,12 +136,17 @@ void func_0037c720(u8 *arg0) {
     }
 }
 
-// measured: plain C reaches object 2052B/window 2064B but leaves normalized_diff
-// 190; all case CFGs and stack frame match, but retail's FPU MAC schedules differ.
-// Restored the bare assembly fallback.
+// measured: retail builds the slot position in a two-float stack local (0x48($sp)) and
+// copies it to arg2 at the join; a struct local plus a struct copy-out reproduces the
+// 0x50 frame and all 513 instructions (50 differing words; plain f32[2] is promoted to
+// FPRs and writing arg2 directly leaves a 0x40 frame).  What remains is FPU operand
+// order in the five arms that convert arg1 directly: retail loads 80.0f into $f3 before
+// the int-to-float conversion, b210 loads it after the subtract.
 // FUN_0037CA60 NONMATCHING
 #ifdef NON_MATCHING
+typedef struct ShuffleSlotPos { f32 x; f32 y; } ShuffleSlotPos;
 void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
+    ShuffleSlotPos pos;
     s32 n;
     if (*(s32 *)(arg0 + 0x1F2FC) != 3) {
         func_0046d730(&D_0064EB20[0], 0x5B);
@@ -149,82 +154,83 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
     n = func_00378530(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
     switch (n) {
     case 6:
-        arg2[0] = 320.0f + 80.0f * ((f32)(arg1 % 3) - 1.0f);
-        arg2[1] = 224.0f + 100.0f * ((f32)(arg1 / 3) - 0.5f);
+        pos.x = 320.0f + 80.0f * ((f32)(arg1 % 3) - 1.0f);
+        pos.y = 224.0f + 100.0f * ((f32)(arg1 / 3) - 0.5f);
         break;
     case 8:
         if (arg1 < 4) {
-            arg2[0] = 320.0f + 80.0f * ((f32)arg1 - 1.5f);
-            arg2[1] = 174.0f;
+            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.5f);
+            pos.y = 174.0f;
         } else {
-            arg2[0] = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.5f);
-            arg2[1] = 274.0f;
+            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.5f);
+            pos.y = 274.0f;
         }
         break;
     case 10:
         if (arg1 < 3) {
-            arg2[0] = 320.0f + 80.0f * ((f32)arg1 - 1.0f);
-            arg2[1] = 74.0f;
+            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.0f);
+            pos.y = 74.0f;
         } else if (arg1 < 5) {
-            arg2[0] = 320.0f + 80.0f * ((f32)(arg1 - 3) - 0.5f);
-            arg2[1] = 174.0f;
+            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 3) - 0.5f);
+            pos.y = 174.0f;
         } else if (arg1 < 7) {
-            arg2[0] = 320.0f + 80.0f * ((f32)(arg1 - 5) - 0.5f);
-            arg2[1] = 274.0f;
+            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 5) - 0.5f);
+            pos.y = 274.0f;
         } else {
-            arg2[0] = 320.0f + 80.0f * ((f32)(arg1 - 7) - 1.0f);
-            arg2[1] = 374.0f;
+            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 7) - 1.0f);
+            pos.y = 374.0f;
         }
         break;
     case 12:
         if (arg1 < 3) {
-            arg2[0] = 320.0f + 80.0f * ((f32)arg1 - 1.0f);
-            arg2[1] = 74.0f;
+            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.0f);
+            pos.y = 74.0f;
         } else if (arg1 < 6) {
-            arg2[0] = 320.0f + 80.0f * ((f32)(arg1 - 3) - 1.0f);
-            arg2[1] = 174.0f;
+            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 3) - 1.0f);
+            pos.y = 174.0f;
         } else if (arg1 < 9) {
-            arg2[0] = 320.0f + 80.0f * ((f32)(arg1 - 6) - 1.0f);
-            arg2[1] = 274.0f;
+            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 6) - 1.0f);
+            pos.y = 274.0f;
         } else {
-            arg2[0] = 320.0f + 80.0f * ((f32)(arg1 - 9) - 1.0f);
-            arg2[1] = 374.0f;
+            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 9) - 1.0f);
+            pos.y = 374.0f;
         }
         break;
     case 14:
         if (arg1 < 4) {
-            arg2[0] = 320.0f + 80.0f * ((f32)arg1 - 1.5f);
-            arg2[1] = 74.0f;
+            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.5f);
+            pos.y = 74.0f;
         } else if (arg1 < 7) {
-            arg2[0] = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.0f);
-            arg2[1] = 174.0f;
+            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.0f);
+            pos.y = 174.0f;
         } else if (arg1 < 11) {
-            arg2[0] = 320.0f + 80.0f * ((f32)(arg1 - 7) - 1.5f);
-            arg2[1] = 274.0f;
+            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 7) - 1.5f);
+            pos.y = 274.0f;
         } else {
-            arg2[0] = 320.0f + 80.0f * ((f32)(arg1 - 11) - 1.0f);
-            arg2[1] = 374.0f;
+            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 11) - 1.0f);
+            pos.y = 374.0f;
         }
         break;
     case 16:
         if (arg1 < 4) {
-            arg2[0] = 320.0f + 80.0f * ((f32)arg1 - 1.5f);
-            arg2[1] = 74.0f;
+            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.5f);
+            pos.y = 74.0f;
         } else if (arg1 < 8) {
-            arg2[0] = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.5f);
-            arg2[1] = 174.0f;
+            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.5f);
+            pos.y = 174.0f;
         } else if (arg1 < 12) {
-            arg2[0] = 320.0f + 80.0f * ((f32)(arg1 - 8) - 1.5f);
-            arg2[1] = 274.0f;
+            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 8) - 1.5f);
+            pos.y = 274.0f;
         } else {
-            arg2[0] = 320.0f + 80.0f * ((f32)(arg1 - 12) - 1.5f);
-            arg2[1] = 374.0f;
+            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 12) - 1.5f);
+            pos.y = 374.0f;
         }
         break;
     default:
         func_0046d730(&D_0064EB20[0], 0x116);
         break;
     }
+    *(ShuffleSlotPos *)arg2 = pos;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle4", func_0037ca60);
