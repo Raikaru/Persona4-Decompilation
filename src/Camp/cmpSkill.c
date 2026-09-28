@@ -229,48 +229,81 @@ resolve_test:
 /* measured: restore loop-invariant optimization after matching func_00137fb0. */
 #pragma opt_loop_invariants off
 
-/* measured: retail keeps var30 in $fp, var19 in $s3, temp20 in $s4 and uses
-   a 0x100 frame with 10 saved registers ($fp/$s7..$s0) across the nested
-   sort loops; mwcc b210 allocates a 0xD0 frame and different $s6/$s4/$s7
-   registers (nd 309). The m2c draft's s128/s64 stack values (sq 0xB0/0xA0/
-   0xC0) and the ld/sd swap collapse to different register coloring. Tried
-   the m2c body converted to C89 — frame/register allocation floor. */
-/* measured: candidate object 393 instrs/retail 397 instrs (1572B/1588B window 1600B, -4, -1.0% INSIDE +-3% band 385-409), probe reloc-masked 317 words (guard below, NON_MATCHING so production stays ASM; fnalign 309 edits +2 reloc-only). 0xD0 frame vs retail 0x100 (10 saves $fp/s7..s0); jal 19 vs 19. Restored dropped sort arm: early sh count to 0x580, nested i/j loops over 0xC entries with 0xC0/0x100 range checks and three swap tails (both-in/both-out/in-vs-out) via f32 moves + outerTmp/innerTmp stack temps, matching retail 3887C-38A20. Dedup 12B copies via f32 (lwc1/swc1) and 0x20A loads via u16 (lhu) per retail opcodes; signedness solver 7 fields no accepts so no type-spelling change. Banked as inside-gate floor. */
-// FUN_00138490 NONMATCHING
-#ifdef NON_MATCHING
+/* Ability-list record at +0x100 of the work area: id, sort key, two payload words. b210 copies any
+   12-byte struct with a float member through $f0-$f2 (loads first, then stores), which is the retail
+   record copy. */
+typedef struct SkillRec
+{
+    s16 id;
+    u16 key;
+    f32 a;
+    f32 b;
+} SkillRec;
+/* Inline search of a persona's eight-entry skill list; the 1/0 returns keep the result in $v0 exactly
+   as the two retail copies do. */
+static inline s32 campSkillListHas(u16 *skills, u16 skill)
+{
+    s32 k;
+
+    for (k = 0; k < 8; k++) {
+        if (skills[k] == skill) {
+            return 1;
+        }
+    }
+    return 0;
+}
+/* measured: matches with opt_loop_invariants on. With it off the compare `sel != -1` re-extends the s16
+   inside the pair loops and the frame is 0xD0; with it on the extension is hoisted and spilled (sq 0xC0),
+   which is retail's 0x100 frame with three quadword spills (0xA0 q key pointer, 0xB0 cur, 0xC0 sel).
+   Loop shapes that matter: the query, dedupe and sort passes each keep their own index variables, the
+   dedupe removes the last entry through a fresh pointer (e) and steps n back, the sort's range tests
+   use `> 0xFF` for the second bound, and the record-table lookup names the doubled index in a local so
+   b210 emits `addu index,base`. The fa80 calls pass the original mode value v, not a list result. */
+// FUN_00138490
+#pragma push
+#pragma opt_loop_invariants on
 void func_00138490(void *arg0)
 {
-    u8 *b = (u8 *)arg0;
     s16 sel;
-    s32 count;
-    s32 i;
-    s32 j;
-    s32 k;
-    s32 idx;
-    u8 *p;
-    u8 *q;
+    s32 m;
+    SkillRec *qr;
+    u8 *b = (u8 *)arg0;
     s32 v;
+    s32 count;
+    s32 n;
+    s32 r;
+    s32 t;
     s32 w;
-    u16 key;
-    u16 cur;
-    s32 a;
-    s32 bv;
+    s32 i;
+    u8 *p;
+    s32 j;
+    u8 *q;
+    u8 *e;
+    s32 key;
+    s32 cur;
+    u16 *kp;
     s32 res;
-    s32 tmp[4];
+    s32 x;
+    s32 y;
+    SkillRec innerTmp;
+    SkillRec outerTmp;
 
-    count = 0;
     sel = -1;
+    count = 0;
     v = *(s16 *)((u8 *)arg0 + 0x5C);
-    v = *(s16 *)((u8 *)arg0 + v * 2 + 0xF4);
+    {
+        s32 off = v * 2;
+        v = *(s16 *)((u8 *)(off + (s32)arg0) + 0xF4);
+    }
     if (v == 1) {
         sel = func_0010b510();
-        for (i = 0; (u32)i < (func_0010b6f0() & 0xFFFF); i++) {
-            v = func_0010ace0((s16)i);
-            if (v != 0) {
+        for (i = 0; i < func_0010b6f0(); i++) {
+            w = func_0010ace0((s16)i);
+            if (w != 0) {
                 func_0010b3b0((s16)i);
                 for (j = 0; j < 8; j++) {
                     p = b + count * 12;
-                    if (func_00113520(1, v, j, p + 0x100) != 0) {
+                    if (func_00113520(1, w, j, p + 0x100) != 0) {
                         *(s16 *)(p + 0x100) = (s16)i;
                         count++;
                     }
@@ -287,116 +320,73 @@ void func_00138490(void *arg0)
             }
         }
     }
-    for (i = 0; i < count; i++) {
-        p = b + i * 12;
+    for (m = 0; m < count; m++) {
+        p = b + m * 12;
         cur = *(u16 *)(p + 0x102);
-        for (j = i + 1; j < count; j++) {
-            q = b + j * 12;
-            key = *(u16 *)(q + 0x102);
+        for (n = m + 1; n < count; n++) {
+            q = b + n * 12;
+            kp = (u16 *)(q + 0x102);
+            key = *kp;
             if (cur == key) {
                 if (cur < 0x1B8 && sel != -1) {
-                    v = func_0010ace0(*(s16 *)(p + 0x100));
-                    a = (s32)datPersonaGetSkills(v);
-                    res = 0;
-                    for (k = 0; k < 8; k++) {
-                        if (*(u16 *)(a + k * 2) == 0x20A) {
-                            res = 1;
-                            break;
-                        }
-                    }
+                    res = campSkillListHas(datPersonaGetSkills(func_0010ace0(*(s16 *)(p + 0x100))), 0x20A);
                     if (res == 0) {
-                        v = func_0010ace0(*(s16 *)(q + 0x100));
-                        bv = (s32)datPersonaGetSkills(v);
-                        res = 0;
-                        for (k = 0; k < 8; k++) {
-                            if (*(u16 *)(bv + k * 2) == 0x20A) {
-                                res = 1;
-                                break;
-                            }
-                        }
+                        qr = (SkillRec *)(q + 0x100);
+                        res = campSkillListHas(datPersonaGetSkills(func_0010ace0(*(s16 *)(q + 0x100))), 0x20A);
                         if (res != 0) {
-                            *(f32 *)(p + 0x100) = *(f32 *)(q + 0x100);
-                            *(f32 *)(p + 0x104) = *(f32 *)(q + 0x104);
-                            *(f32 *)(p + 0x108) = *(f32 *)(q + 0x108);
+                            *(SkillRec *)(p + 0x100) = *qr;
                         } else {
                             func_0010b3b0(*(s16 *)(p + 0x100));
-                            func_0010fa80(v, v, *(u16 *)(p + 0x102), 0, tmp, 0, 0);
-                            func_0010b3b0(*(s16 *)(q + 0x100));
-                            func_0010fa80(v, v, *(u16 *)(q + 0x102), 0, tmp + 2, 0, 0);
-                            if (tmp[0] < tmp[2]) {
-                                *(f32 *)(p + 0x100) = *(f32 *)(q + 0x100);
-                                *(f32 *)(p + 0x104) = *(f32 *)(q + 0x104);
-                                *(f32 *)(p + 0x108) = *(f32 *)(q + 0x108);
+                            func_0010fa80(v, v, *(u16 *)(p + 0x102), 0, &x, 0, 0);
+                            func_0010b3b0(qr->id);
+                            func_0010fa80(v, v, *kp, 0, &y, 0, 0);
+                            if (x < y) {
+                                *(SkillRec *)(p + 0x100) = *qr;
                             }
                         }
                     }
                 }
                 count--;
-                p = b + count * 12;
-                *(f32 *)(q + 0x100) = *(f32 *)(p + 0x100);
-                *(f32 *)(q + 0x104) = *(f32 *)(p + 0x104);
-                *(f32 *)(q + 0x108) = *(f32 *)(p + 0x108);
-                *(s32 *)(p + 0x104) = 0;
-                *(s32 *)(p + 0x108) = 0;
-                *(u16 *)(p + 0x102) = 0;
-                *(s16 *)(p + 0x100) = -1;
+                e = b + count * 12;
+                *(SkillRec *)(q + 0x100) = *(SkillRec *)(e + 0x100);
+                n--;
+                *(s32 *)(e + 0x104) = 0;
+                *(s32 *)(e + 0x108) = 0;
+                *(u16 *)(e + 0x102) = 0;
+                *(s16 *)(e + 0x100) = -1;
             }
         }
     }
     *(s16 *)(b + 0x580) = (s16)count;
-    for (i = 0; i < count; i++) {
+    for (r = 0; r < count; r++) {
         u8 *outer;
-        f32 outerTmp[3];
-        u16 oKey;
-        outer = b + i * 12;
-        outerTmp[0] = *(f32 *)(outer + 0x100);
-        outerTmp[1] = *(f32 *)(outer + 0x104);
-        outerTmp[2] = *(f32 *)(outer + 0x108);
-        oKey = *(u16 *)((u8 *)outerTmp + 2);
-        for (j = i + 1; j < count; j++) {
+        outer = b + r * 12;
+        outerTmp = *(SkillRec *)(outer + 0x100);
+        for (t = r + 1; t < count; t++) {
             u8 *inner;
-            f32 innerTmp[3];
-            u16 nKey;
-            inner = b + j * 12;
-            innerTmp[0] = *(f32 *)(inner + 0x100);
-            innerTmp[1] = *(f32 *)(inner + 0x104);
-            innerTmp[2] = *(f32 *)(inner + 0x108);
-            nKey = *(u16 *)((u8 *)innerTmp + 2);
-            if (nKey < 0xC0 || nKey >= 0x100) {
-                if ((oKey < 0xC0 || oKey >= 0x100) && nKey < oKey) {
-                    *(f32 *)(outer + 0x100) = innerTmp[0];
-                    *(f32 *)(outer + 0x104) = innerTmp[1];
-                    *(f32 *)(outer + 0x108) = innerTmp[2];
-                    *(f32 *)(inner + 0x100) = outerTmp[0];
-                    *(f32 *)(inner + 0x104) = outerTmp[1];
-                    *(f32 *)(inner + 0x108) = outerTmp[2];
-                    outerTmp[0] = innerTmp[0];
-                    outerTmp[1] = innerTmp[1];
-                    outerTmp[2] = innerTmp[2];
-                    oKey = nKey;
+            SkillRec *ip;
+
+            inner = b + t * 12;
+            ip = (SkillRec *)(inner + 0x100);
+            innerTmp = *(SkillRec *)(inner + 0x100);
+            if (innerTmp.key >= 0xC0 && innerTmp.key < 0x100) {
+                if (outerTmp.key >= 0xC0 && outerTmp.key < 0x100) {
+                    if (innerTmp.key < outerTmp.key) {
+                        *(SkillRec *)(outer + 0x100) = innerTmp;
+                        *ip = outerTmp;
+                        outerTmp = innerTmp;
+                    }
+                } else {
+                    *(SkillRec *)(outer + 0x100) = innerTmp;
+                    *ip = outerTmp;
+                    outerTmp = innerTmp;
                 }
-            } else if (oKey < 0xC0 || oKey >= 0x100) {
-                *(f32 *)(outer + 0x100) = innerTmp[0];
-                *(f32 *)(outer + 0x104) = innerTmp[1];
-                *(f32 *)(outer + 0x108) = innerTmp[2];
-                *(f32 *)(inner + 0x100) = outerTmp[0];
-                *(f32 *)(inner + 0x104) = outerTmp[1];
-                *(f32 *)(inner + 0x108) = outerTmp[2];
-                outerTmp[0] = innerTmp[0];
-                outerTmp[1] = innerTmp[1];
-                outerTmp[2] = innerTmp[2];
-                oKey = nKey;
-            } else if (nKey < oKey) {
-                *(f32 *)(outer + 0x100) = innerTmp[0];
-                *(f32 *)(outer + 0x104) = innerTmp[1];
-                *(f32 *)(outer + 0x108) = innerTmp[2];
-                *(f32 *)(inner + 0x100) = outerTmp[0];
-                *(f32 *)(inner + 0x104) = outerTmp[1];
-                *(f32 *)(inner + 0x108) = outerTmp[2];
-                outerTmp[0] = innerTmp[0];
-                outerTmp[1] = innerTmp[1];
-                outerTmp[2] = innerTmp[2];
-                oKey = nKey;
+            } else if (outerTmp.key < 0xC0 || outerTmp.key > 0xFF) {
+                if (innerTmp.key < outerTmp.key) {
+                    *(SkillRec *)(outer + 0x100) = innerTmp;
+                    *ip = outerTmp;
+                    outerTmp = innerTmp;
+                }
             }
         }
     }
@@ -409,9 +399,7 @@ void func_00138490(void *arg0)
     func_0013a040((s16 *)arg0, 1, 0);
     func_0013a040((s16 *)arg0, 2, 0);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00138490);
-#endif
+#pragma pop
 
 // FUN_00138AD0
 s32 func_00138ad0(u8 *arg0) {
