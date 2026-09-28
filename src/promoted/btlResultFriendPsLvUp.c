@@ -60,44 +60,43 @@ s32 func_002238f0(s64 arg0)
     }
 }
 
-/* Floor: 179 differing words, object 1328B over a 1328-byte window with
-   332 of 332 instructions and 134 edits.  A switch dispatch measures 250,
-   a base-plus-zw shape 186 with the frame exact, and staging the scratch
-   as s32 gives 179; removing the index goes back to 248 and reloading to
-   242.  Residual is a saved-register colour permutation between $s2 and
-   $s3 plus scheduling - `sh` before `andi`, the load order, and the addu
-   orientation - over a single dead float store.  Body at
-   docs/probe_archive/BRF2_002239a0_body.c.
-   The two declaration fixes above are part of this measurement:
-   func_00452560 takes an s32 (per its provider in sdkTask.c) and the two
-   D_008C024x pad words are arrays, matching the sibling unit. */
-/* measured: candidate object 1328B/window 1328B, verify normalized_diff 490, probe reloc-masked 179 words (guard below, NON_MATCHING so production stays ASM; fnalign 332/332 instrs, 134 edits +12 reloc-only). Earliest hunk is s2/s3 colour permute (retail r in s3/base in s2 vs object r in s2/base in s1) plus bnez/beqz polarity flip at loop head; declaration-order perms neutral. Frame exact 0xA0 via zw[2]+sp[11]. Banked as floor. */
+/* 2026-09-28: 180 -> 53 differing words (332/332 instructions, frame 0xA0 exact).  What moved it, in order:
+   the record index is read through `r + 56` at every use instead of cached in a local (the retail loop reloads
+   it after each call and store; 179 -> 123 together with the loop shapes), the two id/flag loops are the
+   bottom-tested `while`/`for (k = 0; k < 32 && (sid = ...) != 0; k++)` with a `switch (sid)` (retail's
+   beq 0x113 / beq 0x112 / b chain), `case 3` is `if (f(..) == 0) break;` falling into `case 4`, the counter is
+   `++*(u16 *)(r + 64) >= 45` (sh before andi, one register), the id read in the call and in the `== 5` test is
+   written integer-first `(u8 *)(idx * 2) + (u32)base + 0x69A` (retail `addu v0,v0,s2`), the `s16` cast of the
+   second `func_00231d70` result was dropped, and `(s32)` copies of the parameter are a first local
+   `arg0 = (s32)sdkTaskBytes` (it then takes $s0 as retail; declared last it does not).
+   What is left is one colour swap: r takes $s2 and base $s3 where retail has r $s3 and base $s2, plus the
+   reloc words.  Declaration order of q/r/base/e/k/sid (every permutation tried), a CSE'd `(e + 96)` in place
+   of the named base (92), and every scoped pragma (opt_lifetimes, propagation, common_subs, loop_invariants,
+   dead_assignments, dead_code, strength_reduction, rebuildconditionals) leave the 53.  Body at
+   docs/probe_archive/BRF2_002239a0_body.c is the older 179-word shape. */
 // FUN_002239A0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002239a0(u8 *sdkTaskBytes)
 {
     s32 arg0 = (s32)sdkTaskBytes;
     // Retail frame 0xA0 (160B); zw[2] + sp[11] give 52B locals + saves = 0xA0.
-    // Register map: r in s3, base in s2, e/k in s1, q in s4, arg0 in s0.
+    // Retail registers: arg0 s0, e/k s1, base s2, r s3, q s4.
     // Switch gives 8-entry jtbl_007477B0 (0-7); 0->1, 2->3->4, 5->6 fallthroughs.
-    // base = e + 96 kept live across case 1 for 0x69A/0x6A4/0x6B4/0x6B6 forms.
-    // idx in s3 across 10a900 call; reload-after-call variant measured worse (179->242).
-    // sp[11] with three trailing -1 (0x60-0x88); 10-word variant shortens frame to 0x90.
-    // zw[1] = 0x41980000 (19.0f); single-store residual is dead-store elimination.
-    // stmp as s32 (no shifts) vs s16 (shifts); s32 saves 12 words (191->179).
+    // zw[1] = 0x41980000 (19.0f); the zw[0]/zw[1] stores are both real.
+    // The task record's index (r + 56) is never cached: retail re-reads it after every call and store.
     // D_008C as [0] array (sibling idiom); scalar gives GP-relative wall (now reloc-only).
     // 452560(s32) matches sdkTask.c provider; void omits incoming $a0 (semantic gate).
-    // q only used when idx != 4 (success path), so no UB on early id==0 exit.
+    // q is only assigned inside the search loop and read after it (not provably set if r + 56 starts > 4).
     // Final id via lh (s16) for 2238f0 s64; earlier ids via lhu (u16).
-    // Case 4: retail sh-then-andi vs object andi-then-sh scheduling wall.
-    u8 *r;
-    u8 *e;
-    u8 *base;
-    u32 st;
     u8 *q;
+    u8 *r;
+    u8 *base;
+    u8 *e;
+    u32 st;
     s32 v;
     s32 k;
     u16 id;
+    u32 sid;
     s32 sp[11];
     s32 zw[2];
 
@@ -129,41 +128,35 @@ s32 func_002239a0(u8 *sdkTaskBytes)
     case 1:
         base = e + 96;
         while (*(s32 *)(r + 56) < 4) {
-            s32 idx = *(s32 *)(r + 56);
-            id = *(u16 *)(base + idx * 2 + 0x69A);
-            if (id == 0) {
-                *(s32 *)(r + 56) = idx + 1;
-                continue;
-            }
-            q = (u8 *)func_0010a900(id);
-            *(s32 *)(q + 8) = *(s32 *)(base + idx * 4 + 0x6A4) + *(s32 *)(q + 8);
-            if ((s32)*(u8 *)(base + idx * 136 + 0x6B4) <= 0) {
-                *(s32 *)(r + 56) = idx + 1;
-                continue;
-            }
-            break;
-        }
-        if (*(s32 *)(r + 56) != 4) {
-            k = 0;
-            while (k < 32) {
-                u16 sid = *(u16 *)(base + *(s32 *)(r + 56) * 136 + k * 2 + 0x6B6);
-                if (sid == 0) {
+            id = *(u16 *)(base + *(s32 *)(r + 56) * 2 + 0x69A);
+            if (id != 0) {
+                q = (u8 *)func_0010a900(id);
+                v = *(s32 *)(base + *(s32 *)(r + 56) * 4 + 0x6A4);
+                *(s32 *)(q + 8) = *(s32 *)(q + 8) + v;
+                if ((s32)*(u8 *)(base + *(s32 *)(r + 56) * 136 + 0x6B4) > 0) {
                     break;
                 }
-                if (sid == 0x112) {
+            }
+            *(s32 *)(r + 56) = *(s32 *)(r + 56) + 1;
+        }
+        if (*(s32 *)(r + 56) != 4) {
+            for (k = 0; k < 32 && (sid = *(u16 *)(base + *(s32 *)(r + 56) * 136 + k * 2 + 0x6B6)) != 0; k++) {
+                switch (sid) {
+                case 0x112:
                     if (datGetFlag(0x1012) != 0) {
                         func_0046d730(D_00629720, 158);
                     }
                     func_00106390(0x1012, 1);
-                } else if (sid == 0x113) {
+                    break;
+                case 0x113:
                     if (datGetFlag(0x1013) != 0) {
                         func_0046d730(D_00629720, 163);
                     }
                     func_00106390(0x1013, 1);
+                    break;
                 }
-                k++;
             }
-            func_0011b480(*(u8 **)(r + 68), *(u16 *)(base + *(s32 *)(r + 56) * 2 + 0x69A), (u32)q, 0);
+            func_0011b480(*(u8 **)(r + 68), *(u16 *)((u8 *)(*(s32 *)(r + 56) * 2) + (u32)base + 0x69A), (u32)q, 0);
             sp[0] = 27;
             sp[1] = 25;
             sp[2] = 6;
@@ -180,13 +173,13 @@ s32 func_002239a0(u8 *sdkTaskBytes)
                 s32 b = func_00455ea0(*(s32 *)(*(u8 **)(r + 60) + 2356), 1, 0);
                 *(s32 *)(r + 72) = func_0011f410(arg0, *(s32 *)(r + 68), base + *(s32 *)(r + 56) * 136 + 0x6B4, a, b, sp);
             }
-            if (*(s16 *)(base + *(s32 *)(r + 56) * 2 + 0x69A) == 5) {
+            if (*(s16 *)((u8 *)(*(s32 *)(r + 56) * 2) + (u32)base + 0x69A) == 5) {
                 s16 t = (s16)(func_00231d70(3) + 468);
                 func_001f86d0();
                 func_001f9a50((u16)t, 3);
             } else {
-                s32 stmp = func_002238f0(*(s16 *)(base + *(s32 *)(r + 56) * 2 + 0x69A)) + 125;
-                s16 u = (s16)(stmp + (s16)func_00231d70(3));
+                s32 stmp = func_002238f0(*(s16 *)((u8 *)(*(s32 *)(r + 56) * 2) + (u32)base + 0x69A)) + 125;
+                s16 u = (s16)(stmp + func_00231d70(3));
                 func_001f9a90();
                 func_001f8690((u16)u);
             }
@@ -202,20 +195,17 @@ s32 func_002239a0(u8 *sdkTaskBytes)
         *(u32 *)(r + 4) = 3;
         /* fallthrough */
     case 3:
-        if (func_0011f560(*(s32 *)(r + 72)) != 0) {
-            func_0011f580(*(s32 *)(r + 72));
-            *(u32 *)(r + 4) = 4;
-            *(u16 *)(r + 64) = 0;
+        if (func_0011f560(*(s32 *)(r + 72)) == 0) {
+            break;
         }
+        func_0011f580(*(s32 *)(r + 72));
+        *(u32 *)(r + 4) = 4;
+        *(u16 *)(r + 64) = 0;
         /* fallthrough */
     case 4:
-        {
-            u16 t = *(u16 *)(r + 64) + 1;
-            *(u16 *)(r + 64) = t;
-            if ((t >= 45) || ((D_008C024E[0] & 0x50) != 0) || (((D_008C024C[0] & 0x10) != 0) && (*(u16 *)(r + 64) >= 4))) {
-                *(u32 *)(r + 4) = 1;
-                *(s32 *)(r + 56) = *(s32 *)(r + 56) + 1;
-            }
+        if ((++*(u16 *)(r + 64) >= 45) || ((D_008C024E[0] & 0x50) != 0) || (((D_008C024C[0] & 0x10) != 0) && (*(u16 *)(r + 64) >= 4))) {
+            *(u32 *)(r + 4) = 1;
+            *(s32 *)(r + 56) = *(s32 *)(r + 56) + 1;
         }
         break;
     case 5:
