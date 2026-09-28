@@ -1069,6 +1069,16 @@ void func_004a77b0(void) {
    The RNG and camera declarations now agree with their actual providers,
    and the two shake outputs use a real float array. See
    docs/probe_archive/Shake_004a7830_0360227.md. */
+/* measured 2026-09-28 (lane 3): still 7 words. The three registers left are how the loop body's
+   {converted byte x, 0.0f, fabsf(x)} take $f1/$f2/$f3: this body gives abs=$f1, x=$f2, zero=$f3
+   (colouring is by live-range density: the short abs range is coloured first, the long hoisted
+   zero last; the sister mt_scene func_0026d440 has exactly this colouring and MATCHes), retail
+   gives x=$f1, zero=$f2, abs=$f3. In isolation the retail colouring appears as soon as the abs
+   value stays live to the end of the iteration (a later use joined from both branches), so retail's
+   abs local has a longer live range than any spelling tried here makes it. Measured no-ops on the
+   7-word body: declaration order of the float locals, separate `mag`, inlining the abs into the
+   compare, `*p` instead of a cached load, if/else polarity, named zero, static-inline abs wrapper,
+   all cheap pragmas (sweep again 2026-09-28, best stays 7). */
 // FUN_004A7830 NONMATCHING
 #ifdef NON_MATCHING
 void func_004a7830(void)
