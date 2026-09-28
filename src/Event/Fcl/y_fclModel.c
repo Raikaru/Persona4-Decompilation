@@ -345,28 +345,30 @@ void func_00349b90(u8 *arg0, u8 *arg1)
     }
 }
 
-/* measured: cold m2c via bulk path (direct m2c_decompile fails: jr without jtbl_00749820;
-   combined prepared asm + .word .L targets for 6 entries at 0x749820). De-noised to file
-   idiom (u8*+offsets, s8/s16/u16/s32; file-scope 001102f0 to (u8*,s32,s32,f32)->u8* per
-   g_data.c and 00285b30 to (void)->s32 per y_CmbCardEff; 300.0f/0.0f/1.0f/700.0f floats;
-   s32 (not u32) for sp48/sp4C colors; u8[4] per-byte sp44->sp4C copy for retail lbu/sb).
-   probe_variants: v1/v9w 229 best (v3 317/v4 314/v5 317 with explicit case-4 switch+stack
-   swaps; v6 if-chain 388; v7 guard+switch 381; v8 lh-split 399). fnalign v1: retail 521
-   vs object 521 instrs, edit 67 +16 reloc. Frame 0x50 both. Residuals: missing explicit
-   inner c==4 check (3w, explicit guard/5th case triggers jump-table penalty +88); lhu
-   $a0 vs $v1 + sll/lw order + lh scheduling; mov.s scheduling; sp28 0x20 vs 0x28 and
-   sp44/sp4C swap (stack allocation); sb $a0 reuse vs addiu+sb; branch offsets. Float
-   coloring (mov.s) follows count. Floor per matching.md (alloc/sched/order/FPU).
-   INCLUDE_ASM retained. */
-// FUN_00349C50 NONMATCHING
-#ifdef NON_MATCHING
+/* Effect state machine for the model task at task+0x38. Layout notes measured against retail:
+   - the two draw calls take FclDrawColor by value and their colours are locals filled by
+     func_002b2a60 struct returns; declaring the locals in this order (pos0, pos1, color1,
+     color0, colorTmp) reproduces retail's stack slots 0x38/0x28/0x4C/0x48/0x44;
+   - the second colour is copied from colorTmp through an FclDrawColor cast (a plain
+     struct assignment becomes a word copy, retail copies bytes);
+   - the case-3 state switch keeps an explicit `!= 4` guard (retail compares 4 first, then
+     dispatches 3..0; a fifth case would make b210 emit a jump table);
+   - the model-id colour picks are an if chain in retail order (0x59, 0xA, 0x5F);
+   - the animation table at obj+0x10 is an array of 0x20-byte entries indexed by model id. */
+typedef struct FclModelEntry {
+    u8 pad0[6];
+    s16 field_6;
+    u8 pad8[0x18];
+} FclModelEntry;
+
+// FUN_00349C50
 s32 func_00349c50(u8 *arg0)
 {
-    FclVec3 sp28;
-    FclVec3 sp38;
-    u8 sp44[4];
-    s32 sp48;
-    s32 sp4C;
+    FclVec3 pos0;
+    FclVec3 pos1;
+    FclDrawColor color1;
+    FclDrawColor color0;
+    FclDrawColor colorTmp;
     u8 *obj;
     obj = *(u8 **)(arg0 + 0x38);
     switch (*(s8 *)obj) {
@@ -406,97 +408,90 @@ s32 func_00349c50(u8 *arg0)
             if (datGetFlag(0x1450) == 0) {
                 return 0;
             }
-            switch (*(s8 *)(obj + 4)) {
-            case 0:
-                if (func_00348be0(*(u8 **)(obj + 0xEC)) == 0) {
-                    return 0;
-                }
-                if (func_00348be0(*(u8 **)(obj + 0xF0)) == 0) {
-                    return 0;
-                }
-                if (*(s8 *)(obj + 5) == 1) {
-                    u16 a = *(u16 *)(obj + 8);
-                    if (a == 0x16) {
-                        u8 *base = *(u8 **)(obj + 0x10);
-                        s16 an = *(s16 *)(base + (a << 5) + 6);
-                        func_00479940(*(u8 **)(obj + 0xC), 0, an, 0, 0);
+            if (*(s8 *)(obj + 4) != 4) {
+                switch (*(s8 *)(obj + 4)) {
+                case 0:
+                    if (func_00348be0(*(u8 **)(obj + 0xEC)) == 0) {
+                        return 0;
+                    }
+                    if (func_00348be0(*(u8 **)(obj + 0xF0)) == 0) {
+                        return 0;
+                    }
+                    if (*(s8 *)(obj + 5) == 1) {
+                        u16 a = *(u16 *)(obj + 8);
+                        if (a == 0x16) {
+                            FclModelEntry *tbl = *(FclModelEntry **)(obj + 0x10);
+                            s16 an = tbl[a].field_6;
+                            func_00479940(*(u8 **)(obj + 0xC), 0, an, 0, 0);
+                        } else {
+                            FclModelEntry *tbl = *(FclModelEntry **)(obj + 0x10);
+                            s16 an = tbl[a].field_6;
+                            func_00479940(*(u8 **)(obj + 0xC), 0, an, 10, 0);
+                        }
+                    }
+                    *(s8 *)(obj + 4) = 1;
+                    break;
+                case 1:
+                    if (func_00348c10(*(u8 **)(obj + 0xEC)) == 0) {
+                        func_001102f0((u8 *)&pos0, 0x140, 0xA5, 300.0f);
+                        color0 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
+                        func_003489c0(*(u8 **)(obj + 0xEC), pos0, 0.0f, 0.0f, 0.0f, 1.0f, color0, 0, -1);
+                    }
+                    if (func_00348c10(*(u8 **)(obj + 0xF0)) == 0) {
+                        colorTmp = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
+                        *(FclDrawColor *)&color1 = colorTmp;
+                        func_001102f0((u8 *)&pos1, 0x140, 0xA5, 300.0f);
+                        if (*(u16 *)(obj + 8) == 0x59) {
+                            color1 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xCD);
+                        } else if (*(u16 *)(obj + 8) == 0xA) {
+                            color1 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xA);
+                        } else if (*(u16 *)(obj + 8) == 0x5F) {
+                            color1 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xAA);
+                        }
+                        func_003489c0(*(u8 **)(obj + 0xF0), pos1, 0.0f, 0.0f, 0.0f, 1.0f, color1, 0, -1);
+                    }
+                    if (*(s8 *)(obj + 5) == 1) {
+                        u16 v = *(u16 *)(obj + 8);
+                        if ((v == 4) || (v == 0xB) || (v == 0x16) || (v == 0x2D) || (v == 0x53) ||
+                            (v == 0x6B) || (v == 0x9A) || (v == 0x57) || (v == 0xA6) || (v == 0xBA) ||
+                            (v == 0xBD) || (v == 0x15) || (v == 0x43) || (v == 0x68) || (v == 0x8D) ||
+                            (v == 0x93) || (v == 0x71) || (v == 0x7D) || (v == 0x8A) || (v == 0xA3) ||
+                            (v == 0x39)) {
+                            *(s8 *)(obj + 4) = 2;
+                            *(s8 *)(obj + 5) = 0;
+                        } else {
+                            *(s8 *)(obj + 4) = 3;
+                        }
                     } else {
-                        u8 *base = *(u8 **)(obj + 0x10);
-                        s16 an = *(s16 *)(base + (a << 5) + 6);
-                        func_00479940(*(u8 **)(obj + 0xC), 0, an, 10, 0);
+                        *(s8 *)(obj + 4) = 4;
                     }
-                }
-                *(s8 *)(obj + 4) = 1;
-                break;
-            case 1:
-                if (func_00348c10(*(u8 **)(obj + 0xEC)) == 0) {
-                    func_001102f0((u8 *)&sp38, 0x140, 0xA5, 300.0f);
-                    fclWriteColorBytes(&sp48, 0xFF, 0xFF, 0xFF, 0xFF);
-                    func_003489c0(*(u8 **)(obj + 0xEC), sp38, 0.0f, 0.0f, 0.0f, 1.0f, *(FclDrawColor *)&sp48, 0, -1);
-                }
-                if (func_00348c10(*(u8 **)(obj + 0xF0)) == 0) {
-                    fclWriteColorBytes(sp44, 0xFF, 0xFF, 0xFF, 0xFF);
-                    ((u8 *)&sp4C)[0] = sp44[0];
-                    ((u8 *)&sp4C)[1] = sp44[1];
-                    ((u8 *)&sp4C)[2] = sp44[2];
-                    ((u8 *)&sp4C)[3] = sp44[3];
-                    func_001102f0((u8 *)&sp28, 0x140, 0xA5, 300.0f);
-                    switch (*(u16 *)(obj + 8)) {
-                    case 0x59:
-                        fclWriteColorBytes(&sp4C, 0xFF, 0xFF, 0xFF, 0xCD);
-                        break;
-                    case 0xA:
-                        fclWriteColorBytes(&sp4C, 0xFF, 0xFF, 0xFF, 0xA);
-                        break;
-                    case 0x5F:
-                        fclWriteColorBytes(&sp4C, 0xFF, 0xFF, 0xFF, 0xAA);
-                        break;
-                    default:
-                        break;
-                    }
-                    func_003489c0(*(u8 **)(obj + 0xF0), sp28, 0.0f, 0.0f, 0.0f, 1.0f, *(FclDrawColor *)&sp4C, 0, -1);
-                }
-                if (*(s8 *)(obj + 5) == 1) {
-                    u16 v = *(u16 *)(obj + 8);
-                    if ((v == 4) || (v == 0xB) || (v == 0x16) || (v == 0x2D) || (v == 0x53) ||
-                        (v == 0x6B) || (v == 0x9A) || (v == 0x57) || (v == 0xA6) || (v == 0xBA) ||
-                        (v == 0xBD) || (v == 0x15) || (v == 0x43) || (v == 0x68) || (v == 0x8D) ||
-                        (v == 0x93) || (v == 0x71) || (v == 0x7D) || (v == 0x8A) || (v == 0xA3) ||
-                        (v == 0x39)) {
-                        *(s8 *)(obj + 4) = 2;
-                        *(s8 *)(obj + 5) = 0;
-                    } else {
-                        *(s8 *)(obj + 4) = 3;
-                    }
-                } else {
-                    *(s8 *)(obj + 4) = 4;
-                }
-                break;
-            case 2:
-                if (*(u8 *)(*(u8 **)(obj + 0xC) + 0xEE) == 1) {
-                    *(s8 *)(obj + 5) = 0;
-                    *(s8 *)(obj + 4) = 4;
-                } else if ((f32)func_00285b30() >= 700.0f) {
-                    *(s8 *)(obj + 5) = 0;
-                    *(s8 *)(obj + 4) = 4;
-                }
-                break;
-            case 3:
-                {
-                    u8 *mdl = *(u8 **)(obj + 0xC);
-                    if (*(u8 *)(mdl + 0xEE) == 1) {
-                        func_00479940(mdl, 0, 0, 30, 1);
+                    break;
+                case 2:
+                    if (*(u8 *)(*(u8 **)(obj + 0xC) + 0xEE) == 1) {
                         *(s8 *)(obj + 5) = 0;
                         *(s8 *)(obj + 4) = 4;
                     } else if ((f32)func_00285b30() >= 700.0f) {
-                        func_00479940(*(u8 **)(obj + 0xC), 0, 0, 30, 1);
                         *(s8 *)(obj + 5) = 0;
                         *(s8 *)(obj + 4) = 4;
                     }
+                    break;
+                case 3:
+                    {
+                        u8 *mdl = *(u8 **)(obj + 0xC);
+                        if (*(u8 *)(mdl + 0xEE) == 1) {
+                            func_00479940(mdl, 0, 0, 30, 1);
+                            *(s8 *)(obj + 5) = 0;
+                            *(s8 *)(obj + 4) = 4;
+                        } else if ((f32)func_00285b30() >= 700.0f) {
+                            func_00479940(*(u8 **)(obj + 0xC), 0, 0, 30, 1);
+                            *(s8 *)(obj + 5) = 0;
+                            *(s8 *)(obj + 4) = 4;
+                        }
+                    }
+                    break;
+                default:
+                    break;
                 }
-                break;
-            default:
-                break;
             }
         } else {
             *(s32 *)(obj + 0xE8) = 0xB3;
@@ -566,9 +561,6 @@ s32 func_00349c50(u8 *arg0)
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclModel", func_00349c50);
-#endif
 // FUN_0034A480
 void func_0034a480(u8 *arg0)
 {
