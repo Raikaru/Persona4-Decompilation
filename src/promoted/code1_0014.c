@@ -3279,19 +3279,25 @@ s32 func_00148140(u8 **arg0, u8 **arg1) {
 }
 /* measured: closes opt_propagation off for func_00148140. */
 #pragma opt_propagation on
-/* measured 2026-09-28 (lane 3): 406 differing words / 126 fnalign edits, retail 1253 vs
-   object 1251 instructions (was 737 words / 226 edits, 1224 instructions).
+/* measured 2026-09-28 (lane 3): 214 differing words / 67 fnalign edits, retail 1253 vs
+   object 1252 instructions (was 737 words / 226 edits, 1224 instructions).
    What moved it: the two sorted-list loops walk a `u8 **` element pointer and
    re-read `*pe` at every field access (retail keeps `$s0 = &arr[i]` and loads
    `0($s0)` each time) instead of caching the object pointer; the model-position
    copy is a 12-byte struct copy plus `pos.y = pos.y + 175.0f` (retail loads all
-   three floats, stores all three, then reloads y); and the first draw branch is
-   `func_0014a160() == 1 && !(flags < 0x64)` (the call result was ignored).
-   Residual: saved-register colouring in the later list loops (retail n/cur/j in
-   $s0/$s3/$s2, this body $s4/$s0/$s3; merging n1/n2 or moving their declarations
-   only trades one mismatch for another), the `sll` before/after the `*pe`
-   load in the j-loops, and retail's `&slot` pointer (`addiu $s4,$v0,0x140`)
-   kept for the second use of `e[0x140]`. */
+   three floats, stores all three, then reloads y); the first draw branch is
+   `func_0014a160() == 1 && !(flags < 0x64)` (the call result was ignored);
+   the two list re-walks reuse `l10` and `l2` (retail keeps them in $s3/$s1);
+   the `l2` loop takes `flag3 = 1; continue;` before advancing (retail's
+   `b` goes to the loop test, skipping the `lw 0x138` advance); and the slot
+   value is read as `*(l3 + j * 4 + 0x140)` twice, which is what makes retail
+   materialise the `&slot` pointer (`addiu $s4,$v0,0x140`) for the second use.
+   Residual: saved-register colouring of the loop variables in the three
+   `dn1` loops (retail rotates dn1/pe/j/offset down one register per loop:
+   arrA s4/s0/s3, first arrB s3/s4/s2, second arrB s2/s3/s1), and this body
+   CSEs `n2 - 1` across the two arrB loops (an extra `move`) where retail
+   recomputes it. Declaration-order moves of n1/n2/pe/dn1/j/cur were
+   measured inert or worse (+-3 edits). */
 // FUN_00148280 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct {
@@ -3587,47 +3593,45 @@ s32 func_00148280(u8 *unusedTask) {
                             pos = *(SceneVec3 *)(tmp + 0x30);
                             pos.y = pos.y + 175.0f;
                         }
-                        e = l3 + j * 4;
-                        func_004b1250(*(s32 *)(e + 0x140), (u8 *)&pos);
-                        func_004b11d0(D_005DC824, *(void **)(e + 0x140));
+                        func_004b1250(*(s32 *)(l3 + j * 4 + 0x140), (u8 *)&pos);
+                        func_004b11d0(D_005DC824, *(void **)(l3 + j * 4 + 0x140));
                     }
                 }
             }
             l3 = *(u8 **)(l3 + 0x138);
         }
     }
-    cur = func_001452b0(3);
-    while (cur != NULL) {
-        if ((s32)*(u8 *)(mdlGetColor(*(s32 *)(cur + 0x164)) + 3) < 0xFF) {
-            cur = *(u8 **)(cur + 0x138);
+    l10 = func_001452b0(3);
+    while (l10 != NULL) {
+        if ((s32)*(u8 *)(mdlGetColor(*(s32 *)(l10 + 0x164)) + 3) < 0xFF) {
+            l10 = *(u8 **)(l10 + 0x138);
         } else {
-            t = *(s32 *)(cur + 0x28);
+            t = *(s32 *)(l10 + 0x28);
             if ((t & 0x10000000) && (t & 2)) {
                 tmp = func_00460990();
                 *(void **)(tmp + 8) = (void *)func_00147e60;
-                *(u8 **)(tmp + 0x10) = cur;
+                *(u8 **)(tmp + 0x10) = l10;
                 func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
-                if (*(s32 *)(cur + 0x28) & 0x80000000) {
-                    func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(void **)(cur + 0x164));
-                    ex = *(u8 **)(cur + 0x22C);
-                    if (ex != NULL && (*(s32 *)(cur + 0x28) & 0x20000000)) {
+                if (*(s32 *)(l10 + 0x28) & 0x80000000) {
+                    func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(void **)(l10 + 0x164));
+                    ex = *(u8 **)(l10 + 0x22C);
+                    if (ex != NULL && (*(s32 *)(l10 + 0x28) & 0x20000000)) {
                         func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), ex);
                     }
                     for (j = 0; j < 2; j++) {
-                        if (*(s32 *)(cur + j * 4 + 0x140) != 0) {
-                            if (func_0047a6d0(*(void **)(cur + 0x164), 2, &pos) == 0) {
-                                tmp = mdlGetMatrix(*(s32 *)(cur + 0x164));
+                        if (*(s32 *)(l10 + j * 4 + 0x140) != 0) {
+                            if (func_0047a6d0(*(void **)(l10 + 0x164), 2, &pos) == 0) {
+                                tmp = mdlGetMatrix(*(s32 *)(l10 + 0x164));
                                 pos = *(SceneVec3 *)(tmp + 0x30);
                                 pos.y = pos.y + 175.0f;
                             }
-                            e = cur + j * 4;
-                            func_004b1250(*(s32 *)(e + 0x140), (u8 *)&pos);
-                            func_004b11d0(D_005DC824, *(void **)(e + 0x140));
+                            func_004b1250(*(s32 *)(l10 + j * 4 + 0x140), (u8 *)&pos);
+                            func_004b11d0(D_005DC824, *(void **)(l10 + j * 4 + 0x140));
                         }
                     }
                 }
             }
-            cur = *(u8 **)(cur + 0x138);
+            l10 = *(u8 **)(l10 + 0x138);
         }
     }
     flag3 = 0;
@@ -3636,47 +3640,44 @@ s32 func_00148280(u8 *unusedTask) {
         if (t & 2) {
             if (t & 0x04000000) {
                 flag3 = 1;
-            } else {
-                if (t & 0x10000) {
-                    tmp = func_00460990();
-                    *(void **)(tmp + 8) = (void *)func_00147f30;
-                    *(u8 **)(tmp + 0x10) = l2;
-                    func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
-                    func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(void **)(l2 + 0x158));
-                } else {
-                    tmp = func_00460990();
-                    *(void **)(tmp + 8) = (void *)func_00147f30;
-                    *(u8 **)(tmp + 0x10) = l2;
-                    func_00460ac0(D_007945A0, tmp);
-                    func_00479100(D_007945A0, *(void **)(l2 + 0x158));
-                }
+                continue;
             }
-        } else {
-            l2 = *(u8 **)(l2 + 0x138);
-            continue;
+            if (t & 0x10000) {
+                tmp = func_00460990();
+                *(void **)(tmp + 8) = (void *)func_00147f30;
+                *(u8 **)(tmp + 0x10) = l2;
+                func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
+                func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(void **)(l2 + 0x158));
+            } else {
+                tmp = func_00460990();
+                *(void **)(tmp + 8) = (void *)func_00147f30;
+                *(u8 **)(tmp + 0x10) = l2;
+                func_00460ac0(D_007945A0, tmp);
+                func_00479100(D_007945A0, *(void **)(l2 + 0x158));
+            }
         }
         l2 = *(u8 **)(l2 + 0x138);
     }
     if (flag3 == 1) {
-        cur = func_001452b0(2);
-        while (cur != NULL) {
-            if (!(*(s32 *)(cur + 0x28) & 0x04000000)) {
-                cur = *(u8 **)(cur + 0x138);
+        l2 = func_001452b0(2);
+        while (l2 != NULL) {
+            if (!(*(s32 *)(l2 + 0x28) & 0x04000000)) {
+                l2 = *(u8 **)(l2 + 0x138);
             } else {
                 tmp = func_00460990();
                 *(void **)(tmp + 8) = (void *)func_00147910;
                 *(u8 **)(tmp + 0x10) = D_007D1F30;
-                func_00460ac0((void *)(D_00793E80 + *(s32 *)(cur + 0x210) * 0x30), tmp);
+                func_00460ac0((void *)(D_00793E80 + *(s32 *)(l2 + 0x210) * 0x30), tmp);
                 tmp = func_00460990();
                 *(void **)(tmp + 8) = (void *)func_00147f30;
-                *(u8 **)(tmp + 0x10) = cur;
-                func_00460ac0((void *)(D_00793E80 + *(s32 *)(cur + 0x210) * 0x30), tmp);
-                func_00479100((void *)(D_00793E80 + *(s32 *)(cur + 0x210) * 0x30), *(void **)(cur + 0x158));
+                *(u8 **)(tmp + 0x10) = l2;
+                func_00460ac0((void *)(D_00793E80 + *(s32 *)(l2 + 0x210) * 0x30), tmp);
+                func_00479100((void *)(D_00793E80 + *(s32 *)(l2 + 0x210) * 0x30), *(void **)(l2 + 0x158));
                 tmp = func_00460990();
                 *(void **)(tmp + 8) = (void *)func_00147ae0;
                 *(u8 **)(tmp + 0x10) = D_007D1F30;
-                func_00460ac0((void *)(D_00793E80 + *(s32 *)(cur + 0x210) * 0x30), tmp);
-                cur = *(u8 **)(cur + 0x138);
+                func_00460ac0((void *)(D_00793E80 + *(s32 *)(l2 + 0x210) * 0x30), tmp);
+                l2 = *(u8 **)(l2 + 0x138);
             }
         }
     }
