@@ -726,40 +726,68 @@ code arg5;
 }
 #pragma opt_dead_assignments on
 
-/* measured: object 1096B/window 1120B/normalized_diff 769 (247 differing words, live re-measured current tree). */
-/* measured: slti-at s4-5 dest fixed via >=5 to >4 flip (fnalign slti line gone, 143 to 142) with net words unchanged at 247 due to branch shape — banked >4 this wave; 4-short (278 vs 274) plus inserts at 181-261-278 in FP/sort/weight region, not trailing dead-arm (g-chain empty then-arm preserves non-constant v8 so no dead store; trailing c18==m both store); branch-polarity flip to (v8==0 && v7<5) worsens 247 to 250; Main 004938e0 levers N-A (frame exact -0xF0, no andi-CSE; g-chain adjacents keep explicit compares, no fold); arg-cast/loop-invariant to follow top-down. */
+/* Guarded body, 2026-09-28: 7 differing words against retail (fnalign 278/278,
+   was 247 words / 274 instructions).  The old body had the right control flow
+   but the wrong locals; what closed the difference (each measured):
+   - the unit/ratio table is a `{u32 unit; f32 ratio}` array (12 entries, the
+     0x60 bytes above 0x90($sp)): unit copies are `lw/sw`, ratio copies
+     `lwc1/swc1`, the swap moves the u32 and the float separately.  A `f32[24]`
+     copied the unit with `lwc1`.
+   - `f15`/`f16` are `u32` (retail converts them with the unsigned
+     `bltz`/`srl`/`or`/`add.s` sequence), `c18 = v7 & 0xFFFF` is `s32` (a plain
+     copy would be propagated away and the frame loses `$s7`), `tot` is `s32`
+     with the mask on the sum, `rnd` is `u16`.
+   - `j` is `s32` with `j = (j + 1) & 0xFFFF`, which keeps the body's index
+     mask on `j` instead of folding it onto the loop-test temp; the other
+     loop counters are `u16`.
+   - `#pragma opt_loop_invariants on` hoists `c18 - 1` and the constant 1 out
+     of the swap loops; the tail is `if (c18 != m)` with the
+     `0x6A` store duplicated in both arms, and `p[(u16)f()]` on a `u32 *`
+     base gives the index-first `addu $v0,$v0,$s0`.
+   - declaring `tot` before `m` flips the last `$a3`/`$t0` pair of that loop.
+   RESIDUAL (7 words): the same pair in the swap loops - retail has the loop
+   counter `k` in `$a3` and the hoisted bound `c18 - 1` in `$t0`, this body
+   the reverse.  Named temps age by declaration (earlier -> higher register,
+   compiler temps youngest -> lowest), so retail's bound is older than `k`,
+   but a named `lim = c18 - 1` (any type, `register`, before or after `k`) is
+   propagated away and hoisted again as a fresh temp; `k` as `s32`, and the
+   cond spelled `(u16)k`/`k & 0xFFFF`, all score worse (17-90). */
 // FUN_001DBF20 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_loop_invariants on
+typedef struct SortEnt {
+    u32 unit;
+    f32 ratio;
+} SortEnt;
 s32 func_001dbf20(u8 *arg0, u32 arg1) {
     extern u8 D_006095F0[];
-    u16 v7;
+    u16 available;
     u16 i;
-    u16 j;
-    u16 k;
-    u16 m;
-    u16 n;
-    u16 c18;
-    u8 g;
+    u16 v7;
     s32 v8;
+    s32 j;
+    u8 g;
+    u16 n;
+    s32 c18;
     u8 *e;
     u32 w;
-    u16 f15;
-    u16 f16;
-    f32 stab[24];
+    u32 f15;
+    u32 f16;
+    SortEnt stab[12];
     s32 swapped;
+    u16 k;
     f32 r0;
-    f32 r1;
-    s32 t0;
+    u32 t0;
+    s32 tot;
+    u16 m;
+    u16 rnd;
 
-    if (func_001d7f10(arg0, arg0 + 0x98, *(u16 *)(arg0 + 0x6E), 0) != 0) {
+    available = func_001d7f10(arg0, arg0 + 0x98, *(u16 *)(arg0 + 0x6E), 0);
+    if (available != 0) {
         i = 0;
-        while (1) {
-            v7 = *(u16 *)(arg0 + 0xD0);
-            if (i >= v7) {
-                break;
-            }
-            *(u32 *)(arg0 + 4 * i + 0x38) = *(u32 *)(arg0 + 4 * i + 0x98);
-            i = i + 1;
+        while ((v7 = *(u16 *)(arg0 + 0xD0)), (u16)i < v7) {
+            *(u32 *)(arg0 + (i & 0xFFFF) * 4 + 0x38) = *(u32 *)(arg0 + (i & 0xFFFF) * 4 + 0x98);
+            i++;
         }
         *(u16 *)(arg0 + 0x6A) = v7;
         return 1;
@@ -772,10 +800,13 @@ s32 func_001dbf20(u8 *arg0, u32 arg1) {
     } else {
         if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1) {
             j = 0;
-            while (j < v7 && *(u8 *)(*(u8 **)(*(u32 *)(arg0 + 4 * j + 0x98) + 0x30) + 0xA2) == 0) {
-                j++;
+            while ((u16)j < v7) {
+                if (*(u8 *)(*(u8 **)(*(u32 *)(arg0 + (j & 0xFFFF) * 4 + 0x98) + 0x30) + 0xA2) != 0) {
+                    break;
+                }
+                j = (j + 1) & 0xFFFF;
             }
-            if (j == v7) {
+            if ((u16)j == v7) {
                 v8 = 0;
             }
         }
@@ -785,54 +816,56 @@ s32 func_001dbf20(u8 *arg0, u32 arg1) {
             v8 = 1;
         }
         if (v8 != 0 || v7 > 4) {
-            *(u32 *)(arg0 + 0x38) = *(u32 *)(arg0 + 4 * func_00231d70(v7) + 0x98);
+            *(u32 *)(arg0 + 0x38) = ((u32 *)(arg0 + 0x98))[(u16)func_00231d70(v7)];
             *(u16 *)(arg0 + 0x6A) = 1;
         } else {
             n = 0;
-            c18 = v7;
+            c18 = v7 & 0xFFFF;
             while (n < c18) {
-                e = (u8 *)(arg0 + 4 * n + 0x98);
+                e = arg0 + (n & 0xFFFF) * 4 + 0x98;
                 w = *(u32 *)e;
-                f15 = func_00231f80((DatUnit *)*(u8 **)(*(u32 *)(*(u32 *)e + 0x30) + 0xA64));
-                f16 = (u16)datCalcGetHp(*(u32 *)(w + 0x30) + 0xA64);
-                stab[2 * n] = *(f32 *)e;
-                stab[2 * n + 1] = (f32)f16 / (f32)f15;
+                f15 = func_00231f80((DatUnit *)*(u32 *)(*(u32 *)(w + 0x30) + 0xA64)) & 0xFFFF;
+                f16 = datCalcGetHp(*(u32 *)(*(u32 *)(w + 0x30) + 0xA64)) & 0xFFFF;
+                stab[n & 0xFFFF].unit = *(u32 *)e;
+                stab[n & 0xFFFF].ratio = (f32)f16 / (f32)f15;
                 n++;
             }
             do {
                 swapped = 0;
                 for (k = 0; k < (s32)c18 - 1; k++) {
-                    r0 = stab[2 * k + 1];
-                    if (r0 < stab[2 * k + 3]) {
-                        t0 = *(s32 *)&stab[2 * k];
-                        stab[2 * k] = stab[2 * k + 2];
-                        stab[2 * k + 1] = stab[2 * k + 3];
-                        *(s32 *)&stab[2 * k + 2] = t0;
-                        stab[2 * k + 3] = r0;
+                    if ((r0 = stab[k].ratio) < stab[k + 1].ratio) {
+                        t0 = stab[k].unit;
+                        stab[k].unit = stab[k + 1].unit;
+                        stab[k].ratio = stab[k + 1].ratio;
+                        stab[k + 1].unit = t0;
+                        stab[k + 1].ratio = r0;
                         swapped = 1;
                     }
                 }
             } while (swapped != 0);
-            w = func_00231d70(100);
+            rnd = func_00231d70(100);
+            tot = 0;
             m = 0;
-            n = 0;
             while (m < v7) {
-                n = (n + D_006095F0[4 * v7 - 4 + m]) & 0xFFFF;
-                if (n >= w) {
+                tot = (tot + D_006095F0[4 * v7 - 4 + m]) & 0xFFFF;
+                if (tot >= rnd) {
                     break;
                 }
                 m++;
             }
-            if (c18 == m) {
-                *(u32 *)(arg0 + 0x38) = *(u32 *)&stab[2 * func_00231d70(v7)];
+            if (c18 != m) {
+                *(u32 *)(arg0 + 0x38) = stab[m].unit;
+                *(u16 *)(arg0 + 0x6A) = 1;
             } else {
-                *(u32 *)(arg0 + 0x38) = *(u32 *)&stab[2 * m];
+                *(u32 *)(arg0 + 0x38) = stab[func_00231d70(v7)].unit;
+                *(u16 *)(arg0 + 0x6A) = 1;
             }
-            *(u16 *)(arg0 + 0x6A) = 1;
         }
     }
     return 1;
 }
+
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbf20);
 #endif
