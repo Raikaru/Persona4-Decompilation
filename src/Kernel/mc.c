@@ -1211,130 +1211,134 @@ s32 func_002a4d10(s32 task) {
     return 0;
 }
 
-/* measured: retail colors p->$s1, s16->$s0, s18->$s2, s19->$s3, s20(loop)->$s4,
-   s21->$s5, f21->$f21, f20->$f20, f23->$f23, f22->$f22; mwcc b210 graph-colors
-   a cyclic rotation (p->$s3, s16->$s4, s18->$s0, s19->$s1, s20->$s1, f21->$f22)
-   and merges s19/s20 into one register. Tried all six saved-reg declaration
-   orders and the mul.s operand-order split; all nd 332. Saved-register rotation
-   floor. */
-/* Wave-14: func_0025f3f0/func_002a66d0 in this family carry the same m2c
-   call-signature errors found in func_002a5f00 (floats must precede the ints in
-   the C call); not re-probed — same rotation family where a fresh m2c body
-   measured worse than the recorded hand-adapted best. */
-/* measured this session: fresh probe 391wd (was nd332 stale) / fnalign 264 edits (449 vs 445 instrs, 4 short) confirms floor; short-by-N hunt checked -- shortfall early at frame -0x80 vs -0x90 + swc1 $f23 (top-down fnalign), not trailing dead-arm chain (tail is while loops + calls, no if/else-if chain); slti $at inclusive checked (no convertible <N range in this window). Saved-reg rotation + frame/FPR wall per owner notes; banked. */
+/* Rewrite 2026-09-28 (lane 5), replaces the m2c-shaped draft (391 differing words).
+   Honest ABI: func_00452560 takes the task in arg0, and the ramp/pulse maths
+   are retail's (`(D_00761184 * (f32)frame) / 30.0f` fed to sinf, alpha is
+   `(s32)(255.0f * ramp)` and is passed on to 6b60/6c30/9f50, the slide offsets are
+   `350.0f * (1.0f - wave)` before the first loop and `400.0f * (1.0f - wave)` in the
+   tail).  449/449 instructions, guarded score 118 differing words (reloc-masked).
+   Structural levers: `fdiff`/`half` as named floats (see func_002a5f00) and the
+   two-statement `pulse = K * sinf(..); scale = 1.0f + pulse;` (a single
+   statement fuses into adda.s/madd.s, retail keeps mul.s + add.s).
+   Residual: saved-register colouring plus one argument-order difference.
+   Retail: alpha->$s0, p->$s1, base->$s2, slot->$s3, idx->$s4, row->$s5 and
+   f23=x f22=y f21=wave f20=slide (loop 1).  Here row/idx/slot land on retail's
+   $s5/$s4/$s3 with row/idx/slot/base/p/alpha declared in that order, but base
+   (used only in ALU ops and compares) always sinks to $s0 and pushes alpha/p up
+   one.  Measured rule (micro tests, b210): among call-crossing values, those
+   passed directly as call arguments or redefined inside a loop take the high
+   registers in declaration order (first declared = highest); values used only
+   in ALU operations rank below all of them, also in declaration order.
+   Every opt_* pragma name in the compiler's list (on and off, measured on
+   func_002a5f00) and copies through temporaries leave that split unchanged;
+   -O1 removes it but rewrites the whole body (261 edits).  In the first
+   7920 call retail materialises `mov.s $f13,y` before the integer arguments, this
+   body after them. */
 // FUN_002A4F20 NONMATCHING
-#ifdef SKIP_ASM
-s32 func_002a4f20(s32 arg0) {
-    extern f32 iGpffff8214;
+#ifdef NON_MATCHING
+s32 func_002a4f20(s32 arg0)
+{
     extern f32 iGpffff8084;
-    extern f32 iGpffff8218;
-    extern f32 iGpffff821c;
-    extern f32 iGpffff8030;
-    extern f32 D_00761184;
-    f32 temp_f0;
-    f32 temp_f21;
-    f32 var_f1;
-    f32 var_3;
-    s32 temp_2_2;
-    s32 var_20;
-    s32 s0f0;
-    s32 var_20_2;
-    u8 *temp_2;
+    s32 row;
+    s32 idx;
+    s32 slot;
+    s32 base;
+    u8 *p;
+    s32 alpha;
+    s32 target;
+    s32 diff;
+    s32 rest;
+    s32 frame;
+    f32 x;
+    f32 y;
+    f32 wave;
+    f32 slide;
+    f32 scale;
+    f32 ramp;
+    f32 pulse;
+    f32 fdiff;
+    f32 half;
 
-    temp_2 = ((u8 *(*)(void))func_00452560)();
-    func_002a6b10(0, 0, 255, temp_2);
-    func_002a7710(255, temp_2);
-    temp_2_2 = *(s32 *)(temp_2 + 0x568);
-    if (temp_2_2 < 0x0A) {
-        var_f1 = (f32)temp_2_2 / 10.0f;
+    p = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
+    func_002a6b10(0, 0, 255, p);
+    func_002a7710(255, p);
+    frame = *(s32 *)(p + 0x568);
+    if (frame < 10) {
+        ramp = (f32)frame / 10.0f;
     } else {
-        var_f1 = 1.0f;
+        ramp = 1.0f;
     }
-    temp_f0 = 255.0f * var_f1;
-    func_002a6b60(0, 0, (s32)temp_f0, temp_2);
-    func_002a6c30(0, 0, (s32)temp_f0, temp_2);
-    s0f0 = (s32)temp_f0;
-    temp_f21 = (f32)(s32)sinf(iGpffff8214 * ((f32)*(s32 *)(temp_2 + 0x568) / 30.0f));
-    {
-        s32 t19 = (*(s32 *)(temp_2 + 0x3AC) << 16) >> 16;
-        s32 t23 = *(s32 *)(temp_2 + 0x3B4);
-        if (t23 != t19) {
-            s32 t18 = t19 - t23;
-            if ((f32)func_0043c6a0(t18) <= iGpffff8218 * (f32)t19) {
-                *(s32 *)(temp_2 + 0x3B4) = t19;
+    alpha = (s32)(255.0f * ramp);
+    func_002a6b60(0, 0, alpha, p);
+    func_002a6c30(0, 0, alpha, p);
+    wave = sinf((D_00761184 * (f32)*(s32 *)(p + 0x568)) / 30.0f);
+    target = *(s32 *)(p + 0x3AC) << 16;
+    if (*(s32 *)(p + 0x3B4) != target) {
+        diff = target - *(s32 *)(p + 0x3B4);
+        if ((f32)func_0043c6a0(diff) <= iGpffff8214 * (f32)target) {
+            *(s32 *)(p + 0x3B4) = target;
+        } else {
+            fdiff = (f32)diff;
+            if (iGpffff8218 * fdiff < iGpffff821c) {
+                half = 0.5f;
+                rest = (s32)(fdiff * half);
             } else {
-                f32 tf2 = (f32)t18;
-                f32 tf02 = (f32)(s32)iGpffff821c;
-                if (iGpffff821c * tf2 < tf02) {
-                    var_3 = tf2 * 0.5f;
-                } else {
-                    var_3 = tf02;
-                }
-                *(s32 *)(temp_2 + 0x3B4) += (s32)var_3;
+                rest = (s32)(iGpffff8218 * fdiff);
             }
+            *(s32 *)(p + 0x3B4) = *(s32 *)(p + 0x3B4) + rest;
         }
     }
-    {
-        s32 t182 = *(s32 *)(temp_2 + 0x3B4) >> 16;
-        s32 t21 = t182 << 16;
-        var_20 = 0;
-        while (var_20 < 7) {
-            s32 t192 = (t182 + var_20) - 3;
-            if ((t192 >= 0) && (t192 < 0x10) && (((var_20 != 0) && (var_20 != 6)) || ((u16)*(s32 *)(temp_2 + 0x3B4) != 0))) {
-                f32 tf23;
-                f32 tf22;
-                s32 t24 = t21 - *(s32 *)(temp_2 + 0x3B4);
-                func_002a6960(0, 0, 0x280, 0x1C0, 5.0f);
-                func_002a6960(0, 0, 0x280, 0x2D, 0.0f);
-                func_002a6960(0, 0x195, 0x280, 0x30, 0.0f);
-                tf23 = -59.0f + (f32)(var_20 * 0x1A) + ((f32)(t24 * 0x1A) / 65536.0f);
-                tf22 = -152.0f + (f32)(var_20 * 0x5E) + ((f32)(t24 * 0x5E) / 65536.0f);
-                func_002a7920(0xFF, temp_2 + 0x14, t192, 0, temp_2, tf23 - (350.0f * (1.0f - temp_f21)), tf22, 0, 1.0f);
-                func_002a9f50(tf23, tf22, 5.0f, s0f0, temp_2 + 0x14, var_20, 0, temp_2);
-            }
-            var_20 += 1;
+    base = *(s32 *)(p + 0x3B4) >> 16;
+    idx = 0;
+    row = base << 16;
+    slide = 350.0f * (1.0f - wave);
+    while (idx < 7) {
+        slot = base + idx - 3;
+        if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(p + 0x3B4) != 0)) {
+            func_002a6960(0, 0, 0x280, 0x1C0, 5.0f);
+            func_002a6960(0, 0, 0x280, 0x2D, 0.0f);
+            func_002a6960(0, 0x195, 0x280, 0x30, 0.0f);
+            diff = row - *(s32 *)(p + 0x3B4);
+            x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
+            y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
+            func_002a7920(0xFF, p + 0x14, slot, 0, p, x - slide, y, 0.0f, 1.0f);
+            func_002a9f50(x, y, 5.0f, alpha, p + 0x14, slot, 0, p);
         }
+        idx++;
     }
-    func_0025f3f0(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)(*(s32 *)(temp_2 + 0x398)), 1);
-    {
-        s32 t182b = *(s32 *)(temp_2 + 0x3B4) >> 16;
-        s32 t21b = t182b << 16;
-        var_20_2 = 0;
-        while (var_20_2 < 7) {
-            s32 t193 = (t182b + var_20_2) - 3;
-            if ((t193 >= 0) && (t193 < 0x10) && (((t21b - *(s32 *)(temp_2 + 0x3B4)) != 0) || (t193 == t182b) || (t193 == t182b + 1))) {
-                s32 t25 = t21b - *(s32 *)(temp_2 + 0x3B4);
-                f32 tf222 = -59.0f + (f32)(var_20_2 * 0x1A) + ((f32)(t25 * 0x1A) / 65536.0f);
-                f32 tf20 = -152.0f + (f32)(var_20_2 * 0x5E) + ((f32)(t25 * 0x5E) / 65536.0f);
+    func_0025f3f0(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(p + 0x398), 1);
+    idx = 0;
+    while (idx < 7) {
+        slot = base + idx - 3;
+        if (slot >= 0 && slot < 16) {
+            diff = row - *(s32 *)(p + 0x3B4);
+            x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
+            y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
+            if (slot == base || slot == base + 1) {
                 func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
                 func_002a6960(0, 0x83, 0x280, 0x5E, 10.0f);
-                func_002a9f50(tf222, tf20, 5.0f, s0f0, temp_2 + 0x14, var_20_2, 1, temp_2);
+                func_002a9f50(x, y, 5.0f, alpha, p + 0x14, slot, 1, p);
             }
-            var_20_2 += 1;
         }
+        idx++;
     }
-    if ((*(s32 *)(temp_2 + 0x3AC) + 1) != 0) {
-        f32 tf223;
-        f32 tf202;
+    if (*(s32 *)(p + 0x3AC) + 1 != 0) {
         func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
-        {
-            s32 t26 = *(s32 *)(temp_2 + 0x3B8);
-            if (t26 > 0) {
-                *(s32 *)(temp_2 + 0x3B8) = t26 - 1;
-            }
+        diff = *(s32 *)(p + 0x3B8);
+        if (diff > 0) {
+            *(s32 *)(p + 0x3B8) = diff - 1;
         }
-        tf223 = (f32)(s32)(1.0f + (iGpffff8030 * sinf(iGpffff8084 * ((f32)*(s32 *)(temp_2 + 0x3B8) / 10.0f))));
-        tf202 = 400.0f * (1.0f - temp_f21);
-        func_002a66d0(72.0f - tf202, 179.0f, 0.0f, 124.0f * tf223, 116.0f * tf223, 0x2D2D2D, 0xFF, 1);
-        func_002a7920(0xFF, temp_2 + 0x14, *(s32 *)(temp_2 + 0x3AC), 1, temp_2, 19.0f - tf202, 130.0f, 0, tf223);
+        pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(p + 0x3B8) / 10.0f);
+        scale = 1.0f + pulse;
+        slide = 400.0f * (1.0f - wave);
+        func_002a66d0(72.0f - slide, 179.0f, 0.0f, 124.0f * scale, 116.0f * scale, 0x2D2D2D, 0xFF, 1);
+        func_002a7920(0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, p, 19.0f - slide, 130.0f, 0.0f, scale);
     }
-    {
-        s32 t27 = *(s32 *)(temp_2 + 0x568) + 1;
-        *(s32 *)(temp_2 + 0x568) = t27;
-        if (t27 >= 0x1E) {
-            *(s32 *)(temp_2 + 0x568) = 0;
-            return 1;
-        }
+    frame = *(s32 *)(p + 0x568) + 1;
+    *(s32 *)(p + 0x568) = frame;
+    if (frame >= 30) {
+        *(s32 *)(p + 0x568) = 0;
+        return 1;
     }
     return 0;
 }
