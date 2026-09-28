@@ -660,7 +660,21 @@ void* func_0016a0c0(void* collisionWorld, void* state)
 
 
 
-/* measured: guarded floor from retail + m2c + romwright (fnalign retail 532/object 532 exact, 0% deviation, within 3% banking gate; probe_variants 411 -> 403 via 200 decl orders -> 251 via opt_loop_invariants on, 500 orders no further; pragma sweep loop_invariants on wins, schedule/common/propagation combos regress; float splits and line scalar/direct regress, =+ ties; frame 0xc80 with points[64]/normals[64] (192 floats each), fracs[64], extra[64] (192), flags[64]; romwright --types two RwV3d + float; line[1]=origin then line[0]=line[1] +=400/-=600; fieldId (u16)low + (low & 0x3ff) keeps double-andi; 7-word do-while query copy; Y,X,Z dots per 00169a30; production stays ASM per banking rule. */
+/* measured: guarded floor, fnalign retail 532/object 532 instructions. 251 -> 67 differing words after the
+   2026-09-28 restructure (edits 200 -> 73; every remaining word is an FPR number, no branch offset differs):
+   line[1] is a whole-RwV3d copy of origin; the k loop is a bottom-test loop that loads its entry in the
+   condition; the query loops keep one counter each (i for the init loop, n for the flag scan, p for the
+   contact loop, q/r for the final pair scan) because sharing one counter between loops moved the pool
+   temps (v0/v1/a0) of the flag scan; qy/qz/qfrac stay named (retail hoists them into $f22/$f21/$f20 after
+   p = 0); the contact loop addresses the collector in bytes (fbase = &work + 4p, rec = &work + 12p, flag =
+   fbase + 0xA00) and recomputes fbase after RwV3dNormalize with a signed multiply so the distance address
+   is not kept in a saved register (same trick as func_00169780); dot/neg are written x, y, z (that is what
+   yields retail's z,x,y load order and Y,X,Z mula/madda/madd chain); the final unwind writes
+   vector[0] = vector[1] = vector[2] = 0 (retail stores z,y,x) and leaves through one shared return.
+   Remaining: FPR colouring only. Retail keeps dx in $f0, dy/dz in $f10/$f9, scale in $f2 and
+   the 0.0f/threshold hoists of the last loop in $f2/$f0; this body gives dx/dy/dz $f0/$f1/$f2 when all three
+   are named and, with dy/dz unnamed, matches dx/scale/product registers exactly but reloads delta.y/z for
+   the dot (2 extra loads, 38 edits, 142 words by position). opt_propagation off regresses (243 edits). */
 // FUN_0016A110 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -694,12 +708,16 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
         u8 tail[8];
         s32 type;
     } FldFrameWork6A110;
+    f32 dx;
+    f32 dz;
+    f32 dy;
     f32 qy;
     f32 neg;
     RwV3d hit;
     s32 k;
     s32 allHit;
     s32 i;
+    s32 p;
     f32 scale;
     RwV3d delta;
     FldFrameWork6A110 work;
@@ -712,7 +730,11 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
     f32 qz;
     f32 qfrac;
     f32 dot;
+    f32 zero;
+    f32 oldX;
     s32 n;
+    s32 q;
+    s32 r;
     s32 j;
     result = 0;
     list10 = func_001452b0(10);
@@ -760,9 +782,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
         {
             void *target = mdlGetClump(*(void **)(list10 + 0x144));
             func_003bff30(target, func_0016a0c0, work.points);
-            line[1].x = origin[0];
-            line[1].y = origin[1];
-            line[1].z = origin[2];
+            line[1] = *(RwV3d *)origin;
             line[0] = line[1];
             line[0].y += 400.0f;
             line[1].y -= 600.0f;
@@ -820,20 +840,18 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
         }
         list3 = *(u8 **)(list3 + 0x138);
     }
-    for (k = 0; ; k++)
     {
-        u8 *entry = *(u8 **)(D_007E8020 + k * 4 + 0x20);
-        if (entry == NULL)
+        u8 *entry;
+        for (k = 0; (entry = *(u8 **)(D_007E8020 + k * 4 + 0x20)) != NULL; k++)
         {
-            break;
-        }
-        if (*(s32 *)entry != 0)
-        {
-            void *id = *(void **)(entry + 0x164);
-            if (id != 0)
+            if (*(s32 *)entry != 0)
             {
-                void *target = mdlGetClump(id);
-                func_003bff30(target, func_0016a0c0, work.points);
+                void *id = *(void **)(entry + 0x164);
+                if (id != 0)
+                {
+                    void *target = mdlGetClump(id);
+                    func_003bff30(target, func_0016a0c0, work.points);
+                }
             }
         }
     }
@@ -848,24 +866,33 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
         }
         n++;
     }
+    p = 0;
     qy = work.copy.f[1];
     qz = work.copy.f[2];
     qfrac = work.copy.f[3];
-    for (i = 0; i < work.count; i++)
+    for (; p < work.count; p++)
     {
-        if (work.fracs[i] < fGpffff82b4)
+        u8 *fbase = (u8 *)&work + p * sizeof(f32);
+        if (*(f32 *)(fbase + 0x600) < fGpffff82b4)
         {
-            delta.x = work.copy.f[0] - work.points[i].x;
-            delta.y = qy - work.points[i].y;
-            delta.z = qz - work.points[i].z;
+            u8 *rec = (u8 *)&work + 12 * p;
+            s32 *flag;
+            delta.x = work.copy.f[0] - *(f32 *)rec;
+            delta.y = qy - *(f32 *)(rec + 4);
+            delta.z = qz - *(f32 *)(rec + 8);
             RwV3dNormalize((f32 *)&delta, (const f32 *)&delta);
-            scale = qfrac - work.fracs[i];
-            scaled.x = delta.x * scale;
-            scaled.y = delta.y * scale;
-            scaled.z = delta.z * scale;
-            if (work.flags[i] == 1)
+            fbase = (u8 *)&work + p * (s32)sizeof(f32);
+            scale = qfrac - *(f32 *)(fbase + 0x600);
+            dx = delta.x;
+            scaled.x = dx * scale;
+            dy = delta.y;
+            scaled.y = dy * scale;
+            dz = delta.z;
+            scaled.z = dz * scale;
+            flag = (s32 *)(fbase + 0xA00);
+            if (*flag == 1)
             {
-                work.extra[i] = scaled;
+                *(RwV3d *)(rec + 0x700) = scaled;
             }
             else
             {
@@ -873,7 +900,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
                 {
                     if (work.flags[m] == 1)
                     {
-                        f32 d = scaled.y * work.extra[m].y + scaled.x * work.extra[m].x + scaled.z * work.extra[m].z;
+                        f32 d = scaled.x * work.extra[m].x + scaled.y * work.extra[m].y + scaled.z * work.extra[m].z;
                         if (d < 0.0f)
                         {
                             scaled.x += work.extra[m].x;
@@ -886,19 +913,21 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
             neg = -1.0f;
             if (allHit == 1)
             {
-                neg = vector[1] * work.normals[i].y + vector[0] * work.normals[i].x + vector[2] * work.normals[i].z;
+                neg = vector[0] * work.normals[p].x + vector[1] * work.normals[p].y + vector[2] * work.normals[p].z;
             }
-            dot = vector[1] * delta.y + vector[0] * delta.x + vector[2] * delta.z;
-            if ((dot < 0.0f || work.flags[i] == 1) && neg < 0.0f)
+            dot = vector[0] * dx + vector[1] * dy + vector[2] * dz;
+            if ((dot < 0.0f || *flag == 1) && neg < 0.0f)
             {
                 vector[0] += scaled.x;
                 vector[1] += scaled.y;
                 vector[2] += scaled.z;
                 result = 1;
             }
-            if (vector[0] == 0.0f && vector[1] == 0.0f && vector[2] == 0.0f)
+            oldX = vector[0];
+            zero = 0.0f;
+            if (oldX == zero && vector[1] == zero && vector[2] == zero)
             {
-                vector[0] += scaled.x;
+                vector[0] = oldX + scaled.x;
                 vector[1] += scaled.y;
                 vector[2] += scaled.z;
                 result = 1;
@@ -908,21 +937,20 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
     if (allHit == 0 && work.count >= 2)
     {
         RwV3dLength((f32 *)vector);
-        for (n = 0; n < work.count - 1; n++)
+        for (q = 0; q < work.count - 1; q++)
         {
-            for (m = n + 1; m < work.count; m++)
+            for (r = q + 1; r < work.count; r++)
             {
-                f32 d = work.normals[n].y * work.normals[m].y + work.normals[n].x * work.normals[m].x + work.normals[n].z * work.normals[m].z;
+                f32 d = work.normals[q].x * work.normals[r].x + work.normals[q].y * work.normals[r].y + work.normals[q].z * work.normals[r].z;
                 if (d < fGpffff82b8)
                 {
-                    vector[0] = 0.0f;
-                    vector[1] = 0.0f;
-                    vector[2] = 0.0f;
-                    return result;
+                    vector[0] = vector[1] = vector[2] = 0.0f;
+                    goto done;
                 }
             }
         }
     }
+done:
     return result;
 }
 #pragma pop
