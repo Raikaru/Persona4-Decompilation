@@ -136,22 +136,29 @@ void func_0037c720(u8 *arg0) {
     }
 }
 
-// measured: retail builds the slot position in a two-float stack local (0x48($sp)) and
-// copies it to arg2 at the join; a struct local plus a struct copy-out reproduces the
-// 0x50 frame and all 513 instructions (50 differing words; plain f32[2] is promoted to
-// FPRs and writing arg2 directly leaves a 0x40 frame).  What remains is FPU operand
-// order in the five arms that convert arg1 directly: retail loads 80.0f into $f3 before
-// the int-to-float conversion, b210 loads it after the subtract.
-// FUN_0037CA60 NONMATCHING
-#ifdef NON_MATCHING
+/* Screen position of slot `arg1` for the layout size n returned by func_00378530 (6, 8, 10, 12,
+   14 or 16 slots), written to arg2.  measured against retail:
+   - retail builds the position in a two-float stack local (0x48($sp)) and copies it to arg2 at
+     the join; a struct local plus a struct copy-out reproduces the 0x50 frame (a plain f32[2] is
+     promoted to FPRs, and writing arg2 directly leaves a 0x40 frame);
+   - in the arms that convert arg1 directly retail loads 80.0f before the int-to-float
+     conversion.  Under opt_propagation off a named `step` local is loaded where it is written,
+     which reproduces that order; the arms that convert `arg1 - k` keep the inline constant;
+   - opt_propagation off would otherwise share the `arg0 + 0x1F2FC` address between its two uses
+     (retail rebuilds it with lui/addu each time); spelling the second use as a word index off
+     0x1F2F8 keeps them separate. */
 typedef struct ShuffleSlotPos { f32 x; f32 y; } ShuffleSlotPos;
+
+// FUN_0037CA60
+#pragma push
+#pragma opt_propagation off
 void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
     ShuffleSlotPos pos;
     s32 n;
     if (*(s32 *)(arg0 + 0x1F2FC) != 3) {
         func_0046d730(&D_0064EB20[0], 0x5B);
     }
-    n = func_00378530(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
+    n = func_00378530(*(s32 *)(arg0 + 0x1F304), ((s32 *)(arg0 + 0x1F2F8))[1]);
     switch (n) {
     case 6:
         pos.x = 320.0f + 80.0f * ((f32)(arg1 % 3) - 1.0f);
@@ -159,7 +166,8 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
         break;
     case 8:
         if (arg1 < 4) {
-            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.5f);
+            f32 step = 80.0f;
+            pos.x = 320.0f + step * ((f32)arg1 - 1.5f);
             pos.y = 174.0f;
         } else {
             pos.x = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.5f);
@@ -168,7 +176,8 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
         break;
     case 10:
         if (arg1 < 3) {
-            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.0f);
+            f32 step = 80.0f;
+            pos.x = 320.0f + step * ((f32)arg1 - 1.0f);
             pos.y = 74.0f;
         } else if (arg1 < 5) {
             pos.x = 320.0f + 80.0f * ((f32)(arg1 - 3) - 0.5f);
@@ -183,7 +192,8 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
         break;
     case 12:
         if (arg1 < 3) {
-            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.0f);
+            f32 step = 80.0f;
+            pos.x = 320.0f + step * ((f32)arg1 - 1.0f);
             pos.y = 74.0f;
         } else if (arg1 < 6) {
             pos.x = 320.0f + 80.0f * ((f32)(arg1 - 3) - 1.0f);
@@ -198,7 +208,8 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
         break;
     case 14:
         if (arg1 < 4) {
-            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.5f);
+            f32 step = 80.0f;
+            pos.x = 320.0f + step * ((f32)arg1 - 1.5f);
             pos.y = 74.0f;
         } else if (arg1 < 7) {
             pos.x = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.0f);
@@ -213,7 +224,8 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
         break;
     case 16:
         if (arg1 < 4) {
-            pos.x = 320.0f + 80.0f * ((f32)arg1 - 1.5f);
+            f32 step = 80.0f;
+            pos.x = 320.0f + step * ((f32)arg1 - 1.5f);
             pos.y = 74.0f;
         } else if (arg1 < 8) {
             pos.x = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.5f);
@@ -232,9 +244,7 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
     }
     *(ShuffleSlotPos *)arg2 = pos;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle4", func_0037ca60);
-#endif
+#pragma pop
 // FUN_0037D270
 s32 func_0037d270(u8 *arg0, s64 arg1, s64 arg2) {
     f32 spA8[2];
