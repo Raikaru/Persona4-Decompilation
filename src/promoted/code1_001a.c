@@ -36,7 +36,7 @@ static inline void *actionMessagePacketBytes(s32 unit, s32 message)
 {
     return func_00202400(unit, message);
 }
-extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, s32 cue, s32 unitId, s32 a, s32 b);
+extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 cue, s32 unitId, s32 a, s32 b);
 extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
 extern f32 func_001ec250(const RwV3d *, const RwV3d *);
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *, const RwV3d *, f32, u32);
@@ -124,10 +124,10 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
     return (u8 *)btlUnitCreateLookAtUnitPacket((BtlUnit *)unit, (BtlUnit *)target, (u16)flags);
 }
 u8 *func_0019a0c0(u8 *arg0, s16 arg1);
-extern s16 func_00196bd0(u8 *arg0, u8 *arg1, s32 arg2);
+extern f32 func_00196bd0(u8 *arg0, u8 *arg1, u8 *arg2);
 extern void func_001eb410(u8 *arg0);
-extern u8 *btlUnitCreateMoveToUnitPacket(u8 *arg0, u8 *arg1, s32 arg2, f32 arg3, f32 arg4);
-extern u8 *func_001d3530(u8 *arg0, u8 *arg1, s32 arg2);
+extern BtlPacket *btlUnitCreateMoveToUnitPacket(BtlUnit *unit, BtlUnit *target, f32 distance, f32 speed, u32 flags);
+extern BtlPacket *func_001d3530(u32 source, u32 target, u16 mode);
 extern f32 fGpffff811c;
 extern u32 datCalcGetBadStatus(s32 arg0);
 extern s16 func_001f6d60(u8 *arg0);
@@ -171,7 +171,7 @@ u8 *func_00194c90(s32 arg0, s32 arg1);
 u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
 extern s32 func_00218360(s32 task);
 extern s32 func_00218390(s32 task);
-u8 *func_001f99c0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
 u8 *func_001fa320(void);
 u8 *func_001fa450(void);
 u8 *func_002027e0(void);
@@ -1857,133 +1857,196 @@ void func_001a31e0(BtlAction *actionState)
 }
 
 #pragma pop
-/* measured 001a3840 2026-09-19: 23-instr tail (func_001f0a10 + func_001f36e0 + packet at retail 0x1a3cbc-0x1a3d0c, fnalign delete 285:308) was never written; added spD0[32] + tail block. Object 330/retail 324 +1.9% INSIDE, 265 words, 174 edits (+1 reloc-only) (was 301/323 -6.8%, 273 words). Remaining pure deletes: 2-instr s16 extension pairs at 0x1a3b8c (dsll32 $a1,$s2,0x10; dsra32 $a1,$a1,0x10) and 0x1a3bf8 (dsll32 $a1,$fp,0x10; dsra32 $a1,$a1,0x10); tail copy uses same-pkt base (retail ld 0x58($s2) at 0x1a3cf8 from pkt2+88, 1-reg lump). Prior: opt_common_subs off worth 6 words (279->273); s32 st/spB0 ruled out as extension pinning. */
-// FUN_001A3840 NONMATCHING
-#ifdef SKIP_ASM
-#pragma opt_common_subs off
-void func_001a3840(u8 *arg0)
-{
-    u8 *t20;
-    s16 st;
-    s32 spC0;
-    f32 f20;
-    s16 spB0;
-    s32 v18;
-    s32 v19;
-    s32 v21;
-    s32 v22;
-    s32 v23;
-    extern void func_001f0a10(u8 *arg0);
-    extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-    u8 spD0[32];
-    u8 *pkt;
+extern s16 func_001991c0(u8 *unit, u16 animation, f32 scale);
+extern s16 func_00199500(u8 *unit, u16 animation, f32 scale);
+#pragma push
+/* The loader and cleanup visit all 0x30 resource slots at +0xD04. */
+typedef struct ActionRecoveryResourceView {
+    u8 beforeResources[0xD04];
+    u32 resources[0x30];
+} ActionRecoveryResourceView;
 
-    t20 = *(u8 **)(arg0 + 1092);
-    st = *(s16 *)(arg0 + 1096);
-    if (st == 0) {
-    } else if (st == 1) {
-        spC0 = 0x100001;
-        v18 = 27;
-        v19 = 0;
-        {
-            f32 a = *(f32 *)(*(u8 **)(arg0 + 48) + 44);
-            f32 b = *(f32 *)(*(u8 **)(arg0 + 48) + 144);
-            f32 c = *(f32 *)(*(u8 **)(t20 + 48) + 44);
-            f32 d = *(f32 *)(*(u8 **)(t20 + 48) + 144);
-            f20 = 50.0f + (a * b + c * d);
-        }
-        spB0 = -1;
-        v23 = 14;
-        v22 = arg0[0] & 0xFFFF;
-        v21 = 12;
-        *(u16 *)(arg0 + 26) = *(u16 *)(arg0 + 26) | 0x800;
-    } else {
-        spC0 = 30;
-        v18 = 29;
-        f20 = 50.0f + func_00196bd0(*(u8 **)(arg0 + 48), *(u8 **)(t20 + 48), 29);
-        v19 = func_001991c0(*(u8 **)(arg0 + 48), 29, 1.0f) & 0xFFFF;
-        v23 = 15;
-        spB0 = 40;
-        v22 = 0;
-        v21 = 10;
-        *(u16 *)(arg0 + 26) = *(u16 *)(arg0 + 26) | 0x1000;
-    }
-    func_001a03b0((s64 *)arg0);
-    func_001eb410(arg0 + 56);
-    *(u8 **)(arg0 + 56) = t20;
-    *(s16 *)(arg0 + 106) = 1;
-    if ((v22 & 0xFFFF) != 0) {
-        pkt = func_001f99c0(arg0, v22, *(u16 *)(*(u8 **)(t20 + 48) + 164), 0, 0);
-        *(s64 *)(pkt + 96) = *(s64 *)arg0;
-        func_00194590(pkt, 1);
-    }
-    if ((*(s32 *)(iGpffffb3ac + 12) & 0x200000) == 0) {
-        pkt = btlCameraCreateSetStatePacket(arg0, 25);
-        *(s64 *)(pkt + 96) = *(s64 *)arg0;
-        func_00194590(pkt, 0);
-        pkt = btlUnitCreateMoveToUnitPacket(*(u8 **)(arg0 + 48), *(u8 **)(t20 + 48), 10, f20, fGpffff811c);
-        *(s64 *)(pkt + 96) = *(s64 *)arg0;
-        func_00194590(pkt, 0);
-    } else {
-        pkt = func_00194b60();
-        *(s64 *)(pkt + 96) = *(s64 *)arg0;
-        func_00194590(pkt, 0);
-    }
-    pkt = func_002022e0(*(u32 *)(arg0 + 48), v23);
-    *(pkt + 0) = 4;
-    *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    func_00194590(pkt, 3);
-    pkt = func_001d3530(*(u8 **)(arg0 + 48), *(u8 **)(t20 + 48), v22);
-    *(pkt + 0) = 4;
-    *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    func_00194590(pkt, 0);
-    pkt = btlCameraCreateSetStatePacket(arg0, 42);
-    *(pkt + 0) = 4;
-    *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    func_00194590(pkt, 0);
-    if ((v21 & 0xFFFF) != 0) {
-        pkt = func_001f99c0(arg0, v21, *(u16 *)(*(u8 **)(t20 + 48) + 164), 0, 0);
-        *(pkt + 0) = 4;
-        *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-        *(s64 *)(pkt + 96) = *(s64 *)arg0;
-        func_00194590(pkt, 1);
-    }
-    pkt = btlUnitCreateAnimPacket(*(u8 **)(arg0 + 48), v18, 0, 0, 1.0f);
-    *(pkt + 0) = 4;
-    *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    *(s16 *)(pkt + 74) = func_00199500(*(u8 **)(arg0 + 48), v18, 1.0f);
-    func_00194590(pkt, 0);
-    pkt = btlUnitCreateAnimPacket(*(u8 **)(t20 + 48), v19, 0, 0, 1.0f);
-    *(pkt + 0) = 4;
-    *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    *(s16 *)(pkt + 72) = v19;
-    func_00194590(pkt, 0);
-    if (spB0 != -1) {
-        pkt = (u8 *)func_001d6240(*(u32 *)(*(u8 **)((u8 *)iGpffffb3ac + spB0 * 4 + 3332)), (u32)*(u8 **)(arg0 + 48), (u32)*(u8 **)(t20 + 48), 1, 0);
-        *(pkt + 0) = 4;
-        *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-        *(s64 *)(pkt + 96) = *(s64 *)arg0;
-        *(s16 *)(pkt + 72) = v19;
-        func_00194590(pkt, 2);
-    }
-    func_001f0a10(spD0);
-    *(s32 *)(spD0 + 12) = spC0;
-    pkt = (u8 *)func_001f36e0((s32)t20, (s32)t20, spD0, 1, 1);
-    *(pkt + 0) = 4;
-    *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-    *(s64 *)(pkt + 96) = *(s64 *)arg0;
-    *(s16 *)(pkt + 72) = v19;
-    func_00194590(pkt, 1);
+static inline u32 actionRecoveryResourceAt(
+    const ActionRecoveryResourceView *snappedBase, s32 signedSlot)
+{
+    return snappedBase->resources[signedSlot];
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a3840);
-#endif
+
+/* The mode is established by the action selector before entering this state.
+   Movement and target-animation packets are separate dependency owners. */
+// FUN_001A3840
+void func_001a3840(register BtlAction *actionState)
+{
+    u8 *action;
+    u8 *movementPacket;
+    u8 *animationPacket;
+    u8 *target;
+    s16 mode;
+    s32 resultFlags;
+    f32 distance;
+    struct { s16 slot; } selectedEffect;
+    u16 targetFrame;
+    u16 targetAnimation;
+    u16 sourceAnimation;
+    u16 beforeVoice;
+    u16 afterVoice;
+    u16 formationMode;
+    u16 displayMode;
+    struct {
+        s32 values[8];
+    } result;
+    s32 delayedFrame;
+
+    action = (u8 *)actionState;
+    target = *(u8 **)(action + 0x444);
+    mode = *(s16 *)(action + 0x448);
+    switch (mode) {
+    case 1:
+        resultFlags = 0x100001;
+        sourceAnimation = 27;
+        targetAnimation = 28;
+        targetFrame = 0;
+        {
+            u8 *targetUnit = *(u8 **)(target + 0x30);
+            u8 *sourceUnit = *(u8 **)(action + 0x30);
+            f32 sourceRadius = *(f32 *)(sourceUnit + 0x90);
+            f32 sourceScale = *(f32 *)(sourceUnit + 0x2C);
+            f32 targetRadius = *(f32 *)(targetUnit + 0x90);
+            f32 targetScale = *(f32 *)(targetUnit + 0x2C);
+            distance = 50.0f + (sourceRadius * sourceScale + targetRadius * targetScale);
+        }
+        selectedEffect.slot = -1;
+        displayMode = 14;
+        formationMode = 1;
+        beforeVoice = 0;
+        afterVoice = 12;
+        *(u16 *)(action + 0x1A) |= 0x800;
+        break;
+    case 0:
+        resultFlags = 30;
+        sourceAnimation = 29;
+        targetAnimation = 2;
+        targetFrame = (u16)func_001991c0(*(u8 **)(action + 0x30), 29, 1.0f);
+        distance = 50.0f + func_00196bd0(*(u8 **)(action + 0x30),
+                                        *(u8 **)(target + 0x30), (u8 *)29);
+        displayMode = 15;
+        selectedEffect.slot = 40;
+        formationMode = 0;
+        beforeVoice = 10;
+        afterVoice = 11;
+        *(u16 *)(action + 0x1A) |= 0x1000;
+        break;
+    }
+    func_001a03b0((s64 *)action);
+    func_001eb410(action + 0x38);
+    *(u8 **)(action + 0x38) = target;
+    *(s16 *)(action + 0x6A) = 1;
+    if ((u16)beforeVoice != 0) {
+        {
+            u8 *packet;
+            packet = (u8 *)btlVoiceCreatePacket((BtlAction *)action, beforeVoice,
+                             *(u16 *)(*(u8 **)(target + 0x30) + 0xA4), 0, 0);
+            *(s64 *)(packet + 0x60) = *(s64 *)action;
+            func_00194590(packet, 1);
+        }
+    }
+    if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
+        {
+            u8 *packet;
+            packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 25);
+            *(s64 *)(packet + 0x60) = *(s64 *)action;
+            func_00194590(packet, 0);
+        }
+        movementPacket = (u8 *)btlUnitCreateMoveToUnitPacket(*(BtlUnit **)(action + 0x30),
+                        *(BtlUnit **)(target + 0x30), distance, fGpffff811c, 10);
+        *(s64 *)(movementPacket + 0x60) = *(s64 *)action;
+        func_00194590(movementPacket, 0);
+    } else {
+        movementPacket = func_00194b60();
+        *(s64 *)(movementPacket + 0x60) = *(s64 *)action;
+        func_00194590(movementPacket, 0);
+    }
+    {
+        u8 *packet;
+        packet = func_002022e0(*(u32 *)(action + 0x30), displayMode);
+        packet[0] = 4;
+        *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
+        *(s64 *)(packet + 0x60) = *(s64 *)action;
+        func_00194590(packet, 3);
+    }
+    {
+        u8 *packet;
+        packet = (u8 *)func_001d3530(*(u32 *)(action + 0x30), *(u32 *)(target + 0x30), formationMode);
+        packet[0] = 4;
+        *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
+        *(s64 *)(packet + 0x60) = *(s64 *)action;
+        func_00194590(packet, 0);
+    }
+    {
+        u8 *packet;
+        packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 42);
+        packet[0] = 4;
+        *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
+        *(s64 *)(packet + 0x60) = *(s64 *)action;
+        func_00194590(packet, 0);
+    }
+    if ((u16)afterVoice != 0) {
+        {
+            u8 *packet;
+            packet = (u8 *)btlVoiceCreatePacket((BtlAction *)action, afterVoice,
+                             *(u16 *)(*(u8 **)(target + 0x30) + 0xA4), 0, 0);
+            packet[0] = 4;
+            *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
+            *(s64 *)(packet + 0x60) = *(s64 *)action;
+            func_00194590(packet, 1);
+        }
+    }
+    {
+        u8 *packet;
+        packet = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(action + 0x30),
+                                             (s16)sourceAnimation, 0, 1.0f, 0);
+        packet[0] = 4;
+        *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
+        *(s64 *)(packet + 0x60) = *(s64 *)action;
+        *(s16 *)(packet + 0x4A) = func_00199500(*(u8 **)(action + 0x30), sourceAnimation, 1.0f);
+        func_00194590(packet, 0);
+    }
+    animationPacket = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(target + 0x30),
+                                                  (s16)targetAnimation, 0, 1.0f, 0);
+    animationPacket[0] = 4;
+    *(s64 *)(animationPacket + 8) = *(s64 *)(movementPacket + 0x58);
+    *(s64 *)(animationPacket + 0x60) = *(s64 *)action;
+    delayedFrame = (s16)targetFrame;
+    *(s16 *)(animationPacket + 0x48) = targetFrame;
+    func_00194590(animationPacket, 0);
+    if (selectedEffect.slot != -1) {
+        {
+            u8 *packet;
+            const ActionRecoveryResourceView *resourceBase;
+            resourceBase = (const ActionRecoveryResourceView *)iGpffffb3ac;
+            packet = (u8 *)func_001d6240(actionRecoveryResourceAt(resourceBase, selectedEffect.slot),
+                                        *(u32 *)(action + 0x30), *(u32 *)(target + 0x30), 1, 0);
+            packet[0] = 4;
+            *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
+            *(s64 *)(packet + 0x60) = *(s64 *)action;
+            *(s16 *)(packet + 0x48) = delayedFrame;
+            func_00194590(packet, 2);
+        }
+    }
+    func_001f0a10((u8 *)&result);
+    result.values[3] = resultFlags;
+    {
+        u8 *packet;
+        packet = (u8 *)func_001f36e0((s32)target, (s32)target, &result, 1, 1);
+        packet[0] = 4;
+        *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
+        *(s16 *)(packet + 0x48) = delayedFrame;
+        *(s64 *)(packet + 0x60) = *(s64 *)action;
+        func_00194590(packet, 1);
+    }
+}
+
+#pragma pop
 // FUN_001A3D50
 void func_001a3d50(s64 *arg0)
 {
@@ -2167,7 +2230,7 @@ static inline u8 *actionReadCandidate(u8 *action, const u16 *index)
 void func_001a43a0(u8 *action)
 {
     extern s8 func_00233a90(u8 *action, s32 arg1);
-    extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, s32 kind, s32 id, s32 flags, s32 mode);
+    extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 kind, s32 id, s32 flags, s32 mode);
     struct {
         s16 element;
         u8 *preferred[12] __attribute__((aligned(16)));

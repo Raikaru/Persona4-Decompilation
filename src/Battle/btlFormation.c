@@ -781,7 +781,7 @@ u32 func_001d3090(u32 *work)
     return 1;
 }
 // FUN_001D3530
-void func_001d3530(u32 param_1, u32 param_2, u16 param_3)
+BtlPacket* func_001d3530(u32 param_1, u32 param_2, u16 param_3)
 {
     u32 *work;
     u32 packet;
@@ -792,6 +792,7 @@ void func_001d3530(u32 param_1, u32 param_2, u16 param_3)
     work[0] = param_1;
     work[1] = param_2;
     *(u16 *)(work + 2) = param_3;
+    return (BtlPacket*)packet;
 }
 // FUN_001D35A0
 u32 func_001d35a0(u16 *arg0)
