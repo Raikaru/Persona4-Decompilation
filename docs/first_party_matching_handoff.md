@@ -3860,3 +3860,81 @@ The radial Flash updater `func_0049b690` is reconstructed to a two-word guarded
 frontier; see `docs/probe_archive/effect_flash_recovery_20260929.md`. Neither
 target is newly C-matched. Final configured verification of both owners reports
 92 MATCH and eight ASM functions, with no mismatch or compilation error.
+
+## Native census continuation after the interrupted session
+
+The resumed parent census records 101 of the 131 initial first-party fallbacks;
+the other 30 were assigned to the four reconstruction lanes at that checkpoint.
+Native C measurements cover 97 `NON_MATCHING` guards plus the legacy
+`SKIP_ASM` body `001d8010`. Startup `00100008` and the input-lifetime cases
+`0015f000` / `00475cd0` have no active guarded body. Four previously
+uncompilable guarded bodies now use the current declaration context:
+
+| Target | Repair | Object / retail window | Differing words |
+| --- | --- | --- | --- |
+| `0047b0c0` | Pass the allocated pointer to its typed free callback | 5472 / 5536 bytes | 1275 |
+| `00172e00` | Remove the conflicting local `mdlGetMatrix` declaration | 6084 / 6272 bytes | 1229 |
+| `00356a10` | Migrate legacy draw calls to canonical coordinate/color order and resource-pointer types | 10928 / 10544 bytes | 2538 |
+| `001265a0` | Read the existing `TitleRect.bits` payload instead of redeclaring the constants as scalars | 17072 / 17616 bytes | 3941 |
+
+None of these four targets is promoted. Scoped production verification of their
+four owners reports 304 MATCH and ten ASM functions, with no mismatch or compiler
+error. Current receipts are in
+`build/finish-first-party-20260929/parent/current-guarded-scores.json`,
+`baseline-proofs/`, and `repaired-owner-verify.json`. Historical guarded scores
+are not acceptance evidence in a changed declaration environment.
+
+## Six Flash instruction recoveries
+
+`src/promoted/effPolygonFlash.c` now has **48 MATCH / one ASM** in the
+independent production-owner verification. Newly recovered:
+`0049b690`, `0049c3d0`, `0049d360`, `0049e150`, `0049ef50`, and `0049fbf0`.
+Their 272 code relocations and complete retail windows resolve exactly;
+all 42 previously matched siblings are preserved. See the current
+six-function table and semantic reconstruction notes in `docs/matching.md`.
+
+The two radial color-loop residuals close with the documented inclusive
+predicate `colorIndex <= 12`, not a pragma or a register hack. Supporting
+typedefs must precede the matching marker: moving the two radial markers
+below their typedefs fixes production `NO_SYMBOL` without changing bytes.
+Only unused template declarations were removed.
+
+`004a0c00` remains guarded, 2204 / 2208 bytes with sixteen address/transfer
+register differences. Correct hardware-output timing and splitting the
+real VU load from its scalar-transfer bridge are neutral; that is a negative
+probe result, not an impossibility claim.
+
+Current receipts: `build/resume-flash-20260929/final-owner-receipt.json`,
+`production-final/`, `guarded-stable/`, and
+`build/finish-first-party-20260929/parent/flash-production-verify.json`.
+Source SHA-256:
+`aab7dff0682b7658da404866095a44cd3b68ceb854fd82179bdaa8d02f5f1172`.
+No PS2 COP2 runtime or newly C-linked-object claim is made.
+
+The parent also tested repository-backed argument staging, producer/receiver
+splits, distinct scan roles and real lexical scopes in `00119e10`,
+`001d53e0`, `001b05d0`, and `002239a0`. None closes its current residual.
+Source stays unchanged; temporary candidates are removed. Outcomes are in
+`build/finish-first-party-20260929/parent/matching-file-hypotheses.json`.
+Do not recycle those spelling probes as compiler-floor evidence.
+
+The stable publication checkpoint also includes the four native guarded-source
+compile repairs described in the census section. Its five production owners
+scan **363 functions: 352 MATCH / 11 ASM**, with no errors:
+`build/finish-first-party-20260929/parent/checkpoint-production-verify.json`.
+Only the six Flash functions gain exact credit; the four repaired targets
+remain assembly-backed.
+
+Further repository-backed parent probes leave production unchanged.
+For scene drawing `00148280`, distinguishing signed/unsigned descending-bound
+expressions avoids destructive count CSE; real predicate snapshots and
+`opt_lifetimes on` reduce the research candidate from **194 to 118 differing
+instruction words**. Its existing 64-element arrays require counts in 0..64;
+callback-crossing field reloads are retained. Sorted-loop register rotation
+and entry-address rematerialization remain. Complete source and native
+disassembly are retained as `scene-00148280-best.c` and
+`scene-best-118.diff.txt` beside the hypothesis receipt.
+The matched shuffle neighbor `00376070` supplies real pointer-arithmetic
+forms, but those tests leave `00375f00` at two words (one variant is three).
+All 51 temporary hypothesis C files have been removed. These nonzero results
+are neither new matches nor compiler-floor proofs.

@@ -12361,3 +12361,60 @@ active [semantic gate](#semantic-and-target-gate) summarizes the rules.
   linking exceptions and `COPYING.gcc-runtime`. It is a runtime C match,
   not a first-party one. Reproduce with
   `python tools/verify.py src/middleware/gcc_fp.c`.
+
+### Flash particles: six complete instruction recoveries
+
+The current `src/promoted/effPolygonFlash.c` owner replaces six assembly
+fallbacks with C:
+
+| Function | Executable / retail bytes | Resolved relocations | Zero tail |
+| --- | ---: | ---: | ---: |
+| `0049b690` | 2392 / 2400 | 47 | 8 bytes |
+| `0049c3d0` | 2360 / 2368 | 49 | 8 bytes |
+| `0049d360` | 1976 / 1984 | 42 | 8 bytes |
+| `0049e150` | 2000 / 2000 | 40 | none |
+| `0049ef50` | 2256 / 2256 | 44 | none |
+| `0049fbf0` | 2560 / 2560 | 50 | none |
+
+Recover the actual pointer chain before allocation probes: effect `+0x3c`
+points to a state header, whose first word points to the particle array.
+Geometry vertex and color buffers also require their final pointer loads.
+Age, birth counts and recycle state are scalars, not fabricated quadwords.
+VU vectors are complete C-owned objects with real producers; VU/MMI bridges
+declare their memory outputs, while ordinary COP1 arithmetic remains C.
+The evolving radial height uses separate falling/fallen scalar roles to
+recover the multiply/subtract dependencies.
+
+The final two radial words were not a register-allocation floor.
+`colorIndex < 13` emits `slti $v0` / `bnez $v0`; the equivalent
+`colorIndex <= 12` emits the required `$at` pair. This is the existing
+comparison-spelling grid above, with
+`code1_0025.c::func_0025d7e0` as the matched source precedent. Change only the
+identified loop predicate, not every comparison in the owner.
+
+Promotion exposed a separate marker-parser boundary: long supporting typedef
+blocks between a matching marker and its function produced `NO_SYMBOL`,
+despite exact native objects. Move the marker below those typedefs, directly
+before its function/pragmas; no instruction change is needed.
+
+Independent production verification reports **48 MATCH / one ASM** across
+all 49 owner functions, with no missing symbols or mismatches. Native
+default and `NON_MATCHING` receipts preserve all 42 previously matched
+siblings, resolve all 272 new-function relocations, and have no initialized
+owner data or non-target byte regressions. Source SHA-256:
+`aab7dff0682b7658da404866095a44cd3b68ceb854fd82179bdaa8d02f5f1172`.
+
+Evidence: `build/resume-flash-20260929/final-owner-receipt.json`,
+`production-final/`, `guarded-stable/`, and
+`build/finish-first-party-20260929/parent/flash-production-verify.json`.
+These are compiler/object and retail-byte proofs, not PS2 COP2 execution
+or a newly C-linked-object claim. `004a0c00` remains guarded at
+2204 / 2208 bytes with sixteen `$v0`/`$v1` address/transfer words; accurate
+output-timing and split-bridge probes do not close it. No compiler-floor
+claim follows those negative probes.
+
+The stable five-owner publication checkpoint includes the four guarded-source
+compile repairs and reports **352 MATCH / 11 ASM across 363 functions**.
+Only the six Flash functions are newly exact; the repairs keep their
+production assembly fallbacks. Receipt:
+`build/finish-first-party-20260929/parent/checkpoint-production-verify.json`.

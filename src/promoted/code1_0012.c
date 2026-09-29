@@ -2422,6 +2422,9 @@ void func_00126090(s32 arg0, u8 *arg1)
 /* Trap: s32 keep 0x30 clears census at 4400/6509 and s32 no-shift at 4402/6511, both */
 /* LOWER edits than the right answer but wrong: they drop the dsll32/dsra32 16 pair */
 /* retail emits. Lower edits at worse count is not a better body. */
+/* measured 2026-09-29: canonical TitleRect payload reads compile the guarded
+ * body to 17072/17616 bytes, nd 3941. Earlier scores above are historical;
+ * this body remains assembly-backed. */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
 #ifndef M2C_GUARD
@@ -2468,8 +2471,6 @@ void func_001265a0(s32 arg1) {
     extern s128 D_005E5530;
     extern s64 D_005E5540;
     extern u8 D_005E5548[];
-    extern s128 D_005E5590;
-    extern s128 D_005E55A0;
     extern s64 D_005E5628;
     extern f32 D_005E5630;
     extern s64 D_005E5638;
@@ -3022,11 +3023,11 @@ M2C_UNK unksp514;
             }
             sp687 = 0xFF;
             sp688 = (f32) sp684;
-            sp4B0 = D_005E5590;
-            sp4C0 = D_005E5590;
+            sp4B0 = D_005E5590.bits;
+            sp4C0 = D_005E5590.bits;
             func_0045d6e0(&sp688, &sp4C0, 1, 0);
-            sp4A0 = D_005E55A0;
-            sp4C0 = D_005E55A0;
+            sp4A0 = D_005E55A0.bits;
+            sp4C0 = D_005E55A0.bits;
             func_0045d6e0(&sp688, &sp4C0, 1, 0);
             func_00126090(0xFF, temp_20, 0, 0, 0);
             if (temp_16 >= 0xCD) {
@@ -3055,11 +3056,11 @@ M2C_UNK unksp514;
                 }
                 sp627 = 0xFF;
                 sp628 = (f32) sp624;
-                sp480 = D_005E5590;
-                sp490 = D_005E5590;
+                sp480 = D_005E5590.bits;
+                sp490 = D_005E5590.bits;
                 func_0045d6e0(&sp628, &sp490, 0, 0);
-                sp470 = D_005E55A0;
-                sp490 = D_005E55A0;
+                sp470 = D_005E55A0.bits;
+                sp490 = D_005E55A0.bits;
                 func_0045d6e0(&sp628, &sp490, 0, 0);
                 func_0048a000();
                 temp_2_2 = (s32)(M2C_FIELD(temp_20, s32 *, 0x10) + 1);
@@ -3447,11 +3448,11 @@ loop_128:
                 }
                 sp61F = 0xFF;
                 sp620 = (f32) sp61C;
-                sp390 = D_005E5590;
-                sp3A0 = D_005E5590;
+                sp390 = D_005E5590.bits;
+                sp3A0 = D_005E5590.bits;
                 func_0045d6e0(&sp620, &sp3A0, 0, 0);
-                sp380 = D_005E55A0;
-                sp3A0 = D_005E55A0;
+                sp380 = D_005E55A0.bits;
+                sp3A0 = D_005E55A0.bits;
                 func_0045d6e0(&sp620, &sp3A0, 0, 0);
                 func_0048a000();
                 func_002aaac0();
@@ -3520,11 +3521,11 @@ loop_128:
                 }
                 sp617 = 0xFF;
                 sp618 = (f32) sp614;
-                sp360 = D_005E5590;
-                sp370 = D_005E5590;
+                sp360 = D_005E5590.bits;
+                sp370 = D_005E5590.bits;
                 func_0045d6e0(&sp618, &sp370, 0, 0);
-                sp350 = D_005E55A0;
-                sp370 = D_005E55A0;
+                sp350 = D_005E55A0.bits;
+                sp370 = D_005E55A0.bits;
                 func_0045d6e0(&sp618, &sp370, 0, 0);
                 func_0048a000();
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
@@ -3557,11 +3558,11 @@ loop_128:
                 }
                 sp60F = 0xFF;
                 sp610 = (f32) sp60C;
-                sp330 = D_005E5590;
-                sp340 = D_005E5590;
+                sp330 = D_005E5590.bits;
+                sp340 = D_005E5590.bits;
                 func_0045d6e0(&sp610, &sp340, 0, 0);
-                sp320 = D_005E55A0;
-                sp340 = D_005E55A0;
+                sp320 = D_005E55A0.bits;
+                sp340 = D_005E55A0.bits;
                 func_0045d6e0(&sp610, &sp340, 0, 0);
                 func_0048a000();
                 func_002aaac0();
@@ -3595,11 +3596,11 @@ loop_128:
                 }
                 sp607 = 0xFF;
                 sp608 = (f32) sp604;
-                sp300 = D_005E5590;
-                sp310 = D_005E5590;
+                sp300 = D_005E5590.bits;
+                sp310 = D_005E5590.bits;
                 func_0045d6e0(&sp608, &sp310, 0, 0);
-                sp2F0 = D_005E55A0;
-                sp310 = D_005E55A0;
+                sp2F0 = D_005E55A0.bits;
+                sp310 = D_005E55A0.bits;
                 func_0045d6e0(&sp608, &sp310, 0, 0);
                 func_0048a000();
                 temp_f22 = (f32)(s32)(sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 60.0f)))));
@@ -3641,11 +3642,11 @@ loop_128:
                 }
                 sp5FF = 0xFF;
                 sp600 = (f32) sp5FC;
-                sp2D0 = D_005E5590;
-                sp2E0 = D_005E5590;
+                sp2D0 = D_005E5590.bits;
+                sp2E0 = D_005E5590.bits;
                 func_0045d6e0(&sp600, &sp2E0, 0, 0);
-                sp2C0 = D_005E55A0;
-                sp2E0 = D_005E55A0;
+                sp2C0 = D_005E55A0.bits;
+                sp2E0 = D_005E55A0.bits;
                 func_0045d6e0(&sp600, &sp2E0, 0, 0);
                 func_0048a000();
                 func_00125e80(0xFF, temp_20, 200.0f, 0.0f, 10.0f);
@@ -3675,11 +3676,11 @@ loop_128:
                 }
                 sp5F7 = 0xFF;
                 sp5F8 = (f32) sp5F4;
-                sp2A0 = D_005E5590;
-                sp2B0 = D_005E5590;
+                sp2A0 = D_005E5590.bits;
+                sp2B0 = D_005E5590.bits;
                 func_0045d6e0(&sp5F8, &sp2B0, 0, 0);
-                sp290 = D_005E55A0;
-                sp2B0 = D_005E55A0;
+                sp290 = D_005E55A0.bits;
+                sp2B0 = D_005E55A0.bits;
                 func_0045d6e0(&sp5F8, &sp2B0, 0, 0);
                 func_0048a000();
                 sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 120.0f))));
@@ -3711,11 +3712,11 @@ loop_128:
                 }
                 sp5EF = 0xFF;
                 sp5F0 = (f32) sp5EC;
-                sp270 = D_005E5590;
-                sp280 = D_005E5590;
+                sp270 = D_005E5590.bits;
+                sp280 = D_005E5590.bits;
                 func_0045d6e0(&sp5F0, &sp280, 0, 0);
-                sp260 = D_005E55A0;
-                sp280 = D_005E55A0;
+                sp260 = D_005E55A0.bits;
+                sp280 = D_005E55A0.bits;
                 func_0045d6e0(&sp5F0, &sp280, 0, 0);
                 func_0048a000();
                 temp_f20_5 = (f32)(s32)(sinf(((((fGpffff8094 * (f32) temp_16) / 225.0f)))));
@@ -3772,11 +3773,11 @@ loop_128:
             }
             sp5E7 = 0xFF;
             sp5E8 = (f32) sp5E4;
-            sp240 = D_005E5590;
-            sp250 = D_005E5590;
+            sp240 = D_005E5590.bits;
+            sp250 = D_005E5590.bits;
             func_0045d6e0(&sp5E8, &sp250, 0, 0);
-            sp230 = D_005E55A0;
-            sp250 = D_005E55A0;
+            sp230 = D_005E55A0.bits;
+            sp250 = D_005E55A0.bits;
             func_0045d6e0(&sp5E8, &sp250, 0, 0);
             func_0048a000();
             sp69C = (f32)(s32)(fGpffff9c80);
@@ -3816,11 +3817,11 @@ loop_128:
             }
             sp5DF = 0xFF;
             sp5E0 = (f32) sp5DC;
-            sp210 = D_005E5590;
-            sp220 = D_005E5590;
+            sp210 = D_005E5590.bits;
+            sp220 = D_005E5590.bits;
             func_0045d6e0(&sp5E0, &sp220, 0, 0);
-            sp200 = D_005E55A0;
-            sp220 = D_005E55A0;
+            sp200 = D_005E55A0.bits;
+            sp220 = D_005E55A0.bits;
             func_0045d6e0(&sp5E0, &sp220, 0, 0);
             func_0048a000();
             temp_f2_3 = (f32)(s32)(fGpffff8094);
@@ -3885,11 +3886,11 @@ loop_128:
         }
         sp5D7 = 0xFF;
         sp5D8 = (f32) sp5D4;
-        sp1E0 = D_005E5590;
-        sp1F0 = D_005E5590;
+        sp1E0 = D_005E5590.bits;
+        sp1F0 = D_005E5590.bits;
         func_0045d6e0(&sp5D8, &sp1F0, 0, 0);
-        sp1D0 = D_005E55A0;
-        sp1F0 = D_005E55A0;
+        sp1D0 = D_005E55A0.bits;
+        sp1F0 = D_005E55A0.bits;
         func_0045d6e0(&sp5D8, &sp1F0, 0, 0);
         func_0048a000();
         temp_2_19 = (s32)(M2C_FIELD(temp_20, s32 *, 0x10) + 1);

@@ -600,16 +600,9 @@ void func_0049b640(u8 *arg0)
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
 
-/* measured 2026-09-29: native b210 probe emits 2392B against the 2400B
- * window, with two relocation-masked words remaining: the color-fill loop
- * uses $v0 for slti/bnez where retail uses $at. The state holds a particle
- * pointer, and both geometry buffers require their final pointer loads.
- * Particle age/recycle are scalar; VU0 transfers name complete C objects.
- * Shared phase and named frame constants recover retail's FPR lifetimes.
- * Proof: build/flashmatch-20260929/final-guarded/receipt.json.
+/* The inclusive color-fill bound selects retail's assembler-temp branch.
+ * See docs/matching.md, "slt $at vs slt $v0".
  */
-// FUN_0049B690 NONMATCHING
-#ifdef NON_MATCHING
 typedef struct FlashRadialParticle {
     s32 age;
     f32 velocity;
@@ -658,6 +651,7 @@ typedef char FlashRadialStateSize[(sizeof(FlashRadialState) == 0x10) ? 1 : -1];
 typedef char FlashRadialParticleSize[(sizeof(FlashRadialParticle) == 0x1c) ? 1 : -1];
 typedef char FlashRadialConfigSize[(sizeof(FlashRadialConfig) == 0x8c) ? 1 : -1];
 
+// FUN_0049B690
 #pragma push
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
@@ -911,7 +905,7 @@ void func_0049b690(u8 *effect)
             {
                 s32 colorIndex;
                 outerValue = outerPacked;
-                for (colorIndex = 1; colorIndex < 13; colorIndex++) {
+                for (colorIndex = 1; colorIndex <= 12; colorIndex++) {
                     colors[colorIndex] = outerValue;
                 }
             }
@@ -944,9 +938,6 @@ void func_0049b690(u8 *effect)
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049b690);
-#endif
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
    color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
    plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
@@ -1124,399 +1115,319 @@ void func_0049c380(u8 *arg0)
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
 
-/* measured in the sibling floor family (see FUN_0049D360/0049E150/004A0C00):
-   four s128 slots (sp100/spF0/spE0/spD0) read via (s32) casts - mwcc b210
-   canonicalizes every one with dsll32+dsra32 (retail uses plain lq), the
-   saved-GPR pool rotates ($s4-down vs retail $16-up) and the FP pool starts
-   at $f28 with 9 slots vs retail $f20-$f29. 10 FP saved regs here. Same
-   s128-canonicalization / allocator-pool floor family. */
-/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
-   packed scalar color data before the COP2 block; b210 cannot emit this sequence
-   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
-/* Floor (measured 2026-09-18, source-repo only): measure_guarded 523 words (loop+prop), fnalign 592/592/419 (retail/object/edits instrs), emitted 2368B/window 2368B (100% exact size). Pragma sweep: loop 553, loop+prop 523 WINNER (-30), loop+dead 542 (-11), O4 553 tie, prop 563, sched 563, dead 577, strength/unroll 584, peephole 588, subs 608, O0 626; pairs confirm loop+prop stands. Probe chain: v1 scalar+bridges 585 -> v2 u32 colors+int quad zeros 584 (-1) -> installed loop 553 (-31) -> loop+prop 523 (-30). Micro-priced casts: (s32)(f*(f32)n) vs (u32) 584 vs 598 (+14 for 2 fades, cf. func_0049ef50 8-vs-21); color packing via single VU bridge per loop (lui 0x437F) not per-channel casts. wscan OBJ 5 dsll32/dsra32 vs RETAIL 0 (s128 width wall) + daddu 0-vs-13 (zero-idiom); opclass 15: nop -10, addiu +8, sw +7, dsra32 +5, lui -5, dsll32 +4, lw -3. Residual is saved-GPR/FP pool rotation + COP2 slot addresses + standalone MMI pextlb/pextlh (romwright m2c-shaped fails _pextlb intrinsic) + s128-canonicalization + daddu zero-idiom + interior VU vitof/vmul/vftoi/ppach. Banked as guarded floor; production stays ASM. See /var/tmp/cold49c3d0/ (m2c.c 309L, rw_raw.c 323L, rw_types.txt, v1/v2/v3u, cand523.c). */
-/* measured 0049c3d0 (owner, 2026-09-19): fnalign **419 -> 415 edits**, count
-   592 -> 590 against retail 592, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all. */
-// FUN_0049C3D0 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct FlashEvolvingRadialParticle {
+    s32 age;
+    f32 angularVelocity, verticalVelocity, angle;
+    f32 firstRadius, secondRadius, baseRadius, radiusStep, width;
+    u8 reserved24[8];
+} FlashEvolvingRadialParticle;
+typedef struct FlashEvolvingRadialState {
+    FlashEvolvingRadialParticle *particles;
+    u8 *geometryOwner;
+    u8 reserved[8];
+} FlashEvolvingRadialState;
+typedef struct FlashEvolvingRadialConfig {
+    u8 prefix[0x34];
+    u32 lastFrame;
+    s32 count;
+    u8 reserved3c[8];
+    f32 fadeIn, fadeOut;
+    s32 life, births;
+    u8 recycle, burst;
+    u8 reserved56[2];
+    u32 innerColor, outerColor;
+    f32 width, unused64, sizeRandomness;
+    f32 radius, radiusRandomness;
+    f32 startRadius, startRadiusRandomness, endRadius, endRadiusRandomness;
+    f32 verticalVelocity, verticalRandomness, angularAcceleration;
+    f32 angularVelocity, angularRandomness, gravity;
+} FlashEvolvingRadialConfig;
+typedef char FlashEvolvingRadialParticleSize[(sizeof(FlashEvolvingRadialParticle)==0x2c)?1:-1];
+typedef char FlashEvolvingRadialConfigSize[(sizeof(FlashEvolvingRadialConfig)==0x9c)?1:-1];
+// FUN_0049C3D0
+#pragma push
+#pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
-#pragma opt_propagation off
-void func_0049c3d0(u8 *arg0)
+void func_0049c3d0(u8 *effect)
 {
-    u8 *tmp17;
-    u32 tmp34;
-    u32 arg34;
-    s32 *pi;
-    f32 *pif;
-    u16 *pu3;
-    s32 cnt38;
-    s32 cnt4C;
-    s32 bVar;
-    s32 var22;
-    f32 *vertex;
-    u32 *color;
-    u32 sp18C;
-    u32 sp188;
-    s128 colA;
-    s128 colB;
-    s128 sp120;
-    s128 sp130;
-    s128 q140;
-    s128 sp150;
-    u32 packA;
-    u32 packB;
-    s128 spD0;
-    s128 spF0;
-    s128 spE0;
-    s128 sp100;
-    f32 scale;
-    f32 f80d0;
-    f32 f8C;
-    f32 f98;
-    u8 cVar1;
-    s32 loop;
-    s32 cur;
-    s32 tmp;
-    f32 ftmp;
-    f32 fC;
-    f32 f1t;
-    f32 fD;
+    u32 innerWord;
+    u32 outerWord;
+    u32 outerPacked;
+    u32 innerPacked;
+    EffectVuVector innerColor;
+    EffectVuVector outerColor;
+    EffectVuVector direction;
+    EffectVuVector width;
+    EffectVuVector second;
+    EffectVuVector first;
+    s32 firstFrame;
+    s32 count;
+    s32 index;
+    s32 fadeIn;
+    s32 fadeOut;
+    s32 recycle;
+    FlashEvolvingRadialState *state;
+    FlashEvolvingRadialParticle *particle;
+    FlashEvolvingRadialConfig *config;
+    u8 *owner;
+    s32 life;
+    FlashVertex *vertices;
+    u32 *colors;
+    f32 acceleration;
+    f32 gravity;
+    f32 height;
+    f32 distance;
+    f32 radiusRandomness;
+    f32 phase;
+    f32 fullTurn;
+    f32 unit;
+    f32 zero;
+    f32 half;
+    f32 byteScale;
+    f32 normalization;
+    const u32 *colorInput;
+    u32 frame;
+    u32 lastFrame;
+    s32 births;
 
-    tmp17 = *(u8 **)(arg0 + 0x40);
-    tmp34 = *(u32 *)(tmp17 + 0x34);
-    arg34 = *(u32 *)(arg0 + 0x34);
-    if ((tmp34 >= arg34) || (tmp34 == 0)) {
-        pi = *(s32 **)(arg0 + 0x3C);
-        pif = (f32 *)pi;
-        pu3 = (u16 *)(*(u32 **)(arg0 + 0x3C))[1];
-        cnt38 = *(s32 *)(tmp17 + 0x38);
-        *(s32 *)&sp100 = cnt38;
-        cnt4C = *(s32 *)(tmp17 + 0x4C);
-        if (cnt4C != 0) {
-            if ((*(u8 *)(tmp17 + 0x55) == 0) || (arg34 != 0)) {
-                bVar = 0;
-                var22 = *(s32 *)(tmp17 + 0x50);
-            } else {
-                bVar = 1;
-                var22 = cnt38;
-            }
-            RpGeometryLock(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18), 10);
-            vertex = (f32 *)(*(u8 **)(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18) + 0x5C) + 0x14);
-            color = (u32 *)(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18) + 0x30);
-            ((s32 *)&sp150)[1] = 0;
-            ((s32 *)&sp150)[3] = 0;
-            sp18C = *(u32 *)(tmp17 + 0x58) & 0xFFFFFF;
-            scale = fGpffff8044;
-            __asm__ volatile(
-                "lw $2, 0(%0)          \n"
-                "pextlb $2, $0, $2     \n"
-                "pextlh $2, $0, $2     \n"
-                "qmtc2 $2, $vf10       \n"
-                "vitof0.xyzw $vf10, $vf10 \n"
-                "mfc1 $2, %1           \n"
-                "nop                   \n"
-                "qmtc2 $2, $vf2        \n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                "sqc2 $vf10, 0(%2)     \n"
-                :
-                : "r"(&sp18C), "f"(scale), "r"(&colA)
-                : "$2", "$vf2", "$vf10", "memory");
-            sp188 = *(u32 *)(tmp17 + 0x5C) & 0xFFFFFF;
-            __asm__ volatile(
-                "lw $2, 0(%0)          \n"
-                "pextlb $2, $0, $2     \n"
-                "pextlh $2, $0, $2     \n"
-                "qmtc2 $2, $vf10       \n"
-                "vitof0.xyzw $vf10, $vf10 \n"
-                "mfc1 $2, %1           \n"
-                "nop                   \n"
-                "qmtc2 $2, $vf2        \n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                "sqc2 $vf10, 0(%2)     \n"
-                :
-                : "r"(&sp188), "f"(scale), "r"(&colB)
-                : "$2", "$vf2", "$vf10", "memory");
-            *(s32 *)&spF0 = (s32)(*(f32 *)(tmp17 + 0x44) * (f32)cnt4C);
-            *(s32 *)&spE0 = (s32)(*(f32 *)(tmp17 + 0x48) * (f32)cnt4C);
-            f8C = *(f32 *)(tmp17 + 0x8C);
-            f98 = *(f32 *)(tmp17 + 0x98);
-            cVar1 = *(u8 *)(tmp17 + 0x54);
-            spD0 = (s128)(s32)cVar1;
-            ((s32 *)&sp120)[1] = 0;
-            ((s32 *)&sp120)[3] = 0;
-            ((s32 *)&sp130)[1] = 0;
-            ((s32 *)&sp130)[3] = 0;
-            f80d0 = fGpffff80d0;
-            loop = 0;
-            while (loop < (s32)sp100) {
-                cur = pi[0];
-                if (cur != -2) {
-                    if (cur == -1) {
-                        if (var22 != 0) {
-                            ftmp = effMiscRandFloat(0);
-                            pif[3] = f80d0 * ftmp;
-                            fC = *(f32 *)(tmp17 + 0x70);
-                            ftmp = effMiscRandFloat(0);
-                            pif[4] = *(f32 *)(tmp17 + 0x6C) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            ftmp = effMiscRandFloat(0);
-                            pif[5] = *(f32 *)(tmp17 + 0x6C) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            fC = *(f32 *)(tmp17 + 0x78);
-                            ftmp = effMiscRandFloat(0);
-                            f1t = *(f32 *)(tmp17 + 0x74) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[6] = f1t;
-                            fC = *(f32 *)(tmp17 + 0x80);
-                            ftmp = effMiscRandFloat(0);
-                            fD = *(f32 *)(tmp17 + 0x7C) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[7] = (fD - f1t) / (f32)cnt4C;
-                            fC = *(f32 *)(tmp17 + 0x94);
-                            ftmp = effMiscRandFloat(0);
-                            pif[1] = *(f32 *)(tmp17 + 0x90) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            fC = *(f32 *)(tmp17 + 0x88);
-                            ftmp = effMiscRandFloat(0);
-                            pif[2] = *(f32 *)(tmp17 + 0x84) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            fC = *(f32 *)(tmp17 + 0x68);
-                            ftmp = effMiscRandFloat(0);
-                            pif[8] = *(f32 *)(tmp17 + 0x60) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            if (bVar != 0) {
-                                tmp = effMiscRand(0);
-                                pi[0] = (s32)(tmp % (u32)cnt4C);
-                            } else {
-                                pi[0] = 0;
-                            }
-                            var22 -= 1;
-                        }
-                    } else if (cur < cnt4C) {
-                        f32 curf;
-                        f32 pi1;
-                        f32 pi2;
-                        f32 pi3;
-                        f32 f30;
-                        f32 f26v;
-                        f32 f29v;
-                        f32 f20v;
-                        f32 s;
-                        f32 c;
-                        f32 fade;
-                        s32 k;
-
-                        curf = (f32)cur;
-                        pi2 = pif[2];
-                        pi3 = pif[3];
-                        f30 = 0.5f * (f8C * curf);
-                        f26v = f98 * curf;
-                        pi1 = pif[1];
-                        f29v = pif[6] + pif[7] * curf;
-                        f20v = curf * (pi1 + f30) - curf * f26v * 0.5f;
-                        ((f32 *)&sp120)[1] = pif[4];
-                        ((f32 *)&sp130)[1] = pif[5];
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "lw $2, 32(%1)            \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "sqc2 $vf10, 0(%2)        \n"
-                            :
-                            : "r"(D_00713CE0), "r"(pi), "r"(&q140)
-                            : "$2", "$vf2", "$vf10", "memory");
-                        s = cosf(curf * (pi2 + f30) + pi3);
-                        c = sinf(curf * (pi2 + f30) + pi3);
-                        ((f32 *)&sp150)[0] = s;
-                        ((f32 *)&sp150)[2] = c;
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "vmove.xyzw $vf12, $vf10  \n"
-                            "mfc1 $2, %1              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "mfc1 $2, %2              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vaddx.y $vf10, $vf0, $vf2x \n"
-                            "vmove.xyzw $vf2, $vf10   \n"
-                            "vmove.xyzw $vf10, $vf12  \n"
-                            "vmove.xyzw $vf12, $vf2   \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "mtc1 $2, $f1             \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "pexew $2, $2             \n"
-                            "mtc1 $2, $f0             \n"
-                            "nop                      \n"
-                            "mfc1 $2, $f0             \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vaddx.x $vf10, $vf0, $vf2x \n"
-                            "mfc1 $2, $f1             \n"
-                            "nop                      \n"
-                            "neg.s $f0, $f1           \n"
-                            "mfc1 $2, $f0             \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vaddx.z $vf10, $vf0, $vf2x \n"
-                            "lqc2 $vf11, 0(%3)        \n"
-                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%3)        \n"
-                            "sqc2 $vf12, 0(%4)        \n"
-                            :
-                            : "r"(&sp150), "f"(f29v), "f"(f20v), "r"(&q140), "r"(D_00713D10)
-                            : "$2", "$vf2", "$vf10", "$vf11", "$vf12", "$f0", "$f1", "memory");
-                        vertex[0] = ((f32 *)D_00713D10)[0];
-                        vertex[1] = ((f32 *)D_00713D10)[1];
-                        vertex[2] = ((f32 *)D_00713D10)[2];
-                        for (k = 0; k < 6; k++) {
-                            u32 fb;
-                            u32 f70w;
-                            fb = D_00713FB0[k];
-                            f70w = D_00713F70[k];
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)        \n"
-                                "qmtc2 %1, $vf2           \n"
-                                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                                "vadd.xyzw $vf10, $vf10, $vf12 \n"
-                                "lqc2 $vf11, 0(%2)        \n"
-                                "qmtc2 %3, $vf2           \n"
-                                "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-                                "vadd.xyzw $vf10, $vf10, $vf11 \n"
-                                "sqc2 $vf10, 0(%4)        \n"
-                                :
-                                : "r"(&sp120), "r"(fb), "r"(&q140), "r"(f70w), "r"(D_00713D10)
-                                : "$vf2", "$vf10", "$vf11", "$vf12", "memory");
-                            vertex[k * 3 + 3] = ((f32 *)D_00713D10)[0];
-                            vertex[k * 3 + 4] = ((f32 *)D_00713D10)[1];
-                            vertex[k * 3 + 5] = ((f32 *)D_00713D10)[2];
-                        }
-                        k = 6;
-                        do {
-                            u32 fb;
-                            u32 f70w;
-                            fb = D_00713FB0[k];
-                            f70w = D_00713F70[k];
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)        \n"
-                                "qmtc2 %1, $vf2           \n"
-                                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                                "vadd.xyzw $vf10, $vf10, $vf12 \n"
-                                "lqc2 $vf11, 0(%2)        \n"
-                                "qmtc2 %3, $vf2           \n"
-                                "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-                                "vadd.xyzw $vf10, $vf10, $vf11 \n"
-                                "sqc2 $vf10, 0(%4)        \n"
-                                :
-                                : "r"(&sp130), "r"(fb), "r"(&q140), "r"(f70w), "r"(D_00713D10)
-                                : "$vf2", "$vf10", "$vf11", "$vf12", "memory");
-                            vertex[k * 3 + 3] = ((f32 *)D_00713D10)[0];
-                            vertex[k * 3 + 4] = ((f32 *)D_00713D10)[1];
-                            vertex[k * 3 + 5] = ((f32 *)D_00713D10)[2];
-                            k++;
-                        } while (k < 12);
-                        if (cur < (s32)spF0) {
-                            fade = (f32)cur / (f32)(s32)spF0;
-                        } else {
-                            fade = 1.0f;
-                            if ((s32)spE0 < cur) {
-                                fade = (f32)(cnt4C - cur) / (f32)(cnt4C - (s32)spE0);
-                            }
-                        }
-                        __asm__ volatile(
-                            "lqc2 $vf11, 0(%0)        \n"
-                            "mfc1 $2, %1              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-                            "lqc2 $vf10, 0(%2)        \n"
-                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                            "mfc1 $2, %3              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "vftoi0.xyzw $vf10, $vf10 \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "ppach $2, $0, $2         \n"
-                            "ppacb $2, $0, $2         \n"
-                            "sw $2, 0(%4)             \n"
-                            :
-                            : "r"(D_00713CE0), "f"(fade), "r"(&colB), "f"(255.0f), "r"(&packA)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        {
-                            s32 kk;
-                            u32 pv = *(u32 *)&packA;
-                            for (kk = 1; kk < 13; kk++) {
-                                color[kk] = pv;
-                            }
-                        }
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                            "mfc1 $2, %1              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "vftoi0.xyzw $vf10, $vf10 \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "ppach $2, $0, $2         \n"
-                            "ppacb $2, $0, $2         \n"
-                            "sw $2, 0(%2)             \n"
-                            :
-                            : "r"(&colA), "f"(255.0f), "r"(&packB)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        {
-                            /* Retail 0049CC08-0049CC50 is the long unsigned idiom
-                               (mul/lui 0x4F00/mtc1/c.le/bc1t/cvt/mfc1/b/sub/cvt/mfc1/
-                               lui 0x8000/or/sll 24/or/sw); the short signed-plus-guard
-                               form cost a 12-vs-3 replace. Same finding as 0049e150
-                               pointing the other way. Interior around 0049C9C4
-                               (retail 29-vs-2 / 41-vs-1 lqc2/vmul chain) outstanding. */
-                            u32 cb = *(u32 *)&packB;
-                            color[0] = cb | ((u32)(255.0f * fade) << 24);
-                        }
-                        pi[0] = cur + 1;
-                    } else {
-                        s32 k;
-                        k = 0;
-                        while (k < 13) {
-                            vertex[k * 3 + 0] = 0.0f;
-                            vertex[k * 3 + 1] = 0.0f;
-                            vertex[k * 3 + 2] = 0.0f;
-                            color[k] = 0;
-                            k++;
-                        }
-                        if ((s32)spD0 == 0) {
-                            cur = -2;
-                        } else {
-                            cur = -1;
-                        }
-                        pi[0] = cur;
-                    }
+    config = *(FlashEvolvingRadialConfig **)(effect + 0x40);
+    lastFrame = config->lastFrame;
+    frame = *(u32 *)(effect + 0x34);
+    if (lastFrame < frame && lastFrame != 0) {
+        return;
+    }
+    state = *(FlashEvolvingRadialState **)(effect + 0x3c);
+    particle = state->particles;
+    owner = state->geometryOwner;
+    count = config->count;
+    life = config->life;
+    if (life == 0) {
+        return;
+    }
+    fadeIn = (s32)(config->fadeIn * (f32)life);
+    fadeOut = (s32)(config->fadeOut * (f32)life);
+    if (config->burst != 0 && frame == 0) {
+        firstFrame = 1;
+        births = count;
+    } else {
+        firstFrame = 0;
+        births = config->births;
+    }
+    RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 0xa);
+    vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
+    colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+    zero = 0.0f;
+    direction.lane[1] = zero;
+    direction.lane[3] = zero;
+    innerWord = config->innerColor & 0x00ffffff;
+    colorInput = &innerWord;
+    normalization = fGpffff8044;
+    effectVuUnpackColor10(colorInput, normalization);
+    effectVuStore10(&innerColor);
+    outerWord = config->outerColor & 0x00ffffff;
+    effectVuUnpackColor10(&outerWord, normalization);
+    effectVuStore10(&outerColor);
+    acceleration = config->angularAcceleration;
+    gravity = config->gravity;
+    recycle = config->recycle;
+    __asm__ volatile("sqc2 $vf0, 0(%1)" : "=m"(first) : "r"(&first) : "memory");
+    __asm__ volatile("sqc2 $vf0, 0(%1)" : "=m"(second) : "r"(&second) : "memory");
+    index = 0;
+    fullTurn = fGpffff80d0;
+    unit = 1.0f;
+    half = 0.5f;
+    byteScale = 255.0f;
+    for (; index < count; index++, particle++, vertices += 13, colors += 13) {
+        s32 age = particle->age;
+        if (age == -2) {
+            continue;
+        }
+        if (age == -1) {
+            if (births != 0) {
+                f32 factor;
+                f32 endpoint;
+                particle->angle = fullTurn * effMiscRandFloat(0);
+                phase = config->radiusRandomness;
+                radiusRandomness = unit - phase;
+                factor = 0.0f + radiusRandomness + phase * effMiscRandFloat(0);
+                particle->firstRadius = config->radius * factor;
+                factor = 0.0f + radiusRandomness + phase * effMiscRandFloat(0);
+                particle->secondRadius = config->radius * factor;
+                radiusRandomness = config->startRadiusRandomness;
+            factor = 0.0f + (unit - radiusRandomness) + radiusRandomness * effMiscRandFloat(0);
+            radiusRandomness = config->startRadius * factor;
+            phase = config->endRadiusRandomness;
+            factor = 0.0f + (unit - phase) + phase * effMiscRandFloat(0);
+            endpoint = config->endRadius * factor;
+            particle->baseRadius = radiusRandomness;
+            particle->radiusStep = (endpoint - radiusRandomness) / (f32)life;
+            radiusRandomness = config->angularRandomness;
+            factor = 0.0f + (unit - radiusRandomness) + radiusRandomness * effMiscRandFloat(0);
+            particle->angularVelocity = config->angularVelocity * factor;
+            radiusRandomness = config->verticalRandomness;
+            factor = 0.0f + (unit - radiusRandomness) + radiusRandomness * effMiscRandFloat(0);
+            particle->verticalVelocity = config->verticalVelocity * factor;
+            radiusRandomness = config->sizeRandomness;
+            factor = 0.0f + (unit - radiusRandomness) + radiusRandomness * effMiscRandFloat(0);
+            particle->width = config->width * factor;
+            if (firstFrame) {
+                    particle->age = effMiscRand(0) % (u32)life;
+                } else {
+                    particle->age = 0;
                 }
-                pi += 11;
-                pif = (f32 *)pi;
-                vertex += 39;
-                color += 13;
-                loop++;
+                births--;
+            }
+            continue;
+        }
+        if (age >= life) {
+            s32 vertex;
+            for (vertex = 0; vertex < 13; vertex++) {
+                vertices[vertex].x = zero;
+                vertices[vertex].y = zero;
+                vertices[vertex].z = zero;
+                colors[vertex] = 0;
+            }
+            particle->age = recycle ? -1 : -2;
+        } else {
+            f32 time = (f32)age;
+            f32 x;
+            f32 z;
+            f32 fade;
+            u32 innerValue;
+            u32 outerValue;
+            s32 vertex;
+            EffectVuVector *widthPointer;
+            EffectVuVector *scratch;
+            EffectVuVector *firstPointer;
+            s32 secondVertex;
+            f32 offset = half * (acceleration * time);
+            phase = time * (particle->verticalVelocity + offset);
+            phase += particle->angle;
+            height = time * (particle->angularVelocity + offset);
+            { f32 falling; f32 fallen; falling = gravity * time; fallen = time * falling; height = height - half * fallen; }
+            distance = 0.0f + particle->baseRadius + particle->radiusStep * time;
+            first.lane[1] = particle->firstRadius;
+            second.lane[1] = particle->secondRadius;
+            effectVuLoad10((EffectVuVector *)D_00713CE0);
+            effectVuScale10(particle->width);
+            effectVuStore10(&width);
+            direction.lane[0] = cosf(phase);
+            direction.lane[2] = sinf(phase);
+            effectVuLoad10(&direction);
+            __asm__ volatile("vmove.xyzw $vf12, $vf10" : : : "$vf12");
+            effectVuScale10(distance);
+            __asm__ volatile("qmtc2.ni %0, $vf2\n"
+                             "vaddx.y $vf10, $vf0, $vf2x\n"
+                             : : "r"(height) : "$vf2", "$vf10");
+            __asm__ volatile("vmove.xyzw $vf2, $vf10\n"
+                             "vmove.xyzw $vf10, $vf12\n"
+                             "vmove.xyzw $vf12, $vf2\n"
+                             : : : "$vf2", "$vf10", "$vf12");
+            x = effectVuGetX10();
+            z = effectVuGetZ10();
+            effectVuSetX10(z);
+            effectVuSetZ10(-x);
+            widthPointer = &width;
+            effectVuLoad11(widthPointer);
+            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+            effectVuStore10(widthPointer);
+            scratch = (EffectVuVector *)D_00713D10;
+            __asm__ volatile("sqc2 $vf12, 0(%1)" : "=m"(*scratch) : "r"(scratch) : "memory");
+            vertices[0].x = D_00713D10[0];
+            vertices[0].y = D_00713D14[0];
+            vertices[0].z = D_00713D18[0];
+            /* The tables contain raw IEEE-754 words. The transfer latency
+             * nop belongs to the COP2 bridge, not to scalar computation. */
+            vertex = 0;
+            firstPointer = &first;
+            for (; vertex < 6; vertex++) {
+                effectVuLoad10(firstPointer);
+                __asm__ volatile("nop\nqmtc2.ni %0, $vf2\nvmulx.xyzw $vf10, $vf10, $vf2x"
+                    : : "r"(D_00713FB0[vertex]) : "$vf2", "$vf10");
+                __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf12" : : : "$vf10");
+                effectVuLoad11(widthPointer);
+                __asm__ volatile("nop\nqmtc2.ni %0, $vf2\nvmulx.xyzw $vf11, $vf11, $vf2x"
+                    : : "r"(D_00713F70[vertex]) : "$vf2", "$vf11");
+                __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+                effectVuStore10(scratch);
+                vertices[vertex + 1].x = D_00713D10[0];
+                vertices[vertex + 1].y = D_00713D14[0];
+                vertices[vertex + 1].z = D_00713D18[0];
+            }
+            for (secondVertex = 6; secondVertex < 12; secondVertex++) {
+                effectVuLoad10(&second);
+                __asm__ volatile("nop\nqmtc2.ni %0, $vf2\nvmulx.xyzw $vf10, $vf10, $vf2x"
+                    : : "r"(D_00713FB0[secondVertex]) : "$vf2", "$vf10");
+                __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf12" : : : "$vf10");
+                effectVuLoad11(&width);
+                __asm__ volatile("nop\nqmtc2.ni %0, $vf2\nvmulx.xyzw $vf11, $vf11, $vf2x"
+                    : : "r"(D_00713F70[secondVertex]) : "$vf2", "$vf11");
+                __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+                effectVuStore10((EffectVuVector *)D_00713D10);
+                vertices[secondVertex + 1].x = D_00713D10[0];
+                vertices[secondVertex + 1].y = D_00713D14[0];
+                vertices[secondVertex + 1].z = D_00713D18[0];
+            }
+            if (age < fadeIn) {
+                fade = (f32)age / (f32)fadeIn;
+            } else if (age > fadeOut) {
+                fade = (f32)(life - age) / (f32)(life - fadeOut);
+            } else {
+                fade = unit;
+            }
+            effectVuLoad11((EffectVuVector *)D_00713CE0);
+            effectVuScale11(fade);
+            effectVuLoad10(&outerColor);
+            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+            {
+                u32 transfer;
+                __asm__ volatile(
+                    "qmtc2.ni %2, $vf2 \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vftoi0.xyzw $vf10, $vf10 \n"
+                    "qmfc2.ni %0, $vf10 \n"
+                    "ppach %0, $zero, %0 \n"
+                    "ppacb %0, $zero, %0 \n"
+                    "sw %0, outerPacked \n"
+                    : "=&r"(transfer), "=m"(outerPacked)
+                    : "r"(byteScale) : "$vf2", "$vf10");
             }
             {
-                u8 *tail;
-                tail = *(u8 **)(*(u8 **)(pu3 + 8) + 0x18);
-                func_003c22f0(tail);
-                if (*(u16 *)pu3 & 4) {
-                    *(u16 *)(tail + 0xC) = *(u16 *)(tail + 0xC) | 1;
+                s32 colorIndex;
+                outerValue = outerPacked;
+                for (colorIndex = 1; colorIndex <= 12; colorIndex++) {
+                    colors[colorIndex] = outerValue;
                 }
             }
+            effectVuLoad10(&innerColor);
+            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+            {
+                u32 transfer;
+                __asm__ volatile(
+                    "qmtc2.ni %2, $vf2 \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vftoi0.xyzw $vf10, $vf10 \n"
+                    "qmfc2.ni %0, $vf10 \n"
+                    "ppach %0, $zero, %0 \n"
+                    "ppacb %0, $zero, %0 \n"
+                    "sw %0, innerPacked \n"
+                    : "=&r"(transfer), "=m"(innerPacked)
+                    : "r"(byteScale) : "$vf2", "$vf10");
+            }
+            innerValue = innerPacked;
+            colors[0] = innerValue | ((u32)(byteScale * fade) << 24);
+            particle->age = age + 1;
+        }
+    }
+    {
+        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+        func_003c22f0(geometry);
+        if (*(u16 *)owner & 4) {
+            *(u16 *)(geometry + 0xc) |= 1;
         }
     }
 }
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049c3d0);
-#endif
+#pragma pop
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
    color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
    plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
@@ -1775,371 +1686,236 @@ void func_0049d310(u8 *arg0)
     func_004833f0(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
-/* measured: byte-exact for the whole body except 8 canonicalization pairs:
-   retail reads/writes the five s128 slots (sp100/spF0/spE0/spD0/spC0, the
-   count/fade/modulo values) with plain lq/slt/mtc1/div on the low word,
-   mwcc b210 inserts dsll32+dsra32 after every lq of a (s32)-cast s128 local
-   and after the mfc1 of a (s128)(s32)(float) store (16 words: spF0/spE0
-   stores, loop test, spC0 test, fade tests x2, fade denom, spD0 test,
-   madd-div). Tried (s32)/(u32)/(u64)/(s64) casts, intermediate s32/s64
-   locals, direct (f32) casts (those are clean), asm sq stores with
-   hardcoded $sp offsets (layout rotates), and .word emission for the
-   $4-based VU block (works) - all nd >= 16 via the length-cascade. VU0
-   chains, FP regs ($f20-f27 incl. var_f27/tf27 sharing), stack layout,
-   adda/madd/msub fusion and the frame are otherwise byte-identical.
-   s128-canonicalization floor family (cf. effPolygonThunder func_00495160). */
-/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
-   packed scalar color data before the COP2 block; b210 cannot emit this sequence
-   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
-// FUN_0049D360 NONMATCHING
-/* Floor (re-measured 2026-09-17, source-repo only): measure_guarded 465 words (1932B/1984B), fnalign 493/483/466. Four-pragma sweep: bare 465/466, opt_propagation off 461/451 WINNER by words, loop_invariants 463/352 (99 fewer edits, rotation collapses per mdlSE lesson), both COMPILE ERROR, others neutral/worse. measured: opt_propagation off inside guard (push/pop) is worth 4 words; loop gives fewer edits but 2 more words -- prop installed by words, loop edits noted for next pass. Residual is saved/FP coloring + COP2 slot addresses + standalone MMI pextlb/pextlh + s128-canonicalization family. Emitted 1928B/window 1984B (97.2%%, 2.8%% short PASS). Banked as guarded floor (updates prior guard); production stays ASM. */
-#ifdef NON_MATCHING
+// FUN_0049D360
 #pragma push
-#pragma opt_propagation off
-void func_0049d360(u8 *arg0)
-{
-    u8 *temp_2;
-    u8 *temp_17;
-    s32 temp_18;
-    s32 temp_19;
-    s32 temp_20;
-    s32 temp_21;
-    s32 temp_22;
-    f32 temp_24;
-    f32 temp_25;
-    f32 temp_26;
-    f32 scale;
-    f32 fVar9;
-    s32 *piVar16;
-    u16 *puVar3;
-    s32 iVar4;
-    s32 iVar5;
-    s32 iVar6;
-    s32 bVar7;
-    s32 iVar17;
-    s32 iVar18;
-    s32 iVar19;
-    s32 iVar20;
-    f32 fVar21;
-    u32 uVar22;
-    u32 uVar23;
-    u32 *puVar15;
-    u32 *puVar14;
-    u32 c58;
-    u32 c5c;
-    s32 *pt58;
-    s32 *pt5c;
-    s128 au13;
-    s128 au27;
-    s128 au28;
-    s128 au29;
-    s128 au30;
-    s128 au31;
-    s128 au32;
-    s128 au33;
-    u32 temp_6;
-    u32 temp_7;
-    f32 t320;
-    f32 t328;
-    f32 f6c;
-    f32 f78;
-    f32 f6c2;
-    f32 f64;
-    f32 negOne;
-    f32 f80d0;
-    f32 f27o;
-    s8 cVar1;
-
-    temp_2 = *(u8 **)(arg0 + 0x40);
-    temp_7 = *(u32 *)(temp_2 + 0x34);
-    temp_6 = *(u32 *)(arg0 + 0x34);
-    if ((temp_7 >= temp_6) || (temp_7 == 0))
+#pragma opt_dead_assignments off
+#pragma opt_loop_invariants on
+    void func_0049d360(u8 *effect)
     {
-        piVar16 = *(s32 **)(arg0 + 0x3C);
-        puVar3 = (u16 *)(*(u32 **)(arg0 + 0x3C))[1];
-        iVar4 = *(s32 *)(temp_2 + 0x38);
-        iVar5 = *(s32 *)(temp_2 + 0x4C);
-        if (iVar5 != 0)
-        {
-            if ((*(s8 *)(temp_2 + 0x55) == 0) || (*(u32 *)(arg0 + 0x34) != 0))
-            {
-                bVar7 = 0;
-                iVar17 = *(s32 *)(temp_2 + 0x50);
-            }
-            else
-            {
-                bVar7 = 1;
-                iVar17 = iVar4;
-            }
-            RpGeometryLock(*(u8 **)(*(u8 **)(puVar3 + 8) + 0x18), 10);
-            puVar15 = (u32 *)(*(u8 **)(*(u8 **)(*(u8 **)(puVar3 + 8) + 0x18) + 0x5C) + 0x14);
-            puVar14 = (u32 *)(*(u8 **)(*(u8 **)(puVar3 + 8) + 0x18) + 0x30);
-            c58 = *(u32 *)(temp_2 + 0x58);
-            pt58 = (s32 *)&c58;
-            scale = fGpffff8044;
-            __asm__ volatile(
-                "lw $2, 0(%0)          \n"
-                "pextlb $2, $0, $2     \n"
-                "pextlh $2, $0, $2     \n"
-                "qmtc2 $2, $vf10       \n"
-                "vitof0.xyzw $vf10, $vf10 \n"
-                "mfc1 $2, %1           \n"
-                "nop                   \n"
-                "qmtc2 $2, $vf2        \n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                "sqc2 $vf10, 0(%2)     \n"
-                :
-                : "r"(pt58), "f"(scale), "r"(&au13)
-                : "$2", "$vf2", "$vf10", "memory");
-            c5c = *(u32 *)(temp_2 + 0x5C);
-            pt5c = (s32 *)&c5c;
-            __asm__ volatile(
-                "lw $2, 0(%0)          \n"
-                "pextlb $2, $0, $2     \n"
-                "pextlh $2, $0, $2     \n"
-                "qmtc2 $2, $vf10       \n"
-                "vitof0.xyzw $vf10, $vf10 \n"
-                "mfc1 $2, %1           \n"
-                "nop                   \n"
-                "qmtc2 $2, $vf2        \n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                "sqc2 $vf10, 0(%2)     \n"
-                :
-                : "r"(pt5c), "f"(scale), "r"(&au27)
-                : "$2", "$vf2", "$vf10", "memory");
-            iVar19 = (s32)(*(f32 *)(temp_2 + 0x44) * (f32)iVar5);
-            iVar20 = (s32)(*(f32 *)(temp_2 + 0x48) * (f32)iVar5);
-            temp_26 = *(f32 *)(temp_2 + 0x7C);
-            iVar6 = *(s32 *)(temp_2 + 0x70);
-            cVar1 = *(s8 *)(temp_2 + 0x54);
-            fVar9 = 0.5f;
-            negOne = -1.0f;
-            f80d0 = fGpffff80d0;
-            temp_18 = 0;
-            while (temp_18 < iVar4)
-            {
-                temp_21 = *piVar16;
-                if (temp_21 != -2)
-                {
-                    if (temp_21 == -1)
-                    {
-                        if (iVar17 != 0)
-                        {
-                            temp_24 = effMiscRandFloat(0);
-                            piVar16[2] = (s32)(f80d0 * temp_24);
-                            f78 = *(f32 *)(temp_2 + 0x78);
-                            temp_24 = effMiscRandFloat(0);
-                            piVar16[1] = (s32)(*(f32 *)(temp_2 + 0x74) * (0.0f + (1.0f - f78) + f78 * temp_24));
-                            temp_22 = effMiscRand(0);
-                            if ((temp_22 & 1) != 0)
-                            {
-                                piVar16[1] = (s32)((f32)piVar16[1] * negOne);
-                            }
-                            piVar16[3] = 0;
-                            f6c2 = *(f32 *)(temp_2 + 0x6C);
-                            temp_24 = effMiscRandFloat(0);
-                            piVar16[4] = (s32)((*(f32 *)(temp_2 + 0x68) * (0.0f + (1.0f - f6c2) + f6c2 * temp_24)) / (f32)iVar6);
-                            f64 = *(f32 *)(temp_2 + 100);
-                            temp_24 = effMiscRandFloat(0);
-                            *(f32 *)&piVar16[5] = *(f32 *)(temp_2 + 0x60) * (0.0f + (1.0f - f64) + f64 * temp_24);
-                            if (bVar7 != 0)
-                            {
-                                temp_22 = effMiscRand(0);
-                                *piVar16 = (s32)(temp_22 % (u32)iVar5);
-                                piVar16[3] = (s32)(0.0f + (f32)piVar16[3] + (f32)piVar16[4] * (f32)((temp_22 % (u32)iVar5) % iVar6));
-                            }
-                            else
-                            {
-                                *piVar16 = 0;
-                            }
-                            iVar17 += -1;
-                        }
-                    }
-                    else if (temp_21 < iVar5)
-                    {
-                        temp_24 = (f32)temp_21;
-                        temp_25 = *(f32 *)(&piVar16[1]);
-                        if (0.0f < temp_25)
-                        {
-                            temp_25 = 0.0f + temp_25 + fVar9 * (temp_26 * temp_24);
-                        }
-                        else
-                        {
-                            temp_25 = 0.0f + temp_25 - fVar9 * (temp_26 * temp_24);
-                        }
-                        f27o = temp_24 * temp_25 + (f32)piVar16[2];
-                        if (temp_21 < iVar6)
-                        {
-                            piVar16[3] = (s32)((f32)piVar16[3] + (f32)piVar16[4]);
-                        }
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "vmove.xyzw $vf11, $vf10  \n"
-                            "lw $2, 12(%1)            \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "sqc2 $vf10, 0(%2)        \n"
-                            "vmove.xyzw $vf10, $vf11  \n"
-                            "lw $2, 20(%1)            \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "sqc2 $vf10, 0(%3)        \n"
-                            :
-                            : "r"(D_00713CE0), "r"(piVar16), "r"(&au31), "r"(&au29)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        t320 = cosf(fVar21);
-                        t328 = sinf(fVar21);
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "vmove.xyzw $vf12, $vf10  \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "mtc1 $2, $f1             \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "pexew $2, $2             \n"
-                            "mtc1 $2, $f0             \n"
-                            "nop                      \n"
-                            "mfc1 $2, $f0             \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vaddx.x $vf10x, $vf0x, $vf2x \n"
-                            "mfc1 $2, $f1             \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vaddx.z $vf10z, $vf0z, $vf2x \n"
-                            "vmove.xyzw $vf11, $vf10  \n"
-                            "lqc2 $vf10, 0(%1)        \n"
-                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%1)        \n"
-                            "vmove.xyzw $vf10, $vf12  \n"
-                            "lqc2 $vf11, 0(%2)        \n"
-                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                            "vmove.xyzw $vf12, $vf10  \n"
-                            "lqc2 $vf10, 0(%1)        \n"
-                            "vmove.xyzw $vf11, $vf10  \n"
-                            "sqc2 $vf10, 0(%3)        \n"
-                            "lwc1 $f0, 0(%3)          \n"
-                            "swc1 $f0, 24(%4)         \n"
-                            "lwc1 $f0, 4(%3)          \n"
-                            "swc1 $f0, 28(%4)         \n"
-                            "lwc1 $f0, 8(%3)          \n"
-                            "swc1 $f0, 32(%4)         \n"
-                            "vsub.xyz $vf11xyz, $vf0xyz, $vf11xyz \n"
-                            "sqc2 $vf11, 0(%3)        \n"
-                            "lwc1 $f0, 0(%3)          \n"
-                            "swc1 $f0, 36(%4)         \n"
-                            "lwc1 $f0, 4(%3)          \n"
-                            "swc1 $f0, 40(%4)         \n"
-                            "lwc1 $f0, 8(%3)          \n"
-                            "swc1 $f0, 44(%4)         \n"
-                            "lqc2 $vf10, 0(%1)        \n"
-                            "vmove.xyzw $vf11, $vf10  \n"
-                            "vadd.xyzw $vf10, $vf10, $vf12 \n"
-                            "sqc2 $vf10, 0(%3)        \n"
-                            "lwc1 $f0, 0(%3)          \n"
-                            "swc1 $f0, 0(%4)          \n"
-                            "lwc1 $f0, 4(%3)          \n"
-                            "swc1 $f0, 4(%4)          \n"
-                            "lwc1 $f0, 8(%3)          \n"
-                            "swc1 $f0, 8(%4)          \n"
-                            "vadd.xyzw $vf11, $vf11, $vf12 \n"
-                            "sqc2 $vf11, 0(%3)        \n"
-                            "lwc1 $f0, 0(%3)          \n"
-                            "swc1 $f0, 12(%4)         \n"
-                            "lwc1 $f0, 4(%3)          \n"
-                            "swc1 $f0, 16(%4)         \n"
-                            "lwc1 $f0, 8(%3)          \n"
-                            "swc1 $f0, 20(%4)         \n"
-                            :
-                            : "r"(&t320), "r"(&au29), "r"(&au31), "r"(D_00713D10), "r"(puVar15)
-                            : "$2", "$vf2", "$vf10", "$vf11", "$vf12", "$f0", "$f1", "memory");
-                        if (temp_21 < iVar19)
-                        {
-                            fVar21 = (f32)temp_21 / (f32)iVar19;
-                        }
-                        else
-                        {
-                            fVar21 = 1.0f;
-                            if (iVar20 < temp_21)
-                            {
-                                fVar21 = (f32)(iVar5 - temp_21) / (f32)(iVar5 - iVar20);
-                            }
-                        }
-                        __asm__ volatile(
-                            "lqc2 $vf11, 0(%0)        \n"
-                            "mfc1 $2, %1              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-                            "lqc2 $vf10, 0(%2)        \n"
-                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                            "mfc1 $2, $f20            \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "vftoi0.xyzw $vf10, $vf10 \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "ppach $2, $0, $2         \n"
-                            "ppacb $2, $0, $2         \n"
-                            "sw $2, 0(%3)             \n"
-                            "lw $2, 0(%3)             \n"
-                            "sw $2, 0(%4)             \n"
-                            "sw $2, 4(%4)             \n"
-                            "lqc2 $vf10, 0(%5)        \n"
-                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                            "mfc1 $2, $f20            \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "vftoi0.xyzw $vf10, $vf10 \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "ppach $2, $0, $2         \n"
-                            "ppacb $2, $0, $2         \n"
-                            "sw $2, 0(%6)             \n"
-                            "lw $2, 0(%6)             \n"
-                            "sw $2, 8(%4)             \n"
-                            "sw $2, 12(%4)            \n"
-                            :
-                            : "r"(D_00713CE0), "f"(fVar21), "r"(&au29), "r"(&au32), "r"(puVar14), "r"(&au13), "r"(&au30)
-                            : "$2", "$vf2", "$vf10", "$vf11", "$f20", "memory");
-                        *piVar16 = temp_21 + 1;
-                    }
-                    else
-                    {
-                        for (temp_21 = 0; temp_21 < 4; temp_21++)
-                        {
-                            puVar15[temp_21 * 3 + 0] = 0;
-                            puVar15[temp_21 * 3 + 1] = 0;
-                            puVar15[temp_21 * 3 + 2] = 0;
-                            puVar14[temp_21] = 0;
-                        }
-                        if (cVar1 == 0)
-                        {
-                            temp_21 = -2;
-                        }
-                        else
-                        {
-                            temp_21 = -1;
-                        }
-                        *piVar16 = temp_21;
-                    }
-                    piVar16 += 6;
-                    puVar15 += 12;
-                    puVar14 += 4;
+        u32 innerWord, outerWord, outerPacked, innerPacked;
+        EffectVuVector innerColor, outerColor;
+        EffectVuVector direction, lengthVector, widthVector;
+        s32 firstFrame, count, index, fadeIn, fadeOut, recycle;
+        u8 *state, *owner, *config;
+        s32 *particle;
+        f32 *pf;
+        s32 life, period;
+        FlashVertex *vertices;
+        u32 *colors;
+        f32 phase, acceleration, factor, fullTurn, unit, negativeUnit, zero, half, byteScale, normalization;
+        const u32 *colorInput;
+        u32 frame, lastFrame;
+        s32 births;
+
+        config = *(u8 **)(effect + 0x40);
+        lastFrame = *(u32 *)(config + 0x34);
+        frame = *(u32 *)(effect + 0x34);
+        if (lastFrame < frame && lastFrame != 0) return;
+        state = *(u8 **)(effect + 0x3c);
+        particle = *(s32 **)state;
+        owner = *(u8 **)(state + 4);
+        count = *(s32 *)(config + 0x38);
+        life = *(s32 *)(config + 0x4c);
+        if (life == 0) return;
+        
+        if (*(u8 *)(config + 0x55) != 0 && frame == 0) {
+            firstFrame = 1;
+            births = count;
+        } else {
+            firstFrame = 0;
+            births = *(s32 *)(config + 0x50);
+        }
+        RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 10);
+        vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
+        colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+        zero = 0.0f;
+        direction.lane[1] = zero;
+        direction.lane[3] = zero;
+        innerWord = *(u32 *)(config + 0x58);
+        colorInput = &innerWord;
+        normalization = fGpffff8044;
+        effectVuUnpackColor10(colorInput, normalization);
+        effectVuStore10(&innerColor);
+        outerWord = *(u32 *)(config + 0x5c);
+        effectVuUnpackColor10(&outerWord, normalization);
+        effectVuStore10(&outerColor);
+
+    fadeIn = (s32)(*(f32 *)(config + 0x44) * (f32)life);
+    fadeOut = (s32)(*(f32 *)(config + 0x48) * (f32)life);
+        acceleration = *(f32 *)(config + 0x7c);
+    period = *(s32 *)(config + 0x70);
+        recycle = *(u8 *)(config + 0x54);
+        index = 0;
+        fullTurn = fGpffff80d0;
+        unit = 1.0f;
+        negativeUnit = -1.0f;
+        half = 0.5f;
+        byteScale = 255.0f;
+        for (; index < count; index++, particle += 6, vertices += 4, colors += 4) {
+            s32 age = *particle;
+            pf = (f32 *)particle;
+            if (age == -2) continue;
+            if (age == -1) {
+                if (births == 0) continue;
+                pf[2] = fullTurn * effMiscRandFloat(0);
+    phase = *(f32 *)(config + 0x78);
+    factor = 0.0f + (unit - phase) + phase * effMiscRandFloat(0);
+    pf[1] = *(f32 *)(config + 0x74) * factor;
+    if (effMiscRand(0) & 1) pf[1] *= negativeUnit;
+    pf[3] = zero;
+    phase = *(f32 *)(config + 0x6c);
+    factor = 0.0f + (unit - phase) + phase * effMiscRandFloat(0);
+    pf[4] = (*(f32 *)(config + 0x68) * factor) / (f32)period;
+    phase = *(f32 *)(config + 0x64);
+    factor = 0.0f + (unit - phase) + phase * effMiscRandFloat(0);
+    pf[5] = *(f32 *)(config + 0x60) * factor;
+
+                if (firstFrame) {
+                    *particle = effMiscRand(0) % (u32)life;
+                    pf[3] = 0.0f + pf[3] + pf[4] * (f32)(*particle % period);
+                } else {
+                    *particle = 0;
                 }
-                temp_17 = *(u8 **)(*(u32 **)(puVar3 + 8) + 6);
-                func_003c22f0(temp_17);
-                if (*(u16 *)puVar3 & 4)
-                {
-                    *(u16 *)(temp_17 + 0xC) = *(u16 *)(temp_17 + 0xC) | 1;
+                births--;
+                continue;
+            }
+            if (age >= life) {
+                s32 vertex;
+                for (vertex = 0; vertex < 4; vertex++) {
+                    vertices[vertex].x = zero;
+                    vertices[vertex].y = zero;
+                    vertices[vertex].z = zero;
+                    colors[vertex] = 0;
                 }
+                *particle = recycle ? -1 : -2;
+            } else {
+                f32 time = (f32)age;
+                f32 distance;
+                f32 fade;
+                f32 sine, cosine;
+                if (pf[1] > zero) distance = time * (0.0f + pf[1] + half * (acceleration * time));
+    else distance = time * (0.0f + pf[1] - half * (acceleration * time));
+    distance += pf[2];
+    if (age < period) pf[3] = pf[3] + pf[4];
+    effectVuLoad10((EffectVuVector *)D_00713CE0);
+    __asm__ volatile(
+        "vmove.xyzw $vf11, $vf10 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuScale10(pf[3]);
+    effectVuStore10(&lengthVector);
+    __asm__ volatile(
+        "vmove.xyzw $vf10, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuScale10(pf[5]);
+    effectVuStore10(&widthVector);
+    direction.lane[0] = cosf(distance);
+    direction.lane[2] = sinf(distance);
+    effectVuLoad10(&direction);
+    __asm__ volatile(
+        "vmove.xyzw $vf12, $vf10 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    cosine = effectVuGetX10();
+    sine = effectVuGetZ10();
+    effectVuSetX10(sine);
+    effectVuSetZ10(-cosine);
+    __asm__ volatile(
+        "vmove.xyzw $vf11, $vf10 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuLoad10(&widthVector);
+    __asm__ volatile(
+        "vmul.xyzw $vf10, $vf10, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuStore10(&widthVector);
+    __asm__ volatile(
+        "vmove.xyzw $vf10, $vf12 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuLoad11(&lengthVector);
+    __asm__ volatile(
+        "vmul.xyzw $vf10, $vf10, $vf11 \n"
+        "vmove.xyzw $vf12, $vf10 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuLoad10(&widthVector);
+    __asm__ volatile(
+        "vmove.xyzw $vf11, $vf10 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuStore10((EffectVuVector *)D_00713D10);
+    vertices[2].x = D_00713D10[0];
+    vertices[2].y = D_00713D14[0];
+    vertices[2].z = D_00713D18[0];
+    __asm__ volatile(
+        "vsub.xyz $vf11, $vf0, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuStore11((EffectVuVector *)D_00713D10);
+    vertices[3].x = D_00713D10[0];
+    vertices[3].y = D_00713D14[0];
+    vertices[3].z = D_00713D18[0];
+    effectVuLoad10(&widthVector);
+    __asm__ volatile(
+        "vmove.xyzw $vf11, $vf10 \n"
+        "vadd.xyzw $vf10, $vf10, $vf12 \n"
+        "vsub.xyz $vf11, $vf0, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuStore10((EffectVuVector *)D_00713D10);
+    vertices[0].x = D_00713D10[0];
+    vertices[0].y = D_00713D14[0];
+    vertices[0].z = D_00713D18[0];
+    __asm__ volatile(
+        "vadd.xyzw $vf11, $vf11, $vf12 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuStore11((EffectVuVector *)D_00713D10);
+    vertices[1].x = D_00713D10[0];
+    vertices[1].y = D_00713D14[0];
+    vertices[1].z = D_00713D18[0];
+
+                if (age < fadeIn) fade = (f32)age / (f32)fadeIn;
+                else if (age > fadeOut) fade = (f32)(life - age) / (f32)(life - fadeOut);
+                else fade = unit;
+                effectVuLoad11((EffectVuVector *)D_00713CE0);
+                effectVuScale11(fade);
+                effectVuLoad10(&outerColor);
+                __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+                {
+        u32 transfer;
+        __asm__ volatile(
+            "qmtc2.ni %2, $vf2 \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni %0, $vf10 \n"
+            "ppach %0, $zero, %0 \n"
+            "ppacb %0, $zero, %0 \n"
+            "sw %0, outerPacked \n"
+            : "=&r"(transfer), "=m"(outerPacked) : "r"(byteScale) : "$vf2", "$vf10", "memory");
+    }
+
+                colors[0] = outerPacked;
+                colors[1] = outerPacked;
+                effectVuLoad10(&innerColor);
+                __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+                {
+        u32 transfer;
+        __asm__ volatile(
+            "qmtc2.ni %2, $vf2 \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni %0, $vf10 \n"
+            "ppach %0, $zero, %0 \n"
+            "ppacb %0, $zero, %0 \n"
+            "sw %0, innerPacked \n"
+            : "=&r"(transfer), "=m"(innerPacked) : "r"(byteScale) : "$vf2", "$vf10", "memory");
+    }
+
+                colors[2] = innerPacked;
+                colors[3] = innerPacked;
+                *particle = age + 1;
             }
         }
+        {
+            u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+            func_003c22f0(geometry);
+            if (*(u16 *)owner & 4) *(u16 *)(geometry + 0xc) |= 1;
+        }
     }
-}
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049d360);
-#endif
 
 
 
@@ -2392,314 +2168,237 @@ void func_0049e100(u8 *arg0)
     func_004833f0(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
-/* measured: byte-exact for the whole body except a saved-GPR allocation
-   quirk and two FP residuals. mwcc b210 allocates the saved GPRs from a
-   rotated pool ($s3,$s2,$s1,$s4,$s0...) so temp_16 lands in $s4 and var_20
-   in $s0 while retail has temp_16 in $s0/$16 and var_20 in $s4/$20 (the
-   swap cascades ~40 words; 5 declaration orders tried, the pool rotates
-   with the order and temp_16 always gets $s4). Also: retail's fade
-   else-branch reloads spF0 (lw 0xF0) for the denominator while mwcc keeps
-   the test's value in a register (2-3 words), and the fade clamp's
-   mul.s operand order is $f21,$f0 vs mwcc's $f0,$f21. Everything else is
-   byte-identical: the 0x70-byte sqC0 layout struct (16-byte union slots at
-   0xF0-0x120 with real retail holes), the VU0 chains (incl. .word emission
-   for the $4/$5-based lqc2/sqc2 forms and the asm lq-read for the spC0
-   test, which avoids the dsll32/dsra32 canonicalization), the adda/madd
-   fusion, FP regs ($f20-f27) and the frame. Lead for a future wave: the
-   D_00713D10 lui/addiu inside asm should use %%hi/%%lo(D_00713D10) symbol
-   forms (reloc-masked) instead of raw constants. */
-/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
-   packed scalar color data before the COP2 block; b210 cannot emit this sequence
-   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
-/* Floor (measured 2026-09-19, source-repo only): banked 479 words (schedule+prop + pi-float), fnalign 499/491/731, emitted 1964B/window 2000B (-1.8%% inside gate). Base schedule+prop 483 (2024B/2000B +1.2%% over, 784 edits) -> pi-float 479 (-4, 1964B, 731 edits). piVar16[1..5] are floats via swc1 (m2c var_20->unk8/unkC/unk10/unk4/unk14 as (f32)(...), retail swc1 0x8/0xC/0x10/0x4/0x14), not (s32) ints: *(f32*)&piVar16[N] saves 5x cvt.w.s/mfc1/sw and adds 5x swc1 (opclass cvt +25->+20, mfc1 +17->+12, sw +19->+14, swc1 -24->-19, nop -27->-31 from rescheduling). Remaining +20/-19/+14/+12 are puVar15 12 float copies (retail lwc1/swc1 triples from D_00713D10, this body (u32) with 0x4F00 clamping) + puVar14 4 unsigned (retail VU vftoi/ppach/ppacb, this body (u32)(fade*255) with c.ole.s/bc1tl/or/lui) + c58/c5c 2 (retail VU pextlb/vitof/vmulx/sqc2 to 0x170/0x160, this body scalar (u32)((f32)(c&0xFF)*scale)): single float-vs-int mechanism ~44 instrs as assigned. dmtc2 -12/dmfc2 -4 (16 qmtc2/qmfc2) + ?? -35 + bbit132/032 -8/-8 are interior VU (vitof0/vmulx/vmove/vadd/vsub/vftoi/ppach + pextlb/h) + GPR lq/sq, not FPU accumulator: capstone renders VU macro-mode as ?? (handoff VU section); retail ??36 = 5 GPR lq/sq +6 FPU adda/madd +2 c1 +23 VU/MMI per mdlEffect 004a6e70 census, obj ??15 = 7 GPR +6 FPU +2 c1 +0 VU. u_long128/s128 aligned(16) emits GPR lq/sq (micro: u_long128 -> andi.b/ext, f32[4] -> lwc1/swc1), never qmtc2/vitof/vmul/vftoi (mdlEffect note); interior pipeline needs genuine COP2 asm bridges as in sibling 0049aa30 (pextlb/qmtc2/vitof/mfc1/qmtc2/vmulx/sqc2 + lqc2/vmove/qmtc2/vmulx/sqc2 + lqc2/vmul/vftoi/qmfc2/ppach, btlMain RwV4d/u_long128 matrix copy is GPR idiom). Tried: V1 pi+puVar15-float 463 but 357 vs 499 (-28%% outside gate); V3b V1+c58-VU(nomask, retail has no &0xFFFFFF unlike sibling) 448 but 386 vs 499 outside; V4 color-VU (D_00713CE0/fade/vec160->pack0 + vec170->pack1, $f20=255) 472 worse (extra addiu for pack pointer, $vf11 persistence); V6 position-VU (vec150[0]=t320/[2]=t328 with [1]/[3]=0 hoisted, lqc2/vmove/qmtc2/vmulx/sqc2 0x130/0x140 + qmfc2/pexew/vaddx + lqc2/vadd/sqc2 D_00713D10 + 4x lwc1/swc1 triples) 463/468 worse (extra per-iter zeros, _f27 move); V9 c58-only 507 worse (+29, 535 vs 500 +7%% outside); V10 pi+c58 488 worse; V5 s32-color ties 448; V7 pi-only 479 stands (inside gate). dsll32/dsra32 +6/+6 s128 width wall (sp100 reused for 0x110+0x100, spC0 (s32) narrowing needs asm lq-read per note), lb+3/lbu-3 kept s8 (u8 +4). Frame -0x110 vs -0x190 (5 vectors short: 0x130/0x140/0x150/0x160/0x170 + 0xC0 sq), rotation persists. Banked as guarded floor; production stays ASM. */
-/* measured 2026-09-19 loopinv: schedule+prop+loopinv 479->463 words (-16), fnalign 499/489/661 (was 499/491/731, -70 edits), opclass lui +20->+17 (-3), lwc1 -13->-8, swc1 -19->-14, emitted 1956B/window 2000B (-2.2% inside gate). Banked (strict win, inside gate; not promoted, not MATCH, guard kept, NONMATCHING kept). Zero-lui float variant (puVar15-float, lui 17 vs 18 -1, 357/499 -28% OUTSIDE gate, words 463) went OUTSIDE, do not retry without VU interior (D_00713CE0 + vftoi/ppach) to bring count back. */
-/* gate: func_0049e150 is OUTSIDE the +-3% band at 531 against retail 500 (+6.2%).  The body previously read
-   489/499, 661 edits only because `#pragma schedule on` was filling delay slots that retail leaves
-   empty.  Retail's first-party build is entirely unscheduled: across 212 byte-exact MATCH
-   first-party functions there are 2909 branches and **zero** filled delay slots, and this
-   function's own retail window has 40 branches with 40 empty slots and none filled.  The
-   pragma therefore never reproduced retail codegen - it deleted nops to shrink the count, and
-   it was hiding a genuine instruction surplus.  It is removed; the surplus is now visible and
-   has to be written out of the body.  Any differing-word score measured with the pragma in
-   place is not comparable to one measured inside the gate (handoff 7y, 7au). */
-/* measured 0049e150 (owner, 2026-09-20): 531 against retail 500 (+6.2%, OUTSIDE, band
-   485-515), **444 edits**, and 31 instructions too LONG - so every retail-only run is a
-   CROSS and the lever is code the body emits that retail does not.
-   The object's surplus is a float-to-UNSIGNED conversion idiom repeated about ten times:
-   `cvt.w.s +20, sub.s +10, or +10, c.ole.s +10, b +10, bc1t +9, mfc1 +12` against retail.
-   Retail does not convert at all at those sites - at retail[313] it is a bare
-   `mfc1 $v0, $f0` where the object emits `c.ole.s $f1, $f2` and the whole eight-instruction
-   unsigned sequence, and retail reaches the value through `dmtc2`/`dmfc2` COP2 moves
-   (`dmtc2 +12` in its favour).  So retail REINTERPRETS the float bits where the body
-   CONVERTS the float value - a union or M2C_BITWISE spelling against a `(u32)` cast.
-   Two spellings measured and both exactly neutral at 444/531: changing the two
-   `c58`/`c5c` casts from `(u32)((f32)(x & 0xFF) * scale)` to `(s32)(...)`, and dropping
-   the cast entirely.  Those two assign to `u32` variables, so the conversion is unsigned
-   either way - they are not the ten sites.  Find the sites that feed the `dmtc2` pairs. */
-/* measured 0049e150 (2026-09-20): 506 against retail 500 (+1.2% INSIDE, band 485-515).
-   Yes, retail uses COP2/VU here. The listing has two pextlb/pextlh+qmtc2+vitof0+vmulx+sqc2
-   color blocks (c58/c5c), a 60-word lqc2/vmove/vmulx/vadd/vsub/sqc2 chain through
-   D_00713D10 for the 12 puVar15 floats (lwc1/swc1 triples), and lqc2/vmul/vmul/vftoi0/
-   qmfc2/ppach/ppacb/sw packs for the 4 puVar14 words (D_00713CE0 + 255.0f scale).
-   The body's surplus was C doing that arithmetic on the FPU: 12x (u32)float for puVar15
-   and 4x (u32)(f*255) for puVar14, each an unsigned idiom (lui 0x4F00/mtc1/c.ole.s/bc1t/
-   cvt.w.s/mfc1/b/sub.s/cvt.w.s/mfc1/lui 0x8000/or/sw; opclass cvt.w.s +20, mfc1 +12,
-   c.ole.s +10, sub.s +10, or +10, b +10, bc1t +9) against retail's dmtc2/qmtc2/dmfc2/qmfc2
-   reinterpret path (dmtc2 +12 in retail's favour), plus 6x dsll32/dsra32 from (s32)s128
-   extracts where retail uses plain lw (sp100/spF0/spD0 are words at 0x110/0xF0/0xD0;
-   only spC0 is a real quad at 0xC0). Fix run backwards from the count: narrow those three
-   s128 slots to s32 (saves 13, 531->518, frame 0x120->0x130) and spell the in-range
-   0..255 alpha as (s32)(f*255) (saves 12, 531->519); together 531->506 inside with no
-   inline asm. Full VU port (as in func_0049aa30/sibling func_004938e0) left for a MATCH
-   wave; no COP2 asm added here.
-   Residual is one dsll32/dsra32 pair from (s32)spC0, kept deliberately: plain
-   `if (cVar1 == 0)` with no slot and an `s32` word slot both measure 504 and remove
-   the pair, but the first deletes retail's quad traffic entirely (sq $2,0xC0 at
-   0049E378, lq $2,0xC0 at 0049E52C) and the second turns that lq into lw, the wrong
-   width. 504 was available and rejected; the faithful s128 stays at 506-inside.
-   lq/sq are ordinary 128-bit load/store, not COP2 (allowlist is lqc2/sqc2/qmtc2/qmfc2
-   and v*), so an asm lq-read would be the banned kind - the sibling's permitted VU
-   blocks are not a precedent for it. */
-// FUN_0049E150 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_propagation off
+// FUN_0049E150
+#pragma push
+#pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
-void func_0049e150(u8 *arg0)
-{
-    u8 *temp_2;
-    s32 *piVar16;
-    u16 *puVar3;
-    s32 iVar4;
-    s32 iVar5;
-    s32 bVar;
-    s32 iVar17;
-    u32 *puVar15;
-    u32 *puVar14;
-    u32 c58;
-    u32 c5c;
-    f32 scale;
-    s32 sp100;
-    s32 spF0;
-    s32 spD0;
-    s128 spC0 __attribute__((aligned(16)));
-    s32 temp_18;
-    s32 temp_21;
-    s32 temp_22;
-    f32 temp_24;
-    f32 temp_25;
-    f32 fVar21;
-    f32 f27o;
-    s32 iVar19;
-    s32 iVar20;
-    s8 cVar1;
-    f32 fVar26;
-    f32 t320;
-    f32 t328;
-    f32 f6c;
-    u32 temp_6;
-    u32 temp_7;
-    s32 ecVal;
-    s32 e8Val;
-    s32 d0Val;
-    f32 fVar18;
-    f32 f25;
-
-    temp_2 = *(u8 **)(arg0 + 0x40);
-    temp_7 = *(u32 *)(temp_2 + 0x34);
-    temp_6 = *(u32 *)(arg0 + 0x34);
-    if ((temp_7 >= temp_6) || (temp_7 == 0))
+    void func_0049e150(u8 *effect)
     {
-        piVar16 = *(s32 **)(arg0 + 0x3C);
-        puVar3 = (u16 *)(*(u32 **)(arg0 + 0x3C))[1];
-        iVar4 = *(s32 *)(temp_2 + 0x38);
-        sp100 = iVar4;
-        iVar5 = *(s32 *)(temp_2 + 0x4C);
-        if (iVar5 != 0)
-        {
-            if (*(u8 *)(temp_2 + 0x84) == 0)
-            {
-                ecVal = 0;
-                e8Val = iVar5;
-                d0Val = 1;
-                spD0 = d0Val;
-                iVar19 = (s32)(*(f32 *)(temp_2 + 0x44) * (f32)iVar5);
-                sp100 = iVar19;
-                iVar20 = (s32)(*(f32 *)(temp_2 + 0x48) * (f32)iVar5);
-                spF0 = iVar20;
-            }
-            else
-            {
-                ecVal = iVar5;
-                e8Val = 0;
-                d0Val = -1;
-                spD0 = d0Val;
-                iVar19 = (s32)((1.0f - *(f32 *)(temp_2 + 0x48)) * (f32)iVar5);
-                sp100 = iVar19;
-                iVar20 = (s32)((1.0f - *(f32 *)(temp_2 + 0x44)) * (f32)iVar5);
-                spF0 = iVar20;
-            }
-            if ((*(u8 *)(temp_2 + 0x55) == 0) || (*(u32 *)(arg0 + 0x34) != 0))
-            {
-                bVar = 0;
-                iVar17 = *(s32 *)(temp_2 + 0x50);
-            }
-            else
-            {
-                bVar = 1;
-                iVar17 = sp100;
-            }
-            RpGeometryLock(*(u8 **)(*(u8 **)(puVar3 + 8) + 0x18), 10);
-            puVar15 = (u32 *)(*(u8 **)(*(u8 **)(*(u8 **)(puVar3 + 8) + 0x18) + 0x5C) + 0x14);
-            puVar14 = (u32 *)(*(u8 **)(*(u8 **)(puVar3 + 8) + 0x18) + 0x30);
-            c58 = *(u32 *)(temp_2 + 0x58);
-            scale = fGpffff8044;
-            c58 = (u32)((f32)(c58 & 0xFF) * scale);
-            c5c = *(u32 *)(temp_2 + 0x5C);
-            c5c = (u32)((f32)(c5c & 0xFF) * scale);
-            fVar26 = *(f32 *)(temp_2 + 0x80);
-            cVar1 = *(s8 *)(temp_2 + 0x54);
-            spC0 = (s128)(s32)(s32)cVar1;
-            temp_18 = 0;
-            while (temp_18 < sp100)
-            {
-                temp_21 = *piVar16;
-                if (temp_21 != -2)
-                {
-                    if (temp_21 == -1)
-                    {
-                        if (iVar17 != 0)
-                        {
-                            temp_24 = effMiscRandFloat(0);
-                            *(f32 *)&piVar16[2] = fGpffff80d0 * temp_24;
-                            f6c = *(f32 *)(temp_2 + 0x6C);
-                            temp_24 = effMiscRandFloat(0);
-                            *(f32 *)&piVar16[3] = *(f32 *)(temp_2 + 0x68) * (0.0f + (1.0f - f6c) + f6c * temp_24);
-                            f6c = *(f32 *)(temp_2 + 0x74);
-                            temp_24 = effMiscRandFloat(0);
-                            *(f32 *)&piVar16[4] = *(f32 *)(temp_2 + 0x70) * (0.0f + (1.0f - f6c) + f6c * temp_24);
-                            f6c = *(f32 *)(temp_2 + 0x7C);
-                            temp_24 = effMiscRandFloat(0);
-                            *(f32 *)&piVar16[1] = *(f32 *)(temp_2 + 0x78) * (0.0f + (1.0f - f6c) + f6c * temp_24);
-                            f6c = *(f32 *)(temp_2 + 100);
-                            temp_24 = effMiscRandFloat(0);
-                            *(f32 *)&piVar16[5] = *(f32 *)(temp_2 + 0x60) * (0.0f + (1.0f - f6c) + f6c * temp_24);
-                            if (bVar != 0)
-                            {
-                                temp_22 = effMiscRand(0);
-                                *piVar16 = (s32)(temp_22 % (u32)iVar5);
-                            }
-                            else
-                            {
-                                *piVar16 = ecVal;
-                            }
-                            iVar17 += -1;
-                        }
-                    }
-                    else if (temp_21 == e8Val)
-                    {
-                        s32 k;
-                        k = 0;
-                        while (k < 4)
-                        {
-                            puVar15[k * 3 + 0] = 0;
-                            puVar15[k * 3 + 1] = 0;
-                            puVar15[k * 3 + 2] = 0;
-                            puVar14[k] = 0;
-                            k++;
-                        }
-                        if ((s32)spC0 == 0)
-                        {
-                            temp_21 = -2;
-                        }
-                        else
-                        {
-                            temp_21 = -1;
-                        }
-                        *piVar16 = temp_21;
-                    }
-                    else
-                    {
-                        temp_24 = (f32)temp_21;
-                        temp_25 = *(f32 *)(&piVar16[1]);
-                        fVar21 = temp_24;
-                        if (fVar26 < 0.0f)
-                        {
-                            f25 = -(float)piVar16[1] / (0.5f * fVar26);
-                            fVar18 = 0.5f * fVar26;
-                            f25 = f25 * 0.5f;
-                            if (fVar21 <= f25)
-                            {
-                                fVar18 = fVar21;
-                            }
-                            else
-                            {
-                                fVar18 = f25;
-                            }
-                        }
-                        else
-                        {
-                            fVar18 = fVar21;
-                        }
-                        f27o = fVar18 * (0.5f * fVar26 * fVar18 + (float)piVar16[1] + 0.0f) + (float)piVar16[2];
-                        t320 = cosf(*(f32 *)&piVar16[2]);
-                        t328 = sinf(*(f32 *)&piVar16[2]);
-                        D_00713D10[0] = f27o;
-                        D_00713D10[1] = t320;
-                        D_00713D10[2] = t328;
-                        puVar15[0] = (u32)D_00713D10[0];
-                        puVar15[1] = (u32)D_00713D10[1];
-                        puVar15[2] = (u32)D_00713D10[2];
-                        puVar15[3] = (u32)D_00713D10[0];
-                        puVar15[4] = (u32)D_00713D10[1];
-                        puVar15[5] = (u32)D_00713D10[2];
-                        puVar15[6] = (u32)f27o;
-                        puVar15[7] = (u32)t320;
-                        puVar15[8] = (u32)t328;
-                        puVar15[9] = (u32)f27o;
-                        puVar15[10] = (u32)t320;
-                        puVar15[11] = (u32)t328;
-                        if (temp_21 < sp100)
-                        {
-                            fVar21 = (f32)temp_21 / (f32)sp100;
-                        }
-                        else
-                        {
-                            fVar21 = 1.0f;
-                            if (spF0 < temp_21)
-                            {
-                                fVar21 = (f32)(iVar5 - temp_21) / (f32)(iVar5 - spF0);
-                            }
-                        }
-                        puVar14[0] = (s32)(fVar21 * 255.0f);
-                        puVar14[1] = (s32)(fVar21 * 255.0f);
-                        puVar14[2] = (s32)(fVar21 * 255.0f);
-                        puVar14[3] = (s32)(fVar21 * 255.0f);
-                        *piVar16 = temp_21 + spD0;
-                    }
-                    piVar16 += 6;
-                    puVar15 += 12;
-                    puVar14 += 4;
+        u32 innerWord, outerWord, outerPacked, innerPacked;
+        EffectVuVector innerColor, outerColor;
+        EffectVuVector direction, widthVector, lengthVector;
+        s32 firstFrame, count, index, fadeIn, fadeOut, initialAge, terminalAge, ageStep, recycle;
+        u8 *state, *owner, *config;
+        s32 *particle;
+        f32 *pf;
+        s32 life;
+        FlashVertex *vertices;
+        u32 *colors;
+        f32 acceleration, phase, factor, fullTurn, unit, zero, half, byteScale, normalization;
+        const u32 *colorInput;
+        u32 frame, lastFrame;
+        s32 births;
+
+        config = *(u8 **)(effect + 0x40);
+        lastFrame = *(u32 *)(config + 0x34);
+        frame = *(u32 *)(effect + 0x34);
+        if (lastFrame < frame && lastFrame != 0) return;
+        state = *(u8 **)(effect + 0x3c);
+        particle = *(s32 **)state;
+        owner = *(u8 **)(state + 4);
+        count = *(s32 *)(config + 0x38);
+        life = *(s32 *)(config + 0x4c);
+        if (life == 0) return;
+        if (*(u8 *)(config + 0x84)) {
+            initialAge = life; terminalAge = 0; ageStep = -1;
+            fadeIn = (s32)((1.0f - *(f32 *)(config + 0x48)) * (f32)life);
+            fadeOut = (s32)((1.0f - *(f32 *)(config + 0x44)) * (f32)life);
+        } else {
+            initialAge = 0; terminalAge = life; ageStep = 1;
+            fadeIn = (s32)(*(f32 *)(config + 0x44) * (f32)life);
+            fadeOut = (s32)(*(f32 *)(config + 0x48) * (f32)life);
+        }
+        if (*(u8 *)(config + 0x55) != 0 && frame == 0) {
+            firstFrame = 1;
+            births = count;
+        } else {
+            firstFrame = 0;
+            births = *(s32 *)(config + 0x50);
+        }
+        RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 10);
+        vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
+        colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+        zero = 0.0f;
+        direction.lane[1] = zero;
+        direction.lane[3] = zero;
+        innerWord = *(u32 *)(config + 0x58);
+        colorInput = &innerWord;
+        normalization = fGpffff8044;
+        effectVuUnpackColor10(colorInput, normalization);
+        effectVuStore10(&innerColor);
+        outerWord = *(u32 *)(config + 0x5c);
+        effectVuUnpackColor10(&outerWord, normalization);
+        effectVuStore10(&outerColor);
+        acceleration = *(f32 *)(config + 0x80);
+        recycle = *(u8 *)(config + 0x54);
+        index = 0;
+        fullTurn = fGpffff80d0;
+        unit = 1.0f;
+        half = 0.5f;
+        byteScale = 255.0f;
+        for (; index < count; index++, particle += 6, vertices += 4, colors += 4) {
+            s32 age = *particle;
+            pf = (f32 *)particle;
+            if (age == -2) continue;
+            if (age == -1) {
+                if (births == 0) continue;
+                pf[2] = fullTurn * effMiscRandFloat(0);
+    phase = *(f32 *)(config + 0x6c);
+    factor = 0.0f + (unit - phase) + phase * effMiscRandFloat(0);
+    pf[3] = *(f32 *)(config + 0x68) * factor;
+    phase = *(f32 *)(config + 0x74);
+    factor = 0.0f + (unit - phase) + phase * effMiscRandFloat(0);
+    pf[4] = *(f32 *)(config + 0x70) * factor;
+    phase = *(f32 *)(config + 0x7c);
+    factor = 0.0f + (unit - phase) + phase * effMiscRandFloat(0);
+    pf[1] = *(f32 *)(config + 0x78) * factor;
+    phase = *(f32 *)(config + 0x64);
+    factor = 0.0f + (unit - phase) + phase * effMiscRandFloat(0);
+    pf[5] = *(f32 *)(config + 0x60) * factor;
+
+                if (firstFrame) {
+                    *particle = effMiscRand(0) % (u32)life;
+                    
+                } else {
+                    *particle = initialAge;
                 }
-                {
-                    u8 *temp_17;
-                    temp_17 = *(u8 **)(*(u32 **)(puVar3 + 8) + 6);
-                    func_003c22f0(temp_17);
-                    if (*(u16 *)puVar3 & 4)
-                    {
-                        *(u16 *)(temp_17 + 0xC) = *(u16 *)(temp_17 + 0xC) | 1;
-                    }
+                births--;
+                continue;
+            }
+            if (age == terminalAge) {
+                s32 vertex;
+                for (vertex = 0; vertex < 4; vertex++) {
+                    vertices[vertex].x = zero;
+                    vertices[vertex].y = zero;
+                    vertices[vertex].z = zero;
+                    colors[vertex] = 0;
                 }
-                temp_18++;
+                *particle = recycle ? -1 : -2;
+            } else {
+                f32 time = (f32)age;
+                f32 distance;
+                f32 fade;
+                f32 sine, cosine;
+                phase = pf[2];
+    if (acceleration < zero) {
+        f32 maximum = half * (-pf[1] / (half * acceleration));
+        if (time > maximum) time = maximum;
+    }
+    distance = time * (0.0f + pf[1] + half * (acceleration * time));
+    distance += pf[4];
+    direction.lane[0] = cosf(phase);
+    direction.lane[2] = sinf(phase);
+    effectVuLoad10(&direction);
+    __asm__ volatile(
+        "vmove.xyzw $vf11, $vf10 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuScale10(pf[3]);
+    effectVuStore10(&lengthVector);
+    __asm__ volatile(
+        "vmove.xyzw $vf10, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuScale10(distance);
+    __asm__ volatile(
+        "vmove.xyzw $vf12, $vf10 \n"
+        "vmove.xyzw $vf10, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    cosine = effectVuGetX10();
+    sine = effectVuGetZ10();
+    effectVuSetX10(sine);
+    effectVuSetZ10(-cosine);
+    effectVuScale10(pf[5]);
+    effectVuStore10(&widthVector);
+    effectVuLoad10(&lengthVector);
+    __asm__ volatile(
+        "vadd.xyzw $vf10, $vf10, $vf12 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuLoad11(&widthVector);
+    __asm__ volatile(
+        "vadd.xyzw $vf10, $vf10, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuStore10((EffectVuVector *)D_00713D10);
+    vertices[0].x = D_00713D10[0];
+    vertices[0].y = D_00713D14[0];
+    vertices[0].z = D_00713D18[0];
+    __asm__ volatile(
+        "vsub.xyzw $vf10, $vf10, $vf11 \n"
+        "vsub.xyzw $vf10, $vf10, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuStore10((EffectVuVector *)D_00713D10);
+    vertices[1].x = D_00713D10[0];
+    vertices[1].y = D_00713D14[0];
+    vertices[1].z = D_00713D18[0];
+    effectVuLoad10(&lengthVector);
+    __asm__ volatile(
+        "vsub.xyz $vf10, $vf0, $vf10 \n"
+        "vadd.xyzw $vf10, $vf10, $vf12 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuLoad11(&widthVector);
+    __asm__ volatile(
+        "vadd.xyzw $vf10, $vf10, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuStore10((EffectVuVector *)D_00713D10);
+    vertices[2].x = D_00713D10[0];
+    vertices[2].y = D_00713D14[0];
+    vertices[2].z = D_00713D18[0];
+    __asm__ volatile(
+        "vsub.xyzw $vf10, $vf10, $vf11 \n"
+        "vsub.xyzw $vf10, $vf10, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuStore10((EffectVuVector *)D_00713D10);
+    vertices[3].x = D_00713D10[0];
+    vertices[3].y = D_00713D14[0];
+    vertices[3].z = D_00713D18[0];
+
+                if (age < fadeIn) fade = (f32)age / (f32)fadeIn;
+                else if (age > fadeOut) fade = (f32)(life - age) / (f32)(life - fadeOut);
+                else fade = unit;
+                effectVuLoad11((EffectVuVector *)D_00713CE0);
+                effectVuScale11(fade);
+                effectVuLoad10(&outerColor);
+                __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+                {
+        u32 transfer;
+        __asm__ volatile(
+            "qmtc2.ni %2, $vf2 \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni %0, $vf10 \n"
+            "ppach %0, $zero, %0 \n"
+            "ppacb %0, $zero, %0 \n"
+            "sw %0, outerPacked \n"
+            : "=&r"(transfer), "=m"(outerPacked) : "r"(byteScale) : "$vf2", "$vf10", "memory");
+    }
+
+                colors[0] = outerPacked;
+                colors[1] = outerPacked;
+                effectVuLoad10(&innerColor);
+                __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+                {
+        u32 transfer;
+        __asm__ volatile(
+            "qmtc2.ni %2, $vf2 \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni %0, $vf10 \n"
+            "ppach %0, $zero, %0 \n"
+            "ppacb %0, $zero, %0 \n"
+            "sw %0, innerPacked \n"
+            : "=&r"(transfer), "=m"(innerPacked) : "r"(byteScale) : "$vf2", "$vf10", "memory");
+    }
+
+                colors[2] = innerPacked;
+                colors[3] = innerPacked;
+                *particle = age + ageStep;
             }
         }
+        {
+            u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+            func_003c22f0(geometry);
+            if (*(u16 *)owner & 4) *(u16 *)(geometry + 0xc) |= 1;
+        }
     }
-}
-
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049e150);
-#endif
+#pragma pop
 // FUN_0049E920
 void func_0049e920(u8 *arg0)
 {
@@ -2947,354 +2646,254 @@ void func_0049ef00(u8 *arg0)
     func_004833f0(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
-/* measured in the sibling floor family (see FUN_0049D360/0049E150/004A0C00):
-   four s128 slots (sp100/spF0/spE0/spD0) get the mwcc b210 dsll32+dsra32
-   canonicalization on every (s32)/div/slt use, the saved-GPR pool rotates
-   ($s4-down vs retail $16-up) and the FP pool starts at $f28 vs retail
-   $f20-$f29 (10 FP saved regs). Same s128-canonicalization /
-   allocator-pool floor family. */
-/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
-   packed scalar color data before the COP2 block; b210 cannot emit this sequence
-   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
-/* Floor (measured 2026-09-18, source-repo only): probe 471 words (v4), fnalign 563/562/247 (retail/object/edits, 1 short PASS), emitted window 2256B. Chain: v1 scalar+bridges 518/278/548 -> v2 packs-to-words+q140-min 504/262/540 -> v3 correct q140(pi5)/q130(pi7)+c-post 474/257/547 -> v4 interleave second-half VU (vsub/vmove/pi3) 471/247/562. Micro-priced casts: (s32)(f*(f32)n) 8 instrs vs (u32) 21 (saves 13 per fade, cf. func_004aed70 815->493 via signed s32 word arithmetic); colour packing via single VU bridge per loop (lui 0x437F) not per-channel unsigned casts. Float order sweep (f80d0/fA0/fC/f1t/fD, 4 variants) neutral 471, stopped. Residual is saved-GPR/FP pool rotation + COP2 slot addresses + standalone MMI pextlb/pextlh + s128-canonicalization (lq/dsll32/dsra32 on sp100/spF0/spE0/spD0) + daddu zero-idiom + paddub move. Banked as guarded floor; production stays ASM. */
-// FUN_0049EF50 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0049EF50
+#pragma push
+#pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
-void func_0049ef50(u8 *arg0)
+void func_0049ef50(u8 *effect)
 {
-    u8 *tmp17;
-    u32 tmp34;
-    u32 arg34;
-    s32 *pi;
-    f32 *pif;
-    u16 *pu3;
-    s32 cnt38;
-    s32 cnt4C;
-    s32 bVar;
-    s32 var22;
-    f32 *vertex;
-    u32 *color;
-    s32 sp19C;
-    s32 sp198;
-    s128 colA;
-    s128 colB;
-    s128 q120;
-    s128 q140;
-    s128 q130;
-    u32 packA;
-    u32 packB;
-    s128 spD0;
-    s128 spF0;
-    s128 spE0;
-    s128 sp100;
-    f32 scale;
-    f32 f80d0;
-    f32 fA0;
-    u8 cVar1;
-    s32 loop;
-    s32 cur;
-    s32 tmp;
-    f32 ftmp;
-    f32 fC;
-    f32 f1t;
-    f32 fD;
-    f32 fRem;
+    u32 innerWord, outerWord, outerPacked, innerPacked;
+    EffectVuVector innerColor, outerColor;
+    EffectVuVector center, direction, widthVector;
+    s32 firstFrame, count, index, fadeIn, fadeOut, recycle;
+    u8 *state, *owner, *config;
+    s32 *particle;
+    f32 *pf;
+    s32 life;
+    FlashVertex *vertices;
+    u32 *colors;
+    f32 acceleration, phase, factor, endpoint, inclination, fullTurn, unit, zero, half, byteScale, normalization, cosine, radialPosition;
+    const u32 *colorInput;
+    u32 frame, lastFrame;
+    s32 births;
 
-    tmp17 = *(u8 **)(arg0 + 0x40);
-    tmp34 = *(u32 *)(tmp17 + 0x34);
-    arg34 = *(u32 *)(arg0 + 0x34);
-    if ((tmp34 >= arg34) || (tmp34 == 0)) {
-        pi = *(s32 **)(arg0 + 0x3C);
-        pif = (f32 *)pi;
-        pu3 = (u16 *)(*(u32 **)(arg0 + 0x3C))[1];
-        cnt38 = *(s32 *)(tmp17 + 0x38);
-        *(s32 *)&sp100 = cnt38;
-        cnt4C = *(s32 *)(tmp17 + 0x4C);
-        if (cnt4C != 0) {
-            if ((*(u8 *)(tmp17 + 0x55) == 0) || (arg34 != 0)) {
-                bVar = 0;
-                var22 = *(s32 *)(tmp17 + 0x50);
-            } else {
-                bVar = 1;
-                var22 = cnt38;
-            }
-            RpGeometryLock(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18), 10);
-            vertex = (f32 *)(*(u8 **)(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18) + 0x5C) + 0x14);
-            color = (u32 *)(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18) + 0x30);
-            sp19C = *(s32 *)(tmp17 + 0x58);
-            scale = fGpffff8044;
-            __asm__ volatile(
-                "lw $2, 0(%0)          \n"
-                "pextlb $2, $0, $2     \n"
-                "pextlh $2, $0, $2     \n"
-                "qmtc2 $2, $vf10       \n"
-                "vitof0.xyzw $vf10, $vf10 \n"
-                "mfc1 $2, %1           \n"
-                "nop                   \n"
-                "qmtc2 $2, $vf2        \n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                "sqc2 $vf10, 0(%2)     \n"
-                :
-                : "r"(&sp19C), "f"(scale), "r"(&colA)
-                : "$2", "$vf2", "$vf10", "memory");
-            sp198 = *(s32 *)(tmp17 + 0x5C);
-            __asm__ volatile(
-                "lw $2, 0(%0)          \n"
-                "pextlb $2, $0, $2     \n"
-                "pextlh $2, $0, $2     \n"
-                "qmtc2 $2, $vf10       \n"
-                "vitof0.xyzw $vf10, $vf10 \n"
-                "mfc1 $2, %1           \n"
-                "nop                   \n"
-                "qmtc2 $2, $vf2        \n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                "sqc2 $vf10, 0(%2)     \n"
-                :
-                : "r"(&sp198), "f"(scale), "r"(&colB)
-                : "$2", "$vf2", "$vf10", "memory");
-            *(s32 *)&spF0 = (s32)(*(f32 *)(tmp17 + 0x44) * (f32)cnt4C);
-            *(s32 *)&spE0 = (s32)(*(f32 *)(tmp17 + 0x48) * (f32)cnt4C);
-            fA0 = *(f32 *)(tmp17 + 0xA0);
-            cVar1 = *(u8 *)(tmp17 + 0x54);
-            spD0 = (s128)(s32)cVar1;
-            f80d0 = fGpffff80d0;
-            ((s32 *)&q140)[1] = 0;
-            ((s32 *)&q140)[3] = 0;
-            loop = 0;
-            while (loop < (s32)sp100) {
-                cur = pi[0];
-                if (cur != -2) {
-                    if (cur == -1) {
-                        if (var22 != 0) {
-                            ftmp = effMiscRandFloat(0);
-                            pif[1] = f80d0 * ftmp;
-                            fC = *(f32 *)(tmp17 + 0x6C);
-                            ftmp = effMiscRandFloat(0);
-                            f1t = *(f32 *)(tmp17 + 0x68) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[3] = f1t;
-                            fC = *(f32 *)(tmp17 + 0x74);
-                            ftmp = effMiscRandFloat(0);
-                            fD = *(f32 *)(tmp17 + 0x70) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[4] = (fD - f1t) / (f32)cnt4C;
-                            fC = *(f32 *)(tmp17 + 0x7C);
-                            ftmp = effMiscRandFloat(0);
-                            f1t = *(f32 *)(tmp17 + 0x78) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[5] = f1t;
-                            fC = *(f32 *)(tmp17 + 0x84);
-                            ftmp = effMiscRandFloat(0);
-                            fD = *(f32 *)(tmp17 + 0x80) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[6] = (fD - f1t) / (f32)cnt4C;
-                            fC = *(f32 *)(tmp17 + 0x8C);
-                            ftmp = effMiscRandFloat(0);
-                            f1t = *(f32 *)(tmp17 + 0x88) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[7] = f1t;
-                            fC = *(f32 *)(tmp17 + 0x94);
-                            ftmp = effMiscRandFloat(0);
-                            fD = *(f32 *)(tmp17 + 0x90) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[8] = (fD - f1t) / (f32)cnt4C;
-                            fC = *(f32 *)(tmp17 + 0x64);
-                            ftmp = effMiscRandFloat(0);
-                            pif[9] = *(f32 *)(tmp17 + 0x60) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            fC = *(f32 *)(tmp17 + 0x9C);
-                            ftmp = effMiscRandFloat(0);
-                            pif[2] = *(f32 *)(tmp17 + 0x98) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            if (bVar != 0) {
-                                tmp = effMiscRand(0);
-                                fRem = (f32)(u32)(tmp % (u32)cnt4C);
-                                pif[3] = pif[3] + pif[4] * fRem;
-                                pif[5] = pif[5] + pif[6] * fRem;
-                                pif[7] = pif[7] + pif[8] * fRem;
-                                pi[0] = (s32)fRem;
-                            } else {
-                                pi[0] = 0;
-                            }
-                            var22 -= 1;
-                        }
-                    } else if (cur < cnt4C) {
-                        f32 curf;
-                        f32 pi1;
-                        f32 pi2;
-                        f32 f3;
-                        f32 f0m;
-                        f32 f29v;
-                        f32 s;
-                        f32 c;
-                        f32 fade;
-                        f32 pi5;
-                        f32 pi7;
+    config = *(u8 **)(effect + 0x40);
+    lastFrame = *(u32 *)(config + 0x34);
+    frame = *(u32 *)(effect + 0x34);
+    if (lastFrame < frame && lastFrame != 0) return;
+    state = *(u8 **)(effect + 0x3c);
+    particle = *(s32 **)state;
+    owner = *(u8 **)(state + 4);
+    count = *(s32 *)(config + 0x38);
+    life = *(s32 *)(config + 0x4c);
+    if (life == 0) return;
+    
+    if (*(u8 *)(config + 0x55) != 0 && frame == 0) {
+        firstFrame = 1;
+        births = count;
+    } else {
+        firstFrame = 0;
+        births = *(s32 *)(config + 0x50);
+    }
+    RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 10);
+    vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
+    colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+    zero = 0.0f;
+    center.lane[1] = zero;
+    center.lane[3] = zero;
+    innerWord = *(u32 *)(config + 0x58);
+    colorInput = &innerWord;
+    normalization = fGpffff8044;
+    effectVuUnpackColor10(colorInput, normalization);
+    effectVuStore10(&innerColor);
+    outerWord = *(u32 *)(config + 0x5c);
+    effectVuUnpackColor10(&outerWord, normalization);
+    effectVuStore10(&outerColor);
 
-                        curf = (f32)cur;
-                        pi1 = pif[1];
-                        pi2 = pif[2];
-                        f0m = 0.0f + pi2 + 0.5f * (fA0 * curf);
-                        f29v = curf * f0m + pi1;
-                        pi5 = pif[5];
-                        pi7 = pif[7];
-                        s = cosf(f29v);
-                        c = sinf(f29v);
-                        ((f32 *)&q140)[0] = s * pi5;
-                        ((f32 *)&q140)[2] = c * pi5;
-                        ((f32 *)&q130)[0] = s * pi7;
-                        ((f32 *)&q130)[1] = 1.0f - pi7;
-                        ((f32 *)&q130)[2] = c * pi7;
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "vmul.xyz $vf2, $vf10, $vf10 \n"
-                            "vmulax.w $ACC, $vf0, $vf2x \n"
-                            "vmadday.w $ACC, $vf0, $vf2y \n"
-                            "vmaddz.w $vf2, $vf0, $vf2z \n"
-                            "vrsqrt $Q, $vf0w, $vf2w \n"
-                            "vwaitq                  \n"
-                            "vmulq.xyz $vf10, $vf10, $Q \n"
-                            "vmove.xyzw $vf12, $vf10  \n"
-                            :
-                            : "r"(&q130)
-                            : "$vf2", "$vf10", "$vf12", "memory");
-                        ((f32 *)&q130)[0] = c;
-                        ((f32 *)&q130)[1] = 0.0f;
-                        ((f32 *)&q130)[2] = -(s);
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "lw $2, 36(%1)            \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "sqc2 $vf10, 0(%2)        \n"
-                            "lqc2 $vf10, 0(%3)        \n"
-                            "lqc2 $vf11, 0(%2)        \n"
-                            "vadd.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%4)        \n"
-                            :
-                            : "r"(&q130), "r"(pi), "r"(&q120), "r"(&q140), "r"(D_00713D10)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        vertex[6] = ((f32 *)D_00713D10)[0];
-                        vertex[7] = ((f32 *)D_00713D10)[1];
-                        vertex[8] = ((f32 *)D_00713D10)[2];
-                        __asm__ volatile(
-                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
-                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%0)        \n"
-                            :
-                            : "r"(D_00713D10)
-                            : "$vf10", "$vf11", "memory");
-                        vertex[9] = ((f32 *)D_00713D10)[0];
-                        vertex[10] = ((f32 *)D_00713D10)[1];
-                        vertex[11] = ((f32 *)D_00713D10)[2];
-                        __asm__ volatile(
-                            "vmove.xyzw $vf11, $vf12  \n"
-                            "lw $2, 12(%0)            \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-                            "lqc2 $vf10, 0(%1)        \n"
-                            "vadd.xyzw $vf10, $vf10, $vf11 \n"
-                            "lqc2 $vf11, 0(%2)        \n"
-                            "vadd.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%3)        \n"
-                            :
-                            : "r"(pi), "r"(&q140), "r"(&q120), "r"(D_00713D10)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        vertex[0] = ((f32 *)D_00713D10)[0];
-                        vertex[1] = ((f32 *)D_00713D10)[1];
-                        vertex[2] = ((f32 *)D_00713D10)[2];
-                        __asm__ volatile(
-                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
-                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%0)        \n"
-                            :
-                            : "r"(D_00713D10)
-                            : "$vf10", "$vf11", "memory");
-                        vertex[3] = ((f32 *)D_00713D10)[0];
-                        vertex[4] = ((f32 *)D_00713D10)[1];
-                        vertex[5] = ((f32 *)D_00713D10)[2];
-                        pif[3] = pif[3] + pif[4];
-                        pif[7] = pif[7] + pif[8];
-                        pif[5] = pif[5] + pif[6];
-                        if (cur < (s32)spF0) {
-                            fade = (f32)cur / (f32)(s32)spF0;
-                        } else {
-                            fade = 1.0f;
-                            if ((s32)spE0 < cur) {
-                                fade = (f32)(cnt4C - cur) / (f32)(cnt4C - (s32)spE0);
-                            }
-                        }
-                        __asm__ volatile(
-                            "lqc2 $vf11, 0(%0)        \n"
-                            "mfc1 $2, %1              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-                            "lqc2 $vf10, 0(%2)        \n"
-                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                            "mfc1 $2, %3              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "vftoi0.xyzw $vf10, $vf10 \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "ppach $2, $0, $2         \n"
-                            "ppacb $2, $0, $2         \n"
-                            "sw $2, 0(%4)             \n"
-                            :
-                            : "r"(D_00713CE0), "f"(fade), "r"(&colB), "f"(255.0f), "r"(&packA)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        color[0] = *(u32 *)&packA;
-                        color[1] = *(u32 *)&packA;
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                            "mfc1 $2, %1              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "vftoi0.xyzw $vf10, $vf10 \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "ppach $2, $0, $2         \n"
-                            "ppacb $2, $0, $2         \n"
-                            "sw $2, 0(%2)             \n"
-                            :
-                            : "r"(&colA), "f"(255.0f), "r"(&packB)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        color[2] = *(u32 *)&packB;
-                        color[3] = *(u32 *)&packB;
-                        pi[0] = cur + 1;
-                    } else {
-                        s32 k;
-                        k = 0;
-                        while (k < 4) {
-                            vertex[k * 3 + 0] = 0.0f;
-                            vertex[k * 3 + 1] = 0.0f;
-                            vertex[k * 3 + 2] = 0.0f;
-                            color[k] = 0;
-                            k++;
-                        }
-                        if ((s32)spD0 == 0) {
-                            cur = -2;
-                        } else {
-                            cur = -1;
-                        }
-                        pi[0] = cur;
-                    }
-                }
-                pi += 10;
-                pif = (f32 *)pi;
-                vertex += 12;
-                color += 4;
-                loop++;
+fadeIn = (s32)(*(f32 *)(config + 0x44) * (f32)life);
+fadeOut = (s32)(*(f32 *)(config + 0x48) * (f32)life);
+    acceleration = *(f32 *)(config + 0xa0);
+    recycle = *(u8 *)(config + 0x54);
+    index = 0;
+    fullTurn = fGpffff80d0;
+    unit = 1.0f;
+    half = 0.5f;
+    byteScale = 255.0f;
+    for (; index < count; index++, particle += 10, vertices += 4, colors += 4) {
+        s32 age = *particle;
+        pf = (f32 *)particle;
+        if (age == -2) continue;
+        if (age == -1) {
+            if (births == 0) continue;
+            pf[1] = fullTurn * effMiscRandFloat(0);
+cosine = *(f32 *)(config + 0x6c);
+factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+cosine = *(f32 *)(config + 0x68) * factor;
+inclination = *(f32 *)(config + 0x74);
+ factor = 0.0f + (unit - inclination) + inclination * effMiscRandFloat(0);
+ endpoint = *(f32 *)(config + 0x70) * factor;
+pf[3] = cosine;
+pf[4] = (endpoint - cosine) / (f32)life;
+cosine = *(f32 *)(config + 0x7c);
+factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+cosine = *(f32 *)(config + 0x78) * factor;
+inclination = *(f32 *)(config + 0x84);
+ factor = 0.0f + (unit - inclination) + inclination * effMiscRandFloat(0);
+ endpoint = *(f32 *)(config + 0x80) * factor;
+pf[5] = cosine;
+pf[6] = (endpoint - cosine) / (f32)life;
+cosine = *(f32 *)(config + 0x8c);
+factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+cosine = *(f32 *)(config + 0x88) * factor;
+inclination = *(f32 *)(config + 0x94);
+ factor = 0.0f + (unit - inclination) + inclination * effMiscRandFloat(0);
+ endpoint = *(f32 *)(config + 0x90) * factor;
+pf[7] = cosine;
+pf[8] = (endpoint - cosine) / (f32)life;
+cosine = *(f32 *)(config + 0x64);
+factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+pf[9] = *(f32 *)(config + 0x60) * factor;
+cosine = *(f32 *)(config + 0x9c);
+factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+pf[2] = *(f32 *)(config + 0x98) * factor;
+
+if (firstFrame) {
+    f32 remainder = (f32)(u32)(effMiscRand(0) % (u32)life);
+    pf[3] = pf[3] + pf[4] * remainder;
+    pf[5] = pf[5] + pf[6] * remainder;
+    pf[7] = pf[7] + pf[8] * remainder;
+    *particle = (s32)remainder;
+} else { *particle = 0; }
+
+            births--;
+            continue;
+        }
+        if (age >= life) {
+            s32 vertex;
+            for (vertex = 0; vertex < 4; vertex++) {
+                vertices[vertex].x = zero;
+                vertices[vertex].y = zero;
+                vertices[vertex].z = zero;
+                colors[vertex] = 0;
             }
+            *particle = recycle ? -1 : -2;
+        } else {
+            f32 time = (f32)age;
+            f32 fade;
+            f32 sine;
+            factor = 0.0f + pf[2] + half * (acceleration * time);
+phase = time * factor;
+phase += pf[1];
+inclination = pf[7];
+radialPosition = pf[5];
+cosine = cosf(phase);
+sine = sinf(phase);
+center.lane[0] = cosine * radialPosition;
+center.lane[2] = sine * radialPosition;
+direction.lane[0] = cosine * inclination;
+direction.lane[1] = unit - inclination;
+direction.lane[2] = sine * inclination;
+effectVuLoad10(&direction);
+__asm__ volatile(
+    "vmul.xyz $vf2, $vf10, $vf10 \n"
+    "vmulax.w $ACC, $vf0, $vf2x \n"
+    "vmadday.w $ACC, $vf0, $vf2y \n"
+    "vmaddz.w $vf2, $vf0, $vf2z \n"
+    "vrsqrt $Q, $vf0w, $vf2w \n"
+    "vwaitq \n"
+    "vmulq.xyz $vf10, $vf10, $Q \n"
+    "vmove.xyzw $vf12, $vf10 \n"
+    : :  : "$vf2", "$vf10", "$vf12", "ACC", "Q");
+direction.lane[0] = sine;
+direction.lane[1] = zero;
+direction.lane[2] = -cosine;
+effectVuLoad10(&direction);
+effectVuScale10(pf[9]);
+effectVuStore10(&widthVector);
+effectVuLoad10(&center);
+effectVuLoad11(&widthVector);
+__asm__ volatile(
+    "vadd.xyzw $vf10, $vf10, $vf11 \n"
+    : :  : "$vf10", "$vf11", "$vf12");
+effectVuStore10((EffectVuVector *)D_00713D10);
+vertices[2].x = D_00713D10[0];
+vertices[2].y = D_00713D14[0];
+vertices[2].z = D_00713D18[0];
+__asm__ volatile(
+    "vsub.xyzw $vf10, $vf10, $vf11 \n"
+    "vsub.xyzw $vf10, $vf10, $vf11 \n"
+    : :  : "$vf10", "$vf11", "$vf12");
+effectVuStore10((EffectVuVector *)D_00713D10);
+vertices[3].x = D_00713D10[0];
+vertices[3].y = D_00713D14[0];
+vertices[3].z = D_00713D18[0];
+__asm__ volatile(
+    "vmove.xyzw $vf11, $vf12 \n"
+    : :  : "$vf10", "$vf11", "$vf12");
+effectVuScale11(pf[3]);
+effectVuLoad10(&center);
+__asm__ volatile(
+    "vadd.xyzw $vf10, $vf10, $vf11 \n"
+    : :  : "$vf10", "$vf11", "$vf12");
+effectVuLoad11(&widthVector);
+__asm__ volatile(
+    "vadd.xyzw $vf10, $vf10, $vf11 \n"
+    : :  : "$vf10", "$vf11", "$vf12");
+effectVuStore10((EffectVuVector *)D_00713D10);
+vertices[0].x = D_00713D10[0];
+vertices[0].y = D_00713D14[0];
+vertices[0].z = D_00713D18[0];
+__asm__ volatile(
+    "vsub.xyzw $vf10, $vf10, $vf11 \n"
+    "vsub.xyzw $vf10, $vf10, $vf11 \n"
+    : :  : "$vf10", "$vf11", "$vf12");
+effectVuStore10((EffectVuVector *)D_00713D10);
+vertices[1].x = D_00713D10[0];
+vertices[1].y = D_00713D14[0];
+vertices[1].z = D_00713D18[0];
+pf[3] = pf[3] + pf[4];
+pf[7] = pf[7] + pf[8];
+pf[5] = pf[5] + pf[6];
+
+            if (age < fadeIn) fade = (f32)age / (f32)fadeIn;
+            else if (age > fadeOut) fade = (f32)(life - age) / (f32)(life - fadeOut);
+            else fade = unit;
+            effectVuLoad11((EffectVuVector *)D_00713CE0);
+            effectVuScale11(fade);
+            effectVuLoad10(&outerColor);
+            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
             {
-                u8 *tail;
-                tail = *(u8 **)(*(u8 **)(pu3 + 8) + 0x18);
-                func_003c22f0(tail);
-                if (*(u16 *)pu3 & 4) {
-                    *(u16 *)(tail + 0xC) = *(u16 *)(tail + 0xC) | 1;
-                }
-            }
+    u32 transfer;
+    __asm__ volatile(
+        "qmtc2.ni %2, $vf2 \n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+        "vftoi0.xyzw $vf10, $vf10 \n"
+        "qmfc2.ni %0, $vf10 \n"
+        "ppach %0, $zero, %0 \n"
+        "ppacb %0, $zero, %0 \n"
+        "sw %0, outerPacked \n"
+        : "=&r"(transfer), "=m"(outerPacked) : "r"(byteScale) : "$vf2", "$vf10", "memory");
+}
+
+            colors[0] = outerPacked;
+            colors[1] = outerPacked;
+            effectVuLoad10(&innerColor);
+            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+            {
+    u32 transfer;
+    __asm__ volatile(
+        "qmtc2.ni %2, $vf2 \n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+        "vftoi0.xyzw $vf10, $vf10 \n"
+        "qmfc2.ni %0, $vf10 \n"
+        "ppach %0, $zero, %0 \n"
+        "ppacb %0, $zero, %0 \n"
+        "sw %0, innerPacked \n"
+        : "=&r"(transfer), "=m"(innerPacked) : "r"(byteScale) : "$vf2", "$vf10", "memory");
+}
+
+            colors[2] = innerPacked;
+            colors[3] = innerPacked;
+            *particle = age + 1;
         }
     }
+    {
+        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+        func_003c22f0(geometry);
+        if (*(u16 *)owner & 4) *(u16 *)(geometry + 0xc) |= 1;
+    }
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049ef50);
-#endif
+#pragma pop
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
    color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
    plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
@@ -3464,400 +3063,277 @@ void func_0049fba0(u8 *arg0)
     func_004833f0(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
-/* measured in the sibling floor family (see FUN_0049D360/0049E150/004A0C00):
-   four s128 slots (sp100/spF0/spE0/spD0) trigger the mwcc b210
-   dsll32+dsra32 canonicalization on every read (retail: plain lq), the
-   saved-GPR pool rotates ($s4-down vs retail $16-up) and the FP pool starts
-   at $f28 vs retail $f20-$f30 (11 FP saved regs - the widest of the family).
-   Same s128-canonicalization / allocator-pool floor family. */
-/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
-   packed scalar color data before the COP2 block; b210 cannot emit this sequence
-   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
-/* Floor (measured 2026-09-18, source-repo only): measure_guarded 594 words (loop), fnalign 640/640/32 (+20 reloc-only, exact count). Pragma sweep: bare 612, loop 594 WINNER (-18), unroll off 612 tie, schedule off 612 tie; pairs not tried (loop stands by words). Subscript: clear-loop row-hoist (v=vertex+k*3) 594 tie, off=k*3 594 tie -- direct vertex[k*3+.] stands. Colouring: vertex/color swap 594 tie, colA/colB swap 594 tie -- declaration order stands. Micro-priced casts: (s32)(f*(f32)n) for spF0/spE0 fades (8 instrs vs (u32) 21, cf. func_0049ef50); colour packing via single VU bridge per loop (lui 0x437F, mfc1 $f22) not per-channel casts. Structure: 11-word pi (extra 0x64 slot sharing 0x68 rand), 15-word vertex (extra 12..14 triple via double vsub), 5-word color with loop&1 alpha (0xFF+128 vs 0x80+255, cf. func_0049aa30 but 0x80 not 0x40). Residual is saved-GPR/FP pool rotation + COP2 slot addresses + standalone MMI pextlb/pextlh + s128-canonicalization (lq/dsll32) + paddub move + daddu zero-idiom; banked as guarded floor; production stays ASM. */
-// FUN_0049FBF0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0049FBF0
+#pragma push
+#pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
-void func_0049fbf0(u8 *arg0)
+void func_0049fbf0(u8 *effect)
 {
-    u8 *tmp17;
-    u32 tmp34;
-    u32 arg34;
-    s32 *pi;
-    f32 *pif;
-    u16 *pu3;
-    s32 cnt38;
-    s32 cnt4C;
-    s32 bVar;
-    s32 var22;
-    f32 *vertex;
-    u32 *color;
-    s32 sp18C;
-    s32 sp188;
-    s128 colA;
-    s128 colB;
-    s128 q120;
-    s128 q130;
-    s128 q140;
-    s128 q150;
-    u32 packA;
-    u32 packB;
-    s128 spD0;
-    s128 spF0;
-    s128 spE0;
-    s128 sp100;
-    f32 scale;
-    f32 f80d0;
-    f32 fA4;
-    u8 cVar1;
-    s32 loop;
-    s32 cur;
-    s32 tmp;
-    f32 ftmp;
-    f32 fC;
-    f32 f1t;
-    f32 fD;
-    f32 fRem;
+    u32 innerWord, outerWord, outerPacked, innerPacked;
+    EffectVuVector innerColor, outerColor;
+    EffectVuVector center, direction, lengthVector, widthVector;
+    s32 firstFrame, count, index, fadeIn, fadeOut, recycle;
+    u8 *state, *owner, *config;
+    s32 *particle;
+    f32 *pf;
+    s32 life;
+    FlashVertex *vertices;
+    u32 *colors;
+    f32 acceleration, phase, factor, endpoint, inclination, fullTurn, unit, zero, half, byteScale, normalization, cosine, radialPosition;
+    const u32 *colorInput;
+    u32 frame, lastFrame;
+    s32 births;
 
-    tmp17 = *(u8 **)(arg0 + 0x40);
-    tmp34 = *(u32 *)(tmp17 + 0x34);
-    arg34 = *(u32 *)(arg0 + 0x34);
-    if ((tmp34 >= arg34) || (tmp34 == 0)) {
-        pi = *(s32 **)(arg0 + 0x3C);
-        pif = (f32 *)pi;
-        pu3 = (u16 *)(*(u32 **)(arg0 + 0x3C))[1];
-        cnt38 = *(s32 *)(tmp17 + 0x38);
-        *(s32 *)&sp100 = cnt38;
-        cnt4C = *(s32 *)(tmp17 + 0x4C);
-        if (cnt4C != 0) {
-            if ((*(u8 *)(tmp17 + 0x55) == 0) || (arg34 != 0)) {
-                bVar = 0;
-                var22 = *(s32 *)(tmp17 + 0x50);
-            } else {
-                bVar = 1;
-                var22 = cnt38;
-            }
-            RpGeometryLock(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18), 10);
-            vertex = (f32 *)(*(u8 **)(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18) + 0x5C) + 0x14);
-            color = (u32 *)(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18) + 0x30);
-            sp18C = *(s32 *)(tmp17 + 0x58) & 0xFFFFFF;
-            scale = fGpffff8044;
-            __asm__ volatile(
-                "lw $2, 0(%0)          \n"
-                "pextlb $2, $0, $2     \n"
-                "pextlh $2, $0, $2     \n"
-                "qmtc2 $2, $vf10       \n"
-                "vitof0.xyzw $vf10, $vf10 \n"
-                "mfc1 $2, %1           \n"
-                "nop                   \n"
-                "qmtc2 $2, $vf2        \n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                "sqc2 $vf10, 0(%2)     \n"
-                :
-                : "r"(&sp18C), "f"(scale), "r"(&colA)
-                : "$2", "$vf2", "$vf10", "memory");
-            sp188 = *(s32 *)(tmp17 + 0x5C) & 0xFFFFFF;
-            __asm__ volatile(
-                "lw $2, 0(%0)          \n"
-                "pextlb $2, $0, $2     \n"
-                "pextlh $2, $0, $2     \n"
-                "qmtc2 $2, $vf10       \n"
-                "vitof0.xyzw $vf10, $vf10 \n"
-                "mfc1 $2, %1           \n"
-                "nop                   \n"
-                "qmtc2 $2, $vf2        \n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                "sqc2 $vf10, 0(%2)     \n"
-                :
-                : "r"(&sp188), "f"(scale), "r"(&colB)
-                : "$2", "$vf2", "$vf10", "memory");
-            *(s32 *)&spF0 = (s32)(*(f32 *)(tmp17 + 0x44) * (f32)cnt4C);
-            *(s32 *)&spE0 = (s32)(*(f32 *)(tmp17 + 0x48) * (f32)cnt4C);
-            fA4 = *(f32 *)(tmp17 + 0xA4);
-            cVar1 = *(u8 *)(tmp17 + 0x54);
-            spD0 = (s128)(s32)cVar1;
-            f80d0 = fGpffff80d0;
-            ((s32 *)&q150)[1] = 0;
-            ((s32 *)&q150)[3] = 0;
-            loop = 0;
-            while (loop < (s32)sp100) {
-                cur = pi[0];
-                if (cur != -2) {
-                    if (cur == -1) {
-                        if (var22 != 0) {
-                            ftmp = effMiscRandFloat(0);
-                            pif[1] = f80d0 * ftmp;
-                            fC = *(f32 *)(tmp17 + 0x70);
-                            ftmp = effMiscRandFloat(0);
-                            f1t = *(f32 *)(tmp17 + 0x6C) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[3] = f1t;
-                            fC = *(f32 *)(tmp17 + 0x78);
-                            ftmp = effMiscRandFloat(0);
-                            fD = *(f32 *)(tmp17 + 0x74) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[4] = (fD - f1t) / (f32)cnt4C;
-                            fC = *(f32 *)(tmp17 + 0x80);
-                            ftmp = effMiscRandFloat(0);
-                            f1t = *(f32 *)(tmp17 + 0x7C) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[5] = f1t;
-                            fC = *(f32 *)(tmp17 + 0x88);
-                            ftmp = effMiscRandFloat(0);
-                            fD = *(f32 *)(tmp17 + 0x84) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[6] = (fD - f1t) / (f32)cnt4C;
-                            fC = *(f32 *)(tmp17 + 0x90);
-                            ftmp = effMiscRandFloat(0);
-                            f1t = *(f32 *)(tmp17 + 0x8C) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[7] = f1t;
-                            fC = *(f32 *)(tmp17 + 0x98);
-                            ftmp = effMiscRandFloat(0);
-                            fD = *(f32 *)(tmp17 + 0x94) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[8] = (fD - f1t) / (f32)cnt4C;
-                            fC = *(f32 *)(tmp17 + 0x68);
-                            ftmp = effMiscRandFloat(0);
-                            f1t = *(f32 *)(tmp17 + 0x60) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[9] = f1t;
-                            pif[10] = *(f32 *)(tmp17 + 0x64) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            fC = *(f32 *)(tmp17 + 0xA0);
-                            ftmp = effMiscRandFloat(0);
-                            pif[2] = *(f32 *)(tmp17 + 0x9C) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            if (bVar != 0) {
-                                tmp = effMiscRand(0);
-                                fRem = (f32)(u32)(tmp % (u32)cnt4C);
-                                pif[3] = pif[3] + pif[4] * fRem;
-                                pif[5] = pif[5] + pif[6] * fRem;
-                                pif[7] = pif[7] + pif[8] * fRem;
-                                pi[0] = (s32)fRem;
-                            } else {
-                                pi[0] = 0;
-                            }
-                            var22 -= 1;
-                        }
-                    } else if (cur < cnt4C) {
-                        f32 curf;
-                        f32 pi1;
-                        f32 pi2;
-                        f32 f0m;
-                        f32 f29v;
-                        f32 s;
-                        f32 c;
-                        f32 fade;
-                        f32 pi5;
-                        f32 pi7;
+    config = *(u8 **)(effect + 0x40);
+    lastFrame = *(u32 *)(config + 0x34);
+    frame = *(u32 *)(effect + 0x34);
+    if (lastFrame < frame && lastFrame != 0) return;
+    state = *(u8 **)(effect + 0x3c);
+    particle = *(s32 **)state;
+    owner = *(u8 **)(state + 4);
+    count = *(s32 *)(config + 0x38);
+    life = *(s32 *)(config + 0x4c);
+    if (life == 0) return;
+    
+    if (*(u8 *)(config + 0x55) != 0 && frame == 0) {
+        firstFrame = 1;
+        births = count;
+    } else {
+        firstFrame = 0;
+        births = *(s32 *)(config + 0x50);
+    }
+    RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 10);
+    vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
+    colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+    zero = 0.0f;
+    center.lane[1] = zero;
+    center.lane[3] = zero;
+    innerWord = *(u32 *)(config + 0x58) & 0x00ffffff;
+    colorInput = &innerWord;
+    normalization = fGpffff8044;
+    effectVuUnpackColor10(colorInput, normalization);
+    effectVuStore10(&innerColor);
+    outerWord = *(u32 *)(config + 0x5c) & 0x00ffffff;
+    effectVuUnpackColor10(&outerWord, normalization);
+    effectVuStore10(&outerColor);
 
-                        curf = (f32)cur;
-                        pi1 = pif[1];
-                        pi2 = pif[2];
-                        f0m = 0.0f + pi2 + 0.5f * (fA4 * curf);
-                        f29v = curf * f0m + pi1;
-                        pi5 = pif[5];
-                        pi7 = pif[7];
-                        s = cosf(f29v);
-                        c = sinf(f29v);
-                        ((f32 *)&q150)[0] = s * pi5;
-                        ((f32 *)&q150)[2] = c * pi5;
-                        ((f32 *)&q140)[0] = s * pi7;
-                        ((f32 *)&q140)[1] = 1.0f - pi7;
-                        ((f32 *)&q140)[2] = c * pi7;
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "vmul.xyz $vf2, $vf10, $vf10 \n"
-                            "vmulax.w $ACC, $vf0, $vf2x \n"
-                            "vmadday.w $ACC, $vf0, $vf2y \n"
-                            "vmaddz.w $vf2, $vf0, $vf2z \n"
-                            "vrsqrt $Q, $vf0w, $vf2w \n"
-                            "vwaitq                  \n"
-                            "vmulq.xyz $vf10, $vf10, $Q \n"
-                            "vmove.xyzw $vf12, $vf10  \n"
-                            :
-                            : "r"(&q140)
-                            : "$vf2", "$vf10", "$vf12", "memory");
-                        ((f32 *)&q140)[0] = c;
-                        ((f32 *)&q140)[1] = 0.0f;
-                        ((f32 *)&q140)[2] = -(s);
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "vmove.xyzw $vf11, $vf10  \n"
-                            "lw $2, 36(%1)            \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "lw $2, 40(%1)            \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-                            "sqc2 $vf10, 0(%2)        \n"
-                            "sqc2 $vf11, 0(%3)        \n"
-                            :
-                            : "r"(&q140), "r"(pi), "r"(&q130), "r"(&q120)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "sqc2 $vf10, 0(%1)        \n"
-                            :
-                            : "r"(&q150), "r"(D_00713D10)
-                            : "$vf10", "memory");
-                        vertex[9] = ((f32 *)D_00713D10)[0];
-                        vertex[10] = ((f32 *)D_00713D10)[1];
-                        vertex[11] = ((f32 *)D_00713D10)[2];
-                        __asm__ volatile(
-                            "lqc2 $vf11, 0(%0)        \n"
-                            "vadd.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%1)        \n"
-                            :
-                            : "r"(&q130), "r"(D_00713D10)
-                            : "$vf10", "$vf11", "memory");
-                        vertex[6] = ((f32 *)D_00713D10)[0];
-                        vertex[7] = ((f32 *)D_00713D10)[1];
-                        vertex[8] = ((f32 *)D_00713D10)[2];
-                        __asm__ volatile(
-                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
-                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%0)        \n"
-                            :
-                            : "r"(D_00713D10)
-                            : "$vf10", "$vf11", "memory");
-                        vertex[12] = ((f32 *)D_00713D10)[0];
-                        vertex[13] = ((f32 *)D_00713D10)[1];
-                        vertex[14] = ((f32 *)D_00713D10)[2];
-                        __asm__ volatile(
-                            "vmove.xyzw $vf11, $vf12  \n"
-                            "lw $2, 12(%0)            \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-                            "lqc2 $vf10, 0(%1)        \n"
-                            "vadd.xyzw $vf10, $vf10, $vf11 \n"
-                            "lqc2 $vf11, 0(%2)        \n"
-                            "vadd.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%3)        \n"
-                            :
-                            : "r"(pi), "r"(&q150), "r"(&q120), "r"(D_00713D10)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        vertex[0] = ((f32 *)D_00713D10)[0];
-                        vertex[1] = ((f32 *)D_00713D10)[1];
-                        vertex[2] = ((f32 *)D_00713D10)[2];
-                        __asm__ volatile(
-                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
-                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%0)        \n"
-                            :
-                            : "r"(D_00713D10)
-                            : "$vf10", "$vf11", "memory");
-                        vertex[3] = ((f32 *)D_00713D10)[0];
-                        vertex[4] = ((f32 *)D_00713D10)[1];
-                        vertex[5] = ((f32 *)D_00713D10)[2];
-                        pif[3] = pif[3] + pif[4];
-                        pif[7] = pif[7] + pif[8];
-                        pif[5] = pif[5] + pif[6];
-                        if (cur < (s32)spF0) {
-                            fade = (f32)cur / (f32)(s32)spF0;
-                        } else {
-                            fade = 1.0f;
-                            if ((s32)spE0 < cur) {
-                                fade = (f32)(cnt4C - cur) / (f32)(cnt4C - (s32)spE0);
-                            }
-                        }
-                        __asm__ volatile(
-                            "lqc2 $vf11, 0(%0)        \n"
-                            "mfc1 $2, %1              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-                            "lqc2 $vf10, 0(%2)        \n"
-                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                            "mfc1 $2, %3              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "vftoi0.xyzw $vf10, $vf10 \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "ppach $2, $0, $2         \n"
-                            "ppacb $2, $0, $2         \n"
-                            "sw $2, 0(%4)             \n"
-                            :
-                            : "r"(D_00713CE0), "f"(fade), "r"(&colB), "f"(255.0f), "r"(&packA)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        color[0] = *(u32 *)&packA;
-                        color[1] = *(u32 *)&packA;
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                            "mfc1 $2, %1              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "vftoi0.xyzw $vf10, $vf10 \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "ppach $2, $0, $2         \n"
-                            "ppacb $2, $0, $2         \n"
-                            "sw $2, 0(%2)             \n"
-                            :
-                            : "r"(&colA), "f"(255.0f), "r"(&packB)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        {
-                            f32 fA;
-                            u32 cb = *(u32 *)&packB;
-                            if ((loop & 1) != 0) {
-                                *(u32 *)(color + 3) = cb | 0xFF000000;
-                                fA = 128.0f * fade;
-                                if (fA >= 2147483600.0f) {
-                                    fA = fA - 2147483600.0f;
-                                }
-                                {
-                                    s32 _i = (s32)fA;
-                                    s32 _s = _i << 24;
-                                    *(s32 *)(color + 2) = _s;
-                                    *(s32 *)(color + 4) = _s;
-                                }
-                            } else {
-                                *(u32 *)(color + 3) = cb | 0x80000000;
-                                fA = 255.0f * fade;
-                                if (fA >= 2147483600.0f) {
-                                    fA = fA - 2147483600.0f;
-                                }
-                                {
-                                    s32 _i = (s32)fA;
-                                    s32 _s = _i << 24;
-                                    *(s32 *)(color + 2) = _s;
-                                    *(s32 *)(color + 4) = _s;
-                                }
-                            }
-                        }
-                        pi[0] = cur + 1;
-                    } else {
-                        s32 k;
-                        k = 0;
-                        while (k < 5) {
-                            vertex[k * 3 + 0] = 0.0f;
-                            vertex[k * 3 + 1] = 0.0f;
-                            vertex[k * 3 + 2] = 0.0f;
-                            color[k] = 0;
-                            k++;
-                        }
-                        if ((s32)spD0 == 0) {
-                            cur = -2;
-                        } else {
-                            cur = -1;
-                        }
-                        pi[0] = cur;
-                    }
-                }
-                pi += 11;
-                pif = (f32 *)pi;
-                vertex += 15;
-                color += 5;
-                loop++;
+fadeIn = (s32)(*(f32 *)(config + 0x44) * (f32)life);
+fadeOut = (s32)(*(f32 *)(config + 0x48) * (f32)life);
+    acceleration = *(f32 *)(config + 0xa4);
+    recycle = *(u8 *)(config + 0x54);
+    index = 0;
+    fullTurn = fGpffff80d0;
+    unit = 1.0f;
+    half = 0.5f;
+    byteScale = 255.0f;
+    for (; index < count; index++, particle += 11, vertices += 5, colors += 5) {
+        s32 age = *particle;
+        pf = (f32 *)particle;
+        if (age == -2) continue;
+        if (age == -1) {
+            if (births == 0) continue;
+            pf[1] = fullTurn * effMiscRandFloat(0);
+cosine = *(f32 *)(config + 0x70);
+factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+cosine = *(f32 *)(config + 0x6c) * factor;
+inclination = *(f32 *)(config + 0x78);
+ factor = 0.0f + (unit - inclination) + inclination * effMiscRandFloat(0);
+ endpoint = *(f32 *)(config + 0x74) * factor;
+pf[3] = cosine;
+pf[4] = (endpoint - cosine) / (f32)life;
+cosine = *(f32 *)(config + 0x80);
+factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+cosine = *(f32 *)(config + 0x7c) * factor;
+inclination = *(f32 *)(config + 0x88);
+ factor = 0.0f + (unit - inclination) + inclination * effMiscRandFloat(0);
+ endpoint = *(f32 *)(config + 0x84) * factor;
+pf[5] = cosine;
+pf[6] = (endpoint - cosine) / (f32)life;
+cosine = *(f32 *)(config + 0x90);
+factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+cosine = *(f32 *)(config + 0x8c) * factor;
+inclination = *(f32 *)(config + 0x98);
+ factor = 0.0f + (unit - inclination) + inclination * effMiscRandFloat(0);
+ endpoint = *(f32 *)(config + 0x94) * factor;
+pf[7] = cosine;
+pf[8] = (endpoint - cosine) / (f32)life;
+cosine = *(f32 *)(config + 0x68);
+factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+pf[9] = *(f32 *)(config + 0x60) * factor;
+pf[10] = *(f32 *)(config + 0x64) * factor;
+cosine = *(f32 *)(config + 0xa0);
+factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+pf[2] = *(f32 *)(config + 0x9c) * factor;
+
+if (firstFrame) {
+    f32 remainder = (f32)(u32)(effMiscRand(0) % (u32)life);
+    pf[3] = pf[3] + pf[4] * remainder;
+    pf[5] = pf[5] + pf[6] * remainder;
+    pf[7] = pf[7] + pf[8] * remainder;
+    *particle = (s32)remainder;
+} else { *particle = 0; }
+
+            births--;
+            continue;
+        }
+        if (age >= life) {
+            s32 vertex;
+            for (vertex = 0; vertex < 5; vertex++) {
+                vertices[vertex].x = zero;
+                vertices[vertex].y = zero;
+                vertices[vertex].z = zero;
+                colors[vertex] = 0;
             }
+            *particle = recycle ? -1 : -2;
+        } else {
+            f32 time = (f32)age;
+            f32 fade;
+            f32 sine;
+            factor = 0.0f + pf[2] + half * (acceleration * time);
+phase = time * factor;
+phase += pf[1];
+inclination = pf[7];
+radialPosition = pf[5];
+cosine = cosf(phase);
+sine = sinf(phase);
+center.lane[0] = cosine * radialPosition;
+center.lane[2] = sine * radialPosition;
+direction.lane[0] = cosine * inclination;
+direction.lane[1] = unit - inclination;
+direction.lane[2] = sine * inclination;
+effectVuLoad10(&direction);
+__asm__ volatile(
+    "vmul.xyz $vf2, $vf10, $vf10 \n"
+    "vmulax.w $ACC, $vf0, $vf2x \n"
+    "vmadday.w $ACC, $vf0, $vf2y \n"
+    "vmaddz.w $vf2, $vf0, $vf2z \n"
+    "vrsqrt $Q, $vf0w, $vf2w \n"
+    "vwaitq \n"
+    "vmulq.xyz $vf10, $vf10, $Q \n"
+    "vmove.xyzw $vf12, $vf10 \n"
+    : :  : "$vf2", "$vf10", "$vf12", "ACC", "Q");
+direction.lane[0] = sine;
+direction.lane[1] = zero;
+direction.lane[2] = -cosine;
+effectVuLoad10(&direction);
+__asm__ volatile(
+    "vmove.xyzw $vf11, $vf10 \n"
+    : :  : "$vf10", "$vf11", "$vf12");
+effectVuScale10(pf[9]);
+effectVuScale11(pf[10]);
+effectVuStore10(&lengthVector);
+effectVuStore11(&widthVector);
+effectVuLoad10(&center);
+effectVuStore10((EffectVuVector *)D_00713D10);
+vertices[3].x = D_00713D10[0];
+vertices[3].y = D_00713D14[0];
+vertices[3].z = D_00713D18[0];
+effectVuLoad11(&lengthVector);
+__asm__ volatile(
+    "vadd.xyzw $vf10, $vf10, $vf11 \n"
+    : :  : "$vf10", "$vf11", "$vf12");
+effectVuStore10((EffectVuVector *)D_00713D10);
+vertices[2].x = D_00713D10[0];
+vertices[2].y = D_00713D14[0];
+vertices[2].z = D_00713D18[0];
+__asm__ volatile(
+    "vsub.xyzw $vf10, $vf10, $vf11 \n"
+    "vsub.xyzw $vf10, $vf10, $vf11 \n"
+    : :  : "$vf10", "$vf11", "$vf12");
+effectVuStore10((EffectVuVector *)D_00713D10);
+vertices[4].x = D_00713D10[0];
+vertices[4].y = D_00713D14[0];
+vertices[4].z = D_00713D18[0];
+__asm__ volatile(
+    "vmove.xyzw $vf11, $vf12 \n"
+    : :  : "$vf10", "$vf11", "$vf12");
+effectVuScale11(pf[3]);
+effectVuLoad10(&center);
+__asm__ volatile(
+    "vadd.xyzw $vf10, $vf10, $vf11 \n"
+    : :  : "$vf10", "$vf11", "$vf12");
+effectVuLoad11(&widthVector);
+__asm__ volatile(
+    "vadd.xyzw $vf10, $vf10, $vf11 \n"
+    : :  : "$vf10", "$vf11", "$vf12");
+effectVuStore10((EffectVuVector *)D_00713D10);
+vertices[0].x = D_00713D10[0];
+vertices[0].y = D_00713D14[0];
+vertices[0].z = D_00713D18[0];
+__asm__ volatile(
+    "vsub.xyzw $vf10, $vf10, $vf11 \n"
+    "vsub.xyzw $vf10, $vf10, $vf11 \n"
+    : :  : "$vf10", "$vf11", "$vf12");
+effectVuStore10((EffectVuVector *)D_00713D10);
+vertices[1].x = D_00713D10[0];
+vertices[1].y = D_00713D14[0];
+vertices[1].z = D_00713D18[0];
+pf[3] = pf[3] + pf[4];
+pf[7] = pf[7] + pf[8];
+pf[5] = pf[5] + pf[6];
+
+            if (age < fadeIn) fade = (f32)age / (f32)fadeIn;
+            else if (age > fadeOut) fade = (f32)(life - age) / (f32)(life - fadeOut);
+            else fade = unit;
+            effectVuLoad11((EffectVuVector *)D_00713CE0);
+            effectVuScale11(fade);
+            effectVuLoad10(&outerColor);
+            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
             {
-                u8 *tail;
-                tail = *(u8 **)(*(u8 **)(pu3 + 8) + 0x18);
-                func_003c22f0(tail);
-                if (*(u16 *)pu3 & 4) {
-                    *(u16 *)(tail + 0xC) = *(u16 *)(tail + 0xC) | 1;
+    u32 transfer;
+    __asm__ volatile(
+        "qmtc2.ni %2, $vf2 \n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+        "vftoi0.xyzw $vf10, $vf10 \n"
+        "qmfc2.ni %0, $vf10 \n"
+        "ppach %0, $zero, %0 \n"
+        "ppacb %0, $zero, %0 \n"
+        "sw %0, outerPacked \n"
+        : "=&r"(transfer), "=m"(outerPacked) : "r"(byteScale) : "$vf2", "$vf10", "memory");
+}
+
+            colors[0] = outerPacked;
+            colors[1] = outerPacked;
+            effectVuLoad10(&innerColor);
+            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+            {
+    u32 transfer;
+    __asm__ volatile(
+        "qmtc2.ni %2, $vf2 \n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+        "vftoi0.xyzw $vf10, $vf10 \n"
+        "qmfc2.ni %0, $vf10 \n"
+        "ppach %0, $zero, %0 \n"
+        "ppacb %0, $zero, %0 \n"
+        "sw %0, innerPacked \n"
+        : "=&r"(transfer), "=m"(innerPacked) : "r"(byteScale) : "$vf2", "$vf10", "memory");
+}
+
+            {
+                u32 innerValue = innerPacked;
+                u32 alpha;
+                if ((index & 1) != 0) {
+                    colors[3] = innerValue | 0xff000000;
+                    alpha = ((u32)(128.0f * fade)) << 24;
+                    colors[2] = alpha;
+                    colors[4] = alpha;
+                } else {
+                    colors[3] = innerValue | 0x80000000;
+                    alpha = ((u32)(byteScale * fade)) << 24;
+                    colors[2] = alpha;
+                    colors[4] = alpha;
                 }
             }
+            *particle = age + 1;
         }
     }
+    {
+        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+        func_003c22f0(geometry);
+        if (*(u16 *)owner & 4) *(u16 *)(geometry + 0xc) |= 1;
+    }
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049fbf0);
-#endif
+#pragma pop
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
    color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
    plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
@@ -4114,381 +3590,264 @@ void func_004a0bb0(u8 *arg0) {
     D_008873ec[0](*(void **)(arg0 + 8));
 }
 
-/* measured: byte-exact for the whole body except the mwcc saved-register
-   pool rotation seen across this family (cf. FUN_0049E150): retail maps
-   temp_16/var_20 to $16/$20 and FP $f20-$f30 (11 call-crossing locals),
-   mwcc b210 rotates the saved GPR pool to ($s4,$s3,$s2,$s1,$s0,...) and
-   starts the FP pool at $f28 with only 9 saved slots, scrambling ~70
-   register words (5 GPR/FP declaration orders tried). Also retail reloads
-   the fade denominator (lw 0x100) while mwcc keeps the test's value in a
-   register (2-3 words). Everything else matches: the 0x90-byte sqD0
-   layout struct (s128 d0 + union 16-byte slots v100-v130 + p140/p150 VU
-   quads with the real retail holes), the .word VU0 chains ($3/$5/$4-based
-   lqc2/sqc2 forms), the asm lq-read for the spD0 test (no dsll/dsra
-   canonicalization), the adda/madd fusion, the sp160-quad madd updates,
-   the frame 0x1A0 and the tail. Same floor family as FUN_0049D360 /
-   FUN_0049E150. */
-/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
-   packed scalar color data before the COP2 block; b210 cannot emit this sequence
-   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
-/* Floor (measured 2026-09-18, source-repo only): measure_guarded 492 words (loop), fnalign 552/540/250 (retail/object/edits), emitted 2160B/window 2208B (97.83% PASS by 48B). Pragma sweep: bare 523, prop 504, loop 492 WINNER, subs 560, sched 519, dead 511; loop+prop 504/203ed (fewer edits but more words, loop stands by words). Micro-priced casts: (s32)(f*(f32)n) 8 instrs vs (u32) 21 (saves 13 per fade); color packing via single VU bridge per loop (lui 0x437F) not per-channel unsigned casts (saves 60+, cf. func_004aed70 815->493 via signed s32 word arithmetic). Residual is saved-GPR/FP pool rotation + COP2 slot addresses + standalone MMI pextlb/pextlh + s128-canonicalization + daddu zero-idiom. Banked as guarded floor; production stays ASM. */
 // FUN_004A0C00 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
-void func_004a0c00(u8 *arg0)
-{
-    u8 *tmp17;
-    u32 tmp34;
-    u32 arg34;
-    s32 *pi;
-    f32 *pif;
-    u16 *pu3;
-    s32 cnt38;
-    s32 cnt4C;
-    s32 spFC;
-    s32 spF8;
-    s32 spE0;
-    s32 sp110;
-    s32 sp100;
-    s32 sp130;
-    s32 var22;
-    f32 *vertex;
-    u32 *color;
-    s32 sp19C;
-    s32 sp198;
-    s128 colA;
-    s128 colB;
-    s128 q140;
-    s128 q150;
-    s128 q160;
-    s128 packA;
-    s128 packB;
-    s128 spD0;
-    f32 scale;
-    f32 f80d0;
-    f32 f30;
-    u8 cVar1;
-    s32 loop;
-    s32 cur;
-    s32 tmp;
-    f32 ftmp;
-    f32 fC;
-    f32 f1t;
-    f32 fD;
+    void func_004a0c00(u8 *effect)
+    {
+        u32 innerWord, outerWord, outerPacked, innerPacked;
+        EffectVuVector innerColor, outerColor;
+        EffectVuVector direction, widthVector, lengthVector;
+        s32 firstFrame, count, index, fadeIn, fadeOut, initialAge, terminalAge, ageStep, recycle;
+        u8 *state, *owner, *config;
+        s32 *particle;
+        f32 *pf;
+        s32 life;
+        FlashVertex *vertices;
+        u32 *colors;
+        f32 acceleration, distance, phase, inclination, fullTurn, unit, zero, half, byteScale, normalization, radius, cosine, factor, endpoint;
+        const u32 *colorInput;
+        u32 frame, lastFrame;
+        s32 births;
 
-    tmp17 = *(u8 **)(arg0 + 0x40);
-    tmp34 = *(u32 *)(tmp17 + 0x34);
-    arg34 = *(u32 *)(arg0 + 0x34);
-    if ((tmp34 >= arg34) || (tmp34 == 0)) {
-        pi = *(s32 **)(arg0 + 0x3C);
-        pif = (f32 *)pi;
-        pu3 = (u16 *)(*(u32 **)(arg0 + 0x3C))[1];
-        cnt38 = *(s32 *)(tmp17 + 0x38);
-        cnt4C = *(s32 *)(tmp17 + 0x4C);
-        if (cnt4C != 0) {
-            if (*(u8 *)(tmp17 + 0x94) != 0) {
-                spFC = cnt4C;
-                spF8 = 0;
-                spE0 = -1;
-                sp110 = (s32)((1.0f - *(f32 *)(tmp17 + 0x48)) * (f32)cnt4C);
-                sp100 = (s32)((1.0f - *(f32 *)(tmp17 + 0x44)) * (f32)cnt4C);
-            } else {
-                spFC = 0;
-                spF8 = cnt4C;
-                spE0 = 1;
-                sp110 = (s32)(*(f32 *)(tmp17 + 0x44) * (f32)cnt4C);
-                sp100 = (s32)(*(f32 *)(tmp17 + 0x48) * (f32)cnt4C);
+        config = *(u8 **)(effect + 0x40);
+        lastFrame = *(u32 *)(config + 0x34);
+        frame = *(u32 *)(effect + 0x34);
+        if (lastFrame < frame && lastFrame != 0) return;
+        state = *(u8 **)(effect + 0x3c);
+        particle = *(s32 **)state;
+        owner = *(u8 **)(state + 4);
+        count = *(s32 *)(config + 0x38);
+        life = *(s32 *)(config + 0x4c);
+        if (life == 0) return;
+        if (*(u8 *)(config + 0x94)) {
+            initialAge = life; terminalAge = 0; ageStep = -1;
+            fadeIn = (s32)((1.0f - *(f32 *)(config + 0x48)) * (f32)life);
+            fadeOut = (s32)((1.0f - *(f32 *)(config + 0x44)) * (f32)life);
+        } else {
+            initialAge = 0; terminalAge = life; ageStep = 1;
+            fadeIn = (s32)(*(f32 *)(config + 0x44) * (f32)life);
+            fadeOut = (s32)(*(f32 *)(config + 0x48) * (f32)life);
+        }
+        if (*(u8 *)(config + 0x55) != 0 && frame == 0) {
+            firstFrame = 1;
+            births = count;
+        } else {
+            firstFrame = 0;
+            births = *(s32 *)(config + 0x50);
+        }
+        RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 10);
+        vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
+        colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+        zero = 0.0f;
+        direction.lane[1] = zero;
+        direction.lane[3] = zero;
+        innerWord = *(u32 *)(config + 0x58);
+        colorInput = &innerWord;
+        normalization = fGpffff8044;
+        effectVuUnpackColor10(colorInput, normalization);
+        effectVuStore10(&innerColor);
+        outerWord = *(u32 *)(config + 0x5c);
+        effectVuUnpackColor10(&outerWord, normalization);
+        effectVuStore10(&outerColor);
+        acceleration = *(f32 *)(config + 0x90);
+        recycle = *(u8 *)(config + 0x54);
+        index = 0;
+        fullTurn = fGpffff80d0;
+        unit = 1.0f;
+        half = 0.5f;
+        byteScale = 255.0f;
+        for (; index < count; index++, particle += 8, vertices += 4, colors += 4) {
+            s32 age = *particle;
+            pf = (f32 *)particle;
+            if (age == -2) continue;
+            if (age == -1) {
+                if (births == 0) continue;
+    pf[2] = fullTurn * effMiscRandFloat(0);
+    cosine = *(f32 *)(config + 0x6c);
+    factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+    pf[3] = *(f32 *)(config + 0x68) * factor;
+    cosine = *(f32 *)(config + 0x74);
+    factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+    cosine = *(f32 *)(config + 0x70) * factor;
+    radius = *(f32 *)(config + 0x7c);
+    factor = 0.0f + (unit - radius) + radius * effMiscRandFloat(0);
+    endpoint = *(f32 *)(config + 0x78) * factor;
+    pf[4] = cosine;
+    pf[5] = (endpoint - cosine) / (f32)life;
+    cosine = *(f32 *)(config + 0x8c);
+    factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+    pf[1] = *(f32 *)(config + 0x88) * factor;
+    cosine = *(f32 *)(config + 0x64);
+    factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+    pf[7] = *(f32 *)(config + 0x60) * factor;
+    cosine = *(f32 *)(config + 0x84);
+    factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
+    pf[6] = *(f32 *)(config + 0x80) * factor;
+                if (firstFrame) {
+                    *particle = effMiscRand(0) % (u32)life;
+                    
+                } else {
+                    *particle = initialAge;
+                }
+                births--;
+                continue;
             }
-            if ((*(u8 *)(tmp17 + 0x55) == 0) || (arg34 != 0)) {
-                sp130 = 0;
-                var22 = *(s32 *)(tmp17 + 0x50);
+            if (age == terminalAge) {
+                s32 vertex;
+                for (vertex = 0; vertex < 4; vertex++) {
+                    vertices[vertex].x = zero;
+                    vertices[vertex].y = zero;
+                    vertices[vertex].z = zero;
+                    colors[vertex] = 0;
+                }
+                *particle = recycle ? -1 : -2;
             } else {
-                sp130 = 1;
-                var22 = cnt38;
-            }
-            RpGeometryLock(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18), 10);
-            vertex = (f32 *)(*(u8 **)(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18) + 0x5C) + 0x14);
-            color = (u32 *)(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18) + 0x30);
-            sp19C = *(s32 *)(tmp17 + 0x58);
-            scale = fGpffff8044;
-            __asm__ volatile(
-                "lw $2, 0(%0)          \n"
-                "pextlb $2, $0, $2     \n"
-                "pextlh $2, $0, $2     \n"
-                "qmtc2 $2, $vf10       \n"
-                "vitof0.xyzw $vf10, $vf10 \n"
-                "mfc1 $2, %1           \n"
-                "nop                   \n"
-                "qmtc2 $2, $vf2        \n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                "sqc2 $vf10, 0(%2)     \n"
-                :
-                : "r"(&sp19C), "f"(scale), "r"(&colA)
-                : "$2", "$vf2", "$vf10", "memory");
-            sp198 = *(s32 *)(tmp17 + 0x5C);
-            __asm__ volatile(
-                "lw $2, 0(%0)          \n"
-                "pextlb $2, $0, $2     \n"
-                "pextlh $2, $0, $2     \n"
-                "qmtc2 $2, $vf10       \n"
-                "vitof0.xyzw $vf10, $vf10 \n"
-                "mfc1 $2, %1           \n"
-                "nop                   \n"
-                "qmtc2 $2, $vf2        \n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                "sqc2 $vf10, 0(%2)     \n"
-                :
-                : "r"(&sp198), "f"(scale), "r"(&colB)
-                : "$2", "$vf2", "$vf10", "memory");
-            f30 = *(f32 *)(tmp17 + 0x90);
-            cVar1 = *(u8 *)(tmp17 + 0x54);
-            spD0 = (s128)(s32)cVar1;
-            f80d0 = fGpffff80d0;
-            ((f32 *)&q160)[0] = 0.0f;
-            ((f32 *)&q160)[1] = 0.0f;
-            ((s32 *)&q160)[1] = 0;
-            ((s32 *)&q160)[3] = 0;
-            loop = 0;
-            while (loop < cnt38) {
-                cur = pi[0];
-                if (cur != -2) {
-                    if (cur == -1) {
-                        if (var22 != 0) {
-                            ftmp = effMiscRandFloat(0);
-                            pif[2] = f80d0 * ftmp;
-                            fC = *(f32 *)(tmp17 + 0x6C);
-                            ftmp = effMiscRandFloat(0);
-                            pif[3] = *(f32 *)(tmp17 + 0x68) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            fC = *(f32 *)(tmp17 + 0x74);
-                            ftmp = effMiscRandFloat(0);
-                            f1t = *(f32 *)(tmp17 + 0x70) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[4] = f1t;
-                            fC = *(f32 *)(tmp17 + 0x7C);
-                            ftmp = effMiscRandFloat(0);
-                            fD = *(f32 *)(tmp17 + 0x78) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            pif[5] = (fD - f1t) / (f32)cnt4C;
-                            fC = *(f32 *)(tmp17 + 0x8C);
-                            ftmp = effMiscRandFloat(0);
-                            pif[1] = *(f32 *)(tmp17 + 0x88) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            fC = *(f32 *)(tmp17 + 0x64);
-                            ftmp = effMiscRandFloat(0);
-                            pif[7] = *(f32 *)(tmp17 + 0x60) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            fC = *(f32 *)(tmp17 + 0x84);
-                            ftmp = effMiscRandFloat(0);
-                            pif[6] = *(f32 *)(tmp17 + 0x80) * (0.0f + (1.0f - fC) + fC * ftmp);
-                            if (sp130 != 0) {
-                                tmp = effMiscRand(0);
-                                pi[0] = (s32)(tmp % (u32)cnt4C);
-                            } else {
-                                pi[0] = spFC;
-                            }
-                            var22 -= 1;
-                        }
-                    } else if (cur == spF8) {
-                        s32 k;
-                        k = 0;
-                        while (k < 4) {
-                            vertex[k * 3 + 0] = 0.0f;
-                            vertex[k * 3 + 1] = 0.0f;
-                            vertex[k * 3 + 2] = 0.0f;
-                            color[k] = 0;
-                            k++;
-                        }
-                        if ((s32)spD0 == 0) {
-                            cur = -2;
-                        } else {
-                            cur = -1;
-                        }
-                        pi[0] = cur;
-                    } else {
-                        f32 curf;
-                        f32 pi1;
-                        f32 f3;
-                        f32 f1m;
-                        f32 f0m;
-                        f32 f29v;
-                        f32 f21v;
-                        f32 pi4;
-                        f32 pi5;
-                        f32 pi6;
-                        f32 s;
-                        f32 c;
-                        f32 fade;
+                u32 transfer;
+                EffectVuVector *scratch;
+                f32 time = (f32)age;
+                f32 fade;
+                f32 sine;
+                phase = pf[2];
+    if (acceleration < zero) {
+        f32 maximum = half * (-pf[1] / (half * acceleration));
+        if (time > maximum) time = maximum;
+    }
+    distance = time * (0.0f + pf[1] + half * (acceleration * time));
+    radius = 0.0f + pf[4] + pf[5] * time;
+    inclination = pf[6];
+    cosine = cosf(phase);
+    sine = sinf(phase);
+    direction.lane[0] = cosine * inclination;
+    direction.lane[1] = unit - inclination;
+    direction.lane[2] = sine * inclination;
+    scratch = &direction;
+    __asm__ volatile(
+          "lqc2 $vf10, 0(%1) \n"
+          "vmove.xyzw $vf11, $vf10 \n"
+          "lw %0, %3 \n"
+          "nop \n"
+          "qmtc2.ni %0, $vf2 \n"
+          "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+          : "=&r"(transfer) : "r"(scratch), "m"(*scratch), "m"(pf[3])
+          : "$vf2", "$vf10", "$vf11");
+      effectVuStore10(&lengthVector);
+    __asm__ volatile(
+        "vmove.xyzw $vf10, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuScale10(distance);
+    effectVuStore10(scratch);
+    direction.lane[0] = 0.0f + direction.lane[0] + cosine * radius;
+    direction.lane[2] = 0.0f + direction.lane[2] + sine * radius;
+    effectVuSetX10(sine);
+    __asm__ volatile(
+        "qmtc2.ni %0, $vf2 \n"
+        "vaddx.y $vf10, $vf0, $vf2x \n"
+        : : "r"(zero) : "$vf2", "$vf10");
+    effectVuSetZ10(-cosine);
+    effectVuScale10(pf[7]);
+    effectVuStore10(&widthVector);
+    __asm__ volatile(
+        "lqc2 $vf12, 0(%0) \n"
+        : : "r"(scratch), "m"(*scratch) : "$vf12");
+    effectVuLoad10(&lengthVector);
+    __asm__ volatile(
+        "vadd.xyzw $vf10, $vf10, $vf12 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuLoad11(&widthVector);
+    __asm__ volatile(
+        "vadd.xyzw $vf10, $vf10, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    scratch = (EffectVuVector *)D_00713D10;
+    effectVuStore10(scratch);
+    vertices[0].x = D_00713D10[0];
+    vertices[0].y = D_00713D14[0];
+    vertices[0].z = D_00713D18[0];
+    __asm__ volatile(
+        "vsub.xyzw $vf10, $vf10, $vf11 \n"
+        "vsub.xyzw $vf10, $vf10, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuStore10(scratch);
+    vertices[1].x = D_00713D10[0];
+    vertices[1].y = D_00713D14[0];
+    vertices[1].z = D_00713D18[0];
+    effectVuLoad10(&lengthVector);
+    __asm__ volatile(
+        "vsub.xyz $vf10, $vf0, $vf10 \n"
+        "vadd.xyzw $vf10, $vf10, $vf12 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuLoad11(&widthVector);
+    __asm__ volatile(
+        "vadd.xyzw $vf10, $vf10, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuStore10(scratch);
+    vertices[2].x = D_00713D10[0];
+    vertices[2].y = D_00713D14[0];
+    vertices[2].z = D_00713D18[0];
+    __asm__ volatile(
+        "vsub.xyzw $vf10, $vf10, $vf11 \n"
+        "vsub.xyzw $vf10, $vf10, $vf11 \n"
+        : :  : "$vf10", "$vf11", "$vf12");
+    effectVuStore10(scratch);
+    vertices[3].x = D_00713D10[0];
+    vertices[3].y = D_00713D14[0];
+    vertices[3].z = D_00713D18[0];
 
-                        curf = (f32)cur;
-                        pi1 = pif[1];
-                        f3 = curf;
-                        if (f30 < 0.0f) {
-                            f32 comp;
-                            comp = 0.5f * (-(pi1) / (0.5f * f30));
-                            if (curf > comp) {
-                                f3 = comp;
-                            }
-                        }
-                        f1m = f30 * f3;
-                        f0m = 0.0f + pi1 + 0.5f * f1m;
-                        f29v = f3 * f0m;
-                        pi4 = pif[4];
-                        pi5 = pif[5];
-                        f21v = pi4 + pi5 * f3;
-                        pi6 = pif[6];
-                        s = cosf(pif[2]);
-                        c = sinf(pif[2]);
-                        ((f32 *)&q160)[0] = s * pi6;
-                        ((f32 *)&q160)[1] = 1.0f - pi6;
-                        ((f32 *)&q160)[2] = c * pi6;
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "vmove.xyzw $vf11, $vf10  \n"
-                            "lw $2, 12(%1)            \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "sqc2 $vf10, 0(%2)        \n"
-                            "vmove.xyzw $vf10, $vf11  \n"
-                            "mfc1 $2, %3              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "sqc2 $vf10, 0(%0)        \n"
-                            :
-                            : "r"(&q160), "r"(pi), "r"(&q140), "f"(f29v)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        ((f32 *)&q160)[0] = ((f32 *)&q160)[0] + s * f21v;
-                        ((f32 *)&q160)[2] = ((f32 *)&q160)[2] + c * f21v;
-                        __asm__ volatile(
-                            "mfc1 $2, %0              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vaddx.x $vf10, $vf0, $vf2x \n"
-                            "mfc1 $2, %1              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vaddx.y $vf10, $vf0, $vf2x \n"
-                            "mfc1 $2, %2              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vaddx.z $vf10, $vf0, $vf2x \n"
-                            "lw $2, 28(%3)            \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "sqc2 $vf10, 0(%4)        \n"
-                            "lqc2 $vf12, 0(%5)        \n"
-                            "lqc2 $vf10, 0(%6)        \n"
-                            "vadd.xyzw $vf10, $vf10, $vf12 \n"
-                            "lqc2 $vf11, 0(%4)        \n"
-                            "vadd.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%7)        \n"
-                            "lwc1 $f0, 0(%7)          \n"
-                            "swc1 $f0, 0(%8)          \n"
-                            "lwc1 $f0, 4(%7)          \n"
-                            "swc1 $f0, 4(%8)          \n"
-                            "lwc1 $f0, 8(%7)          \n"
-                            "swc1 $f0, 8(%8)          \n"
-                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
-                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%7)        \n"
-                            "lwc1 $f0, 0(%7)          \n"
-                            "swc1 $f0, 12(%8)         \n"
-                            "lwc1 $f0, 4(%7)          \n"
-                            "swc1 $f0, 16(%8)         \n"
-                            "lwc1 $f0, 8(%7)          \n"
-                            "swc1 $f0, 20(%8)         \n"
-                            "lqc2 $vf10, 0(%6)        \n"
-                            "vsub.xyz $vf10, $vf0, $vf10 \n"
-                            "vadd.xyzw $vf10, $vf10, $vf12 \n"
-                            "lqc2 $vf11, 0(%4)        \n"
-                            "vadd.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%7)        \n"
-                            "lwc1 $f0, 0(%7)          \n"
-                            "swc1 $f0, 24(%8)         \n"
-                            "lwc1 $f0, 4(%7)          \n"
-                            "swc1 $f0, 28(%8)         \n"
-                            "lwc1 $f0, 8(%7)          \n"
-                            "swc1 $f0, 32(%8)         \n"
-                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
-                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
-                            "sqc2 $vf10, 0(%7)        \n"
-                            "lwc1 $f0, 0(%7)          \n"
-                            "swc1 $f0, 36(%8)         \n"
-                            "lwc1 $f0, 4(%7)          \n"
-                            "swc1 $f0, 40(%8)         \n"
-                            "lwc1 $f0, 8(%7)          \n"
-                            "swc1 $f0, 44(%8)         \n"
-                            :
-                            : "f"(c), "f"(0.0f), "f"(-(s)), "r"(pi), "r"(&q150), "r"(&q160), "r"(&q140), "r"(D_00713D10), "r"(vertex)
-                            : "$2", "$vf2", "$vf10", "$vf11", "$vf12", "$f0", "memory");
-                        if (cur < sp110) {
-                            fade = (f32)cur / (f32)sp110;
-                        } else {
-                            fade = 1.0f;
-                            if (sp100 < cur) {
-                                fade = (f32)(cnt4C - cur) / (f32)(cnt4C - sp100);
-                            }
-                        }
-                        __asm__ volatile(
-                            "lqc2 $vf11, 0(%0)        \n"
-                            "mfc1 $2, %1              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-                            "lqc2 $vf10, 0(%2)        \n"
-                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                            "mfc1 $2, %3              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "vftoi0.xyzw $vf10, $vf10 \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "ppach $2, $0, $2         \n"
-                            "ppacb $2, $0, $2         \n"
-                            "sw $2, 0(%4)             \n"
-                            :
-                            : "r"(D_00713CE0), "f"(fade), "r"(&colB), "f"(255.0f), "r"(&packA)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        color[0] = *(u32 *)&packA;
-                        color[1] = *(u32 *)&packA;
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)        \n"
-                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                            "mfc1 $2, %1              \n"
-                            "nop                      \n"
-                            "qmtc2 $2, $vf2           \n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                            "vftoi0.xyzw $vf10, $vf10 \n"
-                            "qmfc2 $2, $vf10          \n"
-                            "ppach $2, $0, $2         \n"
-                            "ppacb $2, $0, $2         \n"
-                            "sw $2, 0(%2)             \n"
-                            :
-                            : "r"(&colA), "f"(255.0f), "r"(&packB)
-                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                        color[2] = *(u32 *)&packB;
-                        color[3] = *(u32 *)&packB;
-                        pi[0] = cur + spE0;
-                    }
-                }
-                pi += 8;
-                pif = (f32 *)pi;
-                vertex += 12;
-                color += 4;
-                loop++;
-            }
-            {
-                u8 *tail;
-                tail = *(u8 **)(*(u8 **)(pu3 + 8) + 0x18);
-                func_003c22f0(tail);
-                if (*(u16 *)pu3 & 4) {
-                    *(u16 *)(tail + 0xC) = *(u16 *)(tail + 0xC) | 1;
-                }
+                if (age < fadeIn) fade = (f32)age / (f32)fadeIn;
+                else if (age > fadeOut) fade = (f32)(life - age) / (f32)(life - fadeOut);
+                else fade = unit;
+                effectVuLoad11((EffectVuVector *)D_00713CE0);
+                effectVuScale11(fade);
+                effectVuLoad10(&outerColor);
+                __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+                {
+        u32 transfer;
+        __asm__ volatile(
+            "qmtc2.ni %2, $vf2 \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni %0, $vf10 \n"
+            "ppach %0, $zero, %0 \n"
+            "ppacb %0, $zero, %0 \n"
+            "sw %0, outerPacked \n"
+            : "=&r"(transfer), "=m"(outerPacked) : "r"(byteScale) : "$vf2", "$vf10", "memory");
+    }
+
+                colors[0] = outerPacked;
+                colors[1] = outerPacked;
+                effectVuLoad10(&innerColor);
+                __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+                {
+        u32 transfer;
+        __asm__ volatile(
+            "qmtc2.ni %2, $vf2 \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni %0, $vf10 \n"
+            "ppach %0, $zero, %0 \n"
+            "ppacb %0, $zero, %0 \n"
+            "sw %0, innerPacked \n"
+            : "=&r"(transfer), "=m"(innerPacked) : "r"(byteScale) : "$vf2", "$vf10", "memory");
+    }
+
+                colors[2] = innerPacked;
+                colors[3] = innerPacked;
+                *particle = age + ageStep;
             }
         }
+        {
+            u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+            func_003c22f0(geometry);
+            if (*(u16 *)owner & 4) *(u16 *)(geometry + 0xc) |= 1;
+        }
     }
-}
-
-#pragma opt_loop_invariants off
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_004a0c00);
 #endif
+/* Native resolved residual: sixteen $v0/$v1 words in the VU address/transfer live range. */
 // FUN_004A14A0
 void func_004a14a0(u8 *arg0)
 {

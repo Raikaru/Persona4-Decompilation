@@ -5610,6 +5610,8 @@ void func_0047b060(void* param_1)
 /* measured 0047b0c0 R2: object 1350/retail 1380 (-30, -2.2% INSIDE +-3% gate, 41 allowed); fnalign 2135 edits+2 reloc-only; words 1269. Fix: 11x func_0044ea90(void)->(D_00713138,imm) with retail imms 0x125,0xfa,0x1d6,0x1d6,0xc93,0x18c5,0x18b7,0x850,0x1896,0x1834,0x908 + prototype (void*,int); lui -13->-2, addiu -18->+4, delete 181:182 gone. Remaining: switch inline vs out-of-line (478 delete artifact) + spare $s6/$s7 + lw -27/beq -23. Production guarded, fallback INCLUDE_ASM retained. */
 /* measured 0047b0c0 R3 (2026-09-19, OR-as-fallthrough + global-asc switch): object 1359/retail 1380 (-21, -1.5% INSIDE +-3% gate, 41 allowed); fnalign 1539 edits+12 reloc-only (was 2135+2); words 1279 (was 1269). Spellings: chain (08||07) 2135, chain (07||08) 2135 (tie); switch source-order asc 2054, desc 2054 (tie), 8083src 2054 (tie), global-desc 2054; switch global-asc 1539 (-596 vs chain, -515 vs source-order). Tail: before struct 70 reg 6, after struct 154 reg 35 (old 478-delete splits into body-order hunks; largest retail[821:968]/object[1022:1027] 147v5). Remaining: frame 0xb0 vs 0xd0 + spare s-regs, compares source-order vs descending. Production guarded, fallback retained. */
 /* measured 0047b0c0 R4 (2026-09-20, deficit-shape fixes): object 1367/retail 1380 (-13, -0.9% INSIDE +-3% gate, 41 allowed); fnalign 1530 edits+12 reloc-only (was 1539+12); frame 0xc0 (was 0xb0, retail 0xd0). Fixes: 3x func_004667d0 8->10 args (2 trailing zeros, sd+6 gone, +6 instrs, per sdkSpr/k_fldResource 10-arg prototype); temp_v5 unsigned->int (sltiu->slti, sltu->slt, retail signed); 2x func_003ef260 0x463100->func_00463100 + 2x 0x70b610->&D_0070B610 (reloc-correct, per effObjectParticle/k_clumpInstance/003d60e0 &D_ usage); loop masks 06/D0/03 compare+index (temp&0xFFFF) + E0/E1 header (temp_v2&0xFFFF) (andi 6->3, lhu 8->6); case 02/04 short->unsigned short (lh->lhu, retail lhu). Remaining: 147 at 0x0047bd94 + 130 at 0x0047c3d4 (switch body order: retail reverse-dispatch layout vs global-asc jump table) + 65 at 0x0047b494 (2B stack home), lw+27/lhu+6/addu+6/sw+5/subu+5/beqz+5 (retail stack-reload vs object reg-cache for uStack_4c/uStack_2). Production guarded, fallback retained. */
+/* measured 2026-09-29: restore the allocated pointer type at its free callback.
+ * Guarded body compiles to 5472/5536 bytes, nd 1275; retain retail ASM. */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0047b0c0(u8 *arg0)
@@ -5954,7 +5956,7 @@ s32 func_0047b0c0(u8 *arg0)
       temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(0x2b8,0x40000);
       func_003e2910(*piVar2,temp_v7,uStack_4c);
       func_00477810(arg0,(void *)temp_v7);
-      DAT_008873ec[0](temp_v7);
+      DAT_008873ec[0]((void *)temp_v7);
       break;
     case 0xf0f00080:
     case 0xf0f00081:
