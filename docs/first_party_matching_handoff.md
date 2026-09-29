@@ -3909,7 +3909,12 @@ Current receipts: `build/resume-flash-20260929/final-owner-receipt.json`,
 `build/finish-first-party-20260929/parent/flash-production-verify.json`.
 Source SHA-256:
 `aab7dff0682b7658da404866095a44cd3b68ceb854fd82179bdaa8d02f5f1172`.
-No PS2 COP2 runtime or newly C-linked-object claim is made.
+The local receipts do not establish COP2 execution. Published checkpoint
+`3cc9595e` passed [CI run 36639446926](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/36639446926),
+including clean ASM regeneration, proprietary full build and verification.
+The uploaded `SLUS_217.82_report` records all six new functions at 100%,
+this owner at 48/49, and first-party matching at **6736/6861 (125 remaining)**.
+No PS2 gameplay/runtime claim is made; the full first-party goal remains open.
 
 The parent also tested repository-backed argument staging, producer/receiver
 splits, distinct scan roles and real lexical scopes in `00119e10`,
