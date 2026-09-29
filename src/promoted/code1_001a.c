@@ -7699,15 +7699,17 @@ loop_7_test:
     }
     *(s16 *)(arg0 + 0x6E) = 0x101;
 }
-/* Guarded recovery: 3196/3200 bytes, six fully resolved differing words.
- * Unsigned table offsets preserve the target/hit comparison lifetimes;
- * the word formation handle owns the allocated state. Remaining differences
- * are one palette addition operand order and the result/target stack homes.
- * Seventy sibling functions and all four data sections retain retail bytes.
- * Evidence: build/cos20814/resume-battle/aed50-resume9-provider-consistency/
+/* A hit's result payload is shared by its effect and message packets. */
+static inline const void *battleHitPayload(const u8 *record)
+{
+    return record + 0xF0;
+}
+
+/* Native b210/O2: 3196/3200 bytes, all 99 relocations resolved and the four
+ * retail tail bytes zero. All 70 siblings and four data sections preserved.
+ * Evidence: build/cos20814/resume-battle/aed50-resume27-exact-owner/resolved/
  */
-// FUN_001AED50 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_001AED50
 #pragma push
 #pragma opt_loop_invariants on
 void func_001aed50(u8 *arg0)
@@ -7757,7 +7759,6 @@ void func_001aed50(u8 *arg0)
     s32 sp100;
     u16 var23;
     u8 *rec;
-    u8 *result;
     u16 var22;
     u8 *setupPacket;
     u8 *unit19;
@@ -7837,10 +7838,11 @@ void func_001aed50(u8 *arg0)
     }
     colorKind = func_001b7080(selector);
     func_001b70a0(selector, (s32 *)&outHi, (s32 *)&outLo);
+    /* Palette entries are four bytes; their flags are the second halfword. */
     sp100 = (s16)aux;
     {
         u8 *pk;
-        pk = (u8 *)func_001b83f0(colorKind, outHi, outLo, 0x10, ((*(u16 *)((uintptr_t)iGpffffb3bc + sp100 * 4 + 2) & 2) ? 1U : 0U));
+        pk = (u8 *)func_001b83f0(colorKind, outHi, outLo, 0x10, ((((const u16 *)(iGpffffb3bc + 2))[sp100 * 2] & 2) ? 1U : 0U));
         *pk = 5;
         *(s64 *)(pk + 8) = cur58;
         *(s16 *)(pk + 0x48) = 0x3C;
@@ -7969,8 +7971,7 @@ void func_001aed50(u8 *arg0)
             }
             {
                 u8 *pk;
-                result = rec + 0xF0;
-                pk = (u8 *)func_001f36e0((s32)arg0, (s32)unit19, result, *(u16 *)(unit17 + 0xDC), *(u16 *)(unit17 + 0xDE));
+                pk = (u8 *)func_001f36e0((s32)arg0, (s32)unit19, battleHitPayload(rec), *(u16 *)(unit17 + 0xDC), *(u16 *)(unit17 + 0xDE));
                 *pk = 5;
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(s64 *)(pk + 0x60) = uid;
@@ -7992,7 +7993,7 @@ void func_001aed50(u8 *arg0)
                 *(s64 *)(pk + 0x60) = uid;
                 func_00194590(pk, 1);
             }
-            if (var22 == 0 && *(s32 *)result != 0) {
+            if (var22 == 0 && *(const s32 *)battleHitPayload(rec) != 0) {
                 u8 *pk;
                 pk = func_00202590(*(s32 *)(unit19 + 0x30), 0, 0);
                 *pk = 5;
@@ -8027,7 +8028,7 @@ void func_001aed50(u8 *arg0)
             }
             {
                 u8 *pk;
-                pk = func_00201de0(*(s32 *)(arg0 + 0x30), *(s32 *)(unit19 + 0x30), sp100, *(u16 *)(unit17 + 0xDC), *(u16 *)(unit17 + 0xDE), var22, *(u8 *)(unit17 + 0xD9), result, 0);
+                pk = func_00201de0(*(s32 *)(arg0 + 0x30), *(s32 *)(unit19 + 0x30), sp100, *(u16 *)(unit17 + 0xDC), *(u16 *)(unit17 + 0xDE), var22, *(u8 *)(unit17 + 0xD9), battleHitPayload(rec), 0);
                 *pk = 5;
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(pk + 0x47) &= (u8)~0x20;
@@ -8098,9 +8099,6 @@ void func_001aed50(u8 *arg0)
     btlActionSetState((BtlAction *)arg0, 0x20);
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001aed50);
-#endif
 // FUN_001AF9D0
 void func_001af9d0(void)
 {
