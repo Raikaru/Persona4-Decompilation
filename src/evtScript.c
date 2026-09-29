@@ -1,3 +1,4 @@
+#include "model_callbacks_internal.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit evtScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -27,7 +28,6 @@ extern s32 func_00452080(void *task);
 extern u8 *func_00452380(s8 *name);
 extern s32 func_00452490(void *target);
 extern void func_00146630(u32);
-extern u16 func_00145780(u16, s32, s32);
 extern void func_00269c20(s32, s32);
 extern u16 *MT_Scene_GetRes(s32);
 extern s32 func_004782b0(u32 arg0);

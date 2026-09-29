@@ -2,6 +2,8 @@
 #include "include_asm.h"
 #include "type.h"
 #include "effect_instance_internal.h"
+#include "btl_formation_internal.h"
+#include "btl_motion_internal.h"
 
 typedef int (*code)();
 
@@ -89,8 +91,8 @@ extern float fGpffff8354;
 // P3 counterpart fGpffff839c (gp -0x7C64); P4 retail uses gp -0x7EE4,
 // i.e. absolute 0x007690f0 - 0x7ee4 = 0x0076120c.
 extern float fGpffff811c;
-extern u32 strlen();
-extern u32 strcpy();
+extern u32 strlen(const char *text);
+extern char *strcpy(char *destination, const char *source);
 extern void func_001d5ca0(u32 *param_1);
 extern u32 func_001d5d60(u32 *param_1);
 
@@ -116,7 +118,7 @@ extern u8 *func_001d41b0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern char D_00609588[];
 extern u8 D_00763388;
 
-void sprintf(u64 context, const char* format, ...);
+s32 sprintf(char *destination, const char *format, ...);
 
 void func_001fc2e0(u32 first, u32 second, u32 third);
 u32 func_002027b0(void);
@@ -688,7 +690,6 @@ u32 func_001d3090(u32 *work)
     } RtQuat;
 
     extern void func_00195590(void *arg0, void *arg1);
-    extern f32 func_00196bd0(void *arg0, void *arg1, s32 arg2);
     extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
     extern void RtQuatTransformVectors(void *out, const void *in, s32 count, const void *rot);
     extern f32 D_0060A0E0[3];
@@ -763,7 +764,7 @@ u32 func_001d3090(u32 *work)
         func_00196ba0((void *)work[0]);
         func_00195590((void *)work[0], (u8 *)work[1] + 4);
         func_00195590((void *)work[1], (u8 *)work[0] + 4);
-        scale = func_00196bd0((void *)work[0], (void *)work[1], 7);
+        scale = func_00196bd0((u8 *)work[0], (u8 *)work[1], 7);
         diff[0] = *(f32 *)((u8 *)work[0] + 4) - *(f32 *)((u8 *)work[1] + 4);
         diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
         diff[2] = *(f32 *)((u8 *)work[0] + 0xc) - *(f32 *)((u8 *)work[1] + 0xc);
@@ -1253,7 +1254,7 @@ float func_001d4380(int param_1)
 
 
 // FUN_001D5EB0
-u32 func_001d5eb0(u32 param_1, u32 param_2, u16 param_3)
+BtlPacket *func_001d5eb0(u32 param_1, const char *param_2, u16 param_3)
 {
     typedef struct FormationStringWork {
         u32 value;
@@ -1274,7 +1275,7 @@ u32 func_001d5eb0(u32 param_1, u32 param_2, u16 param_3)
     work->text = (char *)(work + 1);
     work->field = param_3;
     strcpy(work->text, param_2);
-    return (u32)packet;
+    return packet;
 }
 
 
@@ -1415,15 +1416,15 @@ BtlPacket* func_001d6240(u32 param_1, u32 param_2, u32 param_3, u16 param_4, u32
 
 
 // FUN_001D69F0
-void func_001d69f0(u16 value, u64 context)
+void func_001d69f0(u32 value, char *destination)
 {
     if ((*(u32*)(DAT_0076449c + 0x14) & 1) != 0)
     {
-        sprintf(context, D_00609570);
+        sprintf(destination, D_00609570);
     }
     else
     {
-        sprintf(context, D_00609588, &D_00763388, value);
+        sprintf(destination, D_00609588, &D_00763388, (u16)value);
     }
 }
 

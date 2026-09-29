@@ -17,4 +17,10 @@ s32 func_0047d0e0(u32 type, u16 id);
 s32 func_0047d110(u32 type, u16 id, char *output);
 void func_0047d140(void *model);
 
+/* Actor registration stores a 16-bit resource ID and a 16-bit mode. */
+s32 func_00145510(u16 id, void *model);
+s32 func_00145540(u16 id, u16 mode, void *model);
+s32 func_00145780(u16 id, u16 mode, s32 model);
+void *func_0017b510(u8 *parent, u16 id, u16 mode);
+
 #endif

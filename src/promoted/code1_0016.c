@@ -898,9 +898,8 @@ done:
 /* measured: MATCH (window 1456B). The slot-cache lookup is a static inline
    helper returning the object or NULL; each switch arm keeps its own copy
    of the refresh code with block-local `entry` and loop counter; the
-   default arm narrows `member` into a u16. The u16 type/id reach
-   func_00478140 unmasked through the Kosaka field prototype
-   (Kosaka/k_model_internal.h). */
+   default arm narrows `member` into a u16. The cache stores a 16-bit
+   type key; the constructor takes a separate integer model kind. */
 static inline u8 *fldPartyModelCached(s32 slot, u16 type, u16 id)
 {
     if (type == *(u16 *)(D_007F16F0 + slot * 8) && id == *(u16 *)(D_007F16F2 + slot * 8)) {
@@ -916,6 +915,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
     u8 *obj;
     s32 slot;
     u16 type;
+    u32 modelKind;
     u16 id;
 
     slot = 0;
@@ -931,7 +931,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
         u8 *entry;
 
         if (func_00162510(field, room) == 1) {
-            type = 9;
+            modelKind = type = 9;
             switch (func_00110d60((s16)func_001060b0())) {
             case 0:
             case 2:
@@ -943,13 +943,13 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
                 break;
             }
         } else if (field == 0x44 && room == 1) {
-            type = 9;
+            modelKind = type = 9;
             id = 0x100;
         } else if (func_0015a160() != 0) {
-            type = 1;
+            modelKind = type = 1;
             id = member;
         } else if ((field == 7 && room == 2) || (field == 7 && room == 3)) {
-            type = 9;
+            modelKind = type = 9;
             switch (func_00110d60((s16)func_001060b0())) {
             case 0:
                 id = 0x10B;
@@ -965,7 +965,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
                 break;
             }
         } else {
-            type = 9;
+            modelKind = type = 9;
             switch (func_00110d60((s16)func_001060b0())) {
             case 0:
                 id = 0x101;
@@ -984,7 +984,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
         obj = fldPartyModelCached(slot, type, id);
         entry = D_007F16F0 + slot * 8;
         if (obj == NULL) {
-            obj = func_00478140(type, id, 0);
+            obj = func_00478140(modelKind, id, 0);
             if (type == 1) {
                 func_0047d140(obj);
             } else {

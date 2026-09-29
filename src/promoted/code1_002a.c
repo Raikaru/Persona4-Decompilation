@@ -155,18 +155,9 @@ void func_002a02f0(u8 *arg0, s32 arg1) {
     func_0029fbb0(arg0, 4);
     func_0029fbb0(arg0, 5);
 }
-/* func_002a03b0 (retail 972 instrs): the guarded body is instruction-identical to retail except two
-   pairs of words (fnalign 4 edits, reloc masked): case 1 of the 0x1C34 mode chain emits the 0xFF constant
-   before the andi of var_18 in retail, and the two `+ cursorOfs` adds at the 0xF cursor draw come out
-   y-first here, x-first in retail. Shapes that were load-bearing: `t = func(); (u8)(255.0f * (1.0f - t))`
-   (the call result is stored before the constants are loaded), u8 alpha locals, `k = 0` before
-   rowBase/yBase in the item grid, `temp_6` (0x20 field) read before the 0x1C field, a float offset
-   local so the adds keep the constant on the right, iGpffffb528 sized (4) so it is gp-relative, strlen
-   returning u32 (srl, not sra). Local declaration order picks the saved-register and FPR colours (the
-   first declared of a pair gets the higher register): var_20 before var_18, var_20_2 before var_18_2,
-   var_19 before var_18_3, temp_f21_2 before temp_f20_2, var_3_2 before var_2. */
-// FUN_002A03B0 NONMATCHING
-#ifdef NON_MATCHING
+/* 3888/3888 bytes. Keep the remaining-alpha accumulator separate from
+ * the narrowed active alpha, and apply each cursor offset before drawing. */
+// FUN_002A03B0
 void func_002a03b0(u8 *arg0) {
     extern u8 iGpffffb528[4];
     extern s32 iGpffffb538;
@@ -241,8 +232,10 @@ void func_002a03b0(u8 *arg0) {
         var_20 = var_16 & 0xFF;
         var_18 = 0;
     } else if (temp_3 == 1) {
+        s32 remaining = 0xFF;
         var_18 = var_16 & 0xFF;
-        var_20 = ((0xFF - var_18) >> 2) & 0xFF;
+        remaining -= var_18;
+        var_20 = (remaining >> 2) & 0xFF;
     } else if (temp_3 == 2) {
         var_20 = var_16 & 0xFF;
         var_18 = ((0xFF - var_20) >> 2) & 0xFF;
@@ -357,7 +350,9 @@ void func_002a03b0(u8 *arg0) {
             break;
         }
         yv = (f32)((temp_6 * 0x19) + 0xE5);
-        func_0025e9e0(var_f2 + cursorOfs, yv + cursorOfs, 0.0f, 0xCCFF33, 0xFF, 0xF, iGpffffb540, 1);
+        var_f2 += cursorOfs;
+        yv += cursorOfs;
+        func_0025e9e0(var_f2, yv, 0.0f, 0xCCFF33, 0xFF, 0xF, iGpffffb540, 1);
     }
     for (var_20_2 = 0; var_20_2 < 6; var_20_2++) {
         var_18_2 = 0;
@@ -418,123 +413,149 @@ void func_002a03b0(u8 *arg0) {
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a03b0);
-#endif
-/* Guarded body at default propagation (the old opt_propagation off pragma is dropped: it hoists the
-   repeated call constants into saved registers, which retail does not do). Ignoring register names
-   the object is instruction-identical to retail (fnalign 0 edits, 457/456 instrs); the remaining
-   ~50 edits are $s colouring only: retail keeps temp_16 in $s0 and the short-lived alpha/loop_ptr/
-   alpha2/k values in $s1, this body gets temp_16 in $s1 and those values in $s0/$s2/$s3 (arg0 $s2,
-   arg1 $s3, j/rowBase/yBase $s4-$s6 already match). Declaration order, register, and split-name
-   spellings do not move temp_16 off $s1.
-   Shapes that were load-bearing: a named int `tex = table_val + 0x20` computed before the calls,
-   the two-step float copies (yfBase -> var_f20, yfRow -> ypos) that pin the cvt.s.w ahead of the
-   calls, `cnt > 0x5A0` guarding the reset store, u8 alpha/alpha2 (no andi at the call sites), and
-   `k = 0` before rowBase/yBase. */
-// FUN_002A12E0 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct NameTweenEntry {
+    f32 startX, startY, endX, endY, stepX, stepY, rate;
+    s8 delay, hold;
+    s16 duration;
+} NameTweenEntry;
+typedef struct NameTweenState {
+    NameTweenEntry entries[4];
+    s32 current, count, frame;
+    u32 flags;
+    s32 timer, total;
+} NameTweenState;
+/* Existing task-work layout. The tween fields are defined by 002a27c0;
+ * 0029fbb0 uses the selection pairs, status halfwords and flash flags.
+ * State preceding the background tween is outside this renderer's view. */
+typedef struct NameEntrySelectionTweens {
+    NameTweenState slide, pulse;
+} NameEntrySelectionTweens;
+typedef struct NameEntryRenderWork {
+    /* 0x0000 */ u8 stateBeforeBackground[0x178];
+    /* 0x0178 */ NameTweenState background;
+    /* 0x0210 */ NameTweenState rowOrigin;
+    /* 0x02a8 */ NameTweenState modeTransition;
+    /* 0x0340 */ NameTweenState cells[24];
+    /* 0x1180 */ NameTweenState rows[6];
+    /* 0x1510 */ NameEntrySelectionTweens selection[6];
+    /* 0x1c30 */ s32 selectionState[2];
+    /* 0x1c38 */ s16 selectionStatus[6][2];
+    /* 0x1c50 */ s32 selectionFlash[6];
+    /* 0x1c68 */ s32 backgroundFrame;
+} NameEntryRenderWork;
+typedef char NameTweenEntrySize[(sizeof(NameTweenEntry) == 0x20) ? 1 : -1];
+typedef char NameTweenStateSize[(sizeof(NameTweenState) == 0x98) ? 1 : -1];
+typedef char NameEntryWorkSize[(sizeof(NameEntryRenderWork) == 0x1c6c) ? 1 : -1];
+#pragma push
+#pragma opt_lifetimes on
+#pragma opt_loop_invariants on
+/* Array-member accesses retain the row's animation address across glyph
+ * calls. The grid index is reused by the later, disjoint glyph loop.
+ * 1828 matching code bytes; the 1840-byte window has twelve zero tail bytes. */
+// FUN_002A12E0
 void func_002a12e0(u8 *arg0, s32 arg1) {
-    u8 *temp_16;
-    u8 *loop_ptr;
-    u8 *row_ptr;
+    NameEntryRenderWork *work;
     f32 stack[2];
-    f32 var_f21;
-    f32 var_f20;
-    f32 yfBase;
-    f32 ypos;
-    f32 yfRow;
-    f32 ret2;
-    u8 alpha;
-    u8 alpha2;
+    f32 glyphX;
+    f32 glyphY;
+    f32 rowY;
+    f32 cellY;
+    f32 cellRowY;
+    f32 cellProgress;
     s32 i;
     s32 j;
-    s32 k;
     s32 cnt;
     s32 q;
-    s16 table_val;
-    s32 tex;
+    s16 character;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    if ((arg1 >= 0) && (func_002a2ca0(temp_16 + 0x178) == 0)) {
-        alpha = (u8)(255.0f * func_002a2cd0(temp_16 + 0x178));
+    work = *(NameEntryRenderWork **)(arg0 + 0x38);
+    if ((arg1 >= 0) && (func_002a2ca0((u8 *)&work->background) == 0)) {
+        u8 alpha;
+        alpha = (u8)(255.0f * func_002a2cd0((u8 *)&work->background));
         func_0025e9e0(0.0f, 0.0f, 0.0f, 0xFFFFFF, alpha, 0xA4, iGpffffb540, 1);
-        cnt = *(s32 *)(temp_16 + 0x1C68) + 1;
-        *(s32 *)(temp_16 + 0x1C68) = cnt;
+        cnt = work->backgroundFrame + 1;
+        work->backgroundFrame = cnt;
         if (cnt > 0x5A0) {
-            *(s32 *)(temp_16 + 0x1C68) = 0;
+            work->backgroundFrame = 0;
         }
-        func_0025ea20(-78.0f, -82.0f, 0.0f, 0x4972FF, alpha, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_16 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
-        func_0025ea20(540.0f, (f32)0x15B, 0.0f, 0x4972FF, alpha, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_16 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
+        func_0025ea20(-78.0f, -82.0f, 0.0f, 0x4972FF, alpha, 0xB1, iGpffffb540, 1, 0x5B, 0x5B,
+            (f32)(work->backgroundFrame * -0x168) / 1440.0f, 1.0f, 1.0f);
+        func_0025ea20(540.0f, (f32)0x15B, 0.0f, 0x4972FF, alpha, 0xB1, iGpffffb540, 1, 0x5B, 0x5B,
+            (f32)(work->backgroundFrame * -0x168) / 1440.0f, 1.0f, 1.0f);
         func_0025e9e0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAF, iGpffffb540, 1);
         func_0025e9e0(0.0f, 346.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAE, iGpffffb540, 1);
     }
     if (arg1 > 0) {
         func_002a02f0(arg0, 1);
-        if (func_002a2ca0(temp_16 + 0x210) == 0) {
-            func_002a2c10(temp_16 + 0x210, stack);
-            func_002a2cd0(temp_16 + 0x210);
+        if (func_002a2ca0((u8 *)&work->rowOrigin) == 0) {
+            func_002a2c10((u8 *)&work->rowOrigin, stack);
+            func_002a2cd0((u8 *)&work->rowOrigin);
         }
     }
     if (arg1 >= 2) {
         for (i = 0; i < 0x18; i++) {
-            loop_ptr = temp_16 + (i * 0x98) + 0x340;
-            if (func_002a2ca0(loop_ptr) == 0) {
-                ret2 = func_002a2cd0(loop_ptr);
-                yfRow = (f32)((i % 6) * 0x19 + 0xE3);
-                ypos = yfRow;
-                alpha2 = (u8)(255.0f * ret2);
-                func_0025e9e0((f32)((i / 6) * 0x94 + 0x19), ypos, 0.0f, 0x4972FF, alpha2, 1, iGpffffb540, 1);
+            NameTweenState *cellTween;
+            u8 alpha2;
+            cellTween = &work->cells[i];
+            if (func_002a2ca0((u8 *)cellTween) == 0) {
+                cellProgress = func_002a2cd0((u8 *)cellTween);
+                cellRowY = (f32)((i % 6) * 0x19 + 0xE3);
+                cellY = cellRowY;
+                alpha2 = (u8)(255.0f * cellProgress);
+                func_0025e9e0((f32)((i / 6) * 0x94 + 0x19), cellY, 0.0f, 0x4972FF, alpha2, 1, iGpffffb540, 1);
                 if (i == 0) {
                     func_0025e9e0(18.0f, stack[1], 0.0f, 0x4972FF, alpha2, 0x1B, iGpffffb540, 1);
                 }
                 if (i == 5) {
-                    func_0025e9e0(18.0f, (171.0f + stack[1]) - 24.0f, 0.0f, 0x4972FF, alpha2, 0x1C, iGpffffb540, 1);
+                    func_0025e9e0(18.0f, (171.0f + stack[1]) - 24.0f, 0.0f, 0x4972FF, alpha2, 0x1C, iGpffffb540,
+                        1);
                 }
                 if (i == 0x12) {
                     func_0025e9e0((f32)0x24A, stack[1], 0.0f, 0x4972FF, alpha2, 0x1D, iGpffffb540, 1);
                 }
                 if (i == 0x17) {
-                    func_0025e9e0((f32)0x24A, (171.0f + stack[1]) - 24.0f, 0.0f, 0x4972FF, alpha2, 0x1E, iGpffffb540, 1);
+                    func_0025e9e0((f32)0x24A, (171.0f + stack[1]) - 24.0f, 0.0f, 0x4972FF, alpha2, 0x1E,
+                        iGpffffb540, 1);
                 }
             }
         }
     }
     if (arg1 >= 2) {
         for (j = 0; j < 6; j++) {
-            row_ptr = temp_16 + (j * 0x98);
-            if (func_002a2ca0(row_ptr + 0x1180) == 0) {
+            if (func_002a2ca0((u8 *)&work->rows[j]) == 0) {
                 {
                     s32 yBase;
                     u8 *rowBase;
-                    k = 0;
+                    i = 0;
                     rowBase = D_007485D0 + (j * 0x28);
                     yBase = (j * 25) + 0xE5;
-                    for (; k < 0x14; k++) {
-                        table_val = *(s16 *)(rowBase + (k * 2));
-                        if (table_val >= 0) {
-                            tex = table_val + 0x20;
-                            var_f21 = (f32)((k % 5) * 0x1B);
-                            q = k / 5;
+                    for (; i < 0x14; i++) {
+                        character = *(s16 *)(rowBase + (i * 2));
+                        if (character >= 0) {
+                            s32 tex;
+                            tex = character + 0x20;
+                            glyphX = (f32)((i % 5) * 0x1B);
+                            q = i / 5;
                             switch (q) {
                             case 0:
-                                var_f21 += 30.0f;
+                                glyphX += 30.0f;
                                 break;
                             case 1:
-                                var_f21 += 178.0f;
+                                glyphX += 178.0f;
                                 break;
                             case 2:
-                                var_f21 += 326.0f;
+                                glyphX += 326.0f;
                                 break;
                             case 3:
-                                var_f21 += 474.0f;
+                                glyphX += 474.0f;
                                 break;
                             }
-                            yfBase = (f32)yBase;
-                            var_f20 = yfBase;
-                            func_002a2cd0(row_ptr + 0x1180);
-                            func_002a2c10(row_ptr + 0x1180, stack);
-                            func_0025e9e0(var_f21, var_f20 + (f32)(s32)stack[1], 0.0f, 0x2D2D2D, 0xFF, tex, iGpffffb540, 1);
+                            rowY = (f32)yBase;
+                            glyphY = rowY;
+                            func_002a2cd0((u8 *)&work->rows[j]);
+                            func_002a2c10((u8 *)&work->rows[j], stack);
+                            func_0025e9e0(glyphX, glyphY + (f32)(s32)stack[1], 0.0f, 0x2D2D2D, 0xFF, tex,
+                                iGpffffb540, 1);
                         }
                     }
                 }
@@ -542,9 +563,8 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a12e0);
-#endif
+
+#pragma pop
 // FUN_002A1A10
 s32 func_002a1a10(u8 *arg0) {
     s32 temp_3;

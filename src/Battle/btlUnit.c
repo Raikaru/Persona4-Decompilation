@@ -2,6 +2,8 @@
 #include "type.h"
 #include "model_callbacks_internal.h"
 
+extern u16 btlFindFreeCharResId(void);
+
 extern void func_004787e0(); /* old-style: retail jals with $a1 still holding the compared coordinate */
 extern void *func_00477c40(u32 arg0, u16 arg1, u32 arg2);
 extern void *func_00477fb0(u32 arg0, u16 arg1, void *arg2, u32 arg3);

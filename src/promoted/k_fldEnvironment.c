@@ -434,9 +434,9 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
 
 
 // FUN_001546A0
-void func_001546a0(u16 arg0, u16 arg1)
+s32 func_001546a0(u16 arg0, u16 arg1)
 {
-    func_00154720(arg0, arg1, (s8)func_00110960(func_001060b0(), func_001060c0() & 0xFF));
+    return func_00154720(arg0, arg1, (s8)func_00110960(func_001060b0(), func_001060c0() & 0xFF));
 }
 
 /* Measured with configured MWCCPS2 b210 -O2: 1008 code bytes and the

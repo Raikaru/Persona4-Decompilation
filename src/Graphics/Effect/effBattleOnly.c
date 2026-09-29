@@ -33,8 +33,8 @@ typedef struct EffBattleWork
 /* BSS: per-type effect hook table pointer (gp -0x4460) and the "battle
  * effect active" check callback (gp -0x445C), initialised by startup code.
  * Storage is DEFINED by this unit so the linker can place it at 0x00764c90. */
-EffBattleEntry *D_00764C90;  // 0x00764c90
 s32 (*D_00764C94)(void);     // 0x00764c94
+EffBattleEntry *D_00764C90;  // 0x00764c90
 
 u8 *func_004b50f0(s32 id, s32 arg1);
 

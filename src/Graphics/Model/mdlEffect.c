@@ -26,7 +26,7 @@ extern void func_004824a0(int *param_1, u8 *param_2, float *param_3);
 extern void func_00487fb0(float param_1, int param_2);
 extern void func_00487fb0_evt(float param_1);
 
-extern void func_00492e30(u16 *param_1);
+extern void func_00492e30(u16 *emitter, f32 scale);
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern void func_003f3eb0(s32 arg0, s32 arg1);
@@ -624,7 +624,7 @@ void func_00489e50(void)
 void func_00489f50(f32 param_1, int param_2)
 {
   *(f32 *)(param_2 + 8) = param_1;
-  func_00492e30((u16 *)*(u32 *)(param_2 + 0x4c));
+  func_00492e30((u16 *)*(u32 *)(param_2 + 0x4c), param_1);
   return;
 }
 

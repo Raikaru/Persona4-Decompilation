@@ -13,7 +13,6 @@ extern void func_004216e0(s32 threadId, EeThreadStatus* status);
 extern void func_00421750(s32 threadId);
 
 static s32 sSfdResumePending;
-static s32 sSfdResumeThreadId;
 
 #define HSFD_ENTRY_COUNT 256
 #define HSFD_QUEUE_COUNT 1
@@ -76,7 +75,8 @@ extern u32 D_007690F0;
 extern s32 uGpffffb230;
 
 static HSfdQueueEntry sSfdQueueEntries[1];
-static s32 sSfdThreadIds[1];
+/* Setup and resume share the single worker ID at 0x00764bc8. */
+static s32 sSfdThreadIds[HSFD_QUEUE_COUNT];
 static HSfdQueueSlot sSfdQueue[1];
 static HSfdAsyncEntry sSfdEntries[HSFD_ENTRY_COUNT];
 
@@ -91,10 +91,10 @@ void func_00466580(void)
     wasEnabled = func_0042ba70();
     if (sSfdResumePending != 0)
     {
-        func_004216e0(sSfdResumeThreadId, &threadStatus);
+        func_004216e0(sSfdThreadIds[0], &threadStatus);
         if ((threadStatus.status != 0xc) && (threadStatus.status != 8))
         {
-            func_00421750(sSfdResumeThreadId);
+            func_00421750(sSfdThreadIds[0]);
         }
     }
     if (wasEnabled == 0)

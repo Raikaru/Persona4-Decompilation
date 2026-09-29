@@ -1,3 +1,4 @@
+#include "model_callbacks_internal.h"
 #include "include_asm.h"
 /* Persona 4 USA decompilation - evtLoadSave.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
@@ -22,7 +23,6 @@ extern s32 func_00291980(s32, s32, s32 *, s32 *);
 extern void *func_00477f10(u32, u16, void *, u32, u32);
 extern void func_0047aa30(s32, u8 *);
 extern s32 func_002919d0(s32);
-extern u16 func_00145780(u16, s32, s32);
 extern void func_00269c20(u16, s32);
 extern u16 *MT_Scene_GetRes(u16);
 extern void func_0046d730(u8 *, s32);

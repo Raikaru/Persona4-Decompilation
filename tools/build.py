@@ -493,6 +493,28 @@ def load_window_sizes():
     }
 
 
+def function_window(address, boundaries, window_sizes=None):
+    """Bound a function by its recorded extent and its containing code segment.
+
+    The next function can belong to another code segment. Its address must not
+    make the last function in this segment claim the intervening data region.
+    A recorded extent may leave a gap, but cannot overlap the next entry point
+    or extend beyond the code segment.
+    """
+    import bisect
+
+    segment_end = next((end for _name, kind, start, end in TARGET_SEGMENTS
+                        if kind == "code" and start <= address < end), None)
+    if segment_end is None:
+        return None
+    following = bisect.bisect_right(boundaries, address)
+    limit = min(segment_end, boundaries[following]) if following < len(boundaries) else segment_end
+    size = (window_sizes or {}).get(address, limit - address)
+    if not isinstance(size, int) or not 0 < size <= 0x10000 or address + size > limit:
+        return None
+    return size
+
+
 # ---------------------------------------------------------------- C-object choice
 
 DATA_SECTIONS = (".rodata", ".data", ".sdata", ".sbss", ".bss", ".lit4", ".lit8")
@@ -531,9 +553,8 @@ def live_rodata_size(obj, section, relocations):
     return size
 
 
-def recover_section_bases(obj, real, retail, gp):
-    """shndx -> recovered base from matched references to owned data, including
-    the unnamed section relocations ee-gcc uses for local jump tables."""
+def _section_base_votes(obj, real, retail, gp):
+    """Retain every code-derived address, including conflicting evidence."""
     import collections
     sym = {}
     for s in obj.symbols:
@@ -576,7 +597,154 @@ def recover_section_bases(obj, real, retail, gp):
             elif t == 8:
                 # The literal symbol may name an interior entry of its pool.
                 votes[shndx][gp + (_s16(wr) - _s16(wc)) - stval] += 1
-    return {idx: c.most_common(1)[0][0] for idx, c in votes.items() if len(c) == 1}
+    return votes
+
+
+def recover_section_bases(obj, real, retail, gp):
+    """Recover unique owned-data addresses from matched code references."""
+    votes = _section_base_votes(obj, real, retail, gp)
+    return {index: next(iter(addresses)) for index, addresses in votes.items() if len(addresses) == 1}
+
+
+def _initialized_data_relocations(obj, section):
+    """Read only bounded, unambiguous R_MIPS_32 references in writable data."""
+    alignment = section['addralign'] or 1
+    if (section['name'] not in ('.data', '.sdata') or section['type'] != 1
+            or section['flags'] & 3 != 3 or section['flags'] & ~0x10000003
+            or alignment < 1 or alignment & (alignment - 1)
+            or section['offset'] + section['size'] > len(obj.data)):
+        return None
+    result = []
+    occupied = set()
+    for relocations in obj.sh:
+        if (relocations['type'] not in (4, 9) or not relocations['size']
+                or relocations.get('info') != section['idx']):
+            continue
+        if (relocations['type'] != 9 or relocations['entsize'] not in (0, 8)
+                or relocations['size'] % 8 or relocations['link'] not in obj.symtabs
+                or relocations['offset'] + relocations['size'] > len(obj.data)):
+            return None
+        symbols = obj.symtabs[relocations['link']]
+        for position in range(relocations['offset'], relocations['offset'] + relocations['size'], 8):
+            offset, info = struct.unpack_from('<II', obj.data, position)
+            index, kind = info >> 8, info & 0xff
+            if (kind != 2 or offset % 4 or offset + 4 > section['size']
+                    or offset in occupied or not 0 < index < len(symbols)):
+                return None
+            symbol = symbols[index]
+            if not symbol['name']:
+                return None
+            occupied.add(offset)
+            addend, = struct.unpack_from('<I', obj.data, section['offset'] + offset)
+            result.append((offset, symbol, addend))
+    return result
+
+
+def recover_pointer_data_bases(obj, real, retail, gp):
+    """Follow data pointers only from code-rooted, byte-checked native objects.
+
+    A stored retail pointer gives the address of its actual local target, after
+    accounting for the symbol offset and relocation addend. Unanchored cycles
+    provide no evidence; any conflicting code or pointer address rejects the
+    entire inference instead of retaining descendants of a disputed object.
+    """
+    votes = _section_base_votes(obj, real, retail, gp)
+    if any(len(addresses) != 1 for addresses in votes.values()):
+        return None
+    bases = {index: next(iter(addresses)) for index, addresses in votes.items()}
+    objects = {}
+    for section in obj.sh:
+        if section['name'] in ('.data', '.sdata') and section['size']:
+            references = _initialized_data_relocations(obj, section)
+            if references is None:
+                return None
+            objects[section['idx']] = (section, references)
+    checked = set()
+    while True:
+        ready = [index for index in objects if index in bases and index not in checked]
+        if not ready:
+            return bases
+        for index in ready:
+            section, references = objects[index]
+            address = bases[index]
+            if address < 0 or address % (section['addralign'] or 1):
+                return None
+            try:
+                expected = retail.bytes_at(address, section['size'])
+            except (ValueError, KeyError):
+                return None
+            raw = obj.data[section['offset']:section['offset'] + section['size']]
+            if len(expected) != len(raw):
+                return None
+            mutable = {offset + byte for offset, _symbol, _addend in references for byte in range(4)}
+            if any(left != right for offset, (left, right) in enumerate(zip(raw, expected))
+                   if offset not in mutable):
+                return None
+            for offset, symbol, addend in references:
+                target_index = symbol['shndx']
+                if not 0 < target_index < len(obj.sh):
+                    continue  # External/function references are checked when resolving the payload.
+                target = obj.sh[target_index]
+                if target['name'] not in DATA_SECTIONS:
+                    continue
+                if (not target['flags'] & 2 or target['flags'] & 4 or target['type'] not in (1, 8)
+                        or symbol['value'] + symbol['size'] > target['size']):
+                    return None
+                stored, = struct.unpack_from('<I', expected, offset)
+                base = (stored - addend - symbol['value']) & 0xffffffff
+                alignment = target['addralign'] or 1
+                if alignment < 1 or alignment & (alignment - 1) or base % alignment:
+                    return None
+                if target_index in bases and bases[target_index] != base:
+                    return None
+                bases[target_index] = base
+            checked.add(index)
+
+
+def resolved_initialized_payload(obj, section, real, bases, symbol_addresses):
+    """Resolve every pointer and preserve every non-pointer byte of an object."""
+    references = _initialized_data_relocations(obj, section)
+    if references is None:
+        return None
+    markers = {marker['name']: marker['addr'] for marker in real}
+    if len(markers) != len(real):
+        return None
+    payload = bytearray(obj.data[section['offset']:section['offset'] + section['size']])
+    for offset, symbol, addend in references:
+        index, name = symbol['shndx'], symbol['name']
+        if index == 0:
+            address = symbol_addresses.get(name)
+            if address is None:
+                return None
+        elif 0 < index < len(obj.sh):
+            target = obj.sh[index]
+            if target['name'] in DATA_SECTIONS and index in bases:
+                if symbol['value'] + symbol['size'] > target['size']:
+                    return None
+                address = bases[index] + symbol['value']
+            elif target['flags'] & 4 and symbol['info'] & 0xf == 2 and name in markers:
+                address = markers[name]
+            else:
+                return None
+            if name in symbol_addresses and symbol_addresses[name] != address:
+                return None
+        else:
+            return None
+        struct.pack_into('<I', payload, offset, (address + addend) & 0xffffffff)
+    return bytes(payload)
+
+
+def initialized_data_fingerprint(obj, section):
+    """Pin the native payload and exact relocation targets across compile paths."""
+    references = _initialized_data_relocations(obj, section)
+    if references is None:
+        return None
+    value = {'payload': obj.data[section['offset']:section['offset'] + section['size']].hex(),
+             'alignment': section['addralign'], 'flags': section['flags'],
+             'references': [(offset, {key: symbol[key] for key in
+                 ('name', 'value', 'size', 'info', 'shndx')}, addend)
+                 for offset, symbol, addend in references]}
+    return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
 
 
 def recover_concatenated_layout(sections, recovered_bases):
@@ -690,8 +858,34 @@ def _independent_rodata_payload(obj, section, real, retail, address, symbol_addr
     return bytes(resolved) if bytes(resolved) == retail.bytes_at(address, section['size']) else None
 
 
+def independent_zero_storage(obj, sections, bases, retail):
+    """Prove separate native BSS objects without claiming the gaps between them."""
+    placements = {}
+    ranges = []
+    for section in sections:
+        index = section['idx']
+        address = bases.get(index)
+        alignment = section['addralign'] or 1
+        name = f'{section["name"]}.p4_{index:x}'
+        if (address is None or alignment < 1 or alignment & (alignment - 1)
+                or address % alignment or section['type'] != 8
+                or section['flags'] & 3 != 3 or section['flags'] & ~0x10000003
+                or any(candidate['name'] == name for candidate in obj.sh)
+                or any(candidate['type'] in (4, 9) and candidate['size']
+                       and candidate.get('info') == index for candidate in obj.sh)
+                or retail.bytes_at(address, section['size']) != bytes(section['size'])):
+            return None
+        placements[name] = (address, section['size'])
+        ranges.append((address, address + section['size']))
+    ranges.sort()
+    if any(end > following for (_, end), (following, _) in zip(ranges, ranges[1:])):
+        return None
+    return placements
+
+
 def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literals=False,
-                       independent_rodata=False, symbol_addresses=None):
+                       independent_rodata=False, independent_bss=False,
+                       independent_initialized=False, symbol_addresses=None):
     """Decide whether all of a TU's owned data sections can be placed byte-exact.
     Returns (ok, {section_name: (base, size)}).
 
@@ -711,6 +905,15 @@ def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literal
     First-party GNU owners may separately opt into relocated .rodata jump tables.
     This path requires every table word to be independently proven R_MIPS_32 data
     whose resolved payload exactly matches retail; arbitrary .rodata is rejected.
+
+    Separately placed native BSS requires a known aligned address and exact zero
+    retail extent for every object. Overlap and outgoing relocations are refused;
+    gaps between these objects remain outside the source owner's storage.
+
+    Independently placed initialized objects additionally require every byte,
+    including every resolved R_MIPS_32 pointer, to equal retail. Pointer-only
+    strings can be located from already proven pointer tables; no unanchored
+    address or foreign gap is inferred from adjacency.
     """
     import collections
     symbol_addresses = symbol_addresses or {}
@@ -720,8 +923,30 @@ def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literal
     for s in obj.sh:
         if s.get("name") in DATA_SECTIONS and s["size"]:
             by_name[s["name"]].append(s)
+    needs_initialized_layout = independent_initialized and any(
+        name in ('.data', '.sdata') and recover_concatenated_layout(sections, bases) is None
+        for name, sections in by_name.items())
+    if needs_initialized_layout:
+        bases = recover_pointer_data_bases(obj, real, retail, gp)
+        if bases is None:
+            return False, {}
+        # Check concatenated groups too: their pointer words can be the anchors
+        # that located a separately emitted string or object in another group.
+        for name, sections in by_name.items():
+            if name not in ('.data', '.sdata'):
+                continue
+            for section in sections:
+                address = bases.get(section['idx'])
+                payload = resolved_initialized_payload(obj, section, real, bases, symbol_addresses)
+                if address is None or payload is None:
+                    return False, {}
+                try:
+                    if payload != retail.bytes_at(address, section['size']):
+                        return False, {}
+                except (ValueError, KeyError):
+                    return False, {}
     per_name = {}
-    independent_rodata_names = set()
+    independent_data_names = set()
     for name, secs in by_name.items():
         if name == ".rodata" and len(secs) == 1:
             section = secs[0]
@@ -768,7 +993,27 @@ def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literal
             if any(end > following for (_, end), (following, _) in zip(intervals, intervals[1:])):
                 return False, {}
             per_name.update(individual)
-            independent_rodata_names.update(individual)
+            independent_data_names.update(individual)
+            continue
+        if layout is None and independent_bss and name in ('.bss', '.sbss'):
+            individual = independent_zero_storage(obj, secs, bases, retail)
+            if individual is None:
+                return False, {}
+            per_name.update(individual)
+            independent_data_names.update(individual)
+            continue
+        if layout is None and needs_initialized_layout and name in ('.data', '.sdata'):
+            individual = {}
+            for section in secs:
+                index = section['idx']
+                address = bases[index]
+                renamed = f'{name}.p4_{index:x}'
+                if (address % (section['addralign'] or 1)
+                        or any(candidate['name'] == renamed for candidate in obj.sh)):
+                    return False, {}
+                individual[renamed] = (address, section['size'])
+            per_name.update(individual)
+            independent_data_names.update(individual)
             continue
         if layout is None:
             return False, {}
@@ -792,14 +1037,18 @@ def plan_data_sections(obj, real, retail, gp, resolvable, *, independent_literal
                 elif obj.data[s["offset"]:s["offset"] + s["size"]] != retail.bytes_at(addr, s["size"]):
                     return False, {}
         per_name[name] = (base, total)
-    if independent_rodata_names:
+    if independent_data_names:
         independent_intervals = [(base, base + size, name) for name, (base, size) in per_name.items()
-                                 if name in independent_rodata_names]
+                                 if name in independent_data_names]
         other_intervals = [(base, base + size, name) for name, (base, size) in per_name.items()
-                           if name not in independent_rodata_names]
+                           if name not in independent_data_names]
         if any(start < other_end and other_start < end
                for start, end, _name in independent_intervals
                for other_start, other_end, _other_name in other_intervals):
+            return False, {}
+        independent_intervals.sort()
+        if any(end > following for (_start, end, _name), (following, _end, _other)
+               in zip(independent_intervals, independent_intervals[1:])):
             return False, {}
     return True, per_name
 
@@ -924,7 +1173,6 @@ def _gcc_unit_has_c(path):
 def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
                        include_generated=False, symbol_addresses=None):
     """Select matching C source units that can be placed byte-exact."""
-    import bisect
     retail = V.RetailElf(c["retail_elf"], TARGET, RETAIL_SHA1)
     out = []
     # src/generated/ holds ~12,000 raw m2c CANDIDATE units that are not part of
@@ -967,13 +1215,8 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
             except KeyError:
                 ok = False
                 break
-            i = bisect.bisect_right(boundaries, m["addr"])
-            win = (
-                boundaries[i] - m["addr"]
-                if i < len(boundaries)
-                else (window_sizes or {}).get(m["addr"])
-            )
-            if not win or win > 0x10000:
+            win = function_window(m["addr"], boundaries, window_sizes)
+            if win is None:
                 ok = False
                 break
             wb = retail.bytes_at(m["addr"], win)
@@ -1026,6 +1269,8 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
         data_ok, sections = plan_data_sections(obj, real, retail, gp, resolvable,
                                               independent_literals=independent_literals,
                                               independent_rodata=independent_literals,
+                                              independent_bss=independent_literals,
+                                              independent_initialized=independent_literals,
                                               symbol_addresses=symbol_addresses)
         if not data_ok:
             continue
@@ -1036,6 +1281,8 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
             ranges=[(address, address + window) for address, window, _size, _section in addrs],
             funcs=real,
             sections=sections,
+            initialized_data_fingerprints={name: initialized_data_fingerprint(obj, obj.sh[int(match[1], 16)])
+                for name in sections if (match := re.fullmatch(r'\.s?data\.p4_([0-9a-f]+)', name))},
             text_run_count=run_count,
         ))
     out.sort(key=lambda d: d["start"])
@@ -1472,18 +1719,17 @@ def prepare_link_objects(cobj, owner, linker_backend="mwld"):
             native = V.ObjectFile(cobj)
             independent_names = {}
             for name, (address, size) in owner['sections'].items():
-                match = re.fullmatch(r'(\.lit[48]|\.rodata)\.p4_([0-9a-f]+)', name)
+                match = re.fullmatch(r'(\.lit[48]|\.rodata|\.s?bss|\.s?data)\.p4_([0-9a-f]+)', name)
                 if match:
                     literal = match[1] in ('.lit4', '.lit8')
+                    kind = 'Literal section' if literal else f'Independent {match[1]}'
                     index = int(match[2], 16)
                     if not 0 < index < len(native.sections):
-                        raise ValueError('Literal section index changed after eligibility' if literal
-                                         else 'Independent .rodata index changed after eligibility')
+                        raise ValueError(f'{kind} index changed after eligibility')
                     section = native.sections[index]
                     if (section['name'] != match[1] or section['size'] != size
                             or address % max(section['addralign'], 1)):
-                        raise ValueError('Literal section layout changed after eligibility' if literal
-                                         else 'Independent .rodata layout changed after eligibility')
+                        raise ValueError(f'{kind} layout changed after eligibility')
                     if match[1] == '.rodata':
                         relocs = section_relocs(native, index)
                         if (section['type'] != 1 or section['flags'] & 2 == 0
@@ -1494,6 +1740,20 @@ def prepare_link_objects(cobj, owner, linker_backend="mwld"):
                                 or any(reloc_type != 2 or not symbol
                                        for _offset, reloc_type, symbol in relocs)):
                             raise ValueError('Independent .rodata shape changed after eligibility')
+                    if match[1] in ('.bss', '.sbss'):
+                        # compile_c materializes NOBITS as zero PROGBITS before
+                        # this step. Keep its exact extent, alignment and symbols.
+                        if (section['type'] != 1 or section['flags'] & 3 != 3
+                                or section['flags'] & ~0x10000003
+                                or any(candidate['type'] in (4, 9) and candidate['size']
+                                       and candidate.get('info') == index for candidate in native.sh)
+                                or native.data[section['offset']:section['offset'] + size] != bytes(size)):
+                            raise ValueError(f'{kind} shape changed after eligibility')
+                    if match[1] in ('.data', '.sdata'):
+                        fingerprint = initialized_data_fingerprint(native, section)
+                        if (fingerprint is None or fingerprint != owner.get(
+                                'initialized_data_fingerprints', {}).get(name)):
+                            raise ValueError(f'{kind} payload or relocations changed after eligibility')
                     independent_names[index] = name
             rename_sections(cobj, independent_names)
         leftover = [s for s in V.ObjectFile(cobj).sections if s["name"] == ".text" and s["size"]]

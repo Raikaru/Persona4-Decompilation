@@ -8575,6 +8575,7 @@ D_00887220 = 0x00887220; // type:data
 D_00887280 = 0x00887280; // type:data
 _rwChunkGroupFList = 0x00887280; // type:data
 _rwCameraFreeList = 0x008872b0; // type:data
+rwGlobals = 0x008872d8; // type:data
 ourGlobals = 0x008872e0; // type:data
 D_008872F8_abs = 0x008872f8; // type:data
 D_008872FC_abs = 0x008872fc; // type:data

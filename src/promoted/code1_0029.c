@@ -857,10 +857,12 @@ void func_00296720(u8 *arg0, u8 *arg1)
 
   return;
 }
-/* measured: func_00296850 (6320B window, 982-line m2c draft, noise 0). Structure from asm: no jtbl_/switch (grep jtbl_ = 0), no jr dispatch; loops = 1x 0x18 alloc (arg0+0x58) + 9-word copy/clamp (arg0+0x90) + linked-list while via arg1+0x4C (func_00294a90) + 14 filtered goto-loops over arg0+0xAC (0x31/0x22/0x25-cond/0x26/0x32/0x33/0x35/0x37/0x38/0x39/0x36/6/7/0x1C) + final 10x func_0028d020; calls = 440b68 x2, 294280, 291530, 291810, 286f00 x15, 86780 x14, 43f810 x8 (3-arg memcpy, m2c 5-arg stripped), 94a90, 954f0, 94be0, 951c0, 95910, 95b80, 95db0, 962f0, 96600, 96720, 87310, 28d020. No dropped switch labels (no switch). Sibling conventions read first: func_002962f0 Pos4 struct-copy + 2-arg 86f00 + s32 id2 + goto loop_test/body/inc, func_00296600/6720 1-arg 86f00 trick + comma id2 + field_c goto loops. Applied: Pos4 tmp/pos copy, 2-arg 86f00, s32 id2, goto loops, pointer do-while copy (no initial branch). fnalign from prologue: v4 index-copy gave insert b/nop + sll/addu per iter (obj 6324/6320 nd 4782); v5 pointer do-while removes it (obj 6312/6320 nd 455, instrs 1578/1578 exact, 457 replaces + 2 reloc-only, no insert/delete). Decl-order sweeps (swap/top) all tie at 455, confirming saved-reg rotation floor. Residual: systematic s3/s2 vs s1/s0 (args) + s1/s0 vs s2/s3 (loops) rotation, 8B short (2 alignment nops after jr); register/frame wall, same family as btlShuffle s5/s6 floor. Banked as source/Persona4-Decompilation/build/P4_00296850_body.c (this guarded copy). Retail fallback retained. */
-/* measured 00296850: live banked floor measures probe 455 words via `tools/probe_variants.py --candidate`, fnalign retail 1578/object 1578 (exact) with 457 edits (+2 reloc-only) via `tools/fnalign.py --candidate` (window 6320B). No dsll32/dsra32 (width N/A), no retail slti $at rows (inclusive N/A; sole slti $v0/$v0 at 0xa matches), exact size (dead-arm N/A), no adjacent-== ||; `opt_common_subs off` regresses to 1504 words, `schedule on` to 1490, `opt_loop_invariants on` ties at 455. Wall is saved-register color rotation plus scheduling and stack offsets. Banked guarded floor. */
-// FUN_00296850 NONMATCHING
-#ifdef NON_MATCHING
+/* Each filtered scan owns its resource and index. With opt_lifetimes on,
+ * those local scopes reproduce all 6312 retail code bytes; the 6320-byte
+ * function window ends in eight zero alignment bytes. */
+#pragma push
+#pragma opt_lifetimes on
+// FUN_00296850
 s32 func_00296850(u8 *arg0, u8 *arg1)
 {
   extern void func_00294280(u8 *arg0);
@@ -886,7 +888,6 @@ s32 func_00296850(u8 *arg0, u8 *arg1)
   typedef struct { s16 x, y, z, w; } Pos4;
   s32 var_18;
   s32 var_19;
-  u8 *temp_19;
   u8 *temp_18;
   u8 *node;
   s32 tmpc;
@@ -896,7 +897,6 @@ s32 func_00296850(u8 *arg0, u8 *arg1)
   s32 off;
   u8 *dest;
   u8 *q;
-  s32 type;
   u16 id;
   u16 id2;
   u16 var_4h;
@@ -952,64 +952,68 @@ ll_test:
     goto ll_body;
   }
   func_002954f0(arg0, arg1);
-  temp_19 = func_00286f00(0x31, arg1);
-  var_18 = 0;
-  goto loop31_test;
-loop31_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
   {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10));
-  }
-  else
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C));
-  }
-  if ((id & 0xFFFF) != 0x31)
-  {
-    goto loop31_inc;
-  }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 2));
-  }
-  else
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C + 2));
-  }
-  {
-    Pos4 tmp;
-    Pos4 pos;
-    dest = func_00286780(temp_19, id2 & 0xFFFF, arg1);
-    off = var_18 * 0x3C;
-    q = *((u8 **)(arg0 + 0x98)) + off;
-    tmp = *((Pos4 *)(q + 0xC));
-    pos = tmp;
-    *((Pos4 *)(dest + 8)) = pos;
+    u8 *resource_31;
+    s32 index_31;
+    resource_31 = func_00286f00(0x31, arg1);
+    index_31 = 0;
+    goto loop31_test;
+  loop31_body:
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
+      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_31 * 0x10));
     }
     else
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_31 * 0x3C));
     }
-    *((s32 *)(dest + 0x10)) = *((s32 *)q);
+    if ((id & 0xFFFF) != 0x31)
+    {
+      goto loop31_inc;
+    }
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_31 * 0x10 + 2));
     }
     else
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_31 * 0x3C + 2));
     }
-    *((s32 *)(dest + 0x14)) = *((s32 *)(q + 4));
-  }
-loop31_inc:
-  var_18 += 1;
-loop31_test:
-  if (var_18 < *((s32 *)(arg0 + 0xAC)))
-  {
-    goto loop31_body;
+    {
+      Pos4 tmp;
+      Pos4 pos;
+      dest = func_00286780(resource_31, id2 & 0xFFFF, arg1);
+      off = index_31 * 0x3C;
+      q = *((u8 **)(arg0 + 0x98)) + off;
+      tmp = *((Pos4 *)(q + 0xC));
+      pos = tmp;
+      *((Pos4 *)(dest + 8)) = pos;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_31 * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      *((s32 *)(dest + 0x10)) = *((s32 *)q);
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_31 * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      *((s32 *)(dest + 0x14)) = *((s32 *)(q + 4));
+    }
+  loop31_inc:
+    index_31 += 1;
+  loop31_test:
+    if (index_31 < *((s32 *)(arg0 + 0xAC)))
+    {
+      goto loop31_body;
+    }
   }
   func_00294be0(arg0, arg1);
   temp_18 = func_00286f00(0x22, arg1);
@@ -1057,42 +1061,218 @@ loop22_test:
   }
   func_002951c0(arg0, arg1);
   if (*((s32 *)(*((u8 **)(arg1 + 0x5D0)) + 4)) > 0) {
-    temp_19 = func_00286f00(0x25, arg1);
-    var_18 = 0;
-    goto loop25_test;
-loop25_body:
+    {
+      u8 *resource_25;
+      s32 index_25;
+      resource_25 = func_00286f00(0x25, arg1);
+      index_25 = 0;
+      goto loop25_test;
+  loop25_body:
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_25 * 0x10));
+      }
+      else
+      {
+        id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_25 * 0x3C));
+      }
+      if ((id & 0xFFFF) != 0x25)
+      {
+        goto loop25_inc;
+      }
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_25 * 0x10 + 2));
+      }
+      else
+      {
+        id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_25 * 0x3C + 2));
+      }
+      {
+        Pos4 tmp;
+        Pos4 pos;
+        dest = func_00286780(resource_25, id2 & 0xFFFF, arg1);
+        off = index_25 * 0x3C;
+        q = *((u8 **)(arg0 + 0x98)) + off;
+        tmp = *((Pos4 *)(q + 0xC));
+        pos = tmp;
+        *((Pos4 *)(dest + 8)) = pos;
+        if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+        {
+          q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_25 * 0x10 + 8);
+        }
+        else
+        {
+          q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        }
+        memcpy(dest + 0x10, q, 0x28);
+      }
+  loop25_inc:
+      index_25 += 1;
+  loop25_test:
+      if (index_25 < *((s32 *)(arg0 + 0xAC)))
+      {
+        goto loop25_body;
+      }
+    }
+  }
+  {
+    u8 *resource_26;
+    s32 index_26;
+    resource_26 = func_00286f00(0x26, arg1);
+    index_26 = 0;
+    goto loop26_test;
+  loop26_body:
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_26 * 0x10));
     }
     else
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_26 * 0x3C));
     }
-    if ((id & 0xFFFF) != 0x25)
+    if ((id & 0xFFFF) != 0x26)
     {
-      goto loop25_inc;
+      goto loop26_inc;
     }
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 2));
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_26 * 0x10 + 2));
     }
     else
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C + 2));
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_26 * 0x3C + 2));
     }
     {
       Pos4 tmp;
       Pos4 pos;
-      dest = func_00286780(temp_19, id2 & 0xFFFF, arg1);
-      off = var_18 * 0x3C;
+      dest = func_00286780(resource_26, id2 & 0xFFFF, arg1);
+      off = index_26 * 0x3C;
       q = *((u8 **)(arg0 + 0x98)) + off;
       tmp = *((Pos4 *)(q + 0xC));
       pos = tmp;
       *((Pos4 *)(dest + 8)) = pos;
       if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_26 * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      *((s32 *)(dest + 0x10)) = *((s32 *)q);
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_26 * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      *((f32 *)(dest + 0x14)) = *((f32 *)(q + 4));
+    }
+  loop26_inc:
+    index_26 += 1;
+  loop26_test:
+    if (index_26 < *((s32 *)(arg0 + 0xAC)))
+    {
+      goto loop26_body;
+    }
+  }
+  func_00295910(arg0, arg1);
+  {
+    u8 *resource_32;
+    s32 index_32;
+    resource_32 = func_00286f00(0x32, arg1);
+    index_32 = 0;
+    goto loop32_test;
+  loop32_body:
+    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    {
+      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_32 * 0x10));
+    }
+    else
+    {
+      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_32 * 0x3C));
+    }
+    if ((id & 0xFFFF) != 0x32)
+    {
+      goto loop32_inc;
+    }
+    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    {
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_32 * 0x10 + 2));
+    }
+    else
+    {
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_32 * 0x3C + 2));
+    }
+    {
+      Pos4 tmp;
+      Pos4 pos;
+      dest = func_00286780(resource_32, id2 & 0xFFFF, arg1);
+      off = index_32 * 0x3C;
+      q = *((u8 **)(arg0 + 0x98)) + off;
+      tmp = *((Pos4 *)(q + 0xC));
+      pos = tmp;
+      *((Pos4 *)(dest + 8)) = pos;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_32 * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      *((s32 *)(dest + 0x10)) = *((s32 *)q);
+    }
+  loop32_inc:
+    index_32 += 1;
+  loop32_test:
+    if (index_32 < *((s32 *)(arg0 + 0xAC)))
+    {
+      goto loop32_body;
+    }
+  }
+  {
+    u8 *resource_33;
+    s32 index_33;
+    resource_33 = func_00286f00(0x33, arg1);
+    index_33 = 0;
+    goto loop33_test;
+  loop33_body:
+    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    {
+      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_33 * 0x10));
+    }
+    else
+    {
+      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_33 * 0x3C));
+    }
+    if ((id & 0xFFFF) != 0x33)
+    {
+      goto loop33_inc;
+    }
+    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    {
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_33 * 0x10 + 2));
+    }
+    else
+    {
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_33 * 0x3C + 2));
+    }
+    {
+      Pos4 tmp;
+      Pos4 pos;
+      dest = func_00286780(resource_33, id2 & 0xFFFF, arg1);
+      off = index_33 * 0x3C;
+      q = *((u8 **)(arg0 + 0x98)) + off;
+      tmp = *((Pos4 *)(q + 0xC));
+      pos = tmp;
+      *((Pos4 *)(dest + 8)) = pos;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_33 * 0x10 + 8);
       }
       else
       {
@@ -1100,662 +1280,534 @@ loop25_body:
       }
       memcpy(dest + 0x10, q, 0x28);
     }
-loop25_inc:
-    var_18 += 1;
-loop25_test:
-    if (var_18 < *((s32 *)(arg0 + 0xAC)))
+  loop33_inc:
+    index_33 += 1;
+  loop33_test:
+    if (index_33 < *((s32 *)(arg0 + 0xAC)))
     {
-      goto loop25_body;
+      goto loop33_body;
     }
-  }
-  temp_19 = func_00286f00(0x26, arg1);
-  var_18 = 0;
-  goto loop26_test;
-loop26_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10));
-  }
-  else
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C));
-  }
-  if ((id & 0xFFFF) != 0x26)
-  {
-    goto loop26_inc;
-  }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 2));
-  }
-  else
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C + 2));
-  }
-  {
-    Pos4 tmp;
-    Pos4 pos;
-    dest = func_00286780(temp_19, id2 & 0xFFFF, arg1);
-    off = var_18 * 0x3C;
-    q = *((u8 **)(arg0 + 0x98)) + off;
-    tmp = *((Pos4 *)(q + 0xC));
-    pos = tmp;
-    *((Pos4 *)(dest + 8)) = pos;
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-    {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
-    }
-    else
-    {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
-    }
-    *((s32 *)(dest + 0x10)) = *((s32 *)q);
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-    {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
-    }
-    else
-    {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
-    }
-    *((f32 *)(dest + 0x14)) = *((f32 *)(q + 4));
-  }
-loop26_inc:
-  var_18 += 1;
-loop26_test:
-  if (var_18 < *((s32 *)(arg0 + 0xAC)))
-  {
-    goto loop26_body;
-  }
-  func_00295910(arg0, arg1);
-  temp_19 = func_00286f00(0x32, arg1);
-  var_18 = 0;
-  goto loop32_test;
-loop32_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10));
-  }
-  else
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C));
-  }
-  if ((id & 0xFFFF) != 0x32)
-  {
-    goto loop32_inc;
-  }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 2));
-  }
-  else
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C + 2));
-  }
-  {
-    Pos4 tmp;
-    Pos4 pos;
-    dest = func_00286780(temp_19, id2 & 0xFFFF, arg1);
-    off = var_18 * 0x3C;
-    q = *((u8 **)(arg0 + 0x98)) + off;
-    tmp = *((Pos4 *)(q + 0xC));
-    pos = tmp;
-    *((Pos4 *)(dest + 8)) = pos;
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-    {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
-    }
-    else
-    {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
-    }
-    *((s32 *)(dest + 0x10)) = *((s32 *)q);
-  }
-loop32_inc:
-  var_18 += 1;
-loop32_test:
-  if (var_18 < *((s32 *)(arg0 + 0xAC)))
-  {
-    goto loop32_body;
-  }
-  temp_19 = func_00286f00(0x33, arg1);
-  var_18 = 0;
-  goto loop33_test;
-loop33_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10));
-  }
-  else
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C));
-  }
-  if ((id & 0xFFFF) != 0x33)
-  {
-    goto loop33_inc;
-  }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 2));
-  }
-  else
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C + 2));
-  }
-  {
-    Pos4 tmp;
-    Pos4 pos;
-    dest = func_00286780(temp_19, id2 & 0xFFFF, arg1);
-    off = var_18 * 0x3C;
-    q = *((u8 **)(arg0 + 0x98)) + off;
-    tmp = *((Pos4 *)(q + 0xC));
-    pos = tmp;
-    *((Pos4 *)(dest + 8)) = pos;
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-    {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
-    }
-    else
-    {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
-    }
-    memcpy(dest + 0x10, q, 0x28);
-  }
-loop33_inc:
-  var_18 += 1;
-loop33_test:
-  if (var_18 < *((s32 *)(arg0 + 0xAC)))
-  {
-    goto loop33_body;
   }
   func_00295b80(arg0, arg1);
-  temp_19 = func_00286f00(0x35, arg1);
-  var_18 = 0;
-  goto loop35_test;
-loop35_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
   {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10));
-  }
-  else
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C));
-  }
-  if ((id & 0xFFFF) != 0x35)
-  {
-    goto loop35_inc;
-  }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 2));
-  }
-  else
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C + 2));
-  }
-  {
-    Pos4 tmp;
-    Pos4 pos;
-    dest = func_00286780(temp_19, id2 & 0xFFFF, arg1);
-    off = var_18 * 0x3C;
-    q = *((u8 **)(arg0 + 0x98)) + off;
-    tmp = *((Pos4 *)(q + 0xC));
-    pos = tmp;
-    *((Pos4 *)(dest + 8)) = pos;
+    u8 *resource_35;
+    s32 index_35;
+    resource_35 = func_00286f00(0x35, arg1);
+    index_35 = 0;
+    goto loop35_test;
+  loop35_body:
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_35 * 0x10));
     }
     else
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_35 * 0x3C));
     }
-    *((u16 *)(dest + 2)) = var_4h;
+    if ((id & 0xFFFF) != 0x35)
+    {
+      goto loop35_inc;
+    }
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_35 * 0x10 + 2));
     }
     else
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_35 * 0x3C + 2));
     }
-    memcpy(dest + 0x10, q, 0x28);
+    {
+      Pos4 tmp;
+      Pos4 pos;
+      dest = func_00286780(resource_35, id2 & 0xFFFF, arg1);
+      off = index_35 * 0x3C;
+      q = *((u8 **)(arg0 + 0x98)) + off;
+      tmp = *((Pos4 *)(q + 0xC));
+      pos = tmp;
+      *((Pos4 *)(dest + 8)) = pos;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_35 * 0x10 + 4));
+      }
+      else
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      }
+      *((u16 *)(dest + 2)) = var_4h;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_35 * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      memcpy(dest + 0x10, q, 0x28);
+    }
+  loop35_inc:
+    index_35 += 1;
+  loop35_test:
+    if (index_35 < *((s32 *)(arg0 + 0xAC)))
+    {
+      goto loop35_body;
+    }
   }
-loop35_inc:
-  var_18 += 1;
-loop35_test:
-  if (var_18 < *((s32 *)(arg0 + 0xAC)))
   {
-    goto loop35_body;
-  }
-  temp_19 = func_00286f00(0x37, arg1);
-  var_18 = 0;
-  goto loop37_test;
-loop37_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10));
-  }
-  else
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C));
-  }
-  if ((id & 0xFFFF) != 0x37)
-  {
-    goto loop37_inc;
-  }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 2));
-  }
-  else
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C + 2));
-  }
-  {
-    Pos4 tmp;
-    Pos4 pos;
-    dest = func_00286780(temp_19, id2 & 0xFFFF, arg1);
-    off = var_18 * 0x3C;
-    q = *((u8 **)(arg0 + 0x98)) + off;
-    tmp = *((Pos4 *)(q + 0xC));
-    pos = tmp;
-    *((Pos4 *)(dest + 8)) = pos;
+    u8 *resource_37;
+    s32 index_37;
+    resource_37 = func_00286f00(0x37, arg1);
+    index_37 = 0;
+    goto loop37_test;
+  loop37_body:
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_37 * 0x10));
     }
     else
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_37 * 0x3C));
     }
-    *((u16 *)(dest + 2)) = var_4h;
+    if ((id & 0xFFFF) != 0x37)
+    {
+      goto loop37_inc;
+    }
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_37 * 0x10 + 2));
     }
     else
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_37 * 0x3C + 2));
     }
-    memcpy(dest + 0x10, q, 0x28);
+    {
+      Pos4 tmp;
+      Pos4 pos;
+      dest = func_00286780(resource_37, id2 & 0xFFFF, arg1);
+      off = index_37 * 0x3C;
+      q = *((u8 **)(arg0 + 0x98)) + off;
+      tmp = *((Pos4 *)(q + 0xC));
+      pos = tmp;
+      *((Pos4 *)(dest + 8)) = pos;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_37 * 0x10 + 4));
+      }
+      else
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      }
+      *((u16 *)(dest + 2)) = var_4h;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_37 * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      memcpy(dest + 0x10, q, 0x28);
+    }
+  loop37_inc:
+    index_37 += 1;
+  loop37_test:
+    if (index_37 < *((s32 *)(arg0 + 0xAC)))
+    {
+      goto loop37_body;
+    }
   }
-loop37_inc:
-  var_18 += 1;
-loop37_test:
-  if (var_18 < *((s32 *)(arg0 + 0xAC)))
   {
-    goto loop37_body;
-  }
-  temp_19 = func_00286f00(0x38, arg1);
-  var_18 = 0;
-  goto loop38_test;
-loop38_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10));
-  }
-  else
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C));
-  }
-  if ((id & 0xFFFF) != 0x38)
-  {
-    goto loop38_inc;
-  }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 2));
-  }
-  else
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C + 2));
-  }
-  {
-    Pos4 tmp;
-    Pos4 pos;
-    dest = func_00286780(temp_19, id2 & 0xFFFF, arg1);
-    off = var_18 * 0x3C;
-    q = *((u8 **)(arg0 + 0x98)) + off;
-    tmp = *((Pos4 *)(q + 0xC));
-    pos = tmp;
-    *((Pos4 *)(dest + 8)) = pos;
+    u8 *resource_38;
+    s32 index_38;
+    resource_38 = func_00286f00(0x38, arg1);
+    index_38 = 0;
+    goto loop38_test;
+  loop38_body:
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_38 * 0x10));
     }
     else
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_38 * 0x3C));
     }
-    *((u16 *)(dest + 2)) = var_4h;
+    if ((id & 0xFFFF) != 0x38)
+    {
+      goto loop38_inc;
+    }
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_38 * 0x10 + 2));
     }
     else
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_38 * 0x3C + 2));
     }
-    memcpy(dest + 0x10, q, 0x28);
+    {
+      Pos4 tmp;
+      Pos4 pos;
+      dest = func_00286780(resource_38, id2 & 0xFFFF, arg1);
+      off = index_38 * 0x3C;
+      q = *((u8 **)(arg0 + 0x98)) + off;
+      tmp = *((Pos4 *)(q + 0xC));
+      pos = tmp;
+      *((Pos4 *)(dest + 8)) = pos;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_38 * 0x10 + 4));
+      }
+      else
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      }
+      *((u16 *)(dest + 2)) = var_4h;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_38 * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      memcpy(dest + 0x10, q, 0x28);
+    }
+  loop38_inc:
+    index_38 += 1;
+  loop38_test:
+    if (index_38 < *((s32 *)(arg0 + 0xAC)))
+    {
+      goto loop38_body;
+    }
   }
-loop38_inc:
-  var_18 += 1;
-loop38_test:
-  if (var_18 < *((s32 *)(arg0 + 0xAC)))
   {
-    goto loop38_body;
-  }
-  temp_19 = func_00286f00(0x39, arg1);
-  var_18 = 0;
-  goto loop39_test;
-loop39_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10));
-  }
-  else
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C));
-  }
-  if ((id & 0xFFFF) != 0x39)
-  {
-    goto loop39_inc;
-  }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 2));
-  }
-  else
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C + 2));
-  }
-  {
-    Pos4 tmp;
-    Pos4 pos;
-    dest = func_00286780(temp_19, id2 & 0xFFFF, arg1);
-    off = var_18 * 0x3C;
-    q = *((u8 **)(arg0 + 0x98)) + off;
-    tmp = *((Pos4 *)(q + 0xC));
-    pos = tmp;
-    *((Pos4 *)(dest + 8)) = pos;
+    u8 *resource_39;
+    s32 index_39;
+    resource_39 = func_00286f00(0x39, arg1);
+    index_39 = 0;
+    goto loop39_test;
+  loop39_body:
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_39 * 0x10));
     }
     else
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_39 * 0x3C));
     }
-    *((u16 *)(dest + 2)) = var_4h;
+    if ((id & 0xFFFF) != 0x39)
+    {
+      goto loop39_inc;
+    }
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_39 * 0x10 + 2));
     }
     else
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_39 * 0x3C + 2));
     }
-    memcpy(dest + 0x10, q, 0x28);
-  }
-loop39_inc:
-  var_18 += 1;
-loop39_test:
-  if (var_18 < *((s32 *)(arg0 + 0xAC)))
-  {
-    goto loop39_body;
+    {
+      Pos4 tmp;
+      Pos4 pos;
+      dest = func_00286780(resource_39, id2 & 0xFFFF, arg1);
+      off = index_39 * 0x3C;
+      q = *((u8 **)(arg0 + 0x98)) + off;
+      tmp = *((Pos4 *)(q + 0xC));
+      pos = tmp;
+      *((Pos4 *)(dest + 8)) = pos;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_39 * 0x10 + 4));
+      }
+      else
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      }
+      *((u16 *)(dest + 2)) = var_4h;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_39 * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      memcpy(dest + 0x10, q, 0x28);
+    }
+  loop39_inc:
+    index_39 += 1;
+  loop39_test:
+    if (index_39 < *((s32 *)(arg0 + 0xAC)))
+    {
+      goto loop39_body;
+    }
   }
   func_00295db0(arg0, arg1);
   func_002962f0(arg0, arg1);
   func_00296600(arg0, arg1);
-  temp_19 = func_00286f00(0x36, arg1);
-  var_18 = 0;
-  goto loop36_test;
-loop36_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
   {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10));
-  }
-  else
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C));
-  }
-  if ((id & 0xFFFF) != 0x36)
-  {
-    goto loop36_inc;
-  }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 2));
-  }
-  else
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C + 2));
-  }
-  {
-    Pos4 tmp;
-    Pos4 pos;
-    dest = func_00286780(temp_19, id2 & 0xFFFF, arg1);
-    off = var_18 * 0x3C;
-    q = *((u8 **)(arg0 + 0x98)) + off;
-    tmp = *((Pos4 *)(q + 0xC));
-    pos = tmp;
-    *((Pos4 *)(dest + 8)) = pos;
+    u8 *resource_36;
+    s32 index_36;
+    resource_36 = func_00286f00(0x36, arg1);
+    index_36 = 0;
+    goto loop36_test;
+  loop36_body:
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
+      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_36 * 0x10));
     }
     else
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_36 * 0x3C));
     }
-    memcpy(dest + 0x10, q, 0x28);
-  }
-loop36_inc:
-  var_18 += 1;
-loop36_test:
-  if (var_18 < *((s32 *)(arg0 + 0xAC)))
-  {
-    goto loop36_body;
+    if ((id & 0xFFFF) != 0x36)
+    {
+      goto loop36_inc;
+    }
+    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    {
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_36 * 0x10 + 2));
+    }
+    else
+    {
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_36 * 0x3C + 2));
+    }
+    {
+      Pos4 tmp;
+      Pos4 pos;
+      dest = func_00286780(resource_36, id2 & 0xFFFF, arg1);
+      off = index_36 * 0x3C;
+      q = *((u8 **)(arg0 + 0x98)) + off;
+      tmp = *((Pos4 *)(q + 0xC));
+      pos = tmp;
+      *((Pos4 *)(dest + 8)) = pos;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_36 * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      memcpy(dest + 0x10, q, 0x28);
+    }
+  loop36_inc:
+    index_36 += 1;
+  loop36_test:
+    if (index_36 < *((s32 *)(arg0 + 0xAC)))
+    {
+      goto loop36_body;
+    }
   }
   func_00296720(arg0, arg1);
-  temp_19 = func_00286f00(6, arg1);
-  var_18 = 0;
-  goto loop06_test;
-loop06_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
   {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10));
-  }
-  else
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C));
-  }
-  if ((id & 0xFFFF) != 6)
-  {
-    goto loop06_inc;
-  }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 2));
-  }
-  else
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C + 2));
-  }
-  {
-    Pos4 tmp;
-    Pos4 pos;
-    dest = func_00286780(temp_19, id2 & 0xFFFF, arg1);
-    off = var_18 * 0x3C;
-    q = *((u8 **)(arg0 + 0x98)) + off;
-    tmp = *((Pos4 *)(q + 0xC));
-    pos = tmp;
-    *((Pos4 *)(dest + 8)) = pos;
+    u8 *resource_06;
+    s32 index_06;
+    resource_06 = func_00286f00(6, arg1);
+    index_06 = 0;
+    goto loop06_test;
+  loop06_body:
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_06 * 0x10));
     }
     else
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_06 * 0x3C));
     }
-    *((u16 *)(dest + 2)) = var_4h;
+    if ((id & 0xFFFF) != 6)
+    {
+      goto loop06_inc;
+    }
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_06 * 0x10 + 2));
     }
     else
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_06 * 0x3C + 2));
     }
-    memcpy(dest + 0x10, q, 0x28);
-    if (*((s16 *)(dest + 0x12)) == -1) {
-      *((s16 *)(dest + 0x12)) = 0;
+    {
+      Pos4 tmp;
+      Pos4 pos;
+      dest = func_00286780(resource_06, id2 & 0xFFFF, arg1);
+      off = index_06 * 0x3C;
+      q = *((u8 **)(arg0 + 0x98)) + off;
+      tmp = *((Pos4 *)(q + 0xC));
+      pos = tmp;
+      *((Pos4 *)(dest + 8)) = pos;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_06 * 0x10 + 4));
+      }
+      else
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      }
+      *((u16 *)(dest + 2)) = var_4h;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_06 * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      memcpy(dest + 0x10, q, 0x28);
+      if (*((s16 *)(dest + 0x12)) == -1) {
+        *((s16 *)(dest + 0x12)) = 0;
+      }
+    }
+  loop06_inc:
+    index_06 += 1;
+  loop06_test:
+    if (index_06 < *((s32 *)(arg0 + 0xAC)))
+    {
+      goto loop06_body;
     }
   }
-loop06_inc:
-  var_18 += 1;
-loop06_test:
-  if (var_18 < *((s32 *)(arg0 + 0xAC)))
   {
-    goto loop06_body;
-  }
-  temp_19 = func_00286f00(7, arg1);
-  var_18 = 0;
-  goto loop07_test;
-loop07_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10));
-  }
-  else
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C));
-  }
-  if ((id & 0xFFFF) != 7)
-  {
-    goto loop07_inc;
-  }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 2));
-  }
-  else
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C + 2));
-  }
-  {
-    Pos4 tmp;
-    Pos4 pos;
-    dest = func_00286780(temp_19, id2 & 0xFFFF, arg1);
-    off = var_18 * 0x3C;
-    q = *((u8 **)(arg0 + 0x98)) + off;
-    tmp = *((Pos4 *)(q + 0xC));
-    pos = tmp;
-    *((Pos4 *)(dest + 8)) = pos;
+    u8 *resource_07;
+    s32 index_07;
+    resource_07 = func_00286f00(7, arg1);
+    index_07 = 0;
+    goto loop07_test;
+  loop07_body:
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_07 * 0x10));
     }
     else
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_07 * 0x3C));
     }
-    *((u16 *)(dest + 2)) = var_4h;
+    if ((id & 0xFFFF) != 7)
+    {
+      goto loop07_inc;
+    }
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_07 * 0x10 + 2));
     }
     else
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_07 * 0x3C + 2));
     }
-    *((s16 *)(dest + 0x10)) = *((s16 *)q);
+    {
+      Pos4 tmp;
+      Pos4 pos;
+      dest = func_00286780(resource_07, id2 & 0xFFFF, arg1);
+      off = index_07 * 0x3C;
+      q = *((u8 **)(arg0 + 0x98)) + off;
+      tmp = *((Pos4 *)(q + 0xC));
+      pos = tmp;
+      *((Pos4 *)(dest + 8)) = pos;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_07 * 0x10 + 4));
+      }
+      else
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      }
+      *((u16 *)(dest + 2)) = var_4h;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_07 * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      *((s16 *)(dest + 0x10)) = *((s16 *)q);
+    }
+  loop07_inc:
+    index_07 += 1;
+  loop07_test:
+    if (index_07 < *((s32 *)(arg0 + 0xAC)))
+    {
+      goto loop07_body;
+    }
   }
-loop07_inc:
-  var_18 += 1;
-loop07_test:
-  if (var_18 < *((s32 *)(arg0 + 0xAC)))
   {
-    goto loop07_body;
-  }
-  temp_19 = func_00286f00(0x1C, arg1);
-  var_18 = 0;
-  goto loop1C_test;
-loop1C_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10));
-  }
-  else
-  {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C));
-  }
-  if ((id & 0xFFFF) != 0x1C)
-  {
-    goto loop1C_inc;
-  }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 2));
-  }
-  else
-  {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_18 * 0x3C + 2));
-  }
-  {
-    Pos4 tmp;
-    Pos4 pos;
-    dest = func_00286780(temp_19, id2 & 0xFFFF, arg1);
-    off = var_18 * 0x3C;
-    q = *((u8 **)(arg0 + 0x98)) + off;
-    tmp = *((Pos4 *)(q + 0xC));
-    pos = tmp;
-    *((Pos4 *)(dest + 8)) = pos;
+    u8 *resource_1C;
+    s32 index_1C;
+    resource_1C = func_00286f00(0x1C, arg1);
+    index_1C = 0;
+    goto loop1C_test;
+  loop1C_body:
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_1C * 0x10));
     }
     else
     {
-      var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_1C * 0x3C));
     }
-    *((u16 *)(dest + 2)) = var_4h;
+    if ((id & 0xFFFF) != 0x1C)
+    {
+      goto loop1C_inc;
+    }
     if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_1C * 0x10 + 2));
     }
     else
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_1C * 0x3C + 2));
     }
-    *((s32 *)(dest + 0x10)) = *((s32 *)q);
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
+      Pos4 tmp;
+      Pos4 pos;
+      dest = func_00286780(resource_1C, id2 & 0xFFFF, arg1);
+      off = index_1C * 0x3C;
+      q = *((u8 **)(arg0 + 0x98)) + off;
+      tmp = *((Pos4 *)(q + 0xC));
+      pos = tmp;
+      *((Pos4 *)(dest + 8)) = pos;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_1C * 0x10 + 4));
+      }
+      else
+      {
+        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+      }
+      *((u16 *)(dest + 2)) = var_4h;
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_1C * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      *((s32 *)(dest + 0x10)) = *((s32 *)q);
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_1C * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      *((s32 *)(dest + 0x14)) = *((s32 *)(q + 4));
+      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_1C * 0x10 + 8);
+      }
+      else
+      {
+        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      }
+      *((s32 *)(dest + 0x18)) = *((s32 *)(q + 8));
     }
-    else
+  loop1C_inc:
+    index_1C += 1;
+  loop1C_test:
+    if (index_1C < *((s32 *)(arg0 + 0xAC)))
     {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+      goto loop1C_body;
     }
-    *((s32 *)(dest + 0x14)) = *((s32 *)(q + 4));
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
-    {
-      q = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_18 * 0x10 + 8);
-    }
-    else
-    {
-      q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
-    }
-    *((s32 *)(dest + 0x18)) = *((s32 *)(q + 8));
-  }
-loop1C_inc:
-  var_18 += 1;
-loop1C_test:
-  if (var_18 < *((s32 *)(arg0 + 0xAC)))
-  {
-    goto loop1C_body;
   }
   func_00287310(arg1);
   var_18 = 0;
@@ -1770,9 +1822,8 @@ loopA_test:
   }
   return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_00296850);
-#endif
+
+#pragma pop
 // FUN_00298130
 s32 func_00298130(s32 arg0, s32 arg1, s32 arg2) {
     char sp20[0x20];

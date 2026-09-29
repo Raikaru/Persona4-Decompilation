@@ -60,7 +60,7 @@ extern u32 func_00233880(u32 arg0, u32 arg1);
 extern u32 func_00231d70(u32 arg0);
 extern s32 func_001ef720(s32 arg0, s32 arg1);
 extern s32 func_001ef4d0(s32 arg0, s32 arg1);
-extern u32 datCalcGetHp(u32 arg0);
+extern u16 datCalcGetHp(s32 unit);
 extern u32 func_002340c0();
 extern s32 func_00242800(u8 *unit, s32 index);
 extern void func_001de640(u8 *a, u8 *b, u16 c);
@@ -726,39 +726,22 @@ code arg5;
 }
 #pragma opt_dead_assignments on
 
-/* Guarded body, 2026-09-28: 7 differing words against retail (fnalign 278/278,
-   was 247 words / 274 instructions).  The old body had the right control flow
-   but the wrong locals; what closed the difference (each measured):
-   - the unit/ratio table is a `{u32 unit; f32 ratio}` array (12 entries, the
-     0x60 bytes above 0x90($sp)): unit copies are `lw/sw`, ratio copies
-     `lwc1/swc1`, the swap moves the u32 and the float separately.  A `f32[24]`
-     copied the unit with `lwc1`.
-   - `f15`/`f16` are `u32` (retail converts them with the unsigned
-     `bltz`/`srl`/`or`/`add.s` sequence), `c18 = v7 & 0xFFFF` is `s32` (a plain
-     copy would be propagated away and the frame loses `$s7`), `tot` is `s32`
-     with the mask on the sum, `rnd` is `u16`.
-   - `j` is `s32` with `j = (j + 1) & 0xFFFF`, which keeps the body's index
-     mask on `j` instead of folding it onto the loop-test temp; the other
-     loop counters are `u16`.
-   - `#pragma opt_loop_invariants on` hoists `c18 - 1` and the constant 1 out
-     of the swap loops; the tail is `if (c18 != m)` with the
-     `0x6A` store duplicated in both arms, and `p[(u16)f()]` on a `u32 *`
-     base gives the index-first `addu $v0,$v0,$s0`.
-   - declaring `tot` before `m` flips the last `$a3`/`$t0` pair of that loop.
-   RESIDUAL (7 words): the same pair in the swap loops - retail has the loop
-   counter `k` in `$a3` and the hoisted bound `c18 - 1` in `$t0`, this body
-   the reverse.  Named temps age by declaration (earlier -> higher register,
-   compiler temps youngest -> lowest), so retail's bound is older than `k`,
-   but a named `lim = c18 - 1` (any type, `register`, before or after `k`) is
-   propagated away and hoisted again as a fresh temp; `k` as `s32`, and the
-   cond spelled `(u16)k`/`k & 0xFFFF`, all score worse (17-90). */
-// FUN_001DBF20 NONMATCHING
-#ifdef NON_MATCHING
+/* measured 2026-09-28: 1116 bytes plus four retail zero bytes, nine resolved
+   relocations. The unit/ratio records keep integer and float copies separate;
+   u32 HP values preserve retail's unsigned float conversions. The masked s32
+   count and total, and the total-before-index declarations, retain the other
+   scan lifetimes. Loop-invariant optimization hoists the sort bound and 1.
+   Lifetime optimization separates the two uses of n: the completed target
+   scan and the subsequent sort. Reusing that cursor closes the last seven
+   register differences without adding an operation. */
+#pragma push
+#pragma opt_lifetimes on
 #pragma opt_loop_invariants on
 typedef struct SortEnt {
     u32 unit;
     f32 ratio;
 } SortEnt;
+// FUN_001DBF20
 s32 func_001dbf20(u8 *arg0, u32 arg1) {
     extern u8 D_006095F0[];
     u16 available;
@@ -775,7 +758,6 @@ s32 func_001dbf20(u8 *arg0, u32 arg1) {
     u32 f16;
     SortEnt stab[12];
     s32 swapped;
-    u16 k;
     f32 r0;
     u32 t0;
     s32 tot;
@@ -832,13 +814,13 @@ s32 func_001dbf20(u8 *arg0, u32 arg1) {
             }
             do {
                 swapped = 0;
-                for (k = 0; k < (s32)c18 - 1; k++) {
-                    if ((r0 = stab[k].ratio) < stab[k + 1].ratio) {
-                        t0 = stab[k].unit;
-                        stab[k].unit = stab[k + 1].unit;
-                        stab[k].ratio = stab[k + 1].ratio;
-                        stab[k + 1].unit = t0;
-                        stab[k + 1].ratio = r0;
+                for (n = 0; n < (s32)c18 - 1; n++) {
+                    if ((r0 = stab[n].ratio) < stab[n + 1].ratio) {
+                        t0 = stab[n].unit;
+                        stab[n].unit = stab[n + 1].unit;
+                        stab[n].ratio = stab[n + 1].ratio;
+                        stab[n + 1].unit = t0;
+                        stab[n + 1].ratio = r0;
                         swapped = 1;
                     }
                 }
@@ -866,9 +848,7 @@ s32 func_001dbf20(u8 *arg0, u32 arg1) {
 }
 
 #pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbf20);
-#endif
+#pragma pop
 /* Ported from P3FES btlEffect.c func_002c3be0 (copy-all / min-stat select).
    func_002bff60_u16->func_001d7f10; offsets 0x88->0x98, 0xc0->0xd0, 0xa2c->0xa64;
    lowest init 0xfffffff. */

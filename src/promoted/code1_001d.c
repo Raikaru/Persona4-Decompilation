@@ -52,9 +52,9 @@ extern void func_00485870(s32 arg0);
 extern s32 func_00481450(void);
 extern void func_00481440(s32 arg0);
 extern void mdlSetColor(u8 *arg0, u32 *arg1);
-extern void func_004865c0(s32 arg0, u32 arg1);
+extern void func_004865c0(u8 *arg0, s32 arg1);
 extern void func_00478e70(s32 arg0);
-extern void func_00485630(s32 arg0);
+extern void func_00485630(u8 *arg0);
 extern void func_001d53e0(s32 arg0);
 extern void func_00479100(s32 arg0, u8 *arg1);
 extern u8 D_005DC7D0[];
@@ -1269,7 +1269,10 @@ case8_failure:
    in declaration order and i at $s5, a compare or store puts frame at $s0 instead; none of these
    spellings exists in retail, so they are diagnostics only. Also no effect: pointer or s32 i,
    (u16)-cast index, inline compare helpers, pointer parameter, opt_loop_invariants/opt_propagation
-   pragmas (pragma sweep leaves 8). */
+   pragmas (pragma sweep leaves 8).
+   2026-09-28: effect resources and live handles are pointers, as required by
+   func_00485c80 and the effect setters. Correcting their contracts keeps the
+   1444-byte candidate and the same eight register differences. */
 // FUN_001D53E0 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct BtlAttachV3
@@ -1291,7 +1294,7 @@ typedef struct BtlAttachEntry
 {
     u8 state;      // 0x00
     u8 pad01[3];
-    u32 id;        // 0x04
+    u8 *resource;  // 0x04: template to clone, or an existing effect instance
     u8 type;       // 0x08
     u8 pad09[5];
     u16 kind;      // 0x0E
@@ -1318,7 +1321,7 @@ typedef struct BtlAttachWork
     f32 size;             // 0x50
     u16 count;            // 0x54
     u8 pad56[2];
-    s32 *handles;         // 0x58
+    u8 **handles;         // 0x58
 } BtlAttachWork;
 
 static inline f32 btlAttachEffectScale(u8 *unit)
@@ -1352,9 +1355,9 @@ static inline f32 btlAttachFieldScale(u8 *unit)
 
 void func_001d53e0(s32 arg0)
 {
-    extern void func_001fc2c0(u8 *a0, u8 *a1);
+    extern void func_001fc2c0(u32 a0, u32 a1);
     extern s32 func_004861f0(u8 *a0, f32 *a1);
-    extern void func_00486330(s32 a0, u8 *a1);
+    extern void func_00486330(u8 *a0, u8 *a1);
     extern void func_00486400(u8 *a0, f32 a1);
     extern void (*D_00609500[])(u8 *a0, u8 *a1, u8 *a2, u8 *a3);
     s32 count;
@@ -1363,7 +1366,7 @@ void func_001d53e0(s32 arg0)
     u32 color;
     s32 created;
     u32 frame;
-    s32 *handles;
+    u8 **handles;
     BtlAttachEntry *entry;
     u8 *unit;
     f32 unitCenter[4];
@@ -1397,7 +1400,7 @@ void func_001d53e0(s32 arg0)
         }
         w->size = *(f32 *)(unit + 0x2C);
     }
-    func_001fc2c0(w->unit, w->target);
+    func_001fc2c0((u32)w->unit, (u32)w->target);
     handles = w->handles;
     count = w->count;
     entry = (BtlAttachEntry *)(w->table + 0x14);
@@ -1412,11 +1415,11 @@ void func_001d53e0(s32 arg0)
             u8 mode;
 
             if ((*(u16 *)(w->owner + 0x630) & 4) && entry->state != 0xFD) {
-                *handles = entry->id;
+                *handles = entry->resource;
                 created = 0;
                 entry->state = 0xFD;
             } else {
-                *handles = (s32)func_00485c80((u8 *)entry->id);
+                *handles = func_00485c80(entry->resource);
                 created = 1;
             }
             mode = w->table[0x10];
@@ -1441,7 +1444,7 @@ void func_001d53e0(s32 arg0)
                         s = btlAttachEffectScale(w->target);
                         break;
                     }
-                    func_00486400((u8 *)*handles, s);
+                    func_00486400(*handles, s);
                     break;
                 }
             }
@@ -1471,10 +1474,10 @@ void func_001d53e0(s32 arg0)
             }
             trans[3] = 0.0f;
         }
-        func_004861f0((u8 *)*handles, trans);
+        func_004861f0(*handles, trans);
         func_001d5130((u8 *)w, unit, (u8 *)entry, (u8 *)rot);
         func_00486330(*handles, (u8 *)rot);
-        func_004865c0(*handles, color);
+        func_004865c0(*handles, (s32)color);
         func_00485630(*handles);
     }
     w->frame++;
@@ -1792,7 +1795,7 @@ void func_001d6680(void)
                     func_00478e70((s32)node->unknown18);
                 }
                 if (node->unknown14 != NULL) {
-                    func_00485630((s32)node->unknown14);
+                    func_00485630(node->unknown14);
                 }
                 if (node->unknown10 != NULL) {
                     func_001d53e0((s32)node->unknown10);
@@ -1806,7 +1809,7 @@ void func_001d6680(void)
                 func_00479100((s32)D_00794150, node->unknown18);
             }
             if (node->unknown14 != NULL) {
-                func_004865c0((s32)node->unknown14, color);
+                func_004865c0(node->unknown14, (s32)color);
                 func_00485870((s32)node->unknown14);
             }
             if (node->unknown10 != NULL) {
@@ -2118,17 +2121,18 @@ BtlPacket *func_001d7b60(u16 param_1)
 }
 
 // FUN_001D7BF0
-void func_001d7bf0(u32 param_1, u32 param_2, u32 param_3)
+u8 *func_001d7bf0(u32 param_1, u32 param_2, u32 param_3)
 {
     u32 *work;
-    u32 packet;
+    u8 *packet;
 
-    packet = (u32)func_00194470(0x309, 0xc);
+    packet = (u8 *)func_00194470(0x309, 0xc);
     *(code **)(packet + 0x6c) = (code *)func_001d7bb0;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
     work[1] = param_2;
     work[2] = param_3;
+    return packet;
 }
 /* 680/688 bytes; five resolved relocations and eight zero alignment bytes.
  * Active battle actions receive type-0/1 work from func_0019f5f0 through

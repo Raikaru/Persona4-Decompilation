@@ -1,3 +1,4 @@
+#include "model_callbacks_internal.h"
 #include "model_motion_internal.h"
 /* Source unit: src/Kosaka/k_command/k_command_00176c20.c (1 function markers) */
 #include "Kosaka/k_command_internal.h"
@@ -32,7 +33,6 @@ extern void* func_00174c00(void);
 extern void* func_00174c10(void);
 extern u8* MT_Scene_GetRes(u16 arg0);
 extern u8* func_001452b0(s32 arg0);
-extern s32 func_00145780(u16 arg0, s32 arg1, s32 arg2);
 extern void func_0016f130(s32 a, s32 b, s32 c);
 extern void func_0016f3b0(s32 a, s32 b, s32 c);
 extern s32 func_004782b0(void* arg0);
@@ -651,7 +651,7 @@ u32 K_Cmd_CREATE_MDL()
     type = func_0029cc00(0);
     id = func_0029cc00(1);
 
-    mdl = func_00478140(type, id, 0);
+    mdl = func_00478140((u16)type, id, 0);
 
     func_0029cf50((s32)mdl);
 

@@ -127,9 +127,9 @@ extern s8 D_007488C0[];
 
 
 // FUN_002B2940
-s32 func_002b2940(u8 *arg0)
+u8 *func_002b2940(u8 *arg0)
 {
-    return *(s32 *)(arg0 + 0x38);
+    return *(u8 **)(arg0 + 0x38);
 }
 // FUN_002B2950
 void func_002b2950(s32 arg0)

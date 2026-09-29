@@ -123,7 +123,7 @@ typedef struct
     f32 zBufferNear;                               // 0x14
     RwRenderStateSetFunc setRenderState;           // 0x18
     RwRenderStateGetFunc getRenderState;           // 0x1c
-    u8 unkData1[0x0c];                             // 0x20
+    u8 unkData1[0x08];                             // 0x20
     RwIm2DRenderPrimitiveFunction fpIm2DRenderPrimitive; // 0x28
     u8 unkData2[0x10];                             // 0x2c
 } RwDevice;
@@ -161,7 +161,7 @@ static const PrimRenderState sRenderStates[PRIM_RENDERSTATE_COUNT] =
 // (see RwGlobals/RwDevice layout above)
 
 extern RwCamera* func_00457120(void);           // kwlnGetMainCamera
-extern void func_003e42a0(RwV3d* out, const RwV3d* in, const RwMatrix* matrix); // RwV3dTransformPoint
+extern RwV3d* func_003e42a0(RwV3d* out, const RwV3d* in, const RwMatrix* matrix); // RwV3dTransformPoint
 extern int RpSkyRenderStateSet(int nState, void* pParam); // RpSkyRenderStateSet
 
 // 36 bytes
@@ -231,10 +231,14 @@ typedef int (*RwRenderStateSetFunc)(RwRenderState renderState, void* val);
 // rwGlobals.device fields at their P4 retail addresses
 extern RwRenderStateSetFunc D_00887300[4];      // device.setRenderState
 extern RwRenderStateGetFunc D_00887304[4];      // device.getRenderState
-extern void func_00410420(RwIm3DVertex* pVerts, u32 numVerts, RwMatrix* ltm, u32 flags); // RwIm3DTransform
+extern void* func_00410420(RwIm3DVertex* pVerts, u32 numVerts, RwMatrix* ltm, u32 flags); // RwIm3DTransform
 extern int func_00410930(int vert1, int vert2); // RwIm3DRenderLine
 
 // retail data at 0x007124d0
+/* Allocator diagnostics in sdkPrimitive.c refer to this filename through
+ * the retail address alias D_007124C0. It is part of this unit's constant data. */
+const char primSourceFileName[] = "sdkPrimitive.c";
+
 static const RwV3d sAxisDirs[3] =
 {
     {1.0f, 0.0f, 0.0f}, // X
@@ -246,32 +250,15 @@ static const RwV3d sAxisDirs[3] =
 static const RwRGBA sAxisColors[3] =
 {
     {255, 0, 0, 255}, // X (red)
-    {0, 255, 0, 255}, // Y (green)
-    {0, 0, 255, 255}  // Z (blue)
+    {0, 0, 255, 255}, // Y (blue)
+    {0, 255, 0, 255}  // Z (green)
 };
 extern void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color, u32 saveAndRestoreRenderState);
 
-typedef struct
-{
-    f32 m00;
-    f32 m01;
-    f32 m02;
-    u32 mode;
-    f32 m10;
-    f32 m11;
-    f32 m12;
-    u32 pad1;
-    f32 m20;
-    f32 m21;
-    f32 m22;
-    u32 unused;
-    u32 pad2;
-    u32 pad3;
-    u32 pad4;
-} PrimMatrixData;
 
-extern void* RwMatrixScale(void* matrix, const void* scale, int combineOp); // RwMatrixScale
-extern void RwMatrixMultiply(int dst, u8* a, float* b);                        // RwMatrixMultiply
+
+extern RwMatrix* RwMatrixScale(RwMatrix* matrix, const RwV3d* scale, int combineOp);
+extern RwMatrix* RwMatrixMultiply(RwMatrix* dst, const RwMatrix* a, const RwMatrix* b);
 
 typedef struct
 {
@@ -296,42 +283,45 @@ extern f32 sinf(f32 angle);   // P3 FUN_0052e878 (sinf)
 
 extern void func_00480aa0(void* param_2, void* param_3, void* param_4, f32 param_1);
 
-extern int func_003df1a0(u64 stream, void* buf, int size); // P3 FUN_004c1750
-extern int func_003df240(u64 stream, void* buf, int size); // P3 FUN_004c17f0
+extern void* func_003df1a0(void* stream, const void* buf, u32 size); // P3 FUN_004c1750
+extern void* func_003df240(void* stream, const void* buf, u32 size); // P3 FUN_004c17f0
 
-typedef void (*PrimFuncB)(void*, void*, void*, f32);
-typedef void (*PrimFuncA)(int, int);
-typedef u32 (*PrimFuncC)(int, u64);
-typedef u64 (*PrimFuncD)(u64, u64);
-typedef void (*PrimFuncE)(void*, void*);
-typedef void (*PrimFuncStub)(void);
+/* RtAnimInterpolatorInfo callback slots, in the retail 0x30-byte order. */
+typedef void (*PrimApplyCallback)(void*, void*);
+typedef void (*PrimBlendCallback)(void*, void*, void*, f32);
+typedef void (*PrimInterpolateCallback)(void*, void*, void*, f32, void*);
+typedef void (*PrimAddCallback)(void*, void*, void*);
+typedef void (*PrimDeltaCallback)(void*, void*);
+typedef void* (*PrimReadCallback)(void*, void*);
+typedef s32 (*PrimWriteCallback)(const void*, void*);
+typedef s32 (*PrimSizeCallback)(void*);
 
 typedef struct
 {
     u32 hash;
-    u32 size0;
-    u32 size1;
-    PrimFuncA funcA;
-    PrimFuncB funcB;
-    PrimFuncB funcB2;
-    PrimFuncStub funcC;
-    PrimFuncE funcD;
-    PrimFuncD funcE;
-    PrimFuncC funcF;
-    PrimFuncStub funcG;
-    u32 zero;
+    s32 size0;
+    s32 size1;
+    PrimApplyCallback funcA;
+    PrimBlendCallback funcB;
+    PrimInterpolateCallback funcB2;
+    PrimAddCallback funcC;
+    PrimDeltaCallback funcD;
+    PrimReadCallback funcE;
+    PrimWriteCallback funcF;
+    PrimSizeCallback funcG;
+    s32 zero;
 } PrimDesc;
 
-extern void func_00480940(int param_1, int param_2);
-extern s32 func_003df300(void *stream, void *buf, s32 size);
-extern s32 func_003df360(void *stream, void *buf, s32 size);
-extern void func_00480cd0(void* param_2, void* param_3, void* param_4, f32 param_1);
-extern void func_004810c0();
+extern void func_00480940(void* result, void* frame);
+extern void* func_003df300(void* stream, void* buf, u32 size);
+extern void* func_003df360(void* stream, void* buf, u32 size);
+extern void func_00480cd0(void* param_2, void* param_3, void* param_4, f32 param_1, void* customData);
+extern void func_004810c0(void* out, void* first, void* second);
 extern void func_00480f20(void* param_1, void* param_2);
 extern void* func_00480e20(void* param_1, void* param_2);
-extern u32 func_00480d50(int param_1, u64 param_2);
+extern s32 func_00480d50(const void* param_1, void* param_2);
 extern s32 func_00480f00(void* param_1);
-extern int func_003d5000(void* desc); // P3 FUN_004b6680
+extern s32 func_003d5000(PrimDesc* desc); // Registers a 0x30-byte RtAnim scheme.
 
 
 
@@ -443,7 +433,11 @@ void primQuad3D(const RwV3d* pos, const RwRGBA* col, f32 size, u32 saveAndRestor
 
 
 
-// FUN_0045F790
+// FUN_0045F790 NONMATCHING
+/* Defined identity flags; measured 612/624 bytes, one differing word.
+ * Retail first reads the automatic flags word at 0045f89c. Its initial
+ * value has no producer. The initialized C candidate remains guarded. */
+#ifdef NON_MATCHING
 void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color, u32 saveAndRestoreRenderState)
 {
     u32 i;
@@ -470,6 +464,7 @@ void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color,
         RpSkyRenderStateSet(rpSKYRENDERSTATEATEST_1, (void*)0x71801); // SCE_GS_SET_TEST_1(1, 0, 128, 1, 0, 0, 1, 3)
     }
 
+    identity.flags = 0;
     RwMatrixSetIdentity(&identity);
 
     RwIm3DVertexSetPos(&vertices[0], startPos->x, startPos->y, startPos->z);
@@ -488,6 +483,9 @@ void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color,
         }
     }
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/primitive", func_0045f790);
+#endif
 
 
 
@@ -541,11 +539,19 @@ void primAxisLine3D(const RwMatrix* mat, f32 length, u32 saveAndRestoreRenderSta
 
 
 
-// FUN_00480940
-void func_00480940(int param_1, int param_2)
+// FUN_00480940 NONMATCHING
+/* The VU multiply loads four 16-byte rows from both matrices. Only XYZ
+ * lanes and flags affect its result; the three padding words are ignored.
+ * RwMatrixScale(REPLACE) still reads flags before masking them, so the
+ * scale matrix must start with defined flags. Measured 352/352 bytes,
+ * four alignment edits: the flags initialization and pointer-save order. */
+#ifdef NON_MATCHING
+void func_00480940(void* result, void* frame)
 {
-    u8 buffer[64];
-    PrimMatrixData matrix;
+    RwMatrix* output = result;
+    PrimInterpData* input = frame;
+    RwMatrix buffer;
+    RwMatrix matrix;
     f32 xx;
     f32 yy;
     f32 zz;
@@ -559,14 +565,11 @@ void func_00480940(int param_1, int param_2)
     f32 y;
     f32 z;
     f32 w;
-    f32 value30;
-    f32 value34;
-    f32 value38;
 
-    x = *(f32*)(param_2 + 8);
-    y = *(f32*)(param_2 + 0xc);
-    z = *(f32*)(param_2 + 0x10);
-    w = *(f32*)(param_2 + 0x14);
+    x = input->quat.x;
+    y = input->quat.y;
+    z = input->quat.z;
+    w = input->quat.w;
     xx = x * x;
     yy = y * y;
     zz = z * z;
@@ -577,32 +580,31 @@ void func_00480940(int param_1, int param_2)
     wy = w * y;
     wz = w * z;
 
-    matrix.m00 = 1.0f - (yy + zz) * 2.0f;
-    matrix.m01 = (xy + wz) * 2.0f;
-    matrix.m02 = (zx - wy) * 2.0f;
-    matrix.m10 = (xy - wz) * 2.0f;
-    matrix.m11 = 1.0f - (xx + zz) * 2.0f;
-    matrix.m12 = (yz + wx) * 2.0f;
-    matrix.m20 = (zx + wy) * 2.0f;
-    matrix.m21 = (yz - wx) * 2.0f;
-    matrix.m22 = 1.0f - (xx + yy) * 2.0f;
+    matrix.right.x = 1.0f - (yy + zz) * 2.0f;
+    matrix.right.y = (xy + wz) * 2.0f;
+    matrix.right.z = (zx - wy) * 2.0f;
+    matrix.up.x = (xy - wz) * 2.0f;
+    matrix.up.y = 1.0f - (xx + zz) * 2.0f;
+    matrix.up.z = (yz + wx) * 2.0f;
+    matrix.at.x = (zx + wy) * 2.0f;
+    matrix.at.y = (yz - wx) * 2.0f;
+    matrix.at.z = 1.0f - (xx + yy) * 2.0f;
 
-    matrix.pad2 = 0;
-    matrix.pad3 = 0;
-    matrix.pad4 = 0;
-    matrix.mode = 3;
+    matrix.pos.x = 0;
+    matrix.pos.y = 0;
+    matrix.pos.z = 0;
+    matrix.flags = 3;
 
-    RwMatrixScale((void*)buffer, (const void*)((u8*)param_2 + 0x24), 0);
-    RwMatrixMultiply(param_1, buffer, (f32*)&matrix);
+    buffer.flags = 0;
+    RwMatrixScale(&buffer, (const RwV3d*)&input->values[3], 0);
+    RwMatrixMultiply(output, &buffer, &matrix);
 
-    value30 = *(volatile /* Removing this function's qualifier batch loses func_00480940 (MATCH nd0 -> MISMATCH nd6, size 348 -> 348) - measured W170. */ f32*)(param_2 + 0x18);
-    value34 = *(volatile /* Removing this function's qualifier batch loses func_00480940 (MATCH nd0 -> MISMATCH nd6, size 348 -> 348) - measured W170. */ f32*)(param_2 + 0x1c);
-    value38 = *(volatile /* Removing this function's qualifier batch loses func_00480940 (MATCH nd0 -> MISMATCH nd6, size 348 -> 348) - measured W170. */ f32*)(param_2 + 0x20);
-    *(f32*)((int)param_1 + 0x30) = value30;
-    *(f32*)((int)param_1 + 0x34) = value34;
-    *(f32*)((int)param_1 + 0x38) = value38;
-    *(u32*)((int)param_1 + 0xc) = *(u32*)((int)param_1 + 0xc) & 0xfffdffff;
+    (output)->pos = *(const RwV3d*)&input->values[0];
+    output->flags = output->flags & 0xfffdffff;
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/primitive", func_00480940);
+#endif
 
 
 
@@ -657,7 +659,7 @@ void func_00480aa0(void* param_2, void* param_3, void* param_4, f32 param_1)
 
 
 // FUN_00480CD0
-void func_00480cd0(void* param_2, void* param_3, void* param_4, f32 param_1)
+void func_00480cd0(void* param_2, void* param_3, void* param_4, f32 param_1, void* customData)
 {
     PrimInterpData* out = (PrimInterpData*)param_2;
     const PrimInterpData* first = (const PrimInterpData*)param_3;
@@ -676,10 +678,10 @@ void func_00480cd0(void* param_2, void* param_3, void* param_4, f32 param_1)
 
 
 // FUN_00480D50
-u32 func_00480d50(int param_1, u64 param_2)
+s32 func_00480d50(const void* param_1, void* param_2)
 {
     int iVar1;
-    int lVar2;
+    void* lVar2;
     int* piVar3;
     int iVar4;
     int iStack_4;
@@ -730,8 +732,12 @@ s32 func_00480f00(void* arg0)
 {
     return *(const s32*)((const u8*)arg0 + 4) * 0x34;
 }
-// FUN_00480F20
-// MATCH: 408B code plus 8B retail zero tail. IDA-backed quaternion snapshots.
+// FUN_00480F20 NONMATCHING
+/* A reciprocal does not exist for a zero-norm source quaternion.
+ * The stream reader does not reject that input. This defined candidate
+ * leaves the output untouched on nonpositive norm; retail instead uses
+ * inverse components with no producer. Measured 420/416 bytes, 82 edits. */
+#ifdef NON_MATCHING
 void func_00480f20(void *param_1, void *param_2)
 {
     PrimInterpData *out = (PrimInterpData *)param_1;
@@ -751,8 +757,10 @@ void func_00480f20(void *param_1, void *param_2)
     inputZ = in->quat.z;
     inputW = in->quat.w;
     norm = inputX * inputX + inputY * inputY + inputZ * inputZ + inputW * inputW;
-    // Retail leaves the inverse undefined for zero norm; no fallback is invented.
-    if (!(norm <= 0.0f)) {
+    if (norm <= 0.0f) {
+        return;
+    }
+    {
         reciprocal = 1.0f / norm;
         inverse.w = inputW * reciprocal;
         reciprocal = -reciprocal;
@@ -778,6 +786,9 @@ void func_00480f20(void *param_1, void *param_2)
     out->values[4] -= in->values[4];
     out->values[5] -= in->values[5];
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/primitive", func_00480f20);
+#endif
 // FUN_004810C0
 void func_004810c0(void *arg0, void *arg1, void *arg2)
 {
@@ -821,11 +832,11 @@ u32 func_00481250(void)
     desc.funcA = func_00480940;
     desc.funcB = func_00480aa0;
     desc.funcB2 = func_00480cd0;
-    desc.funcC = (void (*)(void))&func_004810c0;
+    desc.funcC = func_004810c0;
     desc.funcD = func_00480f20;
-    desc.funcE = (u64 (*)(u64, u64))func_00480e20;
+    desc.funcE = func_00480e20;
     desc.funcF = func_00480d50;
-    desc.funcG = (void (*)())func_00480f00;
+    desc.funcG = func_00480f00;
     desc.zero = 0;
 
     result = func_003d5000(&desc);

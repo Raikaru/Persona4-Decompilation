@@ -20,48 +20,56 @@ typedef enum
 
 typedef struct HPadButtons
 {
-    u16 pressed;      // 0x00
-    u16 justPressed;  // 0x02
-    u16 released;     // 0x04
-    u16 justReleased; // 0x06
+    u16 pressed;
+    u16 justPressed;
+    u16 previousPressed;
+    u16 repeated;
 } HPadButtons;
 
+/* H_Pad_Init clears two 0x4a-byte records at 0x008c02e0. The polling
+ * and repeat handlers use the same stride and the field offsets below. */
 typedef struct HPad
 {
-    u16 mainMode;               // 0x00
-    u16 state;                  // 0x02
-    u16 requestedMainMode;      // 0x04
-    u16 unknown06;              // 0x06
-    u16 port;                   // 0x08
-    u16 slot;                   // 0x0a
-    HPadButtons btn[2];         // 0x0c
-    u16 virtualPreviousPressed; // 0x1c
-    s8 lstickX;                 // 0x1e
-    s8 lstickY;                 // 0x1f
-    s8 rstickX;                 // 0x20
-    s8 rstickY;                 // 0x21
-    u8 repeatTimer[12];         // 0x22
-    u16 actuator0;              // 0x2e
-    u16 actuator1;              // 0x30
-    u16 appliedActuator0;       // 0x32
-    u16 appliedActuator1;       // 0x34
+    u16 mainMode;              // 0x00
+    u16 state;                 // 0x02
+    u16 requestedMainMode;     // 0x04
+    u16 unknown06;             // 0x06
+    u16 port;                  // 0x08
+    u16 slot;                  // 0x0a
+    HPadButtons raw;           // 0x0c
+    u16 unknown14;             // 0x14
+    u16 analogPressed;         // 0x16
+    u16 analogJustPressed;     // 0x18
+    u16 analogPreviousPressed; // 0x1a
+    u8 lstickX;                // 0x1c
+    u8 lstickY;                // 0x1d
+    u8 rstickX;                // 0x1e
+    u8 rstickY;                // 0x1f
+    u8 repeatTimer[12];        // 0x20
+    u16 actuator0;             // 0x2c
+    u16 actuator1;             // 0x2e
+    u16 appliedActuator0;      // 0x30
+    u16 appliedActuator1;      // 0x32
+    HPadButtons combined;      // 0x34
+    u16 unknown3c;             // 0x3c
+    u8 combinedRepeatTimer[12];// 0x3e
 } HPad;
 
-HPad gWorkPads[HPAD_PORT_MAX]; // 008c02de
+typedef char HPadSizeCheck[(sizeof(HPad) == 0x4a) ? 1 : -1];
+HPad gWorkPads[HPAD_PORT_MAX]; // 008c02e0
 
-static s16 sRumbleState; // 00764b24
+/* The retail small-data slots are four-byte aligned, including halfwords. */
+static s16 sRumbleDuration __attribute__((aligned(4)));  // 00764b24
+static s16 sRumbleCadence __attribute__((aligned(4)));   // 00764b20
+static s16 sRumbleOnFrames __attribute__((aligned(4)));  // 00764b1c
+static s16 sRumbleOffFrames __attribute__((aligned(4))); // 00764b18
+static s16 sRumblePhase __attribute__((aligned(4)));    // 00764b14
 static union
 {
     u16 h;
     u8 b;
-} sRumbleIntensity; // 00764b20
-static s16 sRumblePhase;     // 00764b1c
-static s16 sRumbleOffFrames; // 00764b18
-static s16 sRumbleOnFrames;  // 00764b14
-static s16 sRumbleCadence;   // 00764b10
-static s16 sRumbleDuration;  // 00764b0c
-
-
+} sRumbleIntensity; // 00764b10
+static s16 sRumbleState __attribute__((aligned(4)));    // 00764b0c
 
 // FUN_00453570
 void H_Pad_StopRumble(void)

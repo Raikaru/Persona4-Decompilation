@@ -26,13 +26,14 @@
     "slice": "Pinned fresh splat glabel slice, extractor clean_slice and header, canonical size directive. No assembly copied into metadata.",
     "slice-canonical": "Same slice with recovered function names mapped back to func_<address> using the pinned fallback symbol map and canonical windows, preserving historical extraction naming.",
     "synthesis": "Existing extractor synthesise semantics: retail little-endian words with canonical JAL R_MIPS_26 relocation annotations. Explicit choice preserves earlier boundary-repair extractions even where current splat could slice.",
-    "corrections": "33 path-local historical differences: eight adjacent-nullsub spans, eighteen symbol spelling sets, six glabel spellings, one GNU-as retail-word repair. Reasons reside with each correction; these are not arbitrary text patches.",
+    "corrections": "34 path-local differences: eight adjacent-nullsub spans, nineteen symbol spelling sets, six glabel spellings, one GNU-as retail-word repair. Reasons reside with each correction; these are not arbitrary text patches.",
     "retained": "Hand-maintained relocation fixture and hand-carried jump table remain tracked, checked, never regenerated or removed.",
     "inputs-verify.py": "tools/verify.py supplies retail-byte helpers and source filtering. The earlier fdc4ce4edc38 -> a646226c6bb9 bump excluded staged probe copies. Audited 2026-09-20: a646226c6bb9 -> 2c53a185f171 changes only the is_generated AST node, broadening that filter to every dot-prefixed temporary source. Both predicates select the same 394 clean source paths; all other verifier AST nodes are identical. Fresh isolated generation and a second comparison reproduce all 11152 generated files and both retained files, 62635980 bytes, with every existing output hash unchanged. See docs/probe_archive/Recovered_upstream_20260920.md. Audited 2026-09-23: marker scanning now discards preceding extern declarations without discarding semicolons in single-line bodies or K&R parameter declarations. Source filtering and retail-byte extraction are unchanged; regenerate_asm.py --check reproduces the pinned fallback bytes.",
     "inputs-requirements-python.txt": "Audited 2026-09-22: 8e0d2cd27bc3 -> a710c34702b6 adds the exact PyYAML 6.0.3 pin required by CI's direct yaml import. regenerate_asm.py --check reproduced all 11152 generated files and left both retained files unchanged.",
     "inputs-asm_symbol_baseline.txt": "Verbatim pre-migration symbol map (13,099 boundaries, 287 curated names) used only by the pinned fallback generator. The live symbol_addrs.txt now has 13,102 boundaries and 570 curated names; feeding it to splat would change audited assembly text. The pinned fallback bytes and filenames remain unchanged.",
     "inputs-verify.py-named-asm": "Audited 2026-09-23: verifier now passes the canonical symbol map to MWCCGap so compiled curated C definitions supersede address-form INCLUDE_ASM fallbacks. This changes the compiler wrapper command, not retail input filtering or generated assembly extraction; regenerate_asm.py --check verifies pinned outputs.",
-    "inputs-verify.py-rebase": "The merged verifier also preserves relocation target bindings and scans K&R parameter declarations. regenerate_asm.py --check reproduced all 11152 pinned fallbacks and confirmed both retained files unchanged."
+    "inputs-verify.py-rebase": "The merged verifier also preserves relocation target bindings and scans K&R parameter declarations. regenerate_asm.py --check reproduced all 11152 pinned fallbacks and confirmed both retained files unchanged.",
+    "primitive-fallbacks-20260928": "Two slice-canonical listings, func_0045f790 and func_00480940, preserve retail while their defined C matrix initializations are matched. Both were independently regenerated from the pinned split and verified with every code relocation resolved. The historical baseline audit remains unchanged."
   },
   "inputs": {
     "requirements-python.txt": "a710c34702b69ee5205eb6ac742f13bec6fe871f6f01abcdfdf296453aa530af",
@@ -24268,8 +24269,17 @@
     },
     {
       "path": "asm/nonmatchings/code1_0044/func_00448a00.s",
-      "sha256": "05708895fef092ef03bd9a483875e9831de77e0c9250d27d3915f52d6882d8a5",
-      "recipe": "slice"
+      "sha256": "7bff473b22eea95bfebc33cf26c6649cf1e9fc55fd2c1acbb8f71dbb5a2c61b2",
+      "recipe": "slice",
+      "correction": {
+        "symbol_spellings": [
+          [
+            ".L00200000",
+            "0x00200000"
+          ]
+        ],
+        "reason": "The sqrt loop uses literal bit constants, not an address: LUI $10 at 00448bb4 and ADDIU $17,$17 at 00448c8c operate on different live values. Pinned splat incorrectly couples them as .L00200000+1. Numeric HI/LO expressions preserve the retail words 0x3c0a0020 and 0x26310001 without an undefined relocation."
+      }
     },
     {
       "path": "asm/nonmatchings/code1_0044/func_00448d10.s",
@@ -49642,6 +49652,16 @@
       "path": "asm/nonmatchings/nmlist/func_002e2170.s",
       "sha256": "6f5b97af026abc361a50b82e2dc5479f982811c2f1f764bbe6cb145d0dc39de3",
       "recipe": "slice"
+    },
+    {
+      "path": "asm/nonmatchings/primitive/func_0045f790.s",
+      "sha256": "2604b77034738466156d99cdd34032946b236ffe88d0f2ed6b8de051add6d7fa",
+      "recipe": "slice-canonical"
+    },
+    {
+      "path": "asm/nonmatchings/primitive/func_00480940.s",
+      "sha256": "52d328b3670c660d718bbbbad2ec11ea40eb420678a1f0a37ae9eb7d27ab176b",
+      "recipe": "slice-canonical"
     },
     {
       "path": "asm/nonmatchings/primitive/func_00480e20.s",

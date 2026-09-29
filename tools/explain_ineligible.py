@@ -23,7 +23,6 @@ Reasons reported:
 from __future__ import annotations
 
 import argparse
-import bisect
 import collections
 import sys
 from pathlib import Path
@@ -56,10 +55,8 @@ def classify(c, resolvable, boundaries, window_sizes, retail, cache, cpath):
             body, rels = obj.function(m["name"])
         except KeyError:
             return "missing-symbol", m["name"]
-        i = bisect.bisect_right(boundaries, m["addr"])
-        win = (boundaries[i] - m["addr"] if i < len(boundaries)
-               else (window_sizes or {}).get(m["addr"]))
-        if not win or win > 0x10000:
+        win = B.function_window(m["addr"], boundaries, window_sizes)
+        if win is None:
             return "window", m["name"]
         wb = retail.bytes_at(m["addr"], win)
         if (V.compare(body, rels, wb[:len(body)])[0] != 0

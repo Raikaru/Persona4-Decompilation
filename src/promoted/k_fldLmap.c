@@ -43,7 +43,7 @@ extern s32 datGetFlag(s32 id);
 extern u8 *func_003e0f80();
 extern void func_00144c90(s32 a, s32 b);
 extern void func_00144ed0(s64 param);
-extern s64 func_001546a0(s32 a, s32 b);
+extern s32 func_001546a0(u16 field, u16 room);
 extern s32 func_00144f60();
 extern u8 *func_0014b450();
 extern f32 func_0014b4d0();

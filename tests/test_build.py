@@ -79,6 +79,31 @@ class ObjectLayoutTests(unittest.TestCase):
         )
 
 
+class FunctionWindowTests(unittest.TestCase):
+    def test_last_code1_function_does_not_claim_the_following_data(self) -> None:
+        boundaries = [0x0052D900, 0x0052D9A0, 0x0070C850]
+        self.assertEqual(build.function_window(0x0052D9A0, boundaries, {0x0052D9A0: 0x60}), 0x60)
+        self.assertEqual(build.function_window(0x0052D9A0, boundaries), 0x60)
+
+    def test_recorded_gap_is_not_added_to_the_function(self) -> None:
+        boundaries = [0x00101000, 0x00101080]
+        self.assertEqual(build.function_window(0x00101000, boundaries, {0x00101000: 0x60}), 0x60)
+        self.assertEqual(build.function_window(0x00101000, boundaries), 0x80)
+
+    def test_overlapping_or_invalid_recorded_extents_are_rejected(self) -> None:
+        boundaries = [0x00101000, 0x00101080]
+        for size in (0, -4, 0x84, 0x10004):
+            with self.subTest(size=size):
+                self.assertIsNone(build.function_window(0x00101000, boundaries, {0x00101000: size}))
+        self.assertIsNone(build.function_window(0x0052D9A0, [0x0070C850], {0x0052D9A0: 0x64}))
+
+    def test_data_and_zero_fill_are_not_function_windows(self) -> None:
+        boundaries = [0x00100000, 0x0070C850]
+        for address in (0x0052DA00, 0x0070E140, 0x00764280, 0x00938A00):
+            with self.subTest(address=hex(address)):
+                self.assertIsNone(build.function_window(address, boundaries, {address: 0x10}))
+
+
 class RenameTextSectionsTests(unittest.TestCase):
     """rename_text_sections rewrites .shstrtab and the section headers so each
     function's .text section gets a unique name and align 1."""

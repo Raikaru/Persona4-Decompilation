@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "btl_packet_create_internal.h"
 typedef struct BtlPacket BtlPacket;
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
@@ -945,9 +946,11 @@ s32 func_00201b00(u8 *work)
     return 1;
 }
 #pragma pop
+/* The display callback reads both flag fields and the hit index/count
+ * as unsigned halfwords. The result record is copied without modification. */
 // FUN_00201DE0
-u8 *func_00201de0(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
-                  s16 arg5, s16 arg6, void *arg7, u16 arg_sp0)
+u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags,
+                  u16 hitIndex, u16 hitCount, const void *result, u16 flags)
 {
     u8 *spAC;
     u8 *temp_16;
@@ -959,15 +962,15 @@ u8 *func_00201de0(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
     *(void **)(temp_2 + 0x6C) = (void *)func_00201b00;
     *(void **)(temp_2 + 0x70) = (void *)func_00201db0;
     temp_16 = *(u8 **)(temp_2 + 0x78);
-    memcpy(temp_16 + 8, arg7, 0x20);
-    *(s32 *)(temp_16 + 0) = arg0;
-    *(s32 *)(temp_16 + 4) = arg1;
-    *(s32 *)(temp_16 + 0x28) = arg2;
-    *(s16 *)(temp_16 + 0x2C) = arg3;
-    *(s16 *)(temp_16 + 0x2E) = arg4;
-    *(s16 *)(temp_16 + 0x30) = arg5;
-    *(s16 *)(temp_16 + 0x32) = arg6;
-    *(u16 *)(temp_16 + 0x38) = arg_sp0;
+    memcpy(temp_16 + 8, result, 0x20);
+    *(s32 *)(temp_16 + 0) = source;
+    *(s32 *)(temp_16 + 4) = target;
+    *(s32 *)(temp_16 + 0x28) = id;
+    *(u16 *)(temp_16 + 0x2C) = effect;
+    *(u16 *)(temp_16 + 0x2E) = targetFlags;
+    *(u16 *)(temp_16 + 0x30) = hitIndex;
+    *(u16 *)(temp_16 + 0x32) = hitCount;
+    *(u16 *)(temp_16 + 0x38) = flags;
     return spAC;
 }
 // FUN_00201EE0
@@ -1251,12 +1254,13 @@ s32 func_00202820(void) {
     return 1;
 }
 // FUN_00202850
-void func_00202850(void)
+u8 *func_00202850(void)
 {
     u8 *temp_2;
 
     temp_2 = (u8 *)func_00194470(0x50E, 0);
     *(void **)(temp_2 + 0x6C) = (void *)func_00202820;
+    return temp_2;
 }
 // FUN_00202C60
 void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *arg3, void *arg4, void *arg5, void *arg6, u8 *arg7) {

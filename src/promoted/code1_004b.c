@@ -30,7 +30,7 @@ extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
 extern void func_00492dd0(u8 *arg0);
 extern void func_00492e10(u8 *arg0);
-extern void func_00492e30(u8 *arg0);
+extern void func_00492e30(u16 *emitter, f32 scale);
 extern void func_00481440(void *arg0);
 extern void func_00485870(void *arg0);
 extern void func_00485ae0(void *arg0);
@@ -170,7 +170,7 @@ void func_004b10f0(u8 *arg0, s32 arg1)
 void func_004b1100(u8 *arg0, f32 arg1)
 {
     *(f32 *)(arg0 + 8) = arg1;
-    func_00492e30(*(u8 **)(arg0 + 0x5c));
+    func_00492e30(*(u16 **)(arg0 + 0x5c), arg1);
 }
 // FUN_004B1130
 s32 func_004b1130(s32 resource)
