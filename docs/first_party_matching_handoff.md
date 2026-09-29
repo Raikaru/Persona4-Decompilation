@@ -3835,3 +3835,13 @@ Known exact-looking candidates that remain rejected unless a defined, truthful s
 The hardware-bound `func_0048a460`, `func_0048a980`, and `func_004ad030`
 floors are documented in the VU/COP2 section above. Do not return them to the
 ordinary source-shaping queue while the clean-C policy remains in force.
+
+## CI consumer coverage after the September 29 recoveries
+
+The date-getter consumer test executes the current consumers' byte conversions
+at `-O0` and `-O2`; it must not require an assembly-backed consumer, a fixed
+consumer file inventory, or a fixed count of forwarding expressions. Those
+source-shape assertions became stale when the remaining consumers were matched.
+The behavioral fixtures still pass 68,164 selector/getter/lookup/caller cases
+and 6,575 consumer views per optimization level, and reject all ten injected
+behavioral regressions.
