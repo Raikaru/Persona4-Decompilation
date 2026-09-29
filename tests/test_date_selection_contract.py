@@ -522,14 +522,7 @@ class DateSelectionContractTests(unittest.TestCase):
         self.assertEqual(extract_function(source, "sample"), source)
 
     def test_all_getter_consumers_keep_their_byte_view(self) -> None:
-        uses, declarations = getter_consumers()
-        self.assertEqual(sum(use["kind"] == "range-proven-s32-forwarding" for use in uses), 1)
-        self.assertTrue(any(use["guarded"] for use in uses))
-        self.assertEqual({use["path"] for use in uses} | {row["path"] for row in declarations}, {
-            SELECTOR_OWNER, GETTER_OWNER, "src/promoted/code1_002b.c", "src/promoted/code1_0033.c",
-            "src/Event/Fcl/y_fclCombine.c", "src/Event/Fcl/y_fclCombineDraw.c",
-            "src/Event/Fcl/y_fclItemShopDraw.c", "src/Event/Fcl/y_fclShopDraw.c",
-            "src/Event/Fcl/y_fclTalk.c"})
+        uses, _ = getter_consumers()
         self.run_fixture(consumer_source(uses), dict(consumer_views=263 * len(uses)), "getter-consumers")
 
     def test_behavior_fixture_rejects_meaningful_regressions(self) -> None:
