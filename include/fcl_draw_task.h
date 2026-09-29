@@ -16,7 +16,7 @@ u8 *func_002b5da0(u8 *task);
 
 /* Integer and floating arguments keep their separate EE register order. */
 void func_002b6af0(s16 resource, f32 scale0, f32 scale1, f32 scale2, f32 scale3,
-                   u32 mode, u32 duration, s32 delay);
+                   u32 mode, u32 duration, s16 delay);
 /* The draw takes its position by value. The mode arrives as a full word and
    is narrowed where it is tested; the reverse flag is a signed byte. */
 void func_002b83e0(u8 *draw, FclVec2 position, FclDrawColor color0,

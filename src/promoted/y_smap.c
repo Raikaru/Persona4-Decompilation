@@ -1,3 +1,4 @@
+#include "fcl_scale_transition.h"
 #include "fcl_color.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -124,8 +125,7 @@ extern void func_002b4ac0(u8 *, s8);
 extern void func_002b5100(u8 *, s8);
 extern void func_002b4240(u8 *, s8);
 extern void func_002b69b0(u8 *, YVec2f, YVec2f, u32, u32, s16);
-extern void func_002b6a40(u8 *, u8, u8, u32, u32, s32);
-extern void func_002b6ac0(u8 *, f32, f32, f32, f32, u32, u32, s32);
+extern void func_002b6a40(u8 *, u8, u8, u8, s32, s16);
 extern void func_002b6be0(u8 *, YVec2f, u32, f32);
 extern f32 func_0046b2f0(u8 *);
 extern void func_002b10d0(u8 *, s8);

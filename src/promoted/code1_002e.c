@@ -1,3 +1,5 @@
+#include "fcl_scale_transition.h"
+#include "fcl_animation_internal.h"
 #include "fcl_color.h"
 #include "include_asm.h"
 #include "fcl_bounds_packet.h"
@@ -41,10 +43,8 @@ extern s64 func_00106af0(s16 arg0);
 extern s32 func_00106b20(s16 arg0);
 extern s32 func_00106b50(s16 arg0);
 
-void func_002b82d0(u8 *arg0, u8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
 
 
-void func_002b8340(u8 *arg0, s8 arg1, s16 arg2, s16 arg3);
 
 void func_002e2a10(s32 arg0, s32 arg1, s8 arg2, s32 arg3);
 
@@ -60,9 +60,9 @@ extern u8 D_0063F560[];
 
 
 // FUN_002E04E0
-s32 func_002e04e0(u8 *arg0)
+u8 *func_002e04e0(u8 *arg0)
 {
-    return *(s32 *)(arg0 + 0x38);
+    return *(u8 **)(arg0 + 0x38);
 }
 // FUN_002E04F0
 void func_002e04f0(u8 *arg0, u32 arg1, s8 arg2) {
@@ -77,7 +77,7 @@ void func_002e04f0(u8 *arg0, u32 arg1, s8 arg2) {
     }
 }
 // FUN_002E0570
-s64 func_002e0570(u8 *arg0, s32 arg1)
+s8 func_002e0570(u8 *arg0, s32 arg1)
 {
     s16 flags;
 
@@ -102,9 +102,9 @@ void func_002e0620(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
     func_002b8270(*(u8 **)(arg0 + 0x38) + 4, p1, p2, arg3, arg4, arg5);
 }
 // FUN_002E0660
-void func_002e0660(u8 *arg0, u8 arg1, s8 arg2, s8 arg3, s16 arg4, s64 arg5)
+void func_002e0660(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5)
 {
-    func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, arg5);
+    func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, (s16)arg5);
 }
 
 
@@ -116,18 +116,14 @@ void func_002e0660(u8 *arg0, u8 arg1, s8 arg2, s8 arg3, s16 arg4, s64 arg5)
    happens when the two floats are arguments 2 and 3.  The EABI assigns integer
    and float arguments to their own register files, so this order compiles to
    the same object as the ints-first spelling (measured: identical bytes). */
-void func_002e0690(u8 *arg0, f32 fparg0, f32 fparg1, s8 arg1, s16 arg2, s64 arg3)
+void func_002e0690(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg3)
 {
-    extern void func_002b8300(u8 *arg0, s8 arg1, s16 arg2, s16 arg3,
-                              f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
-    func_002b8300(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3,
-                  fparg0, fparg1, fparg0, fparg1);
+    func_002b8300(*(u8 **)(arg0 + 0x38) + 4, fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
 }
 // FUN_002E06D0
-void func_002e06d0(u8 *arg0, s8 arg1, s16 arg2, s64 arg3)
+void func_002e06d0(u8 *arg0, f32 scale0, f32 scale1, f32 scale2, f32 scale3, u32 arg1, u32 arg2, s64 arg3)
 {
-    extern void func_002b8300(u8 *arg0, s8 arg1, s16 arg2, s16 arg3);
-    func_002b8300(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3);
+    func_002b8300(*(u8 **)(arg0 + 0x38) + 4, scale0, scale1, scale2, scale3, arg1, arg2, (s16)arg3);
 }
 
 
@@ -152,14 +148,10 @@ void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
     f32 pos_y;
     u8 *handle;
     u8 *temp;
-    extern u8 *func_0046d200(u32 arg0, s16 arg1);
+    extern u8 *func_0046d200(u32 arg0, u32 arg1);
     extern f32 func_0046b2f0(u8 *arg0);
     u8 *base;
     extern void func_0046d280(void *node);
-    extern void func_002b8300(u8 *arg0,
-                              f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                              s8 arg1, s32 arg2, s32 arg3);
-    extern void func_002b82d0();
     temp = *(u8 **)(arg0 + 0x38);
     pos_x = *(f32 *)(temp + 0x2C);
     pos_y = *(f32 *)(temp + 0x30);
@@ -198,9 +190,9 @@ void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
 }
 #pragma pop
 // FUN_002E0940
-void func_002e0940(u8 *arg0, s8 arg1, s16 arg2, s64 arg3)
+void func_002e0940(u8 *arg0, f32 first, f32 second, u8 mode, s32 duration, s64 delay)
 {
-    func_002b8340(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3);
+    func_002b8340(*(u8 **)(arg0 + 0x38) + 4, mode, duration, delay, first, second);
 }
 
 

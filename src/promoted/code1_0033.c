@@ -1,4 +1,5 @@
-#define FCL_COLOR_ARG u8
+#include "fcl_scale_transition.h"
+#include "fcl_animation_internal.h"
 #include "fcl_color.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -17,12 +18,7 @@ extern void func_00106390(s32 arg0, s32 arg1);
 extern u32 func_002e7a60(void);
 
 
-void func_002b82d0(u8 *arg0, u8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
 
-void func_002b8340(u8 *arg0, s8 arg1, s16 arg2, s16 arg3,
-                    f32 fparg0, f32 fparg1);
-extern void func_002b8300(u8 *arg0, s8 arg1, s16 arg2, s16 arg3,
- f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 extern void func_0046b0d0(void *ptr);
 
 typedef FclVec2 F2_0033;
@@ -455,19 +451,18 @@ void func_0033d420(u8 *arg0, F2_0033 p1, F2_0033 p2,
     *(s16 *)(*(u8 **)(arg0 + 0x38) + 4) &= (s16)~2;
 }
 // FUN_0033D4B0
-void func_0033d4b0(u8 *arg0, u8 arg1, s8 arg2, s8 arg3, s16 arg4, s64 arg5)
+void func_0033d4b0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s64 arg5)
 {
-    func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, arg5);
+    func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, (s16)arg5);
 }
 
 // FUN_0033D4E0
-void func_0033d4e0(u8 *arg0, f32 fparg0, f32 fparg1, s8 arg1, s16 arg2, s64 arg3)
+void func_0033d4e0(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg3)
 {
-    func_002b8300(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3,
-                   fparg0, fparg1, fparg0, fparg1);
+    func_002b8300(*(u8 **)(arg0 + 0x38) + 4, fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
 }
 // FUN_0033D520
-void func_0033d520(u8 *arg0, f32 fparg0, f32 fparg1, s8 arg1, s16 arg2, s64 arg3)
+void func_0033d520(u8 *arg0, f32 fparg0, f32 fparg1, u8 arg1, s32 arg2, s64 arg3)
 {
     func_002b8340(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, fparg0, fparg1);
 }
@@ -478,9 +473,6 @@ void func_0033d520(u8 *arg0, f32 fparg0, f32 fparg1, s8 arg1, s16 arg2, s64 arg3
 #pragma opt_propagation off
 void func_0033d550(u8 *arg0)
 {
-    extern void func_002b82d0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s16 arg4, s16 arg5);
-    extern void func_002b8300(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                               s8 arg1, s16 arg2, s16 arg3);
     s16 h;
     u8 b1;
     u8 b2;

@@ -2560,9 +2560,9 @@ void func_00348c30(u8 *arg0, u16 arg1) {
  * controller's handle and index temporaries. */
 static inline FclDrawColor cmbFiveSpriteColor(s32 base)
 {
-    s32 red;
-    s32 green;
-    s32 blue;
+    u8 red;
+    u8 green;
+    u8 blue;
     red = func_002b2cb0(base, 10, 0xFF, 0, 1) & 0xFF;
     green = func_002b2cb0(base + 0x37, 10, 0xFF, 0, 1) & 0xFF;
     blue = func_002b2cb0(base + 0xF2, 10, 0xFF, 0, 1) & 0xFF;

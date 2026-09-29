@@ -54,7 +54,7 @@ void func_00115420(u16, u8 *);
 void func_00115940();
 u32 func_0010c750(void *persona, u16 level);
 s32 datPersonaGetNextExp();
-s32 func_0010cd70(u8 *, s32, u16);
+s32 func_0010cd70(u8 *, s16, u16);
 void func_00115500(u16, u16, u8 *);
 s32 func_0011dfc0(s32, s32, char *);
 void H_Cdvd_Destroy();
