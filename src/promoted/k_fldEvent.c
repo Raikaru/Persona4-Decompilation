@@ -779,6 +779,8 @@ s32 func_00172d80(u8 *arg0)
    The lever is iterative, which the first sweep hid: it converts the single best loop
    per function, so re-running it after installing finds the next one.  The third pass
    improved 14 more floors, `func_001ed700` by 89 edits on its own. */
+/* measured 2026-09-29: remove the conflicting local mdlGetMatrix redeclaration.
+ * Guarded body compiles to 6084/6272 bytes, nd 1229; retain retail ASM. */
 // FUN_00172E00 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: object 1527 instrs (6108B), retail 1564 instrs (6256B) window 6272B (1568 instrs), within 3% (6084-6460B); probe nd 1254, fnalign edits 428 (+42 reloc-only). Honest translation with block-scope counters, sequential < guards, scalar gp forms (iGpffffb2cc/b2c8, D_00762EA0, iGpffffb284, iGpffffba4c/ba50/ba54/ba58/ba6c, D_007EFA00). Production stays ASM. Scoped pragma opt_common_subs off (push/pop around floor) enlarges 1501->1527 to reach band, verified via hash/len (not ignored); optimization_level 3/4 shrink wrong direction for this under-sized body per Main axis; pragma_sweep on unbanked gave no body (ran per guidance). */
@@ -806,7 +808,6 @@ s32 func_00172e00(u8 *arg0)
     u32 K_FldEvent_ArePosWithinDist(void *, void *, f32);
     u32 K_FldEvent_IsPosWithinFov(void *, void *, f32);
     u8 *mdlGetMatrix(u32);
-    void *mdlGetMatrix(u32);
     s32 func_0015c1e0(s32);
     void func_0014e740(s32, void *);
     void func_00182310(s32);
