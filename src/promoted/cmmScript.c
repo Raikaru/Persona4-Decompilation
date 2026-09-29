@@ -1024,10 +1024,11 @@ s32 func_0024bb00(s32 arg0) {
 #pragma optimization_level 2
 /* The month provider advances by 72 bytes: four rows of six signed weather
    weights precede four 12-byte attributes (also read by func_00250940).
-   Measured 2026-09-28 with the actual calendar/provider contracts: 672 bytes,
-   eight differing words. The selected row and second counter still exchange
-   $s0/$s2. Both flag queries stay in their original loops; the guard remains.
-   Receipts: build/cos20814/resume-scalar15/cmmScript/reviewable-weather-guard. */
+   Measured 2026-09-29 with the actual calendar/provider contracts: 672 bytes,
+   seven differing words (down from eight). Byte-pointer access matches the
+   second loop's address-add operand order; the selected row and second counter
+   still exchange $s0/$s2. Both flag queries stay in their original loops.
+   Receipts: build/weather-match-20260929/retained-proof.json. */
 // FUN_0024BE40 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0024be40(void)
@@ -1088,7 +1089,7 @@ s32 func_0024be40(void)
         choiceIndex = 0;
         while (choiceIndex < 6) {
             if ((choiceIndex != 0) || (datGetFlag(2703) != 0)) {
-                cumulativeWeight += weights->weight[choiceIndex];
+                cumulativeWeight += *((s8 *)weights + choiceIndex);
                 if ((s32)result < (s32)cumulativeWeight) {
                     result = choiceIndex;
                     break;

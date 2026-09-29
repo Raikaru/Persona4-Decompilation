@@ -70,3 +70,24 @@ zero errors; its warnings comprise existing declaration disagreements and
 the reviewed optimization pragmas. The old claims that this updater requires
 scalar `s128` state or fixed-register assembly have been removed with the
 superseded guarded body.
+
+## Radial Flash updater: retained two-word frontier
+
+`func_0049b690` remains guarded and assembly-backed. Its reconstructed C now
+emits 2,392 bytes in the 2,400-byte retail window, with two differing executable
+words: the color-fill loop uses `$v0` for its `slti`/`bnez` pair where retail
+uses `$at`. The eight-byte suffix is zero alignment. The current pre-change
+guard measured 1,596 differing words at 2,332 bytes; its historical 507-word
+note did not describe the current declaration environment.
+
+The reconstruction follows the state-to-particle indirection and actual geometry
+vertex/color pointers. Age, recycling, counts, and fade boundaries are scalar
+state, not artificial `s128` storage. Existing VU helpers and compiler-allocated
+hardware transfers replace fixed-register and fixed-stack templates.
+
+`build/flashmatch-20260929/final-guarded/` retains the installed source,
+compiler receipt, object, instruction comparison, and relocation proof.
+All 42 matching C siblings remain exact; all 47 target relocations validate
+without wrong or unresolved callees or data symbols. Final conditional-rebuild
+and inline-loop-helper probes retain the same two-word residual. No match
+promotion or shared-header change is claimed.
