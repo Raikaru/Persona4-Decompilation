@@ -12407,8 +12407,12 @@ owner data or non-target byte regressions. Source SHA-256:
 Evidence: `build/resume-flash-20260929/final-owner-receipt.json`,
 `production-final/`, `guarded-stable/`, and
 `build/finish-first-party-20260929/parent/flash-production-verify.json`.
-These are compiler/object and retail-byte proofs, not PS2 COP2 execution
-or a newly C-linked-object claim. `004a0c00` remains guarded at
+The local receipts are compiler/object proofs. Published checkpoint
+`3cc9595e` also passed CI run `36639446926`, including clean ASM regeneration,
+the proprietary full build and verifier. Its `SLUS_217.82_report` records
+100% for all six new Flash functions, 48/49 for this owner, and **6736/6861
+first-party functions matched**; 125 first-party functions remain.
+No PS2 COP2 or gameplay execution is claimed. `004a0c00` remains guarded at
 2204 / 2208 bytes with sixteen `$v0`/`$v1` address/transfer words; accurate
 output-timing and split-bridge probes do not close it. No compiler-floor
 claim follows those negative probes.
