@@ -470,537 +470,514 @@ void func_00260e60(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 variant, s32
     }
 }
 #pragma pop
-/* measured: GUARDED_SCORE 1357 via `python3 tools/measure_guarded.py src/promoted/code1_0026.c func_00261560` with scoped `#pragma optimization_level 3` (baseline v1e 1804I/1591wd -> 1558I/1357wd, -246I/-234wd, count and words both improve so not inflation); obj 1558I / retail 1568I (-10, -0.64% PASS, band 1521-1615). fnalign 2970 edits. 12-arg float ABI from prologue (a0->s0,a1->s4,a2->s3,a3->s8,t0->stack0xCC,f13->f22,f14->f21,t1->s6,t2->s7,t3->s2); handoff-7r entry MAC shaped as (s32)((float)arg0+47.0f*(1.0f-fparg1)), remaining 10 MAC sites stubbed 0.0f for count (same 1I float const); D_00887300[0], D_00637430, s128 aligned(16), base-first. */
-/* decomposition for func_00261560 (banked vC 1611 inside, s32 spB0 saves 6 — same call as func_0035aff0):
-   Retail 0x00261560-0x00262DDF 6272B 1568I, band 1521-1615. Banked vC 1611I/1429wd/2998ed (+43/+2.74% PASS, headroom 4) with handoff-7r entry (s32)((float)arg0+47.0f*(1.0f-fparg1)) and four 0xE 9th-args ((float)arg0+70/69*fparg1, 70,69,70,69 per c.lt.s/bc1t), s0 reuse via arg0, s32 spB0 (was s128, saves 6I/1wd/4ed vs v1d 1617I/1430wd/3002ed +2 over max), opt_level3 scoped (dummy v1e 1558I/1357wd/2970ed inside but 10x0.0f placeholders, correctly reverted). 12-arg ABI: a0->s0(arg0),a1->s4(arg1),a2->s3(arg2 u8),a3->s8(arg3 &0xF,>>4),t0->stack0xCC(arg4),f13->f22(fparg1),f14->f21(fparg2),t1->s6(arg5),t2->s7(arg6),t3->s2(arg7). MAC addrs 0x00261614/18,0x002619EC/F0,0x00261A5C/60,0x00261D00/04,0x00261D70/74,0x00261FDC/E0 (plain a+b*c). 12th-arg f15 0.0f correct literal. Caveat: no block prototypes for 0025f430/00260e60 (untyped calls keep sd bloat); adding s32/u8* prototypes drops to 1403I/1566 (-163 outside below, needs +~165 real logic) — bloat compensates missing blocks, gate passes but composition still 2998ed; honest typed version needs block recovery. */
-/* measured 2026-09-20 (owner): tbl caching + s128 spB0 + var reuse (this body): GUARDED_SCORE 1362 via `python3 tools/measure_guarded.py src/promoted/code1_0026.c func_00261560` (was 1429, -67); fnalign retail 1566/object 1525 (-41, -2.6% INSIDE, also inside 1521-1615 for 1568 window) via `python3 -E -s tools/fnalign.py src/promoted/code1_0026.c func_00261560 --candidate /tmp/body.c` (was 1568/1611 +2.7% inside, 2335 edits -> 2262, -73); deficit_scan retail has more nop+208 sw+30 mtc1+25 lui+22 move+4 beqz+3 addiu+2 mul.s+1 with retail-only runs 432 at 0x00262714-0x00262DD4, 104 at 0x00261C28-0x00261DC8, 90 at 0x00261944-0x00261AAC (0025f430 triples + tail, still misplaced); tail_classify 219 structure (same count, smaller hunks); changes: `void (**tbl)(u32,u32); tbl=D_00887300; tbl[0](...)` (was reload per call, -58wd/-79ed alone), `s128 spB0=(s128)temp_2` matches retail sq/lq (was s32, -9wd), single `u8 *var_3`/`s32 var_2` reused (was 19 each, same metrics, cleaner), `(void)fparg0;` (was stray `0.0f;`, same); respected -O2 no-pragma 1025 edits/1877I FAILS gate, not chased; verify.py 57 MATCH/8 ASM unchanged, lint 0 errors. */
-// FUN_00261560 NONMATCHING
-#ifdef NON_MATCHING
+/* Render the current weather and its transition using complete clip/color records. */
+// FUN_00261560
 #pragma push
-#pragma optimization_level 3
-void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0) {
+#pragma opt_lifetimes on
+void func_00261560(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highlight, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipWidth, s32 font, s32 forcedHighlight)
+{
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     typedef signed __int128 s128;
+    typedef union {
+        struct { s32 x, y, width, height; } fields;
+        s128 packet;
+    } WeatherClip;
+    typedef struct { u8 red, green, blue, alpha; } WeatherColor;
     extern s128 D_00637430;
     extern void (*D_00887300[])(u32, u32);
-    void (**tbl)(u32, u32);
+    u8 *renderStates;
     extern void RpSkyRenderStateSet(s32, s32);
     extern void func_0045d6e0(void *, void *, f32, s32);
     extern void func_00489f80(void);
     extern void func_0048a000(void);
-    s32 unksp134;
-    s32 unksp174;
-    s32 unksp1B4;
-    s32 unksp1F4;
-    s32 unksp234;
-    s32 unkspF4;
-    f32 sp2AC;
-    f32 sp2A8;
-    f32 sp2A4;
-    f32 sp2A0;
-    f32 sp29C;
-    f32 sp298;
-    f32 sp294;
-    f32 sp290;
-    f32 sp28C;
-    f32 sp288;
-    f32 sp284;
-    f32 sp280;
-    f32 sp27C;
-    f32 sp278;
-    f32 sp274;
-    f32 sp270;
-    f32 sp26C;
-    f32 sp268;
-    f32 sp264;
-    f32 sp260;
-    f32 sp25C;
-    f32 sp258;
-    f32 sp254;
-    f32 sp250;
-    s128 sp240;
-    s128 sp230;                                     /* compiler-managed */
-    s128 sp220;
-    s32 sp21C;
-    s32 sp218;
-    s32 sp214;
-    s32 sp210;
-    s128 sp200;
-    s128 sp1F0;                                     /* compiler-managed */
-    s128 sp1E0;
-    s32 sp1DC;
-    s32 sp1D8;
-    s32 sp1D4;
-    s32 sp1D0;
-    s128 sp1C0;
-    s128 sp1B0;                                     /* compiler-managed */
-    s128 sp1A0;
-    s32 sp19C;
-    s32 sp198;
-    s32 sp194;
-    s32 sp190;
-    s128 sp180;
-    s128 sp170;                                     /* compiler-managed */
-    s128 sp160;
-    s32 sp15C;
-    s32 sp158;
-    s32 sp154;
-    s32 sp150;
-    s128 sp140;
-    s128 sp130;                                     /* compiler-managed */
-    s128 sp120;
-    s32 sp11C;
-    s32 sp118;
-    s32 sp114;
-    s32 sp110;
-    s128 sp100;
-    s128 spF0;                                      /* compiler-managed */
-    s128 spE0;
-    s32 spDC;
-    s32 spD8;
-    s32 spD4;
-    s32 spD0;
-    s32 spCC;
-    s128 spB0;
-    u8 *var_3;
-    f32 temp_f20;
-    s32 temp_2;
-    s32 temp_30;
-    s32 var_17;
-    s32 var_2;
+    WeatherColor sameBackdropColor;
+    WeatherColor sameBackdropColorScratch;
+    WeatherColor sameViewportColor;
+    WeatherColor sameViewportColorScratch;
+    WeatherColor sameOverlayColor;
+    WeatherColor sameOverlayColorScratch;
+    WeatherColor sameFinishColor;
+    WeatherColor sameFinishColorScratch;
+    WeatherColor currentBackdropColor;
+    WeatherColor currentBackdropColorScratch;
+    WeatherColor currentViewportColor;
+    WeatherColor currentViewportColorScratch;
+    WeatherColor currentOverlayColor;
+    WeatherColor currentOverlayColorScratch;
+    WeatherColor currentFinishColor;
+    WeatherColor currentFinishColorScratch;
+    WeatherColor previousBackdropColor;
+    WeatherColor previousBackdropColorScratch;
+    WeatherColor previousViewportColor;
+    WeatherColor previousViewportColorScratch;
+    WeatherColor previousOverlayColor;
+    WeatherColor previousOverlayColorScratch;
+    WeatherColor previousFinishColor;
+    WeatherColor previousFinishColorScratch;
+    WeatherClip sameBackdropBounds;
+    WeatherClip sameBackdropBoundsScratch;
+    WeatherClip sameViewportBounds;
+    WeatherClip sameViewportBoundsScratch;
+    WeatherClip sameOverlayBounds;
+    WeatherClip sameOverlayBoundsScratch;
+    WeatherClip sameFinishBounds;
+    WeatherClip sameFinishBoundsScratch;
+    WeatherClip currentBackdropBounds;
+    WeatherClip currentBackdropBoundsScratch;
+    WeatherClip currentViewportBounds;
+    WeatherClip currentViewportBoundsScratch;
+    WeatherClip currentOverlayBounds;
+    WeatherClip currentOverlayBoundsScratch;
+    WeatherClip currentFinishBounds;
+    WeatherClip currentFinishBoundsScratch;
+    WeatherClip previousBackdropBounds;
+    WeatherClip previousBackdropBoundsScratch;
+    WeatherClip previousViewportBounds;
+    WeatherClip previousViewportBoundsScratch;
+    WeatherClip previousOverlayBounds;
+    WeatherClip previousOverlayBoundsScratch;
+    WeatherClip previousFinishBounds;
+    WeatherClip previousFinishBoundsScratch;
+    s32 fallbackHighlight;
+    s32 oldWeather;
+    u8 *cursor;
+    s32 previousWeather;
+    s32 currentWeather;
+    s32 backgroundColor;
+    s32 remaining;
 
-    spCC = arg4;
-    var_17 = 0x242424;
-    if (arg4 != 0) {
-        var_17 = 0;
+    fallbackHighlight = highlight;
+    backgroundColor = 0x242424;
+    if (highlight != 0) {
+        backgroundColor = 0;
     }
-    temp_30 = arg3 & 0xF;
-    temp_2 = arg3 >> 4;
-    spB0 = (s128) temp_2;
-    tbl = D_00887300;
-    if (temp_2 == temp_30) {
-        arg0 = (s32)((float)arg0 + 47.0f * (1.0f - fparg1));
-        var_3 = (u8 *)(&sp2A8);
-        var_2 = 4;
-        if (var_3 != NULL) {
+    currentWeather = weather & 0xF;
+    previousWeather = weather >> 4;
+    oldWeather = previousWeather;
+    if (previousWeather == currentWeather) {
+        x = (s32)((float)x + 47.0f * (1.0f - scaleX));
+        cursor = (u8 *)(&sameBackdropColorScratch);
+        remaining = 4;
+        if (cursor != NULL) {
             do {
-                *var_3 = 0;
-                var_3 += 1;
-            } while (--var_2 != 0);
+                *cursor = 0;
+                cursor += 1;
+            } while (--remaining != 0);
         }
-        sp2AC = sp2A8;
-        sp230 = D_00637430;
-        sp230 = arg0 - 0x40;
-        unksp234 = arg1 - 0x40;
-        sp240 = (s128) sp230;
-        tbl[0](0xE, 0);
-        tbl[0](0xC, 1);
-        tbl[0](7, 2);
-        tbl[0](9, 1);
-        tbl[0](0x14, 1);
-        tbl[0](6, 0);
-        tbl[0](8, 1);
+        sameBackdropColor = sameBackdropColorScratch;
+        sameBackdropBoundsScratch.packet = D_00637430;
+        sameBackdropBoundsScratch.fields.x = x - 0x40;
+        sameBackdropBoundsScratch.fields.y = y - 0x40;
+        sameBackdropBounds = sameBackdropBoundsScratch;
+        renderStates = (u8 *)D_00887300;
+        (*(void (**)(u32, u32))renderStates)(0xE, 0);
+        (*(void (**)(u32, u32))renderStates)(0xC, 1);
+        (*(void (**)(u32, u32))renderStates)(7, 2);
+        (*(void (**)(u32, u32))renderStates)(9, 1);
+        (*(void (**)(u32, u32))renderStates)(0x14, 1);
+        (*(void (**)(u32, u32))renderStates)(6, 0);
+        (*(void (**)(u32, u32))renderStates)(8, 1);
         RpSkyRenderStateSet(3, 0x71003);
         RpSkyRenderStateSet(2, 0x44);
         func_00489f80();
-        func_0045d6e0(&sp2AC, &sp240, 0, 10.0f);
+        func_0045d6e0(&sameBackdropColor, &sameBackdropBounds, 10.0f, 0);
         func_0048a000();
-        var_3 = (u8 *)(&sp2A0);
-        var_2 = 4;
-        if (var_3 != NULL) {
+        cursor = (u8 *)(&sameViewportColorScratch);
+        remaining = 4;
+        if (cursor != NULL) {
             do {
-                *var_3 = 0;
-                var_3 += 1;
-            } while (--var_2 != 0);
+                *cursor = 0;
+                cursor += 1;
+            } while (--remaining != 0);
         }
-        sp2A4 = sp2A0;
-        var_3 = (u8 *)(&sp210);
-        var_2 = 0x10;
-        if (var_3 != NULL) {
+        sameViewportColor = sameViewportColorScratch;
+        cursor = (u8 *)(&sameViewportBoundsScratch);
+        remaining = 0x10;
+        if (cursor != NULL) {
             do {
-                *var_3 = 0;
-                var_3 += 1;
-            } while (--var_2 != 0);
+                *cursor = 0;
+                cursor += 1;
+            } while (--remaining != 0);
         }
-        sp210 = arg5;
-        sp214 = 0;
-        sp218 = arg6;
-        sp21C = 0x1E0;
-        sp220 = (s128) sp210;
-        tbl[0](0xE, 0);
-        tbl[0](0xC, 1);
-        tbl[0](7, 2);
-        tbl[0](9, 1);
-        tbl[0](0x14, 1);
-        tbl[0](6, 0);
-        tbl[0](8, 1);
+        sameViewportBoundsScratch.fields.x = clipLeft;
+        sameViewportBoundsScratch.fields.y = 0;
+        sameViewportBoundsScratch.fields.width = clipWidth;
+        sameViewportBoundsScratch.fields.height = 0x1E0;
+        sameViewportBounds = sameViewportBoundsScratch;
+        (*(void (**)(u32, u32))renderStates)(0xE, 0);
+        (*(void (**)(u32, u32))renderStates)(0xC, 1);
+        (*(void (**)(u32, u32))renderStates)(7, 2);
+        (*(void (**)(u32, u32))renderStates)(9, 1);
+        (*(void (**)(u32, u32))renderStates)(0x14, 1);
+        (*(void (**)(u32, u32))renderStates)(6, 0);
+        (*(void (**)(u32, u32))renderStates)(8, 1);
         RpSkyRenderStateSet(3, 0x31003);
         RpSkyRenderStateSet(2, 0x44);
         func_00489f80();
-        func_0045d6e0(&sp2A4, &sp220, 0, 1.0f);
+        func_0045d6e0(&sameViewportColor, &sameViewportBounds, 1.0f, 0);
         func_0048a000();
-        tbl[0](6, 1);
-        tbl[0](7, 2);
+        (*(void (**)(u32, u32))renderStates)(6, 1);
+        (*(void (**)(u32, u32))renderStates)(7, 2);
         RpSkyRenderStateSet(3, 0x7000D);
-        func_0025f430((f32) arg0, (f32) arg1, 10.0f, var_17, arg2, 3, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
-        temp_f20 = (f32) arg0 + (9.0f * fparg1);
-        func_0025f430(temp_f20, (f32) (arg1 + 4), 10.0f, var_17, arg2, 0xD, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
-        if (!(fparg1 < 1.0f)) {
-            func_0025f430(((float)arg0 + 70.0f * fparg1), (f32) arg1, 10.0f, var_17, arg2, 0xE, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
+        func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        func_0025f430((f32)x + (9.0f * scaleX), (f32) (y + 4), 10.0f, backgroundColor, opacity, 0xD, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        if (!(scaleX < 1.0f)) {
+            func_0025f430(((float)x + 70.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
         } else {
-            func_0025f430(((float)arg0 + 69.0f * fparg1), (f32) arg1, 10.0f, var_17, arg2, 0xE, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
+            func_0025f430(((float)x + 69.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
         }
-        var_3 = (u8 *)(&sp298);
-        var_2 = 4;
-        if (var_3 != NULL) {
+        cursor = (u8 *)(&sameOverlayColorScratch);
+        remaining = 4;
+        if (cursor != NULL) {
             do {
-                *var_3 = 0;
-                var_3 += 1;
-            } while (--var_2 != 0);
+                *cursor = 0;
+                cursor += 1;
+            } while (--remaining != 0);
         }
-        sp29C = sp298;
-        sp1F0 = D_00637430;
-        sp1F0 = arg0 - 0x40;
-        unksp1F4 = arg1 - 0x40;
-        sp200 = (s128) sp1F0;
-        tbl[0](0xE, 0);
-        tbl[0](0xC, 1);
-        tbl[0](7, 2);
-        tbl[0](9, 1);
-        tbl[0](0x14, 1);
-        tbl[0](6, 0);
-        tbl[0](8, 1);
+        sameOverlayColor = sameOverlayColorScratch;
+        sameOverlayBoundsScratch.packet = D_00637430;
+        sameOverlayBoundsScratch.fields.x = x - 0x40;
+        sameOverlayBoundsScratch.fields.y = y - 0x40;
+        sameOverlayBounds = sameOverlayBoundsScratch;
+        renderStates = (u8 *)D_00887300;
+        (*(void (**)(u32, u32))renderStates)(0xE, 0);
+        (*(void (**)(u32, u32))renderStates)(0xC, 1);
+        (*(void (**)(u32, u32))renderStates)(7, 2);
+        (*(void (**)(u32, u32))renderStates)(9, 1);
+        (*(void (**)(u32, u32))renderStates)(0x14, 1);
+        (*(void (**)(u32, u32))renderStates)(6, 0);
+        (*(void (**)(u32, u32))renderStates)(8, 1);
         RpSkyRenderStateSet(3, 0x71003);
         RpSkyRenderStateSet(2, 0x44);
         func_00489f80();
-        func_0045d6e0(&sp29C, &sp200, 0, 5.0f);
+        func_0045d6e0(&sameOverlayColor, &sameOverlayBounds, 5.0f, 0);
         func_0048a000();
-        tbl[0](6, 0);
-        tbl[0](7, 2);
+        (*(void (**)(u32, u32))renderStates)(6, 0);
+        (*(void (**)(u32, u32))renderStates)(7, 2);
         RpSkyRenderStateSet(3, 0x7000D);
         func_00489f80();
-        func_0025f430((f32) arg0, (f32) arg1, 10.0f, var_17, arg2, 3, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
-        func_0025f430(temp_f20, (f32) (arg1 + 4), 10.0f, var_17, arg2, 0xD, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
-        if (!(fparg1 < 1.0f)) {
-            func_0025f430(((float)arg0 + 70.0f * fparg1), (f32) arg1, 10.0f, var_17, arg2, 0xE, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
+        func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        func_0025f430((f32)x + (9.0f * scaleX), (f32) (y + 4), 10.0f, backgroundColor, opacity, 0xD, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        if (!(scaleX < 1.0f)) {
+            func_0025f430(((float)x + 70.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
         } else {
-            func_0025f430(((float)arg0 + 69.0f * fparg1), (f32) arg1, 10.0f, var_17, arg2, 0xE, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
+            func_0025f430(((float)x + 69.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
         }
         func_0048a000();
-        var_3 = (u8 *)(&sp290);
-        var_2 = 4;
-        if (var_3 != NULL) {
+        cursor = (u8 *)(&sameFinishColorScratch);
+        remaining = 4;
+        if (cursor != NULL) {
             do {
-                *var_3 = 0;
-                var_3 += 1;
-            } while (--var_2 != 0);
+                *cursor = 0;
+                cursor += 1;
+            } while (--remaining != 0);
         }
-        sp294 = sp290;
-        var_3 = (u8 *)(&sp1D0);
-        var_2 = 0x10;
-        if (var_3 != NULL) {
+        sameFinishColor = sameFinishColorScratch;
+        cursor = (u8 *)(&sameFinishBoundsScratch);
+        remaining = 0x10;
+        if (cursor != NULL) {
             do {
-                *var_3 = 0;
-                var_3 += 1;
-            } while (--var_2 != 0);
+                *cursor = 0;
+                cursor += 1;
+            } while (--remaining != 0);
         }
-        sp1D0 = arg5;
-        sp1D4 = 0;
-        sp1D8 = arg6;
-        sp1DC = 0x1E0;
-        sp1E0 = (s128) sp1D0;
-        tbl[0](0xE, 0);
-        tbl[0](0xC, 1);
-        tbl[0](7, 2);
-        tbl[0](9, 1);
-        tbl[0](0x14, 1);
-        tbl[0](6, 0);
-        tbl[0](8, 1);
+        sameFinishBoundsScratch.fields.x = clipLeft;
+        sameFinishBoundsScratch.fields.y = 0;
+        sameFinishBoundsScratch.fields.width = clipWidth;
+        sameFinishBoundsScratch.fields.height = 0x1E0;
+        sameFinishBounds = sameFinishBoundsScratch;
+        renderStates = (u8 *)D_00887300;
+        (*(void (**)(u32, u32))renderStates)(0xE, 0);
+        (*(void (**)(u32, u32))renderStates)(0xC, 1);
+        (*(void (**)(u32, u32))renderStates)(7, 2);
+        (*(void (**)(u32, u32))renderStates)(9, 1);
+        (*(void (**)(u32, u32))renderStates)(0x14, 1);
+        (*(void (**)(u32, u32))renderStates)(6, 0);
+        (*(void (**)(u32, u32))renderStates)(8, 1);
         RpSkyRenderStateSet(3, 0x31003);
         RpSkyRenderStateSet(2, 0x44);
         func_00489f80();
-        func_0045d6e0(&sp294, &sp1E0, 0, 1.0f);
+        func_0045d6e0(&sameFinishColor, &sameFinishBounds, 1.0f, 0);
         func_0048a000();
-        if (arg_sp0 != 0) {
-            func_00260e60(arg0, arg1, 10.0f, arg2, temp_30, 0, arg_sp0, fparg1, fparg2, arg7, 1);
+        if (forcedHighlight != 0) {
+            func_00260e60(x, y, 10.0f, opacity, currentWeather, 0, forcedHighlight, scaleX, scaleY, font, 1);
             return;
         }
-        func_00260e60(arg0, arg1, 10.0f, arg2, temp_30, 0, spCC, fparg1, fparg2, arg7, 1);
+        func_00260e60(x, y, 10.0f, opacity, currentWeather, 0, fallbackHighlight, scaleX, scaleY, font, 1);
         return;
     }
-    (void)fparg0;
-    arg0 = (s32)((float)arg0 + 47.0f * (1.0f - fparg1));
-    var_3 = (u8 *)(&sp288);
-    var_2 = 4;
-    if (var_3 != NULL) {
+    (void)depth;
+    x = (s32)((float)x + 47.0f * (1.0f - scaleX));
+    cursor = (u8 *)(&currentBackdropColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-        } while (--var_2 != 0);
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
     }
-    sp28C = sp288;
-    sp1B0 = D_00637430;
-    sp1B0 = arg0 - 0x40;
-    unksp1B4 = arg1 - 0x40;
-    sp1C0 = (s128) sp1B0;
-    tbl[0](0xE, 0);
-    tbl[0](0xC, 1);
-    tbl[0](7, 2);
-    tbl[0](9, 1);
-    tbl[0](0x14, 1);
-    tbl[0](6, 0);
-    tbl[0](8, 1);
+    currentBackdropColor = currentBackdropColorScratch;
+    currentBackdropBoundsScratch.packet = D_00637430;
+    currentBackdropBoundsScratch.fields.x = x - 0x40;
+    currentBackdropBoundsScratch.fields.y = y - 0x40;
+    currentBackdropBounds = currentBackdropBoundsScratch;
+    renderStates = (u8 *)D_00887300;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
     RpSkyRenderStateSet(3, 0x71003);
     RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
-    func_0045d6e0(&sp28C, &sp1C0, 0, 10.0f);
+    func_0045d6e0(&currentBackdropColor, &currentBackdropBounds, 10.0f, 0);
     func_0048a000();
-    var_3 = (u8 *)(&sp280);
-    var_2 = 4;
-    if (var_3 != NULL) {
+    cursor = (u8 *)(&currentViewportColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-        } while (--var_2 != 0);
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
     }
-    sp284 = sp280;
-    var_3 = (u8 *)(&sp190);
-    var_2 = 0x10;
-    if (var_3 != NULL) {
+    currentViewportColor = currentViewportColorScratch;
+    cursor = (u8 *)(&currentViewportBoundsScratch);
+    remaining = 0x10;
+    if (cursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-        } while (--var_2 != 0);
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
     }
-    sp190 = arg5;
-    sp194 = 0;
-    sp198 = arg6;
-    sp19C = 0x1E0;
-    sp1A0 = (s128) sp190;
-    tbl[0](0xE, 0);
-    tbl[0](0xC, 1);
-    tbl[0](7, 2);
-    tbl[0](9, 1);
-    tbl[0](0x14, 1);
-    tbl[0](6, 0);
-    tbl[0](8, 1);
+    currentViewportBoundsScratch.fields.x = clipLeft;
+    currentViewportBoundsScratch.fields.y = 0;
+    currentViewportBoundsScratch.fields.width = clipWidth;
+    currentViewportBoundsScratch.fields.height = 0x1E0;
+    currentViewportBounds = currentViewportBoundsScratch;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
-    func_0045d6e0(&sp284, &sp1A0, 0, 1.0f);
+    func_0045d6e0(&currentViewportColor, &currentViewportBounds, 1.0f, 0);
     func_0048a000();
-    tbl[0](6, 1);
-    tbl[0](7, 2);
+    (*(void (**)(u32, u32))renderStates)(6, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
     RpSkyRenderStateSet(3, 0x3000D);
-    func_0025f430((f32) arg0, (f32) arg1, 10.0f, var_17, arg2, 0xF, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
-    var_3 = (u8 *)(&sp278);
-    var_2 = 4;
-    if (var_3 != NULL) {
+    func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 0xF, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+    cursor = (u8 *)(&currentOverlayColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-        } while (--var_2 != 0);
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
     }
-    sp27C = sp278;
-    sp170 = D_00637430;
-    sp170 = arg0 - 0x40;
-    unksp174 = arg1 - 0x40;
-    sp180 = (s128) sp170;
-    tbl[0](0xE, 0);
-    tbl[0](0xC, 1);
-    tbl[0](7, 2);
-    tbl[0](9, 1);
-    tbl[0](0x14, 1);
-    tbl[0](6, 0);
-    tbl[0](8, 1);
+    currentOverlayColor = currentOverlayColorScratch;
+    currentOverlayBoundsScratch.packet = D_00637430;
+    currentOverlayBoundsScratch.fields.x = x - 0x40;
+    currentOverlayBoundsScratch.fields.y = y - 0x40;
+    currentOverlayBounds = currentOverlayBoundsScratch;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
     RpSkyRenderStateSet(3, 0x71003);
     RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
-    func_0045d6e0(&sp27C, &sp180, 0, 5.0f);
+    func_0045d6e0(&currentOverlayColor, &currentOverlayBounds, 5.0f, 0);
     func_0048a000();
-    tbl[0](6, 0);
-    tbl[0](7, 2);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
     RpSkyRenderStateSet(3, 0x7000D);
     func_00489f80();
-    func_0025f430((f32) arg0, (f32) arg1, 10.0f, var_17, arg2, 0xF, 0, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
+    func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 0xF, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
     func_0048a000();
-    var_3 = (u8 *)(&sp270);
-    var_2 = 4;
-    if (var_3 != NULL) {
+    cursor = (u8 *)(&currentFinishColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-        } while (--var_2 != 0);
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
     }
-    sp274 = sp270;
-    var_3 = (u8 *)(&sp150);
-    var_2 = 0x10;
-    if (var_3 != NULL) {
+    currentFinishColor = currentFinishColorScratch;
+    cursor = (u8 *)(&currentFinishBoundsScratch);
+    remaining = 0x10;
+    if (cursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-        } while (--var_2 != 0);
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
     }
-    sp150 = arg5;
-    sp154 = 0;
-    sp158 = arg6;
-    sp15C = 0x1E0;
-    sp160 = (s128) sp150;
-    tbl[0](0xE, 0);
-    tbl[0](0xC, 1);
-    tbl[0](7, 2);
-    tbl[0](9, 1);
-    tbl[0](0x14, 1);
-    tbl[0](6, 0);
-    tbl[0](8, 1);
+    currentFinishBoundsScratch.fields.x = clipLeft;
+    currentFinishBoundsScratch.fields.y = 0;
+    currentFinishBoundsScratch.fields.width = clipWidth;
+    currentFinishBoundsScratch.fields.height = 0x1E0;
+    currentFinishBounds = currentFinishBoundsScratch;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
-    func_0045d6e0(&sp274, &sp160, 0, 1.0f);
+    func_0045d6e0(&currentFinishColor, &currentFinishBounds, 1.0f, 0);
     func_0048a000();
-    if (arg_sp0 != 0) {
-        func_00260e60(arg0, arg1, 10.0f, arg2, temp_30, 1, arg_sp0, fparg1, fparg2, arg7, 1);
+    if (forcedHighlight != 0) {
+        func_00260e60(x, y, 10.0f, opacity, currentWeather, 1, forcedHighlight, scaleX, scaleY, font, 1);
     } else {
-        func_00260e60(arg0, arg1, 10.0f, arg2, temp_30, 1, spCC, fparg1, fparg2, arg7, 1);
+        func_00260e60(x, y, 10.0f, opacity, currentWeather, 1, fallbackHighlight, scaleX, scaleY, font, 1);
     }
-    var_3 = (u8 *)(&sp268);
-    var_2 = 4;
-    if (var_3 != NULL) {
+    cursor = (u8 *)(&previousBackdropColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-        } while (--var_2 != 0);
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
     }
-    sp26C = sp268;
-    sp130 = D_00637430;
-    sp130 = arg0 - 0x40;
-    unksp134 = arg1 - 0x40;
-    sp140 = (s128) sp130;
-    tbl[0](0xE, 0);
-    tbl[0](0xC, 1);
-    tbl[0](7, 2);
-    tbl[0](9, 1);
-    tbl[0](0x14, 1);
-    tbl[0](6, 0);
-    tbl[0](8, 1);
+    previousBackdropColor = previousBackdropColorScratch;
+    previousBackdropBoundsScratch.packet = D_00637430;
+    previousBackdropBoundsScratch.fields.x = x - 0x40;
+    previousBackdropBoundsScratch.fields.y = y - 0x40;
+    previousBackdropBounds = previousBackdropBoundsScratch;
+    renderStates = (u8 *)D_00887300;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
     RpSkyRenderStateSet(3, 0x71003);
     RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
-    func_0045d6e0(&sp26C, &sp140, 0, 10.0f);
+    func_0045d6e0(&previousBackdropColor, &previousBackdropBounds, 10.0f, 0);
     func_0048a000();
-    var_3 = (u8 *)(&sp260);
-    var_2 = 4;
-    if (var_3 != NULL) {
+    cursor = (u8 *)(&previousViewportColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-        } while (--var_2 != 0);
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
     }
-    sp264 = sp260;
-    var_3 = (u8 *)(&sp110);
-    var_2 = 0x10;
-    if (var_3 != NULL) {
+    previousViewportColor = previousViewportColorScratch;
+    cursor = (u8 *)(&previousViewportBoundsScratch);
+    remaining = 0x10;
+    if (cursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-        } while (--var_2 != 0);
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
     }
-    sp110 = arg5;
-    sp114 = 0;
-    sp118 = arg6;
-    sp11C = 0x1E0;
-    sp120 = (s128) sp110;
-    tbl[0](0xE, 0);
-    tbl[0](0xC, 1);
-    tbl[0](7, 2);
-    tbl[0](9, 1);
-    tbl[0](0x14, 1);
-    tbl[0](6, 0);
-    tbl[0](8, 1);
+    previousViewportBoundsScratch.fields.x = clipLeft;
+    previousViewportBoundsScratch.fields.y = 0;
+    previousViewportBoundsScratch.fields.width = clipWidth;
+    previousViewportBoundsScratch.fields.height = 0x1E0;
+    previousViewportBounds = previousViewportBoundsScratch;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
-    func_0045d6e0(&sp264, &sp120, 0, 1.0f);
+    func_0045d6e0(&previousViewportColor, &previousViewportBounds, 1.0f, 0);
     func_0048a000();
-    tbl[0](6, 1);
-    tbl[0](7, 2);
+    (*(void (**)(u32, u32))renderStates)(6, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
     RpSkyRenderStateSet(3, 0x3000D);
-    func_0025f430((f32) arg0, (f32) arg1, 10.0f, var_17, arg2, 3, 1, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
-    var_3 = (u8 *)(&sp258);
-    var_2 = 4;
-    if (var_3 != NULL) {
+    func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 1, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+    cursor = (u8 *)(&previousOverlayColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-        } while (--var_2 != 0);
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
     }
-    sp25C = sp258;
-    spF0 = D_00637430;
-    spF0 = arg0 - 0x40;
-    unkspF4 = arg1 - 0x40;
-    sp100 = (s128) spF0;
-    tbl[0](0xE, 0);
-    tbl[0](0xC, 1);
-    tbl[0](7, 2);
-    tbl[0](9, 1);
-    tbl[0](0x14, 1);
-    tbl[0](6, 0);
-    tbl[0](8, 1);
+    previousOverlayColor = previousOverlayColorScratch;
+    previousOverlayBoundsScratch.packet = D_00637430;
+    previousOverlayBoundsScratch.fields.x = x - 0x40;
+    previousOverlayBoundsScratch.fields.y = y - 0x40;
+    previousOverlayBounds = previousOverlayBoundsScratch;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
     RpSkyRenderStateSet(3, 0x71003);
     RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
-    func_0045d6e0(&sp25C, &sp100, 0, 5.0f);
+    func_0045d6e0(&previousOverlayColor, &previousOverlayBounds, 5.0f, 0);
     func_0048a000();
-    tbl[0](6, 0);
-    tbl[0](7, 2);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
     RpSkyRenderStateSet(3, 0x7000D);
     func_00489f80();
-    func_0025f430((f32) arg0, (f32) arg1, 10.0f, var_17, arg2, 3, 1, (u8 *)(arg7), 0, 0.0f, 0.0f, 0.0f, fparg1, fparg2);
+    func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 1, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
     func_0048a000();
-    var_3 = (u8 *)(&sp250);
-    var_2 = 4;
-    if (var_3 != NULL) {
+    cursor = (u8 *)(&previousFinishColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-        } while (--var_2 != 0);
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
     }
-    sp254 = sp250;
-    var_3 = (u8 *)(&spD0);
-    var_2 = 0x10;
-    if (var_3 != NULL) {
+    previousFinishColor = previousFinishColorScratch;
+    cursor = (u8 *)(&previousFinishBoundsScratch);
+    remaining = 0x10;
+    if (cursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-        } while (--var_2 != 0);
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
     }
-    spD0 = arg5;
-    spD4 = 0;
-    spD8 = arg6;
-    spDC = 0x1E0;
-    spE0 = (s128) spD0;
-    tbl[0](0xE, 0);
-    tbl[0](0xC, 1);
-    tbl[0](7, 2);
-    tbl[0](9, 1);
-    tbl[0](0x14, 1);
-    tbl[0](6, 0);
-    tbl[0](8, 1);
+    previousFinishBoundsScratch.fields.x = clipLeft;
+    previousFinishBoundsScratch.fields.y = 0;
+    previousFinishBoundsScratch.fields.width = clipWidth;
+    previousFinishBoundsScratch.fields.height = 0x1E0;
+    previousFinishBounds = previousFinishBoundsScratch;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
-    func_0045d6e0(&sp254, &spE0, 0, 1.0f);
+    func_0045d6e0(&previousFinishColor, &previousFinishBounds, 1.0f, 0);
     func_0048a000();
-    if (arg_sp0 != 0) {
-        func_00260e60(arg0, arg1, 10.0f, arg2, ((s32)spB0 & 0xF), 2, arg_sp0, fparg1, fparg2, arg7, 1);
+    if (forcedHighlight != 0) {
+        func_00260e60(x, y, 10.0f, opacity, (oldWeather & 0xF), 2, forcedHighlight, scaleX, scaleY, font, 1);
         return;
     }
-    func_00260e60(arg0, arg1, 10.0f, arg2, ((s32)spB0 & 0xF), 2, spCC, fparg1, fparg2, arg7, 1);
+    func_00260e60(x, y, 10.0f, opacity, (oldWeather & 0xF), 2, fallbackHighlight, scaleX, scaleY, font, 1);
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00261560);
-#endif
 #pragma opt_propagation off
 static inline void calendarZeroBytes(void *memory, s32 count)
 {
@@ -1258,73 +1235,62 @@ block_25:
     func_00264cb0(arg0, *(s32 *)(temp_2 + 8));
     return 0;
 }
-/* 2026-09-28 rewrite from the retail listing: 274 -> 140 differing words, 351 of 351 instructions (fnalign edits
-   163 -> about 60).  The old body passed `func_00110c50(..) & 0xFFFF` as the date; retail passes `arg3 - 1 + i`
-   (the masked value only feeds the `!=` test), so this is also a semantics fix.  The float is the THIRD
-   parameter (retail moves a0, a1, f12, a2, a3, t0, t1 in parameter order; it is `depth` of func_00262de0), which
-   makes the prologue exact; the sq/lq of `(u8)arg2` and the `fadeA`/`fadeB` byte spills come from
-   `opt_loop_invariants on` plus register pressure, not from an s128 local.  `*(s32 *)(arg5 + 4)` is read as its
-   own statement before the second call of each pair, which is what gives retail's stack copy at 0xF0/0xE0/0xD0
-   (the value has to survive `func_00110c50`; assigned in the same statement as the call it is re-read after it).
-   Remaining: the three per-iteration temporaries (`arg3 - 1 + i`, `arg0 + i * 0x5E`, that plus 15) take
-   $fp/$s6/$s7 where retail has $s7/$fp/$s6, and the frame is 0x150 against 0x130 because the i == 1 / i == 2
-   pairs spill their font word where retail keeps it in $s6.  Naming the temporaries as locals moves the
-   parameters instead (264). */
-// FUN_00263730 NONMATCHING
-#ifdef SKIP_ASM
-/* measured: opt_loop_invariants on hoists (u8)arg2 into the sq/lq spill retail has (269 -> 253 words on the shape before the statement-ordered font word; off it stays inside the fade block). */
+/* The scrolling state supplies a fractional-day offset of at most 94 pixels.
+ * Blend the weather glyphs on either side of the day boundary; the selected
+ * columns are redrawn with their own clip intervals. Opacity is a byte in
+ * this function and in both calendar drawing helpers. */
+// FUN_00263730
+/* measured: opt_loop_invariants on hoists (u8)opacity into the sq/lq spill retail has (269 -> 253 words on the shape before the statement-ordered font word; off it stays inside the fade block). */
 #pragma push
 #pragma opt_loop_invariants on
-void func_00263730(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, u8 *arg5)
+#pragma opt_lifetimes on
+void func_00263730(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade, u8 *work)
 {
-    s32 i;
-    s32 a;
-    s32 code;
-    u8 fadeA;
-    u8 fadeB;
-    s32 wordA;
-    s32 wordB;
-    s32 wordC;
-    s32 wordD;
+    s32 column;
+    s32 oldWeather;
+    s32 weather;
+    u8 oldOpacity;
+    u8 newOpacity;
+    s32 oldFont;
+    s32 newFont;
+    s32 rowFont;
+    s32 selectedFont;
 
-    for (i = 0; i < 8; i++) {
-        if (arg3 - 1 + i < 0) {
+    for (column = 0; column < 8; column++) {
+        if (date - 1 + column < 0) {
             continue;
         }
-        if (arg4 != 0 && (a = (u16)func_00110c50(arg3 - 1 + i, arg3)) != (u16)func_00110c50(arg3 - 1 + i, arg3 + 1)) {
-            fadeA = (u8)(255.0f - (f32)(func_0043c6a0(arg0) * (u8)arg2) / 94.0f);
-            func_00262de0(arg0 + i * 0x5E + 15, arg1 + 245, fparg0, fadeA, arg3 - 1 + i, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(arg5 + 4), 0);
-            wordA = *(s32 *)(arg5 + 4);
-            code = (u16)func_00110c50(arg3 - 1 + i, arg3);
-            func_00261560(arg0 + i * 0x5E, arg1 + 295, fparg0, fadeA, code, 0, 1.0f, 1.0f, 0x58, 0x5A, wordA, 0);
-            fadeB = (u8)((f32)(func_0043c6a0(arg0) * (u8)arg2) / 94.0f);
-            func_00262de0(arg0 + i * 0x5E + 15, arg1 + 245, fparg0, fadeB, arg3 - 1 + i, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(arg5 + 4), 0);
-            wordB = *(s32 *)(arg5 + 4);
-            code = (u16)func_00110c50(arg3 - 1 + i, arg3 + 1);
-            func_00261560(arg0 + i * 0x5E, arg1 + 295, fparg0, fadeB, code, 0, 1.0f, 1.0f, 0x58, 0x5A, wordB, 0);
+        if (crossfade != 0 && (oldWeather = (u16)func_00110c50(date - 1 + column, date)) != (u16)func_00110c50(date - 1 + column, date + 1)) {
+            oldOpacity = (u8)(255.0f - (f32)(func_0043c6a0(x) * (u8)opacity) / 94.0f);
+            func_00262de0(x + column * 0x5E + 15, y + 245, depth, oldOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
+            oldFont = *(s32 *)(work + 4);
+            weather = (u16)func_00110c50(date - 1 + column, date);
+            func_00261560(x + column * 0x5E, y + 295, depth, oldOpacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, oldFont, 0);
+            newOpacity = (u8)((f32)(func_0043c6a0(x) * (u8)opacity) / 94.0f);
+            func_00262de0(x + column * 0x5E + 15, y + 245, depth, newOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
+            newFont = *(s32 *)(work + 4);
+            weather = (u16)func_00110c50(date - 1 + column, date + 1);
+            func_00261560(x + column * 0x5E, y + 295, depth, newOpacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, newFont, 0);
         } else {
-            func_00262de0(arg0 + i * 0x5E + 15, arg1 + 245, fparg0, arg2, arg3 - 1 + i, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(arg5 + 4), 0);
-            wordC = *(s32 *)(arg5 + 4);
-            code = (u16)func_00110c50(arg3 - 1 + i, arg3);
-            func_00261560(arg0 + i * 0x5E, arg1 + 295, fparg0, arg2, code, 0, 1.0f, 1.0f, 0x58, 0x5A, wordC, 0);
+            func_00262de0(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
+            rowFont = *(s32 *)(work + 4);
+            weather = (u16)func_00110c50(date - 1 + column, date);
+            func_00261560(x + column * 0x5E, y + 295, depth, opacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, rowFont, 0);
         }
-        if (i == 1) {
-            func_00262de0(arg0 + i * 0x5E + 15, arg1 + 245, fparg0, arg2, arg3 - 1 + i, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(arg5 + 4), 0);
-            wordD = *(s32 *)(arg5 + 4);
-            code = (u16)func_00110c50(arg3 - 1 + i, arg3);
-            func_00261560(arg0 + i * 0x5E, arg1 + 295, fparg0, arg2, code, 1, 1.0f, 1.0f, 0, 0x58, wordD, 0);
-        } else if (i == 2) {
-            func_00262de0(arg0 + i * 0x5E + 15, arg1 + 245, fparg0, arg2, arg3 - 1 + i, 1, 1.0f, 1.0f, 0xB2, 0x5E, *(s32 *)(arg5 + 4), 0);
-            wordD = *(s32 *)(arg5 + 4);
-            code = (u16)func_00110c50(arg3 - 1 + i, arg3);
-            func_00261560(arg0 + i * 0x5E, arg1 + 295, fparg0, arg2, code, 1, 1.0f, 1.0f, 0xB2, 0x5E, wordD, 0);
+        if (column == 1) {
+            func_00262de0(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(work + 4), 0);
+            selectedFont = *(s32 *)(work + 4);
+            weather = (u16)func_00110c50(date - 1 + column, date);
+            func_00261560(x + column * 0x5E, y + 295, depth, opacity, weather, 1, 1.0f, 1.0f, 0, 0x58, selectedFont, 0);
+        } else if (column == 2) {
+            func_00262de0(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 1, 1.0f, 1.0f, 0xB2, 0x5E, *(s32 *)(work + 4), 0);
+            selectedFont = *(s32 *)(work + 4);
+            weather = (u16)func_00110c50(date - 1 + column, date);
+            func_00261560(x + column * 0x5E, y + 295, depth, opacity, weather, 1, 1.0f, 1.0f, 0xB2, 0x5E, selectedFont, 0);
         }
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00263730);
-#endif
 /* measured 00263cb0: object 3232B vs retail 4084B; retail 1021 vs object 808 instrs (-20.9%, gate needs 990-1052); differing words 914 reloc-masked, fnalign 695 edits +2 reloc-only. Archive 262 lines compiles after truthful s128 typedef+aligned(16) and (s32,u8*) per prologue daddu $4,$5 + callee deref; Ghidra/IDA 2-arg agree. Frame retail 0xF0; JAL retail 61 vs object ~39. */
 /* shortfall: VU lq 0xC0->0xD0/0xA0->0xB0 + float adda/madd chains + scheduling across 8 switch arms; excluded folded switch (jump table intact), omitted-call as sole cause, unsigned/narrow bloat (signed, per-field). Production stays ASM. */
 /* round2 2026-09-18 (scratch /var/tmp/cold263cb0b/NOTE_263cb0_round2.md): pragma round 13 variants best opt_common_subs off 909 (-5; 831 instrs/733 edits, size/edit cost, not bankable), rest tie/regress (schedule 920, prop 929, dead 928, peephole 912, L0 951/L1 920/L3-4 917); subscript N/A (no P[i]; stride i*0x5E hoisted both sides per retail 0x1640F4-104, inline probe ties 914); 7r: 2 accumulator sites both sides (mul.s 4=4, ?? 9v8, prime colour only; mtc1 95->40 is missing calls + lwc1/sd const builds, not spelling). BLOCKER: candidate lacks entire case 7 (Ghidra/IDA agree; retail .L00264238-4474; ~14-15 JAL of the jal 61->46 delta + ~200 of 213 missing instrs); prior shortfall line incomplete on this point (JAL recount 46, not ~39). Production stays ASM. */
@@ -1386,7 +1352,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
     typedef signed __int128 s128;
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
-    extern void func_00263730(s32, s32, f32, s32, s32, s32, u8 *);
+    extern void func_00263730(s32, s32, f32, u8, s32, s32, u8 *);
     u8 *temp_2;
     s32 temp_3;
     f32 spEC;

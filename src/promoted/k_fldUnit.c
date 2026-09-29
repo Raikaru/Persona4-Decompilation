@@ -54,7 +54,6 @@ extern s32 sprintf(char *dst, const char *fmt, ...);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern u32 RpRandom(void);
 extern Resrc *MT_Scene_GetRes(u16 arg0);
-extern s32 func_00145540(s32 arg0, u8 arg1, u8 *arg2);
 extern void func_0047aa30(u8 *arg0, u8 *arg1);
 extern s32 func_0014c780(void);
 extern void func_0017b9a0(s32 arg0, f32 arg1);
@@ -92,7 +91,6 @@ extern s16 datGetPartyId(s32 arg0);
 extern s32 func_00104c70(s32 arg0);
 extern s32 *func_00155280(void);
 extern void func_0014a0f0(u16 arg0, s32 arg1);
-extern s32 func_00145780(u16 arg0, s32 arg1, s32 arg2);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern s32 func_0018bb20(s32 arg0, s32 arg1);
 
@@ -280,7 +278,7 @@ void func_00162e10(void)
     s32 i;
     u8 *slot;
     u8 *slot2;
-    u8 kind;
+    u16 kind;
     u16 resId;
     u8 *res;
     u8 *node;
@@ -723,7 +721,7 @@ s32 func_00163c90(s32 arg0)
 {
   u8 sp40[12];
   f32 sp30[3];
-  u8 var_5;
+  u16 mode;
   s64 new_var;
   f32 temp_f0;
   s32 temp_2;
@@ -751,12 +749,12 @@ s32 func_00163c90(s32 arg0)
   {
     return 0;
   }
-  var_5 = 0;
+  mode = 0;
   if ((*((u8 *) (temp_16 + 0x1CA))) == 1)
   {
-    var_5 = 3;
+    mode = 3;
   }
-  *((s32 *) (temp_16 + 0x54)) = (s32) MT_Scene_GetRes(func_00145540((arg0 + 0x64) & 0xFFFF, var_5, *((u8 **) (temp_16 + 0x50))) & 0xFFFF);
+  *((s32 *) (temp_16 + 0x54)) = (s32) MT_Scene_GetRes(func_00145540((arg0 + 0x64) & 0xFFFF, mode, *((u8 **) (temp_16 + 0x50))) & 0xFFFF);
   func_00479940(*((u8 **) (temp_16 + 0x50)), 0, 0, 0x10, 1);
   func_0047aa30(*((u8 **) (temp_16 + 0x50)), D_005DC920);
   temp_2 = (*((s32 *) (temp_16 + 0x1C0))) - func_0014c780();
@@ -1526,7 +1524,7 @@ void func_00165380(void)
     u8 *f54;
     u8 *f1b8;
     u8 *p;
-    u8 var_5;
+    u16 mode;
     u8 *src;
     s32 n;
     u8 *dst;
@@ -1538,15 +1536,15 @@ void func_00165380(void)
     for (i = 0; i < 0xF; i++) {
         slot = D_007E8C00 + i * 0x750;
         if (*(s32 *)(slot + 0x48) != 0) {
-            var_5 = 0;
+            mode = 0;
             *(s32 *)(slot + 0x40) &= ~2;
             f1ca = slot + 0x1CA;
             if (*f1ca == 1) {
-                var_5 = 3;
+                mode = 3;
             }
             slot = D_007E8C00 + i * 0x750;
             f50 = slot + 0x50;
-            t1 = func_00145540((i + 0x64) & 0xFFFF, var_5, *(u8 **)(slot + 0x50));
+            t1 = func_00145540((i + 0x64) & 0xFFFF, mode, *(u8 **)(slot + 0x50));
             t2 = t1 & 0xFFFF;
             slot += 0x54;
             *(s32 *)slot = (s32)MT_Scene_GetRes(t2);

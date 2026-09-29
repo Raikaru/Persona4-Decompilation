@@ -92,9 +92,9 @@ extern u8 *D_00922D10[];
 
 static char sStr_7641E8[8] = "%s %d";
 static u8 sTbl_7641F0[8] = {0, 1, 4, 6, 2, 3, 5, 0};
-static void *sPtr_764C48;
-static void *sCb_764C4C;
 static s32 sState_764C50;
+static void *sCb_764C4C;
+static void *sPtr_764C48;
 
 
 // FUN_00481300

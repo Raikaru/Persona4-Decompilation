@@ -1,3 +1,4 @@
+#include "model_callbacks_internal.h"
 #include "btl_camera_palette_internal.h"
 #include "effect_geometry_internal.h"
 #include "btl_motion_internal.h"
@@ -5,6 +6,8 @@
 #include "type.h"
 #include "btl_skill_internal.h"
 #include "btl_target_state_packet_internal.h"
+#include "btl_packet_create_internal.h"
+#include "btl_formation_internal.h"
 extern s32 func_00106600(s16 id);
 typedef struct KwlnTask KwlnTask;
 typedef struct BtlUnit BtlUnit;
@@ -38,20 +41,18 @@ extern void func_001b6990();
 extern void func_00193d30(void);
 extern s32 func_00122640(s32 arg0, s32 arg1);
 extern s32 func_001d3d50(s32 arg0);
-extern void func_001d69f0(s32 arg0, void *arg1);
-extern u8 *func_001d5eb0(s32 arg0, void *arg1, s32 arg2);
+extern BtlPacket *func_001d5eb0(u32 arg0, const char *arg1, u16 arg2);
 extern u8 *btlSoundCreateSkillSEPacket(s32 arg0, s32 arg1);
 extern u8 *func_001b7880(s32 arg0, s32 arg1, s32 arg2);
 extern u8 *func_001b83f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern u8 *func_001b9560(s32 arg0, s32 arg1);
-extern u8 *func_001f8140(s32 arg0);
 extern void func_001f0a10(u8 *arg0);
 extern u8 *func_00202740(u8 *arg0);
 extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
 extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
-extern u8 *func_00201de0(s32 source, s32 target, s32 id, s16 effect, s16 targetFlags, s16 value, s16 enabled, void *result, u16 flags);
+extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 extern u8 *func_001b7e20(s32 arg0);
 extern u8 *func_001b9360(s32 arg0, s32 arg1);
 extern u8 *func_001b99a0(s32 arg0);
@@ -448,7 +449,7 @@ void func_001b0590(u8 *arg0)
    dispatch and callee conventions verified against retail. Open: scan-temp
    rotation (found/base/i) resistant to decl/assignment swaps and gp-idiom
    respelling. See E1F2_001b05d0_body.c for scan lifetimes. */
-/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/code1_001b.c func_001b05d0 --pairs` banked 36 (already carries #pragma opt_common_subs off); best ties 36 (commons alone plus five commons+second combos); bare without commons is 87-88, so the banked pragma stays load-bearing. All 28 pairs neutral or worse (schedule 106-107, peephole 104-111). opclass `python3 -E -s tools/opclass.py src/promoted/code1_001b.c`: 8 floors scanned, 7 with surplus, func_001b05d0 clean (no dsll32/lbu/lhu/cvt/div/jalr/lui surplus) — high 36-word count on small 123/123-instr body is saved-register coloring, not a whole-function width/signedness defect. fnalign retail/object 123/123 per assignment. Floor stands; production stays ASM. */
+/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/code1_001b.c func_001b05d0 --pairs` banked 36 (already carries #pragma opt_common_subs off); best ties 36 (commons alone plus five commons+second combos); bare without commons is 87-88, so the banked pragma stays load-bearing. All 28 pairs neutral or worse (schedule 106-107, peephole 104-111). opclass `python3 -E -s tools/opclass.py src/promoted/code1_001b.c`: 8 floors scanned, 7 with surplus, func_001b05d0 clean (no dsll32/lbu/lhu/cvt/div/jalr/lui surplus) â€” high 36-word count on small 123/123-instr body is saved-register coloring, not a whole-function width/signedness defect. fnalign retail/object 123/123 per assignment. Floor stands; production stays ASM. */
 // FUN_001B05D0 NONMATCHING
 #ifdef NON_MATCHING
 /* Current action transition floor: 492B/496B, 42 differing bytes in 36
@@ -1062,7 +1063,6 @@ void func_001b1d70(void) {
     extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
     extern void *func_00477c40(u32 arg0, u16 arg1, u32 arg2);
     extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
-    extern s32 func_00145510(u16 arg0, s32 arg1);
     extern void func_0014a460(u16 arg0, u32 arg1);
     extern void func_0019d7a0(u8 *arg0, s32 arg1);
     extern void func_001987a0(u8 *arg0);
@@ -1120,7 +1120,7 @@ void func_001b1d70(void) {
                 f = *(s32 *)(unit + 0x98) | 2;
                 *(s32 *)(unit + 0x98) = f;
                 *(s32 *)(unit + 0x98) = f | 8;
-                *(u16 *)(unit + 0x9FE) = func_00145510(id, *(s32 *)(unit + 0xA00));
+                *(u16 *)(unit + 0x9FE) = func_00145510(id, *(void **)(unit + 0xA00));
                 func_0014a460(*(u16 *)(unit + 0x9FE), 1);
                 func_0019d7a0(unit, 1);
                 func_00198dd0(unit, 0);
@@ -1213,7 +1213,7 @@ void func_001b1d70(void) {
         btlUnitSetPos(j, st);
     }
 }
-/* measured: probe 852 differing words (reloc-masked) via tools/probe_variants.py; fnalign retail 1038/object 1014 instrs (1527 edits +7 reloc-only), assignment retail 1040; band 1009-1071 (±3% of 1040), 1014 inside (-26, -2.5%). Baseline 857; free pragmas all tie/worse (commons/loopinv/unroll/schedule 857, peephole 895, dead 923); subscript index/shift tie 857; fresh counters tie 857; addr rowBase 857->852, elem tie; colour swaps tie 852. Biggest remaining: frame -0x100 vs -0xE0, stack slots shifted (0xA0 vs 0xC0, 0xD0 vs 0xD4), saved-reg rotation and FPR colouring, lbu vs lb at 0xA2, andi+sll vs sll. De-noised m2c (425 lines) + romwright (402 lines, arity void, 860 instrs) into file idiom; fixed 973f0/99ee0 float-last order and 195730/194590 nesting per retail. */
+/* measured: probe 852 differing words (reloc-masked) via tools/probe_variants.py; fnalign retail 1038/object 1014 instrs (1527 edits +7 reloc-only), assignment retail 1040; band 1009-1071 (Â±3% of 1040), 1014 inside (-26, -2.5%). Baseline 857; free pragmas all tie/worse (commons/loopinv/unroll/schedule 857, peephole 895, dead 923); subscript index/shift tie 857; fresh counters tie 857; addr rowBase 857->852, elem tie; colour swaps tie 852. Biggest remaining: frame -0x100 vs -0xE0, stack slots shifted (0xA0 vs 0xC0, 0xD0 vs 0xD4), saved-reg rotation and FPR colouring, lbu vs lb at 0xA2, andi+sll vs sll. De-noised m2c (425 lines) + romwright (402 lines, arity void, 860 instrs) into file idiom; fixed 973f0/99ee0 float-last order and 195730/194590 nesting per retail. */
 /* 2026-09-19 lifetime experiment (this session, REJECTED): sinking puVar16
    (recompute iGpffffb414+ID*0x18 at its two uses instead of holding from the
    head) drops the 9th live int ($fp gone, frame 0x100 -> 0xF0) and takes
@@ -1261,7 +1261,6 @@ s32 func_001b2380(void)
     extern u8 *func_0019a0c0(u8 *arg0, s16 arg1);
     extern u8 *btlUnitCreateMovePacket(u8 *arg0, f32 *arg1, s32 arg2, f32 arg3);
     extern u8 *btlUnitCreateRotateTowardUnitPacket(u8 *arg0, u8 *arg1, s32 arg2);
-    extern u8 *func_00195730(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3);
     extern u8 *func_001f8330(u8 *arg0);
     extern u8 *func_001f82b0(u8 *arg0);
     extern void btlFadeStartImmediate(void);
@@ -2014,7 +2013,7 @@ void func_001b4060(void)
         u8 bytes[0x20];
         s32 words[8];
     } result;
-    u8 formation[0x80];
+    char formation[0x80];
     s32 camA;
     s32 camB;
     u16 maxSp;
@@ -2035,7 +2034,7 @@ void func_001b4060(void)
     last = 0;
     form = func_001d3d50(0);
     func_001d69f0(0x13D, formation);
-    packet = func_001d5eb0(form, formation, 0);
+    packet = (u8 *)func_001d5eb0(form, formation, 0);
     *(s64 *)(packet + 0x60) = *(s64 *)action;
     func_00194590(packet, 1);
     sePacket = btlSoundCreateSkillSEPacket(0x13D, 0);
@@ -2061,7 +2060,7 @@ void func_001b4060(void)
     *(s64 *)(packet + 8) = *(s64 *)(sePacket + 0x58);
     *(s64 *)(packet + 0x60) = *(s64 *)action;
     func_00194590(packet, 2);
-    next = func_001f8140(0);
+    next = (u8 *)func_001f8140(0);
     *next = 5;
     *(s64 *)(next + 8) = *(s64 *)(packet + 0x58);
     func_00194590(next, 1);
@@ -2085,7 +2084,7 @@ void func_001b4060(void)
         *(s64 *)(packet + 0x18) = last;
         *(s64 *)(packet + 0x60) = *(s64 *)action;
         func_00194590(packet, 2);
-        next = func_001f8140(1);
+        next = (u8 *)func_001f8140(1);
         *next = 5;
         *(s64 *)(next + 8) = *(s64 *)(packet + 0x58);
         func_00194590(next, 1);

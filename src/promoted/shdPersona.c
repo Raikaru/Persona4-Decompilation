@@ -1000,337 +1000,268 @@ void func_0045dfd0(u8 *, u8 *, f32, s32, s32, s32);
 void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                    u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
-/* measured: bank 2026-09-18 00117980 -- object 885 vs retail 907 = -22 (-2.4%, PASS 3% gate 880-934), fnalign edit 667 +6 reloc-only, frame 0x140 matches (addiu at index0 drops out of diff). Full-C from /var/tmp/cold117980/cand_v1.c (381 lines) with bare-unsigned int-to-float tails (f32)b505/(f32)col/(f32)lim for the six lbu/lhu sites per 0011d5b0 outer-(s32) lesson (each +11, 839->906, +67; manual s32-vb/vc/v if-blocks folded to cvt only vs retail bltz/srl/andi/or/mtc1/cvt/add 9+2), deduped cnt<4/5 t1 to single post-f21 block (4x0044b7b0->3x matching retail 15 jal +1 jalr, 906->885, -21), s8 sp13C for retail lb (670->668), (u32)func_003b7060()%0x14 for retail divu (668->667). Kept (f32)(s32)cnt/4, /15, /3, /400 and manual (s32)af&0xFF/0xFFFF guards where retail is cheap (bare (u32)af folds smaller, 839->836, -3). jal: retail 15 (4x003f6440, 3x003657d0, 2x0034f4a0, 3x0044b7b0, 1x0044b610, 1x0045dfd0, 1x003b7060) +1 jalr tblbase vs object same 15+1 (deduped). Reused existing decls plus local extern D_007611AC/D_00761288 inside body, no new file-scope globals. */
-// FUN_00117980 NONMATCHING
-#ifdef NON_MATCHING
+/* Measured: 3632B, matching retail. Keep complete draw-position, triangle
+   and radial-table objects, promoted timer snapshots and distinct interpolation
+   lifetimes. Rotation precedes panel scale in the declaration group. The
+   radial style count comes from its table; the final index is independently
+   evaluated after color selection. Native byte opacity conversions preserve
+   retail's masks. opt_loop_invariants on preserves the draw-loop constants.
+   Proof: build/cos20814/worker3-ui/persona_00117980_relocation_proof.json
+   and persona_00117980_siblings.json. */
+static inline f32 personaSinePhase(s32 frame, s32 first, s32 last)
+{
+    if (frame < first) {
+        return 0.0f;
+    }
+    if (frame < last) {
+        return sinf(iGpffff8094 * ((f32)(frame - first) / (f32)(last - first)));
+    }
+    return 1.0f;
+}
+
+static inline f32 personaLinearPhase(s32 frame, s32 first, s32 last)
+{
+    if (frame < first) {
+        return 0.0f;
+    }
+    if (frame < last) {
+        return (f32)(frame - first) / (f32)(last - first);
+    }
+    return 1.0f;
+}
+
+static inline f32 personaPulseEnvelope(u16 frame)
+{
+    u16 keyframes[5] = {10, 30, 35, 90, 95};
+    u32 index;
+
+    for (index = 0; index < 5; index++) {
+        if (keyframes[index] < frame && frame <= keyframes[index] + 5) {
+            return 1.0f - sinf(D_007613EC * (f32)(frame - keyframes[index]) / 5.0f);
+        }
+    }
+    return 1.0f;
+}
+
+static inline u8 personaModulatedOpacity(u8 opacity, f32 factor)
+{
+    return (u8)((255.0f * factor) * ((f32)opacity / 255.0f));
+}
+
+static inline f32 personaFallingPhase(s32 frame, s32 first, s32 last)
+{
+    f32 progress;
+    if (frame < first) {
+        progress = 0.0f;
+    } else if (frame < last) {
+        progress = (f32)(frame - first) / (f32)(last - first);
+    } else {
+        progress = 1.0f;
+    }
+    return 1.0f - progress;
+}
+
+// FUN_00117980
+#pragma push
+#pragma opt_loop_invariants on
 void func_00117980(u8 *arg0)
 {
     extern f32 D_007611AC;
     extern f32 D_00761288;
-    s8 sp13C[4];
-    f32 sp134;
-    f32 sp130;
-    u8 sp120[16];
-    f32 sp110[3];
-    s16 sp100[5];
-    f32 spE0[6];
-    f32 spD0[4];
-    f32 spB0[6];
+    u8 *b = arg0;
+    u8 *effect = b + 0x458;
+    s8 cornerDirections[4] = {-1, 0, 1, 0};
+    Vec2f drawPosition;
+    u8 triangleColors[12];
+    f32 trianglePoints[6];
+    f32 quadrantDirections[4] = {-0.7071f, 0.7071f, 0.7071f, -0.7071f};
+    f32 particleAngles[3] = {0.0f, 0.2617994f, -0.2617994f};
+    Vec2f radialExtent[3] = {{42.0f, 42.0f}, {43.0f, 71.0f}, {72.0f, 41.0f}};
     u32 tblbase;
-    u8 *b;
-    u16 cnt;
-    u16 lim;
-    s32 i;
-    s32 k;
-    s32 q;
-    s32 colorHoist;
-    u8 b505;
+
+    u16 frameCount;
+    u16 durationCount;
+    s32 particle;
+    s32 radialSlot;
+    s32 quadrant;
+    s32 particleColor;
+    u8 baseOpacity;
     u8 alpha;
     u8 col;
-    s32 g;
-    f32 f21;
-    f32 f20;
-    f32 f22;
-    f32 a;
-    f32 af;
-    f32 x;
-    f32 y;
-    f32 r0;
-    f32 r1;
+    s32 opacity;
+    f32 rotation;
+    f32 panelScale;
+    f32 fade;
+    f32 particlePhase;
+    f32 opacityValue;
+    f32 particleRadius;
+    f32 particleScale;
+    f32 particleOpacity;
+    f32 pulseScale;
 
-    b = arg0;
-    sp13C[0] = iGpffff9c10;
-    sp13C[1] = iGpffff9c11;
-    sp13C[2] = iGpffff9c12;
-    sp13C[3] = iGpffff9c13;
-    spD0[0] = D_005E4D70;
-    spD0[1] = D_005E4D74;
-    spD0[2] = D_005E4D78;
-    spD0[3] = D_005E4D7C;
-    sp110[0] = D_005E4D80;
-    sp110[1] = D_005E4D84;
-    sp110[2] = D_005E4D88;
-    {
-        f32 *src = (f32 *)D_005E4D90;
-        f32 *dst = spB0;
-        s32 n = 3;
-        do {
-            f32 v0 = src[0];
-            f32 v1 = src[1];
-            src += 2;
-            n -= 1;
-            dst[0] = v0;
-            dst[1] = v1;
-            dst += 2;
-        } while (n > 0);
-    }
-    if ((*(u16 *)(b + 0x458) & 1) == 0) {
-        b505 = *(b + 0x505);
+    if ((*(u16 *)(effect + 0x0) & 1) == 0) {
+        baseOpacity = *(b + 0x505);
         {
-            f32 fb = (f32)b505;
-            af = 255.0f * (fb / 255.0f);
-            if (!(af >= 2.1474836e9f)) {
-                g = ((s32)af) & 0xFF;
-            } else {
-                g = (((s32)(af - 2.1474836e9f)) | 0x80000000) & 0xFF;
-            }
-            col = g & 0xFF;
+            f32 fb = (f32)baseOpacity;
+            opacityValue = 255.0f * (fb / 255.0f);
+            opacity = (u8)opacityValue;
+            col = opacity & 0xFF;
         }
-        cnt = *(u16 *)(b + 0x45A);
-        if ((s32)cnt < 5) {
+        frameCount = *(u16 *)(effect + 0x2);
+        if ((s32)frameCount < 5) {
             f32 t0;
             f32 t1;
-            if ((s32)cnt < 0) {
-                f21 = 0.0f;
-            } else if ((s32)cnt < 4) {
-                t0 = cosf(iGpffff8094 * ((f32)(s32)cnt / 4.0f));
-                f21 = 1.0f - t0;
+            f32 growth;
+            if ((s32)frameCount < 0) {
+                growth = 0.0f;
+            } else if ((s32)frameCount < 4) {
+                t0 = cosf(iGpffff8094 * ((f32)(s32)frameCount / 4.0f));
+                growth = 1.0f - t0;
             } else {
-                f21 = 1.0f;
+                growth = 1.0f;
             }
-            cnt = *(u16 *)(b + 0x45A);
-            if ((s32)cnt < 4) {
-                t1 = 0.0f;
-            } else if ((s32)cnt < 5) {
-                t1 = sinf(iGpffff8094 * ((f32)(s32)(cnt - 4) / 1.0f));
-            } else {
-                t1 = 1.0f;
-            }
-            f21 = D_007611AC * f21 - D_00761288 * t1;
+            frameCount = *(u16 *)(effect + 0x2);
+            t1 = personaSinePhase(frameCount, 4, 5);
+            panelScale = D_007611AC * growth - D_00761288 * t1;
         } else {
-            f21 = 1.0f;
+            panelScale = 1.0f;
         }
-        cnt = *(u16 *)(b + 0x45A);
-        if ((s32)(s16)cnt < 0) {
-            f20 = 0.0f;
-        } else if ((u16)cnt < 0xF) {
-            f20 = (f32)(s32)cnt / 15.0f;
-        } else {
-            f20 = 1.0f;
-        }
+        frameCount = *(u16 *)(effect + 0x2);
+        fade = personaLinearPhase(frameCount, 0, 15);
         {
             f32 fc = (f32)col;
-            af = fc * f20;
-            if (!(af >= 2.1474836e9f)) {
-                g = ((s32)af) & 0xFF;
-            } else {
-                g = (((s32)(af - 2.1474836e9f)) | 0x80000000) & 0xFF;
-            }
-            alpha = g & 0xFF;
+            opacityValue = fc * fade;
+            opacity = (u8)opacityValue;
+            alpha = opacity & 0xFF;
         }
-        cnt = *(s16 *)(b + 0x45A) + 1;
-        *(u16 *)(b + 0x45A) = cnt;
-        if ((cnt & 0xFFFF) > 0xE) {
-            *(u16 *)(b + 0x458) = *(u16 *)(b + 0x458) | 1;
+        if (++*(u16 *)(effect + 0x2) >= 15) {
+            *(u16 *)(effect + 0x0) = *(u16 *)(effect + 0x0) | 1;
         }
-        f20 = f21;
-    } else if ((*(u16 *)(b + 0x458) & 2) == 0) {
-        b505 = *(b + 0x505);
-        {
-            f32 fb = (f32)b505;
-            af = 255.0f * (fb / 255.0f);
-            if (!(af >= 2.1474836e9f)) {
-                g = ((s32)af) & 0xFF;
-            } else {
-                g = (((s32)(af - 2.1474836e9f)) | 0x80000000) & 0xFF;
-            }
-            col = g & 0xFF;
-            alpha = col;
-        }
-        f21 = 1.0f;
-        f20 = 1.0f;
-    } else {
-        cnt = *(u16 *)(b + 0x45A);
-        if ((s32)(s16)cnt < 0) {
-            f20 = 0.0f;
-        } else if ((u16)cnt < 3) {
-            f20 = (f32)(s32)cnt / 3.0f;
-        } else {
-            f20 = 1.0f;
-        }
-        b505 = *(b + 0x505);
-        {
-            f32 fb = (f32)b505;
-            af = (1.0f - f20) * 255.0f * (fb / 255.0f);
-            if (!(af >= 2.1474836e9f)) {
-                g = ((s32)af) & 0xFF;
-            } else {
-                g = (((s32)(af - 2.1474836e9f)) | 0x80000000) & 0xFF;
-            }
-            col = g & 0xFF;
-            alpha = col;
-        }
-        cnt = *(s16 *)(b + 0x45A) + 1;
-        *(u16 *)(b + 0x45A) = cnt;
-        f21 = 1.0f;
-        f20 = 1.0f;
-        if ((cnt & 0xFFFF) > 2) {
+    } else if ((*(u16 *)(effect + 0x0) & 2) != 0) {
+        col = personaModulatedOpacity(b[0x505], personaFallingPhase(*(u16 *)(effect + 0x2), 0, 3));
+        alpha = col;
+        panelScale = 1.0f;
+        if (++*(u16 *)(effect + 0x2) >= 3) {
             *(s32 *)(b + 0x534) = *(s32 *)(b + 0x534) & 0xFFF7FFFF;
         }
+    } else {
+        baseOpacity = *(b + 0x505);
+        {
+            f32 fb = (f32)baseOpacity;
+            opacityValue = 255.0f * (fb / 255.0f);
+            opacity = (u8)opacityValue;
+            col = opacity & 0xFF;
+            alpha = col;
+        }
+        panelScale = 1.0f;
     }
-    *(s16 *)(b + 0x45C) = (s16)(((s32)(*(u16 *)(b + 0x45C) + 1)) % 400);
-    cnt = *(u16 *)(b + 0x45C);
-    f22 = (iGpffff81e0 * (f32)(s32)cnt) / 400.0f;
+    *(s16 *)(effect + 0x4) = (s16)(((s32)(*(u16 *)(effect + 0x4) + 1)) % 400);
+    frameCount = *(u16 *)(effect + 0x4);
+    rotation = (iGpffff81e0 * (f32)frameCount) / 400.0f;
     RpSkyRenderStateSet(3, (void *)0x71801);
     RpSkyRenderStateSet(2, (void *)0x48);
     tblbase = (u32)D_00887300;
     ((s32 (**)(s32, void *))tblbase)[0](1, (void *)0);
-    spE0[0] = 340.0f;
-    spE0[1] = 0.0f;
-    sp120[0] = 0x1D;
-    sp120[1] = 0x1D;
-    sp120[2] = 0xFF;
-    sp120[3] = 0;
-    spE0[2] = 640.0f;
-    spE0[3] = 0.0f;
-    sp120[4] = 0x1D;
-    sp120[5] = 0x1D;
-    sp120[6] = 0xFF;
-    sp120[7] = alpha;
-    spE0[4] = 640.0f;
-    spE0[5] = (f32)(s32)0x125;
-    sp120[8] = 0x1D;
-    sp120[9] = 0x1D;
-    sp120[10] = 0xFF;
-    sp120[11] = 0;
-    func_0045dfd0((u8 *)sp120, (u8 *)spE0, 0.0f, 3, 5, 0);
-    i = 0;
-    while (i < 0x18) {
-        u8 *elem = b + 0x458 + i * 2;
-        u16 *cntp = (u16 *)(elem + 8);
-        u16 *limp = (u16 *)(elem + 0x38);
-        u16 c = *cntp + 1;
-        *cntp = c;
-        if ((s32)(s16)(c & 0xFFFF) < 0) {
-            a = 0.0f;
-        } else if ((c & 0xFFFF) < (*limp & 0xFFFF)) {
-            a = (f32)(s32)(c & 0xFFFF) / (f32)(s32)(*limp & 0xFFFF);
+    trianglePoints[0] = 340.0f;
+    trianglePoints[1] = 0.0f;
+    triangleColors[0] = 0x1D;
+    triangleColors[1] = 0x1D;
+    triangleColors[2] = 0xFF;
+    triangleColors[3] = 0;
+    trianglePoints[2] = 640.0f;
+    trianglePoints[3] = 0.0f;
+    triangleColors[4] = 0x1D;
+    triangleColors[5] = 0x1D;
+    triangleColors[6] = 0xFF;
+    triangleColors[7] = alpha;
+    trianglePoints[4] = 640.0f;
+    trianglePoints[5] = (f32)(s32)0x125;
+    triangleColors[8] = 0x1D;
+    triangleColors[9] = 0x1D;
+    triangleColors[10] = 0xFF;
+    triangleColors[11] = 0;
+    func_0045dfd0((u8 *)triangleColors, (u8 *)trianglePoints, 0.0f, 3, 5, 0);
+    particle = 0;
+    while (particle < 0x18) {
+        Vec2f *extent;
+        const s32 styleCount = sizeof(radialExtent) / sizeof(radialExtent[0]);
+        u8 *elem = effect + particle * 2;
+        u16 *particleDuration = (u16 *)(elem + 0x38);
+        s32 duration = *particleDuration;
+        u16 *particleFrame = (u16 *)(elem + 8);
+        s32 frame = ++*particleFrame;
+        if (frame < 0) {
+            particlePhase = 0.0f;
+        } else if (frame < duration) {
+            particlePhase = (f32)frame / (f32)duration;
         } else {
-            a = 1.0f;
+            particlePhase = 1.0f;
         }
-        lim = *limp;
+        durationCount = *particleDuration;
         {
-            f32 fv = (f32)lim;
-            x = fv / 30.0f + 0.5f;
+            f32 fv = (f32)durationCount;
+            particleScale = fv / 30.0f;
         }
-        q = i / 3;
-        k = i % 3;
+        particleColor = (particle % 3 == 0) ? (s32)0xB34DFF00 : (s32)0x1353FF00;
+        quadrant = particle / 3;
+        radialSlot = particle % styleCount;
+        extent = &radialExtent[radialSlot];
+        particleRadius = 0.5f + particleScale;
         {
-            s32 qq = q & 3;
-            if ((q < 0) && (qq != 0)) {
-                qq -= 4;
-            }
-            sp130 = 0.0f + 557.0f + x * a * spB0[k * 2] * spD0[qq];
+            s32 qq = quadrant % 4;
+            drawPosition.x = 557.0f + particleRadius * (particlePhase * (extent->x * quadrantDirections[qq]));
         }
+        quadrant++;
         {
-            s32 qq = (q + 1) & 3;
-            if (((q + 1) < 0) && (qq != 0)) {
-                qq -= 4;
-            }
-            sp134 = 0.0f + 91.0f + x * a * spB0[k * 2 + 1] * spD0[qq];
+            s32 qq = quadrant % 4;
+            drawPosition.y = 91.0f + particleRadius * (particlePhase * (extent->y * quadrantDirections[qq]));
         }
-        colorHoist = (k == 0) ? (s32)0xB34DFF00 : (s32)0x1353FF00;
-        r0 = sinf(D_007613EC * a);
+        particleOpacity = 255.0f * sinf(D_007613EC * particlePhase);
         {
             f32 fc = (f32)col;
-            af = (x / 30.0f) * ((fc * r0 * 255.0f) / 255.0f);
-            if (!(af >= 2.1474836e9f)) {
-                g = ((s32)af) & 0xFF;
-            } else {
-                g = (((s32)(af - 2.1474836e9f)) | 0x80000000) & 0xFF;
-            }
+            opacityValue = particleScale * ((fc * particleOpacity) / 255.0f);
+            opacity = (u8)opacityValue;
         }
         {
-            Vec2f pos;
-            pos.x = sp130;
-            pos.y = sp134;
-            func_003657d0(pos, 0.0f, colorHoist | (g & 0xFF), 15.0f, sp110[k], 0);
+            func_003657d0(drawPosition, 0.0f, particleColor | (opacity & 0xFF), 15.0f, particleAngles[radialSlot], 0);
         }
-        if ((s32)(*cntp & 0xFFFF) >= (s32)(*limp & 0xFFFF)) {
-            *cntp = 0;
-            *limp = (u16)(((u32)RpRandom() % 0x14) + 0xF);
+        if ((s32)(*particleFrame & 0xFFFF) >= (s32)(*particleDuration & 0xFFFF)) {
+            *particleFrame = 0;
+            *particleDuration = (u16)(((u32)RpRandom() % 0x14) + 0xF);
         }
-        i += 1;
+        particle += 1;
     }
-    k = 0;
-    while (k < 4) {
-        s32 qq = k & 3;
-        if ((k < 0) && (qq != 0)) {
-            qq -= 4;
-        }
-        x = (f32)(s32)sp13C[qq] * 54.0f + 557.0f;
+    particle = 0;
+    while (particle < 4) {
+        s32 qq = particle % 4;
+        drawPosition.x = (f32)(s32)cornerDirections[qq] * 54.0f + 557.0f;
         {
-            s32 qq2 = (k + 1) & 3;
-            if (((k + 1) < 0) && (qq2 != 0)) {
-                qq2 -= 4;
-            }
-            y = (f32)(s32)sp13C[qq2] * 54.0f + 91.0f;
+            s32 next = particle + 1;
+            s32 qq2 = next % 4;
+            drawPosition.y = (f32)(s32)cornerDirections[qq2] * 54.0f + 91.0f;
         }
         {
-            Vec2f pos;
-            pos.x = x;
-            pos.y = y;
-            func_003657d0(pos, 0.0f, (col & 0xFF) | 0x1353FF00, 24.0f, f22 * 4.0f, 0);
+            func_003657d0(drawPosition, 0.0f, (col & 0xFF) | 0x1353FF00, 24.0f, rotation * 4.0f, 0);
         }
-        k += 1;
+        particle += 1;
     }
     {
-        Vec2f pos;
-        pos.x = 557.0f;
-        pos.y = 91.0f;
-        func_003657d0(pos, 0.0f, (col & 0xFF) | 0xB34DFF00, 41.0f, f22, 0);
+        drawPosition.x = 557.0f;
+        drawPosition.y = 91.0f;
+        func_003657d0(drawPosition, 0.0f, (col & 0xFF) | 0xB34DFF00, 41.0f, rotation, 0);
     }
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
-    *(s16 *)(b + 0x45E) = (s16)(((s32)(*(u16 *)(b + 0x45E) + 1)) % 100);
-    sp130 = 523.0f;
-    sp134 = 91.0f - f20 * 30.0f;
-    af = f20 * 4096.0f;
-    if (!(af >= 2.1474836e9f)) {
-        g = ((s32)af) & 0xFFFF;
-    } else {
-        g = (((s32)(af - 2.1474836e9f)) | 0x80000000) & 0xFFFF;
-    }
-    func_0034f4a0(*(s32 *)(b + 0x2C0), 0xB4, sp130, sp134, 0.0f, 0x2D, 0x2D, 0x2D, col & 0xFF, 0x1000, g & 0xFFFF, 0.0f, 0, 0);
-    cnt = *(u16 *)(b + 0x45E);
-    {
-        s16 *src = D_005E4D58;
-        s16 *dst = sp100;
-        s32 n = 5;
-        do {
-            s16 v = *src;
-            src += 1;
-            n -= 1;
-            *dst = v;
-            dst += 1;
-        } while (n > 0);
-    }
-    q = 0;
-    while (1) {
-        if (q > 4) {
-            af = 1.0f;
-            break;
-        }
-        if (((u32)sp100[q] < (u32)cnt) && ((u32)cnt <= (u32)(sp100[q] + 5))) {
-            af = 1.0f - sinf((D_007613EC * (f32)(s32)((u32)cnt - (u32)sp100[q])) / 5.0f);
-            break;
-        }
-        q += 1;
-    }
-    sp130 = 542.0f;
-    sp134 = (1.0f - f20 * af) * 20.0f + 76.0f;
-    r1 = f20 * af * 4096.0f;
-    if (!(r1 >= 2.1474836e9f)) {
-        g = ((s32)r1) & 0xFFFF;
-    } else {
-        g = (((s32)(r1 - 2.1474836e9f)) | 0x80000000) & 0xFFFF;
-    }
-    func_0034f4a0(*(s32 *)(b + 0x2C0), 0xB5, sp130, sp134, 0.0f, 0x2D, 0x2D, 0x2D, col & 0xFF, 0x1000, g & 0xFFFF, 0.0f, 0, 0);
+    *(s16 *)(effect + 0x6) = (s16)(((s32)(*(u16 *)(effect + 0x6) + 1)) % 100);
+    drawPosition.x = 523.0f;
+    drawPosition.y = 91.0f - panelScale * 30.0f;
+    func_0034f4a0(*(s32 *)(b + 0x2C0), 0xB4, drawPosition.x, drawPosition.y, 0.0f, 0x2D, 0x2D, 0x2D, col, 0x1000, (u16)(panelScale * 4096.0f), 0.0f, 0, 0);
+    pulseScale = panelScale * personaPulseEnvelope(*(u16 *)(effect + 0x6));
+    drawPosition.x = 542.0f;
+    drawPosition.y = (1.0f - pulseScale) * 20.0f + 76.0f;
+    func_0034f4a0(*(s32 *)(b + 0x2C0), 0xB5, drawPosition.x, drawPosition.y, 0.0f, 0x2D, 0x2D, 0x2D, col, 0x1000, (u16)(pulseScale * 4096.0f), 0.0f, 0, 0);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117980);
-#endif
-
+#pragma pop
 
 
 void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,

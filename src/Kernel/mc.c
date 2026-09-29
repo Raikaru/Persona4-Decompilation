@@ -75,7 +75,7 @@ extern f32 iGpffff8218;
 extern f32 iGpffff821c;
 extern f32 iGpffff8030;
 extern s32 func_0043c6a0(u32 arg0);
-extern void func_002a7920(f32, f32, f32, u8, u8 *, s32, s32, f32, u8 *);
+extern void func_002a7920(f32, f32, f32, s32, u8 *, s32, s32, f32, u8 *);
 extern void func_002a9f50(f32, f32, f32, s32, u8 *, s32, s32, u8 *);
 extern void func_002a6b10(s32, s32, s32, void *);
 extern void func_002a7710(s32, u8 *);
@@ -90,7 +90,7 @@ extern f32 iGpffff81e0;
 extern void func_00364c50(void);
 extern void func_00364c70(void);
 extern void func_0045dfd0(void *, void *, f32, s32, s32, s32);
-extern void func_002a66d0(f32, f32, f32, f32, f32, s32, s32, s32);
+extern void func_002a66d0(f32, f32, f32, s32, s32, f32, f32, s32);
 extern void func_0045ed60(void *, void *, s32, f32);
 typedef struct { s32 a, b, c, d; } Quad4;
 typedef struct { s32 x, y, width, height; } McRect;
@@ -128,8 +128,13 @@ extern s32 func_00110580(s32);
 extern void func_001104d0(s32 seed, s32 *month, s32 *day);
 extern s32 func_00110d30(s32 idx);
 extern s32 func_0025f2c0(s32, s32, u8 *);
-extern u8 *D_0063EA68;
-extern s32 D_0063EA60[];
+/* Location keys and text pointer occupy three 32-bit retail words. */
+typedef struct McLocationNameEntry {
+    s32 area;
+    s32 room;
+    const char *name;
+} McLocationNameEntry;
+extern McLocationNameEntry D_0063EA60[];
 extern void sprintf(void *, void *, s32, ...);
 typedef void (*McGlyphCallback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 extern void func_0025f6b0(f32, f32, f32, s32, u8, void *, s32, void *, McGlyphCallback, u8 *);
@@ -1211,29 +1216,11 @@ s32 func_002a4d10(s32 task) {
     return 0;
 }
 
-/* Rewrite 2026-09-28 (lane 5), replaces the m2c-shaped draft (391 differing words).
-   Honest ABI: func_00452560 takes the task in arg0, and the ramp/pulse maths
-   are retail's (`(D_00761184 * (f32)frame) / 30.0f` fed to sinf, alpha is
-   `(s32)(255.0f * ramp)` and is passed on to 6b60/6c30/9f50, the slide offsets are
-   `350.0f * (1.0f - wave)` before the first loop and `400.0f * (1.0f - wave)` in the
-   tail).  449/449 instructions, guarded score 71 differing words (reloc-masked),
-   14 fnalign edits.  Levers: `opt_lifetimes on` with p, alpha, row, idx, slot, base
-   declared in that order gives retail's alpha->$s0 p->$s1 base->$s2 slot->$s3 idx->$s4
-   row->$s5 (111 words without the pragma); `fdiff`/`half` as named floats (see
-   func_002a5f00); a two-statement `pulse = K * sinf(..); scale = 1.0f + pulse;` (a
-   single statement fuses into adda.s/madd.s, retail keeps mul.s + add.s); separate x/y
-   and x2/y2 float locals for the two loops (retail colours them f23/f22 and f22/f20);
-   func_002a7920 declared (f32, f32, f32, u8, u8 *, s32, s32, f32, u8 *) (argument
-   emission order).
-   Residual, all one thing: retail computes `1.0f - wave` twice (preheader slide and tail
-   slide, wave stays live in $f21, slide in $f20) while this body's CSE reuses the first
-   result in place of wave (wave/slide land on $f20/$f21 and the tail `sub.s` is
-   missing).  Not moved by: separate tail variable, operand order, inline expression in
-   the loop with opt_loop_invariants on, or any opt_* pragma (opt_common_subs off costs
-   +69 edits). */
+/* 1800 native bytes, followed by 8 retail alignment bytes. Each slide uses
+ * its own remaining-progress lifetime; wave stays the sine result until the
+ * selected-card slide. Keep the pulse multiplication separate from scale. */
 #pragma opt_lifetimes on
-// FUN_002A4F20 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_002A4F20
 s32 func_002a4f20(s32 arg0)
 {
     extern f32 iGpffff8084;
@@ -1272,7 +1259,7 @@ s32 func_002a4f20(s32 arg0)
     func_002a6b60(0, 0, alpha, p);
     func_002a6c30(0, 0, alpha, p);
     wave = sinf((D_00761184 * (f32)*(s32 *)(p + 0x568)) / 30.0f);
-    target = *(s32 *)(p + 0x3AC) << 16;
+    target = (s32)((u32)*(s32 *)(p + 0x3AC) << 16);
     if (*(s32 *)(p + 0x3B4) != target) {
         diff = target - *(s32 *)(p + 0x3B4);
         if ((f32)func_0043c6a0(diff) <= iGpffff8214 * (f32)target) {
@@ -1290,8 +1277,12 @@ s32 func_002a4f20(s32 arg0)
     }
     base = *(s32 *)(p + 0x3B4) >> 16;
     idx = 0;
-    row = base << 16;
-    slide = 350.0f * (1.0f - wave);
+    row = (s32)((u32)base << 16);
+    {
+        f32 remaining = 1.0f;
+        remaining -= wave;
+        slide = 350.0f * remaining;
+    }
     while (idx < 7) {
         slot = base + idx - 3;
         if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(p + 0x3B4) != 0)) {
@@ -1330,8 +1321,12 @@ s32 func_002a4f20(s32 arg0)
         }
         pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(p + 0x3B8) / 10.0f);
         scale = 1.0f + pulse;
-        slide = 400.0f * (1.0f - wave);
-        func_002a66d0(72.0f - slide, 179.0f, 0.0f, 124.0f * scale, 116.0f * scale, 0x2D2D2D, 0xFF, 1);
+        {
+            f32 remaining = 1.0f;
+            remaining -= wave;
+            slide = 400.0f * remaining;
+        }
+        func_002a66d0(72.0f - slide, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
         func_002a7920(19.0f - slide, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
     }
     frame = *(s32 *)(p + 0x568) + 1;
@@ -1342,9 +1337,6 @@ s32 func_002a4f20(s32 arg0)
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mc", func_002a4f20);
-#endif
 #pragma opt_lifetimes off
 
 /* Recovered 2026-09-28 (lane 5): exact under MWCC b210/O2, 564/564 instructions.
@@ -1496,7 +1488,7 @@ s32 func_002a5630(s32 arg0)
             pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(p + 0x3B8) / 10.0f);
             scale = 1.0f + pulse;
             slide = 350.0f * wave;
-            func_002a66d0(72.0f - slide, 179.0f, 0.0f, 124.0f * scale, 116.0f * scale, 0x2D2D2D, 0xFF, 1);
+            func_002a66d0(72.0f - slide, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
             func_002a7920(19.0f - slide, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
         }
     }
@@ -1510,37 +1502,24 @@ s32 func_002a5630(s32 arg0)
 }
 #pragma opt_lifetimes off
 
-/* Rewrite 2026-09-28 (lane 5), replaces the m2c-shaped draft (181 differing words).
-   Honest ABI: func_00452560 takes the task in arg0 (a0 passes through; the old
-   draft called it through a no-argument cast).  Every call, constant and loop
-   is now retail's: 385/385 instructions, guarded score 44 differing words
-   (reloc-masked), 0 inserted/deleted instructions.
-   Levers that mattered: `fdiff = (f32)diff` as a named float (retail converts
-   once and reuses it; without it the K2 load moves ahead of the cvt.s.w) and
-   `half = 0.5f` as a named float (gives `mul.s f0,f2,f0`, operand order).
-   iGpffff8214/8218/821c/8030/8084 are the gp floats at -0x7dec/-0x7de8/-0x7de4/
-   -0x7fd0/-0x7f7c($gp).  Residual is only register colouring: retail has
-   p->$s0, base->$s1, slot->$s2, idx->$s3, row->$s4 (and f21=x, f20=y); mwcc gives
-   p->$s4 and row->$s0 (row/base/target/diff are only used in ALU operations, and
-   an ALU-only value ranks below the direct call-argument values p/idx/slot no
-   matter where it is declared: measured in isolation, a direct call argument use
-   moves it up, `row - X` or `row + 5` does not).  Declaration order of p/row,
-   merging target/diff into slot/base, inlining `row - X` (CSE'd early),
-   opt_loop_invariants with no row local (72), f32 pos[2] and the x/y order all
-   leave the p/row and f20/f21 swaps in place.
-   opt_lifetimes on (measured afterwards, see func_002a5630) moves p to $s0 and
-   lifts the score to 44 words / 41 edits with p, row, idx, slot, base declared in
-   that order; row still lands on $s1 (retail $s4) because in this function
-   nothing promotes it (a sixth call-crossing value such as func_002a4f20's alpha
-   does). */
+#pragma push
 #pragma opt_lifetimes on
-// FUN_002A5F00 NONMATCHING
-#ifdef NON_MATCHING
+
+/* Displacement from the whole row to the animated 16.16 scroll position. */
+static inline s32 mcRowDisplacement(s32 base, s32 position)
+{
+    return (s32)((u32)base << 16) - position;
+}
+
+/* 1540 native bytes, followed by 12 retail alignment bytes. The drawing loops
+ * expose their shared row origin to loop-invariant extraction. Keep pulse
+ * separate from scale so multiplication rounds before the addition. */
+#pragma opt_loop_invariants on
+// FUN_002A5F00
 s32 func_002a5f00(s32 arg0)
 {
     extern f32 iGpffff8084;
     u8 *p;
-    s32 row;
     s32 idx;
     s32 slot;
     s32 base;
@@ -1550,6 +1529,7 @@ s32 func_002a5f00(s32 arg0)
     f32 x;
     f32 y;
     f32 scale;
+    f32 pulse;
     f32 fdiff;
     f32 half;
 
@@ -1558,7 +1538,7 @@ s32 func_002a5f00(s32 arg0)
     func_002a7710(255, p);
     func_002a6b60(0, 0, 255, p);
     func_002a6c30(0, 0, 255, p);
-    target = *(s32 *)(p + 0x3AC) << 16;
+    target = (s32)((u32)*(s32 *)(p + 0x3AC) << 16);
     if (*(s32 *)(p + 0x3B4) != target) {
         diff = target - *(s32 *)(p + 0x3B4);
         if ((f32)func_0043c6a0(diff) <= iGpffff8214 * (f32)target) {
@@ -1576,14 +1556,13 @@ s32 func_002a5f00(s32 arg0)
     }
     base = *(s32 *)(p + 0x3B4) >> 16;
     idx = 0;
-    row = base << 16;
     while (idx < 7) {
         slot = base + idx - 3;
         if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(p + 0x3B4) != 0)) {
             func_002a6960(0, 0, 0x280, 0x1C0, 5.0f);
             func_002a6960(0, 0, 0x280, 0x2D, 0.0f);
             func_002a6960(0, 0x195, 0x280, 0x30, 0.0f);
-            diff = row - *(s32 *)(p + 0x3B4);
+            diff = mcRowDisplacement(base, *(s32 *)(p + 0x3B4));
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             func_002a7920(x, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
@@ -1596,7 +1575,7 @@ s32 func_002a5f00(s32 arg0)
     while (idx < 7) {
         slot = base + idx - 3;
         if (slot >= 0 && slot < 16) {
-            diff = row - *(s32 *)(p + 0x3B4);
+            diff = mcRowDisplacement(base, *(s32 *)(p + 0x3B4));
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             if (slot == base || slot == base + 1) {
@@ -1613,17 +1592,15 @@ s32 func_002a5f00(s32 arg0)
         if (diff > 0) {
             *(s32 *)(p + 0x3B8) = diff - 1;
         }
-        scale = 1.0f + iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(p + 0x3B8) / 10.0f);
-        func_002a66d0(72.0f, 179.0f, 0.0f, 124.0f * scale, 116.0f * scale, 0x2D2D2D, 0xFF, 1);
+        pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(p + 0x3B8) / 10.0f);
+        scale = 1.0f + pulse;
+        func_002a66d0(72.0f, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
         func_002a7920(19.0f, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
     }
     func_002a6e30(5, -5, 0xFF, p);
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mc", func_002a5f00);
-#endif
-#pragma opt_lifetimes off
+#pragma pop
 
 // FUN_002A6510
 s32 func_002a6510(s32 arg0) {
@@ -1665,8 +1642,8 @@ void func_002a6680(s32 arg0) {
 }
 
 // FUN_002A66D0
-void func_002a66d0(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4,
-                   s32 arg0, s32 arg1, s32 arg2) {
+void func_002a66d0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
+                   f32 fparg3, f32 fparg4, s32 arg2) {
     typedef struct { f32 a, b; } V2;
     void *setState;
     V2 arr[0x29];
@@ -1906,7 +1883,7 @@ void func_002a6e30(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     f1 = 1.0f - f20;
     f20 = -70.0f * f1;
     f24 = -30.0f * f1;
-    func_002a66d0((f32)(arg0 + 0x15) + f24, (f32)(arg1 - 4) + f20, 0.0f, 108.0f, 100.0f, 0xFFAE20, arg2, 1);
+    func_002a66d0((f32)(arg0 + 0x15) + f24, (f32)(arg1 - 4) + f20, 0.0f, 0xFFAE20, arg2, 108.0f, 100.0f, 1);
     i = 0;
     f3 = (f32)(arg0 + 0xB) + f24;
     f1 = f20 + ((f32)(arg1 + 0x14) - 3.0f * f23);
@@ -1923,7 +1900,7 @@ void func_002a6e30(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     f1 = 1.0f - f21;
     f20 = 70.0f * f1;
     f21 = 30.0f * f1;
-    func_002a66d0((f32)(arg0 + 0x95) + f21, (f32)(arg1 + 0x1D1) + f20, 0.0f, 108.0f, 100.0f, 0xFFAE20, arg2, 1);
+    func_002a66d0((f32)(arg0 + 0x95) + f21, (f32)(arg1 + 0x1D1) + f20, 0.0f, 0xFFAE20, arg2, 108.0f, 100.0f, 1);
     i = 0;
     f3 = (f32)(arg0 + 0x83) + f21;
     f1 = f20 + ((f32)(arg1 + 0x1AB) + 3.0f * f22);
@@ -2033,7 +2010,7 @@ s32 func_002a73c0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     w = 2.0f * (f32)v;
     fx = *(f32 *)(rec + 8) - 512.0f * rate;
     fy = *(f32 *)(rec + 0xC) + 512.0f * rate;
-    func_002a66d0(fx, fy, 0.0f, D_00761300 * w, w, 0xFFF267, scale, 1);
+    func_002a66d0(fx, fy, 0.0f, 0xFFF267, scale, D_00761300 * w, w, 1);
     *(s16 *)(rec + 0x10) += 1;
     total = *mcTableAt(*(s32 *)(rec + 4), sp60);
     ns = *(s16 *)(rec + 0x10);
@@ -2123,36 +2100,54 @@ void func_002a7710(s32 arg0, u8 *arg1) {
     }
 }
 
-/* measured 002a7920: guarded 1350wd via `python3 tools/measure_guarded.py src/Kernel/mc.c func_002a7920`; fnalign retail 1528 vs object 1531 instrs (+3, +0.2% inside 3% gate 1482-1574), 828 edits (+1 reloc-only) via `python3 tools/fnalign.py src/Kernel/mc.c func_002a7920 --candidate /tmp/compact7920_s64.c --quiet`; composition max pure hole 6 max pure lump 7 - CLEAN, no hole-against-lump. M2C + hand de-noise to file idiom reusing MATCHed neighbour call orderings (002a7920 ints-first, 002a9f50/002a66d0 floats-first per 002a4f20/002a5630 at 1327/1457; 0025f430 as 8 ints + 6 floats per shdSprite MATCH, 0025f3f0 floats-first per mc.c decl; 0045d6e0 as (ptr,ptr,float,int)): (f32)(s32) kept signed (no unsigned site); colour adda/madd pair as 1.0f*233.0f + -76.0f*ret and 1.0f*44.0f + 113.0f*ret with 0x4F000000 guard; msub args 8/9 of 0025f430 as 1.0f*base - scale*fparg3 (53/21, 70/32, 51/35); 0x41F00000 as 30.0f, 0x20/0x3E f3 as 0.0f/30.0f; D_00887300 via single setState base (retail two regs); tail 0x10 byte loop + 160.0f quad + 0045d6e0. s64 var/a to reach gate (retail 32-bit addiu/slti vs s64 daddiu/dsll; values small, semantics preserved). Residual is saved-reg rotation + FPR colouring + accumulator scheduling (adda/madd/msub as plain mul/sub). */
-/* fix 2026-09-19 (decl): s64 var/a forced 64-bit extends retail never emits (addiu+dsll32/dsra32 vs plain addiu/slti) -- s32 var/a drops 68 instrs; (u8)a0b view at & 0xFF sites kills s8 sign-extracts (dsll32/dsra32/andi -> plain andi, matching retail andi $a1,$s2,0xff; bare a0b keeps s8 for sign-extended call args per retail move $a1,$s2). fnalign retail 1524 vs object 1439, 667 edits (+1 reloc, was 828/-161), guarded 1341wd (was 1350), frame 0xf0/0xe0, GPR exact, retail still saves $f30 (f30-value 9.0+fparg2 pinned $f27 here vs $f30 there; 11 live floats in 10 regs). Investigated and ruled out: second-copy 21.0f/53.0f -> 32.0f/75.0f alternation (retail alternates per sub-block at f29/f28 recomputes AND var==0 inlines, but both positional mappings regress +9/+15 -- needs block restructuring, not constant swaps; live values may already be correct with 32/75 confined to retail-dead legs). Residual is micro-diffs (max hole/lump unchanged shape) + $f30 packing. */
-/* gate: func_002a7920 is now OUTSIDE the +-3% band at 1439 against retail 1524 (-5.6%).
-   The sink pass that produced this is a real structural gain - the callee-saved set
-   now matches retail exactly and fnalign edits fell to 667 from 828 edits - but it
-   also removed real instructions, and the body is short by the difference.  Recorded
-   outside the gate deliberately rather than propped up: no differing-word score
-   measured against it is comparable to one measured inside (handoff 7y).  The next
-   step is to find which of the sunk recomputations retail actually performs at each
-   use and write those back - the register colouring is already right, so the missing
-   instructions are recomputation, not spills. */
-/* fix 2026-09-20 (absent): handoff 48 from 002ae630 ownership trace written back as retail does it. 0x002a8068-0x002a80a0 (14): f30=9+fparg2 + f29=(49+fparg1)-32*fparg3 + 70*fparg3 head of f28=(53+fparg0)-70*fparg3 for arg3!=0 Block A (f23) outer-false live var 0xA-0x13 leg -- live-leg 32/70 pair (dead-leg same shape uses 21/53). 0x002a8410-0x002a8448 (14): same shape for Block B (f20) with f30=10+fparg2 -- live-leg 32/70 for second sub-block. 0x002a8f8c-0x002a8fdc (20): tail Quad4 int stores spD.a=(s32)((fparg0-16)+tmp), spD.b=(s32)((fparg1-16)+tmp), spD.c=spD.d=(s32)(160*fparg3) with tmp=0.5*160*(1-fparg3) + D_00887300 load -- cvt.w.s+mfc1+sw, not swc1; Quad4 + (s32) keeps all four (separate s32 scalars dead-store to one). Outer-false siblings same pattern: arg3!=0 dead var<0xA msub 70/32 (not 53/21); arg3==0 outer (both legs, both sub-blocks) fparg0-5.0f/22.0f+fparg1 (not 14/33). f30 per-leg (9/10 shared with f23/f20 before branches) forced via f30/f30b/f30c/f30d distinct dests + opt_common_subs off (else single-hoisted). fnalign retail 1528 vs object 1562 (+34, +2.2% inside 3% gate 1482-1574), 910 edits (+1 reloc), guarded 1442wd; frame now 0xf0 (retail) via extra saves. Inside band so edit score comparable again. */
-/* fix 2026-09-20 (helpers): libcall_scan 4x __fixsfdi -> 0 at the four (0.0f - tmp) sites via (s16)(0.0f - tmp). Amended-gate case: object LONGER than retail so the count check applies -- fnalign retail 1528 vs object 1562 (+34) 910ed -> 1556 (+28, +1.8% inside 1482-1574) 759ed (-151), guarded 1442->1266, count moved toward retail as required. Retail narrow shape at 0x002A7F50 (+3 siblings): mul 40*fparg3, sub 0-tmp, cvt.w.s, mfc1, dsll32/dsra32 16; micro_codegen confirms (s16) reproduces cvt+extend with no helper. Rejected (s32)(0.0f - tmp): 1544 instrs but 904ed, shorter yet unfaithful (drops the extend). Residual neg.s vs retail sub.s at those 4 sites left open. */
-#pragma opt_common_subs off
-// FUN_002A7920 NONMATCHING
-#ifdef NON_MATCHING
-void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, u8 arg0, u8 *arg1, s32 arg2, s32 arg3, f32 fparg3, u8 *arg4) {
+/* Coordinate, layer and scale operations used by the slot's digits and icon. */
+static inline f32 mcScaleProduct(f32 factor, f32 value)
+{
+    return factor * value;
+}
+static inline f32 mcDigitAdvance(f32 x, f32 spacing)
+{
+    return x + spacing;
+}
+static inline f32 mcCoordinateBefore(const f32 *position, f32 offset)
+{
+    return *position - offset;
+}
+static inline f32 mcSpriteOrigin(f32 origin, f32 distance)
+{
+    return origin - distance;
+}
+static inline f32 mcPlaneDepth(const f32 *depth, f32 layer)
+{
+    return layer + *depth;
+}
+static inline f32 mcCoordinate(const f32 *coordinate, f32 offset)
+{
+    return offset + *coordinate;
+}
+static inline u32 mcUnsignedColorRgb(const u32 *rgba)
+{
+    return *rgba >> 8;
+}
+#pragma push
+#pragma opt_lifetimes on
+#pragma opt_common_subs on
+/* The number and optional icon own separate coordinate and RGB values.
+ * Border alpha is full-width; sprite interfaces consume its low byte.
+ * The inset is evaluated as remaining scale, pixel span, then half span.
+ * 6100 matching code bytes; the 6112-byte window has a zero alignment tail. */
+// FUN_002A7920
+void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 arg2, s32 arg3, f32 fparg3, u8 *arg4) {
     extern f32 D_00761184;
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
-    u8 spEF;
-    s8 spEE;
-    s8 spED;
-    u8 spEC;
+    struct { u8 r, g, b, a; } color;
     Quad4 spD;
-    f32 f21;
-    f32 f22;
     f32 f23;
+    f32 f22;
+    f32 f21;
     f32 f20;
-    f32 f28;
     f32 f29;
+    f32 f28;
     f32 f30;
     f32 f30b;
     f32 f30c;
@@ -2161,22 +2156,18 @@ void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, u8 arg0, u8 *arg1, s32 ar
     f32 tmp;
     s32 v0;
     s32 v1;
-    s32 c0;
-    s32 c1;
+    u8 c0;
+    u8 c1;
     u32 col;
     u32 colHi;
     s32 var;
-    s32 var2;
     s32 a;
-    s32 b;
     u8 *p20;
     u8 *p;
     s32 n;
     void *setState;
-    s8 a0b;
     s32 t;
 
-    a0b = arg0;
     if (*(s32 *)((u8 *)(arg1) + (arg2 * 4)) == 1) {
         p20 = (u8 *)(arg1 + (arg2 * 0x34) + 0x40);
     } else {
@@ -2203,26 +2194,18 @@ void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, u8 arg0, u8 *arg1, s32 ar
         }
         ret = sinf((D_00761184 * (f32) *(s32 *)(arg4 + 0x3BC)) / 5.0f);
         tmp = 0.0f + 1.0f * 233.0f + -76.0f * ret;
-        if (!(tmp >= 2.1474836e9f)) {
-            c0 = 0x4F000000 & 0xFF;
-        } else {
-            c0 = ((s32)(tmp - 2.1474836e9f) | 0x80000000) & 0xFF;
-        }
+        c0 = (u8)tmp;
         colHi = ((c0 & 0xFF) << 0x10) | 0xFF000000;
         tmp = 0.0f + 1.0f * 44.0f + 113.0f * ret;
-        if (!(tmp >= 2.1474836e9f)) {
-            c1 = 0x4F000000 & 0xFF;
-        } else {
-            c1 = ((s32)(tmp - 2.1474836e9f) | 0x80000000) & 0xFF;
-        }
-        col = ((u8)a0b & 0xFF) | (colHi | ((c1 & 0xFF) << 8));
+        c1 = (u8)tmp;
+        col = ((u8)arg0 & 0xFF) | (colHi | ((c1 & 0xFF) << 8));
     } else {
-        col = ((u8)a0b & 0xFF) | 0xFFAE2000;
+        col = ((u8)arg0 & 0xFF) | 0xFFAE2000;
         v0 = 0x6A;
         v1 = 0x62;
     }
-    setState = (void *)D_00887300;
     func_00489f80();
+    setState = (void *)D_00887300;
     (*(void (**)(s32, s32))setState)(6, 0);
     (*(void (**)(s32, s32))setState)(8, 1);
     RpSkyRenderStateSet(3, 0x5000D);
@@ -2232,10 +2215,10 @@ void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, u8 arg0, u8 *arg1, s32 ar
     f23 = 9.0f + fparg2;
     f22 = 49.0f + fparg1;
     f21 = 53.0f + fparg0;
-    func_002a66d0(f21, f22, f23, 2.0f + f28, 2.0f + f29, 0xFFFFFF, 1, 2);
-    func_002a66d0(f21, f22, f23, f28, f29, 0xFFFFFF, a0b, 4);
+    func_002a66d0(f21, f22, f23, 0xFFFFFF, 1, 2.0f + f28, 2.0f + f29, 2);
+    func_002a66d0(f21, f22, f23, 0xFFFFFF, arg0, f28, f29, 4);
     f20 = 10.0f + fparg2;
-    func_002a66d0(f21, f22, f20, f28, f29, 0xFFFFFF, a0b, 2);
+    func_002a66d0(f21, f22, f20, 0xFFFFFF, arg0, f28, f29, 2);
     if (arg3 != 0) {
         (*(void (**)(s32, s32))setState)(7, 2);
         (*(void (**)(s32, s32))setState)(9, 2);
@@ -2251,94 +2234,98 @@ void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, u8 arg0, u8 *arg1, s32 ar
         var = arg2 + 1;
         if (var < 0xA) {
             if (var < 0xA) {
-            if (var == 0) {
-                var = 0xA;
-            }
-            func_0025f430(0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f23, col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+                func_0025f430(0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
             } else if (var < 0x14) {
-            if (var == 0xA) {
-                a = 0xA;
-            } else {
-                a = arg2 - 9;
-            }
-            f30 = 9.0f + fparg2;
-            f29 = (49.0f + fparg1) - (21.0f * fparg3);
-            f28 = (53.0f + fparg0) - (53.0f * fparg3);
-            func_0025f430(f28, f29, f30, col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
-            tmp = 40.0f * fparg3;
-            func_0025f430(f28 + tmp, f29, f30, col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)(0.0f - tmp), 0, 30.0f, fparg3, fparg3);
+                u32 digitRgb;
+                a = (var == 0xA) ? 0xA : arg2 - 9;
+                digitRgb = mcUnsignedColorRgb(&col);
+                f30 = mcPlaneDepth(&fparg2, 9.0f);
+                tmp = 21.0f * fparg3;
+                f29 = mcCoordinate(&fparg1, 49.0f);
+                f29 -= tmp;
+                tmp = 53.0f * fparg3;
+                f28 = mcCoordinate(&fparg0, 53.0f);
+                f28 -= tmp;
+                func_0025f430(f28, f29, f30, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+                tmp = 40.0f * fparg3;
+                func_0025f430(f28 + tmp, f29, f30, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
             }
         } else if (var < 0xA) {
-            if (var == 0) {
-                var = 0xA;
-            }
-            func_0025f430(0.0f + 1.0f * f21 - 70.0f * fparg3, 0.0f + 1.0f * f22 - 32.0f * fparg3, f23, col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+            func_0025f430(0.0f + 1.0f * f21 - 70.0f * fparg3, 0.0f + 1.0f * f22 - 32.0f * fparg3, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
         } else if (var < 0x14) {
-            if (var == 0xA) {
-                a = 0xA;
-            } else {
-                a = arg2 - 9;
-            }
-            f30b = 9.0f + fparg2;
-            f29 = (49.0f + fparg1) - (32.0f * fparg3);
-            f28 = (53.0f + fparg0) - (70.0f * fparg3);
-            func_0025f430(f28, f29, f30b, col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+            u32 digitRgb;
+            a = (var == 0xA) ? 0xA : arg2 - 9;
+            digitRgb = mcUnsignedColorRgb(&col);
+            f30b = mcPlaneDepth(&fparg2, 9.0f);
+            tmp = 32.0f * fparg3;
+            f29 = mcCoordinate(&fparg1, 49.0f);
+            f29 -= tmp;
+            tmp = 70.0f * fparg3;
+            f28 = mcCoordinate(&fparg0, 53.0f);
+            f28 -= tmp;
+            func_0025f430(f28, f29, f30b, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
-            func_0025f430(f28 + tmp, f29, f30b, col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)(0.0f - tmp), 0, 30.0f, fparg3, fparg3);
+            func_0025f430(f28 + tmp, f29, f30b, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
         var = arg2 + 1;
         if (var < 0xA) {
             if (var < 0xA) {
-            if (var == 0) {
-                var = 0xA;
-            }
-            func_0025f430(0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f20, col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+                func_0025f430(0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
             } else if (var < 0x14) {
-            if (var == 0xA) {
-                a = 0xA;
-            } else {
-                a = arg2 - 9;
-            }
-            f30 = 10.0f + fparg2;
-            f29 = (49.0f + fparg1) - (21.0f * fparg3);
-            f28 = (53.0f + fparg0) - (53.0f * fparg3);
-            func_0025f430(f28, f29, f30, col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
-            tmp = 40.0f * fparg3;
-            func_0025f430(f28 + tmp, f29, f30, col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)(0.0f - tmp), 0, 30.0f, fparg3, fparg3);
+                u32 digitRgb;
+                a = (var == 0xA) ? 0xA : arg2 - 9;
+                digitRgb = mcUnsignedColorRgb(&col);
+                f30 = mcPlaneDepth(&fparg2, 10.0f);
+                tmp = 21.0f * fparg3;
+                f29 = mcCoordinate(&fparg1, 49.0f);
+                f29 -= tmp;
+                tmp = 53.0f * fparg3;
+                f28 = mcCoordinate(&fparg0, 53.0f);
+                f28 -= tmp;
+                func_0025f430(f28, f29, f30, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+                tmp = 40.0f * fparg3;
+                func_0025f430(f28 + tmp, f29, f30, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
             }
         } else if (var < 0xA) {
-            if (var == 0) {
-                var = 0xA;
-            }
-            func_0025f430(0.0f + 1.0f * f21 - 70.0f * fparg3, 0.0f + 1.0f * f22 - 32.0f * fparg3, f20, col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+            func_0025f430(0.0f + 1.0f * f21 - 70.0f * fparg3, 0.0f + 1.0f * f22 - 32.0f * fparg3, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
         } else if (var < 0x14) {
-            if (var == 0xA) {
-                a = 0xA;
-            } else {
-                a = arg2 - 9;
-            }
-            f30b = 10.0f + fparg2;
-            f29 = (49.0f + fparg1) - (32.0f * fparg3);
-            f28 = (53.0f + fparg0) - (70.0f * fparg3);
-            func_0025f430(f28, f29, f30b, col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+            u32 digitRgb;
+            a = (var == 0xA) ? 0xA : arg2 - 9;
+            digitRgb = mcUnsignedColorRgb(&col);
+            f30b = mcPlaneDepth(&fparg2, 10.0f);
+            tmp = 32.0f * fparg3;
+            f29 = mcCoordinate(&fparg1, 49.0f);
+            f29 -= tmp;
+            tmp = 70.0f * fparg3;
+            f28 = mcCoordinate(&fparg0, 53.0f);
+            f28 -= tmp;
+            func_0025f430(f28, f29, f30b, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
-            func_0025f430(f28 + tmp, f29, f30b, col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)(0.0f - tmp), 0, 30.0f, fparg3, fparg3);
+            func_0025f430(f28 + tmp, f29, f30b, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
-        a = col >> 8;
-        func_0025f430(0.0f + 1.0f * f21 - 51.0f * fparg3, 0.0f + 1.0f * f22 - 35.0f * fparg3, f23, a, (u8)a0b & 0xFF, 0x20, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
+        a = mcUnsignedColorRgb(&col);
+        func_0025f430(0.0f + 1.0f * f21 - 51.0f * fparg3, 0.0f + 1.0f * f22 - 35.0f * fparg3, f23, a, arg0, 0x20, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
         if ((p20 != NULL) && (*(u8 *)(p20 + 0xA) != 0)) {
+            u32 iconRgb;
+            f32 iconY;
+            f32 iconX;
             RpSkyRenderStateSet(3, 0x50009);
             RpSkyRenderStateSet(2, 0x44);
-            f22 = (49.0f + fparg1) - (53.0f * fparg3);
-            f21 = (53.0f + fparg0) - (11.0f * fparg3);
-            func_0025f430(f21, f22, f23, a, (u8)a0b & 0xFF, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
+            iconRgb = col >> 8;
+            tmp = 53.0f * fparg3;
+            iconY = mcCoordinate(&fparg1, 49.0f);
+            iconY -= tmp;
+            tmp = 11.0f * fparg3;
+            iconX = mcCoordinate(&fparg0, 53.0f);
+            iconX -= tmp;
+            func_0025f430(iconX, iconY, f23, iconRgb, arg0, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
             RpSkyRenderStateSet(3, 0x50805);
             RpSkyRenderStateSet(2, 0x44);
-            func_0025f430(f21, f22, f20, a, (u8)a0b & 0xFF, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
+            func_0025f430(iconX, iconY, f20, iconRgb, arg0, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
         }
     } else {
         (*(void (**)(s32, s32))setState)(7, 2);
@@ -2355,92 +2342,73 @@ void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, u8 arg0, u8 *arg1, s32 ar
         var = arg2 + 1;
         if (var < 0xA) {
             if (var < 0xA) {
-            if (var == 0) {
-                var = 0xA;
-            }
-            func_0025f430(14.0f + fparg0, 33.0f + fparg1, f23, col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                func_0025f430(14.0f + fparg0, 33.0f + fparg1, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
             } else if (var < 0x14) {
-            if (var == 0xA) {
-                a = 0xA;
-            } else {
-                a = arg2 - 9;
-            }
-            f30c = 9.0f + fparg2;
-            f22 = 33.0f + fparg1;
-            f21 = 14.0f + fparg0;
-            func_0025f430(f21, f22, f30c, col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            func_0025f430(f21 + 40.0f, f22, f30c, col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+                u32 digitRgb;
+                a = (var == 0xA) ? 0xA : arg2 - 9;
+                digitRgb = mcUnsignedColorRgb(&col);
+                f30c = mcPlaneDepth(&fparg2, 9.0f);
+                f22 = 33.0f + fparg1;
+                f21 = 14.0f + fparg0;
+                func_0025f430(f21, f22, f30c, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                func_0025f430(mcDigitAdvance(f21, 40.0f), f22, f30c, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
             }
         } else if (var < 0xA) {
-            if (var == 0) {
-                var = 0xA;
-            }
-            func_0025f430(fparg0 - 5.0f, 22.0f + fparg1, f23, col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            func_0025f430(fparg0 - 5.0f, 22.0f + fparg1, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
         } else if (var < 0x14) {
-            if (var == 0xA) {
-                a = 0xA;
-            } else {
-                a = arg2 - 9;
-            }
-            f30d = 9.0f + fparg2;
+            u32 digitRgb;
+            a = (var == 0xA) ? 0xA : arg2 - 9;
+            digitRgb = mcUnsignedColorRgb(&col);
+            f30d = mcPlaneDepth(&fparg2, 9.0f);
             f22 = 22.0f + fparg1;
-            f21 = fparg0 - 5.0f;
-            func_0025f430(f21, f22, f30d, col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            func_0025f430(f21 + 40.0f, f22, f30d, col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+            func_0025f430(mcCoordinateBefore(&fparg0, 5.0f), f22, f30d, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            func_0025f430(mcDigitAdvance(mcCoordinateBefore(&fparg0, 5.0f), 40.0f), f22, f30d, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
         var = arg2 + 1;
         if (var < 0xA) {
             if (var < 0xA) {
-            if (var == 0) {
-                var = 0xA;
-            }
-            func_0025f430(14.0f + fparg0, 33.0f + fparg1, f20, col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                func_0025f430(14.0f + fparg0, 33.0f + fparg1, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
             } else if (var < 0x14) {
-            if (var == 0xA) {
-                a = 0xA;
-            } else {
-                a = arg2 - 9;
-            }
-            f30c = 10.0f + fparg2;
-            f22 = 33.0f + fparg1;
-            f21 = 14.0f + fparg0;
-            func_0025f430(f21, f22, f30c, col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            func_0025f430(f21 + 40.0f, f22, f30c, col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+                u32 digitRgb;
+                a = (var == 0xA) ? 0xA : arg2 - 9;
+                digitRgb = mcUnsignedColorRgb(&col);
+                f30c = mcPlaneDepth(&fparg2, 10.0f);
+                f22 = 33.0f + fparg1;
+                f21 = 14.0f + fparg0;
+                func_0025f430(f21, f22, f30c, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                func_0025f430(mcDigitAdvance(f21, 40.0f), f22, f30c, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
             }
         } else if (var < 0xA) {
-            if (var == 0) {
-                var = 0xA;
-            }
-            func_0025f430(fparg0 - 5.0f, 22.0f + fparg1, f20, col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            func_0025f430(fparg0 - 5.0f, 22.0f + fparg1, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
         } else if (var < 0x14) {
-            if (var == 0xA) {
-                a = 0xA;
-            } else {
-                a = arg2 - 9;
-            }
-            f30d = 10.0f + fparg2;
+            u32 digitRgb;
+            a = (var == 0xA) ? 0xA : arg2 - 9;
+            digitRgb = mcUnsignedColorRgb(&col);
+            f30d = mcPlaneDepth(&fparg2, 10.0f);
             f22 = 22.0f + fparg1;
-            f21 = fparg0 - 5.0f;
-            func_0025f430(f21, f22, f30d, col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            func_0025f430(f21 + 40.0f, f22, f30d, col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+            func_0025f430(mcCoordinateBefore(&fparg0, 5.0f), f22, f30d, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            func_0025f430(mcDigitAdvance(mcCoordinateBefore(&fparg0, 5.0f), 40.0f), f22, f30d, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
         }
-        a = col >> 8;
-        func_0025f3f0((3.0f + ((4.0f + fparg0) - 5.0f)) - 2.0f, 20.0f + fparg1, f23, a, (u8)a0b & 0xFF, 0x20, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
+        a = mcUnsignedColorRgb(&col);
+        func_0025f3f0((3.0f + ((4.0f + fparg0) - 5.0f)) - 2.0f, 20.0f + fparg1, f23, a, arg0, 0x20, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
         if ((p20 != NULL) && (*(u8 *)(p20 + 0xA) != 0)) {
+            u32 iconRgb;
+            f32 iconY;
+            f32 iconX;
             RpSkyRenderStateSet(3, 0x50009);
             RpSkyRenderStateSet(2, 0x44);
-            f22 = 2.0f + fparg1;
-            f21 = 42.0f + fparg0;
-            func_0025f3f0(f21, f22, f23, a, (u8)a0b & 0xFF, 0x3E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
+            iconRgb = col >> 8;
+            iconY = 2.0f + fparg1;
+            iconX = 42.0f + fparg0;
+            func_0025f3f0(iconX, iconY, f23, iconRgb, arg0, 0x3E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
             RpSkyRenderStateSet(3, 0x50805);
             RpSkyRenderStateSet(2, 0x44);
-            func_0025f3f0(f21, f22, f20, a, (u8)a0b & 0xFF, 0x3E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
+            func_0025f3f0(iconX, iconY, f20, iconRgb, arg0, 0x3E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
         }
     }
     func_0048a000();
-    setState = (void *)D_00887300;
     p = (u8 *)(&spD);
     n = 0x10;
     if (p != NULL) {
@@ -2450,12 +2418,15 @@ void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, u8 arg0, u8 *arg1, s32 ar
             n -= 1;
         } while (n != 0);
     }
-    tmp = 0.5f * (160.0f * (1.0f - fparg3));
+    tmp = 1.0f - fparg3;
+    tmp = mcScaleProduct(160.0f, tmp);
+    tmp = mcScaleProduct(0.5f, tmp);
     spD.a = (s32)((fparg0 - 16.0f) + tmp);
     spD.b = (s32)((fparg1 - 16.0f) + tmp);
     tmp = 160.0f * fparg3;
     spD.c = (s32)tmp;
     spD.d = (s32)tmp;
+    setState = (void *)D_00887300;
     (*(void (**)(s32, s32))setState)(0xE, 0);
     (*(void (**)(s32, s32))setState)(0xC, 1);
     (*(void (**)(s32, s32))setState)(7, 2);
@@ -2463,15 +2434,14 @@ void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, u8 arg0, u8 *arg1, s32 ar
     (*(void (**)(s32, s32))setState)(8, 0);
     RpSkyRenderStateSet(3, 0x3100C);
     RpSkyRenderStateSet(2, 0x54);
-    spEC = (u8) (col >> 0x18);
-    spED = (s8) (col >> 0x10);
-    spEE = (s8) (col >> 8);
-    spEF = (u8) col;
-    func_0045d6e0(&spEC, &spD, fparg2, 0);
+    color.r = (u8) (col >> 0x18);
+    color.g = (s8) (col >> 0x10);
+    color.b = (u8)a;
+    color.a = (u8) col;
+    func_0045d6e0(&color, &spD, fparg2, 0);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mc", func_002a7920);
-#endif
+
+#pragma pop
 #pragma opt_common_subs on
 
 #pragma opt_common_subs off
@@ -2588,17 +2558,43 @@ void func_002a9100(f32 fparg0, f32 fparg1, f32 fparg2,
 }
 #pragma opt_common_subs on
 
-/* measured: cold de-noised m2c+romwright (guarded v1): measure_guarded 340wd / fnalign 219 edits +6 reloc-only (retail 611/object 610 instrs, 1 short, 0.2% — bankable). */
-/*   Calls floats-first per mc.c decls + 002a9100 sibling: 0025f6b0/0025f3f0 floats-first, 00275020 floats-first, 002a9100 floats-first, 0045d6e0 (ptr,ptr,float,int). */
-/*   Stack per romwright extents (tmp128[8]/tmp110[12]/tmpF0[16]) + 6960 idioms (memset loops, Quad4 rectCopy, setState base). R1 pragma probes: loop_invariants on 343 (+3), unroll off 340 tie, schedule off 340 tie (strength off 340 tie). R2 subscript: hoist keys 368 (+28), tbl base 427 (+87), off=i*0xC 429 (+89) — keep P[i*3], do not hoist. R3 colour: baseY/baseX 539 (+199), var_5/var_6 swap 358 (+18), var_22/colMid + temp_2/temp_16 ties at 340 — baseline best. */
-/*   Remaining: saved-reg rotation ($s5/$s3, $s1/$s0, $s2/$s1, $s0/$s7) + FPR rotation ($f22/$f21/$f20) + add.s operand transpose for fparg0+const + switch 0x1B/0x1C layout + table-loop lbu hoist + D_00887300 single base vs retail two regs. */
-// FUN_002A95C0 NONMATCHING
-#ifdef NON_MATCHING
+/* Packed RGBA word used by the font and sprite drawing interfaces. */
+typedef struct McColorWord {
+    s32 rgba;
+} McColorWord;
+static inline s32 mcColorRgb(const McColorWord *color)
+{
+    return color->rgba >> 8;
+}
+#pragma push
+#pragma opt_lifetimes on
+
+static inline const char *mcLocationName(s32 area, s32 room)
+{
+    s32 i;
+    McLocationNameEntry *table;
+    i = 1;
+    table = D_0063EA60;
+    for (; i < 13; ++i) {
+        s32 field = table[i].area;
+        if (field == area) {
+            field = table[i].room;
+            if (field == room) {
+                return table[i].name;
+            }
+        }
+    }
+    return D_0063EA60[0].name;
+}
+/* 2448/2448 bytes. Keep the date record, weekday texture, and packed
+ * color as distinct objects. The color accessor preserves the detail RGB
+ * lifetime; opt_lifetimes retains the retail allocation across draw calls. */
+// FUN_002A95C0
 void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4)
 {
     u8 tmp128[8];
     s16 tmp110[12];
-    s16 tmpF0[16];
+    s16 tmpF0[12];
     s16 *var_6;
     s16 *var_6_2;
     s16 *var_5;
@@ -2610,28 +2606,25 @@ void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     s32 month;
     s32 day;
     s32 var_18;
-    s32 var_22;
+    McColorWord colorWord;
     s32 var_30;
     s32 colMid;
     s32 temp_17;
     s32 temp_18;
     s32 var_4;
     s32 var_4_2;
-    s32 i;
     s32 baseSpill;
-    f32 baseX;
-    f32 baseY;
     f32 tmpY2;
     f32 tmpX2;
     u8 *temp_2;
     u8 *temp_16;
     u8 *str;
     u8 *handle;
+    u8 *weekdayHandle;
     u8 mode;
-    f32 single;
-    f32 singleCopy;
-    Quad4 rect;
-    Quad4 rectCopy;
+    struct { u8 red, green, blue, alpha; } singleCopy, single;
+    McRect rectCopy;
+    McRect rect;
     u8 *p;
     s32 n;
     u8 *p2;
@@ -2641,14 +2634,14 @@ void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     temp_2 = (u8 *)(arg1 + arg2 * 0x34);
     temp_16 = temp_2 + 0x40;
     func_001104d0(*(s16 *)(temp_2 + 0x40), &month, &day);
-    var_18 = func_00110580(*(s16 *)(temp_2 + 0x40));
+    var_18 = func_00110580(*(s16 *)temp_16);
     if (var_18 < 0) {
         var_18 = 6;
     }
     if (arg3 != NULL) {
-        var_22 = (arg0 & 0xFF) | 0xFFE92C00;
+        colorWord.rgba = (arg0 & 0xFF) | 0xFFE92C00;
     } else {
-        var_22 = (arg0 & 0xFF) | 0xFFAE2000;
+        colorWord.rgba = (arg0 & 0xFF) | 0xFFAE2000;
     }
     if (arg3 != NULL) {
         colMid = (arg0 & 0xFF) | 0x52BDFF00;
@@ -2660,8 +2653,8 @@ void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     } else {
         var_30 = (arg0 & 0xFF) | 0xDE6D9D00;
     }
-    baseX = fparg0 + 107.0f;
-    baseY = fparg1 + 17.0f;
+    fparg0 += 107.0f;
+    fparg1 += 17.0f;
     sprintf(tmp128, &iGpffffa824, month);
     handle = *(u8 **)(arg4 + 0x398);
     var_6 = D_0063EB30;
@@ -2676,9 +2669,9 @@ void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
         var_5[1] = t2a;
         var_5 += 2;
     } while (var_4 > 0);
-    temp_17 = var_22 >> 8;
-    func_0025f6b0((baseX + 23.0f) - 2.0f, baseY - 1.0f, fparg2, temp_17, (u8)arg0, tmp128, 2, tmp110, func_002a2e10, handle);
-    func_0025f3f0(baseX + 45.0f, baseY - 2.0f, fparg2, temp_17, (u8)arg0, 0x4B, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    temp_17 = colorWord.rgba >> 8;
+    func_0025f6b0((fparg0 + 23.0f) - 2.0f, fparg1 - 1.0f, fparg2, temp_17, (u8)arg0, tmp128, 2, tmp110, func_002a2e10, handle);
+    func_0025f3f0(fparg0 + 45.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x4B, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
     sprintf(tmp128, &iGpffffa824, day);
     handle = *(u8 **)(arg4 + 0x398);
     var_6_2 = D_0063EB30;
@@ -2693,31 +2686,23 @@ void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
         var_5_2[1] = t2b;
         var_5_2 += 2;
     } while (var_4_2 > 0);
-    func_0025f6b0((baseX + 61.0f + 24.0f) - 2.0f, (baseY + 1.0f) - 2.0f, fparg2, temp_17, (u8)arg0, tmp128, 2, tmpF0, func_002a2e10, handle);
-    func_0025f3f0(baseX + 109.0f, baseY - 2.0f, fparg2, temp_17, (u8)arg0, 0x15, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    if ((var_18 == 0) || (func_00110d30(*(s16 *)(temp_2 + 0x40)) != 0)) {
-        handle = *(u8 **)(arg4 + 0x398);
-        func_0025f3f0((baseX + 129.0f) - (f32)func_0025f2c0(0xE, var_18, handle) / 2.0f, baseY - 2.0f, fparg2, var_30 >> 8, (u8)arg0, 0xE, var_18, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    func_0025f6b0((fparg0 + 61.0f + 24.0f) - 2.0f, (fparg1 + 1.0f) - 2.0f, fparg2, temp_17, (u8)arg0, tmp128, 2, tmpF0, func_002a2e10, handle);
+    func_0025f3f0(fparg0 + 109.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x15, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    if ((var_18 == 0) || (func_00110d30(*(s16 *)temp_16) != 0)) {
+        weekdayHandle = *(u8 **)(arg4 + 0x398);
+        func_0025f3f0((fparg0 + 129.0f) - (f32)func_0025f2c0(0xE, var_18, weekdayHandle) / 2.0f, fparg1 - 2.0f, fparg2, var_30 >> 8, (u8)arg0, 0xE, var_18, weekdayHandle, 1);
     } else if (var_18 == 6) {
-        handle = *(u8 **)(arg4 + 0x398);
-        func_0025f3f0((baseX + 129.0f) - (f32)func_0025f2c0(0xE, 6, handle) / 2.0f, baseY - 2.0f, fparg2, colMid >> 8, (u8)arg0, 0xE, 6, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        weekdayHandle = *(u8 **)(arg4 + 0x398);
+        func_0025f3f0((fparg0 + 129.0f) - (f32)func_0025f2c0(0xE, var_18, weekdayHandle) / 2.0f, fparg1 - 2.0f, fparg2, colMid >> 8, (u8)arg0, 0xE, var_18, weekdayHandle, 1);
     } else {
-        handle = *(u8 **)(arg4 + 0x398);
-        func_0025f3f0((baseX + 129.0f) - (f32)func_0025f2c0(0xE, var_18, handle) / 2.0f, baseY - 2.0f, fparg2, temp_17, (u8)arg0, 0xE, var_18, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        weekdayHandle = *(u8 **)(arg4 + 0x398);
+        func_0025f3f0((fparg0 + 129.0f) - (f32)func_0025f2c0(0xE, var_18, weekdayHandle) / 2.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0xE, var_18, weekdayHandle, 1);
     }
-    func_0025f3f0(baseX + 136.0f, baseY - 2.0f, fparg2, temp_17, (u8)arg0, 0x16, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    i = 1;
-    str = D_0063EA68;
-    while (i < 0xD) {
-        if (*(s32 *)&D_0063EA60[i * 3] == temp_16[0x30] && *(s32 *)&D_0063EA60[i * 3 + 1] == temp_16[0x31]) {
-            str = (u8 *)D_0063EA60[i * 3 + 2];
-            break;
-        }
-        i += 1;
-    }
-    func_00275020(baseX + 151.0f, ((baseY - 2.0f) - 6.0f) + 2.0f, fparg2, var_22 | arg0, 0, 1, (const char *)str, 0, -1);
-    temp_18 = var_22 >> 8;
-    func_002a9100(baseX, baseY, fparg2, temp_18, arg0, (u8 *)baseSpill, arg2, arg4);
+    func_0025f3f0(fparg0 + 136.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x16, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    str = (u8 *)mcLocationName(temp_16[0x30], temp_16[0x31]);
+    func_00275020(fparg0 + 151.0f, ((fparg1 - 2.0f) - 6.0f) + 2.0f, fparg2, colorWord.rgba | arg0, 0, 1, (const char *)str, 0, -1);
+    temp_18 = mcColorRgb(&colorWord);
+    func_002a9100(fparg0, fparg1, fparg2, temp_18, arg0, (u8 *)baseSpill, arg2, arg4);
     p = (u8 *)&single;
     n = 4;
     if (p != NULL) {
@@ -2737,10 +2722,10 @@ void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
             n2--;
         } while (n2 != 0);
     }
-    rect.a = (s32)(baseX - 16.0f);
-    rect.b = (s32)(baseY - 16.0f);
-    rect.c = 0x20;
-    rect.d = 0x80;
+    rect.x = (s32)(fparg0 - 16.0f);
+    rect.y = (s32)(fparg1 - 16.0f);
+    rect.width = 0x20;
+    rect.height = 0x80;
     rectCopy = rect;
     setState = (void *)D_00887300;
     (*(void (**)(u32, u32))setState)(0xE, 0);
@@ -2756,16 +2741,20 @@ void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     func_0045d6e0(&singleCopy, &rectCopy, 0.0f, 0);
     func_0048a000();
     func_00489f80();
-    tmpY2 = baseY + 48.0f;
-    tmpX2 = (f32)0x129 + baseX;
+    tmpY2 = fparg1 + 48.0f;
+    tmpX2 = (f32)0x129 + fparg0;
     func_0025f3f0(tmpX2, tmpY2, fparg2, temp_18, (u8)arg0, 0x1E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
     mode = temp_16[9];
-    if (mode == 1) {
-        func_0025f3f0(tmpX2 + 17.0f, tmpY2 + 4.0f, fparg2, temp_17, (u8)arg0, 0x1C, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    } else if (mode == 0) {
+    switch (mode) {
+    case 0:
         func_0025f3f0(tmpX2 + 11.0f, tmpY2 + 4.0f, fparg2, temp_17, (u8)arg0, 0x1B, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    } else {
+        break;
+    case 1:
+        func_0025f3f0(tmpX2 + 17.0f, tmpY2 + 4.0f, fparg2, temp_17, (u8)arg0, 0x1C, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        break;
+    default:
         func_0025f3f0(tmpX2 + 21.0f, tmpY2 + 3.0f, fparg2, temp_17, (u8)arg0, 0x1D, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        break;
     }
     func_0048a000();
     setState = (void *)D_00887300;
@@ -2775,9 +2764,8 @@ void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     RpSkyRenderStateSet(2, 0x54);
     func_0025f3f0(tmpX2, tmpY2, fparg2, temp_17, (u8)arg0, 0x1E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mc", func_002a95c0);
-#endif
+
+#pragma pop
 
 /* measured: cyclic saved-register rotation in the 5-int/3-float prologue --
    retail colors arg0->$s0, arg1->$s4, arg2->$s3, arg4->$s2; mwcc b210 always

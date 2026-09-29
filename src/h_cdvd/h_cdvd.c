@@ -14,39 +14,31 @@ extern void func_00455230(const char* directory);
 extern void strcpy(char* destination, const char* source);
 extern u32 strlen(const char* text);
 
-static const char* sCdvdVolumePrefix = "VOL:";
-static const char* sCdvdBattlePrefix = "BTL:";
-
-static const char* sCdvdBtlDirectories[] = {
+/* Both volume-path consumers use this sentinel-terminated retail table.
+ * Nineteen directories and the empty sentinel occupy 0x7107b0..0x710800. */
+const char* D_007107b0[] = {
     "\\",
     "\\BATTLE\\",
+    "\\BATTLE\\BOSS\\",
     "\\BATTLE\\CUTIN\\",
-    "\\BATTLE\\CUTIN\\C71_C80_L_L_1\\",
-    "\\BATTLE\\CUTIN\\C82_L_L_1\\",
-    "\\BATTLE\\CUTIN\\C90_L_L_1\\",
-    "\\BATTLE\\CUTIN\\C93_L_L_1\\",
-    "\\BATTLE\\CUTIN\\EPL\\",
-    "\\BATTLE\\CUTIN\\MIXRAID\\",
+    "\\BATTLE\\CUTIN\\BOKO\\",
+    "\\BATTLE\\CUTIN\\BOKO\\KOMA2\\",
+    "\\BATTLE\\CUTIN\\BOKO\\KOMA3\\",
+    "\\BATTLE\\CUTIN\\BOKO\\KOMA4\\",
+    "\\BATTLE\\CUTIN\\SYOUDAKU\\",
+    "\\BATTLE\\CUTIN\\SYOUKAN\\",
+    "\\BATTLE\\CUTIN\\TOKUSYU\\",
     "\\BATTLE\\EFFECT\\",
     "\\BATTLE\\PANEL\\",
     "\\BATTLE\\RESULT\\",
-    "\\BATTLE\\SHUFFLE\\",
-    "\\MODEL\\",
-    "\\MODEL\\FACILITYP\\",
-    "\\MODEL\\FIELD\\",
-    "\\MODEL\\NPC\\",
-    "\\MODEL\\PACK\\",
-    "\\MODEL\\PERSONA\\",
-    "\\MODEL\\SYMBOL\\",
-    "\\MODEL\\WEAPON\\",
+    "\\MODEL_BTL\\",
+    "\\MODEL_BTL\\ENEMY\\",
+    "\\MODEL_BTL\\PACK\\",
+    "\\MODEL_BTL\\PERSONA\\",
     "\\SKILL\\",
-    "\\SND_BENC\\",
-    "\\SND_BENC\\BOSS\\",
-    "\\SND_BENC\\PANEL\\",
-    ""
+    "",
 };
 
-extern const char* D_007107b0[];
 extern const char* D_00710800[];
 extern const char* D_00711190[];
 extern const char* D_007113e0[];
@@ -66,7 +58,7 @@ typedef struct HCdvdRequestView
     char path[0x100];
     u8* fileMemory;
     u8 reserved10c[0x10];
-    u32 readByteSize;
+    s32 readByteSize;
     u8 reserved120[0x28];
     u32 fileMode;
     u8 reserved14c[0x204];
@@ -250,6 +242,8 @@ void H_Cdvd_BuildPathUppercase(const char* src, char* dst)
 // FUN_00454E10
 void func_00454e10(const char* path, char* fileNameDst, char* dirDst)
 {
+    /* Separate pointer objects in the two path builders share the VOL string. */
+    static const char* volumePrefix = "VOL:";
     char reversedName[256];
     u32 pathLength;
     u32 nameLength;
@@ -257,7 +251,7 @@ void func_00454e10(const char* path, char* fileNameDst, char* dirDst)
     u32 outputIndex;
     char current;
 
-    strcpy(fileNameDst, sCdvdVolumePrefix);
+    strcpy(fileNameDst, volumePrefix);
     strcpy(dirDst, path);
     pathLength = strlen(dirDst);
     for (reverseIndex = 1; reverseIndex < pathLength; reverseIndex++)
@@ -275,10 +269,10 @@ void func_00454e10(const char* path, char* fileNameDst, char* dirDst)
     nameLength = strlen(reversedName);
     for (outputIndex = 0; outputIndex < nameLength; outputIndex++)
     {
-        fileNameDst[strlen(sCdvdVolumePrefix) + nameLength - outputIndex - 1] =
+        fileNameDst[strlen(volumePrefix) + nameLength - outputIndex - 1] =
             reversedName[outputIndex];
     }
-    fileNameDst[strlen(sCdvdVolumePrefix) + nameLength] = '\0';
+    fileNameDst[strlen(volumePrefix) + nameLength] = '\0';
 }
 
 
@@ -289,6 +283,8 @@ void func_00454e10(const char* path, char* fileNameDst, char* dirDst)
 // FUN_00454F50
 s32 H_Cdvd_BuildVolumePaths(const char* path, char* fileNameDst, char* dirDst)
 {
+    static const char* volumePrefix = "VOL:";
+    static const char* battlePrefix = "BTL:";
     char reverseFileName[256];
     char normalizedDir[256];
     u32 pathLength;
@@ -313,26 +309,26 @@ s32 H_Cdvd_BuildVolumePaths(const char* path, char* fileNameDst, char* dirDst)
     }
 
     H_Cdvd_NormalizePath(dirDst, normalizedDir);
-    strcpy(fileNameDst, sCdvdVolumePrefix);
+    strcpy(fileNameDst, volumePrefix);
     for (directoryIndex = 0; directoryIndex < 0xc8; directoryIndex++)
     {
-        if (sCdvdBtlDirectories[directoryIndex][0] == '\0')
+        if (D_007107b0[directoryIndex][0] == '\0')
         {
             break;
         }
-        if (strcmp(sCdvdBtlDirectories[directoryIndex], &normalizedDir[4]) == 0)
+        if (strcmp(D_007107b0[directoryIndex], &normalizedDir[4]) == 0)
         {
-            strcpy(fileNameDst, sCdvdBattlePrefix);
+            strcpy(fileNameDst, battlePrefix);
         }
     }
 
     fileNameLength = strlen(reverseFileName);
     for (outputIndex = 0; outputIndex < fileNameLength; outputIndex++)
     {
-        fileNameDst[strlen(sCdvdVolumePrefix) + fileNameLength - outputIndex - 1] =
+        fileNameDst[strlen(volumePrefix) + fileNameLength - outputIndex - 1] =
             reverseFileName[outputIndex];
     }
-    fileNameDst[strlen(sCdvdVolumePrefix) + fileNameLength] = '\0';
+    fileNameDst[strlen(volumePrefix) + fileNameLength] = '\0';
     return 0;
 }
 
@@ -597,7 +593,10 @@ s32 func_00455720(void* unused, const char* path)
 }
 
 
-/* opt_loop_invariants required: normalized_diff 121 without pragma, 0 with;\r\n   volatile readByteSize also required (nd4 without) - measured W121. */
+/* The completed ADXF byte count is signed, as written by sdkCdvd.c.
+ * Its ordinary signed load preserves the size-before-buffer argument order.
+ * measured: 508 bytes plus four zero tail bytes; loop-invariant hoisting also
+ * preserves the archive scan's constants and field addresses. */
 #pragma opt_loop_invariants on
 
 // FUN_00455B70
@@ -622,27 +621,11 @@ void func_00455b70(void* requestData)
 
     if (request->fileMode == 0)
     {
-        u32 readByteSize;
+        s32 readByteSize;
         u8* fileMemory;
 
         fileMemory = request->fileMemory;
-        /* HONEST NOTE: this MATCH rests on a BANNED construct.  `volatile` on
-           ordinary memory is not something the retail source can be assumed to
-           have contained, and `HCdvdRequestView` is an ordinary heap block -
-           sdkCdvd.c:120 writes the same field plainly, and this is a single
-           read with no loop and no MMIO, so the driver-plausible reading does
-           not hold either.  Measured alternatives, all of which LOSE the match
-           (25 -> 24 MATCH, 1 MISMATCH, 4 differing words from a two-word
-           load-order swap, retail issuing $a2 before $a1):
-             - the plain `readByteSize = request->readByteSize;`
-             - the same with the two local assignments swapped
-             - the field read inlined into the func_00455d70 argument list
-             - `opt_common_subs off` and `schedule off` (both still 1 MISMATCH)
-             - `opt_propagation off` (worse: 2 MISMATCH)
-           So func_00455b70 is a DEMOTION CANDIDATE: on the project's own rules
-           this is not a legitimate match, and the cast stays only so the
-           regression is visible rather than silently reverted. */
-        readByteSize = *(volatile u32*)&request->readByteSize;
+        readByteSize = request->readByteSize;
         func_00455d70(requestData, fileMemory, readByteSize, request->path);
         request->archiveFileCount = 1;
         return;
@@ -880,7 +863,7 @@ void func_004569c0(void* resultData, void* slot, s32 amount, s32 mode)
     HCdvdStreamPosition* result = (HCdvdStreamPosition*)resultData;
     HCdvdSeekSlot* seekSlot = (HCdvdSeekSlot*)slot;
 
-    func_004244c8("CDVD seek");
+    func_004244c8("HDD Seek\n");
     if (mode == 3)
     {
         goto mode3;

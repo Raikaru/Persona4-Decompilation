@@ -1,3 +1,4 @@
+#include "model_callbacks_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -2032,7 +2033,7 @@ extern s32 func_0017acc0(u8 *task);
 // FUN_0017B510
 /* Measured: 1148 executable bytes, 48 resolved relocations, four zero
    alignment bytes. Slot pointers retain the retail callback reloads. */
-void *func_0017b510(u8 *arg0, u16 arg1, s32 arg2)
+void *func_0017b510(u8 *arg0, u16 arg1, u16 arg2)
 {
     u8 *data;
     void *task;

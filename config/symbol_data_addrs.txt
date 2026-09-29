@@ -1021,3 +1021,6 @@ D_00743D38 = 0x00743d38; // type:data evidence: retail func_005049f0 005049F4/00
 
 // Model-effect default position constant, read by func_00349440 from the retail GP slot.
 iGpffff8518 = 0x00761608; // type:data evidence: func_00349440 lwc1 $f0,-0x7AE8($28) at 0x00349680; native R_MIPS_GPREL16; GP 0x007690F0
+
+// RenderWare singleton: all seven primQuad3D HI16/LO16 pairs agree after recovering the device layout.
+rwGlobals = 0x008872d8; // type:data evidence: 0045F108/0045F10C reads +0x24 at 0x008872FC; 0045F6F4/0045F6F8 reads the device primitive callback at +0x38, 0x00887310

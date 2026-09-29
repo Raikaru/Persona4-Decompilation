@@ -89,12 +89,13 @@ extern u8 D_0076465C;   /* gp-relative, -0x4A94 */
 extern u8 D_00764660;   /* gp-relative, -0x4A90 */
 
 /* func_002b1520 callees */
-extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
+extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
 extern void func_0046b380(u8 *, s32);
-extern void func_002b3c60(s32, s32);
-extern u8 *func_002b2940(s32);
+extern void func_002b3c60(u8 *, u8);
+extern u8 *func_002b2940(u8 *);
 extern s64 iGpffffa840;  /* gp-relative, -0x57C0 */
 extern s64 iGpffffa848;  /* gp-relative, -0x57B8 */
+extern f32 iGpffff84f8;
 extern f32 iGpffff84f4;  /* gp-relative, -0x7B0C */
 /* func_002add90 callees (re-derived v2, probe nd 354) */
 extern u8 *D_007EFA04;
@@ -103,7 +104,7 @@ extern u8 D_00794C30[];
 extern u8 D_00794E10[];
 extern u8 *func_00460990(void);
 extern void func_002b2290(u8 *);
-extern s16 func_002b2cb0(s32, s32, s32, s32, s32);
+extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
 extern s32 func_002b6850(u8 *);
 extern void func_002b67a0(u8 *, s32, s32);
 extern s32 func_002b4a10(u8 *, s8);
@@ -113,8 +114,8 @@ extern s32 func_00452490(u8 *);
 extern void func_002b10a0(u8 *, YVec2f);
 extern void func_002b10e0(u8 *, s8);
 extern void func_002b2240(u8 *);
-extern int func_002B11C0();
-extern int func_002B1210();
+extern int func_002B11C0(YVec3f);
+extern int func_002B1210(YVec3f);
 /* func_002af3e0 callees */
 extern u8 D_007E80A0[];
 extern s32 D_00764654;
@@ -123,20 +124,14 @@ extern void func_002b4ac0(u8 *, s8);
 extern void func_002b5100(u8 *, s8);
 extern void func_002b4240(u8 *, s8);
 extern void func_002b69b0(u8 *, YVec2f, YVec2f, u32, u32, s16);
-extern void func_002b6a40(u8 *, u8, u32, u32, u32, s32);
+extern void func_002b6a40(u8 *, u8, u8, u32, u32, s32);
 extern void func_002b6ac0(u8 *, f32, f32, f32, f32, u32, u32, s32);
 extern void func_002b6be0(u8 *, YVec2f, u32, f32);
 extern f32 func_0046b2f0(u8 *);
 extern void func_002b10d0(u8 *, s8);
 extern void func_002b10f0(u8 *, s8);
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
+typedef YVec3f RwV3d;
 
 
 
@@ -233,10 +228,13 @@ s32 func_002ac740(void) {
    cascading through 1384 words. */
 /* measured: banked v5 (m2c transcription, s32 temps, M2C_FIELD expanded, block-scope externs, func_00155280() fixed, s8/s16 casts): fnalign retail 1380 obj 1356 (-24, -1.7% inside 1338-1421), 916 edits +5 reloc-only; frame 0x140 vs 0x190 count-neutral. Residuals: saved-reg rotation + u16 bit-set families. */
 /* measured: 2026-09-19 switch-order + default-place (this session): jtbl_007487E0 6 entries share pairwise (0,1->0x2ad2d4 9/10; 2,3->0x2ad4f0 11/12; 4,5->0x2ada3c 13/14) so case9:case10: stacked is correct, no real fallthrough; 9/10->default fallthrough is artefact (different targets, both return via epilogue) so break + default-at-end. Switch1/3 irregular 2,0/3,1 -> ascending 0,2/1,3. fnalign retail 1380: base 916+5 obj1356 -> default-end 915+5 obj1354 (-1) -> sw1-asc 879+5 (-37) -> sw1+sw3-asc 843+5 (-73) -> +default-end 842+5 obj1354 (-74 total). Pointer-walk trial on loop_102 D-table (p_102++) 844+5 (+2 vs 842, reject; retail also index*2). Raw-save prologue trial neutral 842. Frame still 0x140 vs 0x190, saved-reg rotation + u16 families remain. verify 28MATCH/8ASM, lint 0e/1w (pre-existing H003), fnalign object compiles. TU C-linked unverified (prod stays ASM), image hashes unverified. */
+/* Row displacements are byte offsets. Cast the visibility-table base to
+   u8 * before adding them; adding to s16 * doubles each row displacement.
+   Both retail stores add the two byte offsets before their halfword load. */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
 void func_002ac750(s32 arg0, s32 arg1) {
-    extern s16 func_002b2d00(s32, s32, s32, s32, s32);
+    extern s32 func_002b2d00(s32, s32, s32, s32, s8);
     extern s64 func_002adcf0(u8);
     s32 sp180;
     s32 sp170;
@@ -507,7 +505,7 @@ loop_46:
                         if (temp_18_3 < 2) {
                             temp_21_2 = (*( u8 * )((u8*)((((arg0 & 0xFF) * 0x10) + func_00155280() + ((temp_16_2 + temp_18_3) << 8))) + (0x58)));
                             if (temp_21_2 == (*( u8 * )((u8*)((temp_23 + func_00155280())) + (0x58)))) {
-                                temp_5_3 = (u16 *)((temp_16_2 * 2) + D_00764658 + (temp_18_3 * 2));
+                                temp_5_3 = (u16 *)((temp_16_2 * 2) + (u8 *)D_00764658 + (temp_18_3 * 2));
                                 *temp_5_3 |= (1 << sp150) & 0xFFFF & 0xFFFF;
                             }
                             var_17 = ((s16)((var_17 + 1)));
@@ -700,7 +698,7 @@ loop_102:
                     if (temp_19_5 < 3) {
                         temp_22_5 = (*( u8 * )((u8*)((((arg0 & 0xFF) * 0x10) + func_00155280() + ((temp_16_5 + temp_19_5) << 8))) + (0x58)));
                         if (temp_22_5 == (*( u8 * )((u8*)((temp_18_7 + func_00155280())) + (0x58)))) {
-                            temp_5_13 = (u16 *)((temp_16_5 * 2) + D_00764658 + (temp_19_5 * 2));
+                            temp_5_13 = (u16 *)((temp_16_5 * 2) + (u8 *)D_00764658 + (temp_19_5 * 2));
                             *temp_5_13 |= (1 << sp170) & 0xFFFF & 0xFFFF;
                         }
                         var_17_3 = ((s16)((var_17_3 + 1)));
@@ -805,7 +803,6 @@ loop_130:
 #else
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002ac750);
 #endif
-
 // FUN_002ADCF0
 s64 func_002adcf0(u8 arg0) {
     return (s64)(s8)((arg0 & 0xFF) >> 4);
@@ -833,38 +830,51 @@ void func_002add60(u8 *arg0, u8 *arg1) {
 
 
 
-/* measured: re-derived v2 (probe_variants v1 386 -> v2 354; measure_guarded obj 1928B/window 1936B GUARDED_SCORE 354; fnalign retail 482 obj 482, 203 edits +8 reloc-only). 3% check: window 1936B range 1878-1994B, obj 1928B within (0.4% under) — bankable floor. pragma_sweep singles (incl. optimization_level 0/1/3/4): base 354; loop_invariants on 354 tie, propagation off 354 tie, strength off 354 tie, unroll off 354 tie; dead_assign off 366, level4 400, schedule on 402, level3 404, common_subs off 450, level1 450, peephole off 451, level0 549 — all regress/tie, keep base (level 2, no pragma). TU-strict: (u8 *)(u32)/ (s8)/(s16)/YVec2f-by-value/u8 buf[0xC]+v. Residuals: saved-reg rotation, i-loop folding, ok-beqz vs sltu, D_EFA04 gp-vs-abs. Prior 315 body lost, history. verify ASM (prod stays ASM), lint 0e/1w (pre-existing 2290 H003), -DNON_MATCHING compiles. */
+/* Guarded recovery: each coordinate-output routine writes a complete
+   Vec3. Consume relativeX.x and relativeZ.z, round through s32, and preserve
+   the packed screen position as a Vec2. Grid loop counters are full words;
+   only the derived tile coordinates narrow to s16. The unsigned presence
+   helper retains retail's Boolean normalization. Remaining differences
+   include global storage addressing, coordinate reuse and register lifetimes.
+   Current measurements: build/cos20814/worker3-ui/guarded_handoff. */
+static inline u32 smapUnitPresent(const u8 *unit)
+{
+    s32 present = 0;
+    if (*(const s32 *)(unit + 0x48) != 0 && *(const s32 *)(unit + 0x54) != 0) {
+        present = 1;
+    }
+    return present != 0;
+}
+
 // FUN_002ADD90 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002add90(u8 *arg0) {
-    u8 buf[0xC];
+    YVec2f screenPosition;
     YVec3f v;
-    f32 spA8;
-    f32 sp98;
-    f32 spD8;
-    f32 spDC;
+    YVec3f sourcePosition;
+    YVec3f relativeX;
+    YVec3f relativeZ;
     u8 *p;
     u8 *tmp;
     u8 *tmp2;
     u8 *q;
     s32 t16;
-    s32 t18;
+    u8 t18;
     s32 t19;
-    s32 t20;
+    u8 t20;
     s32 t22;
     s32 t23;
     s32 t182;
     s32 t192;
     s32 t222;
-    s32 ok;
     s32 var16;
-    s16 var18;
-    s16 var19;
+    s32 var18;
+    s32 var19;
     s16 tt;
     s16 tt2;
     p = *(u8 **)(arg0 + 0x38);
-    func_001687f0(buf, *(u8 **)(D_007EFA04 + 0x220));
-    v = *(YVec3f *)buf;
+    func_001687f0((u8 *)&sourcePosition, *(u8 **)(D_007EFA04 + 0x220));
+    v = sourcePosition;
     tmp = (u8 *)func_00460990();
     *(void (**)(s32, u8 *))((u8 *)tmp + 8) = (void (*)(s32, u8 *))func_002add10;
     *(u8 **)((u8 *)tmp + 0x10) = p;
@@ -877,7 +887,7 @@ s32 func_002add90(u8 *arg0) {
     case 0:
         func_002b2290(arg0);
         *(s8 *)(p + 4) = (s8)(*(s8 *)(p + 4) + 1);
-        return 0;
+        break;
     case 2:
         *(s16 *)(p + 0x766) = func_002b2cb0((s32)*(s16 *)(p + 0x766), 1, 5, 0, 1);
         if ((s8)func_002b6850(*(u8 **)(p + 0x748)) == 0) {
@@ -894,12 +904,7 @@ s32 func_002add90(u8 *arg0) {
         *(s8 *)(p + 0xB8) = 0;
         var16 = 0;
         while (var16 < 0xF) {
-            ok = 0;
-            q = (u8 *)((u8 *)&D_007E8C00 + var16 * 0x750);
-            if (*(s32 *)(q + 0x48) != 0 && *(s32 *)(q + 0x54) != 0) {
-                ok = 1;
-            }
-            if ((ok != 0) == 1) {
+            if (smapUnitPresent(D_007E8C00 + var16 * 0x750) == 1) {
                 if (*(s32 *)((u8 *)p + var16 * 4 + 0xD8) == 0) {
                     *(s32 *)((u8 *)p + var16 * 4 + 0xD8) = func_002b4a10(arg0, (s8)var16);
                 }
@@ -960,37 +965,37 @@ s32 func_002add90(u8 *arg0) {
                 }
             }
         }
-        func_002b31a0((u8 *)&spA8, p + 8, (u8 *)&v);
-        spD8 = (f32)(spA8 / *(f32 *)((u8 *)&iGpffff84f4 + 4));
-        func_002b31a0((u8 *)&sp98, p + 8, (u8 *)&v);
-        spDC = (f32)(sp98 / *(f32 *)((u8 *)&iGpffff84f4 + 4));
+        func_002b31a0((u8 *)&relativeX, p + 8, (u8 *)&v);
+        screenPosition.x = (f32)(s32)(relativeX.x / iGpffff84f8);
+        func_002b31a0((u8 *)&relativeZ, p + 8, (u8 *)&v);
+        screenPosition.y = (f32)(s32)(relativeZ.z / iGpffff84f8);
         var18 = 0;
         while (var18 < 0xD) {
             var19 = 0;
             while (var19 < 0xD) {
-                tt = (s16)(var18 + (s16)((s32)func_001687d0(*(u8 **)(D_007EFA04 + 0x220)) - 6));
-                tt2 = (s16)(var19 + (s16)((s32)func_001687e0(*(u8 **)(D_007EFA04 + 0x220)) - 6));
+                tt = (s16)(var18 + (func_001687d0(*(u8 **)(D_007EFA04 + 0x220)) - 6));
+                tt2 = (s16)(var19 + (func_001687e0(*(u8 **)(D_007EFA04 + 0x220)) - 6));
                 if ((s32)tt > 0) {
                     if ((s32)tt2 > 0 && (s32)tt < 0x10 && (s32)tt2 < 0x18) {
                         q = (u8 *)p + ((s32)tt2 << 6) + ((s32)tt * 4);
                         if (func_00452490(*(u8 **)(q + 0x148)) == 1) {
-                            if ((((1 << ((s32)tt & 0xFF)) & 0xFFFF & ((u16 *)D_00764658)[(s32)tt2 & 0xFF]) >> ((s32)tt & 0xFF)) == 1) {
+                            if ((((1 << (s32)tt) & 0xFFFF & ((u16 *)D_00764658)[(s32)tt2]) >> (s32)tt) == 1) {
                                 func_002b10e0(*(u8 **)(q + 0x148), 1);
                             }
                             {
                                 YVec2f vv;
-                                *(s64 *)&vv = *(s64 *)&spD8;
+                                vv = screenPosition;
                                 func_002b10a0(*(u8 **)(q + 0x148), vv);
                             }
                         }
                     }
                 }
-                var19 = (s16)(var19 + 1);
+                var19++;
             }
-            var18 = (s16)(var18 + 1);
+            var18++;
         }
         func_002b2240(arg0);
-        return 0;
+        break;
     case 3:
         *(s16 *)(p + 0x766) = func_002b2cb0((s32)*(s16 *)(p + 0x766), 1, 5, 0, 1);
         /* fallthrough */
@@ -999,7 +1004,7 @@ s32 func_002add90(u8 *arg0) {
         /* fallthrough */
     case 4:
         func_002b2240(arg0);
-        return 0;
+        break;
     case 7:
         return -1;
     }
@@ -1008,7 +1013,6 @@ s32 func_002add90(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002add90);
 #endif
-
 // FUN_002AE520
 void func_002ae520(u8 *arg0) {
     u8 *p;
@@ -1032,41 +1036,12 @@ void func_002ae520(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
-/* measured: skipped — the m2c draft hits M2C_ERROR at the two FPU
-   multiply-accumulate sites in the D_007E80A0 loop (adda.s $f0,$f1;
-   madd.s $f20,$f12,$f2 wrapping the func_002b11c0/func_002b13e0 and
-   func_002b1210/func_002b1480 call pairs), so the operand structure of
-   those two sp1F8/sp1FC expressions is unrecoverable from the draft;
-   the madd.s family is the same canonicalization floor as func_002b13e0/
-   002b1480 (recorded above). Rest of the draft (func_002b0250 8-arg tile
-   loop, func_002b2970/2a60/2830/3990 calls, D_007E8C00/D_007E80A0 loops)
-   is intact but untestable without the two expressions. */
-/* measured: cold2ae630 first reconstruction (876 instrs). m2c fails outright on jr/jtbl at line 129 (jtbl_00748820 6 entries 0:1f0,2:380,4:50c) so romwright carried it (299 lines, arity 1 pointer, 43 tile-loop 00155280 sites matching retail 43). De-noised to file idiom reusing YVec3f/YVec2f/D_007E80A0/D_007E8C00/D_007EFA04/D_00764644/5C/60/00155280/002b2970/00451fc0. v0 783 (single hoisted q, 677/874 -22% short, missing jals). v1 expanded to 43 calls 810 but 916/876 +4.6% over. Free pragmas on v1: common_off 831, loop_on 813, unroll/sched tie 810 (none kept). Subscript ((u8**)(blk+0x148))[tny*16+tnx] 810->777 (-33, kept) and 916->888. s16 counters 777->842 regress. Minloc drop dead dx/dy/nx/ny tie 777. loop_on on minloc 777->791 regress. Two colourings (blk/res swap, f1/f2 swap) tie 777. Best minloc 777, obj 888/retail 876 +1.4% inside gate (850-902), fnalign 729 edits+22 reloc-only. Residuals: 4 missing 2830 stores (void callee, cannot use return without breaking its MATCH), FPU madd adda/madd canonicalization in D_007E80A0 loop, callee-saved spill choices, s128 staging. */
-/* 2026-09-18 `tools/solve_signedness.py`: the read at +0x58 was spelled
-   `s8` at one site and `u8` at twelve others; retail loads that offset only
-   with `lbu`, so every site is now `u8`.  Census mismatch 22 -> 20 with the
-   instruction count unchanged; the differing-word score stays 777 because
-   those positions already differ for other reasons, but the type claim is
-   now correct and is asserted back through the feedback path.
-   The four `D_0063EExx` tables are recorded as free: flipping their element
-   type between `s8` and `u8` produces byte-identical code, because each
-   loaded byte is immediately assigned to an `s8` local, so the signedness is
-   unobservable at those sites.  Do not churn them. */
-/* 2026-09-19 caller prototype fix (this session): func_002b0250's local extern
-   said (s8,s8,..,s8,s8,..) but retail's caller zero-extends all four masked
-   args (andi, no lb/dsll32/dsra32), and both the generated m2c and the def
-   body (byte-stores only) agree the params are u8 except arg4. Extern and def
-   now (u8,u8,u8,s8,u8,u8,u8); the nine (s8)(tnx&0xFF)/(s8)(tny&0xFF) casts
-   dropped, (s8)j/(s8)i spelled (j&0xFF)/(i&0xFF). 729 -> 708 fnalign edits,
-   words 777 -> 766, object 888 -> 850 instrs. Neighbor floor func_002b0250
-   itself is byte-near-neutral (279 -> 280 words, 275 -> 274 edits). */
-/* 2026-09-19 assignment (f20 recovery): split f1/f2 Dome computation to hold the */
-/* 18.0f-scaled base across the 002b13e0/002b1480 calls in fbase (single reused */
-/* local, matching retail madd.s $f20). floor_distance 730->697 edits (-33), */
-/* words 854->831 (-23), object 850->849/retail 874 (both inside 848-900 gate); */
-/* regsave_scan now 0 differ (retail 0x210/frame and $f20 match; was 0xE0 vs 0x210 */
-/* missing $f20). Commands: floor_distance src/promoted/y_smap.c, regsave_scan */
-/* src/promoted/y_smap.c func_002ae630. */
+/* Guarded reconstruction: retain all 43 live tile-map reads and the four
+   rectangle task handles. Colors are complete returned objects, and vertical
+   neighbor offsets are signed bytes, matching retail's table loads. Tile
+   addresses retain the existing row base. Remaining differences include
+   constructor expression grouping, temporaries and register lifetimes.
+   Current measurements: build/cos20814/worker3-ui/guarded_handoff. */
 // FUN_002AE630 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_002ae630(u8 *arg0) {
@@ -1075,7 +1050,7 @@ u8 *func_002ae630(u8 *arg0) {
     extern s8 D_0063EF20[];
     extern s8 D_0063EF40[];
     extern u8 *func_002b0250(u8 *, u8, u8, u8, s8, u8, u8, u8);
-    extern void func_002b2830(u8 *, YVec2f, f32, f32, u32);
+    extern u8 *func_002b2830(u8 *, YVec2f, f32, f32, u32);
     extern void func_002B1100(void *, u32, u32);
     extern f32 func_002b13e0(f32, YVec3f *);
     extern f32 func_002b1480(f32, YVec3f *);
@@ -1096,10 +1071,10 @@ u8 *func_002ae630(u8 *arg0) {
     YVec2f w2;
     YVec2f w3;
     YVec2f w4;
-    u32 c1;
-    u32 c2;
-    u32 c3;
-    u32 c4;
+    union { FclDrawColor color; u32 packed; } c1;
+    union { FclDrawColor color; u32 packed; } c2;
+    union { FclDrawColor color; u32 packed; } c3;
+    union { FclDrawColor color; u32 packed; } c4;
     union { YVec2f v; s64 s; } fv;
     f32 fbase;
     s32 i;
@@ -1134,81 +1109,81 @@ u8 *func_002ae630(u8 *arg0) {
                 if (*(u8 *)(base + (u32)func_00155280() + col + 0x58) < 9) {
                     if (*(u8 *)(base + (u32)func_00155280() + col + 0x58) == 2) {
                         s8 tdx;
-                        u8 tdy;
+                        s8 tdy;
                         s32 tnx;
                         s32 tny;
                         tdx = D_0063EF40[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2];
                         tdy = D_0063EF40[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 1];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        *(u8 **)(row + (s32)tdy * 0x40 + tnx * 4 + 0x148) = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         tdx = D_0063EF40[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 8];
                         tdy = D_0063EF40[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 9];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        *(u8 **)(row + (s32)tdy * 0x40 + tnx * 4 + 0x148) = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                     } else {
-                        ((u8 **)(blk + 0x148))[i * 16 + j] = func_002b0250(res, (j & 0xFF), (i & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        *(u8 **)(row + j * 4 + 0x148) = func_002b0250(res, (j & 0xFF), (i & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                     }
                 } else {
                     switch (*(u8 *)(base + (u32)func_00155280() + col + 0x58)) {
                     case 9:
                     case 10: {
                         s8 tdx;
-                        u8 tdy;
+                        s8 tdy;
                         s32 tnx;
                         s32 tny;
                         tdx = D_0063EEE0[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2];
                         tdy = D_0063EEE0[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 1];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        *(u8 **)(row + (s32)tdy * 0x40 + tnx * 4 + 0x148) = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         tdx = D_0063EEE0[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 8];
                         tdy = D_0063EEE0[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 9];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        *(u8 **)(row + (s32)tdy * 0x40 + tnx * 4 + 0x148) = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         break;
                     }
                     case 11:
                     case 12: {
                         s8 tdx;
-                        u8 tdy;
+                        s8 tdy;
                         s32 tnx;
                         s32 tny;
                         tdx = D_0063EF00[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2];
                         tdy = D_0063EF00[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 1];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        *(u8 **)(row + (s32)tdy * 0x40 + tnx * 4 + 0x148) = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         tdx = D_0063EF00[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 8];
                         tdy = D_0063EF00[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 9];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        *(u8 **)(row + (s32)tdy * 0x40 + tnx * 4 + 0x148) = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         break;
                     }
                     case 13:
                     case 14: {
                         s8 tdx;
-                        u8 tdy;
+                        s8 tdy;
                         s32 tnx;
                         s32 tny;
                         tdx = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2];
                         tdy = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 1];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        *(u8 **)(row + (s32)tdy * 0x40 + tnx * 4 + 0x148) = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         tdx = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 8];
                         tdy = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 9];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        *(u8 **)(row + (s32)tdy * 0x40 + tnx * 4 + 0x148) = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         tdx = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 0x10];
                         tdy = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 0x11];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 3, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        *(u8 **)(row + (s32)tdy * 0x40 + tnx * 4 + 0x148) = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 3, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         break;
                     }
                     }
@@ -1217,17 +1192,17 @@ u8 *func_002ae630(u8 *arg0) {
         }
     }
     w1 = func_002b2970(17.0f, 150.0f);
-    fclWriteColorBytes((u8 *)&c1, 0x80, 0x80, 0x80, 0);
-    func_002b2830(res, w1, 240.0f, 120.0f, c1);
+    c1.color = func_002b2a60(0x80, 0x80, 0x80, 0);
+    *(u8 **)(blk + 0xBC) = func_002b2830(res, w1, 240.0f, 120.0f, c1.packed);
     w2 = func_002b2970(148.0f, 249.0f);
-    fclWriteColorBytes((u8 *)&c2, 0x80, 0, 0, 0);
-    func_002b2830(res, w2, 150.0f, 231.0f, c2);
+    c2.color = func_002b2a60(0x80, 0, 0, 0);
+    *(u8 **)(blk + 0xC0) = func_002b2830(res, w2, 150.0f, 231.0f, c2.packed);
     w3 = func_002b2970(0.0f, 395.0f);
-    fclWriteColorBytes((u8 *)&c3, 0, 0x80, 0, 0);
-    func_002b2830(res, w3, 151.0f, 121.0f, c3);
+    c3.color = func_002b2a60(0, 0x80, 0, 0);
+    *(u8 **)(blk + 0xC4) = func_002b2830(res, w3, 151.0f, 121.0f, c3.packed);
     w4 = func_002b2970(0.0f, 150.0f);
-    fclWriteColorBytes((u8 *)&c4, 0, 0, 0x80, 0);
-    func_002b2830(res, w4, 23.0f, 395.0f, c4);
+    c4.color = func_002b2a60(0, 0, 0x80, 0);
+    *(u8 **)(blk + 0xC8) = func_002b2830(res, w4, 23.0f, 395.0f, c4.packed);
     *(s32 *)(blk + 0xCC) = func_002b3990((s32)res);
     for (k = 0; k < 0xF; k++) {
         s32 ok;
@@ -1279,7 +1254,6 @@ u8 *func_002ae630(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002ae630);
 #endif
-
 /* Value initialization preserves the constructor's temporary before the label
    position is reused. Loop invariants hoist the final grid row's coordinates. */
 // FUN_002AF3E0
@@ -2096,18 +2070,18 @@ f32 func_002b1480(f32 arg1, YVec3f *arg0) {
     return arg1 / 2.0f - p * q;
 }
 
-/* Guarded body, fnalign vs retail 838/837 instrs: 10 edits (+11 reloc-only). Read against the earlier
-   floor notes: the saturating float->byte guards are plain casts here (`(u8)t4n`, `(u16)sa`; b210 emits the
+/* MATCH: 3356B of the 3360B retail window, including resolved relocations and
+   owned data. The final sprite loop uses a size_t slot index beside its signed
+   16-bit counter; these separate conversions reproduce retail's index lifetime.
+   The float->byte guards are plain casts here (`(u8)t4n`, `(u16)sa`; b210 emits the
    c.le.s/or 0x80000000 unsigned conversion itself), the fill/clear loops are ordinary `for` loops with the
    entry branch to the test (not do-while), the 255.0f-t and 4096.0f*a results go to fresh locals (t3n/t4n/sa:
    reusing t3/t4/a picks different $f registers and mul operand order), a is declared before b (retail $f21/$f20),
    `i1 = 0` and `k = 0` are written before the value they precede in retail (`i1 = 0; t4n = ...`), and the two
-   ld/sd prologue copies write sp+8 from iGpffffa840 then sp+0 from iGpffffa848. opt_loop_invariants on is still
-   needed (retail hoists the guard compare/lui out of the loops). Residual: in the last `for (k...)` loop retail's
-   body re-extends k from $s1 (`dsll32/dsra32`) where this body reuses the condition's extended copy in $v1;
-   only `(s16)(k + 0)` moved that, which is not honest source. Keep ASM. */
-// FUN_002B1520 NONMATCHING
-#ifdef NON_MATCHING
+   ld/sd prologue copies write sp+8 from iGpffffa840 then sp+0 from iGpffffa848.
+   opt_loop_invariants on hoists the guard compare/lui out of the loops. */
+// FUN_002B1520
+#pragma push
 #pragma opt_loop_invariants on
 void func_002b1520(s32 arg0, u8 *q) {
     u32 base;
@@ -2236,7 +2210,7 @@ void func_002b1520(s32 arg0, u8 *q) {
         a = func_002b2aa0(0, iGpffff84f4, 1.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
         b = func_002b2aa0(0, 183.0f, 120.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
         c = func_002b2aa0(0, 332.0f, (f32)395, (f32)*(s16 *)(q + 0x764), 10.0f);
-        func_002b3c60((s32)*(u8 **)(q + 0xCC), 0);
+        func_002b3c60(*(u8 **)(q + 0xCC), 0);
         break;
     case 6:
         *(f32 *)(sp + 12) = func_002b2aa0(0, 264.0f, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
@@ -2244,7 +2218,7 @@ void func_002b1520(s32 arg0, u8 *q) {
         a = func_002b2aa0(0, 1.0f, iGpffff84f4, (f32)*(s16 *)(q + 0x764), 5.0f);
         b = func_002b2aa0(0, 120.0f, 183.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
         c = func_002b2aa0(0, (f32)395, 332.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
-        func_002b3c60((s32)*(u8 **)(q + 0xCC), 1);
+        func_002b3c60(*(u8 **)(q + 0xCC), 1);
         break;
     default:
         break;
@@ -2257,20 +2231,19 @@ void func_002b1520(s32 arg0, u8 *q) {
         k = 0;
         sa = a * 4096.0f;
         for (; k < 4; k++) {
-            u8 **pp = (u8 **)(q + (s32)k * 4 + 0x24);
+            size_t slotIndex = k;
+            u8 **pp = (u8 **)(q + slotIndex * 4 + 0x24);
             u16 ww;
             ww = (u16)sa;
             *(u16 *)(*pp + 0x22) = ww;
             func_0046b380(*pp, 0);
         }
     }
-    *(f32 *)(func_002b2940((s32)*(u8 **)(q + 0xBC)) + 0x10) = b;
-    *(f32 *)(func_002b2940((s32)*(u8 **)(q + 0xC4)) + 8) = c;
+    *(f32 *)(func_002b2940(*(u8 **)(q + 0xBC)) + 0x10) = b;
+    *(f32 *)(func_002b2940(*(u8 **)(q + 0xC4)) + 8) = c;
 }
 #pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1520);
-#endif
+#pragma pop
 
 // FUN_002B2240
 void func_002b2240(u8 *arg0) {
@@ -2447,17 +2420,23 @@ void func_002b2800(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
+/* The returned task owns the rectangle work. Retail retains this pointer in
+   v0 through the work initialization: 260B/272B, twelve resolved references
+   exact, and every sibling body, reference and owned data section preserved.
+   Proof: build/cos20814/worker3-ui/rectangle_relocation_proof.json. */
 // FUN_002B2830
-void func_002b2830(u8 *arg0, YVec2f arg1, f32 arg2, f32 arg3, u32 arg4) {
+u8 *func_002b2830(u8 *arg0, YVec2f arg1, f32 arg2, f32 arg3, u32 arg4) {
     u8 *p;
+    u8 *task;
 
     func_0044ea90(D_0063EF60, 0x97A);
     p = D_008873F4[0](1, 0x120, 0x40000);
-    (s32)func_00451fc0((void *)((s32)arg0), (const void *)(D_0063F0F0), 0xF, 0, 0, func_002b25d0, func_002b2800, (u8 *)(p));
+    task = func_00451fc0((void *)((s32)arg0), (const void *)(D_0063F0F0), 0xF, 0, 0, func_002b25d0, func_002b2800, (u8 *)(p));
     *(u32 *)p = (u32)p;
     *(YVec2f *)(p + 4) = arg1;
     *(f32 *)(p + 0xC) = arg2;
     *(f32 *)(p + 0x10) = arg3;
     *(YRGBA *)(p + 0x14) = *(YRGBA *)&arg4;
     *(f32 *)(p + 0x18) = 60000.0f;
+    return task;
 }
