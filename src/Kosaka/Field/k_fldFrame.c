@@ -36,11 +36,16 @@ typedef struct RpCollisionTriangle {
     RwV3d *vertices[3];
 } RpCollisionTriangle;
 
-/* RenderWare intersection payload: its largest members are two vectors. */
+/* The SDK payload is 24 bytes with four-byte alignment. Its 16-byte sphere
+ * representation is also used for the aligned local transfer below; the tag
+ * stays outside that payload. pack(4) preserves the public intersection ABI. */
+#pragma push
+#pragma pack(4)
 struct RpIntersection
 {
     union
     {
+        u_long128 sphereBits;
         struct { RwV3d start; RwV3d end; } line;
         RwV3d point;
         struct { RwV3d center; f32 radius; } sphere;
@@ -49,6 +54,9 @@ struct RpIntersection
     } t;
     s32 type;
 };
+#pragma pop
+typedef char FldFrameIntersectionSizeCheck[sizeof(RpIntersection) == 28 ? 1 : -1];
+typedef char FldFramePayloadSizeCheck[sizeof(((RpIntersection *)0)->t) == 24 ? 1 : -1];
 
 /* Shared field collision state; the world and atomic producers use the same
  * parallel arrays and retain the atomic beside the intersection copy. */
@@ -660,23 +668,13 @@ void* func_0016a0c0(void* collisionWorld, void* state)
 
 
 
-/* measured: guarded floor, fnalign retail 532/object 532 instructions. 251 -> 67 differing words after the
-   2026-09-28 restructure (edits 200 -> 73; every remaining word is an FPR number, no branch offset differs):
-   line[1] is a whole-RwV3d copy of origin; the k loop is a bottom-test loop that loads its entry in the
-   condition; the query loops keep one counter each (i for the init loop, n for the flag scan, p for the
-   contact loop, q/r for the final pair scan) because sharing one counter between loops moved the pool
-   temps (v0/v1/a0) of the flag scan; qy/qz/qfrac stay named (retail hoists them into $f22/$f21/$f20 after
-   p = 0); the contact loop addresses the collector in bytes (fbase = &work + 4p, rec = &work + 12p, flag =
-   fbase + 0xA00) and recomputes fbase after RwV3dNormalize with a signed multiply so the distance address
-   is not kept in a saved register (same trick as func_00169780); dot/neg are written x, y, z (that is what
-   yields retail's z,x,y load order and Y,X,Z mula/madda/madd chain); the final unwind writes
-   vector[0] = vector[1] = vector[2] = 0 (retail stores z,y,x) and leaves through one shared return.
-   Remaining: FPR colouring only. Retail keeps dx in $f0, dy/dz in $f10/$f9, scale in $f2 and
-   the 0.0f/threshold hoists of the last loop in $f2/$f0; this body gives dx/dy/dz $f0/$f1/$f2 when all three
-   are named and, with dy/dz unnamed, matches dx/scale/product registers exactly but reloads delta.y/z for
-   the dot (2 extra loads, 38 edits, 142 words by position). opt_propagation off regresses (243 edits). */
-// FUN_0016A110 NONMATCHING
-#ifdef NON_MATCHING
+/* The collector owns the complete intersection payload shared by both callback
+ * modes. Each contact retains the normalized direction until its correction is
+ * applied; the nested scopes keep those immutable components with that contact.
+ * Measured with b210 -O2 and the scoped loop-invariant setting: 2124 bytes plus
+ * four zero alignment bytes, with all code/data relocations resolved and all
+ * fifteen sibling functions unchanged. The opposed-plane limit is -0.2f. */
+// FUN_0016A110
 #pragma push
 #pragma opt_loop_invariants on
 s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s32 fieldId)
@@ -684,33 +682,18 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
     extern void *mdlGetClump(void *model);
     extern f32 RwV3dLength(f32 *vec);
     extern u8 D_007E8020[];
-    extern f32 fGpffff82b8;
     extern u32 func_0016b480(void *cw, const RwV3d *line, RwV3d *hit);
     typedef struct FldFrameWork6A110
     {
-        RwV3d points[64];
-        RwV3d normals[64];
-        f32 fracs[64];
-        RwV3d extra[64];
-        s32 flags[64];
-        s32 mode;
-        s32 count;
-        s32 hitCount;
-        RwV3d normDir;
-        u8 scratch[0x20];
-        u8 zero[0x18];
-        f32 input[4];
+        FldFrameCollisionCollector collector;
+        RwV3d zero;
         union
         {
             u_long128 bits;
-            f32 f[4];
-        } copy;
-        u8 tail[8];
-        s32 type;
+            f32 components[4];
+        } input;
+        RpIntersection query __attribute__((aligned(16)));
     } FldFrameWork6A110;
-    f32 dx;
-    f32 dz;
-    f32 dy;
     f32 qy;
     f32 neg;
     RwV3d hit;
@@ -719,7 +702,11 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
     s32 i;
     s32 p;
     f32 scale;
-    RwV3d delta;
+    union
+    {
+        RwV3d vector;
+        f32 components[3];
+    } delta;
     FldFrameWork6A110 work;
     s32 result;
     RwV3d scaled;
@@ -740,48 +727,37 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
     list10 = func_001452b0(10);
     list3 = func_001452b0(3);
     func_001452b0(1);
-    work.input[0] = origin[0] + vector[0];
-    work.input[1] = origin[1] + vector[1];
-    work.input[2] = origin[2] + vector[2];
-    work.input[3] = fraction;
-    work.type = 3;
-    work.copy.bits = *(u_long128 *)work.input;
+    work.input.components[0] = origin[0] + vector[0];
+    work.input.components[1] = origin[1] + vector[1];
+    work.input.components[2] = origin[2] + vector[2];
+    work.input.components[3] = fraction;
+    /* The sphere copy cannot overwrite or invalidate the separate query tag. */
+    work.query.type = 3;
+    work.query.t.sphereBits = work.input.bits;
     for (i = 0; i < 64; i++)
     {
-        memset(&work.points[i], 0, 12);
-        memset(&work.normals[i], 0, 12);
-        work.fracs[i] = fGpffff82b4;
-        work.flags[i] = 0;
+        memset(&work.collector.points[i], 0, 12);
+        memset(&work.collector.normals[i], 0, 12);
+        work.collector.distances[i] = fGpffff82b4;
+        work.collector.flags[i] = 0;
     }
-    work.hitCount = 0;
-    work.count = 0;
-    {
-        s32 *src = (s32 *)&work.copy;
-        s32 *dst = (s32 *)work.scratch;
-        s32 cnt = 7;
-        do
-        {
-            s32 v = *src;
-            src++;
-            cnt--;
-            *dst = v;
-            dst++;
-        } while (cnt > 0);
-    }
-    RwV3dNormalize((f32 *)&work.normDir, (const f32 *)vector);
-    memset(work.zero, 0, 12);
+    work.collector.hitCount = 0;
+    work.collector.count = 0;
+    work.collector.intersection = work.query;
+    RwV3dNormalize(&work.collector.direction.x, vector);
+    memset(&work.zero, 0, sizeof(work.zero));
     if (collisionWorld == 0)
     {
         return 0;
     }
-    work.mode = 1;
-    func_003bff30((void *)collisionWorld, func_0016a0c0, work.points);
+    work.collector.mode = 1;
+    func_003bff30((void *)collisionWorld, func_0016a0c0, &work.collector);
     while (list10 != NULL)
     {
         if (((*(s32 *)(list10 + 0x28) & 2) != 0) && (*(s32 *)(list10 + 0x150) == 1))
         {
             void *target = mdlGetClump(*(void **)(list10 + 0x144));
-            func_003bff30(target, func_0016a0c0, work.points);
+            func_003bff30(target, func_0016a0c0, &work.collector);
             line[1] = *(RwV3d *)origin;
             line[0] = line[1];
             line[0].y += 400.0f;
@@ -794,41 +770,43 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
         }
         list10 = *(u8 **)(list10 + 0x138);
     }
-    work.mode = 0;
+    /* Mode one appends the flagged prefix. Mode zero preserves those flags, so
+     * each flagged correction is written before an unflagged contact reads it. */
+    work.collector.mode = 0;
     func_0014a200();
     func_0014a200();
     {
         u16 low = (u16)fieldId;
         if ((low & 0x3ff) == 0)
         {
-        for (j = 0; ; j++)
-        {
-            u8 *entry = *(u8 **)(D_007E8020 + j * 4);
-            if (entry == NULL)
+            for (j = 0; ; j++)
             {
-                break;
-            }
-            {
-                s32 present = *(s32 *)(entry + 0x48) != 0;
-                if (present != 0)
+                u8 *entry = *(u8 **)(D_007E8020 + j * 4);
+                if (entry == NULL)
                 {
-                    present = *(s32 *)(entry + 0x54) != 0;
+                    break;
                 }
-                if (present != 0)
                 {
-                    u8 *other = *(u8 **)(entry + 0x54);
-                    if (((*(s32 *)(other + 0x28) & 2) != 0) && ((*(s32 *)(entry + 0x40) & 2) == 0))
+                    s32 present = *(s32 *)(entry + 0x48) != 0;
+                    if (present != 0)
                     {
-                        void *id = *(void **)(other + 0x228);
-                        if (id != 0)
+                        present = *(s32 *)(entry + 0x54) != 0;
+                    }
+                    if (present != 0)
+                    {
+                        u8 *other = *(u8 **)(entry + 0x54);
+                        if (((*(s32 *)(other + 0x28) & 2) != 0) && ((*(s32 *)(entry + 0x40) & 2) == 0))
                         {
-                            void *target = mdlGetClump(id);
-                            func_003bff30(target, func_0016a0c0, work.points);
+                            void *id = *(void **)(other + 0x228);
+                            if (id != 0)
+                            {
+                                void *target = mdlGetClump(id);
+                                func_003bff30(target, func_0016a0c0, &work.collector);
+                            }
                         }
                     }
                 }
             }
-        }
         }
     }
     while (list3 != NULL)
@@ -836,7 +814,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
         if (((*(s32 *)(list3 + 0x28) & 2) != 0) && (*(s32 *)(list3 + 0x22c) != 0))
         {
             void *target = mdlGetClump(*(void **)(list3 + 0x22c));
-            func_003bff30(target, func_0016a0c0, work.points);
+            func_003bff30(target, func_0016a0c0, &work.collector);
         }
         list3 = *(u8 **)(list3 + 0x138);
     }
@@ -850,16 +828,16 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
                 if (id != 0)
                 {
                     void *target = mdlGetClump(id);
-                    func_003bff30(target, func_0016a0c0, work.points);
+                    func_003bff30(target, func_0016a0c0, &work.collector);
                 }
             }
         }
     }
     n = 0;
     allHit = 1;
-    while (n < work.count)
+    while (n < work.collector.count)
     {
-        if (work.flags[n] == 0)
+        if (work.collector.flags[n] == 0)
         {
             allHit = 0;
             break;
@@ -867,82 +845,88 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
         n++;
     }
     p = 0;
-    qy = work.copy.f[1];
-    qz = work.copy.f[2];
-    qfrac = work.copy.f[3];
-    for (; p < work.count; p++)
+    qy = work.query.t.sphere.center.y;
+    qz = work.query.t.sphere.center.z;
+    qfrac = work.query.t.sphere.radius;
+    for (; p < work.collector.count; p++)
     {
-        u8 *fbase = (u8 *)&work + p * sizeof(f32);
+        u8 *fbase = (u8 *)&work.collector + p * sizeof(f32);
         if (*(f32 *)(fbase + 0x600) < fGpffff82b4)
         {
-            u8 *rec = (u8 *)&work + 12 * p;
+            u8 *rec = (u8 *)&work.collector + 12 * p;
             s32 *flag;
-            delta.x = work.copy.f[0] - *(f32 *)rec;
-            delta.y = qy - *(f32 *)(rec + 4);
-            delta.z = qz - *(f32 *)(rec + 8);
-            RwV3dNormalize((f32 *)&delta, (const f32 *)&delta);
-            fbase = (u8 *)&work + p * (s32)sizeof(f32);
+            delta.vector.x = work.query.t.sphere.center.x - *(f32 *)rec;
+            delta.vector.y = qy - *(f32 *)(rec + 4);
+            delta.vector.z = qz - *(f32 *)(rec + 8);
+            RwV3dNormalize(delta.components, delta.components);
+            fbase = (u8 *)&work.collector + p * (s32)sizeof(f32);
             scale = qfrac - *(f32 *)(fbase + 0x600);
-            dx = delta.x;
-            scaled.x = dx * scale;
-            dy = delta.y;
-            scaled.y = dy * scale;
-            dz = delta.z;
-            scaled.z = dz * scale;
-            flag = (s32 *)(fbase + 0xA00);
-            if (*flag == 1)
             {
-                *(RwV3d *)(rec + 0x700) = scaled;
-            }
-            else
-            {
-                for (m = 0; m < work.count; m++)
+                const f32 dx = delta.vector.x;
+                scaled.x = dx * scale;
                 {
-                    if (work.flags[m] == 1)
+                    const f32 dy = delta.vector.y;
+                    scaled.y = dy * scale;
                     {
-                        f32 d = scaled.x * work.extra[m].x + scaled.y * work.extra[m].y + scaled.z * work.extra[m].z;
-                        if (d < 0.0f)
+                        const f32 dz = delta.vector.z;
+                        scaled.z = dz * scale;
+                        flag = (s32 *)(fbase + 0xA00);
+                        if (*flag == 1)
                         {
-                            scaled.x += work.extra[m].x;
-                            scaled.y += work.extra[m].y;
-                            scaled.z += work.extra[m].z;
+                            *(RwV3d *)(rec + 0x700) = scaled;
+                        }
+                        else
+                        {
+                            for (m = 0; m < work.collector.count; m++)
+                            {
+                                if (work.collector.flags[m] == 1)
+                                {
+                                    f32 d = scaled.x * work.collector.corrections[m].x + scaled.y * work.collector.corrections[m].y + scaled.z * work.collector.corrections[m].z;
+                                    if (d < 0.0f)
+                                    {
+                                        scaled.x += work.collector.corrections[m].x;
+                                        scaled.y += work.collector.corrections[m].y;
+                                        scaled.z += work.collector.corrections[m].z;
+                                    }
+                                }
+                            }
+                        }
+                        neg = -1.0f;
+                        if (allHit == 1)
+                        {
+                            neg = vector[0] * work.collector.normals[p].x + vector[1] * work.collector.normals[p].y + vector[2] * work.collector.normals[p].z;
+                        }
+                        dot = vector[0] * dx + vector[1] * dy + vector[2] * dz;
+                        if ((dot < 0.0f || *flag == 1) && neg < 0.0f)
+                        {
+                            vector[0] += scaled.x;
+                            vector[1] += scaled.y;
+                            vector[2] += scaled.z;
+                            result = 1;
+                        }
+                        oldX = vector[0];
+                        zero = 0.0f;
+                        if (oldX == zero && vector[1] == zero && vector[2] == zero)
+                        {
+                            vector[0] = oldX + scaled.x;
+                            vector[1] += scaled.y;
+                            vector[2] += scaled.z;
+                            result = 1;
                         }
                     }
                 }
             }
-            neg = -1.0f;
-            if (allHit == 1)
-            {
-                neg = vector[0] * work.normals[p].x + vector[1] * work.normals[p].y + vector[2] * work.normals[p].z;
-            }
-            dot = vector[0] * dx + vector[1] * dy + vector[2] * dz;
-            if ((dot < 0.0f || *flag == 1) && neg < 0.0f)
-            {
-                vector[0] += scaled.x;
-                vector[1] += scaled.y;
-                vector[2] += scaled.z;
-                result = 1;
-            }
-            oldX = vector[0];
-            zero = 0.0f;
-            if (oldX == zero && vector[1] == zero && vector[2] == zero)
-            {
-                vector[0] = oldX + scaled.x;
-                vector[1] += scaled.y;
-                vector[2] += scaled.z;
-                result = 1;
-            }
         }
     }
-    if (allHit == 0 && work.count >= 2)
+    if (allHit == 0 && work.collector.count > 1)
     {
-        RwV3dLength((f32 *)vector);
-        for (q = 0; q < work.count - 1; q++)
+        RwV3dLength(vector);
+        for (q = 0; q < work.collector.count - 1; q++)
         {
-            for (r = q + 1; r < work.count; r++)
+            for (r = q + 1; r < work.collector.count; r++)
             {
-                f32 d = work.normals[q].x * work.normals[r].x + work.normals[q].y * work.normals[r].y + work.normals[q].z * work.normals[r].z;
-                if (d < fGpffff82b8)
+                f32 d = work.collector.normals[q].x * work.collector.normals[r].x + work.collector.normals[q].y * work.collector.normals[r].y + work.collector.normals[q].z * work.collector.normals[r].z;
+                if (d < -0.2f)
                 {
                     vector[0] = vector[1] = vector[2] = 0.0f;
                     goto done;
@@ -954,9 +938,6 @@ done:
     return result;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016a110);
-#endif
 // FUN_0016A960
 s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
 {
