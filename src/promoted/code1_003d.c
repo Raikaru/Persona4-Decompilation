@@ -65,7 +65,8 @@ extern s32 func_003e8930(s32 arg0, s32 arg1, void *arg2, void *arg3);
 extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
 extern s32 func_003d4f20(s32 arg0);
 extern void (*jtbl_008873EC[])();
-extern s32 func_003e2ab0();
+extern RwStream *func_003e2ab0(RwStream *stream, const void *buffer, u32 length);
+extern u32 func_003e2910(RwStream *stream, void *buffer, u32 length);
 extern s32 func_003de8c0(u8 *arg0, s32 arg1);
 extern s32 func_003d59d0(u8 *arg0, f32 amount);
 extern s32 func_003d5bc0(u8 *arg0, f32 amount);
@@ -1952,9 +1953,9 @@ extern s32 func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4); /*
    copied from the exact 003bf330 twin. */
 #pragma schedule on
 // FUN_003DF240
-s32 func_003df240(s32 arg0) {
-    func_003e2ab0((u8 *)arg0);
-    return arg0;
+RwStream *func_003df240(RwStream *stream, const s32 *ints, u32 numBytes) {
+    func_003e2ab0(stream, ints, numBytes);
+    return stream;
 }
 /* measured: close schedule around func_003df240. */
 #pragma schedule off
@@ -1962,9 +1963,9 @@ s32 func_003df240(s32 arg0) {
    copied from the exact 003bf330 twin. */
 #pragma schedule on
 // FUN_003DF270
-s32 func_003df270(s32 arg0) {
-    func_003e2ab0((u8 *)arg0);
-    return arg0;
+RwStream *func_003df270(RwStream *stream, const s16 *ints, u32 numBytes) {
+    func_003e2ab0(stream, ints, numBytes);
+    return stream;
 }
 /* measured: close schedule around func_003df270. */
 #pragma schedule off
@@ -1975,15 +1976,15 @@ s32 func_003df270(s32 arg0) {
 /* measured: schedule/no_branch_likely bracket retained for func_003df2a0. */
 #pragma schedule on
 #pragma no_branch_likely on
-s32 func_003df2a0(s32 arg0) {
+RwStream *func_003df2a0(RwStream *stream, f32 *reals, u32 numBytes) {
     extern s32 func_003df590(s32 arg0);
     struct {
         u8 pad[8];
         s32 sp28;
         s32 sp2C;
     } frame;
-    if (func_003e2910() != 0) {
-        return arg0;
+    if (func_003e2910(stream, reals, numBytes) != 0) {
+        return stream;
     }
     frame.sp28 = 1;
     frame.sp2C = func_003df590(0x8000001A);
@@ -2000,15 +2001,15 @@ s32 func_003df2a0(s32 arg0) {
 /* measured: schedule/no_branch_likely bracket retained for func_003df300. */
 #pragma schedule on
 #pragma no_branch_likely on
-s32 func_003df300(s32 arg0) {
+RwStream *func_003df300(RwStream *stream, s32 *ints, u32 numBytes) {
     extern s32 func_003df590(s32 arg0);
     struct {
         u8 pad[8];
         s32 sp28;
         s32 sp2C;
     } frame;
-    if (func_003e2910() != 0) {
-        return arg0;
+    if (func_003e2910(stream, ints, numBytes) != 0) {
+        return stream;
     }
     frame.sp28 = 1;
     frame.sp2C = func_003df590(0x8000001A);
@@ -2023,7 +2024,7 @@ s32 func_003df300(s32 arg0) {
 #pragma schedule on
 /* measured: no_branch_likely knob retains the func_003df360 bracket. */
 #pragma no_branch_likely on
-extern s32 func_003df360(s32 arg0); /* P4: ported verbatim into src/renderware */
+extern RwStream *func_003df360(RwStream *stream, s16 *ints, u32 numBytes); /* P4: ported verbatim into src/renderware */
 /* measured: closes schedule/no_branch_likely around func_003df360. */
 #pragma no_branch_likely off
 #pragma schedule off
