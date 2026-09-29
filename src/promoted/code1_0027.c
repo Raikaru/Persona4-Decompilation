@@ -27,7 +27,7 @@ static inline u32 add_retail_ptr(u32 offset, u32 base) {
     return offset + base;
 }
 extern void func_0026bc10(s32 arg0, s32 arg1);
-extern s32 func_00110d60(s16 arg0);
+extern s32 func_00110d60(s32 arg0);
 extern s64 func_002e0da0(s64 arg0, s32 arg1, s64 arg2);
 extern void func_002e0f90(void);
 
@@ -46,11 +46,11 @@ extern void func_0027b5d0(s32 arg0);
 extern s32 func_0027bd40(s32 arg0);
 extern s32 func_0027bda0(s32 arg0);
 extern s32 func_0027be00(s32 arg0);
-extern s64 func_001060b0(void);
-extern void func_001104d0(s16 year, s32 *month, s32 *day);
+extern s16 func_001060b0(void);
+extern void func_001104d0(s32 date, s32 *month, s32 *day);
 extern s32 sprintf(void *arg0, const void *arg1, s32 arg2);
 extern u8 iGpffffa738;
-extern s32 func_001105b0(s16 arg0);
+extern s32 func_001105b0(s32 arg0);
 extern void func_00275980(void *arg0, void *arg1, s32 arg2);
 extern s8 D_0063BAB0[];
 extern s32 func_00108e10(void);
@@ -1689,216 +1689,200 @@ s32 func_0027bf10(s32 arg0)
 {
     return D_0063BF80[arg0];
 }
-/* Floor: func_0027bf30 @0x0027BF30, 2992B window (747 retail instrs, 748 words). */
-/* Best C: /tmp/cand_final.c sha256 96a5f23449ad89be80deb6bd1c298aa070f6b67147397492bae1d94f91d8040f (200 lines, u8+ptrloop base). */
-/* Compiler: MWCCPS2 3.0.1b210 -O2 -Iinclude (repo config). */
-/* Commands: python3 tools/probe_variants.py src/promoted/code1_0027.c func_0027bf30 --candidate final=/tmp/cand_final.c (nd 670 words reloc-masked); python3 tools/fnalign.py src/promoted/code1_0027.c func_0027bf30 --candidate /tmp/cand_final.c (736 object instrs vs 747 retail, 48B short 1.6% within 3% size gate; 202 edits +12 reloc-only); python3 tools/verify.py src/promoted/code1_0027.c (59 MATCH/1 ASM, 0 MISMATCH). */
-/* TU eligibility: guarded NON_MATCHING arm not compiled in real build; real build stays INCLUDE_ASM, C-linked via fallback (verify ASM, link OK). Retail identity unverified. */
-/* Semantic review: faithful - early-out on *(arg1+4)!=4 and handle NULL, GP floats via D_00761184 (1.5707964 pi/2), D_00761288 (0.3), D_0076112C (0.2), s128 via u_long128 lq/sq, D_00887300 via cached base[0], 0025ea20 float-first and 00366380/00262de0/00261560 per code1_0025/0018/0026 signatures, MACs as natural c+a*b/c-a*b (adda/madd/msub fuse per matching.md CORRECTION). Caveats: 00261560 12-arg order follows code1_0026.c guess (values correct, widths uncertain); 001104d0 local s32 vs file s16 (authoritative s32 per code1_0011.c MATCH, file s16 stale, arm not compiled so no TU effect); final tmp>=2 inner tmp<0 dead branch preserved as retail; GP names need link check. */
-/* Levers tried (words diff reloc-masked): v1 full s32+mask for-loops 670; v3 nested-shared-epilogue natural MACs 666 (-4); ptrloop pointer+null-guard clears 662 (-4) [lever a: s128 clears]; memset 667 (+1 vs v3) [lever a alt, rejected]; decl reverse/swap 666 (0) [lever b: decl order]; u8 direct casts 670 (+8 vs ptrloop, size 736 vs 667 +69 instrs, passes 3% size gate) [lever c: float-u8 conversion]; color cache 670 (0) [lever d: literal caching]. Decl-search reverse s/f/both + swap56 all 666 (0), closed. Measured: probe 670 words, fnalign 202+12, size 736/747 (1.6% short). nd 2137 as committed. */
-/* measured 0027bf30: live re-measure confirms probe 670 words via measure_guarded, fnalign retail 747/object 736 (11 short, 1.5% within gate) with 202 edits (+12 reloc-only); wscan dsll32/dsra32 obj 1 pair vs retail 1 pair (same site, widths correct, daddu counts ignored per alias caveat); schedule 690 (+20), cseoff 687 (+17), prop 684 (+14), loopinv 668 (-2 with 733 obj/238e, rejected on size/edits). Top-down: frame -0x110 vs -0x100 (one 16B slot) then polarity beq/b-vs-bne plus D_00887300 base caching. Banked floor stands. */
-// FUN_0027BF30 NONMATCHING
-#ifdef NON_MATCHING
-void func_0027bf30(u8 *arg0, u8 *arg1) {
-    extern u8 *func_002833b0(s32 arg0);
+/* The renderer receives a color snapshot and a rectangle value. The
+ * rectangle literal retains its own temporary; clear cursors and counts
+ * have separate lifetimes. Native b210: 2992/2992 bytes, no differences.
+ * Evidence: build/first-party-finish-20260929/worker5/func_0027bf30. */
+// FUN_0027BF30
+void func_0027bf30(u8 *unusedTask, u8 *arg1)
+{
+    typedef struct {
+        s32 x;
+        s32 y;
+        s32 w;
+        s32 h;
+    } CalendarRectangle;
+    typedef union { u8 rgba[4]; f32 value; } CalendarColor;
+    extern s32 func_002833b0(s32 arg0);
     extern f32 sinf(f32 arg0);
-    extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-    extern void *func_0046a770(void *arg0);
-    extern void (*D_00887300[])(s32 arg0, s32 arg1);
-    extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-    extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
+    extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
+    extern u8 *func_0046a770(char *arg0);
+    extern s32 (*D_00887300[])(s32 state, void *value);
+    extern s32 RpSkyRenderStateSet(s32 state, void *value);
+    extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
     extern void func_0046d730(void *arg0, s32 arg1);
     extern void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s16 arg8, void *arg9, f32 farg0, f32 farg1, f32 farg2, f32 farg3);
-    /* use file-scope s64 func_001060b0 with s16 narrowing */
     extern s32 func_00110580(s32 arg0);
     extern s32 func_00110d30(s32 arg0);
-    extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
     extern s32 func_00110c50(s32 arg0, s32 arg1);
-    extern void func_00262de0(s32 arg0, s32 arg1, f32 farg0, u8 arg2, s32 arg3, s32 arg4, f32 farg1, f32 farg2, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
-    extern void func_00261560(s32 arg0, s32 arg1, f32 farg0, s32 arg1b, s32 arg2, s32 arg3, f32 fparg1, f32 fparg2, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
-    extern f32 D_00761184;
-    extern f32 D_00761288;
-    extern f32 D_0076112C;
-    extern unsigned int D_0063BFA0 __attribute__((mode(TI)));
+    extern void func_00262de0(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite);
+    extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
     extern char D_0063BFB0[];
     extern u8 D_007482F0[];
-    typedef unsigned int u_long128 __attribute__((mode(TI)));
-    u8 *handle2;
-    s32 ycoord;
-    s32 wmode;
-    s32 dateTmp;
-    u8 *aptr;
-    s32 dateBase;
-    s32 mod4;
-    s32 loop6;
+    s32 month;
+    s32 day;
+    CalendarColor depthColor;
+    CalendarColor color;
+    CalendarRectangle rect;
+    s32 appear[6];
+    f32 alpha;
+    f32 x;
+    f32 y;
+    f32 rot;
+    f32 fade;
+    f32 t;
+    u8 *font;
+    s32 py;
+    s32 mode;
+    s32 date;
+    s32 px;
+    s32 today;
+    s32 tile;
+    s32 rgb;
+    s32 week;
+    s32 phase;
+    s32 frame;
+    s32 i;
+    s32 (**table)(s32, void *);
+    s32 lineRgb;
     u8 *handle;
-    u8 spD0[0x18];
-    u_long128 spC0;
-    u_long128 spF0;
-    u8 sp100[4];
-    f32 sp104;
-    s32 sp108;
-    s32 sp10C;
-    f32 f20;
-    f32 f21;
-    f32 f22;
-    f32 f23;
-    s32 tmp;
-    s32 tmp2;
-    s32 alpha;
-    if (*(s32 *)(arg1 + 4) == 4) {
-        handle = func_002833b0(0);
-        if (handle != NULL) {
-            f32 t0;
-            u8 *p1;
-            s32 n1;
-            t0 = sinf((D_00761184 * (f32)*(s32 *)(arg1 + 0x10)) / 20.0f);
-            p1 = sp100;
-            n1 = 4;
-            if (p1 != NULL) {
+
+    switch (*(s32 *)(arg1 + 4)) {
+    case 4:
+        handle = (u8 *)func_002833b0(0);
+        if (handle == NULL) {
+            break;
+        }
+        t = sinf(1.5707964f * (f32)*(s32 *)(arg1 + 0x10) / 20.0f);
+        {
+            u8 *colorCursor;
+            s32 colorRemaining;
+            colorCursor = color.rgba;
+            colorRemaining = 4;
+            if (colorCursor != NULL) {
                 do {
-                    *p1 = 0;
-                    p1 += 1;
-                    n1 -= 1;
-                } while (n1 != 0);
+                    *colorCursor = 0;
+                    colorCursor++;
+                    colorRemaining--;
+                } while (colorRemaining != 0);
             }
-            f20 = 1.0f - t0;
-            f23 = 76.5f * f20;
-            sp100[3] = (u8)f23;
-            sp104 = *(f32 *)sp100;
-            spC0 = D_0063BFA0;
-            spF0 = D_0063BFA0;
-            func_0045d6e0(&sp104, &spF0, 10.0f, 1);
-            tmp = *(s32 *)(arg1 + 0x10);
-            mod4 = tmp % 4;
-            {
-                void (**base)(s32, s32);
-                base = D_00887300;
-                base[0](6, 1);
-                base[0](8, 1);
-            }
-            RpSkyRenderStateSet(3, 0x7000D);
-            RpSkyRenderStateSet(2, 0x48);
-            for (dateBase = 0; dateBase < 0x18; dateBase++) {
-                f22 = (f32)((dateBase % 6) * 0x7E);
-                f21 = (f32)((dateBase / 6) * 0x7E);
-                alpha = (u8)f23;
-                func_0025ea20(f22, f21, 10.0f, 0xFFFFFF, alpha, mod4, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
-                mod4 = (mod4 + 1) % 4;
-            }
-            {
-                s32 ivar;
-                f32 ftmp;
-                ivar = (s32)((f32)*(s32 *)(arg1 + 0x10) + *(f32 *)(arg1 + 8));
-                ftmp = (f32)ivar;
-                if (ftmp > 120.0f) {
-                    ivar = (s32)(ftmp - 120.0f);
-                }
-                f21 = (f32)ivar / 120.0f;
-            }
+        }
+        fade = 1.0f - t;
+        alpha = 76.5f * fade;
+        color.rgba[3] = alpha;
+        depthColor = color;
+        {
+            rect = (CalendarRectangle){0, 0, 640, 480};
+
+            func_0045d6e0((u8 *)&depthColor, (f32 *)&rect, 10.0f, 1);
+        }
+        phase = *(s32 *)(arg1 + 0x10) % 4;
+        table = (s32 (**)(s32, void *))(u32)D_00887300;
+        table[0](6, (void *)1);
+        table[0](8, (void *)1);
+        RpSkyRenderStateSet(3, (void *)0x7000D);
+        RpSkyRenderStateSet(2, (void *)0x48);
+        for (tile = 0; tile < 24; tile++) {
+            x = (tile % 6) * 126;
+            y = (tile / 6) * 126;
+            func_0025ea20(x, y, 10.0f, 0xFFFFFF, alpha, phase, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
+            phase = (phase + 1) % 4;
+        }
+        frame = (f32)*(s32 *)(arg1 + 0x10) + *(f32 *)(arg1 + 8);
+        if ((f32)frame > 120.0f) {
+            frame = (f32)frame - 120.0f;
+        }
+        rot = (f32)frame / 120.0f;
+        if (handle == NULL) {
+            func_0046d730(D_007482F0, 0x59);
+        }
+        func_0025ea20(-59.0f, -103.0f, 10.0f, 0xFFFFFF, 255.0f * fade, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, 360.0f * rot, 1.0f, 1.0f);
+        frame = *(s32 *)(arg1 + 0x10);
+        if (frame < 4) {
+            fade = sinf(1.5707964f * (f32)frame / 4.0f);
             if (handle == NULL) {
                 func_0046d730(D_007482F0, 0x59);
             }
-            alpha = (u8)(255.0f * f20);
-            func_0025ea20(-59.0f, -103.0f, 10.0f, 0xFFFFFF, alpha, 2, *(void **)(handle + 8), 1, 0x80, 0x80, 360.0f * f21, 1.0f, 1.0f);
-            tmp = *(s32 *)(arg1 + 0x10);
-            if (tmp < 4) {
-                f32 t;
-                t = sinf((D_00761184 * (f32)tmp) / 4.0f);
+            rot = 1.0f - fade;
+            func_0025ea20(165.0f, 244.0f + 95.0f * fade, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, rot);
+            func_00366380(0xB0, 271 + 64.0f * fade, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 0.0f, 1.0f, 0.3f + 0.3f * rot);
+        } else if (frame < 11) {
+            t = (f32)(frame - 4) / 6.0f;
+            func_00366380(176.0f * (1.0f - t), 0x14F, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 0.0f, 1.0f + t, 0.3f - 0.2f * t);
+        }
+        font = (u8 *)func_002833b0(1);
+        {
+            u8 *appearCursor;
+            s32 appearRemaining;
+            appearCursor = (u8 *)appear;
+            appearRemaining = sizeof(appear);
+            if (appearCursor != NULL) {
+                do {
+                    *appearCursor = 0;
+                    appearCursor++;
+                    appearRemaining--;
+                } while (appearRemaining != 0);
+            }
+        }
+        today = (s16)func_001060b0();
+        for (i = 0; i < 6; i++) {
+            s32 step;
+
+            if (*(s32 *)(arg1 + 0x10) >= appear[i]) {
+                step = *(s32 *)(arg1 + 0x10) - appear[i];
+                if (step >= 5) {
+                    step = 5;
+                }
+            } else {
+                step = 0;
+            }
+            fade = 1.0f - sinf(1.5707964f * (f32)step / 5.0f);
+            date = today + i + 1;
+            week = func_00110580(date);
+            if (week == 0 || func_00110d30(date) != 0) {
+                rgb = 0xFFE92C;
+                mode = 3;
+            } else if (week == 6) {
+                rgb = 0xFFE92C;
+                mode = 2;
+            } else {
+                rgb = 0xFFE92C;
+                mode = 1;
+            }
+            func_001104d0(date, &month, &day);
+            if (day == 1) {
                 if (handle == NULL) {
                     func_0046d730(D_007482F0, 0x59);
                 }
-                f21 = 1.0f - t;
-                func_0025ea20(165.0f, 244.0f + 95.0f * t, 0.0f, 0, 0xCC, 1, *(void **)(handle + 8), 1, 0, 0, 0.0f, 1.0f, f21);
-                {
-                    s32 iv;
-                    iv = (s32)(271.0f + 64.0f * t);
-                    func_00366380(0xB0, iv, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, 0, 1.0f, D_00761288 + D_00761288 * f21, 0, 0);
-                }
-            } else if (tmp < 0xB) {
-                f32 t3;
-                t3 = (f32)(tmp - 4) / 6.0f;
-                func_00366380((s32)(176.0f * (1.0f - t3)), 0x14F, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, 0, 1.0f + t3, D_00761288 - D_0076112C * t3, 0, 0);
+                func_0025ea20(i * 0x53 + 0x4B, 69.0f, 0.0f, rgb, 255.0f * fade, month + 4, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             }
-            handle2 = func_002833b0(1);
-            {
-                u8 *p2;
-                s32 n2;
-                p2 = spD0;
-                n2 = 0x18;
-                if (p2 != NULL) {
-                    do {
-                        *p2 = 0;
-                        p2 += 1;
-                        n2 -= 1;
-                    } while (n2 != 0);
-                }
-            }
-            {
-                dateBase = (s16)func_001060b0();
-                for (loop6 = 0; loop6 < 6; loop6++) {
-                    s32 a;
-                    s32 b;
-                    s32 c;
-                    f32 ft;
-                    s32 d;
-                    a = *(s32 *)(spD0 + loop6 * 4);
-                    b = *(s32 *)(arg1 + 0x10);
-                    if (b < a) {
-                        c = 0;
-                    } else {
-                        c = b - a;
-                        if (c > 5) {
-                            c = 5;
-                        }
-                    }
-                    ft = 1.0f - sinf((D_00761184 * (f32)c) / 5.0f);
-                    d = dateBase + loop6 + 1;
-                    dateTmp = func_00110580(d);
-                    if (dateTmp == 0 || func_00110d30(d) != 0) {
-                        wmode = 3;
-                    } else if (dateTmp == 6) {
-                        wmode = 2;
-                    } else {
-                        wmode = 1;
-                    }
-                    func_001104d0(d, &sp10C, &sp108);
-                    if (sp108 == 1) {
-                        if (handle == NULL) {
-                            func_0046d730(D_007482F0, 0x59);
-                        }
-                        alpha = (u8)(255.0f * ft);
-                        func_0025ea20((f32)(loop6 * 0x53 + 0x4B), 69.0f, 0.0f, 0xFFE92C, alpha, sp10C + 4, *(void **)(handle + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-                    }
-                    f21 = 1.0f - ft;
-                    ycoord = (s32)(113.0f + 64.0f * f21);
-                    tmp2 = loop6 * 0x53;
-                    func_00366380(tmp2 + 0x5C, ycoord, 0x50, 0x7F, 0xFFE92C, 0xFF, 1, 0, 0, 0, 1.0f, ft, 0, 0);
-                    aptr = handle2;
-                    func_00262de0(tmp2 + 0x6B, ycoord, 0.0f, 0xFF, d, 1, 1.0f, ft, 0, 0, (s32)aptr, 0);
-                    tmp = (s32)(163.0f - 5.0f * f21);
-                    func_00261560(tmp2 + 0x5D, tmp, 0xFF, func_00110c50(d, dateBase) & 0xFFFF, 1, 0, 0, 1.0f, ft * ft, wmode, (s32)aptr, 0);
-                }
-                tmp = func_00110580(dateBase + 3);
-                if (tmp != 0) {
-                    func_00110d30(dateBase + 3);
-                }
-                tmp = *(s32 *)(arg1 + 0x10);
-                if (tmp >= 2) {
-                    if (tmp < 0) {
-                        f32 t;
-                        t = sinf((D_00761184 * (f32)(tmp - 1)) / 4.0f);
-                        func_00366380(0x12C, (s32)(145.0f + 24.0f * t), 0x50, 0x7F, 0xFFE92C, 0xFF, 1, 0, 0, 0, 1.0f, 0.5f - D_0076112C * t, 0, 0);
-                    } else if (tmp < 8) {
-                        f32 t2;
-                        t2 = (f32)(tmp - 2) / 5.0f;
-                        func_00366380((s32)(300.0f * (1.0f - t2)), 0xA9, (s32)(80.0f + 640.0f * t2), 0x7F, 0xFFE92C, 0xFF, 1, 0, 0, 0, 1.0f, D_00761288 - D_0076112C * t2, 0, 0);
-                    }
-                }
+            rot = 1.0f - fade;
+            t = 64.0f * rot;
+            py = 113.0f + t;
+            px = i * 0x53;
+            func_00366380(px + 0x5C, py, 0x50, 0x7F, rgb, 0xFF, 1, 0, 0, NULL, 0.0f, 0.0f, 1.0f, fade);
+            func_00262de0(px + 0x6B, py, 0.0f, 0xFF, today + i + 1, 1, 1.0f, fade, 0, 0, (s32)font, 0);
+            py = 163.0f - 5.0f * rot;
+            func_00261560(px + 0x5D, py, 0.0f, 0xFF, func_00110c50(today + i + 1, today) & 0xFFFF, 1, 1.0f, fade * fade, 0, 0, (s32)font, mode);
+        }
+        week = func_00110580(today + 3);
+        if (week == 0 || func_00110d30(today + 3) != 0) {
+            lineRgb = 0xFFE92C;
+        } else if (week == 6) {
+            lineRgb = 0xFFE92C;
+        } else {
+            lineRgb = 0xFFE92C;
+        }
+        frame = *(s32 *)(arg1 + 0x10);
+        if (frame >= 2) {
+            if (frame < 0) {
+                t = sinf(1.5707964f * (f32)(frame - 1) / 4.0f);
+                func_00366380(0x12C, 145.0f + 24.0f * t, 0x50, 0x7F, lineRgb, 0xFF, 1, 0, 0, NULL, 0.0f, 0.0f, 1.0f, 0.5f - 0.2f * t);
+            } else if (frame < 8) {
+                t = (f32)(frame - 2) / 5.0f;
+                func_00366380(300.0f * (1.0f - t), 0xA9, 80.0f + 640.0f * t, 0x7F, lineRgb, 0xFF, 1, 0, 0, NULL, 0.0f, 0.0f, 1.0f, 0.3f - 0.2f * t);
             }
         }
+        break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0027", func_0027bf30);
-#endif
