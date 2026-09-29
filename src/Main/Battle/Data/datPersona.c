@@ -1626,7 +1626,7 @@ s32 func_0010ccc0(u8 *arg0, u32 arg1)
 }
 
 // FUN_0010CD70
-s32 func_0010cd70(u8 *arg0, s32 arg1, u16 arg2)
+s32 func_0010cd70(u8 *arg0, s16 arg1, u16 arg2)
 {
     if (arg0 == NULL || (s16)arg1 == 0 || (arg2 & 0xFFFF) == 0) {
         func_0046d730(D_005E4318, 0x6FE);

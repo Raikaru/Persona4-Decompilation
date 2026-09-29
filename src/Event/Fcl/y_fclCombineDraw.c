@@ -1,3 +1,6 @@
+#include "fcl_row_mode.h"
+#include "fcl_scale_transition.h"
+#include "fcl_animation_internal.h"
 #include "fcl_color.h"
 #include "fcl_row_draw.h"
 #include "include_asm.h"
@@ -60,8 +63,7 @@ extern void func_0011c180(u8 *, s32, s32, s8);
 extern void func_0011c2c0(u8 *, s32, s32, s8);
 extern void func_0011bdc0(u8 *arg0);
 extern void func_0011bf10(u8 *arg0);
-extern void func_002b6a70(s16, u8, u8, s32, s32, s32);
-extern void func_002b6b40(s32, s32, s32, s32, f32, f32);
+extern void func_002b6a70(s16, u8, u8, u8, s32, s16);
 extern u8 *func_002b6150(s16);
 extern s16 func_002b6970(s16, s16);
 extern void func_002b7750(s16, s16);
@@ -82,7 +84,7 @@ extern f32 D_00644290[];
 extern f32 D_00644298[];
 extern f32 D_00644350[];
 
-extern void func_002b69f0(s16, f2, f2, u32, u32, s16);
+extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
 extern u8 *func_0046d200(u32, u32);
 extern f32 func_0046b2f0(u8 *);
 extern void func_0046d280(void *node);
@@ -98,7 +100,7 @@ extern void func_002b2e70(s32, s32, s32, s32, s16 *, s16 *);
 extern void func_002b2f90(s32, s32, s32, s32, s16 *, s16 *);
 extern f32 iGpffff8360;
 extern f32 iGpffff8504;
-extern void func_003191c0(u8 *, FclVec2, s32, s32, s16, s32, s32, s8);
+extern void func_003191c0(u8 *, FclVec2, s32, s32, s16, s16, s32, s8);
 extern s32 func_00331560(void);
 
 
@@ -143,7 +145,6 @@ extern void func_0011d1d0(u8 *, f32);
 extern s8 func_00331640(void);
 extern void func_00330e50(s32, FclVec2, f32, s32, u8, s32, f32, f32, void *);
 extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
-extern void func_002b82d0(u8 *, u8, u32, u32, u32, s16);
 extern u8 D_00795E60[];
 
 extern void func_00440b68();
@@ -1034,7 +1035,7 @@ void func_00317410(u8 *arg0, s8 arg1) {
    the local func_002b6a70 prototype. */
 // FUN_00317900
 void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s8 arg3, s16 arg4, s16 arg5, s16 arg6) {
-    extern void func_002b6a70(s16, u8, u8, s32, s32, s16);
+    extern void func_002b6a70(s16, u8, u8, u8, s32, s16);
     extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
     FclByte4 c23C;
     FclByte4 c238;
@@ -1283,13 +1284,13 @@ s32 func_003190d0(u8 *arg0) {
    named copy of the shifted row position (see
    docs/probe_archive/FclDraw_003191c0_20260925.md). */
 // FUN_003191C0
-void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s32 arg5, s32 arg6, s8 arg7) {
+void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg5, s32 arg6, s8 arg7) {
     extern u8 *func_0034ae50(u8 *, s32);
     extern u8 func_00109280(u16);
-    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s32);
+    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
     extern void func_002ba080(u8 *, s8, s16, FclVec2, FclDrawColor, s32, s32, s32, f32, s32);
     extern void func_0034b820(u8 *, FclVec2, s16, FclDrawColor, f32);
-    extern void func_0034b880(u8 *, u8, u8, u8, s32, s32);
+    extern void func_0034b880(u8 *, u8, u8, u8, s16, s16);
     FclByte4 c29C;
     FclByte4 c298;
     FclByte4 c294;
@@ -1345,7 +1346,7 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s32 arg
     id = (s16)(c + 0x21C);
     hA = func_0046d200(func_00331560(), 0x193);
     if ((s8)arg6 == 1) {
-        func_002b6a70(id, *(u8 *)(func_002b6150(id) + 0x6E), 0, 0, 0, (s16)((s16)arg5 + 3));
+        func_002b6a70(id, *(u8 *)(func_002b6150(id) + 0x6E), 0, 0, 0, arg5 + 3);
         sc = iGpffff8504;
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
         func_002b69f0(id, func_002b2970(arg1.x, y = arg1.y), func_002b2970(arg1.x, y + func_0046b2f0(hA) / 2.0f), 0, 3, arg5);
@@ -1374,9 +1375,9 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s32 arg
     hB = func_0046d200(func_00331560(), 0x19A);
     if ((s8)arg6 == 1) {
         if (*(s16 *)(t + 0x11E) == c) {
-            func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg5 + 3));
+            func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
         } else {
-            func_002b6a70(id, *(u8 *)(func_002b6150(id) + 0x6E), 0, 0, 0, (s16)((s16)arg5 + 3));
+            func_002b6a70(id, *(u8 *)(func_002b6150(id) + 0x6E), 0, 0, 0, arg5 + 3);
         }
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
         func_002b69f0(id, func_002b2970(301 + arg1.x, arg1.y), func_002b2970(301 + arg1.x, arg1.y + func_0046b2f0(hB) / 2.0f), 0, 3, arg5);
@@ -1402,7 +1403,7 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s32 arg
     id = (s16)(c + 0x238);
     hC = func_0046d200(func_00331560(), 0x188);
     if ((s8)arg6 == 1) {
-        func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg5 + 3));
+        func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
         func_002b69f0(id, func_002b2970(arg1.x, arg1.y), func_002b2970(arg1.x, arg1.y + func_0046b2f0(hC) / 2.0f), 0, 3, arg5);
     } else {
@@ -1429,7 +1430,7 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s32 arg
     id = (s16)(c + 0x244);
     hD = func_0046d200(func_00331560(), 0x18C);
     if ((s8)arg6 == 1) {
-        func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg5 + 3));
+        func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
         func_002b69f0(id, func_002b2970(55.0f + arg1.x, arg1.y), func_002b2970(55.0f + arg1.x, arg1.y + func_0046b2f0(hD) / 2.0f), 0, 3, arg5);
     } else {
@@ -1471,7 +1472,7 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s32 arg
     id = (s16)n;
     h2 = func_0046d200(func_00331560(), n);
     if ((s8)arg6 == 1) {
-        func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg5 + 3));
+        func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
         func_002b69f0(id, func_002b2970(4.0f + arg1.x, 5.0f + arg1.y), func_002b2970(4.0f + arg1.x, 5.0f + arg1.y + func_0046b2f0(h2) / 2.0f), 0, 3, arg5);
     } else {
@@ -1495,7 +1496,7 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s32 arg
         id = (s16)(c + 0x250);
         h3 = func_0046d200(func_00331560(), (s16)((func_00109280(arg3) & 0xFF) + 0x1B));
         if ((s8)arg6 == 1) {
-            func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg5 + 3));
+            func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
             func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
             func_002b69f0(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), func_002b2970(28.0f + arg1.x, 2.0f + arg1.y + func_0046b2f0(h3) / 2.0f), 0, 3, arg5);
         } else {
@@ -2604,8 +2605,8 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031e5b0);
    gives retail's $s0/$s1/$s2 = arg2/arg3/handle colouring, and the
    offset rows read arg1.y into a local before adding the offset. */
 // FUN_0031FA20
-void func_0031fa20(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
-    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s32);
+void func_0031fa20(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
+    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
     FclByte4 c13C;
     FclByte4 c138;
     FclByte4 c134;
@@ -2628,7 +2629,7 @@ void func_0031fa20(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
     func_002b6af0(0x27C, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
     func_002b69f0(0x27C, func_002b2970(arg1.x, x + func_0046b2f0(node0) / 2.0f), func_002b2970(arg1.x, x), 0, 3, arg2);
     if (arg3 == 1) {
-        func_002b6a70(0x27C, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
+        func_002b6a70(0x27C, 0xFF, 0, 0, 0, arg2 + 3);
         func_002b6af0(0x27C, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
         func_002b69f0(0x27C, func_002b2970(arg1.x, x), func_002b2970(arg1.x, x + func_0046b2f0(node0) / 2.0f), 0, 3, arg2);
     }
@@ -2643,7 +2644,7 @@ void func_0031fa20(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
     func_002b6af0(0x289, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
     func_002b69f0(0x289, func_002b2970(x, y + func_0046b2f0(node1) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
     if (arg3 == 1) {
-        func_002b6a70(0x289, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
+        func_002b6a70(0x289, 0xFF, 0, 0, 0, arg2 + 3);
         func_002b6af0(0x289, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
         x = (f32)0x11D + arg1.x;
         func_002b69f0(0x289, func_002b2970(x, y), func_002b2970(x, y + func_0046b2f0(node1) / 2.0f), 0, 3, arg2);
@@ -2660,7 +2661,7 @@ void func_0031fa20(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
     func_002b6af0(0x72, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
     func_002b69f0(0x72, func_002b2970(x, y + func_0046b2f0(node2) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
     if (arg3 == 1) {
-        func_002b6a70(0x72, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
+        func_002b6a70(0x72, 0xFF, 0, 0, 0, arg2 + 3);
         func_002b6af0(0x72, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
         top = arg1.y;
         y = 4.0f + top;
@@ -2679,7 +2680,7 @@ void func_0031fa20(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
     func_002b6af0(0x2AF, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
     func_002b69f0(0x2AF, func_002b2970(x, y + func_0046b2f0(node3) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
     if (arg3 == 1) {
-        func_002b6a70(0x2AF, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
+        func_002b6a70(0x2AF, 0xFF, 0, 0, 0, arg2 + 3);
         func_002b6af0(0x2AF, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
         top = arg1.y;
         y = 9.0f + top;
@@ -2696,7 +2697,7 @@ void func_0031fa20(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
     func_002b6af0(0x2B0, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
     func_002b69f0(0x2B0, func_002b2970(x, y + func_0046b2f0(node3) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
     if (arg3 == 1) {
-        func_002b6a70(0x2B0, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
+        func_002b6a70(0x2B0, 0xFF, 0, 0, 0, arg2 + 3);
         func_002b6af0(0x2B0, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
         top = arg1.y;
         y = 9.0f + top;
@@ -2907,7 +2908,7 @@ void func_00320b80(u8 *arg0, s8 arg1) {
                     fclWriteColorBytes(c13C, 0, 0, 0x99, 0xFF);
                     fclWriteColorBytes(c138, 0x49, 0x72, 0xFF, 0xFF);
                     func_002b8370(e3, *(FclByte4 *)c13C, *(FclByte4 *)c138, 0, 0xA, (s16)j + (s16)i);
-                    func_002b82d0(func_0034ae50(*(u8 **)(q + 0x154), (s8)j), 0, 0xA5, 0, 0xA, (s16)j + (s16)i);
+                    func_002b82d0(func_0034ae50(*(u8 **)(q + 0x154), (s8)j), 0, 0xA5, 0, 0xA, (s16)((s16)j + (s16)i));
                 }
                 *(s8 *)(spC0 + (s16)j + 0x18C) = 0;
                 j = (s16)(j + 1);
@@ -3038,9 +3039,9 @@ void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
 #pragma push
 #pragma opt_loop_invariants on
 // FUN_003218A0
-void func_003218a0(u8 *arg0, s32 arg1) {
-    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s32);
-    extern void func_002b6a70(s16, u8, u8, s32, s32, s16);
+void func_003218a0(u8 *arg0, s16 arg1) {
+    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
+    extern void func_002b6a70(s16, u8, u8, u8, s32, s16);
     FclDrawColor c16C;
     FclDrawColor c168;
     FclDrawColor c164;
@@ -3968,7 +3969,7 @@ void func_00324f80(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
 
 /* The cursor arrow at x 358 is func_00317320 with a zero offset. Retail
    inlines it here, and it loads D_00644C90 before testing the flag. */
-static inline void fclShowCursorArrow(s32 flag)
+static inline void fclShowCursorArrow(s8 flag)
 {
     f32 *b = D_00644C90;
 
@@ -3986,9 +3987,7 @@ static inline void fclShowCursorArrow(s32 flag)
    func_002b2970 result, and every other value is left to b210's CSE
    (docs/probe_archive/FclDraw_00325450_20260925.md). */
 // FUN_00325450
-void func_00325450(u8 *arg0, s32 arg1, s32 arg2) {
-    extern void func_002b77d0(s16, FclVec2, s16, FclDrawColor, f32, s16, s32, s16, s16, s16, u32);
-    extern void func_00329310(u8 *, s16, s32);
+void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
     u8 *t = *(u8 **)(arg0 + 0x38);
     FclVec2 pos = func_002b2970(18.0f, 14.0f);
     FclByte4 c12C = func_002b2a60(0, 0, 0x99, 0xFF);

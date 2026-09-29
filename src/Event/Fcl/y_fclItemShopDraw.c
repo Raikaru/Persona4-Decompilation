@@ -1,19 +1,14 @@
 /* Original translation unit y_fclItemShopDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 
+#include "fcl_scale_transition.h"
+#include "fcl_animation_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "fcl_draw_types.h"
 extern void (*jtbl_008873EC[])(void *ptr);
-/* Row colours reach the packer as bytes in this unit: retail passes the u8
-   locals through with no zero-extension, so this view of func_002b2a60
-   takes u8 components (include/fcl_color.h keeps the int view other units
-   need). */
-typedef struct {
-    u8 c0, c1, c2, c3;
-} FclDrawColor;
+#include "fcl_color.h"
 
-FclDrawColor func_002b2a60(u8 red, u8 green, u8 blue, u8 alpha);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 typedef FclVec2 F2_0033;
@@ -22,8 +17,6 @@ extern u32 func_002e7a60(void);
 extern s32 func_002b3170(s32 arg0);
 extern void func_0033d3c0(void *, f32);
 extern void func_0033d3e0(void *, F2_0033, F2_0033, u32, u32, s64);
-extern void func_0033d4b0(void *, u8, u8, u8, s16, s64);
-extern void func_0033d4e0(u8 *arg0, f32 fparg0, f32 fparg1, s8 arg1, s16 arg2, s64 arg3);
 extern f32 D_0064A1D8[];
 extern f32 D_0064A1E0[];
 extern f32 D_0064A1E8[];
@@ -121,7 +114,6 @@ extern s32 func_00110a60(s32 arg0, s32 arg1);
 extern s32 func_00452380(void *arg0);
 extern u8 D_0064A3C0[];
 extern f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 highlight);
-extern void func_0033d520(u8 *arg0, f32 fparg0, f32 fparg1, s8 arg1, s16 arg2, s64 arg3);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern f32 iGpffff8424;
 extern f32 iGpffff851c;
