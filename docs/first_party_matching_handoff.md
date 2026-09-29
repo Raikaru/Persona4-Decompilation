@@ -3845,3 +3845,18 @@ source-shape assertions became stale when the remaining consumers were matched.
 The behavioral fixtures still pass 68,164 selector/getter/lookup/caller cases
 and 6,575 consumer views per optimization level, and reject all ten injected
 behavioral regressions.
+
+## Matching continuation after the CI repair
+
+The weather selector `func_0024be40` retains its ASM-backed guard at 672 bytes
+and seven differing words, down from eight. Reading the second-loop weight
+through its signed-byte pointer reproduces retail's address-add operand order.
+All 50 emitted siblings, owned read-only data, and 17 relocations remain
+unchanged; all 13 calls resolve to retail targets. The native access smoke covers
+all 256 byte values at six valid indices. Receipts are retained in
+`build/weather-match-20260929/retained-proof.json`.
+
+The radial Flash updater `func_0049b690` is reconstructed to a two-word guarded
+frontier; see `docs/probe_archive/effect_flash_recovery_20260929.md`. Neither
+target is newly C-matched. Final configured verification of both owners reports
+92 MATCH and eight ASM functions, with no mismatch or compilation error.
