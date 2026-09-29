@@ -1,10 +1,12 @@
+#include "fcl_scale_transition.h"
 /* measured: this unit passes u8 colour channels unmasked (002f6cf0, 002f9d90); see fcl_color.h. */
-#define FCL_COLOR_ARG u8
+#include "fcl_animation_internal.h"
 #include "model_motion_internal.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_fclCombine.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "fcl_color.h"
 #include "fcl_row_draw.h"
+#include "fcl_row_mode.h"
 #include "include_asm.h"
 #include "fcl_bounds_packet.h"
 #include "fcl_draw_task.h"
@@ -75,7 +77,7 @@ extern s32 func_00331560(void);
 extern f32 func_0046b260(u8 *);
 extern f32 func_0046b2f0(u8 *);
 extern void func_0046d280(void *);
-extern void func_002b6a70(s16, u8, u32, u32, u32, s32);
+extern void func_002b6a70(s16, u8, u8, u8, s32, s16);
 extern void func_002b69f0(s16, FclVec2f, FclVec2f, u32, u32, s16);
 extern void func_00314450(u8 *, s32, u8, s32);
 extern void func_0011c6e0(u8 *, s32);
@@ -88,19 +90,18 @@ extern u8 *func_003147d0(u8 *);
 extern s32 func_0045af60(s16, s16, s16, s16);
 extern void func_00314670(u8 *, s8);
 extern void func_00317240(u8 *, s64, f32);
-extern void func_00325450(u8 *, s32, s32);
 extern s8 func_00314660(u8 *);
 extern void func_00314680(u8 *);
 extern s16 func_002b6970(s16, s16);
 extern u8 *func_002b6150(s16);
 extern void func_00321e60(u8 *, s64, u8, u8);
 extern void func_003233d0(u8 *);
-extern void func_003191c0(u8 *, FclVec2, s32, s32, s16, s32, s32, s8);
+extern void func_003191c0(u8 *, FclVec2, s32, s32, s16, s16, s32, s8);
 extern void func_0031ac10(u8 *, FclVec2, s8, s8, s32, u16, s16, s8, s8, u8);
 extern void func_0031c2b0(u8 *, s16, FclVec2f, FclVec2f);
 extern void func_0031cce0(u8 *, s16, FclVec2, FclVec2);
 extern void func_00320b80(u8 *, s8);
-extern void func_003218a0(u8 *, s32);
+extern void func_003218a0(u8 *, s16);
 extern void func_00324410(u8 *, s16, s8);
 extern u32 RpRandom(void);
 extern void func_002b68d0(s16, s16, s8);
@@ -150,7 +151,7 @@ extern s32 func_00308dc0(u8 *);
 extern s32 func_00308e50(u8 *);
 extern s32 func_00309630(u16);
 extern s32 func_003096d0(u8 *);
-extern s32 func_0010cd70(u8 *, s32, u16);
+extern s32 func_0010cd70(u8 *, s16, u16);
 extern u16 func_0010b6f0(void);
 extern u8 *func_001102e0(void);
 extern void func_002ba970(u8 *, s16, FclDrawColor);
@@ -274,12 +275,11 @@ extern u8 D_00641B10[];
 extern s32 func_003145e0(s32);
 extern s32 func_00285b30(void);
 extern s32 func_00452490(s32);
-extern void func_00452080(s32);
+extern s32 func_00452080(KwlnTask *);
 extern s32 func_00459760(void);
 extern void func_0045a3e0(s32, s32);
 extern void func_0030f4f0(u8 *, s16 *);
 extern s32 func_00314320(u8 *);
-extern void func_002b6b40(s32, s32, s32, s32, f32, f32);
 extern s32 func_00302570(u8 *);
 extern f32 D_00640C50[];
 extern f32 D_00640C58[];
@@ -501,7 +501,6 @@ void func_002e90d0(u8 *arg0)
     extern s32 func_00106330(s32);
     extern s32 func_0033e5a0(u8 *);
     extern void func_00315310(u8 *, s64);
-    extern void func_002b6b40(s16, u8, s16, s32, f32, f32);
     extern void func_00317410(u8 *, s8);
     extern void func_002ecfc0(u8 *);
     extern void func_00318f30(s16);
@@ -3652,7 +3651,7 @@ block_215:
    builders passed straight into 002ba5d0 keep retail's call order; the object ids
    reused inside the selected-row branch are locals computed before their first
    colour call; the row index is copied into its own local at each branch. */
-/* The colour packers take u8 channels in this unit (FCL_COLOR_ARG u8): the
+/* The colour packers take byte channels through the shared interface: the
    alphas are u8 locals and retail passes them unmasked. func_00313ae0 is
    (s8 kind, u16 id) and widens the id once on entry. */
 // FUN_002F6CF0
@@ -8760,22 +8759,20 @@ static inline s16 fclCombinePickItem(s8 kind, s8 roll)
     return -1;
 }
 
-/* measured: 12584 executable bytes / 12592-byte window, verify MATCH,
-   347 relocations.  Rewritten from the retail assembly.  The recipe checks
-   use an inline helper, except the six-kind scans after the first one:
-   retail gives their outer counter the lower register, which a hand-written
-   scan reproduces when its temporaries are declared before the counter.
-   The item lookup of func_003042f0 is inlined as retail does, and each loop
-   has its own counter.  The item id is held as loaded (u32) and narrowed to
-   u16 only for the name-table offset, as retail masks it there alone. */
-/* Recovered byte-exact by the y_fclCombine agent on an older branch, but parked:
-   it was written against the pre-persona-id declarations (func_00105f50 as u32)
-   and is 473 words off with the current consistent prototypes. It also hand-
-   unrolls six of seven identical scans with goto and needs opt_propagation off,
-   which reads as compiler-shaped rather than original source. See
-   docs/probe_archive/FclCombine_0030c3c0_20260925.md. */
-// FUN_0030C3C0 NONMATCHING
-#ifdef NON_MATCHING
+/* The independent state scans preserve each counter's lifetime.
+   Item values narrow at their halfword consumers; the skill replacement
+   provider and every caller use a signed-halfword previous-skill ID.
+   The progress value is explicitly forwarded to the child setter. */
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
+#pragma opt_common_subs off
+static inline u16 fclItemHalf(const s32 *value)
+{
+    return *value;
+}
+#pragma pop
+// FUN_0030C3C0
 #pragma push
 /* measured: hoists each slot scan's count and kind out of its loop. */
 #pragma opt_loop_invariants on
@@ -8783,17 +8780,17 @@ static inline s16 fclCombinePickItem(s8 kind, s8 roll)
 #pragma opt_propagation off
 void func_0030c3c0(u8 *arg0) {
     extern s32 func_00106330(s32);
-    extern s32 func_0011f560(s32);
-    extern void func_003146c0(u8 *, s32);
-    extern void func_0045aa90(s32, s32);
-    extern s32 func_0011f410(u8 *, u8 *, void *, s32, s32, void *);
-    extern s32 func_0011fbc0(u8 *, u8 *, s32, void *);
-    extern s32 func_0011fcf0(s32);
+    extern u32 func_0011f560(u8 *);
+    extern void func_003146c0(u8 *, u32);
+    extern s32 func_0045aa90(s16, s16);
+    extern u8 *func_0011f410(s32, s32, u8 *, s32, s32, s32 *);
+    extern u8 *func_0011fbc0(s32, u8 *, s32, u8 *);
+    extern s32 func_0011fcf0(u8 *);
     extern void func_00275980(void *, void *, s32);
     extern void func_0011cdd0(u8 *, s32);
     extern void func_0011ce30(u8 *);
-    extern void func_0011cb70(u8 *, s32);
-    extern FclCombineRecipe func_002e4960(s8, s16);
+    extern s32 func_0011cb70(u8 *, u16);
+    extern void func_002e4960(u8 *, s8, s16);
     extern void func_00314400(u8 *, s8);
     extern s32 D_00641B90[];
     extern u8 D_00641AD0[];
@@ -8854,7 +8851,7 @@ void func_0030c3c0(u8 *arg0) {
     s8 kind;
     s8 roll;
     s32 item;
-    u32 id;
+    u16 id;
 
     p = *(u8 **)(arg0 + 0x38);
     id = ((u16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[1];
@@ -8872,7 +8869,13 @@ void func_0030c3c0(u8 *arg0) {
         func_00106390(0x5D, 1);
         if (func_00105f50(id) > 0) {
             p[1] = 0xA2;
-            func_0010be60(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), p + 0x28, *(s32 *)(p + 0x10));
+            {
+                u8 *persona;
+                s32 experience;
+                persona = func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
+                experience = *(s32 *)(p + 0x10);
+                func_0010be60(persona, p + 0x28, experience);
+            }
             p[0xB1] = p[0x28];
         } else if (func_00303a20(arg0) == 1) {
             if (fclCombineHasSlotKind(arg0, 7) == 1) {
@@ -8919,7 +8922,13 @@ void func_0030c3c0(u8 *arg0) {
     case 0xA2:
         if (*(s8 *)(p + 0xB1) != 0) {
             *(s32 *)(p + 0x14) = func_00313fb0(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
-            func_0010be60(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), p + 0x28, *(s32 *)(p + 0x14));
+            {
+                u8 *persona;
+                s32 experience;
+                persona = func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
+                experience = *(s32 *)(p + 0x14);
+                func_0010be60(persona, p + 0x28, experience);
+            }
             *(s32 *)(p + 0x10) -= *(s32 *)(p + 0x14);
             *(s16 *)(p + 0x1C) = 0;
             *(s16 *)(p + 0x2D8) = 1;
@@ -8981,9 +8990,9 @@ void func_0030c3c0(u8 *arg0) {
         }
         break;
     case 0xA3:
-        if (func_0011f560(*(s32 *)(p + 0x2A4)) != 0) {
-            func_00452080(*(s32 *)(p + 0x2A4));
-            *(s32 *)(p + 0x2A4) = 0;
+        if (func_0011f560(*(u8 **)(p + 0x2A4)) != 0) {
+            func_00452080((KwlnTask *)*(u8 **)(p + 0x2A4));
+            *(u8 **)(p + 0x2A4) = 0;
             p[1] = 0xA2;
         }
         break;
@@ -9003,8 +9012,8 @@ void func_0030c3c0(u8 *arg0) {
             if (*(s8 *)(p + 0xB1) == 0) {
                 *(s32 *)(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 8) += *(s32 *)(p + 0x10);
             }
-            *(s32 *)(p + 0x2A4) = func_0011f410(arg0, func_003147d0(*(u8 **)(p + 0x148)), p + 0x28,
-                                                func_00331660(), 0, D_00641AD0);
+            *(u8 **)(p + 0x2A4) = func_0011f410((s32)arg0, (s32)func_003147d0(*(u8 **)(p + 0x148)), p + 0x28,
+                                                func_00331660(), 0, (s32 *)D_00641AD0);
             p[1] = 0xA3;
         }
         break;
@@ -9071,13 +9080,14 @@ void func_0030c3c0(u8 *arg0) {
         }
         break;
     case 0xA8:
+        /* This retail state retains a counter-only traversal. */
         for (i1 = 0; i1 < 5; i1++) {
         }
         p[0xD] = func_002bab80((void *)func_00331660());
         for (i2 = 0; i2 < 0x20; i2++) {
             text[i2] = 0;
         }
-        sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + (u16)id * 0x11);
+        sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
         func_002bbd80(*(s8 *)(p + 0xD), 0, text);
         func_002badc0(*(s8 *)(p + 0xD), 0x54);
         p[1] = 0xA9;
@@ -9228,7 +9238,7 @@ void func_0030c3c0(u8 *arg0) {
         *(s16 *)(p + 0x2D8) = func_002b2cb0(*(s16 *)(p + 0x2D8), 1, 0x14, 0, 1);
         if (*(s16 *)(p + 0x2D8) >= 0x14) {
             p[0xD] = func_002bab80((void *)func_00331660());
-            sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + (u16)id * 0x11);
+            sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
             func_002bbd80(*(s8 *)(p + 0xD), 1, text);
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
             func_002bbd80(*(s8 *)(p + 0xD), 0, text);
@@ -9237,9 +9247,9 @@ void func_0030c3c0(u8 *arg0) {
         }
         break;
     case 0xB5:
-        if (func_0011fcf0(*(s32 *)(p + 0x2A8)) == 1) {
-            func_00452080(*(s32 *)(p + 0x2A8));
-            *(s32 *)(p + 0x2A8) = 0;
+        if (func_0011fcf0(*(u8 **)(p + 0x2A8)) == 1) {
+            func_00452080((KwlnTask *)*(u8 **)(p + 0x2A8));
+            *(u8 **)(p + 0x2A8) = 0;
             func_0011ce30(func_003147d0(*(u8 **)(p + 0x148)));
             p[1] = 0xBF;
             for (j5 = 0; j5 < 6; j5++) {
@@ -9277,15 +9287,20 @@ void func_0030c3c0(u8 *arg0) {
             func_002bb550(*(s8 *)(p + 0xD));
             *(s16 *)(p + 0x2D8) = 0;
             p[1] = 0xB7;
-            if (func_0010ce10((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), *(u16 *)(p + 0x1C)) != -1) {
-                p[0xD] = func_002bab80((void *)func_00331660());
-                sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
-                func_002bbd80(*(s8 *)(p + 0xD), 0, text);
-                func_002badc0(*(s8 *)(p + 0xD), 0x52);
-                p[1] = 0xB4;
-            } else if ((s32)func_0010ceb0(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
-                p[1] = 0xB5;
-                *(s32 *)(p + 0x2A8) = func_0011fbc0(arg0, func_003147d0(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
+            e = func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
+            {
+                u16 selectedSkill;
+                selectedSkill = *(u16 *)(p + 0x1C);
+                if (func_0010ce10(e, selectedSkill) != -1) {
+                    p[0xD] = func_002bab80((void *)func_00331660());
+                    sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
+                    func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+                    func_002badc0(*(s8 *)(p + 0xD), 0x52);
+                    p[1] = 0xB4;
+                } else if ((s32)func_0010ceb0(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
+                    p[1] = 0xB5;
+                    *(u8 **)(p + 0x2A8) = func_0011fbc0((s32)arg0, func_003147d0(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
+                }
             }
         }
         break;
@@ -9327,7 +9342,13 @@ void func_0030c3c0(u8 *arg0) {
     case 0xB7:
         *(s16 *)(p + 0x2D8) = func_002b2cb0(*(s16 *)(p + 0x2D8), 1, 0x28, 0, 1);
         if (*(s16 *)(p + 0x2D8) == 0x14) {
-            func_0011cb70(func_003147d0(*(u8 **)(p + 0x148)), *(u16 *)(p + 0x1C));
+            {
+                u8 *personaTask;
+                u16 skill;
+                personaTask = func_003147d0(*(u8 **)(p + 0x148));
+                skill = *(u16 *)(p + 0x1C);
+                func_0011cb70(personaTask, skill);
+            }
             func_0011ce30(func_003147d0(*(u8 **)(p + 0x148)));
             func_0045af60(1, 3, 3, 2);
         } else if (*(s16 *)(p + 0x2D8) >= 0x28) {
@@ -9372,9 +9393,9 @@ void func_0030c3c0(u8 *arg0) {
         }
         *(s16 *)(p + 0x1C) = func_003040d0(arg0, ((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[4], *(s8 *)(p + 0x1F));
         item = *(u16 *)(p + 0x1C);
-        if (func_0010ce10((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), item) == -1) {
+        if (func_0010ce10((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
             p[0xD] = func_002bab80((void *)func_00331660());
-            sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + (u16)id * 0x11);
+            sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
             func_002bbd80(*(s8 *)(p + 0xD), 1, text);
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(item));
             func_002bbd80(*(s8 *)(p + 0xD), 0, text);
@@ -9382,9 +9403,9 @@ void func_0030c3c0(u8 *arg0) {
             kind = *(s8 *)(p + 0x1F);
             roll = func_002b2cb0(*(s8 *)(p + 0x1E), 1, 9, 0, 1);
             item = (u16)fclCombinePickItem(kind, roll);
-            if (func_0010ce10((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), item) == -1) {
+            if (func_0010ce10((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
                 p[0xD] = func_002bab80((void *)func_00331660());
-                sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + (u16)id * 0x11);
+                sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                 func_002bbd80(*(s8 *)(p + 0xD), 1, text);
                 sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(item));
                 func_002bbd80(*(s8 *)(p + 0xD), 0, text);
@@ -9393,9 +9414,9 @@ void func_0030c3c0(u8 *arg0) {
                 kind = *(s8 *)(p + 0x1F);
                 roll = func_002b2d00(*(s8 *)(p + 0x1E), 1, 0, 9, 1);
                 item = (u16)fclCombinePickItem(kind, roll);
-                if (func_0010ce10((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), item) == -1) {
+                if (func_0010ce10((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
                     p[0xD] = func_002bab80((void *)func_00331660());
-                    sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + (u16)id * 0x11);
+                    sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                     func_002bbd80(*(s8 *)(p + 0xD), 1, text);
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(item));
                     func_002bbd80(*(s8 *)(p + 0xD), 0, text);
@@ -9403,7 +9424,7 @@ void func_0030c3c0(u8 *arg0) {
                 } else {
                     p[0x20] = 1;
                     p[0xD] = func_002bab80((void *)func_00331660());
-                    sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + (u16)id * 0x11);
+                    sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                     func_002bbd80(*(s8 *)(p + 0xD), 1, text);
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
                     func_002bbd80(*(s8 *)(p + 0xD), 0, text);
@@ -9433,7 +9454,7 @@ void func_0030c3c0(u8 *arg0) {
                     p[0xD] = func_002bab80((void *)func_00331660());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
                     func_002bbd80(*(s8 *)(p + 0xD), 0, text);
-                    sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + (u16)id * 0x11);
+                    sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                     func_002bbd80(*(s8 *)(p + 0xD), 1, text);
                     func_002badc0(*(s8 *)(p + 0xD), 0x53);
                     p[1] = 0xAE;
@@ -9443,15 +9464,15 @@ void func_0030c3c0(u8 *arg0) {
                 *(s16 *)(p + 0x2D8) = 0;
                 if ((s32)func_0010ceb0(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
                     p[1] = 0xAF;
-                    *(s32 *)(p + 0x2A8) = func_0011fbc0(arg0, func_003147d0(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
+                    *(u8 **)(p + 0x2A8) = func_0011fbc0((s32)arg0, func_003147d0(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
                 }
             }
         }
         break;
     case 0xAF:
-        if (func_0011fcf0(*(s32 *)(p + 0x2A8)) == 1) {
-            func_00452080(*(s32 *)(p + 0x2A8));
-            *(s32 *)(p + 0x2A8) = 0;
+        if (func_0011fcf0(*(u8 **)(p + 0x2A8)) == 1) {
+            func_00452080((KwlnTask *)*(u8 **)(p + 0x2A8));
+            *(u8 **)(p + 0x2A8) = 0;
             func_0011ce30(func_003147d0(*(u8 **)(p + 0x148)));
             for (i13 = 0; i13 < *(s8 *)(p + 0x2DF); i13++) {
                 if (*(s8 *)(p + i13 + 0x2DA) > 0 && *(s8 *)(p + i13 + 0x2DA) < 7) {
@@ -9475,7 +9496,13 @@ void func_0030c3c0(u8 *arg0) {
     case 0xB1:
         *(s16 *)(p + 0x2D8) = func_002b2cb0(*(s16 *)(p + 0x2D8), 1, 0x28, 0, 1);
         if (*(s16 *)(p + 0x2D8) == 0xF) {
-            func_0011cb70(func_003147d0(*(u8 **)(p + 0x148)), *(u16 *)(p + 0x1C));
+            {
+                u8 *personaTask;
+                u16 skill;
+                personaTask = func_003147d0(*(u8 **)(p + 0x148));
+                skill = *(u16 *)(p + 0x1C);
+                func_0011cb70(personaTask, skill);
+            }
             func_0045af60(1, 3, 3, 2);
         }
         if (*(s16 *)(p + 0x2D8) >= 0x28) {
@@ -9526,7 +9553,7 @@ void func_0030c3c0(u8 *arg0) {
             func_002bbcf0(*(s8 *)(p + 0xD));
         } else if (func_002bb1c0(*(s8 *)(p + 0xD)) == 0) {
             func_002bb550(*(s8 *)(p + 0xD));
-            info = func_002e4960(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
+            func_002e4960((u8 *)&info, *(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
             *(s16 *)(p + 0x24) = func_00304410(info, *(s16 *)(p + 0x1C));
             *(s16 *)(p + 0x2D8) = 0;
             p[1] = 0xBA;
@@ -9538,7 +9565,13 @@ void func_0030c3c0(u8 *arg0) {
     case 0xBA:
         *(s16 *)(p + 0x2D8) = func_002b2cb0(*(s16 *)(p + 0x2D8), 1, 0x28, 0, 1);
         if (*(s16 *)(p + 0x2D8) == 0x14) {
-            func_0011cc00(func_003147d0(*(u8 **)(p + 0x148)), *(u16 *)(p + 0x1C), *(u16 *)(p + 0x24));
+            {
+                u8 *personaTask;
+                u16 originalSkill;
+                personaTask = func_003147d0(*(u8 **)(p + 0x148));
+                originalSkill = *(u16 *)(p + 0x1C);
+                func_0011cc00(personaTask, originalSkill, *(u16 *)(p + 0x24));
+            }
             func_0010cd70(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), *(s16 *)(p + 0x1C), *(u16 *)(p + 0x24));
             func_0045af60(1, 3, 3, 2);
         }
@@ -9562,14 +9595,14 @@ void func_0030c3c0(u8 *arg0) {
         break;
     case 0xBC:
         p[0xD] = func_002bab80((void *)func_00331660());
-        sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + (u16)id * 0x11);
+        sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
         func_002bbd80(*(s8 *)(p + 0xD), 0, text);
         func_002badc0(*(s8 *)(p + 0xD), 0x47);
         p[1] = 0xBE;
         break;
     case 0xBD:
         p[0xD] = func_002bab80((void *)func_00331660());
-        sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + (u16)id * 0x11);
+        sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
         func_002bbd80(*(s8 *)(p + 0xD), 0, text);
         func_002badc0(*(s8 *)(p + 0xD), 0x48);
         p[1] = 0xBE;
@@ -9609,10 +9642,6 @@ void func_0030c3c0(u8 *arg0) {
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030c3c0);
-#endif
-
 /* measured: MWCC b210 -O2, 348B / 352B window; executable bytes exact.
  * Halfword counters/bound and loop-invariant motion recover the narrowing.
  * Direct identifier comparisons let the compiler cache the masked key;
@@ -9710,7 +9739,7 @@ void func_0030f650(u8 *arg0) {
             }
             if (func_00105f50((u16)cls) > 0) {
                 if (func_00452490(*(s32 *)(p + 0x308)) != 0) {
-                    func_00452080(*(s32 *)(p + 0x308));
+                    func_00452080((KwlnTask *)(u32)*(s32 *)(p + 0x308));
                     *(s32 *)(p + 0x308) = 0;
                 }
             }
@@ -9739,7 +9768,7 @@ void func_0030f650(u8 *arg0) {
             break;
         }
         if (func_00452380(D_00641BB0) != 0) {
-            func_00452080(*(s32 *)(p + 0x304));
+            func_00452080((KwlnTask *)(u32)*(s32 *)(p + 0x304));
             *(s32 *)(p + 0x304) = 0;
         }
         if (func_00459760() == -1) {
@@ -9773,7 +9802,7 @@ void func_0030f650(u8 *arg0) {
         }
         func_0030f4f0(arg0, mats);
         if (*(s32 *)(p + 0x304) != 0) {
-            func_00452080(*(s32 *)(p + 0x304));
+            func_00452080((KwlnTask *)(u32)*(s32 *)(p + 0x304));
             *(s32 *)(p + 0x304) = 0;
         }
         func_002b68d0(0x84, 0, 0);

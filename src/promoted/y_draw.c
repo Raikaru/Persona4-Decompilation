@@ -1,5 +1,7 @@
+#include "fcl_scale_transition.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_draw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "fcl_animation_internal.h"
 #include "fcl_color.h"
 #include "fcl_row_draw.h"
 #include "type.h"
@@ -20,9 +22,7 @@ typedef struct {
 } f4;
 
 
-extern void func_002b82d0(u8 *arg0, u8 arg1, u32 arg2, u32 arg3, u32 arg4, s16 arg5);
 
-extern void func_002b8300(u8 *arg0, u32 arg1, u32 arg2, s16 arg3, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 
 extern void func_0048a000(void);
 
@@ -32,7 +32,6 @@ extern u8 *D_0076DB7C;
 
 extern void func_002b8270(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5);
 
-extern void func_002b8340(u8 *arg0, u8 arg1, s16 arg2, s16 arg3, f32 fparg0, f32 fparg1);
 
 extern void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5);
 
@@ -307,8 +306,9 @@ void func_002b6560(u8 *arg0) {
     jtbl_008873EC[0](p);
 }
 
-/* measured: func_002b6590 matches with a copied s16 loop index, a named s32
-   offset, and opt_common_subs off to rematerialize the two tail divisors. */
+/* Keep the component's byte color shared while rematerializing each
+ * dimension divisor after its provider call. The copied signed index and
+ * named word offset retain the component-address arithmetic. */
 #pragma push
 /* measured: opt_loop_invariants off preserves the retail loop's per-iteration
    index-extension and issue order. */
@@ -318,9 +318,8 @@ void func_002b6560(u8 *arg0) {
 #pragma opt_propagation off
 /* measured: schedule off preserves the retail loop and call issue order. */
 #pragma schedule off
-/* measured: opt_common_subs off rematerializes the 2.0f divisor after each
-   tail helper call instead of saving it in an FPR. */
-#pragma opt_common_subs off
+/* Keep dimension constants local to their queries. */
+#pragma opt_pulloutconstants off
 // FUN_002B6590
 s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
     s32 result;
@@ -328,7 +327,7 @@ s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
     s16 i;
     s16 j;
     s32 off;
-    u32 ff;
+    const u8 ff = 0xFF;
     f2 pos;
     u4 color;
     u8 *q;
@@ -351,7 +350,6 @@ s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
         zero = 0.0f;
         pos = func_002b2970(zero, zero);
         *(f2 *)((u8 *)((s32)p + off * 8) + 0x28) = pos;
-        ff = 0xFF;
         *(u8 *)((s32)p + off + 0x6C) = ff;
         q = (u8 *)((s32)p + off * 4);
         *(s32 *)(q + 0xC8) = 0;
@@ -482,7 +480,7 @@ void func_002b69f0(s16 arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
 /* measured: close opt_propagation scope after func_002b69f0. */
 #pragma opt_propagation on
 // FUN_002B6A40
-void func_002b6a40(u8 *arg0, u8 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
+void func_002b6a40(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5) {
     u8 *base = *(u8 **)(arg0 + 0x38);
     s16 ext = (s16)arg5;
     func_002b82d0(base + 0x10, arg1, arg2, arg3, arg4, ext);
@@ -502,7 +500,7 @@ void func_002b6a40(u8 *arg0, u8 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
 // FUN_002B6A70
 /* measured: open opt_propagation scope for func_002b6a70. */
 #pragma opt_propagation off
-void func_002b6a70(s16 arg0, u8 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
+void func_002b6a70(s16 arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
     func_002b82d0(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, arg3, arg4, (s16)arg5);
 }
@@ -512,7 +510,7 @@ void func_002b6a70(s16 arg0, u8 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
 void func_002b6ac0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s32 arg3) {
     u8 *base = *(u8 **)(arg0 + 0x38);
     s16 ext = (s16)arg3;
-    func_002b8300(base + 0x10, arg1, arg2, ext, fparg0, fparg1, fparg2, fparg3);
+    func_002b8300(base + 0x10, fparg0, fparg1, fparg2, fparg3, arg1, arg2, ext);
 }
 
 /* measured: retail issues both indirections up front (lw gp, then lw 0x38) before touching
@@ -528,9 +526,9 @@ void func_002b6ac0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32
    s32 and passed as (s16)arg3 (s16 widening emits the retail sign-extension). */
 // FUN_002B6AF0
 #pragma opt_propagation off
-void func_002b6af0(s16 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s32 arg3) {
+void func_002b6af0(s16 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s16 arg3) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
-    func_002b8300(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, (s16)arg3, fparg0, fparg1, fparg2, fparg3);
+    func_002b8300(base + ((s32)arg0 * 256) + 0x14, fparg0, fparg1, fparg2, fparg3, arg1, arg2, (s16)arg3);
 }
 /* measured: close opt_propagation scope after func_002b6af0. */
 #pragma opt_propagation on
@@ -538,7 +536,7 @@ void func_002b6af0(s16 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32
    as (s16)arg3 (s16 widening = retail's dsll32/dsra32 sign-ext). */
 // FUN_002B6B40
 #pragma opt_propagation off
-void func_002b6b40(s16 arg0, u8 arg1, s16 arg2, s32 arg3, f32 fparg0, f32 fparg1) {
+void func_002b6b40(s16 arg0, u8 arg1, s32 arg2, s32 arg3, f32 fparg0, f32 fparg1) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
     func_002b8340(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, (s16)arg3, fparg0, fparg1);
 }
@@ -798,7 +796,7 @@ u8 *func_002b74f0(s32 arg0, s32 arg1) {
     s16 index;
     f2 position;
     u4 color;
-    u32 alpha;
+    const u8 alpha = 0xFF;
     f32 unitScale;
     f32 zero;
 
@@ -819,7 +817,6 @@ u8 *func_002b74f0(s32 arg0, s32 arg1) {
             position = func_002b2970(zero, zero);
             *(f2 *)((u8 *)(entryOffset + (s32)entries) + componentOffset * 8 + 0x2C) = position;
             entry = *(u8 **)(iGpffffb574 + 0x38);
-            alpha = 0xFF;
             *(u8 *)((u8 *)(entryOffset + (s32)entry) + componentOffset + 0x70) = alpha;
             entry = *(u8 **)(iGpffffb574 + 0x38);
             componentOffset = componentOffset * 4;
@@ -870,78 +867,123 @@ void func_002b7750(s16 arg0, s16 arg1) {
 }
 /* measured: opt_propagation off is required for the byte-exact 7750 reset sequence. */
 #pragma opt_propagation on
-/* measured 002b77d0 (banked two-branch honest body: s16 index + f2 p1 + s16/s32/s8/s16/s16 + f32 + s16/u32 stack, then/else sharing the 6c30 prefix + 82d0/8300/2970/8270 extras, fGpffff8504 float): measure_guarded 280 words obj 1300B/window 1280B; fnalign --candidate 187 edits (+10 reloc-only), retail 320 vs object 325 instrs; opclass dsll32/dsra32 +3 addu +3 surplus with swc1/lwc1 -4 move -3 shortfall. Earliest hunk is prologue allocation: retail holds 7 saved, mwcc takes an 8th (s7 for the s8 flag) shifting spills sd a1 0x90->0xA8 / sw a3 0x9C->0xB4 and colouring t1/t2/t3 s7/s1/s5; scoping off+tmp per-branch re-measured identical 280. Param-vs-surviving-local floor, same family as 001441e0's standing s1/s2 colour walls. Production stays ASM. */
-/* 2026-09-28 finding (not yet converted): both arms are inline expansions of
-   the small wrappers defined above.  Else arm = func_002b7750(arg0, arg1) (the
-   0x8/0x14/0x4B/0x77/0xB7/0xDF reset), then func_002b6c30(arg0, p1, fparg0,
-   arg3) in both arms (flags |= 1, 0x18/0xC/0x3C stores and the 0x10/0x12
-   half-size pair), func_002b6a70 / func_002b6af0 / func_002b69f0 for the
-   0x82D0/0x8300/0x8270 calls, and an f2 temp per arm.  mwcc only inlines a
-   plain function whose definition was compiled under `#pragma auto_inline on`
-   (measured in isolation: the pragma at the callee's definition is what
-   counts, at the caller it does nothing).  Wrapping those five definitions in
-   auto_inline on/off and writing the arms as calls, with `opt_propagation off`
-   at 77d0, inlined all five (object 315 vs retail 319 instructions, 281 -> 215
-   words); the stack homes then differ by 8 bytes (retail p1 at 0x90 with four
-   f2 slots at 0xA0-0xB8).  The wrappers have no other caller in this unit, so
-   the pragma does not change any matched function. */
-// FUN_002B77D0 NONMATCHING
-#ifdef NON_MATCHING
+/* 1280-byte retail row transition.
+ * Capture each table before the associated provider or conversion.
+ * Preserve the constructor result and outgoing position in each branch.
+ * The scoped propagation and constant controls retain those real copies
+ * and the independently materialized dimension divisors. */
+#pragma push
+#pragma opt_propagation off
+#pragma opt_pulloutconstants off
+/* Preserve both components of the outgoing position value. */
+static inline void fclCopyTransitionPosition(f2 *destination, const f2 *source)
+{
+    f32 y, x;
+    x = source->x;
+    y = source->y;
+    destination->x = x;
+    destination->y = y;
+}
+
+typedef struct YDrawTransitionFlags {
+    u8 unknown00[0x4B];
+    u8 positionFlag;
+    u8 unknown4C[0x2B];
+    u8 alphaFlag;
+    u8 unknown78[0x3F];
+    u8 scaleFlag;
+    u8 unknownB8[0x27];
+    u8 valueFlag;
+} YDrawTransitionFlags;
+
+/* Submit the actual initial and target opacity values in row order. */
+static inline void fclRevealOpacity(u8 *work, const FclDrawColor *color)
+{
+    u8 initialAlpha = 0;
+    u32 targetAlpha = color->c3;
+    func_002b82d0(work, initialAlpha, targetAlpha, 0, 0, 0);
+}
+
+// FUN_002B77D0
 void func_002b77d0(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fparg0, s16 arg3, s8 arg4, s16 arg5, s16 arg6, s16 arg7, u32 arg8) {
     u8 *first;
-    f2 tmpS;
-    f2 outS;
+    s32 off;
+    f2 hideConstructed;
+    f2 showConstructed;
+    f2 hidePosition;
+    f2 showPosition;
     first = func_0046d200(arg8, (s32)arg1);
     if ((s32)arg4 == 1) {
-        s32 off;
         u8 *tmp;
-        off = ((s32)arg0) << 8;
-        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14) |= 1;
+        u8 *dimensionRows;
+        u8 *base;
+        u8 *orderRows;
+        u8 *animationRows;
+        s32 delay;
+        s32 duration;
+        base = *(u8 **)(iGpffffb574 + 0x38);
+        off = (s32)arg0 * 256;
+        *(s16 *)(base + off + 0x14) |= 1;
         *(f32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x18) = fparg0;
-        *(s32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x0C) = (s32)arg3;
+        orderRows = *(u8 **)(iGpffffb574 + 0x38);
+        *(s32 *)(orderRows + off + 0x0C) = (s32)arg3;
         *(f2 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x3C) = p1;
-        tmp = func_0046d200(*(u32 *)(*(u8 **)(iGpffffb574 + 0x38)), *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
-        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x10) = (s16)(func_0046b260(tmp) / 2.0f);
-        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x12) = (s16)(func_0046b2f0(tmp) / 2.0f);
+        tmp = func_0046d200(*(u32 *)base, *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
+        dimensionRows = *(u8 **)(iGpffffb574 + 0x38);
+        *(s16 *)(dimensionRows + off + 0x10) = (s16)(func_0046b260(tmp) / 2.0f);
+        dimensionRows = *(u8 **)(iGpffffb574 + 0x38);
+        *(s16 *)(dimensionRows + off + 0x12) = (s16)(func_0046b2f0(tmp) / 2.0f);
         func_0046d280(tmp);
-        func_002b82d0(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x72), 0, 0, 0, (s16)(arg6 + arg7));
-        func_002b8300(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 0, (u32)arg6, arg7, 1.0f, 1.0f, 1.0f, fGpffff8504);
-        tmpS = func_002b2970(p1.x, p1.y + func_0046b2f0(first) / 2.0f);
-        outS = tmpS;
-        func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, p1, outS, 0, (s32)arg6, (s32)arg7);
+        animationRows = *(u8 **)(iGpffffb574 + 0x38);
+        delay = (s32)arg7;
+        duration = (s32)arg6;
+        func_002b82d0(animationRows + off + 0x14, *(animationRows + off + 0x72), 0, 0, 0, (s16)(duration + delay));
+        func_002b8300(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 1.0f, 1.0f, 1.0f, fGpffff8504, 0, (u32)duration, delay);
+        hideConstructed = func_002b2970(p1.x, p1.y + func_0046b2f0(first) / 2.0f);
+        fclCopyTransitionPosition(&hidePosition, &hideConstructed);
+        func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, p1, hidePosition, 0, duration, delay);
     } else {
-        s32 off;
         u8 *tmp;
-        off = ((s32)arg0) << 8;
-        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8) = arg1;
+        u8 *dimensionRows;
+        u8 *base;
+        u8 *orderRows;
+        u8 *animationRows;
+        s32 delay;
+        s32 duration;
+        base = *(u8 **)(iGpffffb574 + 0x38);
+        off = (s32)arg0 * 256;
+        *(s16 *)(base + off + 8) = arg1;
         *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14) = 0;
-        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x4B) = 0;
-        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x77) = 0;
-        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0xB7) = 0;
-        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0xDF) = 0;
-        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14) |= 1;
+        ((YDrawTransitionFlags *)(*(u8 **)(iGpffffb574 + 0x38) + off))->positionFlag = 0;
+        ((YDrawTransitionFlags *)(*(u8 **)(iGpffffb574 + 0x38) + off))->alphaFlag = 0;
+        ((YDrawTransitionFlags *)(*(u8 **)(iGpffffb574 + 0x38) + off))->scaleFlag = 0;
+        ((YDrawTransitionFlags *)(*(u8 **)(iGpffffb574 + 0x38) + off))->valueFlag = 0;
+        base = *(u8 **)(iGpffffb574 + 0x38);
+        *(s16 *)(base + off + 0x14) |= 1;
         *(f32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x18) = fparg0;
-        *(s32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x0C) = (s32)arg3;
+        orderRows = *(u8 **)(iGpffffb574 + 0x38);
+        *(s32 *)(orderRows + off + 0x0C) = (s32)arg3;
         *(f2 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x3C) = p1;
-        tmp = func_0046d200(*(u32 *)(*(u8 **)(iGpffffb574 + 0x38)), *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
-        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x10) = (s16)(func_0046b260(tmp) / 2.0f);
-        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x12) = (s16)(func_0046b2f0(tmp) / 2.0f);
+        tmp = func_0046d200(*(u32 *)base, *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
+        dimensionRows = *(u8 **)(iGpffffb574 + 0x38);
+        *(s16 *)(dimensionRows + off + 0x10) = (s16)(func_0046b260(tmp) / 2.0f);
+        dimensionRows = *(u8 **)(iGpffffb574 + 0x38);
+        *(s16 *)(dimensionRows + off + 0x12) = (s16)(func_0046b2f0(tmp) / 2.0f);
         func_0046d280(tmp);
-        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x89) = ((u8 *)&arg2)[0];
-        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x8A) = ((u8 *)&arg2)[1];
-        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x8B) = ((u8 *)&arg2)[2];
-        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x8C) = ((u8 *)&arg2)[3];
-        func_002b82d0(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 0, ((u8 *)&arg2)[3], 0, 0, 0);
-        func_002b8300(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 0, (u32)arg5, arg7, 1.0f, 1.0f, fGpffff8504, 1.0f);
-        tmpS = func_002b2970(p1.x, p1.y + func_0046b2f0(first) / 2.0f);
-        outS = tmpS;
-        func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, outS, p1, 0, (s32)arg5, (s32)arg7);
+        *(FclDrawColor *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x89) = arg2;
+        fclRevealOpacity(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, &arg2);
+        animationRows = *(u8 **)(iGpffffb574 + 0x38);
+        delay = (s32)arg7;
+        duration = (s32)arg5;
+        func_002b8300(animationRows + off + 0x14, 1.0f, 1.0f, fGpffff8504, 1.0f, 0, (u32)duration, delay);
+        showConstructed = func_002b2970(p1.x, p1.y + func_0046b2f0(first) / 2.0f);
+        fclCopyTransitionPosition(&showPosition, &showConstructed);
+        func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, showPosition, p1, 0, duration, delay);
     }
     func_0046d280(first);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b77d0);
-#endif
+
+#pragma pop
 
 /* 580/592 bytes; 10 resolved relocations; 12 zero alignment bytes.
  * The selected-state join retains both signed-index extensions. */
@@ -1157,19 +1199,19 @@ void func_002b8270(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5) {
 }
 
 // FUN_002B82D0
-void func_002b82d0(u8 *arg0, u8 arg1, u32 arg2, u32 arg3, u32 arg4, s16 arg5) {
+void func_002b82d0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5) {
     arg0[0x5C] = arg1;
     arg0[0x5D] = arg2;
     arg0[0x5E] = arg1;
     *(s16 *)(arg0 + 0x5A) = 0;
-    *(s16 *)(arg0 + 0x58) = arg4;
-    *(s16 *)(arg0 + 0x60) = arg5;
+    *(s16 *)(arg0 + 0x58) = (s16)arg4;
+    *(s16 *)(arg0 + 0x60) = (s16)arg5;
     arg0[0x62] = arg3;
     *(s16 *)(arg0 + 0x0) |= 4;
 }
 
 // FUN_002B8300
-void func_002b8300(u8 *arg0, u32 arg1, u32 arg2, s16 arg3, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
+void func_002b8300(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s32 arg3) {
     *(f32 *)(arg0 + 0x88) = fparg0;
     *(f32 *)(arg0 + 0x8C) = fparg1;
     *(f32 *)(arg0 + 0x90) = fparg0;
@@ -1178,13 +1220,13 @@ void func_002b8300(u8 *arg0, u32 arg1, u32 arg2, s16 arg3, f32 fparg0, f32 fparg
     *(f32 *)(arg0 + 0x9C) = fparg2;
     *(s16 *)(arg0 + 0x84) = 0;
     *(s16 *)(arg0 + 0x82) = arg2;
-    *(s16 *)(arg0 + 0xA0) = arg3;
+    *(s16 *)(arg0 + 0xA0) = (s16)arg3;
     arg0[0xA2] = arg1;
     *(s16 *)(arg0 + 0x0) |= 0x10;
 }
 
 // FUN_002B8340
-void func_002b8340(u8 *arg0, u8 arg1, s16 arg2, s16 arg3, f32 fparg0, f32 fparg1) {
+void func_002b8340(u8 *arg0, u8 arg1, s32 arg2, s16 arg3, f32 fparg0, f32 fparg1) {
     *(f32 *)(arg0 + 0xB8) = fparg0;
     *(f32 *)(arg0 + 0xBC) = fparg1;
     *(f32 *)(arg0 + 0xC0) = fparg0;

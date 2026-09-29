@@ -1,4 +1,3 @@
-#define FCL_COLOR_ARG u8
 #include "fcl_color.h"
 #include "include_asm.h"
 #include "fcl_combine_internal.h"
