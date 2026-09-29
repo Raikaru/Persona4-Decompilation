@@ -89,8 +89,8 @@ extern s32 func_00249180(s32 arg0);
 extern void func_002784e0(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00246c90(s32 arg0);
 extern s32 func_00246d50(s32 arg0);
-extern s32 func_001060c0(void);
-extern s8 func_00110960(s32 arg0, s32 arg1);
+extern u8 func_001060c0(void);
+extern s64 func_00110960(s32 arg0, u32 arg1);
 extern s32 datGetFlag(s32 arg0);
 extern u32 RpRandom(void);
 
@@ -147,8 +147,8 @@ extern s32 D_00635A40[];
 extern s32 D_00635A60[];
 extern s32 D_00635BA8[];
 extern u8* func_00285af0(void);
-extern void func_001104d0(s32 arg0, void* arg1, void* arg2);
-extern u8* func_00246e10(u16 arg0);
+extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
+extern s32 func_00246e10(s32 arg0);
 extern s32 func_00104c70(s32 arg0);
 extern s32 func_00247900(s32 arg0, s32 arg1, s32 arg2);
 
@@ -1022,121 +1022,87 @@ s32 func_0024bb00(s32 arg0) {
 }
 /* measured: restore the translation-unit optimization level after func_0024bb00. */
 #pragma optimization_level 2
-/* Floor (re-measured 2026-09-17): probe_variants 8 reloc-masked differing */
-/* words; fnalign retail 168 instrs / object 168 instrs, 8 edits plus 4 */
-/* reloc-only (168*4 = 672B = window, exact size, no tail). Residual is a */
-/* single $s0/$s2 saved-register swap (found-pointer against the second-loop */
-/* counter); the instruction stream is otherwise retail's with no inserts or */
-/* deletes. Declaration order is the archive's best of 250 permutations */
-/* (docs/probe_archive/WSCR2_0024be40_body.c, banked verbatim below); the */
-/* eight documented pragmas and the slti-<= spellings stay worse on top of */
-/* it (both/j-only/i-only <=5 forms give 23/10/21 words). Pairs 2026-09-17 */
-/* (`tools/pragma_sweep.py --pairs`, 8 singles + 28 pairs, banked 8): ties */
-/* at 8 among loopinv/prop/strength/unroll + 6 pairs among them; cse_off 14, */
-/* dead 75, peephole 138, sched 141. No pair beats the singles; floor stands. */
-/* Semantic gate: the */
-/* block-scope s32(s32) for func_00246e10 matches the MATCHED provider */
-/* src/cmmMisc.c:294; the file-scope u8*(u16) is retained untouched for the */
-/* other caller func_00250940. K&R void* for func_00452560 ties the */
-/* prototyped u32(void*)/void*(void*) spellings at 8 words (measured */
-/* 2026-09-17) and follows this file's bare-call idiom; production stays */
-/* ASM. */
-/* 2026-09-18 lead pass, 4 more measured variants on top of the permuter's
-   14160 compiles; floor confirmed at 8 words.  168/168 instructions and the
-   whole residual is one saved-register swap: retail allocates the second
-   loop counter to $s0 and the `found` pointer to $s2, this body has them the
-   other way round, and the eight differing words are the eight instructions
-   that name them.
-   Declaration order does not drive it.  Moving `i` above `found` ties at 8,
-   `&base[index * 6]` instead of `base + index * 6` ties at 8, moving `found`
-   to the end of the declaration list costs 8 -> 13, and hoisting `i` to the
-   top of the function costs 8 -> 20.  Retail keeps `base` live past the
-   `found` assignment and this body does not, which is what frees the lower
-   register for the counter there and not here; no source shape tried
-   reproduces that without changing the stream. */
-/* 2026-09-18, handoff 7o re-probe by a dedicated worker; floor stands at 8.
-   168/168 instructions, 672/672 bytes, and the pair is $s0/$s2: retail holds
-   the second loop's counter in $s0 and the found-pointer in $s2, this body
-   the other way round.  All eight 7o variants measured - bare declarations
-   in retail computation order at function scope 8 (tie), reversed order 76,
-   found-pointer at block scope 11 / 79, counter at block scope 13 / 81, both
-   at block scope 16 / 84.  Every reversal of the assignment order is a large
-   regression, so the order this body already uses is retail's. */
-/* 2026-09-19 verbatim residual, masked 8 (raw 12/25, 168/168 exact, frame */
-/* both addiu $sp,$sp,-0x60): object vs retail, all $s0<->$s2, same targets: */
-/* off 196: object addu $s0,$s0,$v0 vs retail addu $s2,$s0,$v0; */
-/* off 236: object addu $v0,$s0,$s1 vs retail addu $v0,$s2,$s1; */
-/* off 480: object move $s2,$zero vs retail move $s0,$zero; */
-/* off 492: object bnez $s2,0x24c048 vs retail bnez $s0,0x24c048 (same target); */
-/* off 520: object addu $v0,$s0,$s2 vs retail addu $v0,$s2,$s0; */
-/* off 544: object move $s3,$s2 vs retail move $s3,$s0; */
-/* off 556: object addiu $s2,$s2,1 vs retail addiu $s0,$s0,1; */
-/* off 560: object slti $v0,$s2,6 vs retail slti $v0,$s0,6. */
-/* No immediate/branch-offset/nop diff; jal equal, lui/addiu 4 reloc-only. */
+/* The month provider advances by 72 bytes: four rows of six signed weather
+   weights precede four 12-byte attributes (also read by func_00250940).
+   Measured 2026-09-28 with the actual calendar/provider contracts: 672 bytes,
+   eight differing words. The selected row and second counter still exchange
+   $s0/$s2. Both flag queries stay in their original loops; the guard remains.
+   Receipts: build/cos20814/resume-scalar15/cmmScript/reviewable-weather-guard. */
 // FUN_0024BE40 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0024be40(void)
 {
+    typedef struct CmmWeatherRow { s8 weight[6]; } CmmWeatherRow;
+    typedef struct CmmMonthAttribute {
+        u16 first;
+        u16 second;
+        s32 third;
+        s32 fourth;
+    } CmmMonthAttribute;
+    typedef struct CmmMonthProfile {
+        CmmWeatherRow weather[4];
+        CmmMonthAttribute attributes[4];
+    } CmmMonthProfile;
     s32 month;
-    extern s32 func_00246e10(s32 arg0);
-    s32 sum;
-    u8* work;
-    s32 j;
-    f32 random_f;
-    u8* found;
-    s32 i;
+    s32 result;
+    u8 *weatherWork;
+    s32 weightIndex;
+    f32 randomValue;
+    CmmWeatherRow *weights;
+    s32 isHoliday;
+    s32 choiceIndex;
     s32 day;
-    f32 product;
-    s32 index;
-    u8* base;
-    s32 sum2;
-    f32 sum_f;
+    f32 threshold;
+    s32 category;
+    CmmMonthProfile *profile;
+    s32 cumulativeWeight;
+    f32 totalWeight;
 
-    found = 0;
-    index = 0;
+    isHoliday = 0;
+    category = 0;
     func_001104d0(func_001060b0(), &month, &day);
-    base = (u8*)func_00246e10((u16)month);
+    profile = (CmmMonthProfile *)func_00246e10((u16)month);
     if ((func_001060c0() & 0xFF) == 5) {
-        index = 2;
+        category = 2;
     }
     if ((s8)func_00110960(func_001060b0(), func_001060c0() & 0xFF) == 1) {
-        found = (u8*)1;
+        isHoliday = 1;
     }
-    index = index + (s32)found;
-    sum = 0;
-    j = 0;
+    category = category + isHoliday;
+    result = 0;
+    weightIndex = 0;
     {
-        found = base + index * 6;
-        while (j < 6) {
-            if ((j != 0) || (datGetFlag(2703) != 0)) {
-                sum += *(s8*)(found + j);
+        weights = &profile->weather[category];
+        while (weightIndex < 6) {
+            if ((weightIndex != 0) || (datGetFlag(2703) != 0)) {
+                result += weights->weight[weightIndex];
             }
-            j++;
+            weightIndex++;
         }
-        random_f = (f32)(u32)RpRandom();
-        random_f /= 2147483648.0f;
-        sum_f = (f32)(u32)sum;
-        product = sum_f * random_f;
-        sum = (u32)product;
-        sum2 = 0;
-        i = 0;
-        while (i < 6) {
-            if ((i != 0) || (datGetFlag(2703) != 0)) {
-                sum2 += *(s8*)(found + i);
-                if ((s32)sum < (s32)sum2) {
-                    sum = i;
+        randomValue = (f32)(u32)RpRandom();
+        randomValue /= 2147483648.0f;
+        totalWeight = (f32)(u32)result;
+        threshold = totalWeight * randomValue;
+        result = (u32)threshold;
+        cumulativeWeight = 0;
+        choiceIndex = 0;
+        while (choiceIndex < 6) {
+            if ((choiceIndex != 0) || (datGetFlag(2703) != 0)) {
+                cumulativeWeight += weights->weight[choiceIndex];
+                if ((s32)result < (s32)cumulativeWeight) {
+                    result = choiceIndex;
                     break;
                 }
             }
-            i++;
+            choiceIndex++;
         }
     }
-    work = (u8*)(u32)(s32)func_00452560((void *)(u32)((void*)(u32)(s32)func_00452380((s8 *)((s8*)D_00635A78))));
-    if (work == 0) {
+    weatherWork = (u8 *)func_00452560(func_00452380((s8 *)D_00635A78));
+    if (weatherWork == 0) {
         func_0046d730(D_006359F0, 1041);
     }
-    *(s32*)(work + 32) = sum;
-    return sum;
+    *(s32 *)(weatherWork + 0x20) = result;
+    return result;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024be40);
@@ -2365,7 +2331,7 @@ s32 func_00250940(void)
     a = func_0029cc00(0);
     b = func_0029cc00(1);
     func_001104d0(func_001060b0(), &out1, &out2);
-    p = func_00246e10(*(u16*)&out1);
+    p = (u8 *)func_00246e10((u16)out1);
     if (p == 0) {
         func_0046d730(D_006359F0, 0x8B8);
     }

@@ -1,6 +1,7 @@
 /* Source unit: src/Battle/btlMain_001b5e60.c */
 #include "include_asm.h"
 #include "type.h"
+#include "btl_packet_create_internal.h"
 
 typedef struct BtlMain BtlMain;
 struct BtlMain
@@ -1069,7 +1070,7 @@ u32 func_001b99f0(void *work)
 }
 #pragma pop
 // FUN_001B9DE0
-void func_001b9de0(s32 arg1, s16 arg2, s32 arg3)
+BtlPacket* func_001b9de0(struct BtlAction *action, u32 selector, u32 duration)
 {
     BtlPacket* packet;
     u8* work;
@@ -1077,10 +1078,11 @@ void func_001b9de0(s32 arg1, s16 arg2, s32 arg3)
     packet = func_00194470(0x606, 0x10);
     packet->updateFunc = func_001b99f0;
     work = (u8*)packet->workData;
-    *(s32*)(work + 0) = arg1;
-    *(s32*)(work + 4) = arg3;
-    *(s16*)(work + 0xc) = arg2;
+    *(struct BtlAction**)(work + 0) = action;
+    *(u32*)(work + 4) = duration;
+    *(u16*)(work + 0xc) = (u16)selector;
     *(s32*)(work + 8) = 0;
+    return packet;
 }
 
 

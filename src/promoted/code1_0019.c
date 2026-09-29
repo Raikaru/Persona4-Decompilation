@@ -4,6 +4,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "btl_packet_create_internal.h"
 #include "btl_skill_internal.h"
 typedef struct RwV3d {
     f32 x;
@@ -121,7 +122,6 @@ extern f32 fGpffff82d8;
 extern f32 fGpffff82d4;
 extern f32 fGpffff80f0;
 extern f32 fGpffff82dc;
-extern f32 func_00196bd0(u8 *arg0, u8 *arg1, u8 *arg2);
 extern f32 func_0044b950(f32 x, f32 y);
 extern f32 fGpffff8048;
 extern void func_003dc740(void *dst, const void *src, s32 mode, f32 angle);
@@ -1683,7 +1683,7 @@ void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, f32 *arg4, f32 *arg5,
     } else {
         func_00195aa0(arg2, arg1, origin);
         a3 = arg3;
-        dist = func_00196bd0(arg0, arg2, (u8 *)a3);
+        dist = func_00196bd0(arg0, arg2, a3);
         dist = dist + 50.0f;
         func_001ec1c0(rot, arg1 + 4, origin);
         RtQuatTransformVectors(tmp, &D_0060A100, 1, rot);
@@ -1736,7 +1736,7 @@ void func_00195710(u8 *arg0)
 }
 
 // FUN_00195730
-void func_00195730(s32 arg0, u8 *arg1, u8 *arg2, u8 *arg3)
+u8 *func_00195730(u8 *unit, u8 *position, u8 *rotation, u8 *color)
 {
     u8 *packet;
     u8 *work;
@@ -1746,20 +1746,21 @@ void func_00195730(s32 arg0, u8 *arg1, u8 *arg2, u8 *arg3)
     *(void (**)(u8 *))(packet + 0x6C) = func_00195630;
     *(void (**)(u8 *))(packet + 0x70) = func_00195710;
     work = *(u8 **)(packet + 0x78);
-    *(s32 *)work = arg0;
+    *(u8 **)work = unit;
     *(u16 *)(work + 0x24) = 0;
-    if (arg1 != NULL) {
-        *(P4_95730_Vec3 *)(work + 4) = *(P4_95730_Vec3 *)arg1;
+    if (position != NULL) {
+        *(P4_95730_Vec3 *)(work + 4) = *(P4_95730_Vec3 *)position;
         *(u16 *)(work + 0x24) |= 1;
     }
-    if (arg2 != NULL) {
-        *(P4_95730_Vec4 *)(work + 0x10) = *(P4_95730_Vec4 *)arg2;
+    if (rotation != NULL) {
+        *(P4_95730_Vec4 *)(work + 0x10) = *(P4_95730_Vec4 *)rotation;
         *(u16 *)(work + 0x24) |= 2;
     }
-    if (arg3 != NULL) {
-        *(P4_95730_Bytes4 *)(work + 0x20) = *(P4_95730_Bytes4 *)arg3;
+    if (color != NULL) {
+        *(P4_95730_Bytes4 *)(work + 0x20) = *(P4_95730_Bytes4 *)color;
         *(u16 *)(work + 0x24) |= 4;
     }
+    return packet;
 }
 // FUN_00196B70
 void func_00196b70(u8 *arg0) {
@@ -1772,29 +1773,29 @@ void func_00196ba0(u8 *arg0) {
     *(u16 *)(arg0 + 0xC8) &= ~2;
 }
 // FUN_00196BD0
-f32 func_00196bd0(u8 *arg0, u8 *arg1, u8 *arg2)
+f32 func_00196bd0(u8 *unit, u8 *target, s32 motion)
 {
     f32 temp_f20;
     f32 temp_f0;
     u8 *table;
     s32 temp_4;
 
-    temp_4 = (s16)func_001990d0(arg0, (s32)arg2);
-    if (temp_4 < (s32)*(u16 *)(arg0 + 0x9E4)) {
-        table = *(u8 **)(arg0 + 0x9F8);
-        temp_f20 = *(f32 *)(arg0 + 0x2C) *
+    temp_4 = (s16)func_001990d0(unit, motion);
+    if (temp_4 < (s32)*(u16 *)(unit + 0x9E4)) {
+        table = *(u8 **)(unit + 0x9F8);
+        temp_f20 = *(f32 *)(unit + 0x2C) *
                    (f32)*(s16 *)((u8 *)p4_base_add_00194590(
                        temp_4 * 0xA, (s32)(table, table)) + 6);
-        temp_f0 = func_0022cf00(arg0, arg1, (s32)arg2);
+        temp_f0 = func_0022cf00(unit, target, motion);
         if (!(temp_f0 < 0.0f)) {
             temp_f20 += temp_f0;
             goto add_base_00196bd0;
         }
-        temp_f20 += *(f32 *)(arg1 + 0x90) * *(f32 *)(arg1 + 0x2C);
-        temp_f20 += *(f32 *)(arg1 + 0x88) * *(f32 *)(arg1 + 0x2C);
+        temp_f20 += *(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C);
+        temp_f20 += *(f32 *)(target + 0x88) * *(f32 *)(target + 0x2C);
 add_base_00196bd0:
-        temp_f20 += *(f32 *)(arg0 + 0x88) *
-                    *(f32 *)(arg0 + 0x2C);
+        temp_f20 += *(f32 *)(unit + 0x88) *
+                    *(f32 *)(unit + 0x2C);
     } else {
         temp_f20 = 0.0f;
     }

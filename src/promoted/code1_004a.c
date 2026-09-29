@@ -25,7 +25,7 @@ extern u8 *func_004a5630(u16 arg0, u8 *arg1);
 extern u8 D_0071413C[];
 extern void func_00492dd0();
 extern void func_00492e10();
-extern void func_00492e30();
+extern void func_00492e30(u16 *emitter, f32 scale);
 extern s32 func_004814d0(u16 arg0);
 extern void func_004ad030();
 extern void func_004adb50();
@@ -1079,12 +1079,14 @@ void func_004a77b0(void) {
    7-word body: declaration order of the float locals, separate `mag`, inlining the abs into the
    compare, `*p` instead of a cached load, if/else polarity, named zero, static-inline abs wrapper,
    all cheap pragmas (sweep again 2026-09-28, best stays 7). */
+/* measured 2026-09-28: 532/544B, seven FPU-register words remain.
+ * All sixteen relocations resolve, including the 0.6f pair and the 0.01f
+ * literal at 0x007611E0. The output scale at 0x007641FC is mutable. */
 // FUN_004A7830 NONMATCHING
 #ifdef NON_MATCHING
 void func_004a7830(void)
 {
     extern f32 fabsf(f32 arg0);
-    extern f32 fGpffff80f0;
     f32 delta[2];
     f32 initial[2] = {0.6f, 0.6f};
     f32 vec[3];
@@ -1102,8 +1104,8 @@ void func_004a7830(void)
         return;
     }
     *(u8 *)&D_00724C58 = 0;
-    delta[0] = fGpffff80f0 * fGpffffbb70;
-    delta[1] = fGpffff80f0 * fGpffffbb74;
+    delta[0] = 0.01f * fGpffffbb70;
+    delta[1] = 0.01f * fGpffffbb74;
     for (idx = 0; idx < 2; idx++) {
         temp_17 = idx * 4;
         temp_f20 = delta[idx];
@@ -1143,7 +1145,6 @@ void func_004a7830(void)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7830);
 #endif
-
 // FUN_004A7A50
 void func_004a7a50(void) {
     func_003e9c10((u8 *)D_00724C70, D_00922D80, 0);
@@ -2461,5 +2462,5 @@ void func_004af640(u8 *arg0, s32 arg1) {
 // FUN_004AF650
 void func_004af650(u8 *arg0, f32 arg1) {
     *(f32 *)(arg0 + 0x8) = arg1;
-    func_00492e30(*(u8 **)(arg0 + 0x58));
+    func_00492e30(*(u16 **)(arg0 + 0x58), arg1);
 }

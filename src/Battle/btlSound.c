@@ -2,6 +2,7 @@
 /* Source unit: src/Battle/btlSound_001f7530.c */
 #include "type.h"
 #include "sdk_snd_internal.h"
+#include "btl_packet_create_internal.h"
 
 typedef struct Battle Battle;
 struct Battle
@@ -148,7 +149,7 @@ u32 func_001f7cd0(s16* work)
 
 
 // FUN_001F7D10
-void func_001f7d10(u16 channel, u16 cue, u16 variant)
+BtlPacket* func_001f7d10(u16 channel, u16 cue, u16 variant)
 {
     BtlPacket* packet;
     u16* work;
@@ -160,6 +161,7 @@ void func_001f7d10(u16 channel, u16 cue, u16 variant)
     work[0] = channel;
     work[1] = cue;
     work[2] = variant;
+    return packet;
 }
 
 
@@ -288,13 +290,14 @@ u32 func_001f8070(u16* work)
     return 1;
 }
 // FUN_001F8140
-void func_001f8140(u16 state)
+BtlPacket* func_001f8140(u16 state)
 {
     BtlPacket* packet;
 
     packet = func_00194470(0x904, 2);
     packet->updateFunc = (BtlPacketFunc)func_001f8070;
     *(u16*)packet->workData = state;
+    return packet;
 }
 
 

@@ -249,16 +249,16 @@ u32 func_001d79e0(u16 *param_1)
     func_004b3110(*param_1);
     return 1;
 }
+/* Both callers attach dependencies to the allocated packet returned here. */
 // FUN_001D7A10
-void func_001d7a10(u16 param_1)
-
+BtlPacket *func_001d7a10(u16 mode)
 {
-  int iVar1 = 0;
+    BtlPacket *packet;
 
-  iVar1 = (int)func_00194470(0x308,2);
-  *(code *)(iVar1 + 0x6c) = (code)func_001d79e0;
-  **(u16 **)(iVar1 + 0x78) = param_1;
-  return;
+    packet = func_00194470(0x308, sizeof(u16));
+    packet->updateFunc = (BtlPacketFunc)func_001d79e0;
+    *(u16 *)packet->workData = mode;
+    return packet;
 }
 
 

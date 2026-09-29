@@ -58,7 +58,7 @@ extern u8 D_007132F0[];
 extern u8 D_00713470[];
 extern void func_00485630(u8 *arg0);
 extern void func_00485870(u8 *arg0);
-extern void func_00492d10(s32 arg0);
+extern void func_00492d10(void *object);
 extern void func_00487c30(u8 *arg0, f32 arg1);
 extern void func_00487fb0(u8 *arg0, f32 arg1);
 void func_00483810();
@@ -1150,11 +1150,16 @@ u8 *func_00484bb0(u8 *arg0)
    off.  All four `addiu $2,$29,N; lq $2,0($2)` sites in the retail image
    (85630, 85870, 48f5f0, 497ce0) use `$2` for pointer and data, and a micro
    test with hard-coded `lq $2`/`sq $2` inline asm and a `"$2"` clobber
-   (like the `mfc1 $2` blocks in this body) reproduces retail's registers, so
+   (like the earlier draft's `mfc1 $2` blocks) reproduces retail's registers, so
    the original probably copied the quad through an asm macro.  That is
    ordinary computation (lint H009), so it stays out of the source. */
+/* measured 2026-09-28: 564/576B, three restore-register words remain.
+ * All ten relocations resolve. Aligned scalar storage and explicit VU memory
+ * operands preserve the candidate; qmtc2 float operands let the compiler emit
+ * its own GPR transfers. Production retains the retail assembly. */
 // FUN_00485630 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
 #pragma opt_propagation off
 void func_00485630(u8 *arg0)
 {
@@ -1164,7 +1169,7 @@ void func_00485630(u8 *arg0)
     u_long128 spA0;
     u_long128 sp70;
     u_long128 sp60;
-    u8 sp50[16] __attribute__((aligned(16)));
+    u_long128 sp50;
     f32 scale;
     f32 five;
     u8 *child;
@@ -1174,18 +1179,18 @@ void func_00485630(u8 *arg0)
     void (*temp_3)(s32, void *);
     s32 child_flags;
 
-    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0) : "$vf10", "memory");
-    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0) : "$vf11", "memory");
-    __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0), "m"(*(u_long128 *)(arg0 + 0x40)) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0), "m"(*(u_long128 *)arg0) : "$vf11", "memory");
+    __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(spA0) : "r"(&spA0) : "memory");
     if ((*(s32 *)(arg0 + 0x68) & 0x60) != 0) {
         u_long128 *save_slot;
         u_long128 *restore_slot;
-        save_slot = (u_long128 *)sp50;
+        save_slot = &sp50;
         *save_slot = *(u_long128 *)(arg0 + 0x50);
         func_00486970(arg0, (u8 *)&spA0, &sp60);
         func_00486330(arg0, (u8 *)&sp60);
-        restore_slot = (u_long128 *)sp50;
+        restore_slot = &sp50;
         *(u_long128 *)(arg0 + 0x50) = *restore_slot;
     }
     count = *(s32 *)(arg0 + 0x84);
@@ -1201,31 +1206,27 @@ void func_00485630(u8 *arg0)
         }
         if ((*(s32 *)(child + 0x68) & 0x18) != 0) {
             func_00486840(child, (u8 *)&spA0, &sp70);
-            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&spA0), "m"(spA0) : "$vf10", "memory");
             child_flags = *(s32 *)(child + 0x68);
             if ((child_flags & 4) != 0) {
                 __asm__ volatile(
-                    "mfc1 $2, %0       \n"
-                    "nop               \n"
-                    "qmtc2.ni $2, $vf2 \n"
+                    "qmtc2.ni %0, $vf2 \n"
                     "vaddx.y $vf10, $vf0, $vf2x \n"
                     :
-                    : "f"(five)
-                    : "$2", "$vf2", "$vf10", "memory");
+                    : "r"(five)
+                    : "$vf2", "$vf10", "memory");
             }
-            __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&sp70) : "$vf11", "memory");
+            __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&sp70), "m"(sp70) : "$vf11", "memory");
             if ((child_flags & 0x80) != 0) {
                 __asm__ volatile(
-                    "mfc1 $2, %0       \n"
-                    "nop               \n"
-                    "qmtc2.ni $2, $vf2 \n"
+                    "qmtc2.ni %0, $vf2 \n"
                     "vmulx.xyzw $vf11, $vf11, $vf2x \n"
                     :
-                    : "f"(scale)
-                    : "$2", "$vf2", "$vf11", "memory");
+                    : "r"(scale)
+                    : "$vf2", "$vf11", "memory");
             }
-            __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp70) : "$vf10", "memory");
+            __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "memory");
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(sp70) : "r"(&sp70) : "memory");
             temp_4 = *(u8 **)(child + 0x90);
             temp_2 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
             if (temp_2 != NULL) {
@@ -1247,7 +1248,7 @@ void func_00485630(u8 *arg0)
     *(s32 *)(arg0 + 0x84) += 1;
 }
 
-#pragma opt_propagation on
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485630);
 #endif
@@ -1266,8 +1267,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485630);
      to 0xa0.
    RESIDUAL (3 words): restore temps are `$v1` where retail has `$v0` (see
    the func_00485630 note for the measurements and the asm-macro hypothesis). */
+/* measured 2026-09-28: 616/624B, three restore-register words remain.
+ * All ten relocations resolve. Aligned scalar storage and explicit VU memory
+ * operands preserve the candidate; qmtc2 float operands let the compiler emit
+ * its own GPR transfers. Production retains the retail assembly. */
 // FUN_00485870 NONMATCHING
-#ifdef SKIP_ASM
+#ifdef NON_MATCHING
+#pragma push
 #pragma opt_propagation off
 void func_00485870(u8 *arg0)
 {
@@ -1277,7 +1283,7 @@ void func_00485870(u8 *arg0)
     u_long128 spA0;
     u_long128 sp90;
     u_long128 sp80;
-    u8 sp70[16] __attribute__((aligned(16)));
+    u_long128 sp70;
     f32 scale;
     f32 five;
     u8 *child;
@@ -1293,19 +1299,19 @@ void func_00485870(u8 *arg0)
         return;
     }
     flags = *(s32 *)(arg0 + 0x68);
-    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0) : "$vf10", "memory");
-    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0) : "$vf11", "memory");
-    __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0), "m"(*(u_long128 *)(arg0 + 0x40)) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0), "m"(*(u_long128 *)arg0) : "$vf11", "memory");
+    __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(spA0) : "r"(&spA0) : "memory");
     if ((flags & 0x60) != 0) {
         if ((flags & 0x80000000) == 0) {
             u_long128 *save_slot;
             u_long128 *restore_slot;
-            save_slot = (u_long128 *)sp70;
+            save_slot = &sp70;
             *save_slot = *(u_long128 *)(arg0 + 0x50);
             func_00486970(arg0, (u8 *)&spA0, &sp80);
             func_00486330(arg0, (u8 *)&sp80);
-            restore_slot = (u_long128 *)sp70;
+            restore_slot = &sp70;
             *(u_long128 *)(arg0 + 0x50) = *restore_slot;
         }
     }
@@ -1324,31 +1330,27 @@ void func_00485870(u8 *arg0)
         if ((flags & mask) == 0) {
             if ((*(s32 *)(child + 0x68) & 0x18) != 0) {
                 func_00486840(child, (u8 *)&spA0, &sp90);
-                __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
+                __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&spA0), "m"(spA0) : "$vf10", "memory");
                 child_flags = *(s32 *)(child + 0x68);
                 if ((child_flags & 4) != 0) {
                     __asm__ volatile(
-                        "mfc1 $2, %0       \n"
-                        "nop               \n"
-                        "qmtc2.ni $2, $vf2 \n"
+                        "qmtc2.ni %0, $vf2 \n"
                         "vaddx.y $vf10, $vf0, $vf2x \n"
                         :
-                        : "f"(five)
-                        : "$2", "$vf2", "$vf10", "memory");
+                        : "r"(five)
+                        : "$vf2", "$vf10", "memory");
                 }
-                __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&sp90) : "$vf11", "memory");
+                __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&sp90), "m"(sp90) : "$vf11", "memory");
                 if ((child_flags & 0x80) != 0) {
                     __asm__ volatile(
-                        "mfc1 $2, %0       \n"
-                        "nop               \n"
-                        "qmtc2.ni $2, $vf2 \n"
+                        "qmtc2.ni %0, $vf2 \n"
                         "vmulx.xyzw $vf11, $vf11, $vf2x \n"
                         :
-                        : "f"(scale)
-                        : "$2", "$vf2", "$vf11", "memory");
+                        : "r"(scale)
+                        : "$vf2", "$vf11", "memory");
                 }
-                __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-                __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp90) : "$vf10", "memory");
+                __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "memory");
+                __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(sp90) : "r"(&sp90) : "memory");
                 temp_4 = *(u8 **)(child + 0x90);
                 temp_2 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
                 if (temp_2 != NULL) {
@@ -1370,7 +1372,7 @@ void func_00485870(u8 *arg0)
     *(u32 *)(arg0 + 0x68) &= 0x7fffffffU;
 }
 
-#pragma opt_propagation on
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485870);
 #endif
@@ -2103,9 +2105,9 @@ u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2)
 // FUN_00489E00
 void func_00489e00(u8 *arg0)
 {
-    s32 temp_4;
+    u8 *temp_4;
 
-    temp_4 = *(s32 *)(arg0 + 0x4C);
+    temp_4 = *(u8 **)(arg0 + 0x4C);
     if (temp_4 != 0) {
         func_00492d10(temp_4);
         func_00487c30(arg0, 1.0f);
@@ -2114,9 +2116,9 @@ void func_00489e00(u8 *arg0)
 // FUN_00489E80
 void func_00489e80(u8 *arg0)
 {
-    s32 temp_4;
+    u8 *temp_4;
 
-    temp_4 = *(s32 *)(arg0 + 0x4C);
+    temp_4 = *(u8 **)(arg0 + 0x4C);
     if (temp_4 != 0) {
         func_00492d10(temp_4);
         func_00487c30(arg0, 1.0f);

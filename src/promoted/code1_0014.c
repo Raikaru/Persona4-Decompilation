@@ -1,3 +1,4 @@
+#include "model_callbacks_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
@@ -193,13 +194,11 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
 
-extern s32 func_00145540(u16 arg0, s32 arg1, s32 arg2);
 extern s32 func_004b1130(s32 arg0);
 extern void func_004b1170(s32 arg0);
 extern s32 func_004b11b0(s32 arg0);
 extern void func_004b1250(s32 arg0, u8 *arg1);
 extern s32 func_001684a0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0);
-extern void *func_0017b510(u8 *parent, u16 id, s32 mode);
 extern void func_004b13d0(s32 arg0, f32 arg1);
 
 extern s32 D_007642E4;
@@ -2077,14 +2076,14 @@ s32 func_00145480(u16 arg0) {
     return temp_16;
 }
 // FUN_00145510
-s32 func_00145510(u16 arg0, s32 arg1) {
+s32 func_00145510(u16 arg0, void *arg1) {
     return func_00145540(arg0, 0, arg1);
 }
 
 
 
 // FUN_00145540
-s32 func_00145540(u16 arg0, s32 arg1, s32 arg2) {
+s32 func_00145540(u16 arg0, u16 arg1, void *arg2) {
     s8 sp50[0xC];
     s32 temp_16;
     u16 shadowId;
@@ -2117,7 +2116,7 @@ s32 func_00145540(u16 arg0, s32 arg1, s32 arg2) {
     if (temp_2 == NULL) {
         return 0;
     }
-    *(s32 *)(temp_2 + 0x164) = arg2;
+    *(void **)(temp_2 + 0x164) = arg2;
     func_0047a180((RwMatrix *)arg2, (const RwV3d *)sp50, 0);
     RwMatrixUpdate(mdlGetMatrix(*(s32 *)(temp_2 + 0x164)));
     temp_2_2 = func_001684a0(0, temp_16 & 0xFFFF, 0, 60.0f);
@@ -2161,7 +2160,7 @@ s32 func_00145690(u16 arg0, s32 arg1) {
     return temp_17;
 }
 // FUN_00145780
-s32 func_00145780(u16 arg0, s32 arg1, s32 arg2) {
+s32 func_00145780(u16 arg0, u16 arg1, s32 arg2) {
     s8 sp[0xC];
     s32 temp_17;
     u16 shadowId;
