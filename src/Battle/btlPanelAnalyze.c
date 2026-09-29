@@ -32,7 +32,7 @@ static inline f32 panelAdd2(f32 left, f32 right) { return left + right; }
    retail's parameter-save order (MATCH nd0; without it, nd10). */
 #pragma opt_propagation off
 // FUN_00218760
-void func_00218760(void *arg0, u32 arg1, s32 arg2, f32 fparg0, f32 fparg1) {
+void func_00218760(void *arg0, u32 arg1, f32 fparg0, s32 arg2, f32 fparg1) {
     struct {
         char text[128];
     } locals;
@@ -469,19 +469,19 @@ void func_00219130(u8 *arg0) {
     }
 }
 
-/* measured: probe 915 differing words (reloc-masked), fnalign 319 edits +7 reloc-only; object 1043 vs retail 1032 instrs (4128B window 0x1020) +11 +1.07% inside 1001-1063 (+-3%) band.
- * Signature (s32 arg0, u8 *arg1): arg0 unused matches retail $4 dead (lw $4,0x10($5) overwrites entry $4, daddu $20,$5 saves live pointer); romwright (int, void*) arity.
- * Frame text[128] at 0x90 plus PanelQuad quads[3] at 0x110 (64B each) fills 0x1D0 frame; object 0x1E0 (+16) from extra spills, offsets 0x160 vs 0x90.
- * Free pragma round (one probe call, 7 variants): base 924 best; common_off 968 (+44), loopinv_on 942 (+18), unroll_off tie, sched_off tie, peephole_off 973 (+49), dead_off 942 (+18). No pragma kept.
- * Subscript round (one call, 7 variants): base 924 best; off_hoist 949 (+25), subscript 947 (+23), spell/cmds/text tie, str_hoist 949 (+25, +1 instr). Base pointer arithmetic retained.
- * Loop-counter round 7n (one call, 3 variants): base/shared/reuse all 924 tie; three loops already distinct (i_name/i_spell/i_skill), no call-free vs call split.
- * Address round 7p (one call, 3 variants): hoist_tbl 915 (-9) adopted (u8 *tbl = iGpffffb3c4+idx*0x3C, tbl[2] for kind and tile); hoist_uA64 931 (+7) rejected, reload of *(unit+0xA64) retained per 7k step 3.
- * Colouring round (one call, 3 variants): base/no_base/swap all 915 tie; adopted no_base (folds unitBase into unit, removes meaningless temporary, same score cleaner).
- * Accumulator: y22=(0.0f+yBase)+fade*22.0f and y24=(0.0f+yBase)+fade*24.0f emit retail adda.s/madd.s per 00219130 precedent; single-product +0.0 sites preserved.
- * Remaining: branch polarity (beqz vs bnez), saved-reg colour ($s0/$s1 unit), float regs ($f2/$f21), stack offsets; exchange class not isolated (7m/7o deferred, body already bare-decl 7o form). */
-// FUN_00219790 NONMATCHING
-#ifdef NON_MATCHING
-void func_00219790(s32 arg0, u8 *arg1) {
+/* Kind reads follow the rendering callbacks, which can replace the table. */
+static inline u8 btlPanelEnemyKind(u32 offset)
+{
+    extern u8 *iGpffffb3c4;
+    u8 *kinds = iGpffffb3c4 + 2;
+    return kinds[offset];
+}
+
+/* Name, affinity, skill and footer phases keep separate coordinates and fades.
+ * See docs/probe_archive/BtlPanelAnalyze_00219790_20260929.md. */
+// FUN_00219790
+void func_00219790(s32 unusedTask, u8 *panel)
+{
     extern f32 fGpffff84a4;
     extern u8 *iGpffffb3c4;
     extern u8 *iGpffffb444;
@@ -495,185 +495,201 @@ void func_00219790(s32 arg0, u8 *arg1) {
     s32 func_00231e20(void *);
     u16 func_00231f80(void *);
     u16 func_00232290(void *);
-    u32 func_0023e130(void *);
-    u16 *func_0023e140(void *);
-    u8 *func_00243840(u16);
+    u32 func_0023e130(u8 *);
+    u8 *func_0023e140(u8 *);
+    u8 *func_00243840(s32);
     s32 func_001f0950(s32, s32);
-    u8 *func_00452560(s32);
+    u32 func_00452560(u8 *);
     int func_00275020(f32, f32, f32, s32, s32, s32, const void *, s32, s32);
-    char text[128];
     PanelQuad quads[3];
+    char text[128];
     u8 *work;
     u8 *unit;
-    u16 mode;
-    u16 enemyIdx;
-    f32 fade;
-    f32 fade2;
-    f32 tmp;
-    f32 tmp2;
+    s32 frame;
+    s32 enemyIndex;
+    f32 skillFade;
+    f32 iconX;
+    f32 footerFade;
     f32 x0;
-    f32 yBase;
-    f32 y22;
-    f32 y24;
     s32 len;
-    s32 i_name;
-    s32 i_spell;
-    s32 i_skill;
-    u32 v;
-    u32 v2;
-    u16 *cmds;
-    u16 spell;
-    (void)arg0;
-    work = func_00452560(*(s32 *)(arg1 + 0x10));
-    if (((*(u32 *)work & 1) == 0) || ((*(u16 *)arg1 & 1) == 0)) {
+    s32 digitIndex;
+    u32 affinityIndex;
+    u32 hp;
+    u32 sp;
+    u16 *affinity;
+    (void)unusedTask;
+    work = (u8 *)func_00452560(*(u8 **)(panel + 0x10));
+    if ((*(u32 *)work & 1) == 0) {
         return;
     }
-    mode = *(u16 *)(arg1 + 4);
+    if ((*(u16 *)panel & 1) == 0) {
+        return;
+    }
+    frame = *(u16 *)(panel + 4);
     func_00201350();
     func_002012d0(work, 0.0f, 0.0f);
-    unit = *(u8 **)(*(u8 **)(arg1 + 8) + 0x30);
-    enemyIdx = *(u16 *)(unit + 0xA4);
-    if (mode < 4) {
-        fade = 0.0f;
-    } else if (mode < 10) {
-        fade = 1.0f - cosf(fGpffff84a4 * (f32)(s32)(mode - 4) / 6.0f);
-    } else {
-        fade = 1.0f;
-    }
-    if (fade > 0.0f) {
-        tmp = (1.0f - fade) * -500.0f;
-        func_00201650(work, 10, 0x47, 103.0f + tmp, 103.0f, 0x89, 0xFF, 0x1F, 0xFF);
-        func_00201650(work, 13, 0x2A, 30.0f + tmp, 147.0f, 0x24, 0x4C, 0, 0xFF);
-        if ((*(u16 *)arg1 & 8) == 0) {
-            f32 nx;
-            nx = 60.0f + tmp;
-            sprintf(text, &iGpffffa59c, func_00231e20(*(u8 **)(unit + 0xA64)) & 0xFF);
-            len = strlen(text);
-            if (len >= 3) {
-                func_0046d730(D_00628F80, 0xF4);
-            }
-            nx += ((f32)(2 - len) * 22.0f) / 2.0f;
-            i_name = 0;
-            while (i_name < len) {
-                func_00201650(work, 13, text[i_name] - 0x13, nx, 140.0f, 0x0D, 0x1B, 0, 0xFF);
-                nx += 22.0f;
-                i_name += 1;
-            }
+    unit = *(u8 **)(*(u8 **)(panel + 8) + 0x30);
+    enemyIndex = *(u16 *)(unit + 0xA4);
+    {
+        f32 nameFade;
+        f32 nameX;
+        if (frame < 4) {
+            nameFade = 0.0f;
+        } else if (frame < 10) {
+            nameFade = 1.0f - cosf(fGpffff84a4 * ((f32)(frame - 4) / 6.0f));
         } else {
-            func_00201650(work, 10, 0x4A, 68.0f + tmp, 138.0f, 0x0D, 0x1B, 0, 0xFF);
+            nameFade = 1.0f;
         }
-        {
-            u8 *tbl = iGpffffb3c4 + (u32)enemyIdx * 0x3C;
-            if (tbl[2] == 0x17) {
-                func_00201650(work, 10, 0x59, 20.0f + tmp, 108.0f, 0x70, 0x70, 0x70, 0xFF);
+        if (nameFade > 0.0f) {
+            nameX = (1.0f - nameFade) * -500.0f;
+            func_00201650(work, 10, 0x47, 103.0f + nameX, 103.0f, 0x89, 0xFF, 0x1F, 0xFF);
+            func_00201650(work, 13, 0x2A, 30.0f + nameX, 147.0f, 0x24, 0x4C, 0, 0xFF);
+            if ((*(u16 *)panel & 8) == 0) {
+                f32 nx;
+                nx = 60.0f + nameX;
+                sprintf(text, &iGpffffa59c, func_00231e20(*(u8 **)(unit + 0xA64)) & 0xFF);
+                len = strlen(text);
+                if (len > 2) {
+                    func_0046d730(D_00628F80, 0xF4);
+                }
+                nx += ((f32)(2 - len) * 22.0f) / 2.0f;
+                digitIndex = 0;
+                while (digitIndex < len) {
+                    func_00201650(work, 13, text[digitIndex] - 0x13, nx, 140.0f, 0x0D, 0x1B, 0, 0xFF);
+                    nx += 22.0f;
+                    digitIndex += 1;
+                }
             } else {
-                u8 kind;
-                f32 w;
-                kind = tbl[2];
-                w = func_00201950(work, 14, (s32)kind + 0x20);
-                func_00201650(work, 14, (s32)tbl[2] + 0x20, (57.0f - w / 2.0f) + tmp, 110.0f, 0x24, 0x4C, 0, 0xFF);
+                func_00201650(work, 10, 0x4A, 68.0f + nameX, 138.0f, 0x0D, 0x1B, 0, 0xFF);
+            }
+            {
+                u32 tableOffset = (u32)enemyIndex * 0x3C;
+                if (btlPanelEnemyKind(tableOffset) == 0x17) {
+                    func_00201650(work, 10, 0x59, 20.0f + nameX, 108.0f, 0x70, 0x70, 0x70, 0xFF);
+                } else {
+                    u8 kind;
+                    f32 w;
+                    kind = btlPanelEnemyKind(tableOffset);
+                    w = func_00201950(work, 14, (s32)kind + 0x20);
+                    {
+                        f32 calculatedX = (57.0f - w / 2.0f) + nameX;
+                        f32 displayedX = calculatedX;
+                        f32 calculatedY = 110.0f;
+                        f32 displayedY = calculatedY;
+                        func_00201650(work, 14, (s32)btlPanelEnemyKind(tableOffset) + 0x20,
+                            displayedX, displayedY, 0x24, 0x4C, 0, 0xFF);
+                    }
+                }
+            }
+            func_00275020(112.0f + nameX, 136.0f, 0.0f, 0x89FF1FFF, 0, 1, iGpffffb444 + (u32)enemyIndex * 0x15, 0, -1);
+            if ((*(u16 *)panel & 8) == 0) {
+                nameX = panelAdd2(15.0f, nameX);
+                hp = func_00231f80(*(u8 **)(unit + 0xA64)) & 0xFFFF;
+                if (hp > 999U) {
+                    hp = 999;
+                }
+                func_00218760(work, hp, nameX, 0, 167.0f);
+                sp = func_00232290(*(u8 **)(unit + 0xA64)) & 0xFFFF;
+                if (sp > 999U) {
+                    sp = 999;
+                }
+                func_00218760(work, sp, nameX, 1, 187.0f);
+            } else {
+                f32 bx;
+                bx = 15.0f + nameX;
+                func_00218760(work, 0, bx, 2, 167.0f);
+                func_00218760(work, 0, bx, 3, 187.0f);
+                nameX = panelAdd2(111.0f, nameX);
+                func_00201650(work, 10, 0x48, nameX, 166.0f, 0x70, 0x70, 0x70, 0xFF);
+                func_00201650(work, 10, 0x49, 22.0f + nameX, 166.0f, 0x70, 0x70, 0x70, 0xFF);
+                func_00201650(work, 10, 0x4A, 7.0f + nameX, 176.0f, 0, 0, 0, 0xFF);
             }
         }
-        func_00275020(112.0f + tmp, 136.0f, 0.0f, 0x89FF1FFF, 0, 1, iGpffffb444 + (u32)enemyIdx * 0x15, 0, -1);
-        if ((*(u16 *)arg1 & 8) == 0) {
-            v = func_00231f80(*(u8 **)(unit + 0xA64)) & 0xFFFF;
-            if (v >= 1000) {
-                v = 999;
-            }
-            func_00218760(work, v, 0, 15.0f + tmp, 167.0f);
-            v2 = func_00232290(*(u8 **)(unit + 0xA64)) & 0xFFFF;
-            if (v2 >= 1000) {
-                v2 = 999;
-            }
-            func_00218760(work, v2, 1, 15.0f + tmp, 187.0f);
+    }
+    {
+        f32 affinityFade;
+        f32 y22;
+        f32 yBase;
+        f32 y24;
+        if ((s32)frame < 0) {
+            affinityFade = 0.0f;
+        } else if (frame < 8) {
+            affinityFade = 1.0f - cosf(fGpffff84a4 * ((f32)frame / 8.0f));
         } else {
-            f32 bx;
-            bx = 15.0f + tmp;
-            func_00218760(work, 0, 2, bx, 167.0f);
-            func_00218760(work, 0, 3, bx, 187.0f);
-            tmp += 111.0f;
-            func_00201650(work, 10, 0x48, tmp, 166.0f, 0x70, 0x70, 0x70, 0xFF);
-            func_00201650(work, 10, 0x49, 22.0f + tmp, 166.0f, 0x70, 0x70, 0x70, 0xFF);
-            func_00201650(work, 10, 0x4A, 7.0f + tmp, 176.0f, 0, 0, 0, 0xFF);
+            affinityFade = 1.0f;
+        }
+        if (affinityFade > 0.0f) {
+            f32 inv;
+            func_00201720(work, 1.0f, affinityFade);
+            inv = 1.0f - affinityFade;
+            {
+                f32 calculatedTop = 215.0f + ((51.0f * inv) / 2.0f);
+                f32 displayedTop = calculatedTop;
+                func_00218af0(-10.0f, displayedTop, 51.0f * affinityFade);
+            }
+            iconX = 19.0f;
+            yBase = 217.0f + ((49.0f * inv) / 2.0f);
+            affinityIndex = 0;
+            y22 = (0.0f + yBase) + affinityFade * 22.0f;
+            y24 = (0.0f + yBase) + affinityFade * 24.0f;
+            while (affinityIndex < 7) {
+                affinity = &D_00628FB8[affinityIndex];
+                if (func_001f0950((s32)enemyIndex & 0xFFFF, (s32)*affinity) != 0) {
+                    func_00201650(work, 13, affinityIndex + 0x2E, iconX, yBase, 0x24, 0x4C, 0, 0xFF);
+                    func_00218c60(work, *(s32 *)(unit + 0xA64), (s64)*affinity, iconX - 2.0f, y22);
+                } else {
+                    func_00201650(work, 13, affinityIndex + 0x2E, iconX, yBase, 0x70, 0x70, 0x70, 0xFF);
+                    func_00201650(work, 14, 0x43, iconX - 2.0f, y22, 0x70, 0x70, 0x70, 0xFF);
+                    func_00201650(work, 10, 0x4A, iconX, y24, 0x89, 0xFF, 0x1F, 0xFF);
+                }
+                if (affinityIndex == 0) {
+                    iconX += 51.0f;
+                } else {
+                    iconX += 37.0f;
+                }
+                affinityIndex += 1;
+            }
+            func_00201720(work, 1.0f, 1.0f);
         }
     }
-    if ((s32)mode < 0) {
-        fade = 0.0f;
-    } else if (mode < 8) {
-        fade = 1.0f - cosf(fGpffff84a4 * (f32)mode / 8.0f);
-    } else {
-        fade = 1.0f;
-    }
-    if (fade > 0.0f) {
-        f32 inv;
-        inv = 1.0f - fade;
-        func_00201720(work, 1.0f, fade);
-        func_00218af0(-10.0f, 215.0f + ((51.0f * inv) / 2.0f), 51.0f * fade);
-        tmp = 19.0f;
-        yBase = 217.0f + ((49.0f * inv) / 2.0f);
-        y22 = (0.0f + yBase) + fade * 22.0f;
-        y24 = (0.0f + yBase) + fade * 24.0f;
-        i_spell = 0;
-        while (i_spell < 7) {
-            spell = D_00628FB8[i_spell];
-            if (func_001f0950((s32)enemyIdx & 0xFFFF, (s32)spell) != 0) {
-                func_00201650(work, 13, i_spell + 0x2E, tmp, yBase, 0x24, 0x4C, 0, 0xFF);
-                func_00218c60(work, *(s32 *)(unit + 0xA64), (s64)spell, tmp - 2.0f, y22);
-            } else {
-                func_00201650(work, 13, i_spell + 0x2E, tmp, yBase, 0x70, 0x70, 0x70, 0xFF);
-                func_00201650(work, 14, 0x43, tmp - 2.0f, y22, 0x70, 0x70, 0x70, 0xFF);
-                func_00201650(work, 10, 0x4A, tmp, (0.0f + yBase) + fade * 24.0f, 0x89, 0xFF, 0x1F, 0xFF);
-            }
-            if (i_spell == 0) {
-                tmp += 51.0f;
-            } else {
-                tmp += 37.0f;
-            }
-            i_spell += 1;
-        }
-        func_00201720(work, 1.0f, 1.0f);
-    }
-    if ((*(u16 *)arg1 & 4) != 0) {
-        if (mode < 4) {
-            fade2 = 0.0f;
-        } else if (mode < 10) {
-            fade2 = 1.0f - cosf(fGpffff84a4 * (f32)(s32)(mode - 4) / 6.0f);
+    if ((*(u16 *)panel & 4) != 0) {
+        if (frame < 4) {
+            skillFade = 0.0f;
+        } else if (frame < 10) {
+            skillFade = 1.0f - cosf(fGpffff84a4 * ((f32)(frame - 4) / 6.0f));
         } else {
-            fade2 = 1.0f;
+            skillFade = 1.0f;
         }
-        if (fade2 > 0.0f) {
-            f32 bx;
-            bx = (1.0f - fade2) * -500.0f;
-            if ((*(u16 *)arg1 & 8) == 0) {
-                u32 n;
+        if (skillFade > 0.0f) {
+            struct { f32 x; f32 y; } slide;
+            slide.x = (1.0f - skillFade) * -500.0f;
+            slide.y = 0.0f;
+            if ((*(u16 *)panel & 8) == 0) {
+                u16 n;
+                u32 count;
+                u16 *cmds;
+                u32 skillIndex;
                 n = func_0023e130(*(u8 **)(unit + 0xA64)) & 0xFFFF;
-                cmds = func_0023e140(*(u8 **)(unit + 0xA64));
-                i_skill = 0;
-                while ((u32)i_skill < (n & 0xFFFF)) {
-                    s32 ox;
-                    s32 oy;
-                    f32 fx;
+                cmds = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
+                skillIndex = 0;
+                count = n & 0xFFFF;
+                while (skillIndex < count) {
+                    u32 ox;
+                    u32 oy;
                     f32 fy;
-                    ox = (i_skill >> 2) * 0xC6;
-                    if (ox < 0) {
-                        fx = 2.0f * (f32)(((u32)ox >> 1) | ((u32)ox & 1));
-                    } else {
-                        fx = (f32)ox;
-                    }
-                    fx = bx + (18.0f + fx);
-                    oy = (i_skill & 3) * 0x19;
-                    if (oy < 0) {
-                        fy = 2.0f * (f32)(((u32)oy >> 1) | ((u32)oy & 1));
-                    } else {
-                        fy = (f32)oy;
-                    }
-                    fy = 284.0f + fy + 0.0f;
+                    f32 fx;
+                    ox = (skillIndex >> 2) * 0xC6;
+                    fx = (f32)ox;
+                    fx = slide.x + (18.0f + fx);
+                    oy = (skillIndex & 3) * 0x19;
+                    fy = (f32)oy;
+                    fy = panelAdd2(slide.y, panelAdd2(284.0f, fy));
                     func_00201650(work, 12, 0x5A, fx, fy, 0x89, 0xFF, 0x1F, 0xFF);
                     func_00201650(work, 12, 0x5B, 192.0f + fx, fy, 0x89, 0xFF, 0x1F, 0xFF);
-                    if (cmds[i_skill] != 0) {
-                        func_00275020(96.0f + fx, fy - 2.0f, 0.0f, 0x244C00FF, 0, 1, func_00243840(cmds[i_skill]), 8, -1);
+                    if (cmds[skillIndex] != 0) {
+                        func_00275020(96.0f + fx, fy - 2.0f, 0.0f, 0x244C00FF, 0, 1, func_00243840(cmds[skillIndex]), 8, -1);
                     }
-                    i_skill += 1;
+                    skillIndex += 1;
                 }
             } else {
                 f32 qx;
@@ -681,13 +697,13 @@ void func_00219790(s32 arg0, u8 *arg1) {
                 u8 *m;
                 f32 z;
                 f32 sc;
-                m = func_00457120();
                 z = D_008872F8[0];
+                m = func_00457120();
                 sc = *(f32 *)(m + 0x80);
-                qx = 18.0f + bx;
+                qx = 18.0f + slide.x;
                 func_00201650(work, 10, 0x3E, qx, 283.0f, 0x70, 0x70, 0x70, 0xFF);
                 func_00201650(work, 10, 0x3F, 388.0f + qx, 283.0f, 0x70, 0x70, 0x70, 0xFF);
-                x0 = 22.0f + bx;
+                x0 = 22.0f + slide.x;
                 quads[0].x = x0;
                 quads[0].y = 287.0f;
                 quads[0].z = z;
@@ -716,41 +732,45 @@ void func_00219790(s32 arg0, u8 *arg1) {
                 func_00364c50();
                 D_00887310[0](4, &quads[0], 3);
                 func_00364c70();
-                func_00201650(work, 10, 0x4D, 25.0f + bx, 289.0f, 8, 8, 8, 0xFF);
-                bx += 202.0f;
-                func_00201650(work, 10, 0x48, bx, 314.0f, 0x70, 0x70, 0x70, 0xFF);
-                func_00201650(work, 10, 0x49, 22.0f + bx, 314.0f, 0x70, 0x70, 0x70, 0xFF);
-                func_00201650(work, 10, 0x4A, 7.0f + bx, 324.0f, 0, 0, 0, 0xFF);
+                func_00201650(work, 10, 0x4D, 25.0f + slide.x, 289.0f, 8, 8, 8, 0xFF);
+                slide.x = panelAdd2(202.0f, slide.x);
+                func_00201650(work, 10, 0x48, slide.x, 314.0f, 0x70, 0x70, 0x70, 0xFF);
+                func_00201650(work, 10, 0x49, 22.0f + slide.x, 314.0f, 0x70, 0x70, 0x70, 0xFF);
+                func_00201650(work, 10, 0x4A, 7.0f + slide.x, 324.0f, 0, 0, 0, 0xFF);
             }
         }
     }
-    if ((*(u16 *)arg1 & 0x10) != 0) {
-        if (mode < 8) {
-            tmp2 = 0.0f;
-        } else if (mode < 13) {
-            tmp2 = sinf(fGpffff84a4 * (f32)(s32)(mode - 8) / 5.0f);
+    if ((*(u16 *)panel & 0x10) != 0) {
+        if (frame < 8) {
+            footerFade = 0.0f;
+        } else if (frame < 13) {
+            footerFade = sinf(fGpffff84a4 * ((f32)(frame - 8) / 5.0f));
         } else {
-            tmp2 = 1.0f;
+            footerFade = 1.0f;
         }
-        if (tmp2 > 0.0f) {
+        if (footerFade > 0.0f) {
             f32 yy;
-            func_00201720(work, 1.0f, tmp2);
-            if ((*(u16 *)arg1 & 4) == 0) {
-                yy = 282.0f;
+            f32 xx;
+            func_00201720(work, 1.0f, footerFade);
+            if ((*(u16 *)panel & 4) != 0) {
+                xx = 18.0f;
+                yy = (f32)(s32)399;
             } else {
-                yy = 399.0f;
+                xx = 18.0f;
+                yy = 282.0f;
             }
-            yy += ((1.0f - tmp2) * 23.0f) / 2.0f;
-            func_00201650(work, 10, 0x42, 18.0f, yy, 0x89, 0xFF, 0x1F, 0xFF);
-            func_00201650(work, 10, 0x43, 165.0f, yy, 0x89, 0xFF, 0x1F, 0xFF);
-            yy += tmp2 * 2.0f;
-            func_00201650(work, 10, 0x4B, 28.0f, yy, 0xFF, 0xFF, 0xFF, 0xFF);
-            func_00201650(work, 10, 0x4C, 86.0f, yy, 0x2D, 0x2D, 0x2D, 0xFF);
+            yy += ((1.0f - footerFade) * 23.0f) / 2.0f;
+            func_00201650(work, 10, 0x42, xx, yy, 0x89, 0xFF, 0x1F, 0xFF);
+            func_00201650(work, 10, 0x43, 147.0f + xx, yy, 0x89, 0xFF, 0x1F, 0xFF);
+            {
+                f32 offsetY = footerFade * 2.0f;
+                f32 translatedY = offsetY;
+                f32 nextY = yy + translatedY;
+                yy = nextY;
+            }
+            func_00201650(work, 10, 0x4B, 10.0f + xx, yy, 0xFF, 0xFF, 0xFF, 0xFF);
+            func_00201650(work, 10, 0x4C, 68.0f + xx, yy, 0x2D, 0x2D, 0x2D, 0xFF);
             func_00201720(work, 1.0f, 1.0f);
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlPanelAnalyze", func_00219790);
-#endif
-

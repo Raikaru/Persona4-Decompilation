@@ -36,7 +36,7 @@ u8 *func_00348160(u8 *arg0, s32 *arg1);
 void *func_00348290(u8 *arg0);
 void func_003482a0(u8 *arg0, u8 arg1, u8 arg2, u16 arg3);
 void func_003482d0(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3);
-void func_00348a90(u8 *arg0, CmbVec3f *src1, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f *src2, CmbRGBA arg6, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5, f32 f6, f32 f7);
+void func_00348a90(u8 *arg0, CmbVec3f src1, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f src2, f32 f4, f32 f5, f32 f6, f32 f7, CmbRGBA arg6);
 s32 *func_00331620(void);
 void RpSkyRenderStateSet(u32 arg0, u32 arg1);
 struct RtQuat;
@@ -1275,66 +1275,15 @@ s32 func_00343cf0(u8 *arg0) {
     return 1;
 }
 
-/* cold target: faithful v4 (759 lines, file idioms s8/lb s16/switch s32/daddu, file-scope protos incl. new 00348a90 + iGpffff8508/850c, 104 jal/0 jalr exact, 0 unsigned (0 bltz) / 14 signed int->float via 0x141/0x143/0x153/0x16B/0x187 bare mtc1/cvt) probes 1911 differing words (reloc-masked; skeleton v1 2031), fnalign retail 2190/object 2038 (152 short, 6.9%, band 2126-2258), 997 edits +2 reloc-only, frame retail -0x3D0 vs object -0x6D0, no large pure hole/lump (52 deletes max 4-5, 1 insert; e.g. retail[198:202] 0x00345A18-0x00345A28, retail[209:213] 0x00345A44-0x00345A54, retail[302:306] 0x00345BB8-0x00345BC8). Exact: python3 tools/probe_variants.py src/promoted/y_CmbCardEff.c func_00345700 --candidate v4=/tmp/cmb45700_v4.c (1911); python3 tools/fnalign.py src/promoted/y_CmbCardEff.c func_00345700 --candidate /tmp/cmb45700_v4.c (2190/2038, 997+2, -0x3D0/-0x6D0). Production stays INCLUDE_ASM (short, do not bank). */
-// checked per Main: read retail at all fourteen int->float sites first -- retail has 0 bltz, 85 mtc1, 14 cvt.s.w (bare signed); object v4 has 0 bltz, 85 mtc1, 14 cvt.s.w (identical); all fourteen genuinely signed, fix 0, count stays 2038/2190 -152 -6.9% outside 2126-2258 (applying (f32)(u32) would invent 14x11=154 bltz retail lacks, fake exact 2192 with worse words per 7u, rejected); frame preserved: object -0x6D0 vs retail -0x3D0 (+768 surplus, big buffers held where retail computes in place, attack after conversions, same story); production stays INCLUDE_ASM.
-/* measured: rule 1 applies verbatim (same clone site as func_0033fc80): the single */
-/* ldr $a1,0x134/ldl $a1,0x13B pair is `func_003482d0(slot, *(CmbVec2f *)(ret + 0x134), v, 3)` */
-/* with ret = func_00348290 result — 8-byte by-value read at 4-mod-8 offset, verified */
-/* emitting the exact pair on func_0033fc80. Not re-attempted individually: the whole */
-/* 0x84-stride state-machine family shares func_0033fc80's stack-alloc floor. */
-// v5 aggregate-removal alone (2026-09-19): v4->v5 retail 2190/object 2038->2038 (+0, still 152 short, 6.9%, outside band 2126-2258; predicted +162 via 50x lwc1 reappearing did NOT materialize), frame -0x6D0->-0x410 (1744->1040, -704, still +64 over retail -0x3D0=976; added 920 vs 864 target +56), words 1911->1911 (+0), edits 997->1009 (+12), jal 104/0 exact, 0 bltz; exact: python3 tools/fnalign.py src/promoted/y_CmbCardEff.c func_00345700 --candidate /tmp/cmb45700_v5.c --quiet + python3 tools/probe_variants.py src/promoted/y_CmbCardEff.c func_00345700 --candidate v5=/tmp/cmb45700_v5.c; residual 49 pure deletes (max 14 at retail[211:225] 0x00345A4C-0x00345A84, e.g. retail[198:202] 0x00345A18-0x00345A28, retail[302:306] 0x00345BB8-0x00345BC8), 1 real insert + tail, no large hole/lump (>=25); production stays INCLUDE_ASM (short, do not bank).
-// storage shape, not arithmetic: retail spills each func_002b2970 scratch result to a low stack slot as it goes (e.g. 0x2D8->0x188, 0x2E0->0x190, 50 sites of 8-byte lwc1/lwc1/swc1/swc1 with varying indices, sequential distinct), where v4/v5 keep one big buffer (Cmb43Work + twork, +768 frame); retail uses a rolling pair of small slots and copies out -- fix is storage shape (smaller slots + per-result copies, +162 to 2200) not conversions (all fourteen genuinely signed, 0 changed).
-/* measured 00345700 (owner, 2026-09-19): the storage-shape hypothesis in the note above is
-   **disproved at this granularity**.  All 36 `func_002b2970` scratch destinations in the
-   0x210-byte `ttmp` buffer are written once and read exactly twice, so each was replaced
-   with its own `CmbVec2f` local - 36 separate two-float objects instead of disjoint slices
-   of one array.  Result: object 2138 and 1141 fnalign edits, **identical to the buffer
-   form**.  MWCC already treats provably disjoint slices of a local array as separate
-   values, so splitting them changes nothing.  If retail's low stack offsets are still the
-   answer, the difference has to come from the *order* the slots are allocated in or from
-   the other 229 `ttmp` offsets, not from the 36 scratch pairs. */
-/* measured 00345700 (owner, 2026-09-19): 2138 against retail 2190 (-2.4%, inside), and
-   deficit_scan gives an unusually clean answer - the ONLY opcodes retail has more of are
-   `lwc1 +46` and `lbu +12`, with two adjacent retail-only runs at 0x00346edc-0x00346f80
-   (41) and 0x00346f84-0x00347078 (61) that are really one 102-instruction region.
-   Reading it: retail round-trips every computed pair through the stack and RELOADS it.
-   At 0x00346efc it copies the func_002b2970 result from 0x1F0($sp) to 0xA0($sp), at
-   0x00346f3c it loads 0xA8($sp) back to store into slot+0x548, and at 0x00346f4c it
-   reloads slot+0x548 itself to write slot+0x538.  The body already spells that last
-   reload (`*(f32 *)(slot + 0x538) = *(f32 *)(slot + 0x548);`) and b210 honours it, so the
-   46 missing loads are the OTHER round-trips, where the value is still live in a register
-   and the compiler declines to reload it.
-   That is the same wall as func_00476e90, where the only spelling that forced the reloads
-   was a banned `volatile`.  Do not spend spelling effort here until someone finds an
-   honest construct that defeats b210's CSE on a stack round-trip; the structure is right
-   and the residual is the compiler keeping what retail reloads. */
-/* measured 00345700 (2026-09-20): honest reload for the 46 missing lwc1 - spelling each */
-/* scratch pair as one 8-byte struct copy `flow[i] = (*(CmbVec2f*)&ttmp[off]);` (37 sites, */
-/* incl. flow[36] from workB+0x8) instead of per-field `flow[i].x/y = (*(f32*)&ttmp[..]);` */
-/* forces b210 to reload the second value from the stack for the slot store, exactly like */
-/* banned `volatile` but without lying about storage (8B copy, all scratch offs 8-aligned, */
-/* same aliasing, no extra jal, no pragma/asm). Baseline 1912 words / 2138 vs retail 2190 */
-/* (-2.4%, deficit 52, lwc1+46 lbu+12, runs 41 ABSENT + 30 ABSENT) -> now 1821 words (-91) / */
-/* 2186 vs 2190 (-0.2% inside, deficit 4, lwc1 balanced +2 obj surplus, lbu+12 only, all three */
-/* runs CROSS). Banned volatile flow ties at 1821/2186 (+48); RGBA struct for the 12 byte */
-/* blocks regresses to 1836 (+15) so per-byte stays. Remaining wall is 12x first-byte lbu */
-/* ($a0 forwarded vs retail reload) + stack-offset/scheduling color; production stays ASM. */
-/* Commands: measure_guarded, deficit_scan, probe_variants vol/struct/struct2/structFull, */
-/* fnalign base/vol/struct, pragma_sweep (best tie 1912, prop-off 2051), micro1-7/C/Cb. TU */
-/* link + retail identity unverified (fnalign/probe only). */
-// FUN_00345700 NONMATCHING
-#ifdef NON_MATCHING
+/* Each of the twelve cards shares the native move, color and path
+ * operations used by the smaller combination layouts. */
+// FUN_00345700
 s32 func_00345700(u8 *arg0) {
     u8 *ret;
-    u8 *table;
     u8 *table6;
+    u8 *table;
     u8 *slot;
-    u8 *slot2;
     u8 *obj;
-    u8 ttmp[0x210];
-    u8 workB[0x180];
-    CmbVec2f workF70;
-    CmbVec2f flow[37];
     s16 state;
     s8 i0;
     s8 i6;
@@ -1342,9 +1291,9 @@ s32 func_00345700(u8 *arg0) {
     s8 i9;
     s8 i10;
     s32 index;
-    s32 index2;
+    s32 value;
     f32 fvalue;
-    s32 tmpI;
+
     obj = *(u8 **)(arg0 + 0x38);
     if (*(s8 *)(obj + 0xC) != 0 || *(s8 *)(obj + 0x90) != 0 || *(s8 *)(obj + 0x114) != 0 || *(s8 *)(obj + 0x198) != 0 || *(s8 *)(obj + 0x21C) != 0 || *(s8 *)(obj + 0x2A0) != 0 || *(s8 *)(obj + 0x324) != 0 || *(s8 *)(obj + 0x3A8) != 0 || *(s8 *)(obj + 0x42C) != 0 || *(s8 *)(obj + 0x4B0) != 0 || *(s8 *)(obj + 0x534) != 0 || *(s8 *)(obj + 0x5B8) != 0) {
         return 0;
@@ -1353,32 +1302,13 @@ s32 func_00345700(u8 *arg0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i0 = 0;
         while (i0 < 12) {
-            fclWriteColorBytes(workB + 0x178,
-                          0xFF, 0xFF, 0xFF, 0U);
-            *(CmbRGBA *)(workB + 0x134) =
-                *(CmbRGBA *)(workB + 0x178);
-            fclWriteColorBytes(workB + 0x17C,
-                          0xFF, 0xFF, 0xFF, 0xFFU);
-            *(CmbRGBA *)(workB + 0x138) =
-                *(CmbRGBA *)(workB + 0x17C);
-            slot = *(u8 **)(arg0 + 0x38);
-            slot += (s32)i0 * 0x84;
-            *(CmbRGBA *)(slot + 0x84) =
-                *(CmbRGBA *)(workB + 0x138);
-            *(CmbRGBA *)(slot + 0x7C) =
-                *(CmbRGBA *)(slot + 0x84);
-            *(CmbRGBA *)(slot + 0x80) =
-                *(CmbRGBA *)(workB + 0x134);
-            *(s16 *)(slot + 0x88) = 0;
-            *(s16 *)(slot + 0x8A) = 0;
-            *(s8 *)(slot + 0xC) |= 4;
+            cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i0 * 4;
             ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i0++;
         }
-        if (func_00285b30() >= 0x208 &&
-            func_00285b30() < 0x348) {
+        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
             func_00106390(0x1450, 1);
         }
         return 0;
@@ -1387,606 +1317,42 @@ s32 func_00345700(u8 *arg0) {
     switch (state) {
     case 0:
         if (func_00285b30() >= 0x50) {
-        *(FclVec2 *)&ttmp[0xf8] = func_002b2970(0x141, 70.0f);
-        flow[0] = (*(CmbVec2f*)&ttmp[0xf8]);
-        *(FclVec2 *)&ttmp[0xf0] = func_002b2970(326.0f, 224.0f);
-        flow[1] = (*(CmbVec2f*)&ttmp[0xf0]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(f32 *)(slot + 0x20) = flow[1].x;
-        *(f32 *)(slot + 0x24) = flow[1].y;
-        *(f32 *)(slot + 0x10) = *(f32 *)(slot + 0x20);
-        *(f32 *)(slot + 0x14) = *(f32 *)(slot + 0x24);
-        *(f32 *)(slot + 0x18) = flow[0].x;
-        *(f32 *)(slot + 0x1c) = flow[0].y;
-        *(s16 *)(slot + 0x2a) = 0;
-        *(s16 *)(slot + 0x28) = 8;
-        *(s8 *)(slot + 0xc) = *(s8 *)(slot + 0xc) | 1;
-        fclWriteColorBytes(&ttmp[0x10],0xff,0xff,0xff,0xff);
-        (ttmp[0x88]) = (ttmp[0x10]);
-        (ttmp[0x87]) = (ttmp[0xf]);
-        (ttmp[0x86]) = (ttmp[0xe]);
-        (ttmp[0x85]) = (ttmp[0xd]);
-        fclWriteColorBytes(&ttmp[0xc],0xff,0xff,0xff,0);
-        (ttmp[0x84]) = (ttmp[0xc]);
-        (ttmp[0x83]) = (ttmp[0xb]);
-        (ttmp[0x82]) = (ttmp[0xa]);
-        (ttmp[0x81]) = (ttmp[0x9]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(u8 *)(slot + 0x84) = (ttmp[0xc]);
-        *(u8 *)(slot + 0x85) = (ttmp[0xb]);
-        *(u8 *)(slot + 0x86) = (ttmp[0xa]);
-        *(u8 *)(slot + 0x87) = (ttmp[0x9]);
-        *(u8 *)(slot + 0x7c) = *(u8 *)(slot + 0x84);
-        *(u8 *)(slot + 0x7d) = *(u8 *)(slot + 0x85);
-        *(u8 *)(slot + 0x7e) = *(u8 *)(slot + 0x86);
-        *(u8 *)(slot + 0x7f) = *(u8 *)(slot + 0x87);
-        *(u8 *)(slot + 0x80) = (ttmp[0x88]);
-        *(u8 *)(slot + 0x81) = (ttmp[0x87]);
-        *(u8 *)(slot + 0x82) = (ttmp[0x86]);
-        *(u8 *)(slot + 0x83) = (ttmp[0x85]);
-        *(s16 *)(slot + 0x88) = 0;
-        *(s16 *)(slot + 0x8a) = 8;
-        *(s8 *)(slot + 0xc) = *(s8 *)(slot + 0xc) | 4;
-        *(FclVec2 *)&ttmp[0x108] = func_002b2970(0x141, 70.0f);
-        flow[2] = (*(CmbVec2f*)&ttmp[0x108]);
-        *(FclVec2 *)&ttmp[0x100] = func_002b2970(326.0f, 224.0f);
-        flow[3] = (*(CmbVec2f*)&ttmp[0x100]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(f32 *)(slot + 0xa4) = flow[3].x;
-        *(f32 *)(slot + 0xa8) = flow[3].y;
-        *(f32 *)(slot + 0x94) = *(f32 *)(slot + 0xa4);
-        *(f32 *)(slot + 0x98) = *(f32 *)(slot + 0xa8);
-        *(f32 *)(slot + 0x9c) = flow[2].x;
-        *(f32 *)(slot + 0xa0) = flow[2].y;
-        *(s16 *)(slot + 0xae) = 0;
-        *(s16 *)(slot + 0xac) = 8;
-        *(s8 *)(slot + 0x90) = *(s8 *)(slot + 0x90) | 1;
-        fclWriteColorBytes(&ttmp[0x18],0xff,0xff,0xff,0xff);
-        (ttmp[0x90]) = (ttmp[0x18]);
-        (ttmp[0x8f]) = (ttmp[0x17]);
-        (ttmp[0x8e]) = (ttmp[0x16]);
-        (ttmp[0x8d]) = (ttmp[0x15]);
-        fclWriteColorBytes(&ttmp[0x14],0xff,0xff,0xff,0);
-        (ttmp[0x8c]) = (ttmp[0x14]);
-        (ttmp[0x8b]) = (ttmp[0x13]);
-        (ttmp[0x8a]) = (ttmp[0x12]);
-        (ttmp[0x89]) = (ttmp[0x11]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(u8 *)(slot + 0x108) = (ttmp[0x14]);
-        *(u8 *)(slot + 0x109) = (ttmp[0x13]);
-        *(u8 *)(slot + 0x10a) = (ttmp[0x12]);
-        *(u8 *)(slot + 0x10b) = (ttmp[0x11]);
-        *(u8 *)(slot + 0x100) = *(u8 *)(slot + 0x108);
-        *(u8 *)(slot + 0x101) = *(u8 *)(slot + 0x109);
-        *(u8 *)(slot + 0x102) = *(u8 *)(slot + 0x10a);
-        *(u8 *)(slot + 0x103) = *(u8 *)(slot + 0x10b);
-        *(u8 *)(slot + 0x104) = (ttmp[0x90]);
-        *(u8 *)(slot + 0x105) = (ttmp[0x8f]);
-        *(u8 *)(slot + 0x106) = (ttmp[0x8e]);
-        *(u8 *)(slot + 0x107) = (ttmp[0x8d]);
-        *(s16 *)(slot + 0x10c) = 0;
-        *(s16 *)(slot + 0x10e) = 8;
-        *(s8 *)(slot + 0x90) = *(s8 *)(slot + 0x90) | 4;
-        *(FclVec2 *)&ttmp[0x110] = func_002b2970(250.0f, 95.0f);
-        flow[4] = (*(CmbVec2f*)&ttmp[0x110]);
-        slot = *(u8 **)(arg0 + 0x38);
-        table = *(s8 *)(slot + 0xec) * 0xc + slot;
-        *(f32 *)(table + 0xb0) = flow[4].x;
-        *(f32 *)(table + 0xb4) = flow[4].y;
-        *(s16 *)(table + 0xb8) = 5;
-        *(s8 *)(slot + 0x90) = *(s8 *)(slot + 0x90) | 8;
-        tmpI = func_002b2cb0(*(s8 *)(slot + 0xec),1,5,0,1);
-        *(s8 *)(slot + 0xec) = tmpI;
-        *(FclVec2 *)&ttmp[0x120] = func_002b2970(0x141, 70.0f);
-        flow[5] = (*(CmbVec2f*)&ttmp[0x120]);
-        *(FclVec2 *)&ttmp[0x118] = func_002b2970(326.0f, 224.0f);
-        flow[6] = (*(CmbVec2f*)&ttmp[0x118]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(f32 *)(slot + 0x128) = flow[6].x;
-        *(f32 *)(slot + 0x12C) = flow[6].y;
-        *(f32 *)(slot + 0x118) = *(f32 *)(slot + 0x128);
-        *(s32 *)(slot + 0x11c) = *(f32 *)(slot + 0x12C);
-        *(f32 *)(slot + 0x120) = flow[5].x;
-        *(f32 *)(slot + 0x124) = flow[5].y;
-        *(s16 *)(slot + 0x132) = 0;
-        *(s16 *)(slot + 0x130) = 8;
-        *(s8 *)(slot + 0x114) = *(s8 *)(slot + 0x114) | 1;
-        fclWriteColorBytes(&ttmp[0x20],0xff,0xff,0xff,0xff);
-        (ttmp[0x98]) = (ttmp[0x20]);
-        (ttmp[0x97]) = (ttmp[0x1f]);
-        (ttmp[0x96]) = (ttmp[0x1e]);
-        (ttmp[0x95]) = (ttmp[0x1d]);
-        fclWriteColorBytes(&ttmp[0x1c],0xff,0xff,0xff,0);
-        (ttmp[0x94]) = (ttmp[0x1c]);
-        (ttmp[0x93]) = (ttmp[0x1b]);
-        (ttmp[0x92]) = (ttmp[0x1a]);
-        (ttmp[0x91]) = (ttmp[0x19]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(u8 *)(slot + 0x18c) = (ttmp[0x1c]);
-        *(u8 *)(slot + 0x18d) = (ttmp[0x1b]);
-        *(u8 *)(slot + 0x18e) = (ttmp[0x1a]);
-        *(u8 *)(slot + 0x18F) = (ttmp[0x19]);
-        *(u8 *)(slot + 0x184) = *(u8 *)(slot + 0x18c);
-        *(u8 *)(slot + 0x185) = *(u8 *)(slot + 0x18d);
-        *(u8 *)(slot + 0x186) = *(u8 *)(slot + 0x18e);
-        *(u8 *)(slot + 0x187) = *(u8 *)(slot + 0x18F);
-        *(u8 *)(slot + 0x188) = (ttmp[0x98]);
-        *(u8 *)(slot + 0x189) = (ttmp[0x97]);
-        *(u8 *)(slot + 0x18a) = (ttmp[0x96]);
-        *(u8 *)(slot + 0x18b) = (ttmp[0x95]);
-        *(s16 *)(slot + 0x190) = 0;
-        *(s16 *)(slot + 0x192) = 8;
-        *(s8 *)(slot + 0x114) = *(s8 *)(slot + 0x114) | 4;
-        *(FclVec2 *)&ttmp[0x128] = func_002b2970(250.0f, 95.0f);
-        flow[7] = (*(CmbVec2f*)&ttmp[0x128]);
-        slot = *(u8 **)(arg0 + 0x38);
-        table = *(s8 *)(slot + 0x170) * 0xc + slot;
-        *(f32 *)(table + 0x134) = flow[7].x;
-        *(f32 *)(table + 0x138) = flow[7].y;
-        *(s16 *)(table + 0x13c) = 5;
-        *(s8 *)(slot + 0x114) = *(s8 *)(slot + 0x114) | 8;
-        tmpI = func_002b2cb0(*(s8 *)(slot + 0x170),1,5,0,1);
-        *(s8 *)(slot + 0x170) = tmpI;
-        *(FclVec2 *)&ttmp[0x130] = func_002b2970(175.0f, 141.0f);
-        flow[8] = (*(CmbVec2f*)&ttmp[0x130]);
-        slot = *(u8 **)(arg0 + 0x38);
-        table = *(s8 *)(slot + 0x170) * 0xc + slot;
-        *(f32 *)(table + 0x134) = flow[8].x;
-        *(f32 *)(table + 0x138) = flow[8].y;
-        *(s16 *)(table + 0x13c) = 5;
-        *(s8 *)(slot + 0x114) = *(s8 *)(slot + 0x114) | 8;
-        tmpI = func_002b2cb0(*(s8 *)(slot + 0x170),1,5,0,1);
-        *(s8 *)(slot + 0x170) = tmpI;
-        *(FclVec2 *)&ttmp[0x140] = func_002b2970(156.0f, 232.0f);
-        flow[9] = (*(CmbVec2f*)&ttmp[0x140]);
-        *(FclVec2 *)&ttmp[0x138] = func_002b2970(326.0f, 224.0f);
-        flow[10] = (*(CmbVec2f*)&ttmp[0x138]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(f32 *)(slot + 0x1ac) = flow[10].x;
-        *(f32 *)(slot + 0x1b0) = flow[10].y;
-        *(f32 *)(slot + 0x19c) = *(f32 *)(slot + 0x1ac);
-        *(f32 *)(slot + 0x1a0) = *(f32 *)(slot + 0x1b0);
-        *(f32 *)(slot + 0x1a4) = flow[9].x;
-        *(f32 *)(slot + 0x1a8) = flow[9].y;
-        *(s16 *)(slot + 0x1b6) = 0;
-        *(s16 *)(slot + 0x1b4) = 8;
-        *(s8 *)(slot + 0x198) = *(s8 *)(slot + 0x198) | 1;
-        fclWriteColorBytes(&ttmp[0x28],0xff,0xff,0xff,0xff);
-        (ttmp[0xa0]) = (ttmp[0x28]);
-        (ttmp[0x9f]) = (ttmp[0x27]);
-        (ttmp[0x9e]) = (ttmp[0x26]);
-        (ttmp[0x9d]) = (ttmp[0x25]);
-        fclWriteColorBytes(&ttmp[0x24],0xff,0xff,0xff,0);
-        (ttmp[0x9c]) = (ttmp[0x24]);
-        (ttmp[0x9b]) = (ttmp[0x23]);
-        (ttmp[0x9a]) = (ttmp[0x22]);
-        (ttmp[0x99]) = (ttmp[0x21]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(u8 *)(slot + 0x210) = (ttmp[0x24]);
-        *(u8 *)(slot + 0x211) = (ttmp[0x23]);
-        *(u8 *)(slot + 0x212) = (ttmp[0x22]);
-        *(u8 *)(slot + 0x213) = (ttmp[0x21]);
-        *(u8 *)(slot + 0x208) = *(u8 *)(slot + 0x210);
-        *(u8 *)(slot + 0x209) = *(u8 *)(slot + 0x211);
-        *(u8 *)(slot + 0x20a) = *(u8 *)(slot + 0x212);
-        *(u8 *)(slot + 0x20b) = *(u8 *)(slot + 0x213);
-        *(u8 *)(slot + 0x20c) = (ttmp[0xa0]);
-        *(u8 *)(slot + 0x20d) = (ttmp[0x9f]);
-        *(u8 *)(slot + 0x20e) = (ttmp[0x9e]);
-        *(u8 *)(slot + 0x20f) = (ttmp[0x9d]);
-        *(s16 *)(slot + 0x214) = 0;
-        *(s16 *)(slot + 0x216) = 8;
-        *(s8 *)(slot + 0x198) = *(s8 *)(slot + 0x198) | 4;
-        *(FclVec2 *)&ttmp[0x150] = func_002b2970(156.0f, 232.0f);
-        flow[11] = (*(CmbVec2f*)&ttmp[0x150]);
-        *(FclVec2 *)&ttmp[0x148] = func_002b2970(326.0f, 224.0f);
-        flow[12] = (*(CmbVec2f*)&ttmp[0x148]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(f32 *)(slot + 0x230) = flow[12].x;
-        *(f32 *)(slot + 0x234) = flow[12].y;
-        *(f32 *)(slot + 0x220) = *(f32 *)(slot + 0x230);
-        *(f32 *)(slot + 0x224) = *(f32 *)(slot + 0x234);
-        *(f32 *)(slot + 0x228) = flow[11].x;
-        *(f32 *)(slot + 0x22c) = flow[11].y;
-        *(s16 *)(slot + 0x23a) = 0;
-        *(s16 *)(slot + 0x238) = 8;
-        *(s8 *)(slot + 0x21c) = *(s8 *)(slot + 0x21c) | 1;
-        fclWriteColorBytes(&ttmp[0x30],0xff,0xff,0xff,0xff);
-        (ttmp[0xa8]) = (ttmp[0x30]);
-        (ttmp[0xa7]) = (ttmp[0x2f]);
-        (ttmp[0xa6]) = (ttmp[0x2e]);
-        (ttmp[0xa5]) = (ttmp[0x2d]);
-        fclWriteColorBytes(&ttmp[0x2c],0xff,0xff,0xff,0);
-        (ttmp[0xa4]) = (ttmp[0x2c]);
-        (ttmp[0xa3]) = (ttmp[0x2b]);
-        (ttmp[0xa2]) = (ttmp[0x2a]);
-        (ttmp[0xa1]) = (ttmp[0x29]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(u8 *)(slot + 0x294) = (ttmp[0x2c]);
-        *(u8 *)(slot + 0x295) = (ttmp[0x2b]);
-        *(u8 *)(slot + 0x296) = (ttmp[0x2a]);
-        *(u8 *)(slot + 0x297) = (ttmp[0x29]);
-        *(u8 *)(slot + 0x28c) = *(u8 *)(slot + 0x294);
-        *(u8 *)(slot + 0x28d) = *(u8 *)(slot + 0x295);
-        *(u8 *)(slot + 0x28e) = *(u8 *)(slot + 0x296);
-        *(u8 *)(slot + 0x28f) = *(u8 *)(slot + 0x297);
-        *(u8 *)(slot + 0x290) = (ttmp[0xa8]);
-        *(u8 *)(slot + 0x291) = (ttmp[0xa7]);
-        *(u8 *)(slot + 0x292) = (ttmp[0xa6]);
-        *(u8 *)(slot + 0x293) = (ttmp[0xa5]);
-        *(s16 *)(slot + 0x298) = 0;
-        *(s16 *)(slot + 0x29a) = 8;
-        *(s8 *)(slot + 0x21c) = *(s8 *)(slot + 0x21c) | 4;
-        *(FclVec2 *)&ttmp[0x158] = func_002b2970(180.0f, 322.0f);
-        flow[13] = (*(CmbVec2f*)&ttmp[0x158]);
-        slot = *(u8 **)(arg0 + 0x38);
-        table = *(s8 *)(slot + 0x278) * 0xc + slot;
-        *(f32 *)(table + 0x23c) = flow[13].x;
-        *(f32 *)(table + 0x240) = flow[13].y;
-        *(s16 *)(table + 0x244) = 5;
-        *(s8 *)(slot + 0x21c) = *(s8 *)(slot + 0x21c) | 8;
-        tmpI = func_002b2cb0(*(s8 *)(slot + 0x278),1,5,0,1);
-        *(s8 *)(slot + 0x278) = tmpI;
-        *(FclVec2 *)&ttmp[0x168] = func_002b2970(156.0f, 232.0f);
-        flow[14] = (*(CmbVec2f*)&ttmp[0x168]);
-        *(FclVec2 *)&ttmp[0x160] = func_002b2970(326.0f, 224.0f);
-        flow[15] = (*(CmbVec2f*)&ttmp[0x160]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(f32 *)(slot + 0x2b4) = flow[15].x;
-        *(f32 *)(slot + 0x2b8) = flow[15].y;
-        *(f32 *)(slot + 0x2a4) = *(f32 *)(slot + 0x2b4);
-        *(f32 *)(slot + 0x2a8) = *(f32 *)(slot + 0x2b8);
-        *(f32 *)(slot + 0x2ac) = flow[14].x;
-        *(f32 *)(slot + 0x2b0) = flow[14].y;
-        *(s16 *)(slot + 0x2be) = 0;
-        *(s16 *)(slot + 0x2BC) = 8;
-        *(s8 *)(slot + 0x2a0) = *(s8 *)(slot + 0x2a0) | 1;
-        fclWriteColorBytes(&ttmp[0x38],0xff,0xff,0xff,0xff);
-        (ttmp[0xb0]) = (ttmp[0x38]);
-        (ttmp[0xaf]) = (ttmp[0x37]);
-        (ttmp[0xae]) = (ttmp[0x36]);
-        (ttmp[0xad]) = (ttmp[0x35]);
-        fclWriteColorBytes(&ttmp[0x34],0xff,0xff,0xff,0);
-        (ttmp[0xac]) = (ttmp[0x34]);
-        (ttmp[0xab]) = (ttmp[0x33]);
-        (ttmp[0xaa]) = (ttmp[0x32]);
-        (ttmp[0xa9]) = (ttmp[0x31]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(u8 *)(slot + 0x318) = (ttmp[0x34]);
-        *(u8 *)(slot + 0x319) = (ttmp[0x33]);
-        *(u8 *)(slot + 0x31a) = (ttmp[0x32]);
-        *(u8 *)(slot + 0x31b) = (ttmp[0x31]);
-        *(u8 *)(slot + 0x310) = *(u8 *)(slot + 0x318);
-        *(u8 *)(slot + 0x311) = *(u8 *)(slot + 0x319);
-        *(u8 *)(slot + 0x312) = *(u8 *)(slot + 0x31a);
-        *(u8 *)(slot + 0x313) = *(u8 *)(slot + 0x31b);
-        *(u8 *)(slot + 0x314) = (ttmp[0xb0]);
-        *(u8 *)(slot + 0x315) = (ttmp[0xaf]);
-        *(u8 *)(slot + 0x316) = (ttmp[0xae]);
-        *(u8 *)(slot + 0x317) = (ttmp[0xad]);
-        *(s16 *)(slot + 0x31c) = 0;
-        *(s16 *)(slot + 0x31e) = 8;
-        *(s8 *)(slot + 0x2a0) = *(s8 *)(slot + 0x2a0) | 4;
-        *(FclVec2 *)&ttmp[0x170] = func_002b2970(180.0f, 322.0f);
-        flow[16] = (*(CmbVec2f*)&ttmp[0x170]);
-        slot = *(u8 **)(arg0 + 0x38);
-        table = *(s8 *)(slot + 0x2fc) * 0xc + slot;
-        *(f32 *)(table + 0x2c0) = flow[16].x;
-        *(f32 *)(table + 0x2c4) = flow[16].y;
-        *(s16 *)(table + 0x2c8) = 5;
-        *(s8 *)(slot + 0x2a0) = *(s8 *)(slot + 0x2a0) | 8;
-        tmpI = func_002b2cb0(*(s8 *)(slot + 0x2fc),1,5,0,1);
-        *(s8 *)(slot + 0x2fc) = tmpI;
-        *(FclVec2 *)&ttmp[0x178] = func_002b2970(250.0f, 0x16B);
-        flow[17] = (*(CmbVec2f*)&ttmp[0x178]);
-        slot = *(u8 **)(arg0 + 0x38);
-        table = *(s8 *)(slot + 0x2fc) * 0xc + slot;
-        *(f32 *)(table + 0x2c0) = flow[17].x;
-        *(f32 *)(table + 0x2c4) = flow[17].y;
-        *(s16 *)(table + 0x2c8) = 5;
-        *(s8 *)(slot + 0x2a0) = *(s8 *)(slot + 0x2a0) | 8;
-        tmpI = func_002b2cb0(*(s8 *)(slot + 0x2fc),1,5,0,1);
-        *(s8 *)(slot + 0x2fc) = tmpI;
-        *(FclVec2 *)&ttmp[0x188] = func_002b2970(0x141, 388.0f);
-        flow[18] = (*(CmbVec2f*)&ttmp[0x188]);
-        *(FclVec2 *)&ttmp[0x180] = func_002b2970(326.0f, 224.0f);
-        flow[19] = (*(CmbVec2f*)&ttmp[0x180]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(f32 *)(slot + 0x338) = flow[19].x;
-        *(f32 *)(slot + 0x33c) = flow[19].y;
-        *(f32 *)(slot + 0x328) = *(f32 *)(slot + 0x338);
-        *(f32 *)(slot + 0x32c) = *(f32 *)(slot + 0x33c);
-        *(f32 *)(slot + 0x330) = flow[18].x;
-        *(f32 *)(slot + 0x334) = flow[18].y;
-        *(s16 *)(slot + 0x342) = 0;
-        *(s16 *)(slot + 0x340) = 8;
-        *(s8 *)(slot + 0x324) = *(s8 *)(slot + 0x324) | 1;
-        fclWriteColorBytes(&ttmp[0x40],0xff,0xff,0xff,0xff);
-        (ttmp[0xb8]) = (ttmp[0x40]);
-        (ttmp[0xb7]) = (ttmp[0x3f]);
-        (ttmp[0xb6]) = (ttmp[0x3e]);
-        (ttmp[0xb5]) = (ttmp[0x3d]);
-        fclWriteColorBytes(&ttmp[0x3c],0xff,0xff,0xff,0);
-        (ttmp[0xb4]) = (ttmp[0x3c]);
-        (ttmp[0xb3]) = (ttmp[0x3b]);
-        (ttmp[0xb2]) = (ttmp[0x3a]);
-        (ttmp[0xb1]) = (ttmp[0x39]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(u8 *)(slot + 0x39c) = (ttmp[0x3c]);
-        *(u8 *)(slot + 0x39d) = (ttmp[0x3b]);
-        *(u8 *)(slot + 0x39e) = (ttmp[0x3a]);
-        *(u8 *)(slot + 0x39f) = (ttmp[0x39]);
-        *(u8 *)(slot + 0x394) = *(u8 *)(slot + 0x39c);
-        *(u8 *)(slot + 0x395) = *(u8 *)(slot + 0x39d);
-        *(u8 *)(slot + 0x396) = *(u8 *)(slot + 0x39e);
-        *(u8 *)(slot + 0x397) = *(u8 *)(slot + 0x39f);
-        *(u8 *)(slot + 0x398) = (ttmp[0xb8]);
-        *(u8 *)(slot + 0x399) = (ttmp[0xb7]);
-        *(u8 *)(slot + 0x39a) = (ttmp[0xb6]);
-        *(u8 *)(slot + 0x39b) = (ttmp[0xb5]);
-        *(s16 *)(slot + 0x3a0) = 0;
-        *(s16 *)(slot + 0x3a2) = 8;
-        *(s8 *)(slot + 0x324) = *(s8 *)(slot + 0x324) | 4;
-        *(FclVec2 *)&ttmp[0x198] = func_002b2970(0x141, 388.0f);
-        flow[20] = (*(CmbVec2f*)&ttmp[0x198]);
-        *(FclVec2 *)&ttmp[0x190] = func_002b2970(326.0f, 224.0f);
-        flow[21] = (*(CmbVec2f*)&ttmp[0x190]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(f32 *)(slot + 0x3bc) = flow[21].x;
-        *(f32 *)(slot + 0x3c0) = flow[21].y;
-        *(f32 *)(slot + 0x3ac) = *(f32 *)(slot + 0x3bc);
-        *(f32 *)(slot + 0x3b0) = *(f32 *)(slot + 0x3c0);
-        *(f32 *)(slot + 0x3b4) = flow[20].x;
-        *(f32 *)(slot + 0x3b8) = flow[20].y;
-        *(s16 *)(slot + 0x3c6) = 0;
-        *(s16 *)(slot + 0x3c4) = 8;
-        *(s8 *)(slot + 0x3a8) = *(s8 *)(slot + 0x3a8) | 1;
-        fclWriteColorBytes(&ttmp[0x48],0xff,0xff,0xff,0xff);
-        (ttmp[0xc0]) = (ttmp[0x48]);
-        (ttmp[0xbf]) = (ttmp[0x47]);
-        (ttmp[0xbe]) = (ttmp[0x46]);
-        (ttmp[0xbd]) = (ttmp[0x45]);
-        fclWriteColorBytes(&ttmp[0x44],0xff,0xff,0xff,0);
-        (ttmp[0xbc]) = (ttmp[0x44]);
-        (ttmp[0xbb]) = (ttmp[0x43]);
-        (ttmp[0xba]) = (ttmp[0x42]);
-        (ttmp[0xb9]) = (ttmp[0x41]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(u8 *)(slot + 0x420) = (ttmp[0x44]);
-        *(u8 *)(slot + 0x421) = (ttmp[0x43]);
-        *(u8 *)(slot + 0x422) = (ttmp[0x42]);
-        *(u8 *)(slot + 0x423) = (ttmp[0x41]);
-        *(u8 *)(slot + 0x418) = *(u8 *)(slot + 0x420);
-        *(u8 *)(slot + 0x419) = *(u8 *)(slot + 0x421);
-        *(u8 *)(slot + 0x41a) = *(u8 *)(slot + 0x422);
-        *(u8 *)(slot + 0x41b) = *(u8 *)(slot + 0x423);
-        *(u8 *)(slot + 0x41c) = (ttmp[0xc0]);
-        *(u8 *)(slot + 0x41d) = (ttmp[0xbf]);
-        *(u8 *)(slot + 0x41e) = (ttmp[0xbe]);
-        *(u8 *)(slot + 0x41f) = (ttmp[0xbd]);
-        *(s16 *)(slot + 0x424) = 0;
-        *(s16 *)(slot + 0x426) = 8;
-        *(s8 *)(slot + 0x3a8) = *(s8 *)(slot + 0x3a8) | 4;
-        *(FclVec2 *)&ttmp[0x1a0] = func_002b2970(0x187, 0x16B);
-        flow[22] = (*(CmbVec2f*)&ttmp[0x1a0]);
-        slot = *(u8 **)(arg0 + 0x38);
-        table = *(s8 *)(slot + 0x404) * 0xc + slot;
-        *(f32 *)(table + 0x3c8) = flow[22].x;
-        *(f32 *)(table + 0x3cc) = flow[22].y;
-        *(s16 *)(table + 0x3d0) = 5;
-        *(s8 *)(slot + 0x3a8) = *(s8 *)(slot + 0x3a8) | 8;
-        tmpI = func_002b2cb0(*(s8 *)(slot + 0x404),1,5,0,1);
-        *(s8 *)(slot + 0x404) = tmpI;
-        *(FclVec2 *)&ttmp[0x1b0] = func_002b2970(0x141, 388.0f);
-        flow[23] = (*(CmbVec2f*)&ttmp[0x1b0]);
-        *(FclVec2 *)&ttmp[0x1a8] = func_002b2970(326.0f, 224.0f);
-        flow[24] = (*(CmbVec2f*)&ttmp[0x1a8]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(f32 *)(slot + 0x440) = flow[24].x;
-        *(f32 *)(slot + 0x444) = flow[24].y;
-        *(f32 *)(slot + 0x430) = *(f32 *)(slot + 0x440);
-        *(f32 *)(slot + 0x434) = *(f32 *)(slot + 0x444);
-        *(f32 *)(slot + 0x438) = flow[23].x;
-        *(f32 *)(slot + 0x43c) = flow[23].y;
-        *(s16 *)(slot + 0x44a) = 0;
-        *(s16 *)(slot + 0x448) = 8;
-        *(s8 *)(slot + 0x42c) = *(s8 *)(slot + 0x42c) | 1;
-        fclWriteColorBytes(&ttmp[0x50],0xff,0xff,0xff,0xff);
-        (ttmp[0xc8]) = (ttmp[0x50]);
-        (ttmp[0xc7]) = (ttmp[0x4f]);
-        (ttmp[0xc6]) = (ttmp[0x4e]);
-        (ttmp[0xc5]) = (ttmp[0x4d]);
-        fclWriteColorBytes(&ttmp[0x4c],0xff,0xff,0xff,0);
-        (ttmp[0xc4]) = (ttmp[0x4c]);
-        (ttmp[0xc3]) = (ttmp[0x4b]);
-        (ttmp[0xc2]) = (ttmp[0x4a]);
-        (ttmp[0xc1]) = (ttmp[0x49]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(u8 *)(slot + 0x4a4) = (ttmp[0x4c]);
-        *(u8 *)(slot + 0x4a5) = (ttmp[0x4b]);
-        *(u8 *)(slot + 0x4a6) = (ttmp[0x4a]);
-        *(u8 *)(slot + 0x4a7) = (ttmp[0x49]);
-        *(u8 *)(slot + 0x49c) = *(u8 *)(slot + 0x4a4);
-        *(u8 *)(slot + 0x49d) = *(u8 *)(slot + 0x4a5);
-        *(u8 *)(slot + 0x49e) = *(u8 *)(slot + 0x4a6);
-        *(u8 *)(slot + 0x49f) = *(u8 *)(slot + 0x4a7);
-        *(u8 *)(slot + 0x4a0) = (ttmp[0xc8]);
-        *(u8 *)(slot + 0x4a1) = (ttmp[0xc7]);
-        *(u8 *)(slot + 0x4a2) = (ttmp[0xc6]);
-        *(u8 *)(slot + 0x4a3) = (ttmp[0xc5]);
-        *(s16 *)(slot + 0x4a8) = 0;
-        *(s16 *)(slot + 0x4aa) = 8;
-        *(s8 *)(slot + 0x42c) = *(s8 *)(slot + 0x42c) | 4;
-        *(FclVec2 *)&ttmp[0x1b8] = func_002b2970(0x187, 0x16B);
-        flow[25] = (*(CmbVec2f*)&ttmp[0x1b8]);
-        slot = *(u8 **)(arg0 + 0x38);
-        table = *(s8 *)(slot + 0x488) * 0xc + slot;
-        *(f32 *)(table + 0x44c) = flow[25].x;
-        *(f32 *)(table + 0x450) = flow[25].y;
-        *(s16 *)(table + 0x454) = 5;
-        *(s8 *)(slot + 0x42c) = *(s8 *)(slot + 0x42c) | 8;
-        tmpI = func_002b2cb0(*(s8 *)(slot + 0x488),1,5,0,1);
-        *(s8 *)(slot + 0x488) = tmpI;
-        *(FclVec2 *)&ttmp[0x1c0] = func_002b2970(458.0f, 322.0f);
-        flow[26] = (*(CmbVec2f*)&ttmp[0x1c0]);
-        slot = *(u8 **)(arg0 + 0x38);
-        table = *(s8 *)(slot + 0x488) * 0xc + slot;
-        *(f32 *)(table + 0x44c) = flow[26].x;
-        *(f32 *)(table + 0x450) = flow[26].y;
-        *(s16 *)(table + 0x454) = 5;
-        *(s8 *)(slot + 0x42c) = *(s8 *)(slot + 0x42c) | 8;
-        tmpI = func_002b2cb0(*(s8 *)(slot + 0x488),1,5,0,1);
-        *(s8 *)(slot + 0x488) = tmpI;
-        *(FclVec2 *)&ttmp[0x1d0] = func_002b2970(482.0f, 232.0f);
-        flow[27] = (*(CmbVec2f*)&ttmp[0x1d0]);
-        *(FclVec2 *)&ttmp[0x1c8] = func_002b2970(326.0f, 224.0f);
-        flow[28] = (*(CmbVec2f*)&ttmp[0x1c8]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(f32 *)(slot + 0x4c4) = flow[28].x;
-        *(f32 *)(slot + 0x4c8) = flow[28].y;
-        *(f32 *)(slot + 0x4b4) = *(f32 *)(slot + 0x4c4);
-        *(f32 *)(slot + 0x4b8) = *(f32 *)(slot + 0x4c8);
-        *(f32 *)(slot + 0x4bc) = flow[27].x;
-        *(f32 *)(slot + 0x4c0) = flow[27].y;
-        *(s16 *)(slot + 0x4ce) = 0;
-        *(s16 *)(slot + 0x4cc) = 8;
-        *(s8 *)(slot + 0x4b0) = *(s8 *)(slot + 0x4b0) | 1;
-        fclWriteColorBytes(&ttmp[0x58],0xff,0xff,0xff,0xff);
-        (ttmp[0xd0]) = (ttmp[0x58]);
-        (ttmp[0xcf]) = (ttmp[0x57]);
-        (ttmp[0xce]) = (ttmp[0x56]);
-        (ttmp[0xcd]) = (ttmp[0x55]);
-        fclWriteColorBytes(&ttmp[0x54],0xff,0xff,0xff,0);
-        (ttmp[0xcc]) = (ttmp[0x54]);
-        (ttmp[0xcb]) = (ttmp[0x53]);
-        (ttmp[0xca]) = (ttmp[0x52]);
-        (ttmp[0xc9]) = (ttmp[0x51]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(u8 *)(slot + 0x528) = (ttmp[0x54]);
-        *(u8 *)(slot + 0x529) = (ttmp[0x53]);
-        *(u8 *)(slot + 0x52a) = (ttmp[0x52]);
-        *(u8 *)(slot + 0x52b) = (ttmp[0x51]);
-        *(u8 *)(slot + 0x520) = *(u8 *)(slot + 0x528);
-        *(u8 *)(slot + 0x521) = *(u8 *)(slot + 0x529);
-        *(u8 *)(slot + 0x522) = *(u8 *)(slot + 0x52a);
-        *(u8 *)(slot + 0x523) = *(u8 *)(slot + 0x52b);
-        *(u8 *)(slot + 0x524) = (ttmp[0xd0]);
-        *(u8 *)(slot + 0x525) = (ttmp[0xcf]);
-        *(u8 *)(slot + 0x526) = (ttmp[0xce]);
-        *(u8 *)(slot + 0x527) = (ttmp[0xcd]);
-        *(s16 *)(slot + 0x52c) = 0;
-        *(s16 *)(slot + 0x52e) = 8;
-        *(s8 *)(slot + 0x4b0) = *(s8 *)(slot + 0x4b0) | 4;
-        *(FclVec2 *)&ttmp[0x1e0] = func_002b2970(482.0f, 232.0f);
-        flow[29] = (*(CmbVec2f*)&ttmp[0x1e0]);
-        *(FclVec2 *)&ttmp[0x1d8] = func_002b2970(326.0f, 224.0f);
-        flow[30] = (*(CmbVec2f*)&ttmp[0x1d8]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(f32 *)(slot + 0x548) = flow[30].x;
-        *(f32 *)(slot + 0x54c) = flow[30].y;
-        *(f32 *)(slot + 0x538) = *(f32 *)(slot + 0x548);
-        *(f32 *)(slot + 0x53c) = *(f32 *)(slot + 0x54c);
-        *(f32 *)(slot + 0x540) = flow[29].x;
-        *(f32 *)(slot + 0x544) = flow[29].y;
-        *(s16 *)(slot + 0x552) = 0;
-        *(s16 *)(slot + 0x550) = 8;
-        *(s8 *)(slot + 0x534) = *(s8 *)(slot + 0x534) | 1;
-        fclWriteColorBytes(&ttmp[0x60],0xff,0xff,0xff,0xff);
-        (ttmp[0xd8]) = (ttmp[0x60]);
-        (ttmp[0xd7]) = (ttmp[0x5f]);
-        (ttmp[0xd6]) = (ttmp[0x5e]);
-        (ttmp[0xd5]) = (ttmp[0x5d]);
-        fclWriteColorBytes(&ttmp[0x5c],0xff,0xff,0xff,0);
-        (ttmp[0xd4]) = (ttmp[0x5c]);
-        (ttmp[0xd3]) = (ttmp[0x5b]);
-        (ttmp[0xd2]) = (ttmp[0x5a]);
-        (ttmp[0xd1]) = (ttmp[0x59]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(u8 *)(slot + 0x5ac) = (ttmp[0x5c]);
-        *(u8 *)(slot + 0x5ad) = (ttmp[0x5b]);
-        *(u8 *)(slot + 0x5ae) = (ttmp[0x5a]);
-        *(u8 *)(slot + 0x5af) = (ttmp[0x59]);
-        *(u8 *)(slot + 0x5a4) = *(u8 *)(slot + 0x5ac);
-        *(u8 *)(slot + 0x5a5) = *(u8 *)(slot + 0x5ad);
-        *(u8 *)(slot + 0x5a6) = *(u8 *)(slot + 0x5ae);
-        *(u8 *)(slot + 0x5a7) = *(u8 *)(slot + 0x5af);
-        *(u8 *)(slot + 0x5a8) = (ttmp[0xd8]);
-        *(u8 *)(slot + 0x5a9) = (ttmp[0xd7]);
-        *(u8 *)(slot + 0x5aa) = (ttmp[0xd6]);
-        *(u8 *)(slot + 0x5ab) = (ttmp[0xd5]);
-        *(s16 *)(slot + 0x5b0) = 0;
-        *(s16 *)(slot + 0x5b2) = 8;
-        *(s8 *)(slot + 0x534) = *(s8 *)(slot + 0x534) | 4;
-        *(FclVec2 *)&ttmp[0x1e8] = func_002b2970(462.0f, 141.0f);
-        flow[31] = (*(CmbVec2f*)&ttmp[0x1e8]);
-        slot = *(u8 **)(arg0 + 0x38);
-        table = *(s8 *)(slot + 0x590) * 0xc + slot;
-        *(f32 *)(table + 0x554) = flow[31].x;
-        *(f32 *)(table + 0x558) = flow[31].y;
-        *(s16 *)(table + 0x55c) = 5;
-        *(s8 *)(slot + 0x534) = *(s8 *)(slot + 0x534) | 8;
-        tmpI = func_002b2cb0(*(s8 *)(slot + 0x590),1,5,0,1);
-        *(s8 *)(slot + 0x590) = tmpI;
-        *(FclVec2 *)&ttmp[0x1f8] = func_002b2970(482.0f, 232.0f);
-        flow[32] = (*(CmbVec2f*)&ttmp[0x1f8]);
-        *(FclVec2 *)&ttmp[0x1f0] = func_002b2970(326.0f, 224.0f);
-        flow[33] = (*(CmbVec2f*)&ttmp[0x1f0]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(f32 *)(slot + 0x5cc) = flow[33].x;
-        *(f32 *)(slot + 0x5d0) = flow[33].y;
-        *(f32 *)(slot + 0x5bc) = *(f32 *)(slot + 0x5cc);
-        *(f32 *)(slot + 0x5c0) = *(f32 *)(slot + 0x5d0);
-        *(f32 *)(slot + 0x5c4) = flow[32].x;
-        *(f32 *)(slot + 0x5c8) = flow[32].y;
-        *(s16 *)(slot + 0x5d6) = 0;
-        *(s16 *)(slot + 0x5d4) = 8;
-        *(s8 *)(slot + 0x5b8) = *(s8 *)(slot + 0x5b8) | 1;
-        fclWriteColorBytes(&ttmp[0x68],0xff,0xff,0xff,0xff);
-        (ttmp[0xe0]) = (ttmp[0x68]);
-        (ttmp[0xdf]) = (ttmp[0x67]);
-        (ttmp[0xde]) = (ttmp[0x66]);
-        (ttmp[0xdd]) = (ttmp[0x65]);
-        fclWriteColorBytes(&ttmp[0x64],0xff,0xff,0xff,0);
-        (ttmp[0xdc]) = (ttmp[0x64]);
-        (ttmp[0xdb]) = (ttmp[0x63]);
-        (ttmp[0xda]) = (ttmp[0x62]);
-        (ttmp[0xd9]) = (ttmp[0x61]);
-        slot = *(u8 **)(arg0 + 0x38);
-        *(u8 *)(slot + 0x630) = (ttmp[0x64]);
-        *(u8 *)(slot + 0x631) = (ttmp[0x63]);
-        *(u8 *)(slot + 0x632) = (ttmp[0x62]);
-        *(u8 *)(slot + 0x633) = (ttmp[0x61]);
-        *(u8 *)(slot + 0x628) = *(u8 *)(slot + 0x630);
-        *(u8 *)(slot + 0x629) = *(u8 *)(slot + 0x631);
-        *(u8 *)(slot + 0x62a) = *(u8 *)(slot + 0x632);
-        *(u8 *)(slot + 0x62b) = *(u8 *)(slot + 0x633);
-        *(u8 *)(slot + 0x62c) = (ttmp[0xe0]);
-        *(u8 *)(slot + 0x62d) = (ttmp[0xdf]);
-        *(u8 *)(slot + 0x62e) = (ttmp[0xde]);
-        *(u8 *)(slot + 0x62f) = (ttmp[0xdd]);
-        *(s16 *)(slot + 0x634) = 0;
-        *(s16 *)(slot + 0x636) = 8;
-        *(s8 *)(slot + 0x5b8) = *(s8 *)(slot + 0x5b8) | 4;
-        *(FclVec2 *)&ttmp[0x200] = func_002b2970(462.0f, 141.0f);
-        flow[34] = (*(CmbVec2f*)&ttmp[0x200]);
-        slot = *(u8 **)(arg0 + 0x38);
-        table = *(s8 *)(slot + 0x614) * 0xc + slot;
-        *(f32 *)(table + 0x5d8) = flow[34].x;
-        *(f32 *)(table + 0x5dc) = flow[34].y;
-        *(s16 *)(table + 0x5e0) = 5;
-        *(s8 *)(slot + 0x5b8) = *(s8 *)(slot + 0x5b8) | 8;
-        tmpI = func_002b2cb0(*(s8 *)(slot + 0x614),1,5,0,1);
-        *(s8 *)(slot + 0x614) = tmpI;
-        *(FclVec2 *)&ttmp[0x208] = func_002b2970(0x187, 95.0f);
-        flow[35] = (*(CmbVec2f*)&ttmp[0x208]);
-        slot = *(u8 **)(arg0 + 0x38);
-        table = *(s8 *)(slot + 0x614) * 0xc + slot;
-        *(f32 *)(table + 0x5d8) = flow[35].x;
-        *(f32 *)(table + 0x5dc) = flow[35].y;
-        *(s16 *)(table + 0x5e0) = 5;
-        *(s8 *)(slot + 0x5b8) = *(s8 *)(slot + 0x5b8) | 8;
-        tmpI = func_002b2cb0(*(s8 *)(slot + 0x614),1,5,0,1);
-        *(s8 *)(slot + 0x614) = tmpI;
+            cmbSetMove(arg0, 0, func_002b2970(326.0f, 224.0f), func_002b2970(0x141, 70.0f), 8);
+            cmbSetColor(arg0, 0, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbSetMove(arg0, 1, func_002b2970(326.0f, 224.0f), func_002b2970(0x141, 70.0f), 8);
+            cmbSetColor(arg0, 1, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 1, func_002b2970(250.0f, 95.0f), 5);
+            cmbSetMove(arg0, 2, func_002b2970(326.0f, 224.0f), func_002b2970(0x141, 70.0f), 8);
+            cmbSetColor(arg0, 2, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 2, func_002b2970(250.0f, 95.0f), 5);
+            cmbAddPath(arg0, 2, func_002b2970(175.0f, 141.0f), 5);
+            cmbSetMove(arg0, 3, func_002b2970(326.0f, 224.0f), func_002b2970(156.0f, 232.0f), 8);
+            cmbSetColor(arg0, 3, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbSetMove(arg0, 4, func_002b2970(326.0f, 224.0f), func_002b2970(156.0f, 232.0f), 8);
+            cmbSetColor(arg0, 4, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 4, func_002b2970(180.0f, 322.0f), 5);
+            cmbSetMove(arg0, 5, func_002b2970(326.0f, 224.0f), func_002b2970(156.0f, 232.0f), 8);
+            cmbSetColor(arg0, 5, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 5, func_002b2970(180.0f, 322.0f), 5);
+            cmbAddPath(arg0, 5, func_002b2970(250.0f, 0x16B), 5);
+            cmbSetMove(arg0, 6, func_002b2970(326.0f, 224.0f), func_002b2970(0x141, 388.0f), 8);
+            cmbSetColor(arg0, 6, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbSetMove(arg0, 7, func_002b2970(326.0f, 224.0f), func_002b2970(0x141, 388.0f), 8);
+            cmbSetColor(arg0, 7, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 7, func_002b2970(0x187, 0x16B), 5);
+            cmbSetMove(arg0, 8, func_002b2970(326.0f, 224.0f), func_002b2970(0x141, 388.0f), 8);
+            cmbSetColor(arg0, 8, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 8, func_002b2970(0x187, 0x16B), 5);
+            cmbAddPath(arg0, 8, func_002b2970(458.0f, 322.0f), 5);
+            cmbSetMove(arg0, 9, func_002b2970(326.0f, 224.0f), func_002b2970(482.0f, 232.0f), 8);
+            cmbSetColor(arg0, 9, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbSetMove(arg0, 10, func_002b2970(326.0f, 224.0f), func_002b2970(482.0f, 232.0f), 8);
+            cmbSetColor(arg0, 10, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 10, func_002b2970(462.0f, 141.0f), 5);
+            cmbSetMove(arg0, 11, func_002b2970(326.0f, 224.0f), func_002b2970(482.0f, 232.0f), 8);
+            cmbSetColor(arg0, 11, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 11, func_002b2970(462.0f, 141.0f), 5);
+            cmbAddPath(arg0, 11, func_002b2970(0x187, 95.0f), 5);
             *(s16 *)(obj + 0x63C) = 6;
         }
         break;
@@ -2003,17 +1369,18 @@ s32 func_00345700(u8 *arg0) {
                 *(s16 *)(slot + 0x7A) = 3;
                 *(s8 *)(slot + 0xC) |= 2;
                 table6 = obj + (s32)i6 * 4;
-                slot2 = obj + (s32)i6 * 0x84;
+                slot = obj + (s32)i6 * 0x84;
                 table = table6 + 0x658;
-                fvalue = *(f32 *)(slot2 + 0x20) + 12.0f;
+                fvalue = *(f32 *)(slot + 0x20) + 12.0f;
                 ret = (u8 *)func_00348290(*(u8 **)table);
                 *(f32 *)(ret + 0x134) = fvalue;
-                fvalue = *(f32 *)(slot2 + 0x24);
+                fvalue = *(f32 *)(slot + 0x24);
                 ret = (u8 *)func_00348290(*(u8 **)table);
                 *(f32 *)(ret + 0x138) = fvalue;
                 func_003482a0(*(u8 **)table, 0, 0x80, 0x32);
+                fvalue = iGpffff8508;
                 ret = (u8 *)func_00348290(*(u8 **)table);
-                *(f32 *)(ret + 0x1A0) = iGpffff8508;
+                *(f32 *)(ret + 0x1A0) = fvalue;
                 i6++;
             }
             *(s16 *)(obj + 0x63C) = 7;
@@ -2021,21 +1388,14 @@ s32 func_00345700(u8 *arg0) {
         break;
     case 7:
         func_0045aeb0(2, D_0064A5B0);
-        *(CmbVec3f *)(workB + 0x10) = func_002b29a0(0.0f, -5.0f, 30.0f);
-        fclWriteColorBytes(workB + 0x144,
-                      0xFF, 0xFF, 0xFF, 0xFFU);
-        *(CmbVec3f *)(workB + 0x20) = func_002b29a0(35.0f, 5.0f, 30.0f);
-        fclWriteColorBytes(workB + 0x148,
-                      0xFF, 0xFF, 0xFF, 0xFFU);
         func_00348a90(*(u8 **)(obj + 0x64C),
-                      (CmbVec3f *)(workB + 0x10),
-                      *(CmbRGBA *)(workB + 0x144), 0, 0x28,
-                      (CmbVec3f *)(workB + 0x20),
-                      *(CmbRGBA *)(workB + 0x148),
+                      func_002b29a0(0.0f, -5.0f, 30.0f),
                       0.0f, 0.0f, 0.0f, iGpffff850c,
-                      0.0f, 0.0f, 31.5f, iGpffff850c);
+                      func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28,
+                      func_002b29a0(35.0f, 5.0f, 30.0f),
+                      0.0f, 0.0f, 31.5f, iGpffff850c,
+                      func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU));
         *(s16 *)(obj + 0x63C) = 8;
-        /* fallthrough */
     case 8:
         if (func_00452490(*(s32 *)(obj + 0x64C)) != 1) {
             i8 = 0;
@@ -2052,28 +1412,13 @@ s32 func_00345700(u8 *arg0) {
         if (func_00285b30() >= 0x1EA) {
             i9 = 0;
             while (i9 < 12) {
-                *(FclVec2 *)(workB + 0x8) = func_002b2970(323.0f, 217.0f);
-                flow[36] = (*(CmbVec2f*)(workB + 0x8));
-                *(CmbVec2f *)&workF70 = flow[36];
-                slot = *(u8 **)(arg0 + 0x38);
-                slot += (s32)i9 * 0x84;
-                table = obj + (s32)i9 * 0x84;
-                *(CmbVec2f *)(slot + 0x20) =
-                    *(CmbVec2f *)(table + 0x20);
-                *(CmbVec2f *)(slot + 0x10) =
-                    *(CmbVec2f *)(slot + 0x20);
-                *(CmbVec2f *)(slot + 0x18) =
-                    *(CmbVec2f *)&workF70;
-                *(s16 *)(slot + 0x2A) = 0;
-                *(s16 *)(slot + 0x28) = 3;
-                *(s8 *)(slot + 0xC) |= 1;
+                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(0x143, 217.0f), 3);
                 table = obj + (s32)i9 * 4;
-                slot2 = table + 0x658;
-                ret = (u8 *)func_00348290(*(u8 **)slot2);
-                *(FclVec2 *)(workB + 0x0) = func_002b2970(339.0f, 217.0f);
-                func_003482d0(*(u8 **)slot2,
+                slot = table + 0x658;
+                ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+                func_003482d0(*(u8 **)slot,
                               *(CmbVec2f *)(ret + 0x134),
-                              *(CmbVec2f *)(workB + 0x0), 3);
+                              func_002b2970(0x153, 217.0f), 3);
                 i9++;
             }
             *(s16 *)(obj + 0x63C) = 10;
@@ -2083,25 +1428,7 @@ s32 func_00345700(u8 *arg0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i10 = 0;
         while (i10 < 12) {
-            fclWriteColorBytes(workB + 0x13C,
-                          0xFF, 0xFF, 0xFF, 0U);
-            *(CmbRGBA *)(workB + 0xFC) =
-                *(CmbRGBA *)(workB + 0x13C);
-            fclWriteColorBytes(workB + 0x140,
-                          0xFF, 0xFF, 0xFF, 0xFFU);
-            *(CmbRGBA *)(workB + 0x100) =
-                *(CmbRGBA *)(workB + 0x140);
-            slot = *(u8 **)(arg0 + 0x38);
-            slot += (s32)i10 * 0x84;
-            *(CmbRGBA *)(slot + 0x84) =
-                *(CmbRGBA *)(workB + 0x100);
-            *(CmbRGBA *)(slot + 0x7C) =
-                *(CmbRGBA *)(slot + 0x84);
-            *(CmbRGBA *)(slot + 0x80) =
-                *(CmbRGBA *)(workB + 0xFC);
-            *(s16 *)(slot + 0x88) = 0;
-            *(s16 *)(slot + 0x8A) = 0;
-            *(s8 *)(slot + 0xC) |= 4;
+            cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i10 * 4;
             ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
@@ -2110,8 +1437,7 @@ s32 func_00345700(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 11;
         break;
     case 11:
-        if (func_00285b30() >= 0x208 &&
-            func_00285b30() < 0x348) {
+        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
             func_00106390(0x1450, 1);
         }
         break;
@@ -2121,9 +1447,6 @@ s32 func_00345700(u8 *arg0) {
     }
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_00345700);
-#endif
 
 // FUN_00347940
 void func_00347940(u8 *arg0) {
@@ -2515,9 +1838,9 @@ void func_003489c0(u8 *arg0, CmbVec3f src, f32 f0, f32 f1, f32 f2, f32 f3, CmbRG
 }
 
 // FUN_00348A90
-void func_00348a90(u8 *arg0, CmbVec3f *src1, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f *src2, CmbRGBA arg6, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5, f32 f6, f32 f7) {
-    CmbVec3f tmp1 = *src1;
-    CmbVec3f tmp2 = *src2;
+void func_00348a90(u8 *arg0, CmbVec3f src1, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f src2, f32 f4, f32 f5, f32 f6, f32 f7, CmbRGBA arg6) {
+    CmbVec3f tmp1 = src1;
+    CmbVec3f tmp2 = src2;
     u8 *obj = *(u8 **)(arg0 + 0x38);
     f32 farg2 = *(f32 *)&arg2;
     *(s8 *)(obj + 4) = 1;
