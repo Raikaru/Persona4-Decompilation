@@ -1,7 +1,11 @@
 #include "include_asm.h"
 #include "type.h"
 #include "effect_instance_internal.h"
+#include "effect_vu0_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
+typedef struct EffRandState EffRandState;
+extern u32 effMiscRand(EffRandState *state);
+extern f32 effMiscRandFloat(EffRandState *state);
 
 typedef struct RwV3d
 {
@@ -31,13 +35,14 @@ extern void func_003e9390(s32 arg0);
 void func_003e9cb0(void *frame, void *matrix, u32 flags);
 extern void func_004823e0(u8 *arg0);
 extern void func_00481f30(u8 *arg0, s32 arg1);
-extern s32 func_004861f0(u8 *arg0, f32 *arg1);
+extern void func_004861f0(u8 *arg0, f32 *arg1);
 extern void effMiscQuatMultiplyVU(void);
 extern void func_0048a2b0(u8 *arg0, u8 *arg1);
 extern f32 func_0044b920(f32 arg0);
 extern f32 func_0044b950(f32 arg0, f32 arg1);
+extern f32 fabsf(f32 value);
 extern void func_004bcf20(f32 arg0, f32 arg1, f32 arg2);
-extern s32 func_004bceb0(void);
+extern void func_004bceb0(void);
 extern void func_00486400(u8 *arg0, f32 arg1);
 extern void func_00484790(u8 *arg0);
 extern void func_004847e0(u8 *arg0);
@@ -850,7 +855,7 @@ u_long128 func_00484b30(u8 *arg0)
 #pragma opt_propagation off
 u8 *func_00484bb0(u8 *arg0)
 {
-    extern s32 func_004861f0(u8 *arg0, f32 *arg1);
+    extern void func_004861f0(u8 *arg0, f32 *arg1);
     extern void func_00486330(u8 *arg0, u8 *arg1);
     extern void func_00486400(u8 *arg0, f32 arg1);
     extern void func_004865c0(u8 *arg0, s32 arg1);
@@ -1122,41 +1127,11 @@ u8 *func_00484bb0(u8 *arg0)
     }
 }
 #pragma pop
-/* Guarded body, 2026-09-28: 3 differing words against retail (fnalign 141/141,
-   one edit; the older body scored 114 positional words, which was one
-   insert/delete wall's cascade).  It follows its sibling func_00485870 below;
-   retail differences: no `count <= 0` early-out, the child test uses the raw
-   `*(s32 *)(arg0 + 0x84)`, there is no `flags & 0x80000000` arm in the loop,
-   the final per-child callback is at table offset 0x08, and the tail sets the
-   0x80000000 bit and bumps the 0x84 counter.  The four quadword slots are
-   separate locals, which puts the frame at retail's 0x90.
-   What closed everything but the last triplet (each measured):
-   - `#pragma opt_propagation off`, which the neighbouring 84bb0/85c80 already
-     carry.  With it a `u_long128 *` local holding `sp50` is not folded back
-     into `sq 0x50($sp)`, so the save is retail's `addiu $v1,$sp,0x50` /
-     `lq $v0,0x50($s2)` / `sq $v0,0($v1)` and the restore is materialised too.
-   - two pointer locals, each assigned right before its use: one local
-     assigned once is held in `$s0` across both calls (one instruction short).
-   - the last callback as one call expression, so the argument load
-     (`lw $a0,8($v0)`) precedes the `lhu`; a `fn = ...; fn(arg)` temp cannot.
-   - `for`/`continue` instead of the m2c goto layout (same code).
-   RESIDUAL (3 words): the restore is `addiu $v1,$sp,0x50` / `lq $v1,0($v1)` /
-   `sq $v1,0x50($s2)`; retail uses `$v0` for all three.  b210 keeps `$v0` out
-   of temps in a void function while the exit is reachable without another
-   call (micro test: one call added at the exit flips every temp here to
-   `$v0`), and no C spelling tried moves it: separate/shared/block-scoped
-   pointer locals, `u8 *` pointer, `register`, value temp, `u_long128[1]` and
-   struct-wrapped slots, `opt_common_subs`/`opt_lifetimes`/`opt_dead_assignments`
-   off.  All four `addiu $2,$29,N; lq $2,0($2)` sites in the retail image
-   (85630, 85870, 48f5f0, 497ce0) use `$2` for pointer and data, and a micro
-   test with hard-coded `lq $2`/`sq $2` inline asm and a `"$2"` clobber
-   (like the earlier draft's `mfc1 $2` blocks) reproduces retail's registers, so
-   the original probably copied the quad through an asm macro.  That is
-   ordinary computation (lint H009), so it stays out of the source. */
-/* measured 2026-09-28: 564/576B, three restore-register words remain.
- * All ten relocations resolve. Aligned scalar storage and explicit VU memory
- * operands preserve the candidate; qmtc2 float operands let the compiler emit
- * its own GPR transfers. Production retains the retail assembly. */
+/* Guarded native proof, 2026-09-29: 564/576 bytes; three restore-register
+ * words differ. The restored quadword uses v1 where retail uses v0.
+ * Separate save/restore pointers and opt_propagation off preserve the
+ * retail 0x90 frame and address materialization. No computation asm is
+ * used to force the remaining register choice. Production retains ASM. */
 // FUN_00485630 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1252,25 +1227,10 @@ void func_00485630(u8 *arg0)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485630);
 #endif
-/* Guarded body, 2026-09-28: 3 differing words against retail (fnalign 154/154,
-   one edit; was 10 words / four edits).  Same recipe and same residual as the
-   sibling func_00485630 above, whose note has the measurements:
-   - the parameter is `u8 *` (declaration above and func_00485ae0 updated; the
-     caller still matches).  With `s32 arg0` every `(u8 *)arg0 + 0x50` is a
-     separate expression and b210 hoists it into `$s0` across the calls, the
-     old extra `addiu $s0,$s4,0x50`; a real pointer parameter does not.
-   - `#pragma opt_propagation off`, two pointer locals for the save slot, the
-     last callback as one call expression, `for`/`continue` for the child loop.
-     The old body's `save_slot = 0` dummy initialiser is gone (no effect).
-   - `mask` stays a named local: retail keeps 0x80000000 in `$s0` across the
-     loop, and without the local b210 rematerialises it and the frame drops
-     to 0xa0.
-   RESIDUAL (3 words): restore temps are `$v1` where retail has `$v0` (see
-   the func_00485630 note for the measurements and the asm-macro hypothesis). */
-/* measured 2026-09-28: 616/624B, three restore-register words remain.
- * All ten relocations resolve. Aligned scalar storage and explicit VU memory
- * operands preserve the candidate; qmtc2 float operands let the compiler emit
- * its own GPR transfers. Production retains the retail assembly. */
+/* Guarded native proof, 2026-09-29: 616/624 bytes; three restore-register
+ * words differ, as in func_00485630. The pointer parameter, named mask,
+ * and separate save/restore pointers preserve the retail 0xb0 frame.
+ * The residual is not an exact match; production retains ASM. */
 // FUN_00485870 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1614,7 +1574,7 @@ void func_00486180(u8 *arg0)
 }
 
 // FUN_004861F0
-s32 func_004861f0(u8 *arg0, f32 *arg1)
+void func_004861f0(u8 *arg0, f32 *arg1)
 {
     u_long128 sp50[4];
     u_long128 sp40;
@@ -2507,7 +2467,11 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
     }
     *(f32 *)(arg0 + 0x1C) = 0.0f;
 }
-/* M2C-raw draft (does not compile; no sizes/words yet; window 1696B): V048 body has 78 M2C_ERROR COP2 sites (pextlb/pextlh/qmtc2/vitof0/vmulx/vmove unpacks + sqc2/vsub/vaddw/vmul stores -- full VU sequence needing per-transfer asm blocks verbatim 00485630/effBlurFilter shape) + 2 M2C_BITWISE + 30 M2C_FIELD (nested; iterative innermost-first expansion recipe proven clean) + M2C_UNK s0/s1/spE0/spD0 (dead locals, only decls -- s32 safe, zero codegen) + s128/u128 quad slots (->u_long128 direct, separate 16B slots per Main, never merged); conversion casts (f32)(u32) at 0x48/0x98/0x194/0x500 and (u32)float at 0x20C per header; next: expand FIELDs + fix types in scratch, convert each M2C_ERROR to one asm block (block boundaries = addiu setup), goto-form control flow, then probe (row is unique so probe finds it) + fnalign top-down. Production stays ASM. */
+/* Guarded native proof, 2026-09-29: 1668/1696 bytes, 373 differing words.
+ * Branch-local packed-color outputs recover the retail 0x150 frame.
+ * Approved VU helpers own complete C objects and allocated transfer registers.
+ * Count is read at its address use; interpolation increments before attributes.
+ * Instruction differences remain; production retains ASM. */
 // FUN_0048B340 NONMATCHING
 #ifdef NON_MATCHING
 void func_0048b340(u8 *arg0, u8 *arg1)
@@ -2518,17 +2482,13 @@ void func_0048b340(u8 *arg0, u8 *arg1)
     u_long128 quadF0[4];
     u_long128 tmpE0;
     u_long128 tmpD0;
-    u32 boundC0;
-    s32 colTmpA;
-    s32 colTmpB;
     u8 *config;
     s32 c4;
     u32 c0;
+    u32 boundC0;
     u32 nmult;
     s32 node10;
     u8 *nodesBase;
-    u8 *clear;
-    u32 count;
     f32 one;
     f32 invN;
     f32 acc;
@@ -2540,8 +2500,8 @@ void func_0048b340(u8 *arg0, u8 *arg1)
     f32 baseY;
     f32 diffY;
     f32 packScale;
-    u32 packedTmp;
     u8 *dst1;
+    u8 *clear;
     u8 *src1;
     u8 *dst2;
     u8 *dst3;
@@ -2563,8 +2523,7 @@ void func_0048b340(u8 *arg0, u8 *arg1)
     }
     node10 = *(s32 *)(arg1 + 0x10);
     nodesBase = *(u8 **)(arg0 + 0x18);
-    count = *(u32 *)(arg0 + 4);
-    clear = nodesBase + 32 * (count + ((u32)(arg1 - nodesBase) >> 5) * nmult);
+    clear = nodesBase + 32 * (*(u32 *)(arg0 + 4) + ((u32)(arg1 - nodesBase) >> 5) * nmult);
     if (node10 == 0) {
         memcpy(clear, arg1, 0x20);
         dst1 = clear;
@@ -2609,6 +2568,10 @@ loop1_check:
         return;
     }
     if ((node10 >= 2) && (c0 >= 3)) {
+        s32 colTmpA;
+        s32 colTmpB;
+        u32 packedTmp;
+        u32 colorTransfer;
         second = clear + (u32)(c4 * 32);
         if (*(s32 *)(clear + (u32)(c4 * 64) + 0x10) < 0) {
             return;
@@ -2629,43 +2592,18 @@ loop1_check:
         packScale = 255.0f;
         {
             f32 sc = fGpffff8044;
+            effectVuUnpackColor10((u32 *)&colTmpA, sc);
+            __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf10", "$vf11");
+            effectVuUnpackColor10((u32 *)&colTmpB, sc);
+            effectVuStore10((EffectVuVector *)&tmpE0);
             __asm__ volatile(
-                "lw $2, 0(%0)\n"
-                "pextlb $2, $zero, $2\n"
-                "pextlh $2, $zero, $2\n"
-                "qmtc2.ni $2, $vf10\n"
-                "vitof0.xyzw $vf10, $vf10\n"
-                "mfc1 $2, %1\n"
-                "nop\n"
-                "qmtc2.ni $2, $vf2\n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                "vmove.xyzw $vf11, $vf10\n"
-                :
-                : "r"(&colTmpA), "f"(sc)
-                : "$2", "$vf2", "$vf10", "$vf11", "memory");
-            __asm__ volatile(
-                "lw $2, 0(%0)\n"
-                "pextlb $2, $zero, $2\n"
-                "pextlh $2, $zero, $2\n"
-                "qmtc2.ni $2, $vf10\n"
-                "vitof0.xyzw $vf10, $vf10\n"
-                "mfc1 $2, %1\n"
-                "nop\n"
-                "qmtc2.ni $2, $vf2\n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                "sqc2 $vf10, 0(%2)\n"
                 "vsub.xyzw $vf11, $vf11, $vf10\n"
                 "vaddw.xyz $vf10, $vf0, $vf0w\n"
                 "vmulx.w $vf10, $vf0, $vf0x\n"
-                "mfc1 $2, %3\n"
-                "nop\n"
-                "qmtc2.ni $2, $vf2\n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                "vmul.xyzw $vf10, $vf10, $vf11\n"
-                "sqc2 $vf10, 0(%4)\n"
-                :
-                : "r"(&colTmpB), "f"(sc), "r"(&tmpE0), "f"(inv2), "r"(&tmpD0)
-                : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                : : : "$vf10", "$vf11");
+            effectVuScale10(inv2);
+            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11");
+            effectVuStore10((EffectVuVector *)&tmpD0);
         }
         k = 0;
         goto loop2_check;
@@ -2681,17 +2619,17 @@ loop2_body:
         __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&tmpE0) : "$vf10", "memory");
         {
             __asm__ volatile(
-                "mfc1 %0, %1\n"
+                "mfc1 %0, %2\n"
                 "nop\n"
                 "qmtc2.ni %0, $vf2\n"
-                "lqc2 $vf10, 0(%2)\n"
                 "vmulx.xyzw $vf10, $vf10, $vf2x\n"
                 "vftoi0.xyzw $vf10, $vf10\n"
                 "qmfc2.ni %0, $vf10\n"
                 "ppach %0, $zero, %0\n"
                 "ppacb %0, $zero, %0\n"
-                : "=r"(packedTmp)
-                : "f"(packScale), "r"(&tmpE0)
+                "sw %0, packedTmp\n"
+                : "=r"(colorTransfer), "=m"(packedTmp)
+                : "f"(packScale)
                 : "$vf2", "$vf10", "memory");
         }
         *(u32 *)(iter + 0x14) = packedTmp;
@@ -2704,6 +2642,10 @@ loop2_check:
         }
         return;
     } else {
+        s32 colTmpA;
+        s32 colTmpB;
+        u32 packedTmp;
+        u32 colorTransfer;
         if (node10 <= 0) {
             return;
         }
@@ -2729,68 +2671,36 @@ loop2_check:
         packScale = 255.0f;
         {
             f32 sc = fGpffff8044;
+            effectVuUnpackColor10((u32 *)&colTmpA, sc);
+            __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf10", "$vf11");
+            effectVuUnpackColor10((u32 *)&colTmpB, sc);
+            effectVuStore10((EffectVuVector *)&tmpE0);
             __asm__ volatile(
-                "lw $2, 0(%0)\n"
-                "pextlb $2, $zero, $2\n"
-                "pextlh $2, $zero, $2\n"
-                "qmtc2.ni $2, $vf10\n"
-                "vitof0.xyzw $vf10, $vf10\n"
-                "mfc1 $2, %1\n"
-                "nop\n"
-                "qmtc2.ni $2, $vf2\n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                "vmove.xyzw $vf11, $vf10\n"
-                :
-                : "r"(&colTmpA), "f"(sc)
-                : "$2", "$vf2", "$vf10", "$vf11", "memory");
-            __asm__ volatile(
-                "lw $2, 0(%0)\n"
-                "pextlb $2, $zero, $2\n"
-                "pextlh $2, $zero, $2\n"
-                "qmtc2.ni $2, $vf10\n"
-                "vitof0.xyzw $vf10, $vf10\n"
-                "mfc1 $2, %1\n"
-                "nop\n"
-                "qmtc2.ni $2, $vf2\n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                "sqc2 $vf10, 0(%2)\n"
                 "vsub.xyzw $vf11, $vf11, $vf10\n"
                 "vaddw.xyz $vf10, $vf0, $vf0w\n"
                 "vmulx.w $vf10, $vf0, $vf0x\n"
-                "mfc1 $2, %3\n"
-                "nop\n"
-                "qmtc2.ni $2, $vf2\n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                "vmul.xyzw $vf10, $vf10, $vf11\n"
-                "sqc2 $vf10, 0(%4)\n"
-                :
-                : "r"(&colTmpB), "f"(sc), "r"(&tmpE0), "f"(inv2), "r"(&tmpD0)
-                : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                : : : "$vf10", "$vf11");
+            effectVuScale10(inv2);
+            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11");
+            effectVuStore10((EffectVuVector *)&tmpD0);
         }
         tmp = c4 - 1;
         k = 0;
         goto loop3_check;
 loop3_body:
+        acc2 = acc2 + inv2;
         {
-            u_long128 qA;
-            u_long128 qB;
             f32 t = acc2;
+            effectVuLoad10((EffectVuVector *)second);
+            effectVuLoad11((EffectVuVector *)clear);
             __asm__ volatile(
-                "lqc2 $vf10, 0(%0)\n"
-                "lqc2 $vf11, 0(%1)\n"
-                "mfc1 $2, %2\n"
-                "nop\n"
-                "qmtc2.ni $2, $vf2\n"
+                "qmtc2.ni %0, $vf2\n"
                 "vsubx.w $vf3, $vf0, $vf2x\n"
                 "vmulax.xyzw $ACC, $vf11, $vf2x\n"
                 "vmaddw.xyzw $vf10, $vf10, $vf3w\n"
-                "sqc2 $vf10, 0(%3)\n"
-                :
-                : "r"(second), "r"(clear), "f"(t), "r"(&qA)
-                : "$2", "$vf2", "$vf3", "$vf10", "$vf11", "ACC", "memory");
+                : : "r"(t) : "$vf2", "$vf3", "$vf10", "$vf11", "ACC");
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(iter) : "$vf10", "memory");
         }
-        acc2 = acc2 + inv2;
         *(f32 *)(iter + 0x18) = baseX + diffX * acc2;
         *(f32 *)(iter + 0x1C) = baseY + diffY * acc2;
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&tmpE0) : "$vf10", "memory");
@@ -2799,17 +2709,17 @@ loop3_body:
         __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&tmpE0) : "$vf10", "memory");
         {
             __asm__ volatile(
-                "mfc1 %0, %1\n"
+                "mfc1 %0, %2\n"
                 "nop\n"
                 "qmtc2.ni %0, $vf2\n"
-                "lqc2 $vf10, 0(%2)\n"
                 "vmulx.xyzw $vf10, $vf10, $vf2x\n"
                 "vftoi0.xyzw $vf10, $vf10\n"
                 "qmfc2.ni %0, $vf10\n"
                 "ppach %0, $zero, %0\n"
                 "ppacb %0, $zero, %0\n"
-                : "=r"(packedTmp)
-                : "f"(packScale), "r"(&tmpE0)
+                "sw %0, packedTmp\n"
+                : "=r"(colorTransfer), "=m"(packedTmp)
+                : "f"(packScale)
                 : "$vf2", "$vf10", "memory");
         }
         *(u32 *)(iter + 0x14) = packedTmp;
@@ -2817,7 +2727,7 @@ loop3_body:
         iter -= 0x20;
         k += 1;
 loop3_check:
-        if ((s32)k < tmp) {
+        if (k < (u32)tmp) {
             goto loop3_body;
         }
         return;
@@ -2826,17 +2736,17 @@ loop3_check:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048b340);
 #endif
-/* Decode 0048b9e0 (window 2656B=664w, gate 2576-2736B/644-683w; frame 0x140=320B same as ec50; void(u8*) family template: +4 count, +C flags, +10 s32, +14 acc, +18 nodes stride 0x20, +1C out stride 7, +20 config). Calls: bceb0, bd0b0 x9, 44b7b0, bd050 x2, b220 x2, 43f810, b340. 11 VU ops: lqc2 0x10(config) pre-bceb0 + lqc2/sqc2 on 0x110/0x120/0x130 + normalize (vmul.xyz/mulax.w/madday.w/maddz.w/vrsqrt/vwaitq/vmulq.xyz) + vmulax.xyzw chain + vmul.xyzw/vadd.xyzw + sqc2 to node (same skeleton as ec50, fewer GP sites). GP via $28: 7F80/7F84 only (2 constants); immediates hoisted to f20-27. 3 unsigned (f32)(u32) branchless sites. Reuse ec50 v2 verbatim, adjust out indices/config offsets (notably no 0xE4/0xE0 e4/e0 pair handling differences per retail diff) and drop ec50-specific 0xD8 vsub gate if absent. 3 slots only, one asm per transfer, compiler addresses, memory+exact clobbers, scalar in C, vf0/lane/broadcast/W=0. Outside 3% stays ASM with factual note. Production stays ASM. */
-/* measured: GUARDED_SCORE 619 via probe_variants (v1 629/691 outside gate 644-683, prop off 619/677 inside kept; loopinv 631, common 699, peep 666 worse, sched/strength/dead/unroll tie; subscript out[] vs *(out+) 619 tie kept idiom; decl tmp120/tmp130 swap 619 tie kept original; levels 1 697/3 623 worse). Retail 664/obj 677 (+13 +2.0% inside); frame 0x140 exact; fnalign 664/677, 479 edits. Biggest remaining: daddu 0 vs 28 shared with d8c0/cdf0, saved-reg rotation, VU colours, branch/scheduling. */
+/* Guarded native proof, 2026-09-29: 2648/2656 bytes, 428 differing words;
+ * frame 0x140 matches retail. RNG remainder is unsigned, preroll tests
+ * config byte 0xbd; preroll rereads current count separately from the loop bound.
+ * Negative accumulator handling follows retail without an invented
+ * correction branch. Instruction differences remain; production is ASM. */
 // FUN_0048B9E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_propagation off
 void func_0048b9e0(u8 *arg0)
 {
-    extern s32 func_004bceb0(void);
-    extern f32 effMiscRandFloat(s32 arg0);
-    extern s32 effMiscRand(s32 arg0);
     extern f32 sinf(f32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void memcpy(void *dst, void *src, u32 size);
@@ -2850,14 +2760,16 @@ void func_0048b9e0(u8 *arg0)
     u32 count;
     u32 flags;
     u8 *nodes;
-    u8 *nodesBase;
     f32 *out;
     u8 *config;
+    u8 *const parent = arg0;
     s32 limitB8;
     s32 saved20;
     u8 mode9C;
-    u8 modeBD;
     f32 d4val;
+    f32 zero;
+    f32 angleScale;
+    f32 negone;
     s32 v15;
     s32 v14;
     u32 idx;
@@ -2873,62 +2785,60 @@ void func_0048b9e0(u8 *arg0)
     f32 a;
     f32 b;
     f32 c;
-    count = *(u32 *)(arg0 + 4);
-    flags = *(u32 *)(arg0 + 12);
-    nodesBase = *(u8 **)(arg0 + 24);
-    nodes = nodesBase;
-    out = *(f32 **)(arg0 + 28);
-    config = *(u8 **)(arg0 + 32);
+    count = *(u32 *)(parent + 4);
+    flags = *(u32 *)(parent + 12);
+    nodes = *(u8 **)(parent + 24);
+    out = *(f32 **)(parent + 28);
+    config = *(u8 **)(parent + 32);
     limitB8 = *(s32 *)(config + 184);
     if (limitB8 == 0) {
         return;
     }
     saved20 = *(s32 *)(config + 32);
     mode9C = *(u8 *)(config + 156);
-    modeBD = *(u8 *)(config + 189);
     d4val = *(f32 *)(config + 212);
-    idx = 0;
     tmp120[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(config), "m"(*(u_long128 *)(config + 16)) : "$vf10", "memory");
     func_004bceb0();
-    if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
+    if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
         v14 = 0;
         v15 = 0;
-        goto main_check;
+        goto post_init;
     }
-    if ((*(s32 *)(arg0 + 16) != 0) || (modeBD == 0)) {
+    if ((*(s32 *)(parent + 16) == 0) && (*(u8 *)(config + 189) != 0)) {
+        v14 = 1;
+        if (*(f32 *)(config + 40) <= 0.0f) {
+            v15 = *(s32 *)(parent + 4);
+        } else {
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            ftmp2 = (f32)*(u32 *)(parent + 4);
+            v15 = (s32)(ftmp2 * ftmp1);
+        }
+        goto post_init;
+    } else {
         v14 = 0;
         if (*(f32 *)(config + 40) <= 0.0f) {
             tmp = *(s32 *)(config + 36);
             ftmp1 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
         } else {
             ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * ftmp1;
         }
-        ftmp1 = *(f32 *)(arg0 + 20);
-        if (ftmp1 < 0.0f) {
-            ftmp1 = -ftmp1;
-        }
+        ftmp1 = *(f32 *)(parent + 20);
+        ftmp1 = fabsf(ftmp1);
         v15 = (s32)ftmp1;
-        *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) - (f32)v15;
-        if (*(f32 *)(arg0 + 20) < 0.0f) {
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + (f32)v15 + (f32)v15;
-        }
-        goto main_check;
-    } else {
-        v14 = 1;
-        if (*(f32 *)(config + 40) <= 0.0f) {
-            v15 = (s32)count;
-        } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            ftmp2 = (f32)(u32)count;
-            v15 = (s32)(ftmp2 * ftmp1);
-        }
-        goto main_check;
+        *(f32 *)(parent + 20) = *(f32 *)(parent + 20) - (f32)v15;
+        goto post_init;
     }
+post_init:
+    idx = 0;
+    zero = 0.0f;
+    angleScale = fGpffff8080;
+    negone = -1.0f;
+    goto main_check;
 main_body:
     if (*(s32 *)(nodes + 16) < limitB8) {
         goto skip_clear;
@@ -2939,11 +2849,11 @@ main_body:
         tmp = -2;
     }
     *(s32 *)(nodes + 16) = tmp;
-    c0 = *(s32 *)(config + 192);
-    c4 = *(s32 *)(config + 196);
+    c0 = *(s32 *)(*(u8 **)(parent + 32) + 192);
+    c4 = *(s32 *)(*(u8 **)(parent + 32) + 196);
     nmult = c0 * c4;
     if (nmult != 0) {
-        clear = nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * nmult);
+        clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
         ci = 0;
         goto clear_check;
 clear_body:
@@ -2974,16 +2884,16 @@ skip_clear:
         out[1] = tmp130[1];
         out[2] = tmp130[2];
     } else {
-        out[0] = 0.0f;
+        out[0] = zero;
         out[1] = 1.0f;
-        out[2] = 0.0f;
+        out[2] = zero;
     }
     b = effMiscRandFloat(0);
     tmp130[0] = 2.0f * (b - 0.5f);
-    tmp130[1] = 0.0f;
+    tmp130[1] = zero;
     b = effMiscRandFloat(0);
     tmp130[2] = 2.0f * (b - 0.5f);
-    tmp130[3] = 0.0f;
+    tmp130[3] = zero;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp130), "m"(*(u_long128 *)tmp130) : "$vf10", "memory");
     __asm__ volatile(
         "vmul.xyz $vf2, $vf10, $vf10 \n"
@@ -3019,7 +2929,7 @@ skip_clear:
     b = effMiscRandFloat(0);
     out[10] = *(f32 *)(config + 232) * ((1.0f - a) + a * b);
     b = effMiscRandFloat(0);
-    out[6] = fGpffff8080 * b;
+    out[6] = angleScale * b;
     out[7] = sinf(out[6]);
     b = effMiscRandFloat(0);
     c = *(f32 *)(config + 200) * (2.0f * (b - 0.5f));
@@ -3042,7 +2952,7 @@ skip_clear:
     b = effMiscRandFloat(0);
     out[12] = (1.0f - a) + a * b;
     if (mode9C == 2) {
-        out[13] = 0.0f;
+        out[13] = zero;
         out[14] = 1.0f;
     } else {
         a = *(f32 *)(config + 152);
@@ -3050,18 +2960,18 @@ skip_clear:
         out[14] = (1.0f - a) + a * b;
         if (mode9C == 1) {
             b = effMiscRandFloat(0);
-            out[13] = fGpffff8080 * b;
+            out[13] = angleScale * b;
             if ((effMiscRand(0) & 1) != 0) {
-                out[14] = out[14] * -1.0f;
+                out[14] = out[14] * negone;
             }
         } else {
-            out[13] = 0.0f;
+            out[13] = zero;
         }
     }
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = effMiscRand(0) % limitB8;
+        tmp = (u32)effMiscRand(0) % (u32)limitB8;
         ftmp1 = (f32)(u32)tmp;
         ftmp2 = out[11] * ftmp1 - ftmp1 * d4val * ftmp1 * 0.5f;
         *(f32 *)(nodes + 0) = *(f32 *)(nodes + 0) + out[0] * ftmp2;
@@ -3084,9 +2994,11 @@ skip_clear:
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[14];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[13];
     if (v14 != 0) {
-        if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
-            *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
+        nmult = *(s32 *)(*(u8 **)(parent + 32) + 192) * *(s32 *)(*(u8 **)(parent + 32) + 196);
+        if (nmult != 0) {
+            clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
+            memcpy(clear, nodes, 32);
+            *(s32 *)(clear + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
     }
@@ -3110,7 +3022,7 @@ else_branch:
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[12];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[14];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[13];
-    func_0048b340(arg0, nodes);
+    func_0048b340(parent, nodes);
     *(s32 *)(nodes + 16) = node10 + 1;
 next_iter2:
 next_iter:
@@ -3154,15 +3066,15 @@ loop_0048c440_check:
     *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
     *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
 }
-/* M2C-raw draft (does not compile; window 2176B): V048 body has M2C_ERROR COP2 sites + 93 M2C_FIELD (nested; same iterative expansion recipe) + M2C_UNK s2/s4 (dead -- s32) + s128/u128 (->u_long128, separate slots); casts (f32)(u32) at 0x148/0x208/0x250/0x620 per header; COP1 adda/madd + COP2/VU ruled out per header (no plain-C closure attempted -- asm blocks required); next: same recipe as b340 (types -> probe -> per-transfer asm -> goto-form -> fnalign). Production stays ASM. */
-/* measured: 571->556 (-15, now 556 vs retail 544 +2.2% inside 528-560). libcall 0 helpers; wscan dsll32/dsra32 0/0; no switch (retail beq/bne chain). Surplus removed, each with the retail window that forbids it: dummy jal 004bd0b0 before vec130 has no counterpart between 0x38C82C (beqz v15,CCE0) and 0x38C838 (first vec jal); sin/cos jals 0044b610/0044b7b0 have no counterpart in 0x38C838/850/868 which are 3x jal 004bd0b0 + sub 0.5 ($f25) + mul 2.0 ($f24); first vf28/29/30 matrix has no counterpart in 0x38C87C-0x38C8A4 (lqc2 0x130 + vmul/vmulax/vmadday/vmaddz/vrsqrt/vwaitq/vmulq + sqc2 0x130, straight to out stores); out[3] 220/216 contradicts 0x38C8BC lwc1 0xD4 + 0x38C8E0 lwc1 0xD0, fixed to 212/208; vsub guard 216 contradicts 0x38C930 lwc1 0xD0 + c.lt 0, fixed to 208; e 228/224 never appear as 0xE0/0xE4($18) while early 0x38C56C lwc1 0xDC + 0x38C570 lwc1 0xD8 do, fixed to 220/216; v14 cubic e0*(ftmp1*(e4*ftmp1)) contradicts 0x38CAA8 mula + mul/mul/madd and 0x38CB04 adda/msub with $f25=0.5 (quadratic), fixed to half*(e*ftmp1*ftmp1) saving 2 mul; early mode9C==0 contradicts 0x38C5B0 lbu 0xBD + beqz, fixed to config+189 (lbu, -1 vs lq+andi); second wrap if (*(arg0+20)<0) +=2*v15 has no counterpart after 0x38C740 sub + 0x38C744 sw (fall-through to 0x38C748), deleted; per-use lui for 1.0 contradicts once-only 0x38C748-0x38C770 (lui 0.5/2.0/1.0, mtc1 0, lwc1 g80, lui -1.0), hoisted to post_init (added back ~11: idx + g80 + half/two/one/zero/negone + b). Composition: no CANCELLED/SPLIT row; fnalign missing 24 extra 1, largest pure hole 18 at 490-508 + 3-word zero tail, below the 25/25 split threshold. */
+/* Guarded native proof, 2026-09-29: 2156/2176 bytes, 378 differing words;
+ * frame 0x140 matches retail. Scalar acceleration uses ordinary C MAC
+ * expressions, not computation asm. Both random paths reread the scale
+ * global after RNG; retail has no early scale capture or extra matrix call.
+ * Instruction differences remain; production retains ASM. */
 // FUN_0048C4E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0048c4e0(u8 *arg0)
 {
-    extern s32 func_004bceb0(void);
-    extern f32 effMiscRandFloat(s32 arg0);
-    extern s32 effMiscRand(s32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
@@ -3174,14 +3086,13 @@ void func_0048c4e0(u8 *arg0)
     u32 count;
     u32 flags;
     u8 *nodes;
-    u8 *nodesBase;
     f32 *out;
     u8 *config;
+    u8 *const parent = arg0;
     s32 limitB8;
     s32 saved20;
     u8 mode9C;
     f32 e4val;
-    f32 g7c;
     f32 g80;
     f32 e0val;
     f32 half;
@@ -3204,57 +3115,51 @@ void func_0048c4e0(u8 *arg0)
     f32 a;
     f32 b;
 
-    count = *(u32 *)(arg0 + 4);
-    flags = *(u32 *)(arg0 + 12);
-    nodesBase = *(u8 **)(arg0 + 24);
-    nodes = nodesBase;
-    out = *(f32 **)(arg0 + 28);
-    config = *(u8 **)(arg0 + 32);
+    count = *(u32 *)(parent + 4);
+    flags = *(u32 *)(parent + 12);
+    nodes = *(u8 **)(parent + 24);
+    out = *(f32 **)(parent + 28);
+    config = *(u8 **)(parent + 32);
     limitB8 = *(s32 *)(config + 184);
     if (limitB8 == 0) {
         return;
     }
     saved20 = *(s32 *)(config + 32);
     mode9C = *(u8 *)(config + 156);
-    g7c = fGpffff807c;
     e4val = *(f32 *)(config + 220);
     e0val = *(f32 *)(config + 216);
     vec130[3] = 0.0f;
-    __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(config), "m"(*(u_long128 *)(config + 16)) : "$vf10", "memory");
-    func_004bceb0();
-    if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
+    if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
         v14 = 0;
         v15 = 0;
         goto post_init;
     }
-    if ((*(s32 *)(arg0 + 16) != 0) || (*(u8 *)(config + 189) == 0)) {
+    if ((*(s32 *)(parent + 16) == 0) && (*(u8 *)(config + 189) != 0)) {
+        v14 = 1;
+        if (*(f32 *)(config + 40) <= 0.0f) {
+            v15 = *(s32 *)(parent + 4);
+        } else {
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            ftmp2 = (f32)*(u32 *)(parent + 4);
+            v15 = (s32)(ftmp2 * ftmp1);
+        }
+        goto post_init;
+    } else {
         v14 = 0;
         if (*(f32 *)(config + 40) <= 0.0f) {
             tmp = *(s32 *)(config + 36);
             ftmp1 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
         } else {
-            ftmp1 = (g7c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * ftmp1;
         }
-        ftmp1 = *(f32 *)(arg0 + 20);
-        if (ftmp1 < 0.0f) {
-            ftmp1 = -ftmp1;
-        }
+        ftmp1 = *(f32 *)(parent + 20);
+        ftmp1 = fabsf(ftmp1);
         v15 = (s32)ftmp1;
-        *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) - (f32)v15;
-        goto post_init;
-    } else {
-        v14 = 1;
-        if (*(f32 *)(config + 40) <= 0.0f) {
-            v15 = (s32)count;
-        } else {
-            ftmp1 = (g7c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            ftmp2 = (f32)(u32)count;
-            v15 = (s32)(ftmp2 * ftmp1);
-        }
+        *(f32 *)(parent + 20) = *(f32 *)(parent + 20) - (f32)v15;
         goto post_init;
     }
 post_init:
@@ -3276,11 +3181,11 @@ main_body:
         tmp = -2;
     }
     *(s32 *)(nodes + 16) = tmp;
-    c0 = *(s32 *)(config + 192);
-    c4 = *(s32 *)(config + 196);
+    c0 = *(s32 *)(*(u8 **)(parent + 32) + 192);
+    c4 = *(s32 *)(*(u8 **)(parent + 32) + 196);
     nmult = c0 * c4;
     if (nmult != 0) {
-        clear = nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * nmult);
+        clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
         ci = 0;
         goto clear_check;
 clear_body:
@@ -3323,15 +3228,12 @@ skip_clear:
     a = *(f32 *)(config + 212);
     b = effMiscRandFloat(0);
     out[3] = *(f32 *)(config + 208) * ((one - a) + a * b);
-    if (out[3] < zero) {
-        out[3] = -out[3];
-    }
+    out[3] = fabsf(out[3]);
     a = *(f32 *)(config + 204);
     b = effMiscRandFloat(0);
     vec120[0] = *(f32 *)(config + 200) * ((one - a) + a * b);
     vec120[1] = vec120[0];
     vec120[2] = vec120[0];
-    vec120[3] = zero;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
     if (*(f32 *)(config + 208) < zero) {
         __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10", "memory");
@@ -3369,10 +3271,10 @@ skip_clear:
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = effMiscRand(0) % limitB8;
+        tmp = (u32)effMiscRand(0) % (u32)limitB8;
         ftmp1 = (f32)(u32)tmp;
         __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
-        ftmp2 = out[3] * ftmp1 + half * (e0val * ftmp1 * ftmp1);
+        ftmp2 = half * (e0val * ftmp1 * ftmp1) + out[3] * ftmp1;
         if (ftmp2 < zero) {
             ftmp2 = zero;
         }
@@ -3390,9 +3292,11 @@ skip_clear:
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
     if (v14 != 0) {
-        if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
-            *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
+        nmult = *(s32 *)(*(u8 **)(parent + 32) + 192) * *(s32 *)(*(u8 **)(parent + 32) + 196);
+        if (nmult != 0) {
+            clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
+            memcpy(clear, nodes, 32);
+            *(s32 *)(clear + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
     }
@@ -3416,7 +3320,7 @@ else_branch:
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[4];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
-    func_0048b340(arg0, nodes);
+    func_0048b340(parent, nodes);
     *(s32 *)(nodes + 16) = node10 + 1;
 next_iter2:
 next_iter:
@@ -3458,22 +3362,22 @@ loop_0048cd60_check:
     *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
     *(f32 *)(temp_6 + 0xDC) = *(f32 *)(temp_5 + 0xDC) * fparg0;
 }
-/* Decode 0048cdf0 (window 2608B=652w, gate 2530-2686B/632-671w; frame 0x180=384B, largest frame in mid-family despite mid window; void(u8*) family template). Calls: bd0b0 x7, 44b610, 44b7b0, bceb0 x3, bd050 x2, b220 x2, 43f810, b340 (note 3x bceb0 vs 1x in ec50/b9e0: extra matrix setups). 15 VU ops: adds qmtc2.ni+vaddx.y broadcast block (mfc1+nop+qmtc2.ni+vaddx.y $vf10,$vf0,$vf2x with 5.0f, lane mask .y only) plus standard lqc2/sqc2 + normalize + vmulax.xyzw chain + vmul/vadd + sqc2. GP via $28: 7F80/7F84 only. 3 unsigned (f32)(u32) sites. Reuse ec50 v2 + insert the qmtc2 broadcast block verbatim from 861f0 (`mfc1 $2,%0/nop/qmtc2.ni $2,$vf2/vaddx.y $vf10,$vf0,$vf2x` with f five=5.0f, clobbers $2,$vf2,$vf10,memory) at the retail qmtc2 site (0x38D2AC). 3-4 slots max (check retail 0x110/0x120/0x130 + extra bceb0 save slot; extra costs 0x10, verify count before adding). One asm per transfer, compiler addresses, memory+exact clobbers, scalar in C, vf0/lane/broadcast/W=0. Outside 3% stays ASM with factual note. Production stays ASM. */
-/* measured: GUARDED_SCORE 614 via measure_guarded (retail 652/obj 662, +10 +1.5% at gate 632-671 inside; frame 0x170 vs 0x180 -0x10 short one quad). Count-first: v1 605/653 inside but unfaithful (dead tmp150, wrong VU seconds, tmp y=0), v2 610/660 inside unfaithful tmp y, full v3 614/662 inside faithful kept. Pragmas on v2: unroll off 610 tie, sched off 610 tie not kept; loopinv on already in base. Subscript out[] vs *(out+) 614 tie kept idiom. Colouring b220buf/cfg0 swap 614 tie, tmp130/tmp150 swap 614 tie kept original. Biggest remaining: daddu 0 vs 28 (as d8c0 0 vs 28 / ec50 0 vs 26 floor), frame -0x10, branch/scheduling plus VU colours (qmtc2 lw vs mfc1, bceb0 chain). */
+/* Guarded native proof, 2026-09-29: 2572/2608 bytes, 579 differing words.
+ * Keeping the angle global live across the loop recovers the retail
+ * 0x180 frame and nine saved FPRs. Both preroll and live transforms are
+ * conditional on the clear flag; Y translation is applied only once.
+ * Instruction differences remain; production retains ASM. */
 // FUN_0048CDF0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_loop_invariants on
 void func_0048cdf0(u8 *arg0)
 {
-    extern f32 effMiscRandFloat(s32 arg0);
-    extern s32 effMiscRand(s32 arg0);
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
-    extern s32 func_004bceb0(void);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
     u_long128 b220buf;
@@ -3486,14 +3390,15 @@ void func_0048cdf0(u8 *arg0)
     u32 count;
     u32 flags;
     u8 *nodes;
-    u8 *nodesBase;
     f32 *out;
     u8 *config;
+    u8 *const parent = arg0;
     s32 limitB8;
     s32 saved20;
     u8 mode9C;
     f32 eF0val;
     f32 eECval;
+    f32 angleScale;
     s32 v15;
     s32 v14;
     u32 idx;
@@ -3509,12 +3414,11 @@ void func_0048cdf0(u8 *arg0)
     f32 a;
     f32 b;
     f32 c;
-    count = *(u32 *)(arg0 + 4);
-    flags = *(u32 *)(arg0 + 12);
-    nodesBase = *(u8 **)(arg0 + 24);
-    nodes = nodesBase;
-    out = *(f32 **)(arg0 + 28);
-    config = *(u8 **)(arg0 + 32);
+    count = *(u32 *)(parent + 4);
+    flags = *(u32 *)(parent + 12);
+    nodes = *(u8 **)(parent + 24);
+    out = *(f32 **)(parent + 28);
+    config = *(u8 **)(parent + 32);
     limitB8 = *(s32 *)(config + 184);
     if (limitB8 == 0) {
         return;
@@ -3523,47 +3427,48 @@ void func_0048cdf0(u8 *arg0)
     mode9C = *(u8 *)(config + 156);
     eF0val = *(f32 *)(config + 240);
     eECval = *(f32 *)(config + 236);
-    idx = 0;
+    tmp170[3] = 0.0f;
+    tmp130[3] = 0.0f;
+    tmp160[3] = 0.0f;
     cfg0 = *(u_long128 *)(config + 0);
     cfg10 = *(u_long128 *)(config + 16);
-    if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
+    if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
         v14 = 0;
         v15 = 0;
-        goto main_check;
+        goto post_init;
     }
-    if ((*(s32 *)(arg0 + 16) != 0) || (mode9C == 0)) {
+    if ((*(s32 *)(parent + 16) == 0) && (*(u8 *)(config + 189) != 0)) {
+        v14 = 1;
+        if (*(f32 *)(config + 40) <= 0.0f) {
+            v15 = *(s32 *)(parent + 4);
+        } else {
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            ftmp2 = (f32)*(u32 *)(parent + 4);
+            v15 = (s32)(ftmp2 * ftmp1);
+        }
+        goto post_init;
+    } else {
         v14 = 0;
         if (*(f32 *)(config + 40) <= 0.0f) {
             tmp = *(s32 *)(config + 36);
             ftmp1 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
         } else {
             ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * ftmp1;
         }
-        ftmp1 = *(f32 *)(arg0 + 20);
-        if (ftmp1 < 0.0f) {
-            ftmp1 = -ftmp1;
-        }
+        ftmp1 = *(f32 *)(parent + 20);
+        ftmp1 = fabsf(ftmp1);
         v15 = (s32)ftmp1;
-        *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) - (f32)v15;
-        if (*(f32 *)(arg0 + 20) < 0.0f) {
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + (f32)v15 + (f32)v15;
-        }
-        goto main_check;
-    } else {
-        v14 = 1;
-        if (*(f32 *)(config + 40) <= 0.0f) {
-            v15 = (s32)count;
-        } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            ftmp2 = (f32)(u32)count;
-            v15 = (s32)(ftmp2 * ftmp1);
-        }
-        goto main_check;
+        *(f32 *)(parent + 20) = *(f32 *)(parent + 20) - (f32)v15;
+        goto post_init;
     }
+post_init:
+    idx = 0;
+    angleScale = fGpffff8080;
+    goto main_check;
 main_body:
     if (*(s32 *)(nodes + 16) < limitB8) {
         goto skip_clear;
@@ -3574,11 +3479,11 @@ main_body:
         tmp = -2;
     }
     *(s32 *)(nodes + 16) = tmp;
-    c0 = *(s32 *)(config + 192);
-    c4 = *(s32 *)(config + 196);
+    c0 = *(s32 *)(*(u8 **)(parent + 32) + 192);
+    c4 = *(s32 *)(*(u8 **)(parent + 32) + 196);
     nmult = c0 * c4;
     if (nmult != 0) {
-        clear = nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * nmult);
+        clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
         ci = 0;
         goto clear_check;
 clear_body:
@@ -3609,7 +3514,7 @@ skip_clear:
     b = effMiscRandFloat(0);
     out[9] = (*(f32 *)(config + 212) * ((1.0f - a) + a * b) - c) / (f32)limitB8;
     b = effMiscRandFloat(0);
-    out[10] = fGpffff8080 * b;
+    out[10] = angleScale * b;
     a = *(f32 *)(config + 224);
     b = effMiscRandFloat(0);
     out[11] = *(f32 *)(config + 220) * ((1.0f - a) + a * b);
@@ -3619,13 +3524,11 @@ skip_clear:
     tmp170[0] = cosf(out[10]);
     tmp170[1] = 0.0f;
     tmp170[2] = sinf(out[10]);
-    tmp170[3] = 0.0f;
     b = effMiscRandFloat(0);
     out[7] = *(f32 *)(config + 200) * b;
     tmp160[0] = c;
     tmp160[1] = c;
     tmp160[2] = c;
-    tmp160[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp170), "m"(*(u_long128 *)tmp170) : "$vf10", "memory");
     __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(tmp160), "m"(*(u_long128 *)tmp160) : "$vf11", "memory");
     __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
@@ -3664,7 +3567,7 @@ skip_clear:
         out[15] = (1.0f - a) + a * b;
         if (mode9C == 1) {
             b = effMiscRandFloat(0);
-            out[14] = fGpffff8080 * b;
+            out[14] = angleScale * b;
             if ((effMiscRand(0) & 1) != 0) {
                 out[15] = out[15] * -1.0f;
             }
@@ -3675,7 +3578,7 @@ skip_clear:
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = effMiscRand(0) % limitB8;
+        tmp = (u32)effMiscRand(0) % (u32)limitB8;
         ftmp1 = (f32)(u32)tmp;
         out[7] = out[7] + out[12] * ftmp1;
         out[7] = out[7] - ftmp1 * eF0val * ftmp1 * 0.5f;
@@ -3683,15 +3586,17 @@ skip_clear:
         tmp130[0] = out[8] * cosf(out[10]);
         tmp130[1] = out[7];
         tmp130[2] = out[8] * sinf(out[10]);
-        tmp130[3] = 0.0f;
-        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&cfg10), "m"(cfg10) : "$vf10", "memory");
-        func_004bceb0();
-        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp130), "m"(*(u_long128 *)tmp130) : "$vf10", "memory");
-        __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&cfg0), "m"(cfg0) : "$vf11", "memory");
-        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        if ((flags & 1) == 0) {
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&cfg10), "m"(cfg10) : "$vf10", "memory");
+            func_004bceb0();
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp130), "m"(*(u_long128 *)tmp130) : "$vf10", "memory");
+            __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
+            __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&cfg0), "m"(cfg0) : "$vf11", "memory");
+            __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        } else {
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp130), "m"(*(u_long128 *)tmp130) : "$vf10", "memory");
+        }
         __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
-        *(f32 *)(nodes + 4) = *(f32 *)(nodes + 4) + out[7];
         *(s32 *)(nodes + 16) = (s32)ftmp1;
     }
     func_0048b220(nodes, config, *(s32 *)(nodes + 16), &b220buf);
@@ -3699,9 +3604,11 @@ skip_clear:
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[15];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[14];
     if (v14 != 0) {
-        if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
-            *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
+        nmult = *(s32 *)(*(u8 **)(parent + 32) + 192) * *(s32 *)(*(u8 **)(parent + 32) + 196);
+        if (nmult != 0) {
+            clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
+            memcpy(clear, nodes, 32);
+            *(s32 *)(clear + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
     }
@@ -3718,29 +3625,28 @@ else_branch:
     tmp130[0] = c * cosf(ftmp2);
     tmp130[1] = out[7];
     tmp130[2] = c * sinf(ftmp2);
-    tmp130[3] = 0.0f;
-    tmp150[0] = out[3];
-    tmp150[1] = out[4];
-    tmp150[2] = out[5];
-    tmp150[3] = out[6];
-    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp150), "m"(*(u_long128 *)tmp150) : "$vf10", "memory");
-    func_004bceb0();
-    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp130), "m"(*(u_long128 *)tmp130) : "$vf10", "memory");
-    __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp130) : "r"(tmp130) : "$vf10", "memory");
     if ((flags & 1) == 0) {
+        tmp150[0] = out[3];
+        tmp150[1] = out[4];
+        tmp150[2] = out[5];
+        tmp150[3] = out[6];
+        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp150), "m"(*(u_long128 *)tmp150) : "$vf10", "memory");
+        func_004bceb0();
+        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp130), "m"(*(u_long128 *)tmp130) : "$vf10", "memory");
+        __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp130) : "r"(tmp130) : "$vf10", "memory");
         tmp130[0] = tmp130[0] + out[0];
         tmp130[1] = tmp130[1] + out[1];
         tmp130[2] = tmp130[2] + out[2];
     }
-    *(u_long128 *)nodes = *(u_long128 *)tmp130;
-    *(f32 *)(nodes + 4) = *(f32 *)(nodes + 4) + out[7];
+    *(f32 *)(nodes + 0) = tmp130[0];
+    *(f32 *)(nodes + 4) = tmp130[1];
     *(f32 *)(nodes + 8) = tmp130[2];
     func_0048b220(nodes, config, node10, &b220buf);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[13];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[15];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[14];
-    func_0048b340(arg0, nodes);
+    func_0048b340(parent, nodes);
     *(s32 *)(nodes + 16) = node10 + 1;
 next_iter2:
 next_iter:
@@ -3784,16 +3690,19 @@ loop_0048d820_check:
     *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
     *(f32 *)(temp_6 + 0xF0) = *(f32 *)(temp_5 + 0xF0) * fparg0;
 }
-/* Decode 0048d8c0 (window 2480B=620w, gate 2406-2554B/602-638w; frame 0x160=352B; void(u8*) family template, out stride differs: pfVar19[5]/[6]/[7] with divide by limitB8 vs ec50 out[4]/[5]/[6]). Calls: bd0b0 x8, bd1a0, bd3c0, bd450, 44b610 x2, 44b7b0 x2, bd050 x2, b220 x2, 43f810, b340 (extra bd1a0/bd3c0/bd450 triple vs ec50: additional effect passes). 8 VU ops (fewest in VU family: no pre-bceb0 lqc2 0x10(config) unlike ec50/b9e0; quads 0x110/0x120/0x130 + config+0x00; normalize + vmulax chain + vmul/vadd + sqc2 only). Extra stack words uStack_24/uStack_14 + fStack_38/40/3c (retail 0xE0-0x100 scalar saves plus float pair at sp+0x158 passed by value as ld $a0 per 0046ec70 handoff pattern). GP via $28: 7F6C/7F7C/7F80/7F84 (4 constants incl fGpffff8094/8084 family). 3 unsigned (f32)(u32) sites. Reuse ec50 v2, delete pre-bceb0 lqc2 block, adjust out indices to [5]/[6]/[7] with /limitB8 divide, add bd1a0/bd3c0/bd450 calls at retail jal sites with (0) or (config) args per disasm, keep 3 slots only. One asm per transfer, compiler addresses, memory+exact clobbers, scalar in C, vf0/lane/broadcast/W=0. Outside 3% stays ASM with factual note. Production stays ASM. */
-/* measured: GUARDED_SCORE 584 via measure_guarded (retail 620/obj 639, +19 +3.1% at gate 602-638, 1 over by rounding; frame 0x150 vs 0x160). Count-first: v1 575/587 outside, v5 577/604 inside but missing else triple, v4 581/627 inside but missing v14 recompute, full 598/644 outside by 5; faithful full kept. Pragmas: loopinv on 598->584 kept, unroll off 598 tie recorded not kept, schedule on 574 but 581 obj outside rejected, level3/4 572 but 573 obj outside rejected, propoff 589 worse not kept, pairs sched+loopinv 572 tie with level3 not kept single simpler. Subscript out[5] vs *(out+5) 584 tie kept idiom. Colouring b220buf/quad120 swap 584 tie kept original. Biggest remaining: daddu 0 vs 28 (as ec50 0 vs 26 floor), frame -0x10 short one quad, branch/scheduling plus VU colours. M2C fails Syntax error on owner asm context; romwright 439 lines ok but arity float(*,int,int,*) wrong, retail single u8* wins per family template. Callees/globals reused from tree (bd1a0/bd3c0/bd450 effMisc, fGp8094/8084 btlCamera/effBlurFilter, 807c/8080 ec50). */
+/* Guarded native proof, 2026-09-29: 2476/2480 bytes, 413 differing words.
+ * Immutable owner identity restores the owner/config/work/node register order;
+ * the real config capture and three live quadword homes follow retail.
+ * Preroll rereads current count rather than the cached loop bound.
+ * Frame 0x150 still differs from retail 0x160; no unused storage is added.
+ * Instruction differences remain; production is ASM. */
 // FUN_0048D8C0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_loop_invariants on
+#pragma opt_propagation off
 void func_0048d8c0(u8 *arg0)
 {
-    extern f32 effMiscRandFloat(s32 arg0);
-    extern s32 effMiscRand(s32 arg0);
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
@@ -3806,21 +3715,24 @@ void func_0048d8c0(u8 *arg0)
     extern f32 fGpffff8080;
     extern f32 fGpffff8084;
     extern f32 fGpffff8094;
-    u_long128 b220buf;
-    u_long128 quad120;
     f32 sp150[4] __attribute__((aligned(16)));
     f32 sp130[4] __attribute__((aligned(16)));
+    u_long128 quad120;
+    u_long128 b220buf;
     u32 count;
     u32 flags;
     u8 *nodes;
-    u8 *nodesBase;
     f32 *out;
     u8 *config;
+    u8 *const parent = arg0;
     s32 limitB8;
     s32 saved20;
     u8 mode9C;
     f32 e4val;
     f32 e0val;
+    f32 orbitScale;
+    f32 tiltScale;
+    f32 angleScale;
     s32 v15;
     s32 v14;
     u32 idx;
@@ -3836,12 +3748,11 @@ void func_0048d8c0(u8 *arg0)
     f32 a;
     f32 b;
     f32 c;
-    count = *(u32 *)(arg0 + 4);
-    flags = *(u32 *)(arg0 + 12);
-    nodesBase = *(u8 **)(arg0 + 24);
-    nodes = nodesBase;
-    out = *(f32 **)(arg0 + 28);
-    config = *(u8 **)(arg0 + 32);
+    count = *(u32 *)(parent + 4);
+    flags = *(u32 *)(parent + 12);
+    nodes = *(u8 **)(parent + 24);
+    out = *(f32 **)(parent + 28);
+    config = *(u8 **)(parent + 32);
     limitB8 = *(s32 *)(config + 184);
     if (limitB8 == 0) {
         return;
@@ -3850,46 +3761,50 @@ void func_0048d8c0(u8 *arg0)
     mode9C = *(u8 *)(config + 156);
     e4val = *(f32 *)(config + 228);
     e0val = *(f32 *)(config + 224);
-    idx = 0;
-    quad120 = *(u_long128 *)(config + 0);
-    if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
+    sp150[3] = 0.0f;
+    {
+        u_long128 *const capture = &quad120;
+        *capture = *(u_long128 *)(config + 0);
+    }
+    if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
         v14 = 0;
         v15 = 0;
-        goto main_check;
+        goto post_init;
     }
-    if ((*(s32 *)(arg0 + 16) != 0) || (mode9C == 0)) {
+    if ((*(s32 *)(parent + 16) == 0) && (*(u8 *)(config + 189) != 0)) {
+        v14 = 1;
+        if (!(*(f32 *)(config + 40) <= 0.0f)) {
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            ftmp2 = (f32)*(u32 *)(parent + 4);
+            v15 = (s32)(ftmp2 * ftmp1);
+        } else {
+            v15 = *(s32 *)(parent + 4);
+        }
+        goto post_init;
+    } else {
         v14 = 0;
         if (*(f32 *)(config + 40) <= 0.0f) {
             tmp = *(s32 *)(config + 36);
             ftmp1 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
         } else {
             ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * ftmp1;
         }
-        ftmp1 = *(f32 *)(arg0 + 20);
-        if (ftmp1 < 0.0f) {
-            ftmp1 = -ftmp1;
-        }
+        ftmp1 = *(f32 *)(parent + 20);
+        ftmp1 = fabsf(ftmp1);
         v15 = (s32)ftmp1;
-        *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) - (f32)v15;
-        if (*(f32 *)(arg0 + 20) < 0.0f) {
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + (f32)v15 + (f32)v15;
-        }
-        goto main_check;
-    } else {
-        v14 = 1;
-        if (*(f32 *)(config + 40) <= 0.0f) {
-            v15 = (s32)count;
-        } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            ftmp2 = (f32)(u32)count;
-            v15 = (s32)(ftmp2 * ftmp1);
-        }
-        goto main_check;
+        *(f32 *)(parent + 20) = *(f32 *)(parent + 20) - (f32)v15;
+        goto post_init;
     }
+post_init:
+    idx = 0;
+    orbitScale = fGpffff8094;
+    tiltScale = fGpffff8084;
+    angleScale = fGpffff8080;
+    goto main_check;
 main_body:
     if (*(s32 *)(nodes + 16) < limitB8) {
         goto skip_clear;
@@ -3900,11 +3815,11 @@ main_body:
         tmp = -2;
     }
     *(s32 *)(nodes + 16) = tmp;
-    c0 = *(s32 *)(config + 192);
-    c4 = *(s32 *)(config + 196);
+    c0 = *(s32 *)(*(u8 **)(parent + 32) + 192);
+    c4 = *(s32 *)(*(u8 **)(parent + 32) + 196);
     nmult = c0 * c4;
     if (nmult != 0) {
-        clear = nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * nmult);
+        clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
         ci = 0;
         goto clear_check;
 clear_body:
@@ -3927,7 +3842,6 @@ skip_clear:
     if (v15 == 0) {
         goto next_iter;
     }
-    effMiscRandFloat(0);
     a = *(f32 *)(config + 204);
     b = effMiscRandFloat(0);
     c = *(f32 *)(config + 200) * ((1.0f - a) + a * b);
@@ -3939,19 +3853,18 @@ skip_clear:
     b = effMiscRandFloat(0);
     out[7] = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
     b = effMiscRandFloat(0);
-    out[8] = fGpffff8094 * b;
+    out[8] = orbitScale * b;
     out[9] = 0.0f;
     b = effMiscRandFloat(0);
-    out[3] = fGpffff8084 * (2.0f * (b - 0.5f));
+    out[3] = tiltScale * (2.0f * (b - 0.5f));
     b = effMiscRandFloat(0);
-    out[4] = fGpffff8084 * (2.0f * (b - 0.5f));
+    out[4] = tiltScale * (2.0f * (b - 0.5f));
     func_004bd1a0(out[3]);
     func_004bd3c0(out[4]);
     func_004bd450();
     sp150[0] = out[5] * cosf(out[8]);
     sp150[1] = 0.0f;
     sp150[2] = out[5] * sinf(out[8]);
-    sp150[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp150), "m"(*(u_long128 *)sp150) : "$vf10", "memory");
     __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
     if ((flags & 1) == 0) {
@@ -3974,7 +3887,7 @@ skip_clear:
         out[12] = (1.0f - a) + a * b;
         if (mode9C == 1) {
             b = effMiscRandFloat(0);
-            out[11] = fGpffff8080 * b;
+            out[11] = angleScale * b;
             if ((effMiscRand(0) & 1) != 0) {
                 out[12] = out[12] * -1.0f;
             }
@@ -3985,14 +3898,13 @@ skip_clear:
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = effMiscRand(0) % limitB8;
+        tmp = (u32)effMiscRand(0) % (u32)limitB8;
         ftmp1 = (f32)(u32)tmp;
         out[9] = out[9] - ftmp1 * e4val * ftmp1 * 0.5f;
         out[5] = out[6] * ftmp1 + out[5];
         sp150[0] = out[5] * cosf(out[8]);
         sp150[1] = 0.0f;
         sp150[2] = out[5] * sinf(out[8]);
-        sp150[3] = 0.0f;
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp150), "m"(*(u_long128 *)sp150) : "$vf10", "memory");
         __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
         if ((flags & 1) == 0) {
@@ -4009,9 +3921,11 @@ skip_clear:
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[12];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[11];
     if (v14 != 0) {
-        if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
-            *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
+        nmult = *(s32 *)(*(u8 **)(parent + 32) + 192) * *(s32 *)(*(u8 **)(parent + 32) + 196);
+        if (nmult != 0) {
+            clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
+            memcpy(clear, nodes, 32);
+            *(s32 *)(clear + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
     }
@@ -4030,7 +3944,6 @@ else_branch:
     sp150[0] = c * cosf(ftmp2);
     sp150[1] = 0.0f;
     sp150[2] = c * sinf(ftmp2);
-    sp150[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp150), "m"(*(u_long128 *)sp150) : "$vf10", "memory");
     __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)sp130) : "r"(sp130) : "$vf10", "memory");
@@ -4039,14 +3952,14 @@ else_branch:
         sp130[1] = sp130[1] + out[1];
         sp130[2] = sp130[2] + out[2];
     }
-    *(u_long128 *)nodes = *(u_long128 *)sp130;
-    *(f32 *)(nodes + 4) = *(f32 *)(nodes + 4) + out[9];
+    *(f32 *)(nodes + 0) = sp130[0];
+    *(f32 *)(nodes + 4) = sp130[1] + out[9];
     *(f32 *)(nodes + 8) = sp130[2];
     func_0048b220(nodes, config, node10, &b220buf);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[10];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[12];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[11];
-    func_0048b340(arg0, nodes);
+    func_0048b340(parent, nodes);
     *(s32 *)(nodes + 16) = node10 + 1;
 next_iter2:
 next_iter:
@@ -4088,14 +4001,15 @@ loop_0048e270_check:
     *(f32 *)(temp_6 + 0xD0) = *(f32 *)(temp_5 + 0xD0) * fparg0;
     *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
 }
-/* M2C-raw draft (does not compile; window 2256B per header): V048 body has M2C_ERROR COP2 sites + 95 M2C_FIELD (nested; same iterative expansion recipe) + M2C_UNK s2/s4 (dead -- s32) + s128/u128 (->u_long128, separate slots); casts (f32)(u32) at 0x154/0x1FC/0x260/0x674 per header; same COP1/COP2 ruled-outs as c4e0; next: same recipe as b340. Production stays ASM. */
+/* Guarded native proof, 2026-09-29: 2236/2256 bytes, 393 differing words;
+ * frame 0x140 matches retail. Initial direction uses independent random
+ * X/Z components and positive Y, not trigonometry. E0 motion and E4 Y
+ * acceleration are separate ordinary C expressions.
+ * Instruction differences remain; production retains ASM. */
 // FUN_0048E2F0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0048e2f0(u8 *arg0)
 {
-    extern s32 func_004bceb0(void);
-    extern f32 effMiscRandFloat(s32 arg0);
-    extern s32 effMiscRand(s32 arg0);
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
@@ -4109,14 +4023,18 @@ void func_0048e2f0(u8 *arg0)
     u32 count;
     u32 flags;
     u8 *nodes;
-    u8 *nodesBase;
     f32 *out;
     u8 *config;
+    u8 *const parent = arg0;
     s32 limitB8;
     s32 saved20;
     u8 mode9C;
     f32 e4val;
-    f32 g7c;
+    f32 one;
+    f32 half;
+    f32 two;
+    f32 zero;
+    f32 negone;
     f32 g80;
     f32 e0val;
     s32 v15;
@@ -4135,64 +4053,64 @@ void func_0048e2f0(u8 *arg0)
     f32 b;
     f32 c;
 
-    count = *(u32 *)(arg0 + 4);
-    flags = *(u32 *)(arg0 + 12);
-    nodesBase = *(u8 **)(arg0 + 24);
-    nodes = nodesBase;
-    out = *(f32 **)(arg0 + 28);
-    config = *(u8 **)(arg0 + 32);
+    count = *(u32 *)(parent + 4);
+    flags = *(u32 *)(parent + 12);
+    nodes = *(u8 **)(parent + 24);
+    out = *(f32 **)(parent + 28);
+    config = *(u8 **)(parent + 32);
     limitB8 = *(s32 *)(config + 184);
     if (limitB8 == 0) {
         return;
     }
     saved20 = *(s32 *)(config + 32);
     mode9C = *(u8 *)(config + 156);
-    g7c = fGpffff807c;
-    g80 = fGpffff8080;
     e4val = *(f32 *)(config + 228);
     e0val = *(f32 *)(config + 224);
-    idx = 0;
     vec130[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(config), "m"(*(u_long128 *)(config + 16)) : "$vf10", "memory");
     func_004bceb0();
-    if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
+    if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
         v14 = 0;
         v15 = 0;
-        goto main_check;
+        goto post_init;
     }
-    if ((*(s32 *)(arg0 + 16) != 0) || (mode9C == 0)) {
+    if ((*(s32 *)(parent + 16) == 0) && (*(u8 *)(config + 189) != 0)) {
+        v14 = 1;
+        if (*(f32 *)(config + 40) <= 0.0f) {
+            v15 = *(s32 *)(parent + 4);
+        } else {
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            ftmp2 = (f32)*(u32 *)(parent + 4);
+            v15 = (s32)(ftmp2 * ftmp1);
+        }
+        goto post_init;
+    } else {
         v14 = 0;
         if (*(f32 *)(config + 40) <= 0.0f) {
             tmp = *(s32 *)(config + 36);
             ftmp1 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
         } else {
-            ftmp1 = (g7c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * ftmp1;
         }
-        ftmp1 = *(f32 *)(arg0 + 20);
-        if (ftmp1 < 0.0f) {
-            ftmp1 = -ftmp1;
-        }
+        ftmp1 = *(f32 *)(parent + 20);
+        ftmp1 = fabsf(ftmp1);
         v15 = (s32)ftmp1;
-        *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) - (f32)v15;
-        if (*(f32 *)(arg0 + 20) < 0.0f) {
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + (f32)v15 + (f32)v15;
-        }
-        goto main_check;
-    } else {
-        v14 = 1;
-        if (*(f32 *)(config + 40) <= 0.0f) {
-            v15 = (s32)count;
-        } else {
-            ftmp1 = (g7c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            ftmp2 = (f32)(u32)count;
-            v15 = (s32)(ftmp2 * ftmp1);
-        }
-        goto main_check;
+        *(f32 *)(parent + 20) = *(f32 *)(parent + 20) - (f32)v15;
+        goto post_init;
     }
+post_init:
+    idx = 0;
+    one = 1.0f;
+    half = 0.5f;
+    two = 2.0f;
+    zero = 0.0f;
+    g80 = fGpffff8080;
+    negone = -1.0f;
+    goto main_check;
 main_body:
     if (*(s32 *)(nodes + 16) < limitB8) {
         goto skip_clear;
@@ -4203,11 +4121,11 @@ main_body:
         tmp = -2;
     }
     *(s32 *)(nodes + 16) = tmp;
-    c0 = *(s32 *)(config + 192);
-    c4 = *(s32 *)(config + 196);
+    c0 = *(s32 *)(*(u8 **)(parent + 32) + 192);
+    c4 = *(s32 *)(*(u8 **)(parent + 32) + 196);
     nmult = c0 * c4;
     if (nmult != 0) {
-        clear = nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * nmult);
+        clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
         ci = 0;
         goto clear_check;
 clear_body:
@@ -4230,13 +4148,12 @@ skip_clear:
     if (v15 == 0) {
         goto next_iter;
     }
-    effMiscRandFloat(0);
     a = *(f32 *)(config + 212);
     b = effMiscRandFloat(0);
-    c = *(f32 *)(config + 208) * ((1.0f - a) + a * b);
-    vec130[0] = c * cosf(c);
-    vec130[1] = -(1.0f - c);
-    vec130[2] = c * sinf(c);
+    c = *(f32 *)(config + 208) * ((one - a) + a * b);
+    vec130[0] = c * ((effMiscRandFloat(0) - half) * two);
+    vec130[1] = one - c;
+    vec130[2] = c * ((effMiscRandFloat(0) - half) * two);
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
     __asm__ volatile(
         "vmul.xyz $vf2, $vf10, $vf10 \n"
@@ -4260,18 +4177,15 @@ skip_clear:
     out[2] = vec130[2];
     a = *(f32 *)(config + 220);
     b = effMiscRandFloat(0);
-    out[3] = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
-    if (out[3] < 0.0f) {
-        out[3] = -out[3];
-    }
+    out[3] = *(f32 *)(config + 216) * ((one - a) + a * b);
+    out[3] = fabsf(out[3]);
     a = *(f32 *)(config + 204);
     b = effMiscRandFloat(0);
-    vec120[0] = *(f32 *)(config + 200) * ((1.0f - a) + a * b);
+    vec120[0] = *(f32 *)(config + 200) * ((one - a) + a * b);
     vec120[1] = vec120[0];
     vec120[2] = vec120[0];
-    vec120[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
-    if (*(f32 *)(config + 216) < 0.0f) {
+    if (*(f32 *)(config + 216) < zero) {
         __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10", "memory");
     }
     if ((flags & 1) != 0) {
@@ -4286,38 +4200,38 @@ skip_clear:
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
     a = *(f32 *)(config + 108);
     b = effMiscRandFloat(0);
-    out[4] = (1.0f - a) + a * b;
+    out[4] = (one - a) + a * b;
     if (mode9C == 2) {
-        out[5] = 0.0f;
-        out[6] = 1.0f;
+        out[5] = zero;
+        out[6] = one;
     } else {
         a = *(f32 *)(config + 152);
         b = effMiscRandFloat(0);
-        out[6] = (1.0f - a) + a * b;
+        out[6] = (one - a) + a * b;
         if (mode9C == 1) {
             b = effMiscRandFloat(0);
             out[5] = g80 * b;
             if ((effMiscRand(0) & 1) != 0) {
-                out[6] = out[6] * -1.0f;
+                out[6] = out[6] * negone;
             }
         } else {
-            out[5] = 0.0f;
+            out[5] = zero;
         }
     }
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = effMiscRand(0) % limitB8;
+        tmp = (u32)effMiscRand(0) % (u32)limitB8;
         ftmp1 = (f32)(u32)tmp;
         __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
-        ftmp2 = out[3] * ftmp1 + e0val * (ftmp1 * (e4val * ftmp1));
-        if (ftmp2 < 0.0f) {
-            ftmp2 = 0.0f;
+        ftmp2 = half * (e0val * ftmp1 * ftmp1) + out[3] * ftmp1;
+        if (ftmp2 < zero) {
+            ftmp2 = zero;
         }
         vec130[0] = ftmp2 * out[0];
         vec130[1] = ftmp2 * out[1];
         vec130[2] = ftmp2 * out[2];
-        vec130[1] = vec130[1] - e0val * (ftmp1 * (e4val * ftmp1));
+        vec130[1] = vec130[1] - half * (e4val * ftmp1 * ftmp1);
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
         __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
         __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
@@ -4328,9 +4242,11 @@ skip_clear:
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
     if (v14 != 0) {
-        if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
-            *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
+        nmult = *(s32 *)(*(u8 **)(parent + 32) + 192) * *(s32 *)(*(u8 **)(parent + 32) + 196);
+        if (nmult != 0) {
+            clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
+            memcpy(clear, nodes, 32);
+            *(s32 *)(clear + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
     }
@@ -4340,8 +4256,8 @@ else_branch:
     b220buf = *(u_long128 *)nodes;
     __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
     ftmp1 = out[3] + e0val * (f32)node10;
-    if (ftmp1 < 0.0f) {
-        ftmp1 = 0.0f;
+    if (ftmp1 < zero) {
+        ftmp1 = zero;
     }
     vec130[0] = ftmp1 * out[0];
     vec130[1] = ftmp1 * out[1];
@@ -4354,7 +4270,7 @@ else_branch:
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[4];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
-    func_0048b340(arg0, nodes);
+    func_0048b340(parent, nodes);
     *(s32 *)(nodes + 16) = node10 + 1;
 next_iter2:
 next_iter:
@@ -4396,27 +4312,16 @@ loop_0048ebc0_check:
     *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
     *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
 }
+/* Guarded native proof, 2026-09-29: 2300/2320 bytes, 405 differing words;
+ * frame 0x140 and twelve saved FPRs match retail. Cone angle consumes
+ * the first RNG result and the signed integer at config+0xe8; distinct
+ * angle scale/offset globals stay live across the loop. The cone's Y
+ * component is negative, unlike func_0048e2f0.
+ * Instruction differences remain; production retains ASM. */
 // FUN_0048EC50 NONMATCHING
-/* Floor v2 (measured 2026-09-17): re-derived from retail disassembly (tools/recon_dis.py, asm/nonmatchings/code1_0048/func_0048ec50.s, docs/ida_headstart, docs/ghidra_headstart) + same-file MATCH siblings 861f0/86330/86400 VU idiom. probe_variants cand 536 words (v1 565) via `python3 tools/probe_variants.py src/promoted/code1_0048.c func_0048ec50 --candidate cand=/tmp/cand_ec50v2.c`; measure_guarded GUARDED_SCORE 536, obj 2260B/window 2320B (-60B -2.6% within 3% 2250-2390); fnalign retail 576 instrs/obj 565 instrs, 548 edits (-11 -1.9% within 3% 559-593) via `python3 -E -s tools/fnalign.py src/promoted/code1_0048.c func_0048ec50 --candidate /tmp/cand_ec50v2.c`; verify 60 MATCH/13 ASM (production stays ASM); decomp_lint 0 findings; -DNON_MATCHING TU compile ok (/tmp/c48_nonmatching.o 62K via mwccgap r5900/eabi -O2 -Iinclude -DNON_MATCHING); pragma_sweep singles: loop_invariants on 520 + peephole off 520 (both better than 536), dead/prop/strength/unroll neutral 536, schedule on 549, common_subs off 568, opt_level 3/4 548, 1 568, 0 586 (all worse, baseline -O2 best for size axis, H003 allowed with justification; pairs sweep measured: 9 pairs tie best 520 (dead+peephole, loop+dead, loop+prop, loop+strength, loop+unroll, prop+peephole, strength+peephole, unroll+peephole), loop+peephole together 534 worse than either single (non-additive), all other pairs 536/547-549/563-576, opt_level pairs not run (singles already worse 548/568/586)). 3 u_long128/f32[4] slots (b220buf/vec120/vec130 = retail 0x110/0x120/0x130, no extra), one asm block per lqc2/sqc2/vadd/vmulx/qmtc2/vmove, compiler addresses, no literal stack offsets, memory + exact VU/GPR clobbers, scalar arithmetic in C, $vf0=(0,0,0,1)/lane masks/broadcast/W=0 preserved. */
-/* measured 0048ec50 (owner, 2026-09-19): fnalign edits **548 -> 505** by hoisting the two
-   gp-relative float globals into locals read once.  Retail does exactly that -
-   `lwc1 $f25, -0x7f70($gp)` and `lwc1 $f24, -0x7f6c($gp)` at R165-R166 - and keeps them
-   in callee-saved registers, where the body re-read `fGpffff807c` and `fGpffff8080` at
-   every use.  Frame 0x130 -> 0x140 and the saved set gains $f24.
-   Retail keeps **eight** callee-saved floats ($f24-$f31); the body now keeps two, so this
-   is a third of the way.  The rest: $f28/$f29 hold the 0xE0/0xE4 fields, $f31 the 0xD4
-   field, $f30 a computed difference, $f26/$f27 stack temporaries - each a value the
-   original source held in a variable across calls and this body re-reads.
-   Rejected: folding the two re-reads of `config + 212` into the existing `a` local scores
-   better (502) but requires writing `(a - a) + a * b`, and retail's R231 is
-   `sub.s $f30, $f0, $f24` - a subtraction of the gp global, not of the field from itself.
-   A spelling that scores by asserting something the assembly contradicts is not a fix. */
 #ifdef NON_MATCHING
 void func_0048ec50(u8 *arg0)
 {
-    extern s32 func_004bceb0(void);
-    extern f32 effMiscRandFloat(s32 arg0);
-    extern s32 effMiscRand(s32 arg0);
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
@@ -4424,20 +4329,29 @@ void func_0048ec50(u8 *arg0)
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
+    extern f32 fGpffff8090;
+    extern f32 fGpffff8094;
     u_long128 b220buf;
     f32 vec120[4] __attribute__((aligned(16)));
     f32 vec130[4] __attribute__((aligned(16)));
     u32 count;
     u32 flags;
     u8 *nodes;
-    u8 *nodesBase;
     f32 *out;
     u8 *config;
+    u8 *const parent = arg0;
     s32 limitB8;
     s32 saved20;
     u8 mode9C;
     f32 e4val;
-    f32 g7c;
+    f32 half;
+    f32 two;
+    f32 one;
+    f32 zero;
+    f32 negone;
+    f32 angleScale;
+    f32 angleOffset;
+    f32 angle;
     f32 g80;
     f32 e0val;
     s32 v15;
@@ -4456,64 +4370,66 @@ void func_0048ec50(u8 *arg0)
     f32 b;
     f32 c;
 
-    count = *(u32 *)(arg0 + 4);
-    flags = *(u32 *)(arg0 + 12);
-    nodesBase = *(u8 **)(arg0 + 24);
-    nodes = nodesBase;
-    out = *(f32 **)(arg0 + 28);
-    config = *(u8 **)(arg0 + 32);
+    count = *(u32 *)(parent + 4);
+    flags = *(u32 *)(parent + 12);
+    nodes = *(u8 **)(parent + 24);
+    out = *(f32 **)(parent + 28);
+    config = *(u8 **)(parent + 32);
     limitB8 = *(s32 *)(config + 184);
     if (limitB8 == 0) {
         return;
     }
     saved20 = *(s32 *)(config + 32);
     mode9C = *(u8 *)(config + 156);
-    g7c = fGpffff807c;
-    g80 = fGpffff8080;
     e4val = *(f32 *)(config + 228);
     e0val = *(f32 *)(config + 224);
-    idx = 0;
     vec130[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(config), "m"(*(u_long128 *)(config + 16)) : "$vf10", "memory");
     func_004bceb0();
-    if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
+    if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
         v14 = 0;
         v15 = 0;
-        goto main_check;
+        goto post_init;
     }
-    if ((*(s32 *)(arg0 + 16) != 0) || (mode9C == 0)) {
+    if ((*(s32 *)(parent + 16) == 0) && (*(u8 *)(config + 189) != 0)) {
+        v14 = 1;
+        if (*(f32 *)(config + 40) <= 0.0f) {
+            v15 = *(s32 *)(parent + 4);
+        } else {
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            ftmp2 = (f32)*(u32 *)(parent + 4);
+            v15 = (s32)(ftmp2 * ftmp1);
+        }
+        goto post_init;
+    } else {
         v14 = 0;
         if (*(f32 *)(config + 40) <= 0.0f) {
             tmp = *(s32 *)(config + 36);
             ftmp1 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
         } else {
-            ftmp1 = (g7c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * ftmp1;
         }
-        ftmp1 = *(f32 *)(arg0 + 20);
-        if (ftmp1 < 0.0f) {
-            ftmp1 = -ftmp1;
-        }
+        ftmp1 = *(f32 *)(parent + 20);
+        ftmp1 = fabsf(ftmp1);
         v15 = (s32)ftmp1;
-        *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) - (f32)v15;
-        if (*(f32 *)(arg0 + 20) < 0.0f) {
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + (f32)v15 + (f32)v15;
-        }
-        goto main_check;
-    } else {
-        v14 = 1;
-        if (*(f32 *)(config + 40) <= 0.0f) {
-            v15 = (s32)count;
-        } else {
-            ftmp1 = (g7c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            ftmp2 = (f32)(u32)count;
-            v15 = (s32)(ftmp2 * ftmp1);
-        }
-        goto main_check;
+        *(f32 *)(parent + 20) = *(f32 *)(parent + 20) - (f32)v15;
+        goto post_init;
     }
+post_init:
+    idx = 0;
+    half = 0.5f;
+    two = 2.0f;
+    angleScale = fGpffff8090;
+    angleOffset = fGpffff8094;
+    one = 1.0f;
+    zero = 0.0f;
+    g80 = fGpffff8080;
+    negone = -1.0f;
+    goto main_check;
 main_body:
     if (*(s32 *)(nodes + 16) < limitB8) {
         goto skip_clear;
@@ -4524,11 +4440,11 @@ main_body:
         tmp = -2;
     }
     *(s32 *)(nodes + 16) = tmp;
-    c0 = *(s32 *)(config + 192);
-    c4 = *(s32 *)(config + 196);
+    c0 = *(s32 *)(*(u8 **)(parent + 32) + 192);
+    c4 = *(s32 *)(*(u8 **)(parent + 32) + 196);
     nmult = c0 * c4;
     if (nmult != 0) {
-        clear = nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * nmult);
+        clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
         ci = 0;
         goto clear_check;
 clear_body:
@@ -4551,13 +4467,14 @@ skip_clear:
     if (v15 == 0) {
         goto next_iter;
     }
-    effMiscRandFloat(0);
+    b = effMiscRandFloat(0);
+    angle = angleScale * (half * ((f32)*(s32 *)(config + 232) * (two * (b - half)))) - angleOffset;
     a = *(f32 *)(config + 212);
     b = effMiscRandFloat(0);
-    c = *(f32 *)(config + 208) * ((1.0f - a) + a * b);
-    vec130[0] = c * cosf(c);
-    vec130[1] = -(1.0f - c);
-    vec130[2] = c * sinf(c);
+    c = *(f32 *)(config + 208) * ((one - a) + a * b);
+    vec130[0] = c * cosf(angle);
+    vec130[1] = -(one - c);
+    vec130[2] = c * sinf(angle);
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
     __asm__ volatile(
         "vmul.xyz $vf2, $vf10, $vf10 \n"
@@ -4581,18 +4498,15 @@ skip_clear:
     out[2] = vec130[2];
     a = *(f32 *)(config + 220);
     b = effMiscRandFloat(0);
-    out[3] = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
-    if (out[3] < 0.0f) {
-        out[3] = -out[3];
-    }
+    out[3] = *(f32 *)(config + 216) * ((one - a) + a * b);
+    out[3] = fabsf(out[3]);
     a = *(f32 *)(config + 204);
     b = effMiscRandFloat(0);
-    vec120[0] = *(f32 *)(config + 200) * ((1.0f - a) + a * b);
+    vec120[0] = *(f32 *)(config + 200) * ((one - a) + a * b);
     vec120[1] = vec120[0];
     vec120[2] = vec120[0];
-    vec120[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
-    if (*(f32 *)(config + 216) < 0.0f) {
+    if (*(f32 *)(config + 216) < zero) {
         __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10", "memory");
     }
     if ((flags & 1) != 0) {
@@ -4607,38 +4521,38 @@ skip_clear:
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
     a = *(f32 *)(config + 108);
     b = effMiscRandFloat(0);
-    out[4] = (1.0f - a) + a * b;
+    out[4] = (one - a) + a * b;
     if (mode9C == 2) {
-        out[5] = 0.0f;
-        out[6] = 1.0f;
+        out[5] = zero;
+        out[6] = one;
     } else {
         a = *(f32 *)(config + 152);
         b = effMiscRandFloat(0);
-        out[6] = (1.0f - a) + a * b;
+        out[6] = (one - a) + a * b;
         if (mode9C == 1) {
             b = effMiscRandFloat(0);
             out[5] = g80 * b;
             if ((effMiscRand(0) & 1) != 0) {
-                out[6] = out[6] * -1.0f;
+                out[6] = out[6] * negone;
             }
         } else {
-            out[5] = 0.0f;
+            out[5] = zero;
         }
     }
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = effMiscRand(0) % limitB8;
+        tmp = (u32)effMiscRand(0) % (u32)limitB8;
         ftmp1 = (f32)(u32)tmp;
         __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
-        ftmp2 = out[3] * ftmp1 + e0val * (ftmp1 * (e4val * ftmp1));
-        if (ftmp2 < 0.0f) {
-            ftmp2 = 0.0f;
+        ftmp2 = half * (e0val * ftmp1 * ftmp1) + out[3] * ftmp1;
+        if (ftmp2 < zero) {
+            ftmp2 = zero;
         }
         vec130[0] = ftmp2 * out[0];
         vec130[1] = ftmp2 * out[1];
         vec130[2] = ftmp2 * out[2];
-        vec130[1] = vec130[1] - e0val * (ftmp1 * (e4val * ftmp1));
+        vec130[1] = vec130[1] - half * (e4val * ftmp1 * ftmp1);
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
         __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
         __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
@@ -4649,9 +4563,11 @@ skip_clear:
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
     if (v14 != 0) {
-        if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
-            *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
+        nmult = *(s32 *)(*(u8 **)(parent + 32) + 192) * *(s32 *)(*(u8 **)(parent + 32) + 196);
+        if (nmult != 0) {
+            clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
+            memcpy(clear, nodes, 32);
+            *(s32 *)(clear + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
     }
@@ -4661,8 +4577,8 @@ else_branch:
     b220buf = *(u_long128 *)nodes;
     __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
     ftmp1 = out[3] + e0val * (f32)node10;
-    if (ftmp1 < 0.0f) {
-        ftmp1 = 0.0f;
+    if (ftmp1 < zero) {
+        ftmp1 = zero;
     }
     vec130[0] = ftmp1 * out[0];
     vec130[1] = ftmp1 * out[1];
@@ -4675,7 +4591,7 @@ else_branch:
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[4];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
-    func_0048b340(arg0, nodes);
+    func_0048b340(parent, nodes);
     *(s32 *)(nodes + 16) = node10 + 1;
 next_iter2:
 next_iter:
@@ -4717,28 +4633,32 @@ loop_0048f560_check:
     *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
     *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
 }
-/* Decode 0048f5f0 (window 3440B=860w, gate 3337-3543B/834-885w; frame 0x1E0=480B, largest of family; void(u8*) single-pointer like ec50: +4 count u32, +C flags u32 bit0, +10 s32, +14 f32 acc, +18 nodes u8* stride 0x20, +1C out f32* stride 7, +20 config u8*). Retail calls in order: bceb0, bd0b0 x6, 44b610, 44b7b0, bd380 x3, bd050 x2, b220 x2, 43f810, b340. 26 VU ops (most in file): lqc2/sqc2 on 0x110/0x120/0x130 quads plus config+0x00/0x10 quads; normalize vmul.xyz+vmulax.w/madday.w/maddz.w+vrsqrt/vwaitq/vmulq.xyz (xyz-only, W preserved) + conditional vmulax.xyzw chain (vf28-30 from bceb0) + vsub.xyz negate on f32<0 + vmul.xyzw/vadd.xyzw with q120/config quads + sqc2 to node. GP floats via $28: 7F70/7F7C/7F80/7F84 (fGpffff8090/8094/8080/807c family); immediates 0.5/2.0/1.0/0.0/-1.0 via lui/mtc1, hoist to f20-27 before main loop like ec50. 3 unsigned (f32)(u32) sites via bltz+srl/andi/or/mtc1/cvt/add (branchless, never if(tmp<0)). Template: reuse ec50 v2 verbatim (3 slots b220buf u_long128 + vec120/vec130 f32[4] aligned16, one asm block per transfer with compiler address + m/=m + memory + exact VU/GPR clobbers, scalar in C, $vf0/lane/broadcast/W=0). Expect obj ~860w; outside 3% stays INCLUDE_ASM with factual note. Production stays ASM. */
-/* measured 2026-09-19: gate fix for the 110-short hole (746 vs 856, -12.9%).
-   Largest fnalign delete was retail[71:139] (68) plus hidden replaces
-   retail[314:622] (308 vs 4) and retail[662:831] (169 vs 6); retail spans show
-   the missing work is the cubic Bezier (v14/else with 248/236 dual, c^3/3vc^2
-   coeffs at 0x140/0x120 and results at 0x130/0x110), the second vopmula cross
-   to 0x180, the lh E0 (224) halfword for bd380, and the (204,208)/(220,216)
-   VU scales for out[0..2]/[3..5] with out[4,5] stores.  This body restores
-   that work: fnalign retail 860 vs object 879 (+2.2% inside the 834-886 gate;
-   879 vs 856 is +2.7% inside 830-882), edits 1167 -> 691, guarded words
-   790 (short, retired) -> 817 (inside gate, comparable per handoff 7y).
-   Scoped `opt_loop_invariants on` re-measured 2026-09-19 after the count fix
-   (handoff 7s): with 879/691 vs without 888/820 (+3.3% outside 834-886), so kept. */
+/* Guarded native proof, 2026-09-29: 3408/3440 bytes;
+ * 658 differing relocation-masked words. The 76-byte work record separates
+ * control points, offsets, and scalar state; its length union preserves
+ * hardware-Q bits without numeric conversion. Ordinary C cubic polynomials
+ * generate native COP1 MACs. Genuine literal/global lifetimes recover the
+ * retail 0x1e0 frame; input/control lanes are not given guessed initial values.
+ * Instruction differences remain; production retains ASM. */
 // FUN_0048F5F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_loop_invariants on
 void func_0048f5f0(u8 *arg0)
 {
-    extern s32 func_004bceb0(void);
-    extern f32 effMiscRandFloat(s32 arg0);
-    extern s32 effMiscRand(s32 arg0);
+    typedef struct BezierParticleWork {
+        f32 control0[3];
+        f32 control1[3];
+        f32 control2[3];
+        f32 offset[3];
+        f32 rotationSpeed;
+        f32 travelSpeed;
+        union { s32 bits; f32 value; } length;
+        f32 progress;
+        f32 opacity;
+        f32 spin;
+        f32 scale;
+    } BezierParticleWork;
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
     extern void func_004bd380(void *arg0, f32 arg1);
@@ -4751,14 +4671,12 @@ void func_0048f5f0(u8 *arg0)
     extern f32 fGpffff8090;
     extern u8 D_00713D00[];
     u_long128 b220buf;
-    u_long128 cfgQuad;
     f32 stack1A0[4] __attribute__((aligned(16)));
     f32 vecA[4] __attribute__((aligned(16)));
     f32 vecB[4] __attribute__((aligned(16)));
     f32 bez[4] __attribute__((aligned(16)));
     u8 tmp1C0[16] __attribute__((aligned(16)));
     u8 tmp170[16] __attribute__((aligned(16)));
-    u8 tmp190[16] __attribute__((aligned(16)));
     u8 tmp180[16] __attribute__((aligned(16)));
     f32 vecB2[4] __attribute__((aligned(16)));
     f32 quad110[4] __attribute__((aligned(16)));
@@ -4767,11 +4685,8 @@ void func_0048f5f0(u8 *arg0)
     f32 coeff140[4] __attribute__((aligned(16)));
     f32 save29;
     f32 save30;
-    f32 stackD4;
-    f32 stackD8;
     f32 stackDC;
-    f32 scaleTmp;
-    s32 bitsTmp;
+    f32 half, two, orbitScale, hundred, one, zero, spinScale, negone, thousand, three;
     f32 vB;
     f32 ccB;
     f32 cc2B;
@@ -4796,15 +4711,13 @@ void func_0048f5f0(u8 *arg0)
     f32 f1B;
     f32 f12B;
     u32 count;
-    u8 *nodesBase;
     u8 *nodes;
-    u8 *outBase;
-    u8 *out;
+    BezierParticleWork *out;
     u8 *config;
+    u8 *const parent = arg0;
     s32 limitB8;
     s32 saved20;
     u8 mode9C;
-    u8 modeBD;
     s32 v15;
     s32 v14;
     u32 idx;
@@ -4823,72 +4736,71 @@ void func_0048f5f0(u8 *arg0)
     f32 b;
     f32 c;
     f32 d;
-    s32 half;
-    count = *(u32 *)(arg0 + 4);
-    nodesBase = *(u8 **)(arg0 + 24);
-    nodes = nodesBase;
-    outBase = *(u8 **)(arg0 + 28);
-    out = outBase;
-    config = *(u8 **)(arg0 + 32);
+    count = *(u32 *)(parent + 4);
+    nodes = *(u8 **)(parent + 24);
+    out = *(BezierParticleWork **)(parent + 28);
+    config = *(u8 **)(parent + 32);
     limitB8 = *(s32 *)(config + 184);
     if (limitB8 == 0) {
         return;
     }
     saved20 = *(s32 *)(config + 32);
     mode9C = *(u8 *)(config + 156);
-    modeBD = *(u8 *)(config + 189);
-    idx = 0;
+    save29 = *(f32 *)(config + 236);
+    save30 = *(f32 *)(config + 248);
     stack1A0[0] = *(f32 *)(config + 252);
     stack1A0[1] = *(f32 *)(config + 256);
     stack1A0[2] = *(f32 *)(config + 260);
     __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(config), "m"(*(u_long128 *)(config + 16)) : "$vf10", "memory");
     func_004bceb0();
-    if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
+    if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
         v14 = 0;
         v15 = 0;
-        goto main_check;
+        goto post_init;
     }
-    if ((*(s32 *)(arg0 + 16) != 0) || (modeBD == 0)) {
+    if ((*(s32 *)(parent + 16) == 0) && (*(u8 *)(config + 189) != 0)) {
+        v14 = 1;
+        if (*(f32 *)(config + 40) <= 0.0f) {
+            v15 = *(s32 *)(parent + 4);
+        } else {
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            tmp = *(s32 *)(parent + 4);
+            ftmp2 = (f32)(u32)tmp;
+            v15 = (s32)(ftmp2 * ftmp1);
+        }
+        goto post_init;
+    } else {
         v14 = 0;
         if (*(f32 *)(config + 40) <= 0.0f) {
             tmp = *(s32 *)(config + 36);
             ftmp1 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
         } else {
             ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
-            if (tmp < 0) {
-                half = ((u32)tmp >> 1) | (tmp & 1);
-                ftmp2 = 2.0f * (f32)half;
-            } else {
-                ftmp2 = (f32)tmp;
-            }
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
+            ftmp2 = (f32)(u32)tmp;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * ftmp1;
         }
-        ftmp1 = *(f32 *)(arg0 + 20);
-        if (ftmp1 < 0.0f) {
-            ftmp1 = -ftmp1;
-        }
+        ftmp1 = *(f32 *)(parent + 20);
+        ftmp1 = fabsf(ftmp1);
         v15 = (s32)ftmp1;
-        *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) - (f32)v15;
-        goto main_check;
-    } else {
-        v14 = 1;
-        if (*(f32 *)(config + 40) <= 0.0f) {
-            v15 = (s32)count;
-        } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            tmp = (s32)count;
-            if (tmp < 0) {
-                half = ((u32)tmp >> 1) | (tmp & 1);
-                ftmp2 = 2.0f * (f32)half;
-            } else {
-                ftmp2 = (f32)tmp;
-            }
-            v15 = (s32)(ftmp2 * ftmp1);
-        }
-        goto main_check;
+        *(f32 *)(parent + 20) = *(f32 *)(parent + 20) - (f32)v15;
+        goto post_init;
     }
+post_init:
+    idx = 0;
+    half = 0.5f;
+    two = 2.0f;
+    orbitScale = fGpffff8084;
+    hundred = 100.0f;
+    stackDC = fGpffff8090;
+    one = 1.0f;
+    zero = 0.0f;
+    spinScale = fGpffff8080;
+    negone = -1.0f;
+    thousand = 1000.0f;
+    three = 3.0f;
+    goto main_check;
 main_body:
     if (*(s32 *)(nodes + 16) < limitB8) {
         goto skip_clear;
@@ -4899,11 +4811,11 @@ main_body:
         tmp = -2;
     }
     *(s32 *)(nodes + 16) = tmp;
-    c0 = *(s32 *)(config + 192);
-    c4 = *(s32 *)(config + 196);
+    c0 = *(s32 *)(*(u8 **)(parent + 32) + 192);
+    c4 = *(s32 *)(*(u8 **)(parent + 32) + 196);
     nmult = c0 * c4;
     if (nmult != 0) {
-        clear = nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * nmult);
+        clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
         ci = 0;
         goto clear_check;
 clear_body:
@@ -4927,34 +4839,33 @@ skip_clear:
         goto next_iter;
     }
     b = effMiscRandFloat(0);
-    c = 2.0f * (b - 0.5f);
+    c = two * (b - half);
     {
-        f32 arg8084 = fGpffff8084 * c;
+        f32 arg8084 = orbitScale * c;
         a = *(f32 *)(config + 284) * cosf(arg8084);
-        ((f32 *)out)[9] = a;
-        ((f32 *)out)[10] = -*(f32 *)(config + 288);
+        out->offset[0] = a;
+        out->offset[1] = -*(f32 *)(config + 288);
         a = *(f32 *)(config + 284) * sinf(arg8084);
-        ((f32 *)out)[11] = a;
+        out->offset[2] = a;
     }
-    vecA[0] = *(f32 *)(config + 264) + ((f32 *)out)[9];
-    vecA[1] = *(f32 *)(config + 268) + ((f32 *)out)[10];
-    vecA[2] = *(f32 *)(config + 272) + ((f32 *)out)[11];
+    vecA[0] = *(f32 *)(config + 264) + out->offset[0];
+    vecA[1] = *(f32 *)(config + 268) + out->offset[1];
+    vecA[2] = *(f32 *)(config + 272) + out->offset[2];
     __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(stack1A0), "m"(*(u_long128 *)stack1A0) : "$vf12", "memory");
+    __asm__ volatile("vmove.xyzw $vf10, $vf12" : : : "$vf10", "$vf12", "memory");
     __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(vecA), "m"(*(u_long128 *)vecA) : "$vf11", "memory");
     {
         s16 h200 = *(s16 *)(config + 200);
-        f32 f200 = (f32)h200 / 100.0f;
-        __asm__ volatile("mfc1 %0, %1" : "=r"(bitsTmp) : "f"(f200) : "memory");
-        __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(bitsTmp) : "$vf2", "memory");
+        f32 f200 = (f32)h200 / hundred;
+        __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(f200) : "$vf2", "memory");
     }
     __asm__ volatile("vsubx.w $vf3, $vf0, $vf2x \n vmulax.xyzw $ACC, $vf11, $vf2x \n vmaddw.xyzw $vf10, $vf10, $vf3w \n" : : : "$vf3", "$vf10", "$vf11", "$vf2", "ACC", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)vecB) : "r"(vecB) : "$vf10", "memory");
     __asm__ volatile("vmove.xyzw $vf10, $vf12" : : : "$vf10", "$vf12", "memory");
     {
         s16 h212 = *(s16 *)(config + 212);
-        f32 f212 = (f32)h212 / 100.0f;
-        __asm__ volatile("mfc1 %0, %1" : "=r"(bitsTmp) : "f"(f212) : "memory");
-        __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(bitsTmp) : "$vf2", "memory");
+        f32 f212 = (f32)h212 / hundred;
+        __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(f212) : "$vf2", "memory");
     }
     __asm__ volatile("vsubx.w $vf3, $vf0, $vf2x \n vmulax.xyzw $ACC, $vf11, $vf2x \n vmaddw.xyzw $vf10, $vf10, $vf3w \n" : : : "$vf3", "$vf10", "$vf11", "$vf2", "ACC", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)vecB2) : "r"(vecB2) : "$vf10", "memory");
@@ -4964,7 +4875,7 @@ skip_clear:
     __asm__ volatile("vsqrt $Q, $vf2x" : : : "$Q", "$vf2", "memory");
     __asm__ volatile("vwaitq" : : : "memory");
     __asm__ volatile("cfc2.ni %0, $vi22" : "=r"(tmp2) : : "memory");
-    *(s32 *)(out + 56) = tmp2;
+    out->length.bits = tmp2;
     __asm__ volatile("vmul.xyz $vf2, $vf10, $vf10 \n vmulax.w $ACC, $vf0, $vf2x \n vmadday.w $ACC, $vf0, $vf2y \n vmaddz.w $vf2, $vf0, $vf2z \n vrsqrt $Q, $vf0w, $vf2w \n vwaitq \n vmulq.xyz $vf10, $vf10, $Q \n" : : : "$vf2", "$vf10", "ACC", "Q", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp1C0) : "r"(tmp1C0) : "$vf10", "memory");
     __asm__ volatile("vmove.xyzw $vf12, $vf10" : : : "$vf12", "$vf10", "memory");
@@ -4977,185 +4888,158 @@ skip_clear:
         s16 hE0 = *(s16 *)(config + 224);
         f32 fE0 = (f32)hE0;
         b = effMiscRandFloat(0);
-        c = 2.0f * (b - 0.5f);
+        c = two * (b - half);
         fE0 = fE0 * c;
-        ftmp1 = 0.5f * fE0;
-        {
-            f32 stackDCv = *(f32 *)(config + 220);
-            /* retail uses stack DC (8090) here; config+220 is blend for next block, DC is separate.
-               Use stackDC local laced from GP to force stack traffic. */
-            stackDC = fGpffff8090;
-            ftmp2 = stackDC * ftmp1;
-            /* also keep E0 scaled path live for count */
-            scaleTmp = fE0 + ftmp1;
-        }
+        ftmp1 = half * fE0;
         func_004bd380(tmp1C0, stackDC * ftmp1);
     }
     {
         ftmp1 = *(f32 *)(config + 208);
         b = effMiscRandFloat(0);
         {
-            f32 blend208 = (1.0f - ftmp1) + ftmp1 * b;
+            f32 blend208 = (one - ftmp1) + ftmp1 * b;
             f32 scale204 = *(f32 *)(config + 204) * blend208;
-            __asm__ volatile("mfc1 %0, %1" : "=r"(bitsTmp) : "f"(scale204) : "memory");
-            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(bitsTmp) : "$vf2", "memory");
+            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(scale204) : "$vf2", "memory");
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vecB), "m"(*(u_long128 *)vecB) : "$vf10", "memory");
             __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(tmp180), "m"(*(u_long128 *)tmp180) : "$vf12", "memory");
             __asm__ volatile("vmove.xyzw $vf11, $vf12" : : : "$vf11", "$vf12", "memory");
             __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x" : : : "$vf11", "$vf2", "memory");
             __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf11x \n vmadday.xyzw $ACC, $vf29, $vf11y \n vmaddz.xyzw $vf11, $vf30, $vf11z \n vadd.xyzw $vf10, $vf10, $vf11 \n" : : : "$vf10", "$vf11", "ACC", "memory");
             __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
-            ((f32 *)out)[0] = ((f32 *)tmp170)[0];
-            ((f32 *)out)[1] = ((f32 *)tmp170)[1];
-            ((f32 *)out)[2] = ((f32 *)tmp170)[2];
+            out->control0[0] = ((f32 *)tmp170)[0];
+            out->control0[1] = ((f32 *)tmp170)[1];
+            out->control0[2] = ((f32 *)tmp170)[2];
         }
     }
     {
         ftmp1 = *(f32 *)(config + 220);
         b = effMiscRandFloat(0);
         {
-            f32 blend220 = (1.0f - ftmp1) + ftmp1 * b;
+            f32 blend220 = (one - ftmp1) + ftmp1 * b;
             f32 scale216 = *(f32 *)(config + 216) * blend220;
-            __asm__ volatile("mfc1 %0, %1" : "=r"(bitsTmp) : "f"(scale216) : "memory");
-            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(bitsTmp) : "$vf2", "memory");
+            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(scale216) : "$vf2", "memory");
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vecB2), "m"(*(u_long128 *)vecB2) : "$vf10", "memory");
             __asm__ volatile("vmove.xyzw $vf11, $vf12" : : : "$vf11", "$vf12", "memory");
             __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x" : : : "$vf11", "$vf2", "memory");
             __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf11x \n vmadday.xyzw $ACC, $vf29, $vf11y \n vmaddz.xyzw $vf11, $vf30, $vf11z \n vadd.xyzw $vf10, $vf10, $vf11 \n" : : : "$vf10", "$vf11", "ACC", "memory");
             __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
-            ((f32 *)out)[3] = ((f32 *)tmp170)[0];
-            ((f32 *)out)[4] = ((f32 *)tmp170)[1];
-            ((f32 *)out)[5] = ((f32 *)tmp170)[2];
+            out->control1[0] = ((f32 *)tmp170)[0];
+            out->control1[1] = ((f32 *)tmp170)[1];
+            out->control1[2] = ((f32 *)tmp170)[2];
         }
     }
     ftmp1 = *(f32 *)(config + 244);
     b = effMiscRandFloat(0);
-    ((f32 *)out)[13] = *(f32 *)(config + 240) * ((1.0f - ftmp1) + ftmp1 * b);
+    out->travelSpeed = *(f32 *)(config + 240) * ((one - ftmp1) + ftmp1 * b);
     ftmp1 = *(f32 *)(config + 232);
     b = effMiscRandFloat(0);
-    ((f32 *)out)[12] = *(f32 *)(config + 228) * ((1.0f - ftmp1) + ftmp1 * b);
-    ((f32 *)out)[15] = 0.0f;
+    out->rotationSpeed = *(f32 *)(config + 228) * ((one - ftmp1) + ftmp1 * b);
+    out->progress = zero;
     *(u_long128 *)nodes = *(u_long128 *)stack1A0;
     ftmp1 = *(f32 *)(config + 108);
     b = effMiscRandFloat(0);
-    ((f32 *)out)[16] = (1.0f - ftmp1) + ftmp1 * b;
+    out->opacity = (one - ftmp1) + ftmp1 * b;
     if (mode9C == 2) {
-        ((f32 *)out)[17] = 0.0f;
-        ((f32 *)out)[18] = 1.0f;
+        out->spin = zero;
+        out->scale = one;
     } else {
         ftmp1 = *(f32 *)(config + 152);
         b = effMiscRandFloat(0);
-        ((f32 *)out)[18] = (1.0f - ftmp1) + ftmp1 * b;
+        out->scale = (one - ftmp1) + ftmp1 * b;
         if (mode9C == 1) {
             b = effMiscRandFloat(0);
-            ((f32 *)out)[17] = fGpffff8080 * b;
+            out->spin = spinScale * b;
             if ((effMiscRand(0) & 1) != 0) {
-                ((f32 *)out)[18] = ((f32 *)out)[18] * -1.0f;
+                out->scale = out->scale * negone;
             }
         } else {
-            ((f32 *)out)[17] = 0.0f;
+            out->spin = zero;
         }
     }
     *(s32 *)(nodes + 16) = 0;
     b220buf = *(u_long128 *)nodes;
     if (v14 != 0) {
-        tmp = effMiscRand(0) % limitB8;
-        if (tmp < 0) {
-            half = ((u32)tmp >> 1) | (tmp & 1);
-            ftmp1 = 2.0f * (f32)half;
-        } else {
-            ftmp1 = (f32)tmp;
+        tmp = (u32)effMiscRand(0) % (u32)limitB8;
+        ftmp1 = (f32)(u32)tmp;
+        out13B = out->travelSpeed;
+        out12B = out->rotationSpeed;
+        ftmp2 = half * (save30 * ftmp1 * ftmp1) + out13B * ftmp1;
+        ftmp3 = half * (save29 * ftmp1 * ftmp1) + out12B * ftmp1;
+        if (ftmp2 < zero) {
+            ftmp2 = zero;
         }
-        save30 = *(f32 *)(config + 248);
-        save29 = *(f32 *)(config + 236);
-        out13B = ((f32 *)out)[13];
-        out12B = ((f32 *)out)[12];
-        ftmp2 = out13B * ftmp1 + 0.5f * (save30 * ftmp1 * ftmp1);
-        ftmp3 = out12B * ftmp1 + 0.5f * (save29 * ftmp1 * ftmp1);
-        if (ftmp2 < 0.0f) {
-            ftmp2 = 0.0f;
-        }
-        if (ftmp3 < 0.0f) {
-            ftmp3 = 0.0f;
+        if (ftmp3 < zero) {
+            ftmp3 = zero;
         }
         d = ftmp2;
         c = ftmp3;
-        ftmp2 = d / 1000.0f;
-        if (ftmp2 > 1.0f) {
-            ftmp2 = 1.0f;
+        ftmp2 = d / thousand;
+        if (ftmp2 > one) {
+            ftmp2 = one;
         }
-        if (((f32 *)out)[15] > ftmp2) {
-            ftmp2 = ((f32 *)out)[15];
+        if (out->progress > ftmp2) {
+            ftmp2 = out->progress;
         } else {
-            ((f32 *)out)[15] = ftmp2;
+            out->progress = ftmp2;
         }
         bez[0] = vecA[0];
         bez[1] = vecA[1];
         bez[2] = vecA[2];
         vB = ftmp2;
-        ccB = 1.0f - vB;
+        ccB = one - vB;
         cc2B = ccB * ccB;
         c3B = ccB * cc2B;
         coeff140[0] = c3B;
         vc2B = vB * cc2B;
-        b1B = 3.0f * vc2B;
+        b1B = three * vc2B;
         coeff140[1] = b1B;
         vvB = vB * vB;
         cv2B = ccB * vvB;
-        b2B = 3.0f * cv2B;
+        b2B = three * cv2B;
         coeff140[2] = b2B;
         v3B = vB * vvB;
         coeff140[3] = v3B;
-        o0B = ((f32 *)out)[0];
-        o3B = ((f32 *)out)[3];
+        o0B = out->control0[0];
+        o3B = out->control1[0];
         p252B = *(f32 *)(config + 252);
-        __asm__ volatile(
-            "mula.s %0, %1 \n"
-            "madda.s %2, %3 \n"
-            "madda.s %4, %5 \n"
-            "madd.s %6, %7, %8 \n"
-            : "=f"(quad130[0]) : "f"(o0B), "f"(coeff140[1]), "f"(p252B), "f"(coeff140[0]), "f"(o3B), "f"(coeff140[2]), "f"(bez[0]), "f"(coeff140[3]) : "memory");
-        o1B = ((f32 *)out)[1];
-        o4B = ((f32 *)out)[4];
+        quad130[0] = bez[0] * coeff140[3] +
+            (p252B * coeff140[0] + o0B * coeff140[1] +
+             o3B * coeff140[2]);
+        o1B = out->control0[1];
+        o4B = out->control1[1];
         p256B = *(f32 *)(config + 256);
-        __asm__ volatile(
-            "mula.s %0, %1 \n"
-            "madda.s %2, %3 \n"
-            "madda.s %4, %5 \n"
-            "madd.s %6, %7, %8 \n"
-            : "=f"(quad130[1]) : "f"(o1B), "f"(coeff140[1]), "f"(p256B), "f"(coeff140[0]), "f"(o4B), "f"(coeff140[2]), "f"(bez[1]), "f"(coeff140[3]) : "memory");
-        o2B = ((f32 *)out)[2];
-        o5B = ((f32 *)out)[5];
+        quad130[1] = bez[1] * coeff140[3] +
+            (p256B * coeff140[0] + o1B * coeff140[1] +
+             o4B * coeff140[2]);
+        o2B = out->control0[2];
+        o5B = out->control1[2];
         p260B = *(f32 *)(config + 260);
-        __asm__ volatile(
-            "mula.s %0, %1 \n"
-            "madda.s %2, %3 \n"
-            "madda.s %4, %5 \n"
-            "madd.s %6, %7, %8 \n"
-            : "=f"(quad130[2]) : "f"(o2B), "f"(coeff140[1]), "f"(p260B), "f"(coeff140[0]), "f"(o5B), "f"(coeff140[2]), "f"(bez[2]), "f"(coeff140[3]) : "memory");
-        *(s32 *)(nodes + 16) = 0;
-        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(bez), "m"(*(u_long128 *)bez) : "$vf10", "memory");
-        if (ftmp2 != 0.0f) {
+        quad130[2] = bez[2] * coeff140[3] +
+            (p260B * coeff140[0] + o2B * coeff140[1] +
+             o5B * coeff140[2]);
+        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(quad130), "m"(*(u_long128 *)quad130) : "$vf10", "memory");
+        if (ftmp3 != zero) {
             __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
-            func_004bd380(tmp1C0, ftmp2);
+            func_004bd380(tmp1C0, ftmp3);
             __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(tmp1C0), "m"(*(u_long128 *)tmp1C0) : "$vf11", "memory");
-            tmp = (s32)(((f32 *)out)[14] * ftmp2);
-            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(tmp) : "$vf2", "memory");
+            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(out->length.value * ftmp2) : "$vf2", "memory");
             __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x \n" : : : "$vf11", "$vf2", "memory");
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp170), "m"(*(u_long128 *)tmp170) : "$vf10", "memory");
             __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11 \n vmulax.xyzw $ACC, $vf28, $vf10x \n vmadday.xyzw $ACC, $vf29, $vf10y \n vmaddz.xyzw $vf10, $vf30, $vf10z \n vadd.xyzw $vf10, $vf10, $vf11 \n" : : : "$vf10", "$vf11", "ACC", "memory");
         }
         __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(nodes) : "$vf10", "memory");
-        *(s32 *)(nodes + 16) = tmp;
+        *(s32 *)(nodes + 16) = (s32)ftmp1;
     }
     func_0048b220(nodes, config, *(s32 *)(nodes + 16), &b220buf);
-    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * ((f32 *)out)[16];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * ((f32 *)out)[18];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + ((f32 *)out)[17];
+    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out->opacity;
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out->scale;
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out->spin;
     if (v14 != 0) {
-        if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
-            memcpy(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
-            *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
+        nmult = *(s32 *)(*(u8 **)(parent + 32) + 192) * *(s32 *)(*(u8 **)(parent + 32) + 196);
+        if (nmult != 0) {
+            clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
+            memcpy(clear, nodes, 32);
+            *(s32 *)(clear + 16) = -1;
         }
         *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
     }
@@ -5165,97 +5049,87 @@ else_branch:
     b220buf = *(u_long128 *)nodes;
     {
         f32 nf = (f32)node10;
-        f1B = ((f32 *)out)[13] * nf + 0.5f * (save30 * nf * nf);
-        f12B = ((f32 *)out)[12] * nf + 0.5f * (save29 * nf * nf);
-        if (f1B < 0.0f) {
-            f1B = 0.0f;
+        f1B = half * (save30 * nf * nf) + out->travelSpeed * nf;
+        f12B = half * (save29 * nf * nf) + out->rotationSpeed * nf;
+        if (f1B < zero) {
+            f1B = zero;
         }
-        if (f12B < 0.0f) {
-            f12B = 0.0f;
+        if (f12B < zero) {
+            f12B = zero;
         }
-        c = f1B / 1000.0f;
-        if (c > 1.0f) {
-            c = 1.0f;
+        c = f1B / thousand;
+        if (c > one) {
+            c = one;
         }
-        ftmp2 = ((f32 *)out)[15];
+        ftmp2 = out->progress;
         if (ftmp2 > c) {
             c = ftmp2;
         } else {
-            ((f32 *)out)[15] = c;
+            out->progress = c;
         }
     }
-    bez[0] = *(f32 *)(config + 264) + ((f32 *)out)[9];
-    bez[1] = *(f32 *)(config + 268) + ((f32 *)out)[10];
-    bez[2] = *(f32 *)(config + 272) + ((f32 *)out)[11];
+    bez[0] = *(f32 *)(config + 264) + out->offset[0];
+    bez[1] = *(f32 *)(config + 268) + out->offset[1];
+    bez[2] = *(f32 *)(config + 272) + out->offset[2];
     vB = c;
-    ccB = 1.0f - vB;
+    ccB = one - vB;
     cc2B = ccB * ccB;
     c3B = ccB * cc2B;
     coeff120[0] = c3B;
     vc2B = vB * cc2B;
-    b1B = 3.0f * vc2B;
+    b1B = three * vc2B;
     coeff120[1] = b1B;
     vvB = vB * vB;
     cv2B = ccB * vvB;
-    b2B = 3.0f * cv2B;
+    b2B = three * cv2B;
     coeff120[2] = b2B;
     v3B = vB * vvB;
     coeff120[3] = v3B;
-    o0B = ((f32 *)out)[0];
-    o3B = ((f32 *)out)[3];
+    o0B = out->control0[0];
+    o3B = out->control1[0];
     p252B = *(f32 *)(config + 252);
-    __asm__ volatile(
-        "mula.s %0, %1 \n"
-        "madda.s %2, %3 \n"
-        "madda.s %4, %5 \n"
-        "madd.s %6, %7, %8 \n"
-        : "=f"(quad110[0]) : "f"(o0B), "f"(coeff120[1]), "f"(p252B), "f"(coeff120[0]), "f"(o3B), "f"(coeff120[2]), "f"(bez[0]), "f"(coeff120[3]) : "memory");
-    o1B = ((f32 *)out)[1];
-    o4B = ((f32 *)out)[4];
+    quad110[0] = bez[0] * coeff120[3] +
+        (p252B * coeff120[0] + o0B * coeff120[1] +
+         o3B * coeff120[2]);
+    o1B = out->control0[1];
+    o4B = out->control1[1];
     p256B = *(f32 *)(config + 256);
-    __asm__ volatile(
-        "mula.s %0, %1 \n"
-        "madda.s %2, %3 \n"
-        "madda.s %4, %5 \n"
-        "madd.s %6, %7, %8 \n"
-        : "=f"(quad110[1]) : "f"(o1B), "f"(coeff120[1]), "f"(p256B), "f"(coeff120[0]), "f"(o4B), "f"(coeff120[2]), "f"(bez[1]), "f"(coeff120[3]) : "memory");
-    o2B = ((f32 *)out)[2];
-    o5B = ((f32 *)out)[5];
+    quad110[1] = bez[1] * coeff120[3] +
+        (p256B * coeff120[0] + o1B * coeff120[1] +
+         o4B * coeff120[2]);
+    o2B = out->control0[2];
+    o5B = out->control1[2];
     p260B = *(f32 *)(config + 260);
-    __asm__ volatile(
-        "mula.s %0, %1 \n"
-        "madda.s %2, %3 \n"
-        "madda.s %4, %5 \n"
-        "madd.s %6, %7, %8 \n"
-        : "=f"(quad110[2]) : "f"(o2B), "f"(coeff120[1]), "f"(p260B), "f"(coeff120[0]), "f"(o5B), "f"(coeff120[2]), "f"(bez[2]), "f"(coeff120[3]) : "memory");
+    quad110[2] = bez[2] * coeff120[3] +
+        (p260B * coeff120[0] + o2B * coeff120[1] +
+         o5B * coeff120[2]);
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(quad110), "m"(*(u_long128 *)quad110) : "$vf10", "memory");
-    if (f12B != 0.0f) {
+    if (f12B != zero) {
         __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
-        vecA[0] = ((f32 *)out)[6];
-        vecA[1] = ((f32 *)out)[7];
-        vecA[2] = ((f32 *)out)[8];
-        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vecA), "m"(*(u_long128 *)vecA) : "$vf10", "memory");
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(tmp170), "m"(*(u_long128 *)tmp170) : "$vf11", "memory");
+        vecA[0] = out->control2[0];
+        vecA[1] = out->control2[1];
+        vecA[2] = out->control2[2];
+        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(stack1A0), "m"(*(u_long128 *)stack1A0) : "$vf10", "memory");
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(vecA), "m"(*(u_long128 *)vecA) : "$vf11", "memory");
         __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11 \n vmul.xyz $vf2, $vf10, $vf10 \n vmulax.w $ACC, $vf0, $vf2x \n vmadday.w $ACC, $vf0, $vf2y \n vmaddz.w $vf2, $vf0, $vf2z \n vrsqrt $Q, $vf0w, $vf2w \n vwaitq \n vmulq.xyz $vf10, $vf10, $Q \n sqc2 $vf10, 0(%0) \n" : : "r"(tmp1C0) : "$vf2", "$vf10", "$vf11", "ACC", "Q", "memory");
-        func_004bd380(tmp1C0, c);
+        func_004bd380(tmp1C0, f12B);
         __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(tmp1C0), "m"(*(u_long128 *)tmp1C0) : "$vf11", "memory");
-        tmp = (s32)(((f32 *)out)[14] * c);
-        __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(tmp) : "$vf2", "memory");
+        __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(out->length.value * c) : "$vf2", "memory");
         __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x \n" : : : "$vf11", "$vf2", "memory");
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp170), "m"(*(u_long128 *)tmp170) : "$vf10", "memory");
         __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11 \n vmulax.xyzw $ACC, $vf28, $vf10x \n vmadday.xyzw $ACC, $vf29, $vf10y \n vmaddz.xyzw $vf10, $vf30, $vf10z \n vadd.xyzw $vf10, $vf10, $vf11 \n" : : : "$vf10", "$vf11", "ACC", "memory");
     }
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(nodes) : "$vf10", "memory");
     func_0048b220(nodes, config, node10, &b220buf);
-    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * ((f32 *)out)[16];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * ((f32 *)out)[18];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + ((f32 *)out)[17];
-    func_0048b340(arg0, nodes);
+    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out->opacity;
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out->scale;
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out->spin;
+    func_0048b340(parent, nodes);
     *(s32 *)(nodes + 16) = node10 + 1;
 next_iter2:
 next_iter:
     idx += 1;
-    out += 76;
+    out += 1;
     nodes += 32;
 main_check:
     if (idx < count) {

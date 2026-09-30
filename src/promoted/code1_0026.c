@@ -2030,50 +2030,9 @@ s32 func_00267800(u8 **arg0, u8 *arg1)
 }
 #pragma opt_common_subs reset
 #pragma optimization_level 2
-/* Floor: 304 differing words, 445 emitted instructions against retail's
-   452 (1780 bytes in a 1808-byte window), frame -0xDB0 exact.  The
-   twelve-argument signature is six ints and six floats with two $t
-   registers live on entry, so ints five and six ride $t0/$t1; retail
-   converts those two from the low word with `mtc1 $19; cvt.s.w` at
-   0x00268140 (and `mtc1 $18; cvt.s.w` at 0x0026816C) plus
-   `dsll32/dsra32 16` for the (s16) narrowing, so the production width is
-   s32, not s64: `asm/nonmatchings/code1_0026/func_00267b20.s` shows the
-   narrow form at each site.  The frame is one struct so the
-   two 0x13-word table copies are u32 do-while loops, which is what gives
-   retail's lw/sw pairs; the DA8/DAC lwc1/swc1, the E0 zero/sw/lq-sq and
-   the D_0063A9E0/D_0063AA30 lui/lo blocks all match.  Loop counters,
-   pointers and unpacked colour bytes are split per phase; the fourth loop
-   and the final call use count/count-1; (s16) narrowing gives the
-   dsll32/dsra32 pairs.
-   WALL: callee-saved allocation shift (combined in $s4 vs $s0, the args in
-   $s3-$s0 vs $s5-$s2, the table base in $v0 vs $s1), the destination
-   addu order in the four point/colour loops (base+index vs index+sp+off
-   with the lwc1/addu pair reordered) and the func_0045e6a0 move order. On propagated base 2026-09-17: schedule 392 worse, cse_off 417 worse, loopinv 309 worse; propagation alone best. */
-/* measured 00267b20 (helper + deficit, 2026-09-20): libcall_scan 2 __floatdisf -> 0
-   by narrowing arg4/arg5 s64 -> s32 at the extern (line 57) and definition; the
-   (f32)arg4/arg5 sites then emit `cvt.s.w`, matching retail's `mtc1; cvt.s.w`
-   word conversions above, not a helper. Census is a lead only; this retail shape
-   is the evidence. Amended gate-3 case SHORTER-than-retail applied (baseline obj
-   1788B vs 1808B window, -20B/-1.1% INSIDE): helper removal alone must shorten
-   further (guarded 447 -> 440 instrs, -7, expected since jal + shuffle is longer
-   than the narrow conversion), so the count is not judged for that step; the
-   combined change with the deficit fix nets 447 -> 450 instrs (+3) to an exact
-   450/450 fnalign with obj 1800B vs 1808B window (-8B/-0.4% INSIDE). Edits
-   169 -> 158 (-11) and words 264 -> 260 (-4) both improve. Commands:
-   `echo src/promoted/code1_0026.c func_00267b20 | python3 tools/libcall_scan.py`
-   (empty = 0), `python3 tools/measure_guarded.py src/promoted/code1_0026.c
-   func_00267b20` (260), `python3 tools/fnalign.py ... --candidate /tmp/curr_body.c`
-   (158 +2 reloc-only, 450/450). Deficit classification before the address fix:
-   deficit 8, 40-length run at 0x00267E78 CROSS (40 > 8, 28 nearby) plus two
-   2-length runs at 0x00267C64 and 0x00267FF0 ABSENT (2 <= 8, 0 paired) naming
-   retail `addu/addiu` materialization vs object folded `0x5A0($v0)`; fixed by
-   preserving `f32 *dst = &frame.points[i][0]` / `u8 *col = &frame.colors[i][0]`
-   in all four loops (folded `swc1/sb` with large offset -> materialized `addu/
-   addiu` + `0($v0)`). After: deficit 0, only CROSS runs (15 at 0x00267FE8, 14 at
-   0x00267EB4, 12 at 0x002680D0) remain, so no missing code. Verify
-   `python3 tools/verify.py src/promoted/code1_0026.c` still 57 MATCH / 8 ASM;
-   `python3 tools/decomp_lint.py` 0 error. */
-/* measured 00267b20: `opt_propagation off` inside the guard is worth 40 words (304 -> 264). */
+/* Two 19-word lookup tables select the source contours. Preserve the mixed
+   six-float/six-integer argument order and the 256-color/257-point workspace.
+   Render-state callbacks are table[0]; the compiler owns the table spill. */
 // FUN_00267B20 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -2085,9 +2044,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     extern u32 D_0063AA30[];
     extern void func_00364c70(void);
     struct {
-        u_long128 c0;
         s32 d0;
-        u8 padD4[12];
         u_long128 e0;
         u_long128 f0;
         u32 arr100[0x13];
@@ -2123,7 +2080,6 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     u8 *p;
     s32 m;
     void (**tbl)(u32, u32);
-    u32 tbl2;
     u32 combined;
     combined = ((u32)arg0 << 8) | (u32)arg1;
     src = D_0063A9E0;
@@ -2158,10 +2114,12 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
         b2_9 = (combined >> 8) & 0xFF;
         b3_9 = combined & 0xFF;
         while (i9 < count9) {
+            f32 *src9 = (f32 *)(ptr9 + i9 * 8);
             f32 *dst9 = &frame.points[i9].v[0];
-            u8 *col9 = &frame.colors[i9][0];
-            dst9[0] = (fparg0 + ((f32 *)ptr9)[i9 * 2]) - ((f32 *)ptr9)[0];
-            dst9[1] = (fparg1 + ((f32 *)ptr9)[i9 * 2 + 1]) - ((f32 *)ptr9)[1];
+            u8 *col9;
+            dst9[0] = (fparg0 + src9[0]) - ((f32 *)ptr9)[0];
+            dst9[1] = (fparg1 + src9[1]) - ((f32 *)ptr9)[1];
+            col9 = &frame.colors[i9][0];
             col9[0] = b0_9;
             col9[1] = b1_9;
             col9[2] = b2_9;
@@ -2218,10 +2176,12 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     frame.d0 = (combined >> 8) & 0xFF;
     b3 = combined & 0xFF;
     while (iA < countA) {
+        f32 *srcA = (f32 *)(ptrA + iA * 8);
         f32 *dstA = &frame.points[iA].v[0];
-        u8 *colA = &frame.colors[iA][0];
-        dstA[0] = (fparg0 + ((f32 *)ptrA)[iA * 2]) - ((f32 *)ptrA)[0];
-        dstA[1] = (fparg1 + ((f32 *)ptrA)[iA * 2 + 1]) - ((f32 *)ptrA)[1];
+        u8 *colA;
+        dstA[0] = (fparg0 + srcA[0]) - ((f32 *)ptrA)[0];
+        dstA[1] = (fparg1 + srcA[1]) - ((f32 *)ptrA)[1];
+        colA = &frame.colors[iA][0];
         colA[0] = b0;
         colA[1] = b1;
         colA[2] = (u8)frame.d0;
@@ -2229,10 +2189,9 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
         iA++;
     }
     func_00364c50();
-    tbl2 = (u32)D_00887300;
-    frame.c0 = (u_long128)tbl2;
-    ((void (**)(u32, u32))tbl2)[0](6, 0);
-    ((void (**)(u32, u32))&frame.c0)[0](8, 1);
+    tbl = D_00887300;
+    tbl[0](6, 0);
+    tbl[0](8, 1);
     RpSkyRenderStateSet(3, 0x30003);
     RpSkyRenderStateSet(2, 0x44);
     func_00489f80();
@@ -2243,10 +2202,12 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     ptrB = (u8 *)frame.arr100[arg3 * 2];
     iB = 0;
     while (iB < countB) {
+        f32 *srcB = (f32 *)(ptrB + iB * 8);
         f32 *dstB = &frame.points[iB].v[0];
-        u8 *colB = &frame.colors[iB][0];
-        dstB[0] = (fparg0 + ((f32 *)ptrB)[iB * 2]) - ((f32 *)ptrB)[0];
-        dstB[1] = (fparg1 + ((f32 *)ptrB)[iB * 2 + 1]) - ((f32 *)ptrB)[1];
+        u8 *colB;
+        dstB[0] = (fparg0 + srcB[0]) - ((f32 *)ptrB)[0];
+        dstB[1] = (fparg1 + srcB[1]) - ((f32 *)ptrB)[1];
+        colB = &frame.colors[iB][0];
         colB[0] = b0;
         colB[1] = b1;
         colB[2] = (u8)frame.d0;
@@ -2262,10 +2223,12 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     }
     iC = 1;
     while (iC < countA) {
+        f32 *srcC = (f32 *)(ptrA + iC * 8);
         f32 *dstC = &frame.points[iC - 1].v[0];
-        u8 *colC = &frame.colors[iC - 1][0];
-        dstC[0] = (fparg0 + ((f32 *)ptrA)[iC * 2]) - ((f32 *)ptrA)[0];
-        dstC[1] = (fparg1 + ((f32 *)ptrA)[iC * 2 + 1]) - ((f32 *)ptrA)[1];
+        u8 *colC;
+        dstC[0] = (fparg0 + srcC[0]) - ((f32 *)ptrA)[0];
+        dstC[1] = (fparg1 + srcC[1]) - ((f32 *)ptrA)[1];
+        colC = &frame.colors[iC - 1][0];
         colC[0] = b0;
         colC[1] = b1;
         colC[2] = (u8)frame.d0;

@@ -1356,7 +1356,7 @@ static inline f32 btlAttachFieldScale(u8 *unit)
 void func_001d53e0(s32 arg0)
 {
     extern void func_001fc2c0(u32 a0, u32 a1);
-    extern s32 func_004861f0(u8 *a0, f32 *a1);
+    extern void func_004861f0(u8 *a0, f32 *a1);
     extern void func_00486330(u8 *a0, u8 *a1);
     extern void func_00486400(u8 *a0, f32 a1);
     extern void (*D_00609500[])(u8 *a0, u8 *a1, u8 *a2, u8 *a3);

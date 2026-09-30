@@ -55,7 +55,7 @@ extern void func_00484a40(u8 *arg0, void *arg1);
 extern void func_004849c0(u8 *arg0);
 extern void func_00485fe0(u8 *arg0);
 extern void func_00486400(u8 *arg0, f32 arg1);
-extern s32 func_004861f0(u8 *arg0, f32 *arg1);
+extern void func_004861f0(u8 *arg0, f32 *arg1);
 extern void func_00485630(u8 *arg0);
 extern ParticleSnapshot func_00492df0(s32 arg0, u32 *arg1);
 extern ParticleSnapshot func_00492db0(s32 arg0, u32 *arg1);
