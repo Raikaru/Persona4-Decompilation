@@ -65,7 +65,7 @@ extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
 extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                           u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, s32 arg3);
+extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3);
 extern void func_00112300(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
 extern void func_002bc4b0(f32 fparg0, s32 arg0, s32 arg1, s32 arg2,
                           s32 arg3, s32 arg4, s32 arg5);
@@ -905,7 +905,7 @@ void func_00135130(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
    130.0f` keeps the variable first. The 467.0f sum is recomputed for the last
    call, as retail does. */
 // FUN_00135520
-void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, s32 arg3)
+void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3)
 {
     f32 temp_f21;
     f32 temp_f20;
