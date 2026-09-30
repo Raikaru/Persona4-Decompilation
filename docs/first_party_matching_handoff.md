@@ -4029,12 +4029,56 @@ Actual helper execution passes 13 host transitions with only the SDK
 producer stubbed. No memory-card hardware/PS2 runtime is claimed.
 
 All three guards remain. Guarded native compilation preserves the C
-siblings, but the strict guarded gate rejects unresolved tables/SDK
-symbols and an out-of-range GP relocation in the unchanged
+siblings, but the strict guarded gate rejects unresolved local tables
+and an out-of-range GP relocation in the unchanged
 `00468ff0/0046f2b0` reconstructions; `004647c0` additionally has an unresolved
 56-byte jump table. Do not treat masked-word scores or the successful
 production gates as proof the three guarded C bodies can be linked.
+Named SDK/task aliases do resolve through `build.load_symbol_addr_map()`;
+the initial data-only standalone mapping omission is not a C defect.
 See `docs/matching.md`, `card-poll-production-verify.json` and
 `card-poll-contract-receipt.json` under
 `build/finish-first-party-20260929/parent/`.
 No new exact credit is claimed for this contract repair.
+
+`a5f69b50` passed
+[CI run 36656560639](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/36656560639)
+through full clean proprietary build and linked verification. The report
+remains **6737/6861, 124 remaining across 65 owners**. Acceptance/manifest:
+`build/finish-first-party-20260929/parent/ci-a5f69b50-{receipt,remaining-first-party}.json`.
+The publication also retains the earlier `004647c0` guarded state/storage/
+unsigned-write recovery. Its defined lookup-error path measures
+3152 / 3120 bytes, 220 masked words; the prior unchecked exact candidate
+remains rejected for an unproduced length on a missing `icon.ico` member.
+See `docs/probe_archive/Memcard_004647c0_recovery_20260929.md`.
+
+## Guarded scorer, contour and particle recovery
+
+The scorer's target-record selection/flags/status dataflow and the contour
+renderer’s real quadword records/callback-table pointer are recovered.
+Parent verification preserves **179 MATCH / six ASM in 185 functions**.
+Host execution passes 12 scorer cases and 22 contour cases / 5275 assertions;
+neither guard is removed (299 / 165 masked differing words). Default native
+owners/data are exact; four guarded scorer `.lit4` sections remain unanchored.
+
+Seven particle emitters now separate cached iteration limits from current
+post-RNG/preroll count; the orbit capture and scale reload use actual producers.
+The canonical `004861f0` contract is `void` across all active consumers,
+with no invented return. Five complete owner gates preserve 348 default
+windows/data and byte-identical guarded baseline/candidate objects.
+Parent verification of changed particle owners reports **172 MATCH / 12
+ASM in 184 functions** and zero policy findings. All ten particle guards
+remain; `00485630/00485870` still have three restore-copy word differences.
+
+Actual retail/emitted `0048c4e0` execution passes nine producer-mutation
+cases / 18 invocations, proving fresh count/scale with independently cached
+iteration count and no unwritten stack reads. The RNG producer is hooked;
+birth-suppressed paths execute no VU arithmetic or graphics hardware.
+No other particle runtime or new exact credit is claimed.
+
+See the current table and limits in `docs/matching.md`,
+`build/resume-flash-slices-20260929/final-worker-receipt.json`,
+`build/first-party-finish-20260929/ParticleReturnABI/investigation.json`,
+and parent `scorer-renderer-production-verify.json`,
+`particle-void-production-verify.json`, `particle-native-smoke-receipt.json`
+under `build/finish-first-party-20260929/parent/`.
