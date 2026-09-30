@@ -52,7 +52,7 @@ extern u8 D_00714390[];
 extern u8 D_007143A4[];
 extern u8 D_00714460[];
 extern u8 D_00714474[];
-extern u8 *func_004aaee0(u32 arg0, s32 arg1);
+extern u8 *func_004aaee0(u32 arg0, const void *arg1);
 extern u8 *func_004ab420(u32 arg0, s32 arg1);
 
 typedef struct BlurRefObj {
@@ -1364,7 +1364,7 @@ void func_004aad30(u8 *arg0) {
    retain 0x60 in the saved constant register. This initializer receives
    the copied-data pointer reloaded from the object, not initialData. */
 // FUN_004AAEE0
-u8 *func_004aaee0(u32 type, s32 initialData)
+u8 *func_004aaee0(u32 type, const void *initialData)
 {
     s32 (*initialize)(u8 *);
     s32 kind;
@@ -1391,7 +1391,7 @@ u8 *func_004aaee0(u32 type, s32 initialData)
     __asm__ ("sqc2 vf0, 0(%0)" : : "r"(object) : "memory");
     data = object + headerBytes;
     *(u8 **)(object + 0x24) = data;
-    memcpy(data, (const void *)initialData, dataSize);
+    memcpy(data, initialData, dataSize);
     initialize = *(s32 (**)(u8 *))(D_00714390 + ((u16)type * 0x18));
     if (initialize != (s32 (*)(u8 *))0)
         *(s32 *)(object + 0x20) = initialize(*(u8 **)(object + 0x24));
@@ -1419,7 +1419,7 @@ void *func_004ab060(void *arg0) {
     if (temp_2_2 == 0) {
         func_0046d730(D_00714380, 0x660);
     }
-    temp_2 = (u8 *)func_004aaee0(*(u16 *)((u8 *)arg0 + 0xC), temp_2_2);
+    temp_2 = (u8 *)func_004aaee0(*(u16 *)((u8 *)arg0 + 0xC), (const void *)temp_2_2);
     if (temp_2 == 0) {
         func_0046d730(D_00714380, 0x662);
     }
@@ -1465,7 +1465,7 @@ void func_004ab140(void *param_1) {
 void *func_004ab1c0(void *param_1) {
     u8 *tmp;
 
-    tmp = func_004aaee0(*(u16 *)((char *)param_1 + 0x18), *(s32 *)((char *)param_1 + 0x24));
+    tmp = func_004aaee0(*(u16 *)((char *)param_1 + 0x18), *(const void **)((char *)param_1 + 0x24));
     if ((*(void **)((char *)param_1 + 0x28) != 0) && (*(s8 *)(D_007143A0 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
         *(s32 *)(tmp + 0x28) = (s32)func_004abb00(*(void **)((char *)param_1 + 0x28));
     }

@@ -55,7 +55,7 @@ extern code DAT_008873ec_abs[];
 typedef struct { f32 x, y, z; } SVec3;
 typedef unsigned int EvtU128 __attribute__((mode(TI)));
 u8 *func_004ab420(s32 type, void *data);
-s32 func_004ab960(void *data, s32 size);
+u8 *func_004ab960(u16 *texture, u16 kind);
 extern u8 D_0063C648[];
 
 typedef struct {
@@ -430,7 +430,7 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
 
         filter2 = func_004ab420(2, &frame.filter2);
         *(s32 *)(filter2 + 0x28) =
-            func_004ab960(&frame.filter1.argument, sizeof(frame.filter1.argument));
+            (s32)func_004ab960((u16 *)&frame.filter1.argument, 4);
         func_0044ea90(D_0063C638, 0x11E0);
         task2 = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task2[0] = 0;
@@ -445,17 +445,20 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
     }
 }
 
-/* measured: probe 1095 words, fnalign 265 edits (+10 reloc-only), retail 1140 instrs vs object 1147 (+7, +0.6% inside 3%).
-   v1 exact-count 1139/1139 with 272 edits but missing case2 active and wrong case3 extra, so functionally wrong; v4 fixes active.
-   Free pragmas singly via probe_variants (base 1095): opt_common_subs off 1150 (+55 worse, 1218 instrs +6.8% outside gate), opt_loop_invariants on 1095 tie, opt_unroll_loops off 1095 tie, schedule off 1095 tie; none kept.
-   Subscript via probe_variants: index-for 11-block 1089 (-6 words) but 1151 instrs (+11) and 276 edits (+11) with for-branch vs retail bgtz, rejected; statement-order variant tie.
-   Fresh counters already per-block (7n); colouring addr_else/addr_first tie at 1095/265, s3 hoisting persists (retail addiu $a1,sp,filter each use, object addiu $s3 once then move $a1,$s3), time-boxed per 7m. Hoist-removal round 2026-09-18 per 7k (batched probe_variants base + 3): else-&extra[-0xC0], else-extra-192, first-&extra[-0xC0] all tie at 1095 words / 1147 instrs / 265 edits with s3 and 0x7d0 frame unchanged; compiler folds all address forms to one CSE, so 7k subscript scheduling does not apply to this address hoist.
-   Residual: frame 0x7d0 vs 0x7c0 (+16 systematic, all stack immediates +16), extra saved s3 (dpa/sq/lq) +7 instrs, register names ($s0 vs $s1 etc), 10 reloc-only. Decompilers: m2c 635 lines, romwright 560 lines; arity 3 (s32, type, u8*) from prologue $4/$5/$6, void return. */
-// FUN_0028DC30 NONMATCHING
-#ifdef NON_MATCHING
-void func_0028dc30(s32 arg0, s32 type, u8 *arg2)
+/* Builds blur-filter tasks for the four event-command selectors 1, 2, 3, 5.
+ * All four direct evtMain callers use those constants and consume the task
+ * handle. Keep the actual constructor result as the return value; selectors
+ * outside that caller contract have no specified return value.
+ * Measured b210 -O2: 4560/4560 bytes. The const-pointer constructor interface
+ * avoids retaining integer addresses across calls. opt_lifetimes preserves
+ * the independent mode/task/filter roles. The 44-byte template copy keeps
+ * its two qwords, doubleword tail, and final float on advancing cursors. */
+// FUN_0028DC30
+#pragma push
+#pragma opt_lifetimes on
+s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
 {
-    extern u8 *func_004aaee0();
+    extern u8 *func_004aaee0(u32 type, const void *parameters);
     extern u8 D_0063C660[];
     typedef struct { EvtFilterParams params; u8 extra[0x28]; } F28;
     typedef struct { EvtFilterParams params; u8 extra[0x2C]; } F2C;
@@ -570,10 +573,9 @@ void func_0028dc30(s32 arg0, s32 type, u8 *arg2)
         func_0044ea90(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
-        task[1] = (s32)func_004aaee0(1, (s32)&f1.params);
+        task[1] = (s32)func_004aaee0(1, &f1.params);
         task[3] = f1.params.valueB8;
-        (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
-        break;
+        return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
     case 2:
         mode = 0;
         if (arg2[0x1B] & 1) {
@@ -663,19 +665,18 @@ void func_0028dc30(s32 arg0, s32 type, u8 *arg2)
             } while (blocks > 0);
         }
         argSave = arg2[0x2A];
-        tmp = func_004aaee0(2, (s32)&f2.params);
-        *(s32 *)(tmp + 0x28) = func_004ab960(&argSave, 4);
+        tmp = func_004aaee0(2, &f2.params);
+        *(s32 *)(tmp + 0x28) = (s32)func_004ab960((u16 *)&argSave, 4);
         func_0044ea90(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
         if (tmp != NULL) {
             task[1] = (s32)tmp;
         } else {
-            task[1] = (s32)func_004aaee0(2, (s32)&f2.params);
+            task[1] = (s32)func_004aaee0(2, &f2.params);
         }
         task[3] = f2.params.valueB8;
-        (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
-        break;
+        return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
     case 3:
         mode = 0;
         if (arg2[0x1B] & 1) {
@@ -750,9 +751,15 @@ void func_0028dc30(s32 arg0, s32 type, u8 *arg2)
                 destination[0] = value;
                 destination += 1;
             } while (blocks > 0);
+            {
+                s64 *tailSource = (s64 *)source;
+                s64 *tailDestination = (s64 *)destination;
+                s64 lastPair = *tailSource++;
+                f32 lastValue = *(f32 *)tailSource;
+                *tailDestination++ = lastPair;
+                *(f32 *)tailDestination = lastValue;
+            }
         }
-        *(s64 *)(s3 + 0x20) = *(s64 *)(D_0063C660 + 0x20);
-        *(f32 *)(s3 + 0x28) = *(f32 *)(D_0063C660 + 0x28);
         *(s32 *)(s3 + 0x00) = arg2[0x2B];
         *(s32 *)(s3 + 0x04) = *(s16 *)(arg2 + 0x14);
         *(f32 *)(s3 + 0x08) = (f32)arg2[0x13] / 100.0f;
@@ -774,19 +781,18 @@ void func_0028dc30(s32 arg0, s32 type, u8 *arg2)
             } while (blocks > 0);
         }
         argSave = arg2[0x2A];
-        tmp = func_004aaee0(3, (s32)&f3.params);
-        *(s32 *)(tmp + 0x28) = func_004ab960(&argSave, 4);
+        tmp = func_004aaee0(3, &f3.params);
+        *(s32 *)(tmp + 0x28) = (s32)func_004ab960((u16 *)&argSave, 4);
         func_0044ea90(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
         if (tmp != NULL) {
             task[1] = (s32)tmp;
         } else {
-            task[1] = (s32)func_004aaee0(3, (s32)&f3.params);
+            task[1] = (s32)func_004aaee0(3, &f3.params);
         }
         task[3] = f3.params.valueB8;
-        (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
-        break;
+        return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
     case 5:
         mode = 0;
         if (arg2[0x1B] & 1) {
@@ -878,24 +884,22 @@ void func_0028dc30(s32 arg0, s32 type, u8 *arg2)
             } while (blocks > 0);
         }
         argSave = 0;
-        tmp = func_004aaee0(5, (s32)&f5.params);
-        *(s32 *)(tmp + 0x28) = func_004ab960(&argSave, 4);
+        tmp = func_004aaee0(5, &f5.params);
+        *(s32 *)(tmp + 0x28) = (s32)func_004ab960((u16 *)&argSave, 4);
         func_0044ea90(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
         if (tmp != NULL) {
             task[1] = (s32)tmp;
         } else {
-            task[1] = (s32)func_004aaee0(5, (s32)&f5.params);
+            task[1] = (s32)func_004aaee0(5, &f5.params);
         }
         task[3] = f5.params.valueB8;
-        (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
-        break;
+        return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/evtMisc", func_0028dc30);
-#endif
+
+#pragma pop
 
 // FUN_0028EE00
 s32 func_0028ee00(u8 *arg0)
