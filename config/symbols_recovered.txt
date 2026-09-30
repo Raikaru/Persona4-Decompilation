@@ -8662,3 +8662,10 @@ sfmpv_work = 0x00934770; // type:data
 sfmpv_para = 0x009388b0; // type:data
 sfmpv_rfb_adr_tbl = 0x009388d8; // type:data
 sfmpv_ta_adr_tbl = 0x009388e0; // type:data
+
+// Grid draw callback GP data, independently decoded from retail.
+fGpffff84d4 = 0x007615C4; // type:data
+fGpffff84d8 = 0x007615C8; // type:data
+fGpffff84dc = 0x007615CC; // type:data
+iGpffff8424 = 0x00761514; // type:data
+uGpffffb314 = 0x00764404; // type:data
