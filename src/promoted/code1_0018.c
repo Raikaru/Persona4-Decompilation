@@ -5,6 +5,8 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "type.h"
+typedef struct RwTexture RwTexture;
+typedef struct RwTexDictionary RwTexDictionary;
 #include "scene_event_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 static inline s32 code1_0018_shift4(s32 value)
@@ -74,8 +76,8 @@ extern void func_003c42b0(u8 *arg0, s32 arg1);
 extern u8 D_005F5438[];
 extern s32 *func_00155280(void);
 extern void func_0014e8f0(s32 a, s32 b, s32 c);
-extern s32 func_003ef6d0(void);
-extern s32 func_003ef650(s32 a, u8 *b);
+extern RwTexDictionary *func_003ef6d0(void);
+extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
 extern void func_003f6800(s32 a, f32 fp);
 extern u8 D_005F5360[];
 extern u8 iGpffffb310;
@@ -335,8 +337,8 @@ s32 func_00182bc0(u8 *arg0)
     extern u8 *func_003e9320(void);
     extern void RpAtomicSetFrame(u8 *arg0, u8 *arg1);
     extern void func_003a2950(u8 *arg0, s32 arg1, s32 arg2);
-    extern s32 func_003ef6d0(void);
-    extern u8 *func_003ef650(s32 arg0, u8 *arg1);
+    extern RwTexDictionary *func_003ef6d0(void);
+    extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
     extern void func_003c42b0(u8 *arg0, u8 *arg1);
     extern void memcpy(void *dst, const void *src, u32 size);
     extern u8 *func_003e0f80(u8 *arg0);
@@ -470,7 +472,7 @@ s32 func_00182bc0(u8 *arg0)
         func_003a2950(*(u8 **)(ctx + 8), 2, 0x717FB);
         {
             u8 *e;
-            e = func_003ef650(func_003ef6d0(), D_005F1D10 + *(s32 *)(ctx + 0x28) * 0x18);
+            e = (u8 *)func_003ef650(func_003ef6d0(), (const char *)(D_005F1D10 + *(s32 *)(ctx + 0x28) * 0x18));
             *(s32 *)(e + 0x50) = (*(s32 *)(e + 0x50) & ~0xFF) | 2;
             func_003c42b0(*(u8 **)(*(u8 **)(*(u8 **)(ctx + 8) + 0x18) + 0x20), e);
             memcpy(*(u8 **)(*(u8 **)(ctx + 8) + iGpffffb610) + 0xE0, D_005F1D70, 0x10);
@@ -781,10 +783,10 @@ s32 func_00183b80(u8 *arg0)
     /* Retail returns zero at 001850F0, 00183BD4. */
     extern u8 *func_00457120(void);
     extern u32 RpRandom(void);
-    extern s32 func_003ef6d0(void);
-    extern s32 func_003ef650(s32 arg0, u8 *arg1);
+    extern RwTexDictionary *func_003ef6d0(void);
+    extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
     extern u8 *func_00460990(void);
-    extern void func_00460ac0(void *arg0, void *arg1);
+    extern void func_00460ac0(u8 *, u8 *);
     extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
     extern void func_001839e0(u8 *arg0, u8 *arg1);
     extern u8 D_005F1D10[];
@@ -974,7 +976,7 @@ s32 func_00183b80(u8 *arg0)
                 *(f32 *)(q + 0xFC) = (f32)iv3;
             }
         }
-        *(s32 *)(ctx + 0x410) = func_003ef650(func_003ef6d0(), D_005F1D10 + *(s32 *)(ctx + 0x420) * 0x18);
+        *(s32 *)(ctx + 0x410) = (s32)func_003ef650(func_003ef6d0(), (const char *)(D_005F1D10 + *(s32 *)(ctx + 0x420) * 0x18));
         *(f32 *)(ctx + 0x42C) = (*(f32 *)(ctx + 0x458) - *(f32 *)(ctx + 0x450)) / 2.0f;
         *(f32 *)(ctx + 0x430) = (*(f32 *)(ctx + 0x45C) - *(f32 *)(ctx + 0x454)) / 2.0f;
         *(s32 *)ctx = *(s32 *)ctx + 1;
@@ -1279,418 +1281,403 @@ void func_00185830(void)
     func_0048a000();
 }
 
-/* measured: honest first reconstruction per 00182310/838d0 idiom (u8* ctx at +0x38, s32 state/status at +0x0/+0x4, f32 stores via ((f32*)pi), plain arithmetic for adda/madd 850/750/450/250 +500/300; m2c 455 lines + rom 357 lines + raw 338 lines into /var/tmp/cold185850, arity 1 pointer trusted; probe_variants v1 1074 base (int stores), v2 954 float stores (-120), v3 861 f-suffix+D-float (-93), loopinv 858 (-3 adopted), nounroll 861 tie, sched 861 tie, v4 861 blez tie (<=0), v5 860 switch (-1); fnalign v3 retail 880/object 916 (36 over) 963 edits +3 reloc-only; residual is saved-reg colour + frame 0x90 vs 0x60; stop after one improving round per 7l. */
+/* Sky2's complete 0x40-byte vertex record, with its native quadword
+ * alignment. Fields follow rw/sky2/rwplcore.h; unused components stay intact. */
+typedef struct {
+    f32 x, y, z, cameraZ;
+    f32 u, v, reciprocalZ, reservedFog;
+    f32 red, green, blue, alpha;
+    f32 normalX, normalY, normalZ, reservedAlignment;
+} GridDrawVertex __attribute__((aligned(16)));
+
+typedef struct {
+    s32 state;
+    s32 blocked;
+    s32 phases[7][10];
+    GridDrawVertex grid[7][10][4];
+    GridDrawVertex bands[14][1][4];
+    GridDrawVertex overlay[4];
+    f32 uvValues[8];
+    GridDrawVertex cover[4];
+    GridDrawVertex rings[3][66];
+    RwTexture *textures[2];
+    u8 *raster;
+} GridDrawWork;
+
+/* Build the grid, horizontal strips and three concentric ring pairs, then
+ * queue their draw and state callbacks. The constant reciprocal depth is
+ * 1/1000, matching each vertex's depth and the retail literal at 0x761304.
+ * Separate loop lifetimes and complete work/vertex records recover the
+ * retail 0x90 frame without artificial storage. */
+// FUN_00185850
+#pragma push
 #pragma opt_loop_invariants on
-/* measured 00185850 (owner, 2026-09-19): 904/880 with 796 fnalign edits, and
-   `block_move_scan` reports the gap as a single **90-instruction surplus in the object**
-   at object[35:125], 0x001858AC, containing 8 calls, shape
-   `addiu x25  sw x16  lui x14  nop x11  jal x8  move x7`.
-   Reading the two sides at that point: retail calls, stores the returned pointer into a
-   global slot (`sw $v0, -0x7740($v1)` after each `jal`) and moves on, while the body
-   calls and then writes four fields on the result inline - `sw $v1, 8($v0)`,
-   `sw $s2, 0x10($v0)`, `sw $v1, 0xc($v0)`, `sw $s2, 0x14($v0)` - before the next call.
-   Call counts agree at 34 on both sides, so nothing is missing: the body is performing
-   initialisation retail performs elsewhere, either inside the callee or in a later loop
-   over the stored pointers.  That is where the 90 instructions are, and it is worth more
-   than the whole rest of the function's distance. */
-/* measured 00185850 (owner, 2026-09-19): fnalign **790 -> 787 edits**, count
-   904 -> 902 against retail 880, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all. */
-/* measured 00185850 (owner, 2026-09-19): fnalign **787 -> 785 edits**, count
-   902 -> 900 against retail 880, converting a SECOND constant-bound `for` loop
-   to `do { } while` after the first conversion was already banked.
-   The lever is iterative, which the first sweep hid: it converts the single best loop
-   per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
-/* measured 00185850 (2026-09-20): fnalign **785 -> 402 edits**, count 900 -> 884 against retail 880 (+4, +0.5%). */
-/* deficit_scan 220-run at 0x00186270-0x001865e0 is a CROSS (object 20 LONG, deficit -20), not missing code: do not fill. */
-/* Block order was the cross: body emitted if (*piVar1==1) A then else-if (==0) B (A fall-through, bne), retail lays out */
-/* B (0x001858B4) then A (0x00186284) with beq-first dispatch. Swapping to if (==0) B else-if (==1) A re-syncs (-359). */
-/* Tail float form was the extra emission in that window: ((float)piVar1[0x158a..]) int->float cvt vs retail lwc1+add.s/sub.s */
-/* float loads. Reading the eight 0x154c-0x157d results as ((f32*)piVar1)[.] saves 24 edits. Double-literal grep is clean, */
-/* single-iter inner for (<1) removal costs +9 and manual iGpffff8214 hoist costs +22, so both stay as-is. */
-// FUN_00185850 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00185850(u8 *arg0)
+#pragma opt_lifetimes on
+s32 func_00185850(u8 *task)
 {
-    /* Retail returns zero at 001865D4, 00185888. */
     extern u8 D_00794930[];
     extern u8 D_005F1DA0[];
     extern u8 D_005F1DC0[];
     extern u8 D_005F1DE0[];
-    extern f32 iGpffff8214;
-    extern s32 iGpffff8424;
+    extern f32 iGpffff8424;
     extern f32 fGpffff84d4;
     extern f32 fGpffff84d8;
     extern f32 fGpffff84dc;
     extern s32 uGpffffb314;
     extern u32 RpRandom(void);
-    extern s32 func_003ef6d0(void);
-    extern s32 func_003ef650(s32 arg0, u8 *arg1);
-    extern u8 *func_00401b80(void);
-    extern f32 cosf(f32 arg0);
-    extern f32 sinf(f32 arg0);
+    extern RwTexDictionary *func_003ef6d0(void);
+    extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
+    extern s32 func_00401b80(void);
+    extern f32 cosf(f32 task);
+    extern f32 sinf(f32 task);
     extern u8 *func_00460990(void);
-    extern void func_00460ac0(void *arg0, void *arg1);
-    extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
-    extern void func_001853e0(u8 *arg0, u8 *arg1);
-    extern void func_001854f0(u8 *arg0, u8 *arg1);
+    extern void func_00460ac0(u8 *, u8 *);
+    extern u8 *func_00461390(void *task, s32 arg1, void *arg2, s32 arg3);
+    extern void func_001853e0(u8 *task, u8 *arg1);
+    extern void func_001854f0(u8 *task, u8 *arg1);
     extern void func_00185600(void);
-    extern void func_00185620(u8 *arg0, u8 *arg1);
+    extern void func_00185620(u8 *task, u8 *arg1);
     extern void func_00185730(void);
     extern void func_00185830(void);
-    u8 *tmp;
+    u8 *node;
 
-/* honest baseline from romwright+m2c */
-  s32 *piVar1;
-  s32 temp_v0;
-  u32 temp_v1;
-  u8 *pbVar4;
-  s32 *piVar5;
-  s32 temp_v2;
-  s32 temp_v3;
-  s32 temp_v4;
-  f32 temp_v5;
-  f32 temp_v6;
-  
-  piVar1 = *(s32 **)(arg0 + 0x38);
-  if (piVar1[1] == 0) {
-    if (*piVar1 == 0) {
-      temp_v0 = func_003ef6d0();
-      temp_v0 = func_003ef650(temp_v0,D_005F1DC0);
-      piVar1[0x2230] = temp_v0;
-      temp_v0 = func_003ef6d0();
-      temp_v0 = func_003ef650(temp_v0,D_005F1DE0);
-      piVar1[0x2231] = temp_v0;
-      tmp = func_00401b80();
-      *(u8 **)(piVar1 + 0x2232) = tmp;
-      for (temp_v0 = 0; temp_v0 < 7; temp_v0 = temp_v0 + 1) {
-        temp_v4 = 0;
-        do {
-          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x48] = (float)(temp_v4 << 6);
-          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x49] = (float)(temp_v0 << 6);
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x4a] = 0x447a0000;
-          temp_v6 = (float)((temp_v4 + 1) * 0x40);
-          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x58] = temp_v6;
-          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x59] = (float)(temp_v0 << 6);
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x5a] = 0x447a0000;
-          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x68] = (float)(temp_v4 << 6);
-          temp_v5 = (float)((temp_v0 + 1) * 0x40);
-          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x69] = temp_v5;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x6a] = 0x447a0000;
-          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x78] = temp_v6;
-          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x79] = temp_v5;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x7a] = 0x447a0000;
-          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x4e] = iGpffff8214;
-          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x5e] = iGpffff8214;
-          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x6e] = iGpffff8214;
-          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x7e] = iGpffff8214;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x50] = 0x437f0000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x51] = 0x437f0000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x52] = 0x437f0000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x53] = 0x42800000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x60] = 0x437f0000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x61] = 0x437f0000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x62] = 0x437f0000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 99] = 0x42800000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x70] = 0x437f0000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x71] = 0x437f0000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x72] = 0x437f0000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x73] = 0x42800000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x80] = 0x437f0000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x81] = 0x437f0000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x82] = 0x437f0000;
-          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x83] = 0x42800000;
-          temp_v1 = RpRandom();
-          piVar1[temp_v0 * 10 + temp_v4 + 2] = temp_v1 & 3;
-            temp_v4++;
-        } while (temp_v4 < 10);
-      }
-      for (temp_v0 = 0; temp_v0 < 0xe; temp_v0 = temp_v0 + 1) {
-        temp_v6 = (float)((temp_v0 + 1) * 0x20);
-        temp_v4 = 0;
-        while (temp_v4 < 1) {
-          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11c8] = (float)(temp_v4 * 0x280);
-          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11c9] = (float)(temp_v0 << 5);
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11ca] = 0x447a0000;
-          temp_v5 = (float)((temp_v4 + 1) * 0x280);
-          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11d8] = temp_v5;
-          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11d9] = (float)(temp_v0 << 5);
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11da] = 0x447a0000;
-          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11e8] = (float)(temp_v4 * 0x280);
-          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11e9] = temp_v6;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11ea] = 0x447a0000;
-          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11f8] = temp_v5;
-          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11f9] = temp_v6;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11fa] = 0x447a0000;
-          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11ce] = iGpffff8214;
-          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11de] = iGpffff8214;
-          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11ee] = iGpffff8214;
-          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11fe] = iGpffff8214;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11d0] = 0x437f0000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11d1] = 0x437f0000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11d2] = 0x437f0000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11d3] = 0x42000000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11e0] = 0x437f0000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11e1] = 0x437f0000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11e2] = 0x437f0000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11e3] = 0x42000000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11f0] = 0x437f0000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11f1] = 0x437f0000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11f2] = 0x437f0000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11f3] = 0x42000000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x1200] = 0x437f0000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x1201] = 0x437f0000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x1202] = 0x437f0000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x1203] = 0x42000000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11cc] = 0;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11cd] = 0;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11dc] = 0x3f800000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11dd] = 0;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11ec] = 0;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11ed] = 0x3f800000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11fc] = 0x3f800000;
-          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11fd] = 0x3f800000;
-          temp_v4 = temp_v4 + 1;
-        }
-      }
-      temp_v6 = 0.0f;
-      for (temp_v0 = 0; temp_v0 < 0x42; temp_v0 = temp_v0 + 2) {
-        temp_v5 = (float)cosf(temp_v6);
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x15d0] = (temp_v5 * 850.0f * 0.5f + 320.0f);
-        temp_v5 = (float)sinf(temp_v6);
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x15d1] = (temp_v5 * 750.0f * 0.5f + 224.0f);
-        piVar1[temp_v0 * 0x10 + 0x15d2] = 0x447a0000;
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x15d6] = iGpffff8214;
-        piVar1[temp_v0 * 0x10 + 0x15d8] = 0;
-        piVar1[temp_v0 * 0x10 + 0x15d9] = 0x437f0000;
-        piVar1[temp_v0 * 0x10 + 0x15da] = 0;
-        piVar1[temp_v0 * 0x10 + 0x15db] = 0x43000000;
-        temp_v5 = (float)cosf(temp_v6);
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x15e0] = (temp_v5 * 450.0f * 0.5f + 320.0f);
-        temp_v5 = (float)sinf(temp_v6);
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x15e1] = (temp_v5 * 250.0f * 0.5f + 224.0f);
-        piVar1[temp_v0 * 0x10 + 0x15e2] = 0x447a0000;
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x15e6] = iGpffff8214;
-        piVar1[temp_v0 * 0x10 + 0x15e8] = 0;
-        piVar1[temp_v0 * 0x10 + 0x15e9] = 0x437f0000;
-        piVar1[temp_v0 * 0x10 + 0x15ea] = 0;
-        piVar1[temp_v0 * 0x10 + 0x15eb] = 0;
-        temp_v6 = temp_v6 + fGpffff84d4;
-      }
-      temp_v6 = 0.0f;
-      piVar1[0x1590] = 0;
-      piVar1[0x1591] = 0;
-      piVar1[0x1592] = 0x447a0000;
-      piVar1[0x15a0] = 0x44200000;
-      piVar1[0x15a1] = 0;
-      piVar1[0x15a2] = 0x447a0000;
-      piVar1[0x15b0] = 0;
-      piVar1[0x15b1] = 0x43e00000;
-      piVar1[0x15b2] = 0x447a0000;
-      piVar1[0x15c0] = 0x44200000;
-      piVar1[0x15c1] = 0x43e00000;
-      piVar1[0x15c2] = 0x447a0000;
-      ((f32 *)piVar1)[0x1596] = iGpffff8214;
-      ((f32 *)piVar1)[0x15a6] = iGpffff8214;
-      ((f32 *)piVar1)[0x15b6] = iGpffff8214;
-      ((f32 *)piVar1)[0x15c6] = iGpffff8214;
-      piVar1[0x1598] = 0x437f0000;
-      piVar1[0x1599] = 0x437f0000;
-      piVar1[0x159a] = 0x437f0000;
-      piVar1[0x159b] = 0;
-      piVar1[0x15a8] = 0x437f0000;
-      piVar1[0x15a9] = 0x437f0000;
-      piVar1[0x15aa] = 0x437f0000;
-      piVar1[0x15ab] = 0;
-      piVar1[0x15b8] = 0x437f0000;
-      piVar1[0x15b9] = 0x437f0000;
-      piVar1[0x15ba] = 0x437f0000;
-      piVar1[0x15bb] = 0;
-      piVar1[0x15c8] = 0x437f0000;
-      piVar1[0x15c9] = 0x437f0000;
-      piVar1[0x15ca] = 0x437f0000;
-      piVar1[0x15cb] = 0;
-      for (temp_v0 = 0; temp_v0 < 0x42; temp_v0 = temp_v0 + 2) {
-        temp_v5 = (float)cosf(temp_v6);
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x19f0] = (temp_v5 * 850.0f * 0.5f + 320.0f);
-        temp_v5 = (float)sinf(temp_v6);
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x19f1] = (temp_v5 * 750.0f * 0.5f + 224.0f);
-        piVar1[temp_v0 * 0x10 + 0x19f2] = 0x447a0000;
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x19f6] = iGpffff8214;
-        piVar1[temp_v0 * 0x10 + 0x19f8] = 0;
-        piVar1[temp_v0 * 0x10 + 0x19f9] = 0x437f0000;
-        piVar1[temp_v0 * 0x10 + 0x19fa] = 0;
-        piVar1[temp_v0 * 0x10 + 0x19fb] = 0x42800000;
-        temp_v5 = (float)cosf(temp_v6);
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1a00] = (temp_v5 * 500.0f * 0.5f + 320.0f);
-        temp_v5 = (float)sinf(temp_v6);
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1a01] = (temp_v5 * 300.0f * 0.5f + 224.0f);
-        piVar1[temp_v0 * 0x10 + 0x1a02] = 0x447a0000;
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1a06] = iGpffff8214;
-        piVar1[temp_v0 * 0x10 + 0x1a08] = 0;
-        piVar1[temp_v0 * 0x10 + 0x1a09] = 0x437f0000;
-        piVar1[temp_v0 * 0x10 + 0x1a0a] = 0;
-        piVar1[temp_v0 * 0x10 + 0x1a0b] = 0;
-        temp_v6 = temp_v6 + fGpffff84d4;
-      }
-      temp_v6 = 0.0f;
-      for (temp_v0 = 0; temp_v0 < 0x42; temp_v0 = temp_v0 + 2) {
-        temp_v5 = (float)cosf(temp_v6);
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1e10] = (temp_v5 * 850.0f * 0.5f + 320.0f);
-        temp_v5 = (float)sinf(temp_v6);
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1e11] = (temp_v5 * 750.0f * 0.5f + 224.0f);
-        piVar1[temp_v0 * 0x10 + 0x1e12] = 0x447a0000;
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1e16] = iGpffff8214;
-        piVar1[temp_v0 * 0x10 + 0x1e18] = 0;
-        piVar1[temp_v0 * 0x10 + 0x1e19] = 0x437f0000;
-        piVar1[temp_v0 * 0x10 + 0x1e1a] = 0;
-        piVar1[temp_v0 * 0x10 + 0x1e1b] = 0x43700000;
-        temp_v5 = (float)cosf(temp_v6);
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1e20] = (temp_v5 * 450.0f * 0.5f + 320.0f);
-        temp_v5 = (float)sinf(temp_v6);
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1e21] = (temp_v5 * 250.0f * 0.5f + 224.0f);
-        piVar1[temp_v0 * 0x10 + 0x1e22] = 0x447a0000;
-        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1e26] = iGpffff8214;
-        piVar1[temp_v0 * 0x10 + 0x1e28] = 0;
-        piVar1[temp_v0 * 0x10 + 0x1e29] = 0x437f0000;
-        piVar1[temp_v0 * 0x10 + 0x1e2a] = 0;
-        piVar1[temp_v0 * 0x10 + 0x1e2b] = 0;
-        temp_v6 = temp_v6 + fGpffff84d4;
-      }
-      piVar1[0x1548] = 0;
-      piVar1[0x1549] = 0;
-      piVar1[0x154a] = 0x447a0000;
-      piVar1[0x1558] = 0x44200000;
-      piVar1[0x1559] = 0;
-      piVar1[0x155a] = 0x447a0000;
-      piVar1[0x1568] = 0;
-      piVar1[0x1569] = 0x43e00000;
-      piVar1[0x156a] = 0x447a0000;
-      piVar1[0x1578] = 0x44200000;
-      piVar1[0x1579] = 0x43e00000;
-      piVar1[0x157a] = 0x447a0000;
-      ((f32 *)piVar1)[0x154e] = iGpffff8214;
-      ((f32 *)piVar1)[0x155e] = iGpffff8214;
-      ((f32 *)piVar1)[0x156e] = iGpffff8214;
-      ((f32 *)piVar1)[0x157e] = iGpffff8214;
-      piVar1[0x1550] = 0x437f0000;
-      piVar1[0x1551] = 0x437f0000;
-      piVar1[0x1552] = 0x437f0000;
-      piVar1[0x1553] = 0x42c00000;
-      piVar1[0x1560] = 0x437f0000;
-      piVar1[0x1561] = 0x437f0000;
-      piVar1[0x1562] = 0x437f0000;
-      piVar1[0x1563] = 0x42c00000;
-      piVar1[0x1570] = 0x437f0000;
-      piVar1[0x1571] = 0x437f0000;
-      piVar1[0x1572] = 0x437f0000;
-      piVar1[0x1573] = 0x42c00000;
-      piVar1[0x1580] = 0x437f0000;
-      piVar1[0x1581] = 0x437f0000;
-      piVar1[0x1582] = 0x437f0000;
-      piVar1[0x1583] = 0x42c00000;
-      ((f32 *)piVar1)[0x158a] = (0.5f / (float)*(int *)(piVar1[0x2232] + 0xc));
-      ((f32 *)piVar1)[0x158b] = (0.5f / (float)*(int *)(piVar1[0x2232] + 0x10));
-      ((f32 *)piVar1)[0x158c] = (fGpffff84d8 / (float)*(int *)(piVar1[0x2232] + 0xc));
-      ((f32 *)piVar1)[0x158d] = (fGpffff84dc / (float)*(int *)(piVar1[0x2232] + 0x10));
-      piVar1[0x1589] = iGpffff8424;
-      ((f32 *)piVar1)[0x154c] = (((f32 *)piVar1)[0x158a] + ((f32 *)piVar1)[0x1589]);
-      ((f32 *)piVar1)[0x154d] = (((f32 *)piVar1)[0x158b] + ((f32 *)piVar1)[0x1589]);
-      ((f32 *)piVar1)[0x155c] = (((f32 *)piVar1)[0x158c] - ((f32 *)piVar1)[0x1589]);
-      ((f32 *)piVar1)[0x155d] = (((f32 *)piVar1)[0x158b] + ((f32 *)piVar1)[0x1589]);
-      ((f32 *)piVar1)[0x156c] = (((f32 *)piVar1)[0x158a] + ((f32 *)piVar1)[0x1589]);
-      ((f32 *)piVar1)[0x156d] = (((f32 *)piVar1)[0x158d] - ((f32 *)piVar1)[0x1589]);
-      ((f32 *)piVar1)[0x157c] = (((f32 *)piVar1)[0x158c] - ((f32 *)piVar1)[0x1589]);
-      ((f32 *)piVar1)[0x157d] = (((f32 *)piVar1)[0x158d] - ((f32 *)piVar1)[0x1589]);
-      *piVar1 = *piVar1 + 1;
+    GridDrawWork *work;
+    s32 index;
+    u32 randomValue;
+    u8 *callbackNode;
+    s32 *phaseSlot;
+    s32 vertex;
+    s32 corner;
+    s32 column;
+    f32 value;
+    f32 value2;
+
+    work = *(GridDrawWork **)(task + 0x38);
+    if (work->blocked != 0) {
+        return 0;
     }
-    else if (*piVar1 == 1) {
-      tmp = func_00461390(D_00794930,4,piVar1 + 0x1590,4);
-      *(void (**)(void))(tmp + 8) = func_00185730;
-      *(s32 **)(tmp + 0x10) = piVar1;
-      tmp = func_00461390(D_00794930,4,piVar1 + 0x1e10,0x42);
-      *(void (**)(void))(tmp + 8) = func_00185730;
-      *(s32 **)(tmp + 0x10) = piVar1;
-      *(void (**)(void))(tmp + 0xc) = func_00185830;
-      *(s32 **)(tmp + 0x14) = piVar1;
-      tmp = func_00461390(D_00794930,4,piVar1 + 0x1548,4);
-      *(void (**)(u8 *, u8 *))(tmp + 8) = func_00185620;
-      *(s32 **)(tmp + 0x10) = piVar1;
-      pbVar4 = (u8 *)func_00460990();
-      *(void (**)(void))(pbVar4 + 8) = func_00185600;
-      *(s32 **)(pbVar4 + 0x10) = piVar1;
-      func_00460ac0(D_00794930,pbVar4);
-      tmp = func_00461390(D_00794930,4,piVar1 + 0x1590,4);
-      *(void (**)(void))(tmp + 8) = func_00185730;
-      *(s32 **)(tmp + 0x10) = piVar1;
-      tmp = func_00461390(D_00794930,4,piVar1 + 0x19f0,0x42);
-      *(void (**)(void))(tmp + 8) = func_00185730;
-      *(s32 **)(tmp + 0x10) = piVar1;
-      *(void (**)(void))(tmp + 0xc) = func_00185830;
-      *(s32 **)(tmp + 0x14) = piVar1;
-      pbVar4 = (u8 *)func_00460990();
-      *(void (**)(u8 *, u8 *))(pbVar4 + 8) = func_001854f0;
-      *(s32 **)(pbVar4 + 0x10) = piVar1;
-      func_00460ac0(D_00794930,pbVar4);
-      for (temp_v0 = 0; temp_v0 < 0xe; temp_v0 = temp_v0 + 1) {
-        for (temp_v4 = 0; temp_v4 < 1; temp_v4 = temp_v4 + 1) {
-          func_00461390(D_00794930,4,piVar1 + temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11c8,4);
-        }
-      }
-      pbVar4 = (u8 *)func_00460990();
-      *(void (**)(void))(pbVar4 + 8) = func_00185600;
-      *(s32 **)(pbVar4 + 0x10) = piVar1;
-      func_00460ac0(D_00794930,pbVar4);
-      tmp = func_00461390(D_00794930,4,piVar1 + 0x15d0,0x42);
-      *(void (**)(void))(tmp + 0xc) = func_00185830;
-      *(s32 **)(tmp + 0x14) = piVar1;
-      uGpffffb314 = uGpffffb314 != 0 ^ 1;
-      pbVar4 = (u8 *)func_00460990();
-      *(void (**)(u8 *, u8 *))(pbVar4 + 8) = func_001853e0;
-      *(s32 **)(pbVar4 + 0x10) = piVar1;
-      func_00460ac0(D_00794930,pbVar4);
-      for (temp_v0 = 0; temp_v0 < 7; temp_v0 = temp_v0 + 1) {
-        for (temp_v4 = 0; temp_v4 < 10; temp_v4 = temp_v4 + 1) {
-          piVar5 = piVar1 + temp_v0 * 10 + temp_v4 + 2;
-          temp_v2 = piVar1[temp_v0 * 10 + temp_v4 + 2];
-          temp_v3 = 0;
-          do {
-            if (3 < temp_v2) {
-              temp_v2 = 0;
+    switch (work->state) {
+    case 0:
+        work->textures[0] = func_003ef650(func_003ef6d0(), (const char *)D_005F1DC0);
+        work->textures[1] = func_003ef650(func_003ef6d0(), (const char *)D_005F1DE0);
+        node = (u8 *)func_00401b80();
+        work->raster = node;
+        for (index = 0; index < 7; index = index + 1) {
+            column = 0;
+            while (column < 10) {
+                work->grid[index][column][0].x = (float)(column << 6);
+                work->grid[index][column][0].y = (float)(index << 6);
+                work->grid[index][column][0].z = 1000.0f;
+                value2 = (float)((column + 1) * 0x40);
+                work->grid[index][column][1].x = value2;
+                work->grid[index][column][1].y = (float)(index << 6);
+                work->grid[index][column][1].z = 1000.0f;
+                work->grid[index][column][2].x = (float)(column << 6);
+                work->grid[index][column][2].y = (f32)((index + 1) * 0x40);
+                work->grid[index][column][2].z = 1000.0f;
+                work->grid[index][column][3].x = value2;
+                work->grid[index][column][3].y = (f32)((index + 1) * 0x40);
+                work->grid[index][column][3].z = 1000.0f;
+                work->grid[index][column][0].reciprocalZ = 0.001f;
+                work->grid[index][column][1].reciprocalZ = 0.001f;
+                work->grid[index][column][2].reciprocalZ = 0.001f;
+                work->grid[index][column][3].reciprocalZ = 0.001f;
+                work->grid[index][column][0].red = 255.0f;
+                work->grid[index][column][0].green = 255.0f;
+                work->grid[index][column][0].blue = 255.0f;
+                work->grid[index][column][0].alpha = 64.0f;
+                work->grid[index][column][1].red = 255.0f;
+                work->grid[index][column][1].green = 255.0f;
+                work->grid[index][column][1].blue = 255.0f;
+                work->grid[index][column][1].alpha = 64.0f;
+                work->grid[index][column][2].red = 255.0f;
+                work->grid[index][column][2].green = 255.0f;
+                work->grid[index][column][2].blue = 255.0f;
+                work->grid[index][column][2].alpha = 64.0f;
+                work->grid[index][column][3].red = 255.0f;
+                work->grid[index][column][3].green = 255.0f;
+                work->grid[index][column][3].blue = 255.0f;
+                work->grid[index][column][3].alpha = 64.0f;
+                randomValue = RpRandom();
+                work->phases[index][column] = randomValue & 3;
+                column++;
             }
-            ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + temp_v3 * 0x10 + 0x4c] =
-                 *(f32 *)(D_005F1DA0 + temp_v2 * 8);
-            ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + temp_v3 * 0x10 + 0x4d] =
-                 *(f32 *)(D_005F1DA0 + temp_v2 * 8 + 4);
-            temp_v2 = temp_v2 + 1;
-              temp_v3++;
-          } while (temp_v3 < 4);
-          if (uGpffffb314 != 0) {
-            *piVar5 = *piVar5 + 1;
-          }
-          if (3 < *piVar5) {
-            *piVar5 = 0;
-          }
-          func_00461390(D_00794930,4,piVar1 + temp_v0 * 0x280 + temp_v4 * 0x40 + 0x48,4);
         }
-      }
+        for (index = 0; index < 0xe; index = index + 1) {
+            column = 0;
+            while (column < 1) {
+                work->bands[index][column][0].x = (float)(column * 0x280);
+                work->bands[index][column][0].y = (float)(index << 5);
+                work->bands[index][column][0].z = 1000.0f;
+                value = (float)((column + 1) * 0x280);
+                work->bands[index][column][1].x = value;
+                work->bands[index][column][1].y = (float)(index << 5);
+                work->bands[index][column][1].z = 1000.0f;
+                work->bands[index][column][2].x = (float)(column * 0x280);
+                work->bands[index][column][2].y = (f32)((index + 1) * 0x20);
+                work->bands[index][column][2].z = 1000.0f;
+                work->bands[index][column][3].x = value;
+                work->bands[index][column][3].y = (f32)((index + 1) * 0x20);
+                work->bands[index][column][3].z = 1000.0f;
+                work->bands[index][column][0].reciprocalZ = 0.001f;
+                work->bands[index][column][1].reciprocalZ = 0.001f;
+                work->bands[index][column][2].reciprocalZ = 0.001f;
+                work->bands[index][column][3].reciprocalZ = 0.001f;
+                work->bands[index][column][0].red = 255.0f;
+                work->bands[index][column][0].green = 255.0f;
+                work->bands[index][column][0].blue = 255.0f;
+                work->bands[index][column][0].alpha = 32.0f;
+                work->bands[index][column][1].red = 255.0f;
+                work->bands[index][column][1].green = 255.0f;
+                work->bands[index][column][1].blue = 255.0f;
+                work->bands[index][column][1].alpha = 32.0f;
+                work->bands[index][column][2].red = 255.0f;
+                work->bands[index][column][2].green = 255.0f;
+                work->bands[index][column][2].blue = 255.0f;
+                work->bands[index][column][2].alpha = 32.0f;
+                work->bands[index][column][3].red = 255.0f;
+                work->bands[index][column][3].green = 255.0f;
+                work->bands[index][column][3].blue = 255.0f;
+                work->bands[index][column][3].alpha = 32.0f;
+                work->bands[index][column][0].u = 0.0f;
+                work->bands[index][column][0].v = 0.0f;
+                work->bands[index][column][1].u = 1.0f;
+                work->bands[index][column][1].v = 0.0f;
+                work->bands[index][column][2].u = 0.0f;
+                work->bands[index][column][2].v = 1.0f;
+                work->bands[index][column][3].u = 1.0f;
+                work->bands[index][column][3].v = 1.0f;
+                column = column + 1;
+            }
+        }
+        index = 0;
+        value2 = 0.0f;
+        for (; index < 0x42; index = index + 2) {
+            work->rings[0][index + 0].x = (cosf(value2) * 850.0f * 0.5f + 320.0f);
+            value = (float)sinf(value2);
+            work->rings[0][index + 0].y = (value * 750.0f * 0.5f + 224.0f);
+            work->rings[0][index + 0].z = 1000.0f;
+            work->rings[0][index + 0].reciprocalZ = 0.001f;
+            work->rings[0][index + 0].red = 0.0f;
+            work->rings[0][index + 0].green = 255.0f;
+            work->rings[0][index + 0].blue = 0.0f;
+            work->rings[0][index + 0].alpha = 128.0f;
+            value = 450.0f * cosf(value2);
+            work->rings[0][index + 1].x = (value * 0.5f + 320.0f);
+            value = 250.0f * sinf(value2);
+            work->rings[0][index + 1].y = (value * 0.5f + 224.0f);
+            work->rings[0][index + 1].z = 1000.0f;
+            work->rings[0][index + 1].reciprocalZ = 0.001f;
+            work->rings[0][index + 1].red = 0.0f;
+            work->rings[0][index + 1].green = 255.0f;
+            work->rings[0][index + 1].blue = 0.0f;
+            work->rings[0][index + 1].alpha = 0.0f;
+            value2 = value2 + fGpffff84d4;
+        }
+        value2 = 0.0f;
+        work->cover[0].x = 0.0f;
+        work->cover[0].y = 0.0f;
+        work->cover[0].z = 1000.0f;
+        work->cover[1].x = 640.0f;
+        work->cover[1].y = 0.0f;
+        work->cover[1].z = 1000.0f;
+        work->cover[2].x = 0.0f;
+        work->cover[2].y = 448.0f;
+        work->cover[2].z = 1000.0f;
+        work->cover[3].x = 640.0f;
+        work->cover[3].y = 448.0f;
+        work->cover[3].z = 1000.0f;
+        work->cover[0].reciprocalZ = 0.001f;
+        work->cover[1].reciprocalZ = 0.001f;
+        work->cover[2].reciprocalZ = 0.001f;
+        work->cover[3].reciprocalZ = 0.001f;
+        work->cover[0].red = 255.0f;
+        work->cover[0].green = 255.0f;
+        work->cover[0].blue = 255.0f;
+        work->cover[0].alpha = 0.0f;
+        work->cover[1].red = 255.0f;
+        work->cover[1].green = 255.0f;
+        work->cover[1].blue = 255.0f;
+        work->cover[1].alpha = 0.0f;
+        work->cover[2].red = 255.0f;
+        work->cover[2].green = 255.0f;
+        work->cover[2].blue = 255.0f;
+        work->cover[2].alpha = 0.0f;
+        work->cover[3].red = 255.0f;
+        work->cover[3].green = 255.0f;
+        work->cover[3].blue = 255.0f;
+        work->cover[3].alpha = 0.0f;
+        for (index = 0; index < 0x42; index = index + 2) {
+            work->rings[1][index + 0].x = (cosf(value2) * 850.0f * 0.5f + 320.0f);
+            value = (float)sinf(value2);
+            work->rings[1][index + 0].y = (value * 750.0f * 0.5f + 224.0f);
+            work->rings[1][index + 0].z = 1000.0f;
+            work->rings[1][index + 0].reciprocalZ = 0.001f;
+            work->rings[1][index + 0].red = 0.0f;
+            work->rings[1][index + 0].green = 255.0f;
+            work->rings[1][index + 0].blue = 0.0f;
+            work->rings[1][index + 0].alpha = 64.0f;
+            value = 500.0f * cosf(value2);
+            work->rings[1][index + 1].x = (value * 0.5f + 320.0f);
+            value = 300.0f * sinf(value2);
+            work->rings[1][index + 1].y = (value * 0.5f + 224.0f);
+            work->rings[1][index + 1].z = 1000.0f;
+            work->rings[1][index + 1].reciprocalZ = 0.001f;
+            work->rings[1][index + 1].red = 0.0f;
+            work->rings[1][index + 1].green = 255.0f;
+            work->rings[1][index + 1].blue = 0.0f;
+            work->rings[1][index + 1].alpha = 0.0f;
+            value2 = value2 + fGpffff84d4;
+        }
+        index = 0;
+        value2 = 0.0f;
+        for (; index < 0x42; index = index + 2) {
+            work->rings[2][index + 0].x = (cosf(value2) * 850.0f * 0.5f + 320.0f);
+            value = (float)sinf(value2);
+            work->rings[2][index + 0].y = (value * 750.0f * 0.5f + 224.0f);
+            work->rings[2][index + 0].z = 1000.0f;
+            work->rings[2][index + 0].reciprocalZ = 0.001f;
+            work->rings[2][index + 0].red = 0.0f;
+            work->rings[2][index + 0].green = 255.0f;
+            work->rings[2][index + 0].blue = 0.0f;
+            work->rings[2][index + 0].alpha = 240.0f;
+            value = 450.0f * cosf(value2);
+            work->rings[2][index + 1].x = (value * 0.5f + 320.0f);
+            value = 250.0f * sinf(value2);
+            work->rings[2][index + 1].y = (value * 0.5f + 224.0f);
+            work->rings[2][index + 1].z = 1000.0f;
+            work->rings[2][index + 1].reciprocalZ = 0.001f;
+            work->rings[2][index + 1].red = 0.0f;
+            work->rings[2][index + 1].green = 255.0f;
+            work->rings[2][index + 1].blue = 0.0f;
+            work->rings[2][index + 1].alpha = 0.0f;
+            value2 = value2 + fGpffff84d4;
+        }
+        work->overlay[0].x = 0.0f;
+        work->overlay[0].y = 0.0f;
+        work->overlay[0].z = 1000.0f;
+        work->overlay[1].x = 640.0f;
+        work->overlay[1].y = 0.0f;
+        work->overlay[1].z = 1000.0f;
+        work->overlay[2].x = 0.0f;
+        work->overlay[2].y = 448.0f;
+        work->overlay[2].z = 1000.0f;
+        work->overlay[3].x = 640.0f;
+        work->overlay[3].y = 448.0f;
+        work->overlay[3].z = 1000.0f;
+        work->overlay[0].reciprocalZ = 0.001f;
+        work->overlay[1].reciprocalZ = 0.001f;
+        work->overlay[2].reciprocalZ = 0.001f;
+        work->overlay[3].reciprocalZ = 0.001f;
+        work->overlay[0].red = 255.0f;
+        work->overlay[0].green = 255.0f;
+        work->overlay[0].blue = 255.0f;
+        work->overlay[0].alpha = 96.0f;
+        work->overlay[1].red = 255.0f;
+        work->overlay[1].green = 255.0f;
+        work->overlay[1].blue = 255.0f;
+        work->overlay[1].alpha = 96.0f;
+        work->overlay[2].red = 255.0f;
+        work->overlay[2].green = 255.0f;
+        work->overlay[2].blue = 255.0f;
+        work->overlay[2].alpha = 96.0f;
+        work->overlay[3].red = 255.0f;
+        work->overlay[3].green = 255.0f;
+        work->overlay[3].blue = 255.0f;
+        work->overlay[3].alpha = 96.0f;
+        work->uvValues[2] = (0.5f / (float)*(int *)(work->raster + 0xc));
+        work->uvValues[3] = (0.5f / (float)*(int *)(work->raster + 0x10));
+        work->uvValues[4] = (fGpffff84d8 / (float)*(int *)(work->raster + 0xc));
+        work->uvValues[5] = (fGpffff84dc / (float)*(int *)(work->raster + 0x10));
+        work->uvValues[1] = iGpffff8424;
+        work->overlay[0].u = (work->uvValues[2] + work->uvValues[1]);
+        work->overlay[0].v = (work->uvValues[3] + work->uvValues[1]);
+        work->overlay[1].u = (work->uvValues[4] - work->uvValues[1]);
+        work->overlay[1].v = (work->uvValues[3] + work->uvValues[1]);
+        work->overlay[2].u = (work->uvValues[2] + work->uvValues[1]);
+        work->overlay[2].v = (work->uvValues[5] - work->uvValues[1]);
+        work->overlay[3].u = (work->uvValues[4] - work->uvValues[1]);
+        work->overlay[3].v = (work->uvValues[5] - work->uvValues[1]);
+        work->state = work->state + 1;
+        break;
+    case 1:
+        node = func_00461390(D_00794930,4,work->cover,4);
+        *(void (**)(void))(node + 8) = func_00185730;
+        *(GridDrawWork **)(node + 0x10) = work;
+        node = func_00461390(D_00794930,4,work->rings[2],0x42);
+        *(void (**)(void))(node + 8) = func_00185730;
+        *(GridDrawWork **)(node + 0x10) = work;
+        *(void (**)(void))(node + 0xc) = func_00185830;
+        *(GridDrawWork **)(node + 0x14) = work;
+        node = func_00461390(D_00794930,4,work->overlay,4);
+        *(void (**)(u8 *, u8 *))(node + 8) = func_00185620;
+        *(GridDrawWork **)(node + 0x10) = work;
+        callbackNode = (u8 *)func_00460990();
+        *(void (**)(void))(callbackNode + 8) = func_00185600;
+        *(GridDrawWork **)(callbackNode + 0x10) = work;
+        func_00460ac0(D_00794930,callbackNode);
+        node = func_00461390(D_00794930,4,work->cover,4);
+        *(void (**)(void))(node + 8) = func_00185730;
+        *(GridDrawWork **)(node + 0x10) = work;
+        node = func_00461390(D_00794930,4,work->rings[1],0x42);
+        *(void (**)(void))(node + 8) = func_00185730;
+        *(GridDrawWork **)(node + 0x10) = work;
+        *(void (**)(void))(node + 0xc) = func_00185830;
+        *(GridDrawWork **)(node + 0x14) = work;
+        callbackNode = (u8 *)func_00460990();
+        *(void (**)(u8 *, u8 *))(callbackNode + 8) = func_001854f0;
+        *(GridDrawWork **)(callbackNode + 0x10) = work;
+        func_00460ac0(D_00794930,callbackNode);
+        for (index = 0; index < 0xe; index = index + 1) {
+            for (column = 0; column < 1; column = column + 1) {
+                func_00461390(D_00794930,4,work->bands[index][column],4);
+            }
+        }
+        callbackNode = (u8 *)func_00460990();
+        *(void (**)(void))(callbackNode + 8) = func_00185600;
+        *(GridDrawWork **)(callbackNode + 0x10) = work;
+        func_00460ac0(D_00794930,callbackNode);
+        node = func_00461390(D_00794930,4,work->rings[0],0x42);
+        *(void (**)(void))(node + 0xc) = func_00185830;
+        *(GridDrawWork **)(node + 0x14) = work;
+        uGpffffb314 = uGpffffb314 != 0 ^ 1;
+        callbackNode = (u8 *)func_00460990();
+        *(void (**)(u8 *, u8 *))(callbackNode + 8) = func_001853e0;
+        *(GridDrawWork **)(callbackNode + 0x10) = work;
+        func_00460ac0(D_00794930,callbackNode);
+        for (index = 0; index < 7; index = index + 1) {
+            for (column = 0; column < 10; column = column + 1) {
+                phaseSlot = &work->phases[index][column];
+                corner = work->phases[index][column];
+                vertex = 0;
+                while (vertex < 4) {
+                    if (corner >= 4) {
+                        corner = 0;
+                    }
+                    work->grid[index][column][vertex].u =
+                        *(f32 *)(D_005F1DA0 + corner * 8);
+                    work->grid[index][column][vertex].v =
+                        *(f32 *)(D_005F1DA0 + corner * 8 + 4);
+                    vertex++;
+                    corner = corner + 1;
+                }
+                if (uGpffffb314 != 0) {
+                    *phaseSlot = *phaseSlot + 1;
+                }
+                if (*phaseSlot >= 4) {
+                    *phaseSlot = 0;
+                }
+                func_00461390(D_00794930,4,work->grid[index][column],4);
+            }
+        }
+        break;
     }
-  }
-  return 0;
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00185850);
-#endif
-/* measured: close loop-invariant hoisting around the 00185850 reconstruction. */
-#pragma opt_loop_invariants off
+
+
+#pragma pop
+
 // FUN_00186610
 void func_00186610(u8 *arg0)
 {
@@ -2950,8 +2937,8 @@ void func_0018c700(f32 fp0) {
     s32 a;
     s32 b;
 
-    a = func_003ef6d0();
-    b = func_003ef650(a, D_005F5360);
+    a = (s32)func_003ef6d0();
+    b = (s32)func_003ef650((RwTexDictionary *)a, (const char *)D_005F5360);
     func_003f6800(b, fp0);
 }
 
@@ -2969,7 +2956,7 @@ void func_0018c750(f32 fparg0)
     s32 var_5;
     f32 constant;
 
-    temp_2 = func_003ef650(func_003ef6d0(), D_005F5360);
+    temp_2 = (s32)func_003ef650(func_003ef6d0(), (const char *)D_005F5360);
     constant = 2147483648.0f;
     if (constant <= fparg0) {
         goto positive;

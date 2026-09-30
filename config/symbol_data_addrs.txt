@@ -1036,3 +1036,10 @@ D_00764148 = 0x00764148; // type:data evidence: func_0046f2b0 GP-relative full 4
 D_0076414C = 0x0076414C; // type:data evidence: func_0046f2b0 GP-relative full 4-byte RGBA snapshot, consumed by func_0046e850; GP 0x007690F0
 D_00764150 = 0x00764150; // type:data evidence: func_0046f2b0 GP-relative full 4-byte RGBA snapshot, consumed by func_0046e850; GP 0x007690F0
 D_007641A8 = 0x007641A8; // type:data evidence: func_0046f2b0 byte stores/loads at GP-0x4F48 through GP-0x4F45 bound the mutable 4-byte RGBA tint
+
+// Grid draw callback 00185850; every address uses retail GP 0x007690F0.
+fGpffff84d4 = 0x007615C4; // type:data evidence: retail func_00185850 lwc1 GPREL -0x7B2C at 0x00185D18, 0x00185F30 and 0x001860B4; ring angle step
+fGpffff84d8 = 0x007615C8; // type:data evidence: retail func_00185850 lwc1 GPREL -0x7B28 at 0x001861BC; texture U extent
+fGpffff84dc = 0x007615CC; // type:data evidence: retail func_00185850 lwc1 GPREL -0x7B24 at 0x001861DC; texture V extent
+iGpffff8424 = 0x00761514; // type:data evidence: retail func_00185850 lwc1 GPREL -0x7BDC at 0x001861E8; f32 UV inset
+uGpffffb314 = 0x00764404; // type:data evidence: retail func_00185850 lw/sw GPREL -0x4CEC at 0x00186490/0x0018649C, read at 0x0018656C; alternating UV update
