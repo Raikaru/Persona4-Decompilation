@@ -648,12 +648,14 @@ void func_00385380(u8 *arg0)
         *(u16 *)(arg0 + 0x4C) &= ~8;
     }
 }
-/* measured: honest first reconstruction per func_0038bab0/86c00 idiom (u8* state at +0x04 plus base, (f32)(u16) counters bltz double, plain (u8) clamps, sequential <0x20/<0xA/<5 guards empty else, block-scoped next/i, plain arithmetic no COP1 exemption, s64 pos via spA8/spAC shift/or packing per bab0; m2c+romwright into /var/tmp/cold385970 (m2c_385970.c 422 lines + rom_385970.c 259 lines + rom_raw 245 lines + types int(void*) 1082 instr arity trusted); probe_variants v1 938 base honest, R1 branch 934 win (-4, inner &8 !=0 with C-first matches retail beqz), swap 940 regress (+2), inclusive 940 regress (+2), frev/s64/nextfunc/staterev/loop 938 ties; R2 flip2 938 regress (+4), bswap/binc 936 regress (+2), bfrev/bs64/bnext/bloop/bstate 934 ties unproductive, stop after two rounds per batch; pragma prag1/prag2 934 ties not adopted; fnalign branch retail 1187/object 1175 (12 short 1.0% within 3%, 289 edits +3 reloc-only, vs v1 360 edits -71 from branch fix, frame 0xB0, sh/andi order + $v0/$v1 + GP offsets + COP1 mula/madd/adda/msub floor remain); providers verified (373cb0 f32,f32,f32,s32 per btlShuffleCalc.c:43, 64fb0 s64,u32,s32,s32,f32,f32 per generated/code1_0036.c:1920, 34f4a0 per this file:75, 3f6440 s32,s32 per this file:25, 3b7060 s32(void) per this file:176 as (u32)&0xFFF idiom, 44b7b0 f32 per btlShuffleCalc.c:27, fGp8374/83cc/81e0 per GP -0x7C8C/-0x7C34/-0x7E20, D_0064ED30 12B table per asm lui); Ghidra/IDA agree on CFG/32-call order, differ on 64fb0/34f4a0 prototypes and GP naming (used file idiom); lever 4 exclusive <0x20/<0xA/<5/<0x1E/<15 correct (inclusive regresses); lhu/lbu correct; double-def offset remains + COP1 chains (26 mula/madd/adda/msub); re-derived, no fabrications; archive P038_00385970_body.c is seven-line stub, not a body. Banked guarded floor. */
-// FUN_00385970 NONMATCHING
-#ifdef NON_MATCHING
+/* Draw the paired shuffle-screen quads, corner sprites and fifteen particles.
+ * The shared position is a real Vec2f snapshot. Keep both color-blend weights
+ * (including black), and reuse the finished trail extent for the base quads.
+ * Native b210 O2: 4752/4752 bytes, all 47 relocations resolved; no zero tail.
+ * See docs/probe_archive/Shuffle_side_quads_00385970_20260930.md. */
+// FUN_00385970
 void func_00385970(u8 *arg0)
 {
-    typedef struct { f32 x; f32 y; } Vec2f_5970;
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
@@ -665,84 +667,41 @@ void func_00385970(u8 *arg0)
     extern u8 D_0064ED30[];
     u8 *base;
     u8 *state;
-    s32 resource;
-    f32 var_f25;
-    f32 var_f24;
-    f32 var_f23;
-    f32 var_f29;
-    f32 var_f22;
-    f32 blend;
+    s32 spriteResource;
+    f32 quadTransition;
+    f32 cornerTransition;
+    f32 quadExtent;
+    f32 trailExpansion;
+    f32 particleOpacity;
+    f32 desaturation;
     Vec2f position;
     base = *(u8 **)arg0;
     state = arg0 + 4;
-    resource = *(s32 *)(base + 0x1F2AC);
+    spriteResource = *(s32 *)(base + 0x1F2AC);
     if ((*(u16 *)state & 1) == 0) {
-        var_f25 = 1.0f - func_00373cb0((f32)*(u16 *)(state + 2), 10.0f, 21.0f, 2);
-        var_f24 = 1.0f - func_00373cb0((f32)*(u16 *)(state + 2), 19.0f, 21.0f, 2);
-        var_f23 = 0.0f;
-        var_f29 = 0.0f;
-        var_f22 = func_00373cb0((f32)*(u16 *)(state + 2), 21.0f, 25.0f, 1);
+        quadTransition = 1.0f - func_00373cb0((f32)*(u16 *)(state + 2), 10.0f, 21.0f, 2);
+        cornerTransition = 1.0f - func_00373cb0((f32)*(u16 *)(state + 2), 19.0f, 21.0f, 2);
+        quadExtent = 0.0f;
+        trailExpansion = 0.0f;
+        particleOpacity = func_00373cb0((f32)*(u16 *)(state + 2), 21.0f, 25.0f, 1);
         {
             u16 next;
-            next = *(u16 *)(state + 2) + 1;
-            *(u16 *)(state + 2) = next;
+            next = ++*(u16 *)(state + 2);
             if ((next & 0xFFFF) < 0x20) {
             } else {
                 *(u16 *)state = *(u16 *)state | 1;
                 *(u16 *)(state + 2) = 0;
             }
         }
-    } else if ((*(u16 *)state & 4) == 0) {
-        if ((*(u16 *)state & 8) != 0) {
-            var_f25 = 0.0f;
-            var_f24 = 0.0f;
-            var_f23 = 1.0f;
-            var_f29 = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 5.0f, 0);
-            var_f22 = 1.0f;
-            {
-                u16 next;
-                next = *(u16 *)(state + 2) + 1;
-                *(u16 *)(state + 2) = next;
-                if ((next & 0xFFFF) < 5) {
-                } else {
-                    *(u16 *)(state + 2) = 0;
-                }
-            }
-        } else {
-            if ((*(u16 *)state & 2) == 0) {
-                var_f25 = 0.0f;
-                var_f24 = 0.0f;
-                var_f23 = 0.0f;
-                var_f29 = 0.0f;
-                var_f22 = 1.0f;
-            } else {
-                var_f25 = func_00373cb0((f32)*(u16 *)(state + 2), 4.0f, 10.0f, 2);
-                var_f24 = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 6.0f, 2);
-                var_f23 = 0.0f;
-                var_f29 = 0.0f;
-                var_f22 = 1.0f - func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 0.0f, 1);
-                {
-                    u16 next;
-                    next = *(u16 *)(state + 2) + 1;
-                    *(u16 *)(state + 2) = next;
-                    if ((next & 0xFFFF) < 0xA) {
-                    } else {
-                        *(u16 *)(arg0 + 0x4C) = *(u16 *)(arg0 + 0x4C) & 0xFFFE;
-                        *(u16 *)(state + 2) = 0;
-                    }
-                }
-            }
-        }
-    } else {
-        var_f25 = 0.0f;
-        var_f24 = 0.0f;
-        var_f23 = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 10.0f, 2);
-        var_f29 = 0.0f;
-        var_f22 = 1.0f;
+    } else if ((*(u16 *)state & 4) != 0) {
+        quadTransition = 0.0f;
+        cornerTransition = 0.0f;
+        quadExtent = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 10.0f, 2);
+        trailExpansion = 0.0f;
+        particleOpacity = 1.0f;
         {
             u16 next;
-            next = *(u16 *)(state + 2) + 1;
-            *(u16 *)(state + 2) = next;
+            next = ++*(u16 *)(state + 2);
             if ((next & 0xFFFF) < 0xA) {
             } else {
                 *(u16 *)state = *(u16 *)state & 0xFFFB;
@@ -750,181 +709,200 @@ void func_00385970(u8 *arg0)
                 *(u16 *)(state + 2) = 0;
             }
         }
+    } else if ((*(u16 *)state & 8) != 0) {
+        quadTransition = 0.0f;
+        cornerTransition = 0.0f;
+        quadExtent = 1.0f;
+        trailExpansion = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 5.0f, 0);
+        particleOpacity = 1.0f;
+        {
+            u16 next;
+            next = ++*(u16 *)(state + 2);
+            if ((next & 0xFFFF) < 5) {
+            } else {
+                *(u16 *)(state + 2) = 0;
+            }
+        }
+    } else if ((*(u16 *)state & 2) != 0) {
+        quadTransition = func_00373cb0((f32)*(u16 *)(state + 2), 4.0f, 10.0f, 2);
+        cornerTransition = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 6.0f, 2);
+        quadExtent = 0.0f;
+        trailExpansion = 0.0f;
+        particleOpacity = 1.0f - func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 0.0f, 1);
+        {
+            u16 next;
+            next = ++*(u16 *)(state + 2);
+            if ((next & 0xFFFF) < 0xA) {
+            } else {
+                *(u16 *)(arg0 + 0x4C) = *(u16 *)(arg0 + 0x4C) & 0xFFFE;
+                *(u16 *)(state + 2) = 0;
+            }
+        }
+    } else {
+        quadTransition = 0.0f;
+        cornerTransition = 0.0f;
+        quadExtent = 0.0f;
+        trailExpansion = 0.0f;
+        particleOpacity = 1.0f;
     }
+
     if ((*(u16 *)state & 0x10) != 0) {
         if (*(u16 *)(state + 6) < 0x1E) {
             *(u16 *)(state + 6) = *(u16 *)(state + 6) + 1;
         }
     }
-    blend = func_00373cb0((f32)*(u16 *)(state + 6), 0.0f, 30.0f, 0);
+    desaturation = func_00373cb0((f32)*(u16 *)(state + 6), 0.0f, 30.0f, 0);
     if (((*(u16 *)state & 4) != 0) || ((*(u16 *)state & 8) != 0)) {
-        f32 t108;
-        f32 inv;
-        u8 r0;
-        u8 g0;
-        u8 b0;
-        s32 col0;
-        f32 x0;
+        f32 grayComponent;
+        f32 colorWeight;
+        const f32 unity = 1.0f;
+        u8 red;
+        u8 green;
+        u8 blue;
+        s32 trailColor;
+        s32 opaqueTrailColor;
+        f32 rightX;
         RpSkyRenderStateSet(3, (void *)0x71801);
         RpSkyRenderStateSet(2, (void *)0x48);
-        t108 = blend * 108.0f;
-        inv = 1.0f - blend;
-        r0 = (u8)(inv * 255.0f + t108);
-        g0 = (u8)(inv * 32.0f + t108);
-        b0 = (u8)(inv * 26.0f + t108);
-        col0 = (r0 << 24) | (g0 << 16) | (b0 << 8);
-        x0 = 603.0f - 20.0f * var_f29;
-        position.x = x0;
+        grayComponent = desaturation * 108.0f;
+        colorWeight = unity - desaturation;
+        red = (u8)(colorWeight * 255.0f + grayComponent);
+        green = (u8)(colorWeight * 32.0f + grayComponent);
+        blue = (u8)(colorWeight * 26.0f + grayComponent);
+        trailColor = ((u32)red << 24) | ((u32)green << 16) | ((u32)blue << 8);
+        opaqueTrailColor = trailColor | 0xFF;
+        rightX = 603.0f - 20.0f * trailExpansion;
+        position.x = rightX;
         position.y = 224.0f;
-        {
-            func_00364fb0(position, 0.0f, col0 | 0xFF, fGpffff8374, 0, 0);
-        }
-        position.x = 56.0f + 20.0f * var_f29;
+        func_00364fb0(position, 0.0f, opaqueTrailColor, fGpffff8374, 0, 0);
+        position.x = 56.0f + 20.0f * trailExpansion;
         position.y = 224.0f;
+        func_00364fb0(position, 0.0f, opaqueTrailColor, fGpffff83cc, 0, 0);
         {
-            func_00364fb0(position, 0.0f, col0 | 0xFF, fGpffff83cc, 0, 0);
+            u8 alpha;
+            s32 fadingColor;
+            f32 rightX;
+            f32 leftX;
+            alpha = (u8)(255.0f + -102.0f * trailExpansion);
+            fadingColor = trailColor | alpha;
+            rightX = 603.0f - 20.0f * quadExtent - 30.0f * trailExpansion;
+            leftX = 56.0f + 20.0f * quadExtent + 30.0f * trailExpansion;
+            position.x = rightX;
+            position.y = 224.0f;
+            func_00364fb0(position, 0.0f, fadingColor, fGpffff8374, 0, 0);
+            position.x = leftX;
+            position.y = 224.0f;
+            func_00364fb0(position, 0.0f, fadingColor, fGpffff83cc, 0, 0);
         }
         {
-            u8 a1;
-            s32 col1;
-            f32 xa;
-            f32 xb;
-            a1 = (u8)(255.0f - 102.0f * var_f29);
-            col1 = col0 | a1;
-            xa = 603.0f - 20.0f * var_f23 - 30.0f * var_f29;
-            xb = 56.0f + 20.0f * var_f23 + 30.0f * var_f29;
-            position.x = xa;
+            u8 alpha;
+            s32 fadingColor;
+            f32 rightX;
+            f32 leftX;
+            alpha = (u8)(153.0f + -51.0f * trailExpansion);
+            fadingColor = trailColor | alpha;
+            rightX = 603.0f - 50.0f * quadExtent - 40.0f * trailExpansion;
+            leftX = 56.0f + 50.0f * quadExtent + 40.0f * trailExpansion;
+            position.x = rightX;
             position.y = 224.0f;
-            {
-                func_00364fb0(position, 0.0f, col1, fGpffff8374, 0, 0);
-            }
-            position.x = xb;
+            func_00364fb0(position, 0.0f, fadingColor, fGpffff8374, 0, 0);
+            position.x = leftX;
             position.y = 224.0f;
-            {
-                func_00364fb0(position, 0.0f, col1, fGpffff83cc, 0, 0);
-            }
+            func_00364fb0(position, 0.0f, fadingColor, fGpffff83cc, 0, 0);
         }
         {
-            u8 a2;
-            s32 col2;
-            f32 xa;
-            f32 xb;
-            a2 = (u8)(153.0f - 51.0f * var_f29);
-            col2 = col0 | a2;
-            xa = 603.0f - 50.0f * var_f23 - 40.0f * var_f29;
-            xb = 56.0f + 50.0f * var_f23 + 40.0f * var_f29;
-            position.x = xa;
+            u8 alpha;
+            s32 fadingColor;
+            f32 rightX;
+            f32 leftX;
+            alpha = (u8)(102.0f + -102.0f * trailExpansion);
+            fadingColor = trailColor | alpha;
+            rightX = 603.0f - 90.0f * quadExtent - 50.0f * trailExpansion;
+            leftX = 56.0f + 90.0f * quadExtent + 50.0f * trailExpansion;
+            position.x = rightX;
             position.y = 224.0f;
-            {
-                func_00364fb0(position, 0.0f, col2, fGpffff8374, 0, 0);
-            }
-            position.x = xb;
+            func_00364fb0(position, 0.0f, fadingColor, fGpffff8374, 0, 0);
+            position.x = leftX;
             position.y = 224.0f;
-            {
-                func_00364fb0(position, 0.0f, col2, fGpffff83cc, 0, 0);
-            }
-        }
-        {
-            u8 a3;
-            s32 col3;
-            f32 xa;
-            f32 xb;
-            a3 = (u8)(102.0f - 102.0f * var_f29);
-            col3 = col0 | a3;
-            xa = 603.0f - 90.0f * var_f23 - 50.0f * var_f29;
-            xb = 56.0f + 90.0f * var_f23 + 50.0f * var_f29;
-            position.x = xa;
-            position.y = 224.0f;
-            {
-                func_00364fb0(position, 0.0f, col3, fGpffff8374, 0, 0);
-            }
-            position.x = xb;
-            position.y = 224.0f;
-            {
-                func_00364fb0(position, 0.0f, col3, fGpffff83cc, 0, 0);
-            }
+            func_00364fb0(position, 0.0f, fadingColor, fGpffff83cc, 0, 0);
         }
         RpSkyRenderStateSet(3, (void *)0x717FB);
         RpSkyRenderStateSet(2, (void *)0x44);
     }
     {
-        f32 inv2;
-        u8 r1;
-        u8 g1;
-        u8 b1;
-        s32 col4;
-        f32 d1;
-        inv2 = 1.0f - blend;
-        r1 = (u8)(inv2 * 74.0f);
-        g1 = (u8)(inv2 * 36.0f);
-        b1 = (u8)(inv2 * 0.0f);
-        col4 = (r1 << 24) | (g1 << 16) | (b1 << 8) | 0xFF;
-        d1 = var_f25 * 300.0f;
-        position.x = 603.0f - d1;
-        position.y = 224.0f - d1;
-        {
-            func_00364fb0(position, 0.0f, col4, fGpffff8374, 0, 1);
-        }
-        position.x = 56.0f + d1;
-        position.y = 224.0f + d1;
-        {
-            func_00364fb0(position, 0.0f, col4, fGpffff83cc, 0, 1);
-        }
+        f32 darkWeight;
+        /* Keep both weights of the RGB blend, including its black endpoint. */
+        f32 blackComponent = 0.0f;
+        u8 red;
+        u8 green;
+        u8 blue;
+        s32 baseColor;
+        darkWeight = 1.0f - desaturation;
+        red = (u8)(darkWeight * 74.0f + blackComponent * desaturation);
+        green = (u8)(darkWeight * 36.0f + blackComponent * desaturation);
+        blue = (u8)(blackComponent * darkWeight + blackComponent * desaturation);
+        baseColor = ((u32)red << 24) | ((u32)green << 16) | ((u32)blue << 8) | 0xFF;
+        /* Reuse the completed trail extent for the base-quad displacement. */
+        quadExtent = quadTransition * 300.0f;
+        position.x = 603.0f - quadExtent;
+        position.y = 224.0f - quadExtent;
+        func_00364fb0(position, 0.0f, baseColor, fGpffff8374, 0, 1);
+        position.x = 56.0f + quadExtent;
+        position.y = 224.0f + quadExtent;
+        func_00364fb0(position, 0.0f, baseColor, fGpffff83cc, 0, 1);
     }
     {
-        f32 inv3;
-        u8 cr;
-        u8 cg;
-        u8 cb;
-        f32 d2;
-        inv3 = 1.0f - blend;
-        cr = (u8)(inv3 * 255.0f + blend * 255.0f);
-        cg = (u8)(inv3 * 218.0f + blend * 70.0f);
-        cb = (u8)(inv3 * 136.0f + blend * 80.0f);
-        d2 = var_f24 * 300.0f;
-        func_0034f4a0(resource, 0x38, 407.0f - d2, 40.0f - d2, 0.0f, cr, cg, cb, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
-        func_0034f4a0(resource, 0x39, d2 + 103.0f, d2 + 186.0f, 0.0f, cr, cg, cb, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
+        f32 cornerWeight;
+        u8 red;
+        u8 green;
+        u8 blue;
+        f32 cornerDisplacement;
+        cornerWeight = 1.0f - desaturation;
+        red = (u8)(cornerWeight * 255.0f + desaturation * 255.0f);
+        green = (u8)(cornerWeight * 218.0f + desaturation * 70.0f);
+        blue = (u8)(cornerWeight * 136.0f + desaturation * 80.0f);
+        cornerDisplacement = cornerTransition * 300.0f;
+        position.x = 407.0f - cornerDisplacement;
+        position.y = 40.0f - cornerDisplacement;
+        func_0034f4a0(spriteResource, 0x38, position.x, position.y, 0.0f, red, green, blue, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
+        position.x = cornerDisplacement + 103.0f;
+        position.y = cornerDisplacement + 186.0f;
+        func_0034f4a0(spriteResource, 0x39, position.x, position.y, 0.0f, red, green, blue, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
     }
     RpSkyRenderStateSet(3, (void *)0x71801);
     RpSkyRenderStateSet(2, (void *)0x48);
     *(u16 *)(state + 4) = (*(u16 *)(state + 4) + 1) % 10;
     {
-        s32 i;
-        u8 alpha0;
-        alpha0 = (u8)(255.0f - blend * 30.0f);
-        for (i = 0; i < 15; i++) {
-            u8 *entry;
-            f32 fx;
-            f32 fy;
-            f32 ff;
-            f32 s;
-            f32 t;
-            f32 af;
-            s32 alpha;
-            entry = D_0064ED30 + i * 12;
-            fx = *(f32 *)entry;
-            fy = *(f32 *)(entry + 4);
-            ff = *(f32 *)(entry + 8);
-            s = sinf((fGpffff81e0 * (ff * 10.0f + (f32)*(u16 *)(state + 4))) / 10.0f);
-            t = (s + 1.0f) / 2.0f;
+        s32 particleIndex;
+        u8 particleGreen;
+        particleIndex = 0;
+        particleGreen = (u8)(255.0f - desaturation * 30.0f);
+        for (; particleIndex < 15; particleIndex++) {
+            f32 phaseOffset;
+            f32 wave;
+            f32 pulse;
+            f32 alpha;
+            phaseOffset = *(f32 *)(D_0064ED30 + particleIndex * 12 + 8);
+            wave = sinf((fGpffff81e0 * (phaseOffset * 10.0f + (f32)*(u16 *)(state + 4))) / 10.0f);
+            pulse = (wave + 1.0f) / 2.0f;
             if (*(u16 *)(state + 4) == 0) {
-                f32 rnd;
-                f32 v;
-                rnd = (f32)(u32)(RpRandom() & 0xFFF);
-                v = rnd / 4096.0f * 224.0f + 32.0f;
-                *(u8 *)(state + 8 + i) = (u8)v;
+                f32 randomValue;
+                f32 randomAlpha;
+                randomValue = (f32)(u32)(RpRandom() & 0xFFF);
+                randomAlpha = randomValue / 4096.0f * 224.0f + 32.0f;
+                *(u8 *)(state + 8 + particleIndex) = (u8)randomAlpha;
             }
-            af = var_f22 * (f32)*(u8 *)(state + 8 + i) * t;
-            alpha = (u8)af;
-            func_0034f4a0(resource, 0x3B, fx, fy, 0.0f, 0xFF, alpha0, 0xFF, alpha, 0x1000, 0x1000, 0.0f, 0, 0);
+            /* Snapshot coordinates after the animation and random callbacks. */
+            position.x = *(f32 *)(D_0064ED30 + particleIndex * 12);
+            position.y = *(f32 *)(D_0064ED30 + particleIndex * 12 + 4);
+            alpha = particleOpacity * ((f32)*(u8 *)(state + 8 + particleIndex) * pulse);
+            func_0034f4a0(spriteResource, 0x3B, position.x, position.y, 0.0f, 0xFF, particleGreen, 0xFF, (u8)alpha, 0x1000, 0x1000, 0.0f, 0, 0);
         }
     }
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00385970);
-#endif
+
 /* This helper retains the radius-scale operation with the same operand
  * order as the other circular drawing primitives. */
 static inline f32 code38ScaleRadius(f32 value, f32 scale)
