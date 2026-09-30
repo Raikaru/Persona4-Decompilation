@@ -350,7 +350,7 @@ extern f32 func_0034f720(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
 extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void func_0034f9d0(Float2_0014 arg0, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
-extern void func_00355410(u8 *arg0, u32 arg1);
+extern void func_00355410(u8 *arg0, u8 arg1);
 extern void func_00354ba0(void *arg0);
 extern void func_00367210(u64 arg0, s32 arg1, void *arg2, f32 fparg0);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);

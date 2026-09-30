@@ -873,12 +873,12 @@ void func_003553b0(u8 *arg0, f32 *arg1)
    in func_0035aec0 and func_0035be70. */
 
 // FUN_00355410
-/* Opacity arrives as a word; the state stores its low byte. */
-void func_00355410(u8 *arg0, u32 arg1)
+/* The opacity component is a byte, as stored by the state and passed by every caller. */
+void func_00355410(u8 *arg0, u8 arg1)
 {
     u8 *temp_4;
 
-    *(s8 *)(*(u8 **)(arg0 + 0x38) + 0xA) = arg1;
+    *(u8 *)(*(u8 **)(arg0 + 0x38) + 0xA) = arg1;
     temp_4 = *(u8 **)(arg0 + 0x38);
     *(s32 *)(temp_4 + 0xC) = ((s32 *)temp_4)[3];
 }
@@ -1553,950 +1553,724 @@ loop_test:
     func_00356a10(arg0);
     return var_16;
 }
-/* measured: rebuilt from withheld 2714/2954 draft (retail 2636); this body 2710 obj (+74, +2.81% inside band) 2868 edits via `python3 tools/fnalign.py src/promoted/code1_0035.c func_00356a10 --candidate /tmp/body_56a10_after1.c` (was 2873 before switch2/4 dispatch reorder, -5). Dispatch: switch 1 (cases 0/1/2/3) is an if-chain in retail (beq order 2,3,1,0 at 0x357A9C) so rewrote as if (==2)/else if (==3)/else if (==1||==0); switch 2 dispatch is beq order 1,3,2 at 0x357E00 (beq 3 at 0x357E10 before beq 2 at 0x357E1C) so ordered cases as case 1 then case 2/case 3 shared with case 2 label before case 3 to emit 1,3,2; switches 3 (order 3,2,1 at 0x3586D8) is descending MWCC switch so kept as switch; switch 4 dispatch is beq order 3,2,1,0 at 0x358C14 (beq 1 at 0x358C30 before beqz 0 at 0x358C38) so ordered cases as case 0 then case 1 to emit 3,2,1,0. Float guards rewritten from if (!(x >= C)) (c.olt) to if (C <= x) (c.ole) to match retail c.le.s operand order, -77 edits. */
-/* measured 00356a10 (owner, 2026-09-19): fnalign **2868 -> 2866 edits**, count
-   2710 -> 2708 against retail 2636, by writing m2c's top-tested `loop_N:` /
-   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
-   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
-   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
-   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
-   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
-   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
-   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
-/* measured 00356a10 (2026-09-19): table_order finds no jtbl/sltiu in retail asm - all four */
-/* dispatches are beq chains, so layout order is beq order: switch1 beq 2,3,1,0 at 0x357A9C */
-/* stays an if-chain; switch2 beq 1,3,2 at 0x357E00, switch3 beq 3,2,1 at 0x3586D8, switch4 */
-/* beq 3,2,1,0 at 0x358C14 stay switches in ascending source order (MWCC emits reverse, */
-/* so 2,3,1->1,3,2 and 1,2,3->3,2,1 and 0,1,2,3->3,2,1,0). tail_classify 2866 edits: */
-/* structure 267 register 41. block_move_scan largest pair retail[1806:2140] 334 vs */
-/* object[1016:1124] 108 ratio 0.127 MIXED (genuine divergence, not a move). */
-/* residual_signature mask 38 cvt 4 class 1 perm 19 [$a1->$v1 $a2->$v1 $f1->$f2 $s1->$s0]. */
-/* Eight fnalign probes (retail 2636, base obj 2708): guard1 true=sub/false=direct 2869 */
-/* (+3, constant form stays); loop22 for 2866 (tie); loop95 for 2865 (-1, adopted: */
-/* top-tested loop_95/if+goto -> for (var_20=0; var_20<0x6C; var_20++), words 2503->2500); */
-/* loop222 for 2866 (tie); switch2 reorder 1,2,3 -> 2990 (+124, current 2,3,1 correct); */
-/* switch3 reverse 3,2,1 -> 2868 (+2, current 1,2,3 correct); switch4 reverse 3,2,0/1 -> */
-/* 2866 (tie); switch1 as switch -> 2868 obj 2712 (+2/+4, if-chain stays). Post-fix */
-/* fnalign 2865 edits obj 2708 (+72 +2.73% inside band), tail_classify 2865 struct 267 reg 41. */
-/* measured 00356a10 (owner, 2026-09-20): 2708 against retail 2636 (+2.7%, inside with only
-   six instructions of headroom), **2865 edits**.  tail_classify says structure 267 against
-   register 41, so this floor is structurally wrong rather than allocator-blocked, and
-   deficit_scan names the three regions: retail-only runs of 334 at 0x00358648, 200 at
-   0x0035786c and 76 at 0x003572bc.
-   0x00358648 is the unsigned-int-to-float idiom - `bltz $20` then either `cvt.s.w` direct
-   or `srl 1 / andi 1 / or / cvt.s.w / add.s` doubled - and the body ALREADY spells it out
-   by hand at 21 sites as `if ((s32) x >= 0) v = (f32) x; else v = 2.0f * (f32) ((x >> 1) |
-   (x & 1));`.  Replacing all 21 with the compact `(f32)(u32) x` is much WORSE: 2865 -> 3351
-   edits and the count collapses to 2431 (-7.8%, outside the band).  b210 lowers the cast
-   form differently from the written-out form, so the hand-written idiom is correct here
-   and must not be 'simplified'.
-   0x0035786c is present too - retail's `135.0f + (f25 + load)` has the constant on the
-   left and so does the body.  Both regions are there and misaligned rather than missing,
-   which is why three sessions of spelling work have found -77, -1 and -1. */
-/* measured 00356a10 (2026-09-20): helper census 8 __fixsfdi -> 0. The two */
-/* `((s64)(spF0))` sites passed only x through a float->s64 conversion; retail */
-/* loads both floats packed (`ld $4,0xF0($29)` at 0x356B28 for c270, 0x3592D8 */
-/* for f9d0, after `swc1` x at 0xF0 / y at 0xF4), so they are now */
-/* `(*(s64 *)&spF0)` with the existing `spF0=x at 0xF0 / spF4=y at 0xF4` layout. */
-/* The six `(s64)(((s64)(f/2.0f))<<0x30)>>0x30` sites are now `(s64)(s16)(f/2.0f)`; */
-/* retail does `div.s /2.0f, cvt.w.s, mfc1, dsll32 $x,$2,16, dsra32` (e.g. */
-/* 0x357060-70, 0x357090-9C), i.e. narrow cvt to word plus halfword sign-extend */
-/* to s64, never a 64-bit conversion. The 21 hand-written unsigned idioms are */
-/* untouched. Object was LONGER than retail, so per amended gate 3 the shortening */
-/* check applies: object 2708->2690 (-18, toward retail 2636; +72 +2.73% -> +54 */
-/* +2.05%, stays in band) and fnalign 2865->2820 (-45); GUARDED_SCORE 2500->2481. */
-/* measured 2026-09-29: migrated draw calls to the canonical coordinate/color
- * argument order and resource-pointer types. Guarded body 10928/10544 bytes,
- * nd 2538; historical scores above do not describe this declaration context. */
-// FUN_00356A10 NONMATCHING
-#ifdef NON_MATCHING
-void func_00356a10(u8 *arg0) {
+/* Community-list renderer: 10536/10544 bytes, all 115 relocations exact.
+ * Native byte-opacity contracts, the Vec2f output, and real RGBA/rectangle
+ * objects replace the former decompiler carriers and expanded conversions.
+ * Measured: lifetime analysis retains the phased register roles; disabling
+ * propagation keeps packed text colors captured before callbacks, while
+ * disabling literal extraction avoids extra call-crossing float constants.
+ * The sparse context view preserves observed offsets without allocating data.
+ * See docs/probe_archive/Community_menu_renderer_00356a10_20260930.md. */
+// FUN_00356A10
+#pragma push
+#pragma opt_lifetimes on
+#pragma opt_propagation off
+#pragma opt_pulloutconstants off
+void func_00356a10(u8 *work) {
+    typedef struct {
+        u8 opacity;
+        u8 unknown0001[0x3];
+        Vec2f origin;
+        u8 unknown000C[0x4];
+        s32 background;
+        u8 unknown0014[0x8];
+        s32 flags;
+        u8 unknown0020[0x2];
+        s16 angle;
+        s16 selectedRow;
+        s16 firstRow;
+        s16 selectedDetail;
+        u8 unknown002A[0x6];
+        f32 rotation;
+        f32 zoom;
+        u8 unknown0038[0xFC];
+        s16 rowCount;
+        u8 unknown0136[0x12];
+        s32 detailCount;
+        s16 footerId;
+        u8 unknown014E[0x12];
+        Vec2f markerOffset;
+        u8 unknown0168[0x2];
+        u8 markerOpacity;
+        u8 unknown016B[0x2C5];
+        Vec2f footerOffset;
+        u8 unknown0438[0x2];
+        u8 footerOpacity;
+        u8 unknown043B[0x25];
+        Vec2f backEmblemOffset;
+        u8 unknown0468[0x2];
+        u8 backEmblemOpacity;
+        u8 unknown046B[0x5];
+        u16 backEmblemScaleX;
+        u8 unknown0472[0x1E];
+        Vec2f frontEmblemOffset;
+        u8 unknown0498[0x2];
+        u8 frontEmblemOpacity;
+        u8 unknown049B[0x5];
+        u16 frontEmblemScaleX;
+        u8 unknown04A2[0x31E];
+        Vec2f leftHintOffset;
+        u8 unknown07C8[0x2];
+        u8 leftHintOpacity;
+        u8 unknown07CB[0x25];
+        Vec2f rightHintOffset;
+        u8 unknown07F8[0x2];
+        u8 rightHintOpacity;
+        u8 unknown07FB[0x25];
+        Vec2f scrollOffset;
+        u8 unknown0828[0x2];
+        u8 scrollOpacity;
+        u8 unknown082B[0x25];
+        Vec2f titleOffset;
+        u8 unknown0858[0x2];
+        u8 titleOpacity;
+        u8 unknown085B[0x25];
+        Vec2f detailFooterOffset;
+        u8 unknown0888[0x2];
+        u8 detailFooterOpacity;
+        u8 unknown088B[0x25];
+        Vec2f portraitOffset;
+        u8 unknown08B8[0x2];
+        u8 portraitOpacity;
+        u8 unknown08BB[0x25];
+        Vec2f panelOffset;
+        u8 unknown08E8[0x2];
+        u8 panelOpacity;
+        u8 unknown08EB[0x5];
+        u16 panelScaleX;
+        u8 unknown08F2[0x4];
+        u16 panelScaleY;
+        u8 unknown08F8[0x18];
+        Vec2f gridOffset;
+        u8 unknown0918[0x2];
+        u8 gridOpacity;
+        u8 unknown091B[0x25];
+        Vec2f detailOffset;
+        u8 unknown0948[0x2];
+        u8 detailOpacity;
+        u8 unknown094B[0x885];
+        u8 * resource11D0;
+        u8 * resource11D4;
+        u8 * resource11D8;
+        u8 * resource11DC;
+        u8 * resource11E0;
+        u8 * resource11E4;
+        u8 * resource11E8;
+        u8 * resource11EC;
+        u8 * resource11F0;
+        u8 * resource11F4;
+        u8 * resource11F8;
+        u8 * resource11FC;
+        u8 * resource1200;
+        u8 * resource1204;
+        u8 * resource1208;
+        u8 * resource120C;
+        u8 * resource1210;
+        u8 * resource1214;
+        u8 * resource1218;
+        u8 * resource121C;
+        u8 * resource1220;
+        u8 * resource1224;
+        u8 * resource1228;
+        u8 * resource122C;
+        u8 * resource1230;
+        u8 * resource1234;
+        u8 * resource1238;
+        u8 * resource123C;
+        u8 * resource1240;
+        u8 * resource1244;
+        u8 * resource1248;
+        u8 * resource124C;
+        u8 * resource1250;
+        u8 * resource1254;
+        u8 * resource1258;
+        u8 * resource125C;
+        u8 * resource1260;
+        u8 * resource1264;
+        u8 * resource1268;
+        u8 * resource126C;
+        u8 * resource1270;
+        u8 * resource1274;
+        u8 * resource1278;
+        u8 * resource127C;
+        u8 * resource1280;
+        u8 * resource1284;
+        u8 * resource1288;
+        u8 * resource128C;
+        u8 * resource1290;
+        u8 * resource1294;
+        u8 * resource1298;
+        u8 * resource129C;
+        u8 * resource12A0;
+        u8 * resource12A4;
+        u8 * resource12A8;
+        u8 * resource12AC;
+        u8 * resource12B0;
+        u8 * resource12B4;
+        u8 * resource12B8;
+        u8 unknown12BC[0x48];
+        s32 resource1304;
+        u8 * resource1308;
+        u8 * resource130C;
+        u8 * resource1310;
+    } CommunityMenuView;
+    CommunityMenuView *menu;
     extern void func_0034f1e0(void);
-    extern void func_0034c270(s64, s32, s32, f32);
-    extern void func_0045d6e0(u8 *, u8 *, f32, s32);
+    extern s32 func_00275330(f32, f32, f32, s32, s8, s32, const char *, s32, s32, s32);
+    extern void func_0034c270(Vec2f, s32, s32, f32);
+    extern void func_0045d6e0(u8 *, f32 *, f32, s32);
     extern void func_003599c0(s32, u8 *);
-    extern void func_00355410(u8 *, u32);
-    extern void func_00354ba0(s32);
+    extern void func_00355410(u8 *, u8);
+    extern void func_00354ba0(u8 *);
     extern void func_0034f2e0(void *, f32, f32, u8, u8, u8, u8);
     extern void func_0034f320(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
-    extern f32 func_0046b260(s32);
-    extern f32 func_0046b2f0(s32);
-    extern void func_0046d730(void *, s32);
-    extern f32 func_0034f720(u8 *, s32, s32, s32);
-    extern void func_00275020(s32, s32, s32, void *, s32, s32, f32, f32, s32);
-    extern void *func_00246830(s32);
-    extern s32 func_00246910(s32);
-    extern s64 func_00246940(s64);
-    extern void func_002bc0b0(s32, s32, s32, s32, s32, f32, f32, s32);
-    extern void func_0035aff0(u8 *, s32);
-    extern f32 func_0035c040(u8 *, s32);
-    extern void func_0035c670(u8 *, f32 *);
-    extern u16 func_00107ac0(u16);
-    extern s32 func_0010d620(s32);
+    extern f32 func_0046b260(u8 *);
+    extern f32 func_0046b2f0(u8 *);
+    extern void func_0046d730(const void *, u32);
+    extern f32 func_0034f720(u8 *, f32, f32, f32);
+    extern s32 func_00275020(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
+    extern u8 *func_00246830(u32);
+    extern u8 *func_00246910(s16);
+    extern u8 *func_00246940(s16);
+    extern void func_002bc0b0(f32, f32, f32, u32, u32, u32, s32, s32);
+    extern f32 func_0035aff0(u8 *, u8);
+    extern f32 func_0035c040(u8 *, u8);
+    extern void func_0035c670(u8 *, Vec2f *);
+    extern u16 func_00107ac0(s32);
+    extern u32 func_0010d620(s16);
     extern void func_0034f9d0(Vec2f, f32, u8, s32, s32);
-    extern s32 (*D_00887300[])(s32, s32);
-    extern u8 D_0064B2E0;
-    extern u8 D_0064B2E1;
-    extern u8 D_0064B2E2;
+    extern s32 (*D_00887300[])(s32, void *);
+    extern u8 D_0064B2E0[];
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2EC[];
     extern u8 D_0064CC30[];
     extern u8 D_0064CC48[];
     extern u8 D_0064CC98[];
-    u8 spFF;
-    u8 spFE;
-    u8 spFD;
-    u8 spFC;
-    f32 spF4;
-    f32 spF0;
-    Vec2f labelPosition;
-    s32 spEC;
-    s32 spE8;
-    s32 spE4;
-    s32 spE0;
-    signed __int128 spD0;
-    s32 var_22;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f12;
-    f32 temp_f12_2;
-    f32 temp_f12_3;
-    f32 temp_f12_4;
-    f32 temp_f12_5;
-    f32 temp_f12_6;
-    f32 temp_f12_7;
-    f32 temp_f12_8;
-    f32 temp_f13;
-    f32 temp_f13_2;
-    f32 temp_f13_3;
-    f32 temp_f13_4;
-    f32 temp_f13_5;
-    f32 temp_f13_6;
-    f32 temp_f13_7;
-    f32 temp_f13_8;
-    f32 temp_f1;
-    f32 temp_f1_10;
-    f32 temp_f1_11;
-    f32 temp_f1_12;
-    f32 temp_f1_13;
-    f32 temp_f1_14;
-    f32 temp_f1_15;
-    f32 temp_f1_16;
-    f32 temp_f1_17;
-    f32 temp_f1_18;
-    f32 temp_f1_19;
-    f32 temp_f1_2;
-    f32 temp_f1_3;
-    f32 temp_f1_4;
-    f32 temp_f1_5;
-    f32 temp_f1_6;
-    f32 temp_f1_7;
-    f32 temp_f1_8;
-    f32 temp_f1_9;
-    f32 temp_f20;
-    f32 temp_f21;
-    f32 temp_f21_2;
-    f32 temp_f22;
-    f32 temp_f24;
-    f32 temp_f25;
-    f32 temp_f26;
-    f32 temp_f4;
-    f32 var_f0;
-    f32 var_f0_10;
-    f32 var_f0_11;
-    f32 var_f0_12;
-    f32 var_f0_13;
-    f32 var_f0_14;
-    f32 var_f0_15;
-    f32 var_f0_16;
-    f32 var_f0_2;
-    f32 var_f0_3;
-    f32 var_f0_4;
-    f32 var_f0_5;
-    f32 var_f0_6;
-    f32 var_f0_7;
-    f32 var_f0_8;
-    f32 var_f0_9;
-    f32 var_f1;
-    f32 var_f1_2;
-    f32 var_f1_3;
-    f32 var_f20;
-    f32 var_f20_2;
-    f32 var_f20_3;
-    f32 var_f23;
-    s16 temp_16_2;
-    s16 temp_17_5;
-    s32 temp_16_3;
-    s32 temp_16_5;
-    s32 temp_17_2;
-    s32 temp_17_4;
-    s32 temp_19;
-    s32 temp_19_2;
-    s32 temp_19_3;
-    s32 temp_19_5;
-    s32 temp_20_2;
-    s32 temp_20_3;
-    s32 temp_23;
-    s32 temp_2_19;
-    s32 temp_30;
-    s32 temp_5;
-    s32 var_10;
-    s32 var_10_10;
-    s32 var_10_11;
-    s32 var_10_12;
-    s32 var_10_13;
-    s32 var_10_2;
-    s32 var_10_3;
-    s32 var_10_4;
-    s32 var_10_5;
-    s32 var_10_6;
-    s32 var_10_7;
-    s32 var_10_8;
-    s32 var_10_9;
-    s32 var_16;
-    s32 var_16_2;
-    s32 var_18;
-    s32 var_20;
-    s32 var_20_2;
-    s32 var_3;
-    s32 var_3_10;
-    s32 var_3_11;
-    s32 var_3_12;
-    s32 var_3_13;
-    s32 var_3_2;
-    s32 var_3_3;
-    s32 var_3_4;
-    s32 var_3_5;
-    s32 var_3_6;
-    s32 var_3_7;
-    s32 var_3_8;
-    s32 var_3_9;
-    s32 var_4;
-    s32 var_5;
-    s32 var_5_2;
-    s32 var_5_3;
-    s32 var_9;
-    s32 var_9_10;
-    s32 var_9_11;
-    s32 var_9_12;
-    s32 var_9_13;
-    s32 var_9_2;
-    s32 var_9_3;
-    s32 var_9_4;
-    s32 var_9_5;
-    s32 var_9_6;
-    s32 var_9_7;
-    s32 var_9_8;
-    s32 var_9_9;
-    s64 temp_17;
-    s64 temp_18;
-    s64 temp_20;
-    s64 temp_3_2;
-    s64 temp_3_3;
-    u16 temp_18_3;
-    u16 temp_2_15;
-    u16 temp_2_16;
-    u16 temp_2_6;
-    u16 temp_2_8;
-    u8 *var_18_2;
-    u8 temp_16;
-    u8 temp_16_4;
-    u8 temp_17_3;
-    u8 temp_18_2;
-    u8 temp_19_4;
-    u8 temp_19_6;
-    u8 temp_20_4;
-    u8 temp_2;
-    u8 temp_2_10;
-    u8 temp_2_12;
-    u8 temp_2_14;
-    u8 temp_2_17;
-    u8 temp_2_18;
-    u8 temp_2_20;
-    u8 temp_2_21;
-    u8 temp_2_22;
-    u8 temp_2_2;
-    u8 temp_2_4;
-    u8 temp_2_5;
-    u8 temp_2_7;
-    u8 temp_2_9;
-    u8 temp_3_6;
-    u8 var_6;
-    u8 var_8;
-    u8 *temp_2_11;
-    u8 *temp_2_13;
-    u8 *temp_2_3;
-    u8 *temp_3;
-    u8 *temp_3_4;
-    u8 *temp_3_5;
-    u8 *temp_4;
+    typedef struct { u8 r, g, b, a; } MenuColor;
+    MenuColor color;
+    Vec2f position;
+    union { s32 integer[4]; f32 transport[4]; } rectangle;
+    s16 backPivotX;
+    u8 frontEmblemOpacity;
+    u8 *emblemTexture;
+    u8 backEmblemOpacity;
+    s16 frontPivotX;
+    s16 emblemAngle;
+    u8 portraitOpacity;
+    u8 *portraitTexture;
+    s16 portraitPivotX;
+    u16 selectedCount;
+    s8 rowFontMode;
+    f32 globalOpacity;
+    f32 originX;
+    f32 originY;
+    f32 panelScaleY;
+    f32 panelX;
+    f32 panelY;
+    f32 panelScaleX;
+    f32 cellBlend;
+    f32 lockedHeaderX;
+    f32 specialHeaderX;
+    f32 lockedHeaderY;
+    f32 specialHeaderY;
+    f32 backgroundOpacityProduct;
+    f32 titleOpacityProduct;
+    f32 panelOpacityProduct;
+    f32 portraitOpacityProduct;
+    f32 rowOpacityProduct;
+    f32 detailOpacityProduct;
+    f32 footerOpacityProduct;
+    f32 numberOpacityProduct;
+    f32 leftHintOpacityProduct;
+    f32 rightHintOpacityProduct;
+    f32 cursorOpacityProduct;
+    f32 separatorOpacityProduct;
+    f32 menuOpacityProduct;
+    f32 scrollOpacityProduct;
+    f32 backEmblemOpacityProduct;
+    f32 frontEmblemOpacityProduct;
+    f32 markerOpacityProduct;
+    f32 gridBaseOpacityProduct;
+    f32 cellOpacityProduct;
+    f32 cellX;
+    f32 cellY;
+    f32 zoomRatio;
+    f32 portraitScale;
+    f32 separatorAlphaFloat;
+    f32 rowAlphaFloat;
+    f32 detailAlphaFloat;
+    f32 footerAlphaFloat;
+    f32 numberAlphaFloat;
+    f32 leftHintAlphaFloat;
+    f32 rightHintAlphaFloat;
+    f32 cursorAlphaFloat;
+    f32 scrollAlphaFloat;
+    f32 backEmblemAlphaFloat;
+    f32 frontEmblemAlphaFloat;
+    f32 markerAlphaFloat;
+    f32 gridAlphaFloat;
+    f32 titleAlphaFloat;
+    f32 panelAlphaFloat;
+    f32 portraitAlphaFloat;
+    f32 globalAlphaFloat;
+    f32 scrollThumbOffset;
+    f32 gridOpacityFloat;
+    f32 backEmblemScale;
+    f32 frontEmblemScale;
+    s16 detailValue;
+    u32 gridOpacity;
+    u32 numberOpacity;
+    u32 numberColor;
+    s32 selectedMode;
+    s32 currentRank;
+    s32 selectedIndex;
+    u8 *rankNames;
+    u8 *categoryTexture;
+    u32 rankColor;
+    s32 nameColor;
+    s32 rowColor;
+    u8 *tileTexture;
+    u8 *detailValues;
+    s32 categoryIndex;
+    s32 scrollRange;
+    s32 separatorIndex;
+    s32 visibleIndex;
+    u16 rankIndex;
+    s32 cellIndex;
+    s32 detailIndex;
+    s32 backgroundOpacity;
+    s32 footerQuantized;
+    s32 leftHintOpacity;
+    s32 rightHintOpacity;
+    s32 cursorOpacity;
+    s32 scrollQuantized;
+    s32 markerOpacity;
+    s32 gridQuantized;
+    s32 titleQuantized;
+    s32 panelQuantized;
+    s32 rowQuantized;
+    s32 numberQuantized;
+    s16 backPivotY;
+    s16 frontPivotY;
+    u16 detailId;
+    u16 panelScaleXBits;
+    u16 panelScaleYBits;
+    u16 backScaleBits;
+    u16 frontScaleBits;
+    MenuColor *palette;
+    u8 scrollOpacity;
+    u8 titleOpacity;
+    u8 footerOpacity;
+    u8 detailOpacity;
+    u8 panelOpacity;
+    u8 rowOpacity;
+    u8 globalAlpha;
+    u8 gridAlpha;
+    u8 titleAlpha;
+    u8 panelAlpha;
+    u8 rowAlpha;
+    u8 footerAlpha;
+    u8 leftHintAlpha;
+    u8 rightHintAlpha;
+    u8 cursorAlpha;
+    u8 separatorAlpha;
+    u8 scrollAlpha;
+    u8 backEmblemAlpha;
+    u8 frontEmblemAlpha;
+    u8 markerAlpha;
+    u8 numberAlpha;
+    u8 separatorOpacity;
+    u8 *cellPaletteBytes;
+    u16 *nameId;
+    u8 *separatorAnimation;
+    u8 *selectedEntry;
+    u8 *rowAnimation;
+    u8 *sprite;
+    u8 *cell;
 
-    /* var_18 in $s2; default path uses incoming (no source init) */
+    /* Entries are initialized by func_00356250 with display modes 0 through 3. */
+    menu = (CommunityMenuView *)work;
     func_0034f1e0();
-    temp_f25 = (*( f32 *)((u8 *)(arg0) + (4)));
-    temp_f24 = (*( f32 *)((u8 *)(arg0) + (8)));
-    temp_2 = (u8)(*( u8 *)((u8 *)(arg0) + (0)));
-    if ((s32) temp_2 >= 0) {
-        var_f1 = (f32) temp_2;
-    } else {
-        var_f1 = 2.0f * (f32) ((temp_2 >> 1) | (temp_2 & 1));
+    originX = (menu->origin.x);
+    originY = (menu->origin.y);
+    globalAlpha = (u8)(menu->opacity);
+    globalAlphaFloat = (f32)globalAlpha;
+    globalOpacity = globalAlphaFloat / 255.0f;
+    if (menu->background != 0) {
+        position.x = originX;
+        position.y = originY;
+        backgroundOpacityProduct = 255.0f * globalOpacity;
+        backgroundOpacity = (u8)backgroundOpacityProduct;
+        func_0034c270(position, backgroundOpacity & 0xFF, menu->background, 0);
     }
-    temp_f26 = var_f1 / 255.0f;
-    if (*( s32 *)((u8 *)(arg0) + (0x10)) != 0) {
-        spF0 = temp_f25;
-        spF4 = temp_f24;
-        temp_f1 = 255.0f * temp_f26;
-        if (2.1474836e9f <= temp_f1) {
-            var_3 = 0x4F000000 & 0xFF;
-        } else {
-            var_3 = (((s32)((temp_f1 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-        }
-        func_0034c270((*(s64 *)&spF0), var_3 & 0xFF, *( s32 *)((u8 *)(arg0) + (0x10)), 0);
-    }
-    if (*( s32 *)((u8 *)(arg0) + (0x1C)) & 1) {
-        var_16 = 0;
-do {
-                temp_3 = (u8 *)(arg0 + (var_16 * 0x30));
-                spF0 = temp_f25 + *(f32 *)(temp_3 + 0x6A0);
-                spF4 = 64.0f * (f32)var_16 + (77.0f + (temp_f24 + *(f32 *)(temp_3 + 0x6A4)));
-                temp_2_2 = (u8)(*( u8 *)((u8 *)(temp_3) + (0x6AA)));
-                if ((s32) temp_2_2 >= 0) {
-                    var_f0 = (f32) temp_2_2;
-                } else {
-                    var_f0 = 2.0f * (f32) ((temp_2_2 >> 1) | (temp_2_2 & 1));
-                }
-                temp_f1_2 = var_f0 * temp_f26;
-                if (2.1474836e9f <= temp_f1_2) {
-                    var_6 = 0x4F000000 & 0xFF;
-                } else {
-                    var_6 = (((s32)((temp_f1_2 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-                }
-                temp_2_3 = (u8 *)((s32)&D_0064CC30 + (var_16 * 4));
-                spFC = (u8)(*( u8 *)((u8 *)(temp_2_3) + (0)));
-                spFD = (u8)(*( u8 *)((u8 *)(temp_2_3) + (1)));
-                spFE = (u8)(*( u8 *)((u8 *)(temp_2_3) + (2)));
-                spFF = (u8)(*( u8 *)((u8 *)(temp_2_3) + (3)));
-                spFF = var_6;
-                spE0 = (s32)spF0;
-                spE4 = (s32)spF4;
-                spE8 = 0x280;
-                spEC = 3;
+    if (menu->flags & 1) {
+        for (separatorIndex = 0; separatorIndex < 6; separatorIndex++) {
+                separatorAnimation = (u8 *)(work + (separatorIndex * 0x30));
+                position.x = originX + *(f32 *)(separatorAnimation + 0x6A0);
+                position.y = 64.0f * (f32)separatorIndex + (77.0f + (originY + *(f32 *)(separatorAnimation + 0x6A4)));
+                separatorAlpha = (u8)(*( u8 *)((u8 *)(separatorAnimation) + (0x6AA)));
+                separatorAlphaFloat = (f32)separatorAlpha;
+                separatorOpacityProduct = separatorAlphaFloat * globalOpacity;
+                separatorOpacity = (u8)separatorOpacityProduct;
+                color = ((MenuColor *)D_0064CC30)[separatorIndex];
+                color.a = separatorOpacity;
+                rectangle.integer[0] = (s32)position.x;
+                rectangle.integer[1] = (s32)position.y;
+                rectangle.integer[2] = 0x280;
+                rectangle.integer[3] = 3;
                 D_00887300[0](1, 0);
-                func_0045d6e0(&spFC, (u8 *)&spE0, 0.0f, (s64)0);
-                var_16 += 1;
-} while (var_16 < 6);
-        var_16_2 = 0;
-loop_22:
-        if (var_16_2 < 5) {
-            if ((var_16_2 + *( s16 *)((u8 *)(arg0) + (0x26))) < *( s16 *)((u8 *)(arg0) + (0x134))) {
-                func_003599c0(var_16_2, arg0);
+                func_0045d6e0((u8 *)&color, rectangle.transport, 0.0f, (s64)0);
+        }
+        for (visibleIndex = 0; visibleIndex < 5; visibleIndex++) {
+            if (menu->rowCount > (visibleIndex + menu->firstRow)) {
+                func_003599c0(visibleIndex, work);
             }
-            var_16_2 += 1;
-            goto loop_22;
         }
-        temp_f1_3 = 255.0f * temp_f26;
-        if (2.1474836e9f <= temp_f1_3) {
-            var_5 = 0x4F000000 & 0xFF;
-        } else {
-            var_5 = (((s32)((temp_f1_3 - 2.1474836e9f))) | 0x80000000) & 0xFF;
+        menuOpacityProduct = 255.0f * globalOpacity;
+
+
+        func_00355410(menu->resource1308, (u8)menuOpacityProduct);
+        func_00354ba0(menu->resource1308);
+        position.x = (f32) 0x25F + (originX + menu->scrollOffset.x);
+        position.y = (f32) 0x107 + (originY + menu->scrollOffset.y);
+        scrollAlpha = (u8)(menu->scrollOpacity);
+        scrollAlphaFloat = (f32)scrollAlpha;
+        scrollOpacityProduct = scrollAlphaFloat * globalOpacity;
+        scrollQuantized = (u8)scrollOpacityProduct;
+        scrollOpacity = scrollQuantized & 0xFF;
+        sprite = menu->resource11DC;
+        func_0034f2e0(sprite, position.x, position.y, 0xFAU, 0xA1U, 0U, scrollOpacity);
+        sprite = menu->resource11E0;
+        func_0034f2e0(sprite, position.x, 135.0f + position.y, 0xFAU, 0xA1U, 0U, scrollOpacity);
+        sprite = menu->resource11D0;
+        scrollThumbOffset = 6.0f;
+        scrollRange = (s32)(menu->rowCount - 5);
+        if (scrollRange > 0) {
+            scrollThumbOffset = (6.0f + (f32) ((s32) (menu->firstRow * 0x64) / scrollRange));
         }
-        func_00355410(*(u8 **)(arg0 + 0x1308), var_5);
-        func_00354ba0(*( s32 *)((u8 *)(arg0) + (0x1308)));
-        spF0 = (f32) 0x25F + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x820)));
-        spF4 = (f32) 0x107 + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x824)));
-        temp_2_4 = (u8)(*( u8 *)((u8 *)(arg0) + (0x82A)));
-        if ((s32) temp_2_4 >= 0) {
-            var_f0_2 = (f32) temp_2_4;
-        } else {
-            var_f0_2 = 2.0f * (f32) ((temp_2_4 >> 1) | (temp_2_4 & 1));
-        }
-        temp_f1_4 = var_f0_2 * temp_f26;
-        if (2.1474836e9f <= temp_f1_4) {
-            var_3_2 = 0x4F000000 & 0xFF;
-        } else {
-            var_3_2 = (((s32)((temp_f1_4 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-        }
-        temp_16 = var_3_2 & 0xFF;
-        func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x11DC)), spF0, spF4, 0xFAU, 0xA1U, 0U, temp_16);
-        func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x11E0)), spF0, 135.0f + spF4, 0xFAU, 0xA1U, 0U, temp_16);
-        var_f1_2 = 6.0f;
-        temp_5 = (s32)(*( s16 *)((u8 *)(arg0) + (0x134)) - 5);
-        if (temp_5 > 0) {
-            var_f1_2 = (6.0f + (f32) ((s32) (*( s16 *)((u8 *)(arg0) + (0x26)) * 0x64) / temp_5));
-        }
-        func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x11D0)), spF0, spF4 + var_f1_2, 0xFAU, 0xA1U, 0U, temp_16);
+        func_0034f2e0(sprite, position.x, position.y + scrollThumbOffset, 0xFAU, 0xA1U, 0U, scrollOpacity);
     }
-    if (*( s32 *)((u8 *)(arg0) + (0x1C)) & 4) {
-        temp_19 = (s32)(*( s32 *)((u8 *)(arg0) + (0x11D8)));
-        temp_16_2 = (s16)(*( s16 *)((u8 *)(arg0) + (0x22)));
-        spF0 = (f32) 0x20F + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x460)));
-        spF4 = ((temp_f24 + *( f32 *)((u8 *)(arg0) + (0x464))) - 3.0f);
-        temp_2_5 = (u8)(*( u8 *)((u8 *)(arg0) + (0x46A)));
-        if ((s32) temp_2_5 >= 0) {
-            var_f0_3 = (f32) temp_2_5;
-        } else {
-            var_f0_3 = 2.0f * (f32) ((temp_2_5 >> 1) | (temp_2_5 & 1));
-        }
-        temp_f1_5 = var_f0_3 * temp_f26;
-        if (2.1474836e9f <= temp_f1_5) {
-            var_3_3 = 0x4F000000 & 0xFF;
-        } else {
-            var_3_3 = (((s32)((temp_f1_5 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-        }
-        temp_2_6 = (u16)(*( u16 *)((u8 *)(arg0) + (0x470)));
-        if ((s32) temp_2_6 >= 0) {
-            var_f20 = (f32) temp_2_6;
-        } else {
-            var_f20 = 2.0f * (f32) ((temp_2_6 >> 1) | (temp_2_6 & 1));
-        }
-        temp_20 = (s64)(s16)(func_0046b260(temp_19) / 2.0f);
-        temp_3_2 = (s64)(s16)(func_0046b2f0(temp_19) / 2.0f);
-        if (2.1474836e9f <= var_f20) {
-            var_9 = 0x4F000000 & 0xFFFF;
-        } else {
-            var_9 = (((s32)((var_f20 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-        }
-        if (2.1474836e9f <= var_f20) {
-            var_10 = 0x4F000000 & 0xFFFF;
-        } else {
-            var_10 = (((s32)((var_f20 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-        }
-        func_0034f320((u8 *)temp_19, spF0, spF4, 0.0f, 0xFFU, 0xD1U, 0x34U, var_3_3 & 0xFF, var_9, var_10, temp_20, (f32) temp_16_2, temp_3_2);
-        spF0 = (f32) 0x221 + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x490)));
-        spF4 = ((temp_f24 + *( f32 *)((u8 *)(arg0) + (0x494))) - 6.0f);
-        temp_2_7 = (u8)(*( u8 *)((u8 *)(arg0) + (0x49A)));
-        if ((s32) temp_2_7 >= 0) {
-            var_f0_4 = (f32) temp_2_7;
-        } else {
-            var_f0_4 = 2.0f * (f32) ((temp_2_7 >> 1) | (temp_2_7 & 1));
-        }
-        temp_f1_6 = var_f0_4 * temp_f26;
-        if (2.1474836e9f <= temp_f1_6) {
-            var_3_4 = 0x4F000000 & 0xFF;
-        } else {
-            var_3_4 = (((s32)((temp_f1_6 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-        }
-        temp_2_8 = (u16)(*( u16 *)((u8 *)(arg0) + (0x4A0)));
-        if ((s32) temp_2_8 >= 0) {
-            var_f20_2 = (f32) temp_2_8;
-        } else {
-            var_f20_2 = 2.0f * (f32) ((temp_2_8 >> 1) | (temp_2_8 & 1));
-        }
-        temp_17 = (s64)(s16)(func_0046b260(temp_19) / 2.0f);
-        temp_3_3 = (s64)(s16)(func_0046b2f0(temp_19) / 2.0f);
-        if (2.1474836e9f <= var_f20_2) {
-            var_9_2 = 0x4F000000 & 0xFFFF;
-        } else {
-            var_9_2 = (((s32)((var_f20_2 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-        }
-        if (2.1474836e9f <= var_f20_2) {
-            var_10_2 = 0x4F000000 & 0xFFFF;
-        } else {
-            var_10_2 = (((s32)((var_f20_2 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-        }
-        func_0034f320((u8 *)temp_19, spF0, spF4, 0.0f, 0xFFU, 0xFFU, 0x81U, var_3_4 & 0xFF, var_9_2, var_10_2, temp_17, (f32) temp_16_2, temp_3_3);
+    if (menu->flags & 4) {
+        emblemTexture = (u8 *)(menu->resource11D8);
+        emblemAngle = (s16)(menu->angle);
+        position.x = (f32) 0x20F + (originX + menu->backEmblemOffset.x);
+        position.y = ((originY + menu->backEmblemOffset.y) - 3.0f);
+        backEmblemAlpha = (u8)(menu->backEmblemOpacity);
+        backEmblemAlphaFloat = (f32)backEmblemAlpha;
+        backEmblemOpacityProduct = backEmblemAlphaFloat * globalOpacity;
+        backEmblemOpacity = (u8)backEmblemOpacityProduct;
+        backScaleBits = (u16)(menu->backEmblemScaleX);
+        backEmblemScale = (f32)backScaleBits;
+        backPivotX = (s16)(func_0046b260(emblemTexture) / 2.0f);
+        backPivotY = (s16)(func_0046b2f0(emblemTexture) / 2.0f);
+        func_0034f320(emblemTexture, position.x, position.y, 0.0f, 0xFFU, 0xD1U, 0x34U, backEmblemOpacity, (u16)backEmblemScale, (u16)backEmblemScale, backPivotX, (f32) emblemAngle, backPivotY);
+        position.x = (f32) 0x221 + (originX + menu->frontEmblemOffset.x);
+        position.y = ((originY + menu->frontEmblemOffset.y) - 6.0f);
+        frontEmblemAlpha = (u8)(menu->frontEmblemOpacity);
+        frontEmblemAlphaFloat = (f32)frontEmblemAlpha;
+        frontEmblemOpacityProduct = frontEmblemAlphaFloat * globalOpacity;
+        frontEmblemOpacity = (u8)frontEmblemOpacityProduct;
+        frontScaleBits = (u16)(menu->frontEmblemScaleX);
+        frontEmblemScale = (f32)frontScaleBits;
+        frontPivotX = (s16)(func_0046b260(emblemTexture) / 2.0f);
+        frontPivotY = (s16)(func_0046b2f0(emblemTexture) / 2.0f);
+        func_0034f320(emblemTexture, position.x, position.y, 0.0f, 0xFFU, 0xFFU, 0x81U, frontEmblemOpacity, (u16)frontEmblemScale, (u16)frontEmblemScale, frontPivotX, (f32) emblemAngle, frontPivotY);
     }
-    if (*( s32 *)((u8 *)(arg0) + (0x1C)) & 0x10) {
-        spF0 = (f32) 0x175 + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x160)));
-        spF4 = ((25.0f + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x164)))) - 1.0f);
-        temp_2_9 = (u8)(*( u8 *)((u8 *)(arg0) + (0x16A)));
-        if ((s32) temp_2_9 >= 0) {
-            var_f0_5 = (f32) temp_2_9;
-        } else {
-            var_f0_5 = 2.0f * (f32) ((temp_2_9 >> 1) | (temp_2_9 & 1));
-        }
-        temp_f1_7 = var_f0_5 * temp_f26;
-        if (2.1474836e9f <= temp_f1_7) {
-            var_3_5 = 0x4F000000 & 0xFF;
-        } else {
-            var_3_5 = (((s32)((temp_f1_7 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-        }
-        func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x129C)), spF0, spF4, 0xFFU, 0xFFU, 0xFFU, var_3_5 & 0xFF);
+    if (menu->flags & 0x10) {
+        position.x = (f32) 0x175 + (originX + menu->markerOffset.x);
+        position.y = ((25.0f + (originY + menu->markerOffset.y)) - 1.0f);
+        markerAlpha = (u8)(menu->markerOpacity);
+        markerAlphaFloat = (f32)markerAlpha;
+        markerOpacityProduct = markerAlphaFloat * globalOpacity;
+        markerOpacity = (u8)markerOpacityProduct;
+        func_0034f2e0(menu->resource129C, position.x, position.y, 0xFFU, 0xFFU, 0xFFU, markerOpacity & 0xFF);
     }
-    if (*( s32 *)((u8 *)(arg0) + (0x1C)) & 2) {
-        temp_19_2 = (s32)(*( s16 *)((u8 *)(arg0) + (0x24)) + *( s16 *)((u8 *)(arg0) + (0x26)));
-        if ((temp_19_2 < 0) || (temp_19_2 >= 0x15)) {
+    if (menu->flags & 2) {
+        selectedIndex = (s32)(menu->selectedRow + menu->firstRow);
+        if ((selectedIndex < 0) || (selectedIndex >= 0x15)) {
             func_0046d730(&D_0064CC98, 0x2DD);
         }
-        temp_3_4 = (u8 *)((temp_19_2 * 0xC) + arg0);
-        spD0 = (signed __int128) *( u16 *)((u8 *)(temp_3_4) + (0x3C));
-        temp_30 = (s32)((*( u8 *)((u8 *)(temp_3_4) + (0x38)) - 1) & 0xFF);
-        temp_17_2 = (s32)(*( s32 *)((u8 *)(temp_3_4) + (0x40)));
-        temp_23 = (s32)(*( s32 *)((u8 *)(arg0) + (0x11D4)));
-        spF0 = ((2.0f + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x910)))) - 36.0f);
-        spF4 = (2.0f + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x914))));
-        temp_2_10 = (u8)(*( u8 *)((u8 *)(arg0) + (0x91A)));
-        if ((s32) temp_2_10 >= 0) {
-            var_f0_6 = (f32) temp_2_10;
-        } else {
-            var_f0_6 = 2.0f * (f32) ((temp_2_10 >> 1) | (temp_2_10 & 1));
-        }
-        temp_f1_8 = var_f0_6 * temp_f26;
-        if (2.1474836e9f <= temp_f1_8) {
-            var_3_6 = 0x4F000000 & 0xFF;
-        } else {
-            var_3_6 = (((s32)((temp_f1_8 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-        }
-        temp_16_3 = var_3_6 & 0xFF;
-        for (var_20 = 0; var_20 < 0x6C; var_20++) {
-            temp_4 = (u8 *)(arg0 + (var_20 * 0x14));
-            if (*( s16 *)((u8 *)(temp_4) + (0x960)) >= 0) {
-                temp_f20 = (spF0 + (f32) ((*( s32 *)((u8 *)(temp_4) + (0x96C)) - *( s32 *)((u8 *)(temp_4) + (0x964))) * 0x2C));
-                temp_f21 = (spF4 + (f32) ((*( s32 *)((u8 *)(temp_4) + (0x970)) - *( s32 *)((u8 *)(temp_4) + (0x968))) * 0x25));
-                temp_f0 = (func_0034f720(temp_4 + 0x960, 0x3F000000, 0x3F000000, 0x3F800000));
-                temp_2_11 = (u8 *)((s32)&D_0064CC48 + (*( s16 *)((u8 *)(temp_4) + (0x960)) * 4));
-                spFC = (u8)(*( u8 *)((u8 *)(temp_2_11) + (0)));
-                spFD = (u8)(*( u8 *)((u8 *)(temp_2_11) + (1)));
-                spFE = (u8)(*( u8 *)((u8 *)(temp_2_11) + (2)));
-                spFF = (u8)(*( u8 *)((u8 *)(temp_2_11) + (3)));
-                if (temp_16_3 >= 0) {
-                    var_f1_3 = (f32) temp_16_3;
-                } else {
-                    var_f1_3 = 2.0f * (f32) (((u32) temp_16_3 >> 1) | (temp_16_3 & 1));
-                }
-                temp_f1_9 = var_f1_3 * temp_f0;
-                if (2.1474836e9f <= temp_f1_9) {
-                    var_8 = 0x4F000000 & 0xFF;
-                } else {
-                    var_8 = (((s32)((temp_f1_9 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-                }
-                func_0034f2e0((void *)temp_23, temp_f20, temp_f21, (s32)spFC, (s32)spFD, (s32)spFE, (s32)var_8);
+        selectedEntry = (u8 *)add_offset_first((u32)selectedIndex * 12, (u32)work);
+        selectedCount = *( u16 *)((u8 *)(selectedEntry) + (0x3C));
+        categoryIndex = (s32)((*( u8 *)((u8 *)(selectedEntry) + (0x38)) - 1) & 0xFF);
+        selectedMode = (s32)(*( s32 *)((u8 *)(selectedEntry) + (0x40)));
+        tileTexture = (u8 *)(menu->resource11D4);
+        position.x = ((2.0f + (originX + menu->gridOffset.x)) - 36.0f);
+        position.y = (2.0f + (originY + menu->gridOffset.y));
+        gridAlpha = (u8)(menu->gridOpacity);
+        gridAlphaFloat = (f32)gridAlpha;
+        gridBaseOpacityProduct = gridAlphaFloat * globalOpacity;
+        gridQuantized = (u8)gridBaseOpacityProduct;
+        gridOpacity = gridQuantized & 0xFF;
+        for (cellIndex = 0; cellIndex < 0x6C; cellIndex++) {
+            cell = (u8 *)(work + (cellIndex * 0x14));
+            if (*( s16 *)((u8 *)(cell) + (0x960)) >= 0) {
+                cellX = (position.x + (f32) ((*( s32 *)((u8 *)(cell) + (0x96C)) - *( s32 *)((u8 *)(cell) + (0x964))) * 0x2C));
+                cellY = (position.y + (f32) ((*( s32 *)((u8 *)(cell) + (0x970)) - *( s32 *)((u8 *)(cell) + (0x968))) * 0x25));
+                cellBlend = (func_0034f720(cell + 0x960, 0.5f, 0.5f, 1.0f));
+                cellPaletteBytes = (u8 *)((s32)&D_0064CC48 + (*( s16 *)((u8 *)(cell) + (0x960)) * 4));
+                color = *(MenuColor *)cellPaletteBytes;
+                gridOpacityFloat = (f32)gridOpacity;
+                cellOpacityProduct = gridOpacityFloat * cellBlend;
+                func_0034f2e0(tileTexture, cellX, cellY, color.r, color.g, color.b, (u8)cellOpacityProduct);
             }
         }
-        temp_2_12 = (u8)(*( u8 *)((u8 *)(arg0) + (0x85A)));
-        if ((s32) temp_2_12 >= 0) {
-            var_f0_7 = (f32) temp_2_12;
-        } else {
-            var_f0_7 = 2.0f * (f32) ((temp_2_12 >> 1) | (temp_2_12 & 1));
-        }
-        temp_f1_10 = var_f0_7 * temp_f26;
-        if (2.1474836e9f <= temp_f1_10) {
-            var_3_7 = 0x4F000000 & 0xFF;
-        } else {
-            var_3_7 = (((s32)((temp_f1_10 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-        }
-        temp_16_4 = var_3_7 & 0xFF;
-        temp_f12 = (127.0f + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x850))));
-        spF0 = temp_f12;
-        temp_f13 = (17.0f + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x854))));
-        spF4 = temp_f13;
-        func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x1254)), temp_f12, temp_f13, 0xDDU, 0x74U, 0U, (s32)temp_16_4);
-        func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x1258)), (f32) 0x179 + spF0, temp_f13, 0xDDU, 0x74U, 0U, (s32)temp_16_4);
-        temp_f12_2 = (135.0f + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x850))));
-        spF0 = temp_f12_2;
-        temp_f13_2 = (21.0f + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x854))));
-        spF4 = temp_f13_2;
-        func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x1298)), temp_f12_2, temp_f13_2, (s32)D_0064B2E0, (s32)D_0064B2E1, (s32)D_0064B2E2, (s32)temp_16_4);
-        func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x1218)), 88.0f + spF0, temp_f13_2, (s32)D_0064B2E0, (s32)D_0064B2E1, (s32)D_0064B2E2, (s32)temp_16_4);
-        temp_f0_2 = (183.0f + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x850))));
-        spF0 = temp_f0_2;
-        spF4 = (22.0f + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x854))));
-        temp_20_2 = (s32)(*( s32 *)((u8 *)((((temp_30 & 0xFF) * 4) + arg0)) + (0x12A4)));
-        func_0034f2e0((void *)temp_20_2, temp_f0_2 - (func_0046b260(temp_20_2) / 2.0f), spF4, 0xDDU, 0x74U, 0U, (s32)temp_16_4);
-        spF0 = (245.0f + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x850))));
-        spF4 = (19.0f + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x854))));
-        temp_20_3 = temp_16_4 & 0xFF;
-        temp_2_13 = (u8 *)((temp_19_2 * 0xC) + arg0);
-        func_00275020(temp_20_3 | ~0x7EFF, 0, 1, func_00246830(*( u16 *)((u8 *)(temp_2_13) + (0x3A))), 0, -2, spF0, spF4, 0);
-        temp_19_3 = (s32)(func_00246910((s16) *( u16 *)((u8 *)(temp_2_13) + (0x3A))));
-        spF0 = (130.0f + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x850))));
-        spF4 = (46.0f + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x854))));
-        if (temp_17_2 == 2) {
-            var_18 = 0xA;
-        } else if (temp_17_2 == 3) {
-            var_18 = 0xB;
-        } else if ((temp_17_2 == 1) || (temp_17_2 == 0)) {
-            var_18 = (s32)(((func_00107ac0((s16) *( u16 *)((u8 *)(temp_2_13) + (0x3A))) & 0xFFFF) - 1) & 0xFFFF);
-        }
-        func_002bc0b0(temp_20_3 | ~0xFF, 1, 6, 7, *((u8 *)(temp_19_3 + ((var_18 & 0xFFFF) * 2))), spF0, spF4, 0);
-        temp_f22 = (15.0f + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x8E0))));
-        temp_f21_2 = (17.0f + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x8E4))));
-        temp_2_14 = (u8)(*( u8 *)((u8 *)(arg0) + (0x8EA)));
-        if ((s32) temp_2_14 >= 0) {
-            var_f0_8 = (f32) temp_2_14;
-        } else {
-            var_f0_8 = 2.0f * (f32) ((temp_2_14 >> 1) | (temp_2_14 & 1));
-        }
-        temp_f1_11 = var_f0_8 * temp_f26;
-        if (2.1474836e9f <= temp_f1_11) {
-            var_3_8 = 0x4F000000 & 0xFF;
-        } else {
-            var_3_8 = (((s32)((temp_f1_11 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-        }
-        temp_19_4 = var_3_8 & 0xFF;
-        temp_2_15 = (u16)(*( u16 *)((u8 *)(arg0) + (0x8F0)));
-        if ((s32) temp_2_15 >= 0) {
-            var_f20_3 = (f32) temp_2_15;
-        } else {
-            var_f20_3 = 2.0f * (f32) ((temp_2_15 >> 1) | (temp_2_15 & 1));
-        }
-        temp_2_16 = (u16)(*( u16 *)((u8 *)(arg0) + (0x8F6)));
-        if ((s32) temp_2_16 >= 0) {
-            var_f23 = (f32) temp_2_16;
-        } else {
-            var_f23 = 2.0f * (f32) ((temp_2_16 >> 1) | (temp_2_16 & 1));
-        }
-        spF0 = temp_f22;
-        spF4 = temp_f21_2;
-        if (2.1474836e9f <= var_f20_3) {
-            var_9_3 = 0x4F000000 & 0xFFFF;
-        } else {
-            var_9_3 = (((s32)((var_f20_3 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-        }
-        if (2.1474836e9f <= var_f23) {
-            var_10_3 = 0x4F000000 & 0xFFFF;
-        } else {
-            var_10_3 = (((s32)((var_f23 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-        }
-        func_0034f320((u8 *)*( s32 *)((u8 *)(arg0) + (0x1248)), spF0, spF4, 0.0f, 0xDDU, 0x74U, 0U, (s32)temp_19_4, var_9_3, var_10_3, (s64)0, 0.0f, (s64)0);
-        if (2.1474836e9f <= var_f20_3) {
-            var_9_4 = 0x4F000000 & 0xFFFF;
-        } else {
-            var_9_4 = (((s32)((var_f20_3 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-        }
-        if (2.1474836e9f <= var_f23) {
-            var_10_4 = 0x4F000000 & 0xFFFF;
-        } else {
-            var_10_4 = (((s32)((var_f23 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-        }
-        func_0034f320((u8 *)*( s32 *)((u8 *)(arg0) + (0x124C)), spF0, 153.0f + spF4, 0.0f, 0xDDU, 0x74U, 0U, (s32)temp_19_4, var_9_4, var_10_4, 0, 0.0f, (s64)0);
-        switch (temp_17_2) {                        /* switch 2; irregular */
-        case 2:                                     /* switch 2 */
-        case 3:                                     /* switch 2 */
-            spF0 = temp_f22 + ((4.0f * var_f20_3) / 4096.0f);
-            spF4 = temp_f21_2 + ((23.0f * var_f23) / 4096.0f);
-            if (2.1474836e9f <= var_f20_3) {
-                var_9_5 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_9_5 = (((s32)((var_f20_3 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            if (2.1474836e9f <= var_f23) {
-                var_10_5 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_10_5 = (((s32)((var_f23 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            func_0034f320((u8 *)*( s32 *)((u8 *)(arg0) + (0x1284)), spF0, spF4, 0.0f, 0x18U, 0U, 8U, (s32)temp_19_4, var_9_5, var_10_5, (s64)0, 0.0f, (s64)0);
-            if (2.1474836e9f <= var_f20_3) {
-                var_9_6 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_9_6 = (((s32)((var_f20_3 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            if (2.1474836e9f <= var_f23) {
-                var_10_6 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_10_6 = (((s32)((var_f23 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            func_0034f320((u8 *)*( s32 *)((u8 *)(arg0) + (0x1288)), spF0, 124.0f + spF4, 0.0f, 0x18U, 0U, 8U, (s32)temp_19_4, var_9_6, var_10_6, 0, 0.0f, (s64)0);
+        titleAlpha = (u8)(menu->titleOpacity);
+        titleAlphaFloat = (f32)titleAlpha;
+        titleOpacityProduct = titleAlphaFloat * globalOpacity;
+        titleQuantized = (u8)titleOpacityProduct;
+        titleOpacity = titleQuantized & 0xFF;
+        position.x = (127.0f + (originX + menu->titleOffset.x));
+        position.y = (17.0f + (originY + menu->titleOffset.y));
+        sprite = menu->resource1254;
+        func_0034f2e0(sprite, position.x, position.y, 0xDDU, 0x74U, 0U, titleOpacity);
+        sprite = menu->resource1258;
+        func_0034f2e0(sprite, (f32) 0x179 + position.x, position.y, 0xDDU, 0x74U, 0U, titleOpacity);
+        position.x = (135.0f + (originX + menu->titleOffset.x));
+        position.y = (21.0f + (originY + menu->titleOffset.y));
+        sprite = menu->resource1298;
+        func_0034f2e0(sprite, position.x, position.y, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], titleOpacity);
+        sprite = menu->resource1218;
+        func_0034f2e0(sprite, 88.0f + position.x, position.y, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], titleOpacity);
+        position.x = (183.0f + (originX + menu->titleOffset.x));
+        position.y = (22.0f + (originY + menu->titleOffset.y));
+        categoryTexture = *(u8 **)((u8 *)add_offset_first((u32)(categoryIndex & 0xFF) * 4, (u32)work) + 0x12A4);
+        func_0034f2e0(categoryTexture, position.x - (func_0046b260(categoryTexture) / 2.0f), position.y, 0xDDU, 0x74U, 0U, titleOpacity);
+        position.x = (245.0f + (originX + menu->titleOffset.x));
+        position.y = (19.0f + (originY + menu->titleOffset.y));
+        rankColor = titleOpacity & 0xFF;
+        nameColor = rankColor | ~0x7EFF;
+        nameId = (u16 *)((u8 *)add_offset_first((u32)(selectedIndex * 12), (u32)work) + 0x3A);
+        func_00275020(position.x, position.y, 0.0f, nameColor, 0, 1, (const char *)func_00246830(*nameId), 0, -2);
+        rankNames = func_00246910((s16)*nameId);
+        position.x = (130.0f + (originX + menu->titleOffset.x));
+        position.y = (46.0f + (originY + menu->titleOffset.y));
+        rankColor |= ~0xFF;
+        switch (selectedMode) {
+        case 0:
+        case 1:
+            rankIndex = (func_00107ac0(*nameId) - 1) & 0xFFFF;
             break;
-        case 1:                                     /* switch 2 */
-            spF0 = temp_f22 + ((4.0f * var_f20_3) / 4096.0f);
-            spF4 = temp_f21_2 + ((4.0f * var_f23) / 4096.0f);
-            if (2.1474836e9f <= var_f20_3) {
-                var_9_7 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_9_7 = (((s32)((var_f20_3 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            if (2.1474836e9f <= var_f23) {
-                var_10_7 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_10_7 = (((s32)((var_f23 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            func_0034f320((u8 *)*( s32 *)((u8 *)(arg0) + (0x1290)), spF0, spF4, 0.0f, (s32)(*( u8 *)((u8 *)(&D_0064B2EC) + (0))), (s32)(*( u8 *)((u8 *)(&D_0064B2EC) + (1))), (s32)(*( u8 *)((u8 *)(&D_0064B2EC) + (2))), (s32)temp_19_4, var_9_7, var_10_7, (s64)0, 0.0f, (s64)0);
-            if (2.1474836e9f <= var_f20_3) {
-                var_9_8 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_9_8 = (((s32)((var_f20_3 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            if (2.1474836e9f <= var_f23) {
-                var_10_8 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_10_8 = (((s32)((var_f23 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            func_0034f320((u8 *)*( s32 *)((u8 *)(arg0) + (0x1288)), spF0, 143.0f + spF4, 0.0f, (s32)(*( u8 *)((u8 *)(&D_0064B2EC) + (0))), (s32)(*( u8 *)((u8 *)(&D_0064B2EC) + (1))), (s32)(*( u8 *)((u8 *)(&D_0064B2EC) + (2))), (s32)temp_19_4, var_9_8, var_10_8, 0, 0.0f, (s64)0);
+        case 3:
+            rankIndex = 11;
+            break;
+        case 2:
+            rankIndex = 10;
             break;
         }
-        spF0 = temp_f22 + ((6.0f * var_f20_3) / 4096.0f);
-        spF4 = temp_f21_2 + ((25.0f * var_f23) / 4096.0f);
-        if (2.1474836e9f <= var_f20_3) {
-            var_9_9 = 0x4F000000 & 0xFFFF;
-        } else {
-            var_9_9 = (((s32)((var_f20_3 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-        }
-        if (2.1474836e9f <= var_f23) {
-            var_10_9 = 0x4F000000 & 0xFFFF;
-        } else {
-            var_10_9 = (((s32)((var_f23 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-        }
-        func_0034f320((u8 *)*( s32 *)((u8 *)(arg0) + (0x1250)), spF0, spF4, 0.0f, 0xFFU, 0xEBU, 0x3DU, (s32)temp_19_4, var_9_9, var_10_9, (s64)0, 0.0f, (s64)0);
-        if (temp_17_2 == 1) {
-            spF0 = temp_f22 + ((19.0f * var_f20_3) / 4096.0f);
-            spF4 = temp_f21_2 + ((6.0f * var_f23) / 4096.0f);
-            if (2.1474836e9f <= var_f20_3) {
-                var_9_10 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_9_10 = (((s32)((var_f20_3 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            if (2.1474836e9f <= var_f23) {
-                var_10_10 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_10_10 = (((s32)((var_f23 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            func_0034f320((u8 *)*( s32 *)((u8 *)(arg0) + (0x128C)), spF0, spF4, 0.0f, 0xDDU, 0x74U, 0U, (s32)temp_19_4, var_9_10, var_10_10, (s64)0, 0.0f, (s64)0);
-        } else {
-            spF0 = temp_f22 + ((15.0f * var_f20_3) / 4096.0f);
-            spF4 = temp_f21_2 + ((7.0f * var_f23) / 4096.0f);
-            if (2.1474836e9f <= var_f20_3) {
-                var_9_11 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_9_11 = (((s32)((var_f20_3 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            if (2.1474836e9f <= var_f23) {
-                var_10_11 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_10_11 = (((s32)((var_f23 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            func_0034f320((u8 *)*( s32 *)((u8 *)(arg0) + (0x11E8)), spF0, spF4, 0.0f, (s32)D_0064B2E0, (s32)D_0064B2E1, (s32)D_0064B2E2, (s32)temp_19_4, var_9_11, var_10_11, (s64)0, 0.0f, (s64)0);
-            spF0 = temp_f22 + ((79.0f * var_f20_3) / 4096.0f);
-            spF4 = temp_f21_2 + ((4.0f * var_f23) / 4096.0f);
-            if (2.1474836e9f <= var_f20_3) {
-                var_9_12 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_9_12 = (((s32)((var_f20_3 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            if (2.1474836e9f <= var_f23) {
-                var_10_12 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_10_12 = (((s32)((var_f23 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            func_0034f320((u8 *)*( s32 *)((u8 *)((arg0 + (u16)spD0 * 4)) + (0x11EC)), spF0, spF4, 0.0f, (s32)D_0064B2E0, (s32)D_0064B2E1, (s32)D_0064B2E2, (s32)temp_19_4, var_9_12, var_10_12, (s64)0, 0.0f, (s64)0);
-        }
-        temp_20_4 = (u8)(*( u8 *)((u8 *)(arg0) + (0x8BA)));
-        if ((s32) temp_20_4 > 0) {
-            if ((s32) temp_20_4 >= 0) {
-                var_f0_9 = (f32) temp_20_4;
-            } else {
-                var_f0_9 = 2.0f * (f32) ((temp_20_4 >> 1) | (temp_20_4 & 1));
-            }
-            temp_f1_12 = var_f0_9 * temp_f26;
-            if (2.1474836e9f <= temp_f1_12) {
-                var_5_2 = 0x4F000000 & 0xFF;
-            } else {
-                var_5_2 = (((s32)((temp_f1_12 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-            }
-            func_0035aff0(*( u8 **)((u8 *)(arg0) + (0x130C)), var_5_2);
-        }
-        switch (temp_17_2) {                        /* switch 3; irregular */
-        case 1:                                     /* switch 3 */
+        func_002bc0b0(position.x, position.y, 0.0f, rankColor, 1, 6, 7, *(s16 *)(rankNames + ((rankIndex & 0xFFFF) * 2)));
+        panelX = (15.0f + (originX + menu->panelOffset.x));
+        panelY = (17.0f + (originY + menu->panelOffset.y));
+        panelAlpha = (u8)(menu->panelOpacity);
+        panelAlphaFloat = (f32)panelAlpha;
+        panelOpacityProduct = panelAlphaFloat * globalOpacity;
+        panelQuantized = (u8)panelOpacityProduct;
+        panelOpacity = panelQuantized & 0xFF;
+        panelScaleXBits = (u16)(menu->panelScaleX);
+        panelScaleX = (f32)panelScaleXBits;
+        panelScaleYBits = (u16)(menu->panelScaleY);
+        panelScaleY = (f32)panelScaleYBits;
+        position.x = panelX;
+        position.y = panelY;
+        sprite = menu->resource1248;
+        func_0034f320(sprite, position.x, position.y, 0.0f, 0xDDU, 0x74U, 0U, panelOpacity, (u16)panelScaleX, (u16)panelScaleY, (s64)0, 0.0f, (s64)0);
+        sprite = menu->resource124C;
+        func_0034f320(sprite, position.x, 153.0f + position.y, 0.0f, 0xDDU, 0x74U, 0U, panelOpacity, (u16)panelScaleX, (u16)panelScaleY, 0, 0.0f, (s64)0);
+        switch (selectedMode) {
+        case 2:
+        case 3:
+            position.x = panelX + ((4.0f * panelScaleX) / 4096.0f);
+            position.y = panelY + ((23.0f * panelScaleY) / 4096.0f);
+            sprite = menu->resource1284;
+            func_0034f320(sprite, position.x, position.y, 0.0f, 0x18U, 0U, 8U, panelOpacity, (u16)panelScaleX, (u16)panelScaleY, (s64)0, 0.0f, (s64)0);
+            sprite = menu->resource1288;
+            func_0034f320(sprite, position.x, 124.0f + position.y, 0.0f, 0x18U, 0U, 8U, panelOpacity, (u16)panelScaleX, (u16)panelScaleY, 0, 0.0f, (s64)0);
             break;
-        case 2:                                     /* switch 3 */
-            temp_f12_3 = 69.0f + temp_f25;
-            spF0 = temp_f12_3;
-            temp_f13_3 = 133.0f + temp_f24;
-            spF4 = temp_f13_3;
-            func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x1278)), temp_f12_3, temp_f13_3, 0xFFU, 0xFFU, 0xFFU, (s32)temp_20_4);
-            spF0 = 21.5f + temp_f25;
-            spF4 = 42.0f + temp_f24;
-            temp_19_5 = (s32)(*( s32 *)((u8 *)(arg0) + (0x127C)));
-            temp_18 = (s64)(s16)(func_0046b260(temp_19_5) / 2.0f);
-            func_0034f320((u8 *)temp_19_5, spF0, spF4, 0.0f, 0x18U, 0U, 8U, (s32)temp_20_4, 0x1000, 0x1000, temp_18, *( f32 *)((u8 *)(arg0) + (0x30)), (s64)(s16)(func_0046b2f0(temp_19_5) / 2.0f));
-            break;
-        case 3:                                     /* switch 3 */
-            temp_f12_4 = 79.0f + temp_f25;
-            spF0 = temp_f12_4;
-            temp_f13_4 = 133.0f + temp_f24;
-            spF4 = temp_f13_4;
-            func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x1270)), temp_f12_4, temp_f13_4, 0xFFU, 0xFFU, 0xFFU, (s32)temp_20_4);
-            spF0 = 21.5f + temp_f25;
-            spF4 = 42.0f + temp_f24;
-            temp_f4 = 4096.0f * (1.0f + *(f32 *)(arg0 + 0x34));
-            spF0 = (21.5f + temp_f25) - (100.0f * *(f32 *)(arg0 + 0x34));
-            if (2.1474836e9f <= temp_f4) {
-                var_9_13 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_9_13 = (((s32)((temp_f4 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            if (2.1474836e9f <= temp_f4) {
-                var_10_13 = 0x4F000000 & 0xFFFF;
-            } else {
-                var_10_13 = (((s32)((temp_f4 - 2.1474836e9f))) | 0x80000000) & 0xFFFF;
-            }
-            func_0034f320((u8 *)*( s32 *)((u8 *)(arg0) + (0x1274)), spF0, spF4, 0.0f, 0x18U, 0U, 8U, (s32)temp_20_4, var_9_13, var_10_13, (s64)0, 0.0f, (s64)0);
+        case 1:
+            position.x = panelX + ((4.0f * panelScaleX) / 4096.0f);
+            position.y = panelY + ((4.0f * panelScaleY) / 4096.0f);
+            palette = (MenuColor *)D_0064B2EC;
+            sprite = menu->resource1290;
+            func_0034f320(sprite, position.x, position.y, 0.0f, palette->r, palette->g, palette->b, panelOpacity, (u16)panelScaleX, (u16)panelScaleY, (s64)0, 0.0f, (s64)0);
+            sprite = menu->resource1288;
+            func_0034f320(sprite, position.x, 143.0f + position.y, 0.0f, palette->r, palette->g, palette->b, panelOpacity, (u16)panelScaleX, (u16)panelScaleY, 0, 0.0f, (s64)0);
             break;
         }
-        var_20_2 = 0;
-loop_222:
-        if (var_20_2 < *( s32 *)((u8 *)(arg0) + (0x148))) {
-            if (var_20_2 == *( s16 *)((u8 *)(arg0) + (0x28))) {
-                var_18_2 = (u8 *)(&D_0064B2E8);
-                var_22 = 8;
-            } else {
-                var_18_2 = (u8 *)(&D_0064B2E0);
-                var_22 = 6;
-            }
-            temp_3_5 = (u8 *)(arg0 + (var_20_2 * 0x30));
-            spF0 = 15.0f + (temp_f25 + *(f32 *)(temp_3_5 + 0x2B0));
-            spF4 = 28.0f * (f32)var_20_2 + (178.0f + (temp_f24 + *(f32 *)(temp_3_5 + 0x2B4)));
-            temp_2_17 = (u8)(*( u8 *)((u8 *)(temp_3_5) + (0x2BA)));
-            if ((s32) temp_2_17 >= 0) {
-                var_f0_10 = (f32) temp_2_17;
-            } else {
-                var_f0_10 = 2.0f * (f32) ((temp_2_17 >> 1) | (temp_2_17 & 1));
-            }
-            temp_f1_13 = var_f0_10 * temp_f26;
-            if (2.1474836e9f <= temp_f1_13) {
-                var_3_9 = 0x4F000000 & 0xFF;
-            } else {
-                var_3_9 = (((s32)((temp_f1_13 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-            }
-            temp_19_6 = var_3_9 & 0xFF;
-            func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x125C)), spF0, spF4, *( u8 *)((u8 *)(var_18_2) + (0)), *( u8 *)((u8 *)(var_18_2) + (1)), *( u8 *)((u8 *)(var_18_2) + (2)), temp_19_6);
-            func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x1260)), 172.0f + spF0, spF4, *( u8 *)((u8 *)(var_18_2) + (0)), *( u8 *)((u8 *)(var_18_2) + (1)), *( u8 *)((u8 *)(var_18_2) + (2)), temp_19_6);
-            func_00275330(temp_19_6 | ~0xFF, var_22, 2, func_0010d620(*( s16 *)((u8 *)((arg0 + (var_20_2 * 2))) + (0x136))), 8, 0x18, -1, 91.0f + spF0, spF4, 0);
-            var_20_2 += 1;
-            goto loop_222;
+        position.x = panelX + ((6.0f * panelScaleX) / 4096.0f);
+        position.y = panelY + ((25.0f * panelScaleY) / 4096.0f);
+        sprite = menu->resource1250;
+        func_0034f320(sprite, position.x, position.y, 0.0f, 0xFFU, 0xEBU, 0x3DU, panelOpacity, (u16)panelScaleX, (u16)panelScaleY, (s64)0, 0.0f, (s64)0);
+        if (selectedMode == 1) {
+            position.x = panelX + ((19.0f * panelScaleX) / 4096.0f);
+            position.y = panelY + ((6.0f * panelScaleY) / 4096.0f);
+            sprite = menu->resource128C;
+            func_0034f320(sprite, position.x, position.y, 0.0f, 0xDDU, 0x74U, 0U, panelOpacity, (u16)panelScaleX, (u16)panelScaleY, (s64)0, 0.0f, (s64)0);
+        } else {
+            position.x = panelX + ((15.0f * panelScaleX) / 4096.0f);
+            position.y = panelY + ((7.0f * panelScaleY) / 4096.0f);
+            sprite = menu->resource11E8;
+            func_0034f320(sprite, position.x, position.y, 0.0f, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], panelOpacity, (u16)panelScaleX, (u16)panelScaleY, (s64)0, 0.0f, (s64)0);
+            position.x = panelX + ((79.0f * panelScaleX) / 4096.0f);
+            position.y = panelY + ((4.0f * panelScaleY) / 4096.0f);
+            sprite = *(u8 **)((u8 *)add_offset_first((u32)(u16)selectedCount * 4, (u32)work) + 0x11EC);
+        func_0034f320(sprite, position.x, position.y, 0.0f, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], panelOpacity, (u16)panelScaleX, (u16)panelScaleY, (s64)0, 0.0f, (s64)0);
         }
-        temp_18_2 = (u8)(*( u8 *)((u8 *)(arg0) + (0x94A)));
-        if ((s32) temp_18_2 > 0) {
-            if ((s32) temp_18_2 >= 0) {
-                var_f0_11 = (f32) temp_18_2;
+        portraitOpacity = (u8)(menu->portraitOpacity);
+        if (portraitOpacity > 0) {
+            portraitAlphaFloat = (f32)portraitOpacity;
+            portraitOpacityProduct = portraitAlphaFloat * globalOpacity;
+
+
+            func_0035aff0(menu->resource130C, (u8)portraitOpacityProduct);
+        }
+        switch (selectedMode) {
+        case 1:
+            break;
+        case 2:
+            lockedHeaderX = 69.0f + originX;
+            position.x = lockedHeaderX;
+            lockedHeaderY = 133.0f + originY;
+            position.y = lockedHeaderY;
+            sprite = menu->resource1278;
+            func_0034f2e0(sprite, lockedHeaderX, lockedHeaderY, 0xFFU, 0xFFU, 0xFFU, portraitOpacity);
+            position.x = 21.5f + originX;
+            position.y = 42.0f + originY;
+            portraitTexture = (u8 *)(menu->resource127C);
+            portraitPivotX = (s16)(func_0046b260(portraitTexture) / 2.0f);
+            func_0034f320(portraitTexture, position.x, position.y, 0.0f, 0x18U, 0U, 8U, portraitOpacity, 0x1000, 0x1000, portraitPivotX, menu->rotation, (s16)(func_0046b2f0(portraitTexture) / 2.0f));
+            break;
+        case 3:
+            specialHeaderX = 79.0f + originX;
+            position.x = specialHeaderX;
+            specialHeaderY = 133.0f + originY;
+            position.y = specialHeaderY;
+            sprite = menu->resource1270;
+            func_0034f2e0(sprite, specialHeaderX, specialHeaderY, 0xFFU, 0xFFU, 0xFFU, portraitOpacity);
+            position.x = 21.5f + originX;
+            position.y = 42.0f + originY;
+            sprite = menu->resource1274;
+            zoomRatio = 1.0f + menu->zoom;
+            portraitScale = 4096.0f * zoomRatio;
+            position.x = (21.5f + originX) - (100.0f * menu->zoom);
+            func_0034f320(sprite, position.x, position.y, 0.0f, 0x18U, 0U, 8U, portraitOpacity, (u16)portraitScale, (u16)portraitScale, (s64)0, 0.0f, (s64)0);
+            break;
+        }
+        for (detailIndex = 0; detailIndex < menu->detailCount; detailIndex++) {
+            if (detailIndex == menu->selectedDetail) {
+                palette = (MenuColor *)D_0064B2E8;
+                rowFontMode = 8;
             } else {
-                var_f0_11 = 2.0f * (f32) ((temp_18_2 >> 1) | (temp_18_2 & 1));
+                palette = (MenuColor *)D_0064B2E0;
+                rowFontMode = 6;
             }
-            temp_f1_14 = var_f0_11 * temp_f26;
-            if (2.1474836e9f <= temp_f1_14) {
-                var_5_3 = 0x4F000000 & 0xFF;
-            } else {
-                var_5_3 = (((s32)((temp_f1_14 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-            }
-            func_0035c040(*( u8 **)((u8 *)(arg0) + (0x1310)), var_5_3);
-            switch (temp_17_2) {                    /* switch 4; irregular */
-            case 0:                                 /* switch 4 */
-            case 1:                                 /* switch 4 */
+            rowAnimation = (u8 *)(work + (detailIndex * 0x30));
+            position.x = 15.0f + (originX + *(f32 *)(rowAnimation + 0x2B0));
+            position.y = 28.0f * (f32)detailIndex + (178.0f + (originY + *(f32 *)(rowAnimation + 0x2B4)));
+            rowAlpha = (u8)(*( u8 *)((u8 *)(rowAnimation) + (0x2BA)));
+            rowAlphaFloat = (f32)rowAlpha;
+            rowOpacityProduct = rowAlphaFloat * globalOpacity;
+            rowQuantized = (u8)rowOpacityProduct;
+            rowOpacity = rowQuantized & 0xFF;
+            rowColor = rowOpacity | ~0xFF;
+            sprite = menu->resource125C;
+            func_0034f2e0(sprite, position.x, position.y, palette->r, palette->g, palette->b, rowOpacity);
+            sprite = menu->resource1260;
+            func_0034f2e0(sprite, 172.0f + position.x, position.y, palette->r, palette->g, palette->b, rowOpacity);
+            func_00275330(91.0f + position.x, position.y, 0.0f, rowColor, rowFontMode, 2, (const char *)func_0010d620(*(s16 *)(work + detailIndex * 2 + 0x136)), 8, 0x18, -1);
+        }
+        detailOpacity = (u8)(menu->detailOpacity);
+        if (detailOpacity > 0) {
+            detailAlphaFloat = (f32)detailOpacity;
+            detailOpacityProduct = detailAlphaFloat * globalOpacity;
+
+
+            func_0035c040(menu->resource1310, (u8)detailOpacityProduct);
+            switch (selectedMode) {
+            case 0:
+            case 1:
                 break;
-            case 2:                                 /* switch 4 */
-                func_0035c670(*( u8 **)((u8 *)(arg0) + (0x1310)), &spF0);
-                temp_f12_5 = spF0 + 162.0f;
-                spF0 = temp_f12_5;
-                temp_f13_5 = spF4 + 7.0f;
-                spF4 = temp_f13_5;
-                func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x1280)), temp_f12_5, temp_f13_5, 0xFFU, 0xFFU, 0xFFU, temp_18_2);
+            case 2:
+                func_0035c670(menu->resource1310, &position);
+                position.x += 162.0f;
+                position.y += 7.0f;
+                sprite = menu->resource1280;
+                func_0034f2e0(sprite, position.x, position.y, 0xFFU, 0xFFU, 0xFFU, detailOpacity);
                 break;
-            case 3:                                 /* switch 4 */
-                func_0035c670(*( u8 **)((u8 *)(arg0) + (0x1310)), &spF0);
-                temp_f12_6 = spF0 + 162.0f;
-                spF0 = temp_f12_6;
-                temp_f13_6 = spF4 + 7.0f;
-                spF4 = temp_f13_6;
-                func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x1294)), temp_f12_6, temp_f13_6, 0xFFU, 0xFFU, 0xFFU, temp_18_2);
+            case 3:
+                func_0035c670(menu->resource1310, &position);
+                position.x += 162.0f;
+                position.y += 7.0f;
+                sprite = menu->resource1294;
+                func_0034f2e0(sprite, position.x, position.y, 0xFFU, 0xFFU, 0xFFU, detailOpacity);
                 break;
-            default:                                /* switch 4 */
+            default:
                 func_0046d730(&D_0064CC98, 0x455);
                 break;
             }
         }
-        temp_2_18 = (u8)(*( u8 *)((u8 *)(arg0) + (0x88A)));
-        if ((s32) temp_2_18 >= 0) {
-            var_f0_12 = (f32) temp_2_18;
-        } else {
-            var_f0_12 = 2.0f * (f32) ((temp_2_18 >> 1) | (temp_2_18 & 1));
-        }
-        temp_f1_15 = var_f0_12 * temp_f26;
-        if (2.1474836e9f <= temp_f1_15) {
-            var_3_10 = 0x4F000000 & 0xFF;
-        } else {
-            var_3_10 = (((s32)((temp_f1_15 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-        }
-        temp_17_3 = var_3_10 & 0xFF;
-        temp_f12_7 = (227.0f + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x880))));
-        spF0 = temp_f12_7;
-        temp_f13_7 = (f32) 0x13D + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x884)));
-        spF4 = temp_f13_7;
-        func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x126C)), temp_f12_7, temp_f13_7, (s32)D_0064B2E0, (s32)D_0064B2E1, (s32)D_0064B2E2, (s32)temp_17_3);
-        temp_f12_8 = (234.0f + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x880))));
-        spF0 = temp_f12_8;
-        temp_f13_8 = (320.0f + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x884))));
-        spF4 = temp_f13_8;
-        func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x1264)), temp_f12_8, temp_f13_8, (s32)(*( u8 *)((u8 *)(&D_0064B2E8) + (0))), (s32)(*( u8 *)((u8 *)(&D_0064B2E8) + (1))), (s32)(*( u8 *)((u8 *)(&D_0064B2E8) + (2))), (s32)temp_17_3);
-        func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x1268)), (f32) 0x173 + spF0, temp_f13_8, (s32)(*( u8 *)((u8 *)(&D_0064B2E8) + (0))), (s32)(*( u8 *)((u8 *)(&D_0064B2E8) + (1))), (s32)(*( u8 *)((u8 *)(&D_0064B2E8) + (2))), (s32)temp_17_3);
-        if (*( s32 *)((u8 *)(arg0) + (0x148)) > 0) {
-            temp_18_3 = *(u16 *)((u8 *)(((*(s16 *)((u8 *)(arg0) + (0x28)) * 2) + arg0)) + (0x136));
-            temp_17_4 = (s32)(func_00107ac0((s16) *( u16 *)((u8 *)(temp_2_13) + (0x3A))) & 0xFFFF);
-            temp_2_19 = func_00246940((s64) ((s64) temp_18_3 << 0x30) >> 0x30);
-            spF0 = (244.0f + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x880))));
-            spF4 = (320.0f + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x884))));
-            temp_3_6 = (u8)(*( u8 *)((u8 *)(arg0) + (0x88A)));
-            if ((s32) temp_3_6 >= 0) {
-                var_f0_13 = (f32) temp_3_6;
-            } else {
-                var_f0_13 = 2.0f * (f32) ((temp_3_6 >> 1) | (temp_3_6 & 1));
-            }
-            temp_f1_16 = var_f0_13 * temp_f26;
-            if (2.1474836e9f <= temp_f1_16) {
-                var_4 = 0x4F000000 & 0xFF;
-            } else {
-                var_4 = (((s32)((temp_f1_16 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-            }
-            temp_16_5 = var_4 & 0xFF;
-            temp_17_5 = *( s16 *)((u8 *)((((temp_17_4 & 0xFFFF) * 2) + temp_2_19)) + (-2));
-            func_002bc0b0(temp_16_5 | ~0x7EFF, 1, 8, 7, temp_17_5 - 1, spF0, spF4, 0);
-            func_002bc0b0(temp_16_5 | ~0xFF, 1, 6, 7, temp_17_5, spF0, 28.0f + spF4, 0);
+        footerAlpha = (u8)(menu->detailFooterOpacity);
+        footerAlphaFloat = (f32)footerAlpha;
+        footerOpacityProduct = footerAlphaFloat * globalOpacity;
+        footerQuantized = (u8)footerOpacityProduct;
+        footerOpacity = footerQuantized & 0xFF;
+        position.x = (227.0f + (originX + menu->detailFooterOffset.x));
+        position.y = (f32) 0x13D + (originY + menu->detailFooterOffset.y);
+        sprite = menu->resource126C;
+        func_0034f2e0(sprite, position.x, position.y, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], footerOpacity);
+        position.x = (234.0f + (originX + menu->detailFooterOffset.x));
+        position.y = (320.0f + (originY + menu->detailFooterOffset.y));
+        palette = (MenuColor *)D_0064B2E8;
+        sprite = menu->resource1264;
+        func_0034f2e0(sprite, position.x, position.y, palette->r, palette->g, palette->b, footerOpacity);
+        sprite = menu->resource1268;
+        func_0034f2e0(sprite, (f32) 0x173 + position.x, position.y, palette->r, palette->g, palette->b, footerOpacity);
+        if (menu->detailCount > 0) {
+            detailId = *(u16 *)((u8 *)add_offset_first((u32)(menu->selectedDetail * 2), (u32)work) + 0x136);
+            currentRank = (s32)(func_00107ac0(*nameId) & 0xFFFF);
+            detailValues = func_00246940((s16)detailId);
+            position.x = (244.0f + (originX + menu->detailFooterOffset.x));
+            position.y = (320.0f + (originY + menu->detailFooterOffset.y));
+            numberAlpha = (u8)(menu->detailFooterOpacity);
+            numberAlphaFloat = (f32)numberAlpha;
+            numberOpacityProduct = numberAlphaFloat * globalOpacity;
+            numberQuantized = (u8)numberOpacityProduct;
+            numberOpacity = numberQuantized & 0xFF;
+            numberColor = numberOpacity | ~0x7EFF;
+            detailValue = *(s16 *)((u8 *)add_offset_first((u32)(currentRank & 0xFFFF) * 2, (u32)detailValues) - 2);
+            func_002bc0b0(position.x, position.y, 0.0f, numberColor, 1, 8, 7, detailValue - 1);
+            numberColor = numberOpacity | ~0xFF;
+            func_002bc0b0(position.x, 28.0f + position.y, 0.0f, numberColor, 1, 6, 7, detailValue);
         }
     }
-    if (*( s32 *)((u8 *)(arg0) + (0x1C)) & 0x20) {
-        spF0 = (18.0f + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x7C0))));
-        spF4 = (f32) 0x197 + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x7C4)));
-        temp_2_20 = (u8)(*( u8 *)((u8 *)(arg0) + (0x7CA)));
-        if ((s32) temp_2_20 >= 0) {
-            var_f0_14 = (f32) temp_2_20;
-        } else {
-            var_f0_14 = 2.0f * (f32) ((temp_2_20 >> 1) | (temp_2_20 & 1));
-        }
-        temp_f1_17 = var_f0_14 * temp_f26;
-        if (2.1474836e9f <= temp_f1_17) {
-            var_3_11 = 0x4F000000 & 0xFF;
-        } else {
-            var_3_11 = (((s32)((temp_f1_17 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-        }
-        func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x11E4)), spF0, spF4, 0xFFU, 0xFFU, 0xFFU, var_3_11 & 0xFF);
+    if (menu->flags & 0x20) {
+        position.x = (18.0f + (originX + menu->leftHintOffset.x));
+        position.y = (f32) 0x197 + (originY + menu->leftHintOffset.y);
+        leftHintAlpha = (u8)(menu->leftHintOpacity);
+        leftHintAlphaFloat = (f32)leftHintAlpha;
+        leftHintOpacityProduct = leftHintAlphaFloat * globalOpacity;
+        leftHintOpacity = (u8)leftHintOpacityProduct;
+        func_0034f2e0(menu->resource11E4, position.x, position.y, 0xFFU, 0xFFU, 0xFFU, leftHintOpacity & 0xFF);
     }
-    if (*( s32 *)((u8 *)(arg0) + (0x1C)) & 0x40) {
-        spF0 = (18.0f + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x7F0))));
-        spF4 = (f32) 0x197 + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x7F4)));
-        temp_2_21 = (u8)(*( u8 *)((u8 *)(arg0) + (0x7FA)));
-        if ((s32) temp_2_21 >= 0) {
-            var_f0_15 = (f32) temp_2_21;
-        } else {
-            var_f0_15 = 2.0f * (f32) ((temp_2_21 >> 1) | (temp_2_21 & 1));
-        }
-        temp_f1_18 = var_f0_15 * temp_f26;
-        if (2.1474836e9f <= temp_f1_18) {
-            var_3_12 = 0x4F000000 & 0xFF;
-        } else {
-            var_3_12 = (((s32)((temp_f1_18 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-        }
-        func_0034f2e0((void *)*( s32 *)((u8 *)(arg0) + (0x12A0)), spF0, spF4, 0xFFU, 0xFFU, 0xFFU, var_3_12 & 0xFF);
+    if (menu->flags & 0x40) {
+        position.x = (18.0f + (originX + menu->rightHintOffset.x));
+        position.y = (f32) 0x197 + (originY + menu->rightHintOffset.y);
+        rightHintAlpha = (u8)(menu->rightHintOpacity);
+        rightHintAlphaFloat = (f32)rightHintAlpha;
+        rightHintOpacityProduct = rightHintAlphaFloat * globalOpacity;
+        rightHintOpacity = (u8)rightHintOpacityProduct;
+        func_0034f2e0(menu->resource12A0, position.x, position.y, 0xFFU, 0xFFU, 0xFFU, rightHintOpacity & 0xFF);
     }
-    spF0 = (640.0f + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x430))));
-    spF4 = (400.0f + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x434))));
-    temp_2_22 = (u8)(*( u8 *)((u8 *)(arg0) + (0x43A)));
-    if ((s32) temp_2_22 >= 0) {
-        var_f0_16 = (f32) temp_2_22;
-    } else {
-        var_f0_16 = 2.0f * (f32) ((temp_2_22 >> 1) | (temp_2_22 & 1));
-    }
-    temp_f1_19 = var_f0_16 * temp_f26;
-    if (2.1474836e9f <= temp_f1_19) {
-        var_3_13 = 0x4F000000 & 0xFF;
-    } else {
-        var_3_13 = (((s32)((temp_f1_19 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-    }
-    labelPosition.x = spF0;
-    labelPosition.y = spF4;
-    func_0034f9d0(labelPosition, 0.0f, (u8)(var_3_13 & 0xFF), *( s16 *)((u8 *)(arg0) + (0x14C)), *( s32 *)((u8 *)(arg0) + (0x1304)));
+    position.x = (640.0f + (originX + menu->footerOffset.x));
+    position.y = (400.0f + (originY + menu->footerOffset.y));
+    cursorAlpha = (u8)(menu->footerOpacity);
+    cursorAlphaFloat = (f32)cursorAlpha;
+    cursorOpacityProduct = cursorAlphaFloat * globalOpacity;
+    cursorOpacity = (u8)cursorOpacityProduct;
+    func_0034f9d0(position, 0.0f, (u8)(cursorOpacity & 0xFF), menu->footerId, menu->resource1304);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356a10);
-#endif
+
+#pragma pop
+
 // FUN_00359340
 void func_00359340(u8 *arg0) {
     s32 i;
@@ -3117,7 +2891,7 @@ s32 func_0035afa0(u8 *arg0) {
    them all. */
 // FUN_0035AFF0 NONMATCHING
 #ifdef NON_MATCHING
-f32 func_0035aff0(u8 *arg0, s32 arg1)
+f32 func_0035aff0(u8 *arg0, u8 arg1)
 {
     extern u8 *func_00457120(void);
     extern f32 D_008872F8[];
@@ -3214,7 +2988,7 @@ f32 func_0035aff0(u8 *arg0, s32 arg1)
     qs[0].r = 0x437F0000;
     qs[0].g = 0x437F0000;
     qs[0].b = 0x437F0000;
-    qs[0].a = (f32)(u32)arg1;
+    qs[0].a = (f32)arg1;
     qs[0].u = u0;
     qs[0].v = v0;
     qs[0].q = q;
@@ -3224,7 +2998,7 @@ f32 func_0035aff0(u8 *arg0, s32 arg1)
     qs[1].r = 0x437F0000;
     qs[1].g = 0x437F0000;
     qs[1].b = 0x437F0000;
-    qs[1].a = (f32)(u32)arg1;
+    qs[1].a = (f32)arg1;
     qs[1].u = u0 + u1;
     qs[1].v = v0;
     qs[1].q = q;
@@ -3234,7 +3008,7 @@ f32 func_0035aff0(u8 *arg0, s32 arg1)
     qs[2].r = 0x437F0000;
     qs[2].g = 0x437F0000;
     qs[2].b = 0x437F0000;
-    qs[2].a = (f32)(u32)arg1;
+    qs[2].a = (f32)arg1;
     qs[2].u = u0;
     qs[2].v = v0 + v1;
     qs[2].q = q;
@@ -3244,7 +3018,7 @@ f32 func_0035aff0(u8 *arg0, s32 arg1)
     qs[3].r = 0x437F0000;
     qs[3].g = 0x437F0000;
     qs[3].b = 0x437F0000;
-    qs[3].a = (f32)(u32)arg1;
+    qs[3].a = (f32)arg1;
     qs[3].u = u0 + u1;
     qs[3].v = v0 + v1;
     qs[3].q = q;
@@ -3520,7 +3294,7 @@ u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
       pure argument-list evidence.  Same registers either way: the EABI keeps
       integer and float arguments in separate files. */
 // FUN_0035C040
-f32 func_0035c040(u8 *arg0, s32 arg1)
+f32 func_0035c040(u8 *arg0, u8 arg1)
 {
     f32 tx;
     f32 ty;
@@ -3585,7 +3359,7 @@ f32 func_0035c040(u8 *arg0, s32 arg1)
     qs[0].r = 0x437F0000;
     qs[0].g = 0x437F0000;
     qs[0].b = 0x437F0000;
-    qs[0].a = (f32)(u32)arg1;
+    qs[0].a = (f32)arg1;
     qs[0].u = 0;
     qs[0].v = 0;
     qs[0].q = q;
@@ -3597,7 +3371,7 @@ f32 func_0035c040(u8 *arg0, s32 arg1)
     qs[1].r = 0x437F0000;
     qs[1].g = 0x437F0000;
     qs[1].b = 0x437F0000;
-    qs[1].a = (f32)(u32)arg1;
+    qs[1].a = (f32)arg1;
     qs[1].u = 0x3F800000;
     qs[1].v = 0;
     qs[1].q = q;
@@ -3609,7 +3383,7 @@ f32 func_0035c040(u8 *arg0, s32 arg1)
     qs[2].r = 0x437F0000;
     qs[2].g = 0x437F0000;
     qs[2].b = 0x437F0000;
-    qs[2].a = (f32)(u32)arg1;
+    qs[2].a = (f32)arg1;
     qs[2].u = 0;
     qs[2].v = 0x3F800000;
     qs[2].q = q;
@@ -3623,7 +3397,7 @@ f32 func_0035c040(u8 *arg0, s32 arg1)
     qs[3].r = 0x437F0000;
     qs[3].g = 0x437F0000;
     qs[3].b = 0x437F0000;
-    qs[3].a = (f32)(u32)arg1;
+    qs[3].a = (f32)arg1;
     qs[3].u = 0x3F800000;
     qs[3].v = 0x3F800000;
     qs[3].q = q;
@@ -3731,9 +3505,9 @@ done:
 }
 #pragma pop
 // FUN_0035C670
-void func_0035c670(u8 *arg0, f32 *arg1)
+void func_0035c670(u8 *arg0, Vec2f *position)
 {
-    *(Float2 *)arg1 = *(Float2 *)(*(u8 **)(arg0 + 0x38));
+    *position = *(Vec2f *)(*(u8 **)(arg0 + 0x38));
 }
 
 // FUN_0035E820
