@@ -12465,3 +12465,10 @@ Each native folder retains the complete object, compile receipt and
 `full-owner-proof.json`. This checkpoint adds one exact first-party function
 to the prior published 6736/6861 baseline; the full first-party goal remains
 open. These are native compiler/object proofs, not PS2 gameplay execution.
+
+The selector's shared declaration in `fcl_combine_internal.h` must also
+retain `s16 delay`, matching the definition. The first publication omitted
+this one-line header migration: clean-build CI `36650437361` correctly
+rejected the stale committed `s32` prototype, although local owner gates
+used the updated header. Publish the shared header with the coherent
+checkpoint; local source equivalence does not prove publication completeness.
