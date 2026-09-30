@@ -3943,3 +3943,28 @@ The matched shuffle neighbor `00376070` supplies real pointer-arithmetic
 forms, but those tests leave `00375f00` at two words (one variant is three).
 All 51 temporary hypothesis C files have been removed. These nonzero results
 are neither new matches nor compiler-floor proofs.
+
+## Fcl selector promotion and coherent packet checkpoint
+
+`0031e5b0` is newly exact C, 5232 / 5232 bytes with 148 resolved relocations.
+Its documented selector domain is 0..3, supplied by all 30 direct retail
+callers; unsupported selectors do not get a fabricated resource default.
+The canonical packet declarations are migrated coherently across
+`y_fclCombineDraw.c`, `y_fclCombine.c`, `code1_002b.c`, and `y_draw.c`.
+Row/value widths, signed-byte modes and interleaved integer/float argument
+order follow the actual providers and retail callsites.
+
+Parent production verification reports **236 MATCH / eight ASM across
+244 functions**. Separate parent guarded-native gates preserve all 235
+previously exact C siblings plus the new selector, with complete resolved
+windows, independently proven jump tables and no emitted data regressions.
+The guarded word counts remain 575/73/16/36/15 for the five CombineDraw
+targets, 48 for `002eb270`, 237 for `002ba080`, and 363 for `002b6ec0`.
+No guard is removed for these nonzero candidates.
+
+Evidence: `build/finish-first-party-20260929/parent/fcl-production-verify.json`
+and `build/first-party-finish-20260929/FclFinish/parent-frozen-{draw,combine,sdk,y-draw}-guarded/full-owner-proof.json`.
+This is one new exact function beyond the published 6736/6861 CI baseline,
+not completion of the remaining first-party goal. No PS2 gameplay/runtime
+execution is claimed. Continued packed-color transport probes remain
+isolated from this frozen production checkpoint.
