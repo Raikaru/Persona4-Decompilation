@@ -1,10 +1,15 @@
 #include "include_asm.h"
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
+#include "sdk_lbox_internal.h"
 #include "type.h"
 #include "rw/plcore/barenderstate.h"
 #include "h_cdvd_internal.h"
 #include "Kosaka/k_clump_internal.h"
+#ifdef NON_MATCHING
+#include "mwsfd.h"
+struct RwSList;
+#endif
 
 typedef s32 (*WindowRenderStateSet)(RwRenderState state, void *value);
 /* Compatible with s32 (RwRenderState, void *) in C89: both arguments retain
@@ -67,7 +72,7 @@ extern u8 D_007130E8[];
 extern s32 D_00724130;
 
 extern s32 func_004633f0(u8 *task);
-extern void func_00468ff0(s32 arg0, u8 *arg1);
+extern void func_00468ff0(void *arg0, u8 *arg1);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void func_00460ac0(char *name, u8 *task);
 extern u8 D_00712670[];
@@ -2028,19 +2033,18 @@ s32 func_00468fa0(u8 *arg0) {
    regression - the count and the edit list are the honest measures here.
    Remaining: nine small hunks, all explained, and a frame of 0xF0 against
    retail's 0x100 that wants a `move $s1, $s2` split this body does not
-   reproduce.  The file-scope extern was `void func_00468ff0(void)`; retail's
-   prologue reads $a1 (`daddu $16, $5, $0`), so it is now
-   `(s32 arg0, u8 *arg1)`.  The only other reference is a function-pointer
-   store cast to `void *`, which is unaffected. */
+   reproduce. The callback's first argument is an opaque task pointer;
+   its context is the second argument. The only other reference stores
+   the callback address in the task and does not inspect a result. */
 /* measured 2026-09-19: pragma opt_loop_invariants on (kept with comsubs off): retail 1033 object 1033 exact, words 911->911, edits 316->310 (-6, +69 reloc unchanged), lui +12 unchanged (70 object vs 58 retail; 0x437F 13 vs 3 remains: comsubs-off vs hoist tradeoff, manual c255 would go 1033->1027 (-6) with edits 316->318 (+2) so not taken; nopragma would go 1051 (+18) with edits 518 (+202) so not taken); frame 0xF0/0x100 unchanged, no large holes (largest deletes 2,1,1). */
 // FUN_00468FF0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
 #pragma opt_loop_invariants on
-void func_00468ff0(s32 arg0, u8 *arg1) {
+void func_00468ff0(void *arg0, u8 *arg1) {
     extern s32 func_003d5fb0(u8 *arg0);
-    extern void func_003d6010(u8 *arg0);
-    extern s32 func_003df860(s32 arg0);
+    extern s32 func_003d6010(u8 *arg0);
+    extern s32 func_003df860(const struct RwSList *arg0);
     extern void func_003ec330(s32 arg0);
     extern s32 func_003ec590(s32 a, s32 b, s32 c, s32 d);
     extern void func_0040fcd0(s32 a, s32 b);
@@ -2051,15 +2055,15 @@ void func_00468ff0(s32 arg0, u8 *arg1) {
     extern void func_00440b68(u8 *arg0, ...);
     extern void func_0044ea90(void *arg0, s32 arg1);
     extern void func_0044ec50(s32 arg0);
-    extern void kwlnTaskDestroyWithHierarchyByName(s32 arg0);
+    extern u8 kwlnTaskDestroyWithHierarchyByName(const char *name);
     extern void func_004561a0(void *handle, void *path, s32 sync);
     extern s32 func_00457120(void);
     extern void func_0046d730(void *arg0, s32 arg1);
-    extern s32 mwPlyCalcWorkCprmSfd(u8 *arg0);
+    extern s32 mwPlyCalcWorkCprmSfd(MWSFD_CRPRM *arg0);
     extern s32 func_00509268(u8 *arg0);
     extern void func_005097e8(s32 arg0);
     extern void mwPlySetFrmSync(s32 arg0, s32 arg1);
-    extern void mwPlyGetCurFrm(s32 arg0, void *arg1);
+    extern void mwPlyGetCurFrm(void *arg0, void *arg1);
     extern void mwPlyRelCurFrm(s32 arg0);
     extern s32 func_0050d4d0(s32 arg0);
     extern void mwPlyReleaseLp(s32 arg0);
@@ -2068,7 +2072,6 @@ void func_00468ff0(s32 arg0, u8 *arg1) {
     extern s32 iGpffffbaf0;
     extern s32 iGpffffbaf4;
     extern u8 D_0070B610[];
-    extern s32 D_0070B620;
     extern u8 D_00712C50[];
     extern u8 D_00712C54[];
     extern u8 D_00712C5C[];
@@ -2178,7 +2181,7 @@ void func_00468ff0(s32 arg0, u8 *arg1) {
             (*(s32 *)((u8 *)(arg1) + (0x1FC))) = 1;
         }
         if ((*(s16 *)((u8 *)(arg1) + (0x1EE))) == 6) {
-            if (func_003df860(D_0070B620) != 0) {
+            if (func_003df860(*(struct RwSList **)(D_0070B610 + 0x10)) != 0) {
                 func_0046d730(D_00712FF8, 0x120);
             }
             func_003d6010(D_0070B610);
@@ -2196,7 +2199,7 @@ void func_00468ff0(s32 arg0, u8 *arg1) {
             (*(s32 *)((u8 *)(temp_17) + (0x10))) = 2;
             (*(s32 *)((u8 *)(temp_17) + (0x14))) = 1;
             (*(s32 *)((u8 *)(temp_17) + (0x24))) = 2;
-            (*(s32 *)((u8 *)(temp_17) + (0x1C))) = (s32)(mwPlyCalcWorkCprmSfd(temp_17));
+            (*(s32 *)((u8 *)(temp_17) + (0x1C))) = mwPlyCalcWorkCprmSfd((MWSFD_CRPRM *)temp_17);
             func_0044ec50(1);
             func_0044ea90(D_00712FF8, 0x135);
             (*(u32 *)((u8 *)(arg1) + (0x1E0))) = (u32)(jtbl_008873E8[0]((*(s32 *)((u8 *)(temp_17) + (0x1C))) + 0x40, 0x40000));
@@ -2347,7 +2350,7 @@ loop_43:
                 }
             }
         }
-        mwPlyGetCurFrm((*(s32 *)((u8 *)(arg1) + (4))), sp60);
+        mwPlyGetCurFrm((void *)(*(u32 *)(arg1 + 4)), sp60);
         if (sp60[0] != 0) {
             iGpffffbaf8 = sp60[9];
             if ((*(s16 *)((u8 *)(arg1) + (0x1E4))) == 4) {
@@ -2480,7 +2483,7 @@ loop_94:
         return;
     case 6:                                          /* switch 1 */
         if ((*(s32 *)((u8 *)(arg1) + (0x1F4))) != 0) {
-            kwlnTaskDestroyWithHierarchyByName(iGpffffb034);
+            kwlnTaskDestroyWithHierarchyByName((const char *)iGpffffb034);
             return;
         }
         temp_4_5 = (*(s32 *)((u8 *)(arg1) + (4)));
@@ -2525,7 +2528,7 @@ loop_94:
         (*(s16 *)((u8 *)(arg1) + (0x1EE))) = temp_3_9;
         if (temp_3_9 == 0) {
             if ((*(s32 *)((u8 *)(arg1) + (0x1F4))) != 0) {
-                kwlnTaskDestroyWithHierarchyByName(iGpffffb034);
+                kwlnTaskDestroyWithHierarchyByName((const char *)iGpffffb034);
                 return;
             }
             temp_4_9 = (*(s32 *)((u8 *)(arg1) + (4)));
@@ -2566,7 +2569,7 @@ loop_94:
         H_Dbprt_FmtAt((s64) spF0, (const char*)D_00713068);
         if (D_008C024E[0] & 0x800) {
             if ((*(s32 *)((u8 *)(arg1) + (0x1F4))) != 0) {
-                kwlnTaskDestroyWithHierarchyByName(iGpffffb034);
+                kwlnTaskDestroyWithHierarchyByName((const char *)iGpffffb034);
                 return;
             }
             temp_4_13 = (*(s32 *)((u8 *)(arg1) + (4)));
@@ -3683,29 +3686,12 @@ s32 func_0046f2b0(u8 *arg0)
     f32 spC8;
     f32 spC4;
     f32 spC0;
-    f32 spB8;
-    f32 spB0;
-    s32 spAC;
-    void *spA8;
-    s32 sp9C;
-    s32 sp98;
-    s32 sp94;
-    s32 sp90;
-    s32 sp8C;
-    s32 sp88;
-    s32 sp84;
-    s32 sp80;
-    s32 sp7C;
-    s32 sp78;
-    s32 sp74;
-    s32 sp70;
-    s32 sp6C;
-    s32 sp68;
-    s32 sp64;
-    s32 sp60;
+    s32 rectangles[4][4];
+    f32 joystick[3];
+    struct { void *value; s32 argument; } callbackArgument;
     s32 (*temp_2)(s32);
-    s32 (*temp_5)(void *, void *);
-    f32 *var_3_5;
+    KWindowEntryCallback temp_5;
+    u8 *var_3_5;
     f32 temp_f1;
     f32 temp_f1_2;
     f32 temp_f20;
@@ -3716,10 +3702,10 @@ s32 func_0046f2b0(u8 *arg0)
     f32 var_f0_4;
     f32 var_f1;
     f32 var_f1_2;
-    s32 *var_3;
-    s32 *var_3_2;
-    s32 *var_3_3;
-    s32 *var_3_4;
+    u8 *var_3;
+    u8 *var_3_2;
+    u8 *var_3_3;
+    u8 *var_3_4;
     s32 temp_2_2;
     s32 temp_2_6;
     s32 temp_3;
@@ -3741,10 +3727,10 @@ s32 func_0046f2b0(u8 *arg0)
     s32 var_6;
     s32 var_6_2;
     u32 temp_4;
-    u8 temp_10;
-    u8 temp_11;
-    u8 temp_8;
-    u8 temp_9;
+    u32 temp_10;
+    u32 temp_11;
+    u32 temp_8;
+    u32 temp_9;
     void *temp_17;
     void *temp_2_3;
     void *temp_2_4;
@@ -3774,7 +3760,7 @@ block_167:
         temp_3 = (*(s32 *)((u8 *)(temp_17) + (8)));
         switch (temp_3) {                           /* switch 2; irregular */
         case 0:                                     /* switch 2 */
-            var_3 = &sp90;
+            var_3 = (u8 *)&rectangles[0];
             var_2 = 0x10;
             if (var_3 != NULL) {
                 do {
@@ -3783,20 +3769,20 @@ block_167:
                     var_2 -= 1;
                 } while (var_2 != 0);
             }
-            sp90 = (*(s32 *)((u8 *)(temp_17) + (0x18)));
-            sp94 = (*(s32 *)((u8 *)(temp_17) + (0x1C)));
-            sp98 = (*(s32 *)((u8 *)(temp_17) + (0x20)));
-            sp9C = (*(s32 *)((u8 *)(temp_17) + (0x24)));
+            rectangles[0][0] = (*(s32 *)((u8 *)(temp_17) + (0x18)));
+            rectangles[0][1] = (*(s32 *)((u8 *)(temp_17) + (0x1C)));
+            rectangles[0][2] = (*(s32 *)((u8 *)(temp_17) + (0x20)));
+            rectangles[0][3] = (*(s32 *)((u8 *)(temp_17) + (0x24)));
             spDC = (*(f32 *)0x00764134);
             spD8 = (*(f32 *)0x00764138);
-            (*(u8 **)((u8 *)(temp_17) + 0x130)) = func_0046e850(arg0, &sp90, &spDC, &spD8);
+            (*(u8 **)((u8 *)(temp_17) + 0x130)) = func_0046e850(arg0, &rectangles[0], &spDC, &spD8);
             (*(u8 *)0x007641A8) = 0U;
             (*(u8 *)0x007641A9) = 0xE3U;
             (*(u8 *)0x007641AA) = 0U;
             (*(u8 *)0x007641AB) = 0x40U;
             break;
         case 1:                                     /* switch 2 */
-            var_3_2 = &sp80;
+            var_3_2 = (u8 *)&rectangles[1];
             var_2_2 = 0x10;
             if (var_3_2 != NULL) {
                 do {
@@ -3805,20 +3791,20 @@ block_167:
                     var_2_2 -= 1;
                 } while (var_2_2 != 0);
             }
-            sp80 = (*(s32 *)((u8 *)(temp_17) + (0x18)));
-            sp84 = (*(s32 *)((u8 *)(temp_17) + (0x1C)));
-            sp88 = (*(s32 *)((u8 *)(temp_17) + (0x20)));
-            sp8C = (*(s32 *)((u8 *)(temp_17) + (0x24)));
+            rectangles[1][0] = (*(s32 *)((u8 *)(temp_17) + (0x18)));
+            rectangles[1][1] = (*(s32 *)((u8 *)(temp_17) + (0x1C)));
+            rectangles[1][2] = (*(s32 *)((u8 *)(temp_17) + (0x20)));
+            rectangles[1][3] = (*(s32 *)((u8 *)(temp_17) + (0x24)));
             spD4 = (*(f32 *)0x0076413C);
             spD0 = (*(f32 *)0x00764140);
-            (*(u8 **)((u8 *)(temp_17) + 0x130)) = func_0046e850(arg0, &sp80, &spD4, &spD0);
+            (*(u8 **)((u8 *)(temp_17) + 0x130)) = func_0046e850(arg0, &rectangles[1], &spD4, &spD0);
             (*(u8 *)0x007641A8) = 0x54U;
             (*(u8 *)0x007641A9) = 0U;
             (*(u8 *)0x007641AA) = 0U;
             (*(u8 *)0x007641AB) = 0x60U;
             break;
         case 2:                                     /* switch 2 */
-            var_3_3 = &sp70;
+            var_3_3 = (u8 *)&rectangles[2];
             var_2_3 = 0x10;
             if (var_3_3 != NULL) {
                 do {
@@ -3827,20 +3813,20 @@ block_167:
                     var_2_3 -= 1;
                 } while (var_2_3 != 0);
             }
-            sp70 = (*(s32 *)((u8 *)(temp_17) + (0x18)));
-            sp74 = (*(s32 *)((u8 *)(temp_17) + (0x1C)));
-            sp78 = (*(s32 *)((u8 *)(temp_17) + (0x20)));
-            sp7C = (*(s32 *)((u8 *)(temp_17) + (0x24)));
+            rectangles[2][0] = (*(s32 *)((u8 *)(temp_17) + (0x18)));
+            rectangles[2][1] = (*(s32 *)((u8 *)(temp_17) + (0x1C)));
+            rectangles[2][2] = (*(s32 *)((u8 *)(temp_17) + (0x20)));
+            rectangles[2][3] = (*(s32 *)((u8 *)(temp_17) + (0x24)));
             spCC = (*(f32 *)0x00764144);
             spC8 = (*(f32 *)0x00764148);
-            (*(u8 **)((u8 *)(temp_17) + 0x130)) = func_0046e850(arg0, &sp70, &spCC, &spC8);
+            (*(u8 **)((u8 *)(temp_17) + 0x130)) = func_0046e850(arg0, &rectangles[2], &spCC, &spC8);
             (*(u8 *)0x007641A8) = 0xE3U;
             (*(u8 *)0x007641A9) = 0x4AU;
             (*(u8 *)0x007641AA) = 0U;
             (*(u8 *)0x007641AB) = 0x60U;
             break;
         case 3:                                     /* switch 2 */
-            var_3_4 = &sp60;
+            var_3_4 = (u8 *)&rectangles[3];
             var_2_4 = 0x10;
             if (var_3_4 != NULL) {
                 do {
@@ -3849,13 +3835,13 @@ block_167:
                     var_2_4 -= 1;
                 } while (var_2_4 != 0);
             }
-            sp60 = (*(s32 *)((u8 *)(temp_17) + (0x18)));
-            sp64 = (*(s32 *)((u8 *)(temp_17) + (0x1C)));
-            sp68 = (*(s32 *)((u8 *)(temp_17) + (0x20)));
-            sp6C = (*(s32 *)((u8 *)(temp_17) + (0x24)));
+            rectangles[3][0] = (*(s32 *)((u8 *)(temp_17) + (0x18)));
+            rectangles[3][1] = (*(s32 *)((u8 *)(temp_17) + (0x1C)));
+            rectangles[3][2] = (*(s32 *)((u8 *)(temp_17) + (0x20)));
+            rectangles[3][3] = (*(s32 *)((u8 *)(temp_17) + (0x24)));
             spC4 = (*(f32 *)0x0076414C);
             spC0 = (*(f32 *)0x00764150);
-            (*(u8 **)((u8 *)(temp_17) + 0x130)) = func_0046e850(arg0, &sp60, &spC4, &spC0);
+            (*(u8 **)((u8 *)(temp_17) + 0x130)) = func_0046e850(arg0, &rectangles[3], &spC4, &spC0);
             (*(u8 *)0x007641A8) = 0x80U;
             (*(u8 *)0x007641A9) = 0x80U;
             (*(u8 *)0x007641AA) = 0x80U;
@@ -3932,7 +3918,7 @@ do {
             func_0046ec70(arg0);
             func_003e8110((u32)func_00457120());
             if ((*(s32 *)((u8 *)(temp_17) + (4))) & 4) {
-                var_3_5 = &spB0;
+                var_3_5 = (u8 *)&joystick;
                 var_2_5 = 0xC;
                 if (var_3_5 != NULL) {
                     do {
@@ -3941,18 +3927,18 @@ do {
                         var_2_5 -= 1;
                     } while (var_2_5 != 0);
                 }
-                var_f1 = (f32) D_008C025C[0];
-                spB0 = var_f1 - 128.0f;
-                var_f1_2 = (f32) D_008C025D[0];
-                spB8 = var_f1_2 - 128.0f;
-                if (spB0 < -48.0f) {
+                var_f1 = (f32)(u32) D_008C025C[0];
+                joystick[0] = var_f1 - 128.0f;
+                var_f1_2 = (f32)(u32) D_008C025D[0];
+                joystick[2] = var_f1_2 - 128.0f;
+                if (joystick[0] < -48.0f) {
                     (*(s32 *)((u8 *)(temp_17) + (0x18))) = (s32) ((*(s32 *)((u8 *)(temp_17) + (0x18))) - 0xA);
-                } else if (!(spB0 <= 48.0f)) {
+                } else if (!(joystick[0] <= 48.0f)) {
                     (*(s32 *)((u8 *)(temp_17) + (0x18))) = (s32) ((*(s32 *)((u8 *)(temp_17) + (0x18))) + 0xA);
                 }
-                if (spB8 < -48.0f) {
+                if (joystick[2] < -48.0f) {
                     (*(s32 *)((u8 *)(temp_17) + (0x1C))) = (s32) ((*(s32 *)((u8 *)(temp_17) + (0x1C))) - 0xA);
-                } else if (!(spB8 <= 48.0f)) {
+                } else if (!(joystick[2] <= 48.0f)) {
                     (*(s32 *)((u8 *)(temp_17) + (0x1C))) = (s32) ((*(s32 *)((u8 *)(temp_17) + (0x1C))) + 0xA);
                 }
                 func_00470490(arg0, (*(s32 *)((u8 *)(temp_17) + (0x18))), (*(s32 *)((u8 *)(temp_17) + (0x1C))));
@@ -4097,49 +4083,49 @@ do {
                 } else if (D_008C024E[0] & 0x40) {
                     temp_2_5 = func_00470d10(arg0, func_00470e20(arg0));
                     if (temp_2_5 != NULL) {
-                        temp_5 = (*(s32 (**)(void *, void *))((u8 *)(temp_2_5) + 0x21C));
+                        temp_5 = (*(KWindowEntryCallback *)((u8 *)(temp_2_5) + 0x21C));
                         if (temp_5 != NULL) {
                             temp_4_4 = (*(s32 *)((u8 *)(temp_2_5) + (4)));
                             switch (temp_4_4) {     /* switch 9; irregular */
                             case 0:                 /* switch 9 */
                                 temp_2_6 = (*(s32 *)((u8 *)(temp_2_5) + (0x220)));
                                 if (temp_2_6 != 0) {
-                                    spA8 = NULL;
-                                    spAC = temp_2_6;
-                                    temp_5((void *)&spA8, (void *)temp_5);
+                                    callbackArgument.value = NULL;
+                                    callbackArgument.argument = temp_2_6;
+                                    temp_5((void *)&callbackArgument);
                                 } else {
-                                    temp_5((void *)NULL, (void *)temp_5);
+                                    temp_5((void *)NULL);
                                 }
                                 break;
                             case 1:                 /* switch 9 */
                                 temp_3_2 = (*(s32 *)((u8 *)(temp_2_5) + (0x220)));
                                 if (temp_3_2 != 0) {
-                                    spA8 = (u8 *)temp_2_5 + 0x108;
-                                    spAC = temp_3_2;
-                                    temp_5((void *)&spA8, (void *)temp_5);
+                                    callbackArgument.value = (u8 *)temp_2_5 + 0x108;
+                                    callbackArgument.argument = temp_3_2;
+                                    temp_5((void *)&callbackArgument);
                                 } else {
-                                    temp_5((void *)((u8 *)temp_2_5 + 0x108), (void *)temp_5);
+                                    temp_5((void *)((u8 *)temp_2_5 + 0x108));
                                 }
                                 break;
                             case 3:                 /* switch 9 */
                             case 2:                 /* switch 9 */
                                 temp_4_5 = (*(s32 *)((u8 *)(temp_2_5) + (0x220)));
                                 if (temp_4_5 != 0) {
-                                    spA8 = (u8 *)temp_2_5 + 0x208;
-                                    spAC = temp_4_5;
-                                    (*(s32 (**)(void *, void *))((u8 *)(temp_2_5) + 0x21C))((void *)&spA8, (void *)temp_5);
+                                    callbackArgument.value = (u8 *)temp_2_5 + 0x208;
+                                    callbackArgument.argument = temp_4_5;
+                                    (*(KWindowEntryCallback *)((u8 *)(temp_2_5) + 0x21C))((void *)&callbackArgument);
                                 } else {
-                                    temp_5((void *)((u8 *)temp_2_5 + 0x208), (void *)temp_5);
+                                    temp_5((void *)((u8 *)temp_2_5 + 0x208));
                                 }
                                 break;
                             case 4:                 /* switch 9 */
                                 temp_3_3 = (*(s32 *)((u8 *)(temp_2_5) + (0x220)));
                                 if (temp_3_3 != 0) {
-                                    spA8 = (u8 *)temp_2_5 + 0x20C;
-                                    spAC = temp_3_3;
-                                    temp_5((void *)&spA8, (void *)temp_5);
+                                    callbackArgument.value = (u8 *)temp_2_5 + 0x20C;
+                                    callbackArgument.argument = temp_3_3;
+                                    temp_5((void *)&callbackArgument);
                                 } else {
-                                    temp_5((void *)((u8 *)temp_2_5 + 0x20C), (void *)temp_5);
+                                    temp_5((void *)((u8 *)temp_2_5 + 0x20C));
                                 }
                                 break;
                             }
