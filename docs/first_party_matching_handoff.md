@@ -3968,3 +3968,10 @@ This is one new exact function beyond the published 6736/6861 CI baseline,
 not completion of the remaining first-party goal. No PS2 gameplay/runtime
 execution is claimed. Continued packed-color transport probes remain
 isolated from this frozen production checkpoint.
+
+Publication completeness correction: `fcl_combine_internal.h` carries the
+same `s16 delay` selector declaration as the exact definition. The initial
+Fcl commit omitted this one-line shared-header migration; clean-build CI
+`36650437361` rejected its stale committed `s32` declaration. The independent
+local proofs already use the correct header. Full clean-build acceptance
+must come from the corrected publication, not that failed run.
