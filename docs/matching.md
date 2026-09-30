@@ -12549,13 +12549,85 @@ memory-card hardware or PS2 runtime execution.
 
 Guarded native compilation also preserves the established C functions.
 It does not establish exactness for the three fallbacks. In particular,
-the unchanged `00468ff0/0046f2b0` reconstructions still have unresolved
-jump tables/SDK symbols, and `00468ff0` emits an out-of-range GP relocation.
+the unchanged `00468ff0/0046f2b0` reconstructions have unresolved local
+jump tables, and `00468ff0` emits an out-of-range GP relocation.
 The guarded `004647c0` also has an unresolved 56-byte jump table.
 The strict guarded-owner gates reject these existing defects; the
 production configuration's independent gates pass. All guards remain.
+The initial standalone proof also omitted named function aliases because
+`verify.symbol_addresses()` intentionally loads only data. Merging the
+real linker's `build.load_symbol_addr_map()` resolves those SDK/task
+callees; that harness omission is not a source defect.
 
 Evidence: `build/finish-first-party-20260929/parent/card-poll-production-verify.json`,
 `card-poll-contract-receipt.json`, and native
 `FclFinish/parent-card-{poll,consumer,grouped}-installed-{default,guarded}/`.
 This repairs an existing C contract; it adds no exact-function credit.
+
+`a5f69b50` passed
+[CI run 36656560639](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/36656560639),
+including the complete clean proprietary build and linked verification.
+The uploaded report remains **6737/6861, 124 remaining across 65 owners**;
+receipt and manifest: `ci-a5f69b50-{receipt,remaining-first-party}.json`
+under `build/finish-first-party-20260929/parent/`.
+
+This publication also retains the earlier guarded `004647c0` state-machine
+recovery: real sparse state/response order, unsigned SDK write offsets and
+lengths, correct absolute icon-pointer/field storage, and sequenced
+resource lookup. Its defined missing-resource path remains unmatched:
+**3152 / 3120 bytes, 220 masked differing words**. The earlier unchecked
+3112-byte exact candidate is rejected because the resource provider may
+return without producing its length. See
+`docs/probe_archive/Memcard_004647c0_recovery_20260929.md`; no guard removal
+or new exact credit is justified.
+
+### Guarded scorer, contour and particle dataflow recovery
+
+`001e9950` uses the actual 0x40-byte target records: selected index at
+0x3a and flags at 0x3c, the real bad-status/stat-pointer paths, signed-halfword
+kind and unsigned damage arithmetic. `00267b20` uses actual 16-byte rectangle
+copies and the render-state callback-table pointer, including the native
+C0 pointer spill/reload; its 0xdb0 frame is preserved. Neither is exact:
+1476 / 1488 bytes and 299 masked differing words for the scorer;
+1796 / 1808 bytes and 165 for the contour renderer.
+
+Parent production verification reports **179 MATCH / six ASM across 185
+functions**. Independent default native gates prove every function and emitted
+data in both owners. Guarded gates preserve all 179 established C functions;
+four scorer-only `.lit4` sections remain unanchored. Both repaired targets
+retain their guards. Actual host C execution passes 12 scorer scenarios and
+22 contour scenarios / 5275 assertions; the old bodies fail the same checks
+(scorer exit 23, renderer access violation). No PS2 render/device claim.
+Evidence: `build/resume-flash-slices-20260929/final-worker-receipt.json` and
+`build/finish-first-party-20260929/parent/scorer-renderer-production-verify.json`.
+
+The seven `code1_0048.c` emitters distinguish cached iteration count from
+fresh post-RNG/preroll count. The orbit emitter captures the actual
+configuration and three live quadword homes; `0048c4e0` reloads the scale
+after RNG rather than retaining a false early snapshot. `0048b340` uses
+the existing compiler-allocated VU0 bridges. All ten guards remain:
+masked differing words are 3/3/373/428/378/579/413/393/405/658 for
+`00485630/00485870/0048b340/0048b9e0/0048c4e0/0048cdf0/0048d8c0/0048e2f0/0048ec50/0048f5f0`.
+All 63 established C siblings and all 73 relocation sets are preserved;
+the owner emits no allocated nontext data.
+
+`004861f0` now consistently returns `void` in the provider and all active
+consumer declarations. Nine retail callers discard its result; no returned
+value is invented for the raw VU0 input bridge. Five-owner native baseline/
+candidate guarded objects are byte-identical, with 348 complete default
+windows and data proven exact. The two three-word restore residuals are
+unchanged; this contract correction is not a matching lever.
+Parent verification of the three changed owners reports **172 MATCH / 12
+ASM across 184 functions**, with zero policy-lint findings.
+
+A bounded instruction smoke executes actual retail/emitted `0048c4e0` in
+nine count/scale-mutation cases (18 invocations). Both streams visit every
+cached node while refreshed count/scale suppress birth, with one RNG call,
+unchanged inactive nodes and zero unwritten stack reads. Only the RNG
+producer is hooked. These paths do not execute VU arithmetic, GS or DMA;
+other emitters and visible particle output are not behavior-tested.
+Evidence: `ParticleReturnABI/investigation.json` and
+`worker1-fcl/ResumeParticle-post-rng-scale-joined/resolved-proof.json` under
+`build/first-party-finish-20260929/`, plus parent
+`particle-void-production-verify.json` and `particle-native-smoke-receipt.json`.
+No new exact promotion or compiler floor is claimed.

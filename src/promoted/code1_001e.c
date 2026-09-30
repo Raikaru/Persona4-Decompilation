@@ -1469,45 +1469,15 @@ loop_test:
     }
     return 1;
 }
-/* FUN_001E9950: s32 func_001e9950(void), retail frame 0x1A0 (obj 0x180 here),
-   175 instrs window 1488B. Outer skill loop over e130/e140 table with
-   i==0 -> dfe0 else base[i-1] (sll/addu/lhu -2), slti 0x1B8 guard,
-   d8e0 -> kind -> d6e0 &0x7E filter, mode 1/2 split via
-   lq 0x100 bne/beq, df70/32710/ddc0 gates, 1d7f10 into tgt.entries[14]
-   +count@0x38, two inner scorings (single-best vs accumulating) with
-   negu/slt + cvt.s.w/div.s/add.s and c.lt.s/c.le.s/c.eq.s best update,
-   dd90==2 + d9b0<bestCost tie-break, de640/1b0cc0/dbf20 tail, 29cf50 return 1.
-   Neighbours (116 MATCH): 9350 for 0x1B8 + (s16)d8e0 idiom, 9240 for
-   entries[14]+count@0x38 + &0xFFFF masking, datCalc d6e0(s16)/d8e0(u8*,u16)
-   + d9b0/dd90/df70 signatures, 9770/9f20 for 29cc00/29cf50/1b0cc0 patterns.
-   Levers top-down: skillStore >=0x1B8 keeps slti $at,0x1B8 + beqz (vs
-   >0x1B7 which spills $v0 per playbook); (s32) outer/
-   inner < keeps slt signed (vs neighbours sltu).
-   Width pass (279w/178e -> 261w/128e, pairs 14 -> 8 = retail, size 373/372
-   -> 370/371): the `s64 kind` chain emitted 48-shift quads where retail has
-   16-shift pairs plus moves. `kind = (s16)func_0023d8e0(...)` reproduces
-   retail's init pair; paramA/paramB `(s16)kind` reproduce the store pairs;
-   the d6e0 call passes `(s32)kind` and the 242800 call passes `paramB`
-   (same s16 value, already live), reproducing retail's two `move`s. The
-   d6e0 callee is truly `s16` (datCalc MATCH); this TU declares it `s32`,
-   which is ABI- and behavior-identical here because kind is s16-valued and
-   the callee reads only the low 16 bits. Prior note's `(s16) collapses to
-   seh` claim does not hold at these sites: (s16) emits dsll32/dsra32-16,
-   matching retail.
-   PINNED (do not "fix"): the zero-test keeps the `(s64)(kind<<0x30)>>0x30`
-   quad. Spelling it `(s16)kind == 0` reproduces retail's pair locally but
-   recolors the whole function (work $s5->$s1 and cascade, 280 -> 316 words);
-   paramA/B recovery only reaches 300. Bisected: init+middle alone are
-   word-neutral (279 -> 280); the test spelling is the trigger.
-   WALL: saved-register rotation (kind $s6 vs retail $s3, unit/skill similar)
-   plus spill slots (skillStore 0x110, outer 0x140, bestCost 0x150), frame
-   0x180 vs 0x1A0, s128 lq/sq canonicalization floor, FPU reg choice. */
+/* Rank usable skills by the best single target or the accumulated target score.
+   The producer's 0x40-byte target record includes selected@0x3A and flags@0x3C.
+   Element kinds are signed 16-bit values; blocked status skips the skill. */
 // FUN_001E9950 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001e9950(void) {
     extern s32 func_0029cc00(s32 arg0);
     extern void func_0029cf50(s32 arg0);
-    extern s32 func_0023d6e0(s32 arg0);
+    extern s32 func_0023d6e0(s16 arg0);
     extern s32 func_0023df70(s32 arg0);
     extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
     extern u16 func_0023dd90(u8 *arg0, s32 arg1);
@@ -1530,7 +1500,7 @@ s32 func_001e9950(void) {
     s32 outerCount;
     u16 skill;
     s32 skillStore;
-    s64 kind;
+    s16 kind;
     s32 paramA;
     s16 paramB;
     s32 innerBest;
@@ -1546,6 +1516,8 @@ s32 func_001e9950(void) {
     struct {
         u8 *entries[14];
         u16 count;
+        u16 selected;
+        u8 flags;
     } tgt;
     work = func_0029d050();
     mode = func_0029cc00(0);
@@ -1573,10 +1545,10 @@ outer_body:
         goto outer_next;
     }
     kind = (s16)func_0023d8e0(*(u8 **)(unit + 0xA64), skill);
-    if ((func_0023d6e0((s32)kind) & 0x7E) == 0) {
+    if ((func_0023d6e0(kind) & 0x7E) == 0) {
         goto outer_next;
     }
-    if (((s64)(kind << 0x30) >> 0x30) == 0) {
+    if (kind == 0) {
         if (mode == 1) {
             goto outer_next;
         }
@@ -1586,14 +1558,13 @@ outer_body:
         }
     }
     if (func_0023df70(skill & 0xFFFF) == 0) {
-        if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(unit + 0xA64)), 0x80008) != 0) {
-            goto check_targets;
+        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x80008) != 0) {
+            goto outer_next;
         }
         if (func_0023ddc0(*(u8 **)(unit + 0xA64), skill & 0xFFFF) != 0) {
             goto outer_next;
         }
     }
-check_targets:
     innerBest = 0;
     if ((func_001d7f10(work, (u8 *)&tgt, skill, 0) & 0xFFFF) == 0) {
         curScore = 0.0f;
@@ -1608,7 +1579,7 @@ innerA_test:
             dmg = func_00235520(skill & 0xFFFF, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryA + 0x30) + 0xA64), 1, 1, 1, 0, 1);
             hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
             maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
-            neg = -dmg;
+            neg = (s32)(0u - (u32)dmg);
             if (hp < neg) {
                 cur = (f32)hp / (f32)maxHp + 1.0f;
             } else {
@@ -1639,7 +1610,7 @@ innerB_test:
             dmg = func_00235520(skill & 0xFFFF, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), 1, 1, 1, 0, 1);
             hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
             maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
-            neg = -dmg;
+            neg = (s32)(0u - (u32)dmg);
             if (hp < neg) {
                 curScore = curScore + (f32)hp / (f32)maxHp + 1.0f;
             } else {
