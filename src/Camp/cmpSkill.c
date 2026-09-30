@@ -2,11 +2,7 @@
 /* Original translation unit cmpSkill.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "include_asm.h"
-
-typedef struct {
-    f32 x;
-    f32 y;
-} Vec2f;
+#include "shd_misc_internal.h"
 
 typedef struct {
     f32 x;
@@ -14,12 +10,25 @@ typedef struct {
     f32 z;
 } Vec3f;
 
+/* The label dispatcher initializes these three halfwords; the skill renderer
+   consumes the 12-byte payload as an ID and two value words. Its float view
+   preserves the retail three-word aggregate transfer without numeric conversion. */
 typedef struct {
-    s16 a;
-    s16 b;
-    s16 c;
-    Vec3f v;
-} StSkill;
+    s16 kind;
+    s16 style;
+    s16 flags;
+    Vec3f payload;
+} SkillMenuDescriptor;
+
+typedef struct {
+    u8 red, green, blue, alpha;
+} SkillMenuColor;
+
+typedef struct {
+    f32 x, y;
+    f32 width, height;
+    s32 paletteIndex;
+} SkillDecoration;
 
 s16 func_0010b510(void);
 u16 func_0010b6f0(void);
@@ -35,18 +44,20 @@ s32 func_0034c210(void);
 u32 RpRandom(void);
 s32 func_0023d8e0(u8 *, u16);
 void func_0034f1e0(void);
-void func_0034c270(Vec2f, u8, f32);
+void func_0034c270(Vec2f, s32, s32, f32);
 void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg1, u8 arg2, u8 arg3, u8 arg4,
                    u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 void func_0034f2e0(void *, f32, f32, u8, u8, u8, u8);
 void func_0034f9d0(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
-void func_0013b370(void *, Vec2f, u32);
+void func_0013b370(u8 *work, Vec2f position, PackedColor4 color);
 void func_0013b420(void *, Vec2f, s32, void *);
-void func_00113730(void *);
+void func_00113730(s16 *);
 void func_00113790(Vec2f, u8, void *, s32, f32);
 void func_0013ad40(u8 *, s32, s32);
-extern u8 D_00762DC0[];
+/* Two RGBA decoration colors. Retail copies exactly eight bytes; the next
+   small-data object starts at 0x00762DC8. */
+extern u8 D_00762DC0[8];
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E4[];
 extern u8 D_0064B2E8[];
@@ -442,267 +453,335 @@ s32 func_00138b20(u8 *arg0)
     func_00138bf0(arg0);
     return result;
 }
-/* measured: retail 1297 instrs/object 1285 instrs (5188B/5140B window 5200B, -12, -0.9% INSIDE +-3% band 1258-1336), probe reloc-masked 1153 words (guard below, NON_MATCHING so production stays ASM; fnalign 1127 edits +2 reloc-only). Restored collapsed st struct (s16x3+f32x3) with float 0x100 loads and pu without extra +0x88; removed dead sprite. Adjacent 130+103 retail-only runs read together name one collapsed st construct, not two. 0xD0 frame vs retail 0xA0. Banked as inside-gate floor. */
-// FUN_00138BF0 NONMATCHING
-#ifdef NON_MATCHING
-void func_00138bf0(u8 *arg0)
-{
-    extern s32 func_0013ac30(u16 arg0);
-    extern s8 iGpffff9cd0[];
-    s32 i;
-    s32 j;
-    f32 fx;
-    f32 fy;
-    f32 opacity;
+/* One 0x30-byte entry in the menu's animation arrays. The initializer,
+   transition setup and updater jointly establish these fields. */
+typedef struct {
+    f32 sourceX, sourceY, targetX, targetY;
+    f32 x, y;
+    u8 sourceAlpha, targetAlpha, alpha, flags;
+    u16 sourceScaleX, targetScaleX, scaleX;
+    u16 sourceScaleY, targetScaleY, scaleY;
+    s32 mode, duration;
+} SkillMenuAnimation;
+
+typedef struct {
     u8 alpha;
-    f32 f0;
-    f32 f1;
-    s32 n;
-    u8 buf[8];
-    f32 sp90;
-    f32 sp94;
-    struct { s16 st30; s16 st2e; s16 st2c; s16 _pad; f32 st28; f32 st24; f32 st20; } st;
-    u8 *pu;
-    s32 tmp;
+    u8 _01[3];
+    f32 x, y;
+    s32 _0c;
+    s32 background;
+    s32 _14[2];
+    u32 visible;
+    u8 _20[0x3e];
+    s16 selectedRow;
+    s16 scrollRow;
+    u8 _62[0x9a];
+    s16 partyCount;
+    s16 _fe;
+    union { SkillRec fields; Vec3f copy; } skills[96];
+    s16 skillCount;
+    s16 footerMode;
+    SkillMenuAnimation animation[68];
+    void *sprites[60];
+    union { void *texture; s32 handle; } footer;
+} SkillMenuView;
+
+/* Preserve the observed left/right evaluation order of the three sums. */
+static inline f32 skillPositionAdd(f32 left, f32 right)
+{
+    return left + right;
+}
+
+/* Draw the skill menu, including animated decorations, selection rows,
+   scrolling controls and the pending skill overlay. The shared position,
+   packed color and complete descriptor are the retail stack objects.
+   measured: 5192 exact instruction bytes and an eight-byte zero tail.
+   Lifetimes preserve the real resource reuse; disabling constant pulling
+   retains per-draw float constants, and propagation-off preserves sprite
+   snapshots before their coordinate calculations. */
+// FUN_00138BF0
+#pragma push
+#pragma opt_lifetimes on
+#pragma opt_pulloutconstants off
+#pragma opt_propagation off
+void func_00138bf0(u8 *work)
+{
+    extern s32 func_0013ac30(u16 skill);
+    SkillMenuView *menu;
+    s32 rowIndex;
+    f32 opacity;
+    f32 originX;
+    f32 originY;
+    u8 spriteAlpha;
+    f32 value;
+    f32 offset;
+    PackedColor4 color;
+    Vec2f position;
+    SkillMenuColor palette[2];
+    SkillMenuDescriptor descriptor;
+    SkillMenuColor *decorationColor;
+    s32 payloadIndex;
+
+    menu = (SkillMenuView *)work;
     func_0034f1e0();
-    fx = *(f32 *)(arg0 + 4);
-    fy = *(f32 *)(arg0 + 8);
-    opacity = (f32)*(u8 *)arg0 / 255.0f;
-    if (*(s32 *)(arg0 + 0x10) != 0) {
-        Vec2f pos;
-        sp90 = fx;
-        sp94 = fy;
-        f0 = 255.0f * opacity;
-        alpha = (u8)f0;
-        pos.x = sp90;
-        pos.y = sp94;
-        func_0034c270(pos, alpha, 0.0f);
+    originX = menu->x;
+    originY = menu->y;
+    opacity = (f32)menu->alpha / 255.0f;
+    if (menu->background != 0) {
+        position.x = originX;
+        position.y = originY;
+        value = 255.0f * opacity;
+        spriteAlpha = (u8)value;
+        func_0034c270(position, spriteAlpha, menu->background, 0.0f);
     }
-    if ((*(u32 *)(arg0 + 0x1C) & 0x1000) != 0) {
-        s8 *gsrc;
-        s8 *gdst;
-        u8 *handle;
-        gsrc = (s8 *)iGpffff9cd0;
-        gdst = (s8 *)buf;
-        n = 4;
+    if ((menu->visible & 0x1000) != 0) {
+        s8 *paletteSource;
+        s8 *paletteBytes;
+        s32 pairsRemaining;
+        u8 *decorationSprite;
+        paletteSource = (s8 *)D_00762DC0;
+        paletteBytes = (s8 *)palette;
+        pairsRemaining = 4;
         do {
             s8 b0;
             s8 b1;
-            b0 = gsrc[0];
-            b1 = gsrc[1];
-            gsrc += 2;
-            n--;
-            gdst[0] = b0;
-            gdst[1] = b1;
-            gdst += 2;
-        } while (n > 0);
-        handle = *(u8 **)(arg0 + 0x12EC);
-        for (i = 0; i < 0x14; i++) {
-            u8 *row;
-            u8 *tbl;
-            u8 b0;
-            u8 b1;
-            u8 b2;
-            u16 u0;
-            u16 u1;
-            row = arg0 + i * 0x30;
-            tbl = D_005ED790 + i * 0x14;
-            sp90 = fx + *(f32 *)(row + 0xCB4) + *(f32 *)(tbl + 0);
-            sp94 = fy + *(f32 *)(row + 0xCB8) + *(f32 *)(tbl + 4);
-            f0 = (f32)*(u8 *)(row + 0xCBE) * opacity;
-            alpha = (u8)f0;
-            tmp = (*(s32 *)(tbl + 0x10) * 4);
-            pu = (u8 *)(tmp + (s32)buf);
-            b0 = pu[0];
-            b1 = pu[1];
-            b2 = pu[2];
-            u0 = (u16)(1.0f + ((f32)*(u16 *)(row + 0xCC4) * *(f32 *)(tbl + 8)) / 100.0f);
-            u1 = (u16)(((f32)*(u16 *)(row + 0xCCA) * *(f32 *)(tbl + 0xC)) / 100.0f);
-            func_0034f320(handle, sp90, sp94, 0.0f, b0, b1, b2, alpha, u0, u1, 0, 0.0f, 0);
+            b0 = paletteSource[0];
+            b1 = paletteSource[1];
+            paletteSource += 2;
+            pairsRemaining--;
+            paletteBytes[0] = b0;
+            paletteBytes[1] = b1;
+            paletteBytes += 2;
+        } while (pairsRemaining > 0);
+        decorationSprite = menu->sprites[42];
+        /* Twenty decorations are drawn from the 28-entry animation group.
+           Keep the work-relative row base: fields +0xCB4/+0xCBE/+0xCC4
+           are position, alpha and scale in those 0x30-byte entries. */
+        for (rowIndex = 0; rowIndex < 0x14; rowIndex++) {
+            u8 *animation;
+            SkillDecoration *layout;
+            layout = (SkillDecoration *)D_005ED790 + rowIndex;
+            animation = work + rowIndex * 0x30;
+            offset = originX + *(f32 *)(animation + 0xCB4);
+            position.x = offset + layout->x;
+            offset = originY + *(f32 *)(animation + 0xCB8);
+            position.y = offset + layout->y;
+            value = (f32)*(u8 *)(animation + 0xCBE);
+            value = value * opacity;
+            spriteAlpha = (u8)value;
+            decorationColor = &palette[layout->paletteIndex];
+            func_0034f320(decorationSprite, position.x, position.y, 0.0f,
+                          decorationColor->red, decorationColor->green, decorationColor->blue, spriteAlpha,
+                          (u16)(1.0f + ((f32)*(u16 *)(animation + 0xCC4) * layout->width) / 100.0f),
+                          (u16)(((f32)*(u16 *)(animation + 0xCCA) * layout->height) / 100.0f),
+                          0, 0.0f, 0);
         }
     }
-    if ((*(u32 *)(arg0 + 0x1C) & 1) != 0) {
-        sp90 = 16.0f + (fx + *(f32 *)(arg0 + 0x594));
-        sp94 = 368.0f + (fy + *(f32 *)(arg0 + 0x598));
-        f0 = (f32)*(u8 *)(arg0 + 0x59E) * opacity;
-        alpha = (u8)f0;
-        func_0034f2e0(*(void **)(arg0 + 0x132C), sp90, sp94, 0xFF, 0xFF, 0xFF, alpha);
+    if ((menu->visible & 1) != 0) {
+        position.x = 16.0f + (originX + menu->animation[0].x);
+        position.y = 368.0f + (originY + menu->animation[0].y);
+        value = (f32)menu->animation[0].alpha;
+        value = value * opacity;
+        spriteAlpha = (u8)value;
+        func_0034f2e0(menu->sprites[58], position.x, position.y, 0xFF, 0xFF, 0xFF, spriteAlpha);
     }
-    if ((*(u32 *)(arg0 + 0x1C) & 0x200) != 0) {
-        sp90 = 14.0f + (fx + *(f32 *)(arg0 + 0xBC4));
-        sp94 = 405.0f + (fy + *(f32 *)(arg0 + 0xBC8));
-        f0 = (f32)*(u8 *)(arg0 + 0xBCE) * opacity;
-        alpha = (u8)f0;
-        func_0034f2e0(*(void **)(arg0 + 0x12B0), sp90, sp94, 0xFF, 0xFF, 0xFF, alpha);
+    if ((menu->visible & 0x200) != 0) {
+        position.x = 14.0f + (originX + menu->animation[33].x);
+        position.y = 405.0f + (originY + menu->animation[33].y);
+        value = (f32)menu->animation[33].alpha;
+        value = value * opacity;
+        spriteAlpha = (u8)value;
+        func_0034f2e0(menu->sprites[27], position.x, position.y, 0xFF, 0xFF, 0xFF, spriteAlpha);
     }
-    if ((*(u32 *)(arg0 + 0x1C) & 0x400) != 0) {
-        sp90 = 14.0f + (fx + *(f32 *)(arg0 + 0xBF4));
-        sp94 = 405.0f + (fy + *(f32 *)(arg0 + 0xBF8));
-        f0 = (f32)*(u8 *)(arg0 + 0xBFE) * opacity;
-        alpha = (u8)f0;
-        func_0034f2e0(*(void **)(arg0 + 0x12B4), sp90, sp94, 0xFF, 0xFF, 0xFF, alpha);
+    if ((menu->visible & 0x400) != 0) {
+        position.x = 14.0f + (originX + menu->animation[34].x);
+        position.y = 405.0f + (originY + menu->animation[34].y);
+        value = (f32)menu->animation[34].alpha;
+        value = value * opacity;
+        spriteAlpha = (u8)value;
+        func_0034f2e0(menu->sprites[28], position.x, position.y, 0xFF, 0xFF, 0xFF, spriteAlpha);
     }
-    if ((*(u32 *)(arg0 + 0x1C) & 0x800) != 0) {
-        sp90 = 71.0f + (fx + *(f32 *)(arg0 + 0xC24));
-        sp94 = 405.0f + (fy + *(f32 *)(arg0 + 0xC28));
-        f0 = (f32)*(u8 *)(arg0 + 0xC2E) * opacity;
-        alpha = (u8)f0;
-        func_0034f2e0(*(void **)(arg0 + 0x12B8), sp90, sp94, 0xFF, 0xFF, 0xFF, alpha);
+    if ((menu->visible & 0x800) != 0) {
+        position.x = 71.0f + (originX + menu->animation[35].x);
+        position.y = 405.0f + (originY + menu->animation[35].y);
+        value = (f32)menu->animation[35].alpha;
+        value = value * opacity;
+        spriteAlpha = (u8)value;
+        func_0034f2e0(menu->sprites[29], position.x, position.y, 0xFF, 0xFF, 0xFF, spriteAlpha);
     }
-    if ((*(u32 *)(arg0 + 0x1C) & 2) != 0) {
-        for (i = 0; i < *(s16 *)(arg0 + 0xFC); i++) {
-            func_0013ad40(arg0, i, 0);
+    if ((menu->visible & 2) != 0) {
+        for (rowIndex = 0; rowIndex < menu->partyCount; rowIndex++) {
+            func_0013ad40(work, rowIndex, 0);
         }
     }
-    if ((*(u32 *)(arg0 + 0x1C) & 0x20) != 0) {
-        Vec2f pos;
-        u8 c0;
-        u8 c1;
-        u8 c2;
-        sp90 = 257.0f + (fx + *(f32 *)(arg0 + 0x8C4));
-        sp94 = 21.0f + (fy + *(f32 *)(arg0 + 0x8C8));
-        f0 = (f32)*(u8 *)(arg0 + 0x8CE) * opacity;
-        alpha = (u8)f0;
-        c0 = D_0064B2F4[0];
-        c1 = D_0064B2F4[1];
-        c2 = D_0064B2F4[2];
-        pos.x = sp90;
-        pos.y = sp94;
-        func_0013b370(arg0, pos, (u32)c0 | ((u32)c1 << 8) | ((u32)c2 << 16) | ((u32)alpha << 24));
-        sp90 = 255.0f + (fx + *(f32 *)(arg0 + 0x8C4));
-        sp94 = 21.0f + (fy + *(f32 *)(arg0 + 0x8C8));
-        func_00113730(&st.st30);
-        st.st30 = 1;
-        st.st2e = 4;
-        st.st2c = 1;
-        tmp = (s32)*(s16 *)(arg0 + 0x60) + (s32)*(s16 *)(arg0 + 0x5E);
-        st.st28 = *(f32 *)(arg0 + tmp * 0xC + 0x100);
-        st.st24 = *(f32 *)(arg0 + tmp * 0xC + 0x104);
-        st.st20 = *(f32 *)(arg0 + tmp * 0xC + 0x108);
-        pos.x = sp90;
-        pos.y = sp94;
-        func_00113790(pos, alpha, &st.st30, 1, 0.0f);
+    if ((menu->visible & 0x20) != 0) {
+        SkillMenuColor *paletteColor;
+        position.x = 257.0f + (originX + menu->animation[17].x);
+        position.y = 21.0f + (originY + menu->animation[17].y);
+        value = (f32)menu->animation[17].alpha;
+        value = value * opacity;
+        spriteAlpha = (u8)value;
+        paletteColor = (void *)D_0064B2F4;
+        color.rgba[0] = paletteColor->red;
+        color.rgba[1] = paletteColor->green;
+        color.rgba[2] = paletteColor->blue;
+        color.rgba[3] = spriteAlpha;
+        func_0013b370(work, position, color);
+        position.x = 255.0f + (originX + menu->animation[17].x);
+        position.y = 21.0f + (originY + menu->animation[17].y);
+        func_00113730(&descriptor.kind);
+        descriptor.kind = 1;
+        descriptor.style = 4;
+        descriptor.flags = 1;
+        payloadIndex = (s32)menu->scrollRow + (s32)menu->selectedRow;
+        descriptor.payload = menu->skills[payloadIndex].copy;
+        func_00113790(position, spriteAlpha, &descriptor.kind, 1, 0.0f);
     }
-    if ((*(u32 *)(arg0 + 0x1C) & 0x2000) != 0) {
-        f32 fy2;
-        u8 a2;
-        f32 fx2;
-        fy2 = *(f32 *)(arg0 + 0x1228) + fy + *(f32 *)(arg0 + 0x898);
-        f0 = (f32)*(u8 *)(arg0 + 0x89E) * opacity;
-        a2 = (u8)f0;
-        fx2 = *(f32 *)(arg0 + 0x1224) + fx + *(f32 *)(arg0 + 0x894) + 607.0f;
-        sp90 = fx2;
-        sp94 = fy2 + 32.0f;
-        func_0034f2e0(*(void **)(arg0 + 0x1270), sp90, sp94, 0xFF, 0xFF, 0xFF, a2);
-        sp94 = fy2 + 197.0f;
-        func_0034f2e0(*(void **)(arg0 + 0x1274), sp90, sp94, 0xFF, 0xFF, 0xFF, a2);
-        sp94 = fy2 + 35.0f;
-        if (*(s16 *)(arg0 + 0x580) - 6 > 0) {
-            sp94 += (f32)((*(s16 *)(arg0 + 0x60) * 0x42 + (s32)*(s16 *)(arg0 + 0x60)) * 2) / (f32)(*(s16 *)(arg0 + 0x580) - 6);
+    if ((menu->visible & 0x2000) != 0) {
+        f32 scrollOriginY;
+        u8 scrollAlpha;
+        f32 scrollOriginX;
+        SkillMenuColor *paletteColor;
+        f32 scrollX;
+        scrollOriginX = menu->animation[67].x + (originX + menu->animation[16].x);
+        scrollOriginY = menu->animation[67].y + (originY + menu->animation[16].y);
+        value = (f32)menu->animation[16].alpha;
+        value = value * opacity;
+        scrollAlpha = (u8)value;
+        scrollX = 607.0f + scrollOriginX;
+        position.x = scrollX;
+        position.y = 32.0f + scrollOriginY;
+        func_0034f2e0(menu->sprites[11], position.x, position.y, 0xFF, 0xFF, 0xFF, scrollAlpha);
+        position.x = scrollX;
+        position.y = 197.0f + scrollOriginY;
+        func_0034f2e0(menu->sprites[12], position.x, position.y, 0xFF, 0xFF, 0xFF, scrollAlpha);
+        position.x = scrollX;
+        position.y = 35.0f + scrollOriginY;
+        if (menu->skillCount - 6 > 0) {
+            position.y += (f32)(((menu->scrollRow * 0x42 + (s32)menu->scrollRow) * 2) / (menu->skillCount - 6));
         }
-        func_0034f2e0(*(void **)(arg0 + 0x1278), sp90, sp94, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a2);
+        paletteColor = (void *)D_0064B2E8;
+        func_0034f2e0(menu->sprites[13], position.x, position.y, paletteColor->red, paletteColor->green,
+                      paletteColor->blue, scrollAlpha);
     }
-    if ((*(u32 *)(arg0 + 0x1C) & 8) != 0) {
-        if (*(u8 *)(arg0 + 0x11FE) != 0) {
-            f32 bx;
-            f32 by;
-            bx = fx + *(f32 *)(arg0 + 0x11F4);
-            by = fy + *(f32 *)(arg0 + 0x11F8);
-            func_0034f320(*(u8 **)(arg0 + 0x1244), bx, by, 0.0f, D_0064B2E4[0], D_0064B2E4[1], D_0064B2E4[2], *(u8 *)(arg0 + 0x11FE), 0x1000, 0x1000, 0, 0.0f, 0);
+    if ((menu->visible & 8) != 0) {
+        if (menu->animation[66].alpha > 0) {
+            u8 *rowSprite;
+            SkillMenuColor *paletteColor;
+            position.x = originX + menu->animation[66].x;
+            position.y = originY + menu->animation[66].y;
+            paletteColor = (void *)D_0064B2E4;
+            rowSprite = menu->sprites[0];
+            func_0034f320(rowSprite, position.x, position.y, 0.0f, paletteColor->red, paletteColor->green,
+                          paletteColor->blue, menu->animation[66].alpha, 0x1000, 0x1000, 0, 0.0f, 0);
         }
-        for (j = 0; j < 6; j++) {
-            if ((s32)(j + *(s16 *)(arg0 + 0x60)) < (s32)*(s16 *)(arg0 + 0x580)) {
-                if (*(s16 *)(arg0 + 0x5E) == (s16)j && ((*(u32 *)(arg0 + 0x1C) & 0x10) != 0)) {
-                    if ((*(u32 *)(arg0 + 0x1C) & 0x80) == 0) {
-                        Vec2f p2;
-                        sp90 = 257.0f + (fx + *(f32 *)(arg0 + 0x744));
-                        sp94 = 21.0f + (f32)*(s16 *)(arg0 + 0x5E) * 34.0f + fy + *(f32 *)(arg0 + 0x748);
-                        f0 = (f32)*(u8 *)(arg0 + 0x74E) * opacity;
-                        alpha = (u8)f0;
-                        p2.x = sp90;
-                        p2.y = sp94;
-                        func_0013b370(arg0, p2, (u32)D_0064B2E8[0] | ((u32)D_0064B2E8[1] << 8) | ((u32)D_0064B2E8[2] << 16) | ((u32)alpha << 24));
+        /* Six visible entries use the +0x8F4 animation group and their
+           labels use +0x774. The initializer fixes both strides at 0x30. */
+        for (rowIndex = 0; rowIndex < 6; rowIndex++) {
+            SkillMenuColor *iconColor;
+            if (menu->skillCount > rowIndex + menu->scrollRow) {
+                if (menu->selectedRow == rowIndex && ((menu->visible & 0x10) != 0)) {
+                    if ((menu->visible & 0x80) == 0) {
+                        SkillMenuColor *paletteColor;
+                        iconColor = (void *)D_0064B2EC;
+                        position.x = 257.0f + (originX + menu->animation[9].x);
+                        value = 0.0f + menu->animation[9].y + 34.0f * (f32)menu->selectedRow;
+                        value = skillPositionAdd(21.0f, value);
+                        position.y = originY + value;
+                        paletteColor = (void *)D_0064B2E8;
+                        color.rgba[0] = paletteColor->red;
+                        color.rgba[1] = paletteColor->green;
+                        color.rgba[2] = paletteColor->blue;
+                        value = (f32)menu->animation[9].alpha;
+                        value = value * opacity;
+                        color.rgba[3] = (u8)value;
+                        func_0013b370(work, position, color);
+                    } else {
+                        continue;
                     }
                 } else {
-                    u8 *hand;
-                    hand = *(u8 **)(arg0 + 0x1244);
-                    sp90 = 255.0f + (fx + *(f32 *)(arg0 + j * 0x30 + 0x8F4));
-                    sp94 = 21.0f + (f32)j * 34.0f + fy + *(f32 *)(arg0 + j * 0x30 + 0x8F8);
-                    f0 = (f32)*(u8 *)(arg0 + j * 0x30 + 0x8FE) * opacity;
-                    alpha = (u8)f0;
-                    func_0034f320(hand, sp90, sp94, 0.0f, D_0064B2E4[0], D_0064B2E4[1], D_0064B2E4[2], alpha, 0x1000, *(u16 *)(arg0 + j * 0x30 + 0x90A), 0, 0.0f, 0);
+                    u8 *rowSprite;
+                    SkillMenuColor *paletteColor;
+                    paletteColor = (void *)D_0064B2E4;
+                    iconColor = (void *)D_0064B2E0;
+                    position.x = 255.0f + (originX + *(f32 *)(work + rowIndex * 0x30 + 0x8F4));
+                    value = 0.0f + (originY + *(f32 *)(work + rowIndex * 0x30 + 0x8F8)) + 34.0f * (f32)rowIndex;
+                    position.y = 21.0f + value;
+                    value = (f32)*(u8 *)(work + rowIndex * 0x30 + 0x8FE);
+                    value = value * opacity;
+                    spriteAlpha = (u8)value;
+                    rowSprite = menu->sprites[0];
+                    func_0034f320(rowSprite, position.x, position.y, 0.0f, paletteColor->red, paletteColor->green,
+                                  paletteColor->blue, spriteAlpha, 0x1000, *(u16 *)(work + rowIndex * 0x30 + 0x90A),
+                                  0, 0.0f, 0);
                 }
-                tmp = func_0013ac30(*(u16 *)(arg0 + (*(s16 *)(arg0 + 0x60) + j) * 0xC + 0x102));
-                if (tmp > 0) {
-                    u8 *hand2;
-                    hand2 = *(u8 **)(arg0 + tmp * 4 + 0x1244);
-                    sp90 = 258.0f + (fx + *(f32 *)(arg0 + j * 0x30 + 0x8F4));
-                    sp94 = 23.0f + (f32)j * 34.0f + fy + *(f32 *)(arg0 + j * 0x30 + 0x8F8);
-                    f0 = (f32)*(u8 *)(arg0 + j * 0x30 + 0x8FE) * opacity;
-                    alpha = (u8)f0;
-                    func_0034f320(hand2, sp90, sp94, 0.0f, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], alpha, 0x1000, *(u16 *)(arg0 + j * 0x30 + 0x90A), 0, 0.0f, 0);
+                payloadIndex = func_0013ac30(*(u16 *)(work + (menu->scrollRow + rowIndex) * 0xC + 0x102));
+                if (payloadIndex > 0) {
+                    u8 *skillIconSprite;
+                    skillIconSprite = *(u8 **)(work + payloadIndex * 4 + 0x1244);
+                    position.x = 258.0f + (originX + *(f32 *)(work + rowIndex * 0x30 + 0x8F4));
+                    value = 0.0f + (originY + *(f32 *)(work + rowIndex * 0x30 + 0x8F8)) + 34.0f * (f32)rowIndex;
+                    position.y = 23.0f + value;
+                    value = (f32)*(u8 *)(work + rowIndex * 0x30 + 0x8FE);
+                    value = value * opacity;
+                    spriteAlpha = (u8)value;
+                    func_0034f320(skillIconSprite, position.x, position.y, 0.0f, iconColor->red, iconColor->green,
+                                  iconColor->blue, spriteAlpha, 0x1000, *(u16 *)(work + rowIndex * 0x30 + 0x90A), 0,
+                                  0.0f, 0);
                 }
-                sp90 = 300.0f + (fx + *(f32 *)(arg0 + j * 0x30 + 0x774));
-                sp94 = 21.0f + (f32)j * 34.0f + fy + *(f32 *)(arg0 + j * 0x30 + 0x778);
-                f0 = (f32)*(u8 *)(arg0 + j * 0x30 + 0x77E) * opacity;
-                alpha = (u8)f0;
-                func_00113730(&st.st30);
-                st.st30 = 1;
-                if (*(s16 *)(arg0 + 0x5E) == (s16)j && ((*(u32 *)(arg0 + 0x1C) & 0x10) != 0)) {
-                    st.st2e = 3;
+                position.x = 300.0f + (originX + *(f32 *)(work + rowIndex * 0x30 + 0x774));
+                offset = *(f32 *)(work + rowIndex * 0x30 + 0x778);
+                value = 0.0f + originY + 34.0f * (f32)rowIndex;
+                value = skillPositionAdd(offset, value);
+                position.y = 21.0f + value;
+                value = (f32)*(u8 *)(work + rowIndex * 0x30 + 0x77E);
+                value = value * opacity;
+                spriteAlpha = (u8)value;
+                func_00113730(&descriptor.kind);
+                descriptor.kind = 1;
+                if (menu->selectedRow == rowIndex && ((menu->visible & 0x10) != 0)) {
+                    descriptor.style = 3;
                 } else {
-                    st.st2e = 2;
+                    descriptor.style = 2;
                 }
-                tmp = (s32)*(s16 *)(arg0 + 0x60) + j;
-                st.st28 = *(f32 *)(arg0 + tmp * 0xC + 0x100);
-                st.st24 = *(f32 *)(arg0 + tmp * 0xC + 0x104);
-                st.st20 = *(f32 *)(arg0 + tmp * 0xC + 0x108);
-                {
-                    Vec2f p3;
-                    p3.x = sp90;
-                    p3.y = sp94;
-                    func_00113790(p3, alpha, &st.st30, 1, 0.0f);
-                }
+                payloadIndex = (s32)menu->scrollRow + rowIndex;
+                descriptor.payload = *(Vec3f *)(work + payloadIndex * 0xC + 0x100);
+                func_00113790(position, spriteAlpha, &descriptor.kind, 1, 0.0f);
             }
         }
     }
-    if ((*(u32 *)(arg0 + 0x1C) & 0x40) != 0) {
-        for (i = 0; i < *(s16 *)(arg0 + 0xFC); i++) {
-            func_0013ad40(arg0, i, 3);
+    if ((menu->visible & 0x40) != 0) {
+        for (rowIndex = 0; rowIndex < menu->partyCount; rowIndex++) {
+            func_0013ad40(work, rowIndex, 3);
         }
     }
-    if ((*(u32 *)(arg0 + 0x1C) & 0x80) != 0) {
-        Vec2f p4;
-        sp90 = 257.0f + (fx + *(f32 *)(arg0 + 0x744));
-        sp94 = 21.0f + (f32)*(s16 *)(arg0 + 0x5E) * 34.0f + fy + *(f32 *)(arg0 + 0x748);
-        f0 = (f32)*(u8 *)(arg0 + 0xB9E) * opacity;
-        alpha = (u8)f0;
-        func_00113730(&st.st30);
-        st.st30 = 1;
-        st.st2e = 3;
-        st.st2c = 1;
-        tmp = (s32)*(s16 *)(arg0 + 0x60) + (s32)*(s16 *)(arg0 + 0x5E);
-        st.st28 = *(f32 *)(arg0 + tmp * 0xC + 0x100);
-        st.st24 = *(f32 *)(arg0 + tmp * 0xC + 0x104);
-        st.st20 = *(f32 *)(arg0 + tmp * 0xC + 0x108);
-        p4.x = sp90;
-        p4.y = sp94;
-        func_0013b420(arg0, p4, alpha, &st.st30);
+    if ((menu->visible & 0x80) != 0) {
+        s32 overlayAlpha;
+        position.x = 257.0f + (originX + menu->animation[9].x);
+        value = 0.0f + originY + (f32)menu->selectedRow * 34.0f;
+        value = skillPositionAdd(menu->animation[9].y, value);
+        position.y = 21.0f + value;
+        value = (f32)menu->animation[32].alpha;
+        value = value * opacity;
+        overlayAlpha = spriteAlpha = (u8)value;
+        func_00113730(&descriptor.kind);
+        descriptor.kind = 1;
+        descriptor.style = 3;
+        descriptor.flags = 1;
+        payloadIndex = (s32)menu->scrollRow + (s32)menu->selectedRow;
+        descriptor.payload = menu->skills[payloadIndex].copy;
+        func_0013b420(work, position, overlayAlpha, &descriptor.kind);
     }
     {
-        Vec2f p5;
-        sp90 = 640.0f + (fx + *(f32 *)(arg0 + 0xC54));
-        sp94 = 400.0f + (fy + *(f32 *)(arg0 + 0xC58));
-        f0 = (f32)*(u8 *)(arg0 + 0xC5E) * opacity;
-        alpha = (u8)f0;
-        p5.x = sp90;
-        p5.y = sp94;
-        func_0034f9d0(p5, 0.0f, alpha, *(s16 *)(arg0 + 0x582), *(s32 *)(arg0 + 0x1334));
+        position.x = 640.0f + (originX + menu->animation[36].x);
+        position.y = 400.0f + (originY + menu->animation[36].y);
+        value = (f32)menu->animation[36].alpha;
+        value = value * opacity;
+        spriteAlpha = (u8)value;
+        func_0034f9d0(position, 0.0f, spriteAlpha, menu->footerMode, menu->footer.handle);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00138bf0);
-#endif
+#pragma pop
 
 // FUN_0013A040
 s32 func_0013a040(s16 *arg0, s32 arg1, s32 arg2)

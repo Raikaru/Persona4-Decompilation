@@ -1064,9 +1064,11 @@ void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2)
 }
 #pragma pop
 // FUN_0013B370
-/* measured: family substitution reuses the exact 176-byte byte-color shape. */
+/* The call consumes a complete position and RGBA packet. Keep explicit
+   views of their argument storage: b210 otherwise hoists the Y load before
+   the RGB snapshots. All 176 instruction bytes and 42 sibling images match. */
 #pragma opt_propagation off
-void func_0013b370(u8 *arg0, s64 arg1, s32 arg2)
+void func_0013b370(u8 *arg0, Vec2f arg1, PackedColor4 arg2)
 {
     f32 c0;
     s32 p;
