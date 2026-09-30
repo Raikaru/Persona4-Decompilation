@@ -97,7 +97,7 @@ struct BtlResultSubWork
  * Scoped loop invariants retain the digit-loop constants and allocation. */
 // FUN_0021ED10
 #pragma opt_loop_invariants on
-void func_0021ed10(u8 *arg0, f32 *arg1, s32 arg2, u32 arg3, s32 arg4, f32 arg5)
+void func_0021ed10(u8 *arg0, f32 *arg1, f32 arg5, s32 arg2, u32 arg3, s32 arg4)
 {
     s8 rev[0x40];
     s8 buf[0x40];
@@ -598,131 +598,77 @@ void func_0021fa40(u8 *work)
     func_00364c70();
 }
 
-/* measured: 5680B retail window; m2c cannot lower the FPU multiply-accumulate
-   idiom (adda.s $f0,$f3 / madd.s $f1,$f2,$f1 fused lerp in the loop_26
-   quadword color path) and the body is dominated by dozens of D_00887300
-   render-vtable calls, the (f32)(s32) range-guard idiom (0x4F000000 checks),
-   bltz floor family, s64 bitwise byte extractions, and 3 nested loops. A
-   stub-only probe measured nd 7 but object_size 8B/5680B, a size-deficit
-   result rather than a near miss; no body retained at this scale. */
-/* Faithful C reconstruction of the result-screen renderer (5680B window).
-   Reproduces 1291 words via measure_guarded (note said 1307) / 872 edits via
-   fnalign (1418 retail vs 1326 obj instrs, 92 short); wscan dsll32/dsra32
-   24 vs 8 retail (obj all 0x0 s32->s64, retail all 0x10 s16->s64). Width fix
-   s64->s32 removes ten excess pairs (wscan obj 24->14 toward 8) but trades
-   1291 words for 1323, so not installed; banked with both numbers. Pragma
-   sweep all worse (common_subs 1331, sched 1329, loopinv 1318, prop 1324).
-   Structure, call sequence, float constants and callee conventions verified
-   against retail. Open: two extra saved regs (s6/s8 vs retail s0-s6),
-   COP1 madd/adda fusion in the lerp loop, and scheduler ordering throughout. */
-/* 1286 -> 1282 (2026-09-18): func_00274ed0's in-body prototype now matches the
-   live definition in src/frFontEx.c (three leading floats). */
-/* bisect 2026-09-19 (handoff 7u count band 1375-1461, retail 1418): */
-/* baseline HEAD: 1284 words, obj 1415 / ret 1418 (delta -3, inside). */
-/* G1 protos 0045db40/003f6440/0021e050 to live (s32): 1284 / 1415 (-3) neutral, kept. */
-/* G2 c19/c18/c17/c193/c182/c172 s64->u8 (u8 to 0034f2e0): 1278 / 1415 (-3) neutral, -6 words, kept. */
-/* G3 h2/h1 u32->s32 (v stays u32): 1276 / 1365 (-53) DEFATS -50, below band, DROPPED (words -2 not worth 50). */
-/* G4 vt void(**)->u32 hoist x20 on G1+G2 (matched btlShuffleDraw pattern): 916 / 1396 (-22) inside, -362 words, kept. */
-/* G5 uD0.v dead g1/g12/g13/g14 removal on G1+G2+G4: 888 / 1396 (-22) neutral, -28 words, kept. */
-/* banked G1+G2+G4+G5: 888 words, obj 1396 / ret 1418 (delta -22, inside). Drops G3; retains 396/417 of the 867-inclusive gain. */
-/* measured 0021fea0 (owner, 2026-09-19): fnalign **585 -> 582 edits**, count
-   1396 -> 1394 against retail 1418, by writing m2c's top-tested `loop_N:` /
-   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
-   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
-   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
-   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
-   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
-   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
-   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
-// FUN_0021FEA0 NONMATCHING
-#ifdef NON_MATCHING
+/* Matched 2026-09-30: 5676/5680B, 65 resolved relocations and one zero
+ * tail word. Typed flags and by-value positions recover the 0x120 frame;
+ * separate position snapshots replace the former overlapping union.
+ * Scoped loop invariants retain the interpolation constants. Per-dimension
+ * scale lvalue views preserve the retail reloads, while scoped const draw
+ * coordinates retain the anchor across both sprites without caching dy.
+ */
+// FUN_0021FEA0
+#pragma push
+#pragma opt_loop_invariants on
 void func_0021fea0(u8 *arg0, u8 *arg1)
 {
     typedef struct { f32 x, y; } Vec2f;
-    Vec2f identifierPosition;
+    typedef union { Vec2f xy; f32 v[2]; s64 bits; } ResultPosition;
     u8 *w;
-    u8 *p16;
-    u32 vt;
+    u8 *sprite;
+    /* Typed flags avoid extending a cached byte-address lifetime across calls. */
+    struct ResultSubHeader { u8 pad[8]; u16 flags; } *p16;
     u8 c19;
     u8 c18;
     u8 c17;
     u8 c193;
     u8 c182;
     u8 c172;
-    s64 b18;
+    s32 s19;
+    u8 b18;
+    u32 vt;
     u8 bEA;
     u8 b11A;
     u8 b22;
-    s64 b17;
-    s64 b172;
-    s64 b173;
-    s64 b174;
-    s64 b175;
+    u8 b17;
+    u8 b172;
+    u8 b173;
+    u8 b174;
+    u8 b175;
     s32 w444;
     s32 w4B0;
     s32 w4B4;
     s32 w4B8;
-    s32 s19;
     s32 s21;
     s32 s7;
     s32 s16c;
     s32 s16c2;
     s32 fld64;
     u32 eret;
-    s32 v9;
-    s32 v10;
-    s32 v92;
-    s32 v102;
-    s32 v93;
-    s32 v103;
-    s32 v94;
-    s32 v104;
-    s32 cnt16;
     s8 sidx;
     u8 *t3;
     u8 *t32;
     u8 *t6;
     u8 *t4;
-    u8 *dtab;
-    s64 sx;
-    s64 sy;
     u32 v2;
     u32 v1;
-    u32 h2;
-    u32 h1;
     f32 rf2;
     f32 rf1;
     f32 f3;
     f32 f8;
-    f32 g1;
-    f32 g12;
-    f32 g13;
-    f32 g14;
+    f32 scale;
+    f32 coordinate;
 
-    f32 t1211;
-    f32 t1212;
-    f32 f20;
-    f32 f21;
-    f32 f22;
-    f32 f20b;
-    f32 f21b;
-    f32 f22b;
+    f32 nextDrawX;
+    f32 secondaryNextX;
     u8 c11[4];
-    f32 f100[2];
-    f32 f108[2];
-    f32 f110[2];
-    union {
-        s8 str[0x30];
-        struct {
-            s8 _pad[0x18];
-            f32 e8;
-            f32 ec;
-            f32 f0;
-            f32 f4;
-            f32 fc;
-            f32 f8;
-        } v;
-    } uD0;
+    u8 opacity;
+    ResultPosition position;
+    ResultPosition basePosition;
+    ResultPosition offsetSnapshot;
+    /* Separate copies correspond to the retail stack snapshots at F8, F0 and E8. */
+    ResultPosition shadowBase;
+    ResultPosition secondaryOffset;
+    ResultPosition secondaryBase;
+    s8 numberText[0x18];
     s32 sC[4];
     struct {
         u16 a0;
@@ -734,38 +680,38 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
     extern f32 fGpffff8410;
     extern f32 fGpffff8414;
     extern f32 fGpffff8418;
-    extern void (*D_00887300[])(u32, u32);
+    extern s32 (*D_00887300[])(s32, void *);
     void func_0034f320(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
     void func_0045db40(u8 *, u8 *, f32, s32, s32, s32, f32, f32, f32);
-    void func_0045d6e0(u8 *, u8 *, f32, s32);
-    s32 RpSkyRenderStateSet(s32, s32);
+    void func_0045d6e0(u8 *, f32 *, f32, s32);
+    s32 RpSkyRenderStateSet(s32, void *);
     void func_00364c50(void);
     void func_00364c70(void);
     s32 func_00104c70(s32);
-    s32 func_0010d6d0(s16);
+    u32 func_0010d6d0(s16);
     s32 func_0021e050(u8 *);
     void func_001125d0(u8 *);
     void func_00112300(Vec2f, f32, u8, u8 *);
-    int func_00274ed0(f32, f32, f32, s32, s32, s32, s32, s32, s32);
+    int func_00274ed0(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
 
     (void)arg0;
     w = arg1;
-if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
-        p16 = (*(u8 **)(w + 0x570));
+    if ((*(u16 *)w) & 2) {
+        p16 = (*(struct ResultSubHeader **)(w + 0x570));
         vt = (u32)D_00887300;
-        ((void (*)(u32, u32))*(u32 *)vt)(6, 0);
-        ((void (*)(u32, u32))*(u32 *)vt)(8, 0);
-        ((void (*)(u32, u32))*(u32 *)vt)(7, 2);
-        ((void (*)(u32, u32))*(u32 *)vt)(9, 2);
-        ((void (*)(u32, u32))*(u32 *)vt)(0xC, 1);
-        ((void (*)(u32, u32))*(u32 *)vt)(0xB, 6);
-        ((void (*)(u32, u32))*(u32 *)vt)(0xA, 5);
-        ((void (*)(u32, u32))*(u32 *)vt)(2, 4);
-        ((void (*)(u32, u32))*(u32 *)vt)(0xE, 0);
-        ((void (*)(u32, u32))*(u32 *)vt)(3, 1);
-        ((void (*)(u32, u32))*(u32 *)vt)(4, 1);
-        RpSkyRenderStateSet(3, 0x717FB);
-        RpSkyRenderStateSet(2, 0x44);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(6, (void *)0);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(8, (void *)0);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(7, (void *)2);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(9, (void *)2);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(0xC, (void *)1);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(0xB, (void *)6);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(0xA, (void *)5);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(2, (void *)4);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(0xE, (void *)0);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(3, (void *)1);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(4, (void *)1);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
+        RpSkyRenderStateSet(2, (void *)0x44);
         sC[0] = (s32)(-224.0f + (*(f32 *)(w + 0x1D0)));
         sC[1] = (s32)(224.0f + (*(f32 *)(w + 0x1D4)));
         sC[2] = 0x30C;
@@ -774,7 +720,7 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         c11[1] = 0xEA;
         c11[2] = 0x2C;
         c11[3] = 0xFF;
-        ((void (*)(u32, u32))*(u32 *)vt)(1, 0);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(1, (void *)0);
         func_00364c50();
         func_0045db40(&c11[0], (u8 *)&sC[0], 0.0f, 0, 0, 0, 45.0f, 1.0f, 1.0f);
         func_00364c70();
@@ -787,13 +733,15 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         c11[2] = 0x20;
         c11[3] = 0xFF;
         func_00364c50();
-        ((void (*)(u32, u32))*(u32 *)vt)(1, 0);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(1, (void *)0);
         func_0045db40(&c11[0], (u8 *)&sC[0], 0.0f, 0, 0, 0, 45.0f, 1.0f, 1.0f);
         func_00364c70();
-        f110[0] =(386.0f + (*(f32 *)(w + 0x1A0)));
-        f110[1] =(35.0f + (*(f32 *)(w + 0x1A4)));
-        func_0034f2e0((void *)((*(s32 *)(w + 0x4A4))), f110[0], f110[1], 0x32, 0x32, 0x32, (*(u8 *)(w + 0x1AA)));
-        ((void (*)(u32, u32))*(u32 *)vt)(1, 0);
+        position.v[0] =(386.0f + (*(f32 *)(w + 0x1A0)));
+        position.v[1] =(35.0f + (*(f32 *)(w + 0x1A4)));
+        opacity = *(u8 *)(w + 0x1AA);
+        sprite = *(u8 **)(w + 0x4A4);
+        func_0034f2e0(sprite, position.v[0], position.v[1], 0x32, 0x32, 0x32, opacity);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(1, (void *)0);
         sC[0] = (s32)((*(f32 *)(w + 0x1D0)));
         sC[1] = (s32)((*(f32 *)(w + 0x1D4)));
         sC[2] = 0x19F;
@@ -802,8 +750,10 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         c11[1] = 0xEA;
         c11[2] = 0x2C;
         c11[3] = 0xFF;
-        func_0045d6e0(&c11[0], (u8 *)&sC[0], 0, 0.0f);
-        sC[0] = (s32)((f32)0x275 + (*(f32 *)(w + 0x1D0)));
+        func_0045d6e0(&c11[0], (f32 *)&sC[0], 0.0f, 0);
+        coordinate = (f32)0x275;
+        coordinate += (*(f32 *)(w + 0x1D0));
+        sC[0] = (s32)(coordinate);
         sC[1] = (s32)((*(f32 *)(w + 0x1D4)));
         sC[2] = 0x12;
         sC[3] = 0x1C0;
@@ -811,10 +761,10 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         c11[1] = 0xEA;
         c11[2] = 0x2C;
         c11[3] = 0xFF;
-        func_0045d6e0(&c11[0], (u8 *)&sC[0], 0, 0.0f);
+        func_0045d6e0(&c11[0], (f32 *)&sC[0], 0.0f, 0);
         func_0021fa40(w);
-        RpSkyRenderStateSet(3, 0x32801);
-        ((void (*)(u32, u32))*(u32 *)vt)(8, 1);
+        RpSkyRenderStateSet(3, (void *)0x32801);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(8, (void *)1);
         sC[0] = 0;
         sC[1] = 0;
         sC[2] = 0x280;
@@ -823,8 +773,10 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         c11[1] = 0;
         c11[2] = 0;
         c11[3] = 0;
-        func_0045d6e0(&c11[0], (u8 *)&sC[0], 0, 20.0f);
-        sC[0] = (s32)((f32)0x19F + (*(f32 *)(w + 0x260)));
+        func_0045d6e0(&c11[0], (f32 *)&sC[0], 20.0f, 0);
+        coordinate = (f32)0x19F;
+        coordinate += (*(f32 *)(w + 0x260));
+        sC[0] = (s32)(coordinate);
         sC[1] = (s32)(35.0f + (*(f32 *)(w + 0x264)));
         sC[2] = 0xFE;
         sC[3] = 0x1F4;
@@ -832,23 +784,37 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         c11[1] = 0xFF;
         c11[2] = 0xFF;
         c11[3] = 0;
-        func_0045d6e0(&c11[0], (u8 *)&sC[0], 0, 0.0f);
-        RpSkyRenderStateSet(3, 0x717FB);
-        ((void (*)(u32, u32))*(u32 *)vt)(8, 0);
-        ((void (*)(u32, u32))*(u32 *)vt)(6, 1);
+        func_0045d6e0(&c11[0], (f32 *)&sC[0], 0.0f, 0);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(8, (void *)0);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(6, (void *)1);
         b18 = (*(u8 *)(w + 0x17A));
-        f110[0] =(73.0f + (*(f32 *)(w + 0x170)));
-        f110[1] = (f32) 0x187 + (*(f32 *)(w + 0x174));
-        func_0034f320((u8 *)(*(s32 *)(w + 0x448)), f110[0], f110[1], 10.0f, 0x2DU, 0x2DU, 0x2DU, b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
-        f110[0] = (f32) 0x111 + (*(f32 *)(w + 0x170));
-        f110[1] = (f32) 0x187 + (*(f32 *)(w + 0x174));
-        func_0034f320((u8 *)(*(s32 *)(w + 0x44C)), f110[0], f110[1], 10.0f, 0x2DU, 0x2DU, 0x2DU, b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
-        ((void (*)(u32, u32))*(u32 *)vt)(6, 0);
-        ((void (*)(u32, u32))*(u32 *)vt)(6, 1);
-        f110[0] =(76.0f + (*(f32 *)(w + 0x170)));
-        f110[1] = (f32) 0x171 + (*(f32 *)(w + 0x174));
-        func_0034f320((u8 *)(*(s32 *)(w + 0x434)), f110[0], f110[1], 10.0f, 0x2DU, 0x2DU, 0x2DU, b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
-        if ((*( u16 *)((u8 *)(p16) + 8)) & 4) {
+        position.v[0] =(73.0f + (*(f32 *)(w + 0x170)));
+        coordinate = (f32)0x187;
+        coordinate += (*(f32 *)(w + 0x174));
+        position.v[1] = coordinate;
+                sprite = *(u8 **)(w + 0x448);
+                func_0034f320(sprite, position.v[0], position.v[1], 10.0f, 0x2DU, 0x2DU, 0x2DU,
+                    b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
+        coordinate = (f32)0x111;
+        coordinate += (*(f32 *)(w + 0x170));
+        position.v[0] = coordinate;
+        coordinate = (f32)0x187;
+        coordinate += (*(f32 *)(w + 0x174));
+        position.v[1] = coordinate;
+                sprite = *(u8 **)(w + 0x44C);
+                func_0034f320(sprite, position.v[0], position.v[1], 10.0f, 0x2DU, 0x2DU, 0x2DU,
+                    b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(6, (void *)0);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(6, (void *)1);
+        position.v[0] =(76.0f + (*(f32 *)(w + 0x170)));
+        coordinate = (f32)0x171;
+        coordinate += (*(f32 *)(w + 0x174));
+        position.v[1] = coordinate;
+                sprite = *(u8 **)(w + 0x434);
+                func_0034f320(sprite, position.v[0], position.v[1], 10.0f, 0x2DU, 0x2DU, 0x2DU,
+                    b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
+        if (p16->flags & 4) {
             c11[0] = 0;
             c11[1] = 0;
             c11[2] = 0;
@@ -857,77 +823,90 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
             c11[1] = 0x7C;
             c11[2] = 0;
         }
-        f110[0] =(1.0f + (117.0f + (*(f32 *)(w + 0x170))));
-        f110[1] = (f32) 0x175 + (*(f32 *)(w + 0x174));
-        sprintf(uD0.str, &iGpffffa5b4 - 0xDF8, func_00104c70(1) & 0xFF);
+        position.v[0] =(1.0f + (117.0f + (*(f32 *)(w + 0x170))));
+        coordinate = (f32)0x175;
+        coordinate += (*(f32 *)(w + 0x174));
+        position.v[1] = coordinate;
+        sprintf(numberText, &iGpffffa5b4, func_00104c70(1) & 0xFF);
         s19 = 0;
-        while (uD0.str[s19] != 0) {
-            sidx = uD0.str[s19];
-            func_0034f320((u8 *)(*( s32 *)((u8 *)(w + sidx * 4) + 0x390)), f110[0], f110[1], 10.0f, c11[0], c11[1], c11[2], b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
-            f110[0] += 16.0f;
+        while (numberText[s19] != 0) {
+            sidx = numberText[s19];
+                sprite = *(u8 **)(w + sidx * 4 + 0x390);
+            func_0034f320(sprite, position.v[0], position.v[1], 10.0f,
+                    c11[0], c11[1], c11[2], b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
+            position.v[0] += 16.0f;
             s19 += 1;
         }
-        f110[0] =(157.0f + (*(f32 *)(w + 0x170)));
-        f110[1] =((366.0f + (*(f32 *)(w + 0x174))) - 2.0f);
-        func_00274ed0(f110[0], f110[1], 10.0f, (((u8)b18 & 0xFF) | ~0xFF), 5, 1, func_0010d6d0(1), 0, 0);
-        ((void (*)(u32, u32))*(u32 *)vt)(6, 0);
-        if ((*( u16 *)((u8 *)(p16) + 8)) & 4) {
+        position.v[0] =(157.0f + (*(f32 *)(w + 0x170)));
+        position.v[1] =((366.0f + (*(f32 *)(w + 0x174))) - 2.0f);
+        func_00274ed0(position.v[0], position.v[1], 10.0f, (((u8)b18 & 0xFF) | ~0xFF), 5, 1, (const char *)func_0010d6d0(1), 0, 0);
+        ((s32 (*)(s32, void *))*(u32 *)vt)(6, (void *)0);
+        if (p16->flags & 4) {
             c19 = 0x67;
             c18 = 0x5F;
             c17 = 0x1F;
             w444 = (s32)(*(s32 *)(w + 0x444));
-            f110[0] =(78.0f + (*(f32 *)(w + 0xE0)));
-            f110[1] =(53.0f + (*(f32 *)(w + 0xE4)));
-            func_0034f2e0((void *)(w444), f110[0], f110[1], 0x95, 0x88, 0x17, (*(u8 *)(w + 0xEA)));
-            f110[0] =(75.0f + (*(f32 *)(w + 0x110)));
-            f110[1] =(113.0f + (*(f32 *)(w + 0x114)));
-            func_0034f2e0((void *)(w444), f110[0], f110[1], 0x95, 0x88, 0x17, (*(u8 *)(w + 0x11A)));
-            f110[0] =(75.0f + (*(f32 *)(w + 0x140)));
-            f110[1] =(172.0f + (*(f32 *)(w + 0x144)));
-            func_0034f2e0((void *)(w444), f110[0], f110[1], 0x95, 0x88, 0x17, (*(u8 *)(w + 0x14A)));
+            position.v[0] =(78.0f + (*(f32 *)(w + 0xE0)));
+            position.v[1] =(53.0f + (*(f32 *)(w + 0xE4)));
+            opacity = *(u8 *)(w + 0xEA);
+            func_0034f2e0((void *)(w444), position.v[0], position.v[1], 0x95, 0x88, 0x17, opacity);
+            position.v[0] =(75.0f + (*(f32 *)(w + 0x110)));
+            position.v[1] =(113.0f + (*(f32 *)(w + 0x114)));
+            opacity = *(u8 *)(w + 0x11A);
+            func_0034f2e0((void *)(w444), position.v[0], position.v[1], 0x95, 0x88, 0x17, opacity);
+            position.v[0] =(75.0f + (*(f32 *)(w + 0x140)));
+            position.v[1] =(172.0f + (*(f32 *)(w + 0x144)));
+            opacity = *(u8 *)(w + 0x14A);
+            func_0034f2e0((void *)(w444), position.v[0], position.v[1], 0x95, 0x88, 0x17, opacity);
         } else {
             c18 = 0;
             c17 = 0;
             c19 = 0;
-            f110[0] =(75.0f + (*(f32 *)(w + 0xE0)));
-            f110[1] =(52.0f + (*(f32 *)(w + 0xE4)));
-            bEA = (u8)((*(u8 *)(w + 0xEA)));
             fld64 = (*(s32 *)((u8 *)p16 + 0x64));
-            func_0021ed10(w, &f110[0], bEA | 0xEC7C0000, fld64, 0, 0.0f);
-            func_0034f2e0((void *)((*(s32 *)(w + 0x42C))), 5.0f + f110[0], 9.0f + f110[1], 0xEC, 0x7C, 0, bEA);
-            eret = (u32)(func_0021e050(p16 + 8));
-            f110[0] =(75.0f + (*(f32 *)(w + 0x110)));
-            f110[1] =(112.0f + (*(f32 *)(w + 0x114)));
+            position.v[0] =(75.0f + (*(f32 *)(w + 0xE0)));
+            position.v[1] =(52.0f + (*(f32 *)(w + 0xE4)));
+            bEA = (u8)((*(u8 *)(w + 0xEA)));
+            func_0021ed10(w, &position.v[0], 0.0f, bEA | (s32)0xEC7C0000, fld64, 0);
+            sprite = *(u8 **)(w + 0x42C);
+            func_0034f2e0(sprite, 5.0f + position.v[0], 9.0f + position.v[1], 0xEC, 0x7C, 0, bEA);
+            eret = (u32)(func_0021e050((u8 *)&p16->flags));
+            position.v[0] =(75.0f + (*(f32 *)(w + 0x110)));
+            position.v[1] =(112.0f + (*(f32 *)(w + 0x114)));
             b11A = (u8)((*(u8 *)(w + 0x11A)));
-            func_0021ed10(w, &f110[0], b11A | 0xEC7C0000, eret, 1, 0.0f);
-            func_0034f2e0((void *)((*(s32 *)(w + 0x430))), 5.0f + f110[0], 9.0f + f110[1], 0xEC, 0x7C, 0, b11A);
-            f110[0] =(73.0f + (*(f32 *)(w + 0x140)));
-            f110[1] =(162.0f + (*(f32 *)(w + 0x144)));
+            func_0021ed10(w, &position.v[0], 0.0f, b11A | (s32)0xEC7C0000, eret, 1);
+            sprite = *(u8 **)(w + 0x430);
+            func_0034f2e0(sprite, 5.0f + position.v[0], 9.0f + position.v[1], 0xEC, 0x7C, 0, b11A);
+            position.v[0] =(73.0f + (*(f32 *)(w + 0x140)));
+            position.v[1] =(162.0f + (*(f32 *)(w + 0x144)));
             b22 = (u8)((*(u8 *)(w + 0x14A)));
             s21 = 0;
-do {
-                    func_001125d0((u8 *)&aA0);
-                    t3 = (u8 *)(p16 + (s21 * 4));
-                    aA0.a0 = (u16)((*(u16 *)((u8 *)(t3) + 0x2C)));
-                    aA0.a2 = (s16)((*(s16 *)((u8 *)(t3) + 0x2E)));
-                    aA0.b6 = 6;
-                    aA0.b8 = 5;
-                    identifierPosition.x = f110[0];
-                    identifierPosition.y = f110[1];
-                    func_00112300(identifierPosition, 0.0f, b22, (u8 *)&aA0);
-                    f110[1] += 34.0f;
-                    s21 += 1;
-} while (s21 < (*(s32 *)((u8 *)(p16) + 0x38)));
+            while (s21 < (*(s32 *)((u8 *)(p16) + 0x38))) {
+                func_001125d0((u8 *)&aA0);
+                t3 = (u8 *)((u8 *)p16 + (s21 * 4));
+                aA0.a0 = (u16)((*(u16 *)((u8 *)(t3) + 0x2C)));
+                aA0.a2 = (s16)((*(s16 *)((u8 *)(t3) + 0x2E)));
+                aA0.b6 = 6;
+                aA0.b8 = 5;
+                func_00112300(position.xy, 0.0f, b22, (u8 *)&aA0);
+                position.v[1] += 34.0f;
+                s21 += 1;
+            }
         }
-        f110[0] =(68.0f + (*(f32 *)(w + 0xE0)));
-        f110[1] =(20.0f + (*(f32 *)(w + 0xE4)));
-        func_0034f2e0((void *)((*(s32 *)(w + 0x418))), f110[0], f110[1], c19, c18, c17, (*(u8 *)(w + 0xEA)));
-        f110[0] =(67.0f + (*(f32 *)(w + 0x110)));
-        f110[1] =(80.0f + (*(f32 *)(w + 0x114)));
-        func_0034f2e0((void *)((*(s32 *)(w + 0x414))), f110[0], f110[1], c19, c18, c17, (*(u8 *)(w + 0x11A)));
-        f110[0] =(68.0f + (*(f32 *)(w + 0x140)));
-        f110[1] =(139.0f + (*(f32 *)(w + 0x144)));
-        func_0034f2e0((void *)((*(s32 *)(w + 0x41C))), f110[0], f110[1], c19, c18, c17, (*(u8 *)(w + 0x14A)));
+        position.v[0] =(68.0f + (*(f32 *)(w + 0xE0)));
+        position.v[1] =(20.0f + (*(f32 *)(w + 0xE4)));
+        opacity = *(u8 *)(w + 0xEA);
+        sprite = *(u8 **)(w + 0x418);
+        func_0034f2e0(sprite, position.v[0], position.v[1], c19, c18, c17, opacity);
+        position.v[0] =(67.0f + (*(f32 *)(w + 0x110)));
+        position.v[1] =(80.0f + (*(f32 *)(w + 0x114)));
+        opacity = *(u8 *)(w + 0x11A);
+        sprite = *(u8 **)(w + 0x414);
+        func_0034f2e0(sprite, position.v[0], position.v[1], c19, c18, c17, opacity);
+        position.v[0] =(68.0f + (*(f32 *)(w + 0x140)));
+        position.v[1] =(139.0f + (*(f32 *)(w + 0x144)));
+        opacity = *(u8 *)(w + 0x14A);
+        sprite = *(u8 **)(w + 0x41C);
+        func_0034f2e0(sprite, position.v[0], position.v[1], c19, c18, c17, opacity);
         sC[0] = 0;
         sC[1] = 0x14;
         sC[2] = 0x46;
@@ -936,8 +915,8 @@ do {
         c11[1] = 0xE9;
         c11[2] = 0xE;
         c11[3] = (u8)((*(u8 *)(w + 0x23A)));
-        func_0045d6e0(&c11[0], (u8 *)&sC[0], 1, 0.0f);
-        if ((*( u16 *)((u8 *)(p16) + 8)) & 4) {
+        func_0045d6e0(&c11[0], (f32 *)&sC[0], 0.0f, 1);
+        if (p16->flags & 4) {
             c193 = 0x67;
             c182 = 0x5F;
             c172 = 0x1F;
@@ -946,156 +925,125 @@ do {
             c182 = 0;
             c172 = 0;
         }
-        f110[0] =(17.0f + (*(f32 *)(w + 0x50)));
-        f110[1] =(20.0f + (*(f32 *)(w + 0x54)));
-        func_0034f2e0((void *)((*(s32 *)(w + 0x420))), f110[0], f110[1], c193, c182, c172, (*(u8 *)(w + 0x5A)));
-        f110[0] =(17.0f + (*(f32 *)(w + 0x80)));
-        f110[1] =(80.0f + (*(f32 *)(w + 0x84)));
-        func_0034f2e0((void *)((*(s32 *)(w + 0x424))), f110[0], f110[1], c193, c182, c172, (*(u8 *)(w + 0x8A)));
-        f110[0] =(17.0f + (*(f32 *)(w + 0xB0)));
-        f110[1] =(139.0f + (*(f32 *)(w + 0xB4)));
-        func_0034f2e0((void *)((*(s32 *)(w + 0x428))), f110[0], f110[1], c193, c182, c172, (*(u8 *)(w + 0xBA)));
-        if ((*( u16 *)((u8 *)(p16) + 8)) & 4) {
+        position.v[0] =(17.0f + (*(f32 *)(w + 0x50)));
+        position.v[1] =(20.0f + (*(f32 *)(w + 0x54)));
+        opacity = *(u8 *)(w + 0x5A);
+        sprite = *(u8 **)(w + 0x420);
+        func_0034f2e0(sprite, position.v[0], position.v[1], c193, c182, c172, opacity);
+        position.v[0] =(17.0f + (*(f32 *)(w + 0x80)));
+        position.v[1] =(80.0f + (*(f32 *)(w + 0x84)));
+        opacity = *(u8 *)(w + 0x8A);
+        sprite = *(u8 **)(w + 0x424);
+        func_0034f2e0(sprite, position.v[0], position.v[1], c193, c182, c172, opacity);
+        position.v[0] =(17.0f + (*(f32 *)(w + 0xB0)));
+        position.v[1] =(139.0f + (*(f32 *)(w + 0xB4)));
+        opacity = *(u8 *)(w + 0xBA);
+        sprite = *(u8 **)(w + 0x428);
+        func_0034f2e0(sprite, position.v[0], position.v[1], c193, c182, c172, opacity);
+        if (p16->flags & 4) {
             s7 = 0;
-            dtab = (u8 *)D_006295F0;
-            do {
+            while (s7 < 2) {
                 t32 = (u8 *)(w + (s7 * 8));
                 t6 = (u8 *)(t32 + 0x560);
-                t4 = dtab + s7 * 0xC;
-                cnt16 = (*(u16 *)(t32 + 0x564)) + 1;
-                (*(u16 *)(t32 + 0x564)) = (u16)cnt16;
-                if ((cnt16 & 0xFFFF) < (*(u16 *)t4)) {
+                t4 = (u8 *)D_006295F0 + s7 * 0xC;
+                if (++(*(u16 *)(t32 + 0x564)) < (*(u16 *)t4)) {
                     goto skip_zero;
                 }
                 (*(u16 *)(t6 + 4)) = 0;
             skip_zero:
-                v2 = (*(u16 *)(t6 + 4));
-                if ((s32)v2 < 0) {
-                    h2 = (v2 >> 1) | (v2 & 1);
-                    rf2 = (f32)h2 + (f32)h2;
-                } else {
-                    rf2 = (f32)v2;
-                }
-                v1 = (*(u16 *)t4);
-                if ((s32)v1 < 0) {
-                    h1 = (v1 >> 1) | (v1 & 1);
-                    rf1 = (f32)h1 + (f32)h1;
-                } else {
-                    rf1 = (f32)v1;
-                }
                 f3 = (*(f32 *)(t4 + 4));
+                v2 = (*(u16 *)(t6 + 4));
+                rf2 = (f32)v2;
+                v1 = (*(u16 *)t4);
+                rf1 = (f32)v1;
                 f8 = (*(f32 *)(t4 + 8));
                 (*(f32 *)t6) = f3 + (rf2 / rf1) * (f8 - f3);
                 s7 += 1;
-            } while (s7 < 2);
-            f110[0] = (f32) 0x1D7 + (*(f32 *)(w + 0x320));
-            f110[1] =(506.0f + (*(f32 *)(w + 0x324)));
+            }
+            coordinate = (f32)0x1D7;
+            coordinate += (*(f32 *)(w + 0x320));
+            position.v[0] = coordinate;
+            position.v[1] =(506.0f + (*(f32 *)(w + 0x324)));
             b17 = (*(u8 *)(w + 0x32A));
             w4B0 = (s32)(*(s32 *)(w + 0x4B0));
             func_00364c50();
-            func_0034f320((u8 *)w4B0, f110[0], f110[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b17, 0x1000, 0x1000, 0, -72.0f, (s64)0);
+            func_0034f320((u8 *)w4B0, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b17, 0x1000, 0x1000, 0, -72.0f, (s64)0);
             func_00364c70();
-            f110[0] = (f32) 0x107 + (*(f32 *)(w + 0x350));
-            f108[0] = f110[0];
-            f110[1] = (f32)(s32)(464.0f + (*(f32 *)(w + 0x354)));
-            f108[1] = f110[1];
+            coordinate = (f32)0x107;
+            coordinate += (*(f32 *)(w + 0x350));
+            position.v[0] = coordinate;
+            basePosition.v[0] = position.v[0];
+            position.v[1] = (464.0f + (*(f32 *)(w + 0x354)));
+            basePosition.v[1] = position.v[1];
             b172 = (*(u8 *)(w + 0x35A));
             w4B4 = (s32)(*(s32 *)(w + 0x4B4));
             func_00364c50();
-            func_0034f320((u8 *)w4B4, f110[0], f110[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b172, 0x1000, 0x1000, 0, -30.0f, (s64)0);
+            func_0034f320((u8 *)w4B4, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b172, 0x1000, 0x1000, 0, -30.0f, (s64)0);
             func_00364c70();
-            f110[0] =((*(f32 *)(w + 0x3B0)) + (*(f32 *)(w + 0x560)));
-            f110[1] =((*(f32 *)(w + 0x3B4)));
+            position.v[0] =((*(f32 *)(w + 0x3B0)) + (*(f32 *)(w + 0x560)));
+            position.v[1] =((*(f32 *)(w + 0x3B4)));
             b173 = (*(u8 *)(w + 0x3BA));
             s16c = 0;
-            do {
-                (*(s64 *)&uD0.v.f8) = (*(s64 *)&f108[0]);
-                (*(s64 *)&f100[0]) = (*(s64 *)&f110[0]);
-                f22 = uD0.v.fc + 5.5f;
-                uD0.v.fc = f22;
-                f21 = f100[0] + uD0.v.f8;
-                f20 = f100[1] + f22;
-                g1 = fGpffff8410;
-if (2147483648.0f <= g1) {
-                    v9 = (((s32)(g1 - 2147483648.0f)) | 0x80000000) & 0xFFFF;
-                } else {
-                    v9 = (s32)(g1) & 0xFFFF;
-                    }
-                
-                g12 = fGpffff8410;
-if (2147483648.0f <= g12) {
-                    v10 = (((s32)(g12 - 2147483648.0f)) | 0x80000000) & 0xFFFF;
-                } else {
-                    v10 = (s32)(g12) & 0xFFFF;
-                    }
-                
-                sx = (s64)(s32)((uD0.v.f8) - f21);
-                sy = (s64)(s32)(f22 - f20);
-                func_0034f320((u8 *)(*(s32 *)(w + 0x4A8)), f21, f20, 0, 0U, 0U, 0U, b173, v9, v10, sx, -30.0f, sy);
-                t1211 = (fGpffff8414 + f21);
-                g13 = fGpffff8410;
-if (2147483648.0f <= g13) {
-                    v92 = (((s32)(g13 - 2147483648.0f)) | 0x80000000) & 0xFFFF;
-                } else {
-                    v92 = (s32)(g13) & 0xFFFF;
-                    }
-                
-                g14 = fGpffff8410;
-if (2147483648.0f <= g14) {
-                    v102 = (((s32)(g14 - 2147483648.0f)) | 0x80000000) & 0xFFFF;
-                } else {
-                    v102 = (s32)(g14) & 0xFFFF;
-                    }
-                
-                sx = (s64)(s32)((uD0.v.f8) - t1211);
-                sy = (s64)(s32)(f22 - f20);
-                func_0034f320((u8 *)(*(s32 *)(w + 0x4AC)), t1211, f20, 0, 0U, 0U, 0U, b173, v92, v102, sx, -30.0f, sy);
-                f110[0] += fGpffff8418;
+            while (s16c < 3) {
+                shadowBase = basePosition;
+                offsetSnapshot = position;
+                shadowBase.xy.y += 5.5f;
+                /* Immutable snapshots keep the two draws on the same origin. */
+                {
+                    const f32 anchorY = shadowBase.xy.y;
+                    const f32 drawX = offsetSnapshot.v[0] + shadowBase.xy.x;
+                    const f32 drawY = offsetSnapshot.v[1] + anchorY;
+                    sprite = *(u8 **)(w + 0x4A8);
+                    func_0034f320(sprite, drawX, drawY, 0.0f, 0, 0, 0, b173, (u16)fGpffff8410,
+                        (u16)*(f32 *)&fGpffff8410, (s16)(shadowBase.xy.x - drawX), -30.0f, (s16)(shadowBase.xy.y - drawY));
+                    nextDrawX = (fGpffff8414 + drawX);
+                    func_0034f320(*(u8 **)(w + 0x4AC), nextDrawX, drawY, 0.0f, 0, 0, 0, b173, (u16)fGpffff8410,
+                        (u16)*(f32 *)&fGpffff8410, (s16)(shadowBase.xy.x - nextDrawX), -30.0f, (s16)(anchorY - drawY));
+                }
+                position.v[0] += fGpffff8418;
                 s16c += 1;
-            } while (s16c < 3);
-            f110[0] = ((*(f32 *)(w + 0x380)) - 88.0f);
-            f108[0] = f110[0];
-            f110[1] = (200.0f + (*(f32 *)(w + 0x384)));
-            f108[1] = f110[1];
+            }
+            position.v[0] = ((*(f32 *)(w + 0x380)) - 88.0f);
+            basePosition.v[0] = position.v[0];
+            position.v[1] = (200.0f + (*(f32 *)(w + 0x384)));
+            basePosition.v[1] = position.v[1];
             b174 = (*(u8 *)(w + 0x38A));
             w4B8 = (s32)(*(s32 *)(w + 0x4B8));
             func_00364c50();
-            func_0034f320((u8 *)w4B8, f110[0], f110[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b174, 0x1000, 0x1000, 0, 15.0f, (s64)0);
+            func_0034f320((u8 *)w4B8, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b174, 0x1000, 0x1000, 0, 15.0f, (s64)0);
             func_00364c70();
-            f110[0] =((*(f32 *)(w + 0x3E0)) + (*(f32 *)(w + 0x568)));
-            f110[1] =((*(f32 *)(w + 0x3E4)));
+            position.v[0] =((*(f32 *)(w + 0x3E0)) + (*(f32 *)(w + 0x568)));
+            position.v[1] =((*(f32 *)(w + 0x3E4)));
             b175 = (*(u8 *)(w + 0x3EA));
             s16c2 = 0;
-            do {
-                (*(s64 *)&uD0.v.e8) = (*(s64 *)&f108[0]);
-                (*(s64 *)&uD0.v.f0) = (*(s64 *)&f110[0]);
-                f22b = uD0.v.ec + 10.0f;
-                uD0.v.ec = f22b;
-                f21b = uD0.v.f0 + uD0.v.e8;
-                f20b = uD0.v.f4 + f22b;
-                v93 = (u16)4096.0f;
-                v103 = (u16)4096.0f;
-                
-                sx = (s64)(s32)((uD0.v.e8) - f21b);
-                sy = (s64)(s32)(f22b - f20b);
-                func_0034f320((u8 *)(*(s32 *)(w + 0x4A8)), f21b, f20b, 0, 0U, 0U, 0U, b175, v93, v103, sx, 15.0f, sy);
-                t1212 = 225.0f + f21b;
-                v94 = (u16)4096.0f;
-                v104 = (u16)4096.0f;
-                
-                sx = (s64)(s32)((uD0.v.e8) - t1212);
-                sy = (s64)(s32)(f22b - f20b);
-                func_0034f320((u8 *)(*(s32 *)(w + 0x4AC)), t1212, f20b, 0, 0U, 0U, 0U, b175, v94, v104, sx, 15.0f, sy);
-                f110[0] -= (f32) 0x157;
+            while (s16c2 < 3) {
+                secondaryBase = basePosition;
+                secondaryOffset = position;
+                secondaryBase.xy.y += 10.0f;
+                {
+                    const f32 secondaryAnchorY = secondaryBase.xy.y;
+                    const f32 secondaryDrawX = secondaryOffset.xy.x + secondaryBase.xy.x;
+                    const f32 secondaryDrawY = secondaryOffset.xy.y + secondaryAnchorY;
+                    /* A named floating scale preserves the per-argument conversion. */
+                    scale = 4096.0f;
+                    sprite = *(u8 **)(w + 0x4A8);
+                    func_0034f320(sprite, secondaryDrawX, secondaryDrawY, 0.0f, 0, 0, 0, b175,
+                        (u16)scale, (u16)scale, (s16)(secondaryBase.xy.x - secondaryDrawX), 15.0f,
+                        (s16)(secondaryBase.xy.y - secondaryDrawY));
+                    secondaryNextX = 225.0f + secondaryDrawX;
+                    func_0034f320(*(u8 **)(w + 0x4AC), secondaryNextX, secondaryDrawY, 0.0f, 0, 0, 0, b175,
+                        (u16)scale, (u16)scale, (s16)(secondaryBase.xy.x - secondaryNextX), 15.0f,
+                        (s16)(secondaryAnchorY - secondaryDrawY));
+                }
+                position.v[0] -= (f32) 0x157;
                 s16c2 += 1;
-            } while (s16c2 < 3);
+            }
         }
     }
 
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021fea0);
-#endif
+
+#pragma pop
 /* measured: retail allocates p=$s0, loop-addr=$s1, counter=$s2; mwcc b210
    invariantly allocates the named values to $s1/$s0 and the indexed store
    address temp to $s2 (counter<->addr rotation, nd 12, rest byte-identical).
