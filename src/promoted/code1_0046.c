@@ -3624,52 +3624,85 @@ void func_0046ec70(u8 *arg0) {
         node = *(u8 **)(node + 0x228);
     }
 }
-/* Within band +4: retail 984 vs object 988 (band 954-1013). Probe 890 words (base 985, -95).
- * Candidate /tmp/vE_all6_case4.c (from /var/tmp/cold46f2b0/cand_base_honest.c + 2 fixes; fnalign honest 1081->988).
- * Fixes measured via probe_variants + fnalign (isolated TU copies, same flags as baseline):
- * - u8->float dead branches: 6x `if ((s32)u8>=0) (f32)u8 else 2.0f*(f32)((u>>1)|(u&1))` always-taken (u8 0..255 => (s32)u8 >=0, else dead) but MWCC emits both sides incl. sra/andi/or/mtc1/cvt/lui/mtc1/mul.s.
- *   Simplified all 6 to direct `(f32)u8` (loop temp_11/10/9/8 + D_008C025C/D): probe 985->899 (-86), fnalign 1081->993 (-88, pure inserts [593:605] len12 + [628:640] len12 gone).
- * - outer switch density: retail jtbl_007567C0 6 entries 0-5 (case4 -> block_167 shared tail at +0xf04, case5 return -1 at +0xef8); candidate lacked explicit case4 (fell to default) so MWCC used beq chain, not table.
- *   Added `case 4: goto block_167;`: probe 899->890 (-9), fnalign 993->988 (-5, edits 531->510).
- * Audited, excluded with measurement (not assumed):
- * - absolute-value: no abs.s/fabs in retail or object (grep 0); deadzone `spB0<-48 / spB0>48` (and spB8) is two compares (c.lt/c.le + bc1) in both, no bit-mask/neg variant present -> 0 extra.
- * - unsigned (f32)(u32): 0 in body (all (f32)(s32)/(f32)u8) -> excluded.
- * - dsll32/dsra32: 0 in fnalign object and built .o -> excluded.
- * - field-by-field rect/colour/work stores match retail sw/swc1 counts -> excluded.
- * - defensive 9x null checks match retail beqz -> excluded.
- * - absolute 0x007641xx lui: 28x probe-only (built .o gp-relative via small-data) -> excluded from source fix.
- * - frame retail 0xE0 vs probe object 0xB0 (-48 smaller) -> excluded, not bloat.
- * Decl sweep S1-S8 not repeated per assignment (985/985/998/998/985/985/998/998, colouring not shape).
- */
-/* measured 2026-09-19: lui +15 unchanged (35 object vs 20 retail: 9x absolute 0x76 + 6x tables D_00887300/10; absolute excluded per above as probe-only, tables tested: tbl300/310 hoist keeps 988/984 but edits 510->599 (+89) so not taken; tbl300-only 985/984 (-3) with edits 510->603 (+93) so not taken); words 890, edits 510(+12 reloc) unchanged; no large holes (largest deletes 4,2,1). No source change. */
-/* measured 0046f2b0 (owner, 2026-09-19): fnalign **510 -> 507 edits**, count
-   988 -> 986 against retail 984, by writing m2c's top-tested `loop_N:` /
-   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
-   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
-   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
-   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
-   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
-   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
-   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
-// FUN_0046F2B0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0046f2b0(u8 *arg0)
+/* sdkLbox allocates a 0x190-byte controller. Its four 0x40-byte screen
+ * vertices use the RwSky2DVertexFields layout. k_view.c establishes the
+ * 0x22C-byte linked entry and its void (void *) selection callback. */
+typedef struct { u8 red, green, blue, alpha; } ControllerColor;
+typedef struct { s32 x, y, width, height; } ControllerRect;
+extern ControllerColor D_00764134;
+extern ControllerColor D_00764138;
+extern ControllerColor D_0076413C;
+extern ControllerColor D_00764140;
+extern ControllerColor D_00764144;
+extern ControllerColor D_00764148;
+extern ControllerColor D_0076414C;
+extern ControllerColor D_00764150;
+extern ControllerColor D_007641A8;
+
+typedef struct {
+    f32 x, y, z, cameraZ;
+    f32 u, v, reciprocalZ, fogPad;
+    f32 red, green, blue, alpha;
+    f32 normalX, normalY, normalZ, alignmentPad;
+} ControllerVertex;
+typedef struct {
+    s32 state, flags, theme, enabled, delay, unknown14;
+    ControllerRect rectangle;
+    s32 columnWidth, rowHeight;
+    ControllerVertex vertices[4];
+    u8 *window;
+    s32 selectedRow, selectedValue, repeatDelay, visible;
+    void *firstEntry, *lastEntry;
+    s32 (*update)(s32); s32 updateArgument;
+    u8 unknown154[0x10]; u8 input[0x2C];
+} ControllerWork;
+
+typedef struct ControllerEntry {
+    s32 id, type;
+    char name[256], text[256];
+    s32 integerValue; f32 realValue;
+    s32 minimum, maximum, flags;
+    KWindowEntryCallback callback;
+    void *argument;
+    struct ControllerEntry *previous, *next;
+} ControllerEntry;
+
+/* Keep construction and its consuming call together. Native rectangle
+ * initialization supplies the retail byte clear; the two RGBA values are
+ * complete snapshots, not floating-point colors. */
+static inline u8 *controller_create_window(u8 *parent,
+    s32 x, s32 y, s32 width, s32 height,
+    const ControllerColor *firstSource, const ControllerColor *secondSource)
+{
+    extern u8 *func_0046e850(u8 *, void *, void *, void *);
+    ControllerColor first, second;
+    ControllerRect rectangle = { x, y, width, height };
+    first = *firstSource;
+    second = *secondSource;
+    return func_0046e850(parent, &rectangle, &first, &second);
+}
+
+/* Process the debug list window, its live controller input and selection callback.
+ * Native rectangle/color construction and scoped loop-invariant extraction
+ * reproduce 3928 executable bytes plus the eight-byte retail zero tail. */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_0046F2B0
+s32 func_0046f2b0(u8 *task)
 {
     extern s32 func_00457120(void);
     extern u32 func_003e8120(u32 camera);
     extern u32 func_003e8110(u32 camera);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern s32 func_00453960(u8 *arg0);
-    extern s32 func_00453d70(void *arg0);
-    extern s32 func_00453dc0(void *arg0);
-    extern u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg);
-    extern s32 func_0046ea10(u8 *arg0);
-    extern void func_0046ea60(u8 *arg0, u8 *arg1);
-    extern void func_0046ec70(u8 *arg0);
-    extern void func_00470490(u8 *arg0, s32 arg1, s32 arg2);
-    extern u8 *func_00470d10(u8 *arg0, s32 arg1);
-    extern s32 func_00470e20(u8 *arg0);
-    extern WindowRenderStateSet D_00887300[];
+    extern s32 func_00453960(u8 *task);
+    extern s32 func_00453d70(void *task);
+    extern s32 func_00453dc0(void *task);
+    extern s32 func_0046ea10(u8 *task);
+    extern void func_0046ea60(u8 *task, u8 *arg1);
+    extern void func_0046ec70(u8 *task);
+    extern void func_00470490(u8 *task, s32 arg1, s32 arg2);
+    extern u8 *func_00470d10(u8 *task, s32 arg1);
+    extern s32 func_00470e20(u8 *task);
     extern s32 (*D_00887310[])(s32, void *, s32);
     extern u16 D_008C024C[];
     extern u16 D_008C024E[];
@@ -3678,454 +3711,382 @@ s32 func_0046f2b0(u8 *arg0)
     extern u8 D_008C025D[];
     extern f32 D_00761514;
 
-    f32 spDC;
-    f32 spD8;
-    f32 spD4;
-    f32 spD0;
-    f32 spCC;
-    f32 spC8;
-    f32 spC4;
-    f32 spC0;
-    s32 rectangles[4][4];
     f32 joystick[3];
-    struct { void *value; s32 argument; } callbackArgument;
-    s32 (*temp_2)(s32);
-    KWindowEntryCallback temp_5;
-    u8 *var_3_5;
-    f32 temp_f1;
-    f32 temp_f1_2;
-    f32 temp_f20;
-    f32 temp_f21;
-    f32 var_f0;
-    f32 var_f0_2;
-    f32 var_f0_3;
-    f32 var_f0_4;
-    f32 var_f1;
-    f32 var_f1_2;
-    u8 *var_3;
-    u8 *var_3_2;
-    u8 *var_3_3;
-    u8 *var_3_4;
-    s32 temp_2_2;
-    s32 temp_2_6;
-    s32 temp_3;
-    s32 temp_3_2;
-    s32 temp_3_3;
-    s32 temp_4_2;
-    s32 temp_4_3;
-    s32 temp_4_4;
-    s32 temp_4_5;
-    s32 temp_6;
-    s32 temp_6_2;
-    s32 var_12;
-    s32 var_18;
-    s32 var_2;
-    s32 var_2_2;
-    s32 var_2_3;
-    s32 var_2_4;
-    s32 var_2_5;
-    s32 var_6;
-    s32 var_6_2;
-    u32 temp_4;
-    u32 temp_10;
-    u32 temp_11;
-    u32 temp_8;
-    u32 temp_9;
-    void *temp_17;
-    void *temp_2_3;
-    void *temp_2_4;
-    void *temp_2_5;
-    void *temp_7;
+    struct { void *value; void *argument; } callbackArgument;
+    s32 (*update)(s32);
+    KWindowEntryCallback entryCallback;
+    u8 *clearByte;
+    f32 incrementedReal;
+    f32 decrementedReal;
+    f32 depth;
+    f32 reciprocalDepth;
+    f32 redFloat;
+    f32 greenFloat;
+    f32 blueFloat;
+    f32 alphaFloat;
+    f32 analogX;
+    f32 analogY;
+    s32 delay;
+    void *actionArgument;
+    s32 theme;
+    void *textArgument;
+    void *realArgument;
+    s32 incremented;
+    s32 decremented;
+    s32 entryType;
+    void *integerArgument;
+    s32 incrementType;
+    s32 decrementType;
+    s32 vertexIndex;
+    s32 modifier;
+    u32 clearCount;
+    s32 increment;
+    s32 decrement;
+    s32 state;
+    u32 green;
+    u32 red;
+    u32 alpha;
+    u32 blue;
+    ControllerWork *work;
+    ControllerEntry *incrementEntry;
+    ControllerEntry *decrementEntry;
+    ControllerEntry *selectedEntry;
+    u8 *vertexBase;
 
-    temp_17 = (*(void **)((u8 *)(arg0) + (0x38)));
-    var_18 = 0;
-    temp_4 = (*(u32 *)((u8 *)(temp_17) + (0)));
-    switch (temp_4) {                               /* switch 1 */
-    case 0:                                         /* switch 1 */
-        if ((*(s32 *)((u8 *)(temp_17) + (0xC))) == 1) {
-            (*(u32 *)((u8 *)(temp_17) + (0))) = (u32) (temp_4 + 1);
+    work = *(ControllerWork **)(task + 0x38);
+    modifier = 0;
+    state = work->state;
+    switch (state) {
+    case 0:
+        if (work->enabled == 1) {
+            work->state = state + 1;
         }
-    default:                                        /* switch 1 */
-block_167:
-        if ((s32) (*(u32 *)((u8 *)(temp_17) + (0))) >= 3) {
-            temp_2 = (*(s32 (**)(s32))((u8 *)(temp_17) + (0x14C)));
-            if (temp_2 != NULL) {
-                temp_2((*(s32 *)((u8 *)(temp_17) + (0x150))));
-            }
-        }
-        return 0;
-    case 1:                                         /* switch 1 */
-        temp_f21 = (*(f32 *)((u8 *)(func_00457120()) + (0x80)));
-        temp_f20 = 1.0f / temp_f21;
-        temp_3 = (*(s32 *)((u8 *)(temp_17) + (8)));
-        switch (temp_3) {                           /* switch 2; irregular */
-        case 0:                                     /* switch 2 */
-            var_3 = (u8 *)&rectangles[0];
-            var_2 = 0x10;
-            if (var_3 != NULL) {
-                do {
-                    *var_3 = 0;
-                    var_3 += 1;
-                    var_2 -= 1;
-                } while (var_2 != 0);
-            }
-            rectangles[0][0] = (*(s32 *)((u8 *)(temp_17) + (0x18)));
-            rectangles[0][1] = (*(s32 *)((u8 *)(temp_17) + (0x1C)));
-            rectangles[0][2] = (*(s32 *)((u8 *)(temp_17) + (0x20)));
-            rectangles[0][3] = (*(s32 *)((u8 *)(temp_17) + (0x24)));
-            spDC = (*(f32 *)0x00764134);
-            spD8 = (*(f32 *)0x00764138);
-            (*(u8 **)((u8 *)(temp_17) + 0x130)) = func_0046e850(arg0, &rectangles[0], &spDC, &spD8);
-            (*(u8 *)0x007641A8) = 0U;
-            (*(u8 *)0x007641A9) = 0xE3U;
-            (*(u8 *)0x007641AA) = 0U;
-            (*(u8 *)0x007641AB) = 0x40U;
+    default:
+        goto update_callback;
+    case 1:
+        depth = *(f32 *)((u8 *)func_00457120() + 0x80);
+        reciprocalDepth = 1.0f / depth;
+        theme = work->theme;
+        switch (theme) {
+        case 0:
+            work->window = controller_create_window(task,
+                work->rectangle.x, work->rectangle.y,
+                work->rectangle.width, work->rectangle.height,
+                &D_00764134, &D_00764138);
+            D_007641A8.red = 0U;
+            D_007641A8.green = 0xE3U;
+            D_007641A8.blue = 0U;
+            D_007641A8.alpha = 0x40U;
             break;
-        case 1:                                     /* switch 2 */
-            var_3_2 = (u8 *)&rectangles[1];
-            var_2_2 = 0x10;
-            if (var_3_2 != NULL) {
-                do {
-                    *var_3_2 = 0;
-                    var_3_2 += 1;
-                    var_2_2 -= 1;
-                } while (var_2_2 != 0);
-            }
-            rectangles[1][0] = (*(s32 *)((u8 *)(temp_17) + (0x18)));
-            rectangles[1][1] = (*(s32 *)((u8 *)(temp_17) + (0x1C)));
-            rectangles[1][2] = (*(s32 *)((u8 *)(temp_17) + (0x20)));
-            rectangles[1][3] = (*(s32 *)((u8 *)(temp_17) + (0x24)));
-            spD4 = (*(f32 *)0x0076413C);
-            spD0 = (*(f32 *)0x00764140);
-            (*(u8 **)((u8 *)(temp_17) + 0x130)) = func_0046e850(arg0, &rectangles[1], &spD4, &spD0);
-            (*(u8 *)0x007641A8) = 0x54U;
-            (*(u8 *)0x007641A9) = 0U;
-            (*(u8 *)0x007641AA) = 0U;
-            (*(u8 *)0x007641AB) = 0x60U;
+        case 1:
+            work->window = controller_create_window(task,
+                work->rectangle.x, work->rectangle.y,
+                work->rectangle.width, work->rectangle.height,
+                &D_0076413C, &D_00764140);
+            D_007641A8.red = 0x54U;
+            D_007641A8.green = 0U;
+            D_007641A8.blue = 0U;
+            D_007641A8.alpha = 0x60U;
             break;
-        case 2:                                     /* switch 2 */
-            var_3_3 = (u8 *)&rectangles[2];
-            var_2_3 = 0x10;
-            if (var_3_3 != NULL) {
-                do {
-                    *var_3_3 = 0;
-                    var_3_3 += 1;
-                    var_2_3 -= 1;
-                } while (var_2_3 != 0);
-            }
-            rectangles[2][0] = (*(s32 *)((u8 *)(temp_17) + (0x18)));
-            rectangles[2][1] = (*(s32 *)((u8 *)(temp_17) + (0x1C)));
-            rectangles[2][2] = (*(s32 *)((u8 *)(temp_17) + (0x20)));
-            rectangles[2][3] = (*(s32 *)((u8 *)(temp_17) + (0x24)));
-            spCC = (*(f32 *)0x00764144);
-            spC8 = (*(f32 *)0x00764148);
-            (*(u8 **)((u8 *)(temp_17) + 0x130)) = func_0046e850(arg0, &rectangles[2], &spCC, &spC8);
-            (*(u8 *)0x007641A8) = 0xE3U;
-            (*(u8 *)0x007641A9) = 0x4AU;
-            (*(u8 *)0x007641AA) = 0U;
-            (*(u8 *)0x007641AB) = 0x60U;
+        case 2:
+            work->window = controller_create_window(task,
+                work->rectangle.x, work->rectangle.y,
+                work->rectangle.width, work->rectangle.height,
+                &D_00764144, &D_00764148);
+            D_007641A8.red = 0xE3U;
+            D_007641A8.green = 0x4AU;
+            D_007641A8.blue = 0U;
+            D_007641A8.alpha = 0x60U;
             break;
-        case 3:                                     /* switch 2 */
-            var_3_4 = (u8 *)&rectangles[3];
-            var_2_4 = 0x10;
-            if (var_3_4 != NULL) {
-                do {
-                    *var_3_4 = 0;
-                    var_3_4 += 1;
-                    var_2_4 -= 1;
-                } while (var_2_4 != 0);
-            }
-            rectangles[3][0] = (*(s32 *)((u8 *)(temp_17) + (0x18)));
-            rectangles[3][1] = (*(s32 *)((u8 *)(temp_17) + (0x1C)));
-            rectangles[3][2] = (*(s32 *)((u8 *)(temp_17) + (0x20)));
-            rectangles[3][3] = (*(s32 *)((u8 *)(temp_17) + (0x24)));
-            spC4 = (*(f32 *)0x0076414C);
-            spC0 = (*(f32 *)0x00764150);
-            (*(u8 **)((u8 *)(temp_17) + 0x130)) = func_0046e850(arg0, &rectangles[3], &spC4, &spC0);
-            (*(u8 *)0x007641A8) = 0x80U;
-            (*(u8 *)0x007641A9) = 0x80U;
-            (*(u8 *)0x007641AA) = 0x80U;
-            (*(u8 *)0x007641AB) = 0x60U;
+        case 3:
+            work->window = controller_create_window(task,
+                work->rectangle.x, work->rectangle.y,
+                work->rectangle.width, work->rectangle.height,
+                &D_0076414C, &D_00764150);
+            D_007641A8.red = 0x80U;
+            D_007641A8.green = 0x80U;
+            D_007641A8.blue = 0x80U;
+            D_007641A8.alpha = 0x60U;
             break;
         }
-        var_12 = 0;
-        temp_11 = (*(u8 *)0x007641A8);
-        temp_10 = (*(u8 *)0x007641A9);
-        temp_9 = (*(u8 *)0x007641AA);
-        temp_8 = (*(u8 *)0x007641AB);
-do {
-                temp_7 = (u8 *)temp_17 + (var_12 << 6);
-                (*(s32 *)((u8 *)(temp_7) + (0x30))) = 0;
-                (*(s32 *)((u8 *)(temp_7) + (0x34))) = 0;
-                (*(f32 *)((u8 *)(temp_7) + (0x38))) = temp_f21;
-                (*(f32 *)((u8 *)(temp_7) + (0x48))) = temp_f20;
-                var_f0 = (f32) temp_11;
-                (*(f32 *)((u8 *)(temp_7) + (0x50))) = var_f0;
-                var_f0_2 = (f32) temp_10;
-                (*(f32 *)((u8 *)(temp_7) + (0x54))) = var_f0_2;
-                var_f0_3 = (f32) temp_9;
-                (*(f32 *)((u8 *)(temp_7) + (0x58))) = var_f0_3;
-                var_f0_4 = (f32) temp_8;
-                (*(f32 *)((u8 *)(temp_7) + (0x5C))) = var_f0_4;
-                var_12 += 1;
-} while (var_12 < 4);
-        (*(u32 *)((u8 *)(temp_17) + (0))) = (u32) ((*(u32 *)((u8 *)(temp_17) + (0))) + 1);
-        goto block_167;
-    case 2:                                         /* switch 1 */
-        if (func_0046ea10((*(u8 **)((u8 *)(temp_17) + 0x130))) != 1) {
-            func_0046ea60((*(u8 **)((u8 *)(temp_17) + 0x130)), (u8 *)temp_17 + 0x18);
-            (*(u32 *)((u8 *)(temp_17) + (0))) = (u32) ((*(u32 *)((u8 *)(temp_17) + (0))) + 1);
+        vertexIndex = 0;
+        red = D_007641A8.red;
+        green = D_007641A8.green;
+        blue = D_007641A8.blue;
+        alpha = D_007641A8.alpha;
+        /* SDK vertex stores stay relative to the controller root. This
+         * preserves their order while each iteration advances one vertex. */
+        for (; vertexIndex < 4; vertexIndex++) {
+            vertexBase = (u8 *)work + (vertexIndex << 6);
+            *(f32 *)(vertexBase + 0x30) = 0.0f;
+            *(f32 *)(vertexBase + 0x34) = 0.0f;
+            *(f32 *)(vertexBase + 0x38) = depth;
+            *(f32 *)(vertexBase + 0x48) = reciprocalDepth;
+            redFloat = (f32) red;
+            *(f32 *)(vertexBase + 0x50) = redFloat;
+            greenFloat = (f32) green;
+            *(f32 *)(vertexBase + 0x54) = greenFloat;
+            blueFloat = (f32) blue;
+            *(f32 *)(vertexBase + 0x58) = blueFloat;
+            alphaFloat = (f32) alpha;
+            *(f32 *)(vertexBase + 0x5C) = alphaFloat;
         }
-        goto block_167;
-    case 3:                                         /* switch 1 */
+        work->state = work->state + 1;
+        goto update_callback;
+    case 2:
+        if (func_0046ea10(work->window) != 1) {
+            func_0046ea60(work->window, (u8 *)&work->rectangle);
+            work->state = work->state + 1;
+        }
+        goto update_callback;
+    case 3:
         if (D_008C024C[0] & 8) {
-            var_18 = 1;
+            modifier = 1;
         } else if (D_008C024C[0] & 4) {
-            var_18 = 2;
+            modifier = 2;
         } else if (D_008C024C[0] & 2) {
-            var_18 = 3;
+            modifier = 3;
         } else if (D_008C024C[0] & 1) {
-            var_18 = 4;
+            modifier = 4;
         }
         if ((D_008C024C[0] & 2) && (D_008C024C[0] & 1)) {
-            var_18 = 5;
+            modifier = 5;
         }
-        if (((*(s32 *)((u8 *)(temp_17) + (0xC))) == 1) && ((*(s32 *)((u8 *)(temp_17) + (0x140))) != 0)) {
-            if (!((*(s32 *)((u8 *)(temp_17) + (4))) & 1)) {
-                (*(f32 *)((u8 *)(temp_17) + (0x30))) = (f32) ((*(s32 *)((u8 *)(temp_17) + (0x18))) + 2);
-                (*(f32 *)((u8 *)(temp_17) + (0x34))) = (f32) ((*(s32 *)((u8 *)(temp_17) + (0x1C))) + 2 + ((*(s32 *)((u8 *)(temp_17) + (0x134))) * (*(s32 *)((u8 *)(temp_17) + (0x2C)))));
-                (*(f32 *)((u8 *)(temp_17) + (0x70))) = (f32) ((*(s32 *)((u8 *)(temp_17) + (0x18))) - 2 + (*(s32 *)((u8 *)(temp_17) + (0x20))));
-                (*(f32 *)((u8 *)(temp_17) + (0x74))) = (f32) ((*(s32 *)((u8 *)(temp_17) + (0x1C))) + 2 + ((*(s32 *)((u8 *)(temp_17) + (0x134))) * (*(s32 *)((u8 *)(temp_17) + (0x2C)))));
-                (*(f32 *)((u8 *)(temp_17) + (0xB0))) = (f32) ((*(s32 *)((u8 *)(temp_17) + (0x18))) + 2);
-                (*(f32 *)((u8 *)(temp_17) + (0xB4))) = (f32) (((*(s32 *)((u8 *)(temp_17) + (0x2C))) * ((*(s32 *)((u8 *)(temp_17) + (0x134))) + 1)) + 2 + (*(s32 *)((u8 *)(temp_17) + (0x1C))));
-                (*(f32 *)((u8 *)(temp_17) + (0xF0))) = (f32) ((*(s32 *)((u8 *)(temp_17) + (0x18))) - 2 + (*(s32 *)((u8 *)(temp_17) + (0x20))));
-                (*(f32 *)((u8 *)(temp_17) + (0xF4))) = (f32) (((*(s32 *)((u8 *)(temp_17) + (0x2C))) * ((*(s32 *)((u8 *)(temp_17) + (0x134))) + 1)) + 2 + (*(s32 *)((u8 *)(temp_17) + (0x1C))));
+        if ((work->enabled == 1) && (work->visible != 0)) {
+            if (!(work->flags & 1)) {
+                work->vertices[0].x = (f32) (work->rectangle.x + 2);
+                work->vertices[0].y = (f32) (work->rectangle.y + 2 + (work->selectedRow * work->rowHeight));
+                work->vertices[1].x = (f32) (work->rectangle.x - 2 + work->rectangle.width);
+                work->vertices[1].y = (f32) (work->rectangle.y + 2 + (work->selectedRow * work->rowHeight));
+                work->vertices[2].x = (f32) (work->rectangle.x + 2);
+                {
+                    s32 bottomOffset = (work->rowHeight * (work->selectedRow + 1)) + 2;
+                    work->vertices[2].y = (f32)(bottomOffset + work->rectangle.y);
+                }
+                work->vertices[3].x = (f32) (work->rectangle.x - 2 + work->rectangle.width);
+                {
+                    s32 bottomOffset = (work->rowHeight * (work->selectedRow + 1)) + 2;
+                    work->vertices[3].y = (f32)(bottomOffset + work->rectangle.y);
+                }
                 if (func_003e8120((u32)func_00457120()) != 0) {
-                    D_00887300[0]((RwRenderState)(0xE), (void *)(0));
-                    D_00887300[0]((RwRenderState)(0xC), (void *)(1));
-                    D_00887300[0]((RwRenderState)(7), (void *)(2));
-                    D_00887300[0]((RwRenderState)(0x14), (void *)(1));
-                    D_00887300[0]((RwRenderState)(6), (void *)(0));
-                    D_00887300[0]((RwRenderState)(8), (void *)(0));
-                    D_00887300[0]((RwRenderState)(1), (void *)(0));
+                    WindowRenderStateSet *renderStates = &((WindowEngineStatePrefix *)ourGlobals)->device.setState;
+                    renderStates[0]((RwRenderState)(0xE), (void *)(0));
+                    renderStates[0]((RwRenderState)(0xC), (void *)(1));
+                    renderStates[0]((RwRenderState)(7), (void *)(2));
+                    renderStates[0]((RwRenderState)(0x14), (void *)(1));
+                    renderStates[0]((RwRenderState)(6), (void *)(0));
+                    renderStates[0]((RwRenderState)(8), (void *)(0));
+                    renderStates[0]((RwRenderState)(1), (void *)(0));
                     RpSkyRenderStateSet(2, (void *)(0x44));
                     RpSkyRenderStateSet(3, (void *)(0x717FB));
-                    D_00887310[0](4, (u8 *)temp_17 + 0x30, 4);
+                    D_00887310[0](4, work->vertices, 4);
                 }
                 func_003e8110((u32)func_00457120());
             }
             func_003e8120((u32)func_00457120());
-            func_0046ec70(arg0);
+            func_0046ec70(task);
             func_003e8110((u32)func_00457120());
-            if ((*(s32 *)((u8 *)(temp_17) + (4))) & 4) {
-                var_3_5 = (u8 *)&joystick;
-                var_2_5 = 0xC;
-                if (var_3_5 != NULL) {
+            if (work->flags & 4) {
+                clearByte = (u8 *)&joystick;
+                clearCount = 0xC;
+                if (clearByte != NULL) {
                     do {
-                        *var_3_5 = 0;
-                        var_3_5 += 1;
-                        var_2_5 -= 1;
-                    } while (var_2_5 != 0);
+                        *clearByte = 0;
+                        clearByte += 1;
+                        clearCount -= 1U;
+                    } while (clearCount != 0);
                 }
-                var_f1 = (f32)(u32) D_008C025C[0];
-                joystick[0] = var_f1 - 128.0f;
-                var_f1_2 = (f32)(u32) D_008C025D[0];
-                joystick[2] = var_f1_2 - 128.0f;
+                analogX = (f32)(u32) D_008C025C[0];
+                joystick[0] = analogX - 128.0f;
+                analogY = (f32)(u32) D_008C025D[0];
+                joystick[2] = analogY - 128.0f;
                 if (joystick[0] < -48.0f) {
-                    (*(s32 *)((u8 *)(temp_17) + (0x18))) = (s32) ((*(s32 *)((u8 *)(temp_17) + (0x18))) - 0xA);
+                    work->rectangle.x = (s32) (work->rectangle.x - 0xA);
                 } else if (!(joystick[0] <= 48.0f)) {
-                    (*(s32 *)((u8 *)(temp_17) + (0x18))) = (s32) ((*(s32 *)((u8 *)(temp_17) + (0x18))) + 0xA);
+                    work->rectangle.x = (s32) (work->rectangle.x + 0xA);
                 }
                 if (joystick[2] < -48.0f) {
-                    (*(s32 *)((u8 *)(temp_17) + (0x1C))) = (s32) ((*(s32 *)((u8 *)(temp_17) + (0x1C))) - 0xA);
+                    work->rectangle.y = (s32) (work->rectangle.y - 0xA);
                 } else if (!(joystick[2] <= 48.0f)) {
-                    (*(s32 *)((u8 *)(temp_17) + (0x1C))) = (s32) ((*(s32 *)((u8 *)(temp_17) + (0x1C))) + 0xA);
+                    work->rectangle.y = (s32) (work->rectangle.y + 0xA);
                 }
-                func_00470490(arg0, (*(s32 *)((u8 *)(temp_17) + (0x18))), (*(s32 *)((u8 *)(temp_17) + (0x1C))));
+                func_00470490(task, work->rectangle.x, work->rectangle.y);
             }
-            if (!((*(s32 *)((u8 *)(temp_17) + (4))) & 2)) {
-                temp_2_2 = (*(s32 *)((u8 *)(temp_17) + (0x10)));
-                if (temp_2_2 > 0) {
-                    (*(s32 *)((u8 *)(temp_17) + (0x10))) = (s32) (temp_2_2 - 1);
-                } else if (func_00453960((u8 *)temp_17 + 0x164) != 0) {
-                    (*(s32 *)((u8 *)(temp_17) + (0x138))) = func_00453d70((u8 *)temp_17 + 0x164);
-                    (*(s32 *)((u8 *)(temp_17) + (0x134))) = func_00453dc0((u8 *)temp_17 + 0x164);
+            if (!(work->flags & 2)) {
+                delay = work->delay;
+                if (delay > 0) {
+                    work->delay = (s32) (delay - 1);
+                } else if (func_00453960(work->input) != 0) {
+                    work->selectedValue = func_00453d70(work->input);
+                    work->selectedRow = func_00453dc0(work->input);
                 } else if (D_008C0252[0] & 0x2000) {
-                    temp_2_3 = func_00470d10(arg0, func_00470e20(arg0));
-                    if (temp_2_3 != NULL) {
-                        temp_6 = (*(s32 *)((u8 *)(temp_2_3) + (4)));
-                        switch (temp_6) {           /* switch 3; irregular */
-                        case 1:                     /* switch 3 */
-                        case 0:                     /* switch 3 */
+                    incrementEntry = (ControllerEntry *)func_00470d10(task, func_00470e20(task));
+                    if (incrementEntry != NULL) {
+                        incrementType = incrementEntry->type;
+                        switch (incrementType) {
+                        case 0:
+                        case 1:
                             break;
-                        case 2:                     /* switch 3 */
-                            (*(s32 *)((u8 *)(temp_2_3) + (0x208))) = (s32) ((*(s32 *)((u8 *)(temp_2_3) + (0x208))) != 1);
+                        case 2:
+                            incrementEntry->integerValue = (s32) (incrementEntry->integerValue != 1);
                             break;
-                        case 3:                     /* switch 3 */
-                            var_6 = 1;
-                            switch (var_18) {       /* switch 4; irregular */
-                            case 1:                 /* switch 4 */
-                                var_6 = 0xA;
-                                break;
-                            case 2:                 /* switch 4 */
-                                var_6 = 0x64;
-                                break;
-                            case 3:                 /* switch 4 */
-                                var_6 = 0x3E8;
-                                break;
-                            case 4:                 /* switch 4 */
-                                var_6 = 0x2710;
-                                break;
-                            case 5:                 /* switch 4 */
-                                var_6 = 0x186A0;
-                                break;
+                        case 3:
+                            increment = 1;
+                            if (modifier == 1) {
+                                increment = 10;
                             }
-                            temp_4_2 = (*(s32 *)((u8 *)(temp_2_3) + (0x208))) + var_6;
-                            (*(s32 *)((u8 *)(temp_2_3) + (0x208))) = temp_4_2;
-                            if ((*(s32 *)((u8 *)(temp_2_3) + (0x214))) < temp_4_2) {
-                                (*(s32 *)((u8 *)(temp_2_3) + (0x208))) = (s32) (*(s32 *)((u8 *)(temp_2_3) + (0x210)));
+                            else if (modifier == 2) {
+                                increment = 100;
+                            }
+                            else if (modifier == 3) {
+                                increment = 1000;
+                            }
+                            else if (modifier == 4) {
+                                increment = 10000;
+                            }
+                            else if (modifier == 5) {
+                                increment = 100000;
+                            }
+                            incremented = (s32)((u32)incrementEntry->integerValue + (u32)increment);
+                            incrementEntry->integerValue = incremented;
+                            if (incrementEntry->maximum < incremented) {
+                                incrementEntry->integerValue = (s32) incrementEntry->minimum;
                             }
                             break;
-                        case 4:                     /* switch 3 */
+                        case 4:
                             {
-                                s32 step = 1;
-                                switch (var_18) {
-                                case 1:
-                                    step = 10;
-                                    break;
-                                case 2:
-                                    step = 100;
-                                    break;
-                                case 3:
-                                    step = 1000;
-                                    break;
-                                case 4:
-                                    step = 10000;
-                                    break;
-                                case 5:
-                                    step = 100000;
-                                    break;
+                                s32 realIncrement = 1;
+                                if (modifier == 1) {
+                                    realIncrement = 10;
                                 }
-                                temp_f1 = (*(f32 *)((u8 *)(temp_2_3) + 0x20C)) + D_00761514 * (f32)step;
-                                (*(f32 *)((u8 *)(temp_2_3) + 0x20C)) = temp_f1;
-                                if (!(temp_f1 <= (f32)(*(s32 *)((u8 *)(temp_2_3) + 0x214)))) {
-                                    (*(f32 *)((u8 *)(temp_2_3) + 0x20C)) = (f32)(*(s32 *)((u8 *)(temp_2_3) + 0x210));
+                                else if (modifier == 2) {
+                                    realIncrement = 100;
+                                }
+                                else if (modifier == 3) {
+                                    realIncrement = 1000;
+                                }
+                                else if (modifier == 4) {
+                                    realIncrement = 10000;
+                                }
+                                else if (modifier == 5) {
+                                    realIncrement = 100000;
+                                }
+                                incrementedReal = incrementEntry->realValue + D_00761514 * (f32)realIncrement;
+                                incrementEntry->realValue = incrementedReal;
+                                if (!(incrementedReal <= (f32)incrementEntry->maximum)) {
+                                    incrementEntry->realValue = (f32)incrementEntry->minimum;
                                 }
                             }
                             break;
                         }
                     }
                 } else if (D_008C0252[0] & 0x8000) {
-                    temp_2_4 = func_00470d10(arg0, func_00470e20(arg0));
-                    if (temp_2_4 != NULL) {
-                        temp_6_2 = (*(s32 *)((u8 *)(temp_2_4) + (4)));
-                        switch (temp_6_2) {         /* switch 6; irregular */
-                        case 1:                     /* switch 6 */
-                        case 0:                     /* switch 6 */
+                    decrementEntry = (ControllerEntry *)func_00470d10(task, func_00470e20(task));
+                    if (decrementEntry != NULL) {
+                        decrementType = decrementEntry->type;
+                        switch (decrementType) {
+                        case 0:
+                        case 1:
                             break;
-                        case 2:                     /* switch 6 */
-                            (*(s32 *)((u8 *)(temp_2_4) + (0x208))) = (s32) ((*(s32 *)((u8 *)(temp_2_4) + (0x208))) != 1);
+                        case 2:
+                            decrementEntry->integerValue = (s32) (decrementEntry->integerValue != 1);
                             break;
-                        case 3:                     /* switch 6 */
-                            var_6_2 = 1;
-                            switch (var_18) {       /* switch 7; irregular */
-                            case 1:                 /* switch 7 */
-                                var_6_2 = 0xA;
-                                break;
-                            case 2:                 /* switch 7 */
-                                var_6_2 = 0x64;
-                                break;
-                            case 3:                 /* switch 7 */
-                                var_6_2 = 0x3E8;
-                                break;
-                            case 4:                 /* switch 7 */
-                                var_6_2 = 0x2710;
-                                break;
-                            case 5:                 /* switch 7 */
-                                var_6_2 = 0x186A0;
-                                break;
+                        case 3:
+                            decrement = 1;
+                            if (modifier == 1) {
+                                decrement = 10;
                             }
-                            temp_4_3 = (*(s32 *)((u8 *)(temp_2_4) + (0x208))) - var_6_2;
-                            (*(s32 *)((u8 *)(temp_2_4) + (0x208))) = temp_4_3;
-                            if (temp_4_3 < (*(s32 *)((u8 *)(temp_2_4) + (0x210)))) {
-                                (*(s32 *)((u8 *)(temp_2_4) + (0x208))) = (s32) (*(s32 *)((u8 *)(temp_2_4) + (0x214)));
+                            else if (modifier == 2) {
+                                decrement = 100;
+                            }
+                            else if (modifier == 3) {
+                                decrement = 1000;
+                            }
+                            else if (modifier == 4) {
+                                decrement = 10000;
+                            }
+                            else if (modifier == 5) {
+                                decrement = 100000;
+                            }
+                            decremented = (s32)((u32)decrementEntry->integerValue - (u32)decrement);
+                            decrementEntry->integerValue = decremented;
+                            if (decremented < decrementEntry->minimum) {
+                                decrementEntry->integerValue = (s32) decrementEntry->maximum;
                             }
                             break;
-                        case 4:                     /* switch 6 */
+                        case 4:
                             {
-                                s32 step2 = 1;
-                                switch (var_18) {
-                                case 1:
-                                    step2 = 10;
-                                    break;
-                                case 2:
-                                    step2 = 100;
-                                    break;
-                                case 3:
-                                    step2 = 1000;
-                                    break;
-                                case 4:
-                                    step2 = 10000;
-                                    break;
-                                case 5:
-                                    step2 = 100000;
-                                    break;
+                                s32 realDecrement = 1;
+                                if (modifier == 1) {
+                                    realDecrement = 10;
                                 }
-                                temp_f1_2 = (*(f32 *)((u8 *)(temp_2_4) + 0x20C)) - D_00761514 * (f32)step2;
-                                (*(f32 *)((u8 *)(temp_2_4) + 0x20C)) = temp_f1_2;
-                                if (temp_f1_2 < (f32)(*(s32 *)((u8 *)(temp_2_4) + 0x210))) {
-                                    (*(f32 *)((u8 *)(temp_2_4) + 0x20C)) = (f32)(*(s32 *)((u8 *)(temp_2_4) + 0x214));
+                                else if (modifier == 2) {
+                                    realDecrement = 100;
+                                }
+                                else if (modifier == 3) {
+                                    realDecrement = 1000;
+                                }
+                                else if (modifier == 4) {
+                                    realDecrement = 10000;
+                                }
+                                else if (modifier == 5) {
+                                    realDecrement = 100000;
+                                }
+                                decrementedReal = decrementEntry->realValue - D_00761514 * (f32)realDecrement;
+                                decrementEntry->realValue = decrementedReal;
+                                if (decrementedReal < (f32)decrementEntry->minimum) {
+                                    decrementEntry->realValue = (f32)decrementEntry->maximum;
                                 }
                             }
                             break;
                         }
                     }
                 } else if (D_008C024E[0] & 0x40) {
-                    temp_2_5 = func_00470d10(arg0, func_00470e20(arg0));
-                    if (temp_2_5 != NULL) {
-                        temp_5 = (*(KWindowEntryCallback *)((u8 *)(temp_2_5) + 0x21C));
-                        if (temp_5 != NULL) {
-                            temp_4_4 = (*(s32 *)((u8 *)(temp_2_5) + (4)));
-                            switch (temp_4_4) {     /* switch 9; irregular */
-                            case 0:                 /* switch 9 */
-                                temp_2_6 = (*(s32 *)((u8 *)(temp_2_5) + (0x220)));
-                                if (temp_2_6 != 0) {
+                    selectedEntry = (ControllerEntry *)func_00470d10(task, func_00470e20(task));
+                    if (selectedEntry != NULL) {
+                        entryCallback = selectedEntry->callback;
+                        if (entryCallback != NULL) {
+                            entryType = selectedEntry->type;
+                            switch (entryType) {
+                            case 0:
+                                actionArgument = selectedEntry->argument;
+                                if (actionArgument != 0) {
                                     callbackArgument.value = NULL;
-                                    callbackArgument.argument = temp_2_6;
-                                    temp_5((void *)&callbackArgument);
+                                    callbackArgument.argument = actionArgument;
+                                    entryCallback((void *)&callbackArgument);
                                 } else {
-                                    temp_5((void *)NULL);
+                                    entryCallback((void *)NULL);
                                 }
                                 break;
-                            case 1:                 /* switch 9 */
-                                temp_3_2 = (*(s32 *)((u8 *)(temp_2_5) + (0x220)));
-                                if (temp_3_2 != 0) {
-                                    callbackArgument.value = (u8 *)temp_2_5 + 0x108;
-                                    callbackArgument.argument = temp_3_2;
-                                    temp_5((void *)&callbackArgument);
+                            case 1:
+                                textArgument = selectedEntry->argument;
+                                if (textArgument != 0) {
+                                    callbackArgument.value = selectedEntry->text;
+                                    callbackArgument.argument = textArgument;
+                                    entryCallback((void *)&callbackArgument);
                                 } else {
-                                    temp_5((void *)((u8 *)temp_2_5 + 0x108));
+                                    entryCallback((void *)(selectedEntry->text));
                                 }
                                 break;
-                            case 3:                 /* switch 9 */
-                            case 2:                 /* switch 9 */
-                                temp_4_5 = (*(s32 *)((u8 *)(temp_2_5) + (0x220)));
-                                if (temp_4_5 != 0) {
-                                    callbackArgument.value = (u8 *)temp_2_5 + 0x208;
-                                    callbackArgument.argument = temp_4_5;
-                                    (*(KWindowEntryCallback *)((u8 *)(temp_2_5) + 0x21C))((void *)&callbackArgument);
+                            case 2:
+                            case 3:
+                                integerArgument = selectedEntry->argument;
+                                if (integerArgument != 0) {
+                                    callbackArgument.value = &selectedEntry->integerValue;
+                                    callbackArgument.argument = integerArgument;
+                                    selectedEntry->callback((void *)&callbackArgument);
                                 } else {
-                                    temp_5((void *)((u8 *)temp_2_5 + 0x208));
+                                    entryCallback((void *)(&selectedEntry->integerValue));
                                 }
                                 break;
-                            case 4:                 /* switch 9 */
-                                temp_3_3 = (*(s32 *)((u8 *)(temp_2_5) + (0x220)));
-                                if (temp_3_3 != 0) {
-                                    callbackArgument.value = (u8 *)temp_2_5 + 0x20C;
-                                    callbackArgument.argument = temp_3_3;
-                                    temp_5((void *)&callbackArgument);
+                            case 4:
+                                realArgument = selectedEntry->argument;
+                                if (realArgument != 0) {
+                                    callbackArgument.value = &selectedEntry->realValue;
+                                    callbackArgument.argument = realArgument;
+                                    entryCallback((void *)&callbackArgument);
                                 } else {
-                                    temp_5((void *)((u8 *)temp_2_5 + 0x20C));
+                                    entryCallback((void *)(&selectedEntry->realValue));
                                 }
                                 break;
                             }
@@ -4134,13 +4095,19 @@ do {
                 }
             }
         }
-        goto block_167;
-    case 4:                                         /* switch 1 */
-        goto block_167;
-    case 5:                                         /* switch 1 */
+        goto update_callback;
+    case 4:
+        goto update_callback;
+    case 5:
         return -1;
     }
+update_callback:
+    if (work->state > 2) {
+        update = work->update;
+        if (update != NULL) {
+            update(work->updateArgument);
+        }
+    }
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046f2b0);
-#endif
+#pragma pop
