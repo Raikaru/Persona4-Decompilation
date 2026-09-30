@@ -1,0 +1,2322 @@
+{
+  "base_commit": "bec04bed26b913dc4f14034cb63c4fa9b0323054",
+  "target": {
+    "status": "MATCH",
+    "object_bytes": 5484,
+    "retail_window": 5488,
+    "zero_tail_bytes": 4,
+    "normalized_diff": 0,
+    "resolved_bytes_sha256": "23e7fe9bb22f7b80b283b1d91927a51ff25698c4690dc6f3661ed6dbd169eda0",
+    "resolved_relocations": 164,
+    "relocation_types": {
+      "R_MIPS_26": 151,
+      "R_MIPS_HI16": 5,
+      "R_MIPS_LO16": 5,
+      "R_MIPS_GPREL16": 3
+    },
+    "relocation_audit": [
+      {
+        "offset": 116,
+        "type": "R_MIPS_26",
+        "symbol": "func_0031d630",
+        "target": "0x31d630",
+        "addend": 0,
+        "retail_field": "0xc758c",
+        "matches": true
+      },
+      {
+        "offset": 144,
+        "type": "R_MIPS_26",
+        "symbol": "func_0010b5b0",
+        "target": "0x10b5b0",
+        "addend": 0,
+        "retail_field": "0x42d6c",
+        "matches": true
+      },
+      {
+        "offset": 168,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_008C027A",
+        "target": "0x8c027a",
+        "addend": 0,
+        "retail_field": "0x8c",
+        "matches": true
+      },
+      {
+        "offset": 172,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_008C027A",
+        "target": "0x8c027a",
+        "addend": 0,
+        "retail_field": "0x27a",
+        "matches": true
+      },
+      {
+        "offset": 188,
+        "type": "R_MIPS_26",
+        "symbol": "func_0010b5b0",
+        "target": "0x10b5b0",
+        "addend": 0,
+        "retail_field": "0x42d6c",
+        "matches": true
+      },
+      {
+        "offset": 220,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2d00",
+        "target": "0x2b2d00",
+        "addend": 0,
+        "retail_field": "0xacb40",
+        "matches": true
+      },
+      {
+        "offset": 248,
+        "type": "R_MIPS_26",
+        "symbol": "func_0045af60",
+        "target": "0x45af60",
+        "addend": 0,
+        "retail_field": "0x116bd8",
+        "matches": true
+      },
+      {
+        "offset": 276,
+        "type": "R_MIPS_26",
+        "symbol": "func_0010b5b0",
+        "target": "0x10b5b0",
+        "addend": 0,
+        "retail_field": "0x42d6c",
+        "matches": true
+      },
+      {
+        "offset": 308,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2cb0",
+        "target": "0x2b2cb0",
+        "addend": 0,
+        "retail_field": "0xacb2c",
+        "matches": true
+      },
+      {
+        "offset": 336,
+        "type": "R_MIPS_26",
+        "symbol": "func_0045af60",
+        "target": "0x45af60",
+        "addend": 0,
+        "retail_field": "0x116bd8",
+        "matches": true
+      },
+      {
+        "offset": 352,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_008C024E",
+        "target": "0x8c024e",
+        "addend": 0,
+        "retail_field": "0x8c",
+        "matches": true
+      },
+      {
+        "offset": 356,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_008C024E",
+        "target": "0x8c024e",
+        "addend": 0,
+        "retail_field": "0x24e",
+        "matches": true
+      },
+      {
+        "offset": 380,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e4870",
+        "target": "0x2e4870",
+        "addend": 0,
+        "retail_field": "0xb921c",
+        "matches": true
+      },
+      {
+        "offset": 420,
+        "type": "R_MIPS_26",
+        "symbol": "func_0045af60",
+        "target": "0x45af60",
+        "addend": 0,
+        "retail_field": "0x116bd8",
+        "matches": true
+      },
+      {
+        "offset": 460,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 476,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e48a0",
+        "target": "0x2e48a0",
+        "addend": 0,
+        "retail_field": "0xb9228",
+        "matches": true
+      },
+      {
+        "offset": 496,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e48a0",
+        "target": "0x2e48a0",
+        "addend": 0,
+        "retail_field": "0xb9228",
+        "matches": true
+      },
+      {
+        "offset": 512,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e4870",
+        "target": "0x2e4870",
+        "addend": 0,
+        "retail_field": "0xb921c",
+        "matches": true
+      },
+      {
+        "offset": 556,
+        "type": "R_MIPS_26",
+        "symbol": "func_003191c0",
+        "target": "0x3191c0",
+        "addend": 0,
+        "retail_field": "0xc6470",
+        "matches": true
+      },
+      {
+        "offset": 584,
+        "type": "R_MIPS_26",
+        "symbol": "func_0010b5b0",
+        "target": "0x10b5b0",
+        "addend": 0,
+        "retail_field": "0x42d6c",
+        "matches": true
+      },
+      {
+        "offset": 628,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 664,
+        "type": "R_MIPS_26",
+        "symbol": "func_0031e5b0",
+        "target": "0x31e5b0",
+        "addend": 0,
+        "retail_field": "0xc796c",
+        "matches": true
+      },
+      {
+        "offset": 716,
+        "type": "R_MIPS_26",
+        "symbol": "func_00316e80",
+        "target": "0x316e80",
+        "addend": 0,
+        "retail_field": "0xc5ba0",
+        "matches": true
+      },
+      {
+        "offset": 772,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 812,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 840,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2a60",
+        "target": "0x2b2a60",
+        "addend": 0,
+        "retail_field": "0xaca98",
+        "matches": true
+      },
+      {
+        "offset": 868,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2a60",
+        "target": "0x2b2a60",
+        "addend": 0,
+        "retail_field": "0xaca98",
+        "matches": true
+      },
+      {
+        "offset": 936,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b83e0",
+        "target": "0x2b83e0",
+        "addend": 0,
+        "retail_field": "0xae0f8",
+        "matches": true
+      },
+      {
+        "offset": 984,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 1048,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 1068,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 1092,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 1116,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 1140,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 1164,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 1236,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b83e0",
+        "target": "0x2b83e0",
+        "addend": 0,
+        "retail_field": "0xae0f8",
+        "matches": true
+      },
+      {
+        "offset": 1264,
+        "type": "R_MIPS_26",
+        "symbol": "func_0010b5b0",
+        "target": "0x10b5b0",
+        "addend": 0,
+        "retail_field": "0x42d6c",
+        "matches": true
+      },
+      {
+        "offset": 1308,
+        "type": "R_MIPS_26",
+        "symbol": "func_00331560",
+        "target": "0x331560",
+        "addend": 0,
+        "retail_field": "0xcc558",
+        "matches": true
+      },
+      {
+        "offset": 1324,
+        "type": "R_MIPS_26",
+        "symbol": "func_0046d200",
+        "target": "0x46d200",
+        "addend": 0,
+        "retail_field": "0x11b480",
+        "matches": true
+      },
+      {
+        "offset": 1360,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6a70",
+        "target": "0x2b6a70",
+        "addend": 0,
+        "retail_field": "0xada9c",
+        "matches": true
+      },
+      {
+        "offset": 1388,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffff8504",
+        "target": "0x7615f4",
+        "addend": 0,
+        "retail_field": "0x8504",
+        "matches": true
+      },
+      {
+        "offset": 1404,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6af0",
+        "target": "0x2b6af0",
+        "addend": 0,
+        "retail_field": "0xadabc",
+        "matches": true
+      },
+      {
+        "offset": 1456,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 1480,
+        "type": "R_MIPS_26",
+        "symbol": "func_0046b2f0",
+        "target": "0x46b2f0",
+        "addend": 0,
+        "retail_field": "0x11acbc",
+        "matches": true
+      },
+      {
+        "offset": 1528,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 1560,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b69f0",
+        "target": "0x2b69f0",
+        "addend": 0,
+        "retail_field": "0xada7c",
+        "matches": true
+      },
+      {
+        "offset": 1572,
+        "type": "R_MIPS_26",
+        "symbol": "func_0046d280",
+        "target": "0x46d280",
+        "addend": 0,
+        "retail_field": "0x11b4a0",
+        "matches": true
+      },
+      {
+        "offset": 1600,
+        "type": "R_MIPS_26",
+        "symbol": "func_0010b5b0",
+        "target": "0x10b5b0",
+        "addend": 0,
+        "retail_field": "0x42d6c",
+        "matches": true
+      },
+      {
+        "offset": 1624,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_00644C90",
+        "target": "0x644c90",
+        "addend": 0,
+        "retail_field": "0x64",
+        "matches": true
+      },
+      {
+        "offset": 1628,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_00644C90",
+        "target": "0x644c90",
+        "addend": 0,
+        "retail_field": "0x4c90",
+        "matches": true
+      },
+      {
+        "offset": 1660,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 1688,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6c30",
+        "target": "0x2b6c30",
+        "addend": 0,
+        "retail_field": "0xadb0c",
+        "matches": true
+      },
+      {
+        "offset": 1720,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6a70",
+        "target": "0x2b6a70",
+        "addend": 0,
+        "retail_field": "0xada9c",
+        "matches": true
+      },
+      {
+        "offset": 1756,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6b40",
+        "target": "0x2b6b40",
+        "addend": 0,
+        "retail_field": "0xadad0",
+        "matches": true
+      },
+      {
+        "offset": 1772,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6140",
+        "target": "0x2b6140",
+        "addend": 0,
+        "retail_field": "0xad850",
+        "matches": true
+      },
+      {
+        "offset": 1788,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6140",
+        "target": "0x2b6140",
+        "addend": 0,
+        "retail_field": "0xad850",
+        "matches": true
+      },
+      {
+        "offset": 1844,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_008C024C",
+        "target": "0x8c024c",
+        "addend": 0,
+        "retail_field": "0x8c",
+        "matches": true
+      },
+      {
+        "offset": 1848,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_008C024C",
+        "target": "0x8c024c",
+        "addend": 0,
+        "retail_field": "0x24c",
+        "matches": true
+      },
+      {
+        "offset": 1872,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e4870",
+        "target": "0x2e4870",
+        "addend": 0,
+        "retail_field": "0xb921c",
+        "matches": true
+      },
+      {
+        "offset": 1912,
+        "type": "R_MIPS_26",
+        "symbol": "func_0045af60",
+        "target": "0x45af60",
+        "addend": 0,
+        "retail_field": "0x116bd8",
+        "matches": true
+      },
+      {
+        "offset": 1928,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_00644150",
+        "target": "0x644150",
+        "addend": 0,
+        "retail_field": "0x64",
+        "matches": true
+      },
+      {
+        "offset": 1932,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_00644150",
+        "target": "0x644150",
+        "addend": 0,
+        "retail_field": "0x4150",
+        "matches": true
+      },
+      {
+        "offset": 1952,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 1972,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 1996,
+        "type": "R_MIPS_26",
+        "symbol": "func_0031c2b0",
+        "target": "0x31c2b0",
+        "addend": 0,
+        "retail_field": "0xc70ac",
+        "matches": true
+      },
+      {
+        "offset": 2060,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 2088,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e48a0",
+        "target": "0x2e48a0",
+        "addend": 0,
+        "retail_field": "0xb9228",
+        "matches": true
+      },
+      {
+        "offset": 2120,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e48a0",
+        "target": "0x2e48a0",
+        "addend": 0,
+        "retail_field": "0xb9228",
+        "matches": true
+      },
+      {
+        "offset": 2180,
+        "type": "R_MIPS_26",
+        "symbol": "func_0031ac10",
+        "target": "0x31ac10",
+        "addend": 0,
+        "retail_field": "0xc6b04",
+        "matches": true
+      },
+      {
+        "offset": 2224,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 2264,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 2292,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2a60",
+        "target": "0x2b2a60",
+        "addend": 0,
+        "retail_field": "0xaca98",
+        "matches": true
+      },
+      {
+        "offset": 2320,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2a60",
+        "target": "0x2b2a60",
+        "addend": 0,
+        "retail_field": "0xaca98",
+        "matches": true
+      },
+      {
+        "offset": 2388,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b83e0",
+        "target": "0x2b83e0",
+        "addend": 0,
+        "retail_field": "0xae0f8",
+        "matches": true
+      },
+      {
+        "offset": 2436,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 2500,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 2520,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 2544,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 2568,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 2592,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 2616,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 2688,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b83e0",
+        "target": "0x2b83e0",
+        "addend": 0,
+        "retail_field": "0xae0f8",
+        "matches": true
+      },
+      {
+        "offset": 2716,
+        "type": "R_MIPS_26",
+        "symbol": "func_0010b5b0",
+        "target": "0x10b5b0",
+        "addend": 0,
+        "retail_field": "0x42d6c",
+        "matches": true
+      },
+      {
+        "offset": 2760,
+        "type": "R_MIPS_26",
+        "symbol": "func_00331560",
+        "target": "0x331560",
+        "addend": 0,
+        "retail_field": "0xcc558",
+        "matches": true
+      },
+      {
+        "offset": 2776,
+        "type": "R_MIPS_26",
+        "symbol": "func_0046d200",
+        "target": "0x46d200",
+        "addend": 0,
+        "retail_field": "0x11b480",
+        "matches": true
+      },
+      {
+        "offset": 2812,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6a70",
+        "target": "0x2b6a70",
+        "addend": 0,
+        "retail_field": "0xada9c",
+        "matches": true
+      },
+      {
+        "offset": 2840,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffff8504",
+        "target": "0x7615f4",
+        "addend": 0,
+        "retail_field": "0x8504",
+        "matches": true
+      },
+      {
+        "offset": 2856,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6af0",
+        "target": "0x2b6af0",
+        "addend": 0,
+        "retail_field": "0xadabc",
+        "matches": true
+      },
+      {
+        "offset": 2908,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 2932,
+        "type": "R_MIPS_26",
+        "symbol": "func_0046b2f0",
+        "target": "0x46b2f0",
+        "addend": 0,
+        "retail_field": "0x11acbc",
+        "matches": true
+      },
+      {
+        "offset": 2980,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 3012,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b69f0",
+        "target": "0x2b69f0",
+        "addend": 0,
+        "retail_field": "0xada7c",
+        "matches": true
+      },
+      {
+        "offset": 3024,
+        "type": "R_MIPS_26",
+        "symbol": "func_0046d280",
+        "target": "0x46d280",
+        "addend": 0,
+        "retail_field": "0x11b4a0",
+        "matches": true
+      },
+      {
+        "offset": 3040,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e4870",
+        "target": "0x2e4870",
+        "addend": 0,
+        "retail_field": "0xb921c",
+        "matches": true
+      },
+      {
+        "offset": 3100,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e48a0",
+        "target": "0x2e48a0",
+        "addend": 0,
+        "retail_field": "0xb9228",
+        "matches": true
+      },
+      {
+        "offset": 3120,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e48a0",
+        "target": "0x2e48a0",
+        "addend": 0,
+        "retail_field": "0xb9228",
+        "matches": true
+      },
+      {
+        "offset": 3140,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e48a0",
+        "target": "0x2e48a0",
+        "addend": 0,
+        "retail_field": "0xb9228",
+        "matches": true
+      },
+      {
+        "offset": 3208,
+        "type": "R_MIPS_26",
+        "symbol": "func_002f9c30",
+        "target": "0x2f9c30",
+        "addend": 0,
+        "retail_field": "0xbe70c",
+        "matches": true
+      },
+      {
+        "offset": 3236,
+        "type": "R_MIPS_26",
+        "symbol": "func_0010b5b0",
+        "target": "0x10b5b0",
+        "addend": 0,
+        "retail_field": "0x42d6c",
+        "matches": true
+      },
+      {
+        "offset": 3288,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 3312,
+        "type": "R_MIPS_26",
+        "symbol": "func_0031fa20",
+        "target": "0x31fa20",
+        "addend": 0,
+        "retail_field": "0xc7e88",
+        "matches": true
+      },
+      {
+        "offset": 3332,
+        "type": "R_MIPS_26",
+        "symbol": "func_003205f0",
+        "target": "0x3205f0",
+        "addend": 0,
+        "retail_field": "0xc817c",
+        "matches": true
+      },
+      {
+        "offset": 3352,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b68d0",
+        "target": "0x2b68d0",
+        "addend": 0,
+        "retail_field": "0xada34",
+        "matches": true
+      },
+      {
+        "offset": 3368,
+        "type": "R_MIPS_26",
+        "symbol": "func_0031e320",
+        "target": "0x31e320",
+        "addend": 0,
+        "retail_field": "0xc78c8",
+        "matches": true
+      },
+      {
+        "offset": 3392,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e4ac0",
+        "target": "0x2e4ac0",
+        "addend": 0,
+        "retail_field": "0xb92b0",
+        "matches": true
+      },
+      {
+        "offset": 3424,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6a70",
+        "target": "0x2b6a70",
+        "addend": 0,
+        "retail_field": "0xada9c",
+        "matches": true
+      },
+      {
+        "offset": 3436,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6150",
+        "target": "0x2b6150",
+        "addend": 0,
+        "retail_field": "0xad854",
+        "matches": true
+      },
+      {
+        "offset": 3508,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e4870",
+        "target": "0x2e4870",
+        "addend": 0,
+        "retail_field": "0xb921c",
+        "matches": true
+      },
+      {
+        "offset": 3572,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2a60",
+        "target": "0x2b2a60",
+        "addend": 0,
+        "retail_field": "0xaca98",
+        "matches": true
+      },
+      {
+        "offset": 3608,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2a60",
+        "target": "0x2b2a60",
+        "addend": 0,
+        "retail_field": "0xaca98",
+        "matches": true
+      },
+      {
+        "offset": 3632,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 3656,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 3688,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2a60",
+        "target": "0x2b2a60",
+        "addend": 0,
+        "retail_field": "0xaca98",
+        "matches": true
+      },
+      {
+        "offset": 3708,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 3776,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b83e0",
+        "target": "0x2b83e0",
+        "addend": 0,
+        "retail_field": "0xae0f8",
+        "matches": true
+      },
+      {
+        "offset": 3824,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2a60",
+        "target": "0x2b2a60",
+        "addend": 0,
+        "retail_field": "0xaca98",
+        "matches": true
+      },
+      {
+        "offset": 3860,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2a60",
+        "target": "0x2b2a60",
+        "addend": 0,
+        "retail_field": "0xaca98",
+        "matches": true
+      },
+      {
+        "offset": 3884,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 3908,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 3940,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2a60",
+        "target": "0x2b2a60",
+        "addend": 0,
+        "retail_field": "0xaca98",
+        "matches": true
+      },
+      {
+        "offset": 3960,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 4028,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b83e0",
+        "target": "0x2b83e0",
+        "addend": 0,
+        "retail_field": "0xae0f8",
+        "matches": true
+      },
+      {
+        "offset": 4056,
+        "type": "R_MIPS_26",
+        "symbol": "func_0010b5b0",
+        "target": "0x10b5b0",
+        "addend": 0,
+        "retail_field": "0x42d6c",
+        "matches": true
+      },
+      {
+        "offset": 4100,
+        "type": "R_MIPS_26",
+        "symbol": "func_0010b5b0",
+        "target": "0x10b5b0",
+        "addend": 0,
+        "retail_field": "0x42d6c",
+        "matches": true
+      },
+      {
+        "offset": 4136,
+        "type": "R_MIPS_26",
+        "symbol": "func_003205f0",
+        "target": "0x3205f0",
+        "addend": 0,
+        "retail_field": "0xc817c",
+        "matches": true
+      },
+      {
+        "offset": 4152,
+        "type": "R_MIPS_26",
+        "symbol": "func_0031e320",
+        "target": "0x31e320",
+        "addend": 0,
+        "retail_field": "0xc78c8",
+        "matches": true
+      },
+      {
+        "offset": 4204,
+        "type": "R_MIPS_26",
+        "symbol": "func_0045af60",
+        "target": "0x45af60",
+        "addend": 0,
+        "retail_field": "0x116bd8",
+        "matches": true
+      },
+      {
+        "offset": 4212,
+        "type": "R_MIPS_26",
+        "symbol": "func_0010b5b0",
+        "target": "0x10b5b0",
+        "addend": 0,
+        "retail_field": "0x42d6c",
+        "matches": true
+      },
+      {
+        "offset": 4240,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 4276,
+        "type": "R_MIPS_26",
+        "symbol": "func_0031e5b0",
+        "target": "0x31e5b0",
+        "addend": 0,
+        "retail_field": "0xc796c",
+        "matches": true
+      },
+      {
+        "offset": 4316,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 4332,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e48a0",
+        "target": "0x2e48a0",
+        "addend": 0,
+        "retail_field": "0xb9228",
+        "matches": true
+      },
+      {
+        "offset": 4352,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e48a0",
+        "target": "0x2e48a0",
+        "addend": 0,
+        "retail_field": "0xb9228",
+        "matches": true
+      },
+      {
+        "offset": 4368,
+        "type": "R_MIPS_26",
+        "symbol": "func_002e4870",
+        "target": "0x2e4870",
+        "addend": 0,
+        "retail_field": "0xb921c",
+        "matches": true
+      },
+      {
+        "offset": 4412,
+        "type": "R_MIPS_26",
+        "symbol": "func_003191c0",
+        "target": "0x3191c0",
+        "addend": 0,
+        "retail_field": "0xc6470",
+        "matches": true
+      },
+      {
+        "offset": 4456,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 4496,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 4524,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2a60",
+        "target": "0x2b2a60",
+        "addend": 0,
+        "retail_field": "0xaca98",
+        "matches": true
+      },
+      {
+        "offset": 4552,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2a60",
+        "target": "0x2b2a60",
+        "addend": 0,
+        "retail_field": "0xaca98",
+        "matches": true
+      },
+      {
+        "offset": 4620,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b83e0",
+        "target": "0x2b83e0",
+        "addend": 0,
+        "retail_field": "0xae0f8",
+        "matches": true
+      },
+      {
+        "offset": 4660,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 4684,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 4708,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 4732,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 4756,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 4780,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 4804,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034ae50",
+        "target": "0x34ae50",
+        "addend": 0,
+        "retail_field": "0xd2b94",
+        "matches": true
+      },
+      {
+        "offset": 4888,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b83e0",
+        "target": "0x2b83e0",
+        "addend": 0,
+        "retail_field": "0xae0f8",
+        "matches": true
+      },
+      {
+        "offset": 4916,
+        "type": "R_MIPS_26",
+        "symbol": "func_0010b5b0",
+        "target": "0x10b5b0",
+        "addend": 0,
+        "retail_field": "0x42d6c",
+        "matches": true
+      },
+      {
+        "offset": 4960,
+        "type": "R_MIPS_26",
+        "symbol": "func_00331560",
+        "target": "0x331560",
+        "addend": 0,
+        "retail_field": "0xcc558",
+        "matches": true
+      },
+      {
+        "offset": 4976,
+        "type": "R_MIPS_26",
+        "symbol": "func_0046d200",
+        "target": "0x46d200",
+        "addend": 0,
+        "retail_field": "0x11b480",
+        "matches": true
+      },
+      {
+        "offset": 5012,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6a70",
+        "target": "0x2b6a70",
+        "addend": 0,
+        "retail_field": "0xada9c",
+        "matches": true
+      },
+      {
+        "offset": 5040,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffff8504",
+        "target": "0x7615f4",
+        "addend": 0,
+        "retail_field": "0x8504",
+        "matches": true
+      },
+      {
+        "offset": 5056,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6af0",
+        "target": "0x2b6af0",
+        "addend": 0,
+        "retail_field": "0xadabc",
+        "matches": true
+      },
+      {
+        "offset": 5108,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 5132,
+        "type": "R_MIPS_26",
+        "symbol": "func_0046b2f0",
+        "target": "0x46b2f0",
+        "addend": 0,
+        "retail_field": "0x11acbc",
+        "matches": true
+      },
+      {
+        "offset": 5180,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b2970",
+        "target": "0x2b2970",
+        "addend": 0,
+        "retail_field": "0xaca5c",
+        "matches": true
+      },
+      {
+        "offset": 5212,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b69f0",
+        "target": "0x2b69f0",
+        "addend": 0,
+        "retail_field": "0xada7c",
+        "matches": true
+      },
+      {
+        "offset": 5224,
+        "type": "R_MIPS_26",
+        "symbol": "func_0046d280",
+        "target": "0x46d280",
+        "addend": 0,
+        "retail_field": "0x11b4a0",
+        "matches": true
+      },
+      {
+        "offset": 5252,
+        "type": "R_MIPS_26",
+        "symbol": "func_0010b5b0",
+        "target": "0x10b5b0",
+        "addend": 0,
+        "retail_field": "0x42d6c",
+        "matches": true
+      },
+      {
+        "offset": 5320,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b6a70",
+        "target": "0x2b6a70",
+        "addend": 0,
+        "retail_field": "0xada9c",
+        "matches": true
+      },
+      {
+        "offset": 5340,
+        "type": "R_MIPS_26",
+        "symbol": "func_002b68d0",
+        "target": "0x2b68d0",
+        "addend": 0,
+        "retail_field": "0xada34",
+        "matches": true
+      },
+      {
+        "offset": 5360,
+        "type": "R_MIPS_26",
+        "symbol": "func_00316470",
+        "target": "0x316470",
+        "addend": 0,
+        "retail_field": "0xc591c",
+        "matches": true
+      },
+      {
+        "offset": 5412,
+        "type": "R_MIPS_26",
+        "symbol": "func_00316e80",
+        "target": "0x316e80",
+        "addend": 0,
+        "retail_field": "0xc5ba0",
+        "matches": true
+      }
+    ]
+  },
+  "owner": "src/Event/Fcl/y_fclCombineDraw.c",
+  "source_sha256": "3a0217a45e3e7026d793efa25cdd9a39d0b2b1c361eec5e5eb26387e92c1e684",
+  "compiler": {
+    "version": "MWCCPS2 3.0.1 b210",
+    "sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+    "production_flags": [
+      "-O2",
+      "-Iinclude"
+    ],
+    "guarded_flags": [
+      "-O2",
+      "-Iinclude",
+      "-DNON_MATCHING"
+    ]
+  },
+  "modes": [
+    {
+      "mode": "production",
+      "statuses": {
+        "MATCH": 66,
+        "ASM": 4
+      },
+      "function_count": 70,
+      "changed_functions": [
+        {
+          "name": "func_00321e60",
+          "old_status": "ASM",
+          "status": "MATCH",
+          "old_bytes": 5488,
+          "bytes": 5484,
+          "old_normalized_diff": 0,
+          "normalized_diff": 0
+        }
+      ],
+      "all_69_siblings_bytes_sizes_and_canonical_relocations_identical": true,
+      "allocated_data_and_relocations_identical": true,
+      "allocated_data": [
+        {
+          "name": ".rodata",
+          "size": 36,
+          "alignment": 16,
+          "flags": 2,
+          "sha256": "a36cf52a282b3d9974440cf22e86be2f4b1f5ef61ba28fcc7c5d6b438042fea9",
+          "relocations": [
+            [
+              32,
+              2,
+              "func_00325450"
+            ],
+            [
+              28,
+              2,
+              "func_00325450"
+            ],
+            [
+              24,
+              2,
+              "func_00325450"
+            ],
+            [
+              20,
+              2,
+              "func_00325450"
+            ],
+            [
+              16,
+              2,
+              "func_00325450"
+            ],
+            [
+              12,
+              2,
+              "func_00325450"
+            ],
+            [
+              8,
+              2,
+              "func_00325450"
+            ],
+            [
+              4,
+              2,
+              "func_00325450"
+            ],
+            [
+              0,
+              2,
+              "func_00325450"
+            ]
+          ]
+        },
+        {
+          "name": ".rodata",
+          "size": 24,
+          "alignment": 16,
+          "flags": 2,
+          "sha256": "84d6b37ed7f55e9666131d62e8477e513a7da1afe7db598bf88691389db0b080",
+          "relocations": [
+            [
+              20,
+              2,
+              "func_0032c0c0"
+            ],
+            [
+              16,
+              2,
+              "func_0032c0c0"
+            ],
+            [
+              12,
+              2,
+              "func_0032c0c0"
+            ],
+            [
+              8,
+              2,
+              "func_0032c0c0"
+            ],
+            [
+              4,
+              2,
+              "func_0032c0c0"
+            ],
+            [
+              0,
+              2,
+              "func_0032c0c0"
+            ]
+          ]
+        },
+        {
+          "name": ".rodata",
+          "size": 24,
+          "alignment": 16,
+          "flags": 2,
+          "sha256": "b0bfdfe6df9ec21288a397b9f9133325edd926eee9fabafdcb1d5cce374b7cf4",
+          "relocations": [
+            [
+              20,
+              2,
+              "func_00330060"
+            ],
+            [
+              16,
+              2,
+              "func_00330060"
+            ],
+            [
+              12,
+              2,
+              "func_00330060"
+            ],
+            [
+              8,
+              2,
+              "func_00330060"
+            ],
+            [
+              4,
+              2,
+              "func_00330060"
+            ],
+            [
+              0,
+              2,
+              "func_00330060"
+            ]
+          ]
+        },
+        {
+          "name": ".rodata",
+          "size": 24,
+          "alignment": 16,
+          "flags": 2,
+          "sha256": "99e399c37cab56adf09fc7c502f12ecde367bbe546e4ad89d6b33f80d618ad2d",
+          "relocations": [
+            [
+              20,
+              2,
+              "func_003307b0"
+            ],
+            [
+              16,
+              2,
+              "func_003307b0"
+            ],
+            [
+              12,
+              2,
+              "func_003307b0"
+            ],
+            [
+              8,
+              2,
+              "func_003307b0"
+            ],
+            [
+              4,
+              2,
+              "func_003307b0"
+            ],
+            [
+              0,
+              2,
+              "func_003307b0"
+            ]
+          ]
+        },
+        {
+          "name": ".rodata",
+          "size": 28,
+          "alignment": 16,
+          "flags": 2,
+          "sha256": "b946ae23ffe6d4728fd532c56e042be87f9a3fe8855d1a95fb7453cc9182a241",
+          "relocations": [
+            [
+              24,
+              2,
+              "func_00330f20"
+            ],
+            [
+              20,
+              2,
+              "func_00330f20"
+            ],
+            [
+              16,
+              2,
+              "func_00330f20"
+            ],
+            [
+              12,
+              2,
+              "func_00330f20"
+            ],
+            [
+              8,
+              2,
+              "func_00330f20"
+            ],
+            [
+              4,
+              2,
+              "func_00330f20"
+            ],
+            [
+              0,
+              2,
+              "func_00330f20"
+            ]
+          ]
+        }
+      ],
+      "object_sha256": "7850846d8a4d77d99543b5feada3b75ea33a5885baab281121b80f31d2340861"
+    },
+    {
+      "mode": "guarded",
+      "statuses": {
+        "MATCH": 66,
+        "NONMATCHING": 4
+      },
+      "function_count": 70,
+      "changed_functions": [
+        {
+          "name": "func_00321e60",
+          "old_status": "NONMATCHING",
+          "status": "MATCH",
+          "old_bytes": 5484,
+          "bytes": 5484,
+          "old_normalized_diff": 18,
+          "normalized_diff": 0
+        }
+      ],
+      "all_69_siblings_bytes_sizes_and_canonical_relocations_identical": true,
+      "allocated_data_and_relocations_identical": true,
+      "allocated_data": [
+        {
+          "name": ".rodata",
+          "size": 36,
+          "alignment": 16,
+          "flags": 2,
+          "sha256": "a36cf52a282b3d9974440cf22e86be2f4b1f5ef61ba28fcc7c5d6b438042fea9",
+          "relocations": [
+            [
+              32,
+              2,
+              "func_00325450"
+            ],
+            [
+              28,
+              2,
+              "func_00325450"
+            ],
+            [
+              24,
+              2,
+              "func_00325450"
+            ],
+            [
+              20,
+              2,
+              "func_00325450"
+            ],
+            [
+              16,
+              2,
+              "func_00325450"
+            ],
+            [
+              12,
+              2,
+              "func_00325450"
+            ],
+            [
+              8,
+              2,
+              "func_00325450"
+            ],
+            [
+              4,
+              2,
+              "func_00325450"
+            ],
+            [
+              0,
+              2,
+              "func_00325450"
+            ]
+          ]
+        },
+        {
+          "name": ".rodata",
+          "size": 24,
+          "alignment": 16,
+          "flags": 2,
+          "sha256": "84d6b37ed7f55e9666131d62e8477e513a7da1afe7db598bf88691389db0b080",
+          "relocations": [
+            [
+              20,
+              2,
+              "func_0032c0c0"
+            ],
+            [
+              16,
+              2,
+              "func_0032c0c0"
+            ],
+            [
+              12,
+              2,
+              "func_0032c0c0"
+            ],
+            [
+              8,
+              2,
+              "func_0032c0c0"
+            ],
+            [
+              4,
+              2,
+              "func_0032c0c0"
+            ],
+            [
+              0,
+              2,
+              "func_0032c0c0"
+            ]
+          ]
+        },
+        {
+          "name": ".rodata",
+          "size": 24,
+          "alignment": 16,
+          "flags": 2,
+          "sha256": "b0bfdfe6df9ec21288a397b9f9133325edd926eee9fabafdcb1d5cce374b7cf4",
+          "relocations": [
+            [
+              20,
+              2,
+              "func_00330060"
+            ],
+            [
+              16,
+              2,
+              "func_00330060"
+            ],
+            [
+              12,
+              2,
+              "func_00330060"
+            ],
+            [
+              8,
+              2,
+              "func_00330060"
+            ],
+            [
+              4,
+              2,
+              "func_00330060"
+            ],
+            [
+              0,
+              2,
+              "func_00330060"
+            ]
+          ]
+        },
+        {
+          "name": ".rodata",
+          "size": 24,
+          "alignment": 16,
+          "flags": 2,
+          "sha256": "99e399c37cab56adf09fc7c502f12ecde367bbe546e4ad89d6b33f80d618ad2d",
+          "relocations": [
+            [
+              20,
+              2,
+              "func_003307b0"
+            ],
+            [
+              16,
+              2,
+              "func_003307b0"
+            ],
+            [
+              12,
+              2,
+              "func_003307b0"
+            ],
+            [
+              8,
+              2,
+              "func_003307b0"
+            ],
+            [
+              4,
+              2,
+              "func_003307b0"
+            ],
+            [
+              0,
+              2,
+              "func_003307b0"
+            ]
+          ]
+        },
+        {
+          "name": ".rodata",
+          "size": 28,
+          "alignment": 16,
+          "flags": 2,
+          "sha256": "b946ae23ffe6d4728fd532c56e042be87f9a3fe8855d1a95fb7453cc9182a241",
+          "relocations": [
+            [
+              24,
+              2,
+              "func_00330f20"
+            ],
+            [
+              20,
+              2,
+              "func_00330f20"
+            ],
+            [
+              16,
+              2,
+              "func_00330f20"
+            ],
+            [
+              12,
+              2,
+              "func_00330f20"
+            ],
+            [
+              8,
+              2,
+              "func_00330f20"
+            ],
+            [
+              4,
+              2,
+              "func_00330f20"
+            ],
+            [
+              0,
+              2,
+              "func_00330f20"
+            ]
+          ]
+        }
+      ],
+      "object_sha256": "1d392bdccd200ae93c460353b93583e89132251f8ce7553938dd2bf9d525aa44"
+    }
+  ],
+  "guarded_target_identical": true,
+  "owned_data_retail_identity": [
+    {
+      "section": ".rodata",
+      "section_index": 185,
+      "address": "0x749590",
+      "bytes": 36,
+      "resolved_sha256": "40818f22c0253e8afb9748f1e9942ae3bea3ce7b26d797df4b2d87ad9adc4962",
+      "relocations": 9,
+      "retail_identity": true
+    },
+    {
+      "section": ".rodata",
+      "section_index": 219,
+      "address": "0x749640",
+      "bytes": 24,
+      "resolved_sha256": "08592057e2181e958e55806b94be5519423bb7c94ad9b163c51a7fbe2750aa6f",
+      "relocations": 6,
+      "retail_identity": true
+    },
+    {
+      "section": ".rodata",
+      "section_index": 257,
+      "address": "0x749660",
+      "bytes": 24,
+      "resolved_sha256": "cff3941296b4c434de92722f38469515954f9013369f4dd99c7ad7f2fabb68ae",
+      "relocations": 6,
+      "retail_identity": true
+    },
+    {
+      "section": ".rodata",
+      "section_index": 263,
+      "address": "0x749680",
+      "bytes": 24,
+      "resolved_sha256": "835bffdff060c0e4ee417b1ef11a2e8720f77f8ca517211d88f92a678c4549f4",
+      "relocations": 6,
+      "retail_identity": true
+    },
+    {
+      "section": ".rodata",
+      "section_index": 273,
+      "address": "0x7496a0",
+      "bytes": 28,
+      "resolved_sha256": "db54e6179b52121dcb38c8b5b29340af57bbd42259e113f32de053829a61c71b",
+      "relocations": 7,
+      "retail_identity": true
+    }
+  ],
+  "production_eligibility": [
+    {
+      "file": "src/Event/Fcl/y_fclCombineDraw.c",
+      "status": "ELIGIBLE",
+      "functions": 70,
+      "owned_sections": {
+        ".rodata.p4_b9": [
+          7640464,
+          36
+        ],
+        ".rodata.p4_db": [
+          7640640,
+          24
+        ],
+        ".rodata.p4_101": [
+          7640672,
+          24
+        ],
+        ".rodata.p4_107": [
+          7640704,
+          24
+        ],
+        ".rodata.p4_111": [
+          7640736,
+          28
+        ]
+      },
+      "object_layout_placeable": true,
+      "scope": "official eligibility and owned-data planning checks; not a complete image link"
+    }
+  ],
+  "native32": {
+    "owner_sha256": "3a0217a45e3e7026d793efa25cdd9a39d0b2b1c361eec5e5eb26387e92c1e684",
+    "body_sha256": "9ad50c99c2e1f07dcb4aa68d8ec623f6fbae595c48e1a2fd317ba80bf25c161b",
+    "helper_sha256": "238aaeed09aa0f04cfe684a2115f2d17088a4cc8fc5206c2ec34a932b76d10bf",
+    "provider_bodies_sha256": {
+      "002B2970": "15f9fd9e882d1c59be7e03adfc69262acf0744617b0a8ece5fd1099a66d03119",
+      "002B2A60": "8739d548bbb02e9f109c1e8ac69b9b651f68b0dbb35dd18fce7f0798dddee72e",
+      "002B2CB0": "10f8e3d1907d264bf7a0f7cc3fd2087019278c7342dae17039113ac283939aca",
+      "002B2D00": "2078b87cbf8d18aa3850c027fc7b6a9da68bf44d5a0aa9e064d82f56990d571e",
+      "0034AE50": "35aa2f42d5f143b5fb61d6480f33b067042b4613c3585d8f7decd65f748df49b",
+      "002E4870": "f632a61f2f5d2186dbf27e427b539c97aeee8a95bac9559224213f795562906e",
+      "002E48A0": "e3ff2445aec367634653b55cd81eed18996810a44063f90fb481330983cb1e68",
+      "0010B5B0": "97869e1921722becb888d1c1bb90a888bc4029065f62fd7470e3c04da6614531"
+    },
+    "fixture_sha256": "c689de7ea44e97a491e014886f8e8e3e97bf661dd6404efa70a7524667e0db42",
+    "source_sha256": "5149a4f97a65b02f45a5232e5d0ece8a1faca1cbaec215b19c247b1f5f95d47e",
+    "positive": [
+      {
+        "optimization": "O0",
+        "returncode": 0,
+        "stdout": "PASS scenarios=865 checks=616540 trace=3511523699\n",
+        "stderr": ""
+      },
+      {
+        "optimization": "O2",
+        "returncode": 0,
+        "stdout": "PASS scenarios=865 checks=616540 trace=3511523699\n",
+        "stderr": ""
+      }
+    ],
+    "O0_O2_identical": true,
+    "negative": {
+      "reset_first": {
+        "returncode": 1,
+        "stdout": "event 0 kinds 1 / 1\n2: 4294967295 != 0\nline 623, scenario 1: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "reset_second": {
+        "returncode": 1,
+        "stdout": "event 0 kinds 1 / 1\n3: 4294967295 != 0\n4: 4294967295 != 0\nline 623, scenario 1: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "wide_mode_transport": {
+        "returncode": 1,
+        "stdout": "event 0 kinds 1 / 1\n5: 256 != 0\nline 623, scenario 858: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "up_key": {
+        "returncode": 1,
+        "stdout": "counts 7 != 6\n0 1/1\n1 1/1\n2 1/1\n3 1/1\n4 1/1\n5 1/1\n6 2/999\nline 620, scenario 5: eventCount==wantedCount\n",
+        "stderr": ""
+      },
+      "down_key": {
+        "returncode": 1,
+        "stdout": "counts 7 != 6\n0 1/1\n1 1/1\n2 1/1\n3 1/1\n4 1/1\n5 1/1\n6 2/999\nline 620, scenario 9: eventCount==wantedCount\n",
+        "stderr": ""
+      },
+      "up_wrap": {
+        "returncode": 1,
+        "stdout": "line 625, scenario 513: memcmp(&state,&expected,sizeof(state))==0\n",
+        "stderr": ""
+      },
+      "down_wrap": {
+        "returncode": 1,
+        "stdout": "line 625, scenario 10: memcmp(&state,&expected,sizeof(state))==0\n",
+        "stderr": ""
+      },
+      "confirm_guard": {
+        "returncode": 1,
+        "stdout": "counts 6 != 92\n0 1/1\n1 1/1\n2 1/1\n3 1/1\n4 1/1\n5 1/1\n6 999/2\n7 999/3\n8 999/3\n9 999/3\n10 999/3\n11 999/3\n12 999/3\n13 999/4\n14 999/5\n15 999/6\n16 999/6\n17 999/6\n18 999/6\n19 999/6\n20 999/6\n21 999/6\n22 999/7\n23 999/9\n24 999/10\n25 999/11\n26 999/8\n27 999/6\n28 999/6\n29 999/6\n30 999/6\n31 999/6\n32 999/6\n33 999/6\n34 999/7\n35 999/9\n36 999/10\n37 999/11\n38 999/8\n39 999/6\n40 999/6\n41 999/6\n42 999/6\n43 999/6\n44 999/6\n45 999/6\n46 999/7\n47 999/9\n48 999/10\n49 999/11\n50 999/8\n51 999/6\n52 999/6\n53 999/6\n54 999/6\n55 999/6\n56 999/6\n57 999/6\n58 999/7\n59 999/9\n60 999/10\n61 999/11\n62 999/8\n63 999/6\n64 999/6\n65 999/6\n66 999/6\n67 999/6\n68 999/6\n69 999/6\n70 999/7\n71 999/9\n72 999/10\n73 999/11\n74 999/8\n75 999/6\n76 999/6\n77 999/6\n78 999/6\n79 999/6\n80 999/6\n81 999/6\n82 999/7\n83 999/9\n84 999/10\n85 999/11\n86 999/8\n87 999/12\n88 999/9\n89 999/13\n90 999/14\n91 999/14\nline 620, scenario 18: eventCount==wantedCount\n",
+        "stderr": ""
+      },
+      "choose_guard": {
+        "returncode": 1,
+        "stdout": "counts 6 != 91\n0 1/1\n1 1/1\n2 1/1\n3 1/1\n4 1/1\n5 1/1\n6 999/2\n7 999/15\n8 999/16\n9 999/6\n10 999/6\n11 999/6\n12 999/6\n13 999/6\n14 999/6\n15 999/6\n16 999/7\n17 999/9\n18 999/10\n19 999/11\n20 999/8\n21 999/16\n22 999/6\n23 999/6\n24 999/6\n25 999/6\n26 999/6\n27 999/6\n28 999/6\n29 999/7\n30 999/9\n31 999/10\n32 999/11\n33 999/8\n34 999/16\n35 999/6\n36 999/6\n37 999/6\n38 999/6\n39 999/6\n40 999/6\n41 999/6\n42 999/7\n43 999/9\n44 999/10\n45 999/11\n46 999/8\n47 999/16\n48 999/6\n49 999/6\n50 999/6\n51 999/6\n52 999/6\n53 999/6\n54 999/6\n55 999/7\n56 999/9\n57 999/10\n58 999/11\n59 999/8\n60 999/17\n61 999/16\n62 999/6\n63 999/6\n64 999/6\n65 999/6\n66 999/6\n67 999/6\n68 999/6\n69 999/7\n70 999/9\n71 999/10\n72 999/11\n73 999/8\n74 999/16\n75 999/6\n76 999/6\n77 999/6\n78 999/6\n79 999/6\n80 999/6\n81 999/6\n82 999/7\n83 999/9\n84 999/10\n85 999/11\n86 999/8\n87 999/18\n88 999/19\n89 999/20\n90 999/21\nline 620, scenario 66: eventCount==wantedCount\n",
+        "stderr": ""
+      },
+      "confirm_mode_zero_state": {
+        "returncode": 1,
+        "stdout": "line 625, scenario 17: memcmp(&state,&expected,sizeof(state))==0\n",
+        "stderr": ""
+      },
+      "confirm_mode_one_state": {
+        "returncode": 1,
+        "stdout": "line 625, scenario 19: memcmp(&state,&expected,sizeof(state))==0\n",
+        "stderr": ""
+      },
+      "confirm_return_state": {
+        "returncode": 1,
+        "stdout": "line 625, scenario 65: memcmp(&state,&expected,sizeof(state))==0\n",
+        "stderr": ""
+      },
+      "cancel_return_state": {
+        "returncode": 1,
+        "stdout": "line 625, scenario 33: memcmp(&state,&expected,sizeof(state))==0\n",
+        "stderr": ""
+      },
+      "cursor_arrows": {
+        "returncode": 1,
+        "stdout": "counts 92 != 87\n0 1/1\n1 1/1\n2 1/1\n3 1/1\n4 1/1\n5 1/1\n6 2/2\n7 3/3\n8 3/3\n9 3/3\n10 3/3\n11 3/3\n12 3/3\n13 4/4\n14 5/5\n15 6/6\n16 6/6\n17 6/6\n18 6/6\n19 6/6\n20 6/6\n21 6/6\n22 7/7\n23 9/9\n24 10/10\n25 11/11\n26 8/8\n27 6/6\n28 6/6\n29 6/6\n30 6/6\n31 6/6\n32 6/6\n33 6/6\n34 7/7\n35 9/9\n36 10/10\n37 11/11\n38 8/8\n39 6/6\n40 6/6\n41 6/6\n42 6/6\n43 6/6\n44 6/6\n45 6/6\n46 7/7\n47 9/9\n48 10/10\n49 11/11\n50 8/8\n51 6/6\n52 6/6\n53 6/6\n54 6/6\n55 6/6\n56 6/6\n57 6/6\n58 7/7\n59 9/9\n60 10/10\n61 11/11\n62 8/8\n63 6/6\n64 6/6\n65 6/6\n66 6/6\n67 6/6\n68 6/6\n69 6/6\n70 7/7\n71 9/9\n72 10/10\n73 11/11\n74 8/8\n75 6/6\n76 6/6\n77 6/6\n78 6/6\n79 6/6\n80 6/6\n81 6/6\n82 7/7\n83 9/9\n84 10/10\n85 11/11\n86 8/8\n87 12/999\n88 9/999\n89 13/999\n90 14/999\n91 14/999\nline 620, scenario 17: eventCount==wantedCount\n",
+        "stderr": ""
+      },
+      "selection_store": {
+        "returncode": 1,
+        "stdout": "event 8 kinds 16 / 16\n3: 4 != 0\n5: 0 != 1\n6: 250 != 102\nline 623, scenario 65: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "selection_origin": {
+        "returncode": 1,
+        "stdout": "event 7 kinds 15 / 15\n2: 3284008960 != 3283976192\nline 623, scenario 65: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "confirm_row_id_signedness": {
+        "returncode": 1,
+        "stdout": "event 8 kinds 3 / 3\n4: 32768 != 4294934528\nline 623, scenario 17: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "cancel_row_id_signedness": {
+        "returncode": 1,
+        "stdout": "event 8 kinds 3 / 3\n4: 32768 != 4294934528\nline 623, scenario 33: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "confirm_grid_row_spacing": {
+        "returncode": 1,
+        "stdout": "event 27 kinds 6 / 6\n1: 1135607808 != 1135575040\nline 623, scenario 17: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "confirm_grid_column_spacing": {
+        "returncode": 1,
+        "stdout": "event 17 kinds 6 / 6\n1: 1135607808 != 1135575040\nline 623, scenario 17: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "first_mode_grid_row_spacing": {
+        "returncode": 1,
+        "stdout": "event 23 kinds 6 / 6\n1: 1135607808 != 1135575040\nline 623, scenario 65: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "first_mode_matrix_predicate": {
+        "returncode": 1,
+        "stdout": "counts 92 != 95\n0 1/1\n1 1/1\n2 1/1\n3 1/1\n4 1/1\n5 1/1\n6 2/2\n7 15/15\n8 16/16\n9 6/6\n10 6/6\n11 6/6\n12 6/6\n13 6/6\n14 6/6\n15 6/6\n16 7/7\n17 9/9\n18 10/10\n19 11/11\n20 8/8\n21 17/17\n22 16/16\n23 6/6\n24 6/6\n25 6/6\n26 6/6\n27 6/6\n28 6/6\n29 6/6\n30 7/7\n31 9/9\n32 10/10\n33 11/11\n34 8/8\n35 16/17\n36 6/16\n37 6/6\n38 6/6\n39 6/6\n40 6/6\n41 6/6\n42 6/6\n43 7/6\n44 9/7\n45 10/9\n46 11/10\n47 8/11\n48 16/8\n49 6/17\n50 6/16\n51 6/6\n52 6/6\n53 6/6\n54 6/6\n55 6/6\n56 7/6\n57 9/6\n58 10/7\n59 11/9\n60 8/10\n61 16/11\n62 6/8\n63 6/16\n64 6/6\n65 6/6\n66 6/6\n67 6/6\n68 6/6\n69 7/6\n70 9/6\n71 10/7\n72 11/9\n73 8/10\n74 17/11\n75 16/8\n76 6/17\n77 6/16\n78 6/6\n79 6/6\n80 6/6\n81 6/6\n82 6/6\n83 7/6\n84 9/6\n85 10/7\n86 11/9\n87 8/10\n88 18/11\n89 19/8\n90 20/17\n91 21/18\n92 999/19\n93 999/20\n94 999/21\nline 620, scenario 65: eventCount==wantedCount\n",
+        "stderr": ""
+      },
+      "second_mode_matrix_stride": {
+        "returncode": 1,
+        "stdout": "event 17 kinds 6 / 6\n3: 2778267648 != 3432579072\n4: 2778267648 != 3439293001\n5: 165 != 204\n6: 165 != 204\nline 623, scenario 67: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "second_mode_matrix_predicate": {
+        "returncode": 1,
+        "stdout": "event 10 kinds 6 / 6\n3: 3432579072 != 2778267648\n4: 3439293001 != 2778267648\n5: 204 != 165\n6: 204 != 165\nline 623, scenario 67: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "second_mode_selected_color": {
+        "returncode": 1,
+        "stdout": "event 34 kinds 6 / 6\n4: 4281150765 != 4281150766\nline 623, scenario 67: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "second_mode_zero_alpha": {
+        "returncode": 1,
+        "stdout": "event 11 kinds 6 / 6\n4: 2778267648 != 2761490432\n5: 165 != 164\n6: 165 != 164\nline 623, scenario 67: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "second_mode_nonzero_alpha": {
+        "returncode": 1,
+        "stdout": "event 10 kinds 6 / 6\n4: 3439293001 != 3456070217\n5: 204 != 205\n6: 204 != 205\nline 623, scenario 67: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "second_mode_alpha_component": {
+        "returncode": 1,
+        "stdout": "event 10 kinds 6 / 6\n5: 204 != 255\n6: 204 != 255\nline 623, scenario 67: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "second_mode_special_reset": {
+        "returncode": 1,
+        "stdout": "line 625, scenario 67: memcmp(&state,&expected,sizeof(state))==0\n",
+        "stderr": ""
+      },
+      "second_mode_position": {
+        "returncode": 1,
+        "stdout": "event 10 kinds 6 / 6\n1: 3263414272 != 1102315520\n2: 1102315520 != 0\nline 623, scenario 67: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "cancel_position": {
+        "returncode": 1,
+        "stdout": "event 10 kinds 6 / 6\n1: 1100546048 != 0\n2: 1117454336 != 0\nline 623, scenario 33: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "cancel_alpha_field": {
+        "returncode": 1,
+        "stdout": "event 10 kinds 6 / 6\n5: 110 != 33\n6: 110 != 33\nline 623, scenario 33: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "cancel_reset_mode_gate": {
+        "returncode": 1,
+        "stdout": "counts 244 != 246\n0 1/1\n1 1/1\n2 1/1\n3 1/1\n4 1/1\n5 1/1\n6 1/1\n7 1/1\n8 1/1\n9 1/1\n10 1/1\n11 1/1\n12 2/2\n13 4/4\n14 3/3\n15 6/6\n16 6/6\n17 6/6\n18 6/6\n19 6/6\n20 6/6\n21 6/6\n22 6/6\n23 6/6\n24 6/6\n25 6/6\n26 6/6\n27 6/6\n28 7/7\n29 9/9\n30 10/10\n31 11/11\n32 8/8\n33 3/3\n34 6/6\n35 6/6\n36 6/6\n37 6/6\n38 6/6\n39 6/6\n40 6/6\n41 6/6\n42 6/6\n43 6/6\n44 6/6\n45 6/6\n46 6/6\n47 7/7\n48 9/9\n49 10/10\n50 11/11\n51 8/8\n52 3/3\n53 6/6\n54 6/6\n55 6/6\n56 6/6\n57 6/6\n58 6/6\n59 6/6\n60 6/6\n61 6/6\n62 6/6\n63 6/6\n64 6/6\n65 6/6\n66 7/7\n67 9/9\n68 10/10\n69 11/11\n70 8/8\n71 3/3\n72 6/6\n73 6/6\n74 6/6\n75 6/6\n76 6/6\n77 6/6\n78 6/6\n79 6/6\n80 6/6\n81 6/6\n82 6/6\n83 6/6\n84 6/6\n85 7/7\n86 9/9\n87 10/10\n88 11/11\n89 8/8\n90 3/3\n91 6/6\n92 6/6\n93 6/6\n94 6/6\n95 6/6\n96 6/6\n97 6/6\n98 6/6\n99 6/6\n100 6/6\n101 6/6\n102 6/6\n103 6/6\n104 7/7\n105 9/9\n106 10/10\n107 11/11\n108 8/8\n109 3/3\n110 6/6\n111 6/6\n112 6/6\n113 6/6\n114 6/6\n115 6/6\n116 6/6\n117 6/6\n118 6/6\n119 6/6\n120 6/6\n121 6/6\n122 6/6\n123 7/7\n124 9/9\n125 10/10\n126 11/11\n127 8/8\n128 3/3\n129 6/6\n130 6/6\n131 6/6\n132 6/6\n133 6/6\n134 6/6\n135 6/6\n136 6/6\n137 6/6\n138 6/6\n139 6/6\n140 6/6\n141 6/6\n142 7/7\n143 9/9\n144 10/10\n145 11/11\n146 8/8\n147 3/3\n148 6/6\n149 6/6\n150 6/6\n151 6/6\n152 6/6\n153 6/6\n154 6/6\n155 6/6\n156 6/6\n157 6/6\n158 6/6\n159 6/6\n160 6/6\n161 7/7\n162 9/9\n163 10/10\n164 11/11\n165 8/8\n166 3/3\n167 6/6\n168 6/6\n169 6/6\n170 6/6\n171 6/6\n172 6/6\n173 6/6\n174 6/6\n175 6/6\n176 6/6\n177 6/6\n178 6/6\n179 6/6\n180 7/7\n181 9/9\n182 10/10\n183 11/11\n184 8/8\n185 3/3\n186 6/6\n187 6/6\n188 6/6\n189 6/6\n190 6/6\n191 6/6\n192 6/6\n193 6/6\n194 6/6\n195 6/6\n196 6/6\n197 6/6\n198 6/6\n199 7/7\n200 9/9\n201 10/10\n202 11/11\n203 8/8\n204 3/3\n205 6/6\n206 6/6\n207 6/6\n208 6/6\n209 6/6\n210 6/6\n211 6/6\n212 6/6\n213 6/6\n214 6/6\n215 6/6\n216 6/6\n217 6/6\n218 7/7\n219 9/9\n220 10/10\n221 11/11\n222 8/8\n223 3/3\n224 6/6\n225 6/6\n226 6/6\n227 6/6\n228 6/6\n229 6/6\n230 6/6\n231 6/6\n232 6/6\n233 6/6\n234 6/6\n235 6/6\n236 6/6\n237 7/7\n238 9/9\n239 10/10\n240 11/11\n241 8/8\n242 23/9\n243 5/20\n244 999/23\n245 999/5\nline 620, scenario 857: eventCount==wantedCount\n",
+        "stderr": ""
+      },
+      "confirm_height": {
+        "returncode": 1,
+        "stdout": "event 25 kinds 11 / 11\n4: 1122861056 != 1122287616\nline 623, scenario 17: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "cancel_height": {
+        "returncode": 1,
+        "stdout": "event 19 kinds 11 / 11\n4: 1123909632 != 1122811904\nline 623, scenario 33: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "confirm_grid_live_alpha": {
+        "returncode": 1,
+        "stdout": "event 16 kinds 6 / 6\n5: 61 != 255\n6: 61 != 255\nline 623, scenario 17: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "cached_party_capacity": {
+        "returncode": 1,
+        "stdout": "counts 6 != 188\n0 1/1\n1 1/1\n2 1/1\n3 1/1\n4 1/1\n5 1/1\n6 999/1\n7 999/1\n8 999/1\n9 999/1\n10 999/2\n11 999/3\n12 999/3\n13 999/3\n14 999/3\n15 999/3\n16 999/3\n17 999/3\n18 999/3\n19 999/3\n20 999/3\n21 999/4\n22 999/5\n23 999/6\n24 999/6\n25 999/6\n26 999/6\n27 999/6\n28 999/6\n29 999/6\n30 999/6\n31 999/6\n32 999/6\n33 999/6\n34 999/7\n35 999/9\n36 999/10\n37 999/11\n38 999/8\n39 999/6\n40 999/6\n41 999/6\n42 999/6\n43 999/6\n44 999/6\n45 999/6\n46 999/6\n47 999/6\n48 999/6\n49 999/6\n50 999/7\n51 999/9\n52 999/10\n53 999/11\n54 999/8\n55 999/6\n56 999/6\n57 999/6\n58 999/6\n59 999/6\n60 999/6\n61 999/6\n62 999/6\n63 999/6\n64 999/6\n65 999/6\n66 999/7\n67 999/9\n68 999/10\n69 999/11\n70 999/8\n71 999/6\n72 999/6\n73 999/6\n74 999/6\n75 999/6\n76 999/6\n77 999/6\n78 999/6\n79 999/6\n80 999/6\n81 999/6\n82 999/7\n83 999/9\n84 999/10\n85 999/11\n86 999/8\n87 999/6\n88 999/6\n89 999/6\n90 999/6\n91 999/6\n92 999/6\n93 999/6\n94 999/6\n95 999/6\n96 999/6\n97 999/6\n98 999/7\n99 999/9\n100 999/10\n101 999/11\n102 999/8\n103 999/6\n104 999/6\n105 999/6\n106 999/6\n107 999/6\n108 999/6\n109 999/6\n110 999/6\n111 999/6\n112 999/6\n113 999/6\n114 999/7\n115 999/9\n116 999/10\n117 999/11\n118 999/8\n119 999/6\n120 999/6\n121 999/6\n122 999/6\n123 999/6\n124 999/6\n125 999/6\n126 999/6\n127 999/6\n128 999/6\n129 999/6\n130 999/7\n131 999/9\n132 999/10\n133 999/11\n134 999/8\n135 999/6\n136 999/6\n137 999/6\n138 999/6\n139 999/6\n140 999/6\n141 999/6\n142 999/6\n143 999/6\n144 999/6\n145 999/6\n146 999/7\n147 999/9\n148 999/10\n149 999/11\n150 999/8\n151 999/6\n152 999/6\n153 999/6\n154 999/6\n155 999/6\n156 999/6\n157 999/6\n158 999/6\n159 999/6\n160 999/6\n161 999/6\n162 999/7\n163 999/9\n164 999/10\n165 999/11\n166 999/8\n167 999/6\n168 999/6\n169 999/6\n170 999/6\n171 999/6\n172 999/6\n173 999/6\n174 999/6\n175 999/6\n176 999/6\n177 999/6\n178 999/7\n179 999/9\n180 999/10\n181 999/11\n182 999/8\n183 999/12\n184 999/9\n185 999/13\n186 999/14\n187 999/14\nline 622, scenario 638: eventCount==wantedCount\n",
+        "stderr": ""
+      },
+      "cached_selected_row": {
+        "returncode": 1,
+        "stdout": "event 21 kinds 6 / 6\n4: 4281150765 != 3439293001\n5: 255 != 204\n6: 255 != 204\nline 625, scenario 746: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      },
+      "live_task_work_reload": {
+        "returncode": 1,
+        "stdout": "event 10 kinds 6 / 6\n0: 84 != 144\n1: 1100546048 != 1120944128\n2: 1117454336 != 1124368384\n8: 1101660160 != 1108410368\nline 623, scenario 682: memcmp(&wanted[i],&observed[i],sizeof(Event))==0\n",
+        "stderr": ""
+      }
+    },
+    "negative_count": 39,
+    "all_negative_rejected": true
+  },
+  "tests": {
+    "tests": 848,
+    "skipped": 36,
+    "result": "PASS"
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 11,
+    "same_as_baseline": true
+  },
+  "pragma_audit": "all43distinctspellingsrecognized",
+  "local_full_image_build": {
+    "status": "BLOCKED",
+    "reason": "b119, EE-GCC2.96 and Sony EE assembler are not available locally",
+    "replacement_claim": null
+  },
+  "publication_full_gate": {
+    "status": "PENDING_EQUIPPED_CI",
+    "expected_image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
+    "expected_elf_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c"
+  }
+}

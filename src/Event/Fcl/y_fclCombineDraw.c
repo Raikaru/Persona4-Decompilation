@@ -2910,8 +2910,6 @@ void func_003218a0(u8 *arg0, s16 arg1) {
 
 /* The 0x40 path has its own eligibility guard; it is not a copy of 0x80.
    Cursor activation and the 0x7E reset follow the retail control-flow join. */
-// FUN_00321E60 NONMATCHING
-#ifdef NON_MATCHING
 static inline void fclShowCombineCursorArrows(u8 *t)
 {
     FclVec2 *v = (FclVec2 *)D_00644C90;
@@ -2924,6 +2922,12 @@ static inline void fclShowCombineCursorArrows(u8 *t)
     func_002b6140(*(u8 **)(t + 0x290), 1);
 }
 
+/* measured: opt_lifetimes on keeps the independent nested counters live.
+   The unsigned row snapshot retains retail's separate signed re-extension.
+   Whole owner: 5484 bytes plus four zero tail bytes; 164 resolved relocations. */
+// FUN_00321E60
+#pragma push
+#pragma opt_lifetimes on
 void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
     extern u16 D_008C027A[];
     extern u16 D_008C024E[];
@@ -2931,7 +2935,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
     extern f32 D_00644150[];
     extern void func_002f9c30(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 *, s32, s8, s8);
     extern void func_002e4ac0(s32, s32);
-    extern void func_0045af60(s32, s32, s32, s32);
+    extern s32 func_0045af60(s16, s16, s16, s16);
     FclByte4 c21C;
     u8 *t;
     FclVec2 *v;
@@ -2964,8 +2968,8 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
     u8 *hb1;
     s32 xb1;
     s32 accb1;
-    s16 kb2;
     s16 jb2;
+    s16 kb2;
     u8 *rowb2;
     s16 jc;
     s16 kc;
@@ -3102,7 +3106,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                     s16 cur;
 
                     kb2 = 0;
-                    cur = (s16)(s32)jb2;
+                    cur = (s16)(u32)jb2;
                     m = cur * 12;
                     rowb2 = t + cur * 4;
                     while ((s16)kb2 < (u16)func_0010b5b0()) {
@@ -3183,9 +3187,8 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
         *(u8 *)(t + 1) = arg3;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00321e60);
-#endif
+
+#pragma pop
 
 // measured: nd N/A (draw-family, s64-param floor). 29x 6150 + 17x 2a60 + 12x 2970 + 8x 6a70 + 7x 6c30: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
 /* measured: probe_variants 366 differing words reloc-masked via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_003233d0 --candidate V9=/var/tmp/cold3233d0/v9.c`; fnalign retail 587 vs object 586 instrs (1 short, 0.17% within 3% rule, 53 edits +3 reloc-only) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_003233d0 --candidate /var/tmp/cold3233d0/v9.c --quiet`; live measure_guarded GUARDED_SCORE func_003233d0: 366. Prior file note nd N/A was bare INCLUDE_ASM with no banked body (no archive); this is the first banked floor since bare. */
