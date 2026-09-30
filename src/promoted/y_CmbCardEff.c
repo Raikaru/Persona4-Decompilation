@@ -43,8 +43,8 @@ struct RtQuat;
 struct RwV3d;
 struct RtQuat *func_003dc740(struct RtQuat *rotation, const struct RwV3d *axis,
                            f32 angle, s32 mode);
-void func_0036de20(void *arg0, void *arg1);
-void func_0036dd10(void *arg0, void *arg1, f32 arg2);
+void func_0036de20(u8 *arg0, void *arg1);
+void func_0036dd10(u8 *arg0, f32 *arg1, f32 arg2);
 s32 func_00285b30(void);
 f32 func_002b2aa0(s64, f32, f32, f32, f32);
 s32 func_002b2cb0(s32, s32, s32, s32, s8);
@@ -180,31 +180,60 @@ void func_0033e7c0(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
-/* measured: rule 1 refined — the three `ldr $6,0($18/30)/ldl $6,7(...)` pairs (s64
-   args to func_0033fc00/0033fb10/0033fb90 at pointer = slot+0x20, disp 0 but base is
-   4-mod-8 via the 0x84 stride) come from CmbVec2f BY-VALUE args: probe-verified
-   `*(CmbVec2f *)p` at disp 0 emits ldr/ldl while `*(s64 *)p` at disp 0 emits plain ld
-   (and `*(s64 *)(p+0x2C)` emits ldr/ldl per the brief's rule). The func_0033fc00 arg3
-   `*(CmbVec2f *)(slot + b*0xC + 0x2C)` and s16 arg4 match too. Full-function match
-   blocked by the same stack-alloc/register wall as func_0033fc80 (0x84-stride state
-   machine, 970-line dispatcher). */
-/* measured: cold reconstruction banked 806 (reloc-masked), retail 912 instrs / object 896 instrs (1.8% inside 3% gate), 166 fnalign edits +6 reloc-only. v1 817 (912/804, 11.8% short: hoisted slot/c, shared rgba, plain 0xFB0) -> v3 810 (912/895, 1.9%: unhoisted per-use obj+k*0x84 and (s8)k, separate rgba0/rgba1, block-scope true protos for 4-arg 003dc740 and 3-arg 0033fa30, D_00794E70/EA0 and D_0064A4C8/D_0064A4D0 externs) -> v3_loopinv 806 (912/896) with #pragma opt_loop_invariants on. Pragmas: commons off 1256 regress, unroll off 810 tie, schedule off 810 tie. Colour: register obj 806 tie, reversed decl order 806 tie. Residual: stack-alloc (frame -0x160 vs -0x170, sp 0x138->0x158, 0x154->0x16C), saved-reg rotation (s2/s3, s1/s2), RGBA lbu/sb interleave vs pairs, D_0064A4C8/D0 lui+ld/lwc1 vs gp ld. m2c plus romwright base, CmbVec2f by-value for 0033fc00 per prior note. */
-/* 2026-09-18 `tools/solve_signedness.py`: the read at `obj + k*0x84 + 0xC`
-   was `u8` where retail loads it signed; flipping it took the census
-   mismatch from 21 to 7 with the instruction count unchanged.  The word
-   score stays 806 because those positions already differ for other reasons -
-   the census is the objective for signedness, not the score.  Two tables,
-   D_00794E70 and D_00794EA0, are free: both spellings compile identically,
-   so their signedness is unobservable here and should not be churned. */
-// FUN_0033E810 NONMATCHING
-#ifdef NON_MATCHING
+/* The controller keeps twelve complete 0x84-byte card records. Constructor
+ * results and the rotation axis retain their real aggregate extents; both
+ * setup loops reload the signed loader count before short-index promotion.
+ * Measured in the complete owner: 3652 code bytes and twelve retail zero bytes.
+ * opt_loop_invariants on retains the retail loop/address lifetimes. */
+// FUN_0033E810
 #pragma push
 #pragma opt_loop_invariants on
-s32 func_0033e810(u8 *arg0) {
+s32 func_0033e810(u8 *task) {
+    typedef struct {
+        CmbVec2f position;
+        s16 duration;
+        u8 reserved[2];
+    } CardPathPoint;
+    typedef struct {
+        s8 flags;
+        u8 reserved01[3];
+        CmbVec2f moveStart, moveEnd, position;
+        s16 moveDuration, moveFrame;
+        CardPathPoint path[5];
+        s8 pathCount, pathIndex;
+        u8 reserved5e[2];
+        f32 angleStart, angleEnd, angle;
+        s16 angleFrame, angleDuration;
+        CmbRGBA colorStart, colorEnd, color;
+        s16 colorFrame, colorDuration;
+        f32 scale;
+    } CardSlot;
+    typedef char CardSlotSizeCheck[sizeof(CardSlot) == 0x84 ? 1 : -1];
+    /* Observed controller prefix. The task allocator reserves 0x6E0 bytes;
+     * this view ends after the pulse counter and leaves the final bytes opaque. */
+    typedef struct {
+        s8 phase;
+        u8 reserved01[3];
+        u8 *loaderTask;
+        u8 reserved08[4];
+        CardSlot cards[12];
+        s16 layout;
+        s8 nextPhase;
+        u8 reserved63f;
+        u8 reserved640[0xC];
+        u8 *loadGate;
+        u8 reserved650[0x68];
+        s8 hideSecondary, activeCount;
+        u8 reserved6ba[2];
+        s16 pulseFrame;
+    } CardControllerView;
+    typedef char CardControllerViewSizeCheck[sizeof(CardControllerView) == 0x6C0 ? 1 : -1];
+    typedef char CardColorSizeCheck[sizeof(CmbRGBA) == 4 ? 1 : -1];
+
     void func_0033fa30(u8 *, s8, f32);
-    void func_0033fb10(u8 *, s8, s64);
-    void func_0033fb90(u8 *, s8, s64, f32);
-    void func_0033fc00(u8 *, s8, CmbVec2f, CmbVec2f, u16);
+    void func_0033fb10(u8 *, s8, CmbVec2f);
+    void func_0033fb90(u8 *, s8, CmbVec2f, f32);
+    void func_0033fc00(u8 *, s8, CmbVec2f, CmbVec2f, s16);
     s32 func_0033fc80(u8 *);
     s32 func_003407f0(u8 *);
     s32 func_00341640(u8 *);
@@ -212,151 +241,144 @@ s32 func_0033e810(u8 *arg0) {
     s32 func_00343cf0(u8 *);
     void func_00347940(u8 *);
     s32 func_00348be0(u8 *);
-    void func_0036de20(void *, void *);
-    void func_0036de40(void *, void *);
-    void func_0036df90(void *, void *);
-    extern s64 D_0064A4C8;
-    extern f32 D_0064A4D0;
+    void func_0036de20(u8 *, void *);
+    void func_0036de40(u8 *, void *);
+    void func_0036df90(u8 *, u8 *);
+    extern CmbVec3f D_0064A4C8;
     extern u8 D_00794E70[];
     extern u8 D_00794EA0[];
-    u8 *obj;
-    s16 i;
-    s16 j;
-    s16 k;
-    s64 tmp;
-    u8 rgba0[4];
-    u8 cpy0[4];
-    u8 rgba1[4];
-    u8 cpy1[4];
-    s64 st64;
-    f32 stf;
-    u8 buf[24];
-    u8 cv;
-    f32 f0;
-    f32 f20save;
-    obj = *(u8 **)(arg0 + 0x38);
-    if (*(s8 *)(*(u8 **)(obj + 4) + 0x38) != 4) {
+    CardControllerView *work;
+    s8 loadedCount;
+    s16 setupIndex;
+    s16 scaleIndex;
+    s16 cardIndex;
+    /* The setters consume byte representations. Each buffer also owns a
+     * correctly aligned, complete color member for the constructor result. */
+    union { CmbRGBA color; u8 bytes[sizeof(CmbRGBA)]; } initialColorBytes;
+    union { CmbRGBA color; u8 bytes[sizeof(CmbRGBA)]; } secondaryColorBytes;
+    CmbVec3f axis;
+    CmbVec2f initialPosition;
+    f32 quaternion[4];
+    u8 secondaryOpacity;
+    f32 opacityValue;
+    f32 secondaryScale;
+    work = *(CardControllerView **)(task + 0x38);
+    if (((CmbLoaderState *)*(u8 **)(work->loaderTask + 0x38))->state != 4) {
         return 0;
     }
     if (func_00285b30() >= 1000 && func_00285b30() < 1011) {
         func_00106390(0x5C, 0);
     }
-    switch (*(s8 *)obj) {
+    switch (work->phase) {
     case 0:
-        if (func_00348be0(*(u8 **)(obj + 0x64C)) == 0) {
+        if (func_00348be0(work->loadGate) == 0) {
             return 0;
         }
-        for (i = 0; i < *(s8 *)(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + 0x19FD8); i++) {
-            *(FclVec2 *)&tmp = func_002b2970(0.0f, 0.0f);
-            func_0033fb10(arg0, (s8)i, tmp);
-            func_0033fa30(arg0, (s8)i, 0.0f);
-            fclWriteColorBytes(rgba0, 0xFF, 0xFF, 0xFF, 0);
-            cpy0[0] = rgba0[0];
-            cpy0[1] = rgba0[1];
-            cpy0[2] = rgba0[2];
-            cpy0[3] = rgba0[3];
-            func_0036de40(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + (s32)(s8)i * 0xFB0 + 0xE398, cpy0);
-            *(f32 *)(obj + (s32)i * 0x84 + 0x8C) = 1.0f;
-            st64 = D_0064A4C8;
-            stf = D_0064A4D0;
-            func_003dc740((struct RtQuat *)buf, (const struct RwV3d *)&st64, 180.0f, 0);
-            func_0036de20(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + (s32)(s8)i * 0xFB0 + 0xE398, buf);
+        /* Keep a fresh signed count snapshot before promoting the short index. */
+        for (setupIndex = 0;
+             (loadedCount = ((CmbLoaderState *)*(u8 **)(work->loaderTask + 0x38))->loaded),
+             setupIndex < loadedCount; setupIndex++) {
+            initialPosition = func_002b2970(0.0f, 0.0f);
+            func_0033fb10(task, (s8)setupIndex, initialPosition);
+            func_0033fa30(task, (s8)setupIndex, 0.0f);
+            *(CmbRGBA *)initialColorBytes.bytes = func_002b2a60(0xFF, 0xFF, 0xFF, 0);
+            func_0036de40(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)setupIndex * 0xFB0 + 0xE398, initialColorBytes.bytes);
+            work->cards[setupIndex].scale = 1.0f;
+            axis = D_0064A4C8;
+            func_003dc740((struct RtQuat *)quaternion, (const struct RwV3d *)&axis, 180.0f, 0);
+            func_0036de20(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)setupIndex * 0xFB0 + 0xE398, quaternion);
         }
-        *(s16 *)(obj + 0x63C) = 0;
-        *obj = *(obj + 0x63E);
-        func_00347940(arg0);
+        work->layout = 0;
+        work->phase = work->nextPhase;
+        func_00347940(task);
         break;
     case 1:
-        func_0033fc80(arg0);
+        func_0033fc80(task);
         break;
     case 2:
-        func_003407f0(arg0);
+        func_003407f0(task);
         break;
     case 3:
-        func_00341640(arg0);
+        func_00341640(task);
         break;
     case 4:
-        func_003427a0(arg0);
+        func_003427a0(task);
         break;
     case 5:
-        func_00343cf0(arg0);
+        func_00343cf0(task);
         break;
     case 6:
-        for (j = 0; j < *(s8 *)(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + 0x19FD8); j++) {
-            *(f32 *)(obj + (s32)j * 0x84 + 0x8C) = 0.75f;
+        for (scaleIndex = 0;
+             (loadedCount = ((CmbLoaderState *)*(u8 **)(work->loaderTask + 0x38))->loaded),
+             scaleIndex < loadedCount; scaleIndex++) {
+            work->cards[scaleIndex].scale = 0.75f;
         }
-        func_00345700(arg0);
+        func_00345700(task);
         break;
     case 7:
         return -1;
     }
-    if (*(s16 *)(obj + 0x63C) == 9 && func_00285b30() < 490) {
-        f20save = func_002b2aa0(0, *(f32 *)(obj + 0x8C), *(f32 *)(obj + 0x8C) + 0.125f, (f32)*(s16 *)(obj + 0x6BC), 60.0f);
-        f0 = func_002b2aa0(1, 0.0f, 168.0f, (f32)*(s16 *)(obj + 0x6BC), 30.0f);
-        cv = (u8)(s32)f0;
-        *(s16 *)(obj + 0x6BC) = func_002b2cb0(*(s16 *)(obj + 0x6BC), 1, 60, 0, 2);
+    if (work->layout == 9 && func_00285b30() < 490) {
+        secondaryScale = func_002b2aa0(0, work->cards[0].scale, work->cards[0].scale + 0.125f, (f32)work->pulseFrame, 60.0f);
+        opacityValue = func_002b2aa0(1, 0.0f, 168.0f, (f32)work->pulseFrame, 30.0f);
+        secondaryOpacity = (u8)opacityValue;
+        work->pulseFrame = func_002b2cb0(work->pulseFrame, 1, 60, 0, 2);
     }
-    for (k = 0; k < *(s8 *)(obj + 0x6B9); k++) {
-        if ((*(s8 *)(obj + (s32)k * 0x84 + 0xC) & 1) != 0) {
-            *(f32 *)(obj + (s32)k * 0x84 + 0x20) = func_002b2aa0(0, *(f32 *)(obj + (s32)k * 0x84 + 0x10), *(f32 *)(obj + (s32)k * 0x84 + 0x18), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x2A), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x28));
-            *(f32 *)(obj + (s32)k * 0x84 + 0x24) = func_002b2aa0(0, *(f32 *)(obj + (s32)k * 0x84 + 0x14), *(f32 *)(obj + (s32)k * 0x84 + 0x1C), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x2A), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x28));
-            if (*(s16 *)(obj + (s32)k * 0x84 + 0x2A) < *(s16 *)(obj + (s32)k * 0x84 + 0x28)) {
-                *(s16 *)(obj + (s32)k * 0x84 + 0x2A) = func_002b2cb0(*(s16 *)(obj + (s32)k * 0x84 + 0x2A), 1, *(s16 *)(obj + (s32)k * 0x84 + 0x28), 0, 1);
-            } else if ((*(s8 *)(obj + (s32)k * 0x84 + 0xC) & 8) == 0) {
-                *(s8 *)(obj + (s32)k * 0x84 + 0xC) ^= 1;
-            } else {
-                func_0033fc00(arg0, (s8)k, *(CmbVec2f *)(obj + (s32)k * 0x84 + 0x20), *(CmbVec2f *)(obj + (s32)*(s8 *)(obj + (s32)k * 0x84 + 0x69) * 0xC + (s32)k * 0x84 + 0x2C), *(u16 *)(obj + (s32)*(s8 *)(obj + (s32)k * 0x84 + 0x69) * 0xC + (s32)k * 0x84 + 0x34));
-                *(f32 *)(obj + (s32)k * 0x84 + 0x20) = func_002b2aa0(0, *(f32 *)(obj + (s32)k * 0x84 + 0x10), *(f32 *)(obj + (s32)k * 0x84 + 0x18), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x2A), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x28));
-                *(f32 *)(obj + (s32)k * 0x84 + 0x24) = func_002b2aa0(0, *(f32 *)(obj + (s32)k * 0x84 + 0x14), *(f32 *)(obj + (s32)k * 0x84 + 0x1C), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x2A), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x28));
-                *(s16 *)(obj + (s32)k * 0x84 + 0x2A) = func_002b2cb0(*(s16 *)(obj + (s32)k * 0x84 + 0x2A), 1, *(s16 *)(obj + (s32)k * 0x84 + 0x28), 0, 1);
-                *(s8 *)(obj + (s32)k * 0x84 + 0x69) += 1;
-                if (*(s8 *)(obj + (s32)k * 0x84 + 0x68) <= *(s8 *)(obj + (s32)k * 0x84 + 0x69)) {
-                    *(s8 *)(obj + (s32)k * 0x84 + 0xC) ^= 8;
+    for (cardIndex = 0; cardIndex < work->activeCount; cardIndex++) {
+        if ((work->cards[cardIndex].flags & 1) != 0) {
+            work->cards[cardIndex].position.x = func_002b2aa0(0, work->cards[cardIndex].moveStart.x, work->cards[cardIndex].moveEnd.x, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
+            work->cards[cardIndex].position.y = func_002b2aa0(0, work->cards[cardIndex].moveStart.y, work->cards[cardIndex].moveEnd.y, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
+            if (work->cards[cardIndex].moveFrame < work->cards[cardIndex].moveDuration) {
+                work->cards[cardIndex].moveFrame = func_002b2cb0(work->cards[cardIndex].moveFrame, 1, work->cards[cardIndex].moveDuration, 0, 1);
+            } else if ((work->cards[cardIndex].flags & 8) != 0) {
+                func_0033fc00(task, (s8)cardIndex, work->cards[cardIndex].position, work->cards[cardIndex].path[work->cards[cardIndex].pathIndex].position, work->cards[cardIndex].path[work->cards[cardIndex].pathIndex].duration);
+                work->cards[cardIndex].position.x = func_002b2aa0(0, work->cards[cardIndex].moveStart.x, work->cards[cardIndex].moveEnd.x, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
+                work->cards[cardIndex].position.y = func_002b2aa0(0, work->cards[cardIndex].moveStart.y, work->cards[cardIndex].moveEnd.y, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
+                work->cards[cardIndex].moveFrame = func_002b2cb0(work->cards[cardIndex].moveFrame, 1, work->cards[cardIndex].moveDuration, 0, 1);
+                work->cards[cardIndex].pathIndex += 1;
+                if (work->cards[cardIndex].pathCount <= work->cards[cardIndex].pathIndex) {
+                    work->cards[cardIndex].flags ^= 8;
                 }
-            }
-        }
-        func_0033fb10(arg0, (s8)k, *(s64 *)(obj + (s32)k * 0x84 + 0x20));
-        if ((*(s8 *)(obj + (s32)k * 0x84 + 0xC) & 2) != 0) {
-            *(f32 *)(obj + (s32)k * 0x84 + 0x74) = (f32)(s16)(s32)func_002b2aa0(0, *(f32 *)(obj + (s32)k * 0x84 + 0x6C), *(f32 *)(obj + (s32)k * 0x84 + 0x70), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x78), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x7A));
-            if (*(s16 *)(obj + (s32)k * 0x84 + 0x78) < *(s16 *)(obj + (s32)k * 0x84 + 0x7A)) {
-                *(s16 *)(obj + (s32)k * 0x84 + 0x78) = func_002b2cb0(*(s16 *)(obj + (s32)k * 0x84 + 0x78), 1, *(s16 *)(obj + (s32)k * 0x84 + 0x7A), 0, 1);
             } else {
-                *(s8 *)(obj + (s32)k * 0x84 + 0xC) ^= 2;
+                work->cards[cardIndex].flags ^= 1;
             }
-            func_0033fa30(arg0, (s8)k, *(f32 *)(obj + (s32)k * 0x84 + 0x74));
         }
-        if ((*(s8 *)(obj + (s32)k * 0x84 + 0xC) & 4) != 0) {
-            *(u8 *)(obj + (s32)k * 0x84 + 0x84) = (u8)func_002b2aa0(0, (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x7C), (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x80), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x88), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x8A));
-            *(u8 *)(obj + (s32)k * 0x84 + 0x85) = (u8)func_002b2aa0(0, (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x7D), (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x81), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x88), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x8A));
-            *(u8 *)(obj + (s32)k * 0x84 + 0x86) = (u8)func_002b2aa0(0, (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x7E), (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x82), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x88), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x8A));
-            *(u8 *)(obj + (s32)k * 0x84 + 0x87) = (u8)func_002b2aa0(0, (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x7F), (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x83), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x88), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x8A));
-            if (*(s16 *)(obj + (s32)k * 0x84 + 0x88) < *(s16 *)(obj + (s32)k * 0x84 + 0x8A)) {
-                *(s16 *)(obj + (s32)k * 0x84 + 0x88) = func_002b2cb0(*(s16 *)(obj + (s32)k * 0x84 + 0x88), 1, *(s16 *)(obj + (s32)k * 0x84 + 0x8A), 0, 1);
+        func_0033fb10(task, (s8)cardIndex, work->cards[cardIndex].position);
+        if ((work->cards[cardIndex].flags & 2) != 0) {
+            work->cards[cardIndex].angle = (f32)(s16)(s32)func_002b2aa0(0, work->cards[cardIndex].angleStart, work->cards[cardIndex].angleEnd, (f32)work->cards[cardIndex].angleFrame, (f32)work->cards[cardIndex].angleDuration);
+            if (work->cards[cardIndex].angleFrame < work->cards[cardIndex].angleDuration) {
+                work->cards[cardIndex].angleFrame = func_002b2cb0(work->cards[cardIndex].angleFrame, 1, work->cards[cardIndex].angleDuration, 0, 1);
             } else {
-                *(s8 *)(obj + (s32)k * 0x84 + 0xC) ^= 4;
+                work->cards[cardIndex].flags ^= 2;
             }
-            func_0036de40(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + (s32)(s8)k * 0xFB0 + 0x2758, obj + (s32)k * 0x84 + 0x84);
+            func_0033fa30(task, (s8)cardIndex, work->cards[cardIndex].angle);
         }
-        if (*(u8 *)(obj + (s32)k * 0x84 + 0x87) != 0 && *(obj + 0x6B8) == 0) {
-            func_0036df90(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + (s32)(s8)k * 0xFB0 + 0x2758, D_00794E70);
+        if ((work->cards[cardIndex].flags & 4) != 0) {
+            work->cards[cardIndex].color.c0 = (u8)func_002b2aa0(0, (f32)work->cards[cardIndex].colorStart.c0, (f32)work->cards[cardIndex].colorEnd.c0, (f32)work->cards[cardIndex].colorFrame, (f32)work->cards[cardIndex].colorDuration);
+            work->cards[cardIndex].color.c1 = (u8)func_002b2aa0(0, (f32)work->cards[cardIndex].colorStart.c1, (f32)work->cards[cardIndex].colorEnd.c1, (f32)work->cards[cardIndex].colorFrame, (f32)work->cards[cardIndex].colorDuration);
+            work->cards[cardIndex].color.c2 = (u8)func_002b2aa0(0, (f32)work->cards[cardIndex].colorStart.c2, (f32)work->cards[cardIndex].colorEnd.c2, (f32)work->cards[cardIndex].colorFrame, (f32)work->cards[cardIndex].colorDuration);
+            work->cards[cardIndex].color.c3 = (u8)func_002b2aa0(0, (f32)work->cards[cardIndex].colorStart.c3, (f32)work->cards[cardIndex].colorEnd.c3, (f32)work->cards[cardIndex].colorFrame, (f32)work->cards[cardIndex].colorDuration);
+            if (work->cards[cardIndex].colorFrame < work->cards[cardIndex].colorDuration) {
+                work->cards[cardIndex].colorFrame = func_002b2cb0(work->cards[cardIndex].colorFrame, 1, work->cards[cardIndex].colorDuration, 0, 1);
+            } else {
+                work->cards[cardIndex].flags ^= 4;
+            }
+            func_0036de40(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0x2758, &work->cards[cardIndex].color);
         }
-        if (*(s16 *)(obj + 0x63C) == 9 && func_00285b30() < 490 && *(obj + 0x6B8) == 0) {
-            func_0033fb90(arg0, (s8)k, *(s64 *)(obj + (s32)k * 0x84 + 0x20), f20save);
-            fclWriteColorBytes(rgba1, 0xFF, 0xFF, 0xFF, cv);
-            cpy1[0] = rgba1[0];
-            cpy1[1] = rgba1[1];
-            cpy1[2] = rgba1[2];
-            cpy1[3] = rgba1[3];
-            func_0036de40(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + (s32)(s8)k * 0xFB0 + 0xE398, cpy1);
-            func_0036df90(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + (s32)(s8)k * 0xFB0 + 0xE398, D_00794EA0);
+        if (work->cards[cardIndex].color.c3 > 0 && work->hideSecondary == 0) {
+            func_0036df90(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0x2758, D_00794E70);
+        }
+        if (work->layout == 9 && func_00285b30() < 490 && work->hideSecondary == 0) {
+            func_0033fb90(task, (s8)cardIndex, work->cards[cardIndex].position, secondaryScale);
+            *(CmbRGBA *)secondaryColorBytes.bytes = func_002b2a60(0xFF, 0xFF, 0xFF, secondaryOpacity);
+            func_0036de40(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0xE398, secondaryColorBytes.bytes);
+            func_0036df90(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0xE398, D_00794EA0);
         }
     }
     return 0;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_0033e810);
-#endif
+
 
 // FUN_0033F660
 void func_0033f660(u8 *arg0) {
@@ -478,20 +500,21 @@ void func_0033fa30(u8 *arg0, s8 arg1, f32 angle) {
         pFB0 = table + (s32)arg1 * 0xFB0;
         arg0_for_dd = pFB0 + 0x2758;
         p84 = obj + (s32)arg1 * 0x84;
-        func_0036dd10(arg0_for_dd, p84 + 0x20, 90.0f * *(f32 *)(p84 + 0x8C));
+        func_0036dd10(arg0_for_dd, (f32 *)(p84 + 0x20), 90.0f * *(f32 *)(p84 + 0x8C));
         func_0036de20(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + (s32)arg1 * 0xFB0 + 0x2758, &sp.sp30);
     }
 }
 #pragma pop
 
+/* Native two-float values preserve four-byte-aligned card positions. */
 // FUN_0033FB10
-void func_0033fb10(u8 *arg0, s8 arg1, s64 arg2) {
+void func_0033fb10(u8 *arg0, s8 arg1, CmbVec2f arg2) {
     u8 *obj = *(u8 **)(arg0 + 0x38);
     u32 scaled = (s32)arg1 * 0x84;
-    func_0036dd10((u8 *)(*(u32 *)(*(u8 **)(obj + 4) + 0x38) + (s32)arg1 * 0xFB0 + 0x2758), &arg2, 90.0f * *(f32 *)(scaled + (u32)obj + 0x8C));
+    func_0036dd10((u8 *)(*(u32 *)(*(u8 **)(obj + 4) + 0x38) + (s32)arg1 * 0xFB0 + 0x2758), (f32 *)&arg2, 90.0f * *(f32 *)(scaled + (u32)obj + 0x8C));
 }
 /* measured: MATCHED this wave. The nd-8 candidate had the correct 0xFB0 stride,
-   stack s64 argument, and 90.0f scaling, but fndiff showed the final 0xE398
+   packed two-float argument, and 90.0f scaling, but fndiff showed the final 0xE398
    address operation after the float setup (`lui/mtc1/nop/mul.s`) and with the
    wrong intermediate destination register. Applying the matching guide's
    pointer-typed staging lever — first compute `tmp = ptr + 0xE398`, then cast
@@ -500,8 +523,7 @@ void func_0033fb10(u8 *arg0, s8 arg1, s64 arg2) {
    changed from 8 words (obj 108B/window 112B) to padding-only nd 1, and scoped
    lverify reports MATCH (normalized_diff 0). */
 // FUN_0033FB90
-void func_0033fb90(u8 *arg0, s8 arg1, s64 arg2, f32 fparg0) {
-    s64 sp18;
+void func_0033fb90(u8 *arg0, s8 arg1, CmbVec2f arg2, f32 fparg0) {
     u8 *obj;
     u8 *table;
     u32 scaled;
@@ -509,14 +531,13 @@ void func_0033fb90(u8 *arg0, s8 arg1, s64 arg2, f32 fparg0) {
     u8 *tmp;
     u32 dst;
 
-    sp18 = arg2;
     obj = *(u8 **)(arg0 + 0x38);
     table = *(u8 **)(*(u8 **)(obj + 4) + 0x38);
     scaled = (s32)arg1 * 0xFB0;
     ptr = table + scaled;
     tmp = ptr + 0xE398;
     dst = (u32)tmp;
-    func_0036dd10((u8 *)dst, &sp18, 90.0f * fparg0);
+    func_0036dd10((u8 *)dst, (f32 *)&arg2, 90.0f * fparg0);
 }
 /* measured: MATCHED this wave — the old nd-1 "load-sinking + addu-order floor" is broken by
    lever 3 + opt_propagation: the inline helper cmbAddPtrRev carries the index-first addu
@@ -526,7 +547,7 @@ void func_0033fb90(u8 *arg0, s8 arg1, s64 arg2, f32 fparg0) {
    pragma alone on the plain expression: nd 3, still base-first addu). */
 // FUN_0033FC00
 #pragma opt_propagation off /* measured: see above; forces the base load early (lw $a2,0x38($a0) first) */
-void func_0033fc00(u8 *arg0, s8 arg1, CmbVec2f arg2, CmbVec2f arg3, u16 arg4) {
+void func_0033fc00(u8 *arg0, s8 arg1, CmbVec2f arg2, CmbVec2f arg3, s16 arg4) {
     u8 *p = cmbAddPtrRev((u32)*(u8 **)(arg0 + 0x38), (u32)((s32)arg1 * 0x84));
     *(CmbVec2f *)(p + 0x20) = arg2;
     *(CmbVec2f *)(p + 0x10) = *(CmbVec2f *)(p + 0x20);

@@ -31,7 +31,7 @@ extern void func_0036a8f0(u8 *arg0, s32 arg1);
 extern void func_0036b630(u8 *arg0, s32 arg1);
 extern void func_00368e80(u8 *arg0);
 extern void func_003694d0(u8 *arg0);
-extern void func_00369470(u8 *arg0, s32 arg1);
+extern void func_00369470(s32 objectAddress, u8 *queue);
 extern void func_0036c140(s32 arg0, s32 arg1);
 extern void func_0036c230(s32 arg0);
 extern void func_0036c310(void);
@@ -59,7 +59,7 @@ f32 func_0036de70(u8 *arg0);
 f32 func_0036deb0(u8 *arg0);
 u16 func_0036dee0(u8 *arg0);
 void func_0036df30(u8 *arg0);
-void func_0036df90(u8 *arg0, s32 arg1);
+void func_0036df90(u8 *arg0, u8 *queue);
 void func_0036e000(u8 *arg0);
 
 // FUN_0036D990
@@ -253,8 +253,10 @@ void func_0036df30(u8 *arg0)
     func_003694d0(arg0);
 }
 
+/* The queue remains a pointer through the wrapper. The packet constructor
+ * stores the card itself as an EE address word before queueing the draw. */
 // FUN_0036DF90
-void func_0036df90(u8 *arg0, s32 arg1)
+void func_0036df90(u8 *arg0, u8 *queue)
 {
     s32 temp;
 
@@ -263,7 +265,7 @@ void func_0036df90(u8 *arg0, s32 arg1)
         func_0036b630(arg0 + 0x600, temp);
     }
     func_00368e80(arg0);
-    func_00369470(arg0, arg1);
+    func_00369470((s32)arg0, queue);
 }
 
 // FUN_0036E000
