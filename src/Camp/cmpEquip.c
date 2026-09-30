@@ -219,35 +219,18 @@ s32 func_00131910(u8 *arg0) {
     func_00131a00(arg0);
     return rv;
 }
-/* Cold 00131a00 (2732 instrs, frame -0x110 s17-s23/s30): no probe_archive */
-/* entry; m2c (u8*, 1046 lines, switches case 0/1/2 irregular, structs */
-/* ->unkXX/saved_reg_s3, no fors) vs romwright (u8*, 686 lines, while + */
-/* for<3/for<5 counted fors correct, s16 counters already narrow, u8* + */
-/* fixed offsets table-walk where they agree). m2c structs are guessed */
-/* (u8*+fixed offsets is retail's shape); rw needs ?-at-line-start (keep */
-/* ternary ? :), sbyte->s8, FUN_005e9fa0->D_005E9FA0, FUN_00131a00/func_ */
-/* header to void (u8*). Stripped rw skeleton: retail 2732/object 4184 */
-/* (+1452,+53%) edits ~1100+ gate outside (needs 2650-2814). Surplus is */
-/* replaces where object longer (e.g. [195:202] retail 7 vs object 50, +43 */
-/* for (u16)float clamp; s32 vs s16 already s16 per idiom, no 207 here). */
-/* Front-load s16 counters, counted fors, if-chains (no jtbl/jr except */
-/* return; slti 5/3 bounds are if-chains, not sltiu+j.tbl). Not banked. */
-/* measured: candidate object 2567 instrs/retail 2732 instrs (10268B/10928B window 10928B, 165 short 6.0%), probe reloc-masked 2472 words (guard below, NON_MATCHING so production stays ASM; fnalign retail 2729/object 2567). Frame 0x100 vs retail 0x110 (extra f26/f27 saves from 8 live floats); inlined (f32)int for 0x212/0x226/0x1D1/0x195/0x25F/0x171/0x25E + float for rest (was double jal chains, six sites +1407 fixed); explicit (u16)/(u8) guards kept (adds vs single, 3x+43 kept to stay near gate); CONCAT44+fptodp kept for 11 Vec2f ld sites (adds vs ld, 11x~12). Call counts match retail 8x0034f320/20x0034f2e0/4x00274ed0/4x00112300/4x001125d0; block order 0x1000/0x400/0x800/0x80/0x100/0x200/0x04/0x10/0x08/0x02/0x2000/0x01/0x40; s16 counters front-loaded, counted fors for<3/for<5, if-chains (no jtbl). Largest TRUE hole 76 at 0x131C6C (lhu clamp, <100); 1916 hole is difflib misalignment from repeated lbu/mul/c.le blocks (call counts prove no missing functionality). Short by 83 vs 2650 min at 0x33D7C 9-instr site (object 9-15 vs retail 9, now matching, cumulative small diffs); no padding. */
-/* measured(2026-09-19): sb->sh at 0x131B44 (u16 0x1c/0x1e): fnalign 4435->4431 (-4), guarded 2472->2466 (-6), tail structure 81->79, object 2567->2565 (-2). Missing retail 0x00132F5C second 0x20 (lw/andi/beqz + sh 0xF6, 15 instrs) absent in object (1 vs 2 andi 0x20); broad opt_common_subs off restores it but moves to 3231 edits/2838 instrs/frame 0xC0, not installed. */
-/* measured(2026-09-20): whole-fn opt_dead_assignments off (00131a00 only): fnalign 4431->1833 (-2598), guarded 2466->2456 (-10), object 2565->2561 (-4), retail 2729 unchanged; second andi 0x20 restored (1->2) but sh 0xF6 still 0, frame still 0x100 vs 0x110; mid-fn scoped pragma had no effect. */
-/* gate: func_00131a00 is OUTSIDE the +-3% band at 2561 against retail 2729 (-6.2%, band
-   2647-2811), 168 instructions short, so its **1833** edits are not comparable to an
-   in-band number (handoff 7y).  Recorded anyway because the drop from 4431 is real and
-   the cause is worth carrying: retail has a SECOND `0x20` flag test at 0x00132F5C that the
-   body simply did not have - the object had one `andi 0x20` where retail has two.  Writing
-   that missing test back took 4431 -> 1833, a 59% reduction from ONE absent region.
-   This is the clearest evidence in the tree for the rule that a short object is missing
-   code rather than mistuned: a full prior session of spelling work on this same function
-   found -4 edits.  The remaining shortfall is float spills from the frame gap, 0x100
-   against retail's 0x110 with $f26/$f27 spare. */
-// FUN_00131A00 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_dead_assignments off
+/* Equipment-menu renderer. Whole-owner MWCCPS2 b210 -O2 match (2026-09-30):
+ * 10920 bytes plus the retail window's 8-byte zero tail; frame 0x110.
+ * Byte/halfword conversion and coordinate snapshots preserve the retail ABI.
+ * The two local records hold logical actor/opacity snapshots only. Pointer
+ * address accumulation below uses the EE's 32-bit unsigned address domain.
+ * opt_lifetimes retains the original call-crossing values; dead assignments
+ * remain enabled. Both settings are scoped to this function.
+ */
+// FUN_00131A00
+#pragma push
+#pragma opt_lifetimes on
+#pragma opt_dead_assignments on
 void func_00131a00(u8 *arg0)
 
 {
@@ -255,261 +238,222 @@ void func_00131a00(u8 *arg0)
     typedef union { Vec2f xy; s64 packed; } PackedVec2f;
     PackedVec2f drawPosition;
     extern void func_0034f1e0(void);
-    extern void func_0034c270(u64 arg0, s32 arg1, s32 arg2, f32 arg3);
+    extern void func_0034c270(Vec2f arg0, s32 arg1, s32 arg2, f32 arg3);
     extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
     extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern void func_00112300(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
     extern void func_001125d0(u8 *arg0);
-    extern s32 func_00106880(s16 arg0);
+    extern u32 func_00106880(s16 arg0);
     extern s16 func_00106cd0(s16 arg0, s16 arg1);
-    extern s32 func_0010d6d0(s16 arg0);
-    extern s64 func_00134da0(s32 arg0);
+    extern u32 func_0010d6d0(s16 arg0);
+    extern s32 func_00134da0(s32 arg0);
     extern void func_00134e50(u8 *arg0, s64 arg1, s64 arg2, u8 arg3);
     extern void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, u8 arg3);
     extern void func_00135130(u8 *arg0, s64 arg1, u8 arg2, u8 *arg3);
-    extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, s32 arg3);
+    extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3);
     extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
     extern void func_0034f9d0(Vec2f arg0, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
     extern void func_0046d730(void *arg0, s32 arg1);
-/* irregular: 41 native warning(s); review required */
   s16 temp_v2;
-  s16 unaff_s3_lo;
-  s16 temp_v6;
+  /* Logical snapshots of values preserved across the draw calls, not external layouts. */
+  struct { s16 id; } actor;
   s16 temp_v8;
-  s16 sStack_40;
-  s8 temp_v7;
-  u8 temp_v0;
-  u8 temp_v11;
+  s16 selectedItemId;
+  s8 labelStyle;
+  s64 rowSelected;
+  u8 alpha;
+  struct { u8 value; } opacity;
+  u8 *actorPalette;
+  s16 rowIcon;
+  u8 descriptorAlpha;
   u8 *pbVar7;
-  u8 *pbVar8;
+  u8 *work;
   u8 *pbVar9;
   u8 *pbVar11;
-  u16 temp_v1;
+  s16 *partyIds;
+  u8 *drawSprite;
+  typedef struct { u8 r, g, b, a; } EquipColor;
+  EquipColor *palette;
+  s16 temp_v1;
   u16 temp_v12;
   u16 temp_v13;
   u32 temp_v3;
-  typedef struct { s16 s30; u16 _2e; u16 _pad; s16 _2a; u32 _28; u32 _24; u32 _20; u16 _1c; u16 _1a; u16 _18; } E0Struct;
-  E0Struct e0;
+  s32 packedColor;
+  typedef struct { s16 itemId; s16 quantity; u16 _pad; s16 _2a; u32 _28; u32 _24; u32 _20; u16 _1c; u16 _1a; u16 _18; } EquipItemDescriptor;
+  EquipItemDescriptor descriptor;
   s32 temp_v4;
-  char *pcVar5;
-  u64 temp_v5;
+  char *labelText;
+  u16 borderMode;
+  f32 opacityScale;
+  f32 originX, originY;
   f32 temp_v9;
   f32 temp_v10;
-  f32 temp_v14;
-  f32 temp_v15;
-  f32 temp_v16;
-  f32 temp_v17;
-  f32 temp_v18;
-  f32 fStack_8;
-  f32 fStack_4;
-  
-  pbVar8 = (u8 *)arg0;
-  temp_v6 = *(s16 *)(pbVar8 + *(s16 *)(pbVar8 + 0x28) * 2 + 0x38);
+  f32 drawY;
+  f32 scaleX;
+  f32 scaleY;
+
+
+  work = (u8 *)arg0;
+  partyIds = (s16 *)(work + 0x38);
+  actor.id = partyIds[*(s16 *)(work + 0x28)];
   func_0034f1e0();
-  temp_v15 = *(f32 *)(pbVar8 + 4);
-  temp_v16 = *(f32 *)(pbVar8 + 8);
-  temp_v17 = (f32)*pbVar8 / 255.0f;
-  if (*(s32 *)(pbVar8 + 0x10) != 0) {
-    temp_v9 = temp_v17 * 255.0f;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
-    }
-    fStack_8 = temp_v15;
-    fStack_4 = temp_v16;
-    func_0034c270(*(u64 *)(pbVar8 + 4),(s32)temp_v9 & 0xff,*(s32 *)(pbVar8 + 0x10),0.0f);
+  originX = *(f32 *)(work + 4);
+  originY = *(f32 *)(work + 8);
+  opacityScale = (f32)*work / 255.0f;
+  if (*(s32 *)(work + 0x10) != 0) {
+    drawPosition.xy.x = originX;
+    drawPosition.xy.y = originY;
+    temp_v9 = opacityScale * 255.0f;
+    alpha = (u8)temp_v9;
+    func_0034c270(drawPosition.xy,alpha,*(s32 *)(work + 0x10),0.0f);
   }
-  if ((*(u32 *)(pbVar8 + 0x1c) & 0x1000) != 0) {
-    pbVar7 = *(u8 **)(pbVar8 + 0x157c);
+  if ((*(u32 *)(work + 0x1c) & 0x1000) != 0) {
+    pbVar7 = *(u8 **)(work + 0x157c);
     *(u16 *)(pbVar7 + 0x1c) = 0x3d;
     *(u16 *)(pbVar7 + 0x1e) = 0x3f;
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1260) + (f32)0x212;
-    fStack_4 = (temp_v16 + *(f32 *)(pbVar8 + 0x1264)) - 3.0f;
-    temp_v9 = (f32)pbVar8[0x126a] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
-    }
-    temp_v14 = (f32)*(u16 *)(pbVar8 + 0x1270);
-    temp_v10 = (f32)*(u16 *)(pbVar8 + 0x1276);
-    if (temp_v14 < 2.1474836e9f) {
-      temp_v12 = (u16)(s32)temp_v14;
-    }
-    else {
-      temp_v12 = (u16)(s32)(temp_v14 - 2.1474836e9f);
-    }
-    if (temp_v10 < 2.1474836e9f) {
-      temp_v13 = (u16)(s32)temp_v10;
-    }
-    else {
-      temp_v13 = (u16)(s32)(temp_v10 - 2.1474836e9f);
-    }
-    func_0034f320(pbVar7,fStack_8,fStack_4,0.0f,0xff,0xff,0x81,(s32)temp_v9 & 0xff,temp_v12,temp_v13,0x3d,
-                  (f32)(s32)*(s16 *)(pbVar8 + 0x22),0x3f);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1290) + (f32)0x226;
-    fStack_4 = (temp_v16 + *(f32 *)(pbVar8 + 0x1294)) - 22.0f;
-    temp_v9 = (f32)pbVar8[0x129a] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
-    }
-    temp_v14 = (f32)*(u16 *)(pbVar8 + 0x12a0);
-    temp_v10 = (f32)*(u16 *)(pbVar8 + 0x12a6);
-    if (temp_v14 < 2.1474836e9f) {
-      temp_v12 = (u16)(s32)temp_v14;
-    }
-    else {
-      temp_v12 = (u16)(s32)(temp_v14 - 2.1474836e9f);
-    }
-    if (temp_v10 < 2.1474836e9f) {
-      temp_v13 = (u16)(s32)temp_v10;
-    }
-    else {
-      temp_v13 = (u16)(s32)(temp_v10 - 2.1474836e9f);
-    }
-    func_0034f320(pbVar7,fStack_8,fStack_4,0.0f,0xfb,0xa2,0,(s32)temp_v9 & 0xff,temp_v12,temp_v13,0x3d,
-                  (f32)(s32)*(s16 *)(pbVar8 + 0x22),0x3f);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x1260) + (f32)0x212;
+    drawPosition.xy.y = (originY + *(f32 *)(work + 0x1264)) - 3.0f;
+    temp_v9 = (f32)work[0x126a];
+    temp_v9 *= opacityScale;
+    alpha = (u8)temp_v9;
+    scaleX = (f32)*(u16 *)(work + 0x1270);
+    scaleY = (f32)*(u16 *)(work + 0x1276);
+    func_0034f320(pbVar7,drawPosition.xy.x,drawPosition.xy.y,0.0f,0xff,0xff,0x81,alpha,(u16)scaleX,(u16)scaleY,0x3d,
+                  (f32)(s32)*(s16 *)(work + 0x22),0x3f);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x1290) + (f32)0x226;
+    drawPosition.xy.y = (originY + *(f32 *)(work + 0x1294)) - 22.0f;
+    temp_v9 = (f32)work[0x129a];
+    temp_v9 *= opacityScale;
+    alpha = (u8)temp_v9;
+    scaleX = (f32)*(u16 *)(work + 0x12a0);
+    scaleY = (f32)*(u16 *)(work + 0x12a6);
+    func_0034f320(pbVar7,drawPosition.xy.x,drawPosition.xy.y,0.0f,0xfb,0xa2,0,alpha,(u16)scaleX,(u16)scaleY,0x3d,
+                  (f32)(s32)*(s16 *)(work + 0x22),0x3f);
   }
-  if ((*(u32 *)(pbVar8 + 0x1c) & 0x400) != 0) {
-    pbVar9 = *(u8 **)(pbVar8 + 0x158c);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0xc90) + 20.0f;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0xc94) + 358.0f;
-    temp_v9 = (f32)pbVar8[0xc9a] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
-    }
-    func_0034f2e0(pbVar9,fStack_8,fStack_4,0xff,0xff,0xff,(s32)temp_v9 & 0xff);
+  if ((*(u32 *)(work + 0x1c) & 0x400) != 0) {
+    pbVar9 = *(u8 **)(work + 0x158c);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0xc90) + 20.0f;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0xc94) + 358.0f;
+    temp_v9 = (f32)work[0xc9a];
+    temp_v9 *= opacityScale;
+    alpha = (u8)temp_v9;
+    func_0034f2e0(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
-  if ((*(u32 *)(pbVar8 + 0x1c) & 0x800) != 0) {
-    pbVar9 = *(u8 **)(pbVar8 + 0x158c);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0xcc0) + (f32)0x1D1;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0xcc4) + 20.0f;
-    temp_v9 = (f32)pbVar8[0xcca] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
-    }
-    func_0034f2e0(pbVar9,fStack_8,fStack_4,0xff,0xff,0xff,(s32)temp_v9 & 0xff);
+  if ((*(u32 *)(work + 0x1c) & 0x800) != 0) {
+    pbVar9 = *(u8 **)(work + 0x158c);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0xcc0) + (f32)0x1D1;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0xcc4) + 20.0f;
+    temp_v9 = (f32)work[0xcca];
+    temp_v9 *= opacityScale;
+    alpha = (u8)temp_v9;
+    func_0034f2e0(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
-  if ((*(u32 *)(pbVar8 + 0x1c) & 0x80) != 0) {
-    pbVar9 = *(u8 **)(pbVar8 + 0x1564);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x12c0) + 20.0f;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x12c4) + (f32)0x195;
-    temp_v9 = (f32)pbVar8[0x12ca] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
-    }
-    func_0034f2e0(pbVar9,fStack_8,fStack_4,0xff,0xff,0xff,(s32)temp_v9 & 0xff);
+  if ((*(u32 *)(work + 0x1c) & 0x80) != 0) {
+    pbVar9 = *(u8 **)(work + 0x1564);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x12c0) + 20.0f;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0x12c4) + (f32)0x195;
+    temp_v9 = (f32)work[0x12ca];
+    temp_v9 *= opacityScale;
+    alpha = (u8)temp_v9;
+    func_0034f2e0(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
-  if ((*(u32 *)(pbVar8 + 0x1c) & 0x100) != 0) {
-    pbVar9 = *(u8 **)(pbVar8 + 0x1568);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x12f0) + 146.0f;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x12f4) + (f32)0x195;
-    temp_v9 = (f32)pbVar8[0x12fa] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
-    }
-    func_0034f2e0(pbVar9,fStack_8,fStack_4,0xff,0xff,0xff,(s32)temp_v9 & 0xff);
+  if ((*(u32 *)(work + 0x1c) & 0x100) != 0) {
+    pbVar9 = *(u8 **)(work + 0x1568);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x12f0) + 146.0f;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0x12f4) + (f32)0x195;
+    temp_v9 = (f32)work[0x12fa];
+    temp_v9 *= opacityScale;
+    alpha = (u8)temp_v9;
+    func_0034f2e0(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
-  if ((*(u32 *)(pbVar8 + 0x1c) & 0x200) != 0) {
-    pbVar9 = *(u8 **)(pbVar8 + 0x1564);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1320) + 20.0f;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1324) + (f32)0x195;
-    temp_v9 = (f32)pbVar8[0x132a] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
-    }
-    func_0034f2e0(pbVar9,fStack_8,fStack_4,0xff,0xff,0xff,(s32)temp_v9 & 0xff);
+  if ((*(u32 *)(work + 0x1c) & 0x200) != 0) {
+    pbVar9 = *(u8 **)(work + 0x1564);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x1320) + 20.0f;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0x1324) + (f32)0x195;
+    temp_v9 = (f32)work[0x132a];
+    temp_v9 *= opacityScale;
+    alpha = (u8)temp_v9;
+    func_0034f2e0(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
-  if ((*(u32 *)(pbVar8 + 0x1c) & 4) != 0) {
+  if ((*(u32 *)(work + 0x1c) & 4) != 0) {
     temp_v4 = 0;
-    while (temp_v8 = (s16)temp_v4, temp_v8 < *(s16 *)(pbVar8 + 0x48)) {
-      fStack_8 = temp_v15 + *(f32 *)(pbVar8 + temp_v8 * 0x30 + 0x1080) + 35.0f;
-      temp_v10 = (f32)temp_v4 * 33.0f + temp_v16 + *(f32 *)(pbVar8 + temp_v8 * 0x30 + 0x1084) + 0.0f +
-               20.0f;
-      temp_v18 = (f32)*(u16 *)(pbVar8 + temp_v8 * 0x30 + 0x1090);
-      temp_v14 = (f32)*(u16 *)(pbVar8 + temp_v8 * 0x30 + 0x1096);
-      temp_v9 = (f32)pbVar8[temp_v8 * 0x30 + 0x108a] * temp_v17;
-      if (2.1474836e9f <= temp_v9) {
-        temp_v9 = temp_v9 - 2.1474836e9f;
-      }
-      temp_v3 = (s32)temp_v9 & 0xff;
-      if (*(s16 *)(pbVar8 + 0x28) == temp_v8) {
-        pbVar7 = D_0064B2E8;
-        temp_v7 = 8;
-      }
-      else {
-        pbVar7 = D_0064B2E0;
-        temp_v7 = 6;
-      }
-      if (temp_v18 < 2.1474836e9f) {
-        temp_v12 = (u16)(s32)temp_v18;
+    while (temp_v8 = (s16)temp_v4, temp_v8 < *(s16 *)(work + 0x48)) {
+      drawPosition.xy.x = originX + *(f32 *)(work + (s16)temp_v4 * 0x30 + 0x1080) + 35.0f;
+      {
+      drawPosition.xy.y = 20.0f + (33.0f * (f32)temp_v4 + (0.0f + (originY + *(f32 *)(work + (s16)temp_v4 * 0x30 + 0x1084))));
+      scaleX = (f32)*(u16 *)(work + (s16)temp_v4 * 0x30 + 0x1090);
+      scaleY = (f32)*(u16 *)(work + (s16)temp_v4 * 0x30 + 0x1096);
+      temp_v9 = (f32)work[(s16)temp_v4 * 0x30 + 0x108a];
+    temp_v9 *= opacityScale;
+      opacity.value = (u8)temp_v9;
+      packedColor = opacity.value | 0xffffff00;
+      if (*(s16 *)(work + 0x28) == (s16)temp_v4) {
+        actorPalette = D_0064B2E8;
+        labelStyle = 8;
       }
       else {
-        temp_v12 = (u16)(s32)(temp_v18 - 2.1474836e9f);
+        actorPalette = D_0064B2E0;
+        labelStyle = 6;
       }
-      if (temp_v14 < 2.1474836e9f) {
-        temp_v13 = (u16)(s32)temp_v14;
+      drawSprite = *(u8 **)(work + 0x14c0);
+      drawY = drawPosition.xy.y;
+      func_0034f320(drawSprite,drawPosition.xy.x,drawY,0.0f,*actorPalette,actorPalette[1],actorPalette[2],
+                    opacity.value,(u16)scaleX,(u16)scaleY,0,0.0f,0);
+      drawSprite = *(u8 **)(work + 0x14c4);
+      func_0034f320(drawSprite,drawPosition.xy.x + 202.0f,drawY,0.0f,*actorPalette,actorPalette[1],
+                    actorPalette[2],opacity.value,(u16)scaleX,(u16)scaleY,0,0.0f,0);
+      labelText = (char *)func_0010d6d0(*(s16 *)(work + temp_v8 * 2 + 0x38));
+      func_00274ed0(drawPosition.xy.x + 105.0f,drawY,0.0f,packedColor,labelStyle,1,labelText,8,0);
       }
-      else {
-        temp_v13 = (u16)(s32)(temp_v14 - 2.1474836e9f);
-      }
-      fStack_4 = temp_v10;
-      func_0034f320(*(u8 **)(pbVar8 + 0x14c0),fStack_8,temp_v10,0.0f,*pbVar7,pbVar7[1],pbVar7[2],
-                    temp_v3,temp_v12,temp_v13,0,0.0f,0);
-      if (temp_v18 < 2.1474836e9f) {
-        temp_v12 = (u16)(s32)temp_v18;
-      }
-      else {
-        temp_v12 = (u16)(s32)(temp_v18 - 2.1474836e9f);
-      }
-      if (temp_v14 < 2.1474836e9f) {
-        temp_v13 = (u16)(s32)temp_v14;
-      }
-      else {
-        temp_v13 = (u16)(s32)(temp_v14 - 2.1474836e9f);
-      }
-      func_0034f320(*(u8 **)(pbVar8 + 0x14c4),fStack_8 + 202.0f,temp_v10,0.0f,*pbVar7,pbVar7[1],
-                    pbVar7[2],temp_v3,temp_v12,temp_v13,0,0.0f,0);
-      pcVar5 = (char *)func_0010d6d0(*(s16 *)(pbVar8 + temp_v8 * 2 + 0x38));
-      func_00274ed0(fStack_8 + 105.0f,temp_v10,0.0f,temp_v3 | 0xffffff00,temp_v7,1,pcVar5,8,0);
-      temp_v4 = (s32)(s16)(temp_v8 + 1);
+      temp_v4 = (s32)(s16)(temp_v4 + 1);
     }
   }
-  if ((*(u32 *)(pbVar8 + 0x1c) & 0x10) != 0) {
-    for (temp_v8 = 0; temp_v8 < 3; temp_v8 = temp_v8 + 1) {
-      temp_v0 = 0;
-      if ((*(u32 *)(pbVar8 + 0x1c) & 0x20) != 0) {
-        fStack_8 = temp_v15 + *(f32 *)(pbVar8 + temp_v8 * 0x30 + 0xf90) + 253.0f;
-        fStack_4 = temp_v16 + *(f32 *)(pbVar8 + temp_v8 * 0x30 + 0xf94) + 190.0f +
-                   (f32)(temp_v8 * 0x3f);
-        temp_v9 = (f32)pbVar8[temp_v8 * 0x30 + 0xf9a] * temp_v17;
-        if (2.1474836e9f <= temp_v9) {
-          temp_v9 = temp_v9 - 2.1474836e9f;
+  if ((*(u32 *)(work + 0x1c) & 0x10) != 0) {
+    s16 rowCounter;
+    u8 *pbVar7;
+    for (rowCounter = 0; rowCounter < 3; ++rowCounter) {
+      rowSelected = 0;
+      if ((*(u32 *)(work + 0x1c) & 0x20) != 0) {
+        drawPosition.xy.x = originX + *(f32 *)(work + rowCounter * 0x30 + 0xf90) + 253.0f;
+        drawPosition.xy.y = originY + *(f32 *)(work + rowCounter * 0x30 + 0xf94) + 190.0f +
+                   (f32)(rowCounter * 0x3f);
+        temp_v9 = (f32)work[rowCounter * 0x30 + 0xf9a];
+    temp_v9 *= opacityScale;
+        alpha = (u8)temp_v9;
+        {
+          s64 selectedMode;
+          if (*(s16 *)(work + 0x2a) == rowCounter) {
+            selectedMode = 1;
+            rowSelected = selectedMode;
+          } else {
+            selectedMode = 0;
+          }
+          func_00134e50(work, drawPosition.packed, selectedMode, (u8)(alpha));
         }
-        temp_v0 = *(s16 *)(pbVar8 + 0x2a) == temp_v8;
-        drawPosition.xy.x = fStack_8;
-        drawPosition.xy.y = fStack_4;
-        func_00134e50(pbVar8, drawPosition.packed, (u64)temp_v0, (u8)((s32)temp_v9 & 0xff));
       }
-      fStack_8 = temp_v15 + *(f32 *)(pbVar8 + temp_v8 * 0x30 + 0xf00) + 253.0f;
-      fStack_4 = temp_v16 + *(f32 *)(pbVar8 + temp_v8 * 0x30 + 0xf04) + 190.0f +
-                 (f32)(temp_v8 * 0x3f);
-      temp_v9 = (f32)pbVar8[temp_v8 * 0x30 + 0xf0a] * temp_v17;
-      if (2.1474836e9f <= temp_v9) {
-        temp_v9 = temp_v9 - 2.1474836e9f;
-      }
-      temp_v14 = (f32)*(u16 *)(pbVar8 + temp_v8 * 0x30 + 0xf10);
-      temp_v10 = (f32)*(u16 *)(pbVar8 + temp_v8 * 0x30 + 0xf16);
-      if (temp_v8 == 2) {
-        unaff_s3_lo = 0xf;
-      }
-      else if (temp_v8 == 1) {
-        unaff_s3_lo = 0xe;
-      }
-      else if (temp_v8 == 0) {
-        temp_v2 = func_00106cd0(temp_v6,0);
-        temp_v3 = func_00106880(temp_v2);
+      drawPosition.xy.x = originX + *(f32 *)(work + rowCounter * 0x30 + 0xf00) + 253.0f;
+      drawPosition.xy.y = originY + *(f32 *)(work + rowCounter * 0x30 + 0xf04) + 190.0f +
+                 (f32)(rowCounter * 0x3f);
+      temp_v9 = (f32)work[rowCounter * 0x30 + 0xf0a];
+    temp_v9 *= opacityScale;
+      alpha = (u8)temp_v9;
+      {
+      scaleX = (f32)*(u16 *)(work + rowCounter * 0x30 + 0xf10);
+      scaleY = (f32)*(u16 *)(work + rowCounter * 0x30 + 0xf16);
+      switch (rowCounter) {
+      case 0:
+        temp_v3 = func_00106880(func_00106cd0(actor.id, 0));
         temp_v4 = func_00134da0(temp_v3);
-        unaff_s3_lo = (s16)temp_v4;
+        rowIcon = (s16)temp_v4;
+        break;
+      case 1:
+        rowIcon = 0xe;
+        break;
+      case 2:
+        rowIcon = 0xf;
+        break;
       }
-      if (temp_v0) {
+      if (rowSelected) {
         pbVar7 = D_0064B2EC;
         pbVar11 = D_0064B2E8;
       }
@@ -517,374 +461,327 @@ void func_00131a00(u8 *arg0)
         pbVar7 = D_0064B2E4;
         pbVar11 = D_0064B2E0;
       }
-      if (unaff_s3_lo < 0xe) {
-        pbVar9 = *(u8 **)(pbVar8 + 0x14c8);
+      if (rowIcon < 0xe) {
+        pbVar9 = *(u8 **)(work + 0x14c8);
       }
       else {
-        pbVar9 = *(u8 **)(pbVar8 + 0x14cc);
+        pbVar9 = *(u8 **)(work + 0x14cc);
       }
-      if (temp_v14 < 2.1474836e9f) {
-        temp_v12 = (u16)(s32)temp_v14;
+      {
+      drawY = drawPosition.xy.y;
+      func_0034f320(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0.0f,*pbVar7,pbVar7[1],pbVar7[2],alpha,
+                    (u16)scaleX,(u16)scaleY,0,0.0f,0);
+      drawSprite = *(u8 **)(work + rowIcon * 4 + 0x14c0);
+      func_0034f320(drawSprite,drawPosition.xy.x + 3.0f,drawY + 2.0f,0.0f,
+                    *pbVar11,pbVar11[1],pbVar11[2],alpha,(u16)scaleX,(u16)scaleY,0,0.0f,0);
       }
-      else {
-        temp_v12 = (u16)(s32)(temp_v14 - 2.1474836e9f);
       }
-      if (temp_v10 < 2.1474836e9f) {
-        temp_v13 = (u16)(s32)temp_v10;
-      }
-      else {
-        temp_v13 = (u16)(s32)(temp_v10 - 2.1474836e9f);
-      }
-      temp_v18 = fStack_4;
-      func_0034f320(pbVar9,fStack_8,fStack_4,0.0f,*pbVar7,pbVar7[1],pbVar7[2],(s32)temp_v9 & 0xffU,
-                    temp_v12,temp_v13,0,0.0f,0);
-      if (temp_v14 < 2.1474836e9f) {
-        temp_v12 = (u16)(s32)temp_v14;
-      }
-      else {
-        temp_v12 = (u16)(s32)(temp_v14 - 2.1474836e9f);
-      }
-      if (temp_v10 < 2.1474836e9f) {
-        temp_v13 = (u16)(s32)temp_v10;
-      }
-      else {
-        temp_v13 = (u16)(s32)(temp_v10 - 2.1474836e9f);
-      }
-      func_0034f320(*(u8 **)(pbVar8 + unaff_s3_lo * 4 + 0x14c0),fStack_8 + 3.0f,temp_v18 + 2.0f,0.0f,
-                    *pbVar11,pbVar11[1],pbVar11[2],(s32)temp_v9 & 0xffU,temp_v12,temp_v13,0,0.0f,0);
-      fStack_8 = temp_v15 + *(f32 *)(pbVar8 + temp_v8 * 0x30 + 0xe70) + 255.0f;
-      fStack_4 = temp_v16 + *(f32 *)(pbVar8 + temp_v8 * 0x30 + 0xe74) + 193.0f +
-                 (f32)(temp_v8 * 0x3f);
-      temp_v9 = (f32)pbVar8[temp_v8 * 0x30 + 0xe7a] * temp_v17;
-      if (2.1474836e9f <= temp_v9) {
-        temp_v9 = temp_v9 - 2.1474836e9f;
-      }
-      if (temp_v0) {
+      drawPosition.xy.x = originX + *(f32 *)(work + rowCounter * 0x30 + 0xe70) + 255.0f;
+      drawPosition.xy.y = originY + *(f32 *)(work + rowCounter * 0x30 + 0xe74) + 193.0f +
+                 (f32)(rowCounter * 0x3f);
+      temp_v9 = (f32)work[rowCounter * 0x30 + 0xe7a];
+    temp_v9 *= opacityScale;
+      alpha = (u8)temp_v9;
+      drawSprite = *(u8 **)(work + rowCounter * 4 + 0x14d0);
+      if (rowSelected) {
         pbVar7 = D_0064B2EC;
       }
       else {
         pbVar7 = D_0064B2E4;
       }
-      func_0034f2e0(*(void **)(pbVar8 + temp_v8 * 4 + 0x14d0),fStack_8 + 42.0f,fStack_4 + 1.0f,*pbVar7,
-                    pbVar7[1],pbVar7[2],(s32)temp_v9 & 0xff);
-      fStack_8 = fStack_8 + 42.0f;
-      fStack_4 = fStack_4 + 24.0f;
-      temp_v9 = (f32)pbVar8[temp_v8 * 0x30 + 0xe7a] * temp_v17;
-      if (temp_v9 <= 2.1474836e9f) {
-        temp_v11 = (u8)(s32)temp_v9;
+      func_0034f2e0(drawSprite,drawPosition.xy.x + 42.0f,drawPosition.xy.y + 1.0f,*pbVar7,
+                    pbVar7[1],pbVar7[2],alpha);
+      drawPosition.xy.x = drawPosition.xy.x + 42.0f;
+      drawPosition.xy.y = drawPosition.xy.y + 24.0f;
+      temp_v9 = (f32)work[rowCounter * 0x30 + 0xe7a];
+    temp_v9 *= opacityScale;
+      descriptorAlpha = (u8)temp_v9;
+      func_001125d0((u8 *)&descriptor);
+      if ((*(u32 *)(work + 0x1c) & 0x20) != 0) {
+        if (rowSelected) {
+          descriptor._1a = 3;
+        } else {
+          descriptor._1a = 2;
+        }
+      } else {
+        descriptor._1a = 4;
       }
-      else {
-        temp_v11 = (u8)(s32)(temp_v9 - 2.1474836e9f);
-      }
-      func_001125d0((u8 *)&e0);
-      if ((*(u32 *)(pbVar8 + 0x1c) & 0x20) == 0) {
-        e0._1a = 4;
-      }
-      else if (temp_v0) {
-        e0._1a = 3;
-      }
-      else {
-        e0._1a = 2;
-      }
-      e0.s30 = func_00106cd0(temp_v6,temp_v8);
-      e0._2e = 0xffff;
-      e0._28 = 0xffffffff;
-      e0._24 = 1;
-      e0._20 = 0;
-      e0._1c = 0;
-      e0._18 = 3;
-      drawPosition.xy.x = fStack_8;
-      drawPosition.xy.y = fStack_4;
-      func_00112300(drawPosition.xy, 0.0f, temp_v11, (u8 *)&e0);
+      descriptor.itemId = func_00106cd0(actor.id,rowCounter);
+      descriptor.quantity = 0xffff;
+      descriptor._28 = 0xffffffff;
+      descriptor._24 = 1;
+      descriptor._20 = 0;
+      descriptor._1c = 0;
+      descriptor._18 = 3;
+      func_00112300(drawPosition.xy, 0.0f, descriptorAlpha, (u8 *)&descriptor);
     }
   }
-  if ((*(u32 *)(pbVar8 + 0x1c) & 8) != 0) {
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1200) + 35.0f;
-    temp_v10 = temp_v16 + *(f32 *)(pbVar8 + 0x1204) + 20.0f;
-    temp_v9 = (f32)pbVar8[0x120a] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
+  if ((*(u32 *)(work + 0x1c) & 8) != 0) {
+    f32 pairY, pairScaleX, pairScaleY;
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x1200) + 35.0f;
+    {
+      drawPosition.xy.y = originY + *(f32 *)(work + 0x1204) + 20.0f;
+    temp_v9 = (f32)work[0x120a];
+    temp_v9 *= opacityScale;
+    alpha = (u8)temp_v9;
+    pairScaleX = (f32)*(u16 *)(work + 0x1210);
+    pairScaleY = (f32)*(u16 *)(work + 0x1216);
+    palette = (EquipColor *)D_0064B2F4;
+    drawSprite = *(u8 **)(work + 0x14c0);
+    pairY = drawPosition.xy.y;
+    func_0034f320(drawSprite,drawPosition.xy.x,pairY,0.0f,palette->r,palette->g,
+                  palette->b,alpha,(u16)pairScaleX,(u16)pairScaleY,0,0.0f,0);
+    drawSprite = *(u8 **)(work + 0x14c4);
+    func_0034f320(drawSprite,drawPosition.xy.x + 202.0f,pairY,0.0f,palette->r,palette->g,
+                  palette->b,alpha,(u16)pairScaleX,(u16)pairScaleY,0,0.0f,0);
     }
-    temp_v18 = (f32)*(u16 *)(pbVar8 + 0x1210);
-    temp_v14 = (f32)*(u16 *)(pbVar8 + 0x1216);
-    if (temp_v18 < 2.1474836e9f) {
-      temp_v12 = (u16)(s32)temp_v18;
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x1230) + 35.0f;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0x1234) + 20.0f;
+    temp_v9 = (f32)work[0x123a];
+    temp_v9 *= opacityScale;
+    alpha = (u8)temp_v9;
+    packedColor = (alpha) - 0x100;
+    {
+      /* EE addresses are 32-bit; accumulate the signed index as an unsigned address. */
+      u32 partyAddress = *(s16 *)(work + 0x28) * 2;
+      partyAddress += (u32)work;
+      labelText = (char *)func_0010d6d0(*(s16 *)(partyAddress + 0x38));
     }
-    else {
-      temp_v12 = (u16)(s32)(temp_v18 - 2.1474836e9f);
-    }
-    if (temp_v14 < 2.1474836e9f) {
-      temp_v13 = (u16)(s32)temp_v14;
-    }
-    else {
-      temp_v13 = (u16)(s32)(temp_v14 - 2.1474836e9f);
-    }
-    fStack_4 = temp_v10;
-    func_0034f320(*(u8 **)(pbVar8 + 0x14c0),fStack_8,temp_v10,0.0f,D_0064B2F4[0],D_0064B2F4[1],
-                  D_0064B2F4[2],(s32)temp_v9 & 0xffU,temp_v12,temp_v13,0,0.0f,0);
-    if (temp_v18 < 2.1474836e9f) {
-      temp_v12 = (u16)(s32)temp_v18;
-    }
-    else {
-      temp_v12 = (u16)(s32)(temp_v18 - 2.1474836e9f);
-    }
-    if (temp_v14 < 2.1474836e9f) {
-      temp_v13 = (u16)(s32)temp_v14;
-    }
-    else {
-      temp_v13 = (u16)(s32)(temp_v14 - 2.1474836e9f);
-    }
-    func_0034f320(*(u8 **)(pbVar8 + 0x14c4),fStack_8 + 202.0f,temp_v10,0.0f,D_0064B2F4[0],D_0064B2F4[1],
-                  D_0064B2F4[2],(s32)temp_v9 & 0xffU,temp_v12,temp_v13,0,0.0f,0);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1230) + 35.0f;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1234) + 20.0f;
-    temp_v9 = (f32)pbVar8[0x123a] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
-    }
-    pcVar5 = (char *)func_0010d6d0(*(s16 *)(pbVar8 + *(s16 *)(pbVar8 + 0x28) * 2 + 0x38));
-    func_00274ed0(fStack_8 + 105.0f,fStack_4,0.0f,((s32)temp_v9 & 0xffU) - 0x100,7,1,pcVar5,8,0);
+    func_00274ed0(drawPosition.xy.x + 105.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
   }
-  if ((*(u32 *)(pbVar8 + 0x1c) & 2) != 0) {
-    temp_v9 = (f32)pbVar8[0x105a] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
+  if ((*(u32 *)(work + 0x1c) & 2) != 0) {
+    u8 headerAlpha, layoutAlpha;
+    palette = (EquipColor *)D_0064B2F4;
+    temp_v9 = (f32)work[0x105a];
+    temp_v9 *= opacityScale;
+    headerAlpha = (u8)temp_v9;
+    drawSprite = *(u8 **)(work + 0x1570);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x1050) + 18.0f;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0x1054) + 51.0f;
+    func_0034f2e0(drawSprite,drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,
+                  palette->b,headerAlpha);
+    drawSprite = *(u8 **)(work + 0x1574);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x1050) + 186.0f;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0x1054) + 51.0f;
+    func_0034f2e0(drawSprite,drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,
+                  palette->b,headerAlpha);
+    drawSprite = *(u8 **)(work + 0x1578);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x1050) + (f32)0x25F;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0x1054) + 90.0f;
+    func_0034f2e0(drawSprite,drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,
+                  palette->b,headerAlpha);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x1410) + 18.0f;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0x1414) + 60.0f;
+    temp_v9 = (f32)work[0x141a];
+    temp_v9 *= opacityScale;
+    alpha = (u8)temp_v9;
+    packedColor = (alpha) | 0xffffff00;
+    labelText = (char *)func_0010d6d0(*(s16 *)(work + 0xc7e));
+    func_00274ed0(drawPosition.xy.x + 88.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x13e0) + 18.0f;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0x13e4) + 60.0f;
+    temp_v9 = (f32)work[0x13ea];
+    temp_v9 *= opacityScale;
+    alpha = (u8)temp_v9;
+    packedColor = (alpha) | 0xffffff00;
+    {
+      u32 partyAddress = *(s16 *)(work + 0x28) * 2;
+      partyAddress += (u32)work;
+      labelText = (char *)func_0010d6d0(*(s16 *)(partyAddress + 0x38));
     }
-    temp_v3 = (s32)temp_v9 & 0xff;
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1050) + 18.0f;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1054) + 51.0f;
-    func_0034f2e0(*(void **)(pbVar8 + 0x1570),fStack_8,fStack_4,D_0064B2F4[0],D_0064B2F4[1],
-                  D_0064B2F4[2],temp_v3);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1050) + 186.0f;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1054) + 51.0f;
-    func_0034f2e0(*(void **)(pbVar8 + 0x1574),fStack_8,fStack_4,D_0064B2F4[0],D_0064B2F4[1],
-                  D_0064B2F4[2],temp_v3);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1050) + (f32)0x25F;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1054) + 90.0f;
-    func_0034f2e0(*(void **)(pbVar8 + 0x1578),fStack_8,fStack_4,D_0064B2F4[0],D_0064B2F4[1],
-                  D_0064B2F4[2],temp_v3);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1410) + 18.0f;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1414) + 60.0f;
-    temp_v9 = (f32)pbVar8[0x141a] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
+    func_00274ed0(drawPosition.xy.x + 88.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
+    palette = (EquipColor *)D_0064B2E0;
+    temp_v9 = (f32)work[0x13ba];
+    temp_v9 *= opacityScale;
+    layoutAlpha = (u8)temp_v9;
+    temp_v8 = *(s16 *)(work + 0x2a);
+    switch (temp_v8) {
+    case 0: {
+      drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 48.0f;
+      drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 96.0f;
+      func_0034f2e0(*(void **)(work + 0x1528),drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
+                    palette->g,palette->b,layoutAlpha);
+      drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + (f32)0x171;
+      drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 66.0f;
+      func_0034f2e0(*(void **)(work + 0x150c),drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
+      drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 460.0f;
+      drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 66.0f;
+      func_0034f2e0(*(void **)(work + 0x1510),drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
+
+      break;
     }
-    pcVar5 = (char *)func_0010d6d0(*(s16 *)(pbVar8 + 0xc7e));
-    func_00274ed0(fStack_8 + 88.0f,fStack_4,0.0f,((s32)temp_v9 & 0xffU) | 0xffffff00,7,1,pcVar5,8,0);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x13e0) + 18.0f;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x13e4) + 60.0f;
-    temp_v9 = (f32)pbVar8[0x13ea] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
+    case 1: {
+      drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 33.0f;
+      drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 96.0f;
+      func_0034f2e0(*(void **)(work + 0x152c),drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
+                    palette->g,palette->b,layoutAlpha);
+      drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 71.0f;
+      drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 103.0f;
+      func_0034f2e0(*(void **)(work + 0x1530),drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
+                    palette->g,palette->b,layoutAlpha);
+      drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + (f32)0x171;
+      drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 66.0f;
+      func_0034f2e0(*(void **)(work + 0x1514),drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
+      drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 460.0f;
+      drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 66.0f;
+      func_0034f2e0(*(void **)(work + 0x1518),drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
+
+      break;
     }
-    pcVar5 = (char *)func_0010d6d0(*(s16 *)(pbVar8 + *(s16 *)(pbVar8 + 0x28) * 2 + 0x38));
-    func_00274ed0(fStack_8 + 88.0f,fStack_4,0.0f,((s32)temp_v9 & 0xffU) | 0xffffff00,7,1,pcVar5,8,0);
-    temp_v9 = (f32)pbVar8[0x13ba] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
+    case 2: {
+      drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 34.0f;
+      drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 91.0f;
+      func_0034f2e0(*(void **)(work + 0x1534),drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
+                    palette->g,palette->b,layoutAlpha);
+
+      break;
     }
-    temp_v3 = (s32)temp_v9 & 0xff;
-    temp_v8 = *(s16 *)(pbVar8 + 0x2a);
-    if (temp_v8 == 0) {
-      fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x13b0) + 48.0f;
-      fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x13b4) + 96.0f;
-      func_0034f2e0(*(void **)(pbVar8 + 0x1528),fStack_8,fStack_4,(u8)D_0064B2E0[0],
-                    D_0064B2E0[1],D_0064B2E0[2],temp_v3);
-      fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x13b0) + (f32)0x171;
-      fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x13b4) + 66.0f;
-      func_0034f2e0(*(void **)(pbVar8 + 0x150c),fStack_8,fStack_4,0xff,0xff,0xff,temp_v3);
-      fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x13b0) + 460.0f;
-      fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x13b4) + 66.0f;
-      func_0034f2e0(*(void **)(pbVar8 + 0x1510),fStack_8,fStack_4,0xff,0xff,0xff,temp_v3);
     }
-    else if (temp_v8 == 1) {
-      fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x13b0) + 33.0f;
-      fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x13b4) + 96.0f;
-      func_0034f2e0(*(void **)(pbVar8 + 0x152c),fStack_8,fStack_4,(u8)D_0064B2E0[0],
-                    D_0064B2E0[1],D_0064B2E0[2],temp_v3);
-      fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x13b0) + 71.0f;
-      fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x13b4) + 103.0f;
-      func_0034f2e0(*(void **)(pbVar8 + 0x1530),fStack_8,fStack_4,(u8)D_0064B2E0[0],
-                    D_0064B2E0[1],D_0064B2E0[2],temp_v3);
-      fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x13b0) + (f32)0x171;
-      fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x13b4) + 66.0f;
-      func_0034f2e0(*(void **)(pbVar8 + 0x1514),fStack_8,fStack_4,0xff,0xff,0xff,temp_v3);
-      fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x13b0) + 460.0f;
-      fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x13b4) + 66.0f;
-      func_0034f2e0(*(void **)(pbVar8 + 0x1518),fStack_8,fStack_4,0xff,0xff,0xff,temp_v3);
-    }
-    else if (temp_v8 == 2) {
-      fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x13b0) + 34.0f;
-      fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x13b4) + 91.0f;
-      func_0034f2e0(*(void **)(pbVar8 + 0x1534),fStack_8,fStack_4,(u8)D_0064B2E0[0],
-                    D_0064B2E0[1],D_0064B2E0[2],temp_v3);
-    }
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1020) + 122.0f;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1024) + 94.0f;
-    temp_v9 = (f32)pbVar8[0x102a] * temp_v17;
-    if (temp_v9 < 2.1474836e9f) {
-      temp_v11 = (u8)(s32)temp_v9;
-    }
-    else {
-      temp_v11 = (u8)(s32)(temp_v9 - 2.1474836e9f);
-    }
-    func_001125d0((u8 *)&e0);
-    sStack_40 = func_00106cd0(temp_v6,*(s16 *)(pbVar8 + 0x2a));
-    e0._2e = 0xffff;
-    e0._28 = 0xffffffff;
-    e0._24 = 1;
-    e0._20 = 1;
-    e0._1c = 1;
-    e0._1a = 4;
-    e0._18 = 3;
-    e0.s30 = sStack_40;
-    drawPosition.xy.x = fStack_8;
-    drawPosition.xy.y = fStack_4;
-    func_00112300(drawPosition.xy, 0.0f, temp_v11, (u8 *)&e0);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1380) + 122.0f;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1384) + 94.0f;
-    temp_v9 = (f32)pbVar8[0x138a] * temp_v17;
-    if (temp_v9 < 2.1474836e9f) {
-      temp_v11 = (u8)(s32)temp_v9;
-    }
-    else {
-      temp_v11 = (u8)(s32)(temp_v9 - 2.1474836e9f);
-    }
-    e0.s30 = *(s16 *)(pbVar8 + 0xc7a);
-    drawPosition.xy.x = fStack_8;
-    drawPosition.xy.y = fStack_4;
-    func_00112300(drawPosition.xy, 0.0f, temp_v11, (u8 *)&e0);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x1020) + 122.0f;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0x1024) + 94.0f;
+    temp_v9 = (f32)work[0x102a];
+    temp_v9 *= opacityScale;
+    descriptorAlpha = (u8)temp_v9;
+    func_001125d0((u8 *)&descriptor);
+    selectedItemId = func_00106cd0(actor.id,*(s16 *)(work + 0x2a));
+    descriptor.itemId = selectedItemId;
+    descriptor.quantity = 0xffff;
+    descriptor._28 = 0xffffffff;
+    descriptor._24 = 1;
+    descriptor._20 = 1;
+    descriptor._1c = 1;
+    descriptor._1a = 4;
+    descriptor._18 = 3;
+    func_00112300(drawPosition.xy, 0.0f, descriptorAlpha, (u8 *)&descriptor);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x1380) + 122.0f;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0x1384) + 94.0f;
+    temp_v9 = (f32)work[0x138a];
+    temp_v9 *= opacityScale;
+    descriptorAlpha = (u8)temp_v9;
+    descriptor.itemId = *(s16 *)(work + 0xc7a);
+    func_00112300(drawPosition.xy, 0.0f, descriptorAlpha, (u8 *)&descriptor);
   }
-  if ((*(u32 *)(pbVar8 + 0x1c) & 0x2000) != 0) {
-    temp_v10 = *(f32 *)(pbVar8 + 0x1474) + temp_v16 + *(f32 *)(pbVar8 + 0xe14);
-    temp_v9 = (f32)pbVar8[0xe1a] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
+  if ((*(u32 *)(work + 0x1c) & 0x2000) != 0) {
+    u8 scrollbarAlpha;
+    f32 rawAlpha;
+    f32 baseX;
+    baseX = *(f32 *)(work + 0x1470) + (originX + *(f32 *)(work + 0xe10));
+    temp_v10 = *(f32 *)(work + 0x1474) + (originY + *(f32 *)(work + 0xe14));
+    rawAlpha = (f32)work[0xe1a];
+    rawAlpha *= opacityScale;
+    scrollbarAlpha = (u8)rawAlpha;
+    drawPosition.xy.x = ((f32)0x25E + baseX);
+    drawPosition.xy.y = temp_v10 + 133.0f;
+    func_0034f2e0(*(void **)(work + 0x151c),((f32)0x25E + baseX),drawPosition.xy.y,0xff,0xff,0xff,scrollbarAlpha);
+    drawPosition.xy.x = ((f32)0x25E + baseX);
+    drawPosition.xy.y = temp_v10 + 298.0f;
+    func_0034f2e0(*(void **)(work + 0x1520),((f32)0x25E + baseX),drawPosition.xy.y,0xff,0xff,0xff,scrollbarAlpha);
+    drawPosition.xy.x = ((f32)0x25E + baseX);
+    drawPosition.xy.y = temp_v10 + 136.0f;
+    if (0 < *(s16 *)(work + 0xc46) - 5) {
+      drawPosition.xy.y = drawPosition.xy.y +
+                 (f32)(((*(s16 *)(work + 0x2c) * 0x42 + (s32)*(s16 *)(work + 0x2c)) * 2) /
+                        (*(s16 *)(work + 0xc46) - 5));
     }
-    temp_v3 = (s32)temp_v9 & 0xff;
-    temp_v9 = *(f32 *)(pbVar8 + 0x1470) + temp_v15 + *(f32 *)(pbVar8 + 0xe10) + (f32)0x25E;
-    fStack_4 = temp_v10 + 133.0f;
-    fStack_8 = temp_v9;
-    func_0034f2e0(*(void **)(pbVar8 + 0x151c),temp_v9,fStack_4,0xff,0xff,0xff,temp_v3);
-    fStack_4 = temp_v10 + 298.0f;
-    fStack_8 = temp_v9;
-    func_0034f2e0(*(void **)(pbVar8 + 0x1520),temp_v9,fStack_4,0xff,0xff,0xff,temp_v3);
-    fStack_4 = temp_v10 + 136.0f;
-    if (0 < *(s16 *)(pbVar8 + 0xc46) - 5) {
-      fStack_4 = fStack_4 +
-                 (f32)(((*(s16 *)(pbVar8 + 0x2c) * 0x42 + (s32)*(s16 *)(pbVar8 + 0x2c)) * 2) /
-                        (*(s16 *)(pbVar8 + 0xc46) - 5));
-    }
-    fStack_8 = temp_v9;
-    func_0034f2e0(*(void **)(pbVar8 + 0x1524),temp_v9,fStack_4,D_0064B2E8[0],D_0064B2E8[1],D_0064B2E8[2]
-                  ,temp_v3);
+    palette = (EquipColor *)D_0064B2E8;
+    func_0034f2e0(*(void **)(work + 0x1524),drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,palette->b
+                  ,scrollbarAlpha);
   }
-  if ((*(u32 *)(pbVar8 + 0x1c) & 1) != 0) {
-    if (*(s16 *)(pbVar8 + 0xc46) == 0) {
+  if ((*(u32 *)(work + 0x1c) & 1) != 0) {
+    u8 panelAlpha;
+    if (*(s16 *)(work + 0xc46) == 0) {
       func_0046d730(D_005E9FA0,0x507);
     }
-    if (pbVar8[0x144a] != 0) {
-      fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1440);
-      fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1444);
-      drawPosition.xy.x = fStack_8;
-      drawPosition.xy.y = fStack_4;
-      func_00134f40(pbVar8, drawPosition.packed, 0, (u8)((u32)pbVar8[0x144a]));
+    panelAlpha = work[0x144a];
+    if (0 < (s32)panelAlpha) {
+      drawPosition.xy.x = originX + *(f32 *)(work + 0x1440);
+      drawPosition.xy.y = originY + *(f32 *)(work + 0x1444);
+      func_00134f40(work, drawPosition.packed, 0, panelAlpha);
     }
-    for (temp_v6 = 0; temp_v6 < 5; temp_v6 = temp_v6 + 1) {
-      if ((s32)((s32)temp_v6 + (s32)*(s16 *)(pbVar8 + 0x2c)) < (s32)*(s16 *)(pbVar8 + 0xc46)) {
-        fStack_8 = temp_v15 + *(f32 *)(pbVar8 + temp_v6 * 0x30 + 0xd20) + 122.0f;
-        fStack_4 = *(f32 *)(pbVar8 + temp_v6 * 0x30 + 0xd24) + temp_v16 + (f32)(temp_v6 * 0x22) +
+    {
+    s16 rowIndex;
+    s32 lookupIndex;
+    u8 rowAlpha;
+    for (temp_v4 = 0; (s16)temp_v4 < 5; temp_v4 = (s16)(temp_v4 + 1)) {
+      if ((s32)((s32)(s16)temp_v4 + (s32)*(s16 *)(work + 0x2c)) < (s32)*(s16 *)(work + 0xc46)) {
+        rowIndex = (s16)temp_v4;
+        drawPosition.xy.x = originX + *(f32 *)(work + rowIndex * 0x30 + 0xd20) + 122.0f;
+        drawPosition.xy.y = *(f32 *)(work + rowIndex * 0x30 + 0xd24) + (originY + (f32)(rowIndex * 0x22)) +
                    137.0f;
-        temp_v9 = (f32)pbVar8[temp_v6 * 0x30 + 0xd2a] * temp_v17;
-        if (2.1474836e9f <= temp_v9) {
-          temp_v9 = temp_v9 - 2.1474836e9f;
-        }
-        temp_v3 = (s32)temp_v9 & 0xff;
-        temp_v4 = (s32)*(s16 *)(pbVar8 + 0x2c) + (s32)temp_v6;
-        temp_v8 = *(s16 *)(pbVar8 + temp_v4 * 4 + 0x4a);
-        temp_v1 = *(u16 *)(pbVar8 + temp_v4 * 4 + 0x4c);
-        func_001125d0((u8 *)&e0);
-        if (*(s16 *)(pbVar8 + 0x2e) == temp_v6) {
-          e0._1a = 3;
-          drawPosition.xy.x = fStack_8;
-          drawPosition.xy.y = fStack_4;
-          func_00134f40(pbVar8, drawPosition.packed, 1, (u8)(temp_v3));
+        temp_v9 = (f32)work[rowIndex * 0x30 + 0xd2a];
+        temp_v9 *= opacityScale;
+        rowAlpha = (u8)temp_v9;
+        lookupIndex = (s32)((s16 *)work)[0x16] + (s32)rowIndex;
+        temp_v8 = *(s16 *)(work + lookupIndex * 4 + 0x4a);
+        temp_v1 = *(s16 *)(work + lookupIndex * 4 + 0x4c);
+        func_001125d0((u8 *)&descriptor);
+        if (*(s16 *)(work + 0x2e) == rowIndex) {
+          descriptor._1a = 3;
+          func_00134f40(work, drawPosition.packed, 1, rowAlpha);
         }
         else {
-          e0._1a = 5;
-          drawPosition.xy.x = fStack_8;
-          drawPosition.xy.y = fStack_4;
-          func_00134f40(pbVar8, drawPosition.packed, 0, (u8)(temp_v3));
+          descriptor._1a = 5;
+          func_00134f40(work, drawPosition.packed, 0, rowAlpha);
         }
-        e0._28 = 0xffffffff;
-        e0._24 = 1;
-        e0._20 = 1;
-        e0._1c = 1;
-        e0._2a = sStack_40;
-        e0._18 = 3;
-        e0.s30 = temp_v8;
-        e0._2e = temp_v1;
-        drawPosition.xy.x = fStack_8;
-        drawPosition.xy.y = fStack_4;
-        func_00112300(drawPosition.xy, 0.0f, (u8)(s32)temp_v9, (u8 *)&e0);
+        descriptor.itemId = temp_v8;
+        descriptor.quantity = temp_v1;
+        descriptor._28 = 0xffffffff;
+        descriptor._24 = 1;
+        descriptor._20 = 1;
+        descriptor._1c = 1;
+        descriptor._2a = selectedItemId;
+        descriptor._18 = 3;
+        func_00112300(drawPosition.xy, 0.0f, rowAlpha, (u8 *)&descriptor);
       }
     }
-  }
-  if (((*(u32 *)(pbVar8 + 0x1c) & 0x40) != 0) && (0 < *(s16 *)(pbVar8 + 0xc46))) {
-    temp_v5 = 0;
-    func_001125d0((u8 *)&e0);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x14a0) + 124.0f;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x14a4) + 147.0f;
-    e0._28 = 0xffffffff;
-    e0._1c = 0;
-    e0._24 = 0;
-    e0._20 = 0;
-    if (*(f32 *)(pbVar8 + 0x149c) < 0.0f) {
-      temp_v5 = 1;
     }
-    else if (0.0f < *(f32 *)(pbVar8 + 0x149c)) {
-      temp_v5 = 2;
-    }
-    drawPosition.xy.x = fStack_8;
-    drawPosition.xy.y = fStack_4;
-    func_00135520(arg0, drawPosition, pbVar8[0x14aa], temp_v5);
-    fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0xe40) + 124.0f;
-    fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0xe44) + 147.0f;
-    e0.s30 = *(s16 *)(pbVar8 + ((s32)*(s16 *)(pbVar8 + 0x2c) + (s32)*(s16 *)(pbVar8 + 0x2e)
-                                    ) * 4 + 0x4a);
-    e0._2e = *(u16 *)
-                 (pbVar8 + ((s32)*(s16 *)(pbVar8 + 0x2c) + (s32)*(s16 *)(pbVar8 + 0x2e)) * 4 +
-                           0x4c);
-    e0._28 = 0xffffffff;
-    e0._24 = 1;
-    e0._20 = 1;
-    e0._2a = sStack_40;
-    e0._1a = 3;
-    e0._1c = 1;
-    e0._18 = 3;
-    temp_v9 = (f32)pbVar8[0xe4a] * temp_v17;
-    if (2.1474836e9f <= temp_v9) {
-      temp_v9 = temp_v9 - 2.1474836e9f;
-    }
-    drawPosition.xy.x = fStack_8;
-    drawPosition.xy.y = fStack_4;
-    func_00135130(arg0, drawPosition.packed, (u8)((s32)temp_v9 & 0xff), (u8 *)&e0);
   }
-  fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1350) + 640.0f;
-  fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1354) + 400.0f;
-  temp_v17 = (f32)pbVar8[0x135a] * temp_v17;
-  if (2.1474836e9f <= temp_v17) {
-    temp_v17 = temp_v17 - 2.1474836e9f;
+  if (((*(u32 *)(work + 0x1c) & 0x40) != 0) && (0 < *(s16 *)(work + 0xc46))) {
+    borderMode = 0;
+    func_001125d0((u8 *)&descriptor);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0x14a0) + 124.0f;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0x14a4) + 147.0f;
+    descriptor._28 = 0xffffffff;
+    descriptor._1c = 0;
+    descriptor._24 = 0;
+    descriptor._20 = 0;
+    if (*(f32 *)(work + 0x149c) < 0.0f) {
+      borderMode = 1;
+    }
+    else if (!(*(f32 *)(work + 0x149c) <= 0.0f)) {
+      borderMode = 2;
+    }
+    func_00135520(arg0, drawPosition, work[0x14aa], borderMode);
+    drawPosition.xy.x = originX + *(f32 *)(work + 0xe40) + 124.0f;
+    drawPosition.xy.y = originY + *(f32 *)(work + 0xe44) + 147.0f;
+    {
+      u32 entryAddress = ((s32)*(s16 *)(work + 0x2c) + (s32)*(s16 *)(work + 0x2e)) * 4;
+      entryAddress += (u32)work;
+      descriptor.itemId = *(s16 *)(entryAddress + 0x4a);
+      descriptor.quantity = *(s16 *)(entryAddress + 0x4c);
+    }
+    descriptor._28 = 0xffffffff;
+    descriptor._24 = 1;
+    descriptor._20 = 1;
+    descriptor._2a = selectedItemId;
+    descriptor._1a = 3;
+    descriptor._1c = 1;
+    descriptor._18 = 3;
+    temp_v9 = (f32)work[0xe4a];
+    temp_v9 *= opacityScale;
+    func_00135130(arg0, drawPosition.packed, (u8)temp_v9, (u8 *)&descriptor);
   }
-  drawPosition.xy.x = fStack_8;
-  drawPosition.xy.y = fStack_4;
-  func_0034f9d0(drawPosition.xy, 0.0f, (u8)((s32)temp_v17 & 0xff), *(u16 *)(pbVar8 + 0xc78), *(u32 *)(pbVar8 + 0x1590));
+  drawPosition.xy.x = originX + *(f32 *)(work + 0x1350) + 640.0f;
+  drawPosition.xy.y = originY + *(f32 *)(work + 0x1354) + 400.0f;
+  temp_v9 = (f32)work[0x135a];
+  temp_v9 *= opacityScale;
+  alpha = (u8)temp_v9;
+  func_0034f9d0(drawPosition.xy, 0.0f, (u8)(alpha), *(s16 *)(work + 0xc78), *(s32 *)(work + 0x1590));
   return;
 }
 #pragma opt_dead_assignments on
-#else
-INCLUDE_ASM("asm/nonmatchings/cmpEquip", func_00131a00);
-#endif
+
+#pragma pop
 
 // FUN_001344B0
 s32 func_001344b0(u8 *arg0, s32 arg1, s16 arg2) {
