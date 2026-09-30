@@ -61,7 +61,7 @@ static void func_00286e90(int param_1, int param_2);
 void func_00290470(s32 *arg0, s32 arg1);
 void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2);
 s32 func_0028d390();
-s32 func_0028dc30();
+s32 func_0028dc30(s32 parent, s32 type, u8 *parameters);
 void func_00291470();
 void func_00291220();
 s32 func_00291360();
