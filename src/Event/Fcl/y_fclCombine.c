@@ -68,7 +68,7 @@ extern u8 *func_002e48a0(s8, s16);
 extern void func_0010be60(u8 *, u8 *, s32);
 extern s32 func_00313fb0(u8 *);
 extern s32 func_0010b5b0(void);
-extern void func_00316470(u8 *, s64, s64);
+extern void func_00316470(u8 *, s64, s8);
 extern void func_00316e80(u8 *, s64, s64, s64, s64, s64, s64, s64, s8, s8, s8);
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern int func_00275820(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
@@ -96,7 +96,7 @@ extern s16 func_002b6970(s16, s16);
 extern u8 *func_002b6150(s16);
 extern void func_00321e60(u8 *, s64, u8, u8);
 extern void func_003233d0(u8 *);
-extern void func_003191c0(u8 *, FclVec2, s32, s32, s16, s16, s32, s8);
+extern void func_003191c0(u8 *, FclVec2, s32, s32, s16, s16, s8, s8);
 extern void func_0031ac10(u8 *, FclVec2, s8, s8, s32, u16, s16, s8, s8, u8);
 extern void func_0031c2b0(u8 *, s16, FclVec2f, FclVec2f);
 extern void func_0031cce0(u8 *, s16, FclVec2, FclVec2);
@@ -3659,7 +3659,7 @@ block_215:
 #pragma opt_lifetimes on
 void func_002f6cf0(u8 *arg0) {
     extern void func_00313800(s8);
-    extern void func_00323d00(u8 *, s32, s32);
+    extern void func_00323d00(u8 *, s32, s8);
     extern s32 func_003139d0(s8, s8);
     extern s8 func_00313ae0(s8, u16);
     extern s32 func_00313a80(s8, s8);
