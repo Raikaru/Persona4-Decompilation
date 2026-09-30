@@ -8669,3 +8669,11 @@ fGpffff84d8 = 0x007615C8; // type:data
 fGpffff84dc = 0x007615CC; // type:data
 iGpffff8424 = 0x00761514; // type:data
 uGpffffb314 = 0x00764404; // type:data
+
+// Existing-owner C-link aliases, reproduced by tools/recover_symbols.py.
+D_007611AC = 0x007611ac; // type:data
+D_00762FD8 = 0x00762fd8; // type:data
+iGpffffa980 = 0x00763a70; // type:data
+D_00764340 = 0x00764340; // type:data
+D_0076439C = 0x0076439c; // type:data
+iGpffffb528 = 0x00764618; // type:data
