@@ -1751,11 +1751,10 @@ void func_002bbd80(s8 arg0, s32 variable, void *text) {
 }
 
 // FUN_002BC0B0
-void func_002bc0b0(u32 arg0, u32 arg1, u32 arg2, s32 arg3, s32 arg4) {
-    f32 f0;
-    f32 f1;
-    f32 f2;
-    func_002bc0e0(f0, f1, f2, arg0, arg1, arg2, 1, arg3, arg4);
+void func_002bc0b0(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
+                   s32 table, s32 item)
+{
+    func_002bc0e0(x, y, depth, color, font, mode, 1, table, item);
 }
 
 
