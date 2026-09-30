@@ -57,7 +57,8 @@ class CommunityMenuSourceContracts(unittest.TestCase):
         for name in ("func_00355410", "func_0035aff0", "func_0035c040"):
             self.assertRegex(source, r"(?:void|f32) " + name + r"\(u8 \*arg0, u8 arg1\)")
         for owner in (ROOT / "src/Camp/cmpPersona.c", ROOT / "src/promoted/code1_0014.c"):
-            self.assertIn("extern void func_00355410(u8 *arg0, u8 arg1);", owner.read_text(encoding="utf-8"))
+            self.assertRegex(owner.read_text(encoding="utf-8"),
+                             r"extern\s+void\s+func_00355410\(u8\s*\*\s*\w+,\s*u8\s+\w+\);")
         self.assertIn("void func_0035c670(u8 *arg0, Vec2f *position)", source)
         self.assertIn("Entries are initialized by func_00356250 with display modes 0 through 3", source)
         self.assertIn("// FUN_0035AFF0 NONMATCHING", source)
