@@ -7584,6 +7584,7 @@ iGpffff9cb4 = 0x00762da4; // type:data
 iGpffff9cb8 = 0x00762da8; // type:data
 iGpffff9cc0 = 0x00762db0; // type:data
 iGpffff9cc8 = 0x00762db8; // type:data
+D_00762DC0 = 0x00762dc0; // type:data
 iGpffff9cd8 = 0x00762dc8; // type:data
 fGpffff9ce0 = 0x00762dd0; // type:data
 iGpffff9ce4 = 0x00762dd4; // type:data
