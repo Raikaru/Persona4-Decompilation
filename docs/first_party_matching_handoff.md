@@ -4006,3 +4006,35 @@ or proves rendered output. See the current table in `docs/matching.md`,
 `build/finish-first-party-20260929/parent/effects-reconstruction-receipt.json`,
 and `build/resume-flash-next-20260929/final-worker-receipt.json`.
 No new exact credit is claimed for these reconstruction repairs.
+
+Publication `b885cef4` passed
+[CI run 36652442500](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/36652442500)
+through clean regeneration, full proprietary build/verification and
+linked-report upload. Counts remain **6737/6861, 124 remaining across
+65 owners**; receipt and current target manifest:
+`build/finish-first-party-20260929/parent/ci-b885cef4-{receipt,remaining-first-party}.json`.
+
+## Memory-card poll contract repair
+
+`00464670` passes the real command/result pointers to SDK
+`00432ec0` (`sceMc2CheckAsync`). Both memory-card consumer declarations
+now use the provider's signed-word result type; all 24 consumer calls
+remove unsigned-pointer casts. The old zero-argument call fails against
+the actual SDK contract, despite having produced exact EE code.
+
+Parent production verification preserves **68 MATCH / three ASM across
+71 functions**. Independent native production gates prove complete code
+windows and emitted data/jump tables; policy lint has zero findings.
+Actual helper execution passes 13 host transitions with only the SDK
+producer stubbed. No memory-card hardware/PS2 runtime is claimed.
+
+All three guards remain. Guarded native compilation preserves the C
+siblings, but the strict guarded gate rejects unresolved tables/SDK
+symbols and an out-of-range GP relocation in the unchanged
+`00468ff0/0046f2b0` reconstructions; `004647c0` additionally has an unresolved
+56-byte jump table. Do not treat masked-word scores or the successful
+production gates as proof the three guarded C bodies can be linked.
+See `docs/matching.md`, `card-poll-production-verify.json` and
+`card-poll-contract-receipt.json` under
+`build/finish-first-party-20260929/parent/`.
+No new exact credit is claimed for this contract repair.

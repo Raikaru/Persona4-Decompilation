@@ -11,7 +11,7 @@ extern s32 D_00764BC0; /* sMemcardSeqMode */
 extern s32 *D_00764BA8;
 extern s32 iGpffffbab0;
 
-extern s32 func_00464670(s32* mode, u32* result, s32* error);
+extern s32 func_00464670(s32* command, s32* result, s32* error);
 extern s32 sceMc2GetInfoAsync(s32 socket, s32* status);
 extern s32 D_00764B9C;
 extern s32 D_00764BA4;
@@ -69,7 +69,7 @@ s32 func_00465400(void)
 
     if (D_00764B9C != 0)
     {
-        status = func_00464670(&cardMode, (u32*)&cardCode, &cardError);
+        status = func_00464670(&cardMode, &cardCode, &cardError);
         if (status == -1)
         {
             D_00764B9C = 0;
@@ -78,7 +78,7 @@ s32 func_00465400(void)
     }
     else
     {
-        status = func_00464670(&cardMode, (u32*)&cardCode, &cardError);
+        status = func_00464670(&cardMode, &cardCode, &cardError);
         if (status == 1)
         {
             sceMc2GetInfoAsync(D_00764BA4, D_008E4B20);
@@ -161,14 +161,14 @@ s32 func_00465590(void)
     case 0:
         cardMode = 0;
         cardCode = 0;
-        if (func_00464670(&cardMode, (u32*)&cardCode, &cardError) == -1)
+        if (func_00464670(&cardMode, &cardCode, &cardError) == -1)
         {
             sceMc2GetInfoAsync(D_00764BA4, D_008E4B20);
             D_00764BC0 = 1;
         }
         goto done;
     case 1:
-        if (func_00464670(&cardMode, (u32*)&cardCode, &cardError) == 1)
+        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
         {
             if (cardError == 0)
             {
@@ -211,7 +211,7 @@ s32 func_00465590(void)
         }
         goto done;
     case 2:
-        if (func_00464670(&cardMode, (u32*)&cardCode, &cardError) == 1)
+        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
         {
             if (cardError == 0)
             {
@@ -247,7 +247,7 @@ s32 func_00465590(void)
         }
         goto done;
     case 3:
-        if (func_00464670(&cardMode, (u32*)&cardCode, &cardError) == 1)
+        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
         {
             if (cardError != 0)
             {
@@ -305,7 +305,7 @@ s32 func_00465a10(void)
     switch (D_00764BC0)
     {
     case 0:
-        if (func_00464670(&cardMode, (u32*)&cardCode, &cardError) == -1)
+        if (func_00464670(&cardMode, &cardCode, &cardError) == -1)
         {
             func_00440b68(D_007128F8,
                           sceMc2GetInfoAsync(D_00764BA4, D_008E4B20));
@@ -313,7 +313,7 @@ s32 func_00465a10(void)
         }
         goto done;
     case 1:
-        if (func_00464670(&cardMode, (u32*)&cardCode, &cardError) == 1)
+        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
         {
             if (cardError == 0)
             {
@@ -362,7 +362,7 @@ s32 func_00465a10(void)
         D_00764BC0 = 3;
         goto done;
     case 3:
-        if (func_00464670(&cardMode, (u32*)&cardCode, &cardError) == 1)
+        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
         {
             func_00440b68(D_00712938, cardCode);
             if (cardError == 0)
@@ -473,7 +473,7 @@ s32 func_00465f40(void)
       if (1 != 0)
     {
       iGpffffbaa4 = 0;
-      if (func_00464670(&sp1C, (u32 *) (&sp18), &sp14) == -1)
+      if (func_00464670(&sp1C, &sp18, &sp14) == -1)
       {
         sceMc2GetInfoAsync(D_00764BA4, (s32 *) D_008E4B20);
         D_00764BC0 = 1;
@@ -484,7 +484,7 @@ s32 func_00465f40(void)
       goto block_44;
 
     case 1:
-      if (func_00464670(&sp1C, (u32 *) (&sp18), &sp14) == 1)
+      if (func_00464670(&sp1C, &sp18, &sp14) == 1)
     {
  do { if (((((-1) * 0, sp14)) & 0xFFFFFFFF) == (var_2 = 0)) { switch (sp18) { case 0x6F: return -5; case 0x13: return -5; case 0x9003: sceMc2GetInfoAsync(D_00764BA4, (s32 *) D_008E4B20); goto block_44; case 0x2F: return 100; default: return -9; } } else { if (D_008E4B20[0] == 2) { if (D_008E4B28[0] >= 0xE6) { return 100; } D_00764BC0 = 2; goto block_44; } return -1; } }
  while (0);
@@ -496,7 +496,7 @@ s32 func_00465f40(void)
       break;
 
     case 2:
-      if (-1 == func_00464670(&sp1C, (u32 *) (&sp18), &sp14))
+      if (-1 == func_00464670(&sp1C, &sp18, &sp14))
     {
       temp_6 = (new_var8 = D_00764BB8);
       sprintf(D_008E4A20, D_007127D0, temp_6, new_var8);
@@ -507,7 +507,7 @@ s32 func_00465f40(void)
 
     case 3:
       new_var7 = -5;
-      if (func_00464670(&sp1C, (u32 *) (&sp18), &sp14) == 1)
+      if (func_00464670(&sp1C, &sp18, &sp14) == 1)
     {
       if (new_var3 = sp14 == 0)
       {
