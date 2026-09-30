@@ -72,4 +72,11 @@ typedef s32 (*BtlShuffleRenderPrimitive)(BtlShufflePrimitive primitive,
 void func_00377930(u8 *work, s32 cardIndex, const BtlShuffleVec3 *position,
                   u8 *color, s32 restoreAlpha);
 
+/* The rotation initializer consumes two unsigned 16-bit timing values and
+ * explicitly forwards both floating controls to the interpolation state. */
+void func_003730f0(u8 *state, u16 timing0, u16 timing1,
+                  const BtlShuffleVec3 *axis, f32 start, f32 end);
+void func_003761f0(u8 *context, s32 cardIndex, u16 timing0, u16 timing1,
+                  const BtlShuffleVec3 *axis, f32 start, f32 end);
+
 #endif

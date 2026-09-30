@@ -1,0 +1,364 @@
+/* Independent transition model: integer formulas reproduce the exact 12-bit
+ * random domain, while typed mocks record every visible call in order. */
+static unsigned scenario, logCount, randomIndex;
+static unsigned modelMode;
+typedef union { u64 align; u8 bytes[0x94]; } ResultWork;
+typedef union { u64 align; u8 bytes[0x20000]; } ResultContext;
+static ResultWork observedWork, expectedWork;
+static ResultContext observedContext, expectedContext;
+static u8 *work, *context;
+static u32 flags;
+static u8 names[256][4], personaName[4];
+static u32 personaNameId;
+static const char uprightText[] = "upright", reversedText[] = "reversed";
+const char *iGpffffa9E0 = uprightText;
+const char *iGpffffa9E4 = reversedText;
+u8 D_0064E72E[22][2];
+BtlShuffleVec3 D_0064EC88 = {1.25f, -2.5f, 3.75f};
+
+typedef struct {
+    s32 phase, choice, busy, animation, effect, task, reveal, slide, extra;
+    u32 initialFlags, mutation, random[3], lookup;
+    u16 timer, step, persona, capacity, count, contextFlags;
+    s32 spins, upright, override, packed, selected;
+    u8 kind;
+} Inputs;
+static Inputs input;
+typedef struct { u32 operation, a, b, c, d; } Event;
+static Event observedEvents[96], expectedEvents[96];
+static Event *events;
+#define CHECK(c) do { if (!(c)) native32_failure(__LINE__, scenario, #c); } while (0)
+#define W16(offset) (*(u16 *)(work + (offset)))
+#define W32(offset) (*(s32 *)(work + (offset)))
+#define C16(offset) (*(u16 *)(context + (offset)))
+#define C32(offset) (*(s32 *)(context + (offset)))
+static u32 bits(f32 value) { union { f32 f; u32 u; } v; v.f = value; return v.u; }
+static void record(u32 op, u32 a, u32 b, u32 c, u32 d) {
+    CHECK(logCount < 96);
+    events[logCount++] = (Event){op, a, b, c, d};
+}
+static u32 flagBit(s32 flag) {
+    if (flag == 0x1437) return 1;
+    if (flag == 0x1403) return 2;
+    if (flag == 0x140F) return 4;
+    if (flag == 0x140E) return 8;
+    CHECK(flag == 0x1434); return 16;
+}
+s32 datGetFlag(s32 flag) {
+    record(1, flag, 0, 0, 0);
+    if (flag == 0x1437 && (input.mutation & 2)) work[0x12] = (u8)((work[0x12] + 3) % 22);
+    return (flags & flagBit(flag)) != 0;
+}
+void func_00106390(s32 flag, s32 enabled) {
+    CHECK(enabled == 1); record(2, flag, enabled, 0, 0); flags |= flagBit(flag);
+}
+s32 func_0015a190(void) { record(3, 0, 0, 0, 0); return input.extra; }
+u32 RpRandom(void) {
+    CHECK(randomIndex < 3); record(4, randomIndex, input.random[randomIndex], 0, 0);
+    return input.random[randomIndex++];
+}
+void func_002bb7c0(s32 a) { CHECK(a == 1); record(5, a, 0, 0, 0); }
+s32 func_002bb600(void) { record(6, 0, 0, 0, 0); return input.busy; }
+u32 func_002bb1e0(int a) { CHECK(a == 1); record(7, a, 0, 0, 0); return 0xFF; }
+s32 func_002bb140(void) { record(8, 0, 0, 0, 0); return input.choice; }
+s32 func_002bad10(s32 a) { record(9, a, 0, 0, 0); return -1; }
+s32 func_002baf40(s32 a) { CHECK(a == 0xD); record(10, a, 0, 0, 0); return -1; }
+void func_002bb050(u8 a) { CHECK(a == 0); record(11, a, 0, 0, 0); }
+void func_002bbf60(void) { record(12, 0, 0, 0, 0); }
+s32 func_002bb4e0(void) { record(13, 0, 0, 0, 0); return 1; }
+char *func_002438b0(s32 kind) {
+    CHECK(kind >= 0 && kind < 256); record(14, kind, 0, 0, 0); return (char *)names[kind];
+}
+u8 *func_00109220(u16 persona) {
+    CHECK(persona == input.persona); personaNameId = persona; record(15, persona, 0, 0, 0); return personaName;
+}
+char *strcpy(char *destination, const char *source) {
+    u32 count = 0; CHECK(source == uprightText || source == reversedText);
+    record(16, source == uprightText, 0, 0, 0);
+    do { CHECK(count < 64); destination[count] = source[count]; } while (source[count++]);
+    return destination;
+}
+void func_002bbd20(s32 slot, void *text) {
+    u32 value;
+    if (slot == 0) {
+        if (text == personaName) value = 0x10000 + personaNameId;
+        else { u32 offset = (u32)text - (u32)names; CHECK(offset < sizeof names && offset % 4 == 0); value = offset / 4; }
+    } else {
+        CHECK(slot == 1);
+        if (memcmp(text, uprightText, sizeof uprightText) == 0) value = 1;
+        else { CHECK(memcmp(text, reversedText, sizeof reversedText) == 0); value = 0; }
+    }
+    record(17, slot, value, 0, 0);
+}
+s32 func_0045af60(s16 a, s16 b, s16 c, s16 d) {
+    CHECK(a == 1 && b == 3 && c == 2 && (d == 1 || d == 2)); record(18, a, b, c, d); return 0;
+}
+void func_00374910(u8 *unit) {
+    CHECK(unit == context && *(f32 *)(context + 0x1F310) == 10.0f); record(19, 0, 0, 0, 0);
+    if (input.mutation & 1) C32(0x1F308) = (C32(0x1F308) + 1) % 4;
+}
+void func_0036dc60(u8 *unit, f32 *screen, f32 scale, f32 *out) {
+    CHECK(unit == context + C32(0x1F308) * 0xFB0);
+    CHECK(screen[0] == 316.0f && screen[1] == 211.0f && scale == 160.0f);
+    record(20, C32(0x1F308), bits(screen[0]), bits(screen[1]), bits(scale));
+    out[0] = 12.5f; out[1] = -7.25f; out[2] = 160.0f;
+}
+void func_00375d50(u8 *unit, s32 card, f32 a, f32 b, f32 *from, f32 *to) {
+    CHECK(unit == context && card == C32(0x1F308) && from == to && a == 0.0f && b == 0.0f);
+    CHECK(from[0] == 12.5f && from[1] == -7.25f && from[2] == 160.0f);
+    record(21, card, bits(from[0]), bits(from[1]), bits(from[2]));
+}
+#define POINTER_EVENT(name, id, offset) void name(u8 *a) { CHECK(a == *(u8 **)(context + offset)); record(id, 0, 0, 0, 0); }
+POINTER_EVENT(func_0038d9f0, 22, 0x1F29C)
+POINTER_EVENT(func_0038d970, 23, 0x1F29C)
+POINTER_EVENT(func_00388e40, 24, 0x1F294)
+POINTER_EVENT(func_00388ee0, 25, 0x1F294)
+POINTER_EVENT(func_00388f00, 26, 0x1F294)
+POINTER_EVENT(func_003892e0, 27, 0x1F294)
+POINTER_EVENT(func_00389350, 28, 0x1F294)
+void func_0038daf0(u8 *a, s32 b) { CHECK(a == *(u8 **)(context + 0x1F29C) && b == 6); record(29, b, 0, 0, 0); }
+s32 func_00378220(u8 *task) {
+    CHECK(task == *(u8 **)(context + 0x1F2A0) || task == *(u8 **)(context + 0x1F2A4));
+    record(30, (u32)task, 0, 0, 0); return input.task;
+}
+s32 func_00388ec0(u8 *a) { CHECK(a == *(u8 **)(context + 0x1F294)); record(31, 0, 0, 0, 0); return input.effect; }
+void func_00375b40(u8 *unit, s32 card, u16 a, u16 b) {
+    CHECK(unit == context && card == C32(0x1F308) && a == 0 && b == 20); record(32, card, a, b, 0);
+}
+s32 func_00375a00(u8 *card) {
+    CHECK(card == context + C32(0x1F308) * 0xE8 + 0x1D6A0); record(33, C32(0x1F308), 0, 0, 0);
+    if (input.mutation & 4) C32(0x1F308) = (C32(0x1F308) + 1) % 4;
+    return input.animation;
+}
+void func_003798d0(u8 *unit, s32 a) { CHECK(unit == context && a == 4); record(34, a, 0, 0, 0); }
+s32 func_00377eb0(u8 *parent, s32 card) {
+    CHECK(parent == *(u8 **)(context + 0x1F2A8) && card >= 1 && card <= 20); record(35, card, 0, 0, 0); return 0x654320;
+}
+void func_003761f0(u8 *unit, s32 card, u16 a, u16 b, const BtlShuffleVec3 *axis, f32 start, f32 end) {
+    CHECK(unit == context && card == C32(0x1F308) && a == 0 && b == W16(0x1E));
+    CHECK(axis->x == 1.25f && axis->y == -2.5f && axis->z == 3.75f);
+    CHECK(start == 0.0f && end == 180.0f); record(36, card, b, bits(start), bits(end));
+}
+s32 func_00389330(u8 *a) { CHECK(a == *(u8 **)(context + 0x1F294)); record(37, 0, 0, 0, 0); return input.reveal; }
+s32 func_00452080(struct KwlnTask *task) {
+    CHECK((u32)task == *(u32 *)(context + 0x1F2A0) && task != NULL); record(38, (u32)task, 0, 0, 0); return 1;
+}
+s32 func_00380980(u8 *a) {
+    CHECK(a == work); record(39, 0, 0, 0, 0);
+    if (input.mutation & 8) W32(0x30) ^= 0xA5A50000u;
+    return input.extra;
+}
+u16 func_0010b6f0(void) { record(40, 0, 0, 0, 0); return input.capacity; }
+s32 func_0010b5b0(void) { record(41, 0, 0, 0, 0); return input.count | 0x13570000; }
+u16 *func_0010ac10(s32 persona) {
+    CHECK(persona == input.persona); record(42, persona, 0, 0, 0); return (u16 *)input.lookup;
+}
+u8 *func_0010b010(u16 persona) { CHECK(persona == input.persona); record(43, persona, 0, 0, 0); return NULL; }
+s32 func_00379920(u8 *a) { CHECK(a == context); record(44, 0, 0, 0, 0); return input.slide; }
+u8 func_002baac0(u8 *text) { CHECK(text == *(u8 **)(context + 0x1F2DC)); record(45, (u32)text, 0, 0, 0); return 0; }
+
+static s32 modelRoll(u8 kind) {
+    u32 threshold, value;
+    if (!datGetFlag(0x1437)) { func_00106390(0x1437, 1); return 1; }
+    if (datGetFlag(0x1403) && datGetFlag(0x140F)) threshold = 60;
+    else threshold = D_0064E72E[kind][func_0015a190() != 0];
+    value = RpRandom() & 4095;
+    return value * 100 >= threshold * 4096;
+}
+static void modelText(s32 kind, s32 upright, s32 message) {
+    char text[64];
+    strcpy(text, upright ? uprightText : reversedText);
+    func_002bbd20(0, func_002438b0(kind));
+    func_002bbd20(1, text);
+    func_002bad10(message);
+}
+static void modelSound(void) { func_0045af60(1, 3, 2, W32(0x28) ? 1 : 2); }
+static s32 modelStep(void) {
+    u32 random;
+    s32 chosen, upright, kind, next;
+    switch (W32(0x18)) {
+    case 0:
+        func_002bb7c0(1); if (!func_002bb600()) { func_002bb1e0(1); W32(0x18) = 1; } break;
+    case 1: {
+        f32 screen[2] = {316.0f, 211.0f}, position[3];
+        *(f32 *)(context + 0x1F310) = 10.0f; func_00374910(context);
+        func_0036dc60(context + C32(0x1F308) * 0xFB0, screen, 160.0f, position);
+        func_00375d50(context, C32(0x1F308), 0.0f, 0.0f, position, position);
+        func_0038d9f0(*(u8 **)(context + 0x1F29C)); func_0038d970(*(u8 **)(context + 0x1F29C));
+        func_00388e40(*(u8 **)(context + 0x1F294)); func_0038daf0(*(u8 **)(context + 0x1F29C), 6);
+        W32(0x18) = 2;
+    }
+    case 2:
+        if (!func_00378220(*(u8 **)(context + 0x1F2A0)) || !func_00388ec0(*(u8 **)(context + 0x1F294))) break;
+        func_00375b40(context, C32(0x1F308), 0, 20); C16(0x1F2F4) |= 8; W32(0x18) = 3;
+    case 3:
+        if (!func_00375a00(context + C32(0x1F308) * 0xE8 + 0x1D6A0)) break;
+        C16(0x1F2F4) &= ~4;
+        if (!datGetFlag(0x1434)) { func_002bb4e0(); func_003798d0(context, 4); W32(0x18) = 19; }
+        else W32(0x18) = 4;
+        break;
+    case 4:
+        func_002bbd20(0, func_002438b0(work[0x12])); func_002bad10(12); func_002baf40(13);
+        func_002bb050(0); func_002bbf60(); W32(0x18) = 5; break;
+    case 5:
+        func_002bb7c0(1); if (func_002bb600()) break; func_002bb1e0(1); chosen = func_002bb140();
+        if (chosen == 1) return 1;
+        if (chosen == 2) { func_002bad10((work[0x12] - 1) * 4 + 21); W32(0x18) = 6; break; }
+        if (chosen != 0) break;
+        W16(0x1C) = 0;
+        if (work[0x12] == 1) {
+            W32(0x18) = 10; W32(0x20) = 0; W32(0x28) = modelRoll(work[0x12]);
+            random = RpRandom() & 4095; work[0x24] = (u8)(2 + (20 * random) / 4096);
+            C16(0x1F2F4) |= 0x20;
+            C32(0x1F2A4) = func_00377eb0(*(u8 **)(context + 0x1F2A8), (u8)(work[0x24] - 1));
+        } else {
+            W32(0x18) = 7; C16(0x1F2F4) |= 0x10;
+            random = RpRandom() & 4095; W32(0x20) = 2 * (5 + (3 * random) / 4096);
+            upright = modelRoll(work[0x12]); W32(0x28) = upright; if (!upright) ++W32(0x20);
+        }
+        break;
+    case 6:
+        func_002bb7c0(1); if (!func_002bb600()) { func_002bb1e0(1); func_002bad10(12); func_002baf40(13); W32(0x18) = 5; } break;
+    case 7:
+        W16(0x1C) = (u16)(W16(0x1C) + 1); if (W16(0x1C) < 10) break;
+        W16(0x1E) = 1; W32(0x18) = 8; func_00388ee0(*(u8 **)(context + 0x1F294));
+    case 8:
+        if (!func_00375a00(context + C32(0x1F308) * 0xE8 + 0x1D6A0)) break;
+        func_003761f0(context, C32(0x1F308), 0, W16(0x1E), &D_0064EC88, 0.0f, 180.0f);
+        if (W16(0x1E) < 10) ++W16(0x1E);
+        --W32(0x20); if (W32(0x20) <= 0) W32(0x18) = 9; break;
+    case 9:
+        if (!func_00375a00(context + C32(0x1F308) * 0xE8 + 0x1D6A0)) break;
+        if (C16(0x1F2F4) & 0x10) { C16(0x1F2F4) = (C16(0x1F2F4) & ~0x10) | 0x100; C16(0x1F2F2) = 0; }
+        modelSound(); kind = work[0x12] == 1 ? work[0x24] : work[0x12]; modelText(kind, W32(0x28), 14); W32(0x18) = 13; break;
+    case 10:
+        W16(0x1C) = (u16)(W16(0x1C) + 1); if (W16(0x1C) < 10) break;
+        W16(0x1E) = 5; W32(0x18) = 11; func_00388ee0(*(u8 **)(context + 0x1F294));
+        func_00388f00(*(u8 **)(context + 0x1F294)); func_003892e0(*(u8 **)(context + 0x1F294)); break;
+    case 11:
+        W16(0x1C) = (u16)(W16(0x1C) + 1);
+        if (W16(0x1C) < 60 || !func_00378220(*(u8 **)(context + 0x1F2A4))) break;
+        W32(0x18) = 12; func_00389350(*(u8 **)(context + 0x1F294));
+    case 12:
+        if (!func_00389330(*(u8 **)(context + 0x1F294))) break;
+        if (!W32(0x28)) C16(0x1F2F4) |= 0x80; C16(0x1F2F4) |= 0x40;
+        if (C32(0x1F2A0)) { func_00452080(*(struct KwlnTask **)(context + 0x1F2A0)); C32(0x1F2A0) = 0; }
+        modelSound(); next = 21 + (W32(0x28) ? 1 : 2);
+        func_002bbd20(0, func_002438b0(work[0x24])); func_002bad10(next); W32(0x18) = 13; break;
+    case 13:
+        func_002bb7c0(1); if (func_002bb600()) break; func_002bb1e0(1);
+        if (datGetFlag(0x1403) && datGetFlag(0x140E) && !W32(0x28)) {
+            W32(0x28) = 1; modelText(6, 1, 15); W32(0x2C) = 1; W32(0x18) = 16;
+        } else { W32(0x2C) = 0; if (!func_00380980(work)) return 1; W32(0x18) = 14; }
+        break;
+    case 14:
+        func_002bb7c0(1); if (func_002bb600()) break; func_002bb1e0(1);
+        chosen = W32(0x30); if (!chosen) return 1;
+        modelText(((u32)chosen >> 16) & 255, (u16)chosen != 0, 16); W32(0x18) = 15; break;
+    case 15: case 17:
+        func_002bb7c0(1); if (!func_002bb600()) { func_002bb1e0(1); return 1; } break;
+    case 16:
+        func_002bb7c0(1); if (func_002bb600()) break; func_002bb1e0(1);
+        if (W32(0x2C) == 1) { func_002bad10(17); W32(0x18) = 17; }
+        else { func_00380980(work); W32(0x18) = 8; } break;
+    case 18: {
+        u16 persona, capacity, count;
+        if (!func_00375a00(context + C32(0x1F308) * 0xE8 + 0x1D6A0)) break;
+        C16(0x1F2F4) &= ~8;
+        if (C32(0x1F2A0)) { func_00452080(*(struct KwlnTask **)(context + 0x1F2A0)); C32(0x1F2A0) = 0; }
+        persona = W16(0x10); capacity = func_0010b6f0(); count = (u16)func_0010b5b0();
+        if (func_0010ac10(persona) != NULL) { func_002bad10(2); W32(8) = 6; }
+        else if (capacity == count) { memset(work + 0x18, 0, 0x7C); func_002bbd20(0, func_00109220(persona)); func_002bad10(3); W32(8) = 7; }
+        else { func_0010b010(persona); func_002bbd20(0, func_00109220(persona)); func_002bad10(1); W32(8) = 5; }
+        break;
+    }
+    case 19:
+        if (func_00379920(context)) { func_00106390(0x1434, 1); func_002baac0(*(u8 **)(context + 0x1F2DC)); W32(0x18) = 4; } break;
+    }
+    return 0;
+}
+
+static void prepare(unsigned expected) {
+    work = expected ? expectedWork.bytes : observedWork.bytes;
+    context = expected ? expectedContext.bytes : observedContext.bytes;
+    events = expected ? expectedEvents : observedEvents;
+    modelMode = expected; flags = input.initialFlags; logCount = randomIndex = 0;
+    memset(work, 0xA5, 0x94); memset(context, 0x5A, 0x20000);
+    *(u8 **)work = context; W16(0x10) = input.persona; work[0x12] = input.kind; W32(0x18) = input.phase;
+    W16(0x1C) = input.timer; W16(0x1E) = input.step; W32(0x20) = input.spins; work[0x24] = 17;
+    W32(0x28) = input.upright; W32(0x2C) = input.override; W32(0x30) = input.packed;
+    C32(0x1F294) = 0x123410; C32(0x1F29C) = 0x234520; C32(0x1F2A0) = (scenario & 4) ? 0x345630 : 0;
+    C32(0x1F2A4) = 0x456740; C32(0x1F2A8) = 0x567850; C32(0x1F2DC) = 0x678960;
+    C32(0x1F308) = input.selected; C16(0x1F2F4) = input.contextFlags;
+}
+static void compareStep(void) {
+    s32 result, expectedResult; u32 count, randoms, changedFlags;
+    prepare(0); result = func_00381a70(work); count = logCount; randoms = randomIndex; changedFlags = flags;
+    prepare(1); expectedResult = modelStep();
+    CHECK(result == expectedResult && logCount == count && randomIndex == randoms && flags == changedFlags);
+    CHECK(memcmp(observedEvents, expectedEvents, count * sizeof(Event)) == 0);
+    CHECK(memcmp(observedWork.bytes + 4, expectedWork.bytes + 4, 0x90) == 0);
+    CHECK(memcmp(observedContext.bytes, expectedContext.bytes, 0x20000) == 0);
+}
+int main(void) {
+    const u16 timers[] = {0, 8, 9, 10, 58, 59, 60, 65534, 65535};
+    const u16 steps[] = {0, 1, 8, 9, 10, 65535};
+    const u16 personas[] = {0, 1, 0x7FFF, 0x8000, 0xFFFF};
+    const u32 randoms[] = {0, 1, 2047, 2048, 4094, 4095, 0xFFFFFFFFu, 0x80000000u, 0xDEADBEAFu};
+    const u32 packed[] = {0, 1, 0x00340000, 0x00FF0001, 0x00800000, 0xABCDFFFFu};
+    unsigned stepCases = 0, rollCases = 0;
+    for (unsigned kind = 0; kind < 22; ++kind) {
+        D_0064E72E[kind][0] = (u8)((kind * 13) % 101);
+        D_0064E72E[kind][1] = (u8)((kind * 17 + 60) % 256);
+    }
+    for (s32 phase = -1; phase <= 20; ++phase) for (unsigned variant = 0; variant < 128; ++variant) {
+        ++scenario; memset(&input, 0, sizeof(input));
+        input.phase = phase; input.choice = (s32)(variant % 5) - 1; input.busy = (variant >> 4) & 1;
+        input.animation = (variant & 1) ? -1 : 0; input.effect = (variant >> 1) & 1; input.task = (variant >> 2) & 1;
+        input.reveal = (variant >> 3) & 1; input.slide = (variant >> 5) & 1; input.extra = (s32)(variant % 5) - 2;
+        input.initialFlags = (variant * 13 + phase) & 31; input.mutation = variant & 15;
+        input.random[0] = randoms[variant % 9]; input.random[1] = randoms[(variant * 5 + 3) % 9]; input.random[2] = 4095;
+        input.lookup = variant % 3 == 0 ? 0 : variant % 3 == 1 ? 0x10000 : 0x123456;
+        input.timer = timers[variant % 9]; input.step = steps[(variant / 2) % 6]; input.persona = personas[variant % 5];
+        input.capacity = (u16)(3 + (variant % 3)); input.count = (u16)(3 + ((variant / 3) % 3));
+        input.contextFlags = (u16)(variant * 0x1111); input.spins = (s32)(variant % 5) - 1;
+        input.upright = (variant / 2) % 3 == 0 ? 0 : (variant & 2 ? -1 : 1); input.override = (s32)(variant % 3);
+        input.packed = (s32)packed[variant % 6]; input.selected = variant % 4; input.kind = variant % 22;
+        compareStep(); ++stepCases;
+    }
+    /* Decouple random-choice coverage from the general transition matrix:
+       first-time rolls consume no random value, later rolls consume one. */
+    {
+        const u32 edges[] = {0, 1, 204, 205, 409, 410, 819, 820, 1365, 1366,
+                             2047, 2048, 3686, 3687, 3891, 3892, 4094, 4095};
+        const u8 kinds[] = {0, 1, 21};
+        const u32 modes[] = {0, 1, 3, 7};
+        for (unsigned k = 0; k < 3; ++k) for (unsigned mode = 0; mode < 4; ++mode)
+        for (unsigned edge = 0; edge < 18; ++edge) {
+            ++scenario; memset(&input, 0, sizeof input);
+            input.phase = 5; input.choice = 0; input.kind = kinds[k]; input.initialFlags = modes[mode];
+            input.extra = edge & 1 ? 2 : 0;
+            input.random[0] = edges[edge]; input.random[1] = 4095 - edges[edge];
+            input.random[2] = edges[edge] ^ 2048;
+            compareStep(); ++stepCases;
+        }
+    }
+    /* Exhaust the random domain at each table column, plus short-circuit and
+       forced-threshold paths. The reference comparison uses integer math. */
+    memset(&input, 0, sizeof(input)); input.kind = 0;
+    for (unsigned kind = 0; kind < 22; ++kind) for (unsigned column = 0; column < 2; ++column)
+    for (unsigned value = 0; value < 4096; ++value) {
+        s32 a, b; u32 count, changedFlags, randomCount;
+        ++scenario; input.initialFlags = (value & 8) ? 7 : 1; input.extra = column ? (value & 1 ? 2 : -2) : 0;
+        input.random[0] = value; input.mutation = (value & 1) ? 2 : 0;
+        work = observedWork.bytes; events = observedEvents; flags = input.initialFlags; logCount = randomIndex = 0; work[0x12] = kind;
+        a = shuffleResultRoll(kind); count = logCount; changedFlags = flags; randomCount = randomIndex;
+        work = expectedWork.bytes; events = expectedEvents; flags = input.initialFlags; logCount = randomIndex = 0; work[0x12] = kind;
+        b = modelRoll(kind);
+        CHECK(a == b && count == logCount && changedFlags == flags && randomCount == randomIndex);
+        CHECK(memcmp(observedEvents, expectedEvents, count * sizeof(Event)) == 0); ++rollCases;
+    }
+    native32_text("shuffle-result state scenarios: "); native32_number(stepCases);
+    native32_text("; roll scenarios: "); native32_number(rollCases); native32_text("\n");
+    return 0;
+}

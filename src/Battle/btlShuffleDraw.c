@@ -31,7 +31,6 @@ extern void func_00370410(u8 *arg0);
 extern void func_00370a80(u8 *arg0);
 extern void func_003723a0(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, f32 fparg0);
 extern void func_00372c30(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, u8 *arg5);
-extern void func_003730f0(u8 *arg0, s32 arg1, s32 arg2, void *arg3);
 extern void func_003733d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00373590(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 
@@ -1108,15 +1107,15 @@ void func_00376170(u8 *arg0, s32 arg1, u16 arg2, u16 arg3, f32 *arg4, f32 *arg5,
 
 
 // FUN_003761F0
-void func_003761f0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4) {
+void func_003761f0(u8 *arg0, s32 arg1, u16 arg2, u16 arg3, const BtlShuffleVec3 *arg4, f32 start, f32 end) {
     ShuffleVec3 v;
     s32 idx;
     u8 *p;
 
-    v = *(ShuffleVec3 *)arg4;
+    v = *arg4;
     idx = arg1 * 0xE8;
-    p = (u8 *)idx + (u32)arg0;
-    func_003730f0((u8 *)(arg0 + idx + 0x1D70C), arg2, arg3, &v);
+    p = (u8 *)((u32)idx + (u32)arg0);
+    func_003730f0((u8 *)(arg0 + idx + 0x1D70C), arg2, arg3, &v, start, end);
     *(s32 *)(p + 0x1D6A8) = 4;
 }
 

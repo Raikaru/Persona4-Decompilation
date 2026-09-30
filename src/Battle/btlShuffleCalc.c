@@ -2,6 +2,7 @@
 /* Original translation unit btlShuffleCalc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "btl_shuffle_draw_internal.h"
 #include "sdk_snd_internal.h"
 
 extern void func_0046d730(const void *file, u32 line);
@@ -28,7 +29,7 @@ extern f32 sinf(f32 fparg0);
 extern f32 D_00761470;
 f32 func_003716d0(f32 fparg0);
 typedef struct { f32 x, y, z, w; } ShuffleVec4;
-typedef struct { f32 x, y, z; } ShuffleVec3;
+typedef BtlShuffleVec3 ShuffleVec3;
 typedef struct { f32 v[9]; s32 flag; } ShuffleOut;
 typedef struct ShuffleCalcUnit {
     u16 count;
@@ -844,13 +845,13 @@ s32 func_00372d60(u8 *arg0) {
 }
 
 // FUN_003730F0
-void func_003730f0(u8 *p, s16 a1, s16 a2, ShuffleVec3 *arg3, f32 fparg0, f32 fparg1) {
+void func_003730f0(u8 *p, u16 a1, u16 a2, const ShuffleVec3 *arg3, f32 fparg0, f32 fparg1) {
     ShuffleVec3 sp;
 
     sp = *arg3;
-    *(s16 *)(p + 0) = 0;
-    *(s16 *)(p + 2) = a2;
-    *(s16 *)(p + 4) = a1;
+    *(u16 *)(p + 0) = 0;
+    *(u16 *)(p + 2) = a2;
+    *(u16 *)(p + 4) = a1;
     *(ShuffleVec4 *)(p + 0x18) = *(ShuffleVec4 *)(p + 8);
     *(ShuffleVec3 *)(p + 0x28) = sp;
     *(f32 *)(p + 0x34) = fparg0;
