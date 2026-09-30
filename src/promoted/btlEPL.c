@@ -574,17 +574,9 @@ typedef struct BtlEplUnitRgbaParam
     u8 select[4];         // 0x0C, read by func_001fc300
 } BtlEplUnitRgbaParam;
 
-/* measured: fresh rewrite on the btlEPL family shape, 96 words (obj 2172B, window 2176B);
-   residual is FP colouring only (retail inv = 1 - scale in $f2, here $f4). See
-   docs/probe_archive/BtlEpl_001fd790_20260926_body.c for what was tried.
-   2026-09-28 re-measure, 96 words unchanged: retail hoists `(u8)mode` (andi) before `1.0f - scale`,
-   so `inv` is not the loop-top local written here.  Spelling it inline as `(1.0f - scale)` in the
-   eight a0..a3 products (or a block-local `inv` inside the cases) reproduces that hoist order, but
-   the hoisted temp then coalesces into the constant's register ($f0) and every colour temp shifts
-   up by one (276 words, one extra mtc1 zero).  Any named `inv` (function-level, assigned at the
-   loop top, before the inner loop, before the switch, or inside each case) colours to $f4 or worse
-   (103 when declared before `scale`); retail wants $f2, the one register the four colour
-   components ($f4,$f3,$f1,$f0) skip. */
+/* Only fade-in/out initialize scale. Evaluate its complement inside those
+ * cases, never on the constant-color/plateau path. The guard remains while
+ * the compiler coefficient and color registers differ from retail. */
 // FUN_001FD790 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_dead_assignments off
@@ -625,8 +617,6 @@ void func_001fd790(u8 *arg0)
         }
     }
     for (i = 0; i < 4; i++) {
-        f32 inv = 1.0f - scale;
-
         for (node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178); node != NULL; node = node->next) {
             if (func_001fc300((u8 *)node, param->select) == 0) {
                 continue;
@@ -645,6 +635,7 @@ void func_001fd790(u8 *arg0)
                 }
                 rgba.rgba = param->fade.color.rgba;
                 {
+                    const f32 inv = 1.0f - scale;
                     V4 color;
                     V4 start;
                     f32 a0, a1, a2, a3;
@@ -675,6 +666,7 @@ void func_001fd790(u8 *arg0)
                     node->startRgba = node->rgba;
                 }
                 {
+                    const f32 inv = 1.0f - scale;
                     V4 color;
                     V4 start;
                     f32 a0, a1, a2, a3;

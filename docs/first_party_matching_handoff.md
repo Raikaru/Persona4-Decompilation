@@ -3975,3 +3975,34 @@ Fcl commit omitted this one-line shared-header migration; clean-build CI
 `36650437361` rejected its stale committed `s32` declaration. The independent
 local proofs already use the correct header. Full clean-build acceptance
 must come from the corrected publication, not that failed run.
+
+Corrected checkpoint `b9326cda` passed
+[CI run 36651046017](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/36651046017),
+including clean ASM regeneration, full proprietary build/verification and
+linked-report upload. The uploaded report confirms `0031e5b0` at 100% and
+**6737/6861 first-party matches, 124 remaining across 65 owners**. Current
+acceptance and target manifest:
+`build/finish-first-party-20260929/parent/ci-b9326cda-{receipt,remaining-first-party}.json`.
+The complete first-party goal remains open.
+
+## Guarded fade and LineNova reconstruction checkpoint
+
+`001fd790` no longer reads uninitialized `scale` on constant/plateau paths:
+the inverse is evaluated only inside its consuming fade cases.
+`004b36b0/004b4430` now model real VU normalization/cross products,
+six-vertex generation, eight-byte particle records, buffer reloads and
+projection dependencies instead of scalar stand-ins and invented defaults.
+All three assembly fallbacks remain: independent resolved word counts are
+276 / 418 / 467, with target relocation counts 22 / 51 / 35. The short
+`004b36b0` suffix includes an actual retail `jr ra`; it cannot be credited
+as zero padding.
+
+Parent production gates cover 40 functions, **37 MATCH / three ASM**.
+Guarded native gates preserve every exact sibling and initialized
+data/literal; policy lint has zero findings. Actual fade C/helper execution
+covers 14 scenarios with only the selector stubbed; scalar projection
+helpers cover eight scenarios. Neither host smoke executes PS2 VU code
+or proves rendered output. See the current table in `docs/matching.md`,
+`build/finish-first-party-20260929/parent/effects-reconstruction-receipt.json`,
+and `build/resume-flash-next-20260929/final-worker-receipt.json`.
+No new exact credit is claimed for these reconstruction repairs.

@@ -12472,3 +12472,46 @@ this one-line header migration: clean-build CI `36650437361` correctly
 rejected the stale committed `s32` prototype, although local owner gates
 used the updated header. Publish the shared header with the coherent
 checkpoint; local source equivalence does not prove publication completeness.
+
+Corrected publication `b9326cda` passed
+[CI run 36651046017](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/36651046017):
+clean ASM regeneration, full proprietary build, configured verification,
+and linked-report upload. `0031e5b0` reports 100%; first-party matching is
+**6737/6861, 124 remaining across 65 owners**. Receipt and the current
+remaining-target manifest are retained under
+`build/finish-first-party-20260929/parent/ci-b9326cda-{receipt,remaining-first-party}.json`.
+
+### Guarded unit fades and LineNova geometry
+
+`btlEPL.c::001fd790` computes `1 - scale` only in the two fade cases that
+actually initialize and consume scale. The constant-color/plateau path no
+longer evaluates an uninitialized float; no invented scale default is added.
+`effLineNova.c::004b36b0/004b4430` now use the actual VU length/normalization,
+cross product and six-vertex construction, eight-byte particle traversal,
+post-lock vertex reloads and actual projection dependencies. Scalar
+stand-ins, synthetic screen defaults and padding are removed. VU bridges
+declare the real C-owned memory outputs; ordinary CPU arithmetic remains C.
+
+All three functions remain guarded:
+
+| Target | Object / retail window | Resolved target relocations | Differing resolved words |
+| --- | ---: | ---: | ---: |
+| `001fd790` | 2180 / 2176 | 22 | 276 |
+| `004b36b0` | 1748 / 1760 | 51 | 418 |
+| `004b4430` | 1984 / 2000 | 35 | 467 |
+
+The short `004b36b0` object is not a match: its retail suffix contains a
+real `jr ra`, not just zeros. Parent production verification reports
+**37 MATCH / three ASM across 40 functions**. Independent guarded native
+gates preserve all 37 exact siblings and prove initialized data/literals;
+source-policy lint reports zero findings. Retained worker host smokes
+execute the actual fade C/helper in 14 scenarios (selector stub only) and
+the actual scalar projection helpers in eight scenarios. VU execution
+and rendered geometry are not host-tested.
+
+Evidence: `build/finish-first-party-20260929/parent/epl-nova-production-verify.json`,
+`effects-reconstruction-receipt.json`, native
+`FclFinish/parent-{epl,nova}-guarded/full-owner-proof.json`, and
+`build/resume-flash-next-20260929/final-worker-receipt.json`.
+These are substantive guarded reconstructions, not new exact promotions
+or compiler-floor claims.
