@@ -1,0 +1,2051 @@
+{
+  "baseline": "8407da0ac22444a65389d64fc01aae67e3d481fd",
+  "owner_sha256": "8c42ede174f51600a5dcabcb55cfbe7ff8beef26bc5b31a090100e38a4984df1",
+  "body_sha256": "03e7b13d5958d0a954e596e96a52bdd4e92891dbda08ea4abab6b6131dc01a1a",
+  "production_functions": 80,
+  "production_instructions_and_relocations_identical": false,
+  "production_instructions_and_relocation_destinations_identical": false,
+  "anonymous_relocation_renamings": [
+    {
+      "function": "func_0035aff0",
+      "same_section_destinations": false
+    },
+    {
+      "function": "func_0035c480",
+      "same_section_destinations": false
+    },
+    {
+      "function": "func_0035e8b0",
+      "same_section_destinations": false
+    },
+    {
+      "function": "func_0035f0c0",
+      "same_section_destinations": false
+    },
+    {
+      "function": "func_0035fd60",
+      "same_section_destinations": false
+    }
+  ],
+  "production_allocatable_sections_identical": false,
+  "candidate_data_sections_identical": true,
+  "candidate_data_section_sizes": [
+    [
+      ".rodata",
+      36
+    ],
+    [
+      ".rodata",
+      124
+    ],
+    [
+      ".rodata",
+      32
+    ],
+    [
+      ".rodata",
+      24
+    ],
+    [
+      ".lit4",
+      4
+    ],
+    [
+      ".lit4",
+      4
+    ]
+  ],
+  "calls": {
+    "retail_count": 23,
+    "candidate_count": 23,
+    "retail_indirect_count": 8,
+    "candidate_indirect_count": 8,
+    "same_ordered_destinations": true,
+    "same_destinations_and_multiplicities": true
+  },
+  "retail_normal_data": {
+    "0x0064cd30": "00000000",
+    "0x0064cd34": "00000000",
+    "0x0064cd38": "0000803f"
+  },
+  "candidate": {
+    "bytes": 2772,
+    "retail_bytes": 2784,
+    "normalized_diff": 0,
+    "differing_words": 0,
+    "first_diffs": [],
+    "frame_bytes": 2832,
+    "relocations": [
+      {
+        "offset": 92,
+        "r_type": 5,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_008872F8"
+      },
+      {
+        "offset": 96,
+        "r_type": 6,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_008872F8"
+      },
+      {
+        "offset": 100,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00457120"
+      },
+      {
+        "offset": 196,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_0035bad0"
+      },
+      {
+        "offset": 796,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_0034f1e0"
+      },
+      {
+        "offset": 804,
+        "r_type": 5,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_00887300"
+      },
+      {
+        "offset": 808,
+        "r_type": 6,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_00887300"
+      },
+      {
+        "offset": 836,
+        "r_type": 5,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_00887310"
+      },
+      {
+        "offset": 840,
+        "r_type": 6,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_00887310"
+      },
+      {
+        "offset": 1208,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00489f80"
+      },
+      {
+        "offset": 1228,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpSkyRenderStateSet"
+      },
+      {
+        "offset": 1236,
+        "r_type": 5,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_00887310"
+      },
+      {
+        "offset": 1240,
+        "r_type": 6,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_00887310"
+      },
+      {
+        "offset": 1268,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_0048a000"
+      },
+      {
+        "offset": 1308,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpSkyRenderStateSet"
+      },
+      {
+        "offset": 1324,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpSkyRenderStateSet"
+      },
+      {
+        "offset": 1368,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpSkyRenderStateSet"
+      },
+      {
+        "offset": 1384,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpSkyRenderStateSet"
+      },
+      {
+        "offset": 1444,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "fGpffff81e0"
+      },
+      {
+        "offset": 1452,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "fGpffff82fc"
+      },
+      {
+        "offset": 1464,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "sinf"
+      },
+      {
+        "offset": 1480,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "cosf"
+      },
+      {
+        "offset": 1496,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "sinf"
+      },
+      {
+        "offset": 1512,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "cosf"
+      },
+      {
+        "offset": 1872,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_0035bd20"
+      },
+      {
+        "offset": 2260,
+        "r_type": 5,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_0064CC98"
+      },
+      {
+        "offset": 2264,
+        "r_type": 6,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_0064CC98"
+      },
+      {
+        "offset": 2272,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_0046d730"
+      },
+      {
+        "offset": 2392,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00489f80"
+      },
+      {
+        "offset": 2412,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpSkyRenderStateSet"
+      },
+      {
+        "offset": 2468,
+        "r_type": 5,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_00887314"
+      },
+      {
+        "offset": 2472,
+        "r_type": 6,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_00887314"
+      },
+      {
+        "offset": 2500,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_0048a000"
+      },
+      {
+        "offset": 2540,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpSkyRenderStateSet"
+      },
+      {
+        "offset": 2556,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpSkyRenderStateSet"
+      },
+      {
+        "offset": 2612,
+        "r_type": 5,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_00887314"
+      },
+      {
+        "offset": 2616,
+        "r_type": 6,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_00887314"
+      },
+      {
+        "offset": 2656,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpSkyRenderStateSet"
+      },
+      {
+        "offset": 2672,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpSkyRenderStateSet"
+      }
+    ],
+    "data_references": [
+      {
+        "name": "D_0064CC98",
+        "address": "0x0064cc98",
+        "forms": [
+          "R_MIPS_HI16",
+          "R_MIPS_LO16"
+        ]
+      },
+      {
+        "name": "D_008872F8",
+        "address": "0x008872f8",
+        "forms": [
+          "R_MIPS_HI16",
+          "R_MIPS_LO16"
+        ]
+      },
+      {
+        "name": "D_00887300",
+        "address": "0x00887300",
+        "forms": [
+          "R_MIPS_HI16",
+          "R_MIPS_LO16"
+        ]
+      },
+      {
+        "name": "D_00887310",
+        "address": "0x00887310",
+        "forms": [
+          "R_MIPS_HI16",
+          "R_MIPS_LO16"
+        ]
+      },
+      {
+        "name": "D_00887314",
+        "address": "0x00887314",
+        "forms": [
+          "R_MIPS_HI16",
+          "R_MIPS_LO16"
+        ]
+      },
+      {
+        "name": "fGpffff81e0",
+        "address": "0x007612d0",
+        "forms": [
+          "R_MIPS_GPREL16"
+        ]
+      },
+      {
+        "name": "fGpffff82fc",
+        "address": "0x007613ec",
+        "forms": [
+          "R_MIPS_GPREL16"
+        ]
+      }
+    ]
+  },
+  "siblings": [
+    {
+      "name": "func_00353b50",
+      "bytes": 192,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00353c10",
+      "bytes": 204,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00353ce0",
+      "bytes": 216,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00353dc0",
+      "bytes": 392,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00353f50",
+      "bytes": 88,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00353fb0",
+      "bytes": 36,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00353fe0",
+      "bytes": 36,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00354010",
+      "bytes": 32,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00354030",
+      "bytes": 80,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00354080",
+      "bytes": 112,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003540f0",
+      "bytes": 316,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00354230",
+      "bytes": 68,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00354280",
+      "bytes": 528,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00354490",
+      "bytes": 88,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003544f0",
+      "bytes": 12,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00354500",
+      "bytes": 340,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00354660",
+      "bytes": 340,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003547c0",
+      "bytes": 104,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00354830",
+      "bytes": 404,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003549d0",
+      "bytes": 128,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00354a50",
+      "bytes": 328,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00354ba0",
+      "bytes": 1224,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00355070",
+      "bytes": 96,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003550d0",
+      "bytes": 184,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00355190",
+      "bytes": 320,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003552d0",
+      "bytes": 40,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00355300",
+      "bytes": 16,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00355310",
+      "bytes": 84,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00355370",
+      "bytes": 56,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003553b0",
+      "bytes": 92,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00355410",
+      "bytes": 28,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00355430",
+      "bytes": 40,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00355460",
+      "bytes": 80,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003554b0",
+      "bytes": 148,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00355550",
+      "bytes": 324,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003556a0",
+      "bytes": 160,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00355740",
+      "bytes": 344,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003558a0",
+      "bytes": 116,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00355920",
+      "bytes": 2076,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00356140",
+      "bytes": 44,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00356170",
+      "bytes": 96,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003561d0",
+      "bytes": 116,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00356250",
+      "bytes": 1488,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00356820",
+      "bytes": 68,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00356870",
+      "bytes": 416,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00356a10",
+      "bytes": 10536,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00359340",
+      "bytes": 100,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003593b0",
+      "bytes": 48,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003593e0",
+      "bytes": 32,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00359400",
+      "bytes": 660,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003596a0",
+      "bytes": 116,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_00359720",
+      "bytes": 204,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003597f0",
+      "bytes": 220,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003598d0",
+      "bytes": 208,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003599a0",
+      "bytes": 24,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_003599c0",
+      "bytes": 4768,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035ac60",
+      "bytes": 344,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035adc0",
+      "bytes": 248,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035aec0",
+      "bytes": 80,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035af10",
+      "bytes": 68,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035af60",
+      "bytes": 52,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035afa0",
+      "bytes": 80,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035bad0",
+      "bytes": 320,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035bc10",
+      "bytes": 268,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035bd20",
+      "bytes": 332,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035be70",
+      "bytes": 80,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035bec0",
+      "bytes": 68,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035bf10",
+      "bytes": 296,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035c040",
+      "bytes": 1088,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035c480",
+      "bytes": 488,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": false,
+      "same_section_index_destinations": false,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035c670",
+      "bytes": 28,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035e820",
+      "bytes": 140,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035e8b0",
+      "bytes": 1740,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": false,
+      "same_section_index_destinations": false,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035ef80",
+      "bytes": 148,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035f020",
+      "bytes": 160,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035f0c0",
+      "bytes": 1252,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": false,
+      "same_section_index_destinations": false,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035fc40",
+      "bytes": 68,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035fc90",
+      "bytes": 208,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": true,
+      "same_section_index_destinations": true,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    },
+    {
+      "name": "func_0035fd60",
+      "bytes": 7176,
+      "size_unchanged": true,
+      "instructions_identical": true,
+      "relocation_records_identical": false,
+      "same_section_index_destinations": false,
+      "equivalent_private_data_destinations": true,
+      "normalized_diff": 0
+    }
+  ],
+  "target_relocations_resolved_exactly": [
+    {
+      "offset": 92,
+      "symbol": "D_008872F8",
+      "address": "0x008872f8",
+      "kind": "R_MIPS_HI16",
+      "candidate_addend": 0,
+      "retail_field": "0x88",
+      "exact": true
+    },
+    {
+      "offset": 96,
+      "symbol": "D_008872F8",
+      "address": "0x008872f8",
+      "kind": "R_MIPS_LO16",
+      "candidate_addend": 0,
+      "retail_field": "0x72f8",
+      "exact": true
+    },
+    {
+      "offset": 100,
+      "symbol": "func_00457120",
+      "address": "0x00457120",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0x115c48",
+      "exact": true
+    },
+    {
+      "offset": 196,
+      "symbol": "func_0035bad0",
+      "address": "0x0035bad0",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0xd6eb4",
+      "exact": true
+    },
+    {
+      "offset": 796,
+      "symbol": "func_0034f1e0",
+      "address": "0x0034f1e0",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0xd3c78",
+      "exact": true
+    },
+    {
+      "offset": 804,
+      "symbol": "D_00887300",
+      "address": "0x00887300",
+      "kind": "R_MIPS_HI16",
+      "candidate_addend": 0,
+      "retail_field": "0x88",
+      "exact": true
+    },
+    {
+      "offset": 808,
+      "symbol": "D_00887300",
+      "address": "0x00887300",
+      "kind": "R_MIPS_LO16",
+      "candidate_addend": 0,
+      "retail_field": "0x7300",
+      "exact": true
+    },
+    {
+      "offset": 836,
+      "symbol": "D_00887310",
+      "address": "0x00887310",
+      "kind": "R_MIPS_HI16",
+      "candidate_addend": 0,
+      "retail_field": "0x88",
+      "exact": true
+    },
+    {
+      "offset": 840,
+      "symbol": "D_00887310",
+      "address": "0x00887310",
+      "kind": "R_MIPS_LO16",
+      "candidate_addend": 0,
+      "retail_field": "0x7310",
+      "exact": true
+    },
+    {
+      "offset": 1208,
+      "symbol": "func_00489f80",
+      "address": "0x00489f80",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0x1227e0",
+      "exact": true
+    },
+    {
+      "offset": 1228,
+      "symbol": "RpSkyRenderStateSet",
+      "address": "0x003f6440",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0xfd910",
+      "exact": true
+    },
+    {
+      "offset": 1236,
+      "symbol": "D_00887310",
+      "address": "0x00887310",
+      "kind": "R_MIPS_HI16",
+      "candidate_addend": 0,
+      "retail_field": "0x88",
+      "exact": true
+    },
+    {
+      "offset": 1240,
+      "symbol": "D_00887310",
+      "address": "0x00887310",
+      "kind": "R_MIPS_LO16",
+      "candidate_addend": 0,
+      "retail_field": "0x7310",
+      "exact": true
+    },
+    {
+      "offset": 1268,
+      "symbol": "func_0048a000",
+      "address": "0x0048a000",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0x122800",
+      "exact": true
+    },
+    {
+      "offset": 1308,
+      "symbol": "RpSkyRenderStateSet",
+      "address": "0x003f6440",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0xfd910",
+      "exact": true
+    },
+    {
+      "offset": 1324,
+      "symbol": "RpSkyRenderStateSet",
+      "address": "0x003f6440",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0xfd910",
+      "exact": true
+    },
+    {
+      "offset": 1368,
+      "symbol": "RpSkyRenderStateSet",
+      "address": "0x003f6440",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0xfd910",
+      "exact": true
+    },
+    {
+      "offset": 1384,
+      "symbol": "RpSkyRenderStateSet",
+      "address": "0x003f6440",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0xfd910",
+      "exact": true
+    },
+    {
+      "offset": 1444,
+      "symbol": "fGpffff81e0",
+      "address": "0x007612d0",
+      "kind": "R_MIPS_GPREL16",
+      "candidate_addend": 0,
+      "retail_field": "0x81e0",
+      "exact": true
+    },
+    {
+      "offset": 1452,
+      "symbol": "fGpffff82fc",
+      "address": "0x007613ec",
+      "kind": "R_MIPS_GPREL16",
+      "candidate_addend": 0,
+      "retail_field": "0x82fc",
+      "exact": true
+    },
+    {
+      "offset": 1464,
+      "symbol": "sinf",
+      "address": "0x0044b7b0",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0x112dec",
+      "exact": true
+    },
+    {
+      "offset": 1480,
+      "symbol": "cosf",
+      "address": "0x0044b610",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0x112d84",
+      "exact": true
+    },
+    {
+      "offset": 1496,
+      "symbol": "sinf",
+      "address": "0x0044b7b0",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0x112dec",
+      "exact": true
+    },
+    {
+      "offset": 1512,
+      "symbol": "cosf",
+      "address": "0x0044b610",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0x112d84",
+      "exact": true
+    },
+    {
+      "offset": 1872,
+      "symbol": "func_0035bd20",
+      "address": "0x0035bd20",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0xd6f48",
+      "exact": true
+    },
+    {
+      "offset": 2260,
+      "symbol": "D_0064CC98",
+      "address": "0x0064cc98",
+      "kind": "R_MIPS_HI16",
+      "candidate_addend": 0,
+      "retail_field": "0x65",
+      "exact": true
+    },
+    {
+      "offset": 2264,
+      "symbol": "D_0064CC98",
+      "address": "0x0064cc98",
+      "kind": "R_MIPS_LO16",
+      "candidate_addend": 0,
+      "retail_field": "0xcc98",
+      "exact": true
+    },
+    {
+      "offset": 2272,
+      "symbol": "func_0046d730",
+      "address": "0x0046d730",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0x11b5cc",
+      "exact": true
+    },
+    {
+      "offset": 2392,
+      "symbol": "func_00489f80",
+      "address": "0x00489f80",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0x1227e0",
+      "exact": true
+    },
+    {
+      "offset": 2412,
+      "symbol": "RpSkyRenderStateSet",
+      "address": "0x003f6440",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0xfd910",
+      "exact": true
+    },
+    {
+      "offset": 2468,
+      "symbol": "D_00887314",
+      "address": "0x00887314",
+      "kind": "R_MIPS_HI16",
+      "candidate_addend": 0,
+      "retail_field": "0x88",
+      "exact": true
+    },
+    {
+      "offset": 2472,
+      "symbol": "D_00887314",
+      "address": "0x00887314",
+      "kind": "R_MIPS_LO16",
+      "candidate_addend": 0,
+      "retail_field": "0x7314",
+      "exact": true
+    },
+    {
+      "offset": 2500,
+      "symbol": "func_0048a000",
+      "address": "0x0048a000",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0x122800",
+      "exact": true
+    },
+    {
+      "offset": 2540,
+      "symbol": "RpSkyRenderStateSet",
+      "address": "0x003f6440",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0xfd910",
+      "exact": true
+    },
+    {
+      "offset": 2556,
+      "symbol": "RpSkyRenderStateSet",
+      "address": "0x003f6440",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0xfd910",
+      "exact": true
+    },
+    {
+      "offset": 2612,
+      "symbol": "D_00887314",
+      "address": "0x00887314",
+      "kind": "R_MIPS_HI16",
+      "candidate_addend": 0,
+      "retail_field": "0x88",
+      "exact": true
+    },
+    {
+      "offset": 2616,
+      "symbol": "D_00887314",
+      "address": "0x00887314",
+      "kind": "R_MIPS_LO16",
+      "candidate_addend": 0,
+      "retail_field": "0x7314",
+      "exact": true
+    },
+    {
+      "offset": 2656,
+      "symbol": "RpSkyRenderStateSet",
+      "address": "0x003f6440",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0xfd910",
+      "exact": true
+    },
+    {
+      "offset": 2672,
+      "symbol": "RpSkyRenderStateSet",
+      "address": "0x003f6440",
+      "kind": "R_MIPS_26",
+      "candidate_addend": 0,
+      "retail_field": "0xfd910",
+      "exact": true
+    }
+  ],
+  "retail_zero_tail_bytes": 12,
+  "retail_zero_tail_only": true,
+  "all_79_siblings_unchanged": true,
+  "guarded_siblings": [
+    {
+      "name": "func_00353b50",
+      "bytes": 192,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00353c10",
+      "bytes": 204,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00353ce0",
+      "bytes": 216,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00353dc0",
+      "bytes": 392,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00353f50",
+      "bytes": 88,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00353fb0",
+      "bytes": 36,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00353fe0",
+      "bytes": 36,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00354010",
+      "bytes": 32,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00354030",
+      "bytes": 80,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00354080",
+      "bytes": 112,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003540f0",
+      "bytes": 316,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00354230",
+      "bytes": 68,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00354280",
+      "bytes": 528,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00354490",
+      "bytes": 88,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003544f0",
+      "bytes": 12,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00354500",
+      "bytes": 340,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00354660",
+      "bytes": 340,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003547c0",
+      "bytes": 104,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00354830",
+      "bytes": 404,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003549d0",
+      "bytes": 128,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00354a50",
+      "bytes": 328,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00354ba0",
+      "bytes": 1224,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00355070",
+      "bytes": 96,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003550d0",
+      "bytes": 184,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00355190",
+      "bytes": 320,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003552d0",
+      "bytes": 40,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00355300",
+      "bytes": 16,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00355310",
+      "bytes": 84,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00355370",
+      "bytes": 56,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003553b0",
+      "bytes": 92,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00355410",
+      "bytes": 28,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00355430",
+      "bytes": 40,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00355460",
+      "bytes": 80,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003554b0",
+      "bytes": 148,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00355550",
+      "bytes": 324,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003556a0",
+      "bytes": 160,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00355740",
+      "bytes": 344,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003558a0",
+      "bytes": 116,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00355920",
+      "bytes": 2076,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00356140",
+      "bytes": 44,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00356170",
+      "bytes": 96,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003561d0",
+      "bytes": 116,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00356250",
+      "bytes": 1488,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00356820",
+      "bytes": 68,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00356870",
+      "bytes": 416,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00356a10",
+      "bytes": 10536,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00359340",
+      "bytes": 100,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003593b0",
+      "bytes": 48,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003593e0",
+      "bytes": 32,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00359400",
+      "bytes": 660,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003596a0",
+      "bytes": 116,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_00359720",
+      "bytes": 204,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003597f0",
+      "bytes": 220,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003598d0",
+      "bytes": 208,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003599a0",
+      "bytes": 24,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_003599c0",
+      "bytes": 4672,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035ac60",
+      "bytes": 344,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035adc0",
+      "bytes": 248,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035aec0",
+      "bytes": 80,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035af10",
+      "bytes": 68,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035af60",
+      "bytes": 52,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035afa0",
+      "bytes": 80,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035bad0",
+      "bytes": 320,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035bc10",
+      "bytes": 268,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035bd20",
+      "bytes": 332,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035be70",
+      "bytes": 80,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035bec0",
+      "bytes": 68,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035bf10",
+      "bytes": 296,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035c040",
+      "bytes": 1088,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035c480",
+      "bytes": 488,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035c670",
+      "bytes": 28,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035e820",
+      "bytes": 140,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035e8b0",
+      "bytes": 1740,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035ef80",
+      "bytes": 148,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035f020",
+      "bytes": 160,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035f0c0",
+      "bytes": 1252,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035fc40",
+      "bytes": 68,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035fc90",
+      "bytes": 208,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    },
+    {
+      "name": "func_0035fd60",
+      "bytes": 7176,
+      "instructions_and_size_identical": true,
+      "relocation_destinations_identical": true
+    }
+  ],
+  "all_79_guarded_siblings_unchanged": true,
+  "guarded_data_sections_identical": true,
+  "full_link_and_hash_validation": "Passed separately with make build-progress; details in publication_validation",
+  "publication_validation": {
+    "baseline_commit": "8407da0ac22444a65389d64fc01aae67e3d481fd",
+    "baseline_tree": "f81cdd81244d158d4a48ba2f23d0773763404127",
+    "validated_code_commit": "6b086fdda8c757f290ad0fe3833046de491b279b",
+    "owner_git_blob": "b08015f77ff5a9b7faea63019a68815c508bb36e",
+    "rank24_guarded_source_unchanged": true,
+    "rank24_guarded_source_sha256": "b561791d396db2e3c7278ed3b0260468817a4bd8affa2b953d13a7ba89a31686",
+    "build_command": "make build-progress",
+    "build_succeeded": true,
+    "image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
+    "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+    "linked_function_count": 8586,
+    "linked_tu_count": 658,
+    "target_linked_membership": [
+      {
+        "address": "0035aff0",
+        "file": "src/promoted/code1_0035.c",
+        "name": "func_0035aff0",
+        "origin": "main"
+      }
+    ],
+    "linked_report_sha256": "710667bbcede226f03348759a9d3695f46283422cfbe7674a0264f2c319d18ea",
+    "normal_cache": {
+      "eligibility_hits": 859,
+      "eligibility_misses": 1,
+      "link_hits": 603,
+      "link_misses": 1
+    },
+    "owner_verify": {
+      "MATCH": 79,
+      "ASM": 1,
+      "target_normalized_difference": 0,
+      "target_bytes": 2772,
+      "window_bytes": 2784
+    },
+    "native_tests": {
+      "unittest_methods": 6,
+      "success": true,
+      "portrait_scenarios_each_level": 8209,
+      "checks_each_level": 5768608,
+      "negative_controls": 27,
+      "levels": [
+        "O0",
+        "O2"
+      ],
+      "runtime": "Clang19 freestanding i386 under qemu-i386; undefined/bounds traps"
+    },
+    "lint": {
+      "errors": 0,
+      "advisories": 22
+    },
+    "publication": "Not pushed; exact-commit CI remains required after review"
+  }
+}

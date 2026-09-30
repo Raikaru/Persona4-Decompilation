@@ -1,0 +1,178 @@
+{
+  "program_address": "0x00559600",
+  "instructions": 47,
+  "program_sha256": "be30f12b217e3700635fe05b6067f79b1568193f87cd326b9baa4fbc37fc9bfa",
+  "state14_zero_clears_fog_selector": true,
+  "default_triangle_strip_backends": [
+    "0x0040bac0",
+    "0x0040ca00"
+  ],
+  "full_64_bytes_physically_copied": true,
+  "normal_and_padding_qword_not_loaded": true,
+  "uv_padding_w_not_loaded": true,
+  "camera_z_w_overwritten_before_use": true,
+  "no_unwritten_lane_reaches_float_operation_or_output": true,
+  "input_loads": [
+    {
+      "instruction": 11,
+      "address": "0x559668",
+      "vertex": 0,
+      "qword": 1,
+      "lane_mask": 7
+    },
+    {
+      "instruction": 12,
+      "address": "0x559670",
+      "vertex": 1,
+      "qword": 1,
+      "lane_mask": 7
+    },
+    {
+      "instruction": 13,
+      "address": "0x559678",
+      "vertex": 2,
+      "qword": 1,
+      "lane_mask": 7
+    },
+    {
+      "instruction": 14,
+      "address": "0x559680",
+      "vertex": 0,
+      "qword": 0,
+      "lane_mask": 15
+    },
+    {
+      "instruction": 15,
+      "address": "0x559688",
+      "vertex": 1,
+      "qword": 0,
+      "lane_mask": 15
+    },
+    {
+      "instruction": 16,
+      "address": "0x559690",
+      "vertex": 2,
+      "qword": 0,
+      "lane_mask": 15
+    },
+    {
+      "instruction": 17,
+      "address": "0x559698",
+      "vertex": 0,
+      "qword": 2,
+      "lane_mask": 15
+    },
+    {
+      "instruction": 18,
+      "address": "0x5596a0",
+      "vertex": 1,
+      "qword": 2,
+      "lane_mask": 15
+    },
+    {
+      "instruction": 19,
+      "address": "0x5596a8",
+      "vertex": 2,
+      "qword": 2,
+      "lane_mask": 15
+    }
+  ],
+  "camera_w_overwrites": [
+    {
+      "instruction": 22,
+      "vector": 8,
+      "lane_mask": 8
+    },
+    {
+      "instruction": 23,
+      "vector": 9,
+      "lane_mask": 8
+    },
+    {
+      "instruction": 24,
+      "vector": 10,
+      "lane_mask": 8
+    }
+  ],
+  "output_stores": [
+    {
+      "instruction": 25,
+      "vector": 31,
+      "lane_mask": 15
+    },
+    {
+      "instruction": 26,
+      "vector": 15,
+      "lane_mask": 7
+    },
+    {
+      "instruction": 27,
+      "vector": 16,
+      "lane_mask": 7
+    },
+    {
+      "instruction": 28,
+      "vector": 17,
+      "lane_mask": 7
+    },
+    {
+      "instruction": 29,
+      "vector": 8,
+      "lane_mask": 15
+    },
+    {
+      "instruction": 30,
+      "vector": 9,
+      "lane_mask": 15
+    },
+    {
+      "instruction": 31,
+      "vector": 10,
+      "lane_mask": 15
+    },
+    {
+      "instruction": 32,
+      "vector": 22,
+      "lane_mask": 15
+    },
+    {
+      "instruction": 33,
+      "vector": 23,
+      "lane_mask": 15
+    },
+    {
+      "instruction": 34,
+      "vector": 24,
+      "lane_mask": 15
+    }
+  ],
+  "scope": "Installed no-fog Sky2 triangle pipeline, not arbitrary replacement callbacks",
+  "branch_flow": [
+    {
+      "instruction": 4,
+      "target": 43,
+      "delay": 5,
+      "opcode": "0x500c0026"
+    },
+    {
+      "instruction": 36,
+      "target": 11,
+      "delay": 37,
+      "opcode": "0x5a0067e6"
+    },
+    {
+      "instruction": 45,
+      "target": 1,
+      "delay": 46,
+      "opcode": "0x400007d3"
+    }
+  ],
+  "end_instruction": 43,
+  "end_delay_instruction": 44,
+  "overwrite_dominates_position_output_on_every_reachable_path": true,
+  "encoding_references": [
+    "https://github.com/PCSX2/pcsx2/blob/master/pcsx2/DebugTools/DisVU1Micro.cpp",
+    "https://github.com/PCSX2/pcsx2/blob/master/pcsx2/DebugTools/DisVUmicro.h",
+    "https://github.com/PCSX2/pcsx2/blob/master/pcsx2/DebugTools/DisVUops.h"
+  ]
+}
