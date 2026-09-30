@@ -1,0 +1,199 @@
+#include "type.h"
+typedef struct RwTexDictionary { u32 token; } RwTexDictionary;
+typedef struct RwTexture { u32 token; } RwTexture;
+#define WORK_BYTES 0x88D0
+#define MAX_NODES 128
+#define MAX_EVENTS 1024
+#define I(p,o) (*(s32 *)((u8 *)(p)+(o)))
+#define U(p,o) (*(u32 *)((u8 *)(p)+(o)))
+#define F(p,o) (*(f32 *)((u8 *)(p)+(o)))
+#define P(p,o) (*(u8 **)((u8 *)(p)+(o)))
+#define CHECK(c) do { ++checks; if (!(c)) native32_failure(__LINE__,scenario,#c); } while(0)
+typedef struct {
+    u8 task[0x40];
+    u8 work[2][WORK_BYTES];
+    u8 nodes[MAX_NODES][0x30];
+    u8 raster[0x20];
+    RwTexDictionary dict;
+    RwTexture textures[2];
+    u32 rng, nodesUsed, missingTextureMask;
+} State;
+static State state __attribute__((aligned(16))), initial __attribute__((aligned(16))), expected __attribute__((aligned(16)));
+u8 D_00794930[0x10] __attribute__((aligned(16)));
+u8 D_005F1DA0[32] __attribute__((aligned(16)));
+u8 D_005F1DC0[8]="outer", D_005F1DE0[8]="inner";
+f32 iGpffff8424, fGpffff84d4, fGpffff84d8, fGpffff84dc;
+s32 uGpffffb314, iGpffffb900;
+typedef struct {u8 list[16],uv[32]; f32 inset,step,width,height; s32 toggle;} Globals;
+static Globals initialGlobals, expectedGlobals;
+typedef struct {u32 id,a,b,c,d;} Event;
+static Event observed[MAX_EVENTS], wanted[MAX_EVENTS], *stream;
+static u32 eventCount,mutation,opaqueCount,entryBank,scenario,checks,traceHash=2166136261U;
+static u32 bits(f32 x) {union {f32 f;u32 u;} v;v.f=x;return v.u;}
+static void save_globals(Globals *g) {memcpy(g->list,D_00794930,16);memcpy(g->uv,D_005F1DA0,32);g->inset=iGpffff8424;g->step=fGpffff84d4;g->width=fGpffff84d8;g->height=fGpffff84dc;g->toggle=uGpffffb314;}
+static void restore_globals(const Globals *g) {memcpy(D_00794930,g->list,16);memcpy(D_005F1DA0,g->uv,32);iGpffff8424=g->inset;fGpffff84d4=g->step;fGpffff84d8=g->width;fGpffff84dc=g->height;uGpffffb314=g->toggle;iGpffffb900=(s32)state.raster;}
+static u32 pointer_token(const void *p) {u32 x=(u32)p,b=(u32)&state;if(!p)return 0;if(x>=b&&x<b+sizeof(state))return 0x100000U+x-b;if(p==D_00794930)return 0x900000U;native32_failure(__LINE__,scenario,"pointer_token");return 0;}
+static void emit(u32 id,u32 a,u32 b,u32 c,u32 d) {Event *e;CHECK(eventCount<MAX_EVENTS);e=stream+eventCount++;e->id=id;e->a=a;e->b=b;e->c=c;e->d=d;}
+static void mutate(u8 *vertices) {
+    u32 i, n=++opaqueCount;u8 *w=state.work[entryBank];
+    if(mutation&1)P(state.task,0x38)=state.work[n&1];
+    if(mutation&2)uGpffffb314=(s32)(n%3);
+    if(mutation&4)for(i=0;i<8;i++)F(D_005F1DA0,i*4)=(f32)((s32)((n+i*3)%19)-9)*0.125f;
+    if(mutation&8)I(w,8+((n*7+3)%70)*4)=(s32)(n&3);
+    if((mutation&16)&&vertices)F(vertices,0x20)=(f32)(n+17);
+}
+static u8 *allocate(u32 kind,u32 primitive,u8 *vertices,u32 count) {
+    u8 *node;CHECK(state.nodesUsed<MAX_NODES);emit(kind,primitive,pointer_token(vertices),count,state.nodesUsed);
+    node=state.nodes[state.nodesUsed++];memset(node,0,0x30);mutate(vertices);return node;
+}
+static void append_node(void *list,u8 *node) {
+    u8 *tail=P(list,4);if(!tail)tail=(u8 *)list;P(tail,0)=node;P(list,4)=node;
+}
+u8 *func_00461390(void *list,s32 primitive,void *vertices,s32 count) {
+    u8 *node=allocate(7,(u32)primitive,(u8 *)vertices,(u32)count);*(s16 *)(node+0x18)=0xB;I(node,0x1C)=primitive;P(node,0x20)=vertices;I(node,0x24)=count;append_node(list,node);return node;
+}
+u8 *func_00460990(void) {return allocate(8,0,0,0);}
+void func_00460ac0(u8 *list,u8 *node) {emit(9,pointer_token(list),pointer_token(node),0,0);mutate(0);append_node(list,(u8 *)node);}
+RwTexDictionary *func_003ef6d0(void) {emit(1,0,0,0,0);return &state.dict;}
+RwTexture *func_003ef650(RwTexDictionary *dict,const char *name) {u32 index;CHECK(dict==&state.dict);CHECK(name==(const char *)D_005F1DC0||name==(const char *)D_005F1DE0);index=name==(const char *)D_005F1DE0;emit(2,index,0,0,0);return (state.missingTextureMask & (1U << index)) ? 0 : &state.textures[index];}
+u32 RpRandom(void) {state.rng=state.rng*1664525U+1013904223U;emit(4,state.rng,0,0,0);return state.rng;}
+/* Pure math providers record their actual inputs and return finite values in
+ * [-1,1]. No mutable-program effects are invented inside trigonometry. */
+f32 cosf(f32 x) {u32 k=(bits(x)^(bits(x)>>11))%17;emit(5,bits(x),0,0,0);return (f32)((s32)k-8)*0.125f;}
+f32 sinf(f32 x) {u32 k=(bits(x)^(bits(x)>>15)^7)%17;emit(6,bits(x),0,0,0);return (f32)((s32)k-8)*0.125f;}
+void func_001853e0(u8 *a,u8 *b) {(void)a;(void)b;}
+void func_001854f0(u8 *a,u8 *b) {(void)a;(void)b;}
+void func_00185600(void) {}
+void func_00185620(u8 *a,u8 *b) {(void)a;(void)b;}
+void func_00185730(void) {}
+void func_00185830(void) {}
+/* @ACTUAL_RASTER_PROVIDER@ */
+/* @ACTUAL_TYPES@ */
+/* @ACTUAL_BODY@ */
+
+/* Independent raw-offset model: grouped geometry data and explicit draw-node
+ * operations. It does not reuse the controller's typed arrays or expressions. */
+static void position(u8 *w,u32 offset,f32 x,f32 y) {F(w,offset)=x;F(w,offset+4)=y;F(w,offset+8)=1000.0f;}
+static void shade(u8 *w,u32 offset,f32 r,f32 g,f32 b,f32 a) {F(w,offset+24)=0.001f;F(w,offset+32)=r;F(w,offset+36)=g;F(w,offset+40)=b;F(w,offset+44)=a;}
+static void rectangle(u8 *w,u32 offset,f32 left,f32 top,f32 right,f32 bottom,f32 alpha) {
+    position(w,offset,left,top);position(w,offset+64,right,top);position(w,offset+128,left,bottom);position(w,offset+192,right,bottom);
+    shade(w,offset,255,255,255,alpha);shade(w,offset+64,255,255,255,alpha);shade(w,offset+128,255,255,255,alpha);shade(w,offset+192,255,255,255,alpha);
+}
+static void ring(u8 *w,u32 offset,f32 innerX,f32 innerY,f32 alpha) {
+    s32 pair;f32 angle=0.0f,x,y;
+    for(pair=0;pair<33;pair++) {
+        u32 v=offset+(u32)pair*128;
+        x=850.0f*cosf(angle);x=x*0.5f+320.0f;
+        y=750.0f*sinf(angle);y=y*0.5f+224.0f;
+        position(w,v,x,y);shade(w,v,0,255,0,alpha);
+        x=innerX*cosf(angle);x=x*0.5f+320.0f;
+        y=innerY*sinf(angle);y=y*0.5f+224.0f;
+        position(w,v+64,x,y);shade(w,v+64,0,255,0,0);
+        angle=angle+fGpffff84d4;
+    }
+}
+static u8 *primitive(u8 *work,u32 offset,s32 count) {return func_00461390(D_00794930,4,work+offset,count);}
+static void before_after(u8 *node,u32 before,u32 after,u8 *work) {
+    if(before){U(node,8)=before;P(node,0x10)=work;}
+    if(after){U(node,12)=after;P(node,0x14)=work;}
+}
+static void callback(u32 address,u8 *work) {u8 *node=func_00460990();U(node,8)=address;P(node,0x10)=work;func_00460ac0(D_00794930,node);}
+static s32 model(u8 *task) {
+    u8 *w=P(task,0x38),*node; s32 r,c,k,corner; u32 base; f32 left,top,right,bottom,inset;
+    if(I(w,4)!=0)return 0;
+    if(I(w,0)==0) {
+        P(w,0x88C0)=(u8 *)func_003ef650(func_003ef6d0(),(const char *)D_005F1DC0);
+        P(w,0x88C4)=(u8 *)func_003ef650(func_003ef6d0(),(const char *)D_005F1DE0);
+        P(w,0x88C8)=(u8 *)func_00401b80();
+        for(r=0;r<7;r++)for(c=0;c<10;c++) {
+            base=0x120+(u32)(r*10+c)*256;
+            rectangle(w,base,(f32)(c*64),(f32)(r*64),(f32)((c+1)*64),(f32)((r+1)*64),64.0f);
+            I(w,8+(r*10+c)*4)=(s32)(RpRandom()&3U);
+        }
+        for(r=0;r<14;r++) {
+            base=0x4720+(u32)r*256;rectangle(w,base,0,(f32)(r*32),640,(f32)((r+1)*32),32.0f);
+            F(w,base+16)=0;F(w,base+20)=0;F(w,base+80)=1;F(w,base+84)=0;
+            F(w,base+144)=0;F(w,base+148)=1;F(w,base+208)=1;F(w,base+212)=1;
+        }
+        ring(w,0x5740,450,250,128);
+        rectangle(w,0x5640,0,0,640,448,0);
+        ring(w,0x67C0,500,300,64);ring(w,0x7840,450,250,240);
+        rectangle(w,0x5520,0,0,640,448,96);
+        left=0.5f/(f32)I(P(w,0x88C8),12);top=0.5f/(f32)I(P(w,0x88C8),16);
+        right=fGpffff84d8/(f32)I(P(w,0x88C8),12);bottom=fGpffff84dc/(f32)I(P(w,0x88C8),16);inset=iGpffff8424;
+        F(w,0x5628)=left;F(w,0x562C)=top;F(w,0x5630)=right;F(w,0x5634)=bottom;F(w,0x5624)=inset;
+        F(w,0x5530)=left+inset;F(w,0x5534)=top+inset;F(w,0x5570)=right-inset;F(w,0x5574)=top+inset;
+        F(w,0x55B0)=left+inset;F(w,0x55B4)=bottom-inset;F(w,0x55F0)=right-inset;F(w,0x55F4)=bottom-inset;
+        I(w,0)=I(w,0)+1;return 0;
+    }
+    if(I(w,0)!=1)return 0;
+    node=primitive(w,0x5640,4);before_after(node,(u32)func_00185730,0,w);
+    node=primitive(w,0x7840,66);before_after(node,(u32)func_00185730,(u32)func_00185830,w);
+    node=primitive(w,0x5520,4);before_after(node,(u32)func_00185620,0,w);
+    callback((u32)func_00185600,w);
+    node=primitive(w,0x5640,4);before_after(node,(u32)func_00185730,0,w);
+    node=primitive(w,0x67C0,66);before_after(node,(u32)func_00185730,(u32)func_00185830,w);
+    callback((u32)func_001854f0,w);
+    for(r=0;r<14;r++)primitive(w,0x4720+(u32)r*256,4);
+    callback((u32)func_00185600,w);
+    node=primitive(w,0x5740,66);before_after(node,0,(u32)func_00185830,w);
+    uGpffffb314=uGpffffb314?0:1;
+    callback((u32)func_001853e0,w);
+    for(r=0;r<7;r++)for(c=0;c<10;c++) {
+        base=0x120+(u32)(r*10+c)*256;corner=I(w,8+(r*10+c)*4);
+        for(k=0;k<4;k++) {
+            if(corner>=4)corner=0;
+            F(w,base+(u32)k*64+16)=F(D_005F1DA0,corner*8);
+            F(w,base+(u32)k*64+20)=F(D_005F1DA0,corner*8+4);corner++;
+        }
+        if(uGpffffb314)I(w,8+(r*10+c)*4)++;
+        if(I(w,8+(r*10+c)*4)>=4)I(w,8+(r*10+c)*4)=0;
+        primitive(w,base,4);
+    }
+    return 0;
+}
+static void setup(u32 seed,s32 mode,s32 blocked,u32 bank) {
+    u32 i,j;u8 *bytes=(u8 *)&state;
+    for(i=0;i<sizeof(state);i++)bytes[i]=(u8)((i*13U+seed*29U+0x35U)&255);
+    state.nodesUsed=0;state.missingTextureMask=seed==0?0:(1U << (seed-1));state.rng=seed*997U+17U;memset(state.nodes,0,sizeof(state.nodes));
+    state.dict.token=0xB6;state.textures[0].token=0xA1;state.textures[1].token=0xA2;
+    for(j=0;j<2;j++) {
+        I(state.work[j],0)=mode;I(state.work[j],4)=blocked;
+        P(state.work[j],0x88C8)=state.raster;
+        for(i=0;i<70;i++)I(state.work[j],8+i*4)=(s32)((seed+i+j)&3);
+    }
+    I(state.raster,12)=64+(s32)seed*47;I(state.raster,16)=48+(s32)seed*31;
+    P(state.task,0x38)=state.work[bank];iGpffffb900=(s32)state.raster;
+    memset(D_00794930,0,sizeof(D_00794930));
+    for(i=0;i<8;i++)F(D_005F1DA0,i*4)=(f32)((s32)i-3)*0.25f;
+    iGpffff8424=(f32)seed*0.000125f;fGpffff84d4=(f32)(seed+1)*0.0625f;
+    fGpffff84d8=1.0f+(f32)seed*0.125f;fGpffff84dc=1.0f+(f32)seed*0.25f;
+    uGpffffb314=seed==0?-1:(s32)(seed-1);entryBank=bank;
+    memcpy(&initial,&state,sizeof(state));save_globals(&initialGlobals);
+}
+static void scenario_run(u32 seed,s32 mode,s32 blocked,u32 bank,u32 changes,u32 frames) {
+    u32 count,i,j,frame;Globals actualGlobals;s32 result;
+    ++scenario;setup(seed,mode,blocked,bank);mutation=changes;eventCount=opaqueCount=0;stream=wanted;
+    for(frame=0;frame<frames;frame++){result=model(state.task);CHECK(result==0);}
+    count=eventCount;memcpy(&expected,&state,sizeof(state));save_globals(&expectedGlobals);
+    memcpy(&state,&initial,sizeof(state));restore_globals(&initialGlobals);eventCount=opaqueCount=0;stream=observed;
+    for(frame=0;frame<frames;frame++){result=func_00185850(state.task);CHECK(result==0);}
+    CHECK(eventCount==count);
+    for(i=0;i<count;i++)for(j=0;j<5;j++){u32 a=((u32 *)&observed[i])[j];CHECK(a==((u32 *)&wanted[i])[j]);traceHash=(traceHash^a)*16777619U;}
+    for(i=0;i<sizeof(state);i++)CHECK(((u8 *)&state)[i]==((u8 *)&expected)[i]);
+    save_globals(&actualGlobals);for(i=0;i<sizeof(actualGlobals);i++)CHECK(((u8 *)&actualGlobals)[i]==((u8 *)&expectedGlobals)[i]);
+}
+int main(void) {
+    static const u32 mutations[]={0,1,2,4,8,16,31};
+    static const s32 blocks[]={0,1,-1};
+    u32 bank,seed,m,b; s32 mode;
+    CHECK(sizeof(void *)==4);CHECK(sizeof(GridDrawVertex)==64);CHECK(sizeof(GridDrawWork)==WORK_BYTES);
+    CHECK(__builtin_offsetof(GridDrawWork,grid)==0x120);CHECK(__builtin_offsetof(GridDrawWork,bands)==0x4720);
+    CHECK(__builtin_offsetof(GridDrawWork,overlay)==0x5520);CHECK(__builtin_offsetof(GridDrawWork,cover)==0x5640);
+    CHECK(__builtin_offsetof(GridDrawWork,rings[0])==0x5740);CHECK(__builtin_offsetof(GridDrawWork,rings[1])==0x67C0);
+    CHECK(__builtin_offsetof(GridDrawWork,rings[2])==0x7840);CHECK(__builtin_offsetof(GridDrawWork,raster)==0x88C8);
+    for(bank=0;bank<2;bank++)for(seed=0;seed<3;seed++)for(mode=-1;mode<=2;mode++)for(b=0;b<3;b++)for(m=0;m<7;m++)scenario_run(seed,mode,blocks[b],bank,mutations[m],1);
+    for(bank=0;bank<2;bank++)for(m=0;m<32;m++)scenario_run(1,1,0,bank,m,1);
+    for(bank=0;bank<2;bank++)for(seed=0;seed<3;seed++)for(m=0;m<7;m++)scenario_run(seed,0,0,bank,mutations[m],2);
+    native32_text("PASS scenarios=");native32_number(scenario);native32_text(" checks=");native32_number(checks);native32_text(" trace=");native32_number(traceHash);native32_text("\n");return 0;
+}
