@@ -114,7 +114,8 @@ extern u32 iGpffffbb14;
 extern u32 iGpffffbb10;
 extern u32 iGpffffbb0c;
 extern u32 iGpffffbb04;
-extern s32 func_00432ec0(void);
+/* sceMc2CheckAsync consumes the two command/result output pointers. */
+extern s32 func_00432ec0(s32 *command, s32 *result);
 extern s32 iGpffffba8c;
 extern s32 iGpffffb198;
 extern s32 iGpffffb194;
@@ -1144,7 +1145,7 @@ s32 func_00464670(s32 *arg0, s32 *arg1, s32 *arg2) {
     s32 temp_2_3;
     s32 temp_3;
 
-    temp_2 = func_00432ec0();
+    temp_2 = func_00432ec0(arg0, arg1);
     switch (temp_2) {
     case -1:
         return -1;

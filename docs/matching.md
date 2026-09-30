@@ -12515,3 +12515,47 @@ Evidence: `build/finish-first-party-20260929/parent/epl-nova-production-verify.j
 `build/resume-flash-next-20260929/final-worker-receipt.json`.
 These are substantive guarded reconstructions, not new exact promotions
 or compiler-floor claims.
+
+Publication `b885cef4` passed
+[CI run 36652442500](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/36652442500):
+clean ASM regeneration, full proprietary build, configured verification
+and linked-report upload. The report remains **6737/6861 first-party
+matches, 124 remaining across 65 owners**. Acceptance and the current
+target manifest are retained as `ci-b885cef4-{receipt,remaining-first-party}.json`
+under `build/finish-first-party-20260929/parent/`.
+
+### Memory-card poll output-pointer contract
+
+`code1_0046.c::00464670` now calls `00432ec0` with both command/result
+output pointers. The SDK provenance and retail wrapper identify this
+callee as `sceMc2CheckAsync(command, result)`: it forwards the two pointers
+to `sceMc2Sync2(1, command, result)`. The previous zero-argument declaration
+and call omitted real inputs even though the generated EE instructions
+were already exact.
+
+Both memory-card consumers now declare the result as `s32 *`, matching
+the provider's signed negative-result check. All 24 calls in
+`h_memcard.c` and `h_memcard_grouped.c` drop the incompatible unsigned-pointer
+casts. No private alternate prototype or compatibility alias is added.
+
+Production verification preserves **68 MATCH / three ASM across 71
+functions**. Independent native production gates prove all 71 emitted
+windows, including unchanged fallbacks, and emitted named data/jump tables.
+Policy lint reports zero findings. A host smoke executes the actual poll
+helper against a two-pointer SDK producer stub: 13 completion/status,
+signed-error and low-word-normalization transitions pass. The old helper
+fails compilation against that same two-pointer contract. This is not
+memory-card hardware or PS2 runtime execution.
+
+Guarded native compilation also preserves the established C functions.
+It does not establish exactness for the three fallbacks. In particular,
+the unchanged `00468ff0/0046f2b0` reconstructions still have unresolved
+jump tables/SDK symbols, and `00468ff0` emits an out-of-range GP relocation.
+The guarded `004647c0` also has an unresolved 56-byte jump table.
+The strict guarded-owner gates reject these existing defects; the
+production configuration's independent gates pass. All guards remain.
+
+Evidence: `build/finish-first-party-20260929/parent/card-poll-production-verify.json`,
+`card-poll-contract-receipt.json`, and native
+`FclFinish/parent-card-{poll,consumer,grouped}-installed-{default,guarded}/`.
+This repairs an existing C contract; it adds no exact-function credit.
