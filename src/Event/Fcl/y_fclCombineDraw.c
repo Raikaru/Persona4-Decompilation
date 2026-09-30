@@ -1347,7 +1347,7 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
         func_002b6a70(id, *(u8 *)(func_002b6150(id) + 0x6E), 0, 0, 0, arg5 + 3);
         sc = iGpffff8504;
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(arg1.x, y = arg1.y), func_002b2970(arg1.x, y + func_0046b2f0(hA) / 2.0f), 0, 3, arg5);
+        func_002b69f0(id, func_002b2970(arg1.x, y = arg1.y), func_002b2970(arg1.x, arg1.y + func_0046b2f0(hA) / 2.0f), 0, 3, arg5);
     } else {
         y = arg1.y;
         func_002b6c30(id, func_002b2970(arg1.x, y), 191.0f, 0x57);

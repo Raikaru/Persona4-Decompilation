@@ -12631,3 +12631,71 @@ Evidence: `ParticleReturnABI/investigation.json` and
 `build/first-party-finish-20260929/`, plus parent
 `particle-void-production-verify.json` and `particle-native-smoke-receipt.json`.
 No new exact promotion or compiler floor is claimed.
+
+Publication `0f096f86`, merged with upstream `06794ddb` as `9896e8d8`,
+passed [CI run 36664738585](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/36664738585):
+clean regeneration, full proprietary build, linked verification and report upload.
+The upstream result-screen renderer `0021fea0` is now exact; parent verification
+also reports 13/13 MATCH for `btlResultSimple.c`. The uploaded report confirms
+**6738/6861 first-party matches, 123 remaining across 64 owners**.
+Acceptance/current target manifest:
+`build/finish-first-party-20260929/parent/ci-9896e8d8-{receipt,remaining-first-party}.json`.
+The scorer/contour/particle repairs themselves add no exact-function credit.
+
+### Guarded movie lifecycle and sdkLbox records
+
+`00468ff0` uses the actual task-name pointer and SDK destroy result contract,
+the signed-word list-release provider and the list pointer produced at
+`D_0070B610 + 0x10`. The former standalone `D_0070B620` GP-range relocation
+is gone. Creation parameters reuse the existing Sofdec header; configured
+native layout proves `Sint32` is four bytes and `MWSFD_CRPRM` is 0x30.
+Guarded compilation needs the existing `-Isrc/cri/re4` header root, like the
+CRI units; no compiler selection or production configuration is changed.
+The frame output remains the existing 0x90-byte word buffer: retail writes
+through +0x8c, so the header's other-revision 0x88-byte `MWS_FRM` is not used.
+
+`0046f2b0` is the sdkLbox task callback, not a movie decoder. Four real
+signed-word rectangles, a three-float joystick record and the native
+pointer/word callback record replace unrelated scalar adjacency. Clear
+pointers advance bytes, not words/floats. Entry dispatch uses the existing
+one-argument `KWindowEntryCallback`; no compatibility macros or fabricated
+second argument remain. Unsigned color/joystick conversions preserve the
+retail input domains.
+
+Parent production verification is **56 MATCH / two ASM in 58 functions**,
+with zero policy findings. Native default gates prove all 58 windows and
+three owned data objects. Guarded gates preserve every established C body;
+independent retail dispatch placement resolves all target relocations.
+The two guarded jump tables remain nonexact and fail the strict whole-data
+gate, so neither body is promoted:
+
+| Target | Object / window | Code / table relocations | Differing resolved words |
+| --- | ---: | ---: | ---: |
+| `00468ff0` | 4136 / 4144 | 160 / 12 | 887 |
+| `0046f2b0` | 4064 / 3936 | 58 / 6 | 966 |
+
+Parent actual retail/emitted execution passes four lifecycle cases and ten
+lbox cases (28 invocations), including the real retail list-count leaf,
+task-name dispatch, all four rectangle modes and retirement transitions,
+with no unwritten stack reads. Producer/device boundaries are hooked.
+The lbox code/table are also byte-identical to the worker's 64-case native
+smoke despite removal of stack-name macros. Decoder, graphics hardware,
+full SDK integration and visible output are not tested.
+Evidence: parent `movie-lbox-production-verify.json`,
+`movie-lbox-reconstruction-receipt.json`, and native
+`FclFinish/parent-movie-lbox-installed-{default,portable-guarded}/`.
+No new exact function or compiler floor is claimed.
+
+### Defined Fcl coordinate evaluation
+
+`003191c0` reads initialized `arg1.y` for the second point constructor,
+not `y` whose assignment is inside another argument of the enclosing call.
+This removes the actual native uninitialized-use warning under either
+argument evaluation order, without inventing an initial value.
+Parent verification preserves **65 MATCH / five ASM in 70 functions**;
+strict default and guarded native proofs preserve all code/data/jump tables.
+The actual separate-TU constructor/expression smoke covers 2,097,152 point
+pairs under both orders. No gameplay execution or new exact credit.
+Evidence: `FclFinish/row191-defined-coordinate-proposal.json`,
+`row191-coordinate-smoke-receipt.json` and parent
+`fcl-defined-coordinate-production-verify.json`.
