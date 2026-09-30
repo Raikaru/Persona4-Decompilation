@@ -2866,69 +2866,79 @@ s32 func_0035afa0(u8 *arg0) {
     return 0;
 }
 
-/* func_0035aff0: NOT banked -- outside +-3% band (retail 692 vs object 646 = -46, -6.6%; band 671-713; window 2784B=696 words). Frame both 0xB10 (retail addiu sp,sp,-2832; object same), so no aggregate-spill deficit. Calls complete: retail 23 direct jal + 8 jalr = 31; object same (1x00457120,1x0035bad0,1x0034f1e0,10x003f6440,2x0044b7b0,2x0044b610,1x0035bd20,1x0046d730,2x00489f80,2x0048a000 + 3x87300/3x87310/2x87314 jalr). Both if arms present (flat mode&1|&2 with flatA/B sub-arms; wave mode&4 with 7x5 verts, 6x idx, 2x6 draws); no switch, so not the case-7 (200-instr) missing-arm class. Transfers: lwc1 31/31 exact, swc1 59/61 (-2) -- rules out missing spills (cf. 150-swci example); deficit is ALU/FPU conversions, concentrated in four retail-longer blocks (net 46 = retail-group 155 - object-group 109): [272:301]/[245:251] +23 (flat per-quad bltz/cvt/srl/or/mtc1 + swc1 0x28/0x2C + loop inc vs lui/sw), [545:567]/[517:519] +20 (wave 4th grey srl/andi/or/mtc1/cvt/add/swc1 0x2C + vtx/j/i inc + vtx>=0x24 guard + D_0064CC98+0x835), [584:596]/[546:548] +10 (idx i*10+j*2 sll/addu/sh chain + outer inc), [232:246]/[228:232] +10 (flat entry daddiu 0xF2/0x15/0xBA/0xFF + andi/mtc1 x4). Pragma 446 (opt_dead_assignments off) is false win per handoff 7s: measured on 46-short body, object 641 (-51) and 225 edits (worse) -- rejected on instruction count, do not re-run. Archive numbers stale per 7q: task 696 vs fnalign 692, task 317 lines vs file 316 (wc -l 316) -- re-measured 449w/194e+8, frame 0xB10. Repaired body kept in docs/probe_archive/F350_0035aff0_body.c (314 lines incl. repair note, 449w). Compiler b210 -O2. */
-// measured: honest u32-flat retry (flatA/B/cR/cW as u32 with (f32)(u32), s32 counters kept); retail 692 object 668 (-24, -3.5% outside 671-713 by 3) edit 198 (+8 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_0035.c func_0035aff0 --candidate /tmp/35aff0_u32flat.c`; probe 456 via `python3 tools/probe_variants.py src/promoted/code1_0035.c func_0035aff0 --candidate u32flat=/tmp/35aff0_u32flat.c` (base 449); frame 0xB10 exact, jal 31==31, composition hole 2 lump 16 clean per 7aa; remaining -24 across four retail-longer blocks (flat entry retail[232:246] 0x35B390-0x35B3C8 daddiu/andi/mtc1 x4, flat per-quad retail[273:301] 0x35B434-0x35B4A4 bltz/cvt + loop inc, wave grey retail[545:567] 0x35B874-0x35B8CC srl/andi/or/mtc1/cvt/add 0x2C + vtx/j/i inc + guard + D_0064CC98, idx retail[584:596] 0x35B910-0x35B940 sll/addu/sh + outer inc); u32 counters (A, 690) and s64 flat (672) reach gate only via sltiu/dsll retail lacks -- rejected as dishonest per 7g/7v, production stays INCLUDE_ASM.
-// measured: honest best direct_split (u32 flat + direct &qs[k].r/g/b/a addressing per 7a + fresh ii/jj for idx per 7n, s32 counters kept); retail 692 object 669 (-23, -3.3% outside 671-713 by 2) edit 198 (+8 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_0035.c func_0035aff0 --candidate /tmp/35aff0_direct_split.c`; probe 448 via `python3 tools/probe_variants.py src/promoted/code1_0035.c func_0035aff0 --candidate directsplit=/tmp/35aff0_direct_split.c` (base 449, u32flat 456); frame 0xB10 exact, jal 31==31, pure hole 2 (retail[201:203]/[209:211]/[309:311]) lump 16 (retail[493:493] object[467:483] extra grey a swc1 0x15C) clean per 7aa strict (needs both >=25); loose holes are four retail-longer replaces net +23 (flat entry +10, flat per-quad +22, wave +20, idx +10 minus surplus -16-6 as shift artefact from flat root propagation wall per file note); archived F350 base 646 s32 vs u32flat 668 +22 via unsigned (honest per micro bltz), direct +1 via addressing, split -1 edits via temps; in-gate A 690 via sltiu (retail slti) and s64flat 672 via dsll (retail 0 dsll) and propoff 684 via +154 words rejected per 7g/7v/7u, production stays INCLUDE_ASM.
-// preserved per Main: archived F350_0035aff0_body.c is 314 lines (231-line body) measuring 646/692 -46 honest because it uses signed flat (s32 flatA/B/cR/cW with (f32)s32, 4 instrs via mtc1/cvt) where retail is unsigned (u32 with (f32)(u32), 15 instrs via bltz/srl/andi/or/mtc1/cvt/add); micro-measured conversion cost is 15 vs 4 (u32 bltz 15: bltz/nop/mtc1/nop/cvt/b/nop/srl/andi/or/mtc1/nop/cvt/add/swc1 vs s32 4: mtc1/nop/cvt/swc1), independently priced today at 16 vs plain mtc1/cvt by another agent -- two measurements, same number, best-evidenced conversion cost in project.
-// attempted textbook 7aa repair per Main: write missing wave retail[545:567] 0x35B874-0x35B8CC (fourth grey srl/andi/or/mtc1/cvt/add/swc1 0x2C + addiu/slti/bnez x2 + slti guard + lui/addiu D) + delete object-only lump object[467:483] 16 (extra grey a bltz/swc1 0x15C verts[0].a due to flat shift) net +4 (669+4=673 inside); wave-pointer variant (verts a via u8 vp+0x2C per 7a) resists via flat-shift propagation wall: retail 692 object 666 (-26, -3.8% outside) edit 273 (+8 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_0035.c func_0035aff0 --candidate /tmp/35aff0_waveptr.c` (direct_split 669/198 honest best, 2 short); flat wall (constants fold to lui without whole-function propoff +154 words fake per 7u, scoped inert) shifts wave, hole+lump cancel, production stays INCLUDE_ASM.
-/* measured 0035aff0 (owner, installing Fn0035's candidate): 700 against retail's 696-word
-   window (+0.6%, band 671-713) and 692 stripped instructions (+1.2%), 167 edits down from the
-   198 baseline, 453 differing words.  Frame 0xB10 exact with prologue 0-22 equal, 31 calls
-   against 31 (23 direct, 8 indirect), lwc1 31/31, swc1 60/61.  Composition is clean: no lump or
-   hole of 16 or more, longest insert 3 and longest delete 3.  Reached by the grey r,g,b,a store
-   order, a staged texId, and duplicated cR/cW tails; no sltiu-for-slti, no s64 flat, no
-   opt_propagation off, no volatile and no inline asm - the four dishonest routes to this band
-   are listed in the notes above and all remain rejected. */
-/* measured 0035aff0 (owner, 2026-09-19): fnalign **167 -> 164 edits**, count
-   700 -> 698 against retail 696, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all. */
-// FUN_0035AFF0 NONMATCHING
-#ifdef NON_MATCHING
+/* Community portrait and selected-state passes. Measured whole-owner MATCH:
+ * 2772 bytes plus twelve retail zero bytes; byte-opacity/RGBA and the complete
+ * Sky2 vertex layout retain the actual ABI. The work pointer is captured on
+ * entry, visibility is re-read after the camera query, and texture and mode
+ * are loaded after their rendering callbacks. Keep the table addresses while
+ * reloading their callback slots. Loop invariants and scoped lifetimes retain
+ * the retail color conversions and row/index bases without synthetic padding.
+ * See docs/probe_archive/Community_portrait_0035aff0_20260930.md. */
+// FUN_0035AFF0
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_lifetimes on
+#pragma opt_pulloutconstants off
+#pragma opt_propagation off
 f32 func_0035aff0(u8 *arg0, u8 arg1)
 {
     extern u8 *func_00457120(void);
     extern f32 D_008872F8[];
     extern f32 func_0035bad0(u8 *arg0);
     extern void func_0034f1e0(void);
-    extern s32 (*D_00887300[])(s32, s32);
-    extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
-    extern void (*D_00887314[])(s32 arg0, void *arg1, s32 arg2, void *arg3, s32 arg4);
-    extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+    extern s32 (*D_00887300[])(s32, void *);
+    extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
+    extern s32 (*D_00887314[])(s32 arg0, void *arg1, s32 arg2, void *arg3, s32 arg4);
+    extern s32 RpSkyRenderStateSet(s32 arg0, void *arg1);
     extern void func_00489f80(void);
     extern void func_0048a000(void);
     extern f32 cosf(f32 arg0);
     extern f32 func_0035bd20(Float2 first, Float2 second, Float2 origin);
     extern f32 fGpffff81e0;
     extern f32 fGpffff82fc;
+    /* Full Sky2 layout from rw/sky2/rwplcore.h. The strip backends copy all
+     * 64 bytes. This renderer initializes only position, UV/reciprocal depth
+     * and RGBA; fog is disabled and the SDK declares normals unused. */
     typedef struct {
-        f32 x;
-        f32 y;
-        f32 z;
-        s32 _c;
-        f32 u;
-        f32 v;
-        f32 q;
-        s32 _1c;
-        s32 r;
-        s32 g;
-        s32 b;
-        f32 a;
-        s32 _pad[4];
-    } Qf;
-    Qf qs[4];
+        f32 x, y, z, cameraZ;
+        f32 u, v, reciprocalZ, fogPadding;
+        f32 red, green, blue, alpha;
+        f32 normalX, normalY, normalZ, alignmentPadding;
+    } CommunityVertex;
+    typedef struct { u8 red, green, blue, alpha; } CommunityColor;
+    typedef struct { void *raster; } CommunityTexture;
+    typedef struct {
+        Float2 position;
+        Float2 scale;
+        Float2 targetScale;
+        Float2 startScale;
+        s8 portraitId;
+        u8 unknown0021;
+        s16 transitionFrame;
+        s16 effectFrame;
+        u8 unknown0026[2];
+        s32 flags;
+        s32 loaded;
+        u8 unknown0030[12];
+        CommunityTexture *texture;
+        u8 unknown0040[0x100];
+        const char *module;
+    } CommunityPortrait;
+    typedef struct {
+        u8 unknown0000[0x38];
+        u8 *work;
+    } CommunityPortraitTask;
+    typedef struct {
+        u8 unknown0000[0x80];
+        f32 nearClip;
+    } CommunityCameraView;
+    CommunityVertex qs[4];
     Float2 cur;
     Float2 ptA;
     Float2 ptB;
-    Qf verts[35];
-    s16 idx[64];
-    u8 *p;
+    CommunityVertex verts[35];
+    struct IndexPair { s16 top, bottom; } idx[32];
+    CommunityPortrait *portrait;
     f32 sx;
     f32 sy;
     f32 u0;
@@ -2945,21 +2955,23 @@ f32 func_0035aff0(u8 *arg0, u8 arg1)
     f32 s2;
     f32 c2;
     s32 mode;
-    s32 i;
     s32 j;
     s32 vtx;
+    s32 i;
     s32 ii;
     s32 jj;
-    u32 flatA;
-    u32 flatB;
+    CommunityColor color;
+    s32 (**stateSet)(s32, void *);
 
-    p = *(u8 **)(arg0 + 0x38);
+    /* The SDK task transports its work as u8 *; the captured value and the
+     * post-camera visibility view deliberately have separate lifetimes. */
+    portrait = (CommunityPortrait *)*(u8 **)(arg0 + 0x38);
     z = D_008872F8[0];
-    q = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    q = 1.0f / ((CommunityCameraView *)func_00457120())->nearClip;
     {
-        u8 *t = *(u8 **)(arg0 + 0x38);
+        CommunityPortrait *t = (CommunityPortrait *)((CommunityPortraitTask *)arg0)->work;
         s32 flag;
-        if ((*(s32 *)(t + 0x2C) == 0) || (*(s8 *)(t + 0x20) == 0)) {
+        if ((t->loaded == 0) || (t->portraitId == 0)) {
             flag = 0;
         } else {
             flag = 1;
@@ -2968,10 +2980,10 @@ f32 func_0035aff0(u8 *arg0, u8 arg1)
             return 0.0f;
         }
     }
-    blend = func_0035bad0(p);
-    sx = 50.0f * *(f32 *)(p + 8);
-    sy = 64.0f * *(f32 *)(p + 12);
-    if (*(s32 *)(p + 0x28) & 1) {
+    blend = func_0035bad0((u8 *)portrait);
+    sx = 50.0f * portrait->scale.x;
+    sy = 64.0f * portrait->scale.y;
+    if (portrait->flags & 1) {
         u0 = 0.78125f;
         v0 = 1.0f;
         u1 = -0.78125f;
@@ -2982,156 +2994,163 @@ f32 func_0035aff0(u8 *arg0, u8 arg1)
         u1 = 0.78125f;
         v1 = 1.0f;
     }
-    qs[0].x = *(f32 *)p - sx;
-    qs[0].y = *(f32 *)(p + 4) - sy;
+    qs[0].x = portrait->position.x - sx;
+    qs[0].y = portrait->position.y - sy;
     qs[0].z = z;
-    qs[0].r = 0x437F0000;
-    qs[0].g = 0x437F0000;
-    qs[0].b = 0x437F0000;
-    qs[0].a = (f32)arg1;
+    qs[0].red = 255.0f;
+    qs[0].green = 255.0f;
+    qs[0].blue = 255.0f;
+    qs[0].alpha = (f32)arg1;
     qs[0].u = u0;
     qs[0].v = v0;
-    qs[0].q = q;
-    qs[1].x = *(f32 *)p + sx;
-    qs[1].y = *(f32 *)(p + 4) - sy;
+    qs[0].reciprocalZ = q;
+    qs[1].x = portrait->position.x + sx;
+    qs[1].y = portrait->position.y - sy;
     qs[1].z = z;
-    qs[1].r = 0x437F0000;
-    qs[1].g = 0x437F0000;
-    qs[1].b = 0x437F0000;
-    qs[1].a = (f32)arg1;
+    qs[1].red = 255.0f;
+    qs[1].green = 255.0f;
+    qs[1].blue = 255.0f;
+    qs[1].alpha = (f32)arg1;
     qs[1].u = u0 + u1;
     qs[1].v = v0;
-    qs[1].q = q;
-    qs[2].x = *(f32 *)p - sx;
-    qs[2].y = *(f32 *)(p + 4) + sy;
+    qs[1].reciprocalZ = q;
+    qs[2].x = portrait->position.x - sx;
+    qs[2].y = portrait->position.y + sy;
     qs[2].z = z;
-    qs[2].r = 0x437F0000;
-    qs[2].g = 0x437F0000;
-    qs[2].b = 0x437F0000;
-    qs[2].a = (f32)arg1;
+    qs[2].red = 255.0f;
+    qs[2].green = 255.0f;
+    qs[2].blue = 255.0f;
+    qs[2].alpha = (f32)arg1;
     qs[2].u = u0;
     qs[2].v = v0 + v1;
-    qs[2].q = q;
-    qs[3].x = *(f32 *)p + sx;
-    qs[3].y = *(f32 *)(p + 4) + sy;
+    qs[2].reciprocalZ = q;
+    qs[3].x = portrait->position.x + sx;
+    qs[3].y = portrait->position.y + sy;
     qs[3].z = z;
-    qs[3].r = 0x437F0000;
-    qs[3].g = 0x437F0000;
-    qs[3].b = 0x437F0000;
-    qs[3].a = (f32)arg1;
+    qs[3].red = 255.0f;
+    qs[3].green = 255.0f;
+    qs[3].blue = 255.0f;
+    qs[3].alpha = (f32)arg1;
     qs[3].u = u0 + u1;
     qs[3].v = v0 + v1;
-    qs[3].q = q;
+    qs[3].reciprocalZ = q;
     {
-        s32 texId = **(s32 **)(p + 0x3C);
+        s32 (**drawFirst)(s32, void *, s32);
         func_0034f1e0();
-        D_00887300[0](1, texId);
-        D_00887310[0](4, &qs[0], 4);
+        stateSet = D_00887300;
+        stateSet[0](1, portrait->texture->raster);
+        drawFirst = D_00887310;
+        drawFirst[0](4, &qs[0], 4);
     }
-    mode = *(s32 *)(p + 0x28);
+    mode = portrait->flags;
     if (((mode & 1) != 0) || ((mode & 2) != 0)) {
         {
-            u32 cR;
-            u32 cW;
             s32 k;
             if ((mode & 1) != 0) {
-                flatA = 0x15;
-                flatB = 0;
-                cR = 0xF2;
-                cW = 0xFF;
+                color.red = 0xF2;
+                color.green = 0x15;
+                color.blue = 0;
+                color.alpha = 0xFF;
             } else {
-                flatA = 0;
-                flatB = 0xBA;
-                cR = 0xF2;
-                cW = 0xFF;
+                color.red = 0xF2;
+                color.green = 0;
+                color.blue = 0xBA;
+                color.alpha = 0xFF;
             }
-            k = 0;
-            do {
-                *(f32 *)&qs[k].r = (f32)(u32)cR;
-                *(f32 *)&qs[k].g = (f32)(u32)flatA;
-                *(f32 *)&qs[k].b = (f32)(u32)flatB;
-                qs[k].a = (f32)(u32)cW;
-                k++;
-            } while (k < 4);
+            for (k = 0; k < 4; k++) {
+                CommunityVertex *vertex = &qs[k];
+                vertex->red = (f32)color.red;
+                vertex->green = (f32)color.green;
+                vertex->blue = (f32)color.blue;
+                vertex->alpha = (f32)color.alpha;
+            }
         }
-        func_00489f80();
-        RpSkyRenderStateSet(3, 0x31801);
-        D_00887310[0](4, &qs[0], 4);
-        func_0048a000();
-        D_00887300[0](1, 0);
-        RpSkyRenderStateSet(3, 0x31801);
-        RpSkyRenderStateSet(2, 0x58);
-        D_00887310[0](4, &qs[0], 4);
-        RpSkyRenderStateSet(3, 0x717FB);
-        RpSkyRenderStateSet(2, 0x44);
+        {
+            s32 (**drawPrimitive)(s32, void *, s32);
+            func_00489f80();
+            RpSkyRenderStateSet(3, (void *)0x31801);
+            drawPrimitive = D_00887310;
+            drawPrimitive[0](4, &qs[0], 4);
+            func_0048a000();
+            stateSet[0](1, 0);
+            RpSkyRenderStateSet(3, (void *)0x31801);
+            RpSkyRenderStateSet(2, (void *)0x58);
+            drawPrimitive[0](4, &qs[0], 4);
+            RpSkyRenderStateSet(3, (void *)0x717FB);
+            RpSkyRenderStateSet(2, (void *)0x44);
+        }
     } else if (mode & 4) {
         f32 f;
-        f = (f32)*(s16 *)(p + 0x24) / 100.0f;
+        f = (f32)portrait->effectFrame / 100.0f;
         ang1 = fGpffff81e0 * f;
         ang2 = fGpffff82fc + ang1;
         s1 = sinf(ang1);
         c1 = cosf(ang1);
         s2 = sinf(ang2);
         c2 = cosf(ang2);
-        ptA.x = *(f32 *)p + 0.78125f * (64.0f * s1);
-        ptA.y = *(f32 *)(p + 4) - 64.0f * c1;
-        ptB.x = *(f32 *)p + 0.78125f * (64.0f * s2);
-        ptB.y = *(f32 *)(p + 4) - 64.0f * c2;
+        ptA.x = portrait->position.x + 0.78125f * (64.0f * s1);
+        ptA.y = portrait->position.y - 64.0f * c1;
+        ptB.x = portrait->position.x + 0.78125f * (64.0f * s2);
+        ptB.y = portrait->position.y - 64.0f * c2;
+        i = 0;
         vtx = 0;
-        for (i = 0; i < 7; i++) {
+        while (i < 7) {
             f32 rowDY;
             f32 rowV;
+            j = 0;
             rowDY = 2.0f * (sy * ((f32)i / 6.0f - 0.5f));
             rowV = v0 + v1 * ((f32)i / 6.0f);
-            for (j = 0; j < 5; j++) {
+            while (j < 5) {
                 f32 grey;
                 u8 g8;
-                cur.x = *(f32 *)p + 2.0f * (sx * ((f32)j / 4.0f - 0.5f));
-                cur.y = *(f32 *)(p + 4) + rowDY;
+                cur.x = portrait->position.x + 2.0f * (sx * ((f32)j / 4.0f - 0.5f));
+                cur.y = portrait->position.y + rowDY;
                 verts[vtx].x = cur.x;
                 verts[vtx].y = cur.y;
                 verts[vtx].z = z;
                 verts[vtx].u = u0 + u1 * ((f32)j / 4.0f);
                 verts[vtx].v = rowV;
-                verts[vtx].q = q;
+                verts[vtx].reciprocalZ = q;
                 grey = 255.0f * func_0035bd20(ptA, ptB, cur);
                 g8 = (u8)grey;
-                *(f32 *)&verts[vtx].r = (f32)g8;
-                *(f32 *)&verts[vtx].g = (f32)g8;
-                *(f32 *)&verts[vtx].b = (f32)g8;
-                verts[vtx].a = (f32)g8;
+                verts[vtx].red = (f32)g8;
+                verts[vtx].green = (f32)g8;
+                verts[vtx].blue = (f32)g8;
+                verts[vtx].alpha = (f32)g8;
                 vtx++;
+                j++;
             }
+            i++;
         }
-        if (vtx >= 0x24) {
+        if (vtx > 35) {
             func_0046d730(&D_0064CC98, 0x835);
         }
         for (ii = 0; ii < 6; ii++) {
             for (jj = 0; jj < 5; jj++) {
-                idx[ii * 10 + jj * 2] = (s16)(jj + ii * 5);
-                idx[ii * 10 + jj * 2 + 1] = (s16)(jj + (ii + 1) * 5);
+                idx[ii * 5 + jj].top = (s16)(jj + ii * 5);
+                idx[ii * 5 + jj].bottom = (s16)(jj + (ii + 1) * 5);
             }
         }
         func_00489f80();
-        RpSkyRenderStateSet(3, 0x31801);
+        RpSkyRenderStateSet(3, (void *)0x31801);
         for (i = 0; i < 6; i++) {
-            D_00887314[0](4, &verts[0], 0x23, &idx[i * 10], 10);
+            D_00887314[0](4, &verts[0], 0x23, &idx[i * 5], 10);
         }
         func_0048a000();
-        D_00887300[0](1, 0);
-        RpSkyRenderStateSet(3, 0x31801);
-        RpSkyRenderStateSet(2, 0x58);
+        stateSet[0](1, 0);
+        RpSkyRenderStateSet(3, (void *)0x31801);
+        RpSkyRenderStateSet(2, (void *)0x58);
         for (i = 0; i < 6; i++) {
-            D_00887314[0](4, &verts[0], 0x23, &idx[i * 10], 10);
+            D_00887314[0](4, &verts[0], 0x23, &idx[i * 5], 10);
         }
-        RpSkyRenderStateSet(3, 0x717FB);
-        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
+        RpSkyRenderStateSet(2, (void *)0x44);
     }
     return blend;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035aff0);
-#endif
+
+#pragma pop
+
 /* measured: object 320B/window 320B; normalized_diff 14; differing offsets
    0x22, 0x24-0x28, 0x2C-0x2F, 0xE9-0xEA, 0x115-0x116. Retail uses
    mula.s/madda.s/madd.s; the remaining candidate residual also includes the
