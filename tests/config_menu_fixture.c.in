@@ -1,0 +1,64 @@
+static struct { u32 pre[4]; ConfigMenuView menu; u32 post[4]; } storage __attribute__((aligned(16)));
+static u32 traceDigest = 2166136261u;
+static u32 scenario,calls,words,mutationMode,seed,trace[8192];
+static u32 graphDraws,optionDraws,buttonDraws,backdrops,textDraws,descriptions,footerDraws,timerCalls,liveTimerWraps,liveGraphChanges,buttonOriginChanges;
+static char titles[7][16],descs[7][16];
+u8 D_0064B2E0[4],D_0064B2E8[4],D_0064B2EC[4],D_0064B304[4];
+s32 D_0064D230[7],D_0064D380[7];f32 iGpffff8170=0.6f;
+#define M (storage.menu)
+#define CHECK(x) do{if(!(x))native32_failure(__LINE__,scenario,#x);}while(0)
+static void digest(const void *data,u32 size){const u8*p=data;while(size--)traceDigest=(traceDigest^*p++)*16777619u;}
+static u32 bits(f32 value){union{f32 f;u32 u;}x;x.f=value;return x.u;}
+static u32 random32(void){seed=seed*1664525u+1013904223u;return seed;}
+static u32 hash(const void *data,u32 size){const u8*p=data;u32 h=2166136261u;while(size--)h=(h^*p++)*16777619u;return h;}
+static void record(u32 id,const u32 *data,u32 count){CHECK(words+count+2<8192);trace[words++]=id;trace[words++]=count;for(u32 n=0;n<count;n++)trace[words++]=data[n];calls++;CHECK(calls<700);}
+#define EV(id,...) do{const u32 args[]={__VA_ARGS__};record(id,args,sizeof(args)/4);}while(0)
+static void mutate(void){
+ if(mutationMode&1){M.origin.x+=0.25f;M.origin.y-=0.5f;M.opacity=(u8)(M.opacity+7);M.selectedOption=(M.selectedOption+1)%7;}
+ if(mutationMode&2){u32 r=(calls+scenario)%18;M.motion[r].position.x+=0.125f;M.motion[r].position.y-=0.25f;M.motion[r].opacity=(u8)(M.motion[r].opacity+11);M.motion[14].position.x+=0.5f;M.motion[14].position.y-=0.25f;buttonOriginChanges++;}
+ if(mutationMode&4){M.helpTexture=(s32)(0x50000+calls*4);M.sprites[(calls+scenario)%11]=(u8*)(0x80000+((calls+scenario)%11)*4);D_0064B2E0[calls%4]++;D_0064B2E8[(calls+1)%4]++;M.options[1]^=1;M.helpStyle=(u16)calls;}
+ if(mutationMode&8){if(calls%7==0)M.visible^=1;u32 r=(calls+scenario)%11;M.graph[r].height=(s16)(calls%8);M.graph[r].filled=(s16)((calls/2)%9);liveGraphChanges++;D_0064D230[(calls+scenario)%7]=(s32)titles[calls%7];D_0064D380[(calls+scenario)%7]=(s32)descs[(calls+2)%7];}
+}
+void func_0034f1e0(void){EV(1,0);mutate();}
+void func_0034c270(Vec2f p,s32 alpha,s32 background,f32 depth){CHECK(background==1||background==35);CHECK(alpha>=0&&alpha<=255);EV(2,bits(p.x),bits(p.y),alpha,background,bits(depth));backdrops++;mutate();}
+void func_0034f2e0(void*sprite,f32 x,f32 y,u8 r,u8 g,u8 b,u8 alpha){
+ u32 handle=(u32)sprite;u32 slot=(handle>=0x80000?handle-0x80000:handle-0x10000)/4;CHECK(slot<11);
+ EV(3,handle,bits(x),bits(y),r,g,b,alpha);if(slot==10)graphDraws++;else if(slot==7||slot==9)buttonDraws++;else optionDraws++;mutate();
+}
+int func_00275020(f32 x,f32 y,f32 depth,int color,s8 font,int id,const char*text,int flags,int extra){
+ u32 delta=(u32)text-(u32)titles;CHECK(delta<sizeof(titles)&&delta%16==0);CHECK(font==8&&id==1&&flags==2&&extra==-1);EV(4,bits(x),bits(y),bits(depth),color,font,id,delta/16,flags,extra);textDraws++;mutate();return 0;
+}
+void func_0035dfb0(u8*work,s32 index,s32 mode){
+ CHECK(work==(u8*)&M);CHECK(index>=0&&index<6);CHECK(mode>=0&&mode<=2);EV(5,index,mode,M.timers[index]);timerCalls++;
+ if((mutationMode&8)&&mode!=0){for(u32 i=0;i<6;i++){M.timers[i]=65535;liveTimerWraps++;}}
+ mutate();
+}
+int func_00274ed0(f32 x,f32 y,f32 depth,int color,s8 font,int id,const char*text,int flags,int extra){
+ u32 delta=(u32)text-(u32)descs;CHECK(delta<sizeof(descs)&&delta%16==0);CHECK(font==6&&id==1&&flags==2&&extra==0);EV(6,bits(x),bits(y),bits(depth),color,font,id,delta/16,flags,extra);descriptions++;mutate();return 0;
+}
+void func_0034f9d0(Vec2f p,f32 depth,u8 alpha,s32 mode,s32 texture){EV(7,bits(p.x),bits(p.y),bits(depth),alpha,mode,texture);footerDraws++;mutate();}
+static void initialize(void){
+ static const u8 alphas[]={0,1,127,128,254,255};static const u16 timers[]={0,1,4,5,6,65535};static const s16 heights[]={-1,0,1,2,7,10,12};
+ memset(&M,0,sizeof(M));seed=scenario+1;mutationMode=scenario<1008?0:1+(scenario-1008)%15;
+ for(u32 n=0;n<4;n++){storage.pre[n]=0xAB110000+n;storage.post[n]=0xAB220000+n;}
+ u32 p=scenario%1008;M.visible=p%4;p/=4;M.backdropMode=p%3==0?0:p%3==1?1:35;p/=3;M.opacity=alphas[p%6];p/=6;M.selectedOption=p%7;p/=7;M.options[1]=p%2;
+ M.origin.x=((s32)(scenario%31)-15)*0.25f;M.origin.y=((s32)(scenario%29)-14)*0.5f;M.helpStyle=(u16)(scenario%19);M.helpTexture=0x40000+scenario*4;
+ for(u32 i=0;i<7;i++){M.timers[i]=timers[(scenario+i)%6];D_0064D230[i]=(s32)titles[i];D_0064D380[i]=(s32)descs[i];}
+ for(u32 i=0;i<18;i++){M.motion[i].position.x=((s32)(random32()%127)-63)*0.125f;M.motion[i].position.y=((s32)(random32()%127)-63)*0.125f;M.motion[i].opacity=alphas[(scenario+i)%6];M.motion[i].width=(u16)random32();M.motion[i].height=(u16)random32();}
+ for(u32 i=0;i<11;i++){M.graph[i].height=heights[(i+scenario)%7];M.graph[i].filled=(s16)((i+scenario)%15)-2;M.sprites[i]=(u8*)(0x10000+i*4);}
+ for(u32 c=0;c<4;c++){D_0064B2E0[c]=(u8)(10+c);D_0064B2E8[c]=(u8)(70+c);D_0064B2EC[c]=(u8)(130+c);D_0064B304[c]=(u8)(190+c);}
+}
+int main(void){
+ CHECK(sizeof(ConfigMenuView)==0x4B0);CHECK(sizeof(ConfigMotion)==48);CHECK(sizeof(ConfigGraphEntry)==10);CHECK(sizeof(ConfigMenuColor)==4);
+ CHECK((u32)&M.motion-(u32)&M==0x78);CHECK((u32)&M.graph-(u32)&M==0x3D8);CHECK((u32)&M.sprites-(u32)&M==0x448);CHECK((u32)&M.timers-(u32)&M==0x3A);
+ for(scenario=0;scenario<2016;scenario++){
+  initialize();words=calls=0;func_0035d0a0((u8*)&M);
+  for(u32 n=0;n<4;n++){CHECK(storage.pre[n]==0xAB110000+n);CHECK(storage.post[n]==0xAB220000+n);}
+  EV(250,hash(&M,sizeof(M)),hash(D_0064B2E0,4),hash(D_0064B2E8,4),hash(D_0064B2EC,4),hash(D_0064B304,4));
+  u32 header[]={scenario,words};digest(header,sizeof(header));digest(trace,words*4);
+ }
+ u32 summary[]={graphDraws,optionDraws,buttonDraws,backdrops,textDraws,descriptions,footerDraws,timerCalls,liveTimerWraps,liveGraphChanges,buttonOriginChanges};digest(summary,sizeof(summary));
+ CHECK(graphDraws>20000&&optionDraws>10000&&buttonDraws>1000&&backdrops>1000&&textDraws>5000&&descriptions>900&&footerDraws==2016&&timerCalls>5000&&liveTimerWraps>1000&&liveGraphChanges>1000&&buttonOriginChanges>1000);
+ CHECK(traceDigest==0xD54F1ADAu);
+ native32_text("config-menu cases: 2016; live callbacks and trace digest verified\n");return 0;
+}

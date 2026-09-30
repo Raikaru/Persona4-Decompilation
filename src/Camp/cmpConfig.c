@@ -24,7 +24,7 @@ void func_00113480(s32 a, s32 b, s32 c, s32 d);
 void func_001437b0(void* arg0, s32 arg1, s32 arg2);
 void func_0034f8f0(void* arg0);
 void func_0034f1e0(void);
-void func_0034c270(Vec2f arg0, u8 arg1, s32 arg2, f32 arg3);
+void func_0034c270(Vec2f position, s32 alpha, s32 mode, f32 depth);
 void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg1, u8 arg2, u8 arg3, u8 arg4,
@@ -354,163 +354,271 @@ void func_0035d000(u8* arg0, u8* arg1) {
     func_0035d0a0(arg1);
 }
 
-/* measured: GUARDED_SCORE 496 via measure_guarded (probe_variants base 533 -> v2c 496), obj 3092B window 3104B (99.6% within 3%), fnalign 773/773 instrs 370 edits +1 reloc-only; pragmas singly: loopinv 533 tie, nounroll 533 tie, nosched 533 tie, nocommon 736 (+203); subscript off-form tie; floats-first tie; x/y elimination -37. Residual: frame 0xE0 vs 0xD0, arg0 $s0 vs $s4, COP1 adda/madd scheduling, D_ word-copy (lwc1 vs lbu/sb), saved-reg colouring ($s0/$s5 vs $s4/$s0, $s3/$s4 vs $s3/$s4 class, time-boxed per 7m). No retail jump table (loops only); text/sprite helpers grepped from frFontEx.c (00274ed0/00275020) and cmpConfig idiom (0034c270/0034f2e0/0034f9d0/0035dfb0); decompilers m2c.c (303 lines) + rom.c (207 lines) + --types in /var/tmp/cold35d0a0/. Verify 17 MATCH 1 ASM (guarded self), lint 0 errors. Negative 2026-09-19: caching B2E8 base (pB2E8 pre-loop single, lui 40/40 exact) scores 575 words/407 edits vs direct 496/370 — retail re-materialises, cf func_00364680 caching 288 vs direct 276. */
-// FUN_0035D0A0 NONMATCHING
-#ifdef NON_MATCHING
-void func_0035d0a0(u8 *arg0) {
-    extern int func_00274ed0(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
-    extern int func_00275020(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
-    s32 sel;
-    s32 flag;
-    s32 i;
-    s32 j;
-    s32 prev;
-    s32 isSel;
-    u8 *row;
+/* The menu owns 18 consecutive 48-byte animation records. */
+typedef struct {
+    Vec2f start;
+    Vec2f target;
+    Vec2f position;
+    u8 startOpacity;
+    u8 targetOpacity;
+    u8 opacity;
+    u8 unknown1B;
+    u16 startWidth;
+    u16 targetWidth;
+    u16 width;
+    u16 startHeight;
+    u16 targetHeight;
+    u16 height;
+    s32 startFrame;
+    s32 endFrame;
+} ConfigMotion;
+
+typedef struct {
+    s16 unknown00;
+    s16 height;
+    s16 unknown04;
+    s16 filled;
+    s16 unknown08;
+} ConfigGraphEntry;
+
+typedef struct {
+    u8 opacity;
+    u8 unknown01[7];
+    Vec2f origin;
+    u8 unknown10[4];
+    s32 backdropMode;
+    u8 unknown18[0xC];
+    u32 visible;
+    u8 unknown28[8];
+    s32 selectedOption;
+    u8 unknown34[4];
+    u16 helpStyle;
+    u16 timers[7];
+    s32 options[6];
+    s32 previousOptions[6];
+    ConfigMotion motion[18];
+    ConfigGraphEntry graph[11];
+    u8 unknown446[2];
+    u8 *sprites[11];
+    s32 helpTexture;
+    u8 unknown478[0x38];
+} ConfigMenuView;
+
+typedef struct { u8 red, green, blue, alpha; } ConfigMenuColor;
+typedef union { ConfigMenuColor rgba; f32 transport; } ConfigColorSnapshot;
+
+static inline u32 config_gray_text(u8 alpha, u8 shade)
+{
+    return ((u32)shade << 24) | ((u32)shade << 16) | ((u32)shade << 8) | alpha;
+}
+
+/* Draw the live configuration graph, option rows, reset button and help text.
+   The complete position/color records are shared across all draw phases.
+   measured: 3092 matching code bytes plus 12 retail zero bytes. The scoped
+   settings retain the source snapshots, constant lifetimes and loop roles;
+   see docs/probe_archive/cmpConfig_0035d0a0_20260930.md. */
+// FUN_0035D0A0
+#pragma push
+#pragma opt_pulloutconstants off
+#pragma opt_propagation off
+#pragma opt_lifetimes on
+
+void func_0035d0a0(u8 *work) {
+    extern int func_00274ed0(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags,
+                             int charWidth);
+    extern int func_00275020(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags,
+                             int charWidth);
+    ConfigMenuView *menu;
+    s32 selectedOption;
+    s32 backdropMode;
+    s32 textColor;
+    s32 index;
+    s32 cellIndex;
+    s32 pendingOption;
+    s32 selected;
     u8 *sprite;
-    u8 *colPtr;
-    u8 r;
-    u8 g;
-    u8 b;
+    u8 *buttonColor;
+    u8 rowBlue;
+    ConfigColorSnapshot color;
     u8 alpha;
     Vec2f pos;
     f32 fade;
     f32 baseX;
     f32 baseY;
-    f32 x0;
-    f32 y0;
-    f32 f21;
-    f32 f20;
+    f32 graphX;
+    f32 graphY;
+    f32 topAlpha;
+    f32 filledAlpha;
 
+    menu = (ConfigMenuView *)work;
     func_0034f1e0();
-    baseX = *(f32 *)(arg0 + 8);
-    baseY = *(f32 *)(arg0 + 0xC);
-    fade = (f32)*arg0 / 255.0f;
-    sel = *(s32 *)(arg0 + 0x30);
-    flag = *(s32 *)(arg0 + 0x14);
-    if (flag != 0) {
+    baseX = menu->origin.x;
+    baseY = menu->origin.y;
+    fade = (f32)menu->opacity / 255.0f;
+    selectedOption = menu->selectedOption;
+    backdropMode = menu->backdropMode;
+    if (backdropMode != 0) {
         pos.x = baseX;
         pos.y = baseY;
         alpha = (u8)(255.0f * fade);
-        func_0034c270(pos, alpha, flag, 0.0f);
+        func_0034c270(pos, alpha, backdropMode, 0.0f);
     }
-    if ((*(u32 *)(arg0 + 0x24) & 1) != 0) {
-        pos.x = 26.0f + (baseX + *(f32 *)(arg0 + 0x88));
-        pos.y = 388.0f + (baseY + *(f32 *)(arg0 + 0x8C));
-        alpha = (u8)((f32)*(u8 *)(arg0 + 0x92) * fade);
-        func_0034f2e0(*(void **)(arg0 + 0x448), pos.x, pos.y, 0x5E, 0x37, 0xFF, alpha);
+    if ((menu->visible & 1) != 0) {
+        pos.x = 26.0f + (baseX + menu->motion[0].position.x);
+        pos.y = 388.0f + (baseY + menu->motion[0].position.y);
+        alpha = (u8)((f32)menu->motion[0].opacity * fade);
+        sprite = menu->sprites[0];
+        func_0034f2e0(sprite, pos.x, pos.y, 0x5E, 0x37, 0xFF, alpha);
     }
-    if ((*(u32 *)(arg0 + 0x24) & 2) != 0) {
-        x0 = (baseX + *(f32 *)(arg0 + 0x3B8)) - 23.0f;
-        y0 = baseY + *(f32 *)(arg0 + 0x3BC);
-        alpha = (u8)((f32)*(u8 *)(arg0 + 0x3C2) * fade);
-        sprite = *(u8 **)(arg0 + 0x470);
-        f21 = iGpffff8170 * (f32)alpha;
-        f20 = 0.5f * (f32)alpha;
-        for (i = 0; i < 11; i++) {
-            pos.x = x0 + (f32)(i * 45);
-            row = arg0 + i * 10;
-            for (j = 0; j < *(s16 *)(row + 0x3DA); j++) {
-                if (j == *(s16 *)(row + 0x3DA) - 1) {
-                    r = 0xFF;
-                    g = 0xFF;
-                    b = 0xA4;
-                    alpha = (u8)f21;
-                    pos.y = y0 + (f32)(j * 17);
-                    func_0034f2e0(sprite, pos.x, pos.y, r, g, b, alpha);
-                } else if (j < *(s16 *)(row + 0x3DE)) {
-                    r = 0xFE;
-                    g = 0xFF;
-                    b = 0x56;
-                    alpha = (u8)f20;
-                    pos.y = y0 + (f32)(j * 17);
-                    func_0034f2e0(sprite, pos.x, pos.y, r, g, b, alpha);
-                }
-            }
-        }
-        prev = -1;
-        for (i = 0; i < 7; i++) {
-            row = arg0 + i * 48;
-            x0 = baseX + *(f32 *)(row + 0xB8);
-            y0 = (f32)i * 32.0f + (baseY + *(f32 *)(row + 0xBC));
-            pos.x = 219.0f + x0;
-            pos.y = 119.0f + y0;
-            alpha = (u8)((f32)*(u8 *)(row + 0xC2) * fade);
-            if ((i == 2) && (*(s32 *)(arg0 + 0x4C) == 0)) {
-                r = 0xA0;
-                g = 0xA0;
-                b = 0xA0;
-            } else {
-                r = D_0064B2E0[0];
-                g = D_0064B2E0[1];
-                b = D_0064B2E0[2];
-            }
-            func_0034f2e0(*(void **)(arg0 + 0x44C), pos.x, pos.y, r, g, b, alpha);
-            func_0034f2e0(*(void **)(arg0 + 0x450), 380.0f + pos.x, pos.y, r, g, b, alpha);
-            if (i == sel) {
-                isSel = 1;
-                func_0034f2e0(*(void **)(arg0 + 0x460), pos.x, pos.y, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], alpha);
-                func_0034f2e0(*(void **)(arg0 + 0x468), 247.0f + pos.x, pos.y, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], alpha);
-                if ((i == 2) && (*(s32 *)(arg0 + 0x4C) == 0)) {
-                    flag = (alpha & 0xFF) | 0xB4B4B400;
-                } else {
-                    flag = (alpha & 0xFF) | 0xFFFFFF00;
-                }
-            } else {
-                isSel = 0;
-                if (i == 2) {
-                    flag = (alpha & 0xFF) | 0x80808000;
-                } else {
-                    flag = (alpha & 0xFF) | 0x80808000;
-                }
-            }
-            x0 = (f32)0x1C7 + x0;
-            y0 = 122.0f + y0;
-            func_00275020(x0, y0, 0.0f, flag, 8, 1, (const char *)D_0064D230[i], 2, -1);
-            if (i != 6) {
-                if (*(u16 *)(arg0 + i * 2 + 0x3A) < 5) {
-                    if (prev != -1) {
-                        func_0035dfb0(arg0, prev, 1);
-                        func_0035dfb0(arg0, prev, 2);
+    if ((menu->visible & 2) != 0) {
+        {
+            u8 *graphEntry, *graphSprite;
+            graphX = (baseX + menu->motion[17].position.x) - 23.0f;
+            graphY = baseY + menu->motion[17].position.y;
+            alpha = (u8)((f32)menu->motion[17].opacity * fade);
+            graphSprite = menu->sprites[10];
+            index = 0;
+            topAlpha = 0.6f * (f32)alpha;
+            filledAlpha = 0.5f * (f32)alpha;
+            for (; index < 11; index++) {
+                pos.x = graphX + (f32)(index * 45);
+                cellIndex = 0;
+                /* Live graph counters may change during sprite callbacks. */
+                graphEntry = work + index * 10;
+                for (; cellIndex < *(s16 *)(graphEntry + 0x3DA); cellIndex++) {
+                    if (cellIndex == *(s16 *)(graphEntry + 0x3DA) - 1) {
+                        color.rgba.red = 0xFF;
+                        color.rgba.green = 0xFF;
+                        color.rgba.blue = 0xA4;
+                        color.rgba.alpha = (u8)topAlpha;
+                    } else if (cellIndex < *(s16 *)(graphEntry + 0x3DE)) {
+                        color.rgba.red = 0xFE;
+                        color.rgba.green = 0xFF;
+                        color.rgba.blue = 0x56;
+                        color.rgba.alpha = (u8)filledAlpha;
+                    } else {
+                        continue;
                     }
-                    prev = i;
-                    *(u16 *)(arg0 + i * 2 + 0x3A) = *(u16 *)(arg0 + i * 2 + 0x3A) + 1;
-                } else {
-                    func_0035dfb0(arg0, i, 0);
+                    pos.y = graphY + (f32)(cellIndex * 17);
+                    func_0034f2e0(graphSprite, pos.x, pos.y, color.rgba.red, color.rgba.green, color.rgba.blue,
+                                  color.rgba.alpha);
                 }
-            } else {
-                row = arg0 + i * 48;
-                pos.x = (f32)0x1CF + (baseX + *(f32 *)(row + 0x208));
-                pos.y = (f32)0x137 + (baseY + *(f32 *)(row + 0x20C));
-                func_0034f2e0(*(void **)(arg0 + 0x464), pos.x, pos.y, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], alpha);
-                func_0034f2e0(*(void **)(arg0 + 0x468), 150.0f + pos.x, pos.y, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], alpha);
-                pos.x = (f32)0x205 + (baseX + *(f32 *)(row + 0x208));
-                pos.y = (f32)0x13F + (baseY + *(f32 *)(row + 0x20C));
-                if (isSel != 0) {
-                    colPtr = D_0064B2EC;
-                } else {
-                    colPtr = D_0064B304;
-                }
-                func_0034f2e0(*(void **)(arg0 + 0x46C), pos.x, pos.y, colPtr[0], colPtr[1], colPtr[2], alpha);
             }
         }
-        if (prev != -1) {
-            func_0035dfb0(arg0, prev, 1);
-            func_0035dfb0(arg0, prev, 2);
+        index = 0;
+        pendingOption = -1;
+        for (; index < 7; index++) {
+            {
+                f32 optionX, optionY;
+                ConfigMotion *optionRow;
+                u8 green;
+                f32 pairY;
+                /* Signed row offsets retain the work-relative option view. */
+                optionRow = (ConfigMotion *)(work + index * 48 + 0xA8);
+                optionX = baseX + optionRow->position.x;
+                optionY = (f32)index * 32.0f + (baseY + optionRow->position.y);
+                pos.x = 219.0f + optionX;
+                pos.y = 119.0f + optionY;
+                alpha = (u8)((f32)optionRow->opacity * fade);
+                if ((index == 2) && (menu->options[1] == 0)) {
+                    color.rgba.red = 0xA0;
+                    color.rgba.green = 0xA0;
+                    color.rgba.blue = 0xA0;
+                } else {
+                    color.transport = *(f32 *)D_0064B2E0;
+                }
+                sprite = menu->sprites[1];
+                rowBlue = color.rgba.blue;
+                green = color.rgba.green;
+                pairY = pos.y;
+                func_0034f2e0(sprite, pos.x, pairY, color.rgba.red, green, rowBlue, alpha);
+                sprite = menu->sprites[2];
+                func_0034f2e0(sprite, 380.0f + pos.x, pairY, color.rgba.red, green, rowBlue, alpha);
+                if (index == selectedOption) {
+                    u8 *selectedPalette;
+                    selected = 1;
+                    selectedPalette = D_0064B2E8;
+                    sprite = menu->sprites[6];
+                    func_0034f2e0(sprite, pos.x, pairY, selectedPalette[0], selectedPalette[1], selectedPalette[2],
+                                  alpha);
+                    sprite = menu->sprites[8];
+                    func_0034f2e0(sprite, 247.0f + pos.x, pairY, selectedPalette[0], selectedPalette[1],
+                                  selectedPalette[2], alpha);
+                    if ((index == 2) && (menu->options[1] == 0)) {
+                        textColor = (alpha & 0xFF) | 0xB4B4B400;
+                    } else {
+                        textColor = (alpha & 0xFF) | 0xFFFFFF00;
+                    }
+                } else {
+                    selected = 0;
+                    if (index == 2) {
+                        textColor = config_gray_text(alpha, 0x80);
+                    } else {
+                        textColor = (alpha & 0xFF) | 0x80808000;
+                    }
+                }
+                pos.x = (f32)0x1C7 + optionX;
+                pos.y = 122.0f + optionY;
+                func_00275020(pos.x, pos.y, 0.0f, textColor, 8, 1, (const char *)D_0064D230[index], 2, -1);
+            }
+            if (index != 6) {
+                u16 *timer = &menu->timers[index];
+                if (*timer >= 5) {
+                    func_0035dfb0(work, index, 0);
+                } else {
+                    if (pendingOption != -1) {
+                        func_0035dfb0(work, pendingOption, 1);
+                        func_0035dfb0(work, pendingOption, 2);
+                    }
+                    pendingOption = index;
+                    *timer = *timer + 1;
+                }
+            } else {
+                u8 *button;
+                f32 *buttonX;
+                f32 *buttonY;
+                u8 *buttonPalette;
+                /* Keep the field addresses, not their values, across callbacks.
+                   This is a size-based lookup in the second animation group. */
+                button = work + index * sizeof(ConfigMotion);
+                buttonX = (f32 *)(button + 0x208);
+                pos.x = (f32)0x1CF + (baseX + *buttonX);
+                buttonY = (f32 *)(button + 0x20C);
+                pos.y = (f32)0x137 + (baseY + *buttonY);
+                buttonPalette = D_0064B2E8;
+                sprite = menu->sprites[7];
+                func_0034f2e0(sprite, pos.x, pos.y, buttonPalette[0], buttonPalette[1], buttonPalette[2], alpha);
+                sprite = menu->sprites[8];
+                func_0034f2e0(sprite, 150.0f + pos.x, pos.y, buttonPalette[0], buttonPalette[1], buttonPalette[2],
+                              alpha);
+                pos.x = (f32)0x205 + (baseX + *buttonX);
+                pos.y = (f32)0x13F + (baseY + *buttonY);
+                sprite = menu->sprites[9];
+                if (selected != 0) {
+                    buttonColor = D_0064B2EC;
+                } else {
+                    buttonColor = D_0064B304;
+                }
+                func_0034f2e0(sprite, pos.x, pos.y, buttonColor[0], buttonColor[1], buttonColor[2], alpha);
+            }
         }
-        pos.x = (f32)0x26B + (baseX + *(f32 *)(arg0 + 0x358));
-        pos.y = (f32)0x15B + (baseY + *(f32 *)(arg0 + 0x35C));
-        alpha = (u8)((f32)*(u8 *)(arg0 + 0x362) * fade);
-        func_00274ed0(pos.x, pos.y, 0.0f, (alpha | ~0xFF), 6, 1, (const char *)D_0064D380[sel], 2, 0);
+        if (pendingOption != -1) {
+            func_0035dfb0(work, pendingOption, 1);
+            func_0035dfb0(work, pendingOption, 2);
+        }
+        pos.x = (f32)0x26B + (baseX + menu->motion[15].position.x);
+        pos.y = (f32)0x15B + (baseY + menu->motion[15].position.y);
+        alpha = (u8)((f32)menu->motion[15].opacity * fade);
+        textColor = alpha | ~0xFF;
+        func_00274ed0(pos.x, pos.y, 0.0f, textColor, 6, 1, (const char *)D_0064D380[selectedOption], 2, 0);
     }
-    pos.x = 640.0f + (baseX + *(f32 *)(arg0 + 0x388));
-    pos.y = 400.0f + (baseY + *(f32 *)(arg0 + 0x38C));
-    alpha = (u8)((f32)*(u8 *)(arg0 + 0x392) * fade);
-    func_0034f9d0(pos, 0.0f, alpha, *(u16 *)(arg0 + 0x38), *(s32 *)(arg0 + 0x474));
+    pos.x = 640.0f + (baseX + menu->motion[16].position.x);
+    pos.y = 400.0f + (baseY + menu->motion[16].position.y);
+    alpha = (u8)((f32)menu->motion[16].opacity * fade);
+    func_0034f9d0(pos, 0.0f, alpha, menu->helpStyle, menu->helpTexture);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035d0a0);
-#endif
+
+#pragma pop
 
 // FUN_0035DCC0
 s32 func_0035dcc0(u8 *arg0) {
