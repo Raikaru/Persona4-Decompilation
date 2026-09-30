@@ -964,131 +964,6 @@ void func_002b5c60(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
-/* Floor: 288 differing words (probe_variants) over 278 fnalign edits, 335 emitted against */
-/* retail 336 (99.7%, 1340B/1360B window, 20B short). WALL: spill-offset rotation (retail src@0xF0/pos@0x120 */
-/* vs object src@0xE0/spC0@0xF0, invariant under decl/assign reorder) plus scheduling cascade; frame 0x130 both */
-/* sides, single saved-FP f20 (extra f21 fixed via int->float 9th arg). Honest levers: (f32)src.dimensions.height cvt.s.w from */
-/* 0xFC (+15 instrs 320->335, 311->288 words), 22.0f/17.0f/284.0f/6.0f/18.0f/1.0f, s16 indices/s8 flags, block-scope */
-/* offsets, tmpCol byte-3 alpha, tmpA intermediate, swapped (0,alpha)/(alpha,0) 12-arg 002b83e0 calls. Ruled out: */
-/* opt_common_subs off (288->337 with cvt), srctemp (+21), !flag (+16), no-tmpCol (+10), f32-cast/mulswap neutral. */
-/* measured: python3 tools/probe_variants.py src/promoted/code1_002b.c func_002ba080 --candidate v2=/tmp/a080_probe/v2_cvt.c */
-/* measured: python3 tools/fnalign.py src/promoted/code1_002b.c func_002ba080 --candidate /tmp/a080_probe/v2_cvt.c */
-/* measured: python3 tools/measure_guarded.py src/promoted/code1_002b.c func_002ba080 (after install) */
-// FUN_002BA080 NONMATCHING
-#ifdef NON_MATCHING
-void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s64 arg6, s16 arg7, f32 fparg0, s8 arg_sp0)
-{
-
-    FclBoundsPacket src;
-    FclBoundsBytes copy1, copy2;
-    FclVec2 pos1, pos2, tmpA, tmpB, tmpC;
-    s64 field;
-    u8 *object;
-    s64 spC0;
-    s32 spCC;
-    s32 tmpCol1;
-    s32 tmpCol2;
-    s16 value;
-    s16 pair_index;
-    s16 next_index;
-    s8 ones;
-    s8 tens;
-    s8 flag;
-    object = arg0;
-    field = arg6;
-    (void)field;
-    spC0 = arg3;
-    spCC = arg4;
-    src = func_002b29e0(22.0f, 17.0f);
-    pos1 = func_002b2970(*(f32 *)((u8 *)&spC0) + 284.0f, *(f32 *)((u8 *)&spC0 + 4) + 6.0f);
-    value = (s16)arg2;
-    if ((value == -1) || (value == 0)) { ones = 10; tens = 10; }
-    else { ones = (s8)(value % 10); tens = (s8)(value / 10); }
-    pair_index = (s16)((s16)arg1 * 2);
-    next_index = (s16)(pair_index + 1);
-    flag = arg_sp0;
-    if (flag == 0) {
-        u8 *digit; u8 *slot; s32 offset;
-        offset = (s32)pair_index * 0x220;
-        digit = D_0063F1F0 + ((s32)ones * 0x10);
-        slot = *(u8 **)(object + 0x38) + offset;
-        *(f32 *)(slot + 0x1F4) = *(f32 *)(digit + 0);
-        *(f32 *)(slot + 0x1F8) = *(f32 *)(digit + 4);
-        *(f32 *)(slot + 0x1FC) = *(f32 *)(digit + 8);
-        *(f32 *)(slot + 0x200) = *(f32 *)(digit + 0xC);
-        copy1 = src.representation;
-        *(f32 *)(slot + 0x12C) = pos1.x;
-        *(f32 *)(slot + 0x130) = pos1.y;
-        *(f32 *)(slot + 0x1A0) = 1.0f;
-        *(f32 *)(slot + 0x194) = 1.0f;
-        tmpCol1 = spCC;
-        *(u8 *)(slot + 0x162) = ((u8 *)&tmpCol1)[3];
-        *(u8 *)(slot + 0x179) = ((u8 *)&spCC)[0];
-        *(u8 *)(slot + 0x17A) = ((u8 *)&spCC)[1];
-        *(u8 *)(slot + 0x17B) = ((u8 *)&spCC)[2];
-        *(u8 *)(slot + 0x17C) = ((u8 *)&spCC)[3];
-        *(s32 *)(slot + 0x1C4) = 0;
-        *(f32 *)(slot + 0x108) = fparg0;
-        *(s16 *)(slot + 0x104) = (s16)(*(s16 *)(slot + 0x104) | 1);
-        ((FclBoundsPacket *)(slot + 0x204))->representation = copy1;
-        *(s16 *)(slot + 0x100) = arg7;
-        func_002b83e0(slot + 0x104, fclPacketPosition(*(s64 *)((u8 *)&pos1)), fclPacketColor((u32)(spCC)), fclPacketColor((u32)(spCC)), 0, ((u8 *)&spCC)[3], (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
-    } else {
-        u8 *slot;
-        s32 offset;
-        offset = (s32)pair_index * 0x220;
-        slot = *(u8 **)(object + 0x38) + offset;
-        if ((*(s16 *)(slot + 0x104) & 1) == 1) {
-            u8 *a0 = slot + 0x104;
-            func_002b83e0(a0, fclPacketPosition(*(s64 *)(a0 + 0x28)), fclPacketColor((u32)(*(s32 *)(a0 + 0x75))), fclPacketColor((u32)(*(s32 *)(a0 + 0x75))), *(u8 *)(a0 + 0x5E), 0, (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
-        }
-    }
-    if (flag == 0) {
-        if ((value >= 10) || (value == 0)) {
-            u8 *digit; u8 *slot; s32 offset;
-            offset = (s32)next_index * 0x220;
-            digit = D_0063F1F0 + ((s32)tens * 0x10);
-            slot = *(u8 **)(object + 0x38) + offset;
-            *(f32 *)(slot + 0x1F4) = *(f32 *)(digit + 0);
-            *(f32 *)(slot + 0x1F8) = *(f32 *)(digit + 4);
-            *(f32 *)(slot + 0x1FC) = *(f32 *)(digit + 8);
-            *(f32 *)(slot + 0x200) = *(f32 *)(digit + 0xC);
-            pos2 = func_002b2970(pos1.x - 18.0f, pos1.y);
-            tmpA = pos2;
-            copy2 = src.representation;
-            tmpCol2 = spCC;
-            *(f32 *)(slot + 0x12C) = tmpA.x;
-            *(f32 *)(slot + 0x130) = tmpA.y;
-            *(f32 *)(slot + 0x1A0) = 1.0f;
-            *(f32 *)(slot + 0x194) = 1.0f;
-            *(u8 *)(slot + 0x162) = ((u8 *)&tmpCol2)[3];
-            *(u8 *)(slot + 0x179) = ((u8 *)&spCC)[0];
-            *(u8 *)(slot + 0x17A) = ((u8 *)&spCC)[1];
-            *(u8 *)(slot + 0x17B) = ((u8 *)&spCC)[2];
-            *(u8 *)(slot + 0x17C) = ((u8 *)&spCC)[3];
-            *(s32 *)(slot + 0x1C4) = 0;
-            *(f32 *)(slot + 0x108) = fparg0;
-            *(s16 *)(slot + 0x104) = (s16)(*(s16 *)(slot + 0x104) | 1);
-            ((FclBoundsPacket *)(slot + 0x204))->representation = copy2;
-            *(s16 *)(slot + 0x100) = arg7;
-            tmpB = func_002b2970(pos1.x - 18.0f, pos1.y);
-            func_002b83e0(slot + 0x104, fclPacketPosition(*(s64 *)((u8 *)&tmpB)), fclPacketColor((u32)(spCC)), fclPacketColor((u32)(spCC)), 0, ((u8 *)&spCC)[3], (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
-        }
-    } else {
-        u8 *slot;
-        s32 offset;
-        offset = (s32)next_index * 0x220;
-        slot = *(u8 **)(object + 0x38) + offset;
-        if ((*(s16 *)(slot + 0x104) & 1) == 1) {
-            u8 *a0 = slot + 0x104;
-            tmpC = func_002b2970(pos1.x - 18.0f, *(f32 *)(a0 + 0x2C));
-            func_002b83e0(a0, fclPacketPosition(*(s64 *)((u8 *)&tmpC)), fclPacketColor((u32)(*(s32 *)(a0 + 0x75))), fclPacketColor((u32)(*(s32 *)(a0 + 0x75))), *(u8 *)(a0 + 0x5E), 0, (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
-        }
-    }
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba080);
-#endif
 /* Preserve the signed-halfword zero test without merging it with the
    preceding sentinel comparison. */
 #pragma push
@@ -1098,6 +973,125 @@ static inline s32 fclDigitIsZero(const s16 *value)
     return *value == 0;
 }
 #pragma pop
+/* Row uses word transport; the caller's value is a signed halfword.
+   Positions and colors are native aggregates, with a signed-byte mode.
+   Guarded native reconstruction remains nonzero; no compiler floor claimed. */
+// FUN_002BA080 NONMATCHING
+#ifdef NON_MATCHING
+void func_002ba080(u8 *arg0, s32 arg1, s16 arg2, FclVec2 arg3, FclDrawColor arg4, s32 arg5, s32 arg6, s32 arg7, f32 fparg0, s8 arg_sp0)
+{
+
+    FclBoundsPacket src;
+    FclBoundsBytes copy1, copy2;
+    FclVec2 pos1, pos2, tmpA, tmpB, tmpC;
+    u8 *object;
+    FclDrawColor tmpCol1;
+    FclDrawColor tmpCol2;
+    s16 value;
+    s16 pair_index;
+    s16 next_index;
+    s8 ones;
+    s8 tens;
+    s8 flag;
+    object = arg0;
+    src = func_002b29e0(22.0f, 17.0f);
+    pos1 = func_002b2970(arg3.x + 284.0f, arg3.y + 6.0f);
+    value = (s16)arg2;
+    if ((value == -1) || fclDigitIsZero(&value)) { ones = 10; tens = 10; }
+    else { ones = (s8)(value % 10); tens = (s8)(value / 10); }
+    pair_index = (s16)((s16)arg1 * 2);
+    next_index = (s16)(pair_index + 1);
+    flag = arg_sp0;
+    if (flag == 0) {
+        u8 *digit; u8 *slot; s32 offset;
+        f32 glyphHeight, glyphWidth, glyphY, glyphX;
+        digit = D_0063F1F0 + ((s32)ones * 0x10);
+        glyphHeight = *(f32 *)(digit + 12);
+        glyphWidth = *(f32 *)(digit + 8);
+        glyphY = *(f32 *)(digit + 4);
+        slot = *(u8 **)(object + 0x38);
+        offset = (s32)pair_index * 0x220;
+        glyphX = *(f32 *)digit;
+        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F4) = glyphX;
+        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F8) = glyphY;
+        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1FC) = glyphWidth;
+        *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x200) = glyphHeight;
+        copy1 = src.representation;
+        slot = *(u8 **)(object + 0x38);
+        tmpCol1 = arg4;
+        slot += offset;
+        *(FclVec2 *)(slot + 0x12C) = pos1;
+        *(f32 *)(slot + 0x1A0) = 1.0f;
+        *(f32 *)(slot + 0x194) = 1.0f;
+        *(u8 *)(slot + 0x162) = ((u8 *)&tmpCol1)[3];
+        *(FclDrawColor *)(slot + 0x179) = arg4;
+        *(s32 *)(slot + 0x1C4) = 0;
+        *(f32 *)(slot + 0x108) = fparg0;
+        *(s16 *)(slot + 0x104) = (s16)(*(s16 *)(slot + 0x104) | 1);
+        ((FclBoundsPacket *)(slot + 0x204))->representation = copy1;
+        *(s16 *)(slot + 0x100) = arg7;
+        slot = *(u8 **)(object + 0x38) + offset;
+        func_002b83e0(slot + 0x104, pos1, arg4, arg4, 0, ((u8 *)&arg4)[3], (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
+    } else {
+        u8 *slot;
+        s32 offset;
+        offset = (s32)pair_index * 0x220;
+        slot = *(u8 **)(object + 0x38) + offset;
+        if ((*(s16 *)(slot + 0x104) & 1) == 1) {
+            u8 *a0 = slot + 0x104;
+            func_002b83e0(a0, *(FclVec2 *)(a0 + 0x28), *(FclDrawColor *)(a0 + 0x75), *(FclDrawColor *)(a0 + 0x75), *(u8 *)(a0 + 0x5E), 0, (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
+        }
+    }
+    if (flag == 0) {
+        if ((value >= 10) || (value == 0)) {
+            u8 *digit; u8 *slot; s32 offset;
+            f32 glyphHeight, glyphWidth, glyphY, glyphX;
+            digit = D_0063F1F0 + ((s32)tens * 0x10);
+            glyphHeight = *(f32 *)(digit + 12);
+            glyphWidth = *(f32 *)(digit + 8);
+            glyphY = *(f32 *)(digit + 4);
+            slot = *(u8 **)(object + 0x38);
+            offset = (s32)next_index * 0x220;
+            glyphX = *(f32 *)digit;
+            *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F4) = glyphX;
+            *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F8) = glyphY;
+            *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1FC) = glyphWidth;
+            *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x200) = glyphHeight;
+            pos2 = func_002b2970(pos1.x - 18.0f, pos1.y);
+            tmpA = pos2;
+            copy2 = src.representation;
+            slot = *(u8 **)(object + 0x38);
+            tmpCol2 = arg4;
+            slot += offset;
+            *(FclVec2 *)(slot + 0x12C) = tmpA;
+            *(f32 *)(slot + 0x1A0) = 1.0f;
+            *(f32 *)(slot + 0x194) = 1.0f;
+            *(u8 *)(slot + 0x162) = ((u8 *)&tmpCol2)[3];
+            *(FclDrawColor *)(slot + 0x179) = arg4;
+            *(s32 *)(slot + 0x1C4) = 0;
+            *(f32 *)(slot + 0x108) = fparg0;
+            *(s16 *)(slot + 0x104) = (s16)(*(s16 *)(slot + 0x104) | 1);
+            ((FclBoundsPacket *)(slot + 0x204))->representation = copy2;
+            *(s16 *)(slot + 0x100) = arg7;
+            slot = *(u8 **)(object + 0x38) + offset;
+            tmpB = func_002b2970(pos1.x - 18.0f, pos1.y);
+            func_002b83e0(slot + 0x104, tmpB, arg4, arg4, 0, ((u8 *)&arg4)[3], (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
+        }
+    } else {
+        u8 *slot;
+        s32 offset;
+        offset = (s32)next_index * 0x220;
+        slot = *(u8 **)(object + 0x38) + offset;
+        if ((*(s16 *)(slot + 0x104) & 1) == 1) {
+            u8 *a0 = slot + 0x104;
+            tmpC = func_002b2970(pos1.x - 18.0f, *(f32 *)(a0 + 0x2C));
+            func_002b83e0(a0, tmpC, *(FclDrawColor *)(a0 + 0x75), *(FclDrawColor *)(a0 + 0x75), *(u8 *)(a0 + 0x5E), 0, (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
+        }
+    }
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba080);
+#endif
 /* Keep the two positions, colors, and character-representation bounds
    snapshots separate across writes to the draw slots. The depth precedes
    the layer in the recovered signature. See the worker3 digit-pair archive. */

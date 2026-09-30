@@ -1326,7 +1326,7 @@ static inline void fclStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, 
 
 // FUN_002B83E0
 void func_002b83e0(u8 *arg0, FclVec2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5,
-                   f32 fparg0, f32 fparg1, s32 arg6, s32 arg7, s32 arg_sp0, s8 arg_sp8)
+                   f32 fparg0, f32 fparg1, s32 arg6, s32 arg7, s8 arg_sp0, s8 arg_sp8)
 {
     arg0[0x37] = arg_sp8;
     arg0[0xA3] = arg_sp8;

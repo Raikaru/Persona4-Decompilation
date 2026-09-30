@@ -12422,3 +12422,46 @@ compile repairs and reports **352 MATCH / 11 ASM across 363 functions**.
 Only the six Flash functions are newly exact; the repairs keep their
 production assembly fallbacks. Receipt:
 `build/finish-first-party-20260929/parent/checkpoint-production-verify.json`.
+
+### Fcl selector and coherent packet contracts
+
+`src/Event/Fcl/y_fclCombineDraw.c::func_0031e5b0` is now C-owned:
+5232 / 5232 bytes, all 148 relocations independently resolved, no differing
+instruction words or suffix. Scoped `opt_lifetimes on` preserves the actual
+selector/resource lifetimes. The selector has a real 0..3 precondition:
+all 30 direct retail callers supply this domain, including the two forwarded
+constant-one selectors. No default resource is invented for unsupported
+selectors; the implementation documents that entry contract.
+
+The shared `fcl_draw_task.h` declarations and their active consumers retain
+the canonical EE argument order. `002b83e0` mode/reverse are signed bytes;
+`002ba080` takes a word row, signed-halfword value, by-value position/color,
+word duration/delay/layer, float depth, and signed-byte mode. The provider
+narrows the row internally; narrowing every caller changes the contract.
+`003191c0` deliberately retains its unsigned-word intermediate before the
+signed-byte row conversion. Its complete 6728-byte body plus eight zero
+bytes remains exact with all 185 relocations resolved.
+
+Independent production verification covers all four coherent owners:
+**244 functions, 236 MATCH / eight ASM**. Guarded native compilation also
+preserves every established C function, resolves all code relocations, and
+independently proves emitted data and jump tables. The eight guarded
+candidates remain nonzero and receive no exact credit:
+
+| Owner / target | Differing masked instruction words |
+| --- | ---: |
+| CombineDraw `0031ac10` | 575 |
+| CombineDraw `00320b80` | 73 |
+| CombineDraw `00321e60` | 16 |
+| CombineDraw `00323d00` | 36 |
+| CombineDraw `00324680` | 15 |
+| Combine `002eb270` | 48 |
+| Packet provider `002ba080` | 237 |
+| Draw `002b6ec0` | 363 |
+
+Receipts: `build/finish-first-party-20260929/parent/fcl-production-verify.json`
+and `build/first-party-finish-20260929/FclFinish/parent-frozen-{draw,combine,sdk,y-draw}-guarded/`.
+Each native folder retains the complete object, compile receipt and
+`full-owner-proof.json`. This checkpoint adds one exact first-party function
+to the prior published 6736/6861 baseline; the full first-party goal remains
+open. These are native compiler/object proofs, not PS2 gameplay execution.
