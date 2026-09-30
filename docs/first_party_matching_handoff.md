@@ -4082,3 +4082,44 @@ See the current table and limits in `docs/matching.md`,
 and parent `scorer-renderer-production-verify.json`,
 `particle-void-production-verify.json`, `particle-native-smoke-receipt.json`
 under `build/finish-first-party-20260929/parent/`.
+
+The guarded dataflow checkpoint `0f096f86` was merged with the intervening
+upstream result-screen match `06794ddb` and published as `9896e8d8`.
+[Full clean CI 36664738585](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/36664738585)
+passed. Parent `btlResultSimple.c` verification is 13/13 MATCH; uploaded linked
+counts are **6738/6861, 123 remaining across 64 owners**.
+Current acceptance/manifest:
+`build/finish-first-party-20260929/parent/ci-9896e8d8-{receipt,remaining-first-party}.json`.
+The complete first-party goal remains open.
+
+## Defined movie, sdkLbox and Fcl coordinate contracts
+
+The guarded movie lifecycle uses real task-name/list providers and the
+existing 0x30 Sofdec creation-parameter header. The frame output remains
+the producer-backed 0x90 word buffer, not the mismatched header's 0x88 frame.
+The sdkLbox callback now has actual contiguous rectangles/joystick/callback
+records, byte clear strides and canonical one-argument entry dispatch.
+Parent verification preserves **56 MATCH / two ASM in 58 functions**;
+default windows/data are proven, guarded C siblings remain exact and
+policy lint is clean. The two own nonexact jump tables still reject the
+strict guarded data gate; differing fully resolved words are 887 / 966.
+No guard is removed.
+
+Parent retail/emitted instruction smoke passes four lifecycle and ten
+lbox cases / 28 invocations without unwritten stack reads. It executes
+the real list-count leaf and checks actual provider/task/rectangle/state
+boundaries; graphics/decoder/full SDK execution is not claimed.
+The lbox code/table also retain the worker's 64-case tested byte identity.
+Guarded source uses existing `-Isrc/cri/re4`; no private ABI shadow,
+compiler change or stack-name compatibility macro is added.
+
+The separate Fcl `003191c0` fix replaces the potentially uninitialized
+second-constructor `y` read with actual `arg1.y`. Parent verification is
+**65 MATCH / five ASM in 70 functions**. Independent strict code/data
+proofs and 2,097,152 paired-coordinate smoke cases preserve its exactness
+under both evaluation orders. No new match credit or gameplay claim.
+
+See `docs/matching.md`, parent `movie-lbox-reconstruction-receipt.json`,
+`movie-lbox-production-verify.json`,
+`fcl-defined-coordinate-production-verify.json`, and
+`FclFinish/row191-defined-coordinate-proposal.json`.
