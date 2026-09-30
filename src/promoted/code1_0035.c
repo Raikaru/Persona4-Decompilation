@@ -4137,41 +4137,32 @@ loop_test:
     func_0035fd60(arg0);
     return var_16;
 }
-/* Floor: 1689 words via `tools/measure_guarded.py` (fndiff, no alignment, +52B over shifted; use fnalign), 7236B emitted against a 7184B window (1809/1796 instructions, +13), frame exact 0x1A0, 478 fnalign edits (+20 reloc-only) via `tools/fnalign.py --candidate` (was 849 at 1707 instrs; pos-union 1522->1689 fndiff (+167, size over), fnalign 849->478 (-371, -44%); u8alpha (f32)alpha->(f32)(u8)alpha fixes bltz/srl/or 17->21 exact; col3 (0x65C/0x658/0x674 via col) fixes lbu/sb -11->+1, mov.s +22->+1; float reverse (base $f25/$f24->$f21/$f20 exact) -42 edits. Mechanism is the same one that cracked func_003768e0: scalar posX/posY replaced by pos.f[0]/pos.f[1] union array elements so the spill/reload pairs appear. NOT the menu state machine family: `void func_0035fd60(u8 *)` with a single `jr $ra` and no `$v0` result (void, not `s32 (u32 *, s32 *, u8 *)` with a shared `return 0` / fade `return 2`); frame 0x1A0 saving $s16-$s20/$f20-$f26, not `u8 buf[0x30]` with a `+0x24` query read; `lbu $3,0x0($18)` feeds `cvt.s.w`/`div.s` (`*arg0/255.0f` alpha scale), not a `switch (*arg0)` dispatch (no jump table); phases gated on `*(s32 *)(arg0+0x1C)` bits 1/2/4 (with &8 nested inside &4), 14 callees. Census 54->41: mov.s +22->+1, swc1 -35->-10, lwc1 -35->-3, frame exact at 0x1A0.
-   WALL: outer $f24 vs $f26 (two saves short of $f26; f26first $f25 off by 1 gives 482 edits (+4, worse); declaration order), lui +29 (D_0064B2E8/B2EC/B300 rematerialised per byte via $v0 (3 lui, dest $v0 same clobbers) vs hoisted $s1 (1 lui, dest $a1/$a2/$a3 different base preserved); long-lived pB saves 23 lui (160->137, +29->+6) but breaks the frame to 0x1B0 and costs 3232 edits; short-lived p per group saves 2-4 lui with base $s2/frame exact but forwarded (tie, no saving) unless long live across calls (saved, pressure); swc1 -10/lwc1 -3 (need 10/3 more stores/loads, likely fy/fx dead stores with s64 packing), andi +3 (was -2, surplus from u8alpha per-j (4 conversions)), unsigned-branch staging/FPU choice with s64 packing, and `andi $s1` masking/re-read scheduling. */
-/* measured 0035fd60: `opt_loop_invariants on` inside the guard is worth 114 words (1636 -> 1522), the loop-preheader constant hoist. */
-/* measured 0035fd60 (WWidthD): pragmas via `tools/probe_variants.py` singly post-flock on the loopinv base (1522): `schedule on` 1662 (+140), `opt_common_subs off` 1673 (+151), `opt_propagation off` 1657 (+135); `tools/wscan_pairs.py` 1 vs 0 (single 0x18 pair for `(s8)alpha`, ignored until size matches per assignment); slti all `$v0` both sides (no `$at` lever; src `$s1` vs `$s4`/`$s0` colour wall); relocs match retail call sites (24x34f2e0, 8x3f6440, 2x34f9d0, 1x361d20, etc.) so the -86 is in `(u8)` clamping at 21 sites (`c.ole.s`/`bc1t` large-x paths) + FPR colour (`$f25`/`$f24` vs `$f21`/`$f20`, one save short of `$f26`), not missing calls. */
-/* 2026-09-19 lead adjudication of the two candidates, like for like:
-     previous  1522 words, object 1707 against retail 1793 - **-86, -4.8%,
-               OUTSIDE the +-3% band of 1739-1847** - fnalign 849 edits.
-     current   1689 words, object 1809 against retail 1796 - +13, +0.7%,
-               inside the band - fnalign 478 edits (+20 reloc-only).
-   The word score rose by 167 and the body still got much closer to retail.
-   That is not a paradox: `measure_guarded` counts reloc-masked differing
-   words over a fixed window, so a body 86 instructions short scores well by
-   being shifted out of alignment with the parts it is missing.  The previous
-   floor should never have been banked - it failed the count gate.  The
-   current one meets it and halves the alignment edits.
-   When the two metrics disagree, check the counts first: if one candidate is
-   outside the gate, its word score is not comparable to anything.  See also
-   func_00468ff0, where edits fell 674 -> 316 while words rose 898 -> 911 for
-   the same reason. */
-// FUN_0035FD60 NONMATCHING
-#ifdef NON_MATCHING
+/* Draw the animated menu panels, eleven-column pip grids and scrolling list.
+ * Position, texture and opacity snapshots preserve the values used by each
+ * draw group. The label pass uses the final row's alpha; the scrollbar keeps
+ * its fractional origin, while the solid primitive requires integer geometry.
+ * Measured b210 O2 with scoped lifetime/loop-invariant optimization:
+ * 7176 instruction bytes plus the retail window's eight-byte zero tail.
+ * See docs/probe_archive/Menu_renderer_0035fd60_20260930.md. */
+// FUN_0035FD60
+#pragma push
+#pragma opt_lifetimes on
 #pragma opt_loop_invariants on
-void func_0035fd60(u8 *arg0) {
+void func_0035fd60(u8 *work)
+{
     extern void func_0034f1e0(void);
-    extern void func_0034c270(s64 pos, s8 alpha, s32 flag, f32 zero);
+    extern void func_0034c270(Vec2f position, s32 alpha, s32 background, f32 depth);
     extern void func_0034f2e0(void *ptr, f32 x, f32 y, u8 r, u8 g, u8 b, u8 a);
-    extern void func_0034f9d0(Vec2f pos, f32 z, u8 alpha, s32 arg2, s32 arg3);
+    extern void func_0034f9d0(Vec2f position, f32 depth, u8 alpha, s32 mode, s32 resource);
     extern void func_00275980(void *src, void *dst, s32 n);
-    extern void func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s32 a, s32 b, void *buf, s32 c, s32 d);
+    extern s32 func_00274ed0(f32 x, f32 y, f32 depth, s32 color, s8 character, s32 font,
+                            const char *text, s32 flags, s32 reserved);
     extern void func_002bc7a0(s32 item, f32 x, f32 y, f32 depth,
-                              s32 color, s32 font, s32 mode, s32 table);
+                              s32 textColor, s32 font, s32 mode, s32 table);
     extern void func_00361d20(s32 idx, u8 *ctx);
-    extern void RpSkyRenderStateSet(s32 cmd, s32 val);
-    extern void func_0045c870(u8 *color, s32 flag);
-    extern void func_0045d6e0(u8 *color, u8 *rect, f32 zero, s32 flag);
+    extern s32 RpSkyRenderStateSet(s32 cmd, void *val);
+    extern void func_0045c870(u8 *color, s32 flags);
+    extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 flags);
     extern void func_00489f80(void);
     extern void func_0048a000(void);
     extern u8 D_0064B2E8[];
@@ -4179,262 +4170,288 @@ void func_0035fd60(u8 *arg0) {
     extern u8 D_0064B300[];
     extern u8 D_0064B2E0[];
     extern void *D_0064D448[];
-    extern s32 (*D_00887300[])(s32, s32);
-    extern f32 fGpffff8170;
-    extern f32 fGpffff8554;
-    typedef union {
-        f32 f[2];
-        s64 s;
-        Vec2f xy;
-    } PosBits;
-    u8 col[4];
-    u8 textbuf[0x100];
-    struct {
-        f32 x;
-        f32 y;
-        s32 w;
-        s32 h;
-    } rect;
-    PosBits pos;
-    f32 f25;
-    f32 f26;
-    f32 fy;
-    f32 fx;
-    f32 scale;
-    f32 baseY;
-    f32 baseX;
-    s32 flag;
-    s32 alpha;
-    s32 i;
-    s32 j;
-    s32 k;
-    s32 color;
-    s32 v0;
-    s32 v1;
-    u8 *row;
-    u8 a0;
-    u8 alpha122;
+    extern s32 (*D_00887300[])(s32, void *);
+    u8 colorBytes[4];
+    /* The primitive wrapper copies four words through its float transport view;
+     * their actual payload is the integer x, y, width and height. */
+    union { s32 integer[4]; f32 transport[4]; } rectangle;
+    char text[0x100];
+    Vec2f position;
+    s32 column;
+    s32 pip;
+    u8 *entry;
+    void *pipSprite;
+    void *cursorSprite;
+    void *sprite;
+    typedef struct { u8 r, g, b, a; } PaletteColor;
+    PaletteColor *palette;
+    f32 gridX;
+    f32 gridY;
+    f32 offsetY;
+    f32 offsetX;
+    f32 opacityScale;
+    f32 originX;
+    f32 originY;
+    s32 background;
+    u8 gridAlpha;
+    s32 rowOffset;
+    s32 textColor;
+    s32 itemIndex;
+    s32 displayItem;
+    u8 opacity;
+    u8 labelOpacity;
+    u32 lastRowAlpha;
     func_0034f1e0();
-    baseX = *(f32 *)(arg0 + 4);
-    baseY = *(f32 *)(arg0 + 8);
-    scale = (f32)*(u8 *)arg0 / 255.0f;
-    flag = *(s32 *)(arg0 + 0x10);
-    if (flag != 0) {
-        pos.f[0] = baseX;
-        pos.f[1] = baseY;
-        alpha = (u8)(255.0f * scale);
-        func_0034c270(pos.s, (s8)alpha, flag, 0.0f);
+    originX = *(f32 *)(work + 4);
+    originY = *(f32 *)(work + 8);
+    opacityScale = (f32)*(u8 *)work / 255.0f;
+    background = *(s32 *)(work + 0x10);
+    if (background != 0) {
+        position.x = originX;
+        position.y = originY;
+        gridAlpha = (u8)(255.0f * opacityScale);
+        func_0034c270(position, (u8)gridAlpha, background, 0.0f);
     }
-    if (*(s32 *)(arg0 + 0x1C) & 1) {
-        pos.f[0] = baseX + *(f32 *)(arg0 + 0x178) + 90.0f;
-        pos.f[1] = baseY + *(f32 *)(arg0 + 0x17C) + 91.0f;
-        alpha = (u8)((f32)*(u8 *)(arg0 + 0x182) * scale);
-        func_0034f2e0(*(void **)(arg0 + 0x6FC), pos.f[0], pos.f[1], 0xFF, 0xFF, 0xFF, alpha);
+    if (*(s32 *)(work + 0x1C) & 1) {
+        position.x = originX + *(f32 *)(work + 0x178) + 90.0f;
+        position.y = originY + *(f32 *)(work + 0x17C) + 91.0f;
+        gridAlpha = (u8)((f32)*(u8 *)(work + 0x182) * opacityScale);
+        func_0034f2e0(*(void **)(work + 0x6FC), position.x, position.y, 0xFF, 0xFF, 0xFF, gridAlpha);
     }
-    if (*(s32 *)(arg0 + 0x1C) & 2) {
-        f26 = 23.0f + (595.0f + (baseX + *(f32 *)(arg0 + 0x148)));
-        f25 = 280.0f + (baseY + *(f32 *)(arg0 + 0x14C));
-        alpha = (u8)((f32)*(u8 *)(arg0 + 0x152) * scale);
+    if (*(s32 *)(work + 0x1C) & 2) {
+        gridX = 23.0f + (595.0f + (originX + *(f32 *)(work + 0x148)));
+        gridY = 280.0f + (originY + *(f32 *)(work + 0x14C));
+        gridAlpha = (u8)((f32)*(u8 *)(work + 0x152) * opacityScale);
+        /* The shared pip texture and phase opacity are snapshots for this grid. */
+        pipSprite = *(void **)(work + 0x678);
 
-        for (i = 0; i < 0xB; i++) {
-            pos.f[0] = f26 - (f32)(i * 0x2D);
-            row = arg0 + i * 0xA;
-            for (j = 0; j < *(s16 *)(row + 0x5EA); j++) {
-                if (j == *(s16 *)(row + 0x5EA) - 1) {
-                    col[0] = 0xFF;
-                    col[1] = 0xFF;
-                    col[2] = 0xA4;
-                    col[3] = (u8)(fGpffff8170 * (f32)(u8)alpha);
-                } else if (j < *(s16 *)(row + 0x5EE)) {
-                    col[0] = 0xFE;
-                    col[1] = 0xFF;
-                    col[2] = 0x56;
-                    col[3] = (u8)(0.5f * (f32)(u8)alpha);
+        for (column = 0; column < 0xB; column++) {
+            position.x = gridX - (f32)(column * 0x2D);
+            pip = 0;
+            entry = work + column * 0xA;
+            for (; pip < *(s16 *)(entry + 0x5EA); pip++) {
+                if (pip == *(s16 *)(entry + 0x5EA) - 1) {
+                    colorBytes[0] = 0xFF;
+                    colorBytes[1] = 0xFF;
+                    colorBytes[2] = 0xA4;
+                    colorBytes[3] = (u8)(0.6f * (f32)gridAlpha);
+                } else if (pip < *(s16 *)(entry + 0x5EE)) {
+                    colorBytes[0] = 0xFE;
+                    colorBytes[1] = 0xFF;
+                    colorBytes[2] = 0x56;
+                    colorBytes[3] = (u8)(0.5f * (f32)gridAlpha);
                 } else {
                     continue;
                 }
-                pos.f[1] = f25 - (f32)(j * 0x11);
-                func_0034f2e0(*(void **)(arg0 + 0x678), pos.f[0], pos.f[1], col[0], col[1], col[2], col[3]);
+                position.y = gridY - (f32)(pip * 0x11);
+                func_0034f2e0(pipSprite, position.x, position.y, colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
             }
         }
-        for (i = 0; i < 3; i++) {
-            k = i * 0x30;
-            row = arg0 + k;
-            pos.f[0] = 144.0f + (baseX + *(f32 *)(row + 0x58));
-            pos.f[1] = 136.0f + (baseY + *(f32 *)(row + 0x5C) + (f32)k);
-            a0 = (u8)((f32)*(u8 *)(row + 0x62) * scale);
-            col[0] = D_0064B2E8[0];
-            col[1] = D_0064B2E8[1];
-            col[2] = D_0064B2E8[2];
-            col[3] = a0;
-            func_0034f2e0(*(void **)(arg0 + i * 8 + 0x65C), pos.f[0], pos.f[1], col[0], col[1], col[2], col[3]);
+        for (column = 0; column < 3; column++) {
+            rowOffset = column * 0x30;
+            entry = work + rowOffset;
+            position.x = 144.0f + (originX + *(f32 *)(entry + 0x58));
+            position.y = 136.0f + (originY + *(f32 *)(entry + 0x5C) + (f32)(column * 0x30));
+            opacity = (u8)((f32)*(u8 *)(entry + 0x62) * opacityScale);
+            colorBytes[0] = D_0064B2E8[0];
+            colorBytes[1] = D_0064B2E8[1];
+            colorBytes[2] = D_0064B2E8[2];
+            colorBytes[3] = opacity;
+            func_0034f2e0(*(void **)(work + column * 8 + 0x65C), position.x, position.y, colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
         }
-        fx = *(f32 *)(arg0 + 0x40);
-        fy = *(f32 *)(arg0 + 0x44);
-        *(f32 *)(arg0 + 0x40) = fx + (((303.0f + baseX) - fx) * 0.5f);
-        *(f32 *)(arg0 + 0x44) = fy + (((133.0f + baseY + (f32)(*(s16 *)(arg0 + 0x28) * 0x30)) - fy) * 0.5f);
-        pos.f[0] = *(f32 *)(arg0 + 0x118) + *(f32 *)(arg0 + 0x40);
-        pos.f[1] = *(f32 *)(arg0 + 0x11C) + *(f32 *)(arg0 + 0x44);
-        a0 = (u8)((f32)*(u8 *)(arg0 + 0x122) * scale);
-        alpha122 = a0;
-        col[0] = D_0064B2E8[0];
-        col[1] = D_0064B2E8[1];
-        col[2] = D_0064B2E8[2];
-        col[3] = a0;
-        func_0034f2e0(*(void **)(arg0 + 0x658), pos.f[0], pos.f[1], col[0], col[1], col[2], col[3]);
+        /* Smooth the cursor halfway toward the selected row using its old pair. */
+        offsetX = 303.0f + originX;
+        offsetY = 133.0f + originY + (f32)(*(s16 *)(work + 0x28) * 0x30);
+        position = *(Vec2f *)(work + 0x40);
+        offsetX = offsetX - position.x;
+        offsetY = offsetY - position.y;
+        offsetX = offsetX * 0.5f;
+        offsetY = offsetY * 0.5f;
+        *(f32 *)(work + 0x40) = position.x + offsetX;
+        *(f32 *)(work + 0x44) = position.y + offsetY;
+        position.x = *(f32 *)(work + 0x118) + *(f32 *)(work + 0x40);
+        position.y = *(f32 *)(work + 0x11C) + *(f32 *)(work + 0x44);
+        lastRowAlpha = (u8)((f32)*(u8 *)(work + 0x122) * opacityScale);
+        cursorSprite = *(void **)(work + 0x658);
+        colorBytes[0] = D_0064B2E8[0];
+        colorBytes[1] = D_0064B2E8[1];
+        colorBytes[2] = D_0064B2E8[2];
+        func_0034f2e0(cursorSprite, position.x, position.y, colorBytes[0], colorBytes[1], colorBytes[2], lastRowAlpha);
         func_00489f80();
         D_00887300[0](1, 0);
-        col[0] = D_0064B2E8[0];
-        col[1] = D_0064B2E8[1];
-        col[2] = D_0064B2E8[2];
-        col[3] = 0;
-        func_0045c870(col, 0);
-        func_0034f2e0(*(void **)(arg0 + 0x658), pos.f[0], pos.f[1], col[0], col[1], col[2], 0xFF);
+        colorBytes[3] = 0;
+        func_0045c870(colorBytes, 0);
+        func_0034f2e0(cursorSprite, position.x, position.y, colorBytes[0], colorBytes[1], colorBytes[2], 0xFF);
         func_0048a000();
-        RpSkyRenderStateSet(3, 0x2D801);
-        RpSkyRenderStateSet(2, 0x44);
-        for (i = 0; i < 3; i++) {
-            k = i * 0x30;
-            row = arg0 + k;
-            pos.f[0] = 144.0f + (baseX + *(f32 *)(row + 0x58));
-            pos.f[1] = 136.0f + (baseY + *(f32 *)(row + 0x5C) + (f32)k);
-            a0 = (u8)((f32)*(u8 *)(row + 0x62) * scale);
-            func_0034f2e0(*(void **)(arg0 + i * 8 + 0x65C), pos.f[0], pos.f[1], D_0064B2EC[0], D_0064B2EC[1], D_0064B2EC[2], a0);
+        RpSkyRenderStateSet(3, (void *)0x2D801);
+        RpSkyRenderStateSet(2, (void *)0x44);
+        for (column = 0; column < 3; column++) {
+            rowOffset = column * 0x30;
+            entry = work + rowOffset;
+            position.x = 144.0f + (originX + *(f32 *)(entry + 0x58));
+            position.y = 136.0f + (originY + *(f32 *)(entry + 0x5C) + (f32)(column * 0x30));
+            lastRowAlpha = (u8)((f32)*(u8 *)(entry + 0x62) * opacityScale);
+            colorBytes[0] = D_0064B2EC[0];
+            colorBytes[1] = D_0064B2EC[1];
+            colorBytes[2] = D_0064B2EC[2];
+            colorBytes[3] = lastRowAlpha;
+            func_0034f2e0(*(void **)(work + column * 8 + 0x65C), position.x, position.y, colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
         }
-        RpSkyRenderStateSet(3, 0x717FB);
-        RpSkyRenderStateSet(2, 0x44);
-        for (i = 0; i < 3; i++) {
-            k = i * 0x30;
-            row = arg0 + k;
-            fx = 144.0f + (baseX + *(f32 *)(row + 0x58));
-            fy = 136.0f + (baseY + *(f32 *)(row + 0x5C) + (f32)k);
-            func_0034f2e0(*(void **)(arg0 + i * 8 + 0x660), fx + 4.0f, fy + 20.0f, 0x80, 0x80, 0x80, alpha122);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
+        RpSkyRenderStateSet(2, (void *)0x44);
+        /* The label pass uses the alpha left by the final animated row. */
+        labelOpacity = lastRowAlpha;
+        for (column = 0; column < 3; column++) {
+            rowOffset = column * 0x30;
+            entry = work + rowOffset;
+            position.x = 144.0f + (originX + *(f32 *)(entry + 0x58));
+            position.y = 136.0f + (originY + *(f32 *)(entry + 0x5C) + (f32)(column * 0x30));
+            sprite = *(void **)(work + column * 8 + 0x660);
+            func_0034f2e0(sprite, position.x + 4.0f, position.y + 20.0f, 0x80, 0x80, 0x80, labelOpacity);
         }
-        pos.f[0] = 468.0f + (baseX + *(f32 *)(arg0 + 0xE8));
-        pos.f[1] = 139.0f + (baseY + *(f32 *)(arg0 + 0xEC));
-        a0 = (u8)((f32)*(u8 *)(arg0 + 0xF2) * scale);
-        col[0] = D_0064B2E8[0];
-        col[1] = D_0064B2E8[1];
-        col[2] = D_0064B2E8[2];
-        col[3] = a0;
-        func_0034f2e0(*(void **)(arg0 + 0x674), pos.f[0], pos.f[1], col[0], col[1], col[2], col[3]);
-        pos.f[0] = 53.0f + (567.0f + (baseX + *(f32 *)(arg0 + 0xE8)));
-        pos.f[1] = 269.0f + (baseY + *(f32 *)(arg0 + 0xEC));
-        a0 = (u8)((f32)*(u8 *)(arg0 + 0xF2) * scale);
-        func_00275980(D_0064D448[*(s16 *)(arg0 + 0x28)], textbuf, 0x100);
-        func_00274ed0(pos.f[0], pos.f[1], 0.0f, (a0 | ~0xFF), 7, 1, textbuf, 2, 0);
-        pos.f[0] = 640.0f + (baseX + *(f32 *)(arg0 + 0x1A8));
-        pos.f[1] = 400.0f + (baseY + *(f32 *)(arg0 + 0x1AC));
-        a0 = (u8)((f32)*(u8 *)(arg0 + 0x1B2) * scale);
-        func_0034f9d0(pos.xy, 0.0f, a0, *(s16 *)(arg0 + 0x34), *(s32 *)(arg0 + 0x700));
+        position.x = 468.0f + (originX + *(f32 *)(work + 0xE8));
+        position.y = 139.0f + (originY + *(f32 *)(work + 0xEC));
+        opacity = (u8)((f32)*(u8 *)(work + 0xF2) * opacityScale);
+        sprite = *(void **)(work + 0x674);
+        colorBytes[0] = D_0064B2E8[0];
+        colorBytes[1] = D_0064B2E8[1];
+        colorBytes[2] = D_0064B2E8[2];
+        func_0034f2e0(sprite, position.x, position.y, colorBytes[0], colorBytes[1], colorBytes[2], opacity);
+        position.x = 53.0f + (567.0f + (originX + *(f32 *)(work + 0xE8)));
+        position.y = 269.0f + (originY + *(f32 *)(work + 0xEC));
+        opacity = (u8)((f32)*(u8 *)(work + 0xF2) * opacityScale);
+        textColor = opacity | ~0xFF;
+        func_00275980(D_0064D448[*(s16 *)(work + 0x28)], text, 0x100);
+        func_00274ed0(position.x, position.y, 0.0f, textColor, 7, 1, text, 2, 0);
+        position.x = 640.0f + (originX + *(f32 *)(work + 0x1A8));
+        position.y = 400.0f + (originY + *(f32 *)(work + 0x1AC));
+        opacity = (u8)((f32)*(u8 *)(work + 0x1B2) * opacityScale);
+        func_0034f9d0(position, 0.0f, opacity, *(s16 *)(work + 0x34), *(s32 *)(work + 0x700));
     }
-    if (*(s32 *)(arg0 + 0x1C) & 4) {
-        f26 = 23.0f + (595.0f + (baseX + *(f32 *)(arg0 + 0x148)));
-        f25 = 430.0f + (baseY + *(f32 *)(arg0 + 0x14C));
-        alpha = (u8)((f32)*(u8 *)(arg0 + 0x152) * scale);
-        RpSkyRenderStateSet(3, 0x71801);
-        RpSkyRenderStateSet(2, 0x48);
+    if (*(s32 *)(work + 0x1C) & 4) {
+        gridX = 23.0f + (595.0f + (originX + *(f32 *)(work + 0x148)));
+        gridY = 430.0f + (originY + *(f32 *)(work + 0x14C));
+        gridAlpha = (u8)((f32)*(u8 *)(work + 0x152) * opacityScale);
+        /* The shared pip texture and phase opacity are snapshots for this grid. */
+        pipSprite = *(void **)(work + 0x678);
+        RpSkyRenderStateSet(3, (void *)0x71801);
+        RpSkyRenderStateSet(2, (void *)0x48);
 
-        for (i = 0; i < 0xB; i++) {
-            pos.f[0] = f26 - (f32)(i * 0x2D);
-            row = arg0 + i * 0xA;
-            for (j = 0; j < *(s16 *)(row + 0x5EA); j++) {
-                if (j == *(s16 *)(row + 0x5EA) - 1) {
-                    col[0] = 0xFF;
-                    col[1] = 0xFF;
-                    col[2] = 0xF0;
-                    col[3] = (u8)(0.5f * (f32)(u8)alpha);
-                } else if (j < *(s16 *)(row + 0x5EE)) {
-                    col[0] = 0xFF;
-                    col[1] = 0xFC;
-                    col[2] = 0x40;
-                    col[3] = (u8)(fGpffff8554 * (f32)(u8)alpha);
+        for (column = 0; column < 0xB; column++) {
+            position.x = gridX - (f32)(column * 0x2D);
+            pip = 0;
+            entry = work + column * 0xA;
+            for (; pip < *(s16 *)(entry + 0x5EA); pip++) {
+                if (pip == *(s16 *)(entry + 0x5EA) - 1) {
+                    colorBytes[0] = 0xFF;
+                    colorBytes[1] = 0xFF;
+                    colorBytes[2] = 0xF0;
+                    colorBytes[3] = (u8)(0.5f * (f32)gridAlpha);
+                } else if (pip < *(s16 *)(entry + 0x5EE)) {
+                    colorBytes[0] = 0xFF;
+                    colorBytes[1] = 0xFC;
+                    colorBytes[2] = 0x40;
+                    colorBytes[3] = (u8)(0.45f * (f32)gridAlpha);
                 } else {
                     continue;
                 }
-                pos.f[1] = f25 - (f32)(j * 0x11);
-                func_0034f2e0(*(void **)(arg0 + 0x678), pos.f[0], pos.f[1], col[0], col[1], col[2], col[3]);
+                position.y = gridY - (f32)(pip * 0x11);
+                func_0034f2e0(pipSprite, position.x, position.y, colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
             }
         }
-        RpSkyRenderStateSet(3, 0x717FB);
-        RpSkyRenderStateSet(2, 0x44);
-        pos.f[0] = 29.0f + (baseX + *(f32 *)(arg0 + 0x3B8));
-        pos.f[1] = -13.0f + (54.0f + (baseY + *(f32 *)(arg0 + 0x3BC)));
-        a0 = (u8)((f32)*(u8 *)(arg0 + 0x3C2) * scale);
-        func_0034f2e0(*(void **)(arg0 + 0x6DC), pos.f[0], pos.f[1], D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x6E0), pos.f[0] + 73.0f, pos.f[1], D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x6D8), pos.f[0] + 19.0f, pos.f[1] + 2.0f, D_0064B2EC[0], D_0064B2EC[1], D_0064B2EC[2], a0);
-        pos.f[0] = 89.0f + (baseX + *(f32 *)(arg0 + 0x3B8));
-        pos.f[1] = -13.0f + (86.0f + (baseY + *(f32 *)(arg0 + 0x3BC)));
-        a0 = (u8)((f32)*(u8 *)(arg0 + 0x3C2) * scale);
-        fy = pos.f[1] + 4.0f;
-        func_0034f2e0(*(void **)(arg0 + 0x68C), pos.f[0] - 6.0f, fy, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x690), pos.f[0] + 41.0f, fy, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x680), pos.f[0], pos.f[1], D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x67C), pos.f[0], pos.f[1], D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], a0);
-        pos.f[0] = 302.0f + (baseX + *(f32 *)(arg0 + 0x3B8));
-        pos.f[1] = -13.0f + (79.0f + (baseY + *(f32 *)(arg0 + 0x3BC)));
-        a0 = (u8)((f32)*(u8 *)(arg0 + 0x3C2) * scale);
-        fy = pos.f[1] + 11.0f;
-        func_0034f2e0(*(void **)(arg0 + 0x694), pos.f[0] - 157.0f, fy, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x698), pos.f[0] + 255.0f, fy, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x688), pos.f[0], pos.f[1], D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x684), pos.f[0], pos.f[1], D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], a0);
-        fx = 583.0f + (*(f32 *)(arg0 + 0x5C8) + (baseX + *(f32 *)(arg0 + 0x328)));
-        fy = (f32)(s32)((-13.0f + (132.0f + (*(f32 *)(arg0 + 0x5CC) + (baseY + *(f32 *)(arg0 + 0x32C))))) - 17.0f);
-        a0 = (u8)((f32)*(u8 *)(arg0 + 0x332) * scale);
-        func_0034f2e0(*(void **)(arg0 + 0x6F0), fx, fy, 0xFF, 0xFF, 0xFF, a0);
-        fy = fy + 165.0f;
-        func_0034f2e0(*(void **)(arg0 + 0x6F4), fx, fy, 0xFF, 0xFF, 0xFF, a0);
-        fy = fy - 165.0f + 3.0f;
-        fy = (f32)(s32)(fy + (f32)((s32)(*(s16 *)(arg0 + 0x2C) * 0x86) / (s32)(*(s32 *)(arg0 + 0x38) - 6)));
-        func_0034f2e0(*(void **)(arg0 + 0x6EC), fx, fy, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a0);
-        for (i = 0; i < 6; i++) {
-            if ((*(s16 *)(arg0 + 0x2C) + i) < *(s32 *)(arg0 + 0x38)) {
-                func_00361d20(i, arg0);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
+        RpSkyRenderStateSet(2, (void *)0x44);
+        position.x = 29.0f + (originX + *(f32 *)(work + 0x3B8));
+        position.y = -13.0f + (54.0f + (originY + *(f32 *)(work + 0x3BC)));
+        opacity = (u8)((f32)*(u8 *)(work + 0x3C2) * opacityScale);
+        palette = (PaletteColor *)D_0064B2E8;
+        sprite = *(void **)(work + 0x6DC);
+        func_0034f2e0(sprite, position.x, position.y, palette->r, palette->g, palette->b, opacity);
+        sprite = *(void **)(work + 0x6E0);
+        func_0034f2e0(sprite, position.x + 73.0f, position.y, palette->r, palette->g, palette->b, opacity);
+        palette = (PaletteColor *)D_0064B2EC;
+        sprite = *(void **)(work + 0x6D8);
+        func_0034f2e0(sprite, position.x + 19.0f, position.y + 2.0f, palette->r, palette->g, palette->b, opacity);
+        position.x = 89.0f + (originX + *(f32 *)(work + 0x3B8));
+        position.y = -13.0f + (86.0f + (originY + *(f32 *)(work + 0x3BC)));
+        opacity = (u8)((f32)*(u8 *)(work + 0x3C2) * opacityScale);
+        palette = (PaletteColor *)D_0064B300;
+        sprite = *(void **)(work + 0x68C);
+        offsetY = position.y + 4.0f;
+        func_0034f2e0(sprite, position.x - 6.0f, offsetY, palette->r, palette->g, palette->b, opacity);
+        sprite = *(void **)(work + 0x690);
+        func_0034f2e0(sprite, position.x + 41.0f, offsetY, palette->r, palette->g, palette->b, opacity);
+        func_0034f2e0(*(void **)(work + 0x680), position.x, position.y, palette->r, palette->g, palette->b, opacity);
+        func_0034f2e0(*(void **)(work + 0x67C), position.x, position.y, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], opacity);
+        position.x = 302.0f + (originX + *(f32 *)(work + 0x3B8));
+        position.y = -13.0f + (79.0f + (originY + *(f32 *)(work + 0x3BC)));
+        opacity = (u8)((f32)*(u8 *)(work + 0x3C2) * opacityScale);
+        palette = (PaletteColor *)D_0064B300;
+        sprite = *(void **)(work + 0x694);
+        offsetY = position.y + 11.0f;
+        func_0034f2e0(sprite, position.x - 157.0f, offsetY, palette->r, palette->g, palette->b, opacity);
+        sprite = *(void **)(work + 0x698);
+        func_0034f2e0(sprite, position.x + 255.0f, offsetY, palette->r, palette->g, palette->b, opacity);
+        func_0034f2e0(*(void **)(work + 0x688), position.x, position.y, palette->r, palette->g, palette->b, opacity);
+        func_0034f2e0(*(void **)(work + 0x684), position.x, position.y, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], opacity);
+        /* Preserve the unrounded scrollbar origin across all three draws. */
+        offsetX = 583.0f + (*(f32 *)(work + 0x5C8) + (originX + *(f32 *)(work + 0x328)));
+        offsetY = (-13.0f + (132.0f + (*(f32 *)(work + 0x5CC) + (originY + *(f32 *)(work + 0x32C))))) - 17.0f;
+        opacity = (u8)((f32)*(u8 *)(work + 0x332) * opacityScale);
+        position.x = offsetX;
+        position.y = offsetY;
+        func_0034f2e0(*(void **)(work + 0x6F0), position.x, position.y, 0xFF, 0xFF, 0xFF, opacity);
+        position.x = offsetX;
+        position.y = offsetY + 165.0f;
+        func_0034f2e0(*(void **)(work + 0x6F4), position.x, position.y, 0xFF, 0xFF, 0xFF, opacity);
+        position.x = offsetX;
+        position.y = offsetY + 3.0f;
+        position.y += (f32)((s32)(*(s16 *)(work + 0x2C) * 0x86) / (s32)(*(s32 *)(work + 0x38) - 6));
+        palette = (PaletteColor *)D_0064B2E8;
+        func_0034f2e0(*(void **)(work + 0x6EC), position.x, position.y, palette->r, palette->g, palette->b, opacity);
+        for (column = 0; column < 6; column++) {
+            if ((*(s16 *)(work + 0x2C) + column) < *(s32 *)(work + 0x38)) {
+                func_00361d20(column, work);
             }
         }
-        fx = baseX + *(f32 *)(arg0 + 0x598);
-        fy = baseY + *(f32 *)(arg0 + 0x59C);
-        a0 = (u8)((f32)*(u8 *)(arg0 + 0x5A2) * scale);
-        rect.x = 73.0f + fx;
-        rect.y = 297.0f + fy;
-        rect.w = 0x241;
-        rect.h = 0x55;
-        col[0] = D_0064B2E8[0];
-        col[1] = D_0064B2E8[1];
-        col[2] = D_0064B2E8[2];
-        col[3] = a0;
+        offsetX = originX + *(f32 *)(work + 0x598);
+        offsetY = originY + *(f32 *)(work + 0x59C);
+        opacity = (u8)((f32)*(u8 *)(work + 0x5A2) * opacityScale);
+        rectangle.integer[0] = (s32)(73.0f + offsetX);
+        rectangle.integer[1] = (s32)(297.0f + offsetY);
+        rectangle.integer[2] = 0x241;
+        rectangle.integer[3] = 0x55;
+        colorBytes[0] = D_0064B2E8[0];
+        colorBytes[1] = D_0064B2E8[1];
+        colorBytes[2] = D_0064B2E8[2];
+        colorBytes[3] = opacity;
         D_00887300[0](1, 0);
-        func_0045d6e0(col, (u8 *)&rect, 0.0f, 0);
-        pos.f[0] = 212.0f + fx;
-        pos.f[1] = (304.0f + fy) - 5.0f;
-        v0 = (s32)(*(s16 *)(arg0 + 0x2A) + *(s16 *)(arg0 + 0x2C));
-        if (datGetFlag(v0 + 0x100) != 0) {
-            if (datGetFlag(v0 + 0x140) != 0) {
-                color = (a0 | 0xADADAD00);
+        func_0045d6e0(colorBytes, rectangle.transport, 0.0f, 0);
+        position.x = 212.0f + offsetX;
+        position.y = (304.0f + offsetY) - 5.0f;
+        itemIndex = (s32)(*(s16 *)(work + 0x2A) + *(s16 *)(work + 0x2C));
+        if (datGetFlag(itemIndex + 0x100) != 0) {
+            if (datGetFlag(itemIndex + 0x140) != 0) {
+                textColor = (opacity | 0xADADAD00);
             } else {
-                color = (a0 | ~0xFF);
+                textColor = (opacity | ~0xFF);
             }
-            v1 = v0 + 1;
+            displayItem = itemIndex + 1;
         } else {
-            color = (a0 | 0xADADAD00);
-            v1 = 0;
+            textColor = (opacity | 0xADADAD00);
+            displayItem = 0;
         }
-        func_002bc7a0(v1, (f32)(s32)pos.f[0], (f32)(s32)pos.f[1], 0.0f, color, 1, 8, 8);
-        if (*(s32 *)(arg0 + 0x1C) & 8) {
-            pos.f[0] = 85.0f + (baseX + *(f32 *)(arg0 + 0x388));
-            pos.f[1] = 325.0f + (baseY + *(f32 *)(arg0 + 0x38C));
-            a0 = (u8)((f32)*(u8 *)(arg0 + 0x392) * scale);
-            func_0034f2e0(*(void **)(arg0 + 0x6E4), pos.f[0], pos.f[1], 0xFF, 0xE9, 0x2C, a0);
+        func_002bc7a0(displayItem, (f32)(s32)position.x, (f32)(s32)position.y, 0.0f, textColor, 1, 8, 8);
+        if (*(s32 *)(work + 0x1C) & 8) {
+            position.x = 85.0f + (originX + *(f32 *)(work + 0x388));
+            position.y = 325.0f + (originY + *(f32 *)(work + 0x38C));
+            opacity = (u8)((f32)*(u8 *)(work + 0x392) * opacityScale);
+            func_0034f2e0(*(void **)(work + 0x6E4), position.x, position.y, 0xFF, 0xE9, 0x2C, opacity);
         }
-        pos.f[0] = 640.0f + (baseX + *(f32 *)(arg0 + 0x568));
-        pos.f[1] = 400.0f + (baseY + *(f32 *)(arg0 + 0x56C));
-        a0 = (u8)((f32)*(u8 *)(arg0 + 0x572) * scale);
-        func_0034f9d0(pos.xy, 0.0f, a0, *(s16 *)(arg0 + 0x34), *(s32 *)(arg0 + 0x700));
+        position.x = 640.0f + (originX + *(f32 *)(work + 0x568));
+        position.y = 400.0f + (originY + *(f32 *)(work + 0x56C));
+        opacity = (u8)((f32)*(u8 *)(work + 0x572) * opacityScale);
+        func_0034f9d0(position, 0.0f, opacity, *(s16 *)(work + 0x34), *(s32 *)(work + 0x700));
     }
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035fd60);
-#endif
+#pragma pop
