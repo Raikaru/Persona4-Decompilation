@@ -1,0 +1,45 @@
+src/promoted/code1_0045.c:42: warn: [H011] func_003e9680 declared void(ptr) but defined ptr(ptr) at src/rw/baframe.c:213
+    extern void func_003e9680(void *arg0);
+src/promoted/code1_0045.c:121: warn: [H011] func_00456400 declared void(ptr, ptr, s32, ptr) but defined void(s32, s32, s32, ptr) at src/Kernel/sdkCdvd.c:536
+    extern void func_00456400(u8 *arg0, u8 *arg1, s32 arg2, void *arg3);
+src/promoted/code1_0045.c:138: warn: [H011] func_0043c008 declared void(s32) but defined s32() at src/promoted/code1_0043.c:575
+    extern void func_0043c008(s32 arg0);
+src/promoted/code1_0045.c:156: warn: [H011] func_003dd900 declared s32(s32) but defined ptr(ptr) at src/promoted/code1_003d.c:1520
+    extern s32 func_003dd900(s32 arg0);
+src/promoted/code1_0045.c:163: warn: [H011] func_00456b70 declared void() but defined ptr(ptr, u32) at src/h_cdvd/h_cdvd.c:932
+    extern void func_00456b70(void);
+src/promoted/code1_0045.c:164: warn: [H011] func_00456be0 declared void() but defined void(ptr) at src/h_cdvd/h_cdvd.c:948
+    extern void func_00456be0(void);
+src/promoted/code1_0045.c:165: warn: [H011] func_004568a0 declared void() but defined s32(ptr, ptr, u32) at src/h_cdvd/h_cdvd.c:821
+    extern void func_004568a0(void);
+src/promoted/code1_0045.c:166: warn: [H011] func_00456930 declared void() but defined s32(ptr, ptr, u32) at src/h_cdvd/h_cdvd.c:839
+    extern void func_00456930(void);
+src/promoted/code1_0045.c:168: warn: [H011] func_004569c0 declared void() but defined void(ptr, ptr, s32, s32) at src/h_cdvd/h_cdvd.c:856
+    extern void func_004569c0(void);
+src/promoted/code1_0045.c:169: warn: [H011] func_00456ae0 declared s32(s32) but defined s32(ptr, ptr) at src/h_cdvd/h_cdvd.c:916
+    extern s32 func_00456ae0(s32 arg0);
+src/promoted/code1_0045.c:172: warn: [H011] func_003c3d20 declared ptr(s32) but defined ptr(s8) at src/promoted/code1_003c.c:598
+    extern u8 *func_003c3d20(s32 arg0);
+src/promoted/code1_0045.c:178: warn: [H011] func_003c3cc0 declared void(ptr) but defined s32(ptr) at src/promoted/code1_003c.c:580
+    extern void func_003c3cc0(void *arg0);
+src/promoted/code1_0045.c:181: warn: [H011] func_004574d0 declared ptr(s32, s32, s32) but defined ptr(u32, u32, u32) at src/Kernel/kwlnTask.c:182
+    extern u8 *func_004574d0(s32 arg0, s32 arg1, s32 arg2);
+src/promoted/code1_0045.c:240: warn: [H011] func_00468a10 declared void(s32) but defined void() at src/promoted/code1_0046.c:1885
+    extern void func_00468a10(s32 arg0);
+src/promoted/code1_0045.c:318: warn: [H003] nonbaseline pragma `opt_loop_invariants on`; review justification
+    #pragma opt_loop_invariants on
+src/promoted/code1_0045.c:456: warn: [H003] nonbaseline pragma `opt_loop_invariants on`; review justification
+    #pragma opt_loop_invariants on
+src/promoted/code1_0045.c:563: warn: [H003] nonbaseline pragma `optimization_level 1`; review justification
+    #pragma optimization_level 1
+src/promoted/code1_0045.c:584: warn: [H003] nonbaseline pragma `optimization_level 1`; review justification
+    #pragma optimization_level 1
+src/promoted/code1_0045.c:1996: warn: [H003] nonbaseline pragma `opt_loop_invariants on`; review justification
+    #pragma opt_loop_invariants on
+src/promoted/code1_0045.c:2157: warn: [H001] volatile context is not a recognized direct hardware access; review justification
+    void func_0045ed60(volatile u8 *arg0, void *arg1, s32 arg2, f32 fparg0) {
+
+decomp_lint: 1 first-party files, 20 findings (0 error, 20 warn)
+  H001  warn        1  `volatile` with no recognized hardware address; review context
+  H003  warn        5  nonbaseline optimization pragma; review measured justification
+  H011  warn       14  declaration disagrees with the function's definition; one function has one signature - fix the definition's real type or the caller's types

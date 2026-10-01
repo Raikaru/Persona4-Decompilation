@@ -1,0 +1,147 @@
+{
+  "base": "58553aa1b6ffd6d42c58f623d1d97677e00b1be3",
+  "source_sha256": "8956b86431a647c185496ff943de20f078e4c41849c53775c60c93d7c6dd1672",
+  "phases": {
+    "production": {
+      "functions": 60,
+      "raw_function_bytes_and_all_relocations_identical": true,
+      "all_allocated_sections_and_bindings_identical": true
+    },
+    "guards": {
+      "functions": 60,
+      "raw_function_bytes_and_all_relocations_identical": true,
+      "all_allocated_sections_and_bindings_identical": true
+    }
+  },
+  "bytes": 432,
+  "reference_count": 18,
+  "sha256": "baaf4f4cdefca8c41992b9654ffe153a2f8da58ac6d2671cf3dd04c9022e0f90",
+  "frame": 400,
+  "retail_masked_differences": 0,
+  "target_refs": [
+    {
+      "offset": 96,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_00712490"
+    },
+    {
+      "offset": 100,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_00712490"
+    },
+    {
+      "offset": 124,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_00887304"
+    },
+    {
+      "offset": 128,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_00887304"
+    },
+    {
+      "offset": 148,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_00887300"
+    },
+    {
+      "offset": 152,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_00887300"
+    },
+    {
+      "offset": 188,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_00887300"
+    },
+    {
+      "offset": 192,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_00887300"
+    },
+    {
+      "offset": 212,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "RpSkyRenderStateSet"
+    },
+    {
+      "offset": 232,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "RpSkyRenderStateSet"
+    },
+    {
+      "offset": 252,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "memset"
+    },
+    {
+      "offset": 276,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_0045ce40"
+    },
+    {
+      "offset": 296,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_00887310"
+    },
+    {
+      "offset": 300,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_00887310"
+    },
+    {
+      "offset": 336,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_00712490"
+    },
+    {
+      "offset": 340,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_00712490"
+    },
+    {
+      "offset": 364,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_00887300"
+    },
+    {
+      "offset": 368,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_00887300"
+    }
+  ],
+  "main_integration": {
+    "base": "58553aa1b6ffd6d42c58f623d1d97677e00b1be3",
+    "reviewed_commit": "5d1b9b7d3263d2718782adc45b32b58599457249",
+    "c_objects": 604,
+    "sdk_objects": 54,
+    "linked_windows": 8586,
+    "linked_report_identical_to_base": true,
+    "image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
+    "elf_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+    "focused_tests": 5,
+    "focused_skips": 0,
+    "ordinary_tests": 869,
+    "ordinary_skips": 39,
+    "lint_errors": 0,
+    "lint_warnings": 20
+  }
+}

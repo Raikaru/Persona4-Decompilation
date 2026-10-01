@@ -1,0 +1,10 @@
+test_actual_helper_and_separate_typed_provider (test_immediate_rectangle_contract.ImmediateRectangleNativeContracts.test_actual_helper_and_separate_typed_provider) ... ok
+test_independent_normal_exit_controls (test_immediate_rectangle_contract.ImmediateRectangleNativeContracts.test_independent_normal_exit_controls) ... ok
+test_strict_aliasing_positive_replay (test_immediate_rectangle_contract.ImmediateRectangleNativeContracts.test_strict_aliasing_positive_replay) ... ok
+test_compiler_evaluated_work_layout (test_immediate_rectangle_contract.ImmediateRectangleSourceContracts.test_compiler_evaluated_work_layout) ... ok
+test_scalar_plus_padding_fails_member_size_assertion (test_immediate_rectangle_contract.ImmediateRectangleSourceContracts.test_scalar_plus_padding_fails_member_size_assertion) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 17.257s
+
+OK

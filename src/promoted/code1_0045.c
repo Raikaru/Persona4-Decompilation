@@ -2065,33 +2065,32 @@ void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2)
 {
     struct {
         s32 saved[6];
-        u8 pad1[8];
-        f32 out;
-        u8 pad2[0xFC];
+        /* Four 64-byte Sky vertices; the SDK overlay requires quadword alignment. */
+        f32 out[64] __attribute__((aligned(16)));
         Code45Float4 pos;
     } work;
     u32 i;
     u32 j;
-    s32 *p;
+    Code45RenderState *p;
 
     work.pos = *(Code45Float4 *)arg1;
     if (arg2 != 0) {
         for (i = 0; i < 6; i++) {
-            p = (s32 *)&D_00712490[i];
-            D_00887304[0](p[0], (void *)((u8 *)work.saved + i * 4));
-            D_00887300[0](p[0], p[1]);
+            p = &D_00712490[i];
+            D_00887304[0](p->state, (void *)&work.saved[i]);
+            D_00887300[0](p->state, p->val);
         }
         D_00887300[0](1, 0);
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x717FB);
     }
-    memset(&work.out, 0, 0x100);
-    func_0045ce40(&work.out, arg0, (s32 *)&work.pos, fparg0);
-    D_00887310[0](4, &work.out, 4);
+    memset(work.out, 0, 0x100);
+    func_0045ce40(work.out, arg0, (s32 *)&work.pos, fparg0);
+    D_00887310[0](4, work.out, 4);
     if (arg2 != 0) {
         for (j = 0; j < 6; j++) {
-            p = (s32 *)&D_00712490[j];
-            D_00887300[0](p[0], *((s32 *)((u8 *)work.saved + j * 4)));
+            p = &D_00712490[j];
+            D_00887300[0](p->state, work.saved[j]);
         }
     }
 }
