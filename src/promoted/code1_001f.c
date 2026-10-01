@@ -793,7 +793,7 @@ many_test:
 /* measured: close opt_loop_invariants after func_001f1030 probe. */
 #pragma opt_loop_invariants off
 // FUN_001F11E0
-s32 func_001f11e0(s64 arg0) {
+s32 func_001f11e0(s16 arg0) {
     u8 *base;
 
     base = iGpffffb3b8;
@@ -801,7 +801,7 @@ s32 func_001f11e0(s64 arg0) {
 }
 /* Matched with direct-index and global-address helper spellings. */
 // FUN_001F1210
-s32 func_001f1210(u8 *arg0, s64 arg1, s32 arg2)
+s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2)
 {
     s32 index;
 

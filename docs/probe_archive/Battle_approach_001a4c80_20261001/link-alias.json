@@ -1,0 +1,31 @@
+{
+  "symbol": "fGpffff8360",
+  "address": "0x00761450",
+  "generator": "tools/recover_symbols.py --print",
+  "generated_definition": "fGpffff8360 = 0x00761450; // type:data",
+  "generator_output_sha256": "dac60247a7f5baad994e4a7d1eb2e393cb1b6127ab8bf1007e849fa27447fdbd",
+  "rejection": {
+    "function": "func_001a4c80",
+    "offset": 2024,
+    "type": "R_MIPS_GPREL16",
+    "reason": "unresolved external symbol",
+    "placement_passed": true,
+    "owned_data_plan_passed": true
+  },
+  "retail": {
+    "instruction": "0x001a5468",
+    "word": "0xc7808360",
+    "gp": "0x007690f0",
+    "signed_displacement": -31904,
+    "compiled_addend": 0,
+    "target_float_bits": "0x3fb33333",
+    "following_multiply_word": "0x4600a502"
+  },
+  "neighbor_address_negative_controls": [
+    -4,
+    4,
+    65536
+  ],
+  "curated_override_added": false,
+  "unrelated_regeneration_changes_included": false
+}

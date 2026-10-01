@@ -1256,7 +1256,6 @@ s32 func_001b2380(void)
     extern void func_001ec1c0(void *arg0, void *arg1, void *arg2);
     extern void btlUnitSetRot(void *arg0, void *arg1);
     extern void btlUnitSetPos(void *arg0, void *arg1);
-    extern s16 func_00199500(u8 *arg0, s16 arg1, f32 arg2);
     extern u8 *func_0019aa70(u8 *arg0, s16 arg1);
     extern u8 *func_0019a0c0(u8 *arg0, s16 arg1);
     extern u8 *btlUnitCreateMovePacket(u8 *arg0, f32 *arg1, s32 arg2, f32 arg3);
@@ -2207,7 +2206,6 @@ s32 func_001b4860(s32 *arg0)
 // FUN_001B4880 NONMATCHING
 #ifdef NON_MATCHING
 void func_001b4880(u8 *arg0) {
-    extern s16 func_00199500(u8 *arg0, s16 arg1, f32 arg2);
     extern void func_001eb7f0(void);
     extern void func_00212240(u8 *arg0, s32 arg1);
     extern void func_001eb3b0(u8 *arg0);

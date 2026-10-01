@@ -8,4 +8,9 @@
  * values in a byte. A non-NULL target record also receives target setup. */
 u16 func_001d7f10(u8 *action, u8 *targets, u16 skill, u32 reverseGroups);
 
+/* The table classifier consumes the signed skill halfword. Retail narrows
+ * this domain on entry, including the callers that supply a stored u16. */
+s32 func_001f11e0(s16 skill);
+s32 func_001f1210(u8 *unit, s16 skill, s32 paired);
+
 #endif

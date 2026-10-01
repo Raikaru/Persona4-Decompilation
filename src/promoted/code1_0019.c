@@ -27,7 +27,6 @@ typedef struct DatUnit DatUnit;
 extern u32 func_00231af0(DatUnit *unit, u8 genus, u16 id);
 
 extern void func_00106390(s32 arg0, s32 arg1);
-extern s16 func_0022cb90(void);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void func_00489f80(void);
@@ -41,7 +40,7 @@ extern f32 D_005F6C10[];
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
 extern s32 func_001f0a50(u8 *arg0);
-extern s32 func_001f11e0(s64 arg0);
+extern s32 func_001f11e0(s16 arg0);
 extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
 extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3cc;
@@ -144,7 +143,6 @@ extern s32 func_001939e0(u8 *task);
 extern s32 func_00193840(u8 *arg0, s32 arg1);
 extern void func_0010d480(void);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern f32 func_0022cf00(u8 *arg0, u8 *arg1, s32 arg2);
 extern void func_00195630(u8 *arg0);
 extern u8 *func_00452380(void *arg0);
 extern void func_00452080(s32 arg0);
@@ -1773,7 +1771,7 @@ void func_00196ba0(u8 *arg0) {
     *(u16 *)(arg0 + 0xC8) &= ~2;
 }
 // FUN_00196BD0
-f32 func_00196bd0(u8 *unit, u8 *target, s32 motion)
+f32 func_00196bd0(u8 *unit, u8 *target, u16 motion)
 {
     f32 temp_f20;
     f32 temp_f0;
@@ -2155,7 +2153,6 @@ void func_00197f30(u8 *arg0)
 extern s32 func_00198810(u8 *arg0);
 extern u32 func_00198840(u8 *arg0);
 extern u32 func_001988b0(u8 *arg0);
-extern s16 func_001991c0(u8 *arg0, u16 arg1, f32 fparg0);
 extern s64 func_00199830(u8 *arg0);
 static inline u32 p4_add_index_base(u32 offset, u32 base)
 {
@@ -2555,7 +2552,7 @@ void func_00198dd0(u8 *arg0, u16 arg1)
 /* measured: opt_propagation off is scoped to func_001990d0. */
 #pragma opt_propagation off
 // FUN_001990D0
-s64 func_001990d0(u8 *arg0, s32 arg1)
+s64 func_001990d0(u8 *arg0, u16 arg1)
 {
     u8 kind;
     s32 index;
@@ -2566,7 +2563,7 @@ s64 func_001990d0(u8 *arg0, s32 arg1)
     kind = *(u8 *)(arg0 + 0xA2);
     switch (kind) {
     case 1:
-        result = func_0022cb90();
+        result = (s16)func_0022cb90(arg0, arg1);
         if (result != -1) {
             return result;
         }
@@ -2599,7 +2596,6 @@ s64 func_001990d0(u8 *arg0, s32 arg1)
 // FUN_001991C0
 s16 func_001991c0(u8 *arg0, u16 arg1, f32 fparg0)
 {
-    extern s64 func_0022cb90(void);
     u8 *table;
     s32 offset;
     s64 result;
@@ -2611,7 +2607,7 @@ s16 func_001991c0(u8 *arg0, u16 arg1, f32 fparg0)
     type = *(u8 *)(arg0 + 0xA2);
     switch (type) {
     case 1:
-        result = p4_sign16_001991c0(func_0022cb90());
+        result = p4_sign16_001991c0(func_0022cb90(arg0, arg1));
         switch (result) {
         case -1:
             goto compute;
@@ -2649,9 +2645,8 @@ finish:
     return 0;
 }
 // FUN_00199350
-s16 func_00199350(u8 *arg0, s32 arg1, f32 fparg0)
+s16 func_00199350(u8 *arg0, u16 arg1, f32 fparg0)
 {
-    extern s64 func_0022cb90(void);
     u8 *table;
     s32 offset;
     s64 result;
@@ -2663,7 +2658,7 @@ s16 func_00199350(u8 *arg0, s32 arg1, f32 fparg0)
     type = *(u8 *)(arg0 + 0xA2);
     switch (type) {
     case 1:
-        result = p4_sign16_001991c0(func_0022cb90());
+        result = p4_sign16_001991c0(func_0022cb90(arg0, arg1));
         switch (result) {
         case -1:
             goto compute;
@@ -2726,7 +2721,7 @@ s16 func_00199500(u8 *arg0, u16 arg1, f32 fparg0)
     type = *(u8 *)(arg0 + 0xA2);
     switch (type) {
     case 1:
-        result = p4_sign16_001991c0(func_0022cb90());
+        result = p4_sign16_001991c0(func_0022cb90(arg0, arg1));
         switch (result) {
         case -1:
             goto compute;
@@ -2765,9 +2760,8 @@ finish:
     return (s64)(s32)temp_f0;
 }
 // FUN_001996D0
-s16 func_001996d0(u8 *arg0, s32 arg1)
+s16 func_001996d0(u8 *arg0, u16 arg1)
 {
-    extern s64 func_0022cb90(void);
     u8 *table;
     s32 offset;
     s64 result;
@@ -2782,7 +2776,7 @@ s16 func_001996d0(u8 *arg0, s32 arg1)
     type = *(u8 *)(arg0 + 0xA2);
     switch (type) {
     case 1:
-        result = p4_sign16_001991c0(func_0022cb90());
+        result = p4_sign16_001991c0(func_0022cb90(arg0, arg1));
         switch (result) {
         case -1:
             goto compute;
@@ -2899,11 +2893,11 @@ function_done_001998e0:
 }
 /* measured: closes opt_propagation around func_001998e0. */
 #pragma opt_propagation on
-/* measured: direct s64-parameter candidate for func_001999f0; propagation off
-   keeps the entry mask and per-use narrow conversions as separate values. */
+/* Measured: the hit ordinal is s64 and motion is u16. Propagation off
+   retains the entry mask and the late unsigned-halfword table index. */
 #pragma opt_propagation off
 // FUN_001999F0
-s16 func_001999f0(u8 *arg0, s32 arg1, f32 fparg0, s64 arg2)
+s16 func_001999f0(u8 *arg0, u16 arg1, f32 fparg0, s64 arg2)
 {
     u16 index;
     s16 class_result;
@@ -2952,7 +2946,6 @@ classification_done_001999f0:
     switch (type) {
     case 1:
         {
-            extern s16 func_0022cb90(u8 *arg0, s32 arg1);
             value = p4_sign16_001991c0(func_0022cb90(arg0, arg1));
         }
         switch (value) {
@@ -2991,9 +2984,11 @@ finish_001999f0:
                 (s32)(s16)class_result * 4, offset);
             numerator = *(s16 *)((u8 *)offset + 0x1C);
             product = (s64)(s16)(numerator * (s16)arg2);
+            /* Retail normalizes the requested motion again at this lookup,
+             * independently of the earlier classification/override mapping. */
             numerator = (s32)product +
                         *(s16 *)((u8 *)(*(s32 *)(arg0 + 0x9F8) +
-                                        (u16)arg1 * 0xA));
+                                        (s32)((u32)arg1 % 0x10000U) * 0xA));
             product = (s64)(s16)numerator;
             numerator = (s32)product;
         }
@@ -3019,7 +3014,7 @@ finish_001999f0:
 // FUN_00199D00
 #pragma push
 #pragma opt_propagation off
-s32 func_00199d00(s32 unused, u8 *arg1, s64 arg2, s32 arg3)
+s32 func_00199d00(s32 unused, u8 *arg1, s16 arg2, s32 arg3)
 {
     s32 temp_16;
     u32 offset;
@@ -5315,7 +5310,7 @@ type_one_0019fc70:
 result_one_0019fc70:
         return 1;
     }
-    if (func_001f11e0((s64)(s16)temp_18) != 0) {
+    if (func_001f11e0((s16)temp_18) != 0) {
         {
             u8 *flags_table;
             flags_table = (u8 *)iGpffffb3bc;

@@ -1,0 +1,107 @@
+{
+  "baseline": "a78c378b3da3cc826aea3c66462ee1f07f287759",
+  "date_utc": "2026-10-01",
+  "scope": {
+    "owners": 9,
+    "functions": 784,
+    "MATCH": 774,
+    "ASM": 10,
+    "unchanged_function_bytes_and_relocations": 783,
+    "target_size": 2336,
+    "target_frame": 288,
+    "target_normalized_difference": 0,
+    "resolved_target_relocations": 51,
+    "all_nine_nontext_data_and_relocations_preserved": true,
+    "eight_prerequisite_objects_all_allocated_sections_and_relocations_preserved": true
+  },
+  "full_build": {
+    "command": "make build-progress",
+    "passed": true,
+    "C_objects": 604,
+    "Sony_SDK_objects": 54,
+    "linked_units": 658,
+    "linked_windows": 8586,
+    "prior_membership_preserved": true,
+    "target_owner_C_linked": true,
+    "loadable_image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
+    "retail_ELF_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c"
+  },
+  "ordinary_suite": {
+    "command": "python -m unittest discover -s tests -v",
+    "ran": 863,
+    "duration_seconds": 126.581,
+    "skip_records": 28,
+    "failed": 0,
+    "errors": 0,
+    "result": "OK; native-runtime skips are not counted as passes"
+  },
+  "focused_native_suites": {
+    "runtime": "Clang 19, freestanding i386, explicit QEMU i386 runner, undefined/bounds sanitizer traps",
+    "optimization_levels": [
+      "O0",
+      "O2"
+    ],
+    "approach": {
+      "tests": 11,
+      "scenarios_per_optimization": 69,
+      "negative_controls_per_optimization": 10,
+      "passed": true
+    },
+    "motion": {
+      "tests": 4,
+      "timing_cases_per_optimization": 86400,
+      "distance_cases_per_optimization": 21120,
+      "negative_controls_per_optimization": 8,
+      "passed": true
+    },
+    "signed_opening": {
+      "tests": 3,
+      "cases_per_optimization": 122139,
+      "passed": true
+    }
+  },
+  "alias_tests": {
+    "tests": 3,
+    "passed": true,
+    "verified_retail_input": true,
+    "neighbor_address_mutations": 3
+  },
+  "existing_symbol_tests": {
+    "tests": 17,
+    "passed": true
+  },
+  "pragma_audit": {
+    "distinct_spellings": 43,
+    "uses": 42272,
+    "all_recognized": true
+  },
+  "scoped_lint": {
+    "files": 9,
+    "errors": 0,
+    "warnings": 173,
+    "target_warnings": 0
+  },
+  "git_diff_check": true,
+  "remote_push_performed": false,
+  "remote_CI_run": false,
+  "source_sha256": {
+    "src/promoted/code1_001a.c": "d6167ed5b92ed9543b451ff362ed9bf71eb784c88896e72441a91986d896000e",
+    "src/promoted/code1_0019.c": "3d5a4e39cf9bc8e64b2d65359592d9dd567519c7e9147dc6b5b2dc21b59cef9c",
+    "src/promoted/code1_001f.c": "1c5fdd135c39f60f1646a02b570810eb25522e1ee834412d6fdbcf76c8f35f35",
+    "src/promoted/code1_0022.c": "541dec1637f6d24a5e3970e5f84e21f7aa6a77bb0dae9d909df14fe4d33ac4ee",
+    "src/promoted/code1_001b.c": "49d4e2b6a4df61e2d843c719f6a911362b4640de6f6b95673978cfe44dd03621",
+    "src/promoted/code1_001c.c": "d5717cfe3a809421be76fd943401e6447b37ce51b1ca0f8a9ae8ad3f1a08c436",
+    "src/Battle/btlCamera.c": "0db56ba941dfc1f53fe116d04d11216f281d434b16f7163f82b72d0a4b2f918e",
+    "src/Battle/btlUnit.c": "5a2f3ff61d6e90a9365653df853b56098640a2fddfe9295235d8deaaf45b8471",
+    "src/Battle/btlFormation.c": "e102089db3a8d651521dea5ac7f26a78a8dd1b4c896b829d43b0b6416182b608",
+    "include/btl_motion_internal.h": "07dbc0868cc5e2c1d111cc5f355c7edafbe8f38b66bcea5d3aa87c0bc253da1e",
+    "include/btl_skill_target_internal.h": "167009c7f128cbcf8b731e2df78743e08281d01aa318640e374b819598d4d3d7",
+    "config/symbols_recovered.txt": "a2ac061fb6c4fd2360ead6215a1aef993091ef23d0dc52b9737250164d921d02",
+    "tests/battle_approach_action_fixture.h": "38ef0ce9e86159287045a37f7e47e76f12049357b30e292e922f0c528200cced",
+    "tests/battle_approach_fixture.c.in": "65910fd93e01d6b7453bc92f6d6c6d752362e301ceeb340e0bcb0063f51c1324",
+    "tests/test_battle_approach_contract.py": "ee6b3fca2b900d8942637ec22c2806c9dd22ddb74348bab986fb5392890d2c0f",
+    "tests/test_battle_approach_alias.py": "657c59c6c6d6cb2489f686f303e8b88ef0b12e1878004b87a3126ca7ff3ebcdb",
+    "tests/test_btl_motion_override_contract.py": "143ff1a87b24ba04f9da22dbeeefdb939ebfd49b65518219888e89bde62d1698",
+    "tests/test_btl_opening_identifier_contracts.py": "aa33c39e66c27ee4819e0882df05242d065e0ec8d61934c9be7504218e116869"
+  }
+}

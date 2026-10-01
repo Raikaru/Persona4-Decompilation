@@ -8677,3 +8677,6 @@ iGpffffa980 = 0x00763a70; // type:data
 D_00764340 = 0x00764340; // type:data
 D_0076439C = 0x0076439c; // type:data
 iGpffffb528 = 0x00764618; // type:data
+
+// Approach-controller float alias, reproduced by tools/recover_symbols.py.
+fGpffff8360 = 0x00761450; // type:data

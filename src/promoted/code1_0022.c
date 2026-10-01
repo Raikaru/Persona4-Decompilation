@@ -119,7 +119,6 @@ extern s32 func_002239a0(u8 *task);
 extern void func_00223ed0();
 extern void func_00223ee0(u8 *task);
 extern s32 func_001998e0(u8 *arg0, s32 arg1);
-extern s64 func_001999f0(u8 *arg0, s32 arg1, f32 arg2, s64 arg3);
 extern s32 func_0019fe60(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_001cbf80(u8 *arg0);
 extern void func_001cbfe0(int param_1);
@@ -216,8 +215,8 @@ extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
 extern void btlUnitSetPos(u8 *arg0, s32 *arg1);
 extern void func_001ec6d0(s16 *outX, s16 *outZ, f32 *position);
 extern u8 *iGpffffb3e0;
-extern s32 func_001f0ff0();
-extern s32 func_001f1210(u8 *arg0, s64 arg1, s32 arg2);
+extern s32 func_001f0ff0(u32 action);
+extern s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2);
 extern s32 func_0022fc00(u8 *arg0);
 extern s32 func_0022ff70(u8 *arg0);
 
@@ -275,7 +274,6 @@ extern BtlPacket *func_001f7c20(u16 channel, u16 cue, u16 variant);
 extern BtlPacket *btlUnitCreateRotateTowardUnitPacket(BtlUnit *unit, BtlUnit *targetUnit, u32 flags);
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rotation, u32 flags);
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *targetPosition, f32 speed, u32 flags);
-extern s16 func_00199500(u8 *unit, s32 animation, f32 scale);
 extern u32 datCalcIsDead(void *unit, s32 hpDelta);
 extern s32 func_00243e30(u16 *unit);
 extern s32 func_001ef4a0(s32 action);
@@ -2909,7 +2907,7 @@ void func_00228a80(u8 *arg0)
 
     temp_17 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
     temp_16 = *(u16 *)(temp_17 + 0xA4);
-    if (func_001f0ff0(*(u8 **)(arg0 + 0xE0)) != 0) {
+    if (func_001f0ff0((u32)*(u8 **)(arg0 + 0xE0)) != 0) {
         flag_offset = (effMiscRand(0) & 1) * 0xF4;
         index_offset = ((temp_16 & 0xFFFF) - 2) * 0x1E8;
         func_001bdd80(arg0, (u8 *)&D_00633740 + index_offset + flag_offset, 8);
@@ -2963,7 +2961,7 @@ loop_7_done:
 }
 // FUN_00228D00
 void func_00228d00(u8 *arg0) {
-    if (func_001f0ff0(*(u8 **)((u8 *)(arg0) + 0xE0)) != 0) {
+    if (func_001f0ff0((u32)*(u8 **)((u8 *)(arg0) + 0xE0)) != 0) {
         func_001bdeb0(arg0);
     }
 }
@@ -4730,7 +4728,7 @@ static inline u8 *cb90AddBaseIndex(u32 base, u32 index)
     return (u8 *)(base + index);
 }
 // FUN_0022CB90
-s32 func_0022cb90(u8 *arg0, s32 arg1)
+s32 func_0022cb90(u8 *arg0, u16 arg1)
 {
     s32 temp_6;
     s8 temp_2;
@@ -4859,7 +4857,7 @@ u8 *func_0022ced0(s32 arg0)
 }
 
 // FUN_0022CF00
-f32 func_0022cf00(u8 *arg0, u8 *arg1, s32 arg2) {
+f32 func_0022cf00(u8 *arg0, u8 *arg1, u16 arg2) {
     s32 temp_3;
     u16 temp_2;
 
@@ -5983,14 +5981,25 @@ fail:
     return 0;
 }
 // FUN_0022F950
+/* measured: scoped propagation preserves the post-query skill reload
+ * before the unit move; canonical s16 arguments leave two swapped words
+ * without it. The query receives its real action pointer. */
+#pragma push
+#pragma opt_propagation off
 s32 func_0022f950(u8 *arg0, u8 *arg1) {
+    s32 paired;
+    s16 skill;
+    u8 *unit;
+
     if (*(s32 *)(DAT_0076449c + 0xC) & 0x200000) {
         if (*(u16 *)(iGpffffb3e0 +
                     (*(u16 *)(arg1 + 0xA4) * 0x58)) & 1) {
-            return (func_001f1210(arg1, *(s16 *)(arg0 + 0x6E),
-                                  func_001f0ff0()) != 0) ^ 1;
+            paired = func_001f0ff0((u32)arg0);
+            skill = *(s16 *)(arg0 + 0x6E);
+            unit = arg1;
+            return (func_001f1210(unit, skill, paired) != 0) ^ 1;
         }
-        if ((func_001f0ff0() == 0) &&
+        if ((func_001f0ff0((u32)arg0) == 0) &&
             (*(u16 *)(iGpffffb3e0 +
                      (*(u16 *)(arg1 + 0xA4) * 0x58)) & 0x20)) {
             return 1;
@@ -6004,8 +6013,10 @@ s32 func_0022f950(u8 *arg0, u8 *arg1) {
     }
     return 0;
 }
+#pragma pop
+
 // FUN_0022FA90
-s32 func_0022fa90(u8 *arg0, s64 arg1)
+s32 func_0022fa90(u8 *arg0, s16 arg1)
 {
     u8 *temp_6;
 
@@ -6019,7 +6030,8 @@ s32 func_0022fa90(u8 *arg0, s64 arg1)
     if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 1) {
         return 1;
     }
-    return *(s8 *)((u8 *)(s16)arg1 + (u32)temp_6 + 0xC10) != -2;
+    /* Form the EE byte address without arithmetic on an invented pointer. */
+    return *(s8 *)((u32)(s32)arg1 + (u32)temp_6 + 0xC10) != -2;
 }
 // FUN_0022FB10
 s32 func_0022fb10(void)

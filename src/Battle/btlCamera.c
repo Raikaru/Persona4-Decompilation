@@ -1,3 +1,4 @@
+#include "btl_motion_internal.h"
 /* Source unit: src/Battle/btlCamera_001bc3a0.c */
 #include "include_asm.h"
 #include "type.h"
@@ -40,7 +41,6 @@ typedef struct BtlUnit BtlUnit;
 typedef struct BtlCamera BtlCamera;
 
 s16 func_00198810(BtlUnit* unit);
-s16 func_001991c0(BtlUnit* unit, u16 id, f32 scale);
 s16 func_00199830(BtlUnit* unit);
 
 typedef struct BtlAction BtlAction;
@@ -284,7 +284,7 @@ s32 func_001bc560(BtlCamera* camera, u32 unit)
   }
   else {
     frameCount = func_001991c0(
-      unitPtr, (u16)(s32)func_00198810(unitPtr), 1.0f);
+      (u8 *)unitPtr, (u16)(s32)func_00198810(unitPtr), 1.0f);
     animFrame = func_00199830(unitPtr);
     result = animFrame < frameCount;
     result = result ^ 1;
