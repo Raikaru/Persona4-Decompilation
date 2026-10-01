@@ -212,7 +212,7 @@ void func_0045dfd0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4)
 
 
 typedef struct {
-    u8 *colors;
+    PrimByte4 *colors;
     void *positions;
     f32 scale;
     u32 count;
@@ -241,7 +241,7 @@ void func_0045e310(void *unused, PrimBatch *work) {
     void (**release)(void *);
 
     positions = (PrimFloat2 *)work->positions;
-    colors = work->colors;
+    colors = (u8 *)work->colors;
     scale = work->scale;
     enabled = work->enabled;
     count = work->count;
@@ -335,20 +335,10 @@ void func_0045e6a0(const void *arg0, const void *arg1, f32 fparg0, u32 arg2, s32
 void func_0045e8e0(void *colors, void *positions, f32 depth, s32 count,
                   s32 primitiveType, s32 preserveState, s32 offsetX, s16 offsetY,
                   f32 rotation, f32 scaleX, f32 scaleY, void *queue) {
-    typedef struct {
-        PrimByte4 *colors;
-        void *positions;
-        f32 scale;
-        u32 count;
-        s32 enabled;
-        s8 alpha;
-        u8 pad[3];
-        s32 primType;
-    } TypedPrimBatch;
     s32 positionBytes;
     s32 colorBytes;
     void *storage;
-    TypedPrimBatch *work;
+    PrimBatch *work;
     u8 *callback;
     f32 angle;
     f32 sine;
@@ -365,8 +355,8 @@ void func_0045e8e0(void *colors, void *positions, f32 depth, s32 count,
     func_0044ea90(D_007124C0, 0x328);
     positionBytes = count * sizeof(PrimFloat2);
     colorBytes = count * sizeof(PrimByte4);
-    storage = D_008873F4[0](1, colorBytes + sizeof(TypedPrimBatch) + positionBytes, 0x40000);
-    work = (TypedPrimBatch *)storage;
+    storage = D_008873F4[0](1, colorBytes + sizeof(PrimBatch) + positionBytes, 0x40000);
+    work = (PrimBatch *)storage;
     work->colors = (PrimByte4 *)(work + 1);
     work->positions = (PrimFloat2 *)(work->colors + count);
     work->scale = depth;
@@ -409,20 +399,10 @@ void func_0045e8e0(void *colors, void *positions, f32 depth, s32 count,
 void func_0045eb20(void *colors, void *positions, f32 depth, s32 count,
                   s32 primitiveType, s32 preserveState, s16 offsetX, s16 offsetY,
                   f32 rotation, f32 scaleX, f32 scaleY, void *queue) {
-    typedef struct {
-        PrimByte4 *colors;
-        void *positions;
-        f32 scale;
-        u32 count;
-        s32 enabled;
-        s8 alpha;
-        u8 pad[3];
-        s32 primType;
-    } TypedPrimBatch;
     s32 positionBytes;
     s32 colorBytes;
     void *storage;
-    TypedPrimBatch *work;
+    PrimBatch *work;
     u8 *callback;
     f32 angle;
     f32 sine;
@@ -439,8 +419,8 @@ void func_0045eb20(void *colors, void *positions, f32 depth, s32 count,
     func_0044ea90(D_007124C0, 0x328);
     positionBytes = count * sizeof(PrimFloat2);
     colorBytes = count * sizeof(PrimByte4);
-    storage = D_008873F4[0](1, colorBytes + sizeof(TypedPrimBatch) + positionBytes, 0x40000);
-    work = (TypedPrimBatch *)storage;
+    storage = D_008873F4[0](1, colorBytes + sizeof(PrimBatch) + positionBytes, 0x40000);
+    work = (PrimBatch *)storage;
     work->colors = (PrimByte4 *)(work + 1);
     work->positions = (PrimFloat2 *)(work->colors + count);
     work->scale = depth;
