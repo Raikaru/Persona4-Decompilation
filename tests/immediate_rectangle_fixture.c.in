@@ -1,0 +1,278 @@
+/* The immediate helper is unchanged. Its rectangle provider boundary copies
+ * bytes into declared integer arrays and fills all 64 declared float lanes.
+ * The actual geometry body runs only in the separate typed-input scope below.
+ * Neither scope establishes the authoritative helper/provider input family. */
+#include "type.h"
+/* @ACTUAL_TYPES@ */
+#define CHECK(x) do { if (!(x)) native32_failure(__LINE__, scenario, #x); } while (0)
+static unsigned scenario;
+static unsigned helperScenarios, typedScenarios;
+static unsigned active, typedScope, typedCameraGets;
+static unsigned eventCount, expectedEventCount, getCount, setCount, skyCount;
+static unsigned clearCount, geometryCount, drawCount, restoreCount;
+static unsigned freeCount, queueCount, allocationCount, mutationMode, mutationCount;
+static s32 saveState;
+static s32 savedValues[6];
+static s32 *savedBase;
+static Code45Float4 *callerRectangle;
+static u8 *callerColor;
+static u8 originalRectangle[16], liveColor[4], geometryColor[4];
+static f32 expectedDepth;
+static f32 *geometryOutput;
+static u8 wrongColor[4] = {249, 248, 247, 246};
+static struct { u8 prefix[0x80]; f32 nearPlane; } camera;
+f32 D_008872F8_abs[1] = {1000.0f};
+Code45RenderState D_00712490[6] = {{6, 1}, {14, 0}, {12, 1}, {7, 2}, {9, 1}, {20, 1}};
+enum { GET = 1, SET, SKY, CLEAR, GEOMETRY, DRAW, RESTORE };
+typedef struct { s32 kind, state, value; } Event;
+static Event expectedEvents[32];
+static void expect_event(s32 kind, s32 state, s32 value)
+{
+    CHECK(active && eventCount < expectedEventCount);
+    Event *expected = &expectedEvents[eventCount++];
+    CHECK(kind == expected->kind && state == expected->state && value == expected->value);
+}
+static void append_event(s32 kind, s32 state, s32 value)
+{
+    CHECK(expectedEventCount < 32);
+    Event *event = &expectedEvents[expectedEventCount++];
+    event->kind = kind; event->state = state; event->value = value;
+}
+static void mutate_inputs(unsigned mode)
+{
+    if (mode != mutationMode) return;
+    CHECK(mutationCount == 0);
+    ++mutationCount;
+    for (unsigned i = 0; i < 4; ++i) {
+        callerRectangle->v[i] = (f32)(700 + 13 * i + mode);
+        callerColor[i] = liveColor[i] = (u8)(170 + 11 * i + mode);
+    }
+}
+static void state_get(s32 state, void *result)
+{
+    CHECK(saveState != 0 && getCount < 6 && !geometryCount);
+    expect_event(GET, state, 0);
+    if (!getCount) savedBase = result;
+    CHECK(result == savedBase + getCount);
+    *(s32 *)result = savedValues[getCount++];
+    if (getCount == 1) mutate_inputs(1);
+}
+static void state_set(s32 state, s32 value)
+{
+    CHECK(saveState != 0);
+    if (drawCount) {
+        expect_event(RESTORE, state, value);
+        CHECK(restoreCount < 6);
+        if (++restoreCount == 1) mutate_inputs(6);
+    } else {
+        expect_event(SET, state, value);
+        if (++setCount == 3) mutate_inputs(2);
+    }
+}
+void (*D_00887304[])() = {state_get};
+void (*D_00887300[])() = {state_set};
+void RpSkyRenderStateSet(s32 state, s32 value)
+{
+    CHECK(saveState != 0 && !geometryCount && skyCount < 2);
+    expect_event(SKY, state, value);
+    if (++skyCount == 1) mutate_inputs(3);
+}
+void *memset(void *destination, int value, __SIZE_TYPE__ size)
+{
+    expect_event(CLEAR, 0, 0);
+    CHECK(clearCount == 0 && size == 64 * sizeof(f32) && value == 0);
+    ++clearCount;
+    raw_memory_clear(destination, value, size);
+    /* Validate every byte immediately; geometry also checks all float lanes. */
+    for (unsigned i = 0; i < size; ++i) CHECK(((u8 *)destination)[i] == 0);
+    mutate_inputs(7);
+    return destination;
+}
+s32 func_0045ce40(f32 *out, u8 *colors, s32 *position, f32 depth)
+{
+    expect_event(GEOMETRY, 0, 0);
+    CHECK(clearCount == 1 && geometryCount == 0);
+    CHECK(((u32)out & 15) == 0);
+    mutate_inputs(4);
+    CHECK(memcmp(colors, liveColor, 4) == 0);
+    CHECK(colors == callerColor && depth == expectedDepth);
+    /* No incompatible s32 lvalue accesses through the helper's Code45Float4. */
+    s32 copiedWords[4];
+    u32 copiedBits[4];
+    memcpy(copiedWords, position, sizeof(copiedWords));
+    memcpy(copiedBits, copiedWords, sizeof(copiedBits));
+    CHECK(memcmp(copiedWords, originalRectangle, sizeof(copiedWords)) == 0);
+    for (unsigned i = 0; i < 64; ++i) CHECK(out[i] == 0.0f);
+    memcpy(geometryColor, liveColor, 4);
+    for (unsigned i = 0; i < 64; ++i)
+        out[i] = (f32)(copiedBits[i & 3] & 1023) + (f32)colors[(i >> 2) & 3]
+                 + (f32)(7 * i) + depth;
+    geometryOutput = out;
+    ++geometryCount;
+    return 123;
+}
+static s32 draw(s32 kind, void *buffer, s32 count)
+{
+    expect_event(DRAW, kind, count);
+    CHECK(kind == 4 && count == 4 && drawCount == 0 && geometryCount == 1);
+    CHECK(buffer == geometryOutput && ((u32)buffer & 15) == 0);
+    mutate_inputs(5);
+    u32 bits[4];
+    memcpy(bits, originalRectangle, sizeof(bits));
+    f32 *values = buffer;
+    for (unsigned vertex = 0; vertex < 4; ++vertex) {
+        for (unsigned lane = 0; lane < 16; ++lane) {
+            unsigned i = vertex * 16 + lane;
+            f32 expected = (f32)(bits[lane % 4] & 1023)
+                           + (f32)geometryColor[lane / 4]
+                           + (f32)(vertex * 112 + lane * 7) + expectedDepth;
+            CHECK(values[i] == expected);
+        }
+    }
+    ++drawCount;
+    return 1;
+}
+s32 (*D_00887310[])(s32, void *, s32) = {draw};
+static void release(void *unused)
+{
+    (void)unused; ++freeCount; CHECK(freeCount == 0);
+}
+void (*D_008873EC[])(void *) = {release};
+void func_00460ac0(void *queue, void *node)
+{
+    (void)queue; (void)node; ++queueCount; CHECK(queueCount == 0);
+}
+static void *allocate(u32 size, u32 hint)
+{
+    (void)size; (void)hint; ++allocationCount; CHECK(allocationCount == 0);
+    return 0;
+}
+void *(*jtbl_008873E8[])(u32, u32) = {allocate};
+/* @ACTUAL_HELPER@ */
+static s32 func_00457120(void)
+{
+    CHECK(typedScope && !active);
+    ++typedCameraGets;
+    return (s32)&camera;
+}
+/* @ACTUAL_TYPED_GEOMETRY@ */
+static void prepare_helper(Code45Float4 *rectangle, u8 *color, s32 enabled,
+                           unsigned mode, f32 depth)
+{
+    active = 1; saveState = enabled; mutationMode = mode;
+    expectedDepth = depth; callerRectangle = rectangle; callerColor = color;
+    memcpy(originalRectangle, rectangle, sizeof(originalRectangle));
+    memcpy(liveColor, color, sizeof(liveColor));
+    eventCount = expectedEventCount = getCount = setCount = skyCount = 0;
+    clearCount = geometryCount = drawCount = restoreCount = 0;
+    freeCount = queueCount = allocationCount = mutationCount = 0;
+    geometryOutput = 0; savedBase = 0;
+    for (unsigned i = 0; i < 6; ++i) savedValues[i] = (s32)(scenario * 17 + 31 * i);
+    if (enabled != 0) {
+        for (unsigned i = 0; i < 6; ++i) {
+            append_event(GET, D_00712490[i].state, 0);
+            append_event(SET, D_00712490[i].state, D_00712490[i].val);
+        }
+        append_event(SET, 1, 0);
+        append_event(SKY, 2, 0x44);
+        append_event(SKY, 3, 0x717FB);
+    }
+    append_event(CLEAR, 0, 0);
+    append_event(GEOMETRY, 0, 0);
+    append_event(DRAW, 4, 4);
+    if (enabled != 0)
+        for (unsigned i = 0; i < 6; ++i)
+            append_event(RESTORE, D_00712490[i].state, savedValues[i]);
+}
+static void run_helper_scenarios(void)
+{
+    static const f32 rectangles[4][4] = {
+        {-31.25f, -7.5f, 192.5f, 0.125f}, {0.0f, -0.0f, 1.0f, 1.0f},
+        {214.0f, 128.0f, -88.0f, 1024.5f}, {0.25f, -1024.0f, 7.5f, 99.75f}
+    };
+    static const u8 colors[4][4] = {{0, 0, 0, 0}, {1, 2, 3, 4},
+                                   {255, 128, 64, 32}, {31, 79, 127, 191}};
+    static const f32 depths[3] = {-3.5f, 0.0f, 10.25f};
+    static const s32 saves[6] = {1, 0, -1, 7, (-2147483647 - 1), 2147483647};
+    static const unsigned modes[8] = {1, 0, 2, 3, 4, 5, 6, 7};
+    for (unsigned r = 0; r < 4; ++r)
+    for (unsigned c = 0; c < 4; ++c)
+    for (unsigned d = 0; d < 3; ++d)
+    for (unsigned s = 0; s < 6; ++s)
+    for (unsigned m = 0; m < 8; ++m) {
+        Code45Float4 rectangle;
+        u8 color[4];
+        for (unsigned i = 0; i < 4; ++i) rectangle.v[i] = rectangles[r][i];
+        memcpy(color, colors[c], sizeof(color));
+        ++scenario; ++helperScenarios;
+        prepare_helper(&rectangle, color, saves[s], modes[m], depths[d]);
+        /* The declared object really is Code45Float4. The helper converts this
+         * suitably aligned pointer back to its own aggregate type. */
+        func_0045d6e0(color, (f32 *)&rectangle, depths[d], saves[s]);
+        CHECK(eventCount == expectedEventCount);
+        CHECK(clearCount == 1 && geometryCount == 1 && drawCount == 1);
+        CHECK(getCount == (saves[s] ? 6u : 0u));
+        CHECK(setCount == (saves[s] ? 7u : 0u));
+        CHECK(skyCount == (saves[s] ? 2u : 0u));
+        CHECK(restoreCount == (saves[s] ? 6u : 0u));
+        CHECK(freeCount == 0 && queueCount == 0 && allocationCount == 0);
+        unsigned shouldMutate = modes[m] != 0 &&
+            (saves[s] != 0 || modes[m] == 4 || modes[m] == 5 || modes[m] == 7);
+        CHECK(mutationCount == shouldMutate);
+        if (shouldMutate) CHECK(memcmp(&rectangle, originalRectangle, 16) != 0);
+        else CHECK(memcmp(&rectangle, originalRectangle, 16) == 0);
+        CHECK(memcmp(color, liveColor, 4) == 0);
+        active = 0;
+    }
+}
+static void run_typed_geometry_scenarios(void)
+{
+    static const s32 coordinates[5] = {-65536, -1, 0, 17, 65536};
+    static const s32 spans[3] = {-9, 0, 32767};
+    static const f32 depths[3] = {-3.5f, 0.0f, 10.25f};
+    static const u8 colors[3][4] = {{0, 0, 0, 0}, {1, 2, 3, 4}, {255, 128, 64, 32}};
+    static const f32 nearPlanes[3] = {0.25f, 2.0f, 4.0f};
+    typedScope = 1;
+    for (unsigned x = 0; x < 5; ++x)
+    for (unsigned y = 0; y < 5; ++y)
+    for (unsigned w = 0; w < 3; ++w)
+    for (unsigned h = 0; h < 3; ++h)
+    for (unsigned d = 0; d < 3; ++d)
+    for (unsigned c = 0; c < 3; ++c)
+    for (unsigned n = 0; n < 3; ++n) {
+        s32 position[4] = {coordinates[x], coordinates[y], spans[w], spans[h]};
+        u8 color[4];
+        f32 out[64], expected[64];
+        ++scenario; ++typedScenarios;
+        memcpy(color, colors[c], sizeof(color));
+        for (unsigned i = 0; i < 64; ++i) out[i] = expected[i] = 0.0f;
+        camera.nearPlane = nearPlanes[n];
+        typedCameraGets = 0;
+        s32 result = actual_rectangle_geometry(out, color, position, depths[d]);
+        CHECK(result == (s32)&camera && typedCameraGets == 1);
+        for (unsigned vertex = 0; vertex < 4; ++vertex) {
+            unsigned i = vertex * 16;
+            expected[i] = (f32)(coordinates[x] + ((vertex & 1) ? spans[w] : 0));
+            expected[i + 1] = (f32)(coordinates[y] + ((vertex & 2) ? spans[h] : 0));
+            expected[i + 2] = 1000.0f - depths[d];
+            expected[i + 6] = 1.0f / nearPlanes[n];
+            for (unsigned lane = 0; lane < 4; ++lane) expected[i + 8 + lane] = (f32)colors[c][lane];
+        }
+        for (unsigned i = 0; i < 64; ++i) CHECK(out[i] == expected[i]);
+        CHECK(position[0] == coordinates[x] && position[1] == coordinates[y]);
+        CHECK(position[2] == spans[w] && position[3] == spans[h]);
+        CHECK(memcmp(color, colors[c], 4) == 0);
+    }
+    typedScope = 0;
+}
+int main(void)
+{
+    CHECK(sizeof(Code45Float4) == 16 && sizeof(Code45RenderState) == 8);
+    CHECK(__builtin_offsetof(Code45RenderState, val) == 4);
+    CHECK(__builtin_offsetof(__typeof__(camera), nearPlane) == 0x80);
+    run_helper_scenarios();
+    run_typed_geometry_scenarios();
+    CHECK(helperScenarios == 2304 && typedScenarios == 6075);
+    native32_text("immediate rectangle: 2304 controlled-boundary scenarios and 6075 typed-provider scenarios passed\n");
+    return 0;
+}
