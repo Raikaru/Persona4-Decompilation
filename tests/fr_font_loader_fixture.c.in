@@ -1,0 +1,93 @@
+#include "type.h"
+/* @ACTUAL_TYPES@ */
+/* @ACTUAL_DECLARATIONS@ */
+FrFontManagerData4 gFrFontManagerData_abs[1];
+u32 uGpffffa708;
+char D_0063BAE8[1], D_0063BB40[1], D_0063BB80[1];
+static unsigned scenario, trace;
+static u8 *primary, *secondary;
+static s32 variant, slotIndex, prefixIndex, layoutIndex, mutation, glyphCount;
+static s32 tailOffset, firstBytes, secondBytes, firstOffset, secondOffset;
+static FrFontManagerData4 initial;
+#define CHECK(x) do { if (!(x)) native32_failure(__LINE__,scenario,#x); } while (0)
+void func_0046d730(const void *file,u32 line) { native32_failure(line,scenario,"unexpected null resource"); }
+void func_0046d740(const void *message,const void *file,u32 line) { native32_failure(line,scenario,"unexpected slot diagnostic"); }
+void func_00440b68(const void *message,u8 *data,s32 offset,s32 count) {
+ CHECK(message==D_0063BB80 && data==primary+tailOffset && offset==tailOffset && count==glyphCount);
+ CHECK(trace++==0);
+ if(mutation==1) *(u16 *)(primary+0xe)=glyphCount+2;
+ if(mutation==2) gFrFontManagerData_abs[0].slots[slotIndex].f04=(u32)secondary;
+}
+/* @ACTUAL_BODIES@ */
+static u8 *allocate(void) {
+ u32 args[6]={0,4096,3,0x22,0xffffffffu,0},address;
+ __asm__ volatile("int $0x80":"=a"(address):"0"(90),"b"(args):"memory");
+ CHECK(address<0xfffff001u);return (u8 *)address;
+}
+static void release(u8 *data) {
+ s32 result;__asm__ volatile("int $0x80":"=a"(result):"0"(91),"b"(data),"c"(4096):"memory");CHECK(result==0);
+}
+static void prepare(void) {
+ static const s32 offsets[]={0x40,0x80,0x40,0x80},pages[]={0,2,1,0};
+ static const s32 first[]={0,0,4,0},second[]={0,0,8,12};
+ memset(primary,0,4096);memset(secondary,0,4096);
+ *(s32 *)primary=offsets[layoutIndex];primary[0xa]=pages[layoutIndex];
+ *(u16 *)(primary+0xe)=glyphCount;*(u16 *)(secondary+0xe)=glyphCount+3;
+ primary[0x16]=layoutIndex>=2;
+ tailOffset=offsets[layoutIndex]+pages[layoutIndex]*64;
+ firstBytes=first[layoutIndex];secondBytes=second[layoutIndex];firstOffset=secondOffset=0;
+ if(layoutIndex>=2) {
+  *(u32 *)(primary+tailOffset)=firstBytes;firstOffset=tailOffset+4;
+  *(u32 *)(primary+firstOffset+firstBytes)=secondBytes;secondOffset=firstOffset+firstBytes+4;
+  tailOffset=secondOffset+secondBytes;
+ }
+ memset(gFrFontManagerData_abs,0,sizeof(gFrFontManagerData_abs));
+ for(s32 i=0;i<9;i++) {
+  u32 seed=0x100u+(u32)i*0x10;
+  gFrFontManagerData_abs[0].slots[i]=(FrFontSlot4){seed,seed+1,seed+2,seed+3,seed+4,seed+5,seed+6,seed+7};
+ }
+ initial=gFrFontManagerData_abs[0];trace=0;
+}
+static void verify(void) {
+ FrFontSlot4 *slot=&gFrFontManagerData_abs[0].slots[slotIndex];
+ u32 expectedSecondary=variant==1?(u32)secondary:variant==2?(u32)primary:0;
+ u32 expectedResource=mutation==2?(u32)secondary:(u32)primary;
+ s32 liveCount=glyphCount+(mutation==1?2:mutation==2?3:0);
+ CHECK(trace==1 && slot->f00==expectedSecondary && slot->f04==expectedResource);
+ CHECK(slot->f08==(u32)firstBytes && slot->f0c==(u32)secondBytes);
+ CHECK(slot->f10==(firstOffset?(u32)(primary+firstOffset):0));
+ CHECK(slot->f14==(secondOffset?(u32)(primary+secondOffset):0));
+ CHECK(slot->f18==(u32)(primary+tailOffset));
+ CHECK(slot->object==(u32)(primary+tailOffset+liveCount*4));
+ for(s32 i=0;i<9;i++) if(i!=slotIndex) CHECK(memcmp(&gFrFontManagerData_abs[0].slots[i],&initial.slots[i],sizeof(FrFontSlot4))==0);
+ CHECK(memcmp(gFrFontManagerData_abs[0].unknown_120,initial.unknown_120,sizeof(initial.unknown_120))==0);
+ CHECK(memcmp(gFrFontManagerData_abs[0].allocations,initial.allocations,sizeof(initial.allocations))==0);
+}
+int main(void) {
+ static const s32 prefixes[]={0,0x100,-0x100},glyphs[]={0,1,8,65};
+ static const u32 flags[]={0,1,3,4,8,0x20,0x30,0xffffffffu,0x80000000u,0xaaaa5555u};
+ static const u32 masks[]={0,3,4,8,0x30,0x80000000u,0xffffffffu};
+ CHECK(sizeof(void *)==4 && sizeof(FrFontSlot4)==32);
+ CHECK(__builtin_offsetof(FrFontManagerData4,allocations)==0x180);
+ primary=allocate();secondary=allocate();
+ for(variant=0;variant<4;variant++) for(slotIndex=0;slotIndex<9;slotIndex++)
+ for(prefixIndex=0;prefixIndex<3;prefixIndex++) {
+  if(variant==3 && (slotIndex!=8 || prefixIndex!=0)) continue;
+  for(layoutIndex=0;layoutIndex<4;layoutIndex++) for(unsigned g=0;g<4;g++)
+  for(mutation=0;mutation<3;mutation++) {
+   ++scenario;glyphCount=glyphs[g];prepare();
+   s32 requested=slotIndex+prefixes[prefixIndex];
+   if(variant==0) func_002716b0(requested,primary,NULL);
+   else if(variant==1) func_002716b0(requested,primary,secondary);
+   else if(variant==2) func_00271380(requested,primary);
+   else {s32 storedAddress=(s32)primary;func_002738a0((u8 *)storedAddress);}
+   verify();
+  }
+ }
+ CHECK(scenario==3936);
+ for(unsigned i=0;i<10;i++) for(unsigned j=0;j<7;j++) {
+  ++scenario;uGpffffa708=flags[i];CHECK(func_00274650(masks[j])==(flags[i]&masks[j]));
+ }
+ CHECK(scenario==4006);release(primary);release(secondary);
+ native32_text("font loader contracts: 4006 scenarios passed\n");return 0;
+}

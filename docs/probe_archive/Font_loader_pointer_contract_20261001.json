@@ -1,0 +1,151 @@
+{
+  "base": "b690bb2cf0afdae66301fa6422f6997c4715a91f",
+  "owners": {
+    "src/frFont.c": {
+      "functions": 57,
+      "source_sha256": "5947cdbb79a867948d2b6b7fadd16e7e688162210e4c5b0fd56a823afdb03c66",
+      "all_raw_allocated_bytes_and_layouts_equal": true,
+      "resolved_relocation_identities_equal": true,
+      "function_symbols_equal": true,
+      "marker_census_equal": true,
+      "allocated_relocations": 499,
+      "raw_relocation_spelling_changes": [
+        [
+          "func_00271380",
+          {
+            "offset": 16,
+            "r_type": 4,
+            "type": "R_MIPS_26",
+            "symbol": "func_002716b0_typed"
+          },
+          {
+            "offset": 16,
+            "r_type": 4,
+            "type": "R_MIPS_26",
+            "symbol": "func_002716b0"
+          }
+        ],
+        [
+          "func_002738a0",
+          {
+            "offset": 20,
+            "r_type": 4,
+            "type": "R_MIPS_26",
+            "symbol": "func_002716b0_typed"
+          },
+          {
+            "offset": 20,
+            "r_type": 4,
+            "type": "R_MIPS_26",
+            "symbol": "func_002716b0"
+          }
+        ]
+      ],
+      "object_sha256": "2b9ff18779bff3572add66c40a9b881292684275b95247b29ea6d9eb9cf153ad",
+      "all_named_allocated_definitions_equal": true,
+      "baseline_object_sha256": "650c2692e01d275f76cfc73defbfd476a7a84e7ca6fcf4313667ded156508b78",
+      "baseline_source_sha256": "666be9a85ec615cd2cf296d1f166f572b35629f5fa39ef3842abb1dcf4c11ace"
+    },
+    "src/itfMesManager.c": {
+      "functions": 85,
+      "source_sha256": "05e8bc416f3489a21f25ce72ec985d4ab2c507bfc62d3fe9b6b95e9664521d71",
+      "all_raw_allocated_bytes_and_layouts_equal": true,
+      "resolved_relocation_identities_equal": true,
+      "function_symbols_equal": true,
+      "marker_census_equal": true,
+      "allocated_relocations": 615,
+      "raw_relocation_spelling_changes": [],
+      "object_sha256": "7a5d5be310f4922a95ba6b07849c6764d84cd57b55e04cd449a8bf62922496ee",
+      "all_named_allocated_definitions_equal": true,
+      "baseline_object_sha256": "7a5d5be310f4922a95ba6b07849c6764d84cd57b55e04cd449a8bf62922496ee",
+      "baseline_source_sha256": "2997cbca2868b0fec3cdd690aefa51516a209b073747f8362234a0daed2fb54a"
+    },
+    "src/promoted/code1_0027.c": {
+      "functions": 60,
+      "source_sha256": "b7a73869aaeecdeffec9084ad8899b73eb4d969323d856f6832fb71a6beb13bc",
+      "all_raw_allocated_bytes_and_layouts_equal": true,
+      "resolved_relocation_identities_equal": true,
+      "function_symbols_equal": true,
+      "marker_census_equal": true,
+      "allocated_relocations": 262,
+      "raw_relocation_spelling_changes": [],
+      "object_sha256": "4ff67728a92879ff93d2e1c072c6140e6c29da60beec039fff0864016eaa56ab",
+      "all_named_allocated_definitions_equal": true,
+      "baseline_object_sha256": "4ff67728a92879ff93d2e1c072c6140e6c29da60beec039fff0864016eaa56ab",
+      "baseline_source_sha256": "df2bc3000a1be2f32618a468c9d80bbbe2237ec9e7b0e958cbccf0ba7f53363d"
+    },
+    "src/Main/OpEd/ed_res.c": {
+      "functions": 6,
+      "source_sha256": "6ea14af770a2bf064161631d7c0be04954dfa9b942415e89c6c32359bc8c23b1",
+      "all_raw_allocated_bytes_and_layouts_equal": true,
+      "all_named_allocated_symbols_equal": true,
+      "resolved_relocation_identities_equal": true,
+      "allocated_relocations": 54,
+      "object_sha256": "e4f3b1c3519d3f4c6b7ec45a861368882ce4567418082ada7c6a827af14ca7c3",
+      "all_named_allocated_definitions_equal": true,
+      "baseline_object_sha256": "e4f3b1c3519d3f4c6b7ec45a861368882ce4567418082ada7c6a827af14ca7c3",
+      "baseline_source_sha256": "82d31679fe03f9bf9f873c401a4d416678e34988a9b56bac50bd88d1e8b2432d"
+    }
+  },
+  "aliases": {
+    "func_002716b0_typed": 2561712,
+    "func_002716b0": 2561712
+  },
+  "official_verification_summary": {
+    "functions": 209,
+    "MATCH": 209,
+    "new_matches": 0,
+    "report_sha256": "85f6f9cf8adc8cb77d81b004d75344ace58262f1b3610b6d76ff334ba9b66493"
+  },
+  "native": {
+    "methods": 4,
+    "scenarios_per_O0_O2": 4006,
+    "loader_scenarios": 3936,
+    "flag_scenarios": 70,
+    "body_negative_controls": 12,
+    "declaration_compile_negative_controls": 4,
+    "no_skips": true,
+    "native_log_sha256": "19279cd71aa7c289d45f8ad3dd3bf1bb95e7e043542d6638cbe7948f1348116e",
+    "fixture_sha256": "92604d1312c9d1db10ef5d18f23c8195ac390227cd5bc7fa02c09a2a255a252a",
+    "test_sha256": "7c11443eb8626a929a8559eebd74b087b7c972535738be5b556b0c469c0f1d16",
+    "actual_body_sha256": {
+      "func_002716b0": "c5f67fa95ff9e8e14eb1213880b3ed6725fd4b77b1a4cdb969d510a5065dc77e",
+      "func_00271380": "3b041eb70a8fbb591d3010db741908fbeac0e8ed740ce78a58903e59ca1f956e",
+      "func_002738a0": "bea40aa35a8baa1041fe21ed1715530b2260f1ce55803e0b9f47705c62ea2390",
+      "func_00274650": "70ffb3e52bb7b69ec93f59e10994effad299d18c75f2eee9fdbd10894c11054e"
+    },
+    "source_census_runs_without_native_capability": true
+  },
+  "unchanged_provider": {
+    "path": "src/frFont_grouped.c",
+    "source_sha256": "795099854abb53436ded82bcfe0f5a42f99f7ea6cf0171dd4893ff3023bc87ec",
+    "functions": 1,
+    "MATCH": 1
+  },
+  "guard_scope": "The four changed owners have no guarded function markers or active INCLUDE_ASM bodies. Other owner files and every header are unchanged.",
+  "inactive_symbol_alias": "Existing func_002716b0_typed address-map entry remains unchanged and unused by authoritative C; no wider C prototype or call remains.",
+  "full_link": "not run; parent owns aggregate validation",
+  "deferred": "The 32-slot restore helper is not changed; its pointer-valued cell writers/readers require a separate coherent model. Rank5 and zero-choice domain gates are unchanged.",
+  "independent_review": {
+    "script": "/workspace/shared/p4-font-loader-independent-review.py",
+    "script_sha256": "4f5c1ca98f3902584870c64df56d451091c39de19749182e5e532605e556ff72",
+    "receipt": "/workspace/shared/p4-font-loader-independent-review/receipt.json",
+    "receipt_sha256": "a48fe2a538eef7546994b6c97a9fd729b7268e0c941acc326d1b6c10e452cd58"
+  },
+  "main_integration": {
+    "base": "b1f024ba5e0f6c1b525a6ecb83bbb7d2ee1808cf",
+    "source_files_identical_to_reviewed_commit": "9af173c8fccb0af6403459a492a1390bdfe08106",
+    "c_objects": 604,
+    "sdk_objects": 54,
+    "linked_windows": 8586,
+    "linked_report_identical_to_base": true,
+    "image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
+    "elf_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+    "focused_tests": 4,
+    "focused_skips": 0,
+    "ordinary_tests": 869,
+    "ordinary_skips": 35,
+    "lint_errors": 0,
+    "lint_warnings": 54
+  }
+}
