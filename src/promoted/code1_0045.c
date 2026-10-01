@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "primitive_rectangle_packet.h"
 #include "shd_misc_internal.h"
 #include "Kosaka/k_clump_internal.h"
 extern f32 fGpffff81f0;
@@ -2098,37 +2099,38 @@ void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2)
 void func_0045d890(void *unused, u8 *arg1)
 {
     struct {
-        Code45Float4 pos;
+        PrimitiveRectangleSignedWords pos;
         s32 saved[6];
         u8 pad1[8];
-        f32 out;
-        u8 pad2[0xFC];
+        f32 out[64];
     } work;
+    PrimitiveRectanglePacket *packet;
     f32 scale;
     s32 enabled;
-    s32 *p;
+    Code45RenderState *p;
     u32 i;
     u32 j;
 
-    work.pos = *(Code45Float4 *)(arg1 + 4);
-    scale = *(f32 *)(arg1 + 0x14);
-    enabled = *(s32 *)(arg1 + 0x18);
+    packet = (PrimitiveRectanglePacket *)arg1;
+    work.pos = packet->rectangle.signedWords;
+    scale = packet->depth;
+    enabled = packet->saveState;
     if (enabled != 0) {
         for (i = 0; i < 6; i++) {
-            p = (s32 *)&D_00712490[i];
-            D_00887304[0](p[0], (void *)&work.saved[i]);
-            D_00887300[0](p[0], p[1]);
+            p = &D_00712490[i];
+            D_00887304[0](p->state, (void *)&work.saved[i]);
+            D_00887300[0](p->state, p->val);
         }
         D_00887300[0](1, 0);
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x717FB);
     }
-    func_0045ce40(&work.out, arg1, (s32 *)&work.pos, scale);
-    D_00887310[0](4, &work.out, 4);
+    func_0045ce40(work.out, packet->color.rgba, work.pos.word, scale);
+    D_00887310[0](4, work.out, 4);
     if (enabled != 0) {
         for (j = 0; j < 6; j++) {
-            p = (s32 *)&D_00712490[j];
-            D_00887300[0](p[0], work.saved[j]);
+            p = &D_00712490[j];
+            D_00887300[0](p->state, work.saved[j]);
         }
     }
     D_008873EC[0](arg1);

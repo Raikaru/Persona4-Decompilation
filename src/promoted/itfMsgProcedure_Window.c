@@ -2,6 +2,7 @@
 /* Original translation unit itfMsgProcedure_Window.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "sdk_ot_state_api.h"
+#include "primitive_rectangle_packet.h"
 #include "message_procedure_api.h"
 #include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
@@ -20,7 +21,6 @@ extern s32 func_00266b70(void);
 extern s32 memset(void *a0, s32 a1, s32 a2);
 
 extern void func_00489f80(void);
-extern void func_0045da40(float *a0, void *a1, float a2, s32 a3, void *a4);
 extern void func_0048a000(void);
 extern float sinf(float angle);
 extern float cosf(float angle);
@@ -352,14 +352,14 @@ void func_0027d620(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, s16 t
 // FUN_0027D660
 void func_0027d660(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4)
 {
-    float f;
-    u32 pad;
-    MsgProcWindowQuad q2;
-    MsgProcWindowQuad q1;
+    PrimitiveRectangleColor color;
+    PrimitiveRectangleColor clearColor;
+    PrimitiveRectangleWords q2;
+    PrimitiveRectangleWords q1;
     u8 *p;
     u32 n;
 
-    p = (u8 *)&pad;
+    p = (u8 *)&clearColor;
     n = 4;
     if (p != 0) {
         do {
@@ -368,7 +368,7 @@ void func_0027d660(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4)
             n--;
         } while (n != 0);
     }
-    f = *(float *)&pad;
+    color = clearColor;
     p = (u8 *)&q1;
     n = 0x10;
     if (p != 0) {
@@ -378,10 +378,10 @@ void func_0027d660(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4)
             n--;
         } while (n != 0);
     }
-    q1.a = arg0;
-    q1.b = arg1;
-    q1.c = arg2;
-    q1.d = arg3;
+    q1.bits[0] = arg0;
+    q1.bits[1] = arg1;
+    q1.bits[2] = arg2;
+    q1.bits[3] = arg3;
     q2 = q1;
     func_00460b60(arg4, 0x6, 0x1);
     func_00460b60(arg4, 0xE, 0x0);
@@ -394,7 +394,7 @@ void func_0027d660(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4)
     func_00460c70(arg4, 0x3, 0x31003);
     func_00460c70(arg4, 0x2, 0x44);
     func_00489f80();
-    func_0045da40(&f, &q2, f0, 0, arg4);
+    func_0045da40(&color, &q2, f0, 0, arg4);
     func_0048a000();
 }
 
@@ -1312,11 +1312,11 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     extern s32 func_00273970(void *arg0);
     extern s32 func_00277070(void *arg0);
     extern s32 func_00279010(void *arg0);
-    u32 copyA[4];
-    u32 copyB[4];
+    PrimitiveRectangleWords copyA;
+    PrimitiveRectangleWords copyB;
     f32 fSp1;
-    f32 fSp2;
-    f32 fSp3;
+    PrimitiveRectangleColor fSp2;
+    PrimitiveRectangleColor fSp3;
     s32 ret;
     s32 handle;
     s32 s19;
@@ -1885,16 +1885,16 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     case 12:
         if (func_0027bec0((void *)arg0) != 0) {
             fSp1 = (float)iGpffffb4d8;
-            fSp2 = fSp1;
-            copyA[0] = D_0063C130[0];
-            copyA[1] = D_0063C130[1];
-            copyA[2] = D_0063C130[2];
-            copyA[3] = D_0063C130[3];
-            copyB[0] = D_0063C130[0];
-            copyB[1] = D_0063C130[1];
-            copyB[2] = D_0063C130[2];
-            copyB[3] = D_0063C130[3];
-            func_0045da40(&fSp2, copyB, 0.0f, 1, (void *)D_00796490);
+            fSp2.transport = fSp1;
+            copyA.bits[0] = D_0063C130[0];
+            copyA.bits[1] = D_0063C130[1];
+            copyA.bits[2] = D_0063C130[2];
+            copyA.bits[3] = D_0063C130[3];
+            copyB.bits[0] = D_0063C130[0];
+            copyB.bits[1] = D_0063C130[1];
+            copyB.bits[2] = D_0063C130[2];
+            copyB.bits[3] = D_0063C130[3];
+            func_0045da40(&fSp2, &copyB, 0.0f, 1, (void *)D_00796490);
             tmp = func_00277070((void *)arg0);
             tmp2 = func_00279010((void *)arg0);
             if ((s16)tmp2 == 5) {
@@ -1905,18 +1905,18 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 j = (tmp2 >> 1) * 8 + 0x550 + tmp2 * 8 * tmp;
             }
             fSp1 = (float)iGpffffb4d8;
-            fSp3 = fSp1;
-            copyA[0] = D_0063C140[0];
-            copyA[1] = D_0063C140[1];
-            copyA[2] = D_0063C140[2];
-            copyA[3] = D_0063C140[3];
-            copyA[0] = 0x38;
-            copyA[3] = (u32)(j >> 3);
-            copyB[0] = D_0063C140[0];
-            copyB[1] = D_0063C140[1];
-            copyB[2] = D_0063C140[2];
-            copyB[3] = D_0063C140[3];
-            func_0045da40(&fSp3, copyB, 0.0f, 1, (void *)D_00796490);
+            fSp3.transport = fSp1;
+            copyA.bits[0] = D_0063C140[0];
+            copyA.bits[1] = D_0063C140[1];
+            copyA.bits[2] = D_0063C140[2];
+            copyA.bits[3] = D_0063C140[3];
+            copyA.bits[0] = 0x38;
+            copyA.bits[3] = (u32)(j >> 3);
+            copyB.bits[0] = D_0063C140[0];
+            copyB.bits[1] = D_0063C140[1];
+            copyB.bits[2] = D_0063C140[2];
+            copyB.bits[3] = D_0063C140[3];
+            func_0045da40(&fSp3, &copyB, 0.0f, 1, (void *)D_00796490);
         }
         ret = 1;
         break;
