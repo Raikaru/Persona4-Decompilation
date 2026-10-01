@@ -1,0 +1,67 @@
+#include "type.h"
+static u32 scenario;
+#define CHECK(c) do { if (!(c)) native32_failure(__LINE__,scenario,#c); } while(0)
+static u8 work[0x28] __attribute__((aligned(16)));
+static u8 effect[0x24] __attribute__((aligned(16)));
+static u8 expectedWork[0x28] __attribute__((aligned(16)));
+static u8 expectedEffect[0x24] __attribute__((aligned(16)));
+static u8 unit[16],started[16];
+static s32 resourceReady,keyAlive,indexValue;
+static u32 queryCount,keyCount,startCount;
+s32 func_001d4120(s32 resource) { CHECK(resource==0x1234);return resourceReady; }
+s32 func_001d4140(s32 resource,s32 mode) { CHECK(resource==0x1234 && mode==0);++queryCount;return indexValue; }
+s32 func_00193b70(s64 key,s64 mask) { CHECK(key==0x1122334455667788LL && mask==0x3fffffffffffffffLL);++keyCount;return keyAlive; }
+s32 func_001d41b0(s32 resource,s32 index,s32 first,s32 second,s32 flags) {
+    CHECK(resource==0x1234 && index==0 && (u8 *)first==unit && (u8 *)second==unit);
+    CHECK(flags==*(s32 *)(work+0x20));++startCount;return (s32)started;
+}
+%%CALLBACK%%
+static void run(u32 color,s32 options,u16 effectFlags,s32 phase,s32 duration,u32 predecessor,s32 ready,s32 alive) {
+    u32 expectedQueries=0,expectedKeys=0,expectedStarts=0;
+    s32 expectedResult=0;
+    ++scenario;memset(work,0xa5,sizeof(work));memset(effect,0x5a,sizeof(effect));
+    *(s32 *)(work+0)=0x1234;*(u8 **)(work+4)=unit;*(s32 *)(work+8)=duration;
+    *(s64 *)(work+0x10)=predecessor ? 0x1122334455667788LL : 0;
+    *(u8 **)(work+0x18)=effect;*(s32 *)(work+0x1c)=phase;*(s32 *)(work+0x20)=options;
+    *(u16 *)effect=effectFlags;*(u32 *)(effect+4)=color;
+    resourceReady=ready;keyAlive=alive;indexValue=3;queryCount=keyCount=startCount=0;
+    memcpy(expectedWork,work,sizeof(work));memcpy(expectedEffect,effect,sizeof(effect));
+    if(ready) {
+        if((color>>24)==0)expectedResult=1;
+        else if(!(effectFlags&0x40)) {
+            s32 limit=options&0x4000 ? phase+1 : 6;
+            s32 stop=duration!=0 && phase>=duration*2-13;
+            expectedQueries=!(options&0x4000);
+            if(!stop && predecessor) { expectedKeys=1;stop=!alive; }
+            if(!stop && limit!=0)stop=phase>=limit;
+            if(stop) {
+                *(u16 *)expectedEffect=effectFlags|0x100;
+                if(options&0x2000)expectedEffect[8]=7;
+            } else {
+                if(phase==0) { expectedStarts=1;*(u8 **)(expectedEffect+0x10)=started; }
+                else if(phase==2) {
+                    *(u16 *)expectedEffect=effectFlags|(options&0x10000 ? 0x30 : 0xb0);
+                    *(u32 *)(expectedEffect+4)=options&0x10000 ? 0xffffffffu : color&0x00ffffffu;
+                }
+                *(s32 *)(expectedWork+0x1c)=phase+2;
+            }
+        }
+    }
+    CHECK(func_001d6360(work)==expectedResult);
+    CHECK(queryCount==expectedQueries && keyCount==expectedKeys && startCount==expectedStarts);
+    for(u32 i=0;i<sizeof(work);++i)CHECK(work[i]==expectedWork[i]);
+    for(u32 i=0;i<sizeof(effect);++i)CHECK(effect[i]==expectedEffect[i]);
+}
+int main(void) {
+    const s32 flags[]={0,0x10000,(s32)0x80000000u,(s32)0x80010000u};
+    for(u32 byte=0;byte<256;++byte)for(u32 flag=0;flag<4;++flag)for(u32 freeze=0;freeze<2;++freeze)for(u32 phase=0;phase<2;++phase)
+        run(byte*0x01010101u,flags[flag],freeze ? 0x40 : 1,phase ? 4 : 2,0,0,1,1);
+    {
+        const s32 durations[]={0,7,8,100};
+        const s32 options[]={0,0x2000,0x4000,0x6000,0x10000};
+        for(u32 d=0;d<4;++d)for(u32 phase=0;phase<5;++phase)for(u32 o=0;o<5;++o)for(u32 key=0;key<2;++key)for(u32 alive=0;alive<2;++alive)
+            run(0xa1b2c3d4u,options[o],1,phase*2,durations[d],key,1,alive);
+    }
+    for(u32 phase=0;phase<4;++phase)run(0xaabbccddu,0,1,phase*2,0,1,0,0);
+    CHECK(scenario==4500);native32_text("4500 actual effect update cases passed\n");return 0;
+}

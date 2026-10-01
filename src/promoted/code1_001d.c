@@ -1697,7 +1697,7 @@ s32 func_001d6360(u8 *arg0)
                 if ((*(s32 *)(arg0 + 0x20) & 0x10000) == 0) {
                     *(u16 *)(packet + 0) |= 0xB0;
                     *(s32 *)(packet + 4) =
-                        (u32)*(u64 *)(packet + 4) & 0x00FFFFFF;
+                        *(u32 *)(packet + 4) & 0x00FFFFFF;
                 } else {
                     *(u16 *)(packet + 0) |= 0x30;
                     *(s32 *)(packet + 4) = -1;
