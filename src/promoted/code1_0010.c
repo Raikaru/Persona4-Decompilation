@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "sdk_ot_state_api.h"
 
 typedef struct RwImage RwImage;
 extern void strcpy(void *dst, void *src);
@@ -151,7 +152,6 @@ typedef struct {
     f32 y;
 } Float2_0010;
 extern u8 D_00796460[];
-extern u8 *func_00460b60(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern void func_00458fa0(void);
 extern void func_0045a730(s32 arg0, s32 arg1);
@@ -1136,7 +1136,6 @@ void func_00103a60(void)
 void func_00103b00(void) {
     extern u8 D_00796460[];
     extern u8 D_00796700[];
-    extern u8 *func_00460b60(u8 *list, s32 arg1, s32 arg2);
     extern void func_00103c40(u8 *arg0);
     s16 index;
 

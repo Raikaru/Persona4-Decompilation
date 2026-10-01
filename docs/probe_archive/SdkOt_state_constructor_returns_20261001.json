@@ -1,0 +1,268 @@
+{
+  "base": "61b8a7526e6ebc2f2a012a707f678d25a8a04d17",
+  "script_sha256": "46d38db4759ccd38e432081feea92c03edc2e90f807bd0f223b1324e002c455a",
+  "owners": {
+    "src/promoted/itfMsgProcedure_Window.c": {
+      "source_sha256": "efc4adde875ef45bdc3936f807041b3c98a297c856aa29b3d14d93c51084553c",
+      "modes": {
+        "production": {
+          "functions": 21,
+          "raw_allocated_bytes_and_layouts_preserved": true,
+          "all_function_bytes_sizes_and_relocation_identities_preserved": true,
+          "reference_scope": "Exact symbolic identities and raw addends preserved, including unchanged assembly references; not a full-link/address-resolution claim",
+          "allocated_symbols_preserved": true,
+          "baseline_object_sha256": "bcad77ce47d28297befae5a6433d115c73ee05f59be9175e76d2e779bb6b0405",
+          "candidate_object_sha256": "bcad77ce47d28297befae5a6433d115c73ee05f59be9175e76d2e779bb6b0405"
+        },
+        "all_guards": {
+          "functions": 21,
+          "raw_allocated_bytes_and_layouts_preserved": true,
+          "all_function_bytes_sizes_and_relocation_identities_preserved": true,
+          "reference_scope": "Exact symbolic identities and raw addends preserved, including unchanged assembly references; not a full-link/address-resolution claim",
+          "allocated_symbols_preserved": true,
+          "baseline_object_sha256": "da38bc83061c0ab1039c5721b05b1ba4ae193174c3f6f8fbb37a8579c2fd7c0d",
+          "candidate_object_sha256": "da38bc83061c0ab1039c5721b05b1ba4ae193174c3f6f8fbb37a8579c2fd7c0d"
+        }
+      }
+    },
+    "src/sdkOt.c": {
+      "source_sha256": "1d06961fc2d326e627ea2a209a50338a1923336712b76b30768d738f1401abc4",
+      "modes": {
+        "production": {
+          "functions": 10,
+          "raw_allocated_bytes_and_layouts_preserved": true,
+          "all_function_bytes_sizes_and_relocation_identities_preserved": true,
+          "reference_scope": "Exact symbolic identities and raw addends preserved, including unchanged assembly references; not a full-link/address-resolution claim",
+          "allocated_symbols_preserved": true,
+          "baseline_object_sha256": "e48f80eb8ac4491b45f4231df40b08841a146d47d98059ffdceb2cd7580622d3",
+          "candidate_object_sha256": "e48f80eb8ac4491b45f4231df40b08841a146d47d98059ffdceb2cd7580622d3"
+        },
+        "all_guards": {
+          "functions": 10,
+          "raw_allocated_bytes_and_layouts_preserved": true,
+          "all_function_bytes_sizes_and_relocation_identities_preserved": true,
+          "reference_scope": "Exact symbolic identities and raw addends preserved, including unchanged assembly references; not a full-link/address-resolution claim",
+          "allocated_symbols_preserved": true,
+          "baseline_object_sha256": "e48f80eb8ac4491b45f4231df40b08841a146d47d98059ffdceb2cd7580622d3",
+          "candidate_object_sha256": "e48f80eb8ac4491b45f4231df40b08841a146d47d98059ffdceb2cd7580622d3"
+        }
+      }
+    },
+    "src/promoted/code1_0010.c": {
+      "source_sha256": "39a6d2a0b4fcf05c416039afce253e9f784c79186fb0b0bef201c910d833b0d6",
+      "modes": {
+        "production": {
+          "functions": 38,
+          "raw_allocated_bytes_and_layouts_preserved": true,
+          "all_function_bytes_sizes_and_relocation_identities_preserved": true,
+          "reference_scope": "Exact symbolic identities and raw addends preserved, including unchanged assembly references; not a full-link/address-resolution claim",
+          "allocated_symbols_preserved": true,
+          "baseline_object_sha256": "6a6d3b973b00db1b93192c88ca421b89b8cb73790f7391ec1ff21c60a60c9b6e",
+          "candidate_object_sha256": "6a6d3b973b00db1b93192c88ca421b89b8cb73790f7391ec1ff21c60a60c9b6e"
+        },
+        "all_guards": {
+          "functions": 38,
+          "raw_allocated_bytes_and_layouts_preserved": true,
+          "all_function_bytes_sizes_and_relocation_identities_preserved": true,
+          "reference_scope": "Exact symbolic identities and raw addends preserved, including unchanged assembly references; not a full-link/address-resolution claim",
+          "allocated_symbols_preserved": true,
+          "baseline_object_sha256": "6a6d3b973b00db1b93192c88ca421b89b8cb73790f7391ec1ff21c60a60c9b6e",
+          "candidate_object_sha256": "6a6d3b973b00db1b93192c88ca421b89b8cb73790f7391ec1ff21c60a60c9b6e"
+        }
+      }
+    }
+  },
+  "full_link": "not run",
+  "new_matches": 0,
+  "header_sha256": "02b19f7d259d476b495a20cf85d884853300e4e5c8346a1e5c557807934c9576",
+  "all_six_objects_byte_identical": true,
+  "file_hashes": {
+    "src/sdkOt.c": "1d06961fc2d326e627ea2a209a50338a1923336712b76b30768d738f1401abc4",
+    "src/promoted/itfMsgProcedure_Window.c": "efc4adde875ef45bdc3936f807041b3c98a297c856aa29b3d14d93c51084553c",
+    "src/promoted/code1_0010.c": "39a6d2a0b4fcf05c416039afce253e9f784c79186fb0b0bef201c910d833b0d6",
+    "include/sdk_ot_state_api.h": "02b19f7d259d476b495a20cf85d884853300e4e5c8346a1e5c557807934c9576",
+    "tests/test_sdk_ot_state_contract.py": "a25cebaa202ae64d121a203e27b4af3979a4c99682bfa97e7893b323450736e9",
+    "tests/sdk_ot_state_fixture.c.in": "1d9c16c0e6b00975fb928ca0861d9b2ddcd1440fa58273081a899e4147d41f69"
+  },
+  "exact_source_delta": "Three includes and four removed declarations only; all executable statements and guarded controller text unchanged",
+  "callers": {
+    "func_0027d660": 10,
+    "func_00103b00": 8,
+    "func_00103f00": 2
+  },
+  "native": {
+    "methods": 4,
+    "skips": 0,
+    "optimizations": [
+      "O0",
+      "O2"
+    ],
+    "scenarios_per_optimization": 392,
+    "runtime_negative_controls": 10,
+    "compile_negative_controls": 2,
+    "actual_bodies": [
+      "func_00460b60",
+      "func_00460c70"
+    ],
+    "caller_bodies_executed": false,
+    "renderer_executed": false,
+    "allocation": "mmap with no declared C object type",
+    "census_regression_controls": "Accept actual source; reject generated source and dot-prefixed compiler probes"
+  },
+  "verification": {
+    "MATCH": 64,
+    "ASM": 5,
+    "functions": 69,
+    "lint_errors": 0,
+    "remaining_lint_warnings": 46,
+    "full_link": "not run",
+    "ordinary_repository_suite": "not run"
+  },
+  "logs_sha256": {
+    "lint.log": "ac0773c68d4b25d47170a07a3def3c77ffcbfa5751d94e0f8f7bac6ac447f5d5",
+    "native.log": "8362eda9602a8ef587192869833410fb15bfcb38d3bb5b1e96d822d3c027c29c",
+    "preservation.log": "3b73397e77cc87c44c51d07f88df90276287601a513522ed4dd817d8df438c52",
+    "production-verify.log": "763fdbb49e46abeb735c713618c028288e830432da33cfcdde9ffc75436b72f5"
+  },
+  "independent_review": {
+    "artifacts": {
+      "p4-ot-main-preservation.py": {
+        "path": "/workspace/shared/p4-ot-main-preservation.py",
+        "sha256": "46d38db4759ccd38e432081feea92c03edc2e90f807bd0f223b1324e002c455a"
+      },
+      "p4-main-ot-independent-review.py": {
+        "path": "/workspace/shared/p4-main-ot-independent-review.py",
+        "sha256": "273387d3e08d70599de5ca73d8da2ed424a298e8bdb87b9f4b95dffb2e2286d5"
+      },
+      "p4-main-ot-independent-review.json": {
+        "path": "/workspace/shared/p4-main-ot-independent-review.json",
+        "sha256": "267ba568547fa7e578b74b3675173bf6b4e3648332e1a2d0780a2f3f1c86281e"
+      }
+    },
+    "audit": {
+      "base": "61b8a7526e6ebc2f2a012a707f678d25a8a04d17",
+      "script_sha256": "273387d3e08d70599de5ca73d8da2ed424a298e8bdb87b9f4b95dffb2e2286d5",
+      "source_hashes": {
+        "src/sdkOt.c": "1d06961fc2d326e627ea2a209a50338a1923336712b76b30768d738f1401abc4",
+        "src/promoted/itfMsgProcedure_Window.c": "efc4adde875ef45bdc3936f807041b3c98a297c856aa29b3d14d93c51084553c",
+        "src/promoted/code1_0010.c": "39a6d2a0b4fcf05c416039afce253e9f784c79186fb0b0bef201c910d833b0d6",
+        "include/sdk_ot_state_api.h": "02b19f7d259d476b495a20cf85d884853300e4e5c8346a1e5c557807934c9576",
+        "tests/test_sdk_ot_state_contract.py": "a25cebaa202ae64d121a203e27b4af3979a4c99682bfa97e7893b323450736e9",
+        "tests/sdk_ot_state_fixture.c.in": "1d9c16c0e6b00975fb928ca0861d9b2ddcd1440fa58273081a899e4147d41f69"
+      },
+      "exact_source_mapping": "Only three shared-header includes and four removed declarations; all executable bodies and guarded text preserved",
+      "authoritative_C_closure": [
+        "src/promoted/code1_0010.c",
+        "src/promoted/itfMsgProcedure_Window.c",
+        "src/sdkOt.c"
+      ],
+      "discarded_result_call_counts": {
+        "func_0027d660": 10,
+        "func_00103b00": 8,
+        "func_00103f00": 2
+      },
+      "owners": {
+        "src/sdkOt.c": {
+          "production": {
+            "functions": 10,
+            "entire_object_byte_identical": true,
+            "object_sha256": "e48f80eb8ac4491b45f4231df40b08841a146d47d98059ffdceb2cd7580622d3",
+            "scope": "All code, allocated data, padding, layouts, symbols, raw relocation addends and symbolic identities are identical"
+          },
+          "all_guards": {
+            "functions": 10,
+            "entire_object_byte_identical": true,
+            "object_sha256": "e48f80eb8ac4491b45f4231df40b08841a146d47d98059ffdceb2cd7580622d3",
+            "scope": "All code, allocated data, padding, layouts, symbols, raw relocation addends and symbolic identities are identical"
+          }
+        },
+        "src/promoted/itfMsgProcedure_Window.c": {
+          "production": {
+            "functions": 21,
+            "entire_object_byte_identical": true,
+            "object_sha256": "bcad77ce47d28297befae5a6433d115c73ee05f59be9175e76d2e779bb6b0405",
+            "scope": "All code, allocated data, padding, layouts, symbols, raw relocation addends and symbolic identities are identical"
+          },
+          "all_guards": {
+            "functions": 21,
+            "entire_object_byte_identical": true,
+            "object_sha256": "da38bc83061c0ab1039c5721b05b1ba4ae193174c3f6f8fbb37a8579c2fd7c0d",
+            "scope": "All code, allocated data, padding, layouts, symbols, raw relocation addends and symbolic identities are identical"
+          }
+        },
+        "src/promoted/code1_0010.c": {
+          "production": {
+            "functions": 38,
+            "entire_object_byte_identical": true,
+            "object_sha256": "6a6d3b973b00db1b93192c88ca421b89b8cb73790f7391ec1ff21c60a60c9b6e",
+            "scope": "All code, allocated data, padding, layouts, symbols, raw relocation addends and symbolic identities are identical"
+          },
+          "all_guards": {
+            "functions": 38,
+            "entire_object_byte_identical": true,
+            "object_sha256": "6a6d3b973b00db1b93192c88ca421b89b8cb73790f7391ec1ff21c60a60c9b6e",
+            "scope": "All code, allocated data, padding, layouts, symbols, raw relocation addends and symbolic identities are identical"
+          }
+        }
+      },
+      "retail_providers": {
+        "func_00460b60": {
+          "instructions": 67,
+          "resolved_references": 10,
+          "entire_function_exact_retail": true,
+          "genuine_allocated_node_return": true,
+          "code_sha256": "f58ccb82eeb80e2396ff772a0b1d88cc2946297f8c7b96bdfcb82c21cb5a2345"
+        },
+        "func_00460c70": {
+          "instructions": 67,
+          "resolved_references": 10,
+          "entire_function_exact_retail": true,
+          "genuine_allocated_node_return": true,
+          "code_sha256": "bfa21dace54c4907ee026e4d7ea940eff2b5d7e5d282f91d1fb13f8ace60d0c9"
+        }
+      },
+      "native": {
+        "methods": 4,
+        "scenarios_per_O0_O2": 392,
+        "runtime_negative_controls": 10,
+        "void_return_compile_controls": 2,
+        "log_sha256": "79b85fded90e52278d4161b23018dfc9bd8794efd4ccb95bfe75f7f14553a060",
+        "scope": "Actual unchanged constructor bodies on mmap-backed storage; independent byte and queue-link oracles, initialized in-bounds negative controls. Caller bodies are not executed.",
+        "final_census_rerun": {
+          "methods": 1,
+          "log_sha256": "c7c0d6f84091f036b64907cce6553f7ec7f8e689a4f49e4e71aa87f6b5e650f2",
+          "scope": "Final Python-only change factors the path predicate and adds assertions for real, generated and hidden probe paths. The unchanged runtime source generator, fixture and three behavioral/compile methods retain the preceding full four-method result; the final census method was rerun separately."
+        }
+      },
+      "production_verification": {
+        "MATCH": 64,
+        "ASM": 5
+      },
+      "owner_receipt_sha256": "3b73397e77cc87c44c51d07f88df90276287601a513522ed4dd817d8df438c52",
+      "limits": "SDK constructor declaration closure on this exact main base only. No helper color repair, renderer API change, guarded-controller import, full-link or C-membership claim. Existing controller and renderer issues remain."
+    }
+  },
+  "excluded_scope": [
+    "research rank5 controller and matching gains",
+    "research helper RGBA object repair",
+    "rectangle renderer ABI/effective-type repair",
+    "generic callback dispatcher arity",
+    "zero-choice and out-of-range row-mode domain gates"
+  ],
+  "main_integration": {
+    "base": "61b8a7526e6ebc2f2a012a707f678d25a8a04d17",
+    "reviewed_source_commit": "ed67deedad3f02060f4541df0233998c7557018c",
+    "c_objects": 604,
+    "sdk_objects": 54,
+    "linked_windows": 8586,
+    "linked_report_identical_to_base": true,
+    "image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
+    "elf_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+    "focused_tests": 4,
+    "focused_skips": 0,
+    "ordinary_tests": 869,
+    "ordinary_skips": 36,
+    "lint_errors": 0,
+    "lint_warnings": 46
+  }
+}
