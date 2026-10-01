@@ -1,0 +1,54 @@
+static unsigned scenario,getterCalls,callbackCalls;
+static s32 expectedHandle,expectedPhase,callbackResult;
+typedef s32 (*Procedure)(s32,s32);
+typedef struct {Procedure callback;s32 arguments[4];s32 phase;void *userdata;} ProcedureWork;
+typedef struct {u8 prefix[0x114];ProcedureWork work;u32 canary;} MessageObject;
+static MessageObject objects[64],expected[64];
+static s32 words[64][2];
+D_00881808_t D_00881808[64];
+char D_0063BE10[1],D_0063BF60[1];
+#define CHECK(x) do {if(!(x))native32_failure(__LINE__,scenario,#x);}while(0)
+_Static_assert(sizeof(void *)==4,"real pointer width");
+_Static_assert(sizeof(D_00881808_t)==0x20,"manager stride");
+_Static_assert(__builtin_offsetof(MessageObject,work)==0x114,"work offset");
+_Static_assert(sizeof(ProcedureWork)==0x1c,"work extent");
+_Static_assert(__builtin_offsetof(ProcedureWork,arguments)==4,"argument offset");
+_Static_assert(__builtin_offsetof(ProcedureWork,phase)==0x14,"phase offset");
+_Static_assert(__builtin_offsetof(ProcedureWork,userdata)==0x18,"userdata offset");
+_Static_assert(__builtin_offsetof(MessageObject,canary)==0x130,"message extent");
+void func_0046d730(const void *file,u32 line){(void)file;native32_failure(line,scenario,"unexpected diagnostic");}
+s32 func_00277840(s32 handle){CHECK(handle==expectedHandle);++getterCalls;return actualProcedureWork(handle);}
+static s32 callback(s32 handle,s32 phase){CHECK(handle==expectedHandle&&phase==expectedPhase);++callbackCalls;return callbackResult;}
+static void reset(s32 handle){
+    expectedHandle=handle;getterCalls=callbackCalls=0;memset(objects,0xA5,sizeof(objects));
+    for(unsigned i=0;i<64;i++){D_00881808[i].unk0=(u8 *)&objects[i];words[i][0]=7;words[i][1]=0x12345678;}
+    memcpy(expected,objects,sizeof(objects));
+}
+int main(void){
+    static s32(*const dispatchers[])(s32)={@DISPATCHERS@};
+    static const s32 phases[]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,16,17,18};
+    static const s32 values[]={-1,0,1,0x12345678,(s32)0x80000000u};
+    for(unsigned h=0;h<64;h++){
+        for(unsigned d=0;d<17;d++)for(unsigned present=0;present<2;present++)for(unsigned v=0;v<5;v++){
+            ++scenario;reset(h);expectedPhase=phases[d];callbackResult=values[v];
+            objects[h].work.callback=expected[h].work.callback=present?callback:NULL;
+            if(d<4)expected[h].work.phase=phases[d];
+            CHECK(dispatchers[d](h)==(present?callbackResult:1));
+            CHECK(getterCalls==2&&callbackCalls==present);CHECK(memcmp(objects,expected,sizeof(objects))==0);
+        }
+        for(unsigned slot=0;slot<4;slot++)for(unsigned v=0;v<5;v++){
+            ++scenario;reset(h);expected[h].work.arguments[slot]=values[v];
+            func_0027b750(h,slot,values[v]);CHECK(func_0027b6e0(h,slot)==values[v]);
+            CHECK(getterCalls==2);CHECK(memcmp(objects,expected,sizeof(objects))==0);
+        }
+        for(unsigned present=0;present<2;present++)for(unsigned v=0;v<5;v++){
+            ++scenario;reset(h);void *p=present?words[h]:NULL;expected[h].work.userdata=p;
+            func_0027be90(h,p);CHECK(func_0027BE60(h)==p);func_002818a0(h,values[v]);
+            CHECK(getterCalls==3);CHECK(memcmp(objects,expected,sizeof(objects))==0);
+            for(unsigned i=0;i<64;i++){
+                CHECK(words[i][0]==(i==h&&present?values[v]:7));CHECK(words[i][1]==0x12345678);
+            }
+        }
+    }
+    native32_text("message forwarding: ");native32_number(scenario);native32_text(" scenarios passed\n");return 0;
+}
