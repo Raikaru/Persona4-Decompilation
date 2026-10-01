@@ -2,6 +2,7 @@
 /* Original translation unit sdkOt.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_ot_state_api.h"
 
 extern void func_0046d730(u8 *file, s32 line);
 extern u8 *iGpffffba98;   /* gp - 0x4568 = 0x00764b88 */

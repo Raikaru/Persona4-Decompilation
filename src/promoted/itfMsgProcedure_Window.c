@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit itfMsgProcedure_Window.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_ot_state_api.h"
 #include "message_procedure_api.h"
 #include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
@@ -18,8 +19,6 @@ extern s32 func_0025ef20(char *str);
 extern s32 func_00266b70(void);
 extern s32 memset(void *a0, s32 a1, s32 a2);
 
-extern void func_00460b60(void *a0, s32 a1, s32 a2);
-extern void func_00460c70(void *a0, s32 a1, s32 a2);
 extern void func_00489f80(void);
 extern void func_0045da40(float *a0, void *a1, float a2, s32 a3, void *a4);
 extern void func_0048a000(void);
