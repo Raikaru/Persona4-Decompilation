@@ -72,7 +72,7 @@ extern char iGpffffa760;
 extern s32 iGpffffb444;
 int func_00278de0(int param_1, int param_2);
 s32 func_0027a520(int param_1);
-void func_002738a0(s32 arg0);
+void func_002738a0(u8 *arg0);
 u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8, u32 param_9);
 void memcpy(void *arg0, void *arg1, u32 arg2);
 s32 strlen(const void *param_1);
@@ -89,7 +89,7 @@ u8 *func_00273650(u8 *arg0, u8 *arg1, s32 arg2);
 extern char D_0063BE80[];
 extern char D_0063BEA0[];
 typedef signed __int128 s128;
-s32 func_00274650(s32 arg0);
+u32 func_00274650(u32 arg0);
 s32 func_0027b6e0(s32 arg0, s32 arg1);
 void func_0027bb60(s32 arg0);
 void func_0027bbc0(s32 arg0);
@@ -738,7 +738,7 @@ s32 func_002778c0(s32 arg0, s32 arg1, s32 arg2)
     func_00279ce0(obj + 0x94);
     v = *(s32 *)(obj + 8);
     if (v != 0)
-        func_002738a0(v);
+        func_002738a0((u8 *)v);
     func_0027b7c0(arg0);
     func_00279780(obj);
     bits = *(s32 *)obj;
@@ -872,7 +872,7 @@ void func_00277be0(s32 arg0, s32 arg1)
     func_00279ce0(object + 0x94);
     font = *(s32 *)(object + 8);
     if (font != 0)
-        func_002738a0(font);
+        func_002738a0((u8 *)font);
     saved_font = iGpffffb4b0;
     if (saved_font == 0)
         iGpffffb4b0 = 0x7B;
@@ -1205,7 +1205,7 @@ s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_00279ce0(obj + 0x94);
     r = *(s32 *)(obj + 8);
     if (r != 0) {
-        func_002738a0(r);
+        func_002738a0((u8 *)r);
     }
     r = func_00279740((int)t, arg2);
     if (r == 0) {

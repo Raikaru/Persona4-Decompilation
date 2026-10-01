@@ -3,7 +3,7 @@
 #include "include_asm.h"
 #include "fr_font_internal.h"
 
-extern void func_002716b0_typed(s32 arg0, u64 arg1, u8 *arg2);
+extern void func_002716b0(s32 arg0, u8 *arg1, u8 *arg2);
 
 typedef int (*code)();
 extern u32 DAT_00881630_abs[];
@@ -272,7 +272,7 @@ s32 func_00271310(u8 *param_1)
 // FUN_00271380
 void func_00271380(s32 arg0, u8 *arg1)
 {
-    func_002716b0_typed(arg0, 0, arg1);
+    func_002716b0(arg0, 0, arg1);
 }
 
 
@@ -1891,9 +1891,9 @@ loop32_check:
 
 
 // FUN_002738A0
-void func_002738a0(u64 param_1)
+void func_002738a0(u8 *param_1)
 {
-    func_002716b0_typed(8, param_1, 0);
+    func_002716b0(8, param_1, 0);
 }
 
 

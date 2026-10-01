@@ -21,7 +21,7 @@ extern u8 *func_00455ea0(u8 *resource, s32 index, s32 *size);
 extern void H_Cdvd_Destroy(u8 *ptr);
 extern u8 *func_00454a60(u8 *param, s32 mode);
 extern void *memcpy(void *dst, const void *src, u32 size);
-extern void func_00271380(s32 slot, void *data);
+extern void func_00271380(s32 slot, u8 *data);
 extern void func_00271820(s32 slot);
 
 // FUN_0038F620
