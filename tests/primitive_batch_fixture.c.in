@@ -1,0 +1,277 @@
+#include "type.h"
+#include "primitive_point_buffer.h"
+/* @ACTUAL_TYPES@ */
+
+static unsigned scenario;
+#define CHECK(x) do { if (!(x)) native32_failure(__LINE__, scenario, #x); } while (0)
+static u8 *batch, *vertices;
+static unsigned allocationSize, releaseCount, drawCount, traceLength;
+static unsigned trace[64];
+static u8 *node;
+static void *expectedQueue;
+static s32 n, primitive, preserve, offX;
+static s16 offY;
+static f32 depth, rotation, scaleX, scaleY, sineValue, cosineValue;
+static u8 seedAlpha;
+static unsigned alphaProducer, drawMutation;
+static PrimByte4 inputColors[16], savedColors[16];
+static PrimFloat2 inputPoints[16], savedPoints[16];
+static f32 expectedPoints[16][2];
+static s32 initialStates[6], states[6];
+static u64 initialAlphaBits, expectedAlphaBits;
+static unsigned trigCalls;
+static struct { u8 prefix[0x80]; f32 denominator; } camera;
+s64 iGpffffabe8;
+f32 D_008872F8[1];
+f32 iGpffff81d0;
+u8 D_007124C0[1];
+struct { s32 state, val; } D_00712490[6];
+
+static void event(unsigned value) {
+    CHECK(traceLength < 64); trace[traceLength++] = value;
+}
+static u32 word(const void *base, unsigned offset) {
+    u32 result; memcpy(&result, (const u8 *)base + offset, 4); return result;
+}
+static f32 real(const void *base, unsigned offset) {
+    f32 result; memcpy(&result, (const u8 *)base + offset, 4); return result;
+}
+static void check_guard(u8 *pointer, unsigned used) {
+    for (unsigned i = 0; i < 16; ++i) CHECK(pointer[used + i] == 0xa5);
+}
+/* mmap storage has no declared C object type. No typed local surrogate is
+ * substituted for either real constructor's allocated object. */
+static u8 *raw_allocate(void) {
+    u32 arguments[6] = {0, 4096, 3, 0x22, 0xffffffff, 0};
+    u32 address;
+    __asm__ volatile ("int $0x80" : "=a"(address) : "0"(90), "b"(arguments) : "memory");
+    CHECK(address < 0xfffff001u);
+    return (u8 *)address;
+}
+static void raw_release(u8 *pointer) {
+    s32 result;
+    __asm__ volatile ("int $0x80" : "=a"(result) : "0"(91), "b"(pointer), "c"(4096) : "memory");
+    CHECK(result == 0);
+}
+
+static void *batch_allocate(size_t count, size_t size, u32 alignment) {
+    event(2);
+    CHECK(count == 1 && size == 28 + (u32)n * 12 && alignment == 0x40000);
+    CHECK(batch == 0);
+    allocationSize = size;
+    batch = raw_allocate();
+    memset(batch, 0, size);
+    /* Nonzero seeds test the constructor's untouched byte and the consumer's
+     * exact == 1 predicate. This is an allocator-boundary control, not a claim
+     * that the production clearing allocator returns nonzero memory. */
+    batch[20] = seedAlpha;
+    memset(batch + size, 0xa5, 16);
+    return batch;
+}
+static void *vertex_allocate(u32 size, u32 alignment) {
+    event(20);
+    CHECK(size == (u32)n * 64 && alignment == 0x40000);
+    CHECK(vertices == 0 && releaseCount == 0);
+    vertices = raw_allocate();
+    memset(vertices, 0xcc, size);
+    memset(vertices + size, 0xa5, 16);
+    return vertices;
+}
+static void release(void *pointer) {
+    event(40 + releaseCount);
+    CHECK(drawCount == 1);
+    if (releaseCount == 0) {
+        CHECK(pointer == vertices); check_guard(vertices, n * 64);
+        raw_release(vertices);
+    } else {
+        CHECK(releaseCount == 1 && pointer == batch); check_guard(batch, allocationSize);
+        raw_release(batch);
+    }
+    ++releaseCount;
+}
+void *(*D_008873F4[])(size_t, size_t, u32) = {batch_allocate};
+void *(*jtbl_008873E8[])(u32, u32) = {vertex_allocate};
+void (*jtbl_008873EC[])(void *) = {release};
+
+void func_0044ea90(void *message, s32 id) {
+    CHECK(message == D_007124C0);
+    if (id == 0x328) { CHECK(traceLength == 0); event(1); }
+    else { CHECK(id == 0x30d); event(19); }
+}
+f32 sinf(f32 value) {
+    CHECK(value == iGpffff81d0 * rotation && trigCalls == 0);
+    ++trigCalls; event(3); return sineValue;
+}
+f32 cosf(f32 value) {
+    CHECK(value == iGpffff81d0 * rotation && trigCalls == 1);
+    ++trigCalls; event(4); return cosineValue;
+}
+u8 *func_00460990(void) { event(5); return node; }
+u8 *func_00457120(void) { event(21); return (u8 *)&camera; }
+static void get_state(s32 state, void *out) {
+    unsigned i;
+    for (i = 0; i < 6 && D_00712490[i].state != state; ++i) {}
+    CHECK(i < 6); event(100 + 2 * i); memcpy(out, &states[i], 4);
+}
+static void set_state(s32 state, s32 value) {
+    unsigned i;
+    if (state == 1) { CHECK(value == 0); event(112); return; }
+    for (i = 0; i < 6 && D_00712490[i].state != state; ++i) {}
+    CHECK(i < 6);
+    if (drawCount == 0) { CHECK(value == D_00712490[i].val); event(101 + 2 * i); }
+    else { CHECK(value == initialStates[i]); event(120 + i); }
+    states[i] = value;
+}
+/* These are the owner's existing opaque provider prototypes; the tested
+ * constructor/callback definitions themselves are extracted unchanged. */
+void (*D_00887300[])() = {(void (*)())set_state};
+void (*D_00887304[])() = {(void (*)())get_state};
+void RpSkyRenderStateSet(s32 state, s32 value) {
+    if (state == 2) { CHECK(value == 0x44); event(113); }
+    else { CHECK(state == 3 && value == 0x717fb); event(114); }
+}
+static s32 draw(s32 kind, void *output, s32 count) {
+    event(30);
+    CHECK(kind == primitive && count == n && output == vertices && releaseCount == 0);
+    CHECK(drawCount++ == 0);
+    for (s32 i = 0; i < n; ++i) {
+        CHECK(real(output, i * 64) == expectedPoints[i][0]);
+        CHECK(real(output, i * 64 + 4) == expectedPoints[i][1]);
+        CHECK(real(output, i * 64 + 8) == D_008872F8[0] - depth);
+        CHECK(real(output, i * 64 + 24) == 1.0f / real(&camera, 0x80));
+        for (unsigned c = 0; c < 4; ++c)
+            CHECK(real(output, i * 64 + 32 + c * 4) == (f32)savedColors[i].c[c]);
+        for (unsigned c = 12; c < 64; ++c)
+            if (!(c >= 24 && c < 28) && !(c >= 32 && c < 48)) CHECK(((u8 *)output)[i * 64 + c] == 0xcc);
+    }
+    for (unsigned i = 0; i < 6; ++i)
+        CHECK(states[i] == (preserve != 0 ? D_00712490[i].val : initialStates[i]));
+    u8 alpha = alphaProducer ? 1 : seedAlpha;
+    expectedAlphaBits = initialAlphaBits | (alpha == 1 ? 0x80 : 0);
+    CHECK((u64)iGpffffabe8 == expectedAlphaBits);
+    /* A real opaque draw may update both the flag word and queued work.
+     * The callback must reread alpha after it returns, not reuse the first test. */
+    static const u8 nextAlpha[5] = {0, 0, 1, 2, 255};
+    if (drawMutation != 0) batch[20] = nextAlpha[drawMutation];
+    iGpffffabe8 ^= 0x200;
+    expectedAlphaBits ^= 0x200;
+    if (batch[20] == 1) expectedAlphaBits &= ~(u64)0x80;
+    return 37;
+}
+s32 (*D_00887310[])(s32, void *, s32) = {draw};
+void func_0045e310(void *, PrimBatch *);
+
+void func_00460ac0(void *queue, void *callback) {
+    event(6);
+    CHECK(queue == expectedQueue && callback == node && releaseCount == 0 && drawCount == 0);
+    CHECK(word(node, 8) == (u32)func_0045e310 && word(node, 16) == (u32)batch);
+    CHECK(word(node, 12) == 0 && word(node, 20) == 0);
+    CHECK(word(batch, 0) == (u32)(batch + 28));
+    CHECK(word(batch, 4) == (u32)(batch + 28 + 4 * n));
+    CHECK(real(batch, 8) == depth && word(batch, 12) == (u32)n);
+    CHECK(word(batch, 16) == (u32)preserve && word(batch, 24) == (u32)primitive);
+    CHECK(batch[20] == (alphaProducer ? 1 : seedAlpha));
+    CHECK(batch[21] == 0 && batch[22] == 0 && batch[23] == 0);
+    CHECK(memcmp(batch + 28, savedColors, n * 4) == 0);
+    for (s32 i = 0; i < n; ++i) {
+        CHECK(real(batch, 28 + n * 4 + i * 8) == expectedPoints[i][0]);
+        CHECK(real(batch, 28 + n * 4 + i * 8 + 4) == expectedPoints[i][1]);
+    }
+    CHECK(memcmp(inputColors, savedColors, n * 4) == 0);
+    CHECK(memcmp(inputPoints, savedPoints, n * 8) == 0);
+    check_guard(batch, allocationSize);
+}
+
+/* @ACTUAL_BODIES@ */
+
+static void run_case(unsigned sample) {
+    static const s32 counts[5] = {1, 2, 3, 7, 16};
+    static const s32 offsets[4] = {-70000, -32768, 32767, 70000};
+    static const u8 channels[4] = {0, 127, 128, 255};
+    static const u8 seeds[4] = {0, 1, 2, 255};
+    static const s32 preserves[4] = {0, 1, -1, 23};
+    static const f32 scales[4] = {0.0f, 0.5f, -1.0f, 2.0f};
+    static const f32 sines[4] = {0.0f, 1.0f, -0.5f, 0.75f};
+    static const f32 cosines[4] = {1.0f, 0.0f, 0.5f, -0.25f};
+    ++scenario;
+    n = counts[sample % 5];
+    primitive = (s32)(sample % 9) - 2;
+    preserve = preserves[(sample / 5) % 4];
+    seedAlpha = seeds[(sample / 20) % 4];
+    offX = offsets[(sample / 80) % 4];
+    if (alphaProducer) offX = (s16)offX;
+    offY = (s16)offsets[(sample / 20) % 4];
+    depth = (f32)((s32)(sample % 17) - 8) * 0.25f;
+    rotation = (f32)(sample % 13) * 0.5f;
+    scaleX = scales[(sample / 20) % 4]; scaleY = scales[(sample / 5) % 4];
+    sineValue = sines[(sample / 80) % 4]; cosineValue = cosines[(sample / 80) % 4];
+    iGpffff81d0 = 0.5f; D_008872F8[0] = 1024.0f;
+    f32 cameraValue = sample & 1 ? 8.0f : 2.0f;
+    camera.denominator = cameraValue;
+    initialAlphaBits = 0x12345678a5000025ULL | (sample & 1 ? 0x80 : 0);
+    iGpffffabe8 = initialAlphaBits;
+    traceLength = releaseCount = drawCount = trigCalls = 0;
+    batch = vertices = 0; node = raw_allocate(); memset(node, 0, 32);
+    expectedQueue = &scenario;
+    for (unsigned i = 0; i < 6; ++i) {
+        D_00712490[i].state = 11 + 3 * i;
+        D_00712490[i].val = -34 + 7 * i;
+        states[i] = initialStates[i] = 81 - 9 * i;
+    }
+    for (s32 i = 0; i < n; ++i) {
+        for (unsigned c = 0; c < 4; ++c) inputColors[i].c[c] = channels[(i + c + sample) % 4];
+        inputPoints[i].v[0] = (f32)(i * 13 - 21) * 0.5f;
+        inputPoints[i].v[1] = (f32)(i * 7 + 3) * -0.25f;
+    }
+    memcpy(savedColors, inputColors, n * 4); memcpy(savedPoints, inputPoints, n * 8);
+    /* Independent componentwise affine model using only input rows. */
+    f32 center[2] = {savedPoints[0].v[0] + offX, savedPoints[0].v[1] + offY};
+    f32 matrix[2][2] = {{cosineValue, sineValue}, {-sineValue, cosineValue}};
+    for (s32 i = 0; i < n; ++i) {
+        f32 scaled[2] = {(savedPoints[i].v[0] - center[0]) * scaleX,
+                         (savedPoints[i].v[1] - center[1]) * scaleY};
+        for (unsigned axis = 0; axis < 2; ++axis)
+            expectedPoints[i][axis] = center[axis] + (scaled[0] * matrix[axis][0] + scaled[1] * matrix[axis][1]);
+    }
+    if (alphaProducer)
+        func_0045eb20(inputColors, inputPoints, depth, n, primitive, preserve,
+                      (s16)offX, offY, rotation, scaleX, scaleY, expectedQueue);
+    else
+        func_0045e8e0(inputColors, inputPoints, depth, n, primitive, preserve,
+                      offX, offY, rotation, scaleX, scaleY, expectedQueue);
+    CHECK(traceLength == 6 && trigCalls == 2);
+    for (unsigned i = 0; i < 6; ++i) CHECK(trace[i] == i + 1);
+    CHECK(releaseCount == 0 && drawCount == 0);
+    /* Destroy caller buffers before later dispatch: the callback owns copies. */
+    memset(inputColors, 0x11, sizeof(inputColors)); memset(inputPoints, 0x22, sizeof(inputPoints));
+    void (*queued)(void *, PrimBatch *);
+    void *work;
+    memcpy(&queued, node + 8, 4); memcpy(&work, node + 16, 4);
+    queued((void *)0x1234, work);
+    CHECK(drawCount == 1 && releaseCount == 2);
+    CHECK((u64)iGpffffabe8 == expectedAlphaBits);
+    for (unsigned i = 0; i < 6; ++i) CHECK(states[i] == initialStates[i]);
+    unsigned cursor = 6;
+    if (preserve != 0) for (unsigned i = 0; i < 15; ++i) CHECK(trace[cursor++] == 100 + i);
+    CHECK(trace[cursor++] == 19); CHECK(trace[cursor++] == 20); CHECK(trace[cursor++] == 21);
+    CHECK(trace[cursor++] == 30);
+    if (preserve != 0) for (unsigned i = 0; i < 6; ++i) CHECK(trace[cursor++] == 120 + i);
+    CHECK(trace[cursor++] == 40); CHECK(trace[cursor++] == 41); CHECK(cursor == traceLength);
+    raw_release(node);
+}
+int main(void) {
+    CHECK(sizeof(PrimBatch) == 28 && sizeof(PrimByte4) == 4 && sizeof(PrimFloat2) == 8);
+    CHECK(sizeof(PrimVertex) == 64);
+    CHECK(__builtin_offsetof(__typeof__(camera), denominator) == 0x80);
+    CHECK(__builtin_offsetof(PrimBatch, colors) == 0 && __builtin_offsetof(PrimBatch, positions) == 4);
+    CHECK(__builtin_offsetof(PrimBatch, scale) == 8 && __builtin_offsetof(PrimBatch, count) == 12);
+    CHECK(__builtin_offsetof(PrimBatch, enabled) == 16 && __builtin_offsetof(PrimBatch, alpha) == 20);
+    CHECK(__builtin_offsetof(PrimBatch, primType) == 24);
+    _Static_assert(__builtin_types_compatible_p(__typeof__(((PrimBatch *)0)->colors), PrimByte4 *), "packed color rows");
+    for (alphaProducer = 0; alphaProducer < 2; ++alphaProducer)
+        for (drawMutation = 0; drawMutation < 5; ++drawMutation)
+            for (unsigned sample = 0; sample < 320; ++sample) run_case(sample);
+    CHECK(scenario == 3200);
+    native32_text("primitive batch: 3200 queued scenarios passed\n");
+    return 0;
+}
