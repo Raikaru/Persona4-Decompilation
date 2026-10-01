@@ -1,0 +1,7 @@
+functions scanned: 60
+  MATCH              60
+first-party functions scanned: 60
+  MATCH              60 (100.0%)
+Sony PS2 SDK functions scanned: 0
+other third-party functions scanned: 0
+report: build/immediate-rectangle/verify.json

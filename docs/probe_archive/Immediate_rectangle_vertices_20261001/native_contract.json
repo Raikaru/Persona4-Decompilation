@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-01",
+  "base_commit": "58553aa1b6ffd6d42c58f623d1d97677e00b1be3",
+  "command": [
+    "source /workspace/shared/p4-toolchain/env.sh",
+    "python /workspace/shared/run_p4_qemu32_tests.py /workspace/shared/p4-probe-immediate-rectangle-vertices test_immediate_rectangle_contract"
+  ],
+  "result": "PASS",
+  "python_tests": 5,
+  "test_duration_seconds": 17.257,
+  "positive_replays": 4,
+  "optimization_levels": [
+    "-O0",
+    "-O2"
+  ],
+  "aliasing_modes": [
+    "-fno-strict-aliasing",
+    "-fstrict-aliasing"
+  ],
+  "sanitizers": [
+    "undefined",
+    "bounds"
+  ],
+  "sanitizer_traps": true,
+  "helper_scenarios_per_replay": 2304,
+  "typed_provider_scenarios_per_replay": 6075,
+  "independent_controls": 21,
+  "control_executions": 42,
+  "control_required_exit": 1,
+  "control_required_stderr": "",
+  "total_fixture_executions": 46,
+  "output_log_provenance": "Direct stdout/stderr redirection from the final approved-toolchain unittest invocation.",
+  "sha256": {
+    "src/promoted/code1_0045.c": "8956b86431a647c185496ff943de20f078e4c41849c53775c60c93d7c6dd1672",
+    "tests/test_immediate_rectangle_contract.py": "14ee406503509652d04e877aceb3a40c37e40780694fe954902420567fd29434",
+    "tests/immediate_rectangle_fixture.c.in": "7a41f1431a7e1f7d9541002013e26311d49fae5aee8352422c632a2582c952a9"
+  },
+  "limits": [
+    "Controlled helper geometry boundary copies rectangle bytes lawfully; it does not dereference the helper Code45Float4 through s32.",
+    "Actual geometry body runs separately with declared s32[4], f32[64], u8[4] and a typed camera near-plane field.",
+    "Authoritative caller input type family and backend vertex object type family remain unclosed.",
+    "No unsafe scalar-plus-padding executable was run."
+  ],
+  "layout_compile_attempts": 4,
+  "layout_accepted_compilations": 2,
+  "layout_expected_member_size_rejections": 2,
+  "layout": {
+    "output_member_bytes": 256,
+    "output_member_alignment": 16,
+    "work_alignment": 16,
+    "saved_offset": 0,
+    "output_offset": 32,
+    "snapshot_offset": 288,
+    "work_bytes": 304
+  }
+}
