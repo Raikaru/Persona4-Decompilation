@@ -1,0 +1,206 @@
+{
+  "base": "ed67deedad3f02060f4541df0233998c7557018c",
+  "scope": "Three-owner queued-rectangle payload source-correctness repair; unchanged binaries and no new MATCH.",
+  "source_sha256": {
+    "include/primitive_rectangle_packet.h": "87e17e93deed2927a35f77752b7197b5ce966bc6608dc8612ab683b2652e326e",
+    "src/sdkPrimitive.c": "37c1c5c24bf486c79334e61f3104d6fd09e47e7f483becf4bd07d05ab05fd664",
+    "src/promoted/itfMsgProcedure_Window.c": "5e2dba16978f13f65c8359427b0170b44af90bd88b3a85fcf722607eb9c9492c",
+    "src/promoted/code1_0045.c": "cdd7af6e931ebddbb279575ed912d82501709310f5d54f24cc878cdee1b624a4",
+    "tests/test_rectangle_payload_contract.py": "6cda5528d8f0e0bf172b1971fe89feed1fa64f81e4706e55ff9948b5c25d79ce",
+    "tests/rectangle_payload_fixture.c.in": "57c2195d6a66d1b76ec0f6cbd9331b1e39f6085d772ad99777eccb1d0a6bc41e"
+  },
+  "production_summary": {
+    "MATCH": 85,
+    "ASM": 4
+  },
+  "preservation": {
+    "base": "ed67deedad3f02060f4541df0233998c7557018c",
+    "script_sha256": "b5094832cd0597ee1376d20df92e2e4f73170a5c011f2d338f20811c5e9a011b",
+    "owners": {
+      "src/promoted/itfMsgProcedure_Window.c": {
+        "source_sha256": "5e2dba16978f13f65c8359427b0170b44af90bd88b3a85fcf722607eb9c9492c",
+        "modes": {
+          "production": {
+            "functions": 21,
+            "raw_allocated_bytes_and_layouts_preserved": true,
+            "all_function_bytes_sizes_and_relocation_identities_preserved": true,
+            "reference_scope": "Exact symbolic identities and raw addends preserved, including unchanged assembly references; not a full-link/address-resolution claim",
+            "allocated_symbols_preserved": true,
+            "baseline_object_sha256": "bcad77ce47d28297befae5a6433d115c73ee05f59be9175e76d2e779bb6b0405",
+            "candidate_object_sha256": "bcad77ce47d28297befae5a6433d115c73ee05f59be9175e76d2e779bb6b0405"
+          },
+          "all_guards": {
+            "functions": 21,
+            "raw_allocated_bytes_and_layouts_preserved": true,
+            "all_function_bytes_sizes_and_relocation_identities_preserved": true,
+            "reference_scope": "Exact symbolic identities and raw addends preserved, including unchanged assembly references; not a full-link/address-resolution claim",
+            "allocated_symbols_preserved": true,
+            "baseline_object_sha256": "da38bc83061c0ab1039c5721b05b1ba4ae193174c3f6f8fbb37a8579c2fd7c0d",
+            "candidate_object_sha256": "da38bc83061c0ab1039c5721b05b1ba4ae193174c3f6f8fbb37a8579c2fd7c0d"
+          }
+        }
+      },
+      "src/sdkPrimitive.c": {
+        "source_sha256": "37c1c5c24bf486c79334e61f3104d6fd09e47e7f483becf4bd07d05ab05fd664",
+        "modes": {
+          "production": {
+            "functions": 8,
+            "raw_allocated_bytes_and_layouts_preserved": true,
+            "all_function_bytes_sizes_and_relocation_identities_preserved": true,
+            "reference_scope": "Exact symbolic identities and raw addends preserved, including unchanged assembly references; not a full-link/address-resolution claim",
+            "allocated_symbols_preserved": true,
+            "baseline_object_sha256": "8b3891294ef3f45bbbf39ef2b59cd64724bb3151ac99ac65f16f8279c3a20bc6",
+            "candidate_object_sha256": "8b3891294ef3f45bbbf39ef2b59cd64724bb3151ac99ac65f16f8279c3a20bc6"
+          },
+          "all_guards": {
+            "functions": 8,
+            "raw_allocated_bytes_and_layouts_preserved": true,
+            "all_function_bytes_sizes_and_relocation_identities_preserved": true,
+            "reference_scope": "Exact symbolic identities and raw addends preserved, including unchanged assembly references; not a full-link/address-resolution claim",
+            "allocated_symbols_preserved": true,
+            "baseline_object_sha256": "8b3891294ef3f45bbbf39ef2b59cd64724bb3151ac99ac65f16f8279c3a20bc6",
+            "candidate_object_sha256": "8b3891294ef3f45bbbf39ef2b59cd64724bb3151ac99ac65f16f8279c3a20bc6"
+          }
+        }
+      },
+      "src/promoted/code1_0045.c": {
+        "source_sha256": "cdd7af6e931ebddbb279575ed912d82501709310f5d54f24cc878cdee1b624a4",
+        "modes": {
+          "production": {
+            "functions": 60,
+            "raw_allocated_bytes_and_layouts_preserved": true,
+            "all_function_bytes_sizes_and_relocation_identities_preserved": true,
+            "reference_scope": "Exact symbolic identities and raw addends preserved, including unchanged assembly references; not a full-link/address-resolution claim",
+            "allocated_symbols_preserved": true,
+            "baseline_object_sha256": "88a615387d2220ffb15c595efbbd14cdec75ee478bf2419b9889fb32104b95ab",
+            "candidate_object_sha256": "88a615387d2220ffb15c595efbbd14cdec75ee478bf2419b9889fb32104b95ab"
+          },
+          "all_guards": {
+            "functions": 60,
+            "raw_allocated_bytes_and_layouts_preserved": true,
+            "all_function_bytes_sizes_and_relocation_identities_preserved": true,
+            "reference_scope": "Exact symbolic identities and raw addends preserved, including unchanged assembly references; not a full-link/address-resolution claim",
+            "allocated_symbols_preserved": true,
+            "baseline_object_sha256": "88a615387d2220ffb15c595efbbd14cdec75ee478bf2419b9889fb32104b95ab",
+            "candidate_object_sha256": "88a615387d2220ffb15c595efbbd14cdec75ee478bf2419b9889fb32104b95ab"
+          }
+        }
+      }
+    },
+    "full_link": "not run",
+    "new_matches": 0,
+    "header_sha256": "87e17e93deed2927a35f77752b7197b5ce966bc6608dc8612ab683b2652e326e"
+  },
+  "retail": {
+    "func_0045da40": {
+      "size": 256,
+      "instructions": 64,
+      "resolved_references": 10,
+      "exact_retail": true,
+      "resolved_code_sha256": "e9bdcc729398c5b849f7f4303de311858fa081695b0a931d3f16738ff244ca67"
+    },
+    "func_0045d890": {
+      "size": 432,
+      "instructions": 108,
+      "resolved_references": 19,
+      "exact_retail": true,
+      "resolved_code_sha256": "11141ec4e09633741de1fbec29368def0578a677f35742d4480f5ce23a49cde2"
+    },
+    "func_0027d660": {
+      "size": 416,
+      "instructions": 104,
+      "resolved_references": 13,
+      "exact_retail": true,
+      "resolved_code_sha256": "ec566c73bd995db47ba2166c46f048eb1e83ad89222a54cdb31e014177365a99"
+    },
+    "script_sha256": "a406d60facf9734d6d11e0e82dcc55f1d691f5c6d4ae6cb823b378dd87191dee"
+  },
+  "native": {
+    "methods": 8,
+    "skips": 0,
+    "payload_scenarios_per_optimization": 17670,
+    "sdk_scenarios_per_optimization": 392,
+    "optimization_levels": [
+      "O0",
+      "O2"
+    ],
+    "payload_runtime_controls": 26,
+    "payload_compile_controls": 1,
+    "sdk_runtime_controls": 10,
+    "sdk_compile_controls": 2,
+    "actual_functions": [
+      "func_0027d660",
+      "func_0045da40",
+      "func_0045d890",
+      "func_0045ce40",
+      "func_00457120",
+      "func_00460ac0",
+      "func_00460b60",
+      "func_00460c70"
+    ],
+    "log_sha256": "dae89291aadc8256624d2803395adcd7309a359131b04def806b36109c6da63f",
+    "runtime": "Clang freestanding i386, SSE2, undefined/bounds sanitizers in trap mode, QEMU i386; -fno-strict-aliasing, no claim that sanitizers establish effective-type correctness."
+  },
+  "limits": [
+    "Generic queue dispatcher still has inherited incompatible three-argument callback call; this fixture directly invokes the stored exact two-argument callback.",
+    "Platform render/state/allocator boundaries are instrumented; actual renderer and generic dispatch are not run.",
+    "Only geometry-initialized vertex lanes are read; exact 64-float backing is real storage, not a claim that all lanes are initialized.",
+    "Signed x+width and y+height must not overflow; native geometry inputs stay in this domain, near-plane nonzero, finite depth. Arbitrary raw transport patterns never reach geometry.",
+    "Guarded controller changes are type/member-access adaptations only. Historical incorrect palette/rectangle values, zero-choice domain gate and controller mismatch remain.",
+    "Immediate renderer func_0045d6e0 and its 19 caller-owner API closure are unchanged. Other preexisting SDK camera/append/state-table declaration debt remains.",
+    "No cold full-link, retail-image hash, linked C-membership, global renderer equivalence or new-match claim."
+  ],
+  "evidence_sha256": {
+    "signed-preservation/receipt.json": "ffccfe1ab632cd55475e032c18a52d1407817cee8d80ab7ab7f945375907458e",
+    "signed-verify.json": "de4e635ae6efe2a12beb4e4e8ab999c5dbc52f8ee0db755acdf7ca8e6768606e",
+    "retail-proof.json": "4852bc8334e2b10cd3fdf16a8d8e299bc09e37dfa32f943be2bc7f90920d700a",
+    "native-seal.log": "dae89291aadc8256624d2803395adcd7309a359131b04def806b36109c6da63f",
+    "lint.log": "135de2bd8414f6435a8234c6398191f135adf67f1a041cb943dcec9cc0002d58",
+    "baseline-lint.log": "ac79b4aa305d976908f88f06abec0204949fe8ffa832697631bfbd11b2e48bcc"
+  },
+  "semantic_review": {
+    "path": "/workspace/shared/p4-rectangle-signed-materialization-review.json",
+    "sha256": "6b4ad877238f1b5ca080173c7bae2d412baf88f317e7c1bb984d3d5a6dc671e8"
+  },
+  "independent_final_review": {
+    "script": "/workspace/shared/p4-rectangle-payload-independent-review.py",
+    "script_sha256": "e46a44e9392714409eee7cedd4d1e2350c715046325bc059d95d8cdc358103dd",
+    "receipt": "/workspace/shared/p4-rectangle-payload-independent-review.json",
+    "receipt_sha256": "2c8ff2596ef9e4e9f090ca7d1fbc1042977ed24ae1f7aa95b88b864f579368ed",
+    "status": "Source/test and bounded proof independently accepted on current-main-equivalent base; final commit identity reviewed separately. No aggregate integration claim."
+  },
+  "main_projection": {
+    "base": "c6c82910d63538b3d8eb8e14b0b860f89eb09d53",
+    "published_tree": "d93571905aaf06e7c9eb3a31ea866fa3185ddd39",
+    "differences_from_measured_base": [
+      "docs/probe_archive/SdkOt_state_constructor_returns_20261001.json",
+      "docs/probe_archive/SdkOt_state_constructor_returns_20261001.md"
+    ],
+    "all_source_headers_config_tools_and_test_harness_identical": true,
+    "six_candidate_source_and_test_hashes_unchanged": true,
+    "evidence_sha256": "38d182d806441597601f68aef63f071ae713d5505d8e93f194906216ce9aaa14"
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 49,
+    "baseline_warnings": 51,
+    "removed_incompatible_declarations": 2,
+    "new_findings": 0
+  },
+  "main_integration": {
+    "base": "c6c82910d63538b3d8eb8e14b0b860f89eb09d53",
+    "reviewed_commit": "ede87dc983fa804c1ac323c00ae9d4f2108b435b",
+    "c_objects": 604,
+    "sdk_objects": 54,
+    "linked_windows": 8586,
+    "linked_report_identical_to_base": true,
+    "image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
+    "elf_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+    "focused_tests": 8,
+    "focused_skips": 0,
+    "ordinary_tests": 869,
+    "ordinary_skips": 37,
+    "lint_errors": 0,
+    "lint_warnings": 49
+  }
+}

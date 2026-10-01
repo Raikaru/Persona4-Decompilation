@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_point_buffer.h"
+#include "primitive_rectangle_packet.h"
 
 typedef struct { u8 c[4]; } PrimByte4;
 typedef struct { f32 v[4]; } PrimFloat4;
@@ -17,14 +18,13 @@ typedef struct {
     u8 pad2[16];
 } PrimVertex;
 extern void func_0044ea90(void *msg, s32 id);
-extern void memcpy(void *dst, const void *src, u32 size);
+extern void *memcpy(void *dst, const void *src, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s64 iGpffffabe8;
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
-extern void func_0045d890(void);
 extern void func_0045d370(void *out, void *a1, void *a2, f32 f0, s32 a3, s32 a4, f32 f1, f32 f2, f32 f3);
 extern void func_0045dd30(PrimVertex *out, const u8 *colors, const void *positions,
                           f32 depth, u32 count, s32 offsetX, s32 offsetY,
@@ -51,27 +51,22 @@ extern f32 iGpffff81d0;
    source order, and that caller only matches with the float third.  The EABI
    keeps integer and float arguments in separate register files, so this
    spelling is the same ABI and leaves this body byte-exact. */
-void func_0045da40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3) {
-    PrimFloat4 pos;
-    struct {
-        PrimByte4 col;
-        PrimFloat4 pos;
-        f32 scale;
-        s32 tag;
-    } packet;
+void func_0045da40(const PrimitiveRectangleColor *arg0, const PrimitiveRectangleWords *arg1, f32 fparg0, s32 arg2, void *arg3) {
+    PrimitiveRectangleWords pos;
+    PrimitiveRectanglePacket packet;
     u8 *temp_2;
     u8 *temp_2_2;
 
-    pos = *(PrimFloat4 *)arg1;
-    packet.col = *(PrimByte4 *)arg0;
-    packet.pos = pos;
-    packet.scale = fparg0;
-    packet.tag = arg2;
+    pos.transport = arg1->transport;
+    packet.color = arg0->bytes;
+    packet.rectangle.transport = pos.transport;
+    packet.depth = fparg0;
+    packet.saveState = arg2;
     func_0044ea90(D_007124C0, 0x101);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x1C, 0x40000);
     memcpy(temp_2, &packet, 0x1C);
     temp_2_2 = (u8 *)(func_00460990());
-    *(void **)(temp_2_2 + 8) = (void *)func_0045d890;
+    *(void (**)(void *, u8 *))(temp_2_2 + 8) = func_0045d890;
     *(u8 **)(temp_2_2 + 0x10) = temp_2;
     func_00460ac0((void *)arg3, temp_2_2);
 }
