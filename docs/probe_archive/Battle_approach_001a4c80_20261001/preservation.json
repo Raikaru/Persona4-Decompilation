@@ -1,0 +1,4571 @@
+{
+  "baseline": "a78c378b3da3cc826aea3c66462ee1f07f287759",
+  "total_functions": 784,
+  "unchanged_functions": 783,
+  "owners": [
+    {
+      "owner": "src/promoted/code1_001a.c",
+      "source_sha256": "d6167ed5b92ed9543b451ff362ed9bf71eb784c88896e72441a91986d896000e",
+      "functions": [
+        {
+          "name": "func_001a0140",
+          "size": 332,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a0290",
+          "size": 288,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a03b0",
+          "size": 568,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a05f0",
+          "size": 80,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a0640",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a0650",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a0660",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a0670",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a06d0",
+          "size": 1064,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a0b00",
+          "size": 1088,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a0f40",
+          "size": 440,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a1450",
+          "size": 892,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a17d0",
+          "size": 1192,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a1c80",
+          "size": 540,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a1ea0",
+          "size": 1528,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a24a0",
+          "size": 16,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a24b0",
+          "size": 1564,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a2ad0",
+          "size": 116,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a2b50",
+          "size": 188,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a2c10",
+          "size": 88,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a2c70",
+          "size": 240,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a2d60",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a2d70",
+          "size": 1072,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a31a0",
+          "size": 56,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a31e0",
+          "size": 1632,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a3840",
+          "size": 1296,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a3d50",
+          "size": 144,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a3de0",
+          "size": 12,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a3df0",
+          "size": 404,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a3f90",
+          "size": 1016,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a4390",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a43a0",
+          "size": 1092,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a47f0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a4800",
+          "size": 1148,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a4c80",
+          "size": 2336,
+          "bytes_and_relocations_equal": false
+        },
+        {
+          "name": "func_001a55a0",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a5650",
+          "size": 656,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a58e0",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a5990",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a59a0",
+          "size": 7536,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a7710",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001a7720",
+          "size": 17536,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001abba0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001abbb0",
+          "size": 2384,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ac500",
+          "size": 176,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ac5b0",
+          "size": 104,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ac620",
+          "size": 120,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ac6a0",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ac6f0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ac700",
+          "size": 1036,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001acb10",
+          "size": 152,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001acbb0",
+          "size": 900,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001acf40",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001acf50",
+          "size": 816,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ad280",
+          "size": 348,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ad3e0",
+          "size": 344,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ad540",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ad550",
+          "size": 1580,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001adb80",
+          "size": 644,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ade10",
+          "size": 128,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ade90",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001adea0",
+          "size": 1312,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ae3c0",
+          "size": 12,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ae3d0",
+          "size": 1072,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ae800",
+          "size": 1052,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001aec20",
+          "size": 304,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001aed50",
+          "size": 3196,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001af9d0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001af9e0",
+          "size": 100,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001afa50",
+          "size": 252,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001afb50",
+          "size": 1228,
+          "bytes_and_relocations_equal": true
+        }
+      ],
+      "unchanged_functions": 70,
+      "total_functions": 71,
+      "allocated_sections_equal": false,
+      "allocated_relocations_equal": false,
+      "nontext_allocated_sections_equal": true,
+      "nontext_allocated_relocations_equal": true
+    },
+    {
+      "owner": "src/promoted/code1_0019.c",
+      "source_sha256": "3d5a4e39cf9bc8e64b2d65359592d9dd567519c7e9147dc6b5b2dc21b59cef9c",
+      "functions": [
+        {
+          "name": "func_001900a0",
+          "size": 132,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00190130",
+          "size": 160,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00191e20",
+          "size": 100,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001927c0",
+          "size": 248,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001928c0",
+          "size": 508,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00192ac0",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00192ae0",
+          "size": 60,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00192b20",
+          "size": 108,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00192b90",
+          "size": 308,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00192cd0",
+          "size": 436,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00192e90",
+          "size": 460,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193060",
+          "size": 500,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193260",
+          "size": 144,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001932f0",
+          "size": 352,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193450",
+          "size": 356,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001935c0",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193630",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001936a0",
+          "size": 84,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193700",
+          "size": 36,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193730",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193840",
+          "size": 348,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001939a0",
+          "size": 56,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001939e0",
+          "size": 152,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193a80",
+          "size": 80,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193ad0",
+          "size": 152,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193b70",
+          "size": 116,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193bf0",
+          "size": 116,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193c70",
+          "size": 92,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193cd0",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193d30",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00193d90",
+          "size": 1752,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00194470",
+          "size": 284,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00194590",
+          "size": 204,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00194660",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00194670",
+          "size": 852,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001949d0",
+          "size": 92,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00194a30",
+          "size": 284,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00194b50",
+          "size": 12,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00194b60",
+          "size": 252,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00194ff0",
+          "size": 500,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001951f0",
+          "size": 828,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00195530",
+          "size": 88,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00195610",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00195710",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00195730",
+          "size": 284,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00196b70",
+          "size": 36,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00196ba0",
+          "size": 36,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00196bd0",
+          "size": 268,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00196ce0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00196d00",
+          "size": 1736,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001973d0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00197a80",
+          "size": 564,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00197cc0",
+          "size": 144,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00197d50",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00197d70",
+          "size": 440,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00197f30",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00198380",
+          "size": 1044,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00198810",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00198840",
+          "size": 104,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001988b0",
+          "size": 100,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00198920",
+          "size": 1196,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00198dd0",
+          "size": 764,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001990d0",
+          "size": 240,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001991c0",
+          "size": 400,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00199350",
+          "size": 420,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00199500",
+          "size": 456,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001996d0",
+          "size": 344,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00199830",
+          "size": 88,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00199890",
+          "size": 68,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001998e0",
+          "size": 268,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001999f0",
+          "size": 776,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00199d00",
+          "size": 336,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00199e50",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00199e70",
+          "size": 80,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00199ec0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a010",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a030",
+          "size": 108,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a0a0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a130",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a150",
+          "size": 356,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a2c0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a660",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a680",
+          "size": 448,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a840",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a8d0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a8f0",
+          "size": 108,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a960",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a9e0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019aa00",
+          "size": 80,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019aa50",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019aae0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019ab00",
+          "size": 276,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019ac20",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019b530",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019b550",
+          "size": 204,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019b620",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019b640",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019b680",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019b710",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019b730",
+          "size": 1164,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019bbc0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019bc90",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019bcb0",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019bce0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019bd60",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019bd80",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019bdb0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019be30",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019be50",
+          "size": 52,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019be90",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019beb0",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019bf10",
+          "size": 100,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019bf80",
+          "size": 132,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019c010",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019c0d0",
+          "size": 3808,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019cfb0",
+          "size": 132,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019d040",
+          "size": 124,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019d0c0",
+          "size": 100,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019d150",
+          "size": 184,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019d210",
+          "size": 424,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019d3c0",
+          "size": 288,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019d4e0",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019d550",
+          "size": 288,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019d670",
+          "size": 304,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019d7a0",
+          "size": 488,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019d990",
+          "size": 420,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019db40",
+          "size": 812,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019dea0",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019df00",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019df20",
+          "size": 520,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019e130",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019e830",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019e850",
+          "size": 372,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019e9d0",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019e9f0",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019ea60",
+          "size": 820,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019eda0",
+          "size": 388,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019ef30",
+          "size": 92,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019ef90",
+          "size": 76,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019efe0",
+          "size": 100,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019f050",
+          "size": 148,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019f0f0",
+          "size": 216,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019f1d0",
+          "size": 1044,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019f5f0",
+          "size": 684,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019f8a0",
+          "size": 412,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019fa40",
+          "size": 172,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019faf0",
+          "size": 356,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019fc60",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019fc70",
+          "size": 496,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019fe60",
+          "size": 248,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019ff60",
+          "size": 476,
+          "bytes_and_relocations_equal": true
+        }
+      ],
+      "unchanged_functions": 151,
+      "total_functions": 151,
+      "allocated_sections_equal": true,
+      "allocated_relocations_equal": true,
+      "nontext_allocated_sections_equal": true,
+      "nontext_allocated_relocations_equal": true
+    },
+    {
+      "owner": "src/promoted/code1_001f.c",
+      "source_sha256": "1c5fdd135c39f60f1646a02b570810eb25522e1ee834412d6fdbcf76c8f35f35",
+      "functions": [
+        {
+          "name": "func_001f01a0",
+          "size": 192,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f0260",
+          "size": 940,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f0620",
+          "size": 664,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f08c0",
+          "size": 140,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f0950",
+          "size": 188,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f0a10",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f0a50",
+          "size": 148,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f0af0",
+          "size": 152,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f0b90",
+          "size": 92,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f0bf0",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f0c50",
+          "size": 224,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f0d30",
+          "size": 152,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f0dd0",
+          "size": 416,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f0f70",
+          "size": 120,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f0ff0",
+          "size": 60,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f1030",
+          "size": 420,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f11e0",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f1210",
+          "size": 148,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f12b0",
+          "size": 564,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f14f0",
+          "size": 6096,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f2cc0",
+          "size": 496,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f2eb0",
+          "size": 224,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f2f90",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f3870",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f38e0",
+          "size": 28,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f3900",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f3950",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f39b0",
+          "size": 28,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f39d0",
+          "size": 304,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f3b20",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f3b80",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f3bb0",
+          "size": 932,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f3f60",
+          "size": 104,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f3fe0",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4010",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4040",
+          "size": 88,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f40a0",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4100",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f41b0",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f41e0",
+          "size": 100,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f42a0",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f42d0",
+          "size": 84,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4330",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4380",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4430",
+          "size": 288,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4550",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4600",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f46b0",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4760",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4810",
+          "size": 692,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4ad0",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4b80",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4c30",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4ce0",
+          "size": 360,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f4e50",
+          "size": 1876,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f55b0",
+          "size": 200,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f5680",
+          "size": 76,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f56d0",
+          "size": 512,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f58d0",
+          "size": 304,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f5a00",
+          "size": 452,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f5bd0",
+          "size": 708,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f5ea0",
+          "size": 36,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f5ed0",
+          "size": 148,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f6090",
+          "size": 36,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f6100",
+          "size": 144,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f6190",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f61b0",
+          "size": 104,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f6220",
+          "size": 100,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f6290",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f62b0",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f62f0",
+          "size": 728,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f65d0",
+          "size": 316,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f6710",
+          "size": 88,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f6770",
+          "size": 360,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f68e0",
+          "size": 80,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f6930",
+          "size": 700,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f6bf0",
+          "size": 80,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f6c40",
+          "size": 140,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f6cd0",
+          "size": 132,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f6d60",
+          "size": 504,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f6f60",
+          "size": 480,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f7140",
+          "size": 280,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f7260",
+          "size": 124,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f72e0",
+          "size": 212,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f73c0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f73d0",
+          "size": 348,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f75b0",
+          "size": 100,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f7650",
+          "size": 480,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f7830",
+          "size": 224,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f7910",
+          "size": 448,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f7ad0",
+          "size": 100,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f7b40",
+          "size": 220,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8380",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f83b0",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8400",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8430",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8480",
+          "size": 528,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8690",
+          "size": 52,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f86d0",
+          "size": 44,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8700",
+          "size": 264,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8810",
+          "size": 264,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8920",
+          "size": 480,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8b00",
+          "size": 132,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8b90",
+          "size": 132,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8c20",
+          "size": 192,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8ce0",
+          "size": 132,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8d70",
+          "size": 152,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8e10",
+          "size": 132,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8ea0",
+          "size": 160,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8f40",
+          "size": 160,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f8fe0",
+          "size": 160,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9080",
+          "size": 92,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f90e0",
+          "size": 472,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f92c0",
+          "size": 212,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f93a0",
+          "size": 460,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9570",
+          "size": 212,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9650",
+          "size": 180,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9740",
+          "size": 12,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9750",
+          "size": 88,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9800",
+          "size": 444,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9a50",
+          "size": 52,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9a90",
+          "size": 44,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9ac0",
+          "size": 192,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9be0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9bf0",
+          "size": 68,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9c40",
+          "size": 136,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9cd0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001f9ce0",
+          "size": 12,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fa660",
+          "size": 192,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fa720",
+          "size": 124,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fa7a0",
+          "size": 324,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fa8f0",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fa940",
+          "size": 124,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fa9c0",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001faa00",
+          "size": 84,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001faa60",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001faaa0",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001faaf0",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fab40",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fab90",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fabe0",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fac30",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fac80",
+          "size": 144,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fad10",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fadc0",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fae10",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fae60",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fae80",
+          "size": 232,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001faf70",
+          "size": 504,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fb170",
+          "size": 128,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fb1f0",
+          "size": 360,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fb360",
+          "size": 284,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fb480",
+          "size": 1732,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fbb50",
+          "size": 1620,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fc1b0",
+          "size": 120,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fc270",
+          "size": 12,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001fc280",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        }
+      ],
+      "unchanged_functions": 157,
+      "total_functions": 157,
+      "allocated_sections_equal": true,
+      "allocated_relocations_equal": true,
+      "nontext_allocated_sections_equal": true,
+      "nontext_allocated_relocations_equal": true
+    },
+    {
+      "owner": "src/promoted/code1_0022.c",
+      "source_sha256": "541dec1637f6d24a5e3970e5f84e21f7aa6a77bb0dae9d909df14fe4d33ac4ee",
+      "functions": [
+        {
+          "name": "func_002218e0",
+          "size": 44,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00221910",
+          "size": 44,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00221940",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00221970",
+          "size": 320,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00222210",
+          "size": 2832,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00222d20",
+          "size": 896,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002230e0",
+          "size": 248,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002231e0",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00223240",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00223270",
+          "size": 44,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002232a0",
+          "size": 1036,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002236b0",
+          "size": 16,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002236c0",
+          "size": 104,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00223730",
+          "size": 248,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00223830",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00223890",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002238c0",
+          "size": 44,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00223ed0",
+          "size": 16,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00223ee0",
+          "size": 88,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00223f40",
+          "size": 248,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00224040",
+          "size": 60,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00224080",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002240b0",
+          "size": 44,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002240e0",
+          "size": 876,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00224450",
+          "size": 1312,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00224970",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002249a0",
+          "size": 1780,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002250a0",
+          "size": 1688,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00225740",
+          "size": 280,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00225860",
+          "size": 80,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002258b0",
+          "size": 800,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00225bd0",
+          "size": 44,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00225c00",
+          "size": 256,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00225d00",
+          "size": 252,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00225e50",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00225ec0",
+          "size": 2032,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002266b0",
+          "size": 1420,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00226c40",
+          "size": 1516,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00227230",
+          "size": 1336,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00227770",
+          "size": 108,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002277e0",
+          "size": 1620,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00227e40",
+          "size": 1168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002282d0",
+          "size": 420,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00228480",
+          "size": 76,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002284d0",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00228580",
+          "size": 320,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002286c0",
+          "size": 320,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00228800",
+          "size": 144,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00228890",
+          "size": 280,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002289b0",
+          "size": 176,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00228a60",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00228a80",
+          "size": 640,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00228d00",
+          "size": 68,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00228d50",
+          "size": 520,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00228f60",
+          "size": 180,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00229020",
+          "size": 2444,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002299b0",
+          "size": 644,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00229c40",
+          "size": 344,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00229da0",
+          "size": 2312,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022a6b0",
+          "size": 128,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022a730",
+          "size": 1184,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022abd0",
+          "size": 224,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022acb0",
+          "size": 132,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022ad40",
+          "size": 192,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022ae00",
+          "size": 564,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022b040",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022b0b0",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022b0e0",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022b120",
+          "size": 1860,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022b870",
+          "size": 464,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022ba40",
+          "size": 124,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022bac0",
+          "size": 12,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022bad0",
+          "size": 424,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022bc80",
+          "size": 124,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022bd00",
+          "size": 20,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022bd20",
+          "size": 52,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022bd60",
+          "size": 1744,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022c430",
+          "size": 1876,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022cb90",
+          "size": 256,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022cc90",
+          "size": 284,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022cdb0",
+          "size": 288,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022ced0",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022cf00",
+          "size": 764,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022d200",
+          "size": 824,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022d540",
+          "size": 188,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022d600",
+          "size": 1412,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022db90",
+          "size": 216,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022dc70",
+          "size": 2164,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022e4f0",
+          "size": 316,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022e630",
+          "size": 1172,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022ead0",
+          "size": 200,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022eba0",
+          "size": 2428,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022f520",
+          "size": 680,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022f7d0",
+          "size": 220,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022f8b0",
+          "size": 152,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022f950",
+          "size": 312,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022fa90",
+          "size": 128,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0022fb10",
+          "size": 128,
+          "bytes_and_relocations_equal": true
+        }
+      ],
+      "unchanged_functions": 98,
+      "total_functions": 98,
+      "allocated_sections_equal": true,
+      "allocated_relocations_equal": true,
+      "nontext_allocated_sections_equal": true,
+      "nontext_allocated_relocations_equal": true
+    },
+    {
+      "owner": "src/promoted/code1_001b.c",
+      "source_sha256": "49d4e2b6a4df61e2d843c719f6a911362b4640de6f6b95673978cfe44dd03621",
+      "functions": [
+        {
+          "name": "func_001b0020",
+          "size": 564,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b0260",
+          "size": 156,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b0300",
+          "size": 348,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b0460",
+          "size": 304,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b0590",
+          "size": 60,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b05d0",
+          "size": 496,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b07c0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b0930",
+          "size": 304,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b0a60",
+          "size": 400,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b0bf0",
+          "size": 136,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b0c80",
+          "size": 60,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b0cc0",
+          "size": 60,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b1510",
+          "size": 36,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b1540",
+          "size": 16,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b1550",
+          "size": 16,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b1560",
+          "size": 16,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b1570",
+          "size": 52,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b15b0",
+          "size": 592,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b1800",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b1830",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b1850",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b1880",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b18c0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b18d0",
+          "size": 12,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b18e0",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b1940",
+          "size": 92,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b19a0",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b19c0",
+          "size": 352,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b1b20",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b1b30",
+          "size": 564,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b1d70",
+          "size": 1548,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b2380",
+          "size": 4160,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b33c0",
+          "size": 744,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b36b0",
+          "size": 224,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b3790",
+          "size": 224,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b3870",
+          "size": 372,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b39f0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b3a00",
+          "size": 1268,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b3f00",
+          "size": 164,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b3fb0",
+          "size": 164,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b4060",
+          "size": 1488,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b4630",
+          "size": 296,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b4760",
+          "size": 60,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b47a0",
+          "size": 184,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b4860",
+          "size": 20,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b4880",
+          "size": 2688,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5300",
+          "size": 476,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b54e0",
+          "size": 308,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5620",
+          "size": 236,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5710",
+          "size": 220,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b57f0",
+          "size": 380,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5970",
+          "size": 952,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5d30",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5da0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5db0",
+          "size": 140,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5e40",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5ec0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5ed0",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5f00",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5f30",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5f70",
+          "size": 88,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5fd0",
+          "size": 16,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b5fe0",
+          "size": 188,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b60a0",
+          "size": 100,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b6110",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b6120",
+          "size": 1968,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b68d0",
+          "size": 180,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b6990",
+          "size": 44,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b69c0",
+          "size": 60,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b6a00",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b6a20",
+          "size": 136,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b6ab0",
+          "size": 1392,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b7020",
+          "size": 16,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b7030",
+          "size": 16,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b7040",
+          "size": 16,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b7050",
+          "size": 16,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b7060",
+          "size": 28,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b7080",
+          "size": 16,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b7090",
+          "size": 12,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b70a0",
+          "size": 28,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b70c0",
+          "size": 812,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b73f0",
+          "size": 300,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001b7520",
+          "size": 860,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ba0e0",
+          "size": 1096,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ba530",
+          "size": 88,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ba590",
+          "size": 380,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ba710",
+          "size": 116,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ba790",
+          "size": 592,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bbe80",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bbf40",
+          "size": 80,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bbf90",
+          "size": 424,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bc140",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bc1b0",
+          "size": 140,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bc240",
+          "size": 232,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bc330",
+          "size": 104,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bc980",
+          "size": 452,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bcb50",
+          "size": 300,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bcc80",
+          "size": 56,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bccc0",
+          "size": 120,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bcd40",
+          "size": 1472,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bd300",
+          "size": 136,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bd390",
+          "size": 344,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bd4f0",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bd530",
+          "size": 36,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bd560",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bd5a0",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bd5e0",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bd7d0",
+          "size": 528,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bd9e0",
+          "size": 380,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bdb60",
+          "size": 452,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bdd30",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bdd60",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bdd80",
+          "size": 300,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bdeb0",
+          "size": 416,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001be050",
+          "size": 2164,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001be900",
+          "size": 144,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001be990",
+          "size": 2564,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bf3a0",
+          "size": 400,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bf530",
+          "size": 172,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bf5e0",
+          "size": 1416,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bfb70",
+          "size": 144,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlAct_SKILL_RECITE_E",
+          "size": 2256,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c04d0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        }
+      ],
+      "unchanged_functions": 123,
+      "total_functions": 123,
+      "allocated_sections_equal": true,
+      "allocated_relocations_equal": true,
+      "nontext_allocated_sections_equal": true,
+      "nontext_allocated_relocations_equal": true
+    },
+    {
+      "owner": "src/promoted/code1_001c.c",
+      "source_sha256": "d5717cfe3a809421be76fd943401e6447b37ce51b1ca0f8a9ae8ad3f1a08c436",
+      "functions": [
+        {
+          "name": "func_001c04e0",
+          "size": 1208,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c09a0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c09b0",
+          "size": 1156,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c0e40",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c0e50",
+          "size": 496,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c1040",
+          "size": 1884,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c17a0",
+          "size": 2000,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c1f70",
+          "size": 596,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c21d0",
+          "size": 3336,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c2ee0",
+          "size": 4040,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c3eb0",
+          "size": 180,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c3f70",
+          "size": 4504,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c5110",
+          "size": 432,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c52c0",
+          "size": 568,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c5500",
+          "size": 1664,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c5b80",
+          "size": 2520,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c79e0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c79f0",
+          "size": 1792,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c80f0",
+          "size": 2012,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c88d0",
+          "size": 560,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c8b00",
+          "size": 484,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c8cf0",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c8d50",
+          "size": 312,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c8e90",
+          "size": 2228,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c9750",
+          "size": 92,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c97b0",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c9820",
+          "size": 3364,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ca550",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ca590",
+          "size": 1852,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cacd0",
+          "size": 1052,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cb0f0",
+          "size": 260,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cb200",
+          "size": 224,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cb2e0",
+          "size": 148,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cb380",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cb3a0",
+          "size": 160,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cb440",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cb460",
+          "size": 224,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cb540",
+          "size": 200,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cb610",
+          "size": 840,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cb960",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cb970",
+          "size": 1540,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cbf80",
+          "size": 84,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ce470",
+          "size": 428,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ce620",
+          "size": 452,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ce7f0",
+          "size": 144,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ce880",
+          "size": 56,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ce8c0",
+          "size": 736,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ceba0",
+          "size": 268,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cecb0",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlAct_ROUNDUP_MES",
+          "size": 576,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cef20",
+          "size": 144,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cefb0",
+          "size": 52,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ceff0",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cf020",
+          "size": 76,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cf070",
+          "size": 204,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cf140",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cf160",
+          "size": 136,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cf1f0",
+          "size": 352,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cf350",
+          "size": 992,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlAct_ALL",
+          "size": 920,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cfad0",
+          "size": 1016,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlAct_ENEMY_ALL",
+          "size": 44,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlAct_TARGET_ONLY",
+          "size": 704,
+          "bytes_and_relocations_equal": true
+        }
+      ],
+      "unchanged_functions": 63,
+      "total_functions": 63,
+      "allocated_sections_equal": true,
+      "allocated_relocations_equal": true,
+      "nontext_allocated_sections_equal": true,
+      "nontext_allocated_relocations_equal": true
+    },
+    {
+      "owner": "src/Battle/btlCamera.c",
+      "source_sha256": "0db56ba941dfc1f53fe116d04d11216f281d434b16f7163f82b72d0a4b2f918e",
+      "functions": [
+        {
+          "name": "func_001bc3a0",
+          "size": 444,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bc560",
+          "size": 204,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bc630",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bc660",
+          "size": 396,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bc7f0",
+          "size": 16,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bc800",
+          "size": 216,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlCameraUpdateSetStatePacket",
+          "size": 52,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlCameraCreateSetStatePacket",
+          "size": 88,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bd620",
+          "size": 344,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001bd780",
+          "size": 76,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c6560",
+          "size": 240,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c6650",
+          "size": 260,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c6760",
+          "size": 936,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c6b10",
+          "size": 60,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c6b50",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlAct_SKILL_EXEC_ONE",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c6ba0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c6bb0",
+          "size": 36,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c6be0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c6bf0",
+          "size": 820,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c6f30",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c6f40",
+          "size": 1180,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c73e0",
+          "size": 280,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c7500",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c7510",
+          "size": 604,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c7770",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001c7780",
+          "size": 604,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cbfe0",
+          "size": 188,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cc0a0",
+          "size": 1300,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cc5c0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cc5d0",
+          "size": 1028,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlAct_TARGET",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cca50",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cca60",
+          "size": 820,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ccda0",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlAct_NOP",
+          "size": 2124,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cd600",
+          "size": 148,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cd6a0",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cd6c0",
+          "size": 232,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cd7b0",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlAct_WIN_P",
+          "size": 800,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlAct_CONDITION",
+          "size": 860,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001cde50",
+          "size": 1336,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ce390",
+          "size": 144,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlAct_ENCOUNT",
+          "size": 8,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001ce430",
+          "size": 52,
+          "bytes_and_relocations_equal": true
+        }
+      ],
+      "unchanged_functions": 46,
+      "total_functions": 46,
+      "allocated_sections_equal": true,
+      "allocated_relocations_equal": true,
+      "nontext_allocated_sections_equal": true,
+      "nontext_allocated_relocations_equal": true
+    },
+    {
+      "owner": "src/Battle/btlUnit.c",
+      "source_sha256": "5a2f3ff61d6e90a9365653df853b56098640a2fddfe9295235d8deaaf45b8471",
+      "functions": [
+        {
+          "name": "func_00195b60",
+          "size": 236,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00195d50",
+          "size": 324,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00196040",
+          "size": 1480,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00196610",
+          "size": 1332,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001974f0",
+          "size": 1228,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlUnitCreateMoveToUnitPacket",
+          "size": 160,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlUnitCreateRotatePacket",
+          "size": 200,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00198050",
+          "size": 632,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlUnitCreateAnimPacket",
+          "size": 296,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019acd0",
+          "size": 328,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019ae20",
+          "size": 1796,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlUnitCreateLookAtPacket",
+          "size": 148,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlUnitSetPos",
+          "size": 44,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlUnitSetRot",
+          "size": 68,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlUnitSetColor",
+          "size": 64,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlUnitSetFlags",
+          "size": 32,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlUnitClearFlags",
+          "size": 44,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00195630",
+          "size": 212,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlUnitGetSphereWorldCenter",
+          "size": 160,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001958f0",
+          "size": 224,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00195c50",
+          "size": 248,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlUnitIsMoving",
+          "size": 20,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "btlUnitCreateMovePacket",
+          "size": 216,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001974d0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001979c0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00198020",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001982d0",
+          "size": 40,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a350",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a5c0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019d130",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019de70",
+          "size": 36,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019e1f0",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019e220",
+          "size": 764,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019e520",
+          "size": 48,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00195590",
+          "size": 128,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001959d0",
+          "size": 208,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00195aa0",
+          "size": 184,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00195ea0",
+          "size": 200,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_00195f70",
+          "size": 204,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001987a0",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_0019a370",
+          "size": 592,
+          "bytes_and_relocations_equal": true
+        }
+      ],
+      "unchanged_functions": 41,
+      "total_functions": 41,
+      "allocated_sections_equal": true,
+      "allocated_relocations_equal": true,
+      "nontext_allocated_sections_equal": true,
+      "nontext_allocated_relocations_equal": true
+    },
+    {
+      "owner": "src/Battle/btlFormation.c",
+      "source_sha256": "e102089db3a8d651521dea5ac7f26a78a8dd1b4c896b829d43b0b6416182b608",
+      "functions": [
+        {
+          "name": "func_001d1eb0",
+          "size": 120,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d1f30",
+          "size": 3668,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d2d90",
+          "size": 104,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d2e00",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d2e20",
+          "size": 444,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d2fe0",
+          "size": 24,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3000",
+          "size": 144,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3090",
+          "size": 1180,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3530",
+          "size": 104,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d35a0",
+          "size": 344,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3700",
+          "size": 88,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3760",
+          "size": 404,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3900",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3950",
+          "size": 500,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3b50",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3ba0",
+          "size": 352,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3d00",
+          "size": 72,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3d50",
+          "size": 168,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3e00",
+          "size": 148,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3ea0",
+          "size": 332,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d3ff0",
+          "size": 220,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d40d0",
+          "size": 80,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d4140",
+          "size": 68,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d42e0",
+          "size": 148,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d4380",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d5eb0",
+          "size": 176,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d5f60",
+          "size": 164,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d6010",
+          "size": 344,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d6170",
+          "size": 112,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d61e0",
+          "size": 96,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d6240",
+          "size": 184,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d69f0",
+          "size": 100,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_001d7bb0",
+          "size": 52,
+          "bytes_and_relocations_equal": true
+        },
+        {
+          "name": "func_002027e0",
+          "size": 52,
+          "bytes_and_relocations_equal": true
+        }
+      ],
+      "unchanged_functions": 34,
+      "total_functions": 34,
+      "allocated_sections_equal": true,
+      "allocated_relocations_equal": true,
+      "nontext_allocated_sections_equal": true,
+      "nontext_allocated_relocations_equal": true
+    }
+  ],
+  "target": {
+    "size": 2336,
+    "retail_window": 2336,
+    "normalized_different_bytes": 0,
+    "frame": 288,
+    "resolved_relocations": [
+      {
+        "offset": 64,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3bc",
+        "address": "0x7644ac",
+        "expected": "0xb3bc",
+        "retail": "0xb3bc",
+        "equal": true
+      },
+      {
+        "offset": 88,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "address": "0x76449c",
+        "expected": "0xb3ac",
+        "retail": "0xb3ac",
+        "equal": true
+      },
+      {
+        "offset": 132,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "btlUnitCreateLookAtUnitPacket",
+        "address": "0x19e550",
+        "expected": "0x67954",
+        "retail": "0x67954",
+        "equal": true
+      },
+      {
+        "offset": 156,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00194590",
+        "address": "0x194590",
+        "expected": "0x65164",
+        "retail": "0x65164",
+        "equal": true
+      },
+      {
+        "offset": 172,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "btlUnitCreateLookAtDeactivatePacket",
+        "address": "0x19e7c0",
+        "expected": "0x679f0",
+        "retail": "0x679f0",
+        "equal": true
+      },
+      {
+        "offset": 196,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00194590",
+        "address": "0x194590",
+        "expected": "0x65164",
+        "retail": "0x65164",
+        "equal": true
+      },
+      {
+        "offset": 228,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3b8",
+        "address": "0x7644a8",
+        "expected": "0xb3b8",
+        "retail": "0xb3b8",
+        "equal": true
+      },
+      {
+        "offset": 256,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001f0bf0",
+        "address": "0x1f0bf0",
+        "expected": "0x7c2fc",
+        "retail": "0x7c2fc",
+        "equal": true
+      },
+      {
+        "offset": 328,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_0023e1f0",
+        "address": "0x23e1f0",
+        "expected": "0x8f87c",
+        "retail": "0x8f87c",
+        "equal": true
+      },
+      {
+        "offset": 376,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3bc",
+        "address": "0x7644ac",
+        "expected": "0xb3bc",
+        "retail": "0xb3bc",
+        "equal": true
+      },
+      {
+        "offset": 420,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3cc",
+        "address": "0x7644bc",
+        "expected": "0xb3cc",
+        "retail": "0xb3cc",
+        "equal": true
+      },
+      {
+        "offset": 496,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "address": "0x76449c",
+        "expected": "0xb3ac",
+        "retail": "0xb3ac",
+        "equal": true
+      },
+      {
+        "offset": 556,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "btlUnitGetSphereWorldCenter",
+        "address": "0x195850",
+        "expected": "0x65614",
+        "retail": "0x65614",
+        "equal": true
+      },
+      {
+        "offset": 576,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00195c50",
+        "address": "0x195c50",
+        "expected": "0x65714",
+        "retail": "0x65714",
+        "equal": true
+      },
+      {
+        "offset": 592,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001ec250",
+        "address": "0x1ec250",
+        "expected": "0x7b094",
+        "retail": "0x7b094",
+        "equal": true
+      },
+      {
+        "offset": 668,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3bc",
+        "address": "0x7644ac",
+        "expected": "0xb3bc",
+        "retail": "0xb3bc",
+        "equal": true
+      },
+      {
+        "offset": 728,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001f0a50",
+        "address": "0x1f0a50",
+        "expected": "0x7c294",
+        "retail": "0x7c294",
+        "equal": true
+      },
+      {
+        "offset": 776,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001f0a50",
+        "address": "0x1f0a50",
+        "expected": "0x7c294",
+        "retail": "0x7c294",
+        "equal": true
+      },
+      {
+        "offset": 824,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00196bd0",
+        "address": "0x196bd0",
+        "expected": "0x65af4",
+        "retail": "0x65af4",
+        "equal": true
+      },
+      {
+        "offset": 916,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001f0ff0",
+        "address": "0x1f0ff0",
+        "expected": "0x7c3fc",
+        "retail": "0x7c3fc",
+        "equal": true
+      },
+      {
+        "offset": 952,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00199d00",
+        "address": "0x199d00",
+        "expected": "0x66740",
+        "retail": "0x66740",
+        "equal": true
+      },
+      {
+        "offset": 980,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001f1210",
+        "address": "0x1f1210",
+        "expected": "0x7c484",
+        "retail": "0x7c484",
+        "equal": true
+      },
+      {
+        "offset": 1000,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "btlUnitGetSphereWorldCenter",
+        "address": "0x195850",
+        "expected": "0x65614",
+        "retail": "0x65614",
+        "equal": true
+      },
+      {
+        "offset": 1020,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00195c50",
+        "address": "0x195c50",
+        "expected": "0x65714",
+        "retail": "0x65714",
+        "equal": true
+      },
+      {
+        "offset": 1036,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001ec250",
+        "address": "0x1ec250",
+        "expected": "0x7b094",
+        "retail": "0x7b094",
+        "equal": true
+      },
+      {
+        "offset": 1088,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_0022fb10",
+        "address": "0x22fb10",
+        "expected": "0x8bec4",
+        "retail": "0x8bec4",
+        "equal": true
+      },
+      {
+        "offset": 1252,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001951f0",
+        "address": "0x1951f0",
+        "expected": "0x6547c",
+        "retail": "0x6547c",
+        "equal": true
+      },
+      {
+        "offset": 1268,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001ec250",
+        "address": "0x1ec250",
+        "expected": "0x7b094",
+        "retail": "0x7b094",
+        "equal": true
+      },
+      {
+        "offset": 1368,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001951f0",
+        "address": "0x1951f0",
+        "expected": "0x6547c",
+        "retail": "0x6547c",
+        "equal": true
+      },
+      {
+        "offset": 1416,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RwV3dLength",
+        "address": "0x3e4180",
+        "expected": "0xf9060",
+        "retail": "0xf9060",
+        "equal": true
+      },
+      {
+        "offset": 1468,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001f0a50",
+        "address": "0x1f0a50",
+        "expected": "0x7c294",
+        "retail": "0x7c294",
+        "equal": true
+      },
+      {
+        "offset": 1516,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00196bd0",
+        "address": "0x196bd0",
+        "expected": "0x65af4",
+        "retail": "0x65af4",
+        "equal": true
+      },
+      {
+        "offset": 1540,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001a03b0",
+        "address": "0x1a03b0",
+        "expected": "0x680ec",
+        "retail": "0x680ec",
+        "equal": true
+      },
+      {
+        "offset": 1572,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3b8",
+        "address": "0x7644a8",
+        "expected": "0xb3b8",
+        "retail": "0xb3b8",
+        "equal": true
+      },
+      {
+        "offset": 1644,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3cc",
+        "address": "0x7644bc",
+        "expected": "0xb3cc",
+        "retail": "0xb3cc",
+        "equal": true
+      },
+      {
+        "offset": 1700,
+        "r_type": 5,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_005F6D20",
+        "address": "0x5f6d20",
+        "expected": "0x5f",
+        "retail": "0x5f",
+        "equal": true
+      },
+      {
+        "offset": 1704,
+        "r_type": 6,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_005F6D20",
+        "address": "0x5f6d20",
+        "expected": "0x6d20",
+        "retail": "0x6d20",
+        "equal": true
+      },
+      {
+        "offset": 1752,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "btlUnitGetSphereWorldCenter",
+        "address": "0x195850",
+        "expected": "0x65614",
+        "retail": "0x65614",
+        "equal": true
+      },
+      {
+        "offset": 1772,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00195c50",
+        "address": "0x195c50",
+        "expected": "0x65714",
+        "retail": "0x65714",
+        "equal": true
+      },
+      {
+        "offset": 1824,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RwV3dNormalize",
+        "address": "0x3e40b0",
+        "expected": "0xf902c",
+        "retail": "0xf902c",
+        "equal": true
+      },
+      {
+        "offset": 1968,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001ec1c0",
+        "address": "0x1ec1c0",
+        "expected": "0x7b070",
+        "retail": "0x7b070",
+        "equal": true
+      },
+      {
+        "offset": 1992,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00195730",
+        "address": "0x195730",
+        "expected": "0x655cc",
+        "retail": "0x655cc",
+        "equal": true
+      },
+      {
+        "offset": 2016,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00194590",
+        "address": "0x194590",
+        "expected": "0x65164",
+        "retail": "0x65164",
+        "equal": true
+      },
+      {
+        "offset": 2024,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "fGpffff8360",
+        "address": "0x761450",
+        "expected": "0x8360",
+        "retail": "0x8360",
+        "equal": true
+      },
+      {
+        "offset": 2072,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00243d80",
+        "address": "0x243d80",
+        "expected": "0x90f60",
+        "retail": "0x90f60",
+        "equal": true
+      },
+      {
+        "offset": 2116,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "btlUnitCreateMoveToUnitPacket",
+        "address": "0x1979e0",
+        "expected": "0x65e78",
+        "retail": "0x65e78",
+        "equal": true
+      },
+      {
+        "offset": 2144,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00194590",
+        "address": "0x194590",
+        "expected": "0x65164",
+        "retail": "0x65164",
+        "equal": true
+      },
+      {
+        "offset": 2184,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "btlCameraCreateSetStatePacket",
+        "address": "0x1bc920",
+        "expected": "0x6f248",
+        "retail": "0x6f248",
+        "equal": true
+      },
+      {
+        "offset": 2208,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00194590",
+        "address": "0x194590",
+        "expected": "0x65164",
+        "retail": "0x65164",
+        "equal": true
+      },
+      {
+        "offset": 2232,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "btlCameraCreateSetStatePacket",
+        "address": "0x1bc920",
+        "expected": "0x6f248",
+        "retail": "0x6f248",
+        "equal": true
+      },
+      {
+        "offset": 2256,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00194590",
+        "address": "0x194590",
+        "expected": "0x65164",
+        "retail": "0x65164",
+        "equal": true
+      }
+    ]
+  },
+  "guard_preservation": {
+    "func_001a7720": {
+      "statements_unchanged": true,
+      "only_canonical_declaration_removal": true
+    },
+    "func_001a59a0": {
+      "statements_unchanged": true,
+      "only_canonical_declaration_removal": true
+    }
+  },
+  "speed_values": {
+    "address": "0x5f6d20",
+    "first_five_hex": "0000003f0000403f0000803f0000c03f00000040"
+  },
+  "reposition_factor": {
+    "address": "0x761450",
+    "hex": "3333b33f"
+  }
+}

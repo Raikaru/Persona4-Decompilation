@@ -1856,8 +1856,6 @@ void func_001a31e0(BtlAction *actionState)
 }
 
 #pragma pop
-extern s16 func_001991c0(u8 *unit, u16 animation, f32 scale);
-extern s16 func_00199500(u8 *unit, u16 animation, f32 scale);
 #pragma push
 /* The loader and cleanup visit all 0x30 resource slots at +0xD04. */
 typedef struct ActionRecoveryResourceView {
@@ -2499,34 +2497,30 @@ donecheck:
     }
 }
 #pragma pop
-/* Measured 2026-09-28: guarded 2336/2336 bytes, two differing words.
- * The shared motion selector is a word argument. At +0x2B4 and +0x2C8,
- * b210 loads selectors 7 and 5 with addiu; retail uses daddiu.
- * Typed action/unit views and separate predicate/geometry lifetimes retain
- * the retail registers. Staged vector arithmetic preserves the load order.
- * The rotation output is four floats; the position has vector/array views.
+/* Measured 2026-09-30 with the coherent motion-provider family: 2336 bytes,
+ * zero instruction differences. Both motion locals use the provider's u16
+ * selector domain; no wide temporary or local ABI override is needed.
  * Scoped lifetime optimization and preserved assignments retain the range
- * predicate and speed-table control flow. */
-// FUN_001A4C80 NONMATCHING
-#ifdef NON_MATCHING
+ * predicate and speed-table control flow. Position and rotation providers
+ * consume three and four floats respectively. Action actors are kind 0/1,
+ * created by 0019f5f0; the selector's other retail cases remain intact. */
+// FUN_001A4C80
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_dead_assignments off
-void func_001a4c80(u8 *arg0)
+void func_001a4c80(u8 *actionBytes)
 {
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
-    extern void func_00195c50(BtlUnit *arg0, BtlUnit *arg1, RwV3d *arg2);
-    extern s32 func_00199d00(s32 unused, u8 *arg1, s64 arg2, s32 arg3);
-    extern s32 func_001f1210(u8 *arg0, s64 arg1, s32 arg2);
-    extern void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, f32 *arg4, f32 *arg5, s32 arg6);
-    extern void func_001ec1c0(u8 *arg0, u8 *arg1, u8 *arg2);
-    extern f32 func_001ec250(const RwV3d *arg0, const RwV3d *arg1);
-    extern f32 RwV3dLength(const RwV3d *arg0);
-    extern f32 RwV3dNormalize(RwV3d *arg0, const RwV3d *arg1);
-    extern s32 func_00243d80(u8 *arg0);
-    extern s32 func_001f0a50(u8 *arg0);
-    extern s32 func_001f0bf0(u8 *arg0);
-    extern s32 func_001f0ff0(u32 arg0);
+    extern void func_00195c50(BtlUnit *unit, BtlUnit *target, RwV3d *out);
+    extern void func_001951f0(u8 *subunit, u8 *unit, u8 *target, s32 motion,
+                            f32 *position, f32 *rotation, s32 placement);
+    extern void func_001ec1c0(u8 *rotation, u8 *from, u8 *to);
+    extern f32 RwV3dLength(const RwV3d *vector);
+    extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *vector);
+    extern s32 func_00243d80(u8 *unitData);
+    extern s32 func_001f0a50(u8 *actionBytes);
+    extern s32 func_001f0bf0(u8 *actionBytes);
+    extern s32 func_001f0ff0(u32 action);
     extern s32 func_0022fb10(void);
     extern u8 *iGpffffb3bc;
     extern f32 fGpffff8360;
@@ -2552,77 +2546,77 @@ void func_001a4c80(u8 *arg0)
         struct ActionView *target;
         u8 unknown3C[0x30];
         u16 mode;
-        u16 index;
+        u16 skill;
     } ActionView;
-    union { RwV3d vector; f32 values[3]; } sp110;
-    RwV3d sp100;
-    RwV3d spF0;
-    RwV3d spE0;
-    RwV3d spD0;
-    f32 spC0[4];
+    union { RwV3d vector; f32 values[3]; } destination;
+    RwV3d awayDirection;
+    RwV3d homeOffset;
+    RwV3d unitCenter;
+    RwV3d targetCenter;
+    f32 rotation[4];
     ActionView *action;
     UnitView *unit;
-    UnitView *other;
-    u16 idx;
-    s32 off;
-    u8 *link;
+    UnitView *targetUnit;
+    u16 skill;
+    s32 skillOffset;
+    u8 *subunit;
     s32 proceed;
-    s32 turn;
-    s32 near;
-    s32 gate;
+    s32 reposition;
+    s32 inRange;
+    s32 canPosition;
     f32 distance;
     f32 speed;
 
-    action = (ActionView *)arg0;
-    idx = action->index;
-    off = idx * 4;
-    if ((*(u16 *)((u32)off + (u32)iGpffffb3bc + 2) & 0x8000) != 0) {
+    action = (ActionView *)actionBytes;
+    skill = action->skill;
+    skillOffset = skill * 4;
+    if ((*(u16 *)((u32)skillOffset + (u32)iGpffffb3bc + 2) & 0x8000) != 0) {
         return;
     }
     if ((*(s32 *)(iGpffffb3ac + 0x10) & 0x2000) != 0) {
         return;
     }
     proceed = 1;
-    near = 0;
-    turn = 0;
+    inRange = 0;
+    reposition = 0;
     {
-        u8 *pkt;
-        pkt = (u8 *)btlUnitCreateLookAtUnitPacket(NULL, (BtlUnit *)action->unit, 3);
-        *(s64 *)(pkt + 0x60) = action->uid;
-        func_00194590(pkt, 1);
+        u8 *packet;
+        packet = (u8 *)btlUnitCreateLookAtUnitPacket(NULL, (BtlUnit *)action->unit, 3);
+        *(s64 *)(packet + 0x60) = action->uid;
+        func_00194590(packet, 1);
     }
     {
-        u8 *pkt;
-        pkt = (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)action->unit, 0);
-        *(s64 *)(pkt + 0x60) = action->uid;
-        func_00194590(pkt, 1);
+        u8 *packet;
+        packet = (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)action->unit, 0);
+        *(s64 *)(packet + 0x60) = action->uid;
+        func_00194590(packet, 1);
     }
     action->flags |= 0x200;
-    if ((*(u8 *)(iGpffffb3b8 + idx * 0x28) & 2) != 0) {
-        s32 bf0;
+    if ((*(u8 *)(iGpffffb3b8 + skill * 0x28) & 2) != 0) {
+        s32 pairedTargets;
         UnitView *predicateUnit;
-        bf0 = func_001f0bf0((u8 *)action);
+        pairedTargets = func_001f0bf0((u8 *)action);
         predicateUnit = action->unit;
         do {
             switch (predicateUnit->kind) {
             case 0: {
                 u8 *data;
-                u16 half;
-                s32 var6;
+                u16 unitId;
+                s32 ranged;
                 u32 rangeTable;
                 u32 rangeOffset;
                 data = predicateUnit->data;
-                half = *(u16 *)(data + 2);
-                var6 = 1;
+                unitId = *(u16 *)(data + 2);
+                ranged = 1;
                 switch (predicateUnit->kind) {
                 case 0:
                     {
-                        s32 r;
-                        r = func_0023e1f0(data) & 0xFF;
-                        if (r == 5) {
-                            var6 = 1;
-                        } else if (r == 3 && ((*(u16 *)((u32)off + (u32)iGpffffb3bc + 2) & 0x8000) != 0 || bf0 == 0)) {
-                            var6 = 1;
+                        s32 classification;
+                        classification = func_0023e1f0(data) & 0xFF;
+                        if (classification == 5) {
+                            ranged = 1;
+                        } else if (classification == 3 && ((*(u16 *)((u32)skillOffset + (u32)iGpffffb3bc + 2) & 0x8000) != 0 || pairedTargets == 0)) {
+                            ranged = 1;
                         } else {
                             goto range_ineligible;
                         }
@@ -2630,30 +2624,30 @@ void func_001a4c80(u8 *arg0)
                     break;
                 case 1:
                     rangeTable = (u32)iGpffffb3cc;
-                    rangeOffset = (u32)half * 0xE8;
+                    rangeOffset = (u32)unitId * 0xE8;
                     if (*(s16 *)(rangeOffset + rangeTable + 0x22) == 1) {
-                        var6 = 1;
+                        ranged = 1;
                     } else {
                         goto range_ineligible;
                     }
                     break;
                 default:
 range_ineligible:
-                    var6 = 0;
+                    ranged = 0;
                     break;
                 }
-                if (var6 != 0) {
+                if (ranged != 0) {
                     ActionView *rangeTarget;
                     rangeTarget = action->target;
                     unit = action->unit;
-                    other = rangeTarget->unit;
-                    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0 && unit->kind != other->kind) {
+                    targetUnit = rangeTarget->unit;
+                    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0 && unit->kind != targetUnit->kind) {
                         proceed = 0;
                     } else {
-                        btlUnitGetSphereWorldCenter((BtlUnit *)unit, &spE0);
-                        func_00195c50((BtlUnit *)other, (BtlUnit *)unit, &spD0);
-                        if (func_001ec250(&spE0, &spD0) < 500.0f) {
-                            near = 1;
+                        btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
+                        func_00195c50((BtlUnit *)targetUnit, (BtlUnit *)unit, &targetCenter);
+                        if (func_001ec250(&unitCenter, &targetCenter) < 500.0f) {
+                            inRange = 1;
                             proceed = 0;
                         } else {
                             distance = 500.0f;
@@ -2666,12 +2660,12 @@ range_ineligible:
                 break;
             }
             {
-                s32 motion;
+                u16 motion;
                 unit = action->unit;
                 if (unit->kind == 0) {
-                    if ((*(u16 *)((u32)off + (u32)iGpffffb3bc + 2) & 0x8000) != 0) {
+                    if ((*(u16 *)((u32)skillOffset + (u32)iGpffffb3bc + 2) & 0x8000) != 0) {
                         motion = 7;
-                    } else if (bf0 != 0) {
+                    } else if (pairedTargets != 0) {
                         motion = 5;
                     } else {
                         motion = (u16)(func_001f0a50((u8 *)action) != 0 ? 0xC : 4);
@@ -2685,47 +2679,47 @@ range_done:
             ;
         } while (0);
         if ((action->flags & 0x4000) != 0) {
-            turn = 1;
+            reposition = 1;
         }
     } else {
         unit = action->unit;
         switch (unit->kind) {
         case 0:
             {
-                s32 gate2;
-                s32 spB0;
-                other = action->target->unit;
-                link = *(u8 **)((u8 *)unit + 0xA0C);
-                gate2 = func_001f0ff0((u32)action);
-                spB0 = func_00199d00((s32)link, (u8 *)unit, (s64)(s16)idx, gate2) & 0xFFFF;
-                gate = func_001f1210(link, (s64)(s16)idx, gate2);
-                btlUnitGetSphereWorldCenter((BtlUnit *)unit, &spE0);
-                func_00195c50((BtlUnit *)other, (BtlUnit *)unit, &spD0);
-                speed = func_001ec250(&spE0, &spD0);
+                s32 paired;
+                s32 openingMotion;
+                targetUnit = action->target->unit;
+                subunit = *(u8 **)((u8 *)unit + 0xA0C);
+                paired = func_001f0ff0((u32)action);
+                openingMotion = func_00199d00((s32)subunit, (u8 *)unit, (s16)skill, paired) & 0xFFFF;
+                canPosition = func_001f1210(subunit, (s16)skill, paired);
+                btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
+                func_00195c50((BtlUnit *)targetUnit, (BtlUnit *)unit, &targetCenter);
+                speed = func_001ec250(&unitCenter, &targetCenter);
                 speed = speed - unit->radius * unit->scale;
-                speed = speed - other->radius * other->scale;
-                if (gate == 0 || func_0022fb10() == 0 || speed < 300.0f || speed - 300.0f < 200.0f) {
+                speed = speed - targetUnit->radius * targetUnit->scale;
+                if (canPosition == 0 || func_0022fb10() == 0 || speed < 300.0f || speed - 300.0f < 200.0f) {
                     action->flags |= 0x10;
                     proceed = 0;
                 } else {
                     speed = speed + unit->radius * unit->scale;
-                    speed = speed + other->radius * other->scale;
-                    func_001951f0(link, (u8 *)unit, (u8 *)other, (s16)spB0, sp110.values, NULL, 2);
-                    distance = func_001ec250(&sp110.vector, &spD0);
+                    speed = speed + targetUnit->radius * targetUnit->scale;
+                    func_001951f0(subunit, (u8 *)unit, (u8 *)targetUnit, (s16)openingMotion, destination.values, NULL, 2);
+                    distance = func_001ec250(&destination.vector, &targetCenter);
                     {
                         f32 limit;
                         limit = 300.0f;
                         limit = limit + unit->radius * unit->scale;
-                        limit = limit + other->radius * other->scale;
+                        limit = limit + targetUnit->radius * targetUnit->scale;
                         if (distance < limit) {
                             distance = limit;
                         }
                     }
-                    func_001951f0(link, (u8 *)unit, NULL, -1, sp110.values, NULL, 0);
-                    spF0.x = sp110.vector.x - spE0.x;
-                    spF0.z = sp110.vector.z - spE0.z;
-                    spF0.y = 0.0f;
-                    distance = distance + RwV3dLength(&spF0);
+                    func_001951f0(subunit, (u8 *)unit, NULL, -1, destination.values, NULL, 0);
+                    homeOffset.x = destination.vector.x - unitCenter.x;
+                    homeOffset.z = destination.vector.z - unitCenter.z;
+                    homeOffset.y = 0.0f;
+                    distance = distance + RwV3dLength(&homeOffset);
                     if (speed < distance) {
                         action->flags |= 0x10;
                         proceed = 0;
@@ -2735,7 +2729,7 @@ range_done:
             break;
         case 1:
             {
-                s32 motion;
+                u16 motion;
                 motion = (u16)(func_001f0a50((u8 *)action) != 0 ? 0xC : 4);
                 distance = func_00196bd0((u8 *)action->unit, (u8 *)action->target->unit, motion);
             }
@@ -2747,60 +2741,60 @@ range_done:
     }
     func_001a03b0((s64 *)action);
     {
-        u16 tblIdx;
-        u16 unitIdx;
-        u16 turnFlag;
+        u16 speedIndex;
+        u16 unitId;
+        u16 speedVariant;
         u8 kind;
         u32 table;
         u32 offset;
         u32 record;
         u32 selector;
-        u8 *pkt;
+        u8 *packet;
         proceed = 0;
-        tblIdx = 2;
-        turnFlag = (u16)(!(*(u8 *)(iGpffffb3b8 + action->index * 0x28) & 2));
+        speedIndex = 2;
+        speedVariant = (u16)(!(*(u8 *)(iGpffffb3b8 + action->skill * 0x28) & 2));
         unit = action->unit;
-        unitIdx = *(u16 *)(unit->data + 2);
+        unitId = *(u16 *)(unit->data + 2);
         kind = unit->kind;
         switch (kind) {
         case 0:
             break;
         case 1:
             table = (u32)iGpffffb3cc;
-            offset = (u32)unitIdx * 0xE8;
+            offset = (u32)unitId * 0xE8;
             record = offset + table;
-            selector = (u16)turnFlag * 4;
-            tblIdx = *(u16 *)(selector + record + 0x24);
+            selector = (u16)speedVariant * 4;
+            speedIndex = *(u16 *)(selector + record + 0x24);
             break;
         }
-        speed = D_005F6D20[tblIdx];
-        if (turn == 1) {
-            if (near == 0) {
-                other = action->target->unit;
-                btlUnitGetSphereWorldCenter((BtlUnit *)unit, &spE0);
-                func_00195c50((BtlUnit *)other, (BtlUnit *)unit, &spD0);
-                sp100.x = spE0.x - spD0.x;
-                sp100.z = spE0.z - spD0.z;
-                sp100.y = 0.0f;
-                RwV3dNormalize(&sp100, &sp100);
+        speed = D_005F6D20[speedIndex];
+        if (reposition == 1) {
+            if (inRange == 0) {
+                targetUnit = action->target->unit;
+                btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
+                func_00195c50((BtlUnit *)targetUnit, (BtlUnit *)unit, &targetCenter);
+                awayDirection.x = unitCenter.x - targetCenter.x;
+                awayDirection.z = unitCenter.z - targetCenter.z;
+                awayDirection.y = 0.0f;
+                RwV3dNormalize(&awayDirection, &awayDirection);
                 {
                     f32 span;
                     span = unit->radius * unit->scale;
-                    span = span + other->radius * other->scale;
+                    span = span + targetUnit->radius * targetUnit->scale;
                     span = span + distance;
                     span = span + 50.0f;
-                    sp100.x = sp100.x * span;
-                    sp100.y = sp100.y * span;
-                    sp100.z = sp100.z * span;
+                    awayDirection.x = awayDirection.x * span;
+                    awayDirection.y = awayDirection.y * span;
+                    awayDirection.z = awayDirection.z * span;
                 }
-                sp110.vector.x = spD0.x + sp100.x;
-                sp110.vector.y = spD0.y + sp100.y;
-                sp110.vector.z = spD0.z + sp100.z;
-                sp110.vector.y = unit->y;
-                func_001ec1c0((u8 *)spC0, (u8 *)sp110.values, (u8 *)&spD0);
-                pkt = func_00195730((u8 *)unit, (u8 *)sp110.values, (u8 *)spC0, NULL);
-                *(s64 *)(pkt + 0x60) = action->uid;
-                func_00194590(pkt, 0);
+                destination.vector.x = targetCenter.x + awayDirection.x;
+                destination.vector.y = targetCenter.y + awayDirection.y;
+                destination.vector.z = targetCenter.z + awayDirection.z;
+                destination.vector.y = unit->y;
+                func_001ec1c0((u8 *)rotation, (u8 *)destination.values, (u8 *)&targetCenter);
+                packet = func_00195730((u8 *)unit, (u8 *)destination.values, (u8 *)rotation, NULL);
+                *(s64 *)(packet + 0x60) = action->uid;
+                func_00194590(packet, 0);
                 speed = speed * fGpffff8360;
                 proceed = proceed | 8;
             } else {
@@ -2810,18 +2804,18 @@ range_done:
         if (func_00243d80(action->target->unit->data) == 0) {
             proceed = proceed | 0x40;
         }
-        pkt = (u8 *)btlUnitCreateMoveToUnitPacket((BtlUnit *)action->unit, (BtlUnit *)action->target->unit, distance, speed, proceed);
-        *(s64 *)(pkt + 0x60) = action->uid;
-        func_00194590(pkt, 0);
-        if (pkt != NULL && near == 0) {
-            if (turn == 0) {
-                pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x16);
-                *(s64 *)(pkt + 0x60) = action->uid;
-                func_00194590(pkt, 0);
+        packet = (u8 *)btlUnitCreateMoveToUnitPacket((BtlUnit *)action->unit, (BtlUnit *)action->target->unit, distance, speed, proceed);
+        *(s64 *)(packet + 0x60) = action->uid;
+        func_00194590(packet, 0);
+        if (packet != NULL && inRange == 0) {
+            if (reposition == 0) {
+                packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x16);
+                *(s64 *)(packet + 0x60) = action->uid;
+                func_00194590(packet, 0);
             } else {
-                pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x17);
-                *(s64 *)(pkt + 0x60) = action->uid;
-                func_00194590(pkt, 0);
+                packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x17);
+                *(s64 *)(packet + 0x60) = action->uid;
+                func_00194590(packet, 0);
             }
         }
         action->flags &= 0xFFEF;
@@ -2829,9 +2823,6 @@ range_done:
 }
 
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a4c80);
-#endif
 // FUN_001A55A0
 void func_001a55a0(s64 *arg0) {
     u16 var_5;
@@ -2999,10 +2990,6 @@ void func_001a59a0(s64 *arg0) {
     extern u8 *func_00197cc0();
     extern u8 *btlUnitCreateRotatePacket();
     extern u8 *btlUnitCreateRotateTowardUnitPacket();
-    extern s32 func_001991c0();
-    extern s32 func_00199350();
-    extern s16 func_00199500();
-    extern s32 func_001999f0();
     extern u8 *btlUnitCreateAnimPacket();
     extern s32 func_001a0290();
     extern s32 func_001a03b0();
@@ -3976,11 +3963,6 @@ void func_001a7720(u8 *arg0) {
     extern s32 btlUnitCreateRotatePacket();
     extern s32 btlUnitCreateRotateTowardUnitPacket();
     extern s32 func_00198810();
-    extern s32 func_001991c0(u8 *arg0, s32 arg1, f32 arg2);
-    extern s32 func_00199350(u8 *arg0, s32 arg1, f32 arg2);
-    extern s32 func_00199500(u8 *arg0, s32 arg1, f32 arg2);
-    extern s32 func_001996d0();
-    extern s32 func_00199d00();
     extern s32 btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
     extern s32 func_0019a0c0();
     extern s32 func_0019a980();
@@ -4026,7 +4008,6 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001f0f70();
     extern s32 func_001f0ff0();
     extern s32 func_001f1030();
-    extern s32 func_001f11e0();
     extern s32 func_001f2f90();
     extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
     extern s32 func_001f3950();
@@ -4055,7 +4036,6 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_0022eba0();
     extern s32 func_0022f8b0();
     extern s32 func_0022f950();
-    extern s32 func_0022fa90();
     extern s32 func_0022fd30();
     extern s32 func_00230020();
     extern s32 datCalcGetHp();
@@ -6013,7 +5993,6 @@ void func_001abbb0(s64 *arg0)
     extern void func_001d3e00(u32 arg0);
     extern BtlPacket *func_00202010(u32 arg0, u16 arg1);
     extern u8 *func_001f3b20(u8 *arg0);
-    extern s16 func_001991c0(u8 *arg0, u16 arg1, f32 arg2);
     extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
     extern s32 func_001b7080(s32 arg0);
     extern s32 func_001b7090(s32 arg0);
@@ -6443,12 +6422,9 @@ void func_001ac700(u8 *action) {
 
     BtlPacket *func_00202010(u32 action, u16 arg1);
     BtlPacket *func_00202120(u32 action, u16 arg1);
-    s16 func_001991c0(u8 *action, u16 arg1, f32 arg2);
-    s16 func_00199500(u8 *action, u16 arg1, f32 arg2);
     BtlPacket *func_001b9360(s32 action, s16 mode);
     BtlPacket *func_001b7e20(u32 value);
     BtlPacket *func_001b99a0(s32 action);
-    s32 func_001f11e0(s64 action);
 
 
     struct {
