@@ -4,9 +4,8 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "message_procedure_api.h"
 
-// Donor calls this implicitly (no prototype), so keep the old-style form.
-extern s32 func_00277840();
 
 extern int *func_002e2240(int *, int *, int *);
 
@@ -30,7 +29,6 @@ extern s32 func_002774d0(s32);
 extern void func_00278610(s32, s32);
 extern void func_00278170(s32, s32);
 extern void func_002778c0(s32, s32, s32);
-extern void func_002818a0(s32, s32);
 extern u8 *func_002e1db0(s32, s32, s32, s32);
 
 extern u8 D_0063F398[];
@@ -57,12 +55,12 @@ extern s32 func_002bd220(void);
 
 
 // FUN_0027BE90
-void func_0027be90(u64 param_1, u32 param_2)
+void func_0027be90(s32 handle, void *userdata)
 {
     int iVar1;
 
-    iVar1 = func_00277840();
-    *(u32 *)(iVar1 + 0x18) = param_2;
+    iVar1 = func_00277840(handle);
+    *(void **)(iVar1 + 0x18) = userdata;
 }
 
 
