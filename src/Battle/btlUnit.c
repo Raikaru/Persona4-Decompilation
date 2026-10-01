@@ -1083,7 +1083,7 @@ s32 func_0019ae20(u8 *arg0) {
     u8 *t4;
     u8 *made;
     s32 t2;
-    s32 v2;
+    u16 v2;
     f32 speed;
     s16 v2_2;
     s16 s5;
@@ -1656,7 +1656,6 @@ struct BtlUnitPacket00284900
     f32 phase;
 };
 
-s16 func_00199500(BtlUnit* unit, u16 id, f32 scale);
 s16 func_00198810(BtlUnit* unit);
 u16 func_00231d70(u32 max);
 void func_00199890(BtlUnit* unit, s32 param_2);
@@ -1755,7 +1754,7 @@ void func_001987a0(BtlUnit* unit)
     s16 animation;
 
     animation = (s16)func_00199500(
-        unit, (u16)(s32)func_00198810(unit), 1.0f);
+        (u8 *)unit, (u16)(s32)func_00198810(unit), 1.0f);
     animation = (s16)func_00231d70(animation);
     func_00199890(unit, animation);
 }

@@ -1,0 +1,442 @@
+{
+  "baseline": "a78c378b3da3cc826aea3c66462ee1f07f287759",
+  "build_succeeded": true,
+  "linked_tu_count": 658,
+  "linked_function_count": 8586,
+  "prior_units_preserved": true,
+  "prior_function_records_preserved": true,
+  "lost_function_records": [],
+  "new_function_records": [],
+  "image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "baseline_report_sha256": "710667bbcede226f03348759a9d3695f46283422cfbe7674a0264f2c319d18ea",
+  "final_report_sha256": "710667bbcede226f03348759a9d3695f46283422cfbe7674a0264f2c319d18ea",
+  "target_owner_records": [
+    {
+      "address": "001a0140",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a0140",
+      "origin": "main"
+    },
+    {
+      "address": "001a0290",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a0290",
+      "origin": "main"
+    },
+    {
+      "address": "001a03b0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a03b0",
+      "origin": "main"
+    },
+    {
+      "address": "001a05f0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a05f0",
+      "origin": "main"
+    },
+    {
+      "address": "001a0640",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a0640",
+      "origin": "main"
+    },
+    {
+      "address": "001a0650",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a0650",
+      "origin": "main"
+    },
+    {
+      "address": "001a0660",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a0660",
+      "origin": "main"
+    },
+    {
+      "address": "001a0670",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a0670",
+      "origin": "main"
+    },
+    {
+      "address": "001a06d0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a06d0",
+      "origin": "main"
+    },
+    {
+      "address": "001a0b00",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a0b00",
+      "origin": "main"
+    },
+    {
+      "address": "001a0f40",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a0f40",
+      "origin": "main"
+    },
+    {
+      "address": "001a1450",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a1450",
+      "origin": "main"
+    },
+    {
+      "address": "001a17d0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a17d0",
+      "origin": "main"
+    },
+    {
+      "address": "001a1c80",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a1c80",
+      "origin": "main"
+    },
+    {
+      "address": "001a1ea0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a1ea0",
+      "origin": "main"
+    },
+    {
+      "address": "001a24a0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a24a0",
+      "origin": "main"
+    },
+    {
+      "address": "001a24b0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a24b0",
+      "origin": "main"
+    },
+    {
+      "address": "001a2ad0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a2ad0",
+      "origin": "main"
+    },
+    {
+      "address": "001a2b50",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a2b50",
+      "origin": "main"
+    },
+    {
+      "address": "001a2c10",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a2c10",
+      "origin": "main"
+    },
+    {
+      "address": "001a2c70",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a2c70",
+      "origin": "main"
+    },
+    {
+      "address": "001a2d60",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a2d60",
+      "origin": "main"
+    },
+    {
+      "address": "001a2d70",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a2d70",
+      "origin": "main"
+    },
+    {
+      "address": "001a31a0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a31a0",
+      "origin": "main"
+    },
+    {
+      "address": "001a31e0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a31e0",
+      "origin": "main"
+    },
+    {
+      "address": "001a3840",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a3840",
+      "origin": "main"
+    },
+    {
+      "address": "001a3d50",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a3d50",
+      "origin": "main"
+    },
+    {
+      "address": "001a3de0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a3de0",
+      "origin": "main"
+    },
+    {
+      "address": "001a3df0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a3df0",
+      "origin": "main"
+    },
+    {
+      "address": "001a3f90",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a3f90",
+      "origin": "main"
+    },
+    {
+      "address": "001a4390",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a4390",
+      "origin": "main"
+    },
+    {
+      "address": "001a43a0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a43a0",
+      "origin": "main"
+    },
+    {
+      "address": "001a47f0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a47f0",
+      "origin": "main"
+    },
+    {
+      "address": "001a4800",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a4800",
+      "origin": "main"
+    },
+    {
+      "address": "001a4c80",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a4c80",
+      "origin": "main"
+    },
+    {
+      "address": "001a55a0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a55a0",
+      "origin": "main"
+    },
+    {
+      "address": "001a5650",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a5650",
+      "origin": "main"
+    },
+    {
+      "address": "001a58e0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a58e0",
+      "origin": "main"
+    },
+    {
+      "address": "001a5990",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a5990",
+      "origin": "main"
+    },
+    {
+      "address": "001a59a0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a59a0",
+      "origin": "main"
+    },
+    {
+      "address": "001a7710",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a7710",
+      "origin": "main"
+    },
+    {
+      "address": "001a7720",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001a7720",
+      "origin": "main"
+    },
+    {
+      "address": "001abba0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001abba0",
+      "origin": "main"
+    },
+    {
+      "address": "001abbb0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001abbb0",
+      "origin": "main"
+    },
+    {
+      "address": "001ac500",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ac500",
+      "origin": "main"
+    },
+    {
+      "address": "001ac5b0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ac5b0",
+      "origin": "main"
+    },
+    {
+      "address": "001ac620",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ac620",
+      "origin": "main"
+    },
+    {
+      "address": "001ac6a0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ac6a0",
+      "origin": "main"
+    },
+    {
+      "address": "001ac6f0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ac6f0",
+      "origin": "main"
+    },
+    {
+      "address": "001ac700",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ac700",
+      "origin": "main"
+    },
+    {
+      "address": "001acb10",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001acb10",
+      "origin": "main"
+    },
+    {
+      "address": "001acbb0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001acbb0",
+      "origin": "main"
+    },
+    {
+      "address": "001acf40",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001acf40",
+      "origin": "main"
+    },
+    {
+      "address": "001acf50",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001acf50",
+      "origin": "main"
+    },
+    {
+      "address": "001ad280",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ad280",
+      "origin": "main"
+    },
+    {
+      "address": "001ad3e0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ad3e0",
+      "origin": "main"
+    },
+    {
+      "address": "001ad540",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ad540",
+      "origin": "main"
+    },
+    {
+      "address": "001ad550",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ad550",
+      "origin": "main"
+    },
+    {
+      "address": "001adb80",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001adb80",
+      "origin": "main"
+    },
+    {
+      "address": "001ade10",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ade10",
+      "origin": "main"
+    },
+    {
+      "address": "001ade90",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ade90",
+      "origin": "main"
+    },
+    {
+      "address": "001adea0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001adea0",
+      "origin": "main"
+    },
+    {
+      "address": "001ae3c0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ae3c0",
+      "origin": "main"
+    },
+    {
+      "address": "001ae3d0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ae3d0",
+      "origin": "main"
+    },
+    {
+      "address": "001ae800",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001ae800",
+      "origin": "main"
+    },
+    {
+      "address": "001aec20",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001aec20",
+      "origin": "main"
+    },
+    {
+      "address": "001aed50",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001aed50",
+      "origin": "main"
+    },
+    {
+      "address": "001af9d0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001af9d0",
+      "origin": "main"
+    },
+    {
+      "address": "001af9e0",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001af9e0",
+      "origin": "main"
+    },
+    {
+      "address": "001afa50",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001afa50",
+      "origin": "main"
+    },
+    {
+      "address": "001afb50",
+      "file": "src/promoted/code1_001a.c",
+      "name": "func_001afb50",
+      "origin": "main"
+    }
+  ]
+}

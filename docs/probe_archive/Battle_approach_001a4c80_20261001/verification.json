@@ -1,0 +1,7862 @@
+{
+  "summary": {
+    "MATCH": 774,
+    "ASM": 10
+  },
+  "summary_first_party": {
+    "MATCH": 774,
+    "ASM": 10
+  },
+  "results": [
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a0140",
+      "name": "func_001a0140",
+      "line": 211,
+      "object_size": 332,
+      "window": 336,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a0290",
+      "name": "func_001a0290",
+      "line": 294,
+      "object_size": 288,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a03b0",
+      "name": "func_001a03b0",
+      "line": 339,
+      "object_size": 568,
+      "window": 576,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a05f0",
+      "name": "func_001a05f0",
+      "line": 408,
+      "object_size": 80,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a0640",
+      "name": "func_001a0640",
+      "line": 430,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a0650",
+      "name": "func_001a0650",
+      "line": 435,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a0660",
+      "name": "func_001a0660",
+      "line": 440,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a0670",
+      "name": "func_001a0670",
+      "line": 445,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a06d0",
+      "name": "func_001a06d0",
+      "line": 462,
+      "object_size": 1064,
+      "window": 1072,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a0b00",
+      "name": "func_001a0b00",
+      "line": 562,
+      "object_size": 1088,
+      "window": 1088,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a0f40",
+      "name": "func_001a0f40",
+      "line": 688,
+      "object_size": 440,
+      "window": 448,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a1450",
+      "name": "func_001a1450",
+      "line": 742,
+      "object_size": 892,
+      "window": 896,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a17d0",
+      "name": "func_001a17d0",
+      "line": 856,
+      "object_size": 1192,
+      "window": 1200,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a1c80",
+      "name": "func_001a1c80",
+      "line": 979,
+      "object_size": 540,
+      "window": 544,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a1ea0",
+      "name": "func_001a1ea0",
+      "line": 1070,
+      "object_size": 1528,
+      "window": 1536,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a24a0",
+      "name": "func_001a24a0",
+      "line": 1243,
+      "object_size": 16,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a24b0",
+      "name": "func_001a24b0",
+      "line": 1251,
+      "object_size": 1564,
+      "window": 1568,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a2ad0",
+      "name": "func_001a2ad0",
+      "line": 1427,
+      "object_size": 116,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a2b50",
+      "name": "func_001a2b50",
+      "line": 1442,
+      "object_size": 188,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a2c10",
+      "name": "func_001a2c10",
+      "line": 1461,
+      "object_size": 88,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a2c70",
+      "name": "func_001a2c70",
+      "line": 1470,
+      "object_size": 240,
+      "window": 240,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a2d60",
+      "name": "func_001a2d60",
+      "line": 1491,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a2d70",
+      "name": "func_001a2d70",
+      "line": 1503,
+      "object_size": 1072,
+      "window": 1072,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a31a0",
+      "name": "func_001a31a0",
+      "line": 1665,
+      "object_size": 56,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a31e0",
+      "name": "func_001a31e0",
+      "line": 1676,
+      "object_size": 1632,
+      "window": 1632,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a3840",
+      "name": "func_001a3840",
+      "line": 1874,
+      "object_size": 1296,
+      "window": 1296,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a3d50",
+      "name": "func_001a3d50",
+      "line": 2047,
+      "object_size": 144,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a3de0",
+      "name": "func_001a3de0",
+      "line": 2057,
+      "object_size": 12,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a3df0",
+      "name": "func_001a3df0",
+      "line": 2063,
+      "object_size": 404,
+      "window": 416,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a3f90",
+      "name": "func_001a3f90",
+      "line": 2112,
+      "object_size": 1016,
+      "window": 1024,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a4390",
+      "name": "func_001a4390",
+      "line": 2200,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a43a0",
+      "name": "func_001a43a0",
+      "line": 2226,
+      "object_size": 1092,
+      "window": 1104,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a47f0",
+      "name": "func_001a47f0",
+      "line": 2364,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a4800",
+      "name": "func_001a4800",
+      "line": 2383,
+      "object_size": 1148,
+      "window": 1152,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a4c80",
+      "name": "func_001a4c80",
+      "line": 2507,
+      "object_size": 2336,
+      "window": 2336,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a55a0",
+      "name": "func_001a55a0",
+      "line": 2826,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a5650",
+      "name": "func_001a5650",
+      "line": 2857,
+      "object_size": 656,
+      "window": 656,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a58e0",
+      "name": "func_001a58e0",
+      "line": 2951,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a5990",
+      "name": "func_001a5990",
+      "line": 2977,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a59a0",
+      "name": "func_001a59a0",
+      "line": 2985,
+      "object_size": 7536,
+      "window": 7536,
+      "normalized_diff": 0,
+      "status": "ASM",
+      "detail": "assembly fallback; not yet decompiled to C"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a7710",
+      "name": "func_001a7710",
+      "line": 3903,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001a7720",
+      "name": "func_001a7720",
+      "line": 3951,
+      "object_size": 17536,
+      "window": 17536,
+      "normalized_diff": 0,
+      "status": "ASM",
+      "detail": "assembly fallback; not yet decompiled to C"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001abba0",
+      "name": "func_001abba0",
+      "line": 5976,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001abbb0",
+      "name": "func_001abbb0",
+      "line": 5984,
+      "object_size": 2384,
+      "window": 2384,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ac500",
+      "name": "func_001ac500",
+      "line": 6346,
+      "object_size": 176,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ac5b0",
+      "name": "func_001ac5b0",
+      "line": 6366,
+      "object_size": 104,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ac620",
+      "name": "func_001ac620",
+      "line": 6374,
+      "object_size": 120,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ac6a0",
+      "name": "func_001ac6a0",
+      "line": 6389,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ac6f0",
+      "name": "func_001ac6f0",
+      "line": 6396,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ac700",
+      "name": "func_001ac700",
+      "line": 6414,
+      "object_size": 1036,
+      "window": 1040,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001acb10",
+      "name": "func_001acb10",
+      "line": 6575,
+      "object_size": 152,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001acbb0",
+      "name": "func_001acbb0",
+      "line": 6598,
+      "object_size": 900,
+      "window": 912,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001acf40",
+      "name": "func_001acf40",
+      "line": 6726,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001acf50",
+      "name": "func_001acf50",
+      "line": 6730,
+      "object_size": 816,
+      "window": 816,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ad280",
+      "name": "func_001ad280",
+      "line": 6816,
+      "object_size": 348,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ad3e0",
+      "name": "func_001ad3e0",
+      "line": 6852,
+      "object_size": 344,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ad540",
+      "name": "func_001ad540",
+      "line": 6893,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ad550",
+      "name": "func_001ad550",
+      "line": 6901,
+      "object_size": 1580,
+      "window": 1584,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001adb80",
+      "name": "func_001adb80",
+      "line": 7114,
+      "object_size": 644,
+      "window": 656,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ade10",
+      "name": "func_001ade10",
+      "line": 7199,
+      "object_size": 128,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ade90",
+      "name": "func_001ade90",
+      "line": 7211,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001adea0",
+      "name": "func_001adea0",
+      "line": 7220,
+      "object_size": 1312,
+      "window": 1312,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ae3c0",
+      "name": "func_001ae3c0",
+      "line": 7377,
+      "object_size": 12,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ae3d0",
+      "name": "func_001ae3d0",
+      "line": 7395,
+      "object_size": 1072,
+      "window": 1072,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001ae800",
+      "name": "func_001ae800",
+      "line": 7513,
+      "object_size": 1052,
+      "window": 1056,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001aec20",
+      "name": "func_001aec20",
+      "line": 7626,
+      "object_size": 304,
+      "window": 304,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001aed50",
+      "name": "func_001aed50",
+      "line": 7688,
+      "object_size": 3196,
+      "window": 3200,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001af9d0",
+      "name": "func_001af9d0",
+      "line": 8078,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001af9e0",
+      "name": "func_001af9e0",
+      "line": 8082,
+      "object_size": 100,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001afa50",
+      "name": "func_001afa50",
+      "line": 8089,
+      "object_size": 252,
+      "window": 256,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001a.c",
+      "addr": "001afb50",
+      "name": "func_001afb50",
+      "line": 8116,
+      "object_size": 1228,
+      "window": 1232,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001900a0",
+      "name": "func_001900a0",
+      "line": 324,
+      "object_size": 132,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00190130",
+      "name": "func_00190130",
+      "line": 342,
+      "object_size": 160,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00191e20",
+      "name": "func_00191e20",
+      "line": 354,
+      "object_size": 100,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001927c0",
+      "name": "func_001927c0",
+      "line": 364,
+      "object_size": 248,
+      "window": 256,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001928c0",
+      "name": "func_001928c0",
+      "line": 393,
+      "object_size": 508,
+      "window": 512,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00192ac0",
+      "name": "func_00192ac0",
+      "line": 457,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00192ae0",
+      "name": "func_00192ae0",
+      "line": 461,
+      "object_size": 60,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00192b20",
+      "name": "func_00192b20",
+      "line": 467,
+      "object_size": 108,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00192b90",
+      "name": "func_00192b90",
+      "line": 483,
+      "object_size": 308,
+      "window": 320,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00192cd0",
+      "name": "func_00192cd0",
+      "line": 509,
+      "object_size": 436,
+      "window": 448,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00192e90",
+      "name": "func_00192e90",
+      "line": 557,
+      "object_size": 460,
+      "window": 464,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193060",
+      "name": "func_00193060",
+      "line": 603,
+      "object_size": 500,
+      "window": 512,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193260",
+      "name": "func_00193260",
+      "line": 677,
+      "object_size": 144,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001932f0",
+      "name": "func_001932f0",
+      "line": 698,
+      "object_size": 352,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193450",
+      "name": "func_00193450",
+      "line": 743,
+      "object_size": 356,
+      "window": 368,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001935c0",
+      "name": "func_001935c0",
+      "line": 786,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193630",
+      "name": "func_00193630",
+      "line": 791,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001936a0",
+      "name": "func_001936a0",
+      "line": 804,
+      "object_size": 84,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193700",
+      "name": "func_00193700",
+      "line": 812,
+      "object_size": 36,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193730",
+      "name": "func_00193730",
+      "line": 824,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193840",
+      "name": "func_00193840",
+      "line": 831,
+      "object_size": 348,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001939a0",
+      "name": "func_001939a0",
+      "line": 875,
+      "object_size": 56,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001939e0",
+      "name": "func_001939e0",
+      "line": 882,
+      "object_size": 152,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193a80",
+      "name": "func_00193a80",
+      "line": 914,
+      "object_size": 80,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193ad0",
+      "name": "func_00193ad0",
+      "line": 922,
+      "object_size": 152,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193b70",
+      "name": "func_00193b70",
+      "line": 941,
+      "object_size": 116,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193bf0",
+      "name": "func_00193bf0",
+      "line": 964,
+      "object_size": 116,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193c70",
+      "name": "func_00193c70",
+      "line": 989,
+      "object_size": 92,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193cd0",
+      "name": "func_00193cd0",
+      "line": 1009,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193d30",
+      "name": "func_00193d30",
+      "line": 1032,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00193d90",
+      "name": "func_00193d90",
+      "line": 1112,
+      "object_size": 1752,
+      "window": 1760,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00194470",
+      "name": "func_00194470",
+      "line": 1223,
+      "object_size": 284,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00194590",
+      "name": "func_00194590",
+      "line": 1265,
+      "object_size": 204,
+      "window": 208,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00194660",
+      "name": "func_00194660",
+      "line": 1303,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00194670",
+      "name": "func_00194670",
+      "line": 1323,
+      "object_size": 852,
+      "window": 864,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001949d0",
+      "name": "func_001949d0",
+      "line": 1440,
+      "object_size": 92,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00194a30",
+      "name": "func_00194a30",
+      "line": 1458,
+      "object_size": 284,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00194b50",
+      "name": "func_00194b50",
+      "line": 1508,
+      "object_size": 12,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00194b60",
+      "name": "func_00194b60",
+      "line": 1516,
+      "object_size": 252,
+      "window": 256,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00194ff0",
+      "name": "func_00194ff0",
+      "line": 1557,
+      "object_size": 500,
+      "window": 512,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001951f0",
+      "name": "func_001951f0",
+      "line": 1627,
+      "object_size": 828,
+      "window": 832,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00195530",
+      "name": "func_00195530",
+      "line": 1712,
+      "object_size": 88,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00195610",
+      "name": "func_00195610",
+      "line": 1723,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00195710",
+      "name": "func_00195710",
+      "line": 1730,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00195730",
+      "name": "func_00195730",
+      "line": 1736,
+      "object_size": 284,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00196b70",
+      "name": "func_00196b70",
+      "line": 1763,
+      "object_size": 36,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00196ba0",
+      "name": "func_00196ba0",
+      "line": 1768,
+      "object_size": 36,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00196bd0",
+      "name": "func_00196bd0",
+      "line": 1773,
+      "object_size": 268,
+      "window": 272,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00196ce0",
+      "name": "func_00196ce0",
+      "line": 1802,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00196d00",
+      "name": "func_00196d00",
+      "line": 1815,
+      "object_size": 1736,
+      "window": 1744,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001973d0",
+      "name": "func_001973d0",
+      "line": 2011,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00197a80",
+      "name": "func_00197a80",
+      "line": 2019,
+      "object_size": 564,
+      "window": 576,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00197cc0",
+      "name": "func_00197cc0",
+      "line": 2073,
+      "object_size": 144,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00197d50",
+      "name": "func_00197d50",
+      "line": 2088,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00197d70",
+      "name": "func_00197d70",
+      "line": 2094,
+      "object_size": 440,
+      "window": 448,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00197f30",
+      "name": "func_00197f30",
+      "line": 2147,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00198380",
+      "name": "func_00198380",
+      "line": 2163,
+      "object_size": 1044,
+      "window": 1056,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00198810",
+      "name": "func_00198810",
+      "line": 2262,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00198840",
+      "name": "func_00198840",
+      "line": 2269,
+      "object_size": 104,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001988b0",
+      "name": "func_001988b0",
+      "line": 2290,
+      "object_size": 100,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00198920",
+      "name": "func_00198920",
+      "line": 2335,
+      "object_size": 1196,
+      "window": 1200,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00198dd0",
+      "name": "func_00198dd0",
+      "line": 2446,
+      "object_size": 764,
+      "window": 768,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001990d0",
+      "name": "func_001990d0",
+      "line": 2554,
+      "object_size": 240,
+      "window": 240,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001991c0",
+      "name": "func_001991c0",
+      "line": 2596,
+      "object_size": 400,
+      "window": 400,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00199350",
+      "name": "func_00199350",
+      "line": 2647,
+      "object_size": 420,
+      "window": 432,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00199500",
+      "name": "func_00199500",
+      "line": 2705,
+      "object_size": 456,
+      "window": 464,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001996d0",
+      "name": "func_001996d0",
+      "line": 2762,
+      "object_size": 344,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00199830",
+      "name": "func_00199830",
+      "line": 2815,
+      "object_size": 88,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00199890",
+      "name": "func_00199890",
+      "line": 2825,
+      "object_size": 68,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001998e0",
+      "name": "func_001998e0",
+      "line": 2834,
+      "object_size": 268,
+      "window": 272,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "001999f0",
+      "name": "func_001999f0",
+      "line": 2899,
+      "object_size": 776,
+      "window": 784,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00199d00",
+      "name": "func_00199d00",
+      "line": 3014,
+      "object_size": 336,
+      "window": 336,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00199e50",
+      "name": "func_00199e50",
+      "line": 3054,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00199e70",
+      "name": "func_00199e70",
+      "line": 3060,
+      "object_size": 80,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "00199ec0",
+      "name": "func_00199ec0",
+      "line": 3080,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019a010",
+      "name": "func_0019a010",
+      "line": 3086,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019a030",
+      "name": "func_0019a030",
+      "line": 3092,
+      "object_size": 108,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019a0a0",
+      "name": "func_0019a0a0",
+      "line": 3117,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019a130",
+      "name": "func_0019a130",
+      "line": 3123,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019a150",
+      "name": "func_0019a150",
+      "line": 3129,
+      "object_size": 356,
+      "window": 368,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019a2c0",
+      "name": "func_0019a2c0",
+      "line": 3163,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019a660",
+      "name": "func_0019a660",
+      "line": 3169,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019a680",
+      "name": "func_0019a680",
+      "line": 3175,
+      "object_size": 448,
+      "window": 448,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019a840",
+      "name": "func_0019a840",
+      "line": 3240,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019a8d0",
+      "name": "func_0019a8d0",
+      "line": 3246,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019a8f0",
+      "name": "func_0019a8f0",
+      "line": 3252,
+      "object_size": 108,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019a960",
+      "name": "func_0019a960",
+      "line": 3273,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019a9e0",
+      "name": "func_0019a9e0",
+      "line": 3279,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019aa00",
+      "name": "func_0019aa00",
+      "line": 3285,
+      "object_size": 80,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019aa50",
+      "name": "func_0019aa50",
+      "line": 3298,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019aae0",
+      "name": "func_0019aae0",
+      "line": 3304,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019ab00",
+      "name": "func_0019ab00",
+      "line": 3310,
+      "object_size": 276,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019ac20",
+      "name": "func_0019ac20",
+      "line": 3340,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019b530",
+      "name": "func_0019b530",
+      "line": 3346,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019b550",
+      "name": "func_0019b550",
+      "line": 3352,
+      "object_size": 204,
+      "window": 208,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019b620",
+      "name": "func_0019b620",
+      "line": 3372,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019b640",
+      "name": "func_0019b640",
+      "line": 3378,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019b680",
+      "name": "func_0019b680",
+      "line": 3387,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019b710",
+      "name": "func_0019b710",
+      "line": 3393,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019b730",
+      "name": "func_0019b730",
+      "line": 3522,
+      "object_size": 1164,
+      "window": 1168,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019bbc0",
+      "name": "func_0019bbc0",
+      "line": 3610,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019bc90",
+      "name": "func_0019bc90",
+      "line": 3616,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019bcb0",
+      "name": "func_0019bcb0",
+      "line": 3622,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019bce0",
+      "name": "func_0019bce0",
+      "line": 3627,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019bd60",
+      "name": "func_0019bd60",
+      "line": 3633,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019bd80",
+      "name": "func_0019bd80",
+      "line": 3639,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019bdb0",
+      "name": "func_0019bdb0",
+      "line": 3644,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019be30",
+      "name": "func_0019be30",
+      "line": 3650,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019be50",
+      "name": "func_0019be50",
+      "line": 3656,
+      "object_size": 52,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019be90",
+      "name": "func_0019be90",
+      "line": 3666,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019beb0",
+      "name": "func_0019beb0",
+      "line": 3672,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019bf10",
+      "name": "func_0019bf10",
+      "line": 3685,
+      "object_size": 100,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019bf80",
+      "name": "func_0019bf80",
+      "line": 3701,
+      "object_size": 132,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019c010",
+      "name": "func_0019c010",
+      "line": 3721,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019c0d0",
+      "name": "func_0019c0d0",
+      "line": 3799,
+      "object_size": 3808,
+      "window": 3808,
+      "normalized_diff": 0,
+      "status": "ASM",
+      "detail": "assembly fallback; not yet decompiled to C"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019cfb0",
+      "name": "func_0019cfb0",
+      "line": 4028,
+      "object_size": 132,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019d040",
+      "name": "func_0019d040",
+      "line": 4053,
+      "object_size": 124,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019d0c0",
+      "name": "func_0019d0c0",
+      "line": 4067,
+      "object_size": 100,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019d150",
+      "name": "func_0019d150",
+      "line": 4077,
+      "object_size": 184,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019d210",
+      "name": "func_0019d210",
+      "line": 4099,
+      "object_size": 424,
+      "window": 432,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019d3c0",
+      "name": "func_0019d3c0",
+      "line": 4156,
+      "object_size": 288,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019d4e0",
+      "name": "func_0019d4e0",
+      "line": 4187,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019d550",
+      "name": "func_0019d550",
+      "line": 4210,
+      "object_size": 288,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019d670",
+      "name": "func_0019d670",
+      "line": 4256,
+      "object_size": 304,
+      "window": 304,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019d7a0",
+      "name": "func_0019d7a0",
+      "line": 4295,
+      "object_size": 488,
+      "window": 496,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019d990",
+      "name": "func_0019d990",
+      "line": 4363,
+      "object_size": 420,
+      "window": 432,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019db40",
+      "name": "func_0019db40",
+      "line": 4415,
+      "object_size": 812,
+      "window": 816,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019dea0",
+      "name": "func_0019dea0",
+      "line": 4506,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019df00",
+      "name": "func_0019df00",
+      "line": 4517,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019df20",
+      "name": "func_0019df20",
+      "line": 4529,
+      "object_size": 520,
+      "window": 528,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019e130",
+      "name": "func_0019e130",
+      "line": 4604,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019e830",
+      "name": "func_0019e830",
+      "line": 4613,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019e850",
+      "name": "func_0019e850",
+      "line": 4622,
+      "object_size": 372,
+      "window": 384,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019e9d0",
+      "name": "func_0019e9d0",
+      "line": 4666,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019e9f0",
+      "name": "func_0019e9f0",
+      "line": 4675,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019ea60",
+      "name": "func_0019ea60",
+      "line": 4692,
+      "object_size": 820,
+      "window": 832,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019eda0",
+      "name": "func_0019eda0",
+      "line": 4770,
+      "object_size": 388,
+      "window": 400,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019ef30",
+      "name": "func_0019ef30",
+      "line": 4817,
+      "object_size": 92,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019ef90",
+      "name": "func_0019ef90",
+      "line": 4826,
+      "object_size": 76,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019efe0",
+      "name": "func_0019efe0",
+      "line": 4850,
+      "object_size": 100,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019f050",
+      "name": "func_0019f050",
+      "line": 4871,
+      "object_size": 148,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019f0f0",
+      "name": "func_0019f0f0",
+      "line": 4897,
+      "object_size": 216,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019f1d0",
+      "name": "func_0019f1d0",
+      "line": 4939,
+      "object_size": 1044,
+      "window": 1056,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019f5f0",
+      "name": "func_0019f5f0",
+      "line": 5066,
+      "object_size": 684,
+      "window": 688,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019f8a0",
+      "name": "func_0019f8a0",
+      "line": 5155,
+      "object_size": 412,
+      "window": 416,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019fa40",
+      "name": "func_0019fa40",
+      "line": 5196,
+      "object_size": 172,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019faf0",
+      "name": "func_0019faf0",
+      "line": 5225,
+      "object_size": 356,
+      "window": 368,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019fc60",
+      "name": "func_0019fc60",
+      "line": 5261,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019fc70",
+      "name": "func_0019fc70",
+      "line": 5267,
+      "object_size": 496,
+      "window": 496,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019fe60",
+      "name": "func_0019fe60",
+      "line": 5346,
+      "object_size": 248,
+      "window": 256,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0019.c",
+      "addr": "0019ff60",
+      "name": "func_0019ff60",
+      "line": 5391,
+      "object_size": 476,
+      "window": 480,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f01a0",
+      "name": "func_001f01a0",
+      "line": 172,
+      "object_size": 192,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f0260",
+      "name": "func_001f0260",
+      "line": 199,
+      "object_size": 940,
+      "window": 944,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f0620",
+      "name": "func_001f0620",
+      "line": 288,
+      "object_size": 664,
+      "window": 672,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f08c0",
+      "name": "func_001f08c0",
+      "line": 343,
+      "object_size": 140,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f0950",
+      "name": "func_001f0950",
+      "line": 368,
+      "object_size": 188,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f0a10",
+      "name": "func_001f0a10",
+      "line": 382,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f0a50",
+      "name": "func_001f0a50",
+      "line": 389,
+      "object_size": 148,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f0af0",
+      "name": "func_001f0af0",
+      "line": 425,
+      "object_size": 152,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f0b90",
+      "name": "func_001f0b90",
+      "line": 462,
+      "object_size": 92,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f0bf0",
+      "name": "func_001f0bf0",
+      "line": 486,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f0c50",
+      "name": "func_001f0c50",
+      "line": 511,
+      "object_size": 224,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f0d30",
+      "name": "func_001f0d30",
+      "line": 559,
+      "object_size": 152,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f0dd0",
+      "name": "func_001f0dd0",
+      "line": 598,
+      "object_size": 416,
+      "window": 416,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f0f70",
+      "name": "func_001f0f70",
+      "line": 688,
+      "object_size": 120,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f0ff0",
+      "name": "func_001f0ff0",
+      "line": 714,
+      "object_size": 60,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f1030",
+      "name": "func_001f1030",
+      "line": 725,
+      "object_size": 420,
+      "window": 432,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f11e0",
+      "name": "func_001f11e0",
+      "line": 795,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f1210",
+      "name": "func_001f1210",
+      "line": 803,
+      "object_size": 148,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f12b0",
+      "name": "func_001f12b0",
+      "line": 823,
+      "object_size": 564,
+      "window": 576,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f14f0",
+      "name": "func_001f14f0",
+      "line": 920,
+      "object_size": 6096,
+      "window": 6096,
+      "normalized_diff": 0,
+      "status": "ASM",
+      "detail": "assembly fallback; not yet decompiled to C"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f2cc0",
+      "name": "func_001f2cc0",
+      "line": 1620,
+      "object_size": 496,
+      "window": 496,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f2eb0",
+      "name": "func_001f2eb0",
+      "line": 1696,
+      "object_size": 224,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f2f90",
+      "name": "func_001f2f90",
+      "line": 1719,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f3870",
+      "name": "func_001f3870",
+      "line": 1730,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f38e0",
+      "name": "func_001f38e0",
+      "line": 1748,
+      "object_size": 28,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f3900",
+      "name": "func_001f3900",
+      "line": 1756,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f3950",
+      "name": "func_001f3950",
+      "line": 1761,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f39b0",
+      "name": "func_001f39b0",
+      "line": 1774,
+      "object_size": 28,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f39d0",
+      "name": "func_001f39d0",
+      "line": 1782,
+      "object_size": 304,
+      "window": 304,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f3b20",
+      "name": "func_001f3b20",
+      "line": 1835,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f3b80",
+      "name": "func_001f3b80",
+      "line": 1848,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f3bb0",
+      "name": "func_001f3bb0",
+      "line": 1865,
+      "object_size": 932,
+      "window": 944,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f3f60",
+      "name": "func_001f3f60",
+      "line": 2019,
+      "object_size": 104,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f3fe0",
+      "name": "func_001f3fe0",
+      "line": 2034,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4010",
+      "name": "func_001f4010",
+      "line": 2042,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4040",
+      "name": "func_001f4040",
+      "line": 2050,
+      "object_size": 88,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f40a0",
+      "name": "func_001f40a0",
+      "line": 2061,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4100",
+      "name": "func_001f4100",
+      "line": 2075,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f41b0",
+      "name": "func_001f41b0",
+      "line": 2105,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f41e0",
+      "name": "func_001f41e0",
+      "line": 2113,
+      "object_size": 100,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f42a0",
+      "name": "func_001f42a0",
+      "line": 2129,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f42d0",
+      "name": "func_001f42d0",
+      "line": 2136,
+      "object_size": 84,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4330",
+      "name": "func_001f4330",
+      "line": 2146,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4380",
+      "name": "func_001f4380",
+      "line": 2158,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4430",
+      "name": "func_001f4430",
+      "line": 2188,
+      "object_size": 288,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4550",
+      "name": "func_001f4550",
+      "line": 2226,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4600",
+      "name": "func_001f4600",
+      "line": 2256,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f46b0",
+      "name": "func_001f46b0",
+      "line": 2286,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4760",
+      "name": "func_001f4760",
+      "line": 2316,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4810",
+      "name": "func_001f4810",
+      "line": 2346,
+      "object_size": 692,
+      "window": 704,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4ad0",
+      "name": "func_001f4ad0",
+      "line": 2449,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4b80",
+      "name": "func_001f4b80",
+      "line": 2479,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4c30",
+      "name": "func_001f4c30",
+      "line": 2509,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4ce0",
+      "name": "func_001f4ce0",
+      "line": 2539,
+      "object_size": 360,
+      "window": 368,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f4e50",
+      "name": "func_001f4e50",
+      "line": 2609,
+      "object_size": 1876,
+      "window": 1888,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f55b0",
+      "name": "func_001f55b0",
+      "line": 2799,
+      "object_size": 200,
+      "window": 208,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f5680",
+      "name": "func_001f5680",
+      "line": 2825,
+      "object_size": 76,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f56d0",
+      "name": "func_001f56d0",
+      "line": 2847,
+      "object_size": 512,
+      "window": 512,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f58d0",
+      "name": "func_001f58d0",
+      "line": 2912,
+      "object_size": 304,
+      "window": 304,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f5a00",
+      "name": "func_001f5a00",
+      "line": 2971,
+      "object_size": 452,
+      "window": 464,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f5bd0",
+      "name": "func_001f5bd0",
+      "line": 3039,
+      "object_size": 708,
+      "window": 720,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f5ea0",
+      "name": "func_001f5ea0",
+      "line": 3092,
+      "object_size": 36,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f5ed0",
+      "name": "func_001f5ed0",
+      "line": 3099,
+      "object_size": 148,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f6090",
+      "name": "func_001f6090",
+      "line": 3123,
+      "object_size": 36,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f6100",
+      "name": "func_001f6100",
+      "line": 3130,
+      "object_size": 144,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f6190",
+      "name": "func_001f6190",
+      "line": 3146,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f61b0",
+      "name": "func_001f61b0",
+      "line": 3152,
+      "object_size": 104,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f6220",
+      "name": "func_001f6220",
+      "line": 3170,
+      "object_size": 100,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f6290",
+      "name": "func_001f6290",
+      "line": 3190,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f62b0",
+      "name": "func_001f62b0",
+      "line": 3197,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f62f0",
+      "name": "func_001f62f0",
+      "line": 3216,
+      "object_size": 728,
+      "window": 736,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f65d0",
+      "name": "func_001f65d0",
+      "line": 3295,
+      "object_size": 316,
+      "window": 320,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f6710",
+      "name": "func_001f6710",
+      "line": 3344,
+      "object_size": 88,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f6770",
+      "name": "func_001f6770",
+      "line": 3360,
+      "object_size": 360,
+      "window": 368,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f68e0",
+      "name": "func_001f68e0",
+      "line": 3411,
+      "object_size": 80,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f6930",
+      "name": "func_001f6930",
+      "line": 3435,
+      "object_size": 700,
+      "window": 704,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f6bf0",
+      "name": "func_001f6bf0",
+      "line": 3540,
+      "object_size": 80,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f6c40",
+      "name": "func_001f6c40",
+      "line": 3565,
+      "object_size": 140,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f6cd0",
+      "name": "func_001f6cd0",
+      "line": 3588,
+      "object_size": 132,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f6d60",
+      "name": "func_001f6d60",
+      "line": 3616,
+      "object_size": 504,
+      "window": 512,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f6f60",
+      "name": "func_001f6f60",
+      "line": 3669,
+      "object_size": 480,
+      "window": 480,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f7140",
+      "name": "func_001f7140",
+      "line": 3760,
+      "object_size": 280,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f7260",
+      "name": "func_001f7260",
+      "line": 3814,
+      "object_size": 124,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f72e0",
+      "name": "func_001f72e0",
+      "line": 3839,
+      "object_size": 212,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f73c0",
+      "name": "func_001f73c0",
+      "line": 3893,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f73d0",
+      "name": "func_001f73d0",
+      "line": 3900,
+      "object_size": 348,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f75b0",
+      "name": "func_001f75b0",
+      "line": 3944,
+      "object_size": 100,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f7650",
+      "name": "func_001f7650",
+      "line": 3955,
+      "object_size": 480,
+      "window": 480,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f7830",
+      "name": "func_001f7830",
+      "line": 4022,
+      "object_size": 224,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f7910",
+      "name": "func_001f7910",
+      "line": 4049,
+      "object_size": 448,
+      "window": 448,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f7ad0",
+      "name": "func_001f7ad0",
+      "line": 4096,
+      "object_size": 100,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f7b40",
+      "name": "func_001f7b40",
+      "line": 4111,
+      "object_size": 220,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8380",
+      "name": "func_001f8380",
+      "line": 4147,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f83b0",
+      "name": "func_001f83b0",
+      "line": 4160,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8400",
+      "name": "func_001f8400",
+      "line": 4170,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8430",
+      "name": "func_001f8430",
+      "line": 4183,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8480",
+      "name": "func_001f8480",
+      "line": 4193,
+      "object_size": 528,
+      "window": 528,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8690",
+      "name": "func_001f8690",
+      "line": 4254,
+      "object_size": 52,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f86d0",
+      "name": "func_001f86d0",
+      "line": 4263,
+      "object_size": 44,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8700",
+      "name": "func_001f8700",
+      "line": 4267,
+      "object_size": 264,
+      "window": 272,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8810",
+      "name": "func_001f8810",
+      "line": 4309,
+      "object_size": 264,
+      "window": 272,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8920",
+      "name": "func_001f8920",
+      "line": 4338,
+      "object_size": 480,
+      "window": 480,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8b00",
+      "name": "func_001f8b00",
+      "line": 4396,
+      "object_size": 132,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8b90",
+      "name": "func_001f8b90",
+      "line": 4412,
+      "object_size": 132,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8c20",
+      "name": "func_001f8c20",
+      "line": 4428,
+      "object_size": 192,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8ce0",
+      "name": "func_001f8ce0",
+      "line": 4448,
+      "object_size": 132,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8d70",
+      "name": "func_001f8d70",
+      "line": 4464,
+      "object_size": 152,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8e10",
+      "name": "func_001f8e10",
+      "line": 4483,
+      "object_size": 132,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8ea0",
+      "name": "func_001f8ea0",
+      "line": 4501,
+      "object_size": 160,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8f40",
+      "name": "func_001f8f40",
+      "line": 4535,
+      "object_size": 160,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f8fe0",
+      "name": "func_001f8fe0",
+      "line": 4568,
+      "object_size": 160,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9080",
+      "name": "func_001f9080",
+      "line": 4599,
+      "object_size": 92,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f90e0",
+      "name": "func_001f90e0",
+      "line": 4615,
+      "object_size": 472,
+      "window": 480,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f92c0",
+      "name": "func_001f92c0",
+      "line": 4676,
+      "object_size": 212,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f93a0",
+      "name": "func_001f93a0",
+      "line": 4697,
+      "object_size": 460,
+      "window": 464,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9570",
+      "name": "func_001f9570",
+      "line": 4733,
+      "object_size": 212,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9650",
+      "name": "func_001f9650",
+      "line": 4754,
+      "object_size": 180,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9740",
+      "name": "func_001f9740",
+      "line": 4772,
+      "object_size": 12,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9750",
+      "name": "func_001f9750",
+      "line": 4778,
+      "object_size": 88,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9800",
+      "name": "func_001f9800",
+      "line": 4797,
+      "object_size": 444,
+      "window": 448,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9a50",
+      "name": "func_001f9a50",
+      "line": 4848,
+      "object_size": 52,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9a90",
+      "name": "func_001f9a90",
+      "line": 4854,
+      "object_size": 44,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9ac0",
+      "name": "func_001f9ac0",
+      "line": 4860,
+      "object_size": 192,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9be0",
+      "name": "func_001f9be0",
+      "line": 4903,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9bf0",
+      "name": "func_001f9bf0",
+      "line": 4907,
+      "object_size": 68,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9c40",
+      "name": "func_001f9c40",
+      "line": 4913,
+      "object_size": 136,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9cd0",
+      "name": "func_001f9cd0",
+      "line": 4927,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001f9ce0",
+      "name": "func_001f9ce0",
+      "line": 4931,
+      "object_size": 12,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fa660",
+      "name": "func_001fa660",
+      "line": 4936,
+      "object_size": 192,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fa720",
+      "name": "func_001fa720",
+      "line": 4965,
+      "object_size": 124,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fa7a0",
+      "name": "func_001fa7a0",
+      "line": 4976,
+      "object_size": 324,
+      "window": 336,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fa8f0",
+      "name": "func_001fa8f0",
+      "line": 5025,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fa940",
+      "name": "func_001fa940",
+      "line": 5034,
+      "object_size": 124,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fa9c0",
+      "name": "func_001fa9c0",
+      "line": 5057,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001faa00",
+      "name": "func_001faa00",
+      "line": 5065,
+      "object_size": 84,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001faa60",
+      "name": "func_001faa60",
+      "line": 5081,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001faaa0",
+      "name": "func_001faaa0",
+      "line": 5089,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001faaf0",
+      "name": "func_001faaf0",
+      "line": 5096,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fab40",
+      "name": "func_001fab40",
+      "line": 5103,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fab90",
+      "name": "func_001fab90",
+      "line": 5110,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fabe0",
+      "name": "func_001fabe0",
+      "line": 5117,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fac30",
+      "name": "func_001fac30",
+      "line": 5124,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fac80",
+      "name": "func_001fac80",
+      "line": 5131,
+      "object_size": 144,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fad10",
+      "name": "func_001fad10",
+      "line": 5152,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fadc0",
+      "name": "func_001fadc0",
+      "line": 5179,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fae10",
+      "name": "func_001fae10",
+      "line": 5186,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fae60",
+      "name": "func_001fae60",
+      "line": 5193,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fae80",
+      "name": "func_001fae80",
+      "line": 5200,
+      "object_size": 232,
+      "window": 240,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001faf70",
+      "name": "func_001faf70",
+      "line": 5236,
+      "object_size": 504,
+      "window": 512,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fb170",
+      "name": "func_001fb170",
+      "line": 5325,
+      "object_size": 128,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fb1f0",
+      "name": "func_001fb1f0",
+      "line": 5347,
+      "object_size": 360,
+      "window": 368,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fb360",
+      "name": "func_001fb360",
+      "line": 5411,
+      "object_size": 284,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fb480",
+      "name": "func_001fb480",
+      "line": 5471,
+      "object_size": 1732,
+      "window": 1744,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fbb50",
+      "name": "func_001fbb50",
+      "line": 5588,
+      "object_size": 1620,
+      "window": 1632,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fc1b0",
+      "name": "func_001fc1b0",
+      "line": 5728,
+      "object_size": 120,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fc270",
+      "name": "func_001fc270",
+      "line": 5737,
+      "object_size": 12,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001f.c",
+      "addr": "001fc280",
+      "name": "func_001fc280",
+      "line": 5742,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002218e0",
+      "name": "func_002218e0",
+      "line": 287,
+      "object_size": 44,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00221910",
+      "name": "func_00221910",
+      "line": 292,
+      "object_size": 44,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00221940",
+      "name": "func_00221940",
+      "line": 298,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00221970",
+      "name": "func_00221970",
+      "line": 303,
+      "object_size": 320,
+      "window": 320,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00222210",
+      "name": "func_00222210",
+      "line": 346,
+      "object_size": 2832,
+      "window": 2832,
+      "normalized_diff": 0,
+      "status": "ASM",
+      "detail": "assembly fallback; not yet decompiled to C"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00222d20",
+      "name": "func_00222d20",
+      "line": 499,
+      "object_size": 896,
+      "window": 896,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002230e0",
+      "name": "func_002230e0",
+      "line": 578,
+      "object_size": 248,
+      "window": 256,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002231e0",
+      "name": "func_002231e0",
+      "line": 598,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00223240",
+      "name": "func_00223240",
+      "line": 612,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00223270",
+      "name": "func_00223270",
+      "line": 617,
+      "object_size": 44,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002232a0",
+      "name": "func_002232a0",
+      "line": 623,
+      "object_size": 1036,
+      "window": 1040,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002236b0",
+      "name": "func_002236b0",
+      "line": 760,
+      "object_size": 16,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002236c0",
+      "name": "func_002236c0",
+      "line": 767,
+      "object_size": 104,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00223730",
+      "name": "func_00223730",
+      "line": 785,
+      "object_size": 248,
+      "window": 256,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00223830",
+      "name": "func_00223830",
+      "line": 805,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00223890",
+      "name": "func_00223890",
+      "line": 819,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002238c0",
+      "name": "func_002238c0",
+      "line": 824,
+      "object_size": 44,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00223ed0",
+      "name": "func_00223ed0",
+      "line": 832,
+      "object_size": 16,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00223ee0",
+      "name": "func_00223ee0",
+      "line": 839,
+      "object_size": 88,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00223f40",
+      "name": "func_00223f40",
+      "line": 855,
+      "object_size": 248,
+      "window": 256,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00224040",
+      "name": "func_00224040",
+      "line": 875,
+      "object_size": 60,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00224080",
+      "name": "func_00224080",
+      "line": 884,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002240b0",
+      "name": "func_002240b0",
+      "line": 889,
+      "object_size": 44,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002240e0",
+      "name": "func_002240e0",
+      "line": 921,
+      "object_size": 876,
+      "window": 880,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00224450",
+      "name": "func_00224450",
+      "line": 1042,
+      "object_size": 1312,
+      "window": 1312,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00224970",
+      "name": "func_00224970",
+      "line": 1224,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002249a0",
+      "name": "func_002249a0",
+      "line": 1234,
+      "object_size": 1780,
+      "window": 1792,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002250a0",
+      "name": "func_002250a0",
+      "line": 1362,
+      "object_size": 1688,
+      "window": 1696,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00225740",
+      "name": "func_00225740",
+      "line": 1544,
+      "object_size": 280,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00225860",
+      "name": "func_00225860",
+      "line": 1575,
+      "object_size": 80,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002258b0",
+      "name": "func_002258b0",
+      "line": 1590,
+      "object_size": 800,
+      "window": 800,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00225bd0",
+      "name": "func_00225bd0",
+      "line": 1706,
+      "object_size": 44,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00225c00",
+      "name": "func_00225c00",
+      "line": 1714,
+      "object_size": 256,
+      "window": 256,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00225d00",
+      "name": "func_00225d00",
+      "line": 1743,
+      "object_size": 252,
+      "window": 256,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00225e50",
+      "name": "func_00225e50",
+      "line": 1775,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00225ec0",
+      "name": "func_00225ec0",
+      "line": 1804,
+      "object_size": 2032,
+      "window": 2032,
+      "normalized_diff": 0,
+      "status": "ASM",
+      "detail": "assembly fallback; not yet decompiled to C"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002266b0",
+      "name": "func_002266b0",
+      "line": 1984,
+      "object_size": 1420,
+      "window": 1424,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00226c40",
+      "name": "func_00226c40",
+      "line": 2129,
+      "object_size": 1516,
+      "window": 1520,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00227230",
+      "name": "func_00227230",
+      "line": 2273,
+      "object_size": 1336,
+      "window": 1344,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00227770",
+      "name": "func_00227770",
+      "line": 2374,
+      "object_size": 108,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002277e0",
+      "name": "func_002277e0",
+      "line": 2392,
+      "object_size": 1620,
+      "window": 1632,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00227e40",
+      "name": "func_00227e40",
+      "line": 2545,
+      "object_size": 1168,
+      "window": 1168,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002282d0",
+      "name": "func_002282d0",
+      "line": 2640,
+      "object_size": 420,
+      "window": 432,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00228480",
+      "name": "func_00228480",
+      "line": 2693,
+      "object_size": 76,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002284d0",
+      "name": "func_002284d0",
+      "line": 2700,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00228580",
+      "name": "func_00228580",
+      "line": 2724,
+      "object_size": 320,
+      "window": 320,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002286c0",
+      "name": "func_002286c0",
+      "line": 2760,
+      "object_size": 320,
+      "window": 320,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00228800",
+      "name": "func_00228800",
+      "line": 2796,
+      "object_size": 144,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00228890",
+      "name": "func_00228890",
+      "line": 2816,
+      "object_size": 280,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002289b0",
+      "name": "func_002289b0",
+      "line": 2856,
+      "object_size": 176,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00228a60",
+      "name": "func_00228a60",
+      "line": 2874,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00228a80",
+      "name": "func_00228a80",
+      "line": 2880,
+      "object_size": 640,
+      "window": 640,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00228d00",
+      "name": "func_00228d00",
+      "line": 2962,
+      "object_size": 68,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00228d50",
+      "name": "func_00228d50",
+      "line": 2969,
+      "object_size": 520,
+      "window": 528,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00228f60",
+      "name": "func_00228f60",
+      "line": 3043,
+      "object_size": 180,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00229020",
+      "name": "func_00229020",
+      "line": 3075,
+      "object_size": 2444,
+      "window": 2448,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "002299b0",
+      "name": "func_002299b0",
+      "line": 3311,
+      "object_size": 644,
+      "window": 656,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00229c40",
+      "name": "func_00229c40",
+      "line": 3413,
+      "object_size": 344,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "00229da0",
+      "name": "func_00229da0",
+      "line": 3446,
+      "object_size": 2312,
+      "window": 2320,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022a6b0",
+      "name": "func_0022a6b0",
+      "line": 3710,
+      "object_size": 128,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022a730",
+      "name": "func_0022a730",
+      "line": 3754,
+      "object_size": 1184,
+      "window": 1184,
+      "normalized_diff": 0,
+      "status": "ASM",
+      "detail": "assembly fallback; not yet decompiled to C"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022abd0",
+      "name": "func_0022abd0",
+      "line": 3874,
+      "object_size": 224,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022acb0",
+      "name": "func_0022acb0",
+      "line": 3893,
+      "object_size": 132,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022ad40",
+      "name": "func_0022ad40",
+      "line": 3907,
+      "object_size": 192,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022ae00",
+      "name": "func_0022ae00",
+      "line": 3924,
+      "object_size": 564,
+      "window": 576,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022b040",
+      "name": "func_0022b040",
+      "line": 4016,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022b0b0",
+      "name": "func_0022b0b0",
+      "line": 4031,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022b0e0",
+      "name": "func_0022b0e0",
+      "line": 4037,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022b120",
+      "name": "func_0022b120",
+      "line": 4045,
+      "object_size": 1860,
+      "window": 1872,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022b870",
+      "name": "func_0022b870",
+      "line": 4244,
+      "object_size": 464,
+      "window": 464,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022ba40",
+      "name": "func_0022ba40",
+      "line": 4300,
+      "object_size": 124,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022bac0",
+      "name": "func_0022bac0",
+      "line": 4332,
+      "object_size": 12,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022bad0",
+      "name": "func_0022bad0",
+      "line": 4338,
+      "object_size": 424,
+      "window": 432,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022bc80",
+      "name": "func_0022bc80",
+      "line": 4392,
+      "object_size": 124,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022bd00",
+      "name": "func_0022bd00",
+      "line": 4410,
+      "object_size": 20,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022bd20",
+      "name": "func_0022bd20",
+      "line": 4418,
+      "object_size": 52,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022bd60",
+      "name": "func_0022bd60",
+      "line": 4430,
+      "object_size": 1744,
+      "window": 1744,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022c430",
+      "name": "func_0022c430",
+      "line": 4568,
+      "object_size": 1876,
+      "window": 1888,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022cb90",
+      "name": "func_0022cb90",
+      "line": 4730,
+      "object_size": 256,
+      "window": 256,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022cc90",
+      "name": "func_0022cc90",
+      "line": 4770,
+      "object_size": 284,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022cdb0",
+      "name": "func_0022cdb0",
+      "line": 4818,
+      "object_size": 288,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022ced0",
+      "name": "func_0022ced0",
+      "line": 4853,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022cf00",
+      "name": "func_0022cf00",
+      "line": 4859,
+      "object_size": 764,
+      "window": 768,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022d200",
+      "name": "func_0022d200",
+      "line": 4931,
+      "object_size": 824,
+      "window": 832,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022d540",
+      "name": "func_0022d540",
+      "line": 5007,
+      "object_size": 188,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022d600",
+      "name": "func_0022d600",
+      "line": 5039,
+      "object_size": 1412,
+      "window": 1424,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022db90",
+      "name": "func_0022db90",
+      "line": 5164,
+      "object_size": 216,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022dc70",
+      "name": "func_0022dc70",
+      "line": 5196,
+      "object_size": 2164,
+      "window": 2176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022e4f0",
+      "name": "func_0022e4f0",
+      "line": 5433,
+      "object_size": 316,
+      "window": 320,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022e630",
+      "name": "func_0022e630",
+      "line": 5489,
+      "object_size": 1172,
+      "window": 1184,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022ead0",
+      "name": "func_0022ead0",
+      "line": 5592,
+      "object_size": 200,
+      "window": 208,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022eba0",
+      "name": "func_0022eba0",
+      "line": 5631,
+      "object_size": 2428,
+      "window": 2432,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022f520",
+      "name": "func_0022f520",
+      "line": 5830,
+      "object_size": 680,
+      "window": 688,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022f7d0",
+      "name": "func_0022f7d0",
+      "line": 5920,
+      "object_size": 220,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022f8b0",
+      "name": "func_0022f8b0",
+      "line": 5948,
+      "object_size": 152,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022f950",
+      "name": "func_0022f950",
+      "line": 5983,
+      "object_size": 312,
+      "window": 320,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022fa90",
+      "name": "func_0022fa90",
+      "line": 6018,
+      "object_size": 128,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0022.c",
+      "addr": "0022fb10",
+      "name": "func_0022fb10",
+      "line": 6036,
+      "object_size": 128,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b0020",
+      "name": "func_001b0020",
+      "line": 273,
+      "object_size": 564,
+      "window": 576,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b0260",
+      "name": "func_001b0260",
+      "line": 339,
+      "object_size": 156,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b0300",
+      "name": "func_001b0300",
+      "line": 355,
+      "object_size": 348,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b0460",
+      "name": "func_001b0460",
+      "line": 394,
+      "object_size": 304,
+      "window": 304,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b0590",
+      "name": "func_001b0590",
+      "line": 428,
+      "object_size": 60,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b05d0",
+      "name": "func_001b05d0",
+      "line": 453,
+      "object_size": 496,
+      "window": 496,
+      "normalized_diff": 0,
+      "status": "ASM",
+      "detail": "assembly fallback; not yet decompiled to C"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b07c0",
+      "name": "func_001b07c0",
+      "line": 551,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b0930",
+      "name": "func_001b0930",
+      "line": 555,
+      "object_size": 304,
+      "window": 304,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b0a60",
+      "name": "func_001b0a60",
+      "line": 593,
+      "object_size": 400,
+      "window": 400,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b0bf0",
+      "name": "func_001b0bf0",
+      "line": 654,
+      "object_size": 136,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b0c80",
+      "name": "func_001b0c80",
+      "line": 682,
+      "object_size": 60,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b0cc0",
+      "name": "func_001b0cc0",
+      "line": 700,
+      "object_size": 60,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b1510",
+      "name": "func_001b1510",
+      "line": 717,
+      "object_size": 36,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b1540",
+      "name": "func_001b1540",
+      "line": 730,
+      "object_size": 16,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b1550",
+      "name": "func_001b1550",
+      "line": 735,
+      "object_size": 16,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b1560",
+      "name": "func_001b1560",
+      "line": 740,
+      "object_size": 16,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b1570",
+      "name": "func_001b1570",
+      "line": 745,
+      "object_size": 52,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b15b0",
+      "name": "func_001b15b0",
+      "line": 755,
+      "object_size": 592,
+      "window": 592,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b1800",
+      "name": "func_001b1800",
+      "line": 840,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b1830",
+      "name": "func_001b1830",
+      "line": 851,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b1850",
+      "name": "func_001b1850",
+      "line": 858,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b1880",
+      "name": "func_001b1880",
+      "line": 863,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b18c0",
+      "name": "func_001b18c0",
+      "line": 870,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b18d0",
+      "name": "func_001b18d0",
+      "line": 875,
+      "object_size": 12,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b18e0",
+      "name": "func_001b18e0",
+      "line": 881,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b1940",
+      "name": "func_001b1940",
+      "line": 889,
+      "object_size": 92,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b19a0",
+      "name": "func_001b19a0",
+      "line": 903,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b19c0",
+      "name": "func_001b19c0",
+      "line": 911,
+      "object_size": 352,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b1b20",
+      "name": "func_001b1b20",
+      "line": 977,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b1b30",
+      "name": "func_001b1b30",
+      "line": 981,
+      "object_size": 564,
+      "window": 576,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b1d70",
+      "name": "func_001b1d70",
+      "line": 1059,
+      "object_size": 1548,
+      "window": 1552,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b2380",
+      "name": "func_001b2380",
+      "line": 1245,
+      "object_size": 4160,
+      "window": 4160,
+      "normalized_diff": 0,
+      "status": "ASM",
+      "detail": "assembly fallback; not yet decompiled to C"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b33c0",
+      "name": "func_001b33c0",
+      "line": 1623,
+      "object_size": 744,
+      "window": 752,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b36b0",
+      "name": "func_001b36b0",
+      "line": 1724,
+      "object_size": 224,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b3790",
+      "name": "func_001b3790",
+      "line": 1756,
+      "object_size": 224,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b3870",
+      "name": "func_001b3870",
+      "line": 1797,
+      "object_size": 372,
+      "window": 384,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b39f0",
+      "name": "func_001b39f0",
+      "line": 1839,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b3a00",
+      "name": "func_001b3a00",
+      "line": 1853,
+      "object_size": 1268,
+      "window": 1280,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b3f00",
+      "name": "func_001b3f00",
+      "line": 1969,
+      "object_size": 164,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b3fb0",
+      "name": "func_001b3fb0",
+      "line": 1986,
+      "object_size": 164,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b4060",
+      "name": "func_001b4060",
+      "line": 2008,
+      "object_size": 1488,
+      "window": 1488,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b4630",
+      "name": "func_001b4630",
+      "line": 2141,
+      "object_size": 296,
+      "window": 304,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b4760",
+      "name": "func_001b4760",
+      "line": 2171,
+      "object_size": 60,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b47a0",
+      "name": "func_001b47a0",
+      "line": 2177,
+      "object_size": 184,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b4860",
+      "name": "func_001b4860",
+      "line": 2200,
+      "object_size": 20,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b4880",
+      "name": "func_001b4880",
+      "line": 2206,
+      "object_size": 2688,
+      "window": 2688,
+      "normalized_diff": 0,
+      "status": "ASM",
+      "detail": "assembly fallback; not yet decompiled to C"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5300",
+      "name": "func_001b5300",
+      "line": 2458,
+      "object_size": 476,
+      "window": 480,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b54e0",
+      "name": "func_001b54e0",
+      "line": 2518,
+      "object_size": 308,
+      "window": 320,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5620",
+      "name": "func_001b5620",
+      "line": 2547,
+      "object_size": 236,
+      "window": 240,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5710",
+      "name": "func_001b5710",
+      "line": 2565,
+      "object_size": 220,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b57f0",
+      "name": "func_001b57f0",
+      "line": 2599,
+      "object_size": 380,
+      "window": 384,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5970",
+      "name": "func_001b5970",
+      "line": 2663,
+      "object_size": 952,
+      "window": 960,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5d30",
+      "name": "func_001b5d30",
+      "line": 2736,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5da0",
+      "name": "func_001b5da0",
+      "line": 2752,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5db0",
+      "name": "func_001b5db0",
+      "line": 2756,
+      "object_size": 140,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5e40",
+      "name": "func_001b5e40",
+      "line": 2773,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5ec0",
+      "name": "func_001b5ec0",
+      "line": 2779,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5ed0",
+      "name": "func_001b5ed0",
+      "line": 2784,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5f00",
+      "name": "func_001b5f00",
+      "line": 2790,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5f30",
+      "name": "func_001b5f30",
+      "line": 2795,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5f70",
+      "name": "func_001b5f70",
+      "line": 2804,
+      "object_size": 88,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5fd0",
+      "name": "func_001b5fd0",
+      "line": 2817,
+      "object_size": 16,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b5fe0",
+      "name": "func_001b5fe0",
+      "line": 2822,
+      "object_size": 188,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b60a0",
+      "name": "func_001b60a0",
+      "line": 2847,
+      "object_size": 100,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b6110",
+      "name": "func_001b6110",
+      "line": 2860,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b6120",
+      "name": "func_001b6120",
+      "line": 2870,
+      "object_size": 1968,
+      "window": 1968,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b68d0",
+      "name": "func_001b68d0",
+      "line": 3088,
+      "object_size": 180,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b6990",
+      "name": "func_001b6990",
+      "line": 3126,
+      "object_size": 44,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b69c0",
+      "name": "func_001b69c0",
+      "line": 3132,
+      "object_size": 60,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b6a00",
+      "name": "func_001b6a00",
+      "line": 3142,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b6a20",
+      "name": "func_001b6a20",
+      "line": 3148,
+      "object_size": 136,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b6ab0",
+      "name": "func_001b6ab0",
+      "line": 3174,
+      "object_size": 1392,
+      "window": 1392,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b7020",
+      "name": "func_001b7020",
+      "line": 3240,
+      "object_size": 16,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b7030",
+      "name": "func_001b7030",
+      "line": 3245,
+      "object_size": 16,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b7040",
+      "name": "func_001b7040",
+      "line": 3250,
+      "object_size": 16,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b7050",
+      "name": "func_001b7050",
+      "line": 3255,
+      "object_size": 16,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b7060",
+      "name": "func_001b7060",
+      "line": 3261,
+      "object_size": 28,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b7080",
+      "name": "func_001b7080",
+      "line": 3269,
+      "object_size": 16,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b7090",
+      "name": "func_001b7090",
+      "line": 3274,
+      "object_size": 12,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b70a0",
+      "name": "func_001b70a0",
+      "line": 3280,
+      "object_size": 28,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b70c0",
+      "name": "func_001b70c0",
+      "line": 3292,
+      "object_size": 812,
+      "window": 816,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b73f0",
+      "name": "func_001b73f0",
+      "line": 3439,
+      "object_size": 300,
+      "window": 304,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001b7520",
+      "name": "func_001b7520",
+      "line": 3487,
+      "object_size": 860,
+      "window": 864,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001ba0e0",
+      "name": "func_001ba0e0",
+      "line": 3595,
+      "object_size": 1096,
+      "window": 1104,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001ba530",
+      "name": "func_001ba530",
+      "line": 3625,
+      "object_size": 88,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001ba590",
+      "name": "func_001ba590",
+      "line": 3636,
+      "object_size": 380,
+      "window": 384,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001ba710",
+      "name": "func_001ba710",
+      "line": 3743,
+      "object_size": 116,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001ba790",
+      "name": "func_001ba790",
+      "line": 3761,
+      "object_size": 592,
+      "window": 592,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bbe80",
+      "name": "func_001bbe80",
+      "line": 3843,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bbf40",
+      "name": "func_001bbf40",
+      "line": 3850,
+      "object_size": 80,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bbf90",
+      "name": "func_001bbf90",
+      "line": 3858,
+      "object_size": 424,
+      "window": 432,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bc140",
+      "name": "func_001bc140",
+      "line": 3905,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bc1b0",
+      "name": "func_001bc1b0",
+      "line": 3919,
+      "object_size": 140,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bc240",
+      "name": "func_001bc240",
+      "line": 3940,
+      "object_size": 232,
+      "window": 240,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bc330",
+      "name": "func_001bc330",
+      "line": 3986,
+      "object_size": 104,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bc980",
+      "name": "func_001bc980",
+      "line": 4000,
+      "object_size": 452,
+      "window": 464,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bcb50",
+      "name": "func_001bcb50",
+      "line": 4054,
+      "object_size": 300,
+      "window": 304,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bcc80",
+      "name": "func_001bcc80",
+      "line": 4089,
+      "object_size": 56,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bccc0",
+      "name": "func_001bccc0",
+      "line": 4098,
+      "object_size": 120,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bcd40",
+      "name": "func_001bcd40",
+      "line": 4126,
+      "object_size": 1472,
+      "window": 1472,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bd300",
+      "name": "func_001bd300",
+      "line": 4270,
+      "object_size": 136,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bd390",
+      "name": "func_001bd390",
+      "line": 4298,
+      "object_size": 344,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bd4f0",
+      "name": "func_001bd4f0",
+      "line": 4344,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bd530",
+      "name": "func_001bd530",
+      "line": 4352,
+      "object_size": 36,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bd560",
+      "name": "func_001bd560",
+      "line": 4359,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bd5a0",
+      "name": "func_001bd5a0",
+      "line": 4378,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bd5e0",
+      "name": "func_001bd5e0",
+      "line": 4397,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bd7d0",
+      "name": "func_001bd7d0",
+      "line": 4416,
+      "object_size": 528,
+      "window": 528,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bd9e0",
+      "name": "func_001bd9e0",
+      "line": 4522,
+      "object_size": 380,
+      "window": 384,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bdb60",
+      "name": "func_001bdb60",
+      "line": 4619,
+      "object_size": 452,
+      "window": 464,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bdd30",
+      "name": "func_001bdd30",
+      "line": 4672,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bdd60",
+      "name": "func_001bdd60",
+      "line": 4682,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bdd80",
+      "name": "func_001bdd80",
+      "line": 4689,
+      "object_size": 300,
+      "window": 304,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bdeb0",
+      "name": "func_001bdeb0",
+      "line": 4729,
+      "object_size": 416,
+      "window": 416,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001be050",
+      "name": "func_001be050",
+      "line": 4791,
+      "object_size": 2164,
+      "window": 2176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001be900",
+      "name": "func_001be900",
+      "line": 4976,
+      "object_size": 144,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001be990",
+      "name": "func_001be990",
+      "line": 4998,
+      "object_size": 2564,
+      "window": 2576,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bf3a0",
+      "name": "func_001bf3a0",
+      "line": 5275,
+      "object_size": 400,
+      "window": 400,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bf530",
+      "name": "func_001bf530",
+      "line": 5319,
+      "object_size": 172,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bf5e0",
+      "name": "func_001bf5e0",
+      "line": 5346,
+      "object_size": 1416,
+      "window": 1424,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bfb70",
+      "name": "func_001bfb70",
+      "line": 5502,
+      "object_size": 144,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001bfc00",
+      "name": "btlAct_SKILL_RECITE_E",
+      "line": 5523,
+      "object_size": 2256,
+      "window": 2256,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001b.c",
+      "addr": "001c04d0",
+      "name": "func_001c04d0",
+      "line": 5748,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c04e0",
+      "name": "func_001c04e0",
+      "line": 176,
+      "object_size": 1208,
+      "window": 1216,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c09a0",
+      "name": "func_001c09a0",
+      "line": 300,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c09b0",
+      "name": "func_001c09b0",
+      "line": 307,
+      "object_size": 1156,
+      "window": 1168,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c0e40",
+      "name": "func_001c0e40",
+      "line": 425,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c0e50",
+      "name": "func_001c0e50",
+      "line": 427,
+      "object_size": 496,
+      "window": 496,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c1040",
+      "name": "func_001c1040",
+      "line": 486,
+      "object_size": 1884,
+      "window": 1888,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c17a0",
+      "name": "func_001c17a0",
+      "line": 667,
+      "object_size": 2000,
+      "window": 2000,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c1f70",
+      "name": "func_001c1f70",
+      "line": 833,
+      "object_size": 596,
+      "window": 608,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c21d0",
+      "name": "func_001c21d0",
+      "line": 912,
+      "object_size": 3336,
+      "window": 3344,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c2ee0",
+      "name": "func_001c2ee0",
+      "line": 1205,
+      "object_size": 4040,
+      "window": 4048,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c3eb0",
+      "name": "func_001c3eb0",
+      "line": 1568,
+      "object_size": 180,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c3f70",
+      "name": "func_001c3f70",
+      "line": 1588,
+      "object_size": 4504,
+      "window": 4512,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c5110",
+      "name": "func_001c5110",
+      "line": 1979,
+      "object_size": 432,
+      "window": 432,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c52c0",
+      "name": "func_001c52c0",
+      "line": 2030,
+      "object_size": 568,
+      "window": 576,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c5500",
+      "name": "func_001c5500",
+      "line": 2099,
+      "object_size": 1664,
+      "window": 1664,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c5b80",
+      "name": "func_001c5b80",
+      "line": 2308,
+      "object_size": 2520,
+      "window": 2528,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c79e0",
+      "name": "func_001c79e0",
+      "line": 2532,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c79f0",
+      "name": "func_001c79f0",
+      "line": 2551,
+      "object_size": 1792,
+      "window": 1792,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c80f0",
+      "name": "func_001c80f0",
+      "line": 2716,
+      "object_size": 2012,
+      "window": 2016,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c88d0",
+      "name": "func_001c88d0",
+      "line": 2892,
+      "object_size": 560,
+      "window": 560,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c8b00",
+      "name": "func_001c8b00",
+      "line": 2954,
+      "object_size": 484,
+      "window": 496,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c8cf0",
+      "name": "func_001c8cf0",
+      "line": 3031,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c8d50",
+      "name": "func_001c8d50",
+      "line": 3049,
+      "object_size": 312,
+      "window": 320,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c8e90",
+      "name": "func_001c8e90",
+      "line": 3098,
+      "object_size": 2228,
+      "window": 2240,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c9750",
+      "name": "func_001c9750",
+      "line": 3295,
+      "object_size": 92,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c97b0",
+      "name": "func_001c97b0",
+      "line": 3307,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001c9820",
+      "name": "func_001c9820",
+      "line": 3323,
+      "object_size": 3364,
+      "window": 3376,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001ca550",
+      "name": "func_001ca550",
+      "line": 3580,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001ca590",
+      "name": "func_001ca590",
+      "line": 3584,
+      "object_size": 1852,
+      "window": 1856,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cacd0",
+      "name": "func_001cacd0",
+      "line": 3746,
+      "object_size": 1052,
+      "window": 1056,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cb0f0",
+      "name": "func_001cb0f0",
+      "line": 3865,
+      "object_size": 260,
+      "window": 272,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cb200",
+      "name": "func_001cb200",
+      "line": 3900,
+      "object_size": 224,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cb2e0",
+      "name": "func_001cb2e0",
+      "line": 3933,
+      "object_size": 148,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cb380",
+      "name": "func_001cb380",
+      "line": 3947,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cb3a0",
+      "name": "func_001cb3a0",
+      "line": 3951,
+      "object_size": 160,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cb440",
+      "name": "func_001cb440",
+      "line": 3968,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cb460",
+      "name": "func_001cb460",
+      "line": 3972,
+      "object_size": 224,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cb540",
+      "name": "func_001cb540",
+      "line": 3991,
+      "object_size": 200,
+      "window": 208,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cb610",
+      "name": "func_001cb610",
+      "line": 4020,
+      "object_size": 840,
+      "window": 848,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cb960",
+      "name": "func_001cb960",
+      "line": 4112,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cb970",
+      "name": "func_001cb970",
+      "line": 4118,
+      "object_size": 1540,
+      "window": 1552,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cbf80",
+      "name": "func_001cbf80",
+      "line": 4272,
+      "object_size": 84,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001ce470",
+      "name": "func_001ce470",
+      "line": 4281,
+      "object_size": 428,
+      "window": 432,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001ce620",
+      "name": "func_001ce620",
+      "line": 4335,
+      "object_size": 452,
+      "window": 464,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001ce7f0",
+      "name": "func_001ce7f0",
+      "line": 4379,
+      "object_size": 144,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001ce880",
+      "name": "func_001ce880",
+      "line": 4402,
+      "object_size": 56,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001ce8c0",
+      "name": "func_001ce8c0",
+      "line": 4406,
+      "object_size": 736,
+      "window": 736,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001ceba0",
+      "name": "func_001ceba0",
+      "line": 4473,
+      "object_size": 268,
+      "window": 272,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cecb0",
+      "name": "func_001cecb0",
+      "line": 4519,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cece0",
+      "name": "btlAct_ROUNDUP_MES",
+      "line": 4523,
+      "object_size": 576,
+      "window": 576,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cef20",
+      "name": "func_001cef20",
+      "line": 4567,
+      "object_size": 144,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cefb0",
+      "name": "func_001cefb0",
+      "line": 4590,
+      "object_size": 52,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001ceff0",
+      "name": "func_001ceff0",
+      "line": 4594,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cf020",
+      "name": "func_001cf020",
+      "line": 4599,
+      "object_size": 76,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cf070",
+      "name": "func_001cf070",
+      "line": 4606,
+      "object_size": 204,
+      "window": 208,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cf140",
+      "name": "func_001cf140",
+      "line": 4625,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cf160",
+      "name": "func_001cf160",
+      "line": 4631,
+      "object_size": 136,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cf1f0",
+      "name": "func_001cf1f0",
+      "line": 4653,
+      "object_size": 352,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cf350",
+      "name": "func_001cf350",
+      "line": 4687,
+      "object_size": 992,
+      "window": 992,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cf730",
+      "name": "btlAct_ALL",
+      "line": 4813,
+      "object_size": 920,
+      "window": 928,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cfad0",
+      "name": "func_001cfad0",
+      "line": 4935,
+      "object_size": 1016,
+      "window": 1024,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cfed0",
+      "name": "btlAct_ENEMY_ALL",
+      "line": 5025,
+      "object_size": 44,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_001c.c",
+      "addr": "001cff00",
+      "name": "btlAct_TARGET_ONLY",
+      "line": 5029,
+      "object_size": 704,
+      "window": 704,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001bc3a0",
+      "name": "func_001bc3a0",
+      "line": 217,
+      "object_size": 444,
+      "window": 448,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001bc560",
+      "name": "func_001bc560",
+      "line": 267,
+      "object_size": 204,
+      "window": 208,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001bc630",
+      "name": "func_001bc630",
+      "line": 297,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001bc660",
+      "name": "func_001bc660",
+      "line": 311,
+      "object_size": 396,
+      "window": 400,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001bc7f0",
+      "name": "func_001bc7f0",
+      "line": 362,
+      "object_size": 16,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001bc800",
+      "name": "func_001bc800",
+      "line": 367,
+      "object_size": 216,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001bc8e0",
+      "name": "btlCameraUpdateSetStatePacket",
+      "line": 415,
+      "object_size": 52,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001bc920",
+      "name": "btlCameraCreateSetStatePacket",
+      "line": 429,
+      "object_size": 88,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001bd620",
+      "name": "func_001bd620",
+      "line": 449,
+      "object_size": 344,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001bd780",
+      "name": "func_001bd780",
+      "line": 477,
+      "object_size": 76,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c6560",
+      "name": "func_001c6560",
+      "line": 489,
+      "object_size": 240,
+      "window": 240,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c6650",
+      "name": "func_001c6650",
+      "line": 520,
+      "object_size": 260,
+      "window": 272,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c6760",
+      "name": "func_001c6760",
+      "line": 564,
+      "object_size": 936,
+      "window": 944,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c6b10",
+      "name": "func_001c6b10",
+      "line": 652,
+      "object_size": 60,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c6b50",
+      "name": "func_001c6b50",
+      "line": 661,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c6b60",
+      "name": "btlAct_SKILL_EXEC_ONE",
+      "line": 665,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c6ba0",
+      "name": "func_001c6ba0",
+      "line": 670,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c6bb0",
+      "name": "func_001c6bb0",
+      "line": 674,
+      "object_size": 36,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c6be0",
+      "name": "func_001c6be0",
+      "line": 679,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c6bf0",
+      "name": "func_001c6bf0",
+      "line": 683,
+      "object_size": 820,
+      "window": 832,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c6f30",
+      "name": "func_001c6f30",
+      "line": 760,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c6f40",
+      "name": "func_001c6f40",
+      "line": 784,
+      "object_size": 1180,
+      "window": 1184,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c73e0",
+      "name": "func_001c73e0",
+      "line": 883,
+      "object_size": 280,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c7500",
+      "name": "func_001c7500",
+      "line": 921,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c7510",
+      "name": "func_001c7510",
+      "line": 925,
+      "object_size": 604,
+      "window": 608,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c7770",
+      "name": "func_001c7770",
+      "line": 978,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001c7780",
+      "name": "func_001c7780",
+      "line": 983,
+      "object_size": 604,
+      "window": 608,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cbfe0",
+      "name": "func_001cbfe0",
+      "line": 1036,
+      "object_size": 188,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cc0a0",
+      "name": "func_001cc0a0",
+      "line": 1065,
+      "object_size": 1300,
+      "window": 1312,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cc5c0",
+      "name": "func_001cc5c0",
+      "line": 1219,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cc5d0",
+      "name": "func_001cc5d0",
+      "line": 1223,
+      "object_size": 1028,
+      "window": 1040,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cc9e0",
+      "name": "btlAct_TARGET",
+      "line": 1354,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cca50",
+      "name": "func_001cca50",
+      "line": 1367,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cca60",
+      "name": "func_001cca60",
+      "line": 1372,
+      "object_size": 820,
+      "window": 832,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001ccda0",
+      "name": "func_001ccda0",
+      "line": 1463,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001ccdb0",
+      "name": "btlAct_NOP",
+      "line": 1473,
+      "object_size": 2124,
+      "window": 2128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cd600",
+      "name": "func_001cd600",
+      "line": 1616,
+      "object_size": 148,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cd6a0",
+      "name": "func_001cd6a0",
+      "line": 1630,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cd6c0",
+      "name": "func_001cd6c0",
+      "line": 1635,
+      "object_size": 232,
+      "window": 240,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cd7b0",
+      "name": "func_001cd7b0",
+      "line": 1664,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cd7d0",
+      "name": "btlAct_WIN_P",
+      "line": 1669,
+      "object_size": 800,
+      "window": 800,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cdaf0",
+      "name": "btlAct_CONDITION",
+      "line": 1746,
+      "object_size": 860,
+      "window": 864,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001cde50",
+      "name": "func_001cde50",
+      "line": 1857,
+      "object_size": 1336,
+      "window": 1344,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001ce390",
+      "name": "func_001ce390",
+      "line": 2022,
+      "object_size": 144,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001ce420",
+      "name": "btlAct_ENCOUNT",
+      "line": 2043,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlCamera.c",
+      "addr": "001ce430",
+      "name": "func_001ce430",
+      "line": 2047,
+      "object_size": 52,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00195b60",
+      "name": "func_00195b60",
+      "line": 202,
+      "object_size": 236,
+      "window": 240,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00195d50",
+      "name": "func_00195d50",
+      "line": 235,
+      "object_size": 324,
+      "window": 336,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00196040",
+      "name": "func_00196040",
+      "line": 276,
+      "object_size": 1480,
+      "window": 1488,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00196610",
+      "name": "func_00196610",
+      "line": 466,
+      "object_size": 1332,
+      "window": 1344,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "001974f0",
+      "name": "func_001974f0",
+      "line": 643,
+      "object_size": 1228,
+      "window": 1232,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "001979e0",
+      "name": "btlUnitCreateMoveToUnitPacket",
+      "line": 797,
+      "object_size": 160,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00197f50",
+      "name": "btlUnitCreateRotatePacket",
+      "line": 834,
+      "object_size": 200,
+      "window": 208,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00198050",
+      "name": "func_00198050",
+      "line": 874,
+      "object_size": 632,
+      "window": 640,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00199ee0",
+      "name": "btlUnitCreateAnimPacket",
+      "line": 968,
+      "object_size": 296,
+      "window": 304,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "0019acd0",
+      "name": "func_0019acd0",
+      "line": 1018,
+      "object_size": 328,
+      "window": 336,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "0019ae20",
+      "name": "func_0019ae20",
+      "line": 1076,
+      "object_size": 1796,
+      "window": 1808,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "0019e150",
+      "name": "btlUnitCreateLookAtPacket",
+      "line": 1257,
+      "object_size": 148,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00194ee0",
+      "name": "btlUnitSetPos",
+      "line": 1278,
+      "object_size": 44,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00194f10",
+      "name": "btlUnitSetRot",
+      "line": 1285,
+      "object_size": 68,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00194f60",
+      "name": "btlUnitSetColor",
+      "line": 1295,
+      "object_size": 64,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00194fa0",
+      "name": "btlUnitSetFlags",
+      "line": 1302,
+      "object_size": 32,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00194fc0",
+      "name": "btlUnitClearFlags",
+      "line": 1309,
+      "object_size": 44,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00195630",
+      "name": "func_00195630",
+      "line": 1315,
+      "object_size": 212,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00195850",
+      "name": "btlUnitGetSphereWorldCenter",
+      "line": 1345,
+      "object_size": 160,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "001958f0",
+      "name": "func_001958f0",
+      "line": 1362,
+      "object_size": 224,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00195c50",
+      "name": "func_00195c50",
+      "line": 1379,
+      "object_size": 248,
+      "window": 256,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00196b50",
+      "name": "btlUnitIsMoving",
+      "line": 1396,
+      "object_size": 20,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "001973f0",
+      "name": "btlUnitCreateMovePacket",
+      "line": 1402,
+      "object_size": 216,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "001974d0",
+      "name": "func_001974d0",
+      "line": 1432,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "001979c0",
+      "name": "func_001979c0",
+      "line": 1438,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00198020",
+      "name": "func_00198020",
+      "line": 1444,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "001982d0",
+      "name": "func_001982d0",
+      "line": 1451,
+      "object_size": 40,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "0019a350",
+      "name": "func_0019a350",
+      "line": 1458,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "0019a5c0",
+      "name": "func_0019a5c0",
+      "line": 1464,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "0019d130",
+      "name": "func_0019d130",
+      "line": 1470,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "0019de70",
+      "name": "func_0019de70",
+      "line": 1476,
+      "object_size": 36,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "0019e1f0",
+      "name": "func_0019e1f0",
+      "line": 1485,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "0019e220",
+      "name": "func_0019e220",
+      "line": 1495,
+      "object_size": 764,
+      "window": 768,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "0019e520",
+      "name": "func_0019e520",
+      "line": 1636,
+      "object_size": 48,
+      "window": 48,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00195590",
+      "name": "func_00195590",
+      "line": 1665,
+      "object_size": 128,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "001959d0",
+      "name": "func_001959d0",
+      "line": 1679,
+      "object_size": 208,
+      "window": 208,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00195aa0",
+      "name": "func_00195aa0",
+      "line": 1702,
+      "object_size": 184,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00195ea0",
+      "name": "func_00195ea0",
+      "line": 1719,
+      "object_size": 200,
+      "window": 208,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "00195f70",
+      "name": "func_00195f70",
+      "line": 1735,
+      "object_size": 204,
+      "window": 208,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "001987a0",
+      "name": "func_001987a0",
+      "line": 1751,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlUnit.c",
+      "addr": "0019a370",
+      "name": "func_0019a370",
+      "line": 1762,
+      "object_size": 592,
+      "window": 592,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d1eb0",
+      "name": "func_001d1eb0",
+      "line": 128,
+      "object_size": 120,
+      "window": 128,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d1f30",
+      "name": "func_001d1f30",
+      "line": 162,
+      "object_size": 3668,
+      "window": 3680,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d2d90",
+      "name": "func_001d2d90",
+      "line": 564,
+      "object_size": 104,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d2e00",
+      "name": "func_001d2e00",
+      "line": 581,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d2e20",
+      "name": "func_001d2e20",
+      "line": 643,
+      "object_size": 444,
+      "window": 448,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d2fe0",
+      "name": "func_001d2fe0",
+      "line": 657,
+      "object_size": 24,
+      "window": 32,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3000",
+      "name": "func_001d3000",
+      "line": 662,
+      "object_size": 144,
+      "window": 144,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3090",
+      "name": "func_001d3090",
+      "line": 682,
+      "object_size": 1180,
+      "window": 1184,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3530",
+      "name": "func_001d3530",
+      "line": 784,
+      "object_size": 104,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d35a0",
+      "name": "func_001d35a0",
+      "line": 798,
+      "object_size": 344,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3700",
+      "name": "func_001d3700",
+      "line": 842,
+      "object_size": 88,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3760",
+      "name": "func_001d3760",
+      "line": 855,
+      "object_size": 404,
+      "window": 416,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3900",
+      "name": "func_001d3900",
+      "line": 902,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3950",
+      "name": "func_001d3950",
+      "line": 917,
+      "object_size": 500,
+      "window": 512,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3b50",
+      "name": "func_001d3b50",
+      "line": 997,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3ba0",
+      "name": "func_001d3ba0",
+      "line": 1008,
+      "object_size": 352,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3d00",
+      "name": "func_001d3d00",
+      "line": 1056,
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3d50",
+      "name": "func_001d3d50",
+      "line": 1068,
+      "object_size": 168,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3e00",
+      "name": "func_001d3e00",
+      "line": 1090,
+      "object_size": 148,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3ea0",
+      "name": "func_001d3ea0",
+      "line": 1110,
+      "object_size": 332,
+      "window": 336,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d3ff0",
+      "name": "func_001d3ff0",
+      "line": 1151,
+      "object_size": 220,
+      "window": 224,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d40d0",
+      "name": "func_001d40d0",
+      "line": 1181,
+      "object_size": 80,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d4140",
+      "name": "func_001d4140",
+      "line": 1195,
+      "object_size": 68,
+      "window": 80,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d42e0",
+      "name": "func_001d42e0",
+      "line": 1216,
+      "object_size": 148,
+      "window": 160,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d4380",
+      "name": "func_001d4380",
+      "line": 1238,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d5eb0",
+      "name": "func_001d5eb0",
+      "line": 1256,
+      "object_size": 176,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d5f60",
+      "name": "func_001d5f60",
+      "line": 1283,
+      "object_size": 164,
+      "window": 176,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d6010",
+      "name": "func_001d6010",
+      "line": 1303,
+      "object_size": 344,
+      "window": 352,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d6170",
+      "name": "func_001d6170",
+      "line": 1358,
+      "object_size": 112,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d61e0",
+      "name": "func_001d61e0",
+      "line": 1384,
+      "object_size": 96,
+      "window": 96,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d6240",
+      "name": "func_001d6240",
+      "line": 1395,
+      "object_size": 184,
+      "window": 192,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d69f0",
+      "name": "func_001d69f0",
+      "line": 1418,
+      "object_size": 100,
+      "window": 112,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "001d7bb0",
+      "name": "func_001d7bb0",
+      "line": 1433,
+      "object_size": 52,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Battle/btlFormation.c",
+      "addr": "002027e0",
+      "name": "func_002027e0",
+      "line": 1442,
+      "object_size": 52,
+      "window": 64,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    }
+  ]
+}

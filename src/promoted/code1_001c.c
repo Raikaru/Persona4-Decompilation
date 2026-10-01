@@ -1,3 +1,4 @@
+#include "btl_motion_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
@@ -90,7 +91,6 @@ extern void func_001bac20(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void func_001bbef0(u8 *arg0, f32 arg1);
 extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
 extern s32 effMiscRand(s32 arg0);
-extern s16 func_001991c0(u8 *arg0, s32 arg1, f32 arg2);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
 extern u8 D_005FA2D0[];
@@ -103,7 +103,7 @@ extern s32 func_001bc140(u8 *arg0);
 extern s32 func_001eb440(u8 *arg0);
 extern s32 func_001f1030(u8 *arg0);
 extern s32 func_001f11e0(s16 arg0);
-extern s32 func_001f1210(s32 arg0, s16 arg1, s32 arg2);
+extern s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern s32 func_0022f950(u8 *arg0, u8 *arg1);
 extern void btlUnitSetFlags(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
@@ -449,7 +449,7 @@ s32 func_001c0e50(u8 *arg0) {
         }
         other = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
         if ((*(u8 *)(other + 0xA2) == 0) &&
-            (func_001f1210(*(s32 *)(other + 0xA0C), mode, 1) == 0)) {
+            (func_001f1210(*(u8 **)(other + 0xA0C), mode, 1) == 0)) {
             return 2;
         }
         return 4;
