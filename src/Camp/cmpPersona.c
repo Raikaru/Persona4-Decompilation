@@ -936,7 +936,7 @@ void func_00137890(u8 *arg0, s32 arg1)
     extern void func_0034f2e0(void *sprite, f32 x, f32 y,
                             u8 red, u8 green, u8 blue, u8 alpha);
     extern s32 func_00105330(s32 character);
-    extern void func_00115c40(Vec2f position, s32 alpha, s16 *panel, f32 depth);
+    extern void func_00115c40(Vec2f position, u8 alpha, s16 *panel, f32 depth);
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2E9[];
     extern u8 D_0064B2EA[];
@@ -1043,7 +1043,7 @@ void func_00137890(u8 *arg0, s32 arg1)
         }
         position.x = x + 99.0f;
         position.y = y + 20.0f;
-        func_00115c40(position, alpha, panel.halves, 0.0f);
+        func_00115c40(position, spriteOpacity, panel.halves, 0.0f);
     }
 }
 // FUN_00137DD0

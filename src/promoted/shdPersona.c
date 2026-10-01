@@ -26,19 +26,19 @@ s32 func_00452080(KwlnTask *task);
 void func_0011bc70();
 s32 func_00115020(u8 *state, s32 force);
 u16 func_001152b0(u8 *);
-void func_00115cb0(Vec2f, f32, s32, s16 *);
-void func_00115e90(Vec2f, f32, s32, s16 *);
+void func_00115cb0(Vec2f, f32, u8, s16 *);
+void func_00115e90(Vec2f, f32, u8, s16 *);
 extern char iGpffff9c0c;
 extern char iGpffff9c08;
 
 u8 *func_00109220(u16 personaId);
 u8 *func_0046a770(char *arg0);
-void func_00116190(s64, f32, s32, u8 *, s32 *);
-void func_00116610(s64, f32, s32, u8 *, s32 *);
-void func_001162f0(s64, f32, s32, u8 *, s32 *);
-void func_001163e0(s64, f32, s32, u8 *, s32 *);
-void func_00116820(Vec2f, f32, s32, u8 *, s32 *);
-void func_00116d40(Vec2f, f32, s32, u8, u8, s16, s32);
+void func_00116190(s64, f32, u8, u8 *, s32 *);
+void func_00116610(s64, f32, u8, u8 *, s32 *);
+void func_001162f0(s64, f32, u8, u8 *, s32 *);
+void func_001163e0(s64, f32, u8, u8 *, s32 *);
+void func_00116820(Vec2f, f32, u8, u8 *, s32 *);
+void func_00116d40(Vec2f, f32, u8, u8, u8, s16, s32);
 void func_0045d6e0(u8 *, f32 *, f32, s32);
 void func_0034c270(Vec2f, f32, u8, s32);
 extern s32 (*D_00887300[])(s32, void *);
@@ -216,10 +216,10 @@ void func_00115c00(u8 *arg0, u8 *arg1)
 }
 
 
-void func_00115dc0(Vec2f, f32, s32, s16 *);
+void func_00115dc0(Vec2f, f32, u8, s16 *);
 
 // FUN_00115C40
-void func_00115c40(Vec2f arg0, s32 arg1, s16 *arg2, f32 farg3)
+void func_00115c40(Vec2f arg0, u8 arg1, s16 *arg2, f32 farg3)
 {
     switch (*arg2) {
     case 0:
@@ -244,7 +244,7 @@ void func_00115c40(Vec2f arg0, s32 arg1, s16 *arg2, f32 farg3)
    remaining 12-byte tail is zero padding accepted by the verifier.
    The prior high-nd probes remain archived in `build/` for family history. */
 // FUN_00115CB0
-void func_00115cb0(Vec2f arg0, f32 farg3, s32 arg1, s16 *arg2)
+void func_00115cb0(Vec2f arg0, f32 farg3, u8 arg1, s16 *arg2)
 {
     s8 var_16;
     s32 temp_2;
@@ -283,7 +283,7 @@ u8 *func_00109220(u16 personaId);
 
 
 // FUN_00115DC0
-void func_00115dc0(Vec2f arg0, f32 fparg0, s32 arg1, s16 *arg2)
+void func_00115dc0(Vec2f arg0, f32 fparg0, u8 arg1, s16 *arg2)
 {
     s32 color;
     s8 var_16;
@@ -316,7 +316,7 @@ void func_00115dc0(Vec2f arg0, f32 fparg0, s32 arg1, s16 *arg2)
 #pragma opt_loop_invariants on
 #pragma opt_common_subs off
 // FUN_00115E90
-void func_00115e90(Vec2f arg0, f32 farg3, s32 arg1, s16 *arg2)
+void func_00115e90(Vec2f arg0, f32 farg3, u8 arg1, s16 *arg2)
 {
     u32 *base;
     f32 y;
@@ -365,7 +365,7 @@ void func_00115e90(Vec2f arg0, f32 farg3, s32 arg1, s16 *arg2)
 #pragma pop
 u32 func_0010d6d0(s16 arg0);
 // FUN_00116190
-void func_00116190(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
+void func_00116190(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
 {
     f32 high;
     f32 x;
@@ -392,19 +392,18 @@ void func_00116190(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
 
 
 // FUN_001162F0
-void func_001162f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
+void func_001162f0(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
 {
     s32 t17;
     s32 c;
     u8 m;
     f32 hi;
 
-    c = arg1;
     t17 = *arg3;
     if (t17 == 0) {
         func_0046d730(D_005E4868, 0x197);
     }
-    m = c & 0xFF;
+    m = arg1 & 0xFF;
     c = 0xFF - m;
     hi = *((f32 *)&arg0 + 1);
     func_0046d4c0(0, t17, 0x47, *(f32 *)&arg0, hi, c, 0x2D, 0x2D, 0x2D, fparg0, 0);
@@ -452,7 +451,7 @@ f32 func_0046b1f0(s32, s32);
    materialisation and two-statement inverse produce object 552B / window
    560B, MATCH (normalized_diff 0). */
 // FUN_001163E0
-void func_001163e0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
+void func_001163e0(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
 {
     void func_001171c0(s64, f32, s32, u8, s32);
     f32 high;
@@ -502,7 +501,7 @@ void func_00117310(Vec2f, f32, s32, u32, u32, s32);
    and the direct `iGpffff9c0c` spelling for retail `-0x63F4($gp)`.
    Object 524B / window 528B, MATCH (nd 0). */
 // FUN_00116610
-void func_00116610(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
+void func_00116610(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
 {
     u8 sp90[0x100];
     Vec2f sp190;
@@ -548,7 +547,7 @@ void func_00116610(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
  * measured: native b210, 1304B/1312B, 17 resolved relocations and eight
  * retail zero-tail bytes. Proof: build/first-party-focus-20260921/persona-w4. */
 // FUN_00116820
-void func_00116820(Vec2f position, f32 depth, s32 alpha, u8 *persona, s32 *sprites)
+void func_00116820(Vec2f position, f32 depth, u8 alpha, u8 *persona, s32 *sprites)
 {
     f32 baseY;
     Vec2f point;
@@ -649,7 +648,7 @@ extern f32 iGpffff82fc;
 // FUN_00116D40
 #pragma push
 #pragma opt_scalarize off
-void func_00116d40(Vec2f position, f32 depth, s32 alpha, u8 filled, u8 added,
+void func_00116d40(Vec2f position, f32 depth, u8 alpha, u8 filled, u8 added,
                    s16 phase, s32 resource)
 {
     PackedColor4 colors[2];
@@ -679,7 +678,7 @@ void func_00116d40(Vec2f position, f32 depth, s32 alpha, u8 filled, u8 added,
         colors[0].rgba[1] = 0xFF;
         colors[0].rgba[2] = 0xFF;
         rate = (3.0f + cosf((iGpffff82fc * (f32)phase) / 30.0f)) / 4.0f;
-        colors[0].rgba[3] = (u8)((f32)(u32)alpha * rate);
+        colors[0].rgba[3] = (u8)((f32)alpha * rate);
     } else {
         colors[1].rgba[0] = 0xFF;
         colors[1].rgba[1] = 0xA0;
@@ -1844,169 +1843,211 @@ void func_00119210(u8 *);
 void func_00119810(u8 *);
 void func_00117980(u8 *);
 void func_0034f9d0(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
-/* measured 2026-09-28 (lane 3): 12 differing words, object 802 instructions ==
-   retail 802, frame 0x90, same saved-register set (was 416 words / frame 0xA0).
-   The signature is `(u8 *arg0, u8 *arg1)`; the work base is arg1 ($a1).
-   What closed the gap: (1) `func_0011de40` and `func_00114e50` take u8/u16
-   (their bodies already masked), so retail's slot-order `lbu` after `ld $a0`
-   is reproduced; (2) the y half of each `spNN` copy is held in an f32 local
-   (retail keeps it in $f20 across the calls) instead of re-deriving `&spNN+1`,
-   which cost a fifth saved register; (3) the e400 pair is read into `sy`/`sx`
-   (f22/f21) before the colour is built, and the id call is made inside the
-   argument list so the colour arithmetic is not sunk below it; (4) `inv`
-   is passed unmasked (the callee's u8 slot masks it), and each position half
-   is stored right after its add; (5) `qx = (f32)0x131; qx = qx + field` keeps
-   the int-to-float convert ahead of the field load; (6) `record = b + i`
-   fixes the loop's addu operand order.
-   Residual: all 12 words are one effect at six call sites (`func_00116610`
-   x2, `func_001163e0` x2, `func_00116820`, `func_00116d40`): retail loads the
-   byte alpha AFTER `ld $a0`, which b210 only does when the callee parameter
-   is `u8` (an `s32` parameter hoists the `lbu` first; measured in isolation
-   for u8/u32/u16/local/struct spellings). Making that whole family u8
-   (115c40..116d40) keeps every member MATCH except func_00116d40, which
-   loses 5 words: retail converts its raw incoming alpha register as u32
-   (`bltz $s4`), which needs a 32-bit parameter. So retail's callee and this
-   caller disagree on the parameter type; no single consistent signature
-   reproduces both, and the family is left as s32. */
-// FUN_00119E10 NONMATCHING
-#ifdef NON_MATCHING
-void func_00119e10(u8 *arg0, u8 *arg1)
+/* Renderer view of the existing 0x24-byte animated panels and task work.
+ * Unnamed byte spans retain fields outside this renderer's proven interface. */
+typedef struct PersonaRenderChannel {
+    Vec2f start;
+    Vec2f target;
+    Vec2f current;
+    u8 startAlpha;
+    u8 targetAlpha;
+    u8 alpha;
+    u8 unknown1b;
+    f32 duration;
+    f32 delay;
+} PersonaRenderChannel;
+
+typedef struct PersonaRenderRecord {
+    u16 category;
+    u16 id;
+    u8 level;
+    u8 unknown05[2];
+    u8 values[5];
+    u8 added[5];
+    u8 unknown11[3];
+    s32 affinities[7];
+    u8 unknown30[8];
+    u32 nextExperience;
+} PersonaRenderRecord;
+
+typedef struct PersonaRenderWork {
+    s32 controllerAddress;
+    u8 unknown004[8];
+    PersonaRenderRecord persona[2];
+    u8 skills[0x234];
+    s32 sprites[4];
+    u8 unknown2c8[4];
+    PersonaRenderChannel channels[10];
+    u8 unknown434[0x10];
+    Vec2f selectionPosition;
+    u8 unknown44c[0xC];
+    u8 effect[0x68];
+    u8 unknown4c0[0x38];
+    u8 *model;
+    u8 unknown4fc[9];
+    u8 alpha;
+    u8 unknown506[2];
+    s16 openingFrame;
+    u8 unknown50a[0xA];
+    s16 selectionFrame;
+    s16 comparisonFrame;
+    s16 skillFrame;
+    s16 selectedSkill;
+    f32 selectedSkillFade;
+    s16 revealFrame;
+    u8 unknown522[4];
+    s16 meterPhase;
+    s32 overlayId;
+    u8 unknown52c[8];
+    s32 flags;
+} PersonaRenderWork;
+
+/* Update task counters, callbacks and independently animated Persona panels.
+ * Flags are read again after callbacks because they can change draw visibility.
+ * The selection counter is intentionally advanced in both update and draw.
+ * Packed coordinate snapshots keep complete two-float objects across calls.
+ *
+ * measured 2026-10-01: native b210, 3208B / 3216B, exact instructions,
+ * 58 resolved references and eight zero alignment bytes. The coherent byte
+ * opacity interface preserves the real producer ranges and all matched
+ * family members. See Persona_alpha_family_00119e10_20261001.md. */
+// FUN_00119E10
+void func_00119e10(u8 *task, u8 *argument)
 {
     void func_00113ef0(Vec2f, f32, u8, u8 *, u8, f32);
     void func_00114460(Vec2f, f32, u8, u8 *, f32);
     void func_00274ed0(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
     PackedVec2f position;
-    f32 e400buf[2];
-    s64 sp78;
-    s64 sp70;
-    s64 sp68;
-    u8 *b;
-    u32 tblbase;
+    Vec2f modelPosition;
+    PackedVec2f headerPosition;
+    PackedVec2f labelPosition;
+    PackedVec2f comparisonLabelPosition;
+    PersonaRenderWork *work;
+    u32 renderStateAddress;
     s32 flags;
-    s16 cnt;
+    s16 counter;
 
-    b = arg1;
-    flags = *(s32 *)(b + 0x534);
+    work = (PersonaRenderWork *)argument;
+    flags = work->flags;
     if (((flags & 1) == 0) || ((flags & 8) == 0)) {
         return;
     }
-    cnt = *(s16 *)(b + 0x526);
-    *(s16 *)(b + 0x526) = cnt + 1;
-    if (*(s32 *)b == 0) {
+    counter = work->meterPhase;
+    work->meterPhase = counter + 1;
+    if (work->controllerAddress == 0) {
         func_0046d730(D_005E4868, 0x933);
     }
-    cnt = *(s16 *)(b + 0x508);
-    if (cnt < 0x64) {
-        *(s16 *)(b + 0x508) = cnt + 1;
+    counter = work->openingFrame;
+    if (counter < 0x64) {
+        work->openingFrame = counter + 1;
     }
-    flags = *(s32 *)(b + 0x534);
+    flags = work->flags;
     if ((flags & 2) != 0) {
-        func_0011ac70(b);
+        func_0011ac70((u8 *)work);
     } else if ((flags & 4) != 0) {
-        func_0011ae90(b);
+        func_0011ae90((u8 *)work);
     }
-    if ((*(s32 *)(b + 0x534) & 0x800) != 0) {
-        cnt = *(s16 *)(b + 0x514);
-        if (cnt < 0x64) {
-            *(s16 *)(b + 0x514) = cnt + 1;
+    if ((work->flags & 0x800) != 0) {
+        counter = work->selectionFrame;
+        if (counter < 0x64) {
+            work->selectionFrame = counter + 1;
         }
-        flags = *(s32 *)(b + 0x534);
+        flags = work->flags;
         if ((flags & 0x1000) != 0) {
-            func_0011c780(b);
+            func_0011c780((u8 *)work);
         } else if ((flags & 0x2000) != 0) {
-            func_0011c930(b);
+            func_0011c930((u8 *)work);
         }
     }
-    if ((*(s32 *)(b + 0x534) & 0x4000) != 0) {
-        cnt = *(s16 *)(b + 0x516);
-        if (cnt < 0x64) {
-            *(s16 *)(b + 0x516) = cnt + 1;
+    if ((work->flags & 0x4000) != 0) {
+        counter = work->comparisonFrame;
+        if (counter < 0x64) {
+            work->comparisonFrame = counter + 1;
         }
-        func_0011c3e0(b);
+        func_0011c3e0((u8 *)work);
     }
-    if ((*(s32 *)(b + 0x534) & 0x8000) != 0) {
-        cnt = *(s16 *)(b + 0x518);
-        if (cnt < 0x64) {
-            *(s16 *)(b + 0x518) = cnt + 1;
+    if ((work->flags & 0x8000) != 0) {
+        counter = work->skillFrame;
+        if (counter < 0x64) {
+            work->skillFrame = counter + 1;
         }
-        func_0011cd20(b);
+        func_0011cd20((u8 *)work);
     }
-    if ((*(s32 *)(b + 0x534) & 0x200) != 0) {
-        cnt = *(s16 *)(b + 0x520);
-        if (cnt < 0x64) {
-            *(s16 *)(b + 0x520) = cnt + 1;
+    if ((work->flags & 0x200) != 0) {
+        counter = work->revealFrame;
+        if (counter < 0x64) {
+            work->revealFrame = counter + 1;
         }
-        func_0011ce50(b);
+        func_0011ce50((u8 *)work);
     }
-    tblbase = (u32)D_00887300;
-    ((s32 (**)(s32, void *))tblbase)[0](6, (void *)0);
-    ((s32 (**)(s32, void *))tblbase)[0](7, (void *)2);
-    ((s32 (**)(s32, void *))tblbase)[0](8, (void *)0);
-    ((s32 (**)(s32, void *))tblbase)[0](9, (void *)2);
-    ((s32 (**)(s32, void *))tblbase)[0](0xC, (void *)1);
-    ((s32 (**)(s32, void *))tblbase)[0](0xB, (void *)6);
-    ((s32 (**)(s32, void *))tblbase)[0](0xA, (void *)5);
-    ((s32 (**)(s32, void *))tblbase)[0](2, (void *)4);
-    ((s32 (**)(s32, void *))tblbase)[0](0xE, (void *)0);
+    renderStateAddress = (u32)D_00887300;
+    ((s32 (**)(s32, void *))renderStateAddress)[0](6, (void *)0);
+    ((s32 (**)(s32, void *))renderStateAddress)[0](7, (void *)2);
+    ((s32 (**)(s32, void *))renderStateAddress)[0](8, (void *)0);
+    ((s32 (**)(s32, void *))renderStateAddress)[0](9, (void *)2);
+    ((s32 (**)(s32, void *))renderStateAddress)[0](0xC, (void *)1);
+    ((s32 (**)(s32, void *))renderStateAddress)[0](0xB, (void *)6);
+    ((s32 (**)(s32, void *))renderStateAddress)[0](0xA, (void *)5);
+    ((s32 (**)(s32, void *))renderStateAddress)[0](2, (void *)4);
+    ((s32 (**)(s32, void *))renderStateAddress)[0](0xE, (void *)0);
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
-    if ((*(s32 *)(b + 0x534) & 0x10) != 0) {
-        func_0011b110(b);
+    if ((work->flags & 0x10) != 0) {
+        func_0011b110((u8 *)work);
     }
-    if ((*(s32 *)(b + 0x534) & 0x400000) == 0) {
-        func_0011de40(*(u8 **)(b + 0x4F8), *(u8 *)(b + 0x505));
-        if ((*(s32 *)(b + 0x534) & 0x800000) != 0) {
-            func_0011dd50(*(u8 **)(b + 0x4F8));
+    if ((work->flags & 0x400000) == 0) {
+        func_0011de40(work->model, work->alpha);
+        if ((work->flags & 0x800000) != 0) {
+            func_0011dd50(work->model);
         }
-        if ((*(s32 *)(b + 0x534) & 0x200) != 0) {
-            func_00118a20(b);
+        if ((work->flags & 0x200) != 0) {
+            func_00118a20((u8 *)work);
         }
-        if ((*(s32 *)(b + 0x534) & 0x200000) != 0) {
-            func_0011dc50(*(u8 **)(b + 0x4F8));
+        if ((work->flags & 0x200000) != 0) {
+            func_0011dc50(work->model);
         }
-        if ((*(s32 *)(b + 0x534) & 0x200) != 0) {
-            u8 *work2;
-            f32 f20;
+        if ((work->flags & 0x200) != 0) {
+            u8 *model;
+            f32 phase;
             f32 sy;
             f32 sx;
             s32 packed;
-            s32 id;
-            work2 = *(u8 **)(b + 0x4F8);
-            if (((*(s32 *)(b + 0x534) & 0x10000) != 0) && (*(s16 *)(b + 0x520) >= 0x14) && (func_0011e3e0(work2) != 0)) {
+            model = work->model;
+            if (((work->flags & 0x10000) != 0) && (work->revealFrame >= 0x14) && (func_0011e3e0(model) != 0)) {
                 f32 t;
-                f20 = func_001174a0(*(s16 *)(b + 0x520), 0x17, 0x32, 2);
-                func_0011e400(work2, (u8 *)e400buf);
-                sy = e400buf[1];
-                sx = e400buf[0];
-                t = 204.0f * (1.0f - f20);
+                phase = func_001174a0(work->revealFrame, 0x17, 0x32, 2);
+                func_0011e400(model, (u8 *)&modelPosition);
+                sy = modelPosition.y;
+                sx = modelPosition.x;
+                t = 204.0f * (1.0f - phase);
                 packed = ((u8)t & 0xFF) | 0xFF8C3200;
-                func_00364680(0.0f, packed, sx, sy, sx, sy, 512.0f, 512.0f, func_0011e460(work2), 0, 1);
+                func_00364680(0.0f, packed, sx, sy, sx, sy, 512.0f, 512.0f, func_0011e460(model), 0, 1);
                 RpSkyRenderStateSet(3, (void *)0x717FB);
                 RpSkyRenderStateSet(2, (void *)0x44);
             }
         }
-        if ((*(s32 *)(b + 0x534) & 0x100) != 0) {
-            func_00119210(b);
+        if ((work->flags & 0x100) != 0) {
+            func_00119210((u8 *)work);
         }
-        flags = *(s32 *)(b + 0x534);
+        flags = work->flags;
         if ((flags & 0x200000) != 0) {
             if ((flags & 0x80000) != 0) {
-                func_00117980(b);
-            } else if ((*(u16 *)*(u32 *)b & 4) != 0) {
-                *(s32 *)(b + 0x534) = flags | 0x80000;
-                memset(b + 0x458, 0, 0x68);
+                func_00117980((u8 *)work);
+            } else if ((*(u16 *)work->controllerAddress & 4) != 0) {
+                work->flags = flags | 0x80000;
+                memset(work->effect, 0, 0x68);
             }
         }
-        if ((*(s32 *)(b + 0x534) & 0x400) != 0) {
+        if ((work->flags & 0x400) != 0) {
             f32 px;
             f32 py;
-            px = 16.0f + *(f32 *)(b + 0x36C);
+            px = 16.0f + work->channels[4].current.x;
             position.xy.x = px;
-            py = 17.0f + *(f32 *)(b + 0x370);
+            py = 17.0f + work->channels[4].current.y;
             position.xy.y = py;
-            func_0046d2b0(0, *(s32 *)(b + 0x2C4), 3, px, py, (0xFF - *(u8 *)(b + 0x376)) & 0xFF, 0.0f, 0);
+            func_0046d2b0(0, work->sprites[3], 3, px, py, (0xFF - work->channels[4].alpha) & 0xFF, 0.0f, 0);
         }
-        if ((*(s32 *)(b + 0x534) & 0x80) != 0) {
+        if ((work->flags & 0x80) != 0) {
             f32 px;
             f32 py;
             u8 alpha;
@@ -2014,162 +2055,160 @@ void func_00119e10(u8 *arg0, u8 *arg1)
             s32 id;
             f32 x;
             f32 y;
-            f32 sy78;
-            px = *(f32 *)(b + 0x2DC);
+            f32 headerY;
+            px = work->channels[0].current.x;
             position.xy.x = px;
-            py = 43.0f + *(f32 *)(b + 0x2E0);
+            py = 43.0f + work->channels[0].current.y;
             position.xy.y = py;
-            alpha = *(u8 *)(b + 0x2E6);
-            sp78 = position.packed;
+            alpha = work->channels[0].alpha;
+            headerPosition.packed = position.packed;
             color = (u32)((alpha * 0xFF) / 255U);
-            if (*(u16 *)(b + 0xC) != 0) {
-                id = *(s32 *)(b + 0x2BC);
+            if (work->persona[0].category != 0) {
+                id = work->sprites[1];
                 if (id == 0) {
                     func_0046d730(D_005E4868, 0x171);
                 }
-                sy78 = *((f32 *)&sp78 + 1);
-                func_0046d4c0(0, id, 0x59, 207.0f + *(f32 *)&sp78, sy78, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
-                x = (f32)(s32)(114.0f + *(f32 *)&sp78);
-                y = (f32)(s32)(2.0f + sy78);
-                func_00274ed0(x, y, 0.0f, color | ~0xFF, 8, 1, (const char *)func_0010d6d0(*(s16 *)(b + 0xC)), 8, 0);
+                headerY = headerPosition.xy.y;
+                func_0046d4c0(0, id, 0x59, 207.0f + headerPosition.xy.x, headerY, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+                x = (f32)(s32)(114.0f + headerPosition.xy.x);
+                y = (f32)(s32)(2.0f + headerY);
+                func_00274ed0(x, y, 0.0f, color | ~0xFF, 8, 1, (const char *)func_0010d6d0((s16)work->persona[0].category), 8, 0);
             }
         }
-        if ((*(s32 *)(b + 0x534) & 0x40) != 0) {
+        if ((work->flags & 0x40) != 0) {
             f32 px;
             f32 py;
             u8 alpha;
             s32 id;
             s32 inv;
             f32 sy;
-            px = -23.0f + *(f32 *)(b + 0x300);
+            px = -23.0f + work->channels[1].current.x;
             position.xy.x = px;
-            py = 76.0f + *(f32 *)(b + 0x304);
+            py = 76.0f + work->channels[1].current.y;
             position.xy.y = py;
-            func_00116610(position.packed, 0.0f, *(u8 *)(b + 0x30A), b + 0xC, (s32 *)(b + 0x2B8));
-            px = -23.0f + *(f32 *)(b + 0x348);
+            func_00116610(position.packed, 0.0f, work->channels[1].alpha, (u8 *)&work->persona[0], work->sprites);
+            px = -23.0f + work->channels[3].current.x;
             position.xy.x = px;
-            py = 76.0f + *(f32 *)(b + 0x34C);
+            py = 76.0f + work->channels[3].current.y;
             position.xy.y = py;
-            alpha = *(u8 *)(b + 0x352);
-            sp70 = position.packed;
-            id = *(s32 *)(b + 0x2B8);
+            alpha = work->channels[3].alpha;
+            labelPosition.packed = position.packed;
+            id = work->sprites[0];
             if (id == 0) {
                 func_0046d730(D_005E4868, 0x197);
             }
             inv = 0xFF - (alpha & 0xFF);
-            sy = *((f32 *)&sp70 + 1);
-            func_0046d4c0(0, id, 0x47, *(f32 *)&sp70, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
-            func_0046d4c0(0, id, 0x41, 126.0f + *(f32 *)&sp70, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
-            px = -23.0f + *(f32 *)(b + 0x324);
+            sy = labelPosition.xy.y;
+            func_0046d4c0(0, id, 0x47, labelPosition.xy.x, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+            func_0046d4c0(0, id, 0x41, 126.0f + labelPosition.xy.x, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+            px = -23.0f + work->channels[2].current.x;
             position.xy.x = px;
-            py = 76.0f + *(f32 *)(b + 0x328);
+            py = 76.0f + work->channels[2].current.y;
             position.xy.y = py;
-            func_001163e0(position.packed, 0.0f, *(u8 *)(b + 0x32E), b + 0xC, (s32 *)(b + 0x2B8));
-            if ((*(s32 *)(b + 0x534) & 0x4000) != 0) {
-                px = -23.0f + *(f32 *)(b + 0x3D8);
+            func_001163e0(position.packed, 0.0f, work->channels[2].alpha, (u8 *)&work->persona[0], work->sprites);
+            if ((work->flags & 0x4000) != 0) {
+                px = -23.0f + work->channels[7].current.x;
                 position.xy.x = px;
-                py = 76.0f + *(f32 *)(b + 0x3DC);
+                py = 76.0f + work->channels[7].current.y;
                 position.xy.y = py;
-                func_00116610(position.packed, 0.0f, *(u8 *)(b + 0x3E2), b + 0x48, (s32 *)(b + 0x2B8));
-                px = -23.0f + *(f32 *)(b + 0x420);
+                func_00116610(position.packed, 0.0f, work->channels[7].alpha, (u8 *)&work->persona[1], work->sprites);
+                px = -23.0f + work->channels[9].current.x;
                 position.xy.x = px;
-                py = 76.0f + *(f32 *)(b + 0x424);
+                py = 76.0f + work->channels[9].current.y;
                 position.xy.y = py;
-                alpha = *(u8 *)(b + 0x42A);
-                sp68 = position.packed;
-                id = *(s32 *)(b + 0x2B8);
+                alpha = work->channels[9].alpha;
+                comparisonLabelPosition.packed = position.packed;
+                id = work->sprites[0];
                 if (id == 0) {
                     func_0046d730(D_005E4868, 0x197);
                 }
                 inv = 0xFF - (alpha & 0xFF);
-                sy = *((f32 *)&sp68 + 1);
-            func_0046d4c0(0, id, 0x47, *(f32 *)&sp68, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
-                func_0046d4c0(0, id, 0x41, 126.0f + *(f32 *)&sp68, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
-                px = -23.0f + *(f32 *)(b + 0x3FC);
+                sy = comparisonLabelPosition.xy.y;
+                func_0046d4c0(0, id, 0x47, comparisonLabelPosition.xy.x, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+                func_0046d4c0(0, id, 0x41, 126.0f + comparisonLabelPosition.xy.x, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+                px = -23.0f + work->channels[8].current.x;
                 position.xy.x = px;
-                py = 76.0f + *(f32 *)(b + 0x400);
+                py = 76.0f + work->channels[8].current.y;
                 position.xy.y = py;
-                func_001163e0(position.packed, 0.0f, *(u8 *)(b + 0x406), b + 0x48, (s32 *)(b + 0x2B8));
+                func_001163e0(position.packed, 0.0f, work->channels[8].alpha, (u8 *)&work->persona[1], work->sprites);
             }
             {
                 f32 qx;
                 f32 qy;
                 qx = (f32)0x131;
-                qx = qx + *(f32 *)(b + 0x390);
-                qy = 139.0f + *(f32 *)(b + 0x394);
+                qx = qx + work->channels[5].current.x;
+                qy = 139.0f + work->channels[5].current.y;
                 position.xy.x = qx;
                 position.xy.y = qy;
-                func_00116820(position.xy, 0.0f, *(u8 *)(b + 0x39A), b + 0xC, (s32 *)(b + 0x2B8));
+                func_00116820(position.xy, 0.0f, work->channels[5].alpha, (u8 *)&work->persona[0], work->sprites);
                 {
                     s32 i;
                     for (i = 0; i < 5; i++) {
                         f32 rx;
                         f32 ry;
                         u8 *record;
-                        rx = 88.0f + *(f32 *)(b + 0x390);
-                        ry = 203.0f + *(f32 *)(b + 0x394) + (f32)(i * 19);
+                        rx = 88.0f + work->channels[5].current.x;
+                        ry = 203.0f + work->channels[5].current.y + (f32)(i * 19);
                         position.xy.x = rx;
                         position.xy.y = ry;
-                        record = b + i;
-                        func_00116d40(position.xy, 0.0f, *(u8 *)(b + 0x39A), record[0x13], record[0x18], *(s16 *)(b + 0x526), *(s32 *)(b + 0x2B8));
+                        record = (u8 *)work + i;
+                        func_00116d40(position.xy, 0.0f, work->channels[5].alpha, record[0x13], record[0x18], work->meterPhase, work->sprites[0]);
                     }
                 }
             }
         }
-        if ((*(s32 *)(b + 0x534) & 0x800) != 0) {
+        if ((work->flags & 0x800) != 0) {
             f32 px;
             f32 py;
-            cnt = *(s16 *)(b + 0x514);
-            if (cnt < 0x64) {
-                *(s16 *)(b + 0x514) = cnt + 1;
+            counter = work->selectionFrame;
+            if (counter < 0x64) {
+                work->selectionFrame = counter + 1;
             }
-            px = 18.0f + *(f32 *)(b + 0x444);
+            px = 18.0f + work->selectionPosition.x;
             position.xy.x = px;
-            py = 194.0f + *(f32 *)(b + 0x448);
+            py = 194.0f + work->selectionPosition.y;
             position.xy.y = py;
-            func_00114e50(position.xy, 0.0f, *(u8 *)(b + 0x505), func_0011ccb0(b));
+            func_00114e50(position.xy, 0.0f, work->alpha, func_0011ccb0((u8 *)work));
         }
-        if ((*(s32 *)(b + 0x534) & 0x20) != 0) {
+        if ((work->flags & 0x20) != 0) {
             f32 px;
             f32 py;
             u8 alpha;
             f32 fade;
-            px = *(f32 *)(b + 0x3B4);
+            px = work->channels[6].current.x;
             position.xy.x = px;
-            py = *(f32 *)(b + 0x3B8);
+            py = work->channels[6].current.y;
             position.xy.y = py;
-            alpha = *(u8 *)(b + 0x3BE);
+            alpha = work->channels[6].alpha;
             {
                 s32 j;
                 for (j = 0; j < 8; j++) {
-                    if (((*(s32 *)(b + 0x534) & 0x8000) != 0) && (*(s16 *)(b + 0x51A) == j)) {
-                        fade = *(f32 *)(b + 0x51C);
+                    if (((work->flags & 0x8000) != 0) && (work->selectedSkill == j)) {
+                        fade = work->selectedSkillFade;
                     } else {
                         fade = 0.0f;
                     }
-                    func_00113ef0(position.xy, 0.0f, alpha, b + 0x84, j & 0xFF, fade);
+                    func_00113ef0(position.xy, 0.0f, alpha, work->skills, j & 0xFF, fade);
                 }
-                if (((*(s32 *)(b + 0x534) & 0x8000) != 0) && (*(s16 *)(b + 0x51A) == 8)) {
-                    fade = *(f32 *)(b + 0x51C);
+                if (((work->flags & 0x8000) != 0) && (work->selectedSkill == 8)) {
+                    fade = work->selectedSkillFade;
                 } else {
                     fade = 0.0f;
                 }
-                func_00114460(position.xy, 0.0f, alpha, b + 0x84, fade);
+                func_00114460(position.xy, 0.0f, alpha, work->skills, fade);
             }
-            if ((*(s32 *)(b + 0x534) & 0x100000) != 0) {
-                func_00119810(b);
+            if ((work->flags & 0x100000) != 0) {
+                func_00119810((u8 *)work);
             }
         }
-        if ((*(s32 *)(b + 0x534) & 0x40000) != 0) {
+        if ((work->flags & 0x40000) != 0) {
             position.xy.x = 0.0f;
             position.xy.y = 0.0f;
-            func_0034f9d0(position.xy, 0.0f, *(u8 *)(b + 0x505), *(s32 *)(b + 0x528), *(s32 *)(b + 0x2C4));
+            func_0034f9d0(position.xy, 0.0f, work->alpha, work->overlayId, work->sprites[3]);
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00119e10);
-#endif
+
 
 
 
