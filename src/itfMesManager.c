@@ -1,5 +1,6 @@
 /* Source unit: src/itfMesManager_002770d0.c */
 #include "type.h"
+#include "message_procedure_api.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"

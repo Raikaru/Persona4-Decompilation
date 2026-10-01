@@ -1,11 +1,11 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit itfMsgProcedure_Window.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "message_procedure_api.h"
 #include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 
-s32 *func_0027be60();
 extern s32 func_00452380(void *path);
 extern void func_0046d730(const void *file, u32 line);
 extern s32 func_0025f110(void *arg);
@@ -81,7 +81,6 @@ extern void func_0027a4b0(void *a0, s32 a1, s32 a2, s32 a3);
 extern void func_002e0dd0(void);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *arg0);
-extern void func_0027be90(void *arg0, void *arg1);
 extern void func_0044ea90(const void *file, s32 line);
 extern s32 func_00278ff0(void *arg0);
 extern s32 func_002bd1e0(s32 a0);
@@ -2051,10 +2050,10 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027f6f0);
 #endif
 // FUN_002818A0
-void func_002818a0(u32 arg0, s32 arg1) {
+void func_002818a0(s32 arg0, s32 arg1) {
     s32 *temp_2;
 
-    temp_2 = func_0027be60();
+    temp_2 = func_0027BE60(arg0);
     if (temp_2 != NULL) {
         *temp_2 = arg1;
     }
@@ -2103,15 +2102,15 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
             func_0046d730(D_0063BFC0, 0x18F);
         }
         memset(D_00882040, 0, 0x18);
-        if (func_0027be60(arg0) == NULL) {
+        if (func_0027BE60((s32)arg0) == NULL) {
             func_0044ea90(D_0063BFC0, 0x5C0);
-            func_0027be90(arg0, D_008873F4[0](1, 8, 0x40000));
+            func_0027be90((s32)arg0, D_008873F4[0](1, 8, 0x40000));
         }
         break;
     case 1:
-        if ((tex = func_0027be60(arg0)) != NULL) {
+        if ((tex = func_0027BE60((s32)arg0)) != NULL) {
             jtbl_008873EC[0](tex);
-            func_0027be90(arg0, NULL);
+            func_0027be90((s32)arg0, NULL);
         }
         break;
     case 4:
@@ -2138,7 +2137,7 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
                 func_0027d3c0(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
             }
             if (D_00882044[0] > 3 && D_00882044[0] < 11) {
-                tex = func_0027be60(arg0);
+                tex = func_0027BE60((s32)arg0);
                 if (tex != NULL) {
                     f = sinf(iGpffff8094 * (f32)(D_00882044[0] - 3) / 7.0f);
                     func_0025ecd0(9.0f - 60.0f * (1.0f - f), 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)func_002bd1e0(*tex), 1,
@@ -2156,7 +2155,7 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
         if (func_0027bec0(arg0) != 0) {
             func_00366380(0x46, 0x1B, 0x194, 0x37, 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
             func_0027d3c0(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
-            if ((tex = func_0027be60(arg0)) != NULL) {
+            if ((tex = func_0027BE60((s32)arg0)) != NULL) {
                 func_0025ecd0(9.0f, 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)func_002bd1e0(*tex), 1, 0, 0, 0.0f, 1.0f, 1.0f,
                               D_00796490);
             }

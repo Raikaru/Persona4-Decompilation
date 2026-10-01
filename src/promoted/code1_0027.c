@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "message_procedure_api.h"
 #include "sdk_snd_internal.h"
 extern s32 D_0063BF80[];
 extern u16 D_008C024E[];
@@ -10,7 +11,6 @@ extern void func_0027a400();
 
 extern s32 func_002746a0(void);
 extern void func_002e0f20(void);
-extern s32 func_00277840();
 extern void func_00273f70(u8 *arg0);
 extern void func_00273cc0(u8 *arg0, u8 *arg1);
 
@@ -1468,7 +1468,7 @@ s32 func_0027b7c0(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    *(s32 *)(func_00277840() + 0x14) = 0;
+    *(s32 *)(func_00277840(arg0) + 0x14) = 0;
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0);
@@ -1481,7 +1481,7 @@ s32 func_0027b830(s32 arg0)
     u8 *base;
     s32 (*temp_2)(s32, s32);
 
-    base = (u8 *)func_00277840();
+    base = (u8 *)func_00277840(arg0);
     *(s32 *)(base + 0x14) = 1;
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
@@ -1495,7 +1495,7 @@ s32 func_0027b8a0(s32 arg0)
     u8 *base;
     s32 (*temp_2)(s32, s32);
 
-    base = (u8 *)func_00277840();
+    base = (u8 *)func_00277840(arg0);
     *(s32 *)(base + 0x14) = 2;
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
@@ -1509,7 +1509,7 @@ s32 func_0027b910(s32 arg0)
     u8 *base;
     s32 (*temp_2)(s32, s32);
 
-    base = (u8 *)func_00277840();
+    base = (u8 *)func_00277840(arg0);
     *(s32 *)(base + 0x14) = 3;
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
@@ -1522,7 +1522,7 @@ s32 func_0027b980(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840();
+    func_00277840(arg0);
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 4);
@@ -1534,7 +1534,7 @@ s32 func_0027b9e0(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840();
+    func_00277840(arg0);
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 5);
@@ -1546,7 +1546,7 @@ s32 func_0027ba40(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840();
+    func_00277840(arg0);
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 6);
@@ -1558,7 +1558,7 @@ s32 func_0027baa0(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840();
+    func_00277840(arg0);
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 7);
@@ -1570,7 +1570,7 @@ s32 func_0027bb00(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840();
+    func_00277840(arg0);
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 8);
@@ -1582,7 +1582,7 @@ s32 func_0027bb60(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840();
+    func_00277840(arg0);
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 9);
@@ -1594,7 +1594,7 @@ s32 func_0027bbc0(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840();
+    func_00277840(arg0);
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0xA);
@@ -1606,7 +1606,7 @@ s32 func_0027bc20(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840();
+    func_00277840(arg0);
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0xB);
@@ -1618,7 +1618,7 @@ s32 func_0027bc80(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840();
+    func_00277840(arg0);
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0xC);
@@ -1630,7 +1630,7 @@ s32 func_0027bce0(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840();
+    func_00277840(arg0);
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0xD);
@@ -1642,7 +1642,7 @@ s32 func_0027bd40(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840();
+    func_00277840(arg0);
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0x10);
@@ -1654,7 +1654,7 @@ s32 func_0027bda0(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840();
+    func_00277840(arg0);
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0x11);
@@ -1666,7 +1666,7 @@ s32 func_0027be00(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840();
+    func_00277840(arg0);
     temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0x12);
