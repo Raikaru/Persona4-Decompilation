@@ -1,0 +1,54 @@
+src/promoted/code1_0035.c production 80 []
+src/promoted/code1_0035.c guards 80 []
+{
+  "base": "0d58b7c703fe46d4ee8fb5ccb0e311c37214b3ae",
+  "phases": {
+    "src/promoted/code1_0035.c:production": {
+      "functions": 80,
+      "changed": [],
+      "allocated_canonical_refs_preserved": true,
+      "entire_object_identical": true
+    },
+    "src/promoted/code1_0035.c:guards": {
+      "functions": 80,
+      "changed": [],
+      "allocated_canonical_refs_preserved": true,
+      "entire_object_identical": true
+    }
+  },
+  "source_hashes": {
+    "src/promoted/code1_0035.c": {
+      "base": "4406ac0d16cd6b6c57ce4953fab7a62204c2cee2e4506a78c1ec85df9442a6cb",
+      "candidate": "618f88fa5e2ce7adeaa0f1e95001caf00d92db7496f3519fce03e95d6436b408"
+    }
+  },
+  "target_bytes": 4752,
+  "frame": 304,
+  "target_sha256": "29069f594188f78cc504586d8df0dd9e3832dbc8bf298897367811371173d01b",
+  "full_window_global": 308,
+  "call_anchored": 315,
+  "anchor_parts": [
+    7,
+    45,
+    35,
+    30,
+    3,
+    3,
+    1,
+    3,
+    3,
+    3,
+    11,
+    25,
+    23,
+    8,
+    7,
+    106,
+    2
+  ],
+  "full_window_greedy": 525,
+  "relocation_only": 12,
+  "reference_count": 44,
+  "ordered_references_and_addends_preserved": true,
+  "static_call_count": 16
+}

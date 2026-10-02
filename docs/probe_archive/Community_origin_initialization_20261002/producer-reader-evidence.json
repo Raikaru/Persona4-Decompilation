@@ -1,0 +1,61 @@
+{
+  "retail_accesses": [
+    {
+      "function": "func_00356250",
+      "retail_address": "0x356250",
+      "bytes": 1488,
+      "selected_offset_4_8_accesses": [
+        {
+          "address": "0x356278",
+          "instruction": "sw $zero, 4($a0)",
+          "word": "040080ac"
+        },
+        {
+          "address": "0x35627c",
+          "instruction": "sw $zero, 8($a0)",
+          "word": "080080ac"
+        }
+      ]
+    },
+    {
+      "function": "func_0035e8b0",
+      "retail_address": "0x35e8b0",
+      "bytes": 1740,
+      "selected_offset_4_8_accesses": [
+        {
+          "address": "0x35e904",
+          "instruction": "sw $zero, 4($s0)",
+          "word": "040000ae"
+        },
+        {
+          "address": "0x35e908",
+          "instruction": "sw $zero, 8($s0)",
+          "word": "080000ae"
+        }
+      ]
+    },
+    {
+      "function": "func_00356a10",
+      "retail_address": "0x356a10",
+      "bytes": 10536,
+      "selected_offset_4_8_accesses": [
+        {
+          "address": "0x356a64",
+          "instruction": "lwc1 $f25, 4($s5)",
+          "word": "0400b9c6"
+        },
+        {
+          "address": "0x356a68",
+          "instruction": "lwc1 $f24, 8($s5)",
+          "word": "0800b8c6"
+        }
+      ]
+    }
+  ],
+  "matched_renderer_actual_readbacks": [
+    "originX = (menu->origin.x);",
+    "originY = (menu->origin.y);"
+  ],
+  "constructor_call_from_controller": 1,
+  "scope": "The two initializer paths and matched renderer origin reads; other menu fields and dispatch callbacks are excluded."
+}

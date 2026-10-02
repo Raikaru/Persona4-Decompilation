@@ -1,0 +1,44 @@
+src/promoted/code1_0035.c:10: warn: [H011] func_002bb550 declared void(s8) but defined s32(s64) at src/promoted/code1_002b.c:1470
+    extern void func_002bb550(s8 arg0);
+src/promoted/code1_0035.c:14: warn: [H011] func_001060b0 declared s32() but defined s16() at src/g_data/g_data.c:960
+    extern s32 func_001060b0(void);
+src/promoted/code1_0035.c:15: warn: [H011] func_00110d60 declared s32(s64) but defined s32(s32) at src/promoted/code1_0011.c:468
+    extern s32 func_00110d60(s64 arg0);
+src/promoted/code1_0035.c:30: warn: [H011] func_00452080 declared void(s32) but defined s32(ptr) at src/Kernel/sdkTask.c:780
+    extern void func_00452080(s32 arg0);
+src/promoted/code1_0035.c:32: warn: [H011] func_002467b0 declared s32(u16) but defined ptr(s32) at src/cmmMisc.c:109
+    extern s32 func_002467b0(u16 arg0);
+src/promoted/code1_0035.c:73: warn: [H011] func_004672c0 declared void(s32, s32) but defined s32(s32, ptr) at src/promoted/sdkWrap.c:296
+    extern void func_004672c0(s32 arg0, s32 arg1);
+src/promoted/code1_0035.c:93: warn: [H011] func_00454a60 declared s32(ptr, s32) but defined ptr(ptr, s32) at src/Kernel/sdkCdvd.c:230
+    extern s32 func_00454a60(u8 *arg0, s32 arg1);
+src/promoted/code1_0035.c:96: warn: [H011] func_004669d0 declared s32(s32, ptr, s32) but defined ptr(ptr, ptr, ptr) at src/promoted/code1_0046.c:1362
+    extern s32 func_004669d0(s32 arg0, void *arg1, s32 arg2);
+src/promoted/code1_0035.c:115: warn: [H011] func_002bb1e0 declared void(s32) but defined u32(s32) at src/nmCmdList.c:195
+    extern void func_002bb1e0(s32 arg0);
+src/promoted/code1_0035.c:117: warn: [H011] func_002bb680 declared s32(s8) but defined s32(s32) at src/promoted/code1_002b.c:1494
+    extern s32 func_002bb680(s8 arg0);
+src/promoted/code1_0035.c:118: warn: [H011] func_002bb290 declared void(s8, s32) but defined s32(s64, s32) at src/nmCmdList.c:260
+    extern void func_002bb290(s8 arg0, s32 arg1);
+src/promoted/code1_0035.c:120: warn: [H011] func_002bd7b0 declared s32(ptr) but defined s32() at src/promoted/code1_002b.c:2126
+    extern s32 func_002bd7b0(const void *arg0);
+src/promoted/code1_0035.c:362: warn: [H011] func_002bab80 declared s8(ptr) but defined s64(ptr) at src/promoted/code1_002b.c:1267
+    extern s8 func_002bab80(void *arg0);
+src/promoted/code1_0035.c:367: warn: [H011] func_0045aeb0 declared u8(s16, ptr) but defined s32(s16, ptr) at src/sdkSnd.c:1033
+    extern u8 func_0045aeb0(s16 channelIndex, const char *name);
+src/promoted/code1_0035.c:612: warn: [H011] func_00457120 declared ptr() but defined s32() at src/promoted/code1_0045.c:1445
+    extern u8 *func_00457120(void);
+src/promoted/code1_0035.c:1358: warn: [H003] nonbaseline pragma `opt_loop_invariants on`; review justification
+    #pragma opt_loop_invariants on
+src/promoted/code1_0035.c:1492: warn: [H003] nonbaseline pragma `opt_loop_invariants off`; review justification
+    #pragma opt_loop_invariants off
+src/promoted/code1_0035.c:3289: warn: [H011] func_00457120 declared ptr() but defined s32() at src/promoted/code1_0045.c:1445
+    extern u8 *func_00457120(void);
+src/promoted/code1_0035.c:3530: warn: [H011] func_003593e0 declared s32(s32, s32, s32) but defined s32(s32, s32, s16) at src/promoted/code1_0035.c:2292
+    extern s32 func_003593e0(s32, s32, s32);
+src/promoted/code1_0035.c:3912: warn: [H003] nonbaseline pragma `opt_loop_invariants on`; review justification
+    #pragma opt_loop_invariants on
+
+decomp_lint: 1 first-party files, 20 findings (0 error, 20 warn)
+  H003  warn        3  nonbaseline optimization pragma; review measured justification
+  H011  warn       17  declaration disagrees with the function's definition; one function has one signature - fix the definition's real type or the caller's types
