@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit itfMsgProcedure_Window.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "message_handle.h"
 #include "sdk_ot_state_api.h"
 #include "primitive_rectangle_packet.h"
 #include "message_procedure_api.h"
@@ -8,7 +9,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 
-extern s32 func_00452380(void *path);
+extern u8 *func_00452380(s8 *name);
 extern void func_0046d730(const void *file, u32 line);
 extern s32 func_0025f110(void *arg);
 extern void func_0025f230(u32 arg);
@@ -44,10 +45,8 @@ extern void func_0027bf30(u8 *arg);
 extern void func_0027d620(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, s16 t3, void *s0, float f0, float f1, float f2, float f3);
 extern void func_0027f6a0(void);
 extern void func_00283360(void);
-extern void func_00278110(void);
 extern void func_00278170(void *arg0, u32 arg1);
 extern void func_002781e0(void *arg0, u32 arg1);
-extern s32 func_0027bec0(void *arg0);
 extern s32 func_00278fd0(void *arg0);
 extern s32 func_00278fb0(void *arg0);
 extern void func_00272a10(void *arg0, f32 f0, f32 f1);
@@ -71,8 +70,6 @@ extern s16 D_00882064[];
 extern s16 D_00882066[];
 extern f32 iGpffff81d8;
 extern void func_0025ec90(f32, f32, f32, s32, u8, s32, void *, s32, void *);
-extern s32 func_00277070(void *arg0);
-extern s32 func_00279010(void *arg0);
 extern s32 func_002738d0(void *arg0);
 extern void func_00272ba0(void *arg0, s32 arg1);
 extern void func_0027a490(void *a0, s32 a1, s32 a2, s32 a3);
@@ -90,6 +87,13 @@ typedef struct MsgProcWindowWork {
     u32 field4;
     u32 field8;
 } MsgProcWindowWork;
+
+typedef struct MsgProcWindowResource {
+    s16 state;
+    s16 flags;
+    u32 sprite;
+} MsgProcWindowResource;
+typedef char MsgProcWindowResourceSize[sizeof(MsgProcWindowResource) == 8 ? 1 : -1];
 
 typedef struct MsgProcWindowEntry {
     s32 field0;
@@ -131,7 +135,7 @@ typedef struct MsgProcWindowQuad {
     u32 d;
 } MsgProcWindowQuad;
 
-extern u8 D_007245D0;
+extern MsgProcWindowResource D_007245D0;
 extern u32 D_007245D4;
 extern MsgProcWindowWork D_00882098;
 extern MsgProcWindowEntry D_008820B0[];
@@ -522,7 +526,6 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     extern s32 func_002e0fb0(void);
     extern void func_002e0f90(void);
     extern s32 func_0026e350(void);
-    extern s32 func_00278110(void);
     extern void func_0045e8e0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
     typedef struct { MsgProcWindowRGBA colors[10]; u8 gap[24]; MsgProcWindowF2 points[10]; } Work10;
     typedef struct { MsgProcWindowRGBA colors[16]; MsgProcWindowF2 points[16]; } Work16;
@@ -560,7 +563,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     s16 s16tmp;
 
     ret = 0;
-    sret = func_00278110();
+    sret = func_00278110((s32)arg0);
     switch (arg1) {
     case 0:
         func_002781e0((void *)arg0, 0x100000);
@@ -574,7 +577,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     case 4:
         if (func_002e0fb0() != 0) {
             func_002e0f90();
-        } else if (func_0027bec0((void *)arg0) != 0) {
+        } else if (func_0027bec0((s32)arg0) != 0) {
             if ((D_00882000[0] & 2) == 0) {
                 D_00882000[0] |= 2;
                 D_00882004[0] = 0;
@@ -682,7 +685,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
         }
         break;
     case 5:
-        if (func_0027bec0((void *)arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             src = (MsgProcWindowU32Pair *)D_0063C030;
             dst = (MsgProcWindowU32Pair *)w3.points;
             count = 10;
@@ -745,7 +748,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     case 6: {
         MsgProcWindowEntry *e;
         s32 j;
-        if (func_0027bec0((void *)arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             e = (MsgProcWindowEntry *)0;
             for (j = 0; j < 8; j++) {
                 e = &D_008820B0[j];
@@ -832,14 +835,14 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     case 11: {
         s32 lvl2;
         s32 v;
-        if (func_0027bec0((void *)arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if ((D_00882000[0] & 8) == 0) {
                 D_00882000[0] |= 8;
                 D_00882006[0] = 0;
             }
             D_00882006[0]++;
             f = sinf(iGpffff8094 * (float)D_00882006[0] / 6.0f);
-            lvl2 = func_00279010((void *)arg0);
+            lvl2 = func_00279010((s32)arg0);
             v = (5 - lvl2) * 0x1E + 0x87;
             src = (MsgProcWindowU32Pair *)D_0063C080;
             dst = (MsgProcWindowU32Pair *)w5.points;
@@ -891,15 +894,15 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     case 12: {
         s32 a;
         s32 b;
-        if (func_0027bec0((void *)arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
                 tmp = 1;
             } else {
                 tmp = 0;
             }
             if (tmp != 0) {
-                a = func_00277070((void *)arg0);
-                b = func_00279010((void *)arg0);
+                a = func_00277070((s32)arg0);
+                b = func_00279010((s32)arg0);
                 v0 = (5 - b) * 0x1E + 0x87;
                 src = (MsgProcWindowU32Pair *)D_0063C080;
                 dst = (MsgProcWindowU32Pair *)w6.points;
@@ -956,12 +959,12 @@ s32 func_0027d970(s32 arg0, u32 arg1)
         void *t;
         t = (void *)func_00278ff0((void *)arg0);
         if (t != (void *)0) {
-            func_00277070((void *)arg0);
-            func_00279010((void *)arg0);
+            func_00277070((s32)arg0);
+            func_00279010((s32)arg0);
             func_00272b00(t, 0);
             func_00272ba0(t, 0x1B1B1BFF);
         }
-        if (func_0027bec0((void *)arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
                 tmp = 1;
             } else {
@@ -973,8 +976,8 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                     D_00882006[0] = 0;
                 }
                 D_00882006[0]++;
-                a2 = func_00277070((void *)arg0);
-                b2 = func_00279010((void *)arg0);
+                a2 = func_00277070((s32)arg0);
+                b2 = func_00279010((s32)arg0);
                 v0 = (b2 - (a2 + 1)) * 0x1E + 0x6D;
                 v1 = a2 * 0x1E;
                 if (v1 < v0) {
@@ -1064,7 +1067,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     }
     case 16: {
         s16 cur;
-        if (func_0027bec0((void *)arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
                 tmp = 1;
             } else {
@@ -1091,7 +1094,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
         break;
     }
     case 17:
-        if (func_0027bec0((void *)arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
                 func_0025ecd0(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, 180.0f, 1.0f, 1.0f, D_00796490);
                 func_0025ec90(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 3, (void *)iGpffffb4d8, 1, D_00796490);
@@ -1101,7 +1104,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     case 18:
         if (func_0026e350() == 1) {
             ret = 1;
-        } else if (func_0027bec0((void *)arg0) != 0) {
+        } else if (func_0027bec0((s32)arg0) != 0) {
             if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
                 MsgProcWindowEntry *e3;
                 s32 m;
@@ -1135,20 +1138,20 @@ INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d970);
 // FUN_0027F560
 s32 func_0027f560(u8 *unusedTask)
 {
-    MsgProcWindowWork *work = (MsgProcWindowWork *)&D_007245D0;
+    MsgProcWindowResource *work = &D_007245D0;
 
-    switch (*(s16 *)&D_007245D0) {
+    switch (D_007245D0.state) {
     case 0:
-        work->field4 = func_0025ef20(D_0063C120);
-        work->field0 = 1;
+        work->sprite = func_0025ef20(D_0063C120);
+        work->state = 1;
     case 1:
-        if (func_0025f110((void *)work->field4) != 0) {
-            work->field0 = 2;
+        if (func_0025f110((void *)work->sprite) != 0) {
+            work->state = 2;
         }
         break;
     case 2:
-        if ((work->field2 & 1) != 0) {
-            work->field0 = 3;
+        if ((work->flags & 1) != 0) {
+            work->state = 3;
         }
         break;
     case 3:
@@ -1160,25 +1163,59 @@ s32 func_0027f560(u8 *unusedTask)
 // FUN_0027F630
 void func_0027f630(u8 *unusedTask)
 {
-    MsgProcWindowWork *work = (MsgProcWindowWork *)&D_007245D0;
+    MsgProcWindowResource *work = &D_007245D0;
 
     if (D_007245D4 != 0) {
-        if (func_0025f110((void *)work->field4) == 0) {
+        if (func_0025f110((void *)work->sprite) == 0) {
             func_0046d730(D_0063BFC0, 0x3D9);
         }
-        func_0025f230(work->field4);
-        work->field4 = 0;
+        func_0025f230(work->sprite);
+        work->sprite = 0;
     }
 }
 
 // FUN_0027F6A0
 void func_0027f6a0(void)
 {
-    MsgProcWindowWork *work = (MsgProcWindowWork *)&D_007245D0;
+    MsgProcWindowResource *work = &D_007245D0;
 
-    if (func_00452380(&D_00723868) != 0) {
-        work->field2 |= 1;
+    if (func_00452380((s8 *)&D_00723868) != 0) {
+        work->flags |= 1;
     }
+}
+
+/* Shared by the message-window procedures: the first entry of D_008820B0 whose
+   in-use bit is clear.  Inlined; its `return e` inside the loop is retail's
+   unthreaded bnez/b pair. */
+static inline MsgProcWindowEntry *msgWinFindFreeEntry(void)
+{
+    s32 i;
+    MsgProcWindowEntry *e;
+
+    for (i = 0; i < 8; i++) {
+        e = &D_008820B0[i];
+        if ((e->field0 & 1) == 0) {
+            return e;
+        }
+    }
+    return NULL;
+}
+
+/* This resource owns eight bytes, separate from the twelve-byte calendar
+ * resource above. Retail 0027F844 clears exactly these two halfwords and word. */
+static inline s32 msgWinSelectionResource(void)
+{
+    MsgProcWindowResource *work = &D_007245D0;
+
+    if (func_00452380((s8 *)&D_00723868) != 0) {
+        if (work->state >= 2) {
+            return work->sprite;
+        }
+    } else if (func_00452380((s8 *)&D_00723868) == 0) {
+        memset(work, 0, 8);
+        func_00451fc0(NULL, &D_00723868, 15, 0, 0, func_0027f560, func_0027f630, NULL);
+    }
+    return 0;
 }
 
 /* measured 0027f6f0 2026-09-19: `#pragma opt_dead_assignments off` was tried and REMOVED.
@@ -1290,6 +1327,13 @@ void func_0027f6a0(void)
    unknown func_00277070/279010 semantics: parked. Case-7 search residue is pure
    allocation ($s0/$s1 rotation, $v0 vs $a0 index); e-hoist already rejected. Loop
    address base+disp split stands (struct member access under the kept pragma). */
+/* Current recovery (2026-10-02, baseline 354c1add): real color globals and
+ * complete rectangle snapshots replace the discarded/misdirected copies;
+ * message handles, live frame reads and the eight-byte resource are explicit.
+ * Reusing the inlined resource/first-free helpers preserves retail's joins.
+ * Whole-owner b210: 8556/8624 bytes, 590 aligned edits, 668 masked words.
+ * This supersedes the historical scores above; the assembly fallback remains.
+ * See docs/probe_archive/Message_selection_0027f6f0_20261002.md. */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1306,17 +1350,18 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     extern f32 iGpffff8118;
     extern f32 iGpffff80d4;
     extern f32 iGpffff81e4;
-    extern u32 D_0063C130[];
-    extern u32 D_0063C140[];
+    extern PrimitiveRectangleColor iGpffffa780;
+    extern PrimitiveRectangleColor iGpffffa784;
+    extern PrimitiveRectangleWords D_0063C130;
+    extern PrimitiveRectangleWords D_0063C140;
     extern s32 func_0025f500(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, void *a6, f32 f0, f32 f1, f32 f2);
     extern s32 func_00273970(void *arg0);
-    extern s32 func_00277070(void *arg0);
-    extern s32 func_00279010(void *arg0);
-    PrimitiveRectangleWords copyA;
-    PrimitiveRectangleWords copyB;
-    f32 fSp1;
-    PrimitiveRectangleColor fSp2;
-    PrimitiveRectangleColor fSp3;
+    PrimitiveRectangleColor color;
+    PrimitiveRectangleColor backgroundColor;
+    PrimitiveRectangleColor selectionColor;
+    PrimitiveRectangleWords rectangle;
+    PrimitiveRectangleWords background;
+    PrimitiveRectangleWords selection;
     s32 ret;
     s32 handle;
     s32 s19;
@@ -1327,8 +1372,6 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     s32 tmp;
     s32 tmp2;
     s32 v0;
-    s16 cnt16;
-    s32 cnt32;
     s16 cntB;
     s32 cntB32;
     float f;
@@ -1353,10 +1396,9 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     void *pv2;
     s32 *tw;
     MsgProcWindowEntry *e;
-    MsgProcWindowWork *w245;
     MsgProcWindowBlock blocks[12];
 
-    func_00278110();
+    func_00278110((s32)arg0);
     ret = 0;
     handle = 0;
     switch (arg1) {
@@ -1374,34 +1416,19 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         break;
     case 4:
         if (D_0088202A[0] != 0) {
-            w245 = (MsgProcWindowWork *)&D_007245D0;
-            if (func_00452380(&D_00723868) != 0) {
-                if (*(s16 *)&D_007245D0 >= 2) {
-                    handle = (s32)w245->field4;
-                } else {
-                    handle = 0;
-                }
-            } else {
-                if (func_00452380(&D_00723868) == 0) {
-                    memset(w245, 0, 8);
-                    (s32)func_00451fc0((void *)((void *)0), (const void *)(&D_00723868), 0xF, 0, 0, func_0027f560, func_0027f630, (u8 *)((void *)0));
-                }
-                handle = 0;
-            }
+            handle = msgWinSelectionResource();
             if (handle == 0) {
-                return 0;
+                break;
             }
         }
-        if (func_0027bec0((void *)arg0) == 0) {
+        if (func_0027bec0((s32)arg0) == 0) {
             break;
         }
         if ((D_00882020[0] & 2) == 0) {
             D_00882020[0] |= 2;
             D_00882024[0] = 0;
         }
-        cnt16 = D_00882024[0] + 1;
-        D_00882024[0] = cnt16;
-        cnt32 = (s32)cnt16;
+        D_00882024[0]++;
         switch (D_0088202C[0]) {
         case 0:
             s20 = 0x45;
@@ -1416,8 +1443,8 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             s19 = 0xB;
             break;
         }
-        if (cnt32 < 0xB) {
-            f = sinf(iGpffff81dc + (iGpffff8084 * (float)cnt32) / 10.0f);
+        if (D_00882024[0] < 0xB) {
+            f = sinf(iGpffff81dc + (iGpffff8084 * (float)D_00882024[0]) / 10.0f);
             f = (f + 1.0f) / 2.0f;
             subA = 1.0f - f;
             cvtA = (float)(s20 + 0x7B);
@@ -1426,15 +1453,15 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             chainC = iGpffff803c + (iGpffff811c * f);
             chainD = iGpffff803c - (iGpffff8118 * f);
             func_0025ecd0(chainB, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, chainC, chainD, (void *)D_00796490);
-        } else if (cnt32 < 0x10) {
-            f = sinf((iGpffff8094 * (float)(cnt32 - 10)) / 5.0f);
+        } else if (D_00882024[0] < 0x10) {
+            f = sinf((iGpffff8094 * (float)(D_00882024[0] - 10)) / 5.0f);
             prodB = 1.0f - f;
             chainA = (float)s20 * prodB + 123.0f;
             chainC = iGpffff80d4 * f + iGpffff81e4;
             func_0025ecd0(0.0f, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, chainC, (void *)D_00796490);
-        } else if (cnt32 < 0x15) {
+        } else if (D_00882024[0] < 0x15) {
             func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, (void *)D_00796490);
-            f = sinf((iGpffff8094 * (float)(cnt32 - 15)) / 5.0f);
+            f = sinf((iGpffff8094 * (float)(D_00882024[0] - 15)) / 5.0f);
             if (D_0088202A[0] == 0) {
                 chainA = 36.0f - ((1.0f - f) * 100.0f);
                 func_0025ec90(chainA, 143.0f, 0.0f, 0xFFE92C, 0xFF, 0, (void *)iGpffffb4dc, 1, (void *)D_00796490);
@@ -1592,7 +1619,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             }
             func_0045eb20(&blocks[6].cols[0], &blocks[6].pts[0], 5.0f, 4, 4, 1, 0, -9, 15.0f, f, 1.0f, (void *)D_00796490);
         }
-        if (cnt32 >= 0x14) {
+        if (D_00882024[0] >= 0x14) {
             D_00882020[0] &= ~2u;
             D_00882024[0] = 0;
             ret = 1;
@@ -1600,25 +1627,12 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         break;
     case 5:
         if (D_0088202A[0] != 0) {
-            w245 = (MsgProcWindowWork *)&D_007245D0;
-            if (func_00452380(&D_00723868) != 0) {
-                if (*(s16 *)&D_007245D0 >= 2) {
-                    handle = (s32)w245->field4;
-                } else {
-                    handle = 0;
-                }
-            } else {
-                if (func_00452380(&D_00723868) == 0) {
-                    memset(w245, 0, 8);
-                    (s32)func_00451fc0((void *)((void *)0), (const void *)(&D_00723868), 0xF, 0, 0, func_0027f560, func_0027f630, (u8 *)((void *)0));
-                }
-                handle = 0;
-            }
+            handle = msgWinSelectionResource();
             if (handle == 0) {
-                return 0;
+                break;
             }
         }
-        if (func_0027bec0((void *)arg0) == 0) {
+        if (func_0027bec0((s32)arg0) == 0) {
             break;
         }
         switch (D_0088202C[0]) {
@@ -1784,7 +1798,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         func_0045eb20(&blocks[0].cols[0], &blocks[0].pts[0], 5.0f, 4, 4, 1, 0, -9, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         break;
     case 6:
-        func_0027bec0((void *)arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 8:
@@ -1813,53 +1827,37 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         ret = 1;
         break;
     case 7:
-        if (D_0088202C[0] == 2) {
-            e = (MsgProcWindowEntry *)0;
-            for (i = 0; i < 8; i++) {
-                if ((D_008820B0[i].field0 & 1) == 0) {
-                    e = &D_008820B0[i];
-                    break;
-                }
-            }
-            if (e != (MsgProcWindowEntry *)0) {
-                memset(e, 0, 0x18);
-                e->field0 |= 1;
-                e->field8 = 0;
-                e->fieldC = 0;
-                e->field4 = 3;
-            }
-        } else if (D_0088202C[0] == 1) {
-            e = (MsgProcWindowEntry *)0;
-            for (i = 0; i < 8; i++) {
-                if ((D_008820B0[i].field0 & 1) == 0) {
-                    e = &D_008820B0[i];
-                    break;
-                }
-            }
-            if (e != (MsgProcWindowEntry *)0) {
-                memset(e, 0, 0x18);
-                e->field0 |= 1;
-                e->field8 = 0;
-                e->fieldC = 0;
-                e->field4 = 2;
-            }
-        } else if (D_0088202C[0] == 0) {
-            e = (MsgProcWindowEntry *)0;
-            i = 0;
-            do {
-                if ((D_008820B0[i].field0 & 1) == 0) {
-                    e = &D_008820B0[i];
-                    break;
-                }
-                i++;
-            } while (i < 8);
-            if (e != (MsgProcWindowEntry *)0) {
+        switch (D_0088202C[0]) {
+        case 0:
+            e = msgWinFindFreeEntry();
+            if (e != NULL) {
                 memset(e, 0, 0x18);
                 e->field0 |= 1;
                 e->field8 = 0;
                 e->fieldC = 0;
                 e->field4 = 1;
             }
+            break;
+        case 1:
+            e = msgWinFindFreeEntry();
+            if (e != NULL) {
+                memset(e, 0, 0x18);
+                e->field0 |= 1;
+                e->field8 = 0;
+                e->fieldC = 0;
+                e->field4 = 2;
+            }
+            break;
+        case 2:
+            e = msgWinFindFreeEntry();
+            if (e != NULL) {
+                memset(e, 0, 0x18);
+                e->field0 |= 1;
+                e->field8 = 0;
+                e->fieldC = 0;
+                e->field4 = 3;
+            }
+            break;
         }
         break;
     case 9:
@@ -1879,24 +1877,18 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         ret = 1;
         break;
     case 11:
-        func_0027bec0((void *)arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 12:
-        if (func_0027bec0((void *)arg0) != 0) {
-            fSp1 = (float)iGpffffb4d8;
-            fSp2.transport = fSp1;
-            copyA.bits[0] = D_0063C130[0];
-            copyA.bits[1] = D_0063C130[1];
-            copyA.bits[2] = D_0063C130[2];
-            copyA.bits[3] = D_0063C130[3];
-            copyB.bits[0] = D_0063C130[0];
-            copyB.bits[1] = D_0063C130[1];
-            copyB.bits[2] = D_0063C130[2];
-            copyB.bits[3] = D_0063C130[3];
-            func_0045da40(&fSp2, &copyB, 0.0f, 1, (void *)D_00796490);
-            tmp = func_00277070((void *)arg0);
-            tmp2 = func_00279010((void *)arg0);
+        if (func_0027bec0((s32)arg0) != 0) {
+            backgroundColor.transport = iGpffffa780.transport;
+            color.transport = backgroundColor.transport;
+            background = D_0063C130;
+            rectangle = background;
+            func_0045da40(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
+            tmp = func_00277070((s32)arg0);
+            tmp2 = func_00279010((s32)arg0);
             if ((s16)tmp2 == 5) {
                 j = tmp * 0xF0 + 0x550;
             } else {
@@ -1904,28 +1896,22 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 tmp2 = (s32)f;
                 j = (tmp2 >> 1) * 8 + 0x550 + tmp2 * 8 * tmp;
             }
-            fSp1 = (float)iGpffffb4d8;
-            fSp3.transport = fSp1;
-            copyA.bits[0] = D_0063C140[0];
-            copyA.bits[1] = D_0063C140[1];
-            copyA.bits[2] = D_0063C140[2];
-            copyA.bits[3] = D_0063C140[3];
-            copyA.bits[0] = 0x38;
-            copyA.bits[3] = (u32)(j >> 3);
-            copyB.bits[0] = D_0063C140[0];
-            copyB.bits[1] = D_0063C140[1];
-            copyB.bits[2] = D_0063C140[2];
-            copyB.bits[3] = D_0063C140[3];
-            func_0045da40(&fSp3, &copyB, 0.0f, 1, (void *)D_00796490);
+            selectionColor.transport = iGpffffa784.transport;
+            color.transport = selectionColor.transport;
+            selection = D_0063C140;
+            selection.signedWords.word[0] = 0x38;
+            selection.signedWords.word[1] = j >> 3;
+            rectangle = selection;
+            func_0045da40(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
         }
         ret = 1;
         break;
     case 13:
-        func_0027bec0((void *)arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 16:
-        if (func_0027bec0((void *)arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if (iGpffffb4d8 == 0 || iGpffffb4dc == 0) {
                 tmp = 0;
             } else {
@@ -1969,7 +1955,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         }
         break;
     case 17:
-        if (func_0027bec0((void *)arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if (iGpffffb4d8 == 0 || iGpffffb4dc == 0) {
                 tmp = 0;
             } else {
@@ -1996,7 +1982,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         }
         break;
     case 18:
-        if (func_0027bec0((void *)arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if (iGpffffb4d8 == 0 || iGpffffb4dc == 0) {
                 tmp = 0;
             } else {
@@ -2058,22 +2044,6 @@ void func_002818a0(s32 arg0, s32 arg1) {
     }
 }
 
-/* Shared by the message-window procedures: the first entry of D_008820B0 whose
-   in-use bit is clear.  Inlined; its `return e` inside the loop is retail's
-   unthreaded bnez/b pair. */
-static inline MsgProcWindowEntry *msgWinFindFreeEntry(void)
-{
-    s32 i;
-    MsgProcWindowEntry *e;
-
-    for (i = 0; i < 8; i++) {
-        e = &D_008820B0[i];
-        if ((e->field0 & 1) == 0) {
-            return e;
-        }
-    }
-    return NULL;
-}
 
 #pragma push
 /* measured: byte-exact (602/602 instructions, 0 differing words).  The frame
@@ -2090,7 +2060,7 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
     f32 f;
     MsgProcWindowEntry *e;
 
-    func_00278110();
+    func_00278110((s32)arg0);
     ret = 0;
     switch (arg1) {
     case 0:
@@ -2113,7 +2083,7 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
         }
         break;
     case 4:
-        if (func_0027bec0(arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if ((D_00882040[0] & 2) == 0) {
                 D_00882040[0] |= 2;
                 D_00882044[0] = 0;
@@ -2151,7 +2121,7 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
         }
         break;
     case 5:
-        if (func_0027bec0(arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             func_00366380(0x46, 0x1B, 0x194, 0x37, 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
             func_0027d3c0(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
             if ((tex = func_0027BE60((s32)arg0)) != NULL) {
@@ -2162,7 +2132,7 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
         ret = 1;
         break;
     case 6:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 8: {
@@ -2206,27 +2176,27 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
         break;
     }
     case 11:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 12:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 13:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 16:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 17:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 18:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     }
@@ -2284,7 +2254,7 @@ s32 func_00282250(u8 *arg0, s32 arg1)
     s32 i6;
     s32 total;
     s32 need;
-    func_00278110();
+    func_00278110((s32)arg0);
     ret = 0;
     switch (arg1) {
     case 0:
@@ -2294,7 +2264,7 @@ s32 func_00282250(u8 *arg0, s32 arg1)
         memset(D_00882060, 0, 0x18);
         break;
     case 4:
-        if (func_0027bec0(arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if ((D_00882060[0] & 2) == 0) {
                 D_00882060[0] |= 2;
                 D_00882064[0] = 0;
@@ -2310,11 +2280,11 @@ s32 func_00282250(u8 *arg0, s32 arg1)
         }
         break;
     case 5:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 6:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 8:
@@ -2359,9 +2329,9 @@ s32 func_00282250(u8 *arg0, s32 arg1)
         }
         break;
     case 11:
-        if (func_0027bec0(arg0) != 0) {
-            v77070 = func_00277070(arg0);
-            v79010 = (s16)func_00279010(arg0);
+        if (func_0027bec0((s32)arg0) != 0) {
+            v77070 = func_00277070((s32)arg0);
+            v79010 = (s16)func_00279010((s32)arg0);
             if (v77070 == -1) {
                 v77070 = 0;
             }
@@ -2394,15 +2364,15 @@ s32 func_00282250(u8 *arg0, s32 arg1)
         }
         break;
     case 12:
-        if (func_0027bec0(arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if (iGpffffb4d8 == 0 || iGpffffb4dc == 0) {
                 tmp = 0;
             } else {
                 tmp = 1;
             }
             if (tmp != 0) {
-                v77070 = func_00277070(arg0);
-                v79010 = (s16)func_00279010(arg0);
+                v77070 = func_00277070((s32)arg0);
+                v79010 = (s16)func_00279010((s32)arg0);
                 i1 = (4 - v79010) * 0x1E;
                 func_00366380(-5, i1 + 0xCE, 0x1C0, (v79010 - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
                 i2 = (s32)((float)v77070 * 30.0f + (float)(i1 + 0xD5) + 0.0f);
@@ -2422,11 +2392,11 @@ s32 func_00282250(u8 *arg0, s32 arg1)
     case 13:
         pv = (void *)func_00278ff0(arg0);
         if (pv != NULL) {
-            func_00277070(arg0);
-            func_00279010(arg0);
+            func_00277070((s32)arg0);
+            func_00279010((s32)arg0);
             func_00272b00(pv, 5);
         }
-        if (func_0027bec0(arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if (iGpffffb4d8 == 0 || iGpffffb4dc == 0) {
                 tmp = 0;
             } else {
@@ -2440,8 +2410,8 @@ s32 func_00282250(u8 *arg0, s32 arg1)
                 cnt16 = D_00882066[0] + 1;
                 D_00882066[0] = cnt16;
                 cnt32 = (s32)cnt16;
-                v77070 = func_00277070(arg0);
-                v79010 = (s16)func_00279010(arg0);
+                v77070 = func_00277070((s32)arg0);
+                v79010 = (s16)func_00279010((s32)arg0);
                 f = iGpffff8094;
                 i1 = ((s32)v79010 - (v77070 + 1)) * 0x1E + 0x3B;
                 i2 = v77070 * 0x1E;
@@ -2507,14 +2477,14 @@ s32 func_00282250(u8 *arg0, s32 arg1)
         }
         break;
     case 16:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 17:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         break;
     case 18:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     default:
@@ -2578,7 +2548,7 @@ void func_00283360(void)
 {
     u8 *work = (u8 *)&D_00882098;
 
-    if (func_00452380(D_0063C180) != 0) {
+    if (func_00452380((s8 *)D_0063C180) != 0) {
         *(s16 *)(work + 2) |= 1;
     }
 }
@@ -2588,12 +2558,12 @@ s32 func_002833b0(s32 arg0)
 {
     MsgProcWindowWork *work = &D_00882098;
 
-    if (func_00452380(D_0063C180) != 0) {
+    if (func_00452380((s8 *)D_0063C180) != 0) {
         if (work->field0 >= 2) {
             u32 *arr = (u32 *)((u8 *)work + 4);
             return arr[arg0];
         }
-    } else if (func_00452380(D_0063C180) == 0) {
+    } else if (func_00452380((s8 *)D_0063C180) == 0) {
         memset(work, 0, 0xC);
         (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 0xF, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
     }
@@ -2615,10 +2585,8 @@ s32 func_002833b0(s32 arg0)
 #ifdef NON_MATCHING
 void func_00283490(u8 *arg0, u8 *arg1)
 {
-    extern s32 func_00452380(void *path);
+    extern u8 *func_00452380(s8 *name);
     extern void memset(void *a0, s32 a1, s32 a2);
-
-    extern s32 func_0027bec0(void *arg0);
     extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
     extern void *func_0046a770(void *arg0);
     extern void (*D_00887300[])(s32 arg0, s32 arg1);
@@ -2711,13 +2679,13 @@ void func_00283490(u8 *arg0, u8 *arg1)
     cnt = (s32)cnt16;
     saved = *(s32 *)((u8 *)copy1 + 0x10);
     if (kind == 6) {
-        if (func_00452380(D_0063C180) != 0) {
+        if (func_00452380((s8 *)D_0063C180) != 0) {
             if (work->field0 >= 2) {
                 v = work->field4;
                 goto lab6_chk;
             }
         } else {
-            if (func_00452380(D_0063C180) == 0) {
+            if (func_00452380((s8 *)D_0063C180) == 0) {
                 memset(work, 0, 12);
                 (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
             }
@@ -2727,7 +2695,7 @@ lab6_zero:
         v = 0;
 lab6_chk:;
         if (v != 0) {
-            func_0027bec0((void *)saved);
+            func_0027bec0((s32)saved);
         }
         return;
     }
@@ -2736,13 +2704,13 @@ lab6_chk:;
             return;
         }
         {
-            if (func_00452380(D_0063C180) != 0) {
+            if (func_00452380((s8 *)D_0063C180) != 0) {
                 if (work->field0 >= 2) {
                     v = work->field4;
                     goto lab4_chk;
                 }
             } else {
-                if (func_00452380(D_0063C180) == 0) {
+                if (func_00452380((s8 *)D_0063C180) == 0) {
                     memset(work, 0, 12);
                     (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
                 }
@@ -2752,7 +2720,7 @@ lab4_zero:
             v = 0;
 lab4_chk:;
         }
-        if (v == 0 || func_0027bec0((void *)saved) == 0) {
+        if (v == 0 || func_0027bec0((s32)saved) == 0) {
             return;
         }
         if (cnt < 10) {
@@ -2841,13 +2809,13 @@ lab4_chk:;
             func_00366380(0xB0, 0x10F, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, (void *)0, 0.0f, 0.0f, 1.0f, 1.0f);
         }
         {
-            if (func_00452380(D_0063C180) != 0) {
+            if (func_00452380((s8 *)D_0063C180) != 0) {
                 if (work->field0 >= 2) {
                     v = work->field8;
                     goto lab4b_chk;
                 }
             } else {
-                if (func_00452380(D_0063C180) == 0) {
+                if (func_00452380((s8 *)D_0063C180) == 0) {
                     memset(work, 0, 12);
                     (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
                 }
@@ -2929,13 +2897,13 @@ lab4b_chk:;
         return;
     }
     {
-        if (func_00452380(D_0063C180) != 0) {
+        if (func_00452380((s8 *)D_0063C180) != 0) {
             if (work->field0 >= 2) {
                 v = work->field4;
                 goto lab5_chk;
             }
         } else {
-            if (func_00452380(D_0063C180) == 0) {
+            if (func_00452380((s8 *)D_0063C180) == 0) {
                 memset(work, 0, 12);
                 (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
             }
@@ -2945,7 +2913,7 @@ lab5_zero:
         v = 0;
 lab5_chk:;
     }
-    if (v == 0 || func_0027bec0((void *)saved) == 0) {
+    if (v == 0 || func_0027bec0((s32)saved) == 0) {
         return;
     }
     {
@@ -2995,13 +2963,13 @@ lab5_chk:;
     func_0025e9e0(0.0f, 0.0f, 0.0f, 165.0f, 0x43740000, 0, *(void **)(v + 8), 1);
     func_00366380(0xB0, 0x10F, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, (void *)0, 0.0f, 0.0f, 1.0f, 1.0f);
     {
-        if (func_00452380(D_0063C180) != 0) {
+        if (func_00452380((s8 *)D_0063C180) != 0) {
             if (work->field0 >= 2) {
                 v = work->field8;
                 goto lab5b_chk;
             }
         } else {
-            if (func_00452380(D_0063C180) == 0) {
+            if (func_00452380((s8 *)D_0063C180) == 0) {
                 memset(work, 0, 12);
                 (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
             }
@@ -3053,11 +3021,11 @@ static inline u32 msgWinResource(void)
 {
     MsgProcWindowWork *work = &D_00882098;
 
-    if (func_00452380(D_0063C180) != 0) {
+    if (func_00452380((s8 *)D_0063C180) != 0) {
         if (work->field0 >= 2) {
             return work->field4;
         }
-    } else if (func_00452380(D_0063C180) == 0) {
+    } else if (func_00452380((s8 *)D_0063C180) == 0) {
         memset(work, 0, 12);
         func_00451fc0(NULL, D_0063C180, 15, 0, 0, func_002831c0, func_002832b0, NULL);
     }
@@ -3084,7 +3052,7 @@ s32 func_002848c0(void *arg0, s32 arg1)
     s32 w1;
     s32 w2;
 
-    func_00278110();
+    func_00278110((s32)arg0);
     ret = 0;
     switch (arg1) {
     case 0:
@@ -3097,7 +3065,7 @@ s32 func_002848c0(void *arg0, s32 arg1)
         memset(&D_00882080, 0, 24);
         break;
     case 4:
-        if (msgWinResource() != 0 && func_0027bec0(arg0) != 0) {
+        if (msgWinResource() != 0 && func_0027bec0((s32)arg0) != 0) {
             if ((D_00882080[0] & 2) == 0) {
                 D_00882080[0] |= 2;
                 D_00882084[0] = 0;
@@ -3121,7 +3089,7 @@ s32 func_002848c0(void *arg0, s32 arg1)
         }
         break;
     case 5:
-        if (msgWinResource() != 0 && func_0027bec0(arg0) != 0) {
+        if (msgWinResource() != 0 && func_0027bec0((s32)arg0) != 0) {
             if ((D_00882080[0] & 2) == 0) {
                 D_00882080[0] |= 2;
                 D_00882084[0] = 0;
@@ -3145,7 +3113,7 @@ s32 func_002848c0(void *arg0, s32 arg1)
         }
         break;
     case 6:
-        if (func_0027bec0(arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             ret = 1;
         }
         break;
@@ -3191,18 +3159,18 @@ s32 func_002848c0(void *arg0, s32 arg1)
         ret = 1;
         break;
     case 11:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 12:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         break;
     case 13:
-        func_0027bec0(arg0);
+        func_0027bec0((s32)arg0);
         ret = 1;
         break;
     case 16:
-        if (func_0027bec0(arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if (msgWinReady() != 0) {
                 s32 c = D_00882088[0];
                 if ((D_00882080[0] & 0x20) == 0) {
@@ -3220,12 +3188,12 @@ s32 func_002848c0(void *arg0, s32 arg1)
         }
         break;
     case 17:
-        if (func_0027bec0(arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             ret = 0;
         }
         break;
     case 18:
-        if (func_0027bec0(arg0) != 0) {
+        if (func_0027bec0((s32)arg0) != 0) {
             if (msgWinReady() != 0) {
                 s32 c = D_00882088[0];
                 if ((D_00882080[0] & 0x80) == 0) {

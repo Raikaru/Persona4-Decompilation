@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "message_handle.h"
 #include "message_procedure_api.h"
 #include "sdk_snd_internal.h"
 extern s32 D_0063BF80[];
@@ -54,7 +55,6 @@ extern s32 func_001105b0(s32 arg0);
 extern void func_00275980(void *arg0, void *arg1, s32 arg2);
 extern s8 D_0063BAB0[];
 extern s32 func_00108e10(void);
-extern s32 func_00278110(void);
 extern void func_00278a70(s32 arg0);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
@@ -1674,11 +1674,11 @@ s32 func_0027be00(s32 arg0)
     return 1;
 }
 // FUN_0027BEC0
-s32 func_0027bec0(void)
+s32 func_0027bec0(s32 handle)
 {
     s32 temp_2;
 
-    temp_2 = func_00278110();
+    temp_2 = func_00278110(handle);
     if (!(temp_2 & 0x80000) || ((temp_2 & 0x300) < 0x100)) {
         return 1;
     }
