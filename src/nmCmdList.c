@@ -1,6 +1,7 @@
 /* Source unit: src/nmCmdList_002baa90.c */
 #include "include_asm.h"
 #include "type.h"
+#include "message_handle.h"
 
 extern u8 DAT_00882F60_abs[];
 extern u8 DAT_00882F64_abs[];
@@ -11,7 +12,6 @@ extern u8 DAT_00882F6D_abs[];
 extern u8 *D_00882F40[];
 extern u8 *func_002bbf70(void);
 extern s32 func_002bbf80(s32* param_1, s32 param_2);
-extern u32 func_00277070(int param_1);
 extern void func_002bbdd0(int param_1);
 extern s32 func_00278610(s32 arg0, s16 arg1);
 extern int func_00276fb0(int param_1);

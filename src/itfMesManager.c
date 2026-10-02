@@ -1,5 +1,6 @@
 /* Source unit: src/itfMesManager_002770d0.c */
 #include "type.h"
+#include "message_handle.h"
 #include "message_procedure_api.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
@@ -448,7 +449,7 @@ void func_00277010(s32 arg0, s16 arg1)
 }
 
 // FUN_00277070
-s16 func_00277070(s32 arg0)
+s32 func_00277070(s32 arg0)
 {
     u8 *object;
 

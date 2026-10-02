@@ -4,6 +4,7 @@
 #include "fcl_bounds_packet.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "message_handle.h"
 #include "shd_misc_internal.h"
 static inline s32 p4_pack_or(s32 left, s32 right)
 {
@@ -61,7 +62,6 @@ extern void func_00277250(s32 arg0);
 extern void func_00277ad0(s32 arg0, s32 arg1);
 extern s32 func_00276e10();
 extern s32 func_00276fb0(s32 arg0);
-extern s32 func_00277070(s32 arg0);
 extern void func_00277be0(s32 arg0, s32 arg1);
 extern void func_00277fd0(s32 arg0, s32 arg1);
 extern u32 func_002786c0(s32 arg0, s32 arg1, s32 arg2);

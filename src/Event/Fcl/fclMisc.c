@@ -4,6 +4,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "message_handle.h"
 #include "message_procedure_api.h"
 
 
@@ -34,7 +35,6 @@ extern u8 *func_002e1db0(s32, s32, s32, s32);
 extern u8 D_0063F398[];
 extern u8 D_00882F30[];
 extern s32 func_002bce00(u8 *task);
-extern u32 func_00278110(s32);
 extern void func_0046d730(void *, s32);
 extern char D_0063F2A0[];
 extern void func_002bd530(int *);
