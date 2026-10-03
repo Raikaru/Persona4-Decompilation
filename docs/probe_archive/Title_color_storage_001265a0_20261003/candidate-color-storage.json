@@ -1,0 +1,25 @@
+{
+  "source_sha256": "1163564f1e8e6bc9864dd1bc25e056c028fa08970cbd8771d4a739b6bf6bb6b0",
+  "target_bytes": 17184,
+  "frame_bytes": 1232,
+  "layer_call_arguments": [
+    {
+      "target_relative_call_offset": "0x474",
+      "a0": "sp+0x4b8",
+      "a1": "sp+0x3a0",
+      "a2": 1,
+      "f12_bits": "00000000"
+    },
+    {
+      "target_relative_call_offset": "0x498",
+      "a0": "sp+0x4b8",
+      "a1": "sp+0x3a0",
+      "a2": 1,
+      "f12_bits": "00000000"
+    }
+  ],
+  "four_byte_clear_loops_verified": 2,
+  "raw_four_byte_copies_verified": 2,
+  "layer_alpha_byte_offset": 3,
+  "no_color_recopy_between_layer_calls": true
+}

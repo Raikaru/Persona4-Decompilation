@@ -1,0 +1,84 @@
+#include "type.h"
+static unsigned scenario;
+#define CHECK(c) do { if (!(c)) native32_failure(__LINE__,scenario,#c); } while(0)
+@TYPE@
+_Static_assert(sizeof(LargeBattleHitResult)==32,"result extent");
+_Static_assert(__builtin_offsetof(LargeBattleHitResult,hpDelta)==0,"HP offset");
+_Static_assert(__builtin_offsetof(LargeBattleHitResult,spDelta)==4,"SP offset");
+_Static_assert(__builtin_offsetof(LargeBattleHitResult,addedStatus)==8,"status offset");
+_Static_assert(__builtin_offsetof(LargeBattleHitResult,hpTransfer)==24,"transfer offset");
+typedef u32 (*BtlPacketFunc)(void *);
+typedef struct BtlPacket { u8 prefix[0x68];BtlPacketFunc initFunc,updateFunc,destroyFunc;u32 word74;void *workData; } BtlPacket;
+typedef union { u64 align; u8 bytes[0xB00]; } Buffer;
+static Buffer action,unit,data,target;
+static BtlPacket packets[2];
+static struct { u8 before[16]; union { u64 align;u8 bytes[0x50]; }; u8 after[16]; } work[2];
+static u32 allocations,phase;
+static s32 wantedHp,wantedSp;
+static u32 wantedStatus;
+static u16 indexValue,countValue;
+static void func_001f2fe0(void *p) { (void)p; }
+static u32 func_001f3010(void *p) { (void)p;return 0; }
+static void func_001f36b0(void *p) { (void)p; }
+static void func_00201a80(void) {}
+static void func_00201b00(void) {}
+static void func_00201db0(void) {}
+static BtlPacket *func_00194470(u32 kind,s32 size) {
+    CHECK(allocations<2);CHECK(kind==(allocations?0x50A:0x700));CHECK(size==(allocations?0x3C:0x2C));
+    packets[allocations].workData=work[allocations].bytes;return &packets[allocations++];
+}
+@PROVIDERS@
+static void check_result(const void *p) {
+    u8 expected[32];memset(expected,0,sizeof(expected));
+    memcpy(expected,&wantedHp,4);memcpy(expected+4,&wantedSp,4);memcpy(expected+8,&wantedStatus,4);
+    CHECK(memcmp(p,expected,32)==0);
+}
+static void exercise(void) {
+    struct { u32 before[4]; @DECLARATION@ u32 after[4]; } storage;
+    u8 *arg0=action.bytes,*temp_2_15,*temp_2_120,*temp_2_121,*temp_2_132,*var_18_4;
+    u8 *temp_18=target.bytes,*temp_2_118=target.bytes+indexValue*32,*temp_4_16=unit.bytes,*temp_4_19=unit.bytes;
+    u16 sp3B0=indexValue,sp3A0=countValue;
+    @POINTER_DECLARATION@
+    ++scenario;allocations=0;memset(&storage,0xA5,sizeof(storage));memset(work,0xA5,sizeof(work));memset(packets,0,sizeof(packets));
+    CHECK(sizeof(storage.result)==32);
+#define result storage.result
+    if(phase==0) { @SMALL@ CHECK(temp_2_15==(u8 *)&packets[0]); }
+    if(phase==1) { @POINTER@ @TRANSFER@ CHECK(temp_2_120==(u8 *)&packets[0]);
+        @DISPLAY_TRANSFER@ CHECK(temp_2_121==(u8 *)&packets[1]);CHECK((@HP_NONZERO@)==(wantedHp!=0)); }
+    if(phase==2) { @HP@ CHECK(var_18_4==(u8 *)&packets[0]);
+        @DISPLAY_HP@ CHECK(temp_2_132==(u8 *)&packets[1]); }
+    if(phase==3) { @STATUS@ CHECK(var_18_4==(u8 *)&packets[0]); }
+#undef result
+    CHECK(allocations==((phase==1||phase==2)?2:1));
+    for(u32 i=0;i<4;++i)CHECK(storage.before[i]==0xA5A5A5A5U&&storage.after[i]==0xA5A5A5A5U);
+    check_result(&storage.result);
+    for(u32 i=0;i<allocations;++i) {
+        u8 *w=work[i].bytes;check_result(w+8);
+        for(u32 j=0;j<16;++j)CHECK(work[i].before[j]==0xA5&&work[i].after[j]==0xA5);
+        CHECK(*(s32 *)w==(s32)(i?unit.bytes:action.bytes)&&*(s32 *)(w+4)==(s32)(i?unit.bytes:action.bytes));
+        if(i==0) {
+            CHECK(*(u16 *)(w+0x28)==1&&*(u16 *)(w+0x2A)==1);
+            CHECK(packets[i].initFunc==(BtlPacketFunc)func_001f2fe0&&packets[i].updateFunc==(BtlPacketFunc)func_001f3010&&packets[i].destroyFunc==(BtlPacketFunc)func_001f36b0);
+            for(u32 j=0x2C;j<0x50;++j)CHECK(w[j]==0xA5);
+        } else {
+            CHECK(*(s32 *)(w+0x28)==-1&&*(u16 *)(w+0x2C)==(phase==1)&&*(u16 *)(w+0x2E)==(phase==1));
+            CHECK(*(u16 *)(w+0x30)==(phase==1?indexValue:0)&&*(u16 *)(w+0x32)==(phase==1?countValue:1)&&*(u16 *)(w+0x38)==0);
+            CHECK(packets[i].initFunc==(BtlPacketFunc)func_00201a80&&packets[i].updateFunc==(BtlPacketFunc)func_00201b00&&packets[i].destroyFunc==(BtlPacketFunc)func_00201db0);
+            for(u32 j=0x3A;j<0x50;++j)CHECK(w[j]==0xA5);
+        }
+    }
+}
+int main(void) {
+    *(u8 **)(action.bytes+0x30)=unit.bytes;*(u8 **)(unit.bytes+0xA64)=data.bytes;
+    phase=0;wantedHp=wantedSp=0;wantedStatus=0x100000;exercise();
+    phase=3;wantedStatus=0x80000;exercise();wantedStatus=0;
+    for(u32 seed=0;seed<65536;++seed) {
+        indexValue=(u16)(seed%24);countValue=(u16)(seed^0xF00D);
+        phase=1;wantedHp=(seed&0x8000)?(s32)seed-65536:(s32)seed;wantedSp=1;
+        *(s16 *)(target.bytes+indexValue*32+0x108)=(s16)wantedHp;*(s16 *)(target.bytes+indexValue*32+0x10A)=(s16)wantedSp;exercise();
+        wantedSp=wantedHp;wantedHp=1;
+        *(s16 *)(target.bytes+indexValue*32+0x108)=(s16)wantedHp;*(s16 *)(target.bytes+indexValue*32+0x10A)=(s16)wantedSp;exercise();
+        phase=2;wantedHp=1-(s32)seed;wantedSp=0;*(u16 *)(data.bytes+8)=(u16)seed;exercise();
+    }
+    CHECK(scenario==196610);native32_text("196610 result construction/provider cases passed\n");return 0;
+}

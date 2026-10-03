@@ -55,8 +55,8 @@ def fixture(mutation=None):
     creator_type = re.search(r'(?m)^extern BtlPacket \*btlUnitCreateAnimPacket\([^;]+;',
                             (ROOT / 'src/promoted/code1_001a.c').read_text())[0]
     if mutation == 'unsigned_byte':
-        assert '*(s8 *)(u32)sp100' in expressions[-1]
-        expressions[-1] = expressions[-1].replace('*(s8 *)(u32)sp100', '*(u8 *)(u32)sp100')
+        assert '*hitMotion' in expressions[-1]
+        expressions[-1] = expressions[-1].replace('*hitMotion', '*(u8 *)hitMotion')
     if mutation == 'lost_rate':
         factory = factory.replace('work->speed = speed;', 'work->speed = 1.0f;')
     if mutation == 'wrong_mode':
@@ -80,7 +80,8 @@ def fixture(mutation=None):
     s32 var_30 = raw, var_16 = mode, sp2A0 = raw, temp_22 = raw;
     s16 sp430 = (s16)raw;
     s64 var_18_2 = frame;
-    s32 var_17_5 = mode, sp100 = (s32)&byte;
+    s32 var_17_5 = mode;
+    s8 *hitMotion = &byte;
     f32 var_f20 = rate, var_f20_2 = rate;
     return ''' + expression + ';\n}')
     expectation = []

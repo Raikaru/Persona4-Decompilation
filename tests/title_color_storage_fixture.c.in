@@ -1,0 +1,106 @@
+#include "type.h"
+/* i386 has no __int128 scalar; these unrelated 16-byte snapshots only copy. */
+typedef s32 s128 __attribute__((vector_size(16)));
+typedef struct { f32 v0, v1, v2, v3; } Float4;
+typedef struct { u8 b0, b1, b2, b3; } Byte4;
+#define CHECK(c) do { if (!(c)) native32_failure(__LINE__, scenario, #c); } while (0)
+static u32 scenario, word, mode, phase, allocations, draws;
+static u8 *colors[4];
+static union { s128 bits; u8 bytes[16]; } D_005E5590, D_005E55A0;
+static u8 D_0063EE50[1];
+static union { u32 align; u8 bytes[44]; } packet;
+static u32 load_word(const void *pointer) { u32 value; memcpy(&value, pointer, 4); return value; }
+static void store_word(void *pointer, u32 value) { memcpy(pointer, &value, 4); }
+void func_0045d6e0(u8 *color, f32 *data, f32 depth, s32 saveState) {
+    CHECK(phase == 0 || phase == 1);
+    CHECK(color == colors[0] && color != colors[1]);
+    CHECK(depth == 0.0f && saveState == 1);
+    CHECK(load_word(colors[1]) == 0xFF000000u);
+    if (phase == 0) {
+        CHECK(load_word(color) == 0xFF000000u);
+        CHECK(memcmp(data, &D_005E5590, 16) == 0);
+        if (mode & 1) store_word(color, word);
+        /* A provider may change its separate copied data input as well. */
+        memset(data, 0x6D, 16);
+    } else {
+        CHECK(load_word(color) == ((mode & 1) ? word : 0xFF000000u));
+        CHECK(memcmp(data, &D_005E55A0, 16) == 0);
+    }
+    ++phase;
+}
+void func_0044ea90(const void *file, s32 line) {
+    CHECK(phase == 2 && file == D_0063EE50 && line == 0x91);
+    ++phase;
+}
+static void *allocate_packet(size_t count, size_t size, u32 flags) {
+    CHECK(phase == 3 && count == 1 && size == 28 && flags == 0x40000);
+    CHECK(load_word(colors[2]) == 0 && load_word(colors[3]) == 0 && colors[2] != colors[3]);
+    if (mode & 2) store_word(colors[2], word);
+    ++phase; ++allocations;
+    return packet.bytes + 8;
+}
+void *(*D_008873F4[])(size_t, size_t, u32) = {allocate_packet};
+u8 *func_00460990(void) { CHECK(0); return 0; }
+void func_00460ac0(void *parent, void *node) { (void)parent; (void)node; CHECK(0); }
+void func_002aabf0(void *parent, void *value) {
+    s32 bounds[4]; f32 depth;
+    CHECK(phase == 4 && parent == 0 && value == packet.bytes + 8);
+    memcpy(bounds, value, 16); memcpy(&depth, (u8 *)value + 16, 4);
+    CHECK(bounds[0] == 0 && bounds[1] == 0 && bounds[2] == 640 && bounds[3] == 448);
+    CHECK(depth == 65535.0f && load_word((u8 *)value + 24) == 0x12);
+    CHECK(load_word((u8 *)value + 20) == ((mode & 2) ? word : 0));
+    ++phase; ++draws;
+}
+@PROVIDER@
+@HELPERS@
+static void run_case(void) {
+    @GUARDS@
+    @ALIASES@
+    @LOCALS@
+    @SETUP@
+    for (u32 i = 0; i < 4; ++i)
+        for (u32 j = i + 1; j < 4; ++j) CHECK(colors[i] != colors[j]);
+    /* Probe the exact source copy expressions over the complete byte domain,
+       including quiet/signaling NaNs and signed zero, before the real clears. */
+    store_word(&layerColor, ~word); store_word(&firstOverlayColor, ~word);
+    @COPIES@
+    CHECK(load_word(&layerColor) == word && load_word(&firstOverlayColor) == word);
+    CHECK(load_word(&layerColorSource) == word && load_word(&firstOverlaySource) == word);
+    @GUARD_CHECKS@
+    @LAYER@
+    CHECK(phase == 2);
+    /* The unchanged 00126090 call and surrounding controller are excluded. */
+    @OVERLAY@
+    CHECK(phase == 5 && allocations == 1 && draws == 1);
+    CHECK(load_word(&layerColorSource) == 0xFF000000u);
+    CHECK(load_word(&firstOverlaySource) == 0);
+    CHECK(load_word(&layerColor) == ((mode & 1) ? word : 0xFF000000u));
+    CHECK(load_word(&firstOverlayColor) == ((mode & 2) ? word : 0));
+    CHECK(memcmp(&sp4B0, &D_005E5590, 16) == 0);
+    CHECK(memcmp(&sp4A0, &D_005E55A0, 16) == 0);
+    @GUARD_CHECKS@
+    for (u32 i = 0; i < 8; ++i) CHECK(packet.bytes[i] == 0xCC);
+    for (u32 i = 36; i < sizeof(packet.bytes); ++i) CHECK(packet.bytes[i] == 0xCC);
+    @UNALIAS@
+}
+static void invoke_case(u32 value) {
+    word = value; phase = allocations = draws = 0;
+    memset(&packet, 0xCC, sizeof(packet));
+    run_case(); ++scenario;
+}
+int main(void) {
+    static const u32 special[] = {0x00000000u, 0x80000000u, 0x7FC12345u, 0x7F800001u,
+                                  0xFFC12345u, 0xFF800001u, 0x7F800000u, 0xFFFFFFFFu};
+    for (u32 i = 0; i < 16; ++i) {
+        D_005E5590.bytes[i] = (u8)(17 + i * 9);
+        D_005E55A0.bytes[i] = (u8)(211 - i * 7);
+    }
+    for (mode = 0; mode < 4; ++mode) {
+        for (u32 channel = 0; channel < 4; ++channel)
+            for (u32 value = 0; value < 256; ++value)
+                invoke_case((0x7FC13BA5u & ~(255u << (channel * 8))) | (value << (channel * 8)));
+        for (u32 i = 0; i < sizeof(special) / sizeof(special[0]); ++i) invoke_case(special[i]);
+    }
+    native32_text("title_color_cases="); native32_number(scenario); native32_text("\n");
+    return 0;
+}

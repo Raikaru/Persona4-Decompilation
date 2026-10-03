@@ -1,0 +1,83 @@
+#include "type.h"
+typedef struct { f32 v0, v1, v2, v3; } Float4;
+typedef struct { u8 b0, b1, b2, b3; } Byte4;
+typedef struct { u8 c0, c1, c2, c3; } __attribute__((aligned(4))) TitleColor;
+#define CHECK(c) do { if (!(c)) native32_failure(__LINE__, scenario, #c); } while (0)
+static unsigned scenario, site, mutation, allocations, draws, queueCalls, notices;
+static u8 *inputColor;
+static u32 expectedColor;
+static u8 D_0063EE50[1], parentStorage[4];
+typedef union { u32 alignment; u8 bytes[0x2C]; } PacketStorage;
+static PacketStorage storage;
+static u8 node[0x20] __attribute__((aligned(4)));
+static void prepare_color(void *out, u32 word) {
+    inputColor = out;
+    memcpy(out, &word, 4);
+    expectedColor = mutation ? word ^ 0x5AA53CC3u : word;
+}
+static void *allocate_packet(size_t count, size_t size, u32 flags) {
+    CHECK(count == 1 && size == 0x1C && flags == 0x40000);
+    CHECK(notices == 1 && allocations == 0);
+    if (mutation) {
+        u32 word;
+        memcpy(&word, inputColor, 4);
+        word ^= 0x5AA53CC3u;
+        memcpy(inputColor, &word, 4);
+    }
+    ++allocations;
+    return storage.bytes + 8;
+}
+void *(*D_008873F4[])(size_t, size_t, u32) = {allocate_packet};
+void func_0044ea90(const void *file, s32 line) {
+    CHECK(file == D_0063EE50 && line == 0x91 && notices == 0);
+    ++notices;
+}
+u8 *func_00460990(void) { ++queueCalls; return node; }
+void func_00460ac0(void *parent, void *item) {
+    (void)parent; (void)item;
+    /* All 15 actual calls are immediate. Passing any parent changes behavior. */
+    CHECK(0);
+}
+void func_002aabf0(void *parent, void *packet) {
+    CHECK(parent == 0 && packet == storage.bytes + 8 && allocations == 1 && draws == 0);
+    s32 bounds[4]; u32 color, flags; f32 depth;
+    memcpy(bounds, packet, 16);
+    memcpy(&depth, (u8 *)packet + 0x10, 4);
+    memcpy(&color, (u8 *)packet + 0x14, 4);
+    memcpy(&flags, (u8 *)packet + 0x18, 4);
+    CHECK(bounds[0] == 0 && bounds[1] == 0 && bounds[2] == 640);
+    CHECK(bounds[3] == (site == 14 ? 480 : 448));
+    CHECK(depth == (site == 1 || site == 14 ? 0.0f : 65535.0f));
+    CHECK(color == expectedColor && flags == 0x12);
+    ++draws;
+}
+@PROVIDER@
+@HELPER@
+static void invoke_actual_call(u32 word) {
+    switch (site) {
+        @CALLS@
+        default: CHECK(0);
+    }
+}
+int main(void) {
+    /* Every byte channel takes every value; other channels carry unrelated
+       bits, including floating NaN representations. The actual calls address
+       color storage as bytes and must not numerically convert those bits. */
+    for (site = 0; site < 15; ++site)
+        for (u32 channel = 0; channel < 4; ++channel)
+            for (u32 value = 0; value < 256; ++value)
+                for (mutation = 0; mutation < 2; ++mutation) {
+                    u32 word = (0x7FC13BA5u & ~(255u << (channel * 8))) | (value << (channel * 8));
+                    allocations = draws = queueCalls = notices = 0;
+                    memset(&storage, 0xCC, sizeof(storage));
+                    memset(node, 0xA5, sizeof(node));
+                    invoke_actual_call(word);
+                    CHECK(allocations == 1 && draws == 1 && queueCalls == 0 && notices == 1);
+                    for (u32 i = 0; i < 8; ++i) CHECK(storage.bytes[i] == 0xCC);
+                    for (u32 i = 0x24; i < sizeof(storage.bytes); ++i) CHECK(storage.bytes[i] == 0xCC);
+                    for (u32 i = 0; i < sizeof(node); ++i) CHECK(node[i] == 0xA5);
+                    ++scenario;
+                }
+    native32_text("title_overlay_cases="); native32_number(scenario); native32_text("\n");
+    return 0;
+}

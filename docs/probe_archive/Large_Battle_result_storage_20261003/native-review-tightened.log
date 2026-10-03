@@ -1,0 +1,58 @@
+External native32 runner: $P4_RECOVERY_ROOT/native-tools/sysroot/usr/bin/qemu-i386
+test_live_payload_construction_and_providers (test_large_battle_result_storage.LargeBattleResultStorage.test_live_payload_construction_and_providers) ... -O0 196610 result construction/provider cases passed
+-O2 196610 result construction/provider cases passed
+ok
+test_negative_controls (test_large_battle_result_storage.LargeBattleResultStorage.test_negative_controls) ... ok
+test_negative_controls (test_large_battle_vector_storage.LargeBattleVectorStorage.test_negative_controls) ... ok
+test_real_caller_pairs_and_providers (test_large_battle_vector_storage.LargeBattleVectorStorage.test_real_caller_pairs_and_providers) ... -O0 65536 vector caller/provider cases passed
+-O2 65536 vector caller/provider cases passed
+ok
+test_negative_controls (test_large_battle_timing_clamp.LargeBattleTimingClamp.test_negative_controls) ... ok
+test_signed_timing_difference_clamp_additions_and_transport (test_large_battle_timing_clamp.LargeBattleTimingClamp.test_signed_timing_difference_clamp_additions_and_transport) ... -O0 timing_clamp_cases=1572864
+-O2 timing_clamp_cases=1572864
+ok
+test_actual_predicates_reload_signed_motion_and_status (test_large_battle_hit_predicates.LargeBattleHitPredicates.test_actual_predicates_reload_signed_motion_and_status) ... -O0 motion_predicates=327680 status_word_predicates=262144
+-O2 motion_predicates=327680 status_word_predicates=262144
+ok
+test_negative_controls (test_large_battle_hit_predicates.LargeBattleHitPredicates.test_negative_controls) ... ok
+test_live_controller_and_providers (test_battle_approach_contract.BattleApproachContracts.test_live_controller_and_providers) ... ok
+test_stale_skill (test_battle_approach_contract.BattleApproachContracts.test_stale_skill) ... ok
+test_wrong_camera_state (test_battle_approach_contract.BattleApproachContracts.test_wrong_camera_state) ... ok
+test_wrong_enemy_stride (test_battle_approach_contract.BattleApproachContracts.test_wrong_enemy_stride) ... ok
+test_wrong_motion (test_battle_approach_contract.BattleApproachContracts.test_wrong_motion) ... ok
+test_wrong_queue (test_battle_approach_contract.BattleApproachContracts.test_wrong_queue) ... ok
+test_wrong_range_boundary (test_battle_approach_contract.BattleApproachContracts.test_wrong_range_boundary) ... ok
+test_wrong_rotation_copy_extent (test_battle_approach_contract.BattleApproachContracts.test_wrong_rotation_copy_extent) ... ok
+test_wrong_signed_opening_motion (test_battle_approach_contract.BattleApproachContracts.test_wrong_signed_opening_motion) ... ok
+test_wrong_speed_stride (test_battle_approach_contract.BattleApproachContracts.test_wrong_speed_stride) ... ok
+test_wrong_uid_width (test_battle_approach_contract.BattleApproachContracts.test_wrong_uid_width) ... ok
+test_generated_definition_encodes_retail_displacement (test_battle_approach_alias.ApproachAlias.test_generated_definition_encodes_retail_displacement) ... ok
+test_neighboring_addresses_are_rejected (test_battle_approach_alias.ApproachAlias.test_neighboring_addresses_are_rejected) ... ok
+test_verified_retail_instruction_and_float (test_battle_approach_alias.ApproachAlias.test_verified_retail_instruction_and_float) ... ok
+test_actual_uid_payload_provider (test_large_battle_storage_contracts.LargeBattleStorageContracts.test_actual_uid_payload_provider) ... ok
+test_all_uid_stores_and_locals (test_large_battle_storage_contracts.LargeBattleStorageContracts.test_all_uid_stores_and_locals) ... ok
+test_hit_mutations (test_large_battle_storage_contracts.LargeBattleStorageContracts.test_hit_mutations) ... ok
+test_hit_records (test_large_battle_storage_contracts.LargeBattleStorageContracts.test_hit_records) ... ok
+test_payload_mutations (test_large_battle_storage_contracts.LargeBattleStorageContracts.test_payload_mutations) ... ok
+test_uid_mutations (test_large_battle_storage_contracts.LargeBattleStorageContracts.test_uid_mutations) ... ok
+test_uid_payload_signature (test_large_battle_storage_contracts.LargeBattleStorageContracts.test_uid_payload_signature) ... ok
+test_actual_calls_and_factory (test_large_battle_animation_contracts.LargeBattleAnimationContracts.test_actual_calls_and_factory) ... ok
+test_mutation_controls (test_large_battle_animation_contracts.LargeBattleAnimationContracts.test_mutation_controls) ... ok
+test_signature_is_canonical (test_large_battle_animation_contracts.LargeBattleAnimationContracts.test_signature_is_canonical) ... ok
+test_no_animation_local_override (test_large_battle_animation_contracts.LargeBattleCallSource.test_no_animation_local_override) ... ok
+test_timing_calls_have_defined_narrowing (test_large_battle_animation_contracts.LargeBattleCallSource.test_timing_calls_have_defined_narrowing) ... ok
+test_actual_opening_call_and_providers (test_large_battle_animation_contracts.LargeBattleOpeningContracts.test_actual_opening_call_and_providers) ... ok
+test_opening_result_conversion_boundary (test_large_battle_animation_contracts.LargeBattleOpeningContracts.test_opening_result_conversion_boundary) ... ok
+test_six_actual_calls_and_rate_selection (test_large_battle_animation_contracts.LargeBattleTimingCalls.test_six_actual_calls_and_rate_selection) ... ok
+test_actual_provider_and_all_consumers (test_btl_motion_override_contract.MotionOverrideContracts.test_actual_provider_and_all_consumers) ... ok
+test_distance_providers_and_narrow_boundaries (test_btl_motion_override_contract.MotionOverrideContracts.test_distance_providers_and_narrow_boundaries) ... ok
+test_each_missing_motion_argument_is_rejected (test_btl_motion_override_contract.MotionOverrideContracts.test_each_missing_motion_argument_is_rejected) ... ok
+test_wrong_distance_selectors_are_rejected (test_btl_motion_override_contract.MotionOverrideContracts.test_wrong_distance_selectors_are_rejected) ... ok
+test_actual_providers (test_btl_opening_identifier_contracts.OpeningIdentifierContracts.test_actual_providers) ... ok
+test_wide_contracts_are_rejected (test_btl_opening_identifier_contracts.OpeningIdentifierContracts.test_wide_contracts_are_rejected) ... ok
+test_wrong_results_are_detected (test_btl_opening_identifier_contracts.OpeningIdentifierContracts.test_wrong_results_are_detected) ... ok
+
+----------------------------------------------------------------------
+Ran 44 tests in 77.144s
+
+OK

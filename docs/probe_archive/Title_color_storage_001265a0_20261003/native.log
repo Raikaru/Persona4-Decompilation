@@ -1,0 +1,16 @@
+External native32 runner: qemu-i386 (machine-local path normalized)
+test_actual_color_storage_and_copy_lifetimes (test_title_color_storage.TitleColorStorage.test_actual_color_storage_and_copy_lifetimes) ... -O0 title_color_cases=4128
+-O2 title_color_cases=4128
+ok
+test_layer_declaration_matches_actual_provider (test_title_color_storage.TitleColorStorage.test_layer_declaration_matches_actual_provider) ... ok
+test_rejects_wide_clear_wrong_byte_and_copy_regressions (test_title_color_storage.TitleColorStorage.test_rejects_wide_clear_wrong_byte_and_copy_regressions) ... ok
+test_all_actual_calls_and_actual_packet_provider (test_title_overlay_contract.TitleOverlayContract.test_all_actual_calls_and_actual_packet_provider) ... -O0 title_overlay_cases=30720
+-O2 title_overlay_cases=30720
+ok
+test_fixture_rejects_transport_regressions (test_title_overlay_contract.TitleOverlayContract.test_fixture_rejects_transport_regressions) ... ok
+test_provider_and_adapter_declarations_agree (test_title_overlay_contract.TitleOverlayContract.test_provider_and_adapter_declarations_agree) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 5.261s
+
+OK

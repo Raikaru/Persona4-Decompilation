@@ -1,0 +1,13 @@
+{
+  "base": "20d7dc4a791d04fa2572a460c4c4fc197f90ba74",
+  "source_unchanged": true,
+  "native_tests": 44,
+  "cases_per_optimization": 196610,
+  "negative_controls": 10,
+  "two_sided_packet_work_guards": true,
+  "source_bound_hp_pointer_declaration": true,
+  "tests_sha256": {
+    "tests/test_large_battle_result_storage.py": "64939c532403f496cde783adcedee06e4ae64f37e5ffaa7697e8258257ade65b",
+    "tests/large_battle_result_storage_fixture.c.in": "c0f72b3a488618b401eef23a7c22b40057bf79d2bd9903d845843c0310090204"
+  }
+}

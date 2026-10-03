@@ -1,0 +1,66 @@
+{
+  "production": {
+    "functions": 82,
+    "changed_function_names": [],
+    "changed_section_names": [],
+    "allocated_relocations_equal": true,
+    "all_non_target_allocated_data_unchanged": true,
+    "non_target_allocated_data_bytes": 420,
+    "all_non_target_allocated_references_unchanged": true,
+    "target_tables": {}
+  },
+  "guard": {
+    "functions": 82,
+    "changed_function_names": [
+      "func_001265a0"
+    ],
+    "changed_section_names": [
+      ".rodata",
+      ".text"
+    ],
+    "allocated_relocations_equal": false,
+    "all_non_target_allocated_data_unchanged": true,
+    "non_target_allocated_data_bytes": 420,
+    "all_non_target_allocated_references_unchanged": true,
+    "target_tables": {
+      "220": {
+        "entries": [
+          180,
+          184,
+          184,
+          224,
+          388,
+          388,
+          12196,
+          12196,
+          14460,
+          14460,
+          16844,
+          16844,
+          16844,
+          16844,
+          16844,
+          16844
+        ],
+        "entry_prefixes": [
+          "880040ae000080c72400004620008046",
+          "000080c72400004620008046cc04a0e7",
+          "000080c72400004620008046cc04a0e7",
+          "000080c72400004620008046cc04a0e7",
+          "0c00438e010074240c0054ae1a00832a",
+          "0c00438e010074240c0054ae1a00832a",
+          "0c00428e010053240c0053ae1400622a",
+          "0c00428e010053240c0053ae1400622a",
+          "0c0050260c00428e3300401400000000",
+          "0c0050260c00428e3300401400000000",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c"
+        ]
+      }
+    }
+  }
+}
