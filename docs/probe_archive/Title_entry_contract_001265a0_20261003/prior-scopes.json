@@ -1,0 +1,53 @@
+{
+  "source_sha256": "bef9fa5dc7b195c83dcbc497d0e8ccecd247929f4e58d9f0f3106af8d146628e",
+  "auditors": [
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_color_storage.py",
+      "auditor_sha256": "8a69a97d31fc658f2fae9eaf9cf3240e9940037f6418ad79b494df9de6f32859",
+      "input": "proof/title-entry-owner/after-guard.json",
+      "exact_prefix_map_composed": false
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_layer_calls.py",
+      "auditor_sha256": "3cc2ef1e272d956403f9f5c2cf4e6ad8d7b35929de968e166bd482096e18de58",
+      "input": "proof/title-entry-owner/after-guard.json",
+      "exact_prefix_map_composed": false
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_gp_colors.py",
+      "auditor_sha256": "181c0bc00bfaa61fcecbd63aef250d3fb203c788d8781a9cd47b5069583a2643",
+      "input": "proof/title-entry-owner/after-guard.json",
+      "exact_prefix_map_composed": false
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_candidate.py",
+      "auditor_sha256": "2bec7f2ef1d51a9ecad8066eb79c076970b24d9cd52fcdfdf622a8fe28f5686a",
+      "input": "proof/title-entry-owner/after-guard.json",
+      "exact_prefix_map_composed": false
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_alpha_aliases.py",
+      "auditor_sha256": "899498a1fcb04fa01f28fda457d90784bec478eadbe784782567eb5433f8eb8a",
+      "input": "proof/title-entry-owner/after-guard.json",
+      "exact_prefix_map_composed": false
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_sprite_alpha.py",
+      "auditor_sha256": "11e4f3dbab9a9255fa4b7ca2ac0f91762d09ca6fb33e4d1cf6fecc01263cf090",
+      "input": "proof/title-entry-owner/after-guard.json",
+      "exact_prefix_map_composed": true
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_preserved_fade.py",
+      "auditor_sha256": "0949983e22d8f3a0d2911becc458be9bb4e446b6af2c173d8dfff18a59766d12",
+      "input": "proof/title-entry-owner/after-guard.json",
+      "exact_prefix_map_composed": true
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_model_calls.py",
+      "auditor_sha256": "45bfe94e353549f7e646c682e20afdff31b5eec9da9b595fc0a48f85ec788c77",
+      "input": "proof/title-entry-owner/after-guard.json",
+      "exact_prefix_map_composed": false
+    }
+  ]
+}

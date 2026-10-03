@@ -1,0 +1,151 @@
+{
+  "source_sha256": "d66ac8bdfa05fc0e582b916dd8a550cd34ec030c8e20a4f2c8c4146ee6cd8360",
+  "slices": [
+    {
+      "symbol": "fGpffff9c80",
+      "before": [
+        11404,
+        11468
+      ],
+      "after": [
+        11436,
+        11500
+      ],
+      "all_words_and_references_checked": true,
+      "explicit_allocation_changes": [
+        {
+          "before": 11408,
+          "after": 11440,
+          "word_before": "0xe7a0049c",
+          "word_after": "0xe7a004ec"
+        },
+        {
+          "before": 11416,
+          "after": 11448,
+          "word_before": "0xa3a2049f",
+          "word_after": "0xa3a204ef"
+        },
+        {
+          "before": 11420,
+          "after": 11452,
+          "word_before": "0x27a404ac",
+          "word_after": "0x27a404fc"
+        },
+        {
+          "before": 11424,
+          "after": 11456,
+          "word_before": "0xc7a0049c",
+          "word_after": "0xc7a004ec"
+        },
+        {
+          "before": 11428,
+          "after": 11460,
+          "word_before": "0xe7a004ac",
+          "word_after": "0xe7a004fc"
+        },
+        {
+          "before": 11440,
+          "after": 11472,
+          "word_before": "0x7fa203b0",
+          "word_after": "0x7fa203f0"
+        },
+        {
+          "before": 11452,
+          "after": 11484,
+          "word_before": "0x27a503b0",
+          "word_after": "0x27a503f0"
+        }
+      ]
+    },
+    {
+      "symbol": "fGpffff9c84",
+      "before": [
+        11780,
+        11988
+      ],
+      "after": [
+        11812,
+        12020
+      ],
+      "all_words_and_references_checked": true,
+      "explicit_allocation_changes": [
+        {
+          "before": 11844,
+          "after": 11876,
+          "word_before": "0xe7a10498",
+          "word_after": "0xe7a104e8"
+        },
+        {
+          "before": 11936,
+          "after": 11968,
+          "word_before": "0xa3a2049b",
+          "word_after": "0xa3a204eb"
+        },
+        {
+          "before": 11940,
+          "after": 11972,
+          "word_before": "0x27a404ac",
+          "word_after": "0x27a404fc"
+        },
+        {
+          "before": 11944,
+          "after": 11976,
+          "word_before": "0xc7a00498",
+          "word_after": "0xc7a004e8"
+        },
+        {
+          "before": 11948,
+          "after": 11980,
+          "word_before": "0xe7a004ac",
+          "word_after": "0xe7a004fc"
+        },
+        {
+          "before": 11960,
+          "after": 11992,
+          "word_before": "0x7fa203b0",
+          "word_after": "0x7fa203f0"
+        },
+        {
+          "before": 11972,
+          "after": 12004,
+          "word_before": "0x27a503b0",
+          "word_after": "0x27a503f0"
+        }
+      ]
+    }
+  ],
+  "alpha_accesses": [
+    {
+      "offset": 11440,
+      "home": 1260,
+      "width": 4
+    },
+    {
+      "offset": 11448,
+      "home": 1260,
+      "width": 1
+    },
+    {
+      "offset": 11456,
+      "home": 1260,
+      "width": 4
+    },
+    {
+      "offset": 11876,
+      "home": 1256,
+      "width": 4
+    },
+    {
+      "offset": 11968,
+      "home": 1256,
+      "width": 1
+    },
+    {
+      "offset": 11976,
+      "home": 1256,
+      "width": 4
+    }
+  ],
+  "52colors_disjoint": true,
+  "15palettes_disjoint_from52colors": true
+}

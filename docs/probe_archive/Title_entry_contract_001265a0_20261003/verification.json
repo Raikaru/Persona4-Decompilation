@@ -1,0 +1,132 @@
+{
+  "base": "81708cc4e9e63e3b1eae30f466c069359a8dff70",
+  "source_sha256": "bef9fa5dc7b195c83dcbc497d0e8ccecd247929f4e58d9f0f3106af8d146628e",
+  "status": "guarded nonmatching two-pointer void callback and second-input task accessor recovery; assembly fallback retained",
+  "compiler": "MWCCPS2 3.0.1 build 210",
+  "flags": [
+    "-O2",
+    "-Iinclude"
+  ],
+  "production_summary": {
+    "MATCH": 342,
+    "ASM": 47
+  },
+  "owner_statuses": {
+    "src/promoted/code1_0012.c": {
+      "MATCH": 81,
+      "ASM": 1
+    },
+    "src/promoted/code1_0045.c": {
+      "MATCH": 60
+    },
+    "src/Main/titleVisual.c": {
+      "MATCH": 7
+    },
+    "src/Event/Fcl/shdSprite.c": {
+      "MATCH": 11
+    },
+    "src/promoted/code1_0025.c": {
+      "MATCH": 48
+    },
+    "src/promoted/code1_0036.c": {
+      "MATCH": 34
+    },
+    "src/rw/basky.c": {
+      "MATCH": 12,
+      "ASM": 45
+    },
+    "src/Kernel/sdkTask.c": {
+      "MATCH": 22
+    },
+    "src/sdkOt.c": {
+      "MATCH": 10
+    },
+    "src/promoted/code1_0046.c": {
+      "MATCH": 57,
+      "ASM": 1
+    }
+  },
+  "providers": [
+    {
+      "file": "src/promoted/code1_0012.c",
+      "addr": "00124bb0",
+      "name": "func_00124bb0",
+      "object_size": 956,
+      "window": 960,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0012.c",
+      "addr": "0012aa70",
+      "name": "func_0012aa70",
+      "object_size": 3056,
+      "window": 3056,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/Kernel/sdkTask.c",
+      "addr": "00452560",
+      "name": "func_00452560",
+      "object_size": 12,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/sdkOt.c",
+      "addr": "00461390",
+      "name": "func_00461390",
+      "object_size": 284,
+      "window": 288,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    },
+    {
+      "file": "src/promoted/code1_0046.c",
+      "addr": "004623a0",
+      "name": "func_004623a0",
+      "object_size": 992,
+      "window": 992,
+      "normalized_diff": 0,
+      "status": "MATCH"
+    }
+  ],
+  "guarded_target_bytes": 16820,
+  "retail_window_bytes": 17616,
+  "guarded_masked_differing_words": 3985,
+  "base_guarded_target_bytes": 16816,
+  "base_guarded_masked_differing_words": 3955,
+  "residual_note": "Position-based masked score changes after a proven one-word insertion; every other instruction byte and mapped reference is exact",
+  "lint": {
+    "errors": 0,
+    "existing_advisories": 32
+  },
+  "native": {
+    "tests": 33,
+    "skips": 0,
+    "entry_cases_per_optimization": 512,
+    "optimizations": [
+      "O0",
+      "O2"
+    ],
+    "entry_behavior_controls": 9,
+    "entry_compile_type_controls": 2,
+    "getter_body_executed": true,
+    "wrong_input_guard": "observer asserts task identity before actual getter reads task+0x38"
+  },
+  "entry_machine_cases": 2048,
+  "entry_machine_controls": 6,
+  "prior_machine_auditors": 8,
+  "full_dispatcher_C_execution": false,
+  "full_title_execution": false,
+  "new_exact_C_credit": 0,
+  "not_run": [
+    "full linked-image build",
+    "full repository test suite",
+    "renderer/gameplay",
+    "CI",
+    "push or publication"
+  ]
+}

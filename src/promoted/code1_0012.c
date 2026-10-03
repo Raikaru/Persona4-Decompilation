@@ -2424,26 +2424,28 @@ void func_00126090(s32 arg0, u8 *arg1)
  * this body remains assembly-backed. */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
+#include "btl_shuffle_draw_internal.h"
 #ifndef M2C_GUARD
 #define M2C_GUARD
 typedef s32 M2C_UNK;
 #define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((u8 *)(expr) + (offset)))
 #define M2C_BITWISE(type, expr) ((type)(expr))
 #endif
-void func_001265a0(s32 arg1) {
+/* The draw queue supplies node+0x1C, then the task stored at node+0x10.
+ * Only the task reaches the word-returning work accessor; the first payload
+ * is a real, unused callback input. See Title_entry_contract_001265a0_20261003. */
+void func_001265a0(void *unusedDrawData, void *task) {
     typedef union TitleRectangleWords { s128 bits; s32 words[4]; } TitleRectangleWords;
     extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern void func_002aaac0(void);
     extern s32 func_002ab380();
     extern s32 func_002abb30();
-    extern s32 RwMatrixRotate();
-    extern s32 RwMatrixTranslate();
     extern s32 RpSkyRenderStateSet();
     extern s32 func_00401b80(void);
     extern s32 func_0043c6a0(f32);
     extern f32 sinf(f32);
-    extern u32 *func_00452560(s32);
+    extern u32 func_00452560(void *task);
     extern s32 func_00455f70();
     extern s32 func_0045ad50();
     extern void func_0045c870(u8 *colors, s32 enabled);
@@ -2452,7 +2454,6 @@ void func_001265a0(s32 arg1) {
     extern s32 func_004782b0();
     extern s32 func_00478e70();
     extern s32 func_0047a0e0();
-    extern s32 func_0047a1c0();
     extern s32 func_00489f80();
     extern s32 func_0048a000();
     extern s32 D_005E5230;
@@ -2464,13 +2465,10 @@ void func_001265a0(s32 arg1) {
     extern s32 D_005E538C;
     extern s32 D_005E5398;
     extern s32 D_005E53B4;
-    extern s128 D_005E5530;
-    extern s64 D_005E5540;
+    extern TitlePalette D_005E5530;
     extern u8 D_005E5548[];
-    extern s64 D_005E5628;
-    extern f32 D_005E5630;
-    extern s64 D_005E5638;
-    extern f32 D_005E5640;
+    extern BtlShuffleVec3 D_005E5628;
+    extern BtlShuffleVec3 D_005E5638;
     extern s128 D_005E5650;
     extern s128 D_005E5660;
     extern s128 D_005E5670;
@@ -2480,11 +2478,9 @@ void func_001265a0(s32 arg1) {
     extern u32 D_005E56B0[8];
     extern u8 D_005E56D0[];
     extern void (*D_00887300[])(s32, s32);
-    extern s32 func_00124bb0();
     extern s32 func_00124f70();
     extern s32 func_00125e80();
     extern s32 func_00126090();
-    extern u8 *sp;
     extern u8 *saved_reg_gp;
     extern f32 fGpffff9c70;
     extern f32 fGpffff9c74;
@@ -2563,15 +2559,11 @@ void func_001265a0(s32 arg1) {
     TitleDrawColor sp5DC;
     TitleDrawColor sp5D8;
     TitleDrawColor sp5D4;
-    f32 sp5D0;
-    s64 sp5C8;
-    f32 sp5C0;
-    s64 sp5B8;
-    s32 sp5B0;
-    s32 sp5AC;
-    f32 sp5A8;
+    BtlShuffleVec3 titleYawAxis;
+    BtlShuffleVec3 titlePitchAxis;
+    BtlShuffleVec3 titleTranslation;
     s128 sp590;
-    s32 sp550;
+    BtlShuffleMatrix titleMatrix __attribute__((aligned(16)));
     union { u32 words[8]; f32 pairs[4][2]; } fadeUv;
     u32 *fadeUvSource;
     u32 *fadeUvDestination;
@@ -2589,12 +2581,12 @@ void func_001265a0(s32 arg1) {
     s128 sp490;
     s128 sp480;
     s128 sp470;
-    M2C_UNK sp450;
-    M2C_UNK sp430;
-    M2C_UNK sp410;
-    M2C_UNK sp3F0;
-    M2C_UNK sp3D0;
-    M2C_UNK sp3B0;
+    TitlePalette firstHighlight;
+    TitlePalette firstBase;
+    TitlePalette thirdHighlight;
+    TitlePalette thirdBase;
+    TitlePalette fourthHighlight;
+    TitlePalette fourthBase;
     s128 sp3A0;
     s128 sp390;
     s128 sp380;
@@ -2625,30 +2617,15 @@ void func_001265a0(s32 arg1) {
     s128 sp1F0;
     s128 sp1E0;
     s128 sp1D0;
-    M2C_UNK sp1B0;
-    M2C_UNK sp190;
-    M2C_UNK sp170;
-    M2C_UNK sp150;
-    s64 sp140;
-    s128 sp130;
-    s64 sp120;
-    s128 sp110;
-    s64 sp100;
-    s128 spF0;
-    s64 spE0;
-    s128 spD0;
-    s64 spC0;
-    s128 spB0;
-    M2C_UNK *var_5_16;
-    M2C_UNK *var_5_17;
-    M2C_UNK *var_5_2;
-    M2C_UNK *var_5_3;
-    M2C_UNK *var_5_4;
-    M2C_UNK *var_5_5;
-    M2C_UNK *var_5_6;
-    M2C_UNK *var_5_7;
-    M2C_UNK *var_5_8;
-    M2C_UNK *var_5_9;
+    TitlePalette secondHighlight;
+    TitlePalette secondBase;
+    TitlePalette fifthHighlight;
+    TitlePalette fifthBase;
+    TitlePalette firstPalette;
+    TitlePalette secondPalette;
+    TitlePalette thirdPalette;
+    TitlePalette fourthPalette;
+    TitlePalette fifthPalette;
     u8 *var_3_10;
     u8 *var_3_12;
     u8 *var_3_14;
@@ -2732,16 +2709,6 @@ void func_001265a0(s32 arg1) {
     f32 temp_f8;
     f32 temp_f8_2;
     f32 temp_f8_3;
-    s128 *var_6;
-    s128 *var_6_10;
-    s128 *var_6_11;
-    s128 *var_6_13;
-    s128 *var_6_14;
-    s128 *var_6_2;
-    s128 *var_6_4;
-    s128 *var_6_5;
-    s128 *var_6_7;
-    s128 *var_6_8;
     u8 *layerClearByte;
     u8 *var_3_11;
     u8 *var_3_13;
@@ -2758,33 +2725,17 @@ void func_001265a0(s32 arg1) {
     s32 temp_17;
     s32 temp_2;
     s32 temp_2_10;
-    s32 temp_2_13;
-    s32 temp_2_14;
     s32 temp_2_15;
-    s32 temp_2_16;
-    s32 temp_2_17;
     s32 temp_2_18;
     s32 temp_2_19;
-    s32 temp_2_20;
-    s32 temp_2_21;
     s32 temp_2_22;
     s32 temp_2_24;
     s32 temp_2_26;
     u32 temp_2_27;
     s32 temp_2_2;
-    s32 temp_2_5;
-    s32 temp_2_6;
     s32 temp_2_7;
-    s32 temp_2_8;
-    s32 temp_2_9;
-    s32 temp_3_10;
-    s32 temp_3_11;
     s32 temp_3_12;
-    s32 temp_3_13;
-    s32 temp_3_14;
     s32 temp_3_15;
-    s32 temp_3_16;
-    s32 temp_3_17;
     s32 temp_3_18;
     s32 temp_3_19;
     s32 temp_3_20;
@@ -2793,11 +2744,7 @@ void func_001265a0(s32 arg1) {
     s32 temp_3_23;
     s32 temp_3_2;
     s32 temp_3_3;
-    s32 temp_3_4;
-    s32 temp_3_5;
     s32 temp_3_6;
-    s32 temp_3_7;
-    s32 temp_3_8;
     s32 temp_3_9;
     s32 temp_4;
     s32 temp_5;
@@ -2807,13 +2754,13 @@ void func_001265a0(s32 arg1) {
     s32 temp_8_6;
     s32 temp_9;
     s32 temp_9_2;
-    s32 temp_9_3;
+    u32 temp_9_3;
     s32 temp_9_4;
     s32 temp_9_5;
-    s32 temp_9_6;
+    u32 temp_9_6;
     s32 temp_9_7;
     s32 temp_9_8;
-    s32 temp_9_9;
+    u32 temp_9_9;
     s32 temp_f0_10;
     s32 temp_28;
     s32 temp_i28;
@@ -2858,18 +2805,8 @@ void func_001265a0(s32 arg1) {
     s32 var_3_7;
     s32 var_3_8;
     s32 var_3_9;
-    s32 var_4_10;
-    s32 var_4_11;
-    s32 var_4_12;
-    s32 var_4_13;
-    s32 var_4_14;
-    s32 var_4_15;
     s32 var_4_17;
     s32 var_4_18;
-    s32 var_4_3;
-    s32 var_4_4;
-    s32 var_4_5;
-    s32 var_4_6;
     s32 var_5;
     s32 var_5_10;
     s32 var_5_11;
@@ -2919,11 +2856,9 @@ void func_001265a0(s32 arg1) {
     u8 *var_4_8;
     u8 *var_4_9;
 
-    temp_20 = (u32 *)(func_00452560(arg1));
-    sp5C8 = D_005E5628;
-    sp5D0 = D_005E5630;
-    sp5B8 = D_005E5638;
-    sp5C0 = D_005E5640;
+    temp_20 = (u32 *)func_00452560(task);
+    titleYawAxis = D_005E5628;
+    titlePitchAxis = D_005E5638;
     sp6B8 = 0;
     temp_f0 = fGpffff9c70;
     sp6B4 = temp_f0;
@@ -3137,36 +3072,16 @@ loop_93:
                                 }
                                 titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp6A0);
                                 titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-                                var_6 = (s128 *)(&sp130);
-                                sp130 = D_005E5530;
-                                sp140 = D_005E5540;
-                                var_5_2 = (M2C_UNK *)(&sp450);
-                                var_4_3 = 3;
-                                do {
-                                    temp_3_4 = (s32)(M2C_FIELD(var_6, s32 *, 0));
-                                    temp_2_5 = (s32)(M2C_FIELD(var_6, s32 *, 4));
-                                    var_6 += 8;
-                                    var_4_3 -= 1;
-                                    M2C_FIELD(var_5_2, s32 *, 0) = temp_3_4;
-                                    M2C_FIELD(var_5_2, s32 *, 4) = temp_2_5;
-                                    var_5_2 += 8;
-                                } while (var_4_3 > 0);
+                                /* Six packed colors form one snapshot and two independent copies.
+                                 * Model calls use the same-owner typed definition; special ACC
+                                 * producers remain supplied/unproven expressions. */
+                                firstPalette = D_005E5530;
+                                titlePaletteCopy(&firstHighlight, &firstPalette);
                                 temp_7 = (u8 *)((s32)&D_005E5230 + (var_19 * 0x28));
-                                temp_9 = (s32)(M2C_FIELD(temp_7, s32 *, 0x1C) * 4);
-                                temp_8 = (u32)(M2C_FIELD((temp_9 + sp), u32 *, 0x450));
+                                temp_9 = (s32)(M2C_FIELD(temp_7, s32 *, 0x1C));
+                                temp_8 = (u32)(firstHighlight.words[temp_9]);
                                 temp_q1 = (f32)(s32)(255.0f * temp_f20) / 255.0f;
-                                var_6_2 = (s128 *)(&sp130);
-                                var_5_3 = (M2C_UNK *)(&sp430);
-                                var_4_4 = 3;
-                                do {
-                                    temp_3_5 = (s32)(M2C_FIELD(var_6_2, s32 *, 0));
-                                    temp_2_6 = (s32)(M2C_FIELD(var_6_2, s32 *, 4));
-                                    var_6_2 += 8;
-                                    var_4_4 -= 1;
-                                    M2C_FIELD(var_5_3, s32 *, 0) = temp_3_5;
-                                    M2C_FIELD(var_5_3, s32 *, 4) = temp_2_6;
-                                    var_5_3 += 8;
-                                } while (var_4_4 > 0);
+                                titlePaletteCopy(&firstBase, &firstPalette);
                                 temp_3_6 = (temp_8 >> 0x10) & 0xFF;
                                 temp_9_2 = (temp_8 >> 0x18) & 0xFF;
                                 temp_2_7 = (temp_8 >> 8) & 0xFF;
@@ -3175,7 +3090,7 @@ loop_93:
     /* ACC seed */;
                                 temp_f1_2 = temp_cB + temp_cA * temp_q1;
                                 var_8 = (u8)(u32)temp_f1_2;
-                                temp_9_3 = (var_8 & 0xFF) << 0x18;
+                                temp_9_3 = ((u32) var_8 & 0xFF) << 0x18;
                                 temp_cA = (f32)(u32)(0xFF - temp_3_6);
                                 temp_cB = (f32)(u32)temp_3_6;
     /* ACC seed */;
@@ -3186,7 +3101,7 @@ loop_93:
     /* ACC seed */;
                                 temp_f1_4 = temp_cB + temp_cA * temp_q1;
                                 var_3_6 = (u8)(u32)temp_f1_4;
-                                func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7, s32 *, 0)), (M2C_FIELD((temp_9 + sp), s32 *, 0x430) & ~0xFF) | 0xFF, ((var_3_6 & 0xFF) << 8) | (temp_9_3 | ((var_6_3 & 0xFF) << 0x10)) | 0xFF, 0x42, temp_20, M2C_BITWISE(f32, temp_9_3), M2C_FIELD(temp_7, f32 *, 4), 0.0f, M2C_FIELD(temp_7, f32 *, 8), M2C_FIELD(temp_7, f32 *, 0xC), M2C_FIELD(temp_7, f32 *, 0x10), M2C_FIELD(temp_7, f32 *, 0x14), M2C_FIELD(temp_7, f32 *, 0x18));
+                                func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7, s32 *, 0)), M2C_FIELD(temp_7, f32 *, 4), 0.0f, M2C_FIELD(temp_7, f32 *, 8), M2C_FIELD(temp_7, f32 *, 0xC), M2C_FIELD(temp_7, f32 *, 0x10), M2C_FIELD(temp_7, f32 *, 0x14), (firstBase.words[temp_9] & ~0xFF) | 0xFF, ((var_3_6 & 0xFF) << 8) | (temp_9_3 | ((var_6_3 & 0xFF) << 0x10)) | 0xFF, M2C_FIELD(temp_7, f32 *, 0x18), 0x42, temp_20);
                             }
                         }
                         var_19 += 1;
@@ -3196,35 +3111,12 @@ loop_93:
                     var_17_2 = 1;
 loop_128:
                     if (var_17_2 < 8) {
-                        var_6_4 = (s128 *)(&sp110);
-                        sp110 = D_005E5530;
-                        sp120 = D_005E5540;
-                        var_5_4 = (M2C_UNK *)(&sp1B0);
-                        var_4_5 = 3;
-                        do {
-                            temp_3_7 = (s32)(M2C_FIELD(var_6_4, s32 *, 0));
-                            temp_2_8 = (s32)(M2C_FIELD(var_6_4, s32 *, 4));
-                            var_6_4 += 8;
-                            var_4_5 -= 1;
-                            M2C_FIELD(var_5_4, s32 *, 0) = temp_3_7;
-                            M2C_FIELD(var_5_4, s32 *, 4) = temp_2_8;
-                            var_5_4 += 8;
-                        } while (var_4_5 > 0);
+                        secondPalette = D_005E5530;
+                        titlePaletteCopy(&secondHighlight, &secondPalette);
                         temp_7_2 = (u8 *)((s32)&D_005E5230 + (var_17_2 * 0x28));
-                        temp_9_4 = (s32)(M2C_FIELD(temp_7_2, s32 *, 0x1C) * 4);
-                        temp_8_2 = (u32)(M2C_FIELD((temp_9_4 + sp), u32 *, 0x1B0));
-                        var_6_5 = (s128 *)(&sp110);
-                        var_5_5 = (M2C_UNK *)(&sp190);
-                        var_4_6 = 3;
-                        do {
-                            temp_3_8 = (s32)(M2C_FIELD(var_6_5, s32 *, 0));
-                            temp_2_9 = (s32)(M2C_FIELD(var_6_5, s32 *, 4));
-                            var_6_5 += 8;
-                            var_4_6 -= 1;
-                            M2C_FIELD(var_5_5, s32 *, 0) = temp_3_8;
-                            M2C_FIELD(var_5_5, s32 *, 4) = temp_2_9;
-                            var_5_5 += 8;
-                        } while (var_4_6 > 0);
+                        temp_9_4 = (s32)(M2C_FIELD(temp_7_2, s32 *, 0x1C));
+                        temp_8_2 = (u32)(secondHighlight.words[temp_9_4]);
+                        titlePaletteCopy(&secondBase, &secondPalette);
                         temp_3_9 = (temp_8_2 >> 0x10) & 0xFF;
                         temp_9_5 = (temp_8_2 >> 0x18) & 0xFF;
                         temp_2_10 = (temp_8_2 >> 8) & 0xFF;
@@ -3234,7 +3126,7 @@ loop_128:
     /* ACC seed */;
                         temp_f1_5 = temp_cB + temp_cA * temp_one_S2A;
                         var_8_2 = (u8)(u32)temp_f1_5;
-                        temp_9_6 = (var_8_2 & 0xFF) << 0x18;
+                        temp_9_6 = ((u32) var_8_2 & 0xFF) << 0x18;
                         temp_cA = (f32)(u32)(0xFF - temp_3_9);
                         temp_one_S2B = 1.0f;
                         temp_cB = (f32)(u32)temp_3_9;
@@ -3247,7 +3139,7 @@ loop_128:
     /* ACC seed */;
                         temp_f1_7 = temp_cB + temp_cA * temp_one_S2C;
                         var_3_7 = (u8)(u32)temp_f1_7;
-                        func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_2, s32 *, 0)), (M2C_FIELD((temp_9_4 + sp), s32 *, 0x190) & ~0xFF) | 0xFF, ((var_3_7 & 0xFF) << 8) | (temp_9_6 | ((var_6_6 & 0xFF) << 0x10)) | 0xFF, 0x42, temp_20, M2C_BITWISE(f32, temp_9_6), M2C_FIELD(temp_7_2, f32 *, 4), 0.0f, M2C_FIELD(temp_7_2, f32 *, 8), M2C_FIELD(temp_7_2, f32 *, 0xC), M2C_FIELD(temp_7_2, f32 *, 0x10), M2C_FIELD(temp_7_2, f32 *, 0x14), M2C_FIELD(temp_7_2, f32 *, 0x18));
+                        func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_2, s32 *, 0)), M2C_FIELD(temp_7_2, f32 *, 4), 0.0f, M2C_FIELD(temp_7_2, f32 *, 8), M2C_FIELD(temp_7_2, f32 *, 0xC), M2C_FIELD(temp_7_2, f32 *, 0x10), M2C_FIELD(temp_7_2, f32 *, 0x14), (secondBase.words[temp_9_4] & ~0xFF) | 0xFF, ((var_3_7 & 0xFF) << 8) | (temp_9_6 | ((var_6_6 & 0xFF) << 0x10)) | 0xFF, M2C_FIELD(temp_7_2, f32 *, 0x18), 0x42, temp_20);
                         var_17_2 += 1;
                         goto loop_128;
                     }
@@ -3292,34 +3184,11 @@ loop_128:
                             func_00479940(var_4_9, 0, 0, 0xF, 1);
                         }
                     }
-                    var_6_7 = (s128 *)(&spF0);
-                    spF0 = D_005E5530;
-                    sp100 = D_005E5540;
-                    var_5_6 = (M2C_UNK *)(&sp410);
-                    var_4_10 = 3;
-                    do {
-                        temp_3_10 = (s32)(M2C_FIELD(var_6_7, s32 *, 0));
-                        temp_2_13 = (s32)(M2C_FIELD(var_6_7, s32 *, 4));
-                        var_6_7 += 8;
-                        var_4_10 -= 1;
-                        M2C_FIELD(var_5_6, s32 *, 0) = temp_3_10;
-                        M2C_FIELD(var_5_6, s32 *, 4) = temp_2_13;
-                        var_5_6 += 8;
-                    } while (var_4_10 > 0);
-                    temp_8_3 = D_005E538C * 4;
-                    temp_7_3 = (u32)(M2C_FIELD((temp_8_3 + sp), u32 *, 0x410));
-                    var_6_8 = (s128 *)(&spF0);
-                    var_5_7 = (M2C_UNK *)(&sp3F0);
-                    var_4_11 = 3;
-                    do {
-                        temp_3_11 = (s32)(M2C_FIELD(var_6_8, s32 *, 0));
-                        temp_2_14 = (s32)(M2C_FIELD(var_6_8, s32 *, 4));
-                        var_6_8 += 8;
-                        var_4_11 -= 1;
-                        M2C_FIELD(var_5_7, s32 *, 0) = temp_3_11;
-                        M2C_FIELD(var_5_7, s32 *, 4) = temp_2_14;
-                        var_5_7 += 8;
-                    } while (var_4_11 > 0);
+                    thirdPalette = D_005E5530;
+                    titlePaletteCopy(&thirdHighlight, &thirdPalette);
+                    temp_8_3 = D_005E538C;
+                    temp_7_3 = (u32)(thirdHighlight.words[temp_8_3]);
+                    titlePaletteCopy(&thirdBase, &thirdPalette);
                     temp_3_12 = (temp_7_3 >> 0x10) & 0xFF;
                     temp_8_4 = (temp_7_3 >> 0x18) & 0xFF;
                     temp_2_15 = (temp_7_3 >> 8) & 0xFF;
@@ -3346,37 +3215,14 @@ loop_128:
     /* ACC seed */;
     /* ACC seed */;
     /* ACC seed */;
-                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5370), (M2C_FIELD((temp_8_3 + sp), s32 *, 0x3F0) & ~0xFF) | 0xFF, ((var_3_8 & 0xFF) << 8) | (((var_7 & 0xFF) << 0x18) | ((var_6_9 & 0xFF) << 0x10)) | 0xFF, 0x40, temp_20, (temp_f20 * temp_f21 + temp_f7 * temp_f8), 0.0f, (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8));
+                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5370), (temp_f20 * temp_f21 + temp_f7 * temp_f8), 0.0f, (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (thirdBase.words[temp_8_3] & ~0xFF) | 0xFF, ((var_3_8 & 0xFF) << 8) | ((((u32) var_7 & 0xFF) << 0x18) | ((var_6_9 & 0xFF) << 0x10)) | 0xFF, (temp_f20 * temp_f21 + temp_f7 * temp_f8), 0x40, temp_20);
                 } else if (temp_16 < 0xD2) {
                     sinf(((((fGpffff8094 * (f32) (temp_16 - 0xBD)) / 20.0f))));
-                    var_6_10 = (s128 *)(&spD0);
-                    spD0 = D_005E5530;
-                    spE0 = D_005E5540;
-                    var_5_8 = (M2C_UNK *)(&sp3D0);
-                    var_4_12 = 3;
-                    do {
-                        temp_3_13 = (s32)(M2C_FIELD(var_6_10, s32 *, 0));
-                        temp_2_16 = (s32)(M2C_FIELD(var_6_10, s32 *, 4));
-                        var_6_10 += 8;
-                        var_4_12 -= 1;
-                        M2C_FIELD(var_5_8, s32 *, 0) = temp_3_13;
-                        M2C_FIELD(var_5_8, s32 *, 4) = temp_2_16;
-                        var_5_8 += 8;
-                    } while (var_4_12 > 0);
-                    temp_8_5 = D_005E53B4 * 4;
-                    temp_7_4 = (u32)(M2C_FIELD((temp_8_5 + sp), u32 *, 0x3D0));
-                    var_6_11 = (s128 *)(&spD0);
-                    var_5_9 = (M2C_UNK *)(&sp3B0);
-                    var_4_13 = 3;
-                    do {
-                        temp_3_14 = (s32)(M2C_FIELD(var_6_11, s32 *, 0));
-                        temp_2_17 = (s32)(M2C_FIELD(var_6_11, s32 *, 4));
-                        var_6_11 += 8;
-                        var_4_13 -= 1;
-                        M2C_FIELD(var_5_9, s32 *, 0) = temp_3_14;
-                        M2C_FIELD(var_5_9, s32 *, 4) = temp_2_17;
-                        var_5_9 += 8;
-                    } while (var_4_13 > 0);
+                    fourthPalette = D_005E5530;
+                    titlePaletteCopy(&fourthHighlight, &fourthPalette);
+                    temp_8_5 = D_005E53B4;
+                    temp_7_4 = (u32)(fourthHighlight.words[temp_8_5]);
+                    titlePaletteCopy(&fourthBase, &fourthPalette);
                     temp_3_15 = (temp_7_4 >> 0x10) & 0xFF;
                     temp_8_6 = (temp_7_4 >> 0x18) & 0xFF;
                     temp_2_18 = (temp_7_4 >> 8) & 0xFF;
@@ -3403,7 +3249,7 @@ loop_128:
     /* ACC seed */;
     /* ACC seed */;
     /* ACC seed */;
-                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5398), (M2C_FIELD((temp_8_5 + sp), s32 *, 0x3B0) & ~0xFF) | 0xFF, ((var_3_9 & 0xFF) << 8) | (((var_7_2 & 0xFF) << 0x18) | ((var_6_12 & 0xFF) << 0x10)) | 0xFF, 0x40, temp_20, (temp_f20 * temp_f21 + temp_f7 * temp_f8), 0.0f, (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8));
+                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5398), (temp_f20 * temp_f21 + temp_f7 * temp_f8), 0.0f, (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (fourthBase.words[temp_8_5] & ~0xFF) | 0xFF, ((var_3_9 & 0xFF) << 8) | ((((u32) var_7_2 & 0xFF) << 0x18) | ((var_6_12 & 0xFF) << 0x10)) | 0xFF, (temp_f20 * temp_f21 + temp_f7 * temp_f8), 0x40, temp_20);
                 } else {
                     func_00124f70(0xA, 0xFF, 0xFF, (u32 *)0x40, temp_20);
                 }
@@ -3903,35 +3749,12 @@ loop_128:
         var_16 = 1;
 loop_351:
         if (var_16 < 8) {
-            var_6_13 = (s128 *)(&spB0);
-            spB0 = D_005E5530;
-            spC0 = D_005E5540;
-            var_5_16 = (M2C_UNK *)(&sp170);
-            var_4_14 = 3;
-            do {
-                temp_3_16 = (s32)(M2C_FIELD(var_6_13, s32 *, 0));
-                temp_2_20 = (s32)(M2C_FIELD(var_6_13, s32 *, 4));
-                var_6_13 += 8;
-                var_4_14 -= 1;
-                M2C_FIELD(var_5_16, s32 *, 0) = temp_3_16;
-                M2C_FIELD(var_5_16, s32 *, 4) = temp_2_20;
-                var_5_16 += 8;
-            } while (var_4_14 > 0);
+            fifthPalette = D_005E5530;
+            titlePaletteCopy(&fifthHighlight, &fifthPalette);
             temp_7_5 = (u8 *)((s32)&D_005E5230 + (var_16 * 0x28));
-            temp_9_7 = (s32)(M2C_FIELD(temp_7_5, s32 *, 0x1C) * 4);
-            temp_8_7 = (u32)(M2C_FIELD((temp_9_7 + sp), u32 *, 0x170));
-            var_6_14 = (s128 *)(&spB0);
-            var_5_17 = (M2C_UNK *)(&sp150);
-            var_4_15 = 3;
-            do {
-                temp_3_17 = (s32)(M2C_FIELD(var_6_14, s32 *, 0));
-                temp_2_21 = (s32)(M2C_FIELD(var_6_14, s32 *, 4));
-                var_6_14 += 8;
-                var_4_15 -= 1;
-                M2C_FIELD(var_5_17, s32 *, 0) = temp_3_17;
-                M2C_FIELD(var_5_17, s32 *, 4) = temp_2_21;
-                var_5_17 += 8;
-            } while (var_4_15 > 0);
+            temp_9_7 = (s32)(M2C_FIELD(temp_7_5, s32 *, 0x1C));
+            temp_8_7 = (u32)(fifthHighlight.words[temp_9_7]);
+            titlePaletteCopy(&fifthBase, &fifthPalette);
             temp_3_18 = (temp_8_7 >> 0x10) & 0xFF;
             temp_9_8 = (temp_8_7 >> 0x18) & 0xFF;
             temp_2_22 = (temp_8_7 >> 8) & 0xFF;
@@ -3941,7 +3764,7 @@ loop_351:
     /* ACC seed */;
             temp_f1_12 = temp_cB + temp_cA * temp_one_S5A;
             var_8_3 = (u8)(u32)temp_f1_12;
-            temp_9_9 = (var_8_3 & 0xFF) << 0x18;
+            temp_9_9 = ((u32) var_8_3 & 0xFF) << 0x18;
             temp_cA = (f32)(u32)(0xFF - temp_3_18);
             temp_one_S5B = 1.0f;
             temp_cB = (f32)(u32)temp_3_18;
@@ -3954,7 +3777,7 @@ loop_351:
     /* ACC seed */;
             temp_f1_14 = temp_cB + temp_cA * temp_one_S5C;
             var_3_34 = (u8)(u32)temp_f1_14;
-            func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_5, s32 *, 0)), (M2C_FIELD((temp_9_7 + sp), s32 *, 0x150) & ~0xFF) | 0xFF, ((var_3_34 & 0xFF) << 8) | (temp_9_9 | ((var_6_15 & 0xFF) << 0x10)) | 0xFF, 0x42, temp_20, M2C_BITWISE(f32, temp_9_9), M2C_FIELD(temp_7_5, f32 *, 4), 0.0f, M2C_FIELD(temp_7_5, f32 *, 8), M2C_FIELD(temp_7_5, f32 *, 0xC), M2C_FIELD(temp_7_5, f32 *, 0x10), M2C_FIELD(temp_7_5, f32 *, 0x14), M2C_FIELD(temp_7_5, f32 *, 0x18));
+            func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_5, s32 *, 0)), M2C_FIELD(temp_7_5, f32 *, 4), 0.0f, M2C_FIELD(temp_7_5, f32 *, 8), M2C_FIELD(temp_7_5, f32 *, 0xC), M2C_FIELD(temp_7_5, f32 *, 0x10), M2C_FIELD(temp_7_5, f32 *, 0x14), (fifthBase.words[temp_9_7] & ~0xFF) | 0xFF, ((var_3_34 & 0xFF) << 8) | (temp_9_9 | ((var_6_15 & 0xFF) << 0x10)) | 0xFF, M2C_FIELD(temp_7_5, f32 *, 0x18), 0x42, temp_20);
             var_16 += 1;
             goto loop_351;
         }
@@ -4023,13 +3846,15 @@ loop_351:
                 func_0046d730(D_005E5548, 0xEB);
             }
             func_0047a0e0(var_16_2, 0, *((u8 *)((s32)&D_005E5254 + (temp_17_2 * 0x28))));
-            RwMatrixRotate(&sp550, &sp5C8, 0, temp_f23);
-            RwMatrixRotate(&sp550, &sp5B8, 2, temp_f24);
-            sp5A8 = 0.0f;
-            sp5AC = 0xC2B40000;
-            sp5B0 = 0;
-            RwMatrixTranslate(&sp550, &sp5A8, 1);
-            func_0047a1c0(var_16_2, &sp550, 0);
+            /* Replace writes the matrix fields and flags before concatenation.
+             * Provider padding remains unspecified; do not synthesize values. */
+            RwMatrixRotate(&titleMatrix, &titleYawAxis, temp_f23, 0);
+            RwMatrixRotate(&titleMatrix, &titlePitchAxis, temp_f24, 2);
+            titleTranslation.x = 0.0f;
+            titleTranslation.y = -90.0f;
+            titleTranslation.z = 0.0f;
+            RwMatrixTranslate(&titleMatrix, &titleTranslation, 1);
+            func_0047a1c0(var_16_2, &titleMatrix, 0);
             var_2_29 = (s32)(M2C_FIELD(temp_20, s32 *, 0xC) - 5);
             if (var_2_29 > 0) {
                 if (var_2_29 >= 6) {
@@ -4243,7 +4068,7 @@ s32 func_0012aa70(u8 *task)
     extern void func_0047a0e0(u8 *model, s32 layer, f32 speed);
     /* The persistent copy destination is a complete 0x5D0-byte buffer. */
     extern struct MenuSavedState { u8 bytes[0x5D0]; } iGpffff9c90 __attribute__((section(".sdata")));
-    extern s32 func_001265a0(u8 *task);
+    extern void func_001265a0(void *unusedDrawData, void *task);
 
     Code12FrameVectorTransfer translation;
     Code12FrameVectorTransfer initialTranslation;
@@ -4502,7 +4327,7 @@ s32 func_0012aa70(u8 *task)
     }
     {
         u8 *drawTask = func_00460990();
-        *(s32 (**)(u8 *))(drawTask + 8) = func_001265a0;
+        *(void (**)(void *, void *))(drawTask + 8) = func_001265a0;
         *(u8 **)(drawTask + 0x10) = task;
         func_00460ac0(D_00795E60, drawTask);
     }

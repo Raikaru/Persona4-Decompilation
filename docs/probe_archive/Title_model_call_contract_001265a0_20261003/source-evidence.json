@@ -1,0 +1,77 @@
+{
+  "base": "69799eb8fe97c414501d20af309688f147e0e5d2",
+  "owner": "src/promoted/code1_0012.c",
+  "source_sha256": "05165f28b77b3a137a2e6cd8f64e82854cca3df5fe4ec73b9c5c71819a645397",
+  "exact_bounded_transform": true,
+  "packed_word_census": [
+    {
+      "name": "temp_9_3",
+      "before_occurrences": 4,
+      "after_occurrences": 3,
+      "complete_uses": [
+        "u32 declaration",
+        "unsigned masked top-byte definition",
+        "packed highlight word argument"
+      ],
+      "removed_use": "fabricated numeric leading float"
+    },
+    {
+      "name": "temp_9_6",
+      "before_occurrences": 4,
+      "after_occurrences": 3,
+      "complete_uses": [
+        "u32 declaration",
+        "unsigned masked top-byte definition",
+        "packed highlight word argument"
+      ],
+      "removed_use": "fabricated numeric leading float"
+    },
+    {
+      "name": "temp_9_9",
+      "before_occurrences": 4,
+      "after_occurrences": 3,
+      "complete_uses": [
+        "u32 declaration",
+        "unsigned masked top-byte definition",
+        "packed highlight word argument"
+      ],
+      "removed_use": "fabricated numeric leading float"
+    }
+  ],
+  "unsigned_before_top_shift_sites": 5,
+  "call_argument_orders": {
+    "generic": [
+      0,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      1,
+      2,
+      12,
+      3,
+      4
+    ],
+    "special": [
+      0,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      1,
+      2,
+      11,
+      3,
+      4
+    ]
+  },
+  "actual_provider_signature_unchanged": "void func_00124bb0(s32 arg0,\n                   f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,\n                   f32 fparg4, f32 fparg5,\n                   u32 arg1, u32 arg2,\n                   f32 fparg6,\n                   s32 arg3, u32 *arg4)",
+  "provider_matrix_flags_uninitialized_OR_retained": true,
+  "other_helper_contracts_untouched": true,
+  "guard_and_fallback_retained": true,
+  "special_geometry_producers_unchanged_and_unproven": true
+}
