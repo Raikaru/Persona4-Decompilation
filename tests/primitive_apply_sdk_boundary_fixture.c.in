@@ -1,0 +1,166 @@
+/* Native source/call tests for the game callback's opaque SDK boundary.
+ * Before invoking real Scale C, the test boundary writes a controlled flags
+ * seed. This is fixture setup, NOT a claim that retail writes this seed.
+ * Multiply remains a scalar dependency model; no VU/EE ACC execution claim.
+ */
+@RUNTIME@
+typedef unsigned u32;
+typedef unsigned char u8;
+typedef float f32;
+typedef float RwReal;
+#define NULL ((void*)0)
+@TYPES@
+typedef int RwOpCombineType;
+enum { rwCOMBINEREPLACE=0, rwCOMBINEPRECONCAT=1, rwCOMBINEPOSTCONCAT=2,
+       rwMATRIXINTERNALIDENTITY=0x20000, rwMATRIXTYPEORTHONORMAL=3 };
+#define RWAPIFUNCTION(x) ((void)0)
+#define RWASSERT(x) ((void)0)
+#define RWSTRING(x) x
+#define RWERROR(x) ((void)0)
+#define RWRETURN(x) return (x)
+#define MACRO_START do
+#define MACRO_STOP while (0)
+@MACROS@
+#define RwMatrixSetIdentity RwMatrixSetIdentityMacro
+@SCALE@
+static unsigned scenario, phase, trace_enabled, cases;
+static u32 boundary_seed;
+static PrimInterpData *live_frame;
+static RwMatrix *live_output;
+static f32 expected_rotation[9], expected_scales[3], expected_final[12];
+static RwV3d late_translation;
+#define CHECK(x) do { if (!(x)) native32_failure(__LINE__,scenario,#x); } while(0)
+static f32 element(const RwMatrix *m,unsigned r,unsigned c) {
+    const RwV3d *v=r==0?&m->right:r==1?&m->up:r==2?&m->at:&m->pos;
+    return c==0?v->x:c==1?v->y:v->z;
+}
+static void set_element(RwMatrix *m,unsigned r,unsigned c,f32 value) {
+    RwV3d *v=r==0?&m->right:r==1?&m->up:r==2?&m->at:&m->pos;
+    if(c==0)v->x=value;else if(c==1)v->y=value;else v->z=value;
+}
+static void fill(RwMatrix *m,u32 seed) {
+    for (unsigned r=0;r<4;r++) for(unsigned c=0;c<3;c++) set_element(m,r,c,(f32)(r*3+c+1));
+    m->flags=seed;m->pad1=0x41400000;m->pad2=0x41500000;m->pad3=0x41600000;
+}
+static void multiply_model(RwMatrix *out,const RwMatrix *a,const RwMatrix *b) {
+    f32 values[12];
+    u32 flags=a->flags & b->flags;
+    for(unsigned r=0;r<4;r++) for(unsigned c=0;c<3;c++) {
+        double value=(double)element(a,r,0)*element(b,0,c)
+                    +(double)element(a,r,1)*element(b,1,c)
+                    +(double)element(a,r,2)*element(b,2,c);
+        if(r==3) value+=element(b,3,c);
+        values[r*3+c]=(f32)value;
+    }
+    for(unsigned r=0;r<4;r++) for(unsigned c=0;c<3;c++) set_element(out,r,c,values[r*3+c]);
+    out->flags=flags;
+    /* Retail SQCs write stale W lanes. These are deterministic stand-ins,
+       not asserted hardware values and never used for numeric oracle claims. */
+    out->pad1=0x41400000;out->pad2=0x41500000;out->pad3=0x41600000;
+}
+RwMatrix *RwMatrixScale(RwMatrix *m,const RwV3d *scale,int op) {
+    if(trace_enabled) {
+        CHECK(phase==0);CHECK(op==0);
+        /* Define the external SDK boundary state before real provider C. */
+        m->flags=boundary_seed;
+        m->pad1=boundary_seed ^ 0x7f800001u;
+        m->pad2=~boundary_seed;
+        m->pad3=boundary_seed ^ 0x80000000u;
+        CHECK(scale==(const RwV3d*)&live_frame->values[3]);
+        CHECK(scale->x==expected_scales[0]);CHECK(scale->y==expected_scales[1]);CHECK(scale->z==expected_scales[2]);
+        phase=1;
+    }
+    RwMatrix *scaled=real_RwMatrixScale(m,scale,op);
+    if(trace_enabled) {
+        CHECK(m->pad1==(boundary_seed ^ 0x7f800001u));
+        CHECK(m->pad2==~boundary_seed);
+        CHECK(m->pad3==(boundary_seed ^ 0x80000000u));
+    }
+    return scaled;
+}
+RwMatrix *RwMatrixMultiply(RwMatrix *out,const RwMatrix *a,const RwMatrix *b) {
+    if(trace_enabled) {
+        CHECK(phase==1);CHECK(out==live_output);CHECK(a!=b);CHECK(a!=out);CHECK(b!=out);
+        CHECK(a->flags==(boundary_seed & 0xfffdfffcu));CHECK(b->flags==3);
+        for(unsigned r=0;r<3;r++) for(unsigned c=0;c<3;c++) {
+            CHECK(element(a,r,c)==(r==c?expected_scales[r]:0));
+            CHECK(element(b,r,c)==expected_rotation[r*3+c]);
+        }
+        CHECK(a->pos.x==0 && a->pos.y==0 && a->pos.z==0);
+        CHECK(b->pos.x==0 && b->pos.y==0 && b->pos.z==0);
+        phase=2;
+    }
+    multiply_model(out,a,b);
+    if(trace_enabled) {
+        /* Reads after the real output write model the retail's late load,
+           including overlapping output/frame storage. */
+        late_translation.x=live_frame->values[0];
+        late_translation.y=live_frame->values[1];
+        late_translation.z=live_frame->values[2];
+        expected_final[9]=late_translation.x;expected_final[10]=late_translation.y;expected_final[11]=late_translation.z;
+    }
+    return out;
+}
+@TARGET@
+static void set_expected_rotation(const PrimInterpData *p) {
+    double x=p->quat.x,y=p->quat.y,z=p->quat.z,w=p->quat.w;
+    expected_rotation[0]=(f32)(1-2*(y*y+z*z));expected_rotation[1]=(f32)(2*(x*y+z*w));expected_rotation[2]=(f32)(2*(x*z-y*w));
+    expected_rotation[3]=(f32)(2*(x*y-z*w));expected_rotation[4]=(f32)(1-2*(x*x+z*z));expected_rotation[5]=(f32)(2*(y*z+x*w));
+    expected_rotation[6]=(f32)(2*(x*z+y*w));expected_rotation[7]=(f32)(2*(y*z-x*w));expected_rotation[8]=(f32)(1-2*(x*x+y*y));
+}
+static void target_case(unsigned seed,unsigned alias) {
+    union Storage { RwMatrix matrix; PrimInterpData frame; u8 bytes[80]; } storage;
+    PrimInterpData independent;
+    for(unsigned i=0;i<80;i++)storage.bytes[i]=0xa5;
+    for(unsigned i=0;i<sizeof independent;i++)((u8*)&independent)[i]=0x6b;
+    PrimInterpData *p=alias?&storage.frame:&independent;
+    RwMatrix *out=&storage.matrix;
+    static const f32 qs[3]={-0.5f,0.0f,0.5f};
+    static const f32 scales[5]={-2.0f,-0.5f,0.0f,1.0f,3.0f};
+    unsigned k=seed;
+    p->quat.x=qs[k%3];k/=3;p->quat.y=qs[k%3];k/=3;p->quat.z=qs[k%3];k/=3;p->quat.w=qs[k%3];k/=3;
+    p->values[0]=7.0f;p->values[1]=-11.0f;p->values[2]=0.25f;
+    for(unsigned i=0;i<3;i++){ p->values[i+3]=scales[k%5];expected_scales[i]=p->values[i+3];k/=5; }
+    set_expected_rotation(p);
+    for(unsigned r=0;r<3;r++)for(unsigned c=0;c<3;c++)expected_final[r*3+c]=expected_rotation[r*3+c]*expected_scales[r];
+    phase=0;trace_enabled=1;live_frame=p;live_output=out;
+    func_00480940(out,p);
+    CHECK(phase==2);CHECK(out->flags==0);
+    for(unsigned r=0;r<4;r++)for(unsigned c=0;c<3;c++)CHECK(element(out,r,c)==expected_final[r*3+c]);
+    for(unsigned i=64;i<80;i++)CHECK(storage.bytes[i]==0xa5);
+    if(!alias) { CHECK(p->values[0]==7.0f && p->values[1]==-11.0f && p->values[2]==0.25f); }
+    cases++;
+}
+static void provider_cases(void) {
+    RwMatrix a,b,c;
+    RwV3d scale={2.0f,-0.5f,3.0f};
+    trace_enabled=0;
+    /* Basis seed coverage checks all 32 incoming bits, plus combinations. */
+    for(unsigned n=0;n<35;n++) {
+        u32 seed=n<32?(1u<<n):n==32?0xffffffffu:n==33?0xa5a5a5a5u:0;
+        fill(&a,seed);u32 p1=a.pad1,p2=a.pad2,p3=a.pad3;
+        CHECK(real_RwMatrixScale(&a,&scale,0)==&a);
+        CHECK(a.flags==(seed&0xfffdfffcu));CHECK(a.pad1==p1 && a.pad2==p2 && a.pad3==p3);
+        for(unsigned r=0;r<4;r++)for(unsigned x=0;x<3;x++)CHECK(element(&a,r,x)==(r==x?(r==0?scale.x:r==1?scale.y:scale.z):0));
+        fill(&b,3);multiply_model(&c,&a,&b);CHECK(c.flags==0);
+        fill(&b,0xffffffffu);multiply_model(&c,&a,&b);CHECK(c.flags==(seed&0xfffdfffcu));
+        cases++;
+    }
+    /* Model dependency control: actual VU input W lanes are excluded from
+       .xyz operations. Seed them differently, preserve all XYZ and flags. */
+    fill(&a,0xf0f0);fill(&b,0x0ff0);multiply_model(&c,&a,&b);
+    f32 expected[12];for(unsigned r=0;r<4;r++)for(unsigned x=0;x<3;x++)expected[r*3+x]=element(&c,r,x);
+    a.pad1=0xffffffff;a.pad2=0x7f800001;a.pad3=0x80000000;b.pad1=0x7fc00000;b.pad2=0;b.pad3=0xffffffff;
+    multiply_model(&c,&a,&b);CHECK(c.flags==0xf0);
+    for(unsigned r=0;r<4;r++)for(unsigned x=0;x<3;x++)CHECK(element(&c,r,x)==expected[r*3+x]);
+}
+int main(void) {
+    provider_cases();
+    for(unsigned bit=0;bit<35;bit++) {
+        boundary_seed=bit<32?(1u<<bit):bit==32?0xffffffffu:bit==33?0xa5a5a5a5u:0;
+        for(scenario=0;scenario<10125;scenario++) target_case(scenario,0);
+        for(scenario=20000;scenario<20405;scenario++) target_case((scenario-20000)*25,1);
+    }
+    native32_text("matrix cases ");native32_number(cases);native32_text(" passed\n");return 0;
+}
+@ENTRY@

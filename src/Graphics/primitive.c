@@ -539,16 +539,14 @@ void primAxisLine3D(const RwMatrix* mat, f32 length, u32 saveAndRestoreRenderSta
 
 
 
-// FUN_00480940 NONMATCHING
-/* The VU multiply loads four 16-byte rows from both matrices. Only XYZ
- * lanes and flags affect its result; the three padding words are ignored.
- * RwMatrixScale(REPLACE) still reads flags before masking them, so the
- * scale matrix must start with defined flags. Measured 352/352 bytes,
- * four alignment edits: the flags initialization and pointer-save order. */
-#ifdef NON_MATCHING
+// FUN_00480940
+/* REPLACE is the opaque RenderWare output-storage contract: the SDK guide
+ * and its UV-animation example permit a raw local destination. The retail
+ * Scale provider still reads its flags word; its preserved bits are killed
+ * by AND with matrix.flags (3) in Multiply. This recovers the game caller,
+ * not globally defined provider C. See the 00480940 SDK-boundary record. */
 void func_00480940(void* result, void* frame)
 {
-    RwMatrix* output = result;
     PrimInterpData* input = frame;
     RwMatrix buffer;
     RwMatrix matrix;
@@ -595,16 +593,12 @@ void func_00480940(void* result, void* frame)
     matrix.pos.z = 0;
     matrix.flags = 3;
 
-    buffer.flags = 0;
     RwMatrixScale(&buffer, (const RwV3d*)&input->values[3], 0);
-    RwMatrixMultiply(output, &buffer, &matrix);
+    RwMatrixMultiply((RwMatrix*)result, &buffer, &matrix);
 
-    (output)->pos = *(const RwV3d*)&input->values[0];
-    output->flags = output->flags & 0xfffdffff;
+    ((RwMatrix*)result)->pos = *(const RwV3d*)&input->values[0];
+    ((RwMatrix*)result)->flags = ((RwMatrix*)result)->flags & 0xfffdffff;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/primitive", func_00480940);
-#endif
 
 
 
