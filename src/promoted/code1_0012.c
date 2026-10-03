@@ -2453,10 +2453,10 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern s32 func_0046d730();
     extern s32 func_004782b0();
     extern s32 func_00478e70();
-    extern s32 func_0047a0e0();
+    extern void func_0047a0e0(u8 *model, s32 layer, f32 speed);
     extern s32 func_00489f80();
     extern s32 func_0048a000();
-    extern s32 D_005E5230;
+    extern u8 D_005E5230[];
     extern u8 D_005E523C[];
     extern u8 D_005E5240[];
     extern u8 D_005E5248[];
@@ -2478,8 +2478,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern u32 D_005E56B0[8];
     extern u8 D_005E56D0[];
     extern void (*D_00887300[])(s32, s32);
-    extern s32 func_00124f70();
-    extern s32 func_00125e80();
     extern s32 func_00126090();
     extern u8 *saved_reg_gp;
     extern f32 fGpffff9c70;
@@ -2991,7 +2989,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                     M2C_FIELD(temp_20, s32 *, 0x10) = 0;
                 }
                 sinf((((fGpffff81dc + ((fGpffff81e0 * (f32) M2C_FIELD(temp_20, s32 *, 0x10)) / 360.0f)))));
-                func_00125e80(0xB2, temp_20, (temp_f20 * temp_f21 - temp_f7 * temp_f8), 0.0f, 10.0f);
+                func_00125e80((temp_f20 * temp_f21 - temp_f7 * temp_f8), 0.0f, 10.0f, 0xB2, (u8 *)temp_20);
             }
             if (temp_16 >= 0x3E) {
                 if (temp_16 < 0x11A) {
@@ -3013,7 +3011,7 @@ loop_93:
                         if ((u32) var_19 >= 0x13U) {
                             func_0046d730(D_005E5548, 0xD1);
                         }
-                        temp_21 = (u8 *)((s32)&D_005E5230 + (var_19 * 0x28));
+                        temp_21 = D_005E5230 + var_19 * 0x28;
                         var_17 = (s32)((temp_16 - 0x3D) - M2C_FIELD(temp_21, s32 *, 0x20));
                         if (var_17 > 0) {
                             var_2_5 = var_17 - 0x32;
@@ -3059,7 +3057,7 @@ loop_93:
                                 }
                             }
                             if (temp_f21 < 1.0f) {
-                                func_00124f70(var_19, M2C_BITWISE(s8, (255.0f * temp_f21)), 0, (u32 *)1, temp_20);
+                                func_00124f70(var_19, (s32)(255.0f * temp_f21), 0, 1, (u8 *)temp_20);
                             } else {
                                 var_3_5 = sp6A0.bytes;
                                 var_2_6 = 4;
@@ -3077,7 +3075,7 @@ loop_93:
                                  * producers remain supplied/unproven expressions. */
                                 firstPalette = D_005E5530;
                                 titlePaletteCopy(&firstHighlight, &firstPalette);
-                                temp_7 = (u8 *)((s32)&D_005E5230 + (var_19 * 0x28));
+                                temp_7 = D_005E5230 + var_19 * 0x28;
                                 temp_9 = (s32)(M2C_FIELD(temp_7, s32 *, 0x1C));
                                 temp_8 = (u32)(firstHighlight.words[temp_9]);
                                 temp_q1 = (f32)(s32)(255.0f * temp_f20) / 255.0f;
@@ -3113,7 +3111,7 @@ loop_128:
                     if (var_17_2 < 8) {
                         secondPalette = D_005E5530;
                         titlePaletteCopy(&secondHighlight, &secondPalette);
-                        temp_7_2 = (u8 *)((s32)&D_005E5230 + (var_17_2 * 0x28));
+                        temp_7_2 = D_005E5230 + var_17_2 * 0x28;
                         temp_9_4 = (s32)(M2C_FIELD(temp_7_2, s32 *, 0x1C));
                         temp_8_2 = (u32)(secondHighlight.words[temp_9_4]);
                         titlePaletteCopy(&secondBase, &secondPalette);
@@ -3150,10 +3148,10 @@ loop_128:
                     temp_17 = temp_16 - 0x81;
                     sinf(((((fGpffff8094 * (f32) temp_17) / 60.0f))));
                     if (temp_17 == 1) {
-                        if (D_005E5230 >= 0xF) {
+                        if (*(s32 *)D_005E5230 >= 0xF) {
                             var_4_7 = NULL;
                         } else {
-                            temp_2_11 = (u32 *)(&temp_20[D_005E5230]);
+                            temp_2_11 = (u32 *)(&temp_20[*(s32 *)D_005E5230]);
                             if (func_004782b0(M2C_FIELD(temp_2_11, u8 **, 0x44)) != 0) {
                                 var_4_7 = (u8 *)(M2C_FIELD(temp_2_11, u8 **, 0x44));
                             } else {
@@ -3170,10 +3168,10 @@ loop_128:
                         }
                         func_0047a0e0(var_4_8, 0, fGpffff8110);
                     } else if (temp_17 == 0x3A) {
-                        if (D_005E5230 >= 0xF) {
+                        if (*(s32 *)D_005E5230 >= 0xF) {
                             var_4_9 = NULL;
                         } else {
-                            temp_2_12 = (u32 *)(&temp_20[D_005E5230]);
+                            temp_2_12 = (u32 *)(&temp_20[*(s32 *)D_005E5230]);
                             if (func_004782b0(M2C_FIELD(temp_2_12, u8 **, 0x44)) != 0) {
                                 var_4_9 = (u8 *)(M2C_FIELD(temp_2_12, u8 **, 0x44));
                             } else {
@@ -3251,7 +3249,7 @@ loop_128:
     /* ACC seed */;
                     func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5398), (temp_f20 * temp_f21 + temp_f7 * temp_f8), 0.0f, (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (fourthBase.words[temp_8_5] & ~0xFF) | 0xFF, ((var_3_9 & 0xFF) << 8) | ((((u32) var_7_2 & 0xFF) << 0x18) | ((var_6_12 & 0xFF) << 0x10)) | 0xFF, (temp_f20 * temp_f21 + temp_f7 * temp_f8), 0x40, temp_20);
                 } else {
-                    func_00124f70(0xA, 0xFF, 0xFF, (u32 *)0x40, temp_20);
+                    func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
                 }
             }
             if (temp_16 < 0x74) {
@@ -3482,7 +3480,7 @@ loop_128:
                 sp2E0 = D_005E55A0.bits;
                 func_0045d6e0((u8 *)&sp600, (f32 *)&sp2E0, 0.0f, 0);
                 func_0048a000();
-                func_00125e80(0xFF, temp_20, 200.0f, 0.0f, 10.0f);
+                func_00125e80(200.0f, 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
             } else if (temp_16 < 0xCE) {
                 var_3_20 = sp64C.bytes;
                 var_2_17 = 4;
@@ -3517,7 +3515,7 @@ loop_128:
                 func_0045d6e0((u8 *)&sp5F8, (f32 *)&sp2B0, 0.0f, 0);
                 func_0048a000();
                 sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 120.0f))));
-                func_00125e80(0xFF, temp_20, (temp_f20 * temp_f21 - temp_f7 * temp_f8), 0.0f, 10.0f);
+                func_00125e80((temp_f20 * temp_f21 - temp_f7 * temp_f8), 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
             }
             if (temp_16 < 0xE2) {
                 var_3_22 = sp644.bytes;
@@ -3734,7 +3732,7 @@ loop_128:
             M2C_FIELD(temp_20, s32 *, 0x10) = 0;
         }
         sinf((((fGpffff81dc + ((fGpffff81e0 * (f32) M2C_FIELD(temp_20, s32 *, 0x10)) / 360.0f)))));
-        func_00125e80(0x99, temp_20, (temp_f20 * temp_f21 - temp_f7 * temp_f8), 0.0f, 10.0f);
+        func_00125e80((temp_f20 * temp_f21 - temp_f7 * temp_f8), 0.0f, 10.0f, 0x99, (u8 *)temp_20);
         var_3_33 = sp690.bytes;
         var_2_28 = 4;
         if (var_3_33 != NULL) {
@@ -3751,7 +3749,7 @@ loop_351:
         if (var_16 < 8) {
             fifthPalette = D_005E5530;
             titlePaletteCopy(&fifthHighlight, &fifthPalette);
-            temp_7_5 = (u8 *)((s32)&D_005E5230 + (var_16 * 0x28));
+            temp_7_5 = D_005E5230 + var_16 * 0x28;
             temp_9_7 = (s32)(M2C_FIELD(temp_7_5, s32 *, 0x1C));
             temp_8_7 = (u32)(fifthHighlight.words[temp_9_7]);
             titlePaletteCopy(&fifthBase, &fifthPalette);
@@ -3781,7 +3779,7 @@ loop_351:
             var_16 += 1;
             goto loop_351;
         }
-        func_00124f70(0xA, 0xFF, 0xFF, (u32 *)0x40, temp_20);
+        func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
         func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
         temp_f1_15 = 255.0f * ((f32) var_3_30 / 20.0f);
         if (!(temp_f1_15 >= 2.1474836e9f)) {
@@ -3795,7 +3793,7 @@ loop_351:
     case 8:
     case 9:
         if (M2C_FIELD(temp_20, s32 *, 0xC) == 0) {
-            temp_f0_7 = (f32) *((u8 *)(&D_005E5230 + (M2C_FIELD(temp_20, u32 *, 0x84) * 0x28)));
+            temp_f0_7 = (f32)*(s32 *)(D_005E5230 + M2C_FIELD(temp_20, u32 *, 0x84) * 0x28);
             if (M2C_BITWISE(s32, temp_f0_7) >= 0xF) {
                 var_4_16 = NULL;
             } else {
@@ -3818,7 +3816,7 @@ loop_351:
         sp68C = temp_f0_8;
         sp6BC.value = temp_f0_8;
         func_0045c870((u8 *)&sp6BC, 1);
-        temp_f0_9 = (f32) *((u8 *)(&D_005E5230 + (M2C_FIELD(temp_20, u32 *, 0x84) * 0x28)));
+        temp_f0_9 = (f32)*(s32 *)(D_005E5230 + M2C_FIELD(temp_20, u32 *, 0x84) * 0x28);
         if (M2C_BITWISE(s32, temp_f0_9) >= 0xF) {
             var_16_2 = NULL;
         } else {
@@ -3831,9 +3829,9 @@ loop_351:
         }
         if (var_16_2 != NULL) {
             temp_3_19 = (s32)(M2C_FIELD(temp_20, u32 *, 0x84) * 0x28);
-            temp_f24 = (f32)(s32)(*((u8 *)((s32)&D_005E523C + temp_3_19)));
-            temp_f23 = (f32)(s32)(*((u8 *)((s32)&D_005E5240 + temp_3_19)));
-            temp_f21_3 = (f32)(s32)(*((u8 *)((s32)&D_005E5248 + temp_3_19)));
+            temp_f24 = *(f32 *)(D_005E523C + temp_3_19);
+            temp_f23 = *(f32 *)(D_005E5240 + temp_3_19);
+            temp_f21_3 = *(f32 *)(D_005E5248 + temp_3_19);
             temp_2_26 = (s32)(M2C_FIELD(var_16_2, s32 *, 0xD8) & ~8);
             M2C_FIELD(var_16_2, s32 *, 0xD8) = temp_2_26;
             temp_3_20 = temp_2_26 | 0x10;
@@ -3845,7 +3843,7 @@ loop_351:
             if (temp_17_2 >= 0x13U) {
                 func_0046d730(D_005E5548, 0xEB);
             }
-            func_0047a0e0(var_16_2, 0, *((u8 *)((s32)&D_005E5254 + (temp_17_2 * 0x28))));
+            func_0047a0e0(var_16_2, 0, *(f32 *)(D_005E5254 + temp_17_2 * 0x28));
             /* Replace writes the matrix fields and flags before concatenation.
              * Provider padding remains unspecified; do not synthesize values. */
             RwMatrixRotate(&titleMatrix, &titleYawAxis, temp_f23, 0);

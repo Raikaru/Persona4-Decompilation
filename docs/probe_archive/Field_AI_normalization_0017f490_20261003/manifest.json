@@ -1,0 +1,37 @@
+{
+  "baseline": "3686cbd1a9335bc20463f8c24b81127c6eb09e8c",
+  "target": "0017f490",
+  "status": "guarded semantic contract repair; not a C match",
+  "files": {
+    "src/Kosaka/Field/k_fldAI.c": "2d4e0128e23259a89ce2652739c4e7f8e5279f64b94e2f50494787e52aabf672",
+    "tests/test_field_ai_normalization_contract.py": "3967dcd4c633aab49c27dacc99d577d2156e5facf932e41c1a24ad9b7367f6ca",
+    "tests/field_ai_normalization_fixture.c.in": "4468816ba2727911efbaca6bc574372aba9608c3c62d706891848f04bcf7642b",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003.md": "5750046f26005e5484c24635a13e28ae2d42a882420d582e9bdf6c2d26185d9b",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/after-align.log": "6a8d78ca152c800a0a421a03ca4e6b77747910b672572ce9fe30149dbaa58ad2",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/audit_normalization.py": "751c115bba48033100b222c3c8865bfd3c6db5828a3fe04113b2a5445c3ebdeb",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/before-align.log": "186f6f724693b9175cfe6fc20bb19103771871fd3431e33090156eda9ea59422",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/capture_owner.py": "dbff658c47c362ea876c24222b919feb8ede4c7d83f0417cfcd5d3111e528a3b",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/existing-tests.log": "e8c77972e2b153d14d6bf3f92db6006a59b42e2c70c2ec2d3ec3566cddb5f9a9",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/lint.log": "360f994629d23c06d1e1be796f6e3158ac6a52118ac582cda48d54bdbecf3d8c",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/machine-evidence.json": "cf608f11e7d4089c4879bc53b47060627fdf6a99ef8a4dc4e9774543c489fe97",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/native-baseline-token-audit.log": "927b68520febf391d53df3aee681288ac087096f0093b7a998a9d8a7bd527cf6",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/native-baseline-token-audit.py": "bd21ba99428d66ece986d1d17371c1545cdd4381a5a64ba6e3d70090e1c64c8d",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/native-evidence.json": "b1faeb3e11951fc8a2a6e6c72d10cf0b689c5aa0d54c8d567cc13de6a2297205",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/native.log": "b9255b74d584d4920d388fff3e2b3e4e06d742067bb6c2ed9c76e8102750cfae",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/preservation.json": "2661685e7f339d84067678152f1da120d5bc9f053a51c036cd3f75f008d05270",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/replay.sh": "6f5312e27b4d28d41901a6d84726ad5f2a3f4ed71523d00ddaca6797d2a5aafa",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/verify.json": "332d333f6298f3b1b5d4a0d3b8180660ec8a2e0518a326d6a895e92ef4ae828a",
+    "docs/probe_archive/Field_AI_normalization_0017f490_20261003/verify.log": "e6d7b5fa8d0731cbc43987ef26d78011f927a49891633a79000ddc67910e466b"
+  },
+  "gates": {
+    "production_complete_object_identical": true,
+    "guarded_siblings_preserved": 10,
+    "all_target_reference_sequence_preserved": 258,
+    "native_tests": 6,
+    "native_tests_skipped": 0,
+    "existing_tests": 21,
+    "whole_program_verification": "not run in this isolated checkpoint",
+    "full_link": "not run in this isolated checkpoint",
+    "published": false
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "production": {
+    "functions": 11,
+    "changed_function_names": [],
+    "changed_section_names": [],
+    "allocated_relocations_equal": true,
+    "all_non_target_allocated_data_unchanged": true,
+    "non_target_allocated_data_bytes": 0,
+    "all_non_target_allocated_references_unchanged": true,
+    "baseline_target_tables": {},
+    "target_tables": {},
+    "baseline_target_size": 11584,
+    "candidate_target_size": 11584,
+    "complete_object_identical": true
+  },
+  "guard": {
+    "functions": 11,
+    "changed_function_names": [
+      "func_0017f490"
+    ],
+    "changed_section_names": [
+      ".rodata",
+      ".text"
+    ],
+    "allocated_relocations_equal": false,
+    "all_non_target_allocated_data_unchanged": true,
+    "non_target_allocated_data_bytes": 0,
+    "all_non_target_allocated_references_unchanged": true,
+    "baseline_target_tables": {
+      "35": {
+        "entries": [
+          948,
+          1304,
+          2656,
+          3480,
+          3712,
+          3984,
+          4056,
+          4816,
+          5876,
+          7420,
+          8496,
+          9324,
+          10772,
+          11080,
+          11200
+        ],
+        "entry_prefix_sha256": [
+          "8eb47744a10421dd5767189acde4e31704cbc4771c50f01d9a21faffc4ed028d",
+          "e8ebd08d4dae45e79e0886dd80ed4f196f76ec424a50f96a92492daa50db1aff",
+          "2a89a8181526cf11f765c5dd306a0dd4dc94a23a6129684ca52da05bac8cc96e",
+          "27834b189a9aac00818bb76d68d3e44f1d0486bcb509ba8b9ab4d028155dcceb",
+          "52ea729840c6d26979dc35e7677949fdb31259b1e1bcb3fa4f7542372c5d958c",
+          "cd21e0da98046ae1ad4e2a4056b1f40c65cad3d0913aace9acb183ee4e2dc33c",
+          "b01056ee7c96d2128c209f540c47be197fd0e774fa6c58a28127251cc41a093c",
+          "2a89a8181526cf11f765c5dd306a0dd4dc94a23a6129684ca52da05bac8cc96e",
+          "566fe48cceb0620cc7135e2df4b33a9328d46e2c41a12ba3ddd356042f73ef1f",
+          "2a89a8181526cf11f765c5dd306a0dd4dc94a23a6129684ca52da05bac8cc96e",
+          "2a89a8181526cf11f765c5dd306a0dd4dc94a23a6129684ca52da05bac8cc96e",
+          "2a89a8181526cf11f765c5dd306a0dd4dc94a23a6129684ca52da05bac8cc96e",
+          "9a49044578146d43a984f55067aa1c578d67d3481dc792cdc25acacd2252f23a",
+          "7bcad30fe7b9f269c7bbc01c3933a31d5af17519a81571cf1e63f19c1609b5a6",
+          "a78ed010082616eb5a30c9b7c837eebcb82c1e2bc6a9a9c30d9b00552a8125ea"
+        ]
+      }
+    },
+    "target_tables": {
+      "35": {
+        "entries": [
+          928,
+          1284,
+          2636,
+          3508,
+          3740,
+          4012,
+          4084,
+          4884,
+          6024,
+          7712,
+          8876,
+          9752,
+          11288,
+          11596,
+          11716
+        ],
+        "entry_prefix_sha256": [
+          "8eb47744a10421dd5767189acde4e31704cbc4771c50f01d9a21faffc4ed028d",
+          "e2d84d36fb983c63f77c40d119c833b387a05a3725fd1a5eae7d216fc351bf55",
+          "2a89a8181526cf11f765c5dd306a0dd4dc94a23a6129684ca52da05bac8cc96e",
+          "27834b189a9aac00818bb76d68d3e44f1d0486bcb509ba8b9ab4d028155dcceb",
+          "52ea729840c6d26979dc35e7677949fdb31259b1e1bcb3fa4f7542372c5d958c",
+          "76dedd02ba3b7f1f17b6c3a190e5e38970e4053b679af77978c7ce382a766aa3",
+          "b01056ee7c96d2128c209f540c47be197fd0e774fa6c58a28127251cc41a093c",
+          "2a89a8181526cf11f765c5dd306a0dd4dc94a23a6129684ca52da05bac8cc96e",
+          "11722b302bafc8898e0083b9b94528ee86b313227e83022ce635b82225fb2486",
+          "2a89a8181526cf11f765c5dd306a0dd4dc94a23a6129684ca52da05bac8cc96e",
+          "2a89a8181526cf11f765c5dd306a0dd4dc94a23a6129684ca52da05bac8cc96e",
+          "2a89a8181526cf11f765c5dd306a0dd4dc94a23a6129684ca52da05bac8cc96e",
+          "9a49044578146d43a984f55067aa1c578d67d3481dc792cdc25acacd2252f23a",
+          "7bcad30fe7b9f269c7bbc01c3933a31d5af17519a81571cf1e63f19c1609b5a6",
+          "a78ed010082616eb5a30c9b7c837eebcb82c1e2bc6a9a9c30d9b00552a8125ea"
+        ]
+      }
+    },
+    "baseline_target_size": 11288,
+    "candidate_target_size": 11784,
+    "target_reference_sequence_preserved": true,
+    "target_reference_count": 258
+  }
+}

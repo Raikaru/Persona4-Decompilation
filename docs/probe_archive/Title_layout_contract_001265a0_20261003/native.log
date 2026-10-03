@@ -1,0 +1,58 @@
+test_live_source_contract (test_title_layout_contract.TitleLayout.test_live_source_contract) ... ok
+test_native_boundaries (test_title_layout_contract.TitleLayout.test_native_boundaries) ... -O0 13465 title layout selection/read/provider cases passed
+-O2 13465 title layout selection/read/provider cases passed
+ok
+test_negative_controls (test_title_layout_contract.TitleLayout.test_negative_controls) ... -O0 first_byte rejected: 1 line 171, scenario 5: M2C_BITWISE(s32,temp_f0_7)==expected
+-O0 second_byte rejected: 1 line 171, scenario 5: M2C_BITWISE(s32,temp_f0_9)==expected
+-O0 unsigned_model rejected: -4
+-O0 stride160 rejected: 1 line 171, scenario 12: M2C_BITWISE(s32,temp_f0_7)==expected
+-O0 roundtrip_removed rejected: 1 line 171, scenario 8: M2C_BITWISE(s32,temp_f0_7)==expected
+-O0 double_slot_scale rejected: 1 line 74, scenario 210: p==initialPointer
+-O0 reject14 rejected: 1 line 172, scenario 3: (M2C_BITWISE(s32, temp_f0_9) >= 0xE)==(expected>=15)
+-O0 lower_clamp rejected: 1 line 172, scenario 6: (M2C_BITWISE(s32, temp_f0_7) < 0 || M2C_BITWISE(s32, temp_f0_7) >= 0xF)==(expected>=15)
+-O0 only_validator_one rejected: 1 line 218, scenario 230: animations==(firstAccepted&&validatorResult)
+-O0 no_reload rejected: 1 line 101, scenario 225: p==(mutateSlot?reloadedPointer:initialPointer)
+-O0 validator_pointer rejected: -4
+-O0 first_gate rejected: 1 line 218, scenario 210: validations==firstAccepted+secondAccepted
+-O0 counter_saturation rejected: 1 line 219, scenario 213: work[3]==(u32)(counts[ct]<600?counts[ct]+1:counts[ct])
+-O0 pitch_byte rejected: 1 line 164, scenario 220: bits(temp_f24)==rows[secondRow][3]
+-O0 yaw_byte rejected: 1 line 164, scenario 220: bits(temp_f23)==rows[secondRow][4]
+-O0 scale_byte rejected: 1 line 164, scenario 220: bits(temp_f21_3)==rows[secondRow][6]
+-O0 swap_fields rejected: 1 line 164, scenario 220: bits(temp_f24)==rows[secondRow][3]
+-O0 speed_byte rejected: 1 line 101, scenario 220: bits(speed)==rows[secondRow][9]
+-O0 speed_layer rejected: 1 line 100, scenario 220: layer==0
+-O0 earlier_speed rejected: 1 line 235, scenario 13387: model[0][61]==values[i]
+-O0 missing_mirror rejected: 1 line 223, scenario 220: *(u32*)(expectedPointer+580)==rows[secondRow][9]
+-O0 missing_mask rejected: 1 line 241, scenario 13436: bigStorage[off/4]==values[f]
+-O0 zero_bad_slot rejected: 1 line 74, scenario 13138: p==initialPointer
+-O0 signed_row_bound rejected: 1 line 198, scenario 0: bound(0xffffffffu)
+-O2 first_byte rejected: 1 line 171, scenario 5: M2C_BITWISE(s32,temp_f0_7)==expected
+-O2 second_byte rejected: 1 line 171, scenario 5: M2C_BITWISE(s32,temp_f0_9)==expected
+-O2 unsigned_model rejected: -4
+-O2 stride160 rejected: 1 line 171, scenario 12: M2C_BITWISE(s32,temp_f0_7)==expected
+-O2 roundtrip_removed rejected: 1 line 171, scenario 8: M2C_BITWISE(s32,temp_f0_7)==expected
+-O2 double_slot_scale rejected: 1 line 74, scenario 210: p==initialPointer
+-O2 reject14 rejected: 1 line 172, scenario 3: (M2C_BITWISE(s32, temp_f0_9) >= 0xE)==(expected>=15)
+-O2 lower_clamp rejected: 1 line 172, scenario 6: (M2C_BITWISE(s32, temp_f0_7) < 0 || M2C_BITWISE(s32, temp_f0_7) >= 0xF)==(expected>=15)
+-O2 only_validator_one rejected: 1 line 218, scenario 230: animations==(firstAccepted&&validatorResult)
+-O2 no_reload rejected: 1 line 101, scenario 225: p==(mutateSlot?reloadedPointer:initialPointer)
+-O2 validator_pointer rejected: -4
+-O2 first_gate rejected: 1 line 218, scenario 210: validations==firstAccepted+secondAccepted
+-O2 counter_saturation rejected: 1 line 219, scenario 213: work[3]==(u32)(counts[ct]<600?counts[ct]+1:counts[ct])
+-O2 pitch_byte rejected: 1 line 164, scenario 220: bits(temp_f24)==rows[secondRow][3]
+-O2 yaw_byte rejected: 1 line 164, scenario 220: bits(temp_f23)==rows[secondRow][4]
+-O2 scale_byte rejected: 1 line 164, scenario 220: bits(temp_f21_3)==rows[secondRow][6]
+-O2 swap_fields rejected: 1 line 164, scenario 220: bits(temp_f24)==rows[secondRow][3]
+-O2 speed_byte rejected: 1 line 101, scenario 220: bits(speed)==rows[secondRow][9]
+-O2 speed_layer rejected: 1 line 100, scenario 220: layer==0
+-O2 earlier_speed rejected: 1 line 235, scenario 13387: model[0][61]==values[i]
+-O2 missing_mirror rejected: 1 line 223, scenario 220: *(u32*)(expectedPointer+580)==rows[secondRow][9]
+-O2 missing_mask rejected: 1 line 241, scenario 13436: bigStorage[off/4]==values[f]
+-O2 zero_bad_slot rejected: 1 line 74, scenario 13138: p==initialPointer
+-O2 signed_row_bound rejected: 1 line 198, scenario 0: bound(0xffffffffu)
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 21.479s
+
+OK

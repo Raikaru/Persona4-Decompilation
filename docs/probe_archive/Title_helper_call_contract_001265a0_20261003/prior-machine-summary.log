@@ -1,0 +1,12 @@
+Verified all 26 candidate byte loops/raw copies, 12 alpha aliases and 50 disjoint objects
+All 30 retail/candidate layer calls agree on arguments; shared identities and object extents preserved
+Verified six raw GP color words, four fullscreen calls and the real two-argument provider
+Five actual snapshots, ten loops, all local selections verified; 61500 loop/index cases; 30 controls rejected
+Both alpha slices retain exact operations/references with explicit homes; all 52 colors and 15 palettes remain disjoint
+50740 actual retail/emitted conversion slices and 1134 two-sine subgraphs passed; 23 machine controls rejected
+1368 real retail/emitted tail invocations passed; 4 machine negative controls rejected
+389120 retail/rebuilt defined boundary cases; 38 controls rejected
+2048 bounded retail/candidate entry cases passed; 6 machine controls rejected
+2048 retail/candidate bounded machine cases; 12 controls rejected; complete storage census and disjointness passed
+15504 actual retail/candidate full selection slices; 760 pointer-free conversion probes; 12 early speed and 70 actual provider cases; 16 controls rejected
+Eight older scopes plus entry, matrix and latest layout machine contracts passed on final object

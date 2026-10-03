@@ -1,0 +1,35 @@
+{
+  "boundary": "Recording provider, not retail execution or numerical PS2 emulation",
+  "compiler": "<configured-clang>",
+  "runner": "<external-qemu-i386>",
+  "architecture": "ELF32 little-endian i386, real 32-bit pointers",
+  "sanitizers": [
+    "undefined",
+    "bounds"
+  ],
+  "sanitizer_trap": "all",
+  "calls_per_optimization": 102400,
+  "seeds": 4096,
+  "source_calls": 25,
+  "source_vectors": 21,
+  "fractional_return_consumers": 10,
+  "readback_groups_per_optimization": 32768,
+  "runtime_mutations_per_optimization": 10,
+  "compile_rejections_per_optimization": 2,
+  "results": [
+    {
+      "optimization": "-O0",
+      "returncode": 0,
+      "stdout": "field_ai_normalize_calls=102400 readback_groups=32768\n",
+      "elf_sha256": "25aabd3e9f079def5cf11e2ab80835ea9bd05d53b35fecc63934427ea6159952"
+    },
+    {
+      "optimization": "-O2",
+      "returncode": 0,
+      "stdout": "field_ai_normalize_calls=102400 readback_groups=32768\n",
+      "elf_sha256": "a4bbdbca81eadd3c7b3f332a4b35c5f13d873e93352ea0b22008d04bbe0efe69"
+    }
+  ],
+  "fixture_source_sha256": "48ca36e830b00ca0d9a1dce5b36199ef75231f688d189029fa3198e246574347",
+  "owner_source_sha256": "2d4e0128e23259a89ce2652739c4e7f8e5279f64b94e2f50494787e52aabf672"
+}

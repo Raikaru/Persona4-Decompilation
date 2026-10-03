@@ -1,0 +1,132 @@
+{
+  "source_sha256": "45e251ff335f1ed718c86f120f306abfad93083a61a40ab0e9920d42cc58287f",
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "executed_retail_candidate_cases": 2048,
+  "actual_provider_copy_cases": 512,
+  "provider_copy_controls": [
+    "rotate:short_count",
+    "rotate:source_stride",
+    "rotate:last_lane",
+    "model:short_count",
+    "model:source_stride",
+    "model:last_lane"
+  ],
+  "negative_controls": [
+    "axis_tail",
+    "angle",
+    "first_mode",
+    "second_mode",
+    "translation_y",
+    "translation_z",
+    "translation_mode",
+    "model_pointer",
+    "model_mode",
+    "matrix_pointer",
+    "axis_pointer",
+    "short_matrix"
+  ],
+  "candidate_homes": {
+    "matrix": [
+      944,
+      64
+    ],
+    "yaw": [
+      1056,
+      12
+    ],
+    "pitch": [
+      1040,
+      12
+    ],
+    "translation": [
+      1024,
+      12
+    ]
+  },
+  "full_object_direct_access_census": [
+    {
+      "instruction": 100,
+      "name": "yaw",
+      "home": 1056,
+      "size": 8
+    },
+    {
+      "instruction": 104,
+      "name": "yaw",
+      "home": 1064,
+      "size": 4
+    },
+    {
+      "instruction": 124,
+      "name": "pitch",
+      "home": 1040,
+      "size": 8
+    },
+    {
+      "instruction": 128,
+      "name": "pitch",
+      "home": 1048,
+      "size": 4
+    },
+    {
+      "instruction": 14700,
+      "name": "translation",
+      "home": 1024,
+      "size": 4
+    },
+    {
+      "instruction": 14708,
+      "name": "translation",
+      "home": 1028,
+      "size": 4
+    },
+    {
+      "instruction": 14712,
+      "name": "translation",
+      "home": 1032,
+      "size": 4
+    }
+  ],
+  "full_object_address_census": [
+    {
+      "instruction": 14652,
+      "name": "matrix",
+      "home": 944
+    },
+    {
+      "instruction": 14656,
+      "name": "yaw",
+      "home": 1056
+    },
+    {
+      "instruction": 14676,
+      "name": "matrix",
+      "home": 944
+    },
+    {
+      "instruction": 14680,
+      "name": "pitch",
+      "home": 1040
+    },
+    {
+      "instruction": 14716,
+      "name": "matrix",
+      "home": 944
+    },
+    {
+      "instruction": 14720,
+      "name": "translation",
+      "home": 1024
+    },
+    {
+      "instruction": 14740,
+      "name": "matrix",
+      "home": 944
+    }
+  ],
+  "disjoint_from_52_colors_15_palettes_fade_uv_other_live_storage": true,
+  "candidate_axis_slice_sha256": "3baffab3597485cb413f2064b197872b137886ed2d9728380297a6fddfff39dd",
+  "candidate_call_slice_sha256": "d4bc2ad3ee56c3662e22718f2799a25b9fa59cec8e0fde198fc673844ceb6ead",
+  "caller_saved_registers_clobbered_at_every_boundary": true,
+  "scope": "Actual axis-copy and call/storage instructions only; complete 64-byte tagged recorder outputs test pointer transport and bounds; no matrix arithmetic, trig/VU or full-provider C execution"
+}

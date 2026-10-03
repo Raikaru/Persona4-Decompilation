@@ -1,0 +1,64 @@
+{
+  "source_sha256": "45e251ff335f1ed718c86f120f306abfad93083a61a40ab0e9920d42cc58287f",
+  "auditors": [
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_color_storage.py",
+      "sha256": "8a69a97d31fc658f2fae9eaf9cf3240e9940037f6418ad79b494df9de6f32859",
+      "input": "proof/title-helper-owner/after-guard.json"
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_layer_calls.py",
+      "sha256": "3cc2ef1e272d956403f9f5c2cf4e6ad8d7b35929de968e166bd482096e18de58",
+      "input": "proof/title-helper-owner/after-guard.json"
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_gp_colors.py",
+      "sha256": "181c0bc00bfaa61fcecbd63aef250d3fb203c788d8781a9cd47b5069583a2643",
+      "input": "proof/title-helper-owner/after-guard.json"
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_candidate.py",
+      "sha256": "2bec7f2ef1d51a9ecad8066eb79c076970b24d9cd52fcdfdf622a8fe28f5686a",
+      "input": "proof/title-helper-owner/after-guard.json"
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_alpha_aliases.py",
+      "sha256": "899498a1fcb04fa01f28fda457d90784bec478eadbe784782567eb5433f8eb8a",
+      "input": "proof/title-helper-owner/after-guard.json"
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_sprite_alpha.py",
+      "sha256": "11e4f3dbab9a9255fa4b7ca2ac0f91762d09ca6fb33e4d1cf6fecc01263cf090",
+      "input": "proof/title-helper-owner/after-guard.json"
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_preserved_fade.py",
+      "sha256": "0949983e22d8f3a0d2911becc458be9bb4e446b6af2c173d8dfff18a59766d12",
+      "input": "proof/title-helper-owner/after-guard.json"
+    },
+    {
+      "auditor": "docs/probe_archive/Title_model_call_contract_001265a0_20261003/audit_model_calls.py",
+      "sha256": "45bfe94e353549f7e646c682e20afdff31b5eec9da9b595fc0a48f85ec788c77",
+      "input": "proof/title-helper-owner/after-guard.json"
+    },
+    {
+      "auditor": "docs/probe_archive/Title_entry_contract_001265a0_20261003/audit_entry_machine.py",
+      "sha256": "efd0ae84bc5a7812ccbfae17e8ef3a41d445a58b10ca2a327b93f20b3251f424",
+      "input": "proof/title-helper-owner/after-guard.json"
+    },
+    {
+      "auditor": "docs/probe_archive/Title_matrix_contract_001265a0_20261003/audit_machine.py",
+      "sha256": "a20624ec87d80449cd8ee34ca566a884c5b4a1723e49b4391d929bb1845a740e",
+      "input": "proof/title-helper-owner/after-guard.json",
+      "candidate_call_offset_map": -176
+    },
+    {
+      "auditor": "docs/probe_archive/Title_layout_contract_001265a0_20261003/audit_machine.py",
+      "sha256": "c83021d0f298469e11823ed56ee53fa63058cda89f8a00b4bbd19391176ab164",
+      "input": "proof/title-helper-owner/after-guard.json",
+      "candidate_selection_offset_map": -48,
+      "earlier_speed_offset_map": -24,
+      "registers_and_stack_homes": "unchanged, exact preservation verified"
+    }
+  ]
+}

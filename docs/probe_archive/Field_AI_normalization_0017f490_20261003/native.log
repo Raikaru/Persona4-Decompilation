@@ -1,0 +1,38 @@
+External native32 runner: <external-qemu-i386>
+test_all_real_call_constructions_returns_and_readbacks (test_field_ai_normalization_contract.FieldAINormalizationNative.test_all_real_call_constructions_returns_and_readbacks) ... -O0 field_ai_normalize_calls=102400 readback_groups=32768
+-O2 field_ai_normalize_calls=102400 readback_groups=32768
+ok
+test_runtime_mutation_controls (test_field_ai_normalization_contract.FieldAINormalizationNative.test_runtime_mutation_controls) ... -O0 integer_return_cast rejected: line 184, scenario 3: temp_v10 == length_return
+-O0 wrong_input_component rejected: line 104, scenario 1: in->z == expected_input.z
+-O0 wrong_delta_origin rejected: line 104, scenario 9: in->z == expected_input.z
+-O0 lost_output_z rejected: line 131, scenario 1: state2Forward.x == output.x && state2Forward.y == output.y && state2Forward.z == output.z
+-O0 swapped_input_xy rejected: line 102, scenario 1: in->x == expected_input.x
+-O0 wrong_output_alias rejected: line 101, scenario 1: out == expected_pointer && in == expected_pointer && out == in
+-O0 broken_alias rejected: line 101, scenario 1: out == expected_pointer && in == expected_pointer && out == in
+-O0 shifted_pointer_cast rejected: line 101, scenario 1: out == expected_pointer && in == expected_pointer && out == in
+-O0 wrong_dot_component rejected: line 778, scenario 25: temp_v10 == dot(output, direction)
+-O0 undersized_object rejected: line 122, scenario 1: sizeof(storage.state2Forward) == 12
+-O2 integer_return_cast rejected: line 184, scenario 3: temp_v10 == length_return
+-O2 wrong_input_component rejected: line 104, scenario 1: in->z == expected_input.z
+-O2 wrong_delta_origin rejected: line 104, scenario 9: in->z == expected_input.z
+-O2 lost_output_z rejected: line 131, scenario 1: state2Forward.x == output.x && state2Forward.y == output.y && state2Forward.z == output.z
+-O2 swapped_input_xy rejected: line 102, scenario 1: in->x == expected_input.x
+-O2 wrong_output_alias rejected: line 101, scenario 1: out == expected_pointer && in == expected_pointer && out == in
+-O2 broken_alias rejected: line 101, scenario 1: out == expected_pointer && in == expected_pointer && out == in
+-O2 shifted_pointer_cast rejected: line 101, scenario 1: out == expected_pointer && in == expected_pointer && out == in
+-O2 wrong_dot_component rejected: line 778, scenario 25: temp_v10 == dot(output, direction)
+-O2 undersized_object rejected: line 122, scenario 1: sizeof(storage.state2Forward) == 12
+ok
+test_strict_compiler_rejects_wrong_boundary_types (test_field_ai_normalization_contract.FieldAINormalizationNative.test_strict_compiler_rejects_wrong_boundary_types) ... -O0 wrong_return_prototype rejected by strict compiler
+-O0 component_pointer rejected by strict compiler
+-O2 wrong_return_prototype rejected by strict compiler
+-O2 component_pointer rejected by strict compiler
+ok
+test_normalization_family_shape_and_order (test_field_ai_normalization_contract.FieldAINormalizationSource.test_normalization_family_shape_and_order) ... ok
+test_real_sdk_boundary_declaration (test_field_ai_normalization_contract.FieldAINormalizationSource.test_real_sdk_boundary_declaration) ... ok
+test_source_guard_rejects_shape_order_and_cast_mutations (test_field_ai_normalization_contract.FieldAINormalizationSource.test_source_guard_rejects_shape_order_and_cast_mutations) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 7.303s
+
+OK

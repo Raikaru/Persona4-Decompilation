@@ -1,0 +1,5 @@
+src/Kosaka/Field/k_fldAI.c:16: warn: [H011] func_00457120 declared ptr() but defined s32() at src/promoted/code1_0045.c:1447
+    extern u8 *func_00457120(void);
+
+decomp_lint: 1 first-party files, 1 findings (0 error, 1 warn)
+  H011  warn        1  declaration disagrees with the function's definition; one function has one signature - fix the definition's real type or the caller's types

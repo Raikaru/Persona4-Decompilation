@@ -1,0 +1,72 @@
+{
+  "source_sha256": "a6684ac3ce4e80240fa76651c1de17bd2562e429192ff48bdb577f1df233ee64",
+  "slices": [
+    {
+      "symbol": "fGpffff9c80",
+      "before": [
+        11436,
+        11500
+      ],
+      "after": [
+        11436,
+        11500
+      ],
+      "all_words_and_references_checked": true,
+      "explicit_allocation_changes": []
+    },
+    {
+      "symbol": "fGpffff9c84",
+      "before": [
+        11812,
+        12020
+      ],
+      "after": [
+        11812,
+        12020
+      ],
+      "all_words_and_references_checked": true,
+      "explicit_allocation_changes": [
+        {
+          "before": 11816,
+          "after": 11816,
+          "word_before": "0x2602ffe7",
+          "word_after": "0x2622ffe7"
+        }
+      ]
+    }
+  ],
+  "alpha_accesses": [
+    {
+      "offset": 11440,
+      "home": 1260,
+      "width": 4
+    },
+    {
+      "offset": 11448,
+      "home": 1260,
+      "width": 1
+    },
+    {
+      "offset": 11456,
+      "home": 1260,
+      "width": 4
+    },
+    {
+      "offset": 11876,
+      "home": 1256,
+      "width": 4
+    },
+    {
+      "offset": 11968,
+      "home": 1256,
+      "width": 1
+    },
+    {
+      "offset": 11976,
+      "home": 1256,
+      "width": 4
+    }
+  ],
+  "52colors_disjoint": true,
+  "15palettes_disjoint_from52colors": true
+}

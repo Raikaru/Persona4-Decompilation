@@ -1,0 +1,11 @@
+functions scanned: 573
+  MATCH              510
+  ASM                63
+first-party functions scanned: 458
+  MATCH              453 (98.9%)
+  ASM                5
+Sony PS2 SDK functions scanned: 0
+other third-party functions scanned: 115
+  MATCH              57
+  ASM                58
+report: proof/helper-owners.json

@@ -1,0 +1,13 @@
+python tools/verify.py
+functions scanned: 13102
+  MATCH              9574
+  ASM                3528
+first-party functions scanned: 6861
+  MATCH              6754 (98.4%)
+  ASM                107
+Sony PS2 SDK functions scanned: 491
+  MATCH              152
+  ASM                339
+other third-party functions scanned: 5750
+  MATCH              2668
+  ASM                3082
