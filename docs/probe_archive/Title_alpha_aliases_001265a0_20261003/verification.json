@@ -1,0 +1,28 @@
+{
+  "base": "87ed8afca8b62d80fe72148b10122a596e5996dc",
+  "fingerprints": {
+    "src/promoted/code1_0012.c": "9ab109c32063adff134a5bde2911814e92e626678f9eb66f82f8c41239ebbead",
+    "tests/test_title_alpha_aliases.py": "84f1cba3c125faf636c9ac9e85884a6703ead4d23d13577b3440cf8c31709fbc",
+    "tests/title_alpha_alias_fixture.c.in": "389d5906c3f76dc303fb619484a8949ac2dc323033195bd2f9da2708eb6f97ef"
+  },
+  "native_tests": 14,
+  "alpha_calls_per_optimization": 16384,
+  "conversion_cases_per_optimization": 2537,
+  "negative_controls": 8,
+  "skips": 0,
+  "owner_match": 148,
+  "owner_asm": 1,
+  "guarded_bytes": 17452,
+  "guarded_frame": 1280,
+  "guarded_differing_words": 3941,
+  "production_object_identical": true,
+  "preserved_guarded_siblings": 81,
+  "preserved_non_target_data_bytes": 420,
+  "target_table_prefix_named_color_relocations": [
+    1,
+    2,
+    3
+  ],
+  "candidate_color_objects": 52,
+  "promotion": false
+}

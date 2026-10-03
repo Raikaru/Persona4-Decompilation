@@ -1,0 +1,28 @@
+{
+  "base": "1e0890133eeeb90c482cfbcedd24a6d5ce090645",
+  "fixture_prerequisite": "9a19df775e0549332b9f857c8438a5835a034421",
+  "source_sha256": "0dff10126bc1852b803110689eedf466ee1abb16b3d69d070975a66741985360",
+  "target": "func_001265a0",
+  "guarded": true,
+  "promotion": false,
+  "owner_provider_status": {
+    "MATCH": 148,
+    "ASM": 1
+  },
+  "native_tests": 16,
+  "native_skips": 0,
+  "native_gp_cases_per_optimization": 6234,
+  "native_gp_negative_controls_O2": 7,
+  "alpha_calls_per_optimization": 16508,
+  "alpha_conversion_cases_per_optimization": 2537,
+  "alpha_negative_controls_O2": 9,
+  "lint_errors": 0,
+  "lint_warnings": 32,
+  "candidate_bytes": 17404,
+  "retail_window_bytes": 17616,
+  "candidate_differing_words": 3959,
+  "frame_bytes": 1280,
+  "aggregate_build_run": false,
+  "remote_CI_run": false,
+  "pushed": false
+}

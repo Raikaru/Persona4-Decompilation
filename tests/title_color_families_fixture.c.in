@@ -1,0 +1,57 @@
+#include "type.h"
+typedef s32 s128 __attribute__((vector_size(16)));
+static u32 scenario,word,mode,layer,phase;
+#define CHECK(c) do { if (!(c)) native32_failure(__LINE__,scenario,#c); } while(0)
+static u8 *expectedSource,*expectedColor;
+static union { s128 bits;u8 bytes[16]; } D_005E5590,D_005E55A0;
+static u32 load_word(const void *p) { u32 value;memcpy(&value,p,4);return value; }
+static void store_word(void *p,u32 value) { memcpy(p,&value,4); }
+static void check_color(u8 *p) {
+    CHECK(p==expectedColor&&p!=expectedSource);
+    CHECK(load_word(expectedSource)==(layer?0xFF000000U:0));
+}
+static void func_0045d6e0(u8 *color,f32 *rectangle,f32 depth,s32 saveState) {
+    CHECK(layer&&phase<2&&depth==0.0f&&saveState==0);check_color(color);
+    CHECK(memcmp(rectangle,phase?(void *)&D_005E55A0:(void *)&D_005E5590,16)==0);
+    CHECK(load_word(color)==(phase&&mode?word:0xFF000000U));
+    if(phase==0) { if(mode)store_word(color,word);memset(rectangle,0x6D,16); }
+    ++phase;
+}
+static void func_002aaf20(f32 x,f32 y,f32 depth,u8 *color,f32 width,f32 height,s32 flags,void *parent) {
+    CHECK(!layer&&phase==0);CHECK(x==0.0f&&y==0.0f&&(depth==0.0f||depth==65535.0f));
+    CHECK(width==640.0f&&height==448.0f&&flags==0x12&&parent==NULL);check_color(color);
+    CHECK(load_word(color)==0);if(mode)store_word(color,word);++phase;
+}
+@HELPERS@
+static __attribute__((noinline)) void run_word(void) {
+    @GUARDS@
+    @ALIASES@
+    @LOCALS@
+    @INITIALIZE@
+    u8 *colors[]={@POINTERS@};u8 snapshot[46][4];
+    for(u32 i=0;i<46;++i) {
+        store_word(colors[i],word^(i*0x1030507U));
+        for(u32 j=i+1;j<46;++j)CHECK(colors[i]!=colors[j]);
+    }
+    for(u32 family=0;family<24;++family) {
+        ++scenario;
+        switch(family) { @CASES@ }
+        CHECK(phase==(layer?2:1));
+        CHECK(load_word(expectedSource)==(layer?0xFF000000U:0));
+        CHECK(load_word(expectedColor)==(mode?word:layer?0xFF000000U:0));
+        for(u32 i=0;i<46;++i)if(colors[i]!=expectedSource&&colors[i]!=expectedColor)CHECK(memcmp(colors[i],snapshot[i],4)==0);
+        @GUARD_CHECKS@
+    }
+    @UNALIAS@
+}
+int main(void) {
+    static const u32 special[]={0,0x80000000U,0x7FC12345U,0x7F800001U,0xFFC12345U,0xFF800001U,0x7F800000U,0xFFFFFFFFU,0xFF800000U,0x00000001U,0x80000001U,0x007FFFFFU,0x807FFFFFU,0x00800000U,0x80800000U};
+    for(u32 i=0;i<16;++i) { D_005E5590.bytes[i]=(u8)(17+i*9);D_005E55A0.bytes[i]=(u8)(211-i*7); }
+    for(mode=0;mode<2;++mode) {
+        for(u32 channel=0;channel<4;++channel)for(u32 value=0;value<256;++value) {
+            word=(0x7FC13BA5U&~(255U<<(channel*8)))|(value<<(channel*8));run_word();
+        }
+        for(u32 i=0;i<sizeof(special)/sizeof(special[0]);++i) { word=special[i];run_word(); }
+    }
+    CHECK(scenario==49872);native32_text("49872 color-family cases passed\n");return 0;
+}
