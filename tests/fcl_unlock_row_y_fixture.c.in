@@ -1,0 +1,154 @@
+#include "fcl_draw_task.h"
+#include "fcl_row_draw.h"
+#include "fcl_combine_internal.h"
+typedef FclDrawColor FclByte4;
+#define CHECK(c) do { if (!(c)) native32_failure(__LINE__, scenario, #c); } while (0)
+static unsigned scenario;
+typedef union { u32 alignment; u8 bytes[0x300]; } Work;
+typedef union { u32 alignment; u8 bytes[0x50]; } Task;
+static Work work, expectedWork;
+static Task task, expectedTask;
+static u8 sprites[0x400][0x90];
+static s8 lookup[0x1000];
+static u8 resourceHandle[4], textTask[4];
+static f32 originX, rowY;
+static s8 row, mode;
+static s16 delay;
+static u16 value;
+static s32 active, unlocked, transitionCount, textCount, decorationCount, handCount;
+static s32 expectedCount;
+static struct { s16 resource; f32 x, y; } expected[5];
+f32 iGpffff8504 = 0.25f;
+FclVec2 func_002b2970(f32 x, f32 y) { FclVec2 p = {x, y}; return p; }
+FclDrawColor func_002b2a60(u8 r, u8 g, u8 b, u8 a) { FclDrawColor c = {r,g,b,a}; return c; }
+u8 *func_002e4870(s8 group) { CHECK(group == 0); return (u8 *)lookup + 0x800; }
+s32 func_00331560(void) { return 123; }
+u8 func_00109280(u16 id) { (void)id; return 5; }
+u8 *func_0046d200(u32 source, u32 id) { CHECK(source == 123); (void)id; return resourceHandle; }
+f32 func_0046b2f0(u8 *handle) { CHECK(handle == resourceHandle); return 20.0f; }
+void func_0046d280(void *handle) { CHECK(handle == resourceHandle); }
+u8 *func_002b6150(s16 id) { CHECK(id >= 0 && id < 0x400); return sprites[id]; }
+void func_002b7750(s16 id, s16 image) { (void)id; (void)image; }
+void func_002b6a70(s16 id, u8 from, u8 to, u8 flag, s32 duration, s16 wait) {
+    (void)id; (void)from; (void)to; (void)flag; (void)duration; (void)wait;
+}
+void func_002b6af0(s16 id, f32 a, f32 b, f32 c, f32 d, u32 flag, u32 duration, s16 wait) {
+    (void)id; (void)a; (void)b; (void)c; (void)d; (void)flag; (void)duration; (void)wait;
+}
+void func_002b68d0(s16 id, s16 flag, s8 state) { (void)id; (void)flag; (void)state; }
+void func_002ba970(u8 *target, s16 index, FclDrawColor color) {
+    CHECK(target == textTask && index == (s8)(row + 12)); (void)color;
+}
+void func_002b6c30(s16 id, FclVec2 position, f32 depth, s32 order) {
+    (void)depth; (void)order;
+    CHECK(active);
+    /* Full signed row coverage can make a row resource equal a fixed hand ID.
+       Classify by the completed transition schedule as well as the ID. */
+    if (transitionCount == expectedCount && (id == 0x1C7 || id == 0x2E8)) {
+        CHECK(unlocked && mode == 0 && transitionCount == expectedCount);
+        CHECK(position.x == originX - 60.0f && position.y == rowY - 8.0f);
+        ++handCount;
+    } else {
+        CHECK(transitionCount < expectedCount && id == expected[transitionCount].resource);
+        CHECK(position.x == expected[transitionCount].x && position.y == expected[transitionCount].y);
+    }
+}
+void func_002b69f0(s16 id, FclVec2 start, FclVec2 end, u32 flag, u32 duration, s16 wait) {
+    CHECK(active && transitionCount < expectedCount && id == expected[transitionCount].resource);
+    CHECK(flag == 0 && duration == 3 && wait == delay);
+    f32 x = expected[transitionCount].x;
+    f32 y = expected[transitionCount].y;
+    CHECK(start.x == x && end.x == x);
+    CHECK(start.y == y + (mode == 1 ? 0.0f : 10.0f));
+    CHECK(end.y == y + (mode == 1 ? 10.0f : 0.0f));
+    ++transitionCount;
+}
+void func_002ba080(u8 *target, s32 index, s16 number, FclVec2 position,
+                   FclDrawColor color, s32 duration, s32 wait, s32 layer, f32 depth, s8 direction) {
+    CHECK(active && target == textTask && index == (s8)(row + 12) && number == (s16)value);
+    CHECK(position.x == originX - 16.0f && position.y == rowY);
+    CHECK(transitionCount == (unlocked ? 1 : 5));
+    CHECK(duration == 3 && wait == delay && layer == 0x59 && depth == 46.0f && direction == mode);
+    CHECK(color.c0 == 0xCC && color.c1 == 0xFF && color.c2 == 0xFF && color.c3 == 0x80);
+    ++textCount;
+}
+void func_002b77d0(s16 resource, FclVec2 position, s16 image, FclDrawColor color,
+                   f32 depth, s16 order, s8 direction, s16 duration,
+                   s16 alternate, s16 wait, u32 source) {
+    CHECK(active && unlocked && transitionCount == expectedCount);
+    CHECK(resource == (decorationCount == 0 ? 0xCF : 0xD2) && image == resource);
+    CHECK(position.x == originX + (decorationCount == 0 ? -10.0f : 282.0f));
+    CHECK(position.y == rowY - 12.0f);
+    CHECK(depth == 193.0f && order == 0x56 && direction == mode && duration == 3 && alternate == 3);
+    CHECK(wait == delay && source == 123);
+    CHECK(color.c0 == 0xFF && color.c1 == 0xFF && color.c2 == 0xFF && color.c3 == 0x80);
+    ++decorationCount;
+}
+
+@BODY@
+
+static void append(s16 resource, f32 x, f32 y) {
+    CHECK(expectedCount < 5);
+    expected[expectedCount].resource = resource;
+    expected[expectedCount].x = x;
+    expected[expectedCount++].y = y;
+}
+static void runCase(s8 inputRow, s8 inputMode, s8 status, u32 filter, u32 seed) {
+    static const s8 groups[] = {-128, -1, 0, 1, 127};
+    static const s16 delays[] = {-32768, -1, 0, 3, 32767};
+    static const u16 values[] = {0, 0x7FFF, 0x8000, 0xFFFF, 123};
+    FclVec2 position = {seed & 1 ? -120.5f : 31.25f, seed & 1 ? -70.25f : 195.5f};
+    row = inputRow; mode = inputMode; delay = delays[seed % 5]; value = values[seed % 5];
+    originX = position.x;
+    rowY = position.y + (f32)((s32)row * 23);
+    active = status > 0 && filter == 0;
+    unlocked = status == 2;
+    transitionCount = textCount = decorationCount = handCount = expectedCount = 0;
+    memset(&work, 0xCC, sizeof(work)); memset(&task, 0xA5, sizeof(task));
+    u8 *pointer = work.bytes; memcpy(task.bytes + 0x38, &pointer, 4);
+    pointer = textTask; memcpy(work.bytes + 0x2BC, &pointer, 4);
+    work.bytes[0x128] = (u8)(filter == 1 ? row : (s8)(row + 1));
+    work.bytes[0x129] = (u8)(filter == 2 ? row : (s8)(row + 1));
+    lookup[0x800 + (s32)groups[seed % 5] * 12 + row + 0x14] = status;
+    expectedWork = work; expectedTask = task;
+    if (active) {
+        /* Retail retains f22 = argument.y + signedRow*23 for the entire body.
+           Only the name sprite's endpoints use f24 = f22+2. The subsequent
+           digits and both panel rows still receive f22 (0031B95C/0031B9E8). */
+        if (!unlocked) {
+            append(row + 0x270, originX, rowY);
+            append(row + 0x27D, originX + 286.0f, rowY);
+            append(row + 0x28B, originX, rowY);
+            append(row + 0x297, originX + 36.0f, rowY);
+        }
+        append(row + 0x2A3, originX + 8.0f, rowY + 2.0f);
+        if (unlocked) {
+            append(row + 0x270, originX, rowY);
+            append(row + 0x27D, originX + 285.0f, rowY);
+            if (mode == 0) {
+                FclVec2 hand = {originX - 60.0f, rowY - 8.0f};
+                memcpy(expectedWork.bytes + 0x298, &hand, sizeof(hand));
+                expectedWork.bytes[0x294] = expectedWork.bytes[0x295] = 0;
+            }
+        }
+    }
+    func_0031ac10(task.bytes, position, groups[seed % 5], row, 0x1234, value, delay, mode, 1, (u8)seed);
+    CHECK(transitionCount == expectedCount && textCount == active);
+    CHECK(decorationCount == (active && unlocked ? 2 : 0));
+    CHECK(handCount == (active && unlocked && mode == 0 ? 2 : 0));
+    CHECK(memcmp(&work, &expectedWork, sizeof(work)) == 0);
+    CHECK(memcmp(&task, &expectedTask, sizeof(task)) == 0);
+    ++scenario;
+}
+int main(void) {
+    static const s8 modes[] = {-128, -1, 0, 1, 2, 127};
+    static const s8 statuses[] = {-128, 0, 1, 2, 127};
+    for (s32 r = -128; r < 128; ++r)
+        for (u32 m = 0; m < 6; ++m)
+            for (u32 s = 0; s < 5; ++s)
+                for (u32 filter = 0; filter < 3; ++filter)
+                    for (u32 seed = 0; seed < 5; ++seed)
+                        runCase((s8)r, modes[m], statuses[s], filter, seed);
+    native32_text("unlock_row_cases="); native32_number(scenario); native32_text("\n");
+    return 0;
+}

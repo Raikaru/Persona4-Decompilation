@@ -2,7 +2,7 @@
 #include "type.h"
 
 extern s32 func_0029cc00(s32 index);
-extern void func_0026bc10(u16 resourceId, u8 value);
+extern s32 func_0026bc10(u32 resourceId, u32 value);
 extern s32 func_00104c70(s32 value);
 extern void func_0029cf50(s32 value);
 

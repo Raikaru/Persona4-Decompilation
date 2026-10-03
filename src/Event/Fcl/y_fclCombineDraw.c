@@ -1560,10 +1560,12 @@ void func_0031ac10(u8 *arg0, FclVec2 arg1, s8 arg2, s8 arg3, s32 arg4, u16 arg5,
     s8 v30;
     s16 id;
 
+    /* The homed input Y is read before the task/work lookup in retail. */
+    y = arg1.y;
     t = *(u8 **)(arg0 + 0x38);
     v3 = 1;
     t16 = (s8)arg3;
-    y = arg1.y + (f32)(t16 * 23);
+    y = y + (f32)(t16 * 23);
     if (arg8 == 1) {
         v3 = *(s8 *)(func_002e4870(0) + arg2 * 12 + t16 + 0x14);
     }
@@ -1647,7 +1649,7 @@ void func_0031ac10(u8 *arg0, FclVec2 arg1, s8 arg2, s8 arg3, s32 arg4, u16 arg5,
             func_002b69f0(id, func_002b2970(8.0f + arg1.x, 2.0f + y + func_0046b2f0(h) / 2.0f), func_002b2970(8.0f + arg1.x, 2.0f + y), 0, 3, arg6);
         }
         func_0046d280(h);
-        y = 2.0f + y;
+        /* The name sprite uses y + 2; the retained row origin stays y. */
         row12 = (s8)(t16 + 0xC);
         func_002ba080(*(u8 **)(t + 0x2BC), row12, (s16)arg5, func_002b2970(arg1.x - 16.0f, y),
                       func_002b2a60(0xCC, 0xFF, 0xFF, 0x80), 3, arg6, 0x59, 46.0f, arg7);

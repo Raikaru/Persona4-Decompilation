@@ -12,7 +12,7 @@ extern void func_0046d730(const void *file, u32 line);
 extern void func_0044ea90(void *arg0, s32 arg1);
 extern s64 func_00248760(s32 arg0);
 extern s32 func_00247dd0(s32 arg0);
-extern void func_0026bc10(u16 resourceId, u8 value);
+extern s32 func_0026bc10(u32 resourceId, u32 value);
 extern s32 func_001077f0(s32 arg0);
 extern u16 func_00107ac0(s32 arg0);
 extern s32 func_00107c80(s32 arg0);
@@ -967,7 +967,6 @@ ret:
 // FUN_00108590
 u16 func_00108590(s32 arg0, s32 arg1, s32 arg2) {
     extern void func_0046d730(void *file, s32 line);
-    extern s32 func_0026bc10(u32 resourceId, u32 value);
     typedef struct { f32 x; f32 y; f32 z; } Vec3;
     typedef struct {
         f32 bytes[3];

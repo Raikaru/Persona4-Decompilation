@@ -27,7 +27,7 @@ extern u8 *func_00246830(s32 arg0);
 static inline u32 add_retail_ptr(u32 offset, u32 base) {
     return offset + base;
 }
-extern void func_0026bc10(s32 arg0, s32 arg1);
+extern s32 func_0026bc10(u32 resourceId, u32 value);
 extern s32 func_00110d60(s32 arg0);
 extern s64 func_002e0da0(s64 arg0, s32 arg1, s64 arg2);
 extern void func_002e0f90(void);

@@ -17,7 +17,7 @@ extern u8 D_00636838[];
 extern u8 D_00636850[];
 typedef struct Resrc Resrc;
 extern Resrc *MT_Scene_GetRes(u16 arg0);
-extern void func_0026bc10(s32 arg0, s32 arg1);
+extern s32 func_0026bc10(u32 resourceId, u32 value);
 extern s64 func_002bab80(void *arg0);
 extern void strcpy(u8 *arg0, u8 *arg1);
 extern void func_002bbd80(s8 arg0, s32 arg1, void *arg2);
