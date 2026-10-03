@@ -1,0 +1,266 @@
+{
+  "source_sha256": "05165f28b77b3a137a2e6cd8f64e82854cca3df5fe4ec73b9c5c71819a645397",
+  "non_model_ranges": [
+    {
+      "before": [
+        12,
+        2652
+      ],
+      "after": [
+        8,
+        2648
+      ]
+    },
+    {
+      "before": [
+        3696,
+        3724
+      ],
+      "after": [
+        3544,
+        3572
+      ]
+    },
+    {
+      "before": [
+        4784,
+        5200
+      ],
+      "after": [
+        4484,
+        4900
+      ]
+    },
+    {
+      "before": [
+        6216,
+        6296
+      ],
+      "after": [
+        5800,
+        5880
+      ]
+    },
+    {
+      "before": [
+        7312,
+        13356
+      ],
+      "after": [
+        6780,
+        12824
+      ]
+    },
+    {
+      "before": [
+        14412,
+        17416
+      ],
+      "after": [
+        13736,
+        16740
+      ]
+    }
+  ],
+  "excluded_model_boundaries": [
+    {
+      "before": [
+        2652,
+        3696
+      ],
+      "after": [
+        2648,
+        3544
+      ],
+      "removed_default_promotion_calls": 7,
+      "all_other_reference_events_and_addends_equal": true
+    },
+    {
+      "before": [
+        3724,
+        4784
+      ],
+      "after": [
+        3572,
+        4484
+      ],
+      "removed_default_promotion_calls": 7,
+      "all_other_reference_events_and_addends_equal": true
+    },
+    {
+      "before": [
+        5200,
+        6216
+      ],
+      "after": [
+        4900,
+        5800
+      ],
+      "removed_default_promotion_calls": 6,
+      "all_other_reference_events_and_addends_equal": true
+    },
+    {
+      "before": [
+        6296,
+        7312
+      ],
+      "after": [
+        5880,
+        6780
+      ],
+      "removed_default_promotion_calls": 6,
+      "all_other_reference_events_and_addends_equal": true
+    },
+    {
+      "before": [
+        13356,
+        14412
+      ],
+      "after": [
+        12824,
+        13736
+      ],
+      "removed_default_promotion_calls": 7,
+      "all_other_reference_events_and_addends_equal": true
+    }
+  ],
+  "removed_default_promotions": 33,
+  "all_other_target_references_and_addends_preserved": true,
+  "switch_entries": [
+    {
+      "index": 0,
+      "before": 172,
+      "after": 168,
+      "source_bindings_checked": {
+        "18": 20
+      }
+    },
+    {
+      "index": 1,
+      "before": 176,
+      "after": 172,
+      "source_bindings_checked": {
+        "18": 20
+      }
+    },
+    {
+      "index": 2,
+      "before": 176,
+      "after": 172,
+      "source_bindings_checked": {
+        "18": 20
+      }
+    },
+    {
+      "index": 3,
+      "before": 208,
+      "after": 204,
+      "source_bindings_checked": {
+        "18": 20
+      }
+    },
+    {
+      "index": 4,
+      "before": 480,
+      "after": 476,
+      "source_bindings_checked": {
+        "18": 20,
+        "20": 16
+      }
+    },
+    {
+      "index": 5,
+      "before": 480,
+      "after": 476,
+      "source_bindings_checked": {
+        "18": 20,
+        "20": 16
+      }
+    },
+    {
+      "index": 6,
+      "before": 12524,
+      "after": 11992,
+      "source_bindings_checked": {
+        "18": 20,
+        "19": 17
+      }
+    },
+    {
+      "index": 7,
+      "before": 12524,
+      "after": 11992,
+      "source_bindings_checked": {
+        "18": 20,
+        "19": 17
+      }
+    },
+    {
+      "index": 8,
+      "before": 14800,
+      "after": 14124,
+      "source_bindings_checked": {
+        "18": 20
+      }
+    },
+    {
+      "index": 9,
+      "before": 14800,
+      "after": 14124,
+      "source_bindings_checked": {
+        "18": 20
+      }
+    },
+    {
+      "index": 10,
+      "before": 17200,
+      "after": 16524,
+      "source_bindings_checked": {
+        "18": 20
+      }
+    },
+    {
+      "index": 11,
+      "before": 17200,
+      "after": 16524,
+      "source_bindings_checked": {
+        "18": 20
+      }
+    },
+    {
+      "index": 12,
+      "before": 17200,
+      "after": 16524,
+      "source_bindings_checked": {
+        "18": 20
+      }
+    },
+    {
+      "index": 13,
+      "before": 17200,
+      "after": 16524,
+      "source_bindings_checked": {
+        "18": 20
+      }
+    },
+    {
+      "index": 14,
+      "before": 17200,
+      "after": 16524,
+      "source_bindings_checked": {
+        "18": 20
+      }
+    },
+    {
+      "index": 15,
+      "before": 17200,
+      "after": 16524,
+      "source_bindings_checked": {
+        "18": 20
+      }
+    }
+  ],
+  "frame_before": 1664,
+  "frame_after": 1200,
+  "limits": "No claim of complete target instruction equality: register allocation and stack homes change. Every switch entry and exact outside reference position/addend is checked; prior independently bounded semantics replay on the final object."
+}

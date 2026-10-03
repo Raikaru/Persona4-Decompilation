@@ -1,0 +1,111 @@
+test_all_complete_snapshots_copies_and_selections (test_title_palette_storage.TitlePaletteStorage.test_all_complete_snapshots_copies_and_selections) ... -O0 123000 title palette storage cases passed
+-O2 123000 title palette storage cases passed
+ok
+test_independent_negative_controls (test_title_palette_storage.TitlePaletteStorage.test_independent_negative_controls) ... helper_short: rejected: line 86, scenario 1: !memcmp(objects[group*3+1],expected,24)
+helper_wrong_source_stride: rejected: line 86, scenario 1: !memcmp(objects[group*3+1],expected,24)
+helper_wrong_destination_stride: rejected: line 86, scenario 1: !memcmp(objects[group*3+1],expected,24)
+helper_second_word: rejected: line 86, scenario 1: !memcmp(objects[group*3+1],expected,24)
+site_0_copy: rejected: line 92, scenario 1: !memcmp(objects[group*3+2],expected,24)
+site_0_highlight: rejected: line 97, scenario 1: highlight==seen_highlight
+site_0_base: rejected: line 97, scenario 1: base==expected_base
+site_0_snapshot: rejected: line 81, scenario 1: !memcmp(objects[group*3],expected,24)
+site_0_global: rejected: line 92, scenario 1026: !memcmp(objects[group*3+2],expected,24)
+site_0_alias: rejected: line 92, scenario 1: !memcmp(objects[group*3+2],expected,24)
+site_1_copy: rejected: line 92, scenario 24601: !memcmp(objects[group*3+2],expected,24)
+site_1_highlight: rejected: line 97, scenario 24601: highlight==seen_highlight
+site_1_base: rejected: line 97, scenario 24601: base==expected_base
+site_1_snapshot: rejected: line 81, scenario 24601: !memcmp(objects[group*3],expected,24)
+site_1_global: rejected: line 92, scenario 25626: !memcmp(objects[group*3+2],expected,24)
+site_1_alias: rejected: line 92, scenario 24601: !memcmp(objects[group*3+2],expected,24)
+site_2_copy: rejected: line 92, scenario 49201: !memcmp(objects[group*3+2],expected,24)
+site_2_highlight: rejected: line 97, scenario 49201: highlight==seen_highlight
+site_2_base: rejected: line 97, scenario 49201: base==expected_base
+site_2_snapshot: rejected: line 81, scenario 49201: !memcmp(objects[group*3],expected,24)
+site_2_global: rejected: line 92, scenario 50226: !memcmp(objects[group*3+2],expected,24)
+site_2_alias: rejected: line 92, scenario 49201: !memcmp(objects[group*3+2],expected,24)
+site_3_copy: rejected: line 92, scenario 73801: !memcmp(objects[group*3+2],expected,24)
+site_3_highlight: rejected: line 97, scenario 73801: highlight==seen_highlight
+site_3_base: rejected: line 97, scenario 73801: base==expected_base
+site_3_snapshot: rejected: line 81, scenario 73801: !memcmp(objects[group*3],expected,24)
+site_3_global: rejected: line 92, scenario 74826: !memcmp(objects[group*3+2],expected,24)
+site_3_alias: rejected: line 92, scenario 73801: !memcmp(objects[group*3+2],expected,24)
+site_4_copy: rejected: line 92, scenario 98401: !memcmp(objects[group*3+2],expected,24)
+site_4_highlight: rejected: line 97, scenario 98401: highlight==seen_highlight
+site_4_base: rejected: line 97, scenario 98401: base==expected_base
+site_4_snapshot: rejected: line 81, scenario 98401: !memcmp(objects[group*3],expected,24)
+site_4_global: rejected: line 92, scenario 99426: !memcmp(objects[group*3+2],expected,24)
+site_4_alias: rejected: line 92, scenario 98401: !memcmp(objects[group*3+2],expected,24)
+ok
+test_live_extraction (test_title_palette_storage.TitlePaletteStorage.test_live_extraction) ... ok
+test_all_actual_conversion_calls_and_sine_subgraph (test_title_sprite_alpha_contract.TitleSpriteAlphaContracts.test_all_actual_conversion_calls_and_sine_subgraph) ... -O0 conversion_calls=25370 subgraph_calls=32400 pair_cases=30841
+-O2 conversion_calls=25370 subgraph_calls=32400 pair_cases=30841
+ok
+test_each_site_negative_controls (test_title_sprite_alpha_contract.TitleSpriteAlphaContracts.test_each_site_negative_controls) ... ok
+test_independent_subgraph_controls (test_title_sprite_alpha_contract.TitleSpriteAlphaContracts.test_independent_subgraph_controls) ... ok
+test_actual_tail_order_gate_arguments_and_uv_words (test_title_fade_contract.TitleFadeContracts.test_actual_tail_order_gate_arguments_and_uv_words) ... -O0 107904 title fade boundary cases passed
+-O2 107904 title fade boundary cases passed
+ok
+test_independent_negative_controls (test_title_fade_contract.TitleFadeContracts.test_independent_negative_controls) ... source_byte_stride: rejected: line 77, scenario 18: memcmp(activeUv, expectedUv, sizeof(expectedUv)) == 0
+destination_byte_stride: rejected: line 77, scenario 18: memcmp(activeUv, expectedUv, sizeof(expectedUv)) == 0
+copy_short: rejected: line 77, scenario 18: memcmp(activeUv, expectedUv, sizeof(expectedUv)) == 0
+pair_components_swapped: rejected: line 77, scenario 18: memcmp(activeUv, expectedUv, sizeof(expectedUv)) == 0
+pair_order_swapped: rejected: line 77, scenario 18: memcmp(activeUv, expectedUv, sizeof(expectedUv)) == 0
+copy_omitted: rejected: line 77, scenario 18: memcmp(activeUv, expectedUv, sizeof(expectedUv)) == 0
+wrong_state_divisor: rejected: line 76, scenario 40483: *activeAlpha == expectedAlpha
+wrong_other_divisor: rejected: line 76, scenario 19: *activeAlpha == expectedAlpha
+wrong_rounding: rejected: line 76, scenario 19: *activeAlpha == expectedAlpha
+float_bits_alpha: rejected: line 76, scenario 19: *activeAlpha == expectedAlpha
+alpha_before_decrement: rejected: line 76, scenario 18: *activeAlpha == expectedAlpha
+counter_not_stored: rejected: line 75, scenario 18: (s32)stateGuard.words[0x2C / 4] == initialCounter - 1
+zero_gate: rejected: line 73, scenario 17: initialCounter > 0 && getterCalls == 0 && rendererCalls == 0
+wrong_z: rejected: line 101, scenario 18: x == 0 && y == 0 && float_bits(z) == 0
+wrong_width: rejected: line 102, scenario 18: width == 640 && height == 448 && rgb == 0xFFFFFF
+wrong_height: rejected: line 102, scenario 18: width == 640 && height == 448 && rgb == 0xFFFFFF
+wrong_color: rejected: line 102, scenario 18: width == 640 && height == 448 && rgb == 0xFFFFFF
+wrong_mode: rejected: line 103, scenario 18: alpha == expectedAlpha && mode == 1 && centerX == 0 && centerY == 0
+wrong_center: rejected: line 103, scenario 18: alpha == expectedAlpha && mode == 1 && centerX == 0 && centerY == 0
+wrong_matrix: rejected: line 104, scenario 18: matrix == NULL && texture == textureWord && uv == activeUv
+wrong_texture_identity: rejected: line 104, scenario 18: matrix == NULL && texture == textureWord && uv == activeUv
+getter_bypassed: rejected: line 100, scenario 18: getterCalls == 1 && rendererCalls == 0
+wrong_uv_identity: rejected: line 104, scenario 18: matrix == NULL && texture == textureWord && uv == activeUv
+copy_late: rejected: line 77, scenario 18: memcmp(activeUv, expectedUv, sizeof(expectedUv)) == 0
+alpha_late: rejected: line 76, scenario 18: *activeAlpha == expectedAlpha
+decrement_late: rejected: line 75, scenario 18: (s32)stateGuard.words[0x2C / 4] == initialCounter - 1
+ok
+test_no_argument_getter_rejects_dummy_parameter (test_title_fade_contract.TitleFadeContracts.test_no_argument_getter_rejects_dummy_parameter) ... ok
+test_final_gate_and_real_getter_are_extracted_verbatim (test_title_fade_contract.TitleFadeExtraction.test_final_gate_and_real_getter_are_extracted_verbatim) ... ok
+test_negative_controls (test_title_gp_color_transport.TitleGpColorTransport.test_negative_controls) ... ok
+test_six_actual_copy_chains_and_draw_providers (test_title_gp_color_transport.TitleGpColorTransport.test_six_actual_copy_chains_and_draw_providers) ... -O0 6234 GP color/provider cases passed
+-O2 6234 GP color/provider cases passed
+ok
+test_actual_alpha_alias_blocks (test_title_alpha_aliases.TitleAlphaAliases.test_actual_alpha_alias_blocks) ... -O0 alpha_calls=16508 conversion_cases=2537
+-O2 alpha_calls=16508 conversion_cases=2537
+ok
+test_negative_controls (test_title_alpha_aliases.TitleAlphaAliases.test_negative_controls) ... ok
+test_live_rectangle_snapshots (test_title_rectangle_aliases.TitleRectangleAliases.test_live_rectangle_snapshots) ... -O0 65536 rectangle snapshot/provider cases passed
+-O2 65536 rectangle snapshot/provider cases passed
+ok
+test_negative_controls (test_title_rectangle_aliases.TitleRectangleAliases.test_negative_controls) ... ok
+test_all_actual_color_families (test_title_color_families.TitleColorFamilies.test_all_actual_color_families) ... -O0 49872 color-family cases passed
+-O2 49872 color-family cases passed
+ok
+test_negative_controls (test_title_color_families.TitleColorFamilies.test_negative_controls) ... ok
+test_all_actual_calls_and_layer_vertex_providers (test_title_layer_contract.TitleLayerContracts.test_all_actual_calls_and_layer_vertex_providers) ... -O0 122880 layer caller/provider cases passed
+-O2 122880 layer caller/provider cases passed
+ok
+test_negative_controls (test_title_layer_contract.TitleLayerContracts.test_negative_controls) ... ok
+test_actual_color_storage_and_copy_lifetimes (test_title_color_storage.TitleColorStorage.test_actual_color_storage_and_copy_lifetimes) ... -O0 title_color_cases=4128
+-O2 title_color_cases=4128
+ok
+test_layer_declaration_matches_actual_provider (test_title_color_storage.TitleColorStorage.test_layer_declaration_matches_actual_provider) ... ok
+test_rejects_wide_clear_wrong_byte_and_copy_regressions (test_title_color_storage.TitleColorStorage.test_rejects_wide_clear_wrong_byte_and_copy_regressions) ... ok
+test_all_actual_calls_and_actual_packet_provider (test_title_overlay_contract.TitleOverlayContract.test_all_actual_calls_and_actual_packet_provider) ... -O0 title_overlay_cases=30720
+-O2 title_overlay_cases=30720
+ok
+test_fixture_rejects_transport_regressions (test_title_overlay_contract.TitleOverlayContract.test_fixture_rejects_transport_regressions) ... ok
+test_provider_and_adapter_declarations_agree (test_title_overlay_contract.TitleOverlayContract.test_provider_and_adapter_declarations_agree) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 64.084s
+
+OK

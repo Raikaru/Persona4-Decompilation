@@ -1,0 +1,12 @@
+{
+  "base": "bed91675c50af703b974bd44ede3234eef532590",
+  "owner": "src/promoted/code1_0012.c",
+  "source_sha256": "74b1c9f4960cc7ad2ff43c4ea9b411b64d209cd48013a29275685c07c9d422ec",
+  "exact_palette_only_transformation": true,
+  "complete_source_snapshots": 5,
+  "complete_destination_copies": 10,
+  "fake_sp_removed": true,
+  "guard_and_fallback_retained": true,
+  "unchanged_model_call_remainder": true,
+  "proof_boundary": "selected packed words only; existing model ABI and ACC expressions unproven"
+}

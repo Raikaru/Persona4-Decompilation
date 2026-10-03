@@ -1,0 +1,33 @@
+{
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "checked_words": {
+    "0x1265d4": "0xa0202d",
+    "0x1265d8": "0xc114958",
+    "0x1265dc": "0x0",
+    "0x4623b8": "0x8e060008",
+    "0x4623e0": "0x2604001c",
+    "0x4623e4": "0x8e050010",
+    "0x4623e8": "0xc0f809",
+    "0x4623ec": "0x0",
+    "0x4623f0": "0x96030018",
+    "0x12b60c": "0xc118264",
+    "0x12b614": "0x40282d",
+    "0x12b618": "0x3c030012",
+    "0x12b61c": "0x246365a0",
+    "0x12b620": "0xac430008",
+    "0x12b624": "0xac530010",
+    "0x12b630": "0xc1182b0",
+    "0x452560": "0x8c820038",
+    "0x452564": "0x3e00008",
+    "0x452568": "0x0",
+    "0x12aa8c": "0x80982d"
+  },
+  "callback_node_field": 8,
+  "callback_data_field": 16,
+  "callback_first_argument": "node+0x1c",
+  "callback_second_argument": "word at node+0x10",
+  "target_accessor_argument": "incoming a1 forwarded to a0",
+  "accessor_load": "word at task+0x38",
+  "callback_result_consumed": false,
+  "scope": "Authenticated retail registration, two-input dispatch, target forwarding and accessor; dispatcher C is not executed"
+}

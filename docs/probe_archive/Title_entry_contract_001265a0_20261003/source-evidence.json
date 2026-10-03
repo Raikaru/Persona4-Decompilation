@@ -1,0 +1,17 @@
+{
+  "base": "81708cc4e9e63e3b1eae30f466c069359a8dff70",
+  "source_sha256": "bef9fa5dc7b195c83dcbc497d0e8ccecd247929f4e58d9f0f3106af8d146628e",
+  "exact_five_substitution_transform": true,
+  "callback_contract": "void (void *unusedDrawData, void *task)",
+  "getter_contract": "u32 (void *task)",
+  "explicit_work_address_word_conversion": true,
+  "global_old_style_accessor_declaration_unchanged": true,
+  "other_matched_accessor_callers_unchanged": true,
+  "guard_and_fallback_retained": true,
+  "unchanged_provider_and_dispatcher_source_sha256": {
+    "src/Kernel/sdkTask.c": "d7683e2c79b8397894d8fa54fb2012664d7ddfddbcd896740eea56f5cb39187f",
+    "src/sdkOt.c": "1d06961fc2d326e627ea2a209a50338a1923336712b76b30768d738f1401abc4",
+    "src/promoted/code1_0046.c": "b37701a85922d65fc1813f7f7df033cd8586142dc0a3acfdccd7deb695be9f32"
+  },
+  "dispatcher_C_native_execution": false
+}

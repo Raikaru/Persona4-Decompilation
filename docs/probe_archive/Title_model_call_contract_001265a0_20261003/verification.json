@@ -1,0 +1,81 @@
+{
+  "base": "69799eb8fe97c414501d20af309688f147e0e5d2",
+  "source_sha256": "05165f28b77b3a137a2e6cd8f64e82854cca3df5fe4ec73b9c5c71819a645397",
+  "status": "guarded nonmatching typed-call and packed-word recovery; assembly fallback retained",
+  "production_summary": {
+    "MATCH": 253,
+    "ASM": 46
+  },
+  "owner_statuses": {
+    "src/promoted/code1_0012.c": {
+      "MATCH": 81,
+      "ASM": 1
+    },
+    "src/promoted/code1_0045.c": {
+      "MATCH": 60
+    },
+    "src/Main/titleVisual.c": {
+      "MATCH": 7
+    },
+    "src/Event/Fcl/shdSprite.c": {
+      "MATCH": 11
+    },
+    "src/promoted/code1_0025.c": {
+      "MATCH": 48
+    },
+    "src/promoted/code1_0036.c": {
+      "MATCH": 34
+    },
+    "src/rw/basky.c": {
+      "MATCH": 12,
+      "ASM": 45
+    }
+  },
+  "model_provider": {
+    "file": "src/promoted/code1_0012.c",
+    "addr": "00124bb0",
+    "name": "func_00124bb0",
+    "object_size": 956,
+    "window": 960,
+    "normalized_diff": 0,
+    "status": "MATCH"
+  },
+  "guarded_target_bytes": 16816,
+  "retail_window_bytes": 17616,
+  "guarded_masked_differing_words": 3955,
+  "base_guarded_target_bytes": 17496,
+  "base_guarded_masked_differing_words": 3986,
+  "frame_before": 1664,
+  "frame_after": 1200,
+  "removed_default_promotion_calls": 33,
+  "lint": {
+    "errors": 0,
+    "existing_advisories": 32
+  },
+  "native": {
+    "tests": 29,
+    "skips": 0,
+    "model_cases_per_mode_optimization": 583680,
+    "modes": [
+      "unaltered source expressions",
+      "explicit supplied special-producer outputs"
+    ],
+    "optimizations": [
+      "O0",
+      "O2"
+    ],
+    "model_source_controls": 71,
+    "signed_shift_control": "undefined-behavior sanitizer trap"
+  },
+  "machine_model_cases": 389120,
+  "machine_model_controls": 38,
+  "provider_native_execution": false,
+  "special_ACC_arithmetic_equivalence": false,
+  "new_exact_C_credit": 0,
+  "not_run": [
+    "full linked-image build",
+    "renderer/gameplay",
+    "CI",
+    "push or publication"
+  ]
+}

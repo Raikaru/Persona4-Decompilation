@@ -1,0 +1,38 @@
+{
+  "base": "9bb8b6ad0fafafca04007d67acadff673449bdfa",
+  "owner": "src/promoted/code1_0012.c",
+  "source_sha256": "d66ac8bdfa05fc0e582b916dd8a550cd34ec030c8e20a4f2c8c4146ee6cd8360",
+  "exact_source_transform": true,
+  "changed_line_blocks": 8,
+  "canonical_rotate_translate_model_declarations_reused": true,
+  "existing_complete_vector_and_matrix_types_reused": true,
+  "actual_matrix_alignment": 16,
+  "no_new_matrix_initialization": true,
+  "provider_and_type_sources_unchanged": [
+    {
+      "path": "include/btl_shuffle_draw_internal.h",
+      "sha256": "bc8d22302f8ed7e3fc1a2d67ba85c845c5abf7c2cab72b6eb5310229b6e6350d"
+    },
+    {
+      "path": "include/rw/plcore/bamatrix.h",
+      "sha256": "f71cd84ae9f2c0664dfa293d46c8a860031b6d7a38c6512721f464cbb7208cba"
+    },
+    {
+      "path": "include/rw/ps2/ostypes.h",
+      "sha256": "07326695ebab207e2b252e1a3af73a52d7383e136c52a58a08c48f4f2f83fd9e"
+    },
+    {
+      "path": "src/promoted/code1_003e.c",
+      "sha256": "3e30cf14cd588653198e53783910180521a5b78e082ea5a7d9abb9c7cdfd2900"
+    },
+    {
+      "path": "src/renderware/plcore/bamatrix.c",
+      "sha256": "3bd18c815019c18f0db40b1f4907d2048974dddc125fd8b17dba3c76aa4da907"
+    },
+    {
+      "path": "src/Graphics/Model/mdlManager.c",
+      "sha256": "5ad972554f5af6bb80091f463f9c0ba57d20e097932babb128cb48cee2880439"
+    }
+  ],
+  "limits": "No table read/index, speed-call ABI, ACC expression, dispatcher or provider body changed. No full Title execution or new exact-C credit."
+}

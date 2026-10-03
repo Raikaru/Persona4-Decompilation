@@ -1,0 +1,68 @@
+{
+  "source_sha256": "74b1c9f4960cc7ad2ff43c4ea9b411b64d209cd48013a29275685c07c9d422ec",
+  "alpha_alias_ranges": [
+    {
+      "symbol": "fGpffff9c80",
+      "old_range": [
+        "0x2e84",
+        "0x2ec4"
+      ],
+      "new_range": [
+        "0x2e9c",
+        "0x2edc"
+      ],
+      "all_words_equal_except_explicit_stack_homes_and_references_identical": true,
+      "source_sp": "0x66c"
+    },
+    {
+      "symbol": "fGpffff9c84",
+      "old_range": [
+        "0x2ffc",
+        "0x30cc"
+      ],
+      "new_range": [
+        "0x3014",
+        "0x30e4"
+      ],
+      "all_words_equal_except_explicit_stack_homes_and_references_identical": true,
+      "source_sp": "0x668"
+    }
+  ],
+  "52_distinct_color_objects": true,
+  "all15palettes_disjoint_from52colors": true,
+  "alpha_direct_access_census": [
+    {
+      "offset": "0x2ea0",
+      "symbol": "fGpffff9c80",
+      "width": 4
+    },
+    {
+      "offset": "0x2ea8",
+      "symbol": "fGpffff9c80",
+      "width": 1
+    },
+    {
+      "offset": "0x2eb0",
+      "symbol": "fGpffff9c80",
+      "width": 4
+    },
+    {
+      "offset": "0x3054",
+      "symbol": "fGpffff9c84",
+      "width": 4
+    },
+    {
+      "offset": "0x30b0",
+      "symbol": "fGpffff9c84",
+      "width": 1
+    },
+    {
+      "offset": "0x30b8",
+      "symbol": "fGpffff9c84",
+      "width": 4
+    }
+  ],
+  "tail_old_start": "0x4314",
+  "tail_new_start": "0x4330",
+  "entire_tail_and_epilogue_equal_except_explicit_stack_homes_and_frame": true
+}
