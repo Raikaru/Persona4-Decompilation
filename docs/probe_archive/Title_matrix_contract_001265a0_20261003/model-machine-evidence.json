@@ -1,0 +1,616 @@
+{
+  "source_sha256": "d66ac8bdfa05fc0e582b916dd8a550cd34ec030c8e20a4f2c8c4146ee6cd8360",
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "boundaries": [
+    {
+      "kind": "retail",
+      "site": 0,
+      "call": 3680,
+      "model": 2956,
+      "red": 3180,
+      "green": 3396,
+      "blue": 3616,
+      "base": 3636,
+      "zero": 3632,
+      "loads": [
+        [
+          3648,
+          12,
+          4,
+          7
+        ],
+        [
+          3652,
+          14,
+          8,
+          7
+        ],
+        [
+          3656,
+          15,
+          12,
+          7
+        ],
+        [
+          3660,
+          16,
+          16,
+          7
+        ],
+        [
+          3664,
+          17,
+          20,
+          7
+        ],
+        [
+          3668,
+          18,
+          24,
+          7
+        ]
+      ],
+      "special": false,
+      "producers": [],
+      "omitted_spans_preserve_live_integer_values": true,
+      "final_floating_writers_and_zero_lane_checked": true
+    },
+    {
+      "kind": "retail",
+      "site": 1,
+      "call": 4664,
+      "model": 3916,
+      "red": 4148,
+      "green": 4372,
+      "blue": 4600,
+      "base": 4620,
+      "zero": 4616,
+      "loads": [
+        [
+          4632,
+          12,
+          4,
+          7
+        ],
+        [
+          4636,
+          14,
+          8,
+          7
+        ],
+        [
+          4640,
+          15,
+          12,
+          7
+        ],
+        [
+          4644,
+          16,
+          16,
+          7
+        ],
+        [
+          4648,
+          17,
+          20,
+          7
+        ],
+        [
+          4652,
+          18,
+          24,
+          7
+        ]
+      ],
+      "special": false,
+      "producers": [],
+      "omitted_spans_preserve_live_integer_values": true,
+      "final_floating_writers_and_zero_lane_checked": true
+    },
+    {
+      "kind": "retail",
+      "site": 2,
+      "call": 6156,
+      "model": 5308,
+      "red": 5540,
+      "green": 5764,
+      "blue": 5992,
+      "base": 6116,
+      "zero": 6020,
+      "loads": [],
+      "special": true,
+      "producers": [
+        6032,
+        6052,
+        6072,
+        6092,
+        6112,
+        6144
+      ],
+      "omitted_spans_preserve_live_integer_values": true,
+      "final_floating_writers_and_zero_lane_checked": true
+    },
+    {
+      "kind": "retail",
+      "site": 3,
+      "call": 7316,
+      "model": 6468,
+      "red": 6700,
+      "green": 6924,
+      "blue": 7152,
+      "base": 7276,
+      "zero": 7180,
+      "loads": [],
+      "special": true,
+      "producers": [
+        7192,
+        7212,
+        7232,
+        7252,
+        7272,
+        7304
+      ],
+      "omitted_spans_preserve_live_integer_values": true,
+      "final_floating_writers_and_zero_lane_checked": true
+    },
+    {
+      "kind": "retail",
+      "site": 4,
+      "call": 14616,
+      "model": 13868,
+      "red": 14100,
+      "green": 14324,
+      "blue": 14552,
+      "base": 14572,
+      "zero": 14568,
+      "loads": [
+        [
+          14584,
+          12,
+          4,
+          7
+        ],
+        [
+          14588,
+          14,
+          8,
+          7
+        ],
+        [
+          14592,
+          15,
+          12,
+          7
+        ],
+        [
+          14596,
+          16,
+          16,
+          7
+        ],
+        [
+          14600,
+          17,
+          20,
+          7
+        ],
+        [
+          14604,
+          18,
+          24,
+          7
+        ]
+      ],
+      "special": false,
+      "producers": [],
+      "omitted_spans_preserve_live_integer_values": true,
+      "final_floating_writers_and_zero_lane_checked": true
+    },
+    {
+      "kind": "candidate",
+      "site": 0,
+      "call": 3572,
+      "model": 3396,
+      "red": 3068,
+      "green": 3496,
+      "blue": 3488,
+      "base": 3528,
+      "zero": 3516,
+      "loads": [
+        [
+          3540,
+          12,
+          4,
+          17
+        ],
+        [
+          3544,
+          14,
+          8,
+          17
+        ],
+        [
+          3548,
+          15,
+          12,
+          17
+        ],
+        [
+          3552,
+          16,
+          16,
+          17
+        ],
+        [
+          3556,
+          17,
+          20,
+          17
+        ],
+        [
+          3560,
+          18,
+          24,
+          17
+        ]
+      ],
+      "special": false,
+      "producers": [],
+      "omitted_spans_preserve_live_integer_values": true,
+      "final_floating_writers_and_zero_lane_checked": true
+    },
+    {
+      "kind": "candidate",
+      "site": 1,
+      "call": 4512,
+      "model": 4328,
+      "red": 3992,
+      "green": 4436,
+      "blue": 4428,
+      "base": 4468,
+      "zero": 4456,
+      "loads": [
+        [
+          4480,
+          12,
+          4,
+          7
+        ],
+        [
+          4484,
+          14,
+          8,
+          7
+        ],
+        [
+          4488,
+          15,
+          12,
+          7
+        ],
+        [
+          4492,
+          16,
+          16,
+          7
+        ],
+        [
+          4496,
+          17,
+          20,
+          7
+        ],
+        [
+          4500,
+          18,
+          24,
+          7
+        ]
+      ],
+      "special": false,
+      "producers": [],
+      "omitted_spans_preserve_live_integer_values": true,
+      "final_floating_writers_and_zero_lane_checked": true
+    },
+    {
+      "kind": "candidate",
+      "site": 2,
+      "call": 5828,
+      "model": 5576,
+      "red": 5652,
+      "green": 5660,
+      "blue": 5756,
+      "base": 5788,
+      "zero": 5772,
+      "loads": [],
+      "special": true,
+      "producers": [
+        5572
+      ],
+      "omitted_spans_preserve_live_integer_values": true,
+      "final_floating_writers_and_zero_lane_checked": true
+    },
+    {
+      "kind": "candidate",
+      "site": 3,
+      "call": 6808,
+      "model": 6556,
+      "red": 6632,
+      "green": 6640,
+      "blue": 6736,
+      "base": 6768,
+      "zero": 6752,
+      "loads": [],
+      "special": true,
+      "producers": [
+        6552
+      ],
+      "omitted_spans_preserve_live_integer_values": true,
+      "final_floating_writers_and_zero_lane_checked": true
+    },
+    {
+      "kind": "candidate",
+      "site": 4,
+      "call": 13764,
+      "model": 13580,
+      "red": 13244,
+      "green": 13688,
+      "blue": 13680,
+      "base": 13720,
+      "zero": 13708,
+      "loads": [
+        [
+          13732,
+          12,
+          4,
+          7
+        ],
+        [
+          13736,
+          14,
+          8,
+          7
+        ],
+        [
+          13740,
+          15,
+          12,
+          7
+        ],
+        [
+          13744,
+          16,
+          16,
+          7
+        ],
+        [
+          13748,
+          17,
+          20,
+          7
+        ],
+        [
+          13752,
+          18,
+          24,
+          7
+        ]
+      ],
+      "special": false,
+      "producers": [],
+      "omitted_spans_preserve_live_integer_values": true,
+      "final_floating_writers_and_zero_lane_checked": true
+    }
+  ],
+  "model_pointer_live_bindings": {
+    "retail": {
+      "work_result_move": 64,
+      "epilogue_restore": 17552
+    },
+    "candidate": {
+      "work_result_move": 80,
+      "epilogue_restore": 16780
+    }
+  },
+  "retail_record_count": 19,
+  "distinct_synthetic_records": 19,
+  "executed_cases": 389120,
+  "negative_controls": [
+    {
+      "site": 0,
+      "mutation": "red_shift",
+      "rejected": true
+    },
+    {
+      "site": 0,
+      "mutation": "green_shift",
+      "rejected": true
+    },
+    {
+      "site": 0,
+      "mutation": "flags",
+      "rejected": true
+    },
+    {
+      "site": 0,
+      "mutation": "pointer",
+      "rejected": true
+    },
+    {
+      "site": 0,
+      "mutation": "field_4",
+      "rejected": true
+    },
+    {
+      "site": 0,
+      "mutation": "field_8",
+      "rejected": true
+    },
+    {
+      "site": 0,
+      "mutation": "field_12",
+      "rejected": true
+    },
+    {
+      "site": 0,
+      "mutation": "field_16",
+      "rejected": true
+    },
+    {
+      "site": 0,
+      "mutation": "field_20",
+      "rejected": true
+    },
+    {
+      "site": 0,
+      "mutation": "field_24",
+      "rejected": true
+    },
+    {
+      "site": 1,
+      "mutation": "red_shift",
+      "rejected": true
+    },
+    {
+      "site": 1,
+      "mutation": "green_shift",
+      "rejected": true
+    },
+    {
+      "site": 1,
+      "mutation": "flags",
+      "rejected": true
+    },
+    {
+      "site": 1,
+      "mutation": "pointer",
+      "rejected": true
+    },
+    {
+      "site": 1,
+      "mutation": "field_4",
+      "rejected": true
+    },
+    {
+      "site": 1,
+      "mutation": "field_8",
+      "rejected": true
+    },
+    {
+      "site": 1,
+      "mutation": "field_12",
+      "rejected": true
+    },
+    {
+      "site": 1,
+      "mutation": "field_16",
+      "rejected": true
+    },
+    {
+      "site": 1,
+      "mutation": "field_20",
+      "rejected": true
+    },
+    {
+      "site": 1,
+      "mutation": "field_24",
+      "rejected": true
+    },
+    {
+      "site": 2,
+      "mutation": "red_shift",
+      "rejected": true
+    },
+    {
+      "site": 2,
+      "mutation": "green_shift",
+      "rejected": true
+    },
+    {
+      "site": 2,
+      "mutation": "flags",
+      "rejected": true
+    },
+    {
+      "site": 2,
+      "mutation": "pointer",
+      "rejected": true
+    },
+    {
+      "site": 3,
+      "mutation": "red_shift",
+      "rejected": true
+    },
+    {
+      "site": 3,
+      "mutation": "green_shift",
+      "rejected": true
+    },
+    {
+      "site": 3,
+      "mutation": "flags",
+      "rejected": true
+    },
+    {
+      "site": 3,
+      "mutation": "pointer",
+      "rejected": true
+    },
+    {
+      "site": 4,
+      "mutation": "red_shift",
+      "rejected": true
+    },
+    {
+      "site": 4,
+      "mutation": "green_shift",
+      "rejected": true
+    },
+    {
+      "site": 4,
+      "mutation": "flags",
+      "rejected": true
+    },
+    {
+      "site": 4,
+      "mutation": "pointer",
+      "rejected": true
+    },
+    {
+      "site": 4,
+      "mutation": "field_4",
+      "rejected": true
+    },
+    {
+      "site": 4,
+      "mutation": "field_8",
+      "rejected": true
+    },
+    {
+      "site": 4,
+      "mutation": "field_12",
+      "rejected": true
+    },
+    {
+      "site": 4,
+      "mutation": "field_16",
+      "rejected": true
+    },
+    {
+      "site": 4,
+      "mutation": "field_20",
+      "rejected": true
+    },
+    {
+      "site": 4,
+      "mutation": "field_24",
+      "rejected": true
+    }
+  ],
+  "provider_executed": false,
+  "special_source_expression_outputs_supplied": true,
+  "special_retail_producer_destinations_audited": true,
+  "special_geometry_equivalence_claimed": false,
+  "limits": "Actual disconnected defined integer packing/model-conversion/ABI slices, supplied channel and special-expression outputs; provider matrix flags and all upstream ACC arithmetic excluded."
+}

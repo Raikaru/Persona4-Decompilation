@@ -1,0 +1,422 @@
+{
+  "source_sha256": "05165f28b77b3a137a2e6cd8f64e82854cca3df5fe4ec73b9c5c71819a645397",
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "frame": 1200,
+  "snapshots": [
+    {
+      "offset": 2652,
+      "source_sp": 336,
+      "reads": [
+        {
+          "address": "0x5e5530",
+          "bytes": 16
+        },
+        {
+          "address": "0x5e5540",
+          "bytes": 8
+        }
+      ],
+      "tail_relocation_symbol": "D_005E5530",
+      "tail_addend": 16,
+      "tail_alias_address_equivalent": true
+    },
+    {
+      "offset": 3576,
+      "source_sp": 304,
+      "reads": [
+        {
+          "address": "0x5e5530",
+          "bytes": 16
+        },
+        {
+          "address": "0x5e5540",
+          "bytes": 8
+        }
+      ],
+      "tail_relocation_symbol": "D_005E5530",
+      "tail_addend": 16,
+      "tail_alias_address_equivalent": true
+    },
+    {
+      "offset": 4904,
+      "source_sp": 272,
+      "reads": [
+        {
+          "address": "0x5e5530",
+          "bytes": 16
+        },
+        {
+          "address": "0x5e5540",
+          "bytes": 8
+        }
+      ],
+      "tail_relocation_symbol": "D_005E5530",
+      "tail_addend": 16,
+      "tail_alias_address_equivalent": true
+    },
+    {
+      "offset": 5884,
+      "source_sp": 240,
+      "reads": [
+        {
+          "address": "0x5e5530",
+          "bytes": 16
+        },
+        {
+          "address": "0x5e5540",
+          "bytes": 8
+        }
+      ],
+      "tail_relocation_symbol": "D_005E5530",
+      "tail_addend": 16,
+      "tail_alias_address_equivalent": true
+    },
+    {
+      "offset": 12828,
+      "source_sp": 208,
+      "reads": [
+        {
+          "address": "0x5e5530",
+          "bytes": 16
+        },
+        {
+          "address": "0x5e5540",
+          "bytes": 8
+        }
+      ],
+      "tail_relocation_symbol": "D_005E5530",
+      "tail_addend": 16,
+      "tail_alias_address_equivalent": true
+    }
+  ],
+  "copies": [
+    {
+      "offset": 2684,
+      "source_sp": 336,
+      "destination_sp": 816,
+      "src_reg": 6,
+      "dst_reg": 5,
+      "count_reg": 4,
+      "selected_load": 2732,
+      "selection_register": 4,
+      "setup": 2648
+    },
+    {
+      "offset": 2776,
+      "source_sp": 336,
+      "destination_sp": 784,
+      "src_reg": 8,
+      "dst_reg": 7,
+      "count_reg": 6,
+      "selected_load": 3488,
+      "selection_register": 3,
+      "setup": 2764
+    },
+    {
+      "offset": 3608,
+      "source_sp": 304,
+      "destination_sp": 464,
+      "src_reg": 6,
+      "dst_reg": 5,
+      "count_reg": 4,
+      "selected_load": 3676,
+      "selection_register": 4,
+      "setup": 3572
+    },
+    {
+      "offset": 3692,
+      "source_sp": 304,
+      "destination_sp": 432,
+      "src_reg": 9,
+      "dst_reg": 8,
+      "count_reg": 6,
+      "selected_load": 4428,
+      "selection_register": 3,
+      "setup": 3680
+    },
+    {
+      "offset": 4936,
+      "source_sp": 272,
+      "destination_sp": 752,
+      "src_reg": 6,
+      "dst_reg": 5,
+      "count_reg": 4,
+      "selected_load": 4984,
+      "selection_register": 4,
+      "setup": 4900
+    },
+    {
+      "offset": 5000,
+      "source_sp": 272,
+      "destination_sp": 720,
+      "src_reg": 8,
+      "dst_reg": 7,
+      "count_reg": 6,
+      "selected_load": 5748,
+      "selection_register": 3,
+      "setup": 4988
+    },
+    {
+      "offset": 5916,
+      "source_sp": 240,
+      "destination_sp": 688,
+      "src_reg": 6,
+      "dst_reg": 5,
+      "count_reg": 4,
+      "selected_load": 5964,
+      "selection_register": 4,
+      "setup": 5880
+    },
+    {
+      "offset": 5980,
+      "source_sp": 240,
+      "destination_sp": 656,
+      "src_reg": 8,
+      "dst_reg": 7,
+      "count_reg": 6,
+      "selected_load": 6728,
+      "selection_register": 3,
+      "setup": 5968
+    },
+    {
+      "offset": 12860,
+      "source_sp": 208,
+      "destination_sp": 400,
+      "src_reg": 6,
+      "dst_reg": 5,
+      "count_reg": 4,
+      "selected_load": 12928,
+      "selection_register": 6,
+      "setup": 12824
+    },
+    {
+      "offset": 12944,
+      "source_sp": 208,
+      "destination_sp": 368,
+      "src_reg": 9,
+      "dst_reg": 8,
+      "count_reg": 4,
+      "selected_load": 13680,
+      "selection_register": 3,
+      "setup": 12932
+    }
+  ],
+  "all15objects_disjoint": true,
+  "direct_palette_stack_accesses": [
+    {
+      "offset": 2668,
+      "object_sp": 336,
+      "access_sp": 336,
+      "bytes": 16
+    },
+    {
+      "offset": 2672,
+      "object_sp": 336,
+      "access_sp": 352,
+      "bytes": 8
+    },
+    {
+      "offset": 3592,
+      "object_sp": 304,
+      "access_sp": 304,
+      "bytes": 16
+    },
+    {
+      "offset": 3596,
+      "object_sp": 304,
+      "access_sp": 320,
+      "bytes": 8
+    },
+    {
+      "offset": 4920,
+      "object_sp": 272,
+      "access_sp": 272,
+      "bytes": 16
+    },
+    {
+      "offset": 4924,
+      "object_sp": 272,
+      "access_sp": 288,
+      "bytes": 8
+    },
+    {
+      "offset": 5900,
+      "object_sp": 240,
+      "access_sp": 240,
+      "bytes": 16
+    },
+    {
+      "offset": 5904,
+      "object_sp": 240,
+      "access_sp": 256,
+      "bytes": 8
+    },
+    {
+      "offset": 12844,
+      "object_sp": 208,
+      "access_sp": 208,
+      "bytes": 16
+    },
+    {
+      "offset": 12848,
+      "object_sp": 208,
+      "access_sp": 224,
+      "bytes": 8
+    }
+  ],
+  "disjoint_from_prior50colors": true,
+  "executed_copy_selection_cases": 61500,
+  "negative_controls": [
+    {
+      "copy_offset": 2684,
+      "mutation": "source_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 2684,
+      "mutation": "destination_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 2684,
+      "mutation": "second_word",
+      "rejected": true
+    },
+    {
+      "copy_offset": 2776,
+      "mutation": "source_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 2776,
+      "mutation": "destination_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 2776,
+      "mutation": "second_word",
+      "rejected": true
+    },
+    {
+      "copy_offset": 3608,
+      "mutation": "source_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 3608,
+      "mutation": "destination_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 3608,
+      "mutation": "second_word",
+      "rejected": true
+    },
+    {
+      "copy_offset": 3692,
+      "mutation": "source_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 3692,
+      "mutation": "destination_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 3692,
+      "mutation": "second_word",
+      "rejected": true
+    },
+    {
+      "copy_offset": 4936,
+      "mutation": "source_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 4936,
+      "mutation": "destination_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 4936,
+      "mutation": "second_word",
+      "rejected": true
+    },
+    {
+      "copy_offset": 5000,
+      "mutation": "source_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 5000,
+      "mutation": "destination_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 5000,
+      "mutation": "second_word",
+      "rejected": true
+    },
+    {
+      "copy_offset": 5916,
+      "mutation": "source_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 5916,
+      "mutation": "destination_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 5916,
+      "mutation": "second_word",
+      "rejected": true
+    },
+    {
+      "copy_offset": 5980,
+      "mutation": "source_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 5980,
+      "mutation": "destination_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 5980,
+      "mutation": "second_word",
+      "rejected": true
+    },
+    {
+      "copy_offset": 12860,
+      "mutation": "source_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 12860,
+      "mutation": "destination_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 12860,
+      "mutation": "second_word",
+      "rejected": true
+    },
+    {
+      "copy_offset": 12944,
+      "mutation": "source_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 12944,
+      "mutation": "destination_stride",
+      "rejected": true
+    },
+    {
+      "copy_offset": 12944,
+      "mutation": "second_word",
+      "rejected": true
+    }
+  ],
+  "scope": "actual emitted pair loops and selected LW; source snapshot instruction/address audit; no model draw, ACC, whole-controller or renderer execution"
+}

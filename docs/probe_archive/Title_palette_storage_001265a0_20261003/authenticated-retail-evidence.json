@@ -1,0 +1,175 @@
+{
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "target": "0x1265a0",
+  "palette_words": [
+    "0xffffffff",
+    "0xffff81ff",
+    "0xffc705ff",
+    "0xffff64ff",
+    "0xff0000ff",
+    "0xffd518ff"
+  ],
+  "palette_extent_bytes": 24,
+  "layout_record_stride": 40,
+  "layout_palette_indices": [
+    0,
+    3,
+    2,
+    1,
+    2,
+    1,
+    5,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "copies": [
+    {
+      "source_stack": "0x130",
+      "destination_stack": "0x450",
+      "setup_address": "0x12706c",
+      "loop_address": "0x127074",
+      "iteration_bytes": 8,
+      "iterations": 3,
+      "selected_load": "0x1270bc",
+      "selected_load_word": "0x8c480450"
+    },
+    {
+      "source_stack": "0x130",
+      "destination_stack": "0x430",
+      "setup_address": "0x1270e0",
+      "loop_address": "0x1270e8",
+      "iteration_bytes": 8,
+      "iterations": 3,
+      "selected_load": "0x127110",
+      "selected_load_word": "0x8c450430"
+    },
+    {
+      "source_stack": "0x110",
+      "destination_stack": "0x1b0",
+      "setup_address": "0x127448",
+      "loop_address": "0x127450",
+      "iteration_bytes": 8,
+      "iterations": 3,
+      "selected_load": "0x127498",
+      "selected_load_word": "0x8c4801b0"
+    },
+    {
+      "source_stack": "0x110",
+      "destination_stack": "0x190",
+      "setup_address": "0x1274a0",
+      "loop_address": "0x1274a8",
+      "iteration_bytes": 8,
+      "iterations": 3,
+      "selected_load": "0x1274d0",
+      "selected_load_word": "0x8c450190"
+    },
+    {
+      "source_stack": "0xf0",
+      "destination_stack": "0x410",
+      "setup_address": "0x127998",
+      "loop_address": "0x1279a0",
+      "iteration_bytes": 8,
+      "iterations": 3,
+      "selected_load": "0x1279d4",
+      "selected_load_word": "0x8c470410"
+    },
+    {
+      "source_stack": "0xf0",
+      "destination_stack": "0x3f0",
+      "setup_address": "0x1279dc",
+      "loop_address": "0x1279e4",
+      "iteration_bytes": 8,
+      "iterations": 3,
+      "selected_load": "0x127a0c",
+      "selected_load_word": "0x8c4503f0"
+    },
+    {
+      "source_stack": "0xd0",
+      "destination_stack": "0x3d0",
+      "setup_address": "0x127e20",
+      "loop_address": "0x127e28",
+      "iteration_bytes": 8,
+      "iterations": 3,
+      "selected_load": "0x127e5c",
+      "selected_load_word": "0x8c4703d0"
+    },
+    {
+      "source_stack": "0xd0",
+      "destination_stack": "0x3b0",
+      "setup_address": "0x127e64",
+      "loop_address": "0x127e6c",
+      "iteration_bytes": 8,
+      "iterations": 3,
+      "selected_load": "0x127e94",
+      "selected_load_word": "0x8c4503b0"
+    },
+    {
+      "source_stack": "0xb0",
+      "destination_stack": "0x170",
+      "setup_address": "0x129b28",
+      "loop_address": "0x129b30",
+      "iteration_bytes": 8,
+      "iterations": 3,
+      "selected_load": "0x129b78",
+      "selected_load_word": "0x8c480170"
+    },
+    {
+      "source_stack": "0xb0",
+      "destination_stack": "0x150",
+      "setup_address": "0x129b80",
+      "loop_address": "0x129b88",
+      "iteration_bytes": 8,
+      "iterations": 3,
+      "selected_load": "0x129bb0",
+      "selected_load_word": "0x8c450150"
+    }
+  ],
+  "snapshots": [
+    {
+      "start": "0x127050",
+      "source_stack": "0x130",
+      "complete_bytes": 24,
+      "first_address": "0x5e5530",
+      "tail_address": "0x5e5540"
+    },
+    {
+      "start": "0x12742c",
+      "source_stack": "0x110",
+      "complete_bytes": 24,
+      "first_address": "0x5e5530",
+      "tail_address": "0x5e5540"
+    },
+    {
+      "start": "0x12797c",
+      "source_stack": "0xf0",
+      "complete_bytes": 24,
+      "first_address": "0x5e5530",
+      "tail_address": "0x5e5540"
+    },
+    {
+      "start": "0x127e04",
+      "source_stack": "0xd0",
+      "complete_bytes": 24,
+      "first_address": "0x5e5530",
+      "tail_address": "0x5e5540"
+    },
+    {
+      "start": "0x129b0c",
+      "source_stack": "0xb0",
+      "complete_bytes": 24,
+      "first_address": "0x5e5530",
+      "tail_address": "0x5e5540"
+    }
+  ],
+  "claims": "Authenticated retail evidence for bounded palette source recovery; no whole-controller or matching claim."
+}

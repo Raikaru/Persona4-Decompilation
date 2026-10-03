@@ -1,0 +1,77 @@
+{
+  "source_sha256": "bef9fa5dc7b195c83dcbc497d0e8ccecd247929f4e58d9f0f3106af8d146628e",
+  "base": "81708cc4e9e63e3b1eae30f466c069359a8dff70",
+  "target_before_bytes": 16816,
+  "target_after_bytes": 16820,
+  "inserted_offset": 68,
+  "inserted_word": "0x00a0202d",
+  "meaning": "daddu a0,a1,zero",
+  "every_other_instruction_byte_exact": true,
+  "every_relocation_type_symbol_addend_and_mapped_offset_exact": true,
+  "reference_count": 376,
+  "offset_ranges": [
+    {
+      "before": [
+        0,
+        68
+      ],
+      "after": [
+        0,
+        68
+      ]
+    },
+    {
+      "before": [
+        68,
+        16816
+      ],
+      "after": [
+        72,
+        16820
+      ]
+    }
+  ],
+  "switches": [
+    {
+      "section": "220",
+      "before": [
+        168,
+        172,
+        172,
+        204,
+        476,
+        476,
+        11992,
+        11992,
+        14124,
+        14124,
+        16524,
+        16524,
+        16524,
+        16524,
+        16524,
+        16524
+      ],
+      "after": [
+        172,
+        176,
+        176,
+        208,
+        480,
+        480,
+        11996,
+        11996,
+        14128,
+        14128,
+        16528,
+        16528,
+        16528,
+        16528,
+        16528,
+        16528
+      ],
+      "all_16_destinations_and_prefixes_exact": true
+    }
+  ],
+  "matched_updater_bytes_and_relocations_exact_in_both_configurations": true
+}
