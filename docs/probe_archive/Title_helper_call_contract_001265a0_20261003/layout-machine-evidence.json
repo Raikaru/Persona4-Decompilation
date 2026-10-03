@@ -1,0 +1,370 @@
+{
+  "source_sha256": "45e251ff335f1ed718c86f120f306abfad93083a61a40ab0e9920d42cc58287f",
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "executed_full_selection_cases": 15504,
+  "conversion_predicate_only_cases": 760,
+  "unsigned_diagnostic_predicate_cases": 8,
+  "earlier_speed_cases": 12,
+  "actual_provider_instruction_cases": 70,
+  "negative_controls": [
+    "wrong_record_stride",
+    "first_byte_load",
+    "second_byte_load",
+    "drop_roundtrip",
+    "double_slot_scale",
+    "validator_positive_only",
+    "wrong_reload",
+    "pitch_load",
+    "yaw_load",
+    "scale_load",
+    "speed_wrong_lane",
+    "speed_wrong_layer",
+    "wrong_counter_limit",
+    "unsigned_rejection",
+    "precision_roundtrip_removed",
+    "early_speed_wrong_lane"
+  ],
+  "resolved_references": [
+    {
+      "offset": 152,
+      "symbol": "func_0045c870",
+      "address": 4573296,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 224,
+      "symbol": "func_0045c870",
+      "address": 4573296,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 256,
+      "symbol": "func_0045c870",
+      "address": 4573296,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 1984,
+      "symbol": "D_005E5548",
+      "address": 6182216,
+      "type": 5,
+      "addend": 0
+    },
+    {
+      "offset": 1988,
+      "symbol": "D_005E5548",
+      "address": 6182216,
+      "type": 6,
+      "addend": 0
+    },
+    {
+      "offset": 1996,
+      "symbol": "func_0046d730",
+      "address": 4642608,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 2016,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 5,
+      "addend": 0
+    },
+    {
+      "offset": 2020,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 6,
+      "addend": 0
+    },
+    {
+      "offset": 2280,
+      "symbol": "func_004782b0",
+      "address": 4686512,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 2336,
+      "symbol": "func_00479940",
+      "address": 4692288,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 2408,
+      "symbol": "func_004782b0",
+      "address": 4686512,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 2464,
+      "symbol": "func_00479940",
+      "address": 4692288,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 3672,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 5,
+      "addend": 0
+    },
+    {
+      "offset": 3676,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 6,
+      "addend": 0
+    },
+    {
+      "offset": 4612,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 5,
+      "addend": 0
+    },
+    {
+      "offset": 4616,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 6,
+      "addend": 0
+    },
+    {
+      "offset": 4660,
+      "symbol": "func_004782b0",
+      "address": 4686512,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 4716,
+      "symbol": "func_00479940",
+      "address": 4692288,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 4732,
+      "symbol": "func_004782b0",
+      "address": 4686512,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 4768,
+      "symbol": "fGpffff8110",
+      "address": 7737856,
+      "type": 7,
+      "addend": 0
+    },
+    {
+      "offset": 4772,
+      "symbol": "func_0047a0e0",
+      "address": 4694240,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 4800,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 5,
+      "addend": 0
+    },
+    {
+      "offset": 4804,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 6,
+      "addend": 0
+    },
+    {
+      "offset": 4848,
+      "symbol": "func_004782b0",
+      "address": 4686512,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 4904,
+      "symbol": "func_00479940",
+      "address": 4692288,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 12896,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 5,
+      "addend": 0
+    },
+    {
+      "offset": 12900,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 6,
+      "addend": 0
+    },
+    {
+      "offset": 14148,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 5,
+      "addend": 0
+    },
+    {
+      "offset": 14152,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 6,
+      "addend": 0
+    },
+    {
+      "offset": 14220,
+      "symbol": "func_004782b0",
+      "address": 4686512,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 14276,
+      "symbol": "func_00479940",
+      "address": 4692288,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 14308,
+      "symbol": "fGpffff9c8c",
+      "address": 7744892,
+      "type": 7,
+      "addend": 0
+    },
+    {
+      "offset": 14324,
+      "symbol": "func_0045c870",
+      "address": 4573296,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 14348,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 5,
+      "addend": 0
+    },
+    {
+      "offset": 14352,
+      "symbol": "D_005E5230",
+      "address": 6181424,
+      "type": 6,
+      "addend": 0
+    },
+    {
+      "offset": 14420,
+      "symbol": "func_004782b0",
+      "address": 4686512,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 14476,
+      "symbol": "D_005E523C",
+      "address": 6181436,
+      "type": 5,
+      "addend": 0
+    },
+    {
+      "offset": 14480,
+      "symbol": "D_005E523C",
+      "address": 6181436,
+      "type": 6,
+      "addend": 0
+    },
+    {
+      "offset": 14492,
+      "symbol": "D_005E5240",
+      "address": 6181440,
+      "type": 5,
+      "addend": 0
+    },
+    {
+      "offset": 14496,
+      "symbol": "D_005E5240",
+      "address": 6181440,
+      "type": 6,
+      "addend": 0
+    },
+    {
+      "offset": 14508,
+      "symbol": "D_005E5248",
+      "address": 6181448,
+      "type": 5,
+      "addend": 0
+    },
+    {
+      "offset": 14512,
+      "symbol": "D_005E5248",
+      "address": 6181448,
+      "type": 6,
+      "addend": 0
+    },
+    {
+      "offset": 14588,
+      "symbol": "D_005E5548",
+      "address": 6182216,
+      "type": 5,
+      "addend": 0
+    },
+    {
+      "offset": 14592,
+      "symbol": "D_005E5548",
+      "address": 6182216,
+      "type": 6,
+      "addend": 0
+    },
+    {
+      "offset": 14600,
+      "symbol": "func_0046d730",
+      "address": 4642608,
+      "type": 4,
+      "addend": 0
+    },
+    {
+      "offset": 14620,
+      "symbol": "D_005E5254",
+      "address": 6181460,
+      "type": 5,
+      "addend": 0
+    },
+    {
+      "offset": 14624,
+      "symbol": "D_005E5254",
+      "address": 6181460,
+      "type": 6,
+      "addend": 0
+    },
+    {
+      "offset": 14644,
+      "symbol": "func_0047a0e0",
+      "address": 4694240,
+      "type": 4,
+      "addend": 0
+    }
+  ],
+  "candidate_selection_slice_sha256": "f431db18f77ca12e10ecf0056c7f5cc5ce4f3a07c08ea4992f7cc58a32804fb8",
+  "retail_selection_slice_sha256": "98ada419656a459f8d742590357dfbc94534050c279397a69e740c1c16697c28",
+  "full_selection_domain": "Rows0..18; actual retail model words or synthetic0..15, with15 rejecting before pointer formation; counters0,599,600; validators0,1,2,-1; independent row and slot mutations",
+  "negative_model_domain": "Conversion/predicate only, no slot-address instruction, includes\u00b116777217",
+  "limits": "Callback recorders only; no complete controller, ACC producer, renderer or hardware-wide float emulation claim"
+}

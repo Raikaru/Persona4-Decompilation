@@ -908,12 +908,19 @@ tail:
 #pragma pop
 /* measured 0017f490 (owner, romwright R1 + doubles-to-float + uStack_4 byte-cast + DAT data fix): fndiff obj 11680B vs window 11584B (+96B); fnalign retail 2896 vs object 2920 (+24, +0.83%, band 2809-2983, inside); edits 3363 (+9 reloc-only); GUARDED_SCORE 2631. Frame retail -0x2D0 vs object -0x100 (-464B). `#pragma opt_common_subs off` scoped to this function and closed after it (same file idiom as 0017d3c0, CSE off for per-call addresses). Residual is saved-reg colour, hoisted bases, and COP1 vs plain arithmetic; no helpers (all floats are f-suffixed, 003e0870 takes f32). */
 /* measured 0017f490 (Xa17f490, 2026-09-20): baseline 3015 edits (+10 reloc-only), retail 2894/obj 2822 (-72, -2.5% inside) via measure_guarded+fnalign --candidate --quiet; deficit_scan swc1+133 lwc1+116 move+23 bc1t+16 sub.s+11 lbu+11 add.s+10 divu+7, runs 405@0x00181970/201@0x00180d70/111@0x00180768 (all branch-layout, not missing code; dispatch jtbl_00746D80 15 entries already layout order, untouched). Tried (all --candidate --quiet): char->uchar 9x 0x1ca 3015 (0, tie); case6 int->float stores 3015 (0); prologue distinct temp 3015 (0); 003e4180 Vec3*+casts 3015 (0); 003e40b0 Vec3B*+25 casts 3235 (+220, obj 2803, LOSS, old-style decl is correct); 003e4180 old-style 3009 (0). WIN unsigned % 8x (2x %3, 2x %100 outer-cast removed, 1x %0x1e, 2x %0x50 inner-unsigned, 1x temp_v7) 3015->3009 (-6, obj same). WIN case3 if(<0)->if(>=0) arm swap 3009->3004 (-5). WIN case4 same 3004->2998 (-6). WIN case6 same (69-line CUT/PUT) 2998->2992 (-6). HUGE WIN case11 same (47-line CUT/PUT; retail small-first layout lw 0x8c bltz->0x181dec at 0x00181dd0, bounds-check large second) 2992->2407 (-585, obj 2822 same, +12 reloc-only). Final 2407 (-608), retail 2894/obj 2822 (-72 inside), gate INSIDE (3 inside 0 outside), lint 0. */
+/* 2026-10-03: the earlier old-style-normalization claim above was incorrect.
+   Retail 003e40b0 reads/writes three floats and returns f32 in f0. The guarded
+   reconstruction now supplies 21 complete XYZ objects at its 25 calls and
+   consumes all ten lengths as floats. This contract repair is not a match;
+   see docs/probe_archive/Field_AI_normalization_0017f490_20261003.md. */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
 extern int FUN_003b7060();
 extern int FUN_0047a220();
-extern int FUN_003e40b0();
+/* SDK vector normalization reads and writes complete three-float objects and
+   returns their original length through the floating-point return register. */
+extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
 extern unsigned char DAT_005f1ce0[];
 extern int FUN_0047a2f0();
 extern unsigned int DAT_007efa00; /* 0x7efa00 */
@@ -932,7 +939,6 @@ extern int CAND_iGpffffb310; /* 0xffffb310 */
 extern s32 FUN_0017ed40(u8 *);
 /* Supplied declaration required: FUN_003b7060. */
 extern int FUN_003e0f80(void);
-/* Supplied declaration required: FUN_003e40b0. */
 extern int FUN_003e9700(unsigned int);
 extern unsigned int FUN_0044b7b0(int);
 /* Supplied declaration required: FUN_0047a220. */
@@ -960,7 +966,6 @@ extern void FUN_0047a850(unsigned char *);
 extern void FUN_0047a870(unsigned char *);
 extern void FUN_004b13f0(void *, int *);
 extern void FUN_004b14f0(void *, int *);
-
 
 /* WARNING: Removing unreachable block (ram,0x0017f7e0) */
 /* WARNING: Removing unreachable block (ram,0x0017f66c) */
@@ -998,78 +1003,42 @@ int func_0017f490(unsigned char *param_1)
   float fStack_210;
   float fStack_20c;
   float fStack_208;
-  float fStack_200;
-  float fStack_1fc;
-  float fStack_1f8;
-  float fStack_1f0;
-  float fStack_1ec;
-  float fStack_1e8;
-  float fStack_1e0;
-  float fStack_1dc;
-  float fStack_1d8;
+  FldAIVec3 state11Delta;
+  FldAIVec3 state11Right;
+  FldAIVec3 state11Forward;
   float fStack_1d0;
   unsigned int uStack_1cc;
   float fStack_1c8;
-  float fStack_1c0;
-  float fStack_1bc;
-  float fStack_1b8;
-  float fStack_1b0;
-  float fStack_1ac;
-  float fStack_1a8;
-  float fStack_1a0;
-  float fStack_19c;
-  float fStack_198;
+  FldAIVec3 state10Delta;
+  FldAIVec3 state10Right;
+  FldAIVec3 state10Forward;
   float fStack_190;
   float fStack_18c;
   float fStack_188;
-  float fStack_180;
-  float fStack_17c;
-  float fStack_178;
-  float fStack_170;
-  float fStack_16c;
-  float fStack_168;
-  float fStack_160;
-  float fStack_15c;
-  float fStack_158;
-  float fStack_150;
-  float fStack_14c;
-  float fStack_148;
+  FldAIVec3 state9Direction;
+  FldAIVec3 state9Delta;
+  FldAIVec3 state9Right;
+  FldAIVec3 state9Forward;
   float fStack_140;
   float fStack_13c;
   float fStack_138;
   float fStack_130;
   float fStack_12c;
   float fStack_128;
-  float fStack_120;
-  float fStack_11c;
-  float fStack_118;
-  float fStack_110;
-  float fStack_10c;
-  float fStack_108;
-  float fStack_100;
-  float fStack_fc;
-  float fStack_f8;
+  FldAIVec3 state8Delta;
+  FldAIVec3 state8Right;
+  FldAIVec3 state8Forward;
   float fStack_f0;
   float fStack_ec;
   float fStack_e8;
-  float fStack_e0;
-  float fStack_dc;
-  float fStack_d8;
-  float fStack_d0;
-  float fStack_cc;
-  float fStack_c8;
-  float fStack_c0;
-  float fStack_bc;
-  float fStack_b8;
+  FldAIVec3 state7Delta;
+  FldAIVec3 state7Right;
+  FldAIVec3 state7Forward;
   float fStack_b0;
   float fStack_ac;
   float fStack_a8;
-  float fStack_a0;
-  float fStack_9c;
-  float fStack_98;
-  float fStack_90;
-  float fStack_8c;
-  float fStack_88;
+  FldAIVec3 state6Direction;
+  FldAIVec3 state6Delta;
   float fStack_80;
   float fStack_7c;
   unsigned int uStack_78;
@@ -1079,15 +1048,9 @@ int func_0017f490(unsigned char *param_1)
   float fStack_60;
   unsigned int uStack_5c;
   float fStack_58;
-  float fStack_50;
-  float fStack_4c;
-  float fStack_48;
-  float fStack_40;
-  float fStack_3c;
-  float fStack_38;
-  float fStack_30;
-  float fStack_2c;
-  float fStack_28;
+  FldAIVec3 state2Delta;
+  FldAIVec3 state2Right;
+  FldAIVec3 state2Forward;
   float fStack_20;
   unsigned int uStack_1c;
   float fStack_18;
@@ -1319,36 +1282,36 @@ int func_0017f490(unsigned char *param_1)
       break;
     case 2:
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_30 = *(float *)(temp_v0 + 0x20);
-      fStack_2c = *(float *)(temp_v0 + 0x24);
-      fStack_28 = *(float *)(temp_v0 + 0x28);
-      FUN_003e40b0(&fStack_30,&fStack_30);
+      state2Forward.x = *(float *)(temp_v0 + 0x20);
+      state2Forward.y = *(float *)(temp_v0 + 0x24);
+      state2Forward.z = *(float *)(temp_v0 + 0x28);
+      RwV3dNormalize(&state2Forward,&state2Forward);
       pfVar8 = (float *)FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_40 = *pfVar8;
-      fStack_3c = pfVar8[1];
-      fStack_38 = pfVar8[2];
-      FUN_003e40b0(&fStack_40,&fStack_40);
+      state2Right.x = *pfVar8;
+      state2Right.y = pfVar8[1];
+      state2Right.z = pfVar8[2];
+      RwV3dNormalize(&state2Right,&state2Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       fStack_60 = *(float *)(temp_v0 + 0x30);
       fStack_58 = *(float *)(temp_v0 + 0x38);
       uStack_5c = 0;
-      fStack_50 = ((float *)piVar1)[0x14] - fStack_60;
-      fStack_4c = ((float *)piVar1)[0x15] - 0.0f;
-      fStack_48 = ((float *)piVar1)[0x16] - fStack_58;
-      temp_v10 = (float)FUN_003e40b0(&fStack_50,&fStack_50);
+      state2Delta.x = ((float *)piVar1)[0x14] - fStack_60;
+      state2Delta.y = ((float *)piVar1)[0x15] - 0.0f;
+      state2Delta.z = ((float *)piVar1)[0x16] - fStack_58;
+      temp_v10 = RwV3dNormalize(&state2Delta,&state2Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
       if (temp_v10 <= temp_v8) {
         *piVar1 = 1;
         temp_v8 = temp_v10;
       }
-      temp_v10 = fStack_48 * fStack_28 + fStack_50 * fStack_30 + fStack_4c * fStack_2c;
+      temp_v10 = state2Delta.z * state2Forward.z + state2Delta.x * state2Forward.x + state2Delta.y * state2Forward.y;
       if (temp_v10 < 1.0f) {
         temp_v11 = ((float *)piVar1)[0x1a] * 10.0f;
         temp_v10 = 1.0f - temp_v10;
         if (temp_v10 < temp_v11 / 180.0f) {
           temp_v11 = temp_v10 * 180.0f;
         }
-        if (fStack_48 * fStack_38 + fStack_50 * fStack_40 + fStack_4c * fStack_3c < 0.0f) {
+        if (state2Delta.z * state2Right.z + state2Delta.x * state2Right.x + state2Delta.y * state2Right.y < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
         }
         FUN_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),0x756510,temp_v11);
@@ -1487,26 +1450,26 @@ int func_0017f490(unsigned char *param_1)
           fStack_a8 = *(float *)(temp_v0 + 0x38);
           fStack_ac = 0.0f;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          fStack_a0 = *(float *)(temp_v0 + 0x30) - fStack_b0;
+          state6Direction.x = *(float *)(temp_v0 + 0x30) - fStack_b0;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          fStack_9c = *(float *)(temp_v0 + 0x34) - fStack_ac;
+          state6Direction.y = *(float *)(temp_v0 + 0x34) - fStack_ac;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          fStack_98 = *(float *)(temp_v0 + 0x38) - fStack_a8;
-          FUN_003e40b0(&fStack_a0,&fStack_a0);
-          fStack_a0 = fStack_a0 * 200.0f;
-          fStack_9c = fStack_9c * 200.0f;
-          fStack_98 = fStack_98 * 200.0f;
+          state6Direction.z = *(float *)(temp_v0 + 0x38) - fStack_a8;
+          RwV3dNormalize(&state6Direction,&state6Direction);
+          state6Direction.x = state6Direction.x * 200.0f;
+          state6Direction.y = state6Direction.y * 200.0f;
+          state6Direction.z = state6Direction.z * 200.0f;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          ((float *)piVar1)[0x14] = (fStack_a0 + *(float *)(temp_v0 + 0x30));
+          ((float *)piVar1)[0x14] = (state6Direction.x + *(float *)(temp_v0 + 0x30));
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          ((float *)piVar1)[0x15] = (fStack_9c + *(float *)(temp_v0 + 0x34));
+          ((float *)piVar1)[0x15] = (state6Direction.y + *(float *)(temp_v0 + 0x34));
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          ((float *)piVar1)[0x16] = (fStack_98 + *(float *)(temp_v0 + 0x38));
+          ((float *)piVar1)[0x16] = (state6Direction.z + *(float *)(temp_v0 + 0x38));
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          fStack_90 = ((float *)piVar1)[0x14] - *(float *)(temp_v0 + 0x30);
-          fStack_8c = ((float *)piVar1)[0x15] - 0.0f;
-          fStack_88 = ((float *)piVar1)[0x16] - *(float *)(temp_v0 + 0x38);
-          temp_v8 = (float)FUN_003e40b0(&fStack_90,&fStack_90);
+          state6Delta.x = ((float *)piVar1)[0x14] - *(float *)(temp_v0 + 0x30);
+          state6Delta.y = ((float *)piVar1)[0x15] - 0.0f;
+          state6Delta.z = ((float *)piVar1)[0x16] - *(float *)(temp_v0 + 0x38);
+          temp_v8 = RwV3dNormalize(&state6Delta,&state6Delta);
           piVar1[0x25] = (int)(temp_v8 / (CAND_fGpffff830c * *(float *)(piVar1[5] + 0x28)));
           *piVar1 = 9;
         }
@@ -1526,38 +1489,38 @@ int func_0017f490(unsigned char *param_1)
       break;
     case 7:
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_c0 = *(float *)(temp_v0 + 0x20);
-      fStack_bc = *(float *)(temp_v0 + 0x24);
-      fStack_b8 = *(float *)(temp_v0 + 0x28);
-      FUN_003e40b0(&fStack_c0,&fStack_c0);
+      state7Forward.x = *(float *)(temp_v0 + 0x20);
+      state7Forward.y = *(float *)(temp_v0 + 0x24);
+      state7Forward.z = *(float *)(temp_v0 + 0x28);
+      RwV3dNormalize(&state7Forward,&state7Forward);
       pfVar8 = (float *)FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_d0 = *pfVar8;
-      fStack_cc = pfVar8[1];
-      fStack_c8 = pfVar8[2];
-      FUN_003e40b0(&fStack_d0,&fStack_d0);
+      state7Right.x = *pfVar8;
+      state7Right.y = pfVar8[1];
+      state7Right.z = pfVar8[2];
+      RwV3dNormalize(&state7Right,&state7Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       fStack_f0 = *(float *)(temp_v0 + 0x30);
       fStack_e8 = *(float *)(temp_v0 + 0x38);
       fStack_ec = 0.0f;
       temp_v0 = FUN_0047a2f0(DAT_007efa00);
-      fStack_e0 = *(float *)(temp_v0 + 0x30) - fStack_f0;
+      state7Delta.x = *(float *)(temp_v0 + 0x30) - fStack_f0;
       temp_v0 = FUN_0047a2f0(DAT_007efa00);
-      fStack_dc = *(float *)(temp_v0 + 0x34) - fStack_ec;
+      state7Delta.y = *(float *)(temp_v0 + 0x34) - fStack_ec;
       temp_v0 = FUN_0047a2f0(DAT_007efa00);
-      fStack_d8 = *(float *)(temp_v0 + 0x38) - fStack_e8;
-      temp_v10 = (float)FUN_003e40b0(&fStack_e0,&fStack_e0);
+      state7Delta.z = *(float *)(temp_v0 + 0x38) - fStack_e8;
+      temp_v10 = RwV3dNormalize(&state7Delta,&state7Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
       if (temp_v10 <= temp_v8) {
         temp_v8 = temp_v10;
       }
-      temp_v10 = fStack_d8 * fStack_b8 + fStack_e0 * fStack_c0 + fStack_dc * fStack_bc;
+      temp_v10 = state7Delta.z * state7Forward.z + state7Delta.x * state7Forward.x + state7Delta.y * state7Forward.y;
       if (temp_v10 < 1.0f) {
         temp_v11 = ((float *)piVar1)[0x1a] * 10.0f;
         temp_v10 = 1.0f - temp_v10;
         if (temp_v10 < temp_v11 / 180.0f) {
           temp_v11 = temp_v10 * 180.0f;
         }
-        if (fStack_d8 * fStack_c8 + fStack_e0 * fStack_d0 + fStack_dc * fStack_cc < 0.0f) {
+        if (state7Delta.z * state7Right.z + state7Delta.x * state7Right.x + state7Delta.y * state7Right.y < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
         }
         FUN_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),0x756510,temp_v11);
@@ -1594,12 +1557,12 @@ int func_0017f490(unsigned char *param_1)
         temp_v0 = piVar1[0x24];
         if (temp_v0 < 1) {
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          fStack_e0 = *(float *)(temp_v0 + 0x30) - *(float *)(piVar1[3] + 0x19c);
+          state7Delta.x = *(float *)(temp_v0 + 0x30) - *(float *)(piVar1[3] + 0x19c);
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          fStack_dc = *(float *)(temp_v0 + 0x34) - *(float *)(piVar1[3] + 0x1a0);
+          state7Delta.y = *(float *)(temp_v0 + 0x34) - *(float *)(piVar1[3] + 0x1a0);
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          fStack_d8 = *(float *)(temp_v0 + 0x38) - *(float *)(piVar1[3] + 0x1a4);
-          temp_v8 = (float)FUN_003e40b0(&fStack_e0,&fStack_e0);
+          state7Delta.z = *(float *)(temp_v0 + 0x38) - *(float *)(piVar1[3] + 0x1a4);
+          temp_v8 = RwV3dNormalize(&state7Delta,&state7Delta);
           if (*(float *)piVar1[5] <= temp_v8) {
             piVar1[0x23] = (int)((float *)piVar1[5])[0xd];
             func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
@@ -1650,56 +1613,56 @@ int func_0017f490(unsigned char *param_1)
           fStack_128 = *(float *)(temp_v0 + 0x38);
           fStack_12c = 0.0f;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          fStack_120 = *(float *)(temp_v0 + 0x30) - fStack_130;
+          state8Delta.x = *(float *)(temp_v0 + 0x30) - fStack_130;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          fStack_11c = *(float *)(temp_v0 + 0x34) - fStack_12c;
+          state8Delta.y = *(float *)(temp_v0 + 0x34) - fStack_12c;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          fStack_118 = *(float *)(temp_v0 + 0x38) - fStack_128;
-          temp_v10 = (float)FUN_003e40b0(&fStack_120,&fStack_120);
+          state8Delta.z = *(float *)(temp_v0 + 0x38) - fStack_128;
+          temp_v10 = RwV3dNormalize(&state8Delta,&state8Delta);
           temp_v10 = temp_v10 / temp_v8;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          fStack_100 = *(float *)(temp_v0 + 0x20);
-          fStack_fc = *(float *)(temp_v0 + 0x24);
-          fStack_f8 = *(float *)(temp_v0 + 0x28);
+          state8Forward.x = *(float *)(temp_v0 + 0x20);
+          state8Forward.y = *(float *)(temp_v0 + 0x24);
+          state8Forward.z = *(float *)(temp_v0 + 0x28);
           temp_v8 = FUN_00175db0();
-          fStack_100 = fStack_100 * temp_v10 * temp_v8;
+          state8Forward.x = state8Forward.x * temp_v10 * temp_v8;
           temp_v8 = FUN_00175db0();
-          fStack_fc = fStack_fc * temp_v10 * temp_v8;
+          state8Forward.y = state8Forward.y * temp_v10 * temp_v8;
           temp_v8 = FUN_00175db0();
-          fStack_f8 = fStack_f8 * temp_v10 * temp_v8;
+          state8Forward.z = state8Forward.z * temp_v10 * temp_v8;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          fStack_140 = *(float *)(temp_v0 + 0x30) + fStack_100;
-          fStack_13c = *(float *)(temp_v0 + 0x34) + fStack_fc;
-          fStack_138 = *(float *)(temp_v0 + 0x38) + fStack_f8;
+          fStack_140 = *(float *)(temp_v0 + 0x30) + state8Forward.x;
+          fStack_13c = *(float *)(temp_v0 + 0x34) + state8Forward.y;
+          fStack_138 = *(float *)(temp_v0 + 0x38) + state8Forward.z;
         }
       }
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_100 = *(float *)(temp_v0 + 0x20);
-      fStack_fc = *(float *)(temp_v0 + 0x24);
-      fStack_f8 = *(float *)(temp_v0 + 0x28);
-      FUN_003e40b0(&fStack_100,&fStack_100);
+      state8Forward.x = *(float *)(temp_v0 + 0x20);
+      state8Forward.y = *(float *)(temp_v0 + 0x24);
+      state8Forward.z = *(float *)(temp_v0 + 0x28);
+      RwV3dNormalize(&state8Forward,&state8Forward);
       pfVar8 = (float *)FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_110 = *pfVar8;
-      fStack_10c = pfVar8[1];
-      fStack_108 = pfVar8[2];
-      FUN_003e40b0(&fStack_110,&fStack_110);
+      state8Right.x = *pfVar8;
+      state8Right.y = pfVar8[1];
+      state8Right.z = pfVar8[2];
+      RwV3dNormalize(&state8Right,&state8Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_120 = fStack_140 - *(float *)(temp_v0 + 0x30);
-      fStack_11c = fStack_13c - 0.0f;
-      fStack_118 = fStack_138 - *(float *)(temp_v0 + 0x38);
-      temp_v10 = (float)FUN_003e40b0(&fStack_120,&fStack_120);
+      state8Delta.x = fStack_140 - *(float *)(temp_v0 + 0x30);
+      state8Delta.y = fStack_13c - 0.0f;
+      state8Delta.z = fStack_138 - *(float *)(temp_v0 + 0x38);
+      temp_v10 = RwV3dNormalize(&state8Delta,&state8Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
       if (temp_v10 <= temp_v8) {
         temp_v8 = temp_v10;
       }
-      temp_v10 = fStack_118 * fStack_f8 + fStack_120 * fStack_100 + fStack_11c * fStack_fc;
+      temp_v10 = state8Delta.z * state8Forward.z + state8Delta.x * state8Forward.x + state8Delta.y * state8Forward.y;
       if (temp_v10 < 1.0f) {
         temp_v11 = ((float *)piVar1)[0x1a] * 10.0f;
         temp_v10 = 1.0f - temp_v10;
         if (temp_v10 < temp_v11 / 180.0f) {
           temp_v11 = temp_v10 * 180.0f;
         }
-        if (fStack_118 * fStack_108 + fStack_120 * fStack_110 + fStack_11c * fStack_10c < 0.0f) {
+        if (state8Delta.z * state8Right.z + state8Delta.x * state8Right.x + state8Delta.y * state8Right.y < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
         }
         FUN_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),0x756510,temp_v11);
@@ -1736,12 +1699,12 @@ int func_0017f490(unsigned char *param_1)
         temp_v0 = piVar1[0x24];
         if (temp_v0 < 1) {
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          fStack_120 = *(float *)(temp_v0 + 0x30) - *(float *)(piVar1[3] + 0x19c);
+          state8Delta.x = *(float *)(temp_v0 + 0x30) - *(float *)(piVar1[3] + 0x19c);
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          fStack_11c = *(float *)(temp_v0 + 0x34) - *(float *)(piVar1[3] + 0x1a0);
+          state8Delta.y = *(float *)(temp_v0 + 0x34) - *(float *)(piVar1[3] + 0x1a0);
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          fStack_118 = *(float *)(temp_v0 + 0x38) - *(float *)(piVar1[3] + 0x1a4);
-          temp_v8 = (float)FUN_003e40b0(&fStack_120,&fStack_120);
+          state8Delta.z = *(float *)(temp_v0 + 0x38) - *(float *)(piVar1[3] + 0x1a4);
+          temp_v8 = RwV3dNormalize(&state8Delta,&state8Delta);
           if (*(float *)piVar1[5] <= temp_v8) {
             piVar1[0x23] = (int)((float *)piVar1[5])[0xd];
             *piVar1 = 0xb;
@@ -1755,15 +1718,15 @@ int func_0017f490(unsigned char *param_1)
       break;
     case 9:
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_150 = *(float *)(temp_v0 + 0x20);
-      fStack_14c = *(float *)(temp_v0 + 0x24);
-      fStack_148 = *(float *)(temp_v0 + 0x28);
-      FUN_003e40b0(&fStack_150,&fStack_150);
+      state9Forward.x = *(float *)(temp_v0 + 0x20);
+      state9Forward.y = *(float *)(temp_v0 + 0x24);
+      state9Forward.z = *(float *)(temp_v0 + 0x28);
+      RwV3dNormalize(&state9Forward,&state9Forward);
       pfVar8 = (float *)FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_160 = *pfVar8;
-      fStack_15c = pfVar8[1];
-      fStack_158 = pfVar8[2];
-      FUN_003e40b0(&fStack_160,&fStack_160);
+      state9Right.x = *pfVar8;
+      state9Right.y = pfVar8[1];
+      state9Right.z = pfVar8[2];
+      RwV3dNormalize(&state9Right,&state9Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       fStack_190 = *(float *)(temp_v0 + 0x30);
       fStack_188 = *(float *)(temp_v0 + 0x38);
@@ -1771,19 +1734,19 @@ int func_0017f490(unsigned char *param_1)
       temp_v11 = (float)FUN_0044b7b0(piVar1[0x1e]);
       temp_v8 = fStack_18c;
       ((float *)piVar1)[0x1e] = (((float *)piVar1)[0x1e] + CAND_fGpffff8218);
-      fStack_180 = ((float *)piVar1)[0x14] - fStack_190;
-      fStack_17c = ((float *)piVar1)[0x15] - fStack_18c;
-      fStack_178 = ((float *)piVar1)[0x16] - fStack_188;
+      state9Direction.x = ((float *)piVar1)[0x14] - fStack_190;
+      state9Direction.y = ((float *)piVar1)[0x15] - fStack_18c;
+      state9Direction.z = ((float *)piVar1)[0x16] - fStack_188;
       temp_v10 = fStack_188;
-      FUN_003e40b0(&fStack_180,&fStack_180);
-      fStack_180 = fStack_180 * 200.0f + ((float *)piVar1)[0x14];
-      fStack_17c = fStack_17c * 200.0f + ((float *)piVar1)[0x15];
-      fStack_178 = fStack_178 * 200.0f + ((float *)piVar1)[0x16];
+      RwV3dNormalize(&state9Direction,&state9Direction);
+      state9Direction.x = state9Direction.x * 200.0f + ((float *)piVar1)[0x14];
+      state9Direction.y = state9Direction.y * 200.0f + ((float *)piVar1)[0x15];
+      state9Direction.z = state9Direction.z * 200.0f + ((float *)piVar1)[0x16];
       temp_v11 = temp_v11 * 400.0f;
-      fStack_170 = (fStack_160 * temp_v11 + fStack_180) - fStack_190;
-      fStack_16c = (fStack_15c * temp_v11 + fStack_17c) - temp_v8;
-      fStack_168 = (fStack_158 * temp_v11 + fStack_178) - temp_v10;
-      temp_v10 = (float)FUN_003e40b0(&fStack_170,&fStack_170);
+      state9Delta.x = (state9Right.x * temp_v11 + state9Direction.x) - fStack_190;
+      state9Delta.y = (state9Right.y * temp_v11 + state9Direction.y) - temp_v8;
+      state9Delta.z = (state9Right.z * temp_v11 + state9Direction.z) - temp_v10;
+      temp_v10 = RwV3dNormalize(&state9Delta,&state9Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
       if (temp_v10 <= temp_v8) {
         temp_v8 = temp_v10;
@@ -1798,11 +1761,11 @@ int func_0017f490(unsigned char *param_1)
         piVar1[0x25] = piVar1[0x25] - 1;
       }
       temp_v11 = ((float *)piVar1)[0x1a] * 10.0f * 5.0f;
-      temp_v10 = 1.0f - (fStack_168 * fStack_148 + fStack_170 * fStack_150 + fStack_16c * fStack_14c);
+      temp_v10 = 1.0f - (state9Delta.z * state9Forward.z + state9Delta.x * state9Forward.x + state9Delta.y * state9Forward.y);
       if (temp_v10 < temp_v11 / 180.0f) {
         temp_v11 = temp_v10 * 180.0f;
       }
-      if (fStack_168 * fStack_158 + fStack_170 * fStack_160 + fStack_16c * fStack_15c < 0.0f) {
+      if (state9Delta.z * state9Right.z + state9Delta.x * state9Right.x + state9Delta.y * state9Right.y < 0.0f) {
         temp_v11 = temp_v11 * -1.0f;
       }
       FUN_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),0x756510,temp_v11);
@@ -1829,23 +1792,23 @@ int func_0017f490(unsigned char *param_1)
       break;
     case 10:
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_1a0 = *(float *)(temp_v0 + 0x20);
-      fStack_19c = *(float *)(temp_v0 + 0x24);
-      fStack_198 = *(float *)(temp_v0 + 0x28);
-      FUN_003e40b0(&fStack_1a0,&fStack_1a0);
+      state10Forward.x = *(float *)(temp_v0 + 0x20);
+      state10Forward.y = *(float *)(temp_v0 + 0x24);
+      state10Forward.z = *(float *)(temp_v0 + 0x28);
+      RwV3dNormalize(&state10Forward,&state10Forward);
       pfVar8 = (float *)FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_1b0 = *pfVar8;
-      fStack_1ac = pfVar8[1];
-      fStack_1a8 = pfVar8[2];
-      FUN_003e40b0(&fStack_1b0,&fStack_1b0);
+      state10Right.x = *pfVar8;
+      state10Right.y = pfVar8[1];
+      state10Right.z = pfVar8[2];
+      RwV3dNormalize(&state10Right,&state10Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       fStack_1d0 = *(float *)(temp_v0 + 0x30);
       fStack_1c8 = *(float *)(temp_v0 + 0x38);
       uStack_1cc = 0;
-      fStack_1c0 = ((float *)piVar1)[0x14] - fStack_1d0;
-      fStack_1bc = ((float *)piVar1)[0x15] - 0.0f;
-      fStack_1b8 = ((float *)piVar1)[0x16] - fStack_1c8;
-      temp_v10 = (float)FUN_003e40b0(&fStack_1c0,&fStack_1c0);
+      state10Delta.x = ((float *)piVar1)[0x14] - fStack_1d0;
+      state10Delta.y = ((float *)piVar1)[0x15] - 0.0f;
+      state10Delta.z = ((float *)piVar1)[0x16] - fStack_1c8;
+      temp_v10 = RwV3dNormalize(&state10Delta,&state10Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
       if (temp_v10 <= temp_v8) {
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
@@ -1855,11 +1818,11 @@ int func_0017f490(unsigned char *param_1)
         temp_v8 = temp_v10;
       }
       temp_v10 = ((float *)piVar1)[0x1a] * 10.0f;
-      temp_v11 = 1.0f - (fStack_1b8 * fStack_198 + fStack_1c0 * fStack_1a0 + fStack_1bc * fStack_19c);
+      temp_v11 = 1.0f - (state10Delta.z * state10Forward.z + state10Delta.x * state10Forward.x + state10Delta.y * state10Forward.y);
       if (temp_v11 < temp_v10 / 180.0f) {
         temp_v10 = temp_v11 * 180.0f;
       }
-      if (fStack_1b8 * fStack_1a8 + fStack_1c0 * fStack_1b0 + fStack_1bc * fStack_1ac < 0.0f) {
+      if (state10Delta.z * state10Right.z + state10Delta.x * state10Right.x + state10Delta.y * state10Right.y < 0.0f) {
         temp_v10 = temp_v10 * -1.0f;
       }
       FUN_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),0x756510,temp_v10);
@@ -1893,34 +1856,34 @@ int func_0017f490(unsigned char *param_1)
       break;
     case 0xb:
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_1e0 = *(float *)(temp_v0 + 0x20);
-      fStack_1dc = *(float *)(temp_v0 + 0x24);
-      fStack_1d8 = *(float *)(temp_v0 + 0x28);
-      FUN_003e40b0(&fStack_1e0,&fStack_1e0);
+      state11Forward.x = *(float *)(temp_v0 + 0x20);
+      state11Forward.y = *(float *)(temp_v0 + 0x24);
+      state11Forward.z = *(float *)(temp_v0 + 0x28);
+      RwV3dNormalize(&state11Forward,&state11Forward);
       pfVar8 = (float *)FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_1f0 = *pfVar8;
-      fStack_1ec = pfVar8[1];
-      fStack_1e8 = pfVar8[2];
-      FUN_003e40b0(&fStack_1f0,&fStack_1f0);
+      state11Right.x = *pfVar8;
+      state11Right.y = pfVar8[1];
+      state11Right.z = pfVar8[2];
+      RwV3dNormalize(&state11Right,&state11Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       fStack_210 = *(float *)(temp_v0 + 0x30);
       fStack_208 = *(float *)(temp_v0 + 0x38);
       fStack_20c = 0.0f;
       temp_v0 = FUN_0047a2f0(DAT_007efa00);
-      fStack_200 = *(float *)(temp_v0 + 0x30) - fStack_210;
+      state11Delta.x = *(float *)(temp_v0 + 0x30) - fStack_210;
       temp_v0 = FUN_0047a2f0(DAT_007efa00);
-      fStack_1fc = *(float *)(temp_v0 + 0x34) - fStack_20c;
+      state11Delta.y = *(float *)(temp_v0 + 0x34) - fStack_20c;
       temp_v0 = FUN_0047a2f0(DAT_007efa00);
-      fStack_1f8 = *(float *)(temp_v0 + 0x38) - fStack_208;
-      FUN_003e40b0(&fStack_200,&fStack_200);
-      temp_v8 = fStack_1f8 * fStack_1d8 + fStack_200 * fStack_1e0 + fStack_1fc * fStack_1dc;
+      state11Delta.z = *(float *)(temp_v0 + 0x38) - fStack_208;
+      RwV3dNormalize(&state11Delta,&state11Delta);
+      temp_v8 = state11Delta.z * state11Forward.z + state11Delta.x * state11Forward.x + state11Delta.y * state11Forward.y;
       if (temp_v8 < 1.0f) {
         temp_v10 = ((float *)piVar1)[0x1a] * 10.0f;
         temp_v8 = 1.0f - temp_v8;
         if (temp_v8 < temp_v10 / 180.0f) {
           temp_v10 = temp_v8 * 180.0f;
         }
-        if (fStack_1f8 * fStack_1e8 + fStack_200 * fStack_1f0 + fStack_1fc * fStack_1ec < 0.0f) {
+        if (state11Delta.z * state11Right.z + state11Delta.x * state11Right.x + state11Delta.y * state11Right.y < 0.0f) {
           temp_v10 = temp_v10 * -1.0f;
         }
         FUN_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),0x756510,temp_v10);
@@ -1928,12 +1891,12 @@ int func_0017f490(unsigned char *param_1)
       temp_v0 = FUN_0017ea10((unsigned char *)piVar1[3]);
       if (temp_v0 == 1) {
         temp_v0 = FUN_0047a2f0(DAT_007efa00);
-        fStack_200 = *(float *)(temp_v0 + 0x30) - *(float *)(piVar1[3] + 0x19c);
+        state11Delta.x = *(float *)(temp_v0 + 0x30) - *(float *)(piVar1[3] + 0x19c);
         temp_v0 = FUN_0047a2f0(DAT_007efa00);
-        fStack_1fc = *(float *)(temp_v0 + 0x34) - *(float *)(piVar1[3] + 0x1a0);
+        state11Delta.y = *(float *)(temp_v0 + 0x34) - *(float *)(piVar1[3] + 0x1a0);
         temp_v0 = FUN_0047a2f0(DAT_007efa00);
-        fStack_1f8 = *(float *)(temp_v0 + 0x38) - *(float *)(piVar1[3] + 0x1a4);
-        temp_v8 = (float)FUN_003e40b0(&fStack_200,&fStack_200);
+        state11Delta.z = *(float *)(temp_v0 + 0x38) - *(float *)(piVar1[3] + 0x1a4);
+        temp_v8 = RwV3dNormalize(&state11Delta,&state11Delta);
         if (temp_v8 < *(float *)piVar1[5]) {
           ((float *)piVar1)[0x1a] = ((float *)piVar1[5])[6];
           ((float *)piVar1)[0x1b] = *(float *)(piVar1[5] + 0x20);

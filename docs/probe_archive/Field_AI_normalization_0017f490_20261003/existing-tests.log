@@ -1,0 +1,39 @@
+External native32 runner: <external-qemu-i386>
+test_construction_fixture_rejects_lost_center_and_wrong_indirection (test_field_shadow_recovery.FieldShadowRecoveryTests.test_construction_fixture_rejects_lost_center_and_wrong_indirection) ... ok
+test_construction_state_geometry_and_callbacks (test_field_shadow_recovery.FieldShadowRecoveryTests.test_construction_state_geometry_and_callbacks) ... -O0 6912 shadow construction cases passed
+-O2 6912 shadow construction cases passed
+ok
+test_projection_world_atomic_draw_and_allocation_paths (test_field_shadow_recovery.FieldShadowRecoveryTests.test_projection_world_atomic_draw_and_allocation_paths) ... -O0 shadow_projection_cases=4 checks=187
+-O2 shadow_projection_cases=4 checks=187
+ok
+test_projection_bounds_and_typed_callback_transport (test_field_shadow_contracts.FieldShadowContractTests.test_projection_bounds_and_typed_callback_transport) ... -O0 field-shadow field_shadow_cases=30 world=12 atomic_projection=12 bounds=4 transport=2
+-O2 field-shadow field_shadow_cases=30 world=12 atomic_projection=12 bounds=4 transport=2
+ok
+test_shared_headers_agree_with_all_provider_definitions (test_field_shadow_contracts.FieldShadowContractTests.test_shared_headers_agree_with_all_provider_definitions) ... ok
+test_dot_prefixed_scratch_is_not_scored (test_verify_markers.GeneratedPaths.test_dot_prefixed_scratch_is_not_scored) ... ok
+test_generated_directory_is_not_scored (test_verify_markers.GeneratedPaths.test_generated_directory_is_not_scored) ... ok
+test_tracked_source_is_scored (test_verify_markers.GeneratedPaths.test_tracked_source_is_scored) ... ok
+test_bare_include_asm_directly_under_the_marker (test_verify_markers.MarkerScanTests.test_bare_include_asm_directly_under_the_marker) ... ok
+test_block_comment_between_marker_and_ifdef_is_skipped (test_verify_markers.MarkerScanTests.test_block_comment_between_marker_and_ifdef_is_skipped)
+The other comment style must work too; cldScheduler.c uses it. ... ok
+test_following_marker_is_still_found_after_a_fallback (test_verify_markers.MarkerScanTests.test_following_marker_is_still_found_after_a_fallback)
+The scanner must resume after the #endif, not swallow the next function. ... ok
+test_ifdef_without_a_fallback_is_not_treated_as_assembly (test_verify_markers.MarkerScanTests.test_ifdef_without_a_fallback_is_not_treated_as_assembly)
+A guard that never reaches INCLUDE_ASM must fall through to normal parsing. ... ok
+test_line_comment_between_marker_and_ifdef_is_skipped (test_verify_markers.MarkerScanTests.test_line_comment_between_marker_and_ifdef_is_skipped)
+Floor explanations live between the marker and the #ifdef. ... ok
+test_long_notes_preserve_function_and_marker_ownership (test_verify_markers.MarkerScanTests.test_long_notes_preserve_function_and_marker_ownership) ... ok
+test_long_preserved_body_still_finds_the_fallback (test_verify_markers.MarkerScanTests.test_long_preserved_body_still_finds_the_fallback)
+One real body is 435 lines; a fixed lookahead window would miss it. ... ok
+test_named_definition_after_externs_owns_its_marker (test_verify_markers.MarkerScanTests.test_named_definition_after_externs_owns_its_marker) ... ok
+test_non_matching_fallback_shape_is_an_assembly_fallback (test_verify_markers.MarkerScanTests.test_non_matching_fallback_shape_is_an_assembly_fallback) ... ok
+test_old_style_definition_keeps_signature_across_parameter_declarations (test_verify_markers.MarkerScanTests.test_old_style_definition_keeps_signature_across_parameter_declarations) ... ok
+test_plain_function_is_not_an_assembly_fallback (test_verify_markers.MarkerScanTests.test_plain_function_is_not_an_assembly_fallback) ... ok
+test_scoped_pragma_between_marker_and_ifdef_is_skipped (test_verify_markers.MarkerScanTests.test_scoped_pragma_between_marker_and_ifdef_is_skipped)
+A pragma scoped to the function may sit above its #ifdef. ... ok
+test_single_line_definition_keeps_name_after_body_semicolon (test_verify_markers.MarkerScanTests.test_single_line_definition_keeps_name_after_body_semicolon) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 13.376s
+
+OK
