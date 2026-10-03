@@ -1,0 +1,12 @@
+{
+  "base": "5f3ee52967caa0838cc534a9f1bfdb6ef05dde07",
+  "source_unchanged": true,
+  "native_tests": 8,
+  "cases_per_optimization": 122880,
+  "negative_controls": 10,
+  "interleaved_state_order": true,
+  "tests_sha256": {
+    "tests/test_title_layer_contract.py": "5f0330093682256e158c16370f3218631fc7fd7c1f9ccc6a78d77cfd01a42f74",
+    "tests/title_layer_contract_fixture.c.in": "2f05a5bd6670b3178bf08bd2650cdb69eff2f44286b614fab21c72c714ac371f"
+  }
+}

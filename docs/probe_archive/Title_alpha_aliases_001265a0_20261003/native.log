@@ -1,0 +1,32 @@
+External native32 runner: $P4_RECOVERY_ROOT/native-tools/sysroot/usr/bin/qemu-i386
+test_actual_alpha_alias_blocks (test_title_alpha_aliases.TitleAlphaAliases.test_actual_alpha_alias_blocks) ... -O0 alpha_calls=16384 conversion_cases=2537
+-O2 alpha_calls=16384 conversion_cases=2537
+ok
+test_negative_controls (test_title_alpha_aliases.TitleAlphaAliases.test_negative_controls) ... ok
+test_live_rectangle_snapshots (test_title_rectangle_aliases.TitleRectangleAliases.test_live_rectangle_snapshots) ... -O0 65536 rectangle snapshot/provider cases passed
+-O2 65536 rectangle snapshot/provider cases passed
+ok
+test_negative_controls (test_title_rectangle_aliases.TitleRectangleAliases.test_negative_controls) ... ok
+test_all_actual_color_families (test_title_color_families.TitleColorFamilies.test_all_actual_color_families) ... -O0 49872 color-family cases passed
+-O2 49872 color-family cases passed
+ok
+test_negative_controls (test_title_color_families.TitleColorFamilies.test_negative_controls) ... ok
+test_all_actual_calls_and_layer_vertex_providers (test_title_layer_contract.TitleLayerContracts.test_all_actual_calls_and_layer_vertex_providers) ... -O0 122880 layer caller/provider cases passed
+-O2 122880 layer caller/provider cases passed
+ok
+test_negative_controls (test_title_layer_contract.TitleLayerContracts.test_negative_controls) ... ok
+test_actual_color_storage_and_copy_lifetimes (test_title_color_storage.TitleColorStorage.test_actual_color_storage_and_copy_lifetimes) ... -O0 title_color_cases=4128
+-O2 title_color_cases=4128
+ok
+test_layer_declaration_matches_actual_provider (test_title_color_storage.TitleColorStorage.test_layer_declaration_matches_actual_provider) ... ok
+test_rejects_wide_clear_wrong_byte_and_copy_regressions (test_title_color_storage.TitleColorStorage.test_rejects_wide_clear_wrong_byte_and_copy_regressions) ... ok
+test_all_actual_calls_and_actual_packet_provider (test_title_overlay_contract.TitleOverlayContract.test_all_actual_calls_and_actual_packet_provider) ... -O0 title_overlay_cases=30720
+-O2 title_overlay_cases=30720
+ok
+test_fixture_rejects_transport_regressions (test_title_overlay_contract.TitleOverlayContract.test_fixture_rejects_transport_regressions) ... ok
+test_provider_and_adapter_declarations_agree (test_title_overlay_contract.TitleOverlayContract.test_provider_and_adapter_declarations_agree) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 26.925s
+
+OK

@@ -11,7 +11,8 @@ extern f32 fGpffff9cA0;
 extern f32 fGpffff9cA4;
 extern s128 D_005E5740;
 extern s128 D_005E5750;
-extern s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb, s32 alpha, s32 mode, s16 centerX, s16 centerY, void *matrix, s32 texture, void *uv);
+struct RwMatrixTag;
+extern s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb, s32 alpha, s32 mode, s16 centerX, s16 centerY, struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2]);
 extern f32 fGpffff84a4;
 extern u8 iGpffffb1d8;
 extern u8 iGpffffb1d4;
@@ -2412,15 +2413,12 @@ void func_00126090(s32 arg0, u8 *arg1)
    INCLUDE_ASM fallback and therefore aligns retail against itself; fnalign now refuses
    that invocation outright and tests/test_fnalign.py pins it. */
 /* fix 2026-09-20: old 4404/4404 was two errors cancelling, not evidence the body was right. */
-/* Hole (-1): s64 temp_10 = (s64)(BITWISE(s64,var_f0)<<0x30)>>0x30 called __fixsfdi@+0x2c04 */
-/* (obj jal+nop+dsll+dsra = 4); retail is cvt.w.s/mfc1/nop/dsll32 16/dsra32 16 = 5 */
-/* (R2866-2870 0x129268-0x129278, $f2 = 137.0*temp_f16). Narrow s32 <<16>>16 gives */
-/* the 5 and clears census 1->0 but lands 4405/6516 alone. Lump (+1): temp_f1_28 had */
-/* (f32)(temp_4<<0x10) where retail is (f32)temp_4 (R4175 0x12a6dc mtc1 $v1 vs obj sll+mtc1). */
-/* Removing that sll returns 4404/4404 at 6514+15, census 0, both sites matching. */
-/* Trap: s32 keep 0x30 clears census at 4400/6509 and s32 no-shift at 4402/6511, both */
-/* LOWER edits than the right answer but wrong: they drop the dsll32/dsra32 16 pair */
-/* retail emits. Lower edits at worse count is not a better body. */
+/* Historical count-only experiments used the wrong alpha-scratch value for
+ * temp_10. Retail 0x1291FC keeps 137.0f * scale in f2 while f0 converts alpha;
+ * 0x129268 then converts f2 and narrows its signed integer to 16 bits. The
+ * guarded source now preserves that independent value flow, not just width.
+ * The adjacent scale uses separate mul.s/add.s rounding. Other upstream
+ * ACC placeholders remain outside this bounded sprite-alpha repair. */
 /* measured 2026-09-29: canonical TitleRect payload reads compile the guarded
  * body to 17072/17616 bytes, nd 3941. Earlier scores above are historical;
  * this body remains assembly-backed. */
@@ -2433,23 +2431,23 @@ typedef s32 M2C_UNK;
 #define M2C_BITWISE(type, expr) ((type)(expr))
 #endif
 void func_001265a0(s32 arg1) {
+    typedef union TitleRectangleWords { s128 bits; s32 words[4]; } TitleRectangleWords;
     extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern void func_002aaac0(void);
     extern s32 func_002ab380();
     extern s32 func_002abb30();
-    extern s32 func_00366c70();
     extern s32 RwMatrixRotate();
     extern s32 RwMatrixTranslate();
     extern s32 RpSkyRenderStateSet();
-    extern s64 func_00401b80();
+    extern s32 func_00401b80(void);
     extern s32 func_0043c6a0(f32);
     extern f32 sinf(f32);
     extern u32 *func_00452560(s32);
     extern s32 func_00455f70();
     extern s32 func_0045ad50();
-    extern s32 func_0045c870();
-    extern s32 func_0045d6e0();
+    extern void func_0045c870(u8 *colors, s32 enabled);
+    extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
     extern s32 func_0046d730();
     extern s32 func_004782b0();
     extern s32 func_00478e70();
@@ -2479,7 +2477,7 @@ void func_001265a0(s32 arg1) {
     extern s128 D_005E5680;
     extern s128 D_005E5690;
     extern s128 D_005E56A0;
-    extern u8 D_005E56B0[];
+    extern u32 D_005E56B0[8];
     extern u8 D_005E56D0[];
     extern void (*D_00887300[])(s32, s32);
     extern s32 func_00124bb0();
@@ -2506,80 +2504,65 @@ void func_001265a0(s32 arg1) {
     extern f32 fGpffff81dc;
     extern f32 fGpffff8094;
 
-M2C_UNK unksp514;
-    M2C_UNK unksp524;
-    M2C_UNK unksp69B;
-    M2C_UNK unksp69F;
-    f32 sp6BC;
+    TitleDrawColor sp6BC;
     s32 sp6B8;
     f32 sp6B4;
     f32 sp6B0;
     f32 sp6AC;
     f32 sp6A8;
-    f32 sp6A4;
-    f32 sp6A0;
-    f32 sp69C;
-    f32 sp698;
+    TitleDrawColor sp6A4;
+    TitleDrawColor sp6A0;
+    TitleDrawColor sp69C;
+    TitleDrawColor sp698;
     f32 sp694;
-    f32 sp690;
+    TitleDrawColor sp690;
     f32 sp68C;
     TitleDrawColor layerColor;
     TitleDrawColor layerColorSource;
     TitleDrawColor firstOverlayColor;
     TitleDrawColor firstOverlaySource;
-    f32 sp678;
-    f32 sp674;
-    f32 sp670;
-    f32 sp66C;
-    f32 sp668;
-    f32 sp664;
-    f32 sp660;
-    f32 sp65C;
-    f32 sp658;
-    f32 sp654;
-    f32 sp650;
-    f32 sp64C;
-    f32 sp648;
-    f32 sp644;
-    f32 sp640;
-    f32 sp63C;
-    f32 sp638;
-    f32 sp634;
-    f32 sp630;
-    f32 sp62C;
-    f32 sp628;
-    s8 sp627;
-    M2C_UNK sp624;
-    f32 sp620;
-    s8 sp61F;
-    M2C_UNK sp61C;
-    f32 sp618;
-    s8 sp617;
-    M2C_UNK sp614;
-    f32 sp610;
-    s8 sp60F;
-    M2C_UNK sp60C;
-    f32 sp608;
-    s8 sp607;
-    M2C_UNK sp604;
-    f32 sp600;
-    s8 sp5FF;
-    M2C_UNK sp5FC;
-    f32 sp5F8;
-    s8 sp5F7;
-    M2C_UNK sp5F4;
-    f32 sp5F0;
-    s8 sp5EF;
-    M2C_UNK sp5EC;
-    f32 sp5E8;
-    s8 sp5E7;
-    M2C_UNK sp5E4;
-    f32 sp5E0;
-    s8 sp5DF;
-    M2C_UNK sp5DC;
-    f32 sp5D8;
-    s8 sp5D7;
-    M2C_UNK sp5D4;
+    TitleDrawColor sp678;
+    TitleDrawColor sp674;
+    TitleDrawColor sp670;
+    TitleDrawColor sp66C;
+    TitleDrawColor sp668;
+    TitleDrawColor sp664;
+    TitleDrawColor sp660;
+    TitleDrawColor sp65C;
+    TitleDrawColor sp658;
+    TitleDrawColor sp654;
+    TitleDrawColor sp650;
+    TitleDrawColor sp64C;
+    TitleDrawColor sp648;
+    TitleDrawColor sp644;
+    TitleDrawColor sp640;
+    TitleDrawColor sp63C;
+    TitleDrawColor sp638;
+    TitleDrawColor sp634;
+    TitleDrawColor sp630;
+    TitleDrawColor sp62C;
+    TitleDrawColor sp628;
+    TitleDrawColor sp624;
+    TitleDrawColor sp620;
+    TitleDrawColor sp61C;
+    TitleDrawColor sp618;
+    TitleDrawColor sp614;
+    TitleDrawColor sp610;
+    TitleDrawColor sp60C;
+    TitleDrawColor sp608;
+    TitleDrawColor sp604;
+    TitleDrawColor sp600;
+    TitleDrawColor sp5FC;
+    TitleDrawColor sp5F8;
+    TitleDrawColor sp5F4;
+    TitleDrawColor sp5F0;
+    TitleDrawColor sp5EC;
+    TitleDrawColor sp5E8;
+    TitleDrawColor sp5E4;
+    TitleDrawColor sp5E0;
+    TitleDrawColor sp5DC;
+    TitleDrawColor sp5D8;
+    TitleDrawColor sp5D4;
     f32 sp5D0;
     s64 sp5C8;
     f32 sp5C0;
@@ -2589,9 +2572,13 @@ M2C_UNK unksp514;
     f32 sp5A8;
     s128 sp590;
     s32 sp550;
-    M2C_UNK sp530;
-    s128 sp520;
-    s128 sp510;
+    union { u32 words[8]; f32 pairs[4][2]; } fadeUv;
+    u32 *fadeUvSource;
+    u32 *fadeUvDestination;
+    s32 fadeAlpha;
+    s32 fadeTexture;
+    TitleRectangleWords sp520;
+    TitleRectangleWords sp510;
     s128 sp500;
     s128 sp4F0;
     s128 sp4E0;
@@ -2654,7 +2641,6 @@ M2C_UNK unksp514;
     s128 spB0;
     M2C_UNK *var_5_16;
     M2C_UNK *var_5_17;
-    M2C_UNK *var_5_21;
     M2C_UNK *var_5_2;
     M2C_UNK *var_5_3;
     M2C_UNK *var_5_4;
@@ -2663,21 +2649,20 @@ M2C_UNK unksp514;
     M2C_UNK *var_5_7;
     M2C_UNK *var_5_8;
     M2C_UNK *var_5_9;
-    M2C_UNK *var_6_16;
-    f32 *var_3_10;
-    f32 *var_3_12;
-    f32 *var_3_14;
-    f32 *var_3_16;
-    f32 *var_3_18;
-    f32 *var_3_20;
-    f32 *var_3_22;
-    f32 *var_3_24;
-    f32 *var_3_27;
+    u8 *var_3_10;
+    u8 *var_3_12;
+    u8 *var_3_14;
+    u8 *var_3_16;
+    u8 *var_3_18;
+    u8 *var_3_20;
+    u8 *var_3_22;
+    u8 *var_3_24;
+    u8 *var_3_27;
     u8 *overlayClearByte;
-    f32 *var_3_31;
-    f32 *var_3_33;
-    f32 *var_3_4;
-    f32 *var_3_5;
+    u8 *var_3_31;
+    u8 *var_3_33;
+    u8 *var_3_4;
+    u8 *var_3_5;
     f32 temp_f0;
     f32 temp_f0_11;
     f32 temp_f0_2;
@@ -2747,7 +2732,6 @@ M2C_UNK unksp514;
     f32 temp_f8;
     f32 temp_f8_2;
     f32 temp_f8_3;
-    f32 var_f0;
     s128 *var_6;
     s128 *var_6_10;
     s128 *var_6_11;
@@ -2759,17 +2743,17 @@ M2C_UNK unksp514;
     s128 *var_6_7;
     s128 *var_6_8;
     u8 *layerClearByte;
-    M2C_UNK *var_3_11;
-    M2C_UNK *var_3_13;
-    M2C_UNK *var_3_15;
-    M2C_UNK *var_3_17;
-    M2C_UNK *var_3_19;
-    M2C_UNK *var_3_21;
-    M2C_UNK *var_3_23;
-    M2C_UNK *var_3_25;
-    M2C_UNK *var_3_28;
-    M2C_UNK *var_3_32;
-    M2C_UNK *var_3_3;
+    u8 *var_3_11;
+    u8 *var_3_13;
+    u8 *var_3_15;
+    u8 *var_3_17;
+    u8 *var_3_19;
+    u8 *var_3_21;
+    u8 *var_3_23;
+    u8 *var_3_25;
+    u8 *var_3_28;
+    u8 *var_3_32;
+    u8 *var_3_3;
     s32 temp_16;
     s32 temp_17;
     s32 temp_2;
@@ -2786,7 +2770,7 @@ M2C_UNK unksp514;
     s32 temp_2_22;
     s32 temp_2_24;
     s32 temp_2_26;
-    s32 temp_2_27;
+    u32 temp_2_27;
     s32 temp_2_2;
     s32 temp_2_5;
     s32 temp_2_6;
@@ -2805,7 +2789,7 @@ M2C_UNK unksp514;
     s32 temp_3_19;
     s32 temp_3_20;
     s32 temp_3_21;
-    s32 temp_3_22;
+    u32 temp_3_22;
     s32 temp_3_23;
     s32 temp_3_2;
     s32 temp_3_3;
@@ -2907,8 +2891,8 @@ M2C_UNK unksp514;
     s32 var_8_2;
     s32 var_8_3;
     s32 temp_10;
-    s8 var_3_26;
-    s8 var_3_29;
+    u32 var_3_26;
+    u32 var_3_29;
     u32 *temp_20;
     u32 *temp_2_11;
     u32 *temp_2_12;
@@ -2941,10 +2925,10 @@ M2C_UNK unksp514;
     sp5B8 = D_005E5638;
     sp5C0 = D_005E5640;
     sp6B8 = 0;
-    temp_f0 = (f32)(s32)(fGpffff9c70);
+    temp_f0 = fGpffff9c70;
     sp6B4 = temp_f0;
-    sp6BC = temp_f0;
-    func_0045c870(&sp6BC, 1);
+    sp6BC.value = temp_f0;
+    func_0045c870((u8 *)&sp6BC, 1);
     temp_3 = (u32)(M2C_FIELD(temp_20, u32 *, 4));
     switch (temp_3) {
     case 0:
@@ -2952,33 +2936,33 @@ M2C_UNK unksp514;
         /* fallthrough */
     case 1:
     case 2:
-        temp_f0_2 = (f32)(s32)(fGpffff9c74);
+        temp_f0_2 = fGpffff9c74;
         sp6B0 = temp_f0_2;
-        sp6BC = temp_f0_2;
-        func_0045c870(&sp6BC, 1);
+        sp6BC.value = temp_f0_2;
+        func_0045c870((u8 *)&sp6BC, 1);
         break;
     case 3:
-        temp_f0_3 = (f32)(s32)(fGpffff9c78);
+        temp_f0_3 = fGpffff9c78;
         sp6AC = temp_f0_3;
-        sp6BC = temp_f0_3;
-        func_0045c870(&sp6BC, 1);
+        sp6BC.value = temp_f0_3;
+        func_0045c870((u8 *)&sp6BC, 1);
         temp_2 = (s32)(M2C_FIELD(temp_20, s32 *, 0x88) + 1);
         M2C_FIELD(temp_20, s32 *, 0x88) = temp_2;
         if (temp_2 >= 0x14) {
             M2C_FIELD(temp_20, s32 *, 0x88) = 0x14;
         }
-        temp_f0_4 = (f32)(s32)(fGpffff9c7c);
+        temp_f0_4 = fGpffff9c7c;
         sp6A8 = temp_f0_4;
-        sp6BC = temp_f0_4;
-        sp520 = D_005E5650;
-        temp_f20 = (f32)(s32)(42.0f * (1.0f - ((f32) M2C_FIELD(temp_20, s32 *, 0x88) / 20.0f)));
-        unksp524 = -temp_f20;
-        sp590 = D_005E5650;
-        func_0045d6e0(&sp6BC, &sp590, 1, 0);
-        sp510 = D_005E5660;
-        unksp514 = 406.0f + temp_f20;
-        sp590 = D_005E5660;
-        func_0045d6e0(&sp6BC, &sp590, 1, 0);
+        sp6BC.value = temp_f0_4;
+        sp520.bits = D_005E5650;
+        temp_f20 = 42.0f * (1.0f - ((f32) M2C_FIELD(temp_20, s32 *, 0x88) / 20.0f));
+        sp520.words[1] = (s32)-temp_f20;
+        sp590 = sp520.bits;
+        func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
+        sp510.bits = D_005E5660;
+        sp510.words[1] = (s32)(406.0f + temp_f20);
+        sp590 = sp510.bits;
+        func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
         break;
     case 4:
     case 5:
@@ -2998,9 +2982,9 @@ M2C_UNK unksp514;
     /* ACC seed */;
                 temp_f1 = 255.0f * (temp_f20 * temp_f21 + temp_f7 * temp_f8);
                 if (!(temp_f1 >= 2.1474836e9f)) {
-                    var_5 = 0x4F000000 & 0xFF;
+                    var_5 = (u32)(s32)temp_f1 & 0xFF;
                 } else {
-                    var_5 = (M2C_BITWISE(s32, (temp_f1 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                    var_5 = ((u32)(s32)(temp_f1 - 2.1474836e9f) | 0x80000000U) & 0xFF;
                 }
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, var_5, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             } else {
@@ -3048,7 +3032,7 @@ M2C_UNK unksp514;
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
-                var_3_3 = (M2C_UNK *)(&sp624);
+                var_3_3 = sp624.bytes;
                 var_2_3 = 4;
                 if ((u8 *)(var_3_3) != NULL) {
                     do {
@@ -3057,14 +3041,14 @@ M2C_UNK unksp514;
                         var_2_3 -= 1;
                     } while (var_2_3 != 0);
                 }
-                sp627 = 0xFF;
-                sp628 = (f32) sp624;
+                sp624.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&sp628, (const u8 *)&sp624);
                 sp480 = D_005E5590.bits;
                 sp490 = D_005E5590.bits;
-                func_0045d6e0(&sp628, &sp490, 0, 0);
+                func_0045d6e0((u8 *)&sp628, (f32 *)&sp490, 0.0f, 0);
                 sp470 = D_005E55A0.bits;
                 sp490 = D_005E55A0.bits;
-                func_0045d6e0(&sp628, &sp490, 0, 0);
+                func_0045d6e0((u8 *)&sp628, (f32 *)&sp490, 0.0f, 0);
                 func_0048a000();
                 temp_2_2 = (s32)(M2C_FIELD(temp_20, s32 *, 0x10) + 1);
                 M2C_FIELD(temp_20, s32 *, 0x10) = temp_2_2;
@@ -3076,7 +3060,7 @@ M2C_UNK unksp514;
             }
             if (temp_16 >= 0x3E) {
                 if (temp_16 < 0x11A) {
-                    var_3_4 = (f32 *)(&sp6A4);
+                    var_3_4 = sp6A4.bytes;
                     var_2_4 = 4;
                     if (var_3_4 != NULL) {
                         do {
@@ -3085,7 +3069,7 @@ M2C_UNK unksp514;
                             var_2_4 -= 1;
                         } while (var_2_4 != 0);
                     }
-                    sp6BC = sp6A4;
+                    titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp6A4);
                     titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, 0.0f, 640.0f, 448.0f, 0x12, NULL);
                     sinf(((((fGpffff8094 * (f32) (temp_16 - 0x3D)) / 80.0f))));
                     var_19 = 1;
@@ -3142,7 +3126,7 @@ loop_93:
                             if (temp_f21 < 1.0f) {
                                 func_00124f70(var_19, M2C_BITWISE(s8, (255.0f * temp_f21)), 0, (u32 *)1, temp_20);
                             } else {
-                                var_3_5 = (f32 *)(&sp6A0);
+                                var_3_5 = sp6A0.bytes;
                                 var_2_6 = 4;
                                 if (var_3_5 != NULL) {
                                     do {
@@ -3151,7 +3135,7 @@ loop_93:
                                         var_2_6 -= 1;
                                     } while (var_2_6 != 0);
                                 }
-                                sp6BC = sp6A0;
+                                titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp6A0);
                                 titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                                 var_6 = (s128 *)(&sp130);
                                 sp130 = D_005E5530;
@@ -3426,7 +3410,7 @@ loop_128:
             }
             if (temp_16 < 0x74) {
                 temp_f20_4 = (f32)(s32)(sinf(((((fGpffff8094 * (f32) (temp_16 - 0x19)) / 90.0f)))));
-                var_3_10 = (f32 *)(&sp674);
+                var_3_10 = sp674.bytes;
                 var_2_7 = 4;
                 if (var_3_10 != NULL) {
                     do {
@@ -3435,12 +3419,12 @@ loop_128:
                         var_2_7 -= 1;
                     } while (var_2_7 != 0);
                 }
-                sp678 = sp674;
+                titleCopyValue((u8 *)&sp678, (const u8 *)&sp674);
                 titleRectangle((u8 *)&sp678, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
-                var_3_11 = (M2C_UNK *)(&sp61C);
+                var_3_11 = sp61C.bytes;
                 var_2_8 = 4;
                 if ((u8 *)(var_3_11) != NULL) {
                     do {
@@ -3449,14 +3433,14 @@ loop_128:
                         var_2_8 -= 1;
                     } while (var_2_8 != 0);
                 }
-                sp61F = 0xFF;
-                sp620 = (f32) sp61C;
+                sp61C.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&sp620, (const u8 *)&sp61C);
                 sp390 = D_005E5590.bits;
                 sp3A0 = D_005E5590.bits;
-                func_0045d6e0(&sp620, &sp3A0, 0, 0);
+                func_0045d6e0((u8 *)&sp620, (f32 *)&sp3A0, 0.0f, 0);
                 sp380 = D_005E55A0.bits;
                 sp3A0 = D_005E55A0.bits;
-                func_0045d6e0(&sp620, &sp3A0, 0, 0);
+                func_0045d6e0((u8 *)&sp620, (f32 *)&sp3A0, 0.0f, 0);
                 func_0048a000();
                 func_002aaac0();
                 D_00887300[0](6, 1);
@@ -3464,9 +3448,9 @@ loop_128:
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_8 = 255.0f * (1.0f - temp_f20_4);
                 if (!(temp_f1_8 >= 2.1474836e9f)) {
-                    var_5_10 = 0x4F000000 & 0xFF;
+                    var_5_10 = (u32)(s32)temp_f1_8 & 0xFF;
                 } else {
-                    var_5_10 = (M2C_BITWISE(s32, (temp_f1_8 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                    var_5_10 = ((u32)(s32)(temp_f1_8 - 2.1474836e9f) | 0x80000000U) & 0xFF;
                 }
                 func_0025f3f0(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, var_5_10, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             }
@@ -3477,9 +3461,9 @@ loop_128:
                 if (temp_16 < 0x65) {
                     temp_f2 = (f32)(s32)(255.0f * sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f)))));
                     if (!(temp_f2 >= 2.1474836e9f)) {
-                        var_5_11 = 0x4F000000 & 0xFF;
+                        var_5_11 = (u32)(s32)temp_f2 & 0xFF;
                     } else {
-                        var_5_11 = (M2C_BITWISE(s32, (temp_f2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                        var_5_11 = ((u32)(s32)(temp_f2 - 2.1474836e9f) | 0x80000000U) & 0xFF;
                     }
     /* ACC seed */;
                     temp_f14 = 0.0f;
@@ -3492,14 +3476,14 @@ loop_128:
                 temp_f2_2 = (f32)(s32)(fGpffff8094);
                 temp_f1_9 = 255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))));
                 if (!(temp_f1_9 >= 2.1474836e9f)) {
-                    var_5_12 = 0x4F000000 & 0xFF;
+                    var_5_12 = (u32)(s32)temp_f1_9 & 0xFF;
                 } else {
-                    var_5_12 = (M2C_BITWISE(s32, (temp_f1_9 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                    var_5_12 = ((u32)(s32)(temp_f1_9 - 2.1474836e9f) | 0x80000000U) & 0xFF;
                 }
                 func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_12, 0x10009, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
             }
             if (temp_16 < 0x74) {
-                var_3_12 = (f32 *)(&sp66C);
+                var_3_12 = sp66C.bytes;
                 var_2_9 = 4;
                 if (var_3_12 != NULL) {
                     do {
@@ -3508,12 +3492,12 @@ loop_128:
                         var_2_9 -= 1;
                     } while (var_2_9 != 0);
                 }
-                sp670 = sp66C;
+                titleCopyValue((u8 *)&sp670, (const u8 *)&sp66C);
                 titleRectangle((u8 *)&sp670, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
-                var_3_13 = (M2C_UNK *)(&sp614);
+                var_3_13 = sp614.bytes;
                 var_2_10 = 4;
                 if ((u8 *)(var_3_13) != NULL) {
                     do {
@@ -3522,21 +3506,21 @@ loop_128:
                         var_2_10 -= 1;
                     } while (var_2_10 != 0);
                 }
-                sp617 = 0xFF;
-                sp618 = (f32) sp614;
+                sp614.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&sp618, (const u8 *)&sp614);
                 sp360 = D_005E5590.bits;
                 sp370 = D_005E5590.bits;
-                func_0045d6e0(&sp618, &sp370, 0, 0);
+                func_0045d6e0((u8 *)&sp618, (f32 *)&sp370, 0.0f, 0);
                 sp350 = D_005E55A0.bits;
                 sp370 = D_005E55A0.bits;
-                func_0045d6e0(&sp618, &sp370, 0, 0);
+                func_0045d6e0((u8 *)&sp618, (f32 *)&sp370, 0.0f, 0);
                 func_0048a000();
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
             } else {
                 func_0025f3f0(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
             }
             if (temp_16 < 0x56) {
-                var_3_14 = (f32 *)(&sp664);
+                var_3_14 = sp664.bytes;
                 var_2_11 = 4;
                 if (var_3_14 != NULL) {
                     do {
@@ -3545,12 +3529,12 @@ loop_128:
                         var_2_11 -= 1;
                     } while (var_2_11 != 0);
                 }
-                sp668 = sp664;
+                titleCopyValue((u8 *)&sp668, (const u8 *)&sp664);
                 titleRectangle((u8 *)&sp668, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
-                var_3_15 = (M2C_UNK *)(&sp60C);
+                var_3_15 = sp60C.bytes;
                 var_2_12 = 4;
                 if ((u8 *)(var_3_15) != NULL) {
                     do {
@@ -3559,14 +3543,14 @@ loop_128:
                         var_2_12 -= 1;
                     } while (var_2_12 != 0);
                 }
-                sp60F = 0xFF;
-                sp610 = (f32) sp60C;
+                sp60C.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&sp610, (const u8 *)&sp60C);
                 sp330 = D_005E5590.bits;
                 sp340 = D_005E5590.bits;
-                func_0045d6e0(&sp610, &sp340, 0, 0);
+                func_0045d6e0((u8 *)&sp610, (f32 *)&sp340, 0.0f, 0);
                 sp320 = D_005E55A0.bits;
                 sp340 = D_005E55A0.bits;
-                func_0045d6e0(&sp610, &sp340, 0, 0);
+                func_0045d6e0((u8 *)&sp610, (f32 *)&sp340, 0.0f, 0);
                 func_0048a000();
                 func_002aaac0();
                 D_00887300[0](6, 1);
@@ -3574,7 +3558,7 @@ loop_128:
                 RpSkyRenderStateSet(2, 0x48);
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x1000A, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             } else if (temp_16 < 0x92) {
-                var_3_16 = (f32 *)(&sp65C);
+                var_3_16 = sp65C.bytes;
                 var_2_13 = 4;
                 if (var_3_16 != NULL) {
                     do {
@@ -3583,12 +3567,12 @@ loop_128:
                         var_2_13 -= 1;
                     } while (var_2_13 != 0);
                 }
-                sp660 = sp65C;
+                titleCopyValue((u8 *)&sp660, (const u8 *)&sp65C);
                 titleRectangle((u8 *)&sp660, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
-                var_3_17 = (M2C_UNK *)(&sp604);
+                var_3_17 = sp604.bytes;
                 var_2_14 = 4;
                 if ((u8 *)(var_3_17) != NULL) {
                     do {
@@ -3597,14 +3581,14 @@ loop_128:
                         var_2_14 -= 1;
                     } while (var_2_14 != 0);
                 }
-                sp607 = 0xFF;
-                sp608 = (f32) sp604;
+                sp604.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&sp608, (const u8 *)&sp604);
                 sp300 = D_005E5590.bits;
                 sp310 = D_005E5590.bits;
-                func_0045d6e0(&sp608, &sp310, 0, 0);
+                func_0045d6e0((u8 *)&sp608, (f32 *)&sp310, 0.0f, 0);
                 sp2F0 = D_005E55A0.bits;
                 sp310 = D_005E55A0.bits;
-                func_0045d6e0(&sp608, &sp310, 0, 0);
+                func_0045d6e0((u8 *)&sp608, (f32 *)&sp310, 0.0f, 0);
                 func_0048a000();
                 temp_f22 = (f32)(s32)(sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 60.0f)))));
                 func_002aaac0();
@@ -3613,14 +3597,14 @@ loop_128:
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_10 = 255.0f * (1.0f - temp_f22);
                 if (!(temp_f1_10 >= 2.1474836e9f)) {
-                    var_5_13 = 0x4F000000 & 0xFF;
+                    var_5_13 = (u32)(s32)temp_f1_10 & 0xFF;
                 } else {
-                    var_5_13 = (M2C_BITWISE(s32, (temp_f1_10 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                    var_5_13 = ((u32)(s32)(temp_f1_10 - 2.1474836e9f) | 0x80000000U) & 0xFF;
                 }
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, var_5_13, 0x1000A, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             }
             if (temp_16 < 0x56) {
-                var_3_18 = (f32 *)(&sp654);
+                var_3_18 = sp654.bytes;
                 var_2_15 = 4;
                 if (var_3_18 != NULL) {
                     do {
@@ -3629,12 +3613,12 @@ loop_128:
                         var_2_15 -= 1;
                     } while (var_2_15 != 0);
                 }
-                sp658 = sp654;
+                titleCopyValue((u8 *)&sp658, (const u8 *)&sp654);
                 titleRectangle((u8 *)&sp658, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
-                var_3_19 = (M2C_UNK *)(&sp5FC);
+                var_3_19 = sp5FC.bytes;
                 var_2_16 = 4;
                 if ((u8 *)(var_3_19) != NULL) {
                     do {
@@ -3643,18 +3627,18 @@ loop_128:
                         var_2_16 -= 1;
                     } while (var_2_16 != 0);
                 }
-                sp5FF = 0xFF;
-                sp600 = (f32) sp5FC;
+                sp5FC.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&sp600, (const u8 *)&sp5FC);
                 sp2D0 = D_005E5590.bits;
                 sp2E0 = D_005E5590.bits;
-                func_0045d6e0(&sp600, &sp2E0, 0, 0);
+                func_0045d6e0((u8 *)&sp600, (f32 *)&sp2E0, 0.0f, 0);
                 sp2C0 = D_005E55A0.bits;
                 sp2E0 = D_005E55A0.bits;
-                func_0045d6e0(&sp600, &sp2E0, 0, 0);
+                func_0045d6e0((u8 *)&sp600, (f32 *)&sp2E0, 0.0f, 0);
                 func_0048a000();
                 func_00125e80(0xFF, temp_20, 200.0f, 0.0f, 10.0f);
             } else if (temp_16 < 0xCE) {
-                var_3_20 = (f32 *)(&sp64C);
+                var_3_20 = sp64C.bytes;
                 var_2_17 = 4;
                 if (var_3_20 != NULL) {
                     do {
@@ -3663,12 +3647,12 @@ loop_128:
                         var_2_17 -= 1;
                     } while (var_2_17 != 0);
                 }
-                sp650 = sp64C;
+                titleCopyValue((u8 *)&sp650, (const u8 *)&sp64C);
                 titleRectangle((u8 *)&sp650, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
-                var_3_21 = (M2C_UNK *)(&sp5F4);
+                var_3_21 = sp5F4.bytes;
                 var_2_18 = 4;
                 if ((u8 *)(var_3_21) != NULL) {
                     do {
@@ -3677,20 +3661,20 @@ loop_128:
                         var_2_18 -= 1;
                     } while (var_2_18 != 0);
                 }
-                sp5F7 = 0xFF;
-                sp5F8 = (f32) sp5F4;
+                sp5F4.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&sp5F8, (const u8 *)&sp5F4);
                 sp2A0 = D_005E5590.bits;
                 sp2B0 = D_005E5590.bits;
-                func_0045d6e0(&sp5F8, &sp2B0, 0, 0);
+                func_0045d6e0((u8 *)&sp5F8, (f32 *)&sp2B0, 0.0f, 0);
                 sp290 = D_005E55A0.bits;
                 sp2B0 = D_005E55A0.bits;
-                func_0045d6e0(&sp5F8, &sp2B0, 0, 0);
+                func_0045d6e0((u8 *)&sp5F8, (f32 *)&sp2B0, 0.0f, 0);
                 func_0048a000();
                 sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 120.0f))));
                 func_00125e80(0xFF, temp_20, (temp_f20 * temp_f21 - temp_f7 * temp_f8), 0.0f, 10.0f);
             }
             if (temp_16 < 0xE2) {
-                var_3_22 = (f32 *)(&sp644);
+                var_3_22 = sp644.bytes;
                 var_2_19 = 4;
                 if (var_3_22 != NULL) {
                     do {
@@ -3699,12 +3683,12 @@ loop_128:
                         var_2_19 -= 1;
                     } while (var_2_19 != 0);
                 }
-                sp648 = sp644;
+                titleCopyValue((u8 *)&sp648, (const u8 *)&sp644);
                 titleRectangle((u8 *)&sp648, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
-                var_3_23 = (M2C_UNK *)(&sp5EC);
+                var_3_23 = sp5EC.bytes;
                 var_2_20 = 4;
                 if ((u8 *)(var_3_23) != NULL) {
                     do {
@@ -3713,37 +3697,39 @@ loop_128:
                         var_2_20 -= 1;
                     } while (var_2_20 != 0);
                 }
-                sp5EF = 0xFF;
-                sp5F0 = (f32) sp5EC;
+                sp5EC.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&sp5F0, (const u8 *)&sp5EC);
                 sp270 = D_005E5590.bits;
                 sp280 = D_005E5590.bits;
-                func_0045d6e0(&sp5F0, &sp280, 0, 0);
+                func_0045d6e0((u8 *)&sp5F0, (f32 *)&sp280, 0.0f, 0);
                 sp260 = D_005E55A0.bits;
                 sp280 = D_005E55A0.bits;
-                func_0045d6e0(&sp5F0, &sp280, 0, 0);
+                func_0045d6e0((u8 *)&sp5F0, (f32 *)&sp280, 0.0f, 0);
                 func_0048a000();
-                temp_f20_5 = (f32)(s32)(sinf(((((fGpffff8094 * (f32) temp_16) / 225.0f)))));
+                temp_f20_5 = sinf((fGpffff8094 * (f32) temp_16) / 225.0f);
                 if (temp_16 >= 0x88) {
                     var_2_21 = temp_16 - 0x87;
                 } else {
                     var_2_21 = 0;
                 }
-                temp_f16 = (f32)(s32)(fGpffff8170 + (1.5f * temp_f20_5));
-                temp_f21_2 = (f32)(s32)(255.0f * (1.0f - sinf(((((fGpffff8094 * (f32) var_2_21) / 90.0f))))));
-                var_f0 = 2.1474836e9f;
+                temp_f21_2 = sinf((fGpffff8094 * (f32) var_2_21) / 90.0f);
+                /* Keep the first return across the second call; round multiply and add separately. */
+                temp_f16 = 1.5f * temp_f20_5;
+                temp_f16 = fGpffff8170 + temp_f16;
+                temp_f21_2 = 255.0f * (1.0f - temp_f21_2);
                 if (!(temp_f21_2 >= 2.1474836e9f)) {
-                    var_5_14 = 0x4F000000 & 0xFF;
+                    var_5_14 = (u32)(s32)temp_f21_2 & 0xFF;
                 } else {
-                    var_f0 = temp_f21_2 - 2.1474836e9f;
-                    var_5_14 = (M2C_BITWISE(s32, var_f0) | 0x80000000) & 0xFF;
+                    var_5_14 = ((u32)(s32)(temp_f21_2 - 2.1474836e9f) | 0x80000000U) & 0xFF;
                 }
-                temp_10 = (s32) (M2C_BITWISE(s32, var_f0) << 16) >> 16;
+                /* f2 holds this independent product across both alpha-conversion arms. */
+                temp_10 = (s16)(s32)(137.0f * temp_f16);
     /* ACC seed */;
                 func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, var_5_14, 0x1000E, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, temp_10, temp_10, (temp_f20 * temp_f21 + temp_f7 * temp_f8), temp_f16, temp_f16);
                 if (!(temp_f21_2 >= 2.1474836e9f)) {
-                    var_5_15 = 0x4F000000 & 0xFF;
+                    var_5_15 = (u32)(s32)temp_f21_2 & 0xFF;
                 } else {
-                    var_5_15 = (M2C_BITWISE(s32, (temp_f21_2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                    var_5_15 = ((u32)(s32)(temp_f21_2 - 2.1474836e9f) | 0x80000000U) & 0xFF;
                 }
     /* ACC seed */;
                 temp_f16_2 = (f32)(s32)(fGpffff80bc);
@@ -3751,7 +3737,7 @@ loop_128:
             }
         }
         if (temp_16 < 0x19) {
-            var_3_24 = (f32 *)(&sp63C);
+            var_3_24 = sp63C.bytes;
             var_2_22 = 4;
             if (var_3_24 != NULL) {
                 do {
@@ -3760,12 +3746,12 @@ loop_128:
                     var_2_22 -= 1;
                 } while (var_2_22 != 0);
             }
-            sp640 = sp63C;
+            titleCopyValue((u8 *)&sp640, (const u8 *)&sp63C);
             titleRectangle((u8 *)&sp640, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
             func_002aaac0();
             D_00887300[0](8, 1);
             func_00489f80();
-            var_3_25 = (M2C_UNK *)(&sp5E4);
+            var_3_25 = sp5E4.bytes;
             var_2_23 = 4;
             if ((u8 *)(var_3_25) != NULL) {
                 do {
@@ -3774,28 +3760,28 @@ loop_128:
                     var_2_23 -= 1;
                 } while (var_2_23 != 0);
             }
-            sp5E7 = 0xFF;
-            sp5E8 = (f32) sp5E4;
+            sp5E4.bytes[3] = 0xFF;
+            titleCopyValue((u8 *)&sp5E8, (const u8 *)&sp5E4);
             sp240 = D_005E5590.bits;
             sp250 = D_005E5590.bits;
-            func_0045d6e0(&sp5E8, &sp250, 0, 0);
+            func_0045d6e0((u8 *)&sp5E8, (f32 *)&sp250, 0.0f, 0);
             sp230 = D_005E55A0.bits;
             sp250 = D_005E55A0.bits;
-            func_0045d6e0(&sp5E8, &sp250, 0, 0);
+            func_0045d6e0((u8 *)&sp5E8, (f32 *)&sp250, 0.0f, 0);
             func_0048a000();
-            sp69C = (f32)(s32)(fGpffff9c80);
+            sp69C.value = fGpffff9c80;
             if (!(2.1474836e9f <= 255.0f)) {
-                var_3_26 = 0x4F000000 & 0xFF;
+                var_3_26 = (u32)(s32)255.0f & 0xFF;
             } else {
-                var_3_26 = (M2C_BITWISE(s32, (255.0f - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                var_3_26 = ((u32)(s32)(255.0f - 2.1474836e9f) | 0x80000000U) & 0xFF;
             }
-            unksp69F = var_3_26;
-            sp6BC = sp69C;
+            sp69C.bytes[3] = (u8)var_3_26;
+            titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp69C);
             sp500 = D_005E5670;
             sp590 = D_005E5670;
-            func_0045d6e0(&sp6BC, &sp590, 1, 0x41200000);
+            func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 10.0f, 1);
         } else if (temp_16 < 0x56) {
-            var_3_27 = (f32 *)(&sp634);
+            var_3_27 = sp634.bytes;
             var_2_24 = 4;
             if (var_3_27 != NULL) {
                 do {
@@ -3804,12 +3790,12 @@ loop_128:
                     var_2_24 -= 1;
                 } while (var_2_24 != 0);
             }
-            sp638 = sp634;
+            titleCopyValue((u8 *)&sp638, (const u8 *)&sp634);
             titleRectangle((u8 *)&sp638, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
             func_002aaac0();
             D_00887300[0](8, 1);
             func_00489f80();
-            var_3_28 = (M2C_UNK *)(&sp5DC);
+            var_3_28 = sp5DC.bytes;
             var_2_25 = 4;
             if ((u8 *)(var_3_28) != NULL) {
                 do {
@@ -3818,29 +3804,29 @@ loop_128:
                     var_2_25 -= 1;
                 } while (var_2_25 != 0);
             }
-            sp5DF = 0xFF;
-            sp5E0 = (f32) sp5DC;
+            sp5DC.bytes[3] = 0xFF;
+            titleCopyValue((u8 *)&sp5E0, (const u8 *)&sp5DC);
             sp210 = D_005E5590.bits;
             sp220 = D_005E5590.bits;
-            func_0045d6e0(&sp5E0, &sp220, 0, 0);
+            func_0045d6e0((u8 *)&sp5E0, (f32 *)&sp220, 0.0f, 0);
             sp200 = D_005E55A0.bits;
             sp220 = D_005E55A0.bits;
-            func_0045d6e0(&sp5E0, &sp220, 0, 0);
+            func_0045d6e0((u8 *)&sp5E0, (f32 *)&sp220, 0.0f, 0);
             func_0048a000();
-            temp_f2_3 = (f32)(s32)(fGpffff8094);
+            temp_f2_3 = fGpffff8094;
             temp_f0_5 = sinf((((temp_f2_3 + ((temp_f2_3 * (f32) (temp_16 - 0x19)) / 60.0f)))));
-            sp698 = (f32)(s32)(fGpffff9c84);
+            sp698.value = fGpffff9c84;
             temp_f1_11 = 255.0f * temp_f0_5;
             if (!(temp_f1_11 >= 2.1474836e9f)) {
-                var_3_29 = 0x4F000000 & 0xFF;
+                var_3_29 = (u32)(s32)temp_f1_11 & 0xFF;
             } else {
-                var_3_29 = (M2C_BITWISE(s32, (temp_f1_11 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                var_3_29 = ((u32)(s32)(temp_f1_11 - 2.1474836e9f) | 0x80000000U) & 0xFF;
             }
-            unksp69B = var_3_29;
-            sp6BC = sp698;
+            sp698.bytes[3] = (u8)var_3_29;
+            titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp698);
             sp4F0 = D_005E5680;
             sp590 = D_005E5680;
-            func_0045d6e0(&sp6BC, &sp590, 1, 0x41200000);
+            func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 10.0f, 1);
         }
         break;
     case 6:
@@ -3854,17 +3840,17 @@ loop_128:
         RpSkyRenderStateSet(3, 0x50003);
         RpSkyRenderStateSet(2, 0x48);
         func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
-        temp_f0_6 = (f32)(s32)(fGpffff9c88);
+        temp_f0_6 = fGpffff9c88;
         sp694 = temp_f0_6;
-        sp6BC = temp_f0_6;
+        sp6BC.value = temp_f0_6;
         sp4E0 = D_005E5690;
         sp590 = D_005E5690;
-        func_0045d6e0(&sp6BC, &sp590, 1, 0);
+        func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
         sp4D0 = D_005E56A0;
         sp590 = D_005E56A0;
-        func_0045d6e0(&sp6BC, &sp590, 1, 0);
+        func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
         func_00126090(0xFF, temp_20, 0, 0, 0);
-        var_3_31 = (f32 *)(&sp62C);
+        var_3_31 = sp62C.bytes;
         var_2_26 = 4;
         if (var_3_31 != NULL) {
             do {
@@ -3873,12 +3859,12 @@ loop_128:
                 var_2_26 -= 1;
             } while (var_2_26 != 0);
         }
-        sp630 = sp62C;
+        titleCopyValue((u8 *)&sp630, (const u8 *)&sp62C);
         titleRectangle((u8 *)&sp630, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
         func_002aaac0();
         D_00887300[0](8, 1);
         func_00489f80();
-        var_3_32 = (M2C_UNK *)(&sp5D4);
+        var_3_32 = sp5D4.bytes;
         var_2_27 = 4;
         if ((u8 *)(var_3_32) != NULL) {
             do {
@@ -3887,14 +3873,14 @@ loop_128:
                 var_2_27 -= 1;
             } while (var_2_27 != 0);
         }
-        sp5D7 = 0xFF;
-        sp5D8 = (f32) sp5D4;
+        sp5D4.bytes[3] = 0xFF;
+        titleCopyValue((u8 *)&sp5D8, (const u8 *)&sp5D4);
         sp1E0 = D_005E5590.bits;
         sp1F0 = D_005E5590.bits;
-        func_0045d6e0(&sp5D8, &sp1F0, 0, 0);
+        func_0045d6e0((u8 *)&sp5D8, (f32 *)&sp1F0, 0.0f, 0);
         sp1D0 = D_005E55A0.bits;
         sp1F0 = D_005E55A0.bits;
-        func_0045d6e0(&sp5D8, &sp1F0, 0, 0);
+        func_0045d6e0((u8 *)&sp5D8, (f32 *)&sp1F0, 0.0f, 0);
         func_0048a000();
         temp_2_19 = (s32)(M2C_FIELD(temp_20, s32 *, 0x10) + 1);
         M2C_FIELD(temp_20, s32 *, 0x10) = temp_2_19;
@@ -3903,7 +3889,7 @@ loop_128:
         }
         sinf((((fGpffff81dc + ((fGpffff81e0 * (f32) M2C_FIELD(temp_20, s32 *, 0x10)) / 360.0f)))));
         func_00125e80(0x99, temp_20, (temp_f20 * temp_f21 - temp_f7 * temp_f8), 0.0f, 10.0f);
-        var_3_33 = (f32 *)(&sp690);
+        var_3_33 = sp690.bytes;
         var_2_28 = 4;
         if (var_3_33 != NULL) {
             do {
@@ -3912,7 +3898,7 @@ loop_128:
                 var_2_28 -= 1;
             } while (var_2_28 != 0);
         }
-        sp6BC = sp690;
+        titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp690);
         titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
         var_16 = 1;
 loop_351:
@@ -3976,9 +3962,9 @@ loop_351:
         func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
         temp_f1_15 = 255.0f * ((f32) var_3_30 / 20.0f);
         if (!(temp_f1_15 >= 2.1474836e9f)) {
-            var_5_18 = 0x4F000000 & 0xFF;
+            var_5_18 = (u32)(s32)temp_f1_15 & 0xFF;
         } else {
-            var_5_18 = (M2C_BITWISE(s32, (temp_f1_15 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+            var_5_18 = ((u32)(s32)(temp_f1_15 - 2.1474836e9f) | 0x80000000U) & 0xFF;
         }
         func_0025f430(204.0f, (f32) 0x143, 0.0f, 0xFFFFFFU, var_5_18, 0x10007, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         func_0025f3f0(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
@@ -4005,10 +3991,10 @@ loop_351:
         if (temp_2_24 < 0x258) {
             M2C_FIELD(temp_20, s32 *, 0xC) = (s32) (temp_2_24 + 1);
         }
-        temp_f0_8 = (f32)(s32)(fGpffff9c8c);
+        temp_f0_8 = fGpffff9c8c;
         sp68C = temp_f0_8;
-        sp6BC = temp_f0_8;
-        func_0045c870(&sp6BC, 1);
+        sp6BC.value = temp_f0_8;
+        func_0045c870((u8 *)&sp6BC, 1);
         temp_f0_9 = (f32) *((u8 *)(&D_005E5230 + (M2C_FIELD(temp_20, u32 *, 0x84) * 0x28)));
         if (M2C_BITWISE(s32, temp_f0_9) >= 0xF) {
             var_16_2 = NULL;
@@ -4072,9 +4058,9 @@ loop_351:
         }
         temp_f1_16 = 255.0f * (1.0f - ((f32) var_2_30 / 5.0f));
         if (!(temp_f1_16 >= 2.1474836e9f)) {
-            var_5_19 = 0x4F000000 & 0xFF;
+            var_5_19 = (u32)(s32)temp_f1_16 & 0xFF;
         } else {
-            var_5_19 = (M2C_BITWISE(s32, (temp_f1_16 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+            var_5_19 = ((u32)(s32)(temp_f1_16 - 2.1474836e9f) | 0x80000000U) & 0xFF;
         }
         func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_19, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
         var_2_31 = (s32)(M2C_FIELD(temp_20, s32 *, 0xC) - 2);
@@ -4084,9 +4070,9 @@ loop_351:
             }
             temp_f1_17 = 255.0f * ((f32) var_2_31 / 5.0f);
             if (!(temp_f1_17 >= 2.1474836e9f)) {
-                var_5_20 = 0x4F000000 & 0xFF;
+                var_5_20 = (u32)(s32)temp_f1_17 & 0xFF;
             } else {
-                var_5_20 = (M2C_BITWISE(s32, (temp_f1_17 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                var_5_20 = ((u32)(s32)(temp_f1_17 - 2.1474836e9f) | 0x80000000U) & 0xFF;
             }
             temp_f14_2 = 0.0f;
             temp_f16_3 = (f32)(s32)(fGpffff82a0);
@@ -4125,18 +4111,20 @@ loop_351:
     case 15:
         break;
     }
+    /* The update callback seeds this countdown with 10 or 13 frames. */
     if (M2C_FIELD(temp_20, s32 *, 0x2C) > 0) {
-        var_6_16 = (M2C_UNK *)(&D_005E56B0);
-        var_5_21 = (M2C_UNK *)(&sp530);
+        /* Four UV pairs, copied as their original words before the texture lookup. */
+        fadeUvSource = D_005E56B0;
+        fadeUvDestination = fadeUv.words;
         var_4_17 = 4;
         do {
-            temp_3_22 = (s32)(M2C_FIELD(var_6_16, s32 *, 0));
-            temp_2_27 = (s32)(M2C_FIELD(var_6_16, s32 *, 4));
-            var_6_16 += 8;
+            temp_3_22 = fadeUvSource[0];
+            temp_2_27 = fadeUvSource[1];
+            fadeUvSource += 2;
             var_4_17 -= 1;
-            M2C_FIELD(var_5_21, s32 *, 0) = temp_3_22;
-            M2C_FIELD(var_5_21, s32 *, 4) = temp_2_27;
-            var_5_21 += 8;
+            fadeUvDestination[0] = temp_3_22;
+            fadeUvDestination[1] = temp_2_27;
+            fadeUvDestination += 2;
         } while (var_4_17 > 0);
         var_4_18 = 0xD;
         if (M2C_FIELD(temp_20, u32 *, 0) == 0x10) {
@@ -4144,7 +4132,10 @@ loop_351:
         }
         temp_3_23 = (s32)(M2C_FIELD(temp_20, s32 *, 0x2C) - 1);
         M2C_FIELD(temp_20, s32 *, 0x2C) = temp_3_23;
-        func_00366c70(0, 0, 0x280, 0x1C0, 0xFFFFFF, (f32) (temp_3_23 * 0xFF) / (f32) var_4_18, 1, 0, 0, 0, 0, func_00401b80(var_4_18, var_5_21, var_6_16), (s64) &sp530);
+        fadeAlpha = (s32)((f32)(temp_3_23 * 0xFF) / (f32)var_4_18);
+        fadeTexture = func_00401b80();
+        func_00366c70(0, 0, 0.0f, 0x280, 0x1C0, 0xFFFFFF, fadeAlpha,
+                      1, 0, 0, NULL, fadeTexture, fadeUv.pairs);
     }
 }
 #else

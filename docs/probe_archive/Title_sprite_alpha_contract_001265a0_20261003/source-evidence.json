@@ -1,0 +1,9 @@
+{
+  "baseline": "29758b87c3234fa4f519127c1f61722ca1d087d8",
+  "source_sha256": "1650bfbb3ecc60d7c19df4e6b49c1c2536ef2304dea3604d238ea7704ec0e548",
+  "complete_source_delta_reconstructed": true,
+  "low_conversion_arms": 10,
+  "high_casts_made_explicit": 10,
+  "independent_two_sine_scale_pair_subgraph": true,
+  "unrelated_source_unchanged": true
+}

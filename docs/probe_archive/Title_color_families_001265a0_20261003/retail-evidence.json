@@ -1,0 +1,1763 @@
+{
+  "source_sha256": "4b4f028ce15cba8ca90c51608315d84e80127c2885c5be8cd306e19ec4471e75",
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "families": [
+    {
+      "source": "sp624",
+      "destination": "sp628",
+      "layer": true,
+      "clear_address": "0x126b98",
+      "copy_address": "0x126bd0",
+      "source_extent": [
+        1572,
+        1576
+      ],
+      "destination_extent": [
+        1576,
+        1580
+      ],
+      "alpha_byte": 3
+    },
+    {
+      "source": "sp6A4",
+      "destination": "sp6BC",
+      "layer": false,
+      "clear_address": "0x126cf0",
+      "copy_address": "0x126d20",
+      "source_extent": [
+        1700,
+        1704
+      ],
+      "destination_extent": [
+        1724,
+        1728
+      ],
+      "alpha_byte": null
+    },
+    {
+      "source": "sp6A0",
+      "destination": "sp6BC",
+      "layer": false,
+      "clear_address": "0x126fe0",
+      "copy_address": "0x127010",
+      "source_extent": [
+        1696,
+        1700
+      ],
+      "destination_extent": [
+        1724,
+        1728
+      ],
+      "alpha_byte": null
+    },
+    {
+      "source": "sp674",
+      "destination": "sp678",
+      "layer": false,
+      "clear_address": "0x1282ac",
+      "copy_address": "0x1282dc",
+      "source_extent": [
+        1652,
+        1656
+      ],
+      "destination_extent": [
+        1656,
+        1660
+      ],
+      "alpha_byte": null
+    },
+    {
+      "source": "sp61C",
+      "destination": "sp620",
+      "layer": true,
+      "clear_address": "0x128348",
+      "copy_address": "0x128380",
+      "source_extent": [
+        1564,
+        1568
+      ],
+      "destination_extent": [
+        1568,
+        1572
+      ],
+      "alpha_byte": 3
+    },
+    {
+      "source": "sp66C",
+      "destination": "sp670",
+      "layer": false,
+      "clear_address": "0x128730",
+      "copy_address": "0x128760",
+      "source_extent": [
+        1644,
+        1648
+      ],
+      "destination_extent": [
+        1648,
+        1652
+      ],
+      "alpha_byte": null
+    },
+    {
+      "source": "sp614",
+      "destination": "sp618",
+      "layer": true,
+      "clear_address": "0x1287c8",
+      "copy_address": "0x128800",
+      "source_extent": [
+        1556,
+        1560
+      ],
+      "destination_extent": [
+        1560,
+        1564
+      ],
+      "alpha_byte": 3
+    },
+    {
+      "source": "sp664",
+      "destination": "sp668",
+      "layer": false,
+      "clear_address": "0x128904",
+      "copy_address": "0x128934",
+      "source_extent": [
+        1636,
+        1640
+      ],
+      "destination_extent": [
+        1640,
+        1644
+      ],
+      "alpha_byte": null
+    },
+    {
+      "source": "sp60C",
+      "destination": "sp610",
+      "layer": true,
+      "clear_address": "0x1289a0",
+      "copy_address": "0x1289d8",
+      "source_extent": [
+        1548,
+        1552
+      ],
+      "destination_extent": [
+        1552,
+        1556
+      ],
+      "alpha_byte": 3
+    },
+    {
+      "source": "sp65C",
+      "destination": "sp660",
+      "layer": false,
+      "clear_address": "0x128abc",
+      "copy_address": "0x128aec",
+      "source_extent": [
+        1628,
+        1632
+      ],
+      "destination_extent": [
+        1632,
+        1636
+      ],
+      "alpha_byte": null
+    },
+    {
+      "source": "sp604",
+      "destination": "sp608",
+      "layer": true,
+      "clear_address": "0x128b58",
+      "copy_address": "0x128b90",
+      "source_extent": [
+        1540,
+        1544
+      ],
+      "destination_extent": [
+        1544,
+        1548
+      ],
+      "alpha_byte": 3
+    },
+    {
+      "source": "sp654",
+      "destination": "sp658",
+      "layer": false,
+      "clear_address": "0x128d0c",
+      "copy_address": "0x128d3c",
+      "source_extent": [
+        1620,
+        1624
+      ],
+      "destination_extent": [
+        1624,
+        1628
+      ],
+      "alpha_byte": null
+    },
+    {
+      "source": "sp5FC",
+      "destination": "sp600",
+      "layer": true,
+      "clear_address": "0x128da4",
+      "copy_address": "0x128ddc",
+      "source_extent": [
+        1532,
+        1536
+      ],
+      "destination_extent": [
+        1536,
+        1540
+      ],
+      "alpha_byte": 3
+    },
+    {
+      "source": "sp64C",
+      "destination": "sp650",
+      "layer": false,
+      "clear_address": "0x128e70",
+      "copy_address": "0x128ea0",
+      "source_extent": [
+        1612,
+        1616
+      ],
+      "destination_extent": [
+        1616,
+        1620
+      ],
+      "alpha_byte": null
+    },
+    {
+      "source": "sp5F4",
+      "destination": "sp5F8",
+      "layer": true,
+      "clear_address": "0x128f08",
+      "copy_address": "0x128f40",
+      "source_extent": [
+        1524,
+        1528
+      ],
+      "destination_extent": [
+        1528,
+        1532
+      ],
+      "alpha_byte": 3
+    },
+    {
+      "source": "sp644",
+      "destination": "sp648",
+      "layer": false,
+      "clear_address": "0x12901c",
+      "copy_address": "0x12904c",
+      "source_extent": [
+        1604,
+        1608
+      ],
+      "destination_extent": [
+        1608,
+        1612
+      ],
+      "alpha_byte": null
+    },
+    {
+      "source": "sp5EC",
+      "destination": "sp5F0",
+      "layer": true,
+      "clear_address": "0x1290b4",
+      "copy_address": "0x1290ec",
+      "source_extent": [
+        1516,
+        1520
+      ],
+      "destination_extent": [
+        1520,
+        1524
+      ],
+      "alpha_byte": 3
+    },
+    {
+      "source": "sp63C",
+      "destination": "sp640",
+      "layer": false,
+      "clear_address": "0x1293a0",
+      "copy_address": "0x1293d0",
+      "source_extent": [
+        1596,
+        1600
+      ],
+      "destination_extent": [
+        1600,
+        1604
+      ],
+      "alpha_byte": null
+    },
+    {
+      "source": "sp5E4",
+      "destination": "sp5E8",
+      "layer": true,
+      "clear_address": "0x129438",
+      "copy_address": "0x129470",
+      "source_extent": [
+        1508,
+        1512
+      ],
+      "destination_extent": [
+        1512,
+        1516
+      ],
+      "alpha_byte": 3
+    },
+    {
+      "source": "sp634",
+      "destination": "sp638",
+      "layer": false,
+      "clear_address": "0x129570",
+      "copy_address": "0x1295a0",
+      "source_extent": [
+        1588,
+        1592
+      ],
+      "destination_extent": [
+        1592,
+        1596
+      ],
+      "alpha_byte": null
+    },
+    {
+      "source": "sp5DC",
+      "destination": "sp5E0",
+      "layer": true,
+      "clear_address": "0x129608",
+      "copy_address": "0x129640",
+      "source_extent": [
+        1500,
+        1504
+      ],
+      "destination_extent": [
+        1504,
+        1508
+      ],
+      "alpha_byte": 3
+    },
+    {
+      "source": "sp62C",
+      "destination": "sp630",
+      "layer": false,
+      "clear_address": "0x1298b8",
+      "copy_address": "0x1298e8",
+      "source_extent": [
+        1580,
+        1584
+      ],
+      "destination_extent": [
+        1584,
+        1588
+      ],
+      "alpha_byte": null
+    },
+    {
+      "source": "sp5D4",
+      "destination": "sp5D8",
+      "layer": true,
+      "clear_address": "0x129950",
+      "copy_address": "0x129988",
+      "source_extent": [
+        1492,
+        1496
+      ],
+      "destination_extent": [
+        1496,
+        1500
+      ],
+      "alpha_byte": 3
+    },
+    {
+      "source": "sp690",
+      "destination": "sp6BC",
+      "layer": false,
+      "clear_address": "0x129a90",
+      "copy_address": "0x129ac0",
+      "source_extent": [
+        1680,
+        1684
+      ],
+      "destination_extent": [
+        1724,
+        1728
+      ],
+      "alpha_byte": null
+    }
+  ],
+  "object_count": 46,
+  "whole_function_direct_access_census": [
+    {
+      "address": "0x126620",
+      "word": "0x27a406bc",
+      "stack_offset": "0x6bc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1724
+      ]
+    },
+    {
+      "address": "0x126624",
+      "word": "0xe7a006bc",
+      "stack_offset": "0x6bc",
+      "width": 4,
+      "overlaps": [
+        1724
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x12666c",
+      "word": "0x27a406bc",
+      "stack_offset": "0x6bc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1724
+      ]
+    },
+    {
+      "address": "0x126670",
+      "word": "0xe7a006bc",
+      "stack_offset": "0x6bc",
+      "width": 4,
+      "overlaps": [
+        1724
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x126690",
+      "word": "0x27a406bc",
+      "stack_offset": "0x6bc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1724
+      ]
+    },
+    {
+      "address": "0x126694",
+      "word": "0xe7a006bc",
+      "stack_offset": "0x6bc",
+      "width": 4,
+      "overlaps": [
+        1724
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1266e4",
+      "word": "0x27a406bc",
+      "stack_offset": "0x6bc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1724
+      ]
+    },
+    {
+      "address": "0x1266e8",
+      "word": "0xe7a006bc",
+      "stack_offset": "0x6bc",
+      "width": 4,
+      "overlaps": [
+        1724
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x126784",
+      "word": "0x27a406bc",
+      "stack_offset": "0x6bc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1724
+      ]
+    },
+    {
+      "address": "0x126b98",
+      "word": "0x27a30624",
+      "stack_offset": "0x624",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1572
+      ]
+    },
+    {
+      "address": "0x126bc8",
+      "word": "0xa3a20627",
+      "stack_offset": "0x627",
+      "width": 1,
+      "overlaps": [
+        1572
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x126bcc",
+      "word": "0x27a40628",
+      "stack_offset": "0x628",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1576
+      ]
+    },
+    {
+      "address": "0x126bd0",
+      "word": "0xc7a00624",
+      "stack_offset": "0x624",
+      "width": 4,
+      "overlaps": [
+        1572
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x126bd4",
+      "word": "0xe7a00628",
+      "stack_offset": "0x628",
+      "width": 4,
+      "overlaps": [
+        1576
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x126c14",
+      "word": "0x27a40628",
+      "stack_offset": "0x628",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1576
+      ]
+    },
+    {
+      "address": "0x126cf0",
+      "word": "0x27a306a4",
+      "stack_offset": "0x6a4",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1700
+      ]
+    },
+    {
+      "address": "0x126d1c",
+      "word": "0x27a406bc",
+      "stack_offset": "0x6bc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1724
+      ]
+    },
+    {
+      "address": "0x126d20",
+      "word": "0xc7a006a4",
+      "stack_offset": "0x6a4",
+      "width": 4,
+      "overlaps": [
+        1700
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x126d24",
+      "word": "0xe7a006bc",
+      "stack_offset": "0x6bc",
+      "width": 4,
+      "overlaps": [
+        1724
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x126fe0",
+      "word": "0x27a306a0",
+      "stack_offset": "0x6a0",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1696
+      ]
+    },
+    {
+      "address": "0x12700c",
+      "word": "0x27a406bc",
+      "stack_offset": "0x6bc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1724
+      ]
+    },
+    {
+      "address": "0x127010",
+      "word": "0xc7a006a0",
+      "stack_offset": "0x6a0",
+      "width": 4,
+      "overlaps": [
+        1696
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x127014",
+      "word": "0xe7a006bc",
+      "stack_offset": "0x6bc",
+      "width": 4,
+      "overlaps": [
+        1724
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1282ac",
+      "word": "0x27a30674",
+      "stack_offset": "0x674",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1652
+      ]
+    },
+    {
+      "address": "0x1282d8",
+      "word": "0x27a40678",
+      "stack_offset": "0x678",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1656
+      ]
+    },
+    {
+      "address": "0x1282dc",
+      "word": "0xc7a00674",
+      "stack_offset": "0x674",
+      "width": 4,
+      "overlaps": [
+        1652
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1282e0",
+      "word": "0xe7a00678",
+      "stack_offset": "0x678",
+      "width": 4,
+      "overlaps": [
+        1656
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128348",
+      "word": "0x27a3061c",
+      "stack_offset": "0x61c",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1564
+      ]
+    },
+    {
+      "address": "0x128378",
+      "word": "0xa3a2061f",
+      "stack_offset": "0x61f",
+      "width": 1,
+      "overlaps": [
+        1564
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x12837c",
+      "word": "0x27a40620",
+      "stack_offset": "0x620",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1568
+      ]
+    },
+    {
+      "address": "0x128380",
+      "word": "0xc7a0061c",
+      "stack_offset": "0x61c",
+      "width": 4,
+      "overlaps": [
+        1564
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128384",
+      "word": "0xe7a00620",
+      "stack_offset": "0x620",
+      "width": 4,
+      "overlaps": [
+        1568
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1283c4",
+      "word": "0x27a40620",
+      "stack_offset": "0x620",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1568
+      ]
+    },
+    {
+      "address": "0x128730",
+      "word": "0x27a3066c",
+      "stack_offset": "0x66c",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1644
+      ]
+    },
+    {
+      "address": "0x12875c",
+      "word": "0x27a40670",
+      "stack_offset": "0x670",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1648
+      ]
+    },
+    {
+      "address": "0x128760",
+      "word": "0xc7a0066c",
+      "stack_offset": "0x66c",
+      "width": 4,
+      "overlaps": [
+        1644
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128764",
+      "word": "0xe7a00670",
+      "stack_offset": "0x670",
+      "width": 4,
+      "overlaps": [
+        1648
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1287c8",
+      "word": "0x27a30614",
+      "stack_offset": "0x614",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1556
+      ]
+    },
+    {
+      "address": "0x1287f8",
+      "word": "0xa3a20617",
+      "stack_offset": "0x617",
+      "width": 1,
+      "overlaps": [
+        1556
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1287fc",
+      "word": "0x27a40618",
+      "stack_offset": "0x618",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1560
+      ]
+    },
+    {
+      "address": "0x128800",
+      "word": "0xc7a00614",
+      "stack_offset": "0x614",
+      "width": 4,
+      "overlaps": [
+        1556
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128804",
+      "word": "0xe7a00618",
+      "stack_offset": "0x618",
+      "width": 4,
+      "overlaps": [
+        1560
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128844",
+      "word": "0x27a40618",
+      "stack_offset": "0x618",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1560
+      ]
+    },
+    {
+      "address": "0x128904",
+      "word": "0x27a30664",
+      "stack_offset": "0x664",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1636
+      ]
+    },
+    {
+      "address": "0x128930",
+      "word": "0x27a40668",
+      "stack_offset": "0x668",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1640
+      ]
+    },
+    {
+      "address": "0x128934",
+      "word": "0xc7a00664",
+      "stack_offset": "0x664",
+      "width": 4,
+      "overlaps": [
+        1636
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128938",
+      "word": "0xe7a00668",
+      "stack_offset": "0x668",
+      "width": 4,
+      "overlaps": [
+        1640
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1289a0",
+      "word": "0x27a3060c",
+      "stack_offset": "0x60c",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1548
+      ]
+    },
+    {
+      "address": "0x1289d0",
+      "word": "0xa3a2060f",
+      "stack_offset": "0x60f",
+      "width": 1,
+      "overlaps": [
+        1548
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1289d4",
+      "word": "0x27a40610",
+      "stack_offset": "0x610",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1552
+      ]
+    },
+    {
+      "address": "0x1289d8",
+      "word": "0xc7a0060c",
+      "stack_offset": "0x60c",
+      "width": 4,
+      "overlaps": [
+        1548
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1289dc",
+      "word": "0xe7a00610",
+      "stack_offset": "0x610",
+      "width": 4,
+      "overlaps": [
+        1552
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128a1c",
+      "word": "0x27a40610",
+      "stack_offset": "0x610",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1552
+      ]
+    },
+    {
+      "address": "0x128abc",
+      "word": "0x27a3065c",
+      "stack_offset": "0x65c",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1628
+      ]
+    },
+    {
+      "address": "0x128ae8",
+      "word": "0x27a40660",
+      "stack_offset": "0x660",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1632
+      ]
+    },
+    {
+      "address": "0x128aec",
+      "word": "0xc7a0065c",
+      "stack_offset": "0x65c",
+      "width": 4,
+      "overlaps": [
+        1628
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128af0",
+      "word": "0xe7a00660",
+      "stack_offset": "0x660",
+      "width": 4,
+      "overlaps": [
+        1632
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128b58",
+      "word": "0x27a30604",
+      "stack_offset": "0x604",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1540
+      ]
+    },
+    {
+      "address": "0x128b88",
+      "word": "0xa3a20607",
+      "stack_offset": "0x607",
+      "width": 1,
+      "overlaps": [
+        1540
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128b8c",
+      "word": "0x27a40608",
+      "stack_offset": "0x608",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1544
+      ]
+    },
+    {
+      "address": "0x128b90",
+      "word": "0xc7a00604",
+      "stack_offset": "0x604",
+      "width": 4,
+      "overlaps": [
+        1540
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128b94",
+      "word": "0xe7a00608",
+      "stack_offset": "0x608",
+      "width": 4,
+      "overlaps": [
+        1544
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128bd4",
+      "word": "0x27a40608",
+      "stack_offset": "0x608",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1544
+      ]
+    },
+    {
+      "address": "0x128d0c",
+      "word": "0x27a30654",
+      "stack_offset": "0x654",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1620
+      ]
+    },
+    {
+      "address": "0x128d38",
+      "word": "0x27a40658",
+      "stack_offset": "0x658",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1624
+      ]
+    },
+    {
+      "address": "0x128d3c",
+      "word": "0xc7a00654",
+      "stack_offset": "0x654",
+      "width": 4,
+      "overlaps": [
+        1620
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128d40",
+      "word": "0xe7a00658",
+      "stack_offset": "0x658",
+      "width": 4,
+      "overlaps": [
+        1624
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128da4",
+      "word": "0x27a305fc",
+      "stack_offset": "0x5fc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1532
+      ]
+    },
+    {
+      "address": "0x128dd4",
+      "word": "0xa3a205ff",
+      "stack_offset": "0x5ff",
+      "width": 1,
+      "overlaps": [
+        1532
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128dd8",
+      "word": "0x27a40600",
+      "stack_offset": "0x600",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1536
+      ]
+    },
+    {
+      "address": "0x128ddc",
+      "word": "0xc7a005fc",
+      "stack_offset": "0x5fc",
+      "width": 4,
+      "overlaps": [
+        1532
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128de0",
+      "word": "0xe7a00600",
+      "stack_offset": "0x600",
+      "width": 4,
+      "overlaps": [
+        1536
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128e20",
+      "word": "0x27a40600",
+      "stack_offset": "0x600",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1536
+      ]
+    },
+    {
+      "address": "0x128e70",
+      "word": "0x27a3064c",
+      "stack_offset": "0x64c",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1612
+      ]
+    },
+    {
+      "address": "0x128e9c",
+      "word": "0x27a40650",
+      "stack_offset": "0x650",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1616
+      ]
+    },
+    {
+      "address": "0x128ea0",
+      "word": "0xc7a0064c",
+      "stack_offset": "0x64c",
+      "width": 4,
+      "overlaps": [
+        1612
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128ea4",
+      "word": "0xe7a00650",
+      "stack_offset": "0x650",
+      "width": 4,
+      "overlaps": [
+        1616
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128f08",
+      "word": "0x27a305f4",
+      "stack_offset": "0x5f4",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1524
+      ]
+    },
+    {
+      "address": "0x128f38",
+      "word": "0xa3a205f7",
+      "stack_offset": "0x5f7",
+      "width": 1,
+      "overlaps": [
+        1524
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128f3c",
+      "word": "0x27a405f8",
+      "stack_offset": "0x5f8",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1528
+      ]
+    },
+    {
+      "address": "0x128f40",
+      "word": "0xc7a005f4",
+      "stack_offset": "0x5f4",
+      "width": 4,
+      "overlaps": [
+        1524
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128f44",
+      "word": "0xe7a005f8",
+      "stack_offset": "0x5f8",
+      "width": 4,
+      "overlaps": [
+        1528
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x128f84",
+      "word": "0x27a405f8",
+      "stack_offset": "0x5f8",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1528
+      ]
+    },
+    {
+      "address": "0x12901c",
+      "word": "0x27a30644",
+      "stack_offset": "0x644",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1604
+      ]
+    },
+    {
+      "address": "0x129048",
+      "word": "0x27a40648",
+      "stack_offset": "0x648",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1608
+      ]
+    },
+    {
+      "address": "0x12904c",
+      "word": "0xc7a00644",
+      "stack_offset": "0x644",
+      "width": 4,
+      "overlaps": [
+        1604
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x129050",
+      "word": "0xe7a00648",
+      "stack_offset": "0x648",
+      "width": 4,
+      "overlaps": [
+        1608
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1290b4",
+      "word": "0x27a305ec",
+      "stack_offset": "0x5ec",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1516
+      ]
+    },
+    {
+      "address": "0x1290e4",
+      "word": "0xa3a205ef",
+      "stack_offset": "0x5ef",
+      "width": 1,
+      "overlaps": [
+        1516
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1290e8",
+      "word": "0x27a405f0",
+      "stack_offset": "0x5f0",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1520
+      ]
+    },
+    {
+      "address": "0x1290ec",
+      "word": "0xc7a005ec",
+      "stack_offset": "0x5ec",
+      "width": 4,
+      "overlaps": [
+        1516
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1290f0",
+      "word": "0xe7a005f0",
+      "stack_offset": "0x5f0",
+      "width": 4,
+      "overlaps": [
+        1520
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x129130",
+      "word": "0x27a405f0",
+      "stack_offset": "0x5f0",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1520
+      ]
+    },
+    {
+      "address": "0x1293a0",
+      "word": "0x27a3063c",
+      "stack_offset": "0x63c",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1596
+      ]
+    },
+    {
+      "address": "0x1293cc",
+      "word": "0x27a40640",
+      "stack_offset": "0x640",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1600
+      ]
+    },
+    {
+      "address": "0x1293d0",
+      "word": "0xc7a0063c",
+      "stack_offset": "0x63c",
+      "width": 4,
+      "overlaps": [
+        1596
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1293d4",
+      "word": "0xe7a00640",
+      "stack_offset": "0x640",
+      "width": 4,
+      "overlaps": [
+        1600
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x129438",
+      "word": "0x27a305e4",
+      "stack_offset": "0x5e4",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1508
+      ]
+    },
+    {
+      "address": "0x129468",
+      "word": "0xa3a205e7",
+      "stack_offset": "0x5e7",
+      "width": 1,
+      "overlaps": [
+        1508
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x12946c",
+      "word": "0x27a405e8",
+      "stack_offset": "0x5e8",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1512
+      ]
+    },
+    {
+      "address": "0x129470",
+      "word": "0xc7a005e4",
+      "stack_offset": "0x5e4",
+      "width": 4,
+      "overlaps": [
+        1508
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x129474",
+      "word": "0xe7a005e8",
+      "stack_offset": "0x5e8",
+      "width": 4,
+      "overlaps": [
+        1512
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1294b4",
+      "word": "0x27a405e8",
+      "stack_offset": "0x5e8",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1512
+      ]
+    },
+    {
+      "address": "0x129528",
+      "word": "0x27a406bc",
+      "stack_offset": "0x6bc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1724
+      ]
+    },
+    {
+      "address": "0x129530",
+      "word": "0xe7a006bc",
+      "stack_offset": "0x6bc",
+      "width": 4,
+      "overlaps": [
+        1724
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x129570",
+      "word": "0x27a30634",
+      "stack_offset": "0x634",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1588
+      ]
+    },
+    {
+      "address": "0x12959c",
+      "word": "0x27a40638",
+      "stack_offset": "0x638",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1592
+      ]
+    },
+    {
+      "address": "0x1295a0",
+      "word": "0xc7a00634",
+      "stack_offset": "0x634",
+      "width": 4,
+      "overlaps": [
+        1588
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1295a4",
+      "word": "0xe7a00638",
+      "stack_offset": "0x638",
+      "width": 4,
+      "overlaps": [
+        1592
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x129608",
+      "word": "0x27a305dc",
+      "stack_offset": "0x5dc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1500
+      ]
+    },
+    {
+      "address": "0x129638",
+      "word": "0xa3a205df",
+      "stack_offset": "0x5df",
+      "width": 1,
+      "overlaps": [
+        1500
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x12963c",
+      "word": "0x27a405e0",
+      "stack_offset": "0x5e0",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1504
+      ]
+    },
+    {
+      "address": "0x129640",
+      "word": "0xc7a005dc",
+      "stack_offset": "0x5dc",
+      "width": 4,
+      "overlaps": [
+        1500
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x129644",
+      "word": "0xe7a005e0",
+      "stack_offset": "0x5e0",
+      "width": 4,
+      "overlaps": [
+        1504
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x129684",
+      "word": "0x27a405e0",
+      "stack_offset": "0x5e0",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1504
+      ]
+    },
+    {
+      "address": "0x12973c",
+      "word": "0x27a406bc",
+      "stack_offset": "0x6bc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1724
+      ]
+    },
+    {
+      "address": "0x129744",
+      "word": "0xe7a006bc",
+      "stack_offset": "0x6bc",
+      "width": 4,
+      "overlaps": [
+        1724
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x129844",
+      "word": "0x27a406bc",
+      "stack_offset": "0x6bc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1724
+      ]
+    },
+    {
+      "address": "0x129848",
+      "word": "0xe7a006bc",
+      "stack_offset": "0x6bc",
+      "width": 4,
+      "overlaps": [
+        1724
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x129888",
+      "word": "0x27a406bc",
+      "stack_offset": "0x6bc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1724
+      ]
+    },
+    {
+      "address": "0x1298b8",
+      "word": "0x27a3062c",
+      "stack_offset": "0x62c",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1580
+      ]
+    },
+    {
+      "address": "0x1298e4",
+      "word": "0x27a40630",
+      "stack_offset": "0x630",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1584
+      ]
+    },
+    {
+      "address": "0x1298e8",
+      "word": "0xc7a0062c",
+      "stack_offset": "0x62c",
+      "width": 4,
+      "overlaps": [
+        1580
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1298ec",
+      "word": "0xe7a00630",
+      "stack_offset": "0x630",
+      "width": 4,
+      "overlaps": [
+        1584
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x129950",
+      "word": "0x27a305d4",
+      "stack_offset": "0x5d4",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1492
+      ]
+    },
+    {
+      "address": "0x129980",
+      "word": "0xa3a205d7",
+      "stack_offset": "0x5d7",
+      "width": 1,
+      "overlaps": [
+        1492
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x129984",
+      "word": "0x27a405d8",
+      "stack_offset": "0x5d8",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1496
+      ]
+    },
+    {
+      "address": "0x129988",
+      "word": "0xc7a005d4",
+      "stack_offset": "0x5d4",
+      "width": 4,
+      "overlaps": [
+        1492
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x12998c",
+      "word": "0xe7a005d8",
+      "stack_offset": "0x5d8",
+      "width": 4,
+      "overlaps": [
+        1496
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x1299cc",
+      "word": "0x27a405d8",
+      "stack_offset": "0x5d8",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1496
+      ]
+    },
+    {
+      "address": "0x129a90",
+      "word": "0x27a30690",
+      "stack_offset": "0x690",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1680
+      ]
+    },
+    {
+      "address": "0x129abc",
+      "word": "0x27a406bc",
+      "stack_offset": "0x6bc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1724
+      ]
+    },
+    {
+      "address": "0x129ac0",
+      "word": "0xc7a00690",
+      "stack_offset": "0x690",
+      "width": 4,
+      "overlaps": [
+        1680
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x129ac4",
+      "word": "0xe7a006bc",
+      "stack_offset": "0x6bc",
+      "width": 4,
+      "overlaps": [
+        1724
+      ],
+      "addresses": []
+    },
+    {
+      "address": "0x12a0e8",
+      "word": "0x27a406bc",
+      "stack_offset": "0x6bc",
+      "width": null,
+      "overlaps": [],
+      "addresses": [
+        1724
+      ]
+    },
+    {
+      "address": "0x12a0ec",
+      "word": "0xe7a006bc",
+      "stack_offset": "0x6bc",
+      "width": 4,
+      "overlaps": [
+        1724
+      ],
+      "addresses": []
+    }
+  ],
+  "shared_other_rhs": [
+    "temp_f0",
+    "temp_f0_2",
+    "temp_f0_3",
+    "temp_f0_4",
+    "sp69C",
+    "sp698",
+    "temp_f0_6",
+    "temp_f0_8"
+  ]
+}

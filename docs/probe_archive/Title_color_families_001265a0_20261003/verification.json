@@ -1,0 +1,25 @@
+{
+  "source_base": "5f3ee52967caa0838cc534a9f1bfdb6ef05dde07",
+  "parent": "278155dd92510bbc280749472ee037cc4d4d36ce",
+  "fingerprints": {
+    "src/promoted/code1_0012.c": "4b4f028ce15cba8ca90c51608315d84e80127c2885c5be8cd306e19ec4471e75",
+    "tests/test_title_color_families.py": "820ae9695b05a53faeea9dbf1034cba5cacd68f8bd0060bc03d1fa0313a6943d",
+    "tests/title_color_families_fixture.c.in": "3da97019369c7784a56cbcdfb5234048f6a82a25eac222e5868ece658dd0ee81",
+    "tests/test_title_layer_contract.py": "5f0330093682256e158c16370f3218631fc7fd7c1f9ccc6a78d77cfd01a42f74",
+    "tests/title_layer_contract_fixture.c.in": "2f05a5bd6670b3178bf08bd2650cdb69eff2f44286b614fab21c72c714ac371f"
+  },
+  "native_tests": 10,
+  "native_family_cases_per_optimization": 49536,
+  "negative_controls": 8,
+  "skips": 0,
+  "owner_match": 148,
+  "owner_asm": 1,
+  "guarded_bytes": 17236,
+  "guarded_frame": 1232,
+  "guarded_differing_words": 3967,
+  "new_families": 24,
+  "new_objects": 46,
+  "candidate_total_families": 26,
+  "candidate_total_objects": 50,
+  "promotion": false
+}

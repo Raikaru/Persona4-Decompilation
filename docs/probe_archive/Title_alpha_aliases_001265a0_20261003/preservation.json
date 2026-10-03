@@ -1,0 +1,123 @@
+{
+  "production": {
+    "functions": 82,
+    "changed_function_names": [],
+    "changed_section_names": [],
+    "allocated_relocations_equal": true,
+    "all_non_target_allocated_data_unchanged": true,
+    "non_target_allocated_data_bytes": 420,
+    "all_non_target_allocated_references_unchanged": true,
+    "baseline_target_tables": {},
+    "target_tables": {},
+    "baseline_target_size": 17616,
+    "candidate_target_size": 17616,
+    "raw_object_identical": true,
+    "object_sha256": "59e652c8faa507dfb2feae59814a9668abfdbb377ba7eb62c3167eac9a7cc8c5"
+  },
+  "guard": {
+    "functions": 82,
+    "changed_function_names": [
+      "func_001265a0"
+    ],
+    "changed_section_names": [
+      ".rodata",
+      ".text"
+    ],
+    "allocated_relocations_equal": false,
+    "target_prefix_shared_color_relocations": {
+      "entries": [
+        1,
+        2,
+        3
+      ],
+      "before_sp": "0x4ec",
+      "after_sp": "0x4fc",
+      "all_other_words_and_prefix_references_equal": true
+    },
+    "all_non_target_allocated_data_unchanged": true,
+    "non_target_allocated_data_bytes": 420,
+    "all_non_target_allocated_references_unchanged": true,
+    "baseline_target_tables": {
+      "220": {
+        "entries": [
+          180,
+          184,
+          184,
+          224,
+          512,
+          512,
+          12372,
+          12372,
+          14640,
+          14640,
+          17024,
+          17024,
+          17024,
+          17024,
+          17024,
+          17024
+        ],
+        "entry_prefixes": [
+          "880040ae000080c72400004620008046",
+          "000080c72400004620008046ec04a0e7",
+          "000080c72400004620008046ec04a0e7",
+          "000080c72400004620008046ec04a0e7",
+          "0c00438e010074240c0054ae1a00832a",
+          "0c00438e010074240c0054ae1a00832a",
+          "0c00428e010053240c0053ae1400622a",
+          "0c00428e010053240c0053ae1400622a",
+          "0c0050260c00428e3300401400000000",
+          "0c0050260c00428e3300401400000000",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c"
+        ]
+      }
+    },
+    "target_tables": {
+      "220": {
+        "entries": [
+          180,
+          184,
+          184,
+          224,
+          512,
+          512,
+          12464,
+          12464,
+          14732,
+          14732,
+          17116,
+          17116,
+          17116,
+          17116,
+          17116,
+          17116
+        ],
+        "entry_prefixes": [
+          "880040ae000080c72400004620008046",
+          "000080c72400004620008046fc04a0e7",
+          "000080c72400004620008046fc04a0e7",
+          "000080c72400004620008046fc04a0e7",
+          "0c00438e010074240c0054ae1a00832a",
+          "0c00438e010074240c0054ae1a00832a",
+          "0c00428e010053240c0053ae1400622a",
+          "0c00428e010053240c0053ae1400622a",
+          "0c0050260c00428e3300401400000000",
+          "0c0050260c00428e3300401400000000",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c",
+          "2c00438e3e006018000000000000133c"
+        ]
+      }
+    },
+    "baseline_target_size": 17360,
+    "candidate_target_size": 17452
+  }
+}

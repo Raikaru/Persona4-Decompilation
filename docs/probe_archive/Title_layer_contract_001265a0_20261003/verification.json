@@ -1,0 +1,20 @@
+{
+  "base": "de43968228ce8c80c11ceccb6d19e1c9ff09f5fa",
+  "public_foundation": "862a8d1e00d9aa26086aef62bfabdc583e1b1851",
+  "fingerprints": {
+    "src/promoted/code1_0012.c": "46ae7c16d122143107ae8d8d0bc7a8dc69ce16eafc8a5dfaf935d056910ace37",
+    "src/promoted/code1_0045.c": "8956b86431a647c185496ff943de20f078e4c41849c53775c60c93d7c6dd1672",
+    "tests/test_title_layer_contract.py": "38caba5f263a692372be91dbc4a79a3ba0c12da94e7f837116644a6e4ca1f1f6",
+    "tests/title_layer_contract_fixture.c.in": "5d8dea73d9369c3b9555ac4405d346b3128b77c3661d39458307baf48e353daf"
+  },
+  "owner_match": 148,
+  "owner_asm": 1,
+  "native_tests": 8,
+  "native_cases_per_optimization": 122880,
+  "negative_controls": 9,
+  "skips": 0,
+  "guarded_size": 17192,
+  "guarded_differing_words": 3947,
+  "guarded_frame": 1232,
+  "promotion": false
+}

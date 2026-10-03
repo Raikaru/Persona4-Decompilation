@@ -1,0 +1,29 @@
+{
+  "base": "9d485ae870fd8ea6b8986dde35984b71789e6d06",
+  "fingerprints": {
+    "src/promoted/code1_0012.c": "52770f5aa8a580a7cfaec4e3fb312c94c30536956a22656eb444167f870aed0a",
+    "tests/test_title_rectangle_aliases.py": "a6bc695ff2220e98042d8dbc18a0bf8b4fecd023c3552ed7a633017b7683f850",
+    "tests/title_rectangle_alias_fixture.c.in": "62ecd2fc73eeed69bbe047dea2cde6f1b449a5761c5d20f4dd81b4ded1211626",
+    "tests/test_title_color_families.py": "6b978206c7fcab7d8b37f68bf33b8277e43418507c644606f10120ed760cf9f4",
+    "tests/title_color_families_fixture.c.in": "7fb3dca5cdca345f6e1d1b2abf685f9aed59a3179bacbec51369dff35d082cd9"
+  },
+  "native_tests": 12,
+  "rectangle_cases_per_optimization": 65536,
+  "rectangle_controls": 7,
+  "color_family_cases_per_optimization": 49872,
+  "skips": 0,
+  "owner_match": 148,
+  "owner_asm": 1,
+  "guarded_bytes": 17360,
+  "guarded_frame": 1264,
+  "guarded_differing_words": 3949,
+  "production_object_identical": true,
+  "preserved_guarded_siblings": 81,
+  "preserved_non_target_data_bytes": 420,
+  "target_table_prefix_named_color_relocations": [
+    1,
+    2,
+    3
+  ],
+  "promotion": false
+}

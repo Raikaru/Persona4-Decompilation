@@ -1,0 +1,175 @@
+{
+  "baseline": "fd71083ec6e1a69e27b86f947618e913e5acd20e",
+  "source_sha256": "7120145a1c2cde61b186f95d54e5761867e58e90a2d77640c1511c6927397952",
+  "scope": "guarded Title UV copy, signed fade alpha and canonical renderer/getter ABI",
+  "changed_function": "func_001265a0",
+  "guard_retained": true,
+  "new_exact_credit": 0,
+  "production_object_identical": true,
+  "preserved_guarded_siblings": 81,
+  "preserved_non_target_data_bytes": 420,
+  "whole_owner_verifier_summary": {
+    "MATCH": 127,
+    "ASM": 46
+  },
+  "providers": [
+    {
+      "file": "src/promoted/code1_0036.c",
+      "addr": "00366c70",
+      "name": "func_00366c70",
+      "line": 990,
+      "object_size": 1364,
+      "window": 1376,
+      "normalized_diff": 0,
+      "status": "MATCH",
+      "relocations": [
+        {
+          "offset": 164,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064E440",
+          "retail_imm": "0x0065",
+          "addend": "0x0000"
+        },
+        {
+          "offset": 168,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064E440",
+          "retail_imm": "0xe440",
+          "addend": "0x0000"
+        },
+        {
+          "offset": 328,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00457120",
+          "retail_target": "0x00457120"
+        },
+        {
+          "offset": 352,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_008872F8",
+          "retail_imm": "0x0088",
+          "addend": "0x0000"
+        },
+        {
+          "offset": 356,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_008872F8",
+          "retail_imm": "0x72f8",
+          "addend": "0x0000"
+        },
+        {
+          "offset": 496,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003e4320",
+          "retail_target": "0x003e4320"
+        },
+        {
+          "offset": 1000,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00887300",
+          "retail_imm": "0x0088",
+          "addend": "0x0000"
+        },
+        {
+          "offset": 1004,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00887300",
+          "retail_imm": "0x7300",
+          "addend": "0x0000"
+        },
+        {
+          "offset": 1200,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RpSkyRenderStateSet",
+          "retail_target": "0x003f6440"
+        },
+        {
+          "offset": 1216,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RpSkyRenderStateSet",
+          "retail_target": "0x003f6440"
+        },
+        {
+          "offset": 1224,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00887300",
+          "retail_imm": "0x0088",
+          "addend": "0x0000"
+        },
+        {
+          "offset": 1228,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00887300",
+          "retail_imm": "0x7300",
+          "addend": "0x0000"
+        },
+        {
+          "offset": 1264,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00887310",
+          "retail_imm": "0x0088",
+          "addend": "0x0000"
+        },
+        {
+          "offset": 1268,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00887310",
+          "retail_imm": "0x7310",
+          "addend": "0x0000"
+        }
+      ]
+    },
+    {
+      "file": "src/rw/basky.c",
+      "addr": "00401b80",
+      "name": "func_00401b80",
+      "line": 486,
+      "object_size": 8,
+      "window": 16,
+      "normalized_diff": 0,
+      "status": "MATCH",
+      "relocations": [
+        {
+          "offset": 4,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffb900",
+          "retail_imm": "0xb900",
+          "addend": "0x0000"
+        }
+      ]
+    }
+  ],
+  "native_tests": 20,
+  "native_skips": 0,
+  "native_fade_cases_each_optimization": 107904,
+  "native_runtime_negative_controls": 26,
+  "native_compile_negative_controls": 1,
+  "machine_invocations": 1368,
+  "machine_negative_controls": 4,
+  "guarded_object_bytes": 17364,
+  "retail_window_bytes": 17616,
+  "masked_differing_instruction_words": 3958,
+  "lint_errors": 0,
+  "lint_existing_advisories": 32,
+  "source_only": true,
+  "renderer_executed": false,
+  "renderer_boundary": "unchanged provider null-matrix path has pre-existing uninitialized identity.flags read/OR",
+  "full_build_run": false,
+  "CI_run": false,
+  "pushed": false
+}
