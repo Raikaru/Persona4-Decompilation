@@ -2297,8 +2297,7 @@ void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
 extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5);
 extern s32 func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5,
                          s16 arg6, s16 arg7, f32 farg3, f32 farg5, f32 farg4);
-extern void func_002aaf20(void *arg0, f32 farg0, f32 farg1, f32 farg2,
-                          f32 farg3, f32 farg4, s32 arg1, s32 arg2);
+
 extern void func_002aaac0(void);
 extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_00489f80(void);
@@ -2351,7 +2350,7 @@ void func_00126090(s32 arg0, u8 *arg1)
         } while (n != 0);
     }
     fillColor = black;
-    func_002aaf20(&fillColor, 0.0f, 0.0f, 0.0f, 640.0f, 480.0f, 0x12, 0);
+    titleRectangle((u8 *)&fillColor, 0.0f, 0.0f, 0.0f, 640.0f, 480.0f, 0x12, NULL);
     func_00489f80();
     func_0025f3f0(0.0f, 0.0f, 0.0f, 0xFFFFFF, arg0 & 0xFF, 0x1000C, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 1);
     func_0048a000();
@@ -2437,7 +2436,6 @@ void func_001265a0(s32 arg1) {
     extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern void func_002aaac0(void);
-    extern void func_002aaf20();
     extern s32 func_002ab380();
     extern s32 func_002abb30();
     extern s32 func_00366c70();
@@ -2525,11 +2523,10 @@ M2C_UNK unksp514;
     f32 sp694;
     f32 sp690;
     f32 sp68C;
-    f32 sp688;
-    s8 sp687;
-    M2C_UNK sp684;
-    f32 sp680;
-    f32 sp67C;
+    TitleDrawColor layerColor;
+    TitleDrawColor layerColorSource;
+    TitleDrawColor firstOverlayColor;
+    TitleDrawColor firstOverlaySource;
     f32 sp678;
     f32 sp674;
     f32 sp670;
@@ -2676,7 +2673,7 @@ M2C_UNK unksp514;
     f32 *var_3_22;
     f32 *var_3_24;
     f32 *var_3_27;
-    f32 *var_3_2;
+    u8 *overlayClearByte;
     f32 *var_3_31;
     f32 *var_3_33;
     f32 *var_3_4;
@@ -2761,7 +2758,7 @@ M2C_UNK unksp514;
     s128 *var_6_5;
     s128 *var_6_7;
     s128 *var_6_8;
-    M2C_UNK *var_3;
+    u8 *layerClearByte;
     M2C_UNK *var_3_11;
     M2C_UNK *var_3_13;
     M2C_UNK *var_3_15;
@@ -2840,7 +2837,7 @@ M2C_UNK unksp514;
     s32 var_17;
     s32 var_17_2;
     s32 var_19;
-    s32 var_2;
+    s32 layerClearCount;
     s32 var_2_10;
     s32 var_2_11;
     s32 var_2_12;
@@ -2861,7 +2858,7 @@ M2C_UNK unksp514;
     s32 var_2_27;
     s32 var_2_28;
     s32 var_2_29;
-    s32 var_2_2;
+    s32 overlayClearCount;
     s32 var_2_30;
     s32 var_2_31;
     s32 var_2_3;
@@ -3012,36 +3009,42 @@ M2C_UNK unksp514;
                 RpSkyRenderStateSet(2, 0x48);
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             }
-            var_3 = (M2C_UNK *)(&sp684);
-            var_2 = 4;
-            if ((u8 *)(var_3) != NULL) {
+            /* Retail colors at sp+0x684 and sp+0x688 are distinct four-byte objects. */
+            layerClearByte = layerColorSource.bytes;
+            layerClearCount = 4;
+            if (layerClearByte != NULL) {
                 do {
-                    *var_3 = 0;
-                    var_3 += 1;
-                    var_2 -= 1;
-                } while (var_2 != 0);
+                    *layerClearByte = 0;
+                    layerClearByte += 1;
+                    layerClearCount -= 1;
+                } while (layerClearCount != 0);
             }
-            sp687 = 0xFF;
-            sp688 = (f32) sp684;
-            sp4B0 = D_005E5590.bits;
-            sp4C0 = D_005E5590.bits;
-            func_0045d6e0(&sp688, &sp4C0, 1, 0);
-            sp4A0 = D_005E55A0.bits;
-            sp4C0 = D_005E55A0.bits;
-            func_0045d6e0(&sp688, &sp4C0, 1, 0);
+            layerColorSource.bytes[3] = 0xFF;
+            titleCopyValue((u8 *)&layerColor, (const u8 *)&layerColorSource);
+            {
+                /* Retail passes depth in f12 and saveState in a2 at both calls. */
+                extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
+                sp4B0 = D_005E5590.bits;
+                sp4C0 = D_005E5590.bits;
+                func_0045d6e0((u8 *)&layerColor, (f32 *)&sp4C0, 0.0f, 1);
+                sp4A0 = D_005E55A0.bits;
+                sp4C0 = D_005E55A0.bits;
+                func_0045d6e0((u8 *)&layerColor, (f32 *)&sp4C0, 0.0f, 1);
+            }
             func_00126090(0xFF, temp_20, 0, 0, 0);
             if (temp_16 >= 0xCD) {
-                var_3_2 = (f32 *)(&sp67C);
-                var_2_2 = 4;
-                if (var_3_2 != NULL) {
+                /* Retail sp+0x67C is cleared bytewise before its independent value copy. */
+                overlayClearByte = firstOverlaySource.bytes;
+                overlayClearCount = 4;
+                if (overlayClearByte != NULL) {
                     do {
-                        *var_3_2 = 0;
-                        var_3_2 += 1;
-                        var_2_2 -= 1;
-                    } while (var_2_2 != 0);
+                        *overlayClearByte = 0;
+                        overlayClearByte += 1;
+                        overlayClearCount -= 1;
+                    } while (overlayClearCount != 0);
                 }
-                sp680 = sp67C;
-                func_002aaf20(&sp680, 0x12, 0, 0, 0, (f32) 0xFFFF, 0x44200000, 0x43E00000);
+                titleCopyValue((u8 *)&firstOverlayColor, (const u8 *)&firstOverlaySource);
+                titleRectangle((u8 *)&firstOverlayColor, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
@@ -3083,7 +3086,7 @@ M2C_UNK unksp514;
                         } while (var_2_4 != 0);
                     }
                     sp6BC = sp6A4;
-                    func_002aaf20(&sp6BC, 0x12, 0, 0, 0, 0.0f, 0x44200000, 0x43E00000);
+                    titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, 0.0f, 640.0f, 448.0f, 0x12, NULL);
                     sinf(((((fGpffff8094 * (f32) (temp_16 - 0x3D)) / 80.0f))));
                     var_19 = 1;
 loop_93:
@@ -3149,7 +3152,7 @@ loop_93:
                                     } while (var_2_6 != 0);
                                 }
                                 sp6BC = sp6A0;
-                                func_002aaf20(&sp6BC, 0x12, 0, 0, 0, (f32) 0xFFFF, 0x44200000, 0x43E00000);
+                                titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                                 var_6 = (s128 *)(&sp130);
                                 sp130 = D_005E5530;
                                 sp140 = D_005E5540;
@@ -3433,7 +3436,7 @@ loop_128:
                     } while (var_2_7 != 0);
                 }
                 sp678 = sp674;
-                func_002aaf20(&sp678, 0x12, 0, 0, 0, (f32) 0xFFFF, 0x44200000, 0x43E00000);
+                titleRectangle((u8 *)&sp678, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
@@ -3506,7 +3509,7 @@ loop_128:
                     } while (var_2_9 != 0);
                 }
                 sp670 = sp66C;
-                func_002aaf20(&sp670, 0x12, 0, 0, 0, (f32) 0xFFFF, 0x44200000, 0x43E00000);
+                titleRectangle((u8 *)&sp670, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
@@ -3543,7 +3546,7 @@ loop_128:
                     } while (var_2_11 != 0);
                 }
                 sp668 = sp664;
-                func_002aaf20(&sp668, 0x12, 0, 0, 0, (f32) 0xFFFF, 0x44200000, 0x43E00000);
+                titleRectangle((u8 *)&sp668, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
@@ -3581,7 +3584,7 @@ loop_128:
                     } while (var_2_13 != 0);
                 }
                 sp660 = sp65C;
-                func_002aaf20(&sp660, 0x12, 0, 0, 0, (f32) 0xFFFF, 0x44200000, 0x43E00000);
+                titleRectangle((u8 *)&sp660, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
@@ -3627,7 +3630,7 @@ loop_128:
                     } while (var_2_15 != 0);
                 }
                 sp658 = sp654;
-                func_002aaf20(&sp658, 0x12, 0, 0, 0, (f32) 0xFFFF, 0x44200000, 0x43E00000);
+                titleRectangle((u8 *)&sp658, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
@@ -3661,7 +3664,7 @@ loop_128:
                     } while (var_2_17 != 0);
                 }
                 sp650 = sp64C;
-                func_002aaf20(&sp650, 0x12, 0, 0, 0, (f32) 0xFFFF, 0x44200000, 0x43E00000);
+                titleRectangle((u8 *)&sp650, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
@@ -3697,7 +3700,7 @@ loop_128:
                     } while (var_2_19 != 0);
                 }
                 sp648 = sp644;
-                func_002aaf20(&sp648, 0x12, 0, 0, 0, (f32) 0xFFFF, 0x44200000, 0x43E00000);
+                titleRectangle((u8 *)&sp648, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
                 func_00489f80();
@@ -3758,7 +3761,7 @@ loop_128:
                 } while (var_2_22 != 0);
             }
             sp640 = sp63C;
-            func_002aaf20(&sp640, 0x12, 0, 0, 0, (f32) 0xFFFF, 0x44200000, 0x43E00000);
+            titleRectangle((u8 *)&sp640, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
             func_002aaac0();
             D_00887300[0](8, 1);
             func_00489f80();
@@ -3802,7 +3805,7 @@ loop_128:
                 } while (var_2_24 != 0);
             }
             sp638 = sp634;
-            func_002aaf20(&sp638, 0x12, 0, 0, 0, (f32) 0xFFFF, 0x44200000, 0x43E00000);
+            titleRectangle((u8 *)&sp638, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
             func_002aaac0();
             D_00887300[0](8, 1);
             func_00489f80();
@@ -3871,7 +3874,7 @@ loop_128:
             } while (var_2_26 != 0);
         }
         sp630 = sp62C;
-        func_002aaf20(&sp630, 0x12, 0, 0, 0, (f32) 0xFFFF, 0x44200000, 0x43E00000);
+        titleRectangle((u8 *)&sp630, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
         func_002aaac0();
         D_00887300[0](8, 1);
         func_00489f80();
@@ -3910,7 +3913,7 @@ loop_128:
             } while (var_2_28 != 0);
         }
         sp6BC = sp690;
-        func_002aaf20(&sp6BC, 0x12, 0, 0, 0, (f32) 0xFFFF, 0x44200000, 0x43E00000);
+        titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
         var_16 = 1;
 loop_351:
         if (var_16 < 8) {
