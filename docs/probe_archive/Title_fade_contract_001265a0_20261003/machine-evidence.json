@@ -1,0 +1,131 @@
+{
+  "source_sha256": "7120145a1c2cde61b186f95d54e5761867e58e90a2d77640c1511c6927397952",
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "retail_tail": [
+    "0x12a948",
+    "0x12aa28"
+  ],
+  "candidate_tail_offsets": [
+    "0x42ac",
+    "0x4384"
+  ],
+  "candidate_bytes": 17364,
+  "retail_uv_words": [
+    "0x3a800000",
+    "0x3b000000",
+    "0x3f200000",
+    "0x3b000000",
+    "0x3a800000",
+    "0x3f600000",
+    "0x3f200000",
+    "0x3f600000"
+  ],
+  "retail_uv_pairs": [
+    [
+      0.0009765625,
+      0.001953125
+    ],
+    [
+      0.625,
+      0.001953125
+    ],
+    [
+      0.0009765625,
+      0.875
+    ],
+    [
+      0.625,
+      0.875
+    ]
+  ],
+  "provider_prologue_words_verified": {
+    "0x366ca4": "0x80b82d",
+    "0x366ca8": "0xa0f02d",
+    "0x366cac": "0x46006546",
+    "0x366cb0": "0x100882d",
+    "0x366cb4": "0x120802d",
+    "0x366cb8": "0x140a82d",
+    "0x366cbc": "0xa7ab00be",
+    "0x366cec": "0x44860000",
+    "0x366cfc": "0x44870000",
+    "0x366d48": "0x8fa20258",
+    "0x366da4": "0x8fa20268"
+  },
+  "getter_actual_instructions_executed": true,
+  "getter_storage": "0x7649f0",
+  "candidate_references": [
+    {
+      "offset": 17080,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_005E56B0"
+    },
+    {
+      "offset": 17084,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_005E56B0"
+    },
+    {
+      "offset": 17168,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_00401b80"
+    },
+    {
+      "offset": 17276,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_00366c70"
+    }
+  ],
+  "counter_contract": {
+    "producer_stores": [
+      "0x12ae4c",
+      "0x12b240",
+      "0x12b404"
+    ],
+    "seed_values": [
+      10,
+      10,
+      13
+    ],
+    "positive_lifecycle_domain": [
+      1,
+      13
+    ],
+    "nonpositive_gate_skips_arithmetic": true,
+    "bounded_extra_machine_counts": [
+      14,
+      255,
+      512
+    ],
+    "arbitrary_positive_s32_claim": false
+  },
+  "machine_invocations": 1368,
+  "scenarios": 684,
+  "unwritten_stack_reads": 0,
+  "negative_controls": [
+    {
+      "mutation": "stride",
+      "rejected": true,
+      "reason": "('unwritten read', 'candidate', '0x1042c8', '0x5e56d0', 4)"
+    },
+    {
+      "mutation": "alpha",
+      "rejected": true,
+      "reason": ""
+    },
+    {
+      "mutation": "height",
+      "rejected": true,
+      "reason": ""
+    },
+    {
+      "mutation": "uv_address",
+      "rejected": true,
+      "reason": ""
+    }
+  ],
+  "scope": "actual retail/emitted tail instructions with actual getter leaf; renderer boundary recorded; no controller prefix, renderer, VU, GS, DMA, or gameplay execution"
+}

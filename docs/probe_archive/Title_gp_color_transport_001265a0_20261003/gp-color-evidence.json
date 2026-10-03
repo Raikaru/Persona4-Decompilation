@@ -1,0 +1,113 @@
+{
+  "source_sha256": "0dff10126bc1852b803110689eedf466ee1abb16b3d69d070975a66741985360",
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "colors": [
+    {
+      "symbol": "fGpffff9c70",
+      "data_address": "0x762d60",
+      "bits": "0xff000000",
+      "retail_load": "0x126618",
+      "retail_backup_store": "0x12661c",
+      "retail_shared_store": "0x126624",
+      "candidate_load_offset": "0x68",
+      "candidate_shared_store_offset": "0x6c",
+      "candidate_shared_color_sp": "0x4fc"
+    },
+    {
+      "symbol": "fGpffff9c74",
+      "data_address": "0x762d64",
+      "bits": "0xffffffff",
+      "retail_load": "0x126664",
+      "retail_backup_store": "0x126668",
+      "retail_shared_store": "0x126670",
+      "candidate_load_offset": "0xb0",
+      "candidate_shared_store_offset": "0xb4",
+      "candidate_shared_color_sp": "0x4fc"
+    },
+    {
+      "symbol": "fGpffff9c78",
+      "data_address": "0x762d68",
+      "bits": "0xffffffff",
+      "retail_load": "0x126688",
+      "retail_backup_store": "0x12668c",
+      "retail_shared_store": "0x126694",
+      "candidate_load_offset": "0xd0",
+      "candidate_shared_store_offset": "0xd4",
+      "candidate_shared_color_sp": "0x4fc"
+    },
+    {
+      "symbol": "fGpffff9c7c",
+      "data_address": "0x762d6c",
+      "bits": "0xff000000",
+      "retail_load": "0x1266dc",
+      "retail_backup_store": "0x1266e0",
+      "retail_shared_store": "0x1266e8",
+      "candidate_load_offset": "0x10c",
+      "candidate_shared_store_offset": "0x110",
+      "candidate_shared_color_sp": "0x4fc"
+    },
+    {
+      "symbol": "fGpffff9c88",
+      "data_address": "0x762d78",
+      "bits": "0xff000000",
+      "retail_load": "0x12983c",
+      "retail_backup_store": "0x129840",
+      "retail_shared_store": "0x129848",
+      "candidate_load_offset": "0x313c",
+      "candidate_shared_store_offset": "0x3140",
+      "candidate_shared_color_sp": "0x4fc"
+    },
+    {
+      "symbol": "fGpffff9c8c",
+      "data_address": "0x762d7c",
+      "bits": "0xff41ebff",
+      "retail_load": "0x12a0e0",
+      "retail_backup_store": "0x12a0e4",
+      "retail_shared_store": "0x12a0ec",
+      "candidate_load_offset": "0x3a54",
+      "candidate_shared_store_offset": "0x3a58",
+      "candidate_shared_color_sp": "0x4fc"
+    }
+  ],
+  "fullscreen_calls": [
+    {
+      "retail_call": "0x12662c",
+      "candidate_call_offset": "0x78",
+      "color_sp_before": "0x6bc",
+      "color_sp_after": "0x4fc",
+      "enabled": 1
+    },
+    {
+      "retail_call": "0x126678",
+      "candidate_call_offset": "0xc0",
+      "color_sp_before": "0x6bc",
+      "color_sp_after": "0x4fc",
+      "enabled": 1
+    },
+    {
+      "retail_call": "0x12669c",
+      "candidate_call_offset": "0xe0",
+      "color_sp_before": "0x6bc",
+      "color_sp_after": "0x4fc",
+      "enabled": 1
+    },
+    {
+      "retail_call": "0x12a0f4",
+      "candidate_call_offset": "0x3a64",
+      "color_sp_before": "0x6bc",
+      "color_sp_after": "0x4fc",
+      "enabled": 1
+    }
+  ],
+  "provider_signature": "void func_0045c870(u8 *, s32)",
+  "provider_prologue_verified": true,
+  "raw_gp_words_preserved": true,
+  "candidate_backup_scalars_elided": true,
+  "dynamic_alpha_lower_predicate": {
+    "address": "0x129394",
+    "word": "0x2a010019",
+    "first_dynamic_frame": 25
+  },
+  "candidate_size": 17404,
+  "frame": 1280
+}

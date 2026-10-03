@@ -1,0 +1,139 @@
+#include "type.h"
+static u32 scenario;
+#define CHECK(c) do { if (!(c)) native32_failure(__LINE__, scenario, #c); } while (0)
+#define M2C_FIELD(base, type, offset) (*(type)((u8 *)(base) + (offset)))
+struct RwMatrixTag;
+@RENDERER_PROTOTYPE@
+static struct { u32 before[4], words[8], after[4]; } sourceGuard;
+static struct { u32 before[4], words[16], after[4]; } stateGuard;
+static u32 expectedUv[8], originalState[16];
+static f32 (*activeUv)[2];
+static s32 *activeAlpha;
+static s32 initialCounter, expectedAlpha, textureWord;
+static u32 initialState, mutateAtGetter, getterCalls, rendererCalls;
+static u32 float_bits(f32 value) { union { f32 f; u32 word; } v; v.f = value; return v.word; }
+static void check_guards(void) {
+    for (u32 i = 0; i < 4; ++i) {
+        CHECK(sourceGuard.before[i] == 0xA5A5A5A5U && sourceGuard.after[i] == 0xA5A5A5A5U);
+        CHECK(stateGuard.before[i] == 0xA5A5A5A5U && stateGuard.after[i] == 0xA5A5A5A5U);
+    }
+}
+/* The real getter below remains verbatim. Only its GP data read is bound to an
+ * observable accessor so the precise call boundary can test snapshot ordering. */
+static s32 *texture_register(void) {
+    CHECK(initialCounter > 0 && getterCalls == 0 && rendererCalls == 0);
+    CHECK(stateGuard.words[0] == initialState);
+    CHECK((s32)stateGuard.words[0x2C / 4] == initialCounter - 1);
+    CHECK(*activeAlpha == expectedAlpha);
+    CHECK(memcmp(activeUv, expectedUv, sizeof(expectedUv)) == 0);
+    CHECK(memcmp(sourceGuard.words, expectedUv, sizeof(expectedUv)) == 0);
+    check_guards();
+    ++getterCalls;
+    if (mutateAtGetter) {
+        stateGuard.words[0] = initialState == 0x10 ? 9 : 0x10;
+        stateGuard.words[0x2C / 4] = 0x12345678;
+        for (u32 i = 0; i < 8; ++i) sourceGuard.words[i] ^= 0x80010000U;
+    }
+    return &textureWord;
+}
+#define iGpffffb900 (*texture_register())
+@GETTER@
+#undef iGpffffb900
+
+/* Deliberately a boundary recorder, not execution of the renderer body. Its
+ * signature is checked against the exact file prototype extracted above. */
+s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
+                 s32 alpha, s32 mode, s16 centerX, s16 centerY,
+                 struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2]) {
+    CHECK(getterCalls == 1 && rendererCalls == 0);
+    CHECK(x == 0 && y == 0 && float_bits(z) == 0);
+    CHECK(width == 640 && height == 448 && rgb == 0xFFFFFF);
+    CHECK(alpha == expectedAlpha && mode == 1 && centerX == 0 && centerY == 0);
+    CHECK(matrix == NULL && texture == textureWord && uv == activeUv);
+    /* Actual typed float loads consume exactly all four contiguous UV pairs. */
+    for (u32 pair = 0; pair < 4; ++pair) {
+        CHECK(float_bits(uv[pair][0]) == expectedUv[pair * 2]);
+        CHECK(float_bits(uv[pair][1]) == expectedUv[pair * 2 + 1]);
+    }
+    CHECK(stateGuard.words[0] == (mutateAtGetter ? (initialState == 0x10 ? 9U : 0x10U) : initialState));
+    CHECK(stateGuard.words[0x2C / 4] == (mutateAtGetter ? 0x12345678U : (u32)(initialCounter - 1)));
+    ++rendererCalls;
+    return 0x76543210;
+}
+
+#define D_005E56B0 sourceGuard.words
+static void extracted_tail(void) {
+    struct { u32 before[4]; @UV_DECLARATION@ u32 after[4]; } destination;
+@LOCALS@
+    @GETTER_PROTOTYPE@
+#define fadeUv destination.fadeUv
+    memset(&destination, 0xA5, sizeof(destination));
+    CHECK(sizeof(fadeUv) == 32);
+    CHECK((u8 *)destination.after - (u8 *)&fadeUv == 32);
+    CHECK((u8 *)&fadeUv - (u8 *)destination.before == 16);
+    temp_20 = stateGuard.words;
+    activeUv = fadeUv.pairs;
+    activeAlpha = &fadeAlpha;
+    fadeAlpha = -7654321;
+    fadeTexture = -1234567;
+    @BLOCK@
+    for (u32 i = 0; i < 4; ++i) CHECK(destination.before[i] == 0xA5A5A5A5U && destination.after[i] == 0xA5A5A5A5U);
+    if (initialCounter > 0) {
+        CHECK(fadeAlpha == expectedAlpha && fadeTexture == textureWord);
+        CHECK(memcmp(fadeUv.words, expectedUv, sizeof(expectedUv)) == 0);
+    } else {
+        CHECK(fadeAlpha == -7654321 && fadeTexture == -1234567);
+        for (u32 i = 0; i < 8; ++i) CHECK(fadeUv.words[i] == 0xA5A5A5A5U);
+    }
+#undef fadeUv
+}
+#undef D_005E56B0
+
+static void run_case(s32 counter, u32 state, u32 texture, u32 uvSet, u32 mutation) {
+    static const u32 retailUv[8] = {
+        0x3A800000, 0x3B000000, 0x3F200000, 0x3B000000,
+        0x3A800000, 0x3F600000, 0x3F200000, 0x3F600000
+    };
+    ++scenario;
+    memset(&sourceGuard, 0xA5, sizeof(sourceGuard));
+    memset(&stateGuard, 0xA5, sizeof(stateGuard));
+    initialCounter = counter; initialState = state; textureWord = (s32)texture;
+    mutateAtGetter = mutation; getterCalls = rendererCalls = 0;
+    stateGuard.words[0] = state;
+    stateGuard.words[0x2C / 4] = (u32)counter;
+    memcpy(originalState, stateGuard.words, sizeof(originalState));
+    /* With 1 <= count <= 65536, all integer products are exactly binary32 and
+     * quotient rounding cannot cross an integer. Integer division is therefore
+     * an independent oracle for truncation, without repeating the source cast. */
+    expectedAlpha = counter > 0 ? ((counter - 1) * 255) / (state == 16 ? 10 : 13) : -7654321;
+    for (u32 i = 0; i < 8; ++i) {
+        /* Every tag is distinct, finite and unequal to either guard pattern. */
+        expectedUv[i] = uvSet == 0 ? retailUv[i] : 0x3E000001U + uvSet * 0x100019U + i * 0x10301U;
+        sourceGuard.words[i] = expectedUv[i];
+    }
+    extracted_tail();
+    CHECK(getterCalls == (counter > 0 ? 1U : 0U));
+    CHECK(rendererCalls == (counter > 0 ? 1U : 0U));
+    check_guards();
+    for (u32 i = 0; i < 16; ++i) {
+        u32 expected = originalState[i];
+        if (counter > 0 && i == 0x2C / 4) expected = mutation ? 0x12345678U : (u32)(counter - 1);
+        if (counter > 0 && mutation && i == 0) expected = state == 16 ? 9 : 16;
+        CHECK(stateGuard.words[i] == expected);
+    }
+    for (u32 i = 0; i < 8; ++i) CHECK(sourceGuard.words[i] == (expectedUv[i] ^ (counter > 0 && mutation ? 0x80010000U : 0U)));
+}
+int main(void) {
+    static const u32 states[8] = {0, 9, 15, 16, 17, 0xFFFFFFFFU, 0x10010, 0x80000010U};
+    static const u32 textures[4] = {0, 1, 0x1234ABCD, 0xF001E003U};
+    static const s32 extraCounts[8] = {(-2147483647 - 1), -65536, -17, 257, 511, 1024, 4096, 65536};
+    for (u32 s = 0; s < 8; ++s) for (u32 t = 0; t < 4; ++t)
+    for (u32 uv = 0; uv < 6; ++uv) for (u32 mutation = 0; mutation < 2; ++mutation) {
+        /* Explicitly includes every realistic count 1..13 and zero/negative gates. */
+        for (s32 count = -16; count <= 256; ++count) run_case(count, states[s], textures[t], uv, mutation);
+        for (u32 c = 0; c < 8; ++c) run_case(extraCounts[c], states[s], textures[t], uv, mutation);
+    }
+    CHECK(scenario == 107904);
+    native32_text("107904 title fade boundary cases passed\n");
+    return 0;
+}
