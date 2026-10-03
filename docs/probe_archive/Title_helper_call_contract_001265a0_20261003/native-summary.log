@@ -1,0 +1,142 @@
+test_actual_alpha_alias_blocks (test_title_alpha_aliases.TitleAlphaAliases.test_actual_alpha_alias_blocks) ... -O0 alpha_calls=16508 conversion_cases=2537
+-O2 alpha_calls=16508 conversion_cases=2537
+test_negative_controls (test_title_alpha_aliases.TitleAlphaAliases.test_negative_controls) ... ok
+test_all_actual_color_families (test_title_color_families.TitleColorFamilies.test_all_actual_color_families) ... -O0 49872 color-family cases passed
+-O2 49872 color-family cases passed
+test_negative_controls (test_title_color_families.TitleColorFamilies.test_negative_controls) ... ok
+test_actual_color_storage_and_copy_lifetimes (test_title_color_storage.TitleColorStorage.test_actual_color_storage_and_copy_lifetimes) ... -O0 title_color_cases=4128
+-O2 title_color_cases=4128
+test_layer_declaration_matches_actual_provider (test_title_color_storage.TitleColorStorage.test_layer_declaration_matches_actual_provider) ... ok
+test_rejects_wide_clear_wrong_byte_and_copy_regressions (test_title_color_storage.TitleColorStorage.test_rejects_wide_clear_wrong_byte_and_copy_regressions) ... ok
+test_incompatible_callback_types_are_rejected (test_title_entry_contract.TitleEntryContract.test_incompatible_callback_types_are_rejected) ... incompatible callback type: compile rejected
+test_independent_controls (test_title_entry_contract.TitleEntryContract.test_independent_controls) ... first_input: rejected: line 84, scenario 1: task==expectedTask
+test_live_parts (test_title_entry_contract.TitleEntryContract.test_live_parts) ... ok
+test_two_input_registration_and_entry (test_title_entry_contract.TitleEntryContract.test_two_input_registration_and_entry) ... -O0 512 title entry cases passed
+-O2 512 title entry cases passed
+test_actual_tail_order_gate_arguments_and_uv_words (test_title_fade_contract.TitleFadeContracts.test_actual_tail_order_gate_arguments_and_uv_words) ... -O0 107904 title fade boundary cases passed
+-O2 107904 title fade boundary cases passed
+test_independent_negative_controls (test_title_fade_contract.TitleFadeContracts.test_independent_negative_controls) ... source_byte_stride: rejected: line 77, scenario 18: memcmp(activeUv, expectedUv, sizeof(expectedUv)) == 0
+test_no_argument_getter_rejects_dummy_parameter (test_title_fade_contract.TitleFadeContracts.test_no_argument_getter_rejects_dummy_parameter) ... ok
+test_final_gate_and_real_getter_are_extracted_verbatim (test_title_fade_contract.TitleFadeExtraction.test_final_gate_and_real_getter_are_extracted_verbatim) ... ok
+test_negative_controls (test_title_gp_color_transport.TitleGpColorTransport.test_negative_controls) ... ok
+test_six_actual_copy_chains_and_draw_providers (test_title_gp_color_transport.TitleGpColorTransport.test_six_actual_copy_chains_and_draw_providers) ... -O0 6234 GP color/provider cases passed
+-O2 6234 GP color/provider cases passed
+test_all_argument_fields (test_title_helper_call_contract.TitleHelperCalls.test_all_argument_fields) ... -O0 35 independent argument-field controls rejected
+-O2 35 independent argument-field controls rejected
+test_compile_type_controls (test_title_helper_call_contract.TitleHelperCalls.test_compile_type_controls) ... -O0 15 wrong-order/arity/pointer-type controls rejected
+-O2 15 wrong-order/arity/pointer-type controls rejected
+test_direct_narrowing_traps (test_title_helper_call_contract.TitleHelperCalls.test_direct_narrowing_traps) ... -O0 direct float-to-s8 sanitizer SIGILL: -4
+-O2 direct float-to-s8 sanitizer SIGILL: -4
+test_live_source_and_provider_types (test_title_helper_call_contract.TitleHelperCalls.test_live_source_and_provider_types) ... ok
+test_native_expressions (test_title_helper_call_contract.TitleHelperCalls.test_native_expressions) ... -O0 560 live helper expression cases passed
+-O2 560 live helper expression cases passed
+test_all_actual_calls_and_layer_vertex_providers (test_title_layer_contract.TitleLayerContracts.test_all_actual_calls_and_layer_vertex_providers) ... -O0 122880 layer caller/provider cases passed
+-O2 122880 layer caller/provider cases passed
+test_negative_controls (test_title_layer_contract.TitleLayerContracts.test_negative_controls) ... ok
+test_live_source_contract (test_title_layout_contract.TitleLayout.test_live_source_contract) ... ok
+test_native_boundaries (test_title_layout_contract.TitleLayout.test_native_boundaries) ... -O0 13465 title layout selection/read/provider cases passed
+-O2 13465 title layout selection/read/provider cases passed
+test_negative_controls (test_title_layout_contract.TitleLayout.test_negative_controls) ... -O0 first_byte rejected: 1 line 171, scenario 5: M2C_BITWISE(s32,temp_f0_7)==expected
+-O0 second_byte rejected: 1 line 171, scenario 5: M2C_BITWISE(s32,temp_f0_9)==expected
+-O0 unsigned_model rejected: -4 
+-O0 stride160 rejected: 1 line 171, scenario 12: M2C_BITWISE(s32,temp_f0_7)==expected
+-O0 roundtrip_removed rejected: 1 line 171, scenario 8: M2C_BITWISE(s32,temp_f0_7)==expected
+-O0 double_slot_scale rejected: 1 line 74, scenario 210: p==initialPointer
+-O0 reject14 rejected: 1 line 172, scenario 3: (M2C_BITWISE(s32, temp_f0_9) >= 0xE)==(expected>=15)
+-O0 lower_clamp rejected: 1 line 172, scenario 6: (M2C_BITWISE(s32, temp_f0_7) < 0 || M2C_BITWISE(s32, temp_f0_7) >= 0xF)==(expected>=15)
+-O0 only_validator_one rejected: 1 line 218, scenario 230: animations==(firstAccepted&&validatorResult)
+-O0 no_reload rejected: 1 line 101, scenario 225: p==(mutateSlot?reloadedPointer:initialPointer)
+-O0 validator_pointer rejected: -4 
+-O0 first_gate rejected: 1 line 218, scenario 210: validations==firstAccepted+secondAccepted
+-O0 counter_saturation rejected: 1 line 219, scenario 213: work[3]==(u32)(counts[ct]<600?counts[ct]+1:counts[ct])
+-O0 pitch_byte rejected: 1 line 164, scenario 220: bits(temp_f24)==rows[secondRow][3]
+-O0 yaw_byte rejected: 1 line 164, scenario 220: bits(temp_f23)==rows[secondRow][4]
+-O0 scale_byte rejected: 1 line 164, scenario 220: bits(temp_f21_3)==rows[secondRow][6]
+-O0 swap_fields rejected: 1 line 164, scenario 220: bits(temp_f24)==rows[secondRow][3]
+-O0 speed_byte rejected: 1 line 101, scenario 220: bits(speed)==rows[secondRow][9]
+-O0 speed_layer rejected: 1 line 100, scenario 220: layer==0
+-O0 earlier_speed rejected: 1 line 235, scenario 13387: model[0][61]==values[i]
+-O0 missing_mirror rejected: 1 line 223, scenario 220: *(u32*)(expectedPointer+580)==rows[secondRow][9]
+-O0 missing_mask rejected: 1 line 241, scenario 13436: bigStorage[off/4]==values[f]
+-O0 zero_bad_slot rejected: 1 line 74, scenario 13138: p==initialPointer
+-O0 signed_row_bound rejected: 1 line 198, scenario 0: bound(0xffffffffu)
+-O2 first_byte rejected: 1 line 171, scenario 5: M2C_BITWISE(s32,temp_f0_7)==expected
+-O2 second_byte rejected: 1 line 171, scenario 5: M2C_BITWISE(s32,temp_f0_9)==expected
+-O2 unsigned_model rejected: -4 
+-O2 stride160 rejected: 1 line 171, scenario 12: M2C_BITWISE(s32,temp_f0_7)==expected
+-O2 roundtrip_removed rejected: 1 line 171, scenario 8: M2C_BITWISE(s32,temp_f0_7)==expected
+-O2 double_slot_scale rejected: 1 line 74, scenario 210: p==initialPointer
+-O2 reject14 rejected: 1 line 172, scenario 3: (M2C_BITWISE(s32, temp_f0_9) >= 0xE)==(expected>=15)
+-O2 lower_clamp rejected: 1 line 172, scenario 6: (M2C_BITWISE(s32, temp_f0_7) < 0 || M2C_BITWISE(s32, temp_f0_7) >= 0xF)==(expected>=15)
+-O2 only_validator_one rejected: 1 line 218, scenario 230: animations==(firstAccepted&&validatorResult)
+-O2 no_reload rejected: 1 line 101, scenario 225: p==(mutateSlot?reloadedPointer:initialPointer)
+-O2 validator_pointer rejected: -4 
+-O2 first_gate rejected: 1 line 218, scenario 210: validations==firstAccepted+secondAccepted
+-O2 counter_saturation rejected: 1 line 219, scenario 213: work[3]==(u32)(counts[ct]<600?counts[ct]+1:counts[ct])
+-O2 pitch_byte rejected: 1 line 164, scenario 220: bits(temp_f24)==rows[secondRow][3]
+-O2 yaw_byte rejected: 1 line 164, scenario 220: bits(temp_f23)==rows[secondRow][4]
+-O2 scale_byte rejected: 1 line 164, scenario 220: bits(temp_f21_3)==rows[secondRow][6]
+-O2 swap_fields rejected: 1 line 164, scenario 220: bits(temp_f24)==rows[secondRow][3]
+-O2 speed_byte rejected: 1 line 101, scenario 220: bits(speed)==rows[secondRow][9]
+-O2 speed_layer rejected: 1 line 100, scenario 220: layer==0
+-O2 earlier_speed rejected: 1 line 235, scenario 13387: model[0][61]==values[i]
+-O2 missing_mirror rejected: 1 line 223, scenario 220: *(u32*)(expectedPointer+580)==rows[secondRow][9]
+-O2 missing_mask rejected: 1 line 241, scenario 13436: bigStorage[off/4]==values[f]
+-O2 zero_bad_slot rejected: 1 line 74, scenario 13138: p==initialPointer
+-O2 signed_row_bound rejected: 1 line 198, scenario 0: bound(0xffffffffu)
+test_live_storage_and_declarations (test_title_matrix_contract.TitleMatrix.test_live_storage_and_declarations) ... ok
+test_native_boundaries (test_title_matrix_contract.TitleMatrix.test_native_boundaries) ... -O0 4096 title matrix storage/call cases passed
+-O2 4096 title matrix storage/call cases passed
+test_negative_controls (test_title_matrix_contract.TitleMatrix.test_negative_controls) ... -O0 swap_axes rejected: line 79, scenario 1: src==axisPointer[stage]
+-O0 swap_angles rejected: line 80, scenario 1: angle==angles[stage]
+-O0 first_mode rejected: line 80, scenario 1: mode==(stage?2:0)
+-O0 second_mode rejected: line 80, scenario 1: mode==(stage?2:0)
+-O0 translate_mode rejected: line 85, scenario 1: mode==1
+-O0 model_mode rejected: line 90, scenario 1: arg2==0
+-O0 model_pointer rejected: line 90, scenario 1: arg0==modelPointer
+-O0 translation_y rejected: line 86, scenario 1: translation->x==0&&translation->y==-90&&translation->z==0
+-O0 translation_z rejected: line 86, scenario 1: translation->x==0&&translation->y==-90&&translation->z==0
+-O0 wrong_matrix rejected: line 85, scenario 1: m==matrixPointer
+-O0 old_rotate_order rejected: line 80, scenario 1: angle==angles[stage]
+-O0 omitted_translate rejected: line 90, scenario 1: stage==3
+-O0 wrong_copy rejected: line 79, scenario 1: !memcmp(src,&axisWant[stage],12)
+-O0 incomplete_copy rejected: line 79, scenario 2: !memcmp(src,&axisWant[stage],12)
+-O0 short_matrix rejected: line 150, scenario 1: guards[j][i]==(j&1?0x5a5a5a5a:0xa5a5a5a5)
+-O2 swap_axes rejected: line 79, scenario 1: src==axisPointer[stage]
+-O2 swap_angles rejected: line 80, scenario 1: angle==angles[stage]
+-O2 first_mode rejected: line 80, scenario 1: mode==(stage?2:0)
+-O2 second_mode rejected: line 80, scenario 1: mode==(stage?2:0)
+-O2 translate_mode rejected: line 85, scenario 1: mode==1
+-O2 model_mode rejected: line 90, scenario 1: arg2==0
+-O2 model_pointer rejected: line 90, scenario 1: arg0==modelPointer
+-O2 translation_y rejected: line 86, scenario 1: translation->x==0&&translation->y==-90&&translation->z==0
+-O2 translation_z rejected: line 86, scenario 1: translation->x==0&&translation->y==-90&&translation->z==0
+-O2 wrong_matrix rejected: line 85, scenario 1: m==matrixPointer
+-O2 old_rotate_order rejected: line 80, scenario 1: angle==angles[stage]
+-O2 omitted_translate rejected: line 90, scenario 1: stage==3
+-O2 wrong_copy rejected: line 79, scenario 1: !memcmp(src,&axisWant[stage],12)
+-O2 incomplete_copy rejected: line 79, scenario 2: !memcmp(src,&axisWant[stage],12)
+-O2 short_matrix rejected: line 150, scenario 1: guards[j][i]==(j&1?0x5a5a5a5a:0xa5a5a5a5)
+test_call_transport (test_title_model_call_contract.TitleModelCalls.test_call_transport) ... -O0 unaltered expressions 583680 title model call cases passed
+-O0 supplied 583680 title model call cases passed
+-O2 unaltered expressions 583680 title model call cases passed
+-O2 supplied 583680 title model call cases passed
+test_independent_controls (test_title_model_call_contract.TitleModelCalls.test_independent_controls) ... site_0_float0: rejected: line 69, scenario 1: !memcmp(actual,want,sizeof(actual))
+test_live_source_and_signature (test_title_model_call_contract.TitleModelCalls.test_live_source_and_signature) ... ok
+test_all_actual_calls_and_actual_packet_provider (test_title_overlay_contract.TitleOverlayContract.test_all_actual_calls_and_actual_packet_provider) ... -O0 title_overlay_cases=30720
+-O2 title_overlay_cases=30720
+test_fixture_rejects_transport_regressions (test_title_overlay_contract.TitleOverlayContract.test_fixture_rejects_transport_regressions) ... ok
+test_provider_and_adapter_declarations_agree (test_title_overlay_contract.TitleOverlayContract.test_provider_and_adapter_declarations_agree) ... ok
+test_all_complete_snapshots_copies_and_selections (test_title_palette_storage.TitlePaletteStorage.test_all_complete_snapshots_copies_and_selections) ... -O0 123000 title palette storage cases passed
+-O2 123000 title palette storage cases passed
+test_independent_negative_controls (test_title_palette_storage.TitlePaletteStorage.test_independent_negative_controls) ... helper_short: rejected: line 86, scenario 1: !memcmp(objects[group*3+1],expected,24)
+test_live_extraction (test_title_palette_storage.TitlePaletteStorage.test_live_extraction) ... ok
+test_live_rectangle_snapshots (test_title_rectangle_aliases.TitleRectangleAliases.test_live_rectangle_snapshots) ... -O0 65536 rectangle snapshot/provider cases passed
+-O2 65536 rectangle snapshot/provider cases passed
+test_negative_controls (test_title_rectangle_aliases.TitleRectangleAliases.test_negative_controls) ... ok
+test_all_actual_conversion_calls_and_sine_subgraph (test_title_sprite_alpha_contract.TitleSpriteAlphaContracts.test_all_actual_conversion_calls_and_sine_subgraph) ... -O0 conversion_calls=25370 subgraph_calls=32400 pair_cases=30841
+-O2 conversion_calls=25370 subgraph_calls=32400 pair_cases=30841
+test_each_site_negative_controls (test_title_sprite_alpha_contract.TitleSpriteAlphaContracts.test_each_site_negative_controls) ... ok
+test_independent_subgraph_controls (test_title_sprite_alpha_contract.TitleSpriteAlphaContracts.test_independent_subgraph_controls) ... ok
+Ran 44 tests
+OK

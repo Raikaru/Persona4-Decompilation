@@ -1,0 +1,11 @@
+functions scanned: 53
+  MATCH              38
+  ASM                15
+first-party functions scanned: 11
+  MATCH              9 (81.8%)
+  ASM                2
+Sony PS2 SDK functions scanned: 0
+other third-party functions scanned: 42
+  MATCH              29
+  ASM                13
+report: proof/field-ai/verify.json

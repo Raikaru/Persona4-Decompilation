@@ -1,0 +1,430 @@
+{
+  "base": "c0da65b93e785858dad848163c2482b7b0d533cb",
+  "owner": "src/promoted/code1_0012.c",
+  "source_sha256": "a6684ac3ce4e80240fa76651c1de17bd2562e429192ff48bdb577f1df233ee64",
+  "exact_source_transform": true,
+  "changed_blocks": 14,
+  "palette_fixture_exact_byte_alias_update": true,
+  "owner_census": [
+    {
+      "line": 2043,
+      "text": "extern u8 D_005E5230[];"
+    },
+    {
+      "line": 2046,
+      "text": "extern u8 D_005E523C[];"
+    },
+    {
+      "line": 2047,
+      "text": "extern u8 D_005E5240[];"
+    },
+    {
+      "line": 2049,
+      "text": "extern u8 D_005E5248[];"
+    },
+    {
+      "line": 2116,
+      "text": "scaleField = D_005E5248 + layoutOffset;"
+    },
+    {
+      "line": 2121,
+      "text": "yawField = D_005E5240 + layoutOffset;"
+    },
+    {
+      "line": 2122,
+      "text": "pitchField = D_005E523C + layoutOffset;"
+    },
+    {
+      "line": 2125,
+      "text": "modelIndexField = D_005E5230 + layoutOffset;"
+    },
+    {
+      "line": 2456,
+      "text": "extern void func_0047a0e0(u8 *model, s32 layer, f32 speed);"
+    },
+    {
+      "line": 2459,
+      "text": "extern u8 D_005E5230[];"
+    },
+    {
+      "line": 2460,
+      "text": "extern u8 D_005E523C[];"
+    },
+    {
+      "line": 2461,
+      "text": "extern u8 D_005E5240[];"
+    },
+    {
+      "line": 2462,
+      "text": "extern u8 D_005E5248[];"
+    },
+    {
+      "line": 2463,
+      "text": "extern u8 D_005E5254[];"
+    },
+    {
+      "line": 3016,
+      "text": "temp_21 = D_005E5230 + var_19 * 0x28;"
+    },
+    {
+      "line": 3080,
+      "text": "temp_7 = D_005E5230 + var_19 * 0x28;"
+    },
+    {
+      "line": 3116,
+      "text": "temp_7_2 = D_005E5230 + var_17_2 * 0x28;"
+    },
+    {
+      "line": 3153,
+      "text": "if (*(s32 *)D_005E5230 >= 0xF) {"
+    },
+    {
+      "line": 3156,
+      "text": "temp_2_11 = (u32 *)(&temp_20[*(s32 *)D_005E5230]);"
+    },
+    {
+      "line": 3171,
+      "text": "func_0047a0e0(var_4_8, 0, fGpffff8110);"
+    },
+    {
+      "line": 3173,
+      "text": "if (*(s32 *)D_005E5230 >= 0xF) {"
+    },
+    {
+      "line": 3176,
+      "text": "temp_2_12 = (u32 *)(&temp_20[*(s32 *)D_005E5230]);"
+    },
+    {
+      "line": 3754,
+      "text": "temp_7_5 = D_005E5230 + var_16 * 0x28;"
+    },
+    {
+      "line": 3798,
+      "text": "temp_f0_7 = (f32)*(s32 *)(D_005E5230 + M2C_FIELD(temp_20, u32 *, 0x84) * 0x28);"
+    },
+    {
+      "line": 3821,
+      "text": "temp_f0_9 = (f32)*(s32 *)(D_005E5230 + M2C_FIELD(temp_20, u32 *, 0x84) * 0x28);"
+    },
+    {
+      "line": 3834,
+      "text": "temp_f24 = *(f32 *)(D_005E523C + temp_3_19);"
+    },
+    {
+      "line": 3835,
+      "text": "temp_f23 = *(f32 *)(D_005E5240 + temp_3_19);"
+    },
+    {
+      "line": 3836,
+      "text": "temp_f21_3 = *(f32 *)(D_005E5248 + temp_3_19);"
+    },
+    {
+      "line": 3848,
+      "text": "func_0047a0e0(var_16_2, 0, *(f32 *)(D_005E5254 + temp_17_2 * 0x28));"
+    },
+    {
+      "line": 4036,
+      "text": "extern u8 D_005E5230[];"
+    },
+    {
+      "line": 4068,
+      "text": "extern void func_0047a0e0(u8 *model, s32 layer, f32 speed);"
+    },
+    {
+      "line": 4158,
+      "text": "func_0047a0e0(activeModel, 0, fGpffff813c);"
+    },
+    {
+      "line": 4161,
+      "text": "animation = D_005E5230 + updateIndex * 0x28;"
+    },
+    {
+      "line": 4177,
+      "text": "func_0047a0e0(activeModel, 0, *(f32 *)(animation + 0x24));"
+    },
+    {
+      "line": 4185,
+      "text": "modelIndex = *(s32 *)D_005E5230;"
+    },
+    {
+      "line": 4201,
+      "text": "resetRow = D_005E5230 + resetIndex * 0x28;"
+    }
+  ],
+  "provider_use_census": [
+    {
+      "path": "src/Graphics/Model/effModel.c",
+      "line": 24,
+      "text": "extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);"
+    },
+    {
+      "path": "src/Graphics/Model/effModel.c",
+      "line": 55,
+      "text": "func_0047a0e0(work, 0, 1.0f);"
+    },
+    {
+      "path": "src/Graphics/Model/effModel.c",
+      "line": 112,
+      "text": "func_0047a0e0(temp_2_4, 0, temp_f20);"
+    },
+    {
+      "path": "src/Graphics/Model/effModel.c",
+      "line": 161,
+      "text": "func_0047a0e0(work, 0, 1.0f);"
+    },
+    {
+      "path": "src/Graphics/Model/effModel.c",
+      "line": 289,
+      "text": "func_0047a0e0(*(u8 **)(arg1 + 0x94), 0, *(f32 *)(arg1 + 0x24));"
+    },
+    {
+      "path": "src/Graphics/Model/effModel.c",
+      "line": 374,
+      "text": "func_0047a0e0(temp_2_4, 0, 1.0f);"
+    },
+    {
+      "path": "src/Graphics/Model/effModel.c",
+      "line": 437,
+      "text": "func_0047a0e0(work, 0, 1.0f);"
+    },
+    {
+      "path": "src/Graphics/Model/mdlManager.c",
+      "line": 4302,
+      "text": "extern void func_0047a0e0(u8* a, s32 b, f32 c);"
+    },
+    {
+      "path": "src/Graphics/Model/mdlManager.c",
+      "line": 4415,
+      "text": "func_0047a0e0(*updateSlot, 0, *(f32*)(mdl + 0xF4));"
+    },
+    {
+      "path": "src/Graphics/Model/mdlManager.c",
+      "line": 4985,
+      "text": "void func_0047a0e0(u8 *arg0, s32 arg1, f32 fparg0) {"
+    },
+    {
+      "path": "src/Kosaka/Field/k_fldResource.c",
+      "line": 70,
+      "text": "extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);"
+    },
+    {
+      "path": "src/Kosaka/Field/k_fldResource.c",
+      "line": 1505,
+      "text": "func_0047a0e0(*(void **)(arg0 + j * 0x18 + 0x12C), 0, 0.0f);"
+    },
+    {
+      "path": "src/Kosaka/k_command/k_command.c",
+      "line": 45,
+      "text": "extern void func_0047a0e0(s32 arg0, s32 arg1, f32 arg2);"
+    },
+    {
+      "path": "src/Kosaka/k_command/k_command.c",
+      "line": 126,
+      "text": "func_0047a0e0(*(s32*)(p + 0x164), 0, g);"
+    },
+    {
+      "path": "src/Kosaka/k_command/k_command.c",
+      "line": 143,
+      "text": "func_0047a0e0(*(s32*)(p + 0x164), 0, g);"
+    },
+    {
+      "path": "src/Kosaka/k_command/k_command.c",
+      "line": 160,
+      "text": "func_0047a0e0(*(s32*)(p + 0x144), 0, g);"
+    },
+    {
+      "path": "src/Scene/mt_sceneFunc.c",
+      "line": 99,
+      "text": "extern void func_0047a0e0(u32 arg0, u16 arg1, f32 arg2);"
+    },
+    {
+      "path": "src/Scene/mt_sceneFunc.c",
+      "line": 629,
+      "text": "func_0047a0e0(var_16, arg1, fparg0);"
+    },
+    {
+      "path": "src/cmmRankUp.c",
+      "line": 50,
+      "text": "extern void func_0047a0e0(u8 *arg0, s32 arg1, f32 arg2);"
+    },
+    {
+      "path": "src/cmmRankUp.c",
+      "line": 1486,
+      "text": "func_0047a0e0(*(u8 **)(node1 + 0x164), 0, 0.0f);"
+    },
+    {
+      "path": "src/cmmRankUp.c",
+      "line": 1498,
+      "text": "func_0047a0e0(*(u8 **)(node2 + 0x158), 0, 0.0f);"
+    },
+    {
+      "path": "src/cmmRankUp.c",
+      "line": 1510,
+      "text": "func_0047a0e0(*(u8 **)(node3 + 0x164), 0, 0.0f);"
+    },
+    {
+      "path": "src/cmmRankUp.c",
+      "line": 1522,
+      "text": "func_0047a0e0(*(u8 **)(node4 + 0x144), 0, 0.0f);"
+    },
+    {
+      "path": "src/cmmRankUp.c",
+      "line": 3648,
+      "text": "func_0047a0e0(*(u8 **)(list + i * 0x10 + 4), 0, *(f32 *)(list + i * 0x10));"
+    },
+    {
+      "path": "src/promoted/btlEPL.c",
+      "line": 28,
+      "text": "extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);"
+    },
+    {
+      "path": "src/promoted/btlEPL.c",
+      "line": 323,
+      "text": "func_0047a0e0(*model, 0, param->rotate);"
+    },
+    {
+      "path": "src/promoted/btlEPL.c",
+      "line": 1107,
+      "text": "func_0047a0e0(target->model, 0, param->rotate);"
+    },
+    {
+      "path": "src/promoted/btlEPL.c",
+      "line": 1344,
+      "text": "func_0047a0e0(*(u8 **)target, 0, *(f32 *)(param + 8));"
+    },
+    {
+      "path": "src/promoted/code1_0012.c",
+      "line": 2456,
+      "text": "extern void func_0047a0e0(u8 *model, s32 layer, f32 speed);"
+    },
+    {
+      "path": "src/promoted/code1_0012.c",
+      "line": 3171,
+      "text": "func_0047a0e0(var_4_8, 0, fGpffff8110);"
+    },
+    {
+      "path": "src/promoted/code1_0012.c",
+      "line": 3848,
+      "text": "func_0047a0e0(var_16_2, 0, *(f32 *)(D_005E5254 + temp_17_2 * 0x28));"
+    },
+    {
+      "path": "src/promoted/code1_0012.c",
+      "line": 4068,
+      "text": "extern void func_0047a0e0(u8 *model, s32 layer, f32 speed);"
+    },
+    {
+      "path": "src/promoted/code1_0012.c",
+      "line": 4158,
+      "text": "func_0047a0e0(activeModel, 0, fGpffff813c);"
+    },
+    {
+      "path": "src/promoted/code1_0012.c",
+      "line": 4177,
+      "text": "func_0047a0e0(activeModel, 0, *(f32 *)(animation + 0x24));"
+    },
+    {
+      "path": "src/promoted/code1_0019.c",
+      "line": 211,
+      "text": "extern void func_0047a0e0(u8 *arg0, s32 arg1, f32 arg2);"
+    },
+    {
+      "path": "src/promoted/code1_0019.c",
+      "line": 2181,
+      "text": "func_0047a0e0(temp_16, 0, 0.0f);"
+    },
+    {
+      "path": "src/promoted/code1_0019.c",
+      "line": 2185,
+      "text": "func_0047a0e0(temp_16, 0, 0.0f);"
+    },
+    {
+      "path": "src/promoted/code1_0019.c",
+      "line": 2189,
+      "text": "func_0047a0e0(*(u8 **)(arg0 + 0xA00), 0, *(f32 *)(arg0 + 0x9E0));"
+    },
+    {
+      "path": "src/promoted/code1_0019.c",
+      "line": 2244,
+      "text": "func_0047a0e0(temp_16, 0, 0.0f);"
+    },
+    {
+      "path": "src/promoted/code1_0019.c",
+      "line": 2387,
+      "text": "func_0047a0e0(*(u8 **)(arg0 + 0xA00), 0, *(f32 *)(arg0 + 0x9E0));"
+    },
+    {
+      "path": "src/promoted/code1_0019.c",
+      "line": 4174,
+      "text": "func_0047a0e0(*(u8 **)(arg0 + 0xA00), 0, 1.0f);"
+    },
+    {
+      "path": "src/promoted/code1_0020.c",
+      "line": 276,
+      "text": "extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);"
+    },
+    {
+      "path": "src/promoted/code1_0020.c",
+      "line": 314,
+      "text": "func_0047a0e0(*(u8 **)temp_17, 0, *(f32 *)(temp_16 + 0x30));"
+    },
+    {
+      "path": "src/promoted/code1_004a.c",
+      "line": 118,
+      "text": "extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);"
+    },
+    {
+      "path": "src/promoted/code1_004a.c",
+      "line": 1676,
+      "text": "func_0047a0e0(arg0, 0, 1.0f);"
+    },
+    {
+      "path": "src/promoted/code1_004a.c",
+      "line": 1702,
+      "text": "func_0047a0e0(temp_2, 0, 1.0f);"
+    },
+    {
+      "path": "src/promoted/code1_004a.c",
+      "line": 1873,
+      "text": "extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);"
+    },
+    {
+      "path": "src/promoted/code1_004a.c",
+      "line": 1939,
+      "text": "func_0047a0e0(*(u8 **)(arg1 + 0xB4), 0, *(f32 *)(arg1 + 8));"
+    },
+    {
+      "path": "src/promoted/code1_004a.c",
+      "line": 2096,
+      "text": "func_0047a0e0(*(void **)(arg0 + 0xA0), 0, *(f32 *)(arg0 + 0x94));"
+    },
+    {
+      "path": "src/promoted/k_fldEvent.c",
+      "line": 75,
+      "text": "void func_0047a0e0(u8 *, s32, f32);"
+    },
+    {
+      "path": "src/promoted/k_fldEvent.c",
+      "line": 649,
+      "text": "func_0047a0e0(*(u8 **)(node + 0x144), 0, 1.0f);"
+    }
+  ],
+  "provider_and_type_sources_unchanged": [
+    {
+      "path": "src/Graphics/Model/mdlManager.c",
+      "sha256": "5ad972554f5af6bb80091f463f9c0ba57d20e097932babb128cb48cee2880439"
+    },
+    {
+      "path": "include/btl_shuffle_draw_internal.h",
+      "sha256": "bc8d22302f8ed7e3fc1a2d67ba85c845c5abf7c2cab72b6eb5310229b6e6350d"
+    },
+    {
+      "path": "src/promoted/code1_003e.c",
+      "sha256": "3e30cf14cd588653198e53783910180521a5b78e082ea5a7d9abb9c7cdfd2900"
+    },
+    {
+      "path": "src/renderware/plcore/bamatrix.c",
+      "sha256": "3bd18c815019c18f0db40b1f4907d2048974dddc125fd8b17dba3c76aa4da907"
+    }
+  ],
+  "limits": "Guard-local table/read/speed contract only. Matrix/vector repair, all helpers, ACC expressions, call order, direct row-zero semantics and updater/provider remain unchanged."
+}

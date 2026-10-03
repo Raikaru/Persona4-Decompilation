@@ -1,0 +1,96 @@
+{
+  "source_sha256": "45e251ff335f1ed718c86f120f306abfad93083a61a40ab0e9920d42cc58287f",
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "slices": {
+    "producer": {
+      "address": "0x12b614",
+      "bytes": 20,
+      "sha256": "e4083006bfc064636f039822b17b7a6f5c0505d4efec0de0c9a2b1361cd0ecbf",
+      "words": [
+        "0x40282d",
+        "0x3c030012",
+        "0x246365a0",
+        "0xac430008",
+        "0xac530010"
+      ]
+    },
+    "dispatch_callback": {
+      "address": "0x4623b8",
+      "bytes": 4,
+      "sha256": "56921e4537b67cabf2a7d978d8cbd492be8663ee8230371bccd0d6459943fc6c",
+      "words": [
+        "0x8e060008"
+      ]
+    },
+    "dispatch_arguments": {
+      "address": "0x4623e0",
+      "bytes": 16,
+      "sha256": "dcf76e178d634ead6dfb2f3ad204c170406975bb049efe01aed14915c8e41308",
+      "words": [
+        "0x2604001c",
+        "0x8e050010",
+        "0xc0f809",
+        "0x0"
+      ]
+    },
+    "target": {
+      "address": "0x1265d4",
+      "bytes": 16,
+      "sha256": "735e8684e3681b2ebf2ee4a20093225aba07d8f1386dd8fb63882a73b644b525",
+      "words": [
+        "0xa0202d",
+        "0xc114958",
+        "0x0",
+        "0x40a02d"
+      ]
+    },
+    "getter": {
+      "address": "0x452560",
+      "bytes": 12,
+      "sha256": "4f83984482913d3d49d7df1ede2ce6e08a87499bfe811e8f3ef328bbe3702d9b",
+      "words": [
+        "0x8c820038",
+        "0x3e00008",
+        "0x0"
+      ]
+    },
+    "post_callback_command": {
+      "address": "0x4623f0",
+      "bytes": 4,
+      "sha256": "4269a97472f339dfee1e4c133fffb490629ff59d60b9cc5fdd29706ed9fe2561",
+      "words": [
+        "0x96030018"
+      ]
+    },
+    "retail_save_only_prefix": {
+      "bytes": 52,
+      "sha256": "8611c3ab76f746dd4fc5130b3038693c0ce5659229822851ed6912bb699a7a79",
+      "incoming_a0_a1_unchanged": true
+    },
+    "candidate_save_only_prefix": {
+      "bytes": 68,
+      "sha256": "37330d30c5f93a0f47866372a90a43afbb27cac3cb5d2176279c672f3f0f74ed",
+      "incoming_a0_a1_unchanged": true
+    }
+  },
+  "candidate_entry_offset": 68,
+  "candidate_entry_words": [
+    "0xa0202d",
+    "0xc000000",
+    "0x0",
+    "0x40a02d"
+  ],
+  "executed_cases": 2048,
+  "negative_controls": [
+    "data_store",
+    "first_argument",
+    "second_argument",
+    "no_forwarding",
+    "wrong_forwarding",
+    "getter_offset"
+  ],
+  "getter_input_identity_checked_before_read": true,
+  "scene_view_register": 20,
+  "full_dispatcher_C_executed": false,
+  "scope": "Bounded actual machine argument/store/load slices; allocation/submission supplied; renderer and command switch excluded"
+}

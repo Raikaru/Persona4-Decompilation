@@ -72,7 +72,7 @@ typedef unsigned char u8; typedef unsigned u32; typedef int s32; typedef float f
 static unsigned scenario, mode, selected_index, active_group;
 static u32 expected[6], seen_highlight, expected_base, checks;
 static u32 table[190];
-#define D_005E5230 table[0]
+#define D_005E5230 ((u8 *)table)
 static s32 D_005E538C, D_005E53B4;
 static TitlePalette D_005E5530;
 static TitlePalette *objects[15];

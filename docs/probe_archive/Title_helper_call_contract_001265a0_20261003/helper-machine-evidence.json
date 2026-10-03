@@ -1,0 +1,734 @@
+{
+  "source_sha256": "45e251ff335f1ed718c86f120f306abfad93083a61a40ab0e9920d42cc58287f",
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "cases": 11760,
+  "cases_per_machine": 5880,
+  "machine_controls": [
+    {
+      "kind": "retail",
+      "site": 0,
+      "field": 0,
+      "address": "0x126fc0",
+      "word": "0x1e0202d"
+    },
+    {
+      "kind": "retail",
+      "site": 0,
+      "field": 1,
+      "address": "0x126fbc",
+      "word": "0x44056000"
+    },
+    {
+      "kind": "retail",
+      "site": 0,
+      "field": 2,
+      "address": "0x126fc4",
+      "word": "0x1e0302d"
+    },
+    {
+      "kind": "retail",
+      "site": 0,
+      "field": 3,
+      "address": "0x126fc8",
+      "word": "0x24070002"
+    },
+    {
+      "kind": "retail",
+      "site": 0,
+      "field": 4,
+      "address": "0x126fcc",
+      "word": "0x1e0402d"
+    },
+    {
+      "kind": "retail",
+      "site": 1,
+      "field": 0,
+      "address": "0x128244",
+      "word": "0x2404000b"
+    },
+    {
+      "kind": "retail",
+      "site": 1,
+      "field": 1,
+      "address": "0x128248",
+      "word": "0x24050100"
+    },
+    {
+      "kind": "retail",
+      "site": 1,
+      "field": 2,
+      "address": "0x12824c",
+      "word": "0x1e0302d"
+    },
+    {
+      "kind": "retail",
+      "site": 1,
+      "field": 3,
+      "address": "0x128250",
+      "word": "0x24070041"
+    },
+    {
+      "kind": "retail",
+      "site": 1,
+      "field": 4,
+      "address": "0x128254",
+      "word": "0x1e0402d"
+    },
+    {
+      "kind": "retail",
+      "site": 2,
+      "field": 0,
+      "address": "0x129ed0",
+      "word": "0x2404000b"
+    },
+    {
+      "kind": "retail",
+      "site": 2,
+      "field": 1,
+      "address": "0x129ed4",
+      "word": "0x24050100"
+    },
+    {
+      "kind": "retail",
+      "site": 2,
+      "field": 2,
+      "address": "0x129ed8",
+      "word": "0x1e0302d"
+    },
+    {
+      "kind": "retail",
+      "site": 2,
+      "field": 3,
+      "address": "0x129edc",
+      "word": "0x24070041"
+    },
+    {
+      "kind": "retail",
+      "site": 2,
+      "field": 4,
+      "address": "0x129ee0",
+      "word": "0x1e0402d"
+    },
+    {
+      "kind": "retail",
+      "site": 3,
+      "field": 1,
+      "address": "0x126cb0",
+      "word": "0x448f6800"
+    },
+    {
+      "kind": "retail",
+      "site": 3,
+      "field": 2,
+      "address": "0x126cc0",
+      "word": "0x3c024130"
+    },
+    {
+      "kind": "retail",
+      "site": 3,
+      "field": 3,
+      "address": "0x126cc8",
+      "word": "0x240400b3"
+    },
+    {
+      "kind": "retail",
+      "site": 3,
+      "field": 4,
+      "address": "0x126ccc",
+      "word": "0x1e0282d"
+    },
+    {
+      "kind": "retail",
+      "site": 4,
+      "field": 1,
+      "address": "0x128e40",
+      "word": "0x448f6800"
+    },
+    {
+      "kind": "retail",
+      "site": 4,
+      "field": 2,
+      "address": "0x128e44",
+      "word": "0x3c024130"
+    },
+    {
+      "kind": "retail",
+      "site": 4,
+      "field": 3,
+      "address": "0x128e4c",
+      "word": "0x240400fe"
+    },
+    {
+      "kind": "retail",
+      "site": 4,
+      "field": 4,
+      "address": "0x128e50",
+      "word": "0x1e0282d"
+    },
+    {
+      "kind": "retail",
+      "site": 4,
+      "field": 0,
+      "address": "0x128e38",
+      "word": "0x3c024349"
+    },
+    {
+      "kind": "retail",
+      "site": 5,
+      "field": 1,
+      "address": "0x128fe8",
+      "word": "0x448f6800"
+    },
+    {
+      "kind": "retail",
+      "site": 5,
+      "field": 2,
+      "address": "0x128ff8",
+      "word": "0x3c024130"
+    },
+    {
+      "kind": "retail",
+      "site": 5,
+      "field": 3,
+      "address": "0x129000",
+      "word": "0x240400fe"
+    },
+    {
+      "kind": "retail",
+      "site": 5,
+      "field": 4,
+      "address": "0x129004",
+      "word": "0x1e0282d"
+    },
+    {
+      "kind": "retail",
+      "site": 6,
+      "field": 1,
+      "address": "0x129a68",
+      "word": "0x448f6800"
+    },
+    {
+      "kind": "retail",
+      "site": 6,
+      "field": 2,
+      "address": "0x129a78",
+      "word": "0x3c024130"
+    },
+    {
+      "kind": "retail",
+      "site": 6,
+      "field": 3,
+      "address": "0x129a80",
+      "word": "0x24040098"
+    },
+    {
+      "kind": "retail",
+      "site": 6,
+      "field": 4,
+      "address": "0x129a84",
+      "word": "0x1e0282d"
+    },
+    {
+      "kind": "candidate",
+      "site": 0,
+      "field": 0,
+      "address": "0x9d8",
+      "word": "0x1e0202d"
+    },
+    {
+      "kind": "candidate",
+      "site": 0,
+      "field": 1,
+      "address": "0x9d4",
+      "word": "0x44056000"
+    },
+    {
+      "kind": "candidate",
+      "site": 0,
+      "field": 2,
+      "address": "0x9dc",
+      "word": "0x1e0302d"
+    },
+    {
+      "kind": "candidate",
+      "site": 0,
+      "field": 3,
+      "address": "0x9e0",
+      "word": "0x24070002"
+    },
+    {
+      "kind": "candidate",
+      "site": 0,
+      "field": 4,
+      "address": "0x9e4",
+      "word": "0x1e0402d"
+    },
+    {
+      "kind": "candidate",
+      "site": 1,
+      "field": 0,
+      "address": "0x1a90",
+      "word": "0x2404000b"
+    },
+    {
+      "kind": "candidate",
+      "site": 1,
+      "field": 1,
+      "address": "0x1a94",
+      "word": "0x24050100"
+    },
+    {
+      "kind": "candidate",
+      "site": 1,
+      "field": 2,
+      "address": "0x1a98",
+      "word": "0x1e0302d"
+    },
+    {
+      "kind": "candidate",
+      "site": 1,
+      "field": 3,
+      "address": "0x1a9c",
+      "word": "0x24070041"
+    },
+    {
+      "kind": "candidate",
+      "site": 1,
+      "field": 4,
+      "address": "0x1aa0",
+      "word": "0x1e0402d"
+    },
+    {
+      "kind": "candidate",
+      "site": 2,
+      "field": 0,
+      "address": "0x35ac",
+      "word": "0x2404000b"
+    },
+    {
+      "kind": "candidate",
+      "site": 2,
+      "field": 1,
+      "address": "0x35b0",
+      "word": "0x24050100"
+    },
+    {
+      "kind": "candidate",
+      "site": 2,
+      "field": 2,
+      "address": "0x35b4",
+      "word": "0x1e0302d"
+    },
+    {
+      "kind": "candidate",
+      "site": 2,
+      "field": 3,
+      "address": "0x35b8",
+      "word": "0x24070041"
+    },
+    {
+      "kind": "candidate",
+      "site": 2,
+      "field": 4,
+      "address": "0x35bc",
+      "word": "0x1e0402d"
+    },
+    {
+      "kind": "candidate",
+      "site": 3,
+      "field": 1,
+      "address": "0x6cc",
+      "word": "0x448f6800"
+    },
+    {
+      "kind": "candidate",
+      "site": 3,
+      "field": 2,
+      "address": "0x6d4",
+      "word": "0x3c024130"
+    },
+    {
+      "kind": "candidate",
+      "site": 3,
+      "field": 3,
+      "address": "0x6dc",
+      "word": "0x240400b3"
+    },
+    {
+      "kind": "candidate",
+      "site": 3,
+      "field": 4,
+      "address": "0x6e0",
+      "word": "0x1e0282d"
+    },
+    {
+      "kind": "candidate",
+      "site": 4,
+      "field": 1,
+      "address": "0x2654",
+      "word": "0x448f6800"
+    },
+    {
+      "kind": "candidate",
+      "site": 4,
+      "field": 2,
+      "address": "0x2658",
+      "word": "0x3c024130"
+    },
+    {
+      "kind": "candidate",
+      "site": 4,
+      "field": 3,
+      "address": "0x2660",
+      "word": "0x240400fe"
+    },
+    {
+      "kind": "candidate",
+      "site": 4,
+      "field": 4,
+      "address": "0x2664",
+      "word": "0x1e0282d"
+    },
+    {
+      "kind": "candidate",
+      "site": 4,
+      "field": 0,
+      "address": "0x264c",
+      "word": "0x3c024349"
+    },
+    {
+      "kind": "candidate",
+      "site": 5,
+      "field": 1,
+      "address": "0x27e8",
+      "word": "0x448f6800"
+    },
+    {
+      "kind": "candidate",
+      "site": 5,
+      "field": 2,
+      "address": "0x27f0",
+      "word": "0x3c024130"
+    },
+    {
+      "kind": "candidate",
+      "site": 5,
+      "field": 3,
+      "address": "0x27f8",
+      "word": "0x240400fe"
+    },
+    {
+      "kind": "candidate",
+      "site": 5,
+      "field": 4,
+      "address": "0x27fc",
+      "word": "0x1e0282d"
+    },
+    {
+      "kind": "candidate",
+      "site": 6,
+      "field": 1,
+      "address": "0x316c",
+      "word": "0x448f6800"
+    },
+    {
+      "kind": "candidate",
+      "site": 6,
+      "field": 2,
+      "address": "0x3174",
+      "word": "0x3c024130"
+    },
+    {
+      "kind": "candidate",
+      "site": 6,
+      "field": 3,
+      "address": "0x317c",
+      "word": "0x24040098"
+    },
+    {
+      "kind": "candidate",
+      "site": 6,
+      "field": 4,
+      "address": "0x3180",
+      "word": "0x1e0282d"
+    }
+  ],
+  "writer_receipts": [
+    {
+      "kind": "retail",
+      "site": 0,
+      "start": 1208232,
+      "call": 1208272,
+      "size": 48,
+      "sha256": "fd76cfe2fc4248d5b3ba4d23441f1cd57cede46ddb9b0cc88be20a097ef9d16b",
+      "pulse_X_supplied": false
+    },
+    {
+      "kind": "retail",
+      "site": 1,
+      "start": 1212996,
+      "call": 1213016,
+      "size": 28,
+      "sha256": "1d18f2fc06a42001bce097e5fe4514ee467247d36e561de3190d188dd509065e",
+      "pulse_X_supplied": false
+    },
+    {
+      "kind": "retail",
+      "site": 2,
+      "start": 1220304,
+      "call": 1220324,
+      "size": 28,
+      "sha256": "1d18f2fc06a42001bce097e5fe4514ee467247d36e561de3190d188dd509065e",
+      "pulse_X_supplied": false
+    },
+    {
+      "kind": "retail",
+      "site": 3,
+      "start": 1207472,
+      "call": 1207504,
+      "size": 40,
+      "sha256": "9edabc96ad3fec018319274447d5388871b47edc441bf8c9abe248abe199eae0",
+      "pulse_X_supplied": true
+    },
+    {
+      "kind": "retail",
+      "site": 4,
+      "start": 1216056,
+      "call": 1216084,
+      "size": 36,
+      "sha256": "da11b96a49882b92ebd03f48eab108e308de334ab1df1c58f78f6bac3d69ab06",
+      "pulse_X_supplied": false
+    },
+    {
+      "kind": "retail",
+      "site": 5,
+      "start": 1216488,
+      "call": 1216520,
+      "size": 40,
+      "sha256": "294cde93449b5461bd0888e0f7489093598f0bd488cf98e38a0b2f3428dd2bce",
+      "pulse_X_supplied": true
+    },
+    {
+      "kind": "retail",
+      "site": 6,
+      "start": 1219176,
+      "call": 1219208,
+      "size": 40,
+      "sha256": "24414e7836ec70db681b4d6b89c071307720dd878b27398cb937707ca8079c46",
+      "pulse_X_supplied": true
+    },
+    {
+      "kind": "candidate",
+      "site": 0,
+      "start": 2496,
+      "call": 2536,
+      "size": 48,
+      "sha256": "0436f14be137c5508d99eccc9c17a6f24bd33432db66a720e7192a537391a15c",
+      "pulse_X_supplied": false
+    },
+    {
+      "kind": "candidate",
+      "site": 1,
+      "start": 6800,
+      "call": 6820,
+      "size": 28,
+      "sha256": "1aad61ad7b0cbb440c87bdba7a580cbe1ead1348600d305809fbbedb72b94a20",
+      "pulse_X_supplied": false
+    },
+    {
+      "kind": "candidate",
+      "site": 2,
+      "start": 13740,
+      "call": 13760,
+      "size": 28,
+      "sha256": "1aad61ad7b0cbb440c87bdba7a580cbe1ead1348600d305809fbbedb72b94a20",
+      "pulse_X_supplied": false
+    },
+    {
+      "kind": "candidate",
+      "site": 3,
+      "start": 1740,
+      "call": 1764,
+      "size": 32,
+      "sha256": "80d8a8805d42dba864b8e951bf131f4e58a5ead6b9dcd4aa61ef2ecbc5054a8b",
+      "pulse_X_supplied": true
+    },
+    {
+      "kind": "candidate",
+      "site": 4,
+      "start": 9804,
+      "call": 9832,
+      "size": 36,
+      "sha256": "e69cc88a2e3d1a30d2ba81e8ee26e52fca16cf4340a6e475b5b2732dbf1c6837",
+      "pulse_X_supplied": false
+    },
+    {
+      "kind": "candidate",
+      "site": 5,
+      "start": 10216,
+      "call": 10240,
+      "size": 32,
+      "sha256": "b0f0e54368c15b4e4af87ec945dd04f4d1171a1317f127ffb562da00c490d159",
+      "pulse_X_supplied": true
+    },
+    {
+      "kind": "candidate",
+      "site": 6,
+      "start": 12652,
+      "call": 12676,
+      "size": 32,
+      "sha256": "b127adee6b714a53ceb10530675702f12c1f9d4a132c55daa82fbfb9f11ceb8e",
+      "pulse_X_supplied": true
+    }
+  ],
+  "candidate_resolved_call_targets": [
+    {
+      "site": 0,
+      "offset": 2536,
+      "target": "func_00124f70",
+      "addend": 0,
+      "delay_slot": 0
+    },
+    {
+      "site": 1,
+      "offset": 6820,
+      "target": "func_00124f70",
+      "addend": 0,
+      "delay_slot": 0
+    },
+    {
+      "site": 2,
+      "offset": 13760,
+      "target": "func_00124f70",
+      "addend": 0,
+      "delay_slot": 0
+    },
+    {
+      "site": 3,
+      "offset": 1764,
+      "target": "func_00125e80",
+      "addend": 0,
+      "delay_slot": 0
+    },
+    {
+      "site": 4,
+      "offset": 9832,
+      "target": "func_00125e80",
+      "addend": 0,
+      "delay_slot": 0
+    },
+    {
+      "site": 5,
+      "offset": 10240,
+      "target": "func_00125e80",
+      "addend": 0,
+      "delay_slot": 0
+    },
+    {
+      "site": 6,
+      "offset": 12676,
+      "target": "func_00125e80",
+      "addend": 0,
+      "delay_slot": 0
+    }
+  ],
+  "providers": [
+    {
+      "name": "func_00124f70",
+      "bytes": 3852,
+      "window": 3856,
+      "normalized_difference": 0,
+      "zero_tail_bytes": 4,
+      "retail_sha256": "8fc5ab1ddf822fcac3af00df7b6977c2957204b44aa4203bda4a0eb99b35e07b",
+      "candidate_sha256": "004188e7617026519133eef076f43f7717c824c3cbe04b487b6458690ffafc0b"
+    },
+    {
+      "name": "func_00125e80",
+      "bytes": 528,
+      "window": 528,
+      "normalized_difference": 0,
+      "zero_tail_bytes": 0,
+      "retail_sha256": "e2d8357bcb621d8ecda764d53c95d5e4b58bda3c0643efc460eb79647ca428c6",
+      "candidate_sha256": "725817d93de7014be0acacdc02ccc5e1b4403c808f29e7f6adb28082b8b268b2"
+    },
+    {
+      "name": "func_00126090",
+      "bytes": 1288,
+      "window": 1296,
+      "normalized_difference": 0,
+      "zero_tail_bytes": 8,
+      "retail_sha256": "c183842a98f6df2e01b2ec2a871dca9cac9a79c9bbf8975256c9bc3675a42543",
+      "candidate_sha256": "5c89d10af48ec127c8d7c826b5879b87b8c997afe260327bac1d6a81043817ab"
+    }
+  ],
+  "provider_role_words": {
+    "0x125018": "0x302d",
+    "0x125a9c": "0x44950000",
+    "0x125aa4": "0x46800060",
+    "0x125d20": "0x2a31825",
+    "0x125d6c": "0x2a31825",
+    "0x125db8": "0x2a31825",
+    "0x125e04": "0x2a21025",
+    "0x125f50": "0x322500ff",
+    "0x125f58": "0x4600a386",
+    "0x125f70": "0x8e08003c",
+    "0x125f98": "0x46160080",
+    "0x125fa8": "0x46150040",
+    "0x126048": "0x4600a306"
+  },
+  "scene_only_definitions": {
+    "retail": [
+      1205728,
+      1223216
+    ],
+    "candidate": [
+      80,
+      16604
+    ]
+  },
+  "direct_call_census": {
+    "0x124f70": [
+      {
+        "address": 1208272,
+        "owner": 1205664
+      },
+      {
+        "address": 1213016,
+        "owner": 1205664
+      },
+      {
+        "address": 1220324,
+        "owner": 1205664
+      }
+    ],
+    "0x125e80": [
+      {
+        "address": 1207504,
+        "owner": 1205664
+      },
+      {
+        "address": 1216084,
+        "owner": 1205664
+      },
+      {
+        "address": 1216520,
+        "owner": 1205664
+      },
+      {
+        "address": 1219208,
+        "owner": 1205664
+      }
+    ],
+    "0x126090": [
+      {
+        "address": 1207020,
+        "owner": 1205664
+      },
+      {
+        "address": 1218736,
+        "owner": 1205664
+      }
+    ]
+  },
+  "limits": "Actual retail/candidate final writer slices, with pulse X supplied after authenticated ACC output. No sine/ACC producer or complete provider execution. Native typed observers alone do not establish EE ABI. Independent register banks do not prove unique cross-bank source chronology; exact existing providers supply source order."
+}
