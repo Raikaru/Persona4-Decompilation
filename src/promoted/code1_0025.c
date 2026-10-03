@@ -44,7 +44,7 @@ void func_00106300(s64 arg0);
 void func_00106310(s32 arg0);
 void func_00106320(s32 arg0);
 s32 func_001106f0(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-void func_0026bc10(s32 arg0, s32 arg1);
+extern s32 func_0026bc10(u32 resourceId, u32 value);
 u8 func_00109bf0(u16 arg0, s32 arg1);
 
 s32 func_0029d020(void);

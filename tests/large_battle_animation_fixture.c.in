@@ -1,0 +1,99 @@
+#include "type.h"
+static unsigned scenario;
+#define CHECK(c) do { if (!(c)) native32_failure(__LINE__, scenario, #c); } while (0)
+typedef struct BtlUnit { u32 value; } BtlUnit;
+typedef u32 (*BtlPacketFunc)(void *);
+typedef struct BtlPacket {
+    u8 prefix[0x68];
+    BtlPacketFunc initFunc, updateFunc, destroyFunc;
+    u32 word74;
+    void *workData;
+} BtlPacket;
+typedef struct BtlUnitPacketAnim {
+    BtlUnit *unit;
+    s16 id;
+    u16 blendFrameCount;
+    f32 speed;
+    u16 mode;
+} BtlUnitPacketAnim;
+_Static_assert(sizeof(BtlUnitPacketAnim) == 0x10, "work size");
+_Static_assert(__builtin_offsetof(BtlUnitPacketAnim, speed) == 8, "speed offset");
+_Static_assert(__builtin_offsetof(BtlUnitPacketAnim, mode) == 12, "mode offset");
+_Static_assert(__builtin_offsetof(BtlPacket, workData) == 0x78, "work pointer");
+static BtlUnit unit;
+static BtlPacket packet, special;
+static BtlUnitPacketAnim work;
+static u64 actionStorage[0x100 / 8];
+static u8 *action = (u8 *)actionStorage;
+static s32 raw, mode, frame;
+static u8 byte;
+static f32 rate;
+static s32 route;
+static u32 allocations;
+static void func_00199e50(void *p) { (void)p; }
+static u32 func_00199e70(void *p) { (void)p; return 1; }
+static void func_00199ec0(void *p) { (void)p; }
+static BtlPacket *func_00194470(s32 type, s32 size) {
+    CHECK(type == 0x100 && size == 16);
+    ++allocations;
+    packet.workData = &work;
+    return &packet;
+}
+static BtlPacket *btlUnitCreateResNullifiedAnimPacket(BtlUnit *u, f32 value) {
+    CHECK(u == &unit && value == 32.0f); route = -2; return &special;
+}
+static BtlPacket *func_0019a5e0(BtlUnit *u, s32 value) {
+    CHECK(u == &unit && value == 6); route = -3; return &special;
+}
+static BtlPacket *btlUnitCreateEnmDodgeAnimPacket(BtlUnit *u, s32 value) {
+    CHECK(u == &unit && value == 6); route = -4; return &special;
+}
+%%CREATOR_TYPE%%
+%%FACTORY%%
+%%CALLS%%
+typedef struct Expected {
+    s32 motion, frame;
+    f32 speed;
+    s32 mode;
+    BtlPacket *(*invoke)(void);
+} Expected;
+static const Expected sites[] = {
+%%SITES%%
+};
+int main(void) {
+    static const u32 ids[] = {0, 4, 13, 26, 0x7fff, 0x8000, 0xfffb, 0xfffc, 0xfffd, 0xfffe, 0xffff, 0x1234fffe};
+    static const u32 values[] = {0, 6, 0x7fff, 0xffff, 0x10000, 0x12345678, 0xffffffff};
+    static const f32 rates[] = {0.0f, 0.5f, 1.0f, 1.75f, 2.0f};
+    *(BtlUnit **)(action + 0x30) = &unit;
+    for (u32 site = 0; site < 15; ++site)
+    for (u32 id = 0; id < 12; ++id)
+    for (u32 value = 0; value < 7; ++value)
+    for (u32 speed = 0; speed < 5; ++speed) {
+        const Expected *e = &sites[site];
+        BtlPacket *result;
+        s16 motion;
+        ++scenario;
+        raw = (s32)ids[id]; byte = (u8)raw;
+        mode = (s32)values[value]; frame = mode; rate = rates[speed];
+        motion = e->motion == -1000 ? (s16)raw : e->motion == -1001 ? (s8)byte : (s16)e->motion;
+        route = 0; allocations = 0;
+        memset(&work, 0xA5, sizeof(work));
+        result = e->invoke();
+        if (motion >= -4 && motion <= -2) {
+            CHECK(route == motion && allocations == 0 && result == &special);
+        } else {
+            CHECK(route == 0 && allocations == 1 && result == &packet);
+            CHECK(work.unit == &unit);
+            CHECK(work.id == (motion == -5 ? -1 : motion));
+            CHECK(work.blendFrameCount == (e->frame < 0 ? (u16)frame : e->frame));
+            CHECK(work.speed == (e->speed < 0 ? rate : e->speed));
+            CHECK(work.mode == (e->mode < 0 ? (u16)mode : e->mode));
+            CHECK(packet.initFunc == (BtlPacketFunc)func_00199e50);
+            CHECK(packet.updateFunc == func_00199e70);
+            CHECK(packet.destroyFunc == (BtlPacketFunc)func_00199ec0);
+        }
+    }
+    CHECK(scenario == 6300);
+    native32_text("6300 animation caller/factory cases passed\n");
+    return 0;
+}
