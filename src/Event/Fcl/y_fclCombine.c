@@ -97,7 +97,7 @@ extern u8 *func_002b6150(s16);
 extern void func_00321e60(u8 *, s64, u8, u8);
 extern void func_003233d0(u8 *);
 extern void func_003191c0(u8 *, FclVec2, s32, s32, s16, s16, s8, s8);
-extern void func_0031ac10(u8 *, FclVec2, s8, s8, s32, u16, s16, s8, s8, u8);
+extern void func_0031ac10(u8 *, FclVec2, s8, s8, s32, s16, s16, s8, s8, u8);
 extern void func_0031c2b0(u8 *, s16, FclVec2f, FclVec2f);
 extern void func_0031cce0(u8 *, s16, FclVec2, FclVec2);
 extern void func_00320b80(u8 *, s8);

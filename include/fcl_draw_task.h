@@ -23,9 +23,10 @@ void func_002b83e0(u8 *draw, FclVec2 position, FclDrawColor color0,
                    FclDrawColor color1, u8 alpha0, u8 alpha1, f32 height,
                    f32 depth, s32 duration, s32 delay, s8 mode, s8 reverse);
 
-/* Digit pairs retain a word row selector and a signed-halfword value.
+/* Digit row and value are signed halfwords. Retail first consumes the row
+   through signed-low16 conversion; its incoming high bits are never used.
    Layer is an integer argument; depth follows it in the source call order. */
-void func_002ba080(u8 *task, s32 row, s16 value, FclVec2 position,
+void func_002ba080(u8 *task, s16 row, s16 value, FclVec2 position,
                    FclDrawColor color, s32 duration, s32 delay, s32 layer,
                    f32 depth, s8 mode);
 

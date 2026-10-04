@@ -13,6 +13,7 @@
 #include "sdk_snd_internal.h"
 
 #include "fcl_combine_internal.h"
+#include "fcl_combine_row_internal.h"
 
 typedef FclDrawColor FclByte4;
 typedef FclVec2 f2;
@@ -77,7 +78,7 @@ extern void func_002b8370(u8 *, FclByte4, FclByte4, u8, s16, s32);
 extern void func_0032fa30(u8 *, s16, FclDrawColor, FclDrawColor, FclDrawColor);
 extern s8 func_0032fb60(s8);
 extern void func_003297f0(f32, f32, u8 *, s64, s8);
-extern void func_0031ac10(u8 *, FclVec2, s8, s8, s32, u16, s16, s8, s8, u8);
+extern void func_0031ac10(u8 *, FclVec2, s8, s8, s32, s16, s16, s8, s8, u8);
 extern f32 D_006440F0[];
 extern f32 D_006440F8[];
 extern f32 D_00644290[];
@@ -1545,181 +1546,183 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
 /* Resource scale is established only in the branch that uses it.
    The name scale is established independently before the two-row tail.
    The digit pair uses the shared native aggregate/depth contract. */
-// FUN_0031AC10 NONMATCHING
-#ifdef NON_MATCHING
-void func_0031ac10(u8 *arg0, FclVec2 arg1, s8 arg2, s8 arg3, s32 arg4, u16 arg5, s16 arg6, s8 arg7, s8 arg8, u8 arg9) {
-    extern void func_002ba970(u8 *, s16, FclDrawColor);
-    s16 row12;
-    u8 *t;
-    u8 *h;
-    f32 y;
-    f32 scale;
-    f32 nameScale;
-    s8 t16;
-    s8 v3;
-    s8 v30;
-    s16 id;
+// FUN_0031AC10
+#pragma push
+/* measured: opt_lifetimes splits the two nonoverlapping transition-scale
+   lifetimes and restores the retail saved-register allocation. */
+#pragma opt_lifetimes on
+/* The name sits two pixels below rowY. The digit pair and special-row
+   backdrop retain rowY (retail keeps it unchanged in $f22). */
+void func_0031ac10(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 persona, s16 level, s16 delay, s8 mode, s8 checkAvailability, u8 alpha) {
+    s16 digitRow;
+    FclCombineRowWork *work;
+    u8 *resource;
+    f32 rowY;
+    f32 transitionScale;
+    s8 rowIndex;
+    s8 availability;
+    s8 rowAvailability;
+    s16 sprite;
 
-    /* The homed input Y is read before the task/work lookup in retail. */
-    y = arg1.y;
-    t = *(u8 **)(arg0 + 0x38);
-    v3 = 1;
-    t16 = (s8)arg3;
-    y = y + (f32)(t16 * 23);
-    if (arg8 == 1) {
-        v3 = *(s8 *)(func_002e4870(0) + arg2 * 12 + t16 + 0x14);
+    rowY = position.y;
+    work = ((FclCombineRowTask *)task)->work;
+    availability = 1;
+    rowIndex = (s8)row;
+    rowY += (f32)(rowIndex * 23);
+    if (checkAvailability == 1) {
+        availability = *(s8 *)(func_002e4870(0) + (s32)selectedRow * 12 + rowIndex + 0x14);
     }
-    if (*(s8 *)(t + 0x128) != t16 && *(s8 *)(t + 0x129) != t16 && (v30 = v3) > 0) {
-        if (v30 != 2) {
-            id = (s16)(t16 + 0x270);
-            func_002b7750(id, 0x193);
-            func_002b6c30(id, func_002b2970(arg1.x, y), 191.0f, 0x57);
-            h = func_0046d200(func_00331560(), 0x193);
-            if (arg7 == 1) {
-                func_002b6a70(id, *(u8 *)(func_002b6150(id) + 0x6E), 0, 0, 0, arg6 + 3);
-                scale = iGpffff8504;
-                func_002b6af0(id, 1.0f, 1.0f, 1.0f, scale, 0, 3, arg6);
-                func_002b69f0(id, func_002b2970(arg1.x, y), func_002b2970(arg1.x, y + func_0046b2f0(h) / 2.0f), 0, 3, arg6);
+    if (work->firstSelectedRow != rowIndex && work->secondSelectedRow != rowIndex && (rowAvailability = availability) > 0) {
+        if (rowAvailability != 2) {
+            sprite = (s16)(rowIndex + 0x270);
+            func_002b7750(sprite, 0x193);
+            func_002b6c30(sprite, func_002b2970(position.x, rowY), 191.0f, 0x57);
+            resource = func_0046d200(func_00331560(), 0x193);
+            if (mode == 1) {
+                func_002b6a70(sprite, ((FclCombineRowSprite *)func_002b6150(sprite))->alpha, 0, 0, 0, delay + 3);
+                transitionScale = iGpffff8504;
+                func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
             } else {
-                *(FclByte4 *)(func_002b6150(id) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                func_002b6a70(id, 0, arg9, 0, 0, arg6);
-                scale = iGpffff8504;
-                func_002b6af0(id, 1.0f, 1.0f, scale, 1.0f, 0, 3, arg6);
-                func_002b69f0(id, func_002b2970(arg1.x, y + func_0046b2f0(h) / 2.0f), func_002b2970(arg1.x, y), 0, 3, arg6);
+                ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                func_002b6a70(sprite, 0, alpha, 0, 0, delay);
+                transitionScale = iGpffff8504;
+                func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(position.x, rowY + func_0046b2f0(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
             }
-            func_0046d280(h);
-            id = (s16)(t16 + 0x27D);
-            func_002b7750(id, 0x19B);
-            func_002b6c30(id, func_002b2970(286.0f + arg1.x, y), 192.0f, 0x57);
-            h = func_0046d200(func_00331560(), 0x19B);
-            if (arg7 == 1) {
-                func_002b6a70(id, *(u8 *)(func_002b6150(id) + 0x6E), 0, 0, 0, arg6 + 3);
-                func_002b6af0(id, 1.0f, 1.0f, 1.0f, scale, 0, 3, arg6);
-                func_002b69f0(id, func_002b2970(286.0f + arg1.x, y), func_002b2970(286.0f + arg1.x, y + func_0046b2f0(h) / 2.0f), 0, 3, arg6);
+            func_0046d280(resource);
+            sprite = (s16)(rowIndex + 0x27D);
+            func_002b7750(sprite, 0x19B);
+            func_002b6c30(sprite, func_002b2970(286.0f + position.x, rowY), 192.0f, 0x57);
+            resource = func_0046d200(func_00331560(), 0x19B);
+            if (mode == 1) {
+                func_002b6a70(sprite, ((FclCombineRowSprite *)func_002b6150(sprite))->alpha, 0, 0, 0, delay + 3);
+                func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(286.0f + position.x, rowY), func_002b2970(286.0f + position.x, rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
             } else {
-                *(FclByte4 *)(func_002b6150(id) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                func_002b6a70(id, 0, arg9, 0, 0, arg6);
-                func_002b6af0(id, 1.0f, 1.0f, scale, 1.0f, 0, 3, arg6);
-                func_002b69f0(id, func_002b2970(286.0f + arg1.x, y + func_0046b2f0(h) / 2.0f), func_002b2970(286.0f + arg1.x, y), 0, 3, arg6);
+                ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                func_002b6a70(sprite, 0, alpha, 0, 0, delay);
+                func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(286.0f + position.x, rowY + func_0046b2f0(resource) / 2.0f), func_002b2970(286.0f + position.x, rowY), 0, 3, delay);
             }
-            func_0046d280(h);
-            id = (s16)(t16 + 0x28B);
-            func_002b6c30(id, func_002b2970(arg1.x, y), 163.0f, 0x57);
-            h = func_0046d200(func_00331560(), 0x188);
-            if (arg7 == 1) {
-                func_002b6a70(id, 0xFF, 0, 0, 0, arg6 + 3);
-                func_002b6af0(id, 1.0f, 1.0f, 1.0f, scale, 0, 3, arg6);
-                func_002b69f0(id, func_002b2970(arg1.x, y), func_002b2970(arg1.x, y + func_0046b2f0(h) / 2.0f), 0, 3, arg6);
+            func_0046d280(resource);
+            sprite = (s16)(rowIndex + 0x28B);
+            func_002b6c30(sprite, func_002b2970(position.x, rowY), 163.0f, 0x57);
+            resource = func_0046d200(func_00331560(), 0x188);
+            if (mode == 1) {
+                func_002b6a70(sprite, 0xFF, 0, 0, 0, delay + 3);
+                func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
             } else {
-                *(FclByte4 *)(func_002b6150(id) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                func_002b6a70(id, 0, 0xFF, 0, 0, arg6);
-                func_002b6af0(id, 1.0f, 1.0f, scale, 1.0f, 0, 3, arg6);
-                func_002b69f0(id, func_002b2970(arg1.x, y + func_0046b2f0(h) / 2.0f), func_002b2970(arg1.x, y), 0, 3, arg6);
+                ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                func_002b6a70(sprite, 0, 0xFF, 0, 0, delay);
+                func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(position.x, rowY + func_0046b2f0(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
             }
-            func_0046d280(h);
-            id = (s16)(t16 + 0x297);
-            func_002b6c30(id, func_002b2970(36.0f + arg1.x, y), 163.0f, 0x57);
-            h = func_0046d200(func_00331560(), 0x18C);
-            if (arg7 == 1) {
-                func_002b6a70(id, 0xFF, 0, 0, 0, arg6 + 3);
-                func_002b6af0(id, 1.0f, 1.0f, 1.0f, scale, 0, 3, arg6);
-                func_002b69f0(id, func_002b2970(36.0f + arg1.x, y), func_002b2970(36.0f + arg1.x, y + func_0046b2f0(h) / 2.0f), 0, 3, arg6);
+            func_0046d280(resource);
+            sprite = (s16)(rowIndex + 0x297);
+            func_002b6c30(sprite, func_002b2970(36.0f + position.x, rowY), 163.0f, 0x57);
+            resource = func_0046d200(func_00331560(), 0x18C);
+            if (mode == 1) {
+                func_002b6a70(sprite, 0xFF, 0, 0, 0, delay + 3);
+                func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(36.0f + position.x, rowY), func_002b2970(36.0f + position.x, rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
             } else {
-                *(FclByte4 *)(func_002b6150(id) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                func_002b6a70(id, 0, 0xFF, 0, 0, arg6);
-                func_002b6af0(id, 1.0f, 1.0f, scale, 1.0f, 0, 3, arg6);
-                func_002b69f0(id, func_002b2970(36.0f + arg1.x, y + func_0046b2f0(h) / 2.0f), func_002b2970(36.0f + arg1.x, y), 0, 3, arg6);
+                ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                func_002b6a70(sprite, 0, 0xFF, 0, 0, delay);
+                func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(36.0f + position.x, rowY + func_0046b2f0(resource) / 2.0f), func_002b2970(36.0f + position.x, rowY), 0, 3, delay);
             }
-            func_0046d280(h);
+            func_0046d280(resource);
         }
-        id = (s16)(t16 + 0x2A3);
-        h = func_0046d200(func_00331560(), (u16)((func_00109280((u16)arg4) & 0xFF) + 0x1B));
-        if (arg7 == 1) {
-            func_002b6a70(id, 0xFF, 0, 0, 0, arg6 + 3);
-            nameScale = iGpffff8504;
-            func_002b6af0(id, 1.0f, 1.0f, 1.0f, nameScale, 0, 3, arg6);
-            func_002b69f0(id, func_002b2970(8.0f + arg1.x, 2.0f + y), func_002b2970(8.0f + arg1.x, 2.0f + y + func_0046b2f0(h) / 2.0f), 0, 3, arg6);
+        sprite = (s16)(rowIndex + 0x2A3);
+        resource = func_0046d200(func_00331560(), (u16)((func_00109280((u16)persona) & 0xFF) + 0x1B));
+        if (mode == 1) {
+            func_002b6a70(sprite, 0xFF, 0, 0, 0, delay + 3);
+            transitionScale = iGpffff8504;
+            func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+            func_002b69f0(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY), func_002b2970(8.0f + position.x, 2.0f + rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
         } else {
-            func_002b6c30(id, func_002b2970(8.0f + arg1.x, 2.0f + y), 46.0f, 0x59);
-            *(s16 *)(func_002b6150(id) + 4) = (func_00109280((u16)arg4) & 0xFF) + 0x1B;
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = func_002b2a60(0, 0, 0x66, 0xFF);
-            func_002b6a70(id, 0, 0xFF, 0, 0, arg6);
-            nameScale = iGpffff8504;
-            func_002b6af0(id, 1.0f, 1.0f, nameScale, 1.0f, 0, 3, arg6);
-            func_002b69f0(id, func_002b2970(8.0f + arg1.x, 2.0f + y + func_0046b2f0(h) / 2.0f), func_002b2970(8.0f + arg1.x, 2.0f + y), 0, 3, arg6);
+            func_002b6c30(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY), 46.0f, 0x59);
+            ((FclCombineRowSprite *)func_002b6150(sprite))->image = (func_00109280((u16)persona) & 0xFF) + 0x1B;
+            ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0, 0, 0x66, 0xFF);
+            func_002b6a70(sprite, 0, 0xFF, 0, 0, delay);
+            transitionScale = iGpffff8504;
+            func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+            func_002b69f0(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY + func_0046b2f0(resource) / 2.0f), func_002b2970(8.0f + position.x, 2.0f + rowY), 0, 3, delay);
         }
-        func_0046d280(h);
-        /* The name sprite uses y + 2; the retained row origin stays y. */
-        row12 = (s8)(t16 + 0xC);
-        func_002ba080(*(u8 **)(t + 0x2BC), row12, (s16)arg5, func_002b2970(arg1.x - 16.0f, y),
-                      func_002b2a60(0xCC, 0xFF, 0xFF, 0x80), 3, arg6, 0x59, 46.0f, arg7);
-        if (v30 == 2) {
-            id = (s16)(t16 + 0x270);
-            func_002b7750(id, 0x193);
-            func_002b6c30(id, func_002b2970(arg1.x, y), 191.0f, 0x57);
-            h = func_0046d200(func_00331560(), 0x193);
-            if (arg7 == 1) {
-                func_002b6a70(id, *(u8 *)(func_002b6150(id) + 0x6E), 0, 0, 0, arg6 + 3);
-                func_002b6af0(id, 1.0f, 1.0f, 1.0f, nameScale, 0, 3, arg6);
-                func_002b69f0(id, func_002b2970(arg1.x, y), func_002b2970(arg1.x, y + func_0046b2f0(h) / 2.0f), 0, 3, arg6);
+        func_0046d280(resource);
+        /* The persona lookup is complete; this scalar now carries the digit delay. */
+        persona = delay;
+        digitRow = (s8)(rowIndex + 0xC);
+        func_002ba080(work->digitTask, digitRow, (s16)level, func_002b2970(position.x - 16.0f, rowY),
+                      func_002b2a60(0xCC, 0xFF, 0xFF, 0x80), 3, persona, 0x59, 46.0f, mode);
+        if (rowAvailability == 2) {
+            sprite = (s16)(rowIndex + 0x270);
+            func_002b7750(sprite, 0x193);
+            func_002b6c30(sprite, func_002b2970(position.x, rowY), 191.0f, 0x57);
+            resource = func_0046d200(func_00331560(), 0x193);
+            if (mode == 1) {
+                func_002b6a70(sprite, ((FclCombineRowSprite *)func_002b6150(sprite))->alpha, 0, 0, 0, delay + 3);
+                func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
             } else {
-                *(FclByte4 *)(func_002b6150(id) + 0x85) = func_002b2a60(0, 0, 0x99, 0xFF);
-                func_002b6a70(id, 0, 0, 0, 0, arg6);
-                func_002b6af0(id, 1.0f, 1.0f, nameScale, 1.0f, 0, 3, arg6);
-                func_002b69f0(id, func_002b2970(arg1.x, y + func_0046b2f0(h) / 2.0f), func_002b2970(arg1.x, y), 0, 3, arg6);
+                ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0, 0, 0x99, 0xFF);
+                func_002b6a70(sprite, 0, 0, 0, 0, delay);
+                func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(position.x, rowY + func_0046b2f0(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
             }
-            func_0046d280(h);
-            id = (s16)(t16 + 0x27D);
-            func_002b7750(id, 0x19B);
-            func_002b6c30(id, func_002b2970((f32)0x11D + arg1.x, y), 192.0f, 0x57);
-            h = func_0046d200(func_00331560(), 0x19B);
-            if (arg7 == 1) {
-                func_002b6a70(id, *(u8 *)(func_002b6150(id) + 0x6E), 0, 0, 0, arg6 + 3);
-                func_002b6af0(id, 1.0f, 1.0f, 1.0f, nameScale, 0, 3, arg6);
-                func_002b69f0(id, func_002b2970((f32)0x11D + arg1.x, y), func_002b2970((f32)0x11D + arg1.x, y + func_0046b2f0(h) / 2.0f), 0, 3, arg6);
+            func_0046d280(resource);
+            sprite = (s16)(rowIndex + 0x27D);
+            func_002b7750(sprite, 0x19B);
+            func_002b6c30(sprite, func_002b2970((f32)0x11D + position.x, rowY), 192.0f, 0x57);
+            resource = func_0046d200(func_00331560(), 0x19B);
+            if (mode == 1) {
+                func_002b6a70(sprite, ((FclCombineRowSprite *)func_002b6150(sprite))->alpha, 0, 0, 0, delay + 3);
+                func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970((f32)0x11D + position.x, rowY), func_002b2970((f32)0x11D + position.x, rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
             } else {
-                *(FclByte4 *)(func_002b6150(id) + 0x85) = func_002b2a60(0, 0, 0x99, 0xFF);
-                func_002b6a70(id, 0, 0, 0, 0, arg6);
-                func_002b6af0(id, 1.0f, 1.0f, nameScale, 1.0f, 0, 3, arg6);
-                func_002b69f0(id, func_002b2970((f32)0x11D + arg1.x, y + func_0046b2f0(h) / 2.0f), func_002b2970((f32)0x11D + arg1.x, y), 0, 3, arg6);
+                ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0, 0, 0x99, 0xFF);
+                func_002b6a70(sprite, 0, 0, 0, 0, delay);
+                func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970((f32)0x11D + position.x, rowY + func_0046b2f0(resource) / 2.0f), func_002b2970((f32)0x11D + position.x, rowY), 0, 3, delay);
             }
-            func_0046d280(h);
+            func_0046d280(resource);
             func_002b7750(0xCF, 0xCF);
-            func_002b77d0(0xCF, func_002b2970(arg1.x - 10.0f, y - 12.0f), 0xCF, func_002b2a60(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, arg7, 3, 3, arg6, func_00331560());
+            func_002b77d0(0xCF, func_002b2970(position.x - 10.0f, rowY - 12.0f), 0xCF, func_002b2a60(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, mode, 3, 3, delay, func_00331560());
             func_002b7750(0xD2, 0xD2);
-            func_002b77d0(0xD2, func_002b2970(282.0f + arg1.x, y - 12.0f), 0xD2, func_002b2a60(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, arg7, 3, 3, arg6, func_00331560());
-            if (arg7 == 0) {
-                *(FclVec2 *)(t + 0x298) = func_002b2970(arg1.x - 60.0f, y - 8.0f);
-                func_002b6c30(0x1C7, func_002b2970(arg1.x - 60.0f, y - 8.0f), 190.0f, 0x58);
-                *(u8 *)(func_002b6150(0x1C7) + 0x6E) = 0;
-                *(s8 *)(t + 0x294) = 0;
+            func_002b77d0(0xD2, func_002b2970(282.0f + position.x, rowY - 12.0f), 0xD2, func_002b2a60(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, mode, 3, 3, delay, func_00331560());
+            if (mode == 0) {
+                work->cursorPosition = func_002b2970(position.x - 60.0f, rowY - 8.0f);
+                func_002b6c30(0x1C7, func_002b2970(position.x - 60.0f, rowY - 8.0f), 190.0f, 0x58);
+                ((FclCombineRowSprite *)func_002b6150(0x1C7))->alpha = 0;
+                work->firstCursorState = 0;
                 func_002b68d0(0x1C7, 2, 1);
-                *(u8 *)(func_002b6150(0x1C7) + 0x73) = 1;
+                ((FclCombineRowSprite *)func_002b6150(0x1C7))->flag73 = 1;
                 func_002b7750(0x2E8, 0x1C7);
-                func_002b6c30(0x2E8, func_002b2970(arg1.x - 60.0f, y - 8.0f), 190.0f, 0x58);
-                *(u8 *)(func_002b6150(0x2E8) + 0x6E) = 0;
-                *(s8 *)(t + 0x295) = 0;
+                func_002b6c30(0x2E8, func_002b2970(position.x - 60.0f, rowY - 8.0f), 190.0f, 0x58);
+                ((FclCombineRowSprite *)func_002b6150(0x2E8))->alpha = 0;
+                work->secondCursorState = 0;
                 func_002b68d0(0x2E8, 2, 1);
-                *(u8 *)(func_002b6150(0x2E8) + 0x73) = 1;
-                *(FclByte4 *)(func_002b6150((s16)(t16 + 0x2A3)) + 0x85) = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
-                func_002ba970(*(u8 **)(t + 0x2BC), row12, func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF));
+                ((FclCombineRowSprite *)func_002b6150(0x2E8))->flag73 = 1;
+                ((FclCombineRowSprite *)func_002b6150((s16)(rowIndex + 0x2A3)))->color = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
+                func_002ba970(work->digitTask, digitRow, func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF));
                 return;
             }
             func_002b68d0(0x1C7, 0, 1);
             func_002b68d0(0x2E8, 0, 1);
         }
     } else {
-        func_002b68d0((s16)(arg3 + 0x270), 0, 1);
-        func_002b68d0((s16)(arg3 + 0x27D), 0, 1);
-        func_002b68d0((s16)(arg3 + 0x28B), 0, 1);
-        func_002b68d0((s16)(arg3 + 0x297), 0, 1);
-        func_002b68d0((s16)(arg3 + 0x2A3), 0, 1);
+        func_002b68d0((s16)(row + 0x270), 0, 1);
+        func_002b68d0((s16)(row + 0x27D), 0, 1);
+        func_002b68d0((s16)(row + 0x28B), 0, 1);
+        func_002b68d0((s16)(row + 0x297), 0, 1);
+        func_002b68d0((s16)(row + 0x2A3), 0, 1);
     }
 }
 
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031ac10);
-#endif
+#pragma pop
+
 
 /* The coordinate pairs are FclVec2 values: func_002b2970 returns its point by
    value (hidden result pointer), so each point is built inside the call that
