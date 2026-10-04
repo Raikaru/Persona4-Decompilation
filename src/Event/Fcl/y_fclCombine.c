@@ -1051,243 +1051,254 @@ typedef struct {
     s16 row;
 } FclCombineLayoutSlot;
 
-/* 48 words: every other layout matches; in the 0xB5 == 8 block the mode and
-   the slot pointer take $s1/$s0 where retail has $s0/$s1.  See
-   docs/probe_archive/FclCombine_002eb270_20260925.md. */
-// FUN_002EB270 NONMATCHING
-#ifdef NON_MATCHING
-void func_002eb270(u8 *arg0, s32 arg1) {
+/* Layout 8 gives the consecutive left and right/central phases their own
+   transition values. The real aggregate-return position temporaries remain
+   at every placement. See docs/probe_archive/FclCombine_002eb270_20261004.md. */
+// FUN_002EB270
+void func_002eb270(u8 *task, s32 transition) {
     extern u8 D_006407F0[];
     FclCombineLayoutSlot *slot;
-    u8 *p;
-    s16 i1;
-    s16 i2;
-    s16 i3;
-    s16 i4;
-    s16 i5;
-    s16 i6;
-    s32 mode1;
-    s32 mode2;
-    s32 mode3;
-    s32 mode4;
-    s32 mode5;
+    u8 *work;
     s16 jitter;
 
-    p = *(u8 **)(arg0 + 0x38);
-    if (*(s8 *)(p + 0xB5) % 2 == 0) {
-        if (*(s8 *)(p + 0xB5) == 6) {
-            for (i1 = 0, mode1 = (s8)arg1; i1 < 3; i1++) {
-                slot = (FclCombineLayoutSlot *)D_00640760 + (i1 + 1);
-                if (mode1 == 0) {
-                    func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 i1, i1 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
-                    *(s16 *)(p + i1 * 10 + 0xCA) = slot->col * 3 + 0x3E;
-                    *(s16 *)(p + i1 * 10 + 0xCC) = slot->row + 0x57;
+    /* Only the signed low byte selects the transition: zero enters, every
+       other value exits, and one also hides the six selection overlays. */
+    work = *(u8 **)(task + 0x38);
+    if (*(s8 *)(work + 0xB5) % 2 == 0) {
+        if (*(s8 *)(work + 0xB5) == 6) {
+            s32 transition6;
+            s16 left6;
+
+            for (left6 = 0, transition6 = (s8)transition; left6 < 3; left6++) {
+                slot = (FclCombineLayoutSlot *)D_00640760 + (left6 + 1);
+                if (transition6 == 0) {
+                    func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 left6, left6 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(work + left6 * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(work + left6 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
-                                 i1, i1 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                                 left6, left6 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
             slot = (FclCombineLayoutSlot *)D_006407A8;
-            if (mode1 == 0) {
-                func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+            if (transition6 == 0) {
+                func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
                              8, 2, slot->col * 3 + 0x3E, slot->row + 0x57);
-                *(s16 *)(p + 0xFC) = slot->col * 3 + 0x3E;
-                *(s16 *)(p + 0xFE) = slot->row + 0x57;
+                *(s16 *)(work + 0xFC) = slot->col * 3 + 0x3E;
+                *(s16 *)(work + 0xFE) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
-                func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
                              8, 1, slot->col * 3 + 0x3E, slot->row + 0x57);
             }
             slot = (FclCombineLayoutSlot *)D_0064079C;
-            if (mode1 == 0) {
-                func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+            if (transition6 == 0) {
+                func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
                              7, 6, slot->col * 3 + 0x3E, slot->row + 0x57);
-                *(s16 *)(p + 0xF2) = slot->col * 3 + 0x3E;
-                *(s16 *)(p + 0xF4) = slot->row + 0x57;
+                *(s16 *)(work + 0xF2) = slot->col * 3 + 0x3E;
+                *(s16 *)(work + 0xF4) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
-                func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
                              7, 3, slot->col * 3 + 0x3E, slot->row + 0x57);
             }
             slot = (FclCombineLayoutSlot *)D_00640790;
-            if (mode1 == 0) {
-                func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+            if (transition6 == 0) {
+                func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
                              6, 0xA, slot->col * 3 + 0x3E, slot->row + 0x57);
-                *(s16 *)(p + 0xE8) = slot->col * 3 + 0x3E;
-                *(s16 *)(p + 0xEA) = slot->row + 0x57;
+                *(s16 *)(work + 0xE8) = slot->col * 3 + 0x3E;
+                *(s16 *)(work + 0xEA) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
-                func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
                              6, 5, slot->col * 3 + 0x3E, slot->row + 0x57);
             }
-        } else if (*(s8 *)(p + 0xB5) == 8) {
-            for (i2 = 0, mode2 = (s8)arg1; i2 < 4; i2++) {
-                slot = (FclCombineLayoutSlot *)D_00640760 + i2;
-                if (mode2 == 0) {
-                    func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 i2, i2 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
-                    *(s16 *)(p + i2 * 10 + 0xCA) = slot->col * 3 + 0x3E;
-                    *(s16 *)(p + i2 * 10 + 0xCC) = slot->row + 0x57;
+        } else if (*(s8 *)(work + 0xB5) == 8) {
+            s32 leftTransition8;
+            s32 rightTransition8;
+            s16 left8;
+            s16 right8;
+
+            /* Each edge traversal owns its transition value. */
+            for (left8 = 0, leftTransition8 = (s8)transition; left8 < 4; left8++) {
+                slot = (FclCombineLayoutSlot *)D_00640760 + left8;
+                if (leftTransition8 == 0) {
+                    func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 left8, left8 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(work + left8 * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(work + left8 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
-                                 i2, i2 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                                 left8, left8 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
-            for (i3 = 0; i3 < 3; i3++) {
-                slot = (FclCombineLayoutSlot *)D_00640760 + (7 - i3);
-                if (mode2 == 0) {
-                    func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 8 - i3, i3 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
-                    *(s16 *)(p + (7 - i3) * 10 + 0xCA) = slot->col * 3 + 0x3E;
-                    *(s16 *)(p + (7 - i3) * 10 + 0xCC) = slot->row + 0x57;
+            /* The left phase has finished; carry its mode into the right
+               traversal and the remaining central placement. */
+            for (right8 = 0, rightTransition8 = leftTransition8; right8 < 3; right8++) {
+                slot = (FclCombineLayoutSlot *)D_00640760 + (7 - right8);
+                if (rightTransition8 == 0) {
+                    func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 8 - right8, right8 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(work + (7 - right8) * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(work + (7 - right8) * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                                 8 - i3, i3 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                                 8 - right8, right8 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
             slot = (FclCombineLayoutSlot *)D_00640790;
-            if (mode2 == 0) {
-                func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+            if (rightTransition8 == 0) {
+                func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
                              4, 0xE, slot->col * 3 + 0x3E, slot->row + 0x57);
-                *(s16 *)(p + 0xF2) = slot->col * 3 + 0x3E;
-                *(s16 *)(p + 0xF4) = slot->row + 0x57;
+                *(s16 *)(work + 0xF2) = slot->col * 3 + 0x3E;
+                *(s16 *)(work + 0xF4) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
-                func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
                              4, 7, slot->col * 3 + 0x3E, slot->row + 0x57);
             }
         }
     } else {
-        if (*(s8 *)(p + 0xB5) == 5) {
-            for (i4 = 0, mode3 = (s8)arg1; i4 < 2; i4++) {
-                slot = (FclCombineLayoutSlot *)D_006407C0 + (i4 + 2);
-                if (mode3 == 0) {
-                    func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 i4, i4 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
-                    *(s16 *)(p + i4 * 10 + 0xCA) = slot->col * 3 + 0x3E;
-                    *(s16 *)(p + i4 * 10 + 0xCC) = slot->row + 0x57;
+        if (*(s8 *)(work + 0xB5) == 5) {
+            s32 transition5;
+            s16 pair5;
+
+            for (pair5 = 0, transition5 = (s8)transition; pair5 < 2; pair5++) {
+                slot = (FclCombineLayoutSlot *)D_006407C0 + (pair5 + 2);
+                if (transition5 == 0) {
+                    func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 pair5, pair5 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(work + pair5 * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(work + pair5 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
-                                 i4, i4 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                                 pair5, pair5 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
-                slot = (FclCombineLayoutSlot *)D_006407C0 + (6 - i4);
-                if (mode3 == 0) {
-                    func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 8 - i4, i4 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
-                    *(s16 *)(p + (4 - i4) * 10 + 0xCA) = slot->col * 3 + 0x3E;
-                    *(s16 *)(p + (4 - i4) * 10 + 0xCC) = slot->row + 0x57;
+                slot = (FclCombineLayoutSlot *)D_006407C0 + (6 - pair5);
+                if (transition5 == 0) {
+                    func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 8 - pair5, pair5 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(work + (4 - pair5) * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(work + (4 - pair5) * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                                 8 - i4, i4 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                                 8 - pair5, pair5 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
             slot = (FclCombineLayoutSlot *)D_006407F0;
-            if (mode3 == 0) {
-                func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+            if (transition5 == 0) {
+                func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
                              6, 8, slot->col * 3 + 0x3E, slot->row + 0x57);
-                *(s16 *)(p + 0xDE) = slot->col * 3 + 0x3E;
-                *(s16 *)(p + 0xE0) = slot->row + 0x57;
+                *(s16 *)(work + 0xDE) = slot->col * 3 + 0x3E;
+                *(s16 *)(work + 0xE0) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
                 if (RpRandom() % 100 >= 50) {
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
                                  6, 4, slot->col * 3 + 0x3E, slot->row + 0x57);
                 } else {
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
                                  6, 4, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
-        } else if (*(s8 *)(p + 0xB5) == 7) {
-            for (i5 = 0, mode4 = (s8)arg1; i5 < 3; i5++) {
-                slot = (FclCombineLayoutSlot *)D_006407C0 + (i5 + 1);
-                if (mode4 == 0) {
-                    func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 i5, i5 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
-                    *(s16 *)(p + i5 * 10 + 0xCA) = slot->col * 3 + 0x3E;
-                    *(s16 *)(p + i5 * 10 + 0xCC) = slot->row + 0x57;
+        } else if (*(s8 *)(work + 0xB5) == 7) {
+            s32 transition7;
+            s16 pair7;
+
+            for (pair7 = 0, transition7 = (s8)transition; pair7 < 3; pair7++) {
+                slot = (FclCombineLayoutSlot *)D_006407C0 + (pair7 + 1);
+                if (transition7 == 0) {
+                    func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 pair7, pair7 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(work + pair7 * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(work + pair7 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
-                                 i5, i5 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                                 pair7, pair7 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
-                slot = (FclCombineLayoutSlot *)D_006407C0 + (7 - i5);
-                if (mode4 == 0) {
-                    func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 8 - i5, i5 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
-                    *(s16 *)(p + (6 - i5) * 10 + 0xCA) = slot->col * 3 + 0x3E;
-                    *(s16 *)(p + (6 - i5) * 10 + 0xCC) = slot->row + 0x57;
+                slot = (FclCombineLayoutSlot *)D_006407C0 + (7 - pair7);
+                if (transition7 == 0) {
+                    func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 8 - pair7, pair7 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(work + (6 - pair7) * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(work + (6 - pair7) * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                                 8 - i5, i5 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                                 8 - pair7, pair7 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
             slot = (FclCombineLayoutSlot *)D_006407F0;
-            if (mode4 == 0) {
-                func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+            if (transition7 == 0) {
+                func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
                              3, 0xC, slot->col * 3 + 0x3E, slot->row + 0x57);
-                *(s16 *)(p + 0xE8) = slot->col * 3 + 0x3E;
-                *(s16 *)(p + 0xEA) = slot->row + 0x57;
+                *(s16 *)(work + 0xE8) = slot->col * 3 + 0x3E;
+                *(s16 *)(work + 0xEA) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
                 if (RpRandom() % 100 >= 50) {
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
                                  3, 6, slot->col * 3 + 0x3E, slot->row + 0x57);
                 } else {
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
                                  3, 6, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
-        } else if (*(s8 *)(p + 0xB5) == 9) {
-            for (i6 = 0, mode5 = (s8)arg1; i6 < 4; i6++) {
-                slot = (FclCombineLayoutSlot *)D_006407C0 + i6;
-                if (mode5 == 0) {
-                    func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 i6, i6 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
-                    *(s16 *)(p + i6 * 10 + 0xCA) = slot->col * 3 + 0x3E;
-                    *(s16 *)(p + i6 * 10 + 0xCC) = slot->row + 0x57;
+        } else if (*(s8 *)(work + 0xB5) == 9) {
+            s32 transition9;
+            s16 pair9;
+
+            for (pair9 = 0, transition9 = (s8)transition; pair9 < 4; pair9++) {
+                slot = (FclCombineLayoutSlot *)D_006407C0 + pair9;
+                if (transition9 == 0) {
+                    func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 pair9, pair9 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(work + pair9 * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(work + pair9 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
-                                 i6, i6 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                                 pair9, pair9 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
-                slot = (FclCombineLayoutSlot *)D_006407C0 + (8 - i6);
-                if (mode5 == 0) {
-                    func_00317900(arg0, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 8 - i6, i6 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
-                    *(s16 *)(p + (8 - i6) * 10 + 0xCA) = slot->col * 3 + 0x3E;
-                    *(s16 *)(p + (8 - i6) * 10 + 0xCC) = slot->row + 0x57;
+                slot = (FclCombineLayoutSlot *)D_006407C0 + (8 - pair9);
+                if (transition9 == 0) {
+                    func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+                                 8 - pair9, pair9 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    *(s16 *)(work + (8 - pair9) * 10 + 0xCA) = slot->col * 3 + 0x3E;
+                    *(s16 *)(work + (8 - pair9) * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                                 8 - i6, i6 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                                 8 - pair9, pair9 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
             slot = (FclCombineLayoutSlot *)D_006407F0;
-            if (mode5 == 0) {
-                func_00317900(arg0, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
+            if (transition9 == 0) {
+                func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
                              4, 0x10, slot->col * 3 + 0x3E, slot->row + 0x57);
-                *(s16 *)(p + 0xF2) = slot->col * 3 + 0x3E;
-                *(s16 *)(p + 0xF4) = slot->row + 0x57;
+                *(s16 *)(work + 0xF2) = slot->col * 3 + 0x3E;
+                *(s16 *)(work + 0xF4) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
                 if (RpRandom() % 100 >= 50) {
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
                                  4, 8, slot->col * 3 + 0x3E, slot->row + 0x57);
                 } else {
-                    func_00317900(arg0, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
+                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
                                  4, 8, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
         }
     }
-    if ((s8)arg1 == 1) {
+    /* Each resource is looked up again after hiding it in retail. */
+    if ((s8)transition == 1) {
         func_002b6150(0x216)[0x73] = 0;
         func_002b6150(0x216);
         func_002b6150(0x217)[0x73] = 0;
@@ -1302,9 +1313,7 @@ void func_002eb270(u8 *arg0, s32 arg1) {
         func_002b6150(0x21B);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002eb270);
-#endif
+
 
 /* measured: full body now MATCH (object 1136B, retail window 1136B).
    The stack argument/global load is forced in retail order with the named
