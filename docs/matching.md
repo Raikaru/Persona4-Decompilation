@@ -12435,9 +12435,13 @@ selectors; the implementation documents that entry contract.
 
 The shared `fcl_draw_task.h` declarations and their active consumers retain
 the canonical EE argument order. `002b83e0` mode/reverse are signed bytes;
-`002ba080` takes a word row, signed-halfword value, by-value position/color,
-word duration/delay/layer, float depth, and signed-byte mode. The provider
-narrows the row internally; narrowing every caller changes the contract.
+`002ba080` was initially represented with a word row and signed-halfword
+value. The later `0031ac10` closure audits both retail callers and the
+provider: the incoming row is consumed only through signed-low16 conversion,
+so the coherent current declaration uses signed halfwords for both row and
+value. By-value position/color, word duration/delay/layer, float depth, and
+signed-byte mode retain their original order. No incoming row high bits are
+semantically consumed before the saved slot is overwritten.
 `003191c0` deliberately retains its unsigned-word intermediate before the
 signed-byte row conversion. Its complete 6728-byte body plus eight zero
 bytes remains exact with all 185 relocations resolved.

@@ -973,12 +973,12 @@ static inline s32 fclDigitIsZero(const s16 *value)
     return *value == 0;
 }
 #pragma pop
-/* Row uses word transport; the caller's value is a signed halfword.
+/* Row and value are signed halfwords; retail discards incoming row high bits.
    Positions and colors are native aggregates, with a signed-byte mode.
    Guarded native reconstruction remains nonzero; no compiler floor claimed. */
 // FUN_002BA080 NONMATCHING
 #ifdef NON_MATCHING
-void func_002ba080(u8 *arg0, s32 arg1, s16 arg2, FclVec2 arg3, FclDrawColor arg4, s32 arg5, s32 arg6, s32 arg7, f32 fparg0, s8 arg_sp0)
+void func_002ba080(u8 *arg0, s16 arg1, s16 arg2, FclVec2 arg3, FclDrawColor arg4, s32 arg5, s32 arg6, s32 arg7, f32 fparg0, s8 arg_sp0)
 {
 
     FclBoundsPacket src;

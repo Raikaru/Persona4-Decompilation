@@ -44,11 +44,11 @@ class FclUnlockRowYContract(unittest.TestCase):
     def test_fixture_rejects_coordinate_regressions(self):
         body = actual_source()
         mutations = (
-            ("old-row-shift", "        row12 = (s8)(t16 + 0xC);", "        y = 2.0f + y;\n        row12 = (s8)(t16 + 0xC);"),
-            ("name-offset", "2.0f + y", "3.0f + y"),
-            ("digit-offset", "func_002b2970(arg1.x - 16.0f, y)", "func_002b2970(arg1.x - 16.0f, y + 2.0f)"),
-            ("decoration-offset", "y - 12.0f", "y - 10.0f"),
-            ("hand-offset", "y - 8.0f", "y - 6.0f"),
+            ("old-row-shift", "        digitRow = (s8)(rowIndex + 0xC);", "        rowY = 2.0f + rowY;\n        digitRow = (s8)(rowIndex + 0xC);"),
+            ("name-offset", "2.0f + rowY", "3.0f + rowY"),
+            ("digit-offset", "func_002b2970(position.x - 16.0f, rowY)", "func_002b2970(position.x - 16.0f, rowY + 2.0f)"),
+            ("decoration-offset", "rowY - 12.0f", "rowY - 10.0f"),
+            ("hand-offset", "rowY - 8.0f", "rowY - 6.0f"),
         )
         for name, old, new in mutations:
             with self.subTest(mutation=name):
