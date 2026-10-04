@@ -1,3 +1,4 @@
+#include "field_transition_internal.h"
 #include "sdk_lbox_internal.h"
 #include "sdk_dbprt.h"
 #include "model_motion_internal.h"
@@ -1687,10 +1688,10 @@ void func_00186610(u8 *arg0)
 
 
 // FUN_00186640
-void func_00186640(u8 *arg0)
+s32 func_00186640(u8 *arg0)
 {
     func_0044ea90(&D_005F1DF8, 0x299);
-    (s32)func_00451fc0((void *)(arg0), (const void *)(&D_005F1E08), 0xF, 0, 0, func_00185850, func_00186610, (u8 *)(D_008873F4[0](1, 0x88D0, 0x40000)));
+    return (s32)func_00451fc0((void *)(arg0), (const void *)(&D_005F1E08), 0xF, 0, 0, func_00185850, func_00186610, (u8 *)(D_008873F4[0](1, 0x88D0, 0x40000)));
 }
 // FUN_00189600
 void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0)

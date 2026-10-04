@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "field_light_internal.h"
+#include "field_transition_internal.h"
 
 extern u8 *func_00155280(void);
 extern void func_00160180(void);
@@ -186,13 +187,13 @@ void func_0015fb00(u8 *arg0, s32 arg1)
 }
 #pragma pop
 // FUN_0015FF20
-u8 *func_0015ff20(u16 arg0, s32 arg1)
+u8 *func_0015ff20(s32 arg0, s32 arg1)
 {
     char spB0[0x80];
     char sp30[0x80];
     s32 temp_16;
 
-    temp_16 = arg0;
+    temp_16 = (u16)arg0;
     if (temp_16 == -1)
     {
         return NULL;

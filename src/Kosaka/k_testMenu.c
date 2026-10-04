@@ -1,3 +1,4 @@
+#include "field_transition_internal.h"
 /* Consolidated Persona 4 source units. */
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "sdk_lbox_internal.h"
@@ -26,7 +27,6 @@ extern s32 func_0018e520(u8 *arg0);
 extern void func_00190600(void);
 extern s32 func_001838d0(f32 f0, u8 *arg0, s32 arg1, f32 f1, f32 f2, f32 f3,
                           s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_00186640(u8 *arg0);
 extern s32 func_0017d070(u8 *arg0);
 extern s32 func_001924d0(s32 arg0);
 extern s32 func_00191610(s32 arg0);
