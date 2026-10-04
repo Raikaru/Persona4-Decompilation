@@ -1,3 +1,4 @@
+#include "field_transition_internal.h"
 #include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldEnvironment.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -9,7 +10,6 @@ extern void func_00161500(s32 arg0);
 extern s16 func_001060b0(void);
 extern u8 func_001060c0(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
-extern s32 func_00154720(u16 arg0, u16 arg1, s32 arg2);
 extern u32 datGetFlag(s32 arg0);
 extern s32 func_0015a0c0(void);
 extern s32 func_0014a160(void);
@@ -434,7 +434,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
 
 
 // FUN_001546A0
-s32 func_001546a0(u16 arg0, u16 arg1)
+s32 func_001546a0(s32 arg0, s32 arg1)
 {
     return func_00154720(arg0, arg1, (s8)func_00110960(func_001060b0(), func_001060c0() & 0xFF));
 }
@@ -455,7 +455,7 @@ static inline s32 fldEnvironmentEventState(s32 state)
 }
 
 // FUN_00154720
-s32 func_00154720(u16 fieldKind, u16 baseState, s32 condition)
+s32 func_00154720(s32 fieldKind, s32 baseState, s32 condition)
 {
     s32 environmentState;
     s32 period;
@@ -464,10 +464,10 @@ s32 func_00154720(u16 fieldKind, u16 baseState, s32 condition)
     s32 kind;
     s32 currentPeriod;
 
-    state = baseState;
+    state = (u16)baseState;
     environmentState = state;
     currentPeriod = func_001060c0() & 0xFF;
-    kind = fieldKind;
+    kind = (u16)fieldKind;
     if (kind == 0x1C && state == 2) {
         if (datGetFlag(0xF52) == 1) {
             result = 3;

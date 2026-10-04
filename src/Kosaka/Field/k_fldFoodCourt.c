@@ -1,3 +1,4 @@
+#include "field_transition_internal.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldFoodCourt.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
@@ -22,7 +23,6 @@ extern char iGpffff9f90;
 extern void *func_003e0f80(void);
 extern void func_00144c90(s32 arg0, s32 arg1);
 extern void func_00144ed0(s64 arg0);
-extern s32 func_001546a0(u16 field, u16 room);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00144f60(void);
 extern s32 func_0015f660(void);

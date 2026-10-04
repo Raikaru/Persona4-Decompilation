@@ -1,3 +1,4 @@
+#include "field_transition_internal.h"
 /* Original translation unit k_field.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 
 #include "include_asm.h"
@@ -121,7 +122,6 @@ extern s32 func_00166b40(u8 *, s32);
 extern s32 func_0014a270(void);
 extern s32 func_002ae630(u8 *);
 extern void func_002b2950(s32);
-extern s32 func_00186640(u8 *);
 extern s32 func_0018ced0(void);
 extern void func_0018c7e0(void);
 extern void func_00189ec0(void);
