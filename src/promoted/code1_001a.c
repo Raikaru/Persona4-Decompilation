@@ -4039,8 +4039,6 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001f68e0();
     extern s32 func_001f7c20();
     extern s32 btlSoundCreateSkillSEPacket();
-    extern s32 func_001f82b0();
-    extern s32 func_001f8330();
     extern s32 func_001f83b0();
     extern s32 func_001f8430();
     extern s32 func_001f99c0();
@@ -4595,7 +4593,7 @@ void func_001a7720(u8 *arg0) {
                 var_18_2 = 0;
             }
             if (var_21 != 0) {
-                func_00194590(func_001f8330((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))), 0);
+                func_00194590((u8 *)func_001f8330((BtlUnit *)(*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))), 0);
             } else if ((s32)(s32)sp1A0 != 0) {
                 func_00194590(func_001f83b0((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))), 0);
             }
@@ -4720,7 +4718,7 @@ void func_001a7720(u8 *arg0) {
             (*( s64 * )((u8 *)(temp_2_27) + (0x60))) = temp_16;
             func_00194590(temp_2_27, 0);
             if (var_21 != 0) {
-                temp_2_28 = (u8 *)(func_001f82b0((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))));
+                temp_2_28 = (u8 *)(func_001f82b0((BtlUnit *)(*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))));
                 (*( s8 * )((u8 *)(temp_2_28) + (0))) = 4;
                 *(s64 *)(temp_2_28 + 8) = *(s64 *)(temp_2_27 + 0x58);
                 (*( s64 * )((u8 *)(temp_2_28) + (0x60))) = temp_16;
