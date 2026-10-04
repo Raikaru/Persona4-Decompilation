@@ -338,7 +338,7 @@ u32 func_001f8280(void* work)
 {
     u8* unit;
 
-    unit = *(u8**)work;
+    unit = (u8*)*(struct BtlUnit**)work;
     if ((*(s32*)(unit + 0x98) & 2) != 0)
     {
         *(u16*)(unit + 0x9d8) &= (u16)~0x10;
@@ -346,13 +346,14 @@ u32 func_001f8280(void* work)
     return 1;
 }
 // FUN_001F82B0
-void func_001f82b0(void* unit)
+BtlPacket* func_001f82b0(struct BtlUnit* unit)
 {
     BtlPacket* packet;
 
     packet = func_00194470(0x909, 4);
     packet->updateFunc = func_001f8280;
-    *(void**)packet->workData = unit;
+    *(struct BtlUnit**)packet->workData = unit;
+    return packet;
 }
 
 
@@ -362,7 +363,7 @@ u32 func_001f8300(void* work)
 {
     u8* unit;
 
-    unit = *(u8**)work;
+    unit = (u8*)*(struct BtlUnit**)work;
     if ((*(s32*)(unit + 0x98) & 2) != 0)
     {
         *(u16*)(unit + 0x9d8) |= 0x10;
@@ -370,13 +371,14 @@ u32 func_001f8300(void* work)
     return 1;
 }
 // FUN_001F8330
-void func_001f8330(void* unit)
+BtlPacket* func_001f8330(struct BtlUnit* unit)
 {
     BtlPacket* packet;
 
     packet = func_00194470(0x90A, 4);
     packet->updateFunc = func_001f8300;
-    *(void**)packet->workData = unit;
+    *(struct BtlUnit**)packet->workData = unit;
+    return packet;
 }
 
 

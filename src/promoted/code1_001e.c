@@ -1,3 +1,4 @@
+#include "btl_equipment_count_internal.h"
 #include "btl_skill_target_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
@@ -4340,7 +4341,7 @@ s32 func_001eff50(u8 *arg0)
                                   0xFFFF)) &
                   0xFFFF) >= 3)) {
                 temp_16_2 =
-                    (func_00232950(*(s32 *)(temp_16 + 0xA64), 0x88) &
+                    (func_00232950(*(u8 **)(temp_16 + 0xA64), 0x88) &
                      0xFFFF) *
                     10;
                 temp_5 = func_00231d70(0x64);
