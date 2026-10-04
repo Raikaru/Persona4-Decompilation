@@ -1,3 +1,4 @@
+#include "field_transition_internal.h"
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -45,8 +46,6 @@ extern void func_00260510(void);
 extern void *memset(void *dst, s32 value, s32 size);
 extern s32 func_00110e80(void);
 extern s32 *func_00155280(void);
-extern s32 func_00156170(s32 arg0);
-extern s32 func_00156180(s32 arg0);
 extern s32 datGetFlag(s32 arg0);
 extern s32 func_0016fd00(void);
 extern s32 func_00162510(u16 arg0, u16 arg1);
@@ -1017,7 +1016,7 @@ s32 func_00176b60(void) {
 
     v = 0;
     if (*(s32 *)(u8 *)func_00155280() != 0) {
-        v = func_00156170(*(s32 *)(u8 *)func_00155280()) & 0xFFFF;
+        v = func_00156170(*(u8 **)(u8 *)func_00155280()) & 0xFFFF;
     }
     func_0029cf50(v);
     return 1;
@@ -1029,7 +1028,7 @@ s32 func_00176bc0(void) {
 
     v = 0;
     if (*(s32 *)(u8 *)func_00155280() != 0) {
-        v = func_00156180(*(s32 *)(u8 *)func_00155280()) & 0xFFFF;
+        v = func_00156180(*(u8 **)(u8 *)func_00155280()) & 0xFFFF;
     }
     func_0029cf50(v);
     return 1;

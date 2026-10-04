@@ -1,3 +1,4 @@
+#include "field_transition_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -36,7 +37,6 @@ extern s32 func_00144b80(s32 arg0, s32 arg1);
 extern void func_00144c90(s32 arg0, s32 arg1);
 extern void func_00144e10(s64 arg0);
 extern void func_00144ed0(s16 arg0);
-extern s32 func_001546a0(u16 field, u16 room);
 extern s32 func_00144f60(void);
 extern void func_00440b68();
 extern u8 D_0063C310[];

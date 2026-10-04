@@ -1,3 +1,4 @@
+#include "field_transition_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -358,19 +359,19 @@ s32 func_00156140(u8 *arg0)
     return *(s32 *)(*(u8 **)(arg0 + 0x38)) >= 0xD;
 }
 // FUN_00156170
-u16 func_00156170(u8 *arg0)
+s32 func_00156170(u8 *arg0)
 {
     return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x18);
 }
 
 // FUN_00156180
-u16 func_00156180(u8 *arg0)
+s32 func_00156180(u8 *arg0)
 {
     return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x1A);
 }
 
 // FUN_00156190
-u16 func_00156190(u8 *arg0)
+s32 func_00156190(u8 *arg0)
 {
     return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x20);
 }
@@ -408,11 +409,9 @@ s32 func_001561a0(u8 *task)
     extern s32 func_001602a0(u8 *file, s32 fieldId);
     extern s32 func_0029db50(s32 priority, s32 memory, s32 bytes, s32 procedure);
     extern s32 func_00452490(void *task);
-    extern u8 *func_0015ff20(u16 fieldId, s32 roomId);
     extern void func_00144c90(s32 fieldId, s32 roomId);
     extern void func_00144e10(s64 mapState);
     extern void func_00144ed0(s64 environmentState);
-    extern s32 func_00154720(u16 fieldId, u16 roomId, s32 condition);
     extern s32 func_00160000(u8 *file);
     extern s32 func_00144f60(void);
     extern s32 func_0014a190(s32 fieldId, s32 roomId);

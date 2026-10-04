@@ -1,3 +1,4 @@
+#include "field_event_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -205,7 +206,8 @@ typedef struct F630Frame
     f32 spa0;
     f32 spa4;
     f32 spa8;
-} F630Frame;
+    u32 reserved6c; /* Cleared and copied with the seven-quadword snapshot. */
+} __attribute__((aligned(16))) F630Frame;
 static inline f32 code1_0016_cvt(s32 value) {
     return (f32)value;
 }
@@ -3670,7 +3672,7 @@ u8 *func_0016f3b0(u8 *arg0, s32 arg1, s32 arg2)
 // FUN_0016F630
 /* measured: optimization_level 1 reproduces func_0016f630 register allocation. */
 #pragma optimization_level 1
-void func_0016f630(s128 *arg0, u8 *arg1)
+void func_0016f630(FldEventSnapshot *arg0, u8 *arg1)
 {
     F630Frame sp;
     s128 *var_17;
@@ -3686,10 +3688,10 @@ void func_0016f630(s128 *arg0, u8 *arg1)
     f32 temp_f0;
     s128 temp_3_2;
 
-    var_17 = arg0;
+    var_17 = (s128 *)arg0;
     temp_16 = *(u8 **)(arg1 + 0x38);
     temp_18 = *(u8 **)(func_00457120() + 4);
-    memset((void *)&sp.work[0], 0, 0x70);
+    memset(&sp, 0, sizeof(sp));
     sp.sp80 = K_View_GetFov(func_00457120());
     var_7 = (u8 *)(temp_18 + 0x10);
     var_6 = &sp.work[0];
@@ -3721,7 +3723,7 @@ void func_0016f630(s128 *arg0, u8 *arg1)
     sp.spa0 = temp_f2;
     sp.spa4 = temp_f1;
     sp.spa8 = temp_f0;
-    var_5_2 = (s128 *)&sp.work[0];
+    var_5_2 = (s128 *)&sp;
     var_4 = 7;
     do {
         temp_3_2 = *var_5_2;

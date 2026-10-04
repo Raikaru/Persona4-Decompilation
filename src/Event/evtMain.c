@@ -1,3 +1,4 @@
+#include "field_transition_internal.h"
 #include "include_asm.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit evtMain.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -25,7 +26,6 @@ void func_0026bf20(void);
 struct KwlnTask;
 s32 func_00452080(struct KwlnTask *handle);
 s32 func_00452490(void *handle);
-s32 func_00186640();
 extern u8 D_0063C3C0[];
 extern u8 D_0063C3E0[];
 s32 func_00298130();
@@ -2107,7 +2107,7 @@ s32 func_00289d70(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             if (*(u32 *)(arg2 + 0x768) != 0 && func_00452490((void *)*(u32 *)(arg2 + 0x768)) != 0) {
                 func_00452080((struct KwlnTask *)*(u32 *)(arg2 + 0x768));
             }
-            *(u32 *)(arg2 + 0x768) = func_00186640(t);
+            *(u32 *)(arg2 + 0x768) = func_00186640((u8 *)t);
         } else {
             if (*(u32 *)(arg2 + 0x768) != 0 && func_00452490((void *)*(u32 *)(arg2 + 0x768)) != 0) {
                 func_00452080((struct KwlnTask *)*(u32 *)(arg2 + 0x768));
