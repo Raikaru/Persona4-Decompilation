@@ -1,3 +1,4 @@
+#include "btl_equipment_count_internal.h"
 #include "type.h"
 #include "include_asm.h"
 
@@ -27,7 +28,6 @@ typedef struct DatUnit
 extern u16 func_00231f80(DatUnit* unit);
 extern u32 func_001053b0(s16 arg0);
 extern s32 func_00232730(u8 *arg0, s32 arg1);
-extern u16 func_00232950(u8 *arg0, s32 arg1);
 
 extern u16 func_00232290(DatUnit* unit);
 
@@ -414,9 +414,14 @@ u16 func_00232880(u16 arg0, u16 arg1)
 }
 
 // FUN_00232950
-u16 func_00232950(u8 *arg0, s32 arg1)
+/* measured: propagation off preserves both per-record halfword increments.
+ * The count is a word-valued query result; callers may test it without narrowing.
+ * 58 instructions, zero relocation-masked differences for the whole owner. */
+#pragma push
+#pragma opt_propagation off
+s32 func_00232950(u8 *arg0, s32 arg1)
 {
-    u16 count;
+    u32 count;
     s16 id;
     u16 id16;
     u16 val;
@@ -431,14 +436,16 @@ u16 func_00232950(u8 *arg0, s32 arg1)
     count = 0;
     id = (s16)id16;
     val = (u16)arg1;
-    if ((func_001069d0(func_00106cd0(id, 0)) & 0xFFFF) == val) {
-        count++;
+    if (func_001069d0(func_00106cd0(id, 0)) == val) {
+        count = (u16)(count + 1);
     }
-    if ((func_001069d0(func_00106cd0(id, 1)) & 0xFFFF) == val) {
-        count++;
+    if (func_001069d0(func_00106cd0(id, 1)) == val) {
+        count = (u16)(count + 1);
     }
     return count;
 }
+#pragma pop
+
 
 // FUN_00232A40
 s32 func_00232a40(s32 arg0)

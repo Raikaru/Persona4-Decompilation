@@ -1,9 +1,13 @@
+#include "btl_equipment_count_internal.h"
 #include "model_callbacks_internal.h"
 #include "btl_camera_palette_internal.h"
 #include "effect_geometry_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "type.h"
+
+typedef struct RwV3d { f32 x, y, z; } RwV3d;
+typedef struct RtQuat { RwV3d imag; f32 real; } RtQuat;
 #include "btl_skill_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_packet_create_internal.h"
@@ -48,8 +52,8 @@ extern u8 *func_001b83f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern u8 *func_001b9560(s32 arg0, s32 arg1);
 extern void func_001f0a10(u8 *arg0);
 extern u8 *func_00202740(u8 *arg0);
-extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
-extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
+extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
+extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrameCount, f32 speed, u16 mode);
 extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
 extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
@@ -86,9 +90,9 @@ extern f32 D_00922CB8[];
 extern f32 D_00922CBC[];
 extern s32 D_00922CC0[];
 extern s32 btlUnitIsMoving(u8 *arg0);
-extern void func_00194ff0(u8 *arg0, void *arg1, void *arg2, void *arg3);
-extern u8 *btlUnitCreateRotatePacket(u8 *arg0, void *arg1, s32 arg2);
-extern void func_00194590(u8 *arg0, u32 arg1);
+extern void func_00194ff0(u8 *unit, u8 *position, f32 *rotation, f32 *direction);
+extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *direction, u32 flags);
+extern s64 func_00194590(u8 *arg0, u32 arg1);
 extern void btlActionSetState(BtlAction *arg0, u16 arg1);
 extern void func_002bbcc0(void);
 extern s32 func_002bb600(void);
@@ -149,7 +153,7 @@ extern s32 func_00230790(void);
 extern BtlPacket *func_002305c0(s32 arg0);
 extern void func_002aaa80(void);
 extern void func_001fc280(void);
-void func_00194590(u8 *arg0, u32 arg1);
+s64 func_00194590(u8 *arg0, u32 arg1);
 extern s32 func_0021d470(s32 task);
 extern void func_001eb7f0(u8 *arg0);
 extern s32 func_001eb860(void);
@@ -310,7 +314,7 @@ void func_001b0020(u8 *arg0)
     if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x400000) != 0 &&
         (*(u16 *)(iGpffffb3ac + 0x18) & 2) != 0) return;
     if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0x180001) != 0) return;
-    func_00194ff0(unit, &position, NULL, NULL);
+    func_00194ff0(unit, (u8 *)&position, NULL, NULL);
     if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 0) {
         *(s32 *)(arg0 + 0x41C) = 1;
     }
@@ -345,7 +349,7 @@ void func_001b0260(u8 *arg0)
     if (btlUnitIsMoving(*(u8 **)(arg0 + 0x30)) == 0) {
         if (*(s32 *)(arg0 + 0x41C) == 1) {
             func_00194ff0(*(u8 **)(arg0 + 0x30), NULL, NULL, sp20);
-            temp_2 = btlUnitCreateRotatePacket(*(u8 **)(arg0 + 0x30), sp20, 0);
+            temp_2 = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)(*(u8 **)(arg0 + 0x30)), (const RwV3d *)(sp20), (u32)(0));
             *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
             func_00194590(temp_2, 1);
         }
@@ -1213,409 +1217,411 @@ void func_001b1d70(void) {
         btlUnitSetPos(j, st);
     }
 }
-/* measured: probe 852 differing words (reloc-masked) via tools/probe_variants.py; fnalign retail 1038/object 1014 instrs (1527 edits +7 reloc-only), assignment retail 1040; band 1009-1071 (Â±3% of 1040), 1014 inside (-26, -2.5%). Baseline 857; free pragmas all tie/worse (commons/loopinv/unroll/schedule 857, peephole 895, dead 923); subscript index/shift tie 857; fresh counters tie 857; addr rowBase 857->852, elem tie; colour swaps tie 852. Biggest remaining: frame -0x100 vs -0xE0, stack slots shifted (0xA0 vs 0xC0, 0xD0 vs 0xD4), saved-reg rotation and FPR colouring, lbu vs lb at 0xA2, andi+sll vs sll. De-noised m2c (425 lines) + romwright (402 lines, arity void, 860 instrs) into file idiom; fixed 973f0/99ee0 float-last order and 195730/194590 nesting per retail. */
-/* 2026-09-19 lifetime experiment (this session, REJECTED): sinking puVar16
-   (recompute iGpffffb414+ID*0x18 at its two uses instead of holding from the
-   head) drops the 9th live int ($fp gone, frame 0x100 -> 0xF0) and takes
-   fnalign 1392 -> 1269 edits (-123), but words explode 847 -> 1000 (+153)
-   and retail refutes the shape: retail computes the base ONCE into $s0 at
-   0x001B23C4-0x001B23E4 and reads it at 0x001B27B0/0x001B323C/0x001B3248, so
-   the value is held, not recomputed (recompute purity across ~30 callees is
-   also unproven). The spare $fp is real but puVar16 is not the spare: the
-   assignment is permuted wholesale ($s0=puVar16 in retail vs $s0=pbVar12 and
-   $fp=rowBase here). Banked floor unchanged. */
-/* measured 001b2380 (owner, 2026-09-19): 1014 against retail 1038 (-2.3%, inside),
-   **1392 edits**, and deficit_scan finds a single retail-only run of **591 instructions**
-   at 0x001b272c-0x001b3068 - well over half the function, with opcode delta
-   `swc1 +45, lwc1 +43, mul.s +19, add.s +19`.  A run that long inside a body only 24
-   instructions short means the region is present but in a shape the aligner cannot pair,
-   not absent.  That is where the edits are; everything else here is noise.
-   Retail's dispatch at 0x001b2784 reads exactly:
-     lhu $3, 0x1A($4); addiu $2, 1; beq $3,$2 -> .L001B2A6C; beqz $3 -> .L001B2A6C;
-     addiu $2, 2; beq $3,$2 -> .L001B27B0; b .L001B3054
-   So the compare order is 1, 0, 2 with a default - which the current source already has -
-   0 and 1 genuinely share one body, and the case-2 body is emitted FIRST at 0x001b27b0
-   with the shared 0/1 body after it at 0x001b2a6c.
-   Two rewrites of that layout were measured and both fail: putting the case-2 arm first in
-   the chain is 1392/1014, exactly neutral, and a `switch` with `case 2:` first then
-   `case 0: case 1:` sharing a body is 1394/1016.  The `goto LAB_001b2a6c` pins the shared
-   body's position regardless of source order, so the arm order is not reachable this way.
-   The float block inside the 591-run is the real work: 45 stores and 43 loads with 19
-   multiplies and 19 adds that the object spells differently. */
-// FUN_001B2380 NONMATCHING
-#ifdef NON_MATCHING
+/* Opening positions use complete vectors and a quaternion: the formation and
+ * sphere-center providers write all components. The two list rows are eight
+ * bytes apart and are reloaded between passes. Packets wait on full 64-bit UIDs.
+ * Retail keeps the redundant actor comparison at 001b2aa0. The unreachable
+ * inner block is retained as source rather than changing the surrounding test. */
+/* measured: scoped opt_lifetimes on with these disjoint work-pointer
+ * lifetimes reproduces the complete 4156-byte retail body; all 122 owner
+ * siblings, allocated data and 122 exact-position references are preserved.
+ * The separate retained-height caller-domain proof remains required. */
+#pragma push
+#pragma opt_lifetimes on
+// FUN_001B2380
 s32 func_001b2380(void)
-
 {
     extern void func_001f73d0(void);
+    extern void func_0021d440(s32 task);
     extern s32 iGpffffb414;
     extern s32 func_001b1540(void);
-    extern void func_001958f0(u8 *arg0, f32 *arg1);
-    extern f32 func_00196040(u32 arg0, u32 arg1, void *arg2, void *arg3, void *arg4, u32 arg5);
+    extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
+    extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern void func_001ee250(u8 *arg0, u8 *arg1);
-    extern void func_001ec1c0(void *arg0, void *arg1, void *arg2);
-    extern void btlUnitSetRot(void *arg0, void *arg1);
-    extern void btlUnitSetPos(void *arg0, void *arg1);
-    extern u8 *func_0019aa70(u8 *arg0, s16 arg1);
-    extern u8 *func_0019a0c0(u8 *arg0, s16 arg1);
-    extern u8 *btlUnitCreateMovePacket(u8 *arg0, f32 *arg1, s32 arg2, f32 arg3);
-    extern u8 *btlUnitCreateRotateTowardUnitPacket(u8 *arg0, u8 *arg1, s32 arg2);
-    extern u8 *func_001f8330(u8 *arg0);
-    extern u8 *func_001f82b0(u8 *arg0);
+    extern void func_001ec1c0(u8 *rotation, u8 *from, u8 *to);
+    extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rotation);
+    extern void btlUnitSetPos(BtlUnit *unit, const RwV3d *position);
+    extern BtlPacket *func_0019aa70(BtlUnit *unit, s16 value);
+    extern BtlPacket *func_0019a0c0(BtlUnit *unit, s16 value);
+    extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *targetPos, f32 speed, u32 flags);
+    extern BtlPacket *btlUnitCreateRotateTowardUnitPacket(BtlUnit *unit, BtlUnit *targetUnit, u32 flags);
     extern void btlFadeStartImmediate(void);
-    extern void datCalcSetBadStatus(u8 *arg0, s32 arg1);
-    extern s32 datCalcIsLowHp(u8 *arg0);
-    extern u16 func_00232950(u8 *arg0, s32 arg1);
-    extern void func_00234830(u8 *arg0, s32 arg1, s32 arg2);
-    extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
+    extern u32 datCalcSetBadStatus(s32 unit, u32 badStatus);
+    extern u32 datCalcIsLowHp(s32 unit);
+        extern void func_00234830(u8 *arg0, s32 arg1, s64 arg2);
+    extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
     extern f32 fGpffff8128;
     extern f32 fGpffff8170;
     extern f32 fGpffff82cc;
-    /* irregular: 1 goto(s); 6 native warning(s); review required */
-  u8 temp_v0;
-  u8 temp_v1;
-  u8 temp_v2;
-  s8 temp_v3;
-  u16 temp_v4;
-  u16 temp_v5;
-  u32 temp_v6;
-  u8 *temp_v7;
-  u8 *pbVar9;
-  u8 *pbVar10;
-  s32 temp_v8;
-  u8 *pbVar12;
-  u8 *rowBase;
-  u32 temp_v9;
-  s32 temp_v10;
-  u32 *puVar16;
-  s32 temp_v12;
-  f32 temp_v13;
-  f32 temp_v14;
-  f32 temp_v15;
-  f32 afStack_60 [8];
-  f32 fStack_50;
-  f32 fStack_4c;
-  f32 fStack_48;
-  f32 fStack_40;
-  f32 fStack_3c;
-  f32 fStack_38;
-  f32 fStack_30;
-  f32 fStack_2c;
-  f32 fStack_28;
-  f32 afStack_20 [4];
-  f32 fStack_10;
-  f32 fStack_c;
-  f32 fStack_8;
-  
-  temp_v6 = func_00193c70();
-  if (temp_v6 == 0) {
-    func_001f73d0();
-    puVar16 = (u32 *)(iGpffffb414 + (u32)*(u16 *)(*(s32 *)(D_0076449C + 0xc68) + 8) * 0x18);
-    temp_v7 = (u8 *)func_001b1540();
-    if ((((temp_v7 == 0) || (*(u8 *)(*(s32 *)(temp_v7 + 0x30) + 0xa2) == '\x01')) ||
-        (temp_v10 = datCalcIsDead(*(u32 *)(*(s32 *)(temp_v7 + 0x30) + 0xa64),0), temp_v10 == 1)) ||
-       (temp_v10 = datCalcChkBadStatus(*(u32 *)(*(s32 *)(temp_v7 + 0x30) + 0xa64),0x100000), temp_v10 == 1
-       )) {
-      temp_v7 = *(u8 **)(D_0076449C + 0x170);
-    }
-    func_001958f0(*(void **)(temp_v7 + 0x30),&fStack_30);
-    rowBase = D_0076449C + 0x178;
-    for (temp_v6 = 0; temp_v6 < 2; temp_v6 = (temp_v6 + 1) & 0xffff) {
-      if (((*(u32 *)(D_0076449C + 0xc) & 0x20000000) == 0) || (temp_v6 != 0)) {
-        for (pbVar12 = *(u8 **)(rowBase + temp_v6 * 8); pbVar12 != (u8 *)0x0;
-            pbVar12 = *(u8 **)(pbVar12 + 0xa6c)) {
-          func_001ee250(pbVar12,(u8 *)0x0);
-          if (temp_v6 == 0) {
-            func_00194ff0(pbVar12,(u8 *)0x0,afStack_60,(float *)0x0);
+    /* ENCOUNT rows are 0x18 bytes: flags, two halfword result fields,
+     * five enemy IDs and three remaining halfwords. No local copy is made. */
+    typedef struct BattleOpeningEncounter {
+        u32 flags;
+        u16 field04;
+        u16 field06;
+        u16 enemyIds[5];
+        u16 field12[3];
+    } BattleOpeningEncounter;
+    u8 *action;
+    u32 hasSkill213;
+    u32 hasSkill214;
+    u32 hasSkill215;
+    s16 unitClassOrFrames;
+    u16 mode;
+    /* Rotation finishes before packet construction. This work pointer is
+     * reassigned before every later actor/packet use; unit independently
+     * traverses the party placement and both bonus scans. */
+    u8 *nodeOrPacket;
+    u16 animationFrames;
+    u8 *movePacket;
+    u8 *rotatePacket;
+    u8 *recoveryPacket;
+    s32 hasSkill;
+    u32 group;
+    u8 *unit;
+    u32 nextState;
+    s32 value;
+    BattleOpeningEncounter *formation;
+    f32 spacingIncrement;
+    f32 scale;
+    f32 approachDistance;
+    f32 distance;
+    RtQuat rotation;
+    RwV3d position;
+    RwV3d targetDirection;
+    RwV3d groupCenter;
+    RwV3d actorCenter;
+    RwV3d offset;
+
+    if (func_00193c70() == 0) {
+      /* Valid special continuations have a fresh, nonempty enemy row from
+       * the authenticated normal encounter queue. That prepass supplies Y
+       * before a dead party unit reuses it. Script/direct descriptors have
+       * one wave: their normal dead-unit path never reads this position,
+       * and their live-unit path receives a complete formation vector.
+       * The separate resource/history review proves this caller boundary;
+       * arbitrary fabricated special/empty-row states are outside it. */
+      func_001f73d0();
+      formation = (BattleOpeningEncounter *)((u32)iGpffffb414 + (u32)*(u16 *)(*(s32 *)(D_0076449C + 0xc68) + 8) * 0x18);
+      action = (u8 *)func_001b1540();
+      if ((((action == 0) || (*(u8 *)(*(s32 *)(action + 0x30) + 0xa2) == 1)) ||
+          (value = datCalcIsDead(*(u32 *)(*(s32 *)(action + 0x30) + 0xa64),0), value == 1)) ||
+         (value = datCalcChkBadStatus(*(u32 *)(*(s32 *)(action + 0x30) + 0xa64),0x100000), value == 1
+         )) {
+        action = *(u8 **)(D_0076449C + 0x170);
+      }
+      func_001958f0((BtlUnit *)*(void **)(action + 0x30), &groupCenter);
+      for (group = 0; (s32)(group & 0xffff) < 2; group = (group + 1) & 0xffff) {
+        if (((*(u32 *)(D_0076449C + 0xc) & 0x20000000) == 0) || ((group & 0xffff) != 0)) {
+          for (nodeOrPacket = *(u8 **)(D_0076449C + (u16)group * 8 + 0x178); nodeOrPacket != NULL;
+              nodeOrPacket = *(u8 **)(nodeOrPacket + 0xa6c)) {
+            func_001ee250(nodeOrPacket,NULL);
+            if ((group & 0xffff) == 0) {
+              func_00194ff0(nodeOrPacket,NULL,(f32 *)&rotation,NULL);
+            }
+            else {
+              position.x = (f32)(*(s16 *)(nodeOrPacket + 0x94) * 0x19 - 0x6d6);
+              position.y = *(f32 *)(nodeOrPacket + 8);
+              position.z = (f32)(*(s16 *)(nodeOrPacket + 0x96) * 0x19 - 0x6d6);
+              func_001ec1c0((u8 *)&rotation,(u8 *)&position,(u8 *)&groupCenter);
+            }
+            btlUnitSetRot((BtlUnit *)nodeOrPacket, &rotation);
           }
-          else {
-            fStack_10 = (f32)(*(s16 *)(pbVar12 + 0x94) * 0x19 - 0x6d6);
-            fStack_c = *(float *)(pbVar12 + 8);
-            fStack_8 = (f32)(*(s16 *)(pbVar12 + 0x96) * 0x19 - 0x6d6);
-            func_001ec1c0((u8 *)afStack_60,(u8 *)&fStack_10,(u8 *)&fStack_30);
-          }
-          btlUnitSetRot(pbVar12,afStack_60);
         }
       }
-    }
-    func_00196040(2,0,&fStack_30,(float *)0x0,(float *)0x0,1);
-    temp_v15 = 0.0;
-    for (pbVar12 = *(u8 **)(D_0076449C + 0x178); pbVar12 != (u8 *)0x0;
-        pbVar12 = *(u8 **)(pbVar12 + 0xa6c)) {
-      func_0019d040(pbVar12);
-      temp_v10 = datCalcIsDead(*(u32 *)(pbVar12 + 0xa64),0);
-      if (temp_v10 == 0) {
-        func_00194ff0(pbVar12,(u8 *)&fStack_10,(float *)0x0,afStack_20);
-        func_00196040(2,0,&fStack_30,(float *)0x0,(float *)0x0,1);
-        if ((*(u32 *)(D_0076449C + 0xc) & 0x20000000) == 0) {
-          temp_v4 = *(s16 *)(D_0076449C + 0x1a);
-          if ((temp_v4 == 1) || (temp_v4 == 0)) {
-LAB_001b2a6c:
-            if ((D_0076449C[0xc64] != 1) && ((*(u32 *)(D_0076449C + 0x10) & 1) == 0)) {
-              pbVar9 = *(u8 **)(temp_v7 + 0x30);
-              if (pbVar9 == pbVar12) {
-                temp_v13 = 500.0;
-                if (pbVar9 != pbVar12) {
-                  func_001958f0(pbVar9,&fStack_40);
-                  fStack_50 = fStack_30 - fStack_40;
-                  fStack_4c = fStack_2c - fStack_3c;
-                  fStack_48 = fStack_28 - fStack_38;
-                  temp_v13 = (f32)RwV3dNormalize(&fStack_50,&fStack_50);
-                  fStack_30 = fStack_40 + fStack_50 * fGpffff8128 * temp_v13;
-                  fStack_28 = fStack_38 + fStack_48 * fGpffff8128 * temp_v13;
-                  temp_v15 = temp_v15 + 75.0;
-                  temp_v13 = temp_v15 + 500.0;
-                }
-                fStack_2c = fStack_c;
-                fStack_50 = fStack_10 - fStack_30;
-                fStack_4c = fStack_c - fStack_c;
-                fStack_48 = fStack_8 - fStack_28;
-                RwV3dNormalize(&fStack_50,&fStack_50);
-                fStack_50 = fStack_50 * temp_v13 + fStack_10;
-                fStack_4c = fStack_4c * temp_v13 + fStack_c;
-                fStack_48 = fStack_48 * temp_v13 + fStack_8;
-                btlUnitSetPos(pbVar12,&fStack_50);
-              }
-              else {
-                func_001958f0(pbVar9,&fStack_30);
-                fStack_2c = fStack_c;
-                fStack_50 = fStack_30 - fStack_10;
-                fStack_4c = fStack_c - fStack_c;
-                fStack_48 = fStack_28 - fStack_8;
-                temp_v13 = (f32)RwV3dNormalize(&fStack_50,&fStack_50);
-                if (600.0 < temp_v13) {
-                  fStack_50 = fStack_50 * 500.0;
-                  fStack_4c = fStack_4c * 500.0;
-                  fStack_48 = fStack_48 * 500.0;
+      func_00196040(2,0,&groupCenter,NULL,NULL,1);
+      spacingIncrement = 0.0f;
+      for (unit = *(u8 **)(D_0076449C + 0x178); unit != NULL;
+          unit = *(u8 **)(unit + 0xa6c)) {
+        func_0019d040(unit);
+        value = datCalcIsDead(*(u32 *)(unit + 0xa64),0);
+        if (value != 0) {
+          datCalcSetBadStatus(*(s32 *)(unit + 0xa64),0x80000);
+          datCalcSetHp(*(u32 *)(unit + 0xa64),0);
+          *(u32 *)(unit + 0x9c) |= 1;
+          func_00198dd0(unit,0);
+          func_00194590((u8 *)func_001f8330((BtlUnit *)unit),1);
+          func_00194590((u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x13, 0, 1.0f, 2),1);
+          func_00194590((u8 *)func_0019aa70((BtlUnit *)unit,
+              func_00199500(unit,0x13,1.0f)),1);
+          func_00194590((u8 *)func_001f82b0((BtlUnit *)unit),1);
+          if ((*(u32 *)(D_0076449C + 0xc) & 0x20000000) != 0) {
+            position.x = (f32)(*(s16 *)(unit + 0x94) * 0x19 - 0x6d6);
+            position.z = (f32)(*(s16 *)(unit + 0x96) * 0x19 - 0x6d6);
+            btlUnitSetPos((BtlUnit *)unit, &position);
+          }
+        } else {
+          func_00194ff0(unit,(u8 *)&position,NULL,(f32 *)&targetDirection);
+          func_00196040(2,0,&groupCenter,NULL,NULL,1);
+          if ((*(u32 *)(D_0076449C + 0xc) & 0x20000000) == 0) {
+            mode = *(u16 *)(D_0076449C + 0x1a);
+            switch (mode) {
+            case 2:
+            {
+              if ((formation->flags & 0x200) != 0) goto normal_opening;
+              if (*(u8 **)(*(s32 *)(D_0076449C + 0x170) + 0x30) != unit) {
+                offset.x = groupCenter.x - position.x;
+                offset.z = groupCenter.z - position.z;
+                offset.y = 0.0f;
+                approachDistance = fGpffff8170 * RwV3dNormalize(&offset,&offset);
+                if (approachDistance <= 150.0f) {
+                  btlUnitSetPos((BtlUnit *)unit, &position);
                 }
                 else {
-                  temp_v13 = temp_v13 - 100.0;
-                  fStack_50 = fStack_50 * temp_v13;
-                  fStack_4c = fStack_4c * temp_v13;
-                  fStack_48 = fStack_48 * temp_v13;
+                  if (!(approachDistance <= 300.0f)) {
+                    approachDistance = 300.0f;
+                  }
+                  offset.x = offset.x * approachDistance;
+                  offset.y = offset.y * approachDistance;
+                  offset.z = offset.z * approachDistance;
+                  offset.x = offset.x + position.x;
+                  offset.y = offset.y + position.y;
+                  offset.z = offset.z + position.z;
+                  offset.y = position.y;
+                  btlUnitSetPos((BtlUnit *)unit, &offset);
                 }
-                fStack_50 = fStack_50 + fStack_10;
-                fStack_4c = fStack_4c + fStack_c;
-                fStack_48 = fStack_48 + fStack_8;
-                btlUnitSetPos(pbVar12,&fStack_50);
+                func_00194590((u8 *)btlUnitCreateRotateTowardUnitPacket((BtlUnit *)unit, (BtlUnit *)*(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30), 2),1);
+              } else {
+                offset.x = position.x - groupCenter.x;
+                offset.z = position.z - groupCenter.z;
+                offset.y = 0.0f;
+                RwV3dNormalize(&offset,&offset);
+                offset.x = offset.x * 300.0f;
+                offset.y = offset.y * 300.0f;
+                offset.z = offset.z * 300.0f;
+                offset.x = offset.x + position.x;
+                offset.y = offset.y + position.y;
+                offset.z = offset.z + position.z;
+                offset.y = position.y;
+                btlUnitSetPos((BtlUnit *)unit, &offset);
               }
-              pbVar9 = (u8 *)btlUnitCreateMovePacket(pbVar12,&fStack_10,8,fGpffff82cc);
-              func_00194590(pbVar9,1);
-              pbVar10 = (u8 *)btlUnitCreateRotatePacket(pbVar12,afStack_20,0);
-              *pbVar10 = 4;
-              *(u64 *)(pbVar10 + 8) = *(u64 *)(pbVar9 + 0x58);
-              func_00194590(pbVar10,1);
-              temp_v10 = datCalcChkBadStatus(*(u32 *)(pbVar12 + 0xa64),0xfffff);
-              if (((temp_v10 == 0) &&
-                  (temp_v10 = datCalcIsLowHp(*(u8 **)(pbVar12 + 0xa64)), temp_v10 == 0)) &&
-                 ((*(u8 **)(temp_v7 + 0x30) != pbVar12 ||
-                  (temp_v3 = func_00243e90(*(u8 **)(pbVar12 + 0xa64)), temp_v3 == 4)))) {
-                pbVar10 = (u8 *)btlUnitCreateAnimPacket(pbVar12,0x11,4,0,1.0f);
-                *pbVar10 = 4;
-                *(u64 *)(pbVar10 + 8) = *(u64 *)(pbVar9 + 0x58);
-                pbVar10[0x48] = 4;
-                pbVar10[0x49] = 0;
-                func_00194590(pbVar10,1);
+              animationFrames = func_00199500(unit,0xb,1.0f);
+              nodeOrPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0xb, 0, 1.0f, 0);
+              if (animationFrames > 8) {
+                value = animationFrames - 8;
+              } else {
+                value = 0;
               }
+              *(s16 *)(nodeOrPacket + 0x4a) = value;
+              func_00194590(nodeOrPacket,1);
+              movePacket = (u8 *)btlUnitCreateMovePacket((BtlUnit *)unit, &position, fGpffff82cc, 8);
+              *movePacket = 4;
+              *(u64 *)(movePacket + 8) = *(u64 *)(nodeOrPacket + 0x58);
+              func_00194590(movePacket,1);
+              rotatePacket = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)unit, &targetDirection, 0);
+              *rotatePacket = 4;
+              *(u64 *)(rotatePacket + 8) = *(u64 *)(movePacket + 0x58);
+              func_00194590(rotatePacket,1);
             }
-          }
-          else if (temp_v4 == 2) {
-            if ((*puVar16 & 0x200) != 0) goto LAB_001b2a6c;
-            if (*(u8 **)(*(s32 *)(D_0076449C + 0x170) + 0x30) == pbVar12) {
-              fStack_50 = fStack_10 - fStack_30;
-              fStack_48 = fStack_8 - fStack_28;
-              fStack_4c = 0.0;
-              RwV3dNormalize(&fStack_50,&fStack_50);
-              fStack_50 = fStack_50 * 300.0 + fStack_10;
-              fStack_48 = fStack_48 * 300.0 + fStack_8;
-              fStack_4c = fStack_c;
-              btlUnitSetPos(pbVar12,&fStack_50);
+            goto unit_done;
+            case 0:
+            case 1:
+              goto normal_opening;
+            default:
+              goto unit_done;
             }
-            else {
-              fStack_50 = fStack_30 - fStack_10;
-              fStack_48 = fStack_28 - fStack_8;
-              fStack_4c = 0.0;
-              temp_v13 = (f32)RwV3dNormalize(&fStack_50,&fStack_50);
-              temp_v13 = fGpffff8170 * temp_v13;
-              if (temp_v13 <= 150.0) {
-                btlUnitSetPos(pbVar12,&fStack_10);
-              }
-              else {
-                temp_v14 = 300.0;
-                if (temp_v13 <= 300.0) {
-                  temp_v14 = temp_v13;
+normal_opening:
+            {
+              if ((D_0076449C[0xc64] != 1) && ((*(u32 *)(D_0076449C + 0x10) & 1) == 0)) {
+                nodeOrPacket = *(u8 **)(action + 0x30);
+                if (nodeOrPacket == unit) {
+                  distance = 500.0f;
+                  if (nodeOrPacket != unit) {
+                    func_001958f0((BtlUnit *)nodeOrPacket, &actorCenter);
+                    offset.x = groupCenter.x - actorCenter.x;
+                    offset.y = groupCenter.y - actorCenter.y;
+                    offset.z = groupCenter.z - actorCenter.z;
+                    scale = fGpffff8128 * RwV3dNormalize(&offset,&offset);
+                    offset.x = offset.x * scale;
+                    offset.y = offset.y * scale;
+                    offset.z = offset.z * scale;
+                    groupCenter.x = actorCenter.x + offset.x;
+                    groupCenter.y = actorCenter.y + offset.y;
+                    groupCenter.z = actorCenter.z + offset.z;
+                    spacingIncrement = spacingIncrement + 75.0f;
+                    distance = distance + spacingIncrement;
+                  }
+                  groupCenter.y = position.y;
+                  offset.x = position.x - groupCenter.x;
+                  offset.y = position.y - position.y;
+                  offset.z = position.z - groupCenter.z;
+                  RwV3dNormalize(&offset,&offset);
+                  offset.x = offset.x * distance;
+                  offset.y = offset.y * distance;
+                  offset.z = offset.z * distance;
+                  offset.x = offset.x + position.x;
+                  offset.y = offset.y + position.y;
+                  offset.z = offset.z + position.z;
+                  btlUnitSetPos((BtlUnit *)unit, &offset);
                 }
-                fStack_50 = fStack_50 * temp_v14 + fStack_10;
-                fStack_48 = fStack_48 * temp_v14 + fStack_8;
-                fStack_4c = fStack_c;
-                btlUnitSetPos(pbVar12,&fStack_50);
+                else {
+                  func_001958f0((BtlUnit *)nodeOrPacket, &groupCenter);
+                  groupCenter.y = position.y;
+                  offset.x = groupCenter.x - position.x;
+                  offset.y = position.y - position.y;
+                  offset.z = groupCenter.z - position.z;
+                  distance = (f32)RwV3dNormalize(&offset,&offset);
+                  if (!(distance <= 600.0f)) {
+                    offset.x = offset.x * 500.0f;
+                    offset.y = offset.y * 500.0f;
+                    offset.z = offset.z * 500.0f;
+                  }
+                  else {
+                    distance = distance - 100.0f;
+                    offset.x = offset.x * distance;
+                    offset.y = offset.y * distance;
+                    offset.z = offset.z * distance;
+                  }
+                  offset.x = offset.x + position.x;
+                  offset.y = offset.y + position.y;
+                  offset.z = offset.z + position.z;
+                  btlUnitSetPos((BtlUnit *)unit, &offset);
+                }
+                nodeOrPacket = (u8 *)btlUnitCreateMovePacket((BtlUnit *)unit, &position, fGpffff82cc, 8);
+                func_00194590(nodeOrPacket,1);
+                rotatePacket = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)unit, &targetDirection, 0);
+                *rotatePacket = 4;
+                *(u64 *)(rotatePacket + 8) = *(u64 *)(nodeOrPacket + 0x58);
+                func_00194590(rotatePacket,1);
+                value = datCalcChkBadStatus(*(u32 *)(unit + 0xa64),0xfffff);
+                if (((value == 0) &&
+                    (value = datCalcIsLowHp(*(s32 *)(unit + 0xa64)), value == 0)) &&
+                   ((*(u8 **)(action + 0x30) != unit ||
+                    (unitClassOrFrames = func_00243e90(*(u8 **)(unit + 0xa64)), unitClassOrFrames == 4)))) {
+                  recoveryPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x11, 4, 1.0f, 0);
+                  *recoveryPacket = 4;
+                  *(u64 *)(recoveryPacket + 8) = *(u64 *)(nodeOrPacket + 0x58);
+                  *(u16 *)(recoveryPacket + 0x48) = 4;
+                  func_00194590(recoveryPacket,1);
+                }
               }
-              pbVar9 = btlUnitCreateRotateTowardUnitPacket(pbVar12,*(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30),2);
-              func_00194590(pbVar9,1);
-            }
-            temp_v5 = func_00199500(pbVar12,0xb,1.0);
-            pbVar9 = (u8 *)btlUnitCreateAnimPacket(pbVar12,0xb,0,0,1.0f);
-            if (temp_v5 < 9) {
-              temp_v4 = 0;
-            }
-            else {
-              temp_v4 = temp_v5 - 8;
-            }
-            *(s16 *)(pbVar9 + 0x4a) = temp_v4;
-            func_00194590(pbVar9,1);
-            pbVar10 = (u8 *)btlUnitCreateMovePacket(pbVar12,&fStack_10,8,fGpffff82cc);
-            *pbVar10 = 4;
-            *(u64 *)(pbVar10 + 8) = *(u64 *)(pbVar9 + 0x58);
-            func_00194590(pbVar10,1);
-            pbVar9 = (u8 *)btlUnitCreateRotatePacket(pbVar12,afStack_20,0);
-            *pbVar9 = 4;
-            *(u64 *)(pbVar9 + 8) = *(u64 *)(pbVar10 + 0x58);
-            func_00194590(pbVar9,1);
-          }
-        }
-        else {
-          temp_v10 = datCalcChkBadStatus(*(u32 *)(pbVar12 + 0xa64),0x180001);
-          if (temp_v10 == 0) {
-            fStack_50 = fStack_10 - fStack_30;
-            fStack_48 = fStack_8 - fStack_28;
-            fStack_4c = 0.0;
-            RwV3dNormalize(&fStack_50,&fStack_50);
-            fStack_50 = fStack_50 * 100.0 + fStack_30;
-            fStack_48 = fStack_48 * 100.0 + fStack_28;
-            fStack_4c = fStack_c;
-            func_001ec1c0((u8 *)afStack_60,(u8 *)&fStack_50,(u8 *)&fStack_10);
-            pbVar9 = func_00195730(pbVar12,(u8 *)&fStack_50,(u8 *)afStack_60,0);
-            func_00194590(pbVar9,0);
-            pbVar9 = (u8 *)btlUnitCreateMovePacket(pbVar12,&fStack_10,8,fGpffff82cc);
-            func_00194590(pbVar9,0);
-            pbVar10 = (u8 *)btlUnitCreateRotatePacket(pbVar12,afStack_20,0);
-            *pbVar10 = 4;
-            *(u64 *)(pbVar10 + 8) = *(u64 *)(pbVar9 + 0x58);
-            func_00194590(pbVar10,1);
-            temp_v10 = datCalcChkBadStatus(*(u32 *)(pbVar12 + 0xa64),0xfffff);
-            if (((temp_v10 == 0) &&
-                (temp_v10 = datCalcIsLowHp(*(u8 **)(pbVar12 + 0xa64)), temp_v10 == 0)) &&
-               ((*(u8 **)(temp_v7 + 0x30) != pbVar12 ||
-                (temp_v3 = func_00243e90(*(u8 **)(pbVar12 + 0xa64)), temp_v3 == 4)))) {
-              pbVar10 = (u8 *)btlUnitCreateAnimPacket(pbVar12,0x11,4,0,1.0f);
-              *pbVar10 = 4;
-              *(u64 *)(pbVar10 + 8) = *(u64 *)(pbVar9 + 0x58);
-              pbVar10[0x48] = 4;
-              pbVar10[0x49] = 0;
-              func_00194590(pbVar10,1);
             }
           }
           else {
-            func_001ec1c0((u8 *)afStack_60,(u8 *)&fStack_10,(u8 *)&fStack_30);
-            pbVar9 = func_00195730(pbVar12,(u8 *)&fStack_10,(u8 *)afStack_60,0);
-            func_00194590(pbVar9,0);
-            pbVar9 = func_0019a0c0(pbVar12,0);
-            func_00194590(pbVar9,0);
+            value = datCalcChkBadStatus(*(u32 *)(unit + 0xa64),0x180001);
+            if (value != 0) {
+              func_001ec1c0((u8 *)&rotation,(u8 *)&position,(u8 *)&groupCenter);
+              func_00194590(func_00195730(unit,(u8 *)&position,(u8 *)&rotation,0),0);
+              func_00194590((u8 *)func_0019a0c0((BtlUnit *)unit, 0),0);
+            } else {
+              offset.x = position.x - groupCenter.x;
+              offset.z = position.z - groupCenter.z;
+              offset.y = 0.0f;
+              RwV3dNormalize(&offset,&offset);
+              offset.x = offset.x * 100.0f;
+              offset.y = offset.y * 100.0f;
+              offset.z = offset.z * 100.0f;
+              offset.x = offset.x + groupCenter.x;
+              offset.y = offset.y + groupCenter.y;
+              offset.z = offset.z + groupCenter.z;
+              offset.y = position.y;
+              func_001ec1c0((u8 *)&rotation,(u8 *)&offset,(u8 *)&position);
+              func_00194590(func_00195730(unit,(u8 *)&offset,(u8 *)&rotation,0),0);
+              nodeOrPacket = (u8 *)btlUnitCreateMovePacket((BtlUnit *)unit, &position, fGpffff82cc, 8);
+              func_00194590(nodeOrPacket,0);
+              rotatePacket = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)unit, &targetDirection, 0);
+              *rotatePacket = 4;
+              *(u64 *)(rotatePacket + 8) = *(u64 *)(nodeOrPacket + 0x58);
+              func_00194590(rotatePacket,1);
+              value = datCalcChkBadStatus(*(u32 *)(unit + 0xa64),0xfffff);
+              if (((value == 0) &&
+                  (value = datCalcIsLowHp(*(s32 *)(unit + 0xa64)), value == 0)) &&
+                 ((*(u8 **)(action + 0x30) != unit ||
+                  (unitClassOrFrames = func_00243e90(*(u8 **)(unit + 0xa64)), unitClassOrFrames == 4)))) {
+                recoveryPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x11, 4, 1.0f, 0);
+                *recoveryPacket = 4;
+                *(u64 *)(recoveryPacket + 8) = *(u64 *)(nodeOrPacket + 0x58);
+                *(u16 *)(recoveryPacket + 0x48) = 4;
+                func_00194590(recoveryPacket,1);
+              }
+            }
+          }
+        }
+unit_done:
+        ;
+      }
+      for (group = 0; (s32)(group & 0xffff) < 2; group = (group + 1) & 0xffff) {
+        hasSkill213 = 0;
+        hasSkill214 = 0;
+        hasSkill215 = 0;
+        for (unit = *(u8 **)(D_0076449C + (u16)group * 8 + 0x178); unit != 0;
+            unit = *(u8 **)(unit + 0xa6c)) {
+          if (*(u8 **)(unit + 0xa64) != NULL) {
+            hasSkill = func_00232730(*(u8 **)(unit + 0xa64),0x213);
+            if (hasSkill != 0) {
+              hasSkill213 = 1;
+            }
+            hasSkill = func_00232730(*(u8 **)(unit + 0xa64),0x214);
+            if (hasSkill != 0) {
+              hasSkill214 = 1;
+            }
+            hasSkill = func_00232730(*(u8 **)(unit + 0xa64),0x215);
+            if (hasSkill != 0) {
+              hasSkill215 = 1;
+            }
+          }
+        }
+        for (unit = *(u8 **)(D_0076449C + (u16)group * 8 + 0x178); unit != 0;
+            unit = *(u8 **)(unit + 0xa6c)) {
+          if (*(u8 **)(unit + 0xa64) != NULL) {
+            hasSkill = func_00232730(*(u8 **)(unit + 0xa64),0x202);
+            if (((hasSkill != 0) || (func_00232950(*(u8 **)(unit + 0xa64),0x53) != 0)
+                ) || (hasSkill214 == 1)) {
+              func_00234830(*(u8 **)(unit + 0xa64),5,1);
+            }
+            hasSkill = func_00232730(*(u8 **)(unit + 0xa64),0x203);
+            if (((hasSkill != 0) || (func_00232950(*(u8 **)(unit + 0xa64),0x54) != 0)
+                ) || (hasSkill213 == 1)) {
+              func_00234830(*(u8 **)(unit + 0xa64),0x40,1);
+            }
+            hasSkill = func_00232730(*(u8 **)(unit + 0xa64),0x204);
+            if (((hasSkill != 0) || (func_00232950(*(u8 **)(unit + 0xa64),0x55) != 0)
+                ) || (hasSkill215 == 1)) {
+              func_00234830(*(u8 **)(unit + 0xa64),0x110,1);
+            }
+            **(u16 **)(unit + 0xa64) = **(u16 **)(unit + 0xa64) & 0xf3ff;
           }
         }
       }
-      else {
-        datCalcSetBadStatus(*(u8 **)(pbVar12 + 0xa64),0x80000);
-        datCalcSetHp(*(u32 *)(pbVar12 + 0xa64),0);
-        pbVar9 = (u8 *)(*(u32 *)(pbVar12 + 0x9c) | 1);
-        *(u8 **)(pbVar12 + 0x9c) = pbVar9;
-        func_00198dd0(pbVar12,0);
-        func_00194590(func_001f8330(pbVar12),1);
-        pbVar9 = (u8 *)btlUnitCreateAnimPacket(pbVar12,0x13,0,2,1.0f);
-        func_00194590(pbVar9,1);
-        temp_v4 = func_00199500(pbVar12,0x13,1.0);
-        pbVar9 = func_0019aa70(pbVar12,temp_v4);
-        func_00194590(func_001f82b0(pbVar12),1);
-        if ((*(u32 *)(D_0076449C + 0xc) & 0x20000000) != 0) {
-          fStack_10 = (f32)(*(s16 *)(pbVar12 + 0x94) * 0x19 - 0x6d6);
-          fStack_8 = (f32)(*(s16 *)(pbVar12 + 0x96) * 0x19 - 0x6d6);
-          btlUnitSetPos(pbVar12,&fStack_10);
+      if ((formation->field04 != 0) && (formation->field06 > 0)) {
+        *(s16 *)(D_0076449C + 0xcd0) = formation->field04;
+        *(u16 *)(D_0076449C + 0xcd2) = formation->field06;
+        *(u32 *)(D_0076449C + 0xcdc) = 1;
+      }
+      func_00194590((u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 2),0);
+      if ((*(u32 *)(D_0076449C + 0xc) & 0x100000) != 0) {
+        func_0021d440(*(s32 *)(D_0076449C + 0xdd4));
+        *(u32 *)(D_0076449C + 0xc) = *(u32 *)(D_0076449C + 0xc) & 0xffefffff;
+      }
+      if ((*(u32 *)(D_0076449C + 0x10) & 1) == 0) {
+        value = func_001ef9a0();
+        switch (value) {
+        case 0x20b:
+        case 0x215:
+          func_002aaaa0();
+          break;
+        }
+        btlFadeStartImmediate();
+        value = func_001eb860();
+        if (value == 1) {
+          *(u32 *)(D_0076449C + 0xc) = *(u32 *)(D_0076449C + 0xc) | 0x2000;
+          func_00212240(*(u8 **)(D_0076449C + 0xdd4),1);
+        }
+        else {
+          u8 *battle = D_0076449C;
+          *(u32 *)(battle + 0xc) = *(u32 *)(battle + 0xc) & 0xffffdfff;
+          func_001eb7f0(battle);
         }
       }
+      nextState = 6;
     }
-    for (temp_v6 = 0; temp_v6 < 2; temp_v6 = (temp_v6 + 1) & 0xffff) {
-      temp_v1 = 0;
-      temp_v0 = 0;
-      temp_v2 = 0;
-      for (temp_v12 = *(s32 *)(rowBase + temp_v6 * 8); temp_v12 != 0;
-          temp_v12 = *(s32 *)(temp_v12 + 0xa6c)) {
-        if (*(u8 **)(temp_v12 + 0xa64) != (u8 *)0x0) {
-          temp_v8 = func_00232730(*(u8 **)(temp_v12 + 0xa64),0x213);
-          if (temp_v8 != 0) {
-            temp_v1 = 1;
-          }
-          temp_v8 = func_00232730(*(u8 **)(temp_v12 + 0xa64),0x214);
-          if (temp_v8 != 0) {
-            temp_v0 = 1;
-          }
-          temp_v8 = func_00232730(*(u8 **)(temp_v12 + 0xa64),0x215);
-          if (temp_v8 != 0) {
-            temp_v2 = 1;
-          }
-        }
-      }
-      for (temp_v12 = *(s32 *)(rowBase + temp_v6 * 8); temp_v12 != 0;
-          temp_v12 = *(s32 *)(temp_v12 + 0xa6c)) {
-        if (*(u8 **)(temp_v12 + 0xa64) != (u8 *)0x0) {
-          temp_v8 = func_00232730(*(u8 **)(temp_v12 + 0xa64),0x202);
-          if (((temp_v8 != 0) || (temp_v5 = func_00232950(*(u8 **)(temp_v12 + 0xa64),0x53), temp_v5 != 0)
-              ) || (temp_v0)) {
-            func_00234830(*(u8 **)(temp_v12 + 0xa64),5,1);
-          }
-          temp_v8 = func_00232730(*(u8 **)(temp_v12 + 0xa64),0x203);
-          if (((temp_v8 != 0) || (temp_v5 = func_00232950(*(u8 **)(temp_v12 + 0xa64),0x54), temp_v5 != 0)
-              ) || (temp_v1)) {
-            func_00234830(*(u8 **)(temp_v12 + 0xa64),0x40,1);
-          }
-          temp_v8 = func_00232730(*(u8 **)(temp_v12 + 0xa64),0x204);
-          if (((temp_v8 != 0) || (temp_v5 = func_00232950(*(u8 **)(temp_v12 + 0xa64),0x55), temp_v5 != 0)
-              ) || (temp_v2)) {
-            func_00234830(*(u8 **)(temp_v12 + 0xa64),0x110,1);
-          }
-          **(u16 **)(temp_v12 + 0xa64) = **(u16 **)(temp_v12 + 0xa64) & 0xf3ff;
-        }
-      }
+    else {
+      nextState = 0;
     }
-    if (((s16)puVar16[1] != 0) && (*(s16 *)((s32)puVar16 + 6) != 0)) {
-      *(s16 *)(D_0076449C + 0xcd0) = (s16)puVar16[1];
-      *(u16 *)(D_0076449C + 0xcd2) = *(u16 *)((s32)puVar16 + 6);
-      D_0076449C[0xcdc] = 1;
-      D_0076449C[0xcdd] = 0;
-      D_0076449C[0xcde] = 0;
-      D_0076449C[0xcdf] = 0;
-    }
-    pbVar12 = (u8 *)btlCameraCreateSetStatePacket(temp_v7,2);
-    func_00194590(pbVar12,0);
-    if ((*(u32 *)(D_0076449C + 0xc) & 0x100000) != 0) {
-      func_0021d440(*(s32 *)(D_0076449C + 0xdd4));
-      *(u32 *)(D_0076449C + 0xc) = *(u32 *)(D_0076449C + 0xc) & 0xffefffff;
-    }
-    if ((*(u32 *)(D_0076449C + 0x10) & 1) == 0) {
-      temp_v10 = func_001ef9a0();
-      if ((temp_v10 == 0x215) || (temp_v10 == 0x20b)) {
-        func_002aaaa0();
-      }
-      btlFadeStartImmediate();
-      temp_v10 = func_001eb860();
-      if (temp_v10 == 1) {
-        *(u32 *)(D_0076449C + 0xc) = *(u32 *)(D_0076449C + 0xc) | 0x2000;
-        func_00212240(*(u8 **)(D_0076449C + 0xdd4),1);
-      }
-      else {
-        *(u32 *)(D_0076449C + 0xc) = *(u32 *)(D_0076449C + 0xc) & 0xffffdfff;
-        func_001eb7f0(D_0076449C);
-      }
-    }
-    temp_v9 = 6;
-  }
-  else {
-    temp_v9 = 0;
-  }
-  return temp_v9;
+    return nextState;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b2380);
-#endif
+
+#pragma pop
 /* 744/752 bytes; twenty resolved relocations; eight zero alignment bytes.
  * Keep full-width dependency snapshots and branch-materialized final mode. */
 #pragma push
@@ -1978,7 +1984,7 @@ void func_001b3f00(void) {
     t = (u8 *)func_001d3700(3, 0xFFF);
     *(s64 *)(t + 0x60) = *p;
     func_00194590(t, 0);
-    func_00194590(btlCameraCreateSetStatePacket(NULL, 0x2B), 0);
+    func_00194590((u8 *)btlCameraCreateSetStatePacket((BtlAction *)(NULL), (u16)(0x2B)), 0);
 }
 
 
@@ -2087,7 +2093,7 @@ void func_001b4060(void)
         *next = 5;
         *(s64 *)(next + 8) = *(s64 *)(packet + 0x58);
         func_00194590(next, 1);
-        camera = btlCameraCreateSetStatePacket(unitAction, 0x1B);
+        camera = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)(unitAction), (u16)(0x1B));
         camera[0] = 5;
         *(s64 *)(camera + 8) = *(s64 *)(packet + 0x58);
         camera[0x20] = 0xB;
@@ -2097,7 +2103,7 @@ void func_001b4060(void)
         func_00194590(camera, 0);
         last = *(s64 *)(camera + 0x58);
         if ((result.words[3] & 0x80000) != 0 && (*(s32 *)(unit + 0x9C) & 0x200) != 0) {
-            next = btlUnitCreateAnimPacket(unit, 0x14, 0, 0, 1.0f);
+            next = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)(unit), (s16)(0x14), (u16)(0), 1.0f, (u16)(0));
             *next = 0xB;
             *(s64 *)(next + 8) = *(s64 *)(packet + 0x58);
             *(s64 *)(next + 0x60) = *(s64 *)action;
@@ -2141,7 +2147,6 @@ void func_001b4060(void)
 // FUN_001B4630
 s32 func_001b4630(void)
 {
-    extern u8 *btlCameraCreateSetStatePacket();
     s64 *temp_16;
     u8 *temp_3;
     u8 *temp_4;
@@ -2157,7 +2162,7 @@ s32 func_001b4630(void)
             if (func_001eb860() == 1) {
                 func_00212240(*(u8 **)(D_0076449C + 0xDD4), 1);
             }
-            func_00194590(btlCameraCreateSetStatePacket(temp_16, 0x24), 0);
+            func_00194590((u8 *)btlCameraCreateSetStatePacket((BtlAction *)(temp_16), (u16)(0x24)), 0);
         } else {
             temp_3 = D_0076449C;
             *(s32 *)(temp_3 + 0xC) |= 0x80;
@@ -2221,7 +2226,7 @@ void func_001b4880(u8 *arg0) {
     extern u8 *btlUnitCreateMovePacket(u8 *arg0, void *arg1, f32 arg2, s32 arg3);
     extern u8 *func_0019bdd0(u8 *arg0);
     extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrames, f32 speed, u16 mode);
-    extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
+    extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
     extern u8 *func_001f5f70(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern u32 datCalcIsDead(s32 arg0, s32 arg1);
     extern f32 fGpffff81f4;
@@ -2321,7 +2326,7 @@ void func_001b4880(u8 *arg0) {
         }
         node = *(u8 **)(node + 0x450);
     }
-    pkt = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(base + 0x30), 0x15, 0, 1.0f, 2);
+    pkt = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)(*(BtlUnit **)(base + 0x30)), (s16)(0x15), (u16)(0), 1.0f, (u16)(2));
     *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
     *(s64 *)(pkt + 0x60) = *(s64 *)base;
     func_00194590(pkt, 0);
@@ -2413,7 +2418,7 @@ void func_001b4880(u8 *arg0) {
                     *(s64 *)(pkt2 + 8) = *(s64 *)(pkt + 0x58);
                     *(s64 *)(pkt2 + 0x60) = *(s64 *)base;
                     func_00194590(pkt2, 0);
-                    pkt3 = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)node, 0x15, 0, 1.0f, 2);
+                    pkt3 = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)((BtlUnit *)node), (s16)(0x15), (u16)(0), 1.0f, (u16)(2));
                     *(u8 *)(pkt3 + 0) = 4;
                     *(s64 *)(pkt3 + 8) = *(s64 *)(pkt2 + 0x58);
                     *(s64 *)(pkt3 + 0x60) = *(s64 *)base;
@@ -2422,7 +2427,7 @@ void func_001b4880(u8 *arg0) {
             }
             node = *(u8 **)(node + 0xA68);
         }
-        pkt = btlCameraCreateSetStatePacket(base, 0x26);
+        pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)(base), (u16)(0x26));
         *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
         *(s64 *)(pkt + 0x60) = *(s64 *)base;
         func_00194590(pkt, 0);
@@ -2447,7 +2452,7 @@ void func_001b4880(u8 *arg0) {
         }
         node = *(u8 **)(node + 0xA68);
     }
-    pkt = btlCameraCreateSetStatePacket(base, 0x25);
+    pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)(base), (u16)(0x25));
     *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
     *(s64 *)(pkt + 0x60) = *(s64 *)base;
     func_00194590(pkt, 0);
@@ -4777,8 +4782,6 @@ void func_001bdeb0(u8 *arg0)
 /* Camera providers use a four-float P4 quaternion holder and the RenderWare
  * vector/quaternion ABI. The backend vector transform reads exactly sixteen
  * quaternion bytes and returns its original output pointer. */
-typedef struct RwV3d { f32 x, y, z; } RwV3d;
-typedef struct RtQuat { RwV3d imag; f32 real; } RtQuat;
 typedef struct P4Vec4_001EC2B0 { f32 x, y, z, w; } P4Vec4_001EC2B0;
 typedef struct P4Vec4Holder_001EC2B0 { P4Vec4_001EC2B0 quat; } P4Vec4Holder_001EC2B0;
 extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *, P4Vec4Holder_001EC2B0 *);
