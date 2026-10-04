@@ -1,0 +1,292 @@
+#include "fcl_combine_row_internal.h"
+#include "fcl_draw_task.h"
+#include "fcl_row_draw.h"
+#include "fcl_combine_internal.h"
+
+static unsigned scenario;
+#define CHECK(c) do { if (!(c)) native32_failure(__LINE__, scenario, #c); } while (0)
+#define OFFSET(t,f,n) typedef char offset_##t##_##f[__builtin_offsetof(t,f) == n ? 1 : -1]
+OFFSET(FclCombineRowWork, firstSelectedRow, 0x128);
+OFFSET(FclCombineRowWork, secondSelectedRow, 0x129);
+OFFSET(FclCombineRowWork, firstCursorState, 0x294);
+OFFSET(FclCombineRowWork, secondCursorState, 0x295);
+OFFSET(FclCombineRowWork, cursorPosition, 0x298);
+OFFSET(FclCombineRowWork, digitTask, 0x2BC);
+OFFSET(FclCombineRowTask, work, 0x38);
+OFFSET(FclCombineRowSprite, image, 4);
+OFFSET(FclCombineRowSprite, alpha, 0x6E);
+OFFSET(FclCombineRowSprite, flag73, 0x73);
+OFFSET(FclCombineRowSprite, color, 0x85);
+OFFSET(FclCombineRowList, availability, 0x14);
+
+typedef union { u32 alignment; u8 bytes[0x300]; } Work;
+typedef union { u32 alignment; u8 bytes[0x50]; } Task;
+typedef union { u32 alignment; u8 bytes[0x90]; } Sprite;
+typedef struct { u32 source, image, ordinal; f32 height; } Handle;
+typedef struct {
+    Task task;
+    Work work[2];
+    Sprite sprites[2][16];
+    u16 spriteIds[16];
+    FclCombineRowList list;
+    Handle handles[8];
+    u8 digitTasks[2][0x50];
+} State;
+static State state, expectedState;
+typedef struct { u32 kind, a[11]; f32 f[6]; } Event;
+static Event events[200], expectedEvents[200];
+static u32 eventCount, expectedCount, spriteGets, sources, images, handleCount;
+static u32 mutate;
+f32 iGpffff8504;
+static f32 expectedScale;
+static void put16(u8 *out, s16 value) { memcpy(out, &value, 2); }
+static void putPointer(u8 *out, void *value) { memcpy(out, &value, 4); }
+static void *getPointer(const u8 *in) { void *out; memcpy(&out, in, 4); return out; }
+static u32 packedColor(FclDrawColor color) { u32 out; memcpy(&out, &color, 4); return out; }
+static FclVec2 point(f32 x, f32 y) { FclVec2 out = {x,y}; return out; }
+static FclDrawColor color(u8 r, u8 g, u8 b, u8 a) { FclDrawColor out = {r,g,b,a}; return out; }
+static Event *event(u32 kind) {
+    CHECK(eventCount < 200);
+    Event *e = &events[eventCount++];
+    memset(e, 0, sizeof(*e)); e->kind = kind;
+    if (mutate) {
+        iGpffff8504 = 0.25f + (f32)(eventCount % 13) * 0.125f;
+        /* The renderer retains its initial work pointer across every provider. */
+        putPointer(state.task.bytes + 0x38, state.work[1].bytes);
+    }
+    return e;
+}
+u8 *func_002e4870(s8 list) {
+    Event *e = event(1); e->a[0] = list;
+    return (u8 *)&state.list;
+}
+u8 *func_002b6150(s16 sprite) {
+    CHECK(sprite >= 0 && sprite < 0x400);
+    Event *e = event(2); e->a[0] = sprite;
+    u32 bank = mutate ? (spriteGets & 1u) : 0;
+    ++spriteGets; e->a[1] = bank;
+    u32 slot=0;
+    while (slot<16 && state.spriteIds[slot]!=(u16)sprite && state.spriteIds[slot]!=0xFFFF) ++slot;
+    CHECK(slot<16);
+    if (state.spriteIds[slot]==0xFFFF) {
+        state.spriteIds[slot]=(u16)sprite;
+        for (u32 b=0;b<2;b++) state.sprites[b][slot].bytes[0x6E]=(u8)(17+sprite*31+b*67);
+    }
+    return state.sprites[bank][slot].bytes;
+}
+s32 func_00331560(void) { Event *e = event(3); e->a[0] = 0x11220000u + sources++; return e->a[0]; }
+u8 func_00109280(u16 persona) {
+    Event *e = event(4); e->a[0] = persona;
+    e->a[1] = (u8)(persona * 7u + 19u + (mutate ? images * 13u : 0));
+    ++images; return (u8)e->a[1];
+}
+u8 *func_0046d200(u32 source, u32 image) {
+    CHECK(handleCount < 8);
+    Event *e = event(5); e->a[0] = source; e->a[1] = image; e->a[2] = handleCount;
+    Handle *h = &state.handles[handleCount];
+    h->source = source; h->image = image; h->ordinal = handleCount++;
+    h->height = 8.0f + (f32)((image + h->ordinal) % 19) * 1.5f;
+    return (u8 *)h;
+}
+f32 func_0046b2f0(u8 *resource) {
+    Handle *h = (Handle *)resource;
+    Event *e = event(6); e->a[0] = h->ordinal; e->f[0] = h->height;
+    return h->height;
+}
+void func_0046d280(void *resource) {
+    Handle *h = (Handle *)resource;
+    Event *e = event(7); e->a[0] = h->ordinal;
+    if (mutate) putPointer(state.work[0].bytes + 0x2BC, state.digitTasks[(h->ordinal + 1) & 1]);
+}
+void func_002b7750(s16 sprite, s16 image) { Event *e=event(8); e->a[0]=sprite; e->a[1]=image; }
+void func_002b6c30(s16 sprite, FclVec2 p, f32 depth, s32 order) {
+    Event *e=event(9); e->a[0]=sprite; e->a[1]=order; e->f[0]=p.x; e->f[1]=p.y; e->f[2]=depth;
+}
+void func_002b6a70(s16 sprite, u8 first, u8 second, u8 mode, s32 duration, s16 delay) {
+    Event *e=event(10); e->a[0]=sprite; e->a[1]=first; e->a[2]=second; e->a[3]=mode;
+    e->a[4]=duration; e->a[5]=delay;
+}
+void func_002b6af0(s16 sprite, f32 a, f32 b, f32 c, f32 d, u32 mode, u32 duration, s16 delay) {
+    Event *e=event(11); e->a[0]=sprite; e->a[1]=mode; e->a[2]=duration; e->a[3]=delay;
+    e->f[0]=a; e->f[1]=b; e->f[2]=c; e->f[3]=d;
+}
+void func_002b69f0(s16 sprite, FclVec2 start, FclVec2 end, u32 mode, u32 duration, s16 delay) {
+    Event *e=event(12); e->a[0]=sprite; e->a[1]=mode; e->a[2]=duration; e->a[3]=delay;
+    e->f[0]=start.x; e->f[1]=start.y; e->f[2]=end.x; e->f[3]=end.y;
+}
+void func_002ba080(u8 *task, s16 row, s16 value, FclVec2 p, FclDrawColor c,
+                   s32 duration, s32 delay, s32 layer, f32 depth, s8 mode) {
+    Event *e=event(13); e->a[0]=(u32)task; e->a[1]=row; e->a[2]=value; e->a[3]=packedColor(c);
+    e->a[4]=duration; e->a[5]=delay; e->a[6]=layer; e->a[7]=mode;
+    e->f[0]=p.x; e->f[1]=p.y; e->f[2]=depth;
+    if (mutate) putPointer(state.work[0].bytes+0x2BC,state.digitTasks[1]);
+}
+void func_002b68d0(s16 sprite, s16 value, s8 mode) {
+    Event *e=event(14); e->a[0]=sprite; e->a[1]=value; e->a[2]=mode;
+    if (mutate) putPointer(state.work[0].bytes+0x2BC,state.digitTasks[0]);
+}
+void func_002b77d0(s16 sprite, FclVec2 p, s16 image, FclDrawColor c, f32 depth,
+                   s16 order, s8 mode, s16 duration, s16 alternate, s16 delay, u32 source) {
+    Event *e=event(15); e->a[0]=sprite; e->a[1]=image; e->a[2]=packedColor(c); e->a[3]=order;
+    e->a[4]=mode; e->a[5]=duration; e->a[6]=alternate; e->a[7]=delay; e->a[8]=source;
+    e->f[0]=p.x; e->f[1]=p.y; e->f[2]=depth;
+}
+void func_002ba970(u8 *task, s16 row, FclDrawColor c) {
+    Event *e=event(16); e->a[0]=(u32)task; e->a[1]=row; e->a[2]=packedColor(c);
+}
+
+/* @PROVIDERS@ */
+/* @BODY@ */
+
+/* Independent model: generic components are described by their retail role,
+   rather than copied controller statements. Provider calls are observable;
+   constructors are pure. The expected state is written through retail offsets. */
+static void setColor(s16 sprite, FclDrawColor c) { memcpy(func_002b6150(sprite)+0x85,&c,4); }
+static void transition(s16 sprite, FclVec2 p, u8 *resource, s16 delay, s8 mode, f32 scale) {
+    f32 height;
+    if (mode == 1) {
+        func_002b6af0(sprite,1,1,1,scale,0,3,delay);
+        height=func_0046b2f0(resource);
+        func_002b69f0(sprite,p,point(p.x,p.y+height/2.0f),0,3,delay);
+    } else {
+        func_002b6af0(sprite,1,1,scale,1,0,3,delay);
+        height=func_0046b2f0(resource);
+        func_002b69f0(sprite,point(p.x,p.y+height/2.0f),p,0,3,delay);
+    }
+}
+static void backdrop(s16 sprite, s16 image, FclVec2 p, f32 depth, s16 delay,
+                     s8 mode, u8 alpha, u32 special, u32 first, f32 *scale) {
+    if (image == 0x193 || image == 0x19B) func_002b7750(sprite,image);
+    func_002b6c30(sprite,p,depth,0x57);
+    u8 *h=func_0046d200(func_00331560(),(u16)image);
+    if (mode==1) {
+        u8 start=(image==0x193 || image==0x19B) ? func_002b6150(sprite)[0x6E] : 255;
+        func_002b6a70(sprite,start,0,0,0,(s16)(delay+3));
+    } else {
+        setColor(sprite,special ? color(0,0,0x99,255) : color(0x49,0x72,255,255));
+        func_002b6a70(sprite,0,special ? 0 : alpha,0,0,delay);
+    }
+    if (first) *scale=iGpffff8504;
+    transition(sprite,p,h,delay,mode,*scale);
+    func_0046d280(h);
+}
+static void oracle(FclVec2 position,s8 selected,s8 row,s32 persona,u16 level,
+                   s16 delay,s8 mode,s8 check,u8 alpha) {
+    u8 *work=state.work[0].bytes;
+    f32 rowY=position.y+(f32)((s32)row*23);
+    s8 available=1;
+    if (check==1) available=((s8 *)func_002e4870(0))[0x14+selected*12+row];
+    if ((s8)work[0x128]==row || (s8)work[0x129]==row || available<=0) {
+        const s16 offsets[5]={0x270,0x27D,0x28B,0x297,0x2A3};
+        for (u32 i=0;i<5;i++) func_002b68d0((s16)(row+offsets[i]),0,1);
+        return;
+    }
+    f32 bgScale=0, nameScale;
+    if (available!=2) {
+        backdrop((s16)(row+0x270),0x193,point(position.x,rowY),191,delay,mode,alpha,0,1,&bgScale);
+        backdrop((s16)(row+0x27D),0x19B,point(286+position.x,rowY),192,delay,mode,alpha,0,0,&bgScale);
+        backdrop((s16)(row+0x28B),0x188,point(position.x,rowY),163,delay,mode,255,0,0,&bgScale);
+        backdrop((s16)(row+0x297),0x18C,point(36+position.x,rowY),163,delay,mode,255,0,0,&bgScale);
+    }
+    s16 label=(s16)(row+0x2A3);
+    /* Retail evaluates the source provider before the image provider. The C
+       arguments otherwise leave this order unspecified, so model it here. */
+    u32 source=func_00331560();
+    u16 image=(u16)(func_00109280((u16)persona)+0x1B);
+    u8 *h=func_0046d200(source,image);
+    FclVec2 name=point(8+position.x,2+rowY);
+    if (mode==1) func_002b6a70(label,255,0,0,0,(s16)(delay+3));
+    else {
+        func_002b6c30(label,name,46,0x59);
+        s16 liveImage=(s16)(func_00109280((u16)persona)+0x1B);
+        put16(func_002b6150(label)+4,liveImage);
+        setColor(label,color(0,0,0x66,255));
+        func_002b6a70(label,0,255,0,0,delay);
+    }
+    nameScale=iGpffff8504;
+    transition(label,name,h,delay,mode,nameScale);
+    func_0046d280(h);
+    s16 digitRow=(s8)(row+12);
+    func_002ba080(getPointer(work+0x2BC),digitRow,(s16)level,point(position.x-16,rowY),
+                 color(0xCC,255,255,128),3,delay,0x59,46,mode);
+    if (available!=2) return;
+    backdrop((s16)(row+0x270),0x193,point(position.x,rowY),191,delay,mode,0,1,0,&nameScale);
+    backdrop((s16)(row+0x27D),0x19B,point(285+position.x,rowY),192,delay,mode,0,1,0,&nameScale);
+    func_002b7750(0xCF,0xCF);
+    func_002b77d0(0xCF,point(position.x-10,rowY-12),0xCF,color(255,255,255,128),193,0x56,mode,3,3,delay,func_00331560());
+    func_002b7750(0xD2,0xD2);
+    func_002b77d0(0xD2,point(282+position.x,rowY-12),0xD2,color(255,255,255,128),193,0x56,mode,3,3,delay,func_00331560());
+    if (mode!=0) {
+        func_002b68d0(0x1C7,0,1); func_002b68d0(0x2E8,0,1); return;
+    }
+    FclVec2 cursor=point(position.x-60,rowY-8);
+    memcpy(work+0x298,&cursor,8);
+    const s16 cursors[2]={0x1C7,0x2E8};
+    for (u32 i=0;i<2;i++) {
+        if (i) func_002b7750(cursors[i],0x1C7);
+        func_002b6c30(cursors[i],cursor,190,0x58);
+        func_002b6150(cursors[i])[0x6E]=0;
+        work[0x294+i]=0;
+        func_002b68d0(cursors[i],2,1);
+        func_002b6150(cursors[i])[0x73]=1;
+    }
+    setColor(label,color(255,0xCC,0xFA,255));
+    func_002ba970(getPointer(work+0x2BC),digitRow,color(255,0xCC,0xFA,255));
+}
+
+static void prepare(s8 row,s8 selected,s8 availability,u32 exclusion) {
+    memset(&state,0xA5,sizeof(state));
+    memset(events,0,sizeof(events));
+    eventCount=spriteGets=sources=images=handleCount=0;
+    iGpffff8504=0.375f;
+    putPointer(state.task.bytes+0x38,state.work[0].bytes);
+    for (u32 w=0;w<2;w++) {
+        state.work[w].bytes[0x128]=(u8)(exclusion==1 ? row : -127);
+        state.work[w].bytes[0x129]=(u8)(exclusion==2 ? row : -126);
+        putPointer(state.work[w].bytes+0x2BC,state.digitTasks[0]);
+    }
+    memset(state.spriteIds,0xFF,sizeof(state.spriteIds));
+    memset(&state.list,0x55,sizeof(state.list));
+    if (selected>=0 && selected<12 && row>=0 && row<12)
+        state.list.availability[(u8)selected][(u8)row]=availability;
+}
+static void runCase(s8 row,s8 selected,s8 available,u32 exclusion,s16 delay,s8 mode,s8 check) {
+    FclVec2 p=point(13.25f+(f32)(scenario%7),-17.5f+(f32)(scenario%11));
+    u16 level=(u16)(0x7FFEu+scenario*101u);
+    s32 persona=(s32)(0x81230000u+scenario*73u);
+    u8 alpha=(u8)(scenario*19u);
+    prepare(row,selected,available,exclusion);
+    oracle(p,selected,row,persona,level,delay,mode,check,alpha);
+    expectedState=state; expectedScale=iGpffff8504; expectedCount=eventCount;
+    memcpy(expectedEvents,events,sizeof(events));
+    prepare(row,selected,available,exclusion);
+    func_0031ac10(state.task.bytes,p,selected,row,persona,level,delay,mode,check,alpha);
+    CHECK(eventCount==expectedCount);
+    for (u32 i=0;i<eventCount;i++) {
+        if (memcmp(events+i,expectedEvents+i,sizeof(Event))!=0) {
+            native32_text("event ");native32_number(i);native32_text(" kind ");native32_number(events[i].kind);native32_text("\n");
+            CHECK(memcmp(events+i,expectedEvents+i,sizeof(Event))==0);
+        }
+    }
+    CHECK(memcmp(&state,&expectedState,sizeof(state))==0);
+    CHECK(iGpffff8504==expectedScale);
+    ++scenario;
+}
+int main(void) {
+    const s8 available[]={-128,-1,0,1,2,3,127};
+    const s8 modes[]={-128,-1,0,1,2,127};
+    const s16 delays[]={-32768,-1,0,32765,32767};
+    for (mutate=0;mutate<2;mutate++)
+    for (u32 a=0;a<7;a++) for (u32 m=0;m<6;m++)
+    for (u32 d=0;d<5;d++) for (u32 ex=0;ex<3;ex++) {
+        s8 row=(s8)(scenario%12), selected=(s8)((scenario*5)%12);
+        runCase(row,selected,available[a],ex,delays[d],modes[m],1);
+    }
+    const s8 rows[]={0,11,-128,-1,116,127};
+    const s8 checks[]={-128,-1,0,2,127};
+    for (mutate=0;mutate<2;mutate++)
+    for (u32 r=0;r<6;r++) for (u32 c=0;c<5;c++) for (u32 m=0;m<6;m++)
+        runCase(rows[r],r<2 ? 5 : -128,2,0,delays[r%5],modes[m],checks[c]);
+    native32_text("PASS combine row scenarios=");native32_number(scenario);native32_text("\n");
+    return 0;
+}

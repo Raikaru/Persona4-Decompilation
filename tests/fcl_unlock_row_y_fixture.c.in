@@ -1,6 +1,7 @@
 #include "fcl_draw_task.h"
 #include "fcl_row_draw.h"
 #include "fcl_combine_internal.h"
+#include "fcl_combine_row_internal.h"
 typedef FclDrawColor FclByte4;
 #define CHECK(c) do { if (!(c)) native32_failure(__LINE__, scenario, #c); } while (0)
 static unsigned scenario;
@@ -63,7 +64,7 @@ void func_002b69f0(s16 id, FclVec2 start, FclVec2 end, u32 flag, u32 duration, s
     CHECK(end.y == y + (mode == 1 ? 10.0f : 0.0f));
     ++transitionCount;
 }
-void func_002ba080(u8 *target, s32 index, s16 number, FclVec2 position,
+void func_002ba080(u8 *target, s16 index, s16 number, FclVec2 position,
                    FclDrawColor color, s32 duration, s32 wait, s32 layer, f32 depth, s8 direction) {
     CHECK(active && target == textTask && index == (s8)(row + 12) && number == (s16)value);
     CHECK(position.x == originX - 16.0f && position.y == rowY);
