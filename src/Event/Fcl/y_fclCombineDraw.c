@@ -3342,11 +3342,9 @@ void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
     FclPackedPosition sp98;
     s16 k;
     s16 res;
-    u16 w;
-    u8 b;
     s32 shown;
     s32 hidden;
-    s8 count;
+    s32 count;
     FclVec2 *p;
 
     spE0.position = func_002b2970(16.0f, 104.0f);
@@ -3355,10 +3353,11 @@ void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
     func_0031e5b0(arg0, spD8.position, 0, arg2, 1, 0, 0);
     for (k = 0; k < *(s32 *)(func_002e4870(1) + 8); k++) {
         spD0.position = func_002b2970(313, 128.0f);
-        w = *(u16 *)(func_002e48a0(1, k) + 2);
-        b = *(u8 *)(func_002e48a0(1, k) + 4);
-        count = *(s8 *)(func_002e4870(1) + 8);
-        func_003191c0(arg0, spD0.position, (s8)k, w, b, (s16)(k * arg1), arg2, count);
+        func_003191c0(arg0, spD0.position, (s8)k,
+                      *(u16 *)(func_002e48a0(1, k) + 2),
+                      *(u8 *)(func_002e48a0(1, k) + 4),
+                      (s16)(k * arg1), arg2,
+                      (count = *(s8 *)(func_002e4870(1) + 8)));
     }
     for (k = 0; k < *(s32 *)(func_002e4870(0) + 8); k++) {
         spC8.position = func_002b2970(16.0f, 128.0f);
