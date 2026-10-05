@@ -67,11 +67,11 @@ extern s32 func_0010b5b0();
 
 extern s32 func_0010b510();
 
-extern s32 func_0010abd0();
+extern s32 func_0010abd0(s16 slot);
 
 extern s32 func_0010aa80();
 
-extern u8 *func_0010ace0();
+extern u16 *func_0010ace0(s16 slot);
 
 extern s32 datPersonaGetLevel();
 
@@ -593,30 +593,18 @@ s32 func_0036eda0(s32 arg0)
     return i + 1;
 }
 
-/* Floor (measured 2026-09-18): probe_variants honest 292 words, obj 1448B / window 1456B */
-/* (362 vs 363 retail instrs, 0.3% short, banks per 3% rule); fnalign 295 edits +2 reloc-only, */
-/* frame 0x6D0 vs retail 0x6F0. Quadword + dead-block floor: retail spills hi/lo and two */
-/* shuffle rands to s128 slots with sq/lq (no 128-bit C type reaches them; 16B copies lower to */
-/* ld/sd, members scalar-replace), and the B draw arm sits behind an unconditional `b` that b210 */
-/* deletes. Spill victims arg1/nA immobile across declaration orders. Re-measured commands: */
-/* python3 tools/probe_variants.py src/promoted/btlShuffle.c func_0036ee60 --candidate honest=docs/probe_archive/BtlShuffle_0036EE60_body.c */
-/* python3 -E -s tools/fnalign.py src/promoted/btlShuffle.c func_0036ee60 --candidate docs/probe_archive/BtlShuffle_0036EE60_body.c */
-/* python3 tools/measure_guarded.py src/promoted/btlShuffle.c func_0036ee60 (after install). */
-/* Prior archive note (2026-09-16, same 292/1448/1456/362-vs-363) retained at */
-/* docs/probe_archive/BtlShuffle_0036EE60_body.c; this floor is that body, banked. */
 extern s32 func_00104c70(s32 arg0);
 extern u8 D_0064E76F[];
 extern u8 *iGpffffb3d4;
 
-/* Round-2 rewrite from retail (2026-09-26): fnalign 90 edits (364/364 instrs),
- * see docs/probe_archive/Campaign_g2r2_20260926.md.  Levers: u8 callee
- * parameters (func_0036e920/ea00/eb50 mask their own argument), the always-false
- * `rand < rate` (rate 0) arm keeps retail's dead listB draw block, lists declared
- * C/B/A for retail's stack order, opt_loop_invariants on hoists the sign-extended
- * hi/lo/cap into sq-spilled temporaries.  Residual: callee-saved colouring and
- * which draw-loop value is spilled (retail spills cIdx, this spills nDraw). */
+/* measured 2026-10-05: 82 differing words, 1456/1456 bytes. The record
+ * pointer is read before scaling its index; the draw loop has a separate
+ * counter and consumes an A entry before its lookup. The draw-count/cursor
+ * spill and remaining register differences stay guarded. See
+ * docs/probe_archive/BtlShuffle_worker8_20261005.md. */
 // FUN_0036EE60 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
 #pragma opt_loop_invariants on
 s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
 {
@@ -631,6 +619,7 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     u16 nA;
     u16 nB;
     s32 i;
+    s32 drawIndex;
     u16 nC;
     s32 aCount;
     s32 bCount;
@@ -673,7 +662,8 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     nB = 0;
     nA = 0;
     for (i = 0; i < 256; i++) {
-        u8 *rec = iGpffffb3d4 + i * 14;
+        u8 *rec = iGpffffb3d4;
+        rec += i * 14;
 
         if ((*(u16 *)rec & 0xDB) != 0) {
             continue;
@@ -682,14 +672,20 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
         if (mlvl > cap) {
             continue;
         }
-        if (lvl < mlvl || (mlvl <= hi && mlvl >= lo)) {
-            if ((s16)func_0010aa80((s16)i) != -1) {
-                listA[nA++] = i;
-            } else if (lvl < mlvl) {
-                listB[nB++] = i;
-            } else {
-                listC[nC++] = i;
+        if (mlvl <= lvl) {
+            if (mlvl > hi) {
+                continue;
             }
+            if (mlvl < lo) {
+                continue;
+            }
+        }
+        if ((s16)func_0010aa80((s16)i) != -1) {
+            listA[nA++] = i;
+        } else if (lvl < mlvl) {
+            listB[nB++] = i;
+        } else {
+            listC[nC++] = i;
         }
     }
     bCount = nB;
@@ -743,13 +739,15 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     cIdx = 0;
     aIdx = 0;
     e = 0;
-    for (i = 0; i < nDraw; i++) {
+    for (drawIndex = 0; drawIndex < nDraw; drawIndex++) {
         if (func_00231d70(100) < rate && bIdx < bCount) {
             item = listB[bIdx++];
         } else if (cIdx < cCount) {
             item = listC[cIdx++];
         } else if (aIdx < aCount) {
-            item = listA[aIdx++];
+            s32 index = aIdx;
+            aIdx++;
+            item = listA[index];
         } else {
             continue;
         }
@@ -765,7 +763,7 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     }
     return 1;
 }
-#pragma opt_loop_invariants off
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036ee60);
 #endif
@@ -870,19 +868,26 @@ s32 func_0036f640(s32 arg0, s32 *arg1)
     }
     return result;
 }
-/* Round-2 rewrite from retail (2026-09-26): fnalign 22 edits (212/212 instrs).
- * Levers: separate block-scoped k per branch (46 -> 24), byte-offset table reads,
- * u32 candidate slots written through u16 halves, `m = 0; tbl = ...` before the
- * loop.  Residual: first-loop $s0/$s1 swap (count vs (s16)i), else-branch
- * $t3/$t4 swap, and retail's unfolded addiu 0x72/0x70 candidate reads. */
+/* measured 2026-10-05: 14 differing words, 852/864 bytes. A u16 capacity
+ * with invariant hoisting restores the inventory count/slot lifetimes.
+ * Candidate pairs retain both halfword fields and separate byte addresses;
+ * reverse-scan and final address differences remain guarded. See
+ * docs/probe_archive/BtlShuffle_worker8_20261005.md. */
 // FUN_0036F880 NONMATCHING
 #ifdef NON_MATCHING
+static inline u16 *shuffleCandidateField(s32 offset, void *base)
+{
+    return (u16 *)((u8 *)base + offset);
+}
+
+#pragma push
+#pragma opt_loop_invariants on
 s32 func_0036f880(s32 arg0, u8 *arg1)
 {
     u8 *list[12];
-    u32 cand[8];
+    union { u32 word; u16 skills[2]; } cand[8];
     s32 flag = arg0 & 0xFFFF;
-    s32 count = (u16)func_0010b5b0();
+    u16 count = func_0010b5b0();
     u8 *p;
     u16 *skills;
     u16 i;
@@ -901,7 +906,7 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
     }
     for (i = 0; i < count; i++) {
         if (func_0010abd0((s16)i) != 0) {
-            list[n] = func_0010ace0((s16)i);
+            list[n] = (u8 *)func_0010ace0((s16)i);
             n++;
         }
     }
@@ -932,8 +937,8 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
                 }
             }
             if (k >= 8) {
-                ((u16 *)&cand[nc])[0] = *(u16 *)(tbl + j * 4);
-                ((u16 *)&cand[nc])[1] = *(u16 *)(tbl + j * 4 + 2);
+                cand[nc].skills[0] = *(u16 *)(tbl + j * 4);
+                cand[nc].skills[1] = *(u16 *)(tbl + j * 4 + 2);
                 nc++;
             }
         } else {
@@ -950,8 +955,8 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
                 }
             }
             if (k >= 8) {
-                ((u16 *)&cand[nc])[0] = *(u16 *)(tbl + j * 4 + 2);
-                ((u16 *)&cand[nc])[1] = *(u16 *)(tbl + j * 4);
+                cand[nc].skills[0] = *(u16 *)(tbl + j * 4 + 2);
+                cand[nc].skills[1] = *(u16 *)(tbl + j * 4);
                 nc++;
             }
         }
@@ -960,14 +965,16 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
         return 0;
     }
     r = func_00231d70(nc);
-    second = ((u16 *)&cand[r])[1];
-    first = ((u16 *)&cand[r])[0];
+    second = *shuffleCandidateField(r * 4 + 2, cand);
+    first = *shuffleCandidateField(r * 4, cand);
     func_0010cd70(p, (s16)first, second);
     *(u16 *)(arg1 + 4) = *(u16 *)(p + 2);
     *(u16 *)(arg1 + 8) = first;
     *(u16 *)(arg1 + 6) = second;
     return 1;
 }
+
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036f880);
 #endif
@@ -1025,7 +1032,7 @@ s32 func_0036fd00(s32 arg0, u8 *arg1)
         if (func_0010abd0((s16)i) == 0) {
             continue;
         }
-        p = func_0010ace0((s16)i);
+        p = (u8 *)func_0010ace0((s16)i);
         if (flag != 0) {
             t = *(u16 *)((u8 *)iGpffffb3f0 + *(u16 *)(p + 2) * 4 + 2);
         } else {
@@ -1107,7 +1114,7 @@ s32 func_00370020(s32 arg0, u8 *arg1)
         func_0046d730(D_0064E790, 0x5D6);
         break;
     }
-    p = func_0010ace0((s16)func_00231d70(func_0010b6f0() & 0xFFFF));
+    p = (u8 *)func_0010ace0((s16)func_00231d70(func_0010b6f0() & 0xFFFF));
     if (p == NULL) {
         func_0046d730(D_0064E790, 0x5DC);
     }
