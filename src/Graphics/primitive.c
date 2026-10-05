@@ -729,8 +729,9 @@ s32 func_00480f00(void* arg0)
 // FUN_00480F20 NONMATCHING
 /* A reciprocal does not exist for a zero-norm source quaternion.
  * The stream reader does not reject that input. This defined candidate
- * leaves the output untouched on nonpositive norm; retail instead uses
- * inverse components with no producer. Measured 420/416 bytes, 82 edits. */
+ * leaves the quaternion untouched on nonpositive norm; retail instead uses
+ * inverse components with no producer. The six independent scalar deltas
+ * are still evaluated on that path. Measured 420/416 bytes, 82 edits. */
 #ifdef NON_MATCHING
 void func_00480f20(void *param_1, void *param_2)
 {
@@ -751,28 +752,27 @@ void func_00480f20(void *param_1, void *param_2)
     inputZ = in->quat.z;
     inputW = in->quat.w;
     norm = inputX * inputX + inputY * inputY + inputZ * inputZ + inputW * inputW;
-    if (norm <= 0.0f) {
-        return;
-    }
-    {
+    if (!(norm <= 0.0f)) {
         reciprocal = 1.0f / norm;
         inverse.w = inputW * reciprocal;
         reciprocal = -reciprocal;
         inverse.x = inputX * reciprocal;
         inverse.y = inputY * reciprocal;
         inverse.z = inputZ * reciprocal;
+
+        out->quat.w = inverse.w * saved.w -
+                      (inverse.x * saved.x + inverse.y * saved.y + inverse.z * saved.z);
+        out->quat.x = inverse.y * saved.z - inverse.z * saved.y;
+        out->quat.y = inverse.z * saved.x - inverse.x * saved.z;
+        out->quat.z = inverse.x * saved.y - inverse.y * saved.x;
+        out->quat.x = out->quat.x + saved.x * inverse.w;
+        out->quat.y = out->quat.y + saved.y * inverse.w;
+        out->quat.z = out->quat.z + saved.z * inverse.w;
+        out->quat.x = out->quat.x + inverse.x * saved.w;
+        out->quat.y = out->quat.y + inverse.y * saved.w;
+        out->quat.z = out->quat.z + inverse.z * saved.w;
     }
-    out->quat.w = inverse.w * saved.w -
-                  (inverse.x * saved.x + inverse.y * saved.y + inverse.z * saved.z);
-    out->quat.x = inverse.y * saved.z - inverse.z * saved.y;
-    out->quat.y = inverse.z * saved.x - inverse.x * saved.z;
-    out->quat.z = inverse.x * saved.y - inverse.y * saved.x;
-    out->quat.x = out->quat.x + saved.x * inverse.w;
-    out->quat.y = out->quat.y + saved.y * inverse.w;
-    out->quat.z = out->quat.z + saved.z * inverse.w;
-    out->quat.x = out->quat.x + inverse.x * saved.w;
-    out->quat.y = out->quat.y + inverse.y * saved.w;
-    out->quat.z = out->quat.z + inverse.z * saved.w;
+
     out->values[0] -= in->values[0];
     out->values[1] -= in->values[1];
     out->values[2] -= in->values[2];
