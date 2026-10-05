@@ -1043,3 +1043,12 @@ fGpffff84d8 = 0x007615C8; // type:data evidence: retail func_00185850 lwc1 GPREL
 fGpffff84dc = 0x007615CC; // type:data evidence: retail func_00185850 lwc1 GPREL -0x7B24 at 0x001861DC; texture V extent
 iGpffff8424 = 0x00761514; // type:data evidence: retail func_00185850 lwc1 GPREL -0x7BDC at 0x001861E8; f32 UV inset
 uGpffffb314 = 0x00764404; // type:data evidence: retail func_00185850 lw/sw GPREL -0x4CEC at 0x00186490/0x0018649C, read at 0x0018656C; alternating UV update
+
+// Promoted rain and texture-strip operands; twelve zero-addend native GPREL16 records, GP 0x007690F0.
+fGpffff841c = 0x0076150c; // type:data evidence: func_00182bc0 +2628 lwc1; aligned four-byte float operand
+D_00763130 = 0x00763130; // type:data evidence: func_00190c10 +1460/+1540 addiu; seven-byte NUL-terminated retail string
+D_00763138 = 0x00763138; // type:data evidence: func_00190c10 +164 addiu; two-byte NUL-terminated retail string
+D_0076313C = 0x0076313c; // type:data evidence: func_00190c10 +188 addiu; three-byte NUL-terminated retail string
+D_00763140 = 0x00763140; // type:data evidence: func_00190c10 +248 addiu; five-byte NUL-terminated retail string
+D_00763148 = 0x00763148; // type:data evidence: func_00190c10 +924 addiu; five-byte NUL-terminated retail string
+D_00764498 = 0x00764498; // type:data evidence: func_00190c10 +956 sw and +1020/+1112/+1220/+2396 lw; aligned four-byte descriptor slot
