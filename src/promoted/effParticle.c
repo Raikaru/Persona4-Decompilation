@@ -854,7 +854,7 @@ void func_00487fb0(u8* particle, f32 scale)
 {
     extern s32 func_003a5180(RpAtomic * atomic);
     extern s32 func_003a2770(RpAtomic * atomic, RpPTankLockStruct * lock, u32 dataFlags, RpPTankLockFlags access);
-    extern s32 func_003a2920(s32 a);
+    extern RpAtomic *func_003a2920(RpAtomic *atomic);
     extern void func_00482730(int a, u32 b);
     extern void func_00482700(int a, float* b);
     extern s32 func_00482790(u8 * *a, u32 b);
@@ -1087,7 +1087,7 @@ void func_00487fb0(u8* particle, f32 scale)
                 record += 0x20;
             }
         }
-        func_003a2920((s32)atomicAddress);
+        func_003a2920((RpAtomic *)atomicAddress);
         if (activeCount != 0)
         {
             u8* material;
@@ -1339,7 +1339,7 @@ void func_00487fb0(u8* particle, f32 scale)
                     record += 0x20;
                 }
             }
-            func_003a2920((s32)atomicAddress);
+            func_003a2920((RpAtomic *)atomicAddress);
             if (animatedActiveCount != 0)
             {
                 u8* material;
