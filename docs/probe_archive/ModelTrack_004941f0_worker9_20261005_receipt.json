@@ -1,0 +1,3548 @@
+{
+  "target": "func_004941f0",
+  "address": "004941f0",
+  "owner": "src/promoted/code1_0049.c",
+  "result": "Improved guarded C; production still uses INCLUDE_ASM; no new C match",
+  "head": "a1cede7894141323ec6bb833af87a776aa19cc60",
+  "final_owner_sha256": "b6ed193261568ec8f93f8014d086a71b3756f5fabc9a8e0be002c008c19d1716",
+  "before_owner_sha256": "9b6bbb1cbffa3a093989ecd72aa43f21dafb00274126a917d13ab2289f980f02",
+  "candidate_body": "docs/probe_archive/ModelTrack_004941f0_worker9_20261005_body.c",
+  "candidate_body_sha256": "2fada0315cd19c0e361cbdee8642816047c2c25708be94397662ea08a488cf71",
+  "staged_body": "docs/probe_archive/ModelTrack_004941f0_worker9_20261005_staged_body.c",
+  "staged_body_sha256": "db44d9f0ff51d4ef0d4f7329301bae19b3589cd80d7e15845e2051218ca12f3e",
+  "compiler": "mwccps2.exe (configured MWCCPS2 3.0.1b210)",
+  "compiler_sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+  "flags": [
+    "-O2",
+    "-Iinclude"
+  ],
+  "official_owner_status": {
+    "MATCH": 39,
+    "ASM": 4
+  },
+  "integration": {
+    "owner": "src/promoted/code1_0049.c",
+    "before_sha256": "9b6bbb1cbffa3a093989ecd72aa43f21dafb00274126a917d13ab2289f980f02",
+    "proposed_sha256": "b6ed193261568ec8f93f8014d086a71b3756f5fabc9a8e0be002c008c19d1716",
+    "production_bodies_unchanged": 43,
+    "target_c_bodies_unchanged": 43,
+    "lint_errors": 0,
+    "lint_advisories": 2,
+    "target_status": "NONMATCHING",
+    "target_words": 78,
+    "target_size": 1168,
+    "semantic_receipt": "build/resume-model-worker9/symbolic-semantic-proof.json",
+    "normalized_lf_body_sha256": "6c0439b39db598291eef1ace9d901c22a41cb8ad551ed5b42b5a0ab0af442a48",
+    "retained_body_file_sha256": "2fada0315cd19c0e361cbdee8642816047c2c25708be94397662ea08a488cf71"
+  },
+  "guarded_proof": {
+    "name": "direct-mesh-lifetimes",
+    "status": "NONMATCHING",
+    "candidate_size": 1168,
+    "window": 1168,
+    "differing_words": 78,
+    "differing_bytes": 101,
+    "differing_offsets": [
+      76,
+      84,
+      88,
+      116,
+      124,
+      144,
+      148,
+      196,
+      200,
+      240,
+      244,
+      296,
+      300,
+      304,
+      308,
+      312,
+      316,
+      320,
+      324,
+      328,
+      336,
+      344,
+      352,
+      356,
+      360,
+      364,
+      368,
+      372,
+      376,
+      380,
+      384,
+      392,
+      400,
+      408,
+      412,
+      416,
+      420,
+      428,
+      432,
+      436,
+      448,
+      452,
+      456,
+      464,
+      476,
+      484,
+      496,
+      508,
+      512,
+      516,
+      520,
+      524,
+      528,
+      532,
+      536,
+      540,
+      548,
+      556,
+      564,
+      576,
+      588,
+      592,
+      596,
+      600,
+      604,
+      608,
+      612,
+      616,
+      620,
+      624,
+      628,
+      632,
+      636,
+      640,
+      652,
+      656,
+      660,
+      672
+    ],
+    "code_relocations": [
+      {
+        "offset": 64,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpGeometryLock",
+        "symbol_address": "003c2290",
+        "addend": 0,
+        "resolved_word": "0c0f08a4",
+        "retail_reference_offsets": [
+          64,
+          788
+        ],
+        "positional_word_equal": true
+      },
+      {
+        "offset": 196,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "fGpffff8044",
+        "symbol_address": "00761134",
+        "addend": 0,
+        "resolved_word": "c7808044",
+        "retail_reference_offsets": [
+          200
+        ],
+        "positional_word_equal": false
+      },
+      {
+        "offset": 696,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "memcpy",
+        "symbol_address": "0043f810",
+        "addend": 0,
+        "resolved_word": "0c10fe04",
+        "retail_reference_offsets": [
+          696,
+          1044
+        ],
+        "positional_word_equal": true
+      },
+      {
+        "offset": 736,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c22f0",
+        "symbol_address": "003c22f0",
+        "addend": 0,
+        "resolved_word": "0c0f08bc",
+        "retail_reference_offsets": [
+          736,
+          1084
+        ],
+        "positional_word_equal": true
+      },
+      {
+        "offset": 788,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpGeometryLock",
+        "symbol_address": "003c2290",
+        "addend": 0,
+        "resolved_word": "0c0f08a4",
+        "retail_reference_offsets": [
+          64,
+          788
+        ],
+        "positional_word_equal": true
+      },
+      {
+        "offset": 1044,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "memcpy",
+        "symbol_address": "0043f810",
+        "addend": 0,
+        "resolved_word": "0c10fe04",
+        "retail_reference_offsets": [
+          696,
+          1044
+        ],
+        "positional_word_equal": true
+      },
+      {
+        "offset": 1084,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c22f0",
+        "symbol_address": "003c22f0",
+        "addend": 0,
+        "resolved_word": "0c0f08bc",
+        "retail_reference_offsets": [
+          736,
+          1084
+        ],
+        "positional_word_equal": true
+      }
+    ],
+    "unchanged_siblings": [
+      "func_00490360",
+      "func_004903c0",
+      "func_00490bb0",
+      "func_00490c40",
+      "func_00491660",
+      "func_004916f0",
+      "func_00492080",
+      "func_00492100",
+      "func_00492a80",
+      "func_00492b20",
+      "func_00492cd0",
+      "func_00492d00",
+      "func_00492d10",
+      "func_00492e30",
+      "func_004940d0",
+      "func_00494680",
+      "func_00494740",
+      "func_00494f90",
+      "func_00494ff0",
+      "func_00495090",
+      "func_004950e0",
+      "func_00498ac0",
+      "func_00498b20",
+      "func_00498b50",
+      "func_00498ba0",
+      "func_00498c00",
+      "func_00498ce0",
+      "func_00498cf0",
+      "func_00498d00",
+      "func_00498d10",
+      "func_00498d20",
+      "func_0049a570",
+      "func_0049a5e0",
+      "func_0049a610",
+      "func_0049a660",
+      "func_0049a6c0",
+      "func_0049a7a0",
+      "func_0049a7b0",
+      "func_0049a7c0",
+      "func_0049a7d0",
+      "func_0049a7f0",
+      "func_0049a810"
+    ],
+    "compiler_local_renames": [
+      {
+        "function": "func_00494740",
+        "before": {
+          "offset": 1716,
+          "r_type": 8,
+          "type": "R_MIPS_LITERAL",
+          "symbol": "@783"
+        },
+        "after": {
+          "offset": 1716,
+          "r_type": 8,
+          "type": "R_MIPS_LITERAL",
+          "symbol": "@972"
+        }
+      }
+    ],
+    "unchanged_c_siblings": 39,
+    "owned_data": [
+      {
+        "name": ".lit4",
+        "address": "007611b4",
+        "size": 4,
+        "sha256": "42cbbe7ad6950d50bb1d8381d7e2d7f9e49ac53d0134e46b5852e49d0cdc66b7",
+        "retail_equal": true
+      }
+    ],
+    "owner_sha256": "9b6bbb1cbffa3a093989ecd72aa43f21dafb00274126a917d13ab2289f980f02",
+    "candidate_body_sha256": "94c549c3c92a853b906fecee3d730726e8a7d6fb5b4bb2eaa7d3eed595ab2e81",
+    "candidate_owner_sha256": "556550c9da0d150505d7e8a83bb757f52653dc86685346f59dc9ae4577683597",
+    "object_sha256": "ccd9948dbfde6d0cc4fbee0354312573e6ea920c7737e06a0eeac0886181983d",
+    "resolved_sha256": "76a8463ef72fe0aba180e5d175a9dd20da9cb586aaa68caa5af0fe10fc826403",
+    "compiler": "mwccps2.exe (configured MWCCPS2 3.0.1b210)",
+    "flags": [
+      "-O2",
+      "-Iinclude"
+    ],
+    "production_accepted": false,
+    "full_link_eligibility": "unverified"
+  },
+  "staged_proof": {
+    "name": "staged-gradient-reuse",
+    "status": "NONMATCHING",
+    "candidate_size": 1168,
+    "window": 1168,
+    "differing_words": 109,
+    "differing_bytes": 130,
+    "differing_offsets": [
+      76,
+      84,
+      88,
+      92,
+      96,
+      100,
+      108,
+      112,
+      116,
+      124,
+      144,
+      148,
+      152,
+      156,
+      188,
+      192,
+      196,
+      204,
+      208,
+      212,
+      216,
+      224,
+      232,
+      240,
+      244,
+      248,
+      252,
+      256,
+      260,
+      264,
+      268,
+      272,
+      280,
+      288,
+      296,
+      300,
+      304,
+      308,
+      312,
+      316,
+      320,
+      324,
+      328,
+      336,
+      344,
+      352,
+      356,
+      360,
+      364,
+      368,
+      372,
+      376,
+      380,
+      384,
+      392,
+      400,
+      408,
+      412,
+      416,
+      420,
+      428,
+      432,
+      436,
+      448,
+      452,
+      456,
+      464,
+      476,
+      484,
+      496,
+      508,
+      512,
+      516,
+      520,
+      524,
+      528,
+      532,
+      536,
+      540,
+      548,
+      556,
+      564,
+      576,
+      588,
+      592,
+      596,
+      600,
+      604,
+      608,
+      612,
+      616,
+      620,
+      624,
+      628,
+      632,
+      636,
+      640,
+      652,
+      656,
+      660,
+      672,
+      728,
+      732,
+      760,
+      768,
+      1076,
+      1080,
+      1108,
+      1116
+    ],
+    "code_relocations": [
+      {
+        "offset": 64,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpGeometryLock",
+        "symbol_address": "003c2290",
+        "addend": 0,
+        "resolved_word": "0c0f08a4",
+        "retail_reference_offsets": [
+          64,
+          788
+        ],
+        "positional_word_equal": true
+      },
+      {
+        "offset": 200,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "fGpffff8044",
+        "symbol_address": "00761134",
+        "addend": 0,
+        "resolved_word": "c7808044",
+        "retail_reference_offsets": [
+          200
+        ],
+        "positional_word_equal": true
+      },
+      {
+        "offset": 696,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "memcpy",
+        "symbol_address": "0043f810",
+        "addend": 0,
+        "resolved_word": "0c10fe04",
+        "retail_reference_offsets": [
+          696,
+          1044
+        ],
+        "positional_word_equal": true
+      },
+      {
+        "offset": 736,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c22f0",
+        "symbol_address": "003c22f0",
+        "addend": 0,
+        "resolved_word": "0c0f08bc",
+        "retail_reference_offsets": [
+          736,
+          1084
+        ],
+        "positional_word_equal": true
+      },
+      {
+        "offset": 788,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "RpGeometryLock",
+        "symbol_address": "003c2290",
+        "addend": 0,
+        "resolved_word": "0c0f08a4",
+        "retail_reference_offsets": [
+          64,
+          788
+        ],
+        "positional_word_equal": true
+      },
+      {
+        "offset": 1044,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "memcpy",
+        "symbol_address": "0043f810",
+        "addend": 0,
+        "resolved_word": "0c10fe04",
+        "retail_reference_offsets": [
+          696,
+          1044
+        ],
+        "positional_word_equal": true
+      },
+      {
+        "offset": 1084,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c22f0",
+        "symbol_address": "003c22f0",
+        "addend": 0,
+        "resolved_word": "0c0f08bc",
+        "retail_reference_offsets": [
+          736,
+          1084
+        ],
+        "positional_word_equal": true
+      }
+    ],
+    "unchanged_siblings": [
+      "func_00490360",
+      "func_004903c0",
+      "func_00490bb0",
+      "func_00490c40",
+      "func_00491660",
+      "func_004916f0",
+      "func_00492080",
+      "func_00492100",
+      "func_00492a80",
+      "func_00492b20",
+      "func_00492cd0",
+      "func_00492d00",
+      "func_00492d10",
+      "func_00492e30",
+      "func_004940d0",
+      "func_00494680",
+      "func_00494740",
+      "func_00494f90",
+      "func_00494ff0",
+      "func_00495090",
+      "func_004950e0",
+      "func_00498ac0",
+      "func_00498b20",
+      "func_00498b50",
+      "func_00498ba0",
+      "func_00498c00",
+      "func_00498ce0",
+      "func_00498cf0",
+      "func_00498d00",
+      "func_00498d10",
+      "func_00498d20",
+      "func_0049a570",
+      "func_0049a5e0",
+      "func_0049a610",
+      "func_0049a660",
+      "func_0049a6c0",
+      "func_0049a7a0",
+      "func_0049a7b0",
+      "func_0049a7c0",
+      "func_0049a7d0",
+      "func_0049a7f0",
+      "func_0049a810"
+    ],
+    "compiler_local_renames": [
+      {
+        "function": "func_00494740",
+        "before": {
+          "offset": 1716,
+          "r_type": 8,
+          "type": "R_MIPS_LITERAL",
+          "symbol": "@783"
+        },
+        "after": {
+          "offset": 1716,
+          "r_type": 8,
+          "type": "R_MIPS_LITERAL",
+          "symbol": "@961"
+        }
+      }
+    ],
+    "unchanged_c_siblings": 39,
+    "owned_data": [
+      {
+        "name": ".lit4",
+        "address": "007611b4",
+        "size": 4,
+        "sha256": "42cbbe7ad6950d50bb1d8381d7e2d7f9e49ac53d0134e46b5852e49d0cdc66b7",
+        "retail_equal": true
+      }
+    ],
+    "owner_sha256": "9b6bbb1cbffa3a093989ecd72aa43f21dafb00274126a917d13ab2289f980f02",
+    "candidate_body_sha256": "db44d9f0ff51d4ef0d4f7329301bae19b3589cd80d7e15845e2051218ca12f3e",
+    "candidate_owner_sha256": "f502a29791e1c9be5ca1d4c85827381270a2ae2f579ec83c0f4baceb5532d3d5",
+    "object_sha256": "7316ef31fd5dd0d9a3e33225cf1236e9c6e908972b0f3784c8cae3235940ad65",
+    "resolved_sha256": "016049ad75e5f4d8ed9a9804b6a157bf7dd836fb69edb6429e46dbd3c25f8cd9",
+    "compiler": "mwccps2.exe (configured MWCCPS2 3.0.1b210)",
+    "flags": [
+      "-O2",
+      "-Iinclude"
+    ],
+    "production_accepted": false,
+    "full_link_eligibility": "unverified"
+  },
+  "semantics": {
+    "scenarios": 160,
+    "passed": true,
+    "method": "Instruction traces with exact symbolic COP1/VU expression trees, concrete control and addresses",
+    "coverage": "Zero/nonzero gradient and row counts; all draw flag combinations; post-unlock flag mutation; arbitrary packed RGBA",
+    "limitations": "No PS2 hardware rounding execution; no arbitrary provider side effects or concurrency",
+    "retail_sha256": "ed7ab9cd401bf1225c1b08bf805c0d042e3235835c21fac4b015e011e032b8ff",
+    "variants": {
+      "direct-mesh-lifetimes": "76a8463ef72fe0aba180e5d175a9dd20da9cb586aaa68caa5af0fe10fc826403",
+      "staged-gradient-reuse": "016049ad75e5f4d8ed9a9804b6a157bf7dd836fb69edb6429e46dbd3c25f8cd9"
+    },
+    "samples": [
+      {
+        "segments": 0,
+        "rows": 0,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          1536884232,
+          2272561361,
+          2288305810,
+          1705329428
+        ],
+        "retail_steps": 191,
+        "memory_reads": 66,
+        "observable_events": 32
+      },
+      {
+        "segments": 0,
+        "rows": 0,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          1536884232,
+          2272561361,
+          2288305810,
+          1705329428
+        ],
+        "retail_steps": 197,
+        "memory_reads": 70,
+        "observable_events": 36
+      },
+      {
+        "segments": 0,
+        "rows": 0,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          3172312357,
+          3666723539,
+          2929098834,
+          2835471902
+        ],
+        "retail_steps": 197,
+        "memory_reads": 68,
+        "observable_events": 34
+      },
+      {
+        "segments": 0,
+        "rows": 0,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          3172312357,
+          3666723539,
+          2929098834,
+          2835471902
+        ],
+        "retail_steps": 191,
+        "memory_reads": 68,
+        "observable_events": 34
+      },
+      {
+        "segments": 0,
+        "rows": 0,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          3137321292,
+          1798446986,
+          2670703190,
+          3337143079
+        ],
+        "retail_steps": 194,
+        "memory_reads": 67,
+        "observable_events": 33
+      },
+      {
+        "segments": 0,
+        "rows": 0,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          3137321292,
+          1798446986,
+          2670703190,
+          3337143079
+        ],
+        "retail_steps": 194,
+        "memory_reads": 69,
+        "observable_events": 35
+      },
+      {
+        "segments": 0,
+        "rows": 0,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          3827966995,
+          3439798139,
+          3886971718,
+          1371970561
+        ],
+        "retail_steps": 194,
+        "memory_reads": 67,
+        "observable_events": 33
+      },
+      {
+        "segments": 0,
+        "rows": 0,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          3827966995,
+          3439798139,
+          3886971718,
+          1371970561
+        ],
+        "retail_steps": 194,
+        "memory_reads": 69,
+        "observable_events": 35
+      },
+      {
+        "segments": 0,
+        "rows": 1,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          3427950017,
+          162302071,
+          3612352408,
+          3180264756
+        ],
+        "retail_steps": 191,
+        "memory_reads": 66,
+        "observable_events": 32
+      },
+      {
+        "segments": 0,
+        "rows": 1,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          3427950017,
+          162302071,
+          3612352408,
+          3180264756
+        ],
+        "retail_steps": 197,
+        "memory_reads": 70,
+        "observable_events": 36
+      },
+      {
+        "segments": 0,
+        "rows": 1,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          3209546027,
+          4136799688,
+          1401937079,
+          1435549951
+        ],
+        "retail_steps": 197,
+        "memory_reads": 68,
+        "observable_events": 34
+      },
+      {
+        "segments": 0,
+        "rows": 1,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          3209546027,
+          4136799688,
+          1401937079,
+          1435549951
+        ],
+        "retail_steps": 191,
+        "memory_reads": 68,
+        "observable_events": 34
+      },
+      {
+        "segments": 0,
+        "rows": 1,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          976647242,
+          4245925932,
+          2571257986,
+          4078350412
+        ],
+        "retail_steps": 194,
+        "memory_reads": 67,
+        "observable_events": 33
+      },
+      {
+        "segments": 0,
+        "rows": 1,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          976647242,
+          4245925932,
+          2571257986,
+          4078350412
+        ],
+        "retail_steps": 194,
+        "memory_reads": 69,
+        "observable_events": 35
+      },
+      {
+        "segments": 0,
+        "rows": 1,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          2069478494,
+          3559033714,
+          437334379,
+          2868302837
+        ],
+        "retail_steps": 194,
+        "memory_reads": 67,
+        "observable_events": 33
+      },
+      {
+        "segments": 0,
+        "rows": 1,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          2069478494,
+          3559033714,
+          437334379,
+          2868302837
+        ],
+        "retail_steps": 194,
+        "memory_reads": 69,
+        "observable_events": 35
+      },
+      {
+        "segments": 0,
+        "rows": 2,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          396257714,
+          4150085813,
+          932220876,
+          60156765
+        ],
+        "retail_steps": 207,
+        "memory_reads": 66,
+        "observable_events": 36
+      },
+      {
+        "segments": 0,
+        "rows": 2,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          396257714,
+          4150085813,
+          932220876,
+          60156765
+        ],
+        "retail_steps": 213,
+        "memory_reads": 70,
+        "observable_events": 40
+      },
+      {
+        "segments": 0,
+        "rows": 2,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          4074364766,
+          3740756258,
+          3446568646,
+          3920750366
+        ],
+        "retail_steps": 213,
+        "memory_reads": 68,
+        "observable_events": 38
+      },
+      {
+        "segments": 0,
+        "rows": 2,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          4074364766,
+          3740756258,
+          3446568646,
+          3920750366
+        ],
+        "retail_steps": 207,
+        "memory_reads": 68,
+        "observable_events": 38
+      },
+      {
+        "segments": 0,
+        "rows": 2,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          2569029846,
+          1145067169,
+          2431894222,
+          3848923525
+        ],
+        "retail_steps": 210,
+        "memory_reads": 67,
+        "observable_events": 37
+      },
+      {
+        "segments": 0,
+        "rows": 2,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          2569029846,
+          1145067169,
+          2431894222,
+          3848923525
+        ],
+        "retail_steps": 210,
+        "memory_reads": 69,
+        "observable_events": 39
+      },
+      {
+        "segments": 0,
+        "rows": 2,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          996914236,
+          2566019579,
+          4252235393,
+          3076894050
+        ],
+        "retail_steps": 210,
+        "memory_reads": 67,
+        "observable_events": 37
+      },
+      {
+        "segments": 0,
+        "rows": 2,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          996914236,
+          2566019579,
+          4252235393,
+          3076894050
+        ],
+        "retail_steps": 210,
+        "memory_reads": 69,
+        "observable_events": 39
+      },
+      {
+        "segments": 0,
+        "rows": 4,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          592569065,
+          2142430473,
+          3625779460,
+          871191429
+        ],
+        "retail_steps": 239,
+        "memory_reads": 66,
+        "observable_events": 44
+      },
+      {
+        "segments": 0,
+        "rows": 4,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          592569065,
+          2142430473,
+          3625779460,
+          871191429
+        ],
+        "retail_steps": 245,
+        "memory_reads": 70,
+        "observable_events": 48
+      },
+      {
+        "segments": 0,
+        "rows": 4,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          2608453498,
+          3919341979,
+          4080638446,
+          3490489426
+        ],
+        "retail_steps": 245,
+        "memory_reads": 68,
+        "observable_events": 46
+      },
+      {
+        "segments": 0,
+        "rows": 4,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          2608453498,
+          3919341979,
+          4080638446,
+          3490489426
+        ],
+        "retail_steps": 239,
+        "memory_reads": 68,
+        "observable_events": 46
+      },
+      {
+        "segments": 0,
+        "rows": 4,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          326940215,
+          467071116,
+          2454484969,
+          414488988
+        ],
+        "retail_steps": 242,
+        "memory_reads": 67,
+        "observable_events": 45
+      },
+      {
+        "segments": 0,
+        "rows": 4,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          326940215,
+          467071116,
+          2454484969,
+          414488988
+        ],
+        "retail_steps": 242,
+        "memory_reads": 69,
+        "observable_events": 47
+      },
+      {
+        "segments": 0,
+        "rows": 4,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          1733212609,
+          1309603729,
+          2291405013,
+          517952289
+        ],
+        "retail_steps": 242,
+        "memory_reads": 67,
+        "observable_events": 45
+      },
+      {
+        "segments": 0,
+        "rows": 4,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          1733212609,
+          1309603729,
+          2291405013,
+          517952289
+        ],
+        "retail_steps": 242,
+        "memory_reads": 69,
+        "observable_events": 47
+      },
+      {
+        "segments": 1,
+        "rows": 0,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          303999882,
+          335450641,
+          3402514280,
+          4006525949
+        ],
+        "retail_steps": 251,
+        "memory_reads": 76,
+        "observable_events": 38
+      },
+      {
+        "segments": 1,
+        "rows": 0,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          303999882,
+          335450641,
+          3402514280,
+          4006525949
+        ],
+        "retail_steps": 257,
+        "memory_reads": 80,
+        "observable_events": 42
+      },
+      {
+        "segments": 1,
+        "rows": 0,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          2359636353,
+          2270178234,
+          3816538405,
+          2632776007
+        ],
+        "retail_steps": 257,
+        "memory_reads": 78,
+        "observable_events": 40
+      },
+      {
+        "segments": 1,
+        "rows": 0,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          2359636353,
+          2270178234,
+          3816538405,
+          2632776007
+        ],
+        "retail_steps": 251,
+        "memory_reads": 78,
+        "observable_events": 40
+      },
+      {
+        "segments": 1,
+        "rows": 0,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          3344158706,
+          3274715150,
+          706861486,
+          1277782675
+        ],
+        "retail_steps": 254,
+        "memory_reads": 77,
+        "observable_events": 39
+      },
+      {
+        "segments": 1,
+        "rows": 0,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          3344158706,
+          3274715150,
+          706861486,
+          1277782675
+        ],
+        "retail_steps": 254,
+        "memory_reads": 79,
+        "observable_events": 41
+      },
+      {
+        "segments": 1,
+        "rows": 0,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          431414167,
+          718466732,
+          2222691618,
+          2174373833
+        ],
+        "retail_steps": 254,
+        "memory_reads": 77,
+        "observable_events": 39
+      },
+      {
+        "segments": 1,
+        "rows": 0,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          431414167,
+          718466732,
+          2222691618,
+          2174373833
+        ],
+        "retail_steps": 254,
+        "memory_reads": 79,
+        "observable_events": 41
+      },
+      {
+        "segments": 1,
+        "rows": 1,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          4180934411,
+          35644399,
+          3936638395,
+          2474622901
+        ],
+        "retail_steps": 251,
+        "memory_reads": 76,
+        "observable_events": 38
+      },
+      {
+        "segments": 1,
+        "rows": 1,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          4180934411,
+          35644399,
+          3936638395,
+          2474622901
+        ],
+        "retail_steps": 257,
+        "memory_reads": 80,
+        "observable_events": 42
+      },
+      {
+        "segments": 1,
+        "rows": 1,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          3726537685,
+          3726100499,
+          3191545878,
+          736271566
+        ],
+        "retail_steps": 257,
+        "memory_reads": 78,
+        "observable_events": 40
+      },
+      {
+        "segments": 1,
+        "rows": 1,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          3726537685,
+          3726100499,
+          3191545878,
+          736271566
+        ],
+        "retail_steps": 251,
+        "memory_reads": 78,
+        "observable_events": 40
+      },
+      {
+        "segments": 1,
+        "rows": 1,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          720440825,
+          4289726580,
+          2803391167,
+          2260443571
+        ],
+        "retail_steps": 254,
+        "memory_reads": 77,
+        "observable_events": 39
+      },
+      {
+        "segments": 1,
+        "rows": 1,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          720440825,
+          4289726580,
+          2803391167,
+          2260443571
+        ],
+        "retail_steps": 254,
+        "memory_reads": 79,
+        "observable_events": 41
+      },
+      {
+        "segments": 1,
+        "rows": 1,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          2263666,
+          2261343761,
+          3049491449,
+          1095268082
+        ],
+        "retail_steps": 254,
+        "memory_reads": 77,
+        "observable_events": 39
+      },
+      {
+        "segments": 1,
+        "rows": 1,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          2263666,
+          2261343761,
+          3049491449,
+          1095268082
+        ],
+        "retail_steps": 254,
+        "memory_reads": 79,
+        "observable_events": 41
+      },
+      {
+        "segments": 1,
+        "rows": 2,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          48790959,
+          3361315085,
+          1630156861,
+          2088957979
+        ],
+        "retail_steps": 267,
+        "memory_reads": 76,
+        "observable_events": 42
+      },
+      {
+        "segments": 1,
+        "rows": 2,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          48790959,
+          3361315085,
+          1630156861,
+          2088957979
+        ],
+        "retail_steps": 273,
+        "memory_reads": 80,
+        "observable_events": 46
+      },
+      {
+        "segments": 1,
+        "rows": 2,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          1353109013,
+          1576845698,
+          1066875333,
+          1627951670
+        ],
+        "retail_steps": 273,
+        "memory_reads": 78,
+        "observable_events": 44
+      },
+      {
+        "segments": 1,
+        "rows": 2,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          1353109013,
+          1576845698,
+          1066875333,
+          1627951670
+        ],
+        "retail_steps": 267,
+        "memory_reads": 78,
+        "observable_events": 44
+      },
+      {
+        "segments": 1,
+        "rows": 2,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          3225934178,
+          855913967,
+          2889302712,
+          325172081
+        ],
+        "retail_steps": 270,
+        "memory_reads": 77,
+        "observable_events": 43
+      },
+      {
+        "segments": 1,
+        "rows": 2,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          3225934178,
+          855913967,
+          2889302712,
+          325172081
+        ],
+        "retail_steps": 270,
+        "memory_reads": 79,
+        "observable_events": 45
+      },
+      {
+        "segments": 1,
+        "rows": 2,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          353792611,
+          1709202658,
+          736817481,
+          1112771998
+        ],
+        "retail_steps": 270,
+        "memory_reads": 77,
+        "observable_events": 43
+      },
+      {
+        "segments": 1,
+        "rows": 2,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          353792611,
+          1709202658,
+          736817481,
+          1112771998
+        ],
+        "retail_steps": 270,
+        "memory_reads": 79,
+        "observable_events": 45
+      },
+      {
+        "segments": 1,
+        "rows": 4,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          4271867549,
+          4177582168,
+          2245431416,
+          4038910896
+        ],
+        "retail_steps": 299,
+        "memory_reads": 76,
+        "observable_events": 50
+      },
+      {
+        "segments": 1,
+        "rows": 4,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          4271867549,
+          4177582168,
+          2245431416,
+          4038910896
+        ],
+        "retail_steps": 305,
+        "memory_reads": 80,
+        "observable_events": 54
+      },
+      {
+        "segments": 1,
+        "rows": 4,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          3977039023,
+          158988895,
+          3520439263,
+          4165261847
+        ],
+        "retail_steps": 305,
+        "memory_reads": 78,
+        "observable_events": 52
+      },
+      {
+        "segments": 1,
+        "rows": 4,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          3977039023,
+          158988895,
+          3520439263,
+          4165261847
+        ],
+        "retail_steps": 299,
+        "memory_reads": 78,
+        "observable_events": 52
+      },
+      {
+        "segments": 1,
+        "rows": 4,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          4094659610,
+          2398241366,
+          1095722117,
+          975720210
+        ],
+        "retail_steps": 302,
+        "memory_reads": 77,
+        "observable_events": 51
+      },
+      {
+        "segments": 1,
+        "rows": 4,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          4094659610,
+          2398241366,
+          1095722117,
+          975720210
+        ],
+        "retail_steps": 302,
+        "memory_reads": 79,
+        "observable_events": 53
+      },
+      {
+        "segments": 1,
+        "rows": 4,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          2763303101,
+          279945534,
+          1803123953,
+          1343850241
+        ],
+        "retail_steps": 302,
+        "memory_reads": 77,
+        "observable_events": 51
+      },
+      {
+        "segments": 1,
+        "rows": 4,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          2763303101,
+          279945534,
+          1803123953,
+          1343850241
+        ],
+        "retail_steps": 302,
+        "memory_reads": 79,
+        "observable_events": 53
+      },
+      {
+        "segments": 2,
+        "rows": 0,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          1232285608,
+          3112293862,
+          7997623,
+          1614109149
+        ],
+        "retail_steps": 305,
+        "memory_reads": 86,
+        "observable_events": 44
+      },
+      {
+        "segments": 2,
+        "rows": 0,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          1232285608,
+          3112293862,
+          7997623,
+          1614109149
+        ],
+        "retail_steps": 311,
+        "memory_reads": 90,
+        "observable_events": 48
+      },
+      {
+        "segments": 2,
+        "rows": 0,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          2127976015,
+          1887045761,
+          1313113711,
+          264295423
+        ],
+        "retail_steps": 311,
+        "memory_reads": 88,
+        "observable_events": 46
+      },
+      {
+        "segments": 2,
+        "rows": 0,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          2127976015,
+          1887045761,
+          1313113711,
+          264295423
+        ],
+        "retail_steps": 305,
+        "memory_reads": 88,
+        "observable_events": 46
+      },
+      {
+        "segments": 2,
+        "rows": 0,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          1765870495,
+          1271385270,
+          330792373,
+          2960096917
+        ],
+        "retail_steps": 308,
+        "memory_reads": 87,
+        "observable_events": 45
+      },
+      {
+        "segments": 2,
+        "rows": 0,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          1765870495,
+          1271385270,
+          330792373,
+          2960096917
+        ],
+        "retail_steps": 308,
+        "memory_reads": 89,
+        "observable_events": 47
+      },
+      {
+        "segments": 2,
+        "rows": 0,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          3571396602,
+          1595396490,
+          107064798,
+          3125049551
+        ],
+        "retail_steps": 308,
+        "memory_reads": 87,
+        "observable_events": 45
+      },
+      {
+        "segments": 2,
+        "rows": 0,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          3571396602,
+          1595396490,
+          107064798,
+          3125049551
+        ],
+        "retail_steps": 308,
+        "memory_reads": 89,
+        "observable_events": 47
+      },
+      {
+        "segments": 2,
+        "rows": 1,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          2346991855,
+          119995271,
+          2939496322,
+          3037958555
+        ],
+        "retail_steps": 305,
+        "memory_reads": 86,
+        "observable_events": 44
+      },
+      {
+        "segments": 2,
+        "rows": 1,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          2346991855,
+          119995271,
+          2939496322,
+          3037958555
+        ],
+        "retail_steps": 311,
+        "memory_reads": 90,
+        "observable_events": 48
+      },
+      {
+        "segments": 2,
+        "rows": 1,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          2955020607,
+          4227442778,
+          2972930836,
+          3657891097
+        ],
+        "retail_steps": 311,
+        "memory_reads": 88,
+        "observable_events": 46
+      },
+      {
+        "segments": 2,
+        "rows": 1,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          2955020607,
+          4227442778,
+          2972930836,
+          3657891097
+        ],
+        "retail_steps": 305,
+        "memory_reads": 88,
+        "observable_events": 46
+      },
+      {
+        "segments": 2,
+        "rows": 1,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          2904208979,
+          1504577893,
+          4254217531,
+          3688633633
+        ],
+        "retail_steps": 308,
+        "memory_reads": 87,
+        "observable_events": 45
+      },
+      {
+        "segments": 2,
+        "rows": 1,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          2904208979,
+          1504577893,
+          4254217531,
+          3688633633
+        ],
+        "retail_steps": 308,
+        "memory_reads": 89,
+        "observable_events": 47
+      },
+      {
+        "segments": 2,
+        "rows": 1,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          447717978,
+          945897700,
+          1108893935,
+          1845149844
+        ],
+        "retail_steps": 308,
+        "memory_reads": 87,
+        "observable_events": 45
+      },
+      {
+        "segments": 2,
+        "rows": 1,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          447717978,
+          945897700,
+          1108893935,
+          1845149844
+        ],
+        "retail_steps": 308,
+        "memory_reads": 89,
+        "observable_events": 47
+      },
+      {
+        "segments": 2,
+        "rows": 2,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          1179777986,
+          1047125578,
+          458349951,
+          654797903
+        ],
+        "retail_steps": 321,
+        "memory_reads": 86,
+        "observable_events": 48
+      },
+      {
+        "segments": 2,
+        "rows": 2,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          1179777986,
+          1047125578,
+          458349951,
+          654797903
+        ],
+        "retail_steps": 327,
+        "memory_reads": 90,
+        "observable_events": 52
+      },
+      {
+        "segments": 2,
+        "rows": 2,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          2298392054,
+          157033755,
+          2914402430,
+          3878519444
+        ],
+        "retail_steps": 327,
+        "memory_reads": 88,
+        "observable_events": 50
+      },
+      {
+        "segments": 2,
+        "rows": 2,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          2298392054,
+          157033755,
+          2914402430,
+          3878519444
+        ],
+        "retail_steps": 321,
+        "memory_reads": 88,
+        "observable_events": 50
+      },
+      {
+        "segments": 2,
+        "rows": 2,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          2557927445,
+          3189864967,
+          672745236,
+          777739640
+        ],
+        "retail_steps": 324,
+        "memory_reads": 87,
+        "observable_events": 49
+      },
+      {
+        "segments": 2,
+        "rows": 2,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          2557927445,
+          3189864967,
+          672745236,
+          777739640
+        ],
+        "retail_steps": 324,
+        "memory_reads": 89,
+        "observable_events": 51
+      },
+      {
+        "segments": 2,
+        "rows": 2,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          741373167,
+          1442821008,
+          1701127096,
+          3694624650
+        ],
+        "retail_steps": 324,
+        "memory_reads": 87,
+        "observable_events": 49
+      },
+      {
+        "segments": 2,
+        "rows": 2,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          741373167,
+          1442821008,
+          1701127096,
+          3694624650
+        ],
+        "retail_steps": 324,
+        "memory_reads": 89,
+        "observable_events": 51
+      },
+      {
+        "segments": 2,
+        "rows": 4,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          3822009486,
+          281672210,
+          1492706230,
+          1731916778
+        ],
+        "retail_steps": 353,
+        "memory_reads": 86,
+        "observable_events": 56
+      },
+      {
+        "segments": 2,
+        "rows": 4,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          3822009486,
+          281672210,
+          1492706230,
+          1731916778
+        ],
+        "retail_steps": 359,
+        "memory_reads": 90,
+        "observable_events": 60
+      },
+      {
+        "segments": 2,
+        "rows": 4,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          272804464,
+          3477790969,
+          2909575177,
+          3162564849
+        ],
+        "retail_steps": 359,
+        "memory_reads": 88,
+        "observable_events": 58
+      },
+      {
+        "segments": 2,
+        "rows": 4,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          272804464,
+          3477790969,
+          2909575177,
+          3162564849
+        ],
+        "retail_steps": 353,
+        "memory_reads": 88,
+        "observable_events": 58
+      },
+      {
+        "segments": 2,
+        "rows": 4,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          2824696337,
+          2050771447,
+          1395496759,
+          2901066280
+        ],
+        "retail_steps": 356,
+        "memory_reads": 87,
+        "observable_events": 57
+      },
+      {
+        "segments": 2,
+        "rows": 4,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          2824696337,
+          2050771447,
+          1395496759,
+          2901066280
+        ],
+        "retail_steps": 356,
+        "memory_reads": 89,
+        "observable_events": 59
+      },
+      {
+        "segments": 2,
+        "rows": 4,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          4175805073,
+          2282476533,
+          3014717636,
+          2978173551
+        ],
+        "retail_steps": 356,
+        "memory_reads": 87,
+        "observable_events": 57
+      },
+      {
+        "segments": 2,
+        "rows": 4,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          4175805073,
+          2282476533,
+          3014717636,
+          2978173551
+        ],
+        "retail_steps": 356,
+        "memory_reads": 89,
+        "observable_events": 59
+      },
+      {
+        "segments": 3,
+        "rows": 0,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          3784208828,
+          395610417,
+          685264901,
+          1481486798
+        ],
+        "retail_steps": 359,
+        "memory_reads": 96,
+        "observable_events": 50
+      },
+      {
+        "segments": 3,
+        "rows": 0,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          3784208828,
+          395610417,
+          685264901,
+          1481486798
+        ],
+        "retail_steps": 365,
+        "memory_reads": 100,
+        "observable_events": 54
+      },
+      {
+        "segments": 3,
+        "rows": 0,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          1337415109,
+          964573746,
+          3437444090,
+          1911069072
+        ],
+        "retail_steps": 365,
+        "memory_reads": 98,
+        "observable_events": 52
+      },
+      {
+        "segments": 3,
+        "rows": 0,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          1337415109,
+          964573746,
+          3437444090,
+          1911069072
+        ],
+        "retail_steps": 359,
+        "memory_reads": 98,
+        "observable_events": 52
+      },
+      {
+        "segments": 3,
+        "rows": 0,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          339393571,
+          2184859584,
+          3802790748,
+          2256495279
+        ],
+        "retail_steps": 362,
+        "memory_reads": 97,
+        "observable_events": 51
+      },
+      {
+        "segments": 3,
+        "rows": 0,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          339393571,
+          2184859584,
+          3802790748,
+          2256495279
+        ],
+        "retail_steps": 362,
+        "memory_reads": 99,
+        "observable_events": 53
+      },
+      {
+        "segments": 3,
+        "rows": 0,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          455156341,
+          711549383,
+          2374333695,
+          3012431216
+        ],
+        "retail_steps": 362,
+        "memory_reads": 97,
+        "observable_events": 51
+      },
+      {
+        "segments": 3,
+        "rows": 0,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          455156341,
+          711549383,
+          2374333695,
+          3012431216
+        ],
+        "retail_steps": 362,
+        "memory_reads": 99,
+        "observable_events": 53
+      },
+      {
+        "segments": 3,
+        "rows": 1,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          1680084163,
+          2229059562,
+          226226777,
+          3686772967
+        ],
+        "retail_steps": 359,
+        "memory_reads": 96,
+        "observable_events": 50
+      },
+      {
+        "segments": 3,
+        "rows": 1,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          1680084163,
+          2229059562,
+          226226777,
+          3686772967
+        ],
+        "retail_steps": 365,
+        "memory_reads": 100,
+        "observable_events": 54
+      },
+      {
+        "segments": 3,
+        "rows": 1,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          2324830788,
+          2575589197,
+          208831424,
+          3031439866
+        ],
+        "retail_steps": 365,
+        "memory_reads": 98,
+        "observable_events": 52
+      },
+      {
+        "segments": 3,
+        "rows": 1,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          2324830788,
+          2575589197,
+          208831424,
+          3031439866
+        ],
+        "retail_steps": 359,
+        "memory_reads": 98,
+        "observable_events": 52
+      },
+      {
+        "segments": 3,
+        "rows": 1,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          785709176,
+          472998867,
+          3998481158,
+          2441517366
+        ],
+        "retail_steps": 362,
+        "memory_reads": 97,
+        "observable_events": 51
+      },
+      {
+        "segments": 3,
+        "rows": 1,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          785709176,
+          472998867,
+          3998481158,
+          2441517366
+        ],
+        "retail_steps": 362,
+        "memory_reads": 99,
+        "observable_events": 53
+      },
+      {
+        "segments": 3,
+        "rows": 1,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          1356260210,
+          421007636,
+          4128583741,
+          4051254706
+        ],
+        "retail_steps": 362,
+        "memory_reads": 97,
+        "observable_events": 51
+      },
+      {
+        "segments": 3,
+        "rows": 1,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          1356260210,
+          421007636,
+          4128583741,
+          4051254706
+        ],
+        "retail_steps": 362,
+        "memory_reads": 99,
+        "observable_events": 53
+      },
+      {
+        "segments": 3,
+        "rows": 2,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          2022732715,
+          1641195146,
+          1737517574,
+          2673774746
+        ],
+        "retail_steps": 375,
+        "memory_reads": 96,
+        "observable_events": 54
+      },
+      {
+        "segments": 3,
+        "rows": 2,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          2022732715,
+          1641195146,
+          1737517574,
+          2673774746
+        ],
+        "retail_steps": 381,
+        "memory_reads": 100,
+        "observable_events": 58
+      },
+      {
+        "segments": 3,
+        "rows": 2,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          4215958092,
+          2333023294,
+          654143929,
+          709872910
+        ],
+        "retail_steps": 381,
+        "memory_reads": 98,
+        "observable_events": 56
+      },
+      {
+        "segments": 3,
+        "rows": 2,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          4215958092,
+          2333023294,
+          654143929,
+          709872910
+        ],
+        "retail_steps": 375,
+        "memory_reads": 98,
+        "observable_events": 56
+      },
+      {
+        "segments": 3,
+        "rows": 2,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          2250833325,
+          2572634453,
+          1125551217,
+          1688283080
+        ],
+        "retail_steps": 378,
+        "memory_reads": 97,
+        "observable_events": 55
+      },
+      {
+        "segments": 3,
+        "rows": 2,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          2250833325,
+          2572634453,
+          1125551217,
+          1688283080
+        ],
+        "retail_steps": 378,
+        "memory_reads": 99,
+        "observable_events": 57
+      },
+      {
+        "segments": 3,
+        "rows": 2,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          2763313250,
+          2112765014,
+          2696002857,
+          1980104405
+        ],
+        "retail_steps": 378,
+        "memory_reads": 97,
+        "observable_events": 55
+      },
+      {
+        "segments": 3,
+        "rows": 2,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          2763313250,
+          2112765014,
+          2696002857,
+          1980104405
+        ],
+        "retail_steps": 378,
+        "memory_reads": 99,
+        "observable_events": 57
+      },
+      {
+        "segments": 3,
+        "rows": 4,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          1271308156,
+          2025119209,
+          659047075,
+          514067748
+        ],
+        "retail_steps": 407,
+        "memory_reads": 96,
+        "observable_events": 62
+      },
+      {
+        "segments": 3,
+        "rows": 4,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          1271308156,
+          2025119209,
+          659047075,
+          514067748
+        ],
+        "retail_steps": 413,
+        "memory_reads": 100,
+        "observable_events": 66
+      },
+      {
+        "segments": 3,
+        "rows": 4,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          266594219,
+          2348199064,
+          1905006011,
+          2612772211
+        ],
+        "retail_steps": 413,
+        "memory_reads": 98,
+        "observable_events": 64
+      },
+      {
+        "segments": 3,
+        "rows": 4,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          266594219,
+          2348199064,
+          1905006011,
+          2612772211
+        ],
+        "retail_steps": 407,
+        "memory_reads": 98,
+        "observable_events": 64
+      },
+      {
+        "segments": 3,
+        "rows": 4,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          4095868066,
+          1858656304,
+          4185304020,
+          413949618
+        ],
+        "retail_steps": 410,
+        "memory_reads": 97,
+        "observable_events": 63
+      },
+      {
+        "segments": 3,
+        "rows": 4,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          4095868066,
+          1858656304,
+          4185304020,
+          413949618
+        ],
+        "retail_steps": 410,
+        "memory_reads": 99,
+        "observable_events": 65
+      },
+      {
+        "segments": 3,
+        "rows": 4,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          3072533877,
+          1074324724,
+          2573780644,
+          3089148909
+        ],
+        "retail_steps": 410,
+        "memory_reads": 97,
+        "observable_events": 63
+      },
+      {
+        "segments": 3,
+        "rows": 4,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          3072533877,
+          1074324724,
+          2573780644,
+          3089148909
+        ],
+        "retail_steps": 410,
+        "memory_reads": 99,
+        "observable_events": 65
+      },
+      {
+        "segments": 7,
+        "rows": 0,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          2738125320,
+          1704946709,
+          3188239978,
+          2787594257
+        ],
+        "retail_steps": 575,
+        "memory_reads": 136,
+        "observable_events": 74
+      },
+      {
+        "segments": 7,
+        "rows": 0,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          2738125320,
+          1704946709,
+          3188239978,
+          2787594257
+        ],
+        "retail_steps": 581,
+        "memory_reads": 140,
+        "observable_events": 78
+      },
+      {
+        "segments": 7,
+        "rows": 0,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          1514109739,
+          2890619999,
+          2055312157,
+          2053069186
+        ],
+        "retail_steps": 581,
+        "memory_reads": 138,
+        "observable_events": 76
+      },
+      {
+        "segments": 7,
+        "rows": 0,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          1514109739,
+          2890619999,
+          2055312157,
+          2053069186
+        ],
+        "retail_steps": 575,
+        "memory_reads": 138,
+        "observable_events": 76
+      },
+      {
+        "segments": 7,
+        "rows": 0,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          4226287833,
+          3922201361,
+          1382473486,
+          3771217515
+        ],
+        "retail_steps": 578,
+        "memory_reads": 137,
+        "observable_events": 75
+      },
+      {
+        "segments": 7,
+        "rows": 0,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          4226287833,
+          3922201361,
+          1382473486,
+          3771217515
+        ],
+        "retail_steps": 578,
+        "memory_reads": 139,
+        "observable_events": 77
+      },
+      {
+        "segments": 7,
+        "rows": 0,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          520391263,
+          1821772896,
+          1108004410,
+          1146116335
+        ],
+        "retail_steps": 578,
+        "memory_reads": 137,
+        "observable_events": 75
+      },
+      {
+        "segments": 7,
+        "rows": 0,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          520391263,
+          1821772896,
+          1108004410,
+          1146116335
+        ],
+        "retail_steps": 578,
+        "memory_reads": 139,
+        "observable_events": 77
+      },
+      {
+        "segments": 7,
+        "rows": 1,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          4037832824,
+          2584448604,
+          1736596997,
+          2374381466
+        ],
+        "retail_steps": 575,
+        "memory_reads": 136,
+        "observable_events": 74
+      },
+      {
+        "segments": 7,
+        "rows": 1,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          4037832824,
+          2584448604,
+          1736596997,
+          2374381466
+        ],
+        "retail_steps": 581,
+        "memory_reads": 140,
+        "observable_events": 78
+      },
+      {
+        "segments": 7,
+        "rows": 1,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          264827874,
+          558686770,
+          3800168632,
+          1936476164
+        ],
+        "retail_steps": 581,
+        "memory_reads": 138,
+        "observable_events": 76
+      },
+      {
+        "segments": 7,
+        "rows": 1,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          264827874,
+          558686770,
+          3800168632,
+          1936476164
+        ],
+        "retail_steps": 575,
+        "memory_reads": 138,
+        "observable_events": 76
+      },
+      {
+        "segments": 7,
+        "rows": 1,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          1147804231,
+          856464951,
+          1398320845,
+          2261060821
+        ],
+        "retail_steps": 578,
+        "memory_reads": 137,
+        "observable_events": 75
+      },
+      {
+        "segments": 7,
+        "rows": 1,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          1147804231,
+          856464951,
+          1398320845,
+          2261060821
+        ],
+        "retail_steps": 578,
+        "memory_reads": 139,
+        "observable_events": 77
+      },
+      {
+        "segments": 7,
+        "rows": 1,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          350910325,
+          2029630327,
+          1543710847,
+          3756976071
+        ],
+        "retail_steps": 578,
+        "memory_reads": 137,
+        "observable_events": 75
+      },
+      {
+        "segments": 7,
+        "rows": 1,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          350910325,
+          2029630327,
+          1543710847,
+          3756976071
+        ],
+        "retail_steps": 578,
+        "memory_reads": 139,
+        "observable_events": 77
+      },
+      {
+        "segments": 7,
+        "rows": 2,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          3637474247,
+          1439144684,
+          11242293,
+          914665473
+        ],
+        "retail_steps": 591,
+        "memory_reads": 136,
+        "observable_events": 78
+      },
+      {
+        "segments": 7,
+        "rows": 2,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          3637474247,
+          1439144684,
+          11242293,
+          914665473
+        ],
+        "retail_steps": 597,
+        "memory_reads": 140,
+        "observable_events": 82
+      },
+      {
+        "segments": 7,
+        "rows": 2,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          1472521009,
+          3435777683,
+          330504933,
+          3721775716
+        ],
+        "retail_steps": 597,
+        "memory_reads": 138,
+        "observable_events": 80
+      },
+      {
+        "segments": 7,
+        "rows": 2,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          1472521009,
+          3435777683,
+          330504933,
+          3721775716
+        ],
+        "retail_steps": 591,
+        "memory_reads": 138,
+        "observable_events": 80
+      },
+      {
+        "segments": 7,
+        "rows": 2,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          4029039868,
+          2353695315,
+          81668369,
+          2785230386
+        ],
+        "retail_steps": 594,
+        "memory_reads": 137,
+        "observable_events": 79
+      },
+      {
+        "segments": 7,
+        "rows": 2,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          4029039868,
+          2353695315,
+          81668369,
+          2785230386
+        ],
+        "retail_steps": 594,
+        "memory_reads": 139,
+        "observable_events": 81
+      },
+      {
+        "segments": 7,
+        "rows": 2,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          1064312392,
+          947228991,
+          1101567145,
+          2906672732
+        ],
+        "retail_steps": 594,
+        "memory_reads": 137,
+        "observable_events": 79
+      },
+      {
+        "segments": 7,
+        "rows": 2,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          1064312392,
+          947228991,
+          1101567145,
+          2906672732
+        ],
+        "retail_steps": 594,
+        "memory_reads": 139,
+        "observable_events": 81
+      },
+      {
+        "segments": 7,
+        "rows": 4,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          521244900,
+          1586926170,
+          3151808904,
+          4149242643
+        ],
+        "retail_steps": 623,
+        "memory_reads": 136,
+        "observable_events": 86
+      },
+      {
+        "segments": 7,
+        "rows": 4,
+        "flags": [
+          0,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          521244900,
+          1586926170,
+          3151808904,
+          4149242643
+        ],
+        "retail_steps": 629,
+        "memory_reads": 140,
+        "observable_events": 90
+      },
+      {
+        "segments": 7,
+        "rows": 4,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          1839443925,
+          2838134073,
+          968723899,
+          1694011556
+        ],
+        "retail_steps": 629,
+        "memory_reads": 138,
+        "observable_events": 88
+      },
+      {
+        "segments": 7,
+        "rows": 4,
+        "flags": [
+          4,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          1839443925,
+          2838134073,
+          968723899,
+          1694011556
+        ],
+        "retail_steps": 623,
+        "memory_reads": 138,
+        "observable_events": 88
+      },
+      {
+        "segments": 7,
+        "rows": 4,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": false,
+        "colors": [
+          3880089701,
+          3979836803,
+          2323531595,
+          2262090212
+        ],
+        "retail_steps": 626,
+        "memory_reads": 137,
+        "observable_events": 87
+      },
+      {
+        "segments": 7,
+        "rows": 4,
+        "flags": [
+          4,
+          0
+        ],
+        "mutate": true,
+        "colors": [
+          3880089701,
+          3979836803,
+          2323531595,
+          2262090212
+        ],
+        "retail_steps": 626,
+        "memory_reads": 139,
+        "observable_events": 89
+      },
+      {
+        "segments": 7,
+        "rows": 4,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": false,
+        "colors": [
+          1468736726,
+          826624053,
+          1177621054,
+          2295277999
+        ],
+        "retail_steps": 626,
+        "memory_reads": 137,
+        "observable_events": 87
+      },
+      {
+        "segments": 7,
+        "rows": 4,
+        "flags": [
+          0,
+          4
+        ],
+        "mutate": true,
+        "colors": [
+          1468736726,
+          826624053,
+          1177621054,
+          2295277999
+        ],
+        "retail_steps": 626,
+        "memory_reads": 139,
+        "observable_events": 89
+      }
+    ]
+  },
+  "semantic_negative_controls": {
+    "retail_sha256": "ed7ab9cd401bf1225c1b08bf805c0d042e3235835c21fac4b015e011e032b8ff",
+    "wrong_input_color_detected": true,
+    "invalid_input_color_read_rejected": true,
+    "invalid_read_diagnostic": "('uninitialized read', '0x17010', 4)",
+    "mutation": "Only the first packed-color LW displacement at target offset 0xBC changed; no filesystem code/object changes"
+  },
+  "dependencies": {
+    "include/type.h": "d98ec5482a2782c2a9ca41f93d590ab2007b9817936d5208746d6e8794906db3",
+    "include/effect_vu0_internal.h": "17950fb770d93dfff1457cbe5684eb281500c1e70d972fd94e4c2622b502e5dc",
+    "include/sway_particle_internal.h": "512c1eb644642a6f3df07bc9d0769a19cac9520f913a6bfb50b2831dc329553f",
+    "tools/verify.py": "9e3be8be1b1fc6a99791d886cd98c14cb40b019297e5c39c81092b8ce216031e",
+    "tools/probe_variants.py": "a0e5c8b1767ff084c8fe13be8d3104e198cc056e02854ba88f19786ced674d8f",
+    "tools/mwccgap/mwccgap.py": "5d4e880fadb5e96f14ca0e1d4a03fff5d37bcc887761f2b8523c1321920c21f9",
+    "config/symbol_addrs.txt": "8159861efe6bd3eca9860a55aeefd8c646ecfa33360434d720b6f3d08238893a",
+    "config/symbols_recovered.txt": "a2ac061fb6c4fd2360ead6215a1aef993091ef23d0dc52b9737250164d921d02"
+  },
+  "proof_scripts": {
+    "probe.py": "4457bb9cdd7c5bf9b55221df8037785cd0ce11f554ff0a519d4e89026cdc57cb",
+    "owner_snapshot.py": "6661caa4d19004cc0ba05b96a2ea823aaded5ea824f75374591637746f416636",
+    "track_proof.py": "783f4f7192111a4c905d68e5f6bd078f62b0dce8d0a1f0a86eef537fd6f444ee",
+    "track_semantics.py": "eedb45ba594a3104881d39b483eb08af949d38b3d22930baff00ca20609a4f19",
+    "check_trace_controls.py": "d12d73c59d27fbea09713fc74db04aecc5aba111138162448a0391e9b1260034",
+    "prepare_guard.py": "a0469d2309d26d484c63a49f5c99abd67de9586266c1dc192b893fa8d4491b93",
+    "install_guard.py": "eb1e93f7dcf66cd54b1dbecc1dba46fec5953e915489396dea74978598a3b7e6"
+  },
+  "proof_receipts": {
+    "final-official.json": "ef0879a215103f708ed95143e35cc97fdecc8ac71d4e16f6d10ecec765a4a2ea",
+    "final-lint.json": "c83ae521c1c74a2251106fe4e2662ae268da2f6d6191d3382a5c97a886452946",
+    "production-baseline/receipt.json": "82b661608e234e1a3a84fd339bdabac9f7b00de58fd69268c703da1fb9821b18",
+    "guarded-integration/receipt.json": "a4804c19b618af513504f1177290b68be2f575909daf3974be81076af996a2fd",
+    "symbolic-semantic-proof.json": "a81dcf550b68367a53df67119316bd484dabb0cae6b77b5f814e33e9061f31b1",
+    "symbolic-negative-controls.json": "24e92157e58c34efde86f8a64ff87818cc553c21964acc97611fa7fa338c30c2"
+  },
+  "other_assigned_owners": {
+    "src/promoted/code1_0048.c": "f21f0260e9d45eef353964ec88f8a21d6cd5d682c1cd185ac2a2df7c435531f7",
+    "src/Graphics/Model/mdlManager.c": "5ad972554f5af6bb80091f463f9c0ba57d20e097932babb128cb48cee2880439",
+    "src/Graphics/primitive.c": "01938c5853230f52da263341899e6ca1ee52ef7fb912c66445c9a6573f167df7"
+  },
+  "production_source_edits": [
+    "src/promoted/code1_0049.c"
+  ],
+  "full_link_eligibility": "unverified by this lane; production object code and data unchanged",
+  "rebuilt_image_hash": "not run by this lane",
+  "rebuilt_elf_hash": "not run by this lane"
+}
