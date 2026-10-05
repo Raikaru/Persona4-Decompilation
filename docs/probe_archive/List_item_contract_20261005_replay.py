@@ -67,8 +67,12 @@ def linked_function(obj, marker, gp, symbols):
             pending[name].append((relocation, value & 0xffff))
             continue
         elif kind == 6:
-            assert pending[name], (marker["name"], relocation)
-            for high, addend_high in pending.pop(name):
+            # LO16 can stand alone when the high half is a literal or an
+            # earlier HI16 has already served another low-half use. Its low
+            # sixteen bits depend only on the symbol and signed low addend.
+            addend = signed16(value)
+            resolved = address + addend
+            for high, addend_high in pending.pop(name, []):
                 addend = (addend_high << 16) + signed16(value)
                 resolved = address + addend
                 encoded_high = (word(body, high["offset"]) & 0xffff0000) | (((resolved + 0x8000) >> 16) & 0xffff)

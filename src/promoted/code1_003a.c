@@ -1,6 +1,8 @@
 #include "include_asm.h"
 #include "type.h"
 
+struct RpAtomic;
+
 extern s32 *D_008864B8[];
 extern void func_0039c730(void);
 extern void func_003d0970(u8 *arg0);
@@ -308,10 +310,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2770);
 // measured: schedule on probe for 003a2920 delay-slot and register order.
 #pragma schedule on
 // FUN_003A2920
-s32 func_003a2920(s32 arg0)
+struct RpAtomic *func_003a2920(struct RpAtomic *arg0)
 {
     u8 *temp_5;
-    temp_5 = *(u8 **)(arg0 + iGpffffb610);
+    temp_5 = *(u8 **)((u8 *)arg0 + iGpffffb610);
     *(s32 *)(temp_5 + 0x40) = *(s32 *)(temp_5 + 0x40) | *(s32 *)(temp_5 + 0x3c);
     *(s32 *)(temp_5 + 0x3c) = 0;
     return arg0;
