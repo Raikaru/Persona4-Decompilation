@@ -98,6 +98,11 @@ def prove_owner(relative, object_path, label):
     gp, symbols = V.symbol_addresses()
     assert gp is not None
     symbols = dict(symbols)
+    link_gp, link_symbols = B.load_lcf_symbols()
+    assert gp == link_gp, "Verifier and linker GP definitions disagree"
+    for name, address in link_symbols.items():
+        assert name not in symbols or symbols[name] == address, (name, "conflicting linker address")
+        symbols[name] = address
     for name, address in named_source_addresses().items():
         assert name not in symbols or symbols[name] == address, (name, "conflicting source address")
         symbols[name] = address

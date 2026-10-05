@@ -14,6 +14,12 @@ The skill candidate has 12 zero alignment bytes after its 852-byte body.
 The draw candidate fills its complete retail window. No padding or artificial
 state was added, and no assembly fallback was promoted.
 
+Correction to the prose in commit `78662aa5`: its quoted seven-word and
+145-word shuffle residuals do not describe these targets. The installed
+source, receipt and table above consistently measure **82 words for
+`0036ee60` and 14 words for `0036f880`**. The commit's whole-owner verification
+counts remain correct.
+
 ## Skill replacement: `0036f880`
 
 The inventory capacity is now retained as `u16` with scoped
