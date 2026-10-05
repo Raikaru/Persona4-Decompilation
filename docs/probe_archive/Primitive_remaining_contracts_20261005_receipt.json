@@ -1,0 +1,1458 @@
+{
+  "logical_owner": "src/Graphics/primitive.c",
+  "owner_sha256": "aa869e05bbb24d75b3430e6aa7e5e9027740eef9ae989f32a9b217361b4c553d",
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "compiler": "MWCCPS2 3.0.1 b210",
+  "compile_flags": [
+    "-O2",
+    "-Iinclude"
+  ],
+  "default_C_matches": 10,
+  "default_ASM_fallbacks": 2,
+  "target_scores": [
+    {
+      "address": "0045f790",
+      "object_bytes": 612,
+      "retail_window": 624,
+      "differing_words": 1,
+      "aligned_edits": 4,
+      "exact": false
+    },
+    {
+      "address": "00480f20",
+      "object_bytes": 420,
+      "retail_window": 416,
+      "differing_words": 101,
+      "aligned_edits": 82,
+      "exact": false
+    }
+  ],
+  "contracts": {
+    "arithmetic_domain": "finite dyadic fixtures; exceptional arithmetic and signed zero excluded",
+    "delta": {
+      "guard_change": {
+        "instruction_offset": "0x4c",
+        "previous_target": "004810b8",
+        "current_target": "00481058",
+        "all_other_instruction_bytes_equal": true
+      },
+      "positive_and_alias_cases": [
+        {
+          "case": "positive-norm-0",
+          "retail_equal": true
+        },
+        {
+          "case": "positive-norm-1",
+          "retail_equal": true
+        },
+        {
+          "case": "positive-norm-2",
+          "retail_equal": true
+        },
+        {
+          "case": "positive-norm-3",
+          "retail_equal": true
+        },
+        {
+          "case": "exact-alias-4",
+          "retail_equal": true
+        },
+        {
+          "case": "exact-alias-5",
+          "retail_equal": true
+        },
+        {
+          "case": "exact-alias-6",
+          "retail_equal": true
+        }
+      ],
+      "zero_norm_retail_quaternions": [
+        [
+          2.0,
+          3.0,
+          4.0,
+          5.0
+        ],
+        [
+          6.0,
+          7.0,
+          8.0,
+          9.0
+        ]
+      ],
+      "zero_norm_scalar_result": [
+        15.0,
+        30.0,
+        45.0,
+        60.0,
+        75.0,
+        90.0
+      ],
+      "candidate_preserves_invalid_quaternion": true
+    },
+    "line": {
+      "retail": [
+        {
+          "incoming_stack_flags": 256,
+          "submitted_flags": 131331,
+          "reads_incoming_flags": true
+        },
+        {
+          "incoming_stack_flags": 1073741824,
+          "submitted_flags": 1073872899,
+          "reads_incoming_flags": true
+        }
+      ],
+      "guarded_C": [
+        {
+          "incoming_stack_flags": 256,
+          "submitted_flags": 131075,
+          "reads_incoming_flags": false
+        },
+        {
+          "incoming_stack_flags": 1073741824,
+          "submitted_flags": 131075,
+          "reads_incoming_flags": false
+        }
+      ],
+      "vertex_packets_equal": true
+    }
+  },
+  "whole_owner_profiles": {
+    "production": {
+      "label": "production",
+      "logical_owner": "src/Graphics/primitive.c",
+      "source_sha256": "aa869e05bbb24d75b3430e6aa7e5e9027740eef9ae989f32a9b217361b4c553d",
+      "object_sha256": "335ccdf3303b7431e94a75b8fef6ab44accc3abc7baa151f0b67ad929c3c763a",
+      "functions": [
+        {
+          "name": "primQuad3D",
+          "address": "0045f0b0",
+          "bytes": 1756,
+          "window": 1760,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 24,
+          "errors": [],
+          "code_sha256": "cf4f8d60fb66b1ceac1bb8431b4c0caf7df66f8f0642d87d9e9348f8847f2252",
+          "resolved_sha256": "0f7c2c71f42be009c4f489247bc458592e1f17b12b35c888e98779c3361558fb",
+          "zero_suffix_size": 4
+        },
+        {
+          "name": "func_0045f790",
+          "address": "0045f790",
+          "bytes": 624,
+          "window": 624,
+          "exact": true,
+          "source_kind": "ASM",
+          "relocation_count": 16,
+          "errors": [],
+          "code_sha256": "6dd6af5fa65e6b678da91cabf8b6ad9c7cc5cd1173446af7fd67ea8b208b9985",
+          "resolved_sha256": "70642873962b12ef18c0ea28f578536be5aef8dc2281a15e4670096663a2f288",
+          "zero_suffix_size": 0
+        },
+        {
+          "name": "primAxisLine3D",
+          "address": "0045fa00",
+          "bytes": 472,
+          "window": 480,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 20,
+          "errors": [],
+          "code_sha256": "b04f4601c25d9409320d09596d6dbeacf283a46a7773e8659dce3d3ed5b4751b",
+          "resolved_sha256": "e3dfad2dc09d97a6e39cba1df38bdea81cde4f85e8ee44ea66c9ae87b69c065e",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00480940",
+          "address": "00480940",
+          "bytes": 348,
+          "window": 352,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 2,
+          "errors": [],
+          "code_sha256": "db98722d3bff02805e4111579dfe24fe88dd757f67db580f0f8164859824ad47",
+          "resolved_sha256": "0fd2e2d80910a6cf7fb3d473b81b1d4dd7a18f797681a27826c691177a676b04",
+          "zero_suffix_size": 4
+        },
+        {
+          "name": "func_00480aa0",
+          "address": "00480aa0",
+          "bytes": 552,
+          "window": 560,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 5,
+          "errors": [],
+          "code_sha256": "73551bf74a8164e688f83715649bf73ee9aa9f1654ae4c7c22981afce2faf405",
+          "resolved_sha256": "a969a35b41c5fcd45564ae396a29a33dbfaf6ee29ef56e7ca3c3029643dab4fb",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00480cd0",
+          "address": "00480cd0",
+          "bytes": 116,
+          "window": 128,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 1,
+          "errors": [],
+          "code_sha256": "73a1ad1d21e60f3c1bff4f5fc2bab130ea2508fa31c0e93dfa3fbec86e9b09ee",
+          "resolved_sha256": "8ad00f31917086723964a2b5efa1980aba1770a0ff464d81dfbb1912792e610d",
+          "zero_suffix_size": 12
+        },
+        {
+          "name": "func_00480d50",
+          "address": "00480d50",
+          "bytes": 208,
+          "window": 208,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 2,
+          "errors": [],
+          "code_sha256": "eab885e3212677df4d4b9d7a4457f3bbf11c9f93a65b8841c8b5bf4c6b649dcc",
+          "resolved_sha256": "3c954b94c2132c8d17aab8cc74c0ed3f413b8cd046e3f7859b7025666c7f5a7b",
+          "zero_suffix_size": 0
+        },
+        {
+          "name": "func_00480e20",
+          "address": "00480e20",
+          "bytes": 216,
+          "window": 224,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 2,
+          "errors": [],
+          "code_sha256": "5dbc196fc61d9e7a929325d4fe3ed7a46bf250cd5e2fe90c1e1d2559539e6ed7",
+          "resolved_sha256": "371d5485caedb0d4914bc788707c2e5c07070b20004bfe3ac374c09802b54819",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00480f00",
+          "address": "00480f00",
+          "bytes": 32,
+          "window": 32,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 0,
+          "errors": [],
+          "code_sha256": "5c0eac8abe6eb831ba2cae04f08ee6d19f5f214be5eb870e9815babce626e23c",
+          "resolved_sha256": "5c0eac8abe6eb831ba2cae04f08ee6d19f5f214be5eb870e9815babce626e23c",
+          "zero_suffix_size": 0
+        },
+        {
+          "name": "func_00480f20",
+          "address": "00480f20",
+          "bytes": 416,
+          "window": 416,
+          "exact": true,
+          "source_kind": "ASM",
+          "relocation_count": 0,
+          "errors": [],
+          "code_sha256": "15d1f6f7fde6511151ba122efd62ed7214372a22e96c63127da6d89f4bce69cc",
+          "resolved_sha256": "15d1f6f7fde6511151ba122efd62ed7214372a22e96c63127da6d89f4bce69cc",
+          "zero_suffix_size": 0
+        },
+        {
+          "name": "func_004810c0",
+          "address": "004810c0",
+          "bytes": 392,
+          "window": 400,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 0,
+          "errors": [],
+          "code_sha256": "36fa3877760dc350fc104b5017046c3dceaed7d0825003aa432796419e2a5311",
+          "resolved_sha256": "36fa3877760dc350fc104b5017046c3dceaed7d0825003aa432796419e2a5311",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00481250",
+          "address": "00481250",
+          "bytes": 164,
+          "window": 176,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 17,
+          "errors": [],
+          "code_sha256": "857b3d5cc3d872b3c97d649b93356499ad121be196dd2e50feaf5d5398dc6aec",
+          "resolved_sha256": "5c93eb20f59b84ccec697b74eafcfdf492bd2eb1ad9b4ca28a652b57274c47d7",
+          "zero_suffix_size": 12
+        }
+      ],
+      "allocated_data": [
+        {
+          "index": 5,
+          "name": ".rodata",
+          "address": "00712490",
+          "size": 48,
+          "alignment": 16,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "770bf9258fbf8153f2ff31e7567f42a06791efd7f3b56d8a667fb2b577a57506"
+        },
+        {
+          "index": 6,
+          "name": ".rodata",
+          "address": "007124c0",
+          "size": 15,
+          "alignment": 8,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "69e0e501acced89fab86b214199f1ff6db1caae6f734aa98276573a997fa1450"
+        },
+        {
+          "index": 7,
+          "name": ".rodata",
+          "address": "007124d0",
+          "size": 36,
+          "alignment": 16,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "64eec129c8d3f58ee6b7ca145b25e312fa82d3d276db5adaedb59aaebb824885"
+        },
+        {
+          "index": 8,
+          "name": ".rodata",
+          "address": "007124f8",
+          "size": 12,
+          "alignment": 8,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "33c3c9e1a1371065e8e190eddfe7d0ac23746413a2ffb32d2397b6e46a19135f"
+        }
+      ],
+      "storage_spans": [
+        {
+          "name": ".rodata",
+          "address": "00712490",
+          "size": 116,
+          "alignment_gap_bytes": 5,
+          "exact": true,
+          "sha256": "d26efe7d27283bac33ca19c46ce839168d533294b877ff044adbdd5a136d997b"
+        }
+      ],
+      "executable_sections": [
+        {
+          "index": 9,
+          "name": ".text",
+          "size": 1756,
+          "covered_bytes": 1756,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 13,
+          "name": ".text",
+          "size": 624,
+          "covered_bytes": 624,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 16,
+          "name": ".text",
+          "size": 472,
+          "covered_bytes": 472,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 20,
+          "name": ".text",
+          "size": 348,
+          "covered_bytes": 348,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 24,
+          "name": ".text",
+          "size": 552,
+          "covered_bytes": 552,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 28,
+          "name": ".text",
+          "size": 116,
+          "covered_bytes": 116,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 32,
+          "name": ".text",
+          "size": 208,
+          "covered_bytes": 208,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 36,
+          "name": ".text",
+          "size": 216,
+          "covered_bytes": 216,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 40,
+          "name": ".text",
+          "size": 32,
+          "covered_bytes": 32,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 43,
+          "name": ".text",
+          "size": 416,
+          "covered_bytes": 416,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 46,
+          "name": ".text",
+          "size": 392,
+          "covered_bytes": 392,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 49,
+          "name": ".text",
+          "size": 164,
+          "covered_bytes": 164,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        }
+      ],
+      "planner_data_placeable": true,
+      "compiler": "MWCCPS2 3.0.1 b210",
+      "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c"
+    },
+    "current-line": {
+      "label": "current-line",
+      "logical_owner": "src/Graphics/primitive.c",
+      "source_sha256": "c94da67f7c365f481745a7e9df4e90e2b2303c8e165d1b003018d64324558d52",
+      "object_sha256": "4f15630c03a6794d41db01b1562af8f782d0696e214c721fd083379f1cd75dad",
+      "functions": [
+        {
+          "name": "primQuad3D",
+          "address": "0045f0b0",
+          "bytes": 1756,
+          "window": 1760,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 24,
+          "errors": [],
+          "code_sha256": "cf4f8d60fb66b1ceac1bb8431b4c0caf7df66f8f0642d87d9e9348f8847f2252",
+          "resolved_sha256": "0f7c2c71f42be009c4f489247bc458592e1f17b12b35c888e98779c3361558fb",
+          "zero_suffix_size": 4
+        },
+        {
+          "name": "func_0045f790",
+          "address": "0045f790",
+          "bytes": 612,
+          "window": 624,
+          "exact": false,
+          "source_kind": "C",
+          "relocation_count": 16,
+          "errors": [],
+          "code_sha256": "da4169e58c97239f3a95b80c43076f69becad424aac69dfbe540501df0731ffe",
+          "resolved_sha256": "5b18f82d63a9e4554a3306483ba4c3ec0b7e55706de9cbcda5278d186f5386b2",
+          "zero_suffix_size": 12
+        },
+        {
+          "name": "primAxisLine3D",
+          "address": "0045fa00",
+          "bytes": 472,
+          "window": 480,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 20,
+          "errors": [],
+          "code_sha256": "b04f4601c25d9409320d09596d6dbeacf283a46a7773e8659dce3d3ed5b4751b",
+          "resolved_sha256": "e3dfad2dc09d97a6e39cba1df38bdea81cde4f85e8ee44ea66c9ae87b69c065e",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00480940",
+          "address": "00480940",
+          "bytes": 348,
+          "window": 352,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 2,
+          "errors": [],
+          "code_sha256": "db98722d3bff02805e4111579dfe24fe88dd757f67db580f0f8164859824ad47",
+          "resolved_sha256": "0fd2e2d80910a6cf7fb3d473b81b1d4dd7a18f797681a27826c691177a676b04",
+          "zero_suffix_size": 4
+        },
+        {
+          "name": "func_00480aa0",
+          "address": "00480aa0",
+          "bytes": 552,
+          "window": 560,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 5,
+          "errors": [],
+          "code_sha256": "73551bf74a8164e688f83715649bf73ee9aa9f1654ae4c7c22981afce2faf405",
+          "resolved_sha256": "a969a35b41c5fcd45564ae396a29a33dbfaf6ee29ef56e7ca3c3029643dab4fb",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00480cd0",
+          "address": "00480cd0",
+          "bytes": 116,
+          "window": 128,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 1,
+          "errors": [],
+          "code_sha256": "73a1ad1d21e60f3c1bff4f5fc2bab130ea2508fa31c0e93dfa3fbec86e9b09ee",
+          "resolved_sha256": "8ad00f31917086723964a2b5efa1980aba1770a0ff464d81dfbb1912792e610d",
+          "zero_suffix_size": 12
+        },
+        {
+          "name": "func_00480d50",
+          "address": "00480d50",
+          "bytes": 208,
+          "window": 208,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 2,
+          "errors": [],
+          "code_sha256": "eab885e3212677df4d4b9d7a4457f3bbf11c9f93a65b8841c8b5bf4c6b649dcc",
+          "resolved_sha256": "3c954b94c2132c8d17aab8cc74c0ed3f413b8cd046e3f7859b7025666c7f5a7b",
+          "zero_suffix_size": 0
+        },
+        {
+          "name": "func_00480e20",
+          "address": "00480e20",
+          "bytes": 216,
+          "window": 224,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 2,
+          "errors": [],
+          "code_sha256": "5dbc196fc61d9e7a929325d4fe3ed7a46bf250cd5e2fe90c1e1d2559539e6ed7",
+          "resolved_sha256": "371d5485caedb0d4914bc788707c2e5c07070b20004bfe3ac374c09802b54819",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00480f00",
+          "address": "00480f00",
+          "bytes": 32,
+          "window": 32,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 0,
+          "errors": [],
+          "code_sha256": "5c0eac8abe6eb831ba2cae04f08ee6d19f5f214be5eb870e9815babce626e23c",
+          "resolved_sha256": "5c0eac8abe6eb831ba2cae04f08ee6d19f5f214be5eb870e9815babce626e23c",
+          "zero_suffix_size": 0
+        },
+        {
+          "name": "func_00480f20",
+          "address": "00480f20",
+          "bytes": 416,
+          "window": 416,
+          "exact": true,
+          "source_kind": "ASM",
+          "relocation_count": 0,
+          "errors": [],
+          "code_sha256": "15d1f6f7fde6511151ba122efd62ed7214372a22e96c63127da6d89f4bce69cc",
+          "resolved_sha256": "15d1f6f7fde6511151ba122efd62ed7214372a22e96c63127da6d89f4bce69cc",
+          "zero_suffix_size": 0
+        },
+        {
+          "name": "func_004810c0",
+          "address": "004810c0",
+          "bytes": 392,
+          "window": 400,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 0,
+          "errors": [],
+          "code_sha256": "36fa3877760dc350fc104b5017046c3dceaed7d0825003aa432796419e2a5311",
+          "resolved_sha256": "36fa3877760dc350fc104b5017046c3dceaed7d0825003aa432796419e2a5311",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00481250",
+          "address": "00481250",
+          "bytes": 164,
+          "window": 176,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 17,
+          "errors": [],
+          "code_sha256": "857b3d5cc3d872b3c97d649b93356499ad121be196dd2e50feaf5d5398dc6aec",
+          "resolved_sha256": "5c93eb20f59b84ccec697b74eafcfdf492bd2eb1ad9b4ca28a652b57274c47d7",
+          "zero_suffix_size": 12
+        }
+      ],
+      "allocated_data": [
+        {
+          "index": 5,
+          "name": ".rodata",
+          "address": "00712490",
+          "size": 48,
+          "alignment": 16,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "770bf9258fbf8153f2ff31e7567f42a06791efd7f3b56d8a667fb2b577a57506"
+        },
+        {
+          "index": 6,
+          "name": ".rodata",
+          "address": "007124c0",
+          "size": 15,
+          "alignment": 8,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "69e0e501acced89fab86b214199f1ff6db1caae6f734aa98276573a997fa1450"
+        },
+        {
+          "index": 7,
+          "name": ".rodata",
+          "address": "007124d0",
+          "size": 36,
+          "alignment": 16,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "64eec129c8d3f58ee6b7ca145b25e312fa82d3d276db5adaedb59aaebb824885"
+        },
+        {
+          "index": 8,
+          "name": ".rodata",
+          "address": "007124f8",
+          "size": 12,
+          "alignment": 8,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "33c3c9e1a1371065e8e190eddfe7d0ac23746413a2ffb32d2397b6e46a19135f"
+        }
+      ],
+      "storage_spans": [
+        {
+          "name": ".rodata",
+          "address": "00712490",
+          "size": 116,
+          "alignment_gap_bytes": 5,
+          "exact": true,
+          "sha256": "d26efe7d27283bac33ca19c46ce839168d533294b877ff044adbdd5a136d997b"
+        }
+      ],
+      "executable_sections": [
+        {
+          "index": 9,
+          "name": ".text",
+          "size": 1756,
+          "covered_bytes": 1756,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 13,
+          "name": ".text",
+          "size": 612,
+          "covered_bytes": 612,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 17,
+          "name": ".text",
+          "size": 472,
+          "covered_bytes": 472,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 21,
+          "name": ".text",
+          "size": 348,
+          "covered_bytes": 348,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 25,
+          "name": ".text",
+          "size": 552,
+          "covered_bytes": 552,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 29,
+          "name": ".text",
+          "size": 116,
+          "covered_bytes": 116,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 33,
+          "name": ".text",
+          "size": 208,
+          "covered_bytes": 208,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 37,
+          "name": ".text",
+          "size": 216,
+          "covered_bytes": 216,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 41,
+          "name": ".text",
+          "size": 32,
+          "covered_bytes": 32,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 44,
+          "name": ".text",
+          "size": 416,
+          "covered_bytes": 416,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 47,
+          "name": ".text",
+          "size": 392,
+          "covered_bytes": 392,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 50,
+          "name": ".text",
+          "size": 164,
+          "covered_bytes": 164,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        }
+      ],
+      "planner_data_placeable": true,
+      "compiler": "MWCCPS2 3.0.1 b210",
+      "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+      "unchanged_resolved_functions": [
+        "primQuad3D",
+        "primAxisLine3D",
+        "func_00480940",
+        "func_00480aa0",
+        "func_00480cd0",
+        "func_00480d50",
+        "func_00480e20",
+        "func_00480f00",
+        "func_00480f20",
+        "func_004810c0",
+        "func_00481250"
+      ],
+      "changed_resolved_functions": [
+        "func_0045f790"
+      ],
+      "owned_data_same": true
+    },
+    "current-delta": {
+      "label": "current-delta",
+      "logical_owner": "src/Graphics/primitive.c",
+      "source_sha256": "27b352dc80f9413520428dc2f88899a32e131be1c6092f0e950e00a82f0dec83",
+      "object_sha256": "b8e448070f151d91ce1ef0ad06c6ba9000492cdbd16ce8bf575663cbb3a7a179",
+      "functions": [
+        {
+          "name": "primQuad3D",
+          "address": "0045f0b0",
+          "bytes": 1756,
+          "window": 1760,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 24,
+          "errors": [],
+          "code_sha256": "cf4f8d60fb66b1ceac1bb8431b4c0caf7df66f8f0642d87d9e9348f8847f2252",
+          "resolved_sha256": "0f7c2c71f42be009c4f489247bc458592e1f17b12b35c888e98779c3361558fb",
+          "zero_suffix_size": 4
+        },
+        {
+          "name": "func_0045f790",
+          "address": "0045f790",
+          "bytes": 624,
+          "window": 624,
+          "exact": true,
+          "source_kind": "ASM",
+          "relocation_count": 16,
+          "errors": [],
+          "code_sha256": "6dd6af5fa65e6b678da91cabf8b6ad9c7cc5cd1173446af7fd67ea8b208b9985",
+          "resolved_sha256": "70642873962b12ef18c0ea28f578536be5aef8dc2281a15e4670096663a2f288",
+          "zero_suffix_size": 0
+        },
+        {
+          "name": "primAxisLine3D",
+          "address": "0045fa00",
+          "bytes": 472,
+          "window": 480,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 20,
+          "errors": [],
+          "code_sha256": "b04f4601c25d9409320d09596d6dbeacf283a46a7773e8659dce3d3ed5b4751b",
+          "resolved_sha256": "e3dfad2dc09d97a6e39cba1df38bdea81cde4f85e8ee44ea66c9ae87b69c065e",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00480940",
+          "address": "00480940",
+          "bytes": 348,
+          "window": 352,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 2,
+          "errors": [],
+          "code_sha256": "db98722d3bff02805e4111579dfe24fe88dd757f67db580f0f8164859824ad47",
+          "resolved_sha256": "0fd2e2d80910a6cf7fb3d473b81b1d4dd7a18f797681a27826c691177a676b04",
+          "zero_suffix_size": 4
+        },
+        {
+          "name": "func_00480aa0",
+          "address": "00480aa0",
+          "bytes": 552,
+          "window": 560,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 5,
+          "errors": [],
+          "code_sha256": "73551bf74a8164e688f83715649bf73ee9aa9f1654ae4c7c22981afce2faf405",
+          "resolved_sha256": "a969a35b41c5fcd45564ae396a29a33dbfaf6ee29ef56e7ca3c3029643dab4fb",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00480cd0",
+          "address": "00480cd0",
+          "bytes": 116,
+          "window": 128,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 1,
+          "errors": [],
+          "code_sha256": "73a1ad1d21e60f3c1bff4f5fc2bab130ea2508fa31c0e93dfa3fbec86e9b09ee",
+          "resolved_sha256": "8ad00f31917086723964a2b5efa1980aba1770a0ff464d81dfbb1912792e610d",
+          "zero_suffix_size": 12
+        },
+        {
+          "name": "func_00480d50",
+          "address": "00480d50",
+          "bytes": 208,
+          "window": 208,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 2,
+          "errors": [],
+          "code_sha256": "eab885e3212677df4d4b9d7a4457f3bbf11c9f93a65b8841c8b5bf4c6b649dcc",
+          "resolved_sha256": "3c954b94c2132c8d17aab8cc74c0ed3f413b8cd046e3f7859b7025666c7f5a7b",
+          "zero_suffix_size": 0
+        },
+        {
+          "name": "func_00480e20",
+          "address": "00480e20",
+          "bytes": 216,
+          "window": 224,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 2,
+          "errors": [],
+          "code_sha256": "5dbc196fc61d9e7a929325d4fe3ed7a46bf250cd5e2fe90c1e1d2559539e6ed7",
+          "resolved_sha256": "371d5485caedb0d4914bc788707c2e5c07070b20004bfe3ac374c09802b54819",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00480f00",
+          "address": "00480f00",
+          "bytes": 32,
+          "window": 32,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 0,
+          "errors": [],
+          "code_sha256": "5c0eac8abe6eb831ba2cae04f08ee6d19f5f214be5eb870e9815babce626e23c",
+          "resolved_sha256": "5c0eac8abe6eb831ba2cae04f08ee6d19f5f214be5eb870e9815babce626e23c",
+          "zero_suffix_size": 0
+        },
+        {
+          "name": "func_00480f20",
+          "address": "00480f20",
+          "bytes": 420,
+          "window": 416,
+          "exact": false,
+          "source_kind": "C",
+          "relocation_count": 0,
+          "errors": [],
+          "code_sha256": "0b09c7a1b3551ec206afbd9d58870aace45dadb1eac66eb09f90a8e65c80da8b",
+          "resolved_sha256": "0b09c7a1b3551ec206afbd9d58870aace45dadb1eac66eb09f90a8e65c80da8b",
+          "zero_suffix_size": null
+        },
+        {
+          "name": "func_004810c0",
+          "address": "004810c0",
+          "bytes": 392,
+          "window": 400,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 0,
+          "errors": [],
+          "code_sha256": "36fa3877760dc350fc104b5017046c3dceaed7d0825003aa432796419e2a5311",
+          "resolved_sha256": "36fa3877760dc350fc104b5017046c3dceaed7d0825003aa432796419e2a5311",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00481250",
+          "address": "00481250",
+          "bytes": 164,
+          "window": 176,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 17,
+          "errors": [],
+          "code_sha256": "857b3d5cc3d872b3c97d649b93356499ad121be196dd2e50feaf5d5398dc6aec",
+          "resolved_sha256": "5c93eb20f59b84ccec697b74eafcfdf492bd2eb1ad9b4ca28a652b57274c47d7",
+          "zero_suffix_size": 12
+        }
+      ],
+      "allocated_data": [
+        {
+          "index": 5,
+          "name": ".rodata",
+          "address": "00712490",
+          "size": 48,
+          "alignment": 16,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "770bf9258fbf8153f2ff31e7567f42a06791efd7f3b56d8a667fb2b577a57506"
+        },
+        {
+          "index": 6,
+          "name": ".rodata",
+          "address": "007124c0",
+          "size": 15,
+          "alignment": 8,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "69e0e501acced89fab86b214199f1ff6db1caae6f734aa98276573a997fa1450"
+        },
+        {
+          "index": 7,
+          "name": ".rodata",
+          "address": "007124d0",
+          "size": 36,
+          "alignment": 16,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "64eec129c8d3f58ee6b7ca145b25e312fa82d3d276db5adaedb59aaebb824885"
+        },
+        {
+          "index": 8,
+          "name": ".rodata",
+          "address": "007124f8",
+          "size": 12,
+          "alignment": 8,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "33c3c9e1a1371065e8e190eddfe7d0ac23746413a2ffb32d2397b6e46a19135f"
+        }
+      ],
+      "storage_spans": [
+        {
+          "name": ".rodata",
+          "address": "00712490",
+          "size": 116,
+          "alignment_gap_bytes": 5,
+          "exact": true,
+          "sha256": "d26efe7d27283bac33ca19c46ce839168d533294b877ff044adbdd5a136d997b"
+        }
+      ],
+      "executable_sections": [
+        {
+          "index": 9,
+          "name": ".text",
+          "size": 1756,
+          "covered_bytes": 1756,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 13,
+          "name": ".text",
+          "size": 624,
+          "covered_bytes": 624,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 16,
+          "name": ".text",
+          "size": 472,
+          "covered_bytes": 472,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 20,
+          "name": ".text",
+          "size": 348,
+          "covered_bytes": 348,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 24,
+          "name": ".text",
+          "size": 552,
+          "covered_bytes": 552,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 28,
+          "name": ".text",
+          "size": 116,
+          "covered_bytes": 116,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 32,
+          "name": ".text",
+          "size": 208,
+          "covered_bytes": 208,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 36,
+          "name": ".text",
+          "size": 216,
+          "covered_bytes": 216,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 40,
+          "name": ".text",
+          "size": 32,
+          "covered_bytes": 32,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 43,
+          "name": ".text",
+          "size": 420,
+          "covered_bytes": 420,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 46,
+          "name": ".text",
+          "size": 392,
+          "covered_bytes": 392,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 49,
+          "name": ".text",
+          "size": 164,
+          "covered_bytes": 164,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        }
+      ],
+      "planner_data_placeable": true,
+      "compiler": "MWCCPS2 3.0.1 b210",
+      "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+      "unchanged_resolved_functions": [
+        "primQuad3D",
+        "func_0045f790",
+        "primAxisLine3D",
+        "func_00480940",
+        "func_00480aa0",
+        "func_00480cd0",
+        "func_00480d50",
+        "func_00480e20",
+        "func_00480f00",
+        "func_004810c0",
+        "func_00481250"
+      ],
+      "changed_resolved_functions": [
+        "func_00480f20"
+      ],
+      "owned_data_same": true
+    },
+    "previous-delta": {
+      "label": "previous-delta",
+      "logical_owner": "src/Graphics/primitive.c",
+      "source_sha256": "b9e24e5059e537dc554b49324204d3d6d1d24f6b386c31296f37676d6411cf91",
+      "object_sha256": "df6c4f97140297a8d1bb1dc097f06605f5afe969f6661f1ce0637bf099b3d602",
+      "functions": [
+        {
+          "name": "primQuad3D",
+          "address": "0045f0b0",
+          "bytes": 1756,
+          "window": 1760,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 24,
+          "errors": [],
+          "code_sha256": "cf4f8d60fb66b1ceac1bb8431b4c0caf7df66f8f0642d87d9e9348f8847f2252",
+          "resolved_sha256": "0f7c2c71f42be009c4f489247bc458592e1f17b12b35c888e98779c3361558fb",
+          "zero_suffix_size": 4
+        },
+        {
+          "name": "func_0045f790",
+          "address": "0045f790",
+          "bytes": 624,
+          "window": 624,
+          "exact": true,
+          "source_kind": "ASM",
+          "relocation_count": 16,
+          "errors": [],
+          "code_sha256": "6dd6af5fa65e6b678da91cabf8b6ad9c7cc5cd1173446af7fd67ea8b208b9985",
+          "resolved_sha256": "70642873962b12ef18c0ea28f578536be5aef8dc2281a15e4670096663a2f288",
+          "zero_suffix_size": 0
+        },
+        {
+          "name": "primAxisLine3D",
+          "address": "0045fa00",
+          "bytes": 472,
+          "window": 480,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 20,
+          "errors": [],
+          "code_sha256": "b04f4601c25d9409320d09596d6dbeacf283a46a7773e8659dce3d3ed5b4751b",
+          "resolved_sha256": "e3dfad2dc09d97a6e39cba1df38bdea81cde4f85e8ee44ea66c9ae87b69c065e",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00480940",
+          "address": "00480940",
+          "bytes": 348,
+          "window": 352,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 2,
+          "errors": [],
+          "code_sha256": "db98722d3bff02805e4111579dfe24fe88dd757f67db580f0f8164859824ad47",
+          "resolved_sha256": "0fd2e2d80910a6cf7fb3d473b81b1d4dd7a18f797681a27826c691177a676b04",
+          "zero_suffix_size": 4
+        },
+        {
+          "name": "func_00480aa0",
+          "address": "00480aa0",
+          "bytes": 552,
+          "window": 560,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 5,
+          "errors": [],
+          "code_sha256": "73551bf74a8164e688f83715649bf73ee9aa9f1654ae4c7c22981afce2faf405",
+          "resolved_sha256": "a969a35b41c5fcd45564ae396a29a33dbfaf6ee29ef56e7ca3c3029643dab4fb",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00480cd0",
+          "address": "00480cd0",
+          "bytes": 116,
+          "window": 128,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 1,
+          "errors": [],
+          "code_sha256": "73a1ad1d21e60f3c1bff4f5fc2bab130ea2508fa31c0e93dfa3fbec86e9b09ee",
+          "resolved_sha256": "8ad00f31917086723964a2b5efa1980aba1770a0ff464d81dfbb1912792e610d",
+          "zero_suffix_size": 12
+        },
+        {
+          "name": "func_00480d50",
+          "address": "00480d50",
+          "bytes": 208,
+          "window": 208,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 2,
+          "errors": [],
+          "code_sha256": "eab885e3212677df4d4b9d7a4457f3bbf11c9f93a65b8841c8b5bf4c6b649dcc",
+          "resolved_sha256": "3c954b94c2132c8d17aab8cc74c0ed3f413b8cd046e3f7859b7025666c7f5a7b",
+          "zero_suffix_size": 0
+        },
+        {
+          "name": "func_00480e20",
+          "address": "00480e20",
+          "bytes": 216,
+          "window": 224,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 2,
+          "errors": [],
+          "code_sha256": "5dbc196fc61d9e7a929325d4fe3ed7a46bf250cd5e2fe90c1e1d2559539e6ed7",
+          "resolved_sha256": "371d5485caedb0d4914bc788707c2e5c07070b20004bfe3ac374c09802b54819",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00480f00",
+          "address": "00480f00",
+          "bytes": 32,
+          "window": 32,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 0,
+          "errors": [],
+          "code_sha256": "5c0eac8abe6eb831ba2cae04f08ee6d19f5f214be5eb870e9815babce626e23c",
+          "resolved_sha256": "5c0eac8abe6eb831ba2cae04f08ee6d19f5f214be5eb870e9815babce626e23c",
+          "zero_suffix_size": 0
+        },
+        {
+          "name": "func_00480f20",
+          "address": "00480f20",
+          "bytes": 420,
+          "window": 416,
+          "exact": false,
+          "source_kind": "C",
+          "relocation_count": 0,
+          "errors": [],
+          "code_sha256": "44f8aeed1d30f419422dd189f130590849b890459825b5866520b7357fc507ac",
+          "resolved_sha256": "44f8aeed1d30f419422dd189f130590849b890459825b5866520b7357fc507ac",
+          "zero_suffix_size": null
+        },
+        {
+          "name": "func_004810c0",
+          "address": "004810c0",
+          "bytes": 392,
+          "window": 400,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 0,
+          "errors": [],
+          "code_sha256": "36fa3877760dc350fc104b5017046c3dceaed7d0825003aa432796419e2a5311",
+          "resolved_sha256": "36fa3877760dc350fc104b5017046c3dceaed7d0825003aa432796419e2a5311",
+          "zero_suffix_size": 8
+        },
+        {
+          "name": "func_00481250",
+          "address": "00481250",
+          "bytes": 164,
+          "window": 176,
+          "exact": true,
+          "source_kind": "C",
+          "relocation_count": 17,
+          "errors": [],
+          "code_sha256": "857b3d5cc3d872b3c97d649b93356499ad121be196dd2e50feaf5d5398dc6aec",
+          "resolved_sha256": "5c93eb20f59b84ccec697b74eafcfdf492bd2eb1ad9b4ca28a652b57274c47d7",
+          "zero_suffix_size": 12
+        }
+      ],
+      "allocated_data": [
+        {
+          "index": 5,
+          "name": ".rodata",
+          "address": "00712490",
+          "size": 48,
+          "alignment": 16,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "770bf9258fbf8153f2ff31e7567f42a06791efd7f3b56d8a667fb2b577a57506"
+        },
+        {
+          "index": 6,
+          "name": ".rodata",
+          "address": "007124c0",
+          "size": 15,
+          "alignment": 8,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "69e0e501acced89fab86b214199f1ff6db1caae6f734aa98276573a997fa1450"
+        },
+        {
+          "index": 7,
+          "name": ".rodata",
+          "address": "007124d0",
+          "size": 36,
+          "alignment": 16,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "64eec129c8d3f58ee6b7ca145b25e312fa82d3d276db5adaedb59aaebb824885"
+        },
+        {
+          "index": 8,
+          "name": ".rodata",
+          "address": "007124f8",
+          "size": 12,
+          "alignment": 8,
+          "errors": [],
+          "relocation_count": 0,
+          "exact": true,
+          "sha256": "33c3c9e1a1371065e8e190eddfe7d0ac23746413a2ffb32d2397b6e46a19135f"
+        }
+      ],
+      "storage_spans": [
+        {
+          "name": ".rodata",
+          "address": "00712490",
+          "size": 116,
+          "alignment_gap_bytes": 5,
+          "exact": true,
+          "sha256": "d26efe7d27283bac33ca19c46ce839168d533294b877ff044adbdd5a136d997b"
+        }
+      ],
+      "executable_sections": [
+        {
+          "index": 9,
+          "name": ".text",
+          "size": 1756,
+          "covered_bytes": 1756,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 13,
+          "name": ".text",
+          "size": 624,
+          "covered_bytes": 624,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 16,
+          "name": ".text",
+          "size": 472,
+          "covered_bytes": 472,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 20,
+          "name": ".text",
+          "size": 348,
+          "covered_bytes": 348,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 24,
+          "name": ".text",
+          "size": 552,
+          "covered_bytes": 552,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 28,
+          "name": ".text",
+          "size": 116,
+          "covered_bytes": 116,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 32,
+          "name": ".text",
+          "size": 208,
+          "covered_bytes": 208,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 36,
+          "name": ".text",
+          "size": 216,
+          "covered_bytes": 216,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 40,
+          "name": ".text",
+          "size": 32,
+          "covered_bytes": 32,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 43,
+          "name": ".text",
+          "size": 420,
+          "covered_bytes": 420,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 46,
+          "name": ".text",
+          "size": 392,
+          "covered_bytes": 392,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        },
+        {
+          "index": 49,
+          "name": ".text",
+          "size": 164,
+          "covered_bytes": 164,
+          "zero_gap_bytes": 0,
+          "all_gaps_zero": true
+        }
+      ],
+      "planner_data_placeable": true,
+      "compiler": "MWCCPS2 3.0.1 b210",
+      "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+      "unchanged_resolved_functions": [
+        "primQuad3D",
+        "func_0045f790",
+        "primAxisLine3D",
+        "func_00480940",
+        "func_00480aa0",
+        "func_00480cd0",
+        "func_00480d50",
+        "func_00480e20",
+        "func_00480f00",
+        "func_004810c0",
+        "func_00481250"
+      ],
+      "changed_resolved_functions": [
+        "func_00480f20"
+      ],
+      "owned_data_same": true
+    }
+  }
+}
