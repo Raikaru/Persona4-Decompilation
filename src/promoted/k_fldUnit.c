@@ -59,7 +59,7 @@ extern s32 func_0014c780(void);
 extern void func_0017b9a0(s32 arg0, f32 arg1);
 extern void mdlScale(Model *arg0, const RwV3d *arg1, s32 arg2);
 extern void RwMatrixUpdate(u8 *arg0);
-extern void func_00168de0(s32 arg0, void *arg1, f32 arg2);
+extern void func_00168de0(u8 *task, const void *axis, f32 angle);
 extern void func_00168ae0();
 extern void func_0014b0c0(u16 arg0, u32 arg1);
 extern void func_00168730(s32 arg0, s32 arg1);
@@ -395,7 +395,7 @@ void func_00162e10(void)
                     if ((v < 0) && (r != 0)) {
                         r -= 4;
                     }
-                    func_00168de0(*(s32 *)(*(u8 **)(slot + 0x54) + 0x220), D_00756510, 90.0f * (f32)r);
+                    func_00168de0((u8 *)(*(s32 *)(*(u8 **)(slot + 0x54) + 0x220)), D_00756510, 90.0f * (f32)r);
                     func_00479940(*(u8 **)(slot2 + 0x50), 0, (s16)func_0016fd00(*(u16 *)(D_007EF9B0 + i * 0x750 + 0x728)), 0, 1);
                     {
                         u8 *src = (u8 *)mdlGetMatrix(*(void **)(*(u8 **)D_007EFA04 + 0x164));
@@ -430,7 +430,7 @@ void func_00162e10(void)
                         sp90[2] += tmp2;
                     }
                 } else {
-                    func_00168de0(*(s32 *)(*(u8 **)(slot + 0x54) + 0x220), D_00756510, *(f32 *)(aux + 0x14C));
+                    func_00168de0((u8 *)(*(s32 *)(*(u8 **)(slot + 0x54) + 0x220)), D_00756510, *(f32 *)(aux + 0x14C));
                     sp90[0] = *(f32 *)(aux + 0x140);
                     sp90[1] = *(f32 *)(aux + 0x144);
                     sp90[2] = *(f32 *)(aux + 0x148);
@@ -783,7 +783,7 @@ s32 func_00163c90(s32 arg0)
   }
   mdlScale((Model *)(*((void **) (temp_16 + 0x50))), (const RwV3d *)((D_005F12E0 + ((*((u8 *) (temp_16 + 0x1CA))) * 0x30)) + ((*((u8 *) (temp_16 + 0x1CB))) * 0xC)), 2);
   RwMatrixUpdate((u8 *)mdlGetMatrix(*((void **)  (temp_16 + 0x50))));
-  func_00168de0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), sp40, *((f32 *) ((*((u8 **) (temp_16 + 0x1AC))) + 0x14C)));
+  func_00168de0((u8 *)(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220))), sp40, *((f32 *) ((*((u8 **) (temp_16 + 0x1AC))) + 0x14C)));
   func_00168ae0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), (*((u8 **) (temp_16 + 0x1AC))) + 0x140);
   func_0014b0c0(*((u16 *) (*((u8 **) (0x54 + temp_16)))), 1);
   func_00168730(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), 0x40000000);
@@ -2397,9 +2397,9 @@ s32 func_00166c80(u8 *arg0)
 
 
 /* measured: same three defects as sibling func_00167120 (see its note): (1)
-   (u8) conversions emit c.ole.s 0x46010036 vs retail 0x46000036 — 3 words,
+   (u8) conversions emit c.ole.s 0x46010036 vs retail 0x46000036 â€” 3 words,
    nLine func_0034c500 floor; (2) temp_f20 (func_0044b7b0 result) spilled to
-   the stack instead of $f20 — frame 0x40 vs 0x50; (3) the four sp4C-4F byte
+   the stack instead of $f20 â€” frame 0x40 vs 0x50; (3) the four sp4C-4F byte
    copies interleave lbu/sb. The madd.s (175+70x) and msub.s (37-10x,
    255-200x) fused expressions and the 0x28 store match. */
 // FUN_00166E30
@@ -2490,15 +2490,15 @@ mode_done:
 
 
 /* measured: nd 164 after four attempts. The u8 sp buffer must be ONE array
-   (separate u8 locals get dead-store-eliminated — only the address-taken
+   (separate u8 locals get dead-store-eliminated â€” only the address-taken
    byte aliases; cascades into the sp[9]/sp[10] conversions). The saturation
    idiom from gc_model.c (if (x < 2.1474836e9f) {(u8)(s32)x} else {(u8)(s32)
    (x - 2.1474836e9f)}) reproduces the cvt.w.s guard for VARIABLE values
    (blocks 2/3), but: (1) block 1's 255.0f constant still folds the whole
    compare+guard away under mwccgap (real b210 emitted c.ole.s/bc1t for it;
-   tried literal, single- and multi-assigned f32 locals — all fold); (2) the
+   tried literal, single- and multi-assigned f32 locals â€” all fold); (2) the
    guard comes out c.olt.s+bc1f with the normal arm inline where retail has
-   c.ole.s $f0,$f1 + bc1t with the saturate arm out of line — 2 words per
+   c.ole.s $f0,$f1 + bc1t with the saturate arm out of line â€” 2 words per
    block; (3) temp_4_2 lands in $s2 (frame 0x60) where retail keeps it in a
    caller-saved temp (frame 0x50). Everything else (FMA adda.s/madd.s
    198+57*f20, mul.s 100*f20, the f20 spill at 0x0, byte copies, node loops,

@@ -80,6 +80,7 @@ extern s32 func_00183b80(u8 *task);
 
 extern void (*jtbl_008873EC[])(void *);
 
+extern u8 D_00756510[];
 extern s32 D_0076428C;
 extern s32 iGpffffb27c;
 extern u64 iGpffffb8c8;
@@ -2025,7 +2026,7 @@ extern void FUN_0014e920(unsigned char *, int, int);
 extern void FUN_001687f0(unsigned char *, unsigned char *);
 extern void FUN_00168890(unsigned char *, unsigned char *);
 extern void FUN_00168ae0(unsigned char *, unsigned char *);
-extern void FUN_00168de0(unsigned char *, int, float);
+extern void func_00168de0(u8 *task, const void *axis, f32 angle);
 extern void FUN_0018bed0(unsigned char *, int);
 extern int FUN_0018bf50(unsigned char *);
 extern long long FUN_00248d80(long long);
@@ -2561,7 +2562,7 @@ s32 func_0018a200(u8 *param_1)
             }
           }
           else {
-            FUN_00168de0(*(unsigned char **)(puVar1[3] + 0x228),0x756510,2.0f);
+            func_00168de0(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, 2.0f);
             puVar1[9] = puVar1[9] - 1;
           }
         }
@@ -2645,7 +2646,7 @@ s32 func_0018a200(u8 *param_1)
           ((float*)puVar1)[0xf] * fStack_150 + ((float*)puVar1)[0x10] * fStack_14c < 0.0f) {
         temp_v12 = temp_v12 * -1.0f;
       }
-      FUN_00168de0(*(unsigned char **)(puVar1[3] + 0x228),0x756510,temp_v12);
+      func_00168de0(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, temp_v12);
     }
     if (temp_v13 == 1.0f) {
       if (*puVar1 == 5) {

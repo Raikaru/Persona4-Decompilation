@@ -3,6 +3,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "Kosaka/k_fldFrame_internal.h"
+extern u8 D_00756510[];
 extern s32 func_0016fd00();
 extern void func_003e0f40();
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -64,7 +65,7 @@ s32 func_0017d3c0(u8 *arg0)
     extern void func_001687f0();
     extern void func_00168ae0();
     extern void func_00168cb0();
-    extern void func_00168de0();
+    extern void func_00168de0(u8 *task, const void *axis, f32 angle);
     extern s32 func_0016ffd0();
     extern s32 func_0017e980();
     extern u32 RpRandom(void);
@@ -955,7 +956,7 @@ extern int FUN_0014e740(unsigned char *, float *);
 extern int FUN_0015c1e0(int);
 extern void FUN_00168ae0(unsigned char *, unsigned char *);
 extern void FUN_00168cb0(unsigned char *, float);
-extern void FUN_00168de0(unsigned char *, int, float);
+extern void func_00168de0(u8 *task, const void *axis, f32 angle);
 extern float FUN_00175db0(void);
 extern int FUN_0017ea10(unsigned char *);
 extern float FUN_003e4180(float *);
@@ -1314,7 +1315,7 @@ int func_0017f490(unsigned char *param_1)
         if (state2Delta.z * state2Right.z + state2Delta.x * state2Right.x + state2Delta.y * state2Right.y < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
         }
-        FUN_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),0x756510,temp_v11);
+        func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
         temp_v11 = ((float *)piVar1)[0x1c] + temp_v11;
         ((float *)piVar1)[0x1c] = temp_v11;
         if ((360.0f < temp_v11) || (temp_v11 < -360.0f)) {
@@ -1353,7 +1354,7 @@ int func_0017f490(unsigned char *param_1)
       break;
     case 3:
       if (piVar1[0x23] >= 0) {
-        FUN_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),0x756510,
+        func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510,
                       *(float *)(piVar1[5] + 0x18) * 10.0f * ((float *)piVar1)[0x1d]);
         temp_v0 = FUN_0017ea10((unsigned char *)piVar1[3]);
         if (temp_v0 == 1) {
@@ -1523,7 +1524,7 @@ int func_0017f490(unsigned char *param_1)
         if (state7Delta.z * state7Right.z + state7Delta.x * state7Right.x + state7Delta.y * state7Right.y < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
         }
-        FUN_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),0x756510,temp_v11);
+        func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
       }
       FUN_00168cb0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),temp_v8);
       if (piVar1[0x18] < 1) {
@@ -1665,7 +1666,7 @@ int func_0017f490(unsigned char *param_1)
         if (state8Delta.z * state8Right.z + state8Delta.x * state8Right.x + state8Delta.y * state8Right.y < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
         }
-        FUN_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),0x756510,temp_v11);
+        func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
       }
       FUN_00168cb0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),temp_v8);
       if (piVar1[0x18] < 1) {
@@ -1768,7 +1769,7 @@ int func_0017f490(unsigned char *param_1)
       if (state9Delta.z * state9Right.z + state9Delta.x * state9Right.x + state9Delta.y * state9Right.y < 0.0f) {
         temp_v11 = temp_v11 * -1.0f;
       }
-      FUN_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),0x756510,temp_v11);
+      func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
       FUN_00168cb0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),temp_v8);
       if (piVar1[0x18] < 1) {
         piVar1[0x1a] = piVar1[0x1b];
@@ -1825,7 +1826,7 @@ int func_0017f490(unsigned char *param_1)
       if (state10Delta.z * state10Right.z + state10Delta.x * state10Right.x + state10Delta.y * state10Right.y < 0.0f) {
         temp_v10 = temp_v10 * -1.0f;
       }
-      FUN_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),0x756510,temp_v10);
+      func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v10);
       temp_v10 = ((float *)piVar1)[0x1c] + temp_v10;
       ((float *)piVar1)[0x1c] = temp_v10;
       if ((360.0f < temp_v10) || (temp_v10 < -360.0f)) {
@@ -1886,7 +1887,7 @@ int func_0017f490(unsigned char *param_1)
         if (state11Delta.z * state11Right.z + state11Delta.x * state11Right.x + state11Delta.y * state11Right.y < 0.0f) {
           temp_v10 = temp_v10 * -1.0f;
         }
-        FUN_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),0x756510,temp_v10);
+        func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v10);
       }
       temp_v0 = FUN_0017ea10((unsigned char *)piVar1[3]);
       if (temp_v0 == 1) {
