@@ -1,4 +1,5 @@
 /* Original translation unit cmmMisc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
 
@@ -17,7 +18,6 @@ extern void func_00106390(s32 id, s32 flag);
 extern u32 func_001064f0(s32 idx);
 extern s32 func_00106550(s32 id, s32 value);
 extern s32 func_00106600(s16 idx);
-extern void func_00106620(s32 a, s32 b);
 extern s32 func_00107b70(s32 idx);
 extern s32 func_00107c80(s32 idx);
 extern void func_00107ce0(s32 idx);
@@ -1618,7 +1618,7 @@ selected_record:
         value = func_00106600((s16)id) & 0xFF;
         value = cmmMiscAddOff(value, *(s16 *)(cmmMiscAddAddress((u32)offset, (u32)selected) + 6));
         if (value > 99) value = 99;
-        func_00106620(*(s16 *)key, value & 0xFF);
+        func_00106620((s32)*(s16 *)key, value & 0xFF);
     }
     key = (u16 *)(cmmMiscAddAddress((u32)offset, (u32)selected) + 8);
     id = *key;
@@ -1627,7 +1627,7 @@ selected_record:
         value = func_00106600((s16)id) & 0xFF;
         value = cmmMiscAddOff(value, *(s16 *)(cmmMiscAddOff(offset, (s32)selected) + 10));
         if (value > 99) value = 99;
-        func_00106620(*(s16 *)key, value & 0xFF);
+        func_00106620((s32)*(s16 *)key, value & 0xFF);
     }
     return 1;
 }

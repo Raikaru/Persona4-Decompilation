@@ -1,3 +1,4 @@
+#include "list_item_internal.h"
 #include "btl_skill_target_internal.h"
 #include "btl_packet_create_internal.h"
 #include "btl_formation_internal.h"
@@ -6636,7 +6637,6 @@ void func_001acbb0(u8 *arg0) {
     u8 *temp_2_9;
 
     s32 func_00106600(s16 id);
-    void func_00106620(s32 arg0, s32 arg1);
     u8 *btlCreateRemoveFlagsPacket(s32 arg0);
     u8 *func_00194b60(void);
     void func_001f0a10(u8 *arg0);

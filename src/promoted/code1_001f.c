@@ -1,3 +1,4 @@
+#include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
@@ -152,7 +153,6 @@ extern void func_001f3b00(void);
 
 extern s32 func_001f8380(u8 **arg0);
 extern s32 func_00106600(s16 arg0);
-extern void func_00106620(s32 arg0, u32 arg1);
 extern s32 func_002325a0(s32 arg0, s32 arg1);
 extern s32 func_00232610(s32 arg0, s32 arg1);
 extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
@@ -1793,7 +1793,7 @@ s32 func_001f39d0(u8 **arg0) {
     s32 off;
     u8 *base;
     u8 *ptr;
-    s32 itemId;
+    s16 itemId;
 
     temp_4 = *arg0;
     temp_16 = *(u8 **)(temp_4 + 0x30);

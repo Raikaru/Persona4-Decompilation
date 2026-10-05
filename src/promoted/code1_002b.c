@@ -1,3 +1,4 @@
+#include "list_item_internal.h"
 #include "fcl_color.h"
 #include "include_asm.h"
 #include "fcl_draw_task.h"
@@ -32,7 +33,6 @@ extern char D_0063F2A0[];
 extern char D_007488E8[];
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 
-extern s32 clndGetMoonPhase(void);
 
 extern u32 func_00106a90(s16 arg0);
 extern u8 *D_00882F40[];
@@ -52,7 +52,7 @@ extern s32 *func_002bbf70();
 extern s32 func_002bb0e0(void);
 extern void func_002791f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern s32 func_00279350(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u8 *arg6);
-extern s32 func_00106880(void);
+extern u32 func_00106880(s16 item);
 extern s32 func_002be1e0(s32 arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void func_00145080(void);
@@ -82,9 +82,6 @@ extern char D_0063F380[];
 extern f32 iGpffff82fc;
 extern f32 cosf(f32 arg0);
 extern f32 sinf(f32 arg0);
-extern s32 func_00106850(void);
-extern s32 func_00106ac0(s64 arg0);
-extern s64 func_00106af0(s64 arg0);
 extern s32 func_002e78a0(void);
 extern s32 func_002e78e0(void);
 extern s32 func_002be100(s32 arg0);
@@ -553,13 +550,13 @@ void func_002b31a0(u8 *arg0, u8 *arg1, u8 *arg2)
     *(struct Vec3 *)arg0 = result;
 }
 // FUN_002B3230
-s32 func_002b3230(s16 *arg0, s16 *arg1) {
+s32 func_002b3230(const void *arg0, const void *arg1) {
     s16 b;
     u32 x;
     u32 y;
 
-    b = *arg1;
-    x = func_00106a90(*arg0);
+    b = *(const s16 *)arg1;
+    x = func_00106a90(*(const s16 *)arg0);
     y = func_00106a90(b);
     if (x < y) {
         return 1;
@@ -1764,7 +1761,6 @@ void func_002bc0b0(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
 {
     extern s32 func_00106600(s16 id);
     extern u32 func_00106880(s16 arg0);
-    extern s64 func_00106b80(s32 arg0);
     extern s32 func_00278e90(s32 arg0);
     extern s32 func_002791f0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
     extern s32 func_00279470(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10);
@@ -1866,17 +1862,15 @@ block_23:
                   arg0, arg1, arg2, arg3, temp_item, arg5);
     return 0;
 }
-/* Preserve the word-sized ID through both metadata queries. Capture the
+/* Both metadata queries share the signed halfword item ID. Capture the
  * remaining inputs before those calls; scoped propagation preserves their
  * retail entry order, all 740 code bytes, and the six-way table. */
 #pragma push
 #pragma opt_propagation off
 // FUN_002BC4B0
-void func_002bc4b0(f32 inputDepth, s32 arg0, s32 arg1, s32 arg2,
+void func_002bc4b0(f32 inputDepth, s16 arg0, s32 arg1, s32 arg2,
                     s32 inputArg3, s32 inputArg4, s32 inputArg5)
 {
-    extern u32 func_00106850(s32 arg0);
-    extern s64 func_00106b80(s32 arg0);
     extern s32 func_002791f0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
     u32 temp_2;
     f32 fparg0;
@@ -2226,20 +2220,20 @@ void func_002bdb10(u8 *arg0)
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 // FUN_002BDFF0
-s32 func_002bdff0(s64 arg0)
+s32 func_002bdff0(s16 arg0)
 {
     s32 temp_16;
     s32 temp_16_2;
     s32 temp_16_3;
 
-    if (func_00106850() != 3) {
+    if (func_00106850(arg0) != 3) {
         goto false_result;
     }
-    temp_16 = func_002be100(func_00106ac0(arg0) & 0xFF) & 0xFF;
+    temp_16 = func_002be100((u8)func_00106ac0(arg0)) & 0xFF;
     if (temp_16 < (func_002be100(func_002e78a0()) & 0xFF)) {
         return 1;
     }
-    temp_16_2 = func_002be100(func_00106ac0(arg0) & 0xFF) & 0xFF;
+    temp_16_2 = func_002be100((u8)func_00106ac0(arg0)) & 0xFF;
     if (temp_16_2 != (func_002be100(func_002e78a0()) & 0xFF)) {
         goto false_result;
     }
@@ -2266,18 +2260,18 @@ s32 func_002be100(s32 arg0) {
 }
 
 // FUN_002BE160
-s32 func_002be160(u8 *arg0, s32 arg1) {
+s32 func_002be160(s32 arg0, s32 arg1) {
     s32 n = arg1 & 0xFFFF;
     if (n == 0) {
         return 1;
     }
-    return (clndGetMoonPhase() & 0xFF) >= n;
+    return (clndGetMoonPhase(arg0) & 0xFF) >= n;
 }
 
 // FUN_002BE1B0
-void func_002be1b0(void)
+s32 func_002be1b0(s16 item)
 {
-    func_002be1e0(func_00106880());
+    return func_002be1e0(func_00106880(item));
 }
 // FUN_002BE1E0
 s32 func_002be1e0(s32 arg0)

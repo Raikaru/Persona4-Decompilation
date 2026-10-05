@@ -1,3 +1,4 @@
+#include "list_item_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -41,7 +42,6 @@ extern void func_00105990(s16 arg0, u32 value);
 extern u8 func_001059e0(s32 arg0);
 extern s32 func_00106020(s32 arg0);
 extern s32 func_00106600(s16 id);
-extern void func_00106620(s32 arg0, s32 value);
 extern void func_00231ef0(u8 *arg0, u8 arg1);
 extern s32 func_00212180(s32);
 extern void func_00216c40(s32, s32);
@@ -4542,7 +4542,7 @@ void func_0021e9a0(u8 *arg0, u8 *arg1)
         if (sum > 0x63) {
             sum = 0x63;
         }
-        func_00106620(*(s16 *)temp_20, (u8)sum);
+        func_00106620((s32)*(s16 *)temp_20, (u8)sum);
         var_17 += 1;
     }
 }

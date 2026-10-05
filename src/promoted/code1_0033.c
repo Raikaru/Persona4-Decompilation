@@ -1,3 +1,4 @@
+#include "list_item_internal.h"
 #include "fcl_scale_transition.h"
 #include "fcl_animation_internal.h"
 #include "fcl_color.h"
@@ -95,7 +96,6 @@ extern u16 func_00107ac0(s32 arg0);
 extern s8 func_002bab80(void *arg0);
 extern s32 func_002badc0(s8 arg0, s32 arg1);
 extern s32 func_00106600(s16 arg0);
-extern void func_00106620(s32 arg0, s32 arg1);
 extern s32 func_002bb680(s8 arg0);
 extern void func_002bbcf0(s32 arg0);
 extern void func_002bb550(s8 arg0);

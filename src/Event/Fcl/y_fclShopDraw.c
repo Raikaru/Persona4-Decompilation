@@ -1,4 +1,5 @@
 /* measured: this unit declared the colour packer with u8 parameters (see fcl_color.h). */
+#include "list_item_internal.h"
 #include "fcl_scale_transition.h"
 #include "fcl_animation_internal.h"
 #include "fcl_color.h"
@@ -265,13 +266,11 @@ s32 func_002b2d00(s32, s32, s32, s32, s8);
 s16 func_002b2d50(s16, s16, s16, s16, s16);
 void func_002b2e70(s32, s32, s32, s32, s16 *, s16 *);
 void func_002b2f90(s32, s32, s32, s32, s16 *, s16 *);
-void func_002e2a10(s32, s32, s32, s32);
 void func_002e0970(void *, FclDrawColor, FclDrawColor, s32, s32, s32);
 void func_002e09b0(void *, f32, s16);
 void func_002e0be0(s32, Vec2f, f32, s32, u8, s32, u8 *);
 u32 func_002e7a60(void);
 u32 func_00106a90(s16);
-s32 clndGetMoonPhase(s32);
 s8 func_002e29d0(void);
 f32 func_002b2aa0(s32, f32, f32, f32, f32);
 s32 func_002e2700(void *);
@@ -318,7 +317,6 @@ s32 func_002be530(u8 *arg0)
     extern void func_002d8a60(void *, s8, f32, f32);
     extern void func_002dd3b0(void *);
     extern s8 func_002e05a0(void *);
-    extern s32 func_002e2740(s32);
     extern s32 func_0045af60(s16, s16, s16, s16);
     extern s32 func_0046a750(s32);
     extern u8 D_0063FAA0[];
@@ -344,11 +342,8 @@ s32 func_002be530(u8 *arg0)
     extern s32 H_Cdvd_IsFileLoaded(void *);
     extern s32 datGetFlag(s32);
     extern void func_00106390(s32, s32);
-    extern void func_00106620(s16, s32);
-    extern u32 func_00106850(s16);
     extern s32 func_00106b50(s16);
     extern void func_00106d40(s16, s16, s16);
-    extern void func_00110810(s32, u8);
     extern s64 func_00110a60(s32, s32);
     extern s32 func_002b32a0(s32, s32, s32, s32);
     extern s32 func_002bae80(s64, s32);
@@ -356,7 +351,6 @@ s32 func_002be530(u8 *arg0)
     extern void func_002bb550(s8);
     extern s32 func_002bb680(s8);
     extern void func_002bbcf0(s32);
-    extern s32 func_002be160(s32, s32);
     extern void func_002e24a0(s32, s32, s32, s32);
     extern s32 func_002e28f0(void *, s32);
     extern u8 func_002e78a0(void);
@@ -366,7 +360,6 @@ s32 func_002be530(u8 *arg0)
     extern s32 sprintf(char *, const char *, ...);
     extern s32 func_00452380(void *);
     extern u8 func_0045aeb0(s16, const char *);
-    extern void func_002e3560(void *, s32, s32, s8, s32);
     extern void func_002dfe00(void *arg0);
     extern s32 func_002dfd00(u16 arg0);
     extern void func_002e02d0(u8 *task);
@@ -3086,7 +3079,6 @@ typedef struct {
 #pragma opt_loop_invariants on
 // FUN_002CB6C0
 void func_002cb6c0(void *arg0, s8 arg1) {
-    extern s32 func_002e2740(s32);
     s32 func_0045af60(s16, s16, s16, s16);
     FclDrawColor rowColor;
     FclDrawColor glow0a;
@@ -3713,7 +3705,6 @@ void func_002cdf80(void *arg0, s8 arg1) {
     extern f32 fGpffff8528;
     s8 func_002e05a0(u8 *);
     s8 func_002e2a00(void *);
-    void func_002e3560(u8 *, s32, s32, s8, s32);
     void func_002b3050(s32, s32, s32, s64, s32, s16 *, s16 *);
     s8 func_002d4760(void *, s8);
     void func_002d7c10(void *, s16);
@@ -4331,8 +4322,6 @@ void func_002cdf80(void *arg0, s8 arg1) {
 // FUN_002D1590
 s32 func_002d1590(void *arg0)
 {
-    extern s32 func_002e2740(s32 arg0);
-    extern s64 func_00106b80(s16 arg0);
     extern s8 func_002e05a0(void *);
     extern f32 fGpffff8530;
     extern f32 D_0063F620[];
@@ -5146,7 +5135,6 @@ static inline void shopDrawStat(u32 value, f32 x, f32 y)
    `dB = dA = 0`. */
 // FUN_002D5040
 void func_002d5040(void *arg0) {
-    extern s16 func_002e2740(s32 arg0);
     s16 dB;
     s16 dA;
     u8 *work;
@@ -6348,7 +6336,6 @@ void func_002db400(void *arg0) {
     extern u8 D_0063FA88[];
     extern u8 D_0063FA90[];
     extern u8 D_0063FA98[];
-    void func_002e3560(u8 *, s32, s32, s8, s32);
     FclDrawColor c0;
     FclDrawColor c1;
     FclDrawColor c2;
@@ -6772,7 +6759,6 @@ static inline void shopDrawStatAt(u32 raw, u32 value, Vec2f pos)
    (retail tests 0, 2, 1); the inner one owns jtbl_007489F0 (cases 20-28). */
 // FUN_002DD3B0
 void func_002dd3b0(void *arg0) {
-    extern s64 func_00106b80(s16 arg0);
     u8 *work;
     s16 id;
     s16 j;
