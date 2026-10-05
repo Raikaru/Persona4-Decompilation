@@ -22,7 +22,7 @@ balanced pragma push/pop.
 | --- | --- |
 | `src/Battle/btlMain.c` | `10e04f830857283b8f290bcd6ad009e93c6c4f28ca8c49588331f4a7e7bc1655` |
 | `build/worker-1/resume-retained-floor/func_001b87e0/owner.o` | `e1232f1dc8711a53e6003bbc4c724e3791017df9b8a78804386803c9333ea6b0` |
-| `Finish_first_party_worker1_20261005_receipt.json` | `0f3fba00115b8bba7a4480e2caf7c5a8dea50650334bb794182e617affb016bc` |
+| `Finish_first_party_worker1_20261005_receipt.json` | `4ff57dcfb8ecff81021edb7c269def83ea039257e7ccf87baa91b18930b42d9c` |
 
 The source hash agrees with both the earlier `build/worker-1/fade-proof.json`
 and prime's baseline input manifest. The fresh owning-object hash is also

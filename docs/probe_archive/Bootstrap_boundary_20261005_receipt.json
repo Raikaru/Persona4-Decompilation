@@ -1,0 +1,5941 @@
+{
+  "owner": "src/promoted/code1_0010.c",
+  "object": "build\\bootstrap-boundary-20261005\\src_promoted_code1_0010.c.o",
+  "object_sha256": "6a6d3b973b00db1b93192c88ca421b89b8cb73790f7391ec1ff21c60a60c9b6e",
+  "functions": [
+    {
+      "name": "func_00100008",
+      "address": 1048584,
+      "size": 528,
+      "window": 528,
+      "zero_tail": 0,
+      "resolved_sha256": "29b1e552065f98538690260e0b1a6aeb1f0498bbf6532d0765f6bc5a12af5a46",
+      "relocations": [
+        {
+          "offset": 276,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764280",
+          "address": 7750272,
+          "addend": 0,
+          "word": 1006764150
+        },
+        {
+          "offset": 284,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764280",
+          "address": 7750272,
+          "addend": 0,
+          "word": 608322176
+        },
+        {
+          "offset": 280,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_938A00",
+          "address": 9669120,
+          "addend": 0,
+          "word": 1006829716
+        },
+        {
+          "offset": 288,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_938A00",
+          "address": 9669120,
+          "addend": 0,
+          "word": 610503168
+        },
+        {
+          "offset": 316,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00100008",
+          "address": 1048584,
+          "addend": 292,
+          "word": 134479947
+        },
+        {
+          "offset": 360,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00100008",
+          "address": 1048584,
+          "addend": 336,
+          "word": 134479958
+        },
+        {
+          "offset": 392,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00100008",
+          "address": 1048584,
+          "addend": 368,
+          "word": 134479966
+        },
+        {
+          "offset": 400,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007690F0",
+          "address": 7770352,
+          "addend": 0,
+          "word": 1006895223
+        },
+        {
+          "offset": 420,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007690F0",
+          "address": 7770352,
+          "addend": 0,
+          "word": 612667632
+        },
+        {
+          "offset": 404,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_1F60000",
+          "address": 32899072,
+          "addend": 0,
+          "word": 1006961142
+        },
+        {
+          "offset": 424,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_1F60000",
+          "address": 32899072,
+          "addend": 0,
+          "word": 614793216
+        },
+        {
+          "offset": 408,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_A0000",
+          "address": 655360,
+          "addend": 0,
+          "word": 1007026186
+        },
+        {
+          "offset": 428,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_A0000",
+          "address": 655360,
+          "addend": 0,
+          "word": 616955904
+        },
+        {
+          "offset": 412,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00884900",
+          "address": 8931584,
+          "addend": 0,
+          "word": 1007091848
+        },
+        {
+          "offset": 432,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00884900",
+          "address": 8931584,
+          "addend": 0,
+          "word": 619137280
+        },
+        {
+          "offset": 416,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_00100220",
+          "address": 1049120,
+          "addend": 0,
+          "word": 1007157264
+        },
+        {
+          "offset": 436,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_00100220",
+          "address": 1049120,
+          "addend": 0,
+          "word": 621281824
+        },
+        {
+          "offset": 456,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_938A00",
+          "address": 9669120,
+          "addend": 0,
+          "word": 1006895252
+        },
+        {
+          "offset": 464,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_938A00",
+          "address": 9669120,
+          "addend": 0,
+          "word": 612665856
+        },
+        {
+          "offset": 480,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042bcd8",
+          "address": 4373720,
+          "addend": 0,
+          "word": 202420022
+        },
+        {
+          "offset": 488,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00421a60",
+          "address": 4332128,
+          "addend": 0,
+          "word": 202409624
+        },
+        {
+          "offset": 500,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00884900",
+          "address": 8931584,
+          "addend": 0,
+          "word": 1006764168
+        },
+        {
+          "offset": 504,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00884900",
+          "address": 8931584,
+          "addend": 0,
+          "word": 608323840
+        },
+        {
+          "offset": 512,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_001002c0",
+          "address": 1049280,
+          "addend": 0,
+          "word": 201588912
+        },
+        {
+          "offset": 520,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0043dc60",
+          "address": 4447328,
+          "addend": 0,
+          "word": 135329560
+        }
+      ]
+    },
+    {
+      "name": "func_00100218",
+      "address": 1049112,
+      "size": 8,
+      "window": 8,
+      "zero_tail": 0,
+      "resolved_sha256": "95002a65092e70e852876e24636c62676e2b4e33fff31555e474778c078efbbe",
+      "relocations": [
+        {
+          "offset": 0,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042c0d8",
+          "address": 4374744,
+          "addend": 0,
+          "word": 135311414
+        }
+      ]
+    },
+    {
+      "name": "func_00100220",
+      "address": 1049120,
+      "size": 8,
+      "window": 16,
+      "zero_tail": 8,
+      "resolved_sha256": "4d5964234b4b5400eb8d49c4a08de8cb1048abba375d7307aeb3cac0b0f56d92",
+      "relocations": []
+    },
+    {
+      "name": "func_00100230",
+      "address": 1049136,
+      "size": 132,
+      "window": 144,
+      "zero_tail": 12,
+      "resolved_sha256": "4570c8cb1050c614418d8d8b5e2e211c2ba743ada788b2ccc81c0acea6cd395b",
+      "relocations": [
+        {
+          "offset": 20,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_A0000",
+          "address": 655360,
+          "addend": 0,
+          "word": 1006764042
+        },
+        {
+          "offset": 24,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_A0000",
+          "address": 655360,
+          "addend": 0,
+          "word": 608305152
+        },
+        {
+          "offset": 32,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_938A00",
+          "address": 9669120,
+          "addend": 0,
+          "word": 1006764180
+        },
+        {
+          "offset": 36,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_938A00",
+          "address": 9669120,
+          "addend": 0,
+          "word": 608340480
+        },
+        {
+          "offset": 56,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0043ece8",
+          "address": 4451560,
+          "addend": 0,
+          "word": 202439482
+        },
+        {
+          "offset": 76,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00559800",
+          "address": 5609472,
+          "addend": 0,
+          "word": 1006895190
+        },
+        {
+          "offset": 80,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00559800",
+          "address": 5609472,
+          "addend": 0,
+          "word": 612669440
+        },
+        {
+          "offset": 84,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00440b68",
+          "address": 4459368,
+          "addend": 0,
+          "word": 202441434
+        },
+        {
+          "offset": 96,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0043ed08",
+          "address": 4451592,
+          "addend": 0,
+          "word": 202439490
+        }
+      ]
+    },
+    {
+      "name": "func_001002c0",
+      "address": 1049280,
+      "size": 80,
+      "window": 80,
+      "zero_tail": 0,
+      "resolved_sha256": "cdfed9d9ebd446d7ed547435e1e316375e4db7774cdd7ede6a02b480a2b46c74",
+      "relocations": [
+        {
+          "offset": 8,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00559810",
+          "address": 5609488,
+          "addend": 0,
+          "word": 1006895190
+        },
+        {
+          "offset": 12,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00559810",
+          "address": 5609488,
+          "addend": 0,
+          "word": 612669456
+        },
+        {
+          "offset": 16,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00440b68",
+          "address": 4459368,
+          "addend": 0,
+          "word": 202441434
+        },
+        {
+          "offset": 24,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00100230",
+          "address": 1049136,
+          "addend": 0,
+          "word": 201588876
+        },
+        {
+          "offset": 32,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00559820",
+          "address": 5609504,
+          "addend": 0,
+          "word": 1006895190
+        },
+        {
+          "offset": 36,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00559820",
+          "address": 5609504,
+          "addend": 0,
+          "word": 612669472
+        },
+        {
+          "offset": 44,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00440b68",
+          "address": 4459368,
+          "addend": 0,
+          "word": 202441434
+        },
+        {
+          "offset": 52,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00101350",
+          "address": 1053520,
+          "addend": 0,
+          "word": 201589972
+        }
+      ]
+    },
+    {
+      "name": "func_00100310",
+      "address": 1049360,
+      "size": 64,
+      "window": 64,
+      "zero_tail": 0,
+      "resolved_sha256": "916b5286afc273395d4c1a51acaf65dee0f1defe9961f717371f1cbc5f778310",
+      "relocations": []
+    },
+    {
+      "name": "func_00100350",
+      "address": 1049424,
+      "size": 788,
+      "window": 800,
+      "zero_tail": 12,
+      "resolved_sha256": "0aa97b65d619009b4c078f7583b3bf8ead708f035ec92a03024c034ad2595478",
+      "relocations": [
+        {
+          "offset": 12,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00424f28",
+          "address": 4345640,
+          "addend": 0,
+          "word": 202413002
+        },
+        {
+          "offset": 20,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00429c18",
+          "address": 4365336,
+          "addend": 0,
+          "word": 202417926
+        },
+        {
+          "offset": 32,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042eae0",
+          "address": 4385504,
+          "addend": 0,
+          "word": 202422968
+        },
+        {
+          "offset": 44,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "sceCdMmode",
+          "address": 4388352,
+          "addend": 0,
+          "word": 202423680
+        },
+        {
+          "offset": 56,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC530",
+          "address": 6145328,
+          "addend": 0,
+          "word": 1006960734
+        },
+        {
+          "offset": 60,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC530",
+          "address": 6145328,
+          "addend": 0,
+          "word": 614843696
+        },
+        {
+          "offset": 64,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC548",
+          "address": 6145352,
+          "addend": 0,
+          "word": 1007026270
+        },
+        {
+          "offset": 68,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC548",
+          "address": 6145352,
+          "addend": 0,
+          "word": 617006408
+        },
+        {
+          "offset": 72,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "sprintf",
+          "address": 4464776,
+          "addend": 0,
+          "word": 202442786
+        },
+        {
+          "offset": 84,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042b098",
+          "address": 4370584,
+          "addend": 0,
+          "word": 202419238
+        },
+        {
+          "offset": 112,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042b048",
+          "address": 4370504,
+          "addend": 0,
+          "word": 202419218
+        },
+        {
+          "offset": 148,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00424f28",
+          "address": 4345640,
+          "addend": 0,
+          "word": 202413002
+        },
+        {
+          "offset": 156,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00429c18",
+          "address": 4365336,
+          "addend": 0,
+          "word": 202417926
+        },
+        {
+          "offset": 168,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042eae0",
+          "address": 4385504,
+          "addend": 0,
+          "word": 202422968
+        },
+        {
+          "offset": 180,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "sceCdMmode",
+          "address": 4388352,
+          "addend": 0,
+          "word": 202423680
+        },
+        {
+          "offset": 192,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_00100310",
+          "address": 1049360,
+          "addend": 0,
+          "word": 1006960656
+        },
+        {
+          "offset": 196,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_00100310",
+          "address": 1049360,
+          "addend": 0,
+          "word": 614794000
+        },
+        {
+          "offset": 204,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004214c0",
+          "address": 4330688,
+          "addend": 0,
+          "word": 202409264
+        },
+        {
+          "offset": 240,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00422328",
+          "address": 4334376,
+          "addend": 0,
+          "word": 202410186
+        },
+        {
+          "offset": 248,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffb19c",
+          "address": 7750284,
+          "addend": 0,
+          "word": 2944446876
+        },
+        {
+          "offset": 252,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffb1a0",
+          "address": 7750288,
+          "addend": 0,
+          "word": 2944446880
+        },
+        {
+          "offset": 256,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC560",
+          "address": 6145376,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 260,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC560",
+          "address": 6145376,
+          "addend": 0,
+          "word": 612681056
+        },
+        {
+          "offset": 272,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 288,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC580",
+          "address": 6145408,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 292,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC580",
+          "address": 6145408,
+          "addend": 0,
+          "word": 612681088
+        },
+        {
+          "offset": 304,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 320,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC5A0",
+          "address": 6145440,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 324,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC5A0",
+          "address": 6145440,
+          "addend": 0,
+          "word": 612681120
+        },
+        {
+          "offset": 336,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 352,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC5C0",
+          "address": 6145472,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 356,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC5C0",
+          "address": 6145472,
+          "addend": 0,
+          "word": 612681152
+        },
+        {
+          "offset": 368,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 384,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC5E0",
+          "address": 6145504,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 388,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC5E0",
+          "address": 6145504,
+          "addend": 0,
+          "word": 612681184
+        },
+        {
+          "offset": 400,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 416,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC600",
+          "address": 6145536,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 420,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC600",
+          "address": 6145536,
+          "addend": 0,
+          "word": 612681216
+        },
+        {
+          "offset": 432,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 448,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC620",
+          "address": 6145568,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 452,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC620",
+          "address": 6145568,
+          "addend": 0,
+          "word": 612681248
+        },
+        {
+          "offset": 460,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC640",
+          "address": 6145600,
+          "addend": 0,
+          "word": 1007026270
+        },
+        {
+          "offset": 464,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC640",
+          "address": 6145600,
+          "addend": 0,
+          "word": 617006656
+        },
+        {
+          "offset": 468,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 484,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC660",
+          "address": 6145632,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 488,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC660",
+          "address": 6145632,
+          "addend": 0,
+          "word": 612681312
+        },
+        {
+          "offset": 500,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 516,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC680",
+          "address": 6145664,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 520,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC680",
+          "address": 6145664,
+          "addend": 0,
+          "word": 612681344
+        },
+        {
+          "offset": 532,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 548,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC6A0",
+          "address": 6145696,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 552,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC6A0",
+          "address": 6145696,
+          "addend": 0,
+          "word": 612681376
+        },
+        {
+          "offset": 564,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 580,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC6C0",
+          "address": 6145728,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 584,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC6C0",
+          "address": 6145728,
+          "addend": 0,
+          "word": 612681408
+        },
+        {
+          "offset": 596,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 612,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC6E0",
+          "address": 6145760,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 616,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC6E0",
+          "address": 6145760,
+          "addend": 0,
+          "word": 612681440
+        },
+        {
+          "offset": 628,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 644,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC700",
+          "address": 6145792,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 648,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC700",
+          "address": 6145792,
+          "addend": 0,
+          "word": 612681472
+        },
+        {
+          "offset": 660,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 676,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC700",
+          "address": 6145792,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 680,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC700",
+          "address": 6145792,
+          "addend": 0,
+          "word": 612681472
+        },
+        {
+          "offset": 692,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 708,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC720",
+          "address": 6145824,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 712,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC720",
+          "address": 6145824,
+          "addend": 0,
+          "word": 612681504
+        },
+        {
+          "offset": 720,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC740",
+          "address": 6145856,
+          "addend": 0,
+          "word": 1007026270
+        },
+        {
+          "offset": 724,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC740",
+          "address": 6145856,
+          "addend": 0,
+          "word": 617006912
+        },
+        {
+          "offset": 728,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0042ab68",
+          "address": 4369256,
+          "addend": 0,
+          "word": 202418906
+        },
+        {
+          "offset": 744,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00452760",
+          "address": 4532064,
+          "addend": 0,
+          "word": 202459608
+        },
+        {
+          "offset": 752,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004645e0",
+          "address": 4605408,
+          "addend": 0,
+          "word": 202477944
+        },
+        {
+          "offset": 760,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004216d0",
+          "address": 4331216,
+          "addend": 0,
+          "word": 202409396
+        },
+        {
+          "offset": 768,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764280",
+          "address": 7750272,
+          "addend": 0,
+          "word": 2944577936
+        }
+      ]
+    },
+    {
+      "name": "func_00100670",
+      "address": 1050224,
+      "size": 1888,
+      "window": 1888,
+      "zero_tail": 0,
+      "resolved_sha256": "0d7b14f49ae309635838d485d84631f7dbfc9a984a3517fc8018cb059906f1d3",
+      "relocations": [
+        {
+          "offset": 8,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0044f510",
+          "address": 4519184,
+          "addend": 0,
+          "word": 202456388
+        },
+        {
+          "offset": 28,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RwEngineInit",
+          "address": 4099168,
+          "addend": 0,
+          "word": 202351384
+        },
+        {
+          "offset": 40,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b5a0",
+          "address": 3782048,
+          "addend": 0,
+          "word": 202272104
+        },
+        {
+          "offset": 48,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F2F0",
+          "address": 6615792,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 52,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F2F0",
+          "address": 6615792,
+          "addend": 0,
+          "word": 608367344
+        },
+        {
+          "offset": 88,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 96,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F380",
+          "address": 6615936,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 100,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F380",
+          "address": 6615936,
+          "addend": 0,
+          "word": 608367488
+        },
+        {
+          "offset": 140,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 148,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F3A0",
+          "address": 6615968,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 152,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F3A0",
+          "address": 6615968,
+          "addend": 0,
+          "word": 608367520
+        },
+        {
+          "offset": 192,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 200,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F3C0",
+          "address": 6616000,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 204,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F3C0",
+          "address": 6616000,
+          "addend": 0,
+          "word": 608367552
+        },
+        {
+          "offset": 240,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 248,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F450",
+          "address": 6616144,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 252,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F450",
+          "address": 6616144,
+          "addend": 0,
+          "word": 608367696
+        },
+        {
+          "offset": 288,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 296,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F4E0",
+          "address": 6616288,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 300,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F4E0",
+          "address": 6616288,
+          "addend": 0,
+          "word": 608367840
+        },
+        {
+          "offset": 340,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 348,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F500",
+          "address": 6616320,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 352,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F500",
+          "address": 6616320,
+          "addend": 0,
+          "word": 608367872
+        },
+        {
+          "offset": 392,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 400,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003ca430",
+          "address": 3974192,
+          "addend": 0,
+          "word": 202320140
+        },
+        {
+          "offset": 408,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00390520",
+          "address": 3736864,
+          "addend": 0,
+          "word": 202260808
+        },
+        {
+          "offset": 416,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003bbe20",
+          "address": 3915296,
+          "addend": 0,
+          "word": 202305416
+        },
+        {
+          "offset": 424,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003999a0",
+          "address": 3774880,
+          "addend": 0,
+          "word": 202270312
+        },
+        {
+          "offset": 432,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F5B0",
+          "address": 6616496,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 436,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F5B0",
+          "address": 6616496,
+          "addend": 0,
+          "word": 608368048
+        },
+        {
+          "offset": 476,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 484,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F640",
+          "address": 6616640,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 488,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F640",
+          "address": 6616640,
+          "addend": 0,
+          "word": 608368192
+        },
+        {
+          "offset": 528,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 536,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F6D0",
+          "address": 6616784,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 540,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F6D0",
+          "address": 6616784,
+          "addend": 0,
+          "word": 608368336
+        },
+        {
+          "offset": 584,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 592,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F6F0",
+          "address": 6616816,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 596,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F6F0",
+          "address": 6616816,
+          "addend": 0,
+          "word": 608368368
+        },
+        {
+          "offset": 640,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 648,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F710",
+          "address": 6616848,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 652,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F710",
+          "address": 6616848,
+          "addend": 0,
+          "word": 608368400
+        },
+        {
+          "offset": 696,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 704,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F730",
+          "address": 6616880,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 708,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F730",
+          "address": 6616880,
+          "addend": 0,
+          "word": 608368432
+        },
+        {
+          "offset": 752,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 760,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003d4fc0",
+          "address": 4018112,
+          "addend": 0,
+          "word": 202331120
+        },
+        {
+          "offset": 768,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00396f00",
+          "address": 3763968,
+          "addend": 0,
+          "word": 202267584
+        },
+        {
+          "offset": 776,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003b82d0",
+          "address": 3900112,
+          "addend": 0,
+          "word": 202301620
+        },
+        {
+          "offset": 784,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F770",
+          "address": 6616944,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 788,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F770",
+          "address": 6616944,
+          "addend": 0,
+          "word": 608368496
+        },
+        {
+          "offset": 828,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 836,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F800",
+          "address": 6617088,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 840,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F800",
+          "address": 6617088,
+          "addend": 0,
+          "word": 608368640
+        },
+        {
+          "offset": 884,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 892,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F8D0",
+          "address": 6617296,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 896,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F8D0",
+          "address": 6617296,
+          "addend": 0,
+          "word": 608368848
+        },
+        {
+          "offset": 936,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 944,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F960",
+          "address": 6617440,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 948,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F960",
+          "address": 6617440,
+          "addend": 0,
+          "word": 608368992
+        },
+        {
+          "offset": 988,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 996,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064F9F0",
+          "address": 6617584,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 1000,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064F9F0",
+          "address": 6617584,
+          "addend": 0,
+          "word": 608369136
+        },
+        {
+          "offset": 1044,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 1052,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064FA10",
+          "address": 6617616,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 1056,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064FA10",
+          "address": 6617616,
+          "addend": 0,
+          "word": 608369168
+        },
+        {
+          "offset": 1100,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 1108,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b380",
+          "address": 3781504,
+          "addend": 0,
+          "word": 202271968
+        },
+        {
+          "offset": 1116,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RpUVAnimPluginAttach",
+          "address": 4026800,
+          "addend": 0,
+          "word": 202333292
+        },
+        {
+          "offset": 1124,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00417470",
+          "address": 4289648,
+          "addend": 0,
+          "word": 202399004
+        },
+        {
+          "offset": 1132,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064FAC0",
+          "address": 6617792,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 1136,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064FAC0",
+          "address": 6617792,
+          "addend": 0,
+          "word": 608369344
+        },
+        {
+          "offset": 1176,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 1184,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064FA30",
+          "address": 6617648,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 1188,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064FA30",
+          "address": 6617648,
+          "addend": 0,
+          "word": 608369200
+        },
+        {
+          "offset": 1228,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 1236,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064FAE0",
+          "address": 6617824,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 1240,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064FAE0",
+          "address": 6617824,
+          "addend": 0,
+          "word": 608369376
+        },
+        {
+          "offset": 1280,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 1288,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064FB70",
+          "address": 6617968,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 1292,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064FB70",
+          "address": 6617968,
+          "addend": 0,
+          "word": 608369520
+        },
+        {
+          "offset": 1332,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 1340,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064FC00",
+          "address": 6618112,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 1344,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064FC00",
+          "address": 6618112,
+          "addend": 0,
+          "word": 608369664
+        },
+        {
+          "offset": 1384,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 1392,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064FC90",
+          "address": 6618256,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 1396,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064FC90",
+          "address": 6618256,
+          "addend": 0,
+          "word": 608369808
+        },
+        {
+          "offset": 1436,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 1444,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064FD50",
+          "address": 6618448,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 1448,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064FD50",
+          "address": 6618448,
+          "addend": 0,
+          "word": 608370000
+        },
+        {
+          "offset": 1488,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 1496,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0064FDE0",
+          "address": 6618592,
+          "addend": 0,
+          "word": 1006764133
+        },
+        {
+          "offset": 1500,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0064FDE0",
+          "address": 6618592,
+          "addend": 0,
+          "word": 608370144
+        },
+        {
+          "offset": 1540,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0039b680",
+          "address": 3782272,
+          "addend": 0,
+          "word": 202272160
+        },
+        {
+          "offset": 1548,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003a16c0",
+          "address": 3806912,
+          "addend": 0,
+          "word": 202278320
+        },
+        {
+          "offset": 1556,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003b7110",
+          "address": 3895568,
+          "addend": 0,
+          "word": 202300484
+        },
+        {
+          "offset": 1564,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003bd160",
+          "address": 3920224,
+          "addend": 0,
+          "word": 202306648
+        },
+        {
+          "offset": 1580,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003e8b10",
+          "address": 4098832,
+          "addend": 0,
+          "word": 202351300
+        },
+        {
+          "offset": 1592,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003f6780",
+          "address": 4155264,
+          "addend": 0,
+          "word": 202365408
+        },
+        {
+          "offset": 1604,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003e8a10",
+          "address": 4098576,
+          "addend": 0,
+          "word": 202351236
+        },
+        {
+          "offset": 1616,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003e22c0",
+          "address": 4072128,
+          "addend": 0,
+          "word": 202344624
+        },
+        {
+          "offset": 1624,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00481250",
+          "address": 4723280,
+          "addend": 0,
+          "word": 202507412
+        },
+        {
+          "offset": 1644,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003f4f90",
+          "address": 4149136,
+          "addend": 0,
+          "word": 202363876
+        },
+        {
+          "offset": 1652,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003e8a50",
+          "address": 4098640,
+          "addend": 0,
+          "word": 202351252
+        },
+        {
+          "offset": 1660,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_001026f0",
+          "address": 1058544,
+          "addend": 0,
+          "word": 201591228
+        },
+        {
+          "offset": 1668,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00456e40",
+          "address": 4550208,
+          "addend": 0,
+          "word": 202464144
+        },
+        {
+          "offset": 1676,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffff8598",
+          "address": 7739016,
+          "addend": 0,
+          "word": 662996376
+        },
+        {
+          "offset": 1684,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0044ea90",
+          "address": 4516496,
+          "addend": 0,
+          "word": 202455716
+        },
+        {
+          "offset": 1704,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "jtbl_008873E8",
+          "address": 8942568,
+          "addend": 0,
+          "word": 1006764168
+        },
+        {
+          "offset": 1708,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "jtbl_008873E8",
+          "address": 8942568,
+          "addend": 0,
+          "word": 2353165288
+        },
+        {
+          "offset": 1732,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0046a2e0",
+          "address": 4629216,
+          "addend": 0,
+          "word": 202483896
+        },
+        {
+          "offset": 1740,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffff8590",
+          "address": 7739008,
+          "addend": 0,
+          "word": 662996368
+        },
+        {
+          "offset": 1744,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_003d8c00",
+          "address": 4033536,
+          "addend": 0,
+          "word": 1006960702
+        },
+        {
+          "offset": 1748,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_003d8c00",
+          "address": 4033536,
+          "addend": 0,
+          "word": 614829056
+        },
+        {
+          "offset": 1752,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_003d96b0",
+          "address": 4036272,
+          "addend": 0,
+          "word": 1007026238
+        },
+        {
+          "offset": 1756,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_003d96b0",
+          "address": 4036272,
+          "addend": 0,
+          "word": 616994480
+        },
+        {
+          "offset": 1760,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003eb1f0",
+          "address": 4108784,
+          "addend": 0,
+          "word": 202353788
+        },
+        {
+          "offset": 1788,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffff8594",
+          "address": 7739012,
+          "addend": 0,
+          "word": 662996372
+        },
+        {
+          "offset": 1792,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_00463d60",
+          "address": 4603232,
+          "addend": 0,
+          "word": 1006960710
+        },
+        {
+          "offset": 1796,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_00463d60",
+          "address": 4603232,
+          "addend": 0,
+          "word": 614808928
+        },
+        {
+          "offset": 1800,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_00463e60",
+          "address": 4603488,
+          "addend": 0,
+          "word": 1007026246
+        },
+        {
+          "offset": 1804,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_00463e60",
+          "address": 4603488,
+          "addend": 0,
+          "word": 616971872
+        },
+        {
+          "offset": 1808,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003eb1f0",
+          "address": 4108784,
+          "addend": 0,
+          "word": 202353788
+        },
+        {
+          "offset": 1848,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC760",
+          "address": 6145888,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 1852,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC760",
+          "address": 6145888,
+          "addend": 0,
+          "word": 612681568
+        },
+        {
+          "offset": 1856,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffff8598",
+          "address": 7739016,
+          "addend": 0,
+          "word": 663061912
+        },
+        {
+          "offset": 1864,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0046d740",
+          "address": 4642624,
+          "addend": 0,
+          "word": 202487248
+        }
+      ]
+    },
+    {
+      "name": "func_00100e30",
+      "address": 1052208,
+      "size": 48,
+      "window": 48,
+      "zero_tail": 0,
+      "resolved_sha256": "b4f1206c4525440e764bddf21904968345e43f1718e036f803099e0c897aedc4",
+      "relocations": [
+        {
+          "offset": 12,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004ccb38",
+          "address": 5032760,
+          "addend": 0,
+          "word": 202584782
+        }
+      ]
+    },
+    {
+      "name": "func_00100e60",
+      "address": 1052256,
+      "size": 1040,
+      "window": 1040,
+      "zero_tail": 0,
+      "resolved_sha256": "34bd46e05e736cbdfbe5f8e257edd96e45ccfa495f04f04db6182e9576ac21f4",
+      "relocations": [
+        {
+          "offset": 8,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_00111010",
+          "address": 1118224,
+          "addend": 0,
+          "word": 1006895121
+        },
+        {
+          "offset": 12,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_00111010",
+          "address": 1118224,
+          "addend": 0,
+          "word": 612634640
+        },
+        {
+          "offset": 16,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0046d6b0",
+          "address": 4642480,
+          "addend": 0,
+          "word": 202487212
+        },
+        {
+          "offset": 28,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00451ca0",
+          "address": 4529312,
+          "addend": 0,
+          "word": 202458920
+        },
+        {
+          "offset": 44,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460910",
+          "address": 4589840,
+          "addend": 0,
+          "word": 202474052
+        },
+        {
+          "offset": 52,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004544b0",
+          "address": 4539568,
+          "addend": 0,
+          "word": 202461484
+        },
+        {
+          "offset": 60,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004559b0",
+          "address": 4544944,
+          "addend": 0,
+          "word": 202462828
+        },
+        {
+          "offset": 68,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0010d7b0",
+          "address": 1103792,
+          "addend": 0,
+          "word": 201602540
+        },
+        {
+          "offset": 76,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0045b430",
+          "address": 4568112,
+          "addend": 0,
+          "word": 202468620
+        },
+        {
+          "offset": 84,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00458fa0",
+          "address": 4558752,
+          "addend": 0,
+          "word": 202466280
+        },
+        {
+          "offset": 92,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D10",
+          "address": 7752976,
+          "addend": 0,
+          "word": 1006895222
+        },
+        {
+          "offset": 96,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D10",
+          "address": 7752976,
+          "addend": 0,
+          "word": 612650256
+        },
+        {
+          "offset": 108,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "memset",
+          "address": 4454856,
+          "addend": 0,
+          "word": 202440306
+        },
+        {
+          "offset": 116,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00761690",
+          "address": 7739024,
+          "addend": 4,
+          "word": 662930852
+        },
+        {
+          "offset": 120,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D10",
+          "address": 7752976,
+          "addend": 0,
+          "word": 1006764150
+        },
+        {
+          "offset": 124,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D10",
+          "address": 7752976,
+          "addend": 0,
+          "word": 2890091792
+        },
+        {
+          "offset": 128,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D14",
+          "address": 7752980,
+          "addend": 0,
+          "word": 1006764150
+        },
+        {
+          "offset": 132,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D14",
+          "address": 7752980,
+          "addend": 0,
+          "word": 2889895188
+        },
+        {
+          "offset": 136,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D10",
+          "address": 7752976,
+          "addend": 0,
+          "word": 1006895222
+        },
+        {
+          "offset": 140,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D10",
+          "address": 7752976,
+          "addend": 0,
+          "word": 612650256
+        },
+        {
+          "offset": 144,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004d32f8",
+          "address": 5059320,
+          "addend": 0,
+          "word": 202591422
+        },
+        {
+          "offset": 156,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004cc218",
+          "address": 5030424,
+          "addend": 0,
+          "word": 202584198
+        },
+        {
+          "offset": 172,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004cd470",
+          "address": 5035120,
+          "addend": 0,
+          "word": 202585372
+        },
+        {
+          "offset": 180,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004ca720",
+          "address": 5023520,
+          "addend": 0,
+          "word": 202582472
+        },
+        {
+          "offset": 188,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004d8c78",
+          "address": 5082232,
+          "addend": 0,
+          "word": 202597150
+        },
+        {
+          "offset": 196,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_00100e00",
+          "address": 1052160,
+          "addend": 0,
+          "word": 1006895120
+        },
+        {
+          "offset": 200,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_00100e00",
+          "address": 1052160,
+          "addend": 0,
+          "word": 612634112
+        },
+        {
+          "offset": 208,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004cc200",
+          "address": 5030400,
+          "addend": 0,
+          "word": 202584192
+        },
+        {
+          "offset": 216,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_00100e30",
+          "address": 1052208,
+          "addend": 0,
+          "word": 1006895120
+        },
+        {
+          "offset": 220,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_00100e30",
+          "address": 1052208,
+          "addend": 0,
+          "word": 612634160
+        },
+        {
+          "offset": 224,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00418b18",
+          "address": 4295448,
+          "addend": 0,
+          "word": 202400454
+        },
+        {
+          "offset": 236,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D00",
+          "address": 7752960,
+          "addend": 0,
+          "word": 1006764150
+        },
+        {
+          "offset": 240,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D00",
+          "address": 7752960,
+          "addend": 0,
+          "word": 2890091776
+        },
+        {
+          "offset": 248,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D04",
+          "address": 7752964,
+          "addend": 0,
+          "word": 1006764150
+        },
+        {
+          "offset": 252,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D04",
+          "address": 7752964,
+          "addend": 0,
+          "word": 2890091780
+        },
+        {
+          "offset": 260,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D08",
+          "address": 7752968,
+          "addend": 0,
+          "word": 1006764150
+        },
+        {
+          "offset": 264,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D08",
+          "address": 7752968,
+          "addend": 0,
+          "word": 2890091784
+        },
+        {
+          "offset": 268,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D50",
+          "address": 7753040,
+          "addend": 0,
+          "word": 1006829686
+        },
+        {
+          "offset": 272,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D50",
+          "address": 7753040,
+          "addend": 0,
+          "word": 610487632
+        },
+        {
+          "offset": 276,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D0C",
+          "address": 7752972,
+          "addend": 0,
+          "word": 1006764150
+        },
+        {
+          "offset": 280,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D0C",
+          "address": 7752972,
+          "addend": 0,
+          "word": 2890091788
+        },
+        {
+          "offset": 284,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D00",
+          "address": 7752960,
+          "addend": 0,
+          "word": 1006895222
+        },
+        {
+          "offset": 288,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D00",
+          "address": 7752960,
+          "addend": 0,
+          "word": 612650240
+        },
+        {
+          "offset": 292,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004f34b0",
+          "address": 5190832,
+          "addend": 0,
+          "word": 202624300
+        },
+        {
+          "offset": 312,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004f5bf0",
+          "address": 5200880,
+          "addend": 0,
+          "word": 202626812
+        },
+        {
+          "offset": 324,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004c6eb0",
+          "address": 5009072,
+          "addend": 0,
+          "word": 202578860
+        },
+        {
+          "offset": 332,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00761690",
+          "address": 7739024,
+          "addend": 8,
+          "word": 662996392
+        },
+        {
+          "offset": 336,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC788",
+          "address": 6145928,
+          "addend": 0,
+          "word": 1006960734
+        },
+        {
+          "offset": 340,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC788",
+          "address": 6145928,
+          "addend": 0,
+          "word": 614844296
+        },
+        {
+          "offset": 348,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004c6f50",
+          "address": 5009232,
+          "addend": 0,
+          "word": 202578900
+        },
+        {
+          "offset": 364,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00761690",
+          "address": 7739024,
+          "addend": 12,
+          "word": 662996396
+        },
+        {
+          "offset": 368,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC798",
+          "address": 6145944,
+          "addend": 0,
+          "word": 1006960734
+        },
+        {
+          "offset": 372,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC798",
+          "address": 6145944,
+          "addend": 0,
+          "word": 614844312
+        },
+        {
+          "offset": 380,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004c6f50",
+          "address": 5009232,
+          "addend": 0,
+          "word": 202578900
+        },
+        {
+          "offset": 396,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00761690",
+          "address": 7739024,
+          "addend": 16,
+          "word": 662996400
+        },
+        {
+          "offset": 400,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC7A8",
+          "address": 6145960,
+          "addend": 0,
+          "word": 1006960734
+        },
+        {
+          "offset": 404,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC7A8",
+          "address": 6145960,
+          "addend": 0,
+          "word": 614844328
+        },
+        {
+          "offset": 412,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004c6f50",
+          "address": 5009232,
+          "addend": 0,
+          "word": 202578900
+        },
+        {
+          "offset": 428,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00761690",
+          "address": 7739024,
+          "addend": 20,
+          "word": 662996404
+        },
+        {
+          "offset": 432,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC7B8",
+          "address": 6145976,
+          "addend": 0,
+          "word": 1006960734
+        },
+        {
+          "offset": 436,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC7B8",
+          "address": 6145976,
+          "addend": 0,
+          "word": 614844344
+        },
+        {
+          "offset": 444,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004c6f50",
+          "address": 5009232,
+          "addend": 0,
+          "word": 202578900
+        },
+        {
+          "offset": 460,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00761690",
+          "address": 7739024,
+          "addend": 8,
+          "word": 662996392
+        },
+        {
+          "offset": 464,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00559840",
+          "address": 5609536,
+          "addend": 0,
+          "word": 1006960726
+        },
+        {
+          "offset": 468,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00559840",
+          "address": 5609536,
+          "addend": 0,
+          "word": 614832192
+        },
+        {
+          "offset": 472,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004f2798",
+          "address": 5187480,
+          "addend": 0,
+          "word": 202623462
+        },
+        {
+          "offset": 480,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00761690",
+          "address": 7739024,
+          "addend": 12,
+          "word": 662996396
+        },
+        {
+          "offset": 484,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005C4EC0",
+          "address": 6049472,
+          "addend": 0,
+          "word": 1006960732
+        },
+        {
+          "offset": 488,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005C4EC0",
+          "address": 6049472,
+          "addend": 0,
+          "word": 614813376
+        },
+        {
+          "offset": 492,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004f2798",
+          "address": 5187480,
+          "addend": 0,
+          "word": 202623462
+        },
+        {
+          "offset": 500,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00761690",
+          "address": 7739024,
+          "addend": 16,
+          "word": 662996400
+        },
+        {
+          "offset": 504,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005C6350",
+          "address": 6054736,
+          "addend": 0,
+          "word": 1006960732
+        },
+        {
+          "offset": 508,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005C6350",
+          "address": 6054736,
+          "addend": 0,
+          "word": 614818640
+        },
+        {
+          "offset": 512,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004f2798",
+          "address": 5187480,
+          "addend": 0,
+          "word": 202623462
+        },
+        {
+          "offset": 520,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00761690",
+          "address": 7739024,
+          "addend": 20,
+          "word": 662996404
+        },
+        {
+          "offset": 524,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DB850",
+          "address": 6142032,
+          "addend": 0,
+          "word": 1006960734
+        },
+        {
+          "offset": 528,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DB850",
+          "address": 6142032,
+          "addend": 0,
+          "word": 614840400
+        },
+        {
+          "offset": 532,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004f2798",
+          "address": 5187480,
+          "addend": 0,
+          "word": 202623462
+        },
+        {
+          "offset": 540,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00761690",
+          "address": 7739024,
+          "addend": 8,
+          "word": 662996392
+        },
+        {
+          "offset": 544,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004c7188",
+          "address": 5009800,
+          "addend": 0,
+          "word": 202579042
+        },
+        {
+          "offset": 552,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D30",
+          "address": 7753008,
+          "addend": 0,
+          "word": 1006895222
+        },
+        {
+          "offset": 556,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D30",
+          "address": 7753008,
+          "addend": 0,
+          "word": 612650288
+        },
+        {
+          "offset": 568,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "memset",
+          "address": 4454856,
+          "addend": 0,
+          "word": 202440306
+        },
+        {
+          "offset": 576,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "fGpffff8030",
+          "address": 7737632,
+          "addend": 8,
+          "word": 3347087416
+        },
+        {
+          "offset": 580,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D30",
+          "address": 7753008,
+          "addend": 0,
+          "word": 1006764150
+        },
+        {
+          "offset": 584,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D30",
+          "address": 7753008,
+          "addend": 0,
+          "word": 3829419312
+        },
+        {
+          "offset": 592,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D34",
+          "address": 7753012,
+          "addend": 0,
+          "word": 1006764150
+        },
+        {
+          "offset": 596,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D34",
+          "address": 7753012,
+          "addend": 0,
+          "word": 2890091828
+        },
+        {
+          "offset": 600,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D38",
+          "address": 7753016,
+          "addend": 0,
+          "word": 1006764150
+        },
+        {
+          "offset": 604,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D38",
+          "address": 7753016,
+          "addend": 0,
+          "word": 2890091832
+        },
+        {
+          "offset": 608,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D3C",
+          "address": 7753020,
+          "addend": 0,
+          "word": 1006764150
+        },
+        {
+          "offset": 612,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D3C",
+          "address": 7753020,
+          "addend": 0,
+          "word": 2889895228
+        },
+        {
+          "offset": 616,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00764D30",
+          "address": 7753008,
+          "addend": 0,
+          "word": 1006895222
+        },
+        {
+          "offset": 620,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00764D30",
+          "address": 7753008,
+          "addend": 0,
+          "word": 612650288
+        },
+        {
+          "offset": 624,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "mwPlyInitSfdFx",
+          "address": 5288952,
+          "addend": 0,
+          "word": 202648830
+        },
+        {
+          "offset": 632,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_00100dd0",
+          "address": 1052112,
+          "addend": 0,
+          "word": 1006895120
+        },
+        {
+          "offset": 636,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_00100dd0",
+          "address": 1052112,
+          "addend": 0,
+          "word": 612634064
+        },
+        {
+          "offset": 644,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004cc200",
+          "address": 5030400,
+          "addend": 0,
+          "word": 202584192
+        },
+        {
+          "offset": 660,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0045a730",
+          "address": 4564784,
+          "addend": 0,
+          "word": 202467788
+        },
+        {
+          "offset": 676,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0045a730",
+          "address": 4564784,
+          "addend": 0,
+          "word": 202467788
+        },
+        {
+          "offset": 684,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC878",
+          "address": 6146168,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 688,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC878",
+          "address": 6146168,
+          "addend": 0,
+          "word": 612681848
+        },
+        {
+          "offset": 692,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0047d050",
+          "address": 4706384,
+          "addend": 0,
+          "word": 202503188
+        },
+        {
+          "offset": 700,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002312e0",
+          "address": 2298592,
+          "addend": 0,
+          "word": 201901240
+        },
+        {
+          "offset": 708,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00457120",
+          "address": 4550944,
+          "addend": 0,
+          "word": 202464328
+        },
+        {
+          "offset": 720,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0044f570",
+          "address": 4519280,
+          "addend": 0,
+          "word": 202456412
+        },
+        {
+          "offset": 732,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003f67e0",
+          "address": 4155360,
+          "addend": 0,
+          "word": 202365432
+        },
+        {
+          "offset": 744,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003f67f0",
+          "address": 4155376,
+          "addend": 0,
+          "word": 202365436
+        },
+        {
+          "offset": 752,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00466680",
+          "address": 4613760,
+          "addend": 0,
+          "word": 202480032
+        },
+        {
+          "offset": 764,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00481a20",
+          "address": 4725280,
+          "addend": 0,
+          "word": 202507912
+        },
+        {
+          "offset": 772,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DC7D0",
+          "address": 6146000,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 776,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DC7D0",
+          "address": 6146000,
+          "addend": 0,
+          "word": 612681680
+        },
+        {
+          "offset": 780,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00481440",
+          "address": 4723776,
+          "addend": 0,
+          "word": 202507536
+        },
+        {
+          "offset": 788,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007948A0",
+          "address": 7948448,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 792,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007948A0",
+          "address": 7948448,
+          "addend": 0,
+          "word": 612649120
+        },
+        {
+          "offset": 796,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004b3250",
+          "address": 4928080,
+          "addend": 0,
+          "word": 202558612
+        },
+        {
+          "offset": 804,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00794510",
+          "address": 7947536,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 808,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00794510",
+          "address": 7947536,
+          "addend": 0,
+          "word": 612648208
+        },
+        {
+          "offset": 816,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004b6c90",
+          "address": 4942992,
+          "addend": 0,
+          "word": 202562340
+        },
+        {
+          "offset": 824,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_001939a0",
+          "address": 1653152,
+          "addend": 0,
+          "word": 201739880
+        },
+        {
+          "offset": 832,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00246700",
+          "address": 2385664,
+          "addend": 0,
+          "word": 201923008
+        },
+        {
+          "offset": 840,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0026d840",
+          "address": 2545728,
+          "addend": 0,
+          "word": 201963024
+        },
+        {
+          "offset": 848,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00231330",
+          "address": 2298672,
+          "addend": 0,
+          "word": 201901260
+        },
+        {
+          "offset": 856,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00274970",
+          "address": 2574704,
+          "addend": 0,
+          "word": 201970268
+        },
+        {
+          "offset": 864,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002789a0",
+          "address": 2591136,
+          "addend": 0,
+          "word": 201974376
+        },
+        {
+          "offset": 872,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00278940",
+          "address": 2591040,
+          "addend": 0,
+          "word": 201974352
+        },
+        {
+          "offset": 880,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002bdf20",
+          "address": 2875168,
+          "addend": 0,
+          "word": 202045384
+        },
+        {
+          "offset": 888,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0029d950",
+          "address": 2742608,
+          "addend": 0,
+          "word": 202012244
+        },
+        {
+          "offset": 896,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00264e70",
+          "address": 2510448,
+          "addend": 0,
+          "word": 201954204
+        },
+        {
+          "offset": 904,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0025ff90",
+          "address": 2490256,
+          "addend": 0,
+          "word": 201949156
+        },
+        {
+          "offset": 912,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00102490",
+          "address": 1057936,
+          "addend": 0,
+          "word": 201591076
+        },
+        {
+          "offset": 920,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00102610",
+          "address": 1058320,
+          "addend": 0,
+          "word": 201591172
+        },
+        {
+          "offset": 928,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00463520",
+          "address": 4601120,
+          "addend": 0,
+          "word": 202476872
+        },
+        {
+          "offset": 936,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_001028c0",
+          "address": 1059008,
+          "addend": 0,
+          "word": 201591344
+        },
+        {
+          "offset": 944,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_001605a0",
+          "address": 1443232,
+          "addend": 0,
+          "word": 201687400
+        },
+        {
+          "offset": 952,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002aaa10",
+          "address": 2796048,
+          "addend": 0,
+          "word": 202025604
+        },
+        {
+          "offset": 976,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_001029a0",
+          "address": 1059232,
+          "addend": 0,
+          "word": 201591400
+        },
+        {
+          "offset": 988,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00149620",
+          "address": 1349152,
+          "addend": 0,
+          "word": 201663880
+        },
+        {
+          "offset": 996,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00121b20",
+          "address": 1186592,
+          "addend": 0,
+          "word": 201623240
+        },
+        {
+          "offset": 1008,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00122430",
+          "address": 1188912,
+          "addend": 0,
+          "word": 201623820
+        },
+        {
+          "offset": 1016,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0034b970",
+          "address": 3455344,
+          "addend": 0,
+          "word": 202190428
+        }
+      ]
+    },
+    {
+      "name": "func_00101270",
+      "address": 1053296,
+      "size": 216,
+      "window": 224,
+      "zero_tail": 8,
+      "resolved_sha256": "67dda734af09e30b3658059822c554f8daac58f3a03e69d5f8e77e2d7b853605",
+      "relocations": [
+        {
+          "offset": 8,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffff85b8",
+          "address": 7739048,
+          "addend": 0,
+          "word": 2407695800
+        },
+        {
+          "offset": 20,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffff85b8",
+          "address": 7739048,
+          "addend": 0,
+          "word": 2944435640
+        },
+        {
+          "offset": 56,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffb194",
+          "address": 7750276,
+          "addend": 0,
+          "word": 2944577940
+        },
+        {
+          "offset": 60,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00454640",
+          "address": 4539968,
+          "addend": 0,
+          "word": 202461584
+        },
+        {
+          "offset": 68,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0046ab40",
+          "address": 4631360,
+          "addend": 0,
+          "word": 202484432
+        },
+        {
+          "offset": 76,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0045b7c0",
+          "address": 4569024,
+          "addend": 0,
+          "word": 202468848
+        },
+        {
+          "offset": 84,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004594c0",
+          "address": 4560064,
+          "addend": 0,
+          "word": 202466608
+        },
+        {
+          "offset": 92,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00452ce0",
+          "address": 4533472,
+          "addend": 0,
+          "word": 202459960
+        },
+        {
+          "offset": 100,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00451cf0",
+          "address": 4529392,
+          "addend": 0,
+          "word": 202458940
+        },
+        {
+          "offset": 128,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00466580",
+          "address": 4613504,
+          "addend": 0,
+          "word": 202479968
+        },
+        {
+          "offset": 140,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003e5510",
+          "address": 4085008,
+          "addend": 0,
+          "word": 202347844
+        },
+        {
+          "offset": 148,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffb1a0",
+          "address": 7750288,
+          "addend": 0,
+          "word": 2407772576
+        },
+        {
+          "offset": 168,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffb1a0",
+          "address": 7750288,
+          "addend": 0,
+          "word": 2944577952
+        },
+        {
+          "offset": 172,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffb19c",
+          "address": 7750284,
+          "addend": 0,
+          "word": 2407772572
+        },
+        {
+          "offset": 192,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffb19c",
+          "address": 7750284,
+          "addend": 0,
+          "word": 2944577948
+        }
+      ]
+    },
+    {
+      "name": "func_00101350",
+      "address": 1053520,
+      "size": 80,
+      "window": 80,
+      "zero_tail": 0,
+      "resolved_sha256": "19433a63efc5d59b9e6bad7a8e7fe8a39a71a1ca2be54c356028ed563f1075ac",
+      "relocations": [
+        {
+          "offset": 8,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00100350",
+          "address": 1049424,
+          "addend": 0,
+          "word": 201588948
+        },
+        {
+          "offset": 16,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00100670",
+          "address": 1050224,
+          "addend": 0,
+          "word": 201589148
+        },
+        {
+          "offset": 24,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00100e60",
+          "address": 1052256,
+          "addend": 0,
+          "word": 201589656
+        },
+        {
+          "offset": 40,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RpRandomSeed",
+          "address": 3895040,
+          "addend": 0,
+          "word": 202300352
+        },
+        {
+          "offset": 56,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RpRandomSeedMT",
+          "address": 3894688,
+          "addend": 0,
+          "word": 202300264
+        },
+        {
+          "offset": 64,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00101270",
+          "address": 1053296,
+          "addend": 0,
+          "word": 201589916
+        }
+      ]
+    },
+    {
+      "name": "func_001013a0",
+      "address": 1053600,
+      "size": 264,
+      "window": 272,
+      "zero_tail": 8,
+      "resolved_sha256": "b14330614c38ee46a7399ba56074a670618956951d4b11eff02f0dbf9b537b87",
+      "relocations": [
+        {
+          "offset": 12,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffba48",
+          "address": 7752504,
+          "addend": 0,
+          "word": 2407840328
+        },
+        {
+          "offset": 28,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00887300",
+          "address": 8942336,
+          "addend": 0,
+          "word": 1007681672
+        },
+        {
+          "offset": 32,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00887300",
+          "address": 8942336,
+          "addend": 0,
+          "word": 638612224
+        },
+        {
+          "offset": 76,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffba58",
+          "address": 7752520,
+          "addend": 0,
+          "word": 2474818136
+        },
+        {
+          "offset": 84,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffba4c",
+          "address": 7752508,
+          "addend": 0,
+          "word": 2474818124
+        },
+        {
+          "offset": 96,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffba50",
+          "address": 7752512,
+          "addend": 0,
+          "word": 2474818128
+        },
+        {
+          "offset": 108,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffba54",
+          "address": 7752516,
+          "addend": 0,
+          "word": 2474818132
+        },
+        {
+          "offset": 156,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffba6c",
+          "address": 7752540,
+          "addend": 0,
+          "word": 663075436
+        },
+        {
+          "offset": 160,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RpSkyRenderStateSet",
+          "address": 4154432,
+          "addend": 0,
+          "word": 202365200
+        },
+        {
+          "offset": 220,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RpSkyRenderStateSet",
+          "address": 4154432,
+          "addend": 0,
+          "word": 202365200
+        },
+        {
+          "offset": 236,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RpSkyRenderStateSet",
+          "address": 4154432,
+          "addend": 0,
+          "word": 202365200
+        }
+      ]
+    },
+    {
+      "name": "func_00102780",
+      "address": 1058688,
+      "size": 268,
+      "window": 272,
+      "zero_tail": 4,
+      "resolved_sha256": "714fcb93c74af1bd3c5499e8f53ee87b4113aa897b70408c6413b15358d7216b",
+      "relocations": [
+        {
+          "offset": 76,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DCC64",
+          "address": 6147172,
+          "addend": 0,
+          "word": 1006764126
+        },
+        {
+          "offset": 80,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DCC64",
+          "address": 6147172,
+          "addend": 0,
+          "word": 608357476
+        },
+        {
+          "offset": 112,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "jtbl_008873EC",
+          "address": 8942572,
+          "addend": 0,
+          "word": 1006764168
+        },
+        {
+          "offset": 116,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "jtbl_008873EC",
+          "address": 8942572,
+          "addend": 0,
+          "word": 2353165292
+        },
+        {
+          "offset": 184,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DCC68",
+          "address": 6147176,
+          "addend": 0,
+          "word": 1006764126
+        },
+        {
+          "offset": 188,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DCC68",
+          "address": 6147176,
+          "addend": 0,
+          "word": 608357480
+        }
+      ]
+    },
+    {
+      "name": "func_00102890",
+      "address": 1058960,
+      "size": 48,
+      "window": 48,
+      "zero_tail": 0,
+      "resolved_sha256": "9147ba4fb8df65e27e7a0d7f6d473b0f6b5f927671296d21bcfb2068b6804436",
+      "relocations": [
+        {
+          "offset": 8,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffb1a8",
+          "address": 7750296,
+          "addend": 0,
+          "word": 2944446888
+        },
+        {
+          "offset": 16,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "jtbl_008873EC",
+          "address": 8942572,
+          "addend": 0,
+          "word": 1006764168
+        },
+        {
+          "offset": 20,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "jtbl_008873EC",
+          "address": 8942572,
+          "addend": 0,
+          "word": 2353165292
+        }
+      ]
+    },
+    {
+      "name": "func_00102980",
+      "address": 1059200,
+      "size": 20,
+      "window": 32,
+      "zero_tail": 12,
+      "resolved_sha256": "2409231b95c14d6b49ad50fde38964865e15e40faf980ffe1875170c6cf83fd8",
+      "relocations": [
+        {
+          "offset": 0,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764298",
+          "address": 7750296,
+          "addend": 0,
+          "word": 2407707048
+        }
+      ]
+    },
+    {
+      "name": "func_00102b90",
+      "address": 1059728,
+      "size": 32,
+      "window": 32,
+      "zero_tail": 0,
+      "resolved_sha256": "46ffc6570ae451eece4f4b1c3912be08b47c35a3952e35242397cbe79f1d233c",
+      "relocations": [
+        {
+          "offset": 8,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00111b30",
+          "address": 1121072,
+          "addend": 0,
+          "word": 201606860
+        }
+      ]
+    },
+    {
+      "name": "func_00102bb0",
+      "address": 1059760,
+      "size": 44,
+      "window": 48,
+      "zero_tail": 4,
+      "resolved_sha256": "6ae98a28bcc5890bcc7d89645a2cc7ff84838729542f23fa5180b04846a354e7",
+      "relocations": [
+        {
+          "offset": 8,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DCB58",
+          "address": 6146904,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 12,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DCB58",
+          "address": 6146904,
+          "addend": 0,
+          "word": 612682584
+        },
+        {
+          "offset": 16,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00452380",
+          "address": 4531072,
+          "addend": 0,
+          "word": 202459360
+        }
+      ]
+    },
+    {
+      "name": "func_00103510",
+      "address": 1062160,
+      "size": 36,
+      "window": 48,
+      "zero_tail": 12,
+      "resolved_sha256": "a9518d5b5438dd6c812d9d2eb1283e9ca0b96e9cc5150d7202ae893bd75d3974",
+      "relocations": [
+        {
+          "offset": 12,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002a2650",
+          "address": 2762320,
+          "addend": 0,
+          "word": 202017172
+        }
+      ]
+    },
+    {
+      "name": "func_00103540",
+      "address": 1062208,
+      "size": 36,
+      "window": 48,
+      "zero_tail": 12,
+      "resolved_sha256": "fbf5d801fcafaefcbeaf64498f2c3d4d41cedd0246ea1b5664302f2660f95fb4",
+      "relocations": [
+        {
+          "offset": 8,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002a2710",
+          "address": 2762512,
+          "addend": 0,
+          "word": 202017220
+        }
+      ]
+    },
+    {
+      "name": "func_00103570",
+      "address": 1062256,
+      "size": 32,
+      "window": 32,
+      "zero_tail": 0,
+      "resolved_sha256": "137daa25d6d73c53cc512810d78b1782e50f8ed010da180de1d261891363325b",
+      "relocations": [
+        {
+          "offset": 8,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002a2740",
+          "address": 2762560,
+          "addend": 0,
+          "word": 202017232
+        }
+      ]
+    },
+    {
+      "name": "func_00103590",
+      "address": 1062288,
+      "size": 8,
+      "window": 16,
+      "zero_tail": 8,
+      "resolved_sha256": "6d64edf91449c1b17746c1ef18afa2eb25c70bdf1322ab3df5a2630993b7e2f1",
+      "relocations": []
+    },
+    {
+      "name": "func_001035a0",
+      "address": 1062304,
+      "size": 84,
+      "window": 96,
+      "zero_tail": 12,
+      "resolved_sha256": "5c27fbe7c98f33011d279c1989c0f7d72ddd439679328c3872a7d3fd13dddff6",
+      "relocations": [
+        {
+          "offset": 16,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00887300",
+          "address": 8942336,
+          "addend": 0,
+          "word": 1006764168
+        },
+        {
+          "offset": 20,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00887300",
+          "address": 8942336,
+          "addend": 0,
+          "word": 2353165056
+        },
+        {
+          "offset": 40,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RpSkyRenderStateSet",
+          "address": 4154432,
+          "addend": 0,
+          "word": 202365200
+        },
+        {
+          "offset": 60,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RpSkyRenderStateSet",
+          "address": 4154432,
+          "addend": 0,
+          "word": 202365200
+        }
+      ]
+    },
+    {
+      "name": "func_00103600",
+      "address": 1062400,
+      "size": 196,
+      "window": 208,
+      "zero_tail": 12,
+      "resolved_sha256": "62299ed0a4690a0f85a6f00f36c87318154a62ab659c4caaa719645df1953d2a",
+      "relocations": [
+        {
+          "offset": 12,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00887300",
+          "address": 8942336,
+          "addend": 0,
+          "word": 1007681672
+        },
+        {
+          "offset": 16,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00887300",
+          "address": 8942336,
+          "addend": 0,
+          "word": 638612224
+        },
+        {
+          "offset": 124,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffffb9e8",
+          "address": 7752408,
+          "addend": 0,
+          "word": 2407905768
+        },
+        {
+          "offset": 148,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RpSkyRenderStateSet",
+          "address": 4154432,
+          "addend": 0,
+          "word": 202365200
+        },
+        {
+          "offset": 168,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RpSkyRenderStateSet",
+          "address": 4154432,
+          "addend": 0,
+          "word": 202365200
+        }
+      ]
+    },
+    {
+      "name": "func_001036d0",
+      "address": 1062608,
+      "size": 680,
+      "window": 688,
+      "zero_tail": 8,
+      "resolved_sha256": "d96bc4ed49f8b3a53b33767719aa1093baec97fb4d4c370c9c6635d2d9193a36",
+      "relocations": [
+        {
+          "offset": 56,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00457120",
+          "address": 4550944,
+          "addend": 0,
+          "word": 202464328
+        },
+        {
+          "offset": 412,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004609f0",
+          "address": 4590064,
+          "addend": 0,
+          "word": 202474108
+        },
+        {
+          "offset": 488,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_001035a0",
+          "address": 1062304,
+          "addend": 0,
+          "word": 1006829584
+        },
+        {
+          "offset": 492,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_001035a0",
+          "address": 1062304,
+          "addend": 0,
+          "word": 610481568
+        },
+        {
+          "offset": 512,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_00103600",
+          "address": 1062400,
+          "addend": 0,
+          "word": 1006829584
+        },
+        {
+          "offset": 516,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_00103600",
+          "address": 1062400,
+          "addend": 0,
+          "word": 610481664
+        },
+        {
+          "offset": 556,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffff85c8",
+          "address": 7739064,
+          "addend": 0,
+          "word": 3750004168
+        },
+        {
+          "offset": 560,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DD5D0",
+          "address": 6149584,
+          "addend": 0,
+          "word": 1006960734
+        },
+        {
+          "offset": 564,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DD5D0",
+          "address": 6149584,
+          "addend": 0,
+          "word": 614847952
+        },
+        {
+          "offset": 568,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00450340",
+          "address": 4522816,
+          "addend": 0,
+          "word": 202457296
+        },
+        {
+          "offset": 608,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00793E80",
+          "address": 7945856,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 612,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00793E80",
+          "address": 7945856,
+          "addend": 0,
+          "word": 612646528
+        },
+        {
+          "offset": 620,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460ac0",
+          "address": 4590272,
+          "addend": 0,
+          "word": 202474160
+        },
+        {
+          "offset": 628,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00793E80",
+          "address": 7945856,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 632,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00793E80",
+          "address": 7945856,
+          "addend": 0,
+          "word": 612646528
+        },
+        {
+          "offset": 640,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460ac0",
+          "address": 4590272,
+          "addend": 0,
+          "word": 202474160
+        }
+      ]
+    },
+    {
+      "name": "func_00103980",
+      "address": 1063296,
+      "size": 92,
+      "window": 96,
+      "zero_tail": 4,
+      "resolved_sha256": "0b8de606b7f6c006a59e4bf0f1ade6053b6a8f13cb449523c0b0068aa2200633",
+      "relocations": [
+        {
+          "offset": 28,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460a50",
+          "address": 4590160,
+          "addend": 0,
+          "word": 202474132
+        },
+        {
+          "offset": 40,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460a50",
+          "address": 4590160,
+          "addend": 0,
+          "word": 202474132
+        },
+        {
+          "offset": 52,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "jtbl_008873EC",
+          "address": 8942572,
+          "addend": 0,
+          "word": 1006764168
+        },
+        {
+          "offset": 56,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "jtbl_008873EC",
+          "address": 8942572,
+          "addend": 0,
+          "word": 2353165292
+        }
+      ]
+    },
+    {
+      "name": "func_001039e0",
+      "address": 1063392,
+      "size": 116,
+      "window": 128,
+      "zero_tail": 12,
+      "resolved_sha256": "e1e41b6dc0d1bba2d408c1569e8795b1ea9f2ce3a7e17f3d2b058ba5a25b28e6",
+      "relocations": [
+        {
+          "offset": 8,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DD600",
+          "address": 6149632,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 12,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DD600",
+          "address": 6149632,
+          "addend": 0,
+          "word": 612685312
+        },
+        {
+          "offset": 20,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0044ea90",
+          "address": 4516496,
+          "addend": 0,
+          "word": 202455716
+        },
+        {
+          "offset": 40,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_008873F4",
+          "address": 8942580,
+          "addend": 0,
+          "word": 1006764168
+        },
+        {
+          "offset": 44,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_008873F4",
+          "address": 8942580,
+          "addend": 0,
+          "word": 2353165300
+        },
+        {
+          "offset": 56,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffff85d0",
+          "address": 7739072,
+          "addend": 0,
+          "word": 662996432
+        },
+        {
+          "offset": 72,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_001036d0",
+          "address": 1062608,
+          "addend": 0,
+          "word": 1007157264
+        },
+        {
+          "offset": 76,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_001036d0",
+          "address": 1062608,
+          "addend": 0,
+          "word": 621295312
+        },
+        {
+          "offset": 80,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_00103980",
+          "address": 1063296,
+          "addend": 0,
+          "word": 1007222800
+        },
+        {
+          "offset": 84,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_00103980",
+          "address": 1063296,
+          "addend": 0,
+          "word": 623458688
+        },
+        {
+          "offset": 92,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00451de0",
+          "address": 4529632,
+          "addend": 0,
+          "word": 202459000
+        }
+      ]
+    },
+    {
+      "name": "func_00103a60",
+      "address": 1063520,
+      "size": 156,
+      "window": 160,
+      "zero_tail": 4,
+      "resolved_sha256": "945b9cb1774cc57599681de6d9038d2b75627ee8398338e036c1b811c4b2cc68",
+      "relocations": [
+        {
+          "offset": 4,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 1007026297
+        },
+        {
+          "offset": 8,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 616982272
+        }
+      ]
+    },
+    {
+      "name": "func_00103b00",
+      "address": 1063680,
+      "size": 308,
+      "window": 320,
+      "zero_tail": 12,
+      "resolved_sha256": "e49a4a3c12ee354362dcbc1a16fae85607668873165dbfc735db4ac77c164866",
+      "relocations": [
+        {
+          "offset": 12,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 16,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 612656224
+        },
+        {
+          "offset": 28,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460b60",
+          "address": 4590432,
+          "addend": 0,
+          "word": 202474200
+        },
+        {
+          "offset": 36,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 40,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 612656224
+        },
+        {
+          "offset": 52,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460b60",
+          "address": 4590432,
+          "addend": 0,
+          "word": 202474200
+        },
+        {
+          "offset": 60,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 64,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 612656224
+        },
+        {
+          "offset": 76,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460b60",
+          "address": 4590432,
+          "addend": 0,
+          "word": 202474200
+        },
+        {
+          "offset": 84,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 88,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 612656224
+        },
+        {
+          "offset": 100,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460b60",
+          "address": 4590432,
+          "addend": 0,
+          "word": 202474200
+        },
+        {
+          "offset": 108,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 112,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 612656224
+        },
+        {
+          "offset": 124,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460b60",
+          "address": 4590432,
+          "addend": 0,
+          "word": 202474200
+        },
+        {
+          "offset": 132,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 136,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 612656224
+        },
+        {
+          "offset": 148,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460b60",
+          "address": 4590432,
+          "addend": 0,
+          "word": 202474200
+        },
+        {
+          "offset": 156,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 160,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 612656224
+        },
+        {
+          "offset": 172,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460b60",
+          "address": 4590432,
+          "addend": 0,
+          "word": 202474200
+        },
+        {
+          "offset": 180,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 184,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 612656224
+        },
+        {
+          "offset": 196,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460b60",
+          "address": 4590432,
+          "addend": 0,
+          "word": 202474200
+        },
+        {
+          "offset": 236,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 1006764153
+        },
+        {
+          "offset": 240,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 608331520
+        },
+        {
+          "offset": 248,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00103c40",
+          "address": 1064000,
+          "addend": 0,
+          "word": 201592592
+        }
+      ]
+    },
+    {
+      "name": "func_00103c40",
+      "address": 1064000,
+      "size": 700,
+      "window": 704,
+      "zero_tail": 4,
+      "resolved_sha256": "ec9190bc2842ecfab7f6e003032c2ab68951112b1f5709cd50fee7b0c97032cf",
+      "relocations": [
+        {
+          "offset": 40,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "@419",
+          "address": 7628032,
+          "addend": 0,
+          "word": 1006960756
+        },
+        {
+          "offset": 44,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "@419",
+          "address": 7628032,
+          "addend": 0,
+          "word": 614819072
+        },
+        {
+          "offset": 84,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "H_Cdvd_IsFileLoaded",
+          "address": 4543424,
+          "addend": 0,
+          "word": 202462448
+        },
+        {
+          "offset": 108,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00456090",
+          "address": 4546704,
+          "addend": 0,
+          "word": 202463268
+        },
+        {
+          "offset": 132,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00456090",
+          "address": 4546704,
+          "addend": 0,
+          "word": 202463268
+        },
+        {
+          "offset": 144,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DD630",
+          "address": 6149680,
+          "addend": 0,
+          "word": 1006960734
+        },
+        {
+          "offset": 148,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DD630",
+          "address": 6149680,
+          "addend": 0,
+          "word": 614848048
+        },
+        {
+          "offset": 156,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "sprintf",
+          "address": 4464776,
+          "addend": 0,
+          "word": 202442786
+        },
+        {
+          "offset": 204,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004667d0",
+          "address": 4614096,
+          "addend": 0,
+          "word": 202480116
+        },
+        {
+          "offset": 236,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "H_Cdvd_Destroy",
+          "address": 4541392,
+          "addend": 0,
+          "word": 202461940
+        },
+        {
+          "offset": 268,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DD640",
+          "address": 6149696,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 272,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DD640",
+          "address": 6149696,
+          "addend": 0,
+          "word": 612685376
+        },
+        {
+          "offset": 288,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00440b68",
+          "address": 4459368,
+          "addend": 0,
+          "word": 202441434
+        },
+        {
+          "offset": 328,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004669d0",
+          "address": 4614608,
+          "addend": 0,
+          "word": 202480244
+        },
+        {
+          "offset": 436,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00103f00",
+          "address": 1064704,
+          "addend": 0,
+          "word": 201592768
+        },
+        {
+          "offset": 480,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004672c0",
+          "address": 4616896,
+          "addend": 0,
+          "word": 202480816
+        },
+        {
+          "offset": 516,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "H_Cdvd_Destroy",
+          "address": 4541392,
+          "addend": 0,
+          "word": 202461940
+        },
+        {
+          "offset": 564,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003ef3a0",
+          "address": 4125600,
+          "addend": 0,
+          "word": 202357992
+        },
+        {
+          "offset": 620,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "iGpffff85d0",
+          "address": 7739072,
+          "addend": 8,
+          "word": 662996440
+        },
+        {
+          "offset": 624,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DD670",
+          "address": 6149744,
+          "addend": 0,
+          "word": 1006960734
+        },
+        {
+          "offset": 628,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DD670",
+          "address": 6149744,
+          "addend": 0,
+          "word": 614848112
+        },
+        {
+          "offset": 636,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00440b68",
+          "address": 4459368,
+          "addend": 0,
+          "word": 202441434
+        },
+        {
+          "offset": 652,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00454a60",
+          "address": 4541024,
+          "addend": 0,
+          "word": 202461848
+        }
+      ]
+    },
+    {
+      "name": "func_00103f00",
+      "address": 1064704,
+      "size": 1476,
+      "window": 1488,
+      "zero_tail": 12,
+      "resolved_sha256": "ca47f56a1d531ce370289512566c67172ef9e15d23fe4e1c90d9249f85cb088c",
+      "relocations": [
+        {
+          "offset": 36,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00457120",
+          "address": 4550944,
+          "addend": 0,
+          "word": 202464328
+        },
+        {
+          "offset": 72,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00457120",
+          "address": 4550944,
+          "addend": 0,
+          "word": 202464328
+        },
+        {
+          "offset": 132,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "ourGlobals",
+          "address": 8942304,
+          "addend": 24,
+          "word": 1006764168
+        },
+        {
+          "offset": 344,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "ourGlobals",
+          "address": 8942304,
+          "addend": 24,
+          "word": 3292558072
+        },
+        {
+          "offset": 540,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00457120",
+          "address": 4550944,
+          "addend": 0,
+          "word": 202464328
+        },
+        {
+          "offset": 588,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 592,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 612656224
+        },
+        {
+          "offset": 604,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460b60",
+          "address": 4590432,
+          "addend": 0,
+          "word": 202474200
+        },
+        {
+          "offset": 612,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 616,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 612656224
+        },
+        {
+          "offset": 632,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00461390",
+          "address": 4592528,
+          "addend": 0,
+          "word": 202474724
+        },
+        {
+          "offset": 712,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00457120",
+          "address": 4550944,
+          "addend": 0,
+          "word": 202464328
+        },
+        {
+          "offset": 772,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "ourGlobals",
+          "address": 8942304,
+          "addend": 24,
+          "word": 1006764168
+        },
+        {
+          "offset": 984,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "ourGlobals",
+          "address": 8942304,
+          "addend": 24,
+          "word": 3292558072
+        },
+        {
+          "offset": 1188,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00457120",
+          "address": 4550944,
+          "addend": 0,
+          "word": 202464328
+        },
+        {
+          "offset": 1236,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 1240,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 612656224
+        },
+        {
+          "offset": 1252,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460b60",
+          "address": 4590432,
+          "addend": 0,
+          "word": 202474200
+        },
+        {
+          "offset": 1260,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 1006895225
+        },
+        {
+          "offset": 1264,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796460",
+          "address": 7955552,
+          "addend": 0,
+          "word": 612656224
+        },
+        {
+          "offset": 1280,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00461390",
+          "address": 4592528,
+          "addend": 0,
+          "word": 202474724
+        },
+        {
+          "offset": 1288,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DD680",
+          "address": 6149760,
+          "addend": 0,
+          "word": 1007091806
+        },
+        {
+          "offset": 1292,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DD680",
+          "address": 6149760,
+          "addend": 0,
+          "word": 619173504
+        }
+      ]
+    },
+    {
+      "name": "func_001044d0",
+      "address": 1066192,
+      "size": 56,
+      "window": 64,
+      "zero_tail": 8,
+      "resolved_sha256": "eb5ae338632331f0201d813c831f2e034f2094ddf50a0be3980f0758b13e987f",
+      "relocations": [
+        {
+          "offset": 32,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 36,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 610494208
+        }
+      ]
+    },
+    {
+      "name": "func_00104510",
+      "address": 1066256,
+      "size": 596,
+      "window": 608,
+      "zero_tail": 12,
+      "resolved_sha256": "ff75c96ae8e2675d568402b9a72b25490f0a74c25b7e1d3e583b0b2b737747c6",
+      "relocations": [
+        {
+          "offset": 48,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DD6A0",
+          "address": 6149792,
+          "addend": 0,
+          "word": 1006895198
+        },
+        {
+          "offset": 52,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DD6A0",
+          "address": 6149792,
+          "addend": 0,
+          "word": 612685472
+        },
+        {
+          "offset": 60,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00440b68",
+          "address": 4459368,
+          "addend": 0,
+          "word": 202441434
+        },
+        {
+          "offset": 88,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 1006764153
+        },
+        {
+          "offset": 92,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 608331520
+        },
+        {
+          "offset": 108,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0079674C",
+          "address": 7956300,
+          "addend": 0,
+          "word": 1006764153
+        },
+        {
+          "offset": 112,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0079674C",
+          "address": 7956300,
+          "addend": 0,
+          "word": 608331596
+        },
+        {
+          "offset": 124,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796704",
+          "address": 7956228,
+          "addend": 0,
+          "word": 1006764153
+        },
+        {
+          "offset": 128,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796704",
+          "address": 7956228,
+          "addend": 0,
+          "word": 608331524
+        },
+        {
+          "offset": 140,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796706",
+          "address": 7956230,
+          "addend": 0,
+          "word": 1006764153
+        },
+        {
+          "offset": 144,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796706",
+          "address": 7956230,
+          "addend": 0,
+          "word": 608331526
+        },
+        {
+          "offset": 156,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796708",
+          "address": 7956232,
+          "addend": 0,
+          "word": 1006764153
+        },
+        {
+          "offset": 160,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796708",
+          "address": 7956232,
+          "addend": 0,
+          "word": 608331528
+        },
+        {
+          "offset": 200,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DD6C0",
+          "address": 6149824,
+          "addend": 0,
+          "word": 1006960734
+        },
+        {
+          "offset": 204,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DD6C0",
+          "address": 6149824,
+          "addend": 0,
+          "word": 614848192
+        },
+        {
+          "offset": 220,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "sprintf",
+          "address": 4464776,
+          "addend": 0,
+          "word": 202442786
+        },
+        {
+          "offset": 236,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "strcpy",
+          "address": 4466736,
+          "addend": 0,
+          "word": 202443276
+        },
+        {
+          "offset": 252,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796A64",
+          "address": 7957092,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 256,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796A64",
+          "address": 7957092,
+          "addend": 0,
+          "word": 610495076
+        },
+        {
+          "offset": 268,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796A68",
+          "address": 7957096,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 272,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796A68",
+          "address": 7957096,
+          "addend": 0,
+          "word": 610495080
+        },
+        {
+          "offset": 284,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796A6C",
+          "address": 7957100,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 288,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796A6C",
+          "address": 7957100,
+          "addend": 0,
+          "word": 610495084
+        },
+        {
+          "offset": 304,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0079671C",
+          "address": 7956252,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 308,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0079671C",
+          "address": 7956252,
+          "addend": 0,
+          "word": 610494236
+        },
+        {
+          "offset": 320,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0079671E",
+          "address": 7956254,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 324,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0079671E",
+          "address": 7956254,
+          "addend": 0,
+          "word": 610494238
+        },
+        {
+          "offset": 336,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0079671D",
+          "address": 7956253,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 340,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0079671D",
+          "address": 7956253,
+          "addend": 0,
+          "word": 610494237
+        },
+        {
+          "offset": 352,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0079671F",
+          "address": 7956255,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 356,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0079671F",
+          "address": 7956255,
+          "addend": 0,
+          "word": 610494239
+        },
+        {
+          "offset": 372,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796728",
+          "address": 7956264,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 376,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796728",
+          "address": 7956264,
+          "addend": 0,
+          "word": 610494248
+        },
+        {
+          "offset": 388,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0079672C",
+          "address": 7956268,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 392,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0079672C",
+          "address": 7956268,
+          "addend": 0,
+          "word": 610494252
+        },
+        {
+          "offset": 412,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DD610",
+          "address": 6149648,
+          "addend": 0,
+          "word": 1007026270
+        },
+        {
+          "offset": 416,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DD610",
+          "address": 6149648,
+          "addend": 0,
+          "word": 617010704
+        },
+        {
+          "offset": 476,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_005DD61C",
+          "address": 6149660,
+          "addend": 0,
+          "word": 1006829662
+        },
+        {
+          "offset": 480,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_005DD61C",
+          "address": 6149660,
+          "addend": 0,
+          "word": 610522652
+        },
+        {
+          "offset": 492,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796A60",
+          "address": 7957088,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 496,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796A60",
+          "address": 7957088,
+          "addend": 0,
+          "word": 610495072
+        },
+        {
+          "offset": 544,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796A60",
+          "address": 7957088,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 548,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796A60",
+          "address": 7957088,
+          "addend": 0,
+          "word": 610495072
+        }
+      ]
+    },
+    {
+      "name": "func_00104770",
+      "address": 1066864,
+      "size": 52,
+      "window": 64,
+      "zero_tail": 12,
+      "resolved_sha256": "fa1b04344ed0d341edf77d13256eb08a4f855db1faa1fbdf1d04d17cb15cf3a8",
+      "relocations": [
+        {
+          "offset": 28,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0079671F",
+          "address": 7956255,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 32,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0079671F",
+          "address": 7956255,
+          "addend": 0,
+          "word": 610494239
+        }
+      ]
+    },
+    {
+      "name": "func_001047b0",
+      "address": 1066928,
+      "size": 116,
+      "window": 128,
+      "zero_tail": 12,
+      "resolved_sha256": "64cac69a50e33c49e7da9b178e16a1aee55637a56e91aa73b1e1eb7716af93a8",
+      "relocations": [
+        {
+          "offset": 28,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796750",
+          "address": 7956304,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 32,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796750",
+          "address": 7956304,
+          "addend": 0,
+          "word": 610494288
+        },
+        {
+          "offset": 56,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796754",
+          "address": 7956308,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 60,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796754",
+          "address": 7956308,
+          "addend": 0,
+          "word": 610494292
+        },
+        {
+          "offset": 72,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0079675C",
+          "address": 7956316,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 76,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0079675C",
+          "address": 7956316,
+          "addend": 0,
+          "word": 610494300
+        },
+        {
+          "offset": 92,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796758",
+          "address": 7956312,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 96,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796758",
+          "address": 7956312,
+          "addend": 0,
+          "word": 610494296
+        }
+      ]
+    },
+    {
+      "name": "func_00104830",
+      "address": 1067056,
+      "size": 72,
+      "window": 80,
+      "zero_tail": 8,
+      "resolved_sha256": "919a0c6b12a96e7d9a59c7f5e9e1c6b877438930bb375dc4b4a72a953d0e8bf8",
+      "relocations": [
+        {
+          "offset": 28,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 1006829689
+        },
+        {
+          "offset": 32,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 610494208
+        }
+      ]
+    },
+    {
+      "name": "func_00104880",
+      "address": 1067136,
+      "size": 52,
+      "window": 64,
+      "zero_tail": 12,
+      "resolved_sha256": "b534b2c0b86a89a9c016de76ed0f558bddf8de7a7c1ad584f6d11ed339ad218a",
+      "relocations": [
+        {
+          "offset": 28,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 1006764153
+        },
+        {
+          "offset": 32,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 608331520
+        }
+      ]
+    },
+    {
+      "name": "func_001048c0",
+      "address": 1067200,
+      "size": 60,
+      "window": 64,
+      "zero_tail": 4,
+      "resolved_sha256": "de3b61ecac23b049f49e9bc32e553bcce1f12f050f8c36ead701ab46716ef224",
+      "relocations": [
+        {
+          "offset": 28,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 1006764153
+        },
+        {
+          "offset": 32,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00796700",
+          "address": 7956224,
+          "addend": 0,
+          "word": 608331520
+        }
+      ]
+    }
+  ],
+  "storage": [
+    {
+      "index": 117,
+      "name": ".rodata",
+      "address": 7628032,
+      "size": 28,
+      "sha256": "83935a91162e03caeae8144aad602e213d9b6f3df096f1ba17c8b893101f7235",
+      "relocations": [
+        [
+          24,
+          2,
+          "func_00103c40"
+        ],
+        [
+          20,
+          2,
+          "func_00103c40"
+        ],
+        [
+          16,
+          2,
+          "func_00103c40"
+        ],
+        [
+          12,
+          2,
+          "func_00103c40"
+        ],
+        [
+          8,
+          2,
+          "func_00103c40"
+        ],
+        [
+          4,
+          2,
+          "func_00103c40"
+        ],
+        [
+          0,
+          2,
+          "func_00103c40"
+        ]
+      ]
+    }
+  ],
+  "fully_resolved_differing_words": 0,
+  "code_relocations_verified": 611,
+  "storage_relocations_verified": 7,
+  "source_sha256": "b122f8d6127297d95eab8e5f42d6d79f7120498b65a4748ce9bae09ce1273a86",
+  "summary": {
+    "ASM": 1,
+    "MATCH": 37
+  },
+  "new_c_matches": 0,
+  "wrong_bss_end_rejected": true,
+  "negative_control": "('func_00100008', {'offset': 288, 'r_type': 6, 'type': 'R_MIPS_LO16', 'symbol': 'D_938A00'}, '0x24638a04', '0x24638a00')",
+  "changed_inputs_during_run": []
+}

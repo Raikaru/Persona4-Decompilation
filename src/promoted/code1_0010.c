@@ -209,18 +209,20 @@ extern u8 iGpffff85d0;
 
 
 
-/* PERMANENT ASM, not a matching candidate.  This is the crt0 entry stub.
-   0x00100008-0x001001b8 zeroes all 32 GPRs with `padduw rX, $zero, $zero`
-   (the 128-bit form, so the upper halves are cleared too), then HI/LO and
-   their pipeline-1 twins via mthi/mthi1/mtlo/mtlo1, then SA via mtsah,
-   then all 32 FPRs via mtc1, then flushes the FPU accumulator with
-   `adda.s $f0,$f1` and clears FCR31 with `ctc1 $zero,$31`.  No C
-   construct names $at, $k0, $gp, $sp, $ra or the COP1 control register as
-   a destination, and no compiler emits mthi1/mtlo1/mtsah at all.  The
-   tail then byte- and quad-zeroes the bss span 0x00764280-0x00948a00,
-   issues syscall 60 (SetGsCrt/ExecPS2 thread setup) and syscall 61, and
-   enables interrupts with `ei` - all privileged or register-exact
-   sequences.  Retail's own crt0 was hand-written assembly; leave it. */
+/* Hardware crt0 entry. Retail clears 29 writable GPRs at 00100008..00100078
+ * (registers 1..25 and 28..31, leaving k0/k1 untouched), then HI/LO, HI1/LO1,
+ * SA, all 32 FPRs, the FPU accumulator and FCR31 through 00100118.
+ * It clears BSS [00764280, 00938a00) before establishing the thread stack.
+ * GP is installed at 001001c0; syscall 60 (SetupThread) supplies the SP
+ * assigned at 001001cc. Syscall 61 receives the BSS end and a size of -1.
+ * Runtime setup, interrupt enable, main(argc, argv) and exit follow.
+ *
+ * There is no incoming C call frame for the reset/BSS sequence. An ordinary
+ * function prologue cannot run against the cleared SP, and a split hardware
+ * wrapper must preserve this entry ABI as well as the entire owner object.
+ * Retain the extracted entry until that boundary has an exact validated
+ * replacement; moving the sequence into an asm C body is not a C recovery.
+ */
 // FUN_00100008
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100008);
 // FUN_00100218
