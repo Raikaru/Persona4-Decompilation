@@ -1,0 +1,1013 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-05T16:57:57.121223+00:00",
+  "base_commit": "a1cede7894141323ec6bb833af87a776aa19cc60",
+  "owner": "src/Battle/btlMain.c",
+  "function": "func_001b87e0",
+  "address": "0x001b87e0",
+  "origin": "main",
+  "result": "GUARDED_NONMATCHING",
+  "new_production_matches": 0,
+  "production_source_changed_during_resume": false,
+  "source": {
+    "path": "src/Battle/btlMain.c",
+    "sha256": "10e04f830857283b8f290bcd6ad009e93c6c4f28ca8c49588331f4a7e7bc1655",
+    "bytes": 58567
+  },
+  "prime_baseline_input_sha256": "10e04f830857283b8f290bcd6ad009e93c6c4f28ca8c49588331f4a7e7bc1655",
+  "compiler": {
+    "configured_binary": "D:/mwcps2-3.0.1b210-060308/mwccps2.exe",
+    "effective_flags": [
+      "-O2",
+      "-Iinclude"
+    ]
+  },
+  "production_evidence": {
+    "provenance": "Retained pre-resume owner verification, source-bound to the unchanged guard and prime input manifest; not a new full build.",
+    "summary": {
+      "MATCH": 26,
+      "ASM": 1
+    },
+    "compared_fields": [
+      "status",
+      "object_size",
+      "window",
+      "normalized_diff",
+      "relocations"
+    ],
+    "changed_fields": [],
+    "baseline_report": {
+      "path": "build/worker-1/baseline.json",
+      "sha256": "5aac6abea91e8764d1fa9fda0cd7f86216ec3d66294182b8c956a5ba0212b759",
+      "bytes": 1370012
+    },
+    "after_report": {
+      "path": "build/worker-1/fade-after.json",
+      "sha256": "02338d174975bd32722e43d6ece9bbc549770cb4a13bc7b73cf2599208874cb8",
+      "bytes": 35289
+    },
+    "earlier_relocation_proof": {
+      "path": "build/worker-1/fade-proof.json",
+      "sha256": "97adfe70cc5020c76537cbeb8462828b9301e81e19d5c8e764092cb5f16cf458",
+      "bytes": 15395
+    }
+  },
+  "fresh_guard_measurement": {
+    "mode": "Whole owning translation unit compiled with only the guarded region replaced in a scratch source; no production fallback counted.",
+    "object_size": 2944,
+    "retail_window": 2944,
+    "normalized_diff_bytes": 27,
+    "differing_words": 13,
+    "aligned_edits": 13,
+    "nonzero_tail": false,
+    "candidate_body_sha256": "68251e5f7ca69b2d709b29152bce958afa0ce5004ef8f18c1a59e6a78f42317c",
+    "retail_body_sha256": "b31910d4f00beeb20a1b9557dd38d414b1316cb316fa3a00c0e904049d79b87d",
+    "word_differences": [
+      {
+        "offset": "0x68c",
+        "address": "0x001b8e6c",
+        "retail_word": "0x3c03437f",
+        "candidate_word": "0x44802000"
+      },
+      {
+        "offset": "0x690",
+        "address": "0x001b8e70",
+        "retail_word": "0x44832000",
+        "candidate_word": "0x3c03437f"
+      },
+      {
+        "offset": "0x694",
+        "address": "0x001b8e74",
+        "retail_word": "0x3c033f00",
+        "candidate_word": "0x44831800"
+      },
+      {
+        "offset": "0x698",
+        "address": "0x001b8e78",
+        "retail_word": "0x44831800",
+        "candidate_word": "0x3c033f00"
+      },
+      {
+        "offset": "0x69c",
+        "address": "0x001b8e7c",
+        "retail_word": "0x44801000",
+        "candidate_word": "0x44831000"
+      },
+      {
+        "offset": "0x80c",
+        "address": "0x001b8fec",
+        "retail_word": "0x46031018",
+        "candidate_word": "0x46022018"
+      },
+      {
+        "offset": "0x810",
+        "address": "0x001b8ff0",
+        "retail_word": "0x4605205c",
+        "candidate_word": "0x4605185c"
+      },
+      {
+        "offset": "0x828",
+        "address": "0x001b9008",
+        "retail_word": "0x46031018",
+        "candidate_word": "0x46022018"
+      },
+      {
+        "offset": "0x82c",
+        "address": "0x001b900c",
+        "retail_word": "0x4601205c",
+        "candidate_word": "0x4601185c"
+      },
+      {
+        "offset": "0x844",
+        "address": "0x001b9024",
+        "retail_word": "0x46031018",
+        "candidate_word": "0x46022018"
+      },
+      {
+        "offset": "0x848",
+        "address": "0x001b9028",
+        "retail_word": "0x4601205c",
+        "candidate_word": "0x4601185c"
+      },
+      {
+        "offset": "0x860",
+        "address": "0x001b9040",
+        "retail_word": "0x46031018",
+        "candidate_word": "0x46022018"
+      },
+      {
+        "offset": "0x864",
+        "address": "0x001b9044",
+        "retail_word": "0x4601205c",
+        "candidate_word": "0x4601185c"
+      }
+    ],
+    "result": {
+      "path": "build/worker-1/resume-retained-floor/func_001b87e0/result.json",
+      "sha256": "9e9dad4d4df5f0150b606caa78e68569b87d07d9d69b9340df5d5ecbfd7409f7",
+      "bytes": 6264
+    },
+    "candidate_source": {
+      "path": "build/worker-1/resume-retained-floor/func_001b87e0/candidate.c",
+      "sha256": "bb4da5bf54b51175868ba57612c7fcea448ae8f1afc43a328871d52fce033155",
+      "bytes": 8485
+    },
+    "owning_object": {
+      "path": "build/worker-1/resume-retained-floor/func_001b87e0/owner.o",
+      "sha256": "e1232f1dc8711a53e6003bbc4c724e3791017df9b8a78804386803c9333ea6b0",
+      "bytes": 27048
+    },
+    "relocation_counts": {
+      "R_MIPS_GPREL16": 31,
+      "R_MIPS_26": 8,
+      "R_MIPS_LITERAL": 9
+    },
+    "relocation_count": 48,
+    "relocations": [
+      {
+        "offset": 28,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 196,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00149ca0",
+        "retail_target": "0x00149ca0",
+        "resolved_address": "0x00149ca0"
+      },
+      {
+        "offset": 236,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00149ce0",
+        "retail_target": "0x00149ce0",
+        "resolved_address": "0x00149ce0"
+      },
+      {
+        "offset": 292,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 472,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 596,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "D_007635C8",
+        "retail_imm": "0xa4d8",
+        "addend": "0x0000",
+        "symbol_address": "0x007635c8"
+      },
+      {
+        "offset": 656,
+        "r_type": 8,
+        "type": "R_MIPS_LITERAL",
+        "symbol": "@344",
+        "candidate_literal": "8180803b",
+        "retail_literal": "8180803b",
+        "retail_address": "0x007612e4"
+      },
+      {
+        "offset": 668,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "D_007635C8",
+        "retail_imm": "0xa4d9",
+        "addend": "0x0001",
+        "symbol_address": "0x007635c8"
+      },
+      {
+        "offset": 728,
+        "r_type": 8,
+        "type": "R_MIPS_LITERAL",
+        "symbol": "@344",
+        "candidate_literal": "8180803b",
+        "retail_literal": "8180803b",
+        "retail_address": "0x007612e4"
+      },
+      {
+        "offset": 740,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "D_007635C8",
+        "retail_imm": "0xa4da",
+        "addend": "0x0002",
+        "symbol_address": "0x007635c8"
+      },
+      {
+        "offset": 800,
+        "r_type": 8,
+        "type": "R_MIPS_LITERAL",
+        "symbol": "@344",
+        "candidate_literal": "8180803b",
+        "retail_literal": "8180803b",
+        "retail_address": "0x007612e4"
+      },
+      {
+        "offset": 812,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "D_007635C8",
+        "retail_imm": "0xa4db",
+        "addend": "0x0003",
+        "symbol_address": "0x007635c8"
+      },
+      {
+        "offset": 872,
+        "r_type": 8,
+        "type": "R_MIPS_LITERAL",
+        "symbol": "@344",
+        "candidate_literal": "8180803b",
+        "retail_literal": "8180803b",
+        "retail_address": "0x007612e4"
+      },
+      {
+        "offset": 1116,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 1156,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001496c0",
+        "retail_target": "0x001496c0",
+        "resolved_address": "0x001496c0"
+      },
+      {
+        "offset": 1196,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 1260,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00149ca0",
+        "retail_target": "0x00149ca0",
+        "resolved_address": "0x00149ca0"
+      },
+      {
+        "offset": 1332,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 1396,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00149ce0",
+        "retail_target": "0x00149ce0",
+        "resolved_address": "0x00149ce0"
+      },
+      {
+        "offset": 1468,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 1512,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 1524,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 1536,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 1576,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 1620,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 1632,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 1644,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 1672,
+        "r_type": 8,
+        "type": "R_MIPS_LITERAL",
+        "symbol": "@344",
+        "candidate_literal": "8180803b",
+        "retail_literal": "8180803b",
+        "retail_address": "0x007612e4"
+      },
+      {
+        "offset": 1708,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 2256,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_001496c0",
+        "retail_target": "0x001496c0",
+        "resolved_address": "0x001496c0"
+      },
+      {
+        "offset": 2264,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 2300,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00149ca0",
+        "retail_target": "0x00149ca0",
+        "resolved_address": "0x00149ca0"
+      },
+      {
+        "offset": 2340,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 2344,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_00149ce0",
+        "retail_target": "0x00149ce0",
+        "resolved_address": "0x00149ce0"
+      },
+      {
+        "offset": 2384,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 2468,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb45c",
+        "retail_imm": "0xb45c",
+        "addend": "0x0000",
+        "symbol_address": "0x0076454c"
+      },
+      {
+        "offset": 2528,
+        "r_type": 8,
+        "type": "R_MIPS_LITERAL",
+        "symbol": "@344",
+        "candidate_literal": "8180803b",
+        "retail_literal": "8180803b",
+        "retail_address": "0x007612e4"
+      },
+      {
+        "offset": 2540,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb45c",
+        "retail_imm": "0xb45d",
+        "addend": "0x0001",
+        "symbol_address": "0x0076454c"
+      },
+      {
+        "offset": 2600,
+        "r_type": 8,
+        "type": "R_MIPS_LITERAL",
+        "symbol": "@344",
+        "candidate_literal": "8180803b",
+        "retail_literal": "8180803b",
+        "retail_address": "0x007612e4"
+      },
+      {
+        "offset": 2612,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb45c",
+        "retail_imm": "0xb45e",
+        "addend": "0x0002",
+        "symbol_address": "0x0076454c"
+      },
+      {
+        "offset": 2672,
+        "r_type": 8,
+        "type": "R_MIPS_LITERAL",
+        "symbol": "@344",
+        "candidate_literal": "8180803b",
+        "retail_literal": "8180803b",
+        "retail_address": "0x007612e4"
+      },
+      {
+        "offset": 2684,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb45c",
+        "retail_imm": "0xb45f",
+        "addend": "0x0003",
+        "symbol_address": "0x0076454c"
+      },
+      {
+        "offset": 2744,
+        "r_type": 8,
+        "type": "R_MIPS_LITERAL",
+        "symbol": "@344",
+        "candidate_literal": "8180803b",
+        "retail_literal": "8180803b",
+        "retail_address": "0x007612e4"
+      },
+      {
+        "offset": 2772,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "iGpffffb3ac",
+        "retail_imm": "0xb3ac",
+        "addend": "0x0000",
+        "symbol_address": "0x0076449c"
+      },
+      {
+        "offset": 2792,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "D_007635C8",
+        "retail_imm": "0xa4d8",
+        "addend": "0x0000",
+        "symbol_address": "0x007635c8"
+      },
+      {
+        "offset": 2796,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "D_007635C8",
+        "retail_imm": "0xa4d9",
+        "addend": "0x0001",
+        "symbol_address": "0x007635c8"
+      },
+      {
+        "offset": 2800,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "D_007635C8",
+        "retail_imm": "0xa4da",
+        "addend": "0x0002",
+        "symbol_address": "0x007635c8"
+      },
+      {
+        "offset": 2804,
+        "r_type": 7,
+        "type": "R_MIPS_GPREL16",
+        "symbol": "D_007635C8",
+        "retail_imm": "0xa4db",
+        "addend": "0x0003",
+        "symbol_address": "0x007635c8"
+      }
+    ],
+    "relocation_problems": []
+  },
+  "fresh_enabled_guard_sibling_proof": [
+    {
+      "function": "btlMainUpdateStateExit",
+      "address": "001b5e60",
+      "object_size": 88,
+      "window": 96,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "ce6018bf48d36a1f53b576a78e695eb58b8962edf318d1ccdf6fb5cc00f2c60f",
+      "relocation_count": 4,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001b7880",
+      "address": "001b7880",
+      "object_size": 680,
+      "window": 688,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "ca4fc29d9fac0a2fd4dc7dac7dc09aff055304d398929e5f2927f3e9e94deea4",
+      "relocation_count": 11,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001b7b30",
+      "address": "001b7b30",
+      "object_size": 748,
+      "window": 752,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "6ca889f7e7cc28dce937af07f96bf210c01d0eea017fcc65a1ad09a0f9d5c688",
+      "relocation_count": 11,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001b7e20",
+      "address": "001b7e20",
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "96851debf8b82e1be8871e8d5f91a74a030f7972b734877373e3fc03bb0ac5e3",
+      "relocation_count": 3,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001b7e70",
+      "address": "001b7e70",
+      "object_size": 1396,
+      "window": 1408,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "15db90380c67dba105cc322d539b3f49094cfdb1af2d45acc464d90951e7536f",
+      "relocation_count": 35,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001b83f0",
+      "address": "001b83f0",
+      "object_size": 1000,
+      "window": 1008,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "7c39d39bfe9bc54540a95be27665931956a9e926cc68cc9f999a8400657c2ed1",
+      "relocation_count": 15,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001b9360",
+      "address": "001b9360",
+      "object_size": 88,
+      "window": 96,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "4a1c0407f0268d658f8d9f5d37e4522ab0befbbafa1ca297f68320401f8c55eb",
+      "relocation_count": 3,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001b93c0",
+      "address": "001b93c0",
+      "object_size": 412,
+      "window": 416,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "169b7d0156f8b86285f9ea01a3a8a64c2342f34e3c25d7e3c6bf4c8ec6365d20",
+      "relocation_count": 3,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001b9560",
+      "address": "001b9560",
+      "object_size": 376,
+      "window": 384,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "198532f48b32b62090c6ebc1f65f3cbfd3fc3d3e560e2360cacd895f74011524",
+      "relocation_count": 7,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001b96e0",
+      "address": "001b96e0",
+      "object_size": 700,
+      "window": 704,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "344c603136448ce051a7ab1abeb7288630c0bead19fb90689b39bbbd23484d4c",
+      "relocation_count": 11,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001b99a0",
+      "address": "001b99a0",
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "4747ee787377ea9b4f504a0e4d6b681250076054a5a011e50fdf477588db22c9",
+      "relocation_count": 3,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001b99f0",
+      "address": "001b99f0",
+      "object_size": 1008,
+      "window": 1008,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "93452d3fef567a60233525507686ab0748ca9142c8d2b1512871b126c0b4bfd2",
+      "relocation_count": 5,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001b9de0",
+      "address": "001b9de0",
+      "object_size": 108,
+      "window": 112,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "6cf1732d1f28195ada689a7261454a6275d4cd69dc95326749814ca15a68a608",
+      "relocation_count": 3,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001b9e50",
+      "address": "001b9e50",
+      "object_size": 576,
+      "window": 576,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "d7a1c57ba335d215ae5d1853d6e2927c1fb1f56cf487576b7328b257dd6ba6bc",
+      "relocation_count": 3,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001ba090",
+      "address": "001ba090",
+      "object_size": 72,
+      "window": 80,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "90379bd8ceaaa6d290297f6d6c430c01a9a01e2e106a301f420de052583084c5",
+      "relocation_count": 3,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001ba9e0",
+      "address": "001ba9e0",
+      "object_size": 280,
+      "window": 288,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "1f7e1b65d3e18f277eae227e772e456d67b4734af9612d5fa788a343ca74c8e8",
+      "relocation_count": 1,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001bab00",
+      "address": "001bab00",
+      "object_size": 288,
+      "window": 288,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "4f5390f5521e2c7ecaec036a1b490cd87f954b3150f013b61882266961a37028",
+      "relocation_count": 1,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001bac20",
+      "address": "001bac20",
+      "object_size": 972,
+      "window": 976,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "142a8f26d50c80f73bf3d41e5a81418e205b09ce59aef3777f3a797455e5a936",
+      "relocation_count": 8,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001baff0",
+      "address": "001baff0",
+      "object_size": 984,
+      "window": 992,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "5ec72f272678e522918093c0c621e1b59d8968ac75c3165d0f72a257596cfb4a",
+      "relocation_count": 8,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001bb3d0",
+      "address": "001bb3d0",
+      "object_size": 948,
+      "window": 960,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "7a2dac2129f80835fd3b6552a5efa91ee57ab750b16c6339f55979e895ca1fd9",
+      "relocation_count": 4,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001bb790",
+      "address": "001bb790",
+      "object_size": 296,
+      "window": 304,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "72d08a50fbc4a0e631c7904e534c0628b157fb0340924aa342f9e59a9ec3cc9c",
+      "relocation_count": 6,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001bb8c0",
+      "address": "001bb8c0",
+      "object_size": 240,
+      "window": 240,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "29912aa31928c9581808b392810d0a04bef2287e99824662223653a8aec0cbf4",
+      "relocation_count": 1,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001bb9b0",
+      "address": "001bb9b0",
+      "object_size": 652,
+      "window": 656,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "c0919b2df716e0d5aa3322b94f50ef462a1a2e0cc9a2b67794e9a63bdf71ea7d",
+      "relocation_count": 8,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001bbc40",
+      "address": "001bbc40",
+      "object_size": 316,
+      "window": 320,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "aa75d68fd0bad52dbd10c4d61e614bce83fa146a6dbb7864940dac8d06d04934",
+      "relocation_count": 4,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001bbd80",
+      "address": "001bbd80",
+      "object_size": 252,
+      "window": 256,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "d3332e8b284594d95b5f5d2bd0301283f8e3f294290afd9f0cdecf3e90c6466a",
+      "relocation_count": 3,
+      "relocation_problems": []
+    },
+    {
+      "function": "func_001bbef0",
+      "address": "001bbef0",
+      "object_size": 76,
+      "window": 80,
+      "normalized_diff_bytes": 0,
+      "body_sha256": "ad4c832eff7ca2cbea1cb38683b4e35a6765e37fed8c4ceef648f769e2834d23",
+      "relocation_count": 0,
+      "relocation_problems": []
+    }
+  ],
+  "rejected_resume_hypotheses": [
+    {
+      "hypothesis": "Matched material quantizer helper",
+      "object_size": 2944,
+      "window": 2944,
+      "differing_bytes": 27,
+      "differing_words": 13,
+      "edits": 13,
+      "nonzero_tail": false,
+      "candidate_delta": "--- retained-guard.c\n+++ Matched material quantizer helper.c\n@@ -16,6 +16,16 @@\n     out->y = color->green * (1.0f / 255.0f);\n     out->z = color->blue * (1.0f / 255.0f);\n     out->w = color->alpha * (1.0f / 255.0f);\n+}\n+\n+static inline void btlMainQuantizeColor(BtlCameraPalette *out, const RwV4d *color)\n+{\n+    f32 maximum = 255.0f;\n+    f32 bias = 0.5f;\n+    out->red = (s32)(bias + maximum * color->x);\n+    out->green = (s32)(bias + maximum * color->y);\n+    out->blue = (s32)(bias + maximum * color->z);\n+    out->alpha = (s32)(bias + maximum * color->w);\n }\n \n #pragma push\n@@ -178,10 +188,7 @@\n                         tmp.y = firstY + secondY;\n                         tmp.z = firstZ + secondZ;\n                         tmp.w = firstW + secondW * ratio;\n-                        unit[0x3c] = (s32)(0.5f + 255.0f * tmp.x);\n-                        unit[0x3d] = (s32)(0.5f + 255.0f * tmp.y);\n-                        unit[0x3e] = (s32)(0.5f + 255.0f * tmp.z);\n-                        unit[0x3f] = (s32)(0.5f + 255.0f * tmp.w);\n+                        btlMainQuantizeColor((BtlCameraPalette *)(unit + 0x3c), &tmp);\n                         *(f32 *)(unit + 0x70) = *(f32 *)(unit + 0x60) * inv;\n                         *(f32 *)(unit + 0x74) = *(f32 *)(unit + 0x64) * inv;\n                         *(f32 *)(unit + 0x78) = *(f32 *)(unit + 0x68) * inv;\n",
+      "result": {
+        "path": "build/worker-1/fade-resume/model_quantizer/result.json",
+        "sha256": "c319ee62c1f6898df2afdae4237d1d22879f446725af6ee52bd33165a8fd02e8",
+        "bytes": 6264
+      },
+      "candidate": {
+        "path": "build/worker-1/fade-resume/model_quantizer/candidate.c",
+        "sha256": "d70480b9eda68617e03772b829b025023566526e5cd06c52356aece823993f7b",
+        "bytes": 8647
+      },
+      "object": {
+        "path": "build/worker-1/fade-resume/model_quantizer/owner.o",
+        "sha256": "d3e908fbfcca27a0f033cdd8af62703c90204cb36d0bd0ed0f8ff6329e6ffb41",
+        "bytes": 27048
+      }
+    },
+    {
+      "hypothesis": "Matched material quantizer helper with always_inline",
+      "object_size": 2944,
+      "window": 2944,
+      "differing_bytes": 27,
+      "differing_words": 13,
+      "edits": 13,
+      "nonzero_tail": false,
+      "candidate_delta": "--- retained-guard.c\n+++ Matched material quantizer helper with always_inline.c\n@@ -16,6 +16,18 @@\n     out->y = color->green * (1.0f / 255.0f);\n     out->z = color->blue * (1.0f / 255.0f);\n     out->w = color->alpha * (1.0f / 255.0f);\n+}\n+\n+#pragma push\n+#pragma always_inline on\n+static inline void btlMainQuantizeColor(BtlCameraPalette *out, const RwV4d *color)\n+{\n+    f32 maximum = 255.0f;\n+    f32 bias = 0.5f;\n+    out->red = (s32)(bias + maximum * color->x);\n+    out->green = (s32)(bias + maximum * color->y);\n+    out->blue = (s32)(bias + maximum * color->z);\n+    out->alpha = (s32)(bias + maximum * color->w);\n }\n \n #pragma push\n@@ -178,10 +190,7 @@\n                         tmp.y = firstY + secondY;\n                         tmp.z = firstZ + secondZ;\n                         tmp.w = firstW + secondW * ratio;\n-                        unit[0x3c] = (s32)(0.5f + 255.0f * tmp.x);\n-                        unit[0x3d] = (s32)(0.5f + 255.0f * tmp.y);\n-                        unit[0x3e] = (s32)(0.5f + 255.0f * tmp.z);\n-                        unit[0x3f] = (s32)(0.5f + 255.0f * tmp.w);\n+                        btlMainQuantizeColor((BtlCameraPalette *)(unit + 0x3c), &tmp);\n                         *(f32 *)(unit + 0x70) = *(f32 *)(unit + 0x60) * inv;\n                         *(f32 *)(unit + 0x74) = *(f32 *)(unit + 0x64) * inv;\n                         *(f32 *)(unit + 0x78) = *(f32 *)(unit + 0x68) * inv;\n@@ -218,3 +227,4 @@\n     return 0;\n }\n #pragma pop\n+#pragma pop\n",
+      "result": {
+        "path": "build/worker-1/fade-resume/model_quantizer_always_inline/result.json",
+        "sha256": "a5a0b533f02c86e89e88ff03b92a76e6be817d94cb6f8ab89272629735cbe9ff",
+        "bytes": 6264
+      },
+      "candidate": {
+        "path": "build/worker-1/fade-resume/model_quantizer_always_inline/candidate.c",
+        "sha256": "f4e4860d040818183bba4b975fb7a72b254eeaa3a08e30e8ddd45ad6b42757b0",
+        "bytes": 8700
+      },
+      "object": {
+        "path": "build/worker-1/fade-resume/model_quantizer_always_inline/owner.o",
+        "sha256": "d3e908fbfcca27a0f033cdd8af62703c90204cb36d0bd0ed0f8ff6329e6ffb41",
+        "bytes": 27048
+      }
+    },
+    {
+      "hypothesis": "Const normalized-vector snapshot",
+      "object_size": 2956,
+      "window": 2944,
+      "differing_bytes": 760,
+      "differing_words": 270,
+      "edits": 110,
+      "nonzero_tail": false,
+      "candidate_delta": "--- retained-guard.c\n+++ Const normalized-vector snapshot.c\n@@ -16,6 +16,16 @@\n     out->y = color->green * (1.0f / 255.0f);\n     out->z = color->blue * (1.0f / 255.0f);\n     out->w = color->alpha * (1.0f / 255.0f);\n+}\n+\n+static inline void btlMainQuantizeColor(BtlCameraPalette *out, const RwV4d *color)\n+{\n+    f32 maximum = 255.0f;\n+    f32 bias = 0.5f;\n+    out->red = (s32)(bias + maximum * color->x);\n+    out->green = (s32)(bias + maximum * color->y);\n+    out->blue = (s32)(bias + maximum * color->z);\n+    out->alpha = (s32)(bias + maximum * color->w);\n }\n \n #pragma push\n@@ -178,10 +188,10 @@\n                         tmp.y = firstY + secondY;\n                         tmp.z = firstZ + secondZ;\n                         tmp.w = firstW + secondW * ratio;\n-                        unit[0x3c] = (s32)(0.5f + 255.0f * tmp.x);\n-                        unit[0x3d] = (s32)(0.5f + 255.0f * tmp.y);\n-                        unit[0x3e] = (s32)(0.5f + 255.0f * tmp.z);\n-                        unit[0x3f] = (s32)(0.5f + 255.0f * tmp.w);\n+                        {\n+                            const RwV4d color = tmp;\n+                            btlMainQuantizeColor((BtlCameraPalette *)(unit + 0x3c), &color);\n+                        }\n                         *(f32 *)(unit + 0x70) = *(f32 *)(unit + 0x60) * inv;\n                         *(f32 *)(unit + 0x74) = *(f32 *)(unit + 0x64) * inv;\n                         *(f32 *)(unit + 0x78) = *(f32 *)(unit + 0x68) * inv;\n",
+      "result": {
+        "path": "build/worker-1/fade-resume/model_quantizer_snapshot/result.json",
+        "sha256": "8e28d231ce368700e898e9f94194ade6ca8f05a2e3d0fa4ca8b7e9aca2a95146",
+        "bytes": 6267
+      },
+      "candidate": {
+        "path": "build/worker-1/fade-resume/model_quantizer_snapshot/candidate.c",
+        "sha256": "6c3d4d5f27a0eaa5411df60ec6876c3c9f2d63ef172e37f58e12839ec77d5fa3",
+        "bytes": 8761
+      },
+      "object": {
+        "path": "build/worker-1/fade-resume/model_quantizer_snapshot/owner.o",
+        "sha256": "4977e53de5a2fec0862d8f8578ef27d4cba5ecadf02bf6541484244c5ee209b6",
+        "bytes": 27064
+      }
+    },
+    {
+      "hypothesis": "Semantic per-unit fade helper",
+      "object_size": 2920,
+      "window": 2944,
+      "differing_bytes": 902,
+      "differing_words": 297,
+      "edits": 117,
+      "nonzero_tail": true,
+      "candidate_delta": "--- retained-guard.c\n+++ Semantic per-unit fade helper.c\n@@ -16,6 +16,40 @@\n     out->y = color->green * (1.0f / 255.0f);\n     out->z = color->blue * (1.0f / 255.0f);\n     out->w = color->alpha * (1.0f / 255.0f);\n+}\n+\n+#pragma push\n+#pragma always_inline on\n+static inline void btlMainFadeUnit(u8 *unit, const RwV4d *target, f32 ratio, f32 inv)\n+{\n+    f32 firstX, firstY, firstZ, firstW;\n+    f32 secondX, secondY, secondZ, secondW;\n+    RwV4d tmp;\n+    f32 scale = 1.0f / 255.0f;\n+    firstX = scale * unit[0x38];\n+    firstX *= inv;\n+    firstY = scale * unit[0x39];\n+    firstY *= inv;\n+    firstZ = scale * unit[0x3a];\n+    firstZ *= inv;\n+    firstW = scale * unit[0x3b];\n+    firstW *= inv;\n+    secondX = target->x * ratio;\n+    secondY = target->y * ratio;\n+    secondZ = target->z * ratio;\n+    secondW = target->w;\n+    tmp.x = firstX + secondX;\n+    tmp.y = firstY + secondY;\n+    tmp.z = firstZ + secondZ;\n+    tmp.w = firstW + secondW * ratio;\n+    unit[0x3c] = (s32)(0.5f + 255.0f * tmp.x);\n+    unit[0x3d] = (s32)(0.5f + 255.0f * tmp.y);\n+    unit[0x3e] = (s32)(0.5f + 255.0f * tmp.z);\n+    unit[0x3f] = (s32)(0.5f + 255.0f * tmp.w);\n+    *(f32 *)(unit + 0x70) = *(f32 *)(unit + 0x60) * inv;\n+    *(f32 *)(unit + 0x74) = *(f32 *)(unit + 0x64) * inv;\n+    *(f32 *)(unit + 0x78) = *(f32 *)(unit + 0x68) * inv;\n+    *(f32 *)(unit + 0x7c) = *(f32 *)(unit + 0x6c) * inv;\n }\n \n #pragma push\n@@ -153,7 +187,6 @@\n         *(f32 *)(iGpffffb3ac + 0x204) = firstZ + secondZ;\n         *(f32 *)(iGpffffb3ac + 0x208) = firstW + secondW * ratio;\n         if ((work->flags & 2) == 0) {\n-            f32 scale = 1.0f / 255.0f;\n \n             {\n                 u32 group;\n@@ -162,30 +195,7 @@\n                 for (group = 0; group < 4; group++) {\n                     for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;\n                          unit = *(u8 **)(unit + 0xa6c)) {\n-                        firstX = scale * unit[0x38];\n-                        firstX *= inv;\n-                        firstY = scale * unit[0x39];\n-                        firstY *= inv;\n-                        firstZ = scale * unit[0x3a];\n-                        firstZ *= inv;\n-                        firstW = scale * unit[0x3b];\n-                        firstW *= inv;\n-                        secondX = target.x * ratio;\n-                        secondY = target.y * ratio;\n-                        secondZ = target.z * ratio;\n-                        secondW = target.w;\n-                        tmp.x = firstX + secondX;\n-                        tmp.y = firstY + secondY;\n-                        tmp.z = firstZ + secondZ;\n-                        tmp.w = firstW + secondW * ratio;\n-                        unit[0x3c] = (s32)(0.5f + 255.0f * tmp.x);\n-                        unit[0x3d] = (s32)(0.5f + 255.0f * tmp.y);\n-                        unit[0x3e] = (s32)(0.5f + 255.0f * tmp.z);\n-                        unit[0x3f] = (s32)(0.5f + 255.0f * tmp.w);\n-                        *(f32 *)(unit + 0x70) = *(f32 *)(unit + 0x60) * inv;\n-                        *(f32 *)(unit + 0x74) = *(f32 *)(unit + 0x64) * inv;\n-                        *(f32 *)(unit + 0x78) = *(f32 *)(unit + 0x68) * inv;\n-                        *(f32 *)(unit + 0x7c) = *(f32 *)(unit + 0x6c) * inv;\n+                        btlMainFadeUnit(unit, &target, ratio, inv);\n                     }\n                 }\n             }\n@@ -218,3 +228,4 @@\n     return 0;\n }\n #pragma pop\n+#pragma pop\n",
+      "result": {
+        "path": "build/worker-1/fade-loop-helper/unit_helper/result.json",
+        "sha256": "06bb8eb881aa0c9305ffecae2dc22a9ca7544d97d8e20af87a07de444faf7f46",
+        "bytes": 6266
+      },
+      "candidate": {
+        "path": "build/worker-1/fade-loop-helper/unit_helper/candidate.c",
+        "sha256": "e92e3faea997eabefad8bae257936a5b2d81010a01f707643247bc25d9bfc320",
+        "bytes": 8320
+      },
+      "object": {
+        "path": "build/worker-1/fade-loop-helper/unit_helper/owner.o",
+        "sha256": "473585935d62633a314a30ccf52cc4453031b955762b651ba2b3d25280b92229",
+        "bytes": 27032
+      }
+    },
+    {
+      "hypothesis": "Semantic whole-list fade helper",
+      "object_size": 2920,
+      "window": 2944,
+      "differing_bytes": 902,
+      "differing_words": 297,
+      "edits": 117,
+      "nonzero_tail": true,
+      "candidate_delta": "--- retained-guard.c\n+++ Semantic whole-list fade helper.c\n@@ -16,6 +16,51 @@\n     out->y = color->green * (1.0f / 255.0f);\n     out->z = color->blue * (1.0f / 255.0f);\n     out->w = color->alpha * (1.0f / 255.0f);\n+}\n+\n+#pragma push\n+#pragma always_inline on\n+static inline void btlMainFadeUnits(const RwV4d *target, f32 ratio, f32 inv)\n+{\n+    f32 firstX, firstY, firstZ, firstW;\n+    f32 secondX, secondY, secondZ, secondW;\n+    RwV4d tmp;\n+    f32 scale = 1.0f / 255.0f;\n+\n+    {\n+        u32 group;\n+        u8 *unit;\n+\n+        for (group = 0; group < 4; group++) {\n+            for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;\n+                 unit = *(u8 **)(unit + 0xa6c)) {\n+                firstX = scale * unit[0x38];\n+                firstX *= inv;\n+                firstY = scale * unit[0x39];\n+                firstY *= inv;\n+                firstZ = scale * unit[0x3a];\n+                firstZ *= inv;\n+                firstW = scale * unit[0x3b];\n+                firstW *= inv;\n+                secondX = target->x * ratio;\n+                secondY = target->y * ratio;\n+                secondZ = target->z * ratio;\n+                secondW = target->w;\n+                tmp.x = firstX + secondX;\n+                tmp.y = firstY + secondY;\n+                tmp.z = firstZ + secondZ;\n+                tmp.w = firstW + secondW * ratio;\n+                unit[0x3c] = (s32)(0.5f + 255.0f * tmp.x);\n+                unit[0x3d] = (s32)(0.5f + 255.0f * tmp.y);\n+                unit[0x3e] = (s32)(0.5f + 255.0f * tmp.z);\n+                unit[0x3f] = (s32)(0.5f + 255.0f * tmp.w);\n+                *(f32 *)(unit + 0x70) = *(f32 *)(unit + 0x60) * inv;\n+                *(f32 *)(unit + 0x74) = *(f32 *)(unit + 0x64) * inv;\n+                *(f32 *)(unit + 0x78) = *(f32 *)(unit + 0x68) * inv;\n+                *(f32 *)(unit + 0x7c) = *(f32 *)(unit + 0x6c) * inv;\n+            }\n+        }\n+    }\n }\n \n #pragma push\n@@ -153,42 +198,7 @@\n         *(f32 *)(iGpffffb3ac + 0x204) = firstZ + secondZ;\n         *(f32 *)(iGpffffb3ac + 0x208) = firstW + secondW * ratio;\n         if ((work->flags & 2) == 0) {\n-            f32 scale = 1.0f / 255.0f;\n-\n-            {\n-                u32 group;\n-                u8 *unit;\n-\n-                for (group = 0; group < 4; group++) {\n-                    for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;\n-                         unit = *(u8 **)(unit + 0xa6c)) {\n-                        firstX = scale * unit[0x38];\n-                        firstX *= inv;\n-                        firstY = scale * unit[0x39];\n-                        firstY *= inv;\n-                        firstZ = scale * unit[0x3a];\n-                        firstZ *= inv;\n-                        firstW = scale * unit[0x3b];\n-                        firstW *= inv;\n-                        secondX = target.x * ratio;\n-                        secondY = target.y * ratio;\n-                        secondZ = target.z * ratio;\n-                        secondW = target.w;\n-                        tmp.x = firstX + secondX;\n-                        tmp.y = firstY + secondY;\n-                        tmp.z = firstZ + secondZ;\n-                        tmp.w = firstW + secondW * ratio;\n-                        unit[0x3c] = (s32)(0.5f + 255.0f * tmp.x);\n-                        unit[0x3d] = (s32)(0.5f + 255.0f * tmp.y);\n-                        unit[0x3e] = (s32)(0.5f + 255.0f * tmp.z);\n-                        unit[0x3f] = (s32)(0.5f + 255.0f * tmp.w);\n-                        *(f32 *)(unit + 0x70) = *(f32 *)(unit + 0x60) * inv;\n-                        *(f32 *)(unit + 0x74) = *(f32 *)(unit + 0x64) * inv;\n-                        *(f32 *)(unit + 0x78) = *(f32 *)(unit + 0x68) * inv;\n-                        *(f32 *)(unit + 0x7c) = *(f32 *)(unit + 0x6c) * inv;\n-                    }\n-                }\n-            }\n+            btlMainFadeUnits(&target, ratio, inv);\n         }\n     } else {\n         func_001496c0(&target);\n@@ -218,3 +228,4 @@\n     return 0;\n }\n #pragma pop\n+#pragma pop\n",
+      "result": {
+        "path": "build/worker-1/fade-loop-helper/loop_helper/result.json",
+        "sha256": "14392fb985c8bf2b2f094c6378aab51c92466cdcbf5677a900564de81d21e279",
+        "bytes": 6266
+      },
+      "candidate": {
+        "path": "build/worker-1/fade-loop-helper/loop_helper/candidate.c",
+        "sha256": "ef712ea7f4836b7cc0f810e724045436059582ad3a547685cff1fade2687a304",
+        "bytes": 8510
+      },
+      "object": {
+        "path": "build/worker-1/fade-loop-helper/loop_helper/owner.o",
+        "sha256": "8e933b694b2055960dbaca24f486ca463634a3d568628974bed766ff1d8176be",
+        "bytes": 27032
+      }
+    },
+    {
+      "hypothesis": "Named gain and bias with propagation disabled",
+      "object_size": 2924,
+      "window": 2944,
+      "differing_bytes": 2076,
+      "differing_words": 691,
+      "edits": 190,
+      "nonzero_tail": true,
+      "candidate_delta": "--- retained-guard.c\n+++ Named gain and bias with propagation disabled.c\n@@ -20,6 +20,7 @@\n \n #pragma push\n #pragma opt_loop_invariants on\n+#pragma opt_propagation off\n u32 func_001b87e0(void *workRaw)\n {\n     BtlMainFadeWork *work = (BtlMainFadeWork *)workRaw;\n@@ -154,6 +155,8 @@\n         *(f32 *)(iGpffffb3ac + 0x208) = firstW + secondW * ratio;\n         if ((work->flags & 2) == 0) {\n             f32 scale = 1.0f / 255.0f;\n+            f32 maximum = 255.0f;\n+            f32 bias = 0.5f;\n \n             {\n                 u32 group;\n@@ -178,10 +181,10 @@\n                         tmp.y = firstY + secondY;\n                         tmp.z = firstZ + secondZ;\n                         tmp.w = firstW + secondW * ratio;\n-                        unit[0x3c] = (s32)(0.5f + 255.0f * tmp.x);\n-                        unit[0x3d] = (s32)(0.5f + 255.0f * tmp.y);\n-                        unit[0x3e] = (s32)(0.5f + 255.0f * tmp.z);\n-                        unit[0x3f] = (s32)(0.5f + 255.0f * tmp.w);\n+                        unit[0x3c] = (s32)(bias + maximum * tmp.x);\n+                        unit[0x3d] = (s32)(bias + maximum * tmp.y);\n+                        unit[0x3e] = (s32)(bias + maximum * tmp.z);\n+                        unit[0x3f] = (s32)(bias + maximum * tmp.w);\n                         *(f32 *)(unit + 0x70) = *(f32 *)(unit + 0x60) * inv;\n                         *(f32 *)(unit + 0x74) = *(f32 *)(unit + 0x64) * inv;\n                         *(f32 *)(unit + 0x78) = *(f32 *)(unit + 0x68) * inv;\n",
+      "result": {
+        "path": "build/worker-1/fade-lifetime-probe/result.json",
+        "sha256": "ecde9f81d3dab441287cc317a7d498003177e80f8274ab22dcc2087c59d41236",
+        "bytes": 5465
+      },
+      "candidate": {
+        "path": "build/worker-1/fade-lifetime-probe/candidate.c",
+        "sha256": "c0b832f0fe512d6d05e292ff5bf3a37285d9f59cee2da624263d52c6ec613b03",
+        "bytes": 8583
+      },
+      "object": {
+        "path": "build/worker-1/fade-lifetime-probe/owner.o",
+        "sha256": "c8d5287d3e37d80a35f77434020a75aa26e6398b2f2ad76fb028136c09d0a06c",
+        "bytes": 26984
+      }
+    }
+  ],
+  "limits": [
+    "The candidate is not instruction-exact and remains behind INCLUDE_ASM.",
+    "No new production owner verification or full link was run during resume; prime owns combined acceptance.",
+    "No host execution or EE runtime semantic certification was performed during resume."
+  ]
+}
