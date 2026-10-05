@@ -1,0 +1,210 @@
+--- a/src/promoted/code1_001d.c
++++ b/src/promoted/code1_001d.c
+@@ -775,8 +775,23 @@
+     }
+     *(s32 *)((u8 *)arg3 + 0xC) = 0;
+ }
++/* Position callbacks receive the attachment work, battle unit, 0x18-byte
++ * entry, and the caller's four-float position buffer. Some callbacks use
++ * only a subset of those objects; their shared pointer contract is unchanged.
++ * D_00609500 has fourteen slots, including two null slots at types 5 and 6. */
++typedef void BtlAttachPositionCallback(u8 *work, u8 *unit, u8 *entry, f32 *position);
++BtlAttachPositionCallback func_001d4780;
++BtlAttachPositionCallback func_001d48b0;
++BtlAttachPositionCallback func_001d49c0;
++BtlAttachPositionCallback func_001d4b00;
++BtlAttachPositionCallback func_001d4c40;
++BtlAttachPositionCallback func_001d4cf0;
++BtlAttachPositionCallback func_001d4dc0;
++BtlAttachPositionCallback func_001d4e90;
++BtlAttachPositionCallback func_001d4eb0;
++
+ // FUN_001D4780
+-void func_001d4780(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
++void func_001d4780(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+     struct Frame {
+         f32 value50;
+         f32 value54;
+@@ -810,10 +825,10 @@
+     frame.value70 = frame.value50 + *(f32 *)(arg0 + 0x34);
+     frame.value74 = frame.value54 + *(f32 *)(arg0 + 0x38);
+     frame.value78 = frame.value58 + *(f32 *)(arg0 + 0x3C);
+-    func_001d44a0(var_f20, temp_f21, &frame.value70, (s32 *)(arg0 + 0x40), temp_s0, arg3);
++    func_001d44a0(var_f20, temp_f21, &frame.value70, (s32 *)(arg0 + 0x40), temp_s0, (u8 *)arg3);
+ }
+ // FUN_001D48B0
+-void func_001d48b0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
++void func_001d48b0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+     struct Frame {
+         f32 value30;
+         f32 value34;
+@@ -830,7 +845,7 @@
+     u16 temp_2;
+     u8 *temp_16;
+ 
+-    temp_16 = (u8 *)(arg2 + 8);
++    temp_16 = arg2 + 8;
+     if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
+         btlUnitGetSphereWorldCenter(arg1, &frame.value50);
+     } else {
+@@ -845,12 +860,12 @@
+             frame.value58 = frame.value38 + *(f32 *)(arg0 + 0x3C);
+         }
+     }
+-    *(f32 *)(arg3 + 0) = frame.value50;
+-    *(f32 *)(arg3 + 4) = frame.value54;
+-    *(f32 *)(arg3 + 8) = frame.value58;
++    arg3[0] = frame.value50;
++    arg3[1] = frame.value54;
++    arg3[2] = frame.value58;
+ }
+ // FUN_001D49C0
+-void func_001d49c0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
++void func_001d49c0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+     struct Frame {
+         f32 value50;
+         f32 value54;
+@@ -868,7 +883,7 @@
+     u8 *var_19;
+     u8 *temp_s2;
+ 
+-    temp_s2 = (u8 *)(arg2 + 8);
++    temp_s2 = arg2 + 8;
+     if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
+         btlUnitGetSphereWorldCenter(arg1, &frame.value70);
+     } else {
+@@ -889,12 +904,12 @@
+             frame.value78 = frame.value58 + *(f32 *)(arg0 + 0x3C);
+         }
+     }
+-    *(f32 *)(arg3 + 0) = frame.value70;
+-    *(f32 *)(arg3 + 4) = frame.value74;
+-    *(f32 *)(arg3 + 8) = frame.value78;
++    arg3[0] = frame.value70;
++    arg3[1] = frame.value74;
++    arg3[2] = frame.value78;
+ }
+ // FUN_001D4B00
+-void func_001d4b00(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
++void func_001d4b00(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+     struct Frame {
+         f32 value50;
+         f32 value54;
+@@ -912,7 +927,7 @@
+     u8 *var_19;
+     u8 *temp_s2;
+ 
+-    temp_s2 = (u8 *)(arg2 + 8);
++    temp_s2 = arg2 + 8;
+     if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
+         btlUnitGetSphereWorldCenter(arg1, &frame.value70);
+     } else {
+@@ -933,12 +948,12 @@
+             frame.value78 = frame.value58 + *(f32 *)(arg0 + 0x3C);
+         }
+     }
+-    *(f32 *)(arg3 + 0) = frame.value70;
+-    *(f32 *)(arg3 + 4) = frame.value74;
+-    *(f32 *)(arg3 + 8) = frame.value78;
++    arg3[0] = frame.value70;
++    arg3[1] = frame.value74;
++    arg3[2] = frame.value78;
+ }
+ // FUN_001D4C40
+-void func_001d4c40(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
++void func_001d4c40(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+     struct Frame {
+         s32 zero0;
+         s32 zero1;
+@@ -952,7 +967,7 @@
+     s32 temp;
+     u8 *temp16;
+ 
+-    temp16 = (u8 *)(arg2 + 8);
++    temp16 = arg2 + 8;
+     base = func_00196040(3, 0, &frame.center, &frame.value4C, 0, 0);
+     temp = *(u16 *)(temp16 + 4);
+     if (temp == 0) {
+@@ -964,10 +979,10 @@
+     frame.zero0 = 0;
+     frame.zero1 = 0;
+     frame.zero2 = 0;
+-    func_001d44a0(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, arg3);
++    func_001d44a0(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, (u8 *)arg3);
+ }
+ // FUN_001D4CF0
+-void func_001d4cf0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
++void func_001d4cf0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+     struct Frame {
+         s32 zero0;
+         s32 zero1;
+@@ -987,7 +1002,7 @@
+     } else {
+         mode = 2;
+     }
+-    temp16 = (u8 *)(arg2 + 8);
++    temp16 = arg2 + 8;
+     base = func_00196040(mode & 0xFFFF, 0, &frame.center, &frame.value4C, 0, 0);
+     temp = *(u16 *)(temp16 + 4);
+     if (temp == 0) {
+@@ -999,10 +1014,10 @@
+     frame.zero0 = 0;
+     frame.zero1 = 0;
+     frame.zero2 = 0;
+-    func_001d44a0(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, arg3);
++    func_001d44a0(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, (u8 *)arg3);
+ }
+ // FUN_001D4DC0
+-void func_001d4dc0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
++void func_001d4dc0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+     struct Frame {
+         s32 zero0;
+         s32 zero1;
+@@ -1022,7 +1037,7 @@
+     } else {
+         mode = 1;
+     }
+-    temp16 = (u8 *)(arg2 + 8);
++    temp16 = arg2 + 8;
+     base = func_00196040(mode & 0xFFFF, 0, &frame.center, &frame.value4C, 0, 0);
+     temp = *(u16 *)(temp16 + 4);
+     if (temp == 0) {
+@@ -1034,14 +1049,14 @@
+     frame.zero0 = 0;
+     frame.zero1 = 0;
+     frame.zero2 = 0;
+-    func_001d44a0(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, arg3);
++    func_001d44a0(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, (u8 *)arg3);
+ }
+ // FUN_001D4E90
+-void func_001d4e90(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
+-    *(s32 *)((u8 *)arg3 + 0) = 0;
+-    *(s32 *)((u8 *)arg3 + 4) = 0;
+-    *(s32 *)((u8 *)arg3 + 8) = 0;
+-    *(s32 *)((u8 *)arg3 + 0xC) = 0;
++void func_001d4e90(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
++    arg3[0] = 0.0f;
++    arg3[1] = 0.0f;
++    arg3[2] = 0.0f;
++    arg3[3] = 0.0f;
+ }
+ 
+ // FUN_001D4EB0
+@@ -1359,7 +1374,7 @@
+     extern void func_004861f0(u8 *a0, f32 *a1);
+     extern void func_00486330(u8 *a0, u8 *a1);
+     extern void func_00486400(u8 *a0, f32 a1);
+-    extern void (*D_00609500[])(u8 *a0, u8 *a1, u8 *a2, u8 *a3);
++    extern BtlAttachPositionCallback *D_00609500[];
+     s32 count;
+     BtlAttachWork *w;
+     u16 i;
+@@ -1461,7 +1476,7 @@
+             }
+         }
+         if (!(w->flags & 0x20000)) {
+-            D_00609500[entry->type]((u8 *)w, unit, (u8 *)entry, (u8 *)trans);
++            D_00609500[entry->type]((u8 *)w, unit, (u8 *)entry, trans);
+         } else {
+             if (*(s32 *)(iGpffffb3ac + 0x314) != 0) {
+                 trans[0] = *(f32 *)(unit + 4);
