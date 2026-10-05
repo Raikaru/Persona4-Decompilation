@@ -53,7 +53,7 @@ int main(void) {
 }
 '''
 def source(mutation=None):
-    path=ROOT/'src/promoted/code1_0016.c'; text=path.read_text()
+    path=ROOT/'src/promoted/code1_0016.c'; text=path.read_text(encoding='utf-8')
     frame=re.search(r'typedef struct F630Frame\b[\s\S]+?\bF630Frame;',text).group(0)
     body=Q.function_bodies(path)['func_0016f630'][1]
     if mutation:
@@ -65,7 +65,7 @@ class FieldSnapshotExtent(unittest.TestCase):
     def run_fixture(self,code,opt):
         runtime=native32_runtime()
         with tempfile.TemporaryDirectory(prefix='field-snapshot-') as d:
-            p=Path(d);c=p/'fixture.c';c.write_text(code)
+            p=Path(d);c=p/'fixture.c';c.write_text(code,encoding='utf-8')
             return runtime.run(runtime.compile(c,p/'fixture',opt,(ROOT/'include',)))
     def test_real_snapshot(self):
         for opt in ('-O0','-O2'):
