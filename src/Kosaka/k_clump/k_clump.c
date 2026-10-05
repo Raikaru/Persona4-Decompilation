@@ -1,5 +1,6 @@
 /* Source unit: src/Kosaka/k_clump/k_clump_004578b0.c (1 function markers) */
 #include "include_asm.h"
+#include "Kosaka/k_clump_property_internal.h"
 #include "Kosaka/k_clump_internal.h"
 #include "texture_callback_internal.h"
 
@@ -15,12 +16,6 @@ typedef struct KClumpUserDataContext
     char name[0x40];
     u32 count;
 } KClumpUserDataContext;
-
-typedef struct
-{
-    f32 x;
-    f32 y;
-} RwV2d;
 
 extern void memset(void* destination, s32 value, u32 size);
 
@@ -346,35 +341,49 @@ s32 func_004581a0(void* object, const char* name)
 
 
 
+/* The callback and lookup share the name, search counters, found flag,
+   and complete integer/frame result. See KClump_property_result_20261005.md. */
+typedef struct KClumpIntSearchContext
+{
+    char nameCopy[0x40];
+    s32 targetIndex;
+    s32 currentIndex;
+    s32 found;
+    KClumpIntPropertyResult result;
+} KClumpIntSearchContext;
+
+typedef char KClumpIntSearchContextSize[
+    (sizeof(KClumpIntSearchContext) == 0x54) ? 1 : -1];
+
 // FUN_004582C0
 void* func_004582c0(void* object, void* data)
 {
-    u32* context = data;
+    KClumpIntSearchContext* context = data;
     s32 resourceIndex;
     s32 elementIndex;
     void* material;
 
-    if (context[0x12] == 1)
+    if (context->found == 1)
     {
         return NULL;
     }
     for (resourceIndex = 0; resourceIndex < func_003bcf10(object); resourceIndex++)
     {
         material = func_003bcf60(object, resourceIndex);
-        if (strcmp(func_003bd040((RpUserDataArray*)material), (const char*)context) == 0)
+        if (strcmp(func_003bd040((RpUserDataArray*)material), context->nameCopy) == 0)
         {
             for (elementIndex = 0; elementIndex < func_003bd060(material); elementIndex++)
             {
                 if (func_003bd050((RpUserDataArray*)material) == rpINTUSERDATA)
                 {
-                    if (context[0x10] == context[0x11])
+                    if (context->targetIndex == context->currentIndex)
                     {
-                        context[0x13] = func_003bd070((RpUserDataArray*)material, elementIndex);
-                        context[0x14] = (u32)object;
-                        context[0x12] = 1;
+                        context->result.value = func_003bd070((RpUserDataArray*)material, elementIndex);
+                        context->result.frame = object;
+                        context->found = 1;
                         return NULL;
                     }
-                    context[0x11]++;
+                    context->currentIndex++;
                 }
             }
         }
@@ -386,17 +395,9 @@ void* func_004582c0(void* object, void* data)
 
 
 // FUN_00458430
-void func_00458430(f32* result, void* object, const char* name, s32 index)
+void func_00458430(KClumpIntPropertyResult* result, void* object, const char* name, s32 index)
 {
-    struct
-    {
-        char nameCopy[0x40];
-        s32 targetIndex;
-        s32 currentIndex;
-        s32 unused0;
-        s32 resultValue;
-        void* resultMaterial;
-    } context;
+    KClumpIntSearchContext context;
     s32 resourceIndex;
     s32 elementIndex;
     void* geometry;
@@ -417,9 +418,9 @@ void func_00458430(f32* result, void* object, const char* name, s32 index)
                 {
                     if (context.targetIndex == context.currentIndex)
                     {
-                        context.resultValue = func_003bd070((RpUserDataArray*)material, elementIndex);
-                        context.resultMaterial = geometry;
-                        *(RwV2d*)result = *(RwV2d*)&context.resultValue;
+                        context.result.value = func_003bd070((RpUserDataArray*)material, elementIndex);
+                        context.result.frame = geometry;
+                        *result = context.result;
                         return;
                     }
                     context.currentIndex++;
@@ -428,7 +429,7 @@ void func_00458430(f32* result, void* object, const char* name, s32 index)
         }
     }
     func_003e9af0(geometry, func_004582c0, &context);
-    *(RwV2d*)result = *(RwV2d*)&context.resultValue;
+    *result = context.result;
 }
 
 
