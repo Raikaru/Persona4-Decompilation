@@ -1593,260 +1593,162 @@ void func_004940d0(u8 *arg0, u16 arg1, Code1_0049Color *arg2)
 #pragma opt_common_subs on
 /* measured: closing opt_propagation after func_004940d0 probe. */
 #pragma opt_propagation on
-/* Draft (measured 2026-09-17, source-repo only): probe_variants p_cseoff 263 words BEST (s_v2 278, sched 276, nobl 278, levers neutral), fnalign 253/291/203 (87% emitted, 38 instrs short). Four-pragma sweep measured; words-best cseoff vs edits-best s_v2/nobl (189). wscan dsll32 2 vs 0 + MMI pextlb/pextlh wall. More than 3% short of retail instruction count, so left as plain INCLUDE_ASM draft, not a floor. See docs/probe_archive/CMsgWin_004941f0_body.c. */
-/* Fresh 2026-09-17 plain-C (no MMI asm, f32 quads + guarded (u8)(s32)f lerp per y_CmbCardEff 00348330 idiom, same CFG/gotos): probe_variants 528w, fnalign 431ed retail292/object541 (bloated, not short) vs draft 263w/203ed 253/291. Plain C without pextlb/pextlh/qmtc2/vitof0/vmulx/sqc2/lqc2/vadd/vftoi0/ppach doubles the word distance and bloats the object, confirming the wall is genuine VU0+MMI transfer shape, not a shortfall artifact or CFG defect. Draft 263w keeps MMI asm so still H009-unsafe for src/; both stay as docs/probe_archive drafts, production stays INCLUDE_ASM. */
-/* Floor (measured 2026-09-18, authoritative tree): probe_variants port 273 words, obj 1136B / window 1168B */
-/* (284 vs 291 retail instrs, 7 short, 2.4% short, banks per 3% rule); fnalign 149 edits, */
-/* frame/values/CFG per retail; VU scale + lerp blocks as genuine VU0 inline asm (each <=5 ordinary */
-/* vs >=5 hardware, H009-clean); COP1 div/add/sub/cvt stays plain C. Re-measured commands (pwd */
-/* source/Persona4-Decompilation, no hardware-asm): */
-/* python3 tools/probe_variants.py src/promoted/code1_0049.c func_004941f0 --candidate port=/tmp/cmsgwin_v1.c */
-/* python3 -E -s tools/fnalign.py src/promoted/code1_0049.c func_004941f0 --candidate /tmp/cmsgwin_v1.c --quiet */
-/* python3 tools/measure_guarded.py src/promoted/code1_0049.c func_004941f0 (after install) */
-/* Prior drafts retained: docs/probe_archive/CMsgWin_004941f0_body.c (263w 253/291 short); plain-C 528w */
-/* 541-vs-292 bloat confirming VU wall. This floor is /tmp/cmsgwin_v1.c (239 lines), banked. */
-/* Other cold in this owner still ASM, NOT claimed here: func_004903c0, func_00490c40, func_004916f0, func_00492100, func_00494740. */
+/* Whole-owner recovery, 2026-10-05: 1168/1168 bytes, 78 differing instruction words.
+ * Counts are unsigned after the signed-short loads. Complete vector and packed-color
+ * objects preserve the VU transfers; the loop pragma retains the vector addresses.
+ * Remaining differences are register allocation, one load pair, and the loop entry.
+ * See docs/probe_archive/ModelTrack_004941f0_worker9_20261005.md. */
 // FUN_004941F0 NONMATCHING
 #ifdef NON_MATCHING
-void func_004941f0(u8 *arg0, u32 *arg1)
+#pragma push
+#pragma opt_loop_invariants on
+/* Interpolate the ribbon colors, then repeat its first row and the cap colors. */
+void func_004941f0(u8 *track, u32 *colors)
 {
-    extern void RpGeometryLock(void *arg0, s32 arg1);
-    extern void func_003c22f0(void *arg0);
-    extern void memcpy(void *dst, void *src, s32 size);
+    extern u8 *RpGeometryLock(u8 *geometry, s32 lockMode);
+    extern u8 *func_003c22f0(u8 *geometry);
     extern f32 fGpffff8044;
+    u32 firstWord;
+    u32 secondWord;
+    u32 thirdWord;
+    u32 fourthWord;
+    u32 firstPacked;
+    u32 secondPacked;
+    EffectVuVector first;
+    EffectVuVector third;
+    EffectVuVector second;
+    EffectVuVector fourth;
     u8 *work;
-    u8 *dst;
-    u8 *dstBase;
-    s32 count2;
-    s32 wdiv;
-    s32 n;
-    f32 fn;
-    f32 step;
-    f32 t;
-    u32 c0w;
-    u32 c1w;
-    u32 c2w;
-    u32 c3w;
+    u32 rowCount;
+    u32 vertexCount;
+    u32 segmentCount;
+    u8 *destination;
+    u8 *firstRow;
+    f32 fraction;
+    f32 fractionStep;
     f32 scale;
-    u_long128 q0;
-    u_long128 q1;
-    u_long128 q2;
-    u_long128 q3;
-    u32 k255 = 0x437F0000;
+    u32 index;
+    u32 rowBytes;
+    u32 rowIndex;
+    u8 *geometry;
+    u8 *cap;
+    u8 *capColors;
+    u8 *nextCapRow;
+    u32 capRowIndex;
 
-    work = *(u8 **)(arg0 + 0x10);
+    work = *(u8 **)(track + 0x10);
     RpGeometryLock(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 8);
-    count2 = *(s16 *)(work + 0x48);
-    wdiv = *(s16 *)(work + 8);
-    n = wdiv / 3;
-    dst = *(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x30);
-    dstBase = dst;
-    fn = (f32)n;
-    step = 1.0f / fn;
-    t = 0.0f;
-    c0w = arg1[0];
+    rowCount = *(s16 *)(work + 0x48);
+    vertexCount = *(s16 *)(work + 8);
+    segmentCount = vertexCount / 3U;
+    destination = *(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x30);
+    firstRow = destination;
+    fractionStep = 1.0f / (f32)segmentCount;
+    fraction = 0.0f;
+    firstWord = colors[0];
     scale = fGpffff8044;
-    __asm__ volatile (
-        ".set noreorder\n"
-        "lw $2, 0(%0)\n"
-        "pextlb $2, $zero, $2\n"
-        "pextlh $2, $zero, $2\n"
-        "qmtc2 $2, $vf10\n"
-        "vitof0.xyzw $vf10, $vf10\n"
-        "mfc1 $2, %2\n"
-        "nop\n"
-        "qmtc2 $2, $vf2\n"
-        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-        "sqc2 $vf10, 0(%1)\n"
-        ".set reorder"
-        :
-        : "r"(&c0w), "r"(&q0), "f"(scale)
-        : "$2", "memory");
-    c1w = arg1[1];
-    __asm__ volatile (
-        ".set noreorder\n"
-        "lw $2, 0(%0)\n"
-        "pextlb $2, $zero, $2\n"
-        "pextlh $2, $zero, $2\n"
-        "qmtc2 $2, $vf10\n"
-        "vitof0.xyzw $vf10, $vf10\n"
-        "mfc1 $2, %2\n"
-        "nop\n"
-        "qmtc2 $2, $vf2\n"
-        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-        "sqc2 $vf10, 0(%1)\n"
-        ".set reorder"
-        :
-        : "r"(&c1w), "r"(&q1), "f"(scale)
-        : "$2", "memory");
-    c2w = arg1[2];
-    __asm__ volatile (
-        ".set noreorder\n"
-        "lw $2, 0(%0)\n"
-        "pextlb $2, $zero, $2\n"
-        "pextlh $2, $zero, $2\n"
-        "qmtc2 $2, $vf10\n"
-        "vitof0.xyzw $vf10, $vf10\n"
-        "mfc1 $2, %2\n"
-        "nop\n"
-        "qmtc2 $2, $vf2\n"
-        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-        "sqc2 $vf10, 0(%1)\n"
-        ".set reorder"
-        :
-        : "r"(&c2w), "r"(&q2), "f"(scale)
-        : "$2", "memory");
-    c3w = arg1[3];
-    __asm__ volatile (
-        ".set noreorder\n"
-        "lw $2, 0(%0)\n"
-        "pextlb $2, $zero, $2\n"
-        "pextlh $2, $zero, $2\n"
-        "qmtc2 $2, $vf10\n"
-        "vitof0.xyzw $vf10, $vf10\n"
-        "mfc1 $2, %2\n"
-        "nop\n"
-        "qmtc2 $2, $vf2\n"
-        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-        "sqc2 $vf10, 0(%1)\n"
-        ".set reorder"
-        :
-        : "r"(&c3w), "r"(&q3), "f"(scale)
-        : "$2", "memory");
-    if (n != 0) {
-        s32 i_lerp = 0;
-        f32 one = 1.0f;
-        while (i_lerp < n) {
-            f32 oneMinusT = one - t;
-            u32 packed0;
-            u32 packed1;
-            __asm__ volatile (
-                ".set noreorder\n"
-                "lqc2 $vf11, 0(%0)\n"
-                "lqc2 $vf10, 0(%1)\n"
-                "mfc1 $2, %3\n"
-                "nop\n"
-                "qmtc2 $2, $vf2\n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                "mfc1 $2, %4\n"
-                "nop\n"
-                "qmtc2 $2, $vf2\n"
-                "vmulx.xyzw $vf11, $vf11, $vf2x\n"
-                "vadd.xyzw $vf10, $vf10, $vf11\n"
-                "qmtc2 %5, $vf2\n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                "vftoi0.xyzw $vf10, $vf10\n"
-                "qmfc2 $2, $vf10\n"
-                "ppach $2, $zero, $2\n"
-                "ppacb $2, $zero, $2\n"
-                "sw $2, 0(%2)\n"
-                ".set reorder"
-                :
-                : "r"(&q0), "r"(&q2), "r"(&packed0), "f"(t), "f"(oneMinusT), "r"(k255)
-                : "$2", "memory");
-            *(u32 *)(dst + 4) = packed0;
-            __asm__ volatile (
-                ".set noreorder\n"
-                "lqc2 $vf11, 0(%0)\n"
-                "lqc2 $vf10, 0(%1)\n"
-                "mfc1 $2, %3\n"
-                "nop\n"
-                "qmtc2 $2, $vf2\n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                "mfc1 $2, %4\n"
-                "nop\n"
-                "qmtc2 $2, $vf2\n"
-                "vmulx.xyzw $vf11, $vf11, $vf2x\n"
-                "vadd.xyzw $vf10, $vf10, $vf11\n"
-                "qmtc2 %5, $vf2\n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                "vftoi0.xyzw $vf10, $vf10\n"
-                "qmfc2 $2, $vf10\n"
-                "ppach $2, $zero, $2\n"
-                "ppacb $2, $zero, $2\n"
-                "sw $2, 0(%2)\n"
-                ".set reorder"
-                :
-                : "r"(&q1), "r"(&q3), "r"(&packed1), "f"(t), "f"(oneMinusT), "r"(k255)
-                : "$2", "memory");
-            *(u32 *)dst = packed1;
-            dst[8] = dst[0];
-            dst[9] = dst[1];
-            dst[10] = dst[2];
-            dst[11] = dst[3];
-            t = t + step;
-            dst += 12;
-            i_lerp++;
-        }
-    }
-    {
-        s32 j_copy = 1;
-        s32 copySize = wdiv * 4;
-        while (j_copy < count2) {
-            memcpy(dst, dstBase, copySize);
-            dst += copySize;
-            j_copy++;
-        }
-    }
-    {
-        u8 *model;
-        model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
-        func_003c22f0(model);
-        if (*(u16 *)work & 4) {
-            *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
-        }
-    }
-    {
-        u8 *work2;
-        u8 *dst2;
-        work2 = *(u8 **)(arg0 + 0x14);
-        RpGeometryLock(*(u8 **)(*(u8 **)(work2 + 0x10) + 0x18), 8);
-        dst2 = *(u8 **)(*(u8 **)(*(u8 **)(work2 + 0x10) + 0x18) + 0x30);
-        *(u32 *)(dst2 + 0) = arg1[0];
-        *(u32 *)(dst2 + 4) = arg1[1];
-        dst2[8] = dst2[4];
-        dst2[9] = dst2[5];
-        dst2[10] = dst2[6];
-        dst2[11] = dst2[7];
-        dst2[12] = dst2[4];
-        dst2[13] = dst2[5];
-        dst2[14] = dst2[6];
-        dst2[15] = dst2[7];
-        dst2[16] = dst2[4];
-        dst2[17] = dst2[5];
-        dst2[18] = dst2[6];
-        dst2[19] = dst2[7];
-        dst2[20] = dst2[4];
-        dst2[21] = dst2[5];
-        dst2[22] = dst2[6];
-        dst2[23] = dst2[7];
-        dst2[24] = dst2[4];
-        dst2[25] = dst2[5];
-        dst2[26] = dst2[6];
-        dst2[27] = dst2[7];
-        dst2[28] = dst2[4];
-        dst2[29] = dst2[5];
-        dst2[30] = dst2[6];
-        dst2[31] = dst2[7];
-        {
-            s32 k_rep = 1;
-            u8 *repDst = dst2 + 0x20;
-            while (k_rep < count2) {
-                memcpy(repDst, dst2, 0x20);
-                repDst += 0x20;
-                k_rep++;
+    effectVuUnpackColor10(&firstWord, scale);
+    effectVuStore10(&first);
+    secondWord = colors[1];
+    effectVuUnpackColor10(&secondWord, scale);
+    effectVuStore10(&second);
+    thirdWord = colors[2];
+    effectVuUnpackColor10(&thirdWord, scale);
+    effectVuStore10(&third);
+    fourthWord = colors[3];
+    effectVuUnpackColor10(&fourthWord, scale);
+    effectVuStore10(&fourth);
+    index = 0;
+    if (segmentCount != 0) {
+        while (index < segmentCount) {
+            f32 inverse;
+            effectVuLoad11(&first);
+            effectVuLoad10(&third);
+            effectVuScale10(fraction);
+            inverse = 1.0f - fraction;
+            effectVuScale11(inverse);
+            __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+            {
+                /* Binary32 255.0f converts normalized VU color lanes back to bytes. */
+                u32 packed;
+                __asm__ volatile(
+                    "qmtc2.ni %2, $vf2\n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                    "vftoi0.xyzw $vf10, $vf10\n"
+                    "qmfc2.ni %0, $vf10\n"
+                    "ppach %0, $zero, %0\n"
+                    "ppacb %0, $zero, %0\n"
+                    "sw %0, firstPacked\n"
+                    : "=&r"(packed), "=m"(firstPacked)
+                    : "r"(0x437F0000U)
+                    : "$vf2", "$vf10", "memory");
             }
-        }
-        {
-            u8 *model2;
-            model2 = *(u8 **)(*(u8 **)(work2 + 0x10) + 0x18);
-            func_003c22f0(model2);
-            if (*(u16 *)work2 & 4) {
-                *(u16 *)(model2 + 0xC) = *(u16 *)(model2 + 0xC) | 1;
+            *(u32 *)(destination + 4) = firstPacked;
+            effectVuLoad11(&second);
+            effectVuLoad10(&fourth);
+            effectVuScale10(fraction);
+            effectVuScale11(inverse);
+            __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+            {
+                /* Binary32 255.0f converts normalized VU color lanes back to bytes. */
+                u32 packed;
+                __asm__ volatile(
+                    "qmtc2.ni %2, $vf2\n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                    "vftoi0.xyzw $vf10, $vf10\n"
+                    "qmfc2.ni %0, $vf10\n"
+                    "ppach %0, $zero, %0\n"
+                    "ppacb %0, $zero, %0\n"
+                    "sw %0, secondPacked\n"
+                    : "=&r"(packed), "=m"(secondPacked)
+                    : "r"(0x437F0000U)
+                    : "$vf2", "$vf10", "memory");
             }
+            *(u32 *)destination = secondPacked;
+            *(Code1_0049Color *)(destination + 8) = *(Code1_0049Color *)destination;
+            fraction += fractionStep;
+            destination += 12;
+            index++;
         }
+    }
+    rowIndex = 1;
+    rowBytes = vertexCount * 4;
+    while (rowIndex < rowCount) {
+        memcpy(destination, firstRow, rowBytes);
+        destination += rowBytes;
+        rowIndex++;
+    }
+    geometry = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    func_003c22f0(geometry);
+    if (*(u16 *)work & 4) {
+        *(u16 *)(geometry + 0xC) |= 1;
+    }
+    cap = *(u8 **)(track + 0x14);
+    RpGeometryLock(*(u8 **)(*(u8 **)(cap + 0x10) + 0x18), 8);
+    capColors = *(u8 **)(*(u8 **)(*(u8 **)(cap + 0x10) + 0x18) + 0x30);
+    *(u32 *)capColors = colors[0];
+    *(u32 *)(capColors + 4) = colors[1];
+    *(Code1_0049Color *)(capColors + 8) = *(Code1_0049Color *)(capColors + 4);
+    *(Code1_0049Color *)(capColors + 12) = *(Code1_0049Color *)(capColors + 4);
+    *(Code1_0049Color *)(capColors + 16) = *(Code1_0049Color *)(capColors + 4);
+    *(Code1_0049Color *)(capColors + 20) = *(Code1_0049Color *)(capColors + 4);
+    *(Code1_0049Color *)(capColors + 24) = *(Code1_0049Color *)(capColors + 4);
+    *(Code1_0049Color *)(capColors + 28) = *(Code1_0049Color *)(capColors + 4);
+    nextCapRow = capColors + 32;
+    capRowIndex = 1;
+    while (capRowIndex < rowCount) {
+        memcpy(nextCapRow, capColors, 32);
+        nextCapRow += 32;
+        capRowIndex++;
+    }
+    geometry = *(u8 **)(*(u8 **)(cap + 0x10) + 0x18);
+    func_003c22f0(geometry);
+    if (*(u16 *)cap & 4) {
+        *(u16 *)(geometry + 0xC) |= 1;
     }
 }
+
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0049", func_004941f0);
 #endif
