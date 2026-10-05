@@ -1,0 +1,168 @@
+/* The allocator is a deterministic seam, not execution of the real allocator.
+ * Retail allocates a 0x90-byte header followed by the requested 0x6c bytes.
+ * Both zero-filled and poisoned payloads expose untouched-byte/width mistakes.
+ * Entire allocations, pre/post guards, and the unused slot are compared.
+ */
+static u32 scenario;
+#define CHECK(c) do { if (!(c)) native32_failure(__LINE__, scenario, #c); } while (0)
+#define OFFSET(type, member) __builtin_offsetof(type, member)
+_Static_assert(sizeof(void *) == 4 && sizeof(s32) == 4 && sizeof(u32) == 4 && sizeof(u16) == 2, "EE32 carrier widths");
+_Static_assert(OFFSET(BtlPacket, updateFunc) == 0x6c && OFFSET(BtlPacket, workData) == 0x78, "packet offsets");
+_Static_assert(sizeof(BtlMainColorWork) == 0x6c && OFFSET(BtlMainColorWork, target1) == 0x20 && OFFSET(BtlMainColorWork, target2) == 0x40, "work rows");
+_Static_assert(OFFSET(BtlMainColorWork, totalFrames) == 0x60 && OFFSET(BtlMainColorWork, currentFrame) == 0x64 && OFFSET(BtlMainColorWork, flags) == 0x68, "work scalar widths");
+
+typedef struct Allocation {
+    u8 before[16];
+    u8 packetAndWork[0xfc];
+    u8 after[16];
+} __attribute__((aligned(16))) Allocation;
+static Allocation allocations[2], expected[2];
+static u32 allocationCalls, activeSlot, renderCalls;
+static void *renderArgument;
+static u8 globalStorage[0x280] __attribute__((aligned(16)));
+static u8 expectedGlobal[sizeof(globalStorage)] __attribute__((aligned(16)));
+u8 *iGpffffb3ac = globalStorage;
+f32 fGpffff81f4 = 0x1.010102p-8f;
+u_long128 D_00922C60[4];
+f32 D_00922CA0[8];
+s32 D_00922CC0[1];
+
+void func_001496c0(void *value) { ++renderCalls; renderArgument = value; }
+u32 wrong_update(BtlMainColorWork *work) { (void)work; return 0; }
+
+BtlPacket *func_00194470(u32 kind, u32 workSize)
+{
+    ++allocationCalls;
+    CHECK(allocationCalls == 1);
+    CHECK(kind == 0x602);
+    CHECK(workSize == 0x6c);
+    return (BtlPacket *)allocations[activeSlot].packetAndWork;
+}
+
+%%CALLBACK%%
+
+%%PROVIDER%%
+
+static BtlPacket *run(u32 first, u32 second, u32 third, u32 frames, u16 flags)
+{
+    const u32 words[3] = {first, second, third};
+    const f32 scale = 0x1.010102p-8f;
+    u8 *packet, *work, *expectedPacket, *expectedWork;
+    BtlPacket *result;
+    BtlPacketFunc callback = (BtlPacketFunc)func_001b7e70;
+    ++scenario;
+    activeSlot = scenario & 1;
+    allocationCalls = 0;
+    memset(allocations, 0x69, sizeof(allocations));
+    packet = allocations[activeSlot].packetAndWork;
+    work = packet + 0x90;
+    memset(packet, (scenario & 2) ? 0xa5 : 0, 0xfc);
+    memcpy(packet + 0x78, &work, sizeof(work));
+    memcpy(expected, allocations, sizeof(allocations));
+    expectedPacket = expected[activeSlot].packetAndWork;
+    expectedWork = expectedPacket + 0x90;
+    memcpy(expectedPacket + 0x6c, &callback, sizeof(callback));
+    for (u32 row = 0; row < 3; ++row) {
+        for (u32 channel = 0; channel < 4; ++channel) {
+            f32 normalized = scale * (f32)((words[row] >> (channel * 8)) & 255U);
+            memcpy(expectedWork + row * 0x20 + channel * 4, &normalized, sizeof(normalized));
+        }
+    }
+    memcpy(expectedWork + 0x60, &frames, sizeof(frames));
+    memcpy(expectedWork + 0x68, &flags, sizeof(flags));
+    result = func_001b83f0((s32)first, (s32)second, (s32)third, frames, flags);
+    CHECK(result == (BtlPacket *)packet);
+    CHECK(allocationCalls == 1);
+    CHECK(result->workData == work);
+    CHECK(result->updateFunc == (BtlPacketFunc)func_001b7e70);
+    CHECK(*(u32 *)(work + 0x60) == frames);
+    CHECK(*(u16 *)(work + 0x68) == flags);
+    for (u32 row = 0; row < 3; ++row)
+        for (u32 channel = 0; channel < 4; ++channel)
+            CHECK(memcmp(work + row * 0x20 + channel * 4,
+                         expectedWork + row * 0x20 + channel * 4, 4) == 0);
+    CHECK(memcmp(allocations, expected, sizeof(allocations)) == 0);
+    return result;
+}
+
+static void callback_smoke(void)
+{
+    const u32 abortFlags[3] = {0, 2, 0x02000000};
+    BtlPacket *packet = run(0x12345678U, 0x9abcdef0U, 0x81ff007fU, 1, 0xffff);
+    BtlMainColorWork *work = packet->workData;
+    u32 (*installed)(BtlMainColorWork *) = (u32 (*)(BtlMainColorWork *))packet->updateFunc;
+    renderCalls = 0;
+    for (u32 index = 0; index < 3; ++index) {
+        memset(globalStorage, 0x5a, sizeof(globalStorage));
+        memcpy(globalStorage + 0xc, &abortFlags[index], sizeof(u32));
+        memcpy(expectedGlobal, globalStorage, sizeof(globalStorage));
+        memcpy(expected, allocations, sizeof(allocations));
+        CHECK(installed(work) == 1);
+        CHECK(renderCalls == 0);
+        CHECK(memcmp(allocations, expected, sizeof(allocations)) == 0);
+        CHECK(memcmp(globalStorage, expectedGlobal, sizeof(globalStorage)) == 0);
+    }
+    /* Execute the real completed-frame callback branch, skipping first-frame
+     * engine initialization. External rendering records its real argument.
+     */
+    *(u32 *)(globalStorage + 0xc) = 0x02000002;
+    work->currentFrame = 1;
+    memcpy(expectedGlobal, globalStorage, sizeof(globalStorage));
+    memcpy(expectedGlobal + 0x24c, &work->target0, sizeof(RwV4d));
+    memcpy(expectedGlobal + 0x1ec, &work->target1, sizeof(RwV4d));
+    memcpy(expectedGlobal + 0x1fc, &work->target2, sizeof(RwV4d));
+    memcpy(expected, allocations, sizeof(allocations));
+    CHECK(installed(work) == 1);
+    CHECK(renderCalls == 1 && renderArgument == work);
+    CHECK(memcmp(allocations, expected, sizeof(allocations)) == 0);
+    CHECK(memcmp(globalStorage, expectedGlobal, sizeof(globalStorage)) == 0);
+}
+
+int main(void)
+{
+    /* Distinct channels/rows make swaps observable immediately. */
+    run(0x87654321U, 0xfedcba98U, 0x0180ff7fU, 0xdeadbeefU, 0xb16f);
+    /* Every one of 256 byte values in each of twelve channels, against both
+     * zero and all-one complements. These 6144 samples are not all raw words.
+     */
+    for (u32 row = 0; row < 3; ++row)
+        for (u32 channel = 0; channel < 4; ++channel)
+            for (u32 byte = 0; byte < 256; ++byte)
+                for (u32 complement = 0; complement < 2; ++complement) {
+                    u32 words[3] = {0x13579bdfU, 0x2468ace0U, 0x817ef00fU};
+                    words[row] = (complement ? ~0U : 0U) & ~(255U << (channel * 8));
+                    words[row] |= byte << (channel * 8);
+                    run(words[0], words[1], words[2], (byte << 24) | 0x00fedcbaU,
+                        (u16)((byte << 8) | (255 - byte)));
+                }
+    for (u32 row = 0; row < 3; ++row)
+        for (u32 bit = 0; bit < 32; ++bit)
+            for (u32 complement = 0; complement < 2; ++complement) {
+                u32 words[3] = {0xa5c37e01U, 0x80ff007fU, 0x2468ace0U};
+                words[row] = complement ? ~(1U << bit) : 1U << bit;
+                run(words[0], words[1], words[2], ~words[row], (u16)words[row]);
+            }
+    {
+        const u32 words[] = {0, 1, 0xffffffffU, 0x7fffffffU, 0x80000000U, 0x7ffffffeU,
+            0x80000001U, 0xff808080U, 0xff88c3ffU, 0xffcffcf6U, 0x01020304U,
+            0x80808080U, 0x00ff00ffU, 0xff00ff00U, 0xaaaa5555U, 0x13579bdfU};
+        const u32 frames[] = {0, 1, 0x7fff, 0x8000, 0xffff, 0x10000, 0x7fffffffU,
+            0x80000000U, 0xfffffffeU, 0xffffffffU};
+        const u16 flags[] = {0, 1, 4, 0x7f, 0x80, 0xff, 0x100, 0x7fff, 0x8000,
+            0xfffe, 0xffff, 0xa55a};
+        for (u32 index = 0; index < sizeof(words) / sizeof(words[0]); ++index)
+            for (u32 frame = 0; frame < sizeof(frames) / sizeof(frames[0]); ++frame)
+                for (u32 flag = 0; flag < sizeof(flags) / sizeof(flags[0]); ++flag)
+                    run(words[index], ~words[index], words[(index + 5) % 16],
+                        frames[frame], flags[flag]);
+        /* Additional cross-row raw-pattern combinations. */
+        for (u32 first = 0; first < 16; ++first)
+            for (u32 second = 0; second < 16; ++second)
+                for (u32 third = 0; third < 4; ++third)
+                    run(words[first], words[second], words[third], 0x80010000U, 0x8101);
+    }
+    callback_smoke();
+    CHECK(scenario == 9282);
+    native32_text("color packet scenarios: 9282 passed; callback smoke paths: 4 passed\n");
+    return 0;
+}
