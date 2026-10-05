@@ -1,3 +1,4 @@
+#include "list_item_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -2519,8 +2520,6 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
     extern u32 func_00452560(void *task);
     extern void func_00113280(Vec2f arg0, f32 fparg0, s32 arg1,
                               s16 arg2, s32 arg3, s32 arg4);
-    extern void func_002bc4b0(f32 fparg0, s32 arg0, s32 arg1, s32 arg2,
-                              s32 arg3, s32 arg4, s32 arg5);
     u8 *glyphs;
     u8 tone;
     s32 off;

@@ -1,6 +1,6 @@
 #ifndef RW_SHIM_STDLIB_H
 #define RW_SHIM_STDLIB_H
-#include <stddef.h>
+#include "rw/std/stddef.h"
 extern void *malloc(size_t size);
 extern void free(void *ptr);
 extern void *realloc(void *ptr, size_t size);

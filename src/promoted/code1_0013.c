@@ -1,3 +1,4 @@
+#include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
@@ -57,7 +58,6 @@ extern void func_00134a50(u8 *arg0);
 extern void func_001349f0(u8 *arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
 extern s32 func_00106600(s16 arg0);
-extern void func_00106620(s32 arg0, s32 arg1);
 extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 extern void func_00134990(u8 *arg0, s16 arg1, s16 arg2);
 extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
@@ -67,8 +67,6 @@ extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                           u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3);
 extern void func_00112300(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
-extern void func_002bc4b0(f32 fparg0, s32 arg0, s32 arg1, s32 arg2,
-                          s32 arg3, s32 arg4, s32 arg5);
 extern void func_0011fd30(u8 *arg0);
 extern void func_0011fd50(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 extern s32 func_00104c70(s32 arg0);
@@ -1757,8 +1755,8 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
     return 0;
 }
 /* The original row survives item application; recipient traversal and the
-   post-removal selection have separate lifetimes. Item accessors use a
-   signed halfword, while inventory writes receive its promoted word. */
+   post-removal selection have separate lifetimes. Item accessors and
+   inventory writes share the same signed halfword ID. */
 // FUN_0013C700
 s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
 {
@@ -1766,7 +1764,6 @@ s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
     extern u8 D_005ED9D0[];
     s32 state;
     s16 item;
-    s32 inventory_item;
     s32 item_type;
     s16 remaining;
     s32 total;
@@ -1775,7 +1772,7 @@ s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
 
     state = 1;
     total = *(s16 *)(arg2 + 0x24) + *(s16 *)(arg2 + 0x22);
-    inventory_item = item = ((s16 *)(arg2 + 0x3E))[total * 2];
+    item = ((s16 *)(arg2 + 0x3E))[total * 2];
     item_type = *(u16 *)((u8 *)func_00106820(item) + 0x24);
     if (item_type == 246) {
         if (func_00354010() != 0) state = 3;
@@ -1801,7 +1798,7 @@ s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
     if (state > 0) {
         updated = (s16)(func_00106600(item) & 0xff) - 1;
         if (updated < 0) func_0046d730(D_005ED9D0, 0x29c);
-        func_00106620(inventory_item, updated & 0xff);
+        func_00106620(item, updated & 0xff);
         if (state == 3) {
             func_00106390(5121, 1);
         } else {
@@ -1881,19 +1878,17 @@ s32 func_0013d5d0(u8 *arg0) {
         s16 value;
     } temp_16;
     s16 temp_19;
-    s32 inventory_new;
     s16 temp_18;
     s16 temp_2;
     s32 temp_6;
     s32 temp_6_2;
     s16 temp_17;
-    s32 inventory_old;
 
     temp_18 = *(s16 *)(code13AddOff(*(s16 *)(arg0 + 0x28) * 2, arg0) + 0x38);
-    inventory_new = temp_19 = *(s16 *)(code13AddOff((*(s16 *)(arg0 + 0x2C) +
+    temp_19 = *(s16 *)(code13AddOff((*(s16 *)(arg0 + 0x2C) +
                                      *(s16 *)(arg0 + 0x2E)) * 4, arg0) + 0x4A);
     temp_16.value = *(s16 *)(arg0 + 0x2A);
-    inventory_old = temp_17 = (s16)func_00106cd0(temp_18, temp_16.value);
+    temp_17 = (s16)func_00106cd0(temp_18, temp_16.value);
     if (temp_19 == temp_17) {
         func_0045af60(0, 0, 0, 8);
         return 0;
@@ -1901,10 +1896,10 @@ s32 func_0013d5d0(u8 *arg0) {
     func_00134560(arg0, 7);
     func_00134990(arg0, temp_17, temp_19);
     if ((func_00106600(temp_17) & 0xFF) != 0x63) {
-        func_00106620(inventory_old, ((func_00106600(temp_17) & 0xFF) + 1) & 0xFF);
+        func_00106620(temp_17, ((func_00106600(temp_17) & 0xFF) + 1) & 0xFF);
     }
     func_00106d40(temp_18, temp_16.value, temp_19);
-    func_00106620(inventory_new, ((func_00106600(temp_19) & 0xFF) - 1) & 0xFF);
+    func_00106620(temp_19, ((func_00106600(temp_19) & 0xFF) - 1) & 0xFF);
     func_00131730(arg0);
     temp_2 = *(s16 *)(arg0 + 0xC46);
     if (temp_2 < 5) {

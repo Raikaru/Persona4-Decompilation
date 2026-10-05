@@ -1,3 +1,4 @@
+#include "list_item_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -28,9 +29,9 @@ extern void func_002e29a0(void);
 extern s8 func_002e47b0(void);
 extern void func_002e4820(s8 arg0);
 extern void *memset(void *dest, s32 value, u32 size);
-extern s32 func_002e6b20(s16 *arg0, s16 *arg1);
-extern s32 func_002e6630(s16 *arg0, s16 *arg1);
-extern s32 qsort();
+extern s32 func_002e6b20(const void *arg0, const void *arg1);
+extern s32 func_002e6630(const void *arg0, const void *arg1);
+#include "rw/std/stdlib.h"
 extern u8 *func_0010fcb0(s32 arg0);
 extern s32 func_0010aa80(s32 arg0);
 extern u16 *func_0010ac10(s32 arg0);
@@ -42,23 +43,17 @@ extern u16 *func_0010ace0(s16 arg0);
 extern u16 *func_0010a900(u16 arg0);
 extern void func_0010ffa0(void);
 extern s32 func_002e5270(u8 *arg0, u8 *arg1);
-extern s16 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_00311d00(u16 id);
-extern s32 func_00311d60(u16 id);
-extern s32 func_00311e40(u16 id);
+extern s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
+extern s64 func_00311d00(s32 id);
+extern s32 func_00311d60(s32 id);
+extern s32 func_00311e40(s32 id);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern s32 func_00106600(s16 arg0);
 extern u32 func_00106880(s16 arg0);
 extern u32 func_00106a60(s16 arg0);
 extern u32 func_00106b20(s16 arg0);
 extern u32 func_00106b50(s16 arg0);
-extern s32 datGetFlag(s32 arg0);
-extern u8 clndGetMoonPhase(s32 arg0);
-extern void func_00110810(s32 arg0, u8 arg1);
-extern s32 func_002bdff0(s16 arg0);
-extern s32 func_002be160(s32 arg0, s32 arg1);
-extern s16 func_002be1b0(s16 arg0);
-extern s32 func_002b3230(s16 *arg0, s16 *arg1);
+extern u32 datGetFlag(s32 arg0);
 
 /* 228/240 bytes; fifteen resolved relocations and twelve zero alignment bytes. */
 // FUN_002E24A0
@@ -241,541 +236,386 @@ s8 func_002e2a00(void *arg0) {
     return *(s8 *)(*(void **)((u8 *)arg0 + 0x38));
 }
 
-/* measured: structure fully recovered (iGpffffb58c null-check, p=e+0x38 with
-   the four state stores, the descending-test switch on p->1 with the four
-   0x600 loops and 4-way ok-chains, the case-2 6b20/6b50/2be160/2bdff0/1462
-   chains, the 2b2cb0 count stores, the arg3==1 -1-init/compaction loops with
-   10830/10810 into arr[0x600], the arg3==2 sortbuf copy + 40bb8 sort +
-   re-store loops; case order 1,2,3,4 reproduces retail's descending test
-   chain and ascending body layout exactly) but mwcc b210 rotates the saved
-   registers: mine arg3=$s5 p=$s1 e2=$s2 i=$s0 (frame 0x3070 matches) vs
-   retail arg3=$s1 p=$s0 e2=$s2 i=$s3 j=$s4 n=$s5, so every instruction in
-   the six loops differs (nd 603). Tried 3 declaration orders, separate
-   m/k loop counters for the arg3==1/2 blocks, a shared loop variable;
-   all nd 603. Same saved-reg rotation floor as func_002e3560 (this file),
-   mdlManager func_0047c660 and mdlMatAnim func_00480670. */
-/* measured (real tree): de-noised m2c+romwright floor adapted from banked func_002e3560 body, GUARDED_SCORE 615. */
-/* measured: retail 721 instrs vs object 719 (2 short, 0.3% - within 3% gate); frame 0x3060 vs retail 0x3070 (one saved reg short). */
-/* measured: fnalign 336 edits +2 reloc-only; wall is saved-reg rotation + frame (retail mode=$s1 p=$s0 e2=$s2 i=$s3 j=$s4 n=$s5 vs object mode=$s2 p=$s0 i=$s1 flags_a=$s4 flags_b=$s3, e2/j/n spilled). */
-/* measured: structure fully recovered (iGpffffb58c null-check via g local, p from g+0x38 with the four state stores, descending-test switch on p->1 with the four 0x600 loops and 4-way ok-chains, case-2 6b20/6b50/2be160/2bdff0/1462 chains, 2b2cb0 count stores, arg3==1 -1-init/compaction with 10830/10810 into reorder[0x600], arg3==2 sortbuf copy + 40bb8 sort + re-store; case order 1,2,3,4 reproduces descending chain and ascending bodies). */
-/* measured: file idiom kept (u8 *, *(u8 **)(x+0x38), *(s32 *)(p+4/8), *(s8 *)(p+1), *(s16 *)(p+2), *(s16 *)(entry+0x0E/0x10), s16 counters with dsll32/dsra32 guards, for-loop form, truthful externs already in TU header). */
-/* measured: #pragma opt_common_subs off kept for the count gate (678 -> 719 instrs; bare scores 614 words but is 6% short and will not bank; with pragma 615 words). opt_loop_invariants on scores 616, opt_unroll_loops off and schedule off tie at 614/615-class; none kept. */
-/* measured: probe rounds that did NOT help: e2-vs-p-reassign tie (614), g-guard vs direct-check -1 for g, inline-flags reload-per-use 643 (28 worse; the loads schedule after the calls retail-side), swapped call-first operands still 643, decl-order perms wA/wB/wC all 616-class, dropping type local ties. Prior nd-603 note above kept as history. Production stays INCLUDE_ASM. */
-#pragma opt_common_subs off
-/* measured 002e2a10 (owner, 2026-09-19): fnalign **581 -> 578 edits**, count
-   719 -> 716 against retail 721, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all. */
-// FUN_002E2A10 NONMATCHING
-#ifdef NON_MATCHING
+/* The 0x1810-byte item work area stores either paired IDs and quantities
+   or a compact ID list. Compaction reads the paired ID after each move. */
+typedef struct YListItemRow {
+    s16 id;
+    s16 quantity;
+} YListItemRow;
+
+typedef struct YListItemWork {
+    u8 enabled;
+    s8 kind;
+    s16 count;
+    s32 filterA;
+    s32 filterB;
+    s8 order;
+    u8 unknown0D;
+    union {
+        YListItemRow paired[0x600];
+        s16 ids[0x600];
+    } rows;
+} YListItemWork;
+
+#pragma push
+#pragma opt_common_subs on
+#pragma opt_loop_invariants on
+static inline s32 yListAcceptsItem(u8 *owner, s16 id)
+{
+    u8 *filter = *(u8 **)(owner + 0x38);
+    if (*(s32 *)(filter + 4) == 0 && *(s32 *)(filter + 8) == 0) {
+        return 1;
+    }
+    if (*(s32 *)(filter + 4) == 0 && (*(s32 *)(filter + 8) & func_00106a60(id))) {
+        return 1;
+    }
+    if (*(s32 *)(filter + 8) == 0 && (*(s32 *)(filter + 4) & func_00106880(id))) {
+        return 1;
+    }
+    if ((*(s32 *)(filter + 4) & func_00106880(id)) &&
+        (*(s32 *)(filter + 8) & func_00106a60(id))) {
+        return 1;
+    }
+    return 0;
+}
+
+/* measured: 2888 code bytes and eight zero alignment bytes; the scoped
+   common-subexpression and loop-invariant settings preserve all siblings. */
+// FUN_002E2A10
 void func_002e2a10(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
     s32 reorder[0x600];
     s32 sortbuf[0x600];
     s32 out_count;
     s8 mode;
-    s16 n;
-    s16 k;
-    s16 j;
-    s16 i;
     s16 count;
     s16 type;
     s32 value;
     s32 ok;
-    s32 flags_b;
-    s32 flags_a;
-    u8 *entry;
-    u8 *e2;
-    u8 *p;
+    YListItemWork *p;
     u8 *g;
     g = iGpffffb58c;
     if (g == NULL) {
         return;
     }
-    p = *(u8 **)(g + 0x38);
-    *(s32 *)(p + 4) = arg0;
-    *(s32 *)(p + 8) = arg1;
-    *(s8 *)(p + 1) = arg2;
-    *(s16 *)(p + 2) = 0;
-    type = *(s8 *)(p + 1);
-    count = 0;
+    p = *(YListItemWork **)(g + 0x38);
+    p->filterA = arg0;
+    p->filterB = arg1;
+    p->kind = arg2;
+    p->count = 0;
+    type = p->kind;
     switch (type) {
-    case 1:
+    case 1: {
+        s16 i;
         for (i = 0; i < 0x600; i++) {
-            entry = p + ((s32)i * 4);
-            *(s16 *)(entry + 0x10) = 0;
-            *(s16 *)(entry + 0x0E) = 0;
+            p->rows.paired[i].quantity = 0;
+            p->rows.paired[i].id = 0;
             if ((func_00106600(i) & 0xFF) > 0) {
-                e2 = *(u8 **)(iGpffffb58c + 0x38);
-                flags_a = *(s32 *)(e2 + 4);
-                flags_b = *(s32 *)(e2 + 8);
-                if ((flags_a == 0) && (flags_b == 0)) {
-                    ok = 1;
-                } else if ((flags_a == 0) && (flags_b & func_00106a60(i))) {
-                    ok = 1;
-                } else if ((flags_b == 0) && (flags_a & func_00106880(i))) {
-                    ok = 1;
-                } else if ((flags_a & func_00106880(i)) &&
-                           (flags_b & func_00106a60(i))) {
-                    ok = 1;
-                } else {
-                    ok = 0;
-                }
+                ok = yListAcceptsItem(iGpffffb58c, i);
                 if ((ok == 1) && !(func_00106a60(i) & 0x2000)) {
-                    entry = p + ((s32)*(s16 *)(p + 2) * 4);
-                    *(s16 *)(entry + 0x0E) = i;
-                    *(s16 *)(entry + 0x10) = func_00106600(i) & 0xFF;
-                    count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                    *(s16 *)(p + 2) = count;
+                    p->rows.paired[p->count].id = i;
+                    p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
+                    count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                    p->count = count;
                 }
             }
         }
         break;
-    case 2:
+    }
+    case 2: {
+        s16 i;
         for (i = 0; i < 0x600; i++) {
-            e2 = *(u8 **)(iGpffffb58c + 0x38);
-            flags_a = *(s32 *)(e2 + 4);
-            flags_b = *(s32 *)(e2 + 8);
-            if ((flags_a == 0) && (flags_b == 0)) {
-                ok = 1;
-            } else if ((flags_a == 0) && (flags_b & func_00106a60(i))) {
-                ok = 1;
-            } else if ((flags_b == 0) && (flags_a & func_00106880(i))) {
-                ok = 1;
-            } else if ((flags_a & func_00106880(i)) &&
-                       (flags_b & func_00106a60(i))) {
-                ok = 1;
-            } else {
-                ok = 0;
-            }
+            ok = yListAcceptsItem(iGpffffb58c, i);
             if (ok == 1) {
                 type = (s16)func_002be1b0(i);
                 if ((type != 0x10) && (type != 0x11) && (type != 0x12)) {
                     if (datGetFlag(0x1462) == 0) {
-                        value = (func_00106b20(i) & 0xFFF00) >> 8;
+                        value = (s32)(func_00106b20(i) & 0xFFF00) >> 8;
                         if (func_002be160(value, func_00106b20(i) & 0xFF) == 1) {
-                            value = (func_00106b50(i) & 0xFFF00) >> 8;
+                            value = (s32)(func_00106b50(i) & 0xFFF00) >> 8;
                             if (func_002be160(value, func_00106b50(i) & 0xFF) == 1) {
-                                entry = p + ((s32)i * 4);
-                                *(s16 *)(entry + 0x10) = 0;
-                                entry = p + ((s32)*(s16 *)(p + 2) * 4);
-                                *(s16 *)(entry + 0x0E) = i;
-                                count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                                *(s16 *)(p + 2) = count;
+                                p->rows.paired[i].quantity = 0;
+                                p->rows.paired[p->count].id = i;
+                                count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                                p->count = count;
                             }
                         }
                     } else {
-                        entry = p + ((s32)i * 4);
-                        *(s16 *)(entry + 0x10) = 0;
-                        entry = p + ((s32)*(s16 *)(p + 2) * 4);
-                        *(s16 *)(entry + 0x0E) = i;
-                        count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                        *(s16 *)(p + 2) = count;
+                        p->rows.paired[i].quantity = 0;
+                        p->rows.paired[p->count].id = i;
+                        count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                        p->count = count;
                     }
                 } else if (datGetFlag(0x1462) == 0) {
                     if (func_002bdff0(i) == 1) {
-                        entry = p + ((s32)i * 4);
-                        *(s16 *)(entry + 0x10) = 0;
-                        entry = p + ((s32)*(s16 *)(p + 2) * 4);
-                        *(s16 *)(entry + 0x0E) = i;
-                        count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                        *(s16 *)(p + 2) = count;
+                        p->rows.paired[i].quantity = 0;
+                        p->rows.paired[p->count].id = i;
+                        count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                        p->count = count;
                     }
                 } else {
-                    entry = p + ((s32)i * 4);
-                    *(s16 *)(entry + 0x10) = 0;
-                    entry = p + ((s32)*(s16 *)(p + 2) * 4);
-                    *(s16 *)(entry + 0x0E) = i;
-                    count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                    *(s16 *)(p + 2) = count;
+                    p->rows.paired[i].quantity = 0;
+                    p->rows.paired[p->count].id = i;
+                    count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                    p->count = count;
                 }
             }
         }
         break;
-    case 3:
-        i = 0;
-        do {
-            entry = p + ((s32)i * 2);
-            *(s16 *)(entry + 0x0E) = 0;
-            e2 = *(u8 **)(iGpffffb58c + 0x38);
-            flags_a = *(s32 *)(e2 + 4);
-            flags_b = *(s32 *)(e2 + 8);
-            if ((flags_a == 0) && (flags_b == 0)) {
-                ok = 1;
-            } else if ((flags_a == 0) && (flags_b & func_00106a60(i))) {
-                ok = 1;
-            } else if ((flags_b == 0) && (flags_a & func_00106880(i))) {
-                ok = 1;
-            } else if ((flags_a & func_00106880(i)) &&
-                       (flags_b & func_00106a60(i))) {
-                ok = 1;
-            } else {
-                ok = 0;
-            }
-            if (ok == 1) {
-                entry = p + ((s32)*(s16 *)(p + 2) * 2);
-                *(s16 *)(entry + 0x0E) = i;
-                count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                *(s16 *)(p + 2) = count;
-            }
-            i++;
-        } while (i < 0x600);
-        break;
-    case 4:
-        count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-        *(s16 *)(p + 2) = count;
+    }
+    case 3: {
+        s16 i;
         for (i = 0; i < 0x600; i++) {
-            entry = p + ((s32)i * 4);
-            *(s16 *)(entry + 0x10) = 0;
-            *(s16 *)(entry + 0x0E) = 0;
+            p->rows.ids[i] = 0;
+            ok = yListAcceptsItem(iGpffffb58c, i);
+            if (ok == 1) {
+                p->rows.ids[p->count] = i;
+                count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                p->count = count;
+            }
+        }
+        break;
+    }
+    case 4: {
+        s16 i;
+        count = func_002b2cb0(p->count, 1, 0, 0, 0);
+        p->count = count;
+        for (i = 0; i < 0x600; i++) {
+            p->rows.paired[i].quantity = 0;
+            p->rows.paired[i].id = 0;
             if ((func_00106600(i) & 0xFF) > 0) {
-                e2 = *(u8 **)(iGpffffb58c + 0x38);
-                flags_a = *(s32 *)(e2 + 4);
-                flags_b = *(s32 *)(e2 + 8);
-                if ((flags_a == 0) && (flags_b == 0)) {
-                    ok = 1;
-                } else if ((flags_a == 0) && (flags_b & func_00106a60(i))) {
-                    ok = 1;
-                } else if ((flags_b == 0) && (flags_a & func_00106880(i))) {
-                    ok = 1;
-                } else if ((flags_a & func_00106880(i)) &&
-                           (flags_b & func_00106a60(i))) {
-                    ok = 1;
-                } else {
-                    ok = 0;
-                }
+                ok = yListAcceptsItem(iGpffffb58c, i);
                 if (ok == 1) {
-                    entry = p + ((s32)*(s16 *)(p + 2) * 4);
-                    *(s16 *)(entry + 0x0E) = i;
-                    *(s16 *)(entry + 0x10) = func_00106600(i) & 0xFF;
-                    count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                    *(s16 *)(p + 2) = count;
+                    p->rows.paired[p->count].id = i;
+                    p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
+                    count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                    p->count = count;
                 }
             }
         }
         break;
+    }
     default:
         break;
     }
-    mode = arg3;
+    mode = (s8)arg3;
     if (mode == 1) {
+        s16 fillIndex;
+        s16 markIndex;
+        s16 compactIndex;
+        s16 copyIndex;
         out_count = 0;
-        for (n = 0; n < 0x600; n++) {
-            reorder[n] = -1;
+        for (fillIndex = 0; fillIndex < 0x600; fillIndex++) {
+            reorder[fillIndex] = -1;
         }
-        for (i = 0; i < *(s16 *)(p + 2); i++) {
-            entry = p + ((s32)i * 4);
-            if ((clndGetMoonPhase(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
-                reorder[out_count] = *(s16 *)(entry + 0x0E);
-                value = clndGetMoonPhase(reorder[out_count]);
-                func_00110810(*(s16 *)(entry + 0x0E), (value | 2) & 0xFF);
-                *(s16 *)(entry + 0x0E) = -1;
-                *(s16 *)(entry + 0x10) = 1;
-                out_count += 1;
+        for (markIndex = 0; markIndex < p->count; markIndex++) {
+            if ((clndGetMoonPhase(p->rows.paired[markIndex].id) & 0xFF) & 1) {
+                reorder[out_count] = p->rows.paired[markIndex].id;
+                value = clndGetMoonPhase(p->rows.paired[markIndex].id);
+                func_00110810(p->rows.paired[markIndex].id, (value | 2) & 0xFF);
+                p->rows.paired[markIndex].id = -1;
+                p->rows.paired[markIndex].quantity = 1;
+                out_count++;
             }
         }
-        for (j = 0; j < *(s16 *)(p + 2); j++) {
-            entry = p + ((s32)j * 4);
-            if (*(s16 *)(entry + 0x0E) != -1) {
-                reorder[out_count] = *(s16 *)(entry + 0x0E);
-                *(s16 *)(entry + 0x10) = 0;
-                out_count += 1;
+        for (compactIndex = 0; compactIndex < p->count; compactIndex++) {
+            if (p->rows.paired[compactIndex].id != -1) {
+                reorder[out_count] = p->rows.paired[compactIndex].id;
+                p->rows.paired[compactIndex].quantity = 0;
+                out_count++;
             }
         }
-        for (k = 0; k < *(s16 *)(p + 2); k++) {
-            entry = p + ((s32)k * 4);
-            *(s16 *)(entry + 0x0E) = (s16)reorder[k];
+        for (copyIndex = 0; copyIndex < p->count; copyIndex++) {
+            p->rows.paired[copyIndex].id = (s16)reorder[copyIndex];
         }
     }
     if (mode == 2) {
-        for (n = 0; n < *(s16 *)(p + 2); n++) {
-            sortbuf[n] = *(s16 *)(p + ((s32)n * 4) + 0x0E);
+        s16 collectIndex;
+        s16 sortedIndex;
+        for (collectIndex = 0; collectIndex < p->count; collectIndex++) {
+            sortbuf[collectIndex] = p->rows.paired[collectIndex].id;
         }
-        qsort(sortbuf, *(s16 *)(p + 2), 4, func_002b3230);
-        for (n = 0; n < *(s16 *)(p + 2); n++) {
-            entry = p + ((s32)n * 4);
-            *(s16 *)(entry + 0x0E) = (s16)sortbuf[n];
-            *(s16 *)(entry + 0x10) = 0;
-            if ((clndGetMoonPhase(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
-                *(s16 *)(entry + 0x10) = 1;
-                value = clndGetMoonPhase(*(s16 *)(entry + 0x0E));
-                func_00110810(*(s16 *)(entry + 0x0E), (value | 2) & 0xFF);
+        qsort(sortbuf, p->count, 4, func_002b3230);
+        for (sortedIndex = 0; sortedIndex < p->count; sortedIndex++) {
+            p->rows.paired[sortedIndex].id = (s16)sortbuf[sortedIndex];
+            p->rows.paired[sortedIndex].quantity = 0;
+            if ((clndGetMoonPhase(p->rows.paired[sortedIndex].id) & 0xFF) & 1) {
+                p->rows.paired[sortedIndex].quantity = 1;
+                value = clndGetMoonPhase(p->rows.paired[sortedIndex].id);
+                func_00110810(p->rows.paired[sortedIndex].id, (value | 2) & 0xFF);
             }
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e2a10);
-#endif
+
+#pragma pop
 #pragma opt_common_subs on
 
-/* measured (real tree): de-noised m2c+romwright floor, GUARDED_SCORE 602 (was 631 bare, 639 Lane archive). */
-/* measured: retail 715 instrs vs object 714 (1 short, 0.14% - within 3% gate); frame 0x3070 exact. */
-/* measured: fnalign 560 edits +2 reloc-only; saved-reg rotation wall (retail p=$s0 mode=$s1 arg0=$s2 vs object p=$s1 mode=$s2 arg0=$s3 class). */
-/* measured: structure fully recovered (p=e+0x38 with four state stores, descending-test switch 4/3/2/1 with four 0x600 loops and 4-way ok-chains, case-2 6b20/6b50/2be160/2bdff0/1462 chains, 2b2cb0 count stores, mode==1 -1-init/compaction with 10830/10810 into reorder[0x600], mode==2 sortbuf copy + 40bb8 sort + re-store; case order 1,2,3,4 reproduces descending chain and ascending bodies). */
-/* measured: file idiom kept (u8 *, *(u8 **)(x+0x38), *(s32 *)(p+4/8), *(s8 *)(p+1), *(s16 *)(p+2), *(s16 *)(entry+0x0E/0x10), s16 counters with dsll32/dsra32 guards, for-loop form). */
-/* measured: decisive lever is #pragma opt_common_subs off (631 -> 602 words, 674 -> 714 instrs, frame 0x3080 -> 0x3070 exact); without it b210 CSEs retail's rematerialised extends (same 7h-ter class as func_002e5000 in this file). opt_loop_invariants on ties at 631, schedule on regresses to 643. */
-/* measured: declaration order out_count,mode,n,k,j,i,count,type,value,ok,flags_b,flags_a,entry,p (reverse-assign) 610 -> 602 neutral-to-win; swapped arrays 611 neutral; no float temp here so cse carries no 7h-bis cost. s16 type/mode keep retail lb/dsll32-24 shape; s32 out_count/value keep retail addiu/sll shape. */
-/* measured: truthful externs for 00106600(s16)/00106880(s16)/00106a60(s16)/00106b20(s16)/00106b50(s16)/00106330(s32)/00110830(s32->u8)/00110810(s32,u8)/002bdff0(s16)/002be160(s32,s32)/002be1b0(s16->s16)/002b3230(s16*,s16*); 002b2cb0 stays s16/s32 per file header to avoid TU churn for 002e5ae0/002e6280 (s32/s8 truth is codegen-neutral here: last-arg 0 emits same daddu). 002be1b0(s16) reproduces retail daddu $a0 + s16 $v0 use; void form would be 1 short. */
-/* measured: bulk src/generated/code1_002e.c candidate + single-function m2c (/var/tmp/cold2e3560/m2c_002e3560.c) + romwright (/var/tmp/cold2e3560/rom_002e3560.c) all agree on arity 5 and ok/type/value shape; retail $a0/$a1/$a2/$a3/$t0 maps to (u8 *,s32,s32,s8,s8). Production stays INCLUDE_ASM. */
-#pragma opt_common_subs off
-/* measured 002e3560 (owner, 2026-09-19): fnalign **560 -> 557 edits**, count
-   714 -> 711 against retail 715, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all. */
-/* measured 002e3560 (owner, 2026-09-19): fnalign **557 -> 554 edits**, count
-   711 -> 708 against retail 715, converting a SECOND constant-bound `for` loop
-   to `do { } while` after the first conversion was already banked.
-   The lever is iterative, which the first sweep hid: it converts the single best loop
-   per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
-// FUN_002E3560 NONMATCHING
-#ifdef NON_MATCHING
+#pragma push
+#pragma opt_common_subs on
+#pragma opt_loop_invariants on
+/* measured: all 2864 code bytes match with the same scoped settings. */
+// FUN_002E3560
 void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
     s32 reorder[0x600];
     s32 sortbuf[0x600];
     s32 out_count;
     s8 mode;
-    s16 n;
-    s16 k;
-    s16 j;
-    s16 i;
     s16 count;
     s16 type;
     s32 value;
     s32 ok;
-    s32 flags_b;
-    s32 flags_a;
-    u8 *entry;
-    u8 *p;
-    p = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(p + 4) = arg1;
-    *(s32 *)(p + 8) = arg2;
-    *(s8 *)(p + 1) = arg3;
-    *(s16 *)(p + 2) = 0;
-    type = *(s8 *)(p + 1);
-    count = 0;
+    YListItemWork *p;
+    p = *(YListItemWork **)(arg0 + 0x38);
+    p->filterA = arg1;
+    p->filterB = arg2;
+    p->kind = arg3;
+    p->count = 0;
+    type = p->kind;
     switch (type) {
-    case 1:
+    case 1: {
+        s16 i;
         for (i = 0; i < 0x600; i++) {
-            entry = p + ((s32)i * 4);
-            *(s16 *)(entry + 0x10) = 0;
-            *(s16 *)(entry + 0x0E) = 0;
+            p->rows.paired[i].quantity = 0;
+            p->rows.paired[i].id = 0;
             if ((func_00106600(i) & 0xFF) > 0) {
-                p = *(u8 **)(arg0 + 0x38);
-                flags_a = *(s32 *)(p + 4);
-                flags_b = *(s32 *)(p + 8);
-                if ((flags_a == 0) && (flags_b == 0)) {
-                    ok = 1;
-                } else if ((flags_a == 0) && (flags_b & func_00106a60(i))) {
-                    ok = 1;
-                } else if ((flags_b == 0) && (flags_a & func_00106880(i))) {
-                    ok = 1;
-                } else if ((flags_a & func_00106880(i)) &&
-                           (flags_b & func_00106a60(i))) {
-                    ok = 1;
-                } else {
-                    ok = 0;
-                }
+                ok = yListAcceptsItem(arg0, i);
                 if ((ok == 1) && !(func_00106a60(i) & 0x2000)) {
-                    entry = p + ((s32)*(s16 *)(p + 2) * 4);
-                    *(s16 *)(entry + 0x0E) = i;
-                    *(s16 *)(entry + 0x10) = func_00106600(i) & 0xFF;
-                    count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                    *(s16 *)(p + 2) = count;
+                    p->rows.paired[p->count].id = i;
+                    p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
+                    count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                    p->count = count;
                 }
             }
         }
         break;
-    case 2:
+    }
+    case 2: {
+        s16 i;
         for (i = 0; i < 0x600; i++) {
-            p = *(u8 **)(arg0 + 0x38);
-            flags_a = *(s32 *)(p + 4);
-            flags_b = *(s32 *)(p + 8);
-            if ((flags_a == 0) && (flags_b == 0)) {
-                ok = 1;
-            } else if ((flags_a == 0) && (flags_b & func_00106a60(i))) {
-                ok = 1;
-            } else if ((flags_b == 0) && (flags_a & func_00106880(i))) {
-                ok = 1;
-            } else if ((flags_a & func_00106880(i)) &&
-                       (flags_b & func_00106a60(i))) {
-                ok = 1;
-            } else {
-                ok = 0;
-            }
+            ok = yListAcceptsItem(arg0, i);
             if (ok == 1) {
                 type = (s16)func_002be1b0(i);
                 if ((type != 0x10) && (type != 0x11) && (type != 0x12)) {
                     if (datGetFlag(0x1462) == 0) {
-                        value = (func_00106b20(i) & 0xFFF00) >> 8;
+                        value = (s32)(func_00106b20(i) & 0xFFF00) >> 8;
                         if (func_002be160(value, func_00106b20(i) & 0xFF) == 1) {
-                            value = (func_00106b50(i) & 0xFFF00) >> 8;
+                            value = (s32)(func_00106b50(i) & 0xFFF00) >> 8;
                             if (func_002be160(value, func_00106b50(i) & 0xFF) == 1) {
-                                entry = p + ((s32)i * 4);
-                                *(s16 *)(entry + 0x10) = 0;
-                                entry = p + ((s32)*(s16 *)(p + 2) * 4);
-                                *(s16 *)(entry + 0x0E) = i;
-                                count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                                *(s16 *)(p + 2) = count;
+                                p->rows.paired[i].quantity = 0;
+                                p->rows.paired[p->count].id = i;
+                                count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                                p->count = count;
                             }
                         }
                     } else {
-                        entry = p + ((s32)i * 4);
-                        *(s16 *)(entry + 0x10) = 0;
-                        entry = p + ((s32)*(s16 *)(p + 2) * 4);
-                        *(s16 *)(entry + 0x0E) = i;
-                        count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                        *(s16 *)(p + 2) = count;
+                        p->rows.paired[i].quantity = 0;
+                        p->rows.paired[p->count].id = i;
+                        count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                        p->count = count;
                     }
                 } else if (datGetFlag(0x1462) == 0) {
                     if (func_002bdff0(i) == 1) {
-                        entry = p + ((s32)i * 4);
-                        *(s16 *)(entry + 0x10) = 0;
-                        entry = p + ((s32)*(s16 *)(p + 2) * 4);
-                        *(s16 *)(entry + 0x0E) = i;
-                        count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                        *(s16 *)(p + 2) = count;
+                        p->rows.paired[i].quantity = 0;
+                        p->rows.paired[p->count].id = i;
+                        count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                        p->count = count;
                     }
                 } else {
-                    entry = p + ((s32)i * 4);
-                    *(s16 *)(entry + 0x10) = 0;
-                    entry = p + ((s32)*(s16 *)(p + 2) * 4);
-                    *(s16 *)(entry + 0x0E) = i;
-                    count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                    *(s16 *)(p + 2) = count;
+                    p->rows.paired[i].quantity = 0;
+                    p->rows.paired[p->count].id = i;
+                    count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                    p->count = count;
                 }
             }
         }
         break;
-    case 3:
-        i = 0;
-        do {
-            entry = p + ((s32)i * 2);
-            *(s16 *)(entry + 0x0E) = 0;
-            p = *(u8 **)(arg0 + 0x38);
-            flags_a = *(s32 *)(p + 4);
-            flags_b = *(s32 *)(p + 8);
-            if ((flags_a == 0) && (flags_b == 0)) {
-                ok = 1;
-            } else if ((flags_a == 0) && (flags_b & func_00106a60(i))) {
-                ok = 1;
-            } else if ((flags_b == 0) && (flags_a & func_00106880(i))) {
-                ok = 1;
-            } else if ((flags_a & func_00106880(i)) &&
-                       (flags_b & func_00106a60(i))) {
-                ok = 1;
-            } else {
-                ok = 0;
-            }
-            if (ok == 1) {
-                entry = p + ((s32)*(s16 *)(p + 2) * 2);
-                *(s16 *)(entry + 0x0E) = i;
-                count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                *(s16 *)(p + 2) = count;
-            }
-            i++;
-        } while (i < 0x600);
-        break;
-    case 4:
-        count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-        *(s16 *)(p + 2) = count;
+    }
+    case 3: {
+        s16 i;
         for (i = 0; i < 0x600; i++) {
-            entry = p + ((s32)i * 4);
-            *(s16 *)(entry + 0x10) = 0;
-            *(s16 *)(entry + 0x0E) = 0;
+            p->rows.ids[i] = 0;
+            ok = yListAcceptsItem(arg0, i);
+            if (ok == 1) {
+                p->rows.ids[p->count] = i;
+                count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                p->count = count;
+            }
+        }
+        break;
+    }
+    case 4: {
+        s16 i;
+        count = func_002b2cb0(p->count, 1, 0, 0, 0);
+        p->count = count;
+        for (i = 0; i < 0x600; i++) {
+            p->rows.paired[i].quantity = 0;
+            p->rows.paired[i].id = 0;
             if ((func_00106600(i) & 0xFF) > 0) {
-                p = *(u8 **)(arg0 + 0x38);
-                flags_a = *(s32 *)(p + 4);
-                flags_b = *(s32 *)(p + 8);
-                if ((flags_a == 0) && (flags_b == 0)) {
-                    ok = 1;
-                } else if ((flags_a == 0) && (flags_b & func_00106a60(i))) {
-                    ok = 1;
-                } else if ((flags_b == 0) && (flags_a & func_00106880(i))) {
-                    ok = 1;
-                } else if ((flags_a & func_00106880(i)) &&
-                           (flags_b & func_00106a60(i))) {
-                    ok = 1;
-                } else {
-                    ok = 0;
-                }
+                ok = yListAcceptsItem(arg0, i);
                 if (ok == 1) {
-                    entry = p + ((s32)*(s16 *)(p + 2) * 4);
-                    *(s16 *)(entry + 0x0E) = i;
-                    *(s16 *)(entry + 0x10) = func_00106600(i) & 0xFF;
-                    count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
-                    *(s16 *)(p + 2) = count;
+                    p->rows.paired[p->count].id = i;
+                    p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
+                    count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                    p->count = count;
                 }
             }
         }
         break;
+    }
     default:
         break;
     }
-    mode = arg4;
+    mode = (s8)arg4;
     if (mode == 1) {
+        s16 fillIndex;
+        s16 markIndex;
+        s16 compactIndex;
+        s16 copyIndex;
         out_count = 0;
-        n = 0;
-        do {
-            reorder[n] = -1;
-            n++;
-        } while (n < 0x600);
-        for (i = 0; i < *(s16 *)(p + 2); i++) {
-            entry = p + ((s32)i * 4);
-            if ((clndGetMoonPhase(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
-                reorder[out_count] = *(s16 *)(entry + 0x0E);
-                value = clndGetMoonPhase(reorder[out_count]);
-                func_00110810(*(s16 *)(entry + 0x0E), (value | 2) & 0xFF);
-                *(s16 *)(entry + 0x0E) = -1;
-                *(s16 *)(entry + 0x10) = 1;
-                out_count += 1;
+        for (fillIndex = 0; fillIndex < 0x600; fillIndex++) {
+            reorder[fillIndex] = -1;
+        }
+        for (markIndex = 0; markIndex < p->count; markIndex++) {
+            if ((clndGetMoonPhase(p->rows.paired[markIndex].id) & 0xFF) & 1) {
+                reorder[out_count] = p->rows.paired[markIndex].id;
+                value = clndGetMoonPhase(p->rows.paired[markIndex].id);
+                func_00110810(p->rows.paired[markIndex].id, (value | 2) & 0xFF);
+                p->rows.paired[markIndex].id = -1;
+                p->rows.paired[markIndex].quantity = 1;
+                out_count++;
             }
         }
-        for (j = 0; j < *(s16 *)(p + 2); j++) {
-            entry = p + ((s32)j * 4);
-            if (*(s16 *)(entry + 0x0E) != -1) {
-                reorder[out_count] = *(s16 *)(entry + 0x0E);
-                *(s16 *)(entry + 0x10) = 0;
-                out_count += 1;
+        for (compactIndex = 0; compactIndex < p->count; compactIndex++) {
+            if (p->rows.paired[compactIndex].id != -1) {
+                reorder[out_count] = p->rows.paired[compactIndex].id;
+                p->rows.paired[compactIndex].quantity = 0;
+                out_count++;
             }
         }
-        for (k = 0; k < *(s16 *)(p + 2); k++) {
-            entry = p + ((s32)k * 4);
-            *(s16 *)(entry + 0x0E) = (s16)reorder[k];
+        for (copyIndex = 0; copyIndex < p->count; copyIndex++) {
+            p->rows.paired[copyIndex].id = (s16)reorder[copyIndex];
         }
     }
     if (mode == 2) {
-        for (n = 0; n < *(s16 *)(p + 2); n++) {
-            sortbuf[n] = *(s16 *)(p + ((s32)n * 4) + 0x0E);
+        s16 collectIndex;
+        s16 sortedIndex;
+        for (collectIndex = 0; collectIndex < p->count; collectIndex++) {
+            sortbuf[collectIndex] = p->rows.paired[collectIndex].id;
         }
-        qsort(sortbuf, *(s16 *)(p + 2), 4, func_002b3230);
-        for (n = 0; n < *(s16 *)(p + 2); n++) {
-            entry = p + ((s32)n * 4);
-            *(s16 *)(entry + 0x0E) = (s16)sortbuf[n];
-            *(s16 *)(entry + 0x10) = 0;
-            if ((clndGetMoonPhase(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
-                *(s16 *)(entry + 0x10) = 1;
-                value = clndGetMoonPhase(*(s16 *)(entry + 0x0E));
-                func_00110810(*(s16 *)(entry + 0x0E), (value | 2) & 0xFF);
+        qsort(sortbuf, p->count, 4, func_002b3230);
+        for (sortedIndex = 0; sortedIndex < p->count; sortedIndex++) {
+            p->rows.paired[sortedIndex].id = (s16)sortbuf[sortedIndex];
+            p->rows.paired[sortedIndex].quantity = 0;
+            if ((clndGetMoonPhase(p->rows.paired[sortedIndex].id) & 0xFF) & 1) {
+                p->rows.paired[sortedIndex].quantity = 1;
+                value = clndGetMoonPhase(p->rows.paired[sortedIndex].id);
+                func_00110810(p->rows.paired[sortedIndex].id, (value | 2) & 0xFF);
             }
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e3560);
-#endif
+
+#pragma pop
 #pragma opt_common_subs on
 
 typedef struct YListPersonaRecord {
@@ -1722,11 +1562,11 @@ void func_002e6280(s8 list, u16 *exclude, s8 level)
     }
     data = *(u8 **)(D_00882F70[list] + 0x38);
     func_002e5960(list);
-    limit = func_002b2cb0(level, 3, 99, 1, 1);
+    limit = (s16)func_002b2cb0(level, 3, 99, 1, 1);
     for (i = 0; i < 0xC0; i++) {
         if (iGpffffb3d4[i * 0xE + 2] == 1 && (*(u16 *)&iGpffffb3d4[i * 0xE] & 8) == 0) {
-            if (func_00311d00(i) != 0 && func_00311d60(i) != 0 && yListExcluded(i, exclude) == 0 &&
-                yListContains(list, i) == 0 && func_00311e40(i) == 0 &&
+            if (func_00311d00((u16)i) != 0 && func_00311d60((u16)i) != 0 && yListExcluded(i, exclude) == 0 &&
+                yListContains(list, i) == 0 && func_00311e40((u16)i) == 0 &&
                 limit >= iGpffffb3d4[i * 0xE + 3]) {
                 memset(yListEntry(list, *(s32 *)(data + 8)), 0, 0x30);
                 func_0010cad0(yListEntry(list, *(s32 *)(data + 8)), i);
@@ -1742,9 +1582,9 @@ void func_002e6280(s8 list, u16 *exclude, s8 level)
    The comparator's O1 scope preserves the retail selector and key lifetimes. */
 // FUN_002E6630
 #pragma optimization_level 1
-s32 func_002e6630(s16 *arg0, s16 *arg1) {
-    s16 ia = *arg0;
-    s16 ib = *arg1;
+s32 func_002e6630(const void *arg0, const void *arg1) {
+    s16 ia = *(const s16 *)arg0;
+    s16 ib = *(const s16 *)arg1;
     u8 *base = *(u8 **)(D_00882F70[0] + 0x38);
     u8 *pa;
     u8 *qa;
@@ -1927,9 +1767,9 @@ void func_002e68b0(s8 arg0) {
 // FUN_002E6B20
 #pragma schedule on
 #pragma optimization_level 1
-s32 func_002e6b20(s16 *arg0, s16 *arg1) {
-    s16 * arg1_p = arg1;
-    s16 * arg0_p = arg0;
+s32 func_002e6b20(const void *arg0, const void *arg1) {
+    const s16 *arg1_p = arg1;
+    const s16 *arg0_p = arg0;
     s16 ia;
     u8 *base;
     s16 ib;

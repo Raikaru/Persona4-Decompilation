@@ -1,4 +1,5 @@
 /* Source unit: src/datCalendar.c (clndGetMoonPhase) */
+#include "list_item_internal.h"
 #include "type.h"
 
 extern u8 D_0079B6D8[];
@@ -9,7 +10,7 @@ extern s16 func_001060b0(void);
 
 
 // FUN_00110830
-u8 clndGetMoonPhase(u32 daysSinceApr5)
+u8 clndGetMoonPhase(s32 daysSinceApr5)
 {
     return D_0079B6D8[daysSinceApr5];
 }

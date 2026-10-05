@@ -1,5 +1,6 @@
 /* Whole-file translation unit: src/Event/Fcl/y_fclShop.c */
 /* Original filename recovered from embedded __FILE__ strings. */
+#include "list_item_internal.h"
 #include "type.h"
 #include "sdk_task_registration.h"
 
@@ -12,12 +13,8 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 s32 func_002ca830(s32);
 s32 func_002be100(s32);
-s32 func_00106ac0(s16);
-s64 func_00106af0(s16);
 s32 func_00106b20(s16);
 s32 func_00106b50(s16);
-u8 clndGetMoonPhase(s32);
-void func_00110810(s32, u8);
 
 void func_0044ea90(const void *, u32);
 void func_0045aac0(s16, s32, s32);
@@ -68,10 +65,10 @@ s32 func_002bdb50(s32 arg0, s8 arg1)
         }
     }
     for (i = 0x300; i < 0x3FF; i++) {
-        if ((func_002be100(func_00106ac0(i) & 0xFF) & 0xFF) <
+        if ((func_002be100((u8)func_00106ac0(i)) & 0xFF) <
             (func_002be100(4) & 0xFF)) {
             func_00110810(i, clndGetMoonPhase(i) | 4);
-        } else if ((func_002be100(func_00106ac0(i) & 0xFF) & 0xFF) ==
+        } else if ((func_002be100((u8)func_00106ac0(i)) & 0xFF) ==
                    (func_002be100(4) & 0xFF) && (s8)func_00106af0(i) < 2) {
             func_00110810(i, clndGetMoonPhase(i) | 4);
         }
