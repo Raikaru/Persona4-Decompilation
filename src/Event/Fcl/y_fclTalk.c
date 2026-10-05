@@ -1,3 +1,4 @@
+#include "list_item_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 /* Persona 4 USA decompilation - y_fclTalk.c */
@@ -30,11 +31,8 @@ extern u32 D_0064A078[];
 extern u32 D_0064A07C[];
 extern u32 D_0064A080[];
 extern u8 D_006450B0[];
-extern s8 func_00106ac0(s16);
 extern s32 func_00106b20(s16);
 extern s32 func_00106b50(s16);
-extern s32 func_002be160(s32, s32);
-extern s32 func_002be1b0();
 extern s32 func_002dfd00(u16);
 extern u32 RpRandom(void);
 extern s32 func_00331a20(u8 *task);

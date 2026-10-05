@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "list_item_internal.h"
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "primitive_point_buffer.h"
@@ -142,7 +143,6 @@ extern f32 RwV3dLength(f32 *arg0);
 extern u8 *func_003e9700(s32 arg0);
 extern u8 *func_00457120(void);
 extern void func_004b1470(s32 arg0, f32 *arg1);
-extern void func_00106620(s32 arg0, s32 arg1);
 
 extern s32 func_00110580(s32 arg0);
 extern s32 func_00110d30(s32 arg0);

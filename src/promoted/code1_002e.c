@@ -1,3 +1,4 @@
+#include "list_item_internal.h"
 #include "fcl_scale_transition.h"
 #include "fcl_animation_internal.h"
 #include "fcl_color.h"
@@ -27,9 +28,6 @@ extern s32 func_0046a770(const void *arg0);
 extern u8 D_0063FB50[];
 extern u8 D_0063FAA0[];
 extern u8 D_0063FB90[];
-extern void func_00110810(s64 arg0, u8 arg1);
-extern s32 clndGetMoonPhase();
-extern s32 func_002bdff0();
 extern u8 D_0063FC80[];
 extern u8 D_0063FC90[];
 extern void *(*D_008873F4[])(size_t numObj, size_t sizeObj, u32 hint);
@@ -38,17 +36,13 @@ extern void func_0044ea90(const void *arg0, u32 arg1);
 
 
 extern void func_0045aac0(s16 arg0, s32 arg1, s32 arg2);
-extern s32 func_00106ac0(s16 arg0);
-extern s64 func_00106af0(s16 arg0);
 extern s32 func_00106b20(s16 arg0);
 extern s32 func_00106b50(s16 arg0);
 
 
 
 
-void func_002e2a10(s32 arg0, s32 arg1, s8 arg2, s32 arg3);
 
-void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4);
 
 s16 func_001060b0(void);
 void func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
@@ -317,7 +311,7 @@ s32 func_002e23b0(u8 *arg0)
     if (*(s8 *)temp16 == 0) {
         return 0;
     }
-    func_002e2a10(*(s32 *)(temp16 + 4), *(s32 *)(temp16 + 8), *(s8 *)(temp16 + 1), *(s8 *)(temp16 + 0xC));
+    func_002e2a10(*(s32 *)(temp16 + 4), *(s32 *)(temp16 + 8), *(s8 *)(temp16 + 1), (s32)*(s8 *)(temp16 + 0xC));
     *(s8 *)temp16 = 0;
     return 0;
 }
@@ -422,8 +416,8 @@ void func_002e7190(u8 *arg0) {
 // FUN_002E71C0
 s32 func_002e71c0(void)
 {
-    s32 var_17;
-    s64 var_16;
+    s16 var_17;
+    s32 var_16;
     s16 temp_18;
 
     var_16 = 0;
@@ -443,14 +437,14 @@ loop_body:
             var_16 = 1;
         }
     }
-    var_17 = (s16)(var_17 + 1);
+    var_17++;
 loop_test:
     temp_18 = (s16)var_17;
     if (temp_18 < 0x3FF)
     {
         goto loop_body;
     }
-    return ((s64)(var_16 << 0x38) >> 0x38) == 1;
+    return (s8)var_16 == 1;
 }
 /* measured: corrected callee declarations; variadic call casts preserve retail's
    extra ignored arguments to the one-parameter routines. */
@@ -542,7 +536,6 @@ s32 func_002e7510(s32 arg0)
     s32 result;
     u8 *work;
     s32 i;
-    extern void func_00110810(s32, u8);
 
     func_0044ea90(D_0063FC80, 0x11A);
     work = D_008873F4[0](1, 0x18, 0x40000);
@@ -564,10 +557,10 @@ s32 func_002e7510(s32 arg0)
         }
     }
     for (i = 0x300; i < 0x3FF; i++) {
-        if ((func_002be100(func_00106ac0((s16)i) & 0xFF) & 0xFF) <
+        if ((func_002be100((u8)func_00106ac0((s16)i)) & 0xFF) <
             (func_002be100(4) & 0xFF)) {
             func_00110810(i, (clndGetMoonPhase(i) & 0xFF) | 4);
-        } else if ((func_002be100(func_00106ac0((s16)i) & 0xFF) & 0xFF) ==
+        } else if ((func_002be100((u8)func_00106ac0((s16)i)) & 0xFF) ==
                    (func_002be100(4) & 0xFF) &&
                    (s8)func_00106af0((s16)i) < 2) {
             func_00110810(i, (clndGetMoonPhase(i) & 0xFF) | 4);

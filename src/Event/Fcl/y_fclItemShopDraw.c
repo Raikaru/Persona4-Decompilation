@@ -1,5 +1,6 @@
 /* Original translation unit y_fclItemShopDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 
+#include "list_item_internal.h"
 #include "fcl_scale_transition.h"
 #include "fcl_animation_internal.h"
 #include "include_asm.h"
@@ -69,21 +70,18 @@ void func_0033d320(u8 *arg0, s32 arg1, s8 arg2);
 f32 func_002b2aa0(s32, f32, f32, f32, f32);
 s32 func_002b2a30(u8, u8, u8, u8);
 extern s32 func_00275520(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, void *arg9);
-extern s64 func_002e2740(s32 arg0);
 extern u32 func_001067f0(s16 arg0);
 extern s32 func_00106600(s16 arg0);
-extern s32 clndGetMoonPhase(s64 arg0);
 extern void func_002caa10(F2_0033 position, f32 depth, FclDrawColor color, u32 number, s16 glyphBase, void *sprite,
                           s32 style);
 extern void func_002bc7f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
 extern s32 func_002e2670(void);
-extern s64 func_00106b80(s32 arg0);
 extern u8 *func_0033d310(u8 *arg0);
 extern void func_0033d3d0(u8 *arg0, s32 arg1);
 extern f32 D_0064A2B0[];
 extern f32 D_0064A2B8[];
 extern u8 D_00795E60[];
-extern u32 func_0033cbc0(void *arg0, s64 arg1);
+extern u32 func_0033cbc0(void *arg0, s32 arg1);
 s32 func_002b2cb0(s32, s32, s32, s32, s8);
 s32 func_002b2d00(s32, s32, s32, s32, s8);
 void memcpy(void *, s32, s32);
@@ -123,7 +121,6 @@ extern f32 D_0064A210[];
 extern f32 D_0064A218[];
 extern void func_0045af60(s32, s32, s32, s32);
 extern s32 func_002bb1c0(s8 arg0);
-extern void func_00106620(s16 arg0, s32 arg1);
 extern void func_002e7a80(s32 arg0);
 void func_0033c490(u8 *arg0);
 extern void func_0033d550(void *arg0);
@@ -1910,7 +1907,7 @@ void func_0033c490(u8 *arg0)
     }
 }
 // FUN_0033CBC0
-u32 func_0033cbc0(void *arg0, s64 arg1) {
+u32 func_0033cbc0(void *arg0, s32 arg1) {
     u8 *work = *(u8 **)((u8 *)arg0 + 0x38);
     u32 d = (u32)((s32)(*(s8 *)(work + 9) * (s32)func_00106a90((s64)(s16)arg1)) * 0x14) / 100U;
 

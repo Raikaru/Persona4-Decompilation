@@ -1,3 +1,4 @@
+#include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
 extern u8 D_007973A0[];
@@ -1158,10 +1159,8 @@ s32 func_00106600(s16 arg0)
 }
 
 // FUN_00106620
-/* func_00106850 takes the raw 32-bit id and narrows it itself; retail's call
-   here passes arg0 with no sign-extension at the call site. */
-u32 func_00106850(s32 arg0);
-void func_00106620(s32 arg0, s32 arg1)
+/* Inventory and metadata queries share the signed halfword item ID. */
+void func_00106620(s16 arg0, s32 arg1)
 {
     s16 id;
     u8 *p;
@@ -1231,7 +1230,7 @@ GDataEntry* func_00106820(s16 arg0)
 }
 
 // FUN_00106850
-u32 func_00106850(s32 arg0)
+u32 func_00106850(s16 arg0)
 {
     return *(u32*)((u8*)D_007242A0 + (s32)(s16)arg0 * 68);
 }
@@ -1332,10 +1331,9 @@ u32 func_00106b50(s16 arg0)
     return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x40);
 }
 
-/* Metadata IDs arrive as words; the signed low halfword selects the
- * bank-relative index. The word-sized input preserves all 176 bytes. */
+/* The signed item ID selects a bank-relative metadata index. */
 // FUN_00106B80
-s64 func_00106b80(s32 arg0)
+s64 func_00106b80(s16 arg0)
 {
     s16 temp_2;
 

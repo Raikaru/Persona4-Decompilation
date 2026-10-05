@@ -1,3 +1,4 @@
+#include "list_item_internal.h"
 #include "btl_equipment_count_internal.h"
 #include "model_callbacks_internal.h"
 #include "btl_camera_palette_internal.h"

@@ -1,3 +1,4 @@
+#include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "fr_font_internal.h"
@@ -275,7 +276,7 @@ fail:
     return 0;
 }
 // FUN_00110810
-void func_00110810(s32 arg0, s8 arg1)
+void func_00110810(s32 arg0, u8 arg1)
 {
     D_0079B6D8[arg0] = arg1;
 }
@@ -691,7 +692,6 @@ void func_001113b0(void)
     void func_00106480(void);
     void func_001064c0(void);
     void func_001065c0(void);
-    void func_00106620(s32, s32);
     void func_00106d40(s16, s16, s16);
     void func_001070b0(void);
     s32 func_0010b9a0(s32, u16);
@@ -826,7 +826,6 @@ void func_00111bc0(void)
     s16 func_00104ea0(s16, s16);
     u32 func_00105ed0(void);
     void func_00105fa0(u32);
-    void func_00106620(s32, s32);
     void func_001051a0(s16, s16, s16);
     u32 func_00110460(void);
     void func_00110470(u32);
