@@ -1,0 +1,70 @@
+reloc retail[14:16] object[14:16]
+  retail lui $a2, 0x64
+  retail addiu $a2, $a2, -0x17d0
+  object lui $a2, 0
+  object addiu $a2, $a2, 0
+reloc retail[63:64] object[63:64]
+  retail lwc1 $f12, -0x7dfc($gp)
+  object lwc1 $f12, ($gp)
+reloc retail[121:122] object[121:122]
+  retail lw $a3, -0x4ac0($gp)
+  object lw $a3, ($gp)
+reloc retail[145:146] object[145:146]
+  retail lw $a3, -0x4ac0($gp)
+  object lw $a3, ($gp)
+replace retail[149:150] object[149:150]
+  retail b .+300
+  object b .+294
+reloc retail[174:175] object[174:175]
+  retail lwc1 $f12, -0x7dfc($gp)
+  object lwc1 $f12, ($gp)
+reloc retail[187:188] object[187:188]
+  retail lwc1 $f12, -0x7dfc($gp)
+  object lwc1 $f12, ($gp)
+replace retail[246:248] object[246:247]
+  retail addiu $v0, $v0, 0x104
+  retail lw $fp, ($v0)
+  object lw $fp, 0x104($v0)
+reloc retail[255:256] object[254:255]
+  retail lw $a3, -0x4ac0($gp)
+  object lw $a3, ($gp)
+replace retail[260:266] object[259:262]
+  retail addiu $v0, $v1, 0x100
+  retail lw $s6, ($v0)
+  retail addiu $v0, $v1, 0x114
+  retail lw $s2, ($v0)
+  retail addiu $v0, $v1, 0x10c
+  retail lw $v0, ($v0)
+  object lw $s6, 0x100($v1)
+  object lw $s2, 0x114($v1)
+  object lw $v0, 0x10c($v1)
+replace retail[270:274] object[266:268]
+  retail addiu $v0, $v1, 0x110
+  retail lw $s1, ($v0)
+  retail addiu $v0, $v1, 0x108
+  retail lw $v0, ($v0)
+  object lw $s1, 0x110($v1)
+  object lw $v0, 0x108($v1)
+reloc retail[290:291] object[284:285]
+  retail lw $a3, -0x4ac0($gp)
+  object lw $a3, ($gp)
+reloc retail[304:305] object[298:299]
+  retail lw $a3, -0x4ac0($gp)
+  object lw $a3, ($gp)
+reloc retail[321:322] object[315:316]
+  retail lw $a3, -0x4ac0($gp)
+  object lw $a3, ($gp)
+reloc retail[343:344] object[337:338]
+  retail lwc1 $f12, -0x7dfc($gp)
+  object lwc1 $f12, ($gp)
+reloc retail[385:386] object[379:380]
+  retail lw $a3, -0x4ac0($gp)
+  object lw $a3, ($gp)
+reloc retail[412:413] object[406:407]
+  retail lw $a3, -0x4ac0($gp)
+  object lw $a3, ($gp)
+reloc retail[445:446] object[439:440]
+  retail lw $a3, -0x4ac0($gp)
+  object lw $a3, ($gp)
+insert retail[461:461] object[455:456]
+  object nop

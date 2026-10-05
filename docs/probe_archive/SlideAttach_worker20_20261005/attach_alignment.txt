@@ -1,0 +1,45 @@
+replace retail[22:24] object[22:24]
+  retail lw $s3, 0xc($s4)
+  retail beqz $s3,.+12
+  object lw $s5, 0xc($s4)
+  object beqz $s5,.+12
+replace retail[30:31] object[30:31]
+  retail beq $s3,$v0,.+5
+  object beq $s5,$v0,.+5
+replace retail[108:109] object[108:109]
+  retail move $s5, $zero
+  object move $s3, $zero
+replace retail[112:113] object[112:113]
+  retail sltu $at, $v1, $s3
+  object sltu $at, $v1, $s5
+reloc retail[184:185] object[184:185]
+  retail lwc1 $f0, -0x7cac($gp)
+  object lwc1 $f0, ($gp)
+reloc retail[195:196] object[195:196]
+  retail lwc1 $f0, -0x7c74($gp)
+  object lwc1 $f0, ($gp)
+reloc retail[202:203] object[202:203]
+  retail lw $v0, -0x4c54($gp)
+  object lw $v0, ($gp)
+reloc retail[247:248] object[247:248]
+  retail lwc1 $f0, -0x7cac($gp)
+  object lwc1 $f0, ($gp)
+reloc retail[258:259] object[258:259]
+  retail lwc1 $f0, -0x7c74($gp)
+  object lwc1 $f0, ($gp)
+reloc retail[291:293] object[291:293]
+  retail lui $v0, 0x61
+  retail addiu $v0, $v0, -0x6b00
+  object lui $v0, 0
+  object addiu $v0, $v0, 0
+reloc retail[299:300] object[299:300]
+  retail lw $v0, -0x4c54($gp)
+  object lw $v0, ($gp)
+replace retail[337:339] object[337:339]
+  retail addiu $v1, $s5, 1
+  retail andi $s5, $v1, 0xffff
+  object addiu $v1, $s3, 1
+  object andi $s3, $v1, 0xffff
+replace retail[341:342] object[341:342]
+  retail andi $v1, $s5, 0xffff
+  object andi $v1, $s3, 0xffff
