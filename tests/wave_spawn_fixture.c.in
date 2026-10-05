@@ -1,0 +1,215 @@
+static unsigned scenario, floatCalls, integerCalls, sineCalls, attributeCalls, trailCalls, basisCalls;
+static unsigned mutateBudget, mutateAttributes, checkAmplitude;
+static u32 randomWord;
+static f32 randomFloat = 0.75f;
+static WaveSpawnEmitter emitter;
+static WaveSpawnParameters parameters, alternate;
+static SpawnParticle particles[24], originalParticles[24], attributeBefore[4], trailBefore[4];
+static WaveSpawnState states[6], originalStates[6];
+static EffectVuVector vf10, vf11, previousPosition[4];
+static s32 attributeAge[4];
+f32 fGpffff807c = 1.0f, fGpffff8080 = 8.0f;
+u8 D_00713D30[16] __attribute__((aligned(16)));
+#define CHECK(x) do { if (!(x)) native32_failure(__LINE__, scenario, #x); } while (0)
+static int near(f32 a, f32 b) { f32 d=a-b; return d < 0.0001f && d > -0.0001f; }
+static void same_vector(const EffectVuVector *a,const EffectVuVector *b) {
+    for (unsigned k=0;k<4;k++) CHECK(near(a->lane[k],b->lane[k]));
+}
+f32 fabsf(f32 x) { return x < 0 ? -x : x; }
+f32 sinf(f32 x) { sineCalls++; return x * 0.5f; }
+u32 effMiscRand(EffRandState *unused) { CHECK(!unused); integerCalls++; return randomWord; }
+f32 effMiscRandFloat(EffRandState *unused) {
+    CHECK(!unused);
+    if (mutateBudget && !floatCalls) emitter.primaryCount=4;
+    if (checkAmplitude && floatCalls==4) CHECK(states[0].amplitude==77.0f);
+    floatCalls++;
+    return randomFloat;
+}
+void effectVuLoad10(const EffectVuVector *p) { vf10=*p; }
+void effectVuLoad11(const EffectVuVector *p) { vf11=*p; }
+void effectVuStore10(EffectVuVector *p) { *p=vf10; }
+void func_004bceb0(void) { basisCalls++; same_vector(&vf10,&parameters.rotation); }
+void spawnVuTransform10(void) {
+    EffectVuVector v=vf10;
+    vf10.lane[0]=v.lane[2];vf10.lane[1]=v.lane[0];vf10.lane[2]=v.lane[1];
+    vf10.lane[3]=v.lane[0]+2*v.lane[1]+3*v.lane[2];
+}
+void spawnVuNormalize10(void) {
+    f32 n=0; for(unsigned k=0;k<3;k++) n+=vf10.lane[k]*vf10.lane[k];
+    CHECK(n>0); CHECK(vf10.lane[3]==0);
+    f32 r=1;for(unsigned k=0;k<8;k++)r=(r+n/r)*0.5f;
+    for(unsigned k=0;k<3;k++)vf10.lane[k]/=r;
+}
+void spawnVuMultiply10(void) { CHECK(vf11.lane[3]==0);for(unsigned k=0;k<4;k++)vf10.lane[k]*=vf11.lane[k]; }
+void spawnVuAdd10(void) { for(unsigned k=0;k<4;k++)vf10.lane[k]+=vf11.lane[k]; }
+void func_0048b220(u8 *p,u8 *cfg,s32 age,u_long128 *old) {
+    CHECK(cfg==(u8 *)&parameters); CHECK(attributeCalls<4);
+    SpawnParticle *particle=(SpawnParticle *)p;
+    attributeAge[attributeCalls]=age;
+    attributeBefore[attributeCalls]=*particle;
+    memcpy(&previousPosition[attributeCalls],old,16);
+    attributeCalls++;
+    particle->color=0xA1B2C3D4u;particle->size=2;particle->angle=3;
+    if(mutateAttributes) {
+        emitter.primaryCount=3;emitter.parameters=&alternate;
+        particle->age=40;
+    }
+}
+void func_0048b340(u8 *parent,u8 *p) {
+    CHECK(parent==(u8 *)&emitter);CHECK(trailCalls<4);
+    trailBefore[trailCalls++]=*(SpawnParticle *)p;
+    if(mutateAttributes)((SpawnParticle *)p)->age=80;
+}
+static void reset(void) {
+    scenario++;floatCalls=integerCalls=sineCalls=attributeCalls=trailCalls=basisCalls=0;
+    mutateBudget=mutateAttributes=checkAmplitude=0;randomWord=0x80000003u;randomFloat=.75f;
+    memset(&emitter,0,sizeof(emitter));memset(&parameters,0,sizeof(parameters));
+    memset(&alternate,0,sizeof(alternate));
+    for(unsigned j=0;j<24;j++) {
+        for(unsigned k=0;k<4;k++)particles[j].position.lane[k]=10*j+k+1;
+        particles[j].age=-1;particles[j].color=0x12345678;
+        particles[j].size=31;particles[j].angle=37;
+    }
+    {
+        f32 words[15];
+        for (unsigned k=0;k<15;k++) words[k]=77;
+        for (unsigned j=0;j<6;j++) memcpy(&states[j],words,sizeof(words));
+    }
+    emitter.primaryCount=1;emitter.totalCount=24;emitter.flags=1;
+    emitter.particles=particles;emitter.state=states;emitter.parameters=&parameters;
+    parameters.lifetime=10;parameters.emissionRate=1;
+    parameters.spread=6;parameters.speed=4;parameters.speedVariation=.5f;parameters.gravity=.25f;
+    parameters.initialAmplitude=2;parameters.initialAmplitudeVariation=.5f;
+    parameters.finalAmplitude=8;parameters.finalAmplitudeVariation=.5f;
+    parameters.phaseStep=.4f;parameters.phaseStepVariation=.5f;
+    parameters.sizeVariation=.25f;parameters.angleVariation=.5f;parameters.angleMode=2;
+    parameters.position.lane[0]=10;parameters.position.lane[1]=20;
+    parameters.position.lane[2]=30;parameters.position.lane[3]=7;
+    parameters.rotation.lane[3]=1;
+    ((EffectVuVector *)D_00713D30)->lane[1]=1;
+    memcpy(originalParticles,particles,sizeof(particles));memcpy(originalStates,states,sizeof(states));
+}
+static void check_normal(unsigned i,unsigned global,unsigned mode) {
+    f32 q=.7071067811865475f;
+    WaveSpawnState e;
+    e.direction[0]=0;e.direction[1]=global?0:1;e.direction[2]=global?1:0;
+    e.waveDirection[0]=q;e.waveDirection[1]=global?q:0;e.waveDirection[2]=global?0:q;
+    e.phase=6;e.previousSine=3;e.amplitude=1.75f;e.amplitudeStep=.525f;
+    e.phaseStep=.35f;e.speed=3.5f;e.sizeScale=.9375f;
+    e.angleOffset=mode==1?6:0;e.angleScale=mode==2?1:((randomWord&1)&&mode==1?-.875f:.875f);
+    {
+        f32 actual[15], expected[15];
+        memcpy(actual,&states[i],sizeof(actual));
+        memcpy(expected,&e,sizeof(expected));
+        for(unsigned k=0;k<15;k++) CHECK(near(actual[k],expected[k]));
+    }
+    SpawnParticle p=originalParticles[i];
+    for(unsigned k=0;k<3;k++)p.position.lane[k]=e.waveDirection[k]*3+(global?parameters.position.lane[k]:0);
+    p.position.lane[3]=global?7:0;p.age=0;p.color=0xA1B2C3D4;p.size=1.875f;
+    p.angle=3*e.angleScale+e.angleOffset;
+    same_vector(&p.position,&particles[i].position);
+    CHECK(!memcmp((u8 *)&p+16,(u8 *)&particles[i]+16,16));
+    same_vector(&previousPosition[i],&p.position);CHECK(attributeAge[i]==0);
+}
+int main(void) {
+    CHECK(sizeof(SpawnParticle)==32 && sizeof(WaveSpawnState)==60);
+    CHECK(sizeof(WaveSpawnParameters)==240 && sizeof(WaveSpawnEmitter)==48);
+    reset();parameters.lifetime=0;
+    func_0048b9e0((u8 *)&emitter);
+    CHECK(!floatCalls&&!attributeCalls&&!basisCalls);
+    CHECK(!memcmp(particles,originalParticles,sizeof(particles)));
+    CHECK(!memcmp(states,originalStates,sizeof(states)));
+
+    reset();emitter.primaryCount=0;emitter.emissionAccumulator=.5f;
+    func_0048b9e0((u8 *)&emitter);
+    CHECK(basisCalls==1&&!attributeCalls&&emitter.emissionAccumulator==.5f);
+    CHECK(!memcmp(particles,originalParticles,sizeof(particles)));
+
+    reset();emitter.primaryCount=3;parameters.emissionDuration=2;emitter.ticks=2;
+    parameters.trailCount=2;parameters.trailWidth=2;particles[0].age=10;particles[1].age=-2;
+    for(unsigned i=3;i<15;i++)particles[i].age=9;
+    func_0048b9e0((u8 *)&emitter);
+    CHECK(!floatCalls&&!attributeCalls&&particles[0].age==-2&&particles[1].age==-2&&particles[2].age==-1);
+    for(unsigned i=3;i<7;i++)CHECK(particles[i].age==-1);
+    for(unsigned i=7;i<15;i++)CHECK(particles[i].age==9);
+
+    reset();emitter.primaryCount=2;checkAmplitude=1;
+    func_0048b9e0((u8 *)&emitter);check_normal(0,0,2);
+    CHECK(floatCalls==9&&!integerCalls&&sineCalls==1&&attributeCalls==1&&!trailCalls);
+    CHECK(!memcmp(&particles[1],&originalParticles[1],sizeof(SpawnParticle)));
+    CHECK(!memcmp(&states[1],&originalStates[1],sizeof(WaveSpawnState)));
+
+    reset();emitter.flags=0;parameters.angleMode=1;
+    func_0048b9e0((u8 *)&emitter);check_normal(0,1,1);
+    CHECK(floatCalls==11&&integerCalls==1&&sineCalls==1&&attributeCalls==1);
+
+    reset();parameters.angleMode=0;randomWord=0;
+    func_0048b9e0((u8 *)&emitter);check_normal(0,0,0);
+    CHECK(floatCalls==10&&!integerCalls);
+
+    reset();emitter.primaryCount=2;parameters.emissionRate=0;emitter.emissionAccumulator=-2.25f;
+    func_0048b9e0((u8 *)&emitter);check_normal(0,0,2);check_normal(1,0,2);
+    CHECK(emitter.emissionAccumulator==-4.25f&&attributeCalls==2);
+
+    reset();emitter.primaryCount=2;parameters.emissionRate=2;
+    parameters.emissionVariation=.5f;emitter.emissionAccumulator=.4f;
+    func_0048b9e0((u8 *)&emitter);CHECK(near(emitter.emissionAccumulator,.15f));
+    CHECK(attributeCalls==1&&floatCalls==10&&particles[1].age==-1);
+
+    reset();parameters.preroll=1;parameters.trailCount=1;parameters.trailWidth=2;
+    parameters.lifetime=7;
+    func_0048b9e0((u8 *)&emitter);
+    u32 age=0x80000003u%7u;
+    CHECK(attributeAge[0]==(s32)age&&particles[0].age==(s32)age+1);
+    CHECK(attributeCalls==1&&integerCalls==1&&sineCalls==2&&!trailCalls);
+    CHECK(near(states[0].phase,6+.35f*(age+1)));
+    CHECK(near(states[0].amplitude,1.75f+.75f*(age+1)));
+    CHECK(particles[1].age==-1);
+    CHECK(!memcmp(&particles[1].position,&particles[0].position,16));
+    CHECK(!memcmp((u8 *)&particles[1]+20,(u8 *)&particles[0]+20,12));
+    CHECK(!memcmp(&particles[2],&originalParticles[2],32));
+    CHECK(previousPosition[0].lane[3]==0);
+    /* Independent preroll trajectory checks: slot-copy checks alone cannot
+       distinguish a missing elapsed factor in the gravity product. */
+    f32 elapsed = (f32)age;
+    f32 travelled = 3.5f * elapsed - .125f * elapsed * elapsed;
+    f32 waveDistance = (1.75f + .75f * elapsed) * ((6.0f + .35f * elapsed) * .5f);
+    f32 expectedXZ = .7071067811865475f * (3.0f + waveDistance);
+    CHECK(near(particles[0].position.lane[1], travelled));
+    CHECK(near(particles[0].position.lane[0], expectedXZ));
+    CHECK(near(particles[0].position.lane[2], expectedXZ));
+    CHECK(near(previousPosition[0].lane[0], .7071067811865475f * 3.0f));
+    CHECK(previousPosition[0].lane[1] == 0.0f);
+    CHECK(near(previousPosition[0].lane[2], .7071067811865475f * 3.0f));
+
+    reset();emitter.primaryCount=2;parameters.preroll=1;parameters.emissionVariation=.25f;
+    mutateBudget=1;
+    func_0048b9e0((u8 *)&emitter);
+    CHECK(attributeCalls==2&&emitter.primaryCount==4&&particles[2].age==-1);
+
+    reset();parameters.preroll=1;mutateAttributes=1;
+    alternate.trailCount=1;alternate.trailWidth=2;
+    func_0048b9e0((u8 *)&emitter);
+    CHECK(particles[0].age==41&&particles[3].age==-1);
+    CHECK(!memcmp(&particles[3].position,&particles[0].position,16));
+    CHECK(!memcmp(&particles[1],&originalParticles[1],32));
+
+    reset();particles[0].age=3;mutateAttributes=1;emitter.flags=0;
+    states[0].phase=2;states[0].previousSine=.5f;states[0].amplitude=2;
+    states[0].amplitudeStep=.25f;states[0].phaseStep=.5f;states[0].speed=4;
+    for(unsigned k=0;k<3;k++){states[0].direction[k]=k+1;states[0].waveDirection[k]=3-k;}
+    states[0].sizeScale=.5f;states[0].angleScale=2;states[0].angleOffset=1;
+    func_0048b9e0((u8 *)&emitter);
+    CHECK(attributeCalls==1&&trailCalls==1&&!floatCalls&&sineCalls==1);
+    CHECK(attributeAge[0]==3&&trailBefore[0].age==40&&particles[0].age==4);
+    same_vector(&previousPosition[0],&originalParticles[0].position);
+    for(unsigned k=0;k<3;k++)CHECK(near(particles[0].position.lane[k],originalParticles[0].position.lane[k]+(3-k)+3.25f*(k+1)));
+    CHECK(particles[0].position.lane[3]==4&&particles[0].color==0xA1B2C3D4&&particles[0].size==1&&particles[0].angle==7);
+    CHECK(states[0].phase==2.5f&&states[0].amplitude==2.25f&&states[0].previousSine==1);
+
+    reset();parameters.emissionRate=0x80000000u;parameters.emissionVariation=.5f;randomFloat=.75f;
+    func_0048b9e0((u8 *)&emitter);
+    CHECK(attributeCalls==1&&emitter.emissionAccumulator==0);
+
+    native32_text("wave spawn scenarios: ");native32_number(scenario);native32_text("\n");return 0;
+}
