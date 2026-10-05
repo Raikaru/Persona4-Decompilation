@@ -1,0 +1,5532 @@
+{
+  "date": "2026-10-05",
+  "worker": "worker-10",
+  "branch": "work/finish-first-party-20261005",
+  "head": "a1cede7894141323ec6bb833af87a776aa19cc60",
+  "owner": "src/Kernel/h_memcard_grouped.c",
+  "compiler": "MWCCPS2 3.0.1 b210",
+  "gp": "007690f0",
+  "retail_elf_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "source_before_sha256": "9afb9341103ff7fd18b7e71ff092d78d9607c5ffe86b8ac0f0a772e522e5bf13",
+  "source_after_sha256": "76abe277fbd500b6b92f7de6ac243df088ea6f56528a93385f925e121b42e357",
+  "only_reviewed_declarations_changed": true,
+  "declaration_changes": [
+    {
+      "before": "extern void func_00431d78(s32 socket, void *data, void *result);",
+      "after": "extern s32 func_00431d78(s32 socket, const char *name, void *result);"
+    },
+    {
+      "before": "extern void func_004323a8(s32 socket, void *data);",
+      "after": "extern s32 func_004323a8(s32 socket, const char *name);"
+    }
+  ],
+  "compile_paths": [
+    {
+      "before": "production",
+      "after": "production-contracts",
+      "compiler_flags": [
+        "-O2",
+        "-Iinclude"
+      ],
+      "both_compiles_succeeded": true,
+      "entire_objects_byte_identical": true,
+      "object_sha256": "8d43aafc191006a271db13fea137e471bf5476a00a88ec893d1d30e76c4e98f1"
+    },
+    {
+      "before": "actual-guarded",
+      "after": "actual-guarded-contracts",
+      "compiler_flags": [
+        "-O2",
+        "-Iinclude",
+        "-DNON_MATCHING"
+      ],
+      "both_compiles_succeeded": true,
+      "entire_objects_byte_identical": true,
+      "object_sha256": "f08aa9ae1012df356cb832df4b25222a530a709983893515f0aaf9f97d68386a"
+    }
+  ],
+  "probes": [
+    {
+      "name": "baseline",
+      "source_sha256": "ea992192788a5ec835b1f2399ffd51792a31b4db0ef9ce83b00fa9b4a7535969",
+      "object_sha256": "f08aa9ae1012df356cb832df4b25222a530a709983893515f0aaf9f97d68386a",
+      "siblings_identical_to_baseline": true,
+      "new_exact_C_accepted": false
+    },
+    {
+      "name": "sdk-contracts",
+      "source_sha256": "95a8e00cfa1e2410e4d29f21ced11cc2496f26ac9f44a6458850731ca8f0880f",
+      "object_sha256": "f08aa9ae1012df356cb832df4b25222a530a709983893515f0aaf9f97d68386a",
+      "siblings_identical_to_baseline": true,
+      "new_exact_C_accepted": false
+    },
+    {
+      "name": "null-only",
+      "source_sha256": "35355842770551665450c01672352dde1d18258bb66c4fd8252cc9edc5108377",
+      "object_sha256": "a29973ad4fb62e54087372ca8664da21352fb5b9acd1834a665c515d95039b58",
+      "siblings_identical_to_baseline": true,
+      "new_exact_C_accepted": false
+    },
+    {
+      "name": "scoped-null-only-contracts",
+      "source_sha256": "2f2cd3ffbec39efa453edcb7d88b157c5caa2eee7c4ca5ce50685203b813b31f",
+      "object_sha256": "a29973ad4fb62e54087372ca8664da21352fb5b9acd1834a665c515d95039b58",
+      "siblings_identical_to_baseline": true,
+      "new_exact_C_accepted": false
+    },
+    {
+      "name": "actual-guarded",
+      "source_sha256": "9afb9341103ff7fd18b7e71ff092d78d9607c5ffe86b8ac0f0a772e522e5bf13",
+      "object_sha256": "f08aa9ae1012df356cb832df4b25222a530a709983893515f0aaf9f97d68386a",
+      "siblings_identical_to_baseline": true,
+      "new_exact_C_accepted": false
+    },
+    {
+      "name": "production",
+      "source_sha256": "9afb9341103ff7fd18b7e71ff092d78d9607c5ffe86b8ac0f0a772e522e5bf13",
+      "object_sha256": "8d43aafc191006a271db13fea137e471bf5476a00a88ec893d1d30e76c4e98f1",
+      "siblings_identical_to_baseline": true,
+      "new_exact_C_accepted": false
+    },
+    {
+      "name": "actual-guarded-contracts",
+      "source_sha256": "76abe277fbd500b6b92f7de6ac243df088ea6f56528a93385f925e121b42e357",
+      "object_sha256": "f08aa9ae1012df356cb832df4b25222a530a709983893515f0aaf9f97d68386a",
+      "siblings_identical_to_baseline": true,
+      "new_exact_C_accepted": false
+    },
+    {
+      "name": "production-contracts",
+      "source_sha256": "76abe277fbd500b6b92f7de6ac243df088ea6f56528a93385f925e121b42e357",
+      "object_sha256": "8d43aafc191006a271db13fea137e471bf5476a00a88ec893d1d30e76c4e98f1",
+      "siblings_identical_to_baseline": true,
+      "new_exact_C_accepted": false
+    }
+  ],
+  "objects_by_sha256": {
+    "f08aa9ae1012df356cb832df4b25222a530a709983893515f0aaf9f97d68386a": {
+      "functions": [
+        {
+          "name": "func_004647a0",
+          "addr": 4605856,
+          "size": 16,
+          "window": 16,
+          "code_relocations": 1,
+          "relocation_failures": [],
+          "unmasked_window_exact": true,
+          "relocations": [
+            {
+              "offset": 4,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000083af",
+              "resolved_word": "d0ba83af"
+            }
+          ]
+        },
+        {
+          "name": "func_004647b0",
+          "addr": 4605872,
+          "size": 16,
+          "window": 16,
+          "code_relocations": 1,
+          "relocation_failures": [],
+          "unmasked_window_exact": true,
+          "relocations": [
+            {
+              "offset": 4,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000083af",
+              "resolved_word": "d0ba83af"
+            }
+          ]
+        },
+        {
+          "name": "func_004647c0",
+          "addr": 4605888,
+          "size": 3152,
+          "window": 3120,
+          "code_relocations": 202,
+          "relocation_failures": [],
+          "unmasked_window_exact": false,
+          "relocations": [
+            {
+              "offset": 8,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007127B0",
+              "resolved_symbol": "007127b0",
+              "input_word": "0000043c",
+              "resolved_word": "7100043c"
+            },
+            {
+              "offset": 12,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007127B0",
+              "resolved_symbol": "007127b0",
+              "input_word": "00008424",
+              "resolved_word": "b0278424"
+            },
+            {
+              "offset": 16,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "0000858f",
+              "resolved_word": "d0ba858f"
+            },
+            {
+              "offset": 20,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00440b68",
+              "resolved_symbol": "00440b68",
+              "input_word": "0000000c",
+              "resolved_word": "da02110c"
+            },
+            {
+              "offset": 28,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "0000828f",
+              "resolved_word": "d0ba828f"
+            },
+            {
+              "offset": 44,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "@185",
+              "resolved_symbol": "00756630",
+              "input_word": "0000033c",
+              "resolved_word": "7500033c"
+            },
+            {
+              "offset": 48,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "@185",
+              "resolved_symbol": "00756630",
+              "input_word": "00006324",
+              "resolved_word": "30666324"
+            },
+            {
+              "offset": 92,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 112,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 116,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 120,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000a524",
+              "resolved_word": "204ba524"
+            },
+            {
+              "offset": 124,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sceMc2GetInfoAsync",
+              "resolved_symbol": "00431cb8",
+              "input_word": "0000000c",
+              "resolved_word": "2ec7100c"
+            },
+            {
+              "offset": 136,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 160,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 316,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 332,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000023c",
+              "resolved_word": "8e00023c"
+            },
+            {
+              "offset": 336,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000438c",
+              "resolved_word": "204b438c"
+            },
+            {
+              "offset": 364,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B24",
+              "resolved_symbol": "008e4b24",
+              "input_word": "0000033c",
+              "resolved_word": "8e00033c"
+            },
+            {
+              "offset": 368,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B24",
+              "resolved_symbol": "008e4b24",
+              "input_word": "0000638c",
+              "resolved_word": "244b638c"
+            },
+            {
+              "offset": 384,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000083af",
+              "resolved_word": "d0ba83af"
+            },
+            {
+              "offset": 396,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 400,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 404,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 408,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 412,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000a524",
+              "resolved_word": "d027a524"
+            },
+            {
+              "offset": 420,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 428,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 432,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 436,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 440,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4900",
+              "resolved_symbol": "008e4900",
+              "input_word": "0000063c",
+              "resolved_word": "8e00063c"
+            },
+            {
+              "offset": 444,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4900",
+              "resolved_symbol": "008e4900",
+              "input_word": "0000c624",
+              "resolved_word": "0049c624"
+            },
+            {
+              "offset": 448,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00431d78",
+              "resolved_symbol": "00431d78",
+              "input_word": "0000000c",
+              "resolved_word": "5ec7100c"
+            },
+            {
+              "offset": 460,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 484,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 680,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 684,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 688,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000a524",
+              "resolved_word": "204ba524"
+            },
+            {
+              "offset": 692,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sceMc2GetInfoAsync",
+              "resolved_symbol": "00431cb8",
+              "input_word": "0000000c",
+              "resolved_word": "2ec7100c"
+            },
+            {
+              "offset": 724,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 868,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 872,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00431b58",
+              "resolved_symbol": "00431b58",
+              "input_word": "0000000c",
+              "resolved_word": "d6c6100c"
+            },
+            {
+              "offset": 884,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 908,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 964,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 996,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1020,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 1188,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1216,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1244,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 1428,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 1432,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 1436,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000a524",
+              "resolved_word": "204ba524"
+            },
+            {
+              "offset": 1440,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sceMc2GetInfoAsync",
+              "resolved_symbol": "00431cb8",
+              "input_word": "0000000c",
+              "resolved_word": "2ec7100c"
+            },
+            {
+              "offset": 1472,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 1528,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1676,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1688,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 1692,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 1696,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712800",
+              "resolved_symbol": "00712800",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 1700,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712800",
+              "resolved_symbol": "00712800",
+              "input_word": "0000a524",
+              "resolved_word": "0028a524"
+            },
+            {
+              "offset": 1704,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 1708,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 1716,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 1720,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 1724,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 1728,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_004326b8",
+              "resolved_symbol": "004326b8",
+              "input_word": "0000000c",
+              "resolved_word": "aec9100c"
+            },
+            {
+              "offset": 1736,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712820",
+              "resolved_symbol": "00712820",
+              "input_word": "0000043c",
+              "resolved_word": "7100043c"
+            },
+            {
+              "offset": 1740,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712820",
+              "resolved_symbol": "00712820",
+              "input_word": "00008424",
+              "resolved_word": "20288424"
+            },
+            {
+              "offset": 1748,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00440b68",
+              "resolved_symbol": "00440b68",
+              "input_word": "0000000c",
+              "resolved_word": "da02110c"
+            },
+            {
+              "offset": 1760,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1788,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 1824,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1888,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1936,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BBC",
+              "resolved_symbol": "00764bbc",
+              "input_word": "0000838f",
+              "resolved_word": "ccba838f"
+            },
+            {
+              "offset": 1980,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 1984,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 1988,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 1992,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 1996,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000a524",
+              "resolved_word": "d027a524"
+            },
+            {
+              "offset": 2004,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2020,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2024,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2028,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712840",
+              "resolved_symbol": "00712840",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2032,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712840",
+              "resolved_symbol": "00712840",
+              "input_word": "0000a524",
+              "resolved_word": "4028a524"
+            },
+            {
+              "offset": 2036,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 2040,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2056,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2060,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2064,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712860",
+              "resolved_symbol": "00712860",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2068,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712860",
+              "resolved_symbol": "00712860",
+              "input_word": "0000a524",
+              "resolved_word": "6028a524"
+            },
+            {
+              "offset": 2072,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 2076,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2084,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 2088,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 2092,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 2096,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_004323a8",
+              "resolved_symbol": "004323a8",
+              "input_word": "0000000c",
+              "resolved_word": "eac8100c"
+            },
+            {
+              "offset": 2108,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 2132,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 2168,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 2232,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 2280,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BBC",
+              "resolved_symbol": "00764bbc",
+              "input_word": "0000838f",
+              "resolved_word": "ccba838f"
+            },
+            {
+              "offset": 2324,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 2328,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2332,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2336,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2340,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000a524",
+              "resolved_word": "d027a524"
+            },
+            {
+              "offset": 2348,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2356,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB4",
+              "resolved_symbol": "00764bb4",
+              "input_word": "0000888f",
+              "resolved_word": "c4ba888f"
+            },
+            {
+              "offset": 2360,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 2364,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 2368,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 2372,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BAC",
+              "resolved_symbol": "00764bac",
+              "input_word": "0000868f",
+              "resolved_word": "bcba868f"
+            },
+            {
+              "offset": 2380,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00432288",
+              "resolved_symbol": "00432288",
+              "input_word": "0000000c",
+              "resolved_word": "a2c8100c"
+            },
+            {
+              "offset": 2396,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2400,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2404,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712840",
+              "resolved_symbol": "00712840",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2408,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712840",
+              "resolved_symbol": "00712840",
+              "input_word": "0000a524",
+              "resolved_word": "4028a524"
+            },
+            {
+              "offset": 2412,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 2416,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2424,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712880",
+              "resolved_symbol": "00712880",
+              "input_word": "0000043c",
+              "resolved_word": "7100043c"
+            },
+            {
+              "offset": 2428,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712880",
+              "resolved_symbol": "00712880",
+              "input_word": "00008424",
+              "resolved_word": "80288424"
+            },
+            {
+              "offset": 2436,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00455f70",
+              "resolved_symbol": "00455f70",
+              "input_word": "0000000c",
+              "resolved_word": "dc57110c"
+            },
+            {
+              "offset": 2488,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 2492,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 2496,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 2508,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00432288",
+              "resolved_symbol": "00432288",
+              "input_word": "0000000c",
+              "resolved_word": "a2c8100c"
+            },
+            {
+              "offset": 2524,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2528,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2532,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712860",
+              "resolved_symbol": "00712860",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2536,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712860",
+              "resolved_symbol": "00712860",
+              "input_word": "0000a524",
+              "resolved_word": "6028a524"
+            },
+            {
+              "offset": 2540,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 2544,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2552,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2556,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "00008424",
+              "resolved_word": "10448424"
+            },
+            {
+              "offset": 2568,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "memset",
+              "resolved_symbol": "0043f9c8",
+              "input_word": "0000000c",
+              "resolved_word": "72fe100c"
+            },
+            {
+              "offset": 2576,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2580,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "00008424",
+              "resolved_word": "10448424"
+            },
+            {
+              "offset": 2584,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_007640F8",
+              "resolved_symbol": "007640f8",
+              "input_word": "00008527",
+              "resolved_word": "08b08527"
+            },
+            {
+              "offset": 2588,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "strcpy",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2596,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000828f",
+              "resolved_word": "c8ba828f"
+            },
+            {
+              "offset": 2612,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E44D0",
+              "resolved_symbol": "008e44d0",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2616,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E44D0",
+              "resolved_symbol": "008e44d0",
+              "input_word": "00008424",
+              "resolved_word": "d0448424"
+            },
+            {
+              "offset": 2620,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712890",
+              "resolved_symbol": "00712890",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2624,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712890",
+              "resolved_symbol": "00712890",
+              "input_word": "0000a524",
+              "resolved_word": "9028a524"
+            },
+            {
+              "offset": 2628,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "strcpy",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2636,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000828f",
+              "resolved_word": "c8ba828f"
+            },
+            {
+              "offset": 2644,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712770",
+              "resolved_symbol": "00712770",
+              "input_word": "0000023c",
+              "resolved_word": "7100023c"
+            },
+            {
+              "offset": 2648,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712770",
+              "resolved_symbol": "00712770",
+              "input_word": "00004224",
+              "resolved_word": "70274224"
+            },
+            {
+              "offset": 2656,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E44D0",
+              "resolved_symbol": "008e44d0",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2660,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E44D0",
+              "resolved_symbol": "008e44d0",
+              "input_word": "00008424",
+              "resolved_word": "d0448424"
+            },
+            {
+              "offset": 2668,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "strcat",
+              "resolved_symbol": "00442428",
+              "input_word": "0000000c",
+              "resolved_word": "0a09110c"
+            },
+            {
+              "offset": 2680,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4416",
+              "resolved_symbol": "008e4416",
+              "input_word": "0000023c",
+              "resolved_word": "8e00023c"
+            },
+            {
+              "offset": 2684,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4416",
+              "resolved_symbol": "008e4416",
+              "input_word": "000043a4",
+              "resolved_word": "164443a4"
+            },
+            {
+              "offset": 2692,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E441C",
+              "resolved_symbol": "008e441c",
+              "input_word": "0000023c",
+              "resolved_word": "8e00023c"
+            },
+            {
+              "offset": 2696,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E441C",
+              "resolved_symbol": "008e441c",
+              "input_word": "000043ac",
+              "resolved_word": "1c4443ac"
+            },
+            {
+              "offset": 2700,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4420",
+              "resolved_symbol": "008e4420",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2704,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4420",
+              "resolved_symbol": "008e4420",
+              "input_word": "00008424",
+              "resolved_word": "20448424"
+            },
+            {
+              "offset": 2708,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007126A0",
+              "resolved_symbol": "007126a0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2712,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007126A0",
+              "resolved_symbol": "007126a0",
+              "input_word": "0000a524",
+              "resolved_word": "a026a524"
+            },
+            {
+              "offset": 2720,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "memcpy",
+              "resolved_symbol": "0043f810",
+              "input_word": "0000000c",
+              "resolved_word": "04fe100c"
+            },
+            {
+              "offset": 2728,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4460",
+              "resolved_symbol": "008e4460",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2732,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4460",
+              "resolved_symbol": "008e4460",
+              "input_word": "00008424",
+              "resolved_word": "60448424"
+            },
+            {
+              "offset": 2736,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007126E0",
+              "resolved_symbol": "007126e0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2740,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007126E0",
+              "resolved_symbol": "007126e0",
+              "input_word": "0000a524",
+              "resolved_word": "e026a524"
+            },
+            {
+              "offset": 2748,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "memcpy",
+              "resolved_symbol": "0043f810",
+              "input_word": "0000000c",
+              "resolved_word": "04fe100c"
+            },
+            {
+              "offset": 2756,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4490",
+              "resolved_symbol": "008e4490",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2760,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4490",
+              "resolved_symbol": "008e4490",
+              "input_word": "00008424",
+              "resolved_word": "90448424"
+            },
+            {
+              "offset": 2764,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712710",
+              "resolved_symbol": "00712710",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2768,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712710",
+              "resolved_symbol": "00712710",
+              "input_word": "0000a524",
+              "resolved_word": "1027a524"
+            },
+            {
+              "offset": 2776,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "memcpy",
+              "resolved_symbol": "0043f810",
+              "input_word": "0000000c",
+              "resolved_word": "04fe100c"
+            },
+            {
+              "offset": 2784,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E44C0",
+              "resolved_symbol": "008e44c0",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2788,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E44C0",
+              "resolved_symbol": "008e44c0",
+              "input_word": "00008424",
+              "resolved_word": "c0448424"
+            },
+            {
+              "offset": 2792,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712740",
+              "resolved_symbol": "00712740",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2796,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712740",
+              "resolved_symbol": "00712740",
+              "input_word": "0000a524",
+              "resolved_word": "4027a524"
+            },
+            {
+              "offset": 2804,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "memcpy",
+              "resolved_symbol": "0043f810",
+              "input_word": "0000000c",
+              "resolved_word": "04fe100c"
+            },
+            {
+              "offset": 2812,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4514",
+              "resolved_symbol": "008e4514",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2816,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4514",
+              "resolved_symbol": "008e4514",
+              "input_word": "00008424",
+              "resolved_word": "14458424"
+            },
+            {
+              "offset": 2820,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712760",
+              "resolved_symbol": "00712760",
+              "input_word": "0000023c",
+              "resolved_word": "7100023c"
+            },
+            {
+              "offset": 2824,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712760",
+              "resolved_symbol": "00712760",
+              "input_word": "0000458c",
+              "resolved_word": "6027458c"
+            },
+            {
+              "offset": 2828,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "strcpy",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2836,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4554",
+              "resolved_symbol": "008e4554",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2840,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4554",
+              "resolved_symbol": "008e4554",
+              "input_word": "00008424",
+              "resolved_word": "54458424"
+            },
+            {
+              "offset": 2844,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712764",
+              "resolved_symbol": "00712764",
+              "input_word": "0000023c",
+              "resolved_word": "7100023c"
+            },
+            {
+              "offset": 2848,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712764",
+              "resolved_symbol": "00712764",
+              "input_word": "0000458c",
+              "resolved_word": "6427458c"
+            },
+            {
+              "offset": 2852,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "strcpy",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2860,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4594",
+              "resolved_symbol": "008e4594",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2864,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4594",
+              "resolved_symbol": "008e4594",
+              "input_word": "00008424",
+              "resolved_word": "94458424"
+            },
+            {
+              "offset": 2868,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712768",
+              "resolved_symbol": "00712768",
+              "input_word": "0000023c",
+              "resolved_word": "7100023c"
+            },
+            {
+              "offset": 2872,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712768",
+              "resolved_symbol": "00712768",
+              "input_word": "0000458c",
+              "resolved_word": "6827458c"
+            },
+            {
+              "offset": 2876,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "strcpy",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2884,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 2888,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 2892,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 2896,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "0000063c",
+              "resolved_word": "8e00063c"
+            },
+            {
+              "offset": 2900,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "0000c624",
+              "resolved_word": "1044c624"
+            },
+            {
+              "offset": 2912,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00432288",
+              "resolved_symbol": "00432288",
+              "input_word": "0000000c",
+              "resolved_word": "a2c8100c"
+            },
+            {
+              "offset": 2924,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 2948,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 2980,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BBC",
+              "resolved_symbol": "00764bbc",
+              "input_word": "0000838f",
+              "resolved_word": "ccba838f"
+            },
+            {
+              "offset": 3012,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BBC",
+              "resolved_symbol": "00764bbc",
+              "input_word": "000082af",
+              "resolved_word": "ccba82af"
+            },
+            {
+              "offset": 3020,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 3084,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            }
+          ]
+        },
+        {
+          "name": "func_004653f0",
+          "addr": 4609008,
+          "size": 16,
+          "window": 16,
+          "code_relocations": 1,
+          "relocation_failures": [],
+          "unmasked_window_exact": true,
+          "relocations": [
+            {
+              "offset": 4,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764B9C",
+              "resolved_symbol": "00764b9c",
+              "input_word": "000083af",
+              "resolved_word": "acba83af"
+            }
+          ]
+        }
+      ],
+      "owned_data": [
+        {
+          "section": ".rodata",
+          "size": 56,
+          "diagnostic_base": "00756630",
+          "relocation_count": 14,
+          "relocation_failures": [],
+          "different_words": [
+            {
+              "offset": 52,
+              "object": "00465338",
+              "retail": "00465310"
+            }
+          ],
+          "resolved_payload": "0848460054484600b04b460098494600884a4600404b4600584e4600b04e4600904c4600744d4600504f460008504600a850460038534600",
+          "retail_payload": "0848460054484600b04b460098494600884a4600404b4600584e4600b04e4600904c4600744d4600504f460008504600a850460010534600",
+          "exact": false
+        }
+      ],
+      "strict_matched_owner_data_placeable": false,
+      "strict_layout": {}
+    },
+    "a29973ad4fb62e54087372ca8664da21352fb5b9acd1834a665c515d95039b58": {
+      "functions": [
+        {
+          "name": "func_004647a0",
+          "addr": 4605856,
+          "size": 16,
+          "window": 16,
+          "code_relocations": 1,
+          "relocation_failures": [],
+          "unmasked_window_exact": true,
+          "relocations": [
+            {
+              "offset": 4,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000083af",
+              "resolved_word": "d0ba83af"
+            }
+          ]
+        },
+        {
+          "name": "func_004647b0",
+          "addr": 4605872,
+          "size": 16,
+          "window": 16,
+          "code_relocations": 1,
+          "relocation_failures": [],
+          "unmasked_window_exact": true,
+          "relocations": [
+            {
+              "offset": 4,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000083af",
+              "resolved_word": "d0ba83af"
+            }
+          ]
+        },
+        {
+          "name": "func_004647c0",
+          "addr": 4605888,
+          "size": 3132,
+          "window": 3120,
+          "code_relocations": 202,
+          "relocation_failures": [],
+          "unmasked_window_exact": false,
+          "relocations": [
+            {
+              "offset": 8,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007127B0",
+              "resolved_symbol": "007127b0",
+              "input_word": "0000043c",
+              "resolved_word": "7100043c"
+            },
+            {
+              "offset": 12,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007127B0",
+              "resolved_symbol": "007127b0",
+              "input_word": "00008424",
+              "resolved_word": "b0278424"
+            },
+            {
+              "offset": 16,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "0000858f",
+              "resolved_word": "d0ba858f"
+            },
+            {
+              "offset": 20,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00440b68",
+              "resolved_symbol": "00440b68",
+              "input_word": "0000000c",
+              "resolved_word": "da02110c"
+            },
+            {
+              "offset": 28,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "0000828f",
+              "resolved_word": "d0ba828f"
+            },
+            {
+              "offset": 44,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "@181",
+              "resolved_symbol": "00756630",
+              "input_word": "0000033c",
+              "resolved_word": "7500033c"
+            },
+            {
+              "offset": 48,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "@181",
+              "resolved_symbol": "00756630",
+              "input_word": "00006324",
+              "resolved_word": "30666324"
+            },
+            {
+              "offset": 92,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 112,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 116,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 120,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000a524",
+              "resolved_word": "204ba524"
+            },
+            {
+              "offset": 124,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sceMc2GetInfoAsync",
+              "resolved_symbol": "00431cb8",
+              "input_word": "0000000c",
+              "resolved_word": "2ec7100c"
+            },
+            {
+              "offset": 136,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 160,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 316,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 332,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000023c",
+              "resolved_word": "8e00023c"
+            },
+            {
+              "offset": 336,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000438c",
+              "resolved_word": "204b438c"
+            },
+            {
+              "offset": 364,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B24",
+              "resolved_symbol": "008e4b24",
+              "input_word": "0000033c",
+              "resolved_word": "8e00033c"
+            },
+            {
+              "offset": 368,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B24",
+              "resolved_symbol": "008e4b24",
+              "input_word": "0000638c",
+              "resolved_word": "244b638c"
+            },
+            {
+              "offset": 384,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000083af",
+              "resolved_word": "d0ba83af"
+            },
+            {
+              "offset": 396,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 400,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 404,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 408,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 412,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000a524",
+              "resolved_word": "d027a524"
+            },
+            {
+              "offset": 420,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 428,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 432,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 436,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 440,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4900",
+              "resolved_symbol": "008e4900",
+              "input_word": "0000063c",
+              "resolved_word": "8e00063c"
+            },
+            {
+              "offset": 444,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4900",
+              "resolved_symbol": "008e4900",
+              "input_word": "0000c624",
+              "resolved_word": "0049c624"
+            },
+            {
+              "offset": 448,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00431d78",
+              "resolved_symbol": "00431d78",
+              "input_word": "0000000c",
+              "resolved_word": "5ec7100c"
+            },
+            {
+              "offset": 460,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 484,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 680,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 684,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 688,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000a524",
+              "resolved_word": "204ba524"
+            },
+            {
+              "offset": 692,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sceMc2GetInfoAsync",
+              "resolved_symbol": "00431cb8",
+              "input_word": "0000000c",
+              "resolved_word": "2ec7100c"
+            },
+            {
+              "offset": 724,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 868,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 872,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00431b58",
+              "resolved_symbol": "00431b58",
+              "input_word": "0000000c",
+              "resolved_word": "d6c6100c"
+            },
+            {
+              "offset": 884,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 908,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 964,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 996,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1020,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 1188,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1216,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1244,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 1428,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 1432,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 1436,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000a524",
+              "resolved_word": "204ba524"
+            },
+            {
+              "offset": 1440,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sceMc2GetInfoAsync",
+              "resolved_symbol": "00431cb8",
+              "input_word": "0000000c",
+              "resolved_word": "2ec7100c"
+            },
+            {
+              "offset": 1472,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 1528,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1676,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1688,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 1692,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 1696,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712800",
+              "resolved_symbol": "00712800",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 1700,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712800",
+              "resolved_symbol": "00712800",
+              "input_word": "0000a524",
+              "resolved_word": "0028a524"
+            },
+            {
+              "offset": 1704,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 1708,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 1716,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 1720,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 1724,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 1728,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_004326b8",
+              "resolved_symbol": "004326b8",
+              "input_word": "0000000c",
+              "resolved_word": "aec9100c"
+            },
+            {
+              "offset": 1736,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712820",
+              "resolved_symbol": "00712820",
+              "input_word": "0000043c",
+              "resolved_word": "7100043c"
+            },
+            {
+              "offset": 1740,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712820",
+              "resolved_symbol": "00712820",
+              "input_word": "00008424",
+              "resolved_word": "20288424"
+            },
+            {
+              "offset": 1748,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00440b68",
+              "resolved_symbol": "00440b68",
+              "input_word": "0000000c",
+              "resolved_word": "da02110c"
+            },
+            {
+              "offset": 1760,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1788,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 1824,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1888,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 1936,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BBC",
+              "resolved_symbol": "00764bbc",
+              "input_word": "0000838f",
+              "resolved_word": "ccba838f"
+            },
+            {
+              "offset": 1980,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 1984,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 1988,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 1992,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 1996,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000a524",
+              "resolved_word": "d027a524"
+            },
+            {
+              "offset": 2004,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2020,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2024,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2028,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712840",
+              "resolved_symbol": "00712840",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2032,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712840",
+              "resolved_symbol": "00712840",
+              "input_word": "0000a524",
+              "resolved_word": "4028a524"
+            },
+            {
+              "offset": 2036,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 2040,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2056,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2060,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2064,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712860",
+              "resolved_symbol": "00712860",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2068,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712860",
+              "resolved_symbol": "00712860",
+              "input_word": "0000a524",
+              "resolved_word": "6028a524"
+            },
+            {
+              "offset": 2072,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 2076,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2084,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 2088,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 2092,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 2096,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_004323a8",
+              "resolved_symbol": "004323a8",
+              "input_word": "0000000c",
+              "resolved_word": "eac8100c"
+            },
+            {
+              "offset": 2108,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 2132,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 2168,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 2232,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 2280,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BBC",
+              "resolved_symbol": "00764bbc",
+              "input_word": "0000838f",
+              "resolved_word": "ccba838f"
+            },
+            {
+              "offset": 2324,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 2328,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2332,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2336,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2340,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000a524",
+              "resolved_word": "d027a524"
+            },
+            {
+              "offset": 2348,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2356,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB4",
+              "resolved_symbol": "00764bb4",
+              "input_word": "0000888f",
+              "resolved_word": "c4ba888f"
+            },
+            {
+              "offset": 2360,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 2364,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 2368,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 2372,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BAC",
+              "resolved_symbol": "00764bac",
+              "input_word": "0000868f",
+              "resolved_word": "bcba868f"
+            },
+            {
+              "offset": 2380,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00432288",
+              "resolved_symbol": "00432288",
+              "input_word": "0000000c",
+              "resolved_word": "a2c8100c"
+            },
+            {
+              "offset": 2396,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2400,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2404,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712840",
+              "resolved_symbol": "00712840",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2408,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712840",
+              "resolved_symbol": "00712840",
+              "input_word": "0000a524",
+              "resolved_word": "4028a524"
+            },
+            {
+              "offset": 2412,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 2416,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2424,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712880",
+              "resolved_symbol": "00712880",
+              "input_word": "0000043c",
+              "resolved_word": "7100043c"
+            },
+            {
+              "offset": 2428,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712880",
+              "resolved_symbol": "00712880",
+              "input_word": "00008424",
+              "resolved_word": "80288424"
+            },
+            {
+              "offset": 2436,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00455f70",
+              "resolved_symbol": "00455f70",
+              "input_word": "0000000c",
+              "resolved_word": "dc57110c"
+            },
+            {
+              "offset": 2468,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 2472,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 2476,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 2488,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00432288",
+              "resolved_symbol": "00432288",
+              "input_word": "0000000c",
+              "resolved_word": "a2c8100c"
+            },
+            {
+              "offset": 2504,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2508,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2512,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712860",
+              "resolved_symbol": "00712860",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2516,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712860",
+              "resolved_symbol": "00712860",
+              "input_word": "0000a524",
+              "resolved_word": "6028a524"
+            },
+            {
+              "offset": 2520,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000868f",
+              "resolved_word": "c8ba868f"
+            },
+            {
+              "offset": 2524,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sprintf",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2532,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2536,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "00008424",
+              "resolved_word": "10448424"
+            },
+            {
+              "offset": 2548,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "memset",
+              "resolved_symbol": "0043f9c8",
+              "input_word": "0000000c",
+              "resolved_word": "72fe100c"
+            },
+            {
+              "offset": 2556,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2560,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "00008424",
+              "resolved_word": "10448424"
+            },
+            {
+              "offset": 2564,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_007640F8",
+              "resolved_symbol": "007640f8",
+              "input_word": "00008527",
+              "resolved_word": "08b08527"
+            },
+            {
+              "offset": 2568,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "strcpy",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2576,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000828f",
+              "resolved_word": "c8ba828f"
+            },
+            {
+              "offset": 2592,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E44D0",
+              "resolved_symbol": "008e44d0",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2596,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E44D0",
+              "resolved_symbol": "008e44d0",
+              "input_word": "00008424",
+              "resolved_word": "d0448424"
+            },
+            {
+              "offset": 2600,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712890",
+              "resolved_symbol": "00712890",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2604,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712890",
+              "resolved_symbol": "00712890",
+              "input_word": "0000a524",
+              "resolved_word": "9028a524"
+            },
+            {
+              "offset": 2608,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "strcpy",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2616,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BB8",
+              "resolved_symbol": "00764bb8",
+              "input_word": "0000828f",
+              "resolved_word": "c8ba828f"
+            },
+            {
+              "offset": 2624,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712770",
+              "resolved_symbol": "00712770",
+              "input_word": "0000023c",
+              "resolved_word": "7100023c"
+            },
+            {
+              "offset": 2628,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712770",
+              "resolved_symbol": "00712770",
+              "input_word": "00004224",
+              "resolved_word": "70274224"
+            },
+            {
+              "offset": 2636,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E44D0",
+              "resolved_symbol": "008e44d0",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2640,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E44D0",
+              "resolved_symbol": "008e44d0",
+              "input_word": "00008424",
+              "resolved_word": "d0448424"
+            },
+            {
+              "offset": 2648,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "strcat",
+              "resolved_symbol": "00442428",
+              "input_word": "0000000c",
+              "resolved_word": "0a09110c"
+            },
+            {
+              "offset": 2660,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4416",
+              "resolved_symbol": "008e4416",
+              "input_word": "0000023c",
+              "resolved_word": "8e00023c"
+            },
+            {
+              "offset": 2664,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4416",
+              "resolved_symbol": "008e4416",
+              "input_word": "000043a4",
+              "resolved_word": "164443a4"
+            },
+            {
+              "offset": 2672,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E441C",
+              "resolved_symbol": "008e441c",
+              "input_word": "0000023c",
+              "resolved_word": "8e00023c"
+            },
+            {
+              "offset": 2676,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E441C",
+              "resolved_symbol": "008e441c",
+              "input_word": "000043ac",
+              "resolved_word": "1c4443ac"
+            },
+            {
+              "offset": 2680,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4420",
+              "resolved_symbol": "008e4420",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2684,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4420",
+              "resolved_symbol": "008e4420",
+              "input_word": "00008424",
+              "resolved_word": "20448424"
+            },
+            {
+              "offset": 2688,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007126A0",
+              "resolved_symbol": "007126a0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2692,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007126A0",
+              "resolved_symbol": "007126a0",
+              "input_word": "0000a524",
+              "resolved_word": "a026a524"
+            },
+            {
+              "offset": 2700,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "memcpy",
+              "resolved_symbol": "0043f810",
+              "input_word": "0000000c",
+              "resolved_word": "04fe100c"
+            },
+            {
+              "offset": 2708,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4460",
+              "resolved_symbol": "008e4460",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2712,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4460",
+              "resolved_symbol": "008e4460",
+              "input_word": "00008424",
+              "resolved_word": "60448424"
+            },
+            {
+              "offset": 2716,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007126E0",
+              "resolved_symbol": "007126e0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2720,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007126E0",
+              "resolved_symbol": "007126e0",
+              "input_word": "0000a524",
+              "resolved_word": "e026a524"
+            },
+            {
+              "offset": 2728,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "memcpy",
+              "resolved_symbol": "0043f810",
+              "input_word": "0000000c",
+              "resolved_word": "04fe100c"
+            },
+            {
+              "offset": 2736,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4490",
+              "resolved_symbol": "008e4490",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2740,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4490",
+              "resolved_symbol": "008e4490",
+              "input_word": "00008424",
+              "resolved_word": "90448424"
+            },
+            {
+              "offset": 2744,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712710",
+              "resolved_symbol": "00712710",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2748,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712710",
+              "resolved_symbol": "00712710",
+              "input_word": "0000a524",
+              "resolved_word": "1027a524"
+            },
+            {
+              "offset": 2756,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "memcpy",
+              "resolved_symbol": "0043f810",
+              "input_word": "0000000c",
+              "resolved_word": "04fe100c"
+            },
+            {
+              "offset": 2764,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E44C0",
+              "resolved_symbol": "008e44c0",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2768,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E44C0",
+              "resolved_symbol": "008e44c0",
+              "input_word": "00008424",
+              "resolved_word": "c0448424"
+            },
+            {
+              "offset": 2772,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712740",
+              "resolved_symbol": "00712740",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2776,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712740",
+              "resolved_symbol": "00712740",
+              "input_word": "0000a524",
+              "resolved_word": "4027a524"
+            },
+            {
+              "offset": 2784,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "memcpy",
+              "resolved_symbol": "0043f810",
+              "input_word": "0000000c",
+              "resolved_word": "04fe100c"
+            },
+            {
+              "offset": 2792,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4514",
+              "resolved_symbol": "008e4514",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2796,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4514",
+              "resolved_symbol": "008e4514",
+              "input_word": "00008424",
+              "resolved_word": "14458424"
+            },
+            {
+              "offset": 2800,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712760",
+              "resolved_symbol": "00712760",
+              "input_word": "0000023c",
+              "resolved_word": "7100023c"
+            },
+            {
+              "offset": 2804,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712760",
+              "resolved_symbol": "00712760",
+              "input_word": "0000458c",
+              "resolved_word": "6027458c"
+            },
+            {
+              "offset": 2808,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "strcpy",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2816,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4554",
+              "resolved_symbol": "008e4554",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2820,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4554",
+              "resolved_symbol": "008e4554",
+              "input_word": "00008424",
+              "resolved_word": "54458424"
+            },
+            {
+              "offset": 2824,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712764",
+              "resolved_symbol": "00712764",
+              "input_word": "0000023c",
+              "resolved_word": "7100023c"
+            },
+            {
+              "offset": 2828,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712764",
+              "resolved_symbol": "00712764",
+              "input_word": "0000458c",
+              "resolved_word": "6427458c"
+            },
+            {
+              "offset": 2832,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "strcpy",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2840,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4594",
+              "resolved_symbol": "008e4594",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2844,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4594",
+              "resolved_symbol": "008e4594",
+              "input_word": "00008424",
+              "resolved_word": "94458424"
+            },
+            {
+              "offset": 2848,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712768",
+              "resolved_symbol": "00712768",
+              "input_word": "0000023c",
+              "resolved_word": "7100023c"
+            },
+            {
+              "offset": 2852,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712768",
+              "resolved_symbol": "00712768",
+              "input_word": "0000458c",
+              "resolved_word": "6827458c"
+            },
+            {
+              "offset": 2856,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "strcpy",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2864,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BA4",
+              "resolved_symbol": "00764ba4",
+              "input_word": "0000848f",
+              "resolved_word": "b4ba848f"
+            },
+            {
+              "offset": 2868,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 2872,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 2876,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "0000063c",
+              "resolved_word": "8e00063c"
+            },
+            {
+              "offset": 2880,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "0000c624",
+              "resolved_word": "1044c624"
+            },
+            {
+              "offset": 2892,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00432288",
+              "resolved_symbol": "00432288",
+              "input_word": "0000000c",
+              "resolved_word": "a2c8100c"
+            },
+            {
+              "offset": 2904,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 2928,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 2960,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BBC",
+              "resolved_symbol": "00764bbc",
+              "input_word": "0000838f",
+              "resolved_word": "ccba838f"
+            },
+            {
+              "offset": 2992,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BBC",
+              "resolved_symbol": "00764bbc",
+              "input_word": "000082af",
+              "resolved_word": "ccba82af"
+            },
+            {
+              "offset": 3000,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            },
+            {
+              "offset": 3064,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000082af",
+              "resolved_word": "d0ba82af"
+            }
+          ]
+        },
+        {
+          "name": "func_004653f0",
+          "addr": 4609008,
+          "size": 16,
+          "window": 16,
+          "code_relocations": 1,
+          "relocation_failures": [],
+          "unmasked_window_exact": true,
+          "relocations": [
+            {
+              "offset": 4,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764B9C",
+              "resolved_symbol": "00764b9c",
+              "input_word": "000083af",
+              "resolved_word": "acba83af"
+            }
+          ]
+        }
+      ],
+      "owned_data": [
+        {
+          "section": ".rodata",
+          "size": 56,
+          "diagnostic_base": "00756630",
+          "relocation_count": 14,
+          "relocation_failures": [],
+          "different_words": [
+            {
+              "offset": 52,
+              "object": "00465324",
+              "retail": "00465310"
+            }
+          ],
+          "resolved_payload": "0848460054484600b04b460098494600884a4600404b4600584e4600b04e4600904c4600744d4600504f460008504600a850460024534600",
+          "retail_payload": "0848460054484600b04b460098494600884a4600404b4600584e4600b04e4600904c4600744d4600504f460008504600a850460010534600",
+          "exact": false
+        }
+      ],
+      "strict_matched_owner_data_placeable": false,
+      "strict_layout": {}
+    },
+    "8d43aafc191006a271db13fea137e471bf5476a00a88ec893d1d30e76c4e98f1": {
+      "functions": [
+        {
+          "name": "func_004647a0",
+          "addr": 4605856,
+          "size": 16,
+          "window": 16,
+          "code_relocations": 1,
+          "relocation_failures": [],
+          "unmasked_window_exact": true,
+          "relocations": [
+            {
+              "offset": 4,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000083af",
+              "resolved_word": "d0ba83af"
+            }
+          ]
+        },
+        {
+          "name": "func_004647b0",
+          "addr": 4605872,
+          "size": 16,
+          "window": 16,
+          "code_relocations": 1,
+          "relocation_failures": [],
+          "unmasked_window_exact": true,
+          "relocations": [
+            {
+              "offset": 4,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764BC0",
+              "resolved_symbol": "00764bc0",
+              "input_word": "000083af",
+              "resolved_word": "d0ba83af"
+            }
+          ]
+        },
+        {
+          "name": "func_004647c0",
+          "addr": 4605888,
+          "size": 3120,
+          "window": 3120,
+          "code_relocations": 153,
+          "relocation_failures": [],
+          "unmasked_window_exact": true,
+          "relocations": [
+            {
+              "offset": 8,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007127B0",
+              "resolved_symbol": "007127b0",
+              "input_word": "0000043c",
+              "resolved_word": "7100043c"
+            },
+            {
+              "offset": 12,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007127B0",
+              "resolved_symbol": "007127b0",
+              "input_word": "00008424",
+              "resolved_word": "b0278424"
+            },
+            {
+              "offset": 20,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00440b68",
+              "resolved_symbol": "00440b68",
+              "input_word": "0000000c",
+              "resolved_word": "da02110c"
+            },
+            {
+              "offset": 44,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "jtbl_00756630",
+              "resolved_symbol": "00756630",
+              "input_word": "0000033c",
+              "resolved_word": "7500033c"
+            },
+            {
+              "offset": 48,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "jtbl_00756630",
+              "resolved_symbol": "00756630",
+              "input_word": "00006324",
+              "resolved_word": "30666324"
+            },
+            {
+              "offset": 92,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 116,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 120,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000a524",
+              "resolved_word": "204ba524"
+            },
+            {
+              "offset": 124,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sceMc2GetInfoAsync",
+              "resolved_symbol": "00431cb8",
+              "input_word": "0000000c",
+              "resolved_word": "2ec7100c"
+            },
+            {
+              "offset": 160,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 332,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000023c",
+              "resolved_word": "8e00023c"
+            },
+            {
+              "offset": 336,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000438c",
+              "resolved_word": "204b438c"
+            },
+            {
+              "offset": 364,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B24",
+              "resolved_symbol": "008e4b24",
+              "input_word": "0000033c",
+              "resolved_word": "8e00033c"
+            },
+            {
+              "offset": 368,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B24",
+              "resolved_symbol": "008e4b24",
+              "input_word": "0000638c",
+              "resolved_word": "244b638c"
+            },
+            {
+              "offset": 400,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 404,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 408,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 412,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000a524",
+              "resolved_word": "d027a524"
+            },
+            {
+              "offset": 420,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442088",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 432,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 436,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 440,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4900",
+              "resolved_symbol": "008e4900",
+              "input_word": "0000063c",
+              "resolved_word": "8e00063c"
+            },
+            {
+              "offset": 444,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4900",
+              "resolved_symbol": "008e4900",
+              "input_word": "0000c624",
+              "resolved_word": "0049c624"
+            },
+            {
+              "offset": 448,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00431d78",
+              "resolved_symbol": "00431d78",
+              "input_word": "0000000c",
+              "resolved_word": "5ec7100c"
+            },
+            {
+              "offset": 484,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 684,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 688,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000a524",
+              "resolved_word": "204ba524"
+            },
+            {
+              "offset": 692,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sceMc2GetInfoAsync",
+              "resolved_symbol": "00431cb8",
+              "input_word": "0000000c",
+              "resolved_word": "2ec7100c"
+            },
+            {
+              "offset": 724,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 872,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00431b58",
+              "resolved_symbol": "00431b58",
+              "input_word": "0000000c",
+              "resolved_word": "d6c6100c"
+            },
+            {
+              "offset": 908,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 1020,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 1244,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 1432,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 1436,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4B20",
+              "resolved_symbol": "008e4b20",
+              "input_word": "0000a524",
+              "resolved_word": "204ba524"
+            },
+            {
+              "offset": 1440,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "sceMc2GetInfoAsync",
+              "resolved_symbol": "00431cb8",
+              "input_word": "0000000c",
+              "resolved_word": "2ec7100c"
+            },
+            {
+              "offset": 1472,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 1688,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 1692,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 1696,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712800",
+              "resolved_symbol": "00712800",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 1700,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712800",
+              "resolved_symbol": "00712800",
+              "input_word": "0000a524",
+              "resolved_word": "0028a524"
+            },
+            {
+              "offset": 1708,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442088",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 1720,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 1724,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 1728,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_004326b8",
+              "resolved_symbol": "004326b8",
+              "input_word": "0000000c",
+              "resolved_word": "aec9100c"
+            },
+            {
+              "offset": 1736,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712820",
+              "resolved_symbol": "00712820",
+              "input_word": "0000043c",
+              "resolved_word": "7100043c"
+            },
+            {
+              "offset": 1740,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712820",
+              "resolved_symbol": "00712820",
+              "input_word": "00008424",
+              "resolved_word": "20288424"
+            },
+            {
+              "offset": 1748,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00440b68",
+              "resolved_symbol": "00440b68",
+              "input_word": "0000000c",
+              "resolved_word": "da02110c"
+            },
+            {
+              "offset": 1788,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 1984,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 1988,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 1992,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 1996,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000a524",
+              "resolved_word": "d027a524"
+            },
+            {
+              "offset": 2004,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442088",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2020,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2024,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2028,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712840",
+              "resolved_symbol": "00712840",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2032,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712840",
+              "resolved_symbol": "00712840",
+              "input_word": "0000a524",
+              "resolved_word": "4028a524"
+            },
+            {
+              "offset": 2040,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442088",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2056,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2060,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2064,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712860",
+              "resolved_symbol": "00712860",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2068,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712860",
+              "resolved_symbol": "00712860",
+              "input_word": "0000a524",
+              "resolved_word": "6028a524"
+            },
+            {
+              "offset": 2076,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442088",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2088,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 2092,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 2096,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_004323a8",
+              "resolved_symbol": "004323a8",
+              "input_word": "0000000c",
+              "resolved_word": "eac8100c"
+            },
+            {
+              "offset": 2132,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            },
+            {
+              "offset": 2328,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2332,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2336,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2340,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007127D0",
+              "resolved_symbol": "007127d0",
+              "input_word": "0000a524",
+              "resolved_word": "d027a524"
+            },
+            {
+              "offset": 2348,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442088",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2364,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 2368,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 2380,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00432288",
+              "resolved_symbol": "00432288",
+              "input_word": "0000000c",
+              "resolved_word": "a2c8100c"
+            },
+            {
+              "offset": 2396,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2400,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2404,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712840",
+              "resolved_symbol": "00712840",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2408,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712840",
+              "resolved_symbol": "00712840",
+              "input_word": "0000a524",
+              "resolved_word": "4028a524"
+            },
+            {
+              "offset": 2416,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442088",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2424,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712880",
+              "resolved_symbol": "00712880",
+              "input_word": "0000043c",
+              "resolved_word": "7100043c"
+            },
+            {
+              "offset": 2428,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712880",
+              "resolved_symbol": "00712880",
+              "input_word": "00008424",
+              "resolved_word": "80288424"
+            },
+            {
+              "offset": 2436,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00455f70",
+              "resolved_symbol": "00455f70",
+              "input_word": "0000000c",
+              "resolved_word": "dc57110c"
+            },
+            {
+              "offset": 2452,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 2456,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 2468,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00432288",
+              "resolved_symbol": "00432288",
+              "input_word": "0000000c",
+              "resolved_word": "a2c8100c"
+            },
+            {
+              "offset": 2484,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2488,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "00008424",
+              "resolved_word": "204a8424"
+            },
+            {
+              "offset": 2492,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712860",
+              "resolved_symbol": "00712860",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2496,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712860",
+              "resolved_symbol": "00712860",
+              "input_word": "0000a524",
+              "resolved_word": "6028a524"
+            },
+            {
+              "offset": 2504,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442088",
+              "resolved_symbol": "00442088",
+              "input_word": "0000000c",
+              "resolved_word": "2208110c"
+            },
+            {
+              "offset": 2512,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2516,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "00008424",
+              "resolved_word": "10448424"
+            },
+            {
+              "offset": 2528,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_0043f9c8",
+              "resolved_symbol": "0043f9c8",
+              "input_word": "0000000c",
+              "resolved_word": "72fe100c"
+            },
+            {
+              "offset": 2536,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2540,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "00008424",
+              "resolved_word": "10448424"
+            },
+            {
+              "offset": 2548,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442830",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2572,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E44D0",
+              "resolved_symbol": "008e44d0",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2576,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E44D0",
+              "resolved_symbol": "008e44d0",
+              "input_word": "00008424",
+              "resolved_word": "d0448424"
+            },
+            {
+              "offset": 2580,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712890",
+              "resolved_symbol": "00712890",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2584,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712890",
+              "resolved_symbol": "00712890",
+              "input_word": "0000a524",
+              "resolved_word": "9028a524"
+            },
+            {
+              "offset": 2588,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442830",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2604,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712770",
+              "resolved_symbol": "00712770",
+              "input_word": "0000023c",
+              "resolved_word": "7100023c"
+            },
+            {
+              "offset": 2608,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712770",
+              "resolved_symbol": "00712770",
+              "input_word": "00004224",
+              "resolved_word": "70274224"
+            },
+            {
+              "offset": 2616,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E44D0",
+              "resolved_symbol": "008e44d0",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2620,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E44D0",
+              "resolved_symbol": "008e44d0",
+              "input_word": "00008424",
+              "resolved_word": "d0448424"
+            },
+            {
+              "offset": 2628,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442428",
+              "resolved_symbol": "00442428",
+              "input_word": "0000000c",
+              "resolved_word": "0a09110c"
+            },
+            {
+              "offset": 2640,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4416",
+              "resolved_symbol": "008e4416",
+              "input_word": "0000023c",
+              "resolved_word": "8e00023c"
+            },
+            {
+              "offset": 2644,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4416",
+              "resolved_symbol": "008e4416",
+              "input_word": "000043a4",
+              "resolved_word": "164443a4"
+            },
+            {
+              "offset": 2652,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E441C",
+              "resolved_symbol": "008e441c",
+              "input_word": "0000023c",
+              "resolved_word": "8e00023c"
+            },
+            {
+              "offset": 2656,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E441C",
+              "resolved_symbol": "008e441c",
+              "input_word": "000043ac",
+              "resolved_word": "1c4443ac"
+            },
+            {
+              "offset": 2660,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4420",
+              "resolved_symbol": "008e4420",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2664,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4420",
+              "resolved_symbol": "008e4420",
+              "input_word": "00008424",
+              "resolved_word": "20448424"
+            },
+            {
+              "offset": 2668,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007126A0",
+              "resolved_symbol": "007126a0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2672,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007126A0",
+              "resolved_symbol": "007126a0",
+              "input_word": "0000a524",
+              "resolved_word": "a026a524"
+            },
+            {
+              "offset": 2680,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_0043f810",
+              "resolved_symbol": "0043f810",
+              "input_word": "0000000c",
+              "resolved_word": "04fe100c"
+            },
+            {
+              "offset": 2688,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4460",
+              "resolved_symbol": "008e4460",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2692,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4460",
+              "resolved_symbol": "008e4460",
+              "input_word": "00008424",
+              "resolved_word": "60448424"
+            },
+            {
+              "offset": 2696,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_007126E0",
+              "resolved_symbol": "007126e0",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2700,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_007126E0",
+              "resolved_symbol": "007126e0",
+              "input_word": "0000a524",
+              "resolved_word": "e026a524"
+            },
+            {
+              "offset": 2708,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_0043f810",
+              "resolved_symbol": "0043f810",
+              "input_word": "0000000c",
+              "resolved_word": "04fe100c"
+            },
+            {
+              "offset": 2716,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4490",
+              "resolved_symbol": "008e4490",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2720,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4490",
+              "resolved_symbol": "008e4490",
+              "input_word": "00008424",
+              "resolved_word": "90448424"
+            },
+            {
+              "offset": 2724,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712710",
+              "resolved_symbol": "00712710",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2728,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712710",
+              "resolved_symbol": "00712710",
+              "input_word": "0000a524",
+              "resolved_word": "1027a524"
+            },
+            {
+              "offset": 2736,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_0043f810",
+              "resolved_symbol": "0043f810",
+              "input_word": "0000000c",
+              "resolved_word": "04fe100c"
+            },
+            {
+              "offset": 2744,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E44C0",
+              "resolved_symbol": "008e44c0",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2748,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E44C0",
+              "resolved_symbol": "008e44c0",
+              "input_word": "00008424",
+              "resolved_word": "c0448424"
+            },
+            {
+              "offset": 2752,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712740",
+              "resolved_symbol": "00712740",
+              "input_word": "0000053c",
+              "resolved_word": "7100053c"
+            },
+            {
+              "offset": 2756,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712740",
+              "resolved_symbol": "00712740",
+              "input_word": "0000a524",
+              "resolved_word": "4027a524"
+            },
+            {
+              "offset": 2764,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_0043f810",
+              "resolved_symbol": "0043f810",
+              "input_word": "0000000c",
+              "resolved_word": "04fe100c"
+            },
+            {
+              "offset": 2772,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4514",
+              "resolved_symbol": "008e4514",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2776,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4514",
+              "resolved_symbol": "008e4514",
+              "input_word": "00008424",
+              "resolved_word": "14458424"
+            },
+            {
+              "offset": 2780,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712760",
+              "resolved_symbol": "00712760",
+              "input_word": "0000023c",
+              "resolved_word": "7100023c"
+            },
+            {
+              "offset": 2784,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712760",
+              "resolved_symbol": "00712760",
+              "input_word": "0000458c",
+              "resolved_word": "6027458c"
+            },
+            {
+              "offset": 2788,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442830",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2796,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4554",
+              "resolved_symbol": "008e4554",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2800,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4554",
+              "resolved_symbol": "008e4554",
+              "input_word": "00008424",
+              "resolved_word": "54458424"
+            },
+            {
+              "offset": 2804,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712764",
+              "resolved_symbol": "00712764",
+              "input_word": "0000023c",
+              "resolved_word": "7100023c"
+            },
+            {
+              "offset": 2808,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712764",
+              "resolved_symbol": "00712764",
+              "input_word": "0000458c",
+              "resolved_word": "6427458c"
+            },
+            {
+              "offset": 2812,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442830",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2820,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4594",
+              "resolved_symbol": "008e4594",
+              "input_word": "0000043c",
+              "resolved_word": "8e00043c"
+            },
+            {
+              "offset": 2824,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4594",
+              "resolved_symbol": "008e4594",
+              "input_word": "00008424",
+              "resolved_word": "94458424"
+            },
+            {
+              "offset": 2828,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_00712768",
+              "resolved_symbol": "00712768",
+              "input_word": "0000023c",
+              "resolved_word": "7100023c"
+            },
+            {
+              "offset": 2832,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_00712768",
+              "resolved_symbol": "00712768",
+              "input_word": "0000458c",
+              "resolved_word": "6827458c"
+            },
+            {
+              "offset": 2836,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00442830",
+              "resolved_symbol": "00442830",
+              "input_word": "0000000c",
+              "resolved_word": "0c0a110c"
+            },
+            {
+              "offset": 2848,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000053c",
+              "resolved_word": "8e00053c"
+            },
+            {
+              "offset": 2852,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4A20",
+              "resolved_symbol": "008e4a20",
+              "input_word": "0000a524",
+              "resolved_word": "204aa524"
+            },
+            {
+              "offset": 2856,
+              "r_type": 5,
+              "type": "R_MIPS_HI16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "0000063c",
+              "resolved_word": "8e00063c"
+            },
+            {
+              "offset": 2860,
+              "r_type": 6,
+              "type": "R_MIPS_LO16",
+              "symbol": "D_008E4410",
+              "resolved_symbol": "008e4410",
+              "input_word": "0000c624",
+              "resolved_word": "1044c624"
+            },
+            {
+              "offset": 2872,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00432288",
+              "resolved_symbol": "00432288",
+              "input_word": "0000000c",
+              "resolved_word": "a2c8100c"
+            },
+            {
+              "offset": 2908,
+              "r_type": 4,
+              "type": "R_MIPS_26",
+              "symbol": "func_00464670",
+              "resolved_symbol": "00464670",
+              "input_word": "0000000c",
+              "resolved_word": "9c91110c"
+            }
+          ]
+        },
+        {
+          "name": "func_004653f0",
+          "addr": 4609008,
+          "size": 16,
+          "window": 16,
+          "code_relocations": 1,
+          "relocation_failures": [],
+          "unmasked_window_exact": true,
+          "relocations": [
+            {
+              "offset": 4,
+              "r_type": 7,
+              "type": "R_MIPS_GPREL16",
+              "symbol": "D_00764B9C",
+              "resolved_symbol": "00764b9c",
+              "input_word": "000083af",
+              "resolved_word": "acba83af"
+            }
+          ]
+        }
+      ],
+      "owned_data": [],
+      "strict_matched_owner_data_placeable": true,
+      "strict_layout": {}
+    }
+  },
+  "initial_evidence": {
+    "owner": "src\\Kernel\\h_memcard_grouped.c",
+    "owner_sha256": "9afb9341103ff7fd18b7e71ff092d78d9607c5ffe86b8ac0f0a772e522e5bf13",
+    "retail_elf_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+    "retail_strings": {
+      "0063ed38": "camp/icon.bin",
+      "00712880": "camp/icon.ico"
+    },
+    "jump_table": [
+      "00464808",
+      "00464854",
+      "00464bb0",
+      "00464998",
+      "00464a88",
+      "00464b40",
+      "00464e58",
+      "00464eb0",
+      "00464c90",
+      "00464d74",
+      "00464f50",
+      "00465008",
+      "004650a8",
+      "00465310"
+    ],
+    "baseline": {
+      "name": "baseline",
+      "status": "NONMATCHING",
+      "words": 220,
+      "normalized_diff": 477,
+      "size": 3152,
+      "window": 3120,
+      "source_sha256": "ea992192788a5ec835b1f2399ffd51792a31b4db0ef9ce83b00fa9b4a7535969"
+    }
+  },
+  "defined_candidates": [
+    {
+      "name": "sdk-contracts",
+      "status": "NONMATCHING",
+      "words": 220,
+      "normalized_diff": 477,
+      "size": 3152,
+      "window": 3120,
+      "source_sha256": "95a8e00cfa1e2410e4d29f21ced11cc2496f26ac9f44a6458850731ca8f0880f"
+    },
+    {
+      "name": "null-only",
+      "status": "NONMATCHING",
+      "words": 223,
+      "normalized_diff": 472,
+      "size": 3132,
+      "window": 3120,
+      "source_sha256": "35355842770551665450c01672352dde1d18258bb66c4fd8252cc9edc5108377"
+    },
+    {
+      "name": "scoped-null-only-contracts",
+      "status": "NONMATCHING",
+      "words": 223,
+      "normalized_diff": 472,
+      "size": 3132,
+      "window": 3120,
+      "source_sha256": "2f2cd3ffbec39efa453edcb7d88b157c5caa2eee7c4ca5ce50685203b813b31f"
+    }
+  ],
+  "inputs_sha256": {
+    "src/Kernel/h_memcard_grouped.c": "76abe277fbd500b6b92f7de6ac243df088ea6f56528a93385f925e121b42e357",
+    "src/Kernel/h_memcard.c": "f12e3c8546fe7da7362d29e7581bd683390fb3a0ae77c3f2b1c3cfcef359794b",
+    "src/Kernel/mc.c": "47a7cdffd4490eb2de2154470fec2fe28cecf7609ac88c908260289584d6bb67",
+    "src/Kernel/sdkCdvd.c": "7d2342daf1ecb747635972636f896e7c5617eb58eebf86bbe02b5b289a0e27bd",
+    "src/h_cdvd/h_cdvd.c": "0788c8f387da8f2accac24968bdd5e94db0f6f2b5c5723dda4cffed0bb5f5157",
+    "src/promoted/code1_0046.c": "b37701a85922d65fc1813f7f7df033cd8586142dc0a3acfdccd7deb695be9f32",
+    "include/type.h": "d98ec5482a2782c2a9ca41f93d590ab2007b9817936d5208746d6e8794906db3",
+    "include/include_asm.h": "8c2cde497ecdcafdb07af8d62c1e0eb1a30eeb14d1c4567128e5f2714e5cd963",
+    "asm/nonmatchings/h_memcard_grouped/func_004647c0.s": "cbd9eae1a659ecbd920d4cba8e606db19c1e56e04f45ed606209e91c50468848",
+    "asm/nonmatchings/sdkCdvd/func_00455f70.s": "2ee9ee39aab66586e5ba3af467e2399de8f8a66c077ca92a398bb7d10e10e389",
+    "asm/nonmatchings/code1_0043/func_00431d78.s": "722842c05c2ae252779437fc6c31c55321283cfb80489b21dfbdcb7868d6e61d",
+    "asm/nonmatchings/code1_0043/func_004323a8.s": "de6bcf7f592dd448c0b31add16a53c47eeaa5553307969589623835716eed40a",
+    "config/sdk_symbol_provenance.txt": "13aa25baae0d519b7c5eb01a191625700fc4d1e9055e7836c7c2404d4ebef0fb",
+    "config/symbol_addrs.txt": "8159861efe6bd3eca9860a55aeefd8c646ecfa33360434d720b6f3d08238893a",
+    "config/symbols_recovered.txt": "a2ac061fb6c4fd2360ead6215a1aef993091ef23d0dc52b9737250164d921d02",
+    "config/compiler_units.txt": "4921b5b184b0c44ad3c034c5455b5383e11446d24b8743129cd4792147d8caf4",
+    "tools/verify.py": "9e3be8be1b1fc6a99791d886cd98c14cb40b019297e5c39c81092b8ce216031e",
+    "tools/build.py": "8996a8b409998156bf6dd91d8dc7f44a75ec0e443285091c5204d77f262291aa",
+    "tools/probe_variants.py": "a0e5c8b1767ff084c8fe13be8d3104e198cc056e02854ba88f19786ced674d8f",
+    "tools/verify_config.json": "1434c722eb275a08266ce67dbfe1cebd90323dbc6aaffebfe189697142965a9e",
+    "build/candidate_lab.py": "621d9f63fa72590f5edf8d081bb8c30a5b15dc64d758aebb4e780b5508a88f7e"
+  },
+  "retained_artifacts_sha256": {
+    "build/resume-memory-card/audit_owner.py": "cfeed37f3282900731687854438b8c3c2dafa521e1e89cce09ae49f0f6e10700",
+    "build/resume-memory-card/compile-input.c": "ea992192788a5ec835b1f2399ffd51792a31b4db0ef9ce83b00fa9b4a7535969",
+    "build/resume-memory-card/compile-paths-contracts.json": "af76d9f4c5becbd1216d9d8858bad2796bc840297a37a6e8501ed983ac7ddb27",
+    "build/resume-memory-card/compile-paths.json": "3729c24b6573e8c76d2c4380c51270068d6f22989b6f36d35c0f63492fed8a09",
+    "build/resume-memory-card/defined-candidates.json": "db4ac21455422802fada6e045687347b305a31d543676dc4d4e5553254cf1552",
+    "build/resume-memory-card/initial-evidence.json": "97e3422dc4788034106d7c8e6603944fb45d8f7bc75b5b6194c52fc69fcb4653",
+    "build/resume-memory-card/inspect_memory_card.py": "9a6fb2470f88bd83f7bc0489b7f5b1346b7a2683bd592cd36949beab062ce6ae",
+    "build/resume-memory-card/owner-audit-summary.log": "c19f293bc58a1cdd0a2ddba15bfbf5122245bb9b2703243660cafc02a83185ae",
+    "build/resume-memory-card/owner-audit.json": "ae496025d64cb4dff01b783178d7e73abd1cc02d11eedb8baa6a47b67a079db3",
+    "build/resume-memory-card/package_receipt.py": "56b12281b24e57f13b262f640aa08c822b6a7bf2ac76a8ca5e94ede8e2783526",
+    "build/resume-memory-card/probe-input.c": "2f2cd3ffbec39efa453edcb7d88b157c5caa2eee7c4ca5ce50685203b813b31f",
+    "build/resume-memory-card/probe_memory_card.py": "4da11204850284f26184d66b2e19d4e0a9f5ac1908138f6cefa5233e77bdc174",
+    "build/resume-memory-card/verify_compile_paths.py": "b92921bfd3cdc07c23123ed377b56fccbb297894fa517d09535b8905af640587",
+    "build/resume-memory-card/004647c0/actual-guarded/compile.log": "d9c14224b793cb87c25de569903f1eb3ebe7043be5867397f7c98b6b03b6f466",
+    "build/resume-memory-card/004647c0/actual-guarded/owner.c": "9afb9341103ff7fd18b7e71ff092d78d9607c5ffe86b8ac0f0a772e522e5bf13",
+    "build/resume-memory-card/004647c0/actual-guarded/owner.o": "f08aa9ae1012df356cb832df4b25222a530a709983893515f0aaf9f97d68386a",
+    "build/resume-memory-card/004647c0/actual-guarded-contracts/compile.log": "d9c14224b793cb87c25de569903f1eb3ebe7043be5867397f7c98b6b03b6f466",
+    "build/resume-memory-card/004647c0/actual-guarded-contracts/owner.c": "76abe277fbd500b6b92f7de6ac243df088ea6f56528a93385f925e121b42e357",
+    "build/resume-memory-card/004647c0/actual-guarded-contracts/owner.o": "f08aa9ae1012df356cb832df4b25222a530a709983893515f0aaf9f97d68386a",
+    "build/resume-memory-card/004647c0/baseline/body.c": "efd42893bf852be82a62deff37d00f40e215c0019369d5cc14566c7107d045a9",
+    "build/resume-memory-card/004647c0/baseline/compile.log": "d9c14224b793cb87c25de569903f1eb3ebe7043be5867397f7c98b6b03b6f466",
+    "build/resume-memory-card/004647c0/baseline/owner.c": "ea992192788a5ec835b1f2399ffd51792a31b4db0ef9ce83b00fa9b4a7535969",
+    "build/resume-memory-card/004647c0/baseline/owner.o": "f08aa9ae1012df356cb832df4b25222a530a709983893515f0aaf9f97d68386a",
+    "build/resume-memory-card/004647c0/baseline/score.json": "f8c7f739aac630d8ee53d58000991d9656c8ddba083c61f533ada20a288e9eb6",
+    "build/resume-memory-card/004647c0/null-only/body.c": "6ddd075a9a5f71e4e5d7e766ccdcdde4d0a9f077a9be4dc5d7d884d8e2cc144c",
+    "build/resume-memory-card/004647c0/null-only/compile.log": "d9c14224b793cb87c25de569903f1eb3ebe7043be5867397f7c98b6b03b6f466",
+    "build/resume-memory-card/004647c0/null-only/owner.c": "35355842770551665450c01672352dde1d18258bb66c4fd8252cc9edc5108377",
+    "build/resume-memory-card/004647c0/null-only/owner.o": "a29973ad4fb62e54087372ca8664da21352fb5b9acd1834a665c515d95039b58",
+    "build/resume-memory-card/004647c0/null-only/score.json": "26263de23990c5eb3f6c9dd35ccff5e37a3a56b43a8f13322d2c821e0c9fbc1c",
+    "build/resume-memory-card/004647c0/production/compile.log": "74295926bbf1e3da3d952f5c29d31ced5893c5cbe25ed420015eb7ca1dabe786",
+    "build/resume-memory-card/004647c0/production/owner.c": "9afb9341103ff7fd18b7e71ff092d78d9607c5ffe86b8ac0f0a772e522e5bf13",
+    "build/resume-memory-card/004647c0/production/owner.o": "8d43aafc191006a271db13fea137e471bf5476a00a88ec893d1d30e76c4e98f1",
+    "build/resume-memory-card/004647c0/production-contracts/compile.log": "74295926bbf1e3da3d952f5c29d31ced5893c5cbe25ed420015eb7ca1dabe786",
+    "build/resume-memory-card/004647c0/production-contracts/owner.c": "76abe277fbd500b6b92f7de6ac243df088ea6f56528a93385f925e121b42e357",
+    "build/resume-memory-card/004647c0/production-contracts/owner.o": "8d43aafc191006a271db13fea137e471bf5476a00a88ec893d1d30e76c4e98f1",
+    "build/resume-memory-card/004647c0/scoped-null-only-contracts/body.c": "fb96483067404f71bf7363c07b09a353c693713ee4a20d15b8426a68bbef29bc",
+    "build/resume-memory-card/004647c0/scoped-null-only-contracts/compile.log": "d9c14224b793cb87c25de569903f1eb3ebe7043be5867397f7c98b6b03b6f466",
+    "build/resume-memory-card/004647c0/scoped-null-only-contracts/owner.c": "2f2cd3ffbec39efa453edcb7d88b157c5caa2eee7c4ca5ce50685203b813b31f",
+    "build/resume-memory-card/004647c0/scoped-null-only-contracts/owner.o": "a29973ad4fb62e54087372ca8664da21352fb5b9acd1834a665c515d95039b58",
+    "build/resume-memory-card/004647c0/scoped-null-only-contracts/score.json": "6be341b9c8f53df7d511a82adda8b9bba6372915dd718ba29566c29b3f9e8cea",
+    "build/resume-memory-card/004647c0/sdk-contracts/body.c": "efd42893bf852be82a62deff37d00f40e215c0019369d5cc14566c7107d045a9",
+    "build/resume-memory-card/004647c0/sdk-contracts/compile.log": "d9c14224b793cb87c25de569903f1eb3ebe7043be5867397f7c98b6b03b6f466",
+    "build/resume-memory-card/004647c0/sdk-contracts/owner.c": "95a8e00cfa1e2410e4d29f21ced11cc2496f26ac9f44a6458850731ca8f0880f",
+    "build/resume-memory-card/004647c0/sdk-contracts/owner.o": "f08aa9ae1012df356cb832df4b25222a530a709983893515f0aaf9f97d68386a",
+    "build/resume-memory-card/004647c0/sdk-contracts/score.json": "4cd613dc24bfd418647ab34f227be1b25b50d132baf274d7374a792eee08aed8"
+  },
+  "note_sha256": "536fde907b562742a98dfa09823d462dc9d52554c72e7c138c6f58af39edff53",
+  "limitations": [
+    "No icon.bin asset or member inventory in assigned worktree; prime also reported none in approved parent orig.",
+    "Guarded candidates remain nonmatching; their owned jump table has one incorrect target.",
+    "Guarded data base is diagnostic; strict placement using only exact markers rejects it.",
+    "Production exact target is the existing assembly fallback, not newly recovered C.",
+    "No full game link or PS2 execution was performed by worker-10."
+  ]
+}
