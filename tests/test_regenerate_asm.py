@@ -53,7 +53,12 @@ class OutputProtectionTests(unittest.TestCase):
             outside = Path(temporary) / "outside"
             (root / "asm/nonmatchings").mkdir(parents=True)
             outside.mkdir()
-            (root / "asm/nonmatchings/group").symlink_to(outside, target_is_directory=True)
+            try:
+                (root / "asm/nonmatchings/group").symlink_to(outside, target_is_directory=True)
+            except OSError as error:
+                if getattr(error, "winerror", None) == 1314:
+                    self.skipTest("Windows requires symlink creation privileges for this test")
+                raise
             manifest = {"generated": [{"path": "asm/nonmatchings/group/func_00100000.s",
                                        "sha256": regeneration.digest(b"baseline\n")}],
                         "retained": []}

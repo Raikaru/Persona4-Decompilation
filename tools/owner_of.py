@@ -37,7 +37,7 @@ def owner_files() -> dict[str, str]:
         except OSError:
             continue
         for match in re.finditer(r"// FUN_([0-9A-Fa-f]{8})", text):
-            owners[f"func_{match.group(1).lower()}"] = str(path.relative_to(REPO))
+            owners[f"func_{match.group(1).lower()}"] = path.relative_to(REPO).as_posix()
     return owners
 
 

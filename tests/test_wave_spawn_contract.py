@@ -57,7 +57,9 @@ class WaveSpawnContract(unittest.TestCase):
                     # The signed-remainder mutation creates a negative value,
                     # then an out-of-range unsigned-float-to-signed-age cast.
                     # This is a UBSan trap control, not a semantic assertion.
-                    self.assertIn(result.returncode, (-4, 132), result.stdout + result.stderr)
+                    # WSL --exec reports the signal number directly on Windows.
+                    sigill_codes = (-4, 132, 4) if self.runtime.windows else (-4, 132)
+                    self.assertIn(result.returncode, sigill_codes, result.stdout + result.stderr)
                 else:
                     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
                     self.assertIn("line ", result.stdout)

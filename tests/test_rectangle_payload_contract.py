@@ -101,7 +101,7 @@ class RectanglePayloadContracts(unittest.TestCase):
    if 'generated' in path.parts or any(part.startswith('.')for part in path.parts):continue
    text=path.read_text(errors='replace')
    if not re.search(r'\bfunc_0045da40\b',text):continue
-   found.add(str(path.relative_to(ROOT)));self.assertIn('#include "primitive_rectangle_packet.h"',text)
+   found.add(path.relative_to(ROOT).as_posix());self.assertIn('#include "primitive_rectangle_packet.h"',text)
    self.assertNotRegex(text,r'extern\s+void\s+func_0045da40\s*\(')
   self.assertEqual(found,{'src/sdkPrimitive.c','src/promoted/itfMsgProcedure_Window.c'})
 if __name__=='__main__':unittest.main()

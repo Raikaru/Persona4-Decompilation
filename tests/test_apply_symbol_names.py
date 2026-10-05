@@ -359,7 +359,7 @@ class RunTests(unittest.TestCase):
             )
             target = root / "src" / "owner.c"
             target.write_bytes(b"u8 func_001059e0(void) { return 1; }\n")
-            (root / "src" / "internal.h").write_text("u8 func_001059e0(void);\n")
+            (root / "src" / "internal.h").write_bytes(b"u8 func_001059e0(void);\n")
             public = root / "include" / "public.h"
             public.parent.mkdir(exist_ok=True)
             public.write_bytes(
@@ -536,9 +536,7 @@ class RunTests(unittest.TestCase):
                 "btlLevelFromExp = 0x001059E0; // type:func  evidence: file:g_data.c\n",
             )
             target = root / "src" / "g_data.c"
-            target.write_text(
-                "u8 func_001059e0(s32 exp) { return 0; }\n", encoding="utf-8"
-            )
+            target.write_bytes(b"u8 func_001059e0(s32 exp) { return 0; }\n")
             original_repo = apply_names.REPO
             apply_names.REPO = root
             try:

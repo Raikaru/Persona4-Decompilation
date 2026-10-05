@@ -71,7 +71,7 @@ class SdkOtStateContracts(unittest.TestCase):
             if not authoritative_path(path):continue
             text=path.read_text(errors='replace')
             if not any(re.search(r'\b'+name+r'\b',text)for name in NAMES):continue
-            found.add(str(path.relative_to(ROOT)))
+            found.add(path.relative_to(ROOT).as_posix())
             self.assertIn('#include "sdk_ot_state_api.h"',text)
             self.assertNotRegex(text,r'extern\s+(?:void|u8\s*\*)\s*func_00460(?:b60|c70)\s*\(')
         self.assertEqual(found,{'src/sdkOt.c','src/promoted/code1_0010.c','src/promoted/itfMsgProcedure_Window.c'})
