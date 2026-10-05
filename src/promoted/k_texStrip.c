@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "Kosaka/k_clump_property_internal.h"
 #include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_texStrip.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -34,12 +35,12 @@ extern void func_003e2ab0(s32 a, void *b, s32 c);
 extern void func_003e2ce0(s32 a, s32 b);
 extern void func_003e2e40(s32 a, s32 b);
 extern s32 func_003e6a90(s32 a);
-extern s32 sprintf(void *buf, const char *fmt, ...);
+extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 func_004288d8(void *a, void *b);
 extern u8 *func_00454a60(void *path, s32 flags);
 extern void H_Cdvd_ReadSync(void *handle);
 extern void H_Cdvd_Destroy(void *handle);
-extern void strcat(void *dst, const void *src);
+extern char *strcat(char *dst, const char *src);
 extern void func_003ef1b0(s32 arg0);
 extern void func_003ef260(s32 arg0, s32 (*arg1)(s32, s32), s32 arg2);
 extern void func_003e6870(void *arg0, void *arg1);
@@ -60,16 +61,15 @@ extern s32 D_00764498;
 
 extern s32 func_00428550(const char *path);
 extern s32 func_00428780(s32 handle, void *out);
-extern s32 strcmp(void *a, const void *b);
-extern void strcpy(void *dst, const void *src);
+extern s32 strcmp(const char *a, const char *b);
+extern char *strcpy(char *dst, const char *src);
 extern u8 *func_00150970(void *path);
 extern s32 func_00150c80(void *hdr);
 extern void func_00150ce0(void *hdr);
 extern s32 func_001510c0(void *hdr);
-extern s32 func_004581a0(void *a, const void *b);
-extern void func_00458430(s32 *out, void *a, const void *b, s32 c);
+extern s32 func_004581a0(void *object, const char *name);
 extern s32 func_00426cf0(void *path, s32 a, s32 b);
-extern s32 strlen(void *buf);
+extern size_t strlen(const char *buf);
 extern s32 sceWrite(s32 fd, void *buf, s32 n);
 extern s32 sceRead(s32 fd, void *buf, s32 n);
 extern s32 func_00427338(s32 fd, void *buf, s32 n);
@@ -262,32 +262,34 @@ loop_check:
     }
 }
 
-/* measured: GUARDED_SCORE 518 (retail 618 instrs / object 617 instrs; obj 2468B/window 2480B). 9-case switch on work[0] (jtbl_00746EC0, cases 0..8), 6x0x100 char buffers, s32 temps for func_00458430 integer compare (0/1), wrappers func_00427338/004275a8 for file I/O (nonmatchings asm mislabels as sceRead/sceWrite; code1.s confirms wrapper addrs). Levers tried, all recorded: opt_loop_invariants on 519->518 (kept, scoped); opt_unroll_loops off tie 519; schedule off tie 519; subscript hdr[i+7] vs ent[7] tie 518; byte-base ((s32*)((u8*)work+off))[i] vs work[i+k] tie 518; explicit off=i*4 tie 518; decl-order swaps (work-first, full reverse) tie 518; stat-size frame probes (64/64,48/48 tie 518; mismatched 64+48 hits 517 but rejected as unfaithful different-sized same-struct). Frame 0x6A0 vs retail 0x6F0 (80 short; stat struct size unknown, kept minimal matched [4]). Biggest remaining classes: saved-reg coloring (work in $s4 vs retail $s0, all branch displacements cascade) and stack-offset immediates from frame; only 2 insert (surplus) rows, rest replaces. m2c failed (jump table not provided, log in /var/tmp/cold190c10/m2c_log.txt); romwright gave complete 9-case structure, stack extents, and wrapper arities in /var/tmp/cold190c10/rw.c. */
-// FUN_00190C10 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: complete file-stat records, per-state loop lifetimes, and live
+   resource reloads reproduce retail. See docs/probe_archive/
+   TexStrip_00190c10_20261005.md for owner and relocation evidence. */
+// FUN_00190C10
+#pragma push
 #pragma opt_loop_invariants on
-s32 func_00190c10(u8 *arg0)
+s32 func_00190c10(u8 *task)
 {
-    char bufA0[0x100];
-    char buf1A0[0x100];
-    char buf2A0[0x100];
-    char buf3A0[0x100];
-    char buf4A0[0x100];
-    char buf5A0[0x100];
-    s32 outA[2];
-    s32 outB[2];
-    s32 stat1[4];
-    s32 stat2[4];
+    /* sceGetstat owns each complete 64-byte record. Only its size word is
+       interpreted here; the other thirteen trailing words remain opaque. */
+    typedef struct {
+        u32 fields00[2];
+        u32 size;
+        u32 fields0C[13];
+    } TexStripFileStat;
+    TexStripFileStat fileStat;
+    char sourcePath[0x100];
+    char manifestLine[0x100];
+    char targetPath[0x100];
+    char modelPath[0x100];
+    char texturePath[0x100];
+    char resourcePath[0x100];
+    TexStripFileStat copyStat;
+    KClumpIntPropertyResult kindProperty;
+    KClumpIntPropertyResult idProperty;
     s32 *work;
-    s32 i;
-    s32 j;
-    s32 k;
-    s32 tmp;
-    s32 *hdr;
-    s8 *p;
-    s8 *q;
 
-    work = *(s32 **)(arg0 + 0x38);
+    work = *(s32 **)(task + 0x38);
     switch (work[0]) {
     case 0:
         work[1] = func_00428550(D_005F61D0);
@@ -296,14 +298,14 @@ s32 func_00190c10(u8 *arg0)
         }
         work[0]++;
         break;
-    case 1:
+    case 1: {
+        s32 tmp;
+        char *p;
         tmp = func_00428780(work[1], (void *)&work[2]);
-        if (tmp <= 0) {
-            work[0] = 8;
-        } else {
+        if (tmp > 0) {
             if (strcmp((void *)&work[0x12], &D_00763138) != 0 &&
                 strcmp((void *)&work[0x12], &D_0076313C) != 0) {
-                for (p = (s8 *)&work[0x12]; *p != '.' && *p != 0; p++) {
+                for (p = (char *)&work[0x12]; *p != '.' && *p != 0; p++) {
                 }
                 if (strcmp(p, &D_00763140) == 0) {
                     strcpy((void *)&work[0x53], D_005F61F8);
@@ -313,31 +315,35 @@ s32 func_00190c10(u8 *arg0)
                     work[0] = 2;
                 }
             }
+        } else {
+            work[0] = 8;
         }
         break;
+    }
     case 2:
         if (func_00150c80((void *)work[0x93]) != 0) {
             func_00150ce0((void *)work[0x93]);
             work[0] = 3;
         }
         break;
-    case 3:
+    case 3: {
+        u32 resourceIndex;
+        s32 propertyIndex;
         if (func_001510c0((void *)work[0x93]) != 0) {
             work[0x95] = 0;
             work[0x296] = 0;
-            hdr = (s32 *)work[0x93];
-            for (i = 0; i < hdr[6]; i++) {
-                s32 *ent = (s32 *)((u8 *)hdr + i * 4);
-                tmp = func_004581a0((void *)ent[7], D_005F6230);
-                for (j = 0; j < tmp; j++) {
-                    func_00458430(outA, (void *)ent[7], D_005F6230, j);
-                    if (outA[0] == 0) {
-                        func_00458430(outB, (void *)ent[7], D_005F6250, j);
-                        work[work[0x95] + 0x96] = outB[0];
+            for (resourceIndex = 0; resourceIndex < ((u32 *)work[0x93])[6]; resourceIndex++) {
+                u32 resourceOffset = resourceIndex * 4;
+                s32 propertyCount = func_004581a0((void *)((s32 *)((u32)work[0x93] + resourceOffset))[7], D_005F6230);
+                for (propertyIndex = 0; propertyIndex < propertyCount; propertyIndex++) {
+                    func_00458430(&kindProperty, (void *)((s32 *)(resourceOffset + (u32)work[0x93]))[7], D_005F6230, propertyIndex);
+                    if (kindProperty.value == 0) {
+                        func_00458430(&idProperty, (void *)((s32 *)(resourceOffset + (u32)work[0x93]))[7], D_005F6250, propertyIndex);
+                        work[work[0x95] + 0x96] = idProperty.value;
                         work[0x95]++;
-                    } else if (outA[0] == 1) {
-                        func_00458430(outB, (void *)ent[7], D_005F6250, j);
-                        work[work[0x296] + 0x297] = outB[0];
+                    } else if (kindProperty.value == 1) {
+                        func_00458430(&idProperty, (void *)((s32 *)(resourceOffset + (u32)work[0x93]))[7], D_005F6250, propertyIndex);
+                        work[work[0x296] + 0x297] = idProperty.value;
                         work[0x296]++;
                     }
                 }
@@ -345,72 +351,77 @@ s32 func_00190c10(u8 *arg0)
             work[0] = 4;
         }
         break;
-    case 4:
-        strcpy(buf5A0, D_005F6270);
-        for (p = (s8 *)&work[0x53]; *p != 0; p++) {
+    }
+    case 4: {
+        char *p;
+        char *q;
+        u32 textureIndex;
+        u32 fileIndex;
+        s32 descriptor;
+        strcpy(sourcePath, D_005F6270);
+        for (p = (char *)&work[0x53]; *p != 0; p++) {
         }
         for (; *p != '/'; p--) {
         }
-        strcat(buf5A0, p + 1);
-        for (q = (s8 *)buf5A0; *q != '.'; q++) {
+        strcat(sourcePath, p + 1);
+        for (q = (char *)sourcePath; *q != '.'; q++) {
         }
         strcpy(q, &D_00763148);
-        D_00764498 = func_00426cf0(buf5A0, 0x603, 0x1FF);
+        D_00764498 = func_00426cf0(sourcePath, 0x603, 0x1FF);
         if (D_00764498 >= 0) {
             work[0x399] = 0;
             work[0x39A] = 0;
-            hdr = (s32 *)work[0x93];
-            sprintf(buf4A0, D_005F62A0, ((s16 *)hdr)[2], ((s16 *)hdr)[3]);
-            tmp = strlen(buf4A0);
-            func_004275a8(D_00764498, buf4A0, tmp);
-            for (i = 0; i < work[0x95]; i++) {
-                if (work[i + 0x96] != 0) {
-                    sprintf(buf4A0, D_005F62B0, ((s16 *)hdr)[2]);
-                    tmp = strlen(buf4A0);
-                    func_004275a8(D_00764498, buf4A0, tmp);
+            sprintf(manifestLine, D_005F62A0, ((s16 *)work[0x93])[2], ((s16 *)work[0x93])[3]);
+            func_004275a8(D_00764498, manifestLine, strlen(manifestLine));
+            for (textureIndex = 0; textureIndex < (u32)work[0x95]; textureIndex++) {
+                if (work[textureIndex + 0x96] != 0) {
+                    sprintf(manifestLine, D_005F62B0, ((s16 *)work[0x93])[2], work[textureIndex + 0x96]);
+                    func_004275a8(D_00764498, manifestLine, strlen(manifestLine));
                 }
             }
-            for (i = 0; i < work[0x296]; i++) {
-                sprintf(buf4A0, D_005F62C0, ((s16 *)hdr)[2], work[i + 0x297]);
-                tmp = strlen(buf4A0);
-                func_004275a8(D_00764498, buf4A0, tmp);
-                sprintf(buf5A0, D_005F62D0, ((s16 *)hdr)[2], work[i + 0x297]);
-                func_004288d8(buf5A0, stat1);
-                sprintf(buf3A0, D_005F6310, ((s16 *)hdr)[2], work[i + 0x297]);
-                func_004288d8(buf5A0, stat2);
+            for (fileIndex = 0; fileIndex < (u32)work[0x296]; fileIndex++) {
+                u8 *copyBuffer;
+                s32 *item = (s32 *)((u8 *)&work[fileIndex] + 0xA5C);
+                sprintf(manifestLine, D_005F62C0, ((s16 *)work[0x93])[2], *item);
+                func_004275a8(D_00764498, manifestLine, strlen(manifestLine));
+                sprintf(sourcePath, D_005F62D0, ((s16 *)work[0x93])[2], *item);
+                func_004288d8(sourcePath, &fileStat);
+                sprintf(targetPath, D_005F6310, ((s16 *)work[0x93])[2], *item);
+                func_004288d8(sourcePath, &copyStat);
                 func_0044ea90(D_005F6168, 0x166);
-                tmp = (s32)D_008873F4[0](1, stat2[2], 0x40000);
-                if (tmp != 0) {
-                    k = func_00426cf0(buf5A0, 1, 0x1FF);
-                    if (k >= 0) {
-                        func_00427338(k, (void *)tmp, stat2[2]);
-                        func_00426f80(k);
+                copyBuffer = D_008873F4[0](1, copyStat.size, 0x40000);
+                if (copyBuffer != 0) {
+                    if ((descriptor = func_00426cf0(sourcePath, 1, 0x1FF)) >= 0) {
+                        func_00427338(descriptor, (void *)copyBuffer, copyStat.size);
+                        func_00426f80(descriptor);
                         func_00428f08(&D_00763130, 0);
                     }
-                    k = func_00426cf0(buf3A0, 0x603, 0x1FF);
-                    if (k >= 0) {
-                        func_004275a8(k, (void *)tmp, stat2[2]);
-                        func_00426f80(k);
+                    if ((descriptor = func_00426cf0(targetPath, 0x603, 0x1FF)) >= 0) {
+                        func_004275a8(descriptor, (void *)copyBuffer, copyStat.size);
+                        func_00426f80(descriptor);
                         func_00428f08(&D_00763130, 0);
                     }
-                    jtbl_008873EC[0]((void *)tmp);
+                    jtbl_008873EC[0]((void *)copyBuffer);
                 }
             }
         }
         work[0x397] = 0;
         work[0] = 5;
         break;
-    case 5:
-        if (work[0x397] < work[0x95]) {
-            if (work[work[0x397] + 0x96] == 0) {
-                work[0x397]++;
-            } else {
-                sprintf(buf2A0, D_005F6350, ((s16 *)((s32 *)work[0x93]))[2]);
+    }
+    case 5: {
+        char *p;
+        s32 *hdr;
+        if ((u32)work[0x397] < (u32)work[0x95]) {
+            if (work[work[0x397] + 0x96] != 0) {
+                sprintf(modelPath, D_005F6350, ((s16 *)((s32 *)work[0x93]))[2], work[work[0x397] + 0x96]);
                 func_00440b68(&D_00763150, D_005F6168, 0x263);
-                p = (s8 *)func_00454a60(buf2A0, 0);
+                p = (char *)func_00454a60(modelPath, 0);
                 work[0x398] = (s32)p;
                 H_Cdvd_ReadSync(p);
                 work[0] = 6;
+            } else {
+                work[0x397]++;
             }
         } else {
             func_00151f80((void *)work[0x93]);
@@ -425,56 +436,59 @@ s32 func_00190c10(u8 *arg0)
             work[0] = 7;
         }
         break;
-    case 6:
-        hdr = (s32 *)work[0x93];
-        sprintf(buf1A0, D_005F6370, ((s16 *)hdr)[2], work[work[0x397] + 0x96]);
-        tmp = func_00190680((u8 *)work[0x398], buf1A0);
+    }
+    case 6: {
+        s32 tmp;
+        sprintf(texturePath, D_005F6370, ((s16 *)work[0x93])[2], work[work[0x397] + 0x96]);
+        tmp = func_00190680((u8 *)work[0x398], texturePath);
         work[work[0x397] + 0x196] = tmp;
         H_Cdvd_Destroy((void *)work[0x398]);
         work[0x398] = 0;
         work[0x397]++;
         work[0] = 5;
         break;
-    case 7:
+    }
+    case 7: {
+        char *p;
+        u8 *resource;
+        u32 cleanupIndex;
         func_00440b68(&D_00763150, D_005F6168, 0x2A0);
-        p = (s8 *)func_00454a60((void *)&work[0x53], 0);
-        work[0x94] = (s32)p;
-        H_Cdvd_ReadSync(p);
-        strcpy(bufA0, D_005F63B0);
-        for (p = (s8 *)&work[0x53]; *p != 0; p++) {
+        resource = func_00454a60((void *)&work[0x53], 0);
+        work[0x94] = (s32)resource;
+        H_Cdvd_ReadSync(resource);
+        strcpy(resourcePath, D_005F63B0);
+        for (p = (char *)&work[0x53]; *p != 0; p++) {
         }
         for (; *p != '/'; p--) {
         }
-        strcat(bufA0, p + 1);
-        func_001909f0((u8 *)work[0x94], bufA0, (u8 *)work);
+        strcat(resourcePath, p + 1);
+        func_001909f0((u8 *)work[0x94], resourcePath, (u8 *)work);
         H_Cdvd_Destroy((void *)work[0x94]);
-        strcpy(bufA0, D_005F63B0);
-        for (p = (s8 *)&work[0x53]; *p != 0; p++) {
+        strcpy(resourcePath, D_005F63B0);
+        for (p = (char *)&work[0x53]; *p != 0; p++) {
         }
         for (; *p != '/'; p--) {
         }
-        strcat(bufA0, p + 1);
-        func_004288d8(bufA0, stat1);
-        work[0x39A] += stat1[2];
-        for (i = 0; i < work[0x95]; i++) {
-            if (work[i + 0x196] != 0) {
-                func_003ef1b0(work[i + 0x196]);
-                work[i + 0x196] = 0;
+        strcat(resourcePath, p + 1);
+        func_004288d8(resourcePath, &fileStat);
+        work[0x39A] += fileStat.size;
+        for (cleanupIndex = 0; cleanupIndex < (u32)work[0x95]; cleanupIndex++) {
+            s32 *item = (s32 *)((u8 *)&work[cleanupIndex] + 0x658);
+            if (*item != 0) {
+                func_003ef1b0(*item);
+                *item = 0;
             }
         }
         func_00426f80(D_00764498);
         work[0] = 1;
         break;
+    }
     case 8:
         return -1;
     }
     return 0;
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190c10);
-#endif
-
+#pragma pop
 // FUN_001915C0
 void func_001915c0(u8 *arg0)
 {
@@ -573,10 +587,10 @@ s32 func_00191850(u8 *arg0)
         work[0] = work[0] + 1;
         /* fallthrough */
     case 1:
-        sprintf(&work[0x53], D_005F63F0, work[0x39B], work[0x39C]);
+        sprintf((char *)&work[0x53], D_005F63F0, work[0x39B], work[0x39C]);
         if (func_004288d8(&work[0x53], buf240) == 0)
         {
-            sprintf(&work[0x53], D_005F6430, work[0x39B], work[0x39C]);
+            sprintf((char *)&work[0x53], D_005F6430, work[0x39B], work[0x39C]);
             func_00440b68(&D_00763150, D_005F6168, 0x36E);
             temp1 = (u8 *)func_00454a60(&work[0x53], 0);
             work[0x94] = (s32)temp1;
@@ -596,7 +610,7 @@ s32 func_00191850(u8 *arg0)
         break;
     case 2:
         sprintf(buf140, D_005F6450);
-        strcat(buf140, &work[0x53]);
+        strcat(buf140, (char *)&work[0x53]);
         strcat(buf140, &D_00763158);
         work[work[0x95] + 0x196] = func_001916a0((u8 *)work[0x94], buf140);
         H_Cdvd_Destroy((u8 *)work[0x94]);
@@ -605,13 +619,13 @@ s32 func_00191850(u8 *arg0)
         work[0] = 1;
         break;
     case 3:
-        sprintf(&work[0x53], D_005F6470, work[0x39B]);
+        sprintf((char *)&work[0x53], D_005F6470, work[0x39B]);
         func_00440b68(&D_00763150, D_005F6168, 0x39B);
         temp2 = (u8 *)func_00454a60(&work[0x53], 0);
         work[0x94] = (s32)temp2;
         H_Cdvd_ReadSync(temp2);
         sprintf(buf40, D_005F6450);
-        strcat(buf40, &work[0x53]);
+        strcat(buf40, (char *)&work[0x53]);
         strcat(buf40, &D_00763158);
         func_001909f0((u8 *)work[0x94], buf40, (u8 *)work);
         for (i = 0; i < (u32)work[0x95]; i++)
