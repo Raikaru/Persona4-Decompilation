@@ -116,8 +116,10 @@ class TitleHelperCalls(unittest.TestCase):
  def test_direct_narrowing_traps(self):
   for opt in ('-O0','-O2'):
    r=self.execute(opt,(0,1,'(s8)(255.0f * temp_f21)'))
+   # WSL --exec reports the signal number directly on Windows.
    # Trap must be SIGILL, not the recorder's ordinary mismatch exit(1).
-   self.assertIn(r.returncode,(-4,132),r.stdout+r.stderr);self.assertNotIn('scenario',r.stdout)
+   sigill_codes = (-4, 132, 4) if runtime().windows else (-4, 132)
+   self.assertIn(r.returncode,sigill_codes,r.stdout+r.stderr);self.assertNotIn('scenario',r.stdout)
    print(opt,'direct float-to-s8 sanitizer SIGILL:',r.returncode)
  def test_compile_type_controls(self):
   rows,_=parts();mutations=[]
