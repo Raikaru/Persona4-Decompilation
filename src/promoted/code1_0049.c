@@ -11,13 +11,14 @@ extern void (*D_00713F10[])(u8 *object);
 extern void (*D_00713F1C[])(u8 *object);
 extern void (*D_00713F20[])(u8 *object);
 extern void (*D_00713D54[])(u8 *emitter, f32 scale);
-extern u32 effMiscRand(u32 arg0);
+typedef struct EffRandState EffRandState;
+extern u32 effMiscRand(EffRandState *state);
 extern s32 D_00713D58[];
 extern s32 D_00713D5C[];
 extern u8 D_00713E10[];
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void memcpy(void *dst, const void *src, u32 size);
+extern void *memcpy(void *dst, const void *src, u32 size);
 extern void func_0046d730(const void *file, s32 line);
 typedef struct {
     u8 c0;
@@ -1084,311 +1085,310 @@ loop_00492080_check:
     *(f32 *)(temp_6 + 0xCC) = *(f32 *)(temp_5 + 0xCC) * fparg0;
     *(f32 *)(temp_6 + 0xDC) = *(f32 *)(temp_5 + 0xDC) * fparg0;
 }
-/* Floor v1 (measured 2026-09-18, authoritative tree): probe_variants 543 words with opt_loop_invariants on */
-/* (bare v2 592), obj 606 vs retail 606 instrs (exact, banks per 3% rule 588-624); window 2432B (608 words, .size 0x980); */
-/* fnalign 392 edits (bare 472), frame/values/CFG per retail; VU matrix/normalize/scale blocks as */
-/* genuine VU0 inline asm (each <=5 ordinary vs >=5 hardware, H009-clean); COP1 lerp/add/sub/div/cvt stays plain C */
-/* with (f32)(u32) casts per 7a-quinquies. Re-measured commands (pwd source/Persona4-Decompilation): */
-/* python3 -E -s tools/pragma_sweep.py src/promoted/code1_0049.c func_00492100 (singles: loopinv 543 wins, sched 572, prop-off 559, lvl3/4 553) */
-/* python3 -E -s tools/probe_variants.py src/promoted/code1_0049.c func_00492100 --candidate loopinv=/tmp/cand_loopinv_492100.c */
-/* python3 -E -s tools/fnalign.py src/promoted/code1_0049.c func_00492100 --candidate /tmp/cand_loopinv_492100.c --quiet */
-/* python3 tools/measure_guarded.py src/promoted/code1_0049.c func_00492100 (after install) */
-/* Decompilers (into /var/tmp/cold492100/): m2c src/promoted/code1_0049.c func_00492100 -o m2c.c (312 lines, VU as M2C_ERROR); */
-/* romwright --raw -o rw_raw.c (516 lines, p-code VU intrinsics) + --types (4 args? float return, 542 instrs). Counted 608 retail first. */
-/* Other cold in this owner still ASM, NOT claimed here: func_00490c40, func_004916f0. */
-// FUN_00492100 NONMATCHING
-#ifdef NON_MATCHING
+/* Kind-11 Sway update. See docs/probe_archive/sway-update-20261005 for
+ * the actual-provider domain, source measurements and independent review. */
+// FUN_00492100
+#include "sway_particle_internal.h"
+/* measured: b210 -O2 needs independent value propagation and loop-invariant
+ * constant materialization for the retail register and instruction schedule. */
+#pragma push
+#pragma opt_propagation off
 #pragma opt_loop_invariants on
 void func_00492100(u8 *arg0)
 {
-    extern s32 func_004bceb0(void);
-    extern f32 effMiscRandFloat(s32 arg0);
-    extern s32 effMiscRand(s32 arg0);
+    extern void func_004bceb0(void);
+    extern f32 fabsf(f32 value);
+    extern f32 effMiscRandFloat(EffRandState *state);
+    extern u32 effMiscRand(EffRandState *state);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 sinf(f32 arg0);
     extern u_long128 D_00713D40;
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
-    u_long128 b220buf;
-    f32 vec110[4] __attribute__((aligned(16)));
-    f32 vec120[4] __attribute__((aligned(16)));
+    /* These are three separately live, complete 16-byte objects. */
+    EffectVuVector direction;
+    EffectVuVector spread;
+    u_long128 previousPosition;
     u32 count;
     u32 flags;
-    u8 *nodes;
-    u8 *nodesBase;
-    f32 *out;
-    u8 *config;
-    s32 limitB8;
-    s32 saved20;
-    u8 mode9C;
-    f32 vD4;
-    f32 vFC;
-    f32 vF0;
-    f32 one;
-    s32 v15;
-    s32 flagBD;
-    u32 idx;
+    SpawnParticle *particle;
+    SwayParticleState *state;
+    SwayParticleParameters *parameters;
+    SwayParticleEmitter *const emitter = (SwayParticleEmitter *)arg0;
+    s32 lifetime;
+    s32 emissionDuration;
+    u8 angleMode;
+    f32 initialAmplitude;
+    f32 bounceDecay;
+    f32 floorHeight;
+    f32 deceleration;
+    f32 zero;
+    f32 one, half, two;
+    f32 angleRange;
+    f32 reverseAngle;
+    s32 spawnBudget;
+    u32 index;
+    s32 preroll;
     s32 tmp;
     f32 ftmp1;
     f32 ftmp2;
-    s32 node10;
-    s32 c0;
-    s32 c4;
-    s32 nmult;
-    u8 *clear;
-    s32 ci;
+    s32 age;
+    s32 trailCount;
+    s32 trailWidth;
+    s32 trailSpan;
+    SpawnParticle *trail;
+    s32 trailIndex;
+    u32 particleIndex;
     f32 a;
     f32 b;
     f32 c;
-    f32 cD8;
-    count = *(u32 *)(arg0 + 4);
-    flags = *(u32 *)(arg0 + 12);
-    nodesBase = *(u8 **)(arg0 + 24);
-    nodes = nodesBase;
-    out = *(f32 **)(arg0 + 28);
-    config = *(u8 **)(arg0 + 32);
-    limitB8 = *(s32 *)(config + 184);
-    if (limitB8 == 0) {
+    count = emitter->primaryCount;
+    flags = emitter->flags;
+    particle = emitter->particles;
+    state = emitter->state;
+    parameters = emitter->parameters;
+    lifetime = parameters->lifetime;
+    if (lifetime == 0) {
         return;
     }
-    saved20 = *(s32 *)(config + 32);
-    mode9C = *(u8 *)(config + 156);
-    vD4 = *(f32 *)(config + 212);
-    vFC = *(f32 *)(config + 252);
-    vF0 = *(f32 *)(config + 240);
-    one = 1.0f;
-    idx = 0;
-    vec120[3] = 0.0f;
-    __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(config), "m"(*(u_long128 *)(config + 16)) : "$vf10", "memory");
+    emissionDuration = parameters->emissionDuration;
+    angleMode = parameters->angleMode;
+    deceleration = parameters->deceleration;
+    bounceDecay = parameters->bounceDecay;
+    floorHeight = parameters->floorHeight;
+    spread.lane[3] = 0.0f;
+    effectVuLoad10((const EffectVuVector *)&parameters->rotation);
     func_004bceb0();
-    if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
-        flagBD = 0;
-        v15 = 0;
-        goto main_check;
+    if ((emissionDuration != 0) && (emitter->ticks >= emissionDuration)) {
+        preroll = 0;
+        spawnBudget = 0;
+        goto setup_loop;
     }
-    if ((*(s32 *)(arg0 + 16) != 0) || (*(u8 *)(config + 189) == 0)) {
-        flagBD = 0;
-        if (*(f32 *)(config + 40) <= 0.0f) {
-            tmp = *(s32 *)(config + 36);
-            ftmp1 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
+    if ((emitter->ticks == 0) && (parameters->preroll != 0)) {
+        u8 initialPreroll = 1;
+        preroll = initialPreroll;
+        if (!(parameters->emissionVariation <= 0.0f)) {
+            f32 prerollScale = (fGpffff807c - parameters->emissionVariation) * effMiscRandFloat(0);
+            ftmp2 = (f32)emitter->primaryCount;
+            spawnBudget = (s32)(ftmp2 * prerollScale);
         } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            tmp = *(s32 *)(config + 36);
-            ftmp2 = (f32)(u32)tmp;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
+            spawnBudget = (s32)emitter->primaryCount;
         }
-        ftmp1 = *(f32 *)(arg0 + 20);
-        if (ftmp1 < 0.0f) {
-            ftmp1 = -ftmp1;
-        }
-        v15 = (s32)ftmp1;
-        *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) - (f32)v15;
-        goto main_check;
+        goto setup_loop;
     } else {
-        flagBD = 1;
-        if (*(f32 *)(config + 40) <= 0.0f) {
-            v15 = (s32)count;
+        preroll = 0;
+        if (!(parameters->emissionVariation <= 0.0f)) {
+            ftmp1 = (fGpffff807c - parameters->emissionVariation) * effMiscRandFloat(0);
+            tmp = parameters->emissionRate;
+            ftmp2 = (f32)(u32)tmp;
+            emitter->emissionAccumulator = emitter->emissionAccumulator + ftmp2 * ftmp1;
         } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            ftmp2 = (f32)(u32)count;
-            v15 = (s32)(ftmp2 * ftmp1);
+            tmp = parameters->emissionRate;
+            ftmp1 = (f32)(u32)tmp;
+            emitter->emissionAccumulator = emitter->emissionAccumulator + ftmp1;
         }
-        goto main_check;
+        ftmp1 = emitter->emissionAccumulator;
+        ftmp1 = fabsf(ftmp1);
+        spawnBudget = (s32)ftmp1;
+        emitter->emissionAccumulator = emitter->emissionAccumulator - (f32)spawnBudget;
+        goto setup_loop;
     }
+setup_loop:
+    /* Shared values remain live across all primaries and provider calls. */
+    index = 0;
+    zero = 0.0f;
+    one = 1.0f;
+    half = 0.5f;
+    two = 2.0f;
+    angleRange = fGpffff8080;
+    reverseAngle = -1.0f;
+    goto main_check;
 main_body:
-    if (*(s32 *)(nodes + 16) < limitB8) {
+    if (particle->age < lifetime) {
         goto skip_clear;
     }
-    if (saved20 == 0) {
-        tmp = -1;
-    } else {
+    if (emissionDuration != 0) {
         tmp = -2;
+    } else {
+        tmp = -1;
     }
-    *(s32 *)(nodes + 16) = tmp;
-    c0 = *(s32 *)(config + 192);
-    c4 = *(s32 *)(config + 196);
-    nmult = c0 * c4;
-    if (nmult != 0) {
-        clear = nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * nmult);
-        ci = 0;
+    particle->age = tmp;
+    trailCount = emitter->parameters->trailCount;
+    trailWidth = emitter->parameters->trailWidth;
+    trailSpan = trailCount * trailWidth;
+    if (trailSpan != 0) {
+        /* Derive the index from the live emitter base, not the loop count. */
+        particleIndex = (u32)((u8 *)particle - (u8 *)emitter->particles) / sizeof(*particle);
+        trail = emitter->particles + (emitter->primaryCount + particleIndex * trailSpan);
+        trailIndex = 0;
         goto clear_check;
 clear_body:
-        *(s32 *)(clear + 16) = -1;
-        clear += 32;
-        ci += 1;
+        trail->age = -1;
+        trail += 1;
+        trailIndex += 1;
 clear_check:
-        if (ci < nmult) {
+        if (trailIndex < trailSpan) {
             goto clear_body;
         }
     }
 skip_clear:
-    node10 = *(s32 *)(nodes + 16);
-    if (node10 == -2) {
+    age = particle->age;
+    if (age == -2) {
         goto next_iter;
     }
-    if (node10 != -1) {
+    if (age != -1) {
         goto else_branch;
     }
-    if (v15 == 0) {
+    if (spawnBudget == 0) {
         goto next_iter;
     }
-    if ((flags & 1) == 0) {
-        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&D_00713D40), "m"(D_00713D40) : "$vf10", "memory");
-        __asm__ volatile(
-            "vmulax.xyzw $ACC, $vf28, $vf10x \n"
-            "vmadday.xyzw $ACC, $vf29, $vf10y \n"
-            "vmaddz.xyzw $vf10, $vf30, $vf10z \n"
-            : : : "$vf10", "ACC", "memory");
-        __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)vec120) : "r"(vec120) : "$vf10", "memory");
-        out[0] = vec120[0];
-        out[1] = vec120[1];
-        out[2] = vec120[2];
-    } else {
-        out[0] = 0.0f;
-        out[1] = 1.0f;
-        out[2] = 0.0f;
-    }
-    vec120[0] = 2.0f * (effMiscRandFloat(0) - 0.5f);
-    vec120[1] = 0.0f;
-    vec120[2] = 2.0f * (effMiscRandFloat(0) - 0.5f);
-    vec120[3] = 0.0f;
-    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec120), "m"(*(u_long128 *)vec120) : "$vf10", "memory");
-    __asm__ volatile(
-        "vmul.xyz $vf2, $vf10, $vf10 \n"
-        "vmulax.w $ACC, $vf0, $vf2x \n"
-        "vmadday.w $ACC, $vf0, $vf2y \n"
-        "vmaddz.w $vf2, $vf0, $vf2z \n"
-        "vrsqrt $Q, $vf0w, $vf2w \n"
-        "vwaitq \n"
-        "vmulq.xyz $vf10, $vf10, $Q \n"
-        : : : "$vf2", "$vf10", "ACC", "Q", "memory");
-    if ((flags & 1) == 0) {
-        __asm__ volatile(
-            "vmulax.xyzw $ACC, $vf28, $vf10x \n"
-            "vmadday.xyzw $ACC, $vf29, $vf10y \n"
-            "vmaddz.xyzw $vf10, $vf30, $vf10z \n"
-            : : : "$vf10", "ACC", "memory");
-    }
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)vec120) : "r"(vec120) : "$vf10", "memory");
-    out[3] = vec120[0];
-    out[4] = vec120[1];
-    out[5] = vec120[2];
-    a = *(f32 *)(config + 208);
-    b = effMiscRandFloat(0);
-    out[11] = *(f32 *)(config + 204) * ((one - a) + a * b);
-    a = *(f32 *)(config + 248);
-    b = effMiscRandFloat(0);
-    out[12] = -*(f32 *)(config + 244) * ((one - a) + a * b);
-    a = *(f32 *)(config + 220);
-    b = effMiscRandFloat(0);
-    cD8 = *(f32 *)(config + 216) * ((one - a) + a * b);
-    a = *(f32 *)(config + 228);
-    b = effMiscRandFloat(0);
-    ftmp1 = *(f32 *)(config + 224) * ((one - a) + a * b);
-    out[8] = cD8;
-    out[9] = (ftmp1 - cD8) / (f32)limitB8;
-    a = *(f32 *)(config + 236);
-    b = effMiscRandFloat(0);
-    out[10] = *(f32 *)(config + 232) * ((one - a) + a * b);
-    b = effMiscRandFloat(0);
-    out[6] = fGpffff8080 * b;
-    out[7] = sinf(out[6]);
-    b = effMiscRandFloat(0);
-    c = 2.0f * (b - 0.5f);
-    vec110[0] = *(f32 *)(config + 200) * c;
-    vec110[1] = vec110[0];
-    vec110[2] = vec110[0];
-    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec120), "m"(*(u_long128 *)vec120) : "$vf10", "memory");
     if ((flags & 1) != 0) {
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(vec110), "m"(*(u_long128 *)vec110) : "$vf11", "memory");
-        __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        state->riseDirection[0] = zero;
+        state->riseDirection[1] = one;
+        state->riseDirection[2] = zero;
     } else {
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(vec110), "m"(*(u_long128 *)vec110) : "$vf11", "memory");
-        __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(config), "m"(*(u_long128 *)config) : "$vf11", "memory");
-        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        effectVuLoad10((const EffectVuVector *)&D_00713D40);
+        spawnVuTransform10();
+        effectVuStore10(&direction);
+        state->riseDirection[0] = direction.lane[0];
+        state->riseDirection[1] = direction.lane[1];
+        state->riseDirection[2] = direction.lane[2];
     }
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
-    a = *(f32 *)(config + 108);
+    direction.lane[0] = two * (effMiscRandFloat(0) - half);
+    direction.lane[1] = zero;
+    direction.lane[2] = two * (effMiscRandFloat(0) - half);
+    direction.lane[3] = zero;
+    effectVuLoad10(&direction);
+    spawnVuNormalize10();
+    if ((flags & 1) == 0) {
+        spawnVuTransform10();
+    }
+    effectVuStore10(&direction);
+    state->swayDirection[0] = direction.lane[0];
+    state->swayDirection[1] = direction.lane[1];
+    state->swayDirection[2] = direction.lane[2];
+    a = parameters->speedVariation;
     b = effMiscRandFloat(0);
-    out[13] = (one - a) + a * b;
-    if (mode9C == 2) {
-        out[14] = 0.0f;
-        out[15] = 1.0f;
+    state->speed = parameters->speed * ((one - a) + a * b);
+    a = parameters->bounceVariation;
+    b = effMiscRandFloat(0);
+    b = (one - a) + a * b;
+    state->bounceScale = -parameters->bounce * b;
+    a = parameters->initialAmplitudeVariation;
+    b = effMiscRandFloat(0);
+    initialAmplitude = parameters->initialAmplitude * ((one - a) + a * b);
+    a = parameters->finalAmplitudeVariation;
+    b = effMiscRandFloat(0);
+    ftmp1 = parameters->finalAmplitude * ((one - a) + a * b);
+    state->amplitude = initialAmplitude;
+    state->amplitudeStep = (ftmp1 - initialAmplitude) / (f32)lifetime;
+    a = parameters->phaseVariation;
+    b = effMiscRandFloat(0);
+    state->phaseStep = parameters->phaseStep * ((one - a) + a * b);
+    b = effMiscRandFloat(0);
+    state->phase = angleRange * b;
+    state->previousSine = sinf(state->phase);
+    b = effMiscRandFloat(0);
+    c = two * (b - half);
+    spread.lane[0] = parameters->spread * c;
+    spread.lane[1] = spread.lane[0];
+    spread.lane[2] = spread.lane[0];
+    if ((flags & 1) != 0) {
+        effectVuLoad10(&direction);
+        effectVuLoad11(&spread);
+        spawnVuMultiply10();
     } else {
-        a = *(f32 *)(config + 152);
+        effectVuLoad10(&direction);
+        effectVuLoad11(&spread);
+        spawnVuMultiply10();
+        effectVuLoad11((const EffectVuVector *)&parameters->position);
+        spawnVuAdd10();
+    }
+    effectVuStore10(&particle->position);
+    a = parameters->sizeVariation;
+    b = effMiscRandFloat(0);
+    state->sizeScale = (one - a) + a * b;
+    if (angleMode != 2) {
+        a = parameters->angleVariation;
         b = effMiscRandFloat(0);
-        out[15] = (one - a) + a * b;
-        if (mode9C == 1) {
+        state->angleScale = (one - a) + a * b;
+        if (angleMode == 1) {
             b = effMiscRandFloat(0);
-            out[14] = fGpffff8080 * b;
+            state->angleOffset = angleRange * b;
             if ((effMiscRand(0) & 1) != 0) {
-                out[15] = out[15] * -1.0f;
+                state->angleScale = state->angleScale * reverseAngle;
             }
         } else {
-            out[14] = 0.0f;
+            state->angleOffset = zero;
         }
+    } else {
+        state->angleOffset = zero;
+        state->angleScale = one;
     }
-    *(s32 *)(nodes + 16) = 0;
-    func_0048b220(nodes, config, 0, (u_long128 *)nodes);
-    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[13];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[15];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[14];
-    if (flagBD != 0) {
-        c0 = *(s32 *)(config + 192);
-        c4 = *(s32 *)(config + 196);
-        nmult = c0 * c4;
-        if (nmult != 0) {
-            clear = nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * nmult);
-            memcpy(clear, nodes, 32);
-            *(s32 *)(clear + 16) = -1;
+    particle->age = 0;
+    {
+        u_long128 *snapshot = &previousPosition;
+        *snapshot = *(u_long128 *)&particle->position;
+    }
+    func_0048b220((u8 *)particle, (u8 *)parameters, particle->age, &previousPosition);
+    particle->size = particle->size * state->sizeScale;
+    particle->angle = particle->angle * state->angleScale;
+    particle->angle = particle->angle + state->angleOffset;
+    if (preroll != 0) {
+        trailCount = emitter->parameters->trailCount;
+        trailWidth = emitter->parameters->trailWidth;
+        trailSpan = trailCount * trailWidth;
+        if (trailSpan != 0) {
+            particleIndex = (u32)((u8 *)particle - (u8 *)emitter->particles) / sizeof(*particle);
+            trail = emitter->particles + (emitter->primaryCount + particleIndex * trailSpan);
+            memcpy(trail, particle, sizeof(*particle));
+            trail->age = -1;
         }
-        *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
+        particle->age = particle->age + 1;
     }
-    v15 -= 1;
+    spawnBudget -= 1;
     goto next_iter;
 else_branch:
-    b220buf = *(u_long128 *)nodes;
-    ftmp1 = sinf(out[6]);
-    ftmp2 = ftmp1 - out[7];
-    c = out[8] * ftmp2;
-    *(f32 *)(nodes + 0) = *(f32 *)(nodes + 0) + out[3] * c;
-    *(f32 *)(nodes + 4) = *(f32 *)(nodes + 4) + out[4] * c;
-    *(f32 *)(nodes + 8) = *(f32 *)(nodes + 8) + out[5] * c;
-    out[11] = out[11] - vD4;
-    c = out[11];
-    *(f32 *)(nodes + 0) = *(f32 *)(nodes + 0) + out[0] * c;
-    *(f32 *)(nodes + 4) = *(f32 *)(nodes + 4) + out[1] * c;
-    *(f32 *)(nodes + 8) = *(f32 *)(nodes + 8) + out[2] * c;
-    out[6] = out[6] + out[10];
-    out[8] = out[8] + out[9];
-    out[7] = ftmp1;
-    if (*(f32 *)(nodes + 4) < vF0) {
-        out[12] = out[12] * vFC;
-        out[11] = out[11] * out[12];
-        *(f32 *)(nodes + 4) = vF0 + out[12] * (*(f32 *)(nodes + 4) - vF0);
+    {
+        u_long128 *snapshot = &previousPosition;
+        *snapshot = *(u_long128 *)&particle->position;
     }
-    func_0048b220(nodes, config, node10, &b220buf);
-    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[13];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[15];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[14];
-    func_0048b340(arg0, nodes);
-    *(s32 *)(nodes + 16) = node10 + 1;
+    ftmp1 = sinf(state->phase);
+    ftmp2 = ftmp1 - state->previousSine;
+    c = state->amplitude * ftmp2;
+    particle->position.lane[0] = particle->position.lane[0] + state->swayDirection[0] * c;
+    particle->position.lane[1] = particle->position.lane[1] + state->swayDirection[1] * c;
+    particle->position.lane[2] = particle->position.lane[2] + state->swayDirection[2] * c;
+    state->speed = state->speed - deceleration;
+    c = state->speed;
+    particle->position.lane[0] = particle->position.lane[0] + state->riseDirection[0] * c;
+    particle->position.lane[1] = particle->position.lane[1] + state->riseDirection[1] * c;
+    particle->position.lane[2] = particle->position.lane[2] + state->riseDirection[2] * c;
+    state->phase = state->phase + state->phaseStep;
+    state->amplitude = state->amplitude + state->amplitudeStep;
+    state->previousSine = ftmp1;
+    if (particle->position.lane[1] < floorHeight) {
+        state->bounceScale = state->bounceScale * bounceDecay;
+        state->speed = state->speed * state->bounceScale;
+        particle->position.lane[1] = floorHeight + state->bounceScale * (particle->position.lane[1] - floorHeight);
+    }
+    func_0048b220((u8 *)particle, (u8 *)parameters, age, &previousPosition);
+    particle->size = particle->size * state->sizeScale;
+    particle->angle = particle->angle * state->angleScale;
+    particle->angle = particle->angle + state->angleOffset;
+    func_0048b340((u8 *)emitter, (u8 *)particle);
+    particle->age = age + 1;
 next_iter:
-    idx += 1;
-    out += 16;
-    nodes += 32;
+    index += 1;
+    state += 1;
+    particle += 1;
 main_check:
-    if (idx < count) {
+    if (index < count) {
         goto main_body;
     }
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0049", func_00492100);
-#endif
+#pragma pop
 // FUN_00492A80
 void func_00492a80(u8 *arg0, f32 fparg0) {
     s32 temp_4;

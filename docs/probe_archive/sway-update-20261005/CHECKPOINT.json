@@ -1,0 +1,193 @@
+{
+  "base": "1d1c7bfe6a1052e69b9265b62cbf34901cbc2aa8",
+  "target": "00492100",
+  "status": "Independent exact candidate/source/domain/native accepted; ordinary production39MATCH/4ASM; complete publication gates pending",
+  "retail_executable_bytes": 2428,
+  "retail_alignment_bytes": 4,
+  "frame": 320,
+  "references": 27,
+  "siblings": 42,
+  "sibling_relocations": 244,
+  "layout_checks": 61,
+  "allocated_data_preserved": true,
+  "relocation_spelling_exceptions": [
+    {
+      "function": "func_00494740",
+      "old": {
+        "offset": 1716,
+        "r_type": 8,
+        "type": "R_MIPS_LITERAL",
+        "symbol": "@484"
+      },
+      "new": {
+        "offset": 1716,
+        "r_type": 8,
+        "type": "R_MIPS_LITERAL",
+        "symbol": "@783"
+      },
+      "same_payload": {
+        "section": ".lit4",
+        "value": 0,
+        "size": 4,
+        "payload": "9a99d93f"
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "candidate": "baseline",
+      "source_sha256": "d2ba94b7bf555c73a391e34667104e6be40df8fe5de1edf910b8f4e439993ed5",
+      "bytes": 2424,
+      "frame": 320,
+      "resolved_differing_words": 298,
+      "masked_words": 292,
+      "stock_aligned_edits": 228,
+      "physical_live_aligned_edits": 227,
+      "all_relocations_equal": false,
+      "references": 27
+    },
+    {
+      "candidate": "branch02-ordinary-angle-first",
+      "source_sha256": "2b72bc86918da8d00531c242051aa0648d957aca61007677f47b0ee0fe1cd147",
+      "bytes": 2428,
+      "frame": 320,
+      "resolved_differing_words": 57,
+      "masked_words": 57,
+      "stock_aligned_edits": 56,
+      "physical_live_aligned_edits": 56,
+      "all_relocations_equal": false,
+      "references": 27
+    },
+    {
+      "candidate": "cont01-used-loop-constants",
+      "source_sha256": "43b6df78f8e450b258a76a045a9508282be71cff177a48c37cc44eb46def578c",
+      "bytes": 2428,
+      "frame": 320,
+      "resolved_differing_words": 54,
+      "masked_words": 54,
+      "stock_aligned_edits": 56,
+      "physical_live_aligned_edits": 56,
+      "all_relocations_equal": true,
+      "references": 27
+    },
+    {
+      "candidate": "cont03-amplitude-lifetime-declarations",
+      "source_sha256": "80130a14e9817150664ec427a5cb5a1e5eb7c05bc45c4a4a7ac3f77ff031416e",
+      "bytes": 2428,
+      "frame": 320,
+      "resolved_differing_words": 28,
+      "masked_words": 28,
+      "stock_aligned_edits": 28,
+      "physical_live_aligned_edits": 28,
+      "all_relocations_equal": true,
+      "references": 27
+    },
+    {
+      "candidate": "cont04-complete-loop-constants",
+      "source_sha256": "aca2e18af2a2e1cbf497a7ef793a814411689e14d887a8ee8dd55162a6022962",
+      "bytes": 2428,
+      "frame": 320,
+      "resolved_differing_words": 5,
+      "masked_words": 5,
+      "stock_aligned_edits": 5,
+      "physical_live_aligned_edits": 5,
+      "all_relocations_equal": true,
+      "references": 27
+    },
+    {
+      "candidate": "cont05-emission-phases",
+      "source_sha256": "efc30e9ab5b99faccfc6b4354a4ea1269467360367cfc65c6a6c2a8b1e551947",
+      "bytes": 2428,
+      "frame": 320,
+      "resolved_differing_words": 2,
+      "masked_words": 2,
+      "stock_aligned_edits": 2,
+      "physical_live_aligned_edits": 2,
+      "all_relocations_equal": true,
+      "references": 27
+    },
+    {
+      "candidate": "cont07-completed-particle-index",
+      "source_sha256": "a1fd09b1afd627c573ba9719d5c43547b2dbb7a2617bb12b212901cf16ab65a5",
+      "bytes": 2428,
+      "frame": 320,
+      "resolved_differing_words": 0,
+      "masked_words": 0,
+      "stock_aligned_edits": 0,
+      "physical_live_aligned_edits": 0,
+      "all_relocations_equal": true,
+      "references": 27
+    },
+    {
+      "candidate": "final-zero",
+      "source_sha256": "7dfea0f853bf2591fa946b70991c9f8dde3674c6eb824153bb252b993a1f397a",
+      "bytes": 2428,
+      "frame": 320,
+      "resolved_differing_words": 0,
+      "masked_words": 0,
+      "stock_aligned_edits": 0,
+      "physical_live_aligned_edits": 0,
+      "all_relocations_equal": true,
+      "references": 27
+    },
+    {
+      "candidate": "control-propagation-on",
+      "source_sha256": "f90166ab20d5746de1e114769b024ea968e4f5d3e779bd99270029d13954207d",
+      "bytes": 2424,
+      "frame": 320,
+      "resolved_differing_words": 137,
+      "masked_words": 134,
+      "stock_aligned_edits": 13,
+      "physical_live_aligned_edits": 12,
+      "all_relocations_equal": false,
+      "references": 27
+    },
+    {
+      "candidate": "control-invariants-off",
+      "source_sha256": "8764dce0765e245ee21cfba63b8fcbb28cfb37472d6839600171c931e8126555",
+      "bytes": 2424,
+      "frame": 320,
+      "resolved_differing_words": 411,
+      "masked_words": 392,
+      "stock_aligned_edits": 15,
+      "physical_live_aligned_edits": 14,
+      "all_relocations_equal": false,
+      "references": 27
+    }
+  ],
+  "scope": "Caller-only actual-provider boundary; opaque trail-history debt remains; no transitive engine or all-resource definedness claim",
+  "native": {
+    "tests": 40,
+    "skipped": 0,
+    "levels": [
+      "-O0",
+      "-O2"
+    ],
+    "positive_scenarios_per_level": 28,
+    "semantic_controls_per_level": 38,
+    "mutation_binding_checks": 1,
+    "extracted_function_sha256": "b743d815248e3bc9ed1b6effaa0c609a89f0323fa08310cb90625ea79c1a2035",
+    "test_sha256": "f179651e289216405519938901f0860864d91d68648bd7dc1dc3e0d106d917e1",
+    "fixture_sha256": "deac6e970a16755c4a9df3c37f0eca19eb99c1691705e13b55ad7768b231e39a",
+    "scope": "Bounded native32 scalar/VU provider seams; no actual-provider transitive definedness claim",
+    "production_replay": {
+      "tests": 40,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": 16.495
+    }
+  },
+  "production_owner_sha256": "9b6bbb1cbffa3a093989ecd72aa43f21dafb00274126a917d13ab2289f980f02",
+  "production_object_sha256": "b62635a99df6bdb190e8f88cfe8f214ab87f5b4b8b25079b60b9c0d892bf9388",
+  "production_object_identical_to_reviewed_zero": true,
+  "untouched_guarded_functions": [
+    "004903c0",
+    "00490c40",
+    "004916f0",
+    "004941f0"
+  ],
+  "shared_headers_unchanged": [
+    "include/particle_spawn_internal.h",
+    "include/effect_vu0_internal.h"
+  ]
+}
