@@ -995,15 +995,16 @@ u32 func_001d3950(u8 **param_1)
 /* measured: restore pragma state after func_001d3950. */
 #pragma pop
 // FUN_001D3B50
-void func_001d3b50(u32 param_1)
+u8 *func_001d3b50(u8 *action)
 {
-    u32 *work;
-    u32 packet;
+    u8 **work;
+    u8 *packet;
 
-    packet = (u32)func_00194470(0xb06, 4);
+    packet = (u8 *)func_00194470(0xb06, 4);
     *(code **)(packet + 0x6c) = (code *)func_001d3950;
-    work = *(u32 **)(packet + 0x78);
-    work[0] = param_1;
+    work = *(u8 ***)(packet + 0x78);
+    work[0] = action;
+    return packet;
 }
 // FUN_001D3BA0
 u32 func_001d3ba0(void)

@@ -64,7 +64,7 @@ extern void func_00212240(u8 *arg0, s32 arg1);
 extern void func_00212210(s32 task);
 extern s32 func_001ef9a0(void);
 extern s32 D_00724504;
-extern void func_001eb7f0(u8 *arg0);
+extern void func_001eb7f0(void);
 extern s32 func_001eb860(void);
 extern void func_001a03b0(s32 arg0);
 extern BtlPacket *func_001d3700(u16 arg0, u16 arg1);
@@ -1982,7 +1982,7 @@ s32 func_001eaac0(void)
     if (func_001eb860() == 1) {
         temp_4 = iGpffffb3ac;
         *(s32 *)(temp_4 + 0xC) = *(s32 *)(temp_4 + 0xC) & ~0x2000;
-        func_001eb7f0(temp_4);
+        func_001eb7f0();
     }
     return 1;
 }
@@ -2416,7 +2416,7 @@ eb4a0_sum_test:
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(arg0, 0);
 }
 // FUN_001EB7F0
-void func_001eb7f0(u8 *arg0) {
+void func_001eb7f0(void) {
     s32 temp_4;
     u8 *temp_3;
     u8 *temp_5;

@@ -121,7 +121,7 @@ static void func_002aaaa0(void) { ++cutsceneCalls; }
 static void btlFadeStartImmediate(void) { ++fadeCalls; }
 static s32 func_001eb860(void) { return eventState; }
 static void func_00212240(u8 *arg0,s32 arg1) { CHECK((u32)arg0==123 && arg1==1);++cutsceneCalls; }
-static void func_001eb7f0(u8 *arg0) { CHECK(arg0==battle.bytes);++cutsceneCalls; }
+static void func_001eb7f0(void) { ++cutsceneCalls; }
 %%TARGET%%
 static void initialize(u32 mode,u32 special) {
     ++scenario; memset(&battle,0,sizeof(battle));memset(&formationData,0,sizeof(formationData));memset(&descriptor,0,sizeof(descriptor));memset(&actionData,0,sizeof(actionData));memset(&alternateAction,0,sizeof(alternateAction));

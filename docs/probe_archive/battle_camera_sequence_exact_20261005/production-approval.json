@@ -1,0 +1,155 @@
+{
+  "approval": "Accepted final production source for publisher full-project gates",
+  "public_base": "9938a483606bdf00f62f489664457d722850eb09",
+  "source_test_hashes": {
+    "src/Battle/btlMain.c": "70bef7b7b84bd2796960565b1ae9d91fdc04375f98348bb8d0ea3d13493c89a9",
+    "src/Battle/btlFormation.c": "48900429101ede46b116608e4b8ddddfd970712af32d016c726aa8b66f452e56",
+    "src/promoted/code1_001a.c": "55a0046295d3a0bd8dac332b2e0a35480bc5bd573fb1850e573dd486ed44e9a5",
+    "src/promoted/code1_001b.c": "75db06b98cdf9e507b03af00882488a28844e09d6542382b001aa10d20356360",
+    "src/promoted/code1_001e.c": "a6bc9621354df08705d0c992380fcf5330ec671dcbb3906a93a40c474940681d",
+    "include/btl_camera_sequence_internal.h": "0da5e50529dfb7134186664821cdb5676c9fc8465ed25cb1547e7668b14e1bd9",
+    "tests/test_battle_camera_sequence_contract.py": "747405cc90d8aca79459f09a94b00f3aae6d40db429a08421876c00526c895fb",
+    "tests/battle_camera_sequence_fixture.c.in": "9ce1763eec8544c1244cf6a15fbb4c36e8eae0ee25ac3346b57fc798276db22f",
+    "tests/test_battle_color_packet_contract.py": "f23e050834c1b06b64d4ac12e0cffa538f8ea65b274bb2d8120032a1a70d31d9",
+    "tests/battle_color_packet_fixture.c.in": "8cc5991a5d68c7201a84d1220a856dcc2b0a6dc835b8d01994b240c247837a64",
+    "tests/test_packet_prerequisite_contracts.py": "45793e48ccfebbd371369485dc5abea02a3dd15018d54a4a643629f23466d60a",
+    "tests/packet_prerequisite_fixture.c.in": "86391fe05c2d668b43f6362244dcf2a0c6611e58d4b218d70edb9c3e451a6128",
+    "tests/sound_stop_prerequisite_fixture.c.in": "f763cf470db4d6235ad64b82624414f359c60cace09246c7455e856889e060b7"
+  },
+  "exact_pre_reset_source_recovery": true,
+  "new_post_reset_compiler_and_native_runs": true,
+  "production_matches": 368,
+  "production_asm": 7,
+  "unchanged_other_functions": 374,
+  "target": {
+    "live_bytes": 2688,
+    "retail_tail_bytes": 0,
+    "frame": 144,
+    "fully_resolved_differences": 0,
+    "reference_count": 75,
+    "call_count": 47,
+    "sibling_count": 122,
+    "object_sha256": "77fcfc50cb13a18c9123b7340a2ecaa8b4775a40a4d0d923c05d1b41e896cb8b"
+  },
+  "all_target_reference_payloads_checked": true,
+  "literal_name_exceptions": [
+    {
+      "owner": "src/promoted/code1_001b.c",
+      "function": "func_001ba0e0",
+      "offset": 288,
+      "old_symbol": "@1870",
+      "new_symbol": "@1310",
+      "retail_address": "0x7612e4",
+      "payload_hex": "8180803b",
+      "payload_sha256": "52c37b242f7ae8185a2b223b5b9d0b8772d97180a46b1d6a4d6c8b018c803d64"
+    },
+    {
+      "owner": "src/promoted/code1_001b.c",
+      "function": "func_001ba0e0",
+      "offset": 356,
+      "old_symbol": "@1870",
+      "new_symbol": "@1310",
+      "retail_address": "0x7612e4",
+      "payload_hex": "8180803b",
+      "payload_sha256": "52c37b242f7ae8185a2b223b5b9d0b8772d97180a46b1d6a4d6c8b018c803d64"
+    },
+    {
+      "owner": "src/promoted/code1_001b.c",
+      "function": "func_001ba0e0",
+      "offset": 484,
+      "old_symbol": "@1870",
+      "new_symbol": "@1310",
+      "retail_address": "0x7612e4",
+      "payload_hex": "8180803b",
+      "payload_sha256": "52c37b242f7ae8185a2b223b5b9d0b8772d97180a46b1d6a4d6c8b018c803d64"
+    },
+    {
+      "owner": "src/promoted/code1_001b.c",
+      "function": "func_001ba0e0",
+      "offset": 552,
+      "old_symbol": "@1870",
+      "new_symbol": "@1310",
+      "retail_address": "0x7612e4",
+      "payload_hex": "8180803b",
+      "payload_sha256": "52c37b242f7ae8185a2b223b5b9d0b8772d97180a46b1d6a4d6c8b018c803d64"
+    },
+    {
+      "owner": "src/promoted/code1_001b.c",
+      "function": "func_001ba0e0",
+      "offset": 680,
+      "old_symbol": "@1870",
+      "new_symbol": "@1310",
+      "retail_address": "0x7612e4",
+      "payload_hex": "8180803b",
+      "payload_sha256": "52c37b242f7ae8185a2b223b5b9d0b8772d97180a46b1d6a4d6c8b018c803d64"
+    },
+    {
+      "owner": "src/promoted/code1_001b.c",
+      "function": "func_001ba0e0",
+      "offset": 748,
+      "old_symbol": "@1870",
+      "new_symbol": "@1310",
+      "retail_address": "0x7612e4",
+      "payload_hex": "8180803b",
+      "payload_sha256": "52c37b242f7ae8185a2b223b5b9d0b8772d97180a46b1d6a4d6c8b018c803d64"
+    },
+    {
+      "owner": "src/promoted/code1_001b.c",
+      "function": "func_001ba0e0",
+      "offset": 876,
+      "old_symbol": "@1870",
+      "new_symbol": "@1310",
+      "retail_address": "0x7612e4",
+      "payload_hex": "8180803b",
+      "payload_sha256": "52c37b242f7ae8185a2b223b5b9d0b8772d97180a46b1d6a4d6c8b018c803d64"
+    },
+    {
+      "owner": "src/promoted/code1_001b.c",
+      "function": "func_001ba0e0",
+      "offset": 944,
+      "old_symbol": "@1870",
+      "new_symbol": "@1310",
+      "retail_address": "0x7612e4",
+      "payload_hex": "8180803b",
+      "payload_sha256": "52c37b242f7ae8185a2b223b5b9d0b8772d97180a46b1d6a4d6c8b018c803d64"
+    },
+    {
+      "owner": "src/promoted/code1_001b.c",
+      "function": "func_001be990",
+      "offset": 1376,
+      "old_symbol": "@2849",
+      "new_symbol": "@3058",
+      "retail_address": "0x761220",
+      "payload_hex": "9a990940",
+      "payload_sha256": "5679a63a8fee2809801e85b1493dc9af050edf82eca338328569c2c3db32a9a4"
+    },
+    {
+      "owner": "src/promoted/code1_001b.c",
+      "function": "func_001be990",
+      "offset": 1456,
+      "old_symbol": "@2849",
+      "new_symbol": "@3058",
+      "retail_address": "0x761220",
+      "payload_hex": "9a990940",
+      "payload_sha256": "5679a63a8fee2809801e85b1493dc9af050edf82eca338328569c2c3db32a9a4"
+    }
+  ],
+  "native_private_receipt_sha256": "8f39e89c025d10454a57a57377221971337ad437795f58cef3f591349667a58a",
+  "all_bit_carrier_witness_object": "e621fde66d88e924691202dd771ca2b63103793ba4f25d3ffa9440052bdc6f77",
+  "lint_errors": 0,
+  "existing_scope_lint_warnings": 110,
+  "source_review": {
+    "strict_integer_bounds_equivalent": true,
+    "all_local_producers_and_uses_complete": true,
+    "group_anchor_preserved_across_voice": true,
+    "full_live_UID_sampling_preserved": true,
+    "four_palette_call_sampling_preserved": true,
+    "normalization_multiplication_quantization_graph_preserved": true,
+    "in_place_per_channel_aliasing_valid": true,
+    "all_four_packed_bytes_initialized_and_consumed": true,
+    "quaternion_all_four_lanes_initialized": true,
+    "no_dummy_padding_fake_ABI_ordinary_asm_or_new_pragma": true
+  },
+  "boundary": "Valid initialized live objects, finite terminating lists, successful allocations, complete finite quaternion inputs in the SDK numeric domain, byte colors. Quaternion composition, dispatcher and engine seams remain explicit. Adversarial node/UID/palette changes are provider models, not claimed normal engine mutation. No transitive engine/all-resource or complete SDK numerical proof.",
+  "remaining_gates": "Publisher full verifier comparison, cold build, retail image hashes, complete ordinary suite, remote publication/CI"
+}

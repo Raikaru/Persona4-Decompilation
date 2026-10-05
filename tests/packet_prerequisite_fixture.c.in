@@ -1,0 +1,156 @@
+#include "type.h"
+static u32 scenario;
+#define CHECK(c) do { if (!(c)) native32_failure(__LINE__, scenario, #c); } while (0)
+
+/* The real 00194470 producer executes below. Only its raw heap and diagnostic
+ * boundaries are controlled. Dirty bytes belong to the backing heap and guards;
+ * application packet/work initialization is performed by that exact producer. */
+static u8 arena[3][0xe0] __attribute__((aligned(16)));
+static u8 expected[3][0xe0] __attribute__((aligned(16)));
+static u8 actionStorage[0x100] __attribute__((aligned(16)));
+static u8 actionBefore[sizeof(actionStorage)];
+static u8 D_005F6C00[1];
+static u32 allocationCount, diagnosticCount, queueCount, expectedQueueIndex;
+static const s32 workSizes[3] = {0x10, 0x28, 4};
+static const s32 packetKinds[3] = {0x608, 0x60a, 0xb06};
+
+void func_0044ea90(const void *message, s32 number)
+{
+    CHECK(message == D_005F6C00 && number == 0x51);
+    CHECK(diagnosticCount == allocationCount);
+    ++diagnosticCount;
+}
+static u8 *raw_heap(s32 size, s32 flags)
+{
+    CHECK(allocationCount < 3);
+    CHECK(diagnosticCount == allocationCount + 1);
+    CHECK(size == 0x90 + workSizes[allocationCount]);
+    CHECK(flags == 0x40000);
+    return arena[allocationCount++] + 0x10;
+}
+static u8 *(*D_008873E8[])(s32, s32) = {raw_heap};
+struct ColorBlendWork;
+s32 func_001ba0e0(struct ColorBlendWork *work)
+{
+    (void)work; CHECK(0); return 0;
+}
+s32 func_001ba590(u8 *work)
+{
+    (void)work; CHECK(0); return 0;
+}
+u32 func_001d3950(u8 **work)
+{
+    (void)work; CHECK(0); return 0;
+}
+/* This is the owning formation file's existing spelling. No callback is called
+ * through this erased representation: tests compare the installed identity. */
+typedef int (*code)();
+
+%%ALLOCATOR%%
+%%FACTORY_COLOR%%
+%%FACTORY_QUAT%%
+%%FACTORY_ACTION%%
+
+/* A read-only queue observer checks the returned packet as a caller would use
+ * it. Queue internals and the complete 001b4880 controller do not execute. */
+s64 func_00194590(u8 *packet, u32 mode)
+{
+    CHECK(expectedQueueIndex < 3);
+    CHECK(packet == arena[expectedQueueIndex] + 0x10);
+    CHECK(mode == (expectedQueueIndex == 2 ? 0u : 1u));
+    CHECK(memcmp(arena[expectedQueueIndex], expected[expectedQueueIndex], 0xe0) == 0);
+    ++queueCount;
+    return 0;
+}
+
+static void expect_allocation(u32 index, void (*callback)(void))
+{
+    u8 *packet = arena[index] + 0x10;
+    u8 *copy = expected[index] + 0x10;
+    u8 *work = packet + 0x90;
+    memset(copy, 0, 0x90 + workSizes[index]);
+    copy[0] = copy[0x10] = copy[0x20] = copy[0x30] = 1;
+    memcpy(copy + 0x40, &packetKinds[index], 4);
+    copy[0x47] = 0x31;
+    memcpy(copy + 0x6c, &callback, 4);
+    memcpy(copy + 0x78, &work, 4);
+}
+
+static void run_batch(u32 color, u32 duration, const u32 rotationBits[4], u32 frames, u32 actionOffset)
+{
+    f32 rotation[4];
+    u8 *packets[3];
+    u8 *action = actionStorage + actionOffset;
+    u32 rotationBefore[4];
+    const u64 actionId = 0x9182736455aabbccULL;
+    u16 group = (u16)(scenario * 37u);
+    ++scenario;
+    allocationCount = diagnosticCount = queueCount = 0;
+    memset(arena, (u8)(scenario | 0x81u), sizeof(arena));
+    memcpy(expected, arena, sizeof(arena));
+    memcpy(rotation, rotationBits, 16);
+    memcpy(rotationBefore, rotation, 16);
+    for (u32 i = 0; i < sizeof(actionStorage); ++i) actionStorage[i] = (u8)(i ^ scenario);
+    memcpy(actionBefore, actionStorage, sizeof(actionStorage));
+
+    packets[0] = func_001ba530((s32)color, (s32)duration);
+    packets[1] = func_001ba710(rotation, (s32)frames);
+    packets[2] = func_001d3b50(action);
+    CHECK(allocationCount == 3 && diagnosticCount == 3 && queueCount == 0);
+    CHECK(memcmp(rotation, rotationBefore, 16) == 0);
+    CHECK(memcmp(actionStorage, actionBefore, sizeof(actionStorage)) == 0);
+    expect_allocation(0, (void (*)(void))func_001ba0e0);
+    expect_allocation(1, (void (*)(void))func_001ba590);
+    expect_allocation(2, (void (*)(void))func_001d3950);
+    memcpy(expected[0] + 0xa0, &color, 4);
+    memcpy(expected[0] + 0xa8, &duration, 4);
+    memcpy(expected[1] + 0xa0, rotationBefore, 16);
+    memcpy(expected[1] + 0xc0, &frames, 4);
+    memcpy(expected[2] + 0xa0, &action, 4);
+    for (u32 i = 0; i < 3; ++i) {
+        u8 *packet = arena[i] + 0x10;
+        CHECK(packets[i] == packet);
+        CHECK(*(s32 *)(packet + 0x40) == packetKinds[i]);
+        CHECK(*(u8 **)(packet + 0x78) == packet + 0x90);
+        CHECK(memcmp(arena[i], expected[i], sizeof(arena[i])) == 0);
+    }
+    CHECK(*(u8 **)(packets[2] + 0x90) == action);
+    CHECK(memcmp(packets[1] + 0x9c, rotationBefore + 3, 4) == 0);
+    CHECK(*(u32 *)(packets[1] + 0xb0) == frames);
+
+    /* These annotations model only the finite caller/queue interface. */
+    for (u32 i = 0; i < 3; ++i) {
+        memcpy(packets[i] + 0x48, &group, 2);
+        memcpy(packets[i] + 0x60, &actionId, 8);
+        memcpy(expected[i] + 0x58, &group, 2);
+        memcpy(expected[i] + 0x70, &actionId, 8);
+        expectedQueueIndex = i;
+        func_00194590(packets[i], i == 2 ? 0 : 1);
+    }
+    CHECK(queueCount == 3);
+    CHECK(memcmp(arena, expected, sizeof(arena)) == 0);
+}
+
+int main(void)
+{
+    const u32 words[] = {0, 1, 0xff, 0x100, 0xffff, 0x10000, 0x7fffffff,
+                         0x80000000, 0xffffffff, 0xa5732c91, 0x01020304};
+    const u32 rotations[][4] = {
+        {0, 0, 0, 0x3f800000},
+        {0x3f000000, 0xbf000000, 0x3f000000, 0xbf000000},
+        {0x80000000, 0x3f800000, 0xc0000000, 0x40490fdb},
+        {0x00800000, 0x80800000, 0x7f7fffff, 0xff7fffff},
+        {0x7f800000, 0xff800000, 0x7fc12345, 0x7fa54321}
+    };
+    for (u32 i = 0; i < sizeof(words) / sizeof(words[0]); ++i)
+        for (u32 j = 0; j < sizeof(words) / sizeof(words[0]); ++j)
+            for (u32 q = 0; q < 5; ++q)
+                run_batch(words[i], words[j], rotations[q], words[(i + j) % 11], (i * 17 + j) % 0x100);
+    for (u32 bit = 0; bit < 32; ++bit) {
+        run_batch(1u << bit, ~(1u << bit), rotations[1], 1u << bit, bit);
+        run_batch(~(1u << bit), 1u << bit, rotations[2], ~(1u << bit), 0xff - bit);
+    }
+    CHECK(scenario == 669);
+    native32_text("669 packet batches; 2007 exact factory calls passed\n");
+    return 0;
+}
