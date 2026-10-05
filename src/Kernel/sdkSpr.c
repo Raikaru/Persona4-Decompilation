@@ -28,6 +28,174 @@ extern char D_007130C8[];
 
 static inline u32 sdkAddOffset(u32 offset, u32 base) { return offset + base; }
 
+#ifdef NON_MATCHING
+#include "rw/plcore/barenderstate.h"
+
+typedef struct RwV2d {
+    f32 x, y;
+} RwV2d;
+typedef struct RwV3d {
+    f32 x, y, z;
+} RwV3d;
+typedef struct RwMatrixTag RwMatrix;
+typedef struct RwRGBA {
+    u8 red, green, blue, alpha;
+} RwRGBA;
+typedef enum RwOpCombineType {
+    rwCOMBINEREPLACE = 0,
+    rwCOMBINEPRECONCAT,
+    rwCOMBINEPOSTCONCAT,
+    rwOPCOMBINETYPEFORCEENUMSIZEINT = 0x7FFFFFFF
+} RwOpCombineType;
+
+/* RwSky2DVertexFields from the PS2 SDK: the renderer consumes four
+ * 16-byte lanes per vertex. Camera/fog and normal fields are not used here. */
+typedef struct RwSky2DVertexFields {
+    RwV3d screen;
+    f32 cameraZ;
+    f32 u, v, reciprocalZ, fog;
+    struct { f32 red, green, blue, alpha; } color;
+    RwV3d normal;
+    f32 pad2;
+} SdkSpriteVertexFields;
+typedef union RwSky2DVertexAlignmentOverlay {
+    SdkSpriteVertexFields els;
+    unsigned __int128 qWords[4];
+} SdkSpriteVertexOverlay;
+typedef struct RwSky2DVertex {
+    SdkSpriteVertexOverlay u;
+} SdkSpriteVertex;
+typedef char SdkSpriteVertexSizeCheck[sizeof(SdkSpriteVertex) == 0x40 ? 1 : -1];
+
+/* The callback slots are members of the SDK's RwGlobals.dOpenDevice.
+ * Retain that containing object when taking the address of a live slot. */
+typedef struct SdkSpriteDevicePrefix {
+    f32 gammaCorrection;
+    s32 (*system)(s32, void *, void *, s32);
+    f32 zBufferNear, zBufferFar;
+    s32 (*setState)(RwRenderState, void *);
+    s32 (*getState)(RwRenderState, void *);
+    s32 (*renderLine)(void *, s32, s32, s32);
+    s32 (*renderTriangle)(void *, s32, s32, s32, s32);
+    s32 (*renderPrimitive)(s32, void *, s32);
+} SdkSpriteDevicePrefix;
+typedef struct SdkSpriteGlobalsPrefix {
+    void *camera, *world;
+    u16 renderFrame, lightFrame, pad[2];
+    SdkSpriteDevicePrefix device;
+} SdkSpriteGlobalsPrefix;
+extern u32 ourGlobals[4096];
+
+extern s32 func_00457120(void);
+extern s32 RpSkyRenderStateSet(s32 state, void *value);
+extern RwMatrix *func_003e0f80(void);
+extern RwMatrix *func_003e0680(RwMatrix *, const RwV3d *, f32, f32, RwOpCombineType);
+extern RwV3d *func_003e42e0(RwV3d *, const RwV3d *, s32, const RwMatrix *);
+extern s32 func_003e0f40(RwMatrix *);
+extern void func_0046a7f0(u8 *, u8 *);
+extern f32 D_008872F8[];
+extern u8 D_007130D8[];
+extern f32 fGpffff8084;
+extern f32 fGpffff8054, fGpffff8058, fGpffff805c, fGpffff8060;
+extern f32 fGpffff81b0, fGpffff81b4, fGpffff81b8, fGpffff81bc;
+extern f32 fGpffff81c0, fGpffff81c4, fGpffff81c8, fGpffff81cc;
+
+/* The loader allocates and copies 0x80 bytes for every sprite record and
+ * owns a fixed 32-entry raster array at +0x104 in its 0x240-byte container. */
+typedef u8 SdkSpriteRecord[0x80];
+/* Keep the same address-word view used by the attachment transformer. */
+#define SDK_SPRITE_RECORD(sample) \
+    ((u8 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + \
+            *(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord)))
+
+#define SDK_SPRITE_RASTERS(sample) \
+    (*(u8 *(*)[32])(*(u8 **)(sample) + 0x104))
+
+/* Same unsigned extent, optional signed override, and Q12 scale as the
+ * public width/height queries above. Each call reads the current payload. */
+static inline f32 sdkSpriteRight(u8 *sample, s32 includeBorder)
+{
+    u32 value;
+    u32 offset;
+    u8 *output;
+    u8 *overrideBase;
+    f32 extent;
+
+    offset = *(u32 *)(sample + 4) * 0x80;
+    output = *(u8 **)(*(u8 **)sample + 0x204);
+    value = *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x5C) -
+            *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x54);
+    overrideBase = output + 0x74;
+    if (*(s16 *)(overrideBase + offset) != 0) {
+        value = *(s16 *)(overrideBase + offset);
+    }
+    if (*(u16 *)(sample + 0x20) != 0) {
+        value = (value * *(u16 *)(sample + 0x20)) >> 12;
+    }
+    extent = (f32)value;
+    if (includeBorder != 0) {
+        f32 border = (f32)*(s32 *)(sdkAddOffset(offset, (u32)output) + 0x40);
+        extent -= (f32)*(s16 *)(sample + 0x1C);
+        return border + extent;
+    }
+    extent -= (f32)*(s16 *)(sample + 0x1C);
+    return extent;
+}
+
+static inline f32 sdkSpriteBottom(u8 *sample, s32 includeBorder)
+{
+    u32 value;
+    u32 offset;
+    u8 *output;
+    u8 *overrideBase;
+    f32 extent;
+
+    offset = *(u32 *)(sample + 4) * 0x80;
+    output = *(u8 **)(*(u8 **)sample + 0x204);
+    value = *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x60) -
+            *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x58);
+    overrideBase = output + 0x76;
+    if (*(s16 *)(overrideBase + offset) != 0) {
+        value = *(s16 *)(overrideBase + offset);
+    }
+    if (*(u16 *)(sample + 0x22) != 0) {
+        value = (value * *(u16 *)(sample + 0x22)) >> 12;
+    }
+    extent = (f32)value;
+    if (includeBorder != 0) {
+        f32 border = (f32)*(s32 *)(sdkAddOffset(offset, (u32)output) + 0x38);
+        extent -= (f32)*(s16 *)(sample + 0x1E);
+        return border + extent;
+    }
+    extent -= (f32)*(s16 *)(sample + 0x1E);
+    return extent;
+}
+
+/* Keep byte-color arithmetic separate from unsigned-to-float conversion. */
+static inline void sdkSpriteVertexSetColor(SdkSpriteVertex *vertex,
+                                           u32 red, u32 green, u32 blue, u32 alpha)
+{
+    vertex->u.els.color.red = (f32)red;
+    vertex->u.els.color.green = (f32)green;
+    vertex->u.els.color.blue = (f32)blue;
+    vertex->u.els.color.alpha = (f32)alpha;
+}
+
+/* All four vertices of the quad share this transformed XY payload. */
+static inline void sdkSpritePositionQuad(SdkSpriteVertex vertex[4], const RwV2d point[4])
+{
+    vertex[0].u.els.screen.x = point[0].x;
+    vertex[0].u.els.screen.y = point[0].y;
+    vertex[1].u.els.screen.x = point[1].x;
+    vertex[1].u.els.screen.y = point[1].y;
+    vertex[2].u.els.screen.x = point[2].x;
+    vertex[2].u.els.screen.y = point[2].y;
+    vertex[3].u.els.screen.x = point[3].x;
+    vertex[3].u.els.screen.y = point[3].y;
+}
+
+#endif
+
 // FUN_0046AB90
 void func_0046ab90(u8 *arg0)
 {
@@ -311,731 +479,401 @@ f32 func_0046b2f0(u8 *param_1)
     }
     return (f32)value;
 }
-// measured: retail 1952 object 1982 delta 1.5% band 1893-2011 words 1888 edits 3125(+0 reloc) frame 0x240/0x280 jal 15+30/15+30 hole 254+90 (were 396+125) lump 19 cmds: python3 tools/fnalign.py src/Kernel/sdkSpr.c func_0046b380 --candidate /tmp/cb380_tbl.c --quiet
-// measured: pure hole 396 retail[319:715] 0x0046B87C-0x0046BEAC head c.eq.s/bc1t + lui/mtc1 0x43B4/0xC334/0x4334 float-range + c.ole.s, tail srl/andi/or/mtc1/cvt/add/swc1 0x24/0x28 unsigned conversions + stores; second hole 125 retail[719:844] 0x0046BEBC-0x0046C0B0 continuation (swc1 0x28 + bltz); calls exact 15+30/15+30 both streams so stores/branches not missing calls; lump 19 insert [266:266] object[297:316]; conversion check retail 22 bltz/95 mtc1/96 cvt vs object 36/142/120 (+14/+47/+24 already over, adding unsigned would go 2018 over upper 2011, removing would go 1853 under -- leave floor alone)
-// fix 2026-09-19: hoist D_00887300/10 into tbl300/310 (lui 43->15, 61->33 object; surplus 15 remains from 2.0f conversions per conversion check, not touched); holes moved 396 retail[319:715]->254 retail[1028:1282] and 125 retail[719:844]->90 retail[1367:1457], lump 19 unchanged at [266:266] object[291:310]; frame 0x260->0x280 (+32 for two locals) but net -25 instrs/-151 edits/-38 words; jal exact; unsigned 2.0f test would go 2007->1557 (-450, under gate) so left alone.
-// fix 2026-09-19 (regsave): body held 12 values live that retail recomputes/spills -- 8 UV scalars (uvA0..uvBC) pinned $f23-$f29, parent/rec/idx pinned $s4-$s6, tbl300+tbl310 pinned wide ($s7+$fp); retail spills UVs to $sp 0xa0-0xbc (4 div.s early + 8 swc1, ld/sd+lwc1/swc1 swaps), reloads parent/rec/idx/flags chains from $s1(arg0) after every jal (slotidx alone held in $s0), materialises tables per region. Fix: uv[8] array (FP spares 7->0), sink parent/rec/idx to use-site recompute (GPR spares 5->1), narrow tbl310 to per-site extern keeping tbl300 wide (saves EXACT, frame 0x280->0x220 vs retail 0x240); plus temp-doubled unsigned conversions (2.0f*mul.s -> add.s), (f32) else-paths (kills runtime unsigned-conv explosion), &-first color extracts with u32 col (and+srl+andi, hoisted 0xFF000000), (x<<8)-x scaling with straight-line shift + conditional recompute, delete retail-absent aC-scale block and bb/bb2 re-derivation. fnalign retail 1948 vs object 1836, 2467 edits (+14 reloc, was 3125/-658), guarded 1841wd (was 1888): python3 tools/fnalign.py src/Kernel/sdkSpr.c func_0046b380 --candidate /var/tmp/decomp380/verify380.c --quiet. Residual is repetition-confusion (4 near-identical extra-regions) + 255-hoist/use-mask/delay-slot micro + per-region lui packing ($s3-scratch vs temps).
-/* gate: func_0046b380 is INSIDE the +-3% band at 1932 against retail 1948 (-0.8%, band
-   1890-2006) - +42 above the lower edge after restoring thirteen recomputation sites the
-   body had folded away (retail recomputes base-plus-index at every use; the body hoisted
-   it into base/b6/r2p).  It was at exactly the lower edge (1890, -3.0%) with no slack
-   downward; every batch below was measured, and anything that shortened was reverted.
-   Batches (object instrs, fnalign --candidate): 2 ov b6->base-order (L670,L832) +3
-   (1890->1893); 5 p-extra b6->base-order (L686 0x34, L780/L796 0x38, L830 0x3C, L936 0x40)
-   +20 (1893->1913); w6 r2p->base-order (L468, r2p dead and removed, neutral) +3
-   (1913->1916); 5 w b6->base-order (L669 +6 alone, L689/L734/L831/L906 +10) +16
-   (1916->1932).  Edits 2710->2755 (+45).  Base-order is (base+off)+idx, which will not
-   CSE with the b6-anchored branch/extra defs that keep b6 live, so each site keeps its
-   own addiu+addu; same-order full spellings CSE back to the hoisted form (+0) or worse.
-   Tried and reverted: 6 w same-order full -9; single ov same-order full +0; j y-chain
-   (L555) base-order -1; 6 ov full base-recompute -5.  Left alone: j y-chain (retail does
-   two full recomputes, body CSEs them to one - needs a CSE-breaking full spelling, not
-   base-order), 0x10 of frame (0x230 vs 0x240, needs dummy used locals - hacky, and the
-   floor now has +42 cushion without it). */
 // FUN_0046B380 NONMATCHING
 #ifdef NON_MATCHING
-void func_0046b380(u8 *arg0, s32 arg1) {
-    extern u8 *func_00457120(void);
-    extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-    extern void *func_003e0f80(void);
-    extern void *func_003e0680(void *mat, void *axis, s32 arg2, f32 fparg0, f32 fparg1);
-    extern void func_003e42e0(void *dst, void *src, s32 n, void *mat);
-    extern void func_003e0f40(void *mat);
-    extern void func_0046a7f0(u8 *arg0, u8 *arg1);
-    extern void (*D_00887300[])(u32 state, u32 value);
-    extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
-    void (**tbl300)(u32 state, u32 value);
-    extern f32 D_008872F8[];
-    extern u8 D_007130D8[];
-    extern f32 fGpffff8084;
-    extern f32 fGpffff8054;
-    extern f32 fGpffff8058;
-    extern f32 fGpffff805c;
-    extern f32 fGpffff8060;
-    extern f32 fGpffff81b0;
-    extern f32 fGpffff81b4;
-    extern f32 fGpffff81b8;
-    extern f32 fGpffff81bc;
-    extern f32 fGpffff81c0;
-    extern f32 fGpffff81c4;
-    extern f32 fGpffff81c8;
-    extern f32 fGpffff81cc;
-    u8 *parent;
-    u8 *rec;
-    s32 idx;
-    s32 slotidx;
-    u8 *slot;
-    f32 scale;
-    f32 uv[8];
-    s32 recFlags18;
-    s32 tmp;
-    s32 w6;
-    s32 h6;
-    u16 scX, scY;
-    s16 ov;
-    f32 fw, fh;
-    f32 ang;
-    f32 x, x2, r, q, h, cosv, sinv;
-    void *mat;
-    void *rot;
-    f32 srcM[4][3];
-    f32 dstM[4][3];
-    f32 pts[4][2];
-    f32 savedPts[4][2];
-    f32 pkt[4][16];
-    s32 i, j, k, m;
-    s32 v14;
-    f32 f0, f1;
-    u8 *rp;
-    u32 col;
-    s32 rC, gC, bC, aC;
-    s32 r2, g2, b2, a2;
-    s32 k255;
-    s32 alpha;
-    u8 abit;
-    f32 w54, h12, w58, h16, w5c, w60;
-    f32 t0, t1;
-    f32 negX, negY;
-    s32 base;
-    s32 wrapped, over;
-    f32 *spD, *dpD, *ppD, *spP;
-    u8 *b6;
-    s32 extra;
-    f32 p80, p84, p88, p8C, p90, p94, p98, p9C;
-    s32 wA, wB, wC, wD;
-    s16 t7;
-    u8 *bb, *bb2;
-    s16 ov2;
-    f32 pA0;
-    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
-    tbl300 = D_00887300;
-    if (arg1 != 0) {
-        tbl300[0](6, 1);
-        tbl300[0](7, 2);
-        tbl300[0](8, 1);
-        tbl300[0](9, 2);
-        tbl300[0](0xC, 1);
-        tbl300[0](0xB, 6);
-        tbl300[0](0xA, 5);
-        tbl300[0](2, 4);
-        tbl300[0](0xE, 0);
+/* measured: configured native whole-owner C is 7840 bytes versus a 7808-byte
+ * retail window, with 830 fully resolved alignment edits. Scoped loop
+ * invariants retain the rotation constants, as in func_0046a7f0. The remaining
+ * differences, including defined planar-Z and raster-less UV handling, are
+ * recorded in docs/probe_archive/Sprite_render_0046b380_20261005.md. */
+#pragma push
+#pragma opt_loop_invariants on
+void func_0046b380(u8 *sample, s32 setStates)
+{
+    RwV2d verticalLeft;
+    RwV2d horizontalTop;
+    RwV2d verticalRight;
+    RwV2d horizontalBottom;
+    SdkSpriteVertex vertices[4];
+    RwV3d source[4];
+    RwV3d transformed[4];
+    RwV2d uv[4];
+    RwV2d points[4];
+    RwV2d savedPoints[4];
+    s32 copyIndex;
+    s32 rasterIndex;
+    u8 *raster;
+    f32 reciprocalZ;
+    f32 angle;
+    s32 (**states)(RwRenderState, void *);
+    s32 (**render)(s32, void *, s32);
+
+    reciprocalZ = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+    if (setStates != 0) {
+        s32 (**initialStates)(RwRenderState, void *) =
+            &((SdkSpriteGlobalsPrefix *)ourGlobals)->device.setState;
+
+        initialStates[0](6, (void *)1);
+        initialStates[0](7, (void *)2);
+        initialStates[0](8, (void *)1);
+        initialStates[0](9, (void *)2);
+        initialStates[0](0xC, (void *)1);
+        initialStates[0](0xB, (void *)6);
+        initialStates[0](0xA, (void *)5);
+        initialStates[0](2, (void *)4);
+        initialStates[0](0xE, (void *)0);
     }
-    slotidx = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x14) << 2;
-    slot = *(u8 **)((*(u8 **)arg0) + 0x104 + slotidx);
-    if (slot != (u8 *)0) {
-        w54 = (f32)*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x54);
-        h12 = (f32)*(s32 *)(slot + 0xC);
-        uv[0] = w54 / h12;
-        w58 = (f32)*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
-        h16 = (f32)*(s32 *)(slot + 0x10);
-        uv[1] = w58 / h16;
-        w5c = (f32)((s32)*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x5C) - 1);
-        uv[6] = w5c / h12;
-        w60 = (f32)((s32)*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - 1);
-        uv[7] = w60 / h16;
-        uv[2] = uv[6];
-        uv[4] = uv[0];
-        uv[3] = uv[1];
-        uv[5] = uv[7];
+    rasterIndex = *(s32 *)(SDK_SPRITE_RECORD(sample) + 0x14);
+    raster = SDK_SPRITE_RASTERS(sample)[rasterIndex];
+    if (raster != NULL) {
+        s32 width = *(s32 *)(raster + 0xC);
+        s32 height = *(s32 *)(raster + 0x10);
+
+        uv[0].x = (f32)*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x54);
+        uv[0].x /= (f32)width;
+        uv[0].y = (f32)*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x58);
+        uv[0].y /= (f32)height;
+        uv[3].x = (f32)(*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x5C) - 1);
+        uv[3].x /= (f32)width;
+        uv[3].y = (f32)(*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x60) - 1);
+        uv[3].y /= (f32)height;
+        uv[1].x = uv[3].x;
+        uv[2].x = uv[0].x;
+        uv[1].y = uv[0].y;
+        uv[2].y = uv[3].y;
     }
-    if (arg1 != 0) {
-        RpSkyRenderStateSet(2, 0x44);
-        RpSkyRenderStateSet(3, 0x717FB);
-        if (*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x2C) & 1) {
-            RpSkyRenderStateSet(2, 0x48);
-            RpSkyRenderStateSet(3, 0x71801);
+    if (setStates != 0) {
+        RpSkyRenderStateSet(2, (void *)0x44);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
+        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x2C) & 1) != 0) {
+            RpSkyRenderStateSet(2, (void *)0x48);
+            RpSkyRenderStateSet(3, (void *)0x71801);
         }
-        if (*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x2C) & 2) {
-            RpSkyRenderStateSet(2, 0x42);
-            RpSkyRenderStateSet(3, 0x71801);
+        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x2C) & 2) != 0) {
+            RpSkyRenderStateSet(2, (void *)0x42);
+            RpSkyRenderStateSet(3, (void *)0x71801);
         }
     }
-    recFlags18 = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18);
-    if (recFlags18 & 2) {
-        t0 = uv[0]; t1 = uv[1];
-        uv[0] = uv[4]; uv[1] = uv[5];
-        uv[4] = t0; uv[5] = t1;
-        t0 = uv[2]; t1 = uv[3];
-        uv[2] = uv[6]; uv[3] = uv[7];
-        uv[6] = t0; uv[7] = t1;
+    /* A null raster selects an untextured draw. Its UV storage is not
+     * initialized by retail and must not be read as C floating values. */
+    if (raster != NULL) {
+        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 2) != 0) {
+            verticalLeft = uv[0];
+            uv[0] = uv[2];
+            uv[2] = verticalLeft;
+            verticalRight = uv[1];
+            uv[1] = uv[3];
+            uv[3] = verticalRight;
+        }
+        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 1) != 0) {
+            horizontalTop = uv[0];
+            uv[0] = uv[1];
+            uv[1] = horizontalTop;
+            horizontalBottom = uv[2];
+            uv[2] = uv[3];
+            uv[3] = horizontalBottom;
+        }
     }
-    if (recFlags18 & 1) {
-        t0 = uv[0]; t1 = uv[1];
-        uv[0] = uv[2]; uv[1] = uv[3];
-        uv[2] = t0; uv[3] = t1;
-        t0 = uv[4]; t1 = uv[5];
-        uv[4] = uv[6]; uv[5] = uv[7];
-        uv[6] = t0; uv[7] = t1;
+
+    source[0].x = (f32)-*(s16 *)(sample + 0x1C);
+    source[0].y = (f32)-*(s16 *)(sample + 0x1E);
+    source[3].x = sdkSpriteRight(sample, 0);
+    source[3].y = sdkSpriteBottom(sample, 0);
+    source[1].x = source[3].x;
+    source[1].y = source[0].y;
+    source[2].x = source[0].x;
+    source[2].y = source[3].y;
+    /* The input is a 2D plane rotated around the proven unit-Z axis.
+     * Retail omits these writes. Explicit planar Z keeps the C input defined
+     * and contributes to this guarded draft's measured nonmatch. */
+    source[0].z = 0.0f;
+    source[1].z = 0.0f;
+    source[2].z = 0.0f;
+    source[3].z = 0.0f;
+    angle = *(f32 *)(sample + 0x18);
+    if (angle != 0.0f) {
+        f32 x, x2, polynomial, quadraticProduct, correction;
+        f32 oneMinusCosine, sine;
+        s32 wrapped;
+        RwMatrix *matrix;
+        RwMatrix *rotation;
+
+        do {
+            s32 notAboveUpper;
+
+            wrapped = 0;
+            notAboveUpper = !(angle > 180.0f);
+            if (!notAboveUpper) {
+                angle -= 360.0f;
+                wrapped = 1;
+            } else if (angle < -180.0f) {
+                angle += 360.0f;
+                wrapped = 1;
+            }
+        } while (wrapped != 0);
+        x = (fGpffff8084 * angle) / 180.0f;
+        x2 = x * x;
+        matrix = func_003e0f80();
+        polynomial = fGpffff81b0 * x2 + fGpffff81b4;
+        polynomial = x2 * polynomial + fGpffff81b8;
+        polynomial = x2 * polynomial + fGpffff81bc;
+        polynomial = x2 * polynomial + fGpffff81c0;
+        polynomial = x2 * polynomial + fGpffff81c4;
+        quadraticProduct = x2 * polynomial;
+        correction = 0.5f * x2 - x2 * quadraticProduct;
+        oneMinusCosine = 1.0f - (1.0f - correction);
+        polynomial = fGpffff81c8 * x2 + fGpffff8054;
+        polynomial = x2 * polynomial + fGpffff8058;
+        polynomial = x2 * polynomial + fGpffff805c;
+        polynomial = x2 * polynomial + fGpffff8060;
+        polynomial = x2 * polynomial + fGpffff81cc;
+        {
+            f32 cubic = x2 * x;
+            sine = x + cubic * polynomial;
+        }
+        rotation = func_003e0680(matrix, (const RwV3d *)D_007130D8,
+                               oneMinusCosine, sine, rwCOMBINEREPLACE);
+        func_003e42e0(transformed, source, 4, rotation);
+        func_003e0f40(rotation);
+        for (copyIndex = 0; copyIndex < 4; copyIndex++) {
+            source[copyIndex] = transformed[copyIndex];
+        }
     }
     {
-        negX = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
-        negY = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
-        base = *(s32 *)((*(u8 **)arg0) + 0x204);
-        w6 = *(s32 *)((u8 *)(base + 0x5C) + ((*(s32 *)(arg0 + 4)) << 7)) - *(s32 *)((u8 *)(base + 0x54) + ((*(s32 *)(arg0 + 4)) << 7));
-        ov = *(s16 *)(base + 0x74 + ((*(s32 *)(arg0 + 4)) << 7));
-        if (ov != 0) {
-            w6 = ov;
-        }
-        scX = *(u16 *)(arg0 + 0x20);
-        if (scX != 0) {
-            w6 = (s32)(((u32)(w6 * scX)) >> 12);
-        }
-        if ((s32)w6 < 0) {
-            fw = (f32)(u32)(((u32)w6 >> 1) | (w6 & 1));
-            fw = fw + fw;
-        } else {
-            fw = (f32)w6;
-        }
-        fw = fw - (f32)*(s16 *)(arg0 + 0x1C);
-        h6 = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
-        ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x76);
-        if (ov != 0) {
-            h6 = ov;
-        }
-        scY = *(u16 *)(arg0 + 0x22);
-        if (scY != 0) {
-            h6 = (s32)(((u32)(h6 * scY)) >> 12);
-        }
-        if ((s32)h6 < 0) {
-            fh = (f32)(u32)(((u32)h6 >> 1) | (h6 & 1));
-            fh = fh + fh;
-        } else {
-            fh = (f32)h6;
-        }
-        fh = fh - (f32)*(s16 *)(arg0 + 0x1E);
-        srcM[0][0] = fw;
-        srcM[0][1] = negY;
-        srcM[0][2] = negX;
-        srcM[1][0] = fh;
-        srcM[1][1] = fw;
-        srcM[1][2] = negY;
-        srcM[2][0] = negX;
-        srcM[2][1] = fh;
-        srcM[3][0] = fw;
-        srcM[3][1] = fh;
-        ang = *(f32 *)(arg0 + 0x18);
-        if (ang != 0.0f) {
-            /* wrapped hoisted */
-            do {
-                /* over hoisted */
-                wrapped = 0;
-                over = !(ang <= 180.0f);
-                if (over) {
-                    ang -= 360.0f;
-                    wrapped = 1;
-                } else if (ang < -180.0f) {
-                    ang += 360.0f;
-                    wrapped = 1;
-                }
-            } while (wrapped != 0);
-            x = (fGpffff8084 * ang) / 180.0f;
-            x2 = x * x;
-            mat = func_003e0f80();
-            r = fGpffff81b0 * x2 + fGpffff81b4;
-            r = x2 * r + fGpffff81b8;
-            r = x2 * r + fGpffff81bc;
-            r = x2 * r + fGpffff81c0;
-            r = x2 * r + fGpffff81c4;
-            q = x2 * r;
-            h = 0.5f * x2 - x2 * q;
-            cosv = 1.0f - (1.0f - h);
-            r = fGpffff81c8 * x2 + fGpffff8054;
-            r = x2 * r + fGpffff8058;
-            r = x2 * r + fGpffff805c;
-            r = x2 * r + fGpffff8060;
-            r = x2 * r + fGpffff81cc;
-            sinv = x + (x2 * x) * r;
-            rot = func_003e0680(mat, D_007130D8, 0, cosv, sinv);
-            func_003e42e0(dstM, srcM, 4, rot);
-            func_003e0f40(rot);
-            for (k = 0; k < 4; k++) {
-                srcM[k][0] = dstM[k][0];
-                srcM[k][1] = dstM[k][1];
-                srcM[k][2] = dstM[k][2];
+        s32 pointIndex;
+        for (pointIndex = 0; pointIndex < 4; pointIndex++) {
+            points[pointIndex].x = *(f32 *)(sample + 8) +
+                ((f32)*(s16 *)(sample + 0x1C) + source[pointIndex].x) +
+                (f32)*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x44);
+            {
+                f32 subtotal = *(f32 *)(sample + 0xC) +
+                    ((f32)*(s16 *)(sample + 0x1E) + source[pointIndex].y);
+                subtotal += (f32)*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x48);
+                points[pointIndex].y = subtotal;
             }
-        }
-        for (j = 0; j < 4; j++) {
-            spD = srcM[j];
-            dpD = pts[j];
-            dpD[0] = *(f32 *)(arg0 + 8) + ((f32)*(s16 *)(arg0 + 0x1C) + spD[0]) + (f32)*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x44);
-            dpD[1] = *(f32 *)(arg0 + 0xC) + ((f32)*(s16 *)(arg0 + 0x1E) + spD[1]) + (f32)*(s32 *)((((*(s32 *)(arg0 + 4)) << 7) + (*(u8 **)((*(u8 **)arg0) + 0x204))) + 0x48);
-        }
-        k255 = 255;
-        for (i = 0; i < 4; i++) {
-            ppD = pkt[i];
-            spP = pts[i];
-            ppD[2] = D_008872F8[0] - *(f32 *)(arg0 + 0x24);
-            ppD[6] = scale;
-            ppD[4] = uv[i * 2];
-            ppD[5] = uv[i * 2 + 1];
-            rp = (*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7));
-            if (i == 2) {
-                col = *(s32 *)(rp + 0x70);
-            } else if (i == 3) {
-                col = *(s32 *)(rp + 0x6C);
-            } else {
-                col = *(s32 *)(rp + 0x64 + i * 4);
-            }
-            rC = ((col & 0xFF000000) >> 24) & 0xFF;
-            gC = ((col & 0xFF0000) >> 16) & 0xFF;
-            bC = ((col & 0xFF00) >> 8) & 0xFF;
-            aC = col & 0xFF;
-            r2 = (((rC & 0xFF) * *(u8 *)(arg0 + 0x28)) / k255) & 0xFF;
-            g2 = (((gC & 0xFF) * *(u8 *)(arg0 + 0x29)) / k255) & 0xFF;
-            b2 = (((bC & 0xFF) * *(u8 *)(arg0 + 0x2A)) / k255) & 0xFF;
-            if ((*(s32 *)(rp + 0x18) & 8) == 0) {
-                if ((r2 & 0xFF) < 0x81) {
-                    tmp = (r2 << 8) - r2;
-                    r2 = tmp >> 7;
-                    if (tmp < 0) {
-                        r2 = (tmp + 127) >> 7;
-                    }
-                    r2 &= 0xFF;
-                } else {
-                    r2 = k255;
-                }
-                if ((g2 & 0xFF) < 0x81) {
-                    tmp = (g2 << 8) - g2;
-                    g2 = tmp >> 7;
-                    if (tmp < 0) {
-                        g2 = (tmp + 127) >> 7;
-                    }
-                    g2 &= 0xFF;
-                } else {
-                    g2 = k255;
-                }
-                if ((b2 & 0xFF) < 0x81) {
-                    tmp = (b2 << 8) - b2;
-                    b2 = tmp >> 7;
-                    if (tmp < 0) {
-                        b2 = (tmp + 127) >> 7;
-                    }
-                    b2 &= 0xFF;
-                } else {
-                    b2 = k255;
-                }
-            }
-            alpha = ((aC & 0xFF) * (k255 - *(u8 *)(arg0 + 0x11))) / k255;
-            abit = *(u8 *)(arg0 + 0x10);
-            if ((s32)abit < (s32)(alpha & 0xFF)) {
-                a2 = (alpha - abit) & 0xFF;
-            } else {
-                a2 = 0;
-            }
-            if ((s32)r2 < 0) {
-                f0 = (f32)(u32)(((u32)r2 >> 1) | (r2 & 1));
-                f0 = f0 + f0;
-            } else {
-                f0 = (f32)r2;
-            }
-            ppD[8] = f0;
-            if ((s32)g2 < 0) {
-                f0 = (f32)(u32)(((u32)g2 >> 1) | (g2 & 1));
-                f0 = f0 + f0;
-            } else {
-                f0 = (f32)g2;
-            }
-            ppD[9] = f0;
-            if ((s32)b2 < 0) {
-                f0 = (f32)(u32)(((u32)b2 >> 1) | (b2 & 1));
-                f0 = f0 + f0;
-            } else {
-                f0 = (f32)b2;
-            }
-            ppD[10] = f0;
-            if ((s32)a2 < 0) {
-                f0 = (f32)(u32)(((u32)a2 >> 1) | (a2 & 1));
-                f0 = f0 + f0;
-            } else {
-                f0 = (f32)a2;
-            }
-            ppD[11] = f0;
-            ppD[0] = spP[0];
-            ppD[1] = spP[1];
-        }
-        if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
-            tbl300[0](1, 0);
-        } else {
-            tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
-        }
-        D_00887310[0](4, pkt, 4);
-        for (m = 0; m < 4; m++) {
-            savedPts[m][0] = pts[m][0];
-            savedPts[m][1] = pts[m][1];
-        }
-        {
-            b6 = (*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7));
-            extra = *(s32 *)(b6 + 0x34);
-            if (extra != 0) {
-                /* p hoisted */
-                /* w hoisted */
-                /* t7 hoisted */
-                p80 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
-                p84 = (f32)(s32)(-(s16)(*(s16 *)(arg0 + 0x1E) + extra));
-                wA = *(s32 *)((u8 *)(base + 0x5C) + ((*(s32 *)(arg0 + 4)) << 7)) - *(s32 *)((u8 *)(base + 0x54) + ((*(s32 *)(arg0 + 4)) << 7));
-                ov = *(s16 *)((u8 *)(base + 0x74) + ((*(s32 *)(arg0 + 4)) << 7));
-                if (ov != 0) {
-                    wA = ov;
-                }
-                scX = *(u16 *)(arg0 + 0x20);
-                if (scX != 0) {
-                    wA = (s32)(((u32)(wA * scX)) >> 12);
-                }
-                if (wA < 0) {
-                    f1 = (f32)(u32)(((u32)wA >> 1) | (wA & 1));
-                    f1 = f1 + f1;
-                } else {
-                    f1 = (f32)wA;
-                }
-                t7 = *(s16 *)(arg0 + 0x1C);
-                p88 = f1 - (f32)t7;
-                p8C = (f32)(s32)(-(s16)(*(s16 *)(arg0 + 0x1E) + *(s32 *)((u8 *)(base + 0x34) + ((*(s32 *)(arg0 + 4)) << 7))));
-                p90 = (f32)(s32)(-t7);
-                p94 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
-                wB = *(s32 *)((u8 *)(base + 0x5C) + ((*(s32 *)(arg0 + 4)) << 7)) - *(s32 *)((u8 *)(base + 0x54) + ((*(s32 *)(arg0 + 4)) << 7));
-                ov = *(s16 *)((u8 *)(base + 0x74) + ((*(s32 *)(arg0 + 4)) << 7));
-                if (ov != 0) {
-                    wB = ov;
-                }
-                if (*(u16 *)(arg0 + 0x20) != 0) {
-                    wB = (s32)(((u32)(wB * *(u16 *)(arg0 + 0x20))) >> 12);
-                }
-                if (wB < 0) {
-                    f1 = (f32)(u32)(((u32)wB >> 1) | (wB & 1));
-                    f1 = f1 + f1;
-                } else {
-                    f1 = (f32)wB;
-                }
-                p98 = f1 - (f32)*(s16 *)(arg0 + 0x1C);
-                p9C = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
-                {
-                    pts[0][0] = p80; pts[0][1] = p84;
-                    pts[1][0] = p88; pts[1][1] = p8C;
-                    pts[2][0] = p90; pts[2][1] = p94;
-                    pts[3][0] = p98; pts[3][1] = p9C;
-                    func_0046a7f0(arg0, (u8 *)pts);
-                }
-                pkt[0][0] = pts[0][0]; pkt[0][1] = pts[0][1];
-                pkt[1][0] = pts[1][0]; pkt[1][1] = pts[1][1];
-                pkt[2][0] = pts[2][0]; pkt[2][1] = pts[2][1];
-                pkt[3][0] = pts[3][0]; pkt[3][1] = pts[3][1];
-                pkt[0][4] = uv[0]; pkt[0][5] = uv[1];
-                pkt[1][4] = uv[2]; pkt[1][5] = uv[3];
-                pkt[2][4] = uv[4]; pkt[2][5] = uv[5];
-                pkt[3][4] = uv[6]; pkt[3][5] = uv[7];
-                if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
-                    tbl300[0](1, 0);
-                } else {
-                    tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
-                }
-                D_00887310[0](4, pkt, 4);
-            }
-        }
-        {
-            b6 = (*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7));
-            if (*(s32 *)(b6 + 0x38) != 0) {
-                /* p hoisted */
-                /* w hoisted */
-                p80 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
-                wA = *(s32 *)((u8 *)(base + 0x60) + ((*(s32 *)(arg0 + 4)) << 7)) - *(s32 *)((u8 *)(base + 0x58) + ((*(s32 *)(arg0 + 4)) << 7));
-                ov = *(s16 *)((u8 *)(base + 0x76) + ((*(s32 *)(arg0 + 4)) << 7));
-                if (ov != 0) {
-                    wA = ov;
-                }
-                if (*(u16 *)(arg0 + 0x22) != 0) {
-                    wA = (s32)(((u32)(wA * *(u16 *)(arg0 + 0x22))) >> 12);
-                }
-                if (wA < 0) {
-                    f1 = (f32)(u32)(((u32)wA >> 1) | (wA & 1));
-                    f1 = f1 + f1;
-                } else {
-                    f1 = (f32)wA;
-                }
-                p84 = f1 - (f32)*(s16 *)(arg0 + 0x1E);
-                wB = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x5C) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x54);
-                ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x74);
-                if (ov != 0) {
-                    wB = ov;
-                }
-                if (*(u16 *)(arg0 + 0x20) != 0) {
-                    wB = (s32)(((u32)(wB * *(u16 *)(arg0 + 0x20))) >> 12);
-                }
-                if (wB < 0) {
-                    f1 = (f32)(u32)(((u32)wB >> 1) | (wB & 1));
-                    f1 = f1 + f1;
-                } else {
-                    f1 = (f32)wB;
-                }
-                p88 = f1 - (f32)*(s16 *)(arg0 + 0x1C);
-                wC = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
-                ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x76);
-                if (ov != 0) {
-                    wC = ov;
-                }
-                if (*(u16 *)(arg0 + 0x22) != 0) {
-                    wC = (s32)(((u32)(wC * *(u16 *)(arg0 + 0x22))) >> 12);
-                }
-                if (wC < 0) {
-                    f1 = (f32)(u32)(((u32)wC >> 1) | (wC & 1));
-                    f1 = f1 + f1;
-                } else {
-                    f1 = (f32)wC;
-                }
-                p8C = f1 - (f32)*(s16 *)(arg0 + 0x1E);
-                p90 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
-                p94 = (f32)*(s32 *)((u8 *)(base + 0x38) + ((*(s32 *)(arg0 + 4)) << 7)) + (f1 - (f32)*(s16 *)(arg0 + 0x1E));
-                wD = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
-                ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x76);
-                if (ov != 0) {
-                    wD = ov;
-                }
-                if (*(u16 *)(arg0 + 0x22) != 0) {
-                    wD = (s32)(((u32)(wD * *(u16 *)(arg0 + 0x22))) >> 12);
-                }
-                if (wD < 0) {
-                    f1 = (f32)(u32)(((u32)wD >> 1) | (wD & 1));
-                    f1 = f1 + f1;
-                } else {
-                    f1 = (f32)wD;
-                }
-                p98 = f1 - (f32)*(s16 *)(arg0 + 0x1C);
-                p9C = (f32)*(s32 *)((u8 *)(base + 0x38) + ((*(s32 *)(arg0 + 4)) << 7)) + (f1 - (f32)*(s16 *)(arg0 + 0x1E));
-                {
-                    pts[0][0] = p80; pts[0][1] = p84;
-                    pts[1][0] = p88; pts[1][1] = p8C;
-                    pts[2][0] = p90; pts[2][1] = p94;
-                    pts[3][0] = p98; pts[3][1] = p9C;
-                    func_0046a7f0(arg0, (u8 *)pts);
-                }
-                pkt[0][0] = pts[0][0]; pkt[0][1] = pts[0][1];
-                pkt[1][0] = pts[1][0]; pkt[1][1] = pts[1][1];
-                pkt[2][0] = pts[2][0]; pkt[2][1] = pts[2][1];
-                pkt[3][0] = pts[3][0]; pkt[3][1] = pts[3][1];
-                pkt[0][4] = uv[0]; pkt[0][5] = uv[1];
-                pkt[1][4] = uv[2]; pkt[1][5] = uv[3];
-                pkt[2][4] = uv[4]; pkt[2][5] = uv[5];
-                pkt[3][4] = uv[6]; pkt[3][5] = uv[7];
-                if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
-                    tbl300[0](1, 0);
-                } else {
-                    tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
-                }
-                D_00887310[0](4, pkt, 4);
-            }
-        }
-        {
-            b6 = (*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7));
-            extra = *(s32 *)(b6 + 0x3C);
-            if (extra != 0) {
-                /* p hoisted */
-                /* w hoisted */
-                p80 = (f32)(s32)(-(s16)(*(s16 *)(arg0 + 0x1C) + extra));
-                p84 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
-                p88 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
-                p8C = p84;
-                p90 = (f32)(s32)(-(s16)(*(s16 *)(arg0 + 0x1C) + *(s32 *)((u8 *)(base + 0x3C) + ((*(s32 *)(arg0 + 4)) << 7))));
-                wA = *(s32 *)((u8 *)(base + 0x60) + ((*(s32 *)(arg0 + 4)) << 7)) - *(s32 *)((u8 *)(base + 0x58) + ((*(s32 *)(arg0 + 4)) << 7));
-                ov = *(s16 *)((u8 *)(base + 0x76) + ((*(s32 *)(arg0 + 4)) << 7));
-                if (ov != 0) {
-                    wA = ov;
-                }
-                if (*(u16 *)(arg0 + 0x22) != 0) {
-                    wA = (s32)(((u32)(wA * *(u16 *)(arg0 + 0x22))) >> 12);
-                }
-                if (wA < 0) {
-                    f1 = (f32)(u32)(((u32)wA >> 1) | (wA & 1));
-                    f1 = f1 + f1;
-                } else {
-                    f1 = (f32)wA;
-                }
-                p94 = f1 - (f32)*(s16 *)(arg0 + 0x1E);
-                p98 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
-                wB = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
-                ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x76);
-                if (ov != 0) {
-                    wB = ov;
-                }
-                if (*(u16 *)(arg0 + 0x22) != 0) {
-                    wB = (s32)(((u32)(wB * *(u16 *)(arg0 + 0x22))) >> 12);
-                }
-                if (wB < 0) {
-                    f1 = (f32)(u32)(((u32)wB >> 1) | (wB & 1));
-                    f1 = f1 + f1;
-                } else {
-                    f1 = (f32)wB;
-                }
-                p9C = (f32)*(s32 *)(b6 + 0x3C) + (f1 - (f32)*(s16 *)(arg0 + 0x1E));
-                wC = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x5C) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x54);
-                ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x74);
-                if (ov != 0) {
-                    wC = ov;
-                }
-                if (*(u16 *)(arg0 + 0x20) != 0) {
-                    wC = (s32)(((u32)(wC * *(u16 *)(arg0 + 0x20))) >> 12);
-                }
-                if (wC < 0) {
-                    f1 = (f32)(u32)(((u32)wC >> 1) | (wC & 1));
-                    f1 = f1 + f1;
-                } else {
-                    f1 = (f32)wC;
-                }
-                {
-                    pA0 = f1 - (f32)*(s16 *)(arg0 + 0x1C);
-                    pts[0][0] = p80; pts[0][1] = p84;
-                    pts[1][0] = p88; pts[1][1] = p8C;
-                    pts[2][0] = p90; pts[2][1] = p94;
-                    pts[3][0] = p98; pts[3][1] = p9C;
-                    func_0046a7f0(arg0, (u8 *)pts);
-                    pkt[0][0] = pts[0][0]; pkt[0][1] = pts[0][1];
-                    pkt[1][0] = pts[1][0]; pkt[1][1] = pts[1][1];
-                    pkt[2][0] = pts[2][0]; pkt[2][1] = pts[2][1];
-                    pkt[3][0] = pts[3][0]; pkt[3][1] = pts[3][1];
-                    pkt[0][4] = uv[0]; pkt[0][5] = uv[1];
-                    pkt[1][4] = uv[2]; pkt[1][5] = uv[3];
-                    pkt[2][4] = uv[4]; pkt[2][5] = uv[5];
-                    pkt[3][4] = uv[6]; pkt[3][5] = uv[7];
-                    (void)pA0;
-                    if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
-                        tbl300[0](1, 0);
-                    } else {
-                        tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
-                    }
-                    D_00887310[0](4, pkt, 4);
-                }
-            }
-        }
-        {
-            b6 = (*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7));
-            if (*(s32 *)(b6 + 0x40) != 0) {
-                /* p hoisted */
-                /* w hoisted */
-                wA = *(s32 *)((u8 *)(base + 0x5C) + ((*(s32 *)(arg0 + 4)) << 7)) - *(s32 *)((u8 *)(base + 0x54) + ((*(s32 *)(arg0 + 4)) << 7));
-                ov = *(s16 *)((u8 *)(base + 0x74) + ((*(s32 *)(arg0 + 4)) << 7));
-                if (ov != 0) {
-                    wA = ov;
-                }
-                if (*(u16 *)(arg0 + 0x20) != 0) {
-                    wA = (s32)(((u32)(wA * *(u16 *)(arg0 + 0x20))) >> 12);
-                }
-                if (wA < 0) {
-                    f1 = (f32)(u32)(((u32)wA >> 1) | (wA & 1));
-                    f1 = f1 + f1;
-                } else {
-                    f1 = (f32)wA;
-                }
-                p80 = f1 - (f32)*(s16 *)(arg0 + 0x1C);
-                p84 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
-                wB = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x5C) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x54);
-                ov = *(s16 *)((u8 *)(base + 0x74) + ((*(s32 *)(arg0 + 4)) << 7));
-                if (ov != 0) {
-                    wB = ov;
-                }
-                if (*(u16 *)(arg0 + 0x20) != 0) {
-                    wB = (s32)(((u32)(wB * *(u16 *)(arg0 + 0x20))) >> 12);
-                }
-                if (wB < 0) {
-                    f1 = (f32)(u32)(((u32)wB >> 1) | (wB & 1));
-                    f1 = f1 + f1;
-                } else {
-                    f1 = (f32)wB;
-                }
-                p88 = (f32)*(s32 *)((u8 *)(base + 0x40) + ((*(s32 *)(arg0 + 4)) << 7)) + (f1 - (f32)*(s16 *)(arg0 + 0x1C));
-                p8C = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
-                wC = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
-                ov = *(s16 *)((u8 *)(base + 0x76) + ((*(s32 *)(arg0 + 4)) << 7));
-                if (ov != 0) {
-                    wC = ov;
-                }
-                if (*(u16 *)(arg0 + 0x22) != 0) {
-                    wC = (s32)(((u32)(wC * *(u16 *)(arg0 + 0x22))) >> 12);
-                }
-                if (wC < 0) {
-                    f1 = (f32)(u32)(((u32)wC >> 1) | (wC & 1));
-                    f1 = f1 + f1;
-                } else {
-                    f1 = (f32)wC;
-                }
-                p90 = f1 - (f32)*(s16 *)(arg0 + 0x1E);
-                p94 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
-                wD = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
-                ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x76);
-                if (ov != 0) {
-                    wD = ov;
-                }
-                if (*(u16 *)(arg0 + 0x22) != 0) {
-                    wD = (s32)(((u32)(wD * *(u16 *)(arg0 + 0x22))) >> 12);
-                }
-                if (wD < 0) {
-                    f1 = (f32)(u32)(((u32)wD >> 1) | (wD & 1));
-                    f1 = f1 + f1;
-                } else {
-                    f1 = (f32)wD;
-                }
-                p98 = f1 - (f32)*(s16 *)(arg0 + 0x1E);
-                p9C = p94;
-                {
-                    pts[0][0] = p80; pts[0][1] = p84;
-                    pts[1][0] = p88; pts[1][1] = p8C;
-                    pts[2][0] = p90; pts[2][1] = p94;
-                    pts[3][0] = p98; pts[3][1] = p9C;
-                    func_0046a7f0(arg0, (u8 *)pts);
-                }
-                pkt[0][0] = pts[0][0]; pkt[0][1] = pts[0][1];
-                pkt[1][0] = pts[1][0]; pkt[1][1] = pts[1][1];
-                pkt[2][0] = pts[2][0]; pkt[2][1] = pts[2][1];
-                pkt[3][0] = pts[3][0]; pkt[3][1] = pts[3][1];
-                pkt[0][4] = uv[0]; pkt[0][5] = uv[1];
-                pkt[1][4] = uv[2]; pkt[1][5] = uv[3];
-                pkt[2][4] = uv[4]; pkt[2][5] = uv[5];
-                pkt[3][4] = uv[6]; pkt[3][5] = uv[7];
-                if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
-                    tbl300[0](1, 0);
-                } else {
-                    tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
-                }
-                D_00887310[0](4, pkt, 4);
-            }
-        }
-        for (m = 0; m < 4; m++) {
-            pts[m][0] = savedPts[m][0];
-            pts[m][1] = savedPts[m][1];
-        }
-        if (*(s16 *)(arg0 + 0x16) != 0) {
-            pkt[0][0] = pts[2][0]; pkt[0][1] = pts[2][1];
-            pkt[1][0] = pts[3][0]; pkt[1][1] = pts[3][1];
-            pkt[2][0] = pts[2][0]; pkt[2][1] = pts[2][1];
-            pkt[2][1] = pts[2][1] + (f32)*(s16 *)(arg0 + 0x16);
-            pkt[3][0] = pts[3][0]; pkt[3][1] = pts[3][1] + (f32)*(s16 *)(arg0 + 0x16);
-            pkt[0][4] = uv[4]; pkt[0][5] = uv[5];
-            pkt[1][4] = uv[6]; pkt[1][5] = uv[7];
-            pkt[2][4] = uv[4]; pkt[2][5] = uv[5];
-            pkt[3][4] = uv[6]; pkt[3][5] = uv[7];
-            if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
-                tbl300[0](1, 0);
-            } else {
-                tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
-            }
-            D_00887310[0](4, pkt, 4);
-            return;
-        }
-        if (*(s16 *)(arg0 + 0x14) != 0) {
-            pkt[0][0] = pts[1][0]; pkt[0][1] = pts[1][1];
-            pkt[1][0] = (f32)((s32)pts[1][0] + *(s16 *)(arg0 + 0x14)); pkt[1][1] = pts[1][1];
-            pkt[2][0] = pts[3][0]; pkt[2][1] = pts[3][1];
-            pkt[3][0] = (f32)((s32)pts[3][0] + *(s16 *)(arg0 + 0x14)); pkt[3][1] = pts[3][1];
-            pkt[0][4] = uv[2]; pkt[0][5] = uv[3];
-            pkt[1][4] = uv[2]; pkt[1][5] = uv[3];
-            pkt[2][4] = uv[6]; pkt[2][5] = uv[7];
-            pkt[3][4] = uv[6]; pkt[3][5] = uv[7];
-            if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
-                tbl300[0](1, 0);
-            } else {
-                tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
-            }
-            D_00887310[0](4, pkt, 4);
         }
     }
+    {
+        s32 vertexIndex;
+        for (vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
+            SdkSpriteVertex *vertex = &vertices[vertexIndex];
+            RwRGBA color;
+
+            vertex->u.els.screen.z = D_008872F8[0] - *(f32 *)(sample + 0x24);
+            vertex->u.els.reciprocalZ = reciprocalZ;
+            if (raster != NULL) {
+                vertex->u.els.u = uv[vertexIndex].x;
+                vertex->u.els.v = uv[vertexIndex].y;
+            }
+            if (vertexIndex == 2) {
+                u32 packed = *(u32 *)(SDK_SPRITE_RECORD(sample) + 0x70);
+                color.red = (packed & 0xFF000000) >> 24;
+                color.green = (packed & 0xFF0000) >> 16;
+                color.blue = (packed & 0xFF00) >> 8;
+                color.alpha = packed & 0xFF;
+            } else if (vertexIndex == 3) {
+                u32 packed = *(u32 *)(SDK_SPRITE_RECORD(sample) + 0x6C);
+                color.red = (packed & 0xFF000000) >> 24;
+                color.green = (packed & 0xFF0000) >> 16;
+                color.blue = (packed & 0xFF00) >> 8;
+                color.alpha = packed & 0xFF;
+            } else {
+                u32 packed = *(u32 *)(SDK_SPRITE_RECORD(sample) + 0x64 + vertexIndex * 4);
+                color.red = (packed & 0xFF000000) >> 24;
+                color.green = (packed & 0xFF0000) >> 16;
+                color.blue = (packed & 0xFF00) >> 8;
+                color.alpha = packed & 0xFF;
+            }
+            color.red = color.red * *(u8 *)(sample + 0x28) / 255;
+            color.green = color.green * *(u8 *)(sample + 0x29) / 255;
+            color.blue = color.blue * *(u8 *)(sample + 0x2A) / 255;
+            if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+                if (color.red > 128) color.red = 255;
+                else color.red = color.red * 255 / 128;
+                if (color.green > 128) color.green = 255;
+                else color.green = color.green * 255 / 128;
+                if (color.blue > 128) color.blue = 255;
+                else color.blue = color.blue * 255 / 128;
+                if (color.alpha > 128) color.alpha = 255;
+                else color.alpha = color.alpha * 255 / 128;
+            }
+            color.alpha = color.alpha * (255 - *(u8 *)(sample + 0x11)) / 255;
+            if (*(u8 *)(sample + 0x10) < color.alpha) {
+                color.alpha -= *(u8 *)(sample + 0x10);
+            } else {
+                color.alpha = 0;
+            }
+            sdkSpriteVertexSetColor(&vertices[vertexIndex], color.red, color.green,
+                                   color.blue, color.alpha);
+            vertices[vertexIndex].u.els.screen.x = points[vertexIndex].x;
+            vertices[vertexIndex].u.els.screen.y = points[vertexIndex].y;
+        }
+    }
+    if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+        states = &((SdkSpriteGlobalsPrefix *)ourGlobals)->device.setState;
+        states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
+    } else {
+        states = &((SdkSpriteGlobalsPrefix *)ourGlobals)->device.setState;
+        states[0](1, NULL);
+    }
+    render = &((SdkSpriteGlobalsPrefix *)ourGlobals)->device.renderPrimitive;
+    render[0](4, vertices, 4);
+    {
+        s32 saveIndex;
+        for (saveIndex = 0; saveIndex < 4; saveIndex++) {
+            savedPoints[saveIndex] = points[saveIndex];
+        }
+    }
+
+    if (*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x34) != 0) {
+        points[0].x = (f32)-*(s16 *)(sample + 0x1C);
+        points[0].y = (f32)-(*(s16 *)(sample + 0x1E) + *(s32 *)(SDK_SPRITE_RECORD(sample) + 0x34));
+        points[1].x = sdkSpriteRight(sample, 0);
+        points[1].y = (f32)-(*(s16 *)(sample + 0x1E) + *(s32 *)(SDK_SPRITE_RECORD(sample) + 0x34));
+        points[2].x = (f32)-*(s16 *)(sample + 0x1C);
+        points[2].y = (f32)-*(s16 *)(sample + 0x1E);
+        points[3].x = sdkSpriteRight(sample, 0);
+        points[3].y = (f32)-*(s16 *)(sample + 0x1E);
+        func_0046a7f0(sample, (u8 *)points);
+        sdkSpritePositionQuad(vertices, points);
+        if (raster != NULL) {
+            vertices[0].u.els.u = uv[0].x; vertices[0].u.els.v = uv[0].y;
+            vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
+            vertices[2].u.els.u = uv[0].x; vertices[2].u.els.v = uv[0].y;
+            vertices[3].u.els.u = uv[1].x; vertices[3].u.els.v = uv[1].y;
+        }
+        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+            states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
+        } else {
+            states[0](1, NULL);
+        }
+        render[0](4, vertices, 4);
+    }
+    if (*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x38) != 0) {
+        points[0].x = (f32)-*(s16 *)(sample + 0x1C);
+        points[0].y = sdkSpriteBottom(sample, 0);
+        points[1].x = sdkSpriteRight(sample, 0);
+        points[1].y = sdkSpriteBottom(sample, 0);
+        points[2].x = (f32)-*(s16 *)(sample + 0x1C);
+        points[2].y = sdkSpriteBottom(sample, 1);
+        points[3].x = sdkSpriteRight(sample, 0);
+        points[3].y = sdkSpriteBottom(sample, 1);
+        func_0046a7f0(sample, (u8 *)points);
+        sdkSpritePositionQuad(vertices, points);
+        if (raster != NULL) {
+            vertices[0].u.els.u = uv[2].x; vertices[0].u.els.v = uv[2].y;
+            vertices[1].u.els.u = uv[3].x; vertices[1].u.els.v = uv[3].y;
+            vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
+            vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
+        }
+        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+            states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
+        } else {
+            states[0](1, NULL);
+        }
+        render[0](4, vertices, 4);
+    }
+    if (*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x3C) != 0) {
+        points[0].x = (f32)-(*(s16 *)(sample + 0x1C) + *(s32 *)(SDK_SPRITE_RECORD(sample) + 0x3C));
+        points[0].y = (f32)-*(s16 *)(sample + 0x1E);
+        points[1].x = (f32)-*(s16 *)(sample + 0x1C);
+        points[1].y = (f32)-*(s16 *)(sample + 0x1E);
+        points[2].x = (f32)-(*(s16 *)(sample + 0x1C) + *(s32 *)(SDK_SPRITE_RECORD(sample) + 0x3C));
+        points[2].y = sdkSpriteBottom(sample, 0);
+        points[3].x = (f32)-*(s16 *)(sample + 0x1C);
+        points[3].y = sdkSpriteBottom(sample, 0);
+        func_0046a7f0(sample, (u8 *)points);
+        sdkSpritePositionQuad(vertices, points);
+        if (raster != NULL) {
+            vertices[0].u.els.u = uv[0].x; vertices[0].u.els.v = uv[0].y;
+            vertices[1].u.els.u = uv[0].x; vertices[1].u.els.v = uv[0].y;
+            vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
+            vertices[3].u.els.u = uv[2].x; vertices[3].u.els.v = uv[2].y;
+        }
+        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+            states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
+        } else {
+            states[0](1, NULL);
+        }
+        render[0](4, vertices, 4);
+    }
+    if (*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x40) != 0) {
+        points[0].x = sdkSpriteRight(sample, 0);
+        points[0].y = (f32)-*(s16 *)(sample + 0x1E);
+        points[1].x = sdkSpriteRight(sample, 1);
+        points[1].y = (f32)-*(s16 *)(sample + 0x1E);
+        points[2].x = sdkSpriteRight(sample, 0);
+        points[2].y = sdkSpriteBottom(sample, 0);
+        points[3].x = sdkSpriteRight(sample, 1);
+        points[3].y = sdkSpriteBottom(sample, 0);
+        func_0046a7f0(sample, (u8 *)points);
+        sdkSpritePositionQuad(vertices, points);
+        if (raster != NULL) {
+            vertices[0].u.els.u = uv[1].x; vertices[0].u.els.v = uv[1].y;
+            vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
+            vertices[2].u.els.u = uv[3].x; vertices[2].u.els.v = uv[3].y;
+            vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
+        }
+        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+            states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
+        } else {
+            states[0](1, NULL);
+        }
+        render[0](4, vertices, 4);
+    }
+    {
+        s32 restoreIndex;
+        for (restoreIndex = 0; restoreIndex < 4; restoreIndex++) {
+            points[restoreIndex] = savedPoints[restoreIndex];
+        }
+    }
+    if (*(s16 *)(sample + 0x16) != 0) {
+        vertices[0].u.els.screen.x = points[2].x;
+        vertices[0].u.els.screen.y = points[2].y;
+        vertices[1].u.els.screen.x = points[3].x;
+        vertices[1].u.els.screen.y = points[3].y;
+        vertices[2].u.els.screen.x = points[2].x;
+        vertices[2].u.els.screen.y = points[2].y + (f32)*(s16 *)(sample + 0x16);
+        vertices[3].u.els.screen.x = points[3].x;
+        vertices[3].u.els.screen.y = points[3].y + (f32)*(s16 *)(sample + 0x16);
+        if (raster != NULL) {
+            vertices[0].u.els.u = uv[2].x; vertices[0].u.els.v = uv[2].y;
+            vertices[1].u.els.u = uv[3].x; vertices[1].u.els.v = uv[3].y;
+            vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
+            vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
+        }
+        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+            states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
+        } else {
+            states[0](1, NULL);
+        }
+        render[0](4, vertices, 4);
+    } else if (*(s16 *)(sample + 0x14) != 0) {
+        vertices[0].u.els.screen.x = points[1].x;
+        vertices[0].u.els.screen.y = points[1].y;
+        vertices[1].u.els.screen.x = (f32)((s32)points[1].x + *(s16 *)(sample + 0x14));
+        vertices[1].u.els.screen.y = points[1].y;
+        vertices[2].u.els.screen.x = points[3].x;
+        vertices[2].u.els.screen.y = points[3].y;
+        vertices[3].u.els.screen.x = (f32)((s32)points[3].x + *(s16 *)(sample + 0x14));
+        vertices[3].u.els.screen.y = points[3].y;
+        if (raster != NULL) {
+            vertices[0].u.els.u = uv[1].x; vertices[0].u.els.v = uv[1].y;
+            vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
+            vertices[2].u.els.u = uv[3].x; vertices[2].u.els.v = uv[3].y;
+            vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
+        }
+        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+            states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
+        } else {
+            states[0](1, NULL);
+        }
+        render[0](4, vertices, 4);
+    }
 }
+#pragma pop
+#undef SDK_SPRITE_RECORD
+#undef SDK_SPRITE_RASTERS
 #else
 INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046b380);
 #endif
