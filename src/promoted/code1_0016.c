@@ -1509,7 +1509,7 @@ void func_00168cb0(u8 *arg0, f32 fparg0)
     }
 }
 // FUN_00168DE0
-void func_00168de0(u8 *arg0, s32 arg1, f32 fparg0) {
+void func_00168de0(u8 *arg0, const void *arg1, f32 fparg0) {
     RwV3d sp50;
     RwV3d sp40;
     s32 temp_4;
@@ -1525,7 +1525,7 @@ void func_00168de0(u8 *arg0, s32 arg1, f32 fparg0) {
         sp40.y = -1.0f * sp50.y;
         sp40.z = -1.0f * sp50.z;
         func_0047a180((RwMatrix *)*(s32 *)(temp_16 + 0x10), &sp40, 2);
-        func_0047a1a0((void *)(u32)*(s32 *)(temp_16 + 0x10), (const void *)(u32)arg1, fparg0, 2);
+        func_0047a1a0((void *)(u32)*(s32 *)(temp_16 + 0x10), arg1, fparg0, 2);
         func_0047a180((RwMatrix *)*(s32 *)(temp_16 + 0x10), &sp50, 2);
     }
 }
@@ -1828,7 +1828,7 @@ query_complete:
 /* m2c needs jtbl_00746D20 (8 entries: 0,2,5->BF08; 3,4->C210; 6->C88C; 7->DAB8; */
 /* 1->E0C0) and still internal-errors on the switch even with absolute words */
 /* (no .L labels for jr targets); romwright rw.c 1073 lines compiles after */
-/* FUN_007146e0->D_007146E0 but signature is u64/u64 vs file void (void*) — */
+/* FUN_007146e0->D_007146E0 but signature is u64/u64 vs file void (void*) â€” */
 /* use void (u8*) with (u8*) casts for byte arithmetic (void*+int illegal). */
 /* Skeleton: switch + 14 unstructured edges/13 gotos, counted fors where */
 /* present; front-load (s32) on every float conversion (<2^31, plain */

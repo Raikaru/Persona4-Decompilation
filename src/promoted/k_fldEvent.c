@@ -48,7 +48,7 @@ u8 *func_001823c0(void);
 s32 func_0015c1e0(s32);
 s32 func_0014e740(u8 *, f32 *);
 void func_00182310(s32);
-void func_00168de0(s32, void *, f32);
+extern void func_00168de0(u8 *task, const void *axis, f32 angle);
 void func_00168890(s32, s32 *);
 s32 *func_00155280(void);
 void func_0018e030(s32, s32);
@@ -2131,7 +2131,7 @@ s32 func_00175dc0(u8 *arg0)
         break;
     case 1:
         h[0x16]++;
-        func_00168de0(h[0x11], &vec, *(f32 *)(h + 0x15));
+        func_00168de0((u8 *)(h[0x11]), &vec, *(f32 *)(h + 0x15));
         if (h[0x16] < h[0x17]) {
             goto end;
         }
