@@ -5591,529 +5591,490 @@ void func_0047b060(void* param_1)
     m[0x30C / 4] = 0;
 }
 
-/* measured: 1 transcription attempt (nd 1237 of 0x15A0). The whole
-   switch-driven resource-loader is transcribed (cases 0x10/0x16/0x1B/0x23/
-   0x2B + the 0xF0F000xx family, the 0x30C slot table, 0x254/0x234/0x2CC
-   alloc blocks, the 8-word copy, 0x124/0x14/0x20 slot tables, func_004667d0
-   10-arg calls with (s64)&D_0070B610). Residual: b210's switch emits a
-   linear beq chain in source order with the case bodies INLINE where retail
-   uses the jump-table shape with bodies out of line (the m2c's "irregular"
-   switch - needs the mwccps2-switch-linear-chain-declaration-order levers),
-   plus the usual saved-register rotation across the ~30 temp loads. Verified
-   call shapes for retry: func_00397c40-style 1-arg sites use func_003e2ce0
-   (always 1-arg); func_00463100 is (void*); func_0047f9f0 returns u32;
-   func_004800d0 is s32(void*,u8**,u32,void*); func_003d60e0 (void*,s32);
-   func_0047d200/7dc30 return void* (cast to s32); jtbl_008873E8 =
-   (void* (*)(int,int))DAT_008873e8[0]; D_0070B610 is an u8 extern; mwcc C89
-   rejects void*+int - cast derefs to u8* first. Switch-layout +
-   register-rotation floor. */
-/* measured 0047b0c0 R2: object 1350/retail 1380 (-30, -2.2% INSIDE +-3% gate, 41 allowed); fnalign 2135 edits+2 reloc-only; words 1269. Fix: 11x func_0044ea90(void)->(D_00713138,imm) with retail imms 0x125,0xfa,0x1d6,0x1d6,0xc93,0x18c5,0x18b7,0x850,0x1896,0x1834,0x908 + prototype (void*,int); lui -13->-2, addiu -18->+4, delete 181:182 gone. Remaining: switch inline vs out-of-line (478 delete artifact) + spare $s6/$s7 + lw -27/beq -23. Production guarded, fallback INCLUDE_ASM retained. */
-/* measured 0047b0c0 R3 (2026-09-19, OR-as-fallthrough + global-asc switch): object 1359/retail 1380 (-21, -1.5% INSIDE +-3% gate, 41 allowed); fnalign 1539 edits+12 reloc-only (was 2135+2); words 1279 (was 1269). Spellings: chain (08||07) 2135, chain (07||08) 2135 (tie); switch source-order asc 2054, desc 2054 (tie), 8083src 2054 (tie), global-desc 2054; switch global-asc 1539 (-596 vs chain, -515 vs source-order). Tail: before struct 70 reg 6, after struct 154 reg 35 (old 478-delete splits into body-order hunks; largest retail[821:968]/object[1022:1027] 147v5). Remaining: frame 0xb0 vs 0xd0 + spare s-regs, compares source-order vs descending. Production guarded, fallback retained. */
-/* measured 0047b0c0 R4 (2026-09-20, deficit-shape fixes): object 1367/retail 1380 (-13, -0.9% INSIDE +-3% gate, 41 allowed); fnalign 1530 edits+12 reloc-only (was 1539+12); frame 0xc0 (was 0xb0, retail 0xd0). Fixes: 3x func_004667d0 8->10 args (2 trailing zeros, sd+6 gone, +6 instrs, per sdkSpr/k_fldResource 10-arg prototype); temp_v5 unsigned->int (sltiu->slti, sltu->slt, retail signed); 2x func_003ef260 0x463100->func_00463100 + 2x 0x70b610->&D_0070B610 (reloc-correct, per effObjectParticle/k_clumpInstance/003d60e0 &D_ usage); loop masks 06/D0/03 compare+index (temp&0xFFFF) + E0/E1 header (temp_v2&0xFFFF) (andi 6->3, lhu 8->6); case 02/04 short->unsigned short (lh->lhu, retail lhu). Remaining: 147 at 0x0047bd94 + 130 at 0x0047c3d4 (switch body order: retail reverse-dispatch layout vs global-asc jump table) + 65 at 0x0047b494 (2B stack home), lw+27/lhu+6/addu+6/sw+5/subu+5/beqz+5 (retail stack-reload vs object reg-cache for uStack_4c/uStack_2). Production guarded, fallback retained. */
-/* measured 2026-09-29: restore the allocated pointer type at its free callback.
- * Guarded body compiles to 5472/5536 bytes, nd 1275; retain retail ASM. */
+/* Recover the full chunk/effect headers and memory-stream descriptor, the
+   selected clone wrappers, and the schema argument for both deferred UV reads.
+   The typed candidate retains retail's 0xd0 frame but does not match yet.
+   Native measurements and the complete relocation/data proof are recorded in
+   docs/probe_archive/Model_loader_contracts_20261005_worker15.md. */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_0047b0c0(u8 *arg0)
+s32 func_0047b0c0(u8 *model)
 {
-    extern unsigned int func_003c0f20(int);
-    extern unsigned int func_003d53c0(int);
-    extern unsigned int func_003d6350(unsigned int, int);
-    extern unsigned int func_003dc370(int);
-    extern unsigned int func_003e6a90(int);
-    extern unsigned int func_0047d200(void);
-    extern unsigned int func_0047d320(unsigned int, int, unsigned int, unsigned short, unsigned int);
-    extern unsigned int func_0047db50(int, unsigned int);
-    extern unsigned int func_0047dc30(void);
-    extern unsigned int func_0047f9f0(void);
-    extern unsigned int func_003d60e0(unsigned int, unsigned int);
-    extern void func_0044ea90(void *a, int b);
-    extern unsigned char * func_00470e90(unsigned short);
-    extern void func_00477810(void *, void *);
-    extern unsigned int func_0047d1a0(void);
-    extern int func_004800d0(void *, unsigned char **, unsigned int, void *);
-    extern s32 func_003df3c0();
-    extern s32 func_003e2910();
-    extern s32 func_003e2ce0();
-    extern s32 func_003e2f60();
-    extern s32 func_003ef1b0();
-    extern s32 memset();
-    extern s32 func_004667d0(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
+    typedef struct MdlLoaderMaterial {
+        u32 kind;
+        u16 slot;
+        void *stream;
+        struct MdlLoaderMaterial *next;
+    } MdlLoaderMaterial;
+    typedef struct MdlLoaderState {
+        void *stream;
+        u8 *textureRequest;
+        u8 *uvRequest;
+        u8 **uvRequests;
+        u8 *clumpRequest;
+        void *clumpStream;
+        MdlLoaderMaterial *materials;
+        u16 layer, slot;
+        u16 capacities[2];
+        u16 *cloneSlots[2];
+        u8 *memory;
+        u32 memoryLength;
+        u32 *textureList;
+        u8 *fileRequest;
+        u32 unknown3c;
+        s32 mode;
+        s32 baseAnimation;
+    } MdlLoaderState;
+    typedef struct MdlLoaderEntry {
+        void *value;
+        u32 flags;
+    } MdlLoaderEntry;
+    typedef struct MdlLoaderMaterialTable {
+        MdlLoaderEntry *entries;
+        u16 count, references;
+    } MdlLoaderMaterialTable;
+    typedef struct MdlLoaderUvTable {
+        MdlLoaderEntry *entries;
+        void *base;
+        void *objects;
+        u16 count, references;
+    } MdlLoaderUvTable;
+    struct MdlEffectChunk {
+        u16 first, last;
+        u32 length, skip, flags, unknown10;
+    } effect;
+    struct RwChunkHeaderInfo {
+        u32 type, length, version, buildNum;
+        s32 isComplex;
+    } chunk;
+    struct RwMemory {
+        u8 *start;
+        u32 length;
+    } memory;
+    s32 metadata;
+    u16 capacity;
+    u16 sourceIndex;
+    u16 matrixCount;
+    MdlLoaderState *state;
+    s32 index;
+    extern void *func_003df3c0(void *stream, struct RwChunkHeaderInfo *header);
+    extern u32 func_003e2910(void *stream, void *buffer, u32 length);
+    extern void *func_003e2ce0(void *stream, u32 length);
+    extern void *func_003e2f60(s32 type, s32 access, const void *memory);
+    extern void *func_003c0f20(void *stream);
+    extern void *func_003d53c0(void *stream);
+    extern void *func_003d6350(void *schema, void *stream);
+    extern struct RwTexDictionary *func_003dc370(void *stream);
+    extern struct RwTexDictionary *func_003e6a90(void *stream);
+    extern s32 func_003ef1b0(void *dictionary);
+    extern u32 func_003d60e0(u32 schema, u32 dictionary);
+    extern u8 *func_004667d0(s32 kind, const char *name, const char *path,
+        s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName,
+        s32 resultKind, s32 memoryKind);
+    extern u32 func_0047d1a0(void);
+    extern u32 *func_0047d320(u32 **head, s32 data, u32 length, u16 index, u32 flags);
+    extern u32 *func_0047d460(u32 *head, u32 *node, u16 index);
+    extern u32 *func_0047db50(s32 data, s32 length);
+    extern s32 *func_0047f9f0(void);
+    extern s32 func_004800d0(void *stream, u8 **head, u32 kind, void *clump);
     extern u8 D_0070B610[];
-    extern s32 func_0047d460();
-/* irregular: 10 native warning(s); review required */
-  unsigned short temp_v0;
-  int *piVar2;
-  unsigned int temp_v1;
-  unsigned short temp_v2;
-  int temp_v3;
-  unsigned char *pbVar6;
-  unsigned int temp_v4;
-  int temp_v5;
-  unsigned int *puVar9;
-  int temp_v6;
-  u32 temp_v7;
-  long temp_v8;
-  unsigned int *puVar13;
-  unsigned int *puVar14;
-  int temp_v9;
-  unsigned short *puVar16;
-  int *piVar17;
-  unsigned int uStack_50;
-  unsigned int uStack_4c;
-  unsigned short uStack_30;
-  unsigned short uStack_2e;
-  unsigned int uStack_2c;
-  unsigned int uStack_28;
-  unsigned int uStack_24;
-  int iStack_18;
-  int iStack_14;
-  int uStack_c;
-  unsigned short uStack_6;
-  unsigned short uStack_4;
-  unsigned short uStack_2;
-  
-  piVar2 = *(int **)((int)arg0 + 0x30c);
-  uStack_2 = 0x20;
-  for (temp_v5 = 0; temp_v5 < 2; temp_v5 = (temp_v5 + 1) & 0xffff) {
-    *(unsigned short *)((int)piVar2 + temp_v5 * 2 + 0x20) = 0x20;
-  }
-  while ((temp_v8 = func_003df3c0(*piVar2,&uStack_50), temp_v2 = uStack_2, temp_v8 != 0 &&
-         (uStack_50 != 0))) {
-    switch (uStack_50) {
-    case 0x10:
-        if ((*(unsigned int *)((int)arg0 + 0xd8) & 0x4000) == 0) {
-          if (((*(int *)((int)arg0 + 0xdc) == 0) && (piVar2[5] == 0)) && (piVar2[4] == 0)) {
-            iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
-            iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
-            temp_v3 = func_003e2f60(3,1,&iStack_18);
-            piVar2[5] = temp_v3;
-          }
-          func_003e2ce0(*piVar2,uStack_4c);
-        }
-        else if (*(int *)((int)arg0 + 0xdc) == 0) {
-          temp_v4 = func_003c0f20(*piVar2);
-          *(unsigned int *)((int)arg0 + 0xdc) = temp_v4;
-        }
-      break;
-    case 0x16:
-        if ((*(unsigned int *)((int)arg0 + 0xd8) & 0x4000) == 0) {
-          iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
-          iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
-          temp_v7 = func_003e2f60(3,1,&iStack_18);
-          temp_v3 = func_004667d0(8,0,0,0,temp_v7,0,0,0,0,0);
-          piVar2[1] = temp_v3;
-          func_003e2ce0(*piVar2,uStack_4c);
-        }
-        else {
-          temp_v7 = func_003e6a90(*piVar2);
-          func_003ef260((const struct RwTexDictionary *)(u32)temp_v7,func_00463100,piVar2 + 0xd);
-          func_003ef1b0(temp_v7);
-        }
-      break;
-    case 0x1b:
-        if (*(int *)((int)arg0 +
-                    ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
-                    0x120) == 0) {
-          pbVar6 = func_00470e90(uStack_2);
-          *(unsigned char **)((int)arg0 +
-                    ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
-                    0x120) = pbVar6;
-        }
-        temp_v4 = func_003d53c0(*piVar2);
-        if ((piVar2[0x11] == 0) ||
-           (temp_v3 = *(int *)((int)arg0 +
-                            ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) *
-                            4 + 0x120), *(int *)(temp_v3 + 4) != 0)) {
-          *(unsigned int *)
-           (**(int **)((int)arg0 +
-                      ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
-                      0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x40) = temp_v4;
-        }
-        else {
-          *(unsigned int *)(temp_v3 + 4) = temp_v4;
-        }
-      break;
-    case 0x1e:
-      break;
-    case 0x23:
-        temp_v7 = func_003dc370(*piVar2);
-        func_003ef260((const struct RwTexDictionary *)(u32)temp_v7,func_00463100,piVar2 + 0xd);
-        func_003ef1b0(temp_v7);
-      break;
-    case 0x2b:
-        if ((*(unsigned int *)((int)arg0 + 0xd8) & 0x4000) == 0) {
-          if ((piVar2[5] == 0) && (piVar2[4] == 0)) {
-            iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
-            iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
-            temp_v7 = func_003e2f60(3,1,&iStack_18);
-            temp_v3 = func_004667d0(7,0,0,0,temp_v7,0,0,0,0,0);
-            piVar2[2] = temp_v3;
-          }
-          else {
-            if (piVar2[3] == 0) {
-              func_0044ea90(D_00713138, 0x1834);
-              temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])((unsigned int)uStack_2 << 2,0x40000);
-              piVar2[3] = (int)temp_v7;
-              memset(temp_v7,0,(unsigned int)uStack_2 << 2);
-            }
-            iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
-            iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
-            temp_v7 = func_003e2f60(3,1,&iStack_18);
-            temp_v4 = func_004667d0(7,0,0,0,temp_v7,0,0,0,0,0);
-            *(unsigned int *)(piVar2[3] + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 4) = temp_v4;
-          }
-          func_003e2ce0(*piVar2,uStack_4c);
-        }
-        else {
-          if (*(int *)((int)arg0 + 0x254) == 0) {
-            temp_v3 = (unsigned int)uStack_2 * 8 + 0x10;
-            func_0044ea90(D_00713138, 0x908);
-            temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v3,0x40000);
-            memset(temp_v7,0,temp_v3);
-            piVar17 = (int *)temp_v7;
-            *piVar17 = (int)(piVar17 + 4);
-            *(unsigned short *)(piVar17 + 3) = temp_v2;
-            *(unsigned short *)((int)piVar17 + 0xe) = 1;
-            *(int **)((int)arg0 + 0x254) = piVar17;
-          }
-          temp_v5 = func_003d6350((u32)&D_0070B610,*piVar2);
-          if (*(int *)((int)arg0 + 0xdc) == 0) {
-            *(unsigned int *)(*(int *)((int)arg0 + 0x254) + 4) = temp_v5;
-            func_003d60e0((u32)&D_0070B610,temp_v5);
-          }
-          else {
-            *(unsigned int *)(**(int **)((int)arg0 + 0x254) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 8)
-                 = temp_v5;
-          }
-        }
-      break;
-    case 0xf0f00001:
-      if (*(int *)((int)arg0 +
-                  ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x120
-                  ) == 0) {
-        pbVar6 = func_00470e90(uStack_2);
-        *(unsigned char **)((int)arg0 +
-                  ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x120
-                  ) = pbVar6;
-      }
-      *(void**)(**(int **)((int)arg0 +
-                           ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) *
-                           4 + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x40) = (void*)&D_00922BC0;
-      func_003e2ce0(*piVar2,uStack_4c);
-      break;
-    case 0xf0f00002:
-      *(unsigned short *)(piVar2 + 7) = *(unsigned short *)(piVar2 + 7) + 1;
-      *(unsigned short *)((int)piVar2 + 0x1e) = 0;
-      func_003e2ce0(*piVar2,uStack_4c);
-      break;
-    case 0xf0f00003:
-      if ((*(unsigned int *)((int)arg0 + 0xd8) & 0x4000) == 0) {
-        func_003e2910(*piVar2,&uStack_4,uStack_4c);
-        if (piVar2[*(unsigned short *)(piVar2 + 7) + 9] == 0) {
-          func_0044ea90(D_00713138, 0x1896);
-          temp_v3 = (u32)((void*(*)(int,int))DAT_008873e8[0])((unsigned int)uStack_2 << 1,0x40000);
-          piVar2[*(unsigned short *)(piVar2 + 7) + 9] = temp_v3;
-          for (temp_v5 = 0; (temp_v5 & 0xffff) < (int)uStack_2; temp_v5 = (temp_v5 + 1) & 0xffff) {
-            *(unsigned short *)(piVar2[*(unsigned short *)(piVar2 + 7) + 9] + (temp_v5 & 0xffff) * 2) = 0xffff;
-          }
-        }
-        *(unsigned short *)(piVar2[*(unsigned short *)(piVar2 + 7) + 9] + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 2)
-             = uStack_4;
-      }
-      else {
-        func_003e2910(*piVar2,&uStack_4,uStack_4c);
-        temp_v2 = uStack_4;
-        piVar17 = *(int **)((int)arg0 +
-                           ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) *
-                           4 + 0x120);
-        temp_v9 = (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50;
-        puVar14 = (unsigned int *)(*piVar17 + (unsigned int)uStack_4 * 0x50);
-        puVar13 = (unsigned int *)(*piVar17 + temp_v9);
-        temp_v3 = 8;
-        do {
-          temp_v4 = *puVar14;
-          temp_v1 = puVar14[1];
-          puVar14 = puVar14 + 2;
-          temp_v3 = temp_v3 - 1;
-          *puVar13 = temp_v4;
-          puVar13[1] = temp_v1;
-          puVar13 = puVar13 + 2;
-        } while (0 < temp_v3);
-        temp_v3 = *piVar17;
-        if (*(int *)(temp_v3 + (unsigned int)uStack_4 * 0x50 + 0x40) != 0) {
-          *(unsigned int *)(temp_v3 + temp_v9 + 0x40) =
-               *(unsigned int *)(temp_v3 + (unsigned int)uStack_4 * 0x50 + 0x40);
-        }
-        *(unsigned int *)(*piVar17 + temp_v9 + 0x44) = *(unsigned int *)(*piVar17 + temp_v9 + 0x44) | 1;
-        piVar17 = *(int **)((int)arg0 + 0x234);
-        if ((piVar17 != (int *)0x0) && (uStack_4 < *(unsigned short *)(piVar17 + 1))) {
-          temp_v3 = *(int *)(*piVar17 + (unsigned int)uStack_4 * 8);
-          if (temp_v3 != 0) {
-            temp_v9 = (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 8;
-            *(int *)(*piVar17 + temp_v9) = temp_v3;
-            temp_v9 = *piVar17 + temp_v9;
-            *(unsigned char *)(temp_v9 + 4) = *(unsigned char *)(temp_v9 + 4) | 1;
-          }
-        }
-        piVar17 = *(int **)((int)arg0 + 0x254);
-        if ((piVar17 != (int *)0x0) && (uStack_4 < *(unsigned short *)(piVar17 + 3))) {
-          temp_v3 = *(int *)(*piVar17 + (unsigned int)uStack_4 * 8);
-          if (temp_v3 != 0) {
-            temp_v9 = (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 8;
-            *(int *)(*piVar17 + temp_v9) = temp_v3;
-            temp_v9 = *piVar17 + temp_v9;
-            *(unsigned char *)(temp_v9 + 4) = *(unsigned char *)(temp_v9 + 4) | 1;
-          }
-        }
-        temp_v3 = *(int *)((int)arg0 +
-                        ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
-                        0x124);
-        if (temp_v3 != 0) {
-          temp_v0 = *(unsigned short *)((int)piVar2 + 0x1e);
-          if (*(int *)(*(int *)(temp_v3 + 0x14) + (unsigned int)uStack_4 * 4) != 0) {
-            temp_v4 = func_0047d200();
-            *(unsigned int *)(*(int *)(temp_v3 + 0x14) + (unsigned int)temp_v0 * 4) = temp_v4;
-          }
-          if (*(int *)(*(int *)(temp_v3 + 0x20) + (unsigned int)temp_v2 * 4) != 0) {
-            temp_v4 = func_0047dc30();
-            *(unsigned int *)(*(int *)(temp_v3 + 0x20) + (unsigned int)temp_v0 * 4) = temp_v4;
-          }
-        }
-      }
-      break;
-    case 0xf0f00004:
-      *(unsigned short *)((int)piVar2 + 0x1e) = *(unsigned short *)((int)piVar2 + 0x1e) + 1;
-      func_003e2ce0(*piVar2,uStack_4c);
-      break;
-    case 0xf0f00005:
-      if (*(int *)((int)arg0 +
-                  ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x120
-                  ) == 0) {
-        pbVar6 = func_00470e90(uStack_2);
-        *(unsigned char **)((int)arg0 +
-                  ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x120
-                  ) = pbVar6;
-      }
-      func_003e2910(*piVar2,**(int **)((int)arg0 +
-                                     ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 +
-                                     (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x120) +
-                           (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50,uStack_4c);
-      break;
-    case 0xf0f00006:
-      temp_v3 = *piVar2;
-      func_003e2910(temp_v3,&uStack_6,2);
-      temp_v5 = (unsigned int)uStack_6;
-      func_0044ea90(D_00713138, 0xc93);
-      temp_v9 = (int)((void*(*)(int,int))DAT_008873e8[0])(temp_v5 * 0x50 + 8,0x40000);
-      puVar16 = (unsigned short *)(temp_v9 + (unsigned int)uStack_6 * 0x50);
-      *puVar16 = uStack_6;
-      puVar16[1] = 1;
-      *(int *)(puVar16 + 2) = temp_v9;
-      for (temp_v5 = 0; (temp_v5 & 0xffff) < (int)uStack_6; temp_v5 = (temp_v5 + 1) & 0xffff) {
-        temp_v9 = (temp_v5 & 0xffff) * 0x50;
-        func_003e2910(temp_v3,*(int *)(puVar16 + 2) + temp_v9 + 0x40,4);
-        func_003e2910(temp_v3,*(int *)(puVar16 + 2) + temp_v9 + 0x44,4);
-        func_003e2910(temp_v3,*(int *)(puVar16 + 2) + temp_v9,0x40);
-      }
-      *(unsigned short **)((int)arg0 + 0x2c8) = puVar16;
-      break;
-    case 0xf0f00007:
-    case 0xf0f00008:
-      func_003e2910(*piVar2,&uStack_c,uStack_4c);
-      if (*(int *)(**(int **)((int)arg0 +
-                             ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7))
-                             * 4 + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x4c) ==
-          0) {
-        func_0044ea90(D_00713138, 0x125);
-        temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(8,0x40000);
-        memset(temp_v7,0,8);
-        *(int *)(**(int **)((int)arg0 +
-                           ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) *
-                           4 + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x4c) =
-             (int)temp_v7;
-      }
-      if (uStack_50 == 0xf0f00007) {
-        **(unsigned int **)
-          (**(int **)((int)arg0 +
-                     ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
-                     0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x4c) = uStack_c;
-      }
-      else {
-        *(unsigned int *)
-         (*(int *)(**(int **)((int)arg0 +
-                             ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7))
-                             * 4 + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x4c) + 4
-         ) = uStack_c;
-      }
-      break;
-    case 0xf0f00009:
-      piVar2[0x11] = 1;
-      func_003e2ce0(*piVar2,uStack_4c);
-      break;
-    case 0xf0f00070:
-      func_0044ea90(D_00713138, 0x18c5);
-      temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(0x2b8,0x40000);
-      func_003e2910(*piVar2,temp_v7,uStack_4c);
-      func_00477810(arg0,(void *)temp_v7);
-      DAT_008873ec[0]((void *)temp_v7);
-      break;
-    case 0xf0f00080:
-    case 0xf0f00081:
-    case 0xf0f00082:
-    case 0xf0f00083:
-      if ((*(unsigned int *)((int)arg0 + 0xd8) & 0x4000) == 0) {
-        func_0044ea90(D_00713138, 0x18b7);
-        puVar9 = (unsigned int *)((void*(*)(int,int))DAT_008873e8[0])(0x10,0x40000);
-        iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
-        iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
-        *puVar9 = uStack_50;
-        *(unsigned short *)(puVar9 + 1) = *(unsigned short *)((int)piVar2 + 0x1e);
-        temp_v5 = func_003e2f60(3,1,&iStack_18);
-        puVar9[2] = temp_v5;
-        func_003e2ce0(*piVar2,uStack_4c);
-        puVar9[3] = piVar2[6];
-        piVar2[6] = (int)puVar9;
-      }
-      else {
-        if (*(int *)((int)arg0 + 0x234) == 0) {
-          temp_v3 = (unsigned int)uStack_2 * 8 + 8;
-          func_0044ea90(D_00713138, 0x850);
-          temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v3,0x40000);
-          memset(temp_v7,0,temp_v3);
-          piVar17 = (int *)temp_v7;
-          *piVar17 = (int)(piVar17 + 2);
-          *(unsigned short *)(piVar17 + 1) = temp_v2;
-          *(unsigned short *)((int)piVar17 + 6) = 1;
-          *(int **)((int)arg0 + 0x234) = piVar17;
-        }
-        if (*(int *)(**(int **)((int)arg0 + 0x234) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 8)
-            == 0) {
-          temp_v4 = func_0047f9f0();
-          *(unsigned int *)
-           (**(int **)((int)arg0 + 0x234) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 8) = temp_v4;
-        }
-        func_004800d0((void *)*piVar2,
-                      *(unsigned char ***)
-                       (**(int **)((int)arg0 + 0x234) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 8
-                       ),uStack_50,*(void **)((int)arg0 + 0xdc));
-      }
-      break;
-    case 0xf0f000d0:
-      func_0044ea90(D_00713138, 0xfa);
-      temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(0x4c,0x40000);
-      memset(temp_v7,0,0x4c);
-      temp_v3 = (int)temp_v7;
-      *(unsigned int *)(temp_v3 + 0x30) = 0x3f800000;
-      *(unsigned int *)(temp_v3 + 0x38) = 0x3f800000;
-      *(int *)(**(int **)((int)arg0 +
-                         ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4
-                         + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x48) = temp_v3;
-      func_003e2910(*piVar2,*(int *)(**(int **)((int)arg0 +
-                                              ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 +
-                                              (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x120) +
-                                    (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x48) + 0x3c,
-                   uStack_4c);
-      for (temp_v5 = 0; (temp_v5 & 0xffff) < 4; temp_v5 = (temp_v5 + 1) & 0xffff) {
-        func_003df3c0(*piVar2,&uStack_50);
-        temp_v4 = func_003d53c0(*piVar2);
-        *(unsigned int *)
-         (*(int *)(**(int **)((int)arg0 +
-                             ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7))
-                             * 4 + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x48) +
-         (temp_v5 & 0xffff) * 4) = temp_v4;
-      }
-      break;
-    case 0xf0f000e0:
-      func_003e2910(*piVar2,&uStack_30,0x14);
-      func_003e2ce0(*piVar2,uStack_28);
-      temp_v2 = uStack_2;
-      temp_v3 = piVar2[0xb];
-      temp_v9 = *(int *)(*piVar2 + 0xc);
-      if ((*(int *)((int)arg0 + 0xdc) == 0) && (piVar2[5] == 0)) {
-        if (*(int *)((int)arg0 + 0x2cc) == 0) {
-          temp_v5 = func_0047d1a0();
-          *(unsigned int *)((int)arg0 + 0x2cc) = temp_v5;
-        }
-        temp_v4 = *(unsigned int *)((int)arg0 + 0x2cc);
-      }
-      else {
-        if (*(int *)((int)arg0 +
-                    ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
-                    0x124) == 0) {
-          temp_v6 = (unsigned int)uStack_2 * 8 + 0x34;
-          func_0044ea90(D_00713138, 0x1d6);
-          temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v6,0x40000);
-          memset(temp_v7,0,temp_v6);
-          puVar9 = (unsigned int *)temp_v7;
-          *puVar9 = (temp_v2 & 0xffff);
-          puVar9[5] = (unsigned int)(puVar9 + 0xd);
-          puVar9[8] = (unsigned int)(puVar9 + 0xd + (temp_v2 & 0xffff));
-          *(unsigned int **)((int)arg0 +
-                    ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
-                    0x124) = puVar9;
-        }
-        if (*(int *)(*(int *)(*(int *)((int)arg0 +
-                                      ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 +
-                                      (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x124) + 0x14) +
-                    (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 4) == 0) {
-          temp_v5 = func_0047d1a0();
-          *(unsigned int *)(*(int *)(*(int *)((int)arg0 +
-                                     ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 +
-                                     (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x124) + 0x14) +
-                   (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 4) = temp_v5;
-        }
-        temp_v4 = *(unsigned int *)
-                 (*(int *)(*(int *)((int)arg0 +
-                                   ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 +
-                                   (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x124) + 0x14) +
-                 (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 4);
-      }
-      temp_v7 = func_0047d320(temp_v4,temp_v3 + temp_v9,uStack_2c,uStack_30,uStack_24);
-      temp_v5 = (unsigned int)uStack_30;
-      while (temp_v5 = (temp_v5 + 1) & 0xffff, temp_v5 < uStack_2e + 1) {
-        func_0047d460(temp_v4,temp_v7,temp_v5);
-      }
-      func_003e2ce0(*piVar2,uStack_2c);
-      break;
-    case 0xf0f000e1:
-      temp_v3 = piVar2[0xb];
-      temp_v9 = *(int *)(*piVar2 + 0xc);
-      if (*(int *)((int)arg0 +
-                  ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x124
-                  ) == 0) {
-        temp_v6 = (unsigned int)uStack_2 * 8 + 0x34;
-        func_0044ea90(D_00713138, 0x1d6);
-        temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v6,0x40000);
-        memset(temp_v7,0,temp_v6);
-        puVar9 = (unsigned int *)temp_v7;
-        *puVar9 = (temp_v2 & 0xffff);
-        puVar9[5] = (unsigned int)(puVar9 + 0xd);
-        puVar9[8] = (unsigned int)(puVar9 + 0xd + (temp_v2 & 0xffff));
-        *(unsigned int **)((int)arg0 +
-                  ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x124
-                  ) = puVar9;
-      }
-      temp_v4 = func_0047db50(temp_v3 + temp_v9,uStack_4c);
-      *(unsigned int *)
-       (*(int *)(*(int *)((int)arg0 +
-                         ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4
-                         + 0x124) + 0x20) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 4) = temp_v4;
-      func_003e2ce0(*piVar2,uStack_4c);
-      break;
-    case 0xf0f000f0:
-      func_003e2910(*piVar2,&uStack_2,uStack_4c);
-      *(unsigned short *)((int)piVar2 + (unsigned int)*(unsigned short *)(piVar2 + 7) * 2 + 0x20) = uStack_2;
-      break;
-    default:
-      func_003e2ce0(*piVar2,uStack_4c);
-      break;
+
+#define LOAD_LAYER() ((MdlCloneLayerView *)(model + 0xec + (u32)state->layer * 0xa4))
+#define LOAD_MATERIALS() (*(MdlLoaderMaterialTable **)(model + 0x234))
+#define LOAD_UVS() (*(MdlLoaderUvTable **)(model + 0x254))
+#define LOAD_MEMORY() do { \
+    u32 position = *(u32 *)((u8 *)state->stream + 0xc); \
+    memory.start = state->memory + position; \
+    memory.length = state->memoryLength - position; \
+} while (0)
+
+    state = *(MdlLoaderState **)(model + 0x30c);
+    capacity = 32;
+    for (index = 0; (index & 0xffff) < 2; index = (index + 1) & 0xffff) {
+        state->capacities[index & 0xffff] = 32;
     }
-  }
-  return 1;
+    while (func_003df3c0(state->stream, &chunk) != 0) {
+        if (chunk.type == 0) {
+            break;
+        }
+        if (chunk.type == 0xf0f00009) goto load_base_animation;
+        if (chunk.type == 0xf0f00008) goto load_metadata;
+        if (chunk.type == 0xf0f00007) goto load_metadata;
+        if (chunk.type == 0xf0f000d0) goto load_animation_group;
+        if (chunk.type == 0xf0f000e1) goto load_secondary_effect;
+        if (chunk.type == 0xf0f000e0) goto load_primary_effect;
+        if (chunk.type == 0xf0f000f0) goto load_capacity;
+        if (chunk.type == 0xf0f00006) goto load_matrix_table;
+        if (chunk.type == 0xf0f00070) goto load_properties;
+        if (chunk.type == 0xf0f00082) goto load_material;
+        if (chunk.type == 0xf0f00083) goto load_material;
+        if (chunk.type == 0xf0f00081) goto load_material;
+        if (chunk.type == 0xf0f00080) goto load_material;
+        if (chunk.type == 0xf0f00003) goto load_clone_slot;
+        if (chunk.type == 0xf0f00002) goto load_next_layer;
+        if (chunk.type == 0xf0f00004) goto load_next_slot;
+        if (chunk.type == 0xf0f00005) goto load_matrix;
+        if (chunk.type == 0xf0f00001) goto load_animation_sentinel;
+        if (chunk.type == 0x1e) continue;
+        if (chunk.type == 0x10) goto load_clump;
+        if (chunk.type == 0x2b) goto load_uv_dictionary;
+        if (chunk.type == 0x1b) goto load_animation;
+        if (chunk.type == 0x23) goto load_platform_textures;
+        if (chunk.type == 0x16) goto load_texture_dictionary;
+        goto skip_chunk;
+
+load_texture_dictionary:
+        if ((*(u32 *)(model + 0xd8) & 0x4000) != 0) {
+            struct RwTexDictionary *dictionary = func_003e6a90(state->stream);
+            func_003ef260(dictionary, func_00463100, &state->textureList);
+            func_003ef1b0(dictionary);
+        } else {
+            LOAD_MEMORY();
+            state->textureRequest = func_004667d0(8, 0, 0, 0,
+                (s32)func_003e2f60(3, 1, &memory), 0, 0, 0, 0, 0);
+            func_003e2ce0(state->stream, chunk.length);
+        }
+        continue;
+
+load_platform_textures:
+        {
+            struct RwTexDictionary *dictionary = func_003dc370(state->stream);
+            func_003ef260(dictionary, func_00463100, &state->textureList);
+            func_003ef1b0(dictionary);
+        }
+        continue;
+
+load_animation:
+        {
+            void *animation;
+            if (LOAD_LAYER()->resource == 0) {
+                MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)func_00470e90(capacity);
+                LOAD_LAYER()->resource = table;
+            }
+            animation = func_003d53c0(state->stream);
+            if (state->baseAnimation != 0 && LOAD_LAYER()->resource->unknown == 0) {
+                LOAD_LAYER()->resource->unknown = (u32)animation;
+            } else {
+                LOAD_LAYER()->resource->entries[state->slot].animation = animation;
+            }
+        }
+        continue;
+
+load_uv_dictionary:
+        if ((*(u32 *)(model + 0xd8) & 0x4000) != 0) {
+            void *dictionary;
+            if (LOAD_UVS() == 0) {
+                u16 count = capacity;
+                s32 size = (u32)count * sizeof(MdlLoaderEntry) + sizeof(MdlLoaderUvTable);
+                MdlLoaderUvTable *table;
+                func_0044ea90(D_00713138, 0x908);
+                table = ((void *(*)(int, int))DAT_008873e8[0])(size, 0x40000);
+                memset(table, 0, size);
+                table->entries = (MdlLoaderEntry *)(table + 1);
+                table->count = count;
+                table->references = 1;
+                LOAD_UVS() = table;
+            }
+            dictionary = func_003d6350(D_0070B610, state->stream);
+            if (*(void **)(model + 0xdc) == 0) {
+                LOAD_UVS()->base = dictionary;
+                func_003d60e0((u32)D_0070B610, (u32)dictionary);
+            } else {
+                LOAD_UVS()->entries[state->slot].value = dictionary;
+            }
+        } else {
+            if (state->clumpStream == 0 && state->clumpRequest == 0) {
+                LOAD_MEMORY();
+                state->uvRequest = func_004667d0(7, 0, 0, 0,
+                    (s32)func_003e2f60(3, 1, &memory), 0, 0, 0, (s32)D_0070B610, 0);
+            } else {
+                if (state->uvRequests == 0) {
+                    func_0044ea90(D_00713138, 0x1834);
+                    state->uvRequests = ((void *(*)(int, int))DAT_008873e8[0])((u32)capacity * 4, 0x40000);
+                    memset(state->uvRequests, 0, (u32)capacity * 4);
+                }
+                LOAD_MEMORY();
+                {
+                    u8 *request = func_004667d0(7, 0, 0, 0,
+                        (s32)func_003e2f60(3, 1, &memory), 0, 0, 0, (s32)D_0070B610, 0);
+                    state->uvRequests[state->slot] = request;
+                }
+            }
+            func_003e2ce0(state->stream, chunk.length);
+        }
+        continue;
+
+load_clump:
+        if ((*(u32 *)(model + 0xd8) & 0x4000) != 0) {
+            if (*(void **)(model + 0xdc) == 0) {
+                void *clump = func_003c0f20(state->stream);
+                *(void **)(model + 0xdc) = clump;
+            }
+        } else {
+            if (*(void **)(model + 0xdc) == 0 && state->clumpStream == 0 && state->clumpRequest == 0) {
+                LOAD_MEMORY();
+                state->clumpStream = func_003e2f60(3, 1, &memory);
+            }
+            func_003e2ce0(state->stream, chunk.length);
+        }
+        continue;
+
+load_animation_sentinel:
+        if (LOAD_LAYER()->resource == 0) {
+            MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)func_00470e90(capacity);
+            LOAD_LAYER()->resource = table;
+        }
+        LOAD_LAYER()->resource->entries[state->slot].animation = D_00922BC0_abs;
+        func_003e2ce0(state->stream, chunk.length);
+        continue;
+
+load_matrix:
+        if (LOAD_LAYER()->resource == 0) {
+            MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)func_00470e90(capacity);
+            LOAD_LAYER()->resource = table;
+        }
+        func_003e2910(state->stream, &LOAD_LAYER()->resource->entries[state->slot].matrix, chunk.length);
+        continue;
+
+load_next_slot:
+        state->slot++;
+        func_003e2ce0(state->stream, chunk.length);
+        continue;
+
+load_next_layer:
+        state->layer++;
+        state->slot = 0;
+        func_003e2ce0(state->stream, chunk.length);
+        continue;
+
+load_clone_slot:
+        if ((*(u32 *)(model + 0xd8) & 0x4000) != 0) {
+            MdlDispatchAnimTable *animations;
+            MdlCloneAttachmentTable *attachments;
+            func_003e2910(state->stream, &sourceIndex, chunk.length);
+            animations = LOAD_LAYER()->resource;
+            animations->entries[state->slot].matrix = animations->entries[sourceIndex].matrix;
+            if (animations->entries[sourceIndex].animation != 0) {
+                animations->entries[state->slot].animation = animations->entries[sourceIndex].animation;
+            }
+            animations->entries[state->slot].unknown44 |= 1;
+            if (LOAD_MATERIALS() != 0 && sourceIndex < LOAD_MATERIALS()->count) {
+                void *value = LOAD_MATERIALS()->entries[sourceIndex].value;
+                if (value != 0) {
+                    LOAD_MATERIALS()->entries[state->slot].value = value;
+                    *(u8 *)&LOAD_MATERIALS()->entries[state->slot].flags |= 1;
+                }
+            }
+            if (LOAD_UVS() != 0 && sourceIndex < LOAD_UVS()->count) {
+                void *value = LOAD_UVS()->entries[sourceIndex].value;
+                if (value != 0) {
+                    LOAD_UVS()->entries[state->slot].value = value;
+                    *(u8 *)&LOAD_UVS()->entries[state->slot].flags |= 1;
+                }
+            }
+            attachments = LOAD_LAYER()->attachments;
+            if (attachments != 0) {
+                u16 source = sourceIndex;
+                u16 destination = state->slot;
+                if (attachments->primary[source] != 0) {
+                    void *copy = func_0047d200(attachments->primary[source]);
+                    attachments->primary[destination] = copy;
+                }
+                if (attachments->secondary[source] != 0) {
+                    void *copy = func_0047dc30(attachments->secondary[source]);
+                    attachments->secondary[destination] = copy;
+                }
+            }
+        } else {
+            func_003e2910(state->stream, &sourceIndex, chunk.length);
+            if (state->cloneSlots[state->layer] == 0) {
+                s32 slot;
+                func_0044ea90(D_00713138, 0x1896);
+                state->cloneSlots[state->layer] = ((void *(*)(int, int))DAT_008873e8[0])((u32)capacity * 2, 0x40000);
+                for (slot = 0; (slot & 0xffff) < capacity; slot = (slot + 1) & 0xffff) {
+                    state->cloneSlots[state->layer][slot & 0xffff] = 0xffff;
+                }
+            }
+            state->cloneSlots[state->layer][state->slot] = sourceIndex;
+        }
+        continue;
+
+load_material:
+        if ((*(u32 *)(model + 0xd8) & 0x4000) != 0) {
+            if (LOAD_MATERIALS() == 0) {
+                u16 count = capacity;
+                s32 size = (u32)count * sizeof(MdlLoaderEntry) + sizeof(MdlLoaderMaterialTable);
+                MdlLoaderMaterialTable *table;
+                func_0044ea90(D_00713138, 0x850);
+                table = ((void *(*)(int, int))DAT_008873e8[0])(size, 0x40000);
+                memset(table, 0, size);
+                table->entries = (MdlLoaderEntry *)(table + 1);
+                table->count = count;
+                table->references = 1;
+                LOAD_MATERIALS() = table;
+            }
+            if (LOAD_MATERIALS()->entries[state->slot].value == 0) {
+                s32 *material = func_0047f9f0();
+                LOAD_MATERIALS()->entries[state->slot].value = material;
+            }
+            func_004800d0(state->stream, LOAD_MATERIALS()->entries[state->slot].value,
+                chunk.type, *(void **)(model + 0xdc));
+        } else {
+            MdlLoaderMaterial *pending;
+            func_0044ea90(D_00713138, 0x18b7);
+            pending = ((void *(*)(int, int))DAT_008873e8[0])(sizeof(*pending), 0x40000);
+            LOAD_MEMORY();
+            pending->kind = chunk.type;
+            pending->slot = state->slot;
+            pending->stream = func_003e2f60(3, 1, &memory);
+            func_003e2ce0(state->stream, chunk.length);
+            pending->next = state->materials;
+            state->materials = pending;
+        }
+        continue;
+
+load_properties:
+        {
+            void *properties;
+            func_0044ea90(D_00713138, 0x18c5);
+            properties = ((void *(*)(int, int))DAT_008873e8[0])(0x2b8, 0x40000);
+            func_003e2910(state->stream, properties, chunk.length);
+            func_00477810(model, properties);
+            DAT_008873ec[0](properties);
+        }
+        continue;
+
+load_matrix_table:
+        {
+            void *stream = state->stream;
+            MdlMatrixEntry *entries;
+            MdlMatrixTable *table;
+            s32 slot;
+            s32 size;
+            func_003e2910(stream, &matrixCount, 2);
+            size = (u32)matrixCount * sizeof(MdlMatrixEntry) + sizeof(MdlMatrixTable);
+            func_0044ea90(D_00713138, 0xc93);
+            entries = ((void *(*)(int, int))DAT_008873e8[0])(size, 0x40000);
+            table = (MdlMatrixTable *)(entries + matrixCount);
+            table->count = matrixCount;
+            table->unknown = 1;
+            table->entries = entries;
+            for (slot = 0; (slot & 0xffff) < matrixCount; slot = (slot + 1) & 0xffff) {
+                u32 offset = (slot & 0xffff) * sizeof(MdlMatrixEntry);
+                func_003e2910(stream, (u8 *)table->entries + offset + 0x40, 4);
+                func_003e2910(stream, (u8 *)table->entries + offset + 0x44, 4);
+                func_003e2910(stream, (u8 *)table->entries + offset, sizeof(RwMatrix));
+            }
+            *(MdlMatrixTable **)(model + 0x2c8) = table;
+        }
+        continue;
+
+load_capacity:
+        func_003e2910(state->stream, &capacity, chunk.length);
+        state->capacities[state->layer] = capacity;
+        continue;
+
+load_primary_effect:
+        {
+            u8 *payload;
+            u32 **head;
+            u32 *node;
+            s32 slot;
+            func_003e2910(state->stream, &effect, sizeof(effect));
+            func_003e2ce0(state->stream, effect.skip);
+            payload = state->memory + *(u32 *)((u8 *)state->stream + 0xc);
+            if (*(void **)(model + 0xdc) != 0 || state->clumpStream != 0) {
+                if (LOAD_LAYER()->attachments == 0) {
+                    MdlCloneAttachmentTable *table = mdl_clone_attachment_storage(capacity);
+                    LOAD_LAYER()->attachments = table;
+                }
+                if (LOAD_LAYER()->attachments->primary[state->slot] == 0) {
+                    void *wrapper = (void *)func_0047d1a0();
+                    LOAD_LAYER()->attachments->primary[state->slot] = wrapper;
+                }
+                head = LOAD_LAYER()->attachments->primary[state->slot];
+            } else {
+                if (*(void **)(model + 0x2cc) == 0) {
+                    *(u32 *)(model + 0x2cc) = func_0047d1a0();
+                }
+                head = *(u32 ***)(model + 0x2cc);
+            }
+            node = func_0047d320(head, (s32)payload, effect.length, effect.first, effect.flags);
+            for (slot = (effect.first + 1) & 0xffff; (slot & 0xffff) < effect.last + 1;
+                 slot = (slot + 1) & 0xffff) {
+                func_0047d460((u32 *)head, node, slot);
+            }
+            func_003e2ce0(state->stream, effect.length);
+        }
+        continue;
+
+load_secondary_effect:
+        {
+            u8 *payload = state->memory + *(u32 *)((u8 *)state->stream + 0xc);
+            if (LOAD_LAYER()->attachments == 0) {
+                MdlCloneAttachmentTable *table = mdl_clone_attachment_storage(capacity);
+                LOAD_LAYER()->attachments = table;
+            }
+            {
+                u32 *wrapper = func_0047db50((s32)payload, chunk.length);
+                LOAD_LAYER()->attachments->secondary[state->slot] = wrapper;
+            }
+            func_003e2ce0(state->stream, chunk.length);
+        }
+        continue;
+
+load_animation_group:
+        {
+            u8 *group;
+            s32 slot;
+            func_0044ea90(D_00713138, 0xfa);
+            group = ((void *(*)(int, int))DAT_008873e8[0])(0x4c, 0x40000);
+            memset(group, 0, 0x4c);
+            *(f32 *)(group + 0x30) = 1.0f;
+            *(f32 *)(group + 0x38) = 1.0f;
+            LOAD_LAYER()->resource->entries[state->slot].blendControl = group;
+            func_003e2910(state->stream, LOAD_LAYER()->resource->entries[state->slot].blendControl + 0x3c,
+                chunk.length);
+            for (slot = 0; (slot & 0xffff) < 4; slot = (slot + 1) & 0xffff) {
+                func_003df3c0(state->stream, &chunk);
+                {
+                    void *animation = func_003d53c0(state->stream);
+                    ((void **)LOAD_LAYER()->resource->entries[state->slot].blendControl)[slot & 0xffff] = animation;
+                }
+            }
+        }
+        continue;
+
+load_metadata:
+        func_003e2910(state->stream, &metadata, chunk.length);
+        if (LOAD_LAYER()->resource->entries[state->slot].startFrame == 0) {
+            s32 *values;
+            func_0044ea90(D_00713138, 0x125);
+            values = ((void *(*)(int, int))DAT_008873e8[0])(8, 0x40000);
+            memset(values, 0, 8);
+            LOAD_LAYER()->resource->entries[state->slot].startFrame = values;
+        }
+        if (chunk.type == 0xf0f00007) {
+            LOAD_LAYER()->resource->entries[state->slot].startFrame[0] = metadata;
+        } else {
+            LOAD_LAYER()->resource->entries[state->slot].startFrame[1] = metadata;
+        }
+        continue;
+
+load_base_animation:
+        state->baseAnimation = 1;
+        func_003e2ce0(state->stream, chunk.length);
+        continue;
+
+skip_chunk:
+        func_003e2ce0(state->stream, chunk.length);
+    }
+#undef LOAD_MEMORY
+#undef LOAD_UVS
+#undef LOAD_MATERIALS
+#undef LOAD_LAYER
+    return 1;
 }
-
-
 #else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047b0c0);
 #endif
