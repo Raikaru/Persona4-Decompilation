@@ -48,7 +48,7 @@ extern s32 func_001d3d50(s32 arg0);
 extern BtlPacket *func_001d5eb0(u32 arg0, const char *arg1, u16 arg2);
 extern u8 *btlSoundCreateSkillSEPacket(s32 arg0, s32 arg1);
 extern u8 *func_001b7880(s32 arg0, s32 arg1, s32 arg2);
-extern u8 *func_001b83f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern BtlPacket *func_001b83f0(s32 first, s32 second, s32 third, u32 frames, u16 mode);
 extern u8 *func_001b9560(s32 arg0, s32 arg1);
 extern void func_001f0a10(u8 *arg0);
 extern u8 *func_00202740(u8 *arg0);
@@ -155,7 +155,7 @@ extern void func_002aaa80(void);
 extern void func_001fc280(void);
 s64 func_00194590(u8 *arg0, u32 arg1);
 extern s32 func_0021d470(s32 task);
-extern void func_001eb7f0(u8 *arg0);
+extern void func_001eb7f0(void);
 extern s32 func_001eb860(void);
 extern s32 func_001faaf0(void);
 extern s32 func_001fab40(u8 *arg0);
@@ -1610,7 +1610,7 @@ unit_done:
         else {
           u8 *battle = D_0076449C;
           *(u32 *)(battle + 0xc) = *(u32 *)(battle + 0xc) & 0xffffdfff;
-          func_001eb7f0(battle);
+          func_001eb7f0();
         }
       }
       nextState = 6;
@@ -1833,7 +1833,7 @@ check:
     } else {
         temp_4 = D_0076449C;
         *(s32 *)(temp_4 + 0xC) &= ~0x2000;
-        func_001eb7f0(temp_4);
+        func_001eb7f0();
     }
     func_001b1800();
     temp_3_2 = D_0076449C;
@@ -2053,7 +2053,7 @@ void func_001b4060(void)
     func_00194590(next, 1);
     id = func_001b7080(0x13D);
     func_001b70a0(0x13D, &camA, &camB);
-    next = func_001b83f0(id, camA, camB, 0x10, 0);
+    next = (u8 *)func_001b83f0(id, camA, camB, 0x10, 0);
     *(s64 *)(next + 0x60) = *(s64 *)action;
     func_00194590(next, 1);
     next = func_001b9560(func_001b7090(0x13D), 0x10);
@@ -2207,9 +2207,61 @@ s32 func_001b4860(s32 *arg0)
 {
     return *arg0 != 0xB;
 }
-/* measured: GUARDED_SCORE 552 via tools/measure_guarded.py src/promoted/code1_001b.c func_001b4880 (fnalign retail 672/object 681 instrs, 235 edits +14 reloc-only; 36B over 1.3% within gate). De-noised m2c.c (287 lines, 15 unknowns incl VU) + rw.c (270) + rw_raw.c (231) into file idiom (no M2C_*, u_long128 for vec-else only, colour VU as (s32)(x*255+0.5), file-scope D_0076449C/iGp/D_0060A0E0 reused, locals per btlMain plus fGp81f4-82cc/D_0060A110; truthful v0 returns for ba710/ba530/1d3b50 per retail use). R1 loop/unroll/sched tie 549, R2 peep 665/prop 619/cse 604 worse, R3 subscript tie, R4 base/node swap 549->543, R5 swaps tie, R6 quad+s32 543->562/696, R7 interleave 562->554/681 in gate, R8 s/r swap 554->552, R9 tie stop. Residual saved-reg/FPU colouring, reloc-only, VU pack. Production ASM. */
-// FUN_001B4880 NONMATCHING
-#ifdef NON_MATCHING
+#include "btl_camera_sequence_internal.h"
+
+typedef struct BtlCameraColorReal {
+    f32 red, green, blue, alpha;
+} BtlCameraColorReal;
+
+/* Complete the four byte-to-real conversions before in-place modulation. */
+static inline void btlCameraNormalizeColor(BtlCameraColorReal *result, const u8 *bytes)
+{
+    result->red = (1.0f / 255.0f) * (f32)bytes[0];
+    result->green = (1.0f / 255.0f) * (f32)bytes[1];
+    result->blue = (1.0f / 255.0f) * (f32)bytes[2];
+    result->alpha = (1.0f / 255.0f) * (f32)bytes[3];
+}
+/* Input and result may share the same real-color record, component by component. */
+static inline void btlCameraMultiplyColor(BtlCameraColorReal *result, const BtlCameraColorReal *base, const BtlCameraColorReal *ambient)
+{
+    result->red = base->red * ambient->red;
+    result->green = base->green * ambient->green;
+    result->blue = base->blue * ambient->blue;
+    result->alpha = base->alpha * ambient->alpha;
+}
+/* The SDK byte-to-real factor is the existing retail 0x3b808081 literal.
+ * Keep four palette calls in the caller; this phase consumes their snapshots. */
+static inline s32 btlCameraBlendAmbient(f32 ambientRed, f32 ambientGreen,
+                                       f32 ambientBlue, f32 ambientAlpha)
+{
+    union BtlCameraPackedColor { s32 word; u8 bytes[4]; } color;
+    BtlCameraColorReal normalized;
+    BtlCameraColorReal ambient;
+    s32 redByte, greenByte, blueByte, alphaByte;
+    color.word = (s32)0xFF808080U;
+    btlCameraNormalizeColor(&normalized, color.bytes);
+    ambient.red = ambientRed;
+    ambient.green = ambientGreen;
+    ambient.blue = ambientBlue;
+    ambient.alpha = ambientAlpha;
+    btlCameraMultiplyColor(&normalized, &normalized, &ambient);
+    redByte = (s32)(normalized.red * 255.0f + 0.5f);
+    color.bytes[0] = redByte;
+    greenByte = (s32)(normalized.green * 255.0f + 0.5f);
+    color.bytes[1] = greenByte;
+    blueByte = (s32)(normalized.blue * 255.0f + 0.5f);
+    color.bytes[2] = blueByte;
+    alphaByte = (s32)(normalized.alpha * 255.0f + 0.5f);
+    color.bytes[3] = alphaByte;
+    return color.word;
+}
+/* Complete packet and color phases preserve the live group dependency, all four
+ * palette samples and the quaternion's W lane. The color helper follows the SDK
+ * normalization, in-place channel product and byte-quantization operation graph.
+ * measured b210 -O2: 2688 live bytes, frame0x90; all75 references resolved exactly.
+ * The return delay instruction is included; there is no alignment tail.
+ * See docs/Battle_camera_sequence_20261005.md for the finite source/native scope. */
+// FUN_001B4880
 void func_001b4880(u8 *arg0) {
     extern void func_001eb7f0(void);
     extern void func_00212240(u8 *arg0, s32 arg1);
@@ -2217,189 +2269,159 @@ void func_001b4880(u8 *arg0) {
     extern u8 *func_0019beb0(u8 *arg0);
     extern u8 *func_00194c90(void *arg0, void *arg1);
     extern u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
-    extern void func_003dc740(u8 *arg0, u8 *arg1, s32 arg2, f32 arg3);
-    extern u8 *func_001ba710(f32 *arg0, s32 arg1);
-    extern u8 *func_001ba530(s32 arg0, s32 arg1);
-    extern u8 *func_00457160(void);
-    extern u8 *func_001d3b50(u8 *arg0);
-    extern u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
-    extern u8 *btlUnitCreateMovePacket(u8 *arg0, void *arg1, f32 arg2, s32 arg3);
-    extern u8 *func_0019bdd0(u8 *arg0);
+    extern struct RtQuat *func_003dc740(struct RtQuat *rotation, const struct RwV3d *axis, f32 angle, s32 mode);
+    extern s8 *func_00457160(void);
+    extern BtlPacket *func_001f99c0(BtlAction *action, u16 voice, s32 option, s32 argument, s32 flags);
+    extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const struct RwV3d *target, f32 speed, u32 flags);
+    extern BtlPacket *func_0019bdd0(BtlUnit *unit);
     extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrames, f32 speed, u16 mode);
     extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
-    extern u8 *func_001f5f70(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern u32 datCalcIsDead(s32 arg0, s32 arg1);
-    extern f32 fGpffff81f4;
     extern f32 fGpffff82cc;
-    typedef unsigned int u_long128 __attribute__((mode(TI)));
     extern f32 D_0060A110[];
     extern u8 D_0060A0E0[];
-    u8 *node;
+    u8 *livingUnit;
     u8 *base;
     u8 *unit;
     u8 *pkt;
-    u8 *pkt2;
     u8 *pkt3;
-    u8 *ctab;
-    u8 *bptr;
-    s32 count;
-    u16 anim;
+    u8 *palette;
+    s32 livingCount;
+    u16 animationFrames;
     s32 t16;
     s32 t16b;
-    f32 vec[4];
-    f32 s0;
-    f32 s1;
-    f32 s2;
-    f32 s3;
-    f32 r0;
-    f32 r1;
-    f32 r2;
-    f32 r3;
-    f32 p0;
-    f32 p1;
-    f32 p2;
-    f32 p3;
-    s32 o0;
-    s32 o1;
-    s32 o2;
-    s32 o3;
-    s32 col;
+    struct CameraRotation { BtlCameraSequenceRotation value; } __attribute__((aligned(16)));
+    struct CameraRotation rotation;
+    BtlCameraSequenceWork *work;
+    f32 ambientRed;
+    f32 ambientGreen;
+    f32 ambientBlue;
+    f32 ambientAlpha;
+    s32 color;
+    work = (BtlCameraSequenceWork *)arg0;
     base = (u8 *)func_001b1510();
     if ((base == 0) || (*(u8 *)(*(u8 **)(base + 0x30) + 0xA2) == 1)) {
         base = *(u8 **)(iGpffffb3ac + 0x170);
     }
-    count = 0;
-    node = *(u8 **)(iGpffffb3ac + 0x17C);
-    while (node != 0) {
-        if (((*(u32 *)(node + 0x9C) & 8) != 0) && (datCalcIsDead(*(s32 *)(node + 0xA64), 0) == 0)) {
-            count = (count + 1) & 0xFFFF;
+    livingCount = 0;
+    livingUnit = *(u8 **)(iGpffffb3ac + 0x17C);
+    while (livingUnit != 0) {
+        if (((*(u32 *)(livingUnit + 0x9C) & 8) != 0) && (datCalcIsDead(*(s32 *)(livingUnit + 0xA64), 0) == 0)) {
+            livingCount = (livingCount + 1) & 0xFFFF;
         }
-        node = *(u8 **)(node + 0xA68);
+        livingUnit = *(u8 **)(livingUnit + 0xA68);
     }
-    if (((count & 0xFFFF) < 2) || ((*(u16 *)(iGpffffb3ac + 0xCAC) & 3) == 0)) {
-        *(s32 *)(arg0 + 0x18) = 1;
+    if (((livingCount & 0xFFFF) > 1) && ((*(u16 *)(iGpffffb3ac + 0xCAC) & 3) != 0)) {
+        work->singleUnit = 0;
     } else {
-        *(s32 *)(arg0 + 0x18) = 0;
+        work->singleUnit = 1;
     }
-    anim = func_00199500(*(u8 **)(base + 0x30), 0x15, 1.0f);
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) == 0) {
+    animationFrames = func_00199500(*(u8 **)(base + 0x30), 0x15, 1.0f);
+    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) != 0) {
+        if (animationFrames > 0x28) {
+            if (animationFrames > 8) {
+                t16 = animationFrames - 8;
+            } else {
+                t16 = 0;
+            }
+            work->animationFrames = t16;
+            if (animationFrames > 0x28) {
+                t16b = animationFrames - 0x28;
+            } else {
+                t16b = 0;
+            }
+            work->soundFrame = t16b;
+        } else {
+            work->animationFrames = 0x28;
+            work->soundFrame = 0;
+        }
+        work->duration = work->animationFrames;
+    } else {
         func_001eb7f0();
         *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) & 0xFFFFDFFF;
         func_00212240(*(u8 **)(iGpffffb3ac + 0xDD4), 0);
-        *(u16 *)(arg0 + 0x10) = anim;
-        *(u16 *)(arg0 + 0xE) = 0x14;
-    } else {
-        if (anim < 0x29) {
-            *(u16 *)(arg0 + 0x10) = 0x28;
-            *(u16 *)(arg0 + 0x12) = 0;
-        } else {
-            if (anim < 9) {
-                t16 = 0;
-            } else {
-                t16 = anim - 8;
-            }
-            *(s16 *)(arg0 + 0x10) = t16;
-            if (anim < 0x29) {
-                t16b = 0;
-            } else {
-                t16b = anim - 0x28;
-            }
-            *(s16 *)(arg0 + 0x12) = t16b;
-        }
-        *(u16 *)(arg0 + 0xE) = *(u16 *)(arg0 + 0x10);
+        work->animationFrames = animationFrames;
+        work->duration = 0x14;
     }
-    *(u16 *)(arg0 + 0xC) = 0xC;
-    *(s32 *)(arg0 + 0x14) = 0;
+    work->delay = 0xC;
+    work->interrupted = 0;
     func_001eb3b0(base + 0x38);
     *(u8 **) (base + 0x38) = base;
     *(u16 *)(base + 0x6A) = 1;
-    node = *(u8 **)(iGpffffb3ac + 0x174);
-    while (node != 0) {
-        if ((*(u16 *)(node + 0x1A) & 1) != 0) {
-            unit = *(u8 **)(node + 0x30);
-            if ((*(u8 *)(unit + 0xA2) == 1) && (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) != 0)) {
-                pkt = func_0019beb0(unit);
-                *(s64 *)(pkt + 0x60) = *(s64 *)base;
-                *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
-                func_00194590(pkt, 0);
+    {
+        u8 *actionNode = *(u8 **)(iGpffffb3ac + 0x174);
+        while (actionNode != 0) {
+            if ((*(u16 *)(actionNode + 0x1A) & 1) != 0) {
+                unit = *(u8 **)(actionNode + 0x30);
+                if ((*(u8 *)(unit + 0xA2) == 1) && (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) != 0)) {
+                    pkt = func_0019beb0(*(u8 **)(actionNode + 0x30));
+                    *(s64 *)(pkt + 0x60) = *(s64 *)base;
+                    *(u16 *)(pkt + 0x48) = work->delay;
+                    func_00194590(pkt, 0);
+                }
             }
+            actionNode = *(u8 **)(actionNode + 0x450);
         }
-        node = *(u8 **)(node + 0x450);
     }
-    pkt = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)(*(BtlUnit **)(base + 0x30)), (s16)(0x15), (u16)(0), 1.0f, (u16)(2));
-    *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
+    pkt = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(base + 0x30), 0x15, 0, 1.0f, 2);
+    *(u16 *)(pkt + 0x48) = work->delay;
     *(s64 *)(pkt + 0x60) = *(s64 *)base;
     func_00194590(pkt, 0);
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) == 0) {
-        pkt2 = func_00194c90(func_001b4860, arg0);
-        func_00194590(pkt2, 1);
-        pkt3 = func_001d65d0(*(s32 *)(iGpffffb3ac + 0xDC0), *(s32 *)(base + 0x30), 0, *(s64 *)(pkt2 + 0x58), 0x34100);
-        if (*(u16 *)(arg0 + 0xC) < 3) {
-            t16 = 0;
-        } else {
-            t16 = *(u16 *)(arg0 + 0xC) - 2;
+        u8 *const callbackPacket = func_00194c90(func_001b4860, arg0);
+        func_00194590(callbackPacket, 1);
+        {
+            u8 *const transitionPacket = func_001d65d0(*(s32 *)(iGpffffb3ac + 0xDC0), *(s32 *)(base + 0x30), 0, *(s64 *)(callbackPacket + 0x58), 0x34100);
+            s32 transitionDelay;
+            if (work->delay > 2) {
+                transitionDelay = work->delay - 2;
+            } else {
+                transitionDelay = 0;
+            }
+            *(s16 *)(transitionPacket + 0x48) = transitionDelay;
+            *(s16 *)(transitionPacket + 0x4A) = 6;
+            *(s64 *)(transitionPacket + 0x60) = *(s64 *)base;
+            func_00194590(transitionPacket, 2);
         }
-        *(s16 *)(pkt3 + 0x48) = t16;
-        *(s16 *)(pkt3 + 0x4A) = 6;
-        *(s64 *)(pkt3 + 0x60) = *(s64 *)base;
-        func_00194590(pkt3, 2);
-        if (*(s32 *)(arg0 + 0x18) == 1) {
+        if (work->singleUnit == 1) {
             unit = *(u8 **)(base + 0x30);
-            vec[0] = *(f32 *)(unit + 0x1C);
-            vec[1] = *(f32 *)(unit + 0x20);
-            vec[2] = *(f32 *)(unit + 0x24);
-            vec[3] = *(f32 *)(unit + 0x28);
+            rotation.value = *(BtlCameraSequenceRotation *)(unit + 0x1C);
         } else {
-            *(u_long128 *)vec = *(u_long128 *)D_0060A110;
+            rotation = *(struct CameraRotation *)D_0060A110;
         }
-        func_003dc740((u8 *)vec, D_0060A0E0, 2, 180.0f);
-        pkt = func_001ba710(vec, 0);
-        *(s16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC) + 1;
+        func_003dc740((struct RtQuat *)&rotation, (const struct RwV3d *)D_0060A0E0, 180.0f, 2);
+        pkt = func_001ba710((f32 *)&rotation, 0);
+        *(s16 *)(pkt + 0x48) = work->delay + 1;
         *(s64 *)(pkt + 0x60) = *(s64 *)base;
         func_00194590(pkt, 1);
-        pkt = func_001b83f0(0xFF808080, 0xFF88C3FF, 0xFFCFFCF6, 0, 0);
-        *(s16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC) + 1;
+        pkt = (u8 *)func_001b83f0((s32)0xFF808080U, (s32)0xFF88C3FFU, (s32)0xFFCFFCF6U, 0, 0);
+        *(s16 *)(pkt + 0x48) = work->delay + 1;
         *(s64 *)(pkt + 0x60) = *(s64 *)base;
         func_00194590(pkt, 1);
-        ctab = func_00457160();
-        r0 = fGpffff81f4 * (f32)ctab[0];
-        ctab = func_00457160();
-        r1 = fGpffff81f4 * (f32)ctab[1];
-        ctab = func_00457160();
-        r2 = fGpffff81f4 * (f32)ctab[2];
-        ctab = func_00457160();
-        r3 = fGpffff81f4 * (f32)ctab[3];
-        col = 0xFF808080;
-        bptr = (u8 *)&col;
-        s0 = fGpffff81f4 * (f32)bptr[0];
-        s1 = fGpffff81f4 * (f32)bptr[1];
-        s2 = fGpffff81f4 * (f32)bptr[2];
-        s3 = fGpffff81f4 * (f32)bptr[3];
-        p0 = s0 * r0;
-        o0 = (s32)(p0 * 255.0f + 0.5f);
-        bptr[0] = o0;
-        p1 = s1 * r1;
-        o1 = (s32)(p1 * 255.0f + 0.5f);
-        bptr[1] = o1;
-        p2 = s2 * r2;
-        o2 = (s32)(p2 * 255.0f + 0.5f);
-        bptr[2] = o2;
-        p3 = s3 * r3;
-        o3 = (s32)(p3 * 255.0f + 0.5f);
-        bptr[3] = o3;
-        pkt = func_001ba530(col, 0);
-        *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
+        palette = (u8 *)func_00457160();
+        ambientRed = (1.0f / 255.0f) * (f32)palette[0];
+        palette = (u8 *)func_00457160();
+        ambientGreen = (1.0f / 255.0f) * (f32)palette[1];
+        palette = (u8 *)func_00457160();
+        ambientBlue = (1.0f / 255.0f) * (f32)palette[2];
+        palette = (u8 *)func_00457160();
+        ambientAlpha = (1.0f / 255.0f) * (f32)palette[3];
+        color = btlCameraBlendAmbient(ambientRed, ambientGreen, ambientBlue, ambientAlpha);
+        pkt = func_001ba530(color, 0);
+        *(u16 *)(pkt + 0x48) = work->delay;
         *(s64 *)(pkt + 0x60) = *(s64 *)base;
         func_00194590(pkt, 1);
     }
-    if (*(s32 *)(arg0 + 0x18) == 0) {
-        pkt = func_001d3b50(base);
-        *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
-        *(s64 *)(pkt + 0x60) = *(s64 *)base;
-        func_00194590(pkt, 0);
+    if (work->singleUnit == 0) {
+        u8 *const dependencyPacket = func_001d3b50(base);
+        u8 *pkt2;
+        u8 *node;
+        *(u16 *)(dependencyPacket + 0x48) = work->delay;
+        *(s64 *)(dependencyPacket + 0x60) = *(s64 *)base;
+        func_00194590(dependencyPacket, 0);
         if (((*(u16 *)(iGpffffb3ac + 0xCAC) & 1) == 0) && ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) == 0)) {
-            pkt = func_001f99c0(base, 4, 0, 0, 0);
-            *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
+            pkt = (u8 *)func_001f99c0((BtlAction *)base, 4, 0, 0, 0);
+            *(u16 *)(pkt + 0x48) = work->delay;
             *(s64 *)(pkt + 0x60) = *(s64 *)base;
             func_00194590(pkt, 1);
         }
@@ -2407,18 +2429,18 @@ void func_001b4880(u8 *arg0) {
         while (node != 0) {
             if ((*(u32 *)(node + 0x9C) & 8) != 0) {
                 if (datCalcIsDead(*(s32 *)(node + 0xA64), 0) != 0) {
-                    pkt2 = func_0019bdd0(node);
-                    *(u8 *)(pkt2 + 0) = 4;
-                    *(s64 *)(pkt2 + 8) = *(s64 *)(pkt + 0x58);
-                    *(s64 *)(pkt2 + 0x60) = *(s64 *)base;
-                    func_00194590(pkt2, 0);
+                    u8 *deadPacket = (u8 *)func_0019bdd0((BtlUnit *)node);
+                    *(u8 *)(deadPacket + 0) = 4;
+                    *(s64 *)(deadPacket + 8) = *(s64 *)(dependencyPacket + 0x58);
+                    *(s64 *)(deadPacket + 0x60) = *(s64 *)base;
+                    func_00194590(deadPacket, 0);
                 } else if (*(u8 **)(base + 0x30) != node) {
-                    pkt2 = btlUnitCreateMovePacket(node, 0, fGpffff82cc, 0x18);
+                    pkt2 = (u8 *)btlUnitCreateMovePacket((BtlUnit *)node, NULL, fGpffff82cc, 0x18);
                     *(u8 *)(pkt2 + 0) = 4;
-                    *(s64 *)(pkt2 + 8) = *(s64 *)(pkt + 0x58);
+                    *(s64 *)(pkt2 + 8) = *(s64 *)(dependencyPacket + 0x58);
                     *(s64 *)(pkt2 + 0x60) = *(s64 *)base;
                     func_00194590(pkt2, 0);
-                    pkt3 = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)((BtlUnit *)node), (s16)(0x15), (u16)(0), 1.0f, (u16)(2));
+                    pkt3 = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)node, 0x15, 0, 1.0f, 2);
                     *(u8 *)(pkt3 + 0) = 4;
                     *(s64 *)(pkt3 + 8) = *(s64 *)(pkt2 + 0x58);
                     *(s64 *)(pkt3 + 0x60) = *(s64 *)base;
@@ -2427,39 +2449,38 @@ void func_001b4880(u8 *arg0) {
             }
             node = *(u8 **)(node + 0xA68);
         }
-        pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)(base), (u16)(0x26));
-        *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
+        pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)base, 0x26);
+        *(u16 *)(pkt + 0x48) = work->delay;
         *(s64 *)(pkt + 0x60) = *(s64 *)base;
         func_00194590(pkt, 0);
         return;
     }
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) == 0) {
-        pkt = func_001f5f70(base, 0xF, 0, 0, 3);
-        *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
+        pkt = (u8 *)func_001f5f70((u32)base, 0xF, 0, 0, 3);
+        *(u16 *)(pkt + 0x48) = work->delay;
         func_00194590(pkt, 1);
-        pkt = func_001f99c0(base, 4, 0, 0, 0);
-        *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
+        pkt = (u8 *)func_001f99c0((BtlAction *)base, 4, 0, 0, 0);
+        *(u16 *)(pkt + 0x48) = work->delay;
         *(s64 *)(pkt + 0x60) = *(s64 *)base;
         func_00194590(pkt, 1);
     }
-    node = *(u8 **)(iGpffffb3ac + 0x17C);
-    while (node != 0) {
-        if (((*(u32 *)(node + 0x9C) & 8) != 0) && (*(u8 **)(base + 0x30) != node)) {
-            pkt = func_0019bdd0(node);
-            *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
-            *(s64 *)(pkt + 0x60) = *(s64 *)base;
-            func_00194590(pkt, 0);
+    {
+        u8 *singleUnit = *(u8 **)(iGpffffb3ac + 0x17C);
+        while (singleUnit != 0) {
+            if (((*(u32 *)(singleUnit + 0x9C) & 8) != 0) && (*(u8 **)(base + 0x30) != singleUnit)) {
+                pkt = (u8 *)func_0019bdd0((BtlUnit *)singleUnit);
+                *(u16 *)(pkt + 0x48) = work->delay;
+                *(s64 *)(pkt + 0x60) = *(s64 *)base;
+                func_00194590(pkt, 0);
+            }
+            singleUnit = *(u8 **)(singleUnit + 0xA68);
         }
-        node = *(u8 **)(node + 0xA68);
+        pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)base, 0x25);
+        *(u16 *)(pkt + 0x48) = work->delay;
+        *(s64 *)(pkt + 0x60) = *(s64 *)base;
+        func_00194590(pkt, 0);
     }
-    pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)(base), (u16)(0x25));
-    *(u16 *)(pkt + 0x48) = *(u16 *)(arg0 + 0xC);
-    *(s64 *)(pkt + 0x60) = *(s64 *)base;
-    func_00194590(pkt, 0);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b4880);
-#endif
 // FUN_001B5300
 s32 func_001b5300(u8 *arg0)
 {
@@ -3628,7 +3649,7 @@ s32 func_001ba0e0(ColorBlendWork *work)
     return 0;
 }
 // FUN_001BA530
-void func_001ba530(s32 arg0, s32 arg1) {
+u8 *func_001ba530(s32 arg0, s32 arg1) {
     u8 *o = func_00194470(0x608, 0x10);
     u8 *p;
 
@@ -3636,6 +3657,7 @@ void func_001ba530(s32 arg0, s32 arg1) {
     p = *(u8 **)(o + 0x78);
     *(s32 *)p = arg0;
     *(s32 *)(p + 8) = arg1;
+    return o;
 }
 
 // FUN_001BA590
@@ -3746,7 +3768,7 @@ s32 func_001ba590(u8 *arg0)
     return 0;
 }
 // FUN_001BA710
-void func_001ba710(f32 *arg0, s32 arg1) {
+u8 *func_001ba710(f32 *arg0, s32 arg1) {
     struct F4 {
         f32 x0;
         f32 x1;
@@ -3761,6 +3783,7 @@ void func_001ba710(f32 *arg0, s32 arg1) {
     value = *(struct F4 *)arg0;
     *(struct F4 *)p = value;
     *(s32 *)(p + 8) = arg1;
+    return o;
 }
 
 // FUN_001BA790

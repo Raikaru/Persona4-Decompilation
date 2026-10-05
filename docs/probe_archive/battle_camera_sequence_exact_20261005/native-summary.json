@@ -1,0 +1,92 @@
+{
+  "date_utc": "2026-10-05",
+  "fresh_execution": true,
+  "production_owner_sha256": "75db06b98cdf9e507b03af00882488a28844e09d6542382b001aa10d20356360",
+  "readable_source_module_sha256": "c9ef7fb3c2dbaa320f7c979ea92a52d7a110957c37ac1f6e4a985030feff0604",
+  "native_extracted_module_exact": true,
+  "inputs_unchanged_through_execution": true,
+  "input_hashes": {
+    "src/promoted/code1_001b.c": "75db06b98cdf9e507b03af00882488a28844e09d6542382b001aa10d20356360",
+    "tests/test_battle_camera_sequence_contract.py": "747405cc90d8aca79459f09a94b00f3aae6d40db429a08421876c00526c895fb",
+    "tests/test_packet_prerequisite_contracts.py": "45793e48ccfebbd371369485dc5abea02a3dd15018d54a4a643629f23466d60a",
+    "tests/test_battle_color_packet_contract.py": "f23e050834c1b06b64d4ac12e0cffa538f8ea65b274bb2d8120032a1a70d31d9",
+    "tests/battle_camera_sequence_fixture.c.in": "9ce1763eec8544c1244cf6a15fbb4c36e8eae0ee25ac3346b57fc798276db22f",
+    "tests/packet_prerequisite_fixture.c.in": "86391fe05c2d668b43f6362244dcf2a0c6611e58d4b218d70edb9c3e451a6128",
+    "tests/sound_stop_prerequisite_fixture.c.in": "f763cf470db4d6235ad64b82624414f359c60cace09246c7455e856889e060b7",
+    "tests/battle_color_packet_fixture.c.in": "8cc5991a5d68c7201a84d1220a856dcc2b0a6dc835b8d01994b240c247837a64",
+    "tests/native32_support.py": "cc33b5232e4c353306db53030ec8f6e4b4d4cbb975faae30e871075bce02982d",
+    "src/promoted/code1_0019.c": "3d5a4e39cf9bc8e64b2d65359592d9dd567519c7e9147dc6b5b2dc21b59cef9c",
+    "src/promoted/code1_001a.c": "55a0046295d3a0bd8dac332b2e0a35480bc5bd573fb1850e573dd486ed44e9a5",
+    "src/promoted/code1_001e.c": "a6bc9621354df08705d0c992380fcf5330ec671dcbb3906a93a40c474940681d",
+    "src/Battle/btlMain.c": "70bef7b7b84bd2796960565b1ae9d91fdc04375f98348bb8d0ea3d13493c89a9",
+    "src/Battle/btlFormation.c": "48900429101ede46b116608e4b8ddddfd970712af32d016c726aa8b66f452e56",
+    "src/Battle/btlUnit.c": "5a2f3ff61d6e90a9365653df853b56098640a2fddfe9295235d8deaaf45b8471",
+    "include/type.h": "d98ec5482a2782c2a9ca41f93d590ab2007b9817936d5208746d6e8794906db3",
+    "include/btl_camera_sequence_internal.h": "0da5e50529dfb7134186664821cdb5676c9fc8465ed25cb1547e7668b14e1bd9"
+  },
+  "scope": "Only the three requested targeted native suites. No MWCC build, whole-repository test, production source edit or test-logic edit.",
+  "artifact_retention": "Controller and packet suites retain their own sources/binaries/results. A separate wrapper copies the exact color compiler inputs, outputs and runtime results without changing source, commands, oracle, assertions or return values.",
+  "controller": {
+    "methods": 3,
+    "skips": 0,
+    "ordinary_per_optimization": 2464,
+    "provider_models_per_optimization": 192,
+    "positive_executions_total": 5312,
+    "semantic_mutants_per_optimization": 28,
+    "ordinary_assertion_rejections": 56
+  },
+  "packet_sound": {
+    "methods": 8,
+    "skips": 0,
+    "factory_calls_per_optimization": 2007,
+    "factory_calls_total": 4014,
+    "sound_stop_calls_per_optimization": 2848,
+    "sound_stop_calls_total": 5696,
+    "semantic_mutants_per_optimization": 31,
+    "ordinary_assertion_rejections": 62,
+    "false_interface_compile_negatives": 4
+  },
+  "color": {
+    "methods": 18,
+    "skips": 0,
+    "provider_calls_per_optimization": 9282,
+    "provider_calls_total": 18564,
+    "callback_smoke_paths_per_optimization": 4,
+    "semantic_mutants_per_optimization": 14,
+    "ordinary_assertion_rejections": 28,
+    "signature_compile_negatives": 11
+  },
+  "optimizations": [
+    "-O0",
+    "-O2"
+  ],
+  "strict_controls": "Every semantic negative returns1 at an ordinary assertion; no crash, trap, compile failure or skip counts as rejection.",
+  "finite_census": {
+    "sound_stop_callers": 6,
+    "factory_callers_each": 1,
+    "extra_helper_call_controls": 12,
+    "duplicate_definition_controls": [
+      {
+        "name": "func_001b4880",
+        "rejected": true
+      },
+      {
+        "name": "btlCameraNormalizeColor",
+        "rejected": true
+      },
+      {
+        "name": "btlCameraMultiplyColor",
+        "rejected": true
+      },
+      {
+        "name": "btlCameraBlendAmbient",
+        "rejected": true
+      }
+    ],
+    "passed": true
+  },
+  "limitations": "Exact extracted ordinary C with real allocator/factories and controlled SDK/queue/provider seams; not retail CPU execution, complete SDK numerical proof, all-assets coverage or transitive whole-engine certification.",
+  "complete_private_receipt_sha256": "8f39e89c025d10454a57a57377221971337ad437795f58cef3f591349667a58a",
+  "native_record_count": 154,
+  "interface_record_count": 19
+}

@@ -510,7 +510,7 @@ u32 func_001b7e70(BtlMainColorWork* work)
 /* measured: restore propagation after func_001b7e70. */
 #pragma opt_propagation on
 // FUN_001B83F0
-BtlPacket* func_001b83f0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5)
+BtlPacket* func_001b83f0(s32 param_1, s32 param_2, s32 param_3, u32 param_4, u16 param_5)
 {
     float *pfVar1;
     int iVar2;
@@ -520,19 +520,19 @@ BtlPacket* func_001b83f0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u16
     *(code **)(iVar2 + 0x6c) = (code *)func_001b7e70;
     pfVar1 = *(float **)(iVar2 + 0x78);
 
-    packed.value = param_1;
+    packed.value = (u32)param_1;
     pfVar1[0] = fGpffff81f4 * (float)packed.bytes[0];
     pfVar1[1] = fGpffff81f4 * (float)packed.bytes[1];
     pfVar1[2] = fGpffff81f4 * (float)packed.bytes[2];
     pfVar1[3] = fGpffff81f4 * (float)packed.bytes[3];
 
-    packed.value = param_2;
+    packed.value = (u32)param_2;
     pfVar1[8] = fGpffff81f4 * (float)packed.bytes[0];
     pfVar1[9] = fGpffff81f4 * (float)packed.bytes[1];
     pfVar1[10] = fGpffff81f4 * (float)packed.bytes[2];
     pfVar1[0xb] = fGpffff81f4 * (float)packed.bytes[3];
 
-    packed.value = param_3;
+    packed.value = (u32)param_3;
     pfVar1[0x10] = fGpffff81f4 * (float)packed.bytes[0];
     pfVar1[0x11] = fGpffff81f4 * (float)packed.bytes[1];
     pfVar1[0x12] = fGpffff81f4 * (float)packed.bytes[2];

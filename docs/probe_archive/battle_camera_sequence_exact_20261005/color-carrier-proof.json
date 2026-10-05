@@ -1,0 +1,71 @@
+{
+  "source_sha256": "c3eafb673911ee1a4d5c9cf021d2076aee890242df189171bc223c30ece7eb68",
+  "object_sha256": "e621fde66d88e924691202dd771ca2b63103793ba4f25d3ffa9440052bdc6f77",
+  "rows": [
+    {
+      "name": "colorCarrierFromBits",
+      "bytes": 12,
+      "words": [
+        "0x80102d",
+        "0x3e00008",
+        "0x0"
+      ],
+      "instructions": [
+        "move $v0, $a0",
+        "jr $ra",
+        "nop "
+      ]
+    },
+    {
+      "name": "colorCarrierRoundTrip",
+      "bytes": 12,
+      "words": [
+        "0x80102d",
+        "0x3e00008",
+        "0x0"
+      ],
+      "instructions": [
+        "move $v0, $a0",
+        "jr $ra",
+        "nop "
+      ]
+    },
+    {
+      "name": "colorCarrierStore",
+      "bytes": 12,
+      "words": [
+        "0xaca40000",
+        "0x3e00008",
+        "0x0"
+      ],
+      "instructions": [
+        "sw $a0, ($a1)",
+        "jr $ra",
+        "nop "
+      ]
+    },
+    {
+      "name": "colorCarrierWrongRoundTrip",
+      "bytes": 16,
+      "words": [
+        "0x4107c",
+        "0x2107e",
+        "0x3e00008",
+        "0x0"
+      ],
+      "instructions": [
+        "dsll32 $v0, $a0, 1",
+        "dsrl32 $v0, $v0, 1",
+        "jr $ra",
+        "nop "
+      ]
+    }
+  ],
+  "all_low_32_bits_preserved_by_three_positive_witnesses": true,
+  "negative_clears_bit31": true,
+  "negative_example": {
+    "input": "0x80000000",
+    "incorrect_output": "0x00000000"
+  },
+  "claim": "Structural all-2^32 low-word identity for configured b210; not an exhaustive native test or portable unsigned-to-signed guarantee."
+}

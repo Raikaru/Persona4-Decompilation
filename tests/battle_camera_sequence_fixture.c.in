@@ -1,0 +1,330 @@
+/* Finite source-bound controller execution. Actual allocator/factories execute;
+ * heap, dispatcher, audio, liveness, other factories, and quaternion composition
+ * are bounded recording seams. Provider-model UID/node edits are adversarial
+ * sampling controls, not claims about normal retail callback side effects. */
+#include "type.h"
+#include "btl_camera_sequence_internal.h"
+%%UNIT_TYPES%%
+%%UNIT_ROTATION_SETTER%%
+typedef struct BtlAction BtlAction;
+typedef struct BtlPacket BtlPacket;
+typedef int (*code)();
+_Static_assert(sizeof(void *) == 4 && sizeof(s64) == 8, "native32 widths");
+_Static_assert(sizeof(BtlCameraSequenceRotation) == 16, "complete rotation");
+_Static_assert(__builtin_offsetof(BtlUnit, rot) == 0x1c && sizeof(RtQuat) == 16, "unit rotation offsets");
+_Static_assert(__builtin_offsetof(BtlUnit, flags2) == 0x98 && __builtin_offsetof(BtlUnit, flags3) == 0x9c, "unit flags offsets");
+_Static_assert(sizeof(BtlCameraSequenceWork) == 0x1c, "complete work");
+_Static_assert(__builtin_offsetof(BtlCameraSequenceWork, delay) == 0xc, "delay offset");
+_Static_assert(__builtin_offsetof(BtlCameraSequenceWork, soundFrame) == 0x12, "sound offset");
+static u32 scenario;
+#define CHECK(c) do { if (!(c)) native32_failure(__LINE__, scenario, #c); } while (0)
+#define MAX_PACKETS 32
+#define SLOT_BYTES 0x120
+#define NONE 99u
+/* Only actual factories use retail kind numbers. Other kinds are explicitly
+ * test-only recording tokens, so no fabricated factory layout is certified. */
+enum Role { CLEANUP, ANIMATION, WAIT, EFFECT, ROTATION, COLORS, TINT, GROUP,
+            VOICE, DEAD_UNIT, MOVE, CAMERA_GROUP, CAMERA_SINGLE, SOUND };
+typedef struct Plan {
+    enum Role role;
+    u32 kind, size, priority, delay, dependency, duration;
+    u8 *subject;
+    u32 owner;
+} Plan;
+static Plan plan[MAX_PACKETS];
+static u32 plans, allocations, submissions, diagnostics, paletteCalls, rotations;
+static u32 stopCalls, fadeCalls, soundCalls, cleanupPhase, deadCalls, expectedDeadCalls;
+static u32 fallback, activeMask, deadMask, cleanupPattern, animation, formation, flags;
+static u32 paletteSeed, rotationCase, uidCase, modelNode, modelUID, modelPalette;
+static u32 selected, special, nodeModelFired;
+static u32 dead[8], active[4];
+static u8 contextBacking[0xe20] __attribute__((aligned(16)));
+static u8 actionBacking[5][0x480] __attribute__((aligned(16)));
+static u8 unitBacking[8][0xaa0] __attribute__((aligned(16)));
+static u8 contextExpected[sizeof(contextBacking)];
+static u8 actionExpected[sizeof(actionBacking)];
+static u8 unitExpected[sizeof(unitBacking)];
+static u8 arena[MAX_PACKETS][SLOT_BYTES] __attribute__((aligned(16)));
+static u8 expectedArena[MAX_PACKETS][SLOT_BYTES] __attribute__((aligned(16)));
+static u8 *actions[5], *units[8], *expectedAction;
+static void *controllerWork;
+static u8 *context = contextBacking + 16;
+u8 *iGpffffb3ac;
+f32 fGpffff81f4 = 0x1.010102p-8f;
+f32 fGpffff82cc = 0x1.99999ap-2f;
+f32 D_0060A110[4] __attribute__((aligned(16))) = {0,0,0,1};
+u8 D_0060A0E0[12] __attribute__((aligned(16))) = {0,0,0,0,0,0,128,63,0,0,0,0};
+static u8 D_005F6C00[1];
+static u8 palette[4], samples[4][4];
+static u32 tint;
+static f32 rotationOutput[4];
+static const f32 rotationInputs[][4] = {
+    {0,0,0,1}, {0,1,0,0}, {0.5f,0.5f,0.5f,0.5f},
+    {-0.5f,0.5f,-0.5f,0.5f}, {1,0,0,0}, {0,0,1,0}
+};
+static const u64 uidPatterns[] = {0x0123456789abcdefULL,0xfedcba9876543210ULL,
+    0x8000000000000001ULL,0x0000000180000000ULL,0xffffffff00000000ULL,
+    0x00000000ffffffffULL,0xaaaaaaaa55555555ULL,0x55555555aaaaaaaaULL};
+static u64 ownerUID;
+static u64 uidFor(u32 n) { return uidPatterns[uidCase % 8] ^ ((u64)(n+1)<<48) ^ ((u64)(n+1)*0x1020301u); }
+static u8 *packet(u32 n) { CHECK(n<MAX_PACKETS); return arena[n]+16; }
+static u8 *expectedPacket(u32 n) { CHECK(n<MAX_PACKETS); return expectedArena[n]+16; }
+static u8 *work(u32 n) { return packet(n)+0x90; }
+static void add(enum Role role,u8 *subject,u32 priority,u32 delay,u32 dependency,u32 owner)
+{
+    CHECK(plans<MAX_PACKETS);
+    Plan *p=&plan[plans++];
+    p->role=role;p->subject=subject;p->priority=priority;p->delay=delay;
+    p->dependency=dependency;p->owner=owner;p->duration=0;
+    p->kind=0xf000u+role;p->size=4;
+    if(role==ROTATION) {p->kind=0x60a;p->size=0x28;}
+    if(role==COLORS) {p->kind=0x602;p->size=0x6c;}
+    if(role==TINT) {p->kind=0x608;p->size=0x10;}
+    if(role==GROUP) {p->kind=0xb06;p->size=4;}
+}
+static void make_plan(void)
+{
+    u32 living=0;
+    plans=expectedDeadCalls=0;
+    for(u32 j=0;j<4;++j) if(active[j]) {++expectedDeadCalls;if(!dead[j])++living;}
+    selected=living<2 || !(formation&3);special=!!(flags&0x20000000u);
+    for(u32 j=2;j<5;++j) {
+        u8 *u=*(u8 **)(actions[j]+0x30);
+        if((*(u16 *)(actions[j]+0x1a)&1) && u[0xa2]==1) {
+            ++expectedDeadCalls;
+            if(dead[j+2]) add(CLEANUP,modelNode&&j==2?units[7]:u,0,12,NONE,1);
+        }
+    }
+    add(ANIMATION,*(u8 **)(expectedAction+0x30),0,12,NONE,1);
+    if(!special) {
+        add(WAIT,controllerWork,1,0,NONE,0);add(EFFECT,*(u8 **)(expectedAction+0x30),2,10,NONE,1);
+        add(ROTATION,0,1,13,NONE,1);add(COLORS,0,1,13,NONE,1);add(TINT,0,1,12,NONE,1);
+    }
+    if(!selected) {
+        u32 trigger=plans;add(GROUP,expectedAction,0,12,NONE,1);
+        if(!(formation&1)&&!special)add(VOICE,expectedAction,1,12,NONE,1);
+        for(u32 j=0;j<4;++j)if(active[j]) {
+            ++expectedDeadCalls;
+            if(dead[j])add(DEAD_UNIT,units[j],0,0,trigger,1);
+            else if(units[j]!=*(u8 **)(expectedAction+0x30)) {
+                u32 move=plans;add(MOVE,units[j],0,0,trigger,1);add(ANIMATION,units[j],0,0,move,1);
+            }
+        }
+        add(CAMERA_GROUP,expectedAction,0,12,NONE,1);
+    } else {
+        if(!special){add(SOUND,expectedAction,1,12,NONE,0);add(VOICE,expectedAction,1,12,NONE,1);}
+        for(u32 j=0;j<4;++j)if(active[j]&&units[j]!=*(u8 **)(expectedAction+0x30))add(DEAD_UNIT,units[j],0,12,NONE,1);
+        add(CAMERA_SINGLE,expectedAction,0,12,NONE,1);
+    }
+}
+void func_0044ea90(const void *message,s32 line)
+{CHECK(message==D_005F6C00&&line==0x51&&diagnostics==allocations);++diagnostics;}
+static u8 *raw_heap(s32 size,s32 heapFlags)
+{
+    CHECK(allocations<plans&&diagnostics==allocations+1);
+    CHECK(size==(s32)(0x90+plan[allocations].size)&&heapFlags==0x40000);
+    /* Explicit adversarial provider model: later factory allocation changes
+     * live dependency UIDs, independently of controller caching choices. */
+    if(modelUID)for(u32 i=0;i<submissions;++i) {
+        u64 changed=uidFor(i)^((u64)(allocations+1)<<32)^((u64)(allocations+1)<<56);
+        memcpy(packet(i)+0x58,&changed,8);memcpy(expectedPacket(i)+0x58,&changed,8);
+    }
+    return packet(allocations++);
+}
+static u8 *(*D_008873E8[])(s32,s32)={raw_heap};
+%%ALLOCATOR%%
+static u8 *make(enum Role role,void *subject)
+{
+    CHECK(allocations<plans&&plan[allocations].role==role&&plan[allocations].subject==subject);
+    u8 *p=func_00194470((s32)(0xf000u+role),4);
+    memcpy(p+0x90,&subject,4);return p;
+}
+static u8 *func_001b1510(void) { return fallback==1?NULL:actions[1]; }
+u32 datCalcIsDead(s32 datum,s32 mode)
+{
+    CHECK(mode==0);u32 *p=(u32 *)datum;u32 found=0;
+    for(u32 j=0;j<8;++j)if(p==&dead[j])found=1;
+    CHECK(found);++deadCalls;
+    if(modelNode&&cleanupPhase&&p==&dead[4]) {
+        *(u8 **)(actions[2]+0x30)=units[7];nodeModelFired=1;
+    }
+    return *p;
+}
+s16 func_00199500(u8 *unit,u16 motion,f32 rate)
+{CHECK(unit==*(u8 **)(expectedAction+0x30)&&motion==0x15&&rate==1.0f);return (s16)animation;}
+void func_00212210(s32 task)
+{CHECK(task==(s32)(context+0x100)&&!stopCalls&&!fadeCalls&&!( *(u32 *)(context+12)&0x1000));++stopCalls;}
+void func_0045af60(s32 a,s32 b,s32 c,s32 d)
+{CHECK(a==1&&b==15&&c==2&&d==19&&stopCalls==1&&!fadeCalls);++fadeCalls;}
+%%SOUND_STOP%%
+void func_00212240(u8 *p,s32 mode)
+{CHECK(p==context+0x100&&mode==0&&!( *(u32 *)(context+12)&0x3000));++soundCalls;}
+void func_001eb3b0(u8 *p)
+{CHECK(p==expectedAction+0x38);memset(p,0,0x30);cleanupPhase=1;}
+u8 *func_0019beb0(u8 *p) {return make(CLEANUP,p);}
+BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit,s16 motion,u16 frame,f32 rate,u16 mode)
+{CHECK(motion==0x15&&frame==0&&rate==1.0f&&mode==2);return (BtlPacket *)make(ANIMATION,unit);}
+%%WAIT_CALLBACK%%
+u8 *func_00194c90(void *callback,void *data)
+{
+    CHECK(callback==(void *)func_001b4860&&data==controllerWork);
+    CHECK(allocations<plans&&plan[allocations].role==WAIT);
+    return make(WAIT,data);
+}
+u8 *func_001d65d0(s32 effect,s32 unit,s32 frame,s64 dependency,s32 bits)
+{
+    CHECK(effect==0x12345678&&unit==(s32)*(u8 **)(expectedAction+0x30)&&frame==0&&bits==0x34100);
+    CHECK(allocations&&((u64)dependency==*(u64 *)(expectedPacket(allocations-1)+0x58)));
+    return make(EFFECT,(void *)unit);
+}
+struct RtQuat *func_003dc740(struct RtQuat *destination,const struct RwV3d *axis,f32 angle,s32 mode)
+{
+    const f32 *in=selected?(f32 *)(*(u8 **)(expectedAction+0x30)+0x1c):D_0060A110;
+    CHECK((const void *)axis==D_0060A0E0&&axis->x==0&&axis->y==1&&axis->z==0&&angle==180&&mode==2);
+    CHECK(memcmp(destination,in,16)==0);++rotations;
+    /* Idealized composition seam for a 180-degree Y turn; all input/output
+     * components are finite normalized test rotations. This is not SDK C. */
+    rotationOutput[0]=in[2];rotationOutput[1]=in[3];rotationOutput[2]=-in[0];rotationOutput[3]=-in[1];
+    memcpy(destination,rotationOutput,16);return destination;
+}
+s8 *func_00457160(void)
+{
+    /* Retail getter returns a fixed global pointer. Stable bytes are ordinary;
+     * evolving bytes occur only in the explicit adversarial palette model. */
+    CHECK(paletteCalls<4);memcpy(palette,samples[paletteCalls++],4);return (s8 *)palette;
+}
+BtlPacket *func_001f99c0(BtlAction *action,u16 voice,s32 a,s32 b,s32 c)
+{CHECK(action==(void *)expectedAction&&voice==4&&a==0&&b==0&&c==0);return (BtlPacket *)make(VOICE,action);}
+BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit,const struct RwV3d *target,f32 speed,u32 bits)
+{CHECK(target==NULL&&speed==0x1.99999ap-2f&&bits==0x18);return (BtlPacket *)make(MOVE,unit);}
+BtlPacket *func_0019bdd0(BtlUnit *unit){return (BtlPacket *)make(DEAD_UNIT,unit);}
+BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action,u16 state)
+{CHECK(action==(void *)expectedAction&&state==(selected?0x25:0x26));return (BtlPacket *)make(selected?CAMERA_SINGLE:CAMERA_GROUP,action);}
+BtlPacket *func_001f5f70(u32 action,u16 mode,u32 a,u32 b,u32 c)
+{CHECK(action==(u32)expectedAction&&mode==15&&a==0&&b==0&&c==3);return (BtlPacket *)make(SOUND,(void *)action);}
+/* Callback identities are compared, never invoked through erased slots. */
+s32 func_001ba0e0(void *p){(void)p;CHECK(0);return 0;}
+s32 func_001ba590(u8 *p){(void)p;CHECK(0);return 0;}
+u32 func_001d3950(u8 **p){(void)p;CHECK(0);return 0;}
+u32 func_001b7e70(void *p){(void)p;CHECK(0);return 0;}
+%%FACTORY_COLOR%%
+%%FACTORY_QUAT%%
+%%FACTORY_ACTION%%
+%%COLOR_PROVIDER%%
+static void expected_allocation(u32 n)
+{
+    Plan *p=&plan[n];u8 *dst=expectedPacket(n);u8 *payload=dst+0x90;void *actualWork=work(n);
+    memset(dst,0,0x90+p->size);dst[0]=dst[0x10]=dst[0x20]=dst[0x30]=1;
+    memcpy(dst+0x40,&p->kind,4);dst[0x47]=0x31;memcpy(dst+0x78,&actualWork,4);
+    memcpy(dst+0x48,&p->delay,2);
+    if(p->owner)memcpy(dst+0x60,&ownerUID,8);
+    if(p->dependency!=NONE) {dst[0]=4;memcpy(dst+8,expectedPacket(p->dependency)+0x58,8);}
+    if(p->role==EFFECT){u16 six=6;memcpy(dst+0x4a,&six,2);}
+    void (*callback)(void)=NULL;
+    if(p->role==ROTATION){memcpy(payload,rotationOutput,16);callback=(void (*)(void))func_001ba590;}
+    else if(p->role==TINT){memcpy(payload,&tint,4);callback=(void (*)(void))func_001ba0e0;}
+    else if(p->role==GROUP){memcpy(payload,&expectedAction,4);callback=(void (*)(void))func_001d3950;}
+    else if(p->role==COLORS) {
+        const u32 raw[3]={0xff808080u,0xff88c3ffu,0xffcffcf6u};
+        for(u32 r=0;r<3;++r)for(u32 c=0;c<4;++c){f32 f=0x1.010102p-8f*(f32)((raw[r]>>(8*c))&255);memcpy(payload+r*0x20+c*4,&f,4);}
+        callback=(void (*)(void))func_001b7e70;
+    } else memcpy(payload,&p->subject,4);
+    if(callback)memcpy(dst+0x6c,&callback,4);
+}
+s64 func_00194590(u8 *p,u32 priority)
+{
+    CHECK(submissions<plans&&allocations==submissions+1);
+    u32 n=submissions;CHECK(p==packet(n)&&priority==plan[n].priority);
+    expected_allocation(n);
+    CHECK(memcmp(arena[n],expectedArena[n],SLOT_BYTES)==0);
+    /* The seam models the real dispatcher's UID assignment before returning.
+     * The full real queue topology/callback behavior is outside this fixture. */
+    u64 uid=uidFor(n);memcpy(p+0x58,&uid,8);memcpy(expectedPacket(n)+0x58,&uid,8);
+    ++submissions;return (s64)uid;
+}
+%%AMBIENT_HELPER%%
+%%CONTROLLER%%
+static void setup(void)
+{
+    ++scenario;allocations=submissions=diagnostics=paletteCalls=rotations=0;
+    stopCalls=fadeCalls=soundCalls=cleanupPhase=deadCalls=nodeModelFired=0;
+    memset(contextBacking,0x69,sizeof(contextBacking));memset(context,0,0xe00);
+    memset(actionBacking,0x69,sizeof(actionBacking));memset(unitBacking,0x69,sizeof(unitBacking));
+    memset(arena,0xa5,sizeof(arena));memcpy(expectedArena,arena,sizeof(arena));
+    for(u32 j=0;j<5;++j){actions[j]=actionBacking[j]+16;memset(actions[j],0,0x460);}
+    for(u32 j=0;j<8;++j){units[j]=unitBacking[j]+16;memset(units[j],0,0xa80);}
+    iGpffffb3ac=context;ownerUID=uidPatterns[uidCase%8];
+    *(u8 **)(context+0x170)=actions[0];*(u8 **)(context+0x174)=cleanupPattern==8?NULL:actions[2];
+    *(u8 **)(context+0x17c)=activeMask==16?NULL:units[0];
+    *(u16 *)(context+0xcac)=(u16)formation;*(u32 *)(context+12)=flags;
+    *(u8 **)(context+0xdd4)=context+0x100;*(u32 *)(context+0xdc0)=0x12345678;
+    for(u32 j=0;j<5;++j){u64 id=uidPatterns[uidCase%8]^((u64)j*0x0101010102030405ULL);memcpy(actions[j],&id,8);*(u8 **)(actions[j]+0x30)=units[j<2?j:j+2];}
+    units[1][0xa2]=fallback==2?1:(fallback==3?2:0);
+    expectedAction=(fallback==1||fallback==2)?actions[0]:actions[1];
+    ownerUID=uidPatterns[uidCase%8]^((expectedAction==actions[0]?0ULL:1ULL)*0x0101010102030405ULL);
+    for(u32 j=0;j<8;++j) {
+        dead[j]=j<4?!!(deadMask&(1u<<j)):1;
+        *(u32 **)(units[j]+0xa64)=&dead[j];
+        RtQuat sourceRotation;memcpy(&sourceRotation,rotationInputs[(rotationCase+j)%6],16);
+        btlUnitSetRot((BtlUnit *)units[j],&sourceRotation);
+        CHECK(memcmp(units[j]+0x1c,&sourceRotation,16)==0&&(*(u32 *)(units[j]+0x98)&4));
+        if(j<4){active[j]=activeMask==16?0:!!(activeMask&(1u<<j));*(u32 *)(units[j]+0x9c)=(active[j]?8:0)|0x80000001u;*(u8 **)(units[j]+0xa68)=j<3?units[j+1]:NULL;}
+    }
+    for(u32 j=2;j<5;++j){*(u16 *)(actions[j]+0x1a)=(u16)((cleanupPattern>>(j-2))&1);units[j+2][0xa2]=j==4?2:1;*(u8 **)(actions[j]+0x450)=j<4?actions[j+1]:NULL;}
+    dead[5]=0;
+    for(u32 r=0;r<4;++r)for(u32 c=0;c<4;++c)samples[r][c]=(u8)(paletteSeed+(modelPalette?37*r:0)+59*c);
+    tint=0;for(u32 c=0;c<4;++c){u32 b=samples[c][c];u32 channel=c==3?b:(128*b+127)/255;tint|=channel<<(8*c);}
+    make_plan();
+    memcpy(contextExpected,contextBacking,sizeof(contextBacking));
+    memcpy(actionExpected,actionBacking,sizeof(actionBacking));memcpy(unitExpected,unitBacking,sizeof(unitBacking));
+    u32 expectFlags= special?flags:flags&~0x3000u;memcpy(contextExpected+16+12,&expectFlags,4);
+    u32 index=(expectedAction==actions[0]?0:1);u8 *a=actionExpected+index*sizeof(actionBacking[0])+16;
+    memset(a+0x38,0,0x30);memcpy(a+0x38,&expectedAction,4);u16 one=1;memcpy(a+0x6a,&one,2);
+    if(modelNode&&(cleanupPattern&1))memcpy(actionExpected+2*sizeof(actionBacking[0])+16+0x30,&units[7],4);
+}
+static void run(void)
+{
+    struct {u8 before[16];BtlCameraSequenceWork value;u8 after[16];} workGuard,expectedWork;
+    controllerWork=&workGuard.value;setup();memset(&workGuard,0xa5,sizeof(workGuard));workGuard.value.state=(s32)(scenario%14);
+    memcpy(&expectedWork,&workGuard,sizeof(workGuard));
+    BtlCameraSequenceWork *w=&expectedWork.value;
+    w->singleUnit=(s32)selected;w->delay=12;w->interrupted=0;
+    w->animationFrames=(u16)(special?(animation<41?40:animation-8):animation);
+    w->duration=special?w->animationFrames:20;
+    if(special)w->soundFrame=(u16)(animation<41?0:animation-40);
+    func_001b4880((u8 *)&workGuard.value);
+    CHECK(memcmp(&workGuard,&expectedWork,sizeof(workGuard))==0);
+    CHECK(allocations==plans&&submissions==plans&&diagnostics==plans);
+    CHECK(paletteCalls==4*!special&&rotations==!special&&soundCalls==!special);
+    CHECK(stopCalls==(!special&&!!(flags&0x1000))&&fadeCalls==stopCalls);
+    CHECK(deadCalls==expectedDeadCalls&&nodeModelFired==(modelNode&&!!(cleanupPattern&1)));
+    CHECK(memcmp(contextBacking,contextExpected,sizeof(contextBacking))==0);
+    CHECK(memcmp(actionBacking,actionExpected,sizeof(actionBacking))==0);
+    CHECK(memcmp(unitBacking,unitExpected,sizeof(unitBacking))==0);
+    CHECK(memcmp(arena,expectedArena,sizeof(arena))==0);
+}
+int main(void)
+{
+    f32 sdkScale=1.0f/255.0f;u32 sdkBits;memcpy(&sdkBits,&sdkScale,4);CHECK(sdkBits==0x3b808081u);
+    const u16 frames[]={0,1,8,9,39,40,41,42,0x7fff,0x8000,0xffff};
+    /* Cross major control paths, unsigned boundary frames, fallback variants,
+     * all twelve ordinary formation flag values including high halfword bits. */
+    const u16 formations[]={0,1,2,3,4,0x8000,0x8001,0x8002,0x8003,0xfffc,0xfffe,0xffff};
+    for(u32 s=0;s<2;++s)for(u32 f=0;f<12;++f)for(fallback=0;fallback<4;++fallback)
+    for(u32 a=0;a<11;++a){flags=0x80003081u|(s?0x20000000u:0);formation=formations[f];animation=frames[a];activeMask=15;deadMask=4;cleanupPattern=7;paletteSeed=scenario;rotationCase=scenario;uidCase=scenario;run();}
+    /* Every active/dead subset of the four-node living list; no synthetic
+     * wraparound list and no claim about unbounded retail lists. */
+    for(activeMask=0;activeMask<=16;++activeMask)for(deadMask=0;deadMask<16;++deadMask)
+    for(formation=0;formation<4;++formation){flags=0x3000;animation=41;fallback=scenario%4;cleanupPattern=scenario%9;paletteSeed=scenario;rotationCase=scenario;uidCase=scenario;run();}
+    /* Every palette byte at each channel, with the ordinary stable palette. */
+    for(paletteSeed=0;paletteSeed<256;++paletteSeed){flags=0;formation=2;activeMask=15;deadMask=4;fallback=0;animation=0xffff;cleanupPattern=1;uidCase=scenario;run();}
+    /* One-hot/one-clear flags retain all unrelated bits across real sound stop. */
+    for(u32 bit=0;bit<32;++bit)for(u32 inverse=0;inverse<2;++inverse){flags=inverse?~(1u<<bit):(1u<<bit);formation=bit%4;activeMask=15;deadMask=4;animation=frames[bit%11];fallback=bit%4;run();}
+    u32 ordinary=scenario;
+    /* Adversarial provider model, separately counted and reported. */
+    for(modelNode=0;modelNode<2;++modelNode)for(modelUID=0;modelUID<2;++modelUID)for(modelPalette=0;modelPalette<2;++modelPalette)
+    for(uidCase=0;uidCase<8;++uidCase)for(formation=1;formation<=3;++formation){flags=0;activeMask=15;deadMask=4;fallback=0;animation=41;cleanupPattern=1;paletteSeed=uidCase;run();}
+    for(s32 state=-1;state<14;++state){s32 value=state;CHECK(func_001b4860(&value)==(state!=11)&&value==state);}
+    native32_number(ordinary);native32_text(" ordinary controller scenarios; ");native32_number(scenario-ordinary);
+    native32_text(" provider-model scenarios; exact factories and allocator passed\n");return 0;
+}

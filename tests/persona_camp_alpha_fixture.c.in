@@ -28,7 +28,10 @@ void func_00115c40(Vec2f p,u8 alpha,s16 *panel,f32 depth){receive(p,alpha,panel,
 /* REFERENCE_CALLER */
 /* ACTUAL_CALLER */
 int main(void){
- for(unsigned base=0;base<256;base++)for(unsigned row=0;row<256;row++)for(mutate=0;mutate<2;mutate++){
+ unsigned completed=0;
+ /* Keep diagnostic IDs identical to the complete, ordered traversal. */
+ scenario=%%BASE_BEGIN%%*256u*2u;
+ for(unsigned base=%%BASE_BEGIN%%;base<%%BASE_END%%;base++)for(unsigned row=0;row<256;row++)for(mutate=0;mutate<2;mutate++){
   CmpPersonaLayoutView *menu=(CmpPersonaLayoutView *)storage;unsigned n,expectedAlpha;
   memset(storage,0,sizeof(storage));menu->alpha=(u8)base;menu->rows[0].alpha=(u8)row;
   menu->x=18.25f;menu->y=-7.5f;menu->rows[0].x=-3.0f;menu->rows[0].y=4.25f;
@@ -41,8 +44,8 @@ int main(void){
   CHECK(used==n);CHECK(memcmp(trace,expectedTrace,n*4)==0);CHECK(memcmp(storage,expectedStorage,sizeof(storage))==0);
   CHECK(receivedAlpha==expectedAlpha);CHECK(receivedAlpha<=255);
   if(base==0||row==0)CHECK(receivedAlpha==0);if(base==255)CHECK(receivedAlpha==row);
-  scenario++;
+  scenario++;completed++;
  }
- native32_text("persona-camp alpha cases: ");native32_number(scenario);
+ native32_text("persona-camp alpha cases: ");native32_number(completed);
  native32_text("; actual byte producer and callback snapshots verified\n");return 0;
 }

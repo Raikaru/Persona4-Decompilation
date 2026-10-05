@@ -4005,7 +4005,7 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001b70a0();
     extern s32 func_001b7880();
     extern s32 func_001b7e20();
-    extern s32 func_001b83f0();
+    extern BtlPacket *func_001b83f0(s32 first, s32 second, s32 third, u32 frames, u16 mode);
     extern s32 func_001b9360();
     extern s32 func_001b9560();
     extern s32 func_001b99a0();
@@ -6017,7 +6017,7 @@ void func_001abbb0(s64 *arg0)
     extern s32 func_001b7090(s32 arg0);
     extern void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2);
     extern BtlPacket *func_001b7880(u32 arg0, u32 arg1, u32 arg2);
-    extern BtlPacket *func_001b83f0(u32 arg0, u32 arg1, u32 arg2, u32 arg3, u16 arg4);
+    extern BtlPacket *func_001b83f0(s32 first, s32 second, s32 third, u32 frames, u16 mode);
     extern BtlPacket *func_001b9560(u32 arg0, u32 arg1);
     extern BtlPacket *btlSoundCreateSkillSEPacket(u16 arg0, u16 arg1);
     extern u8 *func_00194b60(void);
@@ -6056,8 +6056,8 @@ void func_001abbb0(s64 *arg0)
         u8 unknown70[6];
         u16 ids[3];
     } ActionView;
-    u32 outHi;
-    u32 outLo;
+    s32 outHi;
+    s32 outLo;
     char workBuf[128];
     s32 firstDone;
     s32 off;
@@ -6115,20 +6115,20 @@ void func_001abbb0(s64 *arg0)
     }
     evId = *(s64 *)(evPkt + 0x58);
     scaleTmp = func_001991c0((u8 *)action->unitRef.pointer, 8, 1.0f);
-    func_001b7060(aux, (s32 *)&outHi, (s32 *)&outLo);
+    func_001b7060(aux, &outHi, &outLo);
     {
         u8 *pkt;
-        pkt = (u8 *)func_001b7880(outHi, outLo, 0x10);
+        pkt = (u8 *)func_001b7880((u32)outHi, (u32)outLo, 0x10);
         *pkt = 4;
         *(s64 *)(pkt + 8) = evId;
         *(s64 *)(pkt + 0x60) = uid;
         func_00194590(pkt, 1);
     }
     {
-        u32 kind;
+        s32 kind;
         u8 *pkt;
         kind = func_001b7080(aux);
-        func_001b70a0(aux, (s32 *)&outHi, (s32 *)&outLo);
+        func_001b70a0(aux, &outHi, &outLo);
         pkt = (u8 *)func_001b83f0(kind, outHi, outLo, 0x10, 0);
         *pkt = 4;
         *(s64 *)(pkt + 8) = evId;
@@ -7731,7 +7731,7 @@ void func_001aed50(u8 *arg0)
     extern s32 func_001b7090(s32 arg0);
     extern void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2);
     extern BtlPacket *func_001b7880(u32 arg0, u32 arg1, u32 arg2);
-    extern BtlPacket *func_001b83f0(u32 arg0, u32 arg1, u32 arg2, u32 arg3, u16 arg4);
+    extern BtlPacket *func_001b83f0(s32 first, s32 second, s32 third, u32 frames, u16 mode);
     extern BtlPacket *func_001b9560(u32 arg0, u32 arg1);
     extern BtlPacket *func_001b7e20(u32 arg0);
     extern BtlPacket *func_001b9360(s32 arg0, s16 arg1);
@@ -7742,8 +7742,8 @@ void func_001aed50(u8 *arg0)
     extern u8 D_005F6D48[];
     extern u8 D_005F6D58[];
     extern u8 *iGpffffb3bc;
-    u32 outHi;
-    u32 outLo;
+    s32 outHi;
+    s32 outLo;
     s32 sp1D8[3];
     union { u8 bytes[32]; s32 words[8]; } tmpBuf;
     char workBuf[128];
@@ -7766,7 +7766,7 @@ void func_001aed50(u8 *arg0)
     u32 selector;
     s64 cur58;
     u16 frameInterval;
-    u32 colorKind;
+    s32 colorKind;
     u32 formationFlags;
     u16 k;
     u8 *list;
@@ -7821,10 +7821,10 @@ void func_001aed50(u8 *arg0)
         func_00194590(pk, 1);
     }
     selector = (u16)aux;
-    func_001b7060(selector, (s32 *)&outHi, (s32 *)&outLo);
+    func_001b7060(selector, &outHi, &outLo);
     {
         u8 *pk;
-        pk = (u8 *)func_001b7880(outHi, outLo, 0x10);
+        pk = (u8 *)func_001b7880((u32)outHi, (u32)outLo, 0x10);
         *pk = 5;
         *(s64 *)(pk + 8) = cur58;
         *(s16 *)(pk + 0x48) = 0x3C;
@@ -7832,7 +7832,7 @@ void func_001aed50(u8 *arg0)
         func_00194590(pk, 1);
     }
     colorKind = func_001b7080(selector);
-    func_001b70a0(selector, (s32 *)&outHi, (s32 *)&outLo);
+    func_001b70a0(selector, &outHi, &outLo);
     /* Palette entries are four bytes; their flags are the second halfword. */
     sp100 = (s16)aux;
     {
