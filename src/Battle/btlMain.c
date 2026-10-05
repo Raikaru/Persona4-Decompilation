@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "btl_packet_create_internal.h"
+#include "btl_camera_palette_internal.h"
 
 typedef struct BtlMain BtlMain;
 struct BtlMain
@@ -545,38 +546,40 @@ BtlPacket* func_001b83f0(s32 param_1, s32 param_2, s32 param_3, u32 param_4, u16
 
 
 
-/* measured: GUARDED_SCORE 589 via probe_variants (fnalign retail 735/object 730 instrs, 287 edits +19 reloc-only; live 2920B/window 2940B, 20B short 0.7% in gate). De-noised m2c 368L + rw 259L (4-ptr arity) into file idiom (RwV4d vectors per 1b7b30/1b7e70 lwc1, not u_long128 lq/sq; ((u8*)&fGpffffb458)[4..7] per 1b96e0, iGpffffa4d8-db per 001d/001b, u32 total/current + u16 flags per 001b9360 0x5c). R1 loopinv 617->599 sched/unroll/prop tie, R2 subscript ties, R3 decl ties, R4 tmp-reuse 599->605 count 709->724 into gate, R5 dead 605->589 count 724->730, combos tie. Residual is saved-reg ($a2/$v0) + FPR (cvt $f1/$f0) + grouped lbu/sb scheduling; time-boxed per batch. */
+/* Measured in the complete owner with b210: 2944/2944 bytes, 13 differing
+ * instruction words in the loop's hoisted color-quantization constants.
+ * The five-vector work record matches the constructor's 0x5C allocation.
+ * Complete RGBA objects replace scalar-adjacent reads, and every blended
+ * fourth component includes its target contribution times the frame ratio.
+ * Production remains ASM. See Finish_first_party_worker1_20261005.md. */
 // FUN_001B87E0 NONMATCHING
 #ifdef NON_MATCHING
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_dead_assignments off
-u32 func_001b87e0(void *workRaw)
+typedef struct BtlMainFadeWork
 {
-    extern u8 iGpffffa4d8;
-    extern u8 iGpffffa4d9;
-    extern u8 iGpffffa4da;
-    extern u8 iGpffffa4db;
-    typedef struct {
-        RwV4d vec0;
-        RwV4d vec1;
-        RwV4d vec2;
-        RwV4d vec3;
-        RwV4d vec4;
-        u32 totalFrames;
-        u32 currentFrame;
-        u16 flags;
-        u16 pad;
-    } TransWork;
-    TransWork *work = (TransWork *)workRaw;
-    u8 *global;
-    u8 *unit;
-    u32 flags;
+    RwV4d from0;
+    RwV4d from1;
+    RwV4d from2;
+    RwV4d from3;
+    RwV4d from4;
     u32 totalFrames;
     u32 currentFrame;
-    u32 group;
-    f32 curF;
-    f32 totF;
+    u16 flags;
+} BtlMainFadeWork;
+
+static inline void btlMainColorToV4d(RwV4d *out, const BtlCameraPalette *color)
+{
+    out->x = color->red * (1.0f / 255.0f);
+    out->y = color->green * (1.0f / 255.0f);
+    out->z = color->blue * (1.0f / 255.0f);
+    out->w = color->alpha * (1.0f / 255.0f);
+}
+
+#pragma push
+#pragma opt_loop_invariants on
+u32 func_001b87e0(void *workRaw)
+{
+    BtlMainFadeWork *work = (BtlMainFadeWork *)workRaw;
+    u8 *global;
     f32 ratio;
     f32 inv;
     f32 firstX;
@@ -588,83 +591,77 @@ u32 func_001b87e0(void *workRaw)
     f32 secondZ;
     f32 secondW;
     RwV4d tmp;
-    RwV4d base;
+    RwV4d target;
 
     global = iGpffffb3ac;
-    flags = *(u32 *)(global + 0xc);
-    if ((flags & 2) == 0) {
+    if ((*(u32 *)(global + 0xc) & 2) == 0) {
         return 1;
     }
-    if ((flags & 0x2000000) == 0) {
+    if ((*(u32 *)(global + 0xc) & 0x2000000) == 0) {
         return 1;
     }
     if (work->currentFrame == 0) {
-        global = iGpffffb3ac;
-        work->vec0 = *(RwV4d *)(global + 0x24c);
-        work->vec3 = *(RwV4d *)(global + 0x1ec);
-        work->vec4 = *(RwV4d *)(global + 0x1fc);
-        work->vec1 = *func_00149ca0();
-        work->vec2 = *func_00149ce0();
-        group = 0;
-        while (group < 4) {
-            unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178);
-            while (unit != 0) {
-                unit[0x38] = unit[0x3c];
-                unit[0x39] = unit[0x3d];
-                unit[0x3a] = unit[0x3e];
-                unit[0x3b] = unit[0x3f];
-                *(RwV4d *)(unit + 0x60) = *(RwV4d *)(unit + 0x70);
-                unit = *(u8 **)(unit + 0xa6c);
+        work->from0 = *(RwV4d *)(global + 0x24c);
+        work->from3 = *(RwV4d *)(global + 0x1ec);
+        work->from4 = *(RwV4d *)(global + 0x1fc);
+        work->from1 = *func_00149ca0();
+        work->from2 = *func_00149ce0();
+        {
+            u8 *unit;
+            u32 group;
+
+            for (group = 0; group < 4; group++) {
+                for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;
+                     unit = *(u8 **)(unit + 0xa6c)) {
+                    *(BtlCameraPalette *)(unit + 0x38) = *(BtlCameraPalette *)(unit + 0x3c);
+                    *(RwV4d *)(unit + 0x60) = *(RwV4d *)(unit + 0x70);
+                }
             }
-            group++;
         }
     }
-    if ((work->currentFrame == (work->totalFrames >> 1)) && ((work->flags & 4) == 0)) {
-        group = 0;
-        while (group < 4) {
-            unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178);
-            while (unit != 0) {
-                if ((*(u32 *)(unit + 0x98) & 2) != 0) {
-                    if ((*(u8 *)(*(u8 **)(unit + 0xa00) + 0x260) & 0x10) == 0) {
+    if (work->currentFrame == work->totalFrames >> 1 && (work->flags & 4) == 0) {
+        {
+            u32 group;
+            u8 *unit;
+
+            for (group = 0; group < 4; group++) {
+                for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;
+                     unit = *(u8 **)(unit + 0xa6c)) {
+                    if ((*(u32 *)(unit + 0x98) & 2) != 0 &&
+                        (*(*(u8 **)(unit + 0xa00) + 0x260) & 0x10) == 0) {
+                        f32 *scale;
+
                         (*(u8 **)(unit + 0xa00))[0x281] = 0x70;
                         (*(u8 **)(unit + 0xa00))[0x282] = 6;
-                        if (*(f32 *)(*(u8 **)(unit + 0xa00) + 0x274) > 1.0f) {
-                            *(f32 *)(*(u8 **)(unit + 0xa00) + 0x274) = 1.0f;
+                        scale = (f32 *)(*(u8 **)(unit + 0xa00) + 0x274);
+                        if (*scale > 1.0f) {
+                            *scale = 1.0f;
                         }
                     }
                 }
-                unit = *(u8 **)(unit + 0xa6c);
             }
-            group++;
         }
     }
-    base.x = fGpffff81f4 * (f32)iGpffffa4d8;
-    base.y = fGpffff81f4 * (f32)iGpffffa4d9;
-    base.z = fGpffff81f4 * (f32)iGpffffa4da;
-    base.w = fGpffff81f4 * (f32)iGpffffa4db;
-    totalFrames = work->totalFrames;
-    currentFrame = work->currentFrame;
-    if (currentFrame < totalFrames) {
-        curF = (f32)currentFrame;
-        totF = (f32)totalFrames;
-        ratio = curF / totF;
+    btlMainColorToV4d(&target, &D_007635C8);
+    if (work->currentFrame < work->totalFrames) {
+        ratio = (f32)work->currentFrame / (f32)work->totalFrames;
         inv = 1.0f - ratio;
-        firstX = work->vec0.x * inv;
-        firstY = work->vec0.y * inv;
-        firstZ = work->vec0.z * inv;
-        secondX = base.x * ratio;
-        secondY = base.y * ratio;
-        secondZ = base.z * ratio;
+        firstX = work->from0.x * inv;
+        firstY = work->from0.y * inv;
+        firstZ = work->from0.z * inv;
+        secondX = target.x * ratio;
+        secondY = target.y * ratio;
+        secondZ = target.z;
         tmp.x = firstX + secondX;
         tmp.y = firstY + secondY;
-        tmp.z = firstZ + secondZ;
+        tmp.z = firstZ + secondZ * ratio;
         tmp.w = 1.0f;
         *(RwV4d *)(iGpffffb3ac + 0x24c) = tmp;
         func_001496c0(&tmp);
-        firstX = work->vec1.x * inv;
-        firstY = work->vec1.y * inv;
-        firstZ = work->vec1.z * inv;
-        firstW = work->vec1.w * inv;
+        firstX = work->from1.x * inv;
+        firstY = work->from1.y * inv;
+        firstZ = work->from1.z * inv;
+        firstW = work->from1.w * inv;
         secondX = *(f32 *)(iGpffffb3ac + 0x1bc) * ratio;
         secondY = *(f32 *)(iGpffffb3ac + 0x1c0) * ratio;
         secondZ = *(f32 *)(iGpffffb3ac + 0x1c4) * ratio;
@@ -674,10 +671,10 @@ u32 func_001b87e0(void *workRaw)
         tmp.z = firstZ + secondZ;
         tmp.w = firstW + secondW * ratio;
         *func_00149ca0() = tmp;
-        firstX = work->vec2.x * inv;
-        firstY = work->vec2.y * inv;
-        firstZ = work->vec2.z * inv;
-        firstW = work->vec2.w * inv;
+        firstX = work->from2.x * inv;
+        firstY = work->from2.y * inv;
+        firstZ = work->from2.z * inv;
+        firstW = work->from2.w * inv;
         secondX = *(f32 *)(iGpffffb3ac + 0x1cc) * ratio;
         secondY = *(f32 *)(iGpffffb3ac + 0x1d0) * ratio;
         secondZ = *(f32 *)(iGpffffb3ac + 0x1d4) * ratio;
@@ -687,10 +684,10 @@ u32 func_001b87e0(void *workRaw)
         tmp.z = firstZ + secondZ;
         tmp.w = firstW + secondW * ratio;
         *func_00149ce0() = tmp;
-        firstX = work->vec3.x * inv;
-        firstY = work->vec3.y * inv;
-        firstZ = work->vec3.z * inv;
-        firstW = work->vec3.w * inv;
+        firstX = work->from3.x * inv;
+        firstY = work->from3.y * inv;
+        firstZ = work->from3.z * inv;
+        firstW = work->from3.w * inv;
         secondX = *(f32 *)(iGpffffb3ac + 0x21c) * ratio;
         secondY = *(f32 *)(iGpffffb3ac + 0x220) * ratio;
         secondZ = *(f32 *)(iGpffffb3ac + 0x224) * ratio;
@@ -699,10 +696,10 @@ u32 func_001b87e0(void *workRaw)
         *(f32 *)(iGpffffb3ac + 0x1f0) = firstY + secondY;
         *(f32 *)(iGpffffb3ac + 0x1f4) = firstZ + secondZ;
         *(f32 *)(iGpffffb3ac + 0x1f8) = firstW + secondW * ratio;
-        firstX = work->vec4.x * inv;
-        firstY = work->vec4.y * inv;
-        firstZ = work->vec4.z * inv;
-        firstW = work->vec4.w * inv;
+        firstX = work->from4.x * inv;
+        firstY = work->from4.y * inv;
+        firstZ = work->from4.z * inv;
+        firstW = work->from4.w * inv;
         secondX = *(f32 *)(iGpffffb3ac + 0x22c) * ratio;
         secondY = *(f32 *)(iGpffffb3ac + 0x230) * ratio;
         secondZ = *(f32 *)(iGpffffb3ac + 0x234) * ratio;
@@ -710,68 +707,71 @@ u32 func_001b87e0(void *workRaw)
         *(f32 *)(iGpffffb3ac + 0x1fc) = firstX + secondX;
         *(f32 *)(iGpffffb3ac + 0x200) = firstY + secondY;
         *(f32 *)(iGpffffb3ac + 0x204) = firstZ + secondZ;
-        *(f32 *)(iGpffffb3ac + 0x208) = firstW + secondW;
+        *(f32 *)(iGpffffb3ac + 0x208) = firstW + secondW * ratio;
         if ((work->flags & 2) == 0) {
-            f32 scale = fGpffff81f4;
-            group = 0;
-            while (group < 4) {
-                unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178);
-                while (unit != 0) {
-                    f32 nb0 = (f32)unit[0x38];
-                    f32 nb1 = (f32)unit[0x39];
-                    f32 nb2 = (f32)unit[0x3a];
-                    f32 nb3 = (f32)unit[0x3b];
-                    tmp.x = (scale * nb0) * inv + base.x * ratio;
-                    tmp.y = (scale * nb1) * inv + base.y * ratio;
-                    tmp.z = (scale * nb2) * inv + base.z * ratio;
-                    tmp.w = (scale * nb3) * inv + base.w * ratio;
-                    unit[0x3c] = (s8)(tmp.x * 255.0f + 0.5f);
-                    unit[0x3d] = (s8)(tmp.y * 255.0f + 0.5f);
-                    unit[0x3e] = (s8)(tmp.z * 255.0f + 0.5f);
-                    unit[0x3f] = (s8)(tmp.w * 255.0f + 0.5f);
-                    *(f32 *)(unit + 0x70) = *(f32 *)(unit + 0x60) * inv;
-                    *(f32 *)(unit + 0x74) = *(f32 *)(unit + 0x64) * inv;
-                    *(f32 *)(unit + 0x78) = *(f32 *)(unit + 0x68) * inv;
-                    *(f32 *)(unit + 0x7c) = *(f32 *)(unit + 0x6c) * inv;
-                    unit = *(u8 **)(unit + 0xa6c);
+            f32 scale = 1.0f / 255.0f;
+
+            {
+                u32 group;
+                u8 *unit;
+
+                for (group = 0; group < 4; group++) {
+                    for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;
+                         unit = *(u8 **)(unit + 0xa6c)) {
+                        firstX = scale * unit[0x38];
+                        firstX *= inv;
+                        firstY = scale * unit[0x39];
+                        firstY *= inv;
+                        firstZ = scale * unit[0x3a];
+                        firstZ *= inv;
+                        firstW = scale * unit[0x3b];
+                        firstW *= inv;
+                        secondX = target.x * ratio;
+                        secondY = target.y * ratio;
+                        secondZ = target.z * ratio;
+                        secondW = target.w;
+                        tmp.x = firstX + secondX;
+                        tmp.y = firstY + secondY;
+                        tmp.z = firstZ + secondZ;
+                        tmp.w = firstW + secondW * ratio;
+                        unit[0x3c] = (s32)(0.5f + 255.0f * tmp.x);
+                        unit[0x3d] = (s32)(0.5f + 255.0f * tmp.y);
+                        unit[0x3e] = (s32)(0.5f + 255.0f * tmp.z);
+                        unit[0x3f] = (s32)(0.5f + 255.0f * tmp.w);
+                        *(f32 *)(unit + 0x70) = *(f32 *)(unit + 0x60) * inv;
+                        *(f32 *)(unit + 0x74) = *(f32 *)(unit + 0x64) * inv;
+                        *(f32 *)(unit + 0x78) = *(f32 *)(unit + 0x68) * inv;
+                        *(f32 *)(unit + 0x7c) = *(f32 *)(unit + 0x6c) * inv;
+                    }
                 }
-                group++;
             }
         }
-        work->currentFrame++;
-        return 0;
     } else {
-        func_001496c0(&base);
-        *(RwV4d *)(iGpffffb3ac + 0x24c) = base;
+        func_001496c0(&target);
+        *(RwV4d *)(iGpffffb3ac + 0x24c) = target;
         *func_00149ca0() = *(RwV4d *)(iGpffffb3ac + 0x1bc);
         *func_00149ce0() = *(RwV4d *)(iGpffffb3ac + 0x1cc);
         *(RwV4d *)(iGpffffb3ac + 0x1ec) = *(RwV4d *)(iGpffffb3ac + 0x21c);
         *(RwV4d *)(iGpffffb3ac + 0x1fc) = *(RwV4d *)(iGpffffb3ac + 0x22c);
         if ((work->flags & 2) == 0) {
-            f32 scale = fGpffff81f4;
-            tmp.x = scale * (f32)((u8 *)&fGpffffb458)[4];
-            tmp.y = scale * (f32)((u8 *)&fGpffffb458)[5];
-            tmp.z = scale * (f32)((u8 *)&fGpffffb458)[6];
-            tmp.w = scale * (f32)((u8 *)&fGpffffb458)[7];
-            group = 0;
-            while (group < 4) {
-                unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178);
-                while (unit != 0) {
-                    unit[0x3c] = iGpffffa4d8;
-                    unit[0x3d] = iGpffffa4d9;
-                    unit[0x3e] = iGpffffa4da;
-                    unit[0x3f] = iGpffffa4db;
-                    *(f32 *)(unit + 0x70) = tmp.x;
-                    *(f32 *)(unit + 0x74) = tmp.y;
-                    *(f32 *)(unit + 0x78) = tmp.z;
-                    *(f32 *)(unit + 0x7c) = tmp.w;
-                    unit = *(u8 **)(unit + 0xa6c);
+            btlMainColorToV4d(&tmp, &iGpffffb45c);
+            {
+                u32 group;
+                u8 *unit;
+
+                for (group = 0; group < 4; group++) {
+                    for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;
+                         unit = *(u8 **)(unit + 0xa6c)) {
+                        *(BtlCameraPalette *)(unit + 0x3c) = D_007635C8;
+                        *(RwV4d *)(unit + 0x70) = tmp;
+                    }
                 }
-                group++;
             }
         }
         return 1;
     }
+    work->currentFrame++;
+    return 0;
 }
 #pragma pop
 #else
@@ -923,13 +923,7 @@ BtlPacket* func_001b99a0(s32 arg)
 
 
 typedef struct BtlUnit BtlUnit;
-typedef struct RwRGBA
-{
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alpha;
-} RwRGBA;
+typedef BtlCameraPalette RwRGBA;
 extern void btlUnitSetColor(BtlUnit* unit, RwRGBA col);
 /* Measured: all 1008 bytes and five relocations match.
  * Keep the word selector and row base separate: the base load precedes
