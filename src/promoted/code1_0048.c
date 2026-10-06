@@ -1141,36 +1141,56 @@ void func_00485630(u8 *arg0)
     extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
     extern u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2);
     extern void func_00486330(u8 *arg0, u8 *arg1);
-    u_long128 spA0;
-    u_long128 sp70;
-    u_long128 sp60;
-    u_long128 sp50;
+    /* 00484b30 initializes the 0x80-byte state; 00484bb0 allocates a
+     * 0x90-byte root. The union keeps field and quadword transfers in the
+     * same object, including all four components of the saved rotation. */
+    typedef union SceneStateStorage {
+        Code48InitialState fields;
+        u_long128 quad[8];
+    } SceneStateStorage;
+    typedef struct SceneRoot {
+        SceneStateStorage state;
+        s32 childCount;
+        u32 frame; /* Wrapping storage, read as signed for selection. */
+        u8 *lastChild;
+        u8 *firstChild;
+    } SceneRoot;
+    typedef char SceneRootExtent[sizeof(SceneRoot) == 0x90 ? 1 : -1];
+    SceneRoot *root;
+    /* The saved parent rotation survives both propagation calls. */
+    struct {
+        u_long128 savedRotation;
+        u_long128 rotation;
+        u_long128 position;
+        u_long128 origin;
+    } work;
     f32 scale;
     f32 five;
     u8 *child;
     s32 count;
-    u8 *temp_4;
-    void (*temp_2)(s32, void *);
-    void (*temp_3)(s32, void *);
-    s32 child_flags;
+    u8 *primitive;
+    void (*positionCallback)(s32, void *);
+    void (*rotationCallback)(s32, void *);
+    s32 childFlags;
 
-    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0), "m"(*(u_long128 *)(arg0 + 0x40)) : "$vf10", "memory");
-    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0), "m"(*(u_long128 *)arg0) : "$vf11", "memory");
+    root = (SceneRoot *)(void *)arg0;
+    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0), "m"(root->state.quad[4]) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0), "m"(root->state.quad[0]) : "$vf11", "memory");
     __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(spA0) : "r"(&spA0) : "memory");
-    if ((*(s32 *)(arg0 + 0x68) & 0x60) != 0) {
+    __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(work.origin) : "r"(&work.origin) : "memory");
+    if ((root->state.fields.word68 & 0x60) != 0) {
         u_long128 *save_slot;
         u_long128 *restore_slot;
-        save_slot = &sp50;
-        *save_slot = *(u_long128 *)(arg0 + 0x50);
-        func_00486970(arg0, (u8 *)&spA0, &sp60);
-        func_00486330(arg0, (u8 *)&sp60);
-        restore_slot = &sp50;
-        *(u_long128 *)(arg0 + 0x50) = *restore_slot;
+        save_slot = &work.savedRotation;
+        *save_slot = root->state.quad[5];
+        func_00486970(arg0, (u8 *)&work.origin, &work.rotation);
+        func_00486330(arg0, (u8 *)&work.rotation);
+        restore_slot = &work.savedRotation;
+        root->state.quad[5] = *restore_slot;
     }
-    count = *(s32 *)(arg0 + 0x84);
-    scale = *(f32 *)(arg0 + 0x60) * *(f32 *)(arg0 + 0x74);
-    child = *(u8 **)(arg0 + 0x8C);
+    count = (s32)root->frame;
+    scale = root->state.fields.scalar60 * root->state.fields.scalar74;
+    child = root->firstChild;
     five = 5.0f;
     for (; child != NULL; child = *(u8 **)(child + 0xAC)) {
         if (count < *(s32 *)(child + 0x80)) {
@@ -1180,10 +1200,10 @@ void func_00485630(u8 *arg0)
             continue;
         }
         if ((*(s32 *)(child + 0x68) & 0x18) != 0) {
-            func_00486840(child, (u8 *)&spA0, &sp70);
-            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&spA0), "m"(spA0) : "$vf10", "memory");
-            child_flags = *(s32 *)(child + 0x68);
-            if ((child_flags & 4) != 0) {
+            func_00486840(child, (u8 *)&work.origin, &work.position);
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&work.origin), "m"(work.origin) : "$vf10", "memory");
+            childFlags = *(s32 *)(child + 0x68);
+            if ((childFlags & 4) != 0) {
                 __asm__ volatile(
                     "qmtc2.ni %0, $vf2 \n"
                     "vaddx.y $vf10, $vf0, $vf2x \n"
@@ -1191,8 +1211,8 @@ void func_00485630(u8 *arg0)
                     : "r"(five)
                     : "$vf2", "$vf10", "memory");
             }
-            __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&sp70), "m"(sp70) : "$vf11", "memory");
-            if ((child_flags & 0x80) != 0) {
+            __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&work.position), "m"(work.position) : "$vf11", "memory");
+            if ((childFlags & 0x80) != 0) {
                 __asm__ volatile(
                     "qmtc2.ni %0, $vf2 \n"
                     "vmulx.xyzw $vf11, $vf11, $vf2x \n"
@@ -1201,26 +1221,27 @@ void func_00485630(u8 *arg0)
                     : "$vf2", "$vf11", "memory");
             }
             __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "memory");
-            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(sp70) : "r"(&sp70) : "memory");
-            temp_4 = *(u8 **)(child + 0x90);
-            temp_2 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
-            if (temp_2 != NULL) {
-                temp_2(*(s32 *)(temp_4 + 8), &sp70);
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(work.position) : "r"(&work.position) : "memory");
+            primitive = *(u8 **)(child + 0x90);
+            positionCallback = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(primitive + 4) << 6) + 0x20);
+            if (positionCallback != NULL) {
+                positionCallback(*(s32 *)(primitive + 8), &work.position);
             }
         }
         if ((*(s32 *)(child + 0x68) & 0x60) != 0) {
-            func_00486970(child, (u8 *)&spA0, &sp60);
-            temp_4 = *(u8 **)(child + 0x90);
-            temp_3 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x24);
-            if (temp_3 != NULL) {
-                temp_3(*(s32 *)(temp_4 + 8), &sp60);
+            func_00486970(child, (u8 *)&work.origin, &work.rotation);
+            primitive = *(u8 **)(child + 0x90);
+            rotationCallback = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(primitive + 4) << 6) + 0x24);
+            if (rotationCallback != NULL) {
+                rotationCallback(*(s32 *)(primitive + 8), &work.rotation);
             }
         }
-        temp_4 = *(u8 **)(child + 0x90);
-        (*(void (**)(s32))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x08))(*(s32 *)(temp_4 + 8));
+        primitive = *(u8 **)(child + 0x90);
+        (*(void (**)(s32))(D_00713480 + (*(u16 *)(primitive + 4) << 6) + 0x08))(*(s32 *)(primitive + 8));
     }
-    *(s32 *)(arg0 + 0x68) |= 0x80000000;
-    *(s32 *)(arg0 + 0x84) += 1;
+    root->state.fields.word68 |= 0x80000000;
+    /* Retail ADDIU wraps the word even when its signed view reaches INT_MAX. */
+    root->frame += 1U;
 }
 
 #pragma pop
@@ -1240,44 +1261,65 @@ void func_00485870(u8 *arg0)
     extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
     extern u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2);
     extern void func_00486330(u8 *arg0, u8 *arg1);
-    u_long128 spA0;
-    u_long128 sp90;
-    u_long128 sp80;
-    u_long128 sp70;
+    /* 00484b30 initializes the 0x80-byte state; 00484bb0 allocates a
+     * 0x90-byte root. The union keeps field and quadword transfers in the
+     * same object, including all four components of the saved rotation. */
+    typedef union SceneStateStorage {
+        Code48InitialState fields;
+        u_long128 quad[8];
+    } SceneStateStorage;
+    typedef struct SceneRoot {
+        SceneStateStorage state;
+        s32 childCount;
+        u32 frame; /* Wrapping storage, read as signed for selection. */
+        u8 *lastChild;
+        u8 *firstChild;
+    } SceneRoot;
+    typedef char SceneRootExtent[sizeof(SceneRoot) == 0x90 ? 1 : -1];
+    SceneRoot *root;
+    /* The saved parent rotation survives both propagation calls. */
+    struct {
+        u_long128 savedRotation;
+        u_long128 rotation;
+        u_long128 position;
+        u_long128 origin;
+    } work;
     f32 scale;
     f32 five;
     u8 *child;
     s32 flags;
     s32 count_minus_1;
-    u8 *temp_4;
-    void (*temp_2)(s32, void *);
-    void (*temp_3)(s32, void *);
-    s32 child_flags;
+    u8 *primitive;
+    void (*positionCallback)(s32, void *);
+    void (*rotationCallback)(s32, void *);
+    s32 childFlags;
     u32 mask;
 
-    if (*(s32 *)(arg0 + 0x84) <= 0) {
+    root = (SceneRoot *)(void *)arg0;
+    if ((s32)root->frame <= 0) {
         return;
     }
-    flags = *(s32 *)(arg0 + 0x68);
-    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0), "m"(*(u_long128 *)(arg0 + 0x40)) : "$vf10", "memory");
-    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0), "m"(*(u_long128 *)arg0) : "$vf11", "memory");
+    flags = root->state.fields.word68;
+    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0), "m"(root->state.quad[4]) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0), "m"(root->state.quad[0]) : "$vf11", "memory");
     __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(spA0) : "r"(&spA0) : "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(work.origin) : "r"(&work.origin) : "memory");
     if ((flags & 0x60) != 0) {
         if ((flags & 0x80000000) == 0) {
             u_long128 *save_slot;
             u_long128 *restore_slot;
-            save_slot = &sp70;
-            *save_slot = *(u_long128 *)(arg0 + 0x50);
-            func_00486970(arg0, (u8 *)&spA0, &sp80);
-            func_00486330(arg0, (u8 *)&sp80);
-            restore_slot = &sp70;
-            *(u_long128 *)(arg0 + 0x50) = *restore_slot;
+            save_slot = &work.savedRotation;
+            *save_slot = root->state.quad[5];
+            func_00486970(arg0, (u8 *)&work.origin, &work.rotation);
+            func_00486330(arg0, (u8 *)&work.rotation);
+            restore_slot = &work.savedRotation;
+            root->state.quad[5] = *restore_slot;
         }
     }
-    count_minus_1 = *(s32 *)(arg0 + 0x84) - 1;
-    scale = *(f32 *)(arg0 + 0x60) * *(f32 *)(arg0 + 0x74);
-    child = *(u8 **)(arg0 + 0x8C);
+    /* Reload after propagation, then subtract in the word's wrapping domain. */
+    count_minus_1 = (s32)(root->frame - 1U);
+    scale = root->state.fields.scalar60 * root->state.fields.scalar74;
+    child = root->firstChild;
     mask = 0x80000000;
     five = 5.0f;
     for (; child != NULL; child = *(u8 **)(child + 0xAC)) {
@@ -1289,10 +1331,10 @@ void func_00485870(u8 *arg0)
         }
         if ((flags & mask) == 0) {
             if ((*(s32 *)(child + 0x68) & 0x18) != 0) {
-                func_00486840(child, (u8 *)&spA0, &sp90);
-                __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&spA0), "m"(spA0) : "$vf10", "memory");
-                child_flags = *(s32 *)(child + 0x68);
-                if ((child_flags & 4) != 0) {
+                func_00486840(child, (u8 *)&work.origin, &work.position);
+                __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&work.origin), "m"(work.origin) : "$vf10", "memory");
+                childFlags = *(s32 *)(child + 0x68);
+                if ((childFlags & 4) != 0) {
                     __asm__ volatile(
                         "qmtc2.ni %0, $vf2 \n"
                         "vaddx.y $vf10, $vf0, $vf2x \n"
@@ -1300,8 +1342,8 @@ void func_00485870(u8 *arg0)
                         : "r"(five)
                         : "$vf2", "$vf10", "memory");
                 }
-                __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&sp90), "m"(sp90) : "$vf11", "memory");
-                if ((child_flags & 0x80) != 0) {
+                __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&work.position), "m"(work.position) : "$vf11", "memory");
+                if ((childFlags & 0x80) != 0) {
                     __asm__ volatile(
                         "qmtc2.ni %0, $vf2 \n"
                         "vmulx.xyzw $vf11, $vf11, $vf2x \n"
@@ -1310,26 +1352,26 @@ void func_00485870(u8 *arg0)
                         : "$vf2", "$vf11", "memory");
                 }
                 __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "memory");
-                __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(sp90) : "r"(&sp90) : "memory");
-                temp_4 = *(u8 **)(child + 0x90);
-                temp_2 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
-                if (temp_2 != NULL) {
-                    temp_2(*(s32 *)(temp_4 + 8), &sp90);
+                __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(work.position) : "r"(&work.position) : "memory");
+                primitive = *(u8 **)(child + 0x90);
+                positionCallback = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(primitive + 4) << 6) + 0x20);
+                if (positionCallback != NULL) {
+                    positionCallback(*(s32 *)(primitive + 8), &work.position);
                 }
             }
             if ((*(s32 *)(child + 0x68) & 0x60) != 0) {
-                func_00486970(child, (u8 *)&spA0, &sp80);
-                temp_4 = *(u8 **)(child + 0x90);
-                temp_3 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x24);
-                if (temp_3 != NULL) {
-                    temp_3(*(s32 *)(temp_4 + 8), &sp80);
+                func_00486970(child, (u8 *)&work.origin, &work.rotation);
+                primitive = *(u8 **)(child + 0x90);
+                rotationCallback = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(primitive + 4) << 6) + 0x24);
+                if (rotationCallback != NULL) {
+                    rotationCallback(*(s32 *)(primitive + 8), &work.rotation);
                 }
             }
         }
-        temp_4 = *(u8 **)(child + 0x90);
-        (*(void (**)(s32))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x0C))(*(s32 *)(temp_4 + 8));
+        primitive = *(u8 **)(child + 0x90);
+        (*(void (**)(s32))(D_00713480 + (*(u16 *)(primitive + 4) << 6) + 0x0C))(*(s32 *)(primitive + 8));
     }
-    *(u32 *)(arg0 + 0x68) &= 0x7fffffffU;
+    root->state.fields.word68 &= 0x7fffffffU;
 }
 
 #pragma pop
@@ -3080,23 +3122,32 @@ loop_0048c440_check:
     *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
     *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
 }
-/* Guarded native proof, 2026-09-29: 2156/2176 bytes, 378 differing words;
- * frame 0x140 matches retail. Scalar acceleration uses ordinary C MAC
- * expressions, not computation asm. Both random paths reread the scale
- * global after RNG; retail has no early scale capture or extra matrix call.
- * Instruction differences remain; production retains ASM. */
-// FUN_0048C4E0 NONMATCHING
-#ifdef NON_MATCHING
+/* Motion emitter: ordinary C emission, random and integration calculations;
+ * VU instructions preserve the full hardware vector operations. The aligned
+ * XYZ scale's complete object representation is described at its declaration.
+ * Proof: docs/probe_archive/Motion_scale_0048c4e0_20261005/README.md.
+ * Measured scopes preserve scalar operand lifetimes across RNG calls. */
+// FUN_0048C4E0
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
 void func_0048c4e0(u8 *arg0)
 {
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
-    extern void memcpy(void *dst, void *src, u32 size);
+    extern void *memcpy(void *dst, const void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
+    EffectVuVector vec130;
+    /* LQC2 reads the complete representation of this aligned XYZ vector.
+     * The fourth word is the struct's unspecified tail padding, not a float
+     * member. Preserve the hardware load and all four VU result lanes. */
+    typedef struct MotionScale3 {
+        f32 lane[3];
+    } __attribute__((aligned(16))) MotionScale3;
+    typedef char MotionScale3Size[(sizeof(MotionScale3) == 16) ? 1 : -1];
+    MotionScale3 vec120;
     u_long128 b220buf;
-    f32 vec120[4] __attribute__((aligned(16)));
-    f32 vec130[4] __attribute__((aligned(16)));
     u32 count;
     u32 flags;
     u8 *nodes;
@@ -3107,15 +3158,16 @@ void func_0048c4e0(u8 *arg0)
     s32 saved20;
     u8 mode9C;
     f32 e4val;
-    f32 g80;
     f32 e0val;
     f32 half;
     f32 two;
     f32 one;
     f32 zero;
+    f32 g80;
     f32 negone;
     s32 v15;
     s32 v14;
+    u8 initialPreroll;
     u32 idx;
     s32 tmp;
     f32 ftmp1;
@@ -3126,7 +3178,11 @@ void func_0048c4e0(u8 *arg0)
     s32 nmult;
     u8 *clear;
     s32 ci;
-    f32 a;
+    u32 particleIndex;
+    f32 speedVariation;
+    f32 spreadVariation;
+    f32 sizeVariation;
+    f32 angleVariation;
     f32 b;
 
     count = *(u32 *)(parent + 4);
@@ -3142,33 +3198,34 @@ void func_0048c4e0(u8 *arg0)
     mode9C = *(u8 *)(config + 156);
     e4val = *(f32 *)(config + 220);
     e0val = *(f32 *)(config + 216);
-    vec130[3] = 0.0f;
+    vec130.lane[3] = 0.0f;
     if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
         v14 = 0;
         v15 = 0;
         goto post_init;
     }
     if ((*(s32 *)(parent + 16) == 0) && (*(u8 *)(config + 189) != 0)) {
-        v14 = 1;
-        if (*(f32 *)(config + 40) <= 0.0f) {
-            v15 = *(s32 *)(parent + 4);
-        } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+        initialPreroll = 1;
+        v14 = initialPreroll;
+        if (!(*(f32 *)(config + 40) <= 0.0f)) {
+            f32 prerollScale = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             ftmp2 = (f32)*(u32 *)(parent + 4);
-            v15 = (s32)(ftmp2 * ftmp1);
+            v15 = (s32)(ftmp2 * prerollScale);
+        } else {
+            v15 = *(s32 *)(parent + 4);
         }
         goto post_init;
     } else {
         v14 = 0;
-        if (*(f32 *)(config + 40) <= 0.0f) {
-            tmp = *(s32 *)(config + 36);
-            ftmp1 = (f32)(u32)tmp;
-            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
-        } else {
+        if (!(*(f32 *)(config + 40) <= 0.0f)) {
             ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
             *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * ftmp1;
+        } else {
+            tmp = *(s32 *)(config + 36);
+            ftmp1 = (f32)(u32)tmp;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
         }
         ftmp1 = *(f32 *)(parent + 20);
         ftmp1 = fabsf(ftmp1);
@@ -3178,28 +3235,29 @@ void func_0048c4e0(u8 *arg0)
     }
 post_init:
     idx = 0;
-    g80 = fGpffff8080;
     half = 0.5f;
     two = 2.0f;
     one = 1.0f;
     zero = 0.0f;
+    g80 = fGpffff8080;
     negone = -1.0f;
     goto main_check;
 main_body:
     if (*(s32 *)(nodes + 16) < limitB8) {
         goto skip_clear;
     }
-    if (saved20 == 0) {
-        tmp = -1;
-    } else {
+    if (saved20 != 0) {
         tmp = -2;
+    } else {
+        tmp = -1;
     }
     *(s32 *)(nodes + 16) = tmp;
     c0 = *(s32 *)(*(u8 **)(parent + 32) + 192);
     c4 = *(s32 *)(*(u8 **)(parent + 32) + 196);
     nmult = c0 * c4;
     if (nmult != 0) {
-        clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
+        particleIndex = ((u32)nodes - (u32)*(u8 **)(parent + 24)) >> 5;
+        clear = *(u8 **)(parent + 24) + ((*(u32 *)(parent + 4) + particleIndex * (u32)nmult) << 5);
         ci = 0;
         goto clear_check;
 clear_body:
@@ -3222,56 +3280,48 @@ skip_clear:
     if (v15 == 0) {
         goto next_iter;
     }
-    vec130[0] = (effMiscRandFloat(0) - half) * two;
-    vec130[1] = (effMiscRandFloat(0) - half) * two;
-    vec130[2] = (effMiscRandFloat(0) - half) * two;
-    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
-    __asm__ volatile(
-        "vmul.xyz $vf2, $vf10, $vf10 \n"
-        "vmulax.w $ACC, $vf0, $vf2x \n"
-        "vmadday.w $ACC, $vf0, $vf2y \n"
-        "vmaddz.w $vf2, $vf0, $vf2z \n"
-        "vrsqrt $Q, $vf0w, $vf2w \n"
-        "vwaitq \n"
-        "vmulq.xyz $vf10, $vf10, $Q \n"
-        : : : "$vf2", "$vf10", "ACC", "Q", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)vec130) : "r"(vec130) : "$vf10", "memory");
-    out[0] = vec130[0];
-    out[1] = vec130[1];
-    out[2] = vec130[2];
-    a = *(f32 *)(config + 212);
+    vec130.lane[0] = (effMiscRandFloat(0) - half) * two;
+    vec130.lane[1] = (effMiscRandFloat(0) - half) * two;
+    vec130.lane[2] = (effMiscRandFloat(0) - half) * two;
+    effectVuLoad10(&vec130);
+    spawnVuNormalize10();
+    effectVuStore10(&vec130);
+    out[0] = vec130.lane[0];
+    out[1] = vec130.lane[1];
+    out[2] = vec130.lane[2];
+    speedVariation = *(f32 *)(config + 212);
     b = effMiscRandFloat(0);
-    out[3] = *(f32 *)(config + 208) * ((one - a) + a * b);
-    out[3] = fabsf(out[3]);
-    a = *(f32 *)(config + 204);
+    out[3] = fabsf(*(f32 *)(config + 208) * ((one - speedVariation) + speedVariation * b));
+    spreadVariation = *(f32 *)(config + 204);
     b = effMiscRandFloat(0);
-    vec120[0] = *(f32 *)(config + 200) * ((one - a) + a * b);
-    vec120[1] = vec120[0];
-    vec120[2] = vec120[0];
-    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
+    vec120.lane[0] = *(f32 *)(config + 200) * ((one - spreadVariation) + spreadVariation * b);
+    vec120.lane[1] = vec120.lane[0];
+    vec120.lane[2] = vec120.lane[0];
+    effectVuLoad10(&vec130);
     if (*(f32 *)(config + 208) < zero) {
         __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10", "memory");
     }
     if ((flags & 1) != 0) {
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(vec120), "m"(*(u_long128 *)vec120) : "$vf11", "memory");
-        __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        __asm__ volatile("lqc2 $vf11, 0(%0)"
+            : : "r"(&vec120), "m"(*(const u8 (*)[sizeof(vec120)])&vec120)
+            : "$vf11");
+        spawnVuMultiply10();
     } else {
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(vec120), "m"(*(u_long128 *)vec120) : "$vf11", "memory");
-        __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(config), "m"(*(u_long128 *)config) : "$vf11", "memory");
-        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        __asm__ volatile("lqc2 $vf11, 0(%0)"
+            : : "r"(&vec120), "m"(*(const u8 (*)[sizeof(vec120)])&vec120)
+            : "$vf11");
+        spawnVuMultiply10();
+        effectVuLoad11((const EffectVuVector *)config);
+        spawnVuAdd10();
     }
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
-    a = *(f32 *)(config + 108);
+    effectVuStore10((EffectVuVector *)nodes);
+    sizeVariation = *(f32 *)(config + 108);
     b = effMiscRandFloat(0);
-    out[4] = (one - a) + a * b;
-    if (mode9C == 2) {
-        out[5] = zero;
-        out[6] = one;
-    } else {
-        a = *(f32 *)(config + 152);
+    out[4] = (one - sizeVariation) + sizeVariation * b;
+    if (mode9C != 2) {
+        angleVariation = *(f32 *)(config + 152);
         b = effMiscRandFloat(0);
-        out[6] = (one - a) + a * b;
+        out[6] = (one - angleVariation) + angleVariation * b;
         if (mode9C == 1) {
             b = effMiscRandFloat(0);
             out[5] = g80 * b;
@@ -3281,25 +3331,43 @@ skip_clear:
         } else {
             out[5] = zero;
         }
+    } else {
+        out[5] = zero;
+        out[6] = one;
     }
     *(s32 *)(nodes + 16) = 0;
-    b220buf = *(u_long128 *)nodes;
+    {
+        u_long128 *snapshot = &b220buf;
+        *snapshot = *(u_long128 *)nodes;
+    }
     if (v14 != 0) {
+        f32 prerollElapsed;
+        f32 prerollDistance;
+        f32 travelled;
+        f32 accelerationDistance;
+        f32 accelerationSquaredDistance;
+        f32 gravityDistance;
+        f32 gravitySquaredDistance;
         tmp = (u32)effMiscRand(0) % (u32)limitB8;
-        ftmp1 = (f32)(u32)tmp;
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
-        ftmp2 = half * (e0val * ftmp1 * ftmp1) + out[3] * ftmp1;
-        if (ftmp2 < zero) {
-            ftmp2 = zero;
+        prerollElapsed = (f32)(u32)tmp;
+        effectVuLoad11((const EffectVuVector *)nodes);
+        travelled = out[3] * prerollElapsed;
+        accelerationDistance = e0val * prerollElapsed;
+        accelerationSquaredDistance = prerollElapsed * accelerationDistance;
+        prerollDistance = travelled + half * accelerationSquaredDistance;
+        if (prerollDistance < zero) {
+            prerollDistance = zero;
         }
-        vec130[0] = ftmp2 * out[0];
-        vec130[1] = ftmp2 * out[1];
-        vec130[2] = ftmp2 * out[2];
-        vec130[1] = vec130[1] - half * (e4val * ftmp1 * ftmp1);
-        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
-        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-        __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
-        *(s32 *)(nodes + 16) = (s32)ftmp1;
+        vec130.lane[0] = prerollDistance * out[0];
+        vec130.lane[1] = prerollDistance * out[1];
+        vec130.lane[2] = prerollDistance * out[2];
+        gravityDistance = e4val * prerollElapsed;
+        gravitySquaredDistance = prerollElapsed * gravityDistance;
+        vec130.lane[1] = vec130.lane[1] - half * gravitySquaredDistance;
+        effectVuLoad10(&vec130);
+        spawnVuAdd10();
+        effectVuStore10((EffectVuVector *)nodes);
+        *(s32 *)(nodes + 16) = (s32)prerollElapsed;
     }
     func_0048b220(nodes, config, *(s32 *)(nodes + 16), &b220buf);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[4];
@@ -3308,7 +3376,8 @@ skip_clear:
     if (v14 != 0) {
         nmult = *(s32 *)(*(u8 **)(parent + 32) + 192) * *(s32 *)(*(u8 **)(parent + 32) + 196);
         if (nmult != 0) {
-            clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
+            particleIndex = ((u32)nodes - (u32)*(u8 **)(parent + 24)) >> 5;
+            clear = *(u8 **)(parent + 24) + ((*(u32 *)(parent + 4) + particleIndex * (u32)nmult) << 5);
             memcpy(clear, nodes, 32);
             *(s32 *)(clear + 16) = -1;
         }
@@ -3317,25 +3386,31 @@ skip_clear:
     v15 -= 1;
     goto next_iter2;
 else_branch:
-    b220buf = *(u_long128 *)nodes;
-    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
-    ftmp1 = out[3] + e0val * (f32)node10;
-    if (ftmp1 < zero) {
-        ftmp1 = zero;
+    {
+    f32 liveDistance;
+    {
+        u_long128 *snapshot = &b220buf;
+        *snapshot = *(u_long128 *)nodes;
     }
-    vec130[0] = ftmp1 * out[0];
-    vec130[1] = ftmp1 * out[1];
-    vec130[2] = ftmp1 * out[2];
-    vec130[1] = vec130[1] - e4val * (f32)node10;
-    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
-    __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
+    effectVuLoad11((const EffectVuVector *)nodes);
+    liveDistance = out[3] + e0val * (f32)node10;
+    if (liveDistance < zero) {
+        liveDistance = zero;
+    }
+    vec130.lane[0] = liveDistance * out[0];
+    vec130.lane[1] = liveDistance * out[1];
+    vec130.lane[2] = liveDistance * out[2];
+    vec130.lane[1] = vec130.lane[1] - e4val * (f32)node10;
+    effectVuLoad10(&vec130);
+    spawnVuAdd10();
+    effectVuStore10((EffectVuVector *)nodes);
     func_0048b220(nodes, config, node10, &b220buf);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[4];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
     func_0048b340(parent, nodes);
     *(s32 *)(nodes + 16) = node10 + 1;
+    }
 next_iter2:
 next_iter:
     idx += 1;
@@ -3346,9 +3421,8 @@ main_check:
         goto main_body;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048c4e0);
-#endif
+
+#pragma pop
 // FUN_0048CD60
 void func_0048cd60(u8 *arg0, f32 fparg0) {
     s32 temp_4;

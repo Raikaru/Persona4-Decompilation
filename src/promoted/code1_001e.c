@@ -1485,7 +1485,7 @@ s32 func_001e9950(void) {
     extern s32 func_001db360(u8 *arg0, s32 arg1, s32 arg2);
     extern s32 func_00235520(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
     extern u8 *func_001b0cc0(s32 arg0);
-    extern void func_001dbf20(u8 *arg0, s32 arg1);
+    extern s32 func_001dbf20(u8 *arg0, u32 arg1);
     u8 *work;
     u8 *unit;
     s32 bestSkill;
@@ -1504,6 +1504,7 @@ s32 func_001e9950(void) {
     s16 kind;
     s32 paramA;
     s16 paramB;
+    u16 targetKind;
     s32 innerBest;
     s32 idxA;
     s32 idxB;
@@ -1566,60 +1567,53 @@ outer_body:
             goto outer_next;
         }
     }
+    targetKind = func_001d7f10(work, (u8 *)&tgt, skill, 0);
     innerBest = 0;
-    if ((func_001d7f10(work, (u8 *)&tgt, skill, 0) & 0xFFFF) == 0) {
+    if (targetKind == 0) {
         curScore = 0.0f;
-        idxA = 0;
         paramA = (s16)kind;
-innerA_test:
-        if ((idxA & 0xFFFF) >= (s32)(tgt.count & 0xFFFF)) {
-            goto scored;
-        }
-        entryA = tgt.entries[(idxA & 0xFFFF)];
-        if (func_001db360(entryA, paramA, 1) != 0) {
-            dmg = func_00235520(skill & 0xFFFF, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryA + 0x30) + 0xA64), 1, 1, 1, 0, 1);
-            hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
-            maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
-            neg = (s32)(0u - (u32)dmg);
-            if (hp < neg) {
-                cur = (f32)hp / (f32)maxHp + 1.0f;
-            } else {
-                cur = (f32)neg / (f32)maxHp;
+        for (idxA = 0; (idxA & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxA = (idxA + 1) & 0xFFFF) {
+            entryA = tgt.entries[(idxA & 0xFFFF)];
+            if (func_001db360(entryA, paramA, 1) != 0) {
+                dmg = func_00235520(skill & 0xFFFF, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryA + 0x30) + 0xA64), 1, 1, 1, 0, 1);
+                hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
+                maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
+                neg = (s32)(0u - (u32)dmg);
+                if (hp < neg) {
+                    cur = (f32)hp / (f32)maxHp;
+                    cur = 1.0f + cur;
+                } else {
+                    cur = (f32)neg / (f32)maxHp;
+                }
+                if (curScore < cur) {
+                    innerBest = *(s32 *)(entryA + 8);
+                    curScore = cur;
+                }
             }
-            if (curScore < cur) {
-                innerBest = *(s32 *)(entryA + 8);
-                curScore = cur;
-            }
         }
-        idxA = (idxA + 1) & 0xFFFF;
-        goto innerA_test;
     } else {
         curScore = 0.0f;
-        idxB = 0;
         paramB = (s16)kind;
-innerB_test:
-        if ((idxB & 0xFFFF) >= (s32)(tgt.count & 0xFFFF)) {
-            goto scored;
-        }
-        entryB = tgt.entries[(idxB & 0xFFFF)];
-        if (func_001db360(entryB, paramB, 1) == 0) {
-            if ((func_00242800(*(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), paramB) & 0x1000000) == 0) {
-                curScore = 0.0f;
-                goto scored;
-            }
-        } else {
-            dmg = func_00235520(skill & 0xFFFF, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), 1, 1, 1, 0, 1);
-            hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
-            maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
-            neg = (s32)(0u - (u32)dmg);
-            if (hp < neg) {
-                curScore = curScore + (f32)hp / (f32)maxHp + 1.0f;
+        for (idxB = 0; (idxB & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxB = (idxB + 1) & 0xFFFF) {
+            entryB = tgt.entries[(idxB & 0xFFFF)];
+            if (func_001db360(entryB, paramB, 1) == 0) {
+                if ((func_00242800(*(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), paramB) & 0x1000000) == 0) {
+                    curScore = 0.0f;
+                    goto scored;
+                }
             } else {
-                curScore += (f32)neg / (f32)maxHp;
+                dmg = func_00235520(skill & 0xFFFF, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), 1, 1, 1, 0, 1);
+                hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
+                maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
+                neg = (s32)(0u - (u32)dmg);
+                if (hp < neg) {
+                    curScore += (f32)hp / (f32)maxHp;
+                    curScore = 1.0f + curScore;
+                } else {
+                    curScore += (f32)neg / (f32)maxHp;
+                }
             }
         }
-        idxB = (idxB + 1) & 0xFFFF;
-        goto innerB_test;
     }
 scored:
     if (bestScore <= curScore) {

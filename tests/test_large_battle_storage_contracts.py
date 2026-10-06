@@ -165,7 +165,7 @@ def payload_fixture(mutation=None):
     for i,expr in enumerate(expressions):
         wrappers.append('static u8 *call_'+str(i)+'(void) {\n'+r'''
     u8 *arg0=action, *temp_2_23=inputPacket, *sp4D0=unit;
-    s32 sp598=101,sp59C=202,sp5A0=303,var_2_7=505,sp400=-37;
+    s32 effectHandles[3]={101,202,303},var_2_7=505,sp400=-37;
     s16 var_17=-17;
     return '''+expr+';\n}')
     fixture=(ROOT/'tests/large_battle_uid_payload_fixture.c.in').read_text()

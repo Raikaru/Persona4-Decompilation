@@ -3602,8 +3602,22 @@ void func_004a0bb0(u8 *arg0) {
         EffectVuVector direction, widthVector, lengthVector;
         s32 firstFrame, count, index, fadeIn, fadeOut, initialAge, terminalAge, ageStep, recycle;
         u8 *state, *owner, *config;
-        s32 *particle;
-        f32 *pf;
+        /* 004a09e0/004a0af0 allocate 0x20 bytes per particle; 004a07b0
+         * advances eight words. Retail loads the age as a word and the
+         * seven remaining fields as floats. Keep those types in one record.
+         * Measured b210: 2204/2208 bytes; sixteen v0/v1 differences remain. */
+        typedef struct FlashInclinedParticle {
+            s32 age;
+            f32 velocity;
+            f32 phase;
+            f32 length;
+            f32 radius;
+            f32 radiusStep;
+            f32 inclination;
+            f32 width;
+        } FlashInclinedParticle;
+        typedef char FlashInclinedParticleExtent[sizeof(FlashInclinedParticle) == 0x20 ? 1 : -1];
+        FlashInclinedParticle *particle;
         s32 life;
         FlashVertex *vertices;
         u32 *colors;
@@ -3617,7 +3631,7 @@ void func_004a0bb0(u8 *arg0) {
         frame = *(u32 *)(effect + 0x34);
         if (lastFrame < frame && lastFrame != 0) return;
         state = *(u8 **)(effect + 0x3c);
-        particle = *(s32 **)state;
+        particle = *(FlashInclinedParticle **)state;
         owner = *(u8 **)(state + 4);
         count = *(s32 *)(config + 0x38);
         life = *(s32 *)(config + 0x4c);
@@ -3659,38 +3673,37 @@ void func_004a0bb0(u8 *arg0) {
         unit = 1.0f;
         half = 0.5f;
         byteScale = 255.0f;
-        for (; index < count; index++, particle += 8, vertices += 4, colors += 4) {
-            s32 age = *particle;
-            pf = (f32 *)particle;
+        for (; index < count; index++, particle++, vertices += 4, colors += 4) {
+            s32 age = particle->age;
             if (age == -2) continue;
             if (age == -1) {
                 if (births == 0) continue;
-    pf[2] = fullTurn * effMiscRandFloat(0);
+    particle->phase = fullTurn * effMiscRandFloat(0);
     cosine = *(f32 *)(config + 0x6c);
     factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
-    pf[3] = *(f32 *)(config + 0x68) * factor;
+    particle->length = *(f32 *)(config + 0x68) * factor;
     cosine = *(f32 *)(config + 0x74);
     factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
     cosine = *(f32 *)(config + 0x70) * factor;
     radius = *(f32 *)(config + 0x7c);
     factor = 0.0f + (unit - radius) + radius * effMiscRandFloat(0);
     endpoint = *(f32 *)(config + 0x78) * factor;
-    pf[4] = cosine;
-    pf[5] = (endpoint - cosine) / (f32)life;
+    particle->radius = cosine;
+    particle->radiusStep = (endpoint - cosine) / (f32)life;
     cosine = *(f32 *)(config + 0x8c);
     factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
-    pf[1] = *(f32 *)(config + 0x88) * factor;
+    particle->velocity = *(f32 *)(config + 0x88) * factor;
     cosine = *(f32 *)(config + 0x64);
     factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
-    pf[7] = *(f32 *)(config + 0x60) * factor;
+    particle->width = *(f32 *)(config + 0x60) * factor;
     cosine = *(f32 *)(config + 0x84);
     factor = 0.0f + (unit - cosine) + cosine * effMiscRandFloat(0);
-    pf[6] = *(f32 *)(config + 0x80) * factor;
+    particle->inclination = *(f32 *)(config + 0x80) * factor;
                 if (firstFrame) {
-                    *particle = effMiscRand(0) % (u32)life;
+                    particle->age = effMiscRand(0) % (u32)life;
                     
                 } else {
-                    *particle = initialAge;
+                    particle->age = initialAge;
                 }
                 births--;
                 continue;
@@ -3703,21 +3716,21 @@ void func_004a0bb0(u8 *arg0) {
                     vertices[vertex].z = zero;
                     colors[vertex] = 0;
                 }
-                *particle = recycle ? -1 : -2;
+                particle->age = recycle ? -1 : -2;
             } else {
                 u32 transfer;
                 EffectVuVector *scratch;
                 f32 time = (f32)age;
                 f32 fade;
                 f32 sine;
-                phase = pf[2];
+                phase = particle->phase;
     if (acceleration < zero) {
-        f32 maximum = half * (-pf[1] / (half * acceleration));
+        f32 maximum = half * (-particle->velocity / (half * acceleration));
         if (time > maximum) time = maximum;
     }
-    distance = time * (0.0f + pf[1] + half * (acceleration * time));
-    radius = 0.0f + pf[4] + pf[5] * time;
-    inclination = pf[6];
+    distance = time * (0.0f + particle->velocity + half * (acceleration * time));
+    radius = 0.0f + particle->radius + particle->radiusStep * time;
+    inclination = particle->inclination;
     cosine = cosf(phase);
     sine = sinf(phase);
     direction.lane[0] = cosine * inclination;
@@ -3731,7 +3744,7 @@ void func_004a0bb0(u8 *arg0) {
           "nop \n"
           "qmtc2.ni %0, $vf2 \n"
           "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-          : "=&r"(transfer) : "r"(scratch), "m"(*scratch), "m"(pf[3])
+          : "=&r"(transfer) : "r"(scratch), "m"(*scratch), "m"(particle->length)
           : "$vf2", "$vf10", "$vf11");
       effectVuStore10(&lengthVector);
     __asm__ volatile(
@@ -3747,7 +3760,7 @@ void func_004a0bb0(u8 *arg0) {
         "vaddx.y $vf10, $vf0, $vf2x \n"
         : : "r"(zero) : "$vf2", "$vf10");
     effectVuSetZ10(-cosine);
-    effectVuScale10(pf[7]);
+    effectVuScale10(particle->width);
     effectVuStore10(&widthVector);
     __asm__ volatile(
         "lqc2 $vf12, 0(%0) \n"
@@ -3834,7 +3847,7 @@ void func_004a0bb0(u8 *arg0) {
 
                 colors[2] = innerPacked;
                 colors[3] = innerPacked;
-                *particle = age + ageStep;
+                particle->age = age + ageStep;
             }
         }
         {
