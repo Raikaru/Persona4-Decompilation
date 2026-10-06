@@ -1,0 +1,45 @@
+{
+  "scope": "Installed guarded digit storage repair; no exact C promotion",
+  "base_commit": "3a28c449bd3d2fcde0f86b03368887b9905b30d3",
+  "owner": "src/promoted/code1_002b.c",
+  "installed_source_sha256": "8fa8c7b7e7769e250325c31a7ac620ba5110ea4b28a7016f9a080308ae683906",
+  "native_default_summary": {
+    "MATCH": 74,
+    "ASM": 1
+  },
+  "new_C_matches": 0,
+  "guarded_target": {
+    "bytes": 1348,
+    "window_bytes": 1360,
+    "zero_tail_bytes": 12,
+    "fully_resolved_differing_words": 192
+  },
+  "four_context_function_checks": 300,
+  "guarded_siblings_preserved": 74,
+  "owned_data_preserved": true,
+  "lint_errors": 0,
+  "lint_existing_warnings": 26,
+  "integrated_build_passed": true,
+  "prior_c_linkage_preserved": true,
+  "digit_owner_c_linked": true,
+  "linked_tu_count": 658,
+  "linked_function_count": 8586,
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
+  "first_party_checkpoint": {
+    "MATCH": 6773,
+    "ASM": 88
+  },
+  "full_source_refresh_status_at_seal": "running; not claimed as a completed validation",
+  "artifact_sha256": {
+    "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/receipt.json": "42607562281063cce6d1a38503b9615f776bf7845bb21ea914331fee7ca61c26",
+    "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/installed-validation.json": "f6c3e1718028334052e710fcb129b9a9a4f2141aca419a2b64f41a818f1c8632",
+    "build/ui-digit-packed-replay-f752aa7af7fc/proof.json": "c24985c186738e845fb0f5e28e8c473b53bf4ddd4adaf8717cfdb5df5feacce5",
+    "build/finish88-20261006/reconcile/digit-actual-verify.json": "30c838a68dec52b47fe8b35ea4655eaa3a6edc0932a4830553e8e827153c556b",
+    "build/finish88-20261006/reconcile/digit-lint.json": "1bafdf21e8e13295f9896bc3483d477be353dc0ddbdc050cbe970a706442213b",
+    "build/finish88-20261006/reconcile/build-run.json": "a7849852aa715a790a92448d7ff6d1344649dc581174b093b4118b07386bba3f",
+    "build/finish88-20261006/reconcile/linked.json": "66ba6dc2998317ca1753a814782634f128bfaef504fcbdb7743646dbf08b0620",
+    "build/finish88-20261006/reconcile/source-inputs.json": "8159f099cefdd7b570b2f4bfafa18bc35f7522896bb953c29b0225f71efd2c2f"
+  },
+  "historical_proposal_receipt_preserved": true
+}

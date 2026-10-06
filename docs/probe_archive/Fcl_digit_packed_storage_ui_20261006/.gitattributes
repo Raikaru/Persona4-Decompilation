@@ -1,0 +1,4 @@
+# Keep source-bound replay evidence byte-identical across checkouts.
+* -text whitespace=cr-at-eol
+# A unified diff's empty context line consists of its required leading space.
+*.patch whitespace=cr-at-eol,-blank-at-eol

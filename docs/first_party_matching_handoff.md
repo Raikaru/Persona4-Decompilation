@@ -27,6 +27,17 @@ alignment, and the C preserves the observed behavior and ABI.
 
 ## October 6 continuation: 6,773 MATCH / 88 ASM
 
+The subsequent checkout reconciliation authenticates all 1,922 recorded source,
+tool and configuration inputs. Only the previously installed digit-color guard
+differs from the sealed third batch. That repair is now integrated: fresh
+four-context complete-owner checks preserve all siblings, and the fresh image
+build passes both hashes without losing any C linkage. It remains guarded and
+adds no match. Its lifecycle and receipts are in
+[`Fcl_digit_packed_storage_ui_20261006`](probe_archive/Fcl_digit_packed_storage_ui_20261006/README.md).
+The earlier three verified commits were pushed to `origin/main` before new
+recovery work resumed. The fresh all-owner verifier is recorded independently
+from the completed image and digit-owner checks.
+
 Three integrated batches now include exact C for the map updater `002add90`,
 minimap constructor `002ae630`, battle color fade `001b87e0` and After geometry
 builder `004b8350`. Their complete-owner proofs preserve native references,
