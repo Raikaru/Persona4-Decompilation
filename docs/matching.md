@@ -524,9 +524,24 @@ below are the codegen consequences.
   stack and gives each virtual the lowest colour none of its already-coloured
   neighbours holds. For every caller-saved residual examined (`001b11c0`,
   `004a7830`, `001b05d0`) the simplifiable virtuals were coloured in strictly
-  **descending virtual number**. Call-crossing virtuals are not simplifiable;
-  they are coloured first, in a cost-driven order (`001d53e0`). The numbers
-  come from source like this:
+  **descending virtual number**. Virtuals that cross calls are not
+  simplifiable. They are coloured first, in an order set by the simplify
+  stack builder (`0x004c1de0`). The builder works like this:
+  - it repeatedly pushes every node whose degree is below K, scanning in
+    ascending virtual number;
+  - when no node qualifies, it pushes the node with the lowest spill score
+    divided by current degree;
+  - on an exact tie, the higher virtual number wins;
+  - the score (`0x0055e5c0`) is 2 × block weight for each use plus 1 × block
+    weight for each definition.
+
+  On `001d53e0` the saved locals `i` and `frame` both score 4. The tie goes
+  to `frame`, so it is coloured after `w` (`$s5`); retail picked `i`, which
+  puts `frame` in `$s3`. Retail's code is identical, so both values must
+  score the same in retail too. What differs is the interference degree or
+  the virtual structure, not use counts. An extra real use of `frame` flips
+  the colours only because it changes the score. The numbers come from
+  source like this:
   - the parameter copies get `r32` up, then declared locals in declaration
     order, with block-scoped locals after function-scope ones. Frontend
     temporaries, such as the result of `x &= m` on a wider `x`, come next.
