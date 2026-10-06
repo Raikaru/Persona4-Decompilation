@@ -1260,44 +1260,26 @@ void func_002e5960(s8 arg0) {
     *(s32 *)(p + 8) = 0;
 }
 
-/* measured (real tree): guarded de-noised floor GUARDED_SCORE 398 (measure_guarded */
-/* measured: live in source/Persona4-Decompilation; verify 30 MATCH/7 ASM/0 MISMATCH, */
-/* measured: decomp_lint 0 errors +1 pre-existing H003 warn elsewhere). Mirror */
-/* measured: probe_variants: v1 cached-gp 405 -> v2 uncached-iGpffffb3d4 with duplicate */
-/* measured: i*0xE entry+2/entry+3 loads 393; round2 decl-order 393 neutral, s32 */
-/* measured: hi/lo 400 worse; round3 (h*3)*0x10 vs h*0x30 and i*14 vs i*0xE and */
-/* measured: (outer*4+outer)+10 vs outer*5+10 all 393 neutral. Two unproductive */
-/* measured: rounds, stop. fnalign live: retail 468 instrs vs object 471 (3 long), */
-/* measured: 158 edits +9 reloc-only, frame 0x100 vs 0x110. Retail window 468 words */
-/* measured: (0x750 incl. 4 trailing nops per asm size). m2c single-function run fails */
-/* measured: (jr without jump table); bulk src/generated/code1_002e.c candidate used as */
-/* measured: the de-noise source. Production stays INCLUDE_ASM. */
-/* measured: structure fully recovered (slotp/entry/p chain, func_002e5960 calls, the */
-/* measured: 0xC0 i-loop with the iGpffffb3d4+i*14 entry checks, the 311d00/311d60/2e6230 */
-/* measured: gates, the func_002e48a0 j-loop, the 311e40 gate, the hi/lo range compare and */
-/* measured: the two jump-table switches with memset/cad0 + p->8++, the 0x3C tail gate and */
-/* measured: the do-loop with outer*5+10 / outer+1 hi2/lo2 plus the second 0xC0 loop; file */
-/* measured: idiom kept (u8 *, *(u8 **)(x+0x38), D_00882F70[arg0], iGpffffb3d4+i*0xE, */
-/* measured: *(u16 *)(...+2), *(s16 *)(p+8)/(*(s32 *)(p+8)), 0/2/7/8/default -> +0x14 vs */
-/* measured: 1/5/6/10 -> +0xA4). Floor is the five 16-byte stack slots holding s16 values: */
-/* measured: retail sq's directly after dsll32/dsra32 and lq's into a raw slt, while mwcc */
-/* measured: b210 spills plain-s16 locals via sw/lw (u_long128 locals would add */
-/* measured: dsll32/dsrl32 widening pairs instead, same mixed-width floor as func_002e4ac0 */
-/* measured: nd 302 in this file); residual also carries saved-reg coloring/scheduling. */
-/* gate: object 471 against retail 468, +0.6% - INSIDE */
-/*   the +-3% band (was 435 vs 464, -6.2% OUTSIDE). Separating default from the */
-/*   0/2/7/8 group in all four switches adds the missing 0xA4-with-branch bodies */
-/*   (4x dsll/dsra + 8x sll/addu + 4x b/addiu, net +36, 435->471). */
+/* measured: 1860B of 1872B, 45 resolved differing words. Signed level,
+   bound and metadata-offset snapshots recover the retail spill lifetimes;
+   separate membership counters preserve the initial and expanded searches.
+   The remaining differences are saved-register assignments. All 35 code
+   references and all four 11-entry jump tables resolve to retail; 36 matched
+   siblings are unchanged. Guard and ASM fallback remain until exact.
+   Proof: docs/probe_archive/YList_range_002e5ae0_20261006/README.md. */
 // FUN_002E5AE0 NONMATCHING
 #ifdef NON_MATCHING
 extern s32 func_002e6230(u16 arg0, u16 *arg1);
-void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
+void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2)
+{
     u8 **slotp;
     u8 *p;
     s16 lo;
-    s16 hi;
+    s32 level;
+    s32 hi;
     s16 i;
-    s16 j;
+    s16 initialRow;
+    s16 expandedRow;
     s32 found;
     u16 id;
     u8 *q;
@@ -1309,6 +1291,9 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
     s16 lo2;
     s16 hi2;
     s16 outer;
+    s32 lowLimit;
+    s32 highLimit2;
+    s32 lowLimit2;
     s16 inner;
     slotp = &D_00882F70[arg0];
     if (*slotp == NULL) {
@@ -1316,10 +1301,21 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
     }
     p = *(u8 **)(*slotp + 0x38);
     func_002e5960(arg0);
-    lo = (s16)func_002b2d00(arg2, 10, 1, 0x63, 1);
-    hi = func_002b2cb0(arg2, 1, 0x63, 1, 1);
-    for (i = 0; i < 0xC0; i++) {
-        if (*(u8 *)(iGpffffb3d4 + i * 0xE + 2) < 2 || *(u8 *)(iGpffffb3d4 + i * 0xE + 2) >= 0x16) {
+    level = (s8)arg2;
+    lo = (s16)func_002b2d00(level, 10, 1, 0x63, 1);
+    hi = (s16)func_002b2cb0(level, 1, 0x63, 1, 1);
+    i = 0;
+    lowLimit = (s16)lo;
+    for (; i < 0xC0; i++) {
+        s32 signedIndex = i;
+        s32 metadataOffset;
+        u8 *metadata;
+        u8 kind;
+        metadata = iGpffffb3d4;
+        metadataOffset = signedIndex * 14;
+        metadata += metadataOffset;
+        kind = metadata[2];
+        if (kind < 2 || kind >= 0x16) {
             continue;
         }
         id = (u16)i;
@@ -1332,22 +1328,25 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
         if (func_002e6230(id, arg1) != 0) {
             continue;
         }
-        found = 0;
         if (*slotp != NULL) {
-            for (j = 0; j < *(s32 *)(*(u8 **)(*slotp + 0x38) + 8); j++) {
-                if (i == *(u16 *)(func_002e48a0(arg0, j) + 2)) {
+            for (initialRow = 0; initialRow < *(s32 *)(*(u8 **)(*slotp + 0x38) + 8); initialRow++) {
+                if (signedIndex == *(u16 *)(func_002e48a0(arg0, initialRow) + 2)) {
                     found = 1;
-                    break;
+                    goto initialSearchDone;
                 }
             }
         }
+        found = 0;
+initialSearchDone:
         if (found != 0) {
             continue;
         }
         if (func_00311e40(id) != 0) {
             continue;
         }
-        if (hi < *(u8 *)(iGpffffb3d4 + i * 0xE + 3) || *(u8 *)(iGpffffb3d4 + i * 0xE + 3) < lo) {
+        metadata = iGpffffb3d4;
+        metadata += metadataOffset;
+        if (hi < metadata[3] || lowLimit > metadata[3]) {
             continue;
         }
         h = *(s16 *)(p + 8);
@@ -1394,7 +1393,7 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
         func_0010cad0(dst2, id);
         *(s32 *)(p + 8) = *(s32 *)(p + 8) + 1;
     }
-    if (arg2 >= 0x3C && *(s32 *)(p + 8) < 3) {
+    if (level >= 0x3C && *(s32 *)(p + 8) < 3) {
         func_002e5960(arg0);
     }
     if (*(s32 *)(p + 8) != 0) {
@@ -1402,11 +1401,23 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
     }
     outer = 0;
     do {
-        lo2 = (s16)func_002b2d00(arg2, outer * 5 + 10, 1, 0x63, 1);
-        hi2 = func_002b2cb0(arg2, outer + 1, 0x63, 1, 1);
+        s32 expansion = outer;
+        lo2 = (s16)func_002b2d00(level, expansion * 5 + 10, 1, 0x63, 1);
+        hi2 = (s16)func_002b2cb0(level, expansion + 1, 0x63, 1, 1);
         func_002e5960(arg0);
-        for (inner = 0; inner < 0xC0; inner++) {
-            if (*(u8 *)(iGpffffb3d4 + inner * 0xE + 2) < 2 || *(u8 *)(iGpffffb3d4 + inner * 0xE + 2) >= 0x16) {
+        inner = 0;
+        highLimit2 = (s16)hi2;
+        lowLimit2 = (s16)lo2;
+        for (; inner < 0xC0; inner++) {
+            s32 signedIndex = inner;
+            s32 metadataOffset;
+            u8 *metadata;
+            u8 kind;
+            metadata = iGpffffb3d4;
+            metadataOffset = signedIndex * 14;
+            metadata += metadataOffset;
+            kind = metadata[2];
+            if (kind < 2 || kind >= 0x16) {
                 continue;
             }
             id = (u16)inner;
@@ -1419,22 +1430,25 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
             if (func_002e6230(id, arg1) != 0) {
                 continue;
             }
-            found = 0;
             if (*slotp != NULL) {
-                for (j = 0; j < *(s32 *)(*(u8 **)(*slotp + 0x38) + 8); j++) {
-                    if (inner == *(u16 *)(func_002e48a0(arg0, j) + 2)) {
+                for (expandedRow = 0; expandedRow < *(s32 *)(*(u8 **)(*slotp + 0x38) + 8); expandedRow++) {
+                    if (signedIndex == *(u16 *)(func_002e48a0(arg0, expandedRow) + 2)) {
                         found = 1;
-                        break;
+                        goto expandedSearchDone;
                     }
                 }
             }
+            found = 0;
+expandedSearchDone:
             if (found != 0) {
                 continue;
             }
             if (func_00311e40(id) != 0) {
                 continue;
             }
-            if (hi2 < *(u8 *)(iGpffffb3d4 + inner * 0xE + 3) || *(u8 *)(iGpffffb3d4 + inner * 0xE + 3) < lo2) {
+            metadata = iGpffffb3d4;
+            metadata += metadataOffset;
+            if (highLimit2 < metadata[3] || lowLimit2 > metadata[3]) {
                 continue;
             }
             h = *(s16 *)(p + 8);
@@ -1482,7 +1496,7 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
             *(s32 *)(p + 8) = *(s32 *)(p + 8) + 1;
         }
         outer++;
-    } while (*(s32 *)(p + 8) < 6);
+    } while (*(s32 *)(p + 8) <= 5);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e5ae0);
