@@ -1824,30 +1824,11 @@ next_cell:
 query_complete:
     return result;
 }
-/* Cold 0016bdd0 (2320 instrs, frame -0x360 s16-s21): no probe_archive entry; */
-/* m2c needs jtbl_00746D20 (8 entries: 0,2,5->BF08; 3,4->C210; 6->C88C; 7->DAB8; */
-/* 1->E0C0) and still internal-errors on the switch even with absolute words */
-/* (no .L labels for jr targets); romwright rw.c 1073 lines compiles after */
-/* FUN_007146e0->D_007146E0 but signature is u64/u64 vs file void (void*) â€” */
-/* use void (u8*) with (u8*) casts for byte arithmetic (void*+int illegal). */
-/* Skeleton: switch + 14 unstructured edges/13 gotos, counted fors where */
-/* present; front-load (s32) on every float conversion (<2^31, plain */
-/* mtc1/cvt) over (u32) dance (~16). Not banked: count outside band. */
-/* measured 0016bdd0 (owner, 2026-09-20): INSIDE the gate at 2250 vs retail 2319
-   (-3.0%, band 2249-2389, deficit 69, by 1).  Words 2046, edits 1786 +5 reloc.
-   Spellings (all -O2, no O1 pragma): loop fixes +9 (2116->2125) +2 (acc, ->2127);
-   vector bases LOW +17 (208 fix, ->2142) +48 (other 16, ->2190); int+cvt inflation
-   +13 (d0/120/210, 2190->2203, loss 50 vs +63 predicted, fused) +5 (1a0/1b8/1d0/2c4,
-   2203->2208, loss 22 vs +27) +4 (140/210p2, 2208->2212, loss 14 vs +18);
-   31-run madd chain +37 (2212->2249, index/sll + mul/add vs madd); split neg-mul
-   +1 (2249->2250, loss 1 vs +2, fused).  Synthetic keepers removed: +27 (2c4+40b0)
-   +29 (v11+4180) then -56 back to 2190; fStack_10 split+call +43 (->2289) then -43
-   back; O1 pragma +136 (->2252) with +1056 edits (1788->2844) reverted per 7u/7aw. */
-/* gate: func_0016bdd0 is INSIDE the +-3% band at 2250 against retail 2319 (-3.0%, band
-   2249-2389).  Deficit 69 (by 1, just inside).  Words 2046, edits 1786 +5 reloc.
-   `#pragma optimization_level 1` remains reverted (inflation per 7u/7aw).  Missing
-   61/56 runs at DD7C/C780 still ABSENT (retail longer by swc1+182/lwc1+160); 31-run
-   at C61C now present as plain-C madd chain (not madd/adda/msub).  No other fn touched. */
+/* Guarded reconstruction: remove the 22 artificial getter calls and their
+ * keep-alive sink, which are absent from the retail control flow.
+ * Native C remains nonmatching at 8828/9280 bytes; complete aggregates,
+ * stack lifetimes and provider types still need recovery.
+ * Preservation proof: docs/probe_archive/Field_guard_cleanup_0016bdd0_20261005/. */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
 extern int FUN_003e0870();
@@ -2088,10 +2069,7 @@ s32 func_0016bdd0(u8 *param_1)
   float fStack_c;
   float fStack_8;
   int uStack_4;
-  int keepS0, keepS1, keepS2, keepS3, keepS4, keepS5, keepS6, keepS7, keepS8, keepS9, keepS10, keepS11, keepS12, keepS13, keepS14, keepS15, keepS16, keepS17, keepS18, keepS19, keepS20, keepS21;
-  
   piVar1 = *(int **)((int)param_1 + 0x38);
-  keepS0 = FUN_00457120(); keepS1 = FUN_00155280(); keepS2 = FUN_00457120(); keepS3 = FUN_00155280(); keepS4 = FUN_00457120(); keepS5 = FUN_00155280(); keepS6 = FUN_00457120(); keepS7 = FUN_00155280(); keepS8 = FUN_00457120(); keepS9 = FUN_00155280(); keepS10 = FUN_00457120(); keepS11 = FUN_00155280(); keepS12 = FUN_00457120(); keepS13 = FUN_00155280(); keepS14 = FUN_00457120(); keepS15 = FUN_00155280(); keepS16 = FUN_00457120(); keepS17 = FUN_00155280(); keepS18 = FUN_00457120(); keepS19 = FUN_00155280(); keepS20 = FUN_00457120(); keepS21 = FUN_00155280();
   if ((piVar1[0xa2] != 0) && ((piVar1[1] & 1U) == 0)) {
     if (piVar1[0xb] < 0x80) {
       piVar1[0xb] = piVar1[0xb] + 1;
@@ -2968,9 +2946,6 @@ LAB_0016e0c0:
         break;
       }
     }
-  }
-  if (keepS0 == 0x12345678) {
-    keepS1 += keepS0 + keepS2 + keepS3 + keepS4 + keepS5 + keepS6 + keepS7 + keepS8 + keepS9 + keepS10 + keepS11 + keepS12 + keepS13 + keepS14 + keepS15 + keepS16 + keepS17 + keepS18 + keepS19 + keepS20 + keepS21;
   }
   return 0;
 }
