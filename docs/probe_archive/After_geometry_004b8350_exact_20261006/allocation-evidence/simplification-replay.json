@@ -1,0 +1,4462 @@
+{
+  "threshold": 25,
+  "order_matches_observed": true,
+  "dynamic_degrees_match_observed": true,
+  "events": [
+    {
+      "index": 33,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 396
+    },
+    {
+      "index": 34,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 395
+    },
+    {
+      "index": 40,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 394
+    },
+    {
+      "index": 43,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 393
+    },
+    {
+      "index": 44,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 392
+    },
+    {
+      "index": 45,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 391
+    },
+    {
+      "index": 46,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 390
+    },
+    {
+      "index": 48,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 389
+    },
+    {
+      "index": 49,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 388
+    },
+    {
+      "index": 53,
+      "reason": "degree",
+      "degree": 7,
+      "score": 4,
+      "remaining": 387
+    },
+    {
+      "index": 54,
+      "reason": "degree",
+      "degree": 6,
+      "score": 7,
+      "remaining": 386
+    },
+    {
+      "index": 55,
+      "reason": "degree",
+      "degree": 7,
+      "score": 4,
+      "remaining": 385
+    },
+    {
+      "index": 56,
+      "reason": "degree",
+      "degree": 6,
+      "score": 7,
+      "remaining": 384
+    },
+    {
+      "index": 59,
+      "reason": "degree",
+      "degree": 10,
+      "score": 7,
+      "remaining": 383
+    },
+    {
+      "index": 60,
+      "reason": "degree",
+      "degree": 9,
+      "score": 4,
+      "remaining": 382
+    },
+    {
+      "index": 61,
+      "reason": "degree",
+      "degree": 9,
+      "score": 4,
+      "remaining": 381
+    },
+    {
+      "index": 62,
+      "reason": "degree",
+      "degree": 8,
+      "score": 5,
+      "remaining": 380
+    },
+    {
+      "index": 63,
+      "reason": "degree",
+      "degree": 10,
+      "score": 4,
+      "remaining": 379
+    },
+    {
+      "index": 64,
+      "reason": "degree",
+      "degree": 9,
+      "score": 7,
+      "remaining": 378
+    },
+    {
+      "index": 65,
+      "reason": "degree",
+      "degree": 9,
+      "score": 4,
+      "remaining": 377
+    },
+    {
+      "index": 66,
+      "reason": "degree",
+      "degree": 8,
+      "score": 5,
+      "remaining": 376
+    },
+    {
+      "index": 70,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 375
+    },
+    {
+      "index": 71,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 374
+    },
+    {
+      "index": 72,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 373
+    },
+    {
+      "index": 73,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 372
+    },
+    {
+      "index": 74,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 371
+    },
+    {
+      "index": 75,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 370
+    },
+    {
+      "index": 79,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 369
+    },
+    {
+      "index": 80,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 368
+    },
+    {
+      "index": 81,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 367
+    },
+    {
+      "index": 82,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 366
+    },
+    {
+      "index": 83,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 365
+    },
+    {
+      "index": 84,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 364
+    },
+    {
+      "index": 85,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 363
+    },
+    {
+      "index": 86,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 362
+    },
+    {
+      "index": 87,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 361
+    },
+    {
+      "index": 88,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 360
+    },
+    {
+      "index": 89,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 359
+    },
+    {
+      "index": 90,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 358
+    },
+    {
+      "index": 91,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 357
+    },
+    {
+      "index": 92,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 356
+    },
+    {
+      "index": 93,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 355
+    },
+    {
+      "index": 94,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 354
+    },
+    {
+      "index": 95,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 353
+    },
+    {
+      "index": 96,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 352
+    },
+    {
+      "index": 97,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 351
+    },
+    {
+      "index": 98,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 350
+    },
+    {
+      "index": 99,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 349
+    },
+    {
+      "index": 100,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 348
+    },
+    {
+      "index": 101,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 347
+    },
+    {
+      "index": 102,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 346
+    },
+    {
+      "index": 103,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 345
+    },
+    {
+      "index": 104,
+      "reason": "degree",
+      "degree": 8,
+      "score": 4,
+      "remaining": 344
+    },
+    {
+      "index": 105,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 343
+    },
+    {
+      "index": 106,
+      "reason": "degree",
+      "degree": 6,
+      "score": 0,
+      "remaining": 342
+    },
+    {
+      "index": 107,
+      "reason": "degree",
+      "degree": 6,
+      "score": 0,
+      "remaining": 341
+    },
+    {
+      "index": 108,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 340
+    },
+    {
+      "index": 109,
+      "reason": "degree",
+      "degree": 7,
+      "score": 3,
+      "remaining": 339
+    },
+    {
+      "index": 110,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 338
+    },
+    {
+      "index": 111,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 337
+    },
+    {
+      "index": 112,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 336
+    },
+    {
+      "index": 113,
+      "reason": "degree",
+      "degree": 5,
+      "score": 2,
+      "remaining": 335
+    },
+    {
+      "index": 114,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 334
+    },
+    {
+      "index": 115,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 333
+    },
+    {
+      "index": 116,
+      "reason": "degree",
+      "degree": 7,
+      "score": 4,
+      "remaining": 332
+    },
+    {
+      "index": 117,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 331
+    },
+    {
+      "index": 118,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 330
+    },
+    {
+      "index": 119,
+      "reason": "degree",
+      "degree": 5,
+      "score": 2,
+      "remaining": 329
+    },
+    {
+      "index": 120,
+      "reason": "degree",
+      "degree": 5,
+      "score": 2,
+      "remaining": 328
+    },
+    {
+      "index": 121,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 327
+    },
+    {
+      "index": 122,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 326
+    },
+    {
+      "index": 123,
+      "reason": "degree",
+      "degree": 7,
+      "score": 4,
+      "remaining": 325
+    },
+    {
+      "index": 124,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 324
+    },
+    {
+      "index": 125,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 323
+    },
+    {
+      "index": 126,
+      "reason": "degree",
+      "degree": 5,
+      "score": 2,
+      "remaining": 322
+    },
+    {
+      "index": 127,
+      "reason": "degree",
+      "degree": 5,
+      "score": 2,
+      "remaining": 321
+    },
+    {
+      "index": 128,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 320
+    },
+    {
+      "index": 129,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 319
+    },
+    {
+      "index": 130,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 318
+    },
+    {
+      "index": 131,
+      "reason": "degree",
+      "degree": 9,
+      "score": 4,
+      "remaining": 317
+    },
+    {
+      "index": 132,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 316
+    },
+    {
+      "index": 133,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 315
+    },
+    {
+      "index": 134,
+      "reason": "degree",
+      "degree": 8,
+      "score": 0,
+      "remaining": 314
+    },
+    {
+      "index": 138,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 313
+    },
+    {
+      "index": 139,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 312
+    },
+    {
+      "index": 140,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 311
+    },
+    {
+      "index": 141,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 310
+    },
+    {
+      "index": 142,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 309
+    },
+    {
+      "index": 143,
+      "reason": "degree",
+      "degree": 10,
+      "score": 2,
+      "remaining": 308
+    },
+    {
+      "index": 144,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 307
+    },
+    {
+      "index": 145,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 306
+    },
+    {
+      "index": 146,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 305
+    },
+    {
+      "index": 147,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 304
+    },
+    {
+      "index": 148,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 303
+    },
+    {
+      "index": 149,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 302
+    },
+    {
+      "index": 150,
+      "reason": "degree",
+      "degree": 8,
+      "score": 2,
+      "remaining": 301
+    },
+    {
+      "index": 151,
+      "reason": "degree",
+      "degree": 8,
+      "score": 2,
+      "remaining": 300
+    },
+    {
+      "index": 152,
+      "reason": "degree",
+      "degree": 8,
+      "score": 2,
+      "remaining": 299
+    },
+    {
+      "index": 153,
+      "reason": "degree",
+      "degree": 8,
+      "score": 2,
+      "remaining": 298
+    },
+    {
+      "index": 154,
+      "reason": "degree",
+      "degree": 10,
+      "score": 4,
+      "remaining": 297
+    },
+    {
+      "index": 155,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 296
+    },
+    {
+      "index": 156,
+      "reason": "degree",
+      "degree": 8,
+      "score": 2,
+      "remaining": 295
+    },
+    {
+      "index": 157,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 294
+    },
+    {
+      "index": 158,
+      "reason": "degree",
+      "degree": 9,
+      "score": 2,
+      "remaining": 293
+    },
+    {
+      "index": 159,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 292
+    },
+    {
+      "index": 160,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 291
+    },
+    {
+      "index": 161,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 290
+    },
+    {
+      "index": 162,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 289
+    },
+    {
+      "index": 163,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 288
+    },
+    {
+      "index": 164,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 287
+    },
+    {
+      "index": 165,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 286
+    },
+    {
+      "index": 166,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 285
+    },
+    {
+      "index": 167,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 284
+    },
+    {
+      "index": 168,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 283
+    },
+    {
+      "index": 169,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 282
+    },
+    {
+      "index": 170,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 281
+    },
+    {
+      "index": 171,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 280
+    },
+    {
+      "index": 174,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 279
+    },
+    {
+      "index": 175,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 278
+    },
+    {
+      "index": 176,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 277
+    },
+    {
+      "index": 177,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 276
+    },
+    {
+      "index": 178,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 275
+    },
+    {
+      "index": 179,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 274
+    },
+    {
+      "index": 180,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 273
+    },
+    {
+      "index": 181,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 272
+    },
+    {
+      "index": 182,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 271
+    },
+    {
+      "index": 183,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 270
+    },
+    {
+      "index": 184,
+      "reason": "degree",
+      "degree": 12,
+      "score": 2,
+      "remaining": 269
+    },
+    {
+      "index": 185,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 268
+    },
+    {
+      "index": 186,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 267
+    },
+    {
+      "index": 187,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 266
+    },
+    {
+      "index": 188,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 265
+    },
+    {
+      "index": 189,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 264
+    },
+    {
+      "index": 190,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 263
+    },
+    {
+      "index": 191,
+      "reason": "degree",
+      "degree": 11,
+      "score": 2,
+      "remaining": 262
+    },
+    {
+      "index": 192,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 261
+    },
+    {
+      "index": 193,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 260
+    },
+    {
+      "index": 194,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 259
+    },
+    {
+      "index": 195,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 258
+    },
+    {
+      "index": 196,
+      "reason": "degree",
+      "degree": 8,
+      "score": 2,
+      "remaining": 257
+    },
+    {
+      "index": 197,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 256
+    },
+    {
+      "index": 198,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 255
+    },
+    {
+      "index": 199,
+      "reason": "degree",
+      "degree": 9,
+      "score": 2,
+      "remaining": 254
+    },
+    {
+      "index": 200,
+      "reason": "degree",
+      "degree": 9,
+      "score": 2,
+      "remaining": 253
+    },
+    {
+      "index": 201,
+      "reason": "degree",
+      "degree": 9,
+      "score": 2,
+      "remaining": 252
+    },
+    {
+      "index": 204,
+      "reason": "degree",
+      "degree": 10,
+      "score": 2,
+      "remaining": 251
+    },
+    {
+      "index": 205,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 250
+    },
+    {
+      "index": 206,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 249
+    },
+    {
+      "index": 207,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 248
+    },
+    {
+      "index": 208,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 247
+    },
+    {
+      "index": 209,
+      "reason": "degree",
+      "degree": 9,
+      "score": 2,
+      "remaining": 246
+    },
+    {
+      "index": 210,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 245
+    },
+    {
+      "index": 211,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 244
+    },
+    {
+      "index": 212,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 243
+    },
+    {
+      "index": 213,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 242
+    },
+    {
+      "index": 214,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 241
+    },
+    {
+      "index": 215,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 240
+    },
+    {
+      "index": 216,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 239
+    },
+    {
+      "index": 217,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 238
+    },
+    {
+      "index": 218,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 237
+    },
+    {
+      "index": 219,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 236
+    },
+    {
+      "index": 220,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 235
+    },
+    {
+      "index": 221,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 234
+    },
+    {
+      "index": 222,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 233
+    },
+    {
+      "index": 223,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 232
+    },
+    {
+      "index": 226,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 231
+    },
+    {
+      "index": 227,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 230
+    },
+    {
+      "index": 228,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 229
+    },
+    {
+      "index": 229,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 228
+    },
+    {
+      "index": 230,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 227
+    },
+    {
+      "index": 231,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 226
+    },
+    {
+      "index": 232,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 225
+    },
+    {
+      "index": 233,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 224
+    },
+    {
+      "index": 234,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 223
+    },
+    {
+      "index": 235,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 222
+    },
+    {
+      "index": 236,
+      "reason": "degree",
+      "degree": 12,
+      "score": 2,
+      "remaining": 221
+    },
+    {
+      "index": 237,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 220
+    },
+    {
+      "index": 238,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 219
+    },
+    {
+      "index": 239,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 218
+    },
+    {
+      "index": 240,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 217
+    },
+    {
+      "index": 241,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 216
+    },
+    {
+      "index": 242,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 215
+    },
+    {
+      "index": 243,
+      "reason": "degree",
+      "degree": 11,
+      "score": 2,
+      "remaining": 214
+    },
+    {
+      "index": 244,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 213
+    },
+    {
+      "index": 245,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 212
+    },
+    {
+      "index": 246,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 211
+    },
+    {
+      "index": 247,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 210
+    },
+    {
+      "index": 248,
+      "reason": "degree",
+      "degree": 8,
+      "score": 2,
+      "remaining": 209
+    },
+    {
+      "index": 249,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 208
+    },
+    {
+      "index": 250,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 207
+    },
+    {
+      "index": 251,
+      "reason": "degree",
+      "degree": 9,
+      "score": 2,
+      "remaining": 206
+    },
+    {
+      "index": 252,
+      "reason": "degree",
+      "degree": 9,
+      "score": 2,
+      "remaining": 205
+    },
+    {
+      "index": 253,
+      "reason": "degree",
+      "degree": 9,
+      "score": 2,
+      "remaining": 204
+    },
+    {
+      "index": 256,
+      "reason": "degree",
+      "degree": 10,
+      "score": 2,
+      "remaining": 203
+    },
+    {
+      "index": 257,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 202
+    },
+    {
+      "index": 258,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 201
+    },
+    {
+      "index": 259,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 200
+    },
+    {
+      "index": 260,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 199
+    },
+    {
+      "index": 261,
+      "reason": "degree",
+      "degree": 9,
+      "score": 2,
+      "remaining": 198
+    },
+    {
+      "index": 262,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 197
+    },
+    {
+      "index": 263,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 196
+    },
+    {
+      "index": 264,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 195
+    },
+    {
+      "index": 265,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 194
+    },
+    {
+      "index": 266,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 193
+    },
+    {
+      "index": 267,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 192
+    },
+    {
+      "index": 268,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 191
+    },
+    {
+      "index": 269,
+      "reason": "degree",
+      "degree": 8,
+      "score": 2,
+      "remaining": 190
+    },
+    {
+      "index": 270,
+      "reason": "degree",
+      "degree": 7,
+      "score": 4,
+      "remaining": 189
+    },
+    {
+      "index": 271,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 188
+    },
+    {
+      "index": 272,
+      "reason": "degree",
+      "degree": 5,
+      "score": 0,
+      "remaining": 187
+    },
+    {
+      "index": 273,
+      "reason": "degree",
+      "degree": 5,
+      "score": 0,
+      "remaining": 186
+    },
+    {
+      "index": 274,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 185
+    },
+    {
+      "index": 275,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 184
+    },
+    {
+      "index": 276,
+      "reason": "degree",
+      "degree": 7,
+      "score": 0,
+      "remaining": 183
+    },
+    {
+      "index": 277,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 182
+    },
+    {
+      "index": 278,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 181
+    },
+    {
+      "index": 279,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 180
+    },
+    {
+      "index": 280,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 179
+    },
+    {
+      "index": 281,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 178
+    },
+    {
+      "index": 282,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 177
+    },
+    {
+      "index": 283,
+      "reason": "degree",
+      "degree": 7,
+      "score": 4,
+      "remaining": 176
+    },
+    {
+      "index": 284,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 175
+    },
+    {
+      "index": 285,
+      "reason": "degree",
+      "degree": 5,
+      "score": 0,
+      "remaining": 174
+    },
+    {
+      "index": 286,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 173
+    },
+    {
+      "index": 287,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 172
+    },
+    {
+      "index": 288,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 171
+    },
+    {
+      "index": 289,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 170
+    },
+    {
+      "index": 290,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 169
+    },
+    {
+      "index": 291,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 168
+    },
+    {
+      "index": 292,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 167
+    },
+    {
+      "index": 293,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 166
+    },
+    {
+      "index": 294,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 165
+    },
+    {
+      "index": 295,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 164
+    },
+    {
+      "index": 296,
+      "reason": "degree",
+      "degree": 7,
+      "score": 3,
+      "remaining": 163
+    },
+    {
+      "index": 297,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 162
+    },
+    {
+      "index": 298,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 161
+    },
+    {
+      "index": 299,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 160
+    },
+    {
+      "index": 300,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 159
+    },
+    {
+      "index": 301,
+      "reason": "degree",
+      "degree": 5,
+      "score": 2,
+      "remaining": 158
+    },
+    {
+      "index": 302,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 157
+    },
+    {
+      "index": 303,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 156
+    },
+    {
+      "index": 304,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 155
+    },
+    {
+      "index": 305,
+      "reason": "degree",
+      "degree": 5,
+      "score": 2,
+      "remaining": 154
+    },
+    {
+      "index": 306,
+      "reason": "degree",
+      "degree": 12,
+      "score": 4,
+      "remaining": 153
+    },
+    {
+      "index": 307,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 152
+    },
+    {
+      "index": 308,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 151
+    },
+    {
+      "index": 309,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 150
+    },
+    {
+      "index": 310,
+      "reason": "degree",
+      "degree": 6,
+      "score": 4,
+      "remaining": 149
+    },
+    {
+      "index": 311,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 148
+    },
+    {
+      "index": 312,
+      "reason": "degree",
+      "degree": 4,
+      "score": 0,
+      "remaining": 147
+    },
+    {
+      "index": 313,
+      "reason": "degree",
+      "degree": 4,
+      "score": 0,
+      "remaining": 146
+    },
+    {
+      "index": 314,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 145
+    },
+    {
+      "index": 315,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 144
+    },
+    {
+      "index": 316,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 143
+    },
+    {
+      "index": 317,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 142
+    },
+    {
+      "index": 318,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 141
+    },
+    {
+      "index": 319,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 140
+    },
+    {
+      "index": 320,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 139
+    },
+    {
+      "index": 321,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 138
+    },
+    {
+      "index": 322,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 137
+    },
+    {
+      "index": 323,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 136
+    },
+    {
+      "index": 324,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 135
+    },
+    {
+      "index": 325,
+      "reason": "degree",
+      "degree": 6,
+      "score": 0,
+      "remaining": 134
+    },
+    {
+      "index": 326,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 133
+    },
+    {
+      "index": 327,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 132
+    },
+    {
+      "index": 328,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 131
+    },
+    {
+      "index": 329,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 130
+    },
+    {
+      "index": 330,
+      "reason": "degree",
+      "degree": 7,
+      "score": 3,
+      "remaining": 129
+    },
+    {
+      "index": 331,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 128
+    },
+    {
+      "index": 332,
+      "reason": "degree",
+      "degree": 5,
+      "score": 0,
+      "remaining": 127
+    },
+    {
+      "index": 333,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 126
+    },
+    {
+      "index": 334,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 125
+    },
+    {
+      "index": 335,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 124
+    },
+    {
+      "index": 336,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 123
+    },
+    {
+      "index": 337,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 122
+    },
+    {
+      "index": 338,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 121
+    },
+    {
+      "index": 339,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 120
+    },
+    {
+      "index": 340,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 119
+    },
+    {
+      "index": 341,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 118
+    },
+    {
+      "index": 342,
+      "reason": "degree",
+      "degree": 6,
+      "score": 0,
+      "remaining": 117
+    },
+    {
+      "index": 343,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 116
+    },
+    {
+      "index": 344,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 115
+    },
+    {
+      "index": 345,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 114
+    },
+    {
+      "index": 346,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 113
+    },
+    {
+      "index": 347,
+      "reason": "degree",
+      "degree": 7,
+      "score": 3,
+      "remaining": 112
+    },
+    {
+      "index": 348,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 111
+    },
+    {
+      "index": 349,
+      "reason": "degree",
+      "degree": 15,
+      "score": 10,
+      "remaining": 110
+    },
+    {
+      "index": 350,
+      "reason": "degree",
+      "degree": 8,
+      "score": 4,
+      "remaining": 109
+    },
+    {
+      "index": 351,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 108
+    },
+    {
+      "index": 352,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 107
+    },
+    {
+      "index": 353,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 106
+    },
+    {
+      "index": 354,
+      "reason": "degree",
+      "degree": 7,
+      "score": 2,
+      "remaining": 105
+    },
+    {
+      "index": 355,
+      "reason": "degree",
+      "degree": 9,
+      "score": 6,
+      "remaining": 104
+    },
+    {
+      "index": 356,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 103
+    },
+    {
+      "index": 357,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 102
+    },
+    {
+      "index": 358,
+      "reason": "degree",
+      "degree": 4,
+      "score": 7,
+      "remaining": 101
+    },
+    {
+      "index": 359,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 100
+    },
+    {
+      "index": 360,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 99
+    },
+    {
+      "index": 361,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 98
+    },
+    {
+      "index": 362,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 97
+    },
+    {
+      "index": 363,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 96
+    },
+    {
+      "index": 364,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 95
+    },
+    {
+      "index": 365,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 94
+    },
+    {
+      "index": 366,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 93
+    },
+    {
+      "index": 367,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 92
+    },
+    {
+      "index": 368,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 91
+    },
+    {
+      "index": 369,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 90
+    },
+    {
+      "index": 370,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 89
+    },
+    {
+      "index": 371,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 88
+    },
+    {
+      "index": 372,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 87
+    },
+    {
+      "index": 373,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 86
+    },
+    {
+      "index": 374,
+      "reason": "degree",
+      "degree": 7,
+      "score": 0,
+      "remaining": 85
+    },
+    {
+      "index": 375,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 84
+    },
+    {
+      "index": 376,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 83
+    },
+    {
+      "index": 377,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 82
+    },
+    {
+      "index": 378,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 81
+    },
+    {
+      "index": 379,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 80
+    },
+    {
+      "index": 380,
+      "reason": "degree",
+      "degree": 15,
+      "score": 10,
+      "remaining": 79
+    },
+    {
+      "index": 381,
+      "reason": "degree",
+      "degree": 8,
+      "score": 4,
+      "remaining": 78
+    },
+    {
+      "index": 382,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 77
+    },
+    {
+      "index": 383,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 76
+    },
+    {
+      "index": 384,
+      "reason": "degree",
+      "degree": 6,
+      "score": 2,
+      "remaining": 75
+    },
+    {
+      "index": 385,
+      "reason": "degree",
+      "degree": 7,
+      "score": 2,
+      "remaining": 74
+    },
+    {
+      "index": 386,
+      "reason": "degree",
+      "degree": 9,
+      "score": 6,
+      "remaining": 73
+    },
+    {
+      "index": 387,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 72
+    },
+    {
+      "index": 388,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 71
+    },
+    {
+      "index": 389,
+      "reason": "degree",
+      "degree": 4,
+      "score": 7,
+      "remaining": 70
+    },
+    {
+      "index": 390,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 69
+    },
+    {
+      "index": 391,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 68
+    },
+    {
+      "index": 392,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 67
+    },
+    {
+      "index": 393,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 66
+    },
+    {
+      "index": 394,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 65
+    },
+    {
+      "index": 395,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 64
+    },
+    {
+      "index": 396,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 63
+    },
+    {
+      "index": 397,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 62
+    },
+    {
+      "index": 398,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 61
+    },
+    {
+      "index": 399,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 60
+    },
+    {
+      "index": 400,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 59
+    },
+    {
+      "index": 401,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 58
+    },
+    {
+      "index": 402,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 57
+    },
+    {
+      "index": 403,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 56
+    },
+    {
+      "index": 404,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 55
+    },
+    {
+      "index": 405,
+      "reason": "degree",
+      "degree": 7,
+      "score": 0,
+      "remaining": 54
+    },
+    {
+      "index": 406,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 53
+    },
+    {
+      "index": 407,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 52
+    },
+    {
+      "index": 408,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 51
+    },
+    {
+      "index": 409,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 50
+    },
+    {
+      "index": 410,
+      "reason": "degree",
+      "degree": 4,
+      "score": 2,
+      "remaining": 49
+    },
+    {
+      "index": 411,
+      "reason": "degree",
+      "degree": 2,
+      "score": 2,
+      "remaining": 48
+    },
+    {
+      "index": 412,
+      "reason": "degree",
+      "degree": 2,
+      "score": 0,
+      "remaining": 47
+    },
+    {
+      "index": 413,
+      "reason": "degree",
+      "degree": 2,
+      "score": 5,
+      "remaining": 46
+    },
+    {
+      "index": 414,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 45
+    },
+    {
+      "index": 415,
+      "reason": "degree",
+      "degree": 0,
+      "score": 0,
+      "remaining": 44
+    },
+    {
+      "index": 416,
+      "reason": "degree",
+      "degree": 11,
+      "score": 2,
+      "remaining": 43
+    },
+    {
+      "index": 417,
+      "reason": "degree",
+      "degree": 11,
+      "score": 2,
+      "remaining": 42
+    },
+    {
+      "index": 418,
+      "reason": "degree",
+      "degree": 11,
+      "score": 2,
+      "remaining": 41
+    },
+    {
+      "index": 419,
+      "reason": "degree",
+      "degree": 12,
+      "score": 2,
+      "remaining": 40
+    },
+    {
+      "index": 420,
+      "reason": "degree",
+      "degree": 11,
+      "score": 2,
+      "remaining": 39
+    },
+    {
+      "index": 421,
+      "reason": "degree",
+      "degree": 11,
+      "score": 2,
+      "remaining": 38
+    },
+    {
+      "index": 422,
+      "reason": "degree",
+      "degree": 11,
+      "score": 2,
+      "remaining": 37
+    },
+    {
+      "index": 423,
+      "reason": "degree",
+      "degree": 11,
+      "score": 2,
+      "remaining": 36
+    },
+    {
+      "index": 424,
+      "reason": "degree",
+      "degree": 11,
+      "score": 2,
+      "remaining": 35
+    },
+    {
+      "index": 425,
+      "reason": "degree",
+      "degree": 12,
+      "score": 2,
+      "remaining": 34
+    },
+    {
+      "index": 426,
+      "reason": "degree",
+      "degree": 11,
+      "score": 2,
+      "remaining": 33
+    },
+    {
+      "index": 427,
+      "reason": "degree",
+      "degree": 11,
+      "score": 2,
+      "remaining": 32
+    },
+    {
+      "index": 37,
+      "reason": "degree",
+      "degree": 24,
+      "score": 4,
+      "remaining": 31
+    },
+    {
+      "index": 38,
+      "reason": "degree",
+      "degree": 22,
+      "score": 5,
+      "remaining": 30
+    },
+    {
+      "index": 39,
+      "reason": "degree",
+      "degree": 22,
+      "score": 8,
+      "remaining": 29
+    },
+    {
+      "index": 50,
+      "reason": "degree",
+      "degree": 23,
+      "score": 18,
+      "remaining": 28
+    },
+    {
+      "index": 51,
+      "reason": "degree",
+      "degree": 22,
+      "score": 5,
+      "remaining": 27
+    },
+    {
+      "index": 52,
+      "reason": "degree",
+      "degree": 21,
+      "score": 4,
+      "remaining": 26
+    },
+    {
+      "index": 57,
+      "reason": "degree",
+      "degree": 22,
+      "score": 5,
+      "remaining": 25
+    },
+    {
+      "index": 58,
+      "reason": "degree",
+      "degree": 21,
+      "score": 5,
+      "remaining": 24
+    },
+    {
+      "index": 137,
+      "reason": "cost",
+      "degree": 27,
+      "score": 3,
+      "remaining": 23,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 41,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 41,
+          "score": 32
+        },
+        {
+          "index": 36,
+          "degree": 27,
+          "score": 12
+        },
+        {
+          "index": 41,
+          "degree": 41,
+          "score": 7
+        },
+        {
+          "index": 42,
+          "degree": 41,
+          "score": 6
+        },
+        {
+          "index": 67,
+          "degree": 29,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 29,
+          "score": 9
+        },
+        {
+          "index": 76,
+          "degree": 29,
+          "score": 9
+        },
+        {
+          "index": 78,
+          "degree": 29,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 27,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 27,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 255,
+      "reason": "cost",
+      "degree": 26,
+      "score": 3,
+      "remaining": 22,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 40,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 40,
+          "score": 32
+        },
+        {
+          "index": 36,
+          "degree": 26,
+          "score": 12
+        },
+        {
+          "index": 41,
+          "degree": 40,
+          "score": 7
+        },
+        {
+          "index": 42,
+          "degree": 40,
+          "score": 6
+        },
+        {
+          "index": 67,
+          "degree": 29,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 29,
+          "score": 9
+        },
+        {
+          "index": 76,
+          "degree": 29,
+          "score": 9
+        },
+        {
+          "index": 78,
+          "degree": 29,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 27,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 27,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 203,
+      "reason": "cost",
+      "degree": 26,
+      "score": 3,
+      "remaining": 21,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 39,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 39,
+          "score": 32
+        },
+        {
+          "index": 36,
+          "degree": 26,
+          "score": 12
+        },
+        {
+          "index": 41,
+          "degree": 39,
+          "score": 7
+        },
+        {
+          "index": 42,
+          "degree": 39,
+          "score": 6
+        },
+        {
+          "index": 67,
+          "degree": 29,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 29,
+          "score": 9
+        },
+        {
+          "index": 76,
+          "degree": 28,
+          "score": 9
+        },
+        {
+          "index": 78,
+          "degree": 28,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 27,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 27,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 136,
+      "reason": "cost",
+      "degree": 26,
+      "score": 3,
+      "remaining": 20,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 38,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 38,
+          "score": 32
+        },
+        {
+          "index": 36,
+          "degree": 26,
+          "score": 12
+        },
+        {
+          "index": 41,
+          "degree": 38,
+          "score": 7
+        },
+        {
+          "index": 42,
+          "degree": 38,
+          "score": 6
+        },
+        {
+          "index": 67,
+          "degree": 28,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 28,
+          "score": 9
+        },
+        {
+          "index": 76,
+          "degree": 28,
+          "score": 9
+        },
+        {
+          "index": 78,
+          "degree": 28,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 27,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 27,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 77,
+      "reason": "cost",
+      "degree": 27,
+      "score": 4,
+      "remaining": 19,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 37,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 37,
+          "score": 32
+        },
+        {
+          "index": 36,
+          "degree": 25,
+          "score": 12
+        },
+        {
+          "index": 41,
+          "degree": 37,
+          "score": 7
+        },
+        {
+          "index": 42,
+          "degree": 37,
+          "score": 6
+        },
+        {
+          "index": 67,
+          "degree": 28,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 28,
+          "score": 9
+        },
+        {
+          "index": 76,
+          "degree": 28,
+          "score": 9
+        },
+        {
+          "index": 78,
+          "degree": 28,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 27,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 27,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 68,
+      "reason": "cost",
+      "degree": 27,
+      "score": 4,
+      "remaining": 18,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 36,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 36,
+          "score": 32
+        },
+        {
+          "index": 36,
+          "degree": 25,
+          "score": 12
+        },
+        {
+          "index": 41,
+          "degree": 36,
+          "score": 7
+        },
+        {
+          "index": 42,
+          "degree": 36,
+          "score": 6
+        },
+        {
+          "index": 67,
+          "degree": 28,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 28,
+          "score": 9
+        },
+        {
+          "index": 76,
+          "degree": 27,
+          "score": 9
+        },
+        {
+          "index": 78,
+          "degree": 27,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 27,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 26,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 254,
+      "reason": "cost",
+      "degree": 25,
+      "score": 4,
+      "remaining": 17,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 35,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 35,
+          "score": 32
+        },
+        {
+          "index": 36,
+          "degree": 25,
+          "score": 12
+        },
+        {
+          "index": 41,
+          "degree": 35,
+          "score": 7
+        },
+        {
+          "index": 42,
+          "degree": 35,
+          "score": 6
+        },
+        {
+          "index": 67,
+          "degree": 27,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 27,
+          "score": 9
+        },
+        {
+          "index": 76,
+          "degree": 27,
+          "score": 9
+        },
+        {
+          "index": 78,
+          "degree": 27,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 26,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 26,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 202,
+      "reason": "cost",
+      "degree": 25,
+      "score": 4,
+      "remaining": 16,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 34,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 34,
+          "score": 32
+        },
+        {
+          "index": 36,
+          "degree": 25,
+          "score": 12
+        },
+        {
+          "index": 41,
+          "degree": 34,
+          "score": 7
+        },
+        {
+          "index": 42,
+          "degree": 34,
+          "score": 6
+        },
+        {
+          "index": 67,
+          "degree": 27,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 27,
+          "score": 9
+        },
+        {
+          "index": 76,
+          "degree": 26,
+          "score": 9
+        },
+        {
+          "index": 78,
+          "degree": 26,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 26,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 26,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 42,
+      "reason": "cost",
+      "degree": 33,
+      "score": 6,
+      "remaining": 15,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 33,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 33,
+          "score": 32
+        },
+        {
+          "index": 36,
+          "degree": 25,
+          "score": 12
+        },
+        {
+          "index": 41,
+          "degree": 33,
+          "score": 7
+        },
+        {
+          "index": 42,
+          "degree": 33,
+          "score": 6
+        },
+        {
+          "index": 67,
+          "degree": 26,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 26,
+          "score": 9
+        },
+        {
+          "index": 76,
+          "degree": 26,
+          "score": 9
+        },
+        {
+          "index": 78,
+          "degree": 26,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 26,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 26,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 36,
+      "reason": "degree",
+      "degree": 24,
+      "score": 12,
+      "remaining": 14,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 32,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 32,
+          "score": 32
+        },
+        {
+          "index": 36,
+          "degree": 24,
+          "score": 12
+        },
+        {
+          "index": 41,
+          "degree": 32,
+          "score": 7
+        },
+        {
+          "index": 67,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 76,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 78,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 25,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 25,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 47,
+      "reason": "degree",
+      "degree": 23,
+      "score": 6,
+      "remaining": 13
+    },
+    {
+      "index": 135,
+      "reason": "degree",
+      "degree": 22,
+      "score": 5,
+      "remaining": 12
+    },
+    {
+      "index": 225,
+      "reason": "cost",
+      "degree": 25,
+      "score": 5,
+      "remaining": 11,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 29,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 29,
+          "score": 32
+        },
+        {
+          "index": 41,
+          "degree": 29,
+          "score": 7
+        },
+        {
+          "index": 67,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 76,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 78,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 25,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 25,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 76,
+      "reason": "degree",
+      "degree": 24,
+      "score": 9,
+      "remaining": 10,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 28,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 28,
+          "score": 32
+        },
+        {
+          "index": 41,
+          "degree": 28,
+          "score": 7
+        },
+        {
+          "index": 67,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 76,
+          "degree": 24,
+          "score": 9
+        },
+        {
+          "index": 78,
+          "degree": 24,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 25,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 24,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 78,
+      "reason": "degree",
+      "degree": 23,
+      "score": 9,
+      "remaining": 9,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 27,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 27,
+          "score": 32
+        },
+        {
+          "index": 41,
+          "degree": 27,
+          "score": 7
+        },
+        {
+          "index": 67,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 78,
+          "degree": 23,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 25,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 23,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 224,
+      "reason": "degree",
+      "degree": 22,
+      "score": 6,
+      "remaining": 8,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 26,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 26,
+          "score": 32
+        },
+        {
+          "index": 41,
+          "degree": 26,
+          "score": 7
+        },
+        {
+          "index": 67,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 25,
+          "score": 6
+        },
+        {
+          "index": 224,
+          "degree": 22,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 173,
+      "reason": "cost",
+      "degree": 25,
+      "score": 5,
+      "remaining": 7,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 25,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 25,
+          "score": 32
+        },
+        {
+          "index": 41,
+          "degree": 25,
+          "score": 7
+        },
+        {
+          "index": 67,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 25,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 25,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 32,
+      "reason": "degree",
+      "degree": 24,
+      "score": 26,
+      "remaining": 6,
+      "relevant_nodes": [
+        {
+          "index": 32,
+          "degree": 24,
+          "score": 26
+        },
+        {
+          "index": 35,
+          "degree": 24,
+          "score": 32
+        },
+        {
+          "index": 41,
+          "degree": 24,
+          "score": 7
+        },
+        {
+          "index": 67,
+          "degree": 24,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 24,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 24,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 35,
+      "reason": "degree",
+      "degree": 23,
+      "score": 32,
+      "remaining": 5,
+      "relevant_nodes": [
+        {
+          "index": 35,
+          "degree": 23,
+          "score": 32
+        },
+        {
+          "index": 41,
+          "degree": 23,
+          "score": 7
+        },
+        {
+          "index": 67,
+          "degree": 23,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 23,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 23,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 41,
+      "reason": "degree",
+      "degree": 22,
+      "score": 7,
+      "remaining": 4,
+      "relevant_nodes": [
+        {
+          "index": 41,
+          "degree": 22,
+          "score": 7
+        },
+        {
+          "index": 67,
+          "degree": 22,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 22,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 22,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 67,
+      "reason": "degree",
+      "degree": 21,
+      "score": 9,
+      "remaining": 3,
+      "relevant_nodes": [
+        {
+          "index": 67,
+          "degree": 21,
+          "score": 9
+        },
+        {
+          "index": 69,
+          "degree": 21,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 21,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 69,
+      "reason": "degree",
+      "degree": 20,
+      "score": 9,
+      "remaining": 2,
+      "relevant_nodes": [
+        {
+          "index": 69,
+          "degree": 20,
+          "score": 9
+        },
+        {
+          "index": 172,
+          "degree": 20,
+          "score": 6
+        }
+      ]
+    },
+    {
+      "index": 172,
+      "reason": "degree",
+      "degree": 19,
+      "score": 6,
+      "remaining": 1,
+      "relevant_nodes": [
+        {
+          "index": 172,
+          "degree": 19,
+          "score": 6
+        }
+      ]
+    }
+  ],
+  "actual_order": [
+    172,
+    69,
+    67,
+    41,
+    35,
+    32,
+    173,
+    224,
+    78,
+    76,
+    225,
+    135,
+    47,
+    36,
+    42,
+    202,
+    254,
+    68,
+    77,
+    136,
+    203,
+    255,
+    137,
+    58,
+    57,
+    52,
+    51,
+    50,
+    39,
+    38,
+    37,
+    427,
+    426,
+    425,
+    424,
+    423,
+    422,
+    421,
+    420,
+    419,
+    418,
+    417,
+    416,
+    415,
+    414,
+    413,
+    412,
+    411,
+    410,
+    409,
+    408,
+    407,
+    406,
+    405,
+    404,
+    403,
+    402,
+    401,
+    400,
+    399,
+    398,
+    397,
+    396,
+    395,
+    394,
+    393,
+    392,
+    391,
+    390,
+    389,
+    388,
+    387,
+    386,
+    385,
+    384,
+    383,
+    382,
+    381,
+    380,
+    379,
+    378,
+    377,
+    376,
+    375,
+    374,
+    373,
+    372,
+    371,
+    370,
+    369,
+    368,
+    367,
+    366,
+    365,
+    364,
+    363,
+    362,
+    361,
+    360,
+    359,
+    358,
+    357,
+    356,
+    355,
+    354,
+    353,
+    352,
+    351,
+    350,
+    349,
+    348,
+    347,
+    346,
+    345,
+    344,
+    343,
+    342,
+    341,
+    340,
+    339,
+    338,
+    337,
+    336,
+    335,
+    334,
+    333,
+    332,
+    331,
+    330,
+    329,
+    328,
+    327,
+    326,
+    325,
+    324,
+    323,
+    322,
+    321,
+    320,
+    319,
+    318,
+    317,
+    316,
+    315,
+    314,
+    313,
+    312,
+    311,
+    310,
+    309,
+    308,
+    307,
+    306,
+    305,
+    304,
+    303,
+    302,
+    301,
+    300,
+    299,
+    298,
+    297,
+    296,
+    295,
+    294,
+    293,
+    292,
+    291,
+    290,
+    289,
+    288,
+    287,
+    286,
+    285,
+    284,
+    283,
+    282,
+    281,
+    280,
+    279,
+    278,
+    277,
+    276,
+    275,
+    274,
+    273,
+    272,
+    271,
+    270,
+    269,
+    268,
+    267,
+    266,
+    265,
+    264,
+    263,
+    262,
+    261,
+    260,
+    259,
+    258,
+    257,
+    256,
+    253,
+    252,
+    251,
+    250,
+    249,
+    248,
+    247,
+    246,
+    245,
+    244,
+    243,
+    242,
+    241,
+    240,
+    239,
+    238,
+    237,
+    236,
+    235,
+    234,
+    233,
+    232,
+    231,
+    230,
+    229,
+    228,
+    227,
+    226,
+    223,
+    222,
+    221,
+    220,
+    219,
+    218,
+    217,
+    216,
+    215,
+    214,
+    213,
+    212,
+    211,
+    210,
+    209,
+    208,
+    207,
+    206,
+    205,
+    204,
+    201,
+    200,
+    199,
+    198,
+    197,
+    196,
+    195,
+    194,
+    193,
+    192,
+    191,
+    190,
+    189,
+    188,
+    187,
+    186,
+    185,
+    184,
+    183,
+    182,
+    181,
+    180,
+    179,
+    178,
+    177,
+    176,
+    175,
+    174,
+    171,
+    170,
+    169,
+    168,
+    167,
+    166,
+    165,
+    164,
+    163,
+    162,
+    161,
+    160,
+    159,
+    158,
+    157,
+    156,
+    155,
+    154,
+    153,
+    152,
+    151,
+    150,
+    149,
+    148,
+    147,
+    146,
+    145,
+    144,
+    143,
+    142,
+    141,
+    140,
+    139,
+    138,
+    134,
+    133,
+    132,
+    131,
+    130,
+    129,
+    128,
+    127,
+    126,
+    125,
+    124,
+    123,
+    122,
+    121,
+    120,
+    119,
+    118,
+    117,
+    116,
+    115,
+    114,
+    113,
+    112,
+    111,
+    110,
+    109,
+    108,
+    107,
+    106,
+    105,
+    104,
+    103,
+    102,
+    101,
+    100,
+    99,
+    98,
+    97,
+    96,
+    95,
+    94,
+    93,
+    92,
+    91,
+    90,
+    89,
+    88,
+    87,
+    86,
+    85,
+    84,
+    83,
+    82,
+    81,
+    80,
+    79,
+    75,
+    74,
+    73,
+    72,
+    71,
+    70,
+    66,
+    65,
+    64,
+    63,
+    62,
+    61,
+    60,
+    59,
+    56,
+    55,
+    54,
+    53,
+    49,
+    48,
+    46,
+    45,
+    44,
+    43,
+    40,
+    34,
+    33
+  ],
+  "expected_order": [
+    172,
+    69,
+    67,
+    41,
+    35,
+    32,
+    173,
+    224,
+    78,
+    76,
+    225,
+    135,
+    47,
+    36,
+    42,
+    202,
+    254,
+    68,
+    77,
+    136,
+    203,
+    255,
+    137,
+    58,
+    57,
+    52,
+    51,
+    50,
+    39,
+    38,
+    37,
+    427,
+    426,
+    425,
+    424,
+    423,
+    422,
+    421,
+    420,
+    419,
+    418,
+    417,
+    416,
+    415,
+    414,
+    413,
+    412,
+    411,
+    410,
+    409,
+    408,
+    407,
+    406,
+    405,
+    404,
+    403,
+    402,
+    401,
+    400,
+    399,
+    398,
+    397,
+    396,
+    395,
+    394,
+    393,
+    392,
+    391,
+    390,
+    389,
+    388,
+    387,
+    386,
+    385,
+    384,
+    383,
+    382,
+    381,
+    380,
+    379,
+    378,
+    377,
+    376,
+    375,
+    374,
+    373,
+    372,
+    371,
+    370,
+    369,
+    368,
+    367,
+    366,
+    365,
+    364,
+    363,
+    362,
+    361,
+    360,
+    359,
+    358,
+    357,
+    356,
+    355,
+    354,
+    353,
+    352,
+    351,
+    350,
+    349,
+    348,
+    347,
+    346,
+    345,
+    344,
+    343,
+    342,
+    341,
+    340,
+    339,
+    338,
+    337,
+    336,
+    335,
+    334,
+    333,
+    332,
+    331,
+    330,
+    329,
+    328,
+    327,
+    326,
+    325,
+    324,
+    323,
+    322,
+    321,
+    320,
+    319,
+    318,
+    317,
+    316,
+    315,
+    314,
+    313,
+    312,
+    311,
+    310,
+    309,
+    308,
+    307,
+    306,
+    305,
+    304,
+    303,
+    302,
+    301,
+    300,
+    299,
+    298,
+    297,
+    296,
+    295,
+    294,
+    293,
+    292,
+    291,
+    290,
+    289,
+    288,
+    287,
+    286,
+    285,
+    284,
+    283,
+    282,
+    281,
+    280,
+    279,
+    278,
+    277,
+    276,
+    275,
+    274,
+    273,
+    272,
+    271,
+    270,
+    269,
+    268,
+    267,
+    266,
+    265,
+    264,
+    263,
+    262,
+    261,
+    260,
+    259,
+    258,
+    257,
+    256,
+    253,
+    252,
+    251,
+    250,
+    249,
+    248,
+    247,
+    246,
+    245,
+    244,
+    243,
+    242,
+    241,
+    240,
+    239,
+    238,
+    237,
+    236,
+    235,
+    234,
+    233,
+    232,
+    231,
+    230,
+    229,
+    228,
+    227,
+    226,
+    223,
+    222,
+    221,
+    220,
+    219,
+    218,
+    217,
+    216,
+    215,
+    214,
+    213,
+    212,
+    211,
+    210,
+    209,
+    208,
+    207,
+    206,
+    205,
+    204,
+    201,
+    200,
+    199,
+    198,
+    197,
+    196,
+    195,
+    194,
+    193,
+    192,
+    191,
+    190,
+    189,
+    188,
+    187,
+    186,
+    185,
+    184,
+    183,
+    182,
+    181,
+    180,
+    179,
+    178,
+    177,
+    176,
+    175,
+    174,
+    171,
+    170,
+    169,
+    168,
+    167,
+    166,
+    165,
+    164,
+    163,
+    162,
+    161,
+    160,
+    159,
+    158,
+    157,
+    156,
+    155,
+    154,
+    153,
+    152,
+    151,
+    150,
+    149,
+    148,
+    147,
+    146,
+    145,
+    144,
+    143,
+    142,
+    141,
+    140,
+    139,
+    138,
+    134,
+    133,
+    132,
+    131,
+    130,
+    129,
+    128,
+    127,
+    126,
+    125,
+    124,
+    123,
+    122,
+    121,
+    120,
+    119,
+    118,
+    117,
+    116,
+    115,
+    114,
+    113,
+    112,
+    111,
+    110,
+    109,
+    108,
+    107,
+    106,
+    105,
+    104,
+    103,
+    102,
+    101,
+    100,
+    99,
+    98,
+    97,
+    96,
+    95,
+    94,
+    93,
+    92,
+    91,
+    90,
+    89,
+    88,
+    87,
+    86,
+    85,
+    84,
+    83,
+    82,
+    81,
+    80,
+    79,
+    75,
+    74,
+    73,
+    72,
+    71,
+    70,
+    66,
+    65,
+    64,
+    63,
+    62,
+    61,
+    60,
+    59,
+    56,
+    55,
+    54,
+    53,
+    49,
+    48,
+    46,
+    45,
+    44,
+    43,
+    40,
+    34,
+    33
+  ]
+}

@@ -1,0 +1,2354 @@
+{
+  "assignments": [
+    {
+      "assigned_color_i16": 21,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00032"
+    },
+    {
+      "assigned_color_i16": -1,
+      "flags_raw_u16": "0x0003",
+      "id": "class-0-virtual-00033"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00034"
+    },
+    {
+      "assigned_color_i16": 20,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00035"
+    },
+    {
+      "assigned_color_i16": 18,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00036"
+    },
+    {
+      "assigned_color_i16": 17,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00037"
+    },
+    {
+      "assigned_color_i16": 17,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00038"
+    },
+    {
+      "assigned_color_i16": 17,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00039"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00040"
+    },
+    {
+      "assigned_color_i16": 19,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00041"
+    },
+    {
+      "assigned_color_i16": 23,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00042"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00043"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00044"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00045"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00046"
+    },
+    {
+      "assigned_color_i16": 17,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00047"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00048"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00049"
+    },
+    {
+      "assigned_color_i16": 16,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00050"
+    },
+    {
+      "assigned_color_i16": 17,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00051"
+    },
+    {
+      "assigned_color_i16": 16,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00052"
+    },
+    {
+      "assigned_color_i16": 4,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00053"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00054"
+    },
+    {
+      "assigned_color_i16": 4,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00055"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00056"
+    },
+    {
+      "assigned_color_i16": 17,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00057"
+    },
+    {
+      "assigned_color_i16": 16,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00058"
+    },
+    {
+      "assigned_color_i16": 6,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00059"
+    },
+    {
+      "assigned_color_i16": 4,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00060"
+    },
+    {
+      "assigned_color_i16": 5,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00061"
+    },
+    {
+      "assigned_color_i16": 4,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00062"
+    },
+    {
+      "assigned_color_i16": 6,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00063"
+    },
+    {
+      "assigned_color_i16": 4,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00064"
+    },
+    {
+      "assigned_color_i16": 5,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00065"
+    },
+    {
+      "assigned_color_i16": 4,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00066"
+    },
+    {
+      "assigned_color_i16": 18,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00067"
+    },
+    {
+      "assigned_color_i16": 30,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00068"
+    },
+    {
+      "assigned_color_i16": 17,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00069"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00070"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00071"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00072"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00073"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00074"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00075"
+    },
+    {
+      "assigned_color_i16": 18,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00076"
+    },
+    {
+      "assigned_color_i16": 30,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00077"
+    },
+    {
+      "assigned_color_i16": 17,
+      "flags_raw_u16": "0x0042",
+      "id": "class-0-virtual-00078"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00079"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00080"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00081"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00082"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00083"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00084"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00085"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00086"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00087"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00088"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00089"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00090"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00091"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00092"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00093"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00094"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00095"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00096"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00097"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00098"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00099"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00100"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00101"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00102"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00103"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00104"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00105"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00106"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00107"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00108"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00109"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00110"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00111"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00112"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00113"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00114"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00115"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00116"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00117"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00118"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00119"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00120"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00121"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00122"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00123"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00124"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00125"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00126"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00127"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00128"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00129"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00130"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00131"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00132"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00133"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00134"
+    },
+    {
+      "assigned_color_i16": 16,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00135"
+    },
+    {
+      "assigned_color_i16": 22,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00136"
+    },
+    {
+      "assigned_color_i16": 30,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00137"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00138"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00139"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00140"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00141"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00142"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00143"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00144"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00145"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00146"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00147"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00148"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00149"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00150"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00151"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00152"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00153"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00154"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00155"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00156"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00157"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00158"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00159"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00160"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00161"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00162"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00163"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00164"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00165"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00166"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00167"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00168"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00169"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00170"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00171"
+    },
+    {
+      "assigned_color_i16": 16,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00172"
+    },
+    {
+      "assigned_color_i16": 22,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00173"
+    },
+    {
+      "assigned_color_i16": -1,
+      "flags_raw_u16": "0x0003",
+      "id": "class-0-virtual-00174"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00175"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00176"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00177"
+    },
+    {
+      "assigned_color_i16": -1,
+      "flags_raw_u16": "0x0003",
+      "id": "class-0-virtual-00178"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00179"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00180"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00181"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00182"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00183"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00184"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00185"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00186"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00187"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00188"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00189"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00190"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00191"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00192"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00193"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00194"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00195"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00196"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00197"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00198"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00199"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00200"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00201"
+    },
+    {
+      "assigned_color_i16": 16,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00202"
+    },
+    {
+      "assigned_color_i16": 22,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00203"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00204"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00205"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00206"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00207"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00208"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00209"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00210"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00211"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00212"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00213"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00214"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00215"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00216"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00217"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00218"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00219"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00220"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00221"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00222"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00223"
+    },
+    {
+      "assigned_color_i16": 16,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00224"
+    },
+    {
+      "assigned_color_i16": 22,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00225"
+    },
+    {
+      "assigned_color_i16": -1,
+      "flags_raw_u16": "0x0003",
+      "id": "class-0-virtual-00226"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00227"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00228"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00229"
+    },
+    {
+      "assigned_color_i16": -1,
+      "flags_raw_u16": "0x0003",
+      "id": "class-0-virtual-00230"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00231"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00232"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00233"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00234"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00235"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00236"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00237"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00238"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00239"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00240"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00241"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00242"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00243"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00244"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00245"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00246"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00247"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00248"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00249"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00250"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00251"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00252"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00253"
+    },
+    {
+      "assigned_color_i16": 16,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00254"
+    },
+    {
+      "assigned_color_i16": 22,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00255"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00256"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00257"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00258"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00259"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00260"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00261"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00262"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00263"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00264"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00265"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00266"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00267"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00268"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00269"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00270"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00271"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00272"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00273"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00274"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00275"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00276"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00277"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00278"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00279"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00280"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00281"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00282"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00283"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00284"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00285"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00286"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00287"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00288"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00289"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00290"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00291"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00292"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00293"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00294"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00295"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00296"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00297"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00298"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00299"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00300"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00301"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00302"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00303"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00304"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00305"
+    },
+    {
+      "assigned_color_i16": 4,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00306"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00307"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00308"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00309"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00310"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00311"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00312"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00313"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00314"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00315"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00316"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00317"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00318"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00319"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00320"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00321"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00322"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00323"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00324"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00325"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00326"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00327"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00328"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00329"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00330"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00331"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00332"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00333"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00334"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00335"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00336"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00337"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00338"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00339"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00340"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00341"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00342"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00343"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00344"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00345"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00346"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00347"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00348"
+    },
+    {
+      "assigned_color_i16": 5,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00349"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00350"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00351"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00352"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00353"
+    },
+    {
+      "assigned_color_i16": 4,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00354"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00355"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00356"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00357"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00358"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00359"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00360"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00361"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00362"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00363"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00364"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00365"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00366"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00367"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00368"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00369"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00370"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00371"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00372"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00373"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00374"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00375"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00376"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00377"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00378"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00379"
+    },
+    {
+      "assigned_color_i16": 5,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00380"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00381"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00382"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00383"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00384"
+    },
+    {
+      "assigned_color_i16": 4,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00385"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00386"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00387"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00388"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00389"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00390"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00391"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00392"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00393"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00394"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00395"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00396"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00397"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00398"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00399"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00400"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00401"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00402"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00403"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00404"
+    },
+    {
+      "assigned_color_i16": 3,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00405"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00406"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00407"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00408"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00409"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00410"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00411"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00412"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00413"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00414"
+    },
+    {
+      "assigned_color_i16": 2,
+      "flags_raw_u16": "0x0002",
+      "id": "class-0-virtual-00415"
+    }
+  ],
+  "capture": {
+    "class_id": 0,
+    "graph_root": "0x02ece030",
+    "physical_slots": 32,
+    "total_nodes": 416
+  },
+  "evidence": {
+    "allocation_driver": "0x004c1920",
+    "class_graph_builder": "0x004be440",
+    "coalescing_pass": "0x004be880",
+    "simplify_stack_builder": "0x004c1de0",
+    "colorgraph": "0x004c1c20",
+    "post_color_capture": "0x004c1d74"
+  },
+  "match_observed": true,
+  "mismatches": [],
+  "schema": {
+    "name": "mwccps2-b210-colorgraph-replay",
+    "version": 1
+  },
+  "replay": {
+    "baseline_mask_initial": "0x0300fffc",
+    "baseline_mask_final": "0x43fffffc",
+    "fallback_cursor_end": 9,
+    "fallback_cursor_start": 0,
+    "result": "failure",
+    "spilled_node_ids": [
+      "class-0-virtual-00033",
+      "class-0-virtual-00174",
+      "class-0-virtual-00178",
+      "class-0-virtual-00226",
+      "class-0-virtual-00230"
+    ],
+    "work_list_order": [
+      "class-0-virtual-00172",
+      "class-0-virtual-00069",
+      "class-0-virtual-00067",
+      "class-0-virtual-00041",
+      "class-0-virtual-00035",
+      "class-0-virtual-00032",
+      "class-0-virtual-00173",
+      "class-0-virtual-00224",
+      "class-0-virtual-00078",
+      "class-0-virtual-00076",
+      "class-0-virtual-00225",
+      "class-0-virtual-00135",
+      "class-0-virtual-00047",
+      "class-0-virtual-00036",
+      "class-0-virtual-00042",
+      "class-0-virtual-00202",
+      "class-0-virtual-00254",
+      "class-0-virtual-00068",
+      "class-0-virtual-00077",
+      "class-0-virtual-00136",
+      "class-0-virtual-00203",
+      "class-0-virtual-00255",
+      "class-0-virtual-00137",
+      "class-0-virtual-00174",
+      "class-0-virtual-00226",
+      "class-0-virtual-00178",
+      "class-0-virtual-00230",
+      "class-0-virtual-00050",
+      "class-0-virtual-00037",
+      "class-0-virtual-00033",
+      "class-0-virtual-00058",
+      "class-0-virtual-00057",
+      "class-0-virtual-00052",
+      "class-0-virtual-00051",
+      "class-0-virtual-00039",
+      "class-0-virtual-00038",
+      "class-0-virtual-00415",
+      "class-0-virtual-00414",
+      "class-0-virtual-00413",
+      "class-0-virtual-00412",
+      "class-0-virtual-00411",
+      "class-0-virtual-00410",
+      "class-0-virtual-00409",
+      "class-0-virtual-00408",
+      "class-0-virtual-00407",
+      "class-0-virtual-00406",
+      "class-0-virtual-00405",
+      "class-0-virtual-00404",
+      "class-0-virtual-00403",
+      "class-0-virtual-00402",
+      "class-0-virtual-00401",
+      "class-0-virtual-00400",
+      "class-0-virtual-00399",
+      "class-0-virtual-00398",
+      "class-0-virtual-00397",
+      "class-0-virtual-00396",
+      "class-0-virtual-00395",
+      "class-0-virtual-00394",
+      "class-0-virtual-00393",
+      "class-0-virtual-00392",
+      "class-0-virtual-00391",
+      "class-0-virtual-00390",
+      "class-0-virtual-00389",
+      "class-0-virtual-00388",
+      "class-0-virtual-00387",
+      "class-0-virtual-00386",
+      "class-0-virtual-00385",
+      "class-0-virtual-00384",
+      "class-0-virtual-00383",
+      "class-0-virtual-00382",
+      "class-0-virtual-00381",
+      "class-0-virtual-00380",
+      "class-0-virtual-00379",
+      "class-0-virtual-00378",
+      "class-0-virtual-00377",
+      "class-0-virtual-00376",
+      "class-0-virtual-00375",
+      "class-0-virtual-00374",
+      "class-0-virtual-00373",
+      "class-0-virtual-00372",
+      "class-0-virtual-00371",
+      "class-0-virtual-00370",
+      "class-0-virtual-00369",
+      "class-0-virtual-00368",
+      "class-0-virtual-00367",
+      "class-0-virtual-00366",
+      "class-0-virtual-00365",
+      "class-0-virtual-00364",
+      "class-0-virtual-00363",
+      "class-0-virtual-00362",
+      "class-0-virtual-00361",
+      "class-0-virtual-00360",
+      "class-0-virtual-00359",
+      "class-0-virtual-00358",
+      "class-0-virtual-00357",
+      "class-0-virtual-00356",
+      "class-0-virtual-00355",
+      "class-0-virtual-00354",
+      "class-0-virtual-00353",
+      "class-0-virtual-00352",
+      "class-0-virtual-00351",
+      "class-0-virtual-00350",
+      "class-0-virtual-00349",
+      "class-0-virtual-00348",
+      "class-0-virtual-00347",
+      "class-0-virtual-00346",
+      "class-0-virtual-00345",
+      "class-0-virtual-00344",
+      "class-0-virtual-00343",
+      "class-0-virtual-00342",
+      "class-0-virtual-00341",
+      "class-0-virtual-00340",
+      "class-0-virtual-00339",
+      "class-0-virtual-00338",
+      "class-0-virtual-00337",
+      "class-0-virtual-00336",
+      "class-0-virtual-00335",
+      "class-0-virtual-00334",
+      "class-0-virtual-00333",
+      "class-0-virtual-00332",
+      "class-0-virtual-00331",
+      "class-0-virtual-00330",
+      "class-0-virtual-00329",
+      "class-0-virtual-00328",
+      "class-0-virtual-00327",
+      "class-0-virtual-00326",
+      "class-0-virtual-00325",
+      "class-0-virtual-00324",
+      "class-0-virtual-00323",
+      "class-0-virtual-00322",
+      "class-0-virtual-00321",
+      "class-0-virtual-00320",
+      "class-0-virtual-00319",
+      "class-0-virtual-00318",
+      "class-0-virtual-00317",
+      "class-0-virtual-00316",
+      "class-0-virtual-00315",
+      "class-0-virtual-00314",
+      "class-0-virtual-00313",
+      "class-0-virtual-00312",
+      "class-0-virtual-00311",
+      "class-0-virtual-00310",
+      "class-0-virtual-00309",
+      "class-0-virtual-00308",
+      "class-0-virtual-00307",
+      "class-0-virtual-00306",
+      "class-0-virtual-00305",
+      "class-0-virtual-00304",
+      "class-0-virtual-00303",
+      "class-0-virtual-00302",
+      "class-0-virtual-00301",
+      "class-0-virtual-00300",
+      "class-0-virtual-00299",
+      "class-0-virtual-00298",
+      "class-0-virtual-00297",
+      "class-0-virtual-00296",
+      "class-0-virtual-00295",
+      "class-0-virtual-00294",
+      "class-0-virtual-00293",
+      "class-0-virtual-00292",
+      "class-0-virtual-00291",
+      "class-0-virtual-00290",
+      "class-0-virtual-00289",
+      "class-0-virtual-00288",
+      "class-0-virtual-00287",
+      "class-0-virtual-00286",
+      "class-0-virtual-00285",
+      "class-0-virtual-00284",
+      "class-0-virtual-00283",
+      "class-0-virtual-00282",
+      "class-0-virtual-00281",
+      "class-0-virtual-00280",
+      "class-0-virtual-00279",
+      "class-0-virtual-00278",
+      "class-0-virtual-00277",
+      "class-0-virtual-00276",
+      "class-0-virtual-00275",
+      "class-0-virtual-00274",
+      "class-0-virtual-00273",
+      "class-0-virtual-00272",
+      "class-0-virtual-00271",
+      "class-0-virtual-00270",
+      "class-0-virtual-00269",
+      "class-0-virtual-00268",
+      "class-0-virtual-00267",
+      "class-0-virtual-00266",
+      "class-0-virtual-00265",
+      "class-0-virtual-00264",
+      "class-0-virtual-00263",
+      "class-0-virtual-00262",
+      "class-0-virtual-00261",
+      "class-0-virtual-00260",
+      "class-0-virtual-00259",
+      "class-0-virtual-00258",
+      "class-0-virtual-00257",
+      "class-0-virtual-00256",
+      "class-0-virtual-00253",
+      "class-0-virtual-00252",
+      "class-0-virtual-00251",
+      "class-0-virtual-00250",
+      "class-0-virtual-00249",
+      "class-0-virtual-00248",
+      "class-0-virtual-00247",
+      "class-0-virtual-00246",
+      "class-0-virtual-00245",
+      "class-0-virtual-00244",
+      "class-0-virtual-00243",
+      "class-0-virtual-00242",
+      "class-0-virtual-00241",
+      "class-0-virtual-00240",
+      "class-0-virtual-00239",
+      "class-0-virtual-00238",
+      "class-0-virtual-00237",
+      "class-0-virtual-00236",
+      "class-0-virtual-00235",
+      "class-0-virtual-00234",
+      "class-0-virtual-00233",
+      "class-0-virtual-00232",
+      "class-0-virtual-00231",
+      "class-0-virtual-00229",
+      "class-0-virtual-00228",
+      "class-0-virtual-00227",
+      "class-0-virtual-00223",
+      "class-0-virtual-00222",
+      "class-0-virtual-00221",
+      "class-0-virtual-00220",
+      "class-0-virtual-00219",
+      "class-0-virtual-00218",
+      "class-0-virtual-00217",
+      "class-0-virtual-00216",
+      "class-0-virtual-00215",
+      "class-0-virtual-00214",
+      "class-0-virtual-00213",
+      "class-0-virtual-00212",
+      "class-0-virtual-00211",
+      "class-0-virtual-00210",
+      "class-0-virtual-00209",
+      "class-0-virtual-00208",
+      "class-0-virtual-00207",
+      "class-0-virtual-00206",
+      "class-0-virtual-00205",
+      "class-0-virtual-00204",
+      "class-0-virtual-00201",
+      "class-0-virtual-00200",
+      "class-0-virtual-00199",
+      "class-0-virtual-00198",
+      "class-0-virtual-00197",
+      "class-0-virtual-00196",
+      "class-0-virtual-00195",
+      "class-0-virtual-00194",
+      "class-0-virtual-00193",
+      "class-0-virtual-00192",
+      "class-0-virtual-00191",
+      "class-0-virtual-00190",
+      "class-0-virtual-00189",
+      "class-0-virtual-00188",
+      "class-0-virtual-00187",
+      "class-0-virtual-00186",
+      "class-0-virtual-00185",
+      "class-0-virtual-00184",
+      "class-0-virtual-00183",
+      "class-0-virtual-00182",
+      "class-0-virtual-00181",
+      "class-0-virtual-00180",
+      "class-0-virtual-00179",
+      "class-0-virtual-00177",
+      "class-0-virtual-00176",
+      "class-0-virtual-00175",
+      "class-0-virtual-00171",
+      "class-0-virtual-00170",
+      "class-0-virtual-00169",
+      "class-0-virtual-00168",
+      "class-0-virtual-00167",
+      "class-0-virtual-00166",
+      "class-0-virtual-00165",
+      "class-0-virtual-00164",
+      "class-0-virtual-00163",
+      "class-0-virtual-00162",
+      "class-0-virtual-00161",
+      "class-0-virtual-00160",
+      "class-0-virtual-00159",
+      "class-0-virtual-00158",
+      "class-0-virtual-00157",
+      "class-0-virtual-00156",
+      "class-0-virtual-00155",
+      "class-0-virtual-00154",
+      "class-0-virtual-00153",
+      "class-0-virtual-00152",
+      "class-0-virtual-00151",
+      "class-0-virtual-00150",
+      "class-0-virtual-00149",
+      "class-0-virtual-00148",
+      "class-0-virtual-00147",
+      "class-0-virtual-00146",
+      "class-0-virtual-00145",
+      "class-0-virtual-00144",
+      "class-0-virtual-00143",
+      "class-0-virtual-00142",
+      "class-0-virtual-00141",
+      "class-0-virtual-00140",
+      "class-0-virtual-00139",
+      "class-0-virtual-00138",
+      "class-0-virtual-00134",
+      "class-0-virtual-00133",
+      "class-0-virtual-00132",
+      "class-0-virtual-00131",
+      "class-0-virtual-00130",
+      "class-0-virtual-00129",
+      "class-0-virtual-00128",
+      "class-0-virtual-00127",
+      "class-0-virtual-00126",
+      "class-0-virtual-00125",
+      "class-0-virtual-00124",
+      "class-0-virtual-00123",
+      "class-0-virtual-00122",
+      "class-0-virtual-00121",
+      "class-0-virtual-00120",
+      "class-0-virtual-00119",
+      "class-0-virtual-00118",
+      "class-0-virtual-00117",
+      "class-0-virtual-00116",
+      "class-0-virtual-00115",
+      "class-0-virtual-00114",
+      "class-0-virtual-00113",
+      "class-0-virtual-00112",
+      "class-0-virtual-00111",
+      "class-0-virtual-00110",
+      "class-0-virtual-00109",
+      "class-0-virtual-00108",
+      "class-0-virtual-00107",
+      "class-0-virtual-00106",
+      "class-0-virtual-00105",
+      "class-0-virtual-00104",
+      "class-0-virtual-00103",
+      "class-0-virtual-00102",
+      "class-0-virtual-00101",
+      "class-0-virtual-00100",
+      "class-0-virtual-00099",
+      "class-0-virtual-00098",
+      "class-0-virtual-00097",
+      "class-0-virtual-00096",
+      "class-0-virtual-00095",
+      "class-0-virtual-00094",
+      "class-0-virtual-00093",
+      "class-0-virtual-00092",
+      "class-0-virtual-00091",
+      "class-0-virtual-00090",
+      "class-0-virtual-00089",
+      "class-0-virtual-00088",
+      "class-0-virtual-00087",
+      "class-0-virtual-00086",
+      "class-0-virtual-00085",
+      "class-0-virtual-00084",
+      "class-0-virtual-00083",
+      "class-0-virtual-00082",
+      "class-0-virtual-00081",
+      "class-0-virtual-00080",
+      "class-0-virtual-00079",
+      "class-0-virtual-00075",
+      "class-0-virtual-00074",
+      "class-0-virtual-00073",
+      "class-0-virtual-00072",
+      "class-0-virtual-00071",
+      "class-0-virtual-00070",
+      "class-0-virtual-00066",
+      "class-0-virtual-00065",
+      "class-0-virtual-00064",
+      "class-0-virtual-00063",
+      "class-0-virtual-00062",
+      "class-0-virtual-00061",
+      "class-0-virtual-00060",
+      "class-0-virtual-00059",
+      "class-0-virtual-00056",
+      "class-0-virtual-00055",
+      "class-0-virtual-00054",
+      "class-0-virtual-00053",
+      "class-0-virtual-00049",
+      "class-0-virtual-00048",
+      "class-0-virtual-00046",
+      "class-0-virtual-00045",
+      "class-0-virtual-00044",
+      "class-0-virtual-00043",
+      "class-0-virtual-00040",
+      "class-0-virtual-00034"
+    ]
+  },
+  "observed": {
+    "result": "failure",
+    "spilled_node_ids": [
+      "class-0-virtual-00033",
+      "class-0-virtual-00174",
+      "class-0-virtual-00178",
+      "class-0-virtual-00226",
+      "class-0-virtual-00230"
+    ]
+  }
+}

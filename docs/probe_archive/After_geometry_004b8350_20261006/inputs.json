@@ -1,0 +1,17 @@
+{
+  "owners": [
+    "src/Graphics/Effect/eff_after.c",
+    "src/Graphics/Effect/eff_afpack.c"
+  ],
+  "inputs": {
+    "after-baseline.c": "836fc3161273a2c3e56e052202209c3bb499fba6bd514de87b2f59ea8c36faf8",
+    "afpack-baseline.c": "523b41c037b0b2aaa74a524db920aa49b4fcca17f78765332f7ab264a00e7289",
+    "after-reviewed.c": "e97d28320079d32dd006350c3562b9fe6be1b7ce7e1938f9ce8738514f45995c",
+    "after-guarded.c": "45c0c306ad74e7fb6196225b3ada39999849f23625f5e2928b3d805f27f170f0",
+    "afpack-caller.c": "48c64b226a673af50b33cd4b7b75ab92236cef4e5a9da7309ea92f61a4fdc6de",
+    "owner_evidence.py": "ac7e091b55d2cc7ce14f02ac4542fcd3cacb99de600bb9ad01d2934237ba09bd"
+  },
+  "cleanup_C_tokens_unchanged": true,
+  "production_source_changed": false,
+  "new_exact_C": 0
+}

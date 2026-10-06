@@ -1,0 +1,33 @@
+{
+  "owner": "src/Battle/btlMain.c",
+  "target": "func_001b87e0",
+  "installed_source_sha256": "6e37817dada2aac6a544d8caa49a2b52c5e1af2cabe1a7ed123dad5522852754",
+  "reviewed_proposal_source_sha256": "6e37817dada2aac6a544d8caa49a2b52c5e1af2cabe1a7ed123dad5522852754",
+  "reviewed_proposal_object_sha256": "ce8958860a0c64af5a605b3bae1a9b223dd12089aba98fbbd2eb5742cefbae0c",
+  "retained_full_proof_sha256": "897ccbc4466f91f5210d7e277e9e2d8800cd6a28b4bd1052ce95962d5207e46e",
+  "full_native_proof_reused": true,
+  "full_native_proof_recompiled": false,
+  "normal_owner_verifier": {
+    "MATCH": 27
+  },
+  "checks_exit_codes": {
+    "verify": 0,
+    "lint": 0,
+    "whitespace": 0
+  },
+  "check_reports_sha256": {
+    "verify.json": "cae2216fe2856d9e0020feeca5f94b9617042b87fc6157399148c1f3af3f6b01",
+    "lint.json": "96b490b0d4741454113168ef3f7f78b8796ba39e402a05c6b30d51fd4c3a04da",
+    "verify.log": "20271228717c379fb8ab42a69711b7db423dd8c748ca3f67f5bab4596d87ea2e",
+    "lint.log": "53d0cb3c82567ae743b738812f75915b8662a6510cbc99902cd787c62cea0a01",
+    "whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "target_bytes": 2944,
+  "fully_resolved_words": 0,
+  "exact_unchanged_siblings": 26,
+  "code_references_resolved": 212,
+  "data_references_resolved": 0,
+  "all_allocated_storage_exact": true,
+  "frozen_for_prime_batch": true,
+  "git_commit_or_push": false
+}
