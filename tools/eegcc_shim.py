@@ -44,6 +44,7 @@ or the environment variables `P4_EEGCC_ROOT`, `P4_EEGCC_LD_LIBRARY_PATH` and
 `P4_PS2EEAS`.
 """
 from pathlib import Path
+import hashlib
 import json
 import os
 import platform
@@ -284,10 +285,22 @@ def _splice(source: Path) -> str:
     return "\n".join(out) + "\n"
 
 
-def _stage_includes(includes: list[str], work: Path) -> list[str]:
-    """Retain project-relative header layout for includes containing '..'."""
+def _wsl_path(path: Path) -> str:
+    text = str(path.resolve()).replace("\\", "/")
+    return "/mnt/" + text[0].lower() + text[2:]
+
+
+def _stage_includes(includes: list[str]) -> tuple[list[str], list[tuple[str, Path]], str]:
+    """Plan the include layout cc1 sees inside WSL.
+
+    Returns the -I directories relative to the staged root, the
+    (relative, source) trees to copy there, and a digest of every file in
+    them. Project-relative layout is retained for includes containing '..'.
+    The digest names a staged copy that later compiles reuse until any header
+    changes: copying the trees across DrvFs costs far more than compiling."""
     staged: list[str] = []
-    copied: list[Path] = []
+    copies: list[tuple[str, Path]] = []
+    digest = hashlib.sha256()
     for index, directory in enumerate(includes):
         path = Path(directory)
         if not path.is_absolute():
@@ -299,12 +312,15 @@ def _stage_includes(includes: list[str], work: Path) -> list[str]:
             relative = Path("project") / path.relative_to(REPO.resolve())
         except ValueError:
             relative = Path("external") / str(index)
-        target = work / relative
-        if not any(target == parent or parent in target.parents for parent in copied):
-            shutil.copytree(path, target, dirs_exist_ok=True)
-            copied.append(target)
         staged.append(relative.as_posix())
-    return staged
+        if any(relative == Path(parent) or Path(parent) in relative.parents for parent, _ in copies):
+            continue
+        copies.append((relative.as_posix(), path))
+        digest.update(relative.as_posix().encode() + b"\0")
+        for file in sorted(item for item in path.rglob("*") if item.is_file()):
+            digest.update(file.relative_to(path).as_posix().encode() + b"\0")
+            digest.update(hashlib.sha256(file.read_bytes()).digest())
+    return staged, copies, digest.hexdigest()[:32]
 
 
 def _compile_to_asm(root: Path, source: Path, includes: list[str], work: Path) -> Path:
@@ -353,7 +369,7 @@ def _compile_to_asm(root: Path, source: Path, includes: list[str], work: Path) -
         return asm
 
     (work / "in.c").write_text(source_text, encoding="utf-8", newline="\n")
-    staged = _stage_includes(includes, work)
+    staged, copies, digest = _stage_includes(includes)
     script = work / "run.sh"
     here = "%s/%s" % (STAGE_WSL, work.name)
     # $STAGE holds only the compiler, and every invocation compiles in its own
@@ -373,11 +389,29 @@ def _compile_to_asm(root: Path, source: Path, includes: list[str], work: Path) -
         "    mkdir -p \"$STAGE\" && cp -rn \"$TMP\"/* \"$STAGE/\" 2>/dev/null || true",
         "    rm -rf \"$TMP\"",
         "fi",
+        # Headers are staged once per content digest and published by rename,
+        # so a concurrent compile sees either nothing or a complete tree.
+        "INC=/tmp/p4gcc_inc/%s" % digest,
+        "if [ ! -d \"$INC\" ]; then",
+        "    mkdir -p /tmp/p4gcc_inc",
+        "    TMP=$(mktemp -d /tmp/p4gcc_inc/.stage.XXXXXX)",
+    ]
+    for relative, path in copies:
+        lines += [
+            "    mkdir -p \"$TMP\"/%s" % shlex.quote(str(Path(relative).parent.as_posix())),
+            "    cp -rT %s \"$TMP\"/%s" % (shlex.quote(_wsl_path(path)), shlex.quote(relative)),
+        ]
+    lines += [
+        "    mv -T \"$TMP\" \"$INC\" 2>/dev/null || rm -rf \"$TMP\"",
+        "fi",
         "WORK=$(mktemp -d /tmp/p4gcc_work.XXXXXX)",
         "trap 'rm -rf \"$WORK\"' EXIT",
     ]
+    # cc1 sees the same include path strings as an uncached per-compile copy.
+    # They are not inert: ee-gcc 2.96 fills one delay slot of
+    # re4/sfd_mpv.c's SFMPV_Seek only with these path lengths.
     for directory in sorted({Path(name).parts[0] for name in staged}):
-        lines.append('cp -r %s "$WORK/"' % shlex.quote(here + '/' + directory))
+        lines.append('ln -s "$INC"/%s "$WORK"/%s' % (shlex.quote(directory), shlex.quote(directory)))
     lines += [
         "cp %s/in.c \"$WORK/in.c\"" % here,
         "cd \"$WORK\"",

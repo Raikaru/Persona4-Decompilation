@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import bisect
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 from functools import lru_cache
 import json
@@ -42,6 +43,7 @@ R_MIPS_NAMES = {
 RELOC_MASK_SIZE = {2: 4, 4: 4, 5: 2, 6: 2, 7: 2, 8: 2}
 MARKER_RE = re.compile(r"^\s*//\s*(FUN_([0-9a-fA-F]{8}))", re.MULTILINE)
 NAME_RE = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)\s*\(")
+ADDRESS_NAME_RE = re.compile(r"\b(?:func|FUN)_([0-9a-f]{8})\s*\(", re.IGNORECASE)
 INCLUDE_MARKER_RE = re.compile(
     r'^\s*INCLUDE_(?:ASM|RODATA)\s*\(\s*"[^"]*"\s*,\s*'
     r"([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*;?\s*$"
@@ -402,35 +404,50 @@ def strip_line_comment(line: str) -> str:
     return line.split("//", 1)[0]
 
 
+_CODE_TOKEN_RE = re.compile(r"//|/\*|[\"']")
+# Literal bodies within one line: an escape consumes the next character, so
+# the first quote not consumed this way closes the literal.
+_LITERAL_BODY_RE = {
+    "string": re.compile(r'(?:[^"\\]|\\.)*', re.S),
+    "char": re.compile(r"(?:[^'\\]|\\.)*", re.S),
+}
+
+
 def sanitize_c_lines(lines: list[str]) -> list[str]:
-    """Blank comments/literals without changing line or brace structure."""
-    output, state, escaped = [], "code", False
+    """Blank comments/literals without changing line or brace structure.
+
+    Block comments continue across lines; an unterminated string or character
+    literal ends at its line unless the line ends in a backslash escape. Every
+    blanked character becomes one space, so columns are preserved."""
+    output, state = [], "code"
     for line in lines:
-        chars, index = [], 0
-        while index < len(line):
-            char, next_char = line[index], line[index + 1] if index + 1 < len(line) else ""
+        chars, index, size, escaped = [], 0, len(line), False
+        while index < size:
             if state == "block":
-                if char == "*" and next_char == "/":
-                    chars.extend("  "); index += 2; state = "code"
-                else:
-                    chars.append(" "); index += 1
-            elif state in ("string", "char"):
-                chars.append(" ")
-                if escaped: escaped = False
-                elif char == "\\": escaped = True
-                elif (state == "string" and char == '"') or (state == "char" and char == "'"):
-                    state = "code"
-                index += 1
-            elif char == "/" and next_char == "/":
-                chars.extend(" " * (len(line) - index)); index = len(line)
-            elif char == "/" and next_char == "*":
-                chars.extend("  "); index += 2; state = "block"
-            elif char == '"': chars.append(" "); index += 1; state = "string"
-            elif char == "'": chars.append(" "); index += 1; state = "char"
-            else: chars.append(char); index += 1
+                end = line.find("*/", index)
+                stop = size if end < 0 else end + 2
+                chars.append(" " * (stop - index)); index = stop
+                if end >= 0: state = "code"
+            elif state != "code":
+                stop = _LITERAL_BODY_RE[state].match(line, index).end()
+                if stop < size and line[stop] != "\\":
+                    stop += 1; state = "code"  # the closing quote
+                elif stop < size:
+                    stop, escaped = size, True  # a dangling final backslash
+                chars.append(" " * (stop - index)); index = stop
+            else:
+                token = _CODE_TOKEN_RE.search(line, index)
+                if token is None:
+                    chars.append(line[index:]); break
+                start = token.start()
+                chars.append(line[index:start])
+                kind = token.group()
+                if kind == "//":
+                    chars.append(" " * (size - start)); break
+                chars.append(" " * len(kind)); index = token.end()
+                state = "block" if kind == "/*" else ("string" if kind == '"' else "char")
         output.append("".join(chars))
         if state in ("string", "char") and not escaped: state = "code"
-        escaped = False
     return output
 
 
@@ -520,8 +537,9 @@ def scan_markers(cpath: Path) -> list[dict]:
                 if knr_header:
                     header = knr_header + header
             cursor += 1
-        address_name = re.search(
-            rf"\b(?:func|FUN)_{address:08x}\s*\(", header, flags=re.IGNORECASE
+        address_name = next(
+            (found for found in ADDRESS_NAME_RE.finditer(header)
+             if int(found.group(1), 16) == address), None
         )
         if address_name:
             name = address_name.group(0).split("(", 1)[0].strip()
@@ -530,10 +548,11 @@ def scan_markers(cpath: Path) -> list[dict]:
             if found: name = found.group(1)
         stub, end = False, cursor
         if name is not None:
-            depth, body = 0, []
+            depth, body, opened = 0, [], False
             while end < len(lines):
                 code = code_lines[end]; depth += code.count("{") - code.count("}"); body.append(lines[end])
-                if depth <= 0 and "{" in "".join(body): break
+                opened = opened or "{" in lines[end]
+                if depth <= 0 and opened: break
                 end += 1
             text = "\n".join(body)
             if "// TODO" in text or "/* TODO" in text:
@@ -695,15 +714,19 @@ GCC_UNITS_PATH = REPO / "config" / "gcc_units.txt"
 _GCC_UNITS: set[str] | None = None
 
 
+# The loaders below publish each table only once it is complete: verification
+# runs files on worker threads, and a half-filled table would silently give a
+# unit the default compiler or flags.
 def gcc_units() -> set[str]:
     global _GCC_UNITS
     if _GCC_UNITS is None:
-        _GCC_UNITS = set()
+        units = set()
         if GCC_UNITS_PATH.is_file():
             for line in GCC_UNITS_PATH.read_text().splitlines():
                 line = line.split("#", 1)[0].strip()
                 if line:
-                    _GCC_UNITS.add(line)
+                    units.add(line)
+        _GCC_UNITS = units
     return _GCC_UNITS
 
 
@@ -728,12 +751,13 @@ _SPEED_UNITS: set[str] | None = None
 def speed_units() -> set[str]:
     global _SPEED_UNITS
     if _SPEED_UNITS is None:
-        _SPEED_UNITS = set()
+        units = set()
         if SPEED_UNITS_PATH.is_file():
             for line in SPEED_UNITS_PATH.read_text().splitlines():
                 line = line.split("#", 1)[0].strip()
                 if line:
-                    _SPEED_UNITS.add(line)
+                    units.add(line)
+        _SPEED_UNITS = units
     return _SPEED_UNITS
 
 
@@ -763,7 +787,7 @@ _COMPILER_UNITS: dict[str, str] | None = None
 def compiler_units() -> dict[str, str]:
     global _COMPILER_UNITS
     if _COMPILER_UNITS is None:
-        _COMPILER_UNITS = {}
+        units = {}
         if COMPILER_UNITS_PATH.is_file():
             for line in COMPILER_UNITS_PATH.read_text().splitlines():
                 line = line.split("#", 1)[0].strip()
@@ -772,7 +796,8 @@ def compiler_units() -> dict[str, str]:
                 parts = line.split()
                 if len(parts) != 2:
                     _die(f"{COMPILER_UNITS_PATH.name}: expected `<unit> <version>`, got {line!r}")
-                _COMPILER_UNITS[parts[0]] = parts[1]
+                units[parts[0]] = parts[1]
+        _COMPILER_UNITS = units
     return _COMPILER_UNITS
 
 
@@ -818,14 +843,15 @@ _VERSION_FLAGS: dict[str, list[str]] | None = None
 def version_flags() -> dict[str, list[str]]:
     global _VERSION_FLAGS
     if _VERSION_FLAGS is None:
-        _VERSION_FLAGS = {}
+        flags: dict[str, list[str]] = {}
         if VERSION_FLAGS_PATH.is_file():
             for line in VERSION_FLAGS_PATH.read_text().splitlines():
                 line = line.split("#", 1)[0].strip()
                 if not line:
                     continue
                 key, *extra = line.split()
-                _VERSION_FLAGS.setdefault(key, []).extend(extra)
+                flags.setdefault(key, []).extend(extra)
+        _VERSION_FLAGS = flags
     return _VERSION_FLAGS
 
 
@@ -906,8 +932,10 @@ def verify_file(
     retail: RetailElf,
     boundaries: list[int],
     objdir: Path,
+    markers: list[dict] | None = None,
 ) -> list[dict]:
-    relative, markers = cpath.relative_to(REPO), scan_markers(cpath)
+    relative = cpath.relative_to(REPO)
+    if markers is None: markers = scan_markers(cpath)
     if not markers: return []
     output = objdir / (relative.as_posix().replace("/", "_") + ".o")
     if is_gcc_unit(cpath):
@@ -963,6 +991,8 @@ def main() -> None:
     parser.add_argument("--skip-gcc-units", action="store_true",
                         help="omit config/gcc_units.txt units, for an "
                              "environment with no ee-gcc toolchain")
+    parser.add_argument("-j", "--jobs", type=int, default=os.cpu_count() or 1,
+                        help="files compiled concurrently (default: CPU count)")
     args = parser.parse_args()
     cfg, target, windows = load_config(), _read_json(TARGET), _read_json(FUNCTION_WINDOWS)
     if windows.get("program") != "SLUS_217.82" or windows.get("sha1") != target["elf"]["sha1"]:
@@ -991,12 +1021,19 @@ def main() -> None:
 
     bounds = {int(address, 16) for address in windows["windows"]}
     bounds.update(int(address, 16) + size for address, size in windows["windows"].items() if size)
-    for path in source_files:
-        bounds.update(marker["addr"] for marker in scan_markers(path))
+    scanned = {path: scan_markers(path) for path in source_files}
+    for markers in scanned.values():
+        bounds.update(marker["addr"] for marker in markers)
     results: list[dict] = []
-    with tempfile.TemporaryDirectory(prefix="p4verify_") as directory:
-        for path in files:
-            results.extend(verify_file(path, cfg, retail, sorted(bounds), Path(directory)))
+    boundaries = sorted(bounds)
+    # Each file is one compiler subprocess writing its own uniquely named
+    # object, so files verify independently; map() keeps the report order.
+    with tempfile.TemporaryDirectory(prefix="p4verify_") as directory, \
+            ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
+        for file_results in pool.map(
+                lambda path: verify_file(path, cfg, retail, boundaries, Path(directory),
+                                         scanned.get(path)), files):
+            results.extend(file_results)
     counts: dict[str, int] = {}
     for result in results: counts[result["status"]] = counts.get(result["status"], 0) + 1
     first_party = [

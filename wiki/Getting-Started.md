@@ -61,7 +61,11 @@ Environment variables override both.
 ```
 
 On Linux, `mwcc` and the `mwcc_versions` entries are wrapper scripts that run
-the Windows compiler, for example `exec wibo /opt/p4/mwccps2.exe "$@"`.
+the Windows compiler, for example `exec wibo /opt/p4/mwccps2.exe "$@"`. On
+Windows, point them at the executables directly; a compiler directory needs
+the same `LMGR326B.DLL` that lets the b210 build start without a license
+server. Routing a Windows compiler through WSL and wibo costs about 25 times
+as long per unit.
 
 | Key | Read by | Notes |
 | --- | --- | --- |

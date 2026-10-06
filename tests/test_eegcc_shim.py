@@ -61,12 +61,12 @@ class HeaderStagingTests(unittest.TestCase):
             header = include / "lib/libadxe/format.h"
             header.parent.mkdir(parents=True)
             header.write_text("typedef int VendorInt;\n", encoding="utf-8")
-            work = Path(directory) / "work"
             with patch.object(shim, "REPO", root):
-                staged = shim._stage_includes(["include", "include/cri/cri/mwlib/ee"], work)
+                staged, copies, _ = shim._stage_includes(["include", "include/cri/cri/mwlib/ee"])
             self.assertEqual(staged, ["project/include", "project/include/cri/cri/mwlib/ee"])
-            via_relative = work / staged[1] / "../../../cri/mwlib/ee/lib/libadxe/format.h"
-            self.assertEqual(via_relative.read_bytes(), header.read_bytes())
+            # The nested directory is reached through its parent's copy, so a
+            # `../../../` include from it resolves inside the staged tree.
+            self.assertEqual(copies, [("project/include", (root / "include").resolve())])
 
     def test_header_search_order_is_preserved(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -75,8 +75,21 @@ class HeaderStagingTests(unittest.TestCase):
                 (root / name).mkdir(parents=True)
                 (root / name / "types.h").write_text(name, encoding="utf-8")
             with patch.object(shim, "REPO", root):
-                staged = shim._stage_includes(["include/vendor B", "include/vendor A"], Path(directory) / "work")
+                staged, copies, _ = shim._stage_includes(["include/vendor B", "include/vendor A"])
             self.assertEqual(staged, ["project/include/vendor B", "project/include/vendor A"])
+            self.assertEqual([relative for relative, _ in copies], staged)
+
+    def test_cached_copy_is_replaced_when_a_header_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "repo"
+            header = root / "include" / "types.h"
+            header.parent.mkdir(parents=True)
+            header.write_text("typedef int A;\n", encoding="utf-8")
+            with patch.object(shim, "REPO", root):
+                first = shim._stage_includes(["include"])[2]
+                self.assertEqual(shim._stage_includes(["include"])[2], first)
+                header.write_text("typedef int B;\n", encoding="utf-8")
+                self.assertNotEqual(shim._stage_includes(["include"])[2], first)
 
 
 @unittest.skipUnless(shutil.which("mipsel-linux-gnu-as"), "native R5900 assembler is not installed")
