@@ -1,0 +1,161 @@
+{
+  "movie_source_sha256": "733e755e97d40ea1db6c57bd783ea54e7014971a58845b0039bafbd22a7bff32",
+  "dma_source_sha256": "1366b21b1b8e4279a222788ed7a07689e9337650d46f1a696b74546594994297",
+  "original_movie_sha256": "9fed511f4a45198860721f181dc374ac89789a9cc15443b8776d821045482a55",
+  "production_input_sha256": {
+    "src/promoted/code1_0046.c": "b37701a85922d65fc1813f7f7df033cd8586142dc0a3acfdccd7deb695be9f32",
+    "src/promoted/code1_0041.c": "724dceb859fa0672dbe318ee5ff584b3aab262f8155bf8ba253a21ed89c39b27"
+  },
+  "source_maps_unchanged": true,
+  "private_symbol_values_added": false,
+  "linker_inputs_sha256": {
+    "config/symbols_recovered.txt": "e294d7e3dbcff77ffb7a8adf9d63a0d8dfd92566bd641d6f95f4543be4899444",
+    "config/symbol_addrs.txt": "8159861efe6bd3eca9860a55aeefd8c646ecfa33360434d720b6f3d08238893a",
+    "undefined_syms_auto.txt": "5ecc26e0eb47ed57e8a7162efd4bd0b1b1be6cc4f2206a18599c7741c743e1e1",
+    "undefined_funcs_auto.txt": "a7af15fd95b6aacf0bb79a53179e90417b6022ad4a35aad6942b1fb46beeee52"
+  },
+  "linker_symbol_loader": "tools/build.py:load_lcf_symbols + load_symbol_addr_map",
+  "sdk_native_contract_sha256": "45b739e7dae8579dcf37e00d47e090dc422b19e1a47ccc8f84377f27b1f50774",
+  "compiler_profiles": {
+    "src/promoted/code1_0046.c": {
+      "compiler_sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+      "flags": [
+        "-O2",
+        "-Iinclude"
+      ]
+    },
+    "src/promoted/code1_0041.c": {
+      "compiler_sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+      "flags": [
+        "-O2",
+        "-Iinclude"
+      ]
+    }
+  },
+  "production_edited": false,
+  "profiles": {
+    "movie": {
+      "default": {
+        "source_sha256": "733e755e97d40ea1db6c57bd783ea54e7014971a58845b0039bafbd22a7bff32",
+        "object_sha256": "743df2c553582fdfc0e00b30aadfe0e7a75ff4374170f20ffcd503bc03d9d650",
+        "whole_object_equal_to_before": false,
+        "complete_exact": true,
+        "total_functions": 58,
+        "preserved_functions": 58,
+        "target": {
+          "name": "func_00468ff0",
+          "size": 4132,
+          "window": 4144,
+          "differing_words": 0,
+          "differing_bytes": 0,
+          "errors": [],
+          "exact": true,
+          "zero_suffix": 12,
+          "relocations": 152,
+          "resolved_sha256": "23dea620e0d43d92cfe5b497f19311f5693f790efc6bb0760d51a0f7b711edd2"
+        },
+        "exact_function_count": 58,
+        "existing_nonmatching_functions": [],
+        "code_references": 919,
+        "data_references": 68,
+        "data_sections": 5,
+        "proof_sha256": "bc833ceec98406f227de6ded57a1869197685d14479ab2e572681fd908e396f7",
+        "coverage_sha256": "cfd3bf52706f08c15a58e4d3f00b03c6b1e150d0798ddeae06fbd3694c6f50c5",
+        "all_references_resolved": true
+      },
+      "guarded": {
+        "source_sha256": "feeb84ef4a3caab376ee094b2b7a0a0d4fe89fe79552b704540262a091d50c55",
+        "object_sha256": "743df2c553582fdfc0e00b30aadfe0e7a75ff4374170f20ffcd503bc03d9d650",
+        "whole_object_equal_to_before": false,
+        "complete_exact": true,
+        "total_functions": 58,
+        "preserved_functions": 58,
+        "target": {
+          "name": "func_00468ff0",
+          "size": 4132,
+          "window": 4144,
+          "differing_words": 0,
+          "differing_bytes": 0,
+          "errors": [],
+          "exact": true,
+          "zero_suffix": 12,
+          "relocations": 152,
+          "resolved_sha256": "23dea620e0d43d92cfe5b497f19311f5693f790efc6bb0760d51a0f7b711edd2"
+        },
+        "exact_function_count": 58,
+        "existing_nonmatching_functions": [],
+        "code_references": 919,
+        "data_references": 68,
+        "data_sections": 5,
+        "proof_sha256": "b84d66a58fd51cee7a9fab689282f6991cb228c1384ecad17867fee9e9369a50",
+        "coverage_sha256": "cfd3bf52706f08c15a58e4d3f00b03c6b1e150d0798ddeae06fbd3694c6f50c5",
+        "all_references_resolved": true
+      }
+    },
+    "dma": {
+      "default": {
+        "source_sha256": "1366b21b1b8e4279a222788ed7a07689e9337650d46f1a696b74546594994297",
+        "object_sha256": "80d589c199611fa50c12237b1094727c2a879aebd595dfdc787ddbb6cfc83468",
+        "whole_object_equal_to_before": true,
+        "complete_exact": true,
+        "total_functions": 184,
+        "preserved_functions": 184,
+        "target": {
+          "name": "func_00419520",
+          "size": 56,
+          "window": 56,
+          "differing_words": 0,
+          "differing_bytes": 0,
+          "errors": [],
+          "exact": true,
+          "zero_suffix": 0,
+          "relocations": 1,
+          "resolved_sha256": "1db40977cd67e70bed1aaf7348406367f618f19a1cc0df1428f555e615dc6ade"
+        },
+        "exact_function_count": 184,
+        "existing_nonmatching_functions": [],
+        "code_references": 726,
+        "data_references": 0,
+        "data_sections": 0,
+        "proof_sha256": "1bc5f00143fc1396046048c2aa099525664412162786ee9b3f377f10118c0c1a",
+        "coverage_sha256": "540b04dd8a2e6769bfe55d9dd39963da21fcfc55d2b501c9705e631adb245e1c",
+        "all_references_resolved": true
+      },
+      "guarded": {
+        "source_sha256": "ee60b8b77f5e98a7caaa2716dde7b711110cab1fc8efaeae52c4c14fd4f2514f",
+        "object_sha256": "fbaf6a99abb0501408a0ab8e735105a9c6f812c39f37ce26d5a62a6889c99410",
+        "whole_object_equal_to_before": true,
+        "complete_exact": false,
+        "total_functions": 184,
+        "preserved_functions": 184,
+        "target": {
+          "name": "func_00419520",
+          "size": 56,
+          "window": 56,
+          "differing_words": 0,
+          "differing_bytes": 0,
+          "errors": [],
+          "exact": true,
+          "zero_suffix": 0,
+          "relocations": 1,
+          "resolved_sha256": "1db40977cd67e70bed1aaf7348406367f618f19a1cc0df1428f555e615dc6ade"
+        },
+        "exact_function_count": 178,
+        "existing_nonmatching_functions": [
+          "func_00413290",
+          "func_004147a0",
+          "func_00414b50",
+          "func_00414fd0",
+          "func_00415ad0",
+          "func_00417310"
+        ],
+        "code_references": 726,
+        "data_references": 0,
+        "data_sections": 0,
+        "proof_sha256": "cfb1b90d390dc015a489ae2eb85d78c5a9fad2760302c8129593f0ce47b15bb6",
+        "coverage_sha256": "09ffd8289611bbdb4572205ead1cce0d01fbd52a6a77457ef0b5be35c4a871fb",
+        "all_references_resolved": true
+      }
+    }
+  }
+}

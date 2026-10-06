@@ -1,0 +1,188 @@
+{
+  "engine_storage": "008872e0",
+  "engine_device_offset": 16,
+  "device_table_address": "0070c220",
+  "device_table_sha256": "3887107d6253d8a77b1ae868757b66e7e357d40196f1dc2675eae7ec478bc9b5",
+  "native_getter": "003f5d90",
+  "fog_state": 14,
+  "fog_result": "A 32-bit 0/1 output is always stored at 003f6244 before success return.",
+  "frame_size": 144,
+  "frame_direct_stores": [
+    {
+      "instruction": "0050a49c",
+      "offset": 0,
+      "size": 4
+    },
+    {
+      "instruction": "0050a4b0",
+      "offset": 52,
+      "size": 4
+    },
+    {
+      "instruction": "0050a4b8",
+      "offset": 8,
+      "size": 4
+    },
+    {
+      "instruction": "0050a4c0",
+      "offset": 12,
+      "size": 4
+    },
+    {
+      "instruction": "0050a4c8",
+      "offset": 16,
+      "size": 4
+    },
+    {
+      "instruction": "0050a4d0",
+      "offset": 20,
+      "size": 4
+    },
+    {
+      "instruction": "0050a4d8",
+      "offset": 24,
+      "size": 4
+    },
+    {
+      "instruction": "0050a4e0",
+      "offset": 32,
+      "size": 4
+    },
+    {
+      "instruction": "0050a4e4",
+      "offset": 36,
+      "size": 4
+    },
+    {
+      "instruction": "0050a4e8",
+      "offset": 40,
+      "size": 4
+    },
+    {
+      "instruction": "0050a4ec",
+      "offset": 44,
+      "size": 4
+    },
+    {
+      "instruction": "0050a4f0",
+      "offset": 48,
+      "size": 4
+    },
+    {
+      "instruction": "0050a4f4",
+      "offset": 56,
+      "size": 4
+    },
+    {
+      "instruction": "0050a4f8",
+      "offset": 28,
+      "size": 4
+    },
+    {
+      "instruction": "0050a500",
+      "offset": 60,
+      "size": 4
+    },
+    {
+      "instruction": "0050a50c",
+      "offset": 64,
+      "size": 4
+    },
+    {
+      "instruction": "0050a534",
+      "offset": 76,
+      "size": 4
+    },
+    {
+      "instruction": "0050a544",
+      "offset": 80,
+      "size": 8
+    },
+    {
+      "instruction": "0050a554",
+      "offset": 88,
+      "size": 8
+    },
+    {
+      "instruction": "0050a564",
+      "offset": 96,
+      "size": 8
+    },
+    {
+      "instruction": "0050a574",
+      "offset": 104,
+      "size": 8
+    },
+    {
+      "instruction": "0050a57c",
+      "offset": 112,
+      "size": 8
+    },
+    {
+      "instruction": "0050a584",
+      "offset": 120,
+      "size": 8
+    },
+    {
+      "instruction": "0050a590",
+      "offset": 128,
+      "size": 8
+    }
+  ],
+  "frame_picture_helper_stores": [
+    {
+      "instruction": "0050a5e0",
+      "offset": 72,
+      "size": 4
+    },
+    {
+      "instruction": "0050a5ec",
+      "offset": 72,
+      "size": 4
+    },
+    {
+      "instruction": "0050a5f4",
+      "offset": 68,
+      "size": 4
+    },
+    {
+      "instruction": "0050a604",
+      "offset": 72,
+      "size": 4
+    },
+    {
+      "instruction": "0050a610",
+      "offset": 72,
+      "size": 4
+    },
+    {
+      "instruction": "0050a614",
+      "offset": 68,
+      "size": 4
+    }
+  ],
+  "frame_initialized_byte_count": 144,
+  "scope": "Native instruction and reviewed control-flow witnesses for valid task/player interfaces; not a claim about arbitrary corrupted work or external decoder state.",
+  "source_contracts": {
+    "work": "0046a110 and 0046a1f0 allocate H_Calloc(1,0x220); 00468fa0 stores callback/work; 004623a0 supplies work in a1.",
+    "frame": "0050a3c0 fills all copied words/doublewords, with 0050a5a0 for offsets44/48, 0050a810 for88/8c and caller0050a1c0 for04. Null-buffer paths are not copied.",
+    "vertex": "The 0x40-byte, quadword-aligned nested layout is the actual sky2 RwSky2DVertex, not a smaller Im2D variant. The calloc work initializes padding/unconsumed members.",
+    "rgba": "RwIm2DVertexSetIntRGBA casts each channel directly to RwReal; fade-in alpha is a produced unsigned byte.",
+    "globals": "ourGlobals is the SDK RwUInt32[4096] backing store under RWGLOBALSIZE; the typed prefix matches camera/world, four halfwords, then the real RwDevice.",
+    "decoder_address": "Native work+1e0 is an unsigned address word used by %08x, copied to the pointer parameter/payload and explicitly converted for frees; all values are 32 bits.",
+    "locals": "Both debug-position float members, both screen extents, every selected alpha value and the saved fog output have producers on every path that reads them."
+  },
+  "native_function_sha256": {
+    "003f5d90": "33c9c759e70f2159cdff5e9e904e2a79f1f3e63f8ab4113e3dc5a34bf2478c21",
+    "004010c0": "d7a988a2ebf34369e150e26e312eb437f28a7f25513eb902143247ca8464e0e8",
+    "00401450": "fac0a7203ec172f957c5fd7d306117a63f931594152d7ea5a1374bf5de76fa45",
+    "004623a0": "5f6b73169363887ce2d6846996c6cdba535d389bfee49791c4595368f66566a2",
+    "00468fa0": "bdb5e6238370b9e426c748291008966caa7d518961d0e6887d3fa19c46616a7e",
+    "0046a110": "0c303e0655d3f9f52bc92d69102c855ff78c2050792b778a3cf65a5091ec3cb5",
+    "0046a1f0": "495890e525bbb35f5c36b1a77c643dce86649b70f25235a9e2f3161a83579240",
+    "0050a1c0": "b4cf4a4ed0a38e55669a24be24c27ce8d597f16c3d1ebd6ca3aa1e3d1a222a49",
+    "0050a3c0": "8c8296157a8903636c21e7a2c2765a9df41c4cab7dc5ec651787f3359ca6d229",
+    "0050a5a0": "9de809c3dc4e6a9e1303069a3ef6de2ce64f7777160368219dfd041e32d10140",
+    "0050a810": "37725044b6992cd33a4a121146982a1f553789aa7c3eb86d7d4a75e431d3c892"
+  }
+}

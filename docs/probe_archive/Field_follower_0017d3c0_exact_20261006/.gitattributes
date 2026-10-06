@@ -1,0 +1,3 @@
+# Preserve byte-bound native evidence across checkouts.
+* -text whitespace=cr-at-eol
+*.patch whitespace=cr-at-eol,-blank-at-eol

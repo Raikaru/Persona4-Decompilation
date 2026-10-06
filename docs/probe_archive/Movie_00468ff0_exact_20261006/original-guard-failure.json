@@ -1,0 +1,10 @@
+{
+  "source_sha256": "4b81155657c69f7e4ad456f7c1ad7e347bfcde66fea97a48cde06ba404611a7c",
+  "original_source_sha256": "b37701a85922d65fc1813f7f7df033cd8586142dc0a3acfdccd7deb695be9f32",
+  "compile_log": "build/continue-20261006/movie-owner-replay-v1/movie-guarded-before/compile.log",
+  "compile_log_sha256": "69cef151c90825fb8641b969abe928631f2c288a8fbe0f7a5a1f59def2b9cd29",
+  "session": 48702,
+  "exit_code": 1,
+  "first_error": "the file 'mwsfd.h' cannot be opened",
+  "qualification": "The committed original movie guard did not compile with the configured owner flags. Its successful production comparison uses assembly for the target. The replay restores only the already audited twelve-word CRI parameter declaration in a private copy; it does not claim the original guard compiled or matched."
+}
