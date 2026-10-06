@@ -4,12 +4,14 @@
 #include "effect_instance_internal.h"
 #include "include_asm.h"
 
+typedef unsigned int u_long128 __attribute__((mode(TI)));
+
 extern void func_00486e10(void *arg0);
 extern void func_00494680(void *arg0);
 extern void func_00492cd0(u8 *arg0);
 extern void func_00492d00(int arg0);
-extern void func_00492dd0(int arg0);
-extern void func_00492e10(int arg0);
+extern u_long128 func_00492dd0(s32 emitter, u32 *position);
+extern u_long128 func_00492e10(s32 emitter, u32 *rotation);
 extern void func_00492e30(u16 *emitter, f32 scale);
 extern void func_00489f40(void *arg0, u32 color);
 extern void (*jtbl_008873EC[])(void *);
@@ -599,15 +601,15 @@ void func_00493c90(u8 *arg0)
 }
 
 // FUN_00493DA0
-void func_00493da0(u8 *arg0)
+void func_00493da0(u8 *instance, u32 *position)
 {
-    func_00492dd0(*(u32 *)(arg0 + 0x30));
+    func_00492dd0(*(s32 *)(instance + 0x30), position);
 }
 
 // FUN_00493DD0
-void func_00493dd0(u8 *arg0)
+void func_00493dd0(u8 *instance, u32 *rotation)
 {
-    func_00492e10(*(u32 *)(arg0 + 0x30));
+    func_00492e10(*(s32 *)(instance + 0x30), rotation);
 }
 
 // FUN_00493E00

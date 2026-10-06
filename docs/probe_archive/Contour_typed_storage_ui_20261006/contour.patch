@@ -1,0 +1,709 @@
+--- a/src/promoted/code1_0026.c
++++ b/src/promoted/code1_0026.c
+@@ -2,6 +2,7 @@
+ #include "list_item_internal.h"
+ #include "sdk_task_registration.h"
+ #include "type.h"
++#include "rw/plcore/barenderstate.h"
+ #include "primitive_point_buffer.h"
+ #include "scene_event_internal.h"
+ extern s32 iGpffffb4bc;
+@@ -61,7 +62,7 @@
+                           s32 arg4, s32 arg5,
+                           f32 fparg3, f32 fparg4, f32 fparg5);
+ extern char iGpffffa6c4;
+-extern void (*D_00887300[])(u32 state, u32 value);
++extern s32 (*D_00887300[])(RwRenderState state, void *value);
+ extern u8 D_00881530[];
+ extern u8 D_0063BA30[];
+ typedef struct { s32 a, b, c, d; } Quad4;
+@@ -146,7 +147,7 @@
+ 
+ extern s32 func_00110580(s32 arg0);
+ extern s32 func_00110d30(s32 arg0);
+-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
++extern s32 RpSkyRenderStateSet(s32 state, void *value);
+ extern void func_00489f80(void);
+ extern void func_0045d6e0(void *arg0, void *arg1, f32 arg2, s32 arg3);
+ extern void func_0048a000(void);
+@@ -362,7 +363,7 @@
+     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+     CalendarSparkleTable sparkle;
+     CalendarSparkle *spot;
+-    void (**states)(u32 state, u32 value);
++    s32 (**states)(RwRenderState state, void *value);
+     s32 color;
+     f32 posX;
+     f32 posY;
+@@ -382,16 +383,16 @@
+     }
+     if (setupStates != 0) {
+         states = D_00887300;
+-        states[0](20, 1);
+-        states[0](6, 1);
+-        states[0](7, 2);
+-        states[0](8, 1);
+-        states[0](9, 2);
+-        states[0](12, 1);
+-        states[0](2, 4);
+-        states[0](14, 0);
+-        RpSkyRenderStateSet(3, 0x7000D);
+-        RpSkyRenderStateSet(2, 0x44);
++        states[0]((RwRenderState)(20), (void *)(1));
++        states[0]((RwRenderState)(6), (void *)(1));
++        states[0]((RwRenderState)(7), (void *)(2));
++        states[0]((RwRenderState)(8), (void *)(1));
++        states[0]((RwRenderState)(9), (void *)(2));
++        states[0]((RwRenderState)(12), (void *)(1));
++        states[0]((RwRenderState)(2), (void *)(4));
++        states[0]((RwRenderState)(14), (void *)(0));
++        RpSkyRenderStateSet(3, (void *)(0x7000D));
++        RpSkyRenderStateSet(2, (void *)(0x44));
+     }
+     switch (kind) {
+     case 0:
+@@ -484,9 +485,9 @@
+     } WeatherClip;
+     typedef struct { u8 red, green, blue, alpha; } WeatherColor;
+     extern s128 D_00637430;
+-    extern void (*D_00887300[])(u32, u32);
++    extern s32 (*D_00887300[])(RwRenderState state, void *value);
+     u8 *renderStates;
+-    extern void RpSkyRenderStateSet(s32, s32);
++    extern s32 RpSkyRenderStateSet(s32 state, void *value);
+     extern void func_0045d6e0(void *, void *, f32, s32);
+     extern void func_00489f80(void);
+     extern void func_0048a000(void);
+@@ -577,8 +578,8 @@
+         (*(void (**)(u32, u32))renderStates)(0x14, 1);
+         (*(void (**)(u32, u32))renderStates)(6, 0);
+         (*(void (**)(u32, u32))renderStates)(8, 1);
+-        RpSkyRenderStateSet(3, 0x71003);
+-        RpSkyRenderStateSet(2, 0x44);
++        RpSkyRenderStateSet(3, (void *)(0x71003));
++        RpSkyRenderStateSet(2, (void *)(0x44));
+         func_00489f80();
+         func_0045d6e0(&sameBackdropColor, &sameBackdropBounds, 10.0f, 0);
+         func_0048a000();
+@@ -611,14 +612,14 @@
+         (*(void (**)(u32, u32))renderStates)(0x14, 1);
+         (*(void (**)(u32, u32))renderStates)(6, 0);
+         (*(void (**)(u32, u32))renderStates)(8, 1);
+-        RpSkyRenderStateSet(3, 0x31003);
+-        RpSkyRenderStateSet(2, 0x44);
++        RpSkyRenderStateSet(3, (void *)(0x31003));
++        RpSkyRenderStateSet(2, (void *)(0x44));
+         func_00489f80();
+         func_0045d6e0(&sameViewportColor, &sameViewportBounds, 1.0f, 0);
+         func_0048a000();
+         (*(void (**)(u32, u32))renderStates)(6, 1);
+         (*(void (**)(u32, u32))renderStates)(7, 2);
+-        RpSkyRenderStateSet(3, 0x7000D);
++        RpSkyRenderStateSet(3, (void *)(0x7000D));
+         func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+         func_0025f430((f32)x + (9.0f * scaleX), (f32) (y + 4), 10.0f, backgroundColor, opacity, 0xD, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+         if (!(scaleX < 1.0f)) {
+@@ -647,14 +648,14 @@
+         (*(void (**)(u32, u32))renderStates)(0x14, 1);
+         (*(void (**)(u32, u32))renderStates)(6, 0);
+         (*(void (**)(u32, u32))renderStates)(8, 1);
+-        RpSkyRenderStateSet(3, 0x71003);
+-        RpSkyRenderStateSet(2, 0x44);
++        RpSkyRenderStateSet(3, (void *)(0x71003));
++        RpSkyRenderStateSet(2, (void *)(0x44));
+         func_00489f80();
+         func_0045d6e0(&sameOverlayColor, &sameOverlayBounds, 5.0f, 0);
+         func_0048a000();
+         (*(void (**)(u32, u32))renderStates)(6, 0);
+         (*(void (**)(u32, u32))renderStates)(7, 2);
+-        RpSkyRenderStateSet(3, 0x7000D);
++        RpSkyRenderStateSet(3, (void *)(0x7000D));
+         func_00489f80();
+         func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+         func_0025f430((f32)x + (9.0f * scaleX), (f32) (y + 4), 10.0f, backgroundColor, opacity, 0xD, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+@@ -694,8 +695,8 @@
+         (*(void (**)(u32, u32))renderStates)(0x14, 1);
+         (*(void (**)(u32, u32))renderStates)(6, 0);
+         (*(void (**)(u32, u32))renderStates)(8, 1);
+-        RpSkyRenderStateSet(3, 0x31003);
+-        RpSkyRenderStateSet(2, 0x44);
++        RpSkyRenderStateSet(3, (void *)(0x31003));
++        RpSkyRenderStateSet(2, (void *)(0x44));
+         func_00489f80();
+         func_0045d6e0(&sameFinishColor, &sameFinishBounds, 1.0f, 0);
+         func_0048a000();
+@@ -729,8 +730,8 @@
+     (*(void (**)(u32, u32))renderStates)(0x14, 1);
+     (*(void (**)(u32, u32))renderStates)(6, 0);
+     (*(void (**)(u32, u32))renderStates)(8, 1);
+-    RpSkyRenderStateSet(3, 0x71003);
+-    RpSkyRenderStateSet(2, 0x44);
++    RpSkyRenderStateSet(3, (void *)(0x71003));
++    RpSkyRenderStateSet(2, (void *)(0x44));
+     func_00489f80();
+     func_0045d6e0(&currentBackdropColor, &currentBackdropBounds, 10.0f, 0);
+     func_0048a000();
+@@ -763,14 +764,14 @@
+     (*(void (**)(u32, u32))renderStates)(0x14, 1);
+     (*(void (**)(u32, u32))renderStates)(6, 0);
+     (*(void (**)(u32, u32))renderStates)(8, 1);
+-    RpSkyRenderStateSet(3, 0x31003);
+-    RpSkyRenderStateSet(2, 0x44);
++    RpSkyRenderStateSet(3, (void *)(0x31003));
++    RpSkyRenderStateSet(2, (void *)(0x44));
+     func_00489f80();
+     func_0045d6e0(&currentViewportColor, &currentViewportBounds, 1.0f, 0);
+     func_0048a000();
+     (*(void (**)(u32, u32))renderStates)(6, 1);
+     (*(void (**)(u32, u32))renderStates)(7, 2);
+-    RpSkyRenderStateSet(3, 0x3000D);
++    RpSkyRenderStateSet(3, (void *)(0x3000D));
+     func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 0xF, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+     cursor = (u8 *)(&currentOverlayColorScratch);
+     remaining = 4;
+@@ -792,14 +793,14 @@
+     (*(void (**)(u32, u32))renderStates)(0x14, 1);
+     (*(void (**)(u32, u32))renderStates)(6, 0);
+     (*(void (**)(u32, u32))renderStates)(8, 1);
+-    RpSkyRenderStateSet(3, 0x71003);
+-    RpSkyRenderStateSet(2, 0x44);
++    RpSkyRenderStateSet(3, (void *)(0x71003));
++    RpSkyRenderStateSet(2, (void *)(0x44));
+     func_00489f80();
+     func_0045d6e0(&currentOverlayColor, &currentOverlayBounds, 5.0f, 0);
+     func_0048a000();
+     (*(void (**)(u32, u32))renderStates)(6, 0);
+     (*(void (**)(u32, u32))renderStates)(7, 2);
+-    RpSkyRenderStateSet(3, 0x7000D);
++    RpSkyRenderStateSet(3, (void *)(0x7000D));
+     func_00489f80();
+     func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 0xF, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+     func_0048a000();
+@@ -832,8 +833,8 @@
+     (*(void (**)(u32, u32))renderStates)(0x14, 1);
+     (*(void (**)(u32, u32))renderStates)(6, 0);
+     (*(void (**)(u32, u32))renderStates)(8, 1);
+-    RpSkyRenderStateSet(3, 0x31003);
+-    RpSkyRenderStateSet(2, 0x44);
++    RpSkyRenderStateSet(3, (void *)(0x31003));
++    RpSkyRenderStateSet(2, (void *)(0x44));
+     func_00489f80();
+     func_0045d6e0(&currentFinishColor, &currentFinishBounds, 1.0f, 0);
+     func_0048a000();
+@@ -863,8 +864,8 @@
+     (*(void (**)(u32, u32))renderStates)(0x14, 1);
+     (*(void (**)(u32, u32))renderStates)(6, 0);
+     (*(void (**)(u32, u32))renderStates)(8, 1);
+-    RpSkyRenderStateSet(3, 0x71003);
+-    RpSkyRenderStateSet(2, 0x44);
++    RpSkyRenderStateSet(3, (void *)(0x71003));
++    RpSkyRenderStateSet(2, (void *)(0x44));
+     func_00489f80();
+     func_0045d6e0(&previousBackdropColor, &previousBackdropBounds, 10.0f, 0);
+     func_0048a000();
+@@ -897,14 +898,14 @@
+     (*(void (**)(u32, u32))renderStates)(0x14, 1);
+     (*(void (**)(u32, u32))renderStates)(6, 0);
+     (*(void (**)(u32, u32))renderStates)(8, 1);
+-    RpSkyRenderStateSet(3, 0x31003);
+-    RpSkyRenderStateSet(2, 0x44);
++    RpSkyRenderStateSet(3, (void *)(0x31003));
++    RpSkyRenderStateSet(2, (void *)(0x44));
+     func_00489f80();
+     func_0045d6e0(&previousViewportColor, &previousViewportBounds, 1.0f, 0);
+     func_0048a000();
+     (*(void (**)(u32, u32))renderStates)(6, 1);
+     (*(void (**)(u32, u32))renderStates)(7, 2);
+-    RpSkyRenderStateSet(3, 0x3000D);
++    RpSkyRenderStateSet(3, (void *)(0x3000D));
+     func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 1, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+     cursor = (u8 *)(&previousOverlayColorScratch);
+     remaining = 4;
+@@ -926,14 +927,14 @@
+     (*(void (**)(u32, u32))renderStates)(0x14, 1);
+     (*(void (**)(u32, u32))renderStates)(6, 0);
+     (*(void (**)(u32, u32))renderStates)(8, 1);
+-    RpSkyRenderStateSet(3, 0x71003);
+-    RpSkyRenderStateSet(2, 0x44);
++    RpSkyRenderStateSet(3, (void *)(0x71003));
++    RpSkyRenderStateSet(2, (void *)(0x44));
+     func_00489f80();
+     func_0045d6e0(&previousOverlayColor, &previousOverlayBounds, 5.0f, 0);
+     func_0048a000();
+     (*(void (**)(u32, u32))renderStates)(6, 0);
+     (*(void (**)(u32, u32))renderStates)(7, 2);
+-    RpSkyRenderStateSet(3, 0x7000D);
++    RpSkyRenderStateSet(3, (void *)(0x7000D));
+     func_00489f80();
+     func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 1, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+     func_0048a000();
+@@ -966,8 +967,8 @@
+     (*(void (**)(u32, u32))renderStates)(0x14, 1);
+     (*(void (**)(u32, u32))renderStates)(6, 0);
+     (*(void (**)(u32, u32))renderStates)(8, 1);
+-    RpSkyRenderStateSet(3, 0x31003);
+-    RpSkyRenderStateSet(2, 0x44);
++    RpSkyRenderStateSet(3, (void *)(0x31003));
++    RpSkyRenderStateSet(2, (void *)(0x44));
+     func_00489f80();
+     func_0045d6e0(&previousFinishColor, &previousFinishBounds, 1.0f, 0);
+     func_0048a000();
+@@ -1013,7 +1014,7 @@
+     s32 color;
+     s32 glyphWidth;
+     f32 drawDepth;
+-    void (**states)(u32 state, u32 value);
++    s32 (**states)(RwRenderState state, void *value);
+ 
+     func_001104d0(date, &month, &day);
+     weekday = func_00110580(date);
+@@ -1037,15 +1038,15 @@
+     clipScratch.d = 480;
+     clip = clipScratch;
+     states = D_00887300;
+-    states[0](14, 0);
+-    states[0](12, 1);
+-    states[0](7, 2);
+-    states[0](9, 1);
+-    states[0](20, 1);
+-    states[0](6, 0);
+-    states[0](8, 1);
+-    RpSkyRenderStateSet(3, 0x31003);
+-    RpSkyRenderStateSet(2, 0x44);
++    states[0]((RwRenderState)(14), (void *)(0));
++    states[0]((RwRenderState)(12), (void *)(1));
++    states[0]((RwRenderState)(7), (void *)(2));
++    states[0]((RwRenderState)(9), (void *)(1));
++    states[0]((RwRenderState)(20), (void *)(1));
++    states[0]((RwRenderState)(6), (void *)(0));
++    states[0]((RwRenderState)(8), (void *)(1));
++    RpSkyRenderStateSet(3, (void *)(0x31003));
++    RpSkyRenderStateSet(2, (void *)(0x44));
+     func_00489f80();
+     func_0045d6e0(&depthValue, &clip, depth, 0);
+     func_0048a000();
+@@ -1503,15 +1504,15 @@
+             spC8 = 0x280;
+             spCC = 0x1E0;
+             spD0 = *(s128 *)&spC0;
+-            (*D_00887300)(0xE, 0);
+-            (*D_00887300)(0xC, 1);
+-            (*D_00887300)(7, 2);
+-            (*D_00887300)(9, 1);
+-            (*D_00887300)(0x14, 1);
+-            (*D_00887300)(6, 0);
+-            (*D_00887300)(8, 1);
+-            RpSkyRenderStateSet(3, 0x31003);
+-            RpSkyRenderStateSet(2, 0x44);
++            (*D_00887300)((RwRenderState)(0xE), (void *)(0));
++            (*D_00887300)((RwRenderState)(0xC), (void *)(1));
++            (*D_00887300)((RwRenderState)(7), (void *)(2));
++            (*D_00887300)((RwRenderState)(9), (void *)(1));
++            (*D_00887300)((RwRenderState)(0x14), (void *)(1));
++            (*D_00887300)((RwRenderState)(6), (void *)(0));
++            (*D_00887300)((RwRenderState)(8), (void *)(1));
++            RpSkyRenderStateSet(3, (void *)(0x31003));
++            RpSkyRenderStateSet(2, (void *)(0x44));
+             func_00489f80();
+             func_0045d6e0(&spEC, &spD0, 10.0f, 0);
+             func_0048a000();
+@@ -1549,15 +1550,15 @@
+             spA8 = 0x280;
+             spAC = 0x1E0;
+             spB0 = *(s128 *)&spA0;
+-            (*D_00887300)(0xE, 0);
+-            (*D_00887300)(0xC, 1);
+-            (*D_00887300)(7, 2);
+-            (*D_00887300)(9, 1);
+-            (*D_00887300)(0x14, 1);
+-            (*D_00887300)(6, 0);
+-            (*D_00887300)(8, 1);
+-            RpSkyRenderStateSet(3, 0x31003);
+-            RpSkyRenderStateSet(2, 0x44);
++            (*D_00887300)((RwRenderState)(0xE), (void *)(0));
++            (*D_00887300)((RwRenderState)(0xC), (void *)(1));
++            (*D_00887300)((RwRenderState)(7), (void *)(2));
++            (*D_00887300)((RwRenderState)(9), (void *)(1));
++            (*D_00887300)((RwRenderState)(0x14), (void *)(1));
++            (*D_00887300)((RwRenderState)(6), (void *)(0));
++            (*D_00887300)((RwRenderState)(8), (void *)(1));
++            RpSkyRenderStateSet(3, (void *)(0x31003));
++            RpSkyRenderStateSet(2, (void *)(0x44));
+             func_00489f80();
+             func_0045d6e0(&spE4, &spB0, 10.0f, 0);
+             func_0048a000();
+@@ -2030,32 +2031,65 @@
+ }
+ #pragma opt_common_subs reset
+ #pragma optimization_level 2
+-/* Two 19-word lookup tables select the source contours. Preserve the mixed
+-   six-float/six-integer argument order and the 256-color/257-point workspace.
+-   Render-state callbacks are table[0]; the compiler owns the table spill. */
++/* Complete contour tables, clip and color values replace the synthetic
++   stack-frame overlay. Keep source-point reloads across renderer callbacks.
++   The guarded candidate still differs in one saved-register assignment. */
+ // FUN_00267B20 NONMATCHING
+ #ifdef NON_MATCHING
++typedef struct { const PrimFloat2 *value[19]; } ContourSourceTable;
++static inline const PrimFloat2 *const *contourOutlinePoints(const PrimFloat2 *const *sources, s32 shape)
++{
++    return sources + shape * 2 + 1;
++}
++
++typedef struct { s32 value[19]; } ContourCountTable;
++
++typedef struct { u32 value[4]; } ContourChannels;
++static inline u32 contourChannelValue(const ContourChannels *color, s32 component)
++{
++    return color->value[component];
++}
++
++static inline PrimFloat2 *contourPointAt(PrimFloat2 *points, s32 index)
++{
++    return points + index;
++}
++
++static inline u8 *contourColorAt(u8 *colors, s32 index)
++{
++    return colors + index * 4;
++}
++
++static inline const s32 *contourOutlineCount(const s32 *words, s32 shape)
++{
++    return words + shape * 2 + 1;
++}
++
+ #pragma opt_propagation off
+ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
+                    f32 fparg3, f32 fparg4, f32 fparg5)
+ {
+-    typedef unsigned int u_long128 __attribute__((mode(TI)));
+-    extern u32 D_0063A9E0[];
+-    extern u32 D_0063AA30[];
++    typedef signed __int128 ContourPacket;
++    typedef union {
++        struct { s32 x, y, width, height; } fields;
++        ContourPacket packet;
++    } ContourClip;
++    typedef union {
++        struct { u8 red, green, blue, alpha; } bytes;
++        f32 transfer;
++    } ContourColor;
++    extern const ContourCountTable D_0063A9E0;
++    extern const ContourSourceTable D_0063AA30;
+     extern void func_00364c70(void);
+-    struct {
+-        s32 d0;
+-        u_long128 e0;
+-        u_long128 f0;
+-        u32 arr100[0x13];
+-        u8 pad100[4];
+-        u32 arr150[0x13];
+-        u8 pad150[4];
+-        u8 colors[256][4];
+-        PrimFloat2 points[257];
+-        f32 da8;
+-        f32 dac;
+-    } frame;
++    ContourColor backdrop;
++    ContourColor backdropScratch;
++    PrimFloat2 points[257];
++    u8 colors[256 * 4];
++    ContourCountTable counts;
++    ContourSourceTable sources;
++    ContourClip clip;
++    ContourClip clipScratch;
++    ContourChannels channels;
+     s32 i9;
+     s32 iA;
+     s32 iB;
+@@ -2063,63 +2097,60 @@
+     s32 count9;
+     s32 countA;
+     s32 countB;
+-    u8 *ptr9;
+-    u8 *ptrA;
+-    u8 *ptrB;
++    const PrimFloat2 *ptr9;
++    const PrimFloat2 *ptrA;
++    const PrimFloat2 *ptrB;
+     u8 b0_9;
+     u8 b1_9;
+     u8 b2_9;
+     u8 b3_9;
+-    u8 b0;
+-    u8 b1;
+-    u8 b3;
+-    u32 tmp;
+-    u32 *src;
+-    u32 *dst;
+-    s32 n;
+     u8 *p;
+     s32 m;
+-    void (**tbl)(u32, u32);
++    s32 (**tbl)(RwRenderState, void *);
+     u32 combined;
+     combined = ((u32)arg0 << 8) | (u32)arg1;
+-    src = D_0063A9E0;
+-    dst = frame.arr150;
+-    n = 0x13;
+-    do {
+-        tmp = *src;
+-        src++;
+-        n--;
+-        *dst = tmp;
+-        dst++;
+-    } while (n > 0);
+-    src = D_0063AA30;
+-    dst = frame.arr100;
+-    n = 0x13;
+-    do {
+-        tmp = *src;
+-        src++;
+-        n--;
+-        *dst = tmp;
+-        dst++;
+-    } while (n > 0);
++    {
++        const s32 *src = D_0063A9E0.value;
++        s32 *dst = counts.value;
++        s32 remaining = 19;
++        do {
++            s32 value = *src;
++            src++;
++            remaining--;
++            *dst = value;
++            dst++;
++        } while (remaining > 0);
++    }
++    {
++        const PrimFloat2 *const *src = D_0063AA30.value;
++        const PrimFloat2 * *dst = sources.value;
++        s32 remaining = 19;
++        do {
++            const PrimFloat2 * value = *src;
++            src++;
++            remaining--;
++            *dst = value;
++            dst++;
++        } while (remaining > 0);
++    }
+     if (!(fparg4 < 7.0f) || !(fparg5 < 7.0f)) {
+         return;
+     }
+     if (arg3 == 9) {
+-        count9 = frame.arr150[arg3 * 2];
+-        ptr9 = (u8 *)frame.arr100[arg3 * 2];
++        count9 = counts.value[arg3 * 2];
++        ptr9 = sources.value[arg3 * 2];
+         i9 = 0;
+         b0_9 = (combined >> 24) & 0xFF;
+         b1_9 = (combined >> 16) & 0xFF;
+         b2_9 = (combined >> 8) & 0xFF;
+         b3_9 = combined & 0xFF;
+         while (i9 < count9) {
+-            f32 *src9 = (f32 *)(ptr9 + i9 * 8);
+-            f32 *dst9 = &frame.points[i9].v[0];
++            const f32 *src9 = ptr9[i9].v;
++            f32 *dst9 = &points[i9].v[0];
+             u8 *col9;
+-            dst9[0] = (fparg0 + src9[0]) - ((f32 *)ptr9)[0];
+-            dst9[1] = (fparg1 + src9[1]) - ((f32 *)ptr9)[1];
+-            col9 = &frame.colors[i9][0];
++            dst9[0] = (fparg0 + src9[0]) - ptr9[0].v[0];
++            dst9[1] = (fparg1 + src9[1]) - ptr9[0].v[1];
++            col9 = &colors[i9 * 4];
+             col9[0] = b0_9;
+             col9[1] = b1_9;
+             col9[2] = b2_9;
+@@ -2127,11 +2158,11 @@
+             i9++;
+         }
+         func_00364c50();
+-        func_0045e6a0(frame.colors, frame.points, fparg2, count9, 5, 1, arg4, arg5, fparg3, fparg4, fparg5);
++        func_0045e6a0(colors, points, fparg2, count9, 5, 1, arg4, arg5, fparg3, fparg4, fparg5);
+         func_00364c70();
+         return;
+     }
+-    p = (u8 *)&frame.da8;
++    p = (u8 *)&backdropScratch.transfer;
+     m = 4;
+     if (p != NULL) {
+         do {
+@@ -2140,8 +2171,8 @@
+             m--;
+         } while (m != 0);
+     }
+-    frame.dac = frame.da8;
+-    p = (u8 *)&frame.e0;
++    backdrop.transfer = backdropScratch.transfer;
++    p = (u8 *)&clipScratch.packet;
+     m = 0x10;
+     if (p != NULL) {
+         do {
+@@ -2150,89 +2181,89 @@
+             m--;
+         } while (m != 0);
+     }
+-    ((s32 *)&frame.e0)[0] = 0;
+-    ((s32 *)&frame.e0)[1] = 0;
+-    ((s32 *)&frame.e0)[2] = 0x280;
+-    ((s32 *)&frame.e0)[3] = 0x1E0;
+-    frame.f0 = frame.e0;
++    clipScratch.fields.x = 0;
++    clipScratch.fields.y = 0;
++    clipScratch.fields.width = 0x280;
++    clipScratch.fields.height = 0x1E0;
++    clip.packet = clipScratch.packet;
+     tbl = D_00887300;
+-    tbl[0](0xE, 0);
+-    tbl[0](0xC, 1);
+-    tbl[0](7, 2);
+-    tbl[0](9, 2);
+-    tbl[0](0x14, 1);
+-    tbl[0](6, 0);
+-    tbl[0](8, 1);
+-    RpSkyRenderStateSet(3, 0x31003);
+-    RpSkyRenderStateSet(2, 0x44);
++    tbl[0]((RwRenderState)(0xE), (void *)(0));
++    tbl[0]((RwRenderState)(0xC), (void *)(1));
++    tbl[0]((RwRenderState)(7), (void *)(2));
++    tbl[0]((RwRenderState)(9), (void *)(2));
++    tbl[0]((RwRenderState)(0x14), (void *)(1));
++    tbl[0]((RwRenderState)(6), (void *)(0));
++    tbl[0]((RwRenderState)(8), (void *)(1));
++    RpSkyRenderStateSet(3, (void *)(0x31003));
++    RpSkyRenderStateSet(2, (void *)(0x44));
+     func_00489f80();
+-    func_0045d6e0(&frame.dac, &frame.f0, 10.0f, 0);
++    func_0045d6e0(&backdrop.transfer, &clip.packet, 10.0f, 0);
+     func_0048a000();
+-    countA = frame.arr150[arg3 * 2 + 1];
+-    ptrA = (u8 *)frame.arr100[arg3 * 2 + 1];
++    countA = *contourOutlineCount(counts.value, arg3);
++    ptrA = *contourOutlinePoints(sources.value, arg3);
+     iA = 0;
+-    b0 = (combined >> 24) & 0xFF;
+-    b1 = (combined >> 16) & 0xFF;
+-    frame.d0 = (combined >> 8) & 0xFF;
+-    b3 = combined & 0xFF;
++    channels.value[0] = (combined >> 24) & 0xFF;
++    channels.value[1] = (combined >> 16) & 0xFF;
++    channels.value[2] = (combined >> 8) & 0xFF;
++    channels.value[3] = combined & 0xFF;
+     while (iA < countA) {
+-        f32 *srcA = (f32 *)(ptrA + iA * 8);
+-        f32 *dstA = &frame.points[iA].v[0];
++        const f32 *srcA = ptrA[iA].v;
++        f32 *dstA = &points[iA].v[0];
+         u8 *colA;
+-        dstA[0] = (fparg0 + srcA[0]) - ((f32 *)ptrA)[0];
+-        dstA[1] = (fparg1 + srcA[1]) - ((f32 *)ptrA)[1];
+-        colA = &frame.colors[iA][0];
+-        colA[0] = b0;
+-        colA[1] = b1;
+-        colA[2] = (u8)frame.d0;
+-        colA[3] = b3;
++        dstA[0] = (fparg0 + srcA[0]) - ptrA[0].v[0];
++        dstA[1] = (fparg1 + srcA[1]) - ptrA[0].v[1];
++        colA = &colors[iA * 4];
++        colA[0] = contourChannelValue(&channels, 0);
++        colA[1] = contourChannelValue(&channels, 1);
++        colA[2] = (u8)contourChannelValue(&channels, 2);
++        colA[3] = contourChannelValue(&channels, 3);
+         iA++;
+     }
+     func_00364c50();
+     tbl = D_00887300;
+-    tbl[0](6, 0);
+-    tbl[0](8, 1);
+-    RpSkyRenderStateSet(3, 0x30003);
+-    RpSkyRenderStateSet(2, 0x44);
++    tbl[0]((RwRenderState)(6), (void *)(0));
++    tbl[0]((RwRenderState)(8), (void *)(1));
++    RpSkyRenderStateSet(3, (void *)(0x30003));
++    RpSkyRenderStateSet(2, (void *)(0x44));
+     func_00489f80();
+-    func_0045e6a0(frame.colors, frame.points, fparg2, countA, 5, 0, arg4, arg5, fparg3, fparg4, fparg5);
++    func_0045e6a0(colors, points, fparg2, countA, 5, 0, arg4, arg5, fparg3, fparg4, fparg5);
+     func_0048a000();
+     func_00364c70();
+-    countB = frame.arr150[arg3 * 2];
+-    ptrB = (u8 *)frame.arr100[arg3 * 2];
++    countB = counts.value[arg3 * 2];
++    ptrB = sources.value[arg3 * 2];
+     iB = 0;
+     while (iB < countB) {
+-        f32 *srcB = (f32 *)(ptrB + iB * 8);
+-        f32 *dstB = &frame.points[iB].v[0];
++        const f32 *srcB = ptrB[iB].v;
++        f32 *dstB = &points[iB].v[0];
+         u8 *colB;
+-        dstB[0] = (fparg0 + srcB[0]) - ((f32 *)ptrB)[0];
+-        dstB[1] = (fparg1 + srcB[1]) - ((f32 *)ptrB)[1];
+-        colB = &frame.colors[iB][0];
+-        colB[0] = b0;
+-        colB[1] = b1;
+-        colB[2] = (u8)frame.d0;
+-        colB[3] = b3;
++        dstB[0] = (fparg0 + srcB[0]) - ptrB[0].v[0];
++        dstB[1] = (fparg1 + srcB[1]) - ptrB[0].v[1];
++        colB = &colors[iB * 4];
++        colB[0] = contourChannelValue(&channels, 0);
++        colB[1] = contourChannelValue(&channels, 1);
++        colB[2] = (u8)contourChannelValue(&channels, 2);
++        colB[3] = contourChannelValue(&channels, 3);
+         iB++;
+     }
+     if (arg1 == 0xFF) {
+         func_00364c50();
+     }
+-    func_0045e6a0(frame.colors, frame.points, 1.0f + fparg2, countB, 5, 1, arg4, arg5, fparg3, fparg4, fparg5);
++    func_0045e6a0(colors, points, 1.0f + fparg2, countB, 5, 1, arg4, arg5, fparg3, fparg4, fparg5);
+     if (arg1 == 0xFF) {
+         func_00364c70();
+     }
+     iC = 1;
+     while (iC < countA) {
+-        f32 *srcC = (f32 *)(ptrA + iC * 8);
+-        f32 *dstC = &frame.points[iC - 1].v[0];
++        const f32 *srcC = ptrA[iC].v;
++        PrimFloat2 *dstC = contourPointAt(points, iC);
+         u8 *colC;
+-        dstC[0] = (fparg0 + srcC[0]) - ((f32 *)ptrA)[0];
+-        dstC[1] = (fparg1 + srcC[1]) - ((f32 *)ptrA)[1];
+-        colC = &frame.colors[iC - 1][0];
+-        colC[0] = b0;
+-        colC[1] = b1;
+-        colC[2] = (u8)frame.d0;
+-        colC[3] = b3;
++        dstC[-1].v[0] = (fparg0 + srcC[0]) - ptrA[0].v[0];
++        dstC[-1].v[1] = (fparg1 + srcC[1]) - ptrA[0].v[1];
++        colC = contourColorAt(colors, iC);
++        colC[-4] = contourChannelValue(&channels, 0);
++        colC[-3] = contourChannelValue(&channels, 1);
++        colC[-2] = (u8)contourChannelValue(&channels, 2);
++        colC[-1] = contourChannelValue(&channels, 3);
+         iC++;
+     }
+     if (arg1 == 0xFF) {
+@@ -2241,15 +2272,16 @@
+     {
+         s32 v0;
+         s32 v1;
+-        v0 = (s32)(s16)(s32)(fparg0 + ((f32)arg4 - frame.points[0].v[0]));
+-        v1 = (s32)(s16)(s32)(fparg1 + ((f32)arg5 - frame.points[0].v[1]));
+-        func_0045e6a0(frame.colors, frame.points, fparg2, countA - 1, 4, 1, v0, v1, fparg3, fparg4, fparg5);
++        v0 = (s32)(s16)(s32)(fparg0 + ((f32)arg4 - points[0].v[0]));
++        v1 = (s32)(s16)(s32)(fparg1 + ((f32)arg5 - points[0].v[1]));
++        func_0045e6a0(colors, points, fparg2, countA - 1, 4, 1, v0, v1, fparg3, fparg4, fparg5);
+     }
+     if (arg1 == 0xFF) {
+         func_00364c70();
+     }
+ }
+ #pragma opt_propagation on
++
+ #else
+ INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00267b20);
+ #endif

@@ -1,0 +1,1190 @@
+{
+  "scope": "installed guarded contour31; no additional source edit or C match credit",
+  "recorded_utc": "2026-10-06T06:27:17.434846+00:00",
+  "source": "src/promoted/code1_0026.c",
+  "source_sha256": "365363c4a30b38772c19c39c6ad0b16b010c0ea3d820b37c2c7981ae64c1ecbc",
+  "source_unchanged_since_completed_replay": true,
+  "completed_validation_session": 69406,
+  "commands": [
+    [
+      "python",
+      "tools/verify.py",
+      "src/promoted/code1_0026.c",
+      "--json",
+      "build/finish-20261006/ui-worker4/contour-installed-verify.json"
+    ],
+    [
+      "python",
+      "tools/decomp_lint.py",
+      "src/promoted/code1_0026.c",
+      "--summary",
+      "--json",
+      "build/finish-20261006/ui-worker4/contour-installed-lint.json"
+    ],
+    [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "src/promoted/code1_0026.c",
+      "docs/probe_archive/Contour_typed_storage_ui_20261006"
+    ],
+    [
+      "python",
+      "docs/probe_archive/Contour_typed_storage_ui_20261006/replay.py"
+    ]
+  ],
+  "command_exit_codes": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "normal_verifier": {
+    "summary": {
+      "MATCH": 62,
+      "ASM": 3
+    },
+    "functions": [
+      {
+        "addr": "00260510",
+        "name": "func_00260510",
+        "object_size": 72,
+        "window": 80,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00260560",
+        "name": "func_00260560",
+        "object_size": 60,
+        "window": 64,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "002605a0",
+        "name": "func_002605a0",
+        "object_size": 88,
+        "window": 96,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00260600",
+        "name": "func_00260600",
+        "object_size": 2144,
+        "window": 2144,
+        "normalized_diff": 0,
+        "status": "ASM"
+      },
+      {
+        "addr": "00260e60",
+        "name": "func_00260e60",
+        "object_size": 1788,
+        "window": 1792,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00261560",
+        "name": "func_00261560",
+        "object_size": 6268,
+        "window": 6272,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00262de0",
+        "name": "func_00262de0",
+        "object_size": 1088,
+        "window": 1088,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00263220",
+        "name": "func_00263220",
+        "object_size": 564,
+        "window": 576,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00263460",
+        "name": "func_00263460",
+        "object_size": 716,
+        "window": 720,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00263730",
+        "name": "func_00263730",
+        "object_size": 1396,
+        "window": 1408,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00263cb0",
+        "name": "func_00263cb0",
+        "object_size": 4096,
+        "window": 4096,
+        "normalized_diff": 0,
+        "status": "ASM"
+      },
+      {
+        "addr": "00264cb0",
+        "name": "func_00264cb0",
+        "object_size": 88,
+        "window": 96,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00264d10",
+        "name": "func_00264d10",
+        "object_size": 116,
+        "window": 128,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00266a40",
+        "name": "func_00266a40",
+        "object_size": 76,
+        "window": 80,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00266a90",
+        "name": "func_00266a90",
+        "object_size": 76,
+        "window": 80,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00266ae0",
+        "name": "func_00266ae0",
+        "object_size": 144,
+        "window": 144,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00266b70",
+        "name": "func_00266b70",
+        "object_size": 40,
+        "window": 48,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00266ba0",
+        "name": "func_00266ba0",
+        "object_size": 288,
+        "window": 288,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00266cc0",
+        "name": "func_00266cc0",
+        "object_size": 2028,
+        "window": 2032,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "002674b0",
+        "name": "func_002674b0",
+        "object_size": 88,
+        "window": 96,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00267510",
+        "name": "func_00267510",
+        "object_size": 84,
+        "window": 96,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00267570",
+        "name": "func_00267570",
+        "object_size": 252,
+        "window": 256,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00267670",
+        "name": "func_00267670",
+        "object_size": 304,
+        "window": 304,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "002677a0",
+        "name": "func_002677a0",
+        "object_size": 88,
+        "window": 96,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00267800",
+        "name": "func_00267800",
+        "object_size": 800,
+        "window": 800,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00267b20",
+        "name": "func_00267b20",
+        "object_size": 1808,
+        "window": 1808,
+        "normalized_diff": 0,
+        "status": "ASM"
+      },
+      {
+        "addr": "00268a70",
+        "name": "func_00268a70",
+        "object_size": 88,
+        "window": 96,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "00268ad0",
+        "name": "func_00268ad0",
+        "object_size": 80,
+        "window": 80,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026cef0",
+        "name": "func_0026cef0",
+        "object_size": 1292,
+        "window": 1296,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026db60",
+        "name": "func_0026db60",
+        "object_size": 204,
+        "window": 208,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026dc30",
+        "name": "func_0026dc30",
+        "object_size": 32,
+        "window": 32,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026dc50",
+        "name": "func_0026dc50",
+        "object_size": 272,
+        "window": 272,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026dd60",
+        "name": "func_0026dd60",
+        "object_size": 384,
+        "window": 384,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026dee0",
+        "name": "func_0026dee0",
+        "object_size": 160,
+        "window": 160,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026df80",
+        "name": "func_0026df80",
+        "object_size": 140,
+        "window": 144,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026e010",
+        "name": "func_0026e010",
+        "object_size": 204,
+        "window": 208,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026e350",
+        "name": "func_0026e350",
+        "object_size": 12,
+        "window": 16,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026e360",
+        "name": "func_0026e360",
+        "object_size": 344,
+        "window": 352,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026e4c0",
+        "name": "func_0026e4c0",
+        "object_size": 156,
+        "window": 160,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026e560",
+        "name": "func_0026e560",
+        "object_size": 36,
+        "window": 48,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026e590",
+        "name": "func_0026e590",
+        "object_size": 156,
+        "window": 160,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026e630",
+        "name": "func_0026e630",
+        "object_size": 156,
+        "window": 160,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026e6d0",
+        "name": "func_0026e6d0",
+        "object_size": 36,
+        "window": 48,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026e700",
+        "name": "func_0026e700",
+        "object_size": 236,
+        "window": 240,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026e7f0",
+        "name": "func_0026e7f0",
+        "object_size": 288,
+        "window": 288,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026e910",
+        "name": "func_0026e910",
+        "object_size": 44,
+        "window": 48,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026e940",
+        "name": "func_0026e940",
+        "object_size": 260,
+        "window": 272,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026ea50",
+        "name": "func_0026ea50",
+        "object_size": 332,
+        "window": 336,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026eba0",
+        "name": "func_0026eba0",
+        "object_size": 60,
+        "window": 64,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026ebe0",
+        "name": "func_0026ebe0",
+        "object_size": 288,
+        "window": 288,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026ed00",
+        "name": "func_0026ed00",
+        "object_size": 244,
+        "window": 256,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026ee00",
+        "name": "func_0026ee00",
+        "object_size": 244,
+        "window": 256,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026ef00",
+        "name": "func_0026ef00",
+        "object_size": 88,
+        "window": 96,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026ef60",
+        "name": "func_0026ef60",
+        "object_size": 312,
+        "window": 320,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026f0a0",
+        "name": "func_0026f0a0",
+        "object_size": 312,
+        "window": 320,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026f1e0",
+        "name": "func_0026f1e0",
+        "object_size": 224,
+        "window": 224,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026f2c0",
+        "name": "func_0026f2c0",
+        "object_size": 724,
+        "window": 736,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026f5a0",
+        "name": "func_0026f5a0",
+        "object_size": 60,
+        "window": 64,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026f5e0",
+        "name": "func_0026f5e0",
+        "object_size": 640,
+        "window": 640,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026f860",
+        "name": "func_0026f860",
+        "object_size": 832,
+        "window": 832,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026fba0",
+        "name": "func_0026fba0",
+        "object_size": 128,
+        "window": 128,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026fc20",
+        "name": "func_0026fc20",
+        "object_size": 128,
+        "window": 128,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026fca0",
+        "name": "func_0026fca0",
+        "object_size": 236,
+        "window": 240,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026fd90",
+        "name": "func_0026fd90",
+        "object_size": 596,
+        "window": 608,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "addr": "0026fff0",
+        "name": "func_0026fff0",
+        "object_size": 260,
+        "window": 272,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      }
+    ]
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 27,
+    "summary_by_code": {
+      "H003": 6,
+      "H011": 21
+    },
+    "findings": [
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 11,
+        "message": "func_00273970 declared s32(ptr) but defined s32(s32) at src/frFont.c:1939",
+        "text": "extern s32 func_00273970(u8 *arg0);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 30,
+        "message": "func_004b11d0 declared void(ptr, s32) but defined void(ptr, ptr) at src/promoted/code1_004b.c:208",
+        "text": "extern void func_004b11d0(void *arg0, s32 arg1);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 79,
+        "message": "func_00452560 declared ptr(?) but defined u32(ptr) at src/Kernel/sdkTask.c:987",
+        "text": "extern u8 *func_00452560();",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 82,
+        "message": "func_0025ef20 declared s32(ptr) but defined ptr(ptr) at src/Event/Fcl/shdSprite.c:41",
+        "text": "extern s32 func_0025ef20(u8 *arg0);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 85,
+        "message": "func_00106880 declared s32(s16) but defined u32(s16) at src/g_data/g_data.c:1239",
+        "text": "extern s32 func_00106880(s16 arg0);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 93,
+        "message": "func_0025f230 declared void(ptr) but defined void(u32) at src/Event/Fcl/shdSprite.c:156",
+        "text": "extern void func_0025f230(void *arg0);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 100,
+        "message": "func_0045a8d0 declared s32(s32, s32) but defined s32(s16) at src/sdkSnd.c:840",
+        "text": "extern s32 func_0045a8d0(s32 arg0, s32 arg1);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 101,
+        "message": "func_004598e0 declared s32(s32) but defined s32(s16) at src/sdkSnd.c:436",
+        "text": "extern s32 func_004598e0(s32 arg0);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 107,
+        "message": "func_00452380 declared s32(ptr) but defined ptr(ptr) at src/Kernel/sdkTask.c:888",
+        "text": "extern s32 func_00452380(void *arg0);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 108,
+        "message": "func_00452080 declared void(s32) but defined s32(ptr) at src/Kernel/sdkTask.c:780",
+        "text": "extern void func_00452080(s32 arg0);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 117,
+        "message": "func_00107ce0 declared s32(s32) but defined void(s32) at src/cmmCommunity.c:649",
+        "text": "extern s32 func_00107ce0(s32 arg0);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 118,
+        "message": "func_00107dc0 declared s32(s32) but defined void(s32) at src/cmmCommunity.c:687",
+        "text": "extern s32 func_00107dc0(s32 arg0);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 119,
+        "message": "func_00108290 declared void(s32, s32) but defined s32(s32, u32) at src/cmmCommunity.c:893",
+        "text": "extern void func_00108290(s32 arg0, s32 arg1);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 122,
+        "message": "func_0043c6a0 declared s32(s32) but defined agg(s32) at src/sce/libmc2_grouped.c:13",
+        "text": "extern s32 func_0043c6a0(s32 arg0);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 132,
+        "message": "func_0010d660 declared s64(s32) but defined u32(s16) at src/g_data/g_data.c:1691",
+        "text": "extern s64 func_0010d660(s32 arg0);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 133,
+        "message": "func_0010d6d0 declared s64(s32) but defined u32(s16) at src/g_data/g_data.c:1705",
+        "text": "extern s64 func_0010d6d0(s32 arg0);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 141,
+        "message": "func_002739e0 declared void(s32, ptr) but defined void(u8, ptr) at src/frFont.c:1971",
+        "text": "extern void func_002739e0(s32 arg0, u8 *arg1);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 145,
+        "message": "func_00457120 declared ptr() but defined s32() at src/promoted/code1_0045.c:1447",
+        "text": "extern u8 *func_00457120(void);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 146,
+        "message": "func_004b1470 declared void(s32, ptr) but defined void(ptr, ptr) at src/promoted/code1_004b.c:303",
+        "text": "extern void func_004b1470(s32 arg0, f32 *arg1);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 155,
+        "message": "func_0025f620 declared void(f32, f32, f32, s32, u8, ptr, s32, s16, s16, agg, ptr) but defined void(s32, u8, s32, s32, s16, s16, agg, ptr, f32, f32, f32) at src/Event/Fcl/shdSprite.c:257",
+        "text": "extern void func_0025f620(f32, f32, f32, s32, u8, const char *, s32, s16, s16, Code1_0026Callback, u8 *);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H003",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 1246,
+        "message": "nonbaseline pragma `opt_loop_invariants on`; review justification",
+        "text": "#pragma opt_loop_invariants on",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 1893,
+        "message": "func_002e2240 declared void(ptr, ptr, ptr) but defined ptr(ptr, ptr, ptr) at src/comuData.c:25",
+        "text": "extern void func_002e2240(void *arg0, void *arg1, void *arg2);",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H003",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 1955,
+        "message": "nonbaseline pragma `optimization_level 1`; review justification",
+        "text": "#pragma optimization_level 1",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H003",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 1965,
+        "message": "nonbaseline pragma `opt_common_subs off`; review justification",
+        "text": "#pragma opt_common_subs off",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H003",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 3406,
+        "message": "nonbaseline pragma `opt_common_subs off`; review justification",
+        "text": "#pragma opt_common_subs off",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H003",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 3532,
+        "message": "nonbaseline pragma `opt_common_subs off`; review justification",
+        "text": "#pragma opt_common_subs off",
+        "present_in_preinstall_source": true
+      },
+      {
+        "code": "H003",
+        "severity": "warn",
+        "file": "src/promoted/code1_0026.c",
+        "line": 3830,
+        "message": "nonbaseline pragma `opt_common_subs off`; review justification",
+        "text": "#pragma opt_common_subs off",
+        "present_in_preinstall_source": true
+      }
+    ],
+    "review": "All 21 H011 declarations existed before this install and are not modified by the contour change. Six H003 advisories include two measured, scoped contour helper settings; owner replay preserves production and other guarded bodies."
+  },
+  "portable_replay": {
+    "path": "build/ui-contour-replay-cb96ddd875d3",
+    "production_functions_resolved_exact": 65,
+    "production_references_resolved": 608,
+    "allocated_data_sections_exact": 4,
+    "target_active_siblings_exact": 64,
+    "other_guards_unchanged": 2,
+    "target": {
+      "mode": "target",
+      "side": "after",
+      "name": "func_00267b20",
+      "size": 1796,
+      "window": 1808,
+      "resolved_words": 31,
+      "resolved_sha256": "f3f3a2c93a5edd93b95778368cbb6e66e479a17d55a474c386f3b170a865c60d",
+      "zero_only_tail": true,
+      "references": 29
+    },
+    "storage": [
+      {
+        "section": ".rodata#0",
+        "retail_address": "0x00747f10",
+        "bytes": 48,
+        "fully_resolved_sha256": "56586bbbd93229047dbb5c37049b9aac21d0647d9f075ce1825e8c7e7e4620b4",
+        "retail_equal": true,
+        "references": [
+          {
+            "function": "func_00263460",
+            "hi_offset": 68,
+            "lo_offset": 72
+          }
+        ],
+        "pointer_entries": [
+          {
+            "offset": 44,
+            "retail_target": "0x002636e0"
+          },
+          {
+            "offset": 40,
+            "retail_target": "0x002636d4"
+          },
+          {
+            "offset": 36,
+            "retail_target": "0x002635fc"
+          },
+          {
+            "offset": 32,
+            "retail_target": "0x00263598"
+          },
+          {
+            "offset": 28,
+            "retail_target": "0x0026367c"
+          },
+          {
+            "offset": 24,
+            "retail_target": "0x002636a8"
+          },
+          {
+            "offset": 20,
+            "retail_target": "0x00263628"
+          },
+          {
+            "offset": 16,
+            "retail_target": "0x002635d0"
+          },
+          {
+            "offset": 12,
+            "retail_target": "0x0026356c"
+          },
+          {
+            "offset": 8,
+            "retail_target": "0x00263548"
+          },
+          {
+            "offset": 4,
+            "retail_target": "0x002634e4"
+          },
+          {
+            "offset": 0,
+            "retail_target": "0x002634c0"
+          }
+        ]
+      },
+      {
+        "section": ".rodata#1",
+        "retail_address": "0x007480a0",
+        "bytes": 48,
+        "fully_resolved_sha256": "0cbf0107ea7bec6a0e64faa9aa7c612c962a1be89d5b33e993b1bd3c72c49757",
+        "retail_equal": true,
+        "references": [
+          {
+            "function": "func_0026f2c0",
+            "hi_offset": 516,
+            "lo_offset": 520
+          }
+        ],
+        "pointer_entries": [
+          {
+            "offset": 44,
+            "retail_target": "0x0026f4e0"
+          },
+          {
+            "offset": 40,
+            "retail_target": "0x0026f4ec"
+          },
+          {
+            "offset": 36,
+            "retail_target": "0x0026f4e0"
+          },
+          {
+            "offset": 32,
+            "retail_target": "0x0026f4ec"
+          },
+          {
+            "offset": 28,
+            "retail_target": "0x0026f4ec"
+          },
+          {
+            "offset": 24,
+            "retail_target": "0x0026f4e0"
+          },
+          {
+            "offset": 20,
+            "retail_target": "0x0026f4e0"
+          },
+          {
+            "offset": 16,
+            "retail_target": "0x0026f4e0"
+          },
+          {
+            "offset": 12,
+            "retail_target": "0x0026f4e0"
+          },
+          {
+            "offset": 8,
+            "retail_target": "0x0026f4e0"
+          },
+          {
+            "offset": 4,
+            "retail_target": "0x0026f4e0"
+          },
+          {
+            "offset": 0,
+            "retail_target": "0x0026f4e0"
+          }
+        ]
+      },
+      {
+        "section": ".rodata#2",
+        "retail_address": "0x007480d0",
+        "bytes": 48,
+        "fully_resolved_sha256": "0f6c4d28fb3f42db167945264003578172f2d37811cedd7ad7e18025a54e8578",
+        "retail_equal": true,
+        "references": [
+          {
+            "function": "func_0026fd90",
+            "hi_offset": 388,
+            "lo_offset": 392
+          }
+        ],
+        "pointer_entries": [
+          {
+            "offset": 44,
+            "retail_target": "0x0026ff30"
+          },
+          {
+            "offset": 40,
+            "retail_target": "0x0026ff3c"
+          },
+          {
+            "offset": 36,
+            "retail_target": "0x0026ff30"
+          },
+          {
+            "offset": 32,
+            "retail_target": "0x0026ff3c"
+          },
+          {
+            "offset": 28,
+            "retail_target": "0x0026ff3c"
+          },
+          {
+            "offset": 24,
+            "retail_target": "0x0026ff30"
+          },
+          {
+            "offset": 20,
+            "retail_target": "0x0026ff30"
+          },
+          {
+            "offset": 16,
+            "retail_target": "0x0026ff30"
+          },
+          {
+            "offset": 12,
+            "retail_target": "0x0026ff30"
+          },
+          {
+            "offset": 8,
+            "retail_target": "0x0026ff30"
+          },
+          {
+            "offset": 4,
+            "retail_target": "0x0026ff30"
+          },
+          {
+            "offset": 0,
+            "retail_target": "0x0026ff30"
+          }
+        ]
+      },
+      {
+        "section": ".lit4#0",
+        "retail_address": "0x007612c4",
+        "bytes": 4,
+        "fully_resolved_sha256": "1b2d34ca4f611ab1f252da99dfeb92e3cac1c370a3cbd47e9d6933ce20d387a0",
+        "retail_equal": true,
+        "references": [
+          {
+            "function": "func_00260e60",
+            "gp_offset": 884
+          },
+          {
+            "function": "func_00260e60",
+            "gp_offset": 1000
+          }
+        ],
+        "pointer_entries": []
+      }
+    ]
+  },
+  "new_C_matches": 0,
+  "repository_wide_link_validation": "Not run by this receipt; prime owns batch-level validation.",
+  "inputs": {
+    "tools/verify.py": "9e3be8be1b1fc6a99791d886cd98c14cb40b019297e5c39c81092b8ce216031e",
+    "tools/probe_variants.py": "a0e5c8b1767ff084c8fe13be8d3104e198cc056e02854ba88f19786ced674d8f",
+    "tools/decomp_lint.py": "9d1b169223ee8fba69e08ac0084d879a031691d31927f2a6a171165fdde6b184"
+  },
+  "evidence": [
+    {
+      "path": "docs/probe_archive/Contour_typed_storage_ui_20261006/receipt.json",
+      "sha256": "c8f7a72efc37c08c778577cd4003c16c60e7075f31b638bbfa3d6147c891adc5",
+      "bytes": 10995
+    },
+    {
+      "path": "docs/probe_archive/Contour_typed_storage_ui_20261006/contour.patch",
+      "sha256": "d768e886aff16d637131123e50ba850c824642227c34c577658ab9e7a3fbeb98",
+      "bytes": 26571
+    },
+    {
+      "path": "docs/probe_archive/Contour_typed_storage_ui_20261006/replay.py",
+      "sha256": "222fdf007682de85c7ec1983e30dfcbf0c92e8af54c3ce21b7c8f14ff622a318",
+      "bytes": 8212
+    },
+    {
+      "path": "docs/probe_archive/Contour_typed_storage_ui_20261006/native_references.py",
+      "sha256": "57409e8a608ae63e67160200b1c789522a2e73ac505fd2767ea915947a15a4d1",
+      "bytes": 9822
+    },
+    {
+      "path": "build/finish-20261006/ui-worker4/contour-installed-verify.json",
+      "sha256": "e0d7afa7e8afe1ea50ed23860f5bc3aa0f4dcd5bd4b3bc14f88af9d9b5c493cf",
+      "bytes": 111310
+    },
+    {
+      "path": "build/finish-20261006/ui-worker4/contour-installed-lint.json",
+      "sha256": "3f5d675c7eef7277f69b2dc12bd39fdfc2c3d5d3409492ca96aa947b2af21d1f",
+      "bytes": 9766
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/proof.json",
+      "sha256": "e723c70c1487dfd5fad90c09ebc8aa324cf5f666aa8c2806853b9d582fec4470",
+      "bytes": 87272
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/production-before/owner.c",
+      "sha256": "b532e8bd793f67fdde730201e5ee5045cc03dd4e88698f92d7c9830d9770d9f7",
+      "bytes": 130397
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/production-before/owner.o",
+      "sha256": "fd3bbdcc3532ae052755ed6d7bf83b0fd8ba1227d5fd0a86a040882cb8c0f9f9",
+      "bytes": 63052
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/production-before/compiler.log",
+      "sha256": "74295926bbf1e3da3d952f5c29d31ced5893c5cbe25ed420015eb7ca1dabe786",
+      "bytes": 172
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/production-after/owner.c",
+      "sha256": "365363c4a30b38772c19c39c6ad0b16b010c0ea3d820b37c2c7981ae64c1ecbc",
+      "bytes": 133537
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/production-after/owner.o",
+      "sha256": "150055c07a362686ab58076a97c8458e86808c7b5d0aee76173c50e49406cf98",
+      "bytes": 63052
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/production-after/compiler.log",
+      "sha256": "74295926bbf1e3da3d952f5c29d31ced5893c5cbe25ed420015eb7ca1dabe786",
+      "bytes": 172
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/target-before/owner.c",
+      "sha256": "3f2d4801e6896b06b7e5fbc8ede9fc9362b6e9e6d5a38ee4134900836f17239a",
+      "bytes": 130305
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/target-before/owner.o",
+      "sha256": "02f95e9536c3700fc6524e13869202c6918ff7310e1596f36a21ebcdf8fc4dcc",
+      "bytes": 62996
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/target-before/compiler.log",
+      "sha256": "74295926bbf1e3da3d952f5c29d31ced5893c5cbe25ed420015eb7ca1dabe786",
+      "bytes": 172
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/target-after/owner.c",
+      "sha256": "8d1d72dec975886c3bc9f314b3e4946e4f37134d213553f76fbe554fc3a16584",
+      "bytes": 133445
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/target-after/owner.o",
+      "sha256": "5e089f0f7aa74eaa25023cf40483aa71557acf95a8f2e6c64f1db4a590e9005a",
+      "bytes": 62996
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/target-after/compiler.log",
+      "sha256": "74295926bbf1e3da3d952f5c29d31ced5893c5cbe25ed420015eb7ca1dabe786",
+      "bytes": 172
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/guards-before/owner.c",
+      "sha256": "6d66d356ad66f0fd9568d1220b298f4f7b9b11a3d39bbdbe910379a08145abca",
+      "bytes": 130418
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/guards-before/owner.o",
+      "sha256": "6abaa712fece4df6a283b1d8e6755e39ee12ee81e54a06a090c96658cfcce960",
+      "bytes": 64552
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/guards-before/compiler.log",
+      "sha256": "d9c14224b793cb87c25de569903f1eb3ebe7043be5867397f7c98b6b03b6f466",
+      "bytes": 86
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/guards-after/owner.c",
+      "sha256": "109237142afc5a99df6904d53dcc21a0cde480b34e53c99c6ed19f9070127a31",
+      "bytes": 133558
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/guards-after/owner.o",
+      "sha256": "ceca808ded59a775274b07bb3b8f9189621da39fe3474aa28efb61c6262c540a",
+      "bytes": 64552
+    },
+    {
+      "path": "build/ui-contour-replay-cb96ddd875d3/guards-after/compiler.log",
+      "sha256": "d9c14224b793cb87c25de569903f1eb3ebe7043be5867397f7c98b6b03b6f466",
+      "bytes": 86
+    }
+  ]
+}

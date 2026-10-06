@@ -1,0 +1,578 @@
+{
+  "schema_version": 1,
+  "status": "installed after prime release on 2026-10-06",
+  "new_C_matches": 0,
+  "corrected_wrappers": 8,
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "gp": "007690f0",
+  "compiler": {
+    "name": "MWCCPS2 3.0.1 b210",
+    "sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+    "base_flags": [
+      "-O2",
+      "-Iinclude"
+    ]
+  },
+  "tracked_inputs": {
+    "asm/macro.inc": "2d8a3cdc3c8fa9c9db0f207bf9ee0104d07504ea4ad4f77103601e034fdc9e61",
+    "config/asm_symbol_baseline.txt": "0c3524c648feaebe852f2b0221acae604de53f77f02e997ea425e368692bab52",
+    "config/compiler_units.txt": "4921b5b184b0c44ad3c034c5455b5383e11446d24b8743129cd4792147d8caf4",
+    "config/gcc_units.txt": "44cd2c8ed3e3a67edeba45c61358768fc166dd8c98abcd48a7e70f2d141f4f5a",
+    "config/generated_asm.json": "0abf1147e67d58764d0afff85570b234a287853647c726e403923ee924a3caef",
+    "config/slus21782.yaml": "99fc10b794b6ae5edfc9b6da828a5a5c29036050101c0f1ebd78326e4e08bc9b",
+    "config/speed_units.txt": "946abdc8d3a618b0d7f43e46c3f4c8acac6b164826cc2d5df9dc7de8fca2db73",
+    "config/symbol_addrs.txt": "8159861efe6bd3eca9860a55aeefd8c646ecfa33360434d720b6f3d08238893a",
+    "config/symbols_recovered.txt": "e294d7e3dbcff77ffb7a8adf9d63a0d8dfd92566bd641d6f95f4543be4899444",
+    "config/target.json": "cb4fffeb0f711f8d97efb9d08776659e9a32b013043f3b59a9ea5bc582c5a85d",
+    "config/version_flags.txt": "56b4ec06c82714b0dbf0acb5a6e0ddaae3ce8380ed0a5b44890f58620656e30d",
+    "include/btl_shuffle_draw_internal.h": "bc8d22302f8ed7e3fc1a2d67ba85c845c5abf7c2cab72b6eb5310229b6e6350d",
+    "include/effect_geometry_internal.h": "debc432bdc3c4e8e31d5eb3370617587b90fc4913157b85e8f16697ff312b82d",
+    "include/effect_instance_internal.h": "8fa16fdde17314bfb796c95afbbb0388e2e512fc6a8377966049893d43040efe",
+    "include/effect_update_internal.h": "5836ad06aa3cf2f88d106cbf46f7306b91a51dee949e03dd17a49c11498c05cb",
+    "include/effect_vu0_internal.h": "17950fb770d93dfff1457cbe5684eb281500c1e70d972fd94e4c2622b502e5dc",
+    "include/include_asm.h": "8c2cde497ecdcafdb07af8d62c1e0eb1a30eeb14d1c4567128e5f2714e5cd963",
+    "include/model_motion_internal.h": "1d708315df40d5aaa4fe9c13f826206bc4d6477d1aa127a2211b87379f923a85",
+    "include/particle_spawn_internal.h": "dd5d0f65179da39f39486e125935c7b1251df932fb3f862deb5f5ba823824ea8",
+    "include/rw/plcore/barenderstate.h": "ae1b1ffe5c64ac25db9533848125c6b4a3fadd2e72b25a588b48fae58cb75f21",
+    "include/type.h": "d98ec5482a2782c2a9ca41f93d590ab2007b9817936d5208746d6e8794906db3",
+    "requirements-python.txt": "a710c34702b69ee5205eb6ac742f13bec6fe871f6f01abcdfdf296453aa530af",
+    "src/Graphics/Model/mdlEffect.c": "7b7938e941512096fe2a07d6f375c41898b579631b0eb58040727ed80fbd6225",
+    "tools/asm.py": "75670b3a6ddfa7761a0734b5a4d4b2692f365eaf04f8f8a5a2d6d8802ac5ab70",
+    "tools/extract_nonmatching_asm.py": "78cde4a7fded07dff5fd8151ebdcef2aa903d864e8a217669e04d78f27bd40eb",
+    "tools/mwccgap/mwccgap.py": "5d4e880fadb5e96f14ca0e1d4a03fff5d37bcc887761f2b8523c1321920c21f9",
+    "tools/mwccgap/mwccgap/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tools/mwccgap/mwccgap/assembler.py": "f7138da9b98f8b88a65c6e934145d898ec40909920cb62da5127b1971b60a033",
+    "tools/mwccgap/mwccgap/compiler.py": "10b624846ebd6a8b274fe753771a72453241e2610318bc1792744ea5bc3994e8",
+    "tools/mwccgap/mwccgap/constants.py": "5122cb825f396250fbd90dcbacc7e5fb852b61aaf9cbb5c045a8bd2cee1ff3f0",
+    "tools/mwccgap/mwccgap/elf.py": "0980efe5dadbef88dfabe28cc1681b9947f4871c4e98462dfb1fd624879f2d75",
+    "tools/mwccgap/mwccgap/exceptions.py": "49c80b251c80822b2aab5c67a4e2b660baae4a71a20ace951c5e303b21d542e5",
+    "tools/mwccgap/mwccgap/mwccgap.py": "224c2c44761f942cdeacefc92d82bbd85fd111f9e5f8453ebfdd03e0f0eefe71",
+    "tools/mwccgap/mwccgap/preprocessor.py": "191bc36552117d5fb0ffb08103c8db772a037b2d7e414d9bd0756b97d457d92d",
+    "tools/probe_variants.py": "a0e5c8b1767ff084c8fe13be8d3104e198cc056e02854ba88f19786ced674d8f",
+    "tools/regenerate_asm.py": "519ad21b4bc3edf5cb7348e286111107fe11bbc050110a660016f7fc6b1df7f6",
+    "tools/slus21782_functions.json": "43d17bf206f4c878e34ed335aa8a715e09b94a6060321f32c22e04ad72284b5a",
+    "tools/verify.py": "9e3be8be1b1fc6a99791d886cd98c14cb40b019297e5c39c81092b8ce216031e"
+  },
+  "generated_assembly": {
+    "asm/nonmatchings/code1_0048/func_00485630.s": "cc606ef3ce8ac412746317c8df570d88131474de8328c8eb13b8d7185191d0db",
+    "asm/nonmatchings/code1_0048/func_00485870.s": "f6d5171102b2bf346fa5635063ac6da857c18e4bd88003b8d4ed8265ad981fd5",
+    "asm/nonmatchings/code1_0048/func_0048b340.s": "c76e22f342eb12a6a974cf88b0d9e725cdb08e1c9e2a0986b449620a2b1c91a8",
+    "asm/nonmatchings/code1_0048/func_0048cdf0.s": "1684fb7eb032aae7f350a3bfe17862bb1a8a7f3b374205e5befaa90df9b06393",
+    "asm/nonmatchings/code1_0048/func_0048d8c0.s": "33fa5d76f1373ff9508b214545d750f2c2b345bb0bbb5bae773fcc226c94c39c",
+    "asm/nonmatchings/code1_0048/func_0048f5f0.s": "99be2eab806bd140bbced47494bfd23d76ff7d840bff2b7bbd6d23ce51b283ec",
+    "asm/nonmatchings/code1_004a/func_004a5fc0.s": "2df96a631aa87d7b4b727658eee61e022f01ae194ad422482626f5539625851d",
+    "asm/nonmatchings/code1_004a/func_004a7830.s": "8001f5540419b4a7e66fe4fc6fa256c010108e0b8b7a4e0680a39cf227827838",
+    "asm/nonmatchings/code1_004b/func_004b1ad0.s": "9a97e9accf2f48755ee048cdabcdd52ab466afc8462f749ed0f3ba03f051fddd",
+    "asm/nonmatchings/code1_004b/func_004bd6b8.s": "20fece3cf151c371ed930ca9d8f01bc52bc2334f020928355bb457375d6423fa",
+    "asm/nonmatchings/code1_004b/func_004bd720.s": "6af062c98a5d6c245b4681aec27595cf3bcdab3744ea98e9e8bf14196cd3d75f"
+  },
+  "archive_inputs": {
+    "proof.py": "b32875b055535d8d49e6c72222f71e65d9836651dc192acb28b1935c1c5d6014",
+    "replay.py": "81fdfd53a521765abd515502afaaf609049f91590ea16d7da6e615ccfcefe3f4",
+    "fallbacks.py": "a7ad3e8261137a4db96fc93978d612e1f621de8303bcb550e255a0b16b2805d1"
+  },
+  "owners": [
+    {
+      "owner": "src/promoted/code1_0048.c",
+      "wrappers": [
+        "00489ee0",
+        "00489f10"
+      ],
+      "before_sha256": "de3c341ca6627140d204e2c4648aa1780ceefd8e14065173379c71293e57f0a9",
+      "after_sha256": "02ab7e798d5a903b5ac3a4e2d49e30a2f73f1715bfb9654dd6f5fbbec6306f8f",
+      "edits": [
+        {
+          "before": "} RwMatrix;\n\nextern void func_00492dd0();\nextern void func_00492e10();\nextern void func_003c02e0(u8 *arg0);\nextern void func_003c4220(s32 arg0);\n",
+          "after": "} RwMatrix;\n\nextern u_long128 func_00492dd0(s32 emitter, u32 *position);\nextern u_long128 func_00492e10(s32 emitter, u32 *rotation);\nextern void func_003c02e0(u8 *arg0);\nextern void func_003c4220(s32 arg0);\n"
+        },
+        {
+          "before": "}\n// FUN_00489EE0\nvoid func_00489ee0(u8 *arg0)\n{\n    func_00492dd0(*(u8 **)(arg0 + 0x4C));\n}\n// FUN_00489F10\nvoid func_00489f10(u8 *arg0)\n{\n    func_00492e10(*(u8 **)(arg0 + 0x4C));\n}\n/* Measured with b210 -O2: keeping the trace/diagonal stages and the scaled\n",
+          "after": "}\n// FUN_00489EE0\nvoid func_00489ee0(u8 *instance, u32 *position)\n{\n    func_00492dd0(*(s32 *)(instance + 0x4C), position);\n}\n// FUN_00489F10\nvoid func_00489f10(u8 *instance, u32 *rotation)\n{\n    func_00492e10(*(s32 *)(instance + 0x4C), rotation);\n}\n/* Measured with b210 -O2: keeping the trace/diagonal stages and the scaled\n"
+        }
+      ],
+      "function_count": 73,
+      "flags": [
+        "-O2",
+        "-Iinclude"
+      ],
+      "profiles": {
+        "default": {
+          "before": {
+            "source_sha256": "de3c341ca6627140d204e2c4648aa1780ceefd8e14065173379c71293e57f0a9",
+            "object_sha256": "a06f692325fede140ce33250f92c59e80d5b3316fafa42e30b2a1cd674db2dca",
+            "historical_proof_sha256": "d21ec8d14a87faedb5f9acf98fc1bef6143b7122f3b4de6f6fa193d214033e63",
+            "compile_receipt_sha256": "ed4ea4e89c3cdede0cf433cc5138a8452b6e746c6540be19cd91a3b6ce745f7e"
+          },
+          "after": {
+            "source_sha256": "02ab7e798d5a903b5ac3a4e2d49e30a2f73f1715bfb9654dd6f5fbbec6306f8f",
+            "object_sha256": "a06f692325fede140ce33250f92c59e80d5b3316fafa42e30b2a1cd674db2dca",
+            "historical_proof_sha256": "fd7dde5910614abcbf01e121e83cc8d3a27492011c256c5953dc01b0cffabc79",
+            "compile_receipt_sha256": "1917c0640b912e4c9627ebb293ce9ff988c3fd9ba1ddf83ce3185464ada1b6b2"
+          },
+          "proof_fingerprint": "f5857178f31d949d4d30a74cbb9796b871fcac877b5bedb0494a5005a2c80735",
+          "status_counts": {
+            "MATCH": 67,
+            "ASM": 6
+          },
+          "code_relocations": 589,
+          "data_relocations": 0,
+          "owned_data": []
+        },
+        "guarded": {
+          "before": {
+            "source_sha256": "de57158310b4e65fd43a9118e3193f02fcf86638c00dcad4fc0415afbb551733",
+            "object_sha256": "068da9f6eed54f4a74ccde5dd4b8d41875bcefd4d7404a7146e893221ec6c257",
+            "historical_proof_sha256": "d16783eaa2d4bae277d4f9f5762126c4cd0190ec30af7218772e5efff83ad0cc",
+            "compile_receipt_sha256": "77c854f85d2bde378e93b68af03994898fd42a23ad0a3c75d4cc127ee2e7ee88"
+          },
+          "after": {
+            "source_sha256": "2a54ecea1a2ff9218bd4c896c4960a16c75afbaaca5705c5c6c7750543084cb4",
+            "object_sha256": "068da9f6eed54f4a74ccde5dd4b8d41875bcefd4d7404a7146e893221ec6c257",
+            "historical_proof_sha256": "dac382a277de2633dad3414e49343a2b4be80509a14ea9b29f5b5111a1c9819c",
+            "compile_receipt_sha256": "dc96a442da7cd754c4c013bb3acde04dd13ad945d6d152b00581dc62b0c29dc5"
+          },
+          "proof_fingerprint": "1fc488a577d099d4bb2cf8d966e87ba6d5a7bf3df2293b5048743df3420f078d",
+          "status_counts": {
+            "MATCH": 67,
+            "NONMATCHING": 6
+          },
+          "code_relocations": 604,
+          "data_relocations": 0,
+          "owned_data": []
+        }
+      }
+    },
+    {
+      "owner": "src/promoted/code1_004a.c",
+      "wrappers": [
+        "004af5e0",
+        "004af610"
+      ],
+      "before_sha256": "e62d097a202c87de9ec1e401d5b53f46f2e48744329902d567fe026ecabffd99",
+      "after_sha256": "b9499bbf42f368ed3a933599f25e1a02119960cf15ca426603c04e745eb17d3f",
+      "edits": [
+        {
+          "before": "extern u8 *func_004a5630(u16 arg0, u8 *arg1);\nextern u8 D_0071413C[];\nextern void func_00492dd0();\nextern void func_00492e10();\nextern void func_00492e30(u16 *emitter, f32 scale);\nextern s32 func_004814d0(u16 arg0);\n",
+          "after": "extern u8 *func_004a5630(u16 arg0, u8 *arg1);\nextern u8 D_0071413C[];\nextern u_long128 func_00492dd0(s32 emitter, u32 *position);\nextern u_long128 func_00492e10(s32 emitter, u32 *rotation);\nextern void func_00492e30(u16 *emitter, f32 scale);\nextern s32 func_004814d0(u16 arg0);\n"
+        },
+        {
+          "before": "}\n// FUN_004AF5E0\nvoid func_004af5e0(u8 *arg0) {\n    func_00492dd0(*(u8 **)(arg0 + 0x58));\n}\n// FUN_004AF610\nvoid func_004af610(u8 *arg0) {\n    func_00492e10(*(u8 **)(arg0 + 0x58));\n}\n// FUN_004AF640\n",
+          "after": "}\n// FUN_004AF5E0\nvoid func_004af5e0(u8 *instance, u32 *position)\n{\n    func_00492dd0(*(s32 *)(instance + 0x58), position);\n}\n// FUN_004AF610\nvoid func_004af610(u8 *instance, u32 *rotation)\n{\n    func_00492e10(*(s32 *)(instance + 0x58), rotation);\n}\n// FUN_004AF640\n"
+        }
+      ],
+      "function_count": 92,
+      "flags": [
+        "-O2",
+        "-Iinclude"
+      ],
+      "profiles": {
+        "default": {
+          "before": {
+            "source_sha256": "e62d097a202c87de9ec1e401d5b53f46f2e48744329902d567fe026ecabffd99",
+            "object_sha256": "ab091684007edb3f68a608b4f049658dd99003655b19e05919230c3fb45cd8ba",
+            "historical_proof_sha256": "09a4bedd96742d464776d13d9480cdc3ba917d8b2d73ff97cd4b4abb55d4645f",
+            "compile_receipt_sha256": "a0e9b0e71290620f70d4eca075b56af7dc1f0cbd7c8bfef7c2ce3bf36a5a9997"
+          },
+          "after": {
+            "source_sha256": "b9499bbf42f368ed3a933599f25e1a02119960cf15ca426603c04e745eb17d3f",
+            "object_sha256": "ab091684007edb3f68a608b4f049658dd99003655b19e05919230c3fb45cd8ba",
+            "historical_proof_sha256": "d9f48ca4a120573d1d744cd6ea8ded3d1392fd757b7036d11de89f3c844937ff",
+            "compile_receipt_sha256": "fc4c37a24894b33cd3b6cbbb734632bcbf5261d1c6b7e1b2ed2153166beca778"
+          },
+          "proof_fingerprint": "593dcfebee8404e5cf80b38eb96b8b0909f62f05d3ca6b537dd0b362d5cd2b6f",
+          "status_counts": {
+            "MATCH": 90,
+            "ASM": 2
+          },
+          "code_relocations": 368,
+          "data_relocations": 0,
+          "owned_data": []
+        },
+        "guarded": {
+          "before": {
+            "source_sha256": "663013b8d1e739639394bb1decf347c8249c418ed4e22402e911e488baf907e4",
+            "object_sha256": "2039b3b0aa4397dac74ccedce6d58499f8ca2ded4e16d590dc77b958508e766f",
+            "historical_proof_sha256": "08085ec0b6a1b02f00599ec904627e7ca3dd846e5a85f1de9c9e1dbfc551c0ab",
+            "compile_receipt_sha256": "f86170f70f2a5089f352b05834a7b9f5b43830e95065351113929e6c3424f9b3"
+          },
+          "after": {
+            "source_sha256": "bedff3362b2ff8e09281e05935dd3687f9b547307ce459a37568a27848f9198c",
+            "object_sha256": "2039b3b0aa4397dac74ccedce6d58499f8ca2ded4e16d590dc77b958508e766f",
+            "historical_proof_sha256": "353055225529c8cde3ace42d7179d85773252b246ed70a877aee19a013af2ab2",
+            "compile_receipt_sha256": "d6ed0152e86225ca748d62fd6fb365caf4b1acf7af027db7fb830e11506a3fcb"
+          },
+          "proof_fingerprint": "65183162ebadaba227d793958d1bd643f966f4fd690c6cbaf541b3daf844dde5",
+          "status_counts": {
+            "MATCH": 90,
+            "NONMATCHING": 2
+          },
+          "code_relocations": 381,
+          "data_relocations": 0,
+          "owned_data": [
+            {
+              "section": ".sdata",
+              "base": "00764200",
+              "size": 8,
+              "alignment": 8,
+              "raw_sha256": "be51db4c5a64da9a56bebc23b5305d400523548c2506f1d3e019ff144778b061",
+              "resolved_sha256": "be51db4c5a64da9a56bebc23b5305d400523548c2506f1d3e019ff144778b061"
+            },
+            {
+              "section": ".lit4",
+              "base": "007611e0",
+              "size": 4,
+              "alignment": 4,
+              "raw_sha256": "0d66bd808e9247acb560fe33efaa62ad6f11ee6f85cc4f61bd17673263de04ee",
+              "resolved_sha256": "0d66bd808e9247acb560fe33efaa62ad6f11ee6f85cc4f61bd17673263de04ee"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "src/promoted/code1_004b.c",
+      "wrappers": [
+        "004b1090",
+        "004b10c0"
+      ],
+      "before_sha256": "767eff3534b154ddb81ecd834b2dae40d43aeade5587ec51b0b0337d033bf587",
+      "after_sha256": "72ad5597e1fd2b155cab593c957cbe96dfd304fedb8f9165facb2fa531ee1e37",
+      "edits": [
+        {
+          "before": "#include \"btl_shuffle_draw_internal.h\"\n#include \"effect_update_internal.h\"\nextern s32 func_00457120(void);\nextern s32 iGpffffbb9c;\n",
+          "after": "#include \"btl_shuffle_draw_internal.h\"\n#include \"effect_update_internal.h\"\n\ntypedef unsigned int u_long128 __attribute__((mode(TI)));\nextern s32 func_00457120(void);\nextern s32 iGpffffbb9c;\n"
+        },
+        {
+          "before": "extern s32 D_00922DA8[];\nextern s32 D_00922DAC[];\nextern void func_00492dd0(u8 *arg0);\nextern void func_00492e10(u8 *arg0);\nextern void func_00492e30(u16 *emitter, f32 scale);\nextern void func_00481440(void *arg0);\n",
+          "after": "extern s32 D_00922DA8[];\nextern s32 D_00922DAC[];\nextern u_long128 func_00492dd0(s32 emitter, u32 *position);\nextern u_long128 func_00492e10(s32 emitter, u32 *rotation);\nextern void func_00492e30(u16 *emitter, f32 scale);\nextern void func_00481440(void *arg0);\n"
+        },
+        {
+          "before": "\n// FUN_004B1090\nvoid func_004b1090(u8 *arg0)\n{\n    func_00492dd0(*(u8 **)(arg0 + 0x5c));\n}\n// FUN_004B10C0\nvoid func_004b10c0(u8 *arg0)\n{\n    func_00492e10(*(u8 **)(arg0 + 0x5c));\n}\n// FUN_004B10F0\n",
+          "after": "\n// FUN_004B1090\nvoid func_004b1090(u8 *instance, u32 *position)\n{\n    func_00492dd0(*(s32 *)(instance + 0x5c), position);\n}\n// FUN_004B10C0\nvoid func_004b10c0(u8 *instance, u32 *rotation)\n{\n    func_00492e10(*(s32 *)(instance + 0x5c), rotation);\n}\n// FUN_004B10F0\n"
+        }
+      ],
+      "function_count": 72,
+      "flags": [
+        "-O2",
+        "-Iinclude"
+      ],
+      "profiles": {
+        "default": {
+          "before": {
+            "source_sha256": "767eff3534b154ddb81ecd834b2dae40d43aeade5587ec51b0b0337d033bf587",
+            "object_sha256": "079cf043748e6ac2c17072babeb9c2dc4101924a600ded43994af7ea937c9f17",
+            "historical_proof_sha256": "c3d93d9039644c9c97ffc83c70de63c002809a42d072c382553b3cdc7962034a",
+            "compile_receipt_sha256": "12d353ca656ba819b95b8a84f5208ac753b7df6c3f61956a47f662292472d243"
+          },
+          "after": {
+            "source_sha256": "72ad5597e1fd2b155cab593c957cbe96dfd304fedb8f9165facb2fa531ee1e37",
+            "object_sha256": "079cf043748e6ac2c17072babeb9c2dc4101924a600ded43994af7ea937c9f17",
+            "historical_proof_sha256": "d8de34bb65753de64002d7ba39ddf3307cf655476a5ff5326fa6e7de9594fbd7",
+            "compile_receipt_sha256": "b49654b21911f1004c7f864a31ae4235a783e83d2b1e14a3ceed47fb66d470d1"
+          },
+          "proof_fingerprint": "ee0330b5384780de53af8b073a346e377f1a29dce6881115380ac246082e65b2",
+          "status_counts": {
+            "MATCH": 69,
+            "ASM": 3
+          },
+          "code_relocations": 215,
+          "data_relocations": 0,
+          "owned_data": []
+        },
+        "guarded": {
+          "before": {
+            "source_sha256": "14c393499b420ac6178f3e9e91e359c66f8e9080e0ed75081ec1ab5bdbd89688",
+            "object_sha256": "5c36b7a0719a8a18b6e079b0105d0238c796c2d10323e0dd8832bf6813ee0300",
+            "historical_proof_sha256": "39d3ab5334373942bb70ebf1f23b852895cc23e2f3a84223067719127ce2d0a6",
+            "compile_receipt_sha256": "b73806226bf2aa5c62dd066d22a8973cdb50b7c7742177d2d327e2899534aa2a"
+          },
+          "after": {
+            "source_sha256": "aec02e4e0cc6948ad62c8b9f30be85615ade957dd31538ca8152d798bb8d2711",
+            "object_sha256": "5c36b7a0719a8a18b6e079b0105d0238c796c2d10323e0dd8832bf6813ee0300",
+            "historical_proof_sha256": "dce1114909613c6c66535ada4c98ad36254d6beeb3d93ca272811c3784591f62",
+            "compile_receipt_sha256": "0798794fffd8e6f21547603ab33e5ade2f4d08f08f0eb68819f85c9380a65fe2"
+          },
+          "proof_fingerprint": "9cff6829a00cccbefd0193efa16d2177760fa21dba856130f4a7f57c0e71ace0",
+          "status_counts": {
+            "MATCH": 69,
+            "NONMATCHING": 1,
+            "ASM": 2
+          },
+          "code_relocations": 215,
+          "data_relocations": 0,
+          "owned_data": []
+        }
+      }
+    },
+    {
+      "owner": "src/promoted/effPolygonTrack.c",
+      "wrappers": [
+        "00493da0",
+        "00493dd0"
+      ],
+      "before_sha256": "83d34cc97afb2da2fdd9c4e056449dd20f826f8d7db691fe690993143d3a3e9c",
+      "after_sha256": "d523b9c28947b0a5315b45c7a4c4c6c49eaa78e21dc554d7110dd9591ad648d8",
+      "edits": [
+        {
+          "before": "#include \"include_asm.h\"\n\nextern void func_00486e10(void *arg0);\nextern void func_00494680(void *arg0);\nextern void func_00492cd0(u8 *arg0);\nextern void func_00492d00(int arg0);\nextern void func_00492dd0(int arg0);\nextern void func_00492e10(int arg0);\nextern void func_00492e30(u16 *emitter, f32 scale);\nextern void func_00489f40(void *arg0, u32 color);\n",
+          "after": "#include \"include_asm.h\"\n\ntypedef unsigned int u_long128 __attribute__((mode(TI)));\n\nextern void func_00486e10(void *arg0);\nextern void func_00494680(void *arg0);\nextern void func_00492cd0(u8 *arg0);\nextern void func_00492d00(int arg0);\nextern u_long128 func_00492dd0(s32 emitter, u32 *position);\nextern u_long128 func_00492e10(s32 emitter, u32 *rotation);\nextern void func_00492e30(u16 *emitter, f32 scale);\nextern void func_00489f40(void *arg0, u32 color);\n"
+        },
+        {
+          "before": "\n// FUN_00493DA0\nvoid func_00493da0(u8 *arg0)\n{\n    func_00492dd0(*(u32 *)(arg0 + 0x30));\n}\n\n// FUN_00493DD0\nvoid func_00493dd0(u8 *arg0)\n{\n    func_00492e10(*(u32 *)(arg0 + 0x30));\n}\n\n",
+          "after": "\n// FUN_00493DA0\nvoid func_00493da0(u8 *instance, u32 *position)\n{\n    func_00492dd0(*(s32 *)(instance + 0x30), position);\n}\n\n// FUN_00493DD0\nvoid func_00493dd0(u8 *instance, u32 *rotation)\n{\n    func_00492e10(*(s32 *)(instance + 0x30), rotation);\n}\n\n"
+        }
+      ],
+      "function_count": 19,
+      "flags": [
+        "-O2",
+        "-Iinclude"
+      ],
+      "profiles": {
+        "default": {
+          "before": {
+            "source_sha256": "83d34cc97afb2da2fdd9c4e056449dd20f826f8d7db691fe690993143d3a3e9c",
+            "object_sha256": "8d54f75f295369072e159cb469e8aaf9df5e0a11670d590bf5a1ca278dc070e9",
+            "historical_proof_sha256": "8aab2334b5b2095c42a8ede647827b03d738460378d486ae44b85d93229752be",
+            "compile_receipt_sha256": "8d1a2f666f7db390b2c7c500005a52755347ce966483de2b6acc81b900b23d7e"
+          },
+          "after": {
+            "source_sha256": "d523b9c28947b0a5315b45c7a4c4c6c49eaa78e21dc554d7110dd9591ad648d8",
+            "object_sha256": "8d54f75f295369072e159cb469e8aaf9df5e0a11670d590bf5a1ca278dc070e9",
+            "historical_proof_sha256": "9b5f3329027196827e627a8d02be9b0a45207963aa862a8c779a6b42ca584c85",
+            "compile_receipt_sha256": "af3fa7f30dc1006a0458f5750951e9eb7cddfce23cec82840954c1a0ba4dd3aa"
+          },
+          "proof_fingerprint": "78de1e49db078da002ec2044484717f428bb0d9482a261e0571d2973eb94203b",
+          "status_counts": {
+            "MATCH": 19
+          },
+          "code_relocations": 195,
+          "data_relocations": 8,
+          "owned_data": [
+            {
+              "section": ".rodata",
+              "base": "007568a0",
+              "size": 32,
+              "alignment": 16,
+              "raw_sha256": "e6563439704765d5ddaefe37e12686402b8a571e42fc7819421c848b94e26b4e",
+              "resolved_sha256": "ae7725bdd175bde3d481358d51cbdbfc393d417804b7de4e453f33a3c01310c9"
+            }
+          ]
+        },
+        "guarded": {
+          "before": {
+            "source_sha256": "09c1e46fb082ed4be093bedd75217520d28087874f0d7627807f21e99e76249f",
+            "object_sha256": "8d54f75f295369072e159cb469e8aaf9df5e0a11670d590bf5a1ca278dc070e9",
+            "historical_proof_sha256": "05e86abe10d82a68aed7cc7f108b9fe1925d71ed67154382706294f0682fb3e1",
+            "compile_receipt_sha256": "328dd88ce932da1608c3caf7e6091553326752d57bc88f742f050d6715517cbb"
+          },
+          "after": {
+            "source_sha256": "7687cd198f6d37052d1c86e76913692c5ca2f5a9159d718e0233d3c630cb90e6",
+            "object_sha256": "8d54f75f295369072e159cb469e8aaf9df5e0a11670d590bf5a1ca278dc070e9",
+            "historical_proof_sha256": "31e24efe0b03df3af5885af6c5f7e1fcf7ce3ca61f7b2a14a6012927568dc427",
+            "compile_receipt_sha256": "160cd1d6bf0cb615b51f37f5cc051c8111d4579141f2d3a32490661bd18f9b07"
+          },
+          "proof_fingerprint": "78de1e49db078da002ec2044484717f428bb0d9482a261e0571d2973eb94203b",
+          "status_counts": {
+            "MATCH": 19
+          },
+          "code_relocations": 195,
+          "data_relocations": 8,
+          "owned_data": [
+            {
+              "section": ".rodata",
+              "base": "007568a0",
+              "size": 32,
+              "alignment": 16,
+              "raw_sha256": "e6563439704765d5ddaefe37e12686402b8a571e42fc7819421c848b94e26b4e",
+              "resolved_sha256": "ae7725bdd175bde3d481358d51cbdbfc393d417804b7de4e453f33a3c01310c9"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "callback_table": {
+    "address": "00713480",
+    "rows": 33,
+    "bytes": 2112,
+    "sha256": "a076dea2c46213981e908d616e9f6758646c6e2d097631c24e195dbb47d893c1",
+    "symbol": "D_00713480",
+    "stride": 64,
+    "wrapper_slots": [
+      {
+        "row": 1,
+        "role": "position",
+        "slot": 32,
+        "address": "00489ee0"
+      },
+      {
+        "row": 1,
+        "role": "rotation",
+        "slot": 36,
+        "address": "00489f10"
+      },
+      {
+        "row": 2,
+        "role": "position",
+        "slot": 32,
+        "address": "00493da0"
+      },
+      {
+        "row": 2,
+        "role": "rotation",
+        "slot": 36,
+        "address": "00493dd0"
+      },
+      {
+        "row": 15,
+        "role": "position",
+        "slot": 32,
+        "address": "00493da0"
+      },
+      {
+        "row": 15,
+        "role": "rotation",
+        "slot": 36,
+        "address": "00493dd0"
+      },
+      {
+        "row": 28,
+        "role": "position",
+        "slot": 32,
+        "address": "004af5e0"
+      },
+      {
+        "row": 28,
+        "role": "rotation",
+        "slot": 36,
+        "address": "004af610"
+      },
+      {
+        "row": 29,
+        "role": "position",
+        "slot": 32,
+        "address": "004b1090"
+      },
+      {
+        "row": 29,
+        "role": "rotation",
+        "slot": 36,
+        "address": "004b10c0"
+      }
+    ]
+  },
+  "provider_retail": [
+    {
+      "address": "00492dd0",
+      "bytes": 32,
+      "sha256": "bc4bf99ffc29196a8b4cdbb48adf7d385b5a43766f1487b231b2be0756cead39",
+      "vector_argument": 1,
+      "vector_extent": 16
+    },
+    {
+      "address": "00492e10",
+      "bytes": 32,
+      "sha256": "37c4cd6bf0df066efaa17675efe0c29a883af53dda3d60be7e31c969355967cb",
+      "vector_argument": 1,
+      "vector_extent": 16
+    }
+  ],
+  "totals": {
+    "default": {
+      "functions": 256,
+      "preserved_C_matches": 245,
+      "status_counts": {
+        "MATCH": 245,
+        "ASM": 11
+      },
+      "code_relocations": 1367,
+      "data_relocations": 8
+    },
+    "guarded": {
+      "functions": 256,
+      "preserved_C_matches": 245,
+      "status_counts": {
+        "MATCH": 245,
+        "NONMATCHING": 9,
+        "ASM": 2
+      },
+      "code_relocations": 1395,
+      "data_relocations": 8
+    }
+  },
+  "prior_evidence": {
+    "final_manifest_sha256": "59ef83c2010737be441217afd74135a46940274e88ff0c92c9ee7f01ea486075",
+    "original_summary_sha256": "914afbbd286e9e7749979569985725df7514fe17c28b4ed5cdad3baa4501085b",
+    "final_combined_patch_sha256": "b0f232d86299356b430f19cb3a041bf31ebbbad404e9b972d576df5afa884508"
+  },
+  "lint": {
+    "before": {
+      "errors": 0,
+      "warnings": 67,
+      "report_sha256": "ec329cc12d333ae3217fb2c5d18342764299c67fb7eb64cf1e1ebf7ef58de13b"
+    },
+    "after": {
+      "errors": 0,
+      "warnings": 59,
+      "report_sha256": "1719fbfe528965a6744cf2926a9fad0971fb315d7363ebfa29f4d7660d271154"
+    },
+    "repaired_H011": 8
+  },
+  "validation": {
+    "proposal_recompiled_for_archive": false,
+    "archived_native_objects": false,
+    "production_source_edited": false,
+    "global_build_and_git": "prime-owned"
+  },
+  "installation": {
+    "date": "2026-10-06",
+    "authorization": "prime release after batch-1 seal",
+    "new_C_matches": 0,
+    "proposal_receipt_sha256": "db52cd090643eaaf6b0f403fa9ea0471ce329452099458c4eb3ef5c187f9cb59",
+    "reviewed_patch_sha256": "b0f232d86299356b430f19cb3a041bf31ebbbad404e9b972d576df5afa884508",
+    "installed_source_hashes": {
+      "src/promoted/code1_0048.c": "02ab7e798d5a903b5ac3a4e2d49e30a2f73f1715bfb9654dd6f5fbbec6306f8f",
+      "src/promoted/code1_004a.c": "b9499bbf42f368ed3a933599f25e1a02119960cf15ca426603c04e745eb17d3f",
+      "src/promoted/code1_004b.c": "72ad5597e1fd2b155cab593c957cbe96dfd304fedb8f9165facb2fa531ee1e37",
+      "src/promoted/effPolygonTrack.c": "d523b9c28947b0a5315b45c7a4c4c6c49eaa78e21dc554d7110dd9591ad648d8"
+    },
+    "normal_verifier": {
+      "summary": {
+        "MATCH": 245,
+        "ASM": 11
+      },
+      "summary_first_party": {
+        "MATCH": 244,
+        "ASM": 9
+      },
+      "sha256": "7889a0492a55380a8c8d32c83548a68e55ec29252d94a601ba541c15d0225a08"
+    },
+    "lint": {
+      "files": 4,
+      "errors": 0,
+      "warnings": 59,
+      "counts": {
+        "H001": 1,
+        "H003": 5,
+        "H011": 53
+      },
+      "sha256": "db65ab6a9d382110dd8fe2d877d0f3836e97111df42230f6d5a0848197c80faa"
+    },
+    "installed_reuse": {
+      "sha256": "fa2e296aebf1fce0a430f1807b127152f487361eb411e9fc5669688d62919f9d",
+      "fresh_compilations": 0,
+      "functions_per_profile": 256,
+      "matching_C_per_profile": 245,
+      "code_relocations": {
+        "default": 1367,
+        "guarded": 1395
+      },
+      "data_relocations": {
+        "default": 8,
+        "guarded": 8
+      }
+    },
+    "whole_image_build": "prime-owned; not performed by this worker",
+    "commit_or_push": false
+  }
+}

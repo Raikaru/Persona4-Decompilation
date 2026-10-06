@@ -4,6 +4,8 @@
 #include "effect_instance_internal.h"
 #include "btl_shuffle_draw_internal.h"
 #include "effect_update_internal.h"
+
+typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern s32 func_00457120(void);
 extern s32 iGpffffbb9c;
 /* gp - 0x4460 = 0x00764c90: base of a 0x1C-strided per-type handler table */
@@ -28,8 +30,8 @@ extern void func_004a7a50(void);
 extern s16 D_00922DA4[];
 extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
-extern void func_00492dd0(u8 *arg0);
-extern void func_00492e10(u8 *arg0);
+extern u_long128 func_00492dd0(s32 emitter, u32 *position);
+extern u_long128 func_00492e10(s32 emitter, u32 *rotation);
 extern void func_00492e30(u16 *emitter, f32 scale);
 extern void func_00481440(void *arg0);
 extern void func_00485870(void *arg0);
@@ -152,14 +154,14 @@ void func_004b1030(u8 *arg0)
 }
 
 // FUN_004B1090
-void func_004b1090(u8 *arg0)
+void func_004b1090(u8 *instance, u32 *position)
 {
-    func_00492dd0(*(u8 **)(arg0 + 0x5c));
+    func_00492dd0(*(s32 *)(instance + 0x5c), position);
 }
 // FUN_004B10C0
-void func_004b10c0(u8 *arg0)
+void func_004b10c0(u8 *instance, u32 *rotation)
 {
-    func_00492e10(*(u8 **)(arg0 + 0x5c));
+    func_00492e10(*(s32 *)(instance + 0x5c), rotation);
 }
 // FUN_004B10F0
 void func_004b10f0(u8 *arg0, s32 arg1)
