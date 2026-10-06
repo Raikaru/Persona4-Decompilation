@@ -1,0 +1,22 @@
+{
+  "logical_owner_sha256": "b37701a85922d65fc1813f7f7df033cd8586142dc0a3acfdccd7deb695be9f32",
+  "reference_search": [
+    "src/promoted\\code1_001a.c:3949:   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */",
+    "src/promoted\\code1_0046.c:75:extern void func_00468ff0(void *arg0, u8 *arg1);",
+    "src/promoted\\code1_0046.c:1995:    *(void **)(task + 8) = (void *)func_00468ff0;",
+    "src/promoted\\code1_0046.c:2044:void func_00468ff0(void *arg0, u8 *arg1) {",
+    "src/promoted\\code1_0046.c:2608:INCLUDE_ASM(\"asm/nonmatchings/code1_0046\", func_00468ff0);",
+    "asm/nonmatchings\\code1_0046\\func_00468ff0.s:4:glabel func_00468ff0",
+    "asm/nonmatchings\\code1_0046\\func_00468ff0.s:1107:.size func_00468ff0, 0x1030",
+    "asm/nonmatchings\\code1_0046\\func_00468fa0.s:12:    /* 368FBC 00468FBC 4700033C */  lui        $3, %hi(func_00468ff0)",
+    "asm/nonmatchings\\code1_0046\\func_00468fa0.s:13:    /* 368FC0 00468FC0 F08F6324 */  addiu      $3, $3, %lo(func_00468ff0)"
+  ],
+  "scope": "pointer type recovery within scratch owner; same argument count, pointer width, return type and calling registers",
+  "callback_registration": "00468fa0 stores callback at task+8 and existing 0x220-byte work context at task+0x10",
+  "dispatcher": "004623a0 loads a0=task+0x1c, a1=task.context, a2=callback and jalr a2; movie consumes a1 and ignores opaque a0",
+  "constructors": "0046a110 and 0046a1f0 allocate H_Calloc(1,0x220) and install this context through 00451fc0/00468fa0",
+  "third_register": "untouched; no synthetic formal argument added",
+  "headers_changed": false,
+  "production_changed": false,
+  "native_dispatch_sha256": "dcf9ecb9928e76ac497f0bb40edc3b01299e20fa2704f0ad9a135861562f37ae"
+}

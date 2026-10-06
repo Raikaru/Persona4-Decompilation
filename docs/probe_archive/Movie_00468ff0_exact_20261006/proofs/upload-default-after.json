@@ -1,0 +1,133 @@
+{
+  "logical_owner": "src\\Kernel\\h_malloc.c",
+  "source_sha256": "4092ee2912c45047d6d34c7c33f98a4989ba395b641c86be536da549e24c564c",
+  "object_sha256": "18071ef97bf2220c6042f886d5a05bc549d462a0c583813a7bca79b8b5e06974",
+  "relocation_support_sha256": "578c0c73951cfba443921bf64b87167c2f107d5af1b647921528fc47bf09d6fd",
+  "independent_anchor_functions": 9,
+  "section_bases": {},
+  "functions": [
+    {
+      "name": "func_00143ba0",
+      "size": 232,
+      "window": 240,
+      "differing_words": 0,
+      "differing_bytes": 0,
+      "errors": [],
+      "exact": true,
+      "zero_suffix": 8,
+      "relocations": 10,
+      "resolved_sha256": "3c2a1815cedbfbfbb27b64a54bd210304baf3a4b14343e0fad405c6fbd08aebc"
+    },
+    {
+      "name": "func_00143c90",
+      "size": 88,
+      "window": 96,
+      "differing_words": 0,
+      "differing_bytes": 0,
+      "errors": [],
+      "exact": true,
+      "zero_suffix": 8,
+      "relocations": 1,
+      "resolved_sha256": "eab4c1be2f9fd8b35f6051f27a463e9fb7132cc9e6dedd9edec37a02943691a6"
+    },
+    {
+      "name": "func_00143cf0",
+      "size": 672,
+      "window": 672,
+      "differing_words": 0,
+      "differing_bytes": 0,
+      "errors": [],
+      "exact": true,
+      "zero_suffix": 0,
+      "relocations": 11,
+      "resolved_sha256": "aacce29fcd77f3f25ae2b5d88e845b52b96c0b2298f026485a8fba0112c58b26"
+    },
+    {
+      "name": "func_00143f90",
+      "size": 108,
+      "window": 112,
+      "differing_words": 0,
+      "differing_bytes": 0,
+      "errors": [],
+      "exact": true,
+      "zero_suffix": 4,
+      "relocations": 0,
+      "resolved_sha256": "e1f6a3f0612dbef23aebe0950b1f7b0ed5c43e2744a13b51a7453daa126e2fbf"
+    },
+    {
+      "name": "func_00144000",
+      "size": 96,
+      "window": 96,
+      "differing_words": 0,
+      "differing_bytes": 0,
+      "errors": [],
+      "exact": true,
+      "zero_suffix": 0,
+      "relocations": 0,
+      "resolved_sha256": "9744c062ff7160aacd0e8ac7638564d19e25f0a6edbb5894d99219237d6a1622"
+    },
+    {
+      "name": "func_00144060",
+      "size": 108,
+      "window": 112,
+      "differing_words": 0,
+      "differing_bytes": 0,
+      "errors": [],
+      "exact": true,
+      "zero_suffix": 4,
+      "relocations": 0,
+      "resolved_sha256": "264c8041e08589d09374db5e302d81bfcd644ae754987902ca0f3a08413b4c15"
+    },
+    {
+      "name": "func_001440d0",
+      "size": 108,
+      "window": 112,
+      "differing_words": 0,
+      "differing_bytes": 0,
+      "errors": [],
+      "exact": true,
+      "zero_suffix": 4,
+      "relocations": 0,
+      "resolved_sha256": "6bc27714394f10a4e41c5429ebfd8c473116a7094bd6b966f4b788360cefbd78"
+    },
+    {
+      "name": "func_00144140",
+      "size": 88,
+      "window": 96,
+      "differing_words": 0,
+      "differing_bytes": 0,
+      "errors": [],
+      "exact": true,
+      "zero_suffix": 8,
+      "relocations": 0,
+      "resolved_sha256": "b23a350ab4844a42655dc1b5074bfe048449613457d47f1251495eeabfdc07e2"
+    },
+    {
+      "name": "func_001441a0",
+      "size": 60,
+      "window": 64,
+      "differing_words": 0,
+      "differing_bytes": 0,
+      "errors": [],
+      "exact": true,
+      "zero_suffix": 4,
+      "relocations": 0,
+      "resolved_sha256": "cc16bba85915969b07fa39f2315da75a8174b102f9a45946d30c60862657c486"
+    },
+    {
+      "name": "H_Calloc",
+      "size": 84,
+      "window": 96,
+      "differing_words": 0,
+      "differing_bytes": 0,
+      "errors": [],
+      "exact": true,
+      "zero_suffix": 12,
+      "relocations": 2,
+      "resolved_sha256": "9025b613381b74e034aaecfd2a6d644d8f2cca1155429638c74a5f3bbf8b4a68"
+    }
+  ],
+  "data_sections": [],
+  "target_table_contract": null,
+  "complete_exact": true
+}

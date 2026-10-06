@@ -1,0 +1,22 @@
+{
+  "source_installed": true,
+  "head_at_installation": "492756fe3ddab97f81e529ff16d7cca3dde28807",
+  "native_contract_proof_sha256": "5c0da50f875838c62c4ff14ae798690bafeb0020c0339ba369bb1f1bb2e31711",
+  "changed_owners": {
+    "src/promoted/code1_0046.c": {
+      "before": "733e755e97d40ea1db6c57bd783ea54e7014971a58845b0039bafbd22a7bff32",
+      "after": "1fa0dea1ccec222734ea07bff06f53c4f37cf87721ace33b221f1cb1f0744161"
+    },
+    "src/Kernel/h_malloc.c": {
+      "before": "d295e00ada0951438b90bfa8e2968976136a182c96d286b01e6e1eb060608fb8",
+      "after": "4092ee2912c45047d6d34c7c33f98a4989ba395b641c86be536da549e24c564c"
+    },
+    "src/rw/texcache.c": {
+      "before": "7ff4c6d68af136c5f768333490b5e7e1a549a0bd79c37968e07a6edd6efd673a",
+      "after": "df37cdacb5d915c9d79d769253467eb0a4a198679545aaa57fba1b1dabfc33a1"
+    }
+  },
+  "additional_match_credit": 0,
+  "actual_path_checks": "pending",
+  "integrated_build": "pending"
+}

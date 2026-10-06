@@ -2,8 +2,10 @@
 #include "include_asm.h"
 #include "type.h"
 
+typedef struct RwRaster RwRaster;
+
 extern u8 D_007D0F00[];
-extern void RpSkyTexGetTex0(u64 source, void* bytes, u16* header);
+extern RwRaster *RpSkyTexGetTex0(RwRaster *raster, u32 *msb, u32 *lsb);
 extern void func_003f34e0(void* packet, u32 size);
 extern void func_00143c90(u32 texture, void* packet, u32 source, s32 a3,
                            s32 a4, s32 a5, s32 a6, s32 a7, s32 a8, s32 a9);
@@ -25,15 +27,15 @@ extern void func_001441a0(u32* out, u32 value);
 
 
 // FUN_00143BA0
-void func_00143ba0(u64 source, u32 owner, s32 tileIndex, s32 tileCount)
+void func_00143ba0(RwRaster *source, u32 owner, s32 tileIndex, s32 tileCount)
 {
-    u8 headerBytes[4];
-    u16 header[2];
+    u32 msb;
+    union { u32 value; u16 half[2]; } lsb;
     u32 texture;
     u32 tileBytes;
 
-    RpSkyTexGetTex0(source, headerBytes, header);
-    texture = header[0] & 0x3fff;
+    RpSkyTexGetTex0(source, &msb, &lsb.value);
+    texture = lsb.half[0] & 0x3fff;
     tileBytes = tileCount * 0x10;
     if (tileBytes < 0x1c1)
     {

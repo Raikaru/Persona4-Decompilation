@@ -1,0 +1,40 @@
+{
+  "sdk_repository": "parappadev/parappa2",
+  "sdk_commit": "45694de3b6ed8d8bb0514e27bcaf091198698faf",
+  "sdk_header": "include/rtl/ee/libdma.h",
+  "sdk_blob": "5975b912b26ddd700eb03a2f005de88b4311b9e9",
+  "sdk_url": "https://github.com/parappadev/parappa2/blob/45694de3b6ed8d8bb0514e27bcaf091198698faf/include/rtl/ee/libdma.h",
+  "declaration": "int sceDmaSync(sceDmaChan *d, int mode, int timeout);",
+  "getter_declaration": "sceDmaChan *sceDmaGetChan(int id);",
+  "gif_channel": 2,
+  "registers_header": "include/rtl/ee/eeregs.h",
+  "registers_blob": "b9781ec6993f745febb641d01dd24d167b124a97",
+  "registers_url": "https://github.com/parappadev/parappa2/blob/45694de3b6ed8d8bb0514e27bcaf091198698faf/include/rtl/ee/eeregs.h",
+  "gif_control_register": "1000a000",
+  "transfer_start_mask": "00000100",
+  "source_view": "Both recovered declarations use u32* for the SDK channel's first control register; no new struct layout or padding is introduced.",
+  "timeout_use": "Original API parameter, intentionally unused by the observed retail implementation; no dummy C use added.",
+  "native_identity": {
+    "getter": "00418f50",
+    "sync": "00419520",
+    "blocking_wait": "00418df8",
+    "table_address": "0070c410",
+    "channel_words": [
+      "10008000",
+      "10009000",
+      "1000a000",
+      "1000b000",
+      "1000b400",
+      "1000c000",
+      "1000c400",
+      "1000c800",
+      "1000d000",
+      "1000d400"
+    ],
+    "table_sha256": "aece8088cd0b5740c65fbd7237ffa85cd9daf7ecc7cfe9f12765bce62f695d3a",
+    "getter_sha256": "68e62c2367ca9a16abc2bd8e5a611f2ff7511d3eec6c0610a5aad8c07675b9e2",
+    "sync_sha256": "1db40977cd67e70bed1aaf7348406367f618f19a1cc0df1428f555e615dc6ade",
+    "wait_sha256": "472330c97050c8bb93e6b333dc6ef268cf4bec1964763f00842f5151a917ed93",
+    "evidence": "Getter indexes the ten-entry channel table; index 2 yields the SDK GIF CHCR. Sync polls STR bit 8 in mode 1, otherwise calls the fixed-limit control-register waiter and returns zero. Native wait does not consume a2."
+  }
+}

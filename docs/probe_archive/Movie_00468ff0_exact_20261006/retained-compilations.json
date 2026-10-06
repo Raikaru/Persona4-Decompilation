@@ -1,0 +1,122 @@
+{
+  "movie-default-after": {
+    "source": "build/continue-20261006/texture-contract-v1/code1_0046/default/owner.c",
+    "source_sha256": "1fa0dea1ccec222734ea07bff06f53c4f37cf87721ace33b221f1cb1f0744161",
+    "object": "build/continue-20261006/texture-contract-v1/code1_0046/default/owner.o",
+    "object_sha256": "743df2c553582fdfc0e00b30aadfe0e7a75ff4374170f20ffcd503bc03d9d650",
+    "proof": "build/continue-20261006/texture-contract-v1/code1_0046/default/resolved-contract-proof.json",
+    "proof_sha256": "f25484ada8b3c532347ad75441f46b04f8f4c7c3c52f42d49ffbb136846e45a3"
+  },
+  "movie-guarded-after": {
+    "source": "build/continue-20261006/texture-contract-v1/code1_0046/guarded/owner.c",
+    "source_sha256": "1d99a6859dfb10b8145c6cf6bbd280a2066236742761e6475607987931ed016d",
+    "object": "build/continue-20261006/texture-contract-v1/code1_0046/guarded/owner.o",
+    "object_sha256": "743df2c553582fdfc0e00b30aadfe0e7a75ff4374170f20ffcd503bc03d9d650",
+    "proof": "build/continue-20261006/texture-contract-v1/code1_0046/guarded/resolved-contract-proof.json",
+    "proof_sha256": "4d6288acf03f37edc9b332ce15916e0a8d8777e2ef53a83390354fbcc183e82d"
+  },
+  "dma-default-before": {
+    "source": "build/finish88-20261006/graphics/restored-worker9/movie-dma-final/dma/default-before/owner.c",
+    "source_sha256": "724dceb859fa0672dbe318ee5ff584b3aab262f8155bf8ba253a21ed89c39b27",
+    "object": "build/finish88-20261006/graphics/restored-worker9/movie-dma-final/dma/default-before/owner.o",
+    "object_sha256": "80d589c199611fa50c12237b1094727c2a879aebd595dfdc787ddbb6cfc83468",
+    "proof": "build/finish88-20261006/graphics/restored-worker9/movie-dma-final/dma/default-before/resolved-proof.json",
+    "proof_sha256": "dd6edef7f690eba3dbc294c521dfad9f086674200e3475d01fae85358c1f82a7"
+  },
+  "dma-default-after": {
+    "source": "build/finish88-20261006/graphics/restored-worker9/movie-dma-final/dma/default/owner.c",
+    "source_sha256": "1366b21b1b8e4279a222788ed7a07689e9337650d46f1a696b74546594994297",
+    "object": "build/finish88-20261006/graphics/restored-worker9/movie-dma-final/dma/default/owner.o",
+    "object_sha256": "80d589c199611fa50c12237b1094727c2a879aebd595dfdc787ddbb6cfc83468",
+    "proof": "build/finish88-20261006/graphics/restored-worker9/movie-dma-final/dma/default/resolved-proof.json",
+    "proof_sha256": "1bc5f00143fc1396046048c2aa099525664412162786ee9b3f377f10118c0c1a"
+  },
+  "dma-guarded-before": {
+    "source": "build/finish88-20261006/graphics/restored-worker9/movie-dma-final/dma/guarded-before/owner.c",
+    "source_sha256": "67e27fb45d4f084cbd50d5d8a1c13040f70948f1e466e450deb617f396395848",
+    "object": "build/finish88-20261006/graphics/restored-worker9/movie-dma-final/dma/guarded-before/owner.o",
+    "object_sha256": "fbaf6a99abb0501408a0ab8e735105a9c6f812c39f37ce26d5a62a6889c99410",
+    "proof": "build/finish88-20261006/graphics/restored-worker9/movie-dma-final/dma/guarded-before/resolved-proof.json",
+    "proof_sha256": "43cdf3acd625d6a689df5783b80ee1089fead557da4933c3f65048e718f92f9e"
+  },
+  "dma-guarded-after": {
+    "source": "build/finish88-20261006/graphics/restored-worker9/movie-dma-final/dma/guarded/owner.c",
+    "source_sha256": "ee60b8b77f5e98a7caaa2716dde7b711110cab1fc8efaeae52c4c14fd4f2514f",
+    "object": "build/finish88-20261006/graphics/restored-worker9/movie-dma-final/dma/guarded/owner.o",
+    "object_sha256": "fbaf6a99abb0501408a0ab8e735105a9c6f812c39f37ce26d5a62a6889c99410",
+    "proof": "build/finish88-20261006/graphics/restored-worker9/movie-dma-final/dma/guarded/resolved-proof.json",
+    "proof_sha256": "cfb1b90d390dc015a489ae2eb85d78c5a9fad2760302c8129593f0ce47b15bb6"
+  },
+  "upload-default-before": {
+    "source": "build/continue-20261006/texture-contract-proof-v1/h_malloc/default-before/owner.c",
+    "source_sha256": "d295e00ada0951438b90bfa8e2968976136a182c96d286b01e6e1eb060608fb8",
+    "object": "build/continue-20261006/texture-contract-proof-v1/h_malloc/default-before/owner.o",
+    "object_sha256": "18071ef97bf2220c6042f886d5a05bc549d462a0c583813a7bca79b8b5e06974",
+    "proof": "build/continue-20261006/texture-contract-proof-v1/h_malloc/default-before/resolved-proof.json",
+    "proof_sha256": "771a54b3bd86c22045d47aa72eb430c2ac9d23e43813a477c9a5a3dbef5a1446"
+  },
+  "upload-default-after": {
+    "source": "build/continue-20261006/texture-contract-v2/h_malloc/default/owner.c",
+    "source_sha256": "4092ee2912c45047d6d34c7c33f98a4989ba395b641c86be536da549e24c564c",
+    "object": "build/continue-20261006/texture-contract-v2/h_malloc/default/owner.o",
+    "object_sha256": "18071ef97bf2220c6042f886d5a05bc549d462a0c583813a7bca79b8b5e06974",
+    "proof": "build/continue-20261006/texture-contract-v2/h_malloc/default/resolved-proof.json",
+    "proof_sha256": "2cff4e04bfa60d537b5e0e653fd53aa5260db925530e6abe04ca628281e5ed38"
+  },
+  "upload-guarded-before": {
+    "source": "build/continue-20261006/texture-contract-proof-v1/h_malloc/guarded-before/owner.c",
+    "source_sha256": "b0de65871a3c6e21e2dec12296514c03273479c252cd76e37e8e4328f7bc110c",
+    "object": "build/continue-20261006/texture-contract-proof-v1/h_malloc/guarded-before/owner.o",
+    "object_sha256": "18071ef97bf2220c6042f886d5a05bc549d462a0c583813a7bca79b8b5e06974",
+    "proof": "build/continue-20261006/texture-contract-proof-v1/h_malloc/guarded-before/resolved-proof.json",
+    "proof_sha256": "f5aec2a06441f7ee15c9f3a7a98c3a07669342bd129b91b824941ff04872b9ac"
+  },
+  "upload-guarded-after": {
+    "source": "build/continue-20261006/texture-contract-v2/h_malloc/guarded/owner.c",
+    "source_sha256": "7fd1ecbb5a7987329d5c6e64d7c473dc29630021bcf9060c68f605bb2fe36b79",
+    "object": "build/continue-20261006/texture-contract-v2/h_malloc/guarded/owner.o",
+    "object_sha256": "18071ef97bf2220c6042f886d5a05bc549d462a0c583813a7bca79b8b5e06974",
+    "proof": "build/continue-20261006/texture-contract-v2/h_malloc/guarded/resolved-proof.json",
+    "proof_sha256": "d2c5c9791c168498dc13ebe3357ac72640e81227c79eb5027a20d4b1c93192bd"
+  },
+  "texture-default-before": {
+    "source": "build/continue-20261006/texture-contract-proof-v1/texcache/default-before/owner.c",
+    "source_sha256": "7ff4c6d68af136c5f768333490b5e7e1a549a0bd79c37968e07a6edd6efd673a",
+    "object": "build/continue-20261006/texture-contract-proof-v1/texcache/default-before/owner.o",
+    "object_sha256": "e022f4baab50d73b4b905ad23b3bdaa7050f719d658205be2caa9b3427cdffc5",
+    "proof": "build/continue-20261006/texture-contract-proof-v1/texcache/default-before/resolved-proof.json",
+    "proof_sha256": "24c34f86e72d4b2a68739084eaf1442011175354e38573d224f6d71e26b3aa57"
+  },
+  "texture-default-after": {
+    "source": "build/continue-20261006/texture-contract-v1/texcache/default/owner.c",
+    "source_sha256": "df37cdacb5d915c9d79d769253467eb0a4a198679545aaa57fba1b1dabfc33a1",
+    "object": "build/continue-20261006/texture-contract-v1/texcache/default/owner.o",
+    "object_sha256": "e022f4baab50d73b4b905ad23b3bdaa7050f719d658205be2caa9b3427cdffc5",
+    "proof": "build/continue-20261006/texture-contract-v1/texcache/default/resolved-proof.json",
+    "proof_sha256": "dee65bfb0e9bb4e47322ad66c3f4bf1dd37616c0ffc148c1005222c3b242c690"
+  },
+  "texture-guarded-before": {
+    "source": "build/continue-20261006/texture-contract-proof-v1/texcache/guarded-before/owner.c",
+    "source_sha256": "f35a219f7b8c0a86e42e94b581e13f489cdb5d0b4bb088a6655c06f353399913",
+    "object": "build/continue-20261006/texture-contract-proof-v1/texcache/guarded-before/owner.o",
+    "object_sha256": "e022f4baab50d73b4b905ad23b3bdaa7050f719d658205be2caa9b3427cdffc5",
+    "proof": "build/continue-20261006/texture-contract-proof-v1/texcache/guarded-before/resolved-proof.json",
+    "proof_sha256": "f31f017f769301de822905e5e6cabed353c608b80b2f8552eee6fe17ece8c7c9"
+  },
+  "texture-guarded-after": {
+    "source": "build/continue-20261006/texture-contract-v1/texcache/guarded/owner.c",
+    "source_sha256": "6304ee439ad23879e166e534244a256d4f0b9af02e846420d018247dbae63d14",
+    "object": "build/continue-20261006/texture-contract-v1/texcache/guarded/owner.o",
+    "object_sha256": "e022f4baab50d73b4b905ad23b3bdaa7050f719d658205be2caa9b3427cdffc5",
+    "proof": "build/continue-20261006/texture-contract-v1/texcache/guarded/resolved-proof.json",
+    "proof_sha256": "58c4864403000fcdc3eb0f3668db0dc6295326d0ddf48843185374c36ef710e1"
+  },
+  "movie-default-before": {
+    "source": "build/continue-20261006/movie-owner-replay-v1/movie-default-before/owner.c",
+    "source_sha256": "b37701a85922d65fc1813f7f7df033cd8586142dc0a3acfdccd7deb695be9f32",
+    "object": "build/continue-20261006/movie-owner-replay-v1/movie-default-before/owner.o",
+    "object_sha256": "be10e1359f46572110633db2592a9ad9615bc8707986f3aeeb9c0125863a2f17",
+    "proof": "build/continue-20261006/movie-owner-replay-v1/movie-default-before/resolved-proof.json",
+    "proof_sha256": "49bfc4bc88330d433db7cd701b435f43e62f85b9aa332163ed83eb0ea037b848"
+  }
+}
