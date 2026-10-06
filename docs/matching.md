@@ -519,6 +519,34 @@ below are the codegen consequences.
 
 ## Register allocation and caching
 
+- **Read a colouring residual as an ordering problem (measured 2026-10-06
+  with mwccps2-debugger captures).** b210's `colorgraph` pops the simplify
+  stack and gives each virtual the lowest colour none of its already-coloured
+  neighbours holds. For every caller-saved residual examined (`001b11c0`,
+  `004a7830`, `001b05d0`) the simplifiable virtuals were coloured in strictly
+  **descending virtual number**. Call-crossing virtuals are not simplifiable;
+  they are coloured first, in a cost-driven order (`001d53e0`). The numbers
+  come from source like this:
+  - the parameter copies get `r32` up, then declared locals in declaration
+    order, with block-scoped locals after function-scope ones. Frontend
+    temporaries, such as the result of `x &= m` on a wider `x`, come next.
+    Codegen temporaries follow in emission order;
+  - a single-definition local normally disappears. The value keeps its
+    codegen temporary's (high) number, so declaration order cannot move it.
+    Multi-definition locals such as loop counters and flags keep their low
+    declared numbers.
+
+  So a swap between a temporary and a surviving local is not reachable
+  through declaration order. The value that retail colours later has to be
+  a surviving local, and earlier sessions recorded exactly this as
+  "declaration order does not reach it". Find the required order before
+  editing source. Replay the captured post-colour graph with
+  mwccps2-debugger's `decomp/register_allocation.py` model under a reordered
+  stack. On `001b11c0`, only the order i, scan, key, changed gives retail's
+  `$t1`/`$t2`/`$t3`/`$t4`. Diagnostic on `004a7830`: adding a read of the
+  `fabsf` result after the if/else join keeps that local alive, and it
+  reproduces all five FPR differences exactly. The natural source that keeps
+  it alive is still unknown.
 - **Cache after the first assert / cache the base pointer.** Functions that
   reuse a global load it once into a saved register. Mirror with an assert on
   the global first, then `work = g; ...use work...`. Setters that reload the
