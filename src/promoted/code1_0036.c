@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "message_frame_internal.h"
 #include "primitive_point_buffer.h"
 #include "fr_font_internal.h"
 struct RwMatrixTag;
@@ -708,9 +709,9 @@ void func_003642e0(u8 *arg0, void *arg1)
  * halfword Y, while the immediate renderer takes its promoted signed word.
  */
 // FUN_00366380
-void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                   s32 arg4, s32 arg5, s32 arg6, s32 arg7,
-                   s16 arg8, void *arg9, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
+void func_00366380(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3,
+                   s32 arg4, s32 arg5, s32 arg6, s32 arg7, s16 arg8,
+                   void *arg9, f32 fparg1, f32 fparg2, f32 fparg3)
 {
     extern s64 iGpffffabe8;
     extern const s32 D_0064E320[36];

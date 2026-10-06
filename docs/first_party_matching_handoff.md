@@ -25,6 +25,33 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 5 continuation: 6,767 MATCH / 94 ASM
+
+The recovered continuation was updated to upstream `1ce92c49`. The motion
+emitter `0048c4e0` is now exact C in the current owner: 2,164/2,176 bytes,
+all 19 target references resolved, twelve zero alignment bytes and every
+sibling preserved. Its hardware-aligned XYZ object uses complete character
+representation operands; the layout and native acceptance are documented in
+[`Motion_scale_0048c4e0_20261005`](probe_archive/Motion_scale_0048c4e0_20261005/README.md).
+The promoted owner was actually relinked and both retail hashes passed.
+
+First-party matching remains incomplete: 94 functions still use assembly,
+including 91 guarded C attempts and three bare fallbacks. The exact queue,
+the source hashes, installed contract repairs and completed verification are
+recorded in
+[`First_party_continuation_20261005`](probe_archive/First_party_continuation_20261005/README.md).
+That record distinguishes the full build from the subsequent native-owner
+relink and the 44 focused tests from the earlier full-suite run.
+
+Existing work was recovered before probing. The original dirty checkout was
+audited without modification; its historical accepted matches were already
+integrated. Closed renderer, SceneRoot, sorting and FCL experiments are retained
+with their measured residuals. In particular, changing `00486970` and its
+callers coherently to a void output procedure did not fix the SceneRoot pair
+and changed the provider's retail bytes; do not repeat that experiment as a
+new source-contract fix. These results bound those tested inputs rather than
+establishing a universal compiler limit.
+
 ## Start from fresh status
 
 Counts, queues and floor sizes written in this repository are snapshots.

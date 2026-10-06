@@ -2,3 +2,15 @@
 *.bat text eol=crlf
 # Byte-pinned historical map: preserve CRLF exactly.
 config/asm_symbol_baseline.txt -text -diff
+
+# Preserve authenticated historical proof inputs, including their line endings.
+docs/probe_archive/BtlEpl_vector_blend_worker25_20261005/* -text whitespace=cr-at-eol
+docs/probe_archive/Field_AI_follower_0017d3c0_20261005* -text whitespace=cr-at-eol
+docs/probe_archive/FlashInclinedParticle_20261005/* -text whitespace=cr-at-eol
+docs/probe_archive/Sprite_worker26_20261005/* -text whitespace=cr-at-eol
+docs/probe_archive/YDraw_update_002b6ec0_20261005/* -text whitespace=cr-at-eol
+# These saved inputs intentionally retain blank diff context or original spaces.
+docs/probe_archive/BtlEpl_vector_blend_worker25_20261005/source.patch -whitespace
+docs/probe_archive/BtlEpl_vector_blend_worker25_20261005/native.py -whitespace
+docs/probe_archive/FlashInclinedParticle_20261005/before_body.c -whitespace
+docs/probe_archive/Sprite_worker26_20261005/extent.patch -whitespace
