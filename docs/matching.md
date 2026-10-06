@@ -586,6 +586,27 @@ below are the codegen consequences.
   which is why `countA` already survived. With frontend propagation on,
   the alias disappears before codegen and the lever does nothing
   (`001b11c0`).
+
+  **Lever: reuse a variable and split its lifetimes (`func_001b11c0`, MATCH
+  2026-10-06).** Five sessions recorded this function as a `$t1`/`$t3`
+  allocator wall. Retail colours the sort loop's index and cursor before the
+  key, which needs them numbered above the key's codegen temporary. That
+  happens when the counting loop reuses the same `scan`/`i` variables and
+  scoped `#pragma opt_lifetimes on` runs `IRO_SplitLifetimes`. The split
+  copies get fresh, higher numbers. With the key typed `u16` (`key = arg0`),
+  the body is byte-exact. Either half alone stays at 5–13 edits. Adding the
+  pragma to seven other floors without the reuse changed nothing, so it is a
+  lever only where retail visibly reuses a variable across two loops.
+
+  **Frontend IR dumps.** b210 contains an IR dumper that writes the whole
+  flowgraph after every `IRO_*` pass to `<source>.log`. It is gated by
+  `0x00637374` (open the log; cleared at `0x004d1272`, opened by the call
+  at `0x004d1343`) and `0x006365e8` (full dump; set it at each function
+  entry, `0x004d13a0`). Setting both from GDB leaves the object
+  byte-identical. The dump shows which frontend pass removes or creates a
+  variable: `IRO_CopyAndConstantPropagation` folds `alias = local` copies,
+  and loop passes create `@N` temporaries. Use it before guessing whether a
+  local survives the frontend.
 - **Cache after the first assert / cache the base pointer.** Functions that
   reuse a global load it once into a saved register. Mirror with an assert on
   the global first, then `work = g; ...use work...`. Setters that reload the

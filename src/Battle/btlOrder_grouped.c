@@ -293,53 +293,19 @@ void func_001b1020(s32 arg0)
     } while (swapped);
 }
 #pragma pop
-/* measured: F1B0 floor 192B/192B/5wd fresh (fnalign 5: key $t3 vs $t1 + i $t1 vs $t3 at +0x34,+0x4c,+0x88,+0x9c,+0xa4; $t1/$t3 swap). */
-/* measured: ruled out this session value-side (decl perms 5,8,8 per owner) -- u16 key 33wd, i+1<count 35wd, key-inside-do 35wd, u8 kind+key&0xFF 33wd, i/scan order swap 35wd, key-after-i 35wd, compare/store reversal 35wd; all 33-35 vs 5; pragmas on the 5wd body: loop-inv removal 35 (installed pragma load-bearing, 5 -> 35), cse-off 35, propag-off 36, sched-on 42. $t1/$t3 allocator wall stands; honest 5wd floor kept. No volatile/asm. */
-/* measured: pair sweep 2026-09-17 `python3 -E -s tools/pragma_sweep.py src/Battle/btlOrder_grouped.c func_001b11c0 --pairs` banked 5 (already carries opt_loop_invariants on); best ties 5 (loop-inv single + 3 pairs: loop+dead, loop+strength, loop+unroll). All 28 pairs neutral or worse: loop+peephole 23, commons/dead/propag/strength/unroll/peephole singles + 15 pairs 35, loop+propag 36, schedule block 42-45. Two-def pins per assignment all flat at 5: i duplicate-init 5, i kill-then-init 5, key duplicate 5 (retail key $t3 / i $t1; pinned lower $t1 i). fnalign 48/48 $t3/$t1 wall stands. */
-/* 2026-09-18 lead pass, 6 more measured variants on top of the permuter's
-   16379 compiles; floor confirmed at 5 words.  48/48 instructions and the
-   entire residual is one temporary-register swap: retail holds the masked
-   `arg0` in $t3 and the inner counter in $t1, this body has them the other
-   way round, and the five differing words are the five instructions that
-   name them.
-   Not reachable by moving the values around: declaring `i` before `key`
-   costs 5 -> 8, declaring it last costs 5 -> 11, and computing `key` before
-   the counting loop costs 5 -> 24.  Recomputing `key` inside the do-while,
-   declaring `i` as `s32`, and inlining `arg0 & 0xFFFF` at its use all tie at
-   5 with a byte-identical stream.
-   t-register numbering is not declaration-driven here; it would take a
-   different number of live temporaries to rotate, and every shape that
-   changes that count also changes the instruction stream. */
-/* 2026-09-19 pair close-out (Main request): fnalign 48/48, 5 edits +2 reloc-only =7 floor_distance edits, 7 words. Frame frameless both sides (no addiu $sp) -- match, closed on frame. */
-/* Pairs, all against retail at 0x001b11c0: */
-/* - reloc-only [0:1] lw $v1,-0x4c54($gp) vs lw $v1,($gp): immediate (GP addend, linker-owned). */
-/* - replace [13:14] andi $t3,$a0,0xffff vs andi $t1,$a0,0xffff: register-only rotation $t1<->$t3 (key), exchange class 7m, closed per 7ah. */
-/* - reloc-only [17:18] lw $v1,-0x4c54($gp) vs lw $v1,($gp): immediate (GP addend). */
-/* - replace [19:20] move $t1,$zero vs move $t3,$zero: register-only rotation (i init). */
-/* - replace [34:35] beq $a2,$t3,.+5 vs beq $a2,$t1,.+5: register-only rotation (kind vs key); branch offset identical. */
-/* - replace [39:40] addiu $t1,$t1,1 vs addiu $t3,$t3,1: register-only rotation (i++). */
-/* - replace [41:42] sltu $v1,$t1,$a0 vs sltu $v1,$t3,$a0: register-only rotation (i < count-1). */
-/* No $a0-$t0 spill-order move, no operand-order, no branch-offset, no nop-vs-work in this residual. Five swaps one pair ($t1/$t3 = key/i); next person: finished on frame and count, open only on temp colour. */
-/* measured 001b11c0 (owner, this session): 48/48 exact, **5 fnalign edits**, and every one
-   is the same transposition: retail keeps the masked argument in $t3 and the loop counter
-   in $t1, the object the other way round.  Four declaration orders measured - counter
-   before key 12, counter first 12, key last 5 (tie), counter and key swapped 12 - so the
-   allocator is not ordering by declaration.  Computing the key inside the do-while and
-   letting `opt_loop_invariants` hoist it ties at 5; swapping the two increments costs 6;
-   rewriting the bound as `i + 1 < count` costs 29.  Genuine allocator floor. */
-/* measured 001b11c0 (owner, 2026-09-19): 48/48 exact, **5 edits plus 2 reloc-only**, and all
-   five are one register rotation: retail puts `key` in $t3 and the loop counter in $t1, the
-   object puts them the other way round.  Four declaration orders were measured against the 5 -
-   `i` before `key`, `changed` before both, `key` hoisted to the top, and `key`/`i` adjacent -
-   and two hold at 5 while two cost 12.  Declaration order does not reach this allocation. */
-// FUN_001B11C0 NONMATCHING
-#ifdef NON_MATCHING
+/* Sort the twelve order slots so units of the given kind keep their place:
+   count the occupied prefix, then bubble adjacent units of different kinds.
+   The counting pass reuses the sort cursor and index; scoped opt_lifetimes
+   splits their two lifetimes, which gives the sort loop's cursor and index
+   their retail registers. */
+// FUN_001B11C0
+#pragma push
+#pragma opt_lifetimes on
 #pragma opt_loop_invariants on
 void func_001b11c0(s32 arg0)
 {
-    u8 **count_scan;
     u32 count;
-    u32 key;
+    u16 key;
     s32 changed;
     u32 i;
     u8 **scan;
@@ -347,14 +313,15 @@ void func_001b11c0(s32 arg0)
     u8 *right;
     u32 kind;
 
-    count_scan = (u8 **)((u8 *)iGpffffb3ac + 0x29C);
-    count = 0;
-    while (count < 0xC) {
-        if (*count_scan == NULL) break;
-        count_scan++;
-        count++;
+    scan = (u8 **)((u8 *)iGpffffb3ac + 0x29C);
+    i = 0;
+    while (i < 0xC) {
+        if (*scan == NULL) break;
+        scan++;
+        i++;
     }
-    key = arg0 & 0xFFFF;
+    count = i;
+    key = arg0;
     do {
         changed = 0;
         scan = (u8 **)((u8 *)iGpffffb3ac + 0x29C);
@@ -375,10 +342,7 @@ void func_001b11c0(s32 arg0)
         }
     } while (changed != 0);
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b11c0);
-#endif
+#pragma pop
 // FUN_001B1280
 void func_001b1280(s32 arg0)
 {
