@@ -75,6 +75,11 @@ static inline u32 friendResultAddress(u32 offset, u32 base)
     return offset + base;
 }
 
+/* 2026-10-06 compiler capture: the residual is one $s2/$s3 swap between the
+   task work pointer r (call-result temporary v54) and base (local v36). The
+   (u32)base argument of friendResultAddress is a copy use, so base survives
+   as a local. Retail colours base first, which the replayed order reproduces.
+   Dropping the cast makes base a temporary but keeps the swap (63 edits). */
 // FUN_002239A0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002239a0(u8 *sdkTaskBytes)
