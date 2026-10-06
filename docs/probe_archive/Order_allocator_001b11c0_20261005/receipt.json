@@ -1,0 +1,81 @@
+{
+  "schema": "order-001b11c0-allocator-diagnostic-v1",
+  "target": {
+    "owner": "src/Battle/btlOrder_grouped.c",
+    "function": "func_001b11c0",
+    "address": "0x001b11c0",
+    "candidate_bytes": 192,
+    "retail_bytes": 192,
+    "instruction_count": 48,
+    "resolved_differing_words": 5
+  },
+  "neutrality": {
+    "source_sha256": "24d507823230f32612f755d2832908a9a0c865ad89d195477f90db9dde4cdd4a",
+    "direct_complete_owner_object_sha256": "17a5fda6d30a58bc726649f2cd5044818b0cfd3a609fac8503102d55b394ced5",
+    "captured_complete_owner_object_sha256": "17a5fda6d30a58bc726649f2cd5044818b0cfd3a609fac8503102d55b394ced5",
+    "capture_receipt_sha256": "2d13f897b05cd1e53f1aea34a03beb6d4c1523927a8f714b58ed60008f8f6243",
+    "compiler_sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+    "gdb_sha256": "f1b668a9cca5c832ae8374c1815cfc8fcb452d05268797f0c022d74000ecd486",
+    "debugger_commit": "3bca7ed2146f85d4e3be478b3d166fce77724499"
+  },
+  "capture": {
+    "file": "build/finish94-20261005/captures/order-current/capture/000035-after_colorgraph_assignment.json",
+    "sha256": "a4309b5766500cb507976c01f8a3c00ae2029f81921c7218ab71e3fa3e1f424c",
+    "before_register_allocation_pcode_sha256": "1dd447e5dbc291294e82beed71a1d832cd0032b49fba566b265a68cc0b6257a0",
+    "after_register_allocation_pcode_sha256": "d4eb4dbdefff084da3e9b9519c41e720a4f2d2076ac93091929ba9c3f0f73f5b"
+  },
+  "roles": {
+    "key": {
+      "virtual": 48,
+      "captured_physical": 9,
+      "retail_physical": 11
+    },
+    "scan": {
+      "virtual": 38,
+      "captured_physical": 10,
+      "retail_physical": 10
+    },
+    "index": {
+      "virtual": 37,
+      "captured_physical": 11,
+      "retail_physical": 9
+    }
+  },
+  "offline_replay": {
+    "captured_simplify_order": "virtual 63 down through virtual 32",
+    "alternate_relative_order": [
+      37,
+      38,
+      48
+    ],
+    "alternate_colors": {
+      "37": 9,
+      "38": 10,
+      "48": 11
+    },
+    "other_virtual_color_changes": 0,
+    "diagnostic_only": true,
+    "match_claim": false
+  },
+  "new_source_probes": [
+    {
+      "id": "inner-for-i-scan",
+      "resolved_differing_words": 7,
+      "candidate_bytes": 192,
+      "matched": false
+    },
+    {
+      "id": "inner-for-scan-i",
+      "resolved_differing_words": 6,
+      "candidate_bytes": 192,
+      "matched": false
+    }
+  ],
+  "normalized_graph_sha256": "c8d0e04af638ec2e438f704fb8b85cca85488ee1ec627cb92618f5db6be403a3",
+  "portable_replay_sha256": "80cd903647ec20431fd212dc904df5bfa9da0c9058482ea05fc09f02d1351747",
+  "previous_private_receipt_sha256": "16d8db5b5bd6deab0cee0c911c9bf1d3bdb6a80b366b367b964ba8619f55cda0",
+  "raw_capture_replay_stdout_sha256": "21f4591f269a914d9a183c87a6e198ef98fb44cd7c6bb22e5e929956fda0b294",
+  "portable_replay": "python docs/probe_archive/Order_allocator_001b11c0_20261005/replay.py",
+  "normalization": "Integer node IDs, neighbors, captured colors and validated order only; process addresses, PCode and binary payloads omitted",
+  "new_C_matches": 0
+}
