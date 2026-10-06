@@ -868,25 +868,20 @@ s32 func_0036f640(s32 arg0, s32 *arg1)
     }
     return result;
 }
-/* measured 2026-10-05: 14 differing words, 852/864 bytes. A u16 capacity
- * with invariant hoisting restores the inventory count/slot lifetimes.
- * Candidate pairs retain both halfword fields and separate byte addresses;
- * reverse-scan and final address differences remain guarded. See
- * docs/probe_archive/BtlShuffle_worker8_20261005.md. */
-/* 2026-10-06: one counter k shared by both branches, the else search
-   continuing from the shared j = 0, and scoped opt_lifetimes (split
-   lifetimes give the else branch's k a higher number) close the else-branch
-   $t3/$t4 swap: 14 -> 6 edits. What remains is the final cand[r] pair. Retail
-   materialises each field address (addiu 0x72 / 0x70, then lhu 0) on a shared
-   r*4+sp, while b210 commons &cand[r] in the frontend and folds the field
-   offset into the load. Twenty address spellings stay at 6-8 edits. */
-// FUN_0036F880 NONMATCHING
-#ifdef NON_MATCHING
+/* Choose a random listed persona, collect the skill pairs from the
+   iGpffffb3ec table that match one of its skills and whose partner skill it
+   lacks (searching forward or backward by arg0), and pass one random pair to
+   func_0010cd70. One counter k serves both directions under scoped
+   opt_lifetimes, and each chosen field address is formed separately; both
+   are needed for retail's register assignment and address forms. See
+   docs/probe_archive/BtlShuffle_worker8_20261005.md for the earlier layout
+   recovery. */
 static inline u16 *shuffleCandidateField(s32 offset, void *base)
 {
     return (u16 *)((u8 *)base + offset);
 }
 
+// FUN_0036F880
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
@@ -970,8 +965,13 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
         return 0;
     }
     r = func_00231d70(nc);
-    second = *shuffleCandidateField(r * 4 + 2, cand);
-    first = *shuffleCandidateField(r * 4, cand);
+    {
+        /* Each field address is formed from the chosen entry separately. */
+        u16 *field = shuffleCandidateField(2, (u8 *)cand + r * 4);
+        second = *field;
+        field = shuffleCandidateField(r * 4, cand);
+        first = *field;
+    }
     func_0010cd70(p, (s16)first, second);
     *(u16 *)(arg1 + 4) = *(u16 *)(p + 2);
     *(u16 *)(arg1 + 8) = first;
@@ -980,9 +980,6 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
 }
 
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036f880);
-#endif
 
 
 /* matched: s32 `s` and flag temporaries preserve retail's callee-saved
