@@ -2031,11 +2031,10 @@ s32 func_00267800(u8 **arg0, u8 *arg1)
 }
 #pragma opt_common_subs reset
 #pragma optimization_level 2
-/* Complete contour tables, clip and color values replace the synthetic
-   stack-frame overlay. Keep source-point reloads across renderer callbacks.
-   The guarded candidate still differs in one saved-register assignment. */
-// FUN_00267B20 NONMATCHING
-#ifdef NON_MATCHING
+/* Contour outline renderer: complete contour tables, clip and color values;
+   source points are reloaded across renderer callbacks. The closing pass
+   copies the outline pointer into its own cursor, which keeps that pointer
+   in its retail saved register. */
 typedef struct { const PrimFloat2 *value[19]; } ContourSourceTable;
 static inline const PrimFloat2 *const *contourOutlinePoints(const PrimFloat2 *const *sources, s32 shape)
 {
@@ -2065,6 +2064,7 @@ static inline const s32 *contourOutlineCount(const s32 *words, s32 shape)
     return words + shape * 2 + 1;
 }
 
+// FUN_00267B20
 #pragma opt_propagation off
 void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
                    f32 fparg3, f32 fparg4, f32 fparg5)
@@ -2100,6 +2100,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     const PrimFloat2 *ptr9;
     const PrimFloat2 *ptrA;
     const PrimFloat2 *ptrB;
+    const PrimFloat2 *ptrC;
     u8 b0_9;
     u8 b1_9;
     u8 b2_9;
@@ -2252,13 +2253,15 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     if (arg1 == 0xFF) {
         func_00364c70();
     }
+    /* The closing pass walks the outline through its own cursor. */
+    ptrC = ptrA;
     iC = 1;
     while (iC < countA) {
-        const f32 *srcC = ptrA[iC].v;
+        const f32 *srcC = ptrC[iC].v;
         PrimFloat2 *dstC = contourPointAt(points, iC);
         u8 *colC;
-        dstC[-1].v[0] = (fparg0 + srcC[0]) - ptrA[0].v[0];
-        dstC[-1].v[1] = (fparg1 + srcC[1]) - ptrA[0].v[1];
+        dstC[-1].v[0] = (fparg0 + srcC[0]) - ptrC[0].v[0];
+        dstC[-1].v[1] = (fparg1 + srcC[1]) - ptrC[0].v[1];
         colC = contourColorAt(colors, iC);
         colC[-4] = contourChannelValue(&channels, 0);
         colC[-3] = contourChannelValue(&channels, 1);
@@ -2282,9 +2285,6 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
 }
 #pragma opt_propagation on
 
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00267b20);
-#endif
 // FUN_00268A70
 s32 func_00268a70(u8 *arg0)
 {
