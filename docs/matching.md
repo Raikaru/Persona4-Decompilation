@@ -531,10 +531,22 @@ below are the codegen consequences.
     order, with block-scoped locals after function-scope ones. Frontend
     temporaries, such as the result of `x &= m` on a wider `x`, come next.
     Codegen temporaries follow in emission order;
-  - a single-definition local normally disappears. The value keeps its
-    codegen temporary's (high) number, so declaration order cannot move it.
-    Multi-definition locals such as loop counters and flags keep their low
-    declared numbers.
+  - every `local = expr` is emitted as a temporary plus a copy. Two passes
+    then remove the local (mwccps2-debugger `923c383` stages, b210 code read
+    in Ghidra):
+    - `propagatecopyinstructions` (`0x00555510`, one pass, virtual GPR
+      copies only) rewrites every use of the local to the temporary. It
+      refuses when any use is itself a copy (`0x00555600`), when a use reads
+      and writes the local, when the source is no longer available
+      (`0x0054bcd0`), or when the source is a physical register (`0x00555540`;
+      so parameter copies always survive);
+    - `peephole` (`0x004bb840`) then folds the remaining copies, including
+      every FPR copy, using only definitions earlier in the same block. A
+      copy whose destination is still live out of the block survives.
+
+    Locals with several reaching definitions, such as loop counters and
+    flags, keep their low declared numbers. Everything else takes the
+    temporary's high number, so declaration order cannot move it.
 
   So a swap between a temporary and a surviving local is not reachable
   through declaration order. The value that retail colours later has to be
