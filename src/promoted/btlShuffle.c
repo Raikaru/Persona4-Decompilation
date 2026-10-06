@@ -873,13 +873,13 @@ s32 func_0036f640(s32 arg0, s32 *arg1)
  * Candidate pairs retain both halfword fields and separate byte addresses;
  * reverse-scan and final address differences remain guarded. See
  * docs/probe_archive/BtlShuffle_worker8_20261005.md. */
-/* 2026-10-06 compiler capture: retail colours the else-branch search pointer
-   (frontend CSE temporary, v80) after its inner counter k (v48); the first
-   branch keeps the opposite order in both builds. b210 colours descending, so
-   retail's v80 must have numbered below k. The final cand[r] loads are a
-   separate residual: b210 folds 0x70/0x72 into the loads where retail keeps
-   addiu + lhu 0. Six address spellings, peephole off and propagation off
-   all stay at 14-16 edits. */
+/* 2026-10-06: one counter k shared by both branches, the else search
+   continuing from the shared j = 0, and scoped opt_lifetimes (split
+   lifetimes give the else branch's k a higher number) close the else-branch
+   $t3/$t4 swap: 14 -> 6 edits. What remains is the final cand[r] pair. Retail
+   materialises each field address (addiu 0x72 / 0x70, then lhu 0) on a shared
+   r*4+sp, while b210 commons &cand[r] in the frontend and folds the field
+   offset into the load. Twenty address spellings stay at 6-8 edits. */
 // FUN_0036F880 NONMATCHING
 #ifdef NON_MATCHING
 static inline u16 *shuffleCandidateField(s32 offset, void *base)
@@ -888,6 +888,7 @@ static inline u16 *shuffleCandidateField(s32 offset, void *base)
 }
 
 #pragma push
+#pragma opt_lifetimes on
 #pragma opt_loop_invariants on
 s32 func_0036f880(s32 arg0, u8 *arg1)
 {
@@ -906,6 +907,7 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
     u8 *tbl;
     u16 first;
     u16 second;
+    u16 k;
 
     n = 0;
     if (count > 12) {
@@ -931,8 +933,6 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
         }
         j = 0;
         if (flag != 0) {
-            u16 k;
-
             for (; skills[m] != *(u16 *)(tbl + j * 4) && *(u16 *)(tbl + j * 4) != 0; j++) {
             }
             if (*(u16 *)(tbl + j * 4) == 0) {
@@ -949,9 +949,7 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
                 nc++;
             }
         } else {
-            u16 k;
-
-            for (j = 0; skills[m] != *(u16 *)(tbl + j * 4 + 2) && *(u16 *)(tbl + j * 4 + 2) != 0; j++) {
+            for (; skills[m] != *(u16 *)(tbl + j * 4 + 2) && *(u16 *)(tbl + j * 4 + 2) != 0; j++) {
             }
             if (*(u16 *)(tbl + j * 4 + 2) == 0) {
                 continue;
