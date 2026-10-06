@@ -574,6 +574,18 @@ below are the codegen consequences.
   `fabsf` result after the if/else join keeps that local alive, and it
   reproduces all five FPR differences exactly. The natural source that keeps
   it alive is still unknown.
+
+  **Lever: give a local a copy use (`func_00267b20`, MATCH 2026-10-06).**
+  Under scoped `opt_propagation off` (the frontend pragma), a later
+  `cursor = pointer;` survives into the backend. That copy use stops
+  `propagatecopyinstructions` from folding `pointer` into its load temporary,
+  so `pointer` keeps its low declared number and its retail `$s1`. The copy
+  itself coalesces away. In the contour renderer, the closing outline loop
+  walks `ptrC = ptrA` instead of `ptrA`; that alone closed a 33-edit
+  `$s0`/`$s1` swap. Passing the local as a call argument is also a copy use,
+  which is why `countA` already survived. With frontend propagation on,
+  the alias disappears before codegen and the lever does nothing
+  (`001b11c0`).
 - **Cache after the first assert / cache the base pointer.** Functions that
   reuse a global load it once into a saved register. Mirror with an assert on
   the global first, then `work = g; ...use work...`. Setters that reload the
