@@ -312,7 +312,7 @@ extern s32 func_002300f0();
 extern void func_0019acd0(u8 *arg0);
 extern s32 func_0019ae20();
 extern void func_001d6ee0(s32 arg0);
-extern void func_0019d3c0();
+extern void func_0019d3c0(u8 *arg0);
 extern void func_0019d0c0();
 extern void func_0019d040(u8 *arg0);
 extern u8 iGpffffa088;
@@ -4154,8 +4154,7 @@ u8 *func_0019d210(s32 arg0)
     return temp_2;
 }
 // FUN_0019D3C0
-void func_0019d3c0(arg0)
-u8 *arg0;
+void func_0019d3c0(u8 *arg0)
 {
     u16 temp_4;
     s32 index;
@@ -4190,7 +4189,7 @@ void func_0019d4e0(u8 *arg0)
     u8 *node;
     s32 h;
 
-    func_0019d3c0();
+    func_0019d3c0(arg0);
     node = *(u8 **)(arg0 + 0xA0C);
     if (node != NULL) {
         func_0019d550(node);
@@ -4221,7 +4220,7 @@ void func_0019d550(u8 *arg0)
 
     temp_17 = arg0;
     temp_16 = *(u8 *)(arg0 + 0xA2);
-    func_0019d3c0();
+    func_0019d3c0(temp_17);
     temp_4 = *(u8 **)(temp_17 + 0xA0C);
     if (temp_4 != NULL)
         func_0019d550(temp_4);
