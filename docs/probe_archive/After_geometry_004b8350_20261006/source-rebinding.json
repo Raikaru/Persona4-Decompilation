@@ -1,0 +1,517 @@
+{
+  "baseline_commit": "41a2002a50c30d68a08ca07e4a8850348796e13d",
+  "baseline_git_blob_sha256": {
+    "src/Graphics/Effect/eff_after.c": "836fc3161273a2c3e56e052202209c3bb499fba6bd514de87b2f59ea8c36faf8",
+    "src/Graphics/Effect/eff_afpack.c": "523b41c037b0b2aaa74a524db920aa49b4fcca17f78765332f7ab264a00e7289"
+  },
+  "native_proof": "proof/native-before-archive-comment.json",
+  "native_proof_sha256": "cd7260eca6baa081b7e6fb780f6ff24c7aacb10902ef9ec49eecf327d15b37b3",
+  "change_after_native_validation": "Only the proof path inside a block comment changed",
+  "previous_after_source_sha256": "d88e6fc22408d83e4fe62778a31d9fe2973774bc86e1d9969745f627ea79d48e",
+  "archived_after_source_sha256": "45c0c306ad74e7fb6196225b3ada39999849f23625f5e2928b3d805f27f170f0",
+  "after_C_tokens_sha256_before": "73e98a72c05dc5fce8228ef331d14d1d78c2295db35e5f4d35e8e4145e9d050d",
+  "after_C_tokens_sha256_after": "73e98a72c05dc5fce8228ef331d14d1d78c2295db35e5f4d35e8e4145e9d050d",
+  "afpack_source_sha256": "48c64b226a673af50b33cd4b7b75ab92236cef4e5a9da7309ea92f61a4fdc6de",
+  "native_after_forced_object_sha256": "5d9b4cdd03acfebde8dd41836f8dba1a5e3ac62a973205ad166b3843d2d4d727",
+  "native_after_forced_target": {
+    "address": "004b8350",
+    "classification": "C",
+    "size": 2720,
+    "window": 2720,
+    "code_sha256": "dca72d0da95cc7550303b32fbc10c6f94a15dac96cbe911caaea0d33abd74dbd",
+    "relocations": [
+      {
+        "offset": 244,
+        "type": 4,
+        "target": "func_003c2630"
+      },
+      {
+        "offset": 348,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 380,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 452,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 484,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 512,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 576,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 612,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 648,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 684,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 760,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 792,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 824,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 852,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 916,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 952,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 988,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 1024,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 1100,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 1132,
+        "type": 4,
+        "target": "func_003c2130"
+      },
+      {
+        "offset": 1168,
+        "type": 4,
+        "target": "func_003c2150"
+      },
+      {
+        "offset": 1376,
+        "type": 4,
+        "target": "func_004bc540"
+      },
+      {
+        "offset": 1432,
+        "type": 4,
+        "target": "func_004bc540"
+      },
+      {
+        "offset": 1504,
+        "type": 4,
+        "target": "func_004bc540"
+      },
+      {
+        "offset": 1756,
+        "type": 5,
+        "target": "D_007146E0"
+      },
+      {
+        "offset": 1760,
+        "type": 6,
+        "target": "D_007146E0"
+      },
+      {
+        "offset": 1768,
+        "type": 4,
+        "target": "func_0046d730"
+      },
+      {
+        "offset": 1980,
+        "type": 5,
+        "target": "D_007146E0"
+      },
+      {
+        "offset": 1984,
+        "type": 6,
+        "target": "D_007146E0"
+      },
+      {
+        "offset": 1992,
+        "type": 4,
+        "target": "func_0046d730"
+      }
+    ],
+    "resolved_sha256": "0110d1b6d3ec20e1a824dae1aa3c55eeeec73e4361788c062794da50124b2f7e",
+    "resolved_words": 32,
+    "resolved_offsets": [
+      88,
+      160,
+      196,
+      232,
+      236,
+      256,
+      344,
+      376,
+      388,
+      448,
+      472,
+      496,
+      520,
+      568,
+      604,
+      644,
+      680,
+      692,
+      752,
+      784,
+      812,
+      836,
+      860,
+      908,
+      944,
+      984,
+      1020,
+      1032,
+      1092,
+      1124,
+      1588,
+      1648
+    ],
+    "resolved_relocations": [
+      {
+        "offset": 244,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2630",
+        "symbol_address": "0x003c2630",
+        "resolved_instruction": "0c0f098c",
+        "retail_instruction": "0c0f098c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 348,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 380,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 452,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 484,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 512,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 576,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 612,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 648,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 684,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 760,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 792,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 824,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 852,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 916,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 952,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 988,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 1024,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 1100,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 1132,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2130",
+        "symbol_address": "0x003c2130",
+        "resolved_instruction": "0c0f084c",
+        "retail_instruction": "0c0f084c",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 1168,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_003c2150",
+        "symbol_address": "0x003c2150",
+        "resolved_instruction": "0c0f0854",
+        "retail_instruction": "0c0f0854",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 1376,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_004bc540",
+        "symbol_address": "0x004bc540",
+        "resolved_instruction": "0c12f150",
+        "retail_instruction": "0c12f150",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 1432,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_004bc540",
+        "symbol_address": "0x004bc540",
+        "resolved_instruction": "0c12f150",
+        "retail_instruction": "0c12f150",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 1504,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_004bc540",
+        "symbol_address": "0x004bc540",
+        "resolved_instruction": "0c12f150",
+        "retail_instruction": "0c12f150",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 1756,
+        "r_type": 5,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_007146E0",
+        "symbol_address": "0x007146e0",
+        "resolved_instruction": "3c040071",
+        "retail_instruction": "3c040071",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 1760,
+        "r_type": 6,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_007146E0",
+        "symbol_address": "0x007146e0",
+        "resolved_instruction": "248446e0",
+        "retail_instruction": "248446e0",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 1768,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_0046d730",
+        "symbol_address": "0x0046d730",
+        "resolved_instruction": "0c11b5cc",
+        "retail_instruction": "0c11b5cc",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 1980,
+        "r_type": 5,
+        "type": "R_MIPS_HI16",
+        "symbol": "D_007146E0",
+        "symbol_address": "0x007146e0",
+        "resolved_instruction": "3c040071",
+        "retail_instruction": "3c040071",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 1984,
+        "r_type": 6,
+        "type": "R_MIPS_LO16",
+        "symbol": "D_007146E0",
+        "symbol_address": "0x007146e0",
+        "resolved_instruction": "248446e0",
+        "retail_instruction": "248446e0",
+        "target_bits_equal": true
+      },
+      {
+        "offset": 1992,
+        "r_type": 4,
+        "type": "R_MIPS_26",
+        "symbol": "func_0046d730",
+        "symbol_address": "0x0046d730",
+        "resolved_instruction": "0c11b5cc",
+        "retail_instruction": "0c11b5cc",
+        "target_bits_equal": true
+      }
+    ]
+  },
+  "fresh_compiles_for_archive_comment": 0,
+  "native_fullowner_results_reused_by_identical_C_tokens": true,
+  "production_source_changed": false,
+  "new_exact_C": 0
+}

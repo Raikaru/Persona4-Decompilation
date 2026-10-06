@@ -1,0 +1,61 @@
+{
+  "candidate_sha256": "aea54f9a3fff7bf407132ddecc91588de102f4d6fd6cda6b7031df4da5d4adac",
+  "host_source_sha256": "a3591346653a6271df983a3292a09e16b6e2520caf9f625be2d89da95903844f",
+  "returncode": 0,
+  "constants": {
+    "iGpffff8218": {
+      "address": 7738120,
+      "bytes": "cdcc4c3e",
+      "value": 0.20000000298023224
+    },
+    "iGpffff8308": {
+      "address": 7738360,
+      "bytes": "cdcccc3d",
+      "value": 0.10000000149011612
+    },
+    "iGpffff8400": {
+      "address": 7738608,
+      "bytes": "b76ddb3e",
+      "value": 0.4285714328289032
+    },
+    "iGpffff8404": {
+      "address": 7738612,
+      "bytes": "310c43bd",
+      "value": -0.0476190485060215
+    },
+    "iGpffff8408": {
+      "address": 7738616,
+      "bytes": "cdcccc40",
+      "value": 6.400000095367432
+    },
+    "D_0060A0E0": {
+      "address": 6332640,
+      "bytes": "00000000",
+      "value": 0.0
+    },
+    "D_0060A0E4": {
+      "address": 6332644,
+      "bytes": "0000803f",
+      "value": 1.0
+    },
+    "D_0060A0E8": {
+      "address": 6332648,
+      "bytes": "00000000",
+      "value": 0.0
+    }
+  },
+  "compile_command": [
+    "C:\\msys64\\mingw64\\bin\\gcc.EXE",
+    "-std=c99",
+    "-O2",
+    "-Wno-unknown-pragmas",
+    "C:\\Users\\thele\\Projects\\Persona 3 Decomp\\source\\Persona4-Decompilation\\build\\finish-first-party-20261005\\build\\finish-20261006\\fcl-worker5\\render-recovery\\durable-behavior-proof\\host.c",
+    "-o",
+    "C:\\Users\\thele\\Projects\\Persona 3 Decomp\\source\\Persona4-Decompilation\\build\\finish-first-party-20261005\\build\\finish-20261006\\fcl-worker5\\render-recovery\\durable-behavior-proof\\behavior.exe",
+    "-lm"
+  ],
+  "output": "PASS: 53 cases; 13440 rendered vertices; finite passes, sample/color reloads, alpha and state order\n",
+  "driver_sha256": "f00067db941cac0d759cbbc0fda09b264694d8eeacd33f0b64a6d35be587d493",
+  "native_target_sha256": "6356d9331cd80d074366709eb3ff35fdd11d64a4525c7cde8d92612b5a28df8c",
+  "scope": "Host GCC with vertex-pointer, opaque-frame-handle and render-state-token bridges; no emulator execution."
+}

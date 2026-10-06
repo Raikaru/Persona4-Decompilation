@@ -1,0 +1,54 @@
+{
+  "capture-receipt.json": {
+    "origin": "build/finish-20261006/after-worker7/captures/archive-baseline/receipt.json",
+    "sha256": "edce33f8ce1dafe0f606da2126c1201124d03a55d52e7c07f86dd1b3f7fc4d08"
+  },
+  "capture-driver-provenance.json": {
+    "origin": "build/finish-20261006/after-worker7/capture-driver-provenance.json",
+    "sha256": "bfc64ab95036d53df6d4bb8bc8e66b217e548fc63a7844186588741aa7816770"
+  },
+  "target-allocation.json": {
+    "origin": "build/finish-20261006/after-worker7/captures/archive-baseline/allocation-evidence.json",
+    "sha256": "bfdfe976789d8137a1d9c3e3cac08e8d5b244806e43a7c571755e053a2e4910a"
+  },
+  "simplification-replay.json": {
+    "origin": "build/finish-20261006/after-worker7/captures/archive-baseline/simplification-replay.json",
+    "sha256": "0ecfaf10d3513d271f774e5cce274dc538a60bd3d6371c2077afbdb060f93534"
+  },
+  "early-coloring-order.json": {
+    "origin": "build/finish-20261006/after-worker7/captures/archive-baseline/early-coloring-order.json",
+    "sha256": "ee6c681ba48adff1ea3045f6c88c3f2b117cfc34563ee8a1e4d99d79608a7d18"
+  },
+  "compiler-simplify-disassembly.txt": {
+    "origin": "build/finish-20261006/after-worker7/compiler-simplify-disassembly.txt",
+    "sha256": "9f0928119643ce003160144d7d4a6e2483a5c26af2d132d6420c43ff1f826369"
+  },
+  "baseline-32-differences.json": {
+    "origin": "build/finish-20261006/after-worker7/004b8350/archive-baseline/differences.json",
+    "sha256": "6878730864716cb20369c7e0eb1c6f7f7acd512954a4dc33f64eb2762f92e879"
+  },
+  "capture-native.py": {
+    "origin": "build/finish-20261006/after-worker7/capture_native.py",
+    "sha256": "0db1be660443ca4cb739126cf8334dac7f8e6c789dd5108b5473e0e17ffdab96"
+  },
+  "phase-cursor-probe.py": {
+    "origin": "build/finish-20261006/after-worker7/probe_phase_cursors.py",
+    "sha256": "fa77e3da599149fa7376a2f6ffee5bfc384cf531745cca4ebbcafe3bf727ae5b"
+  },
+  "000018-after_colorgraph_assignment.json": {
+    "origin": "build/finish-20261006/after-worker7/captures/archive-baseline/capture/000018-after_colorgraph_assignment.json",
+    "sha256": "3d5bd46e02b14be75d8475f6eb9a3060e0b6785bf536fbc30b71c094da8f3caa"
+  },
+  "000018-after_colorgraph_assignment-replay.json": {
+    "origin": "build/finish-20261006/after-worker7/captures/archive-baseline/000018-after_colorgraph_assignment-replay.json",
+    "sha256": "c241ff794d785966f69509a85ae8eba13e9d77f69210e04d93b8ab554b3bccaf"
+  },
+  "000019-after_colorgraph_assignment.json": {
+    "origin": "build/finish-20261006/after-worker7/captures/archive-baseline/capture/000019-after_colorgraph_assignment.json",
+    "sha256": "a2a5d3ffe9d5c2b31c1bb2b62a3b16c6be60e16df44714483f05eddf42016257"
+  },
+  "000019-after_colorgraph_assignment-replay.json": {
+    "origin": "build/finish-20261006/after-worker7/captures/archive-baseline/000019-after_colorgraph_assignment-replay.json",
+    "sha256": "41b2ccc2c03ff6ab11348ecd5d3849e502e73cfcfe2f4141c18c9a4b935aedbd"
+  }
+}

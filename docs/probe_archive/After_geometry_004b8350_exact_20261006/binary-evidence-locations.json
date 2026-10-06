@@ -1,0 +1,117 @@
+[
+  {
+    "archive_path": "proof/afpack-caller-all-guards/func_004b6030-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/afpack-caller-all-guards/func_004b6030-resolved.bin",
+    "sha256": "1c59cfe6d83b0ab9e96da2b5859765af1c1d3884cd3884925b03a616c8fb5bb9"
+  },
+  {
+    "archive_path": "proof/afpack-caller-all-guards/owner.o",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/afpack-caller-all-guards/owner.o",
+    "sha256": "e47ee7623148afa3c3e53afd789aea5df2eb6397e1674aab034089f090a41171"
+  },
+  {
+    "archive_path": "proof/afpack-caller-default/func_004b6030-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/afpack-caller-default/func_004b6030-resolved.bin",
+    "sha256": "d4c7b06ca15ab4ab612e8da2db12efabaf8045d65a3ae5dd3b1cb1ed546cb319"
+  },
+  {
+    "archive_path": "proof/afpack-caller-default/owner.o",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/afpack-caller-default/owner.o",
+    "sha256": "f45baa79eb2a271d5d57b6708788d852163e72d5179ae42badd9af8c1a5f017a"
+  },
+  {
+    "archive_path": "proof/afpack-original-all-guards/func_004b6030-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/afpack-original-all-guards/func_004b6030-resolved.bin",
+    "sha256": "1c59cfe6d83b0ab9e96da2b5859765af1c1d3884cd3884925b03a616c8fb5bb9"
+  },
+  {
+    "archive_path": "proof/afpack-original-all-guards/owner.o",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/afpack-original-all-guards/owner.o",
+    "sha256": "e47ee7623148afa3c3e53afd789aea5df2eb6397e1674aab034089f090a41171"
+  },
+  {
+    "archive_path": "proof/afpack-original-default/func_004b6030-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/afpack-original-default/func_004b6030-resolved.bin",
+    "sha256": "d4c7b06ca15ab4ab612e8da2db12efabaf8045d65a3ae5dd3b1cb1ed546cb319"
+  },
+  {
+    "archive_path": "proof/afpack-original-default/owner.o",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/afpack-original-default/owner.o",
+    "sha256": "f45baa79eb2a271d5d57b6708788d852163e72d5179ae42badd9af8c1a5f017a"
+  },
+  {
+    "archive_path": "proof/after-original-all-guards/func_004b8350-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-original-all-guards/func_004b8350-resolved.bin",
+    "sha256": "d9efb279b20963954dc5399ad71230e65891076bc377c7cae170d8503c16d0e9"
+  },
+  {
+    "archive_path": "proof/after-original-all-guards/func_004b8f40-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-original-all-guards/func_004b8f40-resolved.bin",
+    "sha256": "3650397f8bbb90acbcb47c754d63aa5317471be69f72b966e5b5ea145607c8cd"
+  },
+  {
+    "archive_path": "proof/after-original-all-guards/owner.o",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-original-all-guards/owner.o",
+    "sha256": "f9f2b8351fcedb7b2580a50d475141f69d681fb884020ff388771c9218ae109a"
+  },
+  {
+    "archive_path": "proof/after-original-default/func_004b8350-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-original-default/func_004b8350-resolved.bin",
+    "sha256": "32a24bc42047739bd52da2808da79c08b879affca4da2764c5a7171e604c25e9"
+  },
+  {
+    "archive_path": "proof/after-original-default/func_004b8f40-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-original-default/func_004b8f40-resolved.bin",
+    "sha256": "e4516d7784525368acd7237c2695d027852e397803a462e373f692a9878ab02d"
+  },
+  {
+    "archive_path": "proof/after-original-default/owner.o",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-original-default/owner.o",
+    "sha256": "f8444fb05e0318aa323214f04747fb2dea0dbb2d12d4908d452cd09e0021c9fa"
+  },
+  {
+    "archive_path": "proof/after-promoted-all-guards/func_004b8350-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-promoted-all-guards/func_004b8350-resolved.bin",
+    "sha256": "32a24bc42047739bd52da2808da79c08b879affca4da2764c5a7171e604c25e9"
+  },
+  {
+    "archive_path": "proof/after-promoted-all-guards/func_004b8f40-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-promoted-all-guards/func_004b8f40-resolved.bin",
+    "sha256": "3650397f8bbb90acbcb47c754d63aa5317471be69f72b966e5b5ea145607c8cd"
+  },
+  {
+    "archive_path": "proof/after-promoted-all-guards/owner.o",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-promoted-all-guards/owner.o",
+    "sha256": "1009fecc8ebee4451fa6efdcbaaa97061eddc92ebbfc1321a55de69102e5a044"
+  },
+  {
+    "archive_path": "proof/after-promoted-default/func_004b8350-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-promoted-default/func_004b8350-resolved.bin",
+    "sha256": "32a24bc42047739bd52da2808da79c08b879affca4da2764c5a7171e604c25e9"
+  },
+  {
+    "archive_path": "proof/after-promoted-default/func_004b8f40-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-promoted-default/func_004b8f40-resolved.bin",
+    "sha256": "e4516d7784525368acd7237c2695d027852e397803a462e373f692a9878ab02d"
+  },
+  {
+    "archive_path": "proof/after-promoted-default/owner.o",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-promoted-default/owner.o",
+    "sha256": "9eba70fb24710f81276ba4a0b18535b3a73f89ebed8cdb998cd81e05ee68622d"
+  },
+  {
+    "archive_path": "proof/after-reviewed32-all-guards/func_004b8350-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-reviewed32-all-guards/func_004b8350-resolved.bin",
+    "sha256": "0110d1b6d3ec20e1a824dae1aa3c55eeeec73e4361788c062794da50124b2f7e"
+  },
+  {
+    "archive_path": "proof/after-reviewed32-all-guards/func_004b8f40-resolved.bin",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-reviewed32-all-guards/func_004b8f40-resolved.bin",
+    "sha256": "3650397f8bbb90acbcb47c754d63aa5317471be69f72b966e5b5ea145607c8cd"
+  },
+  {
+    "archive_path": "proof/after-reviewed32-all-guards/owner.o",
+    "retained_path": "build/finish-20261006/after-worker7/sealed-exact-binaries/proof/after-reviewed32-all-guards/owner.o",
+    "sha256": "4fc11dd3c2347bcaa487568cbfdbb059feb0dd9aed417e9ae093c2f4671c4748"
+  }
+]
