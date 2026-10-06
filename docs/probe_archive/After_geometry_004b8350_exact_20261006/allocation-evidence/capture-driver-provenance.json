@@ -1,0 +1,6 @@
+{
+  "source": "build/finish-20261006/battle-worker1-resume/capture_native.py",
+  "source_sha256": "8aa539bb4c71a4d8c7581fd7f08f8314b6c9332702ff1c8ebfb07bc7a5ff6972",
+  "destination_sha256": "0db1be660443ca4cb739126cf8334dac7f8e6c789dd5108b5473e0e17ffdab96",
+  "changes": "Only scratch source guard, actual logical owner selection and lane output path."
+}

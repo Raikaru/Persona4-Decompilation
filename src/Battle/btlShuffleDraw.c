@@ -126,12 +126,23 @@ extern s64 D_0064EA38[];
 extern f32 D_0064EA40[];
 extern f32 iGpffff840c;
 extern f32 iGpffff81e0;
-extern void *func_003e9700(s32 arg0);
+struct RwFrame;
+extern BtlShuffleMatrix *func_003e9700(struct RwFrame *frame);
 extern void func_003e0e20(u8 *arg0, void *arg1, s32 arg2);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+typedef enum RpSkyRenderState {
+    rpSKYRENDERSTATENARENDERSTATE = 0,
+    rpSKYRENDERSTATEDITHER,
+    rpSKYRENDERSTATEALPHA_1,
+    rpSKYRENDERSTATEATEST_1,
+    rpSKYRENDERSTATEFARFOGPLANE,
+    rpSKYRENDERSTATEMAXMIPLEVELS,
+    rpSKYRENDERSTATEFORCEENUMSIZEINT = 0x7fffffff
+} RpSkyRenderState;
+extern s32 RpSkyRenderStateSet(RpSkyRenderState state, void *value);
 extern s32 func_0036be00(void);
-extern void func_00410420(s32 arg0, s32 arg1, void *arg2, s32 arg3);
-extern void func_004106a0(s32 arg0);
+struct RxObjSpace3DVertex;
+extern void *func_00410420(struct RxObjSpace3DVertex *vertices, u32 count, BtlShuffleMatrix *matrix, u32 flags);
+extern s32 func_004106a0(BtlShufflePrimitive primitive);
 extern f32 DAT_007613f8;
 extern f32 iGpffff8218;
 extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
@@ -601,16 +612,16 @@ void func_00374d20(u8 *arg0) {
     *(s32 *)(m + 0x38) = 0;
     *(s32 *)(m + 0x0C) = 3;
     RwMatrixTranslate((BtlShuffleMatrix *)m, &translation, rwCOMBINEPOSTCONCAT);
-    func_003e0e20(m, func_003e9700(camera), 2);
+    func_003e0e20(m, func_003e9700((struct RwFrame *)camera), 2);
     renderStateBase = (u32)D_00887300;
     (*(BtlShuffleRenderStateSet *)renderStateBase)(6, 0);
     (*(BtlShuffleRenderStateSet *)renderStateBase)(8, 0);
     (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATECULLMODE, (void *)2);
-    RpSkyRenderStateSet(3, 0x717FB);
-    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, (void *)0x717FB);
+    RpSkyRenderStateSet(2, (void *)0x44);
     if (*(u16 *)(arg0 + 0x1F2F4) & 0x20) {
         (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATETEXTURERASTER, (void *)(u32)func_0036be00());
-        func_00410420(backVertices, 4, m, 3);
+        func_00410420((struct RxObjSpace3DVertex *)backVertices, 4, (BtlShuffleMatrix *)m, 3);
         func_004106a0(4);
     }
     func_00378280(card, *(u8 *)(p + 0xD8));
@@ -619,17 +630,17 @@ void func_00374d20(u8 *arg0) {
         RwMatrixRotate(m, &axis, 1, 180.0f);
     }
     (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATETEXTURERASTER, (void *)(u32)texture);
-    func_00410420(frontVertices, 4, m, 3);
+    func_00410420((struct RxObjSpace3DVertex *)frontVertices, 4, (BtlShuffleMatrix *)m, 3);
     func_004106a0(4);
     if (*(u16 *)(arg0 + 0x1F2F4) & 0x10) {
-        RpSkyRenderStateSet(3, 0x71801);
-        RpSkyRenderStateSet(2, 0x48);
+        RpSkyRenderStateSet(3, (void *)0x71801);
+        RpSkyRenderStateSet(2, (void *)0x48);
         *(u16 *)(arg0 + 0x1F2F2) = (u16)((*(u16 *)(arg0 + 0x1F2F2) + 1) % 60);
         pulseFrame = (f32)(u32)*(u16 *)(arg0 + 0x1F2F2);
         pulseAlpha = 255.0f * (1.0f - cosf((iGpffff81e0 * pulseFrame) / 60.0f)) / 2.0f;
         pulseByte = (u8)pulseAlpha;
         func_00378280(card, pulseByte & 0xFF);
-        func_00410420(frontVertices, 4, m, 3);
+        func_00410420((struct RxObjSpace3DVertex *)frontVertices, 4, (BtlShuffleMatrix *)m, 3);
         func_004106a0(4);
     }
     if (*(u16 *)(arg0 + 0x1F2F4) & 0x100) {
@@ -646,7 +657,7 @@ void func_00374d20(u8 *arg0) {
         scale.y = scale.x;
         scale.z = 1.0f;
         RwMatrixScale(m, &scale, 1);
-        func_00410420(frontVertices, 4, m, 3);
+        func_00410420((struct RxObjSpace3DVertex *)frontVertices, 4, (BtlShuffleMatrix *)m, 3);
         func_004106a0(4);
     }
     func_003e0f40((BtlShuffleMatrix *)m);
@@ -1313,778 +1324,331 @@ void func_00376880(u8 **arg0) {
 }
 
 
-/* measured 003768e0: archived LaneBtlShuffleDraw_fclCombineMisc_003768e0_body.c */
-/* (725 lines, raw m2c with M2C_FIELD/M2C_BITWISE, goto loops, s64 arg2) does */
-/* not compile as-is: s64 vs existing s32 prototype, missing M2C defines, */
-/* missing D_0060A0E0/E4/E8 and iGpffff8400/8404/8408/8308, D_00887300 */
-/* render_table indirection vs existing array-of-fn-ptr, (s32) casts needed */
-/* for the six func_00410420 pointer args. Fixed candidate */
-/* /var/tmp/bank3768e0/candidate.c (s32 arg2 with */
-/* (s64)((s64)arg2<<0x38)>>0x38, M2C defines, 7 missing f32 externs, */
-/* D_00887300[0] direct, 6x(s32)&stack casts) compiles. fnalign retail 1042 */
-/* vs object 997 (45 short, 4.3%, outside +-3% gate 1011-1073), edit 813 */
-/* (+2 reloc-only) via `python3 -E -s tools/fnalign.py */
-/* src/Battle/btlShuffleDraw.c func_003768e0 --candidate */
-/* /var/tmp/bank3768e0/candidate.c`. jal counts exact both sides (28: */
-/* 3x0036de70, 3x0036deb0, 3x003764b0, 1x003e9700, 4x003f6440, 6x00410420, */
-/* 6x004106a0, 1x00457120, 1x0046d730 + 3xjalr D_00887300), switch/loop */
-/* bounds intact (0x15 and 4-iteration loops present), so excluded: dropped */
-/* else arm, off-by-one bound, omitted call, folded switch, collapsed */
-/* per-lane vector. Gap is distributed FP/stack-spill shape (early */
-/* dsll/dsra 2->4 expansion vs 7->2 div collapse, large replaces in the */
-/* 0x15-loop tails and final 52-word replace), not a single deleted block. */
-/* Archive header claims no score (only "rejected after scoped mismatch"), */
-/* so no disagreement. Production stays ASM. */
-/* 2026-09-18, two passes.  Refused, still ASM.  Read the numbers carefully -
-   the first pass's note conflated two different gaps and named a mechanism
-   that a census then disproved, so this replaces it.
-   Retail: 1042 trimmed instructions (1044 in the 4176B window), frame -0xF50,
-   28 `jal` plus 3 `jalr` through D_00887300[0] = 31 calls.  The best faithful
-   candidate is 45 instructions short (997), which is -4.3% and outside the
-   gate; an earlier fuller attempt was 158 short.  The often-quoted "432B" is
-   the FRAME difference (3920 against 3488), not the code gap - keep the two
-   apart.
-   Structure is complete and that is measured, not assumed: 13 case labels
-   covering the outer 2/1/0 plus default and every inner arm, all 31 calls on
-   both sides, and no large `delete` run - the biggest are four of length 19,
-   nothing like the 200-instruction hole that turned out to be a missing
-   `case 7` in func_00263cb0.  So pragmas are not the story here.
-   The mechanism is per-lane reloads, NOT missing spills.  A census says
-   `swc1` is 150 on both sides - exactly equal - so no spill pair is missing,
-   because a missing pair would move stores too.  The deficit is `lwc1` -24,
-   `nop` -17 and `mfc1` -6, which is 41 of the 45.  Those 24 loads localise to
-   four retail-only blocks of length 19 at candidate indices 343, 401, 459 and
-   517 (retail 0x376E3C, 0x376F24, 0x37700C, 0x3770F4) - four lanes with about
-   six missing loads each - plus one secondary block of length 12.  The
-   candidate stores each lane value once and then carries it in a register
-   where retail reloads it per lane.
-   Next pass: print those four spans against the aligned object code and add
-   the per-lane reloads as array reads, two variants, before anything else.
-   Then audit the six `mfc1` sites.  Only after the reloads land should the
-   `cvt`/`dsll32` width noise be cleaned up, because it currently offsets the
-   shortfall.  The earlier "raise live-float pressure" theory is unmeasured
-   and the census argues against it.
-   Working notes: /var/tmp/cold3768e0b/NOTE.md and the census script at
-   /var/tmp/cold263cb0b/census768e0.py. */
-/* measured: store-once-hoisted lane reloads banked as guarded floor.
-   Retail 1042 trimmed (1044 window), band 1011-1073. Before 997 (-45, -4.3%, outside),
-   after 1021 (-21, -2.0%, inside). lwc1 85/109 -> 109/109 exact from four 19-blocks
-   at 343/401/459/517 (retail 0x376E3C/0x376F24/0x37700C/0x3770F4); edits 813 -> 677
-   (+2 reloc-only), probe words 964 -> 963.
-   Two per-lane reload spellings in one probe: ShuffleVec3 struct block kept
-   (12-byte copy from stack spill, 1021/677/963) and Vec3Arr array block
-   (same 1021/677/963, not kept to avoid new typedef); constant-index f32 array read tried, no change.
-   Pattern reusable: lane values stored once and carried in regs must be reloaded per lane as block reads
-   to get lwc1x3 swc1x3; swc1 150/150 exact throughout.
-   Left: six mfc1 (four case-0 head, one case-1, one case-2) and cvt.s.w +5 dsll32 +7 width noise.
-   WARNING: cleaning widths first makes count look worse (offsets shortfall); fix mfc1 only after reloads landed.
-   Do not disturb func_00375f00. */
-/* measured 003768e0 (owner, 2026-09-19): fnalign **677 -> 658 edits** by spelling the six
-   float-to-unsigned guards the way retail does.  m2c writes the lowering as
-   `if (!(x >= 2.1474836e9f)) A else B`, which b210 compiles to `c.olt.s` plus a negated
-   branch; retail's shape is `c.le.s` with the constant on the LEFT, which is what
-   `if (2.1474836e9f <= x) B else A` produces.  The two are complements, so the arms swap
-   with the comparison and the logic is unchanged.
-   Swept across the 18 first-party floors carrying the pattern (81 sites): this one is the
-   best at -19 for six sites, func_002a7920 / func_002a03b0 / func_00119810 give -2 each,
-   func_00117980 and func_00119210 give -1, func_002f9d90 / func_00254a70 / func_00172e00
-   are neutral and func_00253850 is WORSE by 10.  It is a real lever but a small one -
-   roughly three edits per site here, under one elsewhere - so it only pays where the
-   sites are dense. */
-/* measured 003768e0 (owner, 2026-09-19): fnalign **658 -> 656 edits**, count
-   1021 -> 1019 against retail 1042, by writing m2c's top-tested `loop_N:` /
-   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
-   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
-   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
-   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
-   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
-   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
-   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
+/* Guarded trail recovery: native 4176/4176 bytes and frame 0xF50;
+ * 511 fully resolved differing words. Uses 21 samples, two 42-vertex
+ * strips, native alpha conversions and finite 4/4/2 render passes.
+ * Matrix flags are explicitly initialized; retail's SDK identity
+ * macro reads an unwritten flag word. ASM remains the production
+ * implementation. See docs/probe_archive/Shuffle_trail_003768e0_20261006. */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
-#define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((u8 *)(expr) + (offset)))
-#define M2C_BITWISE(type, expr) ((type)(expr))
-extern f32 D_0060A0E0;
-extern f32 D_0060A0E4;
-extern f32 D_0060A0E8;
+/* Scratch recovery of the three trail styles. The 0x24-byte vertex and
+ * position/color setters follow include/rw/sky2/rwcore.h. Matrix flags are
+ * defined explicitly: retail's load/OR of an unwritten stack flag word is
+ * retained as an unresolved difference, not copied as an uninitialized read. */
+typedef struct RwRGBA {
+    u8 red, green, blue, alpha;
+} TrailRGBA;
+
+typedef union RxColorUnion {
+    TrailRGBA preLitColor;
+    TrailRGBA color;
+} TrailColor;
+
+typedef struct RxObjSpace3DVertex {
+    ShuffleVec3 objVertex;
+    TrailColor c;
+    ShuffleVec3 objNormal;
+    f32 u, v;
+} TrailVertex;
+
+typedef char TrailVertexSizeCheck[(sizeof(TrailVertex) == 0x24) ? 1 : -1];
+
+#define TRAIL_POSITION(_vertex, _x, _y, _z) do { \
+    ShuffleVec3 packed; \
+    packed.x = (_x); \
+    packed.y = (_y); \
+    packed.z = (_z); \
+    (_vertex)->objVertex = packed; \
+} while (0)
+
+#define TRAIL_COLOR(_vertex, _r, _g, _b, _a) do { \
+    TrailRGBA *const color = &(_vertex)->c.color; \
+    color->red = (_r); \
+    color->green = (_g); \
+    color->blue = (_b); \
+    color->alpha = (_a); \
+} while (0)
+
+extern ShuffleVec3 D_0060A0E0;
 extern f32 iGpffff8400;
 extern f32 iGpffff8404;
 extern f32 iGpffff8408;
 extern f32 iGpffff8308;
-typedef struct ShuffleStackProbe {
-    s32 spB0[3];
-    s32 spBC;
-    s32 spC0;
-    s32 spC4;
-    s32 spC8;
-    u8 _pad_0BC[0x4];
-    s32 spD0;
-    s32 spD4;
-    s32 spD8;
-    u8 _pad_0CC[0x4];
-    s32 spE0;
-    s32 spE4;
-    s32 spE8;
-    u8 _pad_0DC[0x4];
-    f32 spF0[0x40];
-    u8 sp1F0[0x5F0];
-    u8 sp7E0[0x5F0];
-    f32 spDD0;
-    f32 spDD4;
-    f32 spDD8;
-    u8 _pad_DCC[0x4];
-    f32 spDE0;
-    f32 spDE4;
-    f32 spDE8;
-    u8 _pad_DDC[0x4];
-    f32 spDF0;
-    f32 spDF4;
-    f32 spDF8;
-    u8 _pad_DEC[0x4];
-    f32 spE00;
-    f32 spE04;
-    f32 spE08;
-    u8 _pad_DFC[0x4];
-    f32 spE10;
-    f32 spE14;
-    f32 spE18;
-    u8 _pad_E0C[0x4];
-    f32 spE20;
-    f32 spE24;
-    f32 spE28;
-    u8 _pad_E1C[0x4];
-    f32 spE30;
-    f32 spE34;
-    f32 spE38;
-    u8 _pad_E2C[0x4];
-    f32 spE40;
-    f32 spE44;
-    f32 spE48;
-    u8 _pad_E3C[0x4];
-    f32 spE50;
-    f32 spE54;
-    f32 spE58;
-    u8 _pad_E4C[0x4];
-    f32 spE60;
-    f32 spE64;
-    f32 spE68;
-    u8 _pad_E5C[0x4];
-    f32 spE70;
-    f32 spE74;
-    f32 spE78;
-    u8 _pad_E6C[0x4];
-    f32 spE80;
-    f32 spE84;
-    f32 spE88;
-    u8 _pad_E7C[0x4];
-    f32 spE90;
-    f32 spE94;
-    f32 spE98;
-    u8 _pad_E8C[0x4];
-    f32 spEA0;
-    f32 spEA4;
-    f32 spEA8;
-    u8 _pad_E9C[0x4];
-    f32 spEB0;
-    f32 spEB4;
-    f32 spEB8;
-    u8 _pad_EAC[0x4];
-    f32 spEC0;
-    f32 spEC4;
-    f32 spEC8;
-    u8 _pad_EBC[0x4];
-    f32 spED0;
-    f32 spED4;
-    f32 spED8;
-    u8 _pad_ECC[0x4];
-    f32 spEE0;
-    f32 spEE4;
-    f32 spEE8;
-    u8 _pad_EDC[0x4];
-    f32 spEF0;
-    f32 spEF4;
-    f32 spEF8;
-    u8 _pad_EEC[0x4];
-    f32 spF00;
-    f32 spF04;
-    f32 spF08;
-    u8 _pad_EFC[0x4];
-    f32 spF10;
-    f32 spF14;
-    f32 spF18;
-    u8 _pad_F0C[0x4];
-    f32 spF20;
-    f32 spF24;
-    f32 spF28;
-    u8 _pad_F1C[0x4];
-    f32 spF30;
-    f32 spF34;
-    f32 spF38;
-    u8 _pad_F2C[0x4];
-    f32 spF40;
-    f32 spF44;
-    f32 spF48;
-    u8 _tail[0x4];
-} ShuffleStackProbe;
-void func_003768e0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, f32 fparg0) {
-    ShuffleStackProbe stack;
-    u8 *var_19;
-    u8 *var_19_2;
-    u8 *var_19_3;
-    u8 *var_20;
-    u8 *var_20_2;
-    u8 *var_20_3;
-    u8 *var_2;
-    u8 *var_3_5;
-    u8 *var_4;
-    u8 *var_4_2;
-    u8 *var_5_5;
-    u8 *var_5_6;
-    f32 temp_f10;
-    f32 temp_f10_2;
-    f32 temp_f11;
-    f32 temp_f11_2;
-    f32 temp_f12;
-    f32 temp_f12_2;
-    f32 temp_f13;
-    f32 temp_f13_2;
-    f32 temp_f14;
-    f32 temp_f14_2;
-    f32 temp_f15;
-    f32 temp_f15_2;
-    f32 temp_f16;
-    f32 temp_f16_2;
-    f32 temp_f1;
-    f32 temp_f1_2;
-    f32 temp_f20;
-    f32 temp_f20_2;
-    f32 temp_f21;
-    f32 temp_f22;
-    f32 temp_f22_2;
-    f32 temp_f22_3;
-    f32 temp_f22_4;
-    f32 temp_f23;
-    f32 temp_f23_2;
-    f32 temp_f24;
-    f32 temp_f24_2;
-    f32 temp_f25;
-    f32 temp_f2;
-    f32 temp_f3;
-    f32 temp_f3_2;
-    f32 temp_f3_3;
-    f32 temp_f3_4;
-    f32 temp_f4;
-    f32 temp_f4_2;
-    f32 temp_f4_3;
-    f32 temp_f4_4;
-    f32 temp_f5;
-    f32 temp_f5_2;
-    f32 temp_f5_3;
-    f32 temp_f5_4;
-    f32 temp_f6;
-    f32 temp_f6_2;
-    f32 temp_f9;
-    f32 temp_f9_2;
-    f32 var_f1;
-    f32 var_f20;
-    f32 var_f21;
-    f32 var_f21_2;
-    f32 var_f24;
-    f32 var_f24_2;
-    f32 var_f24_3;
-    f32 var_f2;
-    f32 var_f4;
-    f32 var_f4_2;
-    u8 *temp_21;
-    s32 temp_4;
-    s32 var_16;
-    s32 var_16_2;
-    s32 var_16_3;
-    s32 var_18;
-    s32 var_18_2;
-    s32 var_18_3;
-    s32 var_3_6;
-    s32 var_3_7;
-    s32 var_3_8;
-    s32 var_3_9;
-    s32 var_5;
-    s32 var_5_2;
-    s32 var_5_3;
-    s32 var_5_4;
-    s64 temp_18;
-    s8 temp_23;
-    s8 temp_23_2;
-    s8 var_3;
-    s8 var_3_2;
-    s8 var_3_3;
-    s8 var_3_4;
-    u32 temp_2;
-    u32 temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_2_4;
-    u8 *temp_2_5;
-    u8 *temp_2_6;
-    u8 *temp_4_2;
-    u8 *temp_4_3;
-    u8 *temp_4_4;
-    u8 *temp_4_5;
-    u8 *temp_4_6;
-    u8 *temp_4_7;
-    u8 *temp_4_8;
-    u8 *temp_4_9;
-    u8 *temp_5;
 
-    temp_18 = (s64) ((s64)arg2 << 0x38) >> 0x38;
-    if (temp_18 >= 3) {
-        func_0046d730(&D_0064EA20, 0x5DE);
+#pragma push
+#pragma opt_loop_invariants on
+void func_003768e0(u8 *work, s32 cardIndex, s32 mode, u8 *rgba, f32 length)
+{
+    TrailVertex first[42];
+    TrailVertex second[42];
+    ShuffleVec3 samples[21];
+    BtlShuffleMatrix identity;
+    TrailVertex *front;
+    TrailVertex *back;
+    ShuffleVec3 *sample;
+    u8 *card;
+    u8 *motion;
+    s32 kind;
+    f32 opacity;
+
+    kind = (s8)mode;
+    if (kind >= 3) {
+        func_0046d730(D_0064EA20, 0x5DE);
     }
-    stack.spD8 = 0x3F800000;
-    stack.spC4 = 0x3F800000;
-    stack.spB0[0] = 0x3F800000;
-    stack.spC0 = 0;
-    stack.spB0[2] = 0;
-    stack.spB0[1] = 0;
-    stack.spD4 = 0;
-    stack.spD0 = 0;
-    stack.spC8 = 0;
-    stack.spE8 = 0;
-    stack.spE4 = 0;
-    stack.spE0 = 0;
-    stack.spBC |= 0x20003;
-    RpSkyRenderStateSet(2, 0x48);
-    RpSkyRenderStateSet(3, 0x71801);
+    identity.right.x = identity.up.y = identity.at.z = 1.0f;
+    identity.right.y = identity.right.z = identity.up.x = 0.0f;
+    identity.up.z = identity.at.x = identity.at.y = 0.0f;
+    identity.pos.x = identity.pos.y = identity.pos.z = 0.0f;
+    identity.flags = 0x20003;
+    RpSkyRenderStateSet(2, (void *)0x48);
+    RpSkyRenderStateSet(3, (void *)0x71801);
     D_00887300[0](rwRENDERSTATECULLMODE, (void *)1);
     D_00887300[0](rwRENDERSTATEZTESTENABLE, (void *)1);
-    D_00887300[0](8, 0);
-    temp_5 = (u8 *)(arg0 + (arg1 * 0xE8) + 0x1D6A0);
-    temp_21 = arg0 + (arg1 * 0xFB0);
-    temp_4 = (s32)(M2C_FIELD(temp_5, s32 *, 4));
-    if (temp_4 == 6) {
-        temp_2 = M2C_FIELD(arg3, u8 *, 3);
-        if (temp_2 >= 0) {
-            var_f2 = (f32) temp_2;
-        } else {
-            var_f2 = 2.0f * (f32) ((temp_2 >> 1) | (temp_2 & 1));
-        }
-        temp_2_2 = M2C_FIELD(temp_5, u8 *, 0xD8);
-        if (temp_2_2 >= 0) {
-            var_f1 = (f32) temp_2_2;
-        } else {
-            var_f1 = 2.0f * (f32) ((temp_2_2 >> 1) | (temp_2_2 & 1));
-        }
-        temp_f22 = var_f2 * (var_f1 / 255.0f);
-        switch (temp_18) {                          /* switch 1; irregular */
-        case 0:                                     /* switch 1 */
-            var_20 = (u8 *)(&stack.sp7E0);
-            var_19 = (u8 *)(&stack.sp1F0);
-            temp_f20 = iGpffff8400 * temp_f22;
-            var_f21_2 = 1.0f;
-            var_f24 = 0.0f;
-            var_18 = 0;
-do {
-                    func_003764b0(arg0, arg1, var_f24, ((u8 *)stack.spF0 + (var_18 * 0xC)));
-                    var_f24 -= fparg0 / 21.0f;
-                    M2C_FIELD(var_20, u8 *, 0xC) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                    M2C_FIELD(var_20, u8 *, 0xD) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                    M2C_FIELD(var_20, u8 *, 0xE) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                    temp_f1 = temp_f22 * var_f21_2;
-                    if (2.1474836e9f <= temp_f1) {
-                        var_3 = (M2C_BITWISE(s32, (temp_f1 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                    } else {
-                        var_3 = 0x4F000000 & 0xFF;
-                    }
-                    M2C_FIELD((var_20 + 0xC), s8 *, 3) = var_3;
-                    M2C_FIELD(var_20, u8 *, 0x30) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                    M2C_FIELD(var_20, u8 *, 0x31) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                    M2C_FIELD(var_20, u8 *, 0x32) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                    temp_f2 = temp_f20 * var_f21_2;
-                    if (2.1474836e9f <= temp_f2) {
-                        var_3_2 = (M2C_BITWISE(s32, (temp_f2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                    } else {
-                        var_3_2 = 0x4F000000 & 0xFF;
-                    }
-                    M2C_FIELD((var_20 + 0x30), s8 *, 3) = var_3_2;
-                    M2C_FIELD(var_19, u8 *, 0xC) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                    M2C_FIELD(var_19, u8 *, 0xD) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                    M2C_FIELD(var_19, u8 *, 0xE) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                    if (2.1474836e9f <= temp_f2) {
-                        var_3_3 = (M2C_BITWISE(s32, (temp_f2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                    } else {
-                        var_3_3 = 0x4F000000 & 0xFF;
-                    }
-                    M2C_FIELD((var_19 + 0xC), s8 *, 3) = var_3_3;
-                    M2C_FIELD(var_19, u8 *, 0x30) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                    M2C_FIELD(var_19, u8 *, 0x31) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                    M2C_FIELD(var_19, u8 *, 0x32) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                    if (2.1474836e9f <= temp_f1) {
-                        var_3_4 = (M2C_BITWISE(s32, (temp_f1 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                    } else {
-                        var_3_4 = 0x4F000000 & 0xFF;
-                    }
-                    M2C_FIELD((var_19 + 0x30), s8 *, 3) = var_3_4;
-                    var_f21_2 += (f32)(s32)(iGpffff8404);
-                    var_18 += 1;
-                    var_20 += 0x48;
-                    var_19 += 0x48;
-} while (var_18 < 0x15);
-            temp_f21 = 0.5f * func_0036de70(temp_21);
-            temp_f20_2 = 0.5f * func_0036deb0(temp_21);
-            var_16 = 0;
-loop_50:
-            if (var_16 < 4) {
-                var_3_5 = (u8 *)(&stack.sp7E0);
-                var_2 = (u8 *)(&stack.sp1F0);
-                switch (var_16) {                   /* switch 2; irregular */
-                case 0:                             /* switch 2 */
-                    var_5 = 0;
-loop_36:
-                    if (var_5 < 0x15) {
-                        temp_4_2 = (u8 *)((u8 *)stack.spF0 + (var_5 * 0xC));
-                        temp_4_3 = (u8 *)(temp_4_2 + 0xF0);
-                        temp_f5 = temp_f21 + M2C_FIELD(temp_4_2, f32 *, 0xF0);
-                        stack.spF40 = temp_f5;
-                        temp_f4 = M2C_FIELD(temp_4_3, f32 *, 4);
-                        stack.spF44 = temp_f4 - temp_f20_2;
-                        temp_f3 = M2C_FIELD(temp_4_3, f32 *, 8);
-                        stack.spF48 = temp_f3;
-                        *(ShuffleVec3 *)var_3_5 = *(ShuffleVec3 *)&stack.spF40;
-                        stack.spF30 = temp_f5;
-                        stack.spF34 = temp_f4;
-                        stack.spF38 = temp_f3;
-                        *(ShuffleVec3 *)((u8 *)var_3_5 + 0x24) = *(ShuffleVec3 *)&stack.spF30;
-                        stack.spF20 = temp_f5;
-                        stack.spF24 = temp_f4;
-                        stack.spF28 = temp_f3;
-                        *(ShuffleVec3 *)var_2 = *(ShuffleVec3 *)&stack.spF20;
-                        stack.spF10 = temp_f5;
-                        stack.spF14 = temp_f20_2 + temp_f4;
-                        stack.spF18 = temp_f3;
-                        *(ShuffleVec3 *)((u8 *)var_2 + 0x24) = *(ShuffleVec3 *)&stack.spF10;
-                        var_5 += 1;
-                        var_3_5 += 0x48;
-                        var_2 += 0x48;
-                        goto loop_36;
-                    }
-                    break;
-                case 1:                             /* switch 2 */
-                    var_5_2 = 0;
-loop_40:
-                    if (var_5_2 < 0x15) {
-                        temp_4_4 = (u8 *)((u8 *)stack.spF0 + (var_5_2 * 0xC));
-                        temp_4_5 = (u8 *)(temp_4_4 + 0xF0);
-                        temp_f5_2 = M2C_FIELD(temp_4_4, f32 *, 0xF0) - temp_f21;
-                        stack.spF00 = temp_f5_2;
-                        temp_f4_2 = M2C_FIELD(temp_4_5, f32 *, 4);
-                        stack.spF04 = temp_f4_2 - temp_f20_2;
-                        temp_f3_2 = M2C_FIELD(temp_4_5, f32 *, 8);
-                        stack.spF08 = temp_f3_2;
-                        *(ShuffleVec3 *)var_3_5 = *(ShuffleVec3 *)&stack.spF00;
-                        stack.spEF0 = temp_f5_2;
-                        stack.spEF4 = temp_f4_2;
-                        stack.spEF8 = temp_f3_2;
-                        *(ShuffleVec3 *)((u8 *)var_3_5 + 0x24) = *(ShuffleVec3 *)&stack.spEF0;
-                        stack.spEE0 = temp_f5_2;
-                        stack.spEE4 = temp_f4_2;
-                        stack.spEE8 = temp_f3_2;
-                        *(ShuffleVec3 *)var_2 = *(ShuffleVec3 *)&stack.spEE0;
-                        stack.spED0 = temp_f5_2;
-                        stack.spED4 = temp_f20_2 + temp_f4_2;
-                        stack.spED8 = temp_f3_2;
-                        *(ShuffleVec3 *)((u8 *)var_2 + 0x24) = *(ShuffleVec3 *)&stack.spED0;
-                        var_5_2 += 1;
-                        var_3_5 += 0x48;
-                        var_2 += 0x48;
-                        goto loop_40;
-                    }
-                    break;
-                case 2:                             /* switch 2 */
-                    var_5_3 = 0;
-loop_44:
-                    if (var_5_3 < 0x15) {
-                        temp_4_6 = (u8 *)((u8 *)stack.spF0 + (var_5_3 * 0xC));
-                        temp_4_7 = (u8 *)(temp_4_6 + 0xF0);
-                        temp_f5_3 = M2C_FIELD(temp_4_6, f32 *, 0xF0);
-                        stack.spEC0 = temp_f21 + temp_f5_3;
-                        temp_f4_3 = temp_f20_2 + M2C_FIELD(temp_4_7, f32 *, 4);
-                        stack.spEC4 = temp_f4_3;
-                        temp_f3_3 = M2C_FIELD(temp_4_7, f32 *, 8);
-                        stack.spEC8 = temp_f3_3;
-                        *(ShuffleVec3 *)var_3_5 = *(ShuffleVec3 *)&stack.spEC0;
-                        stack.spEB0 = temp_f5_3;
-                        stack.spEB4 = temp_f4_3;
-                        stack.spEB8 = temp_f3_3;
-                        *(ShuffleVec3 *)((u8 *)var_3_5 + 0x24) = *(ShuffleVec3 *)&stack.spEB0;
-                        stack.spEA0 = temp_f5_3;
-                        stack.spEA4 = temp_f4_3;
-                        stack.spEA8 = temp_f3_3;
-                        *(ShuffleVec3 *)var_2 = *(ShuffleVec3 *)&stack.spEA0;
-                        stack.spE90 = temp_f5_3 - temp_f21;
-                        stack.spE94 = temp_f4_3;
-                        stack.spE98 = temp_f3_3;
-                        *(ShuffleVec3 *)((u8 *)var_2 + 0x24) = *(ShuffleVec3 *)&stack.spE90;
-                        var_5_3 += 1;
-                        var_3_5 += 0x48;
-                        var_2 += 0x48;
-                        goto loop_44;
-                    }
-                    break;
-                case 3:                             /* switch 2 */
-                    var_5_4 = 0;
-loop_48:
-                    if (var_5_4 < 0x15) {
-                        temp_4_8 = (u8 *)((u8 *)stack.spF0 + (var_5_4 * 0xC));
-                        temp_4_9 = (u8 *)(temp_4_8 + 0xF0);
-                        temp_f5_4 = M2C_FIELD(temp_4_8, f32 *, 0xF0);
-                        stack.spE80 = temp_f21 + temp_f5_4;
-                        temp_f4_4 = M2C_FIELD(temp_4_9, f32 *, 4) - temp_f20_2;
-                        stack.spE84 = temp_f4_4;
-                        temp_f3_4 = M2C_FIELD(temp_4_9, f32 *, 8);
-                        stack.spE88 = temp_f3_4;
-                        *(ShuffleVec3 *)var_3_5 = *(ShuffleVec3 *)&stack.spE80;
-                        stack.spE70 = temp_f5_4;
-                        stack.spE74 = temp_f4_4;
-                        stack.spE78 = temp_f3_4;
-                        *(ShuffleVec3 *)((u8 *)var_3_5 + 0x24) = *(ShuffleVec3 *)&stack.spE70;
-                        stack.spE60 = temp_f5_4;
-                        stack.spE64 = temp_f4_4;
-                        stack.spE68 = temp_f3_4;
-                        *(ShuffleVec3 *)var_2 = *(ShuffleVec3 *)&stack.spE60;
-                        stack.spE50 = temp_f5_4 - temp_f21;
-                        stack.spE54 = temp_f4_4;
-                        stack.spE58 = temp_f3_4;
-                        *(ShuffleVec3 *)((u8 *)var_2 + 0x24) = *(ShuffleVec3 *)&stack.spE50;
-                        var_5_4 += 1;
-                        var_3_5 += 0x48;
-                        var_2 += 0x48;
-                        goto loop_48;
-                    }
-                    break;
+    D_00887300[0](rwRENDERSTATEZWRITEENABLE, NULL);
+    motion = work + cardIndex * 0xE8 + 0x1D6A0;
+    card = work + cardIndex * 0xFB0;
+    if (*(s32 *)(motion + 4) == 6) {
+        opacity = (f32)(u32)rgba[3] * ((f32)(u32)motion[0xD8] / 255.0f);
+        switch (kind) {
+        case 0:
+            {
+                s32 point;
+                s32 side;
+                f32 fadedOpacity;
+                f32 taper;
+                f32 time;
+                f32 halfWidth;
+                f32 halfHeight;
+                front = first;
+                back = second;
+                fadedOpacity = iGpffff8400 * opacity;
+                taper = 1.0f;
+                time = 0.0f;
+                length /= 21.0f;
+                for (point = 0; point < 21; point++) {
+                    func_003764b0(work, cardIndex, time, (u8 *)&samples[point]);
+                    time -= length;
+                    TRAIL_COLOR(&front[0], rgba[0], rgba[1], rgba[2], (u8)(opacity * taper));
+                    TRAIL_COLOR(&front[1], rgba[0], rgba[1], rgba[2], (u8)(fadedOpacity * taper));
+                    TRAIL_COLOR(&back[0], rgba[0], rgba[1], rgba[2], (u8)(fadedOpacity * taper));
+                    TRAIL_COLOR(&back[1], rgba[0], rgba[1], rgba[2], (u8)(opacity * taper));
+                    taper += iGpffff8404;
+                    front += 2;
+                    back += 2;
                 }
-                func_00410420((s32)&stack.sp7E0, 0x2A, &stack.spB0[0], 2);
-                func_004106a0(4);
-                func_00410420((s32)&stack.sp1F0, 0x2A, &stack.spB0[0], 2);
-                func_004106a0(4);
-                var_16 += 1;
-                goto loop_50;
+                halfWidth = 0.5f * func_0036de70(card);
+                halfHeight = 0.5f * func_0036deb0(card);
+                for (side = 0; side < 4; side++) {
+                    front = first;
+                    back = second;
+                    switch (side) {
+                    case 0:
+                        for (point = 0; point < 21; point++) {
+                            sample = &samples[point];
+                            TRAIL_POSITION(&front[0], halfWidth + sample->x, sample->y - halfHeight, sample->z);
+                            TRAIL_POSITION(&front[1], halfWidth + sample->x, sample->y, sample->z);
+                            TRAIL_POSITION(&back[0], halfWidth + sample->x, sample->y, sample->z);
+                            TRAIL_POSITION(&back[1], halfWidth + sample->x, halfHeight + sample->y, sample->z);
+                            front += 2;
+                            back += 2;
+                        }
+                        break;
+                    case 1:
+                        for (point = 0; point < 21; point++) {
+                            sample = &samples[point];
+                            TRAIL_POSITION(&front[0], sample->x - halfWidth, sample->y - halfHeight, sample->z);
+                            TRAIL_POSITION(&front[1], sample->x - halfWidth, sample->y, sample->z);
+                            TRAIL_POSITION(&back[0], sample->x - halfWidth, sample->y, sample->z);
+                            TRAIL_POSITION(&back[1], sample->x - halfWidth, halfHeight + sample->y, sample->z);
+                            front += 2;
+                            back += 2;
+                        }
+                        break;
+                    case 2:
+                        for (point = 0; point < 21; point++) {
+                            sample = &samples[point];
+                            TRAIL_POSITION(&front[0], halfWidth + sample->x, halfHeight + sample->y, sample->z);
+                            TRAIL_POSITION(&front[1], sample->x, halfHeight + sample->y, sample->z);
+                            TRAIL_POSITION(&back[0], sample->x, halfHeight + sample->y, sample->z);
+                            TRAIL_POSITION(&back[1], sample->x - halfWidth, halfHeight + sample->y, sample->z);
+                            front += 2;
+                            back += 2;
+                        }
+                        break;
+                    case 3:
+                        for (point = 0; point < 21; point++) {
+                            sample = &samples[point];
+                            TRAIL_POSITION(&front[0], halfWidth + sample->x, sample->y - halfHeight, sample->z);
+                            TRAIL_POSITION(&front[1], sample->x, sample->y - halfHeight, sample->z);
+                            TRAIL_POSITION(&back[0], sample->x, sample->y - halfHeight, sample->z);
+                            TRAIL_POSITION(&back[1], sample->x - halfWidth, sample->y - halfHeight, sample->z);
+                            front += 2;
+                            back += 2;
+                        }
+                        break;
+                    }
+                    func_00410420((struct RxObjSpace3DVertex *)first, 42, &identity, 2);
+                    func_004106a0(4);
+                    func_00410420((struct RxObjSpace3DVertex *)second, 42, &identity, 2);
+                    func_004106a0(4);
+                }
+                break;
+            }
+        case 1:
+            {
+                s32 point;
+                s32 side;
+                f32 taper;
+                f32 time;
+                f32 halfWidth;
+                f32 halfHeight;
+                f32 x;
+                f32 y;
+                f32 z;
+                f32 offsetX;
+                f32 offsetY;
+                u8 alpha;
+                f32 negativeWidth;
+                f32 negativeHeight;
+                front = first;
+                back = second;
+                alpha = (u8)opacity;
+                time = 0.0f;
+                length /= 21.0f;
+                for (point = 0; point < 21; point++) {
+                    func_003764b0(work, cardIndex, time, (u8 *)&samples[point]);
+                    time -= length;
+                    TRAIL_COLOR(&front[0], rgba[0], rgba[1], rgba[2], 0);
+                    TRAIL_COLOR(&front[1], rgba[0], rgba[1], rgba[2], alpha);
+                    TRAIL_COLOR(&back[0], rgba[0], rgba[1], rgba[2], alpha);
+                    TRAIL_COLOR(&back[1], rgba[0], rgba[1], rgba[2], 0);
+                    front += 2;
+                    back += 2;
+                }
+                halfWidth = 0.5f * func_0036de70(card);
+                halfHeight = 0.5f * func_0036deb0(card);
+                side = 0;
+                negativeWidth = -halfWidth;
+                negativeHeight = -halfHeight;
+                for (; side < 4; side++) {
+                    switch (side) {
+                    case 0: offsetX = halfWidth; offsetY = halfHeight; break;
+                    case 1: offsetX = negativeWidth; offsetY = halfHeight; break;
+                    case 2: offsetX = halfWidth; offsetY = negativeHeight; break;
+                    case 3: offsetX = negativeWidth; offsetY = negativeHeight; break;
+                    }
+                    front = first;
+                    back = second;
+                    taper = 1.0f;
+                    for (point = 0; point < 21; point++) {
+                        f32 magnitude = 3.0f * taper;
+                        f32 dx = D_0060A0E0.x * magnitude;
+                        f32 dy = D_0060A0E0.y * magnitude;
+                        f32 dz = D_0060A0E0.z * magnitude;
+                        sample = &samples[point];
+                        x = sample->x;
+                        y = sample->y;
+                        z = sample->z;
+                        TRAIL_POSITION(&front[0], dx + x + offsetX, dy + y + offsetY, dz + z);
+                        TRAIL_POSITION(&front[1], offsetX + x, offsetY + y, z);
+                        TRAIL_POSITION(&back[0], offsetX + x, offsetY + y, z);
+                        TRAIL_POSITION(&back[1], x - dx + offsetX, y - dy + offsetY, z - dz);
+                        taper += iGpffff8404;
+                        front += 2;
+                        back += 2;
+                    }
+                    func_00410420((struct RxObjSpace3DVertex *)first, 42, &identity, 2);
+                    func_004106a0(4);
+                    func_00410420((struct RxObjSpace3DVertex *)second, 42, &identity, 2);
+                    func_004106a0(4);
+                }
             }
             break;
-        case 1:                                     /* switch 1 */
-            var_20_2 = (u8 *)(&stack.sp7E0);
-            var_19_2 = (u8 *)(&stack.sp1F0);
-            if (2.1474836e9f <= temp_f22) {
-                var_3_6 = (M2C_BITWISE(s32, (temp_f22 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-            } else {
-                var_3_6 = 0x4F000000 & 0xFF;
-            }
-            temp_23 = var_3_6 & 0xFF;
-            var_f24_2 = 0.0f;
-            var_18_2 = 0;
-loop_57:
-            if (var_18_2 < 0x15) {
-                func_003764b0(arg0, arg1, var_f24_2, ((u8 *)stack.spF0 + (var_18_2 * 0xC)));
-                var_f24_2 -= fparg0 / 21.0f;
-                M2C_FIELD(var_20_2, u8 *, 0xC) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                M2C_FIELD(var_20_2, u8 *, 0xD) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                M2C_FIELD(var_20_2, u8 *, 0xE) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                M2C_FIELD(var_20_2, s8 *, 0xF) = 0;
-                M2C_FIELD(var_20_2, u8 *, 0x30) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                M2C_FIELD(var_20_2, u8 *, 0x31) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                M2C_FIELD(var_20_2, u8 *, 0x32) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                M2C_FIELD(var_20_2, s8 *, 0x33) = temp_23;
-                M2C_FIELD(var_19_2, u8 *, 0xC) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                M2C_FIELD(var_19_2, u8 *, 0xD) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                M2C_FIELD(var_19_2, u8 *, 0xE) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                M2C_FIELD(var_19_2, s8 *, 0xF) = temp_23;
-                M2C_FIELD(var_19_2, u8 *, 0x30) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                M2C_FIELD(var_19_2, u8 *, 0x31) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                M2C_FIELD(var_19_2, u8 *, 0x32) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                M2C_FIELD(var_19_2, s8 *, 0x33) = 0;
-                var_18_2 += 1;
-                var_20_2 += 0x48;
-                var_19_2 += 0x48;
-                goto loop_57;
-            }
-            temp_f25 = 0.5f * func_0036de70(temp_21);
-            temp_f24 = 0.5f * func_0036deb0(temp_21);
-            var_16_2 = 0;
-            temp_f23 = -temp_f25;
-            temp_f22_2 = -temp_f24;
-loop_72:
-            switch (var_16_2) {                     /* switch 3; irregular */
-            case 0:                                 /* switch 3 */
-                var_f21 = temp_f25;
-                var_f20 = temp_f24;
-            default:                                /* switch 3 */
-block_68:
-                var_5_5 = (u8 *)(&stack.sp7E0);
-                var_4 = (u8 *)(&stack.sp1F0);
-                var_f4 = 1.0f;
-                var_3_7 = 0;
-loop_70:
-                if (var_3_7 < 0x15) {
-                    temp_f6 = 3.0f * var_f4;
-                    temp_f11 = D_0060A0E0 * temp_f6;
-                    temp_f16 = D_0060A0E4 * temp_f6;
-                    temp_f15 = D_0060A0E8 * temp_f6;
-                    temp_2_3 = (u8 *)((u8 *)stack.spF0 + (var_3_7 * 0xC));
-                    temp_2_4 = (u8 *)(temp_2_3 + 0xF0);
-                    temp_f10 = M2C_FIELD(temp_2_3, f32 *, 0xF0);
-                    temp_f9 = M2C_FIELD(temp_2_4, f32 *, 4);
-                    temp_f14 = M2C_FIELD(temp_2_4, f32 *, 8);
-                    stack.spE40 = temp_f11 + temp_f10 + var_f21;
-                    stack.spE44 = temp_f16 + temp_f9 + var_f20;
-                    stack.spE48 = temp_f15 + temp_f14;
-                    *(ShuffleVec3 *)var_5_5 = *(ShuffleVec3 *)&stack.spE40;
-                    temp_f13 = var_f21 + temp_f10;
-                    stack.spE30 = temp_f13;
-                    temp_f12 = var_f20 + temp_f9;
-                    stack.spE34 = temp_f12;
-                    stack.spE38 = temp_f14;
-                    *(ShuffleVec3 *)((u8 *)var_5_5 + 0x24) = *(ShuffleVec3 *)&stack.spE30;
-                    stack.spE20 = temp_f13;
-                    stack.spE24 = temp_f12;
-                    stack.spE28 = temp_f14;
-                    *(ShuffleVec3 *)var_4 = *(ShuffleVec3 *)&stack.spE20;
-                    stack.spE10 = (temp_f10 - temp_f11) + var_f21;
-                    stack.spE14 = (temp_f9 - temp_f16) + var_f20;
-                    stack.spE18 = temp_f14 - temp_f15;
-                    *(ShuffleVec3 *)((u8 *)var_4 + 0x24) = *(ShuffleVec3 *)&stack.spE10;
-                    var_f4 += (f32)(s32)(iGpffff8404);
-                    var_3_7 += 1;
-                    var_5_5 += 0x48;
-                    var_4 += 0x48;
-                    goto loop_70;
+        case 2:
+            {
+                s32 point;
+                s32 side;
+                f32 taper;
+                f32 time;
+                f32 halfWidth;
+                f32 halfHeight;
+                f32 x;
+                f32 y;
+                f32 z;
+                f32 offsetX;
+                f32 offsetY;
+                u8 alpha;
+                f32 right;
+                f32 left;
+                f32 height;
+                func_003e9700(*(struct RwFrame **)((u8 *)func_00457120() + 4));
+                front = first;
+                back = second;
+                alpha = (u8)opacity;
+                time = 0.0f;
+                length /= 21.0f;
+                for (point = 0; point < 21; point++) {
+                    func_003764b0(work, cardIndex, time, (u8 *)&samples[point]);
+                    time -= length;
+                    TRAIL_COLOR(&front[0], rgba[0], rgba[1], rgba[2], 0);
+                    TRAIL_COLOR(&front[1], rgba[0], rgba[1], rgba[2], alpha);
+                    TRAIL_COLOR(&back[0], rgba[0], rgba[1], rgba[2], alpha);
+                    TRAIL_COLOR(&back[1], rgba[0], rgba[1], rgba[2], 0);
+                    front += 2;
+                    back += 2;
                 }
-                func_00410420((s32)&stack.sp7E0, 0x2A, &stack.spB0[0], 2);
-                func_004106a0(4);
-                func_00410420((s32)&stack.sp1F0, 0x2A, &stack.spB0[0], 2);
-                func_004106a0(4);
-                var_16_2 += 1;
-                goto loop_72;
-            case 1:                                 /* switch 3 */
-                var_f21 = temp_f23;
-                var_f20 = temp_f24;
-                goto block_68;
-            case 2:                                 /* switch 3 */
-                var_f21 = temp_f25;
-                var_f20 = temp_f22_2;
-                goto block_68;
-            case 3:                                 /* switch 3 */
-                var_f21 = temp_f23;
-                var_f20 = temp_f22_2;
-                goto block_68;
-            }
-            break;
-        case 2:                                     /* switch 1 */
-            func_003e9700(*(s32 *)((u8 *)func_00457120() + 4));
-            var_20_3 = (u8 *)(&stack.sp7E0);
-            var_19_3 = (u8 *)(&stack.sp1F0);
-            if (2.1474836e9f <= temp_f22) {
-                var_3_8 = (M2C_BITWISE(s32, (temp_f22 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-            } else {
-                var_3_8 = 0x4F000000 & 0xFF;
-            }
-            temp_23_2 = var_3_8 & 0xFF;
-            var_f24_3 = 0.0f;
-            var_18_3 = 0;
-loop_79:
-            if (var_18_3 < 0x15) {
-                func_003764b0(arg0, arg1, var_f24_3, ((u8 *)stack.spF0 + (var_18_3 * 0xC)));
-                var_f24_3 -= fparg0 / 21.0f;
-                M2C_FIELD(var_20_3, u8 *, 0xC) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                M2C_FIELD(var_20_3, u8 *, 0xD) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                M2C_FIELD(var_20_3, u8 *, 0xE) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                M2C_FIELD(var_20_3, s8 *, 0xF) = 0;
-                M2C_FIELD(var_20_3, u8 *, 0x30) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                M2C_FIELD(var_20_3, u8 *, 0x31) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                M2C_FIELD(var_20_3, u8 *, 0x32) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                M2C_FIELD(var_20_3, s8 *, 0x33) = temp_23_2;
-                M2C_FIELD(var_19_3, u8 *, 0xC) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                M2C_FIELD(var_19_3, u8 *, 0xD) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                M2C_FIELD(var_19_3, u8 *, 0xE) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                M2C_FIELD(var_19_3, s8 *, 0xF) = temp_23_2;
-                M2C_FIELD(var_19_3, u8 *, 0x30) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                M2C_FIELD(var_19_3, u8 *, 0x31) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                M2C_FIELD(var_19_3, u8 *, 0x32) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                M2C_FIELD(var_19_3, s8 *, 0x33) = 0;
-                var_18_3 += 1;
-                var_20_3 += 0x48;
-                var_19_3 += 0x48;
-                goto loop_79;
-            }
-            temp_f22_3 = 0.5f * func_0036de70(temp_21);
-            var_16_3 = 0;
-            temp_f1_2 = (f32)(s32)(iGpffff8218);
-            temp_f24_2 = temp_f1_2 * temp_f22_3;
-            temp_f23_2 = (f32)(s32)(iGpffff8308 * (0.5f * func_0036deb0(temp_21)));
-            temp_f22_4 = temp_f1_2 * -temp_f22_3;
-loop_90:
-            switch (var_16_3) {                     /* switch 4; irregular */
-            case 0:                                 /* switch 4 */
-                var_f21 = temp_f24_2;
-                var_f20 = temp_f23_2;
-            default:                                /* switch 4 */
-block_86:
-                var_5_6 = (u8 *)(&stack.sp7E0);
-                var_4_2 = (u8 *)(&stack.sp1F0);
-                var_f4_2 = 1.0f;
-                var_3_9 = 0;
-loop_88:
-                if (var_3_9 < 0x15) {
-                    temp_f6_2 = iGpffff8408 * var_f4_2;
-                    temp_f11_2 = D_0060A0E0 * temp_f6_2;
-                    temp_f16_2 = D_0060A0E4 * temp_f6_2;
-                    temp_f15_2 = D_0060A0E8 * temp_f6_2;
-                    temp_2_5 = (u8 *)((u8 *)stack.spF0 + (var_3_9 * 0xC));
-                    temp_2_6 = (u8 *)(temp_2_5 + 0xF0);
-                    temp_f10_2 = M2C_FIELD(temp_2_5, f32 *, 0xF0);
-                    temp_f9_2 = M2C_FIELD(temp_2_6, f32 *, 4);
-                    temp_f14_2 = M2C_FIELD(temp_2_6, f32 *, 8);
-                    stack.spE00 = temp_f11_2 + temp_f10_2 + var_f21;
-                    stack.spE04 = temp_f16_2 + temp_f9_2 + var_f20;
-                    stack.spE08 = temp_f15_2 + temp_f14_2;
-                    *(ShuffleVec3 *)var_5_6 = *(ShuffleVec3 *)&stack.spE00;
-                    temp_f13_2 = var_f21 + temp_f10_2;
-                    stack.spDF0 = temp_f13_2;
-                    temp_f12_2 = var_f20 + temp_f9_2;
-                    stack.spDF4 = temp_f12_2;
-                    stack.spDF8 = temp_f14_2;
-                    *(ShuffleVec3 *)((u8 *)var_5_6 + 0x24) = *(ShuffleVec3 *)&stack.spDF0;
-                    stack.spDE0 = temp_f13_2;
-                    stack.spDE4 = temp_f12_2;
-                    stack.spDE8 = temp_f14_2;
-                    *(ShuffleVec3 *)var_4_2 = *(ShuffleVec3 *)&stack.spDE0;
-                    stack.spDD0 = (temp_f10_2 - temp_f11_2) + var_f21;
-                    stack.spDD4 = (temp_f9_2 - temp_f16_2) + var_f20;
-                    stack.spDD8 = temp_f14_2 - temp_f15_2;
-                    *(ShuffleVec3 *)((u8 *)var_4_2 + 0x24) = *(ShuffleVec3 *)&stack.spDD0;
-                    var_f4_2 += (f32)(s32)(iGpffff8404);
-                    var_3_9 += 1;
-                    var_5_6 += 0x48;
-                    var_4_2 += 0x48;
-                    goto loop_88;
+                halfWidth = 0.5f * func_0036de70(card);
+                halfHeight = 0.5f * func_0036deb0(card);
+                side = 0;
+                right = iGpffff8218 * halfWidth;
+                height = iGpffff8308 * halfHeight;
+                left = iGpffff8218 * -halfWidth;
+                for (; side < 2; side++) {
+                    switch (side) {
+                    case 0: offsetX = right; offsetY = height; break;
+                    case 1: offsetX = left; offsetY = height; break;
+                    }
+                    front = first;
+                    back = second;
+                    taper = 1.0f;
+                    for (point = 0; point < 21; point++) {
+                        f32 magnitude = iGpffff8408 * taper;
+                        f32 dx = D_0060A0E0.x * magnitude;
+                        f32 dy = D_0060A0E0.y * magnitude;
+                        f32 dz = D_0060A0E0.z * magnitude;
+                        sample = &samples[point];
+                        x = sample->x;
+                        y = sample->y;
+                        z = sample->z;
+                        TRAIL_POSITION(&front[0], dx + x + offsetX, dy + y + offsetY, dz + z);
+                        TRAIL_POSITION(&front[1], offsetX + x, offsetY + y, z);
+                        TRAIL_POSITION(&back[0], offsetX + x, offsetY + y, z);
+                        TRAIL_POSITION(&back[1], x - dx + offsetX, y - dy + offsetY, z - dz);
+                        taper += iGpffff8404;
+                        front += 2;
+                        back += 2;
+                    }
+                    func_00410420((struct RxObjSpace3DVertex *)first, 42, &identity, 2);
+                    func_004106a0(4);
+                    func_00410420((struct RxObjSpace3DVertex *)second, 42, &identity, 2);
+                    func_004106a0(4);
                 }
-                func_00410420((s32)&stack.sp7E0, 0x2A, &stack.spB0[0], 2);
-                func_004106a0(4);
-                func_00410420((s32)&stack.sp1F0, 0x2A, &stack.spB0[0], 2);
-                func_004106a0(4);
-                var_16_3 += 1;
-                goto loop_90;
-            case 1:                                 /* switch 4 */
-                var_f21 = temp_f22_4;
-                var_f20 = temp_f23_2;
-                goto block_86;
             }
             break;
         }
-        RpSkyRenderStateSet(2, 0x44);
-        RpSkyRenderStateSet(3, 0x717FB);
+        RpSkyRenderStateSet(2, (void *)0x44);
+        RpSkyRenderStateSet(3, (void *)0x717FB);
     }
 }
+#pragma pop
+#undef TRAIL_COLOR
+#undef TRAIL_POSITION
+
+
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003768e0);
 #endif
-
 
 /* Build an untextured screen-space quad from the card's position and rotation.
  * The four 64-byte sky2 vertices retain the PS2 screen/color/reciprocal-Z layout.

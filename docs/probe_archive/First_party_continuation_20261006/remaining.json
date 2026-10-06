@@ -1,0 +1,530 @@
+[
+  {
+    "address": "00100008",
+    "name": "func_00100008",
+    "owner": "src/promoted/code1_0010.c",
+    "source_sha256": "b122f8d6127297d95eab8e5f42d6d79f7120498b65a4748ce9bae09ce1273a86"
+  },
+  {
+    "address": "001265a0",
+    "name": "func_001265a0",
+    "owner": "src/promoted/code1_0012.c",
+    "source_sha256": "45e251ff335f1ed718c86f120f306abfad93083a61a40ab0e9920d42cc58287f"
+  },
+  {
+    "address": "001400f0",
+    "name": "func_001400f0",
+    "owner": "src/promoted/code1_0014.c",
+    "source_sha256": "b5f05d5aeccf9c1a5371da228a30ccbe8f7818b6ecc3f2fd4d81279c3e83825a"
+  },
+  {
+    "address": "00148280",
+    "name": "func_00148280",
+    "owner": "src/promoted/code1_0014.c",
+    "source_sha256": "b5f05d5aeccf9c1a5371da228a30ccbe8f7818b6ecc3f2fd4d81279c3e83825a"
+  },
+  {
+    "address": "0014f310",
+    "name": "func_0014f310",
+    "owner": "src/Kosaka/Field/k_fldResource.c",
+    "source_sha256": "5537e14927bca5e6efac08c073871bbccfebd0853d65dfece5dfd08dc7b8ea27"
+  },
+  {
+    "address": "0015f000",
+    "name": "func_0015f000",
+    "owner": "src/Kosaka/Field/k_fldFBN.c",
+    "source_sha256": "c1c4edd3692cb0b671bc04c1009e216121357914c2101f4ef5516f8d89eef9fa"
+  },
+  {
+    "address": "00160880",
+    "name": "func_00160880",
+    "owner": "src/promoted/code1_0016.c",
+    "source_sha256": "07f0d2a747e0f123adcf58ce1125b89cb50bb69a8a40c80a1752b9b529191edc"
+  },
+  {
+    "address": "00162e10",
+    "name": "func_00162e10",
+    "owner": "src/promoted/k_fldUnit.c",
+    "source_sha256": "6811820ceb2f9d8b28c7561bb70df0aaa937697547c79d89fe64409b03472954"
+  },
+  {
+    "address": "0016bdd0",
+    "name": "func_0016bdd0",
+    "owner": "src/promoted/code1_0016.c",
+    "source_sha256": "07f0d2a747e0f123adcf58ce1125b89cb50bb69a8a40c80a1752b9b529191edc"
+  },
+  {
+    "address": "00174e10",
+    "name": "func_00174e10",
+    "owner": "src/promoted/k_fldEvent.c",
+    "source_sha256": "cec166eab88499cb0d5f895e7abc9c7c82013817cdd3f19930d96b3fb25e4997"
+  },
+  {
+    "address": "0017d3c0",
+    "name": "func_0017d3c0",
+    "owner": "src/Kosaka/Field/k_fldAI.c",
+    "source_sha256": "b5ccbe3bc9426c297caa4918c266589f24e90f177f700b26930a284d3ef12a7e"
+  },
+  {
+    "address": "0017f490",
+    "name": "func_0017f490",
+    "owner": "src/Kosaka/Field/k_fldAI.c",
+    "source_sha256": "b5ccbe3bc9426c297caa4918c266589f24e90f177f700b26930a284d3ef12a7e"
+  },
+  {
+    "address": "00183b80",
+    "name": "func_00183b80",
+    "owner": "src/promoted/code1_0018.c",
+    "source_sha256": "efaa76202fdbf09982862b123dd05c14f3b638ade8aab6392dbdf0e2fc6bc9e6"
+  },
+  {
+    "address": "0018a200",
+    "name": "func_0018a200",
+    "owner": "src/promoted/code1_0018.c",
+    "source_sha256": "efaa76202fdbf09982862b123dd05c14f3b638ade8aab6392dbdf0e2fc6bc9e6"
+  },
+  {
+    "address": "0019c0d0",
+    "name": "func_0019c0d0",
+    "owner": "src/promoted/code1_0019.c",
+    "source_sha256": "2875a38fd03fb4deb33e297bab31b1e52cd66784158e079d84d0febc89e290fb"
+  },
+  {
+    "address": "001a59a0",
+    "name": "func_001a59a0",
+    "owner": "src/promoted/code1_001a.c",
+    "source_sha256": "ae1e1480a0cde795dafda7cec64300fd7b3481253f4d76e78f6414859476b01d"
+  },
+  {
+    "address": "001a7720",
+    "name": "func_001a7720",
+    "owner": "src/promoted/code1_001a.c",
+    "source_sha256": "ae1e1480a0cde795dafda7cec64300fd7b3481253f4d76e78f6414859476b01d"
+  },
+  {
+    "address": "001b05d0",
+    "name": "func_001b05d0",
+    "owner": "src/promoted/code1_001b.c",
+    "source_sha256": "f253bb3169f6f3a46e686cdb63d1d49381e130d49a508467566a67cb3b1f0b28"
+  },
+  {
+    "address": "001b11c0",
+    "name": "func_001b11c0",
+    "owner": "src/Battle/btlOrder_grouped.c",
+    "source_sha256": "24d507823230f32612f755d2832908a9a0c865ad89d195477f90db9dde4cdd4a"
+  },
+  {
+    "address": "001d53e0",
+    "name": "func_001d53e0",
+    "owner": "src/promoted/code1_001d.c",
+    "source_sha256": "569c9f56ebfe72f3fdafc9f0bb45f67df59f6815c63c5e12ad6ee7c63fc41e60"
+  },
+  {
+    "address": "001d8010",
+    "name": "func_001d8010",
+    "owner": "src/promoted/code1_001d.c",
+    "source_sha256": "569c9f56ebfe72f3fdafc9f0bb45f67df59f6815c63c5e12ad6ee7c63fc41e60"
+  },
+  {
+    "address": "001e9950",
+    "name": "func_001e9950",
+    "owner": "src/promoted/code1_001e.c",
+    "source_sha256": "2d154235750f2ed78cf25f380ec47a22fde329a8db770c1b83ed3a51a56d6c7a"
+  },
+  {
+    "address": "001ed700",
+    "name": "func_001ed700",
+    "owner": "src/promoted/code1_001e.c",
+    "source_sha256": "2d154235750f2ed78cf25f380ec47a22fde329a8db770c1b83ed3a51a56d6c7a"
+  },
+  {
+    "address": "001ee610",
+    "name": "func_001ee610",
+    "owner": "src/promoted/code1_001e.c",
+    "source_sha256": "2d154235750f2ed78cf25f380ec47a22fde329a8db770c1b83ed3a51a56d6c7a"
+  },
+  {
+    "address": "001f14f0",
+    "name": "func_001f14f0",
+    "owner": "src/promoted/code1_001f.c",
+    "source_sha256": "ef723592be6fc5983301825a82e1540f8996d6db29e5cad596bdc367a55673ca"
+  },
+  {
+    "address": "001fd790",
+    "name": "func_001fd790",
+    "owner": "src/promoted/btlEPL.c",
+    "source_sha256": "8f90e0ff43a8a274aecaef5607ca2202a2f30e5fe8aede71cbfc61d3ca187195"
+  },
+  {
+    "address": "00222210",
+    "name": "func_00222210",
+    "owner": "src/promoted/code1_0022.c",
+    "source_sha256": "541dec1637f6d24a5e3970e5f84e21f7aa6a77bb0dae9d909df14fe4d33ac4ee"
+  },
+  {
+    "address": "002239a0",
+    "name": "func_002239a0",
+    "owner": "src/promoted/btlResultFriendPsLvUp.c",
+    "source_sha256": "7d3b5f91e5d4b8c06f06658428536a5faaf572dee21da5ed4e0bafa25f6a4bde"
+  },
+  {
+    "address": "00225ec0",
+    "name": "func_00225ec0",
+    "owner": "src/promoted/code1_0022.c",
+    "source_sha256": "541dec1637f6d24a5e3970e5f84e21f7aa6a77bb0dae9d909df14fe4d33ac4ee"
+  },
+  {
+    "address": "0022a730",
+    "name": "func_0022a730",
+    "owner": "src/promoted/code1_0022.c",
+    "source_sha256": "541dec1637f6d24a5e3970e5f84e21f7aa6a77bb0dae9d909df14fe4d33ac4ee"
+  },
+  {
+    "address": "0024be40",
+    "name": "func_0024be40",
+    "owner": "src/promoted/cmmScript.c",
+    "source_sha256": "7c56a6efa8d1fbf701ea57ae88896a059601c511d806aa6ebb0e4e2d5cf395c3"
+  },
+  {
+    "address": "00260600",
+    "name": "func_00260600",
+    "owner": "src/promoted/code1_0026.c",
+    "source_sha256": "365363c4a30b38772c19c39c6ad0b16b010c0ea3d820b37c2c7981ae64c1ecbc"
+  },
+  {
+    "address": "00263cb0",
+    "name": "func_00263cb0",
+    "owner": "src/promoted/code1_0026.c",
+    "source_sha256": "365363c4a30b38772c19c39c6ad0b16b010c0ea3d820b37c2c7981ae64c1ecbc"
+  },
+  {
+    "address": "00267b20",
+    "name": "func_00267b20",
+    "owner": "src/promoted/code1_0026.c",
+    "source_sha256": "365363c4a30b38772c19c39c6ad0b16b010c0ea3d820b37c2c7981ae64c1ecbc"
+  },
+  {
+    "address": "0027d970",
+    "name": "func_0027d970",
+    "owner": "src/promoted/itfMsgProcedure_Window.c",
+    "source_sha256": "4ac20829f43d412a50751c43bdf7ac53f1d3808df43e3408c276fc9bd5fb0f0b"
+  },
+  {
+    "address": "0027f6f0",
+    "name": "func_0027f6f0",
+    "owner": "src/promoted/itfMsgProcedure_Window.c",
+    "source_sha256": "4ac20829f43d412a50751c43bdf7ac53f1d3808df43e3408c276fc9bd5fb0f0b"
+  },
+  {
+    "address": "00282250",
+    "name": "func_00282250",
+    "owner": "src/promoted/itfMsgProcedure_Window.c",
+    "source_sha256": "4ac20829f43d412a50751c43bdf7ac53f1d3808df43e3408c276fc9bd5fb0f0b"
+  },
+  {
+    "address": "00283490",
+    "name": "func_00283490",
+    "owner": "src/promoted/itfMsgProcedure_Window.c",
+    "source_sha256": "4ac20829f43d412a50751c43bdf7ac53f1d3808df43e3408c276fc9bd5fb0f0b"
+  },
+  {
+    "address": "0028c580",
+    "name": "func_0028c580",
+    "owner": "src/promoted/code1_0028.c",
+    "source_sha256": "6298ad49de51e5b64442da02c865a3a8aac67401fccbeb7c88d74c6386929a0c"
+  },
+  {
+    "address": "0029fbb0",
+    "name": "func_0029fbb0",
+    "owner": "src/promoted/code1_0029.c",
+    "source_sha256": "4ae8eebecebc23c4d85643e876664603becee1d5f7f5cf11cc1a10d4d7919324"
+  },
+  {
+    "address": "002ac750",
+    "name": "func_002ac750",
+    "owner": "src/promoted/y_smap.c",
+    "source_sha256": "35d8ab93d63052c1ced899e77da31979df7f5de660b20a01b6a5f5574203c2f6"
+  },
+  {
+    "address": "002b6ec0",
+    "name": "func_002b6ec0",
+    "owner": "src/promoted/y_draw.c",
+    "source_sha256": "0fc3abde54d5d6b482357b9631f60424191ceab2e2e5a0f4272403e28dbf29f3"
+  },
+  {
+    "address": "002ba080",
+    "name": "func_002ba080",
+    "owner": "src/promoted/code1_002b.c",
+    "source_sha256": "02ac0a21e7df42736bbffe7559084393ab603bf8e89f180bfb9c47019c80568c"
+  },
+  {
+    "address": "002e5ae0",
+    "name": "func_002e5ae0",
+    "owner": "src/Yajima/y_list.c",
+    "source_sha256": "2aa9045786c5db87c544b598234a9d16f931474e4ba4234e086428760d0e0bf1"
+  },
+  {
+    "address": "00320b80",
+    "name": "func_00320b80",
+    "owner": "src/Event/Fcl/y_fclCombineDraw.c",
+    "source_sha256": "eee7b4bfd3e06ad8e4733a6989f353090648e124f7ee2ceb69fbf226402fdc68"
+  },
+  {
+    "address": "00323d00",
+    "name": "func_00323d00",
+    "owner": "src/Event/Fcl/y_fclCombineDraw.c",
+    "source_sha256": "eee7b4bfd3e06ad8e4733a6989f353090648e124f7ee2ceb69fbf226402fdc68"
+  },
+  {
+    "address": "00324680",
+    "name": "func_00324680",
+    "owner": "src/Event/Fcl/y_fclCombineDraw.c",
+    "source_sha256": "eee7b4bfd3e06ad8e4733a6989f353090648e124f7ee2ceb69fbf226402fdc68"
+  },
+  {
+    "address": "003599c0",
+    "name": "func_003599c0",
+    "owner": "src/promoted/code1_0035.c",
+    "source_sha256": "165f39e86ebdd799d178cc6f6eb17d2a60928157ce3814480bbb5c236306c94b"
+  },
+  {
+    "address": "00363610",
+    "name": "func_00363610",
+    "owner": "src/Camp/cmpPartyPanel.c",
+    "source_sha256": "8a8f00440c0169dfe6c5cce7c04105d19f6bfe0a955e74e6b81a27f67bc53dee"
+  },
+  {
+    "address": "003694d0",
+    "name": "func_003694d0",
+    "owner": "src/Main/Social/pscModel.c",
+    "source_sha256": "d11992cec152ebda75dac92d9eb739e82a0cd575279a5b230e785869e2ef57e6"
+  },
+  {
+    "address": "0036ee60",
+    "name": "func_0036ee60",
+    "owner": "src/promoted/btlShuffle.c",
+    "source_sha256": "2f6bff411f27df73c5f6e5f129137748046e6b9b655c96949d432dec6c86cc11"
+  },
+  {
+    "address": "0036f880",
+    "name": "func_0036f880",
+    "owner": "src/promoted/btlShuffle.c",
+    "source_sha256": "2f6bff411f27df73c5f6e5f129137748046e6b9b655c96949d432dec6c86cc11"
+  },
+  {
+    "address": "00375f00",
+    "name": "func_00375f00",
+    "owner": "src/Battle/btlShuffleDraw.c",
+    "source_sha256": "edf1656665bc52c90e3302c1753ab20595c25dfab1027e80e98f815893edad6b"
+  },
+  {
+    "address": "003768e0",
+    "name": "func_003768e0",
+    "owner": "src/Battle/btlShuffleDraw.c",
+    "source_sha256": "edf1656665bc52c90e3302c1753ab20595c25dfab1027e80e98f815893edad6b"
+  },
+  {
+    "address": "0045f790",
+    "name": "func_0045f790",
+    "owner": "src/Graphics/primitive.c",
+    "source_sha256": "aa869e05bbb24d75b3430e6aa7e5e9027740eef9ae989f32a9b217361b4c553d"
+  },
+  {
+    "address": "004647c0",
+    "name": "func_004647c0",
+    "owner": "src/Kernel/h_memcard_grouped.c",
+    "source_sha256": "76abe277fbd500b6b92f7de6ac243df088ea6f56528a93385f925e121b42e357"
+  },
+  {
+    "address": "00468ff0",
+    "name": "func_00468ff0",
+    "owner": "src/promoted/code1_0046.c",
+    "source_sha256": "b37701a85922d65fc1813f7f7df033cd8586142dc0a3acfdccd7deb695be9f32"
+  },
+  {
+    "address": "0046b380",
+    "name": "func_0046b380",
+    "owner": "src/Kernel/sdkSpr.c",
+    "source_sha256": "f39f05eed1906f13c87e5558a962a530218be3a3f2df38b842fb28ac0d1173bd"
+  },
+  {
+    "address": "00471370",
+    "name": "func_00471370",
+    "owner": "src/Graphics/Model/mdlManager.c",
+    "source_sha256": "2e110bfb44268f928c6309df6078e7ffddb3e6810e1112e1118a7e9a15e5b5aa"
+  },
+  {
+    "address": "00475cd0",
+    "name": "func_00475cd0",
+    "owner": "src/Graphics/Model/mdlManager.c",
+    "source_sha256": "2e110bfb44268f928c6309df6078e7ffddb3e6810e1112e1118a7e9a15e5b5aa"
+  },
+  {
+    "address": "0047b0c0",
+    "name": "func_0047b0c0",
+    "owner": "src/Graphics/Model/mdlManager.c",
+    "source_sha256": "2e110bfb44268f928c6309df6078e7ffddb3e6810e1112e1118a7e9a15e5b5aa"
+  },
+  {
+    "address": "00480f20",
+    "name": "func_00480f20",
+    "owner": "src/Graphics/primitive.c",
+    "source_sha256": "aa869e05bbb24d75b3430e6aa7e5e9027740eef9ae989f32a9b217361b4c553d"
+  },
+  {
+    "address": "00485630",
+    "name": "func_00485630",
+    "owner": "src/promoted/code1_0048.c",
+    "source_sha256": "02ab7e798d5a903b5ac3a4e2d49e30a2f73f1715bfb9654dd6f5fbbec6306f8f"
+  },
+  {
+    "address": "00485870",
+    "name": "func_00485870",
+    "owner": "src/promoted/code1_0048.c",
+    "source_sha256": "02ab7e798d5a903b5ac3a4e2d49e30a2f73f1715bfb9654dd6f5fbbec6306f8f"
+  },
+  {
+    "address": "0048b340",
+    "name": "func_0048b340",
+    "owner": "src/promoted/code1_0048.c",
+    "source_sha256": "02ab7e798d5a903b5ac3a4e2d49e30a2f73f1715bfb9654dd6f5fbbec6306f8f"
+  },
+  {
+    "address": "0048cdf0",
+    "name": "func_0048cdf0",
+    "owner": "src/promoted/code1_0048.c",
+    "source_sha256": "02ab7e798d5a903b5ac3a4e2d49e30a2f73f1715bfb9654dd6f5fbbec6306f8f"
+  },
+  {
+    "address": "0048d8c0",
+    "name": "func_0048d8c0",
+    "owner": "src/promoted/code1_0048.c",
+    "source_sha256": "02ab7e798d5a903b5ac3a4e2d49e30a2f73f1715bfb9654dd6f5fbbec6306f8f"
+  },
+  {
+    "address": "0048f5f0",
+    "name": "func_0048f5f0",
+    "owner": "src/promoted/code1_0048.c",
+    "source_sha256": "02ab7e798d5a903b5ac3a4e2d49e30a2f73f1715bfb9654dd6f5fbbec6306f8f"
+  },
+  {
+    "address": "004903c0",
+    "name": "func_004903c0",
+    "owner": "src/promoted/code1_0049.c",
+    "source_sha256": "b6ed193261568ec8f93f8014d086a71b3756f5fabc9a8e0be002c008c19d1716"
+  },
+  {
+    "address": "00490c40",
+    "name": "func_00490c40",
+    "owner": "src/promoted/code1_0049.c",
+    "source_sha256": "b6ed193261568ec8f93f8014d086a71b3756f5fabc9a8e0be002c008c19d1716"
+  },
+  {
+    "address": "004916f0",
+    "name": "func_004916f0",
+    "owner": "src/promoted/code1_0049.c",
+    "source_sha256": "b6ed193261568ec8f93f8014d086a71b3756f5fabc9a8e0be002c008c19d1716"
+  },
+  {
+    "address": "004941f0",
+    "name": "func_004941f0",
+    "owner": "src/promoted/code1_0049.c",
+    "source_sha256": "b6ed193261568ec8f93f8014d086a71b3756f5fabc9a8e0be002c008c19d1716"
+  },
+  {
+    "address": "004956b0",
+    "name": "func_004956b0",
+    "owner": "src/Graphics/Effect/effPolygonThunder.c",
+    "source_sha256": "5e9c098902bb558ce3dad4cf957fdb394f9aa5b9b42caf23a53677d45b5e91d1"
+  },
+  {
+    "address": "004968a0",
+    "name": "func_004968a0",
+    "owner": "src/Graphics/Effect/effPolygonThunder.c",
+    "source_sha256": "5e9c098902bb558ce3dad4cf957fdb394f9aa5b9b42caf23a53677d45b5e91d1"
+  },
+  {
+    "address": "00497ce0",
+    "name": "func_00497ce0",
+    "owner": "src/Graphics/Effect/effPolygonThunder.c",
+    "source_sha256": "5e9c098902bb558ce3dad4cf957fdb394f9aa5b9b42caf23a53677d45b5e91d1"
+  },
+  {
+    "address": "004a0c00",
+    "name": "func_004a0c00",
+    "owner": "src/promoted/effPolygonFlash.c",
+    "source_sha256": "c283e95382bde05d67022c40c6e0e9d143d9cd20e808601dd052bd360e645c4a"
+  },
+  {
+    "address": "004a2310",
+    "name": "func_004a2310",
+    "owner": "src/Graphics/Effect/effPolygonWind.c",
+    "source_sha256": "e957360b6564d016ce7e01ead9e5cdcf69ba98cc56e15bcbe01c5b0cdf45868e"
+  },
+  {
+    "address": "004a3640",
+    "name": "func_004a3640",
+    "owner": "src/Graphics/Effect/effPolygonWind.c",
+    "source_sha256": "e957360b6564d016ce7e01ead9e5cdcf69ba98cc56e15bcbe01c5b0cdf45868e"
+  },
+  {
+    "address": "004a4a10",
+    "name": "func_004a4a10",
+    "owner": "src/Graphics/Effect/effPolygonWind.c",
+    "source_sha256": "e957360b6564d016ce7e01ead9e5cdcf69ba98cc56e15bcbe01c5b0cdf45868e"
+  },
+  {
+    "address": "004a5fc0",
+    "name": "func_004a5fc0",
+    "owner": "src/promoted/code1_004a.c",
+    "source_sha256": "b9499bbf42f368ed3a933599f25e1a02119960cf15ca426603c04e745eb17d3f"
+  },
+  {
+    "address": "004a7830",
+    "name": "func_004a7830",
+    "owner": "src/promoted/code1_004a.c",
+    "source_sha256": "b9499bbf42f368ed3a933599f25e1a02119960cf15ca426603c04e745eb17d3f"
+  },
+  {
+    "address": "004aed70",
+    "name": "func_004aed70",
+    "owner": "src/Graphics/Effect/effObjectParticle.c",
+    "source_sha256": "5f99e1d1054bcbd0a5a249b6fad194b73c2651fd19b9ce5c73b51e795f224173"
+  },
+  {
+    "address": "004afe20",
+    "name": "func_004afe20",
+    "owner": "src/Graphics/Effect/effDistortParticle.c",
+    "source_sha256": "b856e6123b5841122a5b68d7f9bb670ad1739ea2cb57c3cdafc52235e03333fe"
+  },
+  {
+    "address": "004b1ad0",
+    "name": "func_004b1ad0",
+    "owner": "src/promoted/code1_004b.c",
+    "source_sha256": "72ad5597e1fd2b155cab593c957cbe96dfd304fedb8f9165facb2fa531ee1e37"
+  },
+  {
+    "address": "004b36b0",
+    "name": "func_004b36b0",
+    "owner": "src/Graphics/Effect/effLineNova.c",
+    "source_sha256": "31ffddffbb55a1e774e24983617cde1dd4984c0c65c421f44679f2ea0272c2cb"
+  },
+  {
+    "address": "004b4430",
+    "name": "func_004b4430",
+    "owner": "src/Graphics/Effect/effLineNova.c",
+    "source_sha256": "31ffddffbb55a1e774e24983617cde1dd4984c0c65c421f44679f2ea0272c2cb"
+  },
+  {
+    "address": "004b6030",
+    "name": "func_004b6030",
+    "owner": "src/Graphics/Effect/eff_afpack.c",
+    "source_sha256": "48c64b226a673af50b33cd4b7b75ab92236cef4e5a9da7309ea92f61a4fdc6de"
+  },
+  {
+    "address": "004b8f40",
+    "name": "func_004b8f40",
+    "owner": "src/Graphics/Effect/eff_after.c",
+    "source_sha256": "3c90fbf82d7de3a5faa2fc8e3e01fba7dbb37d79181d7a11c6a13e8f7130154a"
+  }
+]

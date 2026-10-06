@@ -1,0 +1,2 @@
+# Preserve the source-input and remaining-queue hashes across checkouts.
+** -text -whitespace

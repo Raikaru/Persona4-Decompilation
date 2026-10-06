@@ -1,0 +1,92 @@
+{
+  "sealed_batch": "build/finish-20261006/batch-3",
+  "receipt": {
+    "base_commit": "89abdf5693e3eff0e09490847a3c1ffe10d19e1c",
+    "baseline_report_sha256": "8577bd9673c69d6f2127c307be155e3081b2ed8eec3ca390a1bade0e671a5320",
+    "baseline_inputs_sha256": "0cce946cdc57ceca527d6045f0f73cd4767c5f471192af614e88f4ba4e4a51d4",
+    "unchanged_inputs_authenticated": 1918,
+    "changed_owners": {
+      "src/Battle/btlMain.c": {
+        "source_sha256": "6e37817dada2aac6a544d8caa49a2b52c5e1af2cabe1a7ed123dad5522852754",
+        "report": "build/finish-20261006/battle-worker1-checkpoint-f51a/fade-installed/verify.json",
+        "report_sha256": "cae2216fe2856d9e0020feeca5f94b9617042b87fc6157399148c1f3af3f6b01",
+        "summary": {
+          "MATCH": 27
+        }
+      },
+      "src/Graphics/Effect/eff_after.c": {
+        "source_sha256": "3c90fbf82d7de3a5faa2fc8e3e01fba7dbb37d79181d7a11c6a13e8f7130154a",
+        "report": "build/finish-20261006/after-worker7/installed-verify.json",
+        "report_sha256": "ae2d6db5c5857f4452362c26f516d02d74f6eb118e6bf310de8314ad501868e7",
+        "summary": {
+          "MATCH": 10,
+          "ASM": 1
+        }
+      },
+      "src/Graphics/Effect/eff_afpack.c": {
+        "source_sha256": "48c64b226a673af50b33cd4b7b75ab92236cef4e5a9da7309ea92f61a4fdc6de",
+        "report": "build/finish-20261006/after-worker7/installed-verify.json",
+        "report_sha256": "ae2d6db5c5857f4452362c26f516d02d74f6eb118e6bf310de8314ad501868e7",
+        "summary": {
+          "ASM": 1,
+          "MATCH": 8
+        }
+      },
+      "src/Battle/btlShuffleDraw.c": {
+        "source_sha256": "edf1656665bc52c90e3302c1753ab20595c25dfab1027e80e98f815893edad6b",
+        "report": "build/finish-20261006/fcl-worker5/render-recovery/installed-proof/verify.json",
+        "report_sha256": "9349aae98acf79ac06341ceefe2170653cdf88b5922619af6704fd014eb90035",
+        "summary": {
+          "MATCH": 50,
+          "ASM": 2
+        }
+      }
+    },
+    "combined_report_sha256": "cd89e72c45a7b531d7d1c7b9d3f2236afe9a086800d724793f02a361182db042",
+    "inputs_sha256": "d8bcad2ecd725ca306311a925522058a7dc68319cc9e6b685863b49c9610437e",
+    "summary": {
+      "ASM": 3509,
+      "MATCH": 9593
+    },
+    "summary_first_party": {
+      "ASM": 88,
+      "MATCH": 6773
+    },
+    "new_C_matches": [
+      "001b87e0",
+      "004b8350"
+    ],
+    "remaining_first_party_ASM": 88,
+    "linked_report_sha256": "66ba6dc2998317ca1753a814782634f128bfaef504fcbdb7743646dbf08b0620",
+    "linked_targets": {
+      "001b87e0": {
+        "address": "001b87e0",
+        "file": "src/Battle/btlMain.c",
+        "name": "func_001b87e0",
+        "origin": "main"
+      },
+      "004b8350": {
+        "address": "004b8350",
+        "file": "src/Graphics/Effect/eff_after.c",
+        "name": "func_004b8350",
+        "origin": "main"
+      }
+    },
+    "all_previous_C_linkage_preserved": true,
+    "linked_tu_count": 658,
+    "linked_function_count": 8586,
+    "image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
+    "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c"
+  },
+  "archive_sha256": {
+    "source-inputs.json": "d8bcad2ecd725ca306311a925522058a7dc68319cc9e6b685863b49c9610437e",
+    "remaining.json": "47f820b5e38674d96c5229e20b5faacf8b5f369136c5c5564df7bae8934f0b58"
+  },
+  "private_artifact_sha256": {
+    "build/finish-20261006/batch-3/receipt.json": "e1c13c752a8f8ae3e4e937ac11f5c8e896fda07dc276bcc42035ca280a24cb69",
+    "build/finish-20261006/batch-3/combined-verify.json": "cd89e72c45a7b531d7d1c7b9d3f2236afe9a086800d724793f02a361182db042",
+    "build/finish-20261006/batch-3/linked.json": "66ba6dc2998317ca1753a814782634f128bfaef504fcbdb7743646dbf08b0620",
+    "build/finish-20261006/batch-3/source-inputs.json": "d8bcad2ecd725ca306311a925522058a7dc68319cc9e6b685863b49c9610437e",
+    "build/finish-20261006/batch-3/verification-inputs.json": "311382690391f74b9cc6739f5719c8b7e8b9410cde918a8508a55475fd9664a9"
+  }
+}

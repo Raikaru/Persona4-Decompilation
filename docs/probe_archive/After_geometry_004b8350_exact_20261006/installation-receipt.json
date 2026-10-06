@@ -1,0 +1,44 @@
+{
+  "installed_at_utc": "2026-10-06T07:07:20.154056+00:00",
+  "authorization": "Prime release for direct installation of the two approved hashes.",
+  "owners": [
+    {
+      "owner": "src/Graphics/Effect/eff_after.c",
+      "before_sha256": "836fc3161273a2c3e56e052202209c3bb499fba6bd514de87b2f59ea8c36faf8",
+      "installed_sha256": "3c90fbf82d7de3a5faa2fc8e3e01fba7dbb37d79181d7a11c6a13e8f7130154a"
+    },
+    {
+      "owner": "src/Graphics/Effect/eff_afpack.c",
+      "before_sha256": "523b41c037b0b2aaa74a524db920aa49b4fcca17f78765332f7ab264a00e7289",
+      "installed_sha256": "48c64b226a673af50b33cd4b7b75ab92236cef4e5a9da7309ea92f61a4fdc6de"
+    }
+  ],
+  "complete_owner_proof_sha256": "8d013480718904dfddd14587d58f567c0dec0b3b79b2d90ba474de039442a954",
+  "binary_payloads_retained_in_scratch": 23,
+  "lifecycle": "Owners frozen for batch 3; remaining targets are scratch-only.",
+  "normal_verification": {
+    "completed_session": 80606,
+    "verify": {
+      "report": "build/finish-20261006/after-worker7/installed-verify.json",
+      "report_sha256": "ae2d6db5c5857f4452362c26f516d02d74f6eb118e6bf310de8314ad501868e7",
+      "exit_code": 0,
+      "first_party_summary": {
+        "MATCH": 18,
+        "ASM": 2
+      }
+    },
+    "lint": {
+      "exit_code": 0,
+      "errors": 0,
+      "warnings": 6,
+      "H003": 1,
+      "H011": 5,
+      "review": "Local measured loop-invariant pragma; five unchanged afpack declarations outside this change."
+    },
+    "whitespace": {
+      "command": "git diff --check -- src/Graphics/Effect/eff_after.c src/Graphics/Effect/eff_afpack.c",
+      "exit_code": 0
+    },
+    "archive_contains_only_source_text_and_hashes": true
+  }
+}

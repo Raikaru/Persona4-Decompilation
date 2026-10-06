@@ -1,0 +1,2055 @@
+{
+  "source_sha256": "d98ead8905769e5a47e747fcfdbd8a6fbb22134bab2d23d5f29b05bb9210d4df",
+  "object_sha256": "f45baa79eb2a271d5d57b6708788d852163e72d5179ae42badd9af8c1a5f017a",
+  "functions": {
+    "func_004b6030": {
+      "address": "004b6030",
+      "classification": "ASM",
+      "size": 2256,
+      "window": 2256,
+      "code_sha256": "4ef84f3c8d0b7ecd2f926c1d49acb00dc688fe29e45204111e083b89b5385868",
+      "relocations": [
+        {
+          "offset": 160,
+          "type": 5,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 164,
+          "type": 6,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 172,
+          "type": 4,
+          "target": "func_0046d730"
+        },
+        {
+          "offset": 224,
+          "type": 5,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 228,
+          "type": 6,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 236,
+          "type": 4,
+          "target": "func_0046d730"
+        },
+        {
+          "offset": 352,
+          "type": 5,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 356,
+          "type": 6,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 364,
+          "type": 4,
+          "target": "func_0046d730"
+        },
+        {
+          "offset": 668,
+          "type": 5,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 672,
+          "type": 6,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 680,
+          "type": 4,
+          "target": "func_0044ea90"
+        },
+        {
+          "offset": 696,
+          "type": 5,
+          "target": "jtbl_008873E8"
+        },
+        {
+          "offset": 700,
+          "type": 6,
+          "target": "jtbl_008873E8"
+        },
+        {
+          "offset": 1360,
+          "type": 5,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 1364,
+          "type": 6,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 1372,
+          "type": 4,
+          "target": "func_0046d730"
+        },
+        {
+          "offset": 2132,
+          "type": 4,
+          "target": "func_0043f810"
+        },
+        {
+          "offset": 2176,
+          "type": 4,
+          "target": "func_0043f810"
+        }
+      ],
+      "resolved_sha256": "d4c7b06ca15ab4ab612e8da2db12efabaf8045d65a3ae5dd3b1cb1ed546cb319",
+      "resolved_words": 0,
+      "resolved_offsets": [],
+      "resolved_relocations": [
+        {
+          "offset": 160,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "3c040071",
+          "retail_instruction": "3c040071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 164,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "248446b0",
+          "retail_instruction": "248446b0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 172,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0046d730",
+          "symbol_address": "0x0046d730",
+          "resolved_instruction": "0c11b5cc",
+          "retail_instruction": "0c11b5cc",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 224,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "3c040071",
+          "retail_instruction": "3c040071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 228,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "248446b0",
+          "retail_instruction": "248446b0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 236,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0046d730",
+          "symbol_address": "0x0046d730",
+          "resolved_instruction": "0c11b5cc",
+          "retail_instruction": "0c11b5cc",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 352,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "3c040071",
+          "retail_instruction": "3c040071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 356,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "248446b0",
+          "retail_instruction": "248446b0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 364,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0046d730",
+          "symbol_address": "0x0046d730",
+          "resolved_instruction": "0c11b5cc",
+          "retail_instruction": "0c11b5cc",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 668,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "3c040071",
+          "retail_instruction": "3c040071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 672,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "248446b0",
+          "retail_instruction": "248446b0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 680,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0044ea90",
+          "symbol_address": "0x0044ea90",
+          "resolved_instruction": "0c113aa4",
+          "retail_instruction": "0c113aa4",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 696,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "jtbl_008873E8",
+          "symbol_address": "0x008873e8",
+          "resolved_instruction": "3c020088",
+          "retail_instruction": "3c020088",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 700,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "jtbl_008873E8",
+          "symbol_address": "0x008873e8",
+          "resolved_instruction": "8c4273e8",
+          "retail_instruction": "8c4273e8",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 1360,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "3c040071",
+          "retail_instruction": "3c040071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 1364,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "248446b0",
+          "retail_instruction": "248446b0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 1372,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0046d730",
+          "symbol_address": "0x0046d730",
+          "resolved_instruction": "0c11b5cc",
+          "retail_instruction": "0c11b5cc",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 2132,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0043f810",
+          "symbol_address": "0x0043f810",
+          "resolved_instruction": "0c10fe04",
+          "retail_instruction": "0c10fe04",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 2176,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0043f810",
+          "symbol_address": "0x0043f810",
+          "resolved_instruction": "0c10fe04",
+          "retail_instruction": "0c10fe04",
+          "target_bits_equal": true
+        }
+      ]
+    },
+    "func_004b6900": {
+      "address": "004b6900",
+      "classification": "C",
+      "size": 688,
+      "window": 688,
+      "code_sha256": "fdac845aa22c40bf354752aa4466bacba9d6d36211239158884fbd06c46bbf89",
+      "relocations": [
+        {
+          "offset": 96,
+          "type": 5,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 100,
+          "type": 6,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 108,
+          "type": 4,
+          "target": "func_0044ea90"
+        },
+        {
+          "offset": 124,
+          "type": 5,
+          "target": "jtbl_008873E8"
+        },
+        {
+          "offset": 128,
+          "type": 6,
+          "target": "jtbl_008873E8"
+        },
+        {
+          "offset": 320,
+          "type": 4,
+          "target": "func_004b8df0"
+        },
+        {
+          "offset": 332,
+          "type": 4,
+          "target": "func_003c4140"
+        },
+        {
+          "offset": 400,
+          "type": 4,
+          "target": "func_003c42b0"
+        },
+        {
+          "offset": 488,
+          "type": 4,
+          "target": "func_004b8350"
+        },
+        {
+          "offset": 500,
+          "type": 4,
+          "target": "func_003c00e0"
+        },
+        {
+          "offset": 540,
+          "type": 4,
+          "target": "func_003c0210"
+        },
+        {
+          "offset": 548,
+          "type": 4,
+          "target": "func_003e9320"
+        },
+        {
+          "offset": 572,
+          "type": 4,
+          "target": "RpAtomicSetFrame"
+        },
+        {
+          "offset": 584,
+          "type": 4,
+          "target": "func_003c2a80"
+        },
+        {
+          "offset": 604,
+          "type": 4,
+          "target": "func_004bccf0"
+        },
+        {
+          "offset": 616,
+          "type": 4,
+          "target": "func_003c22f0"
+        }
+      ],
+      "resolved_sha256": "90d2ed91e9381da1c56c7825102ba6973f629b3f6f8c2fe64ebf18bbdb87b468",
+      "resolved_words": 0,
+      "resolved_offsets": [],
+      "resolved_relocations": [
+        {
+          "offset": 96,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "3c040071",
+          "retail_instruction": "3c040071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 100,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "248446b0",
+          "retail_instruction": "248446b0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 108,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0044ea90",
+          "symbol_address": "0x0044ea90",
+          "resolved_instruction": "0c113aa4",
+          "retail_instruction": "0c113aa4",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 124,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "jtbl_008873E8",
+          "symbol_address": "0x008873e8",
+          "resolved_instruction": "3c020088",
+          "retail_instruction": "3c020088",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 128,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "jtbl_008873E8",
+          "symbol_address": "0x008873e8",
+          "resolved_instruction": "8c4273e8",
+          "retail_instruction": "8c4273e8",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 320,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004b8df0",
+          "symbol_address": "0x004b8df0",
+          "resolved_instruction": "0c12e37c",
+          "retail_instruction": "0c12e37c",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 332,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003c4140",
+          "symbol_address": "0x003c4140",
+          "resolved_instruction": "0c0f1050",
+          "retail_instruction": "0c0f1050",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 400,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003c42b0",
+          "symbol_address": "0x003c42b0",
+          "resolved_instruction": "0c0f10ac",
+          "retail_instruction": "0c0f10ac",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 488,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004b8350",
+          "symbol_address": "0x004b8350",
+          "resolved_instruction": "0c12e0d4",
+          "retail_instruction": "0c12e0d4",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 500,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003c00e0",
+          "symbol_address": "0x003c00e0",
+          "resolved_instruction": "0c0f0038",
+          "retail_instruction": "0c0f0038",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 540,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003c0210",
+          "symbol_address": "0x003c0210",
+          "resolved_instruction": "0c0f0084",
+          "retail_instruction": "0c0f0084",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 548,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003e9320",
+          "symbol_address": "0x003e9320",
+          "resolved_instruction": "0c0fa4c8",
+          "retail_instruction": "0c0fa4c8",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 572,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "RpAtomicSetFrame",
+          "symbol_address": "0x003c1b90",
+          "resolved_instruction": "0c0f06e4",
+          "retail_instruction": "0c0f06e4",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 584,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003c2a80",
+          "symbol_address": "0x003c2a80",
+          "resolved_instruction": "0c0f0aa0",
+          "retail_instruction": "0c0f0aa0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 604,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004bccf0",
+          "symbol_address": "0x004bccf0",
+          "resolved_instruction": "0c12f33c",
+          "retail_instruction": "0c12f33c",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 616,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003c22f0",
+          "symbol_address": "0x003c22f0",
+          "resolved_instruction": "0c0f08bc",
+          "retail_instruction": "0c0f08bc",
+          "target_bits_equal": true
+        }
+      ]
+    },
+    "func_004b6bb0": {
+      "address": "004b6bb0",
+      "classification": "C",
+      "size": 216,
+      "window": 224,
+      "code_sha256": "ea5b147a2b583ff937745976f1b10a209c695fac35ce1bf2f8edcdb6e0d0de76",
+      "relocations": [
+        {
+          "offset": 88,
+          "type": 4,
+          "target": "func_004baea0"
+        },
+        {
+          "offset": 160,
+          "type": 4,
+          "target": "func_004baed0"
+        }
+      ],
+      "resolved_sha256": "f4cbdf8dfe0a1022e38b3f4923093eff80f1d5fcbd040e6e6a3b34045ed1661d",
+      "resolved_words": 0,
+      "resolved_offsets": [],
+      "resolved_relocations": [
+        {
+          "offset": 88,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004baea0",
+          "symbol_address": "0x004baea0",
+          "resolved_instruction": "0c12eba8",
+          "retail_instruction": "0c12eba8",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 160,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004baed0",
+          "symbol_address": "0x004baed0",
+          "resolved_instruction": "0c12ebb4",
+          "retail_instruction": "0c12ebb4",
+          "target_bits_equal": true
+        }
+      ]
+    },
+    "func_004b6c90": {
+      "address": "004b6c90",
+      "classification": "C",
+      "size": 260,
+      "window": 272,
+      "code_sha256": "6b57d9caf5c869ef8a9c9a5678eaf431a05d0154acf6f6d71544075795f7f082",
+      "relocations": [
+        {
+          "offset": 28,
+          "type": 7,
+          "target": "D_00764210"
+        },
+        {
+          "offset": 32,
+          "type": 5,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 36,
+          "type": 6,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 44,
+          "type": 4,
+          "target": "func_00440b68"
+        },
+        {
+          "offset": 52,
+          "type": 5,
+          "target": "D_007146C0"
+        },
+        {
+          "offset": 56,
+          "type": 6,
+          "target": "D_007146C0"
+        },
+        {
+          "offset": 64,
+          "type": 4,
+          "target": "func_00454a60"
+        },
+        {
+          "offset": 80,
+          "type": 4,
+          "target": "H_Cdvd_ReadSync"
+        },
+        {
+          "offset": 88,
+          "type": 5,
+          "target": "D_007146C0"
+        },
+        {
+          "offset": 92,
+          "type": 6,
+          "target": "D_007146C0"
+        },
+        {
+          "offset": 100,
+          "type": 4,
+          "target": "func_003ef740"
+        },
+        {
+          "offset": 108,
+          "type": 7,
+          "target": "D_00764CA8"
+        },
+        {
+          "offset": 116,
+          "type": 4,
+          "target": "H_Cdvd_Destroy"
+        },
+        {
+          "offset": 124,
+          "type": 7,
+          "target": "D_00764CA0"
+        },
+        {
+          "offset": 128,
+          "type": 7,
+          "target": "D_00764C9C"
+        },
+        {
+          "offset": 132,
+          "type": 5,
+          "target": "D_007146D0"
+        },
+        {
+          "offset": 136,
+          "type": 6,
+          "target": "D_007146D0"
+        },
+        {
+          "offset": 152,
+          "type": 5,
+          "target": [
+            "functions:func_004b6e40",
+            0
+          ]
+        },
+        {
+          "offset": 156,
+          "type": 6,
+          "target": [
+            "functions:func_004b6e40",
+            0
+          ]
+        },
+        {
+          "offset": 168,
+          "type": 4,
+          "target": "func_00451de0"
+        },
+        {
+          "offset": 176,
+          "type": 7,
+          "target": "D_00764CA4"
+        },
+        {
+          "offset": 180,
+          "type": 5,
+          "target": "D_00922DB0"
+        },
+        {
+          "offset": 184,
+          "type": 6,
+          "target": "D_00922DB0"
+        },
+        {
+          "offset": 196,
+          "type": 4,
+          "target": "memset"
+        },
+        {
+          "offset": 204,
+          "type": 5,
+          "target": [
+            "functions:func_004b6e80",
+            0
+          ]
+        },
+        {
+          "offset": 208,
+          "type": 6,
+          "target": [
+            "functions:func_004b6e80",
+            0
+          ]
+        },
+        {
+          "offset": 212,
+          "type": 5,
+          "target": "D_00922DB8"
+        },
+        {
+          "offset": 216,
+          "type": 6,
+          "target": "D_00922DB8"
+        },
+        {
+          "offset": 220,
+          "type": 5,
+          "target": "D_00922DC0"
+        },
+        {
+          "offset": 224,
+          "type": 6,
+          "target": "D_00922DC0"
+        },
+        {
+          "offset": 228,
+          "type": 7,
+          "target": "D_00764C98"
+        }
+      ],
+      "resolved_sha256": "2e809d03964fff2dc6c0fcbd354e7c70f3e5c35d96361cd8ee4f4bad936192ed",
+      "resolved_words": 0,
+      "resolved_offsets": [],
+      "resolved_relocations": [
+        {
+          "offset": 28,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764210",
+          "symbol_address": "0x00764210",
+          "resolved_instruction": "2784b120",
+          "retail_instruction": "2784b120",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 32,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "3c050071",
+          "retail_instruction": "3c050071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 36,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "24a546b0",
+          "retail_instruction": "24a546b0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 44,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00440b68",
+          "symbol_address": "0x00440b68",
+          "resolved_instruction": "0c1102da",
+          "retail_instruction": "0c1102da",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 52,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146C0",
+          "symbol_address": "0x007146c0",
+          "resolved_instruction": "3c040071",
+          "retail_instruction": "3c040071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 56,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146C0",
+          "symbol_address": "0x007146c0",
+          "resolved_instruction": "248446c0",
+          "retail_instruction": "248446c0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 64,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00454a60",
+          "symbol_address": "0x00454a60",
+          "resolved_instruction": "0c115298",
+          "retail_instruction": "0c115298",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 80,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "H_Cdvd_ReadSync",
+          "symbol_address": "0x00456150",
+          "resolved_instruction": "0c115854",
+          "retail_instruction": "0c115854",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 88,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146C0",
+          "symbol_address": "0x007146c0",
+          "resolved_instruction": "3c040071",
+          "retail_instruction": "3c040071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 92,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146C0",
+          "symbol_address": "0x007146c0",
+          "resolved_instruction": "248446c0",
+          "retail_instruction": "248446c0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 100,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003ef740",
+          "symbol_address": "0x003ef740",
+          "resolved_instruction": "0c0fbdd0",
+          "retail_instruction": "0c0fbdd0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 108,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA8",
+          "symbol_address": "0x00764ca8",
+          "resolved_instruction": "af82bbb8",
+          "retail_instruction": "af82bbb8",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 116,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "H_Cdvd_Destroy",
+          "symbol_address": "0x00454bd0",
+          "resolved_instruction": "0c1152f4",
+          "retail_instruction": "0c1152f4",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 124,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA0",
+          "symbol_address": "0x00764ca0",
+          "resolved_instruction": "af80bbb0",
+          "retail_instruction": "af80bbb0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 128,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764C9C",
+          "symbol_address": "0x00764c9c",
+          "resolved_instruction": "af80bbac",
+          "retail_instruction": "af80bbac",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 132,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146D0",
+          "symbol_address": "0x007146d0",
+          "resolved_instruction": "3c040071",
+          "retail_instruction": "3c040071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 136,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146D0",
+          "symbol_address": "0x007146d0",
+          "resolved_instruction": "248446d0",
+          "retail_instruction": "248446d0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 152,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_004b6e40",
+          "symbol_address": "0x004b6e40",
+          "resolved_instruction": "3c08004b",
+          "retail_instruction": "3c08004b",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 156,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_004b6e40",
+          "symbol_address": "0x004b6e40",
+          "resolved_instruction": "25086e40",
+          "retail_instruction": "25086e40",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 168,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00451de0",
+          "symbol_address": "0x00451de0",
+          "resolved_instruction": "0c114778",
+          "retail_instruction": "0c114778",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 176,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA4",
+          "symbol_address": "0x00764ca4",
+          "resolved_instruction": "af82bbb4",
+          "retail_instruction": "af82bbb4",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 180,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00922DB0",
+          "symbol_address": "0x00922db0",
+          "resolved_instruction": "3c040092",
+          "retail_instruction": "3c040092",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 184,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00922DB0",
+          "symbol_address": "0x00922db0",
+          "resolved_instruction": "24842db0",
+          "retail_instruction": "24842db0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 196,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "memset",
+          "symbol_address": "0x0043f9c8",
+          "resolved_instruction": "0c10fe72",
+          "retail_instruction": "0c10fe72",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 204,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "func_004b6e80",
+          "symbol_address": "0x004b6e80",
+          "resolved_instruction": "3c04004b",
+          "retail_instruction": "3c04004b",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 208,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "func_004b6e80",
+          "symbol_address": "0x004b6e80",
+          "resolved_instruction": "24846e80",
+          "retail_instruction": "24846e80",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 212,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00922DB8",
+          "symbol_address": "0x00922db8",
+          "resolved_instruction": "3c030092",
+          "retail_instruction": "3c030092",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 216,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00922DB8",
+          "symbol_address": "0x00922db8",
+          "resolved_instruction": "ac642db8",
+          "retail_instruction": "ac642db8",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 220,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00922DC0",
+          "symbol_address": "0x00922dc0",
+          "resolved_instruction": "3c030092",
+          "retail_instruction": "3c030092",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 224,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00922DC0",
+          "symbol_address": "0x00922dc0",
+          "resolved_instruction": "ac602dc0",
+          "retail_instruction": "ac602dc0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 228,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764C98",
+          "symbol_address": "0x00764c98",
+          "resolved_instruction": "af90bba8",
+          "retail_instruction": "af90bba8",
+          "target_bits_equal": true
+        }
+      ]
+    },
+    "func_004b6de0": {
+      "address": "004b6de0",
+      "classification": "C",
+      "size": 88,
+      "window": 96,
+      "code_sha256": "c00e92e10474373e99124fd9f3411a24253c0e47131b96d49352338c6e0edd2a",
+      "relocations": [
+        {
+          "offset": 0,
+          "type": 7,
+          "target": "D_00764CA0"
+        }
+      ],
+      "resolved_sha256": "4b94381cc2c5c9c4374ce7bb454dd9db26b1006f3f6911cc3da44eb733b8a3ab",
+      "resolved_words": 0,
+      "resolved_offsets": [],
+      "resolved_relocations": [
+        {
+          "offset": 0,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA0",
+          "symbol_address": "0x00764ca0",
+          "resolved_instruction": "8f82bbb0",
+          "retail_instruction": "8f82bbb0",
+          "target_bits_equal": true
+        }
+      ]
+    },
+    "func_004b6da0": {
+      "address": "004b6da0",
+      "classification": "C",
+      "size": 64,
+      "window": 64,
+      "code_sha256": "392258b30ba7d539e2458085f3bb016cbedab662b89bcbce1a750f1b5d402c11",
+      "relocations": [
+        {
+          "offset": 0,
+          "type": 7,
+          "target": "D_00764C9C"
+        },
+        {
+          "offset": 20,
+          "type": 7,
+          "target": "D_00764CA0"
+        },
+        {
+          "offset": 24,
+          "type": 7,
+          "target": "D_00764C9C"
+        },
+        {
+          "offset": 44,
+          "type": 7,
+          "target": "D_00764C9C"
+        },
+        {
+          "offset": 52,
+          "type": 7,
+          "target": "D_00764C9C"
+        }
+      ],
+      "resolved_sha256": "1f1cb15c372d0f617686cdc219648156e0ff31aede33a8c7fab5ba3f6f25b5b9",
+      "resolved_words": 0,
+      "resolved_offsets": [],
+      "resolved_relocations": [
+        {
+          "offset": 0,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764C9C",
+          "symbol_address": "0x00764c9c",
+          "resolved_instruction": "8f83bbac",
+          "retail_instruction": "8f83bbac",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 20,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA0",
+          "symbol_address": "0x00764ca0",
+          "resolved_instruction": "af84bbb0",
+          "retail_instruction": "af84bbb0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 24,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764C9C",
+          "symbol_address": "0x00764c9c",
+          "resolved_instruction": "af84bbac",
+          "retail_instruction": "af84bbac",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 44,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764C9C",
+          "symbol_address": "0x00764c9c",
+          "resolved_instruction": "8f83bbac",
+          "retail_instruction": "8f83bbac",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 52,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764C9C",
+          "symbol_address": "0x00764c9c",
+          "resolved_instruction": "af84bbac",
+          "retail_instruction": "af84bbac",
+          "target_bits_equal": true
+        }
+      ]
+    },
+    "func_004b6e40": {
+      "address": "004b6e40",
+      "classification": "C",
+      "size": 64,
+      "window": 64,
+      "code_sha256": "ac75c44f608b30e25a0de851130b70d9bbbf2094b708d3b12632eece7e45a184",
+      "relocations": [
+        {
+          "offset": 8,
+          "type": 5,
+          "target": "D_00922DB0"
+        },
+        {
+          "offset": 12,
+          "type": 6,
+          "target": "D_00922DB0"
+        },
+        {
+          "offset": 16,
+          "type": 5,
+          "target": "D_00922DB4"
+        },
+        {
+          "offset": 20,
+          "type": 6,
+          "target": "D_00922DB4"
+        },
+        {
+          "offset": 24,
+          "type": 7,
+          "target": "D_00764C98"
+        },
+        {
+          "offset": 28,
+          "type": 5,
+          "target": "D_00922DB0"
+        },
+        {
+          "offset": 32,
+          "type": 6,
+          "target": "D_00922DB0"
+        },
+        {
+          "offset": 36,
+          "type": 4,
+          "target": "func_00460ac0"
+        }
+      ],
+      "resolved_sha256": "989530700acb4c77d0845d332a4331396abdb429fe91a710605e8669b6ef201e",
+      "resolved_words": 0,
+      "resolved_offsets": [],
+      "resolved_relocations": [
+        {
+          "offset": 8,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00922DB0",
+          "symbol_address": "0x00922db0",
+          "resolved_instruction": "3c020092",
+          "retail_instruction": "3c020092",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 12,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00922DB0",
+          "symbol_address": "0x00922db0",
+          "resolved_instruction": "ac402db0",
+          "retail_instruction": "ac402db0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 16,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00922DB4",
+          "symbol_address": "0x00922db4",
+          "resolved_instruction": "3c020092",
+          "retail_instruction": "3c020092",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 20,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00922DB4",
+          "symbol_address": "0x00922db4",
+          "resolved_instruction": "ac402db4",
+          "retail_instruction": "ac402db4",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 24,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764C98",
+          "symbol_address": "0x00764c98",
+          "resolved_instruction": "8f84bba8",
+          "retail_instruction": "8f84bba8",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 28,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_00922DB0",
+          "symbol_address": "0x00922db0",
+          "resolved_instruction": "3c050092",
+          "retail_instruction": "3c050092",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 32,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_00922DB0",
+          "symbol_address": "0x00922db0",
+          "resolved_instruction": "24a52db0",
+          "retail_instruction": "24a52db0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 36,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_00460ac0",
+          "symbol_address": "0x00460ac0",
+          "resolved_instruction": "0c1182b0",
+          "retail_instruction": "0c1182b0",
+          "target_bits_equal": true
+        }
+      ]
+    },
+    "func_004b6e80": {
+      "address": "004b6e80",
+      "classification": "C",
+      "size": 692,
+      "window": 704,
+      "code_sha256": "9b15b27ec1681c5da1108d214565788affe13a2a8102bcdcca4515b82ef3a2d3",
+      "relocations": [
+        {
+          "offset": 28,
+          "type": 7,
+          "target": "D_00764CA0"
+        },
+        {
+          "offset": 68,
+          "type": 4,
+          "target": "func_004b5950"
+        },
+        {
+          "offset": 100,
+          "type": 4,
+          "target": "func_004b5950"
+        },
+        {
+          "offset": 136,
+          "type": 7,
+          "target": "D_00764CA0"
+        },
+        {
+          "offset": 184,
+          "type": 4,
+          "target": "func_004bce30"
+        },
+        {
+          "offset": 228,
+          "type": 7,
+          "target": "D_00764CA0"
+        },
+        {
+          "offset": 240,
+          "type": 5,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 244,
+          "type": 6,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 252,
+          "type": 4,
+          "target": "func_0046d730"
+        },
+        {
+          "offset": 260,
+          "type": 7,
+          "target": "D_00764C9C"
+        },
+        {
+          "offset": 272,
+          "type": 5,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 276,
+          "type": 6,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 284,
+          "type": 4,
+          "target": "func_0046d730"
+        },
+        {
+          "offset": 332,
+          "type": 7,
+          "target": "D_00764C9C"
+        },
+        {
+          "offset": 348,
+          "type": 7,
+          "target": "D_00764C9C"
+        },
+        {
+          "offset": 352,
+          "type": 7,
+          "target": "D_00764CA0"
+        },
+        {
+          "offset": 368,
+          "type": 7,
+          "target": "D_00764CA0"
+        },
+        {
+          "offset": 408,
+          "type": 4,
+          "target": "func_004b8f10"
+        },
+        {
+          "offset": 436,
+          "type": 4,
+          "target": "func_003e9390"
+        },
+        {
+          "offset": 456,
+          "type": 4,
+          "target": "func_003c02e0"
+        },
+        {
+          "offset": 476,
+          "type": 4,
+          "target": "func_003c4220"
+        },
+        {
+          "offset": 508,
+          "type": 5,
+          "target": "DAT_008873ec_abs"
+        },
+        {
+          "offset": 512,
+          "type": 6,
+          "target": "DAT_008873ec_abs"
+        },
+        {
+          "offset": 556,
+          "type": 7,
+          "target": "D_00764CA0"
+        },
+        {
+          "offset": 588,
+          "type": 4,
+          "target": "func_004b5c60"
+        },
+        {
+          "offset": 620,
+          "type": 4,
+          "target": "func_004b5c60"
+        }
+      ],
+      "resolved_sha256": "fbed35fb066a47ead478215d4043d156672f75f98f6e80f4cdf4833facc1532b",
+      "resolved_words": 0,
+      "resolved_offsets": [],
+      "resolved_relocations": [
+        {
+          "offset": 28,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA0",
+          "symbol_address": "0x00764ca0",
+          "resolved_instruction": "8f90bbb0",
+          "retail_instruction": "8f90bbb0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 68,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004b5950",
+          "symbol_address": "0x004b5950",
+          "resolved_instruction": "0c12d654",
+          "retail_instruction": "0c12d654",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 100,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004b5950",
+          "symbol_address": "0x004b5950",
+          "resolved_instruction": "0c12d654",
+          "retail_instruction": "0c12d654",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 136,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA0",
+          "symbol_address": "0x00764ca0",
+          "resolved_instruction": "8f92bbb0",
+          "retail_instruction": "8f92bbb0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 184,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004bce30",
+          "symbol_address": "0x004bce30",
+          "resolved_instruction": "0c12f38c",
+          "retail_instruction": "0c12f38c",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 228,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA0",
+          "symbol_address": "0x00764ca0",
+          "resolved_instruction": "8f82bbb0",
+          "retail_instruction": "8f82bbb0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 240,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "3c040071",
+          "retail_instruction": "3c040071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 244,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "248446b0",
+          "retail_instruction": "248446b0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 252,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0046d730",
+          "symbol_address": "0x0046d730",
+          "resolved_instruction": "0c11b5cc",
+          "retail_instruction": "0c11b5cc",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 260,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764C9C",
+          "symbol_address": "0x00764c9c",
+          "resolved_instruction": "8f82bbac",
+          "retail_instruction": "8f82bbac",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 272,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "3c040071",
+          "retail_instruction": "3c040071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 276,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "248446b0",
+          "retail_instruction": "248446b0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 284,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0046d730",
+          "symbol_address": "0x0046d730",
+          "resolved_instruction": "0c11b5cc",
+          "retail_instruction": "0c11b5cc",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 332,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764C9C",
+          "symbol_address": "0x00764c9c",
+          "resolved_instruction": "8f82bbac",
+          "retail_instruction": "8f82bbac",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 348,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764C9C",
+          "symbol_address": "0x00764c9c",
+          "resolved_instruction": "af82bbac",
+          "retail_instruction": "af82bbac",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 352,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA0",
+          "symbol_address": "0x00764ca0",
+          "resolved_instruction": "8f82bbb0",
+          "retail_instruction": "8f82bbb0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 368,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA0",
+          "symbol_address": "0x00764ca0",
+          "resolved_instruction": "af82bbb0",
+          "retail_instruction": "af82bbb0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 408,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004b8f10",
+          "symbol_address": "0x004b8f10",
+          "resolved_instruction": "0c12e3c4",
+          "retail_instruction": "0c12e3c4",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 436,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003e9390",
+          "symbol_address": "0x003e9390",
+          "resolved_instruction": "0c0fa4e4",
+          "retail_instruction": "0c0fa4e4",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 456,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003c02e0",
+          "symbol_address": "0x003c02e0",
+          "resolved_instruction": "0c0f00b8",
+          "retail_instruction": "0c0f00b8",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 476,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003c4220",
+          "symbol_address": "0x003c4220",
+          "resolved_instruction": "0c0f1088",
+          "retail_instruction": "0c0f1088",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 508,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "DAT_008873ec_abs",
+          "symbol_address": "0x008873ec",
+          "resolved_instruction": "3c110088",
+          "retail_instruction": "3c110088",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 512,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "DAT_008873ec_abs",
+          "symbol_address": "0x008873ec",
+          "resolved_instruction": "263173ec",
+          "retail_instruction": "263173ec",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 556,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA0",
+          "symbol_address": "0x00764ca0",
+          "resolved_instruction": "8f90bbb0",
+          "retail_instruction": "8f90bbb0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 588,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004b5c60",
+          "symbol_address": "0x004b5c60",
+          "resolved_instruction": "0c12d718",
+          "retail_instruction": "0c12d718",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 620,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004b5c60",
+          "symbol_address": "0x004b5c60",
+          "resolved_instruction": "0c12d718",
+          "retail_instruction": "0c12d718",
+          "target_bits_equal": true
+        }
+      ]
+    },
+    "func_004b7140": {
+      "address": "004b7140",
+      "classification": "C",
+      "size": 440,
+      "window": 448,
+      "code_sha256": "1436fc738005ef1c58f9fa6f7dc832863f2827796472116e4bab35d168921524",
+      "relocations": [
+        {
+          "offset": 36,
+          "type": 7,
+          "target": "D_00764CA0"
+        },
+        {
+          "offset": 72,
+          "type": 7,
+          "target": "D_00764CA0"
+        },
+        {
+          "offset": 84,
+          "type": 5,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 88,
+          "type": 6,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 96,
+          "type": 4,
+          "target": "func_0046d730"
+        },
+        {
+          "offset": 104,
+          "type": 7,
+          "target": "D_00764C9C"
+        },
+        {
+          "offset": 116,
+          "type": 5,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 120,
+          "type": 6,
+          "target": "D_007146B0"
+        },
+        {
+          "offset": 128,
+          "type": 4,
+          "target": "func_0046d730"
+        },
+        {
+          "offset": 176,
+          "type": 7,
+          "target": "D_00764C9C"
+        },
+        {
+          "offset": 192,
+          "type": 7,
+          "target": "D_00764C9C"
+        },
+        {
+          "offset": 196,
+          "type": 7,
+          "target": "D_00764CA0"
+        },
+        {
+          "offset": 212,
+          "type": 7,
+          "target": "D_00764CA0"
+        },
+        {
+          "offset": 252,
+          "type": 4,
+          "target": "func_004b8f10"
+        },
+        {
+          "offset": 280,
+          "type": 4,
+          "target": "func_003e9390"
+        },
+        {
+          "offset": 300,
+          "type": 4,
+          "target": "func_003c02e0"
+        },
+        {
+          "offset": 320,
+          "type": 4,
+          "target": "func_003c4220"
+        },
+        {
+          "offset": 352,
+          "type": 5,
+          "target": "jtbl_008873EC"
+        },
+        {
+          "offset": 356,
+          "type": 6,
+          "target": "jtbl_008873EC"
+        }
+      ],
+      "resolved_sha256": "b17f2dbc846ec9a84aab593f0a4ba26d97b0217261a92db8ded63b87275be72f",
+      "resolved_words": 0,
+      "resolved_offsets": [],
+      "resolved_relocations": [
+        {
+          "offset": 36,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA0",
+          "symbol_address": "0x00764ca0",
+          "resolved_instruction": "8f93bbb0",
+          "retail_instruction": "8f93bbb0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 72,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA0",
+          "symbol_address": "0x00764ca0",
+          "resolved_instruction": "8f82bbb0",
+          "retail_instruction": "8f82bbb0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 84,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "3c040071",
+          "retail_instruction": "3c040071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 88,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "248446b0",
+          "retail_instruction": "248446b0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 96,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0046d730",
+          "symbol_address": "0x0046d730",
+          "resolved_instruction": "0c11b5cc",
+          "retail_instruction": "0c11b5cc",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 104,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764C9C",
+          "symbol_address": "0x00764c9c",
+          "resolved_instruction": "8f82bbac",
+          "retail_instruction": "8f82bbac",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 116,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "3c040071",
+          "retail_instruction": "3c040071",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 120,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_007146B0",
+          "symbol_address": "0x007146b0",
+          "resolved_instruction": "248446b0",
+          "retail_instruction": "248446b0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 128,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_0046d730",
+          "symbol_address": "0x0046d730",
+          "resolved_instruction": "0c11b5cc",
+          "retail_instruction": "0c11b5cc",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 176,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764C9C",
+          "symbol_address": "0x00764c9c",
+          "resolved_instruction": "8f82bbac",
+          "retail_instruction": "8f82bbac",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 192,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764C9C",
+          "symbol_address": "0x00764c9c",
+          "resolved_instruction": "af82bbac",
+          "retail_instruction": "af82bbac",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 196,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA0",
+          "symbol_address": "0x00764ca0",
+          "resolved_instruction": "8f82bbb0",
+          "retail_instruction": "8f82bbb0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 212,
+          "r_type": 7,
+          "type": "R_MIPS_GPREL16",
+          "symbol": "D_00764CA0",
+          "symbol_address": "0x00764ca0",
+          "resolved_instruction": "af82bbb0",
+          "retail_instruction": "af82bbb0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 252,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_004b8f10",
+          "symbol_address": "0x004b8f10",
+          "resolved_instruction": "0c12e3c4",
+          "retail_instruction": "0c12e3c4",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 280,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003e9390",
+          "symbol_address": "0x003e9390",
+          "resolved_instruction": "0c0fa4e4",
+          "retail_instruction": "0c0fa4e4",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 300,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003c02e0",
+          "symbol_address": "0x003c02e0",
+          "resolved_instruction": "0c0f00b8",
+          "retail_instruction": "0c0f00b8",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 320,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_003c4220",
+          "symbol_address": "0x003c4220",
+          "resolved_instruction": "0c0f1088",
+          "retail_instruction": "0c0f1088",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 352,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "jtbl_008873EC",
+          "symbol_address": "0x008873ec",
+          "resolved_instruction": "3c100088",
+          "retail_instruction": "3c100088",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 356,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "jtbl_008873EC",
+          "symbol_address": "0x008873ec",
+          "resolved_instruction": "261073ec",
+          "retail_instruction": "261073ec",
+          "target_bits_equal": true
+        }
+      ]
+    }
+  },
+  "data_sections": {},
+  "data_relocations": [],
+  "data_proof": [],
+  "data_placement_excluded": [
+    "func_004b6030"
+  ]
+}

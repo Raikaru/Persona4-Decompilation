@@ -1,0 +1,41 @@
+{
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "functions": {
+    "003c2130": {
+      "role": "Triangle vertex-index provider",
+      "bytes": 32,
+      "retail_sha256": "fef1679dc38a66ab0f87f2637b290f3f0655c5c399ce76bf5c07fe51ccd975dd",
+      "disassembly_sha256": "409368d1def917a11d176832384b6a023c10eec63ce428e27765338b8d24258b"
+    },
+    "003c2150": {
+      "role": "Triangle material provider",
+      "bytes": 144,
+      "retail_sha256": "d574792c6716488b8b7057c8e6b173d42a268228d639a5b4eb26e23ef1163cbf",
+      "disassembly_sha256": "8973be9ba36a624d5468e606a49343ae840b163af886dfefb218f4fb6569c372"
+    },
+    "003c2630": {
+      "role": "Geometry constructor provider",
+      "bytes": 1072,
+      "retail_sha256": "56041f4cc58af1411c1a5864528092ff1b70fc3f076ffdd39587f84e93aea6a0",
+      "disassembly_sha256": "044fbd99b71c6d8f133dcf9e8294bcd2fbaef9cdd9b54bbca685cd33ef9829a6"
+    },
+    "003c4140": {
+      "role": "Material constructor used by caller",
+      "bytes": 224,
+      "retail_sha256": "150cd5023e54ec4985c28b6f23e316b841b2527cd5c226129dfbc24493acedeb",
+      "disassembly_sha256": "556536b6aca1f30f2445bf35e642bb6f319817246f9dce41a089ca989e42df84"
+    },
+    "004b6900": {
+      "role": "Sole geometry-builder caller and material record",
+      "bytes": 688,
+      "retail_sha256": "90d2ed91e9381da1c56c7825102ba6973f629b3f6f8c2fe64ebf18bbdb87b468",
+      "disassembly_sha256": "ec9c0c106bc818c4964112afaf4916693f717e504645003d7d899640867d0b55"
+    },
+    "004b8350": {
+      "role": "Exact recovered geometry-builder reference",
+      "bytes": 2720,
+      "retail_sha256": "32a24bc42047739bd52da2808da79c08b879affca4da2764c5a7171e604c25e9",
+      "disassembly_sha256": "0a527c128c821bfb84fb36d86b4224cbc527fff6a72146ed0004ab2636c46aa9"
+    }
+  }
+}

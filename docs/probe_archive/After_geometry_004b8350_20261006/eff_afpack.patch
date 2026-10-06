@@ -1,0 +1,21 @@
+--- a/src/Graphics/Effect/eff_afpack.c
++++ b/src/Graphics/Effect/eff_afpack.c
+@@ -53,7 +53,8 @@
+ extern void func_004b8df0(void* arg0, void* arg1);
+ extern s32 func_003c4140(void);
+ extern void func_003c42b0(void* a, void* b);
+-extern u8* func_004b8350(void* a, void* b);
++struct RpMaterial;
++extern u8* func_004b8350(u8* a, struct RpMaterial* material);
+ extern s32 func_003c00e0(void);
+ extern void func_003c0210(void* a, void* b, s32 c);
+ extern s32 func_003e9320(void);
+@@ -369,7 +370,7 @@
+             }
+             *(Color4*)(*(u8**)(*(u8**)(node + 0xC) + i * 8 + 4) + 4) = color;
+             temp = func_004b8350(*(u8**)(node + 8) + i * 0x3C,
+-                                 *(u8**)(*(u8**)(node + 0xC) + i * 8 + 4));
++                                 *(struct RpMaterial**)(*(u8**)(node + 0xC) + i * 8 + 4));
+             *(s32*)(*(u8**)(node + 0xC) + i * 8) = func_003c00e0();
+             func_003c0210(*(u8**)(*(u8**)(node + 0xC) + i * 8), temp, 0);
+             RpAtomicSetFrame(*(u8**)(*(u8**)(node + 0xC) + i * 8),

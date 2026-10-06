@@ -546,14 +546,9 @@ BtlPacket* func_001b83f0(s32 param_1, s32 param_2, s32 param_3, u32 param_4, u16
 
 
 
-/* Measured in the complete owner with b210: 2944/2944 bytes, 13 differing
- * instruction words in the loop's hoisted color-quantization constants.
- * The five-vector work record matches the constructor's 0x5C allocation.
- * Complete RGBA objects replace scalar-adjacent reads, and every blended
- * fourth component includes its target contribution times the frame ratio.
- * Production remains ASM. See Finish_first_party_worker1_20261005.md. */
-// FUN_001B87E0 NONMATCHING
-#ifdef NON_MATCHING
+/* The five-vector work record matches the constructor's 0x5C allocation.
+ * Both alpha contributions are weighted before their sum, preserving the
+ * retail multiply-accumulate chain and the rounding constants' lifetimes. */
 typedef struct BtlMainFadeWork
 {
     RwV4d from0;
@@ -574,6 +569,8 @@ static inline void btlMainColorToV4d(RwV4d *out, const BtlCameraPalette *color)
     out->w = color->alpha * (1.0f / 255.0f);
 }
 
+/* Hoist the unit loop's color-conversion constants, as in retail. */
+// FUN_001B87E0
 #pragma push
 #pragma opt_loop_invariants on
 u32 func_001b87e0(void *workRaw)
@@ -729,11 +726,11 @@ u32 func_001b87e0(void *workRaw)
                         secondX = target.x * ratio;
                         secondY = target.y * ratio;
                         secondZ = target.z * ratio;
-                        secondW = target.w;
+                        secondW = target.w * ratio;
                         tmp.x = firstX + secondX;
                         tmp.y = firstY + secondY;
                         tmp.z = firstZ + secondZ;
-                        tmp.w = firstW + secondW * ratio;
+                        tmp.w = firstW + secondW;
                         unit[0x3c] = (s32)(0.5f + 255.0f * tmp.x);
                         unit[0x3d] = (s32)(0.5f + 255.0f * tmp.y);
                         unit[0x3e] = (s32)(0.5f + 255.0f * tmp.z);
@@ -774,9 +771,6 @@ u32 func_001b87e0(void *workRaw)
     return 0;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b87e0);
-#endif
 // FUN_001B9360
 BtlPacket* func_001b9360(s32 arg, s16 mode)
 {

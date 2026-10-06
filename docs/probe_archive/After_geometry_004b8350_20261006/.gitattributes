@@ -1,0 +1,3 @@
+# These source snapshots and diagnostic logs have byte-level proof hashes.
+# Keep their original line endings and recorded whitespace on every platform.
+** -text -whitespace

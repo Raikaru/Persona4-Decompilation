@@ -25,6 +25,28 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 6 continuation: 6,773 MATCH / 88 ASM
+
+Three integrated batches now include exact C for the map updater `002add90`,
+minimap constructor `002ae630`, battle color fade `001b87e0` and After geometry
+builder `004b8350`. Their complete-owner proofs preserve native references,
+owned storage and all default and guarded siblings. Both retail hashes pass,
+with all 604 game/vendor C objects and 54 Sony SDK objects retained.
+
+The current source-bound queue, input hashes, build receipts and installed
+contract and storage repairs are recorded in
+[`First_party_continuation_20261006`](probe_archive/First_party_continuation_20261006/README.md).
+Its third-batch verifier has 6,773 first-party MATCH and 88 ASM; the README and
+progress endpoints use that sealed report. Guarded list, contour and shuffle
+repairs are not counted as exact C. Further first-party recovery remains open.
+
+Two new exact closures followed authenticated native compiler traces. The
+battle fade's actual alpha contribution had to be formed before its sum;
+the After builder's two real strip cursors had to remain separate source
+phases. Each trace was accepted only after the direct and instrumented whole
+objects matched. Earlier nonzero probe scores bound those source inputs,
+not all legitimate C implementations.
+
 ## October 5 continuation: 6,767 MATCH / 94 ASM
 
 The recovered continuation was updated to upstream `1ce92c49`. The motion

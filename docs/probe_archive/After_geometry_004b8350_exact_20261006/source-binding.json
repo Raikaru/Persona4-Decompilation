@@ -1,0 +1,17 @@
+{
+  "result": "Exact C candidate; production installation is owned by prime.",
+  "target": "004b8350",
+  "archived_proposal": "docs/probe_archive/After_geometry_004b8350_20261006",
+  "sources": {
+    "after-promoted.c": "3c90fbf82d7de3a5faa2fc8e3e01fba7dbb37d79181d7a11c6a13e8f7130154a",
+    "after-original.c": "836fc3161273a2c3e56e052202209c3bb499fba6bd514de87b2f59ea8c36faf8",
+    "after-reviewed32.c": "45c0c306ad74e7fb6196225b3ada39999849f23625f5e2928b3d805f27f170f0",
+    "afpack-caller.c": "48c64b226a673af50b33cd4b7b75ab92236cef4e5a9da7309ea92f61a4fdc6de",
+    "afpack-original.c": "523b41c037b0b2aaa74a524db920aa49b4fcca17f78765332f7ab264a00e7289",
+    "owner_evidence.py": "ac7e091b55d2cc7ce14f02ac4542fcd3cacb99de600bb9ad01d2934237ba09bd",
+    "replay.py": "bdd0694cd160f4e86af4bd498264343f215a02169dfc9fde15efe7bc0c619bff"
+  },
+  "measured_pre_cleanup_owner": "8b91d90cc9d8cb3d461d9f55a5af4ffa6a552929660108d588716fe8cc79ead8",
+  "prediction": "Explicit branch cursors precede the retained vertex count in the native simplify order.",
+  "observational_capture": "build/finish-20261006/after-worker7/captures/archive-baseline/receipt.json"
+}

@@ -1,0 +1,194 @@
+[
+  {
+    "offset": 88,
+    "address": "004b83a8",
+    "retail": "move $s2, $zero",
+    "candidate": "move $s3, $zero"
+  },
+  {
+    "offset": 160,
+    "address": "004b83f0",
+    "retail": "addiu $s2, $v0, 1",
+    "candidate": "addiu $s3, $v0, 1"
+  },
+  {
+    "offset": 196,
+    "address": "004b8414",
+    "retail": "addiu $s2, $v0, 6",
+    "candidate": "addiu $s3, $v0, 6"
+  },
+  {
+    "offset": 232,
+    "address": "004b8438",
+    "retail": "addiu $s2, $v0, 6",
+    "candidate": "addiu $s3, $v0, 6"
+  },
+  {
+    "offset": 236,
+    "address": "004b843c",
+    "retail": "move $a0, $s2",
+    "candidate": "move $a0, $s3"
+  },
+  {
+    "offset": 256,
+    "address": "004b8450",
+    "retail": "lw $s3, 0x2c($v0)",
+    "candidate": "lw $s2, 0x2c($v0)"
+  },
+  {
+    "offset": 344,
+    "address": "004b84a8",
+    "retail": "move $a1, $s3",
+    "candidate": "move $a1, $s2"
+  },
+  {
+    "offset": 376,
+    "address": "004b84c8",
+    "retail": "addiu $a1, $s3, 8",
+    "candidate": "addiu $a1, $s2, 8"
+  },
+  {
+    "offset": 388,
+    "address": "004b84d4",
+    "retail": "addiu $s3, $s3, 0x10",
+    "candidate": "addiu $s2, $s2, 0x10"
+  },
+  {
+    "offset": 448,
+    "address": "004b8510",
+    "retail": "move $a1, $s3",
+    "candidate": "move $a1, $s2"
+  },
+  {
+    "offset": 472,
+    "address": "004b8528",
+    "retail": "move $a1, $s3",
+    "candidate": "move $a1, $s2"
+  },
+  {
+    "offset": 496,
+    "address": "004b8540",
+    "retail": "addiu $a1, $s3, 8",
+    "candidate": "addiu $a1, $s2, 8"
+  },
+  {
+    "offset": 520,
+    "address": "004b8558",
+    "retail": "addiu $s3, $s3, 0x10",
+    "candidate": "addiu $s2, $s2, 0x10"
+  },
+  {
+    "offset": 568,
+    "address": "004b8588",
+    "retail": "move $a1, $s3",
+    "candidate": "move $a1, $s2"
+  },
+  {
+    "offset": 604,
+    "address": "004b85ac",
+    "retail": "addiu $a1, $s3, 8",
+    "candidate": "addiu $a1, $s2, 8"
+  },
+  {
+    "offset": 644,
+    "address": "004b85d4",
+    "retail": "addiu $a1, $s3, 0x10",
+    "candidate": "addiu $a1, $s2, 0x10"
+  },
+  {
+    "offset": 680,
+    "address": "004b85f8",
+    "retail": "addiu $a1, $s3, 0x18",
+    "candidate": "addiu $a1, $s2, 0x18"
+  },
+  {
+    "offset": 692,
+    "address": "004b8604",
+    "retail": "addiu $s3, $s3, 0x20",
+    "candidate": "addiu $s2, $s2, 0x20"
+  },
+  {
+    "offset": 752,
+    "address": "004b8640",
+    "retail": "move $a1, $s3",
+    "candidate": "move $a1, $s2"
+  },
+  {
+    "offset": 784,
+    "address": "004b8660",
+    "retail": "addiu $a1, $s3, 8",
+    "candidate": "addiu $a1, $s2, 8"
+  },
+  {
+    "offset": 812,
+    "address": "004b867c",
+    "retail": "move $a1, $s3",
+    "candidate": "move $a1, $s2"
+  },
+  {
+    "offset": 836,
+    "address": "004b8694",
+    "retail": "addiu $a1, $s3, 8",
+    "candidate": "addiu $a1, $s2, 8"
+  },
+  {
+    "offset": 860,
+    "address": "004b86ac",
+    "retail": "addiu $s3, $s3, 0x10",
+    "candidate": "addiu $s2, $s2, 0x10"
+  },
+  {
+    "offset": 908,
+    "address": "004b86dc",
+    "retail": "move $a1, $s3",
+    "candidate": "move $a1, $s2"
+  },
+  {
+    "offset": 944,
+    "address": "004b8700",
+    "retail": "addiu $a1, $s3, 8",
+    "candidate": "addiu $a1, $s2, 8"
+  },
+  {
+    "offset": 984,
+    "address": "004b8728",
+    "retail": "addiu $a1, $s3, 0x10",
+    "candidate": "addiu $a1, $s2, 0x10"
+  },
+  {
+    "offset": 1020,
+    "address": "004b874c",
+    "retail": "addiu $a1, $s3, 0x18",
+    "candidate": "addiu $a1, $s2, 0x18"
+  },
+  {
+    "offset": 1032,
+    "address": "004b8758",
+    "retail": "addiu $s3, $s3, 0x20",
+    "candidate": "addiu $s2, $s2, 0x20"
+  },
+  {
+    "offset": 1092,
+    "address": "004b8794",
+    "retail": "move $a1, $s3",
+    "candidate": "move $a1, $s2"
+  },
+  {
+    "offset": 1124,
+    "address": "004b87b4",
+    "retail": "addiu $a1, $s3, 8",
+    "candidate": "addiu $a1, $s2, 8"
+  },
+  {
+    "offset": 1588,
+    "address": "004b8984",
+    "retail": "slt $v0, $a0, $s2",
+    "candidate": "slt $v0, $a0, $s3"
+  },
+  {
+    "offset": 1648,
+    "address": "004b89c0",
+    "retail": "slt $v0, $a0, $s2",
+    "candidate": "slt $v0, $a0, $s3"
+  }
+]
